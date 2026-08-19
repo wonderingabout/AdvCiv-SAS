@@ -1,0 +1,592 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 12
+# Commit: 22d2a730819e45494dd3e8ff9e720838a9b71085
+# History segment: K-Mod history
+# Parent used for diff: 1489dd37bf0a3eecbd2859e4928d1905ffeec72c
+# Title: Added mouse-over text to environmental advisor screen; made some minor balance changes. (CvGameCoreDLL)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	1	CvGameCoreDLL/CvCity.cpp
+88	9	CvGameCoreDLL/CvDLLWidgetData.cpp
+9	0	CvGameCoreDLL/CvDLLWidgetData.h
+1	1	CvGameCoreDLL/CvDefines.h
+13	0	CvGameCoreDLL/CvEnums.h
+4	5	CvGameCoreDLL/CvGame.cpp
+35	24	CvGameCoreDLL/CvGameTextMgr.cpp
+11	7	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+28	2	CvGameCoreDLL/CyEnumsInterface.cpp
+5	0	CvGameCoreDLL/CyPlayer.cpp
+1	0	CvGameCoreDLL/CyPlayer.h
+1	0	CvGameCoreDLL/CyPlayerInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 1fdce17c8..fd8637728 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4377,6 +4377,14 @@ int CvCity::unhappyLevel(int iExtra) const
+ 		iAngerPercent += getConscriptPercentAnger(iExtra);
+ 		iAngerPercent += getDefyResolutionPercentAnger(iExtra);
+ 		iAngerPercent += getWarWearinessPercentAnger();
++/*
++** K-Mod, 5/jan/11, karadoc
++** global warming anger _percent_; as part per 100.
++** Unfortunately, people who made the rest of the game used anger percent to mean part per 1000
++** so I have to multiply my GwPercentAnger by 10 to make it fit in.
++*/
++		iAngerPercent += std::max(0, GET_PLAYER(getOwnerINLINE()).calculateGwPercentAnger()*10);
++// K-Mod end
+ 
+ 		for (iI = 0; iI < GC.getNumCivicInfos(); iI++)
+ 		{
+@@ -4400,7 +4408,6 @@ int CvCity::unhappyLevel(int iExtra) const
+ 		iUnhappiness -= std::min(0, GC.getHandicapInfo(getHandicapType()).getHappyBonus());
+ 		iUnhappiness += std::max(0, getVassalUnhappiness());
+ 		iUnhappiness += std::max(0, getEspionageHappinessCounter());
+-		iUnhappiness += std::max(0, GET_PLAYER(getOwnerINLINE()).calculateGwUnhappiness()); // K-Mod
+ 	}
+ 
+ 	return std::max(0, iUnhappiness);
+@@ -6543,6 +6550,10 @@ int CvCity::getAdditionalHappinessByBuilding(BuildingTypes eBuilding, int& iGood
+ 		iBad += iNewUnhappiness - iCurrentUnhappiness;
+ 	}
+ 	
++	// K-Mod TODO: think about how you might include change to global warming anger
++	// also, this function doesn't take into account the possibility of the city already having 'NoUnhappiness'.
++	// therefore the results will be inaccurate if the city has the globe theatre, for example.
++
+ 	// No Unhappiness
+ 	if (kBuilding.isNoUnhappiness())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 6f60c9e71..9a14ed14e 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -573,7 +573,31 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_COMMERCE_MOD_HELP:
+ 		parseCommerceModHelp(widgetDataStruct, szBuffer);
+ 		break;
+-
++/*
++** K-Mod, 5/jan/11, karadoc
++** environmental advisor widgets
++*/
++	case WIDGET_HELP_POLLUTION_OFFSETS:
++		parsePollutionOffsetsHelp(widgetDataStruct, szBuffer);
++		break;
++	case WIDGET_HELP_POLLUTION_SOURCE:
++		parsePollutionHelp(widgetDataStruct, szBuffer);
++		break;
++	case WIDGET_HELP_SUSTAINABILITY_THRESHOLD:
++		szBuffer.assign(gDLL->getText("TXT_KEY_SUSTAINABILITY_THRESHOLD_HELP"));
++		break;
++	case WIDGET_HELP_GW_RELATIVE_CONTRIBUTION:
++		szBuffer.assign(gDLL->getText("TXT_KEY_GW_RELATIVE_CONTRIBUTION_HELP"));
++		break;
++	case WIDGET_HELP_GW_INDEX:
++		szBuffer.assign(gDLL->getText("TXT_KEY_GW_INDEX_HELP"));
++		break;
++	case WIDGET_HELP_GW_UNHAPPY:
++		szBuffer.assign(gDLL->getText("TXT_KEY_GW_UNHAPPY_HELP"));
++		break;
++/*
++** K-Mod end
++*/
+ 	}
+ }
+ 
+@@ -1304,18 +1328,23 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 		if( gDLL->shiftKey() )
+ 		{
+ 			// Warning: use of this is not multiplayer compatible
+-			if (GET_TEAM(GC.getGameINLINE().getActiveTeam()).canDeclareWar(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam()))
++// K-Mod, karadoc: since it isn't MP compatible, I'm going to disable it in multiplayer mode...
++			if (!GC.getGameINLINE().isGameMultiPlayer()) // K-Mod
+ 			{
+-				if( GET_TEAM(GC.getGameINLINE().getActiveTeam()).AI_getWarPlan(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam()) == WARPLAN_PREPARING_TOTAL) 
+-				{
+-					GET_TEAM(GC.getGameINLINE().getActiveTeam()).AI_setWarPlan(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam(), NO_WARPLAN);
+-				}
+-				else
++				if (GET_TEAM(GC.getGameINLINE().getActiveTeam()).canDeclareWar(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam()))
+ 				{
+-					GET_TEAM(GC.getGameINLINE().getActiveTeam()).AI_setWarPlan(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam(), WARPLAN_PREPARING_TOTAL);
++					if( GET_TEAM(GC.getGameINLINE().getActiveTeam()).AI_getWarPlan(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam()) == WARPLAN_PREPARING_TOTAL) 
++					{
++						GET_TEAM(GC.getGameINLINE().getActiveTeam()).AI_setWarPlan(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam(), NO_WARPLAN);
++					}
++					else
++					{
++						GET_TEAM(GC.getGameINLINE().getActiveTeam()).AI_setWarPlan(GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam(), WARPLAN_PREPARING_TOTAL);
++					}
++					gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ 				}
+-				gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ 			}
++// K-Mod end
+ 		}
+ 		else
+ 		{
+@@ -5530,3 +5559,53 @@ void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWSt
+ 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+ }
+ 
++/*
++** K-Mod, 5/jan/11, karadoc
++** Environmental advisor mouse-over text
++*/
++void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++{
++	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_OFFSETS_HELP"));
++
++	for (int iI = 0; iI < GC.getNumFeatureInfos(); ++iI)
++	{
++		int iWarmingDefence = GC.getFeatureInfo((FeatureTypes)iI).getWarmingDefense();
++
++		if (iWarmingDefence != 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_OFFSET_PER_FEATURE", -iWarmingDefence, GC.getFeatureInfo((FeatureTypes)iI).getTextKeyWide()));
++		}
++	}
++}
++
++void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++{
++	int iFlags = (int)widgetDataStruct.m_iData1;
++
++	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION")+":");
++
++	if (iFlags & POLLUTION_POPULATION)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION", GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
++	}
++	if (iFlags & POLLUTION_BUILDINGS)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS", GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
++	}
++	if (iFlags & POLLUTION_BONUSES)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES", GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
++	}
++	if (iFlags & POLLUTION_POWER)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER", GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
++	}
++}
++/*
++** K-Mod end
++*/
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index ca778efb7..56ba6b8df 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -199,6 +199,15 @@ public:
+ 	void parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++/*
++** K-Mod, 5/jan/11, karadoc
++** Environmental advisor mouse-over text
++*/
++	void parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	void parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++/*
++** K-Mod end
++*/
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 9d22e6d3d..6b32ffc0b 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -33,7 +33,7 @@
+ */
+ #define POLLUTION_POPULATION	1
+ #define POLLUTION_BUILDINGS		2
+-#define POLLUTION_BONUS			4
++#define POLLUTION_BONUSES		4
+ #define POLLUTION_POWER			8
+ #define POLLUTION_ALL			15
+ /*
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index a985cdeb2..30466bf9c 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -540,6 +540,19 @@ enum WidgetTypes					// Exposed to Python
+ 	WIDGET_GLOBELAYER,
+ 	WIDGET_GLOBELAYER_OPTION,
+ 	WIDGET_GLOBELAYER_TOGGLE,
++/*
++** K-Mod, 5/jan/11, karadoc
++** environmental advisor widgets. Note: this apparently breaks WIDGET_CLOSE_SCREEN if it is defined out of order. =\
++*/
++	WIDGET_HELP_POLLUTION_OFFSETS,
++	WIDGET_HELP_POLLUTION_SOURCE,
++	WIDGET_HELP_SUSTAINABILITY_THRESHOLD,
++	WIDGET_HELP_GW_RELATIVE_CONTRIBUTION,
++	WIDGET_HELP_GW_INDEX,
++	WIDGET_HELP_GW_UNHAPPY,
++/*
++** K-Mod end
++*/
+ 
+ #ifdef _USRDLL
+ 	NUM_WIDGET_TYPES
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3eb5627f8..1384d1a13 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4006,11 +4006,10 @@ int CvGame::calculateGwLandDefence(PlayerTypes ePlayer) const
+ // again, NO_PLAYER means everyone
+ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ {
+-	// Todo: make the GW global threshold an xml variable
+-	// defence should depend on map size
+-	// probably-per-hit, or hits-per-gm-total should depend on game speed
+-	// Kludge: for the time being, I'm going to make up a defense based on the estimate of 1 pop per land tile
+-	int iGlobalThreshold = GC.getMapINLINE().getLandPlots() * 10; // expect each pop to give ~10
++	// expect each pop to give ~10 pollution per turn at the time we cross the threshold, and ~1 pop per land tile...
++	// so default resistance should be around 10 per tile.
++	int iGlobalThreshold = GC.getMapINLINE().getLandPlots() * GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
++	
+ 	// maybe we should add some points for coastal tiles as well, so that watery maps don't get too much warming
+ 
+ 	if (ePlayer == NO_PLAYER)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 2e501398a..b88a8b52a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6399,7 +6399,8 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 		{
+ 			if (GC.getUnitInfo(eUnit).getBuilds(iI))
+ 			{
+-				szTempBuffer.Format(L"%s%s ", NEWLINE, gDLL->getText("TXT_KEY_UNIT_CAN").c_str());
++				// K-Mod, 4/jan/11, karadoc: removed the space on the next line. (ie. from "%s%s ", to "%s%s")
++				szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_UNIT_CAN").c_str());
+ 				setListHelp(szBuffer, szTempBuffer, GC.getBuildInfo((BuildTypes) iI).getDescription(), L", ", bFirst);
+ 				bFirst = false;
+ 			}
+@@ -9399,9 +9400,15 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = 0;
+ 		iNewAnger = 0;
+ 
++/*
++** K-Mod, 5/jan/11, karadoc
++** all anger perecent bits were like this:
++iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++** I've changed it to use GC.getPERCENT_ANGER_DIVISOR() for both parts.
++*/
+ 		// XXX decomp these???
+ 		iNewAngerPercent += city.getOvercrowdingPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9412,7 +9419,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getNoMilitaryPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9423,7 +9430,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getCulturePercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9434,7 +9441,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getReligionPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9445,7 +9452,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getHurryPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9456,7 +9463,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getConscriptPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9467,7 +9474,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getDefyResolutionPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9478,7 +9485,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		iOldAnger = iNewAnger;
+ 
+ 		iNewAngerPercent += city.getWarWearinessPercentAnger();
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+ 		{
+@@ -9487,6 +9494,25 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		}
+ 		iOldAngerPercent = iNewAngerPercent;
+ 		iOldAnger = iNewAnger;
++/*
++** K-Mod, 30/dec/10, karadoc
++** Global warming unhappiness
++*/
++		// when I say 'percent' I mean 1/100. Unfortunately, people who made the rest of the game meant something else...
++		// so I have to multiply my GwPercentAnger by 10 to make it fit in.
++		iNewAngerPercent += std::max(0, GET_PLAYER(city.getOwnerINLINE()).calculateGwPercentAnger()*10);
++		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
++		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
++		if (iAnger > 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_GLOBAL_WARMING", iAnger));
++			szBuffer.append(NEWLINE);
++		}
++		iOldAngerPercent = iNewAngerPercent;
++		iOldAnger = iNewAnger;
++/*
++** K-Mod end
++*/
+ 
+ 		iNewAnger += std::max(0, city.getVassalUnhappiness());
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+@@ -9627,21 +9653,6 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 		iOldAnger = iNewAnger;
+-/*
+-** K-Mod, 30/dec/10, karadoc
+-** Global warming unhappiness
+-*/
+-		iNewAnger += std::max(0, GET_PLAYER(city.getOwnerINLINE()).calculateGwUnhappiness());
+-		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+-		if (iAnger > 0)
+-		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_GLOBAL_WARMING", iAnger));
+-			szBuffer.append(NEWLINE);
+-		}
+-		iOldAnger = iNewAnger;
+-/*
+-** K-Mod end
+-*/
+ 
+ 		szBuffer.append(L"-----------------------\n");
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2ed4a7c88..b3c4ebaf7 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7230,7 +7230,7 @@ int CvPlayer::calculatePollution(int iTypes) const
+ 	int iTotal = 0;
+ 
+ 	int iBuildingWeight = ((iTypes & POLLUTION_BUILDINGS) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+-	int iBonusWeight = ((iTypes & POLLUTION_BONUS) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
++	int iBonusWeight = ((iTypes & POLLUTION_BONUSES) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+ 	int iPowerWeight = ((iTypes & POLLUTION_POWER) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+ 	int iPopWeight = ((iTypes & POLLUTION_POPULATION) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+ 
+@@ -7251,7 +7251,7 @@ int CvPlayer::calculatePollution(int iTypes) const
+ /*
+ ** calculate unhappiness due to the state of global warming
+ */
+-int CvPlayer::calculateGwUnhappiness() const
++int CvPlayer::calculateGwPercentAnger() const
+ {
+ 	//PROFILE_FUNC();
+ 
+@@ -7262,22 +7262,26 @@ int CvPlayer::calculateGwUnhappiness() const
+ 	// global unhappiness = base rate * (1-(1-warming prob)^(rolls/map_size * max turns))
+ 	//  = base rate (1-(1-warming prob)^(index / map_size) (with some factor in the exponent to make it better...)
+ 	// That was the original plan at least... lets try something a bit simplier with a similar shape
+-	// iBase = base_rate * 1 - 1/(1+prob*index/map_size);
++	// iBase = base_rate * 100 - 100000/(1000+a*prob*index/map_size);, where 'a' is a balance parameter.
+ 	int iGlobalPollution = GC.getGameINLINE().calculateGlobalPollution();
+ 
+ 	// Note: watch out for integer overflow and rounding errors.
+-	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / GC.getMapINLINE().getLandPlots()));
++	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (4*GC.getMapINLINE().getLandPlots())));
++	// a = 1000/4
+ 
+ 	int iResponsibilityFactor =	100*calculatePollution();
+ 	iResponsibilityFactor /= std::max(1, GC.getGameINLINE().calculateGwSustainabilityThreshold(getID()));
+ 	iResponsibilityFactor *= GC.getGameINLINE().calculateGwSustainabilityThreshold();
+ 	iResponsibilityFactor /= std::max(1, iGlobalPollution);
++	// square it, to increase its importance
++	iResponsibilityFactor *= iResponsibilityFactor;
++	iResponsibilityFactor /= 100;
+ 
+ 
+-	int iUnhappiness = GC.getDefineINT("GLOBAL_WARMING_BASE_UNHAPPINESS") * iGwSeverityRating * iResponsibilityFactor;
+-	iUnhappiness = ROUND_DIVIDE(iUnhappiness, 10000);// div, 100 * 100
++	int iAngerPercent = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT") * iGwSeverityRating * iResponsibilityFactor;
++	iAngerPercent = ROUND_DIVIDE(iAngerPercent, 10000);// div, 100 * 100
+ 
+-	return iUnhappiness;
++	return iAngerPercent;
+ }
+ /*
+ ** K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 27cc47109..c58a7d9e1 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -267,7 +267,7 @@ public:
+ 	int calculateTotalCityUnhealthiness() const;																													// Exposed to Python
+ 
+ 	int calculatePollution(int iTypes = POLLUTION_ALL) const; // K-Mod, Exposed to Python
+-	int calculateGwUnhappiness() const; // K-Mod
++	int calculateGwPercentAnger() const; // K-Mod, Exposed to Python
+ 
+ 	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iBaseUnitCost, int& iMilitaryCost, int& iExtraCost) const;
+ 	int calculateUnitCost() const;																																				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e1247baa2..299fd7718 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5367,7 +5367,7 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 						break;
+ 
+ 					case UNITAI_CITY_DEFENSE:
+-						iMilitaryValue += ((bWarPlan) ? 800 : 400);
++						iMilitaryValue += ((bWarPlan) ? 800 : 500); // K-Mod :400 -> :500
+ 						iMilitaryValue += ((!bCapitalAlone) ? 400 : 200);
+ 						iUnitValue += ((iHasMetCount > 0) ? 800 : 200);
+ 						break;
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index e7c180ab4..27440f44d 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -388,10 +388,36 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_GLOBELAYER", WIDGET_GLOBELAYER)
+ 		.value("WIDGET_GLOBELAYER_OPTION", WIDGET_GLOBELAYER_OPTION)
+ 		.value("WIDGET_GLOBELAYER_TOGGLE", WIDGET_GLOBELAYER_TOGGLE)
+-
++/*
++** K-Mod, 5/jan/11, karadoc
++** environmental advisor widgets
++*/
++		.value("WIDGET_HELP_POLLUTION_OFFSETS", WIDGET_HELP_POLLUTION_OFFSETS)
++		.value("WIDGET_HELP_POLLUTION_SOURCE", WIDGET_HELP_POLLUTION_SOURCE)
++		.value("WIDGET_HELP_SUSTAINABILITY_THRESHOLD", WIDGET_HELP_SUSTAINABILITY_THRESHOLD)
++		.value("WIDGET_HELP_GW_RELATIVE_CONTRIBUTION", WIDGET_HELP_GW_RELATIVE_CONTRIBUTION)
++		.value("WIDGET_HELP_GW_INDEX", WIDGET_HELP_GW_INDEX)
++		.value("WIDGET_HELP_GW_UNHAPPY", WIDGET_HELP_GW_UNHAPPY)
++/*
++** K-Mod end
++*/
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+-
++/*
++** K-Mod, 5/jan/11, karadoc
++** pollution flags
++*/
++	python::enum_<int>("PollutionTypes")
++		.value("POLLUTION_POPULATION", POLLUTION_POPULATION)
++		.value("POLLUTION_BUILDINGS", POLLUTION_BUILDINGS)
++		.value("POLLUTION_BONUSES", POLLUTION_BONUSES)
++		.value("POLLUTION_POWER", POLLUTION_POWER)
++
++		.value("POLLUTION_ALL", POLLUTION_ALL)
++		;
++/*
++** K-Mod end
++*/
+ 	python::enum_<ButtonPopupTypes>("ButtonPopupTypes")
+ 		.value("BUTTONPOPUP_TEXT", BUTTONPOPUP_TEXT)
+ 		.value("BUTTONPOPUP_MAIN_MENU", BUTTONPOPUP_MAIN_MENU)
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 97bbf4519..af1dff4ad 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -568,6 +568,11 @@ int CyPlayer::calculatePollution(int iTypes) const
+ {
+ 	return m_pPlayer ? m_pPlayer->calculatePollution(iTypes) : 0;
+ }
++
++int CyPlayer::calculateGwPercentAnger() const
++{
++	return m_pPlayer ? m_pPlayer->calculateGwPercentAnger() : 0;
++}
+ /*
+ ** K-Mod end
+ */
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index cfd03af09..97274d136 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -153,6 +153,7 @@ public:
+ 	int calculateResearchRate(int /*TechTypes*/ eTech);
+ 	int calculateResearchModifier(int /*TechTypes*/ eTech);
+ 	int calculatePollution(int iTypes) const; // K-Mod
++	int calculateGwPercentAnger() const; // K-Mod
+ 	int calculateBaseNetResearch();
+ 	bool isResearch();
+ 	bool canEverResearch(int /*TechTypes*/ eTech);
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index ac9fbfefa..3ae242651 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -140,6 +140,7 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("calculateTotalCommerce", &CyPlayer::calculateTotalCommerce, "int ()")
+ 		.def("calculateResearchRate", &CyPlayer::calculateResearchRate, "int (int /*TechTypes*/ eTech)")
+ 		.def("calculatePollution", &CyPlayer::calculatePollution, "int (int /*PollutionFlags*/ iTypes)") // K-Mod
++		.def("calculateGwPercentAnger", &CyPlayer::calculateGwPercentAnger, "int ()") // K-Mod
+ 		.def("calculateBaseNetResearch", &CyPlayer::calculateBaseNetResearch, "int ()")
+ 		.def("calculateResearchModifier", &CyPlayer::calculateResearchModifier, "int (int /*TechTypes*/ eTech)")
+ 		.def("isResearch", &CyPlayer::isResearch, "bool ()")
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=25114

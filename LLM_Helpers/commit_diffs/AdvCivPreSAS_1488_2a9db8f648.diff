@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1488
+# Commit: 2a9db8f648b9808b635c3a944217a5ec34d78a44
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 14cfb3a2ea4de7741a3bd72e9bc856f0aedf9f0a
+# Title: Use data from "Graphs" for "Demographics"; latitude limit for Horse.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	3	Assets/Python/Screens/CvInfoScreen.py
+2	1	Assets/xml/Terrain/CIV4BonusInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 17c7b2d3d..20b34f17c 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1516,6 +1516,8 @@ class CvInfoScreen:
+ 		# <advc.077>
+ 		iMilitaryCoeff = 1000
+ 		iLandCoeff = 1000
++		# Minus 1 b/c history info for the current turn isn't available yet
++		iGameTurn = gc.getGame().getGameTurn() - 1
+ 		# </advc.077>
+ 		# Loop through all players to determine Rank and relative Strength
+ 		for iPlayerLoop in range(gc.getMAX_PLAYERS()):
+@@ -1529,8 +1531,11 @@ class CvInfoScreen:
+ 					continue
+ 				# </advc.077>
+ 				
+-				iValue = pCurrPlayer.calculateTotalCommerce()
++				#iValue = pCurrPlayer.calculateTotalCommerce()
++				# advc.077: Use the current value only for the active player
++				iValue = self.computeHistory(self.ECONOMY_SCORE, iPlayerLoop, iGameTurn)
+ 				if iPlayerLoop == self.iActivePlayer:
++					iValue = pCurrPlayer.calculateTotalCommerce() # advc.077
+ 					iEconomy = iValue
+ 				else: # <advc.077>
+ 					iActiveRivals += 1
+@@ -1540,15 +1545,19 @@ class CvInfoScreen:
+ 					iEconomyGameAverage += iValue
+ 				aiGroupEconomy.append((iValue, iPlayerLoop))
+ 				
+-				iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_PRODUCTION)
++				#iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_PRODUCTION)
++				iValue = self.computeHistory(self.INDUSTRY_SCORE, iPlayerLoop, iGameTurn) # advc.077
+ 				if iPlayerLoop == self.iActivePlayer:
++					iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_PRODUCTION) # advc.077
+ 					iIndustry = iValue
+ 				else:
+ 					iIndustryGameAverage += iValue
+ 				aiGroupIndustry.append((iValue, iPlayerLoop))
+ 
+-				iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_FOOD)
++				#iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_FOOD)
++				iValue = self.computeHistory(self.AGRICULTURE_SCORE, iPlayerLoop, iGameTurn) # advc.077
+ 				if iPlayerLoop == self.iActivePlayer:
++					iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_FOOD) # advc.077
+ 					iAgriculture = iValue
+ 				else:
+ 					iAgricultureGameAverage += iValue
+
+diff --git a/Assets/xml/Terrain/CIV4BonusInfos.xml b/Assets/xml/Terrain/CIV4BonusInfos.xml
+index a6de32ad4..5e2024334 100644
+--- a/Assets/xml/Terrain/CIV4BonusInfos.xml
++++ b/Assets/xml/Terrain/CIV4BonusInfos.xml
+@@ -210,7 +210,8 @@
+ 			<iMinAreaSize>3</iMinAreaSize>
+ 			<!-- advc.129: was 0 -->
+ 			<iMinLatitude>9</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
++			<!-- advc.129: was 90 -->
++			<iMaxLatitude>68</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>10</iRandApp1>
+ 				<iRandApp2>10</iRandApp2>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2654

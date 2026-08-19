@@ -1,0 +1,130 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 600
+# Commit: ff7c6f5b3dae5b39f17b751bc73bf0773f26efe8
+# History segment: K-Mod history
+# Parent used for diff: a868c1fd1d4e0fabade50c91f6ebefca399769fb
+# Title: Fixed a problem which sometimes caused the AI to switch to organized religion when it had no religion. Increased the state religion inertia. Specialists are...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	12	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 701b7f014..a9942bd5a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13200,6 +13200,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	iValue += -(kCivic.getGoldPerMilitaryUnit() * getNumMilitaryUnits() * iWarmongerPercent) / 200;
+ 
+ 	//iValue += ((kCivic.isMilitaryFoodProduction()) ? 0 : 0);
++	// bbai
+ 	int iMaxConscript = getWorldSizeMaxConscript(eCivic);
+ 	if( iMaxConscript > 0 && (pCapital != NULL) )
+ 	{
+@@ -13237,6 +13238,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			}
+ 		}
+ 	}
++	// bbai end
+ /*
+ ** K-Mod.
+ ** evaluation of my new unhealthiness modifier
+@@ -13611,6 +13613,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	{
+ 		if (iHighestReligionCount > 0)
+ 		{
++			// K-Mod note: the evaluation of relgious civics is currently very poor. The scale doesn't match the scale of the other civics.
++			// But actually, the outcome of the civic choices isn't too bad, so I'm just going to leave it alone for now.
+ 			iValue += iHighestReligionCount;
+ 
+ 			iValue += ((kCivic.isNoNonStateReligionSpread()) ? ((iCities - iHighestReligionCount) * 2) : 0);
+@@ -13747,10 +13751,20 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 
+ 	// K-Mod: count bonus specialists,
+ 	// so that we can more accurately gauge the representation bonus
+-	int iTotalBonusSpecialists = 0;
+-	int iTotalCurrentSpecialists = 0;
++	int iTotalBonusSpecialists = -1;
++	int iTotalCurrentSpecialists = -1;
+ 
++	// only take the time to count them if the civic has a bonus for specialists
++	bool bSpecialistCommerce = false;
++	for (int iI = 0; !bSpecialistCommerce && iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
++		bSpecialistCommerce = kCivic.getSpecialistExtraCommerce(iI) != 0;
++	}
++
++	if (bSpecialistCommerce)
++	{
++		iTotalBonusSpecialists = iTotalCurrentSpecialists = 0;
++
+ 		int iLoop;
+ 		CvCity* pLoopCity;
+ 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+@@ -13787,7 +13801,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		// Representation
+ 		//iTempValue += ((kCivic.getSpecialistExtraCommerce(iI) * getTotalPopulation()) / 15);
+ 		// K-Mod
+-		iTempValue += AI_averageCommerceMultiplier((CommerceTypes)iI)*(kCivic.getSpecialistExtraCommerce(iI) * std::max((getTotalPopulation()+10*iTotalBonusSpecialists) / 10, iTotalCurrentSpecialists));
++		if (bSpecialistCommerce)
++			iTempValue += AI_averageCommerceMultiplier((CommerceTypes)iI)*(kCivic.getSpecialistExtraCommerce(iI) * std::max((getTotalPopulation()+10*iTotalBonusSpecialists) / 10, iTotalCurrentSpecialists));
++		// K-Mod end
+ 
+ 		iTempValue /= 100; // (for the 3 things above)
+ 
+@@ -13856,13 +13872,13 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		}
+ 	}
+ 
+-	for (int iI = 0; iI < GC.getNumSpecialBuildingInfos(); iI++)
++	/* for (int iI = 0; iI < GC.getNumSpecialBuildingInfos(); iI++)
+ 	{
+ 		if (kCivic.isSpecialBuildingNotRequired(iI))
+ 		{
+ 			iValue += ((iCities / 2) + 1); // XXX
+ 		}
+-	}
++	} */ // Disabled by K-Mod. This evaluation isn't accurate enough to be useful - but it does sometimes cause civs to switch to organized religion when they don't have a religion...
+ 
+ 	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+ 	{
+@@ -13887,15 +13903,11 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 
+ 	if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
+ 	{
+-	    iValue /= 10;	    
++		iValue /= 10;
+ 	}
+ 
+ 	return iValue;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 
+ ReligionTypes CvPlayerAI::AI_bestReligion() const
+ {
+@@ -13919,8 +13931,8 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
+ 			// K-Mod
+ 			if (iI == getStateReligion() && getReligionAnarchyLength() > 0)
+ 			{
+-				iValue *= 5;
+-				iValue /= 4;
++				iValue *= 4;
++				iValue /= 3;
+ 			}
+ 			// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4177

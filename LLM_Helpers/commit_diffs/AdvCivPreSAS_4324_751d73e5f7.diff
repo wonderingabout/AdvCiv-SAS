@@ -1,0 +1,124 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4324
+# Commit: 751d73e5f773d66a31d670e62ebd7bcf0bc54262
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6e88dee7f0f6f94b8556ba54d53ffb76d3029536
+# Title: Update pathfinder waypoints after signing OB
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvPlayer.cpp
+23	7	CvGameCoreDLL/CvTeam.cpp
+1	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b1b90cb90..3b5b9aa1d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2012,6 +2012,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	{
+ 		GET_PLAYER(eOldOwner).verifyAlive();
+ 	} // </advc.001>
++	// advc.001w: Ownership change could affect cached paths (unlikely?)
++	GET_TEAM(getTeam()).updateActivePaths();
+ 	// <advc.130w> Major power shift; good time to update expansionist hate.
+ 	for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index deaba0fc1..218e189ca 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1101,11 +1101,10 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 	{
+ 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 		gDLL->UI().setDirty(CityInfo_DIRTY_BIT, true);
+-		// advc.001w: Can now enter each other's territory
+-		gDLL->UI().setDirty(Waypoints_DIRTY_BIT, true);
+-		// advc.162: DoW increases certain path costs
+-		CvSelectionGroup::resetPath();
+ 	}
++	// advc.001w: Can now enter each other's territory (important for advc.162)
++	updateActivePaths(eTarget);
++	CvSelectionGroup::resetPath(); // advc.162
+ 	// advc.003j: Obsolete
+ 	/*for (iI = 0; iI < MAX_PLAYERS; iI++) {
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive()) {
+@@ -3142,7 +3141,7 @@ bool CvTeam::isFreeTrade(TeamTypes eIndex) const
+ 
+ void CvTeam::setOpenBorders(TeamTypes eIndex, bool bNewValue)
+ {
+-	if(isOpenBorders(eIndex) == bNewValue)
++	if (isOpenBorders(eIndex) == bNewValue)
+ 		return; // advc
+ 	bool bOldFreeTrade = isFreeTrade(eIndex);
+ 	m_abOpenBorders.set(eIndex, bNewValue);
+@@ -3153,9 +3152,10 @@ void CvTeam::setOpenBorders(TeamTypes eIndex, bool bNewValue)
+ 			itOther->AI_updateAttitude(itMember->getID());
+ 	} // </advc.130p>
+ 	AI().AI_setOpenBordersCounter(eIndex, 0);
+-
+ 	GC.getMap().verifyUnitValidPlot();
+-
++	// <advc.001w>
++	if (isOpenBorders(eIndex))
++		updateActivePaths(eIndex); // </advc.001w>
+ 	if (isActive() || GET_TEAM(eIndex).isActive())
+ 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 
+@@ -3367,6 +3367,8 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+ 		it->updateCitySight(true, false);
++	// advc.001w: (No change in movement rules for the vassal)
++	GET_TEAM(eMaster).updateActivePaths();
+ 	// <advc.184>
+ 	updateMilitaryHappinessUnits();
+ 	GET_TEAM(eMaster).updateMilitaryHappinessUnits(); // </advc.184>
+@@ -4844,6 +4846,20 @@ bool CvTeam::isAlliedTerritory(TeamTypes eTerritoryOwner, TeamTypes eEnemy) cons
+ 	return (isAtWar(eEnemy) && GET_TEAM(eTerritoryOwner).isAtWar(eEnemy));
+ }
+ 
++/*	advc.001w: I think only situations in which the active player may have gained
++	access to new tiles need to be covered */
++void CvTeam::updateActivePaths(TeamTypes eOtherTeam)
++{
++	if (isActive() || (eOtherTeam != NO_TEAM && GET_TEAM(eOtherTeam).isActive()))
++	{
++		gDLL->UI().setDirty(Waypoints_DIRTY_BIT, true);
++		/*	Only thing that'll update waypoints after signing OB.
++			Resetting/ invalidating the K-Mod or original pathfinder
++			doesn't seem to help (and could also cause OOS problems). */
++		gDLL->UI().makeSelectionListDirty();
++	}
++}
++
+ /*	advc: Says whether kPlot is a land plot that sea units of this team can enter
+ 	-- or could enter if kPlot were adjacent to water (not checked).
+ 	Was previously handled by CvPlot::isCity(bool,TeamTypes). */
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 908f7629e..ebb4c5ca4 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -503,6 +503,7 @@ public:
+ 	}
+ 	bool isFriendlyTerritory(TeamTypes eTerritoryOwner) const;
+ 	bool isAlliedTerritory(TeamTypes eTerritoryOwner, TeamTypes eEnemy) const; // advc.183
++	void updateActivePaths(TeamTypes eOtherTeam = NO_TEAM); // advc.001w
+ 	// <advc> Same as isRevealedBase (but doesn't have to be)
+ 	bool isRevealedAirBase(CvPlot const& kPlot) const { return isRevealedBase(kPlot); }
+ 	bool isRevealedCityHeal(CvPlot const& kPlot) const { return isRevealedBase(kPlot); }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4178

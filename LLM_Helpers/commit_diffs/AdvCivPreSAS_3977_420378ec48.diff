@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3977
+# Commit: 420378ec48f28838b39ed6fcc3f6c07346836e0b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8e40fc17a3a2738058a437160b7e192a89f668e6
+# Title: Include CvUnit data in reproducibility tests
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 783f0c751..a2348db14 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -10570,6 +10570,7 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	//uiFlag = 7; // advc.enum: new enum map save behavior
+ 	uiFlag = 8; // advc.313: Disorganized promo removed, advc.enum: bugfix.
+ 	pStream->Write(uiFlag);
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Unit(%d,%d,%d)", getID(), getX(), getY()));
+ 
+ 	pStream->Write(m_iID);
+ 	pStream->Write(m_iGroupID);
+@@ -10664,6 +10665,7 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	m_aiExtraFeatureAttackPercent.write(pStream);
+ 	m_aiExtraFeatureDefensePercent.write(pStream);
+ 	m_aiExtraUnitCombatModifier.write(pStream);
++	REPRO_TEST_END_WRITE();
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=771

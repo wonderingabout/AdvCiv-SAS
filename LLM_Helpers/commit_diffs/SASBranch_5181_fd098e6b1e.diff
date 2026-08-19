@@ -1,0 +1,210 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5181
+# Commit: fd098e6b1ec5c99a556210dea899a96c8c725896
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9950a57f159d2bd1efde80da9da95eb12e2f9aeb
+# Title: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") in the city screen Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialis...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvForeignAdvisor.py
+38	19	Assets/Python/Screens/CvMainInterface.py
+1	1	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 2b25d52ff..ab598b57d 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -128,7 +128,7 @@ class CvForeignAdvisor:
+ 		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+-		# Top panels cutting off content: The TopPanel and BottomPanel (around lines 96-97) are positioned at y=0 and y=713 respectively. These need updating:
++		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+ 		# screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		# screen.addPanel( "BottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 1ad3386fe..848ec01d7 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1109,11 +1109,17 @@ class CvMainInterface:
+ 		# aim at at least 5 rows.
+ 		iRowH = 24
+ 		iHeightForRows = VLEN(4 * iRowH, 2)
++
++		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
++		# Step 2: Move the Tables Up (Reclaim Space)
++		# 1. Trade Routes List Search for def setTradeRouteRects. Find the line defining TradeRouteTable. We will change .yBottom() to .y() so it starts at the top of the (now hidden) header space.
+ 		gSetRect("TradeRouteTable", "CityLeftPanelContents",
+ 				RectLayout.CENTER,
+-				1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
++				# 1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
++				1 + gRect("TradeRouteListBackground").y() - gRect("CityLeftPanelContents").y(),
+ 				-1, 2 + iHeightForRows
+ 				- iHeightForRows % iRowH) # No point in making space for only half a row
++
+ # BUG - Raw Yields - start
+ 		# Can't really scale these up b/c the background doesn't scale
+ 		iBtnSize = BTNSZ(24, 0.3)
+@@ -1151,10 +1157,16 @@ class CvMainInterface:
+ 				RectLayout.MAX, self.cityScreenHeadingBackgrHeight())
+ 		gOffSetPoint("BuildingListLabel", "BuildingListBackground",
+ 				RectLayout.CENTER, self.cityScreenHeadingOffset())
++		
++		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
++		# Step 2: Move the Tables Up (Reclaim Space)
++		# 2. Buildings List Search for def setBuildingListRects. We need to change .yBottom() to .y() in two places here (one for position, one for height calculation).
+ 		gSetRect("BuildingListTable", "CityLeftPanelContents",
+ 				RectLayout.CENTER,
+-				1 + gRect("BuildingListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
+-				-1, gRect("CultureBars").y() - gRect("BuildingListBackground").yBottom() - 1 - VSPACE(4))
++				# 1 + gRect("BuildingListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
++				# -1, gRect("CultureBars").y() - gRect("BuildingListBackground").yBottom() - 1 - VSPACE(4))
++				1 + gRect("BuildingListBackground").y() - gRect("CityLeftPanelContents").y(),
++                -1, gRect("CultureBars").y() - gRect("BuildingListBackground").y() - 1 - VSPACE(4))
+ 
+ 	def setCityTabRects(self):
+ 		iButtons = 3
+@@ -2393,10 +2405,12 @@ class CvMainInterface:
+ 				else:
+ 					self.updateCitizenButtons(pHeadSelectedCity)
+ 				# <advc.004> Show the SpecialistLabel regardless of BUG options
+-				if self.isShowSpecialistLabel():
+-					# Cut from updateCitizenButtons_Stacker ...
+-					screen.show("SpecialistLabelBackground")
+-					screen.show("SpecialistLabel") # </advc.004>
++				# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
++				# Step 1: Hide the Header Widgets (Gray Bars)
++				# if self.isShowSpecialistLabel():
++				# 	# Cut from updateCitizenButtons_Stacker ...
++				# 	screen.show("SpecialistLabelBackground")
++				# 	screen.show("SpecialistLabel") # </advc.004>
+ # BUG - city specialist - end
+ 
+ 			CyInterface().setDirty(InterfaceDirtyBits.CitizenButtons_DIRTY_BIT, False)
+@@ -2444,13 +2458,14 @@ class CvMainInterface:
+ 			# </advc.004z>
+ 		return 0
+ 
+-	# advc.004:
+-	def isShowSpecialistLabel(self):
+-		# Not quite enough space on low res. (Fixme: The Stacker layout does leave
+-		# enough space, but then we'd need a separate label and background panel
+-		# placed by updateCitizenButton_Stacker; currently, the position is set
+-		# statically, ignoring options.)
+-		return (gRect("Top").height() > 900)
++	# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
++	# # advc.004:
++	# def isShowSpecialistLabel(self):
++	# 	# Not quite enough space on low res. (Fixme: The Stacker layout does leave
++	# 	# enough space, but then we'd need a separate label and background panel
++	# 	# placed by updateCitizenButton_Stacker; currently, the position is set
++	# 	# statically, ignoring options.)
++	# 	return (gRect("Top").height() > 900)
+ 
+ 	# K-Mod: There are some special rules for which buttons should be shown and when.
+ 	# I'd rather have all those rules in one place. ie. here.
+@@ -5073,9 +5088,11 @@ class CvMainInterface:
+ 				(iColW2 * iAvailW) / 236)
+ 		screen.setTableColumnRightJustify("BuildingListTable", 1)
+ 
+-		screen.show("BuildingListBackground")
+-		screen.show("TradeRouteListBackground")
+-		screen.show("BuildingListLabel")
++		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
++		# Step 1: Hide the Header Widgets (Gray Bars)
++		# screen.show("BuildingListBackground")
++		# screen.show("TradeRouteListBackground")
++		# screen.show("BuildingListLabel")
+ # BUG - Raw Yields - start
+ 		if (CityScreenOpt.isShowRawYields()):
+ 			screen.setState("RawYieldsTrade0", not g_bYieldView)
+@@ -5100,8 +5117,10 @@ class CvMainInterface:
+ 			screen.setState("RawYieldsOwnedTiles6",
+ 					g_iYieldTiles == RawYields.OWNED_TILES)
+ 			screen.show("RawYieldsOwnedTiles6")
+-		else:
+-			screen.show("TradeRouteListLabel")
++		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks but anyways etc. -->
++		# Step 1: Hide the Header Widgets (Gray Bars)
++		# else:
++		# 	screen.show("TradeRouteListLabel")
+ # BUG - Raw Yields - end
+ 		for i in range(3):
+ 			szName = "BonusPane" + str(i)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index cd1a27404..e5544b7c1 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -167,7 +167,7 @@ class CvMilitaryAdvisor:
+ 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+-		# Top panels cutting off content: The TopPanel and BottomPanel (around lines 96-97) are positioned at y=0 and y=713 respectively. These need updating:
++		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+ 		# screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+
+diff --git a/README.md b/README.md
+index 08cbd1131..5ef36582f 100644
+--- a/README.md
++++ b/README.md
+@@ -153,7 +153,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
+ 
+ ### City Screen rework
+ 
+-Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering.
++Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 96ff92252..2c699e2e1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -112,7 +112,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5180+) **Beautified** and **Enhanced** the City Screen: added the **Great Person +n ICON** information in relevant Buildings' rows (handy to have and was tedious to check through hovering previously). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- (Requires AdvCiv-SAS 5180+ to 5181+) **Beautified** and **Enhanced** the City Screen: added the **Great Person +n ICON** information in relevant Buildings' rows; removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"). This allows to now display more information and reduces the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ 
+ ### UI (Sevopedia reworks & related)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 0c8e03dcf..076c82daa 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -107,7 +107,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5180+) **Beautified** and **Enhanced** the City Screen: added the **Great Person +n ICON** information in relevant Buildings' rows (handy to have and was tedious to check through hovering previously). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- (Requires AdvCiv-SAS 5180+ to 5181+) **Beautified** and **Enhanced** the City Screen: added the **Great Person +n ICON** information in relevant Buildings' rows; removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"). This allows to now display more information and reduces the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ 
+ ### UI (Sevopedia reworks & related)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+index a92149c10..f73856b06 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=17586

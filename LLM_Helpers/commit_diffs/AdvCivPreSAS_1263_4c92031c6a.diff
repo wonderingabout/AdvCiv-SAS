@@ -1,0 +1,1493 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1263
+# Commit: 4c92031c6a1f44a2466e1343864d4f1181a2ebd9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c01c07e94be3b86fa524a1cb14cff918d0996ae3
+# Title: v0.86: * Human civs get a 5% bonus vs. barbarians on Monarch, Emperor and Immortal (now the same as on Prince). (change 313) * The "Show ... Moves" options n...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+52	52	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+6	3	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+1	1	Assets/xml/GameInfo/CIV4Hints.xml
+26	6	Assets/xml/GlobalDefines_advc.xml
+4	2	Assets/xml/Text/CIV4DiplomacyText.xml
+4	4	Assets/xml/Text/CIV4GameText_advc.xml
+3	2	CvGameCoreDLL/AdvCiv4lerts.cpp
+7	4	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+4	3	CvGameCoreDLL/CvDeal.cpp
+5	2	CvGameCoreDLL/CvMap.cpp
+2	1	CvGameCoreDLL/CvMap.h
+18	6	CvGameCoreDLL/CvPlayer.cpp
+44	22	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+9	4	CvGameCoreDLL/CvTeam.cpp
+4	1	CvGameCoreDLL/CvTeam.h
+46	10	CvGameCoreDLL/CvTeamAI.cpp
+2	1	CvGameCoreDLL/CvTeamAI.h
+17	3	CvGameCoreDLL/CvUnit.cpp
+3	0	CvGameCoreDLL/CvUnit.h
+47	10	CvGameCoreDLL/WarAndPeaceAI.cpp
+32	11	CvGameCoreDLL/WarUtilityAspect.cpp
+4	2	CvGameCoreDLL/WarUtilityAspect.h
+-	-	manual_0.85.pdf
+-	-	manual_0.86.pdf
+ delete mode 100644 manual_0.85.pdf
+ create mode 100644 manual_0.86.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index f16ffe4f6..d76bc2967 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -436,7 +436,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -1062,7 +1062,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -1698,7 +1698,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -2327,7 +2327,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>0</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -2961,7 +2961,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -3597,7 +3597,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -4239,7 +4239,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -4865,7 +4865,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -5494,7 +5494,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -6133,7 +6133,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -6774,7 +6774,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -7412,7 +7412,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -8046,7 +8046,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -8680,7 +8680,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -9312,7 +9312,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -9918,7 +9918,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -10552,7 +10552,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -11177,7 +11177,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -11815,7 +11815,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -12455,7 +12455,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -13086,7 +13086,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -13718,7 +13718,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -14363,7 +14363,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -15001,7 +15001,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -15630,7 +15630,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -16259,7 +16259,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -16893,7 +16893,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -17531,7 +17531,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -18156,7 +18156,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -18794,7 +18794,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -19428,7 +19428,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -20068,7 +20068,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -20701,7 +20701,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -21339,7 +21339,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -21977,7 +21977,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -22615,7 +22615,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -23260,7 +23260,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -23887,7 +23887,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -24519,7 +24519,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -25152,7 +25152,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -25785,7 +25785,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -26417,7 +26417,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -27049,7 +27049,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -27678,7 +27678,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -28323,7 +28323,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -28966,7 +28966,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -29598,7 +29598,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -30231,7 +30231,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>0</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -30863,7 +30863,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -31509,7 +31509,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -32159,7 +32159,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+@@ -32803,7 +32803,7 @@
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryRand>80</iMemoryRand>
++					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
+ 				<!-- advc.143 -->
+ 				<MemoryDecay>
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index 651b1009e..5dda93bb1 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -576,7 +576,8 @@
+ 			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>-20</iAnimalBonus>
+-			<iBarbarianBonus>0</iBarbarianBonus>
++			<!-- advc.313: was 0 -->
++			<iBarbarianBonus>-5</iBarbarianBonus>
+ 			<iAIAnimalBonus>-40</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+@@ -691,7 +692,8 @@
+ 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>-10</iAnimalBonus>
+-			<iBarbarianBonus>0</iBarbarianBonus>
++			<!-- advc.313: was 0 -->
++			<iBarbarianBonus>-5</iBarbarianBonus>
+ 			<iAIAnimalBonus>-40</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+@@ -810,7 +812,8 @@
+ 			<iBarbarianCityCreationTurnsElapsed>20</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>-5</iAnimalBonus>
+-			<iBarbarianBonus>0</iBarbarianBonus>
++			<!-- advc.313: was 0 -->
++			<iBarbarianBonus>-5</iBarbarianBonus>
+ 			<iAIAnimalBonus>-40</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index adb4a3d57..d2d89fbde 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -525,7 +525,7 @@
+ 			<Description>TXT_KEY_KMOD_HINT_15</Description>
+ 		</HintInfo>
+ 		<!-- These have been replaced or updated; should receive higher
+-			 probability too -->
++			 probability too. -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_HINT_INTERFACE_1</Description>
+ 		</HintInfo>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index e85582708..aaf091ded 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -86,16 +86,36 @@
+         <iDefineIntVal>300</iDefineIntVal>
+     </Define>
+ 
+-	<!-- [advc.101]
+-		 Not a new parameter. Value increased to 200 
+-		 (recommended) in an effort to restore the original BtS revolt
+-		 probabilities without undoing K-Mod's overhaul of the culture system.
+-		 This essentially doubles the strength of foreign culture.
+-		 Original value (in GlobalDefines.xml): 100. -->
++	<!-- These three are from the original GlobalDefines.
++
++		 [advc.101]  Value increased to 200 (recommended) in an effort to
++		 restore the original BtS revolt probabilities without undoing K-Mod's
++		 overhaul of the culture system. This essentially doubles the strength
++		 of foreign culture. Original value: 100. -->
+ 	<Define>
+ 		<DefineName>REVOLT_TOTAL_CULTURE_MODIFIER</DefineName>
+ 		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
++	<!-- [advc.099c] Was 100, meaning that foreign culture strength is doubled
++		 if the foreign state religion is in the city. Now also applies when the
++		 owner of the foreign culture is eliminated and there is a "suppressed"
++		 religion in the city, i.e. a religion that differs from the city owner's
++		 state religion (no suppression if no state religion).
++		 Recommended: 50 b/c doubling is a bit much. -->
++	<Define>
++		<DefineName>REVOLT_OFFENSE_STATE_RELIGION_MODIFIER</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- Applies when the city owner's state religion is present in the city,
++		 and applies half if the owner has no state religion. Was combined
++		 multiplicatively with the OFFENSE_MODIFIER above in such a way
++		 that the modifiers canceled out when both applied. Now combined
++		 additively, meaning that they still cancel out b/c I've reduced the
++		 OFFENSE_MODIFIER. The DEFENSE_MODIFIER remains -50. -->
++	<Define>
++		<DefineName>REVOLT_DEFENSE_STATE_RELIGION_MODIFIER</DefineName>
++		<iDefineIntVal>-50</iDefineIntVal>
++	</Define>
+ 
+ 	<!-- [advc.102]
+ 		 If set to 0, the moves of friendly civs' workers are not shown to the
+
+diff --git a/Assets/xml/Text/CIV4DiplomacyText.xml b/Assets/xml/Text/CIV4DiplomacyText.xml
+index fb05f8d00..fb41d432a 100644
+--- a/Assets/xml/Text/CIV4DiplomacyText.xml
++++ b/Assets/xml/Text/CIV4DiplomacyText.xml
+@@ -3650,11 +3650,13 @@
+ 		<Italian>Mi spiace, ma sei troppo insistente.</Italian>
+ 		<Spanish>Lo sentimos, pero nos presion&#225;is demasiado.</Spanish>
+ 	</TEXT>
++	<!-- [advc.004g] The German translation of answer 1 was stating that the
++		 demand is NOT accepted. -->
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_ACCEPT_DEMAND_1</Tag>
+ 		<English>We accede to your unreasonable demands.</English>
+ 		<French>Nous acc&#233;dons &#224; vos requ&#234;tes exag&#233;r&#233;es.</French>
+-		<German>Wir lassen uns nicht auf Eure unversch&#228;mten Forderungen ein!</German>
++		<German>Unversch&#228;mtheit! Aber wir geben nach.</German>
+ 		<Italian>Accettiamo le tue insensate richieste.</Italian>
+ 		<Spanish>No podemos acceder a vuestras exigencias tan poco razonables.</Spanish>
+ 	</TEXT>
+@@ -3684,7 +3686,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_ACCEPT_DEMAND_5</Tag>
+-		<English>Sure: kick a civilisation when it's down. I accept your terms.</English>
++		<English>Sure: kick a civilization when it's down. I accept your terms.</English>
+ 		<French>Vous pi&#233;tinez une civilisation qui est d&#233;j&#224; &#224; terre ? Soit, j'accepte vos conditions.</French>
+ 		<German>Sicher, tretet ruhig noch nach, wenn der andere am Boden liegt! Ich akzeptiere Eure Bedingungen!</German>
+ 		<Italian>Sono d'accordo, infierire su una civilt&#224; in ginocchio. Accetto le vostre condizioni.</Italian>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 9e0488f35..b24d2c726 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1464,11 +1464,11 @@
+ 		 Civ4lerts Options.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_HOVER</Tag>
+-		<English>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war on your request.</English>
+-		<French>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war on your request.</French>
++		<English>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</English>
++		<French>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</French>
+ 		<German>Mitteilung, wenn ein KI-Gegner bereit (oder nicht mehr bereit) ist, einem anderen Gegner auf Ihren Wunsch den Krieg zu erkl�ren.</German>
+-		<Italian>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war on your request.</Italian>
+-		<Spanish>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war on your request.</Spanish>
++		<Italian>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</Italian>
++		<Spanish>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index e5fcf5e88..e9bf71ec2 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -81,8 +81,9 @@ void WarTradeAlert::check() {
+ 				msg(gDLL->getText("TXT_KEY_CIV4LERTS_TRADE_WAR",
+ 						warTeam.getName().GetCString(),
+ 						victim.getName().GetCString()));
+-			 // Obviously can't hire warTeam if it has already declared war
+-			else if(!warTeam.isAtWar(victim.getID()))
++			/*  Obviously can't hire warTeam if it has already declared war
++				or if victim has been eliminated. */
++			else if(victim.isAlive() && !warTeam.isAtWar(victim.getID()))
+ 				msg(gDLL->getText("TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR",
+ 						warTeam.getName().GetCString(),
+ 						victim.getName().GetCString()));
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b0a6c35bb..825340c53 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5302,9 +5302,12 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	} // <advc.003>
+ 	ReligionTypes ownerReligion = owner.getStateReligion();
+ 	if(ownerReligion != NO_RELIGION && isHasReligion(ownerReligion)) { // </advc.003>
+-		/*  <advc.101> Replacing the code below. Division by 50 so that it
+-			cancels out the OFFENSE modifier (no functional change). */
+-		grievanceModifier += GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER") / 50.0;
++		/*  <advc.099c> Replacing the code below. The OFFENSE modifier
++			was originally set to 100 in XML and DEFENSE to -50, and they were
++			cancelling out when both applied (multiplication by 100+100 and then
++			by 100-50). I'm changing the values in XML so that they cancel out
++			when added up. */
++		grievanceModifier += GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER") / 100.0;
+ 		//iStrength *= std::max(0, (GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER") + 100));
+ 		//iStrength /= 100;
+ 	} /* No state religion is still better than some oppressive state religion that
+@@ -5312,7 +5315,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	if(ownerReligion == NO_RELIGION) {
+ 		grievanceModifier += GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER")
+ 				/ 100.0;
+-	} // <advc.101>
++	} // <advc.099c>
+ 	if(getHurryAngerTimer() > 0)
+ 		grievanceModifier += 0.5;
+ 	// <advc.099c>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e63f8a38f..1268c1246 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12096,7 +12096,7 @@ int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance)
+ 	return m_aiPlayerCloseness[eIndex];	
+ }
+ 
+-// K-Mod
++// K-Mod   // advc.003 (comment): unused function
+ int CvCityAI::AI_highestTeamCloseness(TeamTypes eTeam)
+ {
+ 	int iCloseness = -1;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 92b69d662..5dceec9bf 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -934,11 +934,12 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 
+ 	case TRADE_EMBARGO:
+ 		GET_PLAYER(eFromPlayer).stopTradingWithTeam((TeamTypes)trade.m_iData);
+-		/*  advc.130f: The instigator needs to stop too. (If an AI suggested
++		/*  <advc.130f> The instigator needs to stop too. (If an AI suggested
+ 			the embargo to a human, that's not handled here but by
+ 			CvPlayer::handleDiploEvent.) */
+-		GET_PLAYER(eToPlayer).stopTradingWithTeam((TeamTypes)trade.m_iData, false);
+-
++		if(!TEAMREF(eFromPlayer).isCapitulated() || !TEAMREF(eFromPlayer).isVassal(TEAMID(eToPlayer)))
++			GET_PLAYER(eToPlayer).stopTradingWithTeam((TeamTypes)trade.m_iData, false);
++		// </advc,130f>
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index bafce1681..0cc7af4d3 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -770,7 +770,8 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
+ }
+ 
+ 
+-CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith, DirectionTypes eDirection, CvCity* pSkipCity)
++CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith, DirectionTypes eDirection, CvCity* pSkipCity,
++		TeamTypes observer) // advc.004r
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -795,7 +796,9 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
+ 				if ((eTeam == NO_TEAM) || (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam))
+ 				{
+ 					for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+-					{
++					{	// <advc.004r>
++						if(observer != NO_TEAM && !pLoopCity->isRevealed(observer))
++							continue; // </advc.004r>
+ 						if (!bSameArea || (pLoopCity->area() == plotINLINE(iX, iY)->area()) || (bCoastalOnly && (pLoopCity->waterArea() == plotINLINE(iX, iY)->area())))
+ 						{
+ 							if (!bCoastalOnly || pLoopCity->isCoastal())
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index f9a049246..f87d4bd27 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -119,7 +119,8 @@ public:
+ 			// advc.304:
+ 			int* legalCount = NULL);
+ 
+-	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL);	// Exposed to Python
++	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL,
++			TeamTypes observer = NO_TEAM); // advc.004r	// Exposed to Python
+ 	DllExport CvSelectionGroup* findSelectionGroup(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, bool bReadyToSelect = false, bool bWorkers = false);				// Exposed to Python
+ 
+ 	CvArea* findBiggestArea(bool bWater);																						// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e4a4aa1b2..1e190c110 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3561,7 +3561,7 @@ void CvPlayer::doTurn()
+ 	}
+ 
+ 	verifyCivics();
+-
++	//verifyStateReligion(); // dlph.10: disabled for now
+ 	updateTradeRoutes();
+ 
+ 	updateWarWearinessPercentAnger();
+@@ -4627,6 +4627,11 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 	case DIPLOEVENT_ACCEPT_DEMAND:
+ 		// advc.130j:
+ 		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_ACCEPT_DEMAND);
++		/*  advc.130o, advc.104: So that the AI can tell if a demand was
++			_recently_ accepted. Don't call AI_rememberEvent b/c I want only
++			a "half" memory (for 10 turns instead of 20). */
++		GET_PLAYER(ePlayer).AI_changeMemoryCount(getID(),
++				MEMORY_MADE_DEMAND_RECENT, 1);
+ 		/*  advc.003 (comment): This event (and its counterpart REJECTED_DEMAND)
+ 			is only triggered when a human accepts an AI demand. When a human
+ 			demands sth., DIPLOEVENT_MADE_DEMAND triggers (and that one doesn't
+@@ -4736,8 +4741,9 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 		// advc.130j:
+ 		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_STOP_TRADING);
+ 		GET_PLAYER(ePlayer).stopTradingWithTeam((TeamTypes)iData1);
+-		// advc.130f: We also stop trading
+-		stopTradingWithTeam((TeamTypes)iData1, false);
++		// <advc.130f> We also stop trading (unless ePlayer is our capitulated vassal)
++		if(!TEAMREF(ePlayer).isCapitulated() || !TEAMREF(ePlayer).isVassal(getTeam()))
++			stopTradingWithTeam((TeamTypes)iData1, false); // </advc.130f>
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -5072,7 +5078,9 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 					{
+ 						if (GET_TEAM(getTeam()).canDeclareWar((TeamTypes)(item.m_iData)))
+ 						{
+-							return true;
++							//return true;
++							// advc.100: Replacing the line above
++							return !GET_TEAM(getTeam()).isAtWar(TEAMID(eWhoTo));
+ 						}
+ 					}
+ 				}
+@@ -5087,8 +5095,12 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 			if (GET_TEAM(getTeam()).isHasMet(embargoTarget) && TEAMREF(eWhoTo).isHasMet(embargoTarget))
+ 			{
+ 				if (canStopTradingWithTeam(embargoTarget)
+-						// advc.130f:
+-						&& !GET_PLAYER(eWhoTo).isTradingWithTeam(embargoTarget, true)
++						// <advc.130f>
++						&& (!GET_PLAYER(eWhoTo).isTradingWithTeam(
++						embargoTarget, true) ||
++						(GET_TEAM(getTeam()).isCapitulated() &&
++						GET_TEAM(getTeam()).isVassal(TEAMID(eWhoTo))))
++						// </advc.130f>
+ 					)
+ 				{
+ 					return true;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d5a4b9a69..1be6359f9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -564,8 +564,11 @@ void CvPlayerAI::AI_doTurnUnitsPre()
+ 	if (AI_getCityTargetTimer() == 0 && GC.getGameINLINE().getSorenRandNum(8, "AI Update Area Targets") == 0) // K-Mod added timer check.
+ 	{
+ 		AI_updateAreaTargets();
+-	}
+-
++	} // <advc.102>
++	int dummy;
++	for(CvUnit* u = firstUnit(&dummy); u != NULL; u = nextUnit(&dummy)) {
++		u->setInitiallyVisible(u->plot()->isVisibleToWatchingHuman());
++	} // </advc.102>
+ 	if (isHuman())
+ 	{
+ 		return;
+@@ -2002,9 +2005,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 					}
+ 
+ 					// <advc.116>
+-					if (bFinancialTrouble)
+-					{
+-						iRazeValue += 15;
++					if(bFinancialTrouble) {
++						iRazeValue += (pCity->calculateDistanceMaintenanceTimes100(getID()) +
++								pCity->calculateDistanceMaintenanceTimes100(getID())) /
++								100; // Replacing:
+ 								//std::max(0, (70 - 15 * pCity->getPopulation()));
+ 					}
+ 					iRazeValue -= 3 * pCity->getPopulation();
+@@ -7936,8 +7940,9 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
+ 		}
+ 		// <advc.130v>
+ 		CvTeamAI const& ourTeam = GET_TEAM(getTeam());
+-		if(ourTeam.isCapitulated()) // Cautious. Or rather same val as master?
+-			return 0;//GET_TEAM(ourTeam.getMasterTeam()).AI_getAttitudeVal(TEAMID(ePlayer));
++		if(ourTeam.isCapitulated()) // Same val as master, but at most Cautious.
++			return std::min(0, GET_TEAM(ourTeam.getMasterTeam()).
++					AI_getAttitudeVal(TEAMID(ePlayer)));
+ 		if(TEAMREF(ePlayer).isCapitulated()) {
+ 			if(TEAMREF(ePlayer).isVassal(ourTeam.getID()))
+ 				return 5; // Pleased
+@@ -8446,7 +8451,7 @@ int CvPlayerAI::AI_getRivalTradeAttitude(PlayerTypes ePlayer) const {
+ 	TeamTypes enemyId = ourTeam.AI_getWorstEnemy();
+ 	/*  Checking enemyValue here should - hopefully - fix an oscillation problem,
+ 		but I don't quite know what I'm doing ...
+-		(Checking this in CvTeamAI::AI_getWorstEnemy would be bad for perfromance.) */
++		(Checking this in CvTeamAI::AI_getWorstEnemy would be bad for performance.) */
+ 	if(ourTeam.enemyValue(enemyId) <= 0)
+ 		enemyId = NO_TEAM;
+ 	double dualDealCounter = 0; // cf. CvDeal::isDual
+@@ -8612,12 +8617,13 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const {
+ 	// Don't count ranks of unknown civs
+ 	int iRankDifference = knownRankDifference(ePlayer);
+ 	CvLeaderHeadInfo& lh = GC.getLeaderHeadInfo(getPersonalityType());
++	CvGame& g = GC.getGameINLINE();
+ 	/*  This was "+ 1" in BtS, which is arguably a bug.
+ 		Continue using CivPlayersEverAlive although iRankDifference is now based
+ 		only on known civs. */
+-	double maxRankDifference = GC.getGameINLINE().countCivPlayersEverAlive() - 1;
+-	int base;
+-	double multiplier;
++	double maxRankDifference = g.countCivPlayersEverAlive() - 1;
++	int base = 0;
++	double multiplier = 0;
+ 	// If we're ranked worse than they are:
+ 	if(iRankDifference > 0) {
+ 		base = lh.getWorseRankDifferenceAttitudeChange();
+@@ -8634,9 +8640,11 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const {
+ 		base = lh.getBetterRankDifferenceAttitudeChange();
+ 	}
+ 	int r = ::round(base * multiplier);
+-	CvGame& g = GC.getGameINLINE();
+ 	// Don't hate them if they're still in the first era
+-	if(r < 0 && GET_PLAYER(ePlayer).getCurrentEra() <= g.getStartEra())
++	if(r < 0 && (GET_PLAYER(ePlayer).getCurrentEra() <= g.getStartEra() ||
++			/*  nor if the score difference is small (otherwise attitude can
++				change too frequently) */
++			g.getPlayerScore(ePlayer) - g.getPlayerScore(getID()) < 25))
+ 		return 0;
+ 	// Don't like them if we're still in the first era
+ 	if(r > 0 && getCurrentEra() <= g.getStartEra())
+@@ -11549,10 +11557,12 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 	FAssertMsg(GET_PLAYER(ePlayer).getTeam() != getTeam(), "shouldn't call this function on ourselves");
+-	FAssertMsg(eTradeTeam != getTeam(), "shouldn't call this function on ourselves");
+-	FAssertMsg(GET_TEAM(eTradeTeam).isAlive(), "GET_TEAM(eWarTeam).isAlive is expected to be true");
+-	FAssertMsg(!atWar(eTradeTeam, GET_PLAYER(ePlayer).getTeam()), "eTeam should be at peace with eWarTeam");
+-
++	FAssertMsg(eTradeTeam != getTeam(), "shouldn't call this function on ourselves"); // advc.003: The next two asserts had nonsensical messages (copy-paste error apparently)
++	FAssertMsg(GET_TEAM(eTradeTeam).isAlive(), "GET_TEAM(eTradeTeam).isAlive is expected to be true");
++	FAssertMsg(!atWar(eTradeTeam, GET_PLAYER(ePlayer).getTeam()), "ePlayer should be at peace with eTradeTeam");
++	// <advc.130f>
++	if(TEAMREF(ePlayer).isCapitulated() && TEAMREF(ePlayer).isVassal(getTeam()))
++		return 0; // </advc.130f>
+ 	iValue = (50 + (GC.getGameINLINE().getGameTurn() / 2));
+ 	iValue += (GET_TEAM(eTradeTeam).getNumCities() * 5);
+ 
+@@ -11583,13 +11593,20 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 		FAssert(false);
+ 		break;
+ 	} // <advc.130f>
++	// towardUs - i.e. toward the civ who pays for the embargo
++	AttitudeTypes towardUs = GET_PLAYER(ePlayer).AI_getAttitude(getID());
++	if(towardUs >= ATTITUDE_PLEASED)
++		iModifier -= 25;
++	if(towardUs >= ATTITUDE_FRIENDLY)
++		iModifier -= 25;
+ 	CvTeam const& kTeam = TEAMREF(ePlayer); // The team that'll have to cancel OB
+ 	if(kTeam.isOpenBorders(eTradeTeam)) {
+-		if(kTeam.getAtWarCount() > 0 && GET_PLAYER(ePlayer).isFocusWar())
+-			iModifier += 150;
++		if(kTeam.getAtWarCount() > 0 && GET_PLAYER(ePlayer).isFocusWar() &&
++				!kTeam.allWarsShared(getTeam(), false))
++			iModifier += towardUs < ATTITUDE_FRIENDLY ? 150 : 100;
+ 		else iModifier += 50;
+-	} // </advc.130f>
+-	iValue *= std::max(0, (iModifier + 100));
++	} // Lower bound was 0% in BtS, now 50%
++	iValue *= std::max(50, iModifier + 100); // </advc.130f>
+ 	iValue /= 100;
+ 	// advc.130f: Factored into iModifier now
+ 	/*if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isOpenBorders(eTradeTeam))
+@@ -11658,7 +11675,12 @@ DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam, PlayerTypes eP
+ 	{
+ 		return DENIAL_POWER_THEM;
+ 	}
+-
++	// <advc.130f>
++	// "It's out of our hands" b/c the vassal treaty can't be canceled
++	if(GET_TEAM(eTradeTeam).isVassal(getTeam()))
++		return DENIAL_POWER_THEM;
++	if(GET_TEAM(getTeam()).isAtWar(TEAMID(ePlayer)))
++		return NO_DENIAL; // </advc.130f>
+ 	eAttitude = GET_TEAM(getTeam()).AI_getAttitude(GET_PLAYER(ePlayer).getTeam());
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index ebb23db1d..b3c606096 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -315,7 +315,6 @@ bool CvSelectionGroup::showMoves(
+ 		}
+ 		if(!kLoopPlayer.isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
+ 			continue; // </advc.003>
+-//FAssert(plot()->getX()<14||plot()->getX()>18||plot()->getY()<18||plot()->getY()>22);
+ 		// <advc.102> Hide uninteresting friendly moves
+ 		PlayerTypes groupOwner = m_eOwner;
+ 		TeamTypes spectator = kLoopPlayer.getTeam();
+@@ -1600,7 +1599,8 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			{	// <advc.102> Previously only checked if destVisible
+ 				bool destVisible = plot()->isVisibleToWatchingHuman();
+ 				bool startVisible = fromPlot->isVisibleToWatchingHuman();
+-				if(destVisible || startVisible) // </advc.102>
++				if(destVisible || (startVisible && ::getUnit(headUnitNode()->
++						m_data)->isInitiallyVisible())) // </advc.102>
+ 				{	// <advc.102> Pass fromPlot
+ 					updateMissionTimer(iSteps, fromPlot);
+ 					if(showMoves(*fromPlot)) // </advc.102>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5782a9ee3..5b19228e3 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2318,13 +2318,18 @@ int CvTeam::getAtWarCount(bool bIgnoreMinors, bool bIgnoreVassals) const
+ /************************************************************************************************/
+ 
+ // <dlph.3> (actually an advc change)
+-bool CvTeam::allWarsShared(TeamTypes otherId) const {
++bool CvTeam::allWarsShared(TeamTypes otherId,
++		bool checkBothWays) const { // advc.130f
+ 
+ 	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 		TeamTypes tId = (TeamTypes)i; CvTeam const& t = GET_TEAM(tId);
+ 		if(!t.isAlive()) continue;
+-		if(t.isAtWar(getID()) != t.isAtWar(otherId))
++		if(checkBothWays && // advc.130f
++				t.isAtWar(getID()) != t.isAtWar(otherId))
+ 			return false;
++		// <advc.130f>
++		if(!t.isAtWar(otherId) && t.isAtWar(getID()))
++			return false; // </advc.130f>
+ 	}
+ 	return true;
+ } // </dlph.3>
+@@ -6077,8 +6082,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 							isForceRevealedBonus(eBonus))
+ 						continue; // advc.003
+ 					pCity = GC.getMapINLINE().findCity(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), NO_PLAYER,
+-							NO_TEAM, //advc.004r: instead of getID()
+-							false);
++							// advc.004r: Pass ID as 'observer' (last param) instead of city owner 
++							NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, NULL, getID());
+ 					if (pCity == NULL)
+ 						continue; // advc.003
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DISCOVERED_BONUS", GC.getBonusInfo(eBonus).getTextKeyWide(), pCity->getNameKey());
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 1ccef0c53..dac47cd5c 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -88,7 +88,10 @@ public:
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-	bool allWarsShared(TeamTypes otherId) const; // dlph.3
++	bool allWarsShared(TeamTypes otherId, // dlph.3
++			/*  advc.130f: If false, check only if the war enemies of this team
++				are included in those of otherId. (set inclusion) */
++			bool checkBothWays = true) const;
+ 	bool anyWarShared(TeamTypes otherId) const; // advc.130s
+ 	int getWarPlanCount(WarPlanTypes eWarPlan, bool bIgnoreMinors = true) const;								// Exposed to Python
+ 	int getAnyWarPlanCount(bool bIgnoreMinors = true) const;																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 40736817a..f0a4e359d 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4137,8 +4137,8 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eTeam) c
+ 	return NO_DENIAL;
+ }
+ 
+-
+-int CvTeamAI::AI_declareWarTradeVal(TeamTypes eWarTeam, TeamTypes eTeam) const
++// advc.104o: Moved the K-Mod/BtS code from AI_declareWarTradeVal here
++int CvTeamAI::AI_declareWarTradeValLegacy(TeamTypes eWarTeam, TeamTypes eTeam) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -4149,12 +4149,7 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eWarTeam, TeamTypes eTeam) const
+ 	FAssertMsg(eWarTeam != getID(), "shouldn't call this function on ourselves");
+ 	FAssertMsg(GET_TEAM(eWarTeam).isAlive(), "GET_TEAM(eWarTeam).isAlive is expected to be true");
+ 	FAssertMsg(!atWar(eWarTeam, eTeam), "eTeam should be at peace with eWarTeam");
+-	// <advc.104o>
+-	if(getWPAI.isEnabled()) {
+-		return GET_TEAM(eTeam).warAndPeaceAI().declareWarTradeVal(
+-				// eWarTeam can be a (voluntary) vassal
+-				GET_TEAM(eWarTeam).getMasterTeam(), getID());
+-	} // </advc.104o>
++
+ 	iValue = 0;
+ 	iValue += (GET_TEAM(eWarTeam).getNumCities() * 10);
+ 	iValue += (GET_TEAM(eWarTeam).getTotalPopulation(true) * 2);
+@@ -4266,7 +4261,26 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eWarTeam, TeamTypes eTeam) const
+ 
+ 	iValue *= 60 + (140 * GC.getGameINLINE().getGameTurn()) / std::max(1, GC.getGameINLINE().getEstimateEndTurn());
+ 	iValue /= 100;
+-	return roundTradeVal(iValue); // advc.104k
++	return iValue;
++}
++
++
++int CvTeamAI::AI_declareWarTradeVal(TeamTypes eWarTeam, TeamTypes eTeam) const
++{
++	// <advc.104o>
++	int r = -1;
++	if(getWPAI.isEnabled())
++		r = GET_TEAM(eTeam).warAndPeaceAI().declareWarTradeVal(
++				// eWarTeam can be a (voluntary) vassal
++				GET_TEAM(eWarTeam).getMasterTeam(), getID());
++	else r = AI_declareWarTradeValLegacy(eWarTeam, eTeam);
++	// Charge at least as much as for an embargo
++	CvPlayerAI const& allyLeader = GET_PLAYER(GET_TEAM(eTeam).getLeaderID());
++	if(allyLeader.canStopTradingWithTeam(eWarTeam))
++		r = std::max(r, GET_PLAYER(getLeaderID()).AI_stopTradingTradeVal(
++				eWarTeam, allyLeader.getID()));
++	// </advc.104o>
++	return roundTradeVal(r); // advc.104k
+ }
+ 
+ 
+@@ -4302,6 +4316,29 @@ DenialTypes CvTeamAI::AI_declareWarTrade(TeamTypes eWarTeam, TeamTypes eTeam, bo
+ 		disabled) */
+ 	if(AI_getWorstEnemy() == eTeam)
+ 		return DENIAL_WORST_ENEMY;
++	/*  Refuse to start wars that we'll probably not engage in b/c we're busy
++		fighting a closer enemy. Unless eTeam is already at war with eWarTeam.
++		The main goal is to reduce the amount of messages generated by the
++		war trade alert (advc.210a). */
++	TeamTypes closestWarEnemy = NO_TEAM;
++	int highestCloseness = INT_MIN;
++	if(!GET_TEAM(eWarTeam).isAtWar(eTeam)) {
++		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++			CvTeamAI const& t = GET_TEAM((TeamTypes)i);
++			if(!t.isAlive() || t.isMinorCiv() || !t.isAtWar(getID()))
++				continue;
++			int closeness = AI_teamCloseness(t.getID(), DEFAULT_PLAYER_CLOSENESS);
++			if(closeness > highestCloseness) {
++				highestCloseness = closeness;
++				closestWarEnemy = t.getID();
++			}
++		}
++	}
++	if(closestWarEnemy != NO_TEAM) {
++		int closeness = AI_teamCloseness(eWarTeam, DEFAULT_PLAYER_CLOSENESS);
++		if(closeness < highestCloseness)
++			return DENIAL_TOO_MANY_WARS;
++	}
+   if(!getWPAI.isEnabled()) {
+ 	// Handle these DenialTypes later // </advc.104o>
+ /************************************************************************************************/
+@@ -4410,7 +4447,6 @@ DenialTypes CvTeamAI::AI_declareWarTrade(TeamTypes eWarTeam, TeamTypes eTeam, bo
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+ 	return NO_DENIAL;
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 9dbda5950..20971873d 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -315,7 +315,8 @@ protected:
+ 
+ 	void AI_doCounter();
+ 	void AI_doWar();
+-
++	// advc.104o:
++	int AI_declareWarTradeValLegacy(TeamTypes eWarTeam, TeamTypes eTeam) const;
+ 
+ 	// added so under cheat mode we can call protected functions for testing
+ 	friend class CvGameTextMgr;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 244d870b5..b3c35815b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -400,6 +400,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
+ 
+ 	m_szName.clear();
+ 	m_szScriptData ="";
++	initiallyVisible = true; // advc.102
+ 
+ 	if (!bConstructorCall)
+ 	{
+@@ -6049,8 +6050,9 @@ bool CvUnit::canSpread(const CvPlot* pPlot, ReligionTypes eReligion, bool bTestV
+ 	if (pCity->isHasReligion(eReligion))
+ 	{
+ 		return false;
+-	}
+-
++	} // <advc.099d>
++	if(pCity->isDisorder())
++		return false; // </advc.099d>
+ 	if (!canEnterArea(pPlot->getTeam(), pPlot->area()))
+ 	{
+ 		return false;
+@@ -6228,7 +6230,9 @@ bool CvUnit::canSpreadCorporation(const CvPlot* pPlot, CorporationTypes eCorpora
+ 	{
+ 		return false;
+ 	}
+-
++	 // <advc.099d>
++	if(pCity->isDisorder())
++		return false; // </advc.099d>
+ 	if (!canEnterArea(pPlot->getTeam(), pPlot->area()))
+ 	{
+ 		return false;
+@@ -13719,6 +13723,16 @@ bool CvUnit::verifyStackValid()
+ 	return true;
+ }
+ 
++// <advc.102> Really belongs in CvSelectionGroup, but can't add members there.
++void CvUnit::setInitiallyVisible(bool b) {
++
++	initiallyVisible = b;
++}
++
++bool CvUnit::isInitiallyVisible() const {
++
++	return initiallyVisible;
++}// </advc.102>
+ 
+ // Private Functions...
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index ff1339308..51abda76f 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -757,6 +757,8 @@ public:
+ 	bool isAlwaysHostile(const CvPlot* pPlot) const;
+ 
+ 	bool verifyStackValid();
++	void setInitiallyVisible(bool b); // advc.102
++	bool isInitiallyVisible() const; // advc.102
+ 
+ 	DllExport const CvArtInfoUnit* getArtInfo(int i, EraTypes eEra) const;										// Exposed to Python
+ 	DllExport const TCHAR* getButton() const;										// Exposed to Python
+@@ -878,6 +880,7 @@ protected:
+ 	bool m_bInfoBarDirty;
+ 	bool m_bBlockading;
+ 	bool m_bAirCombat;
++	bool initiallyVisible; // advc.102
+ 
+ 	PlayerTypes m_eOwner;
+ 	PlayerTypes m_eCapturingPlayer;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 4c60aa425..3db5aa03a 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -953,6 +953,11 @@ bool WarAndPeaceAI::Team::canSchemeAgainst(TeamTypes targetId,
+ 	if(agent.isAVassal())
+ 		return false;
+ 	CvTeam const& target = GET_TEAM(targetId);
++	/*  advc.130o: Shouldn't attack right after peace from demand; therefore
++		don't plan war during the peace treaty. */
++	if(agent.isForcePeace(targetId) && agent.AI_getMemoryCount(
++				targetId, MEMORY_ACCEPT_DEMAND) > 0)
++		return false;
+ 	return target.isAlive() && !target.isMinorCiv() && agent.isHasMet(targetId) &&
+ 			!target.isAVassal() && target.getNumCities() > 0 && (assumeNoWarPlan ||
+ 			agent.AI_getWarPlan(targetId) == NO_WARPLAN) &&
+@@ -1119,13 +1124,40 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 				rep.teamName(agentId), rep.teamName(targetId),
+ 				rep.teamName(sponsorId));
+ 	}
++	CvTeamAI const& sponsor = GET_TEAM(sponsorId);
+ 	// Don't log details of war evaluation
+ 	WarAndPeaceReport silentReport(true);
+-	WarEvalParameters params(agentId, targetId, silentReport, false,
+-			GET_TEAM(sponsorId).getLeaderID());
++	WarEvalParameters params(agentId, targetId, silentReport, false, sponsor.getLeaderID());
+ 	WarEvaluator eval(params);
+ 	int u = eval.evaluate(WARPLAN_LIMITED);
+-	double price = utilityToTradeVal(std::max(1, -u));
++	/*  Sponsored war results in a peace treaty with the sponsor. Don't check if
++		we're planning war against the sponsor - too easy to read (b/c there are
++		just two possibilities). Instead check war utility against the sponsor. */
++	if(canSchemeAgainst(sponsorId)) {
++		WarEvalParameters params2(agentId, sponsorId, silentReport);
++		WarEvaluator eval2(params2);
++		int uVsSponsor = eval2.evaluate(WARPLAN_LIMITED, 3);
++		if(uVsSponsor > 0)
++			u -= ::round(0.67 * uVsSponsor);
++	}
++	/*  Don't trust utility completely; human sponsor will try to pick the time
++		when we're most willing. Need to be concervative. Also, apparently the
++		sponsor gets sth. out of the DoW, and therefore we should always ask for
++		decent price, even if we don't mind declaring war. */
++	int lowerBound = -2;
++	if(!sponsor.isAtWar(targetId))
++		lowerBound -= 5;
++	// War utility esp. unreliable when things get desperate
++	int wsr = GET_TEAM(agentId).AI_getWarSuccessRating();
++	if(wsr < 0)
++		lowerBound += wsr / 10;
++	u = std::min(lowerBound, u);
++	double priceOurEconomy = utilityToTradeVal(-u);
++	double priceSponsorEconomy = sponsor.warAndPeaceAI().utilityToTradeVal(-u);
++	/*  If the sponsor has the bigger economy, use the mean of the price based on
++		our economy and his, otherwise, base it only on our economy. */
++	double price = (priceOurEconomy + std::max(priceOurEconomy, priceSponsorEconomy))
++			/ 2;
+ 	rep.log("War utility: %d, base price: %d", u, ::round(price));
+ 	CvTeamAI const& agent = GET_TEAM(agentId);
+ 	/*  Adjust the price based on our attitude and obscure it so that humans
+@@ -2173,8 +2205,12 @@ double WarAndPeaceAI::Civ::estimateBuildUpRate(PlayerTypes civId, int period) co
+ 
+ double WarAndPeaceAI::Civ::confidenceFromPastWars(TeamTypes targetId) const {
+ 
++	int sign = 1;
++	double sc = cache.pastWarScore(targetId);
++	if(sc < 0)
++		sign = -1;
+ 	// -15% for the first lost war, less from further wars
+-	double r = 1 + std::sqrt((double)cache.pastWarScore(targetId)) * 0.15;
++	double r = 1 + sign * std::sqrt(std::abs(sc)) * 0.15;
+ 	return ::dRange(r, 0.5, 1.5);
+ }
+ 
+@@ -2222,9 +2258,9 @@ double WarAndPeaceAI::Civ::warConfidenceLearned(PlayerTypes targetId,
+ 
+ 	double fromWarSuccess = TEAMREF(weId).warAndPeaceAI().confidenceFromWarSuccess(
+ 			TEAMID(targetId));
+-	double fromPastWars = 1;
+-	if(!ignoreDefOnly)
+-		fromPastWars = confidenceFromPastWars(TEAMID(targetId));
++	double fromPastWars = confidenceFromPastWars(TEAMID(targetId));
++	if(ignoreDefOnly == (fromPastWars > 1))
++		fromPastWars = 1;
+ 	double r = 1;
+ 	if(fromWarSuccess > 0)
+ 		r += fromWarSuccess - 1;
+@@ -2244,12 +2280,13 @@ double WarAndPeaceAI::Civ::warConfidenceAllies() const {
+ 	if(we.isHuman())
+ 		return 1;
+ 	double dpwr = GC.getLeaderHeadInfo(we.getPersonalityType()).getDogpileWarRand();
+-	if(dpwr <= 0) return 0;
++	if(dpwr <= 0)
++		return 0;
+ 	/* dpwr is between 20 (DeGaulle, high confidence) and
+ 	   150 (Lincoln, low confidence). These values are too far apart to convert
+ 	   them proportionally. Hence the square root. The result is between
+-	   1.22 and 0.45. */
+-	return std::sqrt(30 / dpwr);
++	   1 and 0.23. */
++	return std::sqrt(30 / dpwr) - 0.22;
+ }
+ 
+ double WarAndPeaceAI::Civ::confidenceAgainstHuman() const {
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index f55877eae..df54d652a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -97,6 +97,12 @@ int WarUtilityAspect::evaluate(PlayerTypes theyId) {
+ 			getAtPeaceAttitudeDivisor() / 2)
+ 		valTowardsThem++;
+ 	towardsThem = we->AI_getAttitudeFromValue(valTowardsThem);
++	/*  advc.130o: If recently received tribute, we're pleased as far
++		as war plans go. */
++	if(!params.isConsideringPeace() &&
++			we->AI_getMemoryCount(theyId, MEMORY_ACCEPT_DEMAND) > 0 &&
++			they->AI_getMemoryCount(weId, MEMORY_MADE_DEMAND_RECENT) > 0)
++		towardsThem = std::max(towardsThem, ATTITUDE_PLEASED);
+ 	towardsUs = they->AI_getAttitudeFromValue(valTowardsUs);
+ 	for(iSetIt it = m->conqueredCities(weId).begin();
+ 			it != m->conqueredCities(weId).end();
+@@ -130,7 +136,8 @@ int WarUtilityAspect::utility() const {
+ 	return u;
+ }
+ 
+-double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal) {
++double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
++		TeamTypes ignoreGains) {
+ 
+ 	double r = 0;
+ 	double total = 0;
+@@ -151,7 +158,8 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal) {
+ 				r += 4;
+ 		}
+ 		else if(m->conqueredCities(theyId).count(c.id()) > 0 &&
+-				(to == NO_PLAYER || m->lostCities(to).count(c.id()) > 0)) {
++				(to == NO_PLAYER || m->lostCities(to).count(c.id()) > 0) &&
++				c.city()->getTeam() != ignoreGains) {
+ 			/*  Their cache doesn't account for GP settled in cities of a third
+ 				party (unless espionage visibility), so we don't subtract
+ 				NumGreatPeople.
+@@ -914,13 +922,6 @@ void Loathing::evaluate() {
+ 			// Capitulated is as good as dead
+ 			TEAMREF(theyId).isCapitulated())
+ 		return;
+-	 // Don't start a war if they paid
+-	if(!params.isConsideringPeace() &&
+-			we->AI_getMemoryCount(theyId, MEMORY_ACCEPT_DEMAND) > 0) {
+-				log("No loathing because %s paid us tribute",
+-						report.leaderName(theyId));
+-		return;
+-	}
+ 	int veng = weAI->vengefulness();
+ 	if(veng == 0) {
+ 		log("No loathing b/c of our leader's personality");
+@@ -1858,7 +1859,8 @@ void PreEmptiveWar::evaluate() {
+ 	for(size_t i = 0; i < properCivs.size(); i++) {
+ 		CvPlayer const& civ = GET_PLAYER(properCivs[i]);
+ 		double vassalFactor = 1;
+-		if(GET_TEAM(civ.getTeam()).isAVassal()) vassalFactor = 0.5;
++		if(GET_TEAM(civ.getTeam()).isAVassal())
++			vassalFactor = 0.5;
+ 		if(civ.getMasterTeam() == GET_PLAYER(theyId).getMasterTeam() ||
+ 				m->getCapitulationsAccepted(TEAMID(theyId)).
+ 				count(civ.getTeam()) > 0) {
+@@ -1867,6 +1869,19 @@ void PreEmptiveWar::evaluate() {
+ 			theirPredictedCities += (civ.getNumCities() +
+ 					m->conqueredCities(civ.getID()).size() -
+ 					m->lostCities(civ.getID()).size()) * vassalFactor;
++			/*  Ignore cities that their side gains from our human target
++				(to avoid dogpiling on human) */
++			TeamTypes targetId = params.targetId();
++			if(targetId != NO_TEAM && targetId != theyId &&
++					GET_TEAM(targetId).isHuman()) {
++				for(iSetIt it = m->conqueredCities(civ.getID()).begin();
++						it != m->conqueredCities(civ.getID()).end(); it++) {
++					CvCity* c = WarAndPeaceCache::City::cityById(*it);
++					if(c != NULL && c->getTeam() == targetId)
++						theirPredictedCities--;
++				}
++				FAssert(theirPredictedCities >= 0);
++			}
+ 		}
+ 	}
+ 	double theirConqRatio = 1;
+@@ -2081,6 +2096,11 @@ double KingMaking::theirRelativeLoss() {
+ 
+ 	if(!m->isPartOfAnalysis(theyId)) // To save time
+ 		return 0;
++	bool humanTarget = false;
++	// Ignore assets that they gain from human target (to avoid dogpiling on human)
++	TeamTypes ignoreGains = params.targetId();
++	if(ignoreGains != NO_TEAM && !GET_TEAM(ignoreGains).isHuman())
++		ignoreGains = NO_TEAM;
+ 	double theirLosses = 0; double theirAssets = 0;
+ 	for(size_t i = 0; i < properCivs.size(); i++) {
+ 		CvTeam const& t = TEAMREF(properCivs[i]);
+@@ -2096,7 +2116,8 @@ double KingMaking::theirRelativeLoss() {
+ 			}
+ 			continue;
+ 		}
+-		double losses = lostAssetScore(NO_PLAYER, &assets); // can be negative
++		// can be negative
++		double losses = lostAssetScore(NO_PLAYER, &assets, ignoreGains);
+ 		theirAssets += vassalFactor * assets;
+ 		theirLosses += vassalFactor * losses;
+ 	}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 5ff1b9a4a..fdd25f944 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -95,8 +95,10 @@ protected:
+ 		(Shouldn't use theyAI->getCache().totalAssetScore() instead b/c that
+ 		includes data about cities we may not know of.)
+ 		Update: Now also subtracts score for assets conquered by them from 'to'
+-		(or from any civ); i.e. scores net loss (or gain) of assets. */
+-	 double lostAssetScore(PlayerTypes to = NO_PLAYER, double* returnTotal = NULL);
++		(or from any civ); i.e. scores net loss (or gain) of assets.
++		Gains from team ignoreGains aren't counted. */
++	 double lostAssetScore(PlayerTypes to = NO_PLAYER, double* returnTotal = NULL,
++			TeamTypes ignoreGains = NO_TEAM);
+ 	 double lossesFromBlockade(PlayerTypes victimId, PlayerTypes to);
+ 	 double lossesFromNukes(PlayerTypes victimId, PlayerTypes sourceId);
+ 	 /* Score for assets conquered by us from them (as set by evaluate(0)).
+
+[PATCH OMITTED] file=a/manual_0.85.pdf b/manual_0.85.pdf reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH OMITTED] file=a/manual_0.86.pdf b/manual_0.86.pdf reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=27 embeddedFiles=24 omittedFiles=3 embeddedPatchBytes=56268

@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4440
+# Commit: 5c2af6cce1db99ce231292d20041003c47d1028e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cc17325237c8b534c194bc287420c439c98c1568
+# Title: add link to getting started guide, quick cleanup
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	3	README.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index b25d51b6c..f98090c81 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,15 @@ but these are the (main) goals/purposes/features.
+ 
+ ![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
+ 
+-They consist of (see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
++## Quick Start Guide
++If you just want to play and do not need all the project bigger details, i added
++a quick guide of the main changes from civ4 and base AdvCiv players:
++[here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)
++
++## Project Goals and global view on gameplay changes
++
++The more general gameplay type of changes consist of
++(see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
+ - Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
+ be too aggressive but merciless, also more cautious sometimes (war declarations in
+ particular, mostly just for its self interest and not to spare a valuable target))
+@@ -62,8 +70,7 @@ which surprised me a lot in a way that pleased me i mean anyways. So far i have
+ the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
+ would be:
+ 
+-# Sources
+-A few useful links :
++# A few useful links :
+ - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
+ be needed if you only modify XML files if i am not mistaken i mean anyways)
+ - ressources that mention XML files and tags, useful if you'd want to [get started
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1502

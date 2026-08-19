@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1325
+# Commit: b3edd94663f924fbfc8448d2307195b8b6ec19a8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ab7a5d6083a62ecba271522b9fb5bfe02a5bbda6
+# Title: Bug fixed in BtS (or Vanilla) code: Crash when loading a savegame from inside a game with more civs than in the savegame. [advc.001p]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	3	CvGameCoreDLL/CvCity.cpp
+61	57	CvGameCoreDLL/CvInitCore.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index bd12f1f2d..320159f54 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -16219,14 +16219,13 @@ int CvCity::getMusicScriptId() const
+ 		{
+ 			bIsHappy = false;
+ 		}
+-	} /* <advc.001> Got a crash here once when loading a game with a small
+-		 number of civs from within a game with a large number of civs. */
++	} // <advc.001p> (Shouldn't be needed anymore)
+ 	CvPlayer const& owner = GET_PLAYER(getOwnerINLINE());
+ 	LeaderHeadTypes lht = owner.getLeaderType();
+ 	if(lht <= -1) {
+ 		FAssert(lht > -1);
+ 		return 0;
+-	} // </advc.001>
++	} // </advc.001p>
+ 	CvLeaderHeadInfo& kLeaderInfo = GC.getLeaderHeadInfo(GET_PLAYER(getOwnerINLINE()).getLeaderType());
+ 	EraTypes eCurEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
+ 	if (bIsHappy)
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 49cf81ce6..c17c834c5 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -556,70 +556,70 @@ void CvInitCore::resetGame(CvInitCore * pSource, bool bClear, bool bSaveGameType
+ 	if (bClear || !pSource)
+ 	{
+ 		resetGame();
+-	}
+-	if (pSource)
+-	{
+-		// Only copy over saved data
++	} // <advc.003>
++	if(!pSource)
++		return; // </advc.003>
+ 	
+-		// Descriptive strings about game and map
+-		if (!bSaveGameType || getGameMultiplayer() != pSource->getGameMultiplayer())
+-		{
+-			setType(pSource->getType());
+-		}
+-		setGameName(pSource->getGameName());
+-		setGamePassword(pSource->getGamePassword());
+-		setAdminPassword(pSource->getAdminPassword(), false);
+-		setMapScriptName(pSource->getMapScriptName());
+-
+-		setWBMapNoPlayers(pSource->getWBMapNoPlayers());
+-
+-		// Standard game parameters
+-		setWorldSize(pSource->getWorldSize());
+-		setClimate(pSource->getClimate());
+-		setSeaLevel(pSource->getSeaLevel());
+-		setEra(pSource->getEra());
+-		setGameSpeed(pSource->getGameSpeed());
+-		setTurnTimer(pSource->getTurnTimer());
+-		setCalendar(pSource->getCalendar());
+-
+-		// Map-specific custom parameters
+-		setCustomMapOptions(pSource->getNumCustomMapOptions(), pSource->getCustomMapOptions());
+-		m_iNumHiddenCustomMapOptions = pSource->getNumHiddenCustomMapOptions();
+-		setVictories(pSource->getNumVictories(), pSource->getVictories());
+-
+-		// Standard game options
+-		int i;
+-		for (i = 0; i < NUM_GAMEOPTION_TYPES; ++i)
+-		{	// <advc.003>
+-			GameOptionTypes got = (GameOptionTypes)i;
+-			bool b = pSource->getOption(got); // </advc.003>
+-			// <dlph.18>
+-			CvGameOptionInfo& goi = GC.getGameOptionInfo(got);
+-			if(goi.getVisible() == 0)
+-				b = goi.getDefault(); // </dlph.18>
+-			setOption((GameOptionTypes)i, b);
+-		}
++	// Only copy over saved data
+ 
+-		for (i = 0; i < NUM_MPOPTION_TYPES; ++i)
+-		{
+-			setMPOption((MultiplayerOptionTypes)i, pSource->getMPOption((MultiplayerOptionTypes)i));
+-		}
+-		setStatReporting(pSource->getStatReporting());
++	// Descriptive strings about game and map
++	if (!bSaveGameType || getGameMultiplayer() != pSource->getGameMultiplayer())
++	{
++		setType(pSource->getType());
++	}
++	setGameName(pSource->getGameName());
++	setGamePassword(pSource->getGamePassword());
++	setAdminPassword(pSource->getAdminPassword(), false);
++	setMapScriptName(pSource->getMapScriptName());
++
++	setWBMapNoPlayers(pSource->getWBMapNoPlayers());
+ 
+-		// Game turn mgmt
+-		setGameTurn(pSource->getGameTurn());
+-		setMaxTurns(pSource->getMaxTurns());
+-		setPitbossTurnTime(pSource->getPitbossTurnTime());
+-		setTargetScore(pSource->getTargetScore());
++	// Standard game parameters
++	setWorldSize(pSource->getWorldSize());
++	setClimate(pSource->getClimate());
++	setSeaLevel(pSource->getSeaLevel());
++	setEra(pSource->getEra());
++	setGameSpeed(pSource->getGameSpeed());
++	setTurnTimer(pSource->getTurnTimer());
++	setCalendar(pSource->getCalendar());
+ 
+-		// City Elimination
+-		setMaxCityElimination(pSource->getMaxCityElimination());
++	// Map-specific custom parameters
++	setCustomMapOptions(pSource->getNumCustomMapOptions(), pSource->getCustomMapOptions());
++	m_iNumHiddenCustomMapOptions = pSource->getNumHiddenCustomMapOptions();
++	setVictories(pSource->getNumVictories(), pSource->getVictories());
+ 
+-		setNumAdvancedStartPoints(pSource->getNumAdvancedStartPoints());
++	// Standard game options
++	int i;
++	for (i = 0; i < NUM_GAMEOPTION_TYPES; ++i)
++	{	// <advc.003>
++		GameOptionTypes got = (GameOptionTypes)i;
++		bool b = pSource->getOption(got); // </advc.003>
++		// <dlph.18>
++		CvGameOptionInfo& goi = GC.getGameOptionInfo(got);
++		if(goi.getVisible() == 0)
++			b = goi.getDefault(); // </dlph.18>
++		setOption((GameOptionTypes)i, b);
++	}
+ 
+-		setSyncRandSeed(pSource->getSyncRandSeed());
+-		setMapRandSeed(pSource->getMapRandSeed());
++	for (i = 0; i < NUM_MPOPTION_TYPES; ++i)
++	{
++		setMPOption((MultiplayerOptionTypes)i, pSource->getMPOption((MultiplayerOptionTypes)i));
+ 	}
++	setStatReporting(pSource->getStatReporting());
++
++	// Game turn mgmt
++	setGameTurn(pSource->getGameTurn());
++	setMaxTurns(pSource->getMaxTurns());
++	setPitbossTurnTime(pSource->getPitbossTurnTime());
++	setTargetScore(pSource->getTargetScore());
++
++	// City Elimination
++	setMaxCityElimination(pSource->getMaxCityElimination());
++
++	setNumAdvancedStartPoints(pSource->getNumAdvancedStartPoints());
++
++	setSyncRandSeed(pSource->getSyncRandSeed());
++	setMapRandSeed(pSource->getMapRandSeed());
+ }
+ 
+ void CvInitCore::resetPlayers()
+@@ -733,6 +733,10 @@ void CvInitCore::resetPlayer(PlayerTypes eID, CvInitCore * pSource, bool bClear,
+ 				setLeaderName(eID, pSource->getLeaderName(eID));
+ 				setSlotStatus(eID, pSource->getSlotStatus(eID));
+ 				setSlotClaim(eID, pSource->getSlotClaim(eID));
++				// <advc.001p>
++				int foo=-1;
++				for(CvCity* c = GET_PLAYER(eID).firstCity(&foo); c != NULL; c = GET_PLAYER(eID).nextCity(&foo))
++					c->reset(); // </advc.001p>
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5814

@@ -1,0 +1,1240 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4805
+# Commit: 1db0a8084aa68c2ca9fb844230f18e5c8bc68142
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0480b0f317c66ef16bd685a8965d2fab265ceff9
+# Title: add ai-generated buttons and related docs, remove BUILDING_RUSSIAN_RESEARCH_INSTITUTE, replace it with BUILDING_RUSSIAN_GORD (based on the castle), and other...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Gord/Gord.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb2.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bloodbowl.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/orccity.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds
+1	1	Assets/Python/EntryPoints/CvRandomEventInterface.py
+8	7	Assets/XML/Art/CIV4ArtDefines_Building.xml
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+212	204	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Buildings/CIV4CityLSystem.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+9	9	Assets/XML/Events/CIV4EventTriggerInfos.xml
+2	1	Assets/XML/GlobalDefines_advc.xml
+9	12	Assets/XML/Technologies/CIV4TechInfos.xml
+2	1	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+2	2	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+11	3	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+15	7	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+12	12	Assets/XML/Units/CIV4UnitInfos.xml
+15	9	README.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Gord/Gord.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb2.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bloodbowl.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/orccity.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Gord/Gord.dds b/Assets/Art/AdvCiv_SAS/Buildings/Gord/Gord.dds
+new file mode 100644
+index 000000000..54bb6df84
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Gord/Gord.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb.dds b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb.dds
+new file mode 100644
+index 000000000..26850f42c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb2.dds b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb2.dds
+new file mode 100644
+index 000000000..c8585ae26
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bb2.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bloodbowl.nif b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bloodbowl.nif
+new file mode 100644
+index 000000000..46fa872e9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/bloodbowl.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/orccity.dds b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/orccity.dds
+new file mode 100644
+index 000000000..bfa7b21fd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Gord/nif/orccity.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds
+index 93ff97929..e49b348b7 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds b/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds
+new file mode 100644
+index 000000000..4ee877fb3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds b/Assets/Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds
+deleted file mode 100644
+index 180f8fd96..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds and /dev/null differ
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 5cdc5d44e..ad5632d7b 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -1996,7 +1996,7 @@ def canTriggerUprising(playerId, techReqTag1, techReqTag2, counterUnitClassTag):
+ 
+ def canTriggerTheHuns(argsList):
+ 	# advc.311: Moved into new function
+-	return canTriggerUprising(argsList[0].ePlayer, 'TECH_MOUNTED_INFANTRY', 'TECH_IRON_WORKING', 'UNITCLASS_SPEARMAN')
++	return canTriggerUprising(argsList[0].ePlayer, 'TECH_MOUNTED_COMBAT', 'TECH_IRON_WORKING', 'UNITCLASS_SPEARMAN')
+ 
+ def getHelpTheHuns1(argsList):
+ 	iEvent = argsList[0]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 15e221e7a..06b63d58a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -189,7 +189,7 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,7</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: button imported and modified or/and adjusted for advciv-sas or not but in all cases anyways etc, from https://fr.pinterest.com/pin/412290540863776580/, base aqueduct button it was based on was: <Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,1</Button> anyways etc ; note: may take alternatively in the future or not the FFH2's asset ART_DEF_BUILDING_PUBLIC_BATHS 's button if need(ed) or and suits better or not or may not, but anyways etc... ; as for the art animation asset, imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc -->
++		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc ; as for the button it is ai generated by chatgpt/becomingthrough thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
+ 			<LSystem>LSYSTEM_1x1</LSystem>
+@@ -480,15 +480,16 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Laboratory.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,4</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: similarly as for the impluvium 's art asset animation, imported from FFH2 mod's ART_DEF_BUILDING_ARENA anyways etc ; as for the button it is ai generated by chatgpt/becomingthrough thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
+ 		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_RUSSIAN_RESEARCH_INSTITUTE</Type>
+-			<LSystem>LSYSTEM_3x1</LSystem>
++			<Type>ART_DEF_BUILDING_RUSSIAN_GORD</Type>
++			<LSystem>LSYSTEM_2x2</LSystem>
+ 			<bAnimated>0</bAnimated>
+-			<fScale>1.3</fScale>
+-			<fInterfaceScale>0.77</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Russian Research Institute/Research_Institute.nif</NIF>
++			<fScale>1.6</fScale>
++			<fInterfaceScale>0.8</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Gord/nif/Bloodbowl.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Laboratory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,3</Button>
++			<Button>Art/AdvCiv_SAS/Buildings/Gord/Gord.dds</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_THEATRE</Type>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 0adefacbc..5ace4c2a0 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -13174,8 +13174,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MOUNTED_INFANTRY</ScriptID>
+-		<SoundID>SND_TECH_MOUNTED_INFANTRY</SoundID>
++		<ScriptID>AS2D_TECH_MOUNTED_COMBAT</ScriptID>
++		<SoundID>SND_TECH_MOUNTED_COMBAT</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15290,8 +15290,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_MOUNTED_INFANTRY</ScriptID>
+-		<SoundID>SND_TECH_MP_MOUNTED_INFANTRY</SoundID>
++		<ScriptID>AS2D_TECH_MP_MOUNTED_COMBAT</ScriptID>
++		<SoundID>SND_TECH_MP_MOUNTED_COMBAT</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index cff3efd5b..9df045360 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8759,7 +8759,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MOUNTED_INFANTRY</SoundID>
++			<SoundID>SND_TECH_MOUNTED_COMBAT</SoundID>
+ 			<Filename>Sounds/Tech/Tech_HorsebackRiding</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9403,7 +9403,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_MOUNTED_INFANTRY</SoundID>
++			<SoundID>SND_TECH_MP_MOUNTED_COMBAT</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_HorsebackRiding</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 5ca24931f..0bf28811b 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -1458,7 +1458,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>130</iCost>
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1573,15 +1573,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: remove flavor gold, doesn't seem related at all to me unless i'm mistaken, anyways etc -->
+ 			<!-- advc.020: was 6 Military, 4 Gold, 4 Espionage -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+@@ -1616,7 +1613,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
++			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
+ 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -1656,7 +1653,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>125</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1779,12 +1776,209 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+ 					<iFlavor>4</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
++		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case but anyways etc, if i may say but anyways etc, see xml or and docs or and similar or and not anyways etc for details anyways etc -->
++		<BuildingInfo> <!-- custom: class: castle, type: russian_gord (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
++			<Type>BUILDING_RUSSIAN_GORD</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_RUSSIAN_GORD</Description>
++			<Civilopedia>TXT_KEY_BUILDING_RUSSIAN_GORD_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_RUSSIAN_GORD</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<FreeStartEra>NONE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<!-- advc.180: was 0 -->
++			<bNeverCapture>1</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>1</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<iCost>135</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>0</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<!-- custom: also add military production modifiers to make it more of a military type of building, anyways etc, was 0 -->
++			<iMilitaryProductionModifier>25</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>1</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<!-- advc.004c: Replacing the above (which was 50) -->
++			<iRaiseDefense>100</iRaiseDefense>
++			<iBombardDefense>25</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>2</iAsset>
++			<!-- advc.131c: was 2 -->
++			<iPower>5</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>2</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1000</iCommerce>
++			</CommerceChangeDoubleTimes>
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>25</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<SpecialistCounts/>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_CASTLE</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers>
++				<BonusProductionModifier>
++					<BonusType>BONUS_STONE</BonusType>
++					<iProductonModifier>100</iProductonModifier>
++				</BonusProductionModifier>
++			</BonusProductionModifiers>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs>
++				<BuildingClassNeeded>
++					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
++					<bNeededInCity>1</bNeededInCity>
++				</BuildingClassNeeded>
++			</BuildingClassNeededs>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: quite strong military building so putting flavor 6 seems about right if i may say anyways etc -->
++			<!-- advc.020: was 6 Military, 4 Gold, 4 Espionage -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+ 					<iFlavor>4</iFlavor>
+@@ -1977,10 +2171,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -2540,7 +2730,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -2707,7 +2897,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -2787,7 +2977,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<!-- custom: also add military production modifiers to make it more of a versatile production/growth type of building, anyways etc, was 0 -->
++			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -2825,10 +3016,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
++			<!-- custom: reduce it/this, give instead miltiary production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
+ 			<UnitCombatFreeExperiences>
+ 				<UnitCombatFreeExperience>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iExperience>4</iExperience>
++					<iExperience>3</iExperience>
+ 				</UnitCombatFreeExperience>
+ 			</UnitCombatFreeExperiences>
+ 			<DomainFreeExperiences/>
+@@ -2839,10 +3031,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: reduce the flavor military, (this building) (but anyways etc) should not be that strong though even with the new buff we added in advciv-sas of military production, anyways etc, was 10 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -10761,191 +10954,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: laboratory, type: russian_research_institute (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
+-			<Type>BUILDING_RUSSIAN_RESEARCH_INSTITUTE</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_RUSSIAN_RESEARCH_INSTITUTE</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_RUSSIAN_RESEARCH_INSTITUTE_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_RUSSIAN_RESEARCH_INSTITUTE_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_RUSSIAN_RESEARCH_INSTITUTE</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>250</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>-1</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>50</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>8</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
+-			</CommerceModifiers>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+-					<iSpecialistCount>1</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts>
+-				<FreeSpecialistCount>
+-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+-					<iFreeSpecialistCount>2</iFreeSpecialistCount>
+-				</FreeSpecialistCount>
+-			</FreeSpecialistCounts>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_LABORATORY</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs>
+-				<BuildingClassNeeded>
+-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
+-					<bNeededInCity>1</bNeededInCity>
+-				</BuildingClassNeeded>
+-			</BuildingClassNeededs>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: was 10 Science; cf. Laboratory -->
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>4</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: theatre, type: theatre (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
+ 			<Type>BUILDING_THEATRE</Type>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index f260a7dfb..049d344ba 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -851,7 +851,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 			<Scale>1.66</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_RUSSIAN_RESEARCH_INSTITUTE">
++		<ArtRef Name="building:BUILDING_RUSSIAN_GORD">
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 			<Scale>1.3</Scale>
+ 		</ArtRef>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 74359da2c..baf780329 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -3469,8 +3469,8 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_LABORATORY</BuildingClassType>
+-					<BuildingType>BUILDING_RUSSIAN_RESEARCH_INSTITUTE</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
++					<BuildingType>BUILDING_RUSSIAN_GORD</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 467e63aa4..f622f6bbf 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -3380,7 +3380,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3466,7 +3466,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3638,7 +3638,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3752,7 +3752,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3838,7 +3838,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -8998,7 +8998,7 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+@@ -14156,7 +14156,7 @@
+ 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+-				<ObsoleteTech>TECH_MOUNTED_INFANTRY</ObsoleteTech>
++				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+ 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -14249,7 +14249,7 @@
+ 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+-				<ObsoleteTech>TECH_MOUNTED_INFANTRY</ObsoleteTech>
++				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+ 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -14854,7 +14854,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_GUILDS</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 22f1e1498..72c3094c8 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1199,9 +1199,10 @@
+ 		 tech costs are taken times 100% - 23% = 77%. This multiplier gets
+ 		 further adjusted to the tech era and map size. Use 0 for BtS
+ 		 behavior (tech costs unaffected by the "No Tech Trading" option). -->
++	<!-- custom: try a slightly slower game pace at no tech trading, may make sense / fit well or not too bad hopefully or not or yes or etc anyways etc with the other tech changes in tech tree, tech costs, research percents in handicap etc, or is as i want it too or and or and etc, but anyways etc anyways etc anyways etc... -->
+ 	<Define>
+ 		<DefineName>TECH_COST_NOTRADE_MODIFIER</DefineName>
+-		<iDefineIntVal>-23</iDefineIntVal>
++		<iDefineIntVal>-20</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.034] The number of turns with Open Borders after making peace
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 5be0e7e36..400662dc8 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4836,14 +4836,11 @@
+ 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
+ 		</TechInfo>
+-		<!-- custom: button import from HR mod in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Art\Interface\Buttons\TechTree\Warrior_Code.dds anyways etc, as for button in our xml anyways etc, was:
+-		<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
+-		anyways etc...
+-		-->
+-		<TechInfo> <!-- custom: type: TECH_MOUNTED_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_MOUNTED_INFANTRY</Type>
+-			<Description>TXT_KEY_TECH_MOUNTED_INFANTRY</Description>
+-			<Civilopedia>TXT_KEY_TECH_MOUNTED_INFANTRY_PEDIA</Civilopedia>
++		<!-- custom: button was/is ai generated by chatgpt/becomingthrough thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
++		<TechInfo> <!-- custom: type: TECH_MOUNTED_COMBAT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_MOUNTED_COMBAT</Type>
++			<Description>TXT_KEY_TECH_MOUNTED_COMBAT</Description>
++			<Civilopedia>TXT_KEY_TECH_MOUNTED_COMBAT_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+@@ -4915,10 +4912,10 @@
+ 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Quote>
+-			<Sound>AS2D_TECH_MOUNTED_INFANTRY</Sound>
+-			<SoundMP>AS2D_TECH_MP_MOUNTED_INFANTRY</SoundMP>
+-			<Button>Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds</Button>
++			<Quote>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Quote>
++			<Sound>AS2D_TECH_MOUNTED_COMBAT</Sound>
++			<SoundMP>AS2D_TECH_MP_MOUNTED_COMBAT</SoundMP>
++			<Button>Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_IRON_WORKING</Type>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index 198368a5f..73ee0ca4b 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -129,9 +129,10 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	</TEXT>
+ 
+ 
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
+-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding most balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please also visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++ (or (even) better depending on the need (but anyways etc) VS Code .md preview for example anyways etc), but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]General Information[\BOLD][NEWLINE]- To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see as explained before the README.md at paragraph csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties (or whichever paragraph name it may have been renamed to in the future or not but anyways etc) for details (anyways etc)[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed [LINK=BONUS_GRAPES]"Wine" (Bonus) to "Grapes"[\LINK], see below at "Rules/Balance" changes in AdvCiv-SAS for details.[NEWLINE]- Renamed [LINK=BONUS_CATTLE]"Cow" (Ressource/Bonus) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules/Balance (non-exhaustive)[\BOLD][NEWLINE]- Game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age ; view docs or ingame for latest updated info anyways etc), see also for more details (adjust to your mod path) /_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md. Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages)[NEWLINE]- Slavery iProductionPerPopulation increased (currently from 24 to 26, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in HURRY_POPULATION of  ((from) in your mod path (anyways etc)) /Assets/XML/GameInfo/CIV4HurryInfo.xml for details anyways etc), the [LINK=BUILDING_GRANARY]granary[\LINK]] building is also nerfed or/and reworked a bit rather, as a cheaper and (quite) slightly (anyways etc) less (anyways etc) food generating building, see sevopedia building ingame for details or/and docs or/and code comments for details. civ-specific versions of the granary unaffected at least not all, so the civs with a civ-specific granary gain more advantages of having one as their civ-specific building, anyways etc. Reworked in particular the [LINK=BUILDING_INCAN_TERRACE]incan granary (terrace)[\LINK] to be a production/growth building now not a culture one anymore, see also docs or/and xml code comments for details[NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE]- Not tested if i may say but anyways etc, in theory AIs should value Iron bonus/ressource especially more, and horse more too, as an objective, using iAIObjective 10 (was 0), (ideally not restricting trade if uneeded extra in possession but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0.[NEWLINE]- As part of renaming wine to grapes, additionally reworked grapes: now improved by [LINK=IMPROVEMENT_FARM]IMPROVEMENT_FARM[\LINK], not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the [LINK=BONUS_GRAPES]ingame sevopedia entry of the grapes[\LINK] with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.[NEWLINE]- Adjusted the name and repartition and spawn chance as well as yields of many ressources, please view sevopedia bonus for latest info and this commit (see README_Quick_Get_Started_Guide.md that also has the commit link in the docs of this mod, at bullet point mentioning content similar to this one you are reading here and now i mean if still updated or/and accurate here or there or/and other or and not anyways etc) for details. In general, to get the main idea of it, some ressources that were weak are now stronger (for example silver, [LINK=BONUS_DEER]deer[\LINK], etc.), some are a bit weaker (for example gold, but it could barely be considered a nerf anyways etc), ressources/bonuses overall give less gpt to make game more gradual. Food land ressources spawn significantly less but after various testing increased it to values where they still spawn enough for game not to be boring or tedious, the idea is there will be more compeititon around them, as a result they also generally have a bit stronger bonuses, as well as reworked ones (for example sugar gives base hammer (productivity, horse gives base food but then improved gives only hammer, etc, see sevopedia bonus for details)), and deer in particular spawns much more as it is the only representative of snow or rather tundra ressources, its bonuses are strongest which seems accurate as it is both a very healthy and rich food. As a result, tundra cities if they have deer near them should be a lot more viable, example that may not be accurate in the future of me writing this, but for example as of now these screenshots from the drive for example show how it looks (view around screenshot 5235 to 5249 of the google drive for other samples of that time of this rework now finalized as of me writing this anyways etc): view for example screenshots 5238 of the drive (see/view anyways etc docs of the mod (README.md and such for the link anyways etc) and 5241 of the drive as well for example (same) anyways etc). Also, water ressources spawn more, especially for the now renamed clam into [LINK=BONUS_MOLLUSCS]the more general molluscs[\LINK] and fish as they are general ressources. Similarly, i have run a few tests to make sure (or at least try to (as best as i could or and wanted anyways etc hopefully accurate enough or not or yes or and other or and not anyways etc)) they don't spawn too much, so these are quite conservative tweaks but significant. With also buildings like the [LINK=BUILDING_HARBOR]harbor[\LINK] quite strongly buffed (view sevopedia for details) now, water planting should be a strong alternative to purely land ones, especially to complete an otherwise nice land location but poorer in ressources. I tried to make sure naval planting doesn't become too op or the opposite for land, i hope more versatility and strategy(ies? Anyways etc) can be used now as part of this rework, as well as more accurate gameplay. On that note, some pedia entries have been updated, [LINK=BONUS_WHALE]whales[\LINK] have been buffed too, etc, please view for details sevopedia bonus or/and docs or/and other pages anyways etc (or don't blame me if not accurate info you have hehe if i may say but do as you prefer here is all the info i have or most that was not too tedious or forgetted or rather forgotten xd if i may say but anyways etc of me to say but anyways etc... I hope gameplay will or and can be more interesting now with these balance changes without skewing too much at one side or the other, and that now there are more possibilities to play civ4 in a balanced perhaps competitive way, at least in theory and to best i could do at least of now, hopefully enjoyable or and helpful or not at least to me, may be tweaked in the future or and not, anyways etc.[NEWLINE]- Made ressources/bonuses generally spawn more towards the edges of the map, it was a bit too skewed towards central spawning for most bonuses, giving central start too big of an advantage over edge start, hopefully and with other bonuses and changes to spawn rate and such a bit closer now or/and balanced anyways etc[NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Shrines now also require a tech to be built, which is their religion's tech requirement. This allows to make shrines to also appear in tech tree, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it (in tech tree display, also about the conquest thing or similar or other issues or examples of what may happen but anyways etc as these are world wonders unlike the temple, the monastery, and the cathedral), tech prerequirement for shrines was NONE. See also docs for details or related issues/fixes/reworks ('s) info anyways etc.[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a seemingly bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...[NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc[NEWLINE]- Rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 20 per turn, see sevopedia ingame or xml for latest values if they changed in the meantime and i didn't (re)update them here anyways etc (anyways etc), anyways etc</English>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding most balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please also visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++ (or (even) better depending on the need (but anyways etc) VS Code .md preview for example anyways etc), but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]General Information[\BOLD][NEWLINE]- To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see as explained before the README.md at paragraph csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties (or whichever paragraph name it may have been renamed to in the future or not but anyways etc) for details (anyways etc)[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed [LINK=BONUS_GRAPES]"Wine" (Bonus) to "Grapes"[\LINK], see below at "Rules/Balance" changes in AdvCiv-SAS for details.[NEWLINE]- Renamed [LINK=BONUS_CATTLE]"Cow" (Ressource/Bonus) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules/Balance (non-exhaustive)[\BOLD]reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 (see docs and or latest updated value in GlobalDefines_advc.xml for details anyways etc), which as remidner according to the base advciv code comment if i am not mistaken anyways etc: "	advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option)."[NEWLINE]- Game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age ; view docs or ingame for latest updated info anyways etc), see also for more details (adjust to your mod path) /_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md. Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages)[NEWLINE]- Slavery iProductionPerPopulation increased (currently from 24 to 26, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in HURRY_POPULATION of  ((from) in your mod path (anyways etc)) /Assets/XML/GameInfo/CIV4HurryInfo.xml for details anyways etc), the [LINK=BUILDING_GRANARY]granary[\LINK]] building is also nerfed or/and reworked a bit rather, as a cheaper and (quite) slightly (anyways etc) less (anyways etc) food generating building, see sevopedia building ingame for details or/and docs or/and code comments for details. civ-specific versions of the granary unaffected at least not all, so the civs with a civ-specific granary gain more advantages of having one as their civ-specific building, anyways etc. Reworked in particular the [LINK=BUILDING_INCAN_TERRACE]incan granary (terrace)[\LINK] to be a production/growth building now not a culture one anymore, see also docs or/and xml code comments for details[NEWLINE]- Also replaced some civ-specific buildings, especially late game ones or/and (those i deemed but anyways etc) (too but anyways etc) inefficient, such as/like but anyways etc the russian research institute (now removed) (is (but anyways etc)) now replaced with the new [LINK=BUILDING_RUSSIAN_GORD]building gord[\LINK] for a more/stronger early game impact (based on the castle), see xml or ingame sevopedia or and docs or and other or and not for details, anyways etc[NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE]- Not tested if i may say but anyways etc, in theory AIs should value Iron bonus/ressource especially more, and horse more too, as an objective, using iAIObjective 10 (was 0), (ideally not restricting trade if uneeded extra in possession but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0.[NEWLINE]- As part of renaming wine to grapes, additionally reworked grapes: now improved by [LINK=IMPROVEMENT_FARM]IMPROVEMENT_FARM[\LINK], not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the [LINK=BONUS_GRAPES]ingame sevopedia entry of the grapes[\LINK] with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.[NEWLINE]- Adjusted the name and repartition and spawn chance as well as yields of many ressources, please view sevopedia bonus for latest info and this commit (see README_Quick_Get_Started_Guide.md that also has the commit link in the docs of this mod, at bullet point mentioning content similar to this one you are reading here and now i mean if still updated or/and accurate here or there or/and other or and not anyways etc) for details. In general, to get the main idea of it, some ressources that were weak are now stronger (for example silver, [LINK=BONUS_DEER]deer[\LINK], etc.), some are a bit weaker (for example gold, but it could barely be considered a nerf anyways etc), ressources/bonuses overall give less gpt to make game more gradual. Food land ressources spawn significantly less but after various testing increased it to values where they still spawn enough for game not to be boring or tedious, the idea is there will be more compeititon around them, as a result they also generally have a bit stronger bonuses, as well as reworked ones (for example sugar gives base hammer (productivity, horse gives base food but then improved gives only hammer, etc, see sevopedia bonus for details)), and deer in particular spawns much more as it is the only representative of snow or rather tundra ressources, its bonuses are strongest which seems accurate as it is both a very healthy and rich food. As a result, tundra cities if they have deer near them should be a lot more viable, example that may not be accurate in the future of me writing this, but for example as of now these screenshots from the drive for example show how it looks (view around screenshot 5235 to 5249 of the google drive for other samples of that time of this rework now finalized as of me writing this anyways etc): view for example screenshots 5238 of the drive (see/view anyways etc docs of the mod (README.md and such for the link anyways etc) and 5241 of the drive as well for example (same) anyways etc). Also, water ressources spawn more, especially for the now renamed clam into [LINK=BONUS_MOLLUSCS]the more general molluscs[\LINK] and fish as they are general ressources. Similarly, i have run a few tests to make sure (or at least try to (as best as i could or and wanted anyways etc hopefully accurate enough or not or yes or and other or and not anyways etc)) they don't spawn too much, so these are quite conservative tweaks but significant. With also buildings like the [LINK=BUILDING_HARBOR]harbor[\LINK] quite strongly buffed (view sevopedia for details) now, water planting should be a strong alternative to purely land ones, especially to complete an otherwise nice land location but poorer in ressources. I tried to make sure naval planting doesn't become too op or the opposite for land, i hope more versatility and strategy(ies? Anyways etc) can be used now as part of this rework, as well as more accurate gameplay. On that note, some pedia entries have been updated, [LINK=BONUS_WHALE]whales[\LINK] have been buffed too, etc, please view for details sevopedia bonus or/and docs or/and other pages anyways etc (or don't blame me if not accurate info you have hehe if i may say but do as you prefer here is all the info i have or most that was not too tedious or forgetted or rather forgotten xd if i may say but anyways etc of me to say but anyways etc... I hope gameplay will or and can be more interesting now with these balance changes without skewing too much at one side or the other, and that now there are more possibilities to play civ4 in a balanced perhaps competitive way, at least in theory and to best i could do at least of now, hopefully enjoyable or and helpful or not at least to me, may be tweaked in the future or and not, anyways etc.[NEWLINE]- Made ressources/bonuses generally spawn more towards the edges of the map, it was a bit too skewed towards central spawning for most bonuses, giving central start too big of an advantage over edge start, hopefully and with other bonuses and changes to spawn rate and such a bit closer now or/and balanced anyways etc[NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Shrines now also require a tech to be built, which is their religion's tech requirement. This allows to make shrines to also appear in tech tree, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it (in tech tree display, also about the conquest thing or similar or other issues or examples of what may happen but anyways etc as these are world wonders unlike the temple, the monastery, and the cathedral), tech prerequirement for shrines was NONE. See also docs for details or related issues/fixes/reworks ('s) info anyways etc.[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a seemingly bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...[NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc[NEWLINE]- Rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 20 per turn, see sevopedia ingame or xml for latest values if they changed in the meantime and i didn't (re)update them here anyways etc (anyways etc), anyways etc</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index c4ac76206..7a123a751 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -180,9 +180,9 @@
+ 
+ 
+ 
+-	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
++	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Tag>
++		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+ 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+ 	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 5350e5d87..edccdd9e9 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -315,6 +315,14 @@
+ 	</TEXT>
+ 
+ 
++
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
++		<English>Gord</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
+ 		<English>Ancient Maceman</English>
+@@ -481,10 +489,10 @@
+ 
+ 
+ 
+-	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY anyways etc anyways etc anyways etc -->
++	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY</Tag>
+-		<English>Mounted Infantry</English>
++		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
++		<English>Mounted Combat</English>
+ 	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 1c4ae75a5..0a864d0c5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -161,14 +161,14 @@
+ 	<!-- custom: more accurate and detailed entry, less western-centric -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CROSSBOWMAN_PEDIA</Tag>
+-		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]Crossbows and bows use the same elastic launch principles, but differ in that an archer using a bow must draw-and-shoot in a quick and smooth motion with limited or no time for aiming, while a crossbow's design allows it to be spanned and cocked ready for use at a later time and thus affording them unlimited time to aim. When shooting bows, the archer must fully perform the draw, holding the string and arrow using various techniques while pulling it back with arm and back muscles, and then either immediately shooting instinctively without a period of aiming, or holding that form while aiming. Both demand some physical strength to do so using bows suitable for warfare, though this is easier using lighter draw-weight hunting bows. As such, their accurate and sustained use in warfare takes much practice.[PARAGRAPH:1][TAB]Crossbows avoid these potential problems by having trigger-released cocking mechanisms to maintain the tension on the string once it has been spanned - drawn - into its ready-to-shoot position, allowing these weapons to be carried cocked and ready and affording their users time to aim them. This also allows them to be readied by someone assisting their users, so multiple crossbows can be used one after the other while others reload and ready them. Crossbows are spanned into their cocked positions using a number of techniques and devices, some of which are mechanical and employ gear and pulley arrangements - levers, belt hooks, pulleys, windlasses and cranequins - to overcome very high draw weight. These potentially achieve better precision and enable their effective use by less familiarised and trained personnel, whereas the simple and composite warbows of, for example, the English and the steppe nomads require years of training, practice and familiarisation.[PARAGRAPH:1][TAB]These advantages for the crossbow are somewhat offset by the longer time needed to reload a crossbow for further shots, with the crossbows with high draw weights requiring sophisticated systems of gears and pulleys to overcome their huge draw weights that are very slow and rather awkward to employ on the battlefield. Medieval crossbows were also very inefficient, with short shot stroke lengths from the string lock to the release point of their bolts, along with the slower speeds of their steel prods and heavy strings, despite their massive draw weights compared to bows, though modern materials and crossbow designs overcome these shortcomings.[PARAGRAPH:1][TAB]The earliest known crossbows were invented in ancient China in the first millennium BC and brought about a major shift in the role of projectile weaponry in wars, especially during Qin's unification wars and later the Han campaigns (206 BC - 220 AD) against northern nomads and western states. The medieval European crossbow was called by many names, including "crossbow" itself; most of these names derived from the word ballista, an ancient Greek torsion siege engine similar in appearance but different in design principle.[[PARAGRAPH:1][TAB]In modern times, firearms have largely supplanted bows and crossbows as weapons of war, but crossbows remain widely used for competitive shooting sports and hunting, and for relatively silent shooting.</English>
++		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1]Crossbows and bows use the same elastic launch principles, but differ in that an archer using a bow must draw-and-shoot in a quick and smooth motion with limited or no time for aiming, while a crossbow's design allows it to be spanned and cocked ready for use at a later time and thus affording them unlimited time to aim. When shooting bows, the archer must fully perform the draw, holding the string and arrow using various techniques while pulling it back with arm and back muscles, and then either immediately shooting instinctively without a period of aiming, or holding that form while aiming. Both demand some physical strength to do so using bows suitable for warfare, though this is easier using lighter draw-weight hunting bows. As such, their accurate and sustained use in warfare takes much practice.[PARAGRAPH:1]Crossbows avoid these potential problems by having trigger-released cocking mechanisms to maintain the tension on the string once it has been spanned - drawn - into its ready-to-shoot position, allowing these weapons to be carried cocked and ready and affording their users time to aim them. This also allows them to be readied by someone assisting their users, so multiple crossbows can be used one after the other while others reload and ready them. Crossbows are spanned into their cocked positions using a number of techniques and devices, some of which are mechanical and employ gear and pulley arrangements - levers, belt hooks, pulleys, windlasses and cranequins - to overcome very high draw weight. These potentially achieve better precision and enable their effective use by less familiarised and trained personnel, whereas the simple and composite warbows of, for example, the English and the steppe nomads require years of training, practice and familiarisation.[PARAGRAPH:1]These advantages for the crossbow are somewhat offset by the longer time needed to reload a crossbow for further shots, with the crossbows with high draw weights requiring sophisticated systems of gears and pulleys to overcome their huge draw weights that are very slow and rather awkward to employ on the battlefield. Medieval crossbows were also very inefficient, with short shot stroke lengths from the string lock to the release point of their bolts, along with the slower speeds of their steel prods and heavy strings, despite their massive draw weights compared to bows, though modern materials and crossbow designs overcome these shortcomings.[PARAGRAPH:1]The earliest known crossbows were invented in ancient China in the first millennium BC and brought about a major shift in the role of projectile weaponry in wars, especially during Qin's unification wars and later the Han campaigns (206 BC - 220 AD) against northern nomads and western states. The medieval European crossbow was called by many names, including "crossbow" itself; most of these names derived from the word ballista, an ancient Greek torsion siege engine similar in appearance but different in design principle.[[PARAGRAPH:1]In modern times, firearms have largely supplanted bows and crossbows as weapons of war, but crossbows remain widely used for competitive shooting sports and hunting, and for relatively silent shooting.</English>
+ 	</TEXT>
+ 
+ 
+ 	<!-- custom: based on the disciplined crossbow (kingdom of benin)'s entry (to match the format of this other civ unit (than the chinese civ unit)) and adjusted from there to fit the Chinese civ unit. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CHINA_CHOKONU_PEDIA</Tag>
+-		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], the repeating crossbow, also known as the repeater crossbow, and the Zhuge crossbow, also romanized Chu-ko-nu, due to its association with the Three Kingdoms-era strategist Zhuge Liang (181-234 AD), is a crossbow invented during the Warring States period in China that combined the bow spanning, bolt placing, and shooting actions into one motion.[PARAGRAPH:1][TAB]The earliest archaeological evidence of the repeating crossbow is found in the state of Chu, but it uses a pistol grip that is different from the later and more commonly known Ming dynasty (1368-1644) design.[PARAGRAPH:1][TAB]Although the repeating crossbow was in use throughout most of Chinese history until the late Qing dynasty (1644-1911), it was generally regarded as a non-military weapon suited for women, defending households against robbers.</English>
++		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], the repeating crossbow, also known as the repeater crossbow, and the Zhuge crossbow, also romanized Chu-ko-nu, due to its association with the Three Kingdoms-era strategist Zhuge Liang (181-234 AD), is a crossbow invented during the Warring States period in China that combined the bow spanning, bolt placing, and shooting actions into one motion.[PARAGRAPH:1]The earliest archaeological evidence of the repeating crossbow is found in the state of Chu, but it uses a pistol grip that is different from the later and more commonly known Ming dynasty (1368-1644) design.[PARAGRAPH:1]Although the repeating crossbow was in use throughout most of Chinese history until the late Qing dynasty (1644-1911), it was generally regarded as a non-military weapon suited for women, defending households against robbers.</English>
+ 	</TEXT>
+ 
+ 
+@@ -367,7 +367,7 @@
+ 	<!-- custom: impluvium (kingdom of benin's civ-specific at least as of now anyways etc) pedia entry similarly imported from https://en.wikipedia.org/wiki/Impluvium more specifically and mostly if i may say anyways etc https://en.wikipedia.org/wiki/Impluvium#West_and_Central_African_impluvium anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM_PEDIA</Tag>
+-		<English>[TAB]The impluvium (pl.: impluvia) is a water-catchment pool system meant to capture rain-water flowing from the compluvium, an area of roof. Often placed in a courtyard, under an opening in the roof, and thus "inside", instead of "outside", a building, it is a notable feature in many architectural traditions.[PARAGRAPH:1][TAB]Denyer, African Traditional Architecture, defined an impluvial style of architecture in West Africa, wherein "four buildings usually faced one another across courtyard". Buildings of the "style" (really, a "clade-based" type), did not necessarily feature an impluvium to capture rain. Further complicating matters, some texts have conflated Denyer's impluvial style with impluvium itself, and thereby take impluvium to refer not to the use of mechanisms to capture water, but instead to court yard-centered house plans.[PARAGRAPH:1]Impluvia have been observed in many West/Central-African architectural traditions, including those of the Igbo, Yoruba, Edo, Jola and Bamum. These ranged in complexity: Yoruba impluvia, referred to as akodi,[ sometimes only amounted to pots placed at the corners of vast rectilinear courtyards, while some in Ketu, Benin Republic, were drained into underground tanks. Commoners in the Benin kingdom usually had houses with multiple impluvia in their one or two court spaces, sometimes drained out of the house by pipes. As Nevadomsky et al. note, these impluvia were meant to remove rain water so that the open roof could be used as a light source and source of fresh air. While many previous examples have been rectilinear, the impluvia of Senegal could also be designed around round floor plans; this has become the basis for the 'Case � Impluvium" in Ziguinchor, Senegal, a centre of the arts run by the Alliance Franco-S�n�galaise.[PARAGRAPH:1]19th and 20th century European travelers were often surprised to find parallels to classical culture in those architectural traditions that had clear ones: "In the Bamum area there is an interesting type of hut. In referring to it Ankermann says: "The men's houses (Herrenh�user) in Bamum, in contrast to those of the women, show a most complicated structure. I was very much astonished when I entered for the first time to find myself in an actual Roman atrium with an impluvium in the middle, with the roof sloping towards the middle, and supported by columns." This resulted in a number of theories attempting to tie West and Central African impluvium to Greco-Roman, Egyptian, and Portuguese influences. While Kalaous rejects the possibility of Portuguese influence, he writes that "The Old Mediterranean influence seems to be more plausible but did not necessarily come via Egypt... Of course, this does not prove that there were contacts between the Etruscans and the peoples of what is now Southern Nigeria, but the existence of impluvium there (and elsewhere in West Africa) is certainly not easy to explain in terms of a quite independent origin." Denyer, on the other hand, notes that "No really large settlement could have taken place in this area [Southern Nigeria] before a means of collecting water had been found", to save for the dry season and to manage erosion. Most bluntly, Nevadomsky et al. write that "One need not postulate an external source for what was in all probability an independent evolution of space and form. The impluvium house could easily have arisen in a climate of hot sunshine and heavy seasonal rainfall."</English>
++		<English>[TAB]The impluvium (pl.: impluvia) is a water-catchment pool system meant to capture rain-water flowing from the compluvium, an area of roof. Often placed in a courtyard, under an opening in the roof, and thus "inside", instead of "outside", a building, it is a notable feature in many architectural traditions.[PARAGRAPH:1]Denyer, African Traditional Architecture, defined an impluvial style of architecture in West Africa, wherein "four buildings usually faced one another across courtyard". Buildings of the "style" (really, a "clade-based" type), did not necessarily feature an impluvium to capture rain. Further complicating matters, some texts have conflated Denyer's impluvial style with impluvium itself, and thereby take impluvium to refer not to the use of mechanisms to capture water, but instead to court yard-centered house plans.[PARAGRAPH:1]Impluvia have been observed in many West/Central-African architectural traditions, including those of the Igbo, Yoruba, Edo, Jola and Bamum. These ranged in complexity: Yoruba impluvia, referred to as akodi,[ sometimes only amounted to pots placed at the corners of vast rectilinear courtyards, while some in Ketu, Benin Republic, were drained into underground tanks. Commoners in the Benin kingdom usually had houses with multiple impluvia in their one or two court spaces, sometimes drained out of the house by pipes. As Nevadomsky et al. note, these impluvia were meant to remove rain water so that the open roof could be used as a light source and source of fresh air. While many previous examples have been rectilinear, the impluvia of Senegal could also be designed around round floor plans; this has become the basis for the 'Case � Impluvium" in Ziguinchor, Senegal, a centre of the arts run by the Alliance Franco-S�n�galaise.[PARAGRAPH:1]19th and 20th century European travelers were often surprised to find parallels to classical culture in those architectural traditions that had clear ones: "In the Bamum area there is an interesting type of hut. In referring to it Ankermann says: "The men's houses (Herrenh�user) in Bamum, in contrast to those of the women, show a most complicated structure. I was very much astonished when I entered for the first time to find myself in an actual Roman atrium with an impluvium in the middle, with the roof sloping towards the middle, and supported by columns." This resulted in a number of theories attempting to tie West and Central African impluvium to Greco-Roman, Egyptian, and Portuguese influences. While Kalaous rejects the possibility of Portuguese influence, he writes that "The Old Mediterranean influence seems to be more plausible but did not necessarily come via Egypt... Of course, this does not prove that there were contacts between the Etruscans and the peoples of what is now Southern Nigeria, but the existence of impluvium there (and elsewhere in West Africa) is certainly not easy to explain in terms of a quite independent origin." Denyer, on the other hand, notes that "No really large settlement could have taken place in this area [Southern Nigeria] before a means of collecting water had been found", to save for the dry season and to manage erosion. Most bluntly, Nevadomsky et al. write that "One need not postulate an external source for what was in all probability an independent evolution of space and form. The impluvium house could easily have arisen in a climate of hot sunshine and heavy seasonal rainfall."</English>
+ 	</TEXT>
+ 
+ 
+@@ -375,15 +375,23 @@
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN_PEDIA</Tag>
+-		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1][TAB]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</English>
++		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</English>
+ 	</TEXT>
+ 
+ 
+ 
+-	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY, also pedia entry from: https://en.wikipedia.org/wiki/Mounted_infantry#History and https://en.wikipedia.org/wiki/Camel_cavalry and https://en.wikipedia.org/wiki/War_elephant#:~:text=The%20practice%20of%20riding%20on,when%20they%20were%20in%20India. similarly, modified or not for advciv-sas anyways etc anyways etc anyways etc... -->
++	<!-- custom: BUILDING_RUSSIAN_GORD (russian empire's civ-specific), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/Gord_(archaeology) and modified or not for advciv-sas anyways et, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and othe ror and not or yes or other or etc anyways etc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY_PEDIA</Tag>
+-		<English>[TAB]The origins of mounted infantry go back to at least the beginnings of organised warfare. With the weight of ancient bronze armor, the opposing champions would travel to battle on chariots before dismounting to fight. With the evolution of hoplite warfare, some hoplites would travel to battle on horseback, before dismounting to take their place in the phalanx. The early pre-Marian Roman military had units consisting of infantrymen clinging to the saddles of the cavalry to take them to battle and then dismounting to fight. Gallic and Germanic warbands were reported to use double-riders, with a second warrior joining a horseman only for a short distance before dismounting to fight on foot.[citation needed] The Han dynasty also extensively used mounted infantry in their campaigns against the Xiongnu confederation. During many of the Han campaigns, the vast majority of the army rode on horseback; either as mounted cavalry or mounted infantry who fought dismounted.[PARAGRAPH:1]Camel cavalry, or camelry (French: m�haristes, pronounced [mea_ist]), is a generic designation for armed forces using camels as a means of transportation. Sometimes warriors or soldiers of this type also fought from camel-back with spears, bows, or firearms.[PARAGRAPH:1]Camel cavalry was a common element in desert warfare throughout history in the Middle East, due in part to the animals' high level of adaptability. They were better suited to working and surviving in arid environments than the horses of conventional cavalry. The smell of the camel, according to Herodotus, alarmed and disoriented horses, making camels an effective anti-cavalry weapon of the Achaemenid Persians in the Battle of Thymbra.[PARAGRAPH:1]The Arabs, during their campaigns in the deserts of Mesopotamia and Syria against the Byzantines and Sassanids, used camels to enhance their mobility, marking a stark contrast to their enemies, especially in the desert environment. The Carolingians under Charlemagne also used horses as transport for the bulk of their army, and special care was taken to ensure the health, fodder, and availability of horses on-campaign. Other notable infantry to use horses to enhance their mobility include the Genoese crossbowmen, and Viking raiders who would gather all the horses they could find in the vicinity of their landings.[PARAGRAPH:1]War elephants played a critical role in several key battles in antiquity, especially in ancient India. While seeing limited and periodic use in Ancient China, they became a permanent fixture in armies of historical kingdoms in Southeast Asia. During classical antiquity they were also used in ancient Persia and in the Mediterranean world within armies of Macedon, Hellenistic Greek states, the Roman Republic and later Empire, and Ancient Carthage in North Africa. In some regions they maintained a firm presence on the battlefield throughout the Medieval era. However, their use declined with the spread of firearms and other gunpowder weaponry in early modern warfare. After this, war elephants became restricted to non-combat engineering and labour roles, as well as being used for minor ceremonial uses.[PARAGRAPH:2]Dragoons originally were mounted infantry, who were trained in horse riding as well as infantry fighting skills. However, usage altered over time and during the 18th century, dragoons evolved into conventional light cavalry units and personnel. Dragoon regiments were established in most European armies during the late 17th century and early 18th century.[PARAGRAPH:1]The name is possibly derived from a type of firearm (called a dragon) carried by dragoons of the French Army. There is no distinction between the words dragon and dragoon in French.[PARAGRAPH:1]The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.[PARAGRAPH:2]With the invention of accurate and quick firing repeating pistols and rifles in the mid-19th century, cavalry started to become increasingly vulnerable. Many armies started to use troops which could either fight on horseback or on foot as circumstances dictated. Fighting on horseback with swords and lances would allow rapid movement without cover from enemy fire, whilst fighting on foot with pistols and rifles allowed them to make use of cover and to form defensive lines.[PARAGRAPH:1]The first mounted infantry units were raised during the Mexican-American War (as the Regiment of Mounted Riflemen, but redesignated Third Cavalry Regiment in 1861), and others followed, for example in Australia in the 1880s. Terms such as "mounted rifles" or "Light Horse" were often used.[PARAGRAPH:1]The French Foreign Legion used mule-mounted companies from the 1880s. Each mule was shared by two legionnaires, who took turns in riding it. This arrangement allowed faster and more prolonged marches that could cover 60 mi (97 km) in one day.[PARAGRAPH:1]In the Western Theater of the American Civil War, several infantry regiments were converted to mounted infantry and armed with repeating rifles. The Lightning Brigade at the Battle of Chickamauga was an example of these Union mounted infantry units.[PARAGRAPH:1]In the British Army, infantry units in some parts of the British Empire had a mounted platoon for scouting and skirmishing. In addition, many locally raised units such as the Ceylon Mounted Rifles, Cape Mounted Rifles, Natal Carbineers, and Marshall's Horse fought as mounted infantry.[PARAGRAPH:1]In the Second Boer War, the British copied the Boers and raised large forces of their own mounted infantry. Among various ad hoc formations, the Imperial Yeomanry was raised from volunteers in Britain between 1900 and 1901. Many of the contingents from Australia, Canada, and New Zealand (e.g. the Australian Light Horse and the Canadian Mounted Rifles) were MI (mounted infantry), as well as locally raised irregulars like the Imperial Light Horse and South African Light Horse. As artillery was of limited use against scattered Boer guerrilla bands later in the war, the mounted personnel of Royal Artillery units were formed into Royal Artillery Mounted Rifles.[PARAGRAPH:1]As part of the lessons learned from that war, British regular cavalry regiments were armed with the same rifle as the infantry and became well-trained in dismounted tactics. A version of the standard infantry rifle, the shorter-barreled LEC or "Lee-Enfield Cavalry Carbine Mark I" had been introduced in 1896.[PARAGRAPH:2]Napoleon employed a camel corps for the French invasion of Egypt and Syria. During the late 19th and much of the 20th centuries, camel troops were used for desert policing and patrol work in the British, French, German, Spanish, and Italian colonial armies. Descendants of such units still form part of the modern Moroccan and Egyptian armies and the paramilitary Indian Border Security Force.[PARAGRAPH:1]The British-officered Egyptian Camel Corps played a significant role in the 1898 Battle of Omdurman; one of the few occasions during this period when this class of mounted troops took part in substantial numbers in a set-piece battle. The Ottoman Army maintained camel companies as part of its Yemen and Hejaz Corps, both before and during World War I.[PARAGRAPH:1]The Italians used Dubat camel troops in Italian Somaliland, mainly for frontier patrol during the 1920s and 1930s. These Dubats participated in the Italian conquest of the Ogaden in 1935-1936 during the Second Italo-Ethiopian War.[PARAGRAPH:1]Colonial authorities in the Spanish protectorate in Morocco used locally recruited camel troops in the northern part of the protectorate, mainly for frontier patrol work from the 1930s until 1956. Forming part of the Tropas Nomades del Sahara, these camel-mounted units had a limited local role in the Spanish Civil War during 1936-1939.[PARAGRAPH:1]The Jordanian Desert Patrol still uses camels.[PARAGRAPH:1]Bikaner State (now Bikaner, Rajasthan) maintained a unit called the Bikaner Camel Corps that fought in China during the Boxer Rebellion in 1900, in Somaliland from 1902 to 1904 during the Somaliland Campaign, in Egypt during the Middle Eastern theatre of World War I in 1915 where they destroyed the Turkish forces during the Raid on the Suez Canal with a camel cavalry charge and in the Mediterranean and Middle East theatre of World War II.[PARAGRAPH:1]The auxiliary defense forces of the Kingdom of Jaisalmer, which had by then become a part of India, also established a camel-mounted defense battalion in 1948. They were used for transportation purposes during the Indo-Pakistani War of 1947-1948. Both the camelry units were handed over to the Indian Army's Grenadiers Regiment during the 1951 merger of the local Rajasthani armies with the Grenadiers. They were incorporated into the regiment as its 13th battalion. The Grenadiers used them for both transportation and fighting during the Indo-Pakistani War of 1965 where they prevented Pakistani forces from infiltrating and capturing territory intended to be used as negotiating chips in the Bikaner and Jaisalmer sectors both before and after the ceasefire. Major Jai Singh carried out a camel-mounted raid inside the Pakistani post of Ghoriwala. Another camel-assisted Indian attack at Tanot led to the deaths of 102 Pakistani soldiers, including two officers, and successfully regained a large amount of Indian territory. Many Indian Army camels were also given to the Border Security Force (BSF) upon its conception in the aftermath of the 1965 war.[PARAGRAPH:1]In 1966, the Grenadiers added another camelry battalion, the 17th battalion led by Lieutenant Colonel KS Harihar Singh.In 1967, a camel artillery regiment, the 185 Light Regiment (Pack), was also raised. The 185 Light Regiment (Pack) gave away its camels to the Border Security Force in 1971 on the insistence of Major General J. F. R. Jacob, the then-commander of the army's Eastern Command and a major advocate for mobile warfare who found camels to be too old fashioned for modern military use and had them replaced with gun-towing vehicles, however the 13th and 17th Grenadier battalions and the Border Security Force continued to use camels for infantry purposes. In the same year, camels were once again used in the Indo-Pakistani War of 1971 by both the grenadiers as well as the BSF, who fought alongside the army in the Eastern Theatre. The 13 and the 17th camel-mounted Grenadier battalions fought in the Bikaner and Gadra sectors where they captured a significant amount of territory. Five BSF camels were killed in the Battle of Longewala, one of the most significant battles of the war. The Indian Army finally stopped using camels in 1975. A local officer rejected a subsequent attempt to convert the 13th Grenadiers battalion and the 24th Rajput battalions into camel-mounted units.[PARAGRAPH:1]Camels are still used by the Border Security Force for patrolling the remote areas of the Thar Desert lying along the India-Pakistan border in Rajasthan. Camels are purchased between ages five and six and trained at the Camel Training Centre at the BSF Frontier Headquarters at Jodhpur. They serve for 15-16 years and are retired from service at the age of 21. The camels used by the BSF are from three different breeds. The Jaisalmeris and the Bikaneris are used for border patrol, while the Nachnas are used for ceremonial duties. The BSF is also known for the yearly participation of its camel contingent in the Delhi Parade for the occasion of the Indian Republic Day since 1976. Inspector General KS Rathore is credited with enhancing the band's capabilities during his years as an inspector general from 1986 to 1989. The camel contingent has two groups, one consisting of camels ridden by border guards and the other being Border Security Force Camel Band, consisting of camels walking along with musicians who march on foot. Both of these elements perform together during the march of the camel contingent. The contingent generally consists of 90 camels.[PARAGRAPH:1]During the 2011 Egyptian revolution on February 2 , 2011 pro government Baltagiya riding camels and horses using swords and machetes attacked protesters in Tahrir Square in a medieval-like cavalry charge, it the last record use of camel cavalry in an attack.[PARAGRAPH:1][PARAGRAPH:2]Many European armies also used bicycle infantry in a similar way that mounted infantry used horses. However they were handicapped by the need for proper roads.[PARAGRAPH:1]The Australian 4th Light Horse Brigade which took part in the cavalry charge in the Battle of Beersheba (1917) during World War I are labelled as mounted infantry brigade in popular media; however, they were in fact mounted rifles as were the New Zealand Mounted Rifles Brigade which also took part in this battle. Mounted rifles regiments lack the mass of a mounted infantry battalions, as a light horse brigade could only muster as many rifles in the line as a single battalion. Consequently, their employment reflected this lack of mass, with the tactics seeking to harness greater mobility and fire to overcome opposition, rather than echeloned mass attacks.[PARAGRAPH:1]Mounted infantry began to disappear with the shift from horses to motor vehicles in the 1920s and 1930s. Germany deployed a few horse-mounted infantry units on the Russian Front during the Second World War, and cyclist units on both fronts as well, and both Germany and Britain (which had used cyclist battalions in the First World War) experimented with motorcycle battalions. Germany also utilized organic horse and bicycle mounted troops within infantry formations throughout World War Two, although bicycle use increased as Germany retreated into its own territory. Japan deployed cyclists to great effect in its 1941 to 1942 campaign in Malaya and drive on Singapore during World War II. A horsed cavalry regiment of the Philippine Scouts assisted in the defense of the Philippines at the onset of World War II. The 10th Mountain Division of the U.S. Army also maintained a mounted reconnaissance troop throughout World War Two, which saw service in Italy and Austria during the war.[PARAGRAPH:1]Countries with entrenched military traditions, such as Switzerland, retained horse-mounted troops well into the Cold War, while Sweden kept much of its infantry on bicycles during the snow-free months.</English>
++		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD_PEDIA</Tag>
++		<English>[TAB]A gord is a medieval Slavonic fortified settlement, usually built on strategic sites such as hilltops, riverbanks, lake islets or peninsulas between the 6th and 12th centuries in Central and Eastern Europe. A typical gord consisted of a group of wooden houses surrounded by a wall made of earth and wood, and a palisade running along the top of the bulwark.[PARAGRAPH:2]The term ultimately descends from the reconstructed Proto-Indo-European root g_ort�s 'enclosure'. The Proto-Slavic word *gord_ later differentiated into grad (Cyrillic: _), gorod (Cyrillic: _), gr�d in Polish, gard in Kashubian, etc. It is the root of various words in modern Slavic languages pertaining to fences and fenced-in areas (Belarusian _, Ukrainian _, Slovak ohradit, Czech ohradit, Russian _, Serbo-Croatian ograditi, and Polish ogradzac, grodzic, to fence off). It also has evolved into words for a garden in certain languages.[PARAGRAPH:1]Additionally, it has furnished numerous modern Slavic words for a city or town:[NEWLINE]-Polish gr�d, plural grody (toponymic; nowadays a town or city is termed miasto, but remnants of a gr�d are known as grodzisko)[NEWLINE]- Ancient Pomeranian and modern Kashubian gard[NEWLINE]- Slovak and Czech hrad ("castle" in the modern language), or hradisko/hradiste/hradec, which are terms for gord[NEWLINE]- Slovene gradec, grad ("castle" in modern Slovene)[NEWLINE]- Belarusian _ (horad)[NEWLINE]- Russian _ (gorod)[NEWLINE]- Ukrainian _ (horod, dialectal and toponymic; nowadays misto)[NEWLINE]- Bulgarian, Serbo-Croatian, and Macedonian grad/_[PARAGRAPH:1]The names of many Central and Eastern European cities harken back to their pasts as gords. Some of them are in countries which once were but no longer are mainly inhabited by Slavic-speaking peoples.[PARAGRAPH:1]The words in Polish and Slovak for suburbium, podgrodzie and podhradie correspondingly, literally mean a settlement beneath a gord: the gr�d/hrad was frequently built at the top of a hill, and the podgrodzie/podhradie at its foot. (The Slavic prefix pod-, meaning "under/below" and descending from the Proto-Indo-European root p?ds, meaning foot, being equivalent to Latin sub-). The word survives in the names of several villages (Podgrodzie, Subcarpathian Voivodeship) and town districts (e.g., that of Olsztyn), as well as in the names of the German municipalities Puttgarden, Wagria and Putgarten, R�gen.[PARAGRAPH:1]From this same Proto-Indo-European root come the Germanic word elements *gard and *gart (as in Stuttgart), and likely also the names of Graz, Austria and Gartz, Germany. Cognate to these are English words such as garden, yard, garth, girdle and court. Also cognate but less closely related are Latin hortus, a garden, and its English descendant horticulture. In Hungarian, kert, the word for a garden, literally means encircled. Because Hungarian is a Uralic rather than an Indo-European language, this is likely a loanword. Further afield, in ancient Iran, a fortified wooden settlement was called a gerd, or certa, which also means garden (as in the suffix -certa in the names of various ancient Iranian cities; e.g., Hunoracerta). The Persian word evolved into jerd under later Arab influence. Burugerd or Borujerd is a city in the west of Iran. The Indian suffix -garh, meaning a fort in Hindi, Urdu, Sanskrit, and other Indo-Iranian languages, appears in many Indian place names. Given that both Slavic and Indo-Iranian are sub-branches of Indo-European and that there are numerous similarities between Slavic and Sanskrit vocabulary, it is plausible that garh and gord are related. However, this is strongly contradicted by the phoneme /g/ in Indo-Iranian, which cannot be a reflex of the Indo-European palatovelar /*g/.[PARAGRAPH:2]A typical gord was a group of wooden houses built either in rows or in circles, surrounded by one or more rings of walls made of earth and wood, a palisade, and/or moats. Some gords were ring-shaped, with a round, oval, or occasionally polygonal fence or wall surrounding a hollow. Others, built on a natural hill or a man-made mound, were cone-shaped. Those with a natural defense on one side, such as a river or lake, were usually horseshoe-shaped. Most gords were built in densely populated areas on sites that offered particular natural advantages.[PARAGRAPH:1]As Slavic tribes united to form states, gords were also built for defensive purposes in less-populated border areas. Gords in which rulers resided or that lay on trade routes quickly expanded. Near the gord, or below it in elevation, there formed small communities of servants, merchants, artisans, and others who served the higher-ranked inhabitants of the gord. Each such community was known as a suburbium (literally "undercity") (Polish: podgrodzie). Its residents could shelter within the walls of the gord in the event of danger. Eventually the suburbium acquired its own fence or wall. In the High Middle Ages, the gord usually evolved into a castle, citadel or kremlin, and the suburbium into a town.[PARAGRAPH:1]Some gords did not stand the test of time and were abandoned or destroyed, gradually turning into more or less discernible mounds or rings of earth (Russian gorodishche, Polish gr�d or grodzisko, Ukrainian horodyshche, Slovak hradisko, Czech hradiste, German Hradisch, Hungarian hradis and Serbian gradiska/_). Notable archeological sites include Gro� Raden in Germany and Biskupin in Poland.</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, also pedia entry from: https://en.wikipedia.org/wiki/Mounted_infantry#History and https://en.wikipedia.org/wiki/Camel_cavalry and https://en.wikipedia.org/wiki/War_elephant#:~:text=The%20practice%20of%20riding%20on,when%20they%20were%20in%20India. similarly, modified or not for advciv-sas anyways etc anyways etc anyways etc... -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_PEDIA</Tag>
++		<English>[TAB]The origins of mounted infantry go back to at least the beginnings of organised warfare. With the weight of ancient bronze armor, the opposing champions would travel to battle on chariots before dismounting to fight. With the evolution of hoplite warfare, some hoplites would travel to battle on horseback, before dismounting to take their place in the phalanx. The early pre-Marian Roman military had units consisting of infantrymen clinging to the saddles of the cavalry to take them to battle and then dismounting to fight. Gallic and Germanic warbands were reported to use double-riders, with a second warrior joining a horseman only for a short distance before dismounting to fight on foot. The Han dynasty also extensively used mounted infantry in their campaigns against the Xiongnu confederation. During many of the Han campaigns, the vast majority of the army rode on horseback; either as mounted cavalry or mounted infantry who fought dismounted.[PARAGRAPH:1]Camel cavalry, or camelry (French: m�haristes, pronounced [mea_ist]), is a generic designation for armed forces using camels as a means of transportation. Sometimes warriors or soldiers of this type also fought from camel-back with spears, bows, or firearms.[PARAGRAPH:1]Camel cavalry was a common element in desert warfare throughout history in the Middle East, due in part to the animals' high level of adaptability. They were better suited to working and surviving in arid environments than the horses of conventional cavalry. The smell of the camel, according to Herodotus, alarmed and disoriented horses, making camels an effective anti-cavalry weapon of the Achaemenid Persians in the Battle of Thymbra.[PARAGRAPH:1]The Arabs, during their campaigns in the deserts of Mesopotamia and Syria against the Byzantines and Sassanids, used camels to enhance their mobility, marking a stark contrast to their enemies, especially in the desert environment. The Carolingians under Charlemagne also used horses as transport for the bulk of their army, and special care was taken to ensure the health, fodder, and availability of horses on-campaign. Other notable infantry to use horses to enhance their mobility include the Genoese crossbowmen, and Viking raiders who would gather all the horses they could find in the vicinity of their landings.[PARAGRAPH:1]War elephants played a critical role in several key battles in antiquity, especially in ancient India. While seeing limited and periodic use in Ancient China, they became a permanent fixture in armies of historical kingdoms in Southeast Asia. During classical antiquity they were also used in ancient Persia and in the Mediterranean world within armies of Macedon, Hellenistic Greek states, the Roman Republic and later Empire, and Ancient Carthage in North Africa. In some regions they maintained a firm presence on the battlefield throughout the Medieval era. However, their use declined with the spread of firearms and other gunpowder weaponry in early modern warfare. After this, war elephants became restricted to non-combat engineering and labour roles, as well as being used for minor ceremonial uses.[PARAGRAPH:2]Dragoons originally were mounted infantry, who were trained in horse riding as well as infantry fighting skills. However, usage altered over time and during the 18th century, dragoons evolved into conventional light cavalry units and personnel. Dragoon regiments were established in most European armies during the late 17th century and early 18th century.[PARAGRAPH:1]The name is possibly derived from a type of firearm (called a dragon) carried by dragoons of the French Army. There is no distinction between the words dragon and dragoon in French.[PARAGRAPH:1]The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.[PARAGRAPH:2]With the invention of accurate and quick firing repeating pistols and rifles in the mid-19th century, cavalry started to become increasingly vulnerable. Many armies started to use troops which could either fight on horseback or on foot as circumstances dictated. Fighting on horseback with swords and lances would allow rapid movement without cover from enemy fire, whilst fighting on foot with pistols and rifles allowed them to make use of cover and to form defensive lines.[PARAGRAPH:1]The first mounted infantry units were raised during the Mexican-American War (as the Regiment of Mounted Riflemen, but redesignated Third Cavalry Regiment in 1861), and others followed, for example in Australia in the 1880s. Terms such as "mounted rifles" or "Light Horse" were often used.[PARAGRAPH:1]The French Foreign Legion used mule-mounted companies from the 1880s. Each mule was shared by two legionnaires, who took turns in riding it. This arrangement allowed faster and more prolonged marches that could cover 60 mi (97 km) in one day.[PARAGRAPH:1]In the Western Theater of the American Civil War, several infantry regiments were converted to mounted infantry and armed with repeating rifles. The Lightning Brigade at the Battle of Chickamauga was an example of these Union mounted infantry units.[PARAGRAPH:1]In the British Army, infantry units in some parts of the British Empire had a mounted platoon for scouting and skirmishing. In addition, many locally raised units such as the Ceylon Mounted Rifles, Cape Mounted Rifles, Natal Carbineers, and Marshall's Horse fought as mounted infantry.[PARAGRAPH:1]In the Second Boer War, the British copied the Boers and raised large forces of their own mounted infantry. Among various ad hoc formations, the Imperial Yeomanry was raised from volunteers in Britain between 1900 and 1901. Many of the contingents from Australia, Canada, and New Zealand (e.g. the Australian Light Horse and the Canadian Mounted Rifles) were MI (mounted infantry), as well as locally raised irregulars like the Imperial Light Horse and South African Light Horse. As artillery was of limited use against scattered Boer guerrilla bands later in the war, the mounted personnel of Royal Artillery units were formed into Royal Artillery Mounted Rifles.[PARAGRAPH:1]As part of the lessons learned from that war, British regular cavalry regiments were armed with the same rifle as the infantry and became well-trained in dismounted tactics. A version of the standard infantry rifle, the shorter-barreled LEC or "Lee-Enfield Cavalry Carbine Mark I" had been introduced in 1896.[PARAGRAPH:2]Napoleon employed a camel corps for the French invasion of Egypt and Syria. During the late 19th and much of the 20th centuries, camel troops were used for desert policing and patrol work in the British, French, German, Spanish, and Italian colonial armies. Descendants of such units still form part of the modern Moroccan and Egyptian armies and the paramilitary Indian Border Security Force.[PARAGRAPH:1]The British-officered Egyptian Camel Corps played a significant role in the 1898 Battle of Omdurman; one of the few occasions during this period when this class of mounted troops took part in substantial numbers in a set-piece battle. The Ottoman Army maintained camel companies as part of its Yemen and Hejaz Corps, both before and during World War I.[PARAGRAPH:1]The Italians used Dubat camel troops in Italian Somaliland, mainly for frontier patrol during the 1920s and 1930s. These Dubats participated in the Italian conquest of the Ogaden in 1935-1936 during the Second Italo-Ethiopian War.[PARAGRAPH:1]Colonial authorities in the Spanish protectorate in Morocco used locally recruited camel troops in the northern part of the protectorate, mainly for frontier patrol work from the 1930s until 1956. Forming part of the Tropas Nomades del Sahara, these camel-mounted units had a limited local role in the Spanish Civil War during 1936-1939.[PARAGRAPH:1]The Jordanian Desert Patrol still uses camels.[PARAGRAPH:1]Bikaner State (now Bikaner, Rajasthan) maintained a unit called the Bikaner Camel Corps that fought in China during the Boxer Rebellion in 1900, in Somaliland from 1902 to 1904 during the Somaliland Campaign, in Egypt during the Middle Eastern theatre of World War I in 1915 where they destroyed the Turkish forces during the Raid on the Suez Canal with a camel cavalry charge and in the Mediterranean and Middle East theatre of World War II.[PARAGRAPH:1]The auxiliary defense forces of the Kingdom of Jaisalmer, which had by then become a part of India, also established a camel-mounted defense battalion in 1948. They were used for transportation purposes during the Indo-Pakistani War of 1947-1948. Both the camelry units were handed over to the Indian Army's Grenadiers Regiment during the 1951 merger of the local Rajasthani armies with the Grenadiers. They were incorporated into the regiment as its 13th battalion. The Grenadiers used them for both transportation and fighting during the Indo-Pakistani War of 1965 where they prevented Pakistani forces from infiltrating and capturing territory intended to be used as negotiating chips in the Bikaner and Jaisalmer sectors both before and after the ceasefire. Major Jai Singh carried out a camel-mounted raid inside the Pakistani post of Ghoriwala. Another camel-assisted Indian attack at Tanot led to the deaths of 102 Pakistani soldiers, including two officers, and successfully regained a large amount of Indian territory. Many Indian Army camels were also given to the Border Security Force (BSF) upon its conception in the aftermath of the 1965 war.[PARAGRAPH:1]In 1966, the Grenadiers added another camelry battalion, the 17th battalion led by Lieutenant Colonel KS Harihar Singh.In 1967, a camel artillery regiment, the 185 Light Regiment (Pack), was also raised. The 185 Light Regiment (Pack) gave away its camels to the Border Security Force in 1971 on the insistence of Major General J. F. R. Jacob, the then-commander of the army's Eastern Command and a major advocate for mobile warfare who found camels to be too old fashioned for modern military use and had them replaced with gun-towing vehicles, however the 13th and 17th Grenadier battalions and the Border Security Force continued to use camels for infantry purposes. In the same year, camels were once again used in the Indo-Pakistani War of 1971 by both the grenadiers as well as the BSF, who fought alongside the army in the Eastern Theatre. The 13 and the 17th camel-mounted Grenadier battalions fought in the Bikaner and Gadra sectors where they captured a significant amount of territory. Five BSF camels were killed in the Battle of Longewala, one of the most significant battles of the war. The Indian Army finally stopped using camels in 1975. A local officer rejected a subsequent attempt to convert the 13th Grenadiers battalion and the 24th Rajput battalions into camel-mounted units.[PARAGRAPH:1]Camels are still used by the Border Security Force for patrolling the remote areas of the Thar Desert lying along the India-Pakistan border in Rajasthan. Camels are purchased between ages five and six and trained at the Camel Training Centre at the BSF Frontier Headquarters at Jodhpur. They serve for 15-16 years and are retired from service at the age of 21. The camels used by the BSF are from three different breeds. The Jaisalmeris and the Bikaneris are used for border patrol, while the Nachnas are used for ceremonial duties. The BSF is also known for the yearly participation of its camel contingent in the Delhi Parade for the occasion of the Indian Republic Day since 1976. Inspector General KS Rathore is credited with enhancing the band's capabilities during his years as an inspector general from 1986 to 1989. The camel contingent has two groups, one consisting of camels ridden by border guards and the other being Border Security Force Camel Band, consisting of camels walking along with musicians who march on foot. Both of these elements perform together during the march of the camel contingent. The contingent generally consists of 90 camels.[PARAGRAPH:1]During the 2011 Egyptian revolution on February 2 , 2011 pro government Baltagiya riding camels and horses using swords and machetes attacked protesters in Tahrir Square in a medieval-like cavalry charge, it the last record use of camel cavalry in an attack.[PARAGRAPH:1][PARAGRAPH:2]Many European armies also used bicycle infantry in a similar way that mounted infantry used horses. However they were handicapped by the need for proper roads.[PARAGRAPH:1]The Australian 4th Light Horse Brigade which took part in the cavalry charge in the Battle of Beersheba (1917) during World War I are labelled as mounted infantry brigade in popular media; however, they were in fact mounted rifles as were the New Zealand Mounted Rifles Brigade which also took part in this battle. Mounted rifles regiments lack the mass of a mounted infantry battalions, as a light horse brigade could only muster as many rifles in the line as a single battalion. Consequently, their employment reflected this lack of mass, with the tactics seeking to harness greater mobility and fire to overcome opposition, rather than echeloned mass attacks.[PARAGRAPH:1]Mounted infantry began to disappear with the shift from horses to motor vehicles in the 1920s and 1930s. Germany deployed a few horse-mounted infantry units on the Russian Front during the Second World War, and cyclist units on both fronts as well, and both Germany and Britain (which had used cyclist battalions in the First World War) experimented with motorcycle battalions. Germany also utilized organic horse and bicycle mounted troops within infantry formations throughout World War Two, although bicycle use increased as Germany retreated into its own territory. Japan deployed cyclists to great effect in its 1941 to 1942 campaign in Malaya and drive on Singapore during World War II. A horsed cavalry regiment of the Philippine Scouts assisted in the defense of the Philippines at the onset of World War II. The 10th Mountain Division of the U.S. Army also maintained a mounted reconnaissance troop throughout World War Two, which saw service in Italy and Austria during the war.[PARAGRAPH:1]Countries with entrenched military traditions, such as Switzerland, retained horse-mounted troops well into the Cold War, while Sweden kept much of its infantry on bicycles during the snow-free months.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+index e81f9289a..2539439f3 100644
+--- a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+@@ -22,7 +22,7 @@ and modified for our needs if needed. -->
+     Taken from: https://en.wikipedia.org/wiki/Ice_sheet -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_ICE_PEDIA</Tag>
+-		<English>[TAB]Note: This refers to the Ice Sheet (Terrain). If you wanted to see the [LINK=FEATURE_ICE]Ice Cap (Feature)[\LINK], please visit that page of the Sevopedia rather.[PARAGRAPH:2][TAB]In glaciology, an ice sheet, also known as a continental glacier, is a mass of glacial ice that covers surrounding terrain and is greater than 50,000 km2 (19,000 sq mi). The only current ice sheets are the Antarctic ice sheet and the Greenland ice sheet. Ice sheets are bigger than ice shelves or alpine glaciers. Masses of ice covering less than 50,000 km2 are termed an ice cap. An ice cap will typically feed a series of glaciers around its periphery.[PARAGRAPH:1]In previous geologic time spans (glacial periods) there were other ice sheets. During the Last Glacial Period at Last Glacial Maximum, the Laurentide Ice Sheet covered much of North America. In the same period, the Weichselian ice sheet covered Northern Europe and the Patagonian Ice Sheet covered southern South America.</English>
++		<English>[TAB]Note: This refers to the Ice Sheet (Terrain). If you wanted to see the [LINK=FEATURE_ICE]Ice Cap (Feature)[\LINK], please visit that page of the Sevopedia rather.[PARAGRAPH:2]In glaciology, an ice sheet, also known as a continental glacier, is a mass of glacial ice that covers surrounding terrain and is greater than 50,000 km2 (19,000 sq mi). The only current ice sheets are the Antarctic ice sheet and the Greenland ice sheet. Ice sheets are bigger than ice shelves or alpine glaciers. Masses of ice covering less than 50,000 km2 are termed an ice cap. An ice cap will typically feed a series of glaciers around its periphery.[PARAGRAPH:1]In previous geologic time spans (glacial periods) there were other ice sheets. During the Last Glacial Period at Last Glacial Maximum, the Laurentide Ice Sheet covered much of North America. In the same period, the Weichselian ice sheet covered Northern Europe and the Patagonian Ice Sheet covered southern South America.</English>
+ 	</TEXT>
+     <TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_OCEAN_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index a897d0f93..bb66fdc06 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -13504,7 +13504,7 @@ then adjust maybe anyways):
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -13701,7 +13701,7 @@ then adjust maybe anyways):
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -13904,7 +13904,7 @@ then adjust maybe anyways):
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -14099,7 +14099,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14292,7 +14292,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14480,7 +14480,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14687,7 +14687,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -14889,7 +14889,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -15081,7 +15081,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -15273,7 +15273,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -15461,7 +15461,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15651,7 +15651,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+
+diff --git a/README.md b/README.md
+index 7136e00e9..bd52188de 100644
+--- a/README.md
++++ b/README.md
+@@ -124,25 +124,30 @@ See the [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/_1_AdvC
+ 
+ One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice.
+ 
+-I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing)  (to view all images available full size). You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) (click on these git samples to view in full size (but more/ideally all images are on the google drive maybe rather for that)):
++I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing) (click on the images below to view them in full size).
++
++You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png" width="150"></img>
+ 
+-Another example (longbow 3 (iron age)):
++Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png" width="150"></img>
+ 
+-Another example (sword light 4 (medieval era))
++Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefulyl good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png" width="150"></img>
+ 
+-People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
++People and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+ 
+ I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that. Just to be extra clear, i may not do all unit icons, i may or not as i prefer or not or do or not or other or not anyways. It's a bit tedious but result is very pleasant when it works/functions well. Will i think do at least for ground medieval and pre-medieval units as i need/want these for my new units in AdvCiv-SAS, except for that may use existing ones though at least at first if not always, may do or not as i prefer or not or see or not, you are welcome to give feeback, else i continue or not to do what i want or not if i do or not, i hope this is helpful or pleasant though, but anyways, 
+ 
+-I am not doing the ingame art though, just the icons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer.
+-
+-Hopefully helpful and interesting.
++I am not doing the ingame art though, just the icons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer, hopefully helpful maybe and interesting maybe as a whole but anyways etc...
+ 
+ ## .dds (button) size comparison analysis
+ 
+@@ -281,6 +286,7 @@ it too though unless i'm mistaken)
+ - Claude AI: another useful AI that implemented for example successfully with my prompt and me actually doing the implementation itself but provided the code (and logic?) and such or not such anyways etc very nicely for the [sevopediaunit's placeExclusiveCivs method/code/function/anyways etc](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1), see Claude AI's small part but hopefully helpful or exhaustive (enough) or not or yes or and other or and not anyways etc of this README.md [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for more details (hehe xd anyways etc anyways etc...)
+ - Microsoft Paint (i very much love this image editor)
+ - Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design.txt) for details)
++- removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt becomingthrough even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt becomingthrough told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
+ - DXTBmp, useful for example (in my case at least or not or yes or and other or and not anyways etc) to modify [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/), a good tutorial on CFC forum [is there](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/) for example (that) i followed as well or tried to if it helps or not or and other or and not hopefully or not hopefully or hopefully anyways etc, example of how i used it in [this google drive folder link](https://drive.google.com/drive/folders/1zgu0hgOtBIjWfUpqTSKnw95ryVnagnbx?usp=sharing) (a bit if not lot or maybe bit but anwyays happily in the end or ont ro yes anyways etc succeeded in) successfully doing, so maybe these steps or/and screenshots can help as well, may not have followed all recommended or best practices, but it works quite well and i am satisfied with it, so maybe is good enough if not simply good maybe or not but anyways etc hopefully helpful or not or yes or and other or and not at least to me maybe or and other or maybe not others or and other or and not etc or yes or not or other or etc or and not or ye sor etc anyways etc anyways anyways etc... 
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or nto or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism anyways etc after consideration of all or most of these or and other ones or and not anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 07940c965..1fa1dbf88 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -279,7 +279,9 @@ but if the civilization tied to it builds it first
+ - some gameplay elements happen at different times, can resarch sooner, build
+ culture sooner, slavery sooner, plantations sooner, tech trading a bit later (at
+ guilds i think todo)
++- reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as remidner according to the base advciv code comment if i am not mistaken anyways etc: "	<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->"
+ - slavery iProductionPerPopulation increased (currently from 24 to 26, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in `HURRY_POPULATION` of [/Assets/XML/GameInfo/CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) for details anyways etc), the granary building is also nerfed or/and reworked a bit rather, as a cheaper and (quite) slightly (anyways etc) less (anyways etc) food generating building, see sevopedia building ingame for details or/and docs or/and code comments for details. civ-specific versions of the granary unaffected at least not all, so the civs with a civ-specific granary gain more advantages of having one as their civ-specific building, anyways etc. Reworked in particular the incan granary (terrace) to be a production/growth building now not a culture one anymore, see docs for details or/and ideally sevopedia ingame entry for details
++- also replaced some civ-specific buildings, especially late game ones or/and (those i deemed but anyways etc) (too but anyways etc) inefficient, such as/like but anyways etc the russian research institute (now removed) (is (but anyways etc)) now replaced with the new building gord for a more/stronger early game impact (based on the castle), see xml or ingame sevopedia or and docs or and other or and not for details, anyways etc
+ - some ressources are not revealed until a certain tech: sheep is always visible,
+ but gold not until metal casting.
+ - a few new civs added, mostly in snow/desert terrains, or underrepresented parts
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png
+new file mode 100644
+index 000000000..53edb70c7
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png
+new file mode 100644
+index 000000000..e46fa3369
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png
+new file mode 100644
+index 000000000..86ab9ae16
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png
+new file mode 100644
+index 000000000..8187bb76c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png
+new file mode 100644
+index 000000000..28fa6ac6e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png differ
+
+[PATCH COVERAGE]
+patchFiles=31 embeddedFiles=31 omittedFiles=0 embeddedPatchBytes=168848

@@ -1,0 +1,1902 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6080
+# Commit: b06853446ea41b0cfbab3d433593bddbba9715c2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 921cbbd9c7a6298ed8b20ca3f8e8c13c9fa096e8
+# Title: Add non-breaking tech-tree and asset balance rework/changes
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	0	.github/workflows/README.md
+3	0	.github/workflows/build.yml
+158	0	.github/workflows/build/asset_tech_prereq_redundancy.py
+171	0	.github/workflows/build/wonder_cost_columns.py
+348	0	.github/workflows/build/wonder_culture_gpp_columns.py
+90	97	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+4	5	Assets/XML/GameInfo/CIV4CivicInfos.xml
+3	3	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+21	24	Assets/XML/Technologies/CIV4TechInfos.xml
+16	15	Assets/XML/Units/CIV4BuildInfos.xml
+2	2	Assets/XML/Units/CIV4PromotionInfos.xml
+22	38	Assets/XML/Units/CIV4UnitInfos.xml
+3	3	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+7	5	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+0	2	_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+ create mode 100644 .github/workflows/build/asset_tech_prereq_redundancy.py
+ create mode 100644 .github/workflows/build/wonder_cost_columns.py
+ create mode 100644 .github/workflows/build/wonder_culture_gpp_columns.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 4230d073b..18ada1323 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -79,6 +79,9 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
+ - [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
+ - [`build/xml_child_duplicates.py`](#buildxml_child_duplicatespy)
+ - [`build/tech_columns.py`](#buildtech_columnspy)
++- [`build/wonder_cost_columns.py`](#buildwonder_cost_columnspy)
++- [`build/wonder_culture_gpp_columns.py`](#buildwonder_culture_gpp_columnspy)
++- [`build/asset_tech_prereq_redundancy.py`](#buildasset_tech_prereq_redundancypy)
+ - [`build/civ_specific_asset_techs.py`](#buildciv_specific_asset_techspy)
+ - [`build/civ_specific_not_weaker.py`](#buildciv_specific_not_weakerpy)
+ - [`build/define_tag_refs.py`](#builddefine_tag_refspy)
+@@ -177,6 +180,20 @@ Checks suspicious duplicate child/list XML entries inside the same parent object
+ 
+ Verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
+ 
++### `build/wonder_cost_columns.py`
++
++Verifies normally constructible world wonders unlocked in the same tech-tree column (`iGridX`) have the same production cost and that world-wonder costs strictly increase in later populated columns. Great Person-founded shrines/corporation headquarters (`iCost=-1`) are excluded, as is the deliberately expensive United Nations diplomatic-victory wonder.
++
++### `build/wonder_culture_gpp_columns.py`
++
++Verifies normally constructible world wonders follow an era-relative flat-culture progression: 4 in the first two Ancient-era columns, 6 through the rest of the Ancient and Classical eras, and 8 through the Medieval and Renaissance eras. From the start of the Industrial era, culture-advisor wonders without a culture percentage modifier have 10 flat culture and other wonders have none; a wonder with a local or global culture modifier has no flat culture in every era.
++
++World-wonder Great Person point rates (`iGreatPeopleRateChange`) must match within each column and never decrease in later populated columns; GP-producing national wonders and ordinary buildings cannot exceed the latest world-wonder rate available by their direct or shared special-building prerequisite tech column. Great Person-founded shrines/corporation headquarters (`iCost=-1`) are excluded.
++
++### `build/asset_tech_prereq_redundancy.py`
++
++Flags stale additional unit/building tech requirements when the primary tech already guarantees them through every valid prerequisite path. To keep nearby foundational requirements explicit when useful, it applies only when the additional tech is from an earlier era and the primary tech is at least two columns after the start of its own era. Era starts and tech-graph guarantees are derived from current XML, so moving or collapsing tech-tree columns updates the check automatically.
++
+ ### `build/civ_specific_asset_techs.py`
+ 
+ Verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27463441180/job/81181382278) and fix corresponding errors; e.g., `iGridX=3 has multiple iAsset values: iAsset=8: TECH_THE_WHEEL(GridY=5), TECH_WRITING(GridY=7), TECH_MONARCHY(GridY=11), TECH_METAL_CASTING(GridY=19); iAsset=16: TECH_SAILING(GridY=1)`.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 153a631f3..3b61a20bd 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -31,6 +31,9 @@ jobs:
+       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
+       - run: python .github/workflows/build/xml_child_duplicates.py
+       - run: python .github/workflows/build/tech_columns.py
++      - run: python .github/workflows/build/wonder_cost_columns.py
++      - run: python .github/workflows/build/wonder_culture_gpp_columns.py
++      - run: python .github/workflows/build/asset_tech_prereq_redundancy.py
+       - run: python .github/workflows/build/civ_specific_asset_techs.py
+       - run: python .github/workflows/build/civ_specific_not_weaker.py
+       - run: python .github/workflows/build/define_tag_refs.py
+
+diff --git a/.github/workflows/build/asset_tech_prereq_redundancy.py b/.github/workflows/build/asset_tech_prereq_redundancy.py
+new file mode 100644
+index 000000000..11f16312d
+--- /dev/null
++++ b/.github/workflows/build/asset_tech_prereq_redundancy.py
+@@ -0,0 +1,158 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: Flag stale additional unit/building tech requirements when the primary tech already guarantees them through the tech graph. Limit the rule to prerequisites from an earlier era that remain attached at least two columns into the primary tech's era, so close foundational requirements can remain explicit without preserving very old no-effect requirements after tech-tree moves. (GPT-5.6-Sol) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
++ERA_INFOS_REL_PATH = Path("Assets/XML/GameInfo/CIV4EraInfos.xml")
++ASSET_INFOS = (
++	(Path("Assets/XML/Units/CIV4UnitInfos.xml"), "UnitInfo", "unit"),
++	(Path("Assets/XML/Buildings/CIV4BuildingInfos.xml"), "BuildingInfo", "building"),
++)
++STALE_PRIMARY_ERA_COLUMN_OFFSET = 2
++
++
++def parse_xml(path: Path) -> ET.ElementTree:
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_prereq_list(node: ET.Element, field_name: str) -> list[str]:
++	for child in list(node):
++		if local_name(child.tag) == field_name:
++			return [(entry.text or "").strip() for entry in list(child) if local_name(entry.tag) == "PrereqTech" and (entry.text or "").strip() not in ("", "NONE")]
++	return []
++
++
++def read_era_order(repo_root: Path) -> dict[str, int]:
++	path = repo_root / ERA_INFOS_REL_PATH
++	order: dict[str, int] = {}
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "EraInfo":
++			continue
++		era_type = child_text_by_local_name(node, "Type")
++		if era_type is not None:
++			order[era_type] = len(order)
++	return order
++
++
++def read_techs(repo_root: Path, era_order: dict[str, int]) -> tuple[dict[str, dict[str, int | str | list[str]]], dict[str, int]]:
++	path = repo_root / TECH_INFOS_REL_PATH
++	techs: dict[str, dict[str, int | str | list[str]]] = {}
++	era_starts: dict[str, int] = {}
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++		tech_type = child_text_by_local_name(node, "Type")
++		era_type = child_text_by_local_name(node, "Era")
++		grid_x_text = child_text_by_local_name(node, "iGridX")
++		if tech_type is None or era_type not in era_order:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: tech has missing Type or unknown Era {era_type!r}")
++		try:
++			grid_x = int(grid_x_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX {grid_x_text!r}") from exc
++		techs[tech_type] = {
++			"era": era_type,
++			"grid_x": grid_x,
++			"or_prereqs": read_prereq_list(node, "OrPreReqs"),
++			"and_prereqs": read_prereq_list(node, "AndPreReqs"),
++		}
++		era_starts[era_type] = min(era_starts.get(era_type, grid_x), grid_x)
++
++	return techs, era_starts
++
++
++def guaranteed_prereqs(tech_type: str, techs: dict[str, dict[str, int | str | list[str]]], cache: dict[str, set[str]], active: set[str]) -> set[str]:
++	if tech_type in cache:
++		return cache[tech_type]
++	if tech_type in active:
++		raise RuntimeError(f"{TECH_INFOS_REL_PATH}: prerequisite cycle reaches {tech_type}")
++	if tech_type not in techs:
++		raise RuntimeError(f"{TECH_INFOS_REL_PATH}: unknown prerequisite tech {tech_type}")
++
++	result: set[str] = set()
++	next_active = active | {tech_type}
++	for prereq in techs[tech_type]["and_prereqs"]:
++		prereq_type = str(prereq)
++		result.add(prereq_type)
++		result.update(guaranteed_prereqs(prereq_type, techs, cache, next_active))
++
++	or_branches: list[set[str]] = []
++	for prereq in techs[tech_type]["or_prereqs"]:
++		prereq_type = str(prereq)
++		or_branches.append({prereq_type} | guaranteed_prereqs(prereq_type, techs, cache, next_active))
++	if or_branches:
++		result.update(set.intersection(*or_branches))
++
++	cache[tech_type] = result
++	return result
++
++
++def check_asset_tech_prereq_redundancy(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	era_order = read_era_order(repo_root)
++	techs, era_starts = read_techs(repo_root, era_order)
++	guaranteed_cache: dict[str, set[str]] = {}
++
++	for relative_path, node_name, asset_label in ASSET_INFOS:
++		for node in parse_xml(repo_root / relative_path).getroot().iter():
++			if local_name(node.tag) != node_name:
++				continue
++			asset_type = child_text_by_local_name(node, "Type")
++			primary_tech = child_text_by_local_name(node, "PrereqTech")
++			if asset_type is None or primary_tech not in techs:
++				continue
++			primary_era = str(techs[primary_tech]["era"])
++			primary_grid_x = int(techs[primary_tech]["grid_x"])
++			if primary_grid_x < era_starts[primary_era] + STALE_PRIMARY_ERA_COLUMN_OFFSET:
++				continue
++			guaranteed = guaranteed_prereqs(primary_tech, techs, guaranteed_cache, set())
++			for additional_tech in read_prereq_list(node, "TechTypes"):
++				if additional_tech not in techs:
++					raise RuntimeError(f"{relative_path}: {asset_type} has unknown additional prerequisite {additional_tech}")
++				additional_era = str(techs[additional_tech]["era"])
++				if additional_tech in guaranteed and era_order[additional_era] < era_order[primary_era]:
++					failures.append(f"{asset_label} {asset_type}: additional {additional_tech} ({additional_era}, iGridX={techs[additional_tech]['grid_x']}) is already guaranteed by primary {primary_tech} ({primary_era}, iGridX={primary_grid_x})")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check for stale redundant additional unit/building tech prerequisites.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		failures = check_asset_tech_prereq_redundancy(args.repo_root)
++	except RuntimeError as exc:
++		print("FAIL asset tech prerequisite redundancy")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL asset tech prerequisite redundancy")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS asset tech prerequisite redundancy")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/wonder_cost_columns.py b/.github/workflows/build/wonder_cost_columns.py
+new file mode 100644
+index 000000000..5d1ffc851
+--- /dev/null
++++ b/.github/workflows/build/wonder_cost_columns.py
+@@ -0,0 +1,171 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: Check that normally constructible world wonders in the same tech-tree column have the same production cost and that later columns have strictly higher wonder costs. (GPT-5.6-Sol) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
++BUILDING_CLASS_INFOS_REL_PATH = Path("Assets/XML/Buildings/CIV4BuildingClassInfos.xml")
++BUILDING_INFOS_REL_PATH = Path("Assets/XML/Buildings/CIV4BuildingInfos.xml")
++
++# <!-- custom: The UN directly enables a diplomatic victory and is intentionally much more expensive to keep games from ending too soon; its XML comment records this exception. (GPT-5.6-Sol) -->
++ALLOWED_WORLD_WONDER_COST_EXCEPTIONS: dict[str, str] = {
++	"BUILDING_UNITED_NATIONS": "intentionally expensive diplomatic-victory wonder",
++}
++
++
++def parse_xml(path: Path) -> ET.ElementTree:
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_tech_columns(repo_root: Path) -> dict[str, int]:
++	path = repo_root / TECH_INFOS_REL_PATH
++	columns: dict[str, int] = {}
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++		tech_type = child_text_by_local_name(node, "Type")
++		grid_x_text = child_text_by_local_name(node, "iGridX")
++		if tech_type is None:
++			continue
++		try:
++			columns[tech_type] = int(grid_x_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX {grid_x_text!r}") from exc
++
++	return columns
++
++
++def read_world_wonder_classes(repo_root: Path) -> set[str]:
++	path = repo_root / BUILDING_CLASS_INFOS_REL_PATH
++	world_wonder_classes: set[str] = set()
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "BuildingClassInfo":
++			continue
++		class_type = child_text_by_local_name(node, "Type")
++		max_global_text = child_text_by_local_name(node, "iMaxGlobalInstances")
++		if class_type is None:
++			continue
++		try:
++			max_global = int(max_global_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{BUILDING_CLASS_INFOS_REL_PATH}: {class_type} has invalid iMaxGlobalInstances {max_global_text!r}") from exc
++		if max_global == 1:
++			world_wonder_classes.add(class_type)
++
++	return world_wonder_classes
++
++
++def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, int], world_wonder_classes: set[str]) -> list[dict[str, int | str]]:
++	path = repo_root / BUILDING_INFOS_REL_PATH
++	wonders: list[dict[str, int | str]] = []
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "BuildingInfo":
++			continue
++		building_type = child_text_by_local_name(node, "Type")
++		building_class = child_text_by_local_name(node, "BuildingClass")
++		if building_type is None or building_class not in world_wonder_classes:
++			continue
++		if building_type in ALLOWED_WORLD_WONDER_COST_EXCEPTIONS:
++			continue
++
++		cost_text = child_text_by_local_name(node, "iCost")
++		try:
++			cost = int(cost_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: {building_type} has invalid iCost {cost_text!r}") from exc
++		# <!-- custom: Great People found shrines and corporation headquarters with iCost=-1, so they are not normally constructible production comparisons. (GPT-5.6-Sol) -->
++		if cost < 0:
++			continue
++
++		prereq_tech = child_text_by_local_name(node, "PrereqTech")
++		if prereq_tech not in tech_columns:
++			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: {building_type} has missing or unknown PrereqTech {prereq_tech!r}")
++
++		wonders.append({
++			"type": building_type,
++			"tech": prereq_tech,
++			"grid_x": tech_columns[prereq_tech],
++			"cost": cost,
++		})
++
++	return wonders
++
++
++def format_wonders(wonders: list[dict[str, int | str]]) -> str:
++	return ", ".join(f"{wonder['type']}({wonder['tech']})" for wonder in sorted(wonders, key=lambda item: str(item["type"])))
++
++
++def check_wonder_cost_columns(repo_root: Path) -> list[str]:
++	tech_columns = read_tech_columns(repo_root)
++	world_wonder_classes = read_world_wonder_classes(repo_root)
++	wonders = read_constructible_world_wonders(repo_root, tech_columns, world_wonder_classes)
++	by_column: dict[int, list[dict[str, int | str]]] = {}
++
++	for wonder in wonders:
++		by_column.setdefault(int(wonder["grid_x"]), []).append(wonder)
++
++	failures: list[str] = []
++	column_costs: dict[int, int] = {}
++	for grid_x in sorted(by_column):
++		by_cost: dict[int, list[dict[str, int | str]]] = {}
++		for wonder in by_column[grid_x]:
++			by_cost.setdefault(int(wonder["cost"]), []).append(wonder)
++		if len(by_cost) != 1:
++			parts = [f"iCost={cost}: {format_wonders(by_cost[cost])}" for cost in sorted(by_cost)]
++			failures.append(f"iGridX={grid_x} has multiple constructible world-wonder costs: " + "; ".join(parts))
++			continue
++		column_costs[grid_x] = next(iter(by_cost))
++
++	previous_column = None
++	previous_cost = None
++	for grid_x in sorted(column_costs):
++		cost = column_costs[grid_x]
++		if previous_cost is not None and cost <= previous_cost:
++			failures.append(f"world-wonder cost does not increase from iGridX={previous_column} (iCost={previous_cost}) to iGridX={grid_x} (iCost={cost})")
++		previous_column = grid_x
++		previous_cost = cost
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check constructible world-wonder production costs by tech-tree column.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		failures = check_wonder_cost_columns(args.repo_root)
++	except RuntimeError as exc:
++		print("FAIL world-wonder cost column consistency")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL world-wonder cost column consistency")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS world-wonder cost column consistency")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/wonder_culture_gpp_columns.py b/.github/workflows/build/wonder_culture_gpp_columns.py
+new file mode 100644
+index 000000000..ba0371862
+--- /dev/null
++++ b/.github/workflows/build/wonder_culture_gpp_columns.py
+@@ -0,0 +1,348 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: Check world-wonder culture progression and building Great Person point consistency. Early/mid wonders share column-based flat culture; late culture-focused wonders use either flat culture or a percentage modifier, while other late wonders preserve their strategic identity without automatic culture. World-wonder GPP establish a nondecreasing ceiling that national and ordinary buildings must not exceed. (GPT-5.6-Sol) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
++BUILDING_CLASS_INFOS_REL_PATH = Path("Assets/XML/Buildings/CIV4BuildingClassInfos.xml")
++BUILDING_INFOS_REL_PATH = Path("Assets/XML/Buildings/CIV4BuildingInfos.xml")
++SPECIAL_BUILDING_INFOS_REL_PATH = Path("Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml")
++CULTURE_COMMERCE_INDEX = 2
++EARLY_CULTURE_ERA = "ERA_ANCIENT"
++EARLY_CULTURE_COLUMN_COUNT = 2
++MID_CULTURE_ERA = "ERA_MEDIEVAL"
++LATE_IDENTITY_CULTURE_ERA = "ERA_INDUSTRIAL"
++
++
++def parse_xml(path: Path) -> ET.ElementTree:
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_tech_columns(repo_root: Path) -> dict[str, int]:
++	path = repo_root / TECH_INFOS_REL_PATH
++	columns: dict[str, int] = {}
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++		tech_type = child_text_by_local_name(node, "Type")
++		grid_x_text = child_text_by_local_name(node, "iGridX")
++		if tech_type is None:
++			continue
++		try:
++			columns[tech_type] = int(grid_x_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX {grid_x_text!r}") from exc
++
++	return columns
++
++
++def read_era_start_columns(repo_root: Path) -> dict[str, int]:
++	path = repo_root / TECH_INFOS_REL_PATH
++	starts: dict[str, int] = {}
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++		era_type = child_text_by_local_name(node, "Era")
++		grid_x_text = child_text_by_local_name(node, "iGridX")
++		if era_type is None:
++			continue
++		try:
++			grid_x = int(grid_x_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: tech in {era_type} has invalid iGridX {grid_x_text!r}") from exc
++		starts[era_type] = min(starts.get(era_type, grid_x), grid_x)
++
++	for required_era in (EARLY_CULTURE_ERA, MID_CULTURE_ERA, LATE_IDENTITY_CULTURE_ERA):
++		if required_era not in starts:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: no tech establishes the start of required culture-progression era {required_era}")
++
++	return starts
++
++
++def read_world_wonder_classes(repo_root: Path) -> set[str]:
++	path = repo_root / BUILDING_CLASS_INFOS_REL_PATH
++	world_wonder_classes: set[str] = set()
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "BuildingClassInfo":
++			continue
++		class_type = child_text_by_local_name(node, "Type")
++		max_global_text = child_text_by_local_name(node, "iMaxGlobalInstances")
++		if class_type is None:
++			continue
++		try:
++			max_global = int(max_global_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{BUILDING_CLASS_INFOS_REL_PATH}: {class_type} has invalid iMaxGlobalInstances {max_global_text!r}") from exc
++		if max_global == 1:
++			world_wonder_classes.add(class_type)
++
++	return world_wonder_classes
++
++
++def read_building_class_categories(repo_root: Path) -> dict[str, str]:
++	path = repo_root / BUILDING_CLASS_INFOS_REL_PATH
++	categories: dict[str, str] = {}
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "BuildingClassInfo":
++			continue
++		class_type = child_text_by_local_name(node, "Type")
++		if class_type is None:
++			continue
++		max_global = read_int(class_type, node, "iMaxGlobalInstances", -1, BUILDING_CLASS_INFOS_REL_PATH)
++		max_player = read_int(class_type, node, "iMaxPlayerInstances", -1, BUILDING_CLASS_INFOS_REL_PATH)
++		if max_global == 1:
++			categories[class_type] = "world wonder"
++		elif max_player == 1:
++			categories[class_type] = "national wonder"
++		else:
++			categories[class_type] = "ordinary building"
++
++	return categories
++
++
++def read_special_building_techs(repo_root: Path) -> dict[str, str]:
++	path = repo_root / SPECIAL_BUILDING_INFOS_REL_PATH
++	techs: dict[str, str] = {}
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "SpecialBuildingInfo":
++			continue
++		special_type = child_text_by_local_name(node, "Type")
++		prereq_tech = child_text_by_local_name(node, "TechPrereq")
++		if special_type is not None and prereq_tech is not None:
++			techs[special_type] = prereq_tech
++
++	return techs
++
++
++def read_int(building_type: str, node: ET.Element, field_name: str, default: int = 0, source_path: Path = BUILDING_INFOS_REL_PATH) -> int:
++	value_text = child_text_by_local_name(node, field_name)
++	if value_text is None or value_text == "":
++		return default
++	try:
++		return int(value_text)
++	except ValueError as exc:
++		raise RuntimeError(f"{source_path}: {building_type} has invalid {field_name} {value_text!r}") from exc
++
++
++def read_commerce_value(building_type: str, node: ET.Element, field_name: str, commerce_index: int) -> int:
++	for child in list(node):
++		if local_name(child.tag) != field_name:
++			continue
++		values = [(value.text or "").strip() for value in list(child) if local_name(value.tag) == "iCommerce"]
++		if not values:
++			return 0
++		if len(values) <= commerce_index:
++			return 0
++		try:
++			return int(values[commerce_index])
++		except ValueError as exc:
++			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: {building_type} has invalid {field_name} value {values[commerce_index]!r}") from exc
++	return 0
++
++
++def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, int], world_wonder_classes: set[str]) -> list[dict[str, int | str]]:
++	path = repo_root / BUILDING_INFOS_REL_PATH
++	wonders: list[dict[str, int | str]] = []
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "BuildingInfo":
++			continue
++		building_type = child_text_by_local_name(node, "Type")
++		building_class = child_text_by_local_name(node, "BuildingClass")
++		if building_type is None or building_class not in world_wonder_classes:
++			continue
++		# <!-- custom: Great People found shrines and corporation headquarters with iCost=-1, so they are not normally constructible world wonders. (GPT-5.6-Sol) -->
++		if read_int(building_type, node, "iCost", -1) < 0:
++			continue
++
++		prereq_tech = child_text_by_local_name(node, "PrereqTech")
++		if prereq_tech not in tech_columns:
++			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: {building_type} has missing or unknown PrereqTech {prereq_tech!r}")
++
++		wonders.append({
++			"type": building_type,
++			"tech": prereq_tech,
++			"grid_x": tech_columns[prereq_tech],
++			"advisor": child_text_by_local_name(node, "Advisor") or "NONE",
++			"culture": read_commerce_value(building_type, node, "ObsoleteSafeCommerceChanges", CULTURE_COMMERCE_INDEX),
++			"culture_modifier": read_commerce_value(building_type, node, "CommerceModifiers", CULTURE_COMMERCE_INDEX),
++			"global_culture_modifier": read_commerce_value(building_type, node, "GlobalCommerceModifiers", CULTURE_COMMERCE_INDEX),
++			"gpp": read_int(building_type, node, "iGreatPeopleRateChange"),
++		})
++
++	return wonders
++
++
++def read_constructible_gp_buildings(repo_root: Path, tech_columns: dict[str, int], class_categories: dict[str, str], special_building_techs: dict[str, str]) -> list[dict[str, int | str]]:
++	path = repo_root / BUILDING_INFOS_REL_PATH
++	buildings: list[dict[str, int | str]] = []
++
++	for node in parse_xml(path).getroot().iter():
++		if local_name(node.tag) != "BuildingInfo":
++			continue
++		building_type = child_text_by_local_name(node, "Type")
++		building_class = child_text_by_local_name(node, "BuildingClass")
++		if building_type is None or building_class not in class_categories:
++			continue
++		gpp = read_int(building_type, node, "iGreatPeopleRateChange")
++		if gpp <= 0 or read_int(building_type, node, "iCost", -1) < 0:
++			continue
++
++		prereq_tech = child_text_by_local_name(node, "PrereqTech")
++		if prereq_tech not in tech_columns:
++			special_type = child_text_by_local_name(node, "SpecialBuildingType")
++			prereq_tech = special_building_techs.get(special_type or "")
++		if prereq_tech not in tech_columns:
++			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: GP-producing {building_type} has missing or unknown direct/special-building prerequisite tech {prereq_tech!r}")
++
++		buildings.append({
++			"type": building_type,
++			"tech": prereq_tech,
++			"grid_x": tech_columns[prereq_tech],
++			"category": class_categories[building_class],
++			"gpp": gpp,
++		})
++
++	return buildings
++
++
++def format_wonders(wonders: list[dict[str, int | str]]) -> str:
++	return ", ".join(f"{wonder['type']}({wonder['tech']})" for wonder in sorted(wonders, key=lambda item: str(item["type"])))
++
++
++def check_metric(by_column: dict[int, list[dict[str, int | str]]], key: str, label: str) -> list[str]:
++	failures: list[str] = []
++	column_values: dict[int, int] = {}
++
++	for grid_x in sorted(by_column):
++		by_value: dict[int, list[dict[str, int | str]]] = {}
++		for wonder in by_column[grid_x]:
++			by_value.setdefault(int(wonder[key]), []).append(wonder)
++		if len(by_value) != 1:
++			parts = [f"{label}={value}: {format_wonders(by_value[value])}" for value in sorted(by_value)]
++			failures.append(f"iGridX={grid_x} has multiple world-wonder {label} values: " + "; ".join(parts))
++			continue
++		column_values[grid_x] = next(iter(by_value))
++
++	previous_column = None
++	previous_value = None
++	for grid_x in sorted(column_values):
++		value = column_values[grid_x]
++		if previous_value is not None and value < previous_value:
++			failures.append(f"world-wonder {label} decreases from iGridX={previous_column} ({label}={previous_value}) to iGridX={grid_x} ({label}={value})")
++		previous_column = grid_x
++		previous_value = value
++
++	return failures
++
++
++def check_non_world_gpp_ceiling(wonders: list[dict[str, int | str]], buildings: list[dict[str, int | str]]) -> list[str]:
++	failures: list[str] = []
++	wonder_gpp_by_column: dict[int, int] = {}
++	for wonder in wonders:
++		grid_x = int(wonder["grid_x"])
++		wonder_gpp_by_column[grid_x] = max(wonder_gpp_by_column.get(grid_x, 0), int(wonder["gpp"]))
++
++	for building in buildings:
++		if building["category"] == "world wonder":
++			continue
++		available_rates = [rate for grid_x, rate in wonder_gpp_by_column.items() if grid_x <= int(building["grid_x"])]
++		if not available_rates:
++			failures.append(f"{building['category']} {building['type']}({building['tech']}, iGridX={building['grid_x']}) generates GPP before any constructible world wonder establishes a GPP rate")
++			continue
++		world_wonder_ceiling = max(available_rates)
++		if int(building["gpp"]) > world_wonder_ceiling:
++			failures.append(f"{building['category']} {building['type']}({building['tech']}, iGridX={building['grid_x']}) has iGreatPeopleRateChange={building['gpp']}; latest world-wonder ceiling is {world_wonder_ceiling}")
++
++	return failures
++
++
++def expected_flat_culture(wonder: dict[str, int | str], era_start_columns: dict[str, int]) -> int:
++	grid_x = int(wonder["grid_x"])
++	if int(wonder["culture_modifier"]) != 0 or int(wonder["global_culture_modifier"]) != 0:
++		return 0
++	if grid_x < era_start_columns[EARLY_CULTURE_ERA] + EARLY_CULTURE_COLUMN_COUNT:
++		return 4
++	if grid_x < era_start_columns[MID_CULTURE_ERA]:
++		return 6
++	if grid_x < era_start_columns[LATE_IDENTITY_CULTURE_ERA]:
++		return 8
++	if wonder["advisor"] == "ADVISOR_CULTURE":
++		return 10
++	return 0
++
++
++def check_culture(wonders: list[dict[str, int | str]], era_start_columns: dict[str, int]) -> list[str]:
++	failures: list[str] = []
++	for wonder in wonders:
++		flat_culture = int(wonder["culture"])
++		culture_modifier = int(wonder["culture_modifier"])
++		global_culture_modifier = int(wonder["global_culture_modifier"])
++		expected = expected_flat_culture(wonder, era_start_columns)
++		if flat_culture != 0 and (culture_modifier != 0 or global_culture_modifier != 0):
++			failures.append(f"{wonder['type']}({wonder['tech']}) stacks flat culture={flat_culture} with local/global culture modifiers={culture_modifier}/{global_culture_modifier}")
++			continue
++		if flat_culture != expected:
++			failures.append(f"{wonder['type']}({wonder['tech']}, iGridX={wonder['grid_x']}, {wonder['advisor']}) has flat culture={flat_culture}; expected {expected}")
++	return failures
++
++
++def check_wonder_culture_gpp_columns(repo_root: Path) -> list[str]:
++	tech_columns = read_tech_columns(repo_root)
++	era_start_columns = read_era_start_columns(repo_root)
++	world_wonder_classes = read_world_wonder_classes(repo_root)
++	class_categories = read_building_class_categories(repo_root)
++	special_building_techs = read_special_building_techs(repo_root)
++	wonders = read_constructible_world_wonders(repo_root, tech_columns, world_wonder_classes)
++	buildings = read_constructible_gp_buildings(repo_root, tech_columns, class_categories, special_building_techs)
++	by_column: dict[int, list[dict[str, int | str]]] = {}
++
++	for wonder in wonders:
++		by_column.setdefault(int(wonder["grid_x"]), []).append(wonder)
++
++	return check_culture(wonders, era_start_columns) + check_metric(by_column, "gpp", "iGreatPeopleRateChange") + check_non_world_gpp_ceiling(wonders, buildings)
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check constructible world-wonder flat culture and building Great Person point rates by tech-tree column.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		failures = check_wonder_culture_gpp_columns(args.repo_root)
++	except RuntimeError as exc:
++		print("FAIL world-wonder culture/building GPP column consistency")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL world-wonder culture/building GPP column consistency")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS world-wonder culture/building GPP column consistency")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 7cee8da43..e51ff9976 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3351,8 +3351,8 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
++			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -3540,8 +3540,8 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
++			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -3728,8 +3728,8 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
++			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -3919,8 +3919,8 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
++			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -6484,8 +6484,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: change to sooner tech where relevant, maybe historically more accurate too according to https://en.wikipedia.org/wiki/Custom_House,_City_of_London and to make it coincide with the age of exploration of the american continent having a water building around there would be nice, was TECH_ECONOMICS -->
+-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
++			<!-- custom: Move the Custom House from overloaded Astronomy to weaker Banking, giving the economic branch a distinct trade-building reward. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_BANKING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -6666,8 +6666,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_ECONOMICS -->
+-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
++			<!-- custom: Keep the Feitoria aligned with the Custom House's move from overloaded Astronomy to weaker Banking. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_BANKING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -15640,7 +15640,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>180</iCost>
++			<!-- custom: was 180; +50% espionage and two Spy slots make this a substantial late-game specialization building. (GPT-5.6-Sol) -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -15703,12 +15704,8 @@
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+-			<CommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>8</iCommerce>
+-			</CommerceChanges>
++			<!-- custom: was +8 espionage; retain the +50% modifier and two Spy slots so the Agency rewards cities already committed to espionage instead of also supplying a large flat yield. (GPT-5.6-Sol) -->
++			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+ 			<CommerceModifiers>
+@@ -17283,8 +17280,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: see code comment at the pagan_shrine, was NONE -->
+-			<PrereqTech>TECH_MONARCHY</PrereqTech>
++			<!-- custom: Keep the Hindu shrine aligned with Hinduism's earlier move from Monarchy to Calendar. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -22697,11 +22694,7 @@
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+ 			<!-- custom: was 0 / 0 / 4 -->
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>8</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
++			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -22885,11 +22878,7 @@
+ 			<CommerceChanges/>
+ 			<!-- custom: was empty -->
+ 			<!-- advc.201: Was 2 culture, doubling after 1000 years. -->
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>8</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
++			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+@@ -22967,8 +22956,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay -->
+-			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
++			<!-- custom: Place Scotland Yard with Spies at Monarchy. It still requires a Great Spy, so this early availability rewards committing to scarce early Spy sources rather than granting a flat espionage bonus. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -23137,7 +23126,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MASONRY</PrereqTech>
++			<!-- custom: Move the Pyramids to Mining so this early wonder becomes available soon enough to shape ancient development. Its production cost still constrains immediate construction. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_MINING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -23176,7 +23166,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>150</iCost>
++			<iCost>125</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23246,7 +23236,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 5 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -23444,7 +23435,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: Was 8 in BtS, 4 in K-Mod. -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -23836,7 +23828,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 6 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -24436,7 +24429,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 8 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -24814,7 +24808,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this top 6 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -25025,7 +25019,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 6 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -25107,10 +25101,9 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+-			<!-- custom: was TECH_FIREARMS -->
+-			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+-			<!-- custom: was TECH_CODE_OF_LAWS -->
+-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<!-- custom: Construction makes this wonder useful earlier, while Chemistry preserves a meaningful window before obsolescence. (GPT-5.6-Sol) -->
++			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
++			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25149,8 +25142,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 500 -->
+-			<iCost>275</iCost>
++			<!-- custom: was 500; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25220,7 +25213,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 5 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -25353,7 +25346,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>350</iCost>
++			<!-- custom: Match other constructible world wonders in the same tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>275</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25421,7 +25415,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 10 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -26017,7 +26011,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 8 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -26695,7 +26689,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_DEMOCRACY</PrereqTech>
++			<PrereqTech>TECH_LIBERALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -26733,8 +26727,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 1500!!! -->
+-			<iCost>500</iCost>
++			<!-- custom: was 1500!!!; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>525</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27001,11 +26995,11 @@
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<!-- custom: was 0 / 0 / 50 -->
++			<!-- custom: Restore 50% culture while removing flat culture, so Broadway rewards concentrating existing culture instead of providing both parts of the same strategy. (GPT-5.6-Sol) -->
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
++				<iCommerce>50</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -27202,7 +27196,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>12</iCommerce>
++				<iCommerce>10</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes/>
+ 			<!-- custom: was 0 / 0 / 50 -->
+@@ -27384,11 +27378,11 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: give a lot of flat culture per turn instead, useful/valuable for end game -->
++			<!-- custom: Give late culture-focused wonders 10 flat culture when they do not instead multiply existing culture. (GPT-5.6-Sol) -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>40</iCommerce>
++				<iCommerce>10</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes/>
+ 			<CommerceModifiers/>
+@@ -27848,8 +27842,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: changed so games don't end too soon and the risk is higher going for it despite the strong reward (potentially wining or having higher control over it) was 1000 -->
+-			<iCost>1500</iCost>
++			<!-- custom: Keep the UN substantially more expensive than other late world wonders because it can directly enable diplomatic victory, but reduce the prior 1500 cost so it remains practical to build; was 1000. (GPT-5.6-Sol) -->
++			<iCost>1200</iCost>
+ 			<iHurryCostModifier>300</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>
+@@ -28150,13 +28144,9 @@
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+ 			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed) -->
+ 			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+-			<!-- custom: was TECH_POLYTHEISM and tech types empty-->
+-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<!-- custom: Make the Temple of Artemis a specialized reward of Polytheism and reduce overloaded Construction. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -28195,8 +28185,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 350 -->
+-			<iCost>200</iCost>
++			<!-- custom: was 350; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28267,7 +28257,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: Was 8 in BtS, 6 in K-Mod. -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -28681,7 +28672,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.310: was 2 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -28960,8 +28952,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_CALENDAR -->
+-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
++			<!-- custom: Move the Mausoleum of Maussollos to earlier Currency so its Golden Age extension can affect more of the game. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_CURRENCY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -29000,8 +28992,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 450 -->
+-			<iCost>275</iCost>
++			<!-- custom: was 450; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29070,7 +29062,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 10 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -29150,8 +29142,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well so we can maybe use it, was TECH_RADIO -->
+-			<PrereqTech>TECH_LIBERALISM</PrereqTech>
++			<!-- custom: Romanticism fits Cristo Redentor thematically and gives that tech a distinct wonder. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_ROMANTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -29191,8 +29183,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: now sooner, adjust cost, was 1000 -->
+-			<iCost>525</iCost>
++			<!-- custom: was 1000; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>550</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29258,13 +29250,8 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: was 0 / 0 / 6 -->
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<!-- advc.201: Was 5; now same as Statue of Liberty. -->
+-				<iCommerce>8</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
++			<!-- custom: Remove flat culture from late wonders without a culture-focused advisor role, preserving their distinct strategic purpose. (GPT-5.6-Sol) -->
++			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -29474,7 +29461,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 6 -->
+-				<iCommerce>8</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -29608,8 +29595,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 250 -->
+-			<iCost>475</iCost>
++			<!-- custom: was 250; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -31217,8 +31204,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
+-			<!-- custom: not strictly religious; fits UN being around as of now TECH_MASS_MEDIA -->
+-			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
++			<!-- custom: Move the Apostolic Palace to Philosophy to strengthen that tech and make the religious diplomatic wonder available sooner. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -31256,9 +31243,9 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: make cost quite low as it is more of a shared wonder between all players and we want it in more games than not in them, was 350 -->
++			<!-- custom: Keep this shared wonder inexpensive enough to appear in more games while matching other constructible world wonders in its tech-tree column; was 350. (GPT-5.6-Sol) -->
+ 			<!-- advc.179: was 400 -->
+-			<iCost>300</iCost>
++			<iCost>275</iCost>
+ 			<iHurryCostModifier>300</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>
+@@ -31325,7 +31312,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>4</iCommerce>
++				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -31345,7 +31332,13 @@
+ 					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
++			<!-- custom: The Apostolic Palace's religious voting and production benefits are shared, so give its builder an immediate city reward. A free Priest is useful at once and adds Great Prophet progress without granting a Great Person outright. (GPT-5.6-Sol) -->
++			<FreeSpecialistCounts>
++				<FreeSpecialistCount>
++					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
++					<iFreeSpecialistCount>1</iFreeSpecialistCount>
++				</FreeSpecialistCount>
++			</FreeSpecialistCounts>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners>
+ 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index 306eeef0f..a58a878c6 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -49,14 +49,14 @@
+ 			<ProductionTraits/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,8</Button>
+ 		</SpecialBuildingInfo>
+-		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries) -->
++		<!-- custom: Move Monasteries from Monarchy to Calendar to give the earlier religious branch another useful unlock. (GPT-5.6-Sol) -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_MONASTERY</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
+ 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #16 -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_PRIESTHOOD (now removed) -->
+-			<TechPrereq>TECH_MONARCHY</TechPrereq>
++			<TechPrereq>TECH_CALENDAR</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas -->
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 3c79a8d99..32d1c0830 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -810,8 +810,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_SLAVERY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Slavery.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,2</Button>
+-			<!-- custom: we have a tech before it in our re<orked tech tree so we can afford to move civic_slavery sooner, also seems historically more accurate according to quick glance at wikipedia or and such, perhaps more interesting in terms of strategy and gameplay (nerfs main military game tech path of tech_bronze_working, and rewards alternative or growth type of strategies, so you can't have all by just going for a military now, and investing may yield more long term) as we have it sooner, was TECH_BRONZE_WORKING -->
+-			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
++			<!-- custom: Move Slavery from Agriculture to weaker Masonry. This keeps Agriculture focused on food improvements and makes the early branch choice more strategically meaningful. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_MASONRY</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<!-- custom: (try to make it relevant longer into the middle game without being op, also it is thematically more accurate to consider slavery cheaper to enact i mean (buffs its early game performance vs other civics as well which may help if economy is bad or such possibly maybe), was UPKEEP_MEDIUM -->
+ 			<Upkeep>UPKEEP_LOW</Upkeep>
+@@ -1695,9 +1695,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_PACIFISM_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Pacifism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,2</Button>
+-			<!-- custom: frees a slot to put another civic there, plus is thematically more relevant i think and as chatgpt 5.1 confirms i mean thanks, was TECH_PHILOSOPHY -->
+-			<!-- Pacifist currents (Buddhism, Jainism, some early Christian strands) are much more about religious discipline than abstract Greek metaphysics anyway. -->
+-			<TechPrereq>TECH_MEDITATION</TechPrereq>
++			<!-- custom: Move Pacifism from Meditation to Medicine. This strengthens Medicine and keeps the early religious branch from also determining a powerful Great Person policy, making research-path choices more distinct. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>NONE</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index dd47efe72..52993aeec 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -39,14 +39,14 @@
+ 			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
+ 			<Sound>AS2D_BUILD_PAGAN</Sound>
+ 		</ReligionInfo>
+-		<!-- custom: change tech prerequirement of hinduism to TECH_PRIESTHOOD (now removed), historically more accurate in terms of year founded (around 4 000 BCE from a quick web search), also as TECH_POLYTHEISM is too soon in our tech tree now (around 10 000 BCE) for that, was TECH_POLYTHEISM -->
++		<!-- custom: Move Hinduism from Monarchy to Calendar as an earlier religious alternative that can affect more of the game without requiring a larger ancient-tech rework. (GPT-5.6-Sol) -->
+ 		<ReligionInfo>
+ 			<Type>RELIGION_HINDUISM</Type>
+ 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
+-			<!-- custom: Long_Comments_XML.txt #316, was TECH_POLYTHEISM -->
+-			<TechPrereq>TECH_MONARCHY</TechPrereq>
++			<!-- custom: Long_Comments_XML.txt #316 -->
++			<TechPrereq>TECH_CALENDAR</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>0</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index e5f4b2ee1..081691eab 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -281,9 +281,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_GENETICS</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Depopulation already requires the modern branches, so do not repeat Genetics here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_BIOENGINEERING</Sound>
+ 			<SoundMP>AS2D_TECH_MP_BIOENGINEERING</SoundMP>
+@@ -995,9 +994,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MEDITATION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Remove Civil Service's global Iron Working requirement so Bureaucracy can be reached independently; Macemen still require Iron Working on their own unit entries. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_CIVIL_SERVICE_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CIVIL_SERVICE</Sound>
+ 			<SoundMP>AS2D_TECH_MP_CIVIL_SERVICE</SoundMP>
+@@ -4406,9 +4404,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Depopulation already requires the modern branches, so do not repeat Computers here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_AI_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_AI</Sound>
+ 			<SoundMP>AS2D_TECH_MP_AI</SoundMP>
+@@ -4428,7 +4425,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
++			<!-- custom: Move the free Great Scientist to Terraforming so Fusion's Robotic Tank path is not additionally rewarded with a snowballing Great Person. (GPT-5.6-Sol) -->
++			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -4481,9 +4479,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_FISSION</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Depopulation already requires the modern branches, so do not repeat Fission here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_FUSION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_FUSION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_FUSION</SoundMP>
+@@ -4645,7 +4642,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<!-- custom: Move Terraforming's free Great Merchant to the weaker Space Exploration branch. (GPT-5.6-Sol) -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -4693,9 +4691,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_SATELLITES</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Depopulation already requires the modern branches, so do not repeat Satellites here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_SPACE_EXPLORATION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_SPACE_EXPLORATION</SoundMP>
+@@ -5082,9 +5079,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_CURRENCY</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Remove the Currency requirement to keep the metal branch independent; Iron Working's high research cost remains its own gate. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_IRON_WORKING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_IRONWORK</Sound>
+ 			<SoundMP>AS2D_TECH_MP_IRONWORK</SoundMP>
+@@ -6622,7 +6618,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
++			<!-- custom: Move Fusion's free Great Scientist here, away from the already strong Robotic Tank path. (GPT-5.6-Sol) -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -6965,10 +6962,10 @@
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+-			</OrPreReqs>
+-			<AndPreReqs>
+ 				<PrereqTech>TECH_AI</PrereqTech>
+-			</AndPreReqs>
++			</OrPreReqs>
++			<!-- custom: Let either AI or Bioengineering lead to Transhumanism, strengthening Bioengineering and avoiding a single mandatory AI route. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_TRANSHUMANISM</Sound>
+ 			<SoundMP>AS2D_TECH_MP_TRANSHUMANISM</SoundMP>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index a5f533038..c5586ee2f 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -60,11 +60,11 @@
+ 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
+-			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
++			<!-- custom: Apply jungle removal consistently to every compatible build. Move it from Masonry to Metal Casting so Masonry does not combine Slavery, forest removal and jungle removal, while keeping the existing 20 production reward. (GPT-5.6-Sol) -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -148,7 +148,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -193,7 +193,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -260,7 +260,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -306,7 +306,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -339,7 +339,8 @@
+ 			<Description>TXT_KEY_BUILD_PLANTATION</Description>
+ 			<Help>TXT_KEY_BUILD_PLANTATION_HELP</Help>
+ 			<Civilopedia>TXT_KEY_BUILD_PLANTATION_PEDIA</Civilopedia>
+-			<PrereqTech>TECH_CALENDAR</PrereqTech>
++			<!-- custom: Move Plantations from Calendar to Agriculture, giving the food branch its resource improvement while Calendar focuses on religion and Monasteries. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<iTime>500</iTime>
+ 			<iCost>0</iCost>
+ 			<bKill>0</bKill>
+@@ -350,7 +351,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -395,7 +396,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -439,7 +440,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -512,7 +513,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -577,7 +578,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -652,7 +653,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_MASONRY</PrereqTech>
++					<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 					<iTime>400</iTime>
+ 					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -696,7 +697,7 @@
+ 			<!-- custom: import from the Middle-earth mod's PROJECT_DURINS_AXE thanks a lot! -->
+ 			<Button>Art/AdvCiv_SAS/Builds/Remove_Forest/DurinsAxe.dds</Button>
+ 		</BuildInfo>
+-		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context -->
++		<!-- custom: Move fallout cleanup from Fission to Environmentalism, where environmental recovery is the direct strategic reward. (GPT-5.6-Sol) -->
+ 		<BuildInfo> <!-- custom: BUILD_SCRUB_FALLOUT -->
+ 			<Type>BUILD_SCRUB_FALLOUT</Type>
+ 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
+@@ -713,7 +714,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_FISSION</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 4f1c588a8..f7cce1118 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1183,8 +1183,8 @@
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
+-			<!-- custom: was NONE -->
+-			<TechPrereq>TECH_ARTILLERY</TechPrereq>
++			<!-- custom: Unlock Counter-Tank with Fascism alongside tanks, so the counter cannot appear before its intended target. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_FASCISM</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index f7b6a4681..7ebaaf109 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2968,9 +2968,9 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ALPHABET (now removed) -->
++			<!-- custom: Place Spies with Scotland Yard at Monarchy, creating a coherent early espionage commitment without making either available on the earlier Calendar branch. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_CALENDAR</PrereqTech>
++			<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -7756,6 +7756,7 @@
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<!-- custom: Civil Service no longer requires Iron Working globally, but Macemen retain it individually so the economic path does not unlock heavy melee units by itself. (GPT-5.6-Sol) -->
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -7961,6 +7962,7 @@
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<!-- custom: Civil Service no longer requires Iron Working globally, but Macemen retain it individually so the economic path does not unlock heavy melee units by itself. (GPT-5.6-Sol) -->
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -8197,6 +8199,7 @@
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<!-- custom: Civil Service no longer requires Iron Working globally, but Macemen retain it individually so the economic path does not unlock heavy melee units by itself. (GPT-5.6-Sol) -->
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -10604,14 +10607,11 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
++			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<!-- custom: Engineering already guarantees Hunting through the tech tree, so the additional requirement had no gameplay effect. (GPT-5.6-Sol) -->
++			<TechTypes/>
+ 			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -10803,14 +10803,10 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
++			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
+ 			<!-- custom: add bonus_copper to as of now civ-specific crossbowman units for which it is relevant (i.e. as of now excluding the yeoman_archer as it does not use any metal); Long_Comments_XML.txt #324 -->
+ 			<BonusType>NONE</BonusType>
+ 			<!-- custom: was empty. -->
+@@ -10861,8 +10857,8 @@
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<!-- custom: was 0 -->
+ 			<iWithdrawalProb>25</iWithdrawalProb>
+-			<!-- custom: Keep a modest native collateral effect, reduced from 50 to 10, while free PROMOTION_COLLATERAL_DAMAGE1 adds its smaller multiplicative bonus and can persist through upgrades. (GPT-5.6-Sol) -->
+-			<iCollateralDamage>10</iCollateralDamage>
++			<!-- custom: Keep a modest native collateral effect, reduced from 50 to 15, while free PROMOTION_COLLATERAL_DAMAGE1 adds its 15% modifier and can persist through upgrades. The separate first-strike reduction still nerfs the unit without making its collateral identity too weak. (GPT-5.6-Sol) -->
++			<iCollateralDamage>15</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>5</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+@@ -11038,14 +11034,10 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
++			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
+ 			<!-- custom: see code comment at UNIT_CHINA_ZHUGE_NU -->
+ 			<BonusType>NONE</BonusType>
+ 			<!-- custom: was empty. -->
+@@ -11278,14 +11270,10 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
++			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
+ 			<!-- custom: was BONUS_IRON in the advciv-sas generic crossbowman -->
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -14262,12 +14250,8 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<ObsoleteTech>TECH_SPACE_EXPLORATION</ObsoleteTech>
+ 			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
+-			<!-- custom: was empty -->
+-			<TechTypes>
+-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<!-- custom: Advanced Flight already guarantees Assembly Line through the tech tree, so this distant additional requirement had no gameplay effect; was empty in base AdvCiv. (GPT-5.6-Sol) -->
++			<TechTypes/>
+ 			<BonusType>BONUS_OIL</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index bc75497a2..fbb87ff5e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -275,10 +275,10 @@ Note 2: since the table doesn't seem to render entirely laterally without having
+ | Byzantium | BYZANTINE_CATAPHRACT (KNIGHT; MOUNTED) | Keep (**HORSE_KNIGHT**; **MOUNTED_MELEE**) | h 90→105; tech GUILDS, HORSEBACK_RIDING→CHIVALRY, MOUNTED_COMBAT; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +7 more | vs SAS HORSE_KNIGHT: str 10→12, h 95→105; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more. | Slight nerf through cost increase as Cataphract was a bit too strong. Terrain modifiers: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. Plus, its base strength is already too or very high not needing a too high spike, and grass is strong in particular already so not needing a strong buff that may be unbalanced then. |
+ | Carthage | CARTHAGE_NUMIDIAN_CAVALRY (HORSE_ARCHER; MOUNTED) | Keep (Keep; **MOUNTED_MELEE**) | str 5→6; tech HORSEBACK_RIDING, ARCHERY→MOUNTED_COMBAT, HUNTING; free FLANKING1→RETREAT1; mods Withdraw 20→15; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +4 more; loses vsCombat MELEE 50 | vs SAS HORSE_ARCHER: free none→RETREAT1; mods Withdraw 20→15; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, TerrainAtk DESERT 10, TerrainAtk PLAINS 25, +2 more. | Raises Numidian to Horse Archer-level strength and shifts from narrow anti-melee gimmick to more general mobile skirmisher/withdraw unit. |
+ | Celts | CELTIC_GALLIC_WARRIOR (SWORDSMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | h 40→42; free GUERILLA1→FIRST_STRIKE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainDef PLAINS 10 | vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→FIRST_STRIKE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainDef PLAINS 10. | Guerilla hill-defense was too situational and a bad match for Brennus/Boudica aggressive profile; first-strike sword role is more generally useful; copper/iron access improves flexibility. |
+-| China | CHINA_CHOKONU (CROSSBOWMAN; ARCHER) | **CHINA_ZHUGE_NU** (Keep; **ARCHER_CROSSBOW**) | h 60→65; tech MACHINERY, ARCHERY→CIVIL_SERVICE, HUNTING; res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 50→10, FirstStrikes 2→1, FirstStrikeChance 0→1; loses vsCombat MELEE 50 | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 0→10, CollateralMaxUnits 3→5, FirstStrikeChance 0→1; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk GRASS 25, TerrainDef GRASS 25. | Lower and less deterministic collateral/first-strike burst than the old Cho-Ko-Nu. Mixed first strikes and collateral remain useful against different targets (in particular firstStrike-immune ones), while free Collateral I can persist through upgrades. |
++| China | CHINA_CHOKONU (CROSSBOWMAN; ARCHER) | **CHINA_ZHUGE_NU** (Keep; **ARCHER_CROSSBOW**) | h 60→65; tech MACHINERY, ARCHERY→ENGINEERING; res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 50→15, FirstStrikes 2→1, FirstStrikeChance 0→1; loses vsCombat MELEE 50 | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 0→15, CollateralMaxUnits 3→5, FirstStrikeChance 0→1; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk GRASS 25, TerrainDef GRASS 25. | Lower and less deterministic collateral/first-strike burst than the old Cho-Ko-Nu. Mixed first strikes and collateral remain useful against different targets (in particular firstStrike-immune ones), while free Collateral I can persist through upgrades. |
+ | Netherlands / Dutch | NETHERLANDS_OOSTINDIEVAARDER (FRIGATE; NAVAL) | **DUTCH_SWIFT_WORKER** (**WORKER**; **NONE**) | str 8→0, h 90→50, mv 5→3; tech CHEMISTRY, ASTRONOMY→none; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, WorkRate 100; loses Bombard 12, Cargo 3 | vs SAS WORKER: mv 2→3; gains FeatureAtk FOREST 50, FeatureDef FOREST 50. | Late naval UU was too weak/situational; early Worker is useful on every map, better fits Dutch economy/growth, restores old BTS Fast Worker effect, and gives India real worker-UU company. And unlike India, the fairly late and situational Dutch civ-specific building counterbalances this civ-specific unit being quite strong. |
+ | Egypt | EGYPT_WARCHARIOT (CHARIOT; MOUNTED) | **EGYPTIAN_WAR_CHARIOT** (Keep; **MOUNTED_MELEE**) | mods vsClass AXEMAN 100→75; gains FeatureAtk FOREST -50, FeatureAtk JUNGLE -50, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +5 more | vs SAS CHARIOT: str 4→5; gains TerrainAtk DESERT 25, TerrainAtk GRASS 10, TerrainDef DESERT 10, TerrainDef GRASS 10. | For terrain modifiers, more offensive profile: (Similar reasoning as as of now for the Hajjan or the Cossack), and base strength is already high enough so do not increase it too much more via modifiers so early in the game (similar reasoning as as of now for the Cataphract) (not too thematic either maybe) |
+-| England | ENGLISH_REDCOAT (RIFLEMAN; GUN) | **ENGLISH_YEOMAN_ARCHER** (**CROSSBOWMAN**; **ARCHER_BOW_LONG**) | str 14→7, h 110→60; tech RIFLING→CIVIL_SERVICE, HUNTING; mods Withdraw 0→25; gains FeatureAtk FOREST 25, FeatureDef FOREST 50, FirstStrikes 1, vsCombat MELEE_SHOCK 30, +2 more; loses vsCombat GUN 25, vsCombat MOUNTED 25 | vs SAS CROSSBOWMAN: str 6→7, h 65→60; res IRON→none; mods HillsAtk 25→20, HillsDef 25→20, vsCombat MELEE_SHOCK 50→30; gains FeatureAtk FOREST 25, FeatureDef FOREST 50. | Moves England's civ-specific unit from late Rifleman timing to the Crossbowman slot. As of now, 7 strength and +30% vs shock melee gives nearly the same anti-shock-melee value as the generic Crossbowman: 7 x 1.30 = 9.1 > 6 x 1.50 = 9.0. Hills modifiers are lower than the generic Crossbowman's, but the higher base strength still makes 7 x 1.20 = 8.4 stronger than 6 x 1.25 = 7.5 on hills, while the stacked hill + shock-melee value stays equal: 7 x 1.50 = 10.5 == 6 x 1.75 = 10.5 (so not weaker than generic sas crossbowman in these). No Iron, higher base strength, and lower cost make the Yeoman more versatile than the generic Crossbowman; the lower cost also fits the longbow/yeoman historical flavor. This fits England's more defensive/economic early profile while still allowing aggressive use for thematic and strategic variety. |
++| England | ENGLISH_REDCOAT (RIFLEMAN; GUN) | **ENGLISH_YEOMAN_ARCHER** (**CROSSBOWMAN**; **ARCHER_BOW_LONG**) | str 14→7, h 110→60; tech RIFLING→ENGINEERING; mods Withdraw 0→25; gains FeatureAtk FOREST 25, FeatureDef FOREST 50, FirstStrikes 1, vsCombat MELEE_SHOCK 30, +2 more; loses vsCombat GUN 25, vsCombat MOUNTED 25 | vs SAS CROSSBOWMAN: str 6→7, h 65→60; res IRON→none; mods HillsAtk 25→20, HillsDef 25→20, vsCombat MELEE_SHOCK 50→30; gains FeatureAtk FOREST 25, FeatureDef FOREST 50. | Moves England's civ-specific unit from late Rifleman timing to the Crossbowman slot. As of now, 7 strength and +30% vs shock melee gives nearly the same anti-shock-melee value as the generic Crossbowman: 7 x 1.30 = 9.1 > 6 x 1.50 = 9.0. Hills modifiers are lower than the generic Crossbowman's, but the higher base strength still makes 7 x 1.20 = 8.4 stronger than 6 x 1.25 = 7.5 on hills, while the stacked hill + shock-melee value stays equal: 7 x 1.50 = 10.5 == 6 x 1.75 = 10.5 (so not weaker than generic sas crossbowman in these). No Iron, higher base strength, and lower cost make the Yeoman more versatile than the generic Crossbowman; the lower cost also fits the longbow/yeoman historical flavor. This fits England's more defensive/economic early profile while still allowing aggressive use for thematic and strategic variety. |
+ | Ethiopia | ETHIOPIAN_OROMO_WARRIOR (MUSKETMAN; GUN) | Keep | str 9→13, h 80→100; tech GUNPOWDER→FIREARMS; free DRILL1, DRILL2→FIRST_STRIKE1; FirstStrikes 1->0; gains TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, TerrainDef DESERT 10, +2 more | vs SAS MUSKETMAN: str 12→13, free none→FIRST_STRIKE1; TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, +3 more. | An overall stronger unit than the SAS musketman and the base musketman, rather than being overly first-strike specialized (keep the promotion rather than iFirstStrikes so later units can inherit it). |
+ | France | FRENCH_MUSKETEER (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100, mv 2→1; tech GUNPOWDER→FIREARMS; free none→COUNTER_MOUNTED; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more | vs SAS MUSKETMAN: free none→COUNTER_MOUNTED; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more. | Buffs weak move-speed-only effect: movement helps positioning, not combat; anti-mounted gives actual fighting value against strong Renaissance/Industrial mounted units. |
+ | Germany | GERMAN_PANZER (TANK; ARMOR) | **GERMAN_HUSSAR** (**DRAGOON**; **MOUNTED_RANGED**) | str 28→16, h 180→140, mv 2→3; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; res OIL→HORSE; free BLITZ→RETREAT1; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10, +2 more; loses FirstStrikes 2, vsCombat ARMOR 50 | vs SAS DRAGOON: h 150→140, mv 2→3; free none→RETREAT1; gains FeatureAtk FOREST 25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10; loses FeatureDef FOREST -25. | Earlier than usually-too-late Panzer; 3 movement gives the Hussar a clearer light-cavalry role as a fast raider, scout, pursuit unit, and artillery hunter rather than just a slightly cheaper Dragoon. This also brings back some of the fast Cavalry 3 Move Speed flavor from Civ3, which may be a good fit here and perhaps enjoyable too. Slightly lower-than-Dragoon cost as an alternative effect and for thematic fit. Later UU timing counterbalances Germany's strong early essential UB without making the unit a raw-strength upgrade. |
+@@ -302,7 +302,7 @@ Note 2: since the table doesn't seem to render entirely laterally without having
+ | Sumeria | SUMERIAN_VULTURE (AXEMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | str 6→5; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 10, TerrainDef GRASS 10, +2 more; loses vsCombat MELEE 25 | vs SAS AXEMAN: mods vsCombat MELEE_SHOCK 25→50; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 10, TerrainDef GRASS 10; loses FeatureAtk FOREST 10, FeatureAtk JUNGLE 10, FeatureDef FOREST 10, FeatureDef JUNGLE 10. | — |
+ | Vikings / Scandinavia | VIKING_BESERKER (MACEMAN; MELEE) | **SCANDINAVIA_VIKING** (Keep; **MELEE_SHOCK**) | h 70→65; tech CIVIL_SERVICE, MACHINERY→CIVIL_SERVICE, IRON_WORKING; mods CityAtk 10→20; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk SNOW 35, TerrainAtk TUNDRA 25, +4 more; loses vsCombat MELEE 50 | vs SAS MACEMAN: free none→AMPHIBIOUS; gains CityAtk 20, FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk SNOW 35, +3 more. | Replaces awkward Berserker framing with iconic Viking raider role; stronger amphibious Maceman matters more before Knights/Crossbows make standard Macemen feel weak, matching the historical Viking era better. Although Vikings have strong a cold weather identity iirc, in terms of gameplay this is still an offensive unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). |
+ | Zulu | ZULU_IMPI (SPEARMAN; MELEE) | Keep (Keep; **MELEE_POLEARM**) | str 4→5; tech HUNTING→BRONZE_WORKING; free MOBILITY→none; gains HillsAtk 10, HillsDef 25, TerrainAtk DESERT 10, TerrainAtk GRASS 25, +6 more; loses vsCombat MOUNTED 100 | vs SAS SPEARMAN: mv 1→2; mods vsCombat MELEE_SHOCK 10→25; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more; loses FeatureAtk FOREST 10, FeatureAtk JUNGLE 10, FeatureDef FOREST 10, FeatureDef JUNGLE 10. | SAS Spearman buffs and stronger melee-shock focus make Impi a stronger field fighter; keeps fast 2-move pressure for Shaka/Zulu aggression; still counters mounted units. |
+-| Kingdom of Benin | — | New **KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN** (**CROSSBOWMAN**; **ARCHER_CROSSBOW**) | new SAS UU; str 6; h 65; mv 1; tech CIVIL_SERVICE, HUNTING; res COPPER, IRON; free LOGISTICS; mods HillsAtk 25, HillsDef 25, Withdraw 35, FirstStrikes 1, +5 more | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→LOGISTICS; mods Withdraw 25→35; gains FeatureAtk JUNGLE 50, FeatureDef JUNGLE 50, TerrainAtk PLAINS 25, TerrainDef PLAINS 25. | Broader buildability through Copper/Iron access; Logistics promotion suits Benin organized warfare/siege-logistics theme; field kit supports fighting outside static defense. |
++| Kingdom of Benin | — | New **KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN** (**CROSSBOWMAN**; **ARCHER_CROSSBOW**) | new SAS UU; str 6; h 65; mv 1; tech ENGINEERING; res COPPER, IRON; free LOGISTICS; mods HillsAtk 25, HillsDef 25, Withdraw 35, FirstStrikes 1, +5 more | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→LOGISTICS; mods Withdraw 25→35; gains FeatureAtk JUNGLE 50, FeatureDef JUNGLE 50, TerrainAtk PLAINS 25, TerrainDef PLAINS 25. | Broader buildability through Copper/Iron access; Logistics promotion suits Benin organized warfare/siege-logistics theme; field kit supports fighting outside static defense. |
+ | Ireland | — | New **IRELAND_FLYING_COLUMN** (**RIFLEMAN**; **GUN**) | new SAS UU; str 15; h 120; mv 1; tech MILITARY_TRADITION, FIREARMS; bCanMoveImpassable 0->1; free LOGISTICS; mods HillsAtk 25, vsCombat MOUNTED_MELEE 50, vsCombat MOUNTED_RANGED 25, FeatureAtk FOREST 25, +1 more | vs SAS RIFLEMAN: bCanMoveImpassable 0->1; free none→LOGISTICS; gains HillsAtk 25, FeatureAtk FOREST 25, FeatureDef FOREST 50. | Ireland is late historically, so Rifleman timing avoids an even-later Infantry UU. Logistics, Hill attack (but not defense so no identity overlap or unbalanced/non-relevant universal unit) and Peak walking fits guerrilla/independence-war style while keeping the unit relevant. |
+ 
+ ## Leaders' traits rework
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f36c7a833..3d4c9ec8e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -664,7 +664,9 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ 
+ ## Builds
+ 
+-- **Tech prereqs** adjusted (e.g. **Remove Jungle** and **Chop Down a Forest** available together and earlier).
++- **Plantations** are available earlier (as of now at **Agriculture**).
++- **Remove Jungle** and jungle-clearing improvement builds are moved away from overpowered military path, only the weaker jungle remains, and sooner (as of now at **Metal Casting**) to buff jungle too.
++- **Chop Down a Forest** is similarly moved out of the overpowered military path, now to the builder **Masonry** path.
+ - **Remove Jungle** and **Chop Down a Forest** builds now use distinct buttons. These are visible both in the **Technology Advisor** and in **Sevopedia Techs' Enables** and in the new **Sevopedia Builds** category panel. See also [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ 
+ ## Specialists
+@@ -687,7 +689,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ 
+ - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing; **Upkeep: Medium → High** to counter-balance its per-specialist scaling and thematically reflect the heavier apparatus needed to sustain such systems); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
+ - **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation) (value info added to Sevopedia and Policy Advisor); economy civics are also more specialized/distinct, e.g. the old Environmentalism civic is replaced with `CIVIC_TRADE_BLOC` (earlier regional union/league-style trade civic); `CIVIC_PROTECTIONISM` is now about having **less trade**, not **no trade** (not isolationism); and `CIVIC_STATE_PROPERTY` now redistributes wealth via yield shifts (e.g. −20% hammers in the capital, +10% in all cities → effectively -20 + 10 = −10% in the capital, vs +10% in all other cities); plus other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
+-- **Civic unlocks moved in the tech tree:** Some civics are available earlier/later than in base AdvCiv (e.g., **Slavery** moved to **Agriculture**). This improves historical pacing and balance/strategy variety (notably, moving Slavery out of the military line reduces the "everything funnels through Bronze Working" effect). See Tech Tree/Sevopedia/XML for current placements.
++- **Civic unlocks moved in the tech tree:** Some civics are available earlier/later than in base AdvCiv or in a strategically more distinct or versatile paths: notably, **Slavery** moves from overpowered, strong military Tech Bronze Working to **Masonry**, keeping the effect early without placing it at the beginning, or **Pacifism** moves later to **Medicine** which is more distinct that the religious path (plus its Great Person scaling is too strong for the early religious/culture branch). This improves pacing and balance/strategy variety while reducing the "everything funnels through Bronze Working" effect. See Tech Tree/Sevopedia/XML for current placements.
+ - **Civics order aligned to tech pace:** Reordered civics in XML so the **Policy Advisor** displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Caste System** before **Vassalage**; **Pacifism** before **Theocracy**.
+ 
+ ## Technologies
+@@ -767,7 +769,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ 
+ ## Buildings
+ 
+-- **Granary:** cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries unchanged (so their relative advantage increases). Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
++- **Granary:** unlocked at **Pottery**; cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries keep their relative advantages. Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
+ - **Water building line reworked/buffed** *(Goal: make **water tiles more viable** while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
+   - **Harbor** (first water building): health/food oriented.
+   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
+@@ -777,7 +779,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ - **Great Person Buildings** (e.g. Academy, Scotland Yard) now **require a tech** (e.g. `TECH_LITERATURE`, `TECH_MONARCHY`) so they appear in the tech tree and in the Sevopedia Building's corresponding group rather than in the "No Tech Prerequisite" group. This may make strategic considerations more specialized and help slightly curb military beelines in particular.
+ - Fewer **national** wonders and relatively more **world** wonders.
+ - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
+-- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly lower).
++- (Requires AdvCiv-SAS 6080+) Many world-wonder effects and timings simplified/retuned; overall costs adjusted (often slightly lower). Flat culture and Great Person points now progress consistently with tech timing; late wonders receive culture only when it fits their role, and a culture percentage modifier no longer stacks with flat wonder culture. See also [wonder_culture_gpp_columns.py (.github workflows README)](/.github/workflows/README.md#buildwonder_culture_gpp_columnspy).
+ - Most `BonusProductionModifiers` (e.g., +100% with Marble) are greatly reduced. Example: Parthenon is now +25% with Marble (was +100%). Wonder costs were also adjusted to fit this change.
+ - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
+ - **Iron Works:** now requires **both Coal and Iron empire-wide**; city requirement count lowered; cost up moderately (e.g., 700 -> 800).
+@@ -829,7 +831,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ - **Animal** units broadly rebalanced; see Sevopedia/XML for details.
+ - **Barracks** now require **Hunting**.
+ - **Warrior / "Ancient Maceman"** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
+-- **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability).
++- **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow**.
+ - **Spearman line:** base Strength **4 → 5**; anti-mounted role strengthened; civ-specific variants further differentiated (see Sevopedia/XML).
+ - **Grenadiers & Bazooka (formerly Anti-Tank Infantry)**: rebalanced into **hybrid, versatile "foot-bomber" roles**.
+ - **Gun units buffed (relative to pre-gun)**: units that **carry firearms** (e.g., **Musketman**, **Horse/Camel Cuirassiers**) are **relatively stronger** than their pre-gun counterparts.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+index b4eb4fc71..d35bc387f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+@@ -82,5 +82,3 @@ Much later, it now appears better not to be strictly historically accurate when
+ Or for example when balanced or practical in terms of gameplay (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
+ 
+ This new vision happens to fit my original wish more, of Civ being a boardgame like strategy simulator, rather than a history reenactment which i don't find as appealing, so although interesting to some extent, it is also constraining, and generally and regardless i think i value gameability and choosing strongest strategies much more than carefull replay the known history timeline, which i don't care as much if at all about in retrospect i think.
+-
+-And if it also encourages gameplay variety (like religions being sooner and not always the same each game), then all the better (as long as not too obnoxious like meditation in ancient era, but even that is maybe not too bad who knows, but anyway i just want to move more in this direction and do what i find fit and want, not necessarily this or that way i think).
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=105835

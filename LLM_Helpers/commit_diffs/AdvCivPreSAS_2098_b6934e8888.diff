@@ -1,0 +1,1121 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2098
+# Commit: b6934e888877c3925a1ccf84de6c27a9d49d9623
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 303786668f9ebfe4ffa29e7806504b258a86234e
+# Title: City trade tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+8	0	Assets/XML/Text/CIV4GameText_advc.xml
+3	5	CvGameCoreDLL/CvCity.cpp
+10	2	CvGameCoreDLL/CvDLLButtonPopup.cpp
+6	30	CvGameCoreDLL/CvDeal.cpp
+1	6	CvGameCoreDLL/CvDeal.h
+19	9	CvGameCoreDLL/CvInfo_GameOption.cpp
+54	46	CvGameCoreDLL/CvPlayer.cpp
+3	0	CvGameCoreDLL/CvPlayer.h
+206	131	CvGameCoreDLL/CvPlayerAI.cpp
+10	4	CvGameCoreDLL/CvPlayerAI.h
+45	1	CvGameCoreDLL/CvTeamAI.cpp
+5	1	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 4d9c0ad60..e278cd89a 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -721,7 +721,7 @@
+ 					<MemoryType>MEMORY_EVENT_BAD_TO_US</MemoryType>
+ 					<iMemoryAttitudePercent>-100</iMemoryAttitudePercent>
+ 				</MemoryAttitudePercent>
+-				<!-- advc.ctr (note, concerning all leaders): The DLL takes this times 5/6 -->
++				<!-- advc.ctr (note, concerning all leaders): The DLL takes this times 7/8 -->
+ 				<MemoryAttitudePercent>
+ 					<MemoryType>MEMORY_LIBERATED_CITIES</MemoryType>
+ 					<iMemoryAttitudePercent>150</iMemoryAttitudePercent>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 30a08c437..97da5ef42 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5848,6 +5848,14 @@
+ 		<Italian>No, restituisci il controllo all'%s1_CivName</Italian>
+ 		<Spanish>No, devolvedle el control al %s1_CivName</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_LIBERATION_NOTE</Tag>
++		<English>(Note: Liberation at a later time will cede the city to the %s1_CivName.)</English>
++		<French>(Note: Liberation at a later time will cede the city to the %s1_CivName.)</French>
++		<German>(Bemerkung: Falls Ihr die Stadt sp�ter befreit, wird sie an das %s1:2_CivName �bergehen.)</German>
++		<Italian>(Note: Liberation at a later time will cede the city to the %s1_CivName.)</Italian>
++		<Spanish>(Note: Liberation at a later time will cede the city to the %s1_CivName.)</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.004g: From CIV4GameText_BTS.xml. Said "terrain", which is
+ 		 misleading. I've used TXT_KEY_PEDIA_CATEGORY_FEATURE
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e2443f45d..200c5018a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12519,14 +12519,12 @@ PlayerTypes CvCity::getLiberationPlayer(bool bConquest) const
+ 		}
+ 	}
+ 
+-	/*  advc (note): Not sure if this is needed for anything. The splitEmpirePlayer
+-		isn't alive, so one probably can't gift cities to it. */
+-	if (kOwner.canSplitEmpire() && kOwner.canSplitArea(getArea()))
+-	{
++	// advc: This is pointless b/c the splitEmpirePlayer is never alive
++	/*if (kOwner.canSplitEmpire() && kOwner.canSplitArea(getArea())) {
+ 		PlayerTypes eSplitPlayer = kOwner.getSplitEmpirePlayer(getArea());
+ 		if (eSplitPlayer != NO_PLAYER && GET_PLAYER(eSplitPlayer).isAlive())
+ 			return eSplitPlayer;
+-	}
++	}*/
+ 
+ 	PlayerTypes eBestPlayer = NO_PLAYER;
+ 	int iBestValue = 0;
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 7f98b36c1..0aa990869 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1439,8 +1439,16 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	else szBuffer = gDLL->getText("TXT_KEY_POPUP_CITY_CAPTURE_KEEP", pNewCity->getNameKey());
+ 
+ 	m_kUI.popupSetBodyString(pPopup, szBuffer);
+-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_KEEP_CAPTURED_CITY").c_str(),
+-			NULL, 0, WIDGET_GENERAL);
++	CvWString szKeep = gDLL->getText("TXT_KEY_POPUP_KEEP_CAPTURED_CITY");
++	// <advc.ctr> Notify player that the liberation target will change
++	PlayerTypes eFutureLiberationPlayer = pNewCity->getLiberationPlayer(false);
++	if (bGift && eLiberationPlayer != eFutureLiberationPlayer)
++	{
++		szKeep.append(L" ");
++		szKeep.append(gDLL->getText("TXT_KEY_POPUP_LIBERATION_NOTE",
++				GET_PLAYER(eFutureLiberationPlayer).getCivilizationDescriptionKey()));
++	} // </advc.ctr>
++	m_kUI.popupAddGenericButton(pPopup, szKeep, NULL, 0, WIDGET_GENERAL);
+ 
+ 	if (bRaze)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index fade47fcb..d25d0a654 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -172,16 +172,16 @@ void CvDeal::addTrades(CLinkList<TradeData> const& kFirstList, CLinkList<TradeDa
+ 		no longer at war. */
+ 	bool const bMakingPeace = ::atWar(eFirstTeam, eSecondTeam);
+ 	bool bUpdateAttitude = false;
+-	/*  Calls to changePeacetimeTradeValue moved into a subroutine to avoid
+-		code duplication */
+-	if (recordTradeValue(kSecondList, kFirstList, getSecondPlayer(),
+-		getFirstPlayer(), bMakingPeace, ePeaceTradeTarget, eWarTradeTarget,
++	/*  Calls to changePeacetimeTradeValue moved into a new function
++		(also for advc.ctr) */
++	if (GET_PLAYER(getSecondPlayer()).AI_processTradeValue(kFirstList, getFirstPlayer(),
++		kSecondList.getLength() <= 0, bMakingPeace, ePeaceTradeTarget, eWarTradeTarget,
+ 		bPeaceTreaty && !bMakingPeace)) // advc.ctr
+ 	{
+ 		bUpdateAttitude = true;
+ 	}
+-	if (recordTradeValue(kFirstList, kSecondList, getFirstPlayer(),
+-		getSecondPlayer(), bMakingPeace, ePeaceTradeTarget, eWarTradeTarget,
++	if (GET_PLAYER(getFirstPlayer()).AI_processTradeValue(kSecondList, getSecondPlayer(),
++		kFirstList.getLength() <= 0, bMakingPeace, ePeaceTradeTarget, eWarTradeTarget,
+ 		bPeaceTreaty && !bMakingPeace)) // advc.ctr
+ 	{
+ 		bUpdateAttitude = true;
+@@ -313,30 +313,6 @@ void CvDeal::addTrades(CLinkList<TradeData> const& kFirstList, CLinkList<TradeDa
+ 	// K-Mod end
+ }
+ 
+-/*  advc.130p: Based on code cut from addTrades. Return values says whether
+-	attitude cache needs to be updated. */
+-bool CvDeal::recordTradeValue(CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList,
+-	PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bPeace,
+-	TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget,
+-	bool bAIRequest) // advc.ctr
+-{
+-	/*  advc.550a: Ignore discounts when it comes to fair-trade diplo bonuses?
+-		Hard to decide, apply half the discount for now. */
+-	int iValue = ROUND_DIVIDE(
+-			GET_PLAYER(eSecondPlayer).AI_dealVal(eFirstPlayer,
+-			kFirstList, true, 1, true, true, /* advc.ctr: */ true, bAIRequest, true) +
+-			GET_PLAYER(eSecondPlayer).AI_dealVal(eFirstPlayer,
+-			kFirstList, true, 1, false, true, /* advc.ctr: */ true, bAIRequest, true),
+-			2);
+-	if(iValue <= 0)
+-		return false;
+-	FAssertMsg(kFirstList.getLength() > 0 && (kFirstList.getLength() > 1 ||
+-			kFirstList.head()->m_data.m_eItemType != TRADE_PEACE_TREATY), "iValue should've been 0");
+-	GET_PLAYER(eSecondPlayer).AI_processPeacetimeValue(eFirstPlayer, iValue,
+-			kSecondList.getLength() <= 0, bPeace, ePeaceTradeTarget, eWarTradeTarget);
+-	return true;
+-}
+-
+ 
+ void CvDeal::doTurn()
+ {
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index e8d2ac605..ef2d05d7e 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -140,12 +140,7 @@ protected:
+ 			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+ 	// <advc.130p>
+ 	static void addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+-			TradeableItems eItemType);
+-	bool recordTradeValue(CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList,
+-			PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bPeace,
+-			TeamTypes ePeaceTradeTarget = NO_TEAM, TeamTypes eWarTradeTarget = NO_TEAM,
+-			bool bAIRequest = false); // advc.ctr
+-	// </advc.130p>
++			TradeableItems eItemType); // </advc.130p>
+ 	void startTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam, bool bDual);
+ 	void endTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam);
+ 	void announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, // advc
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index 70a7db1f9..847f44802 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -73,7 +73,7 @@ m_iGrowthPercent(0),
+ m_iTrainPercent(0),
+ m_iConstructPercent(0),
+ m_iCreatePercent(0),
+-m_iResearchPercent(0),
++m_iResearchPercent(/* advc: */ -1),
+ m_iTechCostModifier(0), // BETTER_BTS_AI_MOD, Tech Diffusion, 08/21/09, jdog5000
+ m_iBuildPercent(0),
+ m_iImprovementPercent(0),
+@@ -233,6 +233,7 @@ bool CvEraInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iConstructPercent, "iConstructPercent");
+ 	pXML->GetChildXmlValByName(&m_iCreatePercent, "iCreatePercent");
+ 	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
++	FAssert(m_iResearchPercent > 0); // advc
+ 	// BETTER_BTS_AI_MOD, Tech Diffusion, 08/21/09, jdog5000:
+ 	pXML->GetChildXmlValByName(&m_iTechCostModifier, "iTechCostModifier", 0);
+ 	pXML->GetChildXmlValByName(&m_iBuildPercent, "iBuildPercent");
+@@ -277,7 +278,7 @@ m_iGrowthPercent(0),
+ m_iTrainPercent(0),
+ m_iConstructPercent(0),
+ m_iCreatePercent(0),
+-m_iResearchPercent(0),
++m_iResearchPercent(/* advc: */ -1),
+ m_iBuildPercent(0),
+ m_iImprovementPercent(0),
+ m_iGreatPeoplePercent(0),
+@@ -379,6 +380,7 @@ bool CvGameSpeedInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iConstructPercent, "iConstructPercent");
+ 	pXML->GetChildXmlValByName(&m_iCreatePercent, "iCreatePercent");
+ 	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
++	FAssert(m_iResearchPercent > 0); // advc
+ 	pXML->GetChildXmlValByName(&m_iBuildPercent, "iBuildPercent");
+ 	pXML->GetChildXmlValByName(&m_iImprovementPercent, "iImprovementPercent");
+ 	pXML->GetChildXmlValByName(&m_iGreatPeoplePercent, "iGreatPeoplePercent");
+@@ -588,7 +590,7 @@ m_iBaseGrowthThresholdPercent(0),
+ m_iGPThresholdPercent(0),
+ m_iCultureLevelPercent(0),
+ // </advc.251>
+-m_iResearchPercent(0),
++m_iResearchPercent(/* advc: */ -1),
+ // <advc.251>
+ m_iTrainPercent(0),
+ m_iConstructPercent(0),
+@@ -628,14 +630,14 @@ m_iAIStartingExploreUnits(0),
+ m_iBarbarianInitialDefenders(0),
+ m_iAIDeclareWarProb(0),
+ m_iAIWorkRateModifier(0),
+-m_iAIGrowthPercent(0),
++m_iAIGrowthPercent(/* advc: */ -1),
+ // <advc.251>
+ m_iAIGPThresholdPercent(0),
+-m_iAIResearchPercent(0),
++m_iAIResearchPercent(-1),
+ // </advc.251>
+-m_iAITrainPercent(0),
++m_iAITrainPercent(/* advc: */ -1),
+ m_iAIWorldTrainPercent(0),
+-m_iAIConstructPercent(0),
++m_iAIConstructPercent(/* advc: */ -1),
+ m_iAIWorldConstructPercent(0),
+ m_iAICreatePercent(0),
+ m_iAIWorldCreatePercent(0),
+@@ -1194,6 +1196,7 @@ bool CvHandicapInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iCultureLevelPercent, "iCultureLevelPercent");
+ 	// </advc.251>
+ 	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
++	FAssert(m_iResearchPercent > 0); // advc
+ 	// <advc.251>
+ 	pXML->GetChildXmlValByName(&m_iTrainPercent, "iTrainPercent");
+ 	pXML->GetChildXmlValByName(&m_iConstructPercent, "iConstructPercent");
+@@ -1234,13 +1237,17 @@ bool CvHandicapInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iAIDeclareWarProb, "iAIDeclareWarProb");
+ 	pXML->GetChildXmlValByName(&m_iAIWorkRateModifier, "iAIWorkRateModifier");
+ 	pXML->GetChildXmlValByName(&m_iAIGrowthPercent, "iAIGrowthPercent");
++	FAssert(m_iAIGrowthPercent > 0); // advc
+ 	// <advc.251>
+ 	pXML->GetChildXmlValByName(&m_iAIGPThresholdPercent, "iAIGPThresholdPercent");
+ 	pXML->GetChildXmlValByName(&m_iAIResearchPercent, "iAIResearchPercent");
++	FAssert(m_iAIResearchPercent > 0);
+ 	// </advc.251>
+ 	pXML->GetChildXmlValByName(&m_iAITrainPercent, "iAITrainPercent");
++	FAssert(m_iAITrainPercent > 0); // advc
+ 	pXML->GetChildXmlValByName(&m_iAIWorldTrainPercent, "iAIWorldTrainPercent");
+ 	pXML->GetChildXmlValByName(&m_iAIConstructPercent, "iAIConstructPercent");
++	FAssert(m_iAIConstructPercent > 0); // advc
+ 	pXML->GetChildXmlValByName(&m_iAIWorldConstructPercent, "iAIWorldConstructPercent");
+ 	pXML->GetChildXmlValByName(&m_iAICreatePercent, "iAICreatePercent");
+ 	pXML->GetChildXmlValByName(&m_iAIWorldCreatePercent, "iAIWorldCreatePercent");
+@@ -1291,7 +1298,7 @@ m_iGridWidth(0),
+ m_iGridHeight(0),
+ m_iTerrainGrainChange(0),
+ m_iFeatureGrainChange(0),
+-m_iResearchPercent(0),
++m_iResearchPercent(/* advc: */ -1),
+ m_iTradeProfitPercent(0),
+ m_iDistanceMaintenancePercent(0),
+ m_iNumCitiesMaintenancePercent(0),
+@@ -1398,6 +1405,7 @@ bool CvWorldInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iTerrainGrainChange, "iTerrainGrainChange");
+ 	pXML->GetChildXmlValByName(&m_iFeatureGrainChange, "iFeatureGrainChange");
+ 	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
++	FAssert(m_iResearchPercent > 0); // advc
+ 	pXML->GetChildXmlValByName(&m_iTradeProfitPercent, "iTradeProfitPercent");
+ 	pXML->GetChildXmlValByName(&m_iDistanceMaintenancePercent, "iDistanceMaintenancePercent");
+ 	pXML->GetChildXmlValByName(&m_iNumCitiesMaintenancePercent, "iNumCitiesMaintenancePercent");
+@@ -1515,7 +1523,9 @@ bool CvSeaLevelInfo::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iSeaLevelChange, "iSeaLevelChange");
+-	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent"); // advc.910
++	// <advc.910>
++	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
++	FAssert(m_iResearchPercent > 0); // </advc.910>
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ce23a6696..7fc3f17d5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2143,10 +2143,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 						GET_TEAM(getTeam()).canPeacefullyEnter(TEAMID(eLiberationPlayer)));
+ 				// </advc>  <advc.ctr> Make sure that the ownership change is legal
+ 				if (bGift)
+-				{
+-					// Don't check denial though; recipient can't refuse.
+-					bGift = canTradeItem(eLiberationPlayer, TradeData(
+-						TRADE_CITIES, kNewCity.getID()));
++				{	// Don't check denial though; recipient can't refuse.
++					bGift = canTradeCityTo(eLiberationPlayer, kNewCity, true);
+ 				} // </advc.ctr>
+ 				if (bRaze || bGift)
+ 				{
+@@ -4023,54 +4021,13 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	}
+ 	case TRADE_CITIES:
+ 	{
+-		PROFILE("CvPlayer::canTradeItem.CITIES");
+ 		CvCity const* pCity = getCity(item.m_iData);
+ 		if (pCity == NULL)
+ 		{
+ 			FAssert(pCity != NULL);
+ 			break;
+ 		}
+-		CvCity const& kCity = *pCity;
+-		// <advc.ctr>
+-		if (kCity.isCapital() || !kCity.isRevealed(kToTeam.getID()))
+-			break; // </advc.ctr>
+-		if (kCity.getLiberationPlayer() == eWhoTo)
+-		{
+-			bValid = true;
+-			break;
+-		}
+-		// <advc.ctr>
+-		/*	Can't trade so long as the previous owner hasn't accepted the loss
+-			(let's ignore kCity.getOriginalOwner()) */
+-		PlayerTypes ePreviousOwner = kCity.getPreviousOwner();
+-		if (ePreviousOwner != NO_PLAYER)
+-		{
+-			TeamTypes ePreviousTeam = TEAMID(ePreviousOwner);
+-			if (ePreviousTeam != kToTeam.getID() &&
+-				kOurTeam.isAtWar(ePreviousTeam) &&
+-				!kToTeam.isAtWar(ePreviousTeam))
+-			{
+-				break;
+-			}
+-		}
+-		CvPlot const& kCityPlot = *kCity.plot();
+-		if (!kToTeam.isAtWar(getTeam()) && kCityPlot.isVisibleEnemyCityAttacker(getID()))
+-			break; // Can't trade an endangered city to a third party
+-		if (kCityPlot.calculateCulturePercent(eWhoTo) < GC.getDefineINT(CvGlobals::CITY_TRADE_CULTURE_THRESH))
+-			break;
+-		if (!kOurTeam.isAtWar(TEAMID(eWhoTo)) &&
+-			// Prevent back-and-forth trades between humans
+-			(kCity.isEverOwned(eWhoTo) && isHuman() && GET_PLAYER(eWhoTo).isHuman() ? 1 : 2) * 
+-			kCityPlot.getCulture(eWhoTo) <= kCityPlot.getCulture(getID()))
+-		{
+-			break;
+-		}
+-		if (kToTeam.isVassal(getTeam()) &&
+-			kCityPlot.getCulture(eWhoTo) <= kCityPlot.getCulture(getID()))
+-		{
+-			break;
+-		}
+-		bValid = true; // </advc.ctr>
++		bValid = canTradeCityTo(eWhoTo, *pCity); // advc.ctr;
+ 		break;
+ 	}
+ 	case TRADE_GOLD:
+@@ -4290,6 +4247,57 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 	}
+ }
+ 
++// advc.ctr:
++bool CvPlayer::canTradeCityTo(PlayerTypes eRecipient, CvCity const& kCity, bool bConquest) const
++{
++	PROFILE_FUNC(); // advc.test: To be profiled
++	CvPlayer const& kRecipient = GET_PLAYER(eRecipient);
++	/*	canTradeItem already checks this through canPossiblyTradeItem, so this
++		is redundant. However, I also need to check the city trade conditions
++		from CvPlayer::acquireCity, so this can't be helped unless I add the
++		bConquest param to canTradeItem, which I find inelegant. */
++	if (!kRecipient.canReceiveTradeCity())
++		return false;
++
++	if (kCity.isCapital() || !kCity.isRevealed(kRecipient.getTeam()))
++		return false;
++	if (kCity.getLiberationPlayer(bConquest) == eRecipient) // as in BtS
++		return true;
++	/*	Can't trade so long as the previous owner hasn't accepted the loss
++		(let's ignore kCity.getOriginalOwner()) */
++	PlayerTypes ePreviousOwner = kCity.getPreviousOwner();
++	if (ePreviousOwner != NO_PLAYER)
++	{
++		TeamTypes ePreviousTeam = TEAMID(ePreviousOwner);
++		if (ePreviousTeam != kRecipient.getTeam() &&
++			GET_TEAM(getTeam()).isAtWar(ePreviousTeam) &&
++			!GET_TEAM(eRecipient).isAtWar(ePreviousTeam))
++		{
++			return false;
++		}
++	}
++	CvPlot const& kCityPlot = *kCity.plot();
++	if (kCityPlot.calculateCulturePercent(eRecipient) <
++		GC.getDefineINT(CvGlobals::CITY_TRADE_CULTURE_THRESH))
++	{
++		return false;
++	}
++	if (!GET_TEAM(eRecipient).isAtWar(getTeam()) &&
++		// Prevent back-and-forth trades between humans
++		(kCity.isEverOwned(eRecipient) && isHuman() &&
++		kRecipient.isHuman() ? 1 : 2) * kCityPlot.getCulture(eRecipient) <=
++		kCityPlot.getCulture(getID()))
++	{
++		return false;
++	}
++	if (GET_TEAM(eRecipient).isVassal(getTeam()) &&
++		kCityPlot.getCulture(eRecipient) <= kCityPlot.getCulture(getID()))
++	{
++		return false;
++	}
++	return true;
++}
++
+ 
+ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index ae93a0dce..7ba03472d 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -238,6 +238,9 @@ public:
+ 	bool canReceiveTradeCity() const;
+ 	DllExport bool canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial = false) const;			// Exposed to Python
+ 	bool canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType) const; // advc.opt
++	// <advc.ctr>
++	bool canTradeCityTo(PlayerTypes eRecipient, CvCity const& kCity,
++			bool bConquest = false) const; // </advc.ctr>
+ 	DllExport DenialTypes getTradeDenial(PlayerTypes eWhoTo, TradeData item) const;												// Exposed to Python
+ 	bool canTradeNetworkWith(PlayerTypes ePlayer) const;																									// Exposed to Python
+ 	int getNumAvailableBonuses(BonusTypes eBonus) const;																									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6d824b371..2b2040571 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7682,7 +7682,7 @@ int CvPlayerAI::AI_getMemoryAttitude(PlayerTypes ePlayer, MemoryTypes eMemory) c
+ 		iAttitudePercent = 4 + (iAttitudePercent * 4) / 5; // </advc.553>
+ 	// <advc.ctr>
+ 	if (eMemory == MEMORY_LIBERATED_CITIES)
+-		iAttitudePercent = (iAttitudePercent * 5) / 6; // </advc.ctr>
++		iAttitudePercent = (iAttitudePercent * 7) / 8; // </advc.ctr>
+ 	return ::round((AI_getMemoryCount(ePlayer, eMemory) * iAttitudePercent) / div);
+ }
+ 
+@@ -8683,7 +8683,8 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const&
+ 				iValue += AI_cityTradeVal(*pCity,
+ 						// <advc.ctr>
+ 						NO_PLAYER, bCountLiberation ?
+-						LIBERATION_WEIGHT_REDUCED : LIBERATION_WEIGHT_ZERO,
++						(bDiploVal ? LIBERATION_WEIGHT_FULL : LIBERATION_WEIGHT_REDUCED) :
++						LIBERATION_WEIGHT_ZERO,
+ 						false, bAIRequest, bDiploVal); // </advc.ctr>
+ 			}
+ 			break;
+@@ -9437,7 +9438,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
+ 	{
+ 		/*	AI counting a human proposal:
+ 			do not compromise the AI's value, and don't even consider the human's value. */
+-		bDeal = (iWeReceive >= iTheyReceive);
++		bDeal = (iWeReceive >= iTheyReceive && /* advc.ctr */ iWeReceive > 0);
+ 		FAssert(!isHuman());
+ 	}
+ 	else
+@@ -11732,6 +11733,8 @@ int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity, // advc.003u: param was C
+ 		{
+ 			if (bWar)
+ 				r *= fixp(0.45);
++			/*	Since CvPlayer::canTradeItem doesn't allow threatened cities to be
++				ceded except through liberation, this branch is mostly irrelevant. */
+ 			else if (!bDiploVal) // Third-party beneficiary should at least be grateful
+ 			{	// To third party: depending on whether we might reconquer the city
+ 				r *= scaled::clamp(per100(GET_TEAM(getTeam()).
+@@ -11812,9 +11815,9 @@ int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity, // advc.003u: param was C
+ 			return r.round();
+ 		return r.roundToMultiple(GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER));
+ 	}
+-	// Increased impact on trade memory b/c city trades tend to have strategic importance
+-	if (bDiploVal)
+-		r *= fixp(1.47);
++	// Reduced diplomatic consequences b/c repipient has a rightful claim
++	if (bLiberate && bDiploVal)
++		r *= fixp(0.72);
+ 	return r.round();
+ }
+ 
+@@ -11901,8 +11904,6 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
+ 	bool const bWar = ::atWar(getTeam(), kToPlayer.getTeam());
+ 	if (isHuman())
+ 	{
+-		if (kCity.isCapital()) // Don't accept capital. Too strange.
+-			return DENIAL_JOKING;
+ 		if (bWar)
+ 			return NO_DENIAL;
+ 		// (Else we still need to check peacetime denial of kToPlayer)
+@@ -11991,15 +11992,23 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
+ 		if (iAttitude <= iAttitudeThresh)
+ 			return DENIAL_ATTITUDE;
+ 	}
+-
+-	// Temporary obstacles ...
++	/*	Can't trade an endangered city to a third party. This is really a game rule,
++		but I want to show an explanation. */
++	if (!bLib &&
++		kCity.AI().AI_getSafety() != CITYSAFETY_PERFECT && // Just to save time
++		kCityPlot.isVisibleEnemyCityAttacker(getID(), NO_TEAM, 2))
++	{	/*	"Out of our hands" when the recipient is human; as in:
++			"the city isn't really in our hands at this time". */
++		return (isHuman() ? DENIAL_POWER_YOUR_ENEMIES : DENIAL_VASSAL); 
++	}
+ 
+ 	// If directly obtained from ePlayer, give it some time.
+-	if (kCity.getPreviousOwner() == eToPlayer)
++	if (!isHuman() && kCity.getPreviousOwner() == eToPlayer)
+ 	{
+ 		FAssert(!bWar);
+ 		int iTurnsOwned = GC.getGame().getGameTurn() - kCity.getGameTurnAcquired();
+-		if (iTurnsOwned < fixp(5/3.) *
++		// This condition is mostly aimed at trades between AI civs
++		if (iTurnsOwned < (kToPlayer.isHuman() ? 1 : fixp(5/3.)) *
+ 			(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) - AI_getAttitude(eToPlayer))
+ 			* (fixp(0.75) + fixp(0.5) * scaled::hash(kCity.getID()))) // +/-25%
+ 		{
+@@ -12016,15 +12025,17 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
+ 	{
+ 		return DENIAL_RECENT_CANCEL;
+ 	}
+-	/*  Should perhaps instead check if there is _any_ danger; not sure how
+-		likely it is that the new owner has defensive units nearby ... */
+-	int iThirdPartyAttack = kToPlayer.AI_localAttackStrength(&kCityPlot, NO_TEAM);
+-	if (iThirdPartyAttack > 0)
+-	{
+-		int iToPlayerDefense = kToPlayer.AI_localDefenceStrength(&kCityPlot,
+-				kToPlayer.getTeam(), DOMAIN_LAND, 1);
+-		if (iToPlayerDefense < 2 * iThirdPartyAttack)
+-			return DENIAL_POWER_THEM;
++	{	// Units hostile to the new owner
++		/*	Should perhaps just check isVisibleEnemyCityAttacker(eToPlayer,...);
++			doesn't seem likely that kToPlayer has defensive units nearby. */
++		int iThirdPartyAttack = kToPlayer.AI_localAttackStrength(&kCityPlot, NO_TEAM);
++		if (iThirdPartyAttack > 0)
++		{
++			int iToPlayerDefense = kToPlayer.AI_localDefenceStrength(&kCityPlot,
++					kToPlayer.getTeam(), DOMAIN_LAND, 1);
++			if (iToPlayerDefense < 2 * iThirdPartyAttack)
++				return DENIAL_POWER_THEM;
++		}
+ 	}
+ 	if (!bLib)
+ 	{
+@@ -16705,7 +16716,8 @@ int CvPlayerAI::AI_getPeacetimeGrantValue(PlayerTypes eIndex) const
+ 	return m_aiPeacetimeGrantValue[eIndex];
+ }
+ 
+-// <advc.130p> Merged (and renamed) AI_changePeacetimeTradeValue and AI_changePeacetimeGrantValue
++// <advc.130p>
++// Merged (and renamed) AI_changePeacetimeTradeValue and AI_changePeacetimeGrantValue
+ void CvPlayerAI::AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange)
+ {
+ 	AI_processPeacetimeValue(eIndex, iChange, false);
+@@ -16718,119 +16730,114 @@ void CvPlayerAI::AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange)
+ }
+ 
+ // Based on the old AI_changePeacetimeGrantValue
+-void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eIndex, int iChange,
+-		bool bGrant, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
++void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
++	bool bGrant, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
+ {
+ 	PROFILE_FUNC();
+-	FAssertBounds(0, MAX_CIV_PLAYERS, eIndex); // advc.003n
++	FAssertBounds(0, MAX_CIV_PLAYERS, eFromPlayer); // advc.003n
+ 	if(iChange == 0)
+ 		return;
+ 	int* aiPeacetimeValue = (bGrant ? m_aiPeacetimeGrantValue : m_aiPeacetimeTradeValue);
+-	CvGame& g = GC.getGame();
+-	double val = (1000000.0 * iChange) / std::max(
+-			// Trade values are higher relative to game progress in slow games
+-			GC.getInfo(g.getGameSpeedType()).getResearchPercent() *
+-			// Larger maps have higher tech costs
+-			GC.getInfo(GC.getMap().getWorldSize()).getResearchPercent() *
+-			// Other AI modifiers have the opposite effect (see AI_peacetimeTradeMultiplier)
+-			GC.getInfo(g.getHandicapType()).getAIResearchPercent(), 1);
+-	/*  Times 1000 for increased precision, times 2 b/c "fair trade" is twice as
+-		sensitive as "traded with worst enemy" (it's this way too in BtS). */
+-	int iIncr = ::round(val * 2000 *
++	scaled rVal = iChange;
++	{	// Normalize trade value
++		CvGame const& kGame = GC.getGame();
++		CvMap const& kMap = GC.getMap();
++		rVal /= per100(GC.getInfo(kGame.getGameSpeedType()).getResearchPercent());
++		rVal /= per100(GC.getInfo(kMap.getWorldSize()).getResearchPercent());
++		rVal /= per100(GC.getInfo(kMap.getSeaLevel()).getResearchPercent());
++		rVal /= per100(GC.getInfo(kGame.getStartEra()).getResearchPercent());
++		rVal /= per100(GC.getInfo(kGame.getHandicapType()).getAIResearchPercent());
++	}
++	/*  Times 2 b/c "fair trade" is twice as sensitive as "enemy trade".
++		(It's this way in BtS too.) */
++	scaled rIncrease = rVal * 2 *
+ 			/*  In BtS, trade and grant values were adjusted to the game progress
+ 				when computing relations modifiers. Better do it here, based on the
+ 				game progress at the time when the trade happens. */
+-			AI_peacetimeTradeMultiplier(eIndex));
++			AI_peacetimeTradeMultiplier(eFromPlayer);
+ 	// <advc.130v>
+-	PlayerTypes eMaster = NO_PLAYER;
+-	if(GET_TEAM(eIndex).isCapitulated())
++	PlayerTypes eFromMaster = NO_PLAYER;
++	if(GET_TEAM(eFromPlayer).isCapitulated())
+ 	{
+-		iIncr /= 2;
+-		eMaster = GET_TEAM(GET_PLAYER(eIndex).getMasterTeam()).getLeaderID();
+-	} // advc.130p: No PeacetimeTrade for reparations; only RivalTrade.
++		rIncrease /= 2;
++		eFromMaster = GET_TEAM(GET_PLAYER(eFromPlayer).getMasterTeam()).getLeaderID();
++	}
++	int iIncr = rIncrease.round();
++	// advc.130p: No PeacetimeTrade for reparations; only RivalTrade.
+ 	if(!bPeace && ePeaceTradeTarget == NO_TEAM)
+ 	{
+-		if(eMaster != NO_PLAYER)
+-			aiPeacetimeValue[eMaster] += iIncr;
+-		// </advc.130v>
+-		aiPeacetimeValue[eIndex] += iIncr;
+-		FAssert(aiPeacetimeValue[eIndex] >= 0 && iChange > 0);
++		if(eFromMaster != NO_PLAYER)
++		{
++			FAssertBounds(0, MAX_CIV_PLAYERS, eFromMaster);
++			aiPeacetimeValue[eFromMaster] += iIncr;
++		} // </advc.130v>
++		aiPeacetimeValue[eFromPlayer] += iIncr;
++		FAssert(aiPeacetimeValue[eFromPlayer] >= 0 && iChange > 0);
+ 	}
+-	if(iChange <= 0 || TEAMID(eIndex) == getTeam())
++	if(rVal <= 0 || TEAMID(eFromPlayer) == getTeam())
+ 		return;
+-	for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+-	{
+-		CvTeamAI& t = GET_TEAM((TeamTypes)iI);
+-		if(t.getID() != TEAMID(eIndex) && t.isAlive() &&
+-			(eMaster == NO_PLAYER || t.getID() != TEAMID(eMaster)) &&
+-			t.isHasMet(TEAMID(eIndex))) // unoffical patch bugfix, by Sephi.
+-		{
+-			// <advc.130p>
+-			bool bWorstEnemy = (t.AI_getWorstEnemy() == getTeam());
+-			// Special treatment for war enemies trading among each other
+-			bool bOtherWar = (t.isAtWar(TEAMID(eIndex)) || eWarTradeTarget == t.getID());
+-			bool bWar = t.isAtWar(getTeam());
+-			if(!bWorstEnemy && !(bWar && !bOtherWar))
+-				continue;
+-			// No anger among vassal-master when they make peace
+-			if(bPeace && GET_TEAM(eIndex).getMasterTeam() == t.getID())
+-				continue;
+-			/*  Don't mind if t's worst enemy is paid to make peace with a civ that
+-				t likes. Unless t is at war with its worst enemy because, then,
+-				the peace deals means that t loses a war ally. */
+-			if(ePeaceTradeTarget == t.getMasterTeam() || (ePeaceTradeTarget != NO_TEAM &&
+-					t.AI_getAttitude(ePeaceTradeTarget) >= ATTITUDE_PLEASED && !bWar &&
+-					!t.isAtWar(ePeaceTradeTarget))) // Should be implied by attitude, but let's make sure.
+-				continue; // </advc.130p>
+-			double mult = 2000;
+-			/*  Avoid oscillation of worst enemy, but still punish non-war party
+-				for helping a war enemy. */
+-			int iDelta = ::range(t.AI_getAttitudeVal(TEAMID(eIndex)) -
+-					(bOtherWar ? 2 : 0) -
+-					(t.AI_getAttitudeVal(t.AI_getWorstEnemy()) -
+-					(bWar ? 2 : 0)),
+-					0, 7);
+-			mult *= iDelta / 5.0;
+-			// <advc.130p>
+-			if(bPeace) // But count brokered peace in full
+-				mult *= 0.4;
+-			if(bWar && bWorstEnemy && !bOtherWar)
+-				mult *= 1.33;
+-			else if(bWorstEnemy && !bOtherWar)
+-				mult *= 0.9;
+-			else mult *= 0.67; // </advc.130p>
+-			int iEnemyIncr = ::round(val * mult * AI_peacetimeTradeMultiplier(NO_PLAYER, t.getID()));
+-			if(iEnemyIncr <= 0)
+-				continue;
+-			// <advc.130v>
+-			if(GET_TEAM(eIndex).isCapitulated() && !bGrant) // Vassals don't make gifts
+-			{
+-				iEnemyIncr /= 2;
+-				t.AI_changeEnemyPeacetimeTradeValue(TEAMID(eMaster), iEnemyIncr);
+-			} // </advc.130v>
+-			if(bGrant)
+-				t.AI_changeEnemyPeacetimeGrantValue(TEAMID(eIndex), iEnemyIncr);
+-			else t.AI_changeEnemyPeacetimeTradeValue(TEAMID(eIndex), iEnemyIncr);
++	// (The known-to condition had already been added by Sephi in the unofficial patch)
++	for (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO> it(TEAMID(eFromPlayer)); it.hasNext(); ++it)
++	{
++		/*	Third party whose enemy we are and who therefore gets upset with eFromPlayer
++			for having traded with us */
++		CvTeamAI& kThirdParty = *it;
++		if (kThirdParty.getID() == getTeam() || !kThirdParty.isHasMet(getTeam()))
++			continue; // advc: shortcut
++		// <advc.130v>
++		if (eFromMaster != NO_PLAYER && kThirdParty.getID() == TEAMID(eFromMaster))
++			continue; // </advc.130v>
++		// <advc.130p>
++		scaled rMult = kThirdParty.AI_enemyTradeResentmentFactor(getTeam(),
++				TEAMID(eFromPlayer), eWarTradeTarget, ePeaceTradeTarget, bPeace);
++		// </advc.130p>
++		if (rMult <= 0)
++			continue;
++		/*	(I don't know anymore what I was thinking with this factor 2.
++			 Seems to work alright though.) */
++		scaled rEnemyIncrease = rVal * rMult * /* advc.130p: */ 2 *
++				AI_peacetimeTradeMultiplier(NO_PLAYER, kThirdParty.getID());
++		if(rEnemyIncrease <= 0)
++			continue;
++		// <advc.130v>
++		if(GET_TEAM(eFromPlayer).isCapitulated() && !bGrant) // Vassals don't make gifts
++		{
++			rEnemyIncrease /= 2;
++			kThirdParty.AI_changeEnemyPeacetimeTradeValue(TEAMID(eFromMaster),
++					rEnemyIncrease.round());
++		} // </advc.130v>
++		if(bGrant)
++		{
++			kThirdParty.AI_changeEnemyPeacetimeGrantValue(TEAMID(eFromPlayer),
++					rEnemyIncrease.round());
++		}
++		else
++		{
++			kThirdParty.AI_changeEnemyPeacetimeTradeValue(TEAMID(eFromPlayer),
++					rEnemyIncrease.round());
+ 		}
+ 	}
+ }
+ 
+ /*  Adjust assets to the scale of trade values (formula determined
+ 	through trial and error) */
+-double CvPlayerAI::AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer, TeamTypes eOtherTeam) const
++scaled CvPlayerAI::AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer,
++	TeamTypes eOtherTeam) const
+ {
+ 	FAssert(eOtherPlayer == NO_PLAYER || eOtherTeam == NO_TEAM);
+ 	bool bTeam = (eOtherPlayer == NO_PLAYER);
+ 	int iAssets = (bTeam ? GET_TEAM(getTeam()).getAssets() : getAssets());
+ 	int iOtherAssets = (bTeam ? GET_TEAM(eOtherTeam).getAssets() :
+ 			GET_PLAYER(eOtherPlayer).getAssets());
+-	FAssertMsg(iAssets + iOtherAssets > 0, "Negative base for std::pow");
+-	CvHandicapInfo const& h = GC.getInfo(GC.getGame().getHandicapType());
+-	/*  Far more AI assets if difficulty is high; trade values not affected
++	FAssertMsg(iAssets + iOtherAssets > 0, "Negative base for scaled::pow");
++	CvHandicapInfo const& kGameHandicap = GC.getInfo(GC.getGame().getHandicapType());
++	/*  Far more AI assets if difficulty is high, whereas trade values aren't affected
+ 		by difficulty as much. */
+-	double r = 1000000.0 / (h.getAIGrowthPercent() * // advc.251
+-			h.getAITrainPercent() * h.getAIConstructPercent());
+-	r *= 3.5 / std::pow((iAssets + iOtherAssets) / 2.0, 1.33);
++	scaled r = 1;
++	r /= per100(kGameHandicap.getAIGrowthPercent()); // advc.251
++	r /= per100(kGameHandicap.getAITrainPercent());
++	r /= per100(kGameHandicap.getAIConstructPercent());
++	r *= 3500 / scaled(iAssets + iOtherAssets, 2).pow(fixp(4/3.));
+ 	return r;
+ }
+ 
+@@ -16868,7 +16875,7 @@ void CvPlayerAI::AI_setBonusTradeCounter(PlayerTypes eIndex, int iValue)
+ 	m_aiBonusTradeCounter[eIndex] = iValue;
+ } // </advc.130k>
+ 
+-/*  <advc.130x> modes:
++/*  advc.130x: Modes:
+ 	0: same religion, 1 differing religion, 2 fav civic */
+ int CvPlayerAI::AI_ideologyDiploLimit(PlayerTypes eOther, int iMode) const
+ {
+@@ -16896,17 +16903,23 @@ int CvPlayerAI::AI_ideologyDiploLimit(PlayerTypes eOther, int iMode) const
+ 	{
+ 		CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+ 		if(!kLoopPlayer.isAlive() || kLoopPlayer.isMinorCiv() || kLoopPlayer.getID() == getID() ||
+-				kLoopPlayer.getID() == eOther || GET_TEAM(kLoopPlayer.getTeam()).isCapitulated() ||
+-				!GET_TEAM(getTeam()).isHasMet(kLoopPlayer.getTeam()))
++			kLoopPlayer.getID() == eOther || GET_TEAM(kLoopPlayer.getTeam()).isCapitulated() ||
++			!GET_TEAM(getTeam()).isHasMet(kLoopPlayer.getTeam()))
++		{
+ 			continue;
++		}
+ 		iTotal++;
+ 		if(iMode == 0 && getStateReligion() != NO_RELIGION &&
+-				getStateReligion() == kLoopPlayer.getStateReligion())
++			getStateReligion() == kLoopPlayer.getStateReligion())
++		{
+ 			iShared++;
++		}
+ 		else if(iMode == 1 && getStateReligion() != NO_RELIGION &&
+-				kLoopPlayer.getStateReligion() != NO_RELIGION &&
+-				getStateReligion() != kLoopPlayer.getStateReligion())
++			kLoopPlayer.getStateReligion() != NO_RELIGION &&
++			getStateReligion() != kLoopPlayer.getStateReligion())
++		{
+ 			iShared++;
++		}
+ 		else if(iMode == 2)
+ 		{
+ 			CivicTypes eFavCivic = (CivicTypes)lh.getFavoriteCivic();
+@@ -16914,14 +16927,14 @@ int CvPlayerAI::AI_ideologyDiploLimit(PlayerTypes eOther, int iMode) const
+ 				iShared++;
+ 		}
+ 	}
+-	double ratio = 0.5;
++	scaled rRatio = fixp(0.5);
+ 	/*  Since we're not counting us and them, the total can be 0. Treat this case
+ 		as if 50% of the other civs were sharing the ideology. */
+ 	if(iTotal > 0)
+-		ratio = iShared / (double)iTotal;
++		rRatio = scaled(iShared, iTotal);
+ 	// 0.51: To make sure we round up if the ratio is 100%
+-	return iLHLimit - ::round(0.51 * ratio * iLHLimit);
+-} // </advc.130x>
++	return iLHLimit - (fixp(0.51) * rRatio * iLHLimit).round();
++}
+ 
+ 
+ int CvPlayerAI::AI_getGoldTradedTo(PlayerTypes eIndex) const
+@@ -17127,11 +17140,40 @@ void CvPlayerAI::AI_rememberLiberation(CvCity const& kCity, bool bConquest)
+ 	int iTradeVal = AI_cityTradeVal(kCity.AI(), getID(), LIBERATION_WEIGHT_FULL, bConquest);
+ 	int iReferenceVal = AI_cityTradeVal(*pCapital, eOwner, LIBERATION_WEIGHT_FULL);
+ 	int iMem = 1;
+-	if (5 * iTradeVal > 3 * iReferenceVal)
++	if (5 * iTradeVal > 2 * iReferenceVal)
+ 		iMem = 3;
+-	else if (3 * iTradeVal > iReferenceVal)
++	else if (5 * iTradeVal > iReferenceVal)
+ 		iMem = 2;
+ 	AI_changeMemoryCount(eOwner, MEMORY_LIBERATED_CITIES, iMem);
++	if (bConquest)
++	{
++		// Trade memory hasn't been counted yet (b/c it's not technically a trade)
++		CLinkList<TradeData> kList;
++		kList.insertAtEnd(TradeData(TRADE_CITIES, kCity.getID()));
++		AI_processTradeValue(kList, eOwner, true, false);
++	}
++}
++
++/*  advc.130p: Based on code cut from CvDeal::addTrades.
++	Return value says whether attitude cache needs to be updated. */
++bool CvPlayerAI::AI_processTradeValue(CLinkList<TradeData> const& kItems,
++	PlayerTypes eFromPlayer, bool bGift, bool bPeace,
++	TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget,
++	bool bAIRequest) // advc.ctr
++{
++	/*  advc.550a: Ignore discounts when it comes to fair-trade diplo bonuses?
++		Hard to decide, apply half the discount for now. */
++	int iValue = ROUND_DIVIDE(
++			AI_dealVal(eFromPlayer, kItems, true, 1, true, true,
++			true, bAIRequest, true) + // advc.ctr
++			AI_dealVal(eFromPlayer, kItems, true, 1, false, true,
++			true, bAIRequest, true), // advc.ctr
++			2);
++	if(iValue <= 0)
++		return false;
++	AI_processPeacetimeValue(eFromPlayer, iValue, bGift,
++			bPeace, ePeaceTradeTarget, eWarTradeTarget);
++	return true;
+ }
+ 
+ /*  advc.003n: This player is about to raze kCity. Other players remember that
+@@ -20396,7 +20438,9 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
+ 			std::pair<int,int> > > aiiiCityPairs;
+ 	FOR_EACH_CITYAI(pOurCity, *this)
+ 	{
+-		if (!pOurCity->AI_isEvacuating() &&
++		if (/*	Would be smart to give away untenable cities, but the rules
++				(CvPlayer::canTradeItem) don't allow it. */
++			/*!pOurCity->AI_isEvacuating() &&*/
+ 			// As in BtS, but use city id to make the timing unpredictable.
+ 			((pOurCity->getGameTurnAcquired() + /*4*/pOurCity->getID()) % 20) !=
+ 			(kGame.getGameTurn() % 20))
+@@ -20542,6 +20586,7 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 	CvPlayerAI const& kToPlayer = GET_PLAYER(eToPlayer);
+ 	bool const bCoop = (getMasterTeam() == kToPlayer.getMasterTeam() &&
+ 			!GET_TEAM(kToPlayer.getTeam()).isVassal(getTeam()));
++	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+ 	int iAttitudeLevel = AI_getAttitude(eToPlayer, !bCoop);
+ 	bool bCede = false;
+ 	if (bLiberateForFree) // Some fast checks upfront
+@@ -20553,7 +20598,7 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 		{
+ 			if (isAVassal()) // Can happen through AI_conquerCity
+ 				return false;
+-			if (GET_TEAM(getTeam()).AI_getWarPlan(kToPlayer.getTeam()) != NO_WARPLAN)
++			if (kOurTeam.AI_getWarPlan(kToPlayer.getTeam()) != NO_WARPLAN)
+ 				return false;
+ 			if (getUWAI.isEnabled())
+ 			{
+@@ -20562,8 +20607,8 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 			}
+ 			else
+ 			{
+-				if (!GET_TEAM(getTeam()).AI_isAvoidWar(kToPlayer.getTeam(), true) &&
+-					5 * GET_TEAM(getTeam()).getPower(true) >
++				if (!kOurTeam.AI_isAvoidWar(kToPlayer.getTeam(), true) &&
++					5 * kOurTeam.getPower(true) >
+ 					4 * GET_TEAM(eToPlayer).getPower(true))
+ 				{
+ 					return false;
+@@ -20578,27 +20623,57 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 		int const iAcquireVal = kToPlayer.AI_cityTradeVal(
+ 				kCity, eToPlayer, LIBERATION_WEIGHT_FULL);
+ 		bool const bGreatEnmity = (iAttitudeLevel == ATTITUDE_FURIOUS ||
+-				GET_TEAM(getTeam()).AI_getWorstEnemy() == kToPlayer.getMasterTeam() ||
++				kOurTeam.AI_getWorstEnemy() == kToPlayer.getMasterTeam() ||
+ 				kToPlayer.AI_getAttitude(getID()) == ATTITUDE_FURIOUS);
+ 				// (If we're their worst enemy at annoyed or better, ceding a city might help.)
+ 		if (bLiberateForFree)
+ 		{
+-			scaled rTotalYieldVal = AI_totalYieldVal();
+-			// City mustn't be too valuable to us
+-			if (iKeepVal > rTotalYieldVal / 15)
+-				return false;
+ 			// Has to be significantly more valuable to them
+ 			if (4 * iKeepVal > 3 * iAcquireVal)
+ 				return false;
+-			// But, depending on relations, not too valuable either.
++			/*	Anticipate diplo penalties. Not a problem
++				when the trade value is very small. */
++			scaled rEnemyTradeFactor = 1;
++			if (iKeepVal >= 0)
++			{
++				scaled rTotalResentment;
++				for (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO> it(kToPlayer.getTeam());
++					it.hasNext(); ++it)
++				{
++					CvTeamAI const& kThirdParty = *it;
++					if (kThirdParty.isHuman() || kThirdParty.getID() == getTeam() ||
++						!kThirdParty.isHasMet(getTeam()) ||
++						kThirdParty.isAtWar(getTeam()) || // Do we care what kThirdParty thinks?
++						kOurTeam.AI_getWorstEnemy() == kThirdParty.getID() ||
++						kOurTeam.AI_getAttitude(kThirdParty.getID()) <= ATTITUDE_FURIOUS)
++					{
++						continue;
++					}
++					rTotalResentment += kThirdParty.AI_enemyTradeResentmentFactor(
++							kToPlayer.getTeam(), getTeam());
++				}
++				rEnemyTradeFactor += (2 * rTotalResentment) /
++						scaled(TeamIter<EVER_ALIVE>::count()).sqrt();
++				rEnemyTradeFactor = (rEnemyTradeFactor + 1) / 2; // dilute
++			}
++			// City mustn't be too valuable to us
++			{
++				scaled rTotalYieldVal = AI_totalYieldVal();
++				if (iKeepVal * rEnemyTradeFactor > rTotalYieldVal / 15)
++					return false;
++			}
++			// Don't help them too much (depending on relations)
+ 			// Same crude formula as in AI_demandTribute
+ 			scaled const rEraFactor = scaled(2).pow(getCurrentEra()) *
+ 					per100(GC.getInfo(GC.getGame().getGameSpeedType()).
+ 					getVictoryDelayPercent());
+ 			if (bGreatEnmity)
+ 				iAttitudeLevel--;
+-			if (iAcquireVal > (iAttitudeLevel - 1) * 100 * rEraFactor)
++			if (iAcquireVal * rEnemyTradeFactor >
++				(iAttitudeLevel - 1) * 100 * rEraFactor)
++			{
+ 				return false;
++			}
+ 			bCede = true;
+ 		}
+ 		else
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index cdfee4f35..3275024b9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -407,11 +407,11 @@ public:
+ 
+ 	int AI_getBonusTradeCounter(PlayerTypes eIndex) const;
+ 	void AI_changeBonusTradeCounter(PlayerTypes eIndex, int iChange);
+-	/* <advc.130p> For code shared by AI_processPeacetimeTradeValue and
++	/*	<advc.130p> For code shared by AI_processPeacetimeTradeValue and
+ 		AI_processPeacetimeGrantValue. The third parameter says which of the two
+ 		should be changed. */
+-	void AI_processPeacetimeValue(PlayerTypes eIndex, int iChange, bool bGrant,
+-			bool bPeace = false, TeamTypes ePeaceTradeTarget = NO_TEAM,
++	void AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
++			bool bGrant, bool bPeace = false, TeamTypes ePeaceTradeTarget = NO_TEAM,
+ 			TeamTypes eWarTradeTarget = NO_TEAM); // </advc.130p>
+ 	int AI_getPeacetimeTradeValue(PlayerTypes eIndex) const;
+ 	// advc.130p: Renamed from changePeacetimeTradeValue
+@@ -445,6 +445,12 @@ public:
+ 	// advc.130j: Increases memory count according to (hardcoded) granularity
+ 	void AI_rememberEvent(PlayerTypes ePlayer, MemoryTypes eMemoryType);
+ 	void AI_rememberLiberation(CvCity const& kCity, bool bConquest); // advc.ctr
++	// <advc.130p>
++	bool AI_processTradeValue(CLinkList<TradeData> const& kItems,
++			PlayerTypes eFromPlayer, bool bGift, bool bPeace,
++			TeamTypes ePeaceTradeTarget = NO_TEAM,
++			TeamTypes eWarTradeTarget = NO_TEAM, // </advc.130p>
++			bool bAIRequest = false); // advc.ctr
+ 	void AI_processRazeMemory(CvCity const& kCity); // advc.003n
+ 
+ 	// K-Mod
+@@ -725,7 +731,7 @@ protected:
+ 	bool AI_canBeAttackedBy(CvUnit const& u) const; // advc.315
+ 
+ 	// <advc.130p>
+-	double AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer,
++	scaled AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer,
+ 			TeamTypes eOtherTeam = NO_TEAM) const;
+ 	int AI_peacetimeTradeValDivisor(bool bRival) const;
+ 	static int const PEACETIME_TRADE_RELATIONS_LIMIT = 4;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a4a278138..eb9f195d9 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3875,6 +3875,50 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateRivalTrade)
+ }
+ 
+ // <advc.130p>
++/*	Conditions for enemy trade moved into a separate function b/c they're getting
++	more complicated and so that other AI code can anticipate enemy trade penalties
++	(will use this for advc.ctr). */
++scaled CvTeamAI::AI_enemyTradeResentmentFactor(TeamTypes eTo, TeamTypes eFrom,
++	TeamTypes eWarTradeTarget, TeamTypes ePeaceTradeTarget, bool bPeaceDeal) const
++{
++	bool const bToWorstEnemy = (AI_getWorstEnemy() == eTo);
++	// Special treatment for war enemies trading among each other
++	bool const bWarWithFromTeam = (isAtWar(eFrom) || eWarTradeTarget == getID());
++	bool const bWarWithToTeam = isAtWar(eTo);
++	if(!bToWorstEnemy && !(bWarWithToTeam && !bWarWithFromTeam))
++		return 0;
++	// No anger among vassal-master when they make peace
++	if (bPeaceDeal && GET_TEAM(eFrom).getMasterTeam() == getID())
++		return 0;
++	if (ePeaceTradeTarget == getMasterTeam() ||
++		/*  Don't mind if our worst enemy is paid to make peace with a team
++			that we like -- unless we're at war with our worst enemy because,
++			then, the peace deals means that we lose a war ally. */
++		(ePeaceTradeTarget != NO_TEAM && !bWarWithToTeam &&
++		AI_getAttitude(ePeaceTradeTarget) >= ATTITUDE_PLEASED &&
++		// Should be implied by attitude, but let's make sure.
++		!isAtWar(ePeaceTradeTarget)))
++	{
++		return 0;
++	}
++	/*  Avoid oscillation of worst enemy, but still punish non-war party
++		for helping a war enemy. */
++	int iAttitudeDiff = ::range(
++			AI_getAttitudeVal(eFrom) - (bWarWithFromTeam ? 2 : 0) -
++			(AI_getAttitudeVal(AI_getWorstEnemy()) - (bWarWithToTeam ? 2 : 0)),
++			0, 7);
++	scaled r(iAttitudeDiff, 5);
++	if (bPeaceDeal) // But count brokered peace in full
++		r *= fixp(0.4);
++	if (bWarWithToTeam && bToWorstEnemy && !bWarWithFromTeam)
++		r *= fixp(4/3.);
++	else if (bToWorstEnemy && !bWarWithFromTeam)
++		r *= fixp(0.9);
++	else r *= fixp(2/3.);
++	return r;
++}
++
++
+ int CvTeamAI::AI_enmityValue(TeamTypes eEnemy) const
+ {
+ 	if(eEnemy == NO_TEAM)
+@@ -4142,7 +4186,7 @@ void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue)
+ 
+ void CvTeamAI::AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange)
+ {
+-	AI_setEnemyPeacetimeGrantValue(eIndex, (AI_getEnemyPeacetimeGrantValue(eIndex) + iChange));
++	AI_setEnemyPeacetimeGrantValue(eIndex, AI_getEnemyPeacetimeGrantValue(eIndex) + iChange);
+ }
+ 
+ // advc.003u: Moved from CvTeam
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 00fa45cc3..d81f93757 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -167,7 +167,11 @@ public:
+ 	// </advc.130y>
+ 	TeamTypes AI_getWorstEnemy() const { return m_eWorstEnemy; } // advc.inl
+ 	void AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateRivalTrade = true);
+-	// <advc.130p> 0 or less if eEnemy isn't an enemy at all
++	// <advc.130p>
++	scaled AI_enemyTradeResentmentFactor(TeamTypes eTo, TeamTypes eFrom,
++			TeamTypes eWarTradeTarget = NO_TEAM, TeamTypes ePeaceTradeTarget = NO_TEAM,
++			bool bPeaceDeal = false) const;
++	// 0 or less if eEnemy isn't an enemy at all
+ 	int AI_enmityValue(TeamTypes eEnemy) const;
+ 	double AI_getDiploDecay() const;
+ 	double AI_recentlyMetMultiplier(TeamTypes eOther) const;
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=46713

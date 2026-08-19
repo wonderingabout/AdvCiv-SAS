@@ -1,0 +1,132 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4094
+# Commit: aaf05b95281faf007030b8bd927a182440f308dc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e56b5c9888b5307f75c062d5d62234213ba4e166
+# Title: No speed adjustment for the production overflow cap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+18	14	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 73c8a0e44..5464c01d7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2569,7 +2569,7 @@ int CvCity::overflowCapacity(int iProductionModifier, int iPopulationChange) con
+ 	// New: Take out build-specific modifiers
+ 	iBound1 = unmodifyOverflow(iBound1, iProductionModifier);
+ 	// Was the production cost of the completed order in BtS/K-Mod
+-	int iBound2 = growthThreshold(iPopulationChange);
++	int iBound2 = growthThreshold(iPopulationChange, true);
+ 	return std::max(iBound1, iBound2);
+ }
+ 
+@@ -3798,10 +3798,11 @@ int CvCity::foodDifference(bool bBottom, bool bIgnoreProduction) const
+ }
+ 
+ 
+-int CvCity::growthThreshold(/* advc.064b: */ int iPopulationChange) const
++int CvCity::growthThreshold(/* <advc.064b> */ int iPopulationChange,
++	bool bIgnoreModifiers) const // </advc.064b>
+ {
+ 	return (GET_PLAYER(getOwner()).getGrowthThreshold(getPopulation()
+-			+ iPopulationChange)); // advc.064b
++			+ iPopulationChange, bIgnoreModifiers)); // advc.064b
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 5b0d0b502..ea5048f1f 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -275,7 +275,8 @@ public:
+ 	int healthRate(bool bNoAngry = false, int iExtra = 0) const;												// Exposed to Python
+ 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;											// Exposed to Python
+ 	int foodDifference(bool bBottom = true, bool bIgnoreProduction = false) const;	// Exposed to Python, K-Mod added bIgnoreProduction
+-	int growthThreshold(/* advc.064b: */int iPopulationChange = 0) const;										// Exposed to Python
++	int growthThreshold(/* <advc.064b> */int iPopulationChange = 0,												// Exposed to Python
++			bool bIgnoreModifiers = false) const; // </advc.064b>
+ 
+ 	int productionLeft() const { return (getProductionNeeded() - getProduction()); }							// Exposed to Python
+ 	int hurryCost(bool bExtra) const																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0f5fd8951..888f2a9e6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -18409,7 +18409,8 @@ int CvPlayer::getNewCityProductionValue() const
+ }
+ 
+ 
+-int CvPlayer::getGrowthThreshold(int iPopulation) const
++int CvPlayer::getGrowthThreshold(int iPopulation,
++	bool bIgnoreModifiers) const // advc.064b
+ {
+ 	CvGame const& kGame = GC.getGame(); // advc
+ 	// <advc.251>
+@@ -18419,19 +18420,22 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
+ 			GC.getInfo(getHandicapType()).getBaseGrowthThresholdPercent())).uround();
+ 	int iThreshold = iBaseThreshold + // </advc.251>
+ 			(iPopulation * iCITY_GROWTH_MULTIPLIER);
+-	// <advc.251>
+-	int iAIModifier = 100;
+-	if (!isHuman()) // Also apply it to Barbarians
+-	{
+-		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
+-		iAIModifier = h.getAIGrowthPercent() +
+-				//h.getAIPerEraModifier() * getCurrentEra()
+-				kGame.AIHandicapAdjustment();
+-	} // Reduce rounding error:
+-	iThreshold = (iThreshold * per100(iAIModifier) *
+-			per100(GC.getInfo(kGame.getGameSpeedType()).getGrowthPercent()) *
+-			per100(GC.getInfo(kGame.getStartEra()).getGrowthPercent())).round();
+-	// </advc.251>
++	if (!bIgnoreModifiers) // advc.064b
++	{
++		// <advc.251>
++		int iAIModifier = 100;
++		if (!isHuman()) // Also apply it to Barbarians
++		{
++			CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
++			iAIModifier = h.getAIGrowthPercent() +
++					//h.getAIPerEraModifier() * getCurrentEra()
++					kGame.AIHandicapAdjustment();
++		} // Reduce rounding error:
++		iThreshold = (iThreshold * per100(iAIModifier) *
++				per100(GC.getInfo(kGame.getGameSpeedType()).getGrowthPercent()) *
++				per100(GC.getInfo(kGame.getStartEra()).getGrowthPercent())).round();
++		// </advc.251>
++	}
+ 	return std::max(1, iThreshold);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 216cc2566..ad09f3ad7 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1415,7 +1415,8 @@ public:
+ 	bool canSpiesEnterBorders(PlayerTypes ePlayer) const;
+ 	int getNewCityProductionValue() const;
+ 
+-	int getGrowthThreshold(int iPopulation) const;
++	int getGrowthThreshold(int iPopulation,
++			bool bIgnoreModifiers = false) const; // advc.064b
+ 
+ 	void verifyUnitStacksValid();
+ 	UnitTypes getTechFreeUnit(TechTypes eTech) const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4392

@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1811
+# Commit: 5ae13861f4129d9346a66e2b8c372a149f9ced06
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a123f0d2b29088611d6924b667c3479fd4f5d165
+# Title: Bugfix: Sign error in AI resource trade evaluation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9bff72336..0ca7475ce 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12842,8 +12842,8 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		// I can live with cheating when it comes to strategic bonuses
+ 		bUseOurBonusVal = (kBonus.getHappiness() + kBonus.getHealth() == 0);
+ 		// Also don't worry about the value of additional copies (for corps)
+-		if(!bUseOurBonusVal && ((getNumAvailableBonuses(eBonus) > 0 && iChange > 0) ||
+-				(getNumAvailableBonuses(eBonus) - iChange > 1)))
++		if(!bUseOurBonusVal && getNumAvailableBonuses(eBonus) + iChange >
++				(iChange < 0 ? 0 : 1))
+ 			bUseOurBonusVal = true;
+ 		// Otherwise FromPlayer needs to know most of the human's territory
+ 		if(!bUseOurBonusVal)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=847

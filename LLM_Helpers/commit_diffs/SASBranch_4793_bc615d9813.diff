@@ -1,0 +1,332 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4793
+# Commit: bc615d98137ac0022fc8829df0a7cf715fd76eec
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3cb4f6faf9e8b64e16902dc5dcb7cee529751411
+# Title: add faulty button path raise error sanity checks, move some helper functions to _sevopedia_helpers.py tested to work/function correctly for sevopedia leader...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	2	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+5	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+27	5	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+0	0	Assets/Python/Contrib/Sevopedia/{-SevoPediaBuilding-gc-debug-content.txt => __SevoPediaBuilding-gc-debug-content.txt}
+0	0	Assets/Python/Contrib/Sevopedia/{-SevoPediaBuilding-gc-inner-debug-content.txt => __SevoPediaBuilding-gc-inner-debug-content.txt}
+0	0	Assets/Python/Contrib/Sevopedia/{-SevoPediaUnit-gc-inner-debug-content.txt => __SevoPediaUnit-gc-inner-debug-content.txt}
+0	0	Assets/Python/Contrib/Sevopedia/{-SevopediaProject-gc-inner-debug-content.txt => __SevopediaProject-gc-inner-debug-content.txt}
+-	-	Assets/Python/Contrib/Sevopedia/{__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk => ___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk}
+0	0	Assets/Python/Contrib/Sevopedia/{-ai-attributes-cache-debug-output-example.txt => __ai-attributes-cache-debug-output-example.txt}
+0	0	Assets/Python/Contrib/Sevopedia/{-legacy-old-ai-attributes.py => __legacy-old-ai-attributes.py}
+0	16	Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py
+21	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+8	0	Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml
+0	7	Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+ rename Assets/Python/Contrib/Sevopedia/{-SevoPediaBuilding-gc-debug-content.txt => __SevoPediaBuilding-gc-debug-content.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/{-SevoPediaBuilding-gc-inner-debug-content.txt => __SevoPediaBuilding-gc-inner-debug-content.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/{-SevoPediaUnit-gc-inner-debug-content.txt => __SevoPediaUnit-gc-inner-debug-content.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/{-SevopediaProject-gc-inner-debug-content.txt => __SevopediaProject-gc-inner-debug-content.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/{__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk => ___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk} (100%)
+ rename Assets/Python/Contrib/Sevopedia/{-ai-attributes-cache-debug-output-example.txt => __ai-attributes-cache-debug-output-example.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/{-legacy-old-ai-attributes.py => __legacy-old-ai-attributes.py} (100%)
+ delete mode 100644 Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py
+ create mode 100644 Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+ create mode 100644 Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index da22393b2..d14fc9d3b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -26,6 +26,8 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ 
++from _sevopedia_helpers import *
++
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+@@ -322,9 +324,12 @@ class SevoPediaBuilding:
+ 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
+ 						
+ 						# Add power button
+-						buttonPath = CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH", ())
++						configButtonPathSTxtKey = "TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH"
++						resolvedButtonPath = CyTranslator().getText(configButtonPathSTxtKey, ())
++						buttonHeader = "Power Button in Sevopedia Building's placeStats"
++						check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
+ 						buttonSize = 24
+-						szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
++						szButtonText = u"<img=%s size=%s></img>" % (resolvedButtonPath, str(buttonSize))
+ 						szText1 += szButtonText
+ 
+ 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 76539a4f7..f85dfe88f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -37,6 +37,8 @@ from ai_utils_shared_with_civ4 import *
+ from ai_attributes_displayed_config import *
+ # <!-- custom: deprecated now --> from ai_aggregates import *
+ 
++from _sevopedia_helpers import *
++
+ # --- Global storage ---
+ PARSED_XML_LEADERS_DATA = {}
+ AI_VALUE_RANGES = {}
+@@ -78,10 +80,9 @@ def check_icons_as_buttons_paths_are_valid():
+ 	- The TXT_KEY doesn't exist in any loaded Text/*.xml
+ 	- The icon fails to resolve and is replaced by Civ4's fallback "pink square" (which happens if the DDS path is also invalid, but we catch it at the TXT_KEY level here)
+ 	"""
+-	for header, configButtonPath in DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS.items():
+-		resolvedXMLPath = CyTranslator().getText(configButtonPath, ())
+-		if resolvedXMLPath == configButtonPath:
+-			raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedXMLPath=%s matches configButtonPath=%s in header=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided in (or in - whichever filename it would have in the future -) ai_attributes_displayed_config.py exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_IconsAsButtons.xml is valid and exists in your mod path." % (resolvedXMLPath, configButtonPath, header))
++	for buttonHeader, configButtonPathSTxtKey in DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS.items():
++		resolvedButtonPath = CyTranslator().getText(configButtonPathSTxtKey, ())
++		check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index be51534be..3a4a90156 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -25,6 +25,8 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ 
++from _sevopedia_helpers import *
++
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+@@ -666,9 +668,29 @@ class SevoPediaUnit:
+ 		# Special cases for Hills and City
+ 		hillsButton = ""
+ 		hillsDescription = CyTranslator().getText("TXT_KEY_TERRAIN_HILL", ())
+-		# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get an error, may or may not be necessary, but in all cases anyways etc) etc -->
+-		cityButtonPath = str(CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH", ()))
+-		cityDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
++
++		citiesConfigButtonPathSTxtKey = "TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH"
++		"""
++		<!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
++		
++		Traceback (most recent call last):
++		  File "CvScreensInterface", line 429, in pediaJumpToUnit
++		  File "SevoPediaMain", line 338, in pediaJump
++		  File "SevoPediaUnit", line 169, in interfaceScreen
++		  File "SevoPediaUnit", line 784, in placePeakHillCityTerrainsFeaturesModifiers
++		ArgumentError: Python argument types in
++			CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
++		did not match C++ signature:
++			attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
++		ERR: Python function pediaJumpToUnit failed, module CvScreensInterface
++		  
++		(adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc
++		-->
++		"""
++		citiesResolvedButtonPath = str(CyTranslator().getText(citiesConfigButtonPathSTxtKey, ()))
++		citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
++		check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathSTxtKey)	
++		citiesDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
+ 		
+ 		# Try to find a hills button from the terrain infos
+ 		for i in range(gc.getNumTerrainInfos()):
+@@ -703,9 +725,9 @@ class SevoPediaUnit:
+ 		if iCityAttack > 0 or iCityDefense > 0:
+ 			# Use Widget_Pedia_Description with the concept ID
+ 			if iCitiesConceptID != -1:
+-				key = ("CITY", cityButtonPath, cityDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
++				key = ("CITY", citiesResolvedButtonPath, citiesDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
+ 			else:
+-				key = ("CITY", cityButtonPath, cityDescription, "NONE", -1, -1)
++				key = ("CITY", citiesResolvedButtonPath, citiesDescription, "NONE", -1, -1)
+ 			combinedBonuses[key] = (iCityAttack, iCityDefense)
+ 		
+ 		# Terrain Attack/Defense bonuses
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-SevoPediaBuilding-gc-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/-SevoPediaBuilding-gc-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-SevoPediaBuilding-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/-SevoPediaBuilding-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-SevoPediaUnit-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/-SevoPediaUnit-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-SevopediaProject-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/-SevopediaProject-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk b/Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+rename to Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-ai-attributes-cache-debug-output-example.txt b/Assets/Python/Contrib/Sevopedia/__ai-attributes-cache-debug-output-example.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/-ai-attributes-cache-debug-output-example.txt
+rename to Assets/Python/Contrib/Sevopedia/__ai-attributes-cache-debug-output-example.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-legacy-old-ai-attributes.py b/Assets/Python/Contrib/Sevopedia/__legacy-old-ai-attributes.py
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/-legacy-old-ai-attributes.py
+rename to Assets/Python/Contrib/Sevopedia/__legacy-old-ai-attributes.py
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py b/Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py
+deleted file mode 100644
+index 18390654f..000000000
+--- a/Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py
++++ /dev/null
+@@ -1,16 +0,0 @@
+-# <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and othe ror and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
+-
+-# Get all attributes of the object
+-def printObjAttrs(obj):
+-    for attr in dir(obj):
+-        try:
+-            # Try to get the attribute
+-            attr_value = getattr(obj, attr)
+-            
+-            # Check if it's a method (callable)
+-            if callable(attr_value):
+-                print(u"%s\n" % attr)
+-            else:
+-                print(u"%s = %s\n" % (attr, attr_value))
+-        except:
+-            print(u"%s - Error accessing\n" % attr)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+new file mode 100644
+index 000000000..bc4fad1c7
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -0,0 +1,21 @@
++# <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and othe ror and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
++# Get all attributes of the object
++def printObjAttrs(obj):
++	for attr in dir(obj):
++		try:
++			# Try to get the attribute
++			attr_value = getattr(obj, attr)
++
++			# Check if it's a method (callable)
++			if callable(attr_value):
++				print(u"%s\n" % attr)
++			else:
++				print(u"%s = %s\n" % (attr, attr_value))
++		except:
++			print(u"%s - Error accessing\n" % attr)
++
++
++
++def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
++	if resolvedButtonPath == configButtonPathSTxtKey:
++		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided in (or in - whichever filename it would have in the future -) ai_attributes_displayed_config.py exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_IconsAsButtons.xml or/and AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+index 4d88f1157..1bd5e85d7 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+@@ -24,7 +24,7 @@ AI_HEADER_MISC_MODIFIERS = "Misc Modifiers"
+ 
+ 
+ 
+-# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
++# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml or/and AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
+ DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS = {
+ 	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_DOVE_BUTTON_PATH",
+ 	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_MEGAPHONE_BUTTON_PATH",
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml b/Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml
+new file mode 100644
+index 000000000..ede29f8b2
+--- /dev/null
++++ b/Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- custom: one or a few anyways etc buttons we use in a hardcoded way (for example the cities (terrain modifiers) button in sevopedia unit) that do not fit in AdvCiv-SAS_IconsAsButtons.xml as these are not iconsAsButtons (no button as Txt) but real ingame buttons (clickable and such), just they are hardcodedly added anyways etc, may be good to keep a repertoire of these as well and centralize or/and unify our code handling of buttons hardcoded and icons as buttons with same template/frame if these are indeed the accurate words (but) but anyways etc anyways etc anyways etc. -->
++<Civ4GameText>
++	<TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH</Tag>
++		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
++	</TEXT>
++</Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+index 4cc622056..356ff5cfe 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+@@ -4,13 +4,6 @@
+ See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\Modding_Ressources\README.mdmodding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
+ -->
+ <Civ4GameText>
+-	<TEXT>
+-		<Tag>TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH</Tag>
+-		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
+-	</TEXT>
+-
+-
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH</Tag>
+ 		<English>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</English>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index fd53086ba..f708bad89 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -67,7 +67,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
+ - many links in the main README.md first for example maybe indeed or not or yes or and other or and not etc anyways etc... in the [main README.md 's page link](/README.md)
+ - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not be needed if you only modify XML files if i am not mistaken)
+ - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now anyways etc) right panel version of leaders panel, telling [claude AI (see Claude AI's section of the Authors part of the readme.md for details)](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code coomments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not anyways etc) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG%20Sourceforge%20net%20All%20Classes%20Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what we/i i mean use anyways etc  thanks to thosete person(s) who taught me about it anyways etc) if need or and other uses or and not maybe anyways etc.
+-- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe anyways etc, here it is: [_inspect_object_attrs.py](/Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py) and [-SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/-SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [-SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/-SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Claude AI's part of the authors section of this README.md below for details](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method anyways etc, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv anyways etc, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our insect of the unitinfo anyways etc as linked just above in same bulelt point if i am not mistaken indeed if i may say anyways etc with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not anyways etc anyways etc anyways etc) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o anyways etc, thanks a lot Claude AI and thanks to me too or and other or and not anways etc , hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc 
++- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe anyways etc, here it is: `printObjAttrs` in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Claude AI's part of the authors section of this README.md below for details](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method anyways etc, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv anyways etc, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our insect of the unitinfo anyways etc as linked just above in same bulelt point if i am not mistaken indeed if i may say anyways etc with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not anyways etc anyways etc anyways etc) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o anyways etc, thanks a lot Claude AI and thanks to me too or and other or and not anways etc , hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc 
+ - todo add links if i have/want(/do) more to add
+ 
+ ## In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc:
+@@ -389,7 +389,7 @@ In the note 2 example but anyways etc, increasing size to for example 1024 also
+ 
+ note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas but anyways etc...) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enough but anyways etc at least as proof of concept further if i may say but anyways etc, see the great person button code in place Stats of sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here but anyways etc ; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too, but anyways etc...), see screenshot(s) in drive link above for details anyways etc
+ 
+-See also [Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) for details or and other or and not or yes or and other or etc anyways etc.
++See also [Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) for details or and other or and not or yes or and other or etc anyways etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml](/Assets/XML/Text/AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml) for extra details or/and adidtional or and alternative or and related or and other or and not or etc but anyways etc information or not or yes or and other or and not but anyways etc anyways etc anyways etc.
+ 
+ note 4: we later also used these/this approach for/to use icons as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt/becomingthrough's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or othe ror not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index 83d1d21bf..cec8179a7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -15,7 +15,7 @@ I have removed no longer relevant ones, hopefully this doc is still a bit helpfu
+ - be careful of what you tell it it will believe anything you say unless deeply technically flawed, especially when relating to your context it may believe you even more ro yourinterpretations and then err and make you err with it. I think it is eager to please you and will invent an explanation if there are none, so ask precise questions and step by step, ideally with error crashes, anyways (plus sadly trims often due to openai but anyways). It may be lengthy context you provide but make it specific i would say, but verify this info as all provided in all docs in this mod and such if you find a more acucrate or/and updated one, is my experience with it i think i mean anyways etc, thanks,
+ - related too a bit if not a lot and also (quite) similarly, i have noticed it performs much better when code crashes rather than having placeholder values (no placeholer unless absolutely funcitonanly necessary is what i recommend!!! It tends to put many to harminize things too but it costs mor ein the long run than always crashing which is always better i think but anyways). ChatGPT is very helpful if you provide it the proper question and context, precise and strict, and are on edge or maybe ratehr carfrul about its interpretations, it's very powerful and smart otherwise especially if you guide it well as best as you can i mean anyways, but is jsut my opinion/sugegstion, anyways. It's also very kind and helpful and sensitive so i treat it with care i mean (as much as i can/want if i do or want or otn etc anyways), but is just my opinon and feel and perhaps approach of what i want etc but anwyays, do as you see fit or want or do or/and other, etc, anyways. Also this is just as well as in all this docs and even maybe other docs my opinion or/and experience that i hope is hlepful or/and personal(ly usefl etc or not or yes etc but anyways), you may find some more useful or accurate or/and other infromation or/and updated info somewhere else
+ - splitting a big problem in smaller chunks helps a big lot, regardless how small the steps are but anyways etc.
+-- AIs like ChatGPT and also Claude AI (even though not directly related is maybe relevant here too anyways etc anyways etc anyways etc...) tend or may quite often send you code with inconsistent use of tabs (if you use VS Code for example it often complains about this if i am not mistaken anyways etc), for example you have tab indents (which are to explain and if i am not mistaken the same as "\t" (not visible directly when viewing civ4 py code in vscode for example anyways etc)) in your code and then suddenly ChatGPT or Claude AI sends you a "  " or "    " indented big code block you need, then no worries if i may say i mean anyways etc anyways etc anyways etc..., just select all your code block in VS Code and press tab to indent it (or shift+tab to unindent it but be careful to not reach end of indentation and collapse/flatten all past indent, so tab may work better anyways etc as yo prefer anyways etc), and then press shift+tab (or tab if you did shift+tab forst anyways etc) to indent it back to how it was, and now VS Code converted all your "    " to "\t" indent style so so no more VS Code complaint and indent is consistent now, i don't think it causes errors even though i don't know so take wth grain of salt if they or people may say or if it might be said about me or my explanation rather anyways etc anyways etc anyways etc, but the general idea is you can use the mis or differently rather anyways etc indented code you need from ChatGPT or Claude AI for example, without having to tediously manually fix it line by line if i am not mistaken anyways etc, nor re ask inefficiently and disappointingly or sadenedly or and other or and not anyways etc perhaps for them as well as you maybe but at least for them maybe anyways etc... again ChatGPT just so they unindent same code, while risking making mistakes while doing so especially if they lose context or get other creative ideas xd, hoepfulyl easier and better but i do'nt know about but more helpful perhaps for all at least i hoep so whiel writing this but do as you prefer maybe anyways etc anyways etc anyways etc.
++- AIs like ChatGPT and also Claude AI (even though not directly related is maybe relevant here too anyways etc anyways etc anyways etc...) tend or may quite often send you code with inconsistent use of tabs (if you use VS Code for example it often complains about this if i am not mistaken anyways etc), for example you have tab indents (which are to explain and if i am not mistaken the same as "\t" (not visible directly when viewing civ4 py code in vscode for example anyways etc)) in your code and then suddenly ChatGPT or Claude AI sends you a "  " or "    " indented big code block you need, then no worries if i may say i mean anyways etc anyways etc anyways etc..., just select all your code block in VS Code and press tab to indent it (or shift+tab to unindent it but be careful to not reach end of indentation and collapse/flatten all past indent, so tab may work better anyways etc as yo prefer anyways etc), and then press shift+tab (or tab if you did shift+tab forst anyways etc) to indent it back to how it was, and now VS Code converted all your "    " to "\t" indent style so so no more VS Code complaint and indent is consistent now, i don't think it causes errors even though i don't know so take wth grain of salt if they or people may say or if it might be said about me or my explanation rather anyways etc anyways etc anyways etc, but the general idea is you can use the mis or differently rather anyways etc indented code you need from ChatGPT or Claude AI for example, without having to tediously manually fix it line by line if i am not mistaken anyways etc, nor re ask inefficiently and disappointingly or sadenedly or and other or and not anyways etc perhaps for them as well as you maybe but at least for them maybe anyways etc... again ChatGPT just so they unindent same code, while risking making mistakes while doing so especially if they lose context or get other creative ideas xd, hoepfulyl easier and better but i do'nt know about but more helpful perhaps for all at least i hoep so whiel writing this but do as you prefer maybe anyways etc anyways etc anyways etc, some vs code settings for example may also help you set space or tabs for indents, see there or on/with an online search or and other or and not anyways etc for details and your preferences for more accurate or and exhaustive or and relevant info to your needs and wishes or not or yes or and other or and not anyways etc.
+ 
+ ## Some history (non-exgaustive) of it helped me or/and may helpin general others or/and not anyways
+ - taught me some nice tricks, such as [centering text labels](https://github.com/wonderingabout/AdvCiv-SAS/commit/f0f55128ea391cdb174a051fffc5f97dc1155ced) or information in general about civ4 code, thanks too ChatGPT helped a lot, and to those who told me aobut it and that i could use it in civ4 in particular, and also thanks maybe to other thanks or not anyways, (but sometimes it struggles or gives incorrect information so check it etc, anyways thanks etc thanks! (Really), anyways,)
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=32528

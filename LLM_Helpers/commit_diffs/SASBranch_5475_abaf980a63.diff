@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5475
+# Commit: abaf980a63b6cd7ca128b732ce60366f6d44a4fb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 31c1cbb1017da6eb784272962f4c53154f450ea9
+# Title: Fix Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv" F...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+20	0	CvGameCoreDLL/CvGameInterface.cpp
+9	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2e0ef85f4..b250114f7 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -395,6 +395,11 @@ void CvGame::updateBlockadedPlots()
+ 
+ void CvGame::updateSelectionList()
+ {
++	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
++	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
++	if (!isFinalInitialized())
++		return;
++	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+ 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
+ 	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
+ 	// <advc.004k> (Needed for dealing with all units becoming unselected)
+@@ -430,6 +435,11 @@ void CvGame::updateSelectionList()
+ 
+ void CvGame::updateTestEndTurn()
+ {
++	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
++	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
++	if (!isFinalInitialized())
++		return;
++	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+ 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
+ 		return;
+ 	// <advc.003g>
+@@ -1073,6 +1083,11 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3,
+ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool bUseCache) const
+ {
+ 	PROFILE_FUNC();
++	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
++	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
++	if (!isFinalInitialized())
++		return false;
++	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+ 
+ 	bool const bShift = GC.shiftKey();
+ 
+@@ -1154,6 +1169,11 @@ void CvGame::setupActionCache() const
+ 
+ void CvGame::handleAction(int iAction)
+ {
++	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
++	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
++	if (!isFinalInitialized())
++		return;
++	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+ 	bool const bAlt = GC.altKey();
+ 	bool const bShift = GC.shiftKey();
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 4b28072b1..ee002ed24 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -140,6 +140,7 @@ hopefully helpful, thanks thanks,
+ [104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient)  
+ [105 - (Fixed) Base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal)  
+ [106 - (Worked Around) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#106---worked-around-base-advciv-bug-of-having-an-option-number-error-in-simple-game-eg-in-highlands-boreal-if-we-started-another-simple-game-map-before-that-had-a-lot-of-options-eg-btg_lagoon-and-planet_generator_068-have-around-15-options-but-custom-game-works-fine)  
++[107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#107---fixed-base-advciv-crash-after-loading-a-save-file-returning-to-main-menu-opening-sevopedia-index-since-first-time-opened-and-typing-a-sequence-like-xsv)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4194,3 +4195,11 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
+ Confirmed in base AdvCiv too by minimally adding BTG_Lagoon map only, so issue is not caused by any of our changes to Highlands or Boreal or such it seems.
+ 
+ Currently worked around by warning once that in Simple Gaùme, pressing Esc key many times solves the issue then options are selectable again
++
++## 107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15p8WHM5P_NR6YTUjn1URuWbbQQiTMSI8?usp=sharing).
++
++Opening the game, loading a save file, then going to main menu, opening sevopedia index and typing a sequence like "xsv" in search bar causes a crash that is reproducible. And does not happen if just opening the game (without loading a save file) and typing such a sequence.
++
++Fixed with the help of Claude code Opus 4.6 thanks in [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=5930

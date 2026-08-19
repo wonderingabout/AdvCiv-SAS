@@ -1,0 +1,3139 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5969
+# Commit: c381a6eba15accbe4c4f299129c097b7b24bc706
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 420808ddec5b9febe2216f30025b03b4d0268038
+# Title: rebalance handicap info fields so they are more gradual
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+158	158	Assets/XML/Buildings/CIV4BuildingInfos.xml
+10	10	Assets/XML/Civilizations/CIV4TraitInfos.xml
+25	25	Assets/XML/GameInfo/CIV4CivicInfos.xml
+13	13	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+24	24	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+22	22	Assets/XML/Units/CIV4BuildInfos.xml
+57	57	Assets/XML/Units/CIV4PromotionInfos.xml
+1	1	LLM_Helpers/README.md
+9	4	LLM_Helpers/compare_handicap_infos.py
+56	53	LLM_Helpers/examples/handicap_infos_compared.md
+4	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 511e313a9..769e6d29b 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6,7 +6,7 @@
+ <!-- Building Infos -->
+ <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
+ 	<BuildingInfos>
+-		<BuildingInfo> <!-- custom: class: palace, type: palace (useful for VS Code upper tree view while scrolling) -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PALACE, type: BUILDING_PALACE (useful for VS Code upper tree view while scrolling) -->
+ 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
+ 			<Type>BUILDING_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -177,7 +177,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PALACE, type: BUILDING_BARBARIAN_PALACE -->
+ 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
+ 			<Type>BUILDING_BARBARIAN_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -354,7 +354,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: forbidden_palace, type: forbidden_palace -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORBIDDEN_PALACE, type: BUILDING_FORBIDDEN_PALACE -->
+ 			<BuildingClass>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClass>
+ 			<Type>BUILDING_FORBIDDEN_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -545,7 +545,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: walls, type: walls -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_WALLS, type: BUILDING_WALLS -->
+ 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
+ 			<Type>BUILDING_WALLS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -729,7 +729,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_WALLS, type: BUILDING_BARBARIAN_WALLS -->
+ 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
+ 			<Type>BUILDING_BARBARIAN_WALLS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -912,7 +912,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: Long_Comments_XML.txt #129 -->
+-		<BuildingInfo> <!-- custom: class: castle, type: castle -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_CASTLE -->
+ 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
+ 			<Type>BUILDING_CASTLE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -1115,7 +1115,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: castle, type: spanish_citadel -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_SPANISH_CITADEL -->
+ 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
+ 			<Type>BUILDING_SPANISH_CITADEL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -1325,7 +1325,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case,, see xml or and docs or and similar or and not for details -->
+-		<BuildingInfo> <!-- custom: class: castle, type: russian_gord -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_RUSSIAN_GORD -->
+ 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
+ 			<Type>BUILDING_RUSSIAN_GORD</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -1527,7 +1527,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_BARBARIAN_CASTLE -->
+ 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
+ 			<Type>BUILDING_BARBARIAN_CASTLE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -1728,7 +1728,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: barracks, type: barracks -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_BARRACKS -->
+ 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
+ 			<Type>BUILDING_BARRACKS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -1904,7 +1904,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: barracks, type: zulu_ikhanda -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_ZULU_IKHANDA -->
+ 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
+ 			<Type>BUILDING_ZULU_IKHANDA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -2085,7 +2085,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_BARBARIAN_BARRACKS -->
+ 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
+ 			<Type>BUILDING_BARBARIAN_BARRACKS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -2259,7 +2259,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: stable, type: stable -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STABLE, type: BUILDING_STABLE -->
+ 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
+ 			<Type>BUILDING_STABLE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -2434,7 +2434,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: stable, type: mongol_ger -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STABLE, type: BUILDING_MONGOL_GER -->
+ 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
+ 			<Type>BUILDING_MONGOL_GER</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -2611,7 +2611,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: stable, type: byzantine_hippodrome -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STABLE, type: BUILDING_BYZANTINE_HIPPODROME -->
+ 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
+ 			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -2810,7 +2810,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: bunker, type: bunker -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUNKER, type: BUILDING_BUNKER -->
+ 			<BuildingClass>BUILDINGCLASS_BUNKER</BuildingClass>
+ 			<Type>BUILDING_BUNKER</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -2979,7 +2979,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: bomb_shelter, type: bomb_shelter -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BOMB_SHELTER, type: BUILDING_BOMB_SHELTER -->
+ 			<BuildingClass>BUILDINGCLASS_BOMB_SHELTER</BuildingClass>
+ 			<Type>BUILDING_BOMB_SHELTER</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_BOMB_SHELTER</SpecialBuildingType>
+@@ -3146,7 +3146,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: granary, type: granary -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_GRANARY -->
+ 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
+ 			<Type>BUILDING_GRANARY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -3335,7 +3335,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_BARBARIAN_GRANARY -->
+ 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
+ 			<Type>BUILDING_BARBARIAN_GRANARY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -3714,7 +3714,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_GERMAN_LONGHOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
+ 			<Type>BUILDING_GERMAN_LONGHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -3905,7 +3905,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: aqueduct -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_AQUEDUCT -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+ 			<Type>BUILDING_AQUEDUCT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -4083,7 +4083,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_OTTOMAN_HAMMAM -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+ 			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -4256,7 +4256,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Baray -->
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_KHMER_BARAY -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+ 			<Type>BUILDING_KHMER_BARAY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -4437,7 +4437,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+ 			<Type>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -4622,7 +4622,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hospital, type: hospital -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HOSPITAL, type: BUILDING_HOSPITAL -->
+ 			<BuildingClass>BUILDINGCLASS_HOSPITAL</BuildingClass>
+ 			<Type>BUILDING_HOSPITAL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -4794,7 +4794,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: recycling_center, type: recycling_center -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_RECYCLING_CENTER, type: BUILDING_RECYCLING_CENTER -->
+ 			<BuildingClass>BUILDINGCLASS_RECYCLING_CENTER</BuildingClass>
+ 			<Type>BUILDING_RECYCLING_CENTER</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -4960,7 +4960,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: harbor reworked, now is a building before the lighthouse and buffed too, relatively to how old lighthouse was; oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now -->
+-		<BuildingInfo> <!-- custom: class: harbor, type: harbor -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_HARBOR -->
+ 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
+ 			<Type>BUILDING_HARBOR</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -5355,7 +5355,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BUILDING_LIGHTHOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+ 			<Type>BUILDING_LIGHTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -5538,7 +5538,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BUILDING_BARBARIAN_LIGHTHOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+ 			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -6291,7 +6291,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: custom_house, type: custom_house -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CUSTOM_HOUSE, type: BUILDING_CUSTOM_HOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
+ 			<Type>BUILDING_CUSTOM_HOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -6473,7 +6473,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: custom_house, type: feitoria -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CUSTOM_HOUSE, type: BUILDING_PORTUGAL_FEITORIA -->
+ 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
+ 			<Type>BUILDING_PORTUGAL_FEITORIA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -6649,7 +6649,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: drydock, type: drydock -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DRYDOCK, type: BUILDING_DRYDOCK -->
+ 			<BuildingClass>BUILDINGCLASS_DRYDOCK</BuildingClass>
+ 			<Type>BUILDING_DRYDOCK</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -6844,7 +6844,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: airport, type: airport -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AIRPORT, type: BUILDING_AIRPORT -->
+ 			<BuildingClass>BUILDINGCLASS_AIRPORT</BuildingClass>
+ 			<Type>BUILDING_AIRPORT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -7018,7 +7018,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: forge, type: forge -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORGE, type: BUILDING_FORGE -->
+ 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
+ 			<Type>BUILDING_FORGE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -7211,7 +7211,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: forge, type: mali_mint -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORGE, type: BUILDING_MALI_MINT -->
+ 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
+ 			<Type>BUILDING_MALI_MINT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -7410,7 +7410,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: forge, type: celtic_la_tene_smithy -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORGE, type: BUILDING_CELTIC_LA_TENE_SMITHY -->
+ 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
+ 			<Type>BUILDING_CELTIC_LA_TENE_SMITHY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -7618,7 +7618,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: factory, type: factory -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FACTORY, type: BUILDING_FACTORY -->
+ 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
+ 			<Type>BUILDING_FACTORY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -7812,7 +7812,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: coal_plant, type: coal_plant -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COAL_PLANT, type: BUILDING_COAL_PLANT -->
+ 			<BuildingClass>BUILDINGCLASS_COAL_PLANT</BuildingClass>
+ 			<Type>BUILDING_COAL_PLANT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -7981,7 +7981,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HYDRO_PLANT, type: BUILDING_HYDRO_PLANT -->
+ 			<BuildingClass>BUILDINGCLASS_HYDRO_PLANT</BuildingClass>
+ 			<Type>BUILDING_HYDRO_PLANT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -8155,7 +8155,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: nuclear_plant, type: nuclear_plant -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NUCLEAR_PLANT, type: BUILDING_NUCLEAR_PLANT -->
+ 			<BuildingClass>BUILDINGCLASS_NUCLEAR_PLANT</BuildingClass>
+ 			<Type>BUILDING_NUCLEAR_PLANT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -8323,7 +8323,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: industrial_park, type: industrial_park -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_INDUSTRIAL_PARK, type: BUILDING_INDUSTRIAL_PARK -->
+ 			<BuildingClass>BUILDINGCLASS_INDUSTRIAL_PARK</BuildingClass>
+ 			<Type>BUILDING_INDUSTRIAL_PARK</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -8514,7 +8514,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: monument, type: monument -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_MONUMENT -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_MONUMENT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -8689,7 +8689,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: monument, type: egyptian_obelisk -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_EGYPTIAN_OBELISK -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_EGYPTIAN_OBELISK</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -8883,7 +8883,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_NATIVE_AMERICA_TOTEM -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_NATIVE_AMERICA_TOTEM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -9079,7 +9079,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: reworked based on https://en.wikipedia.org/wiki/Aztecs#Religion and https://en.wikipedia.org/wiki/Human_sacrifice#Pre-Columbian_Americas -->
+-		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_AZTEC_SACRIFICIAL_ALTAR -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -9270,7 +9270,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: reworked based on: https://en.wikipedia.org/wiki/Ziggurat -->
+-		<BuildingInfo> <!-- custom: class: monument, type: ziggurat -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_SUMERIAN_ZIGGURAT -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_SUMERIAN_ZIGGURAT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -9464,7 +9464,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PUBLIC_TRANSPORTATION, type: BUILDING_PUBLIC_TRANSPORTATION -->
+ 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
+ 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -9634,7 +9634,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: academy, type: academy -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ACADEMY, type: BUILDING_ACADEMY -->
+ 			<BuildingClass>BUILDINGCLASS_ACADEMY</BuildingClass>
+ 			<Type>BUILDING_ACADEMY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -9810,7 +9810,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: library, type: library -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_LIBRARY -->
+ 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+ 			<Type>BUILDING_LIBRARY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -10007,7 +10007,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: library, type: KOREAN_GYEONGDANG -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_KOREAN_GYEONGDANG -->
+ 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+ 			<Type>BUILDING_KOREAN_GYEONGDANG</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -10205,7 +10205,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: library, type: ETHIOPIAN_METSEHAF_BET -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_ETHIOPIAN_METSEHAF_BET -->
+ 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+ 			<Type>BUILDING_ETHIOPIAN_METSEHAF_BET</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -10409,7 +10409,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: university, type: university -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_UNIVERSITY -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_UNIVERSITY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -10595,7 +10595,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: arabian library effects were too op, while thematically fits better around islamic/medieval time. University is no longer op with such effects -->
+-		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_ARABIAN_MADRASSA -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -10794,7 +10794,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: university, type: french_salon -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_FRENCH_SALON -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_FRENCH_SALON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -10985,7 +10985,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: university, type: ireland_scriptorium -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_IRELAND_SCRIPTORIUM -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_IRELAND_SCRIPTORIUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -11189,7 +11189,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LABORATORY, type: BUILDING_LABORATORY -->
+ 			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
+ 			<Type>BUILDING_LABORATORY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -11378,7 +11378,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: theatre, type: theatre -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_THEATRE, type: BUILDING_THEATRE -->
+ 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
+ 			<Type>BUILDING_THEATRE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -11572,7 +11572,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_COLOSSEUM -->
+ 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+ 			<Type>BUILDING_COLOSSEUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -11765,7 +11765,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: colosseum, type: greek_odeon -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_GREEK_ODEON -->
+ 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+ 			<Type>BUILDING_GREEK_ODEON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -11972,7 +11972,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: colosseum, type: maya_ball_court -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_MAYA_BALL_COURT -->
+ 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+ 			<Type>BUILDING_MAYA_BALL_COURT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -12185,7 +12185,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: colosseum, type: babylon_garden -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_BABYLON_GARDEN -->
+ 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+ 			<Type>BUILDING_BABYLON_GARDEN</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -12383,7 +12383,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: broadcast_tower, type: broadcast_tower -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BROADCAST_TOWER, type: BUILDING_BROADCAST_TOWER -->
+ 			<BuildingClass>BUILDINGCLASS_BROADCAST_TOWER</BuildingClass>
+ 			<Type>BUILDING_BROADCAST_TOWER</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -12585,7 +12585,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: market, type: market -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MARKET, type: BUILDING_MARKET -->
+ 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
+ 			<Type>BUILDING_MARKET</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -12777,7 +12777,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Forum_(Roman) -->
+-		<BuildingInfo> <!-- custom: class: market, type: roman_forum -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MARKET, type: BUILDING_ROMAN_FORUM -->
+ 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
+ 			<Type>BUILDING_ROMAN_FORUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -12969,7 +12969,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: market, type: chinese_changpingcang -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MARKET, type: BUILDING_CHINESE_CHANGPINGCANG -->
+ 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
+ 			<Type>BUILDING_CHINESE_CHANGPINGCANG</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -13165,7 +13165,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: grocer, type: grocer -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GROCER, type: BUILDING_GROCER -->
+ 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
+ 			<Type>BUILDING_GROCER</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -13367,7 +13367,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: grocer, type: persian_apothecary -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GROCER, type: BUILDING_PERSIAN_APOTHECARY -->
+ 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
+ 			<Type>BUILDING_PERSIAN_APOTHECARY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -13569,7 +13569,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: bank, type: bank -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BANK, type: BUILDING_BANK -->
+ 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
+ 			<Type>BUILDING_BANK</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -13733,7 +13733,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: bank, type: english_stock_exchange -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BANK, type: BUILDING_ENGLISH_STOCK_EXCHANGE -->
+ 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
+ 			<Type>BUILDING_ENGLISH_STOCK_EXCHANGE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -13897,7 +13897,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: supermarket, type: supermarket -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SUPERMARKET, type: BUILDING_SUPERMARKET -->
+ 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
+ 			<Type>BUILDING_SUPERMARKET</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -14094,7 +14094,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: supermarket, type: american_mall -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SUPERMARKET, type: BUILDING_AMERICAN_MALL -->
+ 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
+ 			<Type>BUILDING_AMERICAN_MALL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -14292,7 +14292,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: courthouse, type: courthouse -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_COURTHOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
+ 			<Type>BUILDING_COURTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -14479,7 +14479,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_HOLY_ROMAN_RATHAUS -->
+ 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
+ 			<Type>BUILDING_HOLY_ROMAN_RATHAUS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -14667,7 +14667,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: jail, type: jail -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAIL -->
+ 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
+ 			<Type>BUILDING_JAIL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -14867,7 +14867,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: jail, type: indian_mausoleum -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_INDIAN_MAUSOLEUM -->
+ 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
+ 			<Type>BUILDING_INDIAN_MAUSOLEUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -15285,7 +15285,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: levee, type: levee -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LEVEE, type: BUILDING_LEVEE -->
+ 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
+ 			<Type>BUILDING_LEVEE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -15452,7 +15452,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: levee, type: netherlands_levee -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LEVEE, type: BUILDING_NETHERLANDS_DIKE -->
+ 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
+ 			<Type>BUILDING_NETHERLANDS_DIKE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -15621,7 +15621,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: intelligence_agency, type: intelligence_agency -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_INTELLIGENCE_AGENCY, type: BUILDING_INTELLIGENCE_AGENCY -->
+ 			<BuildingClass>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClass>
+ 			<Type>BUILDING_INTELLIGENCE_AGENCY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -15798,7 +15798,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: security_bureau, type: security_bureau -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SECURITY_BUREAU, type: BUILDING_SECURITY_BUREAU -->
+ 			<BuildingClass>BUILDINGCLASS_SECURITY_BUREAU</BuildingClass>
+ 			<Type>BUILDING_SECURITY_BUREAU</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -15971,7 +15971,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: pagan_temple, type: pagan_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_TEMPLE, type: BUILDING_PAGAN_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_PAGAN_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -16157,7 +16157,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: pagan_cathedral, type: pagan_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_CATHEDRAL, type: BUILDING_PAGAN_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_PAGAN_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -16351,7 +16351,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: pagan_monastery, type: pagan_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_MONASTERY, type: BUILDING_PAGAN_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_PAGAN_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -16540,7 +16540,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: pagan_shrine, type: pagan_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_SHRINE, type: BUILDING_PAGAN_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_PAGAN_SHRINE</BuildingClass>
+ 			<Type>BUILDING_PAGAN_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -16733,7 +16733,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hindu_temple, type: hindu_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_TEMPLE, type: BUILDING_HINDU_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_HINDU_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -16919,7 +16919,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hindu_cathedral, type: hindu_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_CATHEDRAL, type: BUILDING_HINDU_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_HINDU_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -17113,7 +17113,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hindu_monastery, type: hindu_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_MONASTERY, type: BUILDING_HINDU_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_HINDU_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -17302,7 +17302,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hindu_shrine, type: hindu_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_SHRINE, type: BUILDING_HINDU_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_HINDU_SHRINE</BuildingClass>
+ 			<Type>BUILDING_HINDU_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -17494,7 +17494,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: jewish_temple, type: jewish_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_TEMPLE, type: BUILDING_JEWISH_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_JEWISH_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -17680,7 +17680,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: jewish_cathedral, type: jewish_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_CATHEDRAL, type: BUILDING_JEWISH_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_JEWISH_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_JEWISH_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -17874,7 +17874,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: jewish_monastery, type: jewish_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_MONASTERY, type: BUILDING_JEWISH_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_JEWISH_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -18063,7 +18063,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: jewish_shrine, type: jewish_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_SHRINE, type: BUILDING_JEWISH_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_JEWISH_SHRINE</BuildingClass>
+ 			<Type>BUILDING_JEWISH_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -18255,7 +18255,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: daoist_temple, type: daoist_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_TEMPLE, type: BUILDING_DAOIST_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_DAOIST_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -18442,7 +18442,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: daoist_cathedral, type: daoist_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_CATHEDRAL, type: BUILDING_DAOIST_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_DAOIST_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -18636,7 +18636,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: daoist_monastery, type: daoist_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_MONASTERY, type: BUILDING_DAOIST_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_DAOIST_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -18825,7 +18825,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: daoist_shrine, type: daoist_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_SHRINE, type: BUILDING_DAOIST_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_DAOIST_SHRINE</BuildingClass>
+ 			<Type>BUILDING_DAOIST_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -19017,7 +19017,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: buddhist_temple, type: buddhist_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_TEMPLE, type: BUILDING_BUDDHIST_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_BUDDHIST_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -19203,7 +19203,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: buddhist_cathedral, type: buddhist_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_CATHEDRAL, type: BUILDING_BUDDHIST_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_BUDDHIST_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -19397,7 +19397,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: buddhist_monastery, type: buddhist_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_MONASTERY, type: BUILDING_BUDDHIST_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_BUDDHIST_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -19586,7 +19586,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: buddhist_shrine, type: buddhist_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_SHRINE, type: BUILDING_BUDDHIST_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_BUDDHIST_SHRINE</BuildingClass>
+ 			<Type>BUILDING_BUDDHIST_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -19778,7 +19778,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: christian_temple, type: christian_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_TEMPLE, type: BUILDING_CHRISTIAN_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_CHRISTIAN_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -19964,7 +19964,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: christian_cathedral, type: christian_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_CATHEDRAL, type: BUILDING_CHRISTIAN_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_CHRISTIAN_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -20158,7 +20158,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: christian_monastery, type: christian_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_MONASTERY, type: BUILDING_CHRISTIAN_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_CHRISTIAN_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -20347,7 +20347,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: christian_shrine, type: christian_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_SHRINE, type: BUILDING_CHRISTIAN_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_SHRINE</BuildingClass>
+ 			<Type>BUILDING_CHRISTIAN_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -20539,7 +20539,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: islamic_temple, type: islamic_temple -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_TEMPLE, type: BUILDING_ISLAMIC_TEMPLE -->
+ 			<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
+ 			<Type>BUILDING_ISLAMIC_TEMPLE</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
+@@ -20725,7 +20725,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: islamic_cathedral, type: islamic_cathedral -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_CATHEDRAL, type: BUILDING_ISLAMIC_CATHEDRAL -->
+ 			<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
+ 			<Type>BUILDING_ISLAMIC_CATHEDRAL</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
+@@ -20919,7 +20919,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: islamic_monastery, type: islamic_monastery -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_MONASTERY, type: BUILDING_ISLAMIC_MONASTERY -->
+ 			<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
+ 			<Type>BUILDING_ISLAMIC_MONASTERY</Type>
+ 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
+@@ -21108,7 +21108,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: islamic_shrine, type: islamic_shrine -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_SHRINE, type: BUILDING_ISLAMIC_SHRINE -->
+ 			<BuildingClass>BUILDINGCLASS_ISLAMIC_SHRINE</BuildingClass>
+ 			<Type>BUILDING_ISLAMIC_SHRINE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -21300,7 +21300,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: heroic_epic, type: heroic_epic -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HEROIC_EPIC, type: BUILDING_HEROIC_EPIC -->
+ 			<BuildingClass>BUILDINGCLASS_HEROIC_EPIC</BuildingClass>
+ 			<Type>BUILDING_HEROIC_EPIC</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -21483,7 +21483,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: national_epic, type: national_epic -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATIONAL_EPIC, type: BUILDING_NATIONAL_EPIC -->
+ 			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
+ 			<Type>BUILDING_NATIONAL_EPIC</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -21669,7 +21669,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: globe_theatre, type: globe_theatre -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GLOBE_THEATRE, type: BUILDING_GLOBE_THEATRE -->
+ 			<BuildingClass>BUILDINGCLASS_GLOBE_THEATRE</BuildingClass>
+ 			<Type>BUILDING_GLOBE_THEATRE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -21872,7 +21872,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: national_park, type: national_park -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATIONAL_PARK, type: BUILDING_NATIONAL_PARK -->
+ 			<BuildingClass>BUILDINGCLASS_NATIONAL_PARK</BuildingClass>
+ 			<Type>BUILDING_NATIONAL_PARK</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -22041,7 +22041,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hermitage, type: hermitage -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HERMITAGE, type: BUILDING_HERMITAGE -->
+ 			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
+ 			<Type>BUILDING_HERMITAGE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -22222,7 +22222,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: wall_street, type: wall_street -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_WALL_STREET, type: BUILDING_WALL_STREET -->
+ 			<BuildingClass>BUILDINGCLASS_WALL_STREET</BuildingClass>
+ 			<Type>BUILDING_WALL_STREET</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -22403,7 +22403,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: iron_works, type: iron_works -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_IRON_WORKS, type: BUILDING_IRON_WORKS -->
+ 			<BuildingClass>BUILDINGCLASS_IRON_WORKS</BuildingClass>
+ 			<Type>BUILDING_IRON_WORKS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -22604,7 +22604,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MT_RUSHMORE, type: BUILDING_MT_RUSHMORE -->
+ 			<BuildingClass>BUILDINGCLASS_MT_RUSHMORE</BuildingClass>
+ 			<Type>BUILDING_MT_RUSHMORE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -22794,7 +22794,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: red_cross, type: red_cross -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_RED_CROSS, type: BUILDING_RED_CROSS -->
+ 			<BuildingClass>BUILDINGCLASS_RED_CROSS</BuildingClass>
+ 			<Type>BUILDING_RED_CROSS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -22986,7 +22986,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: scotland_yard, type: scotland_yard -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SCOTLAND_YARD, type: BUILDING_SCOTLAND_YARD -->
+ 			<BuildingClass>BUILDINGCLASS_SCOTLAND_YARD</BuildingClass>
+ 			<Type>BUILDING_SCOTLAND_YARD</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -23156,7 +23156,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: pyramid, type: pyramid -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PYRAMID, type: BUILDING_PYRAMID -->
+ 			<BuildingClass>BUILDINGCLASS_PYRAMID</BuildingClass>
+ 			<Type>BUILDING_PYRAMID</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -23355,7 +23355,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STONEHENGE, type: BUILDING_STONEHENGE -->
+ 			<BuildingClass>BUILDINGCLASS_STONEHENGE</BuildingClass>
+ 			<Type>BUILDING_STONEHENGE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -23539,7 +23539,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: great_library, type: great_library -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GREAT_LIBRARY, type: BUILDING_GREAT_LIBRARY -->
+ 			<BuildingClass>BUILDINGCLASS_GREAT_LIBRARY</BuildingClass>
+ 			<Type>BUILDING_GREAT_LIBRARY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -23733,7 +23733,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: great_lighthouse, type: great_lighthouse -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GREAT_LIGHTHOUSE, type: BUILDING_GREAT_LIGHTHOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClass>
+ 			<Type>BUILDING_GREAT_LIGHTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -23936,7 +23936,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hanging_garden, type: hanging_garden -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HANGING_GARDEN, type: BUILDING_HANGING_GARDEN -->
+ 			<BuildingClass>BUILDINGCLASS_HANGING_GARDEN</BuildingClass>
+ 			<Type>BUILDING_HANGING_GARDEN</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -24128,7 +24128,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: colossus, type: colossus -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSUS, type: BUILDING_COLOSSUS -->
+ 			<BuildingClass>BUILDINGCLASS_COLOSSUS</BuildingClass>
+ 			<Type>BUILDING_COLOSSUS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -24346,7 +24346,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: oracle, type: oracle -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ORACLE, type: BUILDING_ORACLE -->
+ 			<BuildingClass>BUILDINGCLASS_ORACLE</BuildingClass>
+ 			<Type>BUILDING_ORACLE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -24529,7 +24529,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: parthenon, type: parthenon -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PARTHENON, type: BUILDING_PARTHENON -->
+ 			<BuildingClass>BUILDINGCLASS_PARTHENON</BuildingClass>
+ 			<Type>BUILDING_PARTHENON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -24724,7 +24724,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: angkor_wat, type: angkor_wat -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ANGKOR_WAT, type: BUILDING_ANGKOR_WAT -->
+ 			<BuildingClass>BUILDINGCLASS_ANGKOR_WAT</BuildingClass>
+ 			<Type>BUILDING_ANGKOR_WAT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -24932,7 +24932,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: reworked hagia_sophia, now a growth / religious building that never obsoletes at least as of now -->
+-		<BuildingInfo> <!-- custom: class: hagia_sophia, type: hagia_sophia -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HAGIA_SOPHIA, type: BUILDING_HAGIA_SOPHIA -->
+ 			<BuildingClass>BUILDINGCLASS_HAGIA_SOPHIA</BuildingClass>
+ 			<Type>BUILDING_HAGIA_SOPHIA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -25127,7 +25127,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TEMPLE_OF_KUKULCAN, type: BUILDING_TEMPLE_OF_KUKULCAN -->
+ 			<BuildingClass>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</BuildingClass>
+ 			<Type>BUILDING_TEMPLE_OF_KUKULCAN</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -25536,7 +25536,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: spiral_minaret, type: spiral_minaret -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SPIRAL_MINARET, type: BUILDING_SPIRAL_MINARET -->
+ 			<BuildingClass>BUILDINGCLASS_SPIRAL_MINARET</BuildingClass>
+ 			<Type>BUILDING_SPIRAL_MINARET</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -25721,7 +25721,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: oxford_university, type: oxford_university -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_OXFORD_UNIVERSITY, type: BUILDING_OXFORD_UNIVERSITY -->
+ 			<BuildingClass>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_OXFORD_UNIVERSITY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -25924,7 +25924,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NOTRE_DAME, type: BUILDING_NOTRE_DAME -->
+ 			<BuildingClass>BUILDINGCLASS_NOTRE_DAME</BuildingClass>
+ 			<Type>BUILDING_NOTRE_DAME</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -26131,7 +26131,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: taj_mahal, type: taj_mahal -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TAJ_MAHAL, type: BUILDING_TAJ_MAHAL -->
+ 			<BuildingClass>BUILDINGCLASS_TAJ_MAHAL</BuildingClass>
+ 			<Type>BUILDING_TAJ_MAHAL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -26328,7 +26328,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: kremlin, type: kremlin -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_KREMLIN, type: BUILDING_KREMLIN -->
+ 			<BuildingClass>BUILDINGCLASS_KREMLIN</BuildingClass>
+ 			<Type>BUILDING_KREMLIN</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -26515,7 +26515,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: eiffel_tower, type: eiffel_tower -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_EIFFEL_TOWER, type: BUILDING_EIFFEL_TOWER -->
+ 			<BuildingClass>BUILDINGCLASS_EIFFEL_TOWER</BuildingClass>
+ 			<Type>BUILDING_EIFFEL_TOWER</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -26714,7 +26714,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: statue_of_liberty, type: statue_of_liberty -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STATUE_OF_LIBERTY, type: BUILDING_STATUE_OF_LIBERTY -->
+ 			<BuildingClass>BUILDINGCLASS_STATUE_OF_LIBERTY</BuildingClass>
+ 			<Type>BUILDING_STATUE_OF_LIBERTY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -26913,7 +26913,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: broadway, type: broadway -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BROADWAY, type: BUILDING_BROADWAY -->
+ 			<BuildingClass>BUILDINGCLASS_BROADWAY</BuildingClass>
+ 			<Type>BUILDING_BROADWAY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -27114,7 +27114,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: rocknroll, type: rocknroll -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ROCKNROLL, type: BUILDING_ROCKNROLL -->
+ 			<BuildingClass>BUILDINGCLASS_ROCKNROLL</BuildingClass>
+ 			<Type>BUILDING_ROCKNROLL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -27298,7 +27298,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: hollywood, type: hollywood -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HOLLYWOOD, type: BUILDING_HOLLYWOOD -->
+ 			<BuildingClass>BUILDINGCLASS_HOLLYWOOD</BuildingClass>
+ 			<Type>BUILDING_HOLLYWOOD</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -27474,7 +27474,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: three_gorges_dam, type: three_gorges_dam -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_THREE_GORGES_DAM, type: BUILDING_THREE_GORGES_DAM -->
+ 			<BuildingClass>BUILDINGCLASS_THREE_GORGES_DAM</BuildingClass>
+ 			<Type>BUILDING_THREE_GORGES_DAM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -27656,7 +27656,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: pentagon, type: pentagon -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PENTAGON, type: BUILDING_PENTAGON -->
+ 			<BuildingClass>BUILDINGCLASS_PENTAGON</BuildingClass>
+ 			<Type>BUILDING_PENTAGON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -27828,7 +27828,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: united_nations, type: united_nations -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNITED_NATIONS, type: BUILDING_UNITED_NATIONS -->
+ 			<BuildingClass>BUILDINGCLASS_UNITED_NATIONS</BuildingClass>
+ 			<Type>BUILDING_UNITED_NATIONS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -27995,7 +27995,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MILITARY_ACADEMY, type: BUILDING_MILITARY_ACADEMY -->
+ 			<BuildingClass>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClass>
+ 			<Type>BUILDING_MILITARY_ACADEMY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -28168,7 +28168,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: artemis, type: artemis -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ARTEMIS, type: BUILDING_ARTEMIS -->
+ 			<BuildingClass>BUILDINGCLASS_ARTEMIS</BuildingClass>
+ 			<Type>BUILDING_ARTEMIS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -28377,7 +28377,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: sankore, type: sankore -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SANKORE, type: BUILDING_SANKORE -->
+ 			<BuildingClass>BUILDINGCLASS_SANKORE</BuildingClass>
+ 			<Type>BUILDING_SANKORE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -28581,7 +28581,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: great_wall, type: great_wall -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GREAT_WALL, type: BUILDING_GREAT_WALL -->
+ 			<BuildingClass>BUILDINGCLASS_GREAT_WALL</BuildingClass>
+ 			<Type>BUILDING_GREAT_WALL</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -28795,7 +28795,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: statue_of_zeus, type: statue_of_zeus -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STATUE_OF_ZEUS, type: BUILDING_STATUE_OF_ZEUS -->
+ 			<BuildingClass>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClass>
+ 			<Type>BUILDING_STATUE_OF_ZEUS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -28984,7 +28984,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: mausolleum_of_mausollos, type: mausolleum_of_mausollos -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS, type: BUILDING_MAUSOLEUM_OF_MAUSSOLLOS -->
+ 			<BuildingClass>BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS</BuildingClass>
+ 			<Type>BUILDING_MAUSOLEUM_OF_MAUSSOLLOS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -29174,7 +29174,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: cristo_redentor, type: cristo_redentor -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CRISTO_REDENTOR, type: BUILDING_CRISTO_REDENTOR -->
+ 			<BuildingClass>BUILDINGCLASS_CRISTO_REDENTOR</BuildingClass>
+ 			<Type>BUILDING_CRISTO_REDENTOR</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -29389,7 +29389,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: shwedagon_paya, type: shwedagon_paya -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SHWEDAGON_PAYA, type: BUILDING_SHWEDAGON_PAYA -->
+ 			<BuildingClass>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClass>
+ 			<Type>BUILDING_SHWEDAGON_PAYA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -29592,7 +29592,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities, hopefully historically accurate as they were built much later  anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
+-		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MOAI_STATUES, type: BUILDING_MOAI_STATUES -->
+ 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
+ 			<Type>BUILDING_MOAI_STATUES</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -29784,7 +29784,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: versailles, type: versailles -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_VERSAILLES, type: BUILDING_VERSAILLES -->
+ 			<BuildingClass>BUILDINGCLASS_VERSAILLES</BuildingClass>
+ 			<Type>BUILDING_VERSAILLES</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -29993,7 +29993,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_1, type: corporation_1 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_1, type: BUILDING_CORPORATION_1 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_1</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_1</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -30171,7 +30171,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_2, type: corporation_2 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_2, type: BUILDING_CORPORATION_2 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_2</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_2</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -30350,7 +30350,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_3, type: corporation_3 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_3, type: BUILDING_CORPORATION_3 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_3</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_3</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -30528,7 +30528,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_4, type: corporation_4 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_4, type: BUILDING_CORPORATION_4 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_4</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_4</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -30708,7 +30708,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_5, type: corporation_5 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_5, type: BUILDING_CORPORATION_5 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_5</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_5</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -30886,7 +30886,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_6, type: corporation_6 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_6, type: BUILDING_CORPORATION_6 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_6</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_6</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+@@ -31065,7 +31065,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_7, type: corporation_7 -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_7, type: BUILDING_CORPORATION_7 -->
+ 			<BuildingClass>BUILDINGCLASS_CORPORATION_7</BuildingClass>
+ 			<Type>BUILDING_CORPORATION_7</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 53db9ae23..75f9fb21c 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -9,7 +9,7 @@
+ 	 Civ4NewConceptInfos.xml. -->
+ <Civ4TraitInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+ 	<TraitInfos>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_PHILOSOPHICAL (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>TRAIT_PHILOSOPHICAL</Type>
+ 			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_PHILOSOPHICAL_SHORT</ShortDescription>
+@@ -34,7 +34,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_AGGRESSIVE -->
+ 			<Type>TRAIT_AGGRESSIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_AGGRESSIVE_SHORT</ShortDescription>
+@@ -84,7 +84,7 @@
+ 				</FreePromotionUnitCombat>
+ 			</FreePromotionUnitCombats>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_SPIRITUAL -->
+ 			<Type>TRAIT_SPIRITUAL</Type>
+ 			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_SPIRITUAL_SHORT</ShortDescription>
+@@ -108,7 +108,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_INDUSTRIOUS -->
+ 			<Type>TRAIT_INDUSTRIOUS</Type>
+ 			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_INDUSTRIOUS_SHORT</ShortDescription>
+@@ -133,7 +133,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_CREATIVE -->
+ 			<Type>TRAIT_CREATIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_CREATIVE_SHORT</ShortDescription>
+@@ -163,7 +163,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_FINANCIAL -->
+ 			<Type>TRAIT_FINANCIAL</Type>
+ 			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_FINANCIAL_SHORT</ShortDescription>
+@@ -194,7 +194,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_ORGANIZED -->
+ 			<Type>TRAIT_ORGANIZED</Type>
+ 			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_ORGANIZED_SHORT</ShortDescription>
+@@ -218,7 +218,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_CHARISMATIC -->
+ 			<Type>TRAIT_CHARISMATIC</Type>
+ 			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_CHARISMATIC_SHORT</ShortDescription>
+@@ -244,7 +244,7 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_PROTECTIVE -->
+ 			<Type>TRAIT_PROTECTIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_PROTECTIVE_SHORT</ShortDescription>
+@@ -299,7 +299,7 @@
+ 				</FreePromotionUnitCombat>
+ 			</FreePromotionUnitCombats>
+ 		</TraitInfo>
+-		<TraitInfo>
++		<TraitInfo> <!-- custom: TRAIT_IMPERIALIST -->
+ 			<Type>TRAIT_IMPERIALIST</Type>
+ 			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_IMPERIALIST_SHORT</ShortDescription>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 446fd2a0b..3c79a8d99 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -7,7 +7,7 @@
+ <!-- custom: Long_Comments_XML.txt #6 -->
+ <Civ4CivicInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<CivicInfos>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_DESPOTISM (useful for VS Code upper tree view while scrolling) -->
+ 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
+ 			<Type>CIVIC_DESPOTISM</Type>
+ 			<Description>TXT_KEY_CIVIC_DESPOTISM</Description>
+@@ -71,7 +71,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_DESPOT</WeLoveTheKing>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_HEREDITARY_RULE -->
+ 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
+ 			<Type>CIVIC_HEREDITARY_RULE</Type>
+ 			<Description>TXT_KEY_CIVIC_HEREDITARY_RULE</Description>
+@@ -140,7 +140,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_MONARCH</WeLoveTheKing>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_REPRESENTATION -->
+ 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
+ 			<Type>CIVIC_REPRESENTATION</Type>
+ 			<Description>TXT_KEY_CIVIC_REPRESENTATION</Description>
+@@ -212,7 +212,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_PRIME_MINISTER</WeLoveTheKing>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_UNIVERSAL_SUFFRAGE -->
+ 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
+ 			<Type>CIVIC_UNIVERSAL_SUFFRAGE</Type>
+ 			<Description>TXT_KEY_CIVIC_UNIVERSAL_SUFFRAGE</Description>
+@@ -299,7 +299,7 @@
+ 			</ImprovementYieldChanges>
+ 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_PRESIDENT</WeLoveTheKing>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_POLICE_STATE -->
+ 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
+ 			<Type>CIVIC_POLICE_STATE</Type>
+ 			<Description>TXT_KEY_CIVIC_POLICE_STATE</Description>
+@@ -370,7 +370,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_DICTATOR</WeLoveTheKing>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_BARBARISM -->
+ 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
+ 			<Type>CIVIC_BARBARISM</Type>
+ 			<Description>TXT_KEY_CIVIC_BARBARISM</Description>
+@@ -434,7 +434,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_BUREAUCRACY -->
+ 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
+ 			<Type>CIVIC_BUREAUCRACY</Type>
+ 			<Description>TXT_KEY_CIVIC_BUREAUCRACY</Description>
+@@ -504,7 +504,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_VASSALAGE -->
+ 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
+ 			<Type>CIVIC_VASSALAGE</Type>
+ 			<Description>TXT_KEY_CIVIC_VASSALAGE</Description>
+@@ -573,7 +573,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_FREE_SPEECH -->
+ 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
+ 			<Type>CIVIC_FREE_SPEECH</Type>
+ 			<Description>TXT_KEY_CIVIC_FREE_SPEECH</Description>
+@@ -657,7 +657,7 @@
+ 			</ImprovementYieldChanges>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_NATIONHOOD -->
+ 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
+ 			<Type>CIVIC_NATIONHOOD</Type>
+ 			<Description>TXT_KEY_CIVIC_NATIONHOOD</Description>
+@@ -739,7 +739,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_TRIBALISM -->
+ 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
+ 			<Type>CIVIC_TRIBALISM</Type>
+ 			<Description>TXT_KEY_CIVIC_TRIBALISM</Description>
+@@ -803,7 +803,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_SLAVERY -->
+ 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
+ 			<Type>CIVIC_SLAVERY</Type>
+ 			<Description>TXT_KEY_CIVIC_SLAVERY</Description>
+@@ -874,7 +874,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_CASTE_SYSTEM -->
+ 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
+ 			<Type>CIVIC_CASTE_SYSTEM</Type>
+ 			<Description>TXT_KEY_CIVIC_CASTE_SYSTEM</Description>
+@@ -961,7 +961,7 @@
+ 			</ImprovementYieldChanges>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_SERFDOM -->
+ 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
+ 			<Type>CIVIC_SERFDOM</Type>
+ 			<Description>TXT_KEY_CIVIC_SERFDOM</Description>
+@@ -1067,7 +1067,7 @@
+ 			</ImprovementYieldChanges>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_WAGE_LABOR -->
+ 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
+ 			<Type>CIVIC_WAGE_LABOR</Type>
+ 			<Description>TXT_KEY_CIVIC_WAGE_LABOR</Description>
+@@ -1147,7 +1147,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_DECENTRALIZATION -->
+ 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
+ 			<Type>CIVIC_DECENTRALIZATION</Type>
+ 			<Description>TXT_KEY_CIVIC_DECENTRALIZATION</Description>
+@@ -1212,7 +1212,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_PROTECTIONISM -->
+ 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
+ 			<Type>CIVIC_PROTECTIONISM</Type>
+ 			<Description>TXT_KEY_CIVIC_PROTECTIONISM</Description>
+@@ -1285,7 +1285,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_TRADE_BLOC -->
+ 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
+ 			<!-- custom: replace the old CIVIC ENVIRONMENTALISM which had nothing to do with economy, plus: "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced i mean) (and ignorant too i mean, not that i know all but it was incredibly stupid, the old entry)" -->
+ 			<Type>CIVIC_TRADE_BLOC</Type>
+@@ -1365,7 +1365,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_FREE_MARKET -->
+ 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
+ 			<Type>CIVIC_FREE_MARKET</Type>
+ 			<Description>TXT_KEY_CIVIC_FREE_MARKET</Description>
+@@ -1445,7 +1445,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_STATE_PROPERTY -->
+ 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
+ 			<Type>CIVIC_STATE_PROPERTY</Type>
+ 			<Description>TXT_KEY_CIVIC_STATE_PROPERTY</Description>
+@@ -1543,7 +1543,7 @@
+ 			</ImprovementYieldChanges>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_PREHISTORIC_RELIGION -->
+ 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
+ 			<Type>CIVIC_PREHISTORIC_RELIGION</Type>
+ 			<Description>TXT_KEY_CIVIC_PREHISTORIC_RELIGION</Description>
+@@ -1607,7 +1607,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_ORGANIZED_RELIGION -->
+ 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
+ 			<Type>CIVIC_ORGANIZED_RELIGION</Type>
+ 			<Description>TXT_KEY_CIVIC_ORGANIZED_RELIGION</Description>
+@@ -1688,7 +1688,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_PACIFISM -->
+ 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
+ 			<Type>CIVIC_PACIFISM</Type>
+ 			<Description>TXT_KEY_CIVIC_PACIFISM</Description>
+@@ -1757,7 +1757,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_THEOCRACY -->
+ 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
+ 			<Type>CIVIC_THEOCRACY</Type>
+ 			<Description>TXT_KEY_CIVIC_THEOCRACY</Description>
+@@ -1828,7 +1828,7 @@
+ 			<ImprovementYieldChanges/>
+ 			<WeLoveTheKing/>
+ 		</CivicInfo>
+-		<CivicInfo>
++		<CivicInfo> <!-- custom: CIVIC_FREE_RELIGION -->
+ 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
+ 			<Type>CIVIC_FREE_RELIGION</Type>
+ 			<Description>TXT_KEY_CIVIC_FREE_RELIGION</Description>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 18889309c..72014a9c3 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -9,7 +9,7 @@
+ 	<HandicapInfos>
+ 		<!-- advc.126: Added free tech for later eras to
+ 			 Settler and Chieftain. -->
+-		<HandicapInfo> <!-- custom: settler (useful for VS Code upper tree view while scrolling) -->
++		<HandicapInfo> <!-- custom: HANDICAP_SETTLER (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>HANDICAP_SETTLER</Type>
+ 			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
+ 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
+@@ -23,7 +23,7 @@
+ 			<iGold>0</iGold>
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 24 -->
+-			<iFreeUnits>20</iFreeUnits>
++			<iFreeUnits>11</iFreeUnits>
+ 			<!-- was 20 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+@@ -62,7 +62,7 @@
+ 			<iHappyBonus>5</iHappyBonus>
+ 			<!-- advc.148: was 2 -->
+ 			<iAttitudeChange>2</iAttitudeChange>
+-			<iNoTechTradeModifier>80</iNoTechTradeModifier>
++			<iNoTechTradeModifier>78</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-30</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 100 -->
+ 			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
+@@ -149,7 +149,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>10</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: chieftain -->
++		<HandicapInfo> <!-- custom: HANDICAP_CHIEFTAIN -->
+ 			<Type>HANDICAP_CHIEFTAIN</Type>
+ 			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
+ 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
+@@ -162,7 +162,7 @@
+ 			<iGold>0</iGold>
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 18 -->
+-			<iFreeUnits>8</iFreeUnits>
++			<iFreeUnits>9</iFreeUnits>
+ 			<!-- was 30 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+@@ -277,7 +277,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>20</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: warlord -->
++		<HandicapInfo> <!-- custom: HANDICAP_WARLORD -->
+ 			<Type>HANDICAP_WARLORD</Type>
+ 			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
+ 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
+@@ -404,7 +404,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>30</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: noble -->
++		<HandicapInfo> <!-- custom: HANDICAP_NOBLE -->
+ 			<Type>HANDICAP_NOBLE</Type>
+ 			<Description>TXT_KEY_HANDICAP_NOBLE</Description>
+ 			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
+@@ -535,7 +535,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>40</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: prince -->
++		<HandicapInfo> <!-- custom: HANDICAP_PRINCE -->
+ 			<Type>HANDICAP_PRINCE</Type>
+ 			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
+ 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
+@@ -673,7 +673,7 @@
+ 		</HandicapInfo>
+ 		<!-- advc.126: Added free tech for later eras to
+ 			 all handicaps below. -->
+-		<HandicapInfo> <!-- custom: monarch -->
++		<HandicapInfo> <!-- custom: HANDICAP_MONARCH -->
+ 			<Type>HANDICAP_MONARCH</Type>
+ 			<Description>TXT_KEY_HANDICAP_MONARCH</Description>
+ 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
+@@ -814,7 +814,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>60</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: emperor -->
++		<HandicapInfo> <!-- custom: HANDICAP_EMPEROR -->
+ 			<Type>HANDICAP_EMPEROR</Type>
+ 			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
+ 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
+@@ -957,7 +957,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>70</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: immortal -->
++		<HandicapInfo> <!-- custom: HANDICAP_IMMORTAL -->
+ 			<Type>HANDICAP_IMMORTAL</Type>
+ 			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
+ 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
+@@ -1102,7 +1102,7 @@
+ 			<!-- advc.250a -->
+ 			<iDifficulty>80</iDifficulty>
+ 		</HandicapInfo>
+-		<HandicapInfo> <!-- custom: deity -->
++		<HandicapInfo> <!-- custom: HANDICAP_DEITY -->
+ 			<Type>HANDICAP_DEITY</Type>
+ 			<Description>TXT_KEY_HANDICAP_DEITY</Description>
+ 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
+@@ -1133,7 +1133,7 @@
+ 			<!-- advc.exp.1: was 8000 -->
+ 			<iMaxNumCitiesMaintenance>8000</iMaxNumCitiesMaintenance>
+ 			<!-- advc.251: was 150 -->
+-			<iColonyMaintenancePercent>130</iColonyMaintenancePercent>
++			<iColonyMaintenancePercent>125</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+ 			<!-- advc.251: was 150 -->
+ 			<iCorporationMaintenancePercent>125</iCorporationMaintenancePercent>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 63086a31f..148bf2193 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -8,7 +8,7 @@
+ <!-- custom: note: be careful when renaming the improvementinfo types, we use them in CvUnitAI::AI_bestCityBuild as a way to optimize worker improvement choice, so if you change it, also change it there as well and then recompile DLL, among other places that may or not need the change as well but this is the one we specifically implemented in advciv-sas as of now that would require a recompile; see also related code comment at CIV4BonusInfos.xml for details -->
+ <Civ4ImprovementInfos xmlns="x-schema:CIV4TerrainSchema.xml">
+ 	<ImprovementInfos>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_LAND_WORKED (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>IMPROVEMENT_LAND_WORKED</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_LAND_WORKED</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_LAND_WORKED_PEDIA</Civilopedia>
+@@ -46,7 +46,7 @@
+ 			<WorldSoundscapeAudioScript/>
+ 			<bGraphicalOnly>1</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_WATER_WORKED -->
+ 			<Type>IMPROVEMENT_WATER_WORKED</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_WATER_WORKED</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_WATER_WORKED_PEDIA</Civilopedia>
+@@ -84,7 +84,7 @@
+ 			<WorldSoundscapeAudioScript/>
+ 			<bGraphicalOnly>1</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_CITY_RUINS -->
+ 			<Type>IMPROVEMENT_CITY_RUINS</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_CITY_RUINS</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_CITY_RUINS_PEDIA</Civilopedia>
+@@ -122,7 +122,7 @@
+ 			<WorldSoundscapeAudioScript/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_GOODY_HUT -->
+ 			<Type>IMPROVEMENT_GOODY_HUT</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_GOODY_HUT</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_GOODY_HUT_PEDIA</Civilopedia>
+@@ -186,7 +186,7 @@
+ 			<WorldSoundscapeAudioScript>ASSS_FOREST_SELECT_AMB</WorldSoundscapeAudioScript>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_FARM -->
+ 			<Type>IMPROVEMENT_FARM</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_FARM</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_FARM_PEDIA</Civilopedia>
+@@ -289,7 +289,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_FISHING_BOATS -->
+ 			<Type>IMPROVEMENT_FISHING_BOATS</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_FISHING_BOATS</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_FISHING_BOATS_PEDIA</Civilopedia>
+@@ -362,7 +362,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_WHALING_BOATS -->
+ 			<Type>IMPROVEMENT_WHALING_BOATS</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_WHALING_BOATS</Description>
+ 			<Civilopedia>TXT_KEY_WHALING_BOATS_PEDIA</Civilopedia>
+@@ -413,7 +413,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_MINE -->
+ 			<Type>IMPROVEMENT_MINE</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_MINE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_MINE_PEDIA</Civilopedia>
+@@ -558,7 +558,7 @@
+ 			</RouteYieldChanges>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_WORKSHOP -->
+ 			<Type>IMPROVEMENT_WORKSHOP</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_WORKSHOP</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_WORKSHOP_PEDIA</Civilopedia>
+@@ -645,7 +645,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_LUMBERMILL -->
+ 			<Type>IMPROVEMENT_LUMBERMILL</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_LUMBERMILL</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_LUMBERMILL_PEDIA</Civilopedia>
+@@ -717,7 +717,7 @@
+ 			</RouteYieldChanges>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_WINDMILL -->
+ 			<Type>IMPROVEMENT_WINDMILL</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_WINDMILL</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_WINDMILL_PEDIA</Civilopedia>
+@@ -777,7 +777,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_WATERMILL -->
+ 			<Type>IMPROVEMENT_WATERMILL</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_WATERMILL</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_WATERMILL_PEDIA</Civilopedia>
+@@ -839,7 +839,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_PLANTATION -->
+ 			<Type>IMPROVEMENT_PLANTATION</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_PLANTATION</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_PLANTATION_PEDIA</Civilopedia>
+@@ -967,7 +967,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_QUARRY -->
+ 			<Type>IMPROVEMENT_QUARRY</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_QUARRY</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_QUARRY_PEDIA</Civilopedia>
+@@ -1037,7 +1037,7 @@
+ 			</RouteYieldChanges>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_PASTURE -->
+ 			<Type>IMPROVEMENT_PASTURE</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_PASTURE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_PASTURE_PEDIA</Civilopedia>
+@@ -1143,7 +1143,7 @@
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+ 		<!-- custom: venison/deer seems super healthy and nutritious, great because in tundra we want more food, increasing food output then: https://www.hunter-ed.com/blog/venison-vs-beef-which-is-healthier/ crossed checked quick here for example https://www.tasteofhome.com/article/ground-venison/ -->
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_CAMP -->
+ 			<Type>IMPROVEMENT_CAMP</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_CAMP</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_CAMP_PEDIA</Civilopedia>
+@@ -1216,7 +1216,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_WELL -->
+ 			<Type>IMPROVEMENT_WELL</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_WELL</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_WELL_PEDIA</Civilopedia>
+@@ -1266,7 +1266,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_OFFSHORE_PLATFORM -->
+ 			<Type>IMPROVEMENT_OFFSHORE_PLATFORM</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
+@@ -1316,7 +1316,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_COTTAGE -->
+ 			<Type>IMPROVEMENT_COTTAGE</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_COTTAGE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_COTTAGE_PEDIA</Civilopedia>
+@@ -1373,7 +1373,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_HAMLET -->
+ 			<Type>IMPROVEMENT_HAMLET</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_HAMLET</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_HAMLET_PEDIA</Civilopedia>
+@@ -1433,7 +1433,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_VILLAGE -->
+ 			<Type>IMPROVEMENT_VILLAGE</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_VILLAGE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_VILLAGE_PEDIA</Civilopedia>
+@@ -1502,7 +1502,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_TOWN -->
+ 			<Type>IMPROVEMENT_TOWN</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_TOWN</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_TOWN_PEDIA</Civilopedia>
+@@ -1580,7 +1580,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_FORT -->
+ 			<Type>IMPROVEMENT_FORT</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_FORT</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_FORT_PEDIA</Civilopedia>
+@@ -1640,7 +1640,7 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
++		<ImprovementInfo> <!-- custom: IMPROVEMENT_FOREST_PRESERVE -->
+ 			<Type>IMPROVEMENT_FOREST_PRESERVE</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE_PEDIA</Civilopedia>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index be6df20de..a5f533038 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -7,7 +7,7 @@
+ <!-- custom: Added new Build Help/Civilopedia text keys (GPT-5.2-Codex). Generated with the help of ChatGPT-5.2 Thinking. -->
+ <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<BuildInfos>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_ROAD (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>BUILD_ROAD</Type>
+ 			<Description>TXT_KEY_BUILD_ROAD</Description>
+ 			<Help>TXT_KEY_BUILD_ROAD_HELP</Help>
+@@ -27,7 +27,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildRoad.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,8</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_RAILROAD -->
+ 			<Type>BUILD_RAILROAD</Type>
+ 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
+ 			<Help>TXT_KEY_BUILD_RAILROAD_HELP</Help>
+@@ -48,7 +48,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildRailroad.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_FARM -->
+ 			<Type>BUILD_FARM</Type>
+ 			<Description>TXT_KEY_BUILD_FARM</Description>
+ 			<Help>TXT_KEY_BUILD_FARM_HELP</Help>
+@@ -92,7 +92,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildFarm.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_FISHING_BOATS -->
+ 			<Type>BUILD_FISHING_BOATS</Type>
+ 			<Description>TXT_KEY_BUILD_FISHING_BOATS</Description>
+ 			<Help>TXT_KEY_BUILD_FISHING_BOATS_HELP</Help>
+@@ -112,7 +112,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildFishingBoats.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_WHALING_BOATS -->
+ 			<Type>BUILD_WHALING_BOATS</Type>
+ 			<Description>TXT_KEY_BUILD_WHALING_BOATS</Description>
+ 			<Help>TXT_KEY_BUILD_WHALING_BOATS_HELP</Help>
+@@ -132,7 +132,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildWhalingBoats.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_MINE -->
+ 			<Type>BUILD_MINE</Type>
+ 			<Description>TXT_KEY_BUILD_MINE</Description>
+ 			<Help>TXT_KEY_BUILD_MINE_HELP</Help>
+@@ -176,7 +176,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildMine.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_WORKSHOP -->
+ 			<Type>BUILD_WORKSHOP</Type>
+ 			<Description>TXT_KEY_BUILD_WORKSHOP</Description>
+ 			<Help>TXT_KEY_BUILD_WORKSHOP_HELP</Help>
+@@ -221,7 +221,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildWorkshop.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,8,8</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_LUMBERMILL -->
+ 			<Type>BUILD_LUMBERMILL</Type>
+ 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
+ 			<Help>TXT_KEY_BUILD_LUMBERMILL_HELP</Help>
+@@ -244,7 +244,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildLumberMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_WINDMILL -->
+ 			<Type>BUILD_WINDMILL</Type>
+ 			<Description>TXT_KEY_BUILD_WINDMILL</Description>
+ 			<Help>TXT_KEY_BUILD_WINDMILL_HELP</Help>
+@@ -289,7 +289,7 @@
+ 			<Button>,Art/Interface/Buttons/Builds/BuildWindMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,8</Button>
+ 		</BuildInfo>
+ 		<!-- advc.902: Reduced build time from 800 to 400. -->
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_WATERMILL -->
+ 			<Type>BUILD_WATERMILL</Type>
+ 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
+ 			<Help>TXT_KEY_BUILD_WATERMILL_HELP</Help>
+@@ -334,7 +334,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildWaterMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,8</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_PLANTATION -->
+ 			<Type>BUILD_PLANTATION</Type>
+ 			<Description>TXT_KEY_BUILD_PLANTATION</Description>
+ 			<Help>TXT_KEY_BUILD_PLANTATION_HELP</Help>
+@@ -378,7 +378,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildPlantation.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_QUARRY -->
+ 			<Type>BUILD_QUARRY</Type>
+ 			<Description>TXT_KEY_BUILD_QUARRY</Description>
+ 			<Help>TXT_KEY_BUILD_QUARRY_HELP</Help>
+@@ -423,7 +423,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildQuarry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_PASTURE -->
+ 			<Type>BUILD_PASTURE</Type>
+ 			<Description>TXT_KEY_BUILD_PASTURE</Description>
+ 			<Help>TXT_KEY_BUILD_PASTURE_HELP</Help>
+@@ -467,7 +467,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildPasture.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,8,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_CAMP -->
+ 			<Type>BUILD_CAMP</Type>
+ 			<Description>TXT_KEY_BUILD_CAMP</Description>
+ 			<Help>TXT_KEY_BUILD_CAMP_HELP</Help>
+@@ -496,7 +496,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildCamp.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_WELL -->
+ 			<Type>BUILD_WELL</Type>
+ 			<Description>TXT_KEY_BUILD_WELL</Description>
+ 			<Help>TXT_KEY_BUILD_WELL_HELP</Help>
+@@ -540,7 +540,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildWell.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,8</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_OFFSHORE_PLATFORM -->
+ 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
+ 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
+ 			<Help>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Help>
+@@ -561,7 +561,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_COTTAGE -->
+ 			<Type>BUILD_COTTAGE</Type>
+ 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
+ 			<Help>TXT_KEY_BUILD_COTTAGE_HELP</Help>
+@@ -605,7 +605,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildCottage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,7</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_FORT -->
+ 			<Type>BUILD_FORT</Type>
+ 			<Description>TXT_KEY_BUILD_FORT</Description>
+ 			<Help>TXT_KEY_BUILD_FORT_HELP</Help>
+@@ -635,7 +635,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildFort.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_REMOVE_JUNGLE -->
+ 			<Type>BUILD_REMOVE_JUNGLE</Type>
+ 			<Description>TXT_KEY_BUILD_REMOVE_JUNGLE</Description>
+ 			<Help>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Help>
+@@ -666,7 +666,7 @@
+ 			<!-- custom: import from the Middle-earth mod's PROJECT_ANGRIST thanks a lot! -->
+ 			<Button>Art/AdvCiv_SAS/Builds/Remove_Jungle/Angrist.dds</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_REMOVE_FOREST -->
+ 			<Type>BUILD_REMOVE_FOREST</Type>
+ 			<Description>TXT_KEY_BUILD_REMOVE_FOREST</Description>
+ 			<Help>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Help>
+@@ -697,7 +697,7 @@
+ 			<Button>Art/AdvCiv_SAS/Builds/Remove_Forest/DurinsAxe.dds</Button>
+ 		</BuildInfo>
+ 		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context -->
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_SCRUB_FALLOUT -->
+ 			<Type>BUILD_SCRUB_FALLOUT</Type>
+ 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
+ 			<Help>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Help>
+@@ -726,7 +726,7 @@
+ 			<iHotKeyPriority>1</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildScrubFallout.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,8</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
++		<BuildInfo> <!-- custom: BUILD_FOREST_PRESERVE -->
+ 			<Type>BUILD_FOREST_PRESERVE</Type>
+ 			<Description>TXT_KEY_BUILD_FOREST_PRESERVE</Description>
+ 			<Help>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Help>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index d95988e99..ba4f211a9 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -6,7 +6,7 @@
+ <!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or the code there in as of now the .cpp corresponding file(s) -->
+ <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<PromotionInfos>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COMBAT1 (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>PROMOTION_COMBAT1</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMBAT1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -126,7 +126,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COMBAT2 -->
+ 			<Type>PROMOTION_COMBAT2</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMBAT2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -245,7 +245,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COMBAT3 -->
+ 			<Type>PROMOTION_COMBAT3</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMBAT3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -364,7 +364,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COMBAT4 -->
+ 			<Type>PROMOTION_COMBAT4</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMBAT4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -480,7 +480,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat4.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COMBAT5 -->
+ 			<Type>PROMOTION_COMBAT5</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMBAT5</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -592,7 +592,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COMBAT6 -->
+ 			<Type>PROMOTION_COMBAT6</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMBAT6</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -707,7 +707,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,15</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_ARCHER -->
+ 			<Type>PROMOTION_COUNTER_ARCHER</Type>
+ 			<Description>TXT_KEY_PROMOTION_COVER</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -807,7 +807,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_GUN -->
+ 			<Type>PROMOTION_COUNTER_GUN</Type>
+ 			<Description>TXT_KEY_PROMOTION_PINCH</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -897,7 +897,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Pinch.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_MELEE -->
+ 			<Type>PROMOTION_COUNTER_MELEE</Type>
+ 			<Description>TXT_KEY_PROMOTION_SHOCK</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1001,7 +1001,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_MOUNTED -->
+ 			<Type>PROMOTION_COUNTER_MOUNTED</Type>
+ 			<Description>TXT_KEY_PROMOTION_FORMATION</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1089,7 +1089,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_SIEGE -->
+ 			<Type>PROMOTION_COUNTER_SIEGE</Type>
+ 			<Description>TXT_KEY_PROMOTION_CHARGE</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1175,7 +1175,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_TANK -->
+ 			<Type>PROMOTION_COUNTER_TANK</Type>
+ 			<Description>TXT_KEY_PROMOTION_AMBUSH</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1265,7 +1265,7 @@
+ 			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
+ 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Armored_Units/armored_units.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AMPHIBIOUS -->
+ 			<Type>PROMOTION_AMPHIBIOUS</Type>
+ 			<Description>TXT_KEY_PROMOTION_AMPHIBIOUS</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1351,7 +1351,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Amphibious.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,1</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_BLITZKRIEG -->
+ 			<Type>PROMOTION_BLITZKRIEG</Type>
+ 			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1440,7 +1440,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Blitz.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,1</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MEDIC1 -->
+ 			<Type>PROMOTION_MEDIC1</Type>
+ 			<Description>TXT_KEY_PROMOTION_MEDIC1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1539,7 +1539,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Medic1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,4</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MEDIC2 -->
+ 			<Type>PROMOTION_MEDIC2</Type>
+ 			<Description>TXT_KEY_PROMOTION_MEDIC2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1638,7 +1638,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Medic2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,4</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MEDIC3 -->
+ 			<Type>PROMOTION_MEDIC3</Type>
+ 			<Description>TXT_KEY_PROMOTION_MEDIC3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1737,7 +1737,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MEDIC4 -->
+ 			<Type>PROMOTION_MEDIC4</Type>
+ 			<Description>TXT_KEY_PROMOTION_MEDIC4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1836,7 +1836,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MEDIC_AMBULATORY -->
+ 			<Type>PROMOTION_MEDIC_AMBULATORY</Type>
+ 			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -1937,7 +1937,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/March.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,4</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_HILLS_MASTER1 -->
+ 			<Type>PROMOTION_HILLS_MASTER1</Type>
+ 			<Description>TXT_KEY_PROMOTION_HILLS_MASTER1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2021,7 +2021,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Guerilla1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_HILLS_MASTER2 -->
+ 			<Type>PROMOTION_HILLS_MASTER2</Type>
+ 			<Description>TXT_KEY_PROMOTION_HILLS_MASTER2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2102,7 +2102,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_HILLS_MASTER3 -->
+ 			<Type>PROMOTION_HILLS_MASTER3</Type>
+ 			<Description>TXT_KEY_PROMOTION_HILLS_MASTER3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2179,7 +2179,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,5</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_WOODSMAN1 -->
+ 			<Type>PROMOTION_WOODSMAN1</Type>
+ 			<Description>TXT_KEY_PROMOTION_WOODSMAN1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2273,7 +2273,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Woodsman1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_WOODSMAN2 -->
+ 			<Type>PROMOTION_WOODSMAN2</Type>
+ 			<Description>TXT_KEY_PROMOTION_WOODSMAN2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2376,7 +2376,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Woodsman2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_WOODSMAN3 -->
+ 			<Type>PROMOTION_WOODSMAN3</Type>
+ 			<Description>TXT_KEY_PROMOTION_WOODSMAN3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2467,7 +2467,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Woodsman2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,6</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_RAIDER1 -->
+ 			<Type>PROMOTION_CITY_RAIDER1</Type>
+ 			<Description>TXT_KEY_PROMOTION_CITYRAIDER1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2547,7 +2547,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/CityRaider1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_RAIDER2 -->
+ 			<Type>PROMOTION_CITY_RAIDER2</Type>
+ 			<Description>TXT_KEY_PROMOTION_CITYRAIDER2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2626,7 +2626,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/CityRaider2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_RAIDER3 -->
+ 			<Type>PROMOTION_CITY_RAIDER3</Type>
+ 			<Description>TXT_KEY_PROMOTION_CITYRAIDER3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2708,7 +2708,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/CityRaider3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_GARRISON1 -->
+ 			<Type>PROMOTION_CITY_GARRISON1</Type>
+ 			<Description>TXT_KEY_PROMOTION_GARRISON1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2783,7 +2783,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/CityGarrison1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_GARRISON2 -->
+ 			<Type>PROMOTION_CITY_GARRISON2</Type>
+ 			<Description>TXT_KEY_PROMOTION_GARRISON2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2858,7 +2858,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/CityGarrison2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_GARRISON3 -->
+ 			<Type>PROMOTION_CITY_GARRISON3</Type>
+ 			<Description>TXT_KEY_PROMOTION_GARRISON3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -2939,7 +2939,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/CityGarrison3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,2</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE1 -->
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE1</Type>
+ 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3058,7 +3058,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/barrage1.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE2 -->
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
+ 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3177,7 +3177,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/barrage2.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE3 -->
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
+ 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3272,7 +3272,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/barrage3.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE4 -->
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
+ 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3345,7 +3345,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/barrage4.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE5 -->
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
+ 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3428,7 +3428,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/barrage5.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE1 -->
+ 			<Type>PROMOTION_FIRST_STRIKE1</Type>
+ 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3533,7 +3533,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Drill1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,3</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE2 -->
+ 			<Type>PROMOTION_FIRST_STRIKE2</Type>
+ 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3638,7 +3638,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Drill2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,3</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE3 -->
+ 			<Type>PROMOTION_FIRST_STRIKE3</Type>
+ 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3744,7 +3744,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Drill3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,3</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE4 -->
+ 			<Type>PROMOTION_FIRST_STRIKE4</Type>
+ 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3850,7 +3850,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Drill4.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,3</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_CITY_BOMBARD_DAMAGE -->
+ 			<Type>PROMOTION_CITY_BOMBARD_DAMAGE</Type>
+ 			<Description>TXT_KEY_PROMOTION_ACCURACY</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -3921,7 +3921,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/City_Bombard_Damage/bombarding1_no_star.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_RETREAT1 -->
+ 			<Type>PROMOTION_RETREAT1</Type>
+ 			<Description>TXT_KEY_PROMOTION_RETREAT1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4016,7 +4016,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Flanking1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,3</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_RETREAT2 -->
+ 			<Type>PROMOTION_RETREAT2</Type>
+ 			<Description>TXT_KEY_PROMOTION_RETREAT2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4099,7 +4099,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Flanking2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,3</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_SENTRY -->
+ 			<Type>PROMOTION_SENTRY</Type>
+ 			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4184,7 +4184,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/AdvCiv_SAS/Promotions/Sentry/observer.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_NAVIGATOR -->
+ 			<Type>PROMOTION_NAVIGATOR</Type>
+ 			<Description>TXT_KEY_PROMOTION_NAVIGATOR</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4253,7 +4253,7 @@
+ 			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
+ 			<Button>Art/AdvCiv_SAS/Promotions/Navigator/navigator.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_LEADER -->
+ 			<Type>PROMOTION_LEADER</Type>
+ 			<Description>TXT_KEY_PROMOTION_GREAT_GENERAL</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4352,7 +4352,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,10</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_LEADERSHIP -->
+ 			<Type>PROMOTION_LEADERSHIP</Type>
+ 			<Description>TXT_KEY_PROMOTION_LEADERSHIP</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4461,7 +4461,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,16</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_LOGISTICS -->
+ 			<Type>PROMOTION_LOGISTICS</Type>
+ 			<Description>TXT_KEY_PROMOTION_COMMANDO</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4553,7 +4553,7 @@
+ 			<Button>,Art/Interface/Buttons/Promotions/Commando.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,3</Button>
+ 		</PromotionInfo>
+ 		<!-- custom: Note: iMoveDiscountChange reduces raw terrain/feature movement cost before CvPlot::movementCost caps cost to the unit's baseMoves. This is mostly useful for 2+ move units; on 1-move units it usually does not increase practical movement range, and can even interfere with double-move terrain checks because bHasTerrainCost is computed after the discount. Do not treat this as true +move mobility for 1-move units. (ChatGPT-5.5) -->
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MOBILITY_COST -->
+ 			<Type>PROMOTION_MOBILITY_COST</Type>
+ 			<Description>TXT_KEY_PROMOTION_MOBILITY_COST</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4629,7 +4629,7 @@
+ 			<Button>,Art/Interface/Buttons/Promotions/Mobility1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,4</Button>
+ 		</PromotionInfo>
+ 		<!-- custom: true +1 movement promotion. Unlike Mobility (Cost), this helps 1-move units directly, but it is much stronger and should not be used as a simple replacement for Mobility (Cost), especially on early peak-walking or enemy-route units. (ChatGPT-5.5) -->
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_MOBILITY_RANGE -->
+ 			<Type>PROMOTION_MOBILITY_RANGE</Type>
+ 			<Description>TXT_KEY_PROMOTION_MOBILITY_RANGE</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4730,7 +4730,7 @@
+ 			<Button>Art/AdvCiv_SAS/Promotions/Mobility_Range/backdown1promotion.dds</Button>
+ 		</PromotionInfo>
+ 		<!-- custom: Long_Comments_XML.txt #363 -->
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_RANGE1 -->
+ 			<Type>PROMOTION_AIR_RANGE1</Type>
+ 			<Description>TXT_KEY_PROMOTION_RANGE1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4801,7 +4801,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,15</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_RANGE2 -->
+ 			<Type>PROMOTION_AIR_RANGE2</Type>
+ 			<Description>TXT_KEY_PROMOTION_RANGE2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4872,7 +4872,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,15</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION1 -->
+ 			<Type>PROMOTION_AIR_INTERCEPTION1</Type>
+ 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4947,7 +4947,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,15</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION2 -->
+ 			<Type>PROMOTION_AIR_INTERCEPTION2</Type>
+ 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -5015,7 +5015,7 @@
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
+ 		</PromotionInfo>
+ 		<!-- custom: new promotion -->
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION3 -->
+ 			<Type>PROMOTION_AIR_INTERCEPTION3</Type>
+ 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -5084,7 +5084,7 @@
+ 			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest) air intercept button-->
+ 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_3/air_interception_3.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION4 -->
+ 			<Type>PROMOTION_AIR_INTERCEPTION4</Type>
+ 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -5152,7 +5152,7 @@
+ 			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest) air intercept button-->
+ 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_4/air_interception_4.dds</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
++		<PromotionInfo> <!-- custom: PROMOTION_AIR_EVASION -->
+ 			<Type>PROMOTION_AIR_EVASION</Type>
+ 			<Description>TXT_KEY_PROMOTION_AIR_EVASION</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 87e8fc9b6..3750bbe77 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -670,7 +670,7 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iteratio
+ - Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
+ - `--example-output` writes to `LLM_Helpers\examples\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
+ - The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
+-- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. Empty cells mean that field/index has no shown change or no matching value on that side.
++- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. For changed-field reports, unchanged cells are still filled when they belong to a shown field, so a row such as `iFreeUnits` shows the full handicap curve. Empty cells mean no matching value on that side.
+ - Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
+ - `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
+ - Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.
+
+diff --git a/LLM_Helpers/compare_handicap_infos.py b/LLM_Helpers/compare_handicap_infos.py
+index 28c5437b9..824aff9df 100644
+--- a/LLM_Helpers/compare_handicap_infos.py
++++ b/LLM_Helpers/compare_handicap_infos.py
+@@ -204,12 +204,15 @@ def default_output_path(run_time):
+ def example_output_path():
+     return os.path.join(DEFAULT_EXAMPLE_DIR, "handicap_infos_compared.md")
+ 
+-def build_tsv_text(left_label, right_label, entry_pairs, rows, include_unchanged):
++def build_tsv_text(left_label, right_label, entry_pairs, rows, include_unchanged, matrix_rows=None):
+     handicaps = [entry[0] for entry in entry_pairs]
+     fields = sorted(set(row[1] for row in rows if include_unchanged or row[2] != row[3]))
++    field_set = set(fields)
++    if matrix_rows is None:
++        matrix_rows = rows
+     cell_data = {}
+-    for handicap, field, left, right, delta, delta_pct in rows:
+-        if include_unchanged or left != right:
++    for handicap, field, left, right, delta, delta_pct in matrix_rows:
++        if field in field_set:
+             cell_data[(field, handicap)] = (left, right, delta, delta_pct)
+     out = io.StringIO()
+     writer = csv.writer(out, dialect="excel-tab")
+@@ -242,6 +245,7 @@ def write_markdown(path, left_path, right_path, left_label, right_label, entry_p
+         f.write("- Rows shown: %s\n" % ("all comparable fields" if include_unchanged else "changed fields only"))
+         f.write("- Match mode: XML order/index, so added/removed difficulties compare with the missing side blank\n")
+         f.write("- Missing fields on either side are shown as blank cells\n")
++        f.write("- The spreadsheet matrix fills unchanged cells for any shown field, so each row can show the full handicap curve\n")
+         f.write("- Delta %% is computed as (%s - %s) / %s; blank when either value is non-numeric or %s is 0\n" % (right_label, left_label, left_label, left_label))
+         f.write("- Changed fields: %d/%d (%s)\n\n" % (total_changed, total_comparable, percentage_text(total_changed, total_comparable)))
+         f.write("## Compared Handicap Entries\n\n")
+@@ -299,7 +303,8 @@ def main():
+     rows = collect_diffs(left_data, right_data, args.include_unchanged)
+     diff_stats, total_changed, total_comparable = collect_diff_stats(left_data, right_data)
+     entry_pairs = collect_entry_pairs(left_data, right_data)
+-    tsv_text = build_tsv_text(args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged)
++    matrix_rows = rows if args.include_unchanged else collect_diffs(left_data, right_data, True)
++    tsv_text = build_tsv_text(args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, matrix_rows)
+     write_markdown(output_path, args.left, args.right, args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, run_time, tsv_text, diff_stats, total_changed, total_comparable)
+     print("Wrote %d changed field rows to %s" % (len(rows), output_path))
+     if args.tsv_output:
+
+diff --git a/LLM_Helpers/examples/handicap_infos_compared.md b/LLM_Helpers/examples/handicap_infos_compared.md
+index 0766271b0..22a8bc504 100644
+--- a/LLM_Helpers/examples/handicap_infos_compared.md
++++ b/LLM_Helpers/examples/handicap_infos_compared.md
+@@ -2,15 +2,16 @@
+ 
+ Generated by `LLM_Helpers/compare_handicap_infos.py`.
+ 
+-- Run time: `2026-05-27 20:53:34 UTC`
++- Run time: `2026-06-23 09:04:33 UTC`
+ - Output path: `C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/LLM_Helpers/examples/handicap_infos_compared.md`
+ - Base AdvCiv 1.12 path: `C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv/Assets/XML/GameInfo/CIV4HandicapInfo.xml`
+ - AdvCiv-SAS path: `C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/Assets/XML/GameInfo/CIV4HandicapInfo.xml`
+ - Rows shown: changed fields only
+ - Match mode: XML order/index, so added/removed difficulties compare with the missing side blank
+ - Missing fields on either side are shown as blank cells
++- The spreadsheet matrix fills unchanged cells for any shown field, so each row can show the full handicap curve
+ - Delta % is computed as (AdvCiv-SAS - Base AdvCiv 1.12) / Base AdvCiv 1.12; blank when either value is non-numeric or Base AdvCiv 1.12 is 0
+-- Changed fields: 414/682 (60.7%)
++- Changed fields: 416/682 (61.0%)
+ 
+ ## Compared Handicap Entries
+ 
+@@ -28,7 +29,7 @@ Generated by `LLM_Helpers/compare_handicap_infos.py`.
+ 
+ ## Changes by Handicap
+ 
+-- `#00`: 53/75 changed fields (70.7%)
++- `#00`: 54/75 changed fields (72.0%)
+ - `#01`: 54/75 changed fields (72.0%)
+ - `#02`: 45/75 changed fields (60.0%)
+ - `#03`: 32/75 changed fields (42.7%)
+@@ -36,7 +37,7 @@ Generated by `LLM_Helpers/compare_handicap_infos.py`.
+ - `#05`: 42/76 changed fields (55.3%)
+ - `#06`: 49/76 changed fields (64.5%)
+ - `#07`: 50/76 changed fields (65.8%)
+-- `#08`: 50/78 changed fields (64.1%)
++- `#08`: 51/78 changed fields (65.4%)
+ 
+ ## Changed Fields
+ 
+@@ -80,10 +81,11 @@ Generated by `LLM_Helpers/compare_handicap_infos.py`.
+ | `#00` | `iDifficulty` | `0` | `10` | `+10` | `` |
+ | `#00` | `iDistanceMaintenancePercent` | `50` | `60` | `+10` | `+20.0%` |
+ | `#00` | `iForeignCultureStrength` | `10` | `11` | `+1` | `+10.0%` |
++| `#00` | `iFreeUnits` | `13` | `11` | `-2` | `-15.4%` |
+ | `#00` | `iFreeWinsVsBarbs` | `4` | `2` | `-2` | `-50.0%` |
+ | `#00` | `iGPThresholdPercent` | `80` | `100` | `+20` | `+25.0%` |
+ | `#00` | `iInflationPercent` | `60` | `100` | `+40` | `+66.7%` |
+-| `#00` | `iNoTechTradeModifier` | `100` | `80` | `-20` | `-20.0%` |
++| `#00` | `iNoTechTradeModifier` | `100` | `78` | `-22` | `-22.0%` |
+ | `#00` | `iNumCitiesMaintenancePercent` | `45` | `60` | `+15` | `+33.3%` |
+ | `#00` | `iResearchPercent` | `72` | `100` | `+28` | `+38.9%` |
+ | `#00` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
+@@ -133,7 +135,7 @@ Generated by `LLM_Helpers/compare_handicap_infos.py`.
+ | `#01` | `iDifficulty` | `10` | `20` | `+10` | `+100.0%` |
+ | `#01` | `iDistanceMaintenancePercent` | `60` | `65` | `+5` | `+8.3%` |
+ | `#01` | `iForeignCultureStrength` | `15` | `14` | `-1` | `-6.7%` |
+-| `#01` | `iFreeUnits` | `15` | `8` | `-7` | `-46.7%` |
++| `#01` | `iFreeUnits` | `15` | `9` | `-6` | `-40.0%` |
+ | `#01` | `iFreeWinsVsBarbs` | `3` | `1` | `-2` | `-66.7%` |
+ | `#01` | `iGPThresholdPercent` | `95` | `100` | `+5` | `+5.3%` |
+ | `#01` | `iInflationPercent` | `70` | `100` | `+30` | `+42.9%` |
+@@ -439,6 +441,7 @@ Generated by `LLM_Helpers/compare_handicap_infos.py`.
+ | `#08` | `iBarbarianDefenders` | `4` | `1` | `-3` | `-75.0%` |
+ | `#08` | `iBaseGrowthThresholdPercent` | `130` | `100` | `-30` | `-23.1%` |
+ | `#08` | `iBuildTimePercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#08` | `iColonyMaintenancePercent` | `130` | `125` | `-5` | `-3.8%` |
+ | `#08` | `iConstructPercent` | `115` | `100` | `-15` | `-13.0%` |
+ | `#08` | `iCorporationMaintenancePercent` | `130` | `125` | `-5` | `-3.8%` |
+ | `#08` | `iCreatePercent` | `120` | `100` | `-20` | `-16.7%` |
+@@ -465,67 +468,67 @@ Copy this tab-separated block into Excel, LibreOffice, or another spreadsheet to
+ Field	#00 Base AdvCiv 1.12	#00 AdvCiv-SAS	#00 Delta	#00 Delta %	#01 Base AdvCiv 1.12	#01 AdvCiv-SAS	#01 Delta	#01 Delta %	#02 Base AdvCiv 1.12	#02 AdvCiv-SAS	#02 Delta	#02 Delta %	#03 Base AdvCiv 1.12	#03 AdvCiv-SAS	#03 Delta	#03 Delta %	#04 Base AdvCiv 1.12	#04 AdvCiv-SAS	#04 Delta	#04 Delta %	#05 Base AdvCiv 1.12	#05 AdvCiv-SAS	#05 Delta	#05 Delta %	#06 Base AdvCiv 1.12	#06 AdvCiv-SAS	#06 Delta	#06 Delta %	#07 Base AdvCiv 1.12	#07 AdvCiv-SAS	#07 Delta	#07 Delta %	#08 Base AdvCiv 1.12	#08 AdvCiv-SAS	#08 Delta	#08 Delta %
+ AIFreeTechs																					TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1				TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1				TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1				TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_FEUDALISM,bFreeTech=1; TechType=TECH_GUNPOWDER,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_IRON_WORKING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_REFRIGERATION,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_STEEL,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1			
+ FreeTechs	TechType=TECH_AGRICULTURE,bFreeTech=1; TechType=TECH_ALPHABET,bFreeTech=1; TechType=TECH_FEUDALISM,bFreeTech=1; TechType=TECH_GUNPOWDER,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_MINING,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_REFRIGERATION,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_STEEL,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1				TechType=TECH_AGRICULTURE,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1				TechType=TECH_THE_WHEEL,bFreeTech=1																											
+-Goodies	GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2	GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2	GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2															GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR			GOODY_BARBARIANS_STRONG x3; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR			GOODY_BARBARIANS_STRONG x4; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x6; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR		
+-iAIAdvancedStartPercent	67	70	+3	+4.5%	75	80	+5	+6.7%									125	120	-5	-4.0%	145	140	-5	-3.4%	175	160	-15	-8.6%	210	180	-30	-14.3%	270	200	-70	-25.9%
++Goodies	GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2	GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2	GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x2; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_HIGH_GOLD x2; GOODY_LOW_GOLD x3; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x2; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_HIGH_GOLD x2; GOODY_LOW_GOLD x3; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_HIGH_GOLD; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_HIGH_GOLD; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x4; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_HIGH_GOLD; GOODY_LOW_GOLD x3; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR x2	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x4; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_HIGH_GOLD; GOODY_LOW_GOLD x3; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR			GOODY_BARBARIANS_STRONG x3; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR			GOODY_BARBARIANS_STRONG x4; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x6; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR		
++iAIAdvancedStartPercent	67	70	+3	+4.5%	75	80	+5	+6.7%	90	90	0	0%	100	100	0	0%	125	120	-5	-4.0%	145	140	-5	-3.4%	175	160	-15	-8.6%	210	180	-30	-14.3%	270	200	-70	-25.9%
+ iAIAnimalBonus	-25	-30	-5	+20.0%	-25	-15	+10	-40.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%
+-iAIAttitudeChangePercent	30	10	-20	-66.7%	30	20	-10	-33.3%					30	40	+10	+33.3%	40	50	+10	+25.0%	50	60	+10	+20.0%	60	70	+10	+16.7%	70	80	+10	+14.3%				
++iAIAttitudeChangePercent	30	10	-20	-66.7%	30	20	-10	-33.3%	30	30	0	0%	30	40	+10	+33.3%	40	50	+10	+25.0%	50	60	+10	+20.0%	60	70	+10	+16.7%	70	80	+10	+14.3%	90	90	0	0%
+ iAIBarbarianBonus	-25	-30	-5	+20.0%	-25	-15	+10	-40.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%
+-iAICivicUpkeepPercent	100	118	+18	+18.0%	100	112	+12	+12.0%	100	106	+6	+6.0%					95	94	-1	-1.1%	90	88	-2	-2.2%	85	82	-3	-3.5%	80	76	-4	-5.0%	75	70	-5	-6.7%
+-iAIConstructPercent	120	115	-5	-4.2%	115	110	-5	-4.3%													95	90	-5	-5.3%	90	85	-5	-5.6%								
+-iAICreatePercent	110	106	-4	-3.6%	105	104	-1	-1.0%	100	102	+2	+2.0%					95	97	+2	+2.1%	90	94	+4	+4.4%	85	91	+6	+7.1%	80	88	+8	+10.0%	75	85	+10	+13.3%
++iAICivicUpkeepPercent	100	118	+18	+18.0%	100	112	+12	+12.0%	100	106	+6	+6.0%	100	100	0	0%	95	94	-1	-1.1%	90	88	-2	-2.2%	85	82	-3	-3.5%	80	76	-4	-5.0%	75	70	-5	-6.7%
++iAIConstructPercent	120	115	-5	-4.2%	115	110	-5	-4.3%	105	105	0	0%	100	100	0	0%	95	95	0	0%	95	90	-5	-5.3%	90	85	-5	-5.6%	80	80	0	0%	75	75	0	0%
++iAICreatePercent	110	106	-4	-3.6%	105	104	-1	-1.0%	100	102	+2	+2.0%	100	100	0	0%	95	97	+2	+2.1%	90	94	+4	+4.4%	85	91	+6	+7.1%	80	88	+8	+10.0%	75	85	+10	+13.3%
+ iAIDeclareWarProb	25	80	+55	+220.0%	50	90	+40	+80.0%	75	100	+25	+33.3%	100	110	+10	+10.0%	100	120	+20	+20.0%	100	130	+30	+30.0%	100	140	+40	+40.0%	100	150	+50	+50.0%	100	160	+60	+60.0%
+-iAIGPThresholdPercent	125	124	-1	-0.8%	120	116	-4	-3.3%	110	108	-2	-1.8%					100	92	-8	-8.0%	95	84	-11	-11.6%	90	76	-14	-15.6%	85	68	-17	-20.0%	80	60	-20	-25.0%
+-iAIGrowthPercent	125	115	-10	-8.0%	120	110	-10	-8.3%	110	105	-5	-4.5%					100	95	-5	-5.0%	95	90	-5	-5.3%	90	85	-5	-5.6%	85	80	-5	-5.9%	80	75	-5	-6.2%
+-iAIHandicapIncrementTurns																	100	0	-100	-100.0%	50	0	-50	-100.0%	33	0	-33	-100.0%	25	0	-25	-100.0%	20	0	-20	-100.0%
+-iAIInflationPercent	100	115	+15	+15.0%	90	110	+20	+22.2%	80	105	+25	+31.2%	80	100	+20	+25.0%	80	95	+15	+18.8%	80	90	+10	+12.5%	80	85	+5	+6.2%					80	75	-5	-6.2%
+-iAIResearchPercent	90	118	+28	+31.1%	100	112	+12	+12.0%	100	106	+6	+6.0%					103	94	-9	-8.7%	110	88	-22	-20.0%	115	82	-33	-28.7%	120	76	-44	-36.7%	124	70	-54	-43.5%
+-iAIStartingDefenseUnits	0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1						2	1	-1	-50.0%	2	1	-1	-50.0%	3	1	-2	-66.7%
+-iAIStartingExploreUnits																																	1	0	-1	-100.0%
+-iAIStartingWorkerUnits																													1	0	-1	-100.0%	1	0	-1	-100.0%
+-iAITrainPercent	125	115	-10	-8.0%	120	110	-10	-8.3%	110	105	-5	-4.5%									95	90	-5	-5.3%	95	85	-10	-10.5%	90	80	-10	-11.1%	85	75	-10	-11.8%
+-iAIUnitCostPercent																	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%	80	100	+20	+25.0%	75	100	+25	+33.3%
++iAIGPThresholdPercent	125	124	-1	-0.8%	120	116	-4	-3.3%	110	108	-2	-1.8%	100	100	0	0%	100	92	-8	-8.0%	95	84	-11	-11.6%	90	76	-14	-15.6%	85	68	-17	-20.0%	80	60	-20	-25.0%
++iAIGrowthPercent	125	115	-10	-8.0%	120	110	-10	-8.3%	110	105	-5	-4.5%	100	100	0	0%	100	95	-5	-5.0%	95	90	-5	-5.3%	90	85	-5	-5.6%	85	80	-5	-5.9%	80	75	-5	-6.2%
++iAIHandicapIncrementTurns	0	0	0		0	0	0		0	0	0		0	0	0		100	0	-100	-100.0%	50	0	-50	-100.0%	33	0	-33	-100.0%	25	0	-25	-100.0%	20	0	-20	-100.0%
++iAIInflationPercent	100	115	+15	+15.0%	90	110	+20	+22.2%	80	105	+25	+31.2%	80	100	+20	+25.0%	80	95	+15	+18.8%	80	90	+10	+12.5%	80	85	+5	+6.2%	80	80	0	0%	80	75	-5	-6.2%
++iAIResearchPercent	90	118	+28	+31.1%	100	112	+12	+12.0%	100	106	+6	+6.0%	100	100	0	0%	103	94	-9	-8.7%	110	88	-22	-20.0%	115	82	-33	-28.7%	120	76	-44	-36.7%	124	70	-54	-43.5%
++iAIStartingDefenseUnits	0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		1	1	0	0%	2	1	-1	-50.0%	2	1	-1	-50.0%	3	1	-2	-66.7%
++iAIStartingExploreUnits	0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		1	0	-1	-100.0%
++iAIStartingWorkerUnits	0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		1	0	-1	-100.0%	1	0	-1	-100.0%
++iAITrainPercent	125	115	-10	-8.0%	120	110	-10	-8.3%	110	105	-5	-4.5%	100	100	0	0%	95	95	0	0%	95	90	-5	-5.3%	95	85	-10	-10.5%	90	80	-10	-11.1%	85	75	-10	-11.8%
++iAIUnitCostPercent	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%	80	100	+20	+25.0%	75	100	+25	+33.3%
+ iAIUnitSupplyPercent	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%
+ iAIUnitUpgradePercent	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%
+ iAIWarWearinessPercent	100	118	+18	+18.0%	90	112	+22	+24.4%	80	106	+26	+32.5%	80	100	+20	+25.0%	80	94	+14	+17.5%	75	88	+13	+17.3%	70	82	+12	+17.1%	60	76	+16	+26.7%	50	70	+20	+40.0%
+-iAIWorkRateModifier																	5	0	-5	-100.0%	10	0	-10	-100.0%	15	0	-15	-100.0%	20	0	-20	-100.0%	25	0	-25	-100.0%
+-iAIWorldConstructPercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%									95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
+-iAIWorldCreatePercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%									95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
+-iAIWorldTrainPercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%									95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
+-iAnimalAttackProb	30	10	-20	-66.7%	50	20	-30	-60.0%	60	30	-30	-50.0%	70	40	-30	-42.9%	70	50	-20	-28.6%	70	60	-10	-14.3%					70	80	+10	+14.3%	70	90	+20	+28.6%
+-iAnimalBonus	-60	-30	+30	-50.0%	-45	-20	+25	-55.6%	-30	-10	+20	-66.7%	-25	0	+25	-100.0%	-20	0	+20	-100.0%	-15	0	+15	-100.0%	-10	0	+10	-100.0%	-5	0	+5	-100.0%				
+-iAttitudeChange	3	2	-1	-33.3%	2	1	-1	-50.0%																												
+-iBarbarianBonus	-40	-30	+10	-25.0%	-30	-15	+15	-50.0%	-20	0	+20	-100.0%	-10	0	+10	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%				
++iAIWorkRateModifier	0	0	0		0	0	0		0	0	0		0	0	0		5	0	-5	-100.0%	10	0	-10	-100.0%	15	0	-15	-100.0%	20	0	-20	-100.0%	25	0	-25	-100.0%
++iAIWorldConstructPercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%	100	100	0	0%	100	100	0	0%	95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
++iAIWorldCreatePercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%	100	100	0	0%	100	100	0	0%	95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
++iAIWorldTrainPercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%	100	100	0	0%	100	100	0	0%	95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
++iAnimalAttackProb	30	10	-20	-66.7%	50	20	-30	-60.0%	60	30	-30	-50.0%	70	40	-30	-42.9%	70	50	-20	-28.6%	70	60	-10	-14.3%	70	70	0	0%	70	80	+10	+14.3%	70	90	+20	+28.6%
++iAnimalBonus	-60	-30	+30	-50.0%	-45	-20	+25	-55.6%	-30	-10	+20	-66.7%	-25	0	+25	-100.0%	-20	0	+20	-100.0%	-15	0	+15	-100.0%	-10	0	+10	-100.0%	-5	0	+5	-100.0%	0	0	0	
++iAttitudeChange	3	2	-1	-33.3%	2	1	-1	-50.0%	1	1	0	0%	0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0	
++iBarbarianBonus	-40	-30	+10	-25.0%	-30	-15	+15	-50.0%	-20	0	+20	-100.0%	-10	0	+10	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	0	0	0	
+ iBarbarianCityAttackBonus																	-20	0	+20	-100.0%	-20	0	+20	-100.0%	-20	0	+20	-100.0%	-15	0	+15	-100.0%	-10	0	+10	-100.0%
+ iBarbarianCityCreationProb	4	5	+1	+25.0%	5	10	+5	+100.0%	5	15	+10	+200.0%	6	20	+14	+233.3%	6	25	+19	+316.7%	7	30	+23	+328.6%	7	35	+28	+400.0%	8	40	+32	+400.0%	8	45	+37	+462.5%
+-iBarbarianCityCreationTurnsElapsed	60	40	-20	-33.3%	55	39	-16	-29.1%	50	38	-12	-24.0%	45	37	-8	-17.8%	40	36	-4	-10.0%					30	34	+4	+13.3%	25	33	+8	+32.0%	25	32	+7	+28.0%
++iBarbarianCityCreationTurnsElapsed	60	40	-20	-33.3%	55	39	-16	-29.1%	50	38	-12	-24.0%	45	37	-8	-17.8%	40	36	-4	-10.0%	35	35	0	0%	30	34	+4	+13.3%	25	33	+8	+32.0%	25	32	+7	+28.0%
+ iBarbarianCreationTurnsElapsed	48	34	-14	-29.2%	44	33	-11	-25.0%	40	32	-8	-20.0%	36	31	-5	-13.9%	32	30	-2	-6.2%	28	29	+1	+3.6%	24	28	+4	+16.7%	20	27	+7	+35.0%	16	26	+10	+62.5%
+-iBarbarianDefenders													2	1	-1	-50.0%	2	1	-1	-50.0%	3	1	-2	-66.7%	3	1	-2	-66.7%	3	1	-2	-66.7%	4	1	-3	-75.0%
+-iBaseGrowthThresholdPercent	80	100	+20	+25.0%	95	100	+5	+5.3%																	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
+-iBuildTimePercent																									110	100	-10	-9.1%	115	100	-15	-13.0%	120	100	-20	-16.7%
+-iCivicUpkeepPercent	60	100	+40	+66.7%	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	95	100	+5	+5.3%																
+-iColonyMaintenancePercent	60	85	+25	+41.7%	80	90	+10	+12.5%	90	95	+5	+5.6%																								
+-iConstructPercent	85	100	+15	+17.6%	95	100	+5	+5.3%																	105	100	-5	-4.8%	110	100	-10	-9.1%	115	100	-15	-13.0%
+-iCorporationMaintenancePercent	60	85	+25	+41.7%	80	90	+10	+12.5%	90	95	+5	+5.6%																					130	125	-5	-3.8%
+-iCreatePercent	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%																	110	100	-10	-9.1%	120	100	-20	-16.7%
+-iCultureLevelPercent																					106	100	-6	-5.7%	112	100	-12	-10.7%	118	100	-18	-15.3%	129	100	-29	-22.5%
++iBarbarianDefenders	1	1	0	0%	1	1	0	0%	1	1	0	0%	2	1	-1	-50.0%	2	1	-1	-50.0%	3	1	-2	-66.7%	3	1	-2	-66.7%	3	1	-2	-66.7%	4	1	-3	-75.0%
++iBaseGrowthThresholdPercent	80	100	+20	+25.0%	95	100	+5	+5.3%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
++iBuildTimePercent	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	110	100	-10	-9.1%	115	100	-15	-13.0%	120	100	-20	-16.7%
++iCivicUpkeepPercent	60	100	+40	+66.7%	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	95	100	+5	+5.3%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%
++iColonyMaintenancePercent	60	85	+25	+41.7%	80	90	+10	+12.5%	90	95	+5	+5.6%	100	100	0	0%	105	105	0	0%	110	110	0	0%	115	115	0	0%	120	120	0	0%	130	125	-5	-3.8%
++iConstructPercent	85	100	+15	+17.6%	95	100	+5	+5.3%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	105	100	-5	-4.8%	110	100	-10	-9.1%	115	100	-15	-13.0%
++iCorporationMaintenancePercent	60	85	+25	+41.7%	80	90	+10	+12.5%	90	95	+5	+5.6%	100	100	0	0%	105	105	0	0%	110	110	0	0%	115	115	0	0%	120	120	0	0%	130	125	-5	-3.8%
++iCreatePercent	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	110	100	-10	-9.1%	120	100	-20	-16.7%
++iCultureLevelPercent	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	106	100	-6	-5.7%	112	100	-12	-10.7%	118	100	-18	-15.3%	129	100	-29	-22.5%
+ iDifficulty	0	10	+10		10	20	+10	+100.0%	20	30	+10	+50.0%	30	40	+10	+33.3%	40	50	+10	+25.0%	50	60	+10	+20.0%	60	70	+10	+16.7%	70	80	+10	+14.3%	85	90	+5	+5.9%
+-iDistanceMaintenancePercent	50	60	+10	+20.0%	60	65	+5	+8.3%					80	75	-5	-6.2%	85	80	-5	-5.9%	90	85	-5	-5.6%	95	90	-5	-5.3%	100	95	-5	-5.0%				
++iDistanceMaintenancePercent	50	60	+10	+20.0%	60	65	+5	+8.3%	70	70	0	0%	80	75	-5	-6.2%	85	80	-5	-5.9%	90	85	-5	-5.6%	95	90	-5	-5.3%	100	95	-5	-5.0%	100	100	0	0%
+ iForeignCultureStrength	10	11	+1	+10.0%	15	14	-1	-6.7%	20	17	-3	-15.0%	25	20	-5	-20.0%	29	23	-6	-20.7%	32	26	-6	-18.8%	35	29	-6	-17.1%	38	32	-6	-15.8%	40	35	-5	-12.5%
+-iFreeUnits					15	8	-7	-46.7%	10	7	-3	-30.0%	7	6	-1	-14.3%																				
+-iFreeWinsVsBarbs	4	2	-2	-50.0%	3	1	-2	-66.7%	2	0	-2	-100.0%	1	0	-1	-100.0%																				
+-iGPThresholdPercent	80	100	+20	+25.0%	95	100	+5	+5.3%																	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
+-iInflationPercent	60	100	+40	+66.7%	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	95	100	+5	+5.3%																
+-iNoTechTradeModifier	100	80	-20	-20.0%	85	72	-13	-15.3%	75	66	-9	-12.0%	64	60	-4	-6.2%	56	54	-2	-3.6%					40	42	+2	+5.0%	32	36	+4	+12.5%	24	30	+6	+25.0%
+-iNumCitiesMaintenancePercent	45	60	+15	+33.3%	55	65	+10	+18.2%	65	70	+5	+7.7%																								
++iFreeUnits	13	11	-2	-15.4%	15	9	-6	-40.0%	10	7	-3	-30.0%	7	6	-1	-14.3%	5	5	0	0%	4	4	0	0%	3	3	0	0%	2	2	0	0%	1	1	0	0%
++iFreeWinsVsBarbs	4	2	-2	-50.0%	3	1	-2	-66.7%	2	0	-2	-100.0%	1	0	-1	-100.0%	0	0	0		0	0	0		0	0	0		0	0	0		0	0	0	
++iGPThresholdPercent	80	100	+20	+25.0%	95	100	+5	+5.3%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
++iInflationPercent	60	100	+40	+66.7%	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	95	100	+5	+5.3%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%
++iNoTechTradeModifier	100	78	-22	-22.0%	85	72	-13	-15.3%	75	66	-9	-12.0%	64	60	-4	-6.2%	56	54	-2	-3.6%	48	48	0	0%	40	42	+2	+5.0%	32	36	+4	+12.5%	24	30	+6	+25.0%
++iNumCitiesMaintenancePercent	45	60	+15	+33.3%	55	65	+10	+18.2%	65	70	+5	+7.7%	75	75	0	0%	80	80	0	0%	85	85	0	0%	90	90	0	0%	95	95	0	0%	100	100	0	0%
+ iResearchPercent	72	100	+28	+38.9%	85	100	+15	+17.6%	90	100	+10	+11.1%	95	100	+5	+5.3%	108	100	-8	-7.4%	115	100	-15	-13.0%	130	100	-30	-23.1%	140	100	-40	-28.6%	150	100	-50	-33.3%
+ iSeaBarbarianBonus																																	-5	0	+5	-100.0%
+ iStartingDefenseUnits	0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1	
+-iStartingLocPercent	10	11	+1	+10.0%	20	22	+2	+10.0%	35	33	-2	-5.7%	49	44	-5	-10.2%					65	66	+1	+1.5%	75	77	+2	+2.7%	85	88	+3	+3.5%	95	99	+4	+4.2%
+-iTechTradeKnownModifier	-100	-30	+70	-70.0%	-50	-20	+30	-60.0%	-25	-10	+15	-60.0%																								
+-iTrainPercent	80	100	+20	+25.0%	95	100	+5	+5.3%																	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
+-iUnitCostPercent	36	100	+64	+177.8%	44	100	+56	+127.3%	52	100	+48	+92.3%	60	100	+40	+66.7%	68	100	+32	+47.1%	76	100	+24	+31.6%	84	100	+16	+19.0%	92	100	+8	+8.7%				
+-iUnownedTilesPerBarbarianCity	160	130	-30	-18.8%	150	125	-25	-16.7%	140	120	-20	-14.3%	130	115	-15	-11.5%	120	110	-10	-8.3%	110	105	-5	-4.5%					90	95	+5	+5.6%	80	90	+10	+12.5%
++iStartingLocPercent	10	11	+1	+10.0%	20	22	+2	+10.0%	35	33	-2	-5.7%	49	44	-5	-10.2%	55	55	0	0%	65	66	+1	+1.5%	75	77	+2	+2.7%	85	88	+3	+3.5%	95	99	+4	+4.2%
++iTechTradeKnownModifier	-100	-30	+70	-70.0%	-50	-20	+30	-60.0%	-25	-10	+15	-60.0%	0	0	0		0	0	0		0	0	0		0	0	0		0	0	0		0	0	0	
++iTrainPercent	80	100	+20	+25.0%	95	100	+5	+5.3%	100	100	0	0%	100	100	0	0%	100	100	0	0%	100	100	0	0%	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
++iUnitCostPercent	36	100	+64	+177.8%	44	100	+56	+127.3%	52	100	+48	+92.3%	60	100	+40	+66.7%	68	100	+32	+47.1%	76	100	+24	+31.6%	84	100	+16	+19.0%	92	100	+8	+8.7%	100	100	0	0%
++iUnownedTilesPerBarbarianCity	160	130	-30	-18.8%	150	125	-25	-16.7%	140	120	-20	-14.3%	130	115	-15	-11.5%	120	110	-10	-8.3%	110	105	-5	-4.5%	100	100	0	0%	90	95	+5	+5.6%	80	90	+10	+12.5%
+ iUnownedTilesPerBarbarianUnit	125	64	-61	-48.8%	80	61	-19	-23.8%	66	58	-8	-12.1%	56	55	-1	-1.8%	48	52	+4	+8.3%	42	49	+7	+16.7%	38	46	+8	+21.1%	34	43	+9	+26.5%	30	40	+10	+33.3%
+ iUnownedTilesPerGameAnimal	85	52	-33	-38.8%	70	49	-21	-30.0%	62	46	-16	-25.8%	52	43	-9	-17.3%	50	40	-10	-20.0%	44	37	-7	-15.9%	40	34	-6	-15.0%	36	31	-5	-13.9%	32	28	-4	-12.5%
+-iUnownedWaterTilesPerBarbarianUnit	750	475	-275	-36.7%	600	450	-150	-25.0%	550	425	-125	-22.7%	500	400	-100	-20.0%	450	375	-75	-16.7%	400	350	-50	-12.5%	350	325	-25	-7.1%					250	275	+25	+10.0%
++iUnownedWaterTilesPerBarbarianUnit	750	475	-275	-36.7%	600	450	-150	-25.0%	550	425	-125	-22.7%	500	400	-100	-20.0%	450	375	-75	-16.7%	400	350	-50	-12.5%	350	325	-25	-7.1%	300	300	0	0%	250	275	+25	+10.0%
+ ```
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 6101c6dde..17704c3f7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -121,7 +121,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5965+) **Python 2.4 Docker compile GitHub workflow:** added [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using our separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) GHCR image. This complements Ruff by checking the old parser Civ4 embeds, without launching Civ4 or importing engine-only modules. A deliberate [test confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0` in `SASMagicNumbers.py`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow), and [README.md (Python Scripts)](/README.md#python-scripts) for screenshots.
+ - (Requires AdvCiv-SAS 5962+) **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped no-compression AdvCiv-SAS source/data/docs archive under `LLM_Helpers/outputs` or a chosen output folder. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder), when sharing compact mod context with local tools or LLMs.
+ - (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+-- **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
++- **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix.
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+@@ -432,7 +432,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symmetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemingly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (City Screen - Widgets/Clickable Buttons)**: Add **redirect to Sevopedia on click** (preserving `WIDGET_HELP` hover) for **Religion** and **Corporation** icons. Add a tunable **city bonus panel render mode**: **mode 0** keeps the old AdvCiv-SAS text glyphs (Civ4's `screen.setLabelAt`: smaller; also used as overflow fallback), **mode 1** uses base AdvCiv-style framed image buttons (Civ4's `setImageButton`) but now with **larger icons** when there is room, and **mode 2** uses frameless DDS rendering (Civ4's `addDDS`) with the same larger-size logic for a cleaner look. Active non-obsolete **Bonus** icons can open Sevopedia too (mode 0 text glyphs did not redirect to Sevopedia in testing; mode 1: left/right click; mode 2: right click only in our Python-only attempts so far). Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only") and restored **Production Chooser Bar** row-jump buttons with clearer hover text ("Scroll to Units/Buildings/Wonders"). Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Add **commerce sliders fast increment buttons** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) in city screen (matching the ones in map view) (not added in Finance Tab or Espionage Tab because these still have access to commerce sliders as of now at their right in map view). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). Make **left-click on GP bar** open the **corresponding city's city screen**. Added a **Toggle show map annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). To accommodate this new minimap button's width, **reduce minimap buttons horizontal interspacing** so **last minimap button doesn't collide horizontally with globe view** button (except for squarish maps like as of now `BTG_Cross.py`, where this is a fine trade-off, and still improved significantly with this adjustment). See [README.md (Map annotations)](/README.md#map-annotations) and [KI#135](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen). (Requires AdvCiv-SAS 5941+) Optionally show **Plot coordinates on hover** (e.g., `63,46`) in hover help text. This makes it to discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
+-- **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. (Requires AdvCiv-SAS 5968+) Add a **Center scoreboard scroll on the active player** button, and a **Toggle autocenter scoreboard scroll on the active player** button (default as of optionally now ON; manual scroll disables it). Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)). Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
++- **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. (Requires AdvCiv-SAS 5968+) Add a **Center scoreboard scroll on the active player** button, and a **Toggle autocenter scoreboard scroll on the active player** button (so that it auto does it without having to tediously redo it regularly; note: if the scroll up/down buttons are clicked, it disables autocenter to apply manual scrolling (can be reenabled by reclicking the toggle autocenter button again)) (default state at Civ4 launch as of now optionally ON). Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)). Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ 
+@@ -481,6 +481,8 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ 
+ ## Handicaps
+ 
++Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md#compare_handicap_infospy).
++
+ - **No free techs** for AI or human.
+ - **Human costs fixed at 100 on all handicaps** for tech/unit (`iResearchPercent`, `iTrainPercent`, `iGPThresholdPercent` (great person) stay constant for the human). AI equivalents scale with handicap.
+ - `iBaseGrowthThresholdPercent` (base food required to grow a city): **Fixed at 100 on all handicaps.** Rationale: In base AdvCiv this value varies by difficulty to add a **human growth/expansion penalty** (and it can also shift early expansion pacing via settler cost logic tied to the initial growth threshold). Consequence: Removing this scaling makes **high handicaps** (e.g. Deity) **easier for the human player** (faster early growth/expansion than base AdvCiv), and makes **low handicaps** (e.g. Chieftain) **harder for the human player** (less of an early growth/expansion boost).
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG
+index b20826b82..79fbc6df6 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG
+index b26ab1e70..f1548b7c4 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG
+index f185cfc05..34c2d17df 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=181904

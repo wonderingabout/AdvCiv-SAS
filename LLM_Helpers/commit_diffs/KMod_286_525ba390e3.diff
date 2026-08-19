@@ -1,0 +1,211 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 286
+# Commit: 525ba390e3fabf55811d11149987d1c1137f9bc0
+# History segment: K-Mod history
+# Parent used for diff: be1f3aaed366c2d750031f8039f8fa3a797c8c33
+# Title: Reworked the AI for deciding on how much gold to spend on unit upgrades.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+41	55	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1657d9a05..7596fd933 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -545,25 +545,18 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ /*                                                                                              */
+ /* Gold AI                                                                                      */
+ /************************************************************************************************/
+-	bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	//bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+ 	int iStartingGold = getGold();
+-	int iTargetGold = AI_goldTarget();
+ 	/* BBAI code
++	int iTargetGold = AI_goldTarget();
+ 	int iUpgradeBudget = (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
+ 	iUpgradeBudget = std::min(iUpgradeBudget, iStartingGold - ((iTargetGold > iUpgradeBudget) ? (iTargetGold - iUpgradeBudget) : iStartingGold/2)); */
+-	// K-Mod. Note: (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2) is actually one of the components of AI_goldTarget().
+-	int iUpgradeBudget = iStartingGold - std::max(0, iTargetGold - AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
++	// K-Mod. Note: AI_getGoldToUpgradeAllUnits() is actually one of the components of AI_goldTarget()
++	int iUpgradeBudget = std::min(getGold(), AI_goldTarget(true));
+ 	// K-Mod end
+ 
+-	if( AI_isFinancialTrouble() )
+-	{
+-		iUpgradeBudget /= 3;
+-	}
+-
+ 	// Always willing to upgrade 1 unit if we have the money
+ 	iUpgradeBudget = std::max(iUpgradeBudget,1);
+-
+-	bool bUnderBudget = true;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -598,16 +591,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 					}
+ 
+ 					// try to upgrade units which are in danger... but don't get obsessed
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI, Efficiency                                                                          */
+-/************************************************************************************************/
+-					//if (!bValid && (pLastUpgradePlot != pUnitPlot) && ((AI_getPlotDanger(pUnitPlot, 1, false)) > 0))
+-					if (!bValid && (pLastUpgradePlot != pUnitPlot) && ((AI_getAnyPlotDanger(pUnitPlot, 1, false))))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/	
++					if (!bValid && pLastUpgradePlot != pUnitPlot && AI_getAnyPlotDanger(pUnitPlot, 1, false))
+ 					{
+ 						bNoDisband = true;
+ 						bValid = true;
+@@ -616,50 +600,28 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 				}
+ 				break;
+ 			case 2:
+-				/********************************************************************************/
+-				/* 	BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
+-				/* 																			*/
+-				/* 	Gold AI																	*/
+-				/********************************************************************************/
+ 				/* original BTS code
+ 				if (pLoopUnit->cargoSpace() > 0)
+ 				{
+ 					bValid = true;
+-				}
+-				*/
+-				bUnderBudget = (iStartingGold - getGold()) < iUpgradeBudget;
++				} */
+ 
+ 				// Only normal transports
+-				if ( (pLoopUnit->cargoSpace() > 0) && (pLoopUnit->specialCargo() == NO_SPECIALUNIT) )
++				if (pLoopUnit->cargoSpace() > 0 && pLoopUnit->specialCargo() == NO_SPECIALUNIT)
+ 				{
+-					bValid = (bAnyWar || bUnderBudget);
++					bValid = iStartingGold - getGold() < iUpgradeBudget;
+ 				}
+ 				// Also upgrade escort ships
+-				if ( pLoopUnit->AI_getUnitAIType() == UNITAI_ESCORT_SEA )
++				if (pLoopUnit->AI_getUnitAIType() == UNITAI_ESCORT_SEA)
+ 				{
+-					bValid = (bAnyWar || bUnderBudget);
++					bValid = iStartingGold - getGold() < iUpgradeBudget;
+ 				}
+-				/********************************************************************************/
+-				/* 	BETTER_BTS_AI_MOD						END								*/
+-				/********************************************************************************/
+ 				
+ 				break;
+ 			case 3:
+-				/********************************************************************************/
+-				/* 	BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
+-				/* 																			*/
+-				/* 	Gold AI																	*/
+-				/********************************************************************************/
+ 				/* original BTS code
+-				bValid = true;
+-				*/
+-				bUnderBudget = (iStartingGold - getGold()) < iUpgradeBudget;
+-
+-				bValid = (bAnyWar || bUnderBudget);
+-				/********************************************************************************/
+-				/* 	BETTER_BTS_AI_MOD						END								*/
+-				/********************************************************************************/
+-				
++				bValid = true; */
++				bValid = iStartingGold - getGold() < iUpgradeBudget;
+ 				break;
+ 			default:
+ 				FAssert(false);
+@@ -4621,10 +4583,35 @@ bool CvPlayerAI::AI_isFinancialTrouble() const
+ }
+ 
+ 
+-int CvPlayerAI::AI_goldTarget() const
++int CvPlayerAI::AI_goldTarget(bool bUpgradeBudgetOnly) const
+ {
+ 	int iGold = 0;
+ 
++	bool bAnyWar = GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0;
++
++	// K-Mod.
++	int iUpgradeBudget = AI_getGoldToUpgradeAllUnits();
++
++	if (!bAnyWar)
++	{
++		iUpgradeBudget /= AI_isFinancialTrouble() ? 10 : 3;
++	}
++	else
++	{
++		if (GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio() < 0)
++			iUpgradeBudget *= 2; // cf. iTargetTurns in AI_doCommerce
++		else if (AI_isFinancialTrouble())
++		{
++			iUpgradeBudget /= 2;
++		}
++	}
++
++	if (bUpgradeBudgetOnly)
++		return iUpgradeBudget;
++
++	iGold += iUpgradeBudget;
++	// K-Mod end
++
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       02/24/10                                jdog5000      */
+ /*                                                                                              */
+@@ -4651,20 +4638,19 @@ int CvPlayerAI::AI_goldTarget() const
+ 		iGold *= iMultiplier;
+ 		iGold /= 100;
+ 
+-		bool bAnyWar = GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0;
++		/* original bts code
+ 		if (bAnyWar)
+ 		{
+ 			iGold *= 3;
+ 			iGold /= 2;
+-		}
++		} */ // K-Mod. I don't think we need this anymore.
+ 
+ 		if (AI_avoidScience())
+ 		{
+ 			iGold *= 10;
+ 		}
+ 
+-		//iGold += (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
+-		iGold += AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 3); // K-Mod
++		//iGold += (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2)); // obsolete (K-Mod)
+ 
+ 		/* original bts code
+ 		CorporationTypes eActiveCorporation = NO_CORPORATION;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 7e002be84..b437e0785 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -118,7 +118,8 @@ public:
+ 
+ 	bool AI_avoidScience() const;
+ 	bool AI_isFinancialTrouble() const;
+-	int AI_goldTarget() const;
++	//int AI_goldTarget() const;
++	int AI_goldTarget(bool bUpgradeBudgetOnly = false) const; // K-Mod
+ 
+ 	TechTypes AI_bestTech(int iMaxPathLength = 1, bool bIgnoreCost = false, bool bAsync = false, TechTypes eIgnoreTech = NO_TECH, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) const;
+ /************************************************************************************************/
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7874

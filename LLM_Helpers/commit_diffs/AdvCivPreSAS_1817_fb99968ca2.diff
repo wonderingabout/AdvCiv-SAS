@@ -1,0 +1,444 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1817
+# Commit: fb99968ca2df66dc3d60b4402b6d58cbb2255575
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8e7a0279ca528e9eeb9b5587210cc8f963699e5e
+# Title: Cherrypick a few recent tweaks from Caveman2Cosmos
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/CvCity.cpp
+6	44	CvGameCoreDLL/CvGame.cpp
+9	6	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CyMessageControl.cpp
+10	10	CvGameCoreDLL/CyPlayer.cpp
+6	1	CvGameCoreDLL/FAssert.cpp
+6	3	CvGameCoreDLL/FAssert.h
+2	1	CvGameCoreDLL/FVariableSystem.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9b2c3fbd0..2129be94c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7693,6 +7693,9 @@ void CvCity::setOriginalOwner(PlayerTypes eNewValue)
+ 
+ TeamTypes CvCity::getTeam() const
+ {
++	/*  advc.inl (comment): Not inlined b/c I don't want to include
++		CvPlayer.h and CvTeam.h in CvCity.h. Should perhaps cache
++		the owning team instead (as it's already done for CvPlot::getTeam). */
+ 	return TEAMID(getOwner());
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1ab5f4f38..53c8fb988 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4766,22 +4766,18 @@ bool CvGame::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionSub
+ 
+ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kData) const
+ {
+-	if (NO_PLAYER != kData.ePlayer)
++	if (kData.ePlayer!= NO_PLAYER)
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+ 		if (!kPlayer.isAlive() || kPlayer.isBarbarian() || kPlayer.isMinorCiv())
+-		{
+ 			return false;
+-		}
+ 	}
+ 
+-	if (NO_PLAYER != kData.eOtherPlayer)
++	if (kData.eOtherPlayer != NO_PLAYER)
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.eOtherPlayer);
+ 		if (!kPlayer.isAlive() || kPlayer.isBarbarian() || kPlayer.isMinorCiv())
+-		{
+ 			return false;
+-		}
+ 	}
+ 
+ 	int iNumVoters = 0;
+@@ -4811,7 +4807,6 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 				for (int iTeam2 = iTeam1 + 1; iTeam2 < MAX_CIV_TEAMS; ++iTeam2)
+ 				{
+ 					CvTeam& kTeam2 = GET_TEAM((TeamTypes)iTeam2);
+-
+ 					if (kTeam2.isFullMember(eVoteSource))
+ 					{
+ 						if (!kTeam2.isOpenBorders((TeamTypes)iTeam1))
+@@ -4824,9 +4819,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			}
+ 		}
+ 		if (bOpenWithEveryone)
+-		{
+ 			return false;
+-		}
+ 	}
+ 	else if (GC.getInfo(kData.eVote).isDefensivePact())
+ 	{
+@@ -4864,12 +4857,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		//if (!kPlayer.isFullMember(eVoteSource))
+ 		// dlph.25: 'These are not necessarily the same.'
+ 		if (!GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+-		{
+ 			return false;
+-		}
+ 
+ 		bool bValid = false;
+-
+ 		for (int iTeam2 = 0; iTeam2 < MAX_CIV_TEAMS; ++iTeam2)
+ 		{
+ 			if (atWar(kPlayer.getTeam(), (TeamTypes)iTeam2))
+@@ -4885,9 +4875,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		}
+ 
+ 		if (!bValid)
+-		{
+ 			return false;
+-		}
+ 	}
+ 	else if (GC.getInfo(kData.eVote).isForceNoTrade())
+ 	{
+@@ -4895,9 +4883,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		//if (kPlayer.isFullMember(eVoteSource))
+ 		// dlph.25: 'These are not necessarily the same.'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+-		{
+ 			return false;
+-		}
+ 
+ 		bool bNoTradeWithEveryone = true;
+ 		for (int iPlayer2 = 0; iPlayer2 < MAX_CIV_PLAYERS; ++iPlayer2)
+@@ -4919,9 +4905,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		}
+ 		// Not an option if already at war with everyone
+ 		if (bNoTradeWithEveryone)
+-		{
+ 			return false;
+-		}
+ 	}
+ 	else if (GC.getInfo(kData.eVote).isForceWar())
+ 	{
+@@ -4929,15 +4913,11 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+ 
+ 		if (kTeam.isAVassal())
+-		{
+ 			return false;
+-		}
+ 		//if (kPlayer.isFullMember(eVoteSource))
+ 		// dlph.25: 'These are not necessarily the same.'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+-		{
+ 			return false;
+-		}
+ 
+ 		bool bAtWarWithEveryone = true;
+ 		for (int iTeam2 = 0; iTeam2 < MAX_CIV_TEAMS; ++iTeam2)
+@@ -4957,9 +4937,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		}
+ 		// Not an option if already at war with everyone
+ 		if (bAtWarWithEveryone)
+-		{
+ 			return false;
+-		}
+ 
+ 		//if (!kPlayer.isVotingMember(eVoteSource))
+ 		// dlph.25: Replacing the above
+@@ -4982,9 +4960,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			}
+ 
+ 			if (!bValid)
+-			{
+ 				return false;
+-			}
+ 		}
+ 	}
+ 	else if (GC.getInfo(kData.eVote).isAssignCity())
+@@ -4993,50 +4969,36 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		//if (kPlayer.isFullMember(eVoteSource) || !kPlayer.isVotingMember(eVoteSource))
+ 		// dlph.25: 'These are not necessarily the same'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource) || !GET_TEAM(kPlayer.getTeam()).isVotingMember(eVoteSource))
+-		{
+ 			return false;
+-		}
+ 
+ 		CvCity* pCity = kPlayer.getCity(kData.iCityId);
+-		FAssert(NULL != pCity);
+-		if (NULL == pCity)
++		if (pCity == NULL)
+ 		{
++			FAssert(pCity != NULL);
+ 			return false;
+ 		}
+ 
+-		if (NO_PLAYER == kData.eOtherPlayer)
+-		{
++		if (kData.eOtherPlayer == NO_PLAYER)
+ 			return false;
+-		}
+ 
+ 		CvPlayer& kOtherPlayer = GET_PLAYER(kData.eOtherPlayer);
+ 		if (kOtherPlayer.getTeam() == kPlayer.getTeam())
+-		{
+ 			return false;
+-		}
+ 
+-		if (atWar(kPlayer.getTeam(), GET_PLAYER(kData.eOtherPlayer).getTeam()))
+-		{
++		if (atWar(kPlayer.getTeam(), TEAMID(kData.eOtherPlayer)))
+ 			return false;
+-		}
+ 
+ 		//if (!kOtherPlayer.isFullMember(eVoteSource))
+ 		// dlph.25: 'These are not necessarily the same'
+ 		if (!GET_TEAM(kOtherPlayer.getTeam()).isFullMember(eVoteSource))
+-		{
+ 			return false;
+-		}
+ 
+ 		if (kOtherPlayer.isHuman() && isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+-		{
+ 			return false;
+-		}
+ 	}
+ 
+ 	if (!canDoResolution(eVoteSource, kData))
+-	{
+ 		return false;
+-	}
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 881e2eecd..b3db3910d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2830,7 +2830,8 @@ void shuffleArray(int* piShuffle, int iNum, CvRandom& rand)
+ 
+ int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
+ {
+-	return (getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) / GC.getNumMonthInfos());
++	return getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
++			std::max(1, GC.getNumMonthInfos()); // advc: max
+ }
+ 
+ 
+@@ -2846,9 +2847,10 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
+ 
+ 		for (int iI = 0; iI < GC.getInfo(eSpeed).getNumTurnIncrements(); iI++)
+ 		{
+-			if (iGameTurn > (iTurnCount + GC.getInfo(eSpeed).getGameTurnInfo(iI).iNumGameTurnsPerIncrement))
++			if (iGameTurn > iTurnCount + GC.getInfo(eSpeed).getGameTurnInfo(iI).iNumGameTurnsPerIncrement)
+ 			{
+-				iTurnMonth += (GC.getInfo(eSpeed).getGameTurnInfo(iI).iMonthIncrement * GC.getInfo(eSpeed).getGameTurnInfo(iI).iNumGameTurnsPerIncrement);
++				iTurnMonth += (GC.getInfo(eSpeed).getGameTurnInfo(iI).iMonthIncrement *
++						GC.getInfo(eSpeed).getGameTurnInfo(iI).iNumGameTurnsPerIncrement);
+ 				iTurnCount += GC.getInfo(eSpeed).getGameTurnInfo(iI).iNumGameTurnsPerIncrement;
+ 			}
+ 			else
+@@ -2861,7 +2863,8 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
+ 
+ 		if (iGameTurn > iTurnCount)
+ 		{
+-			iTurnMonth += (GC.getInfo(eSpeed).getGameTurnInfo(GC.getInfo(eSpeed).getNumTurnIncrements() - 1).iMonthIncrement * (iGameTurn - iTurnCount));
++			iTurnMonth += (GC.getInfo(eSpeed).getGameTurnInfo(GC.getInfo(eSpeed).getNumTurnIncrements() - 1).iMonthIncrement *
++					(iGameTurn - iTurnCount));
+ 		}
+ 		break;
+ 	}
+@@ -2875,7 +2878,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
+ 		break;
+ 
+ 	case CALENDAR_SEASONS:
+-		iTurnMonth += (iGameTurn * GC.getNumMonthInfos()) / GC.getNumSeasonInfos();
++		iTurnMonth += (iGameTurn * GC.getNumMonthInfos()) / std::max(1, GC.getNumSeasonInfos()); // advc: max
+ 		break;
+ 
+ 	case CALENDAR_MONTHS:
+@@ -2883,7 +2886,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
+ 		break;
+ 
+ 	case CALENDAR_WEEKS:
+-		iTurnMonth += iGameTurn / GC.getDefineINT("WEEKS_PER_MONTHS");
++		iTurnMonth += iGameTurn / std::max(1, GC.getDefineINT("WEEKS_PER_MONTHS")); // advc: max
+ 		break;
+ 
+ 	default:
+
+diff --git a/CvGameCoreDLL/CyMessageControl.cpp b/CvGameCoreDLL/CyMessageControl.cpp
+index 0f3cace52..ad9156df5 100644
+--- a/CvGameCoreDLL/CyMessageControl.cpp
++++ b/CvGameCoreDLL/CyMessageControl.cpp
+@@ -30,7 +30,8 @@ void CyMessageControl::sendUpdateCivics(boost::python::list& iCivics)
+ 		aiCivics.push_back((CivicTypes) PYiCivics[i]);
+ 	}
+ 	CvMessageControl::getInstance().sendUpdateCivics(aiCivics);
+-	delete PYiCivics;
++	//delete PYiCivics;
++	delete[] PYiCivics; // advc.001: Bugfix from C2C
+ }
+ 
+ void CyMessageControl::sendConvert(int  iReligion)
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index af03dd343..4f7310fb5 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -2327,23 +2327,23 @@ void  CyPlayer::forcePeace(int iPlayer)
+ }
+ 
+ // <advc.038>
+-int CyPlayer::estimateYieldRate(YieldTypes yield) const {
+-
++int CyPlayer::estimateYieldRate(YieldTypes yield) const
++{
+ 	if(m_pPlayer == NULL)
+ 		return -1;
+ 	return ::round(m_pPlayer->estimateYieldRate(yield));
+ } // </advc.038>
+ 
+ // <advc.210>
+-void CyPlayer::checkAlert(int alertId, bool silent) {
+-
++void CyPlayer::checkAlert(int alertId, bool silent)
++{
+ 	if(m_pPlayer != NULL)
+ 		m_pPlayer->checkAlert(alertId, silent);
+ } // </advc.210>
+ 
+ // <advc.210e>
+-int CyPlayer::AI_corporationBonusVal(int eBonus) const {
+-
++int CyPlayer::AI_corporationBonusVal(int eBonus) const
++{
+ 	if(m_pPlayer == NULL)
+ 		return -1;
+ 	/*  Adding a virtual function CvPlayer::AI_corporationBonusVal causes
+@@ -2352,14 +2352,14 @@ int CyPlayer::AI_corporationBonusVal(int eBonus) const {
+ } // </advc.210e>
+ 
+ // <advc.085>
+-void CyPlayer::setScoreboardExpanded(bool b) {
+-
++void CyPlayer::setScoreboardExpanded(bool b)
++{
+ 	if(m_pPlayer != NULL)
+ 		m_pPlayer->setScoreboardExpanded(b);
+ }
+ 
+-bool CyPlayer::isScoreboardExpanded() const {
+-
++bool CyPlayer::isScoreboardExpanded() const
++{
+ 	if(m_pPlayer == NULL)
+ 		return false;
+ 	return m_pPlayer->isScoreboardExpanded();
+
+diff --git a/CvGameCoreDLL/FAssert.cpp b/CvGameCoreDLL/FAssert.cpp
+index 08338f6ce..00c9b01da 100644
+--- a/CvGameCoreDLL/FAssert.cpp
++++ b/CvGameCoreDLL/FAssert.cpp
+@@ -25,6 +25,7 @@ namespace
+ 		const char* szExpression;
+ 		const char* szMessage;
+ 		const char* szFileName;
++		const char* szFunctionName; // advc.006f
+ 		unsigned int line;
+ 
+ 		// EIP / EBP / ESP
+@@ -64,12 +65,14 @@ namespace
+ 				sprintf( g_AssertText, "Assert Failed\r\n\r\n"
+ 					"File:  %s\r\n"
+ 					"Line:  %u\r\n"
++					"Func:  %s\r\n" // advc.006f
+ 					"Expression:  %s\r\n"
+ 					"Message:  %s\r\n"
+ 					"\r\n"
+ 					"----------------------------------------------------------\r\n",
+ 					g_AssertInfo.szFileName,
+ 					g_AssertInfo.line,
++					g_AssertInfo.szFunctionName, // advc.006f
+ 					g_AssertInfo.szExpression,
+ 					g_AssertInfo.szMessage ? g_AssertInfo.szMessage : "" );
+ 
+@@ -133,13 +136,15 @@ namespace
+ 
+ } // end anonymous namespace
+ 
+-bool FAssertDlg( const char* szExpr, const char* szMsg, const char*szFile, unsigned int line, bool& bIgnoreAlways )
++bool FAssertDlg( const char* szExpr, const char* szMsg, const char* szFile, unsigned int line,
++	/* <advc.006f> */ const char* szFunction, /* </advc006f> */ bool& bIgnoreAlways )
+ {
+ //	FILL_CONTEXT( g_AssertInfo.context );
+ 
+ 	g_AssertInfo.szExpression = szExpr;
+ 	g_AssertInfo.szMessage = szMsg;
+ 	g_AssertInfo.szFileName = szFile;
++	g_AssertInfo.szFunctionName = szFunction; // advc.006f
+ 	g_AssertInfo.line = line;
+ 
+ 	DWORD dwResult = DisplayAssertDialog();
+
+diff --git a/CvGameCoreDLL/FAssert.h b/CvGameCoreDLL/FAssert.h
+index 8a38f66a2..56e6f5e95 100644
+--- a/CvGameCoreDLL/FAssert.h
++++ b/CvGameCoreDLL/FAssert.h
+@@ -17,14 +17,17 @@
+ 
+ #ifdef WIN32
+ 
+-bool FAssertDlg( const char*, const char*, const char*, unsigned int, bool& );
++bool FAssertDlg( const char*, const char*, const char*, unsigned int,
++		/*  advc.006f (from C2C): const char* param added. And changed the
++			two locations below so that __FUNCTION__ is passed. */
++		const char*, bool& );
+ 
+ #define FAssert( expr )	\
+ { \
+ 	static bool bIgnoreAlways = false; \
+ 	if( !bIgnoreAlways && !(expr) ) \
+ { \
+-	if( FAssertDlg( #expr, 0, __FILE__, __LINE__, bIgnoreAlways ) ) \
++	if( FAssertDlg( #expr, 0, __FILE__, __LINE__, __FUNCTION__, bIgnoreAlways ) ) \
+ { _asm int 3 } \
+ } \
+ }
+@@ -34,7 +37,7 @@ bool FAssertDlg( const char*, const char*, const char*, unsigned int, bool& );
+ 	static bool bIgnoreAlways = false; \
+ 	if( !bIgnoreAlways && !(expr) ) \
+ { \
+-	if( FAssertDlg( #expr, msg, __FILE__, __LINE__, bIgnoreAlways ) ) \
++	if( FAssertDlg( #expr, msg, __FILE__, __LINE__, __FUNCTION__, bIgnoreAlways ) ) \
+ { _asm int 3 } \
+ } \
+ }
+
+diff --git a/CvGameCoreDLL/FVariableSystem.h b/CvGameCoreDLL/FVariableSystem.h
+index c93983124..3418e1f86 100644
+--- a/CvGameCoreDLL/FVariableSystem.h
++++ b/CvGameCoreDLL/FVariableSystem.h
+@@ -52,7 +52,8 @@ class FDataStreamBase;
+ class FVariable
+ {
+ 	public:
+-		FVariable() : m_dValue(0) {}
++		// advc: Initialization of m_eType was missing (from C2C)
++		FVariable() : m_dValue(0), m_eType(FVARTYPE_INT) {}
+ 		FVariable(const FVariable& src) { CopyFrom(src); }
+ 		virtual ~FVariable();
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=13315

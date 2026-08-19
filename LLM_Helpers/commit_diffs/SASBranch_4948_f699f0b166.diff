@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4948
+# Commit: f699f0b166029e227271c26933ace7597220cf05
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9cb440007de2c9e7d918752b8aeb9dae32b29dca
+# Title: remove last bits of the old messy xd if i may say but anyways etc uiFlag code
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+16	37	CvGameCoreDLL/AIStrengthMemoryMap.cpp
+2	0	README.md
+9	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/AIStrengthMemoryMap.cpp b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+index 82a18dc91..99386527d 100644
+--- a/CvGameCoreDLL/AIStrengthMemoryMap.cpp
++++ b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+@@ -23,47 +23,26 @@ void AIStrengthMemoryMap::reset()
+ }
+ 
+ 
+-void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint uiFlag, TeamTypes eTeam)
++// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
++// <!-- custom: note: here uiflag is not defined but passed as a parameter it seems, so handling it slightly differently, as advised by chatgpt 5, check if accurate, anyways etc -->
++void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint /* <!-- custom: disable this and remove subsequent checks/usage of this parameter in the function i mean, as advised by chatgpt 5, check if accurate, anyways etc --> uiFlag */, TeamTypes eTeam)
+ {
+ 	m_eTeam = eTeam;
+-	if (uiFlag >= 4)
+-	{
+-		size_t iSize;
+-		pStream->Read(&iSize);
+-		if (iSize > 0)
+-		{
+-			/*FAssert(GC.getMap().numPlots() == (int)iSize);
+-			m_aiMap.resize(iSize, 0);
+-			pStream->Read(m_aiMap.size(), &m_aiMap[0]);*/
+-			for (size_t i = 0; i < iSize; i++)
+-			{
+-				PlotNumTypes ePlot;
+-				pStream->Read((int*)&ePlot);
+-				int iStrength;
+-				pStream->Read(&iStrength);
+-				m_map[ePlot] = iStrength;
+-			}
+-		}
+-	}
+-	else 
++	
++	size_t iSize;
++	pStream->Read(&iSize);
++	if (iSize > 0)
+ 	{
+-		/*std::vector<int> aiDummy;
+-		std::vector<int>& aiMap = (CvTeam::getTeam(m_eTeam).isAlive() ?
+-				m_aiMap : aiDummy);
+-		aiMap.resize(GC.getMap().numPlots(), 0);
+-		if (uiFlag >= 1)
+-			pStream->Read(aiMap.size(), &aiMap[0]);*/
+-		std::vector<int> aiTmp;
+-		aiTmp.resize(GC.getMap().numPlots(), 0);
+-		if (uiFlag >= 1) // (Guaranteed b/c we can't load BtS saves)
+-			pStream->Read(aiTmp.size(), &aiTmp[0]);
+-		for (size_t i = 0; i < aiTmp.size(); i++)
++		/*FAssert(GC.getMap().numPlots() == (int)iSize);
++		m_aiMap.resize(iSize, 0);
++		pStream->Read(m_aiMap.size(), &m_aiMap[0]);*/
++		for (size_t i = 0; i < iSize; i++)
+ 		{
+-			if (aiTmp[i] != 0)
+-			{
+-				FAssert(aiTmp[i] > 0);
+-				m_map[(PlotNumTypes)i] = aiTmp[i];
+-			}
++			PlotNumTypes ePlot;
++			pStream->Read((int*)&ePlot);
++			int iStrength;
++			pStream->Read(&iStrength);
++			m_map[ePlot] = iStrength;
+ 		}
+ 	}
+ }
+
+diff --git a/README.md b/README.md
+index 913d68c68..b5a690460 100644
+--- a/README.md
++++ b/README.md
+@@ -343,6 +343,8 @@ Note 3: about the missing fields in sevopedia that are technically also fixes if
+ 
+ - non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game, hopefully fine or not too bad this way but anyways etc...
+ - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or/and complicated anyways etc to maintain furthermore anyways etc, then i am anyways etc not supporting it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file anyways etc. See this [google drive folder link](https://drive.google.com/drive/folders/1cINn930Hma2cEN6g_v2obiAQh9pMlnrQ?usp=sharing) for example of what this does according to chatgpt if i am not mistaken anyways etc.
++- concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details anyways etc.
++- savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other anyways etc), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead (using git you can choose any version if i am not mistaken too but check if accurate anyways etc). I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad if i may say but anyways etc. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate, anyways etc. See related info at [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well anyways etc.
+ 
+ ## Copyright and Disclaimer
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 6eb01a3f6..bc7cf536e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -61,7 +61,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
+ [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
+ [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
+-
++[46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -1356,3 +1356,11 @@ Hopefully they help AI be stronger and more reliable in its specialist choices o
+ Note: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lto or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)
+ 
+ update: after a bit further evaluation, i have decided to generalize the previous rule as quick patch, as for example in screenshot as of now 2270, edo city (kingdom of bening) is size 12, can grow (stagnant with a specialist equals food is 2 without (in fact more due to poorly assigned tiles but it's another issue that looks or may be tedious to fix although would be nice but anyways etc)) but chooses instead to assign a specialist, so generalizing the "grow when you can" policy anyways etc.
++
++## 46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result
++
++In the DLL i have cleaned up the old `uiFlag` code that was super redundant and messy, with the help of chatgpt 5 and a bit of claude ai too. I don't know too much about these, but if i understood and understand i mean too if i may say but anyways etc correctly this code was responsible for keeping savegame compatibility.
++
++While it would be nice if old savegames could be preserved accross all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me but anyways etc). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean if i may say but anyways etc.
++
++As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well anyways etc.
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=10889

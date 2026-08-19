@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2849
+# Commit: 7478be5580c37b22fd53a22dcdd7ceba7036adb4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 73f233ae2aa1f7cdf4be03681bcd633d8f900578
+# Title: Play Global Warming sound at most once per turn
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3f6a4a4bf..ca84fa354 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6826,6 +6826,7 @@ void CvGame::doGlobalWarming()
+ 	static bool const bPROTECT_FEATURE_ON_NON_DRY_TERRAIN = GC.getDefineBOOL("PROTECT_FEATURE_ON_NON_DRY_TERRAIN");
+ 
+ 	// Global Warming
++	bool bSoundPlayed = false; // advc.002l
+ 	for (int i = 0; i < iGlobalWarmingRolls; i++)
+ 	{
+ 		// note, warming prob out of 1000, not percent.
+@@ -6933,7 +6934,9 @@ void CvGame::doGlobalWarming()
+ 						CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_NEAR_CITY",
+ 								pCity->getNameKey());
+ 						gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer, *pPlot,
++								bSoundPlayed ? NULL : // advc.002l
+ 								"AS2D_SQUISH", MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"));
++						bSoundPlayed = true; // advc.002l: Once is enough
+ 					}
+ 				}
+ 				changeGwEventTally(1);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=956

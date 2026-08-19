@@ -1,0 +1,251 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3805
+# Commit: a936404e1b97a691e39e57a3dcb41f652796b0a0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ac8d197f68c8778638e08dc7e834a2a0062a632f
+# Title: Fix BBAI bug in PathToEnemyCity check
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	5	CvGameCoreDLL/CvCityAI.cpp
+43	32	CvGameCoreDLL/CvGameTextMgr.cpp
+28	35	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c76c5b07f..c8c7e3fe2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1871,12 +1871,9 @@ void CvCityAI::AI_chooseProduction()
+ 						break;
+ 					}
+ 				}
+-				if(!bAssaultTargetFound)
++				if (!bAssaultTargetFound)
+ 					pAssaultWaterArea = NULL;
+-				if(bAssaultTargetFound && // </advc.030b>
+-					/*	BBAI TODO: faster to switch to checking path for some selection group?
+-						^advc: That's a can of worms, and unnecessary.
+-						See comment in  AI_isHasPathToEnemyCity. */
++				if (bAssaultTargetFound && // </advc.030b>
+ 					!GET_TEAM(getTeam()).AI_isHasPathToEnemyCity(getPlot()))
+ 				{
+ 					bBuildAssault = true;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 44cf627f7..5b614f3a6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4037,48 +4037,59 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 					iNumOtherCitySites, iOtherSiteBestValue));
+ 		}
+ 	}
+-	else if (kPlot.isOwned() && pPlotCity == NULL)
+-	{
+-		if(bAlt && !bShift)
+-		{
+-			if (GET_TEAM(kPlot.getTeam()).AI_isHasPathToEnemyCity(kPlot))
++	else if (kPlot.isOwned() && pPlotCity == NULL &&
++		!kPlot.isWater()) // advc.007
++	{
++		if (bAlt && !bShift)
++		{
++			CvTeamAI const& kPlotTeam = GET_TEAM(kPlot.getTeam());
++			// <advc.opt> Don't compute this over and over as the user inspects it
++			static TeamTypes eCacheTeam = NO_TEAM;
++			static bool bHasPath = false;
++			static ArrayEnumMap<TeamTypes,bool> abHasPath;
++			bool const bUpdCache = (kPlotTeam.getID() != eCacheTeam);
++			if (bUpdCache)
++				bHasPath = kPlotTeam.AI_isHasPathToEnemyCity(kPlot); // </advc.opt>
++			if (bHasPath)
+ 				szString.append(CvWString::format(L"\nCan reach an enemy city\n\n"));
+ 			else szString.append(CvWString::format(L"\nNo reachable enemy cities\n\n"));
+-			for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			for (TeamIter<ALIVE> itTarget; itTarget.hasNext(); ++itTarget)
++			{	// <advc.opt>
++				if (bUpdCache)
+ 				{
+-					if (kPlot.getTeam() == TEAMID((PlayerTypes)iI) || // advc.pf
+-						GET_TEAM(kPlot.getTeam()).AI_isHasPathToPlayerCity(kPlot,(PlayerTypes)iI))
+-					{
+-						szString.append(CvWString::format(SETCOLR L"Can reach %s city" ENDCOLR,
+-								TEXT_COLOR("COLOR_GREEN"), GET_PLAYER((PlayerTypes)iI).getName()));
+-					}
+-					else
+-					{
+-						szString.append(CvWString::format(SETCOLR L"Cannot reach any %s city" ENDCOLR,
+-								TEXT_COLOR("COLOR_NEGATIVE_TEXT"), GET_PLAYER((PlayerTypes)iI).getName()));
+-					}
+-
+-					if (GET_TEAM(kPlot.getTeam()).isAtWar(TEAMID((PlayerTypes)iI)))
+-					{
+-						szString.append(CvWString::format(L" (enemy)"));
+-					}
+-					szString.append(CvWString::format(L"\n"));
+-					// <advc.007>
+-					szString.append(CvString::format("Bonus trade counter: %d\n",
+-							GET_PLAYER(kPlot.getOwner()).AI_getBonusTradeCounter((PlayerTypes)iI)));
+-					// </advc.007>
++					abHasPath.set(itTarget->getID(),
++							&kPlotTeam == &*itTarget || // advc.pf
++							kPlotTeam.AI_isHasPathToEnemyCity(kPlot, *itTarget));
++				} // </advc.opt>
++				if (abHasPath.get(itTarget->getID()))
++				{
++					szString.append(CvWString::format(SETCOLR L"Can reach %s city" ENDCOLR,
++							TEXT_COLOR("COLOR_GREEN"), itTarget->getName().c_str()));
++				}
++				else
++				{
++					szString.append(CvWString::format(SETCOLR L"Cannot reach any %s city" ENDCOLR,
++							TEXT_COLOR("COLOR_NEGATIVE_TEXT"), itTarget->getName().c_str()));
+ 				}
++				if (kPlotTeam.isAtWar(itTarget->getID()))
++					szString.append(CvWString::format(L" (enemy)"));
++				szString.append(CvWString::format(L"\n"));
++				// <advc.007>
++				for (MemberIter itMember(itTarget->getID()); itMember.hasNext(); ++itMember)
++				{
++					szString.append(CvString::format("Bonus trade counter: %d\n",
++							GET_PLAYER(kPlot.getOwner()).AI_getBonusTradeCounter(
++							itMember->getID())));
++				} // </advc.007>
+ 			}
+ 		}
+ 		else if (bShift && bAlt)
+ 		{
+-			for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
++			FOR_EACH_ENUM(Civic)
+ 			{
+ 				szString.append(CvWString::format(L"\n %s = %d",
+-						GC.getInfo((CivicTypes)iI).getDescription(),
+-						GET_PLAYER(kPlot.getOwner()).AI_civicValue((CivicTypes)iI)));
++						GC.getInfo(eLoopCivic).getDescription(),
++						GET_PLAYER(kPlot.getOwner()).AI_civicValue(eLoopCivic)));
+ 			}
+ 		}
+ 		// advc.007: Commented out
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index e368bfc10..a5cf45cc0 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -754,60 +754,53 @@ bool CvTeamAI::AI_isLandTarget(TeamTypes eTarget,
+ }
+ 
+ /*	BETTER_BTS_AI_MOD, General AI, 01/10/10, jdog5000: START
+-	advc.pf: Moved from CvPlot, refactored. At least the first one cares about
+-	war plans and is therefore AI code. The second one doesn't have a plausible
+-	use for human players either, and I want to keep them together. */
++	advc.pf: Moved from CvPlot. At least the first one cares about war plans and
++	is therefore AI code. The second one doesn't have a plausible use for
++	human players either, and I want to keep them together. */
+ bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom, bool bIgnoreBarb) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (kFrom.getArea().getNumCities() == countNumCitiesByArea(kFrom.getArea()))
+-		false;
+-	/*	advc: I guess it's important for performance to check capitals first;
+-		So continue doing that, but compute the enemy players only in one place. */
+-	std::vector<CvPlayer const*> apEnemies;
+-	for (PlayerIter<ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getID());
++	// Imitate instatiation of irrigated finder ...
++	/*std::vector<TeamTypes> teamVec;
++	teamVec.push_back(getID());
++	teamVec.push_back(NO_TEAM);*/
++	/*	advc.001: This is wrong - we need to set a target team. (Thx to spqkfk
++		for making me aware.) Checking all enemy capitals upfront (to save time)
++		is then (if we do it correctly) also a bad idea. Typically, there
++		won't be a high number of enemy capitals anyway. */
++	// advc.pf: Deleted remaining BBAI code on 21 Oct 2020. Replacement:
++	for (TeamIter<ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getID());
+ 		itEnemy.hasNext(); ++itEnemy)
+ 	{
+ 		if (bIgnoreBarb && (itEnemy->isBarbarian() || itEnemy->isMinorCiv()))
+ 			continue;
+-		if (AI_getWarPlan(itEnemy->getTeam()) != NO_WARPLAN)
+-		apEnemies.push_back(&*itEnemy);
+-	} 
+-	// Imitate instatiation of irrigated finder ...
+-	// advc.pf: Deleted on 21 Oct 2020, replaced with TeamStepfinder.
+-	TeamPathFinder<TeamPath::LAND> pathFinder(*this, NULL, /*iMaxPath=*/18);
+-	for (size_t i = 0; i < apEnemies.size(); i++)
+-	{
+-		CvCity* pCapital = apEnemies[i]->getCapital();
+-		if (pCapital != NULL && pathFinder.generatePath(kFrom, pCapital->getPlot()))
+-			return true;
+-	}
+-	for (size_t i = 0; i < apEnemies.size(); i++) // Check all other enemy cities
+-	{
+-		FOR_EACH_CITY(pCity, *apEnemies[i])
++		if (AI_getWarPlan(itEnemy->getID()) != NO_WARPLAN &&
++			AI_isHasPathToEnemyCity(kFrom, *itEnemy))
+ 		{
+-			if (!pCity->isCapital() &&pathFinder.generatePath(kFrom, pCity->getPlot()))
+-				return true;
++			return true;
+ 		}
+ 	} 
+ 	return false;
+ }
+ 
+-// (currently unused)
+-bool CvTeamAI::AI_isHasPathToPlayerCity(CvPlot const& kFrom, PlayerTypes eOtherPlayer) const
++// advc: Was "isHasPathToPlayerCity" and was only used for debug info
++bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom,
++	CvTeam const& kEnemy) const
+ {
+ 	PROFILE_FUNC();
+-
+-	if (kFrom.getArea().getCitiesPerPlayer(eOtherPlayer) == 0)
+-		return false;
+ 	// Imitate instatiation of irrigated finder ...
+ 	// advc.pf: Deleted on 21 Oct 2020, replaced with TeamStepfinder.
+-	TeamPathFinder<TeamPath::LAND> pathFinder(*this, &GET_TEAM(eOtherPlayer), 18);
+-	FOR_EACH_CITY(pCity, GET_PLAYER(eOtherPlayer))
++	TeamPathFinder<TeamPath::LAND> pathFinder(*this, &kEnemy, 18);
++	for (MemberIter itMember(kEnemy.getID()); itMember.hasNext(); ++itMember)
+ 	{
+-		if (pathFinder.generatePath(kFrom, pCity->getPlot()))
+-			return true;
++		if (kFrom.getArea().getCitiesPerPlayer(itMember->getID()) <= 0)
++			continue;
++		FOR_EACH_CITY(pCity, *itMember)
++		{
++			if (pathFinder.generatePath(kFrom, pCity->getPlot()))
++				return true;
++		}
+ 	}
+ 	return false;
+ } // BETTER_BTS_AI_MOD: END
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index cc592da9a..d0721de1f 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -89,7 +89,7 @@ public:
+ 	//bool AI_isAllyLandTarget(TeamTypes eTeam) const; // advc: Merged into the above
+ 	// BETTER_BTS_AI_MOD, General AI, 11/30/08, jdog5000: START  advc.pf: Moved from CvPlot
+ 	bool AI_isHasPathToEnemyCity(CvPlot const& kFrom, bool bIgnoreBarb = true) const;
+-	bool AI_isHasPathToPlayerCity(CvPlot const& kFrom, PlayerTypes eOtherPlayer = NO_PLAYER) const;
++	bool AI_isHasPathToEnemyCity(CvPlot const& kFrom, CvTeam const& kEnemy) const;
+ 	// BETTER_BTS_AI_MOD: END
+ 	bool AI_shareWar(TeamTypes eTeam) const;								// Exposed to Python
+ 	 // advc, advc.130e:
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9100

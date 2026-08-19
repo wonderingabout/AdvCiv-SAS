@@ -1,0 +1,215 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2743
+# Commit: d4066d302e5ad3aefc3f3cf2fbf9d8e6bf667563
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56ac2b20cf573578cda914618d4307a4970c8783
+# Title: BUG option for city alerts about positive pending changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/Config/Civ4lerts.xml
+2	0	Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+11	10	Assets/Python/Contrib/Civ4lerts.py
+2	1	Assets/XML/Text/BUG Options Screen.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_hints.xml
+26	7	Assets/XML/Text/Civ4lerts Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/Civ4lerts.xml b/Assets/Config/Civ4lerts.xml
+index 5451a4ddf..0b9778393 100644
+--- a/Assets/Config/Civ4lerts.xml
++++ b/Assets/Config/Civ4lerts.xml
+@@ -74,6 +74,11 @@
+ 					type="boolean" default="True" and="Enabled" 
+ 					get="isShowRevoltAlert"/>
+ 
++			<!-- advc.106d: New option -->
++			<option id="CityPendingPositive" key="City Pending Positive" 
++					type="boolean" default="False" and="Enabled" 
++					get="isShowPendingPositive"/>
++			
+ 			<option id="CityCanHurryPop" key="City Can Hurry Pop" 
+ 					type="boolean" default="False" and="Enabled" 
+ 					get="isShowCityCanHurryPopAlert"
+
+diff --git a/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py b/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+index bbea02996..6cfa8e5f6 100644
+--- a/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+@@ -32,6 +32,8 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, leftR, "Civ4lerts__CityHealthiness")		
+ 		self.addCheckbox(screen, leftL, "Civ4lerts__CityPendingHappiness")
+ 		self.addCheckbox(screen, leftR, "Civ4lerts__CityHappiness")
++		# advc.106d:
++		self.addCheckbox(screen, left, "Civ4lerts__CityPendingPositive")
+ 		# <advc.210b> Replacing these two left/right boxes with a single one
+ 		# for the revolt alert.
+ 		#self.addCheckbox(screen, leftL, "Civ4lerts__CityPendingOccupation")
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index f705d64e3..8ca5ef765 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -108,7 +108,7 @@ class Civ4lerts:
+ 		cityEvent.add(CityHappiness(eventManager))
+ 		cityEvent.add(CanHurryPopulation(eventManager))
+ 		cityEvent.add(CanHurryGold(eventManager))
+-		
++		# advc (note): This thing triggers once all units have received orders. Pretty weird.
+ 		cityEvent = EndTurnReadyCityAlertManager(eventManager)
+ 		cityEvent.add(CityPendingGrowth(eventManager))
+ 		
+@@ -357,7 +357,9 @@ class AbstractCityTestAlert(AbstractCityAlert):
+ 		elif (self._isShowPendingAlert(passes)):
+ 			# See if city will switch next turn
+ 			willPass = self._willPassTest(city)
+-			if passed != willPass and willPass: # avdc.106d: 'and willPass' added
++			#if passed != willPass:
++			# advc.106d:
++			if passed != willPass and (willPass or Civ4lertsOpt.isShowPendingPositive()):
+ 				message, icon = self._getPendingAlertMessageIcon(city, willPass)
+ 		# advc.106d: suppress check added
+ 		if message and not self._suppressMessage(city):
+@@ -420,13 +422,12 @@ class CityPendingGrowth(AbstractCityAlert):
+ 	def checkCity(self, cityId, city, iPlayer, player):
+ 		if (Civ4lertsOpt.isShowCityPendingGrowthAlert()):
+ 			if (CityUtil.willGrowThisTurn(city)):
+-				#message = localText.getText(
+-				#		"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH",
+-				#		(city.getName(), city.getPopulation() + 1))
+-				#icon = "Art/Interface/Symbols/Food/food05.dds"
+-				#addMessageAtCity(iPlayer, message, icon, city)
+-				# advc.106d: Don't show pending growth
+-				pass
++				if Civ4lertsOpt.isShowPendingPositive(): # advc.106d
++					message = localText.getText(
++							"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH",
++							(city.getName(), city.getPopulation() + 1))
++					icon = "Art/Interface/Symbols/Food/food05.dds"
++					addMessageAtCity(iPlayer, message, icon, city)
+ 			elif (CityUtil.willShrinkThisTurn(city)):
+ 				message = localText.getText(
+ 						"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_SHRINKAGE",
+@@ -627,7 +628,7 @@ class CityOccupation(AbstractCityTestAlert):
+ 		return city.isOccupation() and city.getOccupationTimer() > 1
+ 	
+ 	def _isShowAlert(self, passes):
+-		return False #Civ4lertsOpt.isShowCityOccupationAlert() # advc-106d: Disabled
++		return False #Civ4lertsOpt.isShowCityOccupationAlert() # advc.106d: Disabled
+ 	
+ 	def _getAlertMessageIcon(self, city, passes):
+ 		if (passes):
+
+diff --git a/Assets/XML/Text/BUG Options Screen.xml b/Assets/XML/Text/BUG Options Screen.xml
+index 8d5d90190..71ecf37b3 100644
+--- a/Assets/XML/Text/BUG Options Screen.xml	
++++ b/Assets/XML/Text/BUG Options Screen.xml	
+@@ -635,11 +635,12 @@
+ 	
+ 	<!-- Alerts Tab -->
+ 
++	<!-- advc.106d: German was "Warnungen" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTTAB_ALERTS</Tag>
+ 		<English>Alerts</English>
+ 		<French>Alertes</French>
+-		<German>Warnungen</German>
++		<German>Meldungen</German>
+ 		<Italian>Avvisi</Italian>
+ 		<Spanish>Alertas</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 71b312609..b9af3fc4c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -567,7 +567,7 @@
+ 	<Tag>TXT_KEY_HINT_13</Tag>
+ 	<English>Check the foreign advisor often - knowing what your friends (and foes) can offer in trade is valuable information. The BUG mod can alert you whenever a technology or resource becomes available for trade; see the "Alerts" tab of the BUG menu.</English>
+ 	<French>Consultez souvent votre conseiller diplomatique. Il est essentiel de savoir ce que vos amis (et vos ennemis) peuvent vous proposer.</French>
+-	<German>Werfen Sie regelm&#228;&#223;ig einen Blick auf den Auslandsberater. Schlie&#223;lich m&#252;ssen Sie wissen, womit Ihre Freunde (und Feinde) handeln. Sie k&#246;nnen sich benachrichtigen lassen, wenn ein Gegner neue Technologien oder Ressourcen anbietet. Klicken Sie dazu im BUG-Mod-Men&#252; auf den Reiter "Warnungen".</German>
++	<German>Werfen Sie regelm&#228;&#223;ig einen Blick auf den Auslandsberater. Schlie&#223;lich m&#252;ssen Sie wissen, womit Ihre Freunde (und Feinde) handeln. Sie k&#246;nnen sich benachrichtigen lassen, wenn ein Gegner neue Technologien oder Ressourcen anbietet. Klicken Sie dazu im BUG-Mod-Men&#252; auf den Reiter "Meldungen".</German>
+ 	<Italian>Consulta spesso il consigliere degli esteri per sapere chi tra gli amici (o i nemici) &#232; in grado di fornire informazioni in cambio di qualcosa.</Italian>
+ 	<Spanish>Consultad con frecuencia al consejero de Asuntos Exteriores. Saber lo que vuestros amigos (y enemigos) pueden ofreceros en intercambio es una informaci&#243;n valiosa.</Spanish>
+ </TEXT>
+
+diff --git a/Assets/XML/Text/Civ4lerts Options.xml b/Assets/XML/Text/Civ4lerts Options.xml
+index 300d6d5ea..1a733b77a 100644
+--- a/Assets/XML/Text/Civ4lerts Options.xml	
++++ b/Assets/XML/Text/Civ4lerts Options.xml	
+@@ -44,12 +44,13 @@
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.106d: No longer triggers on growth -->
++	<!-- advc.106d: No longer triggers on growth (normally).
++		 Note added about the strange end-turn condition. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGGROWTH_HOVER</Tag>
+-		<English>Displays an alert when a city's population will shrink next turn.</English>
++		<English>Displays an alert when a city's population will shrink next turn. Note: This alert is checked (only) once all units have received orders.</English>
+ 		<French>En activant, une alerte sera montr�e quand la population d'une ville retr�cira au prochain tour.</French>
+-		<German>Meldet, wenn die Bev�lkerung einer Stadt in der n�chsten Runde schrumpfen wird.</German>
++		<German>Meldet, wenn die Bev�lkerung einer Stadt in der n�chsten Runde schrumpfen wird. Bemerkung: Die Meldung erfolgt am Zugende, und zwar nur, wenn alle Einheiten Befehle erhalten haben.</German>
+ 		<Italian>Quando � selezionato, viene visualizzato un avviso quando la popolazione di una citt� si ridurr� al turno successivo.</Italian>
+ 		<Spanish>Muestra un aviso cuando la poblaci�n de una ciudad vaya a reducirse en el pr�ximo turno.</Spanish>
+ 	</TEXT>
+@@ -80,8 +81,8 @@
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.106d: No longer triggers on will-become-happy. And German text
+-		 was misleading and too long. ICON added. -->
++	<!-- advc.106d: No longer triggers on will-become-happy (normally).
++		 And German text was misleading and too long. ICON added. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGHAPPINESS_HOVER</Tag>
+ 		<English>Displays an alert when a city will become unhappy ([ICON_UNHAPPY]) next turn.</English>
+@@ -119,8 +120,8 @@
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.106d: No longer triggers on will-become-healthy. And German text
+-		 was misleading and too long. ICON added. -->
++	<!-- advc.106d: No longer triggers on will-become-healthy (normally).
++		 And German text was misleading and too long. ICON added. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGHEALTHINESS_HOVER</Tag>
+ 		<English>Displays an alert when a city will become unhealthy ([ICON_UNHEALTHY]) next turn.</English>
+@@ -149,6 +150,24 @@
+ 		<Spanish>Muestra un aviso cuando la ciudad se vuelva sana o insalubre.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.106d: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGPOSITIVE_TEXT</Tag>
++		<English>Also Positive Pending</English>
++		<French>Also Positive Pending</French>
++		<German>Auch positive bevorst. �nderungen</German>
++		<Italian>Also Positive Pending</Italian>
++		<Spanish>Also Positive Pending</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGPOSITIVE_HOVER</Tag>
++		<English>Trigger the [COLOR_HIGHLIGHT_TEXT]Pending[COLOR_REVERT] alerts for [COLOR_HIGHLIGHT_TEXT]Growth[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Happiness[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Health[COLOR_REVERT] also when a positive change is pending. Normally, those alerts cover only negative pending changes (e.g. population loss).</English>
++		<French>Trigger the [COLOR_HIGHLIGHT_TEXT]Pending[COLOR_REVERT] alerts for [COLOR_HIGHLIGHT_TEXT]Growth[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Happiness[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Health[COLOR_REVERT] also when a positive change is pending. Normally, those alerts cover only negative pending changes (e.g. population loss).</French>
++		<German>Zeigt [COLOR_HIGHLIGHT_TEXT]N�chste[COLOR_REVERT]-[COLOR_HIGHLIGHT_TEXT]Runde[COLOR_REVERT]-Meldungen bzgl. [COLOR_HIGHLIGHT_TEXT]Wachstum[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Zufriedenheit[COLOR_REVERT] und [COLOR_HIGHLIGHT_TEXT]Gesundheit[COLOR_REVERT] auch dann an, wenn eine positive Ver�nderung bevorsteht (z.B. Bev�lkerungszuwachs). Ansonsten werden bevorstehende Ver�nderungen nur dann gemeldet, wenn sie negativ sind.</German>
++		<Italian>Trigger the [COLOR_HIGHLIGHT_TEXT]Pending[COLOR_REVERT] alerts for [COLOR_HIGHLIGHT_TEXT]Growth[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Happiness[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Health[COLOR_REVERT] also when a positive change is pending. Normally, those alerts cover only negative pending changes (e.g. population loss).</Italian>
++		<Spanish>Trigger the [COLOR_HIGHLIGHT_TEXT]Pending[COLOR_REVERT] alerts for [COLOR_HIGHLIGHT_TEXT]Growth[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Happiness[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Health[COLOR_REVERT] also when a positive change is pending. Normally, those alerts cover only negative pending changes (e.g. population loss).</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.210b: Now unused -->
+ 	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_TEXT</Tag>
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=11151

@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3732
+# Commit: 79483db233febfdc7b678f821929c3dbcac6f1d4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f49f419d4ffb87548802f82040888395b4b1333d
+# Title: Cleaner implementation of Balanced Resources Oil tweak
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	7	Assets/Python/CvMapGeneratorUtil.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index b376fec55..167b2449b 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -1567,26 +1567,35 @@ class BonusBalancer:
+ 							continue # </advc.108c>
+ 						x,y = startx+dx, starty+dy
+ 						pLoopPlot = self.map.plot(x,y)
+-						if (pLoopPlot
+-								# advc.108c: Oil on water is hardly fair
+-								and not pLoopPlot.isWater()):
++						if pLoopPlot:
+ 							plots.append(pLoopPlot)
+ 				
+ 				resources_placed = []
+-				for pass_num in range(4):
++				for pass_num in range(5):
+ 					bIgnoreUniqueRange  = pass_num >= 1
+ 					bIgnoreOneArea 		= pass_num >= 2
+-					bIgnoreAdjacent 	= pass_num >= 3
++					bIgnoreWater 		= pass_num >= 3 # advc.108c
++					bIgnoreAdjacent 	= pass_num >= 4
+ 					
+ 					for bonus in range(self.gc.getNumBonusInfos()):
+ 						type_string = self.gc.getBonusInfo(bonus).getType()
+ 						if (type_string not in resources_placed) and (type_string in self.resourcesToBalance):
+ 							#for (pLoopPlot) in plots:
+-							# <advc.108c> Randomize placement
++							# <advc.108c>
++							# Allow resources that can appear on land only on land
++							# (i.e. no Oil on water)
++							bLandValid = False
++							for iTerrain in range(self.gc.getNumTerrainInfos()):
++								if self.gc.getBonusInfo(bonus).isTerrain(iTerrain):
++									if not self.gc.getTerrainInfo(iTerrain).isWater():
++										bLandValid = True
++							# Randomize placement
+ 							iOffset = self.gc.getGame().getMapRand().get(len(plots), "BonusBalancer")
+ 							for j in range(0, len(plots)):
+ 								pLoopPlot = plots[(j + iOffset) % len(plots)] # </advc.108c>
+-								if (pLoopPlot.canHaveBonus(bonus, True)):
++								if (pLoopPlot.canHaveBonus(bonus, True)
++										# advc.108c:
++										and (bIgnoreWater or not pLoopPlot.isWater() or not bLandValid)):
+ 									if self.isBonusValid(bonus, pLoopPlot, bIgnoreUniqueRange, bIgnoreOneArea, bIgnoreAdjacent):
+ 										pLoopPlot.setBonusType(bonus)
+ 										resources_placed.append(type_string)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2081

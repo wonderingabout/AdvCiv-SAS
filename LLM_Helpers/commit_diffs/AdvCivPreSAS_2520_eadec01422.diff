@@ -1,0 +1,284 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2520
+# Commit: eadec01422be8f2b4f0618112e7a7eba19cd45b1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0ca9155dbc2904673b1a3aa6326f8efb196b90a3
+# Title: Don't show sea level recommendations on Play Now screen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	Assets/Python/Screens/CvOptionsScreen.py
+1	11	Assets/Python/Screens/CvVictoryScreen.py
+2	2	Assets/Python/Screens/EconomicsAdvisor.py
+14	6	Assets/XML/Text/CIV4GameText_advc.xml
+2	2	CvGameCoreDLL/CvInfo_Base.cpp
+4	1	CvGameCoreDLL/CvInfo_Base.h
+21	0	CvGameCoreDLL/CvInfo_GameOption.cpp
+1	0	CvGameCoreDLL/CvInfo_GameOption.h
+1	5	CvGameCoreDLL/CvReplayInfo.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvOptionsScreen.py b/Assets/Python/Screens/CvOptionsScreen.py
+index 49a6e7ebd..90a7a9736 100644
+--- a/Assets/Python/Screens/CvOptionsScreen.py
++++ b/Assets/Python/Screens/CvOptionsScreen.py
+@@ -483,13 +483,13 @@ class CvOptionsScreen:
+ 		tab.setToolTip(szWidgetName, localText.getText("TXT_KEY_OPTIONS_SCREEN_RES_HELP", ()))
+ 		
+ 		# advc.137: Replaced TXT_KEY_SEALEVEL_HIGH with TXT_KEY_HIGH
+-		# and ditto for LOW. Also under Render Quality, Globe View
+-		# and Movies.
++		# and ditto for MEDIUM and LOW. Also under Render Quality, Globe View
++		# and Movies. Cleaner this way.
+ 		# Graphics Level
+ 		#tab.attachLabel(vbox1, "GraphicsLevelLabel", localText.getText("TXT_KEY_OPTIONS_SCREEN_GRAPHICS_LEVEL", ()))
+ 		#tab.setControlFlag("GraphicsLevelLabel", "CF_LABEL_DEFAULTSIZE")
+ 		#szDropdownDesc = "GraphicsLevelDropdownBox"
+-		#aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_SEALEVEL_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
++		#aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
+ 		#szCallbackFunction = "handleGraphicsLevelDropdownBoxInput"
+ 		#szWidgetName = szDropdownDesc
+ 		#iInitialSelection = UserProfile.getGraphicsLevel()
+@@ -502,7 +502,7 @@ class CvOptionsScreen:
+ 		tab.attachLabel(vbox1, "GraphicsQualityLabel", localText.getText("TXT_KEY_OPTIONS_SCREEN_RENDER_QUALITY_LEVEL", ()))
+ 		tab.setControlFlag("GraphicsQualityLabel", "CF_LABEL_DEFAULTSIZE")
+ 		szDropdownDesc = "RenderQualityDropdownBox"
+-		aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_SEALEVEL_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
++		aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
+ 		szCallbackFunction = "handleRenderQualityDropdownBoxInput"
+ 		szWidgetName = self.szRenderQualityDropdownBoxName = "RenderQualityDropdownBox"
+ 		iInitialSelection = UserProfile.getRenderQualityLevel()
+@@ -544,7 +544,7 @@ class CvOptionsScreen:
+ 		tab.setControlFlag("GlobeViewLabel", "CF_LABEL_DEFAULTSIZE")
+ 				
+ 		szDropdownDesc = "GlobeViewDropdownBox"
+-		aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_SEALEVEL_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
++		aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
+ 		szCallbackFunction = "handleGlobeViewDropdownBoxInput"
+ 		szWidgetName = self.szGlobeViewDropdownBoxName = "GlobeViewDropdownBox"
+ 		iInitialSelection = UserProfile.getGlobeViewRenderLevel()
+@@ -563,7 +563,7 @@ class CvOptionsScreen:
+ 		tab.setControlFlag("MovieLabel", "CF_LABEL_DEFAULTSIZE")
+ 				
+ 		szDropdownDesc = "MovieDropdownBox"
+-		aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_SEALEVEL_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
++		aszDropdownElements = (localText.getText("TXT_KEY_HIGH", ()), localText.getText("TXT_KEY_MEDIUM", ()), localText.getText("TXT_KEY_LOW", ()))
+ 		szCallbackFunction = "handleMovieDropdownBoxInput"
+ 		szWidgetName = self.szMovieDropdownBoxName = "MovieDropdownBox"
+ 		iInitialSelection = UserProfile.getMovieQualityLevel()
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 88524e80a..5c7c25af3 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -957,17 +957,7 @@ class CvVictoryScreen:
+ 
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		# <advc.137> Use TXT_KEY_LOW/HIGH instead of SEA_LEVEL keys. (The SEA_LEVEL keys include the recommendation for the Custom Game screen - don't want that here.
+-		seaLvl = gc.getSeaLevelInfo(m.getSeaLevel()).getSeaLevelChange()
+-		if seaLvl == 0: # Medium sea level - use the BtS code.
+-			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		else:
+-			szKey = "TXT_KEY_HIGH"
+-			if seaLvl < 0:
+-				szKey = "TXT_KEY_LOW"
+-			s = localText.getText(szKey, ())
+-			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (s,)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		# </advc.137>
++		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.004>
+ 		for i in range(m.getNumCustomMapOptions()):
+ 			# Don't know how to call map script functions in Python, so I've implemented that in the DLL.
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 12d270e97..eb9934e3d 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -504,11 +504,11 @@ class EconomicsAdvisor:
+ 		szText = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper() + ": "
+ 
+ 		# hopefully the words for low, medium, and high for sealevel will be good enough for GW severity as well...
+-		# advc.137: Not anymore: One instance of SEALEVEL_LOW and SEALEVEL_HIGH replaced.
++		# advc.137: Better use separate keys
+ 		if (iSeverityRating < 30):
+ 			szText += localText.getColorText("TXT_KEY_LOW", (), gc.getInfoTypeForString ("COLOR_GREEN")).upper()
+ 		elif (iSeverityRating < 75):
+-			szText += localText.getColorText("TXT_KEY_SEALEVEL_MEDIUM", (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper()
++			szText += localText.getColorText("TXT_KEY_MEDIUM", (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper()
+ 		else:
+ 			szText += localText.getColorText("TXT_KEY_HIGH", (), gc.getInfoTypeForString ("COLOR_RED")).upper()
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index b3afd7fd4..ac9dfbecf 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1949,23 +1949,23 @@
+ 	<!-- advc.137: Copy-pasted from Vanilla Civ4GameTextInfos.xml;
+ 		 recommendation added (only in English). -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_SEALEVEL_LOW</Tag>
++		<Tag>TXT_KEY_SEALEVEL_LOW_RECOMMEND</Tag>
+ 		<English>Low - extra players recommended (+35%%)</English>
+ 		<French>Bas</French>
+-		<German>Niedrig</German>
++		<German>Niedrig - zus. Spieler empfohlen (+35%%)</German>
+ 		<Italian>Basso</Italian>
+ 		<Spanish>Bajo</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_SEALEVEL_HIGH</Tag>
++		<Tag>TXT_KEY_SEALEVEL_HIGH_RECOMMEND</Tag>
+ 		<English>High - fewer players recommended (-30%%)</English>
+ 		<French>Haut</French>
+-		<German>Hoch</German>
++		<German>Hoch - weniger Spieler empfohlen (-30%%)</German>
+ 		<Italian>Alto</Italian>
+ 		<Spanish>Alto</Spanish>
+ 	</TEXT>
+-	<!-- advc.137: New tag name for the original game text (for use on the
+-		 Settings screen). -->
++	<!-- advc.137: Better use a separate key for H/M/L when it doesn't refer to
++		 the sea level. Text is the same though (from Civ4GameTextInfos.xml). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_LOW</Tag>
+ 		<English>Low</English>
+@@ -1974,6 +1974,14 @@
+ 		<Italian>Basso</Italian>
+ 		<Spanish>Bajo</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MEDIUM</Tag>
++		<English>Medium</English>
++		<French>Normal</French>
++		<German>Mittel</German>
++		<Italian>Medio</Italian>
++		<Spanish>Medio</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_HIGH</Tag>
+ 		<English>High</English>
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 9e804be2b..5ef7a66b9 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -86,12 +86,12 @@ const wchar* CvInfoBase::getTextKeyWide() const
+ 	return m_szTextKey;
+ }
+ 
+-const wchar* CvInfoBase::getDescription(uint uiForm) const
++wchar const* CvInfoBase::getDescriptionInternal(uint uiForm) const
+ {
+ 	while(m_aCachedDescriptions.size() <= uiForm)
+ 	{
+ 		m_aCachedDescriptions.push_back(gDLL->getObjectText(m_szTextKey,
+-			m_aCachedDescriptions.size()));
++				m_aCachedDescriptions.size()));
+ 	}
+ 	return m_aCachedDescriptions[uiForm];
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 0bd6db254..587c4a6a2 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -41,7 +41,10 @@ public: // All the const functions are exposed to Python
+ 	std::wstring pyGetStrategy() { return getStrategy(); }
+ 
+ 	DllExport const wchar* getTextKeyWide() const;
+-	DllExport const wchar* getDescription(uint uiForm = 0) const;
++	DllExport wchar const* getDescription(uint uiForm = 0) const
++	// <advc.137> Allow this to be overridden
++	{ return getDescriptionInternal(uiForm); }
++	virtual wchar const* getDescriptionInternal(uint uiForm) const; // </advc.137>
+ 	DllExport const wchar* getText() const;
+ 	const wchar* getCivilopedia() const;
+ 	DllExport const wchar* getHelp() const;
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index ec6580b0a..365e84661 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -4,6 +4,7 @@
+ #include "CvInfo_GameOption.h"
+ #include "CvXMLLoadUtility.h"
+ #include "CvDLLXMLIFaceBase.h"
++#include "CvInitCore.h" // advc.137
+ 
+ 
+ CvGameOptionInfo::CvGameOptionInfo() :
+@@ -1522,3 +1523,23 @@ bool CvSeaLevelInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	return true;
+ }
++// advc.137: Include recommendation in description on Custom Game screen
++wchar const* CvSeaLevelInfo::getDescriptionInternal(uint uiForm) const
++{
++	CvInitCore const& kInitCore = GC.getInitCore();
++	if (kInitCore.getActivePlayer() == NO_PLAYER &&
++		/*	This distinguishes Custom Game from Play Now.
++			(Play Now doesn't have enough room for a recommendation,
++			and doesn't allow player counts to be adjusted.) */
++		kInitCore.getSlotStatus((PlayerTypes)0) == SS_OPEN)
++	{
++		CvWString szTag;
++		if (m_iSeaLevelChange < 0)
++			szTag = L"TXT_KEY_SEALEVEL_LOW_RECOMMEND";
++		else if (m_iSeaLevelChange > 0)
++			szTag = L"TXT_KEY_SEALEVEL_HIGH_RECOMMEND";
++		if (!szTag.empty())
++			return gDLL->getText(szTag);
++	}
++	return CvInfoBase::getDescriptionInternal(uiForm);
++}
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index c1466a24e..35edaf185 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -570,6 +570,7 @@ public:
+ 	int getSeaLevelChange() const; // Exposed to Python
+ 	inline int getResearchPercent() const { return m_iResearchPercent; } // advc.910
+ 	bool read(CvXMLLoadUtility* pXML);
++	virtual wchar const* getDescriptionInternal(uint uiForm) const; // advc.137
+ 
+ protected:
+ 	int m_iSeaLevelChange;
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index e18064d5b..a4702ca89 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -274,9 +274,6 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 		szMapName = szMapName.substr(0, szMapName.length() - szWBEnding.length());
+ 		bScenario = true;
+ 	}
+-	/*  Can't use getTextKeyWide for sea level b/c of the recommendation text
+-		added by advc.137 (same issue in CvVictoryScreen.py) */
+-	int iSeaLevelChange = GC.getInfo(getSeaLevel()).getSeaLevelChange();
+ 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+ 	szSettings += 
+ 			gDLL->getText("TXT_KEY_NAME_LEADER_CIV",
+@@ -288,8 +285,7 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 			GC.getInfo(getWorldSize()).getTextKeyWide(),
+ 			getMapScriptName().GetCString()) + L" " +
+ 			gDLL->getText("TXT_KEY_SETTINGS_SEA_LEVEL",
+-			(iSeaLevelChange == 0 ? GC.getInfo(getSeaLevel()).getTextKeyWide() :
+-			gDLL->getText((iSeaLevelChange < 0 ? "TXT_KEY_LOW" : "TXT_KEY_HIGH"))))) +
++			GC.getInfo(getSeaLevel()).getTextKeyWide())) +
+ 			(getClimate() == 0 ? L"" : (L", " +
+ 			gDLL->getText("TXT_KEY_SETTINGS_CLIMATE",
+ 			GC.getInfo(getClimate()).getTextKeyWide())));
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=12519

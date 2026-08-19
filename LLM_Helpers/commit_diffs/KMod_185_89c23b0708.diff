@@ -1,0 +1,191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 185
+# Commit: 89c23b07085f3a029cd5aa77a7d0e47312978d96
+# History segment: K-Mod history
+# Parent used for diff: b76139d93b69ed303b0c01cc681bb6d1e68fd515
+# Title: "Lost production" for units is now assigned to another unit of the same type (instead of being converted into gold). With this, it is possible to build more...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+62	42	CvGameCoreDLL/CvCity.cpp
+3	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9f8ae59fc..d69665762 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11588,16 +11588,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 			{
+ 				changeOverflowProduction(iOverflow, getProductionModifier(eTrainUnit));
+ 			}
++
++			/* original code (this stuff has been moved)
+ 			setUnitProduction(eTrainUnit, 0);
+-/*************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       06/10/10                           EmperorFool         */
+-/*                                                                                               */
+-/* Bugfix                                                                                        */
+-/*************************************************************************************************/
+-			setUnitProductionTime(eTrainUnit, 0);
+-/*************************************************************************************************/
+-/* UNOFFICIAL_PATCH                         END                                                  */
+-/*************************************************************************************************/
++			setUnitProductionTime(eTrainUnit, 0); // unofficial patch
+ 
+ 			// * Limited which production modifiers affect gold from production overflow. 1/3
+ 			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
+@@ -11608,60 +11602,86 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 			if (iProductionGold > 0)
+ 			{
+ 				GET_PLAYER(getOwnerINLINE()).changeGold(iProductionGold);
+-			}
++			} */
+ 
++			// K-Mod. use excess production to build more of the same unit
++			int iToBuild = 1 + iLostProduction / iProductionNeeded;
++			int iBuilt = 0;
++			for (iBuilt = 0; iBuilt < iToBuild; iBuilt++)
++			{
++				// original build code
++				pUnit = GET_PLAYER(getOwnerINLINE()).initUnit(eTrainUnit, getX_INLINE(), getY_INLINE(), eTrainAIUnit);
++				FAssertMsg(pUnit != NULL, "pUnit is expected to be assigned a valid unit object");
+ 
+-			pUnit = GET_PLAYER(getOwnerINLINE()).initUnit(eTrainUnit, getX_INLINE(), getY_INLINE(), eTrainAIUnit);
+-			FAssertMsg(pUnit != NULL, "pUnit is expected to be assigned a valid unit object");
++				pUnit->finishMoves();
+ 
+-			pUnit->finishMoves();
++				addProductionExperience(pUnit);
+ 
+-			addProductionExperience(pUnit);
++				pRallyPlot = getRallyPlot();
+ 
+-			pRallyPlot = getRallyPlot();
++				if (pRallyPlot != NULL)
++				{
++					pUnit->getGroup()->pushMission(MISSION_MOVE_TO, pRallyPlot->getX_INLINE(), pRallyPlot->getY_INLINE());
++				}
+ 
+-			if (pRallyPlot != NULL)
+-			{
+-				pUnit->getGroup()->pushMission(MISSION_MOVE_TO, pRallyPlot->getX_INLINE(), pRallyPlot->getY_INLINE());
+-			}
++				if (isHuman())
++				{
++					if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_START_AUTOMATED))
++					{
++						pUnit->automate(AUTOMATE_BUILD);
++					}
+ 
+-			if (isHuman())
+-			{
+-				if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_START_AUTOMATED))
++					if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_MISSIONARIES_AUTOMATED))
++					{
++						pUnit->automate(AUTOMATE_RELIGION);
++					}
++				}
++
++				CvEventReporter::getInstance().unitBuilt(this, pUnit);
++
++				if( gCityLogLevel >= 1 )
+ 				{
+-					pUnit->automate(AUTOMATE_BUILD);
++					CvWString szString;
++					getUnitAIString(szString, pUnit->AI_getUnitAIType());
++					logBBAI("    City %S finishes production of unit %S with UNITAI %S", getName().GetCString(), pUnit->getName(0).GetCString(), szString.GetCString() );
+ 				}
+ 
+-				if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_MISSIONARIES_AUTOMATED))
++				if (GC.getUnitInfo(eTrainUnit).getDomainType() == DOMAIN_AIR)
+ 				{
+-					pUnit->automate(AUTOMATE_RELIGION);
++					if (plot()->countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
++					{
++						pUnit->jumpToNearestValidPlot();  // can destroy unit
++					}
+ 				}
++				// end original build code
++				if (!canTrain(eTrainUnit))
++					break; //  can't build any more.
+ 			}
++			iLostProduction -= iProductionNeeded * (iBuilt-1);
++			FAssert(iLostProduction >= 0);
+ 
+-			CvEventReporter::getInstance().unitBuilt(this, pUnit);
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-			if( gCityLogLevel >= 1 )
++			if (canTrain(eTrainUnit))
+ 			{
+-				CvWString szString;
+-				getUnitAIString(szString, pUnit->AI_getUnitAIType());
+-				logBBAI("    City %S finishes production of unit %S with UNITAI %S", getName().GetCString(), pUnit->getName(0).GetCString(), szString.GetCString() );
++				FAssert(iLostProduction < iProductionNeeded);
++				setUnitProduction(eTrainUnit, iLostProduction);
++				iLostProduction = 0;
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++			else
++				setUnitProduction(eTrainUnit, 0);
++			setUnitProductionTime(eTrainUnit, 0);
+ 
+-			if (GC.getUnitInfo(eTrainUnit).getDomainType() == DOMAIN_AIR)
++			if (iLostProduction > 0)
+ 			{
+-				if (plot()->countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
++				iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
++				iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eTrainUnit)));
++
++				int iProductionGold = iLostProduction * GC.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100;
++				if (iProductionGold > 0)
+ 				{
+-					pUnit->jumpToNearestValidPlot();  // can destroy unit
++					GET_PLAYER(getOwnerINLINE()).changeGold(iProductionGold);
+ 				}
+ 			}
++			// K-Mod end
+ 		}
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 76890bff1..2ebfb9d5d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -668,7 +668,8 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 				bool bKilled = false;
+ 				if (!bNoDisband)
+ 				{
+-					if (pLoopUnit->canFight())
++					//if (pLoopUnit->canFight()) // original bts code
++					if (pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) // K-Mod - bug fix for the rare case of a barb city spawning on top of an animal
+ 					{
+ 						int iExp = pLoopUnit->getExperience();
+ 						CvCity* pPlotCity = pLoopUnit->plot()->getPlotCity();
+@@ -11147,7 +11148,7 @@ int CvPlayerAI::AI_unitCostPerMil() const
+ 	int iFunds = iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) / 100;
+ 	iFunds += getGoldPerTurn() - calculateInflatedCosts();
+ 	iFunds += getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
+-	return calculateUnitCost() * 1000 / std::max(1, iFunds);
++	return std::max(0, calculateUnitCost()-getNumCities()) * 1000 / std::max(1, iFunds); // # cities is there to offset early-game distortion.
+ }
+ // K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7448

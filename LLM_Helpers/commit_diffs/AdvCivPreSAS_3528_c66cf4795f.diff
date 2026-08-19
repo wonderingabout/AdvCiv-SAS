@@ -1,0 +1,345 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3528
+# Commit: c66cf4795ff9f1363ba12910f0e22d53d846fa9e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1ed6c9a1132685ab7154efe937c89fd978b0561d
+# Title: Fix some issues with initial game state, SPaH option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+66	45	CvGameCoreDLL/CvGame.cpp
+3	4	CvGameCoreDLL/CvGame.h
+4	3	CvGameCoreDLL/StartPointsAsHandicap.cpp
+2	1	CvGameCoreDLL/StartPointsAsHandicap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 694228152..3bd977514 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -227,6 +227,8 @@ void CvGame::setInitialItems()
+ 	if(GC.getDefineBOOL("PASSABLE_AREAS"))
+ 		kMap.recalculateAreas(false);
+ 	// </advc.030>
++	// advc.tsl: Delay part of the freebies until starting sites have been assigned
++	initFreeCivState();
+ 	initFreeUnits();
+ 	// <advc.250c>
+ 	if (GC.getDefineBOOL("INCREASE_START_TURN") && getStartEra() == 0)
+@@ -915,6 +917,10 @@ void CvGame::updateAIHandicap()
+ 
+ void CvGame::initFreeState()
+ {
++	// <advc.106h>
++	if (m_eInitialActivePlayer != NO_PLAYER)
++		return; // advc.051: Don't init twice
++	m_eInitialActivePlayer = getActivePlayer(); // </advc.106h>
+ 	initGameHandicap(); // advc.127
+ 	// <advc.084>
+ 	if (getCivTeamsEverAlive() == 1)
+@@ -938,7 +944,6 @@ void CvGame::initFreeState()
+ 		setOption(GAMEOPTION_SPAH, false);
+ 	}
+ 	if (isOption(GAMEOPTION_SPAH))
+-		// Reassigns start plots and start points
+ 		m_pSpah->setInitialItems(); // </advc.250b>
+ 	if (GC.getInitCore().getScenario())
+ 	{
+@@ -953,21 +958,39 @@ void CvGame::initFreeState()
+ 	applyOptionEffects(); // advc.310
+ 	AI().AI_updateVictoryWeights(); // advc.115f
+ 	FOR_EACH_ENUM(Tech)
++	{
++		if (GC.getInfo(eLoopTech).getEra() < getStartEra()
++			// disabled by K-Mod. (moved & changed. See below)
++			/*|| GC.getInfo(getHandicapType()).isFreeTechs(eLoopTech)*/)
++		{
++			for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++			{
++				itTeam->setHasTech(eLoopTech, true, NO_PLAYER, false, false);
++			}
++		}
++		// advc.tsl: Free techs from other sources now handled by initFreeCivState
++	}
++}
++
++/*	advc.tsl: Freebies that shouldn't be initialized until starting sites have
++	been assigned. In particular, freebies that depend on the civilization types.
++	Based on code cut from initFreeState. */
++void CvGame::initFreeCivState()
++{	// <advc.250b>
++	if (isOption(GAMEOPTION_SPAH))
++		m_pSpah->rearrangeStartingPlots(); // </advc.250b>
++	FOR_EACH_ENUM(Tech)
+ 	{
+ 		// <advc.126> Later-era free tech only for later-era starts.
+-		if(GC.getInfo(eLoopTech).getEra() > getStartEra())
++		if (GC.getInfo(eLoopTech).getEra() > getStartEra())
+ 			continue; // </advc.126>
+-		bool const bFreeToAll = (GC.getInfo(eLoopTech).getEra() < getStartEra()
+-				// disabled by K-Mod. (moved & changed. See below)
+-				/*|| GC.getInfo(getHandicapType()).isFreeTechs(eLoopTech)*/);
+ 		for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 		{
+ 			CvTeam& kTeam = *itTeam;
+ 			bool bValid = false;
+-			if (bFreeToAll ||
+-				(!kTeam.isHuman() && GC.getInfo(getHandicapType()).isAIFreeTechs(eLoopTech) &&
++			if (!kTeam.isHuman() && GC.getInfo(getHandicapType()).isAIFreeTechs(eLoopTech) &&
+ 				// advc.001: Barbarians receiving free AI tech might be a bug
+-				!kTeam.isBarbarian() /* advc.250c: */ && !isOption(GAMEOPTION_ADVANCED_START)))
++				!kTeam.isBarbarian() /* advc.250c: */ && !isOption(GAMEOPTION_ADVANCED_START))
+ 			{
+ 				bValid = true;
+ 			}
+@@ -976,7 +999,7 @@ void CvGame::initFreeState()
+ 				for (MemberIter itMember(kTeam.getID()); itMember.hasNext(); ++itMember)
+ 				{
+ 					CvPlayer& kMember = *itMember;
+-					/*  <advc.250b> <advc.250c> Always grant civ-specific tech,
++					/*  <advc.250b>, advc.250c: Always grant civ-specific tech,
+ 						but not tech from handicap if in Advanced Start except to
+ 						human civs that don't actually start Advanced (SPaH option). */
+ 					if (GC.getInfo(kMember.getCivilizationType()).isCivilizationFreeTechs(eLoopTech))
+@@ -987,23 +1010,23 @@ void CvGame::initFreeState()
+ 					// K-Mod: Give techs based on player handicap, not game handicap.
+ 					if (GC.getInfo(kMember.getHandicapType()).isFreeTechs(eLoopTech) &&
+ 						(!isOption(GAMEOPTION_ADVANCED_START) ||
+-						(isOption(GAMEOPTION_SPAH) && kTeam.isHuman())))
+-						// </advc.250b> </advc.250c>
++						(isOption(GAMEOPTION_SPAH) && kTeam.isHuman()))) // </advc.250b>
+ 					{
+ 						bValid = true;
+ 						break;
+ 					}
+ 				}
+ 			}
+-			if (bValid)
++			if (bValid) // (advc.051: Don't take away techs granted by scenario)
+ 			{
+-				// (advc.051: Don't take away techs granted by the scenario)
+ 				kTeam.setHasTech(eLoopTech, true, NO_PLAYER, false, false);
+-				if (GC.getInfo(eLoopTech).isMapVisible())
+-					GC.getMap().setRevealedPlots(kTeam.getID(), true, true);
++				// (advc: Already handled by setHasTech)
++				/*if (GC.getInfo(eLoopTech).isMapVisible())
++					GC.getMap().setRevealedPlots(kTeam.getID(), true, true);*/
+ 			}
+ 		}
+-	}  // <advc.051>
++	}
++	// <advc.051>
+ 	if (isScenario() && getStartEra() <= 0) // Set start era based on player era
+ 	{
+ 		int iEraSum = 0;
+@@ -1013,8 +1036,7 @@ void CvGame::initFreeState()
+ 		int iStartEra = iEraSum / std::max(it.nextIndex(), 1);
+ 		if (iStartEra > getStartEra())
+ 			GC.getInitCore().setEra((EraTypes)iStartEra);
+-	}
+-	m_eInitialActivePlayer = getActivePlayer(); // advc.106h
++	} // </advc.051>
+ }
+ 
+ 
+@@ -1022,62 +1044,59 @@ void CvGame::initScenario()
+ {
+ 	initFreeState(); // Tech from handicap
+ 	// <advc.030>
+-	if(GC.getDefineBOOL("PASSABLE_AREAS"))
++	if (GC.getDefineBOOL("PASSABLE_AREAS"))
+ 	{
+ 		/*  recalculateAreas can't handle preplaced cities. Or perhaps it can
+ 			(Barbarian cities are fine in most cases), but there's going to
+-			be other stuff, like free units, that causes problems. */
+-		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++			be other stuff, like free units, that'll cause problems. */
++		bool bRecalc = true;
++		for (int i = 0; bRecalc && i < MAX_CIV_PLAYERS; i++)
+ 		{
+-			if(GET_PLAYER((PlayerTypes)i).getNumCities() > 0)
+-				return;
++			if (GET_PLAYER((PlayerTypes)i).getNumCities() > 0)
++				bRecalc = false;
+ 		}
+-		GC.getMap().recalculateAreas();
++		if (bRecalc)
++			GC.getMap().recalculateAreas();
+ 	} // </advc.030>
++	initFreeCivState(); // advc.tsl
+ }
+ 
+ void CvGame::initFreeUnits()
+ {
+-	bool bScenario = GC.getInitCore().getScenario();
++	bool const bScenario = GC.getInitCore().getScenario();
+ 	/*  In scenarios, neither setInitialItems nor initFreeState is called; the
+ 		EXE only calls initFreeUnits, so the initialization of freebies needs to
+ 		happen here. */
+-	if(bScenario)
++	if (bScenario)
+ 		initScenario();
+-	initFreeUnits_bulk(); // (also sets Advanced Start points)
+-	if(!bScenario)
++	// kekm.28: exclude Barbarians
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		if (itPlayer->getNumUnits() == 0 && itPlayer->getNumCities() == 0)
++			itPlayer->initFreeUnits();
++	}
++	if (!bScenario)
+ 		return;
+ 	/*  <advc.250b> Advanced Start is always visible on the Custom Scenario screen,
+ 		but doesn't work properly unless Advanced Start is the scenario's
+ 		default setting. Verify that start points have been assigned, or else
+ 		disable Advanced Start. */
+ 	bool bValid = false;
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 	{
+ 		CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)i);
+-		if(kPlayer.isAlive() && kPlayer.getAdvancedStartPoints() > 0)
++		if (kPlayer.isAlive() && kPlayer.getAdvancedStartPoints() > 0)
+ 		{
+ 			bValid = true;
+ 			break;
+ 		}
+ 	}
+-	if(!bValid)
++	if (!bValid)
+ 	{
+ 		setOption(GAMEOPTION_SPAH, false);
+ 		setOption(GAMEOPTION_ADVANCED_START, false);
+ 	} // </advc.250b>
+-}
+-
+-
+-void CvGame::initFreeUnits_bulk() // </advc.051>
+-{
+-	// kekm.28: exclude Barbarians
+-	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-	{
+-		if (itPlayer->getNumUnits() == 0 && itPlayer->getNumCities() == 0)
+-			itPlayer->initFreeUnits();
+-	}
+-}
++} // </advc.051>
+ 
+ /*  advc.310: For building (or other) effects that only apply when certain
+ 	game options are set. */
+@@ -1344,9 +1363,11 @@ void CvGame::applyStartingLocHandicaps(
+ 	for (itPlayerOrder = aePlayerOrder.begin(); itPlayerOrder != aePlayerOrder.end(); ++itPlayerOrder)
+ 		GET_PLAYER(*itPlayerOrder).setStartingPlot(GET_PLAYER(*playerOrderIter).findStartingPlot(), true);*/
+ 
+-	if (GC.getMap().isCustomMapOption("Historical")) // for EarthEvolution3 script
++	if (GC.getMap().isCustomMapOption("Historical") || // for EarthEvolution3 script
++		isOption(GAMEOPTION_SPAH)) // advc.250b
++	{
+ 		return;
+-
++	}
+ 	/*	The basic approach, as in K-Mod, is to sort the players by handicap,
+ 		starting with the least handicapped player, and to sort the starting sites
+ 		by value, starting with the best site. In the end, the sorted sites are
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 5185dac00..6c797946f 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1034,13 +1034,12 @@ protected:
+ 
+ 	void uninit();
+ 	void setStartTurnYear(int iTurn = 0); // advc.250c
+-	// <advc.051>
+-	void initScenario();
+-	void initFreeUnits_bulk();
+-	// </advc.051>
++	void initScenario(); // advc.051
++
+ 	void setPlayerColors(); // advc.002i
+ 	void initGameHandicap(); // advc.127
+ 	void initFreeState();
++	void initFreeCivState(); // advc.tsl
+ 	/* <advc.027> */ NormalizationTarget* /* </advc.027> */ assignStartingPlots();
+ 	void normalizeStartingPlots(/* advc.027: */ NormalizationTarget const* pTarget = NULL);
+ 	void updateStartingPlotRange() const; // advc.opt
+
+diff --git a/CvGameCoreDLL/StartPointsAsHandicap.cpp b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+index 3b045e6e3..a68ee5797 100644
+--- a/CvGameCoreDLL/StartPointsAsHandicap.cpp
++++ b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+@@ -21,6 +21,7 @@ StartPointsAsHandicap::StartPointsAsHandicap() {
+ 	pointsDisplayString = NULL;
+ 	nCivs = nHuman = 0;
+ 	randPoints = false;
++	unequalDistrib = false;
+ }
+ 
+ 
+@@ -52,7 +53,7 @@ void StartPointsAsHandicap::setInitialItems() {
+ 
+ 	reset();
+ 	gatherCivs();
+-	bool unequalDistrib = assignPoints();
++	unequalDistrib = assignPoints();
+ 	bool randomize = unequalDistrib;
+ 	for(int i = 0; i < nCivs; i++)
+ 		report += CvString::format("Points assigned to id %d: %d\n",
+@@ -70,8 +71,6 @@ void StartPointsAsHandicap::setInitialItems() {
+ 	}
+ 	else for(int i = 0; i < nCivs; i++)
+ 		civs[i]->assignStartPoints();
+-	if(unequalDistrib)
+-		rearrangeStartingPlots();
+ 	updatePointsDisplayString(true);
+ 	// Report about game setup
+ 	//gDLL->logMsg("debug_SPaH.log", report, true, true);
+@@ -275,6 +274,8 @@ void StartPointsAsHandicap::bounce(int i, int j) {
+ 
+ void StartPointsAsHandicap::rearrangeStartingPlots() {
+ 
++	if(!unequalDistrib)
++		return;
+ 	int nAI = nCivs - nHuman;
+ 	if(nAI == 0)
+ 		return;
+
+diff --git a/CvGameCoreDLL/StartPointsAsHandicap.h b/CvGameCoreDLL/StartPointsAsHandicap.h
+index 89d1d5278..50810f0f0 100644
+--- a/CvGameCoreDLL/StartPointsAsHandicap.h
++++ b/CvGameCoreDLL/StartPointsAsHandicap.h
+@@ -10,6 +10,7 @@ class MajorCiv;
+ 
+ public:
+ 	void setInitialItems();
++	void rearrangeStartingPlots();
+ 	void distribution(std::vector<int>& r) const;
+ 	std::wstring* forSettingsScreen(bool bTab=true) const; // Exposed to Python through CvGame
+ 	void write(FDataStreamBase* pStream);
+@@ -25,7 +26,6 @@ private:
+ 	void assignAIPoints();
+ 	void randomizePoints();
+ 	void bounce(int i, int j);
+-	void rearrangeStartingPlots();
+ 	int minDist(CvPlot* p);
+ 	void updatePointsDisplayString(bool bTab) const;
+ 	/*int maxStartPoints(); // obsolete
+@@ -35,6 +35,7 @@ private:
+ 
+ 	std::vector<MajorCiv*> civs;
+ 	int nCivs, nHuman;
++	bool unequalDistrib;
+ 	CvString report;
+ 	mutable std::wstring* pointsDisplayString;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=11281

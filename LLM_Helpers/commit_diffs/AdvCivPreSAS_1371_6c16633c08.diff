@@ -1,0 +1,1369 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1371
+# Commit: 6c16633c08f3bebb500ac6a571b50108a9a476a5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c4605a683335cde0c00f12f7abd949ec2d496a0b
+# Title: Mostly AI changes for the endgame; and AI moves starting Settler (compiled DLL included)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	1	Assets/xml/Text/CIV4GameText_advc.xml
+2	2	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvGame.cpp
+4	4	CvGameCoreDLL/CvGame.h
+0	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+16	10	CvGameCoreDLL/CvPlayer.cpp
+77	38	CvGameCoreDLL/CvPlayerAI.cpp
+1	3	CvGameCoreDLL/CvSelectionGroup.cpp
+9	25	CvGameCoreDLL/CvUnit.cpp
+0	13	CvGameCoreDLL/CvUnit.h
+92	8	CvGameCoreDLL/CvUnitAI.cpp
+21	12	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/RiseFall.cpp
+20	18	CvGameCoreDLL/WarAndPeaceAI.cpp
+6	1	CvGameCoreDLL/WarAndPeaceCache.cpp
+195	83	CvGameCoreDLL/WarUtilityAspect.cpp
+6	2	CvGameCoreDLL/WarUtilityAspect.h
+-	-	manual_0.94.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 234d56b66..2535d187b 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -907,13 +907,22 @@
+ 	<!-- advc.099: Overwrites CIV4GameTextInfos.xml. Since its culture
+ 	     remains in the game, it isn't accurate to say the civ was
+ 		 "destroyed". (Or better "vanquished"?) --> 
+-	<TEXT>
++	<!--TEXT>
+         <Tag>TXT_KEY_MISC_CIV_DESTROYED</Tag>
+         <English>The %s1_CivAdj civilization has been conquered!!</English>
+         <French>Les %s1_CivAdj est &#233;t&#233; conquis!!</French>
+         <German>Die %s1:3_CivAdj Zivilisation wurde erobert!!</German>
+         <Italian>La civilt&#224; %s1:4_CivAdj &#232; stato conquistata!!</Italian>
+         <Spanish>&#161;La civilizaci&#243;n %s1:2_CivAdj ha sido conquistada!</Spanish>
++    </TEXT-->
++	<!-- Next try; similar to TXT_KEY_MISC_DEFEAT in CIV4GameText_Misc1.xml: -->
++	<TEXT>
++        <Tag>TXT_KEY_PLAYER_ELIMINATED</Tag>
++        <English>%s1_Plyr has been defeated!!</English>
++        <French>%s1_Plyr a �t� [NUM1:d�fait:d�faite] !!</French>
++        <German>%s1_Plyr wurde besiegt!!</German>
++        <Italian>%s1_Plyr � stat[NUM1:o:a] sconfitt[NUM1:o:a]!!</Italian>
++        <Spanish>%s1_Plyr ha sido derrotad[NUM1:o:a]!!</Spanish>
+     </TEXT>
+ 	
+ 	<!-- advc.099: Used to say "we yearn to join our motherland", which
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cbf8d5f89..a7680f862 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6549,7 +6549,7 @@ int CvCityAI::AI_neededDefenders(bool ignoreEvac) // advc.139: param added
+ 			iDefenders += 6;
+ 		}
+ 	}
+-	// <advc.023>
++	// <advc.099c>
+ 	PlayerTypes culturalOwner = calculateCulturalOwner();
+ 	CvPlayerAI const& owner = GET_PLAYER(getOwnerINLINE());
+ 	if(culturalOwner != owner.getID() && !owner.isFocusWar(area()) &&
+@@ -6562,7 +6562,7 @@ int CvCityAI::AI_neededDefenders(bool ignoreEvac) // advc.139: param added
+ 		iDefenders = std::max(iDefenders, std::min(::round(getPopulation() / 2.0 +
+ 				1.5 * priorRevolts + cultureFactor * getPopulation()),
+ 				getPopulation()));
+-	} // </advc.023>
++	} // </advc.099c>
+ 	iDefenders = std::max(iDefenders, AI_minDefenders());
+ 
+ 	return iDefenders;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index d701984b7..4b4a302ce 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10386,7 +10386,7 @@ void CvGame::changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligi
+ 	
+ }
+ 
+-bool CvGame::culturalVictoryValid()
++bool CvGame::culturalVictoryValid() const // advc.003: const added
+ {
+ 	if (m_iNumCultureVictoryCities > 0)
+ 	{
+@@ -10396,12 +10396,12 @@ bool CvGame::culturalVictoryValid()
+ 	return false;
+ }
+ 
+-int CvGame::culturalVictoryNumCultureCities()
++int CvGame::culturalVictoryNumCultureCities() const // advc.003: const added
+ {
+ 	return m_iNumCultureVictoryCities;
+ }
+ 
+-CultureLevelTypes CvGame::culturalVictoryCultureLevel()
++CultureLevelTypes CvGame::culturalVictoryCultureLevel() const // advc.003: const added
+ {
+ 	if (m_iNumCultureVictoryCities > 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 1b3fbf726..e170eb6bf 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -557,10 +557,10 @@ public:
+ 	int getShrineBuildingCount(ReligionTypes eReligion = NO_RELIGION);
+ 	BuildingTypes getShrineBuilding(int eIndex, ReligionTypes eReligion = NO_RELIGION);
+ 	void changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligion, bool bRemove = false);
+-
+-	bool culturalVictoryValid();
+-	int culturalVictoryNumCultureCities();
+-	CultureLevelTypes culturalVictoryCultureLevel();
++	// advc.003: Made these three const
++	 bool culturalVictoryValid() const;
++	 int culturalVictoryNumCultureCities() const;
++	 CultureLevelTypes culturalVictoryCultureLevel() const;
+ 	int getCultureThreshold(CultureLevelTypes eLevel) const;
+ 
+ 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;   // exposed to Python (K-Mod)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index a9522e6e9..97d3be0dc 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1758,8 +1758,6 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ /************************************************************************************************/
+ 	}
+ 
+-	if(CvUnit::measuringDistance != NO_TEAM) return TRUE; // advc.104b
+-
+ 	if (bAIControl || pToPlot->isRevealed(pSelectionGroup->getHeadTeam(), false))
+ 	{
+ 		if (pSelectionGroup->isAmphibPlot(pToPlot))
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 236fde9fb..eeff75942 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11672,8 +11672,9 @@ void CvPlayer::setAlive(bool bNewValue)
+ 		{
+ 			if (!isBarbarian())
+ 			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_CIV_DESTROYED", getCivilizationAdjectiveKey());
+-
++				//szBuffer = gDLL->getText("TXT_KEY_MISC_CIV_DESTROYED", getCivilizationAdjectiveKey());
++				// advc.099: Replacing the above
++				szBuffer = gDLL->getText("TXT_KEY_PLAYER_ELIMINATED", getNameKey());
+ 				for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 				{
+ 					if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -14040,14 +14041,20 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 					{	// <advc.151> Moved out of the loop
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(),
+ 								GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
+-						if(eOldCivic != GC.getCivilizationInfo(getCivilizationType()).
++						// <advc.106>
++						bool bRenounce = (!GC.getCivicInfo(getCivics(eIndex)).isStateReligion() &&
++								GC.getCivicInfo(eOldCivic).isStateReligion() && bWasStateReligion &&
++								getLastStateReligion() != NO_RELIGION);
++						if(bRenounce) {
++							szBuffer += L" " +  gDLL->getText("TXT_KEY_MISC_AND_RENOUNCE_RELIGION",
++									GC.getReligionInfo(getLastStateReligion()).getTextKeyWide());
++						}
++						else // </advc.106>
++							if(eOldCivic != GC.getCivilizationInfo(getCivilizationType()).
+ 								getCivilizationInitialCivics(eIndex)) {
+ 							szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_ABOLISH_CIVIC",
+ 									GC.getCivicInfo(eOldCivic).getTextKeyWide());
+ 						} // </advc.151>
+-						// <advc.106>
+-						bool bRenounce = (!GC.getCivicInfo(getCivics(eIndex)).isStateReligion() &&
+-								GC.getCivicInfo(eOldCivic).isStateReligion()); // </advc.106>
+ 						for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 						{
+ 							if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -14065,10 +14072,9 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 						if(bRenounce) { // advc.106
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
+ 							// <advc.106>
+-							if(bWasStateReligion && getLastStateReligion() != NO_RELIGION) {
+-								szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_RENOUNCE_RELIGION",
+-										GC.getReligionInfo(getLastStateReligion()).getTextKeyWide());
+-							} // </advc.106>
++							szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_RENOUNCE_RELIGION",
++									GC.getReligionInfo(getLastStateReligion()).getTextKeyWide());
++							// </advc.106>
+ 							GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
+ 						}
+ 					}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 287ce8583..680c80b90 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1166,7 +1166,9 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+ 		{
+ 			//AI_invalidateCitySites(AI_getMinFoundValue());
+ 			AI_invalidateCitySites(-1); // K-Mod
+-		}
++		} // <advc.108>
++		int const iCities = getNumCities();
++		CvPlot const* const pStartPlot = getStartingPlot(); // </advc.108>
+ 		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 		{
+ 			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+@@ -1187,6 +1189,9 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+ 				{
+ 					//iValue = AI_foundValue(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+ 					iValue = AI_foundValue_bulk(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), kFoundSet); // K-Mod
++					// <advc.108> Slight preference for the assigned starting plot
++					if(iCities <= 0 && pStartPlot != NULL && pLoopPlot == pStartPlot)
++						iValue = ::round(1.05 * iValue); // </advc.108>
+ 				}
+ 
+ 				FAssert(iValue <= MAX_SHORT); // K-Mod. If this assert fails, the foundValue calculation may need to be changed.
+@@ -3079,7 +3084,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ // END OF CONSTS
+ // INITIAL DON'T-FOUND-HERE CHECKS
+ 	bool bAdvancedStart = (getAdvancedStartPoints() >= 0);
+-	if (!kSet.bStartingLoc && !bAdvancedStart)
++	//if (!kSet.bStartingLoc && !bAdvancedStart)
++	if(getNumCities() > 0) // advc.108
+ 	{
+ 		if (!bIsCoastal && iNumAreaCities == 0)
+ 		{
+@@ -3544,6 +3550,10 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 					getTechCityTrade();
+ 			if(tradeTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(tradeTech) ||
+ 					getCurrentResearch() == tradeTech ||
++					/*  <advc.108> With our first city, we can wait a bit a longer
++						for the proper tech. */
++					(getNumCities() <= 0 && getCurrentEra() >=
++					GC.getTechInfo(tradeTech).getEra()) || // </advc.108>
+ 					/*  The HasTech and CurrentResearch checks are redundant,
+ 						I think, but faster. */
+ 					canResearchBulk(tradeTech, false, false, true)) {
+@@ -3736,8 +3746,10 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			iPlotValue += aiYield[YIELD_FOOD] * 15;
+ 			iPlotValue += aiYield[YIELD_PRODUCTION] * 15;
+ 			iPlotValue += aiYield[YIELD_COMMERCE] * 8;
+-		}
+-
++		} /* <advc.108> For moving the starting Settler and for more
++			early-game commerce in general */
++		if(getNumCities() <= 1 && getCurrentEra() <= 0)
++			iPlotValue += aiYield[YIELD_COMMERCE] * 5; // </advc.108>
+ 		if (pLoopPlot->isWater())
+ 		{
+ 			// K-Mod. kludge to account for lighthouse and lack of improvements.
+@@ -3831,13 +3843,16 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 							iFreshWaterVal += 8;
+ 						if(!bSteal) {
+ 							iRiver++;
+-							if(kSet.bStartingLoc)
++							if(getNumCities() <= 0) // advc.108
+ 								iFreshWaterVal += 10;
+ 							/*  I'm guessing this K-Mod clause is supposed to
+ 								steer the AI toward settling at rivers rather
+ 								than trying to make all river plots workable. */
+-							if(pPlot->isRiver())
+-								iFreshWaterVal += (kSet.bStartingLoc ? 10 : 4);
++							if(pPlot->isRiver()) {
++								iFreshWaterVal += (
++										getNumCities() <= 0 // advc.108
++										? 10 : 4);
++							}
+ 						} // </advc.031>
+ 					}
+ 				} // in addition to the river bonus:
+@@ -4087,7 +4102,9 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			(note: I removed a bigger value reduction from the original code
+ 			higher up.) */
+ 		iResourceValue /= 4;
+-	}
++	} // <advc.108> For moving the starting Settler
++	else if(getNumCities() <= 0)
++		iResourceValue = ::round(iResourceValue / 1.5); // </advc.108>
+ 	// Note: iSpecialFood is whatever food happens to be associated with bonuses. Don't value it highly, because it's also counted in a bunch of other ways.
+ 	// <advc.031>
+ 	// Preserve this for later
+@@ -4097,7 +4114,10 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 		perSpecial[YIELD_FOOD] = iSpecialFood / specials;
+ 		perSpecial[YIELD_PRODUCTION] = iSpecialProduction / specials;
+ 		perSpecial[YIELD_COMMERCE] = iSpecialCommerce / specials;
+-		double coefficients[NUM_YIELD_TYPES] = {0.24, 0.36, 0.32};
++		double coefficients[NUM_YIELD_TYPES] = {0.24, 0.36,
++				/*  advc.108: For moving the starting Settler. Though a commercial
++					resource at the second city is also valuable, so: */
++				getNumCities() <= 1 && getCurrentEra() <= 0 ? 0.48 : 0.32};
+ 		double fromSpecial = 0;
+ 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
+ 			fromSpecial += perSpecial[i] * coefficients[i];
+@@ -4167,7 +4187,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 
+ 	if (bIsCoastal)
+ 	{
+-		if (!kSet.bStartingLoc)
++		//if (!kSet.bStartingLoc)
++		if(getNumCities() > 0) // advc.108
+ 		{
+ 			if (pArea->getCitiesPerPlayer(getID()) == 0)
+ 			{
+@@ -4780,7 +4801,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	iBadTile -= subtr;
+ 	if(iBadTile > 0) {
+ 		iValue -= ::round(std::pow((double)iBadTile, 1.25) *
+-				(35.0 + (kSet.bStartingLoc ? 100 : 0)));
++				(35.0 + (kSet.bStartingLoc ?
++				50 : 0) + (getNumCities() <= 0 ? 50 : 0))); // advc.108
+ 		iValue = std::max(0, iValue);
+ 	}
+ // END OF BAD TILES
+@@ -9917,33 +9939,40 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 	int div = lh.getShareWarAttitudeDivisor();
+ 	if(div == 0)
+ 		return 0;
+-	bool isShare = ourTeam.AI_shareWar(TEAMID(ePlayer));
+-	if(!isShare && ourTeam.getAtWarCount() > 0) {
+-		/*  Only suspend the relations bonus from past shared war if the current war
+-			is at least 5 turns old, and only if we could use help. */
++	bool bShareAny = ourTeam.AI_shareWar(TEAMID(ePlayer));
++	double nonSharedModifier = 1;
++	if(ourTeam.getAtWarCount() > 0) {
+ 		int wsThresh = ::round((3.0 * warSuccessAttitudeDivisor()) / 4);
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 			CvTeamAI const& t = GET_TEAM((TeamTypes)i);
+ 			/*  AtWarCount is the number of teams we're at war with, whereas
+-				AtWarCounter is the number of turns we've been at war. Oh my! */
++				AtWarCounter is the number of turns we've been at war. */
+ 			if(t.isAlive() && !t.isMinorCiv() &&
++					!t.isAtWar(TEAMID(ePlayer)) &&
+ 					ourTeam.AI_getAtWarCounter(t.getID()) >= 5 &&
+ 					ourTeam.AI_getWarSuccess(t.getID()) +
+ 					t.AI_getWarSuccess(ourTeam.getID()) > wsThresh &&
+-					ourTeam.AI_getWarSuccessRating() < 25 &&
+ 					(ourTeam.AI_getWarPlan(t.getID()) != WARPLAN_DOGPILE ||
+-					ourTeam.AI_getAtWarCounter(t.getID()) >= 15))
+-				return 0;
++					ourTeam.AI_getAtWarCounter(t.getID()) >= 15) &&
++					TEAMREF(ePlayer).AI_isLandTarget(t.getID()) &&
++					t.AI_isLandTarget(ourTeam.getID())) {
++				int wsr = ourTeam.AI_getWarSuccessRating();
++				int const wsrThresh = 25;
++				if(wsr < wsrThresh) {
++					nonSharedModifier += (wsr - wsrThresh -
++							ourTeam.AI_getAtWarCounter(t.getID())) / 100.0;
++				}
++			}
+ 		}
+ 	}
+ 	int r = 0;
+-	if(isShare) // No functional change here
++	if(bShareAny) // No functional change here
+ 		r += lh.getShareWarAttitudeChange();
+ 	int turnsShared = ourTeam.AI_getShareWarCounter(TEAMID(ePlayer));
+ 	int theirContribution = ourTeam.getSharedWarSuccess(TEAMID(ePlayer));
+ 	int limit = abs(lh.getShareWarAttitudeChangeLimit());
+ 	limit = std::min(limit, 1 + turnsShared / div);
+-	r += range((int)(theirContribution /
++	r += range((int)((theirContribution * std::max(0.0, nonSharedModifier)) /
+ 			// This divisor seems to produce roughly the result I have in mind
+ 			(3.5 * GC.getWAR_SUCCESS_CITY_CAPTURING() * div)), 0, limit);
+ 	return r;
+@@ -22031,9 +22060,9 @@ bool CvPlayerAI::demandTribute(PlayerTypes humanId, int tributeType) {
+ 	delay: When an asset is not immediately acquired. */
+ double CvPlayerAI::amortizationMultiplier(int delay) const {
+ 
+-	return ::dRange(2 * // Use this coefficient to fine-tune the effect
++	return ::dRange(2.0 * // Use this coefficient to fine-tune the effect
+ 			(1 - GC.getGameINLINE().gameTurnProgress(std::max(0, delay))),
+-			0.15, 1.0);
++			0.2, 1.0);
+ } // </advc.104></advc.031>
+ 
+ //
+@@ -23131,7 +23160,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(
+ {
+ 	PROFILE_FUNC();
+ 
+-	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_CULTURE") <= 0 )
++	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_CULTURE") <= 0
++			&& !isHuman()) // advc.115
+ 	{
+ 		return 0;
+ 	}
+@@ -23344,8 +23374,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(
+ 			}*/
+ 			// K-Mod. Do full culture if our winning countdown is below the countdown target.
+ 			/*  <advc.115> Was 180. Now set to the countdownThresh param if
+-				it is provided, otherwise 100. */
+-			int iCountdownTarget = 100;
++				it is provided, otherwise 115. */
++			int iCountdownTarget = 115;
+ 			if(countdownThresh >= 0)
+ 				iCountdownTarget = countdownThresh; // </advc.115>
+ 			{
+@@ -23401,7 +23431,8 @@ int CvPlayerAI::AI_calculateSpaceVictoryStage() const
+ {
+     int iValue;
+ 
+-	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_SPACE") <= 0 )
++	if(!isHuman() && // advc.115
++			GC.getDefineINT("BBAI_VICTORY_STRATEGY_SPACE") <= 0 )
+ 	{
+ 		return 0;
+ 	}
+@@ -23459,9 +23490,10 @@ int CvPlayerAI::AI_calculateSpaceVictoryStage() const
+ 		most tech that could boost production is already known by the time
+ 		Apollo is built. If it'll take more than 100 turns, then it's hopeless
+ 		(and not all production is going to go into spaceship parts either). */
+-	int totalProduction = calculateTotalYield(YIELD_PRODUCTION);
+-	bool enoughProduction = (totalProduction > (240 * GC.getGameSpeedInfo(
+-			GC.getGameINLINE().getGameSpeedType()).getCreatePercent()) / 100);
++	int iTotalProduction = ::round((estimateYieldRate(YIELD_PRODUCTION) * 100) /
++			std::max(1, GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).
++			getCreatePercent()));
++	bool bEnoughProduction = (iTotalProduction > 240);
+ 	// </advc.115>
+ 	if( bHasApollo )
+ 	{
+@@ -23488,7 +23520,7 @@ int CvPlayerAI::AI_calculateSpaceVictoryStage() const
+ 			{
+ 				return 4;
+ 			}
+-			if(enoughProduction || iOurCountdown > 0) // advc.115
++			if(bEnoughProduction || iOurCountdown > 0) // advc.115
+ 				return 3;
+ 		}
+ 
+@@ -23536,7 +23568,7 @@ int CvPlayerAI::AI_calculateSpaceVictoryStage() const
+ 		if (200 * iSpaceTeams / (1+iKnownTeams)
+ 				<= GC.getLeaderHeadInfo(getPersonalityType()).getSpaceVictoryWeight() +
+ 				AI_getStrategyRand(3) % 100 && // note, correlated with number used lower down.
+-				(enoughProduction || iOurProgress > 10)) // advc.115
++				(bEnoughProduction || iOurProgress > 10)) // advc.115
+ 			return 3;
+ 		// K-Mod end
+ 	}
+@@ -23548,7 +23580,7 @@ int CvPlayerAI::AI_calculateSpaceVictoryStage() const
+ 		return 0;
+ 	}
+ 	/*  <advc.115>*/
+-	if(!enoughProduction)
++	if(!bEnoughProduction)
+ 		return 0; // </advc.115>
+ 	// If can't build Apollo yet, then consider making player push for this victory type
+ 	{
+@@ -23585,7 +23617,8 @@ int CvPlayerAI::AI_calculateSpaceVictoryStage() const
+ 		//int iNonsense = AI_getStrategyRand() + 50;
+ 		iValue += (AI_getStrategyRand(3) % 100);
+ 
+-		if (iValue >= 100)
++		if (iValue >= 100
++				|| bNearAllTechs && iTotalProduction > 1000) // advc.115
+ 		{
+ 			if( getCurrentEra() >= GC.getNumEraInfos() - 3 )
+ 			{
+@@ -23607,7 +23640,9 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
+ 	const CvTeamAI& kTeam = GET_TEAM(getTeam());
+ 
+ 	// check for validity of conquest victory
+-	if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE) || kTeam.isAVassal() || GC.getDefineINT("BBAI_VICTORY_STRATEGY_CONQUEST") <= 0)
++	if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE) || kTeam.isAVassal() ||
++			(GC.getDefineINT("BBAI_VICTORY_STRATEGY_CONQUEST") <= 0 &&
++			!isHuman())) // advc.115
+ 		return 0;
+ 
+ 	{
+@@ -23750,7 +23785,9 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
+ 					&& (nFriends == 0 || (nFriends == nRemaining && nFriends == 1)))
+ 			{
+ 				// finally, before confirming level 4, check that there is at least one team that we can declare war on.
+-				if(iConqueredCivs >= iKnownCivs/2) { // advc.115
++				// <advc.115>
++				if(iConqueredCivs >= iKnownCivs/2 && GET_TEAM(getTeam()).getNumCities() * 2 >=
++						GC.getGameINLINE().getNumCities()) { // </advc.115>
+ 					for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
+ 					{
+ 						const CvTeamAI& kLoopTeam = GET_TEAM(i);
+@@ -23789,7 +23826,8 @@ int CvPlayerAI::AI_calculateDominationVictoryStage() const
+ 		return 0;
+ 	}
+ 
+-	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_DOMINATION") <= 0 )
++	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_DOMINATION") <= 0
++			&& !isHuman()) // advc.115
+ 	{
+ 		return 0;
+ 	}
+@@ -23896,7 +23934,8 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ {
+ 	//int iValue = 0; // advc.115b
+ 	CvGame const& g = GC.getGameINLINE(); // advc.003
+-	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_DIPLOMACY") <= 0 )
++	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_DIPLOMACY") <= 0
++			&& !isHuman()) // advc.115
+ 	{
+ 		return 0;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index b38acb814..4f013f0e2 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4401,9 +4401,7 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ {
+ 	// K-Mod - if I can stop the UI from messing with this pathfinder, I might be able to reduce OOS bugs.
+ 	// (note, the const-cast is just to get around the bad code from the original developers)
+-	FAssert(const_cast<CvSelectionGroup*>(this)->AI_isControlled()
+-		|| CvUnit::measuringDistance != NO_TEAM // advc.104b
+-		);
++	FAssert(const_cast<CvSelectionGroup*>(this)->AI_isControlled());
+ 	// K-Mod end
+ 
+ 	PROFILE("CvSelectionGroup::generatePath()")
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ee4eefb3b..308c969f3 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2694,8 +2694,6 @@ bool CvUnit::willRevealByMove(const CvPlot* pPlot) const
+ 	return false;
+ }
+ 
+-TeamTypes CvUnit::measuringDistance = NO_TEAM; // advc.104b
+-
+ // K-Mod. I've rearranged a few things to make the function slightly faster, and added "bAssumeVisible" which signals that we should check for units on the plot regardless of whether we can actually see.
+ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible) const
+ {
+@@ -3007,14 +3005,7 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 		if (!bCanEnterArea)
+ 		{
+ 			FAssert(ePlotTeam != NO_TEAM);
+-			// <advc.104b> Can't move across closed border of third-party
+-			if(measuringDistance != NO_TEAM && measuringDistance != ePlotTeam)
+-				return false; // </advc.104b>
+-			if (!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam))
+-				 /* advc.104b: Otherwise, distances can't be measured
+-				    by vassals or while there is a peace treaty. */
+-				&& measuringDistance == NO_TEAM
+-				)
++			if (!GET_TEAM(getTeam()).canDeclareWar(ePlotTeam))
+ 			{
+ 				return false;
+ 			}
+@@ -3047,9 +3038,7 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 			{
+ 				return false;
+ 			}
+-			else if (!isHuman()
+-				&& measuringDistance == NO_TEAM // advc.104b
+-			)
++			else if (!isHuman())
+ 			{
+ 				if (!GET_TEAM(getTeam()).AI_isSneakAttackReady(ePlotTeam) || !getGroup()->AI_isDeclareWar(pPlot))
+ 				{
+@@ -4140,13 +4129,12 @@ int CvUnit::healRate(const CvPlot* pPlot, bool bLocation, bool bUnits) const
+ 		bool bFriendly = GET_TEAM(getTeam()).isFriendlyTerritory(pPlot->getTeam());
+ 		if (pPlot->isCity(true, getTeam()))
+ 		{
+-			
+ 			iTotalHeal += //GC.getDefineINT("CITY_HEAL_RATE") + // advc.023: Moved
+ 					(bFriendly ? getExtraFriendlyHeal() : getExtraNeutralHeal());
+ 			if (pCity && !pCity->isOccupation())
+ 			{
+-				iTotalHeal += pCity->getHealRate() // <advc.023>
+-						+ GC.getDefineINT("CITY_HEAL_RATE");
++				iTotalHeal += pCity->getHealRate()
++						+ GC.getDefineINT("CITY_HEAL_RATE"); // <advc.023>
+ 			}
+ 			else iTotalHeal += (bFriendly ? GC.getDefineINT("FRIENDLY_HEAL_RATE") :
+ 					GC.getDefineINT("NEUTRAL_HEAL_RATE")); // </advc.023>
+@@ -5264,17 +5252,17 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
+-	// <advc.111>
+-	if(pPlot->getOwnerINLINE() == NO_PLAYER &&
+-				pPlot->isVisibleOtherUnit(getOwnerINLINE()))
+-		return false; // </advc.111>
+ 
+ 	if (pPlot->getImprovementType() == NO_IMPROVEMENT)
+ 	{
+-		if (!(pPlot->isRoute()))
++		if(!pPlot->isRoute())
+ 		{
+ 			return false;
+ 		}
++		// <advc.111>
++		if(pPlot->getOwnerINLINE() == NO_PLAYER &&
++				pPlot->isVisibleOtherUnit(getOwnerINLINE()))
++			return false; // </advc.111>
+ 	}
+ 	else
+ 	{
+@@ -8431,10 +8419,6 @@ bool CvUnit::isGoldenAge() const
+ 
+ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
+ {
+-	/* advc.104b: Without this, the AI can consider cities unreachable
+-	   when enemy units block a choke point. */
+-	if(measuringDistance != NO_TEAM) return true;
+-
+ 	if (NO_TEAM == eTeam)
+ 	{
+ 		if(alwaysInvisible())
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index c55eaaeb4..01a7cdeb5 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -105,19 +105,6 @@ public:
+ 	bool generatePath(const CvPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL, int iMaxPath = -1) const; // Exposed to Python (K-Mod added iMaxPath)
+ 	KmodPathFinder& getPathFinder() const; // K-Mod
+ 
+-	/*  advc.104b: If this is set to a target team, CvUnit::generatePath (for any
+-		CvUnit) can be used for computing the path length from the unit to a tile
+-		owned by the target team assuming a DoW on the target team and its vassals
+-		(but on no other teams). Should be reset to NO_TEAM afterwards. E.g.
+-		CvUnit::measuringDistance = destPlot->getTeam();
+-		int dist;
+-		bool canReach = u->generatePath(destPlot, MOVE_DECLARE_WAR, false, dist);
+-		CvUnit::measuringDistance = NO_TEAM;
+-
+-		A hack that I'm not using anymore, but that I don't want to remove yet.
+-		(Instead using CvPlot::calculatePathDistanceToPlot.) */
+-	static TeamTypes measuringDistance;
+-
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	TeamTypes getDeclareWarMove(const CvPlot* pPlot) const;															// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d9db0576b..20f630753 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1376,16 +1376,100 @@ void CvUnitAI::AI_animalMove()
+ void CvUnitAI::AI_settleMove()
+ {
+ 	PROFILE_FUNC();
+-
+-	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
++	CvGame const& g = GC.getGameINLINE(); // advc.003
++	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
+ 	int iMoveFlags = MOVE_NO_ENEMY_TERRITORY; // K-Mod
+ 
+-	/*  advc.108 (comment only): Removing this branch would allow the AI to roam
+-		initially, but would require custom code for early exploration.
+-		BBAI code for checking "for Good City Sites Near Starting Location"
+-		could be inserted here, but doesn't handle exploration. */
+ 	if (kOwner.getNumCities() == 0)
+-	{
++	{	// advc.108: Merged this from the Better BUG AI mod
++/************************************************************************************************/
++/* Afforess & Fuyu	                  Start      09/18/10                                       */
++/*                                                                                              */
++/* Check for Good City Sites Near Starting Location                                             */
++/************************************************************************************************/
++		// <advc>
++		CvGameSpeedInfo const& gsi = GC.getGameSpeedInfo(g.getGameSpeedType());
++		/*  Earlier exploreMove may have revealed more tiles. Don't set bStartingLoc;
++			that setting rules out e.g. plots with a goody hut or at the edge of a
++			flat map. I've added some getNumCities()<=0 checks to AI_foundValue. */
++		kOwner.AI_updateFoundValues(false); // </advc>
++		int iGameSpeedPercent = ( (2 * gsi.getTrainPercent())
++				+ gsi.getConstructPercent() + gsi.getResearchPercent() ) / 4;
++		int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
++		if(!g.isScenario() && /* advc: Let the creator of the scenario decide where
++								 the AI settles */
++				canMove() && !kOwner.AI_isPlotCitySite(plot()) &&
++				g.getElapsedGameTurns() <= iMaxFoundTurn)
++		{
++			int iBestValue = 0;
++			int iBestFoundTurn = 0;
++			CvPlot* pBestPlot = NULL;
++
++			for (int iCitySite = 0; iCitySite < kOwner.AI_getNumCitySites(); iCitySite++)
++			{
++				CvPlot* pCitySite = kOwner.AI_getCitySite(iCitySite);
++				if(pCitySite->getArea() != getArea() && !canMoveAllTerrain())
++					continue;
++				//int iPlotValue = kOwner.AI_foundValue(pCitySite->getX_INLINE(), pCitySite->getY_INLINE());
++				int iPlotValue = pCitySite->getFoundValue(kOwner.getID());
++				if(iPlotValue <= iBestValue)
++					continue;
++				//Can this unit reach the plot this turn? (getPathLastNode()->m_iData2 == 1)
++				//Will this unit still have movement points left to found the city the same turn? (getPathLastNode()->m_iData1 > 0))
++				if (generatePath(pCitySite))
++				{
++					int iFoundTurn = g.getElapsedGameTurns() +
++							/*getPathLastNode()->m_iData2 -
++							(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
++							// advc: Adapted to K-Mod pathfinder
++							getPathFinder().GetPathTurns() -
++							(getPathFinder().GetFinalMoves() > 0 ? 1 : 0);
++					if (iFoundTurn <= iMaxFoundTurn)
++					{
++						iPlotValue *= 100; //more precision
++						/*  the slower the game speed, the less penality the plotvalue
++							gets for long walks towards it.
++							On normal it's -18% per turn */
++						/*  advc: 18% seems a bit much; try 15%. K-Mod found values
++							aren't quite on the same scale as BBAI. */
++						iPlotValue *= 100 - std::min(100, ((1500/
++								std::max(1, iGameSpeedPercent)) * iFoundTurn));
++						iPlotValue /= 100;
++						if (iPlotValue > iBestValue)
++						{
++							iBestValue = iPlotValue;
++							iBestFoundTurn = iFoundTurn;
++							pBestPlot = pCitySite;
++						}
++					}
++				}
++			}
++			if (pBestPlot != NULL)
++			{
++				//Don't give up coast or river, don't settle on bonus with food
++				/*if ( (plot()->isRiver() && !pBestPlot->isRiver())
++					|| (plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
++					|| (pBestPlot->getBonusType(NO_TEAM) != NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0) )*/
++				// advc: I think AI_foundValue can handle the other stuff
++				if(plot()->isFreshWater() && !pBestPlot->isFreshWater()) 
++				{
++					pBestPlot = NULL;
++				}
++			}
++
++			if (pBestPlot != NULL)
++			{
++				if( gUnitLogLevel >= 2 )
++				{
++					logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX_INLINE() - plot()->getX_INLINE()), (pBestPlot->getY_INLINE() - plot()->getY_INLINE()), pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iBestFoundTurn, iBestValue);
++				}
++				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestPlot);
++				return;
++			}
++		}
++/************************************************************************************************/
++/* Afforess & Fuyu	                     END                                                    */
++/************************************************************************************************/
+ 		if (canFound(plot()))
+ 		{
+ /************************************************************************************************/
+@@ -1407,7 +1491,7 @@ void CvUnitAI::AI_settleMove()
+ 	}
+ 
+ 	/* original bts code
+-	int iDanger = GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3);
++	int iDanger = kOwner.AI_getPlotDanger(plot(), 3);
+ 	
+ 	if (iDanger > 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 967bd1e05..d5a9a4d1e 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -764,10 +764,11 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		confDefPers *= GET_PLAYER(defender.id).warAndPeaceAI().confidenceAgainstHuman();
+ 	if(GET_PLAYER(defender.id).isHuman())
+ 		confAttPers *= GET_PLAYER(id).warAndPeaceAI().confidenceAgainstHuman();
+-	if(confAttPers > 1.001 || confDefPers > 1.001 || confAttPers < 0.999 || confDefPers < 0.999)
++	if(confAttPers > 1.001 || confDefPers > 1.001 || confAttPers < 0.999 || confDefPers < 0.999) {
+ 		report.log("Personal confidence (%s/%s): %d/%d percent",
+ 				report.leaderName(id), report.leaderName(defender.id),
+ 				::round(confAttPers * 100), ::round(confDefPers * 100));
++	}
+ 	double confAtt = confAttPers;
+ 	double confDef = confDefPers;
+ 	// Assume that we don't know war successes of third parties
+@@ -783,7 +784,12 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 					report.leaderName(id), report.leaderName(defender.id),
+ 					::round(confAttLearned * 100 + 100),
+ 					::round(confDefLearned * 100 + 100));
+-		// Don't multiply with conf...Pers; avoid extreme confidence this way
++		/*  To avoid extreme bias, don't multiply with conf...Pers unless
++			learned and personal confidence contradict each other. */
++		if((confAttLearned < 0) != (confAtt < 1) && confAtt != 1 && confAttLearned != 0)
++			confAttLearned *= (1 + std::abs(1 - confAtt));
++		if((confDefLearned < 0) != (confDef < 1) && confDef != 1 && confDefLearned != 0)
++			confDefLearned *= (1 + std::abs(1 - confDef));
+ 		confAtt += confAttLearned;
+ 		confDef += confDefLearned;
+ 	}
+@@ -1059,7 +1065,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		(and hidden knowledge unless id==weId). */
+ 	if(battleArea != NULL) {
+ 		if(remainingCitiesAtt > 0) {
+-			if(!isNaval) {
++			if(!isNaval && !clashOnly) {
+ 				/*  Fixme(?): getCitiesPerPlayer should be reduced based on lost
+ 					cities */
+ 				areaWeightAtt = battleArea->getCitiesPerPlayer(id) /
+@@ -1069,17 +1075,18 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 					areaWeightAtt *= (GET_PLAYER(id).isHuman() ? 1.5 : 1.33);
+ 				areaWeightAtt = std::min(1.0, areaWeightAtt);
+ 			}
+-			/*  For a human attacker, leave areaWeightAtt at 100% and assume that
+-				the naval attack focuses the entire human army (as many as are
+-				supported by LOGISTICS). Would like to assume that about the AI
+-				as well, but it struggles badly with deploying units from
+-				different areas. */
+-			else if(!GET_PLAYER(id).isHuman()) {
++			else {
+ 				CvCity* capital = GET_PLAYER(id).getCapitalCity();
+ 				if(capital != NULL) {
+-					areaWeightAtt = ::dRange(capital->area()->getCitiesPerPlayer(id) /
+-							(double)GET_PLAYER(id).getNumCities(), 0.5, 1.0);
++					areaWeightAtt = capital->area()->getCitiesPerPlayer(id) /
++							(double)GET_PLAYER(id).getNumCities();
+ 				}
++				/*  A human naval attack focuses much of the army (if supported by
++					LOGISTICS), while the AI struggles with deploying units from
++					different areas. */
++				if(GET_PLAYER(id).isHuman())
++					areaWeightAtt += 0.25;
++				areaWeightAtt = ::dRange(areaWeightAtt, 0.5, 1.0);
+ 			}
+ 			if(areaWeightAtt < 0.99) {
+ 				report.log("Area weight attacker: %d percent",
+@@ -1093,7 +1100,9 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 			CvCity* capital = GET_PLAYER(defender.id).getCapitalCity();
+ 			if(capital != NULL && capital->area() == battleArea)
+ 				areaWeightDef *= (GET_PLAYER(defender.id).isHuman() ? 1.5 : 1.33);
+-			areaWeightDef = std::min(1.0, areaWeightDef);
++			/*  Even if the local army is too small to prevent the (temporary)
++				capture of a city, reinforcements will arrive before long. */
++			areaWeightDef = ::dRange(areaWeightDef, 0.33, 1.0);
+ 			if(areaWeightDef < 0.99) {
+ 				report.log("Area weight defender: %d percent",
+ 						::round(areaWeightDef * 100));
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index d55f02399..1d374b2c2 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -1171,7 +1171,7 @@ int RiseFall::victoryStage(PlayerTypes civId) {
+ 			!civ.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4) &&
+ 			!civ.AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4) &&
+ 			!civ.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4))
+-		r = std::max(3, civ.AI_calculateCultureVictoryStage(55));
++		r = std::max(3, civ.AI_calculateCultureVictoryStage(167));
+ 	return r;
+ }
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index b0ed41232..30f18c0eb 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2020,11 +2020,9 @@ double WarAndPeaceAI::Team::confidenceFromWarSuccess(TeamTypes targetId) const {
+ 	CvTeamAI const& t = GET_TEAM(agentId);
+ 	CvTeamAI const& target = GET_TEAM(targetId);
+ 	int timeAtWar = t.AI_getAtWarCounter(targetId);
+-	{ /* Can differ by 1 b/c of turn difference. Can apparently also differ by 2
+-		 somehow, which I don't understand, but it's not a problem really. */
+-		int taw2 = target.AI_getAtWarCounter(agentId);
+-		FAssert(std::abs(timeAtWar - taw2) <= 2);
+-	}
++	/*  Can differ by 1 b/c of turn difference. Can apparently also differ by 2
++		somehow, which I don't understand, but it's not a problem really. */
++	FAssert(std::abs(timeAtWar - target.AI_getAtWarCounter(agentId)) <= 2);
+ 	if(timeAtWar <= 0)
+ 		return -1;
+ 	int ourSuccess = std::max(1, t.AI_getWarSuccess(targetId));
+@@ -2639,25 +2637,29 @@ double WarAndPeaceAI::Civ::warConfidencePersonal(bool isNaval, bool isTotal,
+ 		// e.g. 0.63 at Settler, 1.67 at Deity
+ 		return 100.0 / GC.getHandicapInfo(we.getHandicapType()).getAITrainPercent();
+ 	CvLeaderHeadInfo const& lh = GC.getLeaderHeadInfo(we.getPersonalityType());
++	int const maxWarNearbyPR = lh.getMaxWarNearbyPowerRatio();
++	int const maxWarDistPR = lh.getMaxWarDistantPowerRatio();
++	int const limWarPR = lh.getLimitedWarPowerRatio();
++	double r = // Montezuma: 1.3; Elizabeth: 0.85
++	//(maxWarNearbyPR + limWarPR) / 200.0;
++	/*  Limited and total mostly affect the military build-up, not how the war is
++		conducted. So it may not make much sense for a leader to be e.g. more
++		optimistic about limited than total war. But the difference between the
++		PowerRatio values should somehow matter. Perhaps some leaders think e.g.
++		that they can't use large stacks so effectively ... */
++			(isTotal ? maxWarNearbyPR : limWarPR);
++			// Or perhaps use a weighted mean as a compromise?
+ 	if(isNaval) {
+ 		/*  distantWar refers to intercontinental war. The values in LeaderHead are
+ 			between 0 (Sitting Bull) and 100 (Isabella), i.e. almost everyone is
+ 			reluctant to fight cross-ocean wars. That reluctance is now covered
+ 			elsewhere (e.g. army power reduced based on cargo capacity in
+-			simulations); hence the +35. The result is between 0.35 and 1.35. */
+-		return (lh.getMaxWarDistantPowerRatio() + 35) / 100.0;
++			simulations); hence the +35. This puts the return value between 0.35 and
++			1.35. Exceeding the PR for land war is dangerous though; could cause
++			the AI to plan for naval war when ships aren't needed at all. */
++		r = std::min(r + 3, maxWarDistPR + 35.0);
+ 	}
+-	int maxWarNearbyPR = lh.getMaxWarNearbyPowerRatio();
+-	int limWarPR = lh.getLimitedWarPowerRatio();
+-	// Montezuma: 1.3; Elizabeth: 0.85
+-	//return (maxWarNearbyPR + limWarPR) / 200.0;
+-	/*  Limited and total mostly affect the military build-up, not how the war is
+-		conducted. So it may not make much sense for a leader to be e.g. more
+-		optimistic about limited than total war. But the difference between the
+-		PowerRatio values should somehow matter. Perhaps some leaders think e.g.
+-		that they can't use large stacks so effectively ... */
+-	return 0.01 * (isTotal ? lh.getMaxWarNearbyPowerRatio() : lh.getLimitedWarPowerRatio());
+-	// Or perhaps use a weighted mean as a compromise
++	return r / 100.0;
+ }
+ 
+ double WarAndPeaceAI::Civ::warConfidenceLearned(PlayerTypes targetId,
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index df98fccf9..da5ab4137 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -408,7 +408,12 @@ double WarAndPeaceCache::goldPerProdVictory() {
+ 	else if(ourTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE4) ||
+ 			ourTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_SPACE4))
+ 		ourVictLevel = 4;
+-	if(ourVictLevel < 3) return 0;
++	if(ourVictLevel < 3) {
++		if(ourTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE2) ||
++				ourTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_SPACE2))
++			return 1;
++		return 0.5;
++	}
+ 	double r = ourVictLevel + 1;
+ 	for(size_t i = 0; i < getWPAI.properTeams().size(); i++) {
+ 		TeamTypes rivalId = getWPAI.properTeams()[i];
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 4ef3df933..3c1cebb98 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -170,9 +170,17 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 			if(c.city()->isCapital())
+ 				r += 4;
+ 		}
+-		else if(m->conqueredCities(theyId).count(c.id()) > 0 &&
+-				(to == NO_PLAYER || m->lostCities(to).count(c.id()) > 0) &&
+-				cvCity->getTeam() != ignoreGains) {
++		else if(cvCity->isCapital())
++			sc += 8;
++		// National wonders other than Palace are invisible to us
++		total += sc;
++	}
++	std::set<int> const& conq = m->conqueredCities(theyId);
++	for(iSetIt it = conq.begin(); it != conq.end(); it++) {
++		City* cp = theyAI->getCache().lookupCity(*it);
++		if(cp == NULL) continue; City const& c = *cp;
++		if((to == NO_PLAYER || m->lostCities(to).count(c.id()) > 0) &&
++				c.city()->getTeam() != ignoreGains) {
+ 			/*  Their cache doesn't account for GP settled in cities of a third
+ 				party (unless espionage visibility), so we don't subtract
+ 				NumGreatPeople.
+@@ -184,10 +192,6 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 				(oldOwner, newOwner) seems excessive. */
+ 			r -= c.getAssetScore();
+ 		}
+-		else if(cvCity->isCapital())
+-			sc += 8;
+-		// National wonders other than Palace are invisible to us
+-		total += sc;
+ 	}
+ 	r += lossesFromNukes(theyId, to);
+ 	total = std::max(r, total);
+@@ -2029,49 +2033,145 @@ int KingMaking::preEvaluate() {
+ 	PROFILE_FUNC();
+ 	if(gameEra <= GC.getGameINLINE().getStartEra())
+ 		return 0;
+-	/*  Three classes of civs; all in the best non-empty category are likely
+-		winners in our book. */
+-	// I: Civs at victory stage 4
+-	for(size_t i = 0; i < civs.size(); i++) {
+-		CvPlayerAI const& civ = GET_PLAYER(properCivs[i]);
+-		// Tbd.: Merge with code in RiseFall::victoryStage
+-		if(civ.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4 |
+-				 AI_VICTORY_DIPLOMACY4 | AI_VICTORY_SPACE4) ||
+-				 /*  Check isDoStrategy first in order to avoid the costlier
+-					calculate... call */
+-				 (civ.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) &&
+-				  civ.AI_calculateCultureVictoryStage(55) >= 4))
+-			winning.insert(civ.getID());
+-	}
+-	if(!winning.empty())
+-		return 0;
+-	//  II: Civs at victory stage 3 or game score near the top
+-	for(size_t i = 0; i < civs.size(); i++)
+-		if(GET_PLAYER(properCivs[i]).AI_isDoVictoryStrategyLevel3())
+-			winning.insert(properCivs[i]);
+-	// III: Civs with a competitive game score
+-	/*  Important to use scores predicted based on military analysis because the
+-		AI needs to be able to respond quickly when a civ starts running away with
+-		the game; can't wait until rival conquests have actually happened. */
+-	addLeadingCivs(winning, scoreMargin);
+-	if(winning.count(weId) > 0 && winning.size() <= 1 &&
++	addWinning(winningFuture, true);
++	addWinning(winningPresent, false);
++	if(winningFuture.count(agent.getLeaderID()) > 0 && winningFuture.size() <= 1 &&
+ 			// We don't want to be the only winner if it means betraying our partners
+ 			(params.targetId() == NO_TEAM || agent.isAtWar(params.targetId()) ||
+ 			agent.AI_isChosenWar(params.targetId()) ||
+ 			!agent.AI_isAvoidWar(params.targetId()))) {
+ 		log("We'll be the only winners");
+-		return we->getCurrentEra() * 9;
++		return agent.getCurrentEra() * 9;
+ 	}
+ 	return 0;
+ }
+ 
+-void KingMaking::addLeadingCivs(set<PlayerTypes>& r, double margin,
+-		bool predictScore) const {
++void KingMaking::addWinning(std::set<PlayerTypes>& r, bool bPredict) {
++
++	/*  Three classes of civs; all in the best non-empty category are likely
++		winners in our book. Important to base this on the game state predicted
++		by the military analysis so that the AI can tell when its actions thwart
++		a rival victory or prevent a rival from getting way ahead in score.
++		anyVictory and addLeadingCivs take care of this. */
++	// I: Civs at victory stage 4
++	for(size_t i = 0; i < civs.size(); i++) {
++		CvPlayerAI const& civ = GET_PLAYER(properCivs[i]);
++		int const iVictHash = civ.AI_getVictoryStrategyHash();
++		int iFlags = iVictHash;
++		if((iFlags & AI_VICTORY_CULTURE4) &&
++				civ.AI_calculateCultureVictoryStage(167) < 4)
++			iFlags &= ~AI_VICTORY_CULTURE4;
++		if(anyVictory(civ.getID(), iFlags, 4, bPredict))
++			r.insert(civ.getID());
++	}
++	if(!r.empty())
++		return;
++	//  II: Civs at victory stage 3 or game score near the top
++	for(size_t i = 0; i < civs.size(); i++) {
++		CvPlayerAI const& civ = GET_PLAYER(properCivs[i]);
++		if(anyVictory(civ.getID(), civ.AI_getVictoryStrategyHash(), 3, bPredict))
++			r.insert(civ.getID());
++	}
++	// III: Civs with a competitive game score
++	addLeadingCivs(r, scoreMargin, bPredict);
++}
++
++bool KingMaking::anyVictory(PlayerTypes civId, int iVictoryFlags, int stage,
++		bool bPredict) const {
++
++	FAssert(stage == 3 || stage == 4);
++	CvPlayerAI const& civ = GET_PLAYER(civId);
++	if(!bPredict) {
++		if(stage == 3)
++			return civ.AI_isDoVictoryStrategyLevel3();
++		return (iVictoryFlags & (AI_VICTORY_SPACE4 | AI_VICTORY_CONQUEST4 |
++				AI_VICTORY_DIPLOMACY4 | AI_VICTORY_DOMINATION4 | AI_VICTORY_CULTURE4));
++	}
++	if(m->isEliminated(civId) || m->hasCapitulated(TEAMID(civId)))
++		return false;
++	if((iVictoryFlags & AI_VICTORY_SPACE4) && stage == 4) {
++		CvCity* capital = civ.getCapitalCity();
++		if(capital != NULL && m->lostCities(civId).count(capital->plotNum()) <= 0)
++			return true;
++	}
++	if(iVictoryFlags & AI_VICTORY_CONQUEST3) {
++		/*  Very coarse -- consider a civ whose power stagnates to be no longer
++			on course to a conquest victory */
++		if(m->gainedPower(civId, ARMY) > 0) {
++			if(((iVictoryFlags & AI_VICTORY_CONQUEST3) && stage == 3) ||
++			   ((iVictoryFlags & AI_VICTORY_CONQUEST4) && stage == 4))
++				  return true;
++		}
++	}
++	// Space4 and Conq already handled above
++	bool bCultValid = (stage == 4 && (iVictoryFlags & AI_VICTORY_CULTURE4)) ||
++			(stage == 3 && (iVictoryFlags & AI_VICTORY_CULTURE3));
++	bool bSpaceValid = (stage == 3 && (iVictoryFlags & AI_VICTORY_SPACE3));
++	bool bDomValid = (stage == 4 && (iVictoryFlags & AI_VICTORY_DOMINATION4)) ||
++			(stage == 3 && (iVictoryFlags & AI_VICTORY_DOMINATION3));
++	bool bDiploValid = (stage == 4 && (iVictoryFlags & AI_VICTORY_DIPLOMACY4)) ||
++			(stage == 3 && (iVictoryFlags & AI_VICTORY_DIPLOMACY3));
++	/*  Conquests could bring civ closer to a military victory, but that seems
++		difficult to predict. Only looking at setbacks here -- which are also
++		a bit difficult to predict; the main point of this function is really
++		thwarted Culture/Space victory. */
++	if(!bCultValid && !bSpaceValid && !bDomValid && !bDiploValid)
++		return false;
++	CvMap const& map = GC.getMapINLINE();
++	CvGame const& g = GC.getGameINLINE();
++	int lostPop = 0;
++	int lostNtlWonders = 0;
++	std::set<int> const& lostCities = m->lostCities(civId);
++	for(iSetIt it = lostCities.begin(); it != lostCities.end(); it++) {
++		CvPlot* pp = map.plotByIndexINLINE(*it); if(pp == NULL) { FAssert(false); continue; }
++		CvCity* cp = pp->getPlotCity(); if(cp == NULL) continue;
++		CvCity const& c = *cp;
++		/*  civ could have enough other high-culture cities, but I don't mind if the
++			AI is a bit too optimistic about thwarting a rival's victory
++			(or extra worried about jeopardizing its own victory). */
++		if((stage == 3 && c.getCultureLevel() >= g.culturalVictoryCultureLevel() - 1) ||
++			(stage == 4 && 2 * c.getCulture(civId) >= c.getCultureThreshold(
++					g.culturalVictoryCultureLevel())))
++			bCultValid = false;
++		lostNtlWonders += c.getNumNationalWonders();
++		if(c.isCapital())
++			lostNtlWonders += 2;
++		lostPop += c.getPopulation();
++	}
++	if(lostNtlWonders > 1)
++		bSpaceValid = false;
++	std::set<int> const& gainedCities = m->conqueredCities(civId);
++	for(iSetIt it = gainedCities.begin(); it != gainedCities.end(); it++) {
++		CvPlot* pp = map.plotByIndexINLINE(*it); if(pp == NULL) continue;
++		CvCity* cp = pp->getPlotCity(); if(cp == NULL) continue;
++		lostPop -= cp->getPopulation();
++	}
++	if(lostPop > 0) {
++		double popRatio = std::max(0, civ.getTotalPopulation() - lostPop) /
++				(g.getTotalPopulation() + 0.01);
++		if(stage == 3) {
++			if(popRatio < 0.35) {
++				bDomValid = false;
++				if(popRatio < 0.3)
++					bDiploValid = false;
++			}
++		}
++		else if(popRatio < 0.45) {
++			bDomValid = false;
++			if(popRatio < 0.35)
++				bDiploValid = false;
++		}
++	}
++	return (bCultValid || bSpaceValid || bDomValid || bDiploValid);
++}
++
++void KingMaking::addLeadingCivs(set<PlayerTypes>& r, double margin, bool bPredict)
++		const {
+ 
+ 	CvGame& g = GC.getGameINLINE();
+ 	double bestScore = 1;
+ 	for(size_t i = 0; i < civs.size(); i++) {
+-		double sc = predictScore ? m->predictedGameScore(civs[i]) :
++		double sc = bPredict ? m->predictedGameScore(civs[i]) :
+ 				g.getPlayerScore(civs[i]);
+ 		/*  Count extra score for commerce so that civs that are getting far
+ 			ahead in tech are identified as a threat */
+@@ -2086,15 +2186,16 @@ void KingMaking::addLeadingCivs(set<PlayerTypes>& r, double margin,
+ 			bestScore = sc;
+ 	}
+ 	for(size_t i = 0; i < civs.size(); i++) {
+-		if((predictScore ? m->predictedGameScore(civs[i]) :
+-				g.getPlayerScore(civs[i])) / bestScore >= 0.75)
++		if((bPredict ? m->predictedGameScore(civs[i]) :
++				g.getPlayerScore(civs[i])) / bestScore >=
++				(GET_PLAYER(civs[i]).isHuman() ? 0.7 : 0.75))
+ 			r.insert(civs[i]);
+ 	}
+ }
+ 
+ void KingMaking::evaluate() {
+ 
+-	if(gameEra <= 0 || winning.empty() || winning.count(theyId) <= 0)
++	if(gameEra <= 0 || winningPresent.empty() || winningPresent.count(theyId) <= 0)
+ 		return;
+ 	// Vassals are assumed to be out of contention
+ 	if(TEAMREF(theyId).isAVassal())
+@@ -2112,34 +2213,33 @@ void KingMaking::evaluate() {
+ 		return;
+ 	// NB: The two conditions above are superfluous; just for performance.
+ 	double attitudeMultiplier = 0.03 + 0.25 * (ATTITUDE_PLEASED - att);
+-	// If we're human and did not believe we could win, we would've quit already.
+-	if(we->isHuman())
+-		winning.insert(weId);
+ 	// We're less inclined to interfere if several rivals are in competition
+-	int winningRivals = winning.size();
++	int winningRivals = winningFuture.size();
+ 	double caughtUpBonus = 0;
+-	set<PlayerTypes> presentWinners;
+-	addLeadingCivs(presentWinners, scoreMargin, false);
+-	double catchUpVal = std::pow((16.0 * gameEra) / winning.size(), 0.75);
++	double catchUpVal = std::pow((16.0 * gameEra) / winningPresent.size(), 0.75);
+ 	catchUpVal *= std::pow((1 + weAI->amortizationMultiplier()) / 2, 2);
+-	if(winning.count(weId) > 0) {
++	bool bCaughtUp = false;
++	if(winningFuture.count(weId) > 0) {
+ 		winningRivals--;
+-		/*  If we're among the likely winners, then it's a showdown between us
+-			and them, and we try to prevent their victory despite being Pleased.
+-			If we're out of contention (for the time being), we don't mind if
+-			they win at Pleased. */
+-		attitudeMultiplier += 0.25;
+-		if(presentWinners.count(weId) == 0) {
++		if(winningPresent.count(weId) <= 0) {
+ 			/*  We're not presently winning, but our predicted conquests bring us
+ 				back in competition.
+ 				Note that this code block isn't reached if we're Friendly
+ 				with them. */
+ 			caughtUpBonus += catchUpVal;
++			bCaughtUp = true;
+ 			log("%d for catching up with %s", ::round(caughtUpBonus),
+ 					report.leaderName(theyId));
+ 		}
++		else {
++		/*  If we're among the likely winners, then it's a showdown between us
++			and them, and we try to prevent their victory despite being Pleased.
++			If we're out of contention (for the time being), we don't mind if
++			they win at Pleased. */
++			attitudeMultiplier += 0.25;
++		}
+ 	}
+-	else if(presentWinners.count(weId) > 0) {
++	else if(winningPresent.count(weId) > 0) {
+ 		caughtUpBonus -= catchUpVal;
+ 		log("%d for falling behind %s", ::round(caughtUpBonus),
+ 				report.leaderName(theyId));
+@@ -2150,36 +2250,28 @@ void KingMaking::evaluate() {
+ 	}
+ 	CvCity* cap = they->getCapitalCity();
+ 	double uPlus = 0;
+-	/*  Foiled Space Race; other anti-victory conditions would be more elaborate to
+-		implement (even culture). */
+-	if(they->AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) && cap != NULL) {
+-		if(m->lostCities(theyId).count(cap->plotNum()) > 0)
+-			uPlus = 100;
+-		else uPlus = -70;
+-		log("%d for Space victory", ::round(uPlus));
+-	}
+ 	/*  If they (or their vassals) make a net asset gain, we incur a cost;
+ 		if they make a net asset loss, that's our war gain. */
+-	else {
+-		uPlus = theirRelativeLoss();
+-		if(abs(uPlus) < 0.01) { // Don't pollute the log then
+-			u += ::round(caughtUpBonus);
+-			return;
+-		}
+-		double weight = 5; // So that 25% loss correspond to 125 utility
+-		// We're a bit less worried about helping them indirectly
+-		if(uPlus < 0)
+-			weight = 3.5;
+-		uPlus *= 100 * weight;
+-		log("%d base utility for change in asset ratio", ::round(uPlus));
++	uPlus = theirRelativeLoss();
++	if(abs(uPlus) < 0.01) { // Don't pollute the log then
++		u += ::round(caughtUpBonus);
++		return;
+ 	}
++	double weight = 4.5; // So that 25% loss correspond to 100 utility
++	// We're a bit less worried about helping them indirectly
++	if(uPlus < 0) // If we'll catch up despite their progress, we're even less worried.
++		weight = (bCaughtUp ? 2 : 3);
++	uPlus *= 100 * weight;
++	log("%d base utility for change in asset ratio", ::round(uPlus));
+ 	/*  winningRivals seems too big a divisor when there are just 2 or 3
+ 		competitors */
+ 	double div = 1 + std::pow(winningRivals / 3.0, 2.0);
+ 	double competitionMultiplier = 1.0 / div;
+ 	// It doesn't get more competitive than this:
+-	if(winningRivals == 1) competitionMultiplier = 1;
+-	log("Winning civs: %d (%d rivals)", ::round(winning.size()), ::round(winningRivals));
++	if(winningRivals == 1)
++		competitionMultiplier = 1;
++	log("Winning civs: %d (%d rivals)", ::round(winningFuture.size()),
++			::round(winningRivals));
+ 	uPlus = ::dRange(uPlus, -100.0, 100.0);
+ 	log("Attitude multiplier: %d percent, competition multiplier: %d percent",
+ 			::round(100 * attitudeMultiplier), ::round(100 * competitionMultiplier));
+@@ -2203,7 +2295,8 @@ double KingMaking::theirRelativeLoss() {
+ 	for(size_t i = 0; i < properCivs.size(); i++) {
+ 		CvTeam const& t = TEAMREF(properCivs[i]);
+ 		double vassalFactor = 1;
+-		if(t.isAVassal()) vassalFactor *= 0.5;
++		if(t.isAVassal())
++			vassalFactor *= 0.5;
+ 		double assets = 0;
+ 		if(t.getMasterTeam() != TEAMID(theyId)) {
+ 			if(m->getCapitulationsAccepted(TEAMID(theyId)).count(t.getID()) > 0) {
+@@ -2467,6 +2560,13 @@ int Risk::preEvaluate() {
+ void Risk::evaluate() {
+ 
+ 	PROFILE_FUNC();
++	/*  Thwarted victory is mainly handled by Kingmaking::anyVictory, but, so long
++		as one victory condition remains feasible/imminent, that function won't
++		yield negative utility. Therefore count some extra lost assets for lost cities
++		that are important for a victory condition. */
++	bool const bSpace4 = we->AI_isDoVictoryStrategy(AI_VICTORY_SPACE4);
++	bool const bCulture3 = we->AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3);
++	bool const bCulture4 = bCulture3 && we->AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4);
+ 	double lostAssets = 0;
+ 	for(iSetIt it = m->lostCities(weId).begin(); it != m->lostCities(weId).end(); it++) {
+ 		/*  It doesn't matter here whom the city is lost to, but looking at
+@@ -2476,7 +2576,19 @@ void Risk::evaluate() {
+ 		City* c = ourCache->lookupCity(*it);
+ 		if(c == NULL) continue;
+ 		double sc = c->getAssetScore();
+-		log("%s: %d lost assets", report.cityName(*c->city()), ::round(sc));
++		if(bSpace4) {
++			if(c->city()->isCapital() && we->AI_isDoVictoryStrategy(AI_VICTORY_SPACE4))
++				sc += 15;
++		}
++		if(bCulture3) {
++			CvCity const& cvc = *c->city();
++			// Same condition as in CvPlayerAI::AI_conquerCity
++			if(2 * cvc.getCulture(cvc.getOwnerINLINE()) >= cvc.getCultureThreshold(
++					GC.getGameINLINE().culturalVictoryCultureLevel()))
++				sc += (bCulture4 ? 15 : 8);
++		}
++		log("%s: %d lost assets%s", report.cityName(*c->city()), ::round(sc),
++				(bCulture3 || bSpace4 ? " (important for victory)" : ""));
+ 		lostAssets += sc;
+ 	}
+ 	double uMinus = 400 * lostAssets;
+@@ -2496,10 +2608,10 @@ void Risk::evaluate() {
+ 	capture the very cities that steal our tiles by continuing the war. */
+ 	uMinus /= total;
+ 	if(uMinus > 0.5) {
+-		if(fromBlockade > 0.5)
+-			log("From naval blockade: %d", ::round(fromBlockade));
+-		if(fromNukes > 0.5)
+-			log("From nukes: %d", ::round(fromNukes));
++		if(fromBlockade / total > 0.5)
++			log("From naval blockade: %d", ::round(fromBlockade / total));
++		if(fromNukes / total > 0.5)
++			log("From nukes: %d", ::round(fromNukes / total));
+ 		log("Cost for lost assets: %d (loss: %d, present: %d)", ::round(uMinus),
+ 				::round(lostAssets), ::round(total));
+ 	}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 7f109103c..36dae2332 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -298,11 +298,15 @@ public:
+ 	char const* aspectName() const;
+ 	int xmlId() const;
+ private:
++	void addWinning(std::set<PlayerTypes>& r, bool bPredict);
++	bool anyVictory(PlayerTypes civId, int iVictoryFlags, int stage,
++			bool bPredict = true) const;
+ 	void addLeadingCivs(std::set<PlayerTypes>& r, double margin,
+-			bool predictScore = true) const;
++			bool bPredict = true) const;
+ 	double theirRelativeLoss();
+ 	std::vector<PlayerTypes> civs; // excluding vassals
+-	std::set<PlayerTypes> winning;
++	std::set<PlayerTypes> winningFuture;
++	std::set<PlayerTypes> winningPresent;
+ 	static double const scoreMargin;
+ };
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=17 omittedFiles=2 embeddedPatchBytes=58607

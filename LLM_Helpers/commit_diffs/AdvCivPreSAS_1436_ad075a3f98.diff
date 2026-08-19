@@ -1,0 +1,586 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1436
+# Commit: ad075a3f9802484b71f96643a8f3a2dd85233b90
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56127bdb6d95076504e161b8696f2669c59b1286
+# Title: Culture layer, shorter display time for "saving" msgs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	0	Assets/xml/GlobalDefines_advc.xml
+4	4	Assets/xml/Text/BULL Misc Hovers Options.xml
+2	2	Assets/xml/Text/CIV4GameText_advc.xml
+57	0	CvGameCoreDLL/CvEventReporter.cpp
+9	1	CvGameCoreDLL/CvEventReporter.h
+14	11	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+4	3	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGlobals.cpp
+91	44	CvGameCoreDLL/CvPlayer.cpp
+7	4	CvGameCoreDLL/RiseFall.cpp
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index f1d8262ab..3b2920248 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -407,6 +407,22 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- advc.106l: "Saving" messages are displayed for this many seconds
++		 except for autosaves (that message is disabled through
++		 Civ4GameTextInfo_advc.xml) and networked multiplayer saves.
++		 0 means that no saving messages are displayed. Use 10 for BtS behavior
++		 (same as EVENT_MESSAGE_TIME). Recommended: 4.
++		 The first parameter is for quicksaves, the second for regular saves.
++		 -->
++	<Define>
++		<DefineName>QUICK_SAVING_MESSAGE_TIME</DefineName>
++		<iDefineIntVal>4</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAVING_MESSAGE_TIME</DefineName>
++		<iDefineIntVal>4</iDefineIntVal>
++	</Define>
++	
+ 	<!-- [advc.099]
+ 		 The default value for culture-based anger assumes Open Borders in
+ 		 AdvCiv. With closed borders, the anger is CLOSED_BORDERS_CULTURE_
+
+diff --git a/Assets/xml/Text/BULL Misc Hovers Options.xml b/Assets/xml/Text/BULL Misc Hovers Options.xml
+index 44ee038bb..d410cf6ee 100644
+--- a/Assets/xml/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/xml/Text/BULL Misc Hovers Options.xml	
+@@ -126,11 +126,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_HOVER</Tag>
+-		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</English>
+-		<French>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</French>
++		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</English>
++		<French>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</French>
+ 		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedr�ckter Umschalttaste angezeigt.</German>
+-		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</Italian>
+-		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</Spanish>
++		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Italian>
++		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Spanish>
+ 	</TEXT>
+ 
+ <!-- Unit -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index ccbcf4f10..1ee7c2fea 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -425,8 +425,8 @@
+ 		<Spanish>o</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.106: Auto-save messages are triggered outside of the DLL.
+-		 The best that modders can do is to set the message to be empty. 
++	<!-- advc.106l: Would prefer to prevent autosave messages through the DLL,
++		 but I haven't found a way to do that.
+ 		 The original definition is in CIV4GameText_Misc1.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AUTOSAVING</Tag>
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index ea0ec86cd..4052a89c0 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -2,6 +2,7 @@
+ #include "CvEventReporter.h"
+ #include "CvDllPythonEvents.h"
+ #include "CvInitCore.h"
++#include "CvDLLInterfaceIFaceBase.h" // advc.106l
+ 
+ //
+ // static, singleton accessor
+@@ -418,8 +419,62 @@ void CvEventReporter::vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVa
+ void CvEventReporter::preSave()
+ {
+ 	m_kPythonEventMgr.preSave();
++	// <advc.106l>
++	bool bAutoSave = m_bPreAutoSave;
++	bool bQuickSave = m_bPreQuickSave;
++	m_bPreAutoSave = m_bPreQuickSave = false;
++	CvGame const& g = GC.getGameINLINE();
++	FAssertMsg(bAutoSave || !g.isAITurn(), "Quicksave in between turns?");
++	/*  I'm not sure how to handle the TXT_KEY_CONN_UPDATE_SAVING_* messages, so
++		let's just leave networked games alone. */
++	if(g.isNetworkMultiPlayer())
++		return;
++	/*  Can't handle autosave here b/c it happens at turn start when
++		messages created in between turns are about to be displayed.
++		Calling clearEventMessages (as we're about to do) would delete these. */
++	if(bAutoSave)
++		return;
++	PlayerTypes eActivePlayer = g.getActivePlayer();
++	if(eActivePlayer == NO_PLAYER) {
++		FAssert(eActivePlayer != NO_PLAYER);
++		return;
++	}
++	/*  Abort the "saving" message that the EXE wants to display b/c it's
++		displayed for too long */
++	/*  No way to check if any other message is waiting to be displayed. But since
++		saving is only possible during the active player's turn, any messages
++		(e.g. from chopping a Forest) should be displayed immediately.
++		So this should be fine: */
++	gDLL->getInterfaceIFace()->clearEventMessages();
++	char const* szDefineName = "";
++	CvWString szMsgTag;
++	if(bQuickSave) {
++		szDefineName = "QUICK_SAVING_MESSAGE_TIME";
++		szMsgTag = L"TXT_KEY_QUICK_SAVING";
++	}
++	else {
++		szDefineName = "SAVING_MESSAGE_TIME";
++		szMsgTag = L"TXT_KEY_SAVING_GAME";
++	}
++	int iLength = GC.getDefineINT(szDefineName);
++	if(iLength <= 0)
++		return;
++	gDLL->getInterfaceIFace()->addHumanMessage(eActivePlayer, true,
++			iLength, gDLL->getText(szMsgTag), NULL, MESSAGE_TYPE_DISPLAY_ONLY);
++}
++
++void CvEventReporter::preAutoSave() {
++
++	FAssertMsg(!m_bPreAutoSave, "Should've been reset by preSave");
++	m_bPreAutoSave = true;
+ }
+ 
++void CvEventReporter::preQuickSave() {
++
++	FAssertMsg(!m_bPreQuickSave, "Should've been reset by preSave");
++	m_bPreQuickSave = true;
++} // </advc.106l>
++
+ void CvEventReporter::windowActivation(bool bActive)
+ {
+ 	m_kPythonEventMgr.reportWindowActivation(bActive);
+@@ -493,3 +548,5 @@ void CvEventReporter::writeStatistics(FDataStreamBase* pStream)
+ 	m_kStatistics.write(pStream);
+ }
+ 
++// advc.106l: Explicit constructor added, so I can initialize my booleans.
++CvEventReporter::CvEventReporter() : m_bPreAutoSave(false), m_bPreQuickSave(false) {}
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index 9f1eaf864..8a72a2fee 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -23,6 +23,7 @@ class CvEventReporter
+ 	friend class CyStatistics;
+ 	friend const CvPlayerRecord* CvPlayer::getPlayerRecord() const; // K-Mod. Allow direct read-only access to player stats
+ public:
++	CvEventReporter(); // advc.106l: Should perhaps be private, but that might break sth. in the EXE.
+ 	DllExport static CvEventReporter& getInstance();		// singleton accessor
+ 	DllExport void resetStatistics();
+ 
+@@ -122,7 +123,10 @@ public:
+ 	void vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
+ 
+ 	DllExport void preSave();
+-
++	// <advc.106l> Will call these before (and in addition to) preSave
++	void preAutoSave();
++	void preQuickSave();
++	// </advc.106l>
+ 	DllExport void getGameStatistics(std::vector<CvStatBase*>& aStats);
+ 	DllExport void getPlayerStatistics(PlayerTypes ePlayer, std::vector<CvStatBase*>& aStats);
+ 	DllExport void readStatistics(FDataStreamBase* pStream);
+@@ -131,6 +135,10 @@ public:
+ private:
+ 	CvDllPythonEvents m_kPythonEventMgr;
+ 	CvStatistics m_kStatistics;
++	// <advc.106l>
++	bool m_bPreAutoSave;
++	bool m_bPreQuickSave;
++	// </advc.106l>
+ };
+ 
+ // helper
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ab34eace9..57213dcfd 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -427,7 +427,7 @@ void CvGame::regenerateMap()
+ 		m_riseFall.init();
+ 	}
+ 	else { // </advc.700>
+-		gDLL->getEngineIFace()->AutoSave(true);
++		autoSave(true); // advc.106l
+ 		// <advc.004j> Somehow doesn't work with Adv. Start; DoM screen doesn't appear.
+ 		if(!isOption(GAMEOPTION_ADVANCED_START))
+ 			showDawnOfMan();
+@@ -2498,7 +2498,7 @@ void CvGame::update()
+ 			// I guess TurnSlice==0 already implies that it's the start turn (?)
+ 			if((!bStartTurn || !isOption(GAMEOPTION_RISE_FALL)) // </advc.700>
+ 					&& m_iTurnLoadedFromSave != m_iElapsedGameTurns) // advc.044
+-				gDLL->getEngineIFace()->AutoSave(true);
++				autoSave(true); // advc.106l
+ 			/* <advc.004m> This seems to be the earliest place where bubbles can
+ 			   be enabled w/o crashing. */
+ 			if(bStartTurn && getBugOptionBOOL("MainInterface__StartWithResourceIcons", true)) {
+@@ -2701,10 +2701,8 @@ void CvGame::updateTradeRoutes()
+ 	}
+ }
+ 
+-/*
+-** K-Mod
+-** calculate unhappiness due to the state of global warming
+-*/
++/*  K-Mod
++	calculate unhappiness due to the state of global warming */
+ void CvGame::updateGwPercentAnger()
+ {
+ 	int iGlobalPollution;
+@@ -2742,10 +2740,15 @@ void CvGame::updateGwPercentAnger()
+ 		}
+ 		kPlayer.setGwPercentAnger(iAngerPercent);
+ 	}
+-}
+-/*
+-** K-Mod end
+-*/
++} // K-Mod end
++
++/*  <advc.106l> Wrapper that reports the event. Everyone should call this
++	instead of calling the CvDLLEngineIFaceBase function directly. */
++void CvGame::autoSave(bool bInitial) {
++
++	CvEventReporter::getInstance().preAutoSave();
++	gDLL->getEngineIFace()->AutoSave(bInitial);
++} // </advc.106l>
+ 
+ void CvGame::testExtendedGame()
+ {
+@@ -6775,7 +6778,7 @@ void CvGame::doTurn()
+ 			single machine. Don't know how to check this properly. */
+ 		if(!isNetworkMultiPlayer() || getAIAutoPlay() <= 0 || getActivePlayer() == NO_PLAYER ||
+ 				getActivePlayer() % 2 == 0) // </advc.127>
+-			gDLL->getEngineIFace()->AutoSave();
++			autoSave(); // advc.106l
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 555800740..0cdcaa94a 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -53,7 +53,7 @@ public:
+ 
+ 	DllExport void updateSelectionList();
+ 	DllExport void updateTestEndTurn();
+-
++	void autoSave(bool bInitial = false); // advc.106l
+ 	DllExport void testExtendedGame();
+ 
+ 	DllExport CvUnit* getPlotUnit(const CvPlot* pPlot, int iIndex) const;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index b457c411a..fe1129b68 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -11,8 +11,8 @@
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
+-// advc.003d:
+-#include <fstream>
++#include "CvEventReporter.h"
++#include <fstream> // advc.003d
+ 
+ /*  advc: This file was, reportedly, added by patch 3.17.
+ 	https://forums.civfanatics.com/threads/sdk-using-microsoft-visual-c-2005-express-edition.196283/page-7#post-6942578
+@@ -1821,8 +1821,9 @@ void CvGame::doControl(ControlTypes eControl)
+ 		break;
+ 
+ 	case CONTROL_QUICK_SAVE:
+-		if (!(isNetworkMultiPlayer()))	// SP only!
++		if (!isNetworkMultiPlayer())	// SP only!
+ 		{
++			CvEventReporter::getInstance().preQuickSave(); // advc.106l
+ 			gDLL->QuickSave();
+ 		}
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 0c0fadcbe..f5984918d 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -3734,7 +3734,7 @@ bool CvGlobals::isCachingDone() const {
+ void CvGlobals::setHoFScreenUp(bool b) {
+ 
+ 	m_bHoFScreenUp = b;
+-} // </Advc.106i>
++} // </advc.106i>
+ 
+ //
+ // Global Infos Hash Map
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 56b0e741b..4a8245aa4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14524,15 +14524,14 @@ void CvPlayer::addMessage(const CvTalkingHeadMessage& message)
+ 				message.getX(), message.getY(), message.getOffScreenArrows(),
+ 				message.getOnScreenArrows());
+ 		m_aMajorMsgs.push_back(copy);
+-	}
+-	// </advc.106b>
++	} // </advc.106b>
+ }
+ 
+ // <advc.106b>
+ void CvPlayer::postProcessMessages() {
+ 
+ 	/* Determining how many messages are being displayed:
+-	   - showMissedMessages doesn't help, seems to be only for Hotseat games.
++	   - showMissedMessages doesn't help, that's only for Hotseat games.
+ 	   - m_listGameMessages: Those are all messages in the log, and there is
+ 	     no way of telling which messages have already been displayed; setShown
+ 		 is apparently called when a message is added to the log, which happens
+@@ -24141,11 +24140,14 @@ int CvPlayer::getMusicScriptId(PlayerTypes eForPlayer) const
+ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
+ 	PROFILE_FUNC(); // advc.003b
++	CvGame const& g = GC.getGameINLINE();
+ 	/*  <advc.003> These get cleared by some of the subroutines, but should be
+ 		empty to begin with. If not, there could be a memory leak. */
+ 	FAssert(aColors.empty() && aIndicators.empty());
+-	FAssert(getID() == GC.getGameINLINE().getActivePlayer());
+-	// </advc.003>
++	FAssert(getID() == g.getActivePlayer()); // </advc.003>
++	// <advc.706>
++	if(g.isOption(GAMEOPTION_RISE_FALL) && CvPlot::isAllFog())
++		return; // </advc.706>
+ 	switch (eGlobeLayerType)
+ 	{
+ 	case GLOBE_LAYER_TRADE:
+@@ -24619,7 +24621,9 @@ void CvPlayer::getReligionLayerColors(ReligionTypes eSelectedReligion, std::vect
+ }
+ 
+ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+-{
++{	/*  advc.004z (comment): Can increase this for more precise color proportions
++		but, due to the color pattern used by the EXE, higher values (e.g. 10)
++		look strange. */
+ 	const int iColorsPerPlot = 4;
+ 	CvMap const& m = GC.getMapINLINE();
+ 	aColors.resize(m.numPlotsINLINE() * iColorsPerPlot, NiColorA(0, 0, 0, 0));
+@@ -24628,10 +24632,14 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 	// find maximum total culture
+ 	int iMaxTotalCulture = INT_MIN;
+ 	int iMinTotalCulture = INT_MAX;
++	TeamTypes eActiveTeam = GC.getGameINLINE().getActiveTeam();
+ 	for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 	{
+-		CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+-		int iTotalCulture = pLoopPlot->getTotalCulture(); // advc.003b: was countTotalCulture
++		CvPlot const& kLoopPlot = *m.plotByIndexINLINE(iI);
++		// <advc.004z>
++		if(!kLoopPlot.isVisible(eActiveTeam, true))
++			continue; // </advc.004z>
++		int iTotalCulture = kLoopPlot.getTotalCulture(); // advc.003b: was countTotalCulture
+ 		if (iTotalCulture > iMaxTotalCulture)
+ 		{
+ 			iMaxTotalCulture = iTotalCulture;
+@@ -24646,53 +24654,92 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 	// find culture percentages
+ 	for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 	{
+-		CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+-		PlayerTypes eOwner = pLoopPlot->getRevealedOwner(getTeam(), true); 
+-
++		CvPlot const& kLoopPlot = *m.plotByIndexINLINE(iI);
++		PlayerTypes eOwner = kLoopPlot.getRevealedOwner(getTeam(), true);
++		if(eOwner == NO_PLAYER)
++			continue; // advc.003: Moved up
+ 		// how many people own this plot?
+ 		std::vector < std::pair<int,int> > plot_owners;
+ 		//int iNumNonzeroOwners = 0;
+ 		// K-Mod
+-		int iTotalCulture = pLoopPlot->getTotalCulture(); // advc.003b: was countTotalCulture
+-		if (iTotalCulture == 0)
++		int iTotalCulture = kLoopPlot.getTotalCulture(); // advc.003b: was countTotalCulture
++		if (iTotalCulture <= 0)
+ 			continue;
+ 		// K-Mod end
+-		// dlph.21: was MAX_CIV_PLAYERS
+-		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+-		{
+-			// advc.099: Replaced "Alive" with "EverAlive"
+-			if (GET_PLAYER((PlayerTypes)iPlayer).isEverAlive())
+-			{
+-				int iCurCultureAmount = pLoopPlot->getCulture((PlayerTypes)iPlayer);
++		// <advc.004z>
++		plot_owners.push_back(std::make_pair(kLoopPlot.getCulture(eOwner), eOwner));
++		bool bVisible = kLoopPlot.isVisible(eActiveTeam, true);
++		if(bVisible)
++		{ // </advc.004z>
++			for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) // dlph.21: was MAX_CIV_PLAYERS
++			{	// <advc.004z> Owner handled above
++				if(iPlayer == eOwner)
++					continue; // </advc.004z>
++				if(!GET_PLAYER((PlayerTypes)iPlayer).isEverAlive()) // advc.099: was "EverAlive"
++					continue;
++				int iCurCultureAmount = kLoopPlot.getCulture((PlayerTypes)iPlayer);
+ 				//if (iCurCultureAmount != 0)
+-				if (iCurCultureAmount * 100 / iTotalCulture >= 20 // K-Mod (to reduce visual spam from small amounts of culture)
+-						// advc.004z:
+-						|| iPlayer == eOwner)
+-				{
+-					//iNumNonzeroOwners ++;
++				// K-Mod (to reduce visual spam from small amounts of culture)
++				if (iCurCultureAmount * 100 / iTotalCulture >= 20)
++				{	//iNumNonzeroOwners ++;
+ 					plot_owners.push_back(std::pair<int,int>(iCurCultureAmount, iPlayer));
+ 				}
+ 			}
+ 		}
+-
+-		// ensure that it is revealed
+-		if (!plot_owners.empty() && pLoopPlot->getRevealedOwner(getTeam(), true) != NO_PLAYER)
+-		{
+-			for (int i = 0; i < iColorsPerPlot; ++i)
+-			{
+-				int iCurOwnerIdx = i % plot_owners.size();
+-				PlayerTypes eCurOwnerID = (PlayerTypes) plot_owners[iCurOwnerIdx].second;
+-				int iCurCulture = plot_owners[iCurOwnerIdx].first;
+-				const NiColorA& kCurColor = GC.getColorInfo((ColorTypes) GC.getPlayerColorInfo(GET_PLAYER(eCurOwnerID).getPlayerColor()).getColorTypePrimary()).getColor();
+-
+-				// damp the color by the value...
+-				aColors[iI * iColorsPerPlot + i] = kCurColor;
+-				float blend_factor = 0.5f * std::min(1.0f, std::max(
+-						//0.0f,
+-						0.1f, // advc.004z
+-						(float)(iCurCulture - iMinTotalCulture) / iMaxTotalCulture));
+-				aColors[iI * iColorsPerPlot + i].a = std::min(0.8f * blend_factor + 0.5f, 1.0f);
+-			}
++		//if (!plot_owners.empty())
++		/*  <advc.004z> Give players with a high percentage a bigger share of
++			the colored area. */
++		bool baDone[MAX_PLAYERS] = {false};
++		for(int iPass = 0; iPass < 2 &&
++				// Try to fill plot_owners up
++				plot_owners.size() < iColorsPerPlot; iPass++) {
++			// To avoid adding to plot_owners while looping through it
++			std::vector <std::pair<int,int> > repeated_owners;
++			for(size_t i = 0; i < plot_owners.size(); i++) {
++				if(baDone[plot_owners[i].second])
++					continue; // Skip iPass==1 if iExtra added in iPass==0
++				int iExtra = -1; // Already once in plot_owners
++				if(iPass == 0) // Round down
++					iExtra += (plot_owners[i].first * iColorsPerPlot) / iTotalCulture;
++				else if(iPass == 1) { // Round to nearest
++					iExtra += ::round((plot_owners[i].first * iColorsPerPlot) /
++							(double)iTotalCulture);
++				} // Respect size limit
++				iExtra = std::min(iExtra, iColorsPerPlot - (int)
++						(plot_owners.size() + repeated_owners.size()));
++				for(int j = 0; j < iExtra; j++) {
++					repeated_owners.push_back(plot_owners[i]);
++					baDone[plot_owners[i].second] = true;
++				}
++			}
++			/*  The more often a civ appears in plot_owners, the more pixels
++				will be set to the civ's color. */
++			for(size_t i = 0; i < repeated_owners.size(); i++)
++				plot_owners.push_back(repeated_owners[i]);
++		} // Ideally ==, but my algorithm above can't guarantee that.
++		FAssert(plot_owners.size() <= iColorsPerPlot);
++		// </advc.004z>
++		for (int i = 0; i < iColorsPerPlot; ++i)
++		{
++			int iCurOwnerIdx = i % plot_owners.size();
++			PlayerTypes eCurOwnerID = (PlayerTypes) plot_owners[iCurOwnerIdx].second;
++			int iCurCulture = plot_owners[iCurOwnerIdx].first;
++			const NiColorA& kCurColor = GC.getColorInfo((ColorTypes)
++					GC.getPlayerColorInfo(GET_PLAYER(eCurOwnerID).getPlayerColor()).
++					getColorTypePrimary()).getColor();
++			// damp the color by the value...
++			aColors[iI * iColorsPerPlot + i] = kCurColor;
++			/*  <advc.004z> Don't give away info about fogged tiles.
++				Use a low factor b/c fogged tiles already look darker than
++				visible tiles. */
++			float blend_factor = 0.1f;
++			if(bVisible) // </advc.004z>
++				blend_factor = (iCurCulture - iMinTotalCulture) / (float)iMaxTotalCulture;
++			blend_factor = 0.5f * std::min(1.0f, std::max(//0.0f,
++					/* advc.004z: */ 0.1f,
++					blend_factor));
++			// advc.004z: Coefficient before blend_factor was 0.8
++			aColors[iI * iColorsPerPlot + i].a = std::min(0.75f * blend_factor + 0.5f, 1.0f);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 62b3a8fe5..8a0c4e93c 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -146,7 +146,7 @@ void RiseFall::init() {
+ 	gDLL->getInterfaceIFace()->setDirty(TurnTimer_DIRTY_BIT, true);
+ 	/*  Initial auto-save. Normally happens already in CvGame::update, but
+ 		RiseFall isn't yet initialized then. */
+-	gDLL->getEngineIFace()->AutoSave(true);
++	g.autoSave(true);
+ 	g.showDawnOfMan();
+ }
+ 
+@@ -383,7 +383,7 @@ void RiseFall::atActiveTurnStart() {
+ 	int pos = getCurrentChapter();
+ 	if(pos < 0)
+ 		return; // Happens on turn 0 b/c not yet initialized
+-	CvGame const& g = GC.getGame();
++	CvGame& g = GC.getGame();
+ 	int gameTurn = g.gameTurn();
+ 	PlayerTypes activeId = g.getActivePlayer();
+ 	if(activeId == NO_PLAYER)
+@@ -399,7 +399,7 @@ void RiseFall::atActiveTurnStart() {
+ 		created. It's important that diplo popups are shown again after loading;
+ 		this works. On-screen messages and non-diplo popup aren't currently
+ 		shown after loading (not ideal). */
+-	gDLL->getEngineIFace()->AutoSave();
++	g.autoSave();
+ 	if(active.isHumanDisabled()) // Only popups from here
+ 		return;
+ 	updateOffLimits(); /* Any civ that is a vassal of ActiveTeam at some point
+@@ -540,6 +540,9 @@ void RiseFall::welcomeToNextChapter(int pos) {
+ 	RFChapter& ch = *chapters[pos];
+ 	setPlayerName();
+ 	CvPlayer& p = GET_PLAYER(ch.getCiv());
++	// Doing this in setUIHidden has no effect
++	if(gDLL->getEngineIFace()->isGlobeviewUp())
++		gDLL->getEngineIFace()->toggleGlobeview();
+ 	centerCamera(p.getID());
+ 	abandonPlans(p.getID()); // Also tries to move the camera
+ 	GC.getGame().showDawnOfMan();
+@@ -1294,7 +1297,7 @@ void RiseFall::afterCivSelection(int buttonClicked) {
+ 		interludeCountdown = -1;
+ 		chapters[pos]->start();
+ 		// Save before firing popups
+-		gDLL->getEngineIFace()->AutoSave();
++		g.autoSave();
+ 		welcomeToNextChapter(pos);
+ 		return;
+ 	}
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=23083

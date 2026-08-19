@@ -1,0 +1,422 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4397
+# Commit: 8ca7fe78ffaa0bd3bf91bd05242aa36fa659c1e8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 40fa9abc5615e6b589a5ed22e0bfd2adafc28813
+# Title: add tech tree map and begining of notes about my changes (unfinished) comitting this a bit sooner than i would want to but there is so much data i don't want...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	5	Assets/XML/AI_Variables_GlobalDefines.xml
+11	2	Assets/XML/GlobalDefines_advc.xml
+-	-	Techtree_modified.png
+38	0	notes_about_game_design_choices
+43	0	notes_about_some_assets_content
+203	0	notes_about_tech_design_choices
+ create mode 100644 Techtree_modified.png
+ create mode 100644 notes_about_game_design_choices
+ create mode 100644 notes_about_some_assets_content
+ create mode 100644 notes_about_tech_design_choices
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index b8233d32a..2d09dc0b3 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -84,9 +84,11 @@
+ 		<!-- custom: city has our culture, so worth more and easier to benefit from
+ 		     than a rival's city. It may sometimes be wise to give up the city short
+ 			 term or even mid or long term maybe too sometimes so not increasing it a
+-			 lot.,  was 100 -->
++			 lot.
++			 May be especially more important to defend our cities and their religion
++			 now i mean with the future religion changes i made,  was 100 -->
+ 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
+-		<iDefineIntVal>110</iDefineIntVal>
++		<iDefineIntVal>130</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- We show we can take by force what was denied to us when we
+@@ -198,7 +200,10 @@
+ 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
+ 		<!-- custom: should matter less if war is short or/and conquered city has
+ 		     new ressources, was 100 -->
+-		<iDefineIntVal>50</iDefineIntVal>
++		<!-- custom: i originally put this at 50 and it seemed to perform quite well
++		from the (few) tests i made, now with the upcoming religion changes, try to
++		make the AI much more sensitive to it, was 50 last time i changed it -->
++		<iDefineIntVal>300</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- War leaves fewer units stationed in cities, which can lead to
+@@ -315,9 +320,11 @@
+ 		<!-- Added to the utility threshold for starting a war while already in
+ 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
+ 		<!-- custom: testing 25, would this make AIs less willing/likely to fight multi wars,
+-		     thus increasing AI efficiency?, was 10 -->
++		     thus increasing AI efficiency?, was 10
++			 now i want to increase this more to see, seemed to perform quite well in the (few)
++			 tests i made, was 25 last time i changed it -->
+ 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
+-		<iDefineIntVal>25</iDefineIntVal>
++		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+     <Define>
+ 		<!-- When computing per-civ power values (which play an important role
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index f4db730d4..a0a6bf5f9 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -537,18 +537,27 @@
+ 		 (unless the player owns the respective holy city). Set to -1 to
+ 		 disable those announcements in all eras or to 7 or greater to enable
+ 		 them in all eras. -->
++	<!-- custom: with the incoming changes i made on religious monastery (now
++	altars) and religious corporations (now special buildings too later in the
++	game, religion is more important, it is more important to pay attention to
++	religion. As also the reward is much stronger to stick to our religion
++	despite potential diplomacy costs).
++	May be a bit more realistic too this way, as religious conflicts do not
++	end (i think) even in modern times, hopefully more interesting and
++	enjoyable this way, was 4 -->
+ 	<Define>
+ 		<DefineName>STOP_RELIGION_SPREAD_ANNOUNCE_ERA</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.106e: 0 (recommended) means that there is no announcement when a
+ 		 religion spreads in a foreign city whose owner already has that
+ 		 religion as his or her state religion. Set to 1 to receive such
+ 		 announcements. -->
++	<!-- custom: set to 1 due to reasons above, was 0 -->
+ 	<Define>
+ 		<DefineName>ANNOUNCE_STATE_RELIGION_SPREAD</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.106h: 1 (recommended) means that the game settings are recorded
+
+diff --git a/Techtree_modified.png b/Techtree_modified.png
+new file mode 100644
+index 000000000..35faa5714
+Binary files /dev/null and b/Techtree_modified.png differ
+
+diff --git a/notes_about_game_design_choices b/notes_about_game_design_choices
+new file mode 100644
+index 000000000..e3ed8e58e
+--- /dev/null
++++ b/notes_about_game_design_choices
+@@ -0,0 +1,38 @@
++If not covered in notes about tech design choices, here are some additional notes
++to inform i mean about some game design choices i made:
++
++- todo: trying to minimally change the game existing assets to have AI perform as best
++as possible and not complicate what i don't want (i would prefer the game to be deeper
++in other ways and settings by what is existing), it may also be enough/plentiful to mod
++and make it deeper i mean. Not sure i'll stand by this promise about this game mod, for
++now is how (it seems) i intend to do it (but again is not restrictive and is a todo comment).
++- todo: in advciv (i don't know if same in bts) culture buildings give double culture at 1000
++historical years. I may change this if i found how and i want to, for now leaving as is as is
++functionnal and i'm still testing.
++- todo: may change year count for turn number
++
++- todo: renamed some buildings to more emphasize their historical origin when possible
++and i want, for example "The Great LightHouse" is now "Lighthouse of Alexandria",
++but is functionally the same building (that i may change the stats or/and effects
++of or not)
++- Renamed "Taoism" to "Daoism" (and all ingame main mentions) for convenience
++and more intuitive of me to understand what it is, functionally is the same ingame.
++
++- todo: complete military overhaul: terrain, etc
++- units way more versatile or/and stick to their roles, for exemple archers not
++defenders, melee units can be defenders, changed defense targets, unitai roles (may
++need to try them more or tweak them to be as specific as possible, etc.
++- todo: promotions are available to more unit types, melee have access to city garrison
++now, archer type have city raider now also for example. I may have to up or reduce the
++strength of the units as i rework them, may have to also tweak/rework some units if it
++breaks them or something,
++- todo: catapult disable suicide? If it is possible? But then make their defense weaker
++or/and increase cost?
++- todo: units are more versatile
++
++- todo: increase revolt timer to 10 turns? A bit too convenient to change religion or
++civic when they want, is aligned with peace treaty now so more decision considering
++when to switch or not maybe, may also help the AI revolt less (pointlesly?/often)
++if it does?
++
++
+
+diff --git a/notes_about_some_assets_content b/notes_about_some_assets_content
+new file mode 100644
+index 000000000..3412d05b3
+--- /dev/null
++++ b/notes_about_some_assets_content
+@@ -0,0 +1,43 @@
++For details see other notes documents that may or not provide more
++information about these i mean.
++This is not about balance or gameplay changes but about how known
++assets are referred to.
++List below is not exhaustive but hopes to cover some important asset
++changes to quickly identify them maybe i mean.
++
++Added:
++- AdvCiv\Assets\XML\GameInfo\CIV4ProcessInfo.xml
++
++Renamed:
++- alphabet is now early regional trading
++- confucianism is now mythology/paganism
++- horseback riding is now mounted riding
++
++- the great lighthouse is now the lighthouse of alexandria (similar
++name-including-specific-information type of change for all wonders
++or buildings too)
++- the great library is now library of alexandria
++- oracle is now oracle of delphi
++- pyramids is now the pyramids of giza
++- great wall is now great wall of china
++- apostolic palace is now egyptian-hittie treaty. It still
++has the same function in this game mod.
++
++- taoist monastery is now daoist monastery
++
++- hindu temple is now hindu temple (mandir)
++- confucian temple is now paganist/mythological temple
++- buddhist temple is now 
++- taoist temple is now daoist temple (dàoguàn)
++- jewish temple is now jewish temple (synagogue)
++- christian temple is now christian temple (church)
++- islamic temple is now islamic temple (mosque)
++
++- todo: mandir is now???
++
++- taoism is now daoism
++
++Renamed and replaced:
++
++
++Removed?:
+
+diff --git a/notes_about_tech_design_choices b/notes_about_tech_design_choices
+new file mode 100644
+index 000000000..457a4633f
+--- /dev/null
++++ b/notes_about_tech_design_choices
+@@ -0,0 +1,203 @@
++Notes about some tech design choices i made:
++- todo: Sheep and cattle (and fish types of animals too i don't know did not check, ?)
++were already understood as meat (i think) so reveal them at game start, but horse
++has a strategic value to build units in this game, so Mounted riding (or whichever
++name i chose for this tech i mean) reveals horse now, not animal husbandry (more
++accurate maybe this way and more incentive to search mounted riding especially)
++Maybe this gives more room for the AI, and is maybe more realistic too, also as
++all players are affected by this, maybe this is "fair" i mean maybe.
++- Fishing was done without workboat initially, but currently workers don't have
++the function to move to water, so for now workboats to sailing (also not sure
++AI will be able to handle it).
++Maybe a way to adress this is, for early foods (fish, crab, and clam), fishing increases
++food by +1 for these without doing anything (but for whales need a work boat entirely),
++and then a work boat gives the missing +1 (or more?) food, +maybe some commerce for
++extra incentive. Also coast tiles are weaker so i would like to buff them if possible,
++so maybe would give more than +1 food, and people trading these food ressources is
++realistic too i think.
++- todo: Also to buff water tiles maybe work boats would not require food to be stopped
++anymore? (and reduce hammer price too?)
++- Todo: increase spawn rate of sea food, especially coastal? Or maybe only for some
++ressources? Etc, or is too much maybe?
++- About that point, moved most early regional trading abilities in the specific tech
++(that is just alphabet renamed/repurposed i mean, as it was doublon of writing and
++not necessarily accurate (i don't know didn't check) or useful since i have most (all?)
++techs i need in the early game)
++- Is more realistic to hide some strategic ressources (too) until they are understood
++as such, so for example wine, stone, gold, silver, among others are now hidden
++todo: add sheep? But would that make game too painful? But maybe more realistic this
++way?
++
++- todo: workers with strength if AI can handle it?
++- todo: Renamed "Galley" to "sailboat" or use another model somewhere else?
++- Stone mines existed much before masonry, so moved the quarry there
++- Culture building started very early in human civilization if i am not mistaken,
++i put mysticism as the starting point now, maybe helps to diversify strategies too?
++- Monuments around 50 000 BCE were technically masonry i think, but the more modern
++form of masonry started around 10 000 BCE so putting it there rather (maybe earlier
++monuments could be more considered as combining stones? But i don't know much about
++this (yet?) so is just a tentative explanation/gap-filler i mean)
++- todo: Agriculture makes more sense if people have cottages (but is it houses/shelters?
++That they would have built (??) in earlier times but were still nomadic, so it was 
++(i don't know but i theorize i mean(?)) more convenient to start agriculture when there
++were houses near to settle in?)
++- todo: rename cottage to shelter or house?
++Then=and do in total: Shelter/CottageS/Hamlet/Village? But maybe this is uneeded and
++needlessly complicates so may leave as is?
++- No settlers are possible to build until Agriculture is discovered (about the time)
++where players are sedentary, but for convenience of gameplay all players start with
++a settler so they can choose their settling spot
++
++- Wine was consumed much sooner than at monarchy, during agriculture a bit later
++(from the little i looked 13 000 BCE alcoholic brewages were already consumed),
++most likely (i think) was way sooner than that, so revealing wine at game start but
++put the winery at agriculture as it's at about same time, and i don't see a better
++tech choice.
++As for wine reveal i chose pottery, maybe it's early enough and they had now cups
++to consume it?
++
++- Granaries did not necessarily require stones (some oldest ones were in wood), but
++at about same time than masonry so more convenient to put them there. Also they
++appeared a bit later than pottery unless i'm mistaken so maybe fits more at masonry
++tech for a time concordance perspective i mean maybe.
++- Slavery appeared around agriculture time if not sooner, more accurate to put it
++there, maybe helps diversify gameplay too?
++
++- The Wheel was not necessary for the road building (see south america), but these
++2 (the wheel and road building) appeared at around same time so convenient to group
++them there with no seemingly better tech choice.
++- No reason why bronze tools can't cut jungle if they can cut forest, also some
++societes (american continent maybe(?) for example) prospered really early in jungle lands
++so option should be there
++- First metal to be cast was gold not copper, bronze working came later
++- Currency was done with gold before silver and copper were (broadly?) available
++- Writing did not require paper necessarily (see cuneiform writing, stone tablets for
++example)
++- Papyrus was not made of wood but of fibers of a plant if i am not mistaken
++- There are many epics written, so keeping the name generic so that it can be a small
++wonder maybe (that all players can build)
++
++- I think it's interesting maybe (at least i want) to add the mythology/paganism
++religions (egyptian/greek/roman/etc mythologies, strangely forgotten(?) or missing in civ4,
++hence in advciv too that is conservative generally about such changes (which helps
++me mod this more easily which i am thankful for)). To do that i removed confucianism.
++I think there are a bit too many religions mid game and not enough earlier, i would
++want some religion tensions/fights/strategic possibilities, not just one religion
++leading to the next, and ideally not a religious tech leading to the next (else someone
++would take all religions), ideally if it can be historically accurate or immersive
++or enjoyable i would try to do it in a way that avoids that maybe and is hopefully
++interesting at least to me maybe.
++- moved pacifism from philosophy to meditation, maybe more realistic or immersive
++this way? Or i could find some other use for philosophy?
++- Apostolic Palace appears historically way too late to be of use anymore (1500 AD +
++approximately), so i used the earliest international treaty instead (Egyptian-Hittie
++Treaty) to symbolize its function (sort of because only 2 leaders and not actively
++planning other than peace but still is internation diplomacy) and replace
++- organized religion allows to build missionaries (missionaries requires temple now
++not monastery), i did not look but i thinkwhen a religion is founded and has a temple
++it would quite naturally want to spread, is also a way to buff religion early
++or/and increase gameplay depth/immersion/enjoyment maybe
++- todo: find some other use for the monastery now, most likely
++removing science bonus for something else (gold?), not sure how
++science and religion are connected, in fact should be the opposite, since in civ4 gold
++is science would amount to the same in the end maybe, but at least the difference is
++there, may or not tweak it more but would be something like this at least for
++now maybe
++- monasteries are now named into another type of building (but
++still same asset, with each a specific function. Not all
++religions have monasteries, perhaps this also helps add more
++diversity to religions in the game and hopefully more enjoyable
++too maybe). These buildings are reworked with all previous removed (including the +10%
++science that seems totally unrelated to me (in fact more often than not religions would
++reduce science, but i'm trying to not add negative bonuses to keep the experience
++simple and enjoyable maybe, and also not penalize the AI that may not handle them too
++well maybe. This is what i did/intend to do, can be built in each city. Cost may vary too?
++(This may give ideas too: https://en.wikipedia.org/wiki/Altar)
++todo: All altars give +1 happy (maybe it makes it more worthwhile the quite high cost (?)
++they would have, but not sure if i want these to be that expansive, may want to speed up
++the game a bit instead? But want it to be gradual too so will need need to test i mean)
++Additionally
++    - Hindu monastery: +2 free priests in city (never obsolete)
++    - Pagan altar: slavery -100% anger in ancient eras, obsolete at scientific method
++    (a bit too soon for neopaganism but maybe fine, also maybe is a balance change by
++    not overbuffing slavery later in the game which may also be a bit unrealistic)?
++    - Jewish altar: slavery sacrifice cost -50% (obsolete at scientific method, maybe
++    we understand now they are living creatures so the illusion of the free sacrifice
++    is off?)
++    - Buddhist monastery: +2 free merchants in city (never obsolete)
++    - 
++    - 
++
++- corporations reworked:
++todo: but if doing it with cathedrals instead, reduce temple limit to 1?
++Cathedrals are much better to prevent snowballing, they are a good incentive
++to build temples first too, would need to test, but having the new religion
++icon of corporations would be nice
++    - Hindu modern day: Hammer +50% (in city) (since they don't need to worship as much
++    at least in public, their productivity increases maybe?, requires hinduism,
++    requires scientific method, requires hindu monastery (for same reasons to
++    make it worth more to stick to their religion despite diplomacy cost if rival
++    has another one))
++    - Neopagan altar: something about peace? Culture + 100% (in city), (requires paganism
++    religion, requires scientific method tech; also requires pagan altar building
++    (maybe would make it more worthwhile to stick to their religion even if
++    diplomatic costs, may help AIs who stay too long in their religion too?)?)
++    - Neo Buddhist movements: Science +50% (in city) (they are more sceptic and
++    reject previous buddhist teachings from the little i've read quite quick i
++    mean)
++    - Zionism: new military units free promotions City Raider 1 + 2 + 3,
++    requires judaism, requires nationalism, requires jewish altar
++
++    - Jihad: new military units free promotions Flanking 1 + 2 + free promotion Ambush,
++    requires islam, requires nationalism, requires todo: first islamic
++    type of altar building
++
++todo: modify it so all(?, or most?) units can use Ambush promotion, and maybe all
++units use all promotions?
++todo: remove corporation "missionaries"? Is too cumbersome
++, todo rework aztec special building
++
++- civil service actually started around 100 BC in imperial China if i am not mistaken
++(see xiolian bureaucracy, even though it was not meritocratic they were still civil
++officers), in fact even before that around 400 BC during the warring states if i am not
++mistaken from (the little) i've read i mean.
++- monarchies existed already from the time of Narmer (pharaoh of ancient egypt) and
++enmebaragasi (sumerian king of kish) from the little i've read (and recopied i mean),
++maybe monarchies existed before that even though i did not check nor do i know about
++this information i mean.
++- Also about that, considering the pharaoh was believed (by the egyptians i mean
++in the ancient egyptian religion from the little i've saw/read about this and my
++intuition and knowledge about this too (a bit) i mean) to have the divine power 
++of kingship incarnated in him, it could also be said that divine right originated
++at that time if not sooner, as a result i may simply remove the divine right tech
++unless i find a specific purpose for it (trying to de-clutter i mean the early era
++that already has many techs, and this is also sort of redundant too i think i
++mean)
++
++- about the education tech and universities, unlike what a quick googling yields,
++some searches (also quick i mean) pointed to University of al-Qarawiyyin which was
++founded around 850 AD, so much sooner than the other results that points to around
++1100 AD (I try to look at history in all the world oldest, not just western or old
++world i mean, as much as possible).
++- todo: about the madrasa, change required techs, at least by adding the first islamic
++tech (was divine right but i need to rename it now), makes up for the fact that the
++building was op (i think) quite nicely, now should be fine
++
++- macemen are completely off, not with civil service but much sooner, from what i've
++read it seems around 1500 BC copper maces were used (against Ramses II for example),
++earlier versions (in stone or marble) are said to not be so good from the little i've
++read, so putting them around 1500 BC rather, it is also a nice middle ground between
++axemen and swordsmen
++- about swordsmen, if i am not mistaken, swordsmen used copper swords originally but
++they were not so good, so i put swordsmen around the time of iron working (are said
++to not be so good (due to bending? Or/and due to expensive costs?), so putting them
++around 1500 BC rather)
++todo: macemen can be built with copper and iron, but swordsmen only with iron then
++to simplify? (else i would have to create many units for no major functionnal difference
++so probably not best/a good idea nor efficient i mean)
++
++- about guilds there were craftsmen/artisans guilds and merchant guilds, so i am
++putting an or for tech requirement not requiring both metal casting and early regional
++trading but only either of these techs to be able to research guilds. The first ones
++seem to be around 2200 BC if i am not mistaken i mean.
++
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=21733

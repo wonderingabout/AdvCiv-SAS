@@ -1,0 +1,214 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6059
+# Commit: f24055b1f1257c5b5b35827fc618fe7eed35bd47
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0b7a1566d7c17085171cc0ea49a30ffe419aed33
+# Title: Fix Base AdvCiv/K-Mod Barbarian/war-plan mismatch; enhance stop charity Barbarian cleanup for rivals (KI#188.4-188.5) - (Fixed) Base AdvCiv/K-Mod bug: AI arm...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+46	5	CvGameCoreDLL/CvUnitAI.cpp
+30	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index dd6aa1be6..39d941c9f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2958,6 +2958,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: A Barbarian city farther than this many path turns is attacked only if AI_isSASCityLikelyToBenefitUsLongTerm says it is worth keeping. A quick raid can repay its mobilization and combat costs, but travelling farther to raze a city wastes army tempo and removes Barbarian pressure for the nearer rival, who then receives a cleared settlement site. Save-file 450 testing showed Hannibal spending 16 turns taking population-5 Libyan before razing it; Shaka settled the exact plot 10 turns later. Set to 0 to disable this gate. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e9ebfe30e..8ca7f034f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -740,7 +740,37 @@ static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnit
+ 	return eBestUnit;
+ }
+ 
+-static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
++// <!-- custom: BBAI save-file 450 testing showed Hannibal spending 16 turns mobilizing, travelling to, capturing, and razing distant population-5 Libyan; Shaka then settled the exact plot 10 turns later. Another ready army preparing a real war selected Scythian 10 path turns away, but Arabia razed it first. Such expeditions waste our army's tempo while removing Barbarian pressure and clearing land for a nearer rival.
++// Preserve quick raids and cities likely to benefit us long-term. Reject only a farther Barbarian city that the shared conquest/retention evaluation says we should not keep; this makes the nearer rival spend its own units, Settler, development time, and maintenance instead. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
++static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const& kCity, MovementFlags eMoveFlags, int iMaxPathTurns, char const* szContext, int iKnownPathTurns = -1)
++{
++	if (!kCity.isBarbarian()) return false;
++	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS"));
++	if (iMaxDisposablePathTurns <= 0) return false;
++	int iPathTurns = iKnownPathTurns;
++	bool const bPathable = (iKnownPathTurns >= 0 || kUnit.generatePath(kCity.getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns));
++	if (bPathable && iPathTurns <= iMaxDisposablePathTurns) return false;
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	bool const bLikelyToBenefitUsLongTerm = kOwner.AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
++	bool const bReject = !bLikelyToBenefitUsLongTerm;
++	if (gUnitLogLevel >= 2)
++	{
++		// <!-- custom: This evaluation can run for many armies every turn. Log only the first result and later keep/reject transitions for each player and Barbarian city; this reduced save-file 450's 4,679 repetitive prototype rows to 19 in the identical confirming run. (GPT-5.6-Sol) -->
++		static std::map<std::pair<int,int>,std::pair<int,bool> > aLastLoggedState;
++		std::pair<int,int> const key(kUnit.getOwner(), kCity.getID());
++		std::map<std::pair<int,int>,std::pair<int,bool> >::const_iterator const itLast = aLastLoggedState.find(key);
++		if (itLast == aLastLoggedState.end() || itLast->second.first != kCity.getGameTurnFounded() || itLast->second.second != bReject)
++		{
++			aLastLoggedState[key] = std::make_pair(kCity.getGameTurnFounded(), bReject);
++			logBBAI("    BARB_CITY_DISTANT_DISPOSABLE_EVAL turn=%d player=%d %S context=%s unitId=%d groupId=%d groupUnits=%d at=(%d,%d) target=%S target=(%d,%d) targetPop=%d pathTurns=%d maxDisposablePathTurns=%d likelyToBenefitUsLongTerm=%d reject=%d wars=%d anyWarPlan=%d",
++				GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szContext, kUnit.getID(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), iPathTurns, iMaxDisposablePathTurns, bLikelyToBenefitUsLongTerm, bReject, GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
++		}
++	}
++	return bReject;
++}
++
++// <!-- custom: Apply the distant-disposable gate for behavioral callers; the opportunity diagnostic passes false so it can still report physically pathable cities without filtering or duplicating the decision log. (GPT-5.6-Sol) -->
++static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, bool bApplyDistantDisposableGate, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
+ {
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+ 	CvCity const* pBestOverallBarbCity = NULL;
+@@ -775,6 +805,9 @@ static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementF
+ 		if (!bPath)
+ 			continue;
+ 		iPathableCandidateCount++;
++		// <!-- custom: Behavioral callers exclude a distant city we expect to raze before it can win this picker's ranking; the diagnostic caller passes false above to preserve its raw opportunity report. See KI#188.5. (GPT-5.6-Sol) -->
++		if (bApplyDistantDisposableGate && SAS_isDistantDisposableBarbarianTarget(kUnit, *pBarbCity, eMoveFlags, iMaxPathTurns, "pathable_barbarian_picker", iPathTurns))
++			continue;
+ 		int const iPathableValue = iTargetValue * 100 - 10 * iPathTurns - iStepDistance;
+ 		if (iPathableValue > iBestPathableValue)
+ 		{
+@@ -1069,7 +1102,7 @@ static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
+ 	int iStepDistance = -1;
+ 	int iDefenders = -1;
+ 	int iValue = MIN_INT;
+-	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
++	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, true, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
+ 	if (pTargetCity == NULL)
+ 		return false;
+ 	if (gUnitLogLevel >= 2)
+@@ -1102,7 +1135,7 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
+ 	int iBestPathableValue = MIN_INT;
+ 	int iCandidateCount = 0;
+ 	int iPathableCandidateCount = 0;
+-	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
++	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, false, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
+ 	if (pBestOverallBarbCity == NULL)
+ 		return;
+ 	int iTargetPathTurns = -1;
+@@ -6522,7 +6555,10 @@ void CvUnitAI::AI_attackCityMove()
+ 		/*  Don't yet know if we'll actually target a Barbarian city, so it's hard to
+ 			decide on the proper size of the attack stack. But if there is nothing else
+ 			to attack, it's easy. */
+-		bHuntOnlyBarbs = (bHuntBarbs && !GET_TEAM(getTeam()).AI_isSneakAttackReady() && GET_TEAM(getTeam()).getNumWars() <= 0);
++		// <!-- custom: Base AdvCiv treated the preparation period before sneak-attack readiness as Barbarian-only even when a real war plan already existed.
++		// In save file 450, Hannibal consequently prepared to attack nearby Willem at 54% of his power while a city-assault group still targeted Barbarian Scythian about 10 turns away; Arabia captured and razed Scythian first.
++		// Require no war plan so the group instead uses real-war readiness and remains available for the planned campaign. See KI#188.4. (GPT-5.6-Sol) -->
++		bHuntOnlyBarbs = (bHuntBarbs && !bAnyWarPlan && !kTeam.AI_isSneakAttackReady() && kTeam.getNumWars() <= 0);
+ 		if (bHuntOnlyBarbs)
+ 		{
+ 			iBarbarianAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
+@@ -6658,6 +6694,11 @@ void CvUnitAI::AI_attackCityMove()
+ 			(!bInCity && getGroup()->getNumUnits() > 1))
+ 		{
+ 			pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, bHuntBarbs);
++			// <!-- custom: If normal selection chose a distant Barbarian city we expect to raze, retry without Barbarian candidates so a real war target can replace it; without one, later targetless logic keeps the army available for defense or future opportunities. See KI#188.5. (GPT-5.6-Sol) -->
++			if (pTargetCity != NULL && SAS_isDistantDisposableBarbarianTarget(*this, *pTargetCity, eMoveFlags, MAX_INT, "normal_target_picker"))
++			{
++				pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, false);
++			}
+ 		}
+ 	}
+ 	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units. Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
+@@ -7433,7 +7474,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				// <!-- custom: note: if (AI_goToTargetBarbCity(12)) caused a compile error, fixed with the help of GPT-5.5 thanks -->
+ 				// 1>..\CvUnitAI.cpp(6341): error C3861: 'AI_goToTargetBarbCity': identifier not found, even with argument-dependent lookup
+ 				// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+-				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
++				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, true, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
+ 				if (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian() && AI_goToTargetCity(eMoveFlags, 12, pBarbTargetCity))
+ 				{
+ 					if (bLogBarbFallback)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 038413c8b..8adc99fba 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -231,6 +231,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions)\
+ [188.2 - (Fixed/Improved) Base AdvCiv/K-Mod issue: offensive armies could ignore nearby endangered cities instead of going back to try to help defending them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them)\
+ [188.3 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely and park 40-53% of an AI's military](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military)\
++[188.4 - (Fixed) Base AdvCiv/K-Mod bug: AI armies preparing war against a civilization could still be classified as hunting only Barbarian cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1884---fixed-base-advcivk-mod-bug-ai-armies-preparing-war-against-a-civilization-could-still-be-classified-as-hunting-only-barbarian-cities)\
++[188.5 - (Improved) AI armies could waste their strength razing distant Barbarian cities instead of leaving Barbarian pressure to weaken nearer rivals and remaining available for offense or defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1885---improved-ai-armies-could-waste-their-strength-razing-distant-barbarian-cities-instead-of-leaving-barbarian-pressure-to-weaken-nearer-rivals-and-remaining-available-for-offense-or-defense)\
+ [189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars)\
+ [189.2 - (Fixed/Improved) Base AdvCiv UWAI issues: volatile war estimates, compounding random peace rolls and excessive future-war costs could prematurely end profitable campaigns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns)\
+ [190 - (Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could attack other cities or spend the launch countdown on ordinary tactics instead of trying to capture the spaceship owner's capital](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#190---fixedimproved-base-advcivk-mod-issue-anti-space-armies-could-attack-other-cities-or-spend-the-launch-countdown-on-ordinary-tactics-instead-of-trying-to-capture-the-spaceship-owners-capital)\
+@@ -7105,6 +7107,34 @@ Save file 452 independently confirmed the behavior with 93 releases across ten c
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+ 
++## 188.4 - (Fixed) Base AdvCiv/K-Mod bug: AI armies preparing war against a civilization could still be classified as hunting only Barbarian cities
++
++This is a war-preparation follow-up to KI#188. Base AdvCiv/K-Mod decided that a civilization AI was hunting only Barbarian cities when it was at peace and its sneak attack was not yet ready. The condition did not check whether a real war plan already existed. The preparation period before `AI_isSneakAttackReady` therefore still used Barbarian-expedition readiness even though the empire had already selected a rival and was mobilizing for that war.
++
++The distinction matters because an army sufficient for a weak Barbarian garrison is not necessarily sufficient for a civilization war. KI#188 also deliberately limits peaceful Barbarian expeditions so they do not absorb most of an empire's military; applying that smaller-expedition context during a real war preparation could make armies move, split, or wait according to the wrong objective instead of reaching normal war-stack readiness.
++
++Save-file 450 BBAI logging exposed the exact overlap. Hannibal was preparing a total war against nearby Willem, whose power was about 54% of Carthage's, but several Carthaginian city-assault groups still entered the Barbarian-only branch. After adding the missing no-war-plan requirement, turn-166, turn-172, and turn-174 groups with 6, 7, and 9 units respectively logged `huntOnlyBarbs=0` and `readinessReason=war_below_needed`, using the normal 10- or 17-unit war requirement rather than the smaller Barbarian estimate.
++
++The fix adds `!bAnyWarPlan` to the inherited Barbarian-only classification. Peaceful Barbarian expeditions remain unchanged when no rival war is planned, while every active preparation now uses real-war readiness before `AI_isSneakAttackReady` becomes true. A separate ready 11-unit Carthaginian army still selected distant Scythian afterward, proving that target quality and readiness classification were distinct problems; that strategic follow-up is KI#188.5.
++
++Fixed with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 188.5 - (Improved) AI armies could waste their strength razing distant Barbarian cities instead of leaving Barbarian pressure to weaken nearer rivals and remaining available for offense or defense
++
++KI#188.4 fixed the inherited readiness classification, but a fully ready army could still select any pathable Barbarian city. BBAI and SASGameSummary testing showed that this was strategically harmful when the city was far from the attacker and unlikely to be retained. The attacker paid unit-production opportunity, mobilization, travel, combat, healing, maintenance, and lost-tempo costs, yet razing the city removed military pressure from the nearer rival and cleared a future settlement site for that rival. Leaving the Barbarian city alive can instead force the rival to fight it, defend against it, delay expansion, or spend its own Settler and development time.
++
++The clearest baseline was population-3 Libyan in save file 450. On turn 74, AdvCiv-SAS created a Carthaginian Barbarian-expedition leader for a seven-turn route. Hannibal spent 16 turns reaching and capturing Libyan, razed it at population 5 on turn 90, and Shaka founded Bulawayo on the exact `(10,41)` plot only 10 turns later. Hannibal therefore paid the entire military and tempo cost while preparing Shaka's next city site. A separate ready 11-unit Carthaginian army selected population-9 Scythian about 10 path turns and 22 plots away while Carthage was preparing against Willem; Arabia captured and razed Scythian on turn 179 before Hannibal could benefit.
++
++AdvCiv-SAS now rejects only a Barbarian target that is both farther than the XML-tunable `SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS` and unlikely to benefit its attacker long-term. The default permits targets within 3 path turns because quick conquest gold, experience, immediate security, or denying a nearby site can repay a short expedition. Beyond that grace distance, the shared KI#186 `AI_isSASCityLikelyToBenefitUsLongTerm` evaluation must say the city is worth keeping. This preserves intrinsically valuable or sustainably located Barbarian cities instead of using a blanket distance ban.
++
++The gate covers all three routes that produced expeditions: ordinary city targeting, KI#188's missing Barbarian-expedition-leader creation, and the no-target Barbarian fallback. When ordinary targeting rejects a city, it retries without Barbarian candidates so an available civilization target can replace it. If none exists, the existing defensive, staging, targetless-release, and future-opportunity logic remains available instead of committing the army to the rejected expedition.
++
++The confirming `BBAI_20260720T074947Z_load1.log` and matching SASGameSummary reproduced the intended dynamic behavior. Hannibal rejected Libyan from turn 74 while it was distant and unlikely to benefit Carthage long-term. His strength remained available, and Carthage captured Medina, Baghdad, uMgungundlovu, Nobamba, and Damascus from turns 168-195. Shaka meanwhile fought multiple Barbarian units around Libyan without capturing the city. Once Carthage's new conquests brought the site within its sustainable empire, the long-term result changed from reject to keep; Hannibal captured and retained population-7 Libyan on turn 204, then captured and retained population-7 Scythian on turn 208. Thus the cure delayed the conquest while it primarily helped a rival, then allowed it once the same cities had become durable Carthaginian gains.
++
++The first diagnostic prototype produced 4,679 repetitive evaluation rows because the existing opportunity logger inspected the same candidates for many armies every turn. Diagnostic-only inspection now bypasses the behavioral filter, while the decision log records only the first result and later keep/reject transitions for each player and Barbarian city. The identical confirming run produced 19 rows without changing the gameplay outcome.
++
++Improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
+ ## 189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars
+ 
+ BBAI diagnostics in save file 452 showed that the AI frequently began preparing a war, mobilized around that plan, and then discarded or redirected it before fighting. Across all civilization AIs, 152 preparations began, 130 were canceled or switched away from, and only 17 became wars. China was the clearest individual example: it began 36 preparations, had 19 canceled by the inherited random-abandonment roll, switched target 13 times, and turned only 2 preparations into wars. Repeated mobilization without commitment wastes military tempo and can keep units concentrated around plans that never produce a conquest or defensive result.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 0a0d35269..6199f778e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -414,6 +414,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **AI attack stacks now opportunistically capture nearby barbarian cities:** before this fix, ready city-attack-capable (i.e. not just `UNITAI_ATTACK_CITY`) stacks could sit idle because the AI had **no normal war target yet**, even with a **nearby pathable barbarian city**. Now, if the AI has **no normal target** and is **not already busy with an active war**, the stack can **attack that barbarian city instead**. This does not override normal wars or normal war targets; it fills the no-target idle gap. This change is usually a **strong** move: barbarian cities are often weak, cost little diplomatically, and capturing them can give land, population, resources, unit support, and future growth without spending a settler or interrupting city production nor growth. In the tested save before the fix, nearby barbarian cities survived at game end at ~T400 despite reachable AI armies to Napoleon and Shaka, and barbarian being very weak in comparison, yet bonuses-rich, and Shaka was among weakest players; after the fix, Zulu captured Hurrian at T127, Alemanni at T132, Visigoth at T148, and Gaul at T153, turning those nearby barb cities into an early expansion boost and making Shaka the strongest player for almost all middle game and end game, almost allowing him to win. This change should make AI significantly stronger. See [KI#158](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war).
+ - (Requires AdvCiv-SAS 6047+) **AI armies no longer wait indefinitely in one city while preparing only for Barbarian conquest:** SASGameSummary and BBAI logging in save file 453 showed an unfinished Base AdvCiv rule in `CvUnitAI::AI_attackCityMove`, amplified by K-Mod grouping `AI_omniGroup`, kept armies assembled to capture a Barbarian city waiting merely because they had grown larger than needed for their weak target; for example, when the estimated Barbarian garrison was two units and five attackers were otherwise enough, those five could move, but adding a sixth made the entire army "not ready" again. While the army waited, normal grouping kept sending additional units into it, making it even larger and preventing those units from defending elsewhere or forming another expedition. In save file 453, individual waiting groups reached 65-82% of an empire's military - up to 201 units - while the AI paid their upkeep and delayed conquering reachable weak Barbarian cities. To fix this, the AI now divides such an army once into several self-sufficient expeditions that can capture different Barbarian cities, defend territory, or prepare for later wars, and prevents them from immediately joining back together. Normal large armies remain allowed during active wars and when a planned surprise attack is ready. See [KI#188](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions).
+ - (Requires AdvCiv-SAS 6047+) **Capable early armies can organize themselves to capture Barbarian cities:** SASGameSummary and BBAI logging also found AIs with 9-14 units individually able (`UNITAI_ATTACK`) to attack and capture cities, but none assigned to organize the others (`UNITAI_ATTACK_CITY`) into a city-assault army, so this is a difference in `UNITAI` assignment, not their abilities. A K-Mod rule automatically broke down any group of 4 or more such units into smaller groups of 2 or 3 units if the group was in territory owned by the AI or one of its teammates. Because of this, many of the AI's military units could remain at home instead of grouping together to capture a reachable Barbarian city. To fix this, if no city the unit can reach within one turn needs it as a defender and the unit is not currently threatened, the AI now checks if enough attackers are available in the area, and if so, the AI assigns that unit as the expedition leader; the others can then group with it and they set out against a Barbarian city. For example, the save file 453 confirming run created four such expedition leaders. Among them, one was of a Spanish Chariot reassigned on T60 had gathered a four-unit group by T61, redirected toward Minoan on T73, and Spain captured it on T77. Another was of a War Elephant reassigned for the Holy Roman Empire on T79 was leading four units toward Khoisan by T86, and the Holy Roman Empire captured it on T90. See [KI#188](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions).
++- (Requires AdvCiv-SAS 6059+) **War preparations now take priority over Barbarian expeditions:** Base AdvCiv/K-Mod treated the period before a planned attack became ready as if no rival war were being prepared. For example, in save file 450, BBAI logging showed Hannibal preparing to attack nearby Willem, whose power was only 54% of Hannibal's, while 7 of Hannibal's units were still being managed for an expedition to the Barbarian city Scythian 22 tiles away instead of building enough strength for the much more profitable rival war. To fix this, the AI now uses normal war readiness as soon as it has any real war plan. In the confirming run, the affected groups of 6-9 units did not leave for distant Barbarian cities. Instead, they continued assembling enough strength for the planned rival war and remained nearby in case they were needed for defense. See [KI#188.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1884---fixed-base-advcivk-mod-bug-ai-armies-preparing-war-against-a-civilization-could-still-be-classified-as-hunting-only-barbarian-cities).
++- (Requires AdvCiv-SAS 6059+) **AIs no longer do charity Barbarian cleanup for their rivals:** Following the readiness fix above, BBAI logging exposed a broader problem: a fully prepared army could still spend many turns attacking a distant Barbarian city that it would not benefit from and ultimately raze. For example, in save file 450, BBAI logging showed that Hannibal mobilized 3 units on turn 74 against the Barbarian city Libyan, 16 tiles away. Reaching and capturing it took 16 turns, and Hannibal then razed it. He gained no city and only some conquest gold, but lost troops and time that could have supported offense or defense. Shaka, the only nearby player likely to keep the city, gained much more: he founded Bulawayo on the exact plot only 10 turns later without having to capture Libyan himself. With the nearby Barbarian pressure removed, Shaka could also focus on his economy or build up his army without losing units to Barbarian attacks or becoming easier prey for other rivals, and he eventually won this run by Space. To fix this, the AI now avoids trips longer than the new XML-tunable limit of 3 path turns (to preserve quick tactical raids even when the city is not worth keeping) unless `AI_isSASCityLikelyToBenefitUsLongTerm` says the city is worth keeping (as of now, generally because it is close enough and has enough useful land and food after bonuses are considered). In the confirming run, Hannibal did not send his units to clear those distant Barbarian cities around turn 74. Instead, he kept them available for potentially better attacks or defense. Much later, between turns 168 and 195, he captured 5 Arabian cities, which now made capturing and not razing Libyan and Scythian now worth it as they became close enough (and are otherwise valuable enough to keep), which he did on turns 204 and 208. As for Shaka, he spent his own early military effort fighting near Libyan but failed to capture it. He later became Hannibal's vassal, and Hannibal won by Space. See [KI#188.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1885---improved-ai-armies-could-waste-their-strength-razing-distant-barbarian-cities-instead-of-leaving-barbarian-pressure-to-weaken-nearer-rivals-and-remaining-available-for-offense-or-defense).
+ - (Requires AdvCiv-SAS 6049+) **Offensive armies can interrupt or divide an expedition to defend nearby endangered cities:** Following KI#188, similar logging showed a ready AI army, including one already in enemy territory after being backstabbed, could in Base AdvCiv/K-Mod select another enemy city while an underdefended own city was reachable within a few turns. The clearest diagnostic case was in save file 450: Baghdad needed 12 defenders and had 5, but a healthy 11-unit Arabian city-assault army only two turns away waited for more units, grew to 23 units / 32% of Arabia's military, and attacked Prague; Baghdad fell, Prague was not captured, and Arabia retook Baghdad five turns later after its population had fallen from 10 to 4. To fix and enhance this, before choosing its next offensive target, the army now first tries to counter a suitable nearby invader when its area is considered defensive. If no such counterattack is selected, it can send enough units to fill an endangered city's remaining defender shortage within three turns and continue the expedition with the rest. The AI does not begin a rescue when a one-unit group cannot fill a larger shortage or when filling it would consume more than three quarters of the group, and doomed-city evacuation still takes priority. This lets a military advantage serve defense without automatically abandoning every viable offensive. After the fix, history diverged, but a similar save file 450 run showed the intended choices working: an Arabian city-assault group suspended its expedition to counter Holy Roman units near Baghdad, which remained Arabian. Later, a Dutch army sent 10 of its 19 units to protect Amsterdam while keeping 9 in the field; the Dutch won three of four nearby land battles and successfully retained the city. Overall, 11 of the 16 expedition-split decisions targeted cities that survived the immediate war or remained held through the test. The five failures were all on the collapsing Holy Roman front, where Najran, Vienna, Nuremberg, Prague, and Aachen still fell, so the response improves viable defenses without pretending an overwhelmed empire can save every city. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6049+) **Emergency city reinforcements now complete their assigned rescue:** Similar logging showed that the first prototypes of the cure above could detach defenders only for them to immediately regroup with their offensive army instead of reaching the endangered city. For example, at Chichen Itza, 6 units detached from an 8-unit army, regrouped, and had to be detached again two turns later; the city fell before the rescue was completed. This was not an inherited Base AdvCiv/K-Mod issue, but a missing part of our candidate cure. To complete the cure, emergency reinforcements now retain their city assignment, count as incoming defenders so the AI does not duplicate the same response, and remain in the city while needed; once the danger or defender shortage ends, they return to normal duties. In the confirming save file 450 run, 7 units successfully reached Amsterdam while the other 11 remained together for their campaign. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6050+) **Large AI armies parked with nothing reachable to attack:** BBAI logging showed a major Base AdvCiv/K-Mod bug: even while at peace, with no planned war and no rival or Barbarian city it could reach, the AI could keep waiting for reinforcements and effectively lock more units into the same army so they could not be released for other duties. For example, in save file 450, a United States group grew from 6 units on T126 to 18 of the empire's 47 military units by T225, and then, after the short war, it returned to peace still holding 21 of 51 units on T247. So it concentrated about 40% of the AI's military in one city and left far fewer units available to defend the rest of its empire or pursue another opportunity, which was very problematic. To fix this, when the AI has nothing to attack, it now stops waiting for more reinforcements: if the army is already in its own territory and not immediately threatened, the AI now only keeps one modest core group ready for a future city attack. As for the excess units, they now instead leave the group and resume defending cities or preparing another expedition. Note: an army that is still abroad or in immediate danger remains together until it returns to its own territory and is no longer immediately threatened, so the fix does not break it apart while exposed. Note 2: the units can also regroup into a large army as soon as a real target or planned war appears. After the fix, confirming runs of save files 450 and 452 showed the intended behavior: in save file 452, Japan reduced its peacetime city-assault group with nothing to attack from 21 to 11 units, freeing 10 units for other duties; at the same time, the AI could still assemble large armies when a real war began, as Carthage attacked Susa with 63 units in save file 450, and China attacked Aksum with roughly 180-202 units in save file 452. See [KI#188.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=36651

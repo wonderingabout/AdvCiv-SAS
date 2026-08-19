@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3632
+# Commit: 46dc3ac10d476e2854d0fc8b8ba67028b3950038
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4098ee7f717dfdba708b129bcae71361512f2675
+# Title: Tweak nearby-city checks required by "hostile villagers"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	6	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1758d6680..7ca19049b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4549,7 +4549,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 	// <advc.314>
+ 	int const iTrainHalved = (GC.getInfo(kGame.getGameSpeedType()).
+ 			getTrainPercent() + 100) / 2;
+-	bool bVeryEarlyGame = (100 * kGame.getGameTurn() < iTrainHalved * 20);
++	bool bVeryEarlyGame = (100 * kGame.getGameTurn() < iTrainHalved * 16);
+ 	bool bVeryVeryEarlyGame = (100 * kGame.getGameTurn() < iTrainHalved * 10);
+ 	if (kGoody.getExperience() > 0)
+ 	{
+@@ -4647,15 +4647,19 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 		if (getNumCities() == 0)
+ 			return false;
+ 
+-		if (getNumCities() == 1)
++		//if (getNumCities() == 1) // advc.314
+ 		{
+-			CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), NO_PLAYER, getTeam());
++			CvCity const* pCity = GC.getMap().findCity(
++					// advc.314: Any nearby city is a problem
++					pPlot->getX(), pPlot->getY()/*, NO_PLAYER, getTeam()*/);
+ 			if (pCity != NULL)
+ 			{
+-				if (plotDistance(pPlot->getX(), pPlot->getY(), pCity->getX(), pCity->getY()) <=
+-						// advc.314 (comment):
+-						8 - getNumCities()) // = 7 b/c of the NumCities==1 check
++				if (plotDistance(pPlot, pCity->plot()) <= //8 - getNumCities()
++					// advc.314: Had always been 7 b/c of the NumCities==1 check
++					8 - 2 * GET_PLAYER(pCity->getOwner()).getNumCities())
++				{
+ 					return false;
++				}
+ 			}
+ 		}
+ 	} // <advc.315d> No Scout from a Scout if already 2 Scouts
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1636

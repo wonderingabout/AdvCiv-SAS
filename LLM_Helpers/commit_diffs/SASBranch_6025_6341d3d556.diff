@@ -1,0 +1,642 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6025
+# Commit: 6341d3d556a7f580e3664b8631d52446c2c7c4da
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 088bc5d78f65d20019e3b0a401c3f1441310064b
+# Title: (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value and other related AI bonus set...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+14	0	Assets/XML/GlobalDefines_advciv_sas.xml
+244	115	CvGameCoreDLL/CitySiteEvaluator.cpp
+6	1	CvGameCoreDLL/CitySiteEvaluator.h
+48	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+4	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a143ce234..4f291f566 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -925,6 +925,20 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_COMMERCE_VALUE</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Settlement-specific non-yield value for a bonus's explicit health/happiness effect and ordinary building bonus effects up to the prerequisite-era gate below. In save file 450, the old broad AI_bonusVal path made Elephants greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure (War Elephants) with some happiness. Settling cares less about immediate current-era trade value and more about long-term health/happiness city-site value, which can be very different. Example: if health value is 150 and coastal Crab gives 1 empire-wide health plus 1 health from Harbor within the era gate, the city site gains 2 * 150 = 300 before trade/access/water adjustments. See KI#178. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- custom: Building-effect gate uses era indexes: 0 Ancient, 1 Classical, 2 Medieval, etc.; -1 disables building health/happiness effects. This lets settlement value count early ordinary buildings such as Granary/Harbor because we are likely to build them, while excluding late or expensive buildings such as Supermarket because the city may die, win, or lose before they matter. See KI#178. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_BUILDING_EFFECT_MAX_PREREQ_ERA</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Base AdvCiv weights now tunable: every plot starts with its natural XML yields: terrain, retained feature, and any revealed bonus's intrinsic yield, but not improvement yield handled by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. The code then selects exactly one value set: SELF_SUSTAINING, ONE_FOOD_SHORT, or DEFAULT. (GPT-5.5) -->
+ 	<!-- custom: SELF_SUSTAINING applies to a land home plot or land plot with at least the 2 Food consumed by one citizen. E.g. 2F1P contributes the fixed 10-point self-sustaining bonus + 2 * 40 + 1 * 30 = 120 before other plot adjustments. (GPT-5.5) -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 4c8659412..559b75b52 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -6,6 +6,8 @@
+ #include "PlotRange.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
++// <!-- custom: Needed for settlement-specific bonus health/happiness from ordinary buildings, e.g. Harbor seafood health, without using broad AI_bonusVal trade logic. (GPT-5.5) -->
++#include "CvInfo_Building.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Civics.h"
+@@ -568,7 +570,6 @@ int AIFoundValue::evaluate()
+ 	bool bAnyForeignOwned = false; // advc.040: Replacing the above
+ 	// <advc.031>
+ 	int iGoody = 0; // for normalization
+-	bool bAnyGrowthBonus = false;
+ 	int iStealPercent = 0;
+ 	int iRiverTiles = 0;
+ 	int iGreenTiles = 0;
+@@ -1042,25 +1043,31 @@ int AIFoundValue::evaluate()
+ 			continue;
+ 		}
+ 
+-		int iBonusScoreBaseBonusVal = 0;
+-		int iBonusScoreMultiplier = 0;
+-		int iBonusScoreEarlyPercent = 0;
++		int iBonusScoreHappyHealth = 0;
++		int iBonusScoreBuildingHappyHealth = 0;
++		int iBonusScoreAdjustPercent = 0;
+ 		int iBonusScoreWaterPenalty = 0;
+ 		int iBonusScoreNonYield = 0;
+ 		int iBonusScoreDiversity = 0;
+ 		int iBonusScoreAIObjective = 0;
+ 		int iBonusScoreYield = 0;
++		bool const bLogBonusScore = (eBonus != NO_BONUS && gFoundLogLevel > 0 && AIFoundValue::isLoggingEnabled());
+ 		if (eBonus != NO_BONUS) // advc.040: Same-area checks moved into nonYieldBonusValue
+ 		{
+ 			// <!-- custom: For the first city, food bonuses and rivers snowball earlier than non-food bonuses because growth unlocks more tiles, whipping/specialists, and faster worker/settler development. Apply capital-only bonus value percents and concrete river/fresh-water boosts so Karakorum/Beijing-like starts prefer nearby corn/fresh-water positions over slower commerce/hammer-bonus positions. (GPT-5.5) -->
+ 			// <!-- custom: Raw XML food is not enough to classify a starting bonus as food: AdvCiv-SAS Elephants have XML food but Camp adds no food, and seafood inside an inland BFC is not usable like coastal seafood. For capital-only food-bonus scaling, use normal improved food on land and XML food only for water bonuses when the candidate city is coastal. This keeps AI_foundValue from treating inland fish or low-food bonuses like Pig + Corn. (GPT-5.5) -->
+ 			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (p.isWater() ? bCoastal && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : aiBonusImprovementYield[YIELD_FOOD] > 0));
+ 
+-			if (!bBarbarian && // advc.303: Barbarians don't care about bonus trade
+-				// advc.031: Otherwise we can already trade the bonus
+-				getRevealedOwner(p) != ePlayer)
++			// <!-- custom: Base AdvCiv skipped barbarian non-yield bonus value because barbarians do not care about ordinary bonus trade. AdvCiv-SAS still wants barbarian-founded cities to be good long-term sites, both for barbarian strength and because they are often captured by normal players, so value health/happiness/building effects while ignoring barbarian trade-timing limits. See KI#178. (GPT-5.5) -->
++			// if (!bBarbarian && // advc.303: Barbarians don't care about bonus trade
++			// 	// advc.031: Otherwise we can already trade the bonus
++			if (getRevealedOwner(p) != ePlayer)
+ 			{
+-				int iBonusValue = nonYieldBonusValue(p, eBonus, bCanTradeBonus, bCanSoonTradeBonus, bEasyAccess, bAnyGrowthBonus, &aiBonusCount, iCultureModifier, &iBonusScoreBaseBonusVal, &iBonusScoreMultiplier, &iBonusScoreEarlyPercent, &iBonusScoreWaterPenalty);
++				int* const piBonusScoreHappyHealth = (bLogBonusScore ? &iBonusScoreHappyHealth : NULL);
++				int* const piBonusScoreBuildingHappyHealth = (bLogBonusScore ? &iBonusScoreBuildingHappyHealth : NULL);
++				int* const piBonusScoreAdjustPercent = (bLogBonusScore ? &iBonusScoreAdjustPercent : NULL);
++				int* const piBonusScoreWaterPenalty = (bLogBonusScore ? &iBonusScoreWaterPenalty : NULL);
++				int iBonusValue = nonYieldBonusValue(p, eBonus, bBarbarian ? true : bCanTradeBonus, bBarbarian ? true : bCanSoonTradeBonus, bEasyAccess, bCoastal, &aiBonusCount, iCultureModifier, piBonusScoreHappyHealth, piBonusScoreBuildingHappyHealth, piBonusScoreAdjustPercent, piBonusScoreWaterPenalty);
+ 				if (kSet.isStartingLoc())
+ 				{
+ 					const int iStartingBonusValuePercent = (bStartingFoodBonus ? iStartingFoodBonusValuePercent : iStartingNonFoodBonusValuePercent);
+@@ -1074,27 +1081,21 @@ int AIFoundValue::evaluate()
+ 				iBonusScoreNonYield = iBonusValue;
+ 			}
+ 
+-			// <!-- custom: Add a small flat city-site value for each distinct bonus in this BFC that the AI does not already own from its own empire. Local bonus tile yields are already valued normally; this only nudges empire resource diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab (e.g., allows to gain +1 health +1 with Granary again with a new Maize rather than no effect even with 2 new Wheat we already own, so a new Maize is more valuable).
++			// <!-- custom: Add a small flat city-site value for each distinct bonus in this BFC that the AI does not already own or plausibly cover through an existing city's future BFC. Local bonus tile yields are already valued normally.
++			// This only nudges empire resource diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab (e.g., allows to gain +1 health +1 with Granary again with a new Maize rather than no effect even with 2 new Wheat we already own, so a new Maize is more valuable).
+ 			// Trade imports do not count as owned here because they are not permanent. Apply it once per bonus type and only after the first city, so it does not disturb starting-location food/river/coast tuning. See KI#147. (ChatGPT-5.5) -->
+ 			if (iUnownedBonusExtraValue != 0 && !kSet.isStartingLoc() && !kSet.isNormalizing() &&
+ 					!abSASUnownedBonusExtraApplied[eBonus])
+ 			{
+ 				abSASUnownedBonusExtraApplied[eBonus] = true;
+-				bool bAlreadyOwnedBonus = false;
+-				FOR_EACH_CITYAI(pLoopCity, kPlayer)
+-				{
+-					if (pLoopCity->AI_countNumBonuses(eBonus, true, false, -1) > 0)
+-					{
+-						bAlreadyOwnedBonus = true;
+-						break;
+-					}
+-				}
++				bool const bAlreadyOwnedBonus = isBonusOwnedOrClaimedByFutureBFC(eBonus);
+ 				if (!bAlreadyOwnedBonus)
+ 				{
+ 					iResourceValue += iUnownedBonusExtraValue;
+ 					IFLOG logBBAI("+%d unowned bonus diversity value (%S)", iUnownedBonusExtraValue, GC.getInfo(eBonus).getDescription());
+ 					iBonusScoreDiversity = iUnownedBonusExtraValue;
+ 				}
++				else IFLOG logBBAI("Unowned bonus diversity skipped; already owned or claimed by future BFC (%S)", GC.getInfo(eBonus).getDescription());
+ 			}
+ 
+ 			/*if (p.isWater())
+@@ -1225,7 +1226,8 @@ int AIFoundValue::evaluate()
+ 				IFLOG if(iBonusImprovementYieldValue != 0) logBBAI("%d from tunable bonus improvement yields %dF%dP%dC (%S)", iBonusImprovementYieldValue, aiBonusImprovementYield[YIELD_FOOD], aiBonusImprovementYield[YIELD_PRODUCTION], aiBonusImprovementYield[YIELD_COMMERCE], GC.getInfo(eBonus).getDescription());
+ 			}
+ 
+-			IFLOG if(eBonus != NO_BONUS) logBBAI("BONUS_SCORE plot=%d,%d bonus=%S aiBonusVal=%d multiplier=%d earlyPercent=%d waterPenalty=%d nonYield=%d diversity=%d aiObjective=%d bonusYield=%d total=%d", p.getX(), p.getY(), GC.getInfo(eBonus).getDescription(), iBonusScoreBaseBonusVal, iBonusScoreMultiplier, iBonusScoreEarlyPercent, iBonusScoreWaterPenalty, iBonusScoreNonYield, iBonusScoreDiversity, iBonusScoreAIObjective, iBonusScoreYield, iBonusScoreNonYield + iBonusScoreDiversity + iBonusScoreAIObjective + iBonusScoreYield);
++			if (bLogBonusScore)
++				logBBAI("BONUS_SCORE plot=%d,%d bonus=%S happyHealth=%d buildingHappyHealth=%d adjustPercent=%d waterPenalty=%d nonYield=%d diversity=%d aiObjective=%d bonusYield=%d total=%d", p.getX(), p.getY(), GC.getInfo(eBonus).getDescription(), iBonusScoreHappyHealth, iBonusScoreBuildingHappyHealth, iBonusScoreAdjustPercent, iBonusScoreWaterPenalty, iBonusScoreNonYield, iBonusScoreDiversity, iBonusScoreAIObjective, iBonusScoreYield, iBonusScoreNonYield + iBonusScoreDiversity + iBonusScoreAIObjective + iBonusScoreYield);
+ 
+ 			int iSpecialYieldModifier = calculateSpecialYieldModifier(iCultureModifier, bEasyAccess, eBonus != NO_BONUS, bCanSoonImproveBonus, bCanImproveBonus);
+ 			calculateSpecialYields(p, eBonusImprovement == NO_IMPROVEMENT ? NULL : aiBonusImprovementYield, aiNatureYield, iSpecialYieldModifier, aiSpecialYield, iSpecialFoodPlus, iSpecialFoodMinus, iSpecialYieldTiles);
+@@ -2734,130 +2736,252 @@ int AIFoundValue::applyCultureModifier(CvPlot const& p, int iPlotValue, int iCul
+ 	return r.round();
+ }
+ 
++bool AIFoundValue::isPlotInKnownRivalFutureBFC(CvPlot const& p) const
++{
++	for (PlayerIter<CIV_ALIVE, KNOWN_TO> it(eTeam); it.hasNext(); ++it)
++	{
++		CvPlayer const& kLoop = *it;
++		if (kLoop.getTeam() == eTeam)
++			continue;
++		if (kLoop.isBarbarian())
++			continue;
++		if (GET_TEAM(kLoop.getTeam()).isVassal(eTeam))
++			continue;
++
++		FOR_EACH_CITY(pCity, kLoop)
++		{
++			if (!pCity->isArea(kArea))
++				continue;
++			if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pCity))
++				continue;
++			if (plotDistance(p.getX(), p.getY(), pCity->getX(), pCity->getY()) <= CITY_PLOTS_RADIUS)
++				return true;
++		}
++	}
++	return false;
++}
++
++
++bool AIFoundValue::isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const
++{
++	if (kPlayer.getNumAvailableBonuses(eBonus) > 0)
++		return true;
++
++	// <!-- custom: For empire-wide bonus effects, treat a bonus type as already covered when an existing city can plausibly claim it in its full BFC, even before border expansion or connection.
++	// In save file 450, after uMgungundlovu correctly moved to (17,40), Zulu city 3 still settled far south for Crab + Camel; uMgungundlovu will safely claim Crab, so chasing another Crab should not beat the closer western Maize site near the capital. Camel is contested by Arabia, and only one side will get it, so keep its duplicate value when a known rival future BFC also threatens the plot.
++	// Local tile/improvement yield remains separate: settling near a contested bonus can still be worthwhile because we may win or steal the tile, but empire-wide duplicate value should only be suppressed when ownership is reliable. See KI#178. (GPT-5.5) -->
++	FOR_EACH_CITYAI(pCity, kPlayer)
++	{
++		for (CityPlotTypes ePlot = FIRST_ADJACENT_PLOT; ePlot < NUM_CITY_PLOTS; ++ePlot)
++		{
++			CvPlot const* pLoopPlot = plotCity(pCity->getX(), pCity->getY(), ePlot);
++			if (pLoopPlot == NULL || pLoopPlot->getBonusType(kPlayer.getTeam()) != eBonus)
++				continue;
++
++			PlayerTypes const ePlotOwner = pLoopPlot->getOwner();
++			if (ePlotOwner == NO_PLAYER || ePlotOwner == ePlayer)
++				return !isPlotInKnownRivalFutureBFC(*pLoopPlot);
++			if (GET_PLAYER(ePlotOwner).getTeam() == kPlayer.getTeam())
++				return true;
++		}
++	}
++	return false;
++}
++
++
+ // Note: aiBonusCount is only a partial count (resources evaluated up to this point)
+-int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus, std::vector<int>* paiBonusCount, int iCultureModifier, int* piBaseBonusVal, int* piMultiplier, int* piEarlyPercent, int* piWaterPenalty) const
++bool AIFoundValue::isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const
++{
++	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
++	// <!-- custom: Settlement scoring should anticipate ordinary Granary/Harbor-style bonus health/happiness without importing full AI_bonusVal trade logic. Keep limited buildings, special-building chains, obsolete buildings, non-coastal water buildings, and late prerequisite eras out of this narrow long-term city-site value. See KI#178. (GPT-5.5) -->
++	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
++		return false;
++	if (kBuilding.isWater() && !bCoastal)
++		return false;
++	TechTypes const eObsoleteTech = kBuilding.getObsoleteTech();
++	if (eObsoleteTech != NO_TECH && GET_TEAM(eTeam).isHasTech(eObsoleteTech))
++		return false;
++	TechTypes const ePrereqTech = kBuilding.getPrereqAndTech();
++	if (ePrereqTech != NO_TECH && GC.getInfo(ePrereqTech).getEra() > iMaxPrereqEra)
++		return false;
++	for (int i = 0; i < kBuilding.getNumPrereqAndTechs(); i++)
++	{
++		TechTypes const eAndTech = kBuilding.getPrereqAndTechs(i);
++		if (eAndTech != NO_TECH && GC.getInfo(eAndTech).getEra() > iMaxPrereqEra)
++			return false;
++	}
++	return true;
++}
++
++
++int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool bCoastal) const
++{
++	static const int iMaxPrereqEra = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_BUILDING_EFFECT_MAX_PREREQ_ERA");
++	if (iMaxPrereqEra < 0)
++		return 0;
++	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
++	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
++	int iValue = 0;
++	CvCivilization const& kCiv = kPlayer.getCivilization();
++	for (int i = 0; i < kCiv.getNumBuildings(); i++)
++	{
++		BuildingClassTypes const eBuildingClass = kCiv.buildingClassAt(i);
++		if (GC.getInfo(eBuildingClass).isLimited())
++			continue;
++		BuildingTypes const eBuilding = kCiv.buildingAt(i);
++		if (!isBonusBuildingEffectValued(eBuilding, iMaxPrereqEra, bCoastal))
++			continue;
++		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
++		iValue += std::max(0, kBuilding.getBonusHealthChanges(eBonus)) * iHealthValue + std::max(0, kBuilding.getBonusHappinessChanges(eBonus)) * iHappinessValue;
++	}
++	return iValue;
++}
++
++
++int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
+ {
+-	/*int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() &&
+-			kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ?
+-			80 : 20);*/ // BtS
+-	/*int iCount = kPlayer.getNumTradeableBonuses(eBonus) == 0 + aiBonusCount[eBonus];
+-	int r = AI_bonusVal(eBonus, 0, true) * 80 / (1 + 2*iCount);*/ // K-Mod
+-	/*  <advc.031> The "==0" looks like an error. Rather than correct that, I'll let AI_bonusVal handle the number of bonuses already connected (iChange=1). A division by NumTradeableBonuses here won't work well for strategic resources.*/
+-	// Coefficient was 80
+-	int const iBaseBonusVal = kPlayer.AI_bonusVal(eBonus, 1, true);
+-	int const iMultiplier = 57;
++	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness. Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
++	// Score explicit new health/happiness and ordinary building health/happiness effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5) -->
++	// int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() && kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ? 80 : 20); // BtS
++	// int iCount = kPlayer.getNumTradeableBonuses(eBonus) == 0 + aiBonusCount[eBonus];
++	// int r = AI_bonusVal(eBonus, 0, true) * 80 / (1 + 2*iCount); // K-Mod
++	// <advc.031> The "==0" looks like an error. Rather than correct that, I'll let AI_bonusVal handle the number of bonuses already connected (iChange=1). A division by NumTradeableBonuses here won't work well for strategic resources.
++	// Coefficient was 80; active AdvCiv-SAS used 57 before replacing this path.
++	// K-Mod: try not to make the value of strategic resources too overwhelming. (note: I removed a bigger value reduction from the original code.)
++	// <advc.031> High values for strategic resources remain a problem during the early game
++	// (note): Instead of special treatment just for the early game, the multiplier should arguably be based on an estimate of how many cities we'll have in some medium term - b/c AI_bonusVal is per city.
++	// (cf. getBonusImprovement)
++	// AI_bonusValue can check for tech requirements, but it can't check requirements for building the improvement. Hence bAssumeEnabled=true is used in the AI_bonusValue call above and we take care of tech requirements ourselves.
++	// <!-- custom: The old coefficient, early-game modifier, strategic-resource dampening, and AI_bonusValue/bAssumeEnabled tech-requirement handling belonged to the old AI_bonusVal path commented out below. That path was replaced with explicit health/happiness settlement value; strategic need remains handled through AIObjective, and improvement availability remains handled through getBonusImprovement and separate bonus-yield scoring. See KI#178. (GPT-5.5) -->
++	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
++	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
++	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
++	int const iBuildingHappyHealthValue = calculateBonusBuildingHappyHealthValue(eBonus, bCoastal);
++	int const iHappyHealthValue = kBonus.getHealth() * iHealthValue + kBonus.getHappiness() * iHappinessValue + iBuildingHappyHealthValue;
+ 	int iWaterPenalty = 0;
+-	if (piBaseBonusVal != NULL)
+-		*piBaseBonusVal = iBaseBonusVal;
+-	if (piMultiplier != NULL)
+-		*piMultiplier = iMultiplier;
++	// if (piBaseBonusVal != NULL)
++	// 	*piBaseBonusVal = iBaseBonusVal;
++	// if (piMultiplier != NULL)
++	// 	*piMultiplier = iMultiplier;
++	// scaled r = iBaseBonusVal * iMultiplier;
++	if (piAdjustPercent != NULL)
++		*piAdjustPercent = 100;
+ 	if (piWaterPenalty != NULL)
+ 		*piWaterPenalty = iWaterPenalty;
+-	scaled r = iBaseBonusVal * iMultiplier;
+-	bool bSurplus = (kPlayer.getNumAvailableBonuses(eBonus) > 0);
++	bool bSurplus = isBonusOwnedOrClaimedByFutureBFC(eBonus);
+ 	if (paiBonusCount != NULL)
+ 	{
+ 		if ((*paiBonusCount)[eBonus] > 0)
+ 		{
+-			r /= 1 + (*paiBonusCount)[eBonus];
++			// r /= 1 + (*paiBonusCount)[eBonus];
+ 			bSurplus = true;
+ 		} // </advc.031>
+ 		(*paiBonusCount)[eBonus]++;
+ 	}
+-	// <advc.031> (Would be cleaner to handle this in CvPlayerAI::AI_baseBonusVal.)
+-	bool bGrowthBonus = (!bAnyGrowthBonus && bCanTradeSoon && !bSurplus &&
+-			(GC.getInfo(eBonus).getHappiness() +
+-			// Basically only luxury resources qualify
+-			GC.getInfo(eBonus).getHealth() / 2 > 0) &&
+-			(bCanTrade || p.getFeatureType() == NO_FEATURE ||
+-			GC.getInfo(p.getFeatureType()).getHealthPercent() >= 0));
+-	if (bGrowthBonus) // Reward only the first new luxury
+-		bAnyGrowthBonus = true;
+-	// </advc.031>
+-	/*  K-Mod: try not to make the value of strategic resources too overwhelming. (note: I removed a bigger value reduction from the original code.) */
+-	scaled rEarlyGameModifier = 1;
+-	if (kSet.isStartingLoc())
+-	{	// <advc.031>
+-		if (bGrowthBonus)
+-			rEarlyGameModifier = fixp(0.4); // </advc.031>
+-		else
+-		{
+-			// (advc: Divisor was 4 in K-Mod; BtS had divided by 2 after evaluateSpecialYields.)
+-			rEarlyGameModifier = 
+-				/*  <advc.108> Don't need to decrease as much if reveal-techs are respected (also: advc.036 improves the evaluation of non-strategic resources) */
+-					(kGame.getStartingPlotNormalizationLevel() <= CvGame::NORMALIZE_LOW ?
+-					fixp(1/3.) : fixp(1/4.));
+-		}
+-	}
+-	else if (iCities <= 0) // For moving the starting Settler and normalization
+-	{
+-		if (bGrowthBonus)
+-			rEarlyGameModifier = fixp(0.75);
+-		else rEarlyGameModifier = fixp(0.55);
+-	} // </advc.108>
+-	// <advc.031> High values for strategic resources remain a problem during the early game
+-	/*	(note): Instead of special treatment just for the early game, the multiplier should arguably be based on an estimate of how many cities we'll have in some medium term - b/c AI_bonusVal is per city. */
+-	else
++	// // <advc.031> (Would be cleaner to handle this in CvPlayerAI::AI_baseBonusVal.)
++	// bool bGrowthBonus = (!bAnyGrowthBonus && bCanTradeSoon && !bSurplus &&
++	// 		(GC.getInfo(eBonus).getHappiness() +
++	// 		// Basically only luxury resources qualify
++	// 		GC.getInfo(eBonus).getHealth() / 2 > 0) &&
++	// 		(bCanTrade || p.getFeatureType() == NO_FEATURE ||
++	// 		GC.getInfo(p.getFeatureType()).getHealthPercent() >= 0));
++	// if (bGrowthBonus) // Reward only the first new luxury
++	// 	bAnyGrowthBonus = true;
++	// // </advc.031>
++	// /*  K-Mod: try not to make the value of strategic resources too overwhelming. (note: I removed a bigger value reduction from the original code.) */
++	// scaled rEarlyGameModifier = 1;
++	// if (kSet.isStartingLoc())
++	// {	// <advc.031>
++	// 	if (bGrowthBonus)
++	// 		rEarlyGameModifier = fixp(0.4); // </advc.031>
++	// 	else
++	// 	{
++	// 		// (advc: Divisor was 4 in K-Mod; BtS had divided by 2 after evaluateSpecialYields.)
++	// 		rEarlyGameModifier = 
++	// 			/*  <advc.108> Don't need to decrease as much if reveal-techs are respected (also: advc.036 improves the evaluation of non-strategic resources) */
++	// 				(kGame.getStartingPlotNormalizationLevel() <= CvGame::NORMALIZE_LOW ?
++	// 				fixp(1/3.) : fixp(1/4.));
++	// 	}
++	// }
++	// else if (iCities <= 0) // For moving the starting Settler and normalization
++	// {
++	// 	if (bGrowthBonus)
++	// 		rEarlyGameModifier = fixp(0.75);
++	// 	else rEarlyGameModifier = fixp(0.55);
++	// } // </advc.108>
++	// // <advc.031> High values for strategic resources remain a problem during the early game
++	// /*	(note): Instead of special treatment just for the early game, the multiplier should arguably be based on an estimate of how many cities we'll have in some medium term - b/c AI_bonusVal is per city. */
++	// else
++	// {
++	// 	int const iTargetCities = GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities();
++	// 	if (iCities + 1 < iTargetCities)
++	// 	{
++	// 		FAssert(iTargetCities >= 3);
++	// 		if (bGrowthBonus) // Modifier climbs to 120%, then decreases to 100%.
++	// 		{
++	// 			int iPeakCity = (iTargetCities + 1) / 2;
++	// 			scaled rIncrement = fixp(0.3) / std::max(1, iPeakCity - 1);
++	// 			rEarlyGameModifier = fixp(0.9) + rIncrement *
++	// 					(iCities < iPeakCity ? iCities : iTargetCities - iCities - 1);
++	// 		}
++	// 		else // Modifier climbs to 100%
++	// 		{
++	// 			scaled rIncrement = fixp(0.5) / std::max(1, iTargetCities - 1);
++	// 			rEarlyGameModifier = fixp(0.55) + rIncrement * iCities;
++	// 		}
++	// 	}
++	// }
++	// IFLOG if(rEarlyGameModifier.getPercent()!=100) logBBAI("Early-game modifier for non-yield resource value: %d percent", rEarlyGameModifier.getPercent());
++	// if (piEarlyPercent != NULL)
++	// 	*piEarlyPercent = rEarlyGameModifier.getPercent();
++	// r *= rEarlyGameModifier;
++	// // (cf. getBonusImprovement) AI_bonusValue can check for tech requirements, but it can't check requirements for building the improvement. Hence bAssumeEnabled=true is used in the AI_bonusValue call above and we take care of tech requirements ourselves.
++
++	if (!bCanTrade && !bSurplus)
+ 	{
+-		int const iTargetCities = GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities();
+-		if (iCities + 1 < iTargetCities)
++		// Important for high-value strategic bonuses that get revealed long before they can be traded, especially Oil. Scanning the whole map through CvPlayerAI::AI_countOwnedBonuses is too expensive I think, but I'm copying the city bonus count from there.
++		FOR_EACH_CITYAI(pCity, kPlayer)
+ 		{
+-			FAssert(iTargetCities >= 3);
+-			if (bGrowthBonus) // Modifier climbs to 120%, then decreases to 100%.
++			if (pCity->AI_countNumBonuses(eBonus, true, true, -1) > 0)
+ 			{
+-				int iPeakCity = (iTargetCities + 1) / 2;
+-				scaled rIncrement = fixp(0.3) / std::max(1, iPeakCity - 1);
+-				rEarlyGameModifier = fixp(0.9) + rIncrement *
+-						(iCities < iPeakCity ? iCities : iTargetCities - iCities - 1);
+-			}
+-			else // Modifier climbs to 100%
+-			{
+-				scaled rIncrement = fixp(0.5) / std::max(1, iTargetCities - 1);
+-				rEarlyGameModifier = fixp(0.55) + rIncrement * iCities;
++				bSurplus = true;
++				break;
+ 			}
+ 		}
+ 	}
+-	IFLOG if(rEarlyGameModifier.getPercent()!=100) logBBAI("Early-game modifier for non-yield resource value: %d percent", rEarlyGameModifier.getPercent());
+-	if (piEarlyPercent != NULL)
+-		*piEarlyPercent = rEarlyGameModifier.getPercent();
+-	r *= rEarlyGameModifier;
+-	/*	(cf. getBonusImprovement)
+-		AI_bonusValue can check for tech requirements, but it can't check requirements for building the improvement. Hence bAssumeEnabled=true is used in the AI_bonusValue call above and we take care of tech requirements ourselves. */		
++	int const iEffectiveHappyHealthValue = (bSurplus ? 0 : iHappyHealthValue);
++	if (piHappyHealthValue != NULL)
++		*piHappyHealthValue = iEffectiveHappyHealthValue;
++	if (piBuildingHappyHealthValue != NULL)
++		*piBuildingHappyHealthValue = (bSurplus ? 0 : iBuildingHappyHealthValue);
++	scaled r = iEffectiveHappyHealthValue;
++	scaled rAdjustment = (r == 0 ? 0 : 1);
++	// <!-- custom: Retain the old not-yet-tradeable and difficult-access reductions, but apply them to the new explicit settlement value. Surplus duplicates are zeroed here because local improvement yields and diversity are scored separately. See KI#178. (GPT-5.5) -->
+ 	if (!bCanTrade)
+ 	{
+-		if (!bSurplus)
+-		{
+-			/*  Important for high-value strategic resources that get revealed long before they can be traded, especially Oil. Scanning the whole map through CvPlayerAI::AI_countOwnedBonuses is too expensive I think, but I'm copying the city bonus count from there. */
+-			FOR_EACH_CITYAI(pCity, kPlayer)
+-			{
+-				if (pCity->AI_countNumBonuses(eBonus, true, true, -1) > 0)
+-				{
+-					bSurplus = true;
+-					break;
+-				}
+-			}
+-		}
+-		IFLOG if(bSurplus) logBBAI("Surplus resource");
+-		if (bCanTradeSoon)
+-			r *= fixp(0.7);
+-		else r *= fixp(1/3.);
++		IFLOG if(bSurplus) logBBAI("Surplus bonus");
+ 		if (bSurplus)
+-			r *= fixp(0.3);
++			r = 0;
++		else if (bCanTradeSoon)
++			rAdjustment *= fixp(0.7);
++		else rAdjustment *= fixp(1/3.);
+ 		// <advc.040>
+ 		if (!bEasyAccess)
+ 		{
+ 			/*  Might be better to place a city in p.area(). But if that area is tiny, then accessing the resource from a different landmass is probably our best bet. */
+-			r *= (p.getArea().getNumTiles() <= 2 ? fixp(0.6) : fixp(0.45));
++			rAdjustment *= (p.getArea().getNumTiles() <= 2 ? fixp(0.6) : fixp(0.45));
+ 		} // </advc.040>
+-		if (bSurplus)
+-			r.decreaseTo(125);
+-	} // </advc.031>
++	}
++	r *= rAdjustment;
++	if (piAdjustPercent != NULL)
++		*piAdjustPercent = rAdjustment.getPercent();
+ 	if (kSet.isStartingLoc() /* advc.031e: */ || kSet.isNormalizing())
+ 		return r.round();
+ 
+ 	// K-Mod. (original code deleted)
+ 	if (!isHome(p))
+-	{	/*  <advc.031> Why halve the value of water bonuses? Perhaps because they're costly to improve. But that's only true in the early game. Because they tend to be common? AI_bonusVal takes care of that. */
++	{
++		// <advc.031> Why halve the value of water bonuses? Perhaps because they're costly to improve. But that's only true in the early game. Because they tend to be common? AI_bonusVal takes care of that.
+ 		if (p.isWater()/*) {//r /= 2;*/ && eEra < CvEraInfo::AI_getAgeOfExploration())
+ 		{
+ 			iWaterPenalty = (CvEraInfo::AI_getAgeOfExploration() - eEra) * 16;
+@@ -2865,7 +2989,7 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
+ 			r.increaseTo(0);
+ 			if (piWaterPenalty != NULL)
+ 				*piWaterPenalty = iWaterPenalty;
+-			IFLOG logBBAI("Penalty for water resource: %d", iWaterPenalty);
++			IFLOG logBBAI("Penalty for water bonus: %d", iWaterPenalty);
+ 		}
+ 		// iCultureModifier should have this covered
+ 		/*if (getRevealedOwner(p) != ePlayer && ::stepDistance(&kPlot, &p) > 1) {
+@@ -2876,10 +3000,16 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
+ 		scaled rModifier = (kSet.isAmbitious() && iCultureModifier >= 60 ?
+ 				fixp(1.1) : per100(iCultureModifier));
+ 		r *= rModifier;
+-		IFLOG if(rModifier!=per100(iCultureModifier)) logBBAI("Non-yield resource value increased b/c of ambitious personality");
++		if (piAdjustPercent != NULL)
++			*piAdjustPercent = (rAdjustment * rModifier).getPercent();
++		IFLOG if(rModifier!=per100(iCultureModifier)) logBBAI("Non-yield bonus value increased b/c of ambitious personality");
+ 	}
+ 	else if (kSet.isAmbitious())
++	{
+ 		r *= fixp(1.1);
++		if (piAdjustPercent != NULL)
++			*piAdjustPercent = (rAdjustment * fixp(1.1)).getPercent();
++	}
+ 	// K-Mod end
+ 	return r.round();
+ }
+@@ -4313,9 +4443,8 @@ scaled AIFoundValue::evaluateWorkablePlot(CvPlot const& p) const
+ 	}
+ 	if (eBonus != NO_BONUS)
+ 	{
+-		bool bDummy=false;
+ 		// It won't necessarily be the first instance of eBonus, but we also want to look a bit farther ahead than "soon"; that ought to even out.
+-		scaled rNonYieldBonusVal = nonYieldBonusValue(p, eBonus, bCanTradeBonus, bCanSoonTradeBonus, true, bDummy, NULL, 100, NULL, NULL, NULL, NULL);
++		scaled rNonYieldBonusVal = nonYieldBonusValue(p, eBonus, bCanTradeBonus, bCanSoonTradeBonus, true, kPlot.isCoastalLand(-1), NULL, 100);
+ 		if (!bCanSoonImproveBonus)
+ 		{	/*	Midgame and late-game resources need to be (greatly) devalued though; b/c their reward is greatly delayed and b/c they're not supposed to steer starting positions much in any case. */
+ 			TechTypes eTech = GC.getInfo(eBonus).getTechImprove(p.isWater());
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index 2775e1cd1..a756fd1ac 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -164,7 +164,12 @@ private:
+ 	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
+ 	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
+ 	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier, bool bShare) const;
+-	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus, std::vector<int>* paiBonusCount, int iCultureModifier, int* piBaseBonusVal = NULL, int* piMultiplier = NULL, int* piEarlyPercent = NULL, int* piWaterPenalty = NULL) const;
++	// <!-- custom: Base AdvCiv had no diagnostic pointer parameters here; our previous SAS diagnostics exposed baseBonusVal/multiplier/earlyPercent from the broad AI_bonusVal path. Replace those with explicit new health/happiness value, ordinary building health/happiness effects, final adjustment, and water-penalty diagnostics. The old first-growth/luxury extra is not a separate parameter because new health/happiness already represents that empire-wide effect; adding a flat first-bonus value would double-count it. See KI#178. (GPT-5.5) -->
++	bool isPlotInKnownRivalFutureBFC(CvPlot const& p) const;
++	bool isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const;
++	bool isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const;
++	int calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool bCoastal) const;
++	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue = NULL, int* piBuildingHappyHealthValue = NULL, int* piAdjustPercent = NULL, int* piWaterPenalty = NULL) const;
+ 	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
+ 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
+ 	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 8f5f534bf..5ea7a56c1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -6507,3 +6507,51 @@ nearby chooser candidate 57,23 dist=1 raw=0 areaAdjusted=0 area=458771 areaBarbC
+ ```
+ 
+ Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
++
++## 178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1X72W-hFWSeVnrRB1eIj8EjFgJTbLTZjr?usp=sharing).
++
++The investigation used save file 450/autoplay testing, notably `BBAI_20260711T141636Z_load1.log` and `SASGameSummary_20260711T141636Z_load1.log`.
++
++After the KI#177 Barbarian/city-placement fixes, the Zulu uMgungundlovu case still exposed a broader city-site scoring issue: the old non-yield bonus path reused broad `AI_bonusVal`-style bonus value. That value is suitable for immediate bonus trade and current-era resource usefulness, but city settling has a different horizon. A city site lasts long enough that food, health, happiness, and ordinary early building effects matter more than short-term trade pricing; conversely, late or expensive building effects should not be assumed because the city or empire may have died, won, or lost before they matter.
++
++In save file 450, the old path made Elephants at `(20,41)` greatly outscore nearby Crab and pushed Shaka's second city toward weaker `(18,40)` instead of the greener Crab/Rice/Camel `(17,40)` site. This was wrong in practice: Crab is a strong local food source and its health remains useful long-term, especially with a Harbor in a coastal city, while Elephants are mostly a classical-era pressure bonus with some happiness.
++
++AdvCiv-SAS now replaces that city-site path with explicit settlement-oriented non-yield value:
++
++- bonus health and happiness use direct XML-tunable values,
++- ordinary non-limited building health/happiness effects are counted only up to a tunable prerequisite-era gate,
++- coastal buildings such as Harbor only count for coastal candidate cities,
++- late/expensive buildings such as Supermarket can be excluded by the era gate,
++- broad current-era `AI_bonusVal` trade value, first-growth/luxury extra, and old strategic-resource dampening are no longer used in this settlement path,
++- strategic need remains handled separately through `iAIObjective`,
++- local improvement yields and terrain/feature value remain separate,
++- visible/revealed bonus rules still apply, so early hidden bonuses such as Uranium are not counted in ordinary live city-site scoring.
++
++The confirming log shows the intended split for uMgungundlovu:
++
++```log
++BONUS_SCORE plot=16,39 bonus=Rice happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=0 nonYield=300 diversity=250 aiObjective=0 bonusYield=175 total=725
++BONUS_SCORE plot=15,41 bonus=Crab happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=48 nonYield=252 diversity=250 aiObjective=0 bonusYield=250 total=752
++BONUS_SCORE plot=20,41 bonus=Elephants happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=0 nonYield=300 diversity=250 aiObjective=0 bonusYield=200 total=750
++Best site adjacent to (17,40): selected=4128 adjacent=3993 delta=-135 (18,40)
++Player 7 (Zulu Empire) founds new city uMgungundlovu at 17, 40
++```
++
++This is no longer a single opaque `AI_bonusVal` spike. Crab, Rice, and Elephants all receive explicit long-term health/happiness/building value, while the final site choice can still be decided by the complete BFC, local yields, water penalties, terrain, culture, and strategic bonuses.
++
++The same change also tightens duplicate bonus handling. Trade imports do not count as owned because they are temporary, but a bonus already owned or plausibly covered by one of our existing cities' future BFC should not receive another full empire-wide duplicate value. However, if a known rival's future BFC also threatens that bonus, the value is kept because ownership is not reliable. In the same save-file family, this matters after uMgungundlovu correctly claims Crab: another Zulu city should not over-settle far away only for another safe Crab, while contested Camel near Arabia can still matter.
++
++Barbarians now use the same settlement-specific non-yield bonus value too. Base AdvCiv skipped Barbarian non-yield bonus trade value because Barbarians do not care about ordinary bonus trading, but AdvCiv-SAS wants Barbarian-founded cities to be good long-term sites for Barbarian strength and for later capture by normal players. The confirming BBAI log shows the Barbarian Hittite site scoring Crab with the new explicit value:
++
++```log
++Barbarian is about to found a city at (13,35); turn 50 (year -3000)
++BONUS_SCORE plot=15,34 bonus=Crab happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=48 nonYield=252 diversity=250 aiObjective=0 bonusYield=250 total=752
++Best Barbarian site adjacent to (13,35): selected=5034 adjacent=4209 delta=-825 (14,36) water=0 visibleToCivTeam=0 spawnEligible=1
++Player 48 (Barbarians) founds new city Hittite at 13, 35
++```
++
++The same run also showed that the new Zulu western city Nobamba at `(9,45)` was a strong enough site on paper, with Maize, Deer, Silver, Copper, lots of Grassland, and four hills, but it was conquered and razed by Barbarians three turns later. That result is a defense/history issue, not evidence that the city-site valuation itself rejected the west.
++
++Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d622c36b0..8099933fb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -257,6 +257,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - (Requires AdvCiv-SAS 6023+) **Barbarian city-site randomization is now tunable:** Base AdvCiv/K-Mod used a random Barbarian city-site multiplier (effectively +0..49%), so a city site valued 1000 could spike up to 1490, and thus may beat a better site of e.g. 1100 or 1200 if they did not have such a lucky random variation gain. While this can add variety, it can make clearly stronger nearby sites (e.g., missing a nearby seafood) lose and place Barbarian cities on weaker sites. AdvCiv-SAS fixes this by disabling such randomization, and makes it tunable if needed (so now the value is 0: disabled, 1000 has no chance of beating a 1001 site outside already existing edge cases). See [KI#177](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites).
+ - (Requires AdvCiv-SAS 6023+) **Barbarian global city spawning no longer applies normal-civilization distance shaping:** ordinary civilizations expand from their existing empire, while Barbarian cities are selected from a global map scan. In save file 450, this normal-civ distance rule could hard-reject locally strong Barbarian candidates such as `70,37`, so Barbarian placement now skips that rule. See [KI#177](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites).
+ - (Requires AdvCiv-SAS 6023+) **Rejected Barbarian sites stay rejected after area-priority adjustment:** in save file 450, the later area-priority adjustment could turn raw rejected sites such as `30,23` back into valid spawns. AdvCiv-SAS now skips raw rejected Barbarian candidates before area adjustment, and the BBAI diagnostics log raw, area-adjusted, and final chooser values so these cases are visible. See [KI#177](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites).
++- (Requires AdvCiv-SAS 6025+) **Barbarian city sites now value bonus health/happiness too:** Base AdvCiv skipped Barbarian non-yield bonus value because Barbarians do not care about ordinary bonus trading. AdvCiv-SAS instead values Barbarian-founded cities as real long-term city sites: Barbarians benefit from better cities, and players often later capture them. In save file 450 BBAI testing, the Barbarian Hittite site at `(13,35)` now scored nearby Crab with explicit `happyHealth=300 buildingHappyHealth=150`, so seafood health and ordinary building effects help Barbarian placement too. See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
+ 
+ #### Diplomacy (AI)
+ 
+@@ -301,7 +302,9 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ##### Settlers (AI)
+ 
+ - Avoid settling on bonuses (especially food/metal/high-production/commerce) unless the immediate overall site value clearly justifies it. See [KI#25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent).
+-- **Unowned bonus extra valuation in city-site valuation:** for example, if we already own Wheat, a site with 1 Maize is **much better for the whole empire** than a city site with 2 more Wheat, which would have **more yields locally for this city** (e.g., ~+3-4 extra food per plot), **but much less long-term empire growth** (e.g., +1 Health +1 Health with Granary for all cities) (which is perhaps better even for this local city). Or, stone, happiness, or other bonuses could provide other advantages, for example **trading, military, accelerating buildables, etc**. Trade imports do not count as owned because they are not permanent. Applied once per bonus type and only after the first city. See [KI#147](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring).
++- **Unowned bonus extra valuation in city-site valuation:** for example, if we already own Wheat, a site with 1 Maize is **much better for the whole empire** than a city site with 2 more Wheat, which would have **more yields locally for this city** (e.g., ~+3-4 extra food per plot), **but much less long-term empire growth** (e.g., +1 Health +1 Health with Granary for all cities) (which is perhaps better even for this local city). Or, stone, happiness, or other bonuses could provide other advantages, for example **trading, military, accelerating buildables, etc**. Trade imports do not count as owned because they are not permanent. Applied once per bonus type and only after the first city. See [KI#147](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring). (Requires AdvCiv-SAS 6025+) Update: now do not count as unowned the ones plausibly claimed by one of our existing cities' future BFC (see below bullet and [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)).
++- (Requires AdvCiv-SAS 6025+) **City-site bonus value now uses settlement-specific long-term value instead of broad trade value:** the old non-yield path reused `AI_bonusVal`, which is useful for immediate bonus trading but can be wrong for founding cities (for example health may be mostly useless early but very valuable late game, but short-term trading only the value of a bonus right now matters, the deal may be cancelled anytime or a bonus get obsolete later, but cities are founded generally early, and permanently, so `AI_bonusVal` seems unfit to be used for settler valuation). So AdvCiv-SAS now values explicit bonus health/happiness plus ordinary early building effects such as Granary/Harbor, while excluding late/expensive buildings through a tunable prerequisite-era gate (e.g., we'll likely benefit from Health from Harbor if city is Coastal and has connected Crab, but the game may end before we build a Supermarket for some bonus' effect so don't value it). In save file 450 BBAI testing, `AI_bonusVal` was massively, seemingly incorrectly valuing Elephants over Crab, despite the Crab site being better locally (food from bonus and greener, vs a desert/plains/hill site to get Elephants), so the AI preferred `(18,40)` Elephants/Rice/Camel site instead of seemingly better stronger `(17,40)` with Crab/Rice/Camel, this change now helped Shaka successfully found uMgungundlovu at stronger `(17,40)`, the log showed Crab and Rice receiving explicit `happyHealth=300 buildingHappyHealth=150` instead of relying on one opaque `AI_bonusVal` spike. See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
++- (Requires AdvCiv-SAS 6025+) **Duplicate bonus value no longer over-counts reliable future-BFC coverage:** trade imports still do not count as owned as in Base AdvCiv, but bonuses already owned or plausibly claimed by one of our existing cities' future BFC no longer receive another full empire-wide duplicate value. Contested bonuses can still count when a known rival future BFC also threatens them, because ownership is not reliable. This prevents new cities from chasing a safe duplicate Crab (better go for bonuses we don't have to grow more) while still letting a contested Camel near Arabia matter (don't count on it empire-wide, but still locally there's a chance we might steal it so value it enough for local valuation only, not empire-wide one as not reliable enough for that). See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
+ - **Settler site eval - devalue BFCs with many very bad tiles:** Candidate sites are **significantly devalued** (not auto-rejected) when enough non-home BFC plots are impassable or remain very low-yield after their best XML-valid improvement: the threshold as of now is dynamic `4 * food + 2 * production + commerce` (e.g., 1 food is not very bad, 1 hammer and 1 commerce is very bad, peak is very bad) (visible bonuses on usable plots are not counted because bonuses are likely to be always valuable). See [KI#26.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
+ - **First-city Good enough plots threshold**: AI settlers now also require the first-city site to have **enough** (e.g., >=13) **“good enough”** (i.e. tile is not impassable, not persistently barren by yield-potential logic, or is a reachable/already-improved water bonus) **BFC tiles** before accepting it, so the first-city is less likely to be founded on a long-term disadvantageous location.
+ - **Respect water bonuses:** if a coast bonus would be in BFC but the site is non-coastal, apply a stronger penalty so we don’t "count" unusable sea resources. Penalty moved from **-165 → -400** (K-Mod used ~-800).
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=50780

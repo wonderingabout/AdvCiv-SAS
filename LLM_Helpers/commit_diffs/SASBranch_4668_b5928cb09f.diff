@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4668
+# Commit: b5928cb09f863e6df3e2ebc2669d84951d4b7bd9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9a1ebaa447e9479145578aba9daeac7fbe597ef7
+# Title: rename promotion_cover to promotion_counter_archer
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Events/CIV4EventInfos.xml
+6	1	Assets/XML/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index b0a4feb53..603a3cb47 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -12535,7 +12535,7 @@
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+ 					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
+-					<UnitPromotion>PROMOTION_COVER</UnitPromotion>
++					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+ 			<UnitClassPromotions/>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 1678c8925..a56f3b7ed 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -609,8 +609,13 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,6</Button>
+ 		</PromotionInfo>
++
++
++
++		<!-- custom: COUNTER PROMOTIONS -->
++		
+ 		<PromotionInfo>
+-			<Type>PROMOTION_COVER</Type>
++			<Type>PROMOTION_COUNTER_ARCHER</Type>
+ 			<Description>TXT_KEY_PROMOTION_COVER</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1292

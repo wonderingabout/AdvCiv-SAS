@@ -1,0 +1,158 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1762
+# Commit: 2e733fc88d6fb10af000a4b2283ece4979ca1f78
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d50151dcd745621745f59fca8879f099c172a31d
+# Title: DebugMem build configuration renamed to Debug-opt
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/Project/AdvCiv.sln
+13	10	CvGameCoreDLL/Project/AdvCiv.vcxproj
+7	6	CvGameCoreDLL/Project/Makefile
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.sln b/CvGameCoreDLL/Project/AdvCiv.sln
+index 1d48f45c4..af119cae9 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.sln
++++ b/CvGameCoreDLL/Project/AdvCiv.sln
+@@ -9,7 +9,7 @@ Global
+ 		Assert-fast|Win32 = Assert-fast|Win32
+ 		Debug|Win32 = Debug|Win32
+ 		Debug-fast|Win32 = Debug-fast|Win32
+-		DebugMem|Win32 = DebugMem|Win32
++		Debug-opt|Win32 = Debug-opt|Win32
+ 		Final_Release-fast|Win32 = Final_Release-fast|Win32
+ 		Profile-fast|Win32 = Profile-fast|Win32
+ 		Release|Win32 = Release|Win32
+@@ -22,8 +22,8 @@ Global
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.Build.0 = Debug|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug-fast|Win32.ActiveCfg = Debug-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug-fast|Win32.Build.0 = Debug-fast|Win32
+-		{3021AF0E-699D-4232-86F6-FC374A0C9957}.DebugMem|Win32.ActiveCfg = DebugMem|Win32
+-		{3021AF0E-699D-4232-86F6-FC374A0C9957}.DebugMem|Win32.Build.0 = DebugMem|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug-opt|Win32.ActiveCfg = Debug-opt|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug-opt|Win32.Build.0 = Debug-opt|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.ActiveCfg = Final_Release-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.Build.0 = Final_Release-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile-fast|Win32.ActiveCfg = Profile-fast|Win32
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 411ef29b8..23732df35 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -9,8 +9,8 @@
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
+-    <ProjectConfiguration Include="DebugMem|Win32">
+-      <Configuration>DebugMem</Configuration>
++    <ProjectConfiguration Include="Debug-opt|Win32">
++      <Configuration>Debug-opt</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
+     <ProjectConfiguration Include="Profile-fast|Win32">
+@@ -182,6 +182,7 @@
+     <ClInclude Include="..\ArmamentForecast.h" />
+     <ClInclude Include="..\BBAI_Defines.h" />
+     <ClInclude Include="..\BBAILog.h" />
++    <ClInclude Include="..\BitUtil.h" />
+     <ClInclude Include="..\CvAI.h" />
+     <ClInclude Include="..\CvArea.h" />
+     <ClInclude Include="..\CvAreaList.h" />
+@@ -346,7 +347,7 @@
+     <ConfigurationType>Makefile</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="Configuration">
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-opt|Win32'" Label="Configuration">
+     <ConfigurationType>Makefile</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
+@@ -384,7 +385,7 @@
+   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="PropertySheets">
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-opt|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+@@ -421,18 +422,20 @@ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'">
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-opt|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+-    <NMakeBuildCommandLine>set TARGET=DebugMem
++    <NMakeBuildCommandLine>set TARGET=Debug-opt
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake dll /NOLOGO</NMakeBuildCommandLine>
+-    <NMakeReBuildCommandLine>set TARGET=DebugMem
++nmake precompile /NOLOGO
++bin\jom build</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Debug-opt
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake dll /NOLOGO</NMakeReBuildCommandLine>
+-    <NMakeCleanCommandLine>set TARGET=DebugMem
++nmake precompile /NOLOGO
++bin\jom build</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Debug-opt
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE /D_CODE_EDITOR</AdditionalOptions>
+   </PropertyGroup>
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index aa9d4a8e1..527d0df8f 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -13,8 +13,9 @@
+ # Enabled parallel builds (jom) for the Profile configuration
+ #   (now called "Profile-fast") and added a configuration Debug-fast. Both use
+ #   precompiled headers through the Z7 option as recommended by billw2015.
+-# Target 'DebugMem' added: an almost-Release build that is less likely than a
+-#   Debug build to obscure accesses to uninitialized memory.
++# Target 'Debug-opt' added: An almost-Release build that is less likely than a
++#   Debug build to obscure accesses to uninitialized memory. Also for inspecting
++#   optimized assembly.
+ # Removed the non-fast Assert configuration. [Parallel builds can make it
+ #   difficult to associate error messages with a translation unit; but don't need
+ #   a slow version of every config.]
+@@ -185,8 +186,8 @@ FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
+ #### CFLAGS ####
+ GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
+ Debug_CFLAGS=/MD /Z7 /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
+-# (DebugMem: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
+-DebugMem_CFLAGS=/MD /O2 /Zi /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
++# (Debug-opt: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
++Debug_Opt_CFLAGS=/MD /O2 /Z7 /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Release_CFLAGS=/MD /O2 /Oy /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Final_Release_CFLAGS=$(Release_CFLAGS) /GL
+ 
+@@ -234,8 +235,8 @@ CFLAGS  = $(Debug_CFLAGS)
+ LDFLAGS = $(Debug_LDFLAGS)
+ LIBS    = $(LIBS) msvcprt.lib
+ !ENDIF
+-!IF "$(TARGET)" == "DebugMem"
+-CFLAGS  = $(DebugMem_CFLAGS) /DFASSERT_ENABLE
++!IF "$(TARGET)" == "Debug-opt"
++CFLAGS  = $(Debug_Opt_CFLAGS) /DFASSERT_ENABLE
+ LDFLAGS = $(Debug_LDFLAGS)
+ # Leaving out msvcprt might help with debugging memory (but I doubt it)
+ LIBS    = $(LIBS) msvcprt.lib
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7127

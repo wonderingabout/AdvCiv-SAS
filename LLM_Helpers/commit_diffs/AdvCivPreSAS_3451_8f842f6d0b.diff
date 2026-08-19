@@ -1,0 +1,325 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3451
+# Commit: 8f842f6d0bd6fa951b44e6067fbce58603a95d8d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8edf05460aae709900cd0241a8d6d6207f08242a
+# Title: Compile-time switch for disabling UWAI reports
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	CvGameCoreDLL/InvasionGraph.cpp
+6	0	CvGameCoreDLL/UWAI.h
+6	11	CvGameCoreDLL/UWAIReport.cpp
+58	10	CvGameCoreDLL/UWAIReport.h
+2	2	CvGameCoreDLL/WarUtilityAspect.cpp
+6	1	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index a14cae844..72f7be302 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -590,8 +590,10 @@ void InvasionGraph::Node::predictArmament(int iTurns, bool bNoUpgrading)
+ 			!m_kOuter.m_bLossesDone, m_kOuter.m_bAllWarPartiesKnown,
+ 			pTargetCity, productionPortion());
+ 	m_rProductionInvested += forec.getProductionInvested();
++#if !DISABLE_UWAI_REPORT
+ 	logPower("Predicted power");
+ 	m_kReport.logNewline();
++#endif
+ }
+ 
+ 
+@@ -2116,7 +2118,9 @@ void InvasionGraph::simulate(int iTurns)
+ 		PlayerTypes const ePlayer = it->getID();
+ 		if (m_nodeMap[ePlayer] != NULL)
+ 		{
++	#if !DISABLE_UWAI_REPORT
+ 			m_nodeMap[ePlayer]->logTypicalUnits();
++	#endif
+ 			m_nodeMap[ePlayer]->prepareForSimulation();
+ 		}
+ 	}
+@@ -2193,6 +2197,7 @@ void InvasionGraph::simulateComponent(Node& kStart)
+ 	}
+ 	if(!aCycle.empty())
+ 	{
++	#if !DISABLE_UWAI_REPORT
+ 		m_kReport.log("*Cycle*");
+ 		std::string szMsg = "";
+ 		for (size_t i = 0; i < aCycle.size(); i++)
+@@ -2201,6 +2206,7 @@ void InvasionGraph::simulateComponent(Node& kStart)
+ 			szMsg += " --> ";
+ 		}
+ 		m_kReport.log("%s\n", szMsg.c_str());
++	#endif
+ 		breakCycle(aCycle);
+ 	}
+ 	kStart.findSink().resolveLossesRec();
+
+diff --git a/CvGameCoreDLL/UWAI.h b/CvGameCoreDLL/UWAI.h
+index fe861a029..3ea3fcda8 100644
+--- a/CvGameCoreDLL/UWAI.h
++++ b/CvGameCoreDLL/UWAI.h
+@@ -18,6 +18,12 @@ class FDataStreamBase;
+ // The parentheses are unnecessary, but I think it's more intuitive this way.
+ #define getUWAI() GC.AI_getGame().uwai()
+ 
++
++/*	Setting this to 1 should remove almost all runtime overhead from logging in
++	optimized release builds. The overhead should be pretty small in any case,
++	so I'd rather keep logging available (via an XML switch) in releases. */
++#define DISABLE_UWAI_REPORT 0
++
+ class UWAI : private boost::noncopyable
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/UWAIReport.cpp b/CvGameCoreDLL/UWAIReport.cpp
+index bc26ed03c..51ccf776e 100644
+--- a/CvGameCoreDLL/UWAIReport.cpp
++++ b/CvGameCoreDLL/UWAIReport.cpp
+@@ -31,7 +31,7 @@ UWAIReport::~UWAIReport()
+ 	deleteBuffer();
+ }
+ 
+-
++#if !DISABLE_UWAI_REPORT
+ void UWAIReport::log(char const* fmt, ...)
+ {
+ 	if (m_iMuted > 0)
+@@ -43,7 +43,7 @@ void UWAIReport::log(char const* fmt, ...)
+ 	m_report += CvString::format("\n");
+ 	writeToFile();
+ }
+-
++#endif
+ 
+ void UWAIReport::writeToFile()
+ {
+@@ -64,7 +64,7 @@ void UWAIReport::deleteBuffer()
+ 		delete m_aStringBuffer[i];
+ }
+ 
+-
++#if !DISABLE_UWAI_REPORT
+ char const* UWAIReport::leaderName(PlayerTypes ePlayer, int iCharLimit)
+ {
+ 	if (m_iMuted > 0)
+@@ -73,7 +73,6 @@ char const* UWAIReport::leaderName(PlayerTypes ePlayer, int iCharLimit)
+ 			iCharLimit);
+ }
+ 
+-
+ char const* UWAIReport::unitName(UnitTypes eUnit, int iCharLimit)
+ {
+ 	if (m_iMuted > 0)
+@@ -81,14 +80,13 @@ char const* UWAIReport::unitName(UnitTypes eUnit, int iCharLimit)
+ 	return narrow(GC.getInfo(eUnit).getDescription(), iCharLimit);
+ }
+ 
+-
+ char const* UWAIReport::cityName(CvCity const& kCity, int iCharLimit)
+ {
+ 	if (m_iMuted > 0)
+ 		return "";
+ 	return narrow(kCity.getName(), iCharLimit);
+ }
+-
++#endif
+ 
+ char const* UWAIReport::narrow(wchar const* ws, int iCharLimit)
+ {
+@@ -105,7 +103,7 @@ char const* UWAIReport::narrow(wchar const* ws, int iCharLimit)
+ 	return pNewString->c_str();
+ }
+ 
+-
++#if !DISABLE_UWAI_REPORT
+ char const* UWAIReport::masterName(TeamTypes eMaster, int iCharLimit)
+ {
+ 	if (m_iMuted > 0)
+@@ -116,7 +114,6 @@ char const* UWAIReport::masterName(TeamTypes eMaster, int iCharLimit)
+ 	return leaderName(kMaster.getLeaderID());
+ }
+ 
+-
+ char const* UWAIReport::teamName(TeamTypes eTeam)
+ {
+ 	if (m_iMuted > 0)
+@@ -132,7 +129,6 @@ char const* UWAIReport::teamName(TeamTypes eTeam)
+ 	return pNewString->c_str();
+ }
+ 
+-
+ char const* UWAIReport::techName(TechTypes eTech, int iCharLimit)
+ {
+ 	if (m_iMuted > 0)
+@@ -140,7 +136,6 @@ char const* UWAIReport::techName(TechTypes eTech, int iCharLimit)
+ 	return narrow(GC.getInfo(eTech).getDescription(), iCharLimit);
+ }
+ 
+-
+ char const* UWAIReport::warPlanName(WarPlanTypes eWarPlan) const
+ {
+ 	if (m_iMuted > 0)
+@@ -158,7 +153,7 @@ char const* UWAIReport::warPlanName(WarPlanTypes eWarPlan) const
+ 	default: return "unrecognized";
+ 	}
+ }
+-
++#endif
+ 
+ void UWAIReport::setMute(bool b)
+ {
+
+diff --git a/CvGameCoreDLL/UWAIReport.h b/CvGameCoreDLL/UWAIReport.h
+index b416a8042..1c002613c 100644
+--- a/CvGameCoreDLL/UWAIReport.h
++++ b/CvGameCoreDLL/UWAIReport.h
+@@ -3,12 +3,15 @@
+ #ifndef UWAI_REPORT_H
+ #define UWAI_REPORT_H
+ 
++#include "UWAI.h"
++
+ /* advc.104: New class. A report about the war planning of a single team
+    (cf. UWAI::Team::doWar). Also some string handling.
+    Calls to 'log' have no effect when in silent or mute mode.
+    However, DEBUG mode is not a prerequisite for logging output,
+    meaning also that logging through this class isn't completely "free"
+-   in terms of overhead in release builds.
++   in terms of overhead in release builds. There's a compile-time flag
++   in UWAI.h, however, that should pretty much eliminate the overhead.
+    Each 'log' call is written to the log file separately (flushed). */
+ class UWAIReport
+ {
+@@ -16,20 +19,65 @@ public:
+ 	explicit UWAIReport(bool bSilent = false);
+ 	~UWAIReport();
+ 	// No effect when set to silent or mute
+-	void log(char const* fmt, ...);
+-	void logNewline() { log(""); }
++	void log(char const* fmt, ...)
++	#if DISABLE_UWAI_REPORT
++		{}
++	#else
++		;
++	#endif
++	void logNewline()
++	#if DISABLE_UWAI_REPORT
++		{}
++	#else
++		{ log(""); }
++	#endif
+ 	/*	leaderName and the next four functions use dynamically allocated
+ 		memory in order to narrow wstrings. Therefore not const.
+ 		All the functions returning char const* return an empty string when
+ 		in silent mode (for performance rasons). */
+-	char const* leaderName(PlayerTypes ePlayer, int iCharLimit = 8);
++	char const* leaderName(PlayerTypes ePlayer, int iCharLimit = 8)
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
+ 	// Leader name if the master team has only 1 member, otherwise team name.
+-	char const* masterName(TeamTypes eMaster, int iCharLimit = 8);
+-	char const* teamName(TeamTypes eTeam);
+-	char const* techName(TechTypes eTeam, int iCharLimit = 8);
+-	char const* unitName(UnitTypes eUnit, int iCharLimit = 8);
+-	char const* cityName(CvCity const& kCity, int iCharLimit = 12);
+-	char const* warPlanName(WarPlanTypes eWarPlan) const;
++	char const* masterName(TeamTypes eMaster, int iCharLimit = 8)
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
++	char const* teamName(TeamTypes eTeam)
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
++	char const* techName(TechTypes eTeam, int iCharLimit = 8)
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
++	char const* unitName(UnitTypes eUnit, int iCharLimit = 8)
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
++	char const* cityName(CvCity const& kCity, int iCharLimit = 12)
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
++	char const* warPlanName(WarPlanTypes eWarPlan) const
++	#if DISABLE_UWAI_REPORT
++		{ return ""; }
++	#else
++		;
++	#endif
+ 	// No effect on a silent report
+ 	void setMute(bool b);
+ 	// True if muted or if silent to begin with
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 28bf61f6d..48035410f 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -176,7 +176,7 @@ char const* WarUtilityAspect::aspectName() const
+ 	return szBuffer.GetCString();
+ }
+ 
+-
++#if !DISABLE_UWAI_REPORT
+ void WarUtilityAspect::log(char const* fmt, ...) const
+ {
+ 	/*	The time spent in this function is negligible when the report is muted,
+@@ -193,7 +193,7 @@ void WarUtilityAspect::log(char const* fmt, ...) const
+ 	va_end(args);
+ 	m_kReport.log(szMsg.c_str());
+ }
+-
++#endif
+ 
+ scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
+ 	TeamTypes eOther) const
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index ac2d39832..add964577 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -31,7 +31,12 @@ protected:
+ 	// Class to enum mapping
+ 	virtual UWAI::AspectTypes xmlID() const=0;
+ 	// Just for convenience (replacing m_kReport.log)
+-	void log(char const* fmt, ...) const;
++	void log(char const* fmt, ...) const
++	#if DISABLE_UWAI_REPORT
++		{}
++	#else
++		;
++	#endif
+ 	/*	What can m_pAgentPlayer gain from or lose to m_pRivalPlayer
+ 		(both set by evaluate(MilitaryAnalyst const&)). Note that m_kRivalPlayer
+ 		is not necessarily a war enemy of the m_kAgentPlayer; it can be
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=8635

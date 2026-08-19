@@ -1,0 +1,2034 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1290
+# Commit: 2989cda6e0a97c60bd15d38a45913209af8c701e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ed1826faf199f4a18442c9196f181a46797e79c1
+# Title: Toward v0.92 (no DLL committed):
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/BUG Advisors.xml
+14	0	Assets/Python/BUG/BugConfig.py
+4	3	Assets/Python/Contrib/CvStrategyOverlay.py
+8	2	Assets/Python/Contrib/Sevopedia/SevoPediaUtil.py
+4	3	Assets/XML/Interface/CIV4ColorVals.xml
+6	1	Assets/xml/Civilizations/CIV4CivilizationInfos.xml
+16	0	Assets/xml/GlobalDefines_advc.xml
+4	2	Assets/xml/Terrain/CIV4BonusInfos.xml
+49	0	Assets/xml/Text/CIV4GameText_advc.xml
+13	2	Assets/xml/Text/K-Mod hints.xml
+1	0	CvGameCoreDLL/CvArea.h
+7	3	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCity.h
+24	2	CvGameCoreDLL/CvCityAI.cpp
+6	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+48	6	CvGameCoreDLL/CvDeal.cpp
+9	3	CvGameCoreDLL/CvDeal.h
+14	4	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvGame.h
+12	7	CvGameCoreDLL/CvGameTextMgr.cpp
+30	13	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+253	56	CvGameCoreDLL/CvPlayerAI.cpp
+17	8	CvGameCoreDLL/CvPlayerAI.h
+5	2	CvGameCoreDLL/CvPlot.cpp
+20	6	CvGameCoreDLL/CvTeam.cpp
+9	0	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+9	0	CvGameCoreDLL/CyArea.cpp
+1	0	CvGameCoreDLL/CyArea.h
+2	0	CvGameCoreDLL/CyAreaInterface.cpp
+14	3	CvGameCoreDLL/InvasionGraph.cpp
+6	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+0	0	{PublicMaps => PrivateMaps}/Fractal.py
+95	56	{PublicMaps => PrivateMaps}/PerfectMongoose.py
+0	0	{PublicMaps => PrivateMaps}/Tectonics.py
+0	0	{PublicMaps => PrivateMaps}/not_too_Big_or_Small.py
+-	-	manual_v0.91b.odt
+ rename {PublicMaps => PrivateMaps}/Fractal.py (100%)
+ rename {PublicMaps => PrivateMaps}/PerfectMongoose.py (94%)
+ rename {PublicMaps => PrivateMaps}/Tectonics.py (100%)
+ rename {PublicMaps => PrivateMaps}/not_too_Big_or_Small.py (100%)
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 46b825133..51f52d248 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -93,7 +93,7 @@
+ 					get="isWonderListUsePlayerColor"/>
+ 
+ 			<!-- Sevopedia (F12) by Sevo -->
+-			<!-- advc.004: Both enabled by default -->
++			<!-- advc.004y: Both enabled by default -->
+ 			<option id="Sevopedia" key="Sevopedia" 
+ 					type="boolean" default="True" 
+ 					get="isSevopedia"/>
+
+diff --git a/Assets/Python/BUG/BugConfig.py b/Assets/Python/BUG/BugConfig.py
+index 21aecdab3..8bc417e2a 100644
+--- a/Assets/Python/BUG/BugConfig.py
++++ b/Assets/Python/BUG/BugConfig.py
+@@ -59,6 +59,20 @@ try:
+ finally:
+ 	sys.stderr = stderr
+ 
++# <advc.004y> Source: see manual
++MOD_OPTION_SEP = "__"
++def makeOptionId(modId, optionId):
++	"""Concatenates the mod and option ID with a separator of the option ID
++	doesn't already have one.
++	
++	Returns a fully qualified option ID.
++	"""
++	if optionId is not None and modId is not None:
++		if optionId.find(MOD_OPTION_SEP) == -1:
++			return modId + MOD_OPTION_SEP + optionId
++	return optionId
++# </advc.004y>
++
+ class ConfigParser(xmllib.XMLParser):
+ 	
+ 	def __init__(self):
+
+diff --git a/Assets/Python/Contrib/CvStrategyOverlay.py b/Assets/Python/Contrib/CvStrategyOverlay.py
+index d3f43d5f0..03ec0028b 100644
+--- a/Assets/Python/Contrib/CvStrategyOverlay.py
++++ b/Assets/Python/Contrib/CvStrategyOverlay.py
+@@ -71,9 +71,10 @@ def onLoad(argsList):
+ 	def callRead(layer):
+ 		layer.read()
+ 	callEachLayer(callRead)
+-	# advc.001: FIXME. This accomplishes nothing b/c the game isn't ready for drawing. Don't know how to fix this. Current workaround: Press Alt-X after loading.
+-	#if StratLayerOpt.isShowDotMap():
+-		#getDotMap().redrawCities()
++	# <advc.001> (Bugfix by EmperorFool; r2228)
++	def redraw():
++		getDotMap().redrawCities()
++	BugUtil.deferCall(redraw) # </advc.001>
+ 
+ def onPreSave(argsList):
+ 	def callWrite(layer):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUtil.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUtil.py
+index 42fbb329c..963889a29 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUtil.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUtil.py
+@@ -9,6 +9,8 @@
+ import BugCore
+ import BugOptions
+ import BugUtil
++# advc.004y:
++import BugConfig
+ 
+ AdvisorOpt = BugCore.game.Advisors
+ enabledOption = None
+@@ -16,10 +18,14 @@ sortOption = None
+ 
+ if not AdvisorOpt._hasOption("Sevopedia"):
+ 	BugUtil.debug("BUG: creating stub Sevopedia option")
+-	enabledOption = BugOptions.UnsavedOption(AdvisorOpt, BugOptions.qualify(AdvisorOpt._getID(), "Sevopedia"), "boolean", False)
++	#enabledOption = BugOptions.UnsavedOption(AdvisorOpt, BugOptions.qualify(AdvisorOpt._getID(), "Sevopedia"), "boolean", True)
++	# advc.004y: Replacing the above (source: see manual)
++	enabledOption = BugOptions.UnsavedOption(AdvisorOpt, BugConfig.makeOptionId(AdvisorOpt._getID(), "Sevopedia"), "boolean", True)
+ 	AdvisorOpt._addOption(enabledOption)
+ 
+ if not AdvisorOpt._hasOption("SevopediaSortItemList"):
+ 	BugUtil.debug("BUG: creating stub Sevopedia Sort option")
+-	sortOption = BugOptions.UnsavedOption(AdvisorOpt, BugOptions.qualify(AdvisorOpt._getID(), "SevopediaSortItemList"), "boolean", True)
++	#sortOption = BugOptions.UnsavedOption(AdvisorOpt, BugOptions.qualify(AdvisorOpt._getID(), "SevopediaSortItemList"), "boolean", True)
++	# advc.004y: Replacing the above (source: see manual)
++	sortOption = BugOptions.UnsavedOption(AdvisorOpt, BugConfig.makeOptionId(AdvisorOpt._getID(), "SevopediaSortItemList"), "boolean", True)
+ 	AdvisorOpt._addOption(sortOption)
+
+diff --git a/Assets/XML/Interface/CIV4ColorVals.xml b/Assets/XML/Interface/CIV4ColorVals.xml
+index 33dcfce5b..5db661c6e 100644
+--- a/Assets/XML/Interface/CIV4ColorVals.xml
++++ b/Assets/XML/Interface/CIV4ColorVals.xml
+@@ -268,11 +268,12 @@
+ 			<fBlue>1.00</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
++		<!-- advc.106: Was 50,100,10%; unpleasantly bright. -->
+ 		<ColorVal>
+ 			<Type>COLOR_ALT_HIGHLIGHT_TEXT</Type>
+-			<fRed>0.50</fRed>
+-			<fGreen>1.00</fGreen>
+-			<fBlue>0.10</fBlue>
++			<fRed>0.25</fRed>
++			<fGreen>0.96</fGreen>
++			<fBlue>0.35</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<ColorVal>
+
+diff --git a/Assets/xml/Civilizations/CIV4CivilizationInfos.xml b/Assets/xml/Civilizations/CIV4CivilizationInfos.xml
+index 0c3cdb513..ac6f5bddf 100644
+--- a/Assets/xml/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/xml/Civilizations/CIV4CivilizationInfos.xml
+@@ -11,7 +11,8 @@
+ 	 advc.305: Removed (now allowed) Workboat.
+ 	 advc.307: Allowed War Elephant (still can't spawn), Musketman,
+ 	 Cavalry, Anti-Tank, SAM Infantry.
+-	 Disallowed Frigate, Privateer, Rifleman, Grenadier, Spy (dlph.6). -->
++	 Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
++	 Spy (dlph.6). -->
+ <Civ4CivilizationInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+ 	<CivilizationInfos>
+ 		<CivilizationInfo>
+@@ -4568,6 +4569,10 @@
+ 					<UnitClassType>UNITCLASS_MARINE</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+ 				</Unit>
++				<Unit>
++					<UnitClassType>UNITCLASS_PARATROOPER</UnitClassType>
++					<UnitType>NONE</UnitType>
++				</Unit>
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 7669252a2..ab8497c9d 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -399,6 +399,22 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- [advc.106]
++		 If set to 1, era transitions are recorded in replays.
++		 Set to 0 for BtS behavior (no era transitions in replays).
++		 Recommended: 0, rather use SHOW_FIRST_TO_DISCOVER_IN_REPLAY. -->
++	<Define>
++		<DefineName>SHOW_ENTERED_ERA_IN_REPLAY</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- [advc.106]
++		 If set to 1 (recommended), the first discovery of each tech is recorded
++		 in replays. If set to 0, only Liberalism is recorded (BtS behavior). -->
++	<Define>
++		<DefineName>SHOW_FIRST_TO_DISCOVER_IN_REPLAY</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ 	<!-- [advc.106b]
+ 		 If more than this many messages are queued at the beginning of a
+ 		 turn, no (staggered) messages are shown, and instead the Event Log
+
+diff --git a/Assets/xml/Terrain/CIV4BonusInfos.xml b/Assets/xml/Terrain/CIV4BonusInfos.xml
+index 6be24dd78..8454f7d1f 100644
+--- a/Assets/xml/Terrain/CIV4BonusInfos.xml
++++ b/Assets/xml/Terrain/CIV4BonusInfos.xml
+@@ -1248,7 +1248,8 @@
+ 			<iPlacementOrder>5</iPlacementOrder>
+ 			<iConstAppearance>50</iConstAppearance>
+ 			<iMinAreaSize>3</iMinAreaSize>
+-			<iMinLatitude>0</iMinLatitude>
++			<!-- advc.021b: was 0 -->
++			<iMinLatitude>35</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>25</iRandApp1>
+@@ -1263,7 +1264,8 @@
+ 			<iGroupRange>1</iGroupRange>
+ 			<iGroupRand>50</iGroupRand>
+ 			<bArea>1</bArea>
+-			<bHills>1</bHills>
++			<!-- advc.021b: was 1 -->
++			<bHills>0</bHills>
+ 			<bFlatlands>1</bFlatlands>
+ 			<bNoRiverSide>0</bNoRiverSide>
+ 			<bNormalize>1</bNormalize>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 1c9b98e8f..e20934864 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1136,6 +1136,24 @@
+ 		<Italian>[COLOR_UNIT_TEXT]%s1_GPName[COLOR_REVERT] &#232; [NUM1:nato:nata] nel %s2_CivName!</Italian>
+ 		<Spanish>[COLOR_UNIT_TEXT]%s1_GPName[COLOR_REVERT] ha nacido en el %s2_CivName.</Spanish>
+ 	</TEXT>
++	<!-- Keep this one fully colored -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_GP_BORN_REPLAY</Tag>
++		<English>[COLOR_UNIT_TEXT]%s1_GPStr has been born in the %s2_CivName.[COLOR_REVERT]</English>
++		<French>[COLOR_UNIT_TEXT]Naissance de %s1_GPStr[COLOR_REVERT] dans le %s2_CivName.[COLOR_REVERT]</French>
++		<German>[COLOR_UNIT_TEXT]%s1_GPStr wurde im %s2_CivName geboren.[COLOR_REVERT]</German>
++		<Italian>[COLOR_UNIT_TEXT]%s1_GPStr &#232; [NUM1:nato:nata] nel %s2_CivName![COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_UNIT_TEXT]%s1_GPStr ha nacido en el %s2_CivName.[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- Put the GP type first in replays in English -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_GP_NAME_REPLAY</Tag>
++		<English>The %s1_GPType %s2_GPName</English>
++		<French>%s2_GPName (%s1_GPType)</French>
++		<German>%s2_GPName (%s1_GPType)</German>
++		<Italian>%s2_GPName (%s1_GPType)</Italian>
++		<Spanish>%s2_GPName (%s1_GPType)</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_WONDER_COMPLETED_CITY</Tag>
+ 		<English>%s1_PlyrName has completed %s2_WndrName in %s3_CityName!</English>
+@@ -2878,4 +2896,35 @@
+ 		<Spanish>%d1_Date d. C.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
++		 parentheses and "Total"; more comprehensible this way. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY</Tag>
++		<English>[COLOR_WARNING_TEXT]Requires %s1_Name: %d2[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Requiert : %s1_Name (%d2)[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Erfordert: %s1_Name (%d2)[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Richiede %s1_Name: %d2[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]Requiere %s1_Name: %d2[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- Same with a range. Add "depending on map size"? -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY_RANGE</Tag>
++		<English>[COLOR_WARNING_TEXT]Requires %s1_Name: %d2-%d3[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Requiert : %s1_Name (%d2-%d3)[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Erfordert: %s1_Name (%d2-%d3)[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Richiede %s1_Name: %d2-%d3[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]Requiere %s1_Name: %d2-%d3[COLOR_REVERT]</Spanish>
++	</TEXT>
++
++	<!-- advc.106: Based on TXT_KEY_ERA_SPLASH_SCREEN in
++		 Civ4GameText_Misc1.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_SOMEONE_ENTERED_ERA</Tag>
++		<English>%s1_Ldr has entered the %s2_era era.</English>
++		<French>%s1_Ldr vient d'entrer dans une nouvelle &#232;re (%s2_era).</French>
++		<German>%s1_Ldr hat das Zeitalter %s2_era erreicht.</German>
++		<Italian>%s1_Ldr � entrato nell'era %s2_era!</Italian>
++		<Spanish>%s1_Ldr ha entrado en [NUM2:el:la:los:las] %s2_era.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 60f002907..777d6aa0a 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -174,8 +174,8 @@
+ 	<Spanish>Commerce sliders and espionage weights can be set to max/min quickly by right clicking their +/- buttons.</Spanish>
+ </TEXT>
+ 
+-<!-- advc.008c: From MMod; I've changed the wording a little and added the
+-	 German translation. -->
++<!-- k146: I've changed the wording a little and added the German translation.
++	 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_16</Tag>
+ 	<English>Hold [ALT] when clicking the 'Wake' command in order to wake all your units of the same type around the world.</English>
+@@ -387,4 +387,15 @@
+ 	<Spanish>Mantener el cursor encima de la casilla objetivo para ver las probabilidades del combate...</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: Removed the "look it up in Civilopedia" part b/c the hint was
++	 too long. Not a very useful hint; should replace it at some point. -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_73</Tag>
++	<English>To found a Corporation, you must have the correct type of Great Person, have researched the appropriate technologies and build it in a city with one or more of the resources that the Corporation demands.</English>
++	<French>Pour fonder une soci&#233;t&#233; commerciale, vous devez disposer du bon type de personnages illustres, avoir recherch&#233; les technologies appropri&#233;es, et la construire dans une ville disposant d'au moins une des ressources dont elle a besoin</French>
++	<German>Um eine Kapitalgesellschaft zu gr&#252;nden, m&#252;sst Ihr &#252;ber die richtige Gro&#223;e Pers&#246;nlichkeit verf&#252;gen, die entsprechenden Technologien erforscht haben und sie in einer Stadt errichten, die eine oder mehr der f&#252;r die Kapitalgesellschaft erforderlichen Ressourcen hat.</German>
++	<Italian>Per fondare una corporazione devi avere il giusto tipo di Grande Personaggio, aver ricercato le tecnologie giuste e devi costruirla in una citt&#224; con una o pi&#249; delle risorse necessarie alla corporazione stessa.</Italian>
++	<Spanish>Para fundar una corporaci&#243;n, debes tener el tipo correcto de gran personaje, haber investigado las tecnolog&#237;as apropiadas y crearla en una ciudad con uno o m&#225;s de los recursos que la corporaci&#243;n necesita.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 9fa6e6c8f..476d66477 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -48,6 +48,7 @@ public:
+ 	void changeNumOwnedTiles(int iChange);
+ 
+ 	// <advc.300>
++	// advc.021b: Exposed to Python as getNumHabitableTiles
+ 	std::pair<int,int> countOwnedUnownedHabitableTiles(
+ 			bool ignoreBarb = false) const;
+ 	int countCivCities() const;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b4b298bac..d2c2edeee 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10696,7 +10696,10 @@ void CvCity::doFoundMessage()
+ 			NULL, NO_COLOR, getX_INLINE(), getY_INLINE());
+ 
+ 	szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_IS_FOUNDED", getNameKey());
+-	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_CITY_FOUNDED, getOwnerINLINE(), szBuffer, getX_INLINE(), getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
++	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_CITY_FOUNDED, getOwnerINLINE(), szBuffer, getX_INLINE(), getY_INLINE(),
++			//(ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
++			// advc.106: Use ALT_HIGHLIGHT for research-related stuff now
++			GET_PLAYER(getOwnerINLINE()).getPlayerTextColor());
+ }
+ 
+ 
+@@ -16331,7 +16334,7 @@ int CvCity::calculateNumCitiesMaintenanceTimes100(CvPlot* cityPlot,
+ }
+ 
+ int CvCity::calculateColonyMaintenanceTimes100(CvPlot* cityPlot, PlayerTypes owner,
+-		int population) {
++		int population, int extraCities) {
+ 
+ 	/* <advc.004b><advc.104> Copied from the original function of the same name
+ 	   and plugged in the parameters. No functional change. */
+@@ -16362,7 +16365,8 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot* cityPlot, PlayerTypes own
+ 	iNumCitiesPercent *= GC.getHandicapInfo(ownerHandicap).getColonyMaintenancePercent();
+ 	iNumCitiesPercent /= 100;
+ 
+-	int iNumCities = (cityArea->getCitiesPerPlayer(owner) - 1) * iNumCitiesPercent;
++	int iNumCities = (cityArea->getCitiesPerPlayer(owner) - 1
++			+ extraCities) * iNumCitiesPercent;
+ 	
+ 	int iMaintenance = (iNumCities * iNumCities) / 100;
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 4c1680be8..284830b4a 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -77,7 +77,7 @@ public:
+ 	bool isWorldWondersMaxed() const;																							// Exposed to Python
+ 	bool isTeamWondersMaxed() const;																							// Exposed to Python
+ 	bool isNationalWondersMaxed() const;																					// Exposed to Python
+-	int getNumNationalWondersLeft() const; // advc.004w
++	int getNumNationalWondersLeft() const; // advc.004w, advc.131
+ 	bool isBuildingsMaxed() const;																								// Exposed to Python
+ 
+ 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false
+@@ -396,7 +396,7 @@ public:
+ 	static int calculateNumCitiesMaintenanceTimes100(CvPlot* cityPlot,
+ 			PlayerTypes owner, int population = -1, int extraCities = 0);
+ 	static int calculateColonyMaintenanceTimes100(CvPlot* cityPlot,
+-			PlayerTypes owner, int population = -1);
++			PlayerTypes owner, int population = -1, int extraCities = 0);
+ 	static int initialPopulation();
+ 	private: 
+ 	  static int calculateMaintenanceDistance(CvPlot* cityPlot, PlayerTypes owner);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d24d454c3..f408428e6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3639,6 +3639,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	BuildingClassTypes eBuildingClass = (BuildingClassTypes) kBuilding.getBuildingClassType();
+ 	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
+ 	bool bIsLimitedWonder = (iLimitedWonderLimit >= 0);
++	// <advc.131>
++	int totalBonusYieldMod = 0;
++	int totalImprFreeSpecialists = 0; // </advc.131>
+ 	// K-Mod. This new value, iPriorityFactor, is used to boost the value of productivity buildings without overvaluing productivity.
+ 	// The point is to get the AI to build productiviy buildings quickly, but not if they come with large negative side effects.
+ 	// I may use it for other adjustments in the future.
+@@ -4535,6 +4538,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				if (kBuilding.getImprovementFreeSpecialist(iI) > 0)
+ 				{
+ 					iValue += kBuilding.getImprovementFreeSpecialist(iI) * countNumImprovedPlots((ImprovementTypes)iI, true) * 50;
++					// advc.131:
++					totalImprFreeSpecialists += kBuilding.getImprovementFreeSpecialist(iI);
+ 				}
+ 			}
+ 
+@@ -4856,6 +4861,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					if (hasBonus((BonusTypes)iJ))
+ 					{
+ 						iTempValue += ((kBuilding.getBonusYieldModifier(iJ, iI) * iBaseRate) / 27); // originally 12
++						// advc.131:
++						totalBonusYieldMod += kBuilding.getBonusYieldModifier(iJ, iI);
+ 					}
+ 				}
+ 
+@@ -5643,8 +5650,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				iValue = iValue * (10 + iFlavour) / 10; // K-Mod. (This will give +100% for 10-10 flavour matchups.)
+ 			}
+ 		}
+-	}
+-
++	} // <advc.131>
++	if(kOwner.getCurrentEra() < 4 && ::isNationalWonderClass(eBuildingClass) &&
++			isCapital() && totalBonusYieldMod < 40 &&
++			totalImprFreeSpecialists <= 0 &&
++			kBuilding.getGreatGeneralRateModifier() < 40 &&
++			kBuilding.getMilitaryProductionModifier() < 40 &&
++			kBuilding.getFreeExperience() < 4) {
++		int totalCommerceMod = 0;
++		for(int i = 0; i < NUM_COMMERCE_TYPES; i++)
++			totalCommerceMod += kBuilding.getCommerceModifier(i);
++		if(totalCommerceMod < 40) {
++			int slotsLeft = getNumNationalWondersLeft();
++			FAssert(slotsLeft > 0);
++			double slotMod = std::min(1.0, 0.25 * (slotsLeft + 1));
++			iValue = ::round(iValue * slotMod);
++		}
++	} // </advc.131>
+ 	// constructionValue cache
+ 	if (bUseConstructionValueCache && !bConstCache)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5fb4340b8..76486f62d 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5998,9 +5998,13 @@ CvWString CvDLLWidgetData::getFoundCostText(CvPlot* p, PlayerTypes ownerId)
+ 	int deltaMaintOther = 0; int dummy;
+ 	for(CvCity* c = owner.firstCity(&dummy); c != NULL; c = owner.nextCity(&dummy)) {
+ 		int current = CvCity::calculateNumCitiesMaintenanceTimes100(
+-				c->plot(), ownerId, c->getPopulation());
++				c->plot(), ownerId, c->getPopulation()) +
++				CvCity::calculateColonyMaintenanceTimes100(c->plot(),
++				ownerId, c->getPopulation());
+ 		int projected = CvCity::calculateNumCitiesMaintenanceTimes100(
+-				c->plot(), ownerId, c->getPopulation(), 1);
++				c->plot(), ownerId, c->getPopulation(), 1) +
++				CvCity::calculateColonyMaintenanceTimes100(c->plot(),
++				ownerId, c->getPopulation(), 1);
+ 		int delta = projected - current;
+ 		/* Reduced maintenance from buildings isn't considered by the above
+ 	       functions. Using a snippet from CvCity::updateMaintenance: */
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index d2d7a3923..96947cce6 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -99,17 +99,24 @@ void CvDeal::kill(bool bKillTeam)
+ 			gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)getSecondPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED");
+ 		}
+ 	}
++	// <advc.036>
++	killSilent(bKillTeam);
++}
++
++void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude) { // </advc.036>
+ 
+ 	CLLNode<TradeData>* pNode;
+ 
+ 	for (pNode = headFirstTradesNode(); (pNode != NULL); pNode = nextFirstTradesNode(pNode))
+ 	{
+-		endTrade(pNode->m_data, getFirstPlayer(), getSecondPlayer(), bKillTeam);
++		endTrade(pNode->m_data, getFirstPlayer(), getSecondPlayer(), bKillTeam,
++				bUpdateAttitude); // advc.036
+ 	}
+ 
+ 	for (pNode = headSecondTradesNode(); (pNode != NULL); pNode = nextSecondTradesNode(pNode))
+ 	{
+-		endTrade(pNode->m_data, getSecondPlayer(), getFirstPlayer(), bKillTeam);
++		endTrade(pNode->m_data, getSecondPlayer(), getFirstPlayer(), bKillTeam,
++				bUpdateAttitude); // advc.036
+ 	}
+ 
+ 	GC.getGameINLINE().deleteDeal(getID());
+@@ -199,6 +206,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 		// Note: the original code didn't bump units for vassal trades. This is can erroneously allow the vassal's units to stay in the master's land.
+ 		// <advc.039>
+ 		bool bSurrender = isVassalTrade(pFirstList) || isVassalTrade(pSecondList);
++		bool bDone = false;
+ 		if(!bSurrender && pFirstList != NULL && pSecondList != NULL &&
+ 				GC.getDefineINT("ANNOUNCE_REPARATIONS") > 0) {
+ 			int l1 = pFirstList->getLength();
+@@ -207,13 +215,15 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 			if(l1 == 1 && l2 > 1) {
+ 				GET_TEAM(eFirstTeam).makePeaceBulk(eSecondTeam, false, NO_TEAM,
+ 						false, pSecondList);
++				bDone = true;
+ 			}
+ 			else if(l2 == 1 && l1 > 1) {
+ 				GET_TEAM(eSecondTeam).makePeaceBulk(eFirstTeam, false, NO_TEAM,
+ 						false, pFirstList);
++				bDone = true;
+ 			}
+ 		}
+-		else // </advc.039>
++		if(!bDone) // </advc.039>
+ 		// <advc.034>
+ 			GET_TEAM(eFirstTeam).makePeaceBulk(eSecondTeam, false, NO_TEAM,
+ 					bSurrender); // advc.039
+@@ -604,6 +614,30 @@ bool CvDeal::isVassalTributeDeal(const CLinkList<TradeData>* pList)
+ 	return true;
+ }
+ 
++/*  <advc.003> True if one side is the other side's vassal, the vassal gives
++	only resources and master gives nothing in return. */
++bool CvDeal::isVassalTributeDeal() const {
++
++	PlayerTypes vassalId = NO_PLAYER;
++	PlayerTypes masterId = NO_PLAYER;
++	CLinkList<TradeData> const* vassalGives = NULL;
++	CLinkList<TradeData> const* masterGives = NULL;
++	if(TEAMREF(getFirstPlayer()).isVassal(TEAMID(getSecondPlayer()))) {
++		vassalId = getFirstPlayer();
++		masterId = getSecondPlayer();
++		vassalGives = getFirstTrades();
++		masterGives = getSecondTrades();
++	}
++	else if(TEAMREF(getSecondPlayer()).isVassal(TEAMID(getFirstPlayer()))) {
++		vassalId = getSecondPlayer();
++		masterId = getFirstPlayer();
++		vassalGives = getSecondTrades();
++		masterGives = getFirstTrades();
++	}
++	return vassalId != NO_PLAYER && masterGives->getLength() <= 0 &&
++			CvDeal::isVassalTributeDeal(vassalGives);
++} // </advc.003>
++
+ // <advc.034>
+ bool CvDeal::isDisengage() const {
+ 
+@@ -665,6 +699,12 @@ void CvDeal::setInitialGameTurn(int iNewValue)
+ 	m_iInitialGameTurn = iNewValue;
+ }
+ 
++// <advc.133>
++int CvDeal::getAge() const {
++
++	return GC.getGameINLINE().getGameTurn() - getInitialGameTurn();
++} // </advc.133>
++
+ 
+ PlayerTypes CvDeal::getFirstPlayer() const
+ {
+@@ -1121,7 +1161,8 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 
+ // <advc.003> Refactored this function
+ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+-		PlayerTypes eToPlayer, bool bTeam) {
++		PlayerTypes eToPlayer, bool bTeam,
++		bool bUpdateAttitude) { // advc.036
+ 
+ 	bool teamTradeEnded = false; // advc.133
+ 	switch(trade.m_eItemType) {
+@@ -1198,8 +1239,9 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 		return; // No need to update attitude
+ 	// </advc.034>
+ 	default: FAssert(false);
+-	}
+-	// </advc.003>
++	} // </advc.003> <advc.036>
++	if(!bUpdateAttitude)
++		return; // </advc.036>
+ 	// <advc.133> (I think this is needed even w/o change 133 canceling more deals)
+ 	if(!teamTradeEnded)
+ 		GET_PLAYER(eFromPlayer).AI_updateAttitudeCache(eToPlayer);
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index a5d5cb3f9..186a4f5ae 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -21,7 +21,8 @@ public:
+ 	void reset(int iID = 0, PlayerTypes eFirstPlayer = NO_PLAYER, PlayerTypes eSecondPlayer = NO_PLAYER);
+ 
+ 	DllExport void kill(bool bKillTeam = true);
+-
++	// advc.036:
++	void killSilent(bool bKillTeam = true, bool bUpdateAttitude = true);
+ 	void addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList, bool bCheckAllowed);
+ 
+ 	void doTurn();
+@@ -33,13 +34,17 @@ public:
+ 	bool isVassalDeal() const;
+ 	bool isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReason = NULL) const;
+ 	DllExport static bool isVassalTributeDeal(const CLinkList<TradeData>* pList);
++	/*  advc.003: The above checks if pList contains only TRADE_RESSOURCE items;
++		I need a function that actually checks if this deal is a tribute deal
++		between a vassal and a master.  */
++	bool isVassalTributeDeal() const;
+ 	bool isDisengage() const; // advc.034
+ 	DllExport int getID() const;
+ 	void setID(int iID);
+ 
+ 	int getInitialGameTurn() const;
+ 	void setInitialGameTurn(int iNewValue);
+-
++	int getAge() const; // advc.133
+ 	DllExport PlayerTypes getFirstPlayer() const;
+ 	DllExport PlayerTypes getSecondPlayer() const;
+ 	// <advc.003>
+@@ -85,7 +90,8 @@ public:
+ protected:
+ 
+ 	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+-	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam);
++	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam,
++			bool bUpdateAttitude = true); // advc.036
+ 	// advc.130p:
+ 	static void addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 			TradeableItems dealType);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 93272c411..572e95d58 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2529,8 +2529,7 @@ void CvGame::update()
+ 		{
+ 			gDLL->getInterfaceIFace()->setInAdvancedStart(true);
+ 			gDLL->getInterfaceIFace()->setWorldBuilder(true);
+-		} /* <advc.705> I don't like adding code to this oft-called function, but these
+-			are just a few instructions (unless there is actually text to restore). */
++		} // <advc.705>
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+ 			riseFall.restoreDiploText(); // </advc.705>
+ 		// <advc.003d>
+@@ -3085,7 +3084,16 @@ bool CvGame::selectionListIgnoreBuildingDefense() const
+ 
+ 
+ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce)
+-{	// <advc.003> Minor refactoring
++{
++	// <advc.036>
++	implementDealBulk(eWho, eOtherWho, pOurList, pTheirList, bForce);
++}
++
++CvDeal* CvGame::implementDealBulk(PlayerTypes eWho, PlayerTypes eOtherWho,
++		CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList,
++		bool bForce) { // </advc.036>
++
++	// <advc.003> Minor refactoring
+ 	FAssert(eWho != NO_PLAYER);
+ 	FAssert(eOtherWho != NO_PLAYER);
+ 	FAssert(eWho != eOtherWho); // </advc.003>
+@@ -3095,7 +3103,7 @@ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<Tr
+ 				item = pOurList->next(item)) {
+ 			if(item->m_data.m_eItemType == TRADE_PEACE_TREATY) {
+ 				if(GET_PLAYER(eWho).resetPeaceTreaty(eOtherWho))
+-					return;
++					return NULL; // advc.036
+ 			}
+ 		}
+ 	} // </advc.032>
+@@ -3105,7 +3113,9 @@ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<Tr
+ 	if ((pDeal->getLengthFirstTrades() == 0) && (pDeal->getLengthSecondTrades() == 0))
+ 	{
+ 		pDeal->kill();
++		return NULL; // advc.036
+ 	}
++	return pDeal; // advc.036
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 5139b7083..4a8aa34dd 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -99,6 +99,8 @@ public:
+ 	// K-Mod end
+ 
+ 	DllExport void implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce = false);
++	// advc.036:
++	CvDeal* implementDealBulk(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce = false);
+ 	void verifyDeals();
+ 
+ 	DllExport void getGlobeviewConfigurationParameters(TeamTypes eTeam, bool& bStarsVisible, bool& bWorldIsRound);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 396826f39..2195dcd5d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -11072,16 +11072,21 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 			{
+ 				if (ePlayer == NO_PLAYER)
+ 				{	// <advc.004y>
+-					int iNeeded = kBuilding.getPrereqNumOfBuildingClass((BuildingClassTypes)iI);
+-					iNeeded *= std::max(0, (GC.getWorldInfo(GC.getMapINLINE().
++					int iLow = kBuilding.getPrereqNumOfBuildingClass((BuildingClassTypes)iI);
++					int iHigh = iLow * std::max(0, (GC.getWorldInfo(GC.getMapINLINE().
+ 							getWorldSize()).getBuildingClassPrereqModifier()
+ 							+ 100));
+-					iNeeded /= 100; // </advc.004y>
++					if(iHigh > 100 && iHigh < 200) iHigh = 2; else // advc.310
++					iHigh /= 100; // </advc.004y>
+ 					CvWString szTempBuffer;
+-					szTempBuffer.Format(L"%s%s", NEWLINE,
+-						gDLL->getText("TXT_KEY_BUILDING_REQUIRES_NUM_SPECIAL_BUILDINGS_NO_CITY",
+-						GC.getBuildingInfo(eLoopBuilding).getTextKeyWide(),
+-						iNeeded // advc.004y
++					szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText(
++							// <advc.004y>
++							(iLow == iHigh ?
++							"TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY" :
++							"TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY_RANGE"),
++							// </advc.004y>
++							GC.getBuildingInfo(eLoopBuilding).getTextKeyWide(),
++							iLow, iHigh // advc.004y
+ 						).c_str());
+ 
+ 					szBuffer.append(szTempBuffer);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3d994e28f..2d2866d36 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12221,7 +12221,14 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ 					addPopup(pInfo);
+ 				}
+ 			}
+-		}
++		} // <advc.106>
++		if(GC.getDefineINT("SHOW_ENTERED_ERA_IN_REPLAY") > 0) {
++			CvWString szBuffer = gDLL->getText("TXT_KEY_SOMEONE_ENTERED_ERA",
++					getNameKey(), GC.getEraInfo(eNewValue).getTextKeyWide());
++			GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
++					getID(), szBuffer, -1, -1, (ColorTypes)
++					GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
++		} // </advc.106>
+ 	}
+ }
+ 
+@@ -12303,7 +12310,9 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 				}
+ 			}
+ 		}
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
++		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer,
++				// advc.106: was NO_COLOR (i.e. white), now same as religion founded.
++				-1, -1, (ColorTypes) GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 	}
+ 
+ 	// Python Event
+@@ -12449,6 +12458,12 @@ int CvPlayer::getPlayerTextColorA() const
+ 	return ((int)(GC.getColorInfo((ColorTypes) GC.getPlayerColorInfo(getPlayerColor()).getTextColorType()).getColor().a * 255));
+ }
+ 
++// <advc.106>
++ColorTypes CvPlayer::getPlayerTextColor() const {
++
++	return (ColorTypes)GC.getPlayerColorInfo(getPlayerColor()).getTextColorType();
++} // </advc.106>
++
+ 
+ int CvPlayer::getSeaPlotYield(YieldTypes eIndex) const
+ {
+@@ -19155,10 +19170,17 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 			}
+ 		}
+ 	}
+-
+-
+-	//CvWString szReplayMessage;
+-	CvWString szMessage; // advc.003: Renamed b/c used not only for replay
++	// <advc.106>
++	CvPlayer const& gpOwner = GET_PLAYER(pPlot->getOwner());
++	// Use shorter message for replays
++	CvWString szReplayMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_REPLAY",
++			pGreatPeopleUnit->getReplayName().GetCString(),
++			gpOwner.getCivilizationDescriptionKey()); // </advc.106>
++	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(),
++			szReplayMessage, iX, iY, (ColorTypes)GC.getInfoTypeForString(
++			"COLOR_UNIT_TEXT"));
++	// advc.106: Non-replay message
++	CvWString szMessage;
+ 	if (pCity)
+ 	{
+ 		CvWString szCity;
+@@ -19168,15 +19190,11 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 	else
+ 	{
+ 		szMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_FIELD", pGreatPeopleUnit->getName().GetCString());
+-	}
+-	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szMessage, iX, iY, (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"));
+-
+-	// <advc.106>
++	} // <advc.106>
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 		CvPlayer& msgTarget = GET_PLAYER((PlayerTypes)i);
+ 		if(!msgTarget.isAlive())
+ 			continue;
+-		CvPlayer const& gpOwner = GET_PLAYER(pPlot->getOwner());
+ 		bool isRev = pPlot->isRevealed(msgTarget.getTeam(), false);
+ 		if(!TEAMREF(msgTarget.getID()).isHasMet(TEAMID(gpOwner.getID())))
+ 			continue;
+@@ -19184,8 +19202,7 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 			szMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_CIV",
+ 					pGreatPeopleUnit->getName().GetCString(),
+ 					gpOwner.getCivilizationDescriptionKey());
+-		}
+-		// <advc.106b>
++		} // <advc.106b>
+ 		InterfaceMessageTypes msgType = MESSAGE_TYPE_MINOR_EVENT;
+ 		// Only birth of own GP is major
+ 		if(msgTarget.getID() == gpOwner.getID())
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index a64a567b7..98105fe08 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -771,6 +771,7 @@ public:
+ 	DllExport int getPlayerTextColorG() const;																												// Exposed to Python
+ 	DllExport int getPlayerTextColorB() const;																												// Exposed to Python
+ 	DllExport int getPlayerTextColorA() const;																												// Exposed to Python
++	ColorTypes getPlayerTextColor() const; // advc.106
+ 																																									
+ 	int getSeaPlotYield(YieldTypes eIndex) const;																											// Exposed to Python
+ 	void changeSeaPlotYield(YieldTypes eIndex, int iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e400c773d..8eeb1b240 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -567,6 +567,7 @@ void CvPlayerAI::AI_doTurnPost()
+ 
+ 	if (isBarbarian())
+ 	{
++		foldDeals();
+ 		return;
+ 	}
+ 
+@@ -10901,7 +10902,14 @@ bool CvPlayerAI::isAnnualDeal(CLinkList<TradeData> const& itemList) const {
+ /// considering proposals from the human player made in the diplomacy window as well as a couple other places.
+ // advc.130o: Removed const qualifier
+ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, int iChange)
+-{
++{	// <advc.133>
++	return AI_considerOfferBulk(ePlayer, pTheirList, pOurList, iChange);
++}
++
++bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
++		CLinkList<TradeData> const* pTheirList,
++		CLinkList<TradeData> const* pOurList, int iChange, int dealAge) {
++	// </advc.133>
+ 	const CvTeamAI& kOurTeam = GET_TEAM(getTeam()); // K-Mod
+ 	// <advc.003> Plugged in throughout this function (or sometimes TEAMREF instead)
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+@@ -10917,16 +10925,21 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 	{
+ 		for (CLLNode<TradeData>* pNode = pOurList->head(); pNode; pNode = pOurList->next(pNode))
+ 		{
+-			TradeData tdata = pNode->m_data; // advc.003
+-			if (getTradeDenial(ePlayer, tdata) != NO_DENIAL)
++			if (getTradeDenial(ePlayer, pNode->m_data) != NO_DENIAL)
+ 			{
+ 				return false;
+-			} /* <advc.036> Denial from the human pov should also prevent
+-				 resource trades. Matters for "Care to negotiate". */
+-			if(tdata.m_eItemType == TRADE_RESOURCES && bHuman &&
+-					kPlayer.getTradeDenial(getID(), tdata) != NO_DENIAL)
+-				return false; // </advc.036>
+-		}
++			}
++		} /* <advc.036> Denial from the human pov should prevent resource trades.
++			 This matters for "Care to negotiate". */
++		if(bHuman) {
++			for (CLLNode<TradeData>* tdn = pTheirList->head(); tdn != NULL;
++					tdn = pTheirList->next(tdn)) {
++				TradeData tdata = tdn->m_data;
++				if(tdata.m_eItemType == TRADE_RESOURCES &&
++						kPlayer.getTradeDenial(getID(), tdata) != NO_DENIAL)
++					return false;
++			}
++		} // </advc.036>
+ 	}
+ 	/*if (kPlayer.getTeam() == getTeam())
+ 	{
+@@ -11104,8 +11117,8 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 		/*  <advc.133> isVassalTributeDeal can't distinguish between freebies from
+ 			a granted help request and those from vassal tribute. That's fine,
+ 			cancel gifts too. */
+-		if(kOurTeam.getMasterTeam() != TEAMID(ePlayer) &&
+-				CvDeal::isVassalTributeDeal(pOurList) && iChange <= 0)
++		if(iChange <= 0 && kOurTeam.getMasterTeam() != TEAMID(ePlayer) &&
++				CvDeal::isVassalTributeDeal(pOurList))
+ 			return false; // </advc.133>
+ 		// <advc.130o>
+ 		bool demand = false;
+@@ -11217,7 +11230,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 	{
+ 		//return (iTheirValue * 110 >= iOurValue * 100);
+ 		// <advc.133> Always 125 in K-Mod
+-		int tolerance = (bHuman ? 130 : 140);
++		int tolerance = (bHuman ? 145 : 155) - std::min(35, dealAge);
+ 		// <advc.155>
+ 		if(bSameTeam)
+ 			tolerance = 150; // </advc.155>
+@@ -11234,7 +11247,16 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 			return false;
+ 	} // </advc.136b>
+ 	
+-	return (iTheirValue >= iOurValue);
++	if(iTheirValue >= iOurValue)
++		return true;
++	// <advc.036>
++	if(bHuman && iTheirValue + singleBonusTradeTolerance >= iOurValue &&
++			pOurList->getLength() == 1 && pTheirList->getLength() == 1 &&
++			pOurList->head()->m_data.m_eItemType == TRADE_RESOURCES &&
++			pTheirList->head()->m_data.m_eItemType == TRADE_RESOURCES)
++		return true;
++	// </advc.036>
++	return false;
+ }
+ 
+ double CvPlayerAI::prDenyHelp() const {
+@@ -11267,8 +11289,21 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 	if (bOurGoldDeal && bTheirGoldDeal)
+ 	{
+ 		return false;
+-	}
+-
++	} /* <advc.036> Check trade denial. Should only be needed when renegotiating
++		 a canceled deal with a human. */
++	if(GET_PLAYER(ePlayer).isHuman()) {
++		for(CLLNode<TradeData>* tdn = pOurList->head(); tdn != NULL;
++				tdn = pOurList->next(tdn)) {
++			TradeData tdata = tdn->m_data;
++			if(getTradeDenial(ePlayer, tdata) != NO_DENIAL)
++				return false;
++		} for(CLLNode<TradeData>* tdn = pTheirList->head(); tdn != NULL;
++				tdn = pTheirList->next(tdn)) {
++			TradeData tdata = tdn->m_data;
++			if(GET_PLAYER(ePlayer).getTradeDenial(getID(), tdata) != NO_DENIAL)
++				return false;
++		}
++	} // </advc.036>
+ 	/* original bts code
+ 	iHumanDealWeight = AI_dealVal(ePlayer, pTheirList);
+ 	iAIDealWeight = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList); */
+@@ -11393,22 +11428,26 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 	if(!isHuman() && iValueForUs > iValueForThem &&
+ 			iValueForUs < 2 * GC.getDIPLOMACY_VALUE_REMAINDER())
+ 		return false; // </advc.136b>
++	bool bDeal = false; // advc.036: Moved up
+ 	// When counterProposing, we want balance the deal - but if we can't balance it, we want to make sure it favours us; not them.
+ 	// So if their value is greater, we don't mind suggesting items which take them past balance.
+ 	// But if our value is greater, we will never suggest adding items which overshoot the balance.
+ 	if (iValueForThem > iValueForUs)
+ 	{	// <advc.003> Moved into auxiliary function
+-		balanceDeal(bOurGoldDeal, pTheirInventory, ePlayer, iValueForThem,
+-			iValueForUs, pTheirCounter, pOurList, 1, true, happyLeft,
+-			healthLeft); // </advc.003>
++		bDeal = balanceDeal(bOurGoldDeal, pTheirInventory, ePlayer,
++			iValueForThem, iValueForUs, pTheirCounter, pOurList, 1, true,
++			// </advc.003> <advc.036>
++			happyLeft, healthLeft, pTheirList->getLength());
++			// </advc.036>
+ 	}
+ 	else if (iValueForUs > iValueForThem)
+ 	{
+ 		// <advc.003> Moved into auxiliary function
+-		GET_PLAYER(ePlayer).balanceDeal(bTheirGoldDeal, pOurInventory, getID(),
+-				iValueForUs, iValueForThem, pOurCounter, pTheirList,
+-				leniency, false, happyLeft, healthLeft);
+-		// </advc.003>
++		bDeal = GET_PLAYER(ePlayer).balanceDeal(bTheirGoldDeal, pOurInventory,
++				getID(), iValueForUs, iValueForThem, pOurCounter, pTheirList,
++				leniency, false, // </advc.003> <advc.036>
++				happyLeft, healthLeft, pOurList->getLength());
++				// </advc.036>
+ 	}
+ 	/* original bts code
+ 	return ((iValueForThem <= iValueForUs) && ((pOurList->getLength() > 0) || (pOurCounter->getLength() > 0) || (pTheirCounter->getLength() > 0))); */
+@@ -11416,9 +11455,9 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 	// K-Mod. This function now needs to handle AI - AI deals, and human auto-counters to AI suggested deals.
+ 	if (pOurList->getLength() == 0 && pOurCounter->getLength() == 0 && pTheirCounter->getLength() == 0)
+ 		return false;
+-
+-	bool bDeal = false;
+-
++	// <advc.036> Don't double-check if balanceDeal says we should accept
++	if(bDeal)
++		return true; // </advc.036>
+ 	if (GET_PLAYER(ePlayer).isHuman())
+ 	{
+ 		// AI counting a human proposal:
+@@ -11486,13 +11525,14 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 	ePlayer is the owner of pInventory, the one who needs to give more.
+ 	The callee is the one who needs to receive more.
+ 	bGenerous means that the callee is willing to accept an unfavorable trade.
+-	The comments in the function body are from K-Mod. */
+-void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInventory,
++	The comments in the function body are from K-Mod.
++	advc.036: Returning true means force-accept. */
++bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInventory,
+ 		PlayerTypes ePlayer, int& iGreaterVal, int& iSmallerVal,
+ 		CLinkList<TradeData>* pCounter, CLinkList<TradeData> const* pList,
+ 		double leniency, // advc.705
+ 		bool bGenerous,
+-		int happyLeft, int healthLeft) const { // advc.036
++		int happyLeft, int healthLeft, int iOtherListLength) const { // advc.036
+ 
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+ 	// First, try to make up the difference with gold.
+@@ -11570,8 +11610,11 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 		}
+ 	} // </advc.036>
+ 	std::pair<TradeData*, int> final_item(NULL, 0); // An item we may or may not use to finalise the deal. (See later)
+-	// advc.036:
+-	std::vector<std::pair<TradeData*, int> > nonsurplusItems;
++	// <advc.036>
++	bool bSingleResource = (iOtherListLength <= 1 && (isHuman() || kPlayer.isHuman()) &&
++			pList->getLength() == 1 && 
++			pList->head()->m_data.m_eItemType == TRADE_RESOURCES);
++	std::vector<std::pair<TradeData*, int> > nonsurplusItems; // </advc.036>
+ 	if(iGreaterVal > iSmallerVal) {
+ 		// We were unable to balance the trade with just gold. So lets look at all the other items.
+ 		// Exclude bonuses that we've already put on the table
+@@ -11625,7 +11668,7 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 						someone else. */
+ 					if(!isHuman() && !kPlayer.isHuman() &&
+ 							// Don't skip items that fill the gap very well
+-							iGreaterVal - iSmallerVal - iItemValue >= 10) {
++							iGreaterVal - iSmallerVal - iItemValue > 10) {
+ 						/*  I think randomness in this function could lead to
+ 							OOS problems */
+ 						std::vector<long> hashInputs;
+@@ -11647,13 +11690,26 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 							|| (!isHuman() && !kPlayer.isHuman()))
+ 						bNonsurplus = false;
+ 					CvBonusInfo& bi = GC.getBonusInfo(eBonus);
+-					/*  Would be better to decrement the -left counters only once
+-						eBonus is added to pCounter, but that's complicated to
+-						implement. The important thing is to enforce the limits. */
+-					if(!kPlayer.isHuman()) {
+-						/*  AI mustn't give too many non-surplus resources of a
+-							kind (happy, health) at once */
+-						if(kPlayer.getNumAvailableBonuses(eBonus) <= 1) {
++					/*  Don't worry about happyLeft and healthLeft when there's
++						just 1 item on the table */
++					if(iOtherListLength > 1 || pList->getLength() > 1) {
++						/*  Would be better to decrement the -left counters only
++							once eBonus is added to pCounter, but that's compli-
++							cated to implement. The important thing is to enforce
++							the limits. */
++						if(!kPlayer.isHuman()) {
++							/*  AI mustn't give too many non-surplus resources of
++								a kind (happy, health) at once */
++							if(kPlayer.getNumAvailableBonuses(eBonus) <= 1) {
++								if(bi.getHappiness() > 0 && happyLeft <= 0)
++									continue;
++								else happyLeft--;
++								if(bi.getHealth() > 0 && healthLeft <= 0)
++									continue;
++								else healthLeft--;
++							}
++						} else { /* AI mustn't accept too many resources of
++									a kind (happy, health) at once */
+ 							if(bi.getHappiness() > 0 && happyLeft <= 0)
+ 								continue;
+ 							else happyLeft--;
+@@ -11661,14 +11717,6 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 								continue;
+ 							else healthLeft--;
+ 						}
+-					} else { /* AI mustn't accept too many resources of a kind
+-								(happy, health) at once */
+-						if(bi.getHappiness() > 0 && happyLeft <= 0)
+-							continue;
+-						else happyLeft--;
+-						if(bi.getHealth() > 0 && healthLeft <= 0)
+-							continue;
+-						else healthLeft--;
+ 					} // </advc.036>
+ 				}
+ 				break;
+@@ -11690,8 +11738,11 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 				break;
+ 			}
+ 			if(iItemValue > 0 && (bGenerous ||
+-					iGreaterVal >= (iSmallerVal + iItemValue))) {
+-				// <advc.036>
++					iGreaterVal >= iSmallerVal + iItemValue
++					// <advc.036>
++					|| (iGreaterVal + singleBonusTradeTolerance >= iItemValue &&
++					pCounter->getLength() <= 0 && iOtherListLength <= 0 &&
++					bSingleResource && ti == TRADE_RESOURCES))) {
+ 				std::pair<TradeData*,int> itemValue = std::make_pair(
+ 						&pNode->m_data, iItemValue);
+ 				if(bNonsurplus)
+@@ -11743,7 +11794,13 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 					item_value_list.begin(); it != item_value_list.end() &&
+ 					iGreaterVal > iSmallerVal; it++) {
+ 				int iItemValue = it->second;
+-				if(iGreaterVal >= iSmallerVal + iItemValue) {
++				if(iGreaterVal >= iSmallerVal + iItemValue
++						// <advc.036>
++						|| (bSingleResource && iGreaterVal +
++						singleBonusTradeTolerance >= iSmallerVal &&
++						pCounter->getLength() <= 0 && iOtherListLength <= 0 &&
++						it->first->m_eItemType == TRADE_RESOURCES)) {
++						// </advc.036>
+ 					pCounter->insertAtEnd(*it->first);
+ 					iSmallerVal +=
+ 							::round(leniency * // advc.705
+@@ -11751,7 +11808,13 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 				}
+ 			}
+ 		}
+-	}
++	} // <advc.036> Special treatment for one-for-one resource trades
++	if(bSingleResource && iGreaterVal - iSmallerVal <= singleBonusTradeTolerance &&
++			((pCounter->getLength() <= 0 && iOtherListLength == 1 &&
++			pGoldPerTurnNode != NULL) ||
++			(pCounter->getLength() == 1 &&
++			pCounter->head()->m_data.m_eItemType == TRADE_RESOURCES)))
++		return true; // </advc.036>
+ 	// If their value is still higher, try one more time to make up the difference with gold.
+ 	// If we're counter-proposing an AI deal, just get as close to the right value as we can.
+ 	// But for humans, if they don't have enough gold then ask for one final item, to favour us.
+@@ -11860,6 +11923,7 @@ void CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 		iSmallerVal += final_item.second;
+ 		FAssert(iSmallerVal >= iGreaterVal);
+ 	}
++	return false; // advc.036
+ } // </advc.003>
+ 
+ // K-Mod. Minimum percentage of trade value that this player will accept.
+@@ -12083,8 +12147,139 @@ int CvPlayerAI::adjustTradeGoldToDiplo(int gold, PlayerTypes civId) const {
+ 		}
+ 	}
+ 	return ::round(gold * mult);
++}
++
++void CvPlayerAI::foldDeals() const {
++
++	/*  This is called on the barb turn, i.e. at the end of a round, and goes
++		through all gold-for-resource deals between AI civs. */
++	CvGame& g = GC.getGame(); int foo=-1;
++	// [i][j]: i pays gpt to j
++	std::queue<CvDeal*> dealsPerPair[MAX_CIV_PLAYERS][MAX_CIV_PLAYERS];
++	for(CvDeal* d = g.firstDeal(&foo); d != NULL; d = g.nextDeal(&foo)) {
++		if(!d->isCancelable())
++			continue;
++		int len1 = d->getLengthFirstTrades();
++		int len2 = d->getLengthSecondTrades();
++		if(len1 != 1 || len2 != 1) // Only consider gpt-for-single-resource deals
++			continue;
++		CvPlayer* civ[2] = { &GET_PLAYER(d->getFirstPlayer()),
++				&GET_PLAYER(d->getSecondPlayer()) };
++		if(civ[0]->isHuman() || civ[1]->isHuman())
++			continue;
++		if(d->getFirstTrades() == NULL || d->getSecondTrades() == NULL)
++			continue;
++		CLinkList<TradeData> const* tdList[2] = {
++				d->getFirstTrades(), d->getSecondTrades() };
++		int gptCount = 0;
++		int bonusCount = 0;
++		bool valid = true;
++		int gptIndex = -1;
++		for(int i = 0; i < 2; i++) {
++			CLLNode<TradeData>* tdn = tdList[i]->head();
++			if(tdn != NULL) {
++				TradeableItems tdata = tdn->m_data.m_eItemType;
++				if(tdata == TRADE_GOLD_PER_TURN) {
++					gptCount++;
++					gptIndex = i;
++				}
++				else if(tdata == TRADE_RESOURCES)
++					bonusCount++;
++				else valid = false;
++			}
++			if(!valid)
++				break;
++		}
++		if(valid && gptCount == bonusCount) {
++			FAssert(gptIndex >= 0);
++			dealsPerPair[civ[gptIndex]->getID()]
++					[civ[(gptIndex + 1) % 2]->getID()].push(d);
++		}
++	}
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayer& civ1 = GET_PLAYER((PlayerTypes)i);
++		if(!civ1.isAlive())
++			continue;
++		for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++			if(i >= j) // Process each pair of civs only once
++				continue;
++			CvPlayer& civ2 = GET_PLAYER((PlayerTypes)j);
++			if(!civ2.isAlive())
++				continue;
++			std::queue<CvDeal*> q1 = dealsPerPair[civ1.getID()][civ2.getID()];
++			std::queue<CvDeal*> q2 = dealsPerPair[civ2.getID()][civ1.getID()];
++			while(!q1.empty() && !q2.empty()) {
++				foldDeals(*q1.front(), *q2.front());
++				q1.pop(); q2.pop();
++			}
++		}
++	}
++}
++
++void CvPlayerAI::foldDeals(CvDeal& d1, CvDeal& d2) const {
++
++	CvPlayer& civ1 = GET_PLAYER(d1.getFirstPlayer());
++	CvPlayer& civ2 = GET_PLAYER(d1.getSecondPlayer());
++	int gpt1 = -1, gpt2 = -1;
++	BonusTypes bonus1 = NO_BONUS, bonus2 = NO_BONUS;
++	if(d1.headFirstTradesNode()->m_data.m_eItemType == TRADE_GOLD_PER_TURN) {
++		gpt1 = d1.headFirstTradesNode()->m_data.m_iData;
++		bonus2 = (BonusTypes)d1.headSecondTradesNode()->m_data.m_iData;
++	}
++	else {
++		gpt2 = d1.headSecondTradesNode()->m_data.m_iData;
++		bonus1 = (BonusTypes)d1.headFirstTradesNode()->m_data.m_iData;
++	}
++	if(d2.headFirstTradesNode()->m_data.m_eItemType == TRADE_GOLD_PER_TURN) {
++		if(d2.getFirstPlayer() == d1.getFirstPlayer()) {
++			gpt1 = d2.headFirstTradesNode()->m_data.m_iData;
++			bonus2 = (BonusTypes)d2.headSecondTradesNode()->m_data.m_iData;
++		}
++		else {
++			gpt2 = d2.headFirstTradesNode()->m_data.m_iData;
++			bonus1 = (BonusTypes)d2.headSecondTradesNode()->m_data.m_iData;
++		}
++	}
++	else {
++		if(d2.getFirstPlayer() == d1.getFirstPlayer()) {
++			gpt2 = d2.headSecondTradesNode()->m_data.m_iData;
++			bonus1 = (BonusTypes)d2.headFirstTradesNode()->m_data.m_iData;
++		}
++		else {
++			gpt1 = d2.headSecondTradesNode()->m_data.m_iData;
++			bonus2 = (BonusTypes)d2.headFirstTradesNode()->m_data.m_iData;
++		}
++	}
++	FAssert(gpt1 > 0 && gpt2 > 0 && bonus1 != NO_BONUS && bonus2 != NO_BONUS);
++	int delta = gpt1 - gpt2;
++	// Got enough info for the new deal
++	d1.killSilent(false, false);
++	d2.killSilent(false, false);
++	CLinkList<TradeData> give1;
++	CLinkList<TradeData> give2;
++	TradeData tmp;
++	setTradeItem(&tmp, TRADE_RESOURCES, bonus1);
++	give1.insertAtEnd(tmp);
++	setTradeItem(&tmp, TRADE_RESOURCES, bonus2);
++	give2.insertAtEnd(tmp);
++	if(delta > 0) {
++		setTradeItem(&tmp, TRADE_GOLD_PER_TURN, delta);
++		give1.insertAtEnd(tmp);
++	}
++	else if(delta < 0) {
++		setTradeItem(&tmp, TRADE_GOLD_PER_TURN, -delta);
++		give2.insertAtEnd(tmp);
++	}
++	CvGame& g = GC.getGame();
++	// Call counterPropose?
++	CvDeal* newDeal = g.implementDealBulk(civ1.getID(), civ2.getID(),
++			&give1, &give2, true);
++	// Allow new deal to be canceled right away?
++	/*newDeal->setInitialGameTurn(g.getGameTurn() -
++			GC.getDefineINT("PEACE_TREATY_LENGTH"));*/
+ } // </advc.036>
+ 
++
+ int CvPlayerAI::AI_maxGoldPerTurnTrade(PlayerTypes ePlayer) const {
+ 
+ 	FAssert(ePlayer != getID()); // advc.003: Some refactoring in this function
+@@ -12811,7 +13006,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer,
+ 	FAssert(knownCivs >= 2);
+ 	/*  Hard to say how much a third party needs eBonus, but it'd certainly
+ 		factor in its number of cities. */
+-	double marketVal = (4.0 * cityCount) / (3.0 * knownCivs) +
++	double marketVal = (5.0 * cityCount) / (3.0 * knownCivs) +
+ 			std::sqrt((double)otherTakers);
+ 	double const marketWeight = 2/3.0;
+ 	/*  Want luxuries and food resources to be cheap, but not necessarily
+@@ -18428,7 +18623,7 @@ void CvPlayerAI::AI_doCounter()
+ 				} /* Mean of capBonuses and a multiple of exportable, but
+ 					 no more than 1.5 times capBonuses. */
+ 				double weight1 = (capBonuses + std::min(capBonuses * 2,
+-						3.1 * std::max(bonusVal, exportable))) / 2;
++						2.3 * std::max(bonusVal, exportable))) / 2;
+ 				/*  Rather than changing attitudeDiv in XML for every leader,
+ 					do the fine-tuning here. */
+ 				double weight2 = 345.0 / attitudeDiv;
+@@ -18535,12 +18730,14 @@ double CvPlayerAI::bonusImportValue(PlayerTypes fromId) const {
+ 	double r = 0;
+ 	CvGame& g = GC.getGameINLINE(); int dummy=-1;
+ 	for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
++		if(d->isVassalTributeDeal())
++			continue;
+ 		CLinkList<TradeData> const* list = NULL;
+ 		if(d->getFirstPlayer() == getID() && d->getSecondPlayer() == fromId)
+ 			list = d->getSecondTrades();
+ 		else if(d->getSecondPlayer() == getID() && d->getFirstPlayer() == fromId)
+ 			list = d->getFirstTrades();
+-		if(list == NULL || CvDeal::isVassalTributeDeal(list))
++		if(list == NULL)
+ 			continue;
+ 		CLLNode<TradeData>* node=NULL;
+ 		for(node = list->head(); node != NULL; node = list->next(node)) {
+@@ -18551,7 +18748,7 @@ double CvPlayerAI::bonusImportValue(PlayerTypes fromId) const {
+ 		}
+ 	}
+ 	// The divisor should be the typical value of a somewhat useful bonus
+-	return r / 2.5;
++	return r / 5;
+ } // </advc.149>
+ 
+ void CvPlayerAI::AI_doMilitary()
+@@ -19352,7 +19549,8 @@ int CvPlayerAI::checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip) {
+ 		return -1;
+ 	// Cut and pasted from AI_doDiplo:
+ 	// K-Mod. getTradeDenial is not equipped to consider deal cancelation properly.
+-	if(!AI_considerOffer(otherId, trades2, trades1, -1)) // <advc.133>
++	if(!AI_considerOfferBulk(otherId, trades2, trades1, -1, // <advc.133>
++			d.getAge()))
+ 		return 0;
+ 	/*  @"not equipped"-comment above: Resource trades do need special treatment.
+ 		For duals (Open Borders, Def. Pact, Perm. Alliance), getTradeDenial
+@@ -19506,7 +19704,6 @@ void CvPlayerAI::AI_doDiplo()
+ 						else theirList.insertAtEnd(pNode->m_data);
+ 					}
+ 					pLoopDeal->kill(); // K-Mod. Kill the old deal first.
+-
+ 					pDiplo = new CvDiploParameters(getID());
+ 					FAssert(pDiplo != NULL);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index df05f91e5..d1f38d235 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -245,9 +245,13 @@ public:
+ 		Note that this function, despite lacking the DLLEport macro, gets called
+ 		directly from Civ4BeyondSword.exe.
+ 		Changing const-ness of such functions can cause problems, but fortunately
+-		doesn't appear to in this case. (Well, could always cast it away in
+-		the body.) */
++		doesn't appear to in this case. */
+ 	bool AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, int iChange = 1);
++	// <advc.133> Adding a param does cause problems, so ...
++	bool AI_considerOfferBulk(PlayerTypes ePlayer,
++			CLinkList<TradeData> const* pTheirList,
++			CLinkList<TradeData> const* pOurList,
++			int iChange = 1, int dealAge = 0); // </advc.133>
+ 	double prDenyHelp() const; // advc.144
+ 	bool AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirInventory, CLinkList<TradeData>* pOurInventory, CLinkList<TradeData>* pTheirCounter, CLinkList<TradeData>* pOurCounter) const;
+ 	int AI_tradeAcceptabilityThreshold(PlayerTypes eTrader) const; // K-Mod
+@@ -597,14 +601,19 @@ protected:
+ 			CLinkList<TradeData>* pTheirCounter, CLinkList<TradeData>* pOurCounter,
+ 			double leniency) const; // </advc.705>
+ 	// <advc.003>
+-	void balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInventory,
++	bool balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInventory,
+ 			PlayerTypes ePlayer, int& iGreaterVal, int& iSmallerVal,
+ 			CLinkList<TradeData>* pCounter,
+-			CLinkList<TradeData> const* pList, double leniency,
+-			bool bGenerous, int happyLeft, int healthLeft) const;
++			CLinkList<TradeData> const* pList,
++			double leniency, // advc.705
++			bool bGenerous,
++			// advc.036:
++			int happyLeft, int healthLeft, int iOtherListLength) const;
+ 	int checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip);
+-	// </advc.003>
+-	int adjustTradeGoldToDiplo(int gold, PlayerTypes civId) const; // advc.036
++	// </advc.003> <advc.036>
++	int adjustTradeGoldToDiplo(int gold, PlayerTypes civId) const;
++	void foldDeals() const;
++	void foldDeals(CvDeal& d1, CvDeal& d2) const; // </advc.036>
+ 	int anarchyTradeVal(CivicTypes eCivic = NO_CIVIC) const; // advc.132
+ 	double bonusImportValue(PlayerTypes fromId) const; // advc.149
+ 
+@@ -669,7 +678,7 @@ protected:
+ 	int* m_aiUnitClassWeights;
+ 	int* m_aiUnitCombatWeights;
+ 	std::map<UnitClassTypes, int> m_GreatPersonWeights; // K-Mod
+-
++	static int const singleBonusTradeTolerance = 20; // advc.036
+ 	//mutable int* m_aiCloseBordersAttitudeCache;
+ 	std::vector<int> m_aiCloseBordersAttitudeCache; // K-Mod. (the original system was prone to mistakes.)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 96860b268..ea47a32f8 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5161,8 +5161,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_REVOLTS_JOINS", pOldCity->getNameKey(), GET_PLAYER(eNewValue).getCivilizationDescriptionKey()
+ 			, oldOwnerDescr // advc.101
+ 			);
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getOwnerINLINE(), szBuffer, getX_INLINE(), getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
+-
++		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getOwnerINLINE(),
++				szBuffer, getX_INLINE(), getY_INLINE()
++				// advc.106: Use ALT_HIGHLIGHT for research-related stuff now
++				//, (ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT")
++				);
+ 		FAssertMsg(pOldCity->getOwnerINLINE() != eNewValue, "pOldCity->getOwnerINLINE() is not expected to be equal with eNewValue");
+ 		GET_PLAYER(eNewValue).acquireCity(pOldCity, false, false, bUpdatePlotGroup); // will delete the pointer
+ 		pOldCity = NULL;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 08821087f..43b72036c 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6140,10 +6140,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 
+ 			bReligionFounded = false;
+ 			bFirstBonus = false;
+-
++			// advc.106:
++			bool firstToDiscover = (GC.getGameINLINE().countKnownTechNumTeams(eIndex) == 1);
+ 			if (bFirst)
+ 			{
+-				if (GC.getGameINLINE().countKnownTechNumTeams(eIndex) == 1)
++				if (firstToDiscover)
+ 				{
+ 					CyArgsList argsList;
+ 					argsList.add(getID());
+@@ -6288,7 +6289,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 			if (bFirst)
+ 			{
+ 				bool bAnnounce = false; // advc.004
+-				if (GC.getGameINLINE().countKnownTechNumTeams(eIndex) == 1)
++				if (firstToDiscover)
+ 				{
+ 					eFreeUnit = GET_PLAYER(ePlayer).getTechFreeUnit(eIndex);
+ 					if (eFreeUnit != NO_UNIT)
+@@ -6320,9 +6321,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 							GET_PLAYER(ePlayer).chooseTech(GC.getTechInfo(eIndex).getFirstFreeTechs(), szBuffer.GetCString());
+ 						}
+ 						// advc.004: Announcement code moved into next block
+-
+-						szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH", GET_PLAYER(ePlayer).getReplayName(), GC.getTechInfo(eIndex).getTextKeyWide());
+-						GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++						// advc.106: Do it at the end instead
++						if(GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") <= 0) {
++							szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH", GET_PLAYER(ePlayer).getReplayName(), GC.getTechInfo(eIndex).getTextKeyWide());
++							GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++						} // advc.106
+ 					} // <advc.004>
+ 					if(bAnnounce) { // Cut, pasted, refactored from above
+ 						// Free GP only minor event
+@@ -6486,6 +6489,17 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 					}
+ 				}
+ 			}
++			// <advc.106>
++			if(bFirst && firstToDiscover &&
++					GC.getGameINLINE().getElapsedGameTurns() > 0 &&
++					GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0) {
++				szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
++						GET_PLAYER(ePlayer).getReplayName(),
++						GC.getTechInfo(eIndex).getTextKeyWide());
++				GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
++						ePlayer, szBuffer, -1, -1, (ColorTypes)
++						GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
++			} // </advc.106>
+ 		}
+ 
+ 		if (bNewValue)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9c72ab672..f9a4f7dac 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12039,6 +12039,15 @@ const CvWString CvUnit::getName(uint uiForm) const
+ 	return szBuffer;
+ }
+ 
++// <advc.106>
++CvWString const CvUnit::getReplayName() const {
++
++	if(m_szName.empty())
++		return m_pUnitInfo->getDescription();
++	return gDLL->getText("TXT_KEY_MISC_GP_NAME_REPLAY",
++			m_pUnitInfo->getDescription(), m_szName.GetCString());
++} // </advc.106>
++
+ 
+ const wchar* CvUnit::getNameKey() const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index f058f8449..518f566b1 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -697,6 +697,7 @@ public:
+ 	void changeExtraDomainModifier(DomainTypes eIndex, int iChange);
+ 
+ 	DllExport const CvWString getName(uint uiForm = 0) const;																// Exposed to Python
++	CvWString const getReplayName() const; // advc.106
+ 	DllExport const wchar* getNameKey() const;																							// Exposed to Python
+ 	const CvWString& getNameNoDesc() const;																				// Exposed to Python
+ 	void setName(const CvWString szNewValue);																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CyArea.cpp b/CvGameCoreDLL/CyArea.cpp
+index 9a2720ad2..4b733c429 100644
+--- a/CvGameCoreDLL/CyArea.cpp
++++ b/CvGameCoreDLL/CyArea.cpp
+@@ -204,3 +204,12 @@ int CyArea::getNumImprovements(int /*ImprovementTypes*/ eImprovement)
+ {
+ 	return m_pArea ? m_pArea->getNumImprovements( (ImprovementTypes)eImprovement) : -1;
+ }
++
++// <advc.021b>
++int CyArea::getNumHabitableTiles() {
++
++	if(m_pArea == NULL)
++		return -1;
++	std::pair<int,int> r = m_pArea->countOwnedUnownedHabitableTiles();
++	return r.first + r.second;
++} // </advc.021b>
+
+diff --git a/CvGameCoreDLL/CyArea.h b/CvGameCoreDLL/CyArea.h
+index c25add599..1bc5f2ccc 100644
+--- a/CvGameCoreDLL/CyArea.h
++++ b/CvGameCoreDLL/CyArea.h
+@@ -61,6 +61,7 @@ public:
+ 	int getNumBonuses(int /*BonusTypes*/ eBonus);
+ 	int getNumTotalBonuses();
+ 	int getNumImprovements(int /*ImprovementTypes*/ eImprovement);
++	int getNumHabitableTiles(); // advc.021b
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CyAreaInterface.cpp b/CvGameCoreDLL/CyAreaInterface.cpp
+index 8ce4075c1..4535eac19 100644
+--- a/CvGameCoreDLL/CyAreaInterface.cpp
++++ b/CvGameCoreDLL/CyAreaInterface.cpp
+@@ -55,5 +55,7 @@ void CyAreaPythonInterface()
+ 		.def("getNumBonuses", &CyArea::getNumBonuses, "int(BonusID) - total # of BonusID")
+ 		.def("getNumTotalBonuses", &CyArea::getNumTotalBonuses, "int () - total number of bonuses, of all types")
+ 		.def("getNumImprovements", &CyArea::getNumImprovements, "int(ImprovementID) - total # of ImprovementID")
++		// advc.021b:
++		.def("getNumHabitableTiles", &CyArea::getNumHabitableTiles, "int ()")
+ 	;
+ }
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 21ef0b61d..65850544d 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -805,7 +805,17 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 			logisticsPortionTarget = (military[LOGISTICS]->power() -
+ 					defender.lostPower[LOGISTICS]) * confDef / targetFleetPow;
+ 		// +30% for attacker b/c only a clear victory can prevent a naval landing
+-		bool attWin = (fleetPow > 1 && 1.3 * fleetPow > targetFleetPow);
++		double fleetPowMult = 1.3;
++		if(clashOnly) {
++			fleetPowMult = 1;
++			/*  In a clash, let every civ overestimate its own chances; this
++				should make it harder to deter the AI through naval build-up. */
++			if(id == weId)
++				fleetPowMult *= 1.25;
++			else if(defender.id == weId)
++				fleetPowMult /= 1.25;
++		}
++		bool attWin = (fleetPow > 1 && fleetPowMult * fleetPow > targetFleetPow);
+ 		std::pair<double,double> lwl = clashLossesWinnerLoser(fleetPow,
+ 				targetFleetPow, false, true);
+ 		double lossesAtt, lossesDef;
+@@ -880,8 +890,9 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		battleArea = cvCity->area();
+ 	else if(!isNaval) {
+ 		battleArea = clashArea(defender.id);
+-		if(battleArea == NULL)
+-			FAssertMsg(battleArea != NULL, "No shared area should imply isNaval");
++		/*  This can happen when a civ has just lost its foothold in an area
++			and reachability hasn't been updated yet. */
++		//FAssertMsg(battleArea != NULL, "No shared area should imply isNaval");
+ 	} // (Else only naval battle; assume that fleets are fully deployed.)
+ 	int const remainingCitiesAtt = attCities - losses.size();
+ 	int const remainingCitiesDef = defCities - defender.losses.size();
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 7ac4c286e..7f4e1ba27 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -1029,7 +1029,8 @@ void WarAndPeaceCache::reportWarEnding(TeamTypes enemyId) {
+ 
+ void WarAndPeaceCache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId) {
+ 
+-	if(!TEAMREF(ownerId).AI_deduceCitySite(c))
++	if(!TEAMREF(ownerId).AI_deduceCitySite(c) || c->getOwnerINLINE() ==
++			BARBARIAN_PLAYER)
+ 		return;
+ 	/*  I didn't think I'd need to update the city cache during turns, so this
+ 		is awkward to write ... */
+@@ -1051,8 +1052,11 @@ void WarAndPeaceCache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId)
+ 		}
+ 	}
+ 	City* toCache = new City(ownerId, c);
+-	if(vIndex < 0 || vIndex >= v.size())
++	if(vIndex < 0 || vIndex >= v.size()) {
+ 		v.push_back(toCache);
++		// (c could also have become revealed through map trade)
++		//FAssertMsg(oldOwnerId == BARBARIAN_PLAYER);
++	}
+ 	else v[vIndex] = toCache;
+ 	cityMap.insert(std::make_pair<int,City*>(toCache->id(), toCache));
+ 	if(toCache->canReach())
+
+diff --git a/PublicMaps/Fractal.py b/PrivateMaps/Fractal.py
+similarity index 100%
+rename from PublicMaps/Fractal.py
+rename to PrivateMaps/Fractal.py
+
+diff --git a/PublicMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+similarity index 94%
+rename from PublicMaps/PerfectMongoose.py
+rename to PrivateMaps/PerfectMongoose.py
+index 21355b0ee..81f0c2c2b 100644
+--- a/PublicMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -23,7 +23,7 @@
+ ##
+ 
+ 
+-# advc.021b: Made some changes myself and ported some from the Totestra version included in Civ 4 Reimagined. The changes just remove/ bypass code and set parameters; the mathy parts are unchanged.
++# advc.021b: Made some changes myself and ported some from the Totestra version included in Civ 4 Reimagined. The changes mostly remove/ bypass code and set parameters.
+ 
+ 
+ 
+@@ -260,22 +260,23 @@ class MapConstants:
+ 		# Factor to modify mc.landPercent by if a Low or High Sea Level is chosen
+ 		#self.SeaLevelFactor = 1.5
+ 		# advc.021b: Moving this setting up and replacing it with a separate one for low and high sea level. Not getting the land ratios I want with just one.
+-		self.LoSeaLevelFactor = 1.26
+-		self.HiSeaLevelFactor = 0.69
++		# Aiming at around 18% land at high sea level, 25% at medium sea level and 32% at low sea level. This is higher than Fractal, which has about 15/20/29, but the land shapes produced by PM look too delicate with the Fractal ratios. I think PM also produces more marginal or unusable land than Fractal. Ultimately, the goal is to support exactly the same number of players as Fractal for all combinations of map settings.
++		self.LoSeaLevelFactor = 1.25
++		self.HiSeaLevelFactor = 0.72
+ 
+ 		#Percent of land vs. water
+ 		#LM - Exact Real Earth Value. Actual generated results are in the 24-31% range
+ 		#depending on map size, meteors, and which landmass generator was selected.
+ 		#self.landPercent   = 0.2889
+-		# advc.021b: As is hinted at by the comments above, this isn't the final land ratio; no need to cling to the real-Earth ratio. Gets further modified in initInGameOptions.
+-		self.landPercent = 0.295
++		# advc.021b: See comments about sea level above. Gets further modified in initInGameOptions.
++		self.landPercent = 0.253
+ 
+ 		#Percentage of land squares high enough to be Hills or Peaks.
+-		self.HillPercent   = 0.29 # advc.021b: was 42
++		self.HillPercent   = 0.30 # advc.021b: was 42
+ 
+ 		#Percentage of land squares high enough to be Peaks.
+ 		# advc.021b: was 0.12
+-		self.PeakPercent   = 0.035
++		self.PeakPercent   = 0.045
+ 
+ 		#Percentage of land squares cold enough to be Snow.
+ 		self.SnowPercent   = 0.08 # advc.021b: was 0.15
+@@ -287,8 +288,8 @@ class MapConstants:
+ 		#Of the squares too warm to be Snow or Tundra, percentage dry enough to be Desert.
+ 		#(Use the first number to set the percent of TOTAL land area. I'm using 18%, while the
+ 		#Google Consensus for a Real Earth Desert Value seems to be 20%.)
+-		# advc.021b: I'm using 15%
+-		self.DesertPercent = 0.15 / (1.0 - self.TundraPercent)
++		# advc.021b: I'm using 16%
++		self.DesertPercent = 0.16 / (1.0 - self.TundraPercent)
+ 
+ 		#Of the squares too warm to be Snow or Tundra, percentage dry enough to be Desert or Plains.
+ 		#The remainder will be Grassland. (This code auto-sets Plains and Grassland to be equal.)
+@@ -388,10 +389,10 @@ class MapConstants:
+ 
+ 		#The following values are used for assigning starting locations. For now,
+ 		#they have the same ratio that is found in CvPlot::getFoundValue
+-		# <advc.021b> Was 20/40/10, which sounds crazy. Using the values from Civ 4 Reimagined instead.
++		# <advc.021b> Was 20/40/10. Using the values from Civ 4 Reimagined instead, except for food, now valued at 23 (40 in Civ 4 Reimagined). Don't want to rule out steppe starts when there isn't enough room elsewhere. Let the normalization code worry about lack of food.
+ 		self.CommerceValue   = 15
+ 		self.ProductionValue = 30
+-		self.FoodValue       = 40
++		self.FoodValue       = 23
+ 		# </advc.021b>
+ 
+ 		#Coastal cities are important, how important is determined by this
+@@ -722,7 +723,7 @@ class MapConstants:
+ 			self.hmWidth += 1
+ 		# New World Rules
+ 		if mmap.getCustomMapOption(1) == 1:
+-			# advc.021b: Was "= not self.AllowNewWorld", which I found confusing.
++			# advc: Was "= not self.AllowNewWorld", which I found confusing.
+ 			self.AllowNewWorld = True
+ 		self.optionsString = "Map Options:\n"
+ 		#if self.LandmassGenerator == 0:
+@@ -756,9 +757,9 @@ class MapConstants:
+ 			string = "False"
+ 		self.optionsString += "Allow New World = " + string + "\n"
+ 
++		self.northAttenuationRange  = 0.1
+ 		# Avoid elongated Antarctica; likelier to occur when land ratio is high
+ 		seaChg = gc.getSeaLevelInfo(mmap.getSeaLevel()).getSeaLevelChange()
+-		self.northAttenuationRange  = 0.1
+ 		if seaChg < 0:
+ 			self.northAttenuationFactor = 0.2
+ 		else:
+@@ -767,23 +768,21 @@ class MapConstants:
+ 		self.southAttenuationFactor = self.northAttenuationFactor
+ 		# Between 0 (Duel) and 5 (Huge)
+ 		worldSz = mmap.getWorldSize()
+-		# The actual land ratios seem to increase with world size, but I want them to depend only on the sea level setting.
+-		# Values set through trial and error, aiming at around 18% land at high sea level, 24% at medium sea level and 30% at low sea level. This is higher than Fractal, which has about 15/20/29, but the land shapes produced by PM look too delicate with the Fractal ratios. I think PM also produces more marginal or unusable land than Fractal. Ultimately, the goal is to support exactly the same number of players as Fractal for all combinations of map settings.
++		# I'm somehow getting a bit more land than configured on Duel and Tiny, and resources are also denser on these maps, leading to more cities per player than I'd like.
+ 		delta = 0.0
+ 		if worldSz == 0:
+-			delta = 0.45
++			delta = -0.02
+ 		elif worldSz == 1:
+-			delta = 0.03
+-		elif worldSz == 2:
+-			delta = 0.044
+-		elif worldSz >= 4:
+-			delta = -0.017
++			delta = -0.01
+ 		self.landPercent += delta
+ 		if mc.AllowNewWorld:
+-			# advc.021b: Now only best-effort. Ideally, if it fails, nearly as much land should be removed as would've been in the New World, so that the player count is still balanced.
+-			self.maximumMeteorCount = 3 * (worldSz + 2)
++			# Far fewer than the 15 in PerfectMongoose. Now only a best effort.
++			self.maximumMeteorCount = 2 * (worldSz - 1)
++			if seaChg < 0:
++				self.maximumMeteorCount = self.maximumMeteorCount + 1
++			self.maximumMeteorCount = max(1, self.maximumMeteorCount)
+ 		else:
+-			maximumMeteorCount = 0
++			self.maximumMeteorCount = 0
+ 		# </advc.021b>
+ 
+ mc = MapConstants()
+@@ -3197,7 +3196,7 @@ class TerrainMap:
+ 			diffMap.append(0.0)
+ 		#I tried using a deviation from surrounding average altitude
+ 		#to determine hills and peaks but I didn't like the
+-		#results. Therefore I an using lowest neighbor
++		#results. Therefore I am using lowest neighbor
+ 		for y in range(mc.height):
+ 			for x in range(mc.width):
+ 				i = em.GetIndex(x, y)
+@@ -3343,11 +3342,17 @@ class PangaeaBreaker:
+ 		meteorCount = 0
+ 		while not mc.AllowPangeas and self.isPangea() and meteorCount < mc.maximumMeteorCount:
+ 			pangeaDetected = True
+-			x, y = self.getMeteorStrike()
+-			print "A meteor has struck the Earth at %(x)d, %(y)d!!" % {"x":x,"y":y}
+-			self.castMeteorUponTheEarth(x, y)
+-			meteorThrown = True
++			# <advc.021b> Moved up
+ 			meteorCount += 1
++			if True: # </advc.021b>
++				x, y = self.getMeteorStrike()
++				print "A meteor has struck the Earth at %(x)d, %(y)d!!" % {"x":x,"y":y}
++				self.castMeteorUponTheEarth(x, y)
++				meteorThrown = True
++			# <advc.021b> I've tried raising the seas here. Didn't work well at all.
++			else:
++				em.seaLevelThreshold *= 1.03
++			# </advc.021b>
+ 			self.createDistanceMap()
+ 			self.areaMap.defineAreas(isHmWaterMatch)
+ 		if meteorThrown:
+@@ -3373,7 +3378,8 @@ class PangaeaBreaker:
+ 		continentList.sort(lambda x, y:cmp(x.size, y.size))
+ 		continentList.reverse()
+ 		biggestSize = continentList[0].size
+-		if 0.70 < float(biggestSize) / float(totalLand):
++		# advc.021b: was 0.7<...
++		if 0.73 < float(biggestSize) / float(totalLand):
+ 			return True
+ 		return False
+ 
+@@ -3484,7 +3490,7 @@ class PangaeaBreaker:
+ 			em = e2
+ 		else:
+ 			em = e3
+-		radius = PRand.randint(mc.minimumMeteorSize, max(mc.minimumMeteorSize + 1, em.width / 16))
++		radius = PRand.randint(mc.minimumMeteorSize, max(mc.minimumMeteorSize + 1, 2 * mc.minimumMeteorSize)) #,em.width / 16)) # advc.021b
+ 		circlePointList = self.getCirclePoints(x, y, radius)
+ 		circlePointList.sort(lambda n, m:cmp(n.y, m.y))
+ 		for n in range(0, len(circlePointList), 2):
+@@ -3495,10 +3501,11 @@ class PangaeaBreaker:
+ 			else:
+ 				x2 = circlePointList[n].x
+ 				x1 = circlePointList[n + 1].x
+-			self.drawCraterLine(x1, x2, cy)
++			# <advc.021b> params centerX, centerY added
++			self.drawCraterLine(x1, x2, cy, x, y)
+ 
+ 
+-	def drawCraterLine(self, x1, x2, y):
++	def drawCraterLine(self, x1, x2, y, centerX, centerY): # </advc.021b>
+ 		if mc.LandmassGenerator == 2:
+ 			em = e2
+ 		else:
+@@ -3507,7 +3514,8 @@ class PangaeaBreaker:
+ 			return
+ 		for x in range(x1, x2 + 1):
+ 			i = GetHmIndex(x, y)
+-			em.data[i] = 0.0
++			# advc.021b: was em.data[i]=0.0, which seems to lead to coastal Peaks
++			em.data[i] *= min(0.88,0.37+math.sqrt((x-centerX)*(x-centerX)+(y-centerY)*(y-centerY))/7.0)
+ 
+ 
+ 	def getCirclePoints(self, xCenter, yCenter, radius):
+@@ -3594,7 +3602,7 @@ class PangaeaBreaker:
+ 					indexMap.append(-1)
+ 		n = 0
+ 		for s in C:
+-			#Check 4 nieghbors
++			#Check 4 neighbors
+ 			xx = s.x - gap
+ 			if xx < 0:
+ 				xx = em.width / (gap * gap)
+@@ -3752,9 +3760,15 @@ class ContinentMap:
+ 		continentList.sort(lambda x, y:cmp(x.ID, y.ID))
+ 		continentList.reverse()
+ 		for n in range(len(continentList)):
++			# <advc.021b> Small land masses are no use for the Old World b/c civs can't start there
++			if continentList[0].size < 50:
++				continentList.append(continentList[0])
++				del continentList[0]
++				continue # </advc.021b>
+ 			oldWorldSize += continentList[0].size
+ 			del continentList[0]
+-			if float(oldWorldSize) / float(totalLand) > 0.6:
++			# Was > 0.6. A larger Old World plays better, while the true ratio (Africa+Eurasia)/(Africa+EurasiaAmerica+Oceania) is indeed just 62.5%. Use randomness to make a realistic size possible but rather unlikely.
++			if float(oldWorldSize) / float(totalLand) > (60 + PRand.randint(0, 9)) / 100.0:
+ 				break
+ 		#add back the biggestNewWorld continent
+ 		continentList.append(biggestNewWorld)
+@@ -4506,8 +4520,18 @@ class StartingPlotFinder:
+ 					del player_list[iChoosePlayer]
+ 			self.startingAreaList = list()
+ 			for i in range(len(areas)):
+-				# advc.021b: Second clause was >5; now as in Civ 4 Reimagined.
+-				if areaOldWorld[i] and areas[i].getNumTiles() > 45:
++				# <advc.021b>
++				tileThresh = 40
++				gc = CyGlobalContext()
++				sea = gc.getSeaLevelInfo(gc.getMap().getSeaLevel()).getSeaLevelChange()
++				if sea < 0:
++					tileThresh *= mc.LoSeaLevelFactor
++				elif sea > 0:
++					tileThresh *= mc.HiSeaLevelFactor
++					if gc.getMap().getWorldSize() <= 0:
++						tileThresh *= 0.7
++				# Second clause was getNumTiles()>5 (>45 in Civ 4 Reimagined)
++				if areaOldWorld[i] and areas[i].getNumHabitableTiles() > tileThresh: # </advc.021b>
+ 					startArea = StartingArea(areas[i].getID())
+ 					self.startingAreaList.append(startArea)
+ 			#Get the value of the whole old world
+@@ -4759,7 +4783,7 @@ class StartingPlotFinder:
+ 		if not coastalCity and plot.isWater():
+ 			# advc.021b: Was =0; now as in Civ 4 Reimagined. Totestra also sets food=0; not sure if I should adopt that too.
+ 			value -= 300
+-		#Food surplus makes the square much more valueable than if there is no food here.
++		#Food surplus makes the square much more valuable than if there is no food here.
+ 		if food >= gc.getFOOD_CONSUMPTION_PER_POPULATION():
+ 			value *= 4
+ 		elif food == gc.getFOOD_CONSUMPTION_PER_POPULATION() - 1:
+@@ -5059,11 +5083,27 @@ class StartingArea:
+ 		#Sort plots by local value
+ 		self.plotList.sort(lambda x, y: cmp(x.localValue, y.localValue))
+ 		#To save time and space let's get rid of some of the lesser plots
+-		cull = (len(self.plotList) * 2) / 3
++		#cull = (len(self.plotList) * 2) / 3
++		# <advc.021b> Cull fewer tiles b/c start plots are getting placed too close to each other. If too few are culled, however, civs start in the middle of a continent too rarely.
++		newWorldSubtr = 0
++		# The more crowded the map, the fewer the tiles we can afford to rule out.
++		if mc.AllowNewWorld:
++			newWorldSubtr = 1
++		civs = max(1, gc.getGame().countCivPlayersEverAlive())
++		seaLevelAdj = 0.0
++		seaChg = gc.getSeaLevelInfo(gameMap.getSeaLevel()).getSeaLevelChange()
++		if seaChg < 0:
++			seaLevelAdj = 0.5
++		elif seaChg > 0:
++			seaLevelAdj = -0.5
++		cull = max(0, int(round(len(self.plotList) * (0.25  + (gameMap.getWorldSize() - newWorldSubtr + seaLevelAdj) / (2.0 * civs)))))
++		# </advc.021b>
+ 		for i in range(cull):
+ 			del self.plotList[0]
+ 		#You now should be able to eliminate more plots by sorting high to low and
+ 		#having the best plot eat plots within 3 squares, then same for next, etc.
++		# advc.021b: A variable for these 3 squares; and make it 5, not 3.
++		elimDist = 5
+ 		self.plotList.reverse()
+ 		numPlots = len(self.plotList)
+ 		for n in range(numPlots):
+@@ -5073,8 +5113,8 @@ class StartingArea:
+ 				break
+ 			y = self.plotList[n].y
+ 			x = self.plotList[n].x
+-			for yy in range(y - 3, y + 4):
+-				for xx in range(x - 3, x + 4):
++			for yy in range(y - elimDist, y + elimDist + 1):
++				for xx in range(x - elimDist, x + elimDist + 1):
+ 					if yy < 0 or yy >= mc.height:
+ 						continue
+ 					xx = xx % mc.width #wrap xx
+@@ -5413,9 +5453,10 @@ def getBottomLatitude():
+ 
+ 
+ def getGridSize(argsList):
+-	# <advc.021b> Could use the defaults (10x6,13x8,16x10,21x13,26x16,32x20) by uncommenting the two lines below.
+-	#CyPythonMgr().allowDefaultImpl()
+-	#return
++	# <advc.021b> Use the defaults (10x6,13x8,16x10,21x13,26x16,32x20), which are smaller, combined with a higher land ratio.
++	CyPythonMgr().allowDefaultImpl()
++	return
++	# At first, I had tried these sizes in between the default and PerfectMongoose:
+ 	grid_sizes = {
+ 		# was 12x8
+ 		WorldSizeTypes.WORLDSIZE_DUEL:					(13,  8),
+@@ -5443,7 +5484,8 @@ def generatePlotTypes():
+ 	mc.height = map.getGridHeight()
+ 	PRand.seed()
+ 	if mc.LandmassGenerator == 2:
+-		mc.minimumMeteorSize = (1 + int(round(float(mc.hmWidth) / float(mc.width)))) * 2 # advc.021b: Final multiplier was 3
++		# advc.021b, advc.001: Was hmWidth/width, but hmWidth is a constant (144), and meteor size should grow with the map size. E.g. Standard map size means width=84.
++		mc.minimumMeteorSize = 1 + int(round((2.0 * mc.width) / float(mc.hmWidth))) # advc.021b: Coefficient moved into numerator; was 3.
+ 		em = e2
+ 		em.initialize(mc.hmWidth, mc.hmHeight, mc.WrapX, mc.WrapY)
+ 		em.PerformTectonics()
+@@ -5457,18 +5499,20 @@ def generatePlotTypes():
+ 		if mc.ClimateSystem == 0:
+ 			em.initialize(mc.width,   mc.height,   mc.WrapX, mc.WrapY)
+ 		else: 
+-			mc.minimumMeteorSize = (1 + int(round(float(mc.hmWidth) / float(mc.width)))) * 3
++			# advc.021b: See above
++			mc.minimumMeteorSize = 1 + int(round((2.0 * mc.width) / float(mc.hmWidth))) # advc.021b
+ 			em.initialize(mc.hmWidth, mc.hmHeight, mc.WrapX, mc.WrapY)
+ 		em.GenerateElevationMap()
+ 		em.FillInLakes()
+-	pb.breakPangaeas()
++	if mc.maximumMeteorCount > 0: # advc.021b
++		pb.breakPangaeas()
+ 	if mc.ClimateSystem == 0:
+ 		c3.GenerateTemperatureMap()
+ 		c3.GenerateRainfallMap()
+ 	else:
+ 		c2.CreateClimateMaps()
+-	if mc.LandmassGenerator == 2 or mc.ClimateSystem == 1:
+-		ShrinkMaps()
++	#if mc.LandmassGenerator == 2 or mc.ClimateSystem == 1:
++		#ShrinkMaps()
+ 	tm.initialize()
+ 	tm.GeneratePlotMap()
+ 	tm.GenerateTerrainMap()
+@@ -6020,12 +6064,7 @@ def addBonuses():
+ 
+ 
+ def assignStartingPlots():
+-	# <advc.021b> Use StartingPlotFinder only if the New World needs to be exempted
+-	if mc.AllowNewWorld:
+-		sf.SetStartingPlots()
+-	else:
+-		CyPythonMgr().allowDefaultImpl()
+-	# </advc.021b>
++	sf.SetStartingPlots()
+ 
+ 
+ def beforeInit():
+
+diff --git a/PublicMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+similarity index 100%
+rename from PublicMaps/Tectonics.py
+rename to PrivateMaps/Tectonics.py
+
+diff --git a/PublicMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+similarity index 100%
+rename from PublicMaps/not_too_Big_or_Small.py
+rename to PrivateMaps/not_too_Big_or_Small.py
+
+[PATCH OMITTED] file=a/manual_v0.91b.odt b/manual_v0.91b.odt reason=binary/generated-file changedLines=0 bytes=148
+
+[PATCH COVERAGE]
+patchFiles=38 embeddedFiles=37 omittedFiles=1 embeddedPatchBytes=84801

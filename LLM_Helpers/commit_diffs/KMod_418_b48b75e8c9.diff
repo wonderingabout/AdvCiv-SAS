@@ -1,0 +1,138 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 418
+# Commit: b48b75e8c9740217fb33365d7cfefd1463943269
+# History segment: K-Mod history
+# Parent used for diff: e346a4ccc6aef953cea78b166c3d527b32e05ea8
+# Title: Corrected a problem with the new code for ungrouping AI units when they are upgraded. (The previous attempt would ungroup units whenever the AI /wanted/ to u...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	9	CvGameCoreDLL/CvPlayerAI.cpp
+6	11	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+18	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 59b699756..c7d08b368 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -702,15 +702,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 				}
+ 				if (!bKilled)
+ 				{
+-					// K-Mod. Ungroup the unit, so that we don't cause the whole group to miss their turn.
+-					CvSelectionGroup* pGroup = pLoopUnit->getGroup();
+-					if (pGroup->getHeadUnit() != pLoopUnit)
+-					{
+-						pLoopUnit->joinGroup(NULL);
+-						// indicate that the unit intends to rejoin (although it might not actually do so...)
+-						pLoopUnit->getGroup()->AI_setMissionAI(MISSIONAI_GROUP, 0, pGroup->getHeadUnit());
+-					}
+-					// K-Mod end
+ 					pLoopUnit->AI_upgrade(); // CAN DELETE UNIT!!!
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index f4a1b5d90..5d08a0b1a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7539,13 +7539,13 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 	return pBestCity;
+ }
+ 
+-void CvUnit::upgrade(UnitTypes eUnit)
++CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit.
+ {
+ 	CvUnit* pUpgradeUnit;
+ 
+ 	if (!canUpgrade(eUnit))
+ 	{
+-		return;
++		return this;
+ 	}
+ 
+ 	GET_PLAYER(getOwnerINLINE()).changeGold(-(upgradePrice(eUnit)));
+@@ -7567,20 +7567,15 @@ void CvUnit::upgrade(UnitTypes eUnit)
+ 			pUpgradeUnit->setExperience(GC.getDefineINT("MAX_EXPERIENCE_AFTER_UPGRADE"));
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
+-/*                                                                                              */
+-/* AI Logging                                                                                   */
+-/************************************************************************************************/
+-	if( gUnitLogLevel > 2 )
++
++	if (gUnitLogLevel > 2)
+ 	{
+ 		CvWString szString;
+ 		getUnitAIString(szString, AI_getUnitAIType());
+ 		logBBAI("    %S spends %d to upgrade %S to %S, unit AI %S", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString(), szString.GetCString());
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++
++	return pUpgradeUnit; // K-Mod
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 42e348c80..6de571976 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -266,7 +266,8 @@ public:
+ 	bool hasUpgrade(UnitTypes eUnit, bool bSearch = false) const;
+ 	CvCity* getUpgradeCity(bool bSearch = false) const;
+ 	CvCity* getUpgradeCity(UnitTypes eUnit, bool bSearch = false, int* iSearchValue = NULL) const;
+-	void upgrade(UnitTypes eUnit);
++	//void upgrade(UnitTypes eUnit);
++	CvUnit* upgrade(UnitTypes eUnit); // K-Mod
+ 
+ 	HandicapTypes getHandicapType() const;																// Exposed to Python		
+ 	CivilizationTypes getCivilizationType() const;							// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9d485e700..c659fbab3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -544,8 +544,26 @@ void CvUnitAI::AI_upgrade()
+ 
+ 		if (eBestUnit != NO_UNIT)
+ 		{
++			/* original bts code
+ 			upgrade(eBestUnit);
++			doDelayedDeath(); */
++
++			// K-Mod. Ungroup the unit, so that we don't cause the whole group to miss their turn.
++			CvUnit* pUpgradeUnit = upgrade(eBestUnit);
+ 			doDelayedDeath();
++
++			if (pUpgradeUnit != this)
++			{
++				CvSelectionGroup* pGroup = pUpgradeUnit->getGroup();
++				if (pGroup->getHeadUnit() != pUpgradeUnit)
++				{
++					pUpgradeUnit->joinGroup(NULL);
++					// indicate that the unit intends to rejoin the old group (although it might not actually do so...)
++					pUpgradeUnit->getGroup()->AI_setMissionAI(MISSIONAI_GROUP, 0, pGroup->getHeadUnit());
++				}
++			}
++			// K-Mod end
++
+ 			return;
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4302

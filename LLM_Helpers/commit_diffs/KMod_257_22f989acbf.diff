@@ -1,0 +1,446 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 257
+# Commit: 22f989acbf61c6c4e5a3d692537ec0afaa8e16c9
+# History segment: K-Mod history
+# Parent used for diff: 1a796ac808a96befbff07b6cc446f2f7b4d6bc79
+# Title: Fixed a bug which sometimes caused AI units to bump defenders off tiles rather than fight them. Implemented new checks to see when the AI should declare war...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	5	CvGameCoreDLL/CvPlayerAI.cpp
+13	5	CvGameCoreDLL/CvSelectionGroup.cpp
+107	35	CvGameCoreDLL/CvUnitAI.cpp
+5	3	CvGameCoreDLL/CvUnitAI.h
+1	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 089afc36b..098ec8e06 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13064,7 +13064,14 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
+ 			{
+ 				iValue *= 4;
+ 				iValue /= 3;
+-			} */ // Disabled by K-Mod. state religion is now taken into account in AI_religionValue.
++			} */
++			// K-Mod
++			if (iI == getStateReligion() && getReligionAnarchyLength() > 0)
++			{
++				iValue *= 5;
++				iValue /= 4;
++			}
++			// K-Mod end
+ 
+ 			if (eFavorite == iI)
+ 			{
+@@ -13088,10 +13095,9 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
+ 	int iBestCount = getHasReligionCount(eBestReligion);
+ 	int iSpreadPercent = (iBestCount * 100) / std::max(1, getNumCities());
+ 	int iPurityPercent = (iBestCount * 100) / std::max(1, countTotalHasReligion());
+-	// K-Mod. Don't instantly convert to the first religion available, unless it if your own religion.
+-	if (getStateReligion() == NO_RELIGION && iSpreadPercent < 25 &&
+-		(GC.getGameINLINE().getHolyCity(eBestReligion) == NULL
+-		|| GC.getGameINLINE().getHolyCity(eBestReligion)->getTeam() != getTeam()))
++	// K-Mod. Don't instantly convert to the first religion avaiable, unless it if your own religion.
++	if (getStateReligion() == NO_RELIGION && iSpreadPercent < 29 - GC.getLeaderHeadInfo(getPersonalityType()).getFlavorValue(1)
++		&& (GC.getGameINLINE().getHolyCity(eBestReligion) == NULL || GC.getGameINLINE().getHolyCity(eBestReligion)->getTeam() != getTeam()))
+ 	{
+ 		return NO_RELIGION;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 3b8f5424a..dd279f6bd 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3489,6 +3489,8 @@ bool CvSelectionGroup::groupDeclareWar(CvPlot* pPlot, bool bForce)
+ 		{
+ 			if (kTeam.canDeclareWar(ePlotTeam))
+ 			{
++				FAssertMsg(false, "war declared using groupDeclareWar"); // K-Mod, I'm trying to phase this out.
++				if (gUnitLogLevel > 0) logBBAI("    %S declares war on %S with groupDeclareWar (%S - %S).", kTeam.getName().GetCString(), GET_TEAM(ePlotTeam).getName().GetCString(), getHeadUnit()->getName(0).GetCString(), GC.getUnitAIInfo(getHeadUnitAI()).getDescription());
+ 				kTeam.declareWar(ePlotTeam, true, NO_WARPLAN);
+ 			}
+ 		}
+@@ -3515,7 +3517,6 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 		}
+ 	}
+ 
+-
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+ 	bool bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+@@ -3549,6 +3550,14 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 					//	return false;
+ 					//}
+ 					// modified
++
++					// K-Mod, bugfix. This needs to happen before hadDefender, since hasDefender tests for war..
++					// (note: this check is no longer going to be important at all once my new AI DOW code is complete.)
++					if (groupDeclareWar(pDestPlot))
++					{
++						return true;
++					}
++					// K-Mod end
+ 					if (!pDestPlot->hasDefender(false, NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true))
+ 						return false;
+ /************************************************************************************************/
+@@ -3557,10 +3566,10 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 
+ 					bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
+ 
+-					if (groupDeclareWar(pDestPlot))
++					/*if (groupDeclareWar(pDestPlot))
+ 					{
+ 						return true;
+-					}
++					}*/ // K-Mod, moved up.
+ 
+ 					while (true)
+ 					{
+@@ -3747,8 +3756,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	if(pPathPlot == pDestPlot)
+ 		bEndMove = true;
+     
+-	//groupMove(pPathPlot, iFlags & MOVE_THROUGH_ENEMY, NULL, bEndMove);
+-	groupMove(pPathPlot, iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK), NULL, bEndMove); // K-Mod
++	groupMove(pPathPlot, iFlags & MOVE_THROUGH_ENEMY, NULL, bEndMove);
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 222d816dd..d5ea771ed 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1214,6 +1214,29 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 
+ // Protected Functions...
+ 
++// K-Mod - test if we should declare war become moving to the target plot.
++// (originally, DOW were made inside the unit movement mechanics. To me, that seems like a really dumb idea.)
++bool CvUnitAI::AI_considerDOW(CvPlot* pPlot)
++{
++	CvTeamAI& kOurTeam = GET_TEAM(getTeam());
++	TeamTypes ePlotTeam = pPlot->getTeam();
++
++	if (!canEnterArea(ePlotTeam, pPlot->area(), true))
++	{
++		if (ePlotTeam != NO_TEAM && kOurTeam.AI_isSneakAttackReady(ePlotTeam))
++		{
++			if (kOurTeam.canDeclareWar(ePlotTeam))
++			{
++				if (gUnitLogLevel > 0) logBBAI("    %S declares war on %S with AI_considerDOW (%S - %S).", kOurTeam.getName().GetCString(), GET_TEAM(ePlotTeam).getName().GetCString(), getName(0).GetCString(), GC.getUnitAIInfo(AI_getUnitAIType()).getDescription());
++				kOurTeam.declareWar(ePlotTeam, true, NO_WARPLAN);
++				return true;
++			}
++		}
++	}
++	return false;
++}
++// K-Mod end
++
+ void CvUnitAI::AI_animalMove()
+ {
+ 	PROFILE_FUNC();
+@@ -11501,7 +11524,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath)
+ 				}
+ 				else
+ 				{
+-					getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_GUARD_CITY, NULL);
++					//getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_GUARD_CITY, NULL);
++					getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE()); // K-Mod. (this is what "skip the mission" means)
+ 				}
+ 				return true;				
+ 			}
+@@ -15177,6 +15201,7 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 
+ 	CvPlot* pAdjacentPlot;
+ 	CvPlot* pBestPlot;
++	CvPlot* pEndTurnPlot = NULL; // K-Mod
+ 	int iPathTurns;
+ 	int iValue;
+ 	int iBestValue;
+@@ -15203,7 +15228,7 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 				{
+ 					if (AI_plotValid(pAdjacentPlot))
+ 					{
+-						if (!(pAdjacentPlot->isVisibleEnemyUnit(this)))
++						if (!(pAdjacentPlot->isVisibleEnemyUnit(this))) // K-Mod TODO: consider fighting for the best plot.
+ 						{
+ 							if (generatePath(pAdjacentPlot, iFlags, true, &iPathTurns))
+ 							{
+@@ -15235,7 +15260,11 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 									if (iValue > iBestValue)
+ 									{
+ 										iBestValue = iValue;
+-										pBestPlot = getPathEndTurnPlot();
++										//pBestPlot = getPathEndTurnPlot();
++										// K-Mod
++										pBestPlot = pAdjacentPlot;
++										pEndTurnPlot = getPathEndTurnPlot();
++										// K-Mod end
+ 									}
+ 								}
+ 							}
+@@ -15247,16 +15276,32 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 		else
+ 		{
+ 			pBestPlot =  pTargetCity->plot();
++			// K-mod. As far as I know, nothing actually uses this flag here.. but that doesn't mean we should let the code be wrong.
++			if (!generatePath(pBestPlot, iFlags, true, &iPathTurns) || iPathTurns > iMaxPathTurns)
++				return false;
++			pEndTurnPlot = getPathEndTurnPlot();
++			// K-mod end
+ 		}
+ 
+ 		if (pBestPlot != NULL)
+ 		{
+-			FAssert(!(pTargetCity->at(pBestPlot)) || 0 != (iFlags & MOVE_THROUGH_ENEMY)); // no suicide missions...
+-			if (!atPlot(pBestPlot))
++			FAssert(!(pTargetCity->at(pEndTurnPlot)) || 0 != (iFlags & MOVE_THROUGH_ENEMY)); // no suicide missions...
++			if (!atPlot(pEndTurnPlot))
+ 			{
+ 				//getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iFlags);
+-				// K-Mod I'm going to  use MISSIONAI_ASSAULT signal to our spies and other units that we're attacking this city.
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iFlags, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
++				// K-Mod
++				if (AI_considerDOW(pEndTurnPlot))
++				{
++					// regenerate the path, just incase we want to take a different route after the DOW
++					// (but don't bother recalculating the best destination)
++					// Note. if the best destination happens to be on the border, and have a stack of defenders on it, this will make us attack them.\
++					// That's bad. I'll try to fix that in the future.
++					if (!generatePath(pBestPlot, iFlags, false))
++						return false;
++					pEndTurnPlot = getPathEndTurnPlot();
++				}
++				// I'm going to  use MISSIONAI_ASSAULT signal to our spies and other units that we're attacking this city.
++				getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), iFlags, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
+ 				// K-Mod end
+ 				return true;
+ 			}
+@@ -15485,6 +15530,18 @@ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshol
+ // This function has been completely rewriten (and greatly simplified) for K-Mod
+ bool CvUnitAI::AI_bombardCity()
+ {
++	// check if we need to declare war before bombarding!
++	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++	{
++		CvPlot* pLoopPlot = plotDirection(plot()->getX_INLINE(), plot()->getY_INLINE(), ((DirectionTypes)iI));
++
++		if (pLoopPlot != NULL && pLoopPlot->isCity())
++		{
++			AI_considerDOW(pLoopPlot);
++			break; // assume there can only be one city adjacent to us.
++		}
++	}
++
+ 	if (!canBombard(plot()))
+ 		return false;
+ 
+@@ -15581,6 +15638,17 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, bool bFollow)
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
++		// K-Mod
++		if (AI_considerDOW(pBestPlot))
++		{
++			// after DOW, we might not be able to get to our target this turn... but try anyway.
++			if (!generatePath(pBestPlot, 0, false))
++				return false;
++			if (bFollow && pBestPlot != getPathEndTurnPlot())
++				return false;
++			pBestPlot = getPathEndTurnPlot();
++		}
++		// K-Mod end
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), ((bFollow) ? MOVE_DIRECT_ATTACK | MOVE_SINGLE_ATTACK : 0));
+ 		return true;
+ 	}
+@@ -15637,7 +15705,8 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iMinStack, bool
+ 				{
+ 					if( (bAllowCities) || !(pLoopPlot->isCity(false)) )
+ 					{
+-						if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++						//if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++						if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && isEnemy(pLoopPlot->getPlotCity()->getTeam()))) // K-Mod
+ 						{
+ 							if (pLoopPlot->getNumVisibleEnemyDefenders(this) >= iMinStack)
+ 							{
+@@ -15667,6 +15736,7 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iMinStack, bool
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
++		// K-Mod note: no AI_considerDOW here.
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), ((bFollow) ? MOVE_DIRECT_ATTACK | MOVE_SINGLE_ATTACK : 0));
+ 		return true;
+ 	}
+@@ -15703,7 +15773,8 @@ bool CvUnitAI::AI_rangeAttack(int iRange)
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+-				if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++				//if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++				if (pLoopPlot->isVisibleEnemyUnit(this)) // K-Mod
+ 				{
+ 					if (!atPlot(pLoopPlot) && canRangeStrikeAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
+ 					{
+@@ -15723,6 +15794,7 @@ bool CvUnitAI::AI_rangeAttack(int iRange)
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
++		// K-Mod note: no AI_considerDOW here.
+ 		getGroup()->pushMission(MISSION_RANGE_ATTACK, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0);
+ 		return true;
+ 	}
+@@ -15778,7 +15850,8 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 			{
+ 				if (AI_plotValid(pLoopPlot))
+ 				{
+-					if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
++					//if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
++					if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && isEnemy(pLoopPlot->getPlotCity()->getTeam()))) // K-Mod
+ 					{
+ 						if (pLoopPlot->getNumVisibleEnemyDefenders(this) > 0)
+ 						{
+@@ -15815,6 +15888,7 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
++		// K-Mod note: no AI_considerDOW here.
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0);
+ 		return true;
+ 	}
+@@ -15916,7 +15990,8 @@ bool CvUnitAI::AI_blockade()
+ 		FAssert(canPlunder(pBestBlockadePlot));
+ 		if (atPlot(pBestBlockadePlot) && !isEnemy(pBestBlockadePlot->getTeam(), pBestBlockadePlot))
+ 		{
+-			getGroup()->groupDeclareWar(pBestBlockadePlot, true);
++			//getGroup()->groupDeclareWar(pBestBlockadePlot, true);
++			AI_considerDOW(pBestBlockadePlot); // K-Mod
+ 		}
+ 		
+ 		if (atPlot(pBestBlockadePlot))
+@@ -16962,7 +17037,8 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bBarbarian)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		if (pLoopPlot->isCoastalLand())
++		//if (pLoopPlot->isCoastalLand())
++		if (pLoopPlot->isRevealed(getTeam(), false) && pLoopPlot->isCoastalLand()) // K-Mod
+ 		{
+ 			if (pLoopPlot->isOwned())
+ 			{
+@@ -17236,36 +17312,31 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bBarbarian)
+ 			}
+ 			else
+ 			{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+-/* original bts code
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+-*/
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_3, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++				// K-Mod
++				if (AI_considerDOW(pBestAssaultPlot))
++				{
++					if (!generatePath(pBestAssaultPlot, 0, false))
++						return false;
++					pBestPlot = getPathEndTurnPlot();
++				}
++				// K-Mod end
++				//getGroup()->pushMission(MISSION_MOVE_TO, pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
++				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+ 				return true;
+ 			}
+ 		}
+ 		else
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+-/* original bts code
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+-*/
++			// K-Mod
++			if (AI_considerDOW(pBestPlot))
++			{
++				if (!generatePath(pBestAssaultPlot, 0, false))
++					return false;
++				pBestPlot = getPathEndTurnPlot();
++			}
++			// K-Mod end
+ 			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_3, false, false, MISSIONAI_ASSAULT, pBestAssaultPlot);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 			return true;
+ 		}
+ 	}
+@@ -23898,6 +23969,7 @@ bool CvUnitAI::AI_stackAttackCity(int iPowerThreshold)
+ 		}
+ 
+ 		FAssert(!atPlot(pCityPlot));
++		AI_considerDOW(pCityPlot);
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pCityPlot->getX_INLINE(), pCityPlot->getY_INLINE(), MOVE_DIRECT_ATTACK);
+ 		return true;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 1a078321a..f6644ab58 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -66,6 +66,8 @@ protected:
+ 
+ 	int m_iAutomatedAbortTurn;
+ 
++	bool AI_considerDOW(CvPlot* pPlot); // K-Mod
++
+ 	void AI_animalMove();
+ 	void AI_settleMove();
+ 	void AI_workerMove();
+@@ -179,9 +181,9 @@ protected:
+ /*                                                                                              */
+ /* War tactics AI                                                                               */
+ /************************************************************************************************/
+-	CvCity* AI_pickTargetCity(int iFlags = 0, int iMaxPath = MAX_INT, bool bHuntBarbs = false);
+-	bool AI_goToTargetCity(int iFlags = 0, int iMaxPath = MAX_INT, CvCity* pTargetCity = NULL);
+-	bool AI_goToTargetBarbCity(int iMaxPath = 10);
++	CvCity* AI_pickTargetCity(int iFlags = 0, int iMaxPathTurns = MAX_INT, bool bHuntBarbs = false);
++	bool AI_goToTargetCity(int iFlags = 0, int iMaxPathTurns = MAX_INT, CvCity* pTargetCity = NULL);
++	bool AI_goToTargetBarbCity(int iMaxPathTurns = 10);
+ 	bool AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold = 0, int iMaxPathTurns = MAX_INT);
+ 	bool AI_bombardCity();
+ 	bool AI_cityAttack(int iRange, int iOddsThreshold, bool bFollow = false);
+
+diff --git a/changelog.txt b/changelog.txt
+index 94dbb3249..9f9819254 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 1.04b.
++This is K-Mod version 1.04c.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=19091

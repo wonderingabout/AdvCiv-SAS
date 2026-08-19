@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 74
+# Commit: 354ecdc583b3ffa97262910b2be65f76644110af
+# History segment: K-Mod history
+# Parent used for diff: 26af73be454b397800c5f55a25fa13b0bd4420ea
+# Title: Fixed a bug that was completely preventing global warming. Tweaked the AI's conscription decision making. Tweaked the AI's spy building probability formula.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	7	CvGameCoreDLL/CvCityAI.cpp
+5	3	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b8d18b2ef..0985fe5eb 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2507,13 +2507,13 @@ void CvCityAI::AI_chooseProduction()
+ 	int iNeededSpies = iNumCitiesInArea / 3;
+ 	iNeededSpies += isCapital() ? 1 : 0;
+ 	// K-Mod
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+-		iNeededSpies *= 2;
+-	// K-Mod end
++	iNeededSpies += (kPlayer.getCommerceRate(COMMERCE_ESPIONAGE)+50)/100;
++
+ 	if (iNumSpies < iNeededSpies)
+ 	{
+ 		//if (AI_chooseUnit(UNITAI_SPY, 5 + 50 / (1 + iNumSpies)))
+-		if (AI_chooseUnit(UNITAI_SPY, 30*iNeededSpies / (3*iNumSpies+iNeededSpies))) // K-Mod
++		int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)?65 : 50)*iNeededSpies / (4*iNumSpies+iNeededSpies);
++		if (AI_chooseUnit(UNITAI_SPY, iOdds)) // K-Mod
+ 		{
+ 			return;
+ 		}
+@@ -7821,8 +7821,9 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 					}*/
+ 
+ 					// K-Mod: full out defensive indeed. We've already checked for happiness, and we're desperate for units.
+-					// So lets just do it.
+-					bWait = false;
++					// Just beware of happiness sources that might expire - such as military happiness.
++					if (getConscriptAngerTimer() == 0 || AI_countWorkedPoorTiles() > 0)
++						bWait = false;
+ 				}
+ 				
+ 				if( bWait && bDanger )
+@@ -7841,7 +7842,7 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 				{
+ 					// Non-critical, only burn population if population is not worth much
+ 					//if ((getConscriptAngerTimer() == 0) && (AI_countWorkedPoorTiles() > 1))
+-					if ((getConscriptAngerTimer() == 0 || isNoUnhappiness()) && (AI_countWorkedPoorTiles() > 0)) // K-Mod
++					if ((getConscriptAngerTimer() == 0 || isNoUnhappiness()) && AI_countWorkedPoorTiles() > 0) // K-Mod
+ 					{
+ 						//if( (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
+ 						// We're working poor tiles. What more do you want?
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 632481748..520e0d87d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6400,9 +6400,11 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
+ 
+ 		if (iTestScore > iBestScore)
+ 		{
+-			/*pBestPlot = pTestPlot;
+-			iBestScore = iTestScore;*/
+-			return pBestPlot; // lets not target the ice too much...
++			if (iBestScore > 0)
++				return pTestPlot; // lets not target the ice too much...
++
++			pBestPlot = pTestPlot;
++			iBestScore = iTestScore;
+ 		}
+ 	}
+ 	return pBestPlot;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2468

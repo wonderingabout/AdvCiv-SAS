@@ -1,0 +1,717 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4849
+# Commit: 741f6485f969d0dbb0770fa8517b384d2dfb567b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 441d5de9cfc8a48ed181be6530bcdaa8457fdf43
+# Title: replace "NETHERLANDS_OOSTINDIEVAARDER" with "DUTCH_SWIFT_WORKER" (worker based) - "<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_fx.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds
+26	41	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Audio/Audio2DScripts.xml
+1	1	Assets/XML/Audio/AudioDefines.xml
+3	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+7	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+251	215	Assets/XML/Units/CIV4UnitInfos.xml
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_fx.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic.nif b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic.nif
+new file mode 100644
+index 000000000..23f1556ed
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_128.dds b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_128.dds
+new file mode 100644
+index 000000000..a1d543029
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_fx.nif b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_fx.nif
+new file mode 100644
+index 000000000..18a536ba2
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_fx.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds
+new file mode 100644
+index 000000000..faf9011c5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 60a0d9f51..5d81e8ffe 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -177,6 +177,32 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod anyways etc if i am not mistaken anyways etc) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one if i am not mistaken anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
++			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic.nif</NIF>
++			<KFM>Art/Units/Unique/India/Worker/IndianFastWorker.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/nif/worker_celtic_fx.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.9</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SCOUT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Scout.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,1</Button>
+@@ -2240,47 +2266,6 @@
+ 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+ 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_NETHERLANDS_OOSTINDIEVAARDER</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,10</Button>
+-			<!-- advc.905b: was 0.2 -->
+-			<fScale>0.2275</fScale>
+-			<fInterfaceScale>0.5</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Dutch_East_India_Man/Dutch_East_India_Man.nif</NIF>
+-			<KFM>Art/Units/Dutch_East_India_Man/Dutch_East_India_Man.kfm</KFM>
+-			<SHADERNIF>Art/Units/Dutch_East_India_Man/Dutch_East_India_Man_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/GalleonShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<TrailDefinition>
+-				<Texture>Art/Shared/water_ship_wake.dds</Texture>
+-				<fWidth>1</fWidth>
+-				<fLength>180.0</fLength>
+-				<fTaper>1</fTaper>
+-				<fFadeStartTime>.2</fFadeStartTime>
+-				<fFadeFalloff>0.35</fFadeFalloff>
+-			</TrailDefinition>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bSmoothMove>1</bSmoothMove>
+-			<fAngleInterpRate>720.0</fAngleInterpRate>
+-			<fBankRate>.3</fBankRate>
+-			<fExchangeAngle>25.0</fExchangeAngle>
+-			<bActAsRanged>0</bActAsRanged>
+-			<!-- BBAI: was ..._BUILD_UNIT -->
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop>LOOPSTEP_OCEAN2</AudioRunTypeLoop>
+-				<AudioRunTypeEnd>ENDSTEP_OCEAN2</AudioRunTypeEnd>
+-			</AudioRunSounds>
+-			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+-			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_PRIVATEER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,11</Button>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 6a6ffdeb8..b56228b42 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -16049,8 +16049,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_UNIT_BUILD_ARABIAN_CAMEL_ARCHER</ScriptID>
+-		<SoundID>SND_BUILD_ARABIAN_CAMEL_ARCHER</SoundID>
++		<ScriptID>AS2D_UNIT_BUILD_CAMEL_ARCHER</ScriptID>
++		<SoundID>SND_BUILD_CAMEL_ARCHER</SoundID>
+ 		<SoundType>GAME_SFX</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index c8ea18627..32836cf8a 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -4454,7 +4454,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_BUILD_ARABIAN_CAMEL_ARCHER</SoundID>
++			<SoundID>SND_BUILD_CAMEL_ARCHER</SoundID>
+ 			<Filename>Sounds/Units/BuildArabianCamelArcher</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 745e1cc60..85e3e4af7 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -2891,11 +2891,12 @@
+ 					<BuildingType>BUILDING_NETHERLANDS_DIKE</BuildingType>
+ 				</Building>
+ 			</Buildings>
++			<!-- custom: east indiaman of class frigate now replaced with DUTCH_SWIFT_WORKER of class worker anyways etc -->
+ 			<Units>
+ 				<Unit>
+ 					<!-- advc.905b: was GALLEON -->
+-					<UnitClassType>UNITCLASS_FRIGATE</UnitClassType>
+-					<UnitType>UNIT_NETHERLANDS_OOSTINDIEVAARDER</UnitType>
++					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
++					<UnitType>UNIT_DUTCH_SWIFT_WORKER</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 0d44995fd..cce903bf6 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -378,6 +378,13 @@
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
++		<English>Swift Worker</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 4296e7585..bdb279c8b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -213,6 +213,14 @@
+ 
+ 
+ 
++	<!-- custom: based on removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources, see xml code comment at unit info for details, anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER_PEDIA</Tag>
++		<English>[TAB]The Dutch agricultural sector is highly mechanised, and has a strong focus on international exports. It employs about 4% of the Dutch labour force but produces large surpluses in the food-processing industry and accounts for 21% of the Dutch total export value. The Dutch rank first in the European Union and second worldwide in value of agricultural exports, behind only the United States, with agricultural exports earning �80.7 billion in 2014, up from �75.4 billion in 2012. In 2019 agricultural exports were worth �94.5 billion. In an effort to reduce agricultural pollution, the Dutch government is imposing strict limits on the productivity of the farming sector, triggering Dutch farmers' protests.[PARAGRAPH:1]One-third of the world's exports of chilis, tomatoes, and cucumbers go through the country. The Netherlands exports one-fifteenth of the world's apples. A significant portion of Dutch agricultural exports consists of fresh-cut plants, flowers, and flower bulbs, with the Netherlands exporting two-thirds of the world's total.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", and/plus anyways etc unit reworked, now based on the swordsman at least as of now anyways etc, entry from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 0dabd8090..49d20f0c7 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1385,6 +1385,257 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or/and updated value anyways etc), i believe this would work quite well with the gold profile of the AI leader too william if i am not mistaken anyways etc, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info ('s anyways etc) xml for details anyways etc -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_DUTCH_SWIFT_WORKER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_WORKER</Class>
++			<Type>UNIT_DUTCH_SWIFT_WORKER</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>UNITCLASS_WORKER</Capture>
++			<Combat>NONE</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_WORKER</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Description>
++			<Civilopedia>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>1</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>0</bMilitaryHappiness>
++			<bMilitarySupport>0</bMilitarySupport>
++			<bMilitaryProduction>0</bMilitaryProduction>
++			<bPillage>0</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades/>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_WORKER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds>
++				<Build>
++					<BuildType>BUILD_ROAD</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_RAILROAD</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_FARM</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_MINE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WORKSHOP</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_LUMBERMILL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WINDMILL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WATERMILL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_PLANTATION</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_QUARRY</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_PASTURE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_CAMP</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WELL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_COTTAGE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_FORT</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_REMOVE_JUNGLE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_REMOVE_FOREST</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_SCRUB_FALLOUT</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_FOREST_PRESERVE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++			</Builds>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<PrereqTech>NONE</PrereqTech>
++			<TechTypes/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
++					<iProductionTrait>25</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>45</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<!-- custom: restore old civ4 effect for the dutch export worker, was originally in base advciv worker 2 anyways etc -->
++			<iMoves>3</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>100</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>0</iCombat>
++			<iCombatLimit>0</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>0</iXPValueAttack>
++			<iXPValueDefense>0</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods/>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>0</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>20</iAsset>
++			<iPower>0</iPower>
++			<!-- custom: only one artdefinetag same as for the indian fast worker (no mid or late art change for the dutch swift worker at least as of now anyways etc if not always or not or yes or etc but in all cases anyways etc anyways etc anyways etc) -->
++			<UnitMeshGroups>
++				<iGroupSize>2</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>2</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<FreePromotions/>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_WORKER_BARBARIAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_WORKER</Class>
+ 			<Type>UNIT_WORKER_BARBARIAN</Type>
+@@ -19760,221 +20011,6 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_FRIGATE, type: UNIT_NETHERLANDS_OOSTINDIEVAARDER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<!-- advc.905b: was GALLEON -->
+-			<Class>UNITCLASS_FRIGATE</Class>
+-			<Type>UNIT_NETHERLANDS_OOSTINDIEVAARDER</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_NAVAL</Combat>
+-			<Domain>DOMAIN_SEA</Domain>
+-			<!-- advc.905b: Was ASSAULT_SEA (same as Galleon); Frigate has
+-				 RESERVE_SEA. -->
+-			<DefaultUnitAI>UNITAI_ESCORT_SEA</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_NETHERLANDS_OOSTINDIEVAARDER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_NETHERLANDS_OOSTINDIEVAARDER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_NETHERLANDS_OOSTINDIEVAARDER_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<!-- advc.905b: was 1 -->
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>0</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>1</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+-			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>1</bMechanized>
+-			<bRenderBelowWater>1</bRenderBelowWater>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- advc.905b: Destroyer added (same as Frigate), Transport kept
+-				 from BtS (same as Galleon) -->
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_DESTROYER</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_TRANSPORT</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<!-- advc.905b: Added RESERVE_SEA and EXPLORE_SEA. Now it's the union
+-				 of Galleon and Frigate AI types. It's a very flexible unit. -->
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_SETTLER_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- advc.905b: Was just ASTRONOMY. Same as Frigate now. -->
+-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
+-			<BonusType>NONE</BonusType>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<!-- advc.905b: Was 80, now same as Frigate. -->
+-			<iCost>90</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>20</iMinAreaSize>
+-			<!-- advc.905b: was 4 -->
+-			<iMoves>5</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<iAirRange>0</iAirRange>
+-			<iAirUnitCap>0</iAirUnitCap>
+-			<iDropRange>0</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<!-- advc.905b: Was 6, now same as Frigate. -->
+-			<iCombat>8</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
+-			<iAirCombat>0</iAirCombat>
+-			<iAirCombatLimit>0</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods/>
+-			<BonusProductionModifiers/>
+-			<iBombRate>0</iBombRate>
+-			<!-- advc.905b: Was 0, now same as Frigate. -->
+-			<iBombardRate>12</iBombardRate>
+-			<SpecialCargo>NONE</SpecialCargo>
+-			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<!-- advc.905b: Was 5 in K-Mod, 4 in BtS. -->
+-			<iCargo>3</iCargo>
+-			<iConscription>0</iConscription>
+-			<iCultureGarrison>0</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<!-- advc.905b: Was 6, now same as Frigate. -->
+-			<iPower>8</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>1</iGroupSize>
+-				<fMaxSpeed>2.25</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>1</iMeleeWaveSize>
+-				<iRangedWaveSize>1</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_NETHERLANDS_OOSTINDIEVAARDER</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_PRIVATEER, type: UNIT_PRIVATEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_PRIVATEER</Class>
+ 			<Type>UNIT_PRIVATEER</Type>
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=27723

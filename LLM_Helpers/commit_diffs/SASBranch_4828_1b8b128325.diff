@@ -1,0 +1,423 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4828
+# Commit: 1b8b128325716f6183d611d056d34f3d4301f4c9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 82cef5e53cd17af54223debe60faf5ffabe52997
+# Title: fix .csv github display error of the footnote by also moving the footnote and legend abbreviation to another file handles it cleanly, and we can add more inf...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	README.md
+0	2	_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv
+12	0	_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_legend_base_advciv.md
+8	7	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+74	62	flatten_handicap_info_to_csv_and_md.py
+0	2	handicap_info_to_csv_advciv-sas.csv
+12	0	handicap_info_to_csv_legend_advciv-sas.md
+ create mode 100644 _0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_legend_base_advciv.md
+ create mode 100644 handicap_info_to_csv_legend_advciv-sas.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index cedf0eba9..b85247c0c 100644
+--- a/README.md
++++ b/README.md
+@@ -97,15 +97,17 @@ So far there is:
+ 
+ #### csv and md view of the handicap (difficulties info in a table for all difficulties) info
+ 
+-Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the handicap info, else just run the [.csv view to view it on GitHub website (recommended) for example](/handicap_info_to_csv_advciv-sas.csv), as you can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution if you prefer another viewer than GitHub website view or such anyways etc.
++Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the handicap info, else just view it here:
++- [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) as you can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution if you prefer another viewer than GitHub website view or such anyways etc.
++- legend (.md) is here [/handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
+ 
+-Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
++Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the table .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
+ 
+-(note: base advciv handicap info .csv table +/- .md version of the same info tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
++(note: base advciv handicap info .csv table with its .md legend are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
+ 
+ #### csv github view for the flatten_leaders_data_to_csv conversion script
+
+diff --git a/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv b/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv
+index 759f49eca..3b3a76b8d 100644
+--- a/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv	
++++ b/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv	
+@@ -118,5 +118,3 @@ FreeTechs,FT_0,FT_1,FT_2,,,,,,
+ ,Steel,-,-,-,-,-,-,-,-
+ ,Plastics,Plastics,-,-,-,-,-,-,-
+ ,Refrigeration,-,-,-,-,-,-,-,-
+-,,,,,,,,,,
+-[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],"(*): This element is listed under the heading ""Goodies (20)"" in the XML file. It indicates the chance (x-in-20) of a ""goody hut"" yielding this result when ""popped"" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)"
+
+diff --git a/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_legend_base_advciv.md b/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_legend_base_advciv.md
+new file mode 100644
+index 000000000..2a00fe86b
+--- /dev/null
++++ b/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_legend_base_advciv.md	
+@@ -0,0 +1,12 @@
++# Handicap Info Legend Notes
++
++## Goodies Footnote
++
++> (*): This element is listed under the heading **"Goodies (20)"** in the XML file.
++> It indicates the chance (x-in-20) of a goody hut yielding this result when "popped" by the player.
++> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)
++
++## Abbreviation Keys
++
++- **AIFT_**: `AIFreeTechs`
++- **FT_**: `FreeTechs`
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 40fa17a69..de0cda52a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -222,7 +222,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ # flatten_handicap_info_to_csv_and_md.py
+ 
+-## how to generate the handicap_info table .csv +/- .md (optional)
++## how to generate the handicap_info table .csv and its .md legend, +/- table .md (optional)
+ 
+ (you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+ 
+@@ -274,9 +274,9 @@ So in short or not short but anyways etc.. I'd recommend viewing the .csv file/v
+ <img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+ 
+-## handicap_info table (.csv, and optionally .md) for other mod(s) (for example for base AdvCiv mod)
++## handicap_info table for other mod(s) (for example for base AdvCiv mod)
+ 
+-### how to generate the handicap_info table .csv +/- .md  for another mod (for example for "AdvCiv" (base AdvCiv) mod anyways etc) (optional)
++### how to generate the handicap_info table .csv and its .md legend, +/- table .md for another mod (for example for "AdvCiv" (base AdvCiv) mod anyways etc) (optional)
+ 
+ (you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+ 
+@@ -294,8 +294,9 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
+ 
+-- [.csv (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
+-- .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
++- [(base advciv) (click to view the table .csv on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
++- legend (.md) is here [/handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
++- note: table .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
+ 
+ # flatten_leaders_data_to_csv.py
+ 
+@@ -328,7 +329,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ ## output table .csv and legend .md
+ 
+ Output files (.csv and .md) can be viewed directly there:
+-- [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
++- [(click here to view the table .csv on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
+ - legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
+ 
+ output example with github web viewer (recommended):
+@@ -354,7 +355,7 @@ Regenerate the files yourself with the script to have latest data if the files (
+ 
+ (you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+ 
+-note: to generate this table, you'll need to generate a leaders_data.py and place it in required folder, even if your mod doesn't use it at all or uses a different folder structure for its sevopedia, the file leaders_data.py just needs to exist and be generated with your mod's xml leader info as a base, so that you can then generate leaders_data table .csv and legend .md that depend on it, even if you don't use the leaders_data.py itself at all in your mod, you still need to have a leaders_data.py generated from your mod's xml (unless you modify the script's code to do it how you want, but easiest may be to just generate leaders_data.py and place it in your mod path at required folder). See [leaders_data.py instructions/information](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#handicap_info-table-csv-and-optionally-md-for-other-mods-for-example-for-base-advciv-mod) for details or/and other information
++note: to generate this table, you'll need to generate a leaders_data.py and place it in required folder, even if your mod doesn't use it at all or uses a different folder structure for its sevopedia, the file leaders_data.py just needs to exist and be generated with your mod's xml leader info as a base, so that you can then generate leaders_data table .csv and legend .md that depend on it, even if you don't use the leaders_data.py itself at all in your mod, you still need to have a leaders_data.py generated from your mod's xml (unless you modify the script's code to do it how you want, but easiest may be to just generate leaders_data.py and place it in your mod path at required folder). See [leaders_data.py instructions/information](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#handicap_info-table-csv-and-optionally-md-and-its-md-legend-for-other-mods-for-example-for-base-advciv-mod) for details or/and other information
+ 
+ But before that, you'll also need to copy the helper module generate_leaders_data.py depends on, called ai_utils_shared_with_civ4.py, in same mod structure than AdvCiv-SAS expects, even if your mod uses a different structure, the file needs to be there in your mod (but change mod folder to your own mod folder name for example "AdvCiv" (base AdvCiv mod), not "AdvCiv-SAS"), for example for the "AdvCiv" mod in its "AdvCiv" mod folder at (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc) copy this helper module to now also have it in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\Python\Contrib\Sevopedia\ai_utils_shared_with_civ4.py`
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index 21a6f835a..0f13454b4 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -3,33 +3,33 @@
+ # (c) 2025 wonderingabout & becomingthrough
+ #
+ # This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml
+-# into a structured, spreadsheet-friendly CSV table, suitable for data analysis or mod balancing.
++# into structured, spreadsheet-friendly output files suitable for data analysis or mod balancing.
+ #
+-# It parses each <HandicapInfo> entry and outputs:
+-# - One row per numeric or structured field (e.g. iAIBarbarianBonus, iTrainPercent)
++# It parses each <HandicapInfo> entry and produces:
++# - A CSV file with one row per numeric or structured field (e.g. iAIBarbarianBonus, iTrainPercent)
+ # - One column per difficulty (e.g. Settler → Deity), with beautified headers (e.g. "HANDICAP_PRINCE" → "Prince")
+ #
+ # Special handling is applied to:
+ #
+ # 1. <Goodies>:
+ #    - All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
+-#    - Output field names preserve their original enum prefix and name (e.g. "GOODY_LOW_GOLD").
+-#    - In the CSV, each goody field is labeled with "(*)" and followed by a footnote explaining the x-in-20 hut chance system.
++#    - Output field names preserve their original enum format (e.g. "GOODY_TECH").
++#    - In the CSV, each goody field is labeled with "(*)", and its behavior is explained in a separate Markdown footnote file.
+ #
+ # 2. <FreeTechs> and <AIFreeTechs>:
+ #    - These are parsed as comma-separated strings per difficulty.
+-#    - Their long values are replaced with short legend keys (e.g. FT_0), and a visual [LEGEND] block shows full mappings.
++#    - Long values are replaced by short legend keys (e.g. FT_0, AIFT_0) for compact display.
++#    - A separate right-shifted [LEGEND] section shows the full mappings across difficulties.
+ #
+-# Output Features:
+-# - Fully aligned columns and rows across all difficulties
+-# - Legends shifted one column to the right for better spreadsheet readability
+-# - Enum beautification for difficulty names (e.g. HANDICAP_IMMORTAL → Immortal)
+-# - Consistent sorting and field placement, including manual repositioning of goodies and nested fields
+-# - A final explanatory footnote on hut behavior is added as a fully right-shifted row after the [LEGEND] block,
+-#   consistent with spreadsheet alignment.
++# Output Files:
++# - CSV table of all difficulty settings (main output)
++# - Markdown legend file (footnotes + abbreviation keys), designed for GitHub compatibility
++# - Optional Markdown table output (disabled in AdvCiv-SAS but preserved for reference)
+ #
+-# Markdown export is present but disabled by default.
+-
++# Other Features:
++# - Beautification of difficulty level names (e.g. HANDICAP_IMMORTAL → Immortal)
++# - Manual repositioning of nested fields (e.g. GoodyTypes, FreeTechs) after a fixed anchor
++# - Consistent column widths, right-shifted legends, and zero malformed rows for clean GitHub rendering
+ 
+ import csv
+ import xml.etree.ElementTree as ET
+@@ -39,7 +39,10 @@ import re
+ # --- Step 1: Setup paths ---
+ XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
+ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+-csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
++table_csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
++# <!-- custom: md version of the table disabled by default as less advanced and suited for our needs in advciv-sas, kept there if need(ed?) but anyways etc -->
++#table_md_filename = f"handicap_info_to_md_{timestamp}.md"
++legend_md_filename = f"handicap_info_legend_{timestamp}.md"
+ 
+ # --- Step 2: Parse XML ---
+ tree = ET.parse(XML_PATH)
+@@ -82,14 +85,26 @@ ALL_GOODY_TYPES = (
+ 	"GOODY_BARBARIANS_STRONG",
+ )
+ 
++ABBREV_MAP = {
++	"AIFreeTechs": "AIFT_",
++	"FreeTechs":"FT_",
++}
++
++ABBREV_REPLACEMENTS = {
++	"Animal Husbandry": "Animal H.",
++	"Bronze Working": "Bronze W.",
++	"Iron Working": "Iron W.",
++	"Industrialism": "Industr.",
++}
++
+ def beautify_enum_name(raw_name):
+ 	"""
+-	Convert raw enum strings like 'TECH_THE_WHEEL', 'GOODY_LOW_GOLD',
++	Convert raw enum strings like 'TECH_THE_WHEEL',
+ 	'HANDICAP_NOBLE' into human-readable display forms like:
+-	'The Wheel', 'Low Gold', 'Noble'
++	'The Wheel', 'Noble'
+ 	"""
+ 	# Remove known Civ4 enum prefixes
+-	for prefix in ('TECH_', 'GOODY_', 'HANDICAP_'):
++	for prefix in ('TECH_', 'HANDICAP_'):
+ 		if raw_name.startswith(prefix):
+ 			raw_name = raw_name[len(prefix):]
+ 			break
+@@ -97,18 +112,8 @@ def beautify_enum_name(raw_name):
+ 	# Underscore to space, then title case
+ 	return re.sub(r'_', ' ', raw_name).title()
+ 
+-def shorten_legend_name(name):
+-	replacements = {
+-		"Barbarians Weak": "Barb. Weak",
+-		"Barbarians Strong": "Barb. Strong",
+-		"Experience": "Exp.",
+-		#
+-		"Animal Husbandry": "Animal H.",
+-		"Bronze Working": "Bronze W.",
+-		"Iron Working": "Iron W.",
+-		"Industrialism": "Industr.",
+-	}
+-	return replacements.get(name, name)
++def shorten_legend_name(name, abbrev_replacements):
++	return abbrev_replacements.get(name, name)
+ 
+ for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
+ 	handicap_dict = {}
+@@ -204,15 +209,10 @@ legend_counter = {}
+ def get_legend_key(field_name, value):
+ 	if not value.strip():
+ 		return ""
+-	short_prefix = {
+-		"AIFreeTechs": "AIFT_",
+-		"FreeTechs": "FT_",
+-		"Goodies": "G_"
+-	}.get(field_name, field_name[:3].upper() + "_")  # fallback to e.g., iAI → IAI_
+-
+-	count = legend_counter.get(short_prefix, 0)
+-	legend_key = f"{short_prefix}{count}"
+-	legend_counter[short_prefix] = count + 1
++
++	count = legend_counter.get(ABBREV_MAP[field_name], 0)
++	legend_key = f"{ABBREV_MAP[field_name]}{count}"
++	legend_counter[ABBREV_MAP[field_name]] = count + 1
+ 	legend[legend_key] = value
+ 	return legend_key
+ 
+@@ -224,7 +224,7 @@ for row in rows:
+ 			row[difficulty] = get_legend_key(row["Field"], value)
+ 
+ # --- Step 7: Write CSV with right-shifted legend ---
+-with open(csv_filename, "w", newline="", encoding="utf-8") as f:
++with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
+ 	writer = csv.DictWriter(f, fieldnames=columns)
+ 	writer.writeheader()
+ 
+@@ -246,7 +246,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 				if not k or k not in legend_dict:
+ 					continue
+ 				for v in legend_dict[k].split(','):
+-					name = shorten_legend_name(beautify_enum_name(v.strip()))
++					name = shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_REPLACEMENTS)
+ 					if name not in seen:
+ 						unique.append(name)
+ 						seen.add(name)
+@@ -258,7 +258,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 				if k and k in legend_dict:
+ 					headers.append(f"{prefix}{counter}")
+ 					values = {
+-						shorten_legend_name(beautify_enum_name(v.strip()))
++						shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_REPLACEMENTS)
+ 						for v in legend_dict[k].split(',')
+ 					}
+ 					columns.append([v if v in values else "-" for v in unique])
+@@ -270,7 +270,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 
+ 		lines = []
+ 
+-		# AIFT (same style as FT/G)
++		# AIFT (same style as FT)
+ 		aift_keys_ordered = []
+ 		for row in rows:
+ 			if row["Field"] == "AIFreeTechs":
+@@ -278,8 +278,8 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 					ref = row.get(difficulty, "")
+ 					aift_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
+ 
+-		aift_unique = extract_ordered_unique(aift_keys_ordered, "AIFT_")
+-		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, "AIFT_")
++		aift_unique = extract_ordered_unique(aift_keys_ordered, ABBREV_MAP["AIFreeTechs"])
++		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, ABBREV_MAP["AIFreeTechs"])
+ 		lines.append('\t'.join(aift_headers))
+ 		for row in zip(*aift_columns):
+ 			lines.append('\t'.join(row))
+@@ -292,8 +292,8 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 					ref = row.get(difficulty, "")
+ 					ft_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
+ 
+-		ft_unique = extract_ordered_unique(ft_keys_ordered, "FT_")
+-		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, "FT_")
++		ft_unique = extract_ordered_unique(ft_keys_ordered, ABBREV_MAP["FreeTechs"])
++		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, ABBREV_MAP["FreeTechs"])
+ 		lines.append('\t'.join(ft_headers))
+ 		for row in zip(*ft_columns):
+ 			lines.append('\t'.join(row))
+@@ -326,24 +326,36 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 
+ 		legend_csv.writerow(parts)
+ 
+-	# <!-- custom: add an empty row for prettiness if i may say before the footnote row but anyways etc -->
+-	empty_row_pre_footnote_row = ([""] * (NUM_COLUMNS + 1))
+-	legend_csv.writerow(empty_row_pre_footnote_row)
++print("✔ Export complete with legend references.")
++print(f"→ Output CSV saved as: {table_csv_filename}")
+ 
+-	# Add extra footnote/comment row after the legend
+-	footnote_text = '(*): This element is listed under the heading "Goodies (20)" in the XML file. It indicates the chance (x-in-20) of a "goody hut" yielding this result when "popped" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)'
+-	# <!-- custom: do not leave previous columns in same line empty of the footnote/legend (of (*) but anyways etc...) row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though but anyways etc anyways etc anyways etc... hopefully helpful and fixed this way in the github web view but anyways etc anyways etc anyways etc... -->
+-	footnote_row = (["[LEGEND]"] * NUM_COLUMNS) + [footnote_text]
+-	legend_csv.writerow(footnote_row)
+ 
+-print("✔ Export complete with legend references.")
+-print(f"→ Output CSV saved as: {csv_filename}")
++# <!-- custom: do not leave previous columns in same line empty of the footnote/legend (of (*) but anyways etc...) row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though but anyways etc anyways etc anyways etc... hopefully helpful and fixed this way in the github web view but anyways etc anyways etc anyways etc..., easiest way to cleanly solve this seems to move the footnote to a separate legend file, plus we can add other info there if need(ed?) anyways etc -->
++# Save footnote to a separate file for GitHub-safe display
++with open(legend_md_filename, "w", encoding="utf-8") as md:
++	md.write("# Handicap Info Legend Notes\n\n")
++
++	md.write("## Goodies Footnote\n\n")
++	md.write("> (*): This element is listed under the heading **\"Goodies (20)\"** in the XML file.\n")
++	md.write("> It indicates the chance (x-in-20) of a goody hut yielding this result when \"popped\" by the player.\n")
++	md.write("> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)\n\n")
++
++	md.write("## Abbreviation Keys\n\n")
++	# Reverse map: short_prefix → original_field
++	reverse_abbrev_map = {
++		v: k for k, v in ABBREV_MAP.items()
++	}
++
++	for abbr in sorted(reverse_abbrev_map.keys()):
++		original_field = reverse_abbrev_map[abbr]
++		md.write(f"- **{abbr}**: `{original_field}`\n")
++
++print(f"→ Legend saved as: {legend_md_filename}")
+ 
+-# <!-- custom: commented-out md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
++# <!-- custom: commented-out table to .md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
+ """
+ # --- Step 8: Write Markdown table ---
+-md_filename = f"handicap_info_to_md_{timestamp}.md"
+-with open(md_filename, "w", encoding="utf-8") as md:
++with open(table_md_filename, "w", encoding="utf-8") as md:
+ 	# Header
+ 	md.write("| Field | " + " | ".join(columns[1:]) + " |\n")
+ 	md.write("|" + "------|" * len(columns) + "\n")
+@@ -363,5 +375,5 @@ with open(md_filename, "w", encoding="utf-8") as md:
+ 		md.write(f"| {key} | {value} |\n")
+ 
+ print("✔ Markdown export complete.")
+-print(f"→ Output Markdown saved as: {md_filename}")
++print(f"→ Output Markdown saved as: {table_md_filename}")
+ """
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index c207a5f4b..2f675dc5f 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -114,5 +114,3 @@ FreeTechs,FT_0,,,,,,,,
+ ,Animal H.,-,-,-,-,-,-,-,-
+ ,Bronze W.,-,-,-,-,-,-,-,-
+ ,Iron W.,-,-,-,-,-,-,-,-
+-,,,,,,,,,,
+-[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],"(*): This element is listed under the heading ""Goodies (20)"" in the XML file. It indicates the chance (x-in-20) of a ""goody hut"" yielding this result when ""popped"" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)"
+
+diff --git a/handicap_info_to_csv_legend_advciv-sas.md b/handicap_info_to_csv_legend_advciv-sas.md
+new file mode 100644
+index 000000000..2a00fe86b
+--- /dev/null
++++ b/handicap_info_to_csv_legend_advciv-sas.md
+@@ -0,0 +1,12 @@
++# Handicap Info Legend Notes
++
++## Goodies Footnote
++
++> (*): This element is listed under the heading **"Goodies (20)"** in the XML file.
++> It indicates the chance (x-in-20) of a goody hut yielding this result when "popped" by the player.
++> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)
++
++## Abbreviation Keys
++
++- **AIFT_**: `AIFreeTechs`
++- **FT_**: `FreeTechs`
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=27677

@@ -1,0 +1,928 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 233
+# Commit: b960a3ea885b56a6ea8a59692debff20aef2427e
+# History segment: K-Mod history
+# Parent used for diff: b42fb1fa111ec9ef52e713b1719274763de64acb
+# Title: Culture flipping is now blocked for the most recent previous owner of a city instead of for all previous owners. Blocked some more python callbacks. Made som...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	0	Assets/xml/PythonCallbackDefines.xml
+95	65	CvGameCoreDLL/CvCity.cpp
+52	30	CvGameCoreDLL/CvCityAI.cpp
+16	0	CvGameCoreDLL/CvGlobals.cpp
+16	0	CvGameCoreDLL/CvGlobals.h
+7	3	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+11	102	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlot.cpp
+29	0	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/CvTeamAI.h
+5	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/PythonCallbackDefines.xml b/Assets/xml/PythonCallbackDefines.xml
+index 16463d334..51478c16a 100644
+--- a/Assets/xml/PythonCallbackDefines.xml
++++ b/Assets/xml/PythonCallbackDefines.xml
+@@ -125,4 +125,32 @@
+ 		<DefineName>USE_AI_CHOOSE_TECH_CALLBACK</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_GROWTH_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_CULTURE_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_PLOT_CULTURE_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_PRODUCTION_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_RELIGION_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_GREAT_PEOPLE_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>m_bUSE_DO_MELTDOWN_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3b7cc3d4a..13c9b300b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2364,6 +2364,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
+ 
+ 	iExperience = getFreeExperience();
+ 	iExperience += GET_PLAYER(getOwnerINLINE()).getFreeExperience();
++	iExperience += getSpecialistFreeExperience(); // K-Mod (moved from below)
+ 
+ 	if (eUnit != NO_UNIT)
+ 	{
+@@ -2373,7 +2374,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
+ 		}
+ 		iExperience += getDomainFreeExperience((DomainTypes)(GC.getUnitInfo(eUnit).getDomainType()));
+ 
+-		iExperience += getSpecialistFreeExperience();
++		//iExperience += getSpecialistFreeExperience();
+ 	}
+ 
+ 	if (GET_PLAYER(getOwnerINLINE()).getStateReligion() != NO_RELIGION)
+@@ -12049,15 +12050,18 @@ void CvCity::doGrowth()
+ {
+ 	int iDiff;
+ 
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doGrowth", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_GROWTH_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doGrowth", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	iDiff = foodDifference();
+@@ -12096,15 +12100,18 @@ void CvCity::doGrowth()
+ 
+ void CvCity::doCulture()
+ {
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doCulture", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_CULTURE_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doCulture", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ /**
+@@ -12158,19 +12165,22 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultu
+ 	int iDX, iDY;
+ 	CultureLevelTypes eCultureLevel = (CultureLevelTypes)0;
+ 
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	argsList.add(bUpdate);
+-	argsList.add(ePlayer);
+-	//argsList.add(iCultureRate);
+-	argsList.add(iCultureRateTimes100/100); // K-Mod
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doPlotCulture", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_PLOT_CULTURE_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		argsList.add(bUpdate);
++		argsList.add(ePlayer);
++		//argsList.add(iCultureRate);
++		argsList.add(iCultureRateTimes100/100); // K-Mod
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doPlotCulture", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	FAssert(NO_PLAYER != ePlayer);
+@@ -12424,15 +12434,18 @@ bool CvCity::doCheckProduction()
+ 
+ void CvCity::doProduction(bool bAllowNoProduction)
+ {
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doProduction", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_PRODUCTION_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doProduction", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (!isHuman() || isProductionAutomated())
+@@ -12555,15 +12568,18 @@ void CvCity::doReligion()
+ 	int iLoop;
+ 	//int iI, iJ;
+ 
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doReligion", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_RELIGION_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doReligion", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	// K-Mod
+@@ -12573,11 +12589,15 @@ void CvCity::doReligion()
+ 
+ 	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 	{
+-		int iGrip = getReligionGrip((ReligionTypes)iI) + GC.getGameINLINE().getSorenRandNum(iRandomWeight, "Religion influence");
+-		if (iGrip > iStrongestGrip)
++		if (GC.getGame().isReligionFounded((ReligionTypes)iI))
+ 		{
+-			iStrongestGrip = iGrip;
+-			eStrongestReligion = (ReligionTypes)iI;
++			int iGrip = getReligionGrip((ReligionTypes)iI);
++			iGrip += GC.getGameINLINE().getSorenRandNum(iRandomWeight/2, "Religion influence"); // only half the weight for self-spread
++			if (iGrip > iStrongestGrip)
++			{
++				iStrongestGrip = iGrip;
++				eStrongestReligion = (ReligionTypes)iI;
++			}
+ 		}
+ 	}
+ 	if (eStrongestReligion != NO_RELIGION && !isHasReligion(eStrongestReligion))
+@@ -12611,6 +12631,10 @@ void CvCity::doReligion()
+ 				}
+ 			}
+ 
++			// scale for game speed
++			iRandThreshold *= 100;
++			iRandThreshold /= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++
+ 			if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("RELIGION_SPREAD_RAND"), "Religion Spread") < iRandThreshold)
+ 			{
+ 				setHasReligion(eStrongestReligion, true, true, true);
+@@ -12669,15 +12693,18 @@ void CvCity::doReligion()
+ 
+ void CvCity::doGreatPeople()
+ {
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doGreatPeople", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_GREAT_PEOPLE_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doGreatPeople", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (isDisorder())
+@@ -12736,15 +12763,18 @@ void CvCity::doMeltdown()
+ 	CvWString szBuffer;
+ 	int iI;
+ 
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "doMeltdown", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer 
+-	if (lResult == 1)
++	if (GC.getUSE_DO_MELTDOWN_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "doMeltdown", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer 
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a6a6cf6f9..f020a1fcc 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -520,7 +520,7 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 		if (AI_isEmphasizeGreatPeople())
+ 		{
+ 			//iGPPValue = isHuman() ? 30 : 20;
+-			iGPPValue = 16; // K-Mod. If the value is too high, it becomes worth more than the food that feeds them.
++			iGPPValue = 12; // K-Mod. If the value is too high, it becomes worth more than city growth
+ 		}
+ 		else
+ 		{
+@@ -625,19 +625,22 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 		}
+ 
+ 		// Scale based on how often this city will actually get a great person.
+-		int iCityRate = getGreatPeopleRate();
+-		int iHighestRate = 0;
+-		int iLoop;
+-		for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
+-		{
+-			int x = pLoopCity->getGreatPeopleRate();
+-			if (x > iHighestRate)
+-				iHighestRate = x;
+-		}
+-		if (iHighestRate > iCityRate)
++		if (!AI_isEmphasizeGreatPeople())
+ 		{
+-			iTempValue *= 100;
+-			iTempValue /= (2*100*(iHighestRate+3))/(iCityRate+3) - 100;
++			int iCityRate = getGreatPeopleRate();
++			int iHighestRate = 0;
++			int iLoop;
++			for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
++			{
++				int x = pLoopCity->getGreatPeopleRate();
++				if (x > iHighestRate)
++					iHighestRate = x;
++			}
++			if (iHighestRate > iCityRate)
++			{
++				iTempValue *= 100;
++				iTempValue /= (2*100*(iHighestRate+4))/(iCityRate+4) - 100;
++			}
+ 		}
+ 		
+ 		iTempValue *= getTotalGreatPeopleRateModifier();
+@@ -647,7 +650,7 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 		iTempValue /= (1 + iEmphasisCount);
+ 		iValue += iTempValue;
+ 	}
+-	/*else
++	else
+ 	{
+ 		SpecialistTypes eGenericCitizen = (SpecialistTypes) GC.getDefineINT("DEFAULT_SPECIALIST");
+ 		
+@@ -657,7 +660,7 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 			iValue *= 60;
+ 			iValue /= 100;
+ 		}
+-	}*/
++	}
+ 	
+ 	int iExperience = GC.getSpecialistInfo(eSpecialist).getExperience();
+ 	if (0 != iExperience)
+@@ -709,6 +712,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 		int iTempValue = 100 * iGreatPeopleRate * iGPPValue;
+ 		
+ 		// Scale based on how often this city will actually get a great person.
++		/* Actually... don't do that. That's not the kind of thing we should take into account for permanent specialists.
+ 		int iCityRate = getGreatPeopleRate();
+ 		int iHighestRate = 0;
+ 		int iLoop;
+@@ -722,7 +726,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 		{
+ 			iTempValue *= 100;
+ 			iTempValue /= (2*100*(iHighestRate+3))/(iCityRate+3) - 100;
+-		}
++		} */
+ 		
+ 		iTempValue *= getTotalGreatPeopleRateModifier();
+ 		iTempValue /= 100;
+@@ -4201,7 +4205,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				// medium value for change in waste
+ 				iValue -= iCitValue * iWasteDelta;
+ 				// some extra value if the change will help us grow (this is a positive change bias)
+-				if (iWasteDelta < 0 && iHappinessLevel > 1)
++				if (iWasteDelta < 0 && iHappinessLevel > 0)
+ 				{
+ 					iValue -= iCitValue * iWasteDelta;
+ 				}
+@@ -5013,8 +5017,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						// K-Mod
+ 						if (iI == YIELD_PRODUCTION)
+ 						{
+-							// priority += 2.4% per 1% in production increase. roughly. More when at war.
+-							iPriorityFactor += std::min(100, (bWarPlan ? 320 : 240)*iTempValue/std::max(1, 5*getYieldRate(YIELD_PRODUCTION)));
++							// priority += 2.5% per 1% in production increase. roughly. More when at war.
++							iPriorityFactor += std::min(100, (bWarPlan ? 320 : 250)*iTempValue/std::max(1, 5*getYieldRate(YIELD_PRODUCTION)));
+ 						}
+ 						// K-Mod end
+ 
+@@ -5155,6 +5159,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						// K-Mod end
+ 					}
+ 
++					// K-Mod. help get the ball rolling on espionage.
++					if (iI == COMMERCE_ESPIONAGE && iTempValue > 0 && !GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++					{
++						// priority += 1% per 1% increase in total espionage, more for big espionage strategy
++						iPriorityFactor += std::min(100, (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)?150 : 100) * iTempValue/std::max(1, 4*kOwner.getCommerceRate(COMMERCE_ESPIONAGE)));
++					}
++					// K-Mod end
++
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      04/25/10                              jdog5000        */
+@@ -10084,7 +10096,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 
+ 					// if we want to grow
+ 					// don't count growth value for tiles with nothing else to contribute.
+-					if ((iPopToGrow > 0 || bFillingBar) && (iFoodYield - iConsumtionPerPop > 0 || iProductionValue > 0 && iCommerceValue > 0))
++					if ((iPopToGrow > 0 || bFillingBar) && (iFoodYield - iConsumtionPerPop > 0 || iProductionValue > 0 || iCommerceValue > 0))
+ 					{
+ 						
+ 						// will multiply this by factors
+@@ -10403,7 +10415,10 @@ int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool
+ 
+ int CvCityAI::AI_experienceWeight()
+ {
+-	return ((getProductionExperience() + getDomainFreeExperience(DOMAIN_SEA)) * 2);
++	//return ((getProductionExperience() + getDomainFreeExperience(DOMAIN_SEA)) * 2);
++	// K-Mod
++	return 2 * getProductionExperience() + getDomainFreeExperience(DOMAIN_LAND) + getDomainFreeExperience(DOMAIN_SEA);
++	// K-Mod end
+ }
+ 
+ 
+@@ -11054,7 +11069,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 	int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : AI_buildingValue(eBestBuilding);
+ 
+     // pop borders
+-	if (getCultureLevel() <= (CultureLevelTypes)1 && getCommerceRate(COMMERCE_CULTURE) < 2)
++	if (getCultureLevel() <= (CultureLevelTypes)1 && getCommerceRate(COMMERCE_CULTURE) == 0)
+ 	{
+ 		if (eBestBuilding != NO_BUILDING && AI_countGoodTiles(true, false) > 0)
+ 		{
+@@ -11084,7 +11099,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 				{
+ 					int iOdds = 100;
+ 					iOdds *= 50 + iBestBuildingValue;
+-					iOdds /= 50 + 5 * iBestBuildingValue;
++					iOdds /= 50 + (bLocalResource ? 3 : 5) * iBestBuildingValue;
+ 					if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
+ 					{
+ 						return;
+@@ -11119,20 +11134,27 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 
+ 		//military
+ 		bool bWar = GET_TEAM(getTeam()).getAtWarCount(true) > 0;
+-		if (bDanger || iBestBuildingValue < (bWar ? 30 : 20))
++		if (bDanger || iBestBuildingValue < (bWar ? 35 : 20))
+ 		{
+ 			int iOdds = (bWar ? 100 : 50) - kOwner.AI_unitCostPerMil()/2;
++			iOdds += AI_experienceWeight();
++			iOdds *= 100 + 2*getMilitaryProductionModifier();
++			iOdds /= 100;
++
+ 			iOdds *= 50 + iBestBuildingValue;
+ 			iOdds /= 50 + 10 * iBestBuildingValue;
+ 
+-   			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 10, iOdds))
++			if (GC.getGameINLINE().getSorenRandNum(100, "City governor choose military") < iOdds)
+ 			{
+-				return;
+-			}
++				if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 10))
++				{
++					return;
++				}
+ 
+-			if (AI_chooseUnit(NO_UNITAI, iOdds))
+-			{
+-				return;
++				if (AI_chooseUnit(NO_UNITAI))
++				{
++					return;
++				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 714108d00..a412d99eb 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -218,6 +218,14 @@ m_bUSE_AI_DO_DIPLO_CALLBACK(false),
+ m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK(false),
+ m_bUSE_AI_DO_WAR_CALLBACK(false),
+ m_bUSE_AI_CHOOSE_TECH_CALLBACK(false),
++
++m_bUSE_DO_GROWTH_CALLBACK(false),
++m_bUSE_DO_CULTURE_CALLBACK(false),
++m_bUSE_DO_PLOT_CULTURE_CALLBACK(false),
++m_bUSE_DO_PRODUCTION_CALLBACK(false),
++m_bUSE_DO_RELIGION_CALLBACK(false),
++m_bUSE_DO_GREAT_PEOPLE_CALLBACK(false),
++m_bUSE_DO_MELTDOWN_CALLBACK(false),
+ // K-Mod end
+ m_paHints(NULL),
+ m_paMainMenus(NULL)
+@@ -2713,6 +2721,14 @@ void CvGlobals::cacheGlobals()
+ 	m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK = getDefineINT("USE_AI_CHOOSE_PRODUCTION_CALLBACK") != 0;
+ 	m_bUSE_AI_DO_WAR_CALLBACK = getDefineINT("USE_AI_DO_WAR_CALLBACK") != 0;
+ 	m_bUSE_AI_CHOOSE_TECH_CALLBACK = getDefineINT("USE_AI_CHOOSE_TECH_CALLBACK") != 0;
++
++	m_bUSE_DO_GROWTH_CALLBACK = getDefineINT("USE_DO_GROWTH_CALLBACK") != 0;
++	m_bUSE_DO_CULTURE_CALLBACK = getDefineINT("USE_DO_CULTURE_CALLBACK") != 0;
++	m_bUSE_DO_PLOT_CULTURE_CALLBACK = getDefineINT("USE_DO_PLOT_CULTURE_CALLBACK") != 0;
++	m_bUSE_DO_PRODUCTION_CALLBACK = getDefineINT("USE_DO_PRODUCTION_CALLBACK") != 0;
++	m_bUSE_DO_RELIGION_CALLBACK = getDefineINT("USE_DO_RELIGION_CALLBACK") != 0;
++	m_bUSE_DO_GREAT_PEOPLE_CALLBACK = getDefineINT("USE_DO_GREAT_PEOPLE_CALLBACK") != 0;
++	m_bUSE_DO_MELTDOWN_CALLBACK = getDefineINT("USE_DO_MELTDOWN_CALLBACK") != 0;
+ 	// K-Mod end
+ 
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 51de5d015..76c7d95c5 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -797,6 +797,14 @@ public:
+ 	inline bool getUSE_AI_CHOOSE_PRODUCTION_CALLBACK() { return m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK; }
+ 	inline bool getUSE_AI_DO_WAR_CALLBACK() { return m_bUSE_AI_DO_WAR_CALLBACK; }
+ 	inline bool getUSE_AI_CHOOSE_TECH_CALLBACK() { return m_bUSE_AI_CHOOSE_TECH_CALLBACK; }
++
++	inline bool getUSE_DO_GROWTH_CALLBACK() { return m_bUSE_DO_GROWTH_CALLBACK; }
++	inline bool getUSE_DO_CULTURE_CALLBACK() { return m_bUSE_DO_CULTURE_CALLBACK; }
++	inline bool getUSE_DO_PLOT_CULTURE_CALLBACK() { return m_bUSE_DO_PLOT_CULTURE_CALLBACK; }
++	inline bool getUSE_DO_PRODUCTION_CALLBACK() { return m_bUSE_DO_PRODUCTION_CALLBACK; }
++	inline bool getUSE_DO_RELIGION_CALLBACK() { return m_bUSE_DO_RELIGION_CALLBACK; }
++	inline bool getUSE_DO_GREAT_PEOPLE_CALLBACK() { return m_bUSE_DO_GREAT_PEOPLE_CALLBACK; }
++	inline bool getUSE_DO_MELTDOWN_CALLBACK() { return m_bUSE_DO_MELTDOWN_CALLBACK; }
+ 	// K-Mod end
+ 
+ 	DllExport int getMAX_CIV_PLAYERS();
+@@ -1223,6 +1231,14 @@ protected:
+ 	bool m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK;
+ 	bool m_bUSE_AI_DO_WAR_CALLBACK;
+ 	bool m_bUSE_AI_CHOOSE_TECH_CALLBACK;
++
++	bool m_bUSE_DO_GROWTH_CALLBACK;
++	bool m_bUSE_DO_CULTURE_CALLBACK;
++	bool m_bUSE_DO_PLOT_CULTURE_CALLBACK;
++	bool m_bUSE_DO_PRODUCTION_CALLBACK;
++	bool m_bUSE_DO_RELIGION_CALLBACK;
++	bool m_bUSE_DO_GREAT_PEOPLE_CALLBACK;
++	bool m_bUSE_DO_MELTDOWN_CALLBACK;
+ 	// K-Mod end
+ 
+ 	// DLL interface
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6ea40a001..e78977fd3 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8353,16 +8353,20 @@ int CvPlayer::countHeadquarters() const
+ }
+ 
+ 
+-int CvPlayer::countCorporations(CorporationTypes eCorporation) const
++//int CvPlayer::countCorporations(CorporationTypes eCorporation) const
++int CvPlayer::countCorporations(CorporationTypes eCorporation, CvArea* pArea) const // K-Mod
+ {
+ 	int iCount = 0;
+ 
+ 	int iLoop;
+ 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+-		if (pLoopCity->isHasCorporation(eCorporation))
++		if (!pArea || pLoopCity->area() == pArea) // K-Mod
+ 		{
+-			++iCount;
++			if (pLoopCity->isHasCorporation(eCorporation))
++			{
++				++iCount;
++			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index c703407c2..987b535cb 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -310,7 +310,8 @@ public:
+ 
+ 	bool hasHeadquarters(CorporationTypes eCorporation) const;																											// Exposed to Python
+ 	int countHeadquarters() const;																																					// Exposed to Python
+-	int countCorporations(CorporationTypes eCorporation) const;																																					// Exposed to Python
++	//int countCorporations(CorporationTypes eCorporation) const;	// Exposed to Python
++	int countCorporations(CorporationTypes eCorporation, CvArea* pArea = 0) const; // K-Mod, exposed to Python
+ 	void foundCorporation(CorporationTypes eCorporation);																										// Exposed to Python
+ 
+ 	DllExport int getCivicAnarchyLength(CivicTypes* paeNewCivics) const;																	// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ad3a88d72..653a546d3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11552,27 +11552,18 @@ int CvPlayerAI::AI_missionaryValue(CvArea* pArea, ReligionTypes eReligion, Playe
+ }
+ 
+ // K-Mod note: the original BtS code for this was totally inconsistant with the calculation in AI_missionaryValue
+-// -- which is bad news, since the results are compared directly.
+-// I've changed a lot of this function, so that it is more sane, and more compariable to the other value.
+-// but I'm not necessary happy with it yet.
++// -- which is bad news since the results are compared directly.
++// I've changed a lot of this function so that it is more sane and more compariable to the missionary value.
++// The original code is deleted.
+ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation, PlayerTypes* peBestPlayer) const
+ {
+ 	CvTeam& kTeam = GET_TEAM(getTeam());
+ 	CvGame& kGame = GC.getGame();
+ 	CvCorporationInfo& kCorp = GC.getCorporationInfo(eCorporation);
+ 
+-	//int iSpreadInternalValue = 100;
+-	int iSpreadInternalValue = 0; // K-Mod
++	int iSpreadInternalValue = 0;
+ 	int iSpreadExternalValue = 0;
+ 
+-	/* original bts code
+-	if (kTeam.hasHeadquarters(eCorporation))
+-	{
+-		int iGoldMultiplier = kGame.getHeadquarters(eCorporation)->getTotalCommerceRateModifier(COMMERCE_GOLD);
+-		iSpreadInternalValue += 10 * std::max(0, (iGoldMultiplier - 100));
+-		iSpreadExternalValue += 15 * std::max(0, (iGoldMultiplier - 150));
+-	} */
+-	// K-Mod
+ 	if (kTeam.hasHeadquarters(eCorporation))
+ 	{
+ 		int iHqValue = 0;
+@@ -11585,7 +11576,6 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 		iSpreadInternalValue += iHqValue;
+ 		iSpreadExternalValue += iHqValue;
+ 	}
+-	// K-Mod end
+ 	
+ 	int iOurCitiesHave = 0;
+ 	int iOurCitiesCount = 0;
+@@ -11597,15 +11587,7 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 	}
+ 	else
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
+-/*                                                                                              */
+-/* City AI                                                                                      */
+-/************************************************************************************************/
+ 		iOurCitiesHave = pArea->countHasCorporation(eCorporation, getID()) + countCorporationSpreadUnits(pArea,eCorporation,true);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		iOurCitiesCount = pArea->getCitiesPerPlayer(getID());
+ 	}
+ 	
+@@ -11627,57 +11609,13 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 	if (iOurCitiesHave >= iOurCitiesCount)
+ 	{
+ 		iSpreadInternalValue = 0;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       06/23/10                                  denev       */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* original bts code
+-		if (iSpreadExternalValue = 0)
+-*/
+ 		if (iSpreadExternalValue == 0)
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 		{
+ 			return 0;
+ 		}
+ 	}
+ 	
+-	/* original bts code
+-	int iBonusValue = 0;
+-	CvCity* pCity = getCapitalCity();
+-	if (pCity != NULL)
+-	{
+-		iBonusValue = AI_corporationValue(eCorporation, pCity);
+-		iBonusValue /= 100;
+-	} */
+-	iSpreadInternalValue += AI_corporationValue(eCorporation); // K-Mod
+-
+-	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+-	{
+-		//CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-		const CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer); // K-Mod
+-		if (kLoopPlayer.isAlive() && (kLoopPlayer.getNumCities() > 0))
+-		{
+-			if ((kLoopPlayer.getTeam() == getTeam()) || GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()))
+-			{
+-				if (kLoopPlayer.getHasCorporationCount(eCorporation) == 0)
+-				{
+-					//iBonusValue += 1000;
+-					iSpreadInternalValue += kLoopPlayer.AI_corporationValue(eCorporation) * kLoopPlayer.getNumCities() * 2 /3; // K-Mod
+-				}
+-			}
+-		}
+-	}
+-
+-	/* original bts code
+-	if (iBonusValue == 0)
+-	{
+-		return 0;
+-	}
+-
+-	iSpreadInternalValue += iBonusValue; */
++	iSpreadInternalValue += AI_corporationValue(eCorporation);
+ 
+ 	if (iSpreadExternalValue > 0)
+ 	{
+@@ -11687,39 +11625,14 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 		{
+ 			if (iPlayer != getID())
+ 			{
+-				//CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+ 				const CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer); // K-Mod
+-				//if (kLoopPlayer.isAlive() && (kLoopPlayer.getTeam() != getTeam()) && (kLoopPlayer.getNumCities() > 0))
+-				if (kLoopPlayer.isAlive() && kLoopPlayer.getNumCities() > 0) // K-Mod
++				int iNumCities = pArea ? pArea->getCitiesPerPlayer((PlayerTypes)iPlayer) : kLoopPlayer.getNumCities(); // K-Mod
++				if (kLoopPlayer.isAlive() && iNumCities > 0) // K-Mod
+ 				{
+ 					if (GET_TEAM(kLoopPlayer.getTeam()).isOpenBorders(getTeam()))
+ 					{
+ 						if (!kLoopPlayer.isNoCorporations() && !kLoopPlayer.isNoForeignCorporations())
+ 						{
+-							/* original bts code
+-							int iCitiesCount = 0;
+-							int iCitiesHave = 0;
+-							int iMultiplier = AI_getAttitudeWeight((PlayerTypes)iPlayer);
+-							if (NULL == pArea)
+-							{
+-								iCitiesCount += 1 + (kLoopPlayer.getNumCities() * 50) / 100;
+-								iCitiesHave += kLoopPlayer.getHasCorporationCount(eCorporation);
+-							}
+-							else
+-							{
+-								int iPlayerSpreadPercent = (100 * kLoopPlayer.getHasCorporationCount(eCorporation)) / kLoopPlayer.getNumCities();
+-								iCitiesCount += pArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
+-								iCitiesHave += std::min(iCitiesCount, (iCitiesCount * iPlayerSpreadPercent) / 50);
+-							}
+-
+-							if (iCitiesHave < iCitiesCount)
+-							{
+-								/* original bts code
+-								int iValue = (iMultiplier * iSpreadExternalValue);
+-								iValue += ((iMultiplier - 55) * iBonusValue) / 4;
+-								iValue /= 100;
+-							} */
+-							// K-Mod. (wtf is with the iCitiesCount & iCitiesHave stuff? They are unused, and wrong!)
+ 							int iCorpValue = kLoopPlayer.AI_corporationValue(eCorporation);
+ 							int iAttitudeWeight;
+ 
+@@ -11746,12 +11659,11 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 									iValue *= (kLoopPlayer.getNumCities()+3)/4;
+ 								}
+ 							}
+-							if (iValue > iBestValue)
++							if (iValue > iBestValue && kLoopPlayer.countCorporations(eCorporation, pArea) < iNumCities)
+ 							{
+ 								iBestValue = iValue;
+ 								iBestPlayer = iPlayer;
+ 							}
+-							// K-Mod end
+ 						}
+ 					}
+ 				}
+@@ -11764,8 +11676,7 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 			{
+ 				*peBestPlayer = (PlayerTypes)iBestPlayer;
+ 			}
+-			//return iBestValue;
+-			return 6 * iBestValue; // K-Mod (see comment below)
++			return 10 * iBestValue; // K-Mod (see comment below)
+ 		}
+ 	}
+ 
+@@ -11773,11 +11684,9 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 	{
+ 		*peBestPlayer = getID();
+ 	}
+-	//return iSpreadInternalValue;
+-	// K-Mod... I'm putting in a fudge-factor of 6 just to bring the value up to scale with AI_missionaryValue.
++	// I'm putting in a fudge-factor of 10 just to bring the value up to scale with AI_missionaryValue.
+ 	// This isn't something that i'm happy about, but it's easier than rewriting AI_missionaryValue.
+-	return 6 * iSpreadInternalValue;
+-	// K-Mod end
++	return 10 * iSpreadInternalValue;
+ }
+ 
+ //Returns approximately 100 x gpt value of the corporation.
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 684c36871..12c49c0cc 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -8787,7 +8787,8 @@ void CvPlot::doCulture()
+ 
+ 							}
+ 
+-							if (pCity->isBarbarian() || (!(GC.getGameINLINE().isOption(GAMEOPTION_NO_CITY_FLIPPING)) && (GC.getGameINLINE().isOption(GAMEOPTION_FLIPPING_AFTER_CONQUEST) || !(pCity->isEverOwned(eCulturalOwner))) && (pCity->getNumRevolts(eCulturalOwner) >= GC.getDefineINT("NUM_WARNING_REVOLTS"))))
++							//if (pCity->isBarbarian() || (!(GC.getGameINLINE().isOption(GAMEOPTION_NO_CITY_FLIPPING)) && (GC.getGameINLINE().isOption(GAMEOPTION_FLIPPING_AFTER_CONQUEST) || !(pCity->isEverOwned(eCulturalOwner))) && (pCity->getNumRevolts(eCulturalOwner) >= GC.getDefineINT("NUM_WARNING_REVOLTS"))))
++							if (pCity->isBarbarian() || (!GC.getGameINLINE().isOption(GAMEOPTION_NO_CITY_FLIPPING) && (GC.getGameINLINE().isOption(GAMEOPTION_FLIPPING_AFTER_CONQUEST) || pCity->getPreviousOwner() != eCulturalOwner) && pCity->getNumRevolts(eCulturalOwner) >= GC.getDefineINT("NUM_WARNING_REVOLTS"))) // K-Mod
+ 							{
+ 								if (GC.getGameINLINE().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eCulturalOwner).isHuman())
+ 								{
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index fa2933c02..0083c1c78 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2271,6 +2271,28 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 	return NO_DENIAL;
+ }
+ 
++// K-Mod
++int CvTeamAI::AI_countMembersWithStrategy(int iStrategy) const
++{
++	int iCount = 0;
++	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
++	{
++		if (GET_PLAYER((PlayerTypes)iPlayer).getTeam() == getID())
++		{
++			if (GET_PLAYER((PlayerTypes)iPlayer).isAlive())
++			{
++				if (GET_PLAYER((PlayerTypes)iPlayer).AI_isDoStrategy(iStrategy))
++				{
++					iCount++;
++				}
++			}
++		}
++	}
++
++	return iCount;
++}
++// K-Mod end
++
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      03/20/10                                jdog5000      */
+ /*                                                                                              */
+@@ -4475,6 +4497,13 @@ void CvTeamAI::AI_doWar()
+ 						iTimeModifier *= iEnemyPowerPercent;
+ 						iTimeModifier /= iThreshold;
+ 					}
++					// K-Mod. with crush strategy, use just 2/3 of the prep time.
++					{
++						int iCrushMembers = AI_countMembersWithStrategy(AI_STRATEGY_CRUSH);
++						iTimeModifier *= 3 * (getNumMembers()-iCrushMembers) + 2 * iCrushMembers;
++						iTimeModifier /= 3;
++					}
++					// K-Mod end
+ 					
+ 					iTimeModifier *= 50 + GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+ 					iTimeModifier /= 150;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 176a440b5..835a88482 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -113,6 +113,7 @@ public:
+ /*                                                                                              */
+ /* Victory Strategy AI                                                                          */
+ /************************************************************************************************/
++	int AI_countMembersWithStrategy(int iStrategy) const; // K-Mod
+ 	bool AI_isAnyMemberDoVictoryStrategy( int iVictoryStrategy ) const;
+ 	bool AI_isAnyMemberDoVictoryStrategyLevel4() const;
+ 	bool AI_isAnyMemberDoVictoryStrategyLevel3() const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 706fe57f9..e44ea63a6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11105,7 +11105,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 		if ((iCityDefenderCount - 1) < pPlotCity->AI_minDefenders())
+ 		{
+ 			//if ((iCityDefenderCount <= 2) || (GC.getGame().getSorenRandNum(5, "AI shuffle defender") != 0))
+-			if (iCityDefenderCount <= 1 || GC.getGame().getSorenRandNum(area()->getCitiesPerPlayer(getOwnerINLINE()) + 5, "AI shuffle defender") > 1) // K-mod
++			if (iCityDefenderCount <= 1 || GC.getGame().getSorenRandNum(area()->getNumAIUnits(getOwnerINLINE(), UNITAI_CITY_DEFENSE) + 5, "AI shuffle defender") > 1) // K-mod
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+@@ -11142,6 +11142,10 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ /************************************************************************************************/
+ 				int iDefendersHave = pLoopCity->plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE());
+ 				int iDefendersNeed = pLoopCity->AI_minDefenders();
++				// K-Mod. don't count ourself
++				if (pPlotCity == pLoopCity && AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
++					iDefendersHave--;
++				// K-Mod end
+ 				if (iDefendersHave < iDefendersNeed)
+ 				{
+ 					if (!(pLoopCity->plot()->isVisibleEnemyUnit(this)))
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=36450

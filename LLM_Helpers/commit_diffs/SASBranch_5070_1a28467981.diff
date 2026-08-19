@@ -1,0 +1,168 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5070
+# Commit: 1a28467981ad0fbda3d53052263d6c09e8f83c1d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0efd42054b8f437ae816a58149981dccf87d4a30
+# Title: performance optimization: switch bonus specific builds code from map to vector as recommended by chatgpt 5, i don't know too much about these but it is faste...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	3	CvGameCoreDLL/CitySiteEvaluator.cpp
+47	18	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index df3ac0832..a2e465f10 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -816,9 +816,14 @@ short AIFoundValue::evaluate()
+ 				int fImp = 0, hImp = 0, cImp = 0;
+ 				if (eBonusSpecificImprovement != NO_IMPROVEMENT)
+ 				{
+-					fImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
+-					hImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
+-					cImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
++					// <!-- custom: note to chatgpt 5 or other AIs or such anywyas etc: GC.getImprovementInfo doesn't seem to exist in .cpp files only .py files, while we have plenty instances of using code like `CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);` in the mod's code, code that i did not add myself as well anyways etc, so use this rather if i'm not mistaken but anyways etc -->
++					// You’re right — in your C++ DLL (AdvCiv/AdvCiv-SAS) the correct accessor is the templated:
++					// C++: GC.getInfo(ImprovementTypes) → CvImprovementInfo&
++					// Python: gc.getImprovementInfo(i) → Python wrapper
++					CvImprovementInfo const& impInfo = GC.getInfo(eBonusSpecificImprovement);
++					fImp = impInfo.getImprovementBonusYield(eBonus, YIELD_FOOD);
++					hImp = impInfo.getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
++					cImp = impInfo.getImprovementBonusYield(eBonus, YIELD_COMMERCE);
+ 
+ 					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean if i may say but anyways etc -->
+ 					if (fImp >= iMinOnBonusFoodImproveWorth)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b84552f83..c750d86f1 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -823,18 +823,29 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ // <!-- custom: new addition by gemini ai thanks to my prompt too, to help AI workers know the bonus-specific (note: land only bonuses, as it seems workboats and water plots are not handled in CvUnitAI::AI_bestCityBuild if i am not mistaken anyways etc) improvement for a bonus and optimize AI workers improvement choice based on this, moved as a static helper for potential reuse and clarity/clean code in this case at least i mean but anyways etc, see also CvUnitAI::AI_bestCityBuild for details -->
+ // Helper function to provide a static, constant map of bonus-specific land builds.
+ // This is more efficient than rebuilding the map on every function call.
+-// <!-- custom: actually hardcode them rather would be much easier so AI knows gold wants a mine not a workshop, and spices want a plantation or nothing, not a farm (nor a cottage! as i saw done then replaced hehe in base advciv if i remember it correctly anyways etc), may help fix the banana cottage issue in base advciv ideally and theoretically as well anyways etc at least for this part of the code anyways etc. Cleanest way would be an xml flag, but tedious to implement, hardcode here for simplicity and may later or may not implement it properly, adjust this code for your mod anyways etc -->
+-// This is the pre-C++11 compatible way to initialize a static map.
+-std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
++// <!-- custom: update: switch to vector as is computationally faster according to chatgpt 5, i don't know too much about these so check if accurate and thanks chatgpt 5 if i may say anyways etc -->
++// short version: yes, a vector is faster than a map for lookups here.
++// - std::map lookup: O(log N) + pointer chasing (cache-unfriendly).
++// - std::vector lookup: O(1) direct index, very cache-friendly.
++// - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
++// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
++std::vector<BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
+ {
+ 	// <!-- custom: refactor of this new function i had added, with chatgpt 5 so we can reuse it in other .cpp files, and simplifying/optimizing its performance to cache it or such since it shouldn't change while we can anyways etc and if was not done before already (i don't know too much about these, check if accurate anyways etc), check if accurate anyways etc -->
+-    static std::map<BonusTypes, BuildTypes> s;   // created once, reused forever
+-    static bool s_inited = false;
+-    if (s_inited) return s;
++    static std::vector<BuildTypes> v; // created once, reused forever
++    static bool v_inited = false;
++    if (v_inited) return v;
++
++	// you must size it to GC.getNumBonusInfos() because we index by BonusTypes (the XML enum id). I also added a tiny bounds guard on read.
++	// size to the number of bonuses; default to NO_BUILD (dense table indexed by BonusTypes)
++	const int iNumBonuses = GC.getNumBonusInfos();
++	v.assign(iNumBonuses, NO_BUILD);
+ 
+ 	// <!-- custom: note: we initialize this once per session so no need to make a static const of this total int define as we use it at every new game loaded during our entire civ4 session if i'm not mistaken but anyways etc -->
++	const int iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS = GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS");
++
+ 	// <!-- custom: note 2: ideally move this to some utils so we don't need to recheck everytime if it is inited every time (i guess, check if my guess is accurate but anyways etc) -->
+-    for (int i = 0; i < GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS"); ++i)
++    for (int i = 0; i < iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS; ++i)
+ 	{
+ 		// GC.getDefineSTRING(...) doesn’t do printf-style formatting, and CvString::Format is an instance method that returns void, so you can’t chain it. Build the key first, then call getDefineSTRING.
+ 		CvString keyBonus;
+@@ -850,29 +861,47 @@ std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
+         const BonusTypes eBonus = (BonusTypes)GC.getInfoTypeForString(bonusName);
+         const BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString(buildName);
+ 
+-        if ((eBonus != NO_BONUS) && (eBuild != NO_BUILD))
++		// guard bad ids (user responsibility; we skip silently)
++        if ((eBonus == NO_BONUS) || (eBuild == NO_BUILD))
++		{
++			continue;
++			// silently skip (or IFLOG a warning if you like)
++		}
++		else
+ 		{
+-            s[eBonus] = eBuild;
++            v[eBonus] = eBuild;
+ 		}
+-        // else: silently skip (or IFLOG a warning if you like)
+     }
+ 
+-    s_inited = true;
+-    return s;
++    v_inited = true;
++    return v;
+ }
+ 
+ BuildTypes CvUnitAI::getBonusSpecificLandBuild(BonusTypes eBonus)
+ {
+-    std::map<BonusTypes, BuildTypes> const& m = getBonusSpecificLandBuilds();
+-    std::map<BonusTypes, BuildTypes>::const_iterator it = m.find(eBonus);
+-    return (it == m.end() ? NO_BUILD : it->second);
++	if (eBonus == NO_BONUS)
++	{
++		return NO_BUILD;
++	}
++
++	std::vector<BuildTypes> const& v = getBonusSpecificLandBuilds();
++
++	// <!-- custom: note: untested as as of now i don't use/check asserts, but added as recommended by chatgpt 5, check if accurate anyways etc -->
++	FAssertMsg((int)eBonus >= 0 && (int)eBonus < (int)v.size(), "Bonus index out of range");
++
++	return v[eBonus];
+ }
+ 
+ ImprovementTypes CvUnitAI::getBonusSpecificLandImprovement(BonusTypes eBonus)
+ {
+-    BuildTypes eBuild = getBonusSpecificLandBuild(eBonus);
+-    return (eBuild == NO_BUILD ? NO_IMPROVEMENT
+-                               : (ImprovementTypes)GC.getInfo(eBuild).getImprovement());
++    const BuildTypes eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
++
++	if (eBonusSpecificBuild == NO_BUILD)
++	{
++		return NO_IMPROVEMENT;
++	}
++
++    return (ImprovementTypes)GC.getInfo(eBonusSpecificBuild).getImprovement();
+ }
+ 
+ // Define the Candidate<!-- custom: Plot but anyways etc --> struct outside the function so it can be used as a template argument.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 0c739ab77..ab7c14bd1 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -33,8 +33,8 @@ public:
+ 
+ 	// <!-- custom: add our helpers here for reuse in other files as advised by chatgpt 5 when i asked it if we could do something like this in a very simple way, check if accurate anyways etc -->
+     // Simple, reusable helpers (C++03, no fancy stuff)
+-    static std::map<BonusTypes, BuildTypes> const& getBonusSpecificLandBuilds();
+-    static BuildTypes      getBonusSpecificLandBuild(BonusTypes eBonus);
++    static std::vector<BuildTypes> const& getBonusSpecificLandBuilds();
++    static BuildTypes getBonusSpecificLandBuild(BonusTypes eBonus);
+     static ImprovementTypes getBonusSpecificLandImprovement(BonusTypes eBonus);
+ 
+ 	bool AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL,
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=9783

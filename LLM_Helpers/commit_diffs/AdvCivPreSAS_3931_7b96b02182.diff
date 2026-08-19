@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3931
+# Commit: 7b96b021829bb34fe139ee489e4a2be0529071fe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 98025e684bdb56277e270c9b0ddb721f2588f0a0
+# Title: Accurately subtract city defenders when spawning Barbarians
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	7	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b1fea0b96..f1ea9187c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7147,21 +7147,23 @@ void CvGame::createBarbarianUnits()
+ 		}
+ 		if (iUnownedTotal < iBaseTilesPerLandUnit / 2)
+ 			continue;
+-		int const iBarbarianCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
+ 		{
+-			int const iInitialDefenders = GC.getInfo(getHandicapType()).
+-					getBarbarianInitialDefenders();
+-			iLandUnits = std::max(0, iLandUnits
+ 			/*	Don't count city defenders. Settled Barbarians being less aggressive
+ 				makes sense, but cities also reduce the number of unowned tiles;
+-				that's enough.	(Alt. idea: Subtract half the Barbarian population
+-				in this area.)	Old Firaxis to-do comment on this subject:
++				that's enough.Old Firaxis to-do comment on this subject:
+ 				'XXX eventually need to measure	how many barbs of eBarbUnitAI we
+ 				have in this area...' */
+-					- iBarbarianCities * std::max(0, iInitialDefenders));
++			int iDefenders = 0;
++			FOR_EACH_CITY(pCity, GET_PLAYER(BARBARIAN_PLAYER))
++			{
++				if (pCity->isArea(a))
++					iDefenders += pCity->getPlot().plotCount(PUF_isCityAIType);
++			}
++			iLandUnits = std::max(0, iLandUnits - iDefenders);
+ 		}
+ 		int iNeededLand = numBarbariansToCreate(iBaseTilesPerLandUnit, iTiles,
+ 				iUnowned, iLandUnits);
++		int const iBarbarianCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
+ 		for (size_t i = 0; i < shelves.size(); i++)
+ 		{
+ 			int iShips = shelves[i]->countBarbarians();
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1529

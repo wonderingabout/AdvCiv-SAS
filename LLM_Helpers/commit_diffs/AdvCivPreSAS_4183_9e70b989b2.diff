@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4183
+# Commit: 9e70b989b233e1cd6352d67cb695581b883099f8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7b5942bb5343eb4310ac81e566fc449d8f0f6f81
+# Title: Fix OOS error upon human group bombardment
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 07d5a7920..2a9c7816d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1718,8 +1718,14 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 						}
+ 					}
+ 				}
+-				else if (!GET_PLAYER(kGame.getActivePlayer()).isEndTurn())
+-				{	// Split group. Based on K-Mod code in startMission.
++				/*	Don't want to split the group if currently selected by a player.
++					But how can we tell in network games? We know only the selection
++					of the active player. Let's decide based on mission type. */
++				if ((kGame.isNetworkMultiPlayer() ?
++					missionData.eMissionType == MISSION_BUILD :
++					!IsSelected()) &&
++					!GET_PLAYER(getOwner()).isEndTurn())
++				{	// Based on K-Mod code in startMission
+ 					std::vector<CvUnit*> apCanMove;
+ 					FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=929

@@ -1,0 +1,285 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2583
+# Commit: e0be48651fb96a364724b6746ab7f4898abed1b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 045b9929a4797bc549d24fd77e11e3b6e58a289e
+# Title: Fix memory corruption introduced in previous commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvGlobals.cpp
+1	1	CvGameCoreDLL/CvGlobals.h
+59	30	CvGameCoreDLL/CvRandom.cpp
+42	18	CvGameCoreDLL/CvRandom.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index c3d371bea..bdc87cb0c 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -218,8 +218,10 @@ void CvGlobals::init() // allocate
+ 	FAssertMsg(gDLL != NULL, "Civ app needs to set gDLL");
+ 
+ 	m_VarSystem = new FVariableSystem();
+-	m_asyncRand = new CvRandom();
+-	m_asyncRand->setLogFileName("ASyncRand.log"); // advc.007b
++	//m_asyncRand = new CvRandom();
++	// <advc.007b>
++	m_asyncRand = new CvRandomExtended();
++	m_asyncRand->setLogFileName("ASyncRand.log"); // </advc.007b>
+ 	m_initCore = new CvInitCore();
+ 	m_loadedInitCore = new CvInitCore();
+ 	m_iniInitCore = new CvInitCore();
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index f83a0a4b4..a9532b795 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -822,7 +822,7 @@ protected:
+ 
+ 	FMPIManager * m_pFMPMgr;
+ 
+-	CvRandom* m_asyncRand;
++	CvRandomExtended* m_asyncRand; // advc.007b (was CvRandom)
+ 	CvPythonCaller* m_pPythonCaller; // advc.003y
+ 	CvDLLLogger* m_pLogger;
+ 	CvGameAI* m_game;
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 73ff0a8a9..cbc48fb43 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -1,13 +1,25 @@
+-// random.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvRandom.h"
+ #include "CvGame.h"
+ 
++
+ #define RANDOM_A      (1103515245)
+ #define RANDOM_C      (12345)
+ #define RANDOM_SHIFT  (16)
+ 
++unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog,
++		int iData1, int iData2) // advc.001n
++{	// <advc.003t>
++	if (GC.getLogger().isEnabledRand())
++		printToLog(szLog, usNum, iData1, iData2); // </advc.003t>
++	m_ulRandomSeed = (RANDOM_A * m_ulRandomSeed) + RANDOM_C;
++	unsigned short r = (unsigned short)
++			((((m_ulRandomSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) *
++			((unsigned long)usNum)) / (MAX_UNSIGNED_SHORT + 1));
++	return r;
++}
++
++
+ CvRandom::CvRandom()
+ {
+ 	reset();
+@@ -26,28 +38,6 @@ void CvRandom::init(unsigned long ulSeed)
+ void CvRandom::reset(unsigned long ulSeed)
+ {
+ 	m_ulRandomSeed = ulSeed;
+-	// <advc.007b>
+-	m_szFileName.clear();
+-}
+-
+-
+-void CvRandom::setLogFileName(CvString szName)
+-{
+-	m_szFileName = szName;
+-} // </advc.007b>
+-
+-
+-unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog,
+-		int iData1, int iData2) // advc.001n
+-{
+-	// advc.003t
+-	GC.getLogger().logRandomNumber(szLog, usNum, m_ulRandomSeed, iData1, iData2,
+-			m_szFileName); // advc.007b
+-	m_ulRandomSeed = (RANDOM_A * m_ulRandomSeed) + RANDOM_C;
+-	unsigned short r = (unsigned short)
+-			((((m_ulRandomSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) *
+-			((unsigned long)usNum)) / (MAX_UNSIGNED_SHORT + 1));
+-	return r;
+ }
+ 
+ /*	advc.190c: Separate function for calls from the EXE. So that the DLL can figure out
+@@ -59,12 +49,6 @@ unsigned short CvRandom::getExternal(unsigned short usNum, TCHAR const* szLog)
+ }
+ 
+ 
+-float CvRandom::getFloat()
+-{
+-	return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT;
+-}
+-
+-
+ void CvRandom::reseed(unsigned long ulNewValue)
+ {
+ 	m_ulRandomSeed = ulNewValue;
+@@ -88,3 +72,48 @@ void CvRandom::write(FDataStreamBase* pStream)
+ {
+ 	pStream->Write(m_ulRandomSeed);
+ }
++
++// <advc.007b>
++/*	Two function calls that won't get inlined, but it doesn't really matter -
++	only gets called if the log is enabled. */
++void CvRandom::printToLog(TCHAR const* szMsg, unsigned short usNum,
++	int iData1, int iData2) // advc.001n
++{	// advc.003t:
++	GC.getLogger().logRandomNumber(szMsg, usNum, m_ulRandomSeed, iData1, iData2);
++}
++
++
++void CvRandomExtended::printToLog(TCHAR const* szMsg, unsigned short usNum,
++	int iData1, int iData2) // advc.001n
++{
++	GC.getLogger().logRandomNumber(szMsg, usNum, m_ulRandomSeed, iData1, iData2,
++			&m_szFileName);
++}
++
++// Initializes data members that are serialized.
++void CvRandomExtended::reset(unsigned long ulSeed)
++{
++	CvRandom::reset(ulSeed);
++	m_szFileName.clear();
++}
++
++
++void CvRandomExtended::setLogFileName(CvString szName)
++{
++	m_szFileName = szName;
++}
++
++
++void CvRandomExtended::read(FDataStreamBase* pStream)
++{
++	CvRandom::read(pStream);
++	pStream->ReadString(m_szFileName);
++}
++
++
++void CvRandomExtended::write(FDataStreamBase* pStream)
++{
++	CvRandom::write(pStream);
++	pStream->WriteString(m_szFileName);
++}
++// </advc.007b>
+
+diff --git a/CvGameCoreDLL/CvRandom.h b/CvGameCoreDLL/CvRandom.h
+index eda644493..e0f654450 100644
+--- a/CvGameCoreDLL/CvRandom.h
++++ b/CvGameCoreDLL/CvRandom.h
+@@ -1,7 +1,5 @@
+ #pragma once
+ 
+-// random.h
+-
+ #ifndef CIV4_RANDOM_H
+ #define CIV4_RANDOM_H
+ 
+@@ -12,17 +10,20 @@ public:
+ 	DllExport virtual ~CvRandom(); // advc (comment): Can't make this non-virtual b/c of DllExport
+ 
+ 	DllExport void init(unsigned long ulSeed);
+-	void reset(unsigned long ulSeed = 0);
+-	void setLogFileName(CvString szName); // advc.007b
++	virtual void reset(unsigned long ulSeed = 0); // advc.007b: virtual
++	// for serialization
++	virtual void read(FDataStreamBase* pStream); // advc.007b: virtual
++	virtual void write(FDataStreamBase* pStream); // advc.007b: virtual
+ 	/*	Returns a value from the half-open interval [0, iNum).
+ 		advc.006: iNum taken as an int but needs to be in [0, 65535].
+ 		Will return 0 for iNum=0 (and also for iNum=1). */
+-	inline unsigned short get(int iNum, TCHAR const* szLog = NULL,
+-			int iData1 = MIN_INT, int iData2 = MIN_INT)
++	inline unsigned short get(int iNum, TCHAR const* szMsg = NULL,
++			int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.128
+ 	{	// <advc.001n>
+-		return getInt(iNum, szLog, MIN_INT);
++		return getInt(iNum, szMsg, MIN_INT);
+ 	} // New name to avoid issues in CyRandomPythonInterface
+-	inline unsigned short getInt(int iNum, TCHAR const* szLog, int iData1, int iData2 = MIN_INT)
++	inline unsigned short getInt(int iNum, TCHAR const* szMsg,
++		int iData1, int iData2 = MIN_INT)
+ 	{	/*	</advc.001n>  <advc.006> The compiler doesn't warn when an int variable gets
+ 			passed as a short int. It does warn when a large int literal is passed, but
+ 			I think that's not quite good enough. (At the least, the wrapper functions at
+@@ -30,29 +31,52 @@ public:
+ 		FAssertBounds(0, getRange() + 1, iNum);
+ 		/*	If the upper bound above is exceeded, then e.g. iNum=66868 gets cast to 1332,
+ 			which is 66868-MAX_UNSIGNED_SHORT+1. Don't know how this works in general. */
+-		return getInt(static_cast<unsigned short>(iNum), szLog, iData1, iData2);
++		return getInt(static_cast<unsigned short>(iNum), szMsg, iData1, iData2);
+ 	}
+ 	static inline int getRange() { return MAX_UNSIGNED_SHORT; } // Client code may want to check
+ 	// </advc.006>
+ 	// advc.190c: Exported through .def file
+-	unsigned short getExternal(unsigned short usNum, TCHAR const* szLog = NULL);
+-	DllExport float getFloat();
++	unsigned short getExternal(unsigned short usNum, TCHAR const* szMsg = NULL);
++	DllExport float getFloat() // advc.inl
++	{
++		return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT;
++	}
+ 
+ 	void reseed(unsigned long ulNewValue);
+ 	unsigned long getSeed();
+ 
+-	// for serialization
+-	void read(FDataStreamBase* pStream);
+-	void write(FDataStreamBase* pStream);
+-
+ protected:
++	virtual void printToLog(TCHAR const* szMsg, unsigned short usNum, // advc.007b
++			int iData1, int iData2); // advc.001n
++
+ 	unsigned long m_ulRandomSeed;
+-	CvString m_szFileName; // advc.007b
+ 	// advc.001n, advc.006:
+-	unsigned short getInt(unsigned short usNum, TCHAR const* szLog, int iData1, int iData2);
++	unsigned short getInt(unsigned short usNum, TCHAR const* szMsg, int iData1, int iData2);
++};
++
++// advc.003k: Gets instantiated (also) externally; size mustn't change.
++BOOST_STATIC_ASSERT(sizeof(CvRandom) == 8);
++
++// <advc.007b>
++/*	Since I can't store a log file name at CvRandom,
++	let's make a class that'll only get instantiated in the DLL. */
++class CvRandomExtended : public CvRandom
++{
++public:
++	/*	Caveat: Calling this on a serialized CvRandom object will break
++		savegame compatibility unless the owning class increases the uiFlag constant
++		in its write function. */
++	void setLogFileName(CvString szName);
++	// The rest are overrides
++	void reset(unsigned long ulSeed = 0);
++	void read(FDataStreamBase* pStream);
++	void write(FDataStreamBase* pStream);
++	void printToLog(TCHAR const* szMsg, unsigned short usNum, int iData1, int iData2);
++protected:
++	CvString m_szFileName;
+ };
+ 
+-/*	<advc.007b> Some macros that should make the logging aspect less tedious.
++/*	Some macros that should make the logging aspect less tedious.
+ 	Still unsure if I want to use them. Unused (and untested) so far. */
+ 
+ // May well be useful elsewhere, but let's put it where it gets used for now.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=8625

@@ -1,0 +1,319 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 282
+# Commit: 808055686e7e9faa994e23cff15e1cdee47d7740
+# History segment: K-Mod history
+# Parent used for diff: 9540373c62b9feed61bde94121d51a763b126e52
+# Title: Added a new option for the stats tab of the info screen: "non-zero stats only". Fixed minor problems with the info screen.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/Config/BUG Advisors.xml
+8	6	Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+88	36	Assets/Python/Screens/CvInfoScreen.py
+22	7	Assets/xml/Text/BUG Advisors Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 8ae1477c1..04f33891e 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -84,6 +84,9 @@
+ 			<option id="BugStatsTab" key="Improvements" 
+ 					type="boolean" default="True" 
+ 					get="isShowImprovements"/>
++			<option id="NonZeroStatsOnly" key="Non-Zero Stats Only"
++					type="boolean" default="True"
++					get="isNonZeroStatsOnly"/> <!-- K-Mod -->
+ 			<option id="BugInfoWonders" key="Wonders" 
+ 					type="boolean" default="False" 
+ 					get="isShowInfoWonders"/>
+
+diff --git a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+index b5dd27bf5..9f8c74086 100644
+--- a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+@@ -58,12 +58,14 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, center, "Advisors__BugVictoriesTab")
+ 		#self.addCheckbox(screen, center, "Advisors__BugMembersTab")
+ 
+-		self.addLabel(screen, center, "Info_Screens", "Info [F9]:")
+-		self.addCheckbox(screen, center, "Advisors__BugGraphsTab")
+-		self.addCheckbox(screen, center, "Advisors__BugGraphsLogScale")
+-		self.addCheckbox(screen, center, "Advisors__BugStatsTab")
+-		self.addCheckbox(screen, center, "Advisors__BugInfoWonders")
+-		self.addCheckbox(screen, center, "Advisors__BugInfoWondersPlayerColor", True)
++		# K-Mod, info stuff moved from center panel to right
++		self.addLabel(screen, right, "Info_Screens", "Info [F9]:")
++		self.addCheckbox(screen, right, "Advisors__BugGraphsTab")
++		self.addCheckbox(screen, right, "Advisors__BugGraphsLogScale")
++		self.addCheckbox(screen, right, "Advisors__BugStatsTab")
++		self.addCheckbox(screen, right, "Advisors__NonZeroStatsOnly") # K-Mod
++		self.addCheckbox(screen, right, "Advisors__BugInfoWonders")
++		self.addCheckbox(screen, right, "Advisors__BugInfoWondersPlayerColor", True)
+ 
+ 
+ 		self.addLabel(screen, right, "Sevopedia", "Sevopedia [F12]:")
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index dc71204cc..c4773fec8 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -365,7 +365,7 @@ class CvInfoScreen:
+ 		self.STATS_TOP_CHART_W_COL_1 = 76
+ 
+ 		self.iNumTopChartCols = 2
+-		self.iNumTopChartRows = 4
++		#self.iNumTopChartRows = 4 # disabled by K-Mod (not used)
+ 
+ 		self.X_LEADER_NAME = self.X_STATS_TOP_CHART
+ 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
+@@ -430,6 +430,7 @@ class CvInfoScreen:
+ 		self.TEXT_IMP_EXP_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
+ 
+ 		self.TEXT_TIME_PLAYED = localText.getText("TXT_KEY_INFO_SCREEN_TIME_PLAYED", ())
++		self.TEXT_CITIES_CURRENT = localText.getText("TXT_KEY_CONCEPT_CITIES", ()) # K-Mod
+ 		self.TEXT_CITIES_BUILT = localText.getText("TXT_KEY_INFO_SCREEN_CITIES_BUILT", ())
+ 		self.TEXT_CITIES_RAZED = localText.getText("TXT_KEY_INFO_SCREEN_CITIES_RAZED", ())
+ 		self.TEXT_NUM_GOLDEN_AGES = localText.getText("TXT_KEY_INFO_SCREEN_NUM_GOLDEN_AGES", ())
+@@ -2683,7 +2684,8 @@ class CvInfoScreen:
+ 				 PanelStyles.PANEL_STYLE_DAWNTOP )
+ 
+ 		# Leaderhead graphic
+-		player = gc.getPlayer(gc.getGame().getActivePlayer())
++		#player = gc.getPlayer(gc.getGame().getActivePlayer())
++		player = gc.getPlayer(self.iActivePlayer) # K-Mod
+ 		szLeaderWidget = self.getNextWidgetName()
+ 		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED,
+ 			self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -2704,34 +2706,66 @@ class CvInfoScreen:
+ 		screen.setTableColumnHeader(szTopChart, 1, "", self.STATS_TOP_CHART_W_COL_1)
+ 
+ 		# Add Rows
+-		for i in range(self.iNumTopChartRows - 1):
+-			screen.appendTableRow(szTopChart)
+-		iNumRows = screen.getTableNumRows(szTopChart)
++		# for i in range(self.iNumTopChartRows - 1):
++			# screen.appendTableRow(szTopChart)
++		# iNumRows = screen.getTableNumRows(szTopChart)
+ 
+ 		# Graph itself
+ 		iRow = 0
++
++		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+ 		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		iCol = 1
+ 		screen.setTableText(szTopChart, iCol, iRow, szTimeString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		
+-		iRow = 1
+-		iCol = 0
+-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		iCol = 1
+-		screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# K-Mod.
++		iNumCitiesCurrent = gc.getPlayer(self.iActivePlayer).getNumCities()
+ 
+-		iRow = 2
+-		iCol = 0
+-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		iCol = 1
+-		screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		if (iNumCitiesCurrent != 0 or not AdvisorOpt.isNonZeroStatsOnly()):
++			iRow += 1
++			screen.appendTableRow(szTopChart)
++			iCol = 0
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iCol = 1
++			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# K-Mod end (note. I've also changed some of the structure of the surrounding code...)
+ 
+-		iRow = 3
+-		iCol = 0
+-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		iCol = 1
+-		screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		if (iNumCitiesBuilt != 0 or not AdvisorOpt.isNonZeroStatsOnly()):
++			iRow += 1
++			screen.appendTableRow(szTopChart)
++			iCol = 0
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iCol = 1
++			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		if (iNumCitiesRazed != 0 or not AdvisorOpt.isNonZeroStatsOnly()):
++			iRow += 1
++			screen.appendTableRow(szTopChart)
++			iCol = 0
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iCol = 1
++			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		if (iNumReligionsFounded != 0 or not AdvisorOpt.isNonZeroStatsOnly()):
++			iRow += 1
++			screen.appendTableRow(szTopChart)
++			iCol = 0
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iCol = 1
++			screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		# K-Mod.
++		iNumGoldenAges = CyStatistics().getPlayerNumGoldenAges(self.iActivePlayer)
++		
++		if (iNumGoldenAges != 0 or not AdvisorOpt.isNonZeroStatsOnly()):
++			iRow += 1
++			screen.appendTableRow(szTopChart)
++			iCol = 0
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iCol = 1
++			screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# K-Mod end
+ 
+ ################################################### BOTTOM PANEL ###################################################
+ 
+@@ -2798,26 +2832,35 @@ class CvInfoScreen:
+ 			screen.setTableColumnHeader(szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
+ #BUG: improvements - end
+ 
+-		# Add Rows
+-		for i in range(self.iNumUnitStatsChartRows):
+-			screen.appendTableRow(szUnitsTable)
+-		iNumUnitRows = screen.getTableNumRows(szUnitsTable)
++# K-Mod: I've disabled this pre-appending of rows code - because it messes up my other stuff.
++		# # Add Rows
++		# for i in range(self.iNumUnitStatsChartRows):
++			# screen.appendTableRow(szUnitsTable)
++		# iNumUnitRows = screen.getTableNumRows(szUnitsTable)
+ 
+-		for i in range(self.iNumBuildingStatsChartRows):
+-			screen.appendTableRow(szBuildingsTable)
+-		iNumBuildingRows = screen.getTableNumRows(szBuildingsTable)
++		# for i in range(self.iNumBuildingStatsChartRows):
++			# screen.appendTableRow(szBuildingsTable)
++		# iNumBuildingRows = screen.getTableNumRows(szBuildingsTable)
+ 
+-#BUG: improvements - start
+-		if AdvisorOpt.isShowImprovements():
+-			for i in range(self.iNumImprovementStatsChartRows):
+-				if (aiImprovementsCurrent[i] > 0):
+-					screen.appendTableRow(szImprovementsTable)
+-			iNumImprovementRows = screen.getTableNumRows(szImprovementsTable)
+-#BUG: improvements - end
++# #BUG: improvements - start
++		# if AdvisorOpt.isShowImprovements():
++			# for i in range(self.iNumImprovementStatsChartRows):
++				# if (aiImprovementsCurrent[i] > 0):
++					# screen.appendTableRow(szImprovementsTable)
++			# iNumImprovementRows = screen.getTableNumRows(szImprovementsTable)
++# #BUG: improvements - end
+ 
+ 		# Add Units to table
++		iRow = 0 # K-Mod
+ 		for iUnitLoop in range(iNumUnits):
+-			iRow = iUnitLoop
++			# K-Mod. Hide zero rows option.
++			if (AdvisorOpt.isNonZeroStatsOnly()
++					and aiUnitsCurrent[iUnitLoop] == 0 and aiUnitsBuilt[iUnitLoop] == 0
++					and aiUnitsKilled[iUnitLoop] == 0 and aiUnitsLost[iUnitLoop] == 0):
++				continue
++			screen.appendTableRow(szUnitsTable)
++			# K-Mod end
++			#iRow = iUnitLoop
+ 
+ 			iCol = 0
+ 			szUnitName = gc.getUnitInfo(iUnitLoop).getDescription()
+@@ -2838,10 +2881,17 @@ class CvInfoScreen:
+ 			iCol = 4
+ 			iNumUnitsLost = aiUnitsLost[iUnitLoop]
+ 			screen.setTableInt(szUnitsTable, iCol, iRow, str(iNumUnitsLost), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iRow += 1 # K-Mod
+ 
+ 		# Add Buildings to table
++		iRow = 0 # K-Mod
+ 		for iBuildingLoop in range(iNumBuildings):
+-			iRow = iBuildingLoop
++			# K-Mod. Hide zero rows option.
++			if (AdvisorOpt.isNonZeroStatsOnly()	and aiBuildingsBuilt[iBuildingLoop] == 0):
++				continue
++			screen.appendTableRow(szBuildingsTable)
++			# K-Mod end
++			#iRow = iBuildingLoop
+ 
+ 			iCol = 0
+ 			szBuildingName = gc.getBuildingInfo(iBuildingLoop).getDescription()
+@@ -2849,6 +2899,7 @@ class CvInfoScreen:
+ 			iCol = 1
+ 			iNumBuildingsBuilt = aiBuildingsBuilt[iBuildingLoop]
+ 			screen.setTableInt(szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iRow += 1 # K-Mod
+ 
+ #BUG: improvements - start
+ 		if AdvisorOpt.isShowImprovements():
+@@ -2858,6 +2909,7 @@ class CvInfoScreen:
+ 			for iImprovementLoop in range(iNumImprovements):
+ 				iNumImprovementsCurrent = aiImprovementsCurrent[iImprovementLoop]
+ 				if (iNumImprovementsCurrent > 0):
++					screen.appendTableRow(szImprovementsTable) # K-Mod
+ 					iCol = 0
+ 					szImprovementName = gc.getImprovementInfo(iImprovementLoop).getDescription()
+ 					screen.setTableText(szImprovementsTable, iCol, iRow, szImprovementName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/xml/Text/BUG Advisors Options.xml b/Assets/xml/Text/BUG Advisors Options.xml
+index e1635e5ff..e2b55ea57 100644
+--- a/Assets/xml/Text/BUG Advisors Options.xml	
++++ b/Assets/xml/Text/BUG Advisors Options.xml	
+@@ -317,21 +317,36 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_TEXT</Tag>
+-		<English>Stats tab</English>
+-		<French>Stats tab</French>
++		<English>Improvement Stats</English>
++		<French>Improvement Stats</French>
+ 		<German>BUG Statistiken</German>
+ 		<Italian>Scheda Statistiche</Italian>
+-		<Spanish>Stats tab</Spanish>
++		<Spanish>Improvement Stats</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_HOVER</Tag>
+-		<English>When checked, displays improvements on Stats tab.</English>
+-		<French>When checked, displays improvements on Stats tab.</French>
++		<English>When checked, displays plot improvements on Stats tab.</English>
++		<French>When checked, displays plot improvements on Stats tab.</French>
+ 		<German>Zeigt die Statistiken auf der entsprechenden Seite des Info-Bildschirms in einer �bersichtlicheren Anordnung an</German>
+ 		<Italian>Quando � selezionato, mostra la Scheda delle Statistiche nella versione migliorata del BUG Mod</Italian>
+-		<Spanish>When checked, displays improvements on Stats tab.</Spanish>
++		<Spanish>When checked, displays plot improvements on Stats tab.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_TEXT</Tag>
++		<English>Non-Zero Stats Only</English>
++		<French>Non-Zero Stats Only</French>
++		<German>Non-Zero Stats Only</German>
++		<Italian>Non-Zero Stats Only</Italian>
++		<Spanish>Non-Zero Stats Only</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_HOVER</Tag>
++		<English>When checked, only non-zero entries are displayed in the Stats tab.</English>
++		<French>When checked, only non-zero entries are displayed in the Stats tab.</French>
++		<German>When checked, only non-zero entries are displayed in the Stats tab.</German>
++		<Italian>When checked, only non-zero entries are displayed in the Stats tab.</Italian>
++		<Spanish>When checked, only non-zero entries are displayed in the Stats tab.</Spanish>
+ 	</TEXT>
+-
+ <!-- Sevopedia -->
+ 
+ 	<TEXT>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=13768

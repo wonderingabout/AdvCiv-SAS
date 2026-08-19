@@ -1,0 +1,733 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1468
+# Commit: ee8fb7aa89e1f147dd53d114e7e5e32bb3acb65b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e81f6eab039ec78a56a030233e466ef698cf2241
+# Title: Old build configuration merged into the new one
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	5	CvGameCoreDLL/CvDefines.h
+0	374	CvGameCoreDLL/Makefile.mak
+3	0	CvGameCoreDLL/Project/AdvCiv.sln
+68	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+41	13	CvGameCoreDLL/Project/Makefile
+1	1	CvGameCoreDLL/Project/Makefile.settings
+-	-	CvGameCoreDLL/fastdep.exe
+ delete mode 100644 CvGameCoreDLL/Makefile.mak
+ delete mode 100644 CvGameCoreDLL/fastdep.exe
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 43a2ebfd4..8a97f9fd7 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -3,11 +3,6 @@
+ #ifndef CVDEFINES_H
+ #define CVDEFINES_H
+ 
+-// defines.h
+-
+-#define _USRDLL /* advc.make: Normally set by the makefile. However, then the
+-                   Visual Studio editor can't find dozens of inlined functions,
+-                   and puts a red line under each call to them. */
+ 
+ // The following #defines should not be moddable...
+
+diff --git a/CvGameCoreDLL/Makefile.mak b/CvGameCoreDLL/Makefile.mak
+deleted file mode 100644
+index ff2ff6d7e..000000000
+--- a/CvGameCoreDLL/Makefile.mak
++++ /dev/null
+@@ -1,374 +0,0 @@
+-#### Civilization 4 SDK Makefile 1.0 ####
+-####  Copyright 2010 Danny Daemonic  ####
+-#########################################
+-
+-
+-#### Paths ####
+-TOOLKIT=C:\Program Files (x86)\Microsoft Visual C++ Toolkit 2003
+-PSDK=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A
+-## Uncomment to have newly compiled dlls copied to your mod's Assets directory
+-YOURMOD=C:\Program Files (x86)\Sid Meier's Civilization 4\Beyond the Sword\Mods\AdvCiv
+-## advc.make: Uncomment to have logs deleted after compilation.
+-YOULOGS=C:\Users\Administrator\Documents\My Games\Beyond the Sword\Logs
+-
+-#### Tools ####
+-CC="$(TOOLKIT)\bin\cl.exe"
+-CPP="$(TOOLKIT)\bin\cl.exe"
+-LD="$(TOOLKIT)\bin\link.exe"
+-RC="$(PSDK)\bin\rc.exe"
+-## Uncomment to build dependencies using fastdep
+-FD="fastdep.exe"
+-
+-#### BLACKLIST ####
+-## Uncomment to block CvTextScreen (accidentally included by Firaxis)
+-BLACKLIST=CvTextScreens
+-
+-#### You shouldn't need to modify anything beyond this point ####
+-#################################################################
+-
+-#### Target Files ####
+-Debug_BIN=Debug\CvGameCoreDLL.dll
+-# advc.make: Like Debug, but different compiler flags; see comment under "CFLAGS"
+-DebugMem_BIN=DebugMem\CvGameCoreDLL.dll
+-Release_BIN=Release\CvGameCoreDLL.dll
+-Profile_BIN=Profile\CvGameCoreDLL.dll
+-
+-!IF [IF NOT EXIST CvGameCoreDLL.rc EXIT 1] == 0
+-Debug_RESOURCE=Debug\CvGameCoreDLL.res
+-DebugMem_RESOURCE=DebugMem\CvGameCoreDLL.res
+-Release_RESOURCE=Release\CvGameCoreDLL.res
+-Profile_RESOURCE=Profile\CvGameCoreDLL.res
+-!ENDIF
+-
+-Debug_STATICLIB=Debug\CvGameCoreDLL.lib
+-DebugMem_STATICLIB=DebugMem\CvGameCoreDLL.lib
+-Release_STATICLIB=Release\CvGameCoreDLL.lib
+-Profile_STATICLIB=Profile\CvGameCoreDLL.lib
+-
+-Debug_LIBDEF=Debug\CvGameCoreDLL.def
+-DebugMem_LIBDEF=DebugMem\CvGameCoreDLL.def
+-Release_LIBDEF=Release\CvGameCoreDLL.def
+-Profile_LIBDEF=Profile\CvGameCoreDLL.def
+-
+-Debug_PCH=Debug\CvGameCoreDLL.pch
+-DebugMem_PCH=DebugMem\CvGameCoreDLL.pch
+-Release_PCH=Release\CvGameCoreDLL.pch
+-Profile_PCH=Profile\CvGameCoreDLL.pch
+-
+-Debug_PDB=Debug\CvGameCoreDLL.pdb
+-DebugMem_PDB=DebugMem\CvGameCoreDLL.pdb
+-Release_PDB=Release\CvGameCoreDLL.pdb
+-Profile_PDB=Profile\CvGameCoreDLL.pdb
+-
+-Debug_OTHER=Debug\CvGameCoreDLL.exp Debug\CvGameCoreDLL.ilk
+-DebugMem_OTHER=DebugMem\CvGameCoreDLL.exp DebugMem\CvGameCoreDLL.ilk
+-Release_OTHER=Release\CvGameCoreDLL.exp
+-Profile_OTHER=Profile\CvGameCoreDLL.exp
+-
+-#### CFLAGS ####
+-# advc.make: Added WX flag (warnings treated as errors), removed D_USRDLL, see CvDefines.h
+-# advc.make: Removed /DLOG_AI - enable BBAI logging in BetterBTSAI.h when needed.
+-GLOBAL_CFLAGS=/GR /Gy /W3 /WX /EHsc /Gd /Gm- /DWIN32 /D_WINDOWS /DCVGAMECOREDLL_EXPORTS /Yu"CvGameCoreDLL.h"
+-# advc.make: DebugMem: An almost-Release mode that is less likely than Debug mode
+-#            to obscure accesses to uninitialized variables.
+-#            (Would perhaps achieve largely the same by using the normal Debug flags
+-#            except /D_DEBUG /RTC1.)
+-#            Important to also set _NO_DEBUG_HEAP=1 in Visual Studio ->
+-#            Project Properties -> Debug -> Environment. Should in fact always
+-#            use that setting - catches more memory issues, and runs faster.
+-DebugMem_CFLAGS=/MD /Zi /O2 /Oi /Og /G7 /DFASSERT_ENABLE /DFINAL_RELEASE /Fp"$(DebugMem_PCH)" $(GLOBAL_CFLAGS)
+-Debug_CFLAGS=/MD /Zi /Od /D_DEBUG /RTC1 /Fp"$(Debug_PCH)" $(GLOBAL_CFLAGS)
+-Release_CFLAGS=/MD /O2 /Oy /Oi /Og /G7 /DNDEBUG /DFINAL_RELEASE /Fp"$(Release_PCH)" $(GLOBAL_CFLAGS)
+-Profile_CFLAGS=/MD /O2 /Oy /Oi /Og /G7 /DNDEBUG /DFP_PROFILE_ENABLE /DUSE_INTERNAL_PROFILER /Fp"$(Profile_PCH)" $(GLOBAL_CFLAGS)
+-
+-#### LDFLAGS ####
+-GLOBAL_LDFLAGS=/DLL /NOLOGO /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /TLBID:1
+-Debug_LDFLAGS=/INCREMENTAL /DEBUG /PDB:"$(Debug_PDB)" /IMPLIB:"$(Debug_STATICLIB)" $(GLOBAL_LDFLAGS)
+-DebugMem_LDFLAGS=/INCREMENTAL /DEBUG /PDB:"$(DebugMem_PDB)" /IMPLIB:"$(DebugMem_STATICLIB)" $(GLOBAL_LDFLAGS)
+-Release_LDFLAGS=/INCREMENTAL:NO /OPT:REF /OPT:ICF /PDB:"$(Release_PDB)" $(GLOBAL_LDFLAGS)
+-Profile_LDFLAGS=/INCREMENTAL:NO /OPT:REF /OPT:ICF /PDB:"$(Profile_PDB)" $(GLOBAL_LDFLAGS)
+-
+-#### INCLUDES ####
+-GLOBAL_INCS=/I"$(TOOLKIT)/include" /I"$(PSDK)/Include" /I"$(PSDK)/Include/mfc"
+-PROJECT_INCS=/IBoost-1.32.0/include /IPython24/include
+-Debug_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
+-DebugMem_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
+-Release_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
+-Profile_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
+-
+-#### LIBS ####
+-GLOBAL_LIBS=/LIBPATH:"$(TOOLKIT)/lib" /LIBPATH:"$(PSDK)/Lib" winmm.lib user32.lib
+-PROJECT_LIBS=/LIBPATH:Python24/libs /LIBPATH:boost-1.32.0/libs/ boost_python-vc71-mt-1_32.lib
+-Debug_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS) msvcprt.lib
+-# advc.make: Leaving out msvcprt might help with debugging memory, but I doubt it
+-DebugMem_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS) msvcprt.lib
+-Release_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS)
+-Profile_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS)
+-
+-#### Objects ####
+-Debug_LINKOBJS=$(Debug_OBJS)
+-DebugMem_LINKOBJS=$(DebugMem_OBJS)
+-Release_LINKOBJS=$(Release_OBJS)
+-Profile_LINKOBJS=$(Profile_OBJS)
+-
+-#### Auto SOURCES/OBJS ####
+-!IF [ECHO SOURCES= \> sources.mk] == 0 && \
+-    [FOR %i IN (*.cpp) DO @ECHO. "%i" \>> sources.mk] == 0 && \
+-    [ECHO.>> sources.mk] == 0 && \
+-    [ECHO Debug_OBJS= \>> sources.mk] == 0 && \
+-    [FOR /F "delims=." %i IN ('dir /b *.cpp') DO @ECHO. Debug\%i.obj \>> sources.mk] == 0 && \
+-    [ECHO.>> sources.mk] == 0 && \
+-	[ECHO DebugMem_OBJS= \>> sources.mk] == 0 && \
+-    [FOR /F "delims=." %i IN ('dir /b *.cpp') DO @ECHO. DebugMem\%i.obj \>> sources.mk] == 0 && \
+-    [ECHO.>> sources.mk] == 0 && \
+-    [ECHO Release_OBJS= \>> sources.mk] == 0 && \
+-    [FOR /F "delims=." %i IN ('dir /b *.cpp') DO @ECHO. Release\%i.obj \>> sources.mk] == 0 && \
+-    [ECHO.>> sources.mk] == 0 && \
+-    [ECHO Profile_OBJS= \>> sources.mk] == 0 && \
+-    [FOR /F "delims=." %i IN ('dir /b *.cpp') DO @ECHO. Profile\%i.obj \>> sources.mk] == 0 && \
+-    [ECHO.>> sources.mk] == 0
+-!INCLUDE sources.mk
+-!IF [DEL sources.mk]
+-!ENDIF
+-!ENDIF
+-
+-#### Targets ####
+-#################
+-
+-.PHONY: all clean Debug_clean Release_clean Profile_clean Debug DebugMem Release Profile
+-
+-all: Debug Release
+-
+-clean: Debug_clean DebugMem_clean Release_clean Profile_clean
+-
+-Debug_clean:
+-	@FOR %i IN ($(Debug_BIN) $(Debug_STATICLIB) $(Debug_LIBDEF) \
+-		Debug\*.obj Debug\*.@ $(Debug_RESOURCE) \
+-		$(Debug_PCH) $(Debug_PDB) $(Debug_OTHER)) DO @IF EXIST "%i" DEL "%i"
+-
+-DebugMem_clean:
+-	@FOR %i IN ($(DebugMem_BIN) $(DebugMem_STATICLIB) $(DebugMem_LIBDEF) \
+-		DebugMem\*.obj DebugMem\*.@ $(DebugMem_RESOURCE) \
+-		$(DebugMem_PCH) $(DebugMem_PDB) $(DebugMem_OTHER)) DO @IF EXIST "%i" DEL "%i"
+-
+-Release_clean:
+-	@FOR %i IN ($(Release_BIN) $(Release_STATICLIB) $(Release_LIBDEF) \
+-		Release\*.obj Release\*.@ $(Release_RESOURCE) \
+-		$(Release_PCH) $(Release_PDB) $(Release_OTHER)) DO @IF EXIST "%i" DEL "%i"
+-
+-Profile_clean:
+-	@FOR %i IN ($(Profile_BIN) $(Profile_STATICLIB) $(Profile_LIBDEF) \
+-		Profile\*.obj Profile\*.@ $(Profile_RESOURCE) \
+-		$(Profile_PCH) $(Profile_PDB) $(Profile_OTHER)) DO @IF EXIST "%i" DEL "%i"
+-
+-Debug: Debug_DIR Debug_unfinished $(Debug_PCH) $(Debug_BIN)
+-!IFDEF YOURMOD
+-	-COPY "$(Debug_BIN)" "$(YOURMOD)\Assets\."
+-!ENDIF
+-!IFDEF YOULOGS
+-	-FOR %i IN ("$(YOULOGS)"\*.log) DO @IF EXIST "%i" DEL "%i"
+-!ENDIF
+-
+-DebugMem: DebugMem_DIR DebugMem_unfinished $(DebugMem_PCH) $(DebugMem_BIN)
+-!IFDEF YOURMOD
+-	-COPY "$(DebugMem_BIN)" "$(YOURMOD)\Assets\."
+-!ENDIF
+-!IFDEF YOULOGS
+-	-FOR %i IN ("$(YOULOGS)"\*.log) DO @IF EXIST "%i" DEL "%i"
+-!ENDIF
+-
+-Release: Release_DIR Release_unfinished $(Release_PCH) $(Release_BIN)
+-!IFDEF YOURMOD
+-	-COPY "$(Release_BIN)" "$(YOURMOD)\Assets\."
+-!ENDIF
+-!IFDEF YOULOGS
+-	-FOR %i IN ("$(YOULOGS)"\*.log) DO @IF EXIST "%i" DEL "%i"
+-!ENDIF
+-
+-Profile: Profile_DIR Profile_unfinished $(Profile_PCH) $(Profile_BIN)
+-!IFDEF YOURMOD
+-	-COPY "$(Profile_BIN)" "$(YOURMOD)\Assets\."
+-!ENDIF
+-# advc.mak: Delete logs also after compiling profile build.
+-#           Won't delete IFP_log b/c that's a .txt file.
+-!IFDEF YOULOGS
+-	-FOR %i IN ("$(YOULOGS)"\*.log) DO @IF EXIST "%i" DEL "%i"
+-!ENDIF
+-
+-Debug_DIR:
+-	<hidden-email> NOT EXIST "Debug\." MKDIR "Debug"
+-
+-DebugMem_DIR:
+-	<hidden-email> NOT EXIST "DebugMem\." MKDIR "DebugMem"
+-
+-Release_DIR:
+-	<hidden-email> NOT EXIST "Release\." MKDIR "Release"
+-
+-Profile_DIR:
+-	<hidden-email> NOT EXIST "Profile\." MKDIR "Profile"
+-
+-Debug_unfinished:
+-	@ECHO.>Debug\unfinished.@
+-	@FOR /F "delims=@" %i IN ('dir /b Debug\*.@') DO \
+-		@IF EXIST "Debug\%i" DEL "Debug\%i"
+-	@FOR /F %i IN ('dir /b Debug\*.@') DO \
+-		@IF EXIST "Debug\%i" DEL "Debug\%i"
+-
+-DebugMem_unfinished:
+-	@ECHO.>DebugMem\unfinished.@
+-	@FOR /F "delims=@" %i IN ('dir /b DebugMem\*.@') DO \
+-		@IF EXIST "DebugMem\%i" DEL "DebugMem\%i"
+-	@FOR /F %i IN ('dir /b DebugMem\*.@') DO \
+-		@IF EXIST "DebugMem\%i" DEL "DebugMem\%i"
+-
+-Release_unfinished:
+-	@ECHO.>Release\unfinished.@
+-	@FOR /F "delims=@" %i IN ('dir /b Release\*.@') DO \
+-		@IF EXIST "Release\%i" DEL "Release\%i"
+-	@FOR /F %i IN ('dir /b Release\*.@') DO \
+-		@IF EXIST "Release\%i" DEL "Release\%i"
+-
+-Profile_unfinished:
+-	@ECHO.>Profile\unfinished.@
+-	@FOR /F "delims=@" %i IN ('dir /b Profile\*.@') DO \
+-		@IF EXIST "Profile\%i" DEL "Profile\%i"
+-	@FOR /F %i IN ('dir /b Profile\*.@') DO \
+-		@IF EXIST "Profile\%i" DEL "Profile\%i"
+-		
+-$(Debug_BIN): $(Debug_LINKOBJS) $(Debug_RESOURCE)
+-	$(LD) /out:$(Debug_BIN) $(Debug_LDFLAGS) $(Debug_LIBS) $(Debug_LINKOBJS) $(Debug_RESOURCE)
+-
+-$(DebugMem_BIN): $(DebugMem_LINKOBJS) $(DebugMem_RESOURCE)
+-	$(LD) /out:$(DebugMem_BIN) $(DebugMem_LDFLAGS) $(DebugMem_LIBS) $(DebugMem_LINKOBJS) $(DebugMem_RESOURCE)
+-
+-$(Release_BIN): $(Release_LINKOBJS) $(Release_RESOURCE)
+-	$(LD) /out:$(Release_BIN) $(Release_LDFLAGS) $(Release_LIBS) $(Release_LINKOBJS) $(Release_RESOURCE)
+-
+-$(Profile_BIN): $(Profile_LINKOBJS) $(Profile_RESOURCE)
+-	$(LD) /out:$(Profile_BIN) $(Profile_LDFLAGS) $(Profile_LIBS) $(Profile_LINKOBJS) $(Profile_RESOURCE)
+-
+-.cpp{Debug}.obj:
+-	@ECHO.>"$*.obj.@"
+-    $(CPP) /nologo $(Debug_CFLAGS) $(Debug_INCS) /Fo$*.obj /c $<
+-	@DEL "$*.obj.@"
+-
+-.cpp{DebugMem}.obj:
+-	@ECHO.>"$*.obj.@"
+-    $(CPP) /nologo $(DebugMem_CFLAGS) $(DebugMem_INCS) /Fo$*.obj /c $<
+-	@DEL "$*.obj.@"
+-
+-.cpp{Release}.obj:
+-	@ECHO.>"$*.obj.@"
+-    $(CPP) /nologo $(Release_CFLAGS) $(Release_INCS) /Fo$*.obj /c $<
+-	@DEL "$*.obj.@"
+-
+-.cpp{Profile}.obj:
+-	@ECHO.>"$*.obj.@"
+-    $(CPP) /nologo $(Profile_CFLAGS) $(Profile_INCS) /Fo$*.obj /c $<
+-	@DEL "$*.obj.@"
+-
+-$(Debug_PCH) Debug\_precompile.obj:
+-	@ECHO.>"$(Debug_PCH).@"
+-	@ECHO.>"Debug\_precompile.obj.@"
+-	$(CPP) /nologo $(Debug_CFLAGS) $(Debug_INCS) /YcCvGameCoreDLL.h /Fo"Debug\_precompile.obj" /c _precompile.cpp
+-	@DEL "$(Debug_PCH).@"
+-	@DEL "Debug\_precompile.obj.@"
+-
+-$(DebugMem_PCH) DebugMem\_precompile.obj:
+-	@ECHO.>"$(DebugMem_PCH).@"
+-	@ECHO.>"DebugMem\_precompile.obj.@"
+-	$(CPP) /nologo $(DebugMem_CFLAGS) $(DebugMem_INCS) /YcCvGameCoreDLL.h /Fo"DebugMem\_precompile.obj" /c _precompile.cpp
+-	@DEL "$(DebugMem_PCH).@"
+-	@DEL "DebugMem\_precompile.obj.@"
+-
+-$(Release_PCH) Release\_precompile.obj:
+-	@ECHO.>"$(Release_PCH).@"
+-	@ECHO.>"Release\_precompile.obj.@"
+-    $(CPP) /nologo $(Release_CFLAGS) $(Release_INCS) /YcCvGameCoreDLL.h /Fo"Release\_precompile.obj" /c _precompile.cpp
+-	@DEL "$(Release_PCH).@"
+-	@DEL "Release\_precompile.obj.@"
+-
+-$(Profile_PCH) Profile\_precompile.obj:
+-	@ECHO.>"$(Profile_PCH).@"
+-	@ECHO.>"Profile\_precompile.obj.@"
+-    $(CPP) /nologo $(Profile_CFLAGS) $(Profile_INCS) /YcCvGameCoreDLL.h /Fo"Profile\_precompile.obj" /c _precompile.cpp
+-	@DEL "$(Profile_PCH).@"
+-	@DEL "Profile\_precompile.obj.@"
+-
+-.rc{Debug}.res:
+-	@ECHO.>"$*.res.@"
+-	$(RC) /Fo$@ $(Debug_INCS) $<
+-	@DEL "$*.res.@"
+-
+-.rc{DebugMem}.res:
+-	@ECHO.>"$*.res.@"
+-	$(RC) /Fo$@ $(DebugMem_INCS) $<
+-	@DEL "$*.res.@"
+-
+-.rc{Release}.res:
+-	@ECHO.>"$*.res.@"
+-	$(RC) /Fo$@ $(Release_INCS) $<
+-	@DEL "$*.res.@"
+-
+-.rc{Profile}.res:
+-	@ECHO.>"$*.res.@"
+-	$(RC) /Fo$@ $(Profile_INCS) $<
+-	@DEL "$*.res.@"
+-
+-!IFDEF BLACKLIST
+-
+-Debug\$(BLACKLIST).obj: $(BLACKLIST).cpp
+-	@ECHO.>"$*.obj.@"
+-	@ECHO.>"$*-dummy.cpp"
+-	$(CPP) /nologo $(Debug_CFLAGS) $(Debug_INCS) /Y- /Fo$@ /c "$*-dummy.cpp"
+-	@DEL "$*-dummy.cpp"
+-	@DEL "$*.obj.@"
+-
+-DebugMem\$(BLACKLIST).obj: $(BLACKLIST).cpp
+-	@ECHO.>"$*.obj.@"
+-	@ECHO.>"$*-dummy.cpp"
+-	$(CPP) /nologo $(DebugMem_CFLAGS) $(DebugMem_INCS) /Y- /Fo$@ /c "$*-dummy.cpp"
+-	@DEL "$*-dummy.cpp"
+-	@DEL "$*.obj.@"
+-
+-Release\$(BLACKLIST).obj: $(BLACKLIST).cpp
+-	@ECHO.>"$*.obj.@"
+-	@ECHO.>"$*-dummy.cpp"
+-	$(CPP) /nologo $(Release_CFLAGS) $(Release_INCS) /Y- /Fo$@ /c "$*-dummy.cpp"
+-	@DEL "$*-dummy.cpp"
+-	@DEL "$*.obj.@"
+-
+-Profile\$(BLACKLIST).obj: $(BLACKLIST).cpp
+-	@ECHO.>"$*.obj.@"
+-	@ECHO.>"$*-dummy.cpp"
+-	$(CPP) /nologo $(Profile_CFLAGS) $(Profile_INCS) /Y- /Fo$@ /c "$*-dummy.cpp"
+-	@DEL "$*-dummy.cpp"
+-	@DEL "$*.obj.@"
+-
+-!ENDIF
+-
+-!IFDEF FD
+-
+-!IF [IF NOT EXIST $(FD) EXIT 1] == 0
+-!IF [$(FD) --objectextension=pch -q -O Debug CvGameCoreDLL.cpp > depends] != 0 || \
+-    [$(FD) --objectextension=obj -q -O Debug $(SOURCES) >> depends] != 0 || \
+-    [$(FD) --objectextension=pch -q -O DebugMem CvGameCoreDLL.cpp >> depends] != 0 || \
+-    [$(FD) --objectextension=obj -q -O DebugMem $(SOURCES) >> depends] != 0 || \
+-    [$(FD) --objectextension=pch -q -O Release CvGameCoreDLL.cpp >> depends] != 0 || \
+-    [$(FD) --objectextension=obj -q -O Release $(SOURCES) >> depends] != 0 || \
+-    [$(FD) --objectextension=pch -q -O Profile CvGameCoreDLL.cpp >> depends] != 0 || \
+-    [$(FD) --objectextension=obj -q -O Profile $(SOURCES) >> depends] != 0
+-!MESSAGE Error running fastdep.
+-!ENDIF
+-!ELSE
+-!IF [ECHO "fastdep.exe" NOT FOUND! && \
+-     ECHO Please edit Makefile to reflect the correct path of fastdep. && \
+-     ECHO. ]
+-!ENDIF
+-!ENDIF
+-
+-!ENDIF
+-
+-!IF EXIST(depends)
+-!INCLUDE depends
+-!ENDIF
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.sln b/CvGameCoreDLL/Project/AdvCiv.sln
+index 8cfe0f39b..7d4bafa93 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.sln
++++ b/CvGameCoreDLL/Project/AdvCiv.sln
+@@ -10,6 +10,7 @@ Global
+ 		Assert|Win32 = Assert|Win32
+ 		Assert-fast|Win32 = Assert-fast|Win32
+ 		Debug|Win32 = Debug|Win32
++		DebugMem|Win32 = DebugMem|Win32
+ 		Final_Release-fast|Win32 = Final_Release-fast|Win32
+ 		Profile|Win32 = Profile|Win32
+ 		Release|Win32 = Release|Win32
+@@ -22,6 +23,8 @@ Global
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert-fast|Win32.Build.0 = Assert-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.ActiveCfg = Debug|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.Build.0 = Debug|Win32	
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.DebugMem|Win32.ActiveCfg = DebugMem|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.DebugMem|Win32.Build.0 = DebugMem|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.ActiveCfg = Final_Release-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.Build.0 = Final_Release-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.ActiveCfg = Profile|Win32
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index e625822e4..4bfd4dab0 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -12,6 +12,10 @@
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
++    </ProjectConfiguration>
++	<ProjectConfiguration Include="DebugMem|Win32">
++      <Configuration>DebugMem</Configuration>
++      <Platform>Win32</Platform>
+     </ProjectConfiguration>
+     <ProjectConfiguration Include="Profile|Win32">
+       <Configuration>Profile</Configuration>
+@@ -31,6 +35,8 @@
+     </ProjectConfiguration>
+   </ItemGroup>
+   <ItemGroup>
++    <ClCompile Include="..\AdvCiv4lerts.cpp" />
++    <ClCompile Include="..\ArmamentForecast.cpp" />
+     <ClCompile Include="..\BetterBTSAI.cpp" />
+     <ClCompile Include="..\CvArea.cpp" />
+     <ClCompile Include="..\CvArtFileMgr.cpp" />
+@@ -41,6 +47,7 @@
+     <ClCompile Include="..\CvDiploParameters.cpp" />
+     <ClCompile Include="..\CvDLLButtonPopup.cpp" />
+     <ClCompile Include="..\CvDLLEntity.cpp" />
++    <ClCompile Include="..\CvDLLInterfaceIBase2.cpp" />
+     <ClCompile Include="..\CvDLLPython.cpp" />
+     <ClCompile Include="..\CvDllPythonEvents.cpp" />
+     <ClCompile Include="..\CvDllTranslator.cpp" />
+@@ -130,12 +137,29 @@
+     <ClCompile Include="..\CyUnit.cpp" />
+     <ClCompile Include="..\CyUnitInterface1.cpp" />
+     <ClCompile Include="..\FDialogTemplate.cpp" />
++    <ClCompile Include="..\InvasionGraph.cpp" />
+     <ClCompile Include="..\KmodPathFinder.cpp" />
+     <ClCompile Include="..\FAssert.cpp" />
++    <ClCompile Include="..\MilitaryAnalyst.cpp" />
++    <ClCompile Include="..\MilitaryBranch.cpp" />
++    <ClCompile Include="..\RFChapter.cpp" />
++    <ClCompile Include="..\RFChapterScore.cpp" />
++    <ClCompile Include="..\RFTotalScore.cpp" />
++    <ClCompile Include="..\RiseFall.cpp" />
++    <ClCompile Include="..\Shelf.cpp" />
++    <ClCompile Include="..\StartPointsAsHandicap.cpp" />
++    <ClCompile Include="..\WarAndPeaceAI.cpp" />
++    <ClCompile Include="..\WarAndPeaceCache.cpp" />
++    <ClCompile Include="..\WarAndPeaceReport.cpp" />
++    <ClCompile Include="..\WarEvalParameters.cpp" />
++    <ClCompile Include="..\WarEvaluator.cpp" />
++    <ClCompile Include="..\WarUtilityAspect.cpp" />
+     <ClCompile Include="..\_precompile.cpp" />
+   </ItemGroup>
+   <ItemGroup>
++    <ClInclude Include="..\AdvCiv4lerts.h" />
+     <ClInclude Include="..\AI_Defines.h" />
++    <ClInclude Include="..\ArmamentForecast.h" />
+     <ClInclude Include="..\BetterBTSAI.h" />
+     <ClInclude Include="..\CvArea.h" />
+     <ClInclude Include="..\CvArtFileMgr.h" />
+@@ -231,13 +255,31 @@
+     <ClInclude Include="..\FInputDevice.h" />
+     <ClInclude Include="..\FProfiler.h" />
+     <ClInclude Include="..\FVariableSystem.h" />
++    <ClInclude Include="..\InvasionGraph.h" />
+     <ClInclude Include="..\KmodPathFinder.h" />
+     <ClInclude Include="..\LinkedList.h" />
++    <ClInclude Include="..\MilitaryAnalyst.h" />
++    <ClInclude Include="..\MilitaryBranch.h" />
+     <ClInclude Include="..\resource.h" />
++    <ClInclude Include="..\RFChapter.h" />
++    <ClInclude Include="..\RFChapterScore.h" />
++    <ClInclude Include="..\RFTotalScore.h" />
++    <ClInclude Include="..\RiseFall.h" />
++    <ClInclude Include="..\Shelf.h" />
++    <ClInclude Include="..\StartPointsAsHandicap.h" />
++    <ClInclude Include="..\WarAndPeaceAI.h" />
++    <ClInclude Include="..\WarAndPeaceCache.h" />
++    <ClInclude Include="..\WarAndPeaceReport.h" />
++    <ClInclude Include="..\WarEvalParameters.h" />
++    <ClInclude Include="..\WarEvaluator.h" />
++    <ClInclude Include="..\WarUtilityAspect.h" />
+   </ItemGroup>
+   <ItemGroup>
+     <None Include="..\FVariableSystem.inl" />
+     <None Include="..\interfaceDirtyBits.inl" />
++    <None Include="Makefile" />
++    <None Include="Makefile.project" />
++    <None Include="Makefile.settings" />
+   </ItemGroup>
+   <ItemGroup>
+     <ResourceCompile Include="..\CvGameCoreDLL.rc" />
+@@ -251,6 +293,10 @@
+     <ConfigurationType>Makefile</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
+     <ConfigurationType>Makefile</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+@@ -286,6 +332,9 @@
+   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+@@ -320,6 +369,21 @@ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+ nmake clean  /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /D_DEBUG /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=DebugMem
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll  /NOLOGO</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=DebugMem
++nmake clean  /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=DebugMem
++nmake clean  /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+     <NMakeBuildCommandLine>set TARGET=Profile
+@@ -416,6 +480,10 @@ bin\jom build</NMakeReBuildCommandLine>
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <LocalDebuggerEnvironment>_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
++    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
++  </PropertyGroup>
+ 
+   <ItemDefinitionGroup>
+   </ItemDefinitionGroup>
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 4c101f158..3dce043e3 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -8,6 +8,11 @@
+ ####  Copyright 2010 Danny Daemonic  ####
+ #########################################
+ 
++# advc: Target 'DebugMem' added: an almost-Release build that is less likely than a
++# Debug build to obscure accesses to uninitialized memory.
++# YOURMOD2 and YOURLOGS (see under "Paths"). WX added to GLOBAL_CFLAGS.
++# Internal profiler enabled (FP_PROFILE_ENABLE, USE_INTERNAL_PROFILER).
++# devolution has added the target 'Final_Release' with additional optimizations.
+ 
+ ## User setup
+ ##
+@@ -26,19 +31,28 @@
+ 
+ 
+ #### Paths ####
+-#
+ # Note: Edit Makefile.settings instead and add it to .gitignore
+ # Note: $(PROGRAMFILES) converts to "C:\Program Files", "C:\Program Files (x86)" or whatever fits your system.
+ # run "nmake.exe /P" in cmd.exe to see what it is on your system
++#
+ #TOOLKIT=$(PROGRAMFILES)\Microsoft Visual C++ Toolkit 2003
+ #PSDK=$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A
+-## Uncomment to have newly compiled dlls copied to your mod's Assets directory
+-#YOURMOD=..
+-
++#
+ ## Civ install path
+ ## Path to the directory where boost and python is stored
+ ## Overwritten by enviroment variable CIV4_LIB_INSTALL_PATH
++#CIV4_PATH=$(PROGRAMFILES)\Sid Meier's Civilization 4\Beyond the Sword
+ #CIV4_PATH=$(PROGRAMFILES)\2K Games\Firaxis Games\Sid Meier's Civilization IV Colonization\CvGameCoreDLL
++#
++## Optional:
++# To have newly compiled dlls copied to your mod's Assets directory
++#YOURMOD=..
++# When the same DLL is used for a second mod
++#YOURMOD2=$(PROGRAMFILES)\Sid Meier's Civilization 4\Beyond the Sword\Mods\ModName
++# To have logs deleted after compilation
++# Warning: Make double sure to set the right path and not to move any valuable file
++# with .log extension there. Or better don't use it at all.
++#YOURLOGS=C:\Users\Administrator\Documents\My Games\Beyond the Sword\Logs
+ 
+ #### Tools ####
+ CC="$(TOOLKIT)\bin\cl.exe"
+@@ -51,17 +65,16 @@ FD="bin\fastdep.exe"
+ 
+ #### BLACKLIST ####
+ ## Uncomment to block CvTextScreen (accidentally included by Firaxis)
+-BLACKLIST=CvTextScreens
++# BLACKLIST=CvTextScreens
+ 
+ #### DEFINES ####
+-## copy the following lines into "Additional options" in NMAKE properties
+-## This will make VC++ aware of what is defined and what isn't, which affects the help popup and red lines
+-## Use Release_DEFINES for all targets except debug
+-## Assert adds /DFASSERT_ENABLE, which should be added to additional options too, if you care.
+-## However you will only be able to tell a difference if you do something with asserts other than FAssert() or FAssertMsg()
+-
+ Debug_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /D_DEBUG
+ Release_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE
++## Optional: Copy the flags above into "Additional options" in NMAKE properties (Configuration Properties)
++## to make VC++ aware of what is defined and what isn't, which affects the help popup and red lines.
++## Use the Release_DEFINES for all targets except debug. Assert adds /DFASSERT_ENABLE,
++## which should be added to additional options too, if you care; however you will
++## only be able to tell a difference if you do something with asserts other than FAssert() or FAssertMsg().
+ 
+ #### You shouldn't need to modify anything beyond this point ####
+ #################################################################
+@@ -150,8 +163,10 @@ CUSTOM_LDFLAGS =
+ FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
+ 
+ #### CFLAGS ####
+-GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
++GLOBAL_CFLAGS=/GR /Gy /W3 /WX /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
+ Debug_CFLAGS=/MD /Zi /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
++# (DebugMem: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
++DebugMem_CFLAGS=/MD /O2 /Zi /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Release_CFLAGS= /MD /O2 /Oy /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Final_Release_CFLAGS= /MD /O2 /Oy /Oi /G7 /arch:SSE2 /GL $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ 
+@@ -202,6 +217,12 @@ CFLAGS  = $(Debug_CFLAGS)
+ LDFLAGS = $(Debug_LDFLAGS)
+ LIBS    = $(LIBS) msvcprt.lib
+ !ENDIF
++!IF "$(TARGET)" == "DebugMem"
++CFLAGS  = $(DebugMem_CFLAGS) /DFASSERT_ENABLE
++LDFLAGS = $(Debug_LDFLAGS)
++# Leaving out msvcprt might help with debugging memory (but I doubt it)
++LIBS    = $(LIBS) msvcprt.lib
++!ENDIF
+ !IF "$(TARGET)" == "Release"
+ CFLAGS  = $(Release_CFLAGS)
+ LDFLAGS = $(Release_LDFLAGS)
+@@ -214,7 +235,7 @@ LDFLAGS = $(Release_LDFLAGS)
+ !IFNDEF _NMAKE_VER
+ !ERROR Jom can't be used on profile builds
+ !ENDIF
+-CFLAGS  = $(Release_CFLAGS) /Zi
++CFLAGS  = $(Release_CFLAGS) /Zi /DFP_PROFILE_ENABLE /DUSE_INTERNAL_PROFILER
+ LDFLAGS = $(Debug_LDFLAGS)
+ !ENDIF
+ !IF "$(TARGET)" == "Final_Release"
+@@ -253,6 +274,13 @@ build: $(Target_BIN)
+ !IFDEF YOURMOD
+ 	-COPY "$(Target_BIN)" "$(YOURMOD)\Assets\."
+ !ENDIF
++!IFDEF YOURMOD2
++	-COPY "$(Target_BIN)" "$(YOURMOD2)\Assets\."
++!ENDIF
++!IFDEF YOURLOGS
++	-FOR %i IN ("$(YOURLOGS)"\*.log) DO @IF EXIST "%i" DEL "%i"
++!ENDIF
++
+ 
+ precompile: Make_Dir Target_unfinished $(Target_PCH)
+
+diff --git a/CvGameCoreDLL/Project/Makefile.settings b/CvGameCoreDLL/Project/Makefile.settings
+index 8acc6f47c..8eb85c953 100644
+--- a/CvGameCoreDLL/Project/Makefile.settings
++++ b/CvGameCoreDLL/Project/Makefile.settings
+@@ -1,4 +1,4 @@
+ TOOLKIT=
+ PSDK=
+-YOURMOD=
+ CIV4_PATH=
++YOURMOD=
+
+[PATCH OMITTED] file=a/CvGameCoreDLL/fastdep.exe b/CvGameCoreDLL/fastdep.exe reason=binary/generated-file changedLines=0 bytes=180
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=28662

@@ -1,0 +1,50 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2313
+# Commit: 44641c3641b617d01dc6d294a1ab4d4a6fba0998
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 31c5847a3555c6a417e1561170a430c7067969ad
+# Title: Change case of some directory names
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/Interface/{screens => screens_lower_case}/medallion_Chevron10.dds
+-	-	Assets/Art/Interface/{screens => screens_lower_case}/medallion_Chevron20.dds
+-	-	Assets/Art/Interface/{screens => screens_lower_case}/medallion_Chevron5.dds
+-	-	Assets/Art/{units/ironclad => units_lower_case/ironclad_lower_case}/ironclad_md_strikea.kf
+ rename Assets/Art/Interface/{screens => screens_lower_case}/medallion_Chevron10.dds (100%)
+ rename Assets/Art/Interface/{screens => screens_lower_case}/medallion_Chevron20.dds (100%)
+ rename Assets/Art/Interface/{screens => screens_lower_case}/medallion_Chevron5.dds (100%)
+ rename Assets/Art/{units/ironclad => units_lower_case/ironclad_lower_case}/ironclad_md_strikea.kf (100%)
+
+[PATCHES]
+
+diff --git a/Assets/Art/Interface/screens/medallion_Chevron10.dds b/Assets/Art/Interface/screens_lower_case/medallion_Chevron10.dds
+similarity index 100%
+rename from Assets/Art/Interface/screens/medallion_Chevron10.dds
+rename to Assets/Art/Interface/screens_lower_case/medallion_Chevron10.dds
+
+diff --git a/Assets/Art/Interface/screens/medallion_Chevron20.dds b/Assets/Art/Interface/screens_lower_case/medallion_Chevron20.dds
+similarity index 100%
+rename from Assets/Art/Interface/screens/medallion_Chevron20.dds
+rename to Assets/Art/Interface/screens_lower_case/medallion_Chevron20.dds
+
+diff --git a/Assets/Art/Interface/screens/medallion_Chevron5.dds b/Assets/Art/Interface/screens_lower_case/medallion_Chevron5.dds
+similarity index 100%
+rename from Assets/Art/Interface/screens/medallion_Chevron5.dds
+rename to Assets/Art/Interface/screens_lower_case/medallion_Chevron5.dds
+
+diff --git a/Assets/Art/units/ironclad/ironclad_md_strikea.kf b/Assets/Art/units_lower_case/ironclad_lower_case/ironclad_md_strikea.kf
+similarity index 100%
+rename from Assets/Art/units/ironclad/ironclad_md_strikea.kf
+rename to Assets/Art/units_lower_case/ironclad_lower_case/ironclad_md_strikea.kf
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=1170

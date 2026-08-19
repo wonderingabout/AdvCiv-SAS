@@ -1,0 +1,107 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4782
+# Commit: 88eb21f702032d8821b07c0aceb7dcb919bf72b6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f50ab80096a352ae0f6ae7e562870f9b73957a32
+# Title: use a generic button for the generic (special building) monastery button, same as for the generic temple and generic catehdral anyways etc hopefulyl clearer...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	3	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+2	0	README.md
+6	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index 8f9cd5deb..567fc76e2 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -20,6 +20,7 @@
+ 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
+ 		</SpecialBuildingInfo>
+ 		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier anyways etc -->
++		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now anyways etc), button was: <Button>Art/Interface/Buttons/Buildings/Temple.dds</Button> -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_TEMPLE</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_TEMPLE</Description>
+@@ -33,9 +34,11 @@
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+-			<Button>Art/Interface/Buttons/Buildings/Temple.dds</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
+ 		</SpecialBuildingInfo>
+ 		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
++		<!-- custom: use button from the building atlas (still same image) for consistency with other generic special building buttons anyways etc, button was:
++		<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button> -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
+@@ -44,9 +47,11 @@
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<ProductionTraits/>
+-			<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,8</Button>
+ 		</SpecialBuildingInfo>
+ 		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries anyways etc) -->
++		<!-- custom: use this seemingly unused building atlas button anyways etc for the generic ((no religion on them) anyways etc) (base advciv's (civ4's too? Anyways etc)) monastery button, seems clearer to me than the hindu specific monastery button anyways etc, and like the generic temple and generic cathedral also having generic buttons, button was:
++		<Button>Art/Interface/Buttons/Buildings/Monastery_Hindu.dds</Button> -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_MONASTERY</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
+@@ -55,7 +60,7 @@
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<ProductionTraits/>
+-			<Button>Art/Interface/Buttons/Buildings/Monastery_Hindu.dds</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,7,11</Button>
+ 		</SpecialBuildingInfo>
+ 	</SpecialBuildingInfos>
+ </Civ4SpecialBuildingInfos>
+
+diff --git a/README.md b/README.md
+index 9232cac64..b3c19bd84 100644
+--- a/README.md
++++ b/README.md
+@@ -168,6 +168,8 @@ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_App
+ 
+ ## Main (bugs) fixed from base AdvCiv code
+ 
++Non exhaustive, see docs for details, which includes but not only [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) anyways etc thanks anyways etc
++
+ - Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+ - Seemingly fixed now, c where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+ - Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc, see [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index adab06559..2754ff3be 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -402,3 +402,9 @@ This is a small bug so just mentionning it, and perhaps it is even intended to b
+ As this is debug-only, and to not cause further issues, only mentionning it for now and not fixing it, screenshots about this issue, may be useful someday or not but anyways etc
+ 
+ A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
++
++## 12 - (now fixed) Special building atlas inconsistently using (uses/was using rather anyways etc) the hindu specific anyways etc monastery button instead of a generic button like the (abstract? Anyways etc / generic) generic temple and generic cathedral were
++
++Hopefully clearer and more consistent now or not or yes or etc or and other or and not or yes or etc anyways etc
++
++A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1LyGR9fEuI6HZLtn-R5qxgdlVFPVmhUAc?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+index 054815c00..1542ea1d1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=8504

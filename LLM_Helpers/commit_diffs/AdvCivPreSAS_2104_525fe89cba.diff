@@ -1,0 +1,222 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2104
+# Commit: 525fe89cba131b0100b671dcaccd71636f04613b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 90714a8c90f480af377b092f25fbc56dade2b242
+# Title: AI updates city safety status in response to human moves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+5	1	CvGameCoreDLL/CvMap.h
+52	5	CvGameCoreDLL/CvPlayerAI.cpp
+17	2	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ab85b907a..f80004614 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6563,8 +6563,11 @@ void CvCityAI::AI_updateSafety()
+ 	}
+ 	if (bSafe)
+ 	{	// <advc.ctr>
+-		if (!getPlot().isVisibleEnemyCityAttacker(kOwner.getID(), NO_TEAM, 2))
++		if (bUpdatePerfectSafety &&
++			!getPlot().isVisibleEnemyCityAttacker(kOwner.getID(), NO_TEAM, 2))
++		{
+ 			m_eSafety = CITYSAFETY_PERFECT; // </advc.ctr>
++		}
+ 		return;
+ 	}
+ 	FAssert(iDefenders >= 0 && iDefStrength >= 0);
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 525604234..9ccd11d3c 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -77,7 +77,7 @@ public:
+ 			/* <advc.099c> */ bool bIgnoreCulture = false) const;
+ 	int AI_neededCultureDefenders() const; // </advc.099c>
+ 	// <advc.139>
+-	void AI_updateSafety();
++	void AI_updateSafety(bool bUpdatePerfectSafety = true);
+ 	inline CitySafetyTypes AI_getSafety() const { return m_eSafety; }
+ 	inline bool AI_isEvacuating() const { return (m_eSafety == CITYSAFETY_EVACUATING); }
+ 	inline bool AI_isSafe() const { return (m_eSafety >= CITYSAFETY_SAFE); }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 7d88e2f86..f4031eb68 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -309,7 +309,11 @@ public: // advc: made several functions const
+ 	inline int plotNum(int iX, int iY) const // advc.inl: Merged with plotNumINLINE (plotNum wasn't called externally)			// Exposed to Python
+ 	{
+ 		return ((iY * getGridWidth()) + iX);
+-	}
++	}  // <advc> wrapper
++	__forceinline int plotNum(CvPlot const& kPlot) const
++	{
++		return plotNum(kPlot.getX(), kPlot.getY());
++	} // </advc>
+ 	int plotX(int iIndex) const;																										// Exposed to Python
+ 	int plotY(int iIndex) const;																										// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 07d0fbb62..27a79a789 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14569,14 +14569,15 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes* aeM
+ 	The result should only be compared with AI_localAttackStrength, AI_localDefenceStrength,
+ 	AI_cityTargetStrengthByPath or CvSelectionGroupAI::AI_sumStrength. */
+ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam,  // advc: some style changes in the body
+-	DomainTypes eDomainType, int iRange, bool bAtTarget, bool bCheckMoves, bool bNoCache,
++	DomainTypes eDomainType, int iRange, /* advc: renamed */ bool bMoveToTarget,
++	bool bCheckMoves, bool bNoCache,
+ 	bool bPredictPromotions) const // advc.139
+ {
+ 	PROFILE_FUNC();
+ 
+ 	int	iTotal = 0;
+ 
+-	FAssert(bAtTarget || !bCheckMoves); // it doesn't make much sense to check moves if the defenders are meant to stay put.
++	FAssert(bMoveToTarget || !bCheckMoves); // it doesn't make much sense to check moves if the defenders are meant to stay put.
+ 	FAssert(eDomainType != DOMAIN_AIR && eDomainType != DOMAIN_IMMOBILE); // advc: Air combat strength isn't counted
+ 	for (SquareIter it(*pDefencePlot, iRange); it.hasNext(); ++it)
+ 	{
+@@ -14624,14 +14625,14 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 				/*  <advc.159> Call AI_currEffectiveStr instead of currEffectiveStr.
+ 					Adjustments for first strikes are handled by that new function. */
+ 				int const iUnitStr = kLoopUnit.AI_currEffectiveStr(
+-						bAtTarget ? pDefencePlot : &p, // </advc.159>
++						bMoveToTarget ? pDefencePlot : &p, // </advc.159>
+ 						NULL, false, 0, false, iHP, bAssumePromo); // advc.139
+ 				iPlotTotal += iUnitStr;
+ 			}
+ 		}
+ 		if (!bNoCache && !isHuman() && eDefenceTeam == NO_TEAM &&
+ 			eDomainType == DOMAIN_LAND && !bCheckMoves &&
+-			(!bAtTarget || &p == pDefencePlot))
++			(!bMoveToTarget || &p == pDefencePlot))
+ 		{
+ 			// while since we're here, we might as well update our memory.
+ 			// (human players don't track strength memory)
+@@ -14793,7 +14794,53 @@ void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
+ 			/*	Unlikely that an attack from within the city will
+ 				tip the scales from safe to unsafe */
+ 			if (!kCity.AI_isSafe())
+-				kCity.AI_updateSafety();
++				kCity.AI_updateSafety(false);
++		}
++	}
++}
++
++/*	Directly update city safety in response to human moves so that UWAI (advc.104)
++	has up-to-date safety info when asked for a peace proposal.
++	Pretty narrow conditions (also on the caller's side); want to make sure not
++	to introduce any delay after human moves. */
++void CvPlayerAI::AI_humanEnemyStackMovedInTerritory(CvPlot const& kFrom, CvPlot const& kTo)
++{
++	if (isHuman() || !isMajorCiv())
++		return;
++	std::set<int> aUpdPlots;
++	CvMap const& kMap = GC.getMap();
++	aUpdPlots.insert(kMap.plotNum(kFrom));
++	aUpdPlots.insert(kMap.plotNum(kTo));
++	if (kFrom.getOwner() == getID())
++	{
++		FOR_EACH_ENUM(Direction)
++		{
++			CvPlot const* pAdj = plotDirection(kFrom.getX(), kFrom.getY(), eLoopDirection);
++			if (pAdj != NULL)
++				aUpdPlots.insert(kMap.plotNum(*pAdj));
++		}
++	}
++	if (kTo.getOwner() == getID())
++	{
++		FOR_EACH_ENUM(Direction)
++		{
++			CvPlot const* pAdj = plotDirection(kTo.getX(), kTo.getY(), eLoopDirection);
++			if (pAdj != NULL)
++				aUpdPlots.insert(kMap.plotNum(*pAdj));
++		}
++	}
++	for (std::set<int>::const_iterator it = aUpdPlots.begin();
++		it != aUpdPlots.end(); ++it)
++	{
++		CvPlot const& kPlot = kMap.getPlotByIndex(*it);
++		if (kPlot.getOwner() == getID() && kPlot.isCity())
++		{
++			CvCityAI& kCity = *kPlot.AI_getPlotCity();
++			if ((::adjacentOrSame(kPlot, kFrom) && !kCity.AI_isSafe()) ||
++				(::adjacentOrSame(kPlot, kTo) && kCity.AI_isSafe()))
++			{
++				kCity.AI_updateSafety(false);
++			}
+ 		}
+ 	}
+ } // </advc.139>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 1c6296ded..64943de06 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2840,13 +2840,14 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 	//PROFILE_FUNC();
+ 
+ 	FAssert(!isBusy()); // K-Mod
++	CvPlot const& kFrom = getPlot(); // advc.139
+ 
+ 	// K-Mod. Some variables to help us regroup appropriately if not everyone can move.
+ 	CvSelectionGroup* pStaticGroup = 0;
+ 	UnitAITypes eHeadAI = getHeadUnitAIType();
+ 
+ 	// Move the combat unit first, so that no-capture units don't get unneccarily left behind.
+-	if (pCombatUnit)
++	if (pCombatUnit != NULL)
+ 		pCombatUnit->move(*pPlot, true);
+ 	// K-Mod end
+ 
+@@ -2866,7 +2867,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 		{
+ 			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			pUnitNode = nextUnitNode(pUnitNode);
+-			//if ((pLoopUnit->canMove() && ((bCombat && (!(pLoopUnit->isNoCapture()) || !(pPlot->isEnemyCity(*pLoopUnit)))) ? pLoopUnit->canMoveOrAttackInto(pPlot) : pLoopUnit->canMoveInto(pPlot))) || (pLoopUnit == pCombatUnit))
++			//if ((pLoopUnit->canMove() && ((bCombat && (!pLoopUnit->isNoCapture() || !pPlot->isEnemyCity(*pLoopUnit))) ? pLoopUnit->canMoveOrAttackInto(pPlot) : pLoopUnit->canMoveInto(pPlot))) || pLoopUnit == pCombatUnit)
+ 			// K-Mod
+ 			if (pLoopUnit == pCombatUnit)
+ 				continue; // this unit is moved before the loop.
+@@ -2911,6 +2912,20 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 	//execute move
+ 	if (bEndMove || !canAllMove())
+ 	{
++		// <advc.139>
++		if (isHuman() && getNumUnits() > 1)
++		{
++			PlayerTypes const eGroupOwner = getOwner();
++			PlayerTypes const eFromOwner = kFrom.getOwner();
++			PlayerTypes const eToOwner = pPlot->getOwner();
++			if (eFromOwner != NO_PLAYER && GET_TEAM(eFromOwner).isAtWar(TEAMID(eGroupOwner)))
++				GET_PLAYER(eFromOwner).AI_humanEnemyStackMovedInTerritory(kFrom, *pPlot);
++			if (eToOwner != NO_PLAYER && GET_TEAM(eToOwner).isAtWar(TEAMID(eGroupOwner)) &&
++				eToOwner != eFromOwner)
++			{
++				GET_PLAYER(eToOwner).AI_humanEnemyStackMovedInTerritory(kFrom, *pPlot);
++			}
++		} // </advc.139>
+ 		CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 		while (pUnitNode != NULL)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8144

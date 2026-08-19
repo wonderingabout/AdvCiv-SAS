@@ -1,0 +1,590 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5702
+# Commit: 72e780b452f6878366ad7d131e243af4a692dabf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: de5c11cc2c7df1c0d3b58ee3b4e43a900a0f7e0f
+# Title: add direct and indirect groupings for SevoPediaEventTrigger, add numTxt and legend
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+139	49	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+17	3	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+98	55	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+5	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+8	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+4	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index 04fbbdae6..e0039dc01 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -109,6 +109,7 @@ class SevoPediaEventTrigger:
+ 		self.placeEvents()
+ 		# <!-- custom: Draw order, places Texts LAST so that when Texts is expanded, its full-page overlay covers the Events panel below it (draw order in Civ4 screens is z-order — later calls paint on top). (Claude code Opus 4.7) -->
+ 		self.placeTexts()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND")
+ 
+ 
+ 	def _getTriggerInfo(self):
+@@ -189,10 +190,11 @@ class SevoPediaEventTrigger:
+ 		info = self._getTriggerInfo()
+ 		lines = []
+ 		if info:
+-			# <!-- custom: tech prereqs, obsolete techs, and civic now live in the button
+-			# rows below this panel (clickable icons). Only numeric / count conditions
+-			# stay here as text, since they have no pedia target to link to.
+-			# (Claude code Opus 4.7) -->
++			# <!-- custom: only non-linkable numeric thresholds live here as text. All
++			# linkable prereqs (direct techs, civic, obsolete techs, OtherPlayerHasTech,
++			# required buildings/units/religions/corporations) are icon buttons in the
++			# Requires-Buttons panel below, which avoids duplicating every asset name
++			# as both an icon and a text line. (Claude code Opus 4.7) -->
+ 			if info.getMinPopulation() > 0:
+ 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP", ()) + u": %d" % info.getMinPopulation())
+ 			if info.getMaxPopulation() > 0:
+@@ -695,61 +697,136 @@ class SevoPediaEventTrigger:
+ 		if not info:
+ 			return
+ 
+-		# <!-- custom: use the same attachImageButton/label flow as SevoPediaUnit.placeRequires:
+-		# stable left-to-right layout with automatic wrapping, and explicit OR/AND separators
+-		# so mixed prereq groups are readable at a glance. (GPT-5.3-Codex) -->
+-		isButtonFound = False
+-
++		# <!-- custom: multilist layout (a la SevoPediaUnit.placeRequires) so each button
++		# gets a consistent grid slot and we can place a numTxt under the ones that need
++		# disambiguating. Only the OtherPlayerHasTech button carries a "Oth.P." numTxt —
++		# direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation
++		# icons are self-identifying by art and don't need extra text. AND/OR separator
++		# labels are dropped vs the previous inline flow; the distinction is rare in
++		# vanilla triggers and keeping multilist discipline is worth the small loss.
++		# (Claude code Opus 4.7) -->
++		rowListName = self.top.getNextWidgetName()
++		multiListX = self.X_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = self.Y_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = self.W_REQUIRES_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = self.H_REQUIRES_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		iButtonIndex = 0
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
++
++		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands
++		# in the earliest grid slot. numTxt is placed at absolute coordinates (no grid
++		# scroll support), so keeping the labeled button on the first row guarantees the
++		# label stays visible even if later buttons wrap past the panel height.
++		# (Claude code Opus 4.7) -->
++		iOtherTech = info.getOtherPlayerHasTech()
++		if iOtherTech >= 0:
++			otherTechInfo = gc.getTechInfo(iOtherTech)
++			if otherTechInfo:
++				screen.appendMultiListButton(rowListName, otherTechInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iOtherTech, -1, False)
++				add_multilist_numTxt_under_button(multiListX, multiListY, -3, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, u"Oth.P.", screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				iButtonIndex += 1
++
++		# Direct AND prereq techs — no numTxt, icon alone = implicit AND.
+ 		seenAnd = {}
+-		andTechs = []
+ 		for i in range(info.getNumPrereqAndTechs()):
+ 			iTech = info.getPrereqAndTechs(i)
+-			if iTech >= 0 and iTech not in seenAnd:
+-				seenAnd[iTech] = True
+-				andTechs.append(iTech)
+-		for iTech in andTechs:
++			if iTech < 0 or iTech in seenAnd:
++				continue
++			seenAnd[iTech] = True
+ 			techInfo = gc.getTechInfo(iTech)
+ 			if techInfo:
+-				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+-				isButtonFound = True
++				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
++				iButtonIndex += 1
+ 
++		# <!-- custom: direct OR prereq techs use connector numTxt between buttons, so
++		# they read as "A or B" instead of labeling either icon as "or". Single OR
++		# entries do not need a connector. (GPT-5.5) -->
+ 		seenOr = {}
+-		orTechs = []
++		orTechList = []
+ 		for i in range(info.getNumPrereqOrTechs()):
+ 			iTech = info.getPrereqOrTechs(i)
+ 			if iTech >= 0 and iTech not in seenOr:
+ 				seenOr[iTech] = True
+-				orTechs.append(iTech)
+-
+-		if andTechs and orTechs:
+-			if len(orTechs) > 1:
+-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ()) + u"("))
+-			else:
+-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
+-		bFirstOr = True
+-		for iTech in orTechs:
+-			if not bFirstOr:
+-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+-			else:
+-				bFirstOr = False
++				orTechList.append(iTech)
++		szOrLabel = None
++		if len(orTechList) > 1:
++			szOrLabel = localText.getText("TXT_KEY_OR", ())
++		bFirstOrTech = True
++		for iTech in orTechList:
+ 			techInfo = gc.getTechInfo(iTech)
+ 			if techInfo:
+-				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+-				isButtonFound = True
+-		if andTechs and len(orTechs) > 1:
+-			screen.attachLabel(panelName, "", SASTextScale.labelText(u")"))
++				if bFirstOrTech:
++					szConnector = None
++					bFirstOrTech = False
++				else:
++					szConnector = szOrLabel
++				add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szConnector, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
++				iButtonIndex += 1
+ 
+-		# Civic is an additional AND requirement.
++		# Civic.
+ 		iCivic = info.getCivic()
+ 		if iCivic >= 0:
+-			if isButtonFound:
+-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
+ 			civicInfo = gc.getCivicInfo(iCivic)
+ 			if civicInfo:
+-				screen.attachImageButton(panelName, "", civicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+-				isButtonFound = True
++				screen.appendMultiListButton(rowListName, civicInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
++				iButtonIndex += 1
++
++		# Required buildings — display default building of the class.
++		for i in range(info.getNumBuildingsRequired()):
++			iBC = info.getBuildingRequired(i)
++			if iBC < 0:
++				continue
++			bcInfo = gc.getBuildingClassInfo(iBC)
++			if not bcInfo:
++				continue
++			iDefault = bcInfo.getDefaultBuildingIndex()
++			if iDefault < 0:
++				continue
++			buildingInfo = gc.getBuildingInfo(iDefault)
++			if buildingInfo:
++				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefault, 1, False)
++				iButtonIndex += 1
++
++		# Required units — default unit of the class.
++		for i in range(info.getNumUnitsRequired()):
++			iUC = info.getUnitRequired(i)
++			if iUC < 0:
++				continue
++			ucInfo = gc.getUnitClassInfo(iUC)
++			if not ucInfo:
++				continue
++			iDefaultUnit = ucInfo.getDefaultUnitIndex()
++			if iDefaultUnit < 0:
++				continue
++			unitInfo = gc.getUnitInfo(iDefaultUnit)
++			if unitInfo:
++				screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, 1, False)
++				iButtonIndex += 1
++
++		# Required religions.
++		for i in range(info.getNumReligionsRequired()):
++			iRel = info.getReligionRequired(i)
++			if iRel < 0:
++				continue
++			relInfo = gc.getReligionInfo(iRel)
++			if relInfo:
++				screen.appendMultiListButton(rowListName, relInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iRel, 1, False)
++				iButtonIndex += 1
++
++		# Required corporations.
++		for i in range(info.getNumCorporationsRequired()):
++			iCorp = info.getCorporationRequired(i)
++			if iCorp < 0:
++				continue
++			corpInfo = gc.getCorporationInfo(iCorp)
++			if corpInfo:
++				screen.appendMultiListButton(rowListName, corpInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iCorp, 1, False)
++				iButtonIndex += 1
+ 
+-		if not isButtonFound:
++		if iButtonIndex == 0:
+ 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+ 			yCenter = self.Y_REQUIRES_BUTTONS + (self.H_REQUIRES_BUTTONS / 2)
+ 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_BUTTONS + 7, yCenter, self.W_REQUIRES_BUTTONS - 14, self.H_REQUIRES_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -765,24 +842,37 @@ class SevoPediaEventTrigger:
+ 		if not info:
+ 			return
+ 
++		rowListName = self.top.getNextWidgetName()
++		multiListX = self.X_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = self.Y_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = self.W_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = self.H_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the
++		# trigger. Use connector numTxt between buttons instead of labeling each icon
++		# as "or", so this reads as "A or B" and matches Requires OR prereqs.
++		# (GPT-5.5) -->
++		iButtonIndex = 0
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
++		szOrLabel = localText.getText("TXT_KEY_OR", ())
++		listTechs = []
+ 		seen = {}
+-		bFirst = True
+-		isButtonFound = False
+ 		for i in range(info.getNumObsoleteTechs()):
+ 			iTech = info.getObsoleteTech(i)
+ 			if iTech < 0 or iTech in seen:
+ 				continue
+ 			seen[iTech] = True
+-			if not bFirst:
+-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+-			else:
+-				bFirst = False
++			listTechs.append(iTech)
++
++		for iTech in listTechs:
+ 			techInfo = gc.getTechInfo(iTech)
+ 			if techInfo:
+-				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+-				isButtonFound = True
++				add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++				iButtonIndex += 1
+ 
+-		if not isButtonFound:
++		if iButtonIndex == 0:
+ 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+ 			yCenter = self.Y_OBSOLETE_BUTTONS + (self.H_OBSOLETE_BUTTONS / 2)
+ 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_OBSOLETE_BUTTONS + 7, yCenter, self.W_OBSOLETE_BUTTONS - 14, self.H_OBSOLETE_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 6ddb663c4..70d10f085 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -686,9 +686,9 @@ def get_extra_correction_x(numTxt):
+ 
+ 
+ def get_extra_correction_x_inbetween_buttons(button_size):
+-	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons, useful for handling the "or" numTxt for example -->
+-
+-	# <!-- custom: also add a small extra correction because we are slightly off from the center point of between the panels -->
++	# <!-- custom: offset numTxt from the current button center into the gap before it, for connector labels such as "or"
++	# that describe the relationship between adjacent buttons rather than either button itself. The small extra nudge
++	# keeps the connector visually centered in the gap. (GPT-5.5) -->
+ 	extraCorrectionOffFromTheCenter = -3
+ 
+ 	return (-1 * (int(button_size / 2))) + extraCorrectionOffFromTheCenter
+@@ -727,6 +727,20 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX,
+ 	screen.addMultilineText(textName, szNumTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
+ 
+ 
++def add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, button_size, maxButtonsPerRow, numTxt, screen, selfTop, widgetType, font):
++	# <!-- custom: draw a connector numTxt before the current button, e.g. "A or B" for OR prereqs/obsolete alternatives.
++	# It deliberately skips the first button and row-start buttons because there is no previous same-row button to connect
++	# to; callers should use normal add_multilist_numTxt_under_button when the text labels one specific icon instead.
++	# (GPT-5.5) -->
++	if not numTxt:
++		return
++	if iButtonIndex <= 0:
++		return
++	if (iButtonIndex % maxButtonsPerRow) == 0:
++		return
++	add_multilist_numTxt_under_button(multiListX, multiListY, get_extra_correction_x_inbetween_buttons(button_size), iButtonIndex, button_size, maxButtonsPerRow, numTxt, screen, selfTop, widgetType, font)
++
++
+ 
+ def chart_font2(szText):
+ 	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index df0a1f188..e43c435c8 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1440,75 +1440,99 @@ def _SAS_getUnitClassEra(iUnitClass):
+ 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
+ 
+ 
+-def _SAS_getEventTriggerEarliestEra(iTrigger):
++def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
++	# <!-- custom: returns (iEra, bDirect). bDirect is True when the trigger declares
++	# at least one entry in <OrPreReqs> or <AndPreReqs> — i.e. the era is visible at
++	# a glance on the trigger itself. bDirect is False when the era had to be inferred
++	# indirectly via chain lookups (OtherPlayerHasTech, required civic/building/unit/
++	# religion/corporation). The grouping function uses this to split each era section
++	# into "Ancient" vs "Ancient (indirect)" so readers can tell at-a-glance which
++	# triggers are obviously era-gated vs which rely on our indirect inference.
++	# iEra is -1 only when NO prereq of any kind gives an era — in that case bDirect
++	# is irrelevant (caller puts those in the "Any era" bucket). (Claude code Opus 4.7) -->
+ 	info = gc.getEventTriggerInfo(iTrigger)
+ 	if not info:
+-		return -1
++		return (-1, False)
+ 
+-	# OR tech list: any single tech satisfies the constraint, take min.
++	# OR tech list: any single tech satisfies the constraint, take min. Counts as direct.
+ 	iOrMin = -1
+ 	for i in range(info.getNumPrereqOrTechs()):
+ 		iEra = _SAS_getTechEra(info.getPrereqOrTechs(i))
+ 		if iEra >= 0:
+ 			if iOrMin == -1 or iEra < iOrMin:
+ 				iOrMin = iEra
++	bHasDirectOr = (iOrMin >= 0)
+ 
+-	# Every other constraint is AND-ish: the trigger can't fire until the latest-era
+-	# prereq is satisfied. Collect them all, take max at the end.
+-	iHardMax = -1
+-	def _bumpHard(iEra):
+-		# Nested function can only read iHardMax in py2.4, so use a 1-element list
+-		# proxy via a shared mutable container.
++	# AND tech list: all must be satisfied, take max. Counts as direct.
++	iAndMax = -1
++	for i in range(info.getNumPrereqAndTechs()):
++		iEra = _SAS_getTechEra(info.getPrereqAndTechs(i))
++		if iEra >= 0 and iEra > iAndMax:
++			iAndMax = iEra
++	bHasDirectAnd = (iAndMax >= 0)
++
++	# Indirect constraints (OtherPlayerHasTech, required civic/building/unit/religion/
++	# corporation) are all AND-ish — the trigger can't fire until the latest-era
++	# inference is satisfied. Collected separately so we can classify direct vs indirect.
++	iIndirectMax = -1
++	def _bumpIndirect(iEra):
+ 		if iEra < 0:
+ 			return
+-		if iHardHolder[0] == -1 or iEra > iHardHolder[0]:
+-			iHardHolder[0] = iEra
+-	iHardHolder = [iHardMax]
++		if iIndirectHolder[0] == -1 or iEra > iIndirectHolder[0]:
++			iIndirectHolder[0] = iEra
++	iIndirectHolder = [iIndirectMax]
+ 
+-	for i in range(info.getNumPrereqAndTechs()):
+-		_bumpHard(_SAS_getTechEra(info.getPrereqAndTechs(i)))
+-	_bumpHard(_SAS_getTechEra(info.getOtherPlayerHasTech()))
++	_bumpIndirect(_SAS_getTechEra(info.getOtherPlayerHasTech()))
+ 
+ 	iCivic = info.getCivic()
+ 	if iCivic >= 0:
+ 		civicInfo = gc.getCivicInfo(iCivic)
+ 		if civicInfo:
+-			_bumpHard(_SAS_getTechEra(civicInfo.getTechPrereq()))
++			_bumpIndirect(_SAS_getTechEra(civicInfo.getTechPrereq()))
+ 
+ 	for i in range(info.getNumBuildingsRequired()):
+-		_bumpHard(_SAS_getBuildingClassEra(info.getBuildingRequired(i)))
++		_bumpIndirect(_SAS_getBuildingClassEra(info.getBuildingRequired(i)))
+ 	for i in range(info.getNumUnitsRequired()):
+-		_bumpHard(_SAS_getUnitClassEra(info.getUnitRequired(i)))
++		_bumpIndirect(_SAS_getUnitClassEra(info.getUnitRequired(i)))
+ 	for i in range(info.getNumReligionsRequired()):
+ 		iRel = info.getReligionRequired(i)
+ 		if iRel >= 0:
+ 			relInfo = gc.getReligionInfo(iRel)
+ 			if relInfo:
+-				_bumpHard(_SAS_getTechEra(relInfo.getTechPrereq()))
++				_bumpIndirect(_SAS_getTechEra(relInfo.getTechPrereq()))
+ 	for i in range(info.getNumCorporationsRequired()):
+ 		iCorp = info.getCorporationRequired(i)
+ 		if iCorp >= 0:
+ 			corpInfo = gc.getCorporationInfo(iCorp)
+ 			if corpInfo:
+-				_bumpHard(_SAS_getTechEra(corpInfo.getTechPrereq()))
++				_bumpIndirect(_SAS_getTechEra(corpInfo.getTechPrereq()))
+ 	# Routes use TechMovementChanges (a list, not a single prereq) so there's no clean
+ 	# single-era answer — skipped. Route-required triggers are rare enough that the
+ 	# other constraints on the same trigger usually give a correct era anyway.
+ 
+-	iHardMax = iHardHolder[0]
+-
+-	# Overall earliest era: the trigger is gated by the LATER of (min OR tech) and
+-	# (max hard-required era). If OR has no entries we only need iHardMax; if no hard
+-	# constraints exist we only need iOrMin; if neither list yields anything → -1.
+-	if iOrMin == -1 and iHardMax == -1:
+-		return -1
+-	if iOrMin == -1:
+-		return iHardMax
+-	if iHardMax == -1:
+-		return iOrMin
+-	if iOrMin > iHardMax:
+-		return iOrMin
+-	return iHardMax
++	iIndirectMax = iIndirectHolder[0]
++
++	# Direct era contribution = max(OR min, AND max). Indirect era contribution is what
++	# we just computed. Final era = max of both. Classification: direct if the trigger
++	# has ANY direct prereq at all (OR or AND list non-empty). Rationale: users see
++	# "ancient (indirect)" as "we had to dig into indirect refs to place this", whereas
++	# "ancient" means "the trigger XML says so up-front".
++	iDirectEra = -1
++	if iOrMin >= 0:
++		iDirectEra = iOrMin
++	if iAndMax >= 0 and iAndMax > iDirectEra:
++		iDirectEra = iAndMax
++
++	if iDirectEra == -1 and iIndirectMax == -1:
++		return (-1, False)
++	if iDirectEra == -1:
++		return (iIndirectMax, False)
++	if iIndirectMax == -1:
++		return (iDirectEra, True)
++	# Both contributed; final era = max.
++	if iDirectEra >= iIndirectMax:
++		return (iDirectEra, True)
++	return (iIndirectMax, bHasDirectOr or bHasDirectAnd)
+ 
+ 
+ def _SAS_getEventTriggerRowLabel(iTrigger):
+@@ -1531,44 +1555,63 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
+ # - "Any era (no tech requirement)" bucket is placed FIRST because these triggers are
+ #   active from turn 1 — putting them first matches the player's "when does this fire?"
+ #   mental model better than appending them at the end.
+-# - Within each era section, triggers are emitted in XML declaration order. This preserves
++# - Each real era produces TWO buckets: "Ancient" (triggers whose tech prereq is visible
++#   directly in <OrPreReqs> / <AndPreReqs>) and "Ancient (indirect)" (triggers whose era
++#   was inferred from <OtherPlayerHasTech> or from a required civic/building/unit/
++#   religion/corporation's own tech prereq). The indirect bucket exists so readers can
++#   tell at-a-glance which placements are "the XML says so" vs "our chain-lookup says so".
++# - Within each section, triggers are emitted in XML declaration order. This preserves
+ #   the modder's intended grouping (families like FESTIVAL / FESTIVAL_AGAIN / FESTIVAL_DONE
+ #   are typically declared adjacently in CIV4EventTriggerInfos.xml, so they stay adjacent
+ #   in the list for free). If a family is ever scattered in the XML, fix at XML level.
+-# - bSortLists is honored: when the user enables Sort Lists, entries within each era
++# - bSortLists is honored: when the user enables Sort Lists, entries within each section
+ #   sort alphabetically by label instead of XML order (same convention as other pedia
+ #   categories in this module). (Claude code Opus 4.7) -->
+ def SAS_getEventTriggersGroupedByEra(bSortLists):
+ 	listEntries = []
+ 	iNumEras = gc.getNumEraInfos()
+-	# -1 bucket holds "no prereq tech" triggers; iEra 0..iNumEras-1 are real eras.
+-	groups = {}
++	# directGroups[iEra] / indirectGroups[iEra] hold row tuples. -1 goes in the shared
++	# "any era" bucket (no tech requirement of any kind — direct/indirect distinction
++	# isn't meaningful there).
++	anyEraItems = []
++	directGroups = {}
++	indirectGroups = {}
+ 	iNumTriggers = gc.getNumEventTriggerInfos()
+ 	for iTrigger in range(iNumTriggers):
+ 		info = gc.getEventTriggerInfo(iTrigger)
+ 		if not info:
+ 			continue
+-		iEra = _SAS_getEventTriggerEarliestEra(iTrigger)
+-		if iEra not in groups:
+-			groups[iEra] = []
+-		groups[iEra].append((_SAS_getEventTriggerRowLabel(iTrigger), iTrigger))
++		iEra, bDirect = _SAS_getEventTriggerEarliestEraAndSource(iTrigger)
++		row = (_SAS_getEventTriggerRowLabel(iTrigger), iTrigger)
++		if iEra < 0:
++			anyEraItems.append(row)
++		elif bDirect:
++			if iEra not in directGroups:
++				directGroups[iEra] = []
++			directGroups[iEra].append(row)
++		else:
++			if iEra not in indirectGroups:
++				indirectGroups[iEra] = []
++			indirectGroups[iEra].append(row)
+ 
+-	# Any-era bucket FIRST.
+-	if -1 in groups:
+-		items = groups[-1]
++	if anyEraItems:
+ 		if bSortLists:
+-			items = sorted(items)
+-		_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH", ()), items)
++			anyEraItems = sorted(anyEraItems)
++		_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH", ()), anyEraItems)
+ 
+-	# Then era buckets in era order.
++	szIndirectSuffix = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_INDIRECT_SUFFIX", ())
+ 	for iEra in range(iNumEras):
+-		if iEra not in groups:
+-			continue
+-		items = groups[iEra]
+-		if bSortLists:
+-			items = sorted(items)
+-		szHeader = gc.getEraInfo(iEra).getDescription()
+-		_SAS_addSection(listEntries, szHeader, items)
++		szEraName = gc.getEraInfo(iEra).getDescription()
++		if iEra in directGroups:
++			items = directGroups[iEra]
++			if bSortLists:
++				items = sorted(items)
++			_SAS_addSection(listEntries, szEraName, items)
++		if iEra in indirectGroups:
++			items = indirectGroups[iEra]
++			if bSortLists:
++				items = sorted(items)
++			_SAS_addSection(listEntries, szEraName + u" " + szIndirectSuffix, items)
+ 
+ 	return listEntries
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 739383cdd..34f82d203 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -48,6 +48,11 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+ 		<NewConceptInfo>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 9462991d2..bc9522398 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -176,5 +176,13 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Tag>
+ 		<English>[H1]Sevopedia Votes Legend[\H1][PARAGRAPH:2]This page explains abbreviations used in Sevopedia Votes.[PARAGRAPH:2]List abbreviations:[PARAGRAPH:2]- Source prefixes are removed in entries because votes are already grouped by source section headers (for example, United Nations and Apostolic Palace).[PARAGRAPH:2]- E: means Election.[PARAGRAPH:2]- R# means Resolution #.[PARAGRAPH:2]Panel abbreviations:[PARAGRAPH:2]- V.Source means Vote Source.[PARAGRAPH:2]- S.Civic means Vote Source Civic.[PARAGRAPH:2]- S.Free.Sp means Vote Source Free Specialist.[PARAGRAPH:2]- Fo.Civics means Forced Civics.[PARAGRAPH:2]Scope difference:[PARAGRAPH:2]- Vote Source fields (V.Source, S.Civic, S.Free.Sp, Vote Source Info) apply to the vote source itself and are shared by votes that belong to that source.[PARAGRAPH:2]- Vote fields (Requirements, Effects, Fo.Civics) apply to the selected vote/resolution entry.[PARAGRAPH:2]- Full vote names remain visible in the Name panel.</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Tag>
++		<English>Sevopedia Event Triggers Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND_PEDIA</Tag>
++		<English>[H1]Sevopedia Event Triggers Legend[\H1][PARAGRAPH:2]This page explains the era groupings and abbreviations used in Sevopedia Event Triggers.[PARAGRAPH:2]Era grouping:[PARAGRAPH:2]- Any era (no tech requirement): triggers that can fire from turn 1 because they declare no tech prerequisite of any kind.[PARAGRAPH:2]- Ancient / Classical / Medieval / ... : triggers whose earliest tech prerequisite is visible directly on the trigger XML, i.e. in its OrPreReqs or AndPreReqs tech list. These are "direct" era classifications - the gate is explicit on the trigger itself.[PARAGRAPH:2]- Ancient (indirect) / Classical (indirect) / ... : triggers whose era was inferred via chain lookup because the trigger XML does not list a direct tech prereq. The era comes from one of: OtherPlayerHasTech (another player must have a tech), the required Civic's prereq tech, a required Building/Unit class's default building/unit prereq tech, a required Religion's prereq tech, or a required Corporation's prereq tech. These are "indirect" - the trigger never reads "requires Flight" directly, but it requires something that implies Flight.[PARAGRAPH:2]Numbered labels (numTxt) under buttons:[PARAGRAPH:2]- Oth.P. : other player has this tech. Pairs with the OtherPlayerHasTech field. This tech does not need to be researched by the trigger's player - someone else in the game must have it. The label appears because the icon art is identical to a self-prereq tech icon and would otherwise be ambiguous.[PARAGRAPH:2]- OR : appears between adjacent buttons in a Requires OR-prereq group of two or more techs, or between adjacent Obsolete with techs when multiple techs can obsolete the trigger. Means any single one satisfies that group; for Obsolete with, any single one blocks the trigger.[PARAGRAPH:2]- No label on an AND prereq tech, a civic, or a required building/unit/religion/corporation - the icon art alone identifies those unambiguously in the Requires panel context.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index c5f037a9a..760601cc3 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3770,6 +3770,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH</Tag>
+ 		<English>Any era (no tech requirement)</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_INDIRECT_SUFFIX</Tag>
++		<English>(indirect)</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE</Tag>
+ 		<English>None</English>
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=29778

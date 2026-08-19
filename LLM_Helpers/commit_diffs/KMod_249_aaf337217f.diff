@@ -1,0 +1,133 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 249
+# Commit: aaf337217f08de2bb440bb00b16590533cf3aa89
+# History segment: K-Mod history
+# Parent used for diff: bdd0f0ffd474fd59c601f487541595c9d5cae931
+# Title: Fixed some problems with automatic citizen assignment - in particular, one problem which would sometimes allow cities to starve unnecessarily. Adjusted some...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	5	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+14	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6793bd2dd..7cb50a327 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -428,6 +428,8 @@ bool CvCityAI::AI_avoidGrowth()
+ 		return true;
+ 	}
+ 
++	return false; // K-Mod. short-circuit all the other stuff. That's all taken into account in other places.
++
+ 	if (isFoodProduction())
+ 	{
+ 		return true;
+@@ -9698,7 +9700,7 @@ void CvCityAI::AI_juggleCitizens()
+ 		if (iCycles > getPopulation() + iTotalFreeSpecialists)
+ 		{
+ 			// This isn't a serious problem. I just want to know how offen it happens.
+-			//FAssertMsg(false, "juggle citizens failed to find a stable solution.");
++			FAssertMsg(false, "juggle citizens failed to find a stable solution.");
+ 			break;
+ 		}
+ 		iCycles++;
+@@ -9931,7 +9933,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 		int iHappinessLevel = (isNoUnhappiness() ? std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+ 		int iPopulation = getPopulation();
+ 		//int iExtraPopulationThatCanWork = std::min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + std::min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + (bRemove ? 1 : 0);
+-		int iExtraPopulationThatCanWork = std::max(NUM_CITY_PLOTS, std::max(0, extraPopulation()+(bRemove?1:0))) - getWorkingPopulation();
++		int iExtraPopulationThatCanWork = std::min(NUM_CITY_PLOTS, std::max(0, extraPopulation()+(bRemove?1:0))) - getWorkingPopulation();
+ 
+ 		int iAdjustedFoodDifference = getYieldRate(YIELD_FOOD) - (bRemove? iFoodYield : 0) + std::min(0, iHealthLevel) - (iPopulation + std::min(0, iHappinessLevel)) * iConsumtionPerPop;
+ 
+@@ -10105,7 +10107,6 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 					// don't count growth value for tiles with nothing else to contribute.
+ 					if ((iPopToGrow > 0 || bFillingBar) && (iFoodYield - iConsumtionPerPop > 0 || iProductionValue > 0 || iCommerceValue > 0))
+ 					{
+-						
+ 						// will multiply this by factors
+ 						iFoodGrowthValue = iFoodYield;
+ 						/*if (iHealthLevel < (bFillingBar ? 0 : 1))
+@@ -10126,7 +10127,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 							iFactorPopToGrow = 41; */
+ 						// K-Mod, reduced the scale to match the building evaluation code.
+ 						if (bFillingBar)
+-							iFactorPopToGrow = 11 * iFoodToGrow / std::max(1, iFoodToGrow + iFoodLevel + iFoodPerTurn);
++							iFactorPopToGrow = 11 * iFoodToGrow / std::max(1, iFoodToGrow + 2*iFoodLevel + iFoodPerTurn);
+ 						else if (iPopToGrow < 6)
+ 							iFactorPopToGrow = 11 + 2 * iPopToGrow;
+ 						else
+@@ -10173,7 +10174,8 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 					iFoodGrowthValue += iTempValue;
+ 				} */ // Disabled by K-Mod. I don't see the point of this.
+ 				//Slavery Override
+-				if (bCanPopRush && (iHappinessLevel > 0))
++				//if (bCanPopRush && (iHappinessLevel > 0))
++				if (bCanPopRush && getHurryAngerTimer() == 0 && iHappinessLevel >= 0) // K-Mod
+ 				{
+ 					//iSlaveryValue = 30 * 14 * std::max(0, aiYields[YIELD_FOOD] - ((iHealthLevel < 0) ? 1 : 0));
+ 					// K-Mod. Rescaled values. "30" represents GC.getHurryInfo(eHurry).getProductionPerPopulation()
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 948c09717..abf5abd54 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1156,7 +1156,8 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc) const
+ 		}
+ 		if (!isBarbarian())
+ 		{
+-			int iMaxCityCount = 4;
++			//int iMaxCityCount = 4;
++			int iMaxCityCount = isHuman() ? 6 : 4; // K-Mod - because humans don't always walk towards the AI's top picks..
+ 			AI_updateCitySites(AI_getMinFoundValue(), iMaxCityCount);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5a7388b9d..126ba1b9b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1745,7 +1745,20 @@ bool CvUnit::isActionRecommended(int iAction)
+ 								return true;
+ 							}
+ 						}
++						// K-Mod
++						if (pPlot->getImprovementType() == NO_IMPROVEMENT && pWorkingCity == NULL)
++						{
++							if (!(pPlot->isIrrigated()) && pPlot->isIrrigationAvailable(true))
++							{
++								if (GC.getImprovementInfo(eImprovement).isCarriesIrrigation())
++								{
++									return true;
++								}
++							}
++						}
++						// K-Mod end
+ 
++						/* original bts code
+ 						if (pPlot->getImprovementType() == NO_IMPROVEMENT)
+ 						{
+ 							if (!(pPlot->isIrrigated()) && pPlot->isIrrigationAvailable(true))
+@@ -1778,7 +1791,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 									}
+ 								}
+ 							}
+-						}
++						} */ 
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4762

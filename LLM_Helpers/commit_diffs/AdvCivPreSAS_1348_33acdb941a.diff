@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1348
+# Commit: 33acdb941a4faf2b5b568caa6545b389ee239aff
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1cfdc903dee1e2c07dffa44e872425028a09a04e
+# Title: A few usability tweaks (mostly)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Contrib/Civ4lerts.py
+1	1	Assets/Python/Contrib/MoreCiv4lerts.py
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	CvGameCoreDLL/CvCity.cpp
+5	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+45	12	CvGameCoreDLL/CvPlayerAI.cpp
+2	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index ef3e97387..51e562afc 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -157,8 +157,9 @@ def addMessage(iPlayer, szString, szIcon, iFlashX=-1, iFlashY=-1, bOffArrow=Fals
+ 	if gc.getGame().isRFBlockPopups() or gc.getPlayer(iPlayer).isHumanDisabled() or gc.getPlayer(iPlayer).isAutoPlayJustEnded():
+ 		return # </advc.706>
+ 	# advc.106c: Reduced time from LONG to normal
++	# advc.106: Set bForce to False
+ 	eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+-	CyInterface().addMessage(iPlayer, True, eventMessageTimeLong,
++	CyInterface().addMessage(iPlayer, False, eventMessageTimeLong,
+ 							 szString, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, 
+ 							 szIcon, ColorTypes(-1),
+ 							 iFlashX, iFlashY, bOffArrow, bOnArrow)
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index fd8aa1895..6910a9de8 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -530,7 +530,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		for other in TradeUtil.getBonusTradePartners(player):
+ 			if not playerGoldTr and not gc.getTeam(other.getTeam()).isGoldTrading():
+ 				continue
+-			if other.AI_maxGoldPerTurnTrade(player.getID()) <= 0:
++			if other.AI_maxGoldPerTurnTrade(player.getID()) <= 2:
+ 				continue
+ 			# As getBonusTrades, but switch the parameters in this call:
+ 			will, wont = TradeUtil.getTradeableBonuses(player, other)
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 75452749a..2733955b1 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -26370,7 +26370,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.310: Was 150 -->
+-			<iCost>250</iCost>
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e538c554b..fbc664a64 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -16593,7 +16593,7 @@ void CvCity::failProduction(int orderData, int investedProduction,
+ 			GC.getProjectInfo((ProjectTypes)orderData).getTextKeyWide() :
+ 			GC.getBuildingInfo((BuildingTypes)orderData).getTextKeyWide(),
+ 			iProductionGold);
+-	gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false,
++	gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true,
+ 			GC.getEVENT_MESSAGE_TIME(), msg, "AS2D_WONDERGOLD",
+ 			MESSAGE_TYPE_MINOR_EVENT, GC.getCommerceInfo(COMMERCE_GOLD).
+ 			getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"),
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 52805f29a..421ce47df 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -11185,7 +11185,11 @@ double CvGame::goodyHutEffectFactor(
+ 
+ 	CvGameSpeedInfo& sp = GC.getGameSpeedInfo(getGameSpeedType());
+ 	double speedMultTurns = sp.getGrowthPercent() / 100.0;
+-	double speedMultFinal = (speedAdjust ? sp.getTrainPercent() / 100.0 : 1);
++	int const iWorldSzPercent = 100;
++		// Not sure if map-size adjustment is a good idea
++		//=GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent();
++	double speedMultFinal = (speedAdjust ?
++			sp.getTrainPercent() * iWorldSzPercent / 10000.0 : 1);
+ 	double startTurn = std::max(0.0,
+ 			GC.getDefineINT("GOODY_BUFF_START_TURN") * speedMultTurns);
+ 	double peakTurn = std::max(startTurn,
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0605d7f8b..9fb9acda6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6302,7 +6302,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 		FAssertMsg(eBestTech != NO_TECH, "BestTech is not assigned a valid value");
+ 		// <advc.314> Most of the code from here on was modified
+ 		CvTeam& ourTeam = GET_TEAM(getTeam());
+-		if(iGold <= 0 || ourTeam.getResearchLeft(eBestTech) <= iGold) {
++		if(iGold <= 0 || 0.8 * ourTeam.getResearchLeft(eBestTech) <= iGold) {
+ 			ourTeam.setHasTech(eBestTech, true, getID(), true, true);
+ 			if(isSignificantDiscovery(eBestTech))
+ 				ourTeam.setNoTradeTech(eBestTech, true);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0bf5ec0ff..e8e84c684 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11255,12 +11255,10 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+ 	bool bHuman = kPlayer.isHuman(); // </advc.003>
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+-
+-	if (AI_goldDeal(pTheirList) && AI_goldDeal(pOurList))
+-	{
+-		return false;
+-	}
+-
++	// <advc.003>
++	bool const bOurGoldDeal = AI_goldDeal(pOurList);
++	if(AI_goldDeal(pTheirList) && bOurGoldDeal)
++		return false; // </advc.003>
+ 	if (iChange > -1)
+ 	{
+ 		for (CLLNode<TradeData>* pNode = pOurList->head(); pNode; pNode = pOurList->next(pNode))
+@@ -11280,6 +11278,9 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 					return false;
+ 			}
+ 		} // </advc.036>
++		// <advc.026>
++		else if(bOurGoldDeal && !checkMaxGold(*pOurList, ePlayer))
++			return false; // </advc.026>
+ 	}
+ 	/*if (kPlayer.getTeam() == getTeam())
+ 	{
+@@ -11575,12 +11576,24 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 		// <advc.133> Always 125 in K-Mod
+ 		int tolerance = (bHuman ? 145 : 155) - std::min(35, dealAge);
+ 		// <advc.155>
+-		if(bSameTeam)
+-			tolerance = 150; // </advc.155>
+-		return (tolerance * // </advc.133>
+-				iTheirValue >= iOurValue * 100 // K-Mod
+-				// advc.155:
+-				|| (bSameTeam && iOurValue < iThreshold));
++		if(bSameTeam) {
++			if(iOurValue < iThreshold)
++				return true;
++			tolerance = 150;
++		} // </advc.155>
++		if(tolerance * // </advc.133>
++				iTheirValue >= iOurValue * 100) // K-Mod
++			return true;
++		/*  <advc.036> Need to make trades more stable in large games,
++			even to the detriment of the AI. But mustn't cling to a bad deal
++			indefinitely -> randomize it. */
++		if(!bHuman)
++			return false;
++		double prCancel = (0.025 * tolerance) /
++				(GET_TEAM(kPlayer.getTeam()).getHasMetCivCount() *
++				iOurValue / (double)iTheirValue);
++		return (prCancel < ::hash(g.getGameTurn(), getID()));
++		// </advc.036>
+ 	}
+ 	// <advc.136b>
+ 	else {
+@@ -11772,6 +11785,9 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 	if(!isHuman() && iValueForUs > iValueForThem &&
+ 			iValueForUs < 2 * GC.getDIPLOMACY_VALUE_REMAINDER())
+ 		return false; // </advc.136b>
++	// <advc.026>
++	if(bOurGoldDeal && !checkMaxGold(*pOurList, ePlayer))
++		return false; // </advc.026>
+ 	bool bDeal = false; // advc.036: Moved up
+ 	// When counterProposing, we want balance the deal - but if we can't balance it, we want to make sure it favours us; not them.
+ 	// So if their value is greater, we don't mind suggesting items which take them past balance.
+@@ -19961,6 +19977,23 @@ int CvPlayerAI::checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip) {
+ 	return -1;
+ } // </advc.003>
+ 
++// <advc.026>
++bool CvPlayerAI::checkMaxGold(CLinkList<TradeData> const& items,
++		PlayerTypes toId) const {
++
++	int const iMaxGold = AI_maxGoldTrade(toId);
++	int const iMaxGPT = AI_maxGoldPerTurnTrade(toId);
++	for(CLLNode<TradeData>* tdn = items.head(); tdn != NULL;
++			tdn = items.next(tdn)) {
++		if(tdn->m_data.m_eItemType == TRADE_GOLD && tdn->m_data.m_iData > iMaxGold)
++			return false;
++		if(tdn->m_data.m_eItemType == TRADE_GOLD_PER_TURN && tdn->m_data.m_iData > iMaxGPT)
++			return false;
++	}
++	return true;
++} // </advc.026>
++
++
+ void CvPlayerAI::AI_doDiplo()
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 18bdcaeda..669122031 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -614,6 +614,8 @@ protected:
+ 			int happyLeft, int healthLeft, int iOtherListLength) const;
+ 	int checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip);
+ 	// </advc.003> <advc.036>
++	// advc.026:
++	bool checkMaxGold(CLinkList<TradeData> const& items, PlayerTypes toId) const;
+ 	int adjustTradeGoldToDiplo(int gold, PlayerTypes civId) const;
+ 	void foldDeals() const;
+ 	void foldDeals(CvDeal& d1, CvDeal& d2) const; // </advc.036>
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=8518

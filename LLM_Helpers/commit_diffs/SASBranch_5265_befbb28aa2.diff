@@ -1,0 +1,536 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5265
+# Commit: befbb28aa2ab7aedc89198dc7655404ca64c91be
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0be5966414ecbe8a7c835b2c69f9e7d967e58ce5
+# Title: add medal emoji image as buttons, beautify the demographics tab further and update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds
+50	37	Assets/Python/Screens/CvInfoScreen.py
+22	4	Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+65	25	README.md
+8	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+8	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds
+new file mode 100644
+index 000000000..7905ab209
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds
+new file mode 100644
+index 000000000..e23b2529b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds differ
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index b30306e70..f19aa0337 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -296,6 +296,9 @@ class CvInfoScreen:
+ 		self.Y_ROW_9 = self.Y_ROW_8 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+ 		self.Y_ROW_10 = self.Y_ROW_9 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+ 
++		# <!-- custom: rank icon size for demographics tab, added with claude opus 4.5's help thanks. -->
++		self.iRankIconSize = 16
++
+ 		self.bAbleToShowAllPlayers = false
+ 		self.iShowingPlayer = -1
+ 		self.aiDropdownPlayerIDs = []
+@@ -593,6 +596,16 @@ class CvInfoScreen:
+ 		self.szLandAreaTitle = u"%s (%c): %s" % (self.TEXT_LAND_AREA, CyGame().getSymbolID(FontSymbols.MAP_CHAR), self.TEXT_LAND_AREA_MEASURE)
+ 		self.szPopulationTitle = u"%s (%c)" % (self.TEXT_POPULATION, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
+ 
++		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
++		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
++		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
++		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
++		
++		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
++		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
++		self.szRank2ImgTag = u"<img=%s size=%d></img>" % (szRank2IconPath, self.iRankIconSize)
++		self.szRank3ImgTag = u"<img=%s size=%d></img>" % (szRank3IconPath, self.iRankIconSize)
++
+ 		self.TEXT_TIME_PLAYED = localText.getText("TXT_KEY_INFO_SCREEN_TIME_PLAYED", ())
+ 		self.TEXT_CITIES_CURRENT = localText.getText("TXT_KEY_CONCEPT_CITIES", ()) # K-Mod
+ 		self.TEXT_CITIES_BUILT = localText.getText("TXT_KEY_INFO_SCREEN_CITIES_BUILT", ())
+@@ -679,7 +692,7 @@ class CvInfoScreen:
+ 		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+ 		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
+ 		self.szRazeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ()))  # 🔥
+-		self.szReligionIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", ()))  # 🕊️
++		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"  # 🕊️
+ 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
+ 
+ 	def reset(self):
+@@ -1641,40 +1654,39 @@ class CvInfoScreen:
+ 				self.pActiveTeam.isHasMet(gc.getPlayer(iPlayer).getTeam())):
+ 			aiGroup.append((iValue, iPlayer))
+ 
++	# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. Old code removed or commented-out for concision and readability. -->
+ 	def getPlayerValueStr(self, valuePlayerPair, szMeasure = "", aiGroup = None):
+ 		iPlayer = valuePlayerPair[1]
+ 		szPlayerName = ""
+ 		bUnknown = True
+-		if iPlayer > 0:
++		if iPlayer >= 0:
+ 			player = gc.getPlayer(iPlayer)
+ 			if self.pActiveTeam.isHasMet(player.getTeam()) or self.bRevealAll:
+ 				bUnknown = False
+ 				szPlayerName = player.getName()
+ 		# Better just leave it empty
+-		#if bUnknown:
+-		#	szPlayerName = localText.getText("TXT_KEY_UNKNOWN", ())
+ 		if (bUnknown or not self.pActivePlayer.canSeeDemographics(iPlayer)) and not self.bRevealAll:
+ 			if self.bAlwaysShowBestWorstNameIfMet:
+-				return (szPlayerName,"?")
+-			return ("","?")
+-		# <!-- custom: as per ruff rule E714 and chatgpt's explanation; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc. -->
+-		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
+-			# <!-- custom: We don't need to show all this info, nor do we need to truncate the string since our table is upscaled, so disable this as claude opus 4.5 says we can when i asked it about it thanks (check if accurate). It's also prettier i think and faster to read as such. -->
+-			# # Make sure player name isn't too long (I use the same code in CvOptionsScreen)
+-			# iCharLimit = 18
+-			# if len(szPlayerName) > iCharLimit:
+-			# 	szPlayerName = szPlayerName[:iCharLimit-3] + '...'
+-			# szPlayerName += " (" + localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ()) + " " + str(self.getRank(aiGroup, iPlayer)) + ")"
+-			# Build the rank suffix first so we know its length
+-			szRankSuffix = " (" + str(self.getRank(aiGroup, iPlayer)) + ")"
+-			szPlayerName += szRankSuffix
++				return (szPlayerName, "?")
++			return ("", "?")
++		if aiGroup is not None and iPlayer >= 0:
++			iRank = self.getRank(aiGroup, iPlayer)
++			if iRank > 0:
++				if iRank == 1:
++					szPlayerName = u"%s %s" % (szPlayerName, self.szRank1ImgTag)
++				elif iRank == 2:
++					szPlayerName = u"%s %s" % (szPlayerName, self.szRank2ImgTag)
++				elif iRank == 3:
++					szPlayerName = u"%s %s" % (szPlayerName, self.szRank3ImgTag)
++				else:
++					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
+ 		return (szPlayerName, self.separateThousands(valuePlayerPair[0]) + szMeasure)
+ 	
+ 	def getPlayerStr(self, valuePlayerPair, aiGroup = None):
+ 		return self.getPlayerValueStr(valuePlayerPair, "", aiGroup)[0]
+ 
+-	# <!-- custom: add buttons in the demographics tab with the help of claude opus 4.5 thanks. -->
+-	def getPlayerButton(self, valuePlayerPair):
++	# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
++	def getPlayerButton(self, valuePlayerPair, aiGroup = None):
+ 		iPlayer = valuePlayerPair[1]
+ 		if iPlayer >= 0:
+ 			player = gc.getPlayer(iPlayer)
+@@ -1684,6 +1696,7 @@ class CvInfoScreen:
+ 
+ 	def getValueStr(self, valuePlayerPair, szMeasure = ""):
+ 		return self.getPlayerValueStr(valuePlayerPair, szMeasure)[1]
++
+ 	# Based on function in CvGameCoreUtils. Not worth exporting those two lines.
+ 	def roundToMultiple(self, iValue, iMultiple):
+ 		r = int(iValue + 0.5 * iMultiple)
+@@ -2031,33 +2044,33 @@ class CvInfoScreen:
+ 		#iCol = 2
+ 		if bShowBest:
+ 			# Replaced str(i...GameBest) with getPlayerStr and getValueStr, and put them in separate rows.
+-			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), self.getPlayerButton(economyGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), self.getPlayerButton(economyGameBest, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), self.getPlayerButton(industryGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), self.getPlayerButton(industryGameBest, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			screen.setTableText(szTable, iBestCol, 7, self.getPlayerStr(agricultureGameBest, aiGroupAgriculture), self.getPlayerButton(agricultureGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 7, self.getPlayerStr(agricultureGameBest, aiGroupAgriculture), self.getPlayerButton(agricultureGameBest, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), self.getPlayerButton(militaryGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), self.getPlayerButton(militaryGameBest, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 12
+-			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), self.getPlayerButton(landAreaGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), self.getPlayerButton(landAreaGameBest, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 11
+ 			screen.setTableText(szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 15
+-			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), self.getPlayerButton(populationGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), self.getPlayerButton(populationGameBest, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 14
+ 			screen.setTableText(szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 17
+-			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), self.getPlayerButton(happinessGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), self.getPlayerButton(happinessGameBest, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 16
+ 			screen.setTableText(szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 19
+-			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), self.getPlayerButton(healthGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), self.getPlayerButton(healthGameBest, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 18
+ 			screen.setTableText(szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			if self.bShowExports:
+ 				# row was 22
+-				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), self.getPlayerButton(netTradeGameBest), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), self.getPlayerButton(netTradeGameBest, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 				screen.setTableText(szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		#iCol = 3
+@@ -2082,33 +2095,33 @@ class CvInfoScreen:
+ 		#iCol = 4
+ 		if bShowWorst:
+ 			# Replaced str(i...GameWorst) with getPlayerStr and getValueStr, and put them in a separate rows.
+-			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), self.getPlayerButton(economyGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), self.getPlayerButton(economyGameWorst, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), self.getPlayerButton(industryGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), self.getPlayerButton(industryGameWorst, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), self.getPlayerButton(agricultureGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), self.getPlayerButton(agricultureGameWorst, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), self.getPlayerButton(militaryGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), self.getPlayerButton(militaryGameWorst, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			screen.setTableText(szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 12
+-			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), self.getPlayerButton(landAreaGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), self.getPlayerButton(landAreaGameWorst, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 11
+ 			screen.setTableText(szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 15
+-			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), self.getPlayerButton(populationGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), self.getPlayerButton(populationGameWorst, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 14
+ 			screen.setTableText(szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 17
+-			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), self.getPlayerButton(happinessGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), self.getPlayerButton(happinessGameWorst, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 16
+ 			screen.setTableText(szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 19
+-			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), self.getPlayerButton(healthGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), self.getPlayerButton(healthGameWorst, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 18
+ 			screen.setTableText(szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			if self.bShowExports:
+ 				# row was 22
+-				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), self.getPlayerButton(netTradeGameWorst), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), self.getPlayerButton(netTradeGameWorst, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 				# row was 21
+ 				screen.setTableText(szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+index 5aa1b86ea..2c601c8ce 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+@@ -1,10 +1,12 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized) (multibly possible now but anyways etc) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but anyways etc.
++<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized).
+ 
+-See also /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
++See also /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
+ 
+-See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there anyways etc anyways etc anyways etc) anyways etc
+--->
++See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there). -->
++<!-- custom: note: sometimes the localtext fetching can break if not converted to a string (such as with `str(`, or sometimes you need to do it later and not just when you import the localText path, or something along those lines. If you encounter issues, consider hardcoding the path directly in the button rather such as `szRankImg = u"<img=Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds size=16></img>"` in cvinfoscreen.py for example as claude opus 4.5 found to be the issue, until i implemented properly using localText.
++
++See also as of now the mod's root /README.md for related info. -->
+ <Civ4GameText>
+ 	<!-- custom: 🕊️ emoji similarly from emojiterra. -->
+     <TEXT>
+@@ -138,4 +140,20 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: 🥈 emoji similarly from emojiterra. -->
++    <TEXT>
++		<Tag>TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH</Tag>
++		<English>Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🥉 emoji similarly from emojiterra. -->
++    <TEXT>
++		<Tag>TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH</Tag>
++		<English>Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 71728a8bf..f17ed0ed5 100644
+--- a/README.md
++++ b/README.md
+@@ -26,14 +26,13 @@ As for the future, i have some more content prepared for the future era (no pun
+ &emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[City Screen rework](/README.md#city-screen-rework)  
+-&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
+-&emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
+-&emsp;[Some lower level changes (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#search-bar)  
+-&emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
+-&emsp;[Mods Info](/README.md#mods-info)  
+-[Images as buttons](/README.md#images-as-buttons)  
++&emsp;[Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-etc)  
++&emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
++[UI (Common)](/README.md#ui-common)  
++&emsp;[Images as buttons](/README.md#images-as-buttons)  
++&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
+ [Python Scripts and .csv tables](/README.md#python-scripts-and-csv-tables)  
+ &emsp;[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
+ &emsp;[.csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
+@@ -158,19 +157,6 @@ Additionally, also added a new specialists breakdown as of now on bottom-right.
+ <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
+ 
+-### Untradeable techs (bTrade) display information
+-
+-For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5000_bTrade_bRepeat_example.JPG" alt="0.5000_bTrade_bRepeat_example.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+-
+-See also for details:
+-
+-- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
+-- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+-- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+-
+ ## UI (Main Sevopedia reworks)
+ 
+ ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
+@@ -201,7 +187,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ 
+ For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+ 
+-### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
++#### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
+ 
+ note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+ 
+@@ -209,7 +195,7 @@ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_P
+ 
+ note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
+ 
+-### Some lower level changes (search bar, keyboard UP/DOWN navigation, etc.)
++### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
+ 
+ #### Search Bar
+ 
+@@ -227,7 +213,9 @@ See for details: [example 0.1: added a search bar. Used in several sevopedia pag
+ 
+ Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+ 
+-### Concepts (as of now in the "Outdated" sevopedia category)
++### Some other sevopedia reworks
++
++#### Concepts (as of now in the "Outdated" sevopedia category)
+ 
+ These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
+ 
+@@ -244,7 +232,7 @@ Added new concepts, as of now:
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG" alt="0.800_conceptinfos_example (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG" alt="0.800_conceptinfos_example (2).JPG" width="250"></img>
+ 
+-### Mods Info
++#### Mods Info
+ 
+ The sevopedia "Mods Info" (reusing the old civ4 concepts category or similar if i am not mistaken anyways etc, thanks to [@f1rpo](https://github.com/f1rpo)'s help too anyways etc) category adds info about mods and such, including but not only AdvCiv-SAS.
+ 
+@@ -253,10 +241,14 @@ As of now this mostly contains other mods than advciv-sas-related changes (non-e
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+ 
+-## Images as buttons
++## UI (Common)
++
++### Images as buttons
+ 
+ Not mentionned previously at the UI section, but we use in AdvCiv-SAS an Images as buttons approach, typically to add emoji as buttons without having to tediously add them as textual icons, for example in sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)).
+ 
++Basically, what i did was downloading them (usually .png and usually from [emojiterra.com](http://emojiterra.com/)), then with Paint.NET resize to 64x64 and save as .dds.
++
+ ```xml
+ 	<!-- custom: ⏳ emoji similarly from emojiterra. -->
+     <TEXT>
+@@ -265,7 +257,7 @@ Not mentionned previously at the UI section, but we use in AdvCiv-SAS an Images
+ 	</TEXT>
+ ```
+ 
+-With a dynamic implementation based on `localtext`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. Example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)):
++With a dynamic implementation based on `localtext`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. For example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)),adding emojis or other images or such as buttons:
+ 
+ ```py
+ 		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
+@@ -274,11 +266,59 @@ With a dynamic implementation based on `localtext`, so that if path changes in t
+ 		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ ```
+ 
++An alternative implementation (such as in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)) allows to introduce them as plain text using `<img>` tags. For example:
++
++```py
++		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
++			button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
++			button_size = 16
++			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
++			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
++```
++
++Sometimes you need to wrap them in a string, sometimes the timing of whenever you wrap them to string can produce weird results it seems if i'm not mistaken. If in doubt, consider hardcoding the path as a string directly. However, here is another working implementation that successfully uses localText to fetch button paths as textual icons:
++
++```py
++		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
++		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
++		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
++		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
++		
++		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
++		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
++		self.szRank2ImgTag = u"<img=%s size=%d></img>" % (szRank2IconPath, self.iRankIconSize)
++		self.szRank3ImgTag = u"<img=%s size=%d></img>" % (szRank3IconPath, self.iRankIconSize)
++
++			# <!-- custom: then later in the code... -->
++			if iRank > 0:
++				if iRank == 1:
++					szPlayerName = u"%s %s" % (szPlayerName, self.szRank1ImgTag)
++				elif iRank == 2:
++					szPlayerName = u"%s %s" % (szPlayerName, self.szRank2ImgTag)
++				elif iRank == 3:
++					szPlayerName = u"%s %s" % (szPlayerName, self.szRank3ImgTag)
++				else:
++					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
++```
++
+ The relevant files can be found in:
+ 
+ - XML: as of now in [/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) and in [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml)
+ - `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Images_As_Buttons/](/Assets/Art/AdvCiv_SAS/Images_As_Buttons/)
+ 
++### Untradeable techs (bTrade) display information
++
++For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5000_bTrade_bRepeat_example.JPG" alt="0.5000_bTrade_bRepeat_example.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
++
++See also for details:
++
++- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
++- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
++- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
++
+ ## Python Scripts and .csv tables
+ 
+ Mostly for modders, and it is not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 9d3f65cc2..b0da91848 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -16,6 +16,7 @@ The aim is to make more and more options player-tunable via XML in SAS defines,
+ [Main Changes quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#main-changes-quick-starter-guide)  
+ &emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#translations)  
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#renaming-non-exhaustive)  
++&emsp;[UI (Common)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui-common)  
+ &emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui-in-game)  
+ &emsp;[UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui-sevopedia-reworks--related)  
+ &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#codeperformance-optimizations)  
+@@ -109,11 +110,15 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - renamed "Cavalry" to "Dragoon" (was way too generic, era-aspecific, and old unit's name and art were inaccurate for target advciv-sas early-industrial tech tree time anyways etc)
+ - unit promotions have clearer names now too: for example Counter-Archer, counter Siege, Counter-Tank. Or another example is "City Bombard Damage" (instead of barrage). Numeric naming has been changed too for clarity and ease of read: for example "Combat III" is now "Combat 3" too.
+ 
++### UI (Common)
++
++- Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
++- removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), and in sevopedia, as they are oftentimes outdated or/and tedious to maintain anyways etc.
++- add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor and in sevopedia. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++
+ ### UI (In-game)
+ 
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+-- removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+-- add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks). (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in the **Top 5 Cities / Wonders tab**, we now **show the Wonders' Buttons** (i.e. icons) in the first column, and the **click to move to city** mechanic is now in City column instead; the **Statistics Tab** now also shows buttons.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+@@ -131,8 +136,7 @@ For sevopedia new content and most reworks, see above in this readme or in more
+ - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+-- removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+-- added the "Cannot be traded" tooltip in sevopedia tech as well as the list of all untradeable techs in any untradeable tech's sevopedia tech entry. Also added the "Can be researched multiple times" tooltip. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- Sevopedia — Techs: add the list of all untradeable techs. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 52e2890b9..95b9d5132 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -15,6 +15,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#main-changes--quick-starter-guide)  
+ &emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#translations)  
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#renaming-non-exhaustive)  
++&emsp;[UI (Common)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-common)  
+ &emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game)  
+ &emsp;[UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related)  
+ &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#codeperformance-optimizations)  
+@@ -105,11 +106,15 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
+ - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic (“Combat 3”).
+ 
++### UI (Common)
++
++- Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
++- Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- removed the **Strategy Text** in Choose Production and Choose Research (“Sid’s tips”) popups, as well as in the Civic Revolution popup (“Would you like to start a revolution?”), and in Sevopedia; these blurbs were often outdated and/or tedious to maintain.
++
+ ### UI (In-game)
+ 
+-- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+-- Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- **Worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks). (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in the **Top 5 Cities / Wonders tab**, we now **show the Wonders' Buttons** (i.e. icons) in the first column, and the **click to move to city** mechanic is now in City column instead; the **Statistics Tab** now also shows buttons.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+@@ -125,8 +130,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+-- Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+-- Sevopedia — Techs: added a "Cannot be traded" tooltip to relevant entries and added the list of all untradeable techs in any such entry. Also added a "Can be researched multiple times" tooltip. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ 
+ ### Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG
+index a226bccdd..e0850686d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG
+index c3c9bb37b..158f10592 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=56336

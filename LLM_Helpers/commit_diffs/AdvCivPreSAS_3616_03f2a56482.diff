@@ -1,0 +1,226 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3616
+# Commit: 03f2a564827127bc9f32cfa85362ab42aad6f7ec
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 912aa6f0f3285f6bb25519ac18a7dff8bc303515
+# Title: "Dramatic Arc" war utility aspect (UWAI)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	1	Assets/XML/AI_Variables_GlobalDefines.xml
+2	1	CvGameCoreDLL/UWAI.h
+1	0	CvGameCoreDLL/WarEvaluator.cpp
+112	0	CvGameCoreDLL/WarUtilityAspect.cpp
+12	0	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 7f07209f7..354a4051d 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -5,7 +5,7 @@
+ 		 GlobalDefines.xml; now also contains UWAI parameters.
+ 
+ 		 UWAI breaks down the computation of AI war utility into a sum of
+-		 27 "aspects", most of which are either in favor of war (added to the
++		 28 "aspects", most of which are either in favor of war (added to the
+ 		 total war utility) or against war (subtracted). There are a few mixed
+ 		 aspects that could either increase or decrease war utility.
+ 		 Each aspect corresponds to one particular motivation for or against war.
+@@ -216,6 +216,14 @@
+ 		<DefineName>UWAI_WEIGHT_THIRD_PARTY_INTERVENTION</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
++	<Define>
++	<!-- To keep the game entertaining for human players, we're more inclined
++		 to start a war if none has been fought among civs known to us for a
++		 long time. Conversely, we're more inclined to make peace if many wars
++		 have been ongoing for a long time. -->
++		<DefineName>UWAI_WEIGHT_DRAMATIC_ARC</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
+ 
+ 	<Define>
+ 		<!-- Recommended: 100 (BtS behavior)
+
+diff --git a/CvGameCoreDLL/UWAI.h b/CvGameCoreDLL/UWAI.h
+index ee6b33526..9cc19221d 100644
+--- a/CvGameCoreDLL/UWAI.h
++++ b/CvGameCoreDLL/UWAI.h
+@@ -83,7 +83,8 @@ public:
+ 		DO(BELLICOSITY) \
+ 		DO(TACTICAL_SITUATION) \
+ 		DO(LOVE_OF_PEACE) \
+-		DO(THIRD_PARTY_INTERVENTION)
++		DO(THIRD_PARTY_INTERVENTION) \
++		DO(DRAMATIC_ARC)
+ 	enum AspectTypes
+ 	{
+ 		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_ENUMERATOR)
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 6e067efb0..8e003f238 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -355,6 +355,7 @@ void WarEvaluator::fillWithAspects(vector<WarUtilityAspect*>& kAspects)
+ 	v.push_back(new FairPlay(params));
+ 	v.push_back(new LoveOfPeace(params));
+ 	v.push_back(new ThirdPartyIntervention(params));
++	v.push_back(new DramaticArc(params));
+ 	FAssert(UWAI::NUM_ASPECTS - (params.isIgnoreDistraction() ? 1 : 0) == (int)v.size());
+ }
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 32d1dd2c9..9118c67aa 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -4807,3 +4807,115 @@ void ThirdPartyIntervention::evaluate()
+ 		log("(Not a relevant threat: %s)", m_kReport.leaderName(eThey));
+ 	else m_iU -= rCost.uround();
+ }
++
++
++int DramaticArc::preEvaluate()
++{
++	m_rTensionIncrease = 0;
++	if (kOurTeam.isAVassal())
++		return 0;
++	scaled const rSpeedMult = 2 / per100(m_kSpeed.getVictoryDelayPercent() +
++			m_kSpeed.getTrainPercent());
++	int const iElapsedTurns = m_kGame.getElapsedGameTurns();
++	if (iElapsedTurns * rSpeedMult < 25) // (Even when starting in a later era)
++		return 0;
++	int const iOtherKnown = TeamIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO>::count(eOurTeam);
++	if (iOtherKnown <= 0)
++		return 0;
++	int const iMaxPeaceCounter = 100;
++	std::vector<int> aiPeaceCounters;
++	for (TeamAIIter<FREE_MAJOR_CIV,KNOWN_TO> itFirst(eOurTeam);
++		itFirst.hasNext(); ++itFirst)
++	{
++		int iLoopMinCounter = iElapsedTurns;
++		for (TeamIter<MAJOR_CIV,KNOWN_TO> itSecond(eOurTeam);
++			itSecond.hasNext(); ++itSecond)
++		{
++			TeamTypes const eSecond = itSecond->getID();
++			if (itFirst->getID() != eSecond)
++			{
++				int iAtPeace = itFirst->AI_getAtPeaceCounter(eSecond);
++				// With tolerance b/c these counters aren't exact
++				if (abs(itFirst->AI_getHasMetCounter(eSecond) - iAtPeace) >= 10)
++					iLoopMinCounter = std::min(iLoopMinCounter, iAtPeace);
++				// (else assume that they've always been at peace)
++			}
++		}
++		aiPeaceCounters.push_back(std::min(iMaxPeaceCounter, iLoopMinCounter));
++	}
++	int const iMinPeaceCounter = stats::min(aiPeaceCounters);
++	scaled rTension;
++	if (iMinPeaceCounter > 0) // No wars ongoing
++	{
++		if (kWe.AI_isDoStrategy(AI_STRATEGY_ALERT1))
++			return 0; // We're foreseeing enough tension
++		/*	A lack of late-game warfare is not usually a problem,
++			and can be due to Cold War dynamics (Defensive Pacts, nukes). */
++		for (int i = 0; i <= m_kGame.getCurrentEra(); i++)
++		{
++			if (GC.getInfo((EraTypes)i).get(CvEraInfo::AIAgeOfGuns) ||
++				GC.getInfo((EraTypes)i).get(CvEraInfo::AIAtomicAge))
++			{
++				return 0;
++			}
++		}
++		rTension = 1 - scaled(iMinPeaceCounter, iMaxPeaceCounter) * rSpeedMult;
++		rTension.increaseTo(0);
++		rTension /= 2; // Less than 0.5 when there are no wars
++	}
++	else
++	{
++		// Mean of the per-team minima
++		int const iMeanPeaceCounter = stats::mean(aiPeaceCounters);
++		rTension = 1 - scaled(iMeanPeaceCounter, iMaxPeaceCounter) * rSpeedMult;
++		rTension.increaseTo(0);
++		// There is at least one war, so let's not go below 0.5.
++		rTension += 1;
++		rTension /= 2;
++	}
++	scaled rTensionTarget = m_kGame.gameTurnProgress() * fixp(10/3.);
++	rTensionTarget.decreaseTo(fixp(2/3.));
++	if (rTension.approxEquals(rTensionTarget, fixp(0.1)))
++		return 0;
++	m_rTensionIncrease = (rTensionTarget - rTension) *
++			scaled(iOtherKnown).sqrt() / 2;
++	m_rTensionIncrease.clamp(-1, 1);
++	log("Seeking to adjust tension (overall warfare) by %d percent",
++			m_rTensionIncrease.getPercent());
++	return 0;
++}
++
++
++void DramaticArc::evaluate()
++{
++	if (m_rTensionIncrease == 0) // Often the case, save time.
++		return;
++	bool const bWillBeAtWar = militAnalyst().isWar(eWe, eThey);
++	if (bWillBeAtWar == kOurTeam.isAtWar(eTheirTeam))
++		return;
++	if (kTheirTeam.isAVassal()) // Only care about wars between free civs
++		return;
++	/*	We're already doing our part. And don't prolong wars either just b/c there's
++		already too little going on. The end of a war is an interesting event
++		in itself, and let's see what will develop in the aftermath. */
++	if (m_rTensionIncrease > 0 && kOurTeam.getNumWars() > 0)
++		return;
++	scaled const rWeight = 16;
++	scaled rUtil = m_rTensionIncrease * (bWillBeAtWar ? 1 : -1) * rWeight;
++	if (rUtil > 0 && bWillBeAtWar) // Don't encourage phoney or unfair wars
++	{
++		int iTheirLostCities = (int)militAnalyst().lostCities(eThey).size();
++		if (iTheirLostCities > 2) // We should be motivated enough (if it's a fair war)
++			return;
++		if ((iTheirLostCities == 0 && militAnalyst().conqueredCities(eWe).empty()) ||
++			(militAnalyst().lostPower(eWe, ARMY) + militAnalyst().lostPower(eThey, ARMY)) <
++			std::max(ourCache().getPowerValues()[ARMY]->power(), scaled::epsilon()) / 20)
++		{
++			//log("Too little action expected - not a good way to increase tension");
++			return;
++		}
++	}
++	// Tension in team games is jumpy, don't try too hard to steer it.
++	rUtil /= scaled(kOurTeam.getNumMembers() + kTheirTeam.getNumMembers(), 2);
++	m_iU += rUtil.round();
++}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 3ea2ae04d..dc0791cab 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -496,4 +496,16 @@ private:
+ 	scaled m_rLostDefPowRatio;
+ };
+ 
++class DramaticArc : public WarUtilityAspect
++{
++public:
++	DramaticArc(WarEvalParameters const& kParams)
++	:	WarUtilityAspect(kParams) {}
++	int preEvaluate();
++	void evaluate();
++	UWAI::AspectTypes xmlID() const { return UWAI::DRAMATIC_ARC; }
++private:
++	scaled m_rTensionIncrease;
++};
++
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7382

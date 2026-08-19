@@ -1,0 +1,238 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6056
+# Commit: 235980fe7153930fb4a664a06704b60088be52a7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e9307c6bf89d374789c4f23d1a10779357b6a089
+# Title: (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival (KI#191)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+12	10	CvGameCoreDLL/CvUnitAI.cpp
+26	3	CvGameCoreDLL/UWAIAgent.cpp
+13	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+4	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index ff11e7c05..dd6aa1be6 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -3170,6 +3170,11 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: UWAI rolls independently for each eligible war target, so rejecting a strong target can fall through to a much worse one. When enabled, roll only the target with the highest final drive after personality hesitation and the existing eligibility/local-target guards; if that roll fails, begin no war preparation this turn. This preserves uncertain war timing without letting randomness choose an inferior rival. Set to 0 to restore Base AdvCiv/UWAI target fall-through. See WAR_TARGET_SELECTION_ROLL logging. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d42154b93..e9ebfe30e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17851,7 +17851,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
+ 	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+ 	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+-	bool bHasSpaceThreatTarget = false;
++	bool bLogSpaceTargetChosen = false;
+ 	CvCity* pBestSpaceCapital = NULL;
+ 	int iBestSpaceCapitalCountdown = -1;
+ 	int iBestSpaceCapitalPartsPercent = -1;
+@@ -17888,22 +17888,22 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 		{
+ 			continue;
+ 		}
++		// <!-- custom: A Space-capital emergency exists only against a team this group is already fighting; capturing a capital before launch instead preserves the team-wide spaceship parts. See KI#190. (GPT-5.6-Sol) -->
+ 		int iSpaceStage = -1;
+ 		bool const bAtWarWithTarget = kOurTeam.isAtWar(kTargetPlayer.getTeam());
+ 		if (bLogSpaceTargetChoice && bAtWarWithTarget)
+ 			iSpaceStage = getSASTeamSpaceVictoryStage(kTargetPlayer.getTeam());
+-		bool const bSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget &&
+-			(iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
++		bool const bLogSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget && (iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
+ 		int const iSpaceCountdown = (bSpaceCapitalRush && bAtWarWithTarget ? GET_TEAM(kTargetPlayer.getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
+ 		bool const bSpaceCapitalRushTarget = (iSpaceCountdown >= 0);
+-		if (bSpaceThreatTarget)
+-			bHasSpaceThreatTarget = true;
++		if (bLogSpaceThreatTarget)
++			bLogSpaceTargetChosen = true;
+ 		FOR_EACH_CITY_VAR(pLoopCity, kTargetPlayer)
+ 		{
+ 			if (!pLoopCity->isArea(getArea()))
+ 				//|| !AI_plotValid(pLoopCity->plot()) // advc.opt: area check suffices
+ 			{
+-				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
++				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+ 					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
+ 				continue;
+ 			}
+@@ -17966,7 +17966,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 
+ 				if (iPathTurns >= iMaxPathTurns)
+ 				{
+-					if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
++					if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+ 						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
+ 					continue;
+ 				}
+@@ -17994,7 +17994,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
+ 						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
+ 						{
+-							if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
++							if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+ 								GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns, iEnemyDefence, iOffenceEnRoute, iAttackRatio, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
+ 							continue;
+ 						}
+@@ -18119,8 +18119,10 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				// (already taken into account.)
+ 
+ 				iValue /= 8 + SQR(iPathTurns); // was 4+
+-				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
++				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
+ 					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown(), iBaseValue, iValue, iPathTurns, bLandPath, iEnemyDefence, iOurOffence, iOffenceEnRoute, iTotalOffence, pLoopCity == pTargetCity);
++				// <!-- custom: Ordinary city value can favor an easy non-capital even though only the current capital can cancel an active launch countdown.
++				// Rank reachable launched-spaceship capitals separately by deadline, completion, travel time, and then ordinary value so the best emergency target can override ordinary selection below. See KI#190. (GPT-5.6-Sol) -->
+ 				if (bSpaceCapitalRushTarget && pLoopCity->isCapital())
+ 				{
+ 					int const iSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam());
+@@ -18189,7 +18191,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 			iBestTotalOffence = iBestSpaceCapitalTotalOffence;
+ 		}
+ 	}
+-	if (bHasSpaceThreatTarget) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
++	if (bLogSpaceTargetChosen) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
+ 		GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (pBestCity != NULL && pBestCity->isCapital()), (pBestCity == NULL ? -1 : getSASTeamSpaceVictoryStage(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsBuilt(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsPercent(pBestCity->getTeam())), (pBestCity == NULL ? -1 : GET_TEAM(pBestCity->getTeam()).AI_getLowestVictoryCountdown()), iBestBaseValue, iBestValue, iBestPathTurns, iBestEnemyDefence, iOurOffence, iBestOffenceEnRoute, iBestTotalOffence);
+ 
+ 	return pBestCity;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 06e758d74..4962548fc 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -2085,8 +2085,28 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ 		logBBAI("WAR_TARGET_LOCAL_PREFERRED turn=%d agentTeam=%d preferredTargetTeam=%d preferredDrivePercent=%d preferredRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+ 				GC.getGame().getGameTurn(), kAgent.getID(), ePreferredLocalTarget, rPreferredLocalDrive.getPercent(), iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
+ 	}
++	// <!-- custom: BBAI testing showed China reject a nearby target with 68% final drive and then select a distant third-ranked target with only 5% drive. The inherited independent rolls mix the chance to prepare any war with target choice.
++	// When enabled, identify the highest final drive after all eligibility/local-target guards, roll only that rival below, and begin no preparation if it fails. This preserves uncertain timing without randomly substituting a worse target. (GPT-5.6-Sol) -->
++	static bool const bOnlyRollBestEligibleTarget = GC.getDefineBOOL("SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE");
+ 	TeamTypes eBestEligibleTarget = NO_TEAM;
+ 	scaled rBestEligibleDrive;
++	int iBestEligibleTargetIndex = -1;
++	if (bOnlyRollBestEligibleTarget)
++	{
++		for (size_t i = 0; i < aTargets.size(); i++)
++		{
++			TeamTypes const eTarget = aTargets[i].eTeam;
++			scaled const rDrive = aAdjustedDrives[i];
++			if (rDrive <= 0 || (aTargets[i].iVictoryDenialBoost <= 0 && shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget)))
++				continue;
++			if (iBestEligibleTargetIndex < 0 || rDrive > rBestEligibleDrive)
++			{
++				eBestEligibleTarget = eTarget;
++				rBestEligibleDrive = rDrive;
++				iBestEligibleTargetIndex = (int)i;
++			}
++		}
++	}
+ 	int iEligibleRank = 0;
+ 	int iHigherRankRollFailures = 0;
+ 	for (size_t i = 0; i < aTargets.size(); i++)
+@@ -2117,10 +2137,13 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ 		m_pReport->log("Drive for %s against %s: %d percent", aTargets[i].bDirect ? "direct war" : "war preparations", m_pReport->teamName(eTarget), rDrive.getPercent());
+ 		if (gWarLogLevel >= 2)
+ 			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork, isInBackground());
+-		// <!-- custom: UWAI may select a lower-ranked target when independent rolls reject stronger candidates. Save the exact eligible order and best-target comparison so testing can distinguish intended variety from costly rejection of a much better or closer rival without changing the inherited selection behavior. (GPT-5.6-Sol) -->
++		// <!-- custom: Keep diagnostics for every eligible rival, but when KI#191 is enabled, only the highest final-drive candidate reaches the roll. This prevents a failed best-target roll from falling through to a rival the AI rated worse. (GPT-5.6-Sol) -->
++		if (bOnlyRollBestEligibleTarget && (int)i != iBestEligibleTargetIndex)
++			continue;
++		// <!-- custom: Log the exact eligible order and best-target comparison. With the new rule enabled, only the highest final-drive candidate reaches this roll; disabling it restores inherited independent rolls and possible fall-through to lower-ranked targets. (GPT-5.6-Sol) -->
+ 		bool const bSelected = SyncRandSuccess(rDrive);
+-		if (gWarLogLevel >= 2) logBBAI("WAR_TARGET_SELECTION_ROLL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d selected=%d targetRank=%d eligibleRank=%d candidateCount=%d higherRankRollFailures=%d bestEligibleTargetTeam=%d bestEligibleDrivePercent=%d candidateDistance=%d bestEligibleDistance=%d candidateTargetPowerPercent=%d bestEligibleTargetPowerPercent=%d candidateAttitude=%d candidateAttitudeValue=%d bestEligibleAttitude=%d bestEligibleAttitudeValue=%d",
+-				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), bSelected, (int)i + 1, iEligibleRank, (int)aTargets.size(), iHigherRankRollFailures, eBestEligibleTarget, rBestEligibleDrive.getPercent(),
++		if (gWarLogLevel >= 2) logBBAI("WAR_TARGET_SELECTION_ROLL turn=%d background=%d bestOnly=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d selected=%d targetRank=%d eligibleRank=%d candidateCount=%d higherRankRollFailures=%d bestEligibleTargetTeam=%d bestEligibleDrivePercent=%d candidateDistance=%d bestEligibleDistance=%d candidateTargetPowerPercent=%d bestEligibleTargetPowerPercent=%d candidateAttitude=%d candidateAttitudeValue=%d bestEligibleAttitude=%d bestEligibleAttitudeValue=%d",
++				GC.getGame().getGameTurn(), isInBackground(), bOnlyRollBestEligibleTarget, kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), bSelected, (int)i + 1, iEligibleRank, (int)aTargets.size(), iHigherRankRollFailures, eBestEligibleTarget, rBestEligibleDrive.getPercent(),
+ 				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestEligibleTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestEligibleTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(eBestEligibleTarget), kAgent.AI_getAttitudeVal(eBestEligibleTarget));
+ 		if (bSelected)
+ 		{
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 622bf3c84..b37c5ba5e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -234,6 +234,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars)\
+ [189.2 - (Fixed/Improved) Base AdvCiv UWAI issues: volatile war estimates, compounding random peace rolls and excessive future-war costs could prematurely end profitable campaigns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns)\
+ [190 - (Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could attack other cities or spend the launch countdown on ordinary tactics instead of trying to capture the spaceship owner's capital](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#190---fixedimproved-base-advcivk-mod-issue-anti-space-armies-could-attack-other-cities-or-spend-the-launch-countdown-on-ordinary-tactics-instead-of-trying-to-capture-the-spaceship-owners-capital)\
++[191 - (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#191---fixedimproved-base-advciv-uwai-issue-independent-target-rolls-could-reject-the-best-war-target-and-then-select-a-much-worse-rival)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7174,3 +7175,15 @@ Focused testing found and fixed one last mismatch between those stages. A roughl
+ The strategic results confirm that the rule improves the attempt rather than guaranteeing victory. One run had several armies converge on launched England and Native America captured and razed London on turn 247, canceling England's Space victory. In the final save-file 450 confirmation, Delhi was captured and razed on turn 265, Timbuktu was captured and razed on turn 279, and London had already been captured on turn 254. Native America still won Space from Cahokia on turn 291: nearby Egyptian groups had only 58% and 21% immediate strength, while a stronger 24-unit final assault could not finish the city. The AI now pursues the only target that can stop a launched spaceship, moves there without wasting the countdown, gathers strength when time permits and still makes the desperate attempt when necessary, but a well-defended Space victory can legitimately survive.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 191 - (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival
++
++Base AdvCiv UWAI ranked eligible rivals, but then rolled separately for each one until a roll succeeded. This mixed two different decisions: whether the AI was willing to prepare any war and which rival was strategically best. If the preferred target failed its roll, a much weaker later candidate could still succeed by chance.
++
++The clearest save-file 450 example occurred on turn 215. China rated Ethiopia at 68% war drive and distance 4, England at 7% and distance 5, and India at only 5% and distance 11. The first two rolls failed and the third succeeded, so China prepared against faraway India despite rating nearby Ethiopia far higher.
++
++With `SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE` enabled, UWAI now finds the highest final adjusted drive after its existing eligibility, personality, and local-target checks, then rolls only that target. If the roll fails, the AI does not prepare a war that turn instead of falling through to a rival it judged worse. The personality roll therefore still decides whether to begin a war preparation, but random chance no longer substitutes an inferior target. Disabling the define restores the inherited independent rolls.
++
++Confirming runs of save files 450 and 452 selected the highest final-drive target in all 81 successful decisions, with zero mismatches. Save file 450 also contained nine failed best-target rolls with another logged candidate available; the AI correctly declined the inferior alternatives, including 27% against 3%, 39% against 1%, and 29% against 4%. Warfare remained active, with 21 wars and 25 city captures in save file 450 and 28 wars and 24 city captures in save file 452.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f5ef09653..22c5d3df0 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -372,6 +372,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ #### Military (AI)
+ 
++(Requires AdvCiv-SAS 6056+) Note: UWAI means Utility-Based War AI, Base AdvCiv's system for deciding when to start, continue, or end wars. It gives each possible rival a UWAI war drive: an overall estimate of how advantageous preparing that war would be after considering expected gains and risks such as the rival's power, distance and access, diplomatic relations, other wars, and victory pressure. Assuming the calculation is correct and reliable, the higher the drive, the more willing the AI is to prepare an attack against that rival.
++
+ - Curb **naval overbuild**: in `CvCityAI::AI_bestUnit`, reduce making excess naval combat units (esp. when landlocked or when land war is likely) to prevent getting invaded on land with too few defenders. See **[KI#35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender)**.
+ - Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well)** and **[Civilian Units](#civilian-units)**.
+ - Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE` (but despite that, AI still seems to occasionally pillage), `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
+@@ -388,7 +390,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) and [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject no longer applies to the recursive peace scenario; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6052+) Update 2 : later BBAI logging showed that the guard was too invasive after war had already begun. In save file 450, it forced Sumer to make peace after only 2 turns despite capturing New York with twice Lincoln's power, merely because the next enemy city was beyond the distance limit. It is now restricted to pre-war evaluations, leaving normal UWAI logic to decide when an ongoing war should end.
+-- (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive (i.e. current war-preparation interest); With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
++- (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive; With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city** (i.e. a city that exceeds the existing `AI_EVACUATION_THRESH`-based (default as of now: 138%) attacker/defender strength threshold (note: the threshold is raised for important cities, as it is worth defending them and generally bad to evacuate them)). Fixed an inherited Base AdvCiv percentile inversion that instead gave this important-city protection to low-value cities; see [KI#172](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities). Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but).
+@@ -416,6 +418,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6050+) **Large AI armies parked with nothing reachable to attack:** BBAI logging showed a major Base AdvCiv/K-Mod bug: even while at peace, with no planned war and no rival or Barbarian city it could reach, the AI could keep waiting for reinforcements and effectively lock more units into the same army so they could not be released for other duties. For example, in save file 450, a United States group grew from 6 units on T126 to 18 of the empire's 47 military units by T225, and then, after the short war, it returned to peace still holding 21 of 51 units on T247. So it concentrated about 40% of the AI's military in one city and left far fewer units available to defend the rest of its empire or pursue another opportunity, which was very problematic. To fix this, when the AI has nothing to attack, it now stops waiting for more reinforcements: if the army is already in its own territory and not immediately threatened, the AI now only keeps one modest core group ready for a future city attack. As for the excess units, they now instead leave the group and resume defending cities or preparing another expedition. Note: an army that is still abroad or in immediate danger remains together until it returns to its own territory and is no longer immediately threatened, so the fix does not break it apart while exposed. Note 2: the units can also regroup into a large army as soon as a real target or planned war appears. After the fix, confirming runs of save files 450 and 452 showed the intended behavior: in save file 452, Japan reduced its peacetime city-assault group with nothing to attack from 21 to 11 units, freeing 10 units for other duties; at the same time, the AI could still assemble large armies when a real war began, as Carthage attacked Susa with 63 units in save file 450, and China attacked Aksum with roughly 180-202 units in save file 452. See [KI#188.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military).
+ - (Requires AdvCiv-SAS 6051+) **AI war preparations no longer repeatedly gamble away their own mobilization:** BBAI logging in save file 452 showed a major UWAI issue: across all AIs, 152 war preparations began, 130 were canceled or redirected to another target, and only 17 became wars. Whenever UWAI reviewed a preparation whose war value had become negative, it converted how doubtful the plan looked into a chance to abandon it and rolled that chance on every negative review. China alone began 36 preparations: repeated abandonment rolls canceled 19, separate target-switch rolls redirected another 13, and only 2 became wars. Established preparations also used a random roll to decide when to become direct war. This could waste the military advantage and upkeep already committed to mobilization: 32 of 74 cancellations even selected the exact same target again later in the same team turn. To fix this, the AI now keeps a newly chosen plan through its first two reviews unless a hard failure, such as an illegal target or expired unprofitable preparation, requires immediate cancellation. After that, it cancels only when the personality- and game-speed-adjusted evidence reaches the tunable maximum for a clearly bad plan. It switches only when another rival is clearly better, uses a stable readiness threshold before beginning direct war, and cannot cancel and recreate the same target during one team turn; other targets remain available throughout. In the final confirming save-file 452 run, cancellations fell from 74 to 34, target switches from 22 to 15, same-turn reselections from 32 to 0, and reselections within three turns from 41 to 5, while actual wars increased from 22 to 29. Save file 450 independently confirmed no same-turn reselection, 39 preparations advancing to direct war, and 35 wars starting. See [KI#189](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars).
+ - (Requires AdvCiv-SAS 6051+) **War preparations against near-winning rivals no longer forget why the rival was chosen:** the same investigation found an AdvCiv-SAS integration bug in the victory-denial improvements from KI#184. China selected India on T237 with a war value of 320, including 300 because India threatened victory, but the inherited next-turn review omitted that urgency, saw only 17, and switched away. Reviews and alternative-target comparisons now preserve the victory-denial value; if an existing preparation later meets the same narrow distance, power, naval, and victory-timing limits used for emergency war selection, the AI can declare immediately instead of losing more turns. In the independent save-file 450 confirmation, this later direct-war path fired three times and all three declarations appeared in the game history, including wars against near-Space-victory rivals on T255 and T281. See [KI#189](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars) and [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
++- (Requires AdvCiv-SAS 6056+) **When the AI decides to prepare a war, it now chooses the rival it considers best instead of gambling on worse alternatives:** Base AdvCiv UWAI rolled separately for every eligible rival in ranked order. If its preferred target failed the random roll, it could then prepare against a much less valuable rival whose separate roll happened to succeed. For example, on turn 215 of save file 450, China rejected nearby Ethiopia despite rating it at 68% war drive, rejected England at 7%, and then selected faraway India at only 5%. To fix this, the AI now only makes one personality-based roll for its highest final-drive target: if it fails, the AI prepares no war that turn instead of attacking someone it considers worse. In the confirming save-file 450 and 452 runs, all 81 successful selections chose the highest final-drive target, while warfare remained active. This behavior is XML-tunable and can be disabled to restore the inherited independent rolls. See [KI#191](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#191---fixedimproved-base-advciv-uwai-issue-independent-target-rolls-could-reject-the-best-war-target-and-then-select-a-much-worse-rival).
+ - (Requires AdvCiv-SAS 6054+) **AI no longer leaves potentially profitable wars to random peace rolls based on volatile estimates:** BBAI logging showed that Base AdvCiv UWAI left a potentially profitable military outcome to a random roll whenever continuing the war briefly looked worse than peace. This was already unreliable as the underlying estimate could change drastically from one turn to the next. But another issue was also that UWAI rolled again on every such review, so even an unchanged 10% chance had about a 65% chance to end the war within ten turns (because with a e.g. 10% chance each turn, the chance of never rolling peace over 10 turns is 0.9^10 ≈ 35%; therefore, the chance of rolling peace at least once is 1 - 0.9^10 ≈ 65%). Save-file 452 showed the problem: after Egypt captured population-12 Satsuma, it led Japan by 8 cities to 5, 762 power to 550 and war success 99 to 64, but its estimate briefly fell to `-32`; but then recovered to `+87` on the next turn. To fix this, instead of gambling on each uncertain estimate, the AI now has a modest commitment and risk-tolerance margin: it pushes for further gains through a small deficit, but seeks peace immediately once the result becomes decisively bad. The default XML-tunable margin is as of now 40 points below the context-sensitive peace threshold, which is always 0 or negative for AI-vs-AI wars. In the confirming run, Egypt continued through the `-32` dip, captured population-7 Tokyo, and then successfully accepted Japan's later peace request after the extended fighting became costly. Mali similarly continued through a `-7` dip but accepted India's request one turn later at `-70`. Opponents can still offer an acceptable treaty or capitulation during the margin, emergency peace remains immediate, and human peace contact keeps personality-based timing. See [KI#189.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns).
+ - (Requires AdvCiv-SAS 6054+) **Considering another war no longer makes the AI abandon an opponent it is decisively defeating:** Base AdvCiv UWAI treated other possible wars as a reason to end the current war, but that cost could overwhelm all of the current advantage. In save file 452, Mali had 7 cities against Maya's 3, 891 power against 397 and an 83-point war-success lead; nevertheless, beginning a separate preparation against India increased this cost from `-18` to `-96` and made Mali accept peace with Maya. To fix this, when the AI is already so clearly winning, a possible future war can still reduce the value of continuing the current one, but can no longer erase most of that value: the default XML-tunable limit as of now is 15%. An early before/after test on the same save file showed the intended result: instead of accepting peace, Mali continued fighting and captured another Maya city, turning its military advantage into immediate territory. In the final-tuning run, history had already diverged before this decision (due to run variety or such), so the exact case did not recur, but the full run still confirmed that clearly bad wars ended quickly. Note: this protection applies only when the current war is already profitable, the rival has fewer cities and at most half the AI's power, and the AI has a substantial war-success lead. The cap does not reduce the effects of military effort, losses, war weariness or the danger from fighting several enemies, so the AI can still seek peace normally if those costs make continuing the war unprofitable. See [KI#189.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns).
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=44345

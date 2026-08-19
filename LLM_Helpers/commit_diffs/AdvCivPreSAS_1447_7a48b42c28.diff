@@ -1,0 +1,557 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1447
+# Commit: 7a48b42c2865dbda37bd00e61b9d37113789c3c8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ebbd389356b94a0e5269c0fce27954366a8828e7
+# Title: A few changes concerning AI civic requests and naval invasions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	13	Assets/Python/Screens/CvInfoScreen.py
+2	1	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+1	1	Assets/xml/GlobalDefines_advc.xml
+5	5	Assets/xml/Text/K-Mod hints.xml
+6	8	CvGameCoreDLL/CvGame.cpp
+31	54	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	3	CvGameCoreDLL/CvPlayer.cpp
+28	25	CvGameCoreDLL/CvPlayerAI.cpp
+10	6	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	0	CvGameCoreDLL/WarAndPeaceCache.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index b336ce033..17c7b2d3d 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -48,6 +48,7 @@ class CvInfoScreen:
+ 		self.bAlwaysShowBestWorstNameIfMet = False
+ 		if self.bShowBestKnown:
+ 			self.bAlwaysShowBestWorstNameIfMet = False
++		self.bRevealAll = False
+ 		# </advc.077>
+ 
+ 		self.screenId = screenId
+@@ -626,10 +627,12 @@ class CvInfoScreen:
+ 			self.DEBUG_DROPDOWN_ID = "InfoScreenDropdownWidget"
+ 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
+ 			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: barbs excluded
++			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: was MAX_PLAYERS
+ 				if (gc.getPlayer(j).isAlive()):
+ 					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
+ 					
++		self.bRevealAll = (CyGame().isDebugMode() or CyGame().getGameState() == GameStateTypes.GAMESTATE_OVER) # advc.077
++
+ 		self.iActivePlayer = CyGame().getActivePlayer()
+ 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 		self.iActiveTeam = self.pActivePlayer.getTeam()
+@@ -1404,7 +1407,7 @@ class CvInfoScreen:
+ 			if iLoopPlayer == self.iActivePlayer:
+ 				continue
+ 			# <advc.077>
+-			if self.bShowBestKnown and not self.pActivePlayer.canSeeDemographics(iLoopPlayer):
++			if self.bShowBestKnown and not self.bRevealAll and not self.pActivePlayer.canSeeDemographics(iLoopPlayer):
+ 				continue # </advc.077>
+ 			if bFirst or iLoopValue > iBestValue:
+ 				# <advc.077>
+@@ -1422,7 +1425,7 @@ class CvInfoScreen:
+ 			if iLoopPlayer == self.iActivePlayer:
+ 				continue
+ 			# <advc.077>
+-			if self.bShowBestKnown and not self.pActivePlayer.canSeeDemographics(iLoopPlayer):
++			if self.bShowBestKnown and not self.bRevealAll and not self.pActivePlayer.canSeeDemographics(iLoopPlayer):
+ 				continue # </advc.077>
+ 			if bFirst or iLoopValue < iWorstValue:
+ 				# <advc.077>
+@@ -1438,17 +1441,17 @@ class CvInfoScreen:
+ 		bUnknown = True
+ 		if iPlayer > 0:
+ 			player = gc.getPlayer(iPlayer)
+-			if self.pActiveTeam.isHasMet(player.getTeam()) or CyGame().isDebugMode():
++			if self.pActiveTeam.isHasMet(player.getTeam()) or self.bRevealAll:
+ 				bUnknown = False
+ 				szPlayerName = player.getName()
+ 		# Better just leave it empty
+ 		#if bUnknown:
+ 		#	szPlayerName = localText.getText("TXT_KEY_UNKNOWN", ())
+-		if (bUnknown or not self.pActivePlayer.canSeeDemographics(iPlayer)) and not CyGame().isDebugMode():
++		if (bUnknown or not self.pActivePlayer.canSeeDemographics(iPlayer)) and not self.bRevealAll:
+ 			if self.bAlwaysShowBestWorstNameIfMet:
+ 				return (szPlayerName,"?")
+ 			return ("","?")
+-		if self.bShowBestKnown and not aiGroup is None:
++		if self.bShowBestKnown and not self.bRevealAll and not aiGroup is None:
+ 			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
+ 			iCharLimit = 18
+ 			if len(szPlayerName) > iCharLimit:
+@@ -1486,8 +1489,6 @@ class CvInfoScreen:
+ 		# <advc.077>
+ 		iActiveRivals = 0 # Was iNumActivePlayers. Count only rivals.
+ 		iKnownRivalDemogr = 0
+-		if CyGame().isDebugMode(): # Best known and best are the same in Debug mode
+-			self.bShowBestKnown = False
+ 		# </advc.077>
+ 		pPlayer = gc.getPlayer(self.iActivePlayer)
+ 
+@@ -1607,7 +1608,7 @@ class CvInfoScreen:
+ 		
+ 		# <advc.077> Don't always show the rival columns
+ 		iColumns = 6
+-		bShowBest = (not self.bShowBestKnown or iKnownRivalDemogr > 0)
++		bShowBest = (not self.bShowBestKnown or self.bRevealAll or iKnownRivalDemogr > 0)
+ 		if bShowBest:
+ 			# Removed 'i' prefix from variables b/c they're pairs now
+ 			economyGameBest	= self.getBest(aiGroupEconomy)
+@@ -1621,7 +1622,7 @@ class CvInfoScreen:
+ 			netTradeGameBest	= self.getBest(aiGroupNetTrade)
+ 		#else: # Will show the column header in any case
+ 		#	iColumns -= 1
+-		bShowWorst = ((not self.bShowBestKnown and iActiveRivals > 1) or iKnownRivalDemogr > 1)
++		bShowWorst = (((not self.bShowBestKnown or self.bRevealAll) and iActiveRivals > 1) or iKnownRivalDemogr > 1)
+ 		if bShowWorst:
+ 			economyGameWorst	= self.getWorst(aiGroupEconomy)
+ 			industryGameWorst	= self.getWorst(aiGroupIndustry)
+@@ -1649,7 +1650,7 @@ class CvInfoScreen:
+ 			# Round the averages
+ 			iMultiple = 5
+ 			# (I don't know ...)
+-			#if CyGame().isDebugMode():
++			#if self.bRevealAll:
+ 			#	iMultiple = 1
+ 			iEconomyGameAverage = self.roundToMultiple(iEconomyGameAverage, iMultiple)
+ 			iIndustryGameAverage = self.roundToMultiple(iIndustryGameAverage, iMultiple)
+@@ -3530,8 +3531,9 @@ class CvInfoScreen:
+ 			pLoopPlayer = gc.getPlayer(iLoopPlayer)
+ 			iLoopPlayerTeam = pLoopPlayer.getTeam()
+ 			if (gc.getTeam(iLoopPlayerTeam).isEverAlive()):
+-				if (self.pActiveTeam.isHasMet(iLoopPlayerTeam) or CyGame().isDebugMode() or iEndGame != 0):
+-					if self.pActivePlayer.canSeeDemographics(iLoopPlayer) or CyGame().isDebugMode() or iEndGame != 0: # K-Mod
++				# advc.077: Replaced two iEndGame checks (the second had been added by K-Mod) with self.bRevealAll
++				if (self.pActiveTeam.isHasMet(iLoopPlayerTeam) or self.bRevealAll):
++					if self.pActivePlayer.canSeeDemographics(iLoopPlayer) or self.bRevealAll:
+ 						self.aiPlayersMet.append(iLoopPlayer)
+ 						self.iNumPlayersMet += 1
+ 					else:
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 78c9f44ba..9f23dc9ec 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -29568,7 +29568,8 @@
+ 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
+ 			<iVassalPowerModifier>-10</iVassalPowerModifier>
+ 			<iFreedomAppreciation>10</iFreedomAppreciation>
+-			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
++			<!-- advc.005a: was CIVIC_ORGANIZED_RELIGION -->
++			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
+ 			<!-- advc.005a: was BUDDHISM -->
+ 			<FavoriteReligion>RELIGION_HINDUISM</FavoriteReligion>
+ 			<Traits>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 7e63a0a9e..7a8b2f30a 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -968,7 +968,7 @@
+ 		 behavior). -->
+ 	<Define>
+ 		<DefineName>ENABLE_162</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
+ 	<!-- advc.156: When multiple members of a team are researching the same
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 62bf06e3a..2dd36fdce 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -126,11 +126,11 @@
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_13</Tag>
+-	<English>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</English>
+-	<French>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</French>
+-	<German>In der Bauauftragsliste einer Stadt k�nnen [Strg] und [Umschalt] benutzt werden, um Eintr�ge hoch und runter zu bewegen, und [Alt] um Eintr�ge endlos bauen zu lassen.</German>
+-	<Italian>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</Italian>
+-	<Spanish>En la cola de construcci�n, usa [CTRL] y [MAY�S] para mover objetos arriba y abajo; y [ALT] para alternar si los objetos deben repetirse o no.</Spanish>
++	<English>(K-Mod) In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</English>
++	<French>(K-Mod) In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</French>
++	<German>(K-Mod) In der Bauauftragsliste einer Stadt k�nnen [Strg] und [Umschalt] benutzt werden, um Eintr�ge hoch und runter zu bewegen, und [Alt] um Eintr�ge endlos bauen zu lassen.</German>
++	<Italian>(K-Mod) In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</Italian>
++	<Spanish>(K-Mod) En la cola de construcci�n, usa [CTRL] y [MAY�S] para mover objetos arriba y abajo; y [ALT] para alternar si los objetos deben repetirse o no.</Spanish>
+ </TEXT>
+ <!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
+ <!-- advc.008c: Replacement text had been invalidated by advc.300. Now the
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 35037a324..2120404c5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2767,7 +2767,10 @@ void CvGame::updateGwPercentAnger()
+ /*  <advc.106l> Wrapper that reports the event. Everyone should call this
+ 	instead of calling the CvDLLEngineIFaceBase function directly. */
+ void CvGame::autoSave(bool bInitial) {
+-
++	/*  <advc.135c> Avoid overlapping auto-saves in test games played on a
++		single machine. Don't know how to check this properly. */
++	if(isNetworkMultiPlayer() && isDebugToolsAllowed(false) && getActivePlayer() % 2 == 0)
++		return; // </advc.135c>
+ 	CvEventReporter::getInstance().preAutoSave();
+ 	gDLL->getEngineIFace()->AutoSave(bInitial);
+ } // </advc.106l>
+@@ -6774,13 +6777,8 @@ void CvGame::doTurn()
+ 	// <advc.700>
+ 	if(isOption(GAMEOPTION_RISE_FALL))
+ 		m_riseFall.autoSave();
+-	else {// </advc.700>
+-		/*  <advc.127> Avoid overlapping auto-saves in test games played on a
+-			single machine. Don't know how to check this properly. */
+-		if(!isNetworkMultiPlayer() || getAIAutoPlay() <= 0 || getActivePlayer() == NO_PLAYER ||
+-				getActivePlayer() % 2 == 0) // </advc.127>
+-			autoSave(); // advc.106l
+-	}
++	else // </advc.700>
++		autoSave(); // advc.106l
+ }
+ 
+ // <advc.106b>
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index b5bb1d31c..9c922c79d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -26,6 +26,7 @@
+ //#define PATH_DEFENSE_WEIGHT   (10)
+ #define PATH_DEFENSE_WEIGHT     (4) // K-Mod. ( * defence bonus)
+ #define PATH_TERRITORY_WEIGHT   (5) // was 3
++#define PATH_DOW_WEIGHT			(4) // advc.082
+ #define PATH_STEP_WEIGHT        (4) // was 2
+ #define PATH_STRAIGHT_WEIGHT    (2) // was 1
+ //#define PATH_ASYMMETRY_WEIGHT   (1) // K-Mod
+@@ -2008,7 +2009,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	// So let the AI prefer diagonal movement.
+ 	// However, diagonal zig-zags will probably seem unnatural and weird to humans who are just trying to move in a straight line.
+ 	// So let the pathfinding for human groups prefer cardinal movement.
+-	if (pSelectionGroup->AI_isControlled())
++	bool bAIControl = pSelectionGroup->AI_isControlled();
++	if (bAIControl)
+ 	{
+ 		if (pFromPlot->getX_INLINE() == pToPlot->getX_INLINE() || pFromPlot->getY_INLINE() == pToPlot->getY_INLINE())
+ 			iWorstCost += PATH_STRAIGHT_WEIGHT;
+@@ -2032,7 +2034,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	// the cost of battle...
+ 	if (iFlags & MOVE_ATTACK_STACK)
+ 	{
+-		FAssert(pSelectionGroup->AI_isControlled()); // only the AI uses MOVE_ATTACK_STACK
++		FAssert(bAIControl); // only the AI uses MOVE_ATTACK_STACK
+ 		FAssert(pSelectionGroup->getDomainType() == DOMAIN_LAND);
+ 
+ 		int iEnemyDefence = 0;
+@@ -2070,12 +2072,20 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 			}
+ 			// else, don't worry about it too much.
+ 		}
+-	}
+-	//
+-
++	} //
++
++	// <advc.082>
++	TeamTypes eToPlotTeam = pToPlot->getTeam();
++	/*  The AVOID_ENEMY code in the no-moves-left branch below doesn't stop the AI
++		from trying to move _through_ enemy territory and thus declaring war
++		earlier than necessary */
++	if(bAIControl && (iFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
++			eToPlotTeam != eTeam && GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam))
++		iWorstCost += PATH_DOW_WEIGHT;
++	// </advc.082>
+ 	if (iWorstMovesLeft <= 0)
+ 	{
+-		if (pToPlot->getTeam() != eTeam)
++		if (eToPlotTeam != eTeam)
+ 		{
+ 			iWorstCost += PATH_TERRITORY_WEIGHT;
+ 		}
+@@ -2133,7 +2143,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 				{
+ 					// For human-controlled units, only apply the following effects for multi-step moves.
+ 					// (otherwise this might prevent the user from attacking from where they want to attack from.)
+-					if (pSelectionGroup->AI_isControlled() || parent->m_iKnownCost != 0 || iFlags & MOVE_HAS_STEPPED)
++					if (bAIControl || parent->m_iKnownCost != 0 || iFlags & MOVE_HAS_STEPPED)
+ 					{
+ 						iAttackCount++;
+ 						iFromDefenceMod += pLoopUnit->noDefensiveBonus() ? 0 : pFromPlot->defenseModifier(eTeam, false);
+@@ -2152,7 +2162,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 					}
+ 					// If this is a direct attack move from a human player, make sure it is the best value move possible. (This allows humans to choose which plot they attack from.)
+ 					// (note: humans have no way of ordering units to attack units en-route, so the fact that this is an attack move means we are at the destination.)
+-					else if (pLoopUnit->canAttack()) // parent->m_iKnownCost == 0 && !(iFlags & MOVE_HAS_STEPPED) && !pSelectionGroup->AI_isControlled()
++					else if (pLoopUnit->canAttack()) // parent->m_iKnownCost == 0 && !(iFlags & MOVE_HAS_STEPPED) && !bAIControl
+ 						return PATH_STEP_WEIGHT; // DONE!
+ 				}
+ 			}
+@@ -2172,7 +2182,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0, (iAttackCount*200 - iFromDefenceMod) / std::max(1, iAttackCount));
+ 		iWorstCost += std::max(0, iAttackWeight) / std::max(1, iAttackCount);
+ 		// if we're in enemy territory, consider the sum of our defensive bonuses as well as the average
+-		if (pToPlot->isOwned() && atWar(pToPlot->getTeam(), eTeam))
++		if (pToPlot->isOwned() && atWar(eToPlotTeam, eTeam))
+ 		{
+ 			iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0, (iDefenceCount*200 - iDefenceMod)/5);
+ 			iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0, (iAttackCount*200 - iFromDefenceMod)/5);
+@@ -2182,7 +2192,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		// additional cost for ending turn in or adjacent to enemy territory based on flags (based on BBAI)
+ 		if (iFlags & (MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_AVOID_ENEMY_WEIGHT_3))
+ 		{
+-			if (pToPlot->isOwned() && GET_TEAM(eTeam).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN)
++			if (pToPlot->isOwned() && GET_TEAM(eTeam).AI_getWarPlan(eToPlotTeam) != NO_WARPLAN)
+ 			{
+ 				iWorstCost *= (iFlags & MOVE_AVOID_ENEMY_WEIGHT_3) ? 3 : 2;
+ 			}
+@@ -2828,35 +2838,18 @@ int areaValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 	{
+ 		return TRUE;
+ 	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-// original BTS code
+ 	return ((GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() == GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
+-
++	// (advc.030 takes care of this)
++	// BETTER_BTS_AI_MOD, General AI, 10/02/09, jdog5000
+ 	// BBAI TODO: Why doesn't this work to break water and ice into separate area?
+-/*
+-	if( GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() != GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater() )
+-	{
+-		return FALSE;
+-	}
+-
++	/*if( GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() != GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater() )
++	return FALSE;
+ 	// Ice blocks become their own area
+-	if( GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() && GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater() )
+-	{
++	if( GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isWater() && GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isWater() ) {
+ 		if( GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->isImpassable() != GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY)->isImpassable() )
+-		{
+ 			return FALSE;
+-		}
+ 	}
+-
+-	return TRUE;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	return TRUE;*/
+ }
+ 
+ 
+@@ -2916,35 +2909,19 @@ int countPlotGroup(FAStarNode* parent, FAStarNode* node, int data, const void* p
+ // advc.003j (comment): Unused
+ int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
+ {
+-	int iReturn;	// holds the return value we will be calculating
+-
+-	// get the base value for the iReturn value
+-	iReturn = iNumYieldTypes * GC.getDefineINT("MAX_YIELD_STACK");
+-	// then add the offset to the return value
+-	iReturn += iYieldStack;
+-
+-	// return the value we have calculated
+-	return iReturn;
++	return iNumYieldTypes * GC.getDefineINT("MAX_YIELD_STACK") + iYieldStack;
+ }
+-
+-/*  advc.003j: Vanilla Civ 4 function that used to be a DLLExport; certainly unused
+-	since BtS, and doesn't sound too useful. */
+-/*bool isPickableName(const TCHAR* szName)
+-{
+-	if (szName)
+-	{
++/*  advc.003j: Vanilla Civ 4 function that used to be a DLLExport;
++	certainly unused since BtS, and doesn't sound too useful. */
++/*bool isPickableName(const TCHAR* szName) {
++	if (szName) {
+ 		int iLen = _tcslen(szName);
+-
+ 		if (!_tcsicmp(&szName[iLen-6], "NOPICK"))
+-		{
+ 			return false;
+-		}
+ 	}
+-
+ 	return true;
+ }*/
+ 
+-
+ // create an array of shuffled numbers
+ int* shuffle(int iNum, CvRandom& rand)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3127edfa5..5d1812600 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8437,9 +8437,7 @@ bool CvPlayer::isSignificantDiscovery(TechTypes eTech) const {
+ 
+ bool CvPlayer::isCivic(CivicTypes eCivic) const
+ {
+-	int iI;
+-
+-	for (iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+ 	{
+ 		if (getCivics((CivicOptionTypes)iI) == eCivic)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7acf6c414..dcd0f9af1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10081,30 +10081,6 @@ int CvPlayerAI::AI_getMemoryAttitude(PlayerTypes ePlayer, MemoryTypes eMemory) c
+ 				ourTeam.isAtWar(TEAMID(ePlayer)))
+ 			return 0;
+ 	} // </advc.130s>
+-	// <advc.145>
+-	// Fav. civic and religion are based on LeaderType, not PersonalityType.
+-	CvLeaderHeadInfo const& lh = GC.getLeaderHeadInfo(getLeaderType());
+-	if(eMemory == MEMORY_ACCEPTED_CIVIC) {
+-		CivicTypes fav = (CivicTypes)lh.getFavoriteCivic();
+-		if(fav != NO_CIVIC && (!GET_PLAYER(ePlayer).isCivic(fav) ||
+-				!isCivic(fav)))
+-			return 0;
+-	}
+-	if(eMemory == MEMORY_ACCEPTED_RELIGION) {
+-		if(isStateReligion() && GET_PLAYER(ePlayer).getStateReligion() !=
+-				getStateReligion())
+-			return 0;
+-	}
+-	if(eMemory == MEMORY_DENIED_CIVIC) {
+-		CivicTypes fav = (CivicTypes)lh.getFavoriteCivic();
+-		if(fav == NO_CIVIC || GET_PLAYER(ePlayer).isCivic(fav) || !isCivic(fav))
+-			return 0;
+-	}
+-	if(eMemory == MEMORY_DENIED_RELIGION) {
+-		if(!isStateReligion() || GET_PLAYER(ePlayer).getStateReligion() ==
+-				getStateReligion())
+-			return 0;
+-	} // </advc.145>
+ 	/* <advc.130j> Was 100. Effect halved b/c diplo actions now counted twice.
+ 		195 (instead of 200) to make sure that 0.5 gets rounded up. BtS rounded down,
+ 		but this rarely mattered. Now rounding down would often result in no effect
+@@ -19455,7 +19431,7 @@ void CvPlayerAI::AI_doCounter()
+ 			if((mId == MEMORY_STOPPED_TRADING || mId == MEMORY_HIRED_TRADE_EMBARGO) &&
+ 					AI_getMemoryCount(civId, MEMORY_STOPPED_TRADING_RECENT) > 0)
+ 				continue;
+-			// </advc.130r><advc.130j>
++			// </advc.130r> <advc.130j>
+ 			/*  Need to decay at least twice as fast b/c each
+ 				request now counts twice (on average). */
+ 			double div = 2;
+@@ -19466,6 +19442,33 @@ void CvPlayerAI::AI_doCounter()
+ 			if(getWPAI.isEnabled() && (mId == MEMORY_REJECTED_DEMAND ||
+ 					mId == MEMORY_ACCEPT_DEMAND))
+ 				div *= (10 / 6.0); // 60% faster decay // </advc.104m>
++			/*  <advc.145> Decay of accepted/denied civic/religion memory based on
++				current civics and religion */
++			// Fav. civic and religion are based on LeaderType, not PersonalityType.
++			CivicTypes eFavCivic = (CivicTypes)GC.getLeaderHeadInfo(getLeaderType()).
++					getFavoriteCivic();
++			double abolishMultiplier = 4;
++			if(mId == MEMORY_ACCEPTED_CIVIC) {
++				if(eFavCivic != NO_CIVIC && (!GET_PLAYER(civId).isCivic(eFavCivic) ||
++						!isCivic(eFavCivic)))
++					div *= abolishMultiplier;
++			}
++			if(mId == MEMORY_ACCEPTED_RELIGION) {
++				if(isStateReligion() && GET_PLAYER(civId).getStateReligion() !=
++						getStateReligion())
++					div *= abolishMultiplier;
++			}
++			double adoptMultiplier = 3.5;
++			if(mId == MEMORY_DENIED_CIVIC) {
++				if(eFavCivic == NO_CIVIC || GET_PLAYER(civId).isCivic(eFavCivic) ||
++						!isCivic(eFavCivic))
++					div *= adoptMultiplier;
++			}
++			if(mId == MEMORY_DENIED_RELIGION) {
++				if(!isStateReligion() || GET_PLAYER(civId).getStateReligion() ==
++						getStateReligion())
++					div *= adoptMultiplier;
++			} // </advc.145>
+ 			// <advc.130r> Faster yet if multiple requests remembered
+ 			if(c > 3) // c==3 could stem from a single request
+ 				div = 2 * std::sqrt(c / 2.0); // </advc.130r>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index d9bd07ee1..648698e91 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -352,9 +352,11 @@ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy)
+ 
+ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 		bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz,
+-		bool bSacrifice, bool bMaxSurvival) const // advc.048
++		// <advc.048>
++		bool bSacrifice, bool bMaxSurvival) const
+ {
+-	FAssert(!bMaxSurvival || !bSacrifice); // advc.048
++	int const iOddsThresh = 68; // Should this be lower if bHuman?
++	FAssert(!bMaxSurvival || !bSacrifice); // </advc.048>
+ 	PROFILE_FUNC();
+ 
+ 	int iBestValue = 0;
+@@ -416,9 +418,12 @@ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 			/*  if non-human, prefer the last unit that has the best value
+ 				(so as to avoid splitting the group) */
+ 			if (iValue > iBestValue || (!bHuman && iValue > 0 && iValue == iBestValue)
+-					// <advc.048> For human, use sacrifice value to break ties.
+-					|| (bHuman && iValue == iBestValue && (pBestUnit == NULL ||
+-					pLoopUnit->AI_sacrificeValue(pPlot) > pBestUnit->AI_sacrificeValue(pPlot))))
++					/*  <advc.048> For human, use sacrifice value to break ties in order
++						to match the choice made in the !bMaxSurvival branch above
++						and the bSacrifice branch below. */
++					|| (bHuman && iValue < iOddsThresh && iValue == iBestValue &&
++					(pBestUnit == NULL || pLoopUnit->AI_sacrificeValue(pPlot) >
++					pBestUnit->AI_sacrificeValue(pPlot))))
+ 					// </advc.048>
+ 			{
+ 				iBestValue = iValue;
+@@ -433,7 +438,6 @@ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 	iUnitOdds = iBestOdds;
+ 	// <advc.048> Cut from CvSelectionGroup::groupAttack
+ 	if(bSacrifice) {
+-		int const iOddsThresh = 68; // Should this be lower if bHuman?
+ 		if(iUnitOdds < iOddsThresh) {
+ 			CvUnit* pBestSacrifice = AI_getBestGroupSacrifice(pPlot,
+ 					bPotentialEnemy, bForce, /* advc.164: */ bNoBlitz);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 7d36b9b53..45a893bca 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -194,6 +194,7 @@ void WarAndPeaceCache::read(FDataStreamBase* stream) {
+ 	for(int i = 0; i < sz; i++) {
+ 		int masterId;
+ 		stream->Read(&masterId);
++		FAssert(masterId >= 0 && masterId < MAX_CIV_TEAMS); // Sanity check
+ 		readyToCapitulate.insert((TeamTypes)masterId);
+ 	}
+ 	stream->Read(&sz);
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=24800

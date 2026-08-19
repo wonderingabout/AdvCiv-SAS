@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4441
+# Commit: 08e4b15194b4930e6cf97e26c40235e8c47d4241
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5c2af6cce1db99ce231292d20041003c47d1028e
+# Title: update readme and docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	0	README.md
+-	-	_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+15	2	_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index f98090c81..61da61d5d 100644
+--- a/README.md
++++ b/README.md
+@@ -59,6 +59,14 @@ are the added new civ's real world location) :
+ A preview of the changes (screenshots), can be found on this google drive: 
+ [here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+ 
++## Docs
++
++I added quite a bit of documentation, pictures, and other elements about this AdvCiv SAS mod:
++[here](/_1_AdvCiv_SAS/)
++
++If you want to know more about the project, how i ordered the tree tech historically, why i decided
++on balance changes and such, please visit it.
++
+ # Credits
+ - AdvCiv: to write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
+ from Civ4, and it's maintainer is very open to feedback at least in my
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+index 8c4561669..75c4e47fa 100644
+Binary files a/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png and b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png differ
+
+diff --git a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+index 8053395f2..f09ac9d05 100644
+--- a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+@@ -80,8 +80,21 @@ now maybe)
+ - opportunistic and efficient AI: the AI will not be much more aggressive than
+ AdvCiv, it will be more cautious to start wars, but will hesitate less when it
+ (thinks it can) profit, so be careful and plan well
+-- i intend this to be quite fast paced
++- i intend this to be quite fast paced, game starts at -100 000 BC but it increments
++very fast (10 000 per turn, so around turn 40 at normal speed you should already be
++around 3000 BC), then the year number and gameplay pace does not slow as much (at
++least i tried to make it so, that each end game turn doesn't take ages)
++- AIs get no free techs now, todo, they should perform well enough, and receive other
++types of bonuses, that they don't need techs for free, it won't feel anymore like they
++are playing a different kind of game hopefully, also less of a grind at higher difficulties
++(but hard in different ways todo)
++- difficulties have also been adjusted in that lower difficulties are harder (i don't
++want them to be placeholders anymore), and harder ones less of a grind (ideally),
++consider starting at a low difficulty to adjust first if not sure or to get used to
++the gameplay
++- costs of tech and units are always the same unlike in AdvCiv, maybe it helps if
++you want to go from one difficulty to the other, a unit or tech is always same price,
++so you can reuse some strategies more easily maybe or quicker adjust
+ - todo animals can be captured?
+-
+ - todo continue
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2815

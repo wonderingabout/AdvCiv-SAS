@@ -1,0 +1,850 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5771
+# Commit: dd03caa3faf32229d165860a053e6d67059353d0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bfbd40cee85b6145f7275b5fb8dc28168f7a45cb
+# Title: Expand Battles Tab (Add Estimated %, etc.), add Sevopedia Playground and other changes - Sevopedia expanded panel playground for quickly testing background/p...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+118	2	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+16	0	Assets/Python/SASUtils.py
+1	15	Assets/Python/Screens/CvDomesticAdvisor.py
+3	12	Assets/Python/Screens/CvInfoScreen.py
+59	46	Assets/Python/Screens/CvMilitaryAdvisor.py
+5	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+8	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+4	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+28	7	README.md
+31	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+6	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5161_info_screen_history_dbg_log.PNG => 0.5180_info_screen_timeline_dbg_log.PNG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5151_inverted_bug_advisors.JPG => 0.5200_inverted_bug_advisors.JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5161_info_screen_history_dbg_log.PNG => 0.5180_info_screen_timeline_dbg_log.PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5151_inverted_bug_advisors.JPG => 0.5200_inverted_bug_advisors.JPG} (100%)
+ delete mode 100644 _1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index ff790ab81..9a42a33ec 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -136,6 +136,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV = 6813
+ 		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT = 6814
+ 		self.SAS_PEDIA_PYTHON_SEARCH_KEY = 6815
++		# <!-- custom: dev playground for picking a panel style for other tabs/screens. iData2 carries the signed cycle delta (-1 / +1); see draw_expandable_text_panel and cycle_sas_pedia_panel_style in _sevopedia_helpers.py. See KI#128 for runtime-style/background stability notes. (Claude code Opus 4.7 + GPT-5.5) -->
++		self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE = 6816
++		# <!-- custom: companion widget id for cycling the underlying background DDS in the same playground; same iData2 convention. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
++		self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE = 6817
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -2759,6 +2763,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				if self.iItem != -1:
+ 					self.pediaJump(self.iCategory, self.iItem, False, False)
+ 					return 1
++			# <!-- custom: dev playground: bump the cached panel style index by iData2 (signed delta) and re-jump to redraw the same item with the expanded overlay still open, so the new style is visible immediately without closing/reopening. Reuses pediaJump's existing "preserve expanded state" behavior. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE:
++				if self.iItem != -1:
++					cycle_sas_pedia_panel_style(iData2)
++					self.pediaJump(self.iCategory, self.iItem, False, False)
++					return 1
++			# <!-- custom: dev playground: same as the panel style cycle but for the underlying full-screen background DDS art key. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE:
++				if self.iItem != -1:
++					cycle_sas_pedia_background(iData2)
++					self.pediaJump(self.iCategory, self.iItem, False, False)
++					return 1
+ 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
+ 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
+ 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 413861f76..d70ae52db 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -47,6 +47,87 @@ EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
+ EXPANDED_LEADERHEAD_WIDTH_PCT = 80
+ # <!-- custom: Y offset of the EXPAND button inside the collapsed leaderhead pane (placed inside the panel, not above it). (Claude code Sonnet 4.6) -->
+ LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
++SAS_PEDIA_BG_NAME_PREFIXES = ("SCREEN_BG", "SCREEN_UN_BG", "MAINMENU_SLIDESHOW")
++SAS_PEDIA_PANEL_STYLE_NAMES = None
++SAS_PEDIA_PANEL_STYLE_VALUES = None
++SAS_PEDIA_BG_NAMES = None
++g_iSasPediaPanelStyleIdx = None
++g_iSasPediaBgIdx = None
++IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = None
++
++
++def _sas_pedia_collect_bg_names():
++    aNames = []
++    iCount = gc.getNumInterfaceArtInfos()
++    for iIdx in range(iCount):
++        pInfo = gc.getInterfaceArtInfo(iIdx)
++        if pInfo is None:
++            continue
++        # <!-- custom: keep this playground to DDS backgrounds only because draw_expandable_text_panel renders them with addDDSGFC. MAINMENU_SCENE* art points to NIF/KFM scene files; cycling those through addDDSGFC empirically correlated with native EXE critical-section corruption/crashes on shutdown after browsing Sevopedia/style options. See KI#128. (GPT-5.5) -->
++        sPath = pInfo.getPath().lower()
++        if not sPath.endswith(".dds"):
++            continue
++        # <!-- custom: use getTag() rather than getType() because the Python binding for CvArtInfoInterface (CyInfoInterface3.cpp:348) inherits only from CvAssetInfoBase, which is bound as a standalone Python class without CvInfoBase as a base — so getType() is not accessible from Python on art infos even though it exists in C++. getTag() and getType() return the same string per the C++ comment "'tag' is the same as 'type'" in CvInfo_Asset.h. (Claude code Opus 4.7) -->
++        sName = pInfo.getTag()
++        for sPrefix in SAS_PEDIA_BG_NAME_PREFIXES:
++            if sName.startswith(sPrefix):
++                aNames.append(sName)
++                break
++    aNames.sort()
++    # <!-- custom: prepend "(none)" sentinel — index 0 means "skip the addDDSGFC call entirely" so we can preview a panel style with no background art behind it. (Claude code Opus 4.7) -->
++    return tuple([u"(none)"] + aNames)
++
++
++def init_sas_pedia_playground_cache():
++    # <!-- custom: lazy-init the Sevopedia style/background playground instead of enumerating PanelStyles/interface art at module import time. This mirrors our safer advisor define-cache pattern: the playground is discovered once when first used, persists for the Civ4 session, and avoids import-time UI/DLL probing after an empirical native crash while cycling style/background options. Define changes still require a game restart. See KI#128. (GPT-5.5) -->
++    global SAS_PEDIA_PANEL_STYLE_NAMES, SAS_PEDIA_PANEL_STYLE_VALUES, SAS_PEDIA_BG_NAMES
++    global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx
++    global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE
++    if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE is None:
++        IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE") > 0)
++    if not IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE:
++        if SAS_PEDIA_PANEL_STYLE_NAMES is None:
++            SAS_PEDIA_PANEL_STYLE_NAMES = ()
++            SAS_PEDIA_PANEL_STYLE_VALUES = ()
++            SAS_PEDIA_BG_NAMES = ()
++            g_iSasPediaPanelStyleIdx = 0
++            g_iSasPediaBgIdx = 0
++        return
++    if SAS_PEDIA_PANEL_STYLE_NAMES is None:
++        # <!-- custom: auto-discover all PanelStyles enum values exposed by the DLL via boost::python (CvEnums.h PanelStyles). The selected style is applied to the expanded overlay and shown in the header so it can be copied into target call sites. Python 2.4 tuples have no .index(), so default lookup is a manual scan. (Claude code Opus 4.7 + GPT-5.5) -->
++        SAS_PEDIA_PANEL_STYLE_NAMES = tuple(sorted(sName for sName in dir(PanelStyles) if sName.startswith("PANEL_STYLE_")))
++        SAS_PEDIA_PANEL_STYLE_VALUES = tuple(getattr(PanelStyles, sName) for sName in SAS_PEDIA_PANEL_STYLE_NAMES)
++        g_iSasPediaPanelStyleIdx = 0
++        for _iIdx in range(len(SAS_PEDIA_PANEL_STYLE_NAMES)):
++            if SAS_PEDIA_PANEL_STYLE_NAMES[_iIdx] == "PANEL_STYLE_MAIN":
++                g_iSasPediaPanelStyleIdx = _iIdx
++                break
++    if SAS_PEDIA_BG_NAMES is None:
++        # <!-- custom: companion playground for the underlying full-screen background DDS that an expanded overlay draws first. Keep only plausible DDS backgrounds so the cycle list stays short and safe; NIF/KFM scene assets are not valid for addDDSGFC. (Claude code Opus 4.7 + GPT-5.5) -->
++        SAS_PEDIA_BG_NAMES = _sas_pedia_collect_bg_names()
++        g_iSasPediaBgIdx = 0
++        for _iIdx in range(len(SAS_PEDIA_BG_NAMES)):
++            if SAS_PEDIA_BG_NAMES[_iIdx] == "SCREEN_BG_OPAQUE":
++                g_iSasPediaBgIdx = _iIdx
++                break
++
++
++def cycle_sas_pedia_panel_style(iDelta):
++    # <!-- custom: small setter so SevoPediaMain (which uses `from _sevopedia_helpers import *`) can mutate the module global without falling into Python 2's local-binding trap on rebinding. (Claude code Opus 4.7) -->
++    global g_iSasPediaPanelStyleIdx
++    init_sas_pedia_playground_cache()
++    iCount = len(SAS_PEDIA_PANEL_STYLE_VALUES)
++    if iCount > 0:
++        g_iSasPediaPanelStyleIdx = (g_iSasPediaPanelStyleIdx + iDelta) % iCount
++
++
++def cycle_sas_pedia_background(iDelta):
++    # <!-- custom: same Python-2-safe pattern as cycle_sas_pedia_panel_style. (Claude code Opus 4.7) -->
++    global g_iSasPediaBgIdx
++    init_sas_pedia_playground_cache()
++    iCount = len(SAS_PEDIA_BG_NAMES)
++    if iCount > 0:
++        g_iSasPediaBgIdx = (g_iSasPediaBgIdx + iDelta) % iCount
+ # <!-- custom: some constants often used in sevopedia -->
+ LARGE_MARGIN = 20
+ MEDIUM_MARGIN = 15
+@@ -382,16 +463,51 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW,
+ 		iOverlayY = top.Y_PEDIA_PAGE
+ 		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
+ 		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
++		init_sas_pedia_playground_cache()
+ 
+-		screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		# <!-- custom: pick the underlying full-screen background DDS from the playground cache; index 0 is the "(none)" sentinel which means "skip drawing a background entirely" so a transparent panel style reveals whatever is behind the pedia screen. When the playground is off, fall back to the previous hardcoded SCREEN_BG_OPAQUE so default behavior is identical to before this feature. (Claude code Opus 4.7) -->
++		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_BG_NAMES) > 0:
++			sBgArtKey = SAS_PEDIA_BG_NAMES[g_iSasPediaBgIdx]
++		else:
++			sBgArtKey = u"SCREEN_BG_OPAQUE"
++		if sBgArtKey != u"(none)":
++			screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo(sBgArtKey).getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		# <!-- custom: when the caller passed no title, use "(Background)" so the expanded overlay always has a header bar for the CLOSE button to sit on. (Claude code Sonnet 4.6) -->
+ 		if panelTitle:
+ 			expandedTitle = panelTitle
+ 		else:
+ 			expandedTitle = u"(" + localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()) + u")"
+ 		panelName = top.getNextWidgetName()
+-		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
++		# <!-- custom: read the current playground style from the module-level cache so the overlay reflects the user's last PREV/NEXT click; falls back to PANEL_STYLE_MAIN when the playground is disabled or the cache is somehow empty (defensive, not expected). (Claude code Opus 4.7) -->
++		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
++			ePanelStyle = SAS_PEDIA_PANEL_STYLE_VALUES[g_iSasPediaPanelStyleIdx]
++		else:
++			ePanelStyle = PanelStyles.PANEL_STYLE_MAIN
++		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, ePanelStyle)
+ 		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"CLOSE"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iCloseButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0, ButtonStyles.BUTTON_STYLE_STANDARD)
++		# <!-- custom: panel style playground header strip: "[label] [PREV] [NEXT] [CLOSE]" sits on the same row as CLOSE inside the header bar. iData2 is the signed cycle delta (-1 / +1); a separate widget id (top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE) keeps the existing iData2 dispatch on HISTORY_EXPAND (0=close, 1=expand) untouched. The label uses RIGHT_JUSTIFY so it grows leftward without us having to measure the variable-length style name width. (Claude code Opus 4.7) -->
++		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
++			iCycleBtnW = 28
++			iCycleBtnSpacing = 6
++			iCycleY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET
++			iNextX = iOverlayX + iOverlayW - (iCloseButtonW + 10) - iCycleBtnSpacing - iCycleBtnW
++			iPrevX = iNextX - iCycleBtnSpacing - iCycleBtnW
++			iLabelRightX = iPrevX - iCycleBtnSpacing
++			# <!-- custom: align the label baseline with the buttons' inner text by sitting just inside the header bar's top edge; +4 puts it visually level with the CLOSE/-/+ button labels. (Claude code Opus 4.7); when upscaled, a small - 2 offset allows to see text entirely without overflowing vertically onto the top of the text panel -->
++			iLabelY = iCycleY - 2
++			szStyleLabel = SASTextScale.labelText(u"STYLE: %s (%d/%d)" % (SAS_PEDIA_PANEL_STYLE_NAMES[g_iSasPediaPanelStyleIdx], g_iSasPediaPanelStyleIdx + 1, len(SAS_PEDIA_PANEL_STYLE_NAMES)))
++			screen.setText(top.getNextWidgetName(), "Background", szStyleLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iLabelY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			# <!-- custom: use "-" / "+" rather than "<" / ">" because angle brackets are parsed as font/markup tag delimiters by the Civ4 text renderer (see agents.md), which breaks the button label rendering. (Claude code Opus 4.7) -->
++			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
++			# <!-- custom: background DDS playground row, sits one row ABOVE the style row (the user said "we have plenty room up" so it lives in the gutter above the panel header). Same x columns as the style row so the two stacked groups align visually. Routing uses a separate widget id (SAS_PEDIA_PYTHON_BACKGROUND_CYCLE) so the iData2 cycle delta does not collide with the style row's dispatch. (Claude code Opus 4.7) -->
++			if len(SAS_PEDIA_BG_NAMES) > 0:
++				iBgRowYBtn = iCycleY - 30
++				iBgRowYLabel = iLabelY - 30
++				szBgLabel = SASTextScale.labelText(u"BG: %s (%d/%d)" % ( SAS_PEDIA_BG_NAMES[g_iSasPediaBgIdx], g_iSasPediaBgIdx + 1, len(SAS_PEDIA_BG_NAMES)))
++				screen.setText(top.getNextWidgetName(), "Background", szBgLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iBgRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szText), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		return 1
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 262ece4fa..b1fd85e4c 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -62,6 +62,22 @@ def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
+ 	return (iXTitle, iXExit, iYExit, iYLink, iYBottomPanel)
+ 
+ 
++# <!-- custom: shared "maximized" panel/table layout for advisor tabs that want to fill the area between top and bottom bars (Domestic Overview tabs, Military Advisor Battles tab). The Y bleed lets the panel slide a few pixels under the top/bottom bars to hide thin seams; the inner table margin and top visual adjust account for TABLE_STYLE_STANDARD drawing the header slightly above its anchor. Returns two (x, y, w, h) tuples so callers can unpack directly into addPanel / addTableControlGFC. (GPT-5.3-Codex + Claude code Opus 4.7) -->
++def getAdvisorMaximizedPanelLayout(iWScreen, iYBottomPanel):
++	iMainPanelYBleed = 10
++	iMainPanelX = 0
++	iMainPanelY = 55 - iMainPanelYBleed
++	iMainPanelW = iWScreen
++	iMainPanelH = (iYBottomPanel - iMainPanelY) + iMainPanelYBleed
++	iTableMargin = 8
++	iTableTopVisualAdjust = 6
++	iTableX = iMainPanelX + iTableMargin
++	iTableY = iMainPanelY + iTableMargin + iTableTopVisualAdjust
++	iTableW = iMainPanelW - 2 * iTableMargin
++	iTableH = iMainPanelH - 2 * iTableMargin - iTableTopVisualAdjust
++	return ((iMainPanelX, iMainPanelY, iMainPanelW, iMainPanelH), (iTableX, iTableY, iTableW, iTableH))
++
++
+ # <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
+ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
+ 	aiLabelWidths = []
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 5168b47a5..b0d702323 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -201,21 +201,7 @@ class CvDomesticAdvisor:
+ 			self.H_BOTTOM_SPACE
+ 		)
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
+-		# <!-- custom: use the shared advisor shell layout (top/bottom bars + single content panel) so Domestic Advisor mirrors Victory/Info/Foreign structure instead of a floating table. (GPT-5.3-Codex) -->
+-		# <!-- custom: remove outer advisor-content margins so Domestic can use the full area between top/bottom bars; keep spacing only as inner table margin. (GPT-5.3-Codex) -->
+-		self.nMainPanelX = 0
+-		# <!-- custom: panel styles can leave thin Y-axis seams at the shell boundaries; use a local vertical bleed and apply it symmetrically to top/bottom. (GPT-5.3-Codex) -->
+-		iMainPanelYBleed = 10
+-		self.nMainPanelY = 55 - iMainPanelYBleed
+-		self.nMainPanelWidth = self.nScreenWidth - (2 * self.nMainPanelX)
+-		self.nMainPanelHeight = (self.Y_BOTTOM_PANEL - self.nMainPanelY) + iMainPanelYBleed
+-		self.nTableMargin = 8
+-		# <!-- custom: TABLE_STYLE_STANDARD draws the header slightly above the anchor; add a tiny visual top offset so apparent top margin matches left/right/bottom. (GPT-5.3-Codex) -->
+-		self.nTableTopVisualAdjust = 6
+-		self.nTableX = self.nMainPanelX + self.nTableMargin
+-		self.nTableY = self.nMainPanelY + self.nTableMargin + self.nTableTopVisualAdjust
+-		self.nTableWidth = self.nMainPanelWidth - (2 * self.nTableMargin)
+-		self.nTableHeight = self.nMainPanelHeight - (2 * self.nTableMargin) - self.nTableTopVisualAdjust
++		(self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight), (self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight) = getAdvisorMaximizedPanelLayout(self.nScreenWidth, self.Y_BOTTOM_PANEL)
+ 		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->
+ 		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 787f8bcc3..2d75f1977 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1099,18 +1099,9 @@ class CvInfoScreen:
+ 				continue
+ 			visiblePlayers.append(ePlayer)
+ 
+-		# <!-- custom: simple Score-tab table layout: fill the advisor content area (between top/bottom bars)
+-		# with explicit tunable outer margins for X and Y. (GPT-5.3-Codex) -->
+-		iTableBaseMarginPx = 6
+-		# <!-- custom: for some reason despite simple layout margins are still asymetric (horizontal margins too short and shorter in comparison), manually add gap to empirically equalize it for score tab (as of now not done in domestic advisor's overview tab for example that served as inspiration/reference to do this) -->
+-		iTableMarginXPx = iTableBaseMarginPx + 5
+-		iTableMarginYPx = iTableBaseMarginPx
+-		# <!-- custom: same layout formula on both axes: table size = available size - 2 * margin.
+-		# Width available size is full screen width; height available size is content height (screen minus top/bottom bars). (GPT-5.3-Codex) -->
+-		iTableX = iTableMarginXPx
+-		iTableY = self.PANEL_HEIGHT + iTableMarginYPx
+-		iTableW = self.W_SCREEN - (2 * iTableMarginXPx)
+-		iTableH = self.H_SCREEN - (2 * self.PANEL_HEIGHT) - (2 * iTableMarginYPx)
++		# <!-- custom: wrap the dense Score table in a high-contrast panel so the slideshow background no longer bleeds through empty rows; this keeps the score matrix readable while still using the shared maximized advisor layout helper. Panel widget name MUST come from getNextWidgetName so it joins the per-tab deletion pool (deleteAllWidgets at the iNumPermanentWidgets snapshot in redrawContents); a hardcoded name persists across tab switches and bleeds the panel into other tabs. (Claude code Opus 4.7 + GPT-5.5) -->
++		(iPanelX, iPanelY, iPanelW, iPanelH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.H_SCREEN - self.PANEL_HEIGHT)
++		screen.addPanel(self.getNextWidgetName(), "", "", True, True, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_SOLID)
+ 
+ 		szTable = self.getNextWidgetName()
+ 		screen.addTableControlGFC(szTable, 29, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index dc40db8d4..5021e1c77 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -112,6 +112,7 @@ class CvMilitaryAdvisor:
+ 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = None
+ 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = None
+ 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = None
++		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = None
+ 		self.BATTLE_HILL_PEAK_COL_ID = None
+ 		self.BATTLE_TERRAIN_COL_ID = None
+ 		self.BATTLE_FEATURE_COL_ID = None
+@@ -119,7 +120,7 @@ class CvMilitaryAdvisor:
+ 		self.BATTLE_NUM_COLS = None
+ 
+ 	def initDefines(self):
+-		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here. Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. (GPT-5.5) -->
++		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here. Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. See KI#128. (GPT-5.5) -->
+ 		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS is None:
+ 			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
+ 		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE is None:
+@@ -130,18 +131,20 @@ class CvMilitaryAdvisor:
+ 			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
+ 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE is None:
+ 			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE is None:
++			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE") > 0)
+ 		# <!-- custom: Battle column IDs depend on the plot-context define, so derive them beside the define cache; this keeps callers from needing to know whether initDefines has already expanded the table layout. (GPT-5.5) -->
+ 		if self.BATTLE_NUM_COLS is None:
+ 			self.BATTLE_HILL_PEAK_COL_ID = -1
+ 			self.BATTLE_TERRAIN_COL_ID = -1
+ 			self.BATTLE_FEATURE_COL_ID = -1
+ 			if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+-				self.BATTLE_HILL_PEAK_COL_ID = 19
++				self.BATTLE_HILL_PEAK_COL_ID = 20
+ 				self.BATTLE_TERRAIN_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 1
+ 				self.BATTLE_FEATURE_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 2
+ 				self.BATTLE_PLOT_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 3
+ 			else:
+-				self.BATTLE_PLOT_COL_ID = 19
++				self.BATTLE_PLOT_COL_ID = 20
+ 			self.BATTLE_NUM_COLS = self.BATTLE_PLOT_COL_ID + 1
+ 
+ 
+@@ -169,6 +172,7 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_BATTLE_TURN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN", ())
+ 		self.TEXT_BATTLE_YEAR = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_YEAR", ())
+ 		self.TEXT_BATTLE_RESULT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RESULT", ())
++		self.TEXT_BATTLE_EST_ODDS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_EST_ODDS", ())
+ 		self.TEXT_BATTLE_ROLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE", ())
+ 		self.TEXT_BATTLE_OUR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_OUR_UNIT", ())
+ 		self.TEXT_BATTLE_THEIR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT", ())
+@@ -482,6 +486,13 @@ class CvMilitaryAdvisor:
+ 			return unicode(iStrength)
+ 		return u""
+ 
++	def getBattleEstimatedOddsText(self, iOurStrength, iTheirStrength):
++		# <!-- custom: estimate row-level combat favorability from the two stored start-effective strengths only; this is not exact Civ4 odds because first strikes, withdrawal, damage rounds, etc. are not modeled here. (GPT-5.5) -->
++		iTotalStrength = iOurStrength + iTheirStrength
++		if iOurStrength <= 0 or iTheirStrength <= 0 or iTotalStrength <= 0:
++			return u""
++		return unicode((100 * iOurStrength + (iTotalStrength / 2)) / iTotalStrength)
++
+ 	def getBattleRoleText(self, iOurRole):
+ 		# <!-- custom: show only "A" when the inspected player attacked; defender rows stay blank so Role works as a sparse scan flag instead of forcing every row to carry a letter. (GPT-5.5) -->
+ 		if iOurRole == 1:
+@@ -492,15 +503,8 @@ class CvMilitaryAdvisor:
+ 		screen = self.getScreen()
+ 		# <!-- custom: Units tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
+ 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+-		iX = self.SIDE_MARGIN
+-		iY = 65
+-		iW = self.W_SCREEN - 2 * self.SIDE_MARGIN
+-		iH = self.Y_BOTTOM_PANEL - iY - 12
++		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
+ 		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
+-		iTableX = iX + self.MAP_MARGIN
+-		iTableY = iY + self.MAP_MARGIN
+-		iTableW = iW - 2 * self.MAP_MARGIN
+-		iTableH = iH - 2 * self.MAP_MARGIN
+ 		self.BATTLE_ROW_PLOTS = {}
+ 		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(self.BATTLE_TABLE_ID)
+@@ -509,6 +513,7 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, 105)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 2, self.TEXT_BATTLE_RESULT, 80)
+ 		iPlotColW = 35
++		iEstOddsColW = 45
+ 		iRoleColW = 35
+ 		iBaseColW = 45
+ 		iPIDColW = 38
+@@ -522,31 +527,37 @@ class CvMilitaryAdvisor:
+ 			iFeatureColW = 35
+ 			iHillPeakColW = 35
+ 		iStrengthColW = 78
+-		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
++		# <!-- custom: reserve right-side width for the table scrollbar gutter so unit-name text does not clip under it; Battles fills fast so the scrollbar is the common case. Matches CvInfoScreen's 14px convention. (Claude code Opus 4.7) -->
++		iScrollbarGutterW = 14
++		iUnitColBudget = iTableW - iScrollbarGutterW
++		iUnitColW = max(105, (iUnitColBudget - 55 - 105 - 80 - iEstOddsColW - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
+ 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left and their unit follows immediately, so each row reads as a direct matchup. Our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_ROLE, iRoleColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.STRENGTH_CHAR + u"b", iBaseColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 5, self.STRENGTH_CHAR + u"s", iStrengthColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 6, self.STRENGTH_CHAR + u"e", iStrengthColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 7, self.STRENGTH_CHAR + u"m", iStrengthColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 8, self.TEXT_BATTLE_OUR_UNIT, iUnitColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 9, self.TEXT_BATTLE_THEIR_UNIT, iUnitColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 10, self.STRENGTH_CHAR + u"b", iBaseColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 11, self.STRENGTH_CHAR + u"s", iStrengthColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 12, self.STRENGTH_CHAR + u"e", iStrengthColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 13, self.STRENGTH_CHAR + u"m", iStrengthColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 14, "", 35)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_EST_ODDS, iEstOddsColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.TEXT_BATTLE_ROLE, iRoleColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 5, self.STRENGTH_CHAR + u"b", iBaseColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 6, self.STRENGTH_CHAR + u"s", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 7, self.STRENGTH_CHAR + u"e", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 8, self.STRENGTH_CHAR + u"m", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 9, self.TEXT_BATTLE_OUR_UNIT, iUnitColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 10, self.TEXT_BATTLE_THEIR_UNIT, iUnitColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 11, self.STRENGTH_CHAR + u"b", iBaseColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 12, self.STRENGTH_CHAR + u"s", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 13, self.STRENGTH_CHAR + u"e", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 14, self.STRENGTH_CHAR + u"m", iStrengthColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 15, "", 35)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 16, self.TEXT_BATTLE_PID, iPIDColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 17, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 16, "", 35)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 17, self.TEXT_BATTLE_PID, iPIDColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 18, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
+ 		# <!-- custom: show captured unit type as a compact pedia icon rather than text. The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 18, "", iCaptureUnitColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 19, "", iCaptureUnitColW)
+ 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+ 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, self.TEXT_BATTLE_HILL_PEAK, iHillPeakColW)
+ 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
+ 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
+-		screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
++			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
+ 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+ 		if not aEntries:
+ 			iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
+@@ -571,22 +582,23 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 0, iRow, str(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.getTurnDate(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, localText.changeTextColor(szResult, iColor), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 3, iRow, self.getBattleRoleText(iOurRole), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, self.getBattleBaseStrengthText(iOurUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 5, iRow, self.getBattleCurrentStrengthText(iOurCurrStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleCurrentStrengthText(iOurEndStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, self.getBattleStoredStrengthText(iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 8, iRow, gc.getUnitInfo(iOurUnit).getDescription(), gc.getUnitInfo(iOurUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iOurUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 9, iRow, gc.getUnitInfo(iTheirUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTheirUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 10, iRow, self.getBattleBaseStrengthText(iTheirUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 11, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 12, iRow, self.getBattleCurrentStrengthText(iTheirEndStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 13, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, "", gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, "", gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 3, iRow, self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, self.getBattleRoleText(iOurRole), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 5, iRow, self.getBattleBaseStrengthText(iOurUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleCurrentStrengthText(iOurCurrStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, self.getBattleCurrentStrengthText(iOurEndStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 8, iRow, self.getBattleStoredStrengthText(iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 9, iRow, gc.getUnitInfo(iOurUnit).getDescription(), gc.getUnitInfo(iOurUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iOurUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 10, iRow, gc.getUnitInfo(iTheirUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTheirUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 11, iRow, self.getBattleBaseStrengthText(iTheirUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 12, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 13, iRow, self.getBattleCurrentStrengthText(iTheirEndStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, "", gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, "", gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 19, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+ 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
+ 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
+@@ -602,16 +614,17 @@ class CvMilitaryAdvisor:
+ 		self.dbgLogBattleHistoryPerspectivePlayer()
+ 		self.dbgLogBattleHistoryPlayers(aEntries)
+ 		# <!-- custom: keep stored hill/peak, terrain, and feature context in copied logs even when the optional UI columns are hidden; logs are allowed to be more complete than the visible table when data already exists. (GPT-5.5) -->
+-		print("Turn | Year | Result | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y")
++		print("Turn | Year | Result | Est% | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y")
+ 		for entry in aEntries:
+ 			tColumns = self.getBattlePerspectiveColumns(entry)
+ 			if tColumns is None:
+ 				continue
+ 			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
+-			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
++			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
+ 				iTurn,
+ 				self.getTurnDate(iTurn),
+ 				szResult,
++				self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr),
+ 				self.getBattleRoleText(iOurRole),
+ 				self.getBattleBaseStrengthText(iOurUnit),
+ 				self.getBattleStoredStrengthText(iOurCurrStr),
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index bac795746..d30a10b07 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -33,6 +33,11 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 766691421..c04bae9d4 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -492,6 +492,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: show the Military Advisor Battles tab "Log" button; click to write the current battle history rows to PythonDbg.log. (Claude code Opus 4.7) -->
++	<Define>
++		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: dev playground: show "STYLE: <name> (i/n)" + PREV/NEXT buttons in the Sevopedia expanded text overlay header to live-cycle through every PanelStyles enum value. Lets us pick a style for other tabs/screens (e.g. battles tab, score tab) and visualize it ingame instead of editing-recompiling-screenshotting one style at a time. The selection persists for the whole Civ4 session and applies across all pedia categories that show an expanded text panel (history/background, unit strategy, leader bio, etc.). 0 = off (default; restores PANEL_STYLE_MAIN and hides the cycle UI). -->
++	<Define>
++		<DefineName>SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Timeline tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index d0c162164..729281b4d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -145,6 +145,14 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Tag>
+ 		<English>Domestic Advisor Legend</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Tag>
++		<English>Military Advisor Battles Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Tag>
++		<English>[H1]Military Advisor Battles Legend[\H1][PARAGRAPH:2]Battle rows are shown from the inspected player's perspective: "Our" columns always describe the inspected player's unit, "Their" columns describe the opponent. The dropdown selects whose perspective is shown.[PARAGRAPH:2][H2]Columns[\H2][NEWLINE][ICON_BULLET]Turn / Year: when the battle happened.[NEWLINE][ICON_BULLET]Result: Won / Lost / Ret (retreat: combat ended without a death).[NEWLINE][ICON_BULLET]Est%: simple strength-share estimate from starting effective strengths: our strength divided by both units' combined strength. It is not exact Civ4 combat odds because first strikes, withdrawal, damage rounds, etc. are not modeled here.[NEWLINE][ICON_BULLET]Role: A when the inspected player initiated the attack; blank when defending or when role is unknown.[NEWLINE][ICON_BULLET]Strength icon b: base XML strength of the unit (no modifiers).[NEWLINE][ICON_BULLET]Strength icon s: starting effective strength at combat begin (with all modifiers applied).[NEWLINE][ICON_BULLET]Strength icon e: ending effective strength after combat damage was applied.[NEWLINE][ICON_BULLET]Strength icon m: maximum effective strength (full health, with modifiers).[NEWLINE][ICON_BULLET]Our Unit / Their Unit: the units that fought; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Civ / Leader icons (Their side only): opponent civ and leader; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]PID: opponent player ID.[NEWLINE][ICON_BULLET]Cap#: colored capture count from inspected-player perspective. Green = we captured this many of their units; red = they captured this many of ours; blank = no capture.[NEWLINE][ICON_BULLET]Cap (icon): captured unit type when applicable; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Hill/Peak / Terrain / Feature (optional, gated by SAS define): plot context where the combat occurred; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Plot (icon): click to close the advisor and center the camera on the battle plot.[PARAGRAPH:2][H2]Strength Color Coding[\H2][NEWLINE][ICON_BULLET]Effective strength columns are color-coded relative to the unit's max effective strength: white at full, green above 66%, yellow above 33%, red at 33% or below.[PARAGRAPH:2][H2]Sorting and Logging[\H2][NEWLINE][ICON_BULLET]Click any column header to sort numerically/alphabetically.[NEWLINE][ICON_BULLET]The LOG button (when enabled via SAS define) writes the visible battle history to PythonDbg.log for external inspection.[PARAGRAPH:2][H2]Blank Values[\H2][NEWLINE][ICON_BULLET]Blank cells can mean the value is zero or not applicable (for example, the lost unit died, no worker was captured), or that the row was not recorded fully for some reason (early version of this feature, bug to fix, etc.).</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Tag>
+ 		<English>[H1]Domestic Advisor Legend[\H1][PARAGRAPH:2]The Overview tabs show cities for the selected player. In debug mode, the player dropdown can inspect another alive player's cities.[PARAGRAPH:2][H2]Overview 1[\H2][NEWLINE][ICON_BULLET]Rel: religions present.[NEWLINE][ICON_BULLET]T: turns left on current production.[NEWLINE][ICON_BULLET]Defense icon %: city defense.[NEWLINE][ICON_BULLET]Strength icon: defenders.[NEWLINE][ICON_BULLET]Occupation icon %: revolt chance.[PARAGRAPH:2][H2]Overview 2[\H2][NEWLINE][ICON_BULLET]d: net surplus or deficit.[NEWLINE][ICON_BULLET]Food columns: produced food, consumed food, food d, stored food / storage threshold.[NEWLINE][ICON_BULLET]Production columns: produced hammers, stored hammers / production threshold.[NEWLINE][ICON_BULLET]Happiness columns: happy, unhappy, happiness d.[NEWLINE][ICON_BULLET]Health columns: healthy, unhealthy, health d.[NEWLINE][ICON_BULLET]Yield modifier icons %: food, production and commerce yield modifiers.[NEWLINE][ICON_BULLET]Commerce modifier icons %: gold, research, culture and espionage modifiers.[NEWLINE][ICON_BULLET]Trade icon R%: trade route modifier.[NEWLINE][ICON_BULLET]Trade icon FR%: foreign trade route modifier.[PARAGRAPH:2][H2]Overview 3[\H2][NEWLINE][ICON_BULLET]Culture columns: total, threshold, rate, turns.[NEWLINE][ICON_BULLET]Great Person columns: total, threshold, base rate, final rate, modifier %, turns.[NEWLINE][ICON_BULLET]#: total Great People born in the city.[NEWLINE][ICON_BULLET]Bad-gold %: maintenance modifier.[NEWLINE][ICON_BULLET]WW%: war weariness modifier.[NEWLINE][ICON_BULLET]HA%: hurry anger modifier.[NEWLINE][ICON_BULLET]Unhealthy icon %: unhealthy population modifier.[NEWLINE][ICON_BULLET]Mil%: military production modifier.[NEWLINE][ICON_BULLET]Space%: spaceship production modifier.[NEWLINE][ICON_BULLET]Air%: air defense modifier.[NEWLINE][ICON_BULLET]Nuke%: nuclear defense modifier.[NEWLINE][ICON_BULLET]Espionage icon D%: espionage defense modifier.[PARAGRAPH:2][H2]Overview 4[\H2][NEWLINE][ICON_BULLET]Founded: founding year.[NEWLINE][ICON_BULLET]POP#: real population.[NEWLINE][ICON_BULLET]Corp: corporations present.[NEWLINE][ICON_BULLET]XP: free unit experience.[NEWLINE][ICON_BULLET]SXP: specialist free experience.[NEWLINE][ICON_BULLET]Specialist portraits: assigned specialists plus free specialists.[NEWLINE][ICON_BULLET]Angry icon: angry citizens.[PARAGRAPH:2][H2]Sorting and Colors[\H2][NEWLINE][ICON_BULLET]Signed values sort numerically.[NEWLINE][ICON_BULLET]Positive helpful values are green, negative helpful values are red, and penalty modifiers invert that coloring.[NEWLINE][ICON_BULLET]Zero balance columns can show - for easier scanning, while zero modifier columns are blank.</English>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index a0d89b820..81d01f4d3 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -72,6 +72,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RESULT</Tag>
+ 		<English>Result</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_EST_ODDS</Tag>
++		<English>E%</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE</Tag>
+ 		<English>Role</English>
+
+diff --git a/README.md b/README.md
+index 8ffad5d82..709055bca 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
++Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Battles Tab, Score tab, and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+ A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+ 
+@@ -37,7 +37,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Home page](/README.md#home-page)  
+ &emsp;[Simple Game rework](/README.md#simple-game-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+-&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
++&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks)  
++&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-battles-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
++&emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+@@ -173,7 +175,7 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
+ 
+ ## UI (Ingame)
+ 
+-### Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
++### Main Advisors reworks
+ 
+ Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
+ 
+@@ -181,7 +183,7 @@ Also, advisors are now excentered so overall more information is displayed, thus
+ 
+ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
+ 
+-#### New Advisors
++#### New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
+ 
+ ##### Overview tabs (Domestic Advisor)
+ 
+@@ -193,6 +195,21 @@ The domestic advisor now follows the usual advisor with tabs and debug mode layo
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG" alt="0.511_domestic_advisor (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG" alt="0.511_domestic_advisor (5).JPG" width="250"></img>
+ 
++##### Battles tab (Military Advisor)
++
++Added a new Battles tab in the Military Advisor, showing as a sortable table the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode). Icons are hoverable to sevopedia (or have a camera effect). Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red).
++
++Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
++
++Examples of LOG:
++
++`Turn | Year | Result | Est| Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y`
++
++- `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | Camel Archer | Longbowman | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`
++- `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | Trireme | Galley | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`.
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
++
+ ##### World Advisor
+ 
+ We added a new World Advisor in AdvCiv-SAS showing detailed geography information about the BFC, suburbs, and territory; per city in its BFC1 (plot types and terrains/features mostly) and BFC2 (bonuses and improvements), and for as a condensed summary for all territory in the territory tab (detailed in the main changes guide).
+@@ -219,6 +236,10 @@ Note: a hybrid DLL compute + Python caching version was tried in [timeline-tab-d
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (3).JPG" alt="0.518_info_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (7).JPG" alt="0.518_info_screen (7).JPG" width="250"></img>
+ 
++Example of LOG output in `PythonDbg.log` (using the LOG button):
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.5180_info_screen_timeline_dbg_log.PNG" alt="0.5180_info_screen_timeline_dbg_log.PNG" width="250"></img>
++
+ ##### Score Tab (in the Info Screen Advisor)
+ 
+ A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), Traits (T1 and T2) as icon chars, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M, Tech (total techs).
+@@ -231,7 +252,7 @@ Added with the very nice help of GPT-5.3-Codex thanks.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG" alt="0.518_info_screen (2).JPG" width="250"></img>
+ 
+-#### Advisor reworks
++#### Advisors adjustments
+ 
+ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
+ 
+@@ -243,7 +264,7 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab,
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (5).JPG" alt="0.518_info_screen (5).JPG" width="250"></img>
+@@ -267,7 +288,7 @@ We find some of the BUG advisor features valuable and not obvious to many player
+ 
+ This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor and Religion Advisor which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
+ 
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG" alt="0.5151_inverted_bug_advisors.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.5200_inverted_bug_advisors.JPG" alt="0.5200_inverted_bug_advisors.JPG" width="250"></img>
+ 
+ Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index a55641a81..1bf05c5c8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -163,6 +163,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
+ [126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
+ [127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
++[128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4729,7 +4730,7 @@ File changed:
+ 
+ ## 127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it
+ 
+-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sglSFxWnZ31_bl_Q5l8iVUmR-lVwUfUl?usp=sharing)
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sglSFxWnZ31_bl_Q5l8iVUmR-lVwUfUl?usp=sharing).
+ 
+ If players start a game on larger world sizes (as of now SAS24 or higher) while using the 18civsDLL, player count is capped at 18 even if world size has a default player count of e.g., 24 on SAS24 world size.
+ 
+@@ -4738,3 +4739,32 @@ Also, players were not notified of this, so they may engage unawarely in a game
+ To work around this issue, added a popup at game start with the very nice help of Claude code Opus 4.7 thanks.
+ 
+ Change in `onGameStart` in [CvEventManager.py](Assets/Python/CvEventManager.py).
++
++## 128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1AYFGqYFp___B0N1Sph-g1KfJEJMFBHuB?usp=sharing).
++
++Observed issue 1:
++
++- Military Advisor read some SAS XML UI defines directly in the constructor.
++- Changing those defines while Civ4 was running could produce crashy behavior similar to hot-changing Python code during runtime.
++- After changing the Military Advisor to a lazy/sentinel define cache initialized after screen setup starts, runtime XML define changes have no effect until the expected Civ4 restart, and the game keeps running normally.
++
++Observed issue 2:
++
++- While documenting/testing the Sevopedia expanded-text playground, Civ4 sometimes crashed when exiting through the Windows red X after a sequence like opening the Info Screen Score tab, loading a save, browsing Sevopedia, and changing playground styles/backgrounds.
++- The crash could not be reproduced reliably after the fixes below, so the exact root cause is not proven.
++- Crash dump signature from `crashdmp_styles.txt`: `INVALID_POINTER_WRITE_c0000005`, `ntdll!RtlpWaitOnCriticalSection`, with `Cannot read DebugInfo address ... Possible causes: The critical section is not initialized, deleted or corrupted`.
++
++Likely cause / workaround:
++
++- For issue 1, Military Advisor now uses lazy/sentinel define caching initialized after screen setup starts, following the safer Tech Chooser/Main Interface style. It checks each cached define sentinel, not only the first one, so partially initialized define state does not persist. Empirically this seems like a consistent and reliable fix.
++
++- For issue 2, Sevopedia playground initially cached style/background lists at module import time. It now lazy-inits them only when the expanded text playground first needs them, similar in spirit to the safer advisor define-cache pattern.
++- The background playground also initially included `MAINMENU_SCENE*` art keys, which point to `.nif` / `.kfm` scene assets. These are not valid for `addDDSGFC`, so the playground now only offers `.dds` background art keys.
++- This is considered a workaround / seeming fix because the native crash happened later at shutdown and the dump does not identify the exact Python call site. Empirically, this issue was harder to reproduce so this is likely to fix it but not as certain.
++
++Files changed:
++
++- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
++- [Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 756f7ea9b..90308d4d4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -106,7 +106,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ ### Code/Performance optimizations
+ 
+ - **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+-- (Requires AdvCiv-SAS 5770+) **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empricially fixes**  direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method.
++- (Requires AdvCiv-SAS 5770+) **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empricially fixes**  direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method. Possibly similar issues and crashes encountered when early caching sevopedia playground's background and cache. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+ - **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - (Requires AdvCiv-SAS 5515+) **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - (Requires AdvCiv-SAS 5516+) **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+@@ -118,7 +118,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using the more efficient `WIDGET_PYTHON` similarly instead.
+ - **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+-- **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
++- **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same).
+ - (Requires AdvCiv-SAS 5754+) Refactor to **helper files** reusable logic; e.g., debug dropdown making and place legend link or geometry for advisors [SASUtils.py](/Assets/Python/SASUtils.py); expanded text and animation panels or draw none text ([_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), and many others.
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+@@ -321,7 +321,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, (Requires AdvCiv-SAS 5511+) **Corporations**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+-- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
++- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **background and panel styles** with `+` and `-` button to change them and descriptions like `BG: MAINMENU_SLIDESHOW_LOAD (7/13)` and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5674+) New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units, Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5677+) New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude**, **action**, and (if set) **leaderhead art era buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+@@ -350,12 +350,14 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5754+) Add **debug mode support** (for player selection) in the Domestic Advisor. Add **Barbarian** to **selectable leaders** in debug mode in advisors where it is relevant: Domestic Advisor, Policy Advisor, World Advisor, and Info Screen.
+ - (Requires AdvCiv-SAS 5755) Allow the **current active player**'s (i.e. the human player or whichever player is active if cheats are enabled) to **select and view its alive vassals' information** in advisors' **player selection dropdown** even outside debug mode. This follows the active player (vassals are subordinate enough to make their domestic/world/policy state relevant). This **does not reveal unrelated players or hidden map** data as debug mode would.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen).
+-- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
++- (Requires AdvCiv-SAS 5771+) Make some of the data-dense advisors use using a **higher constrast background theme** so text is **more readable** (e.g. plain dark grayish in Overview tabs (Domestic Advisor), plain dark brownish in the Score tab (Info screen), plain blue in the Battles tab (Military Advisor)).
++- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5528+) Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.  See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
++- (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat), **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?), **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **Our Unit**, **Their Unit**, **same** strength columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does)). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | Camel Archer | Longbowman | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | Trireme | Galley | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - (Requires AdvCiv-SAS 5718+) New **World Advisor**: shows **detailed BFC, suburbs, and territory geography** information as **sortable tables**. BFC tabs show **counts per city (rows) and per field (columns)**, and have a **click to enter city button** (similar to the Info Screen's Wonders tab). The BFC1 tab shows mostly **plot type** (Peak, Hill, Water, Land) and other information (**River, Lake, Coastal Land, sortable City found year and population**) and **Terrains/Features** information; the BFC2 tab shows mostly **Bonuses** and **Improvements** with other information (**Routes**). The Territory tab shows a **condensed count summary** with 4 tables of the former BFC tabs, with a BFC, suburbs (i.e. plots outside BFC), and **total columns** for each field (rows), **total fields (rows)** for each table, **hover support** and **pedia redirect on click** (if a corresponding pedia page exists), and a legend link. Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill). The **environment tab** is now part of the World advisor (better thematic fit).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 1b5434073..a00e3a3d3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -296,6 +296,8 @@ This was inspired by how c2c mod shows animations maximized for units for exampl
+ 
+ Added with the very nice help of GPT-5.3-Codex and Claude code Sonnet 4.6 thanks.
+ 
++Also added optional Playground to experiment with background and panel styles with `+` and `-` button to change them and descriptions like `BG: MAINMENU_SLIDESHOW_LOAD (7/13)` and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`. Helps choosing or testing optimal art style without having to tediously manually testing them one by one.
++
+ <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG" alt="0.840_sevopedia_expanded_text (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG
+new file mode 100644
+index 000000000..0f544aeb2
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+new file mode 100644
+index 000000000..38e3f837d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG b/_1_AdvCiv-SAS/Images/advisors/0.5180_info_screen_timeline_dbg_log.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG
+rename to _1_AdvCiv-SAS/Images/advisors/0.5180_info_screen_timeline_dbg_log.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG b/_1_AdvCiv-SAS/Images/advisors/0.5200_inverted_bug_advisors.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.5200_inverted_bug_advisors.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG b/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+deleted file mode 100644
+index 37126ae93..000000000
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+index a43802c17..402e77527 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+index 825bd783d..63d0477df 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG
+index 547395089..c7e463316 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=98981

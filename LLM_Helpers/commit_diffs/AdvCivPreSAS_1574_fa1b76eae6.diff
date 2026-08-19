@@ -1,0 +1,89 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1574
+# Commit: fa1b76eae612f07a183e036854acd402faac2601
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2001a9b33b499c8e80be4b1f17674975995f40c5
+# Title: Function added for safe 64-to-32 bit integer downcast
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	0	CvGameCoreDLL/CvGameCoreUtils.h
+1	3	CvGameCoreDLL/CvPlayerAI.cpp
+1	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 685d98079..2dd2645b3 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -101,6 +101,21 @@ inline double dRange(double d, double low, double high) {
+ 	return d;
+ } // </advc.003g>
+ 
++// advc.003: Body cut from CvUnitAI::AI_sacrificeValue. (K-Mod had used long -> int.)
++inline int longLongToInt(long long x) {
++
++	FAssert(x < MAX_INT);
++	//return std::min((long)MAX_INT, iValue); // K-Mod
++	/*  Erik (BUG1): We cannot change the signature [of AI_sacrificeValue] due to
++		the virtual specifier so we have to truncate the final value to an int. */
++	/*	Igor: if iValue is greater than MAX_INT, std::min<long long> ensures that it is truncated to MAX_INT, which makes sense logically.
++		static_cast<int>(iValue) doesn't guarantee that and the resulting value is implementation-defined. */
++	//return static_cast<int>(std::min(static_cast<long long>(MAX_INT), x));
++	/*  advc: Can't use std::min as above here, probably b/c of a conflicting definition
++		in windows.h. No matter: */
++	return static_cast<int>(std::min<long long>(MAX_INT, x));
++}
++
+ // (advc.make: Distance functions moved into CvMap.h)
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex);																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 18b4ac054..55c484c1a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7529,9 +7529,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	return iValue;*/ // K-Mod end
+ 	// <advc.001> The above won't work for long long
+ 	iValue = std::max(0LL, iValue);
+-	FAssert(iValue < MAX_INT);
+-	return static_cast<int>(iValue);
+-	// </advc.001>
++	return ::longLongToInt(iValue); // </advc.001>
+ }
+ 
+ // K-mod. This function returns the (positive) value of the buildings we will lose by researching eTech.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 49964665e..ed20e732f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1163,14 +1163,7 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		if(iValue > 100 * iXP)
+ 			iValue -= iXP; // </advc.048>
+ 	}
+-	//return iValue;
+-	FAssert(iValue < MAX_INT); // advc
+-	//return std::min((long)MAX_INT, iValue); // K-Mod
+-	/*  Erik (BUG1): We cannot change the signature due to the virtual specifier
+-		so we have to truncate the final value to an int. */
+-	/*	Igor: if iValue is greater than MAX_INT, std::min<long long> ensures that it is truncated to MAX_INT, which makes sense logically.
+-		static_cast<int>(iValue) doesn't guarantee that and the resulting value is implementation-defined. */
+-	return static_cast<int>(std::min(static_cast<long long>(MAX_INT), iValue));
++	return ::longLongToInt(iValue); // advc.001
+ }
+ 
+ // Lead From Behind, by UncutDragon, edited for K-Mod
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2925

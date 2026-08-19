@@ -1,0 +1,253 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2635
+# Commit: 34026a349317749c4bf9d2a9b9d88516acecfbe6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c1185eeb67354e6de7e0ea80b2429c84bf2b14b1
+# Title: Fix out-of-bounds accesses to PlayerHistory
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	3	CvGameCoreDLL/CvGame.cpp
+14	0	CvGameCoreDLL/CvInitCore.cpp
+48	16	CvGameCoreDLL/CvPlayer.cpp
+2	6	CvGameCoreDLL/CvPlayer.h
+9	4	CvGameCoreDLL/CvReplayInfo.cpp
+9	3	CvGameCoreDLL/PlayerHistory.cpp
+2	1	CvGameCoreDLL/PlayerHistory.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 583ecc22a..1865a198b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2818,9 +2818,8 @@ void CvGame::updateScore(bool bForce)
+ 		setRankPlayer(iI, eBestPlayer);
+ 		setPlayerRank(eBestPlayer, iI);
+ 		setPlayerScore(eBestPlayer, iBestScore);
+-		// <advc.004s>
+-		GET_PLAYER(eBestPlayer).updateHistory(PLAYER_HISTORY_SCORE, getGameTurn(),
+-				iBestScore); // </advc.004s>
++		// advc.004s:
++		GET_PLAYER(eBestPlayer).updateHistory(PLAYER_HISTORY_SCORE, getGameTurn());
+ 	}
+ 	/*for(size_t i = 0; i < updateAttitude.size(); i++)
+ 		GET_PLAYER(updateAttitude[i]).AI_updateAttitude();*/
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 0ce5ba79b..f69c28ec6 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -978,6 +978,20 @@ void CvInitCore::setForceControl(ForceControlTypes eIndex, bool bOption)
+ 
+ void CvInitCore::setActivePlayer(PlayerTypes eActivePlayer)
+ {
++	/*	<advc.004s>, advc.001: Player switching skips the player history updates.
++		In BtS, this merely results in a discontinuity in the graphs, but the new
++		PlayerHistory class doesn't tolerate this at all. */
++	if (m_eActivePlayer != NO_PLAYER)
++	{
++		CvPlayer& kPrevActivePlayer = GET_PLAYER(m_eActivePlayer);
++		if (kPrevActivePlayer.isAlive())
++		{
++			FOR_EACH_ENUM(PlayerHistory)
++			{
++				kPrevActivePlayer.updateHistory(eLoopPlayerHistory, getGameTurn());
++			}
++		}
++	} // </advc.004s>
+ 	m_eActivePlayer = eActivePlayer;
+ 	if (m_eActivePlayer != NO_PLAYER)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 336395f4b..eaef1088e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -90,6 +90,11 @@ void CvPlayer::initContainers()
+ 	m_units.init();
+ 	m_selectionGroups.init();
+ 	m_eventsTriggered.init();
++	// <advc.004s> For civs that don't start on turn 0
++	FOR_EACH_ENUM(PlayerHistory)
++	{
++		m_playerHistory[eLoopPlayerHistory].grow(GC.getGame().getGameTurn());
++	} // </advc.004s>
+ }
+ 
+ /*  advc.003q: Cut from CvPlayer::init.
+@@ -2770,21 +2775,14 @@ void CvPlayer::doTurn()  // advc: style changes
+ 		a cancel-trade popup that never comes (the importer may have died) */
+ 	m_cancelingExport.clear();
+ 	int const iGameTurn = kGame.getGameTurn();
+-	// <advc.004s>
+-	updateHistory(PLAYER_HISTORY_ECONOMY, iGameTurn,
+-			calculateTotalCommerce());
+-	updateHistory(PLAYER_HISTORY_INDUSTRY, iGameTurn,
+-			calculateTotalYield(YIELD_PRODUCTION));
+-	updateHistory(PLAYER_HISTORY_AGRICULTURE, iGameTurn,
+-			calculateTotalYield(YIELD_FOOD));
+-	updateHistory(PLAYER_HISTORY_POWER, iGameTurn,
+-			getPower());
+-	updateHistory(PLAYER_HISTORY_CULTURE, iGameTurn,
+-			countTotalCulture());
+-	updateHistory(PLAYER_HISTORY_ESPIONAGE, iGameTurn,
+-			GET_TEAM(getTeam()).getEspionagePointsEver());
+-	// </advc.004s>
+-	expireMessages();  // turn log
++	// <advc.004s> BtS code moved into updateHistory
++	FOR_EACH_ENUM(PlayerHistory)
++	{
++		if (eLoopPlayerHistory == PLAYER_HISTORY_SCORE)
++			continue; // Handled by CvGame
++		updateHistory(eLoopPlayerHistory, iGameTurn);
++	} // </advc.004s>
++	expireMessages(); // turn log
+ 
+ 	showForeignPromoGlow(false); // advc.002e: To match call in doWarnings
+ 	gDLL->UI().setDirty(CityInfo_DIRTY_BIT, true);
+@@ -11198,9 +11196,43 @@ void CvPlayer::doChangeCivicsPopup(CivicTypes eCivic)
+ 	}
+ }
+ 
++// advc.004s: Rewritten, in part with code from doTurn and CvGame::updateScore.
++void CvPlayer::updateHistory(PlayerHistoryTypes eHistory, int iTurn)
++{
++	FAssertEnumBounds(eHistory);
++	int iNewValue = -1;
++	switch(eHistory)
++	{
++	case PLAYER_HISTORY_SCORE:
++		iNewValue = GC.getGame().getPlayerScore(getID());
++		break;
++	case PLAYER_HISTORY_ECONOMY:
++		iNewValue = calculateTotalCommerce();
++		break;
++	case PLAYER_HISTORY_INDUSTRY:
++		iNewValue = calculateTotalYield(YIELD_PRODUCTION);
++		break;
++	case PLAYER_HISTORY_AGRICULTURE:
++		iNewValue = calculateTotalYield(YIELD_FOOD);
++		break;
++	case PLAYER_HISTORY_POWER:
++		iNewValue = getPower();
++		break;
++	case PLAYER_HISTORY_CULTURE:
++		iNewValue = countTotalCulture();
++		break;
++	case PLAYER_HISTORY_ESPIONAGE:
++		iNewValue = GET_TEAM(getTeam()).getEspionagePointsEver();
++		break;
++	default: FErrorMsg("Unknown player history type");
++	}
++	m_playerHistory[eHistory].set(iTurn, iNewValue);
++} // </advc.004s>
++
++
+ /*	K-Mod:  Note, this function is a friend of CvEventReporter, so that it can access the data we need.
+ 	(This saves us from having to use the built-in CyStatistics class) */
+-const CvPlayerRecord* CvPlayer::getPlayerRecord() const
++CvPlayerRecord const* CvPlayer::getPlayerRecord() const
+ {
+ 	return CvEventReporter::getInstance().
+ 			/*	advc.make: CvEventReporter::getPlayerRecord added.
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 9e42d20d9..5ac4575fa 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1284,12 +1284,8 @@ public:
+ 		FAssertEnumBounds(eHistory);
+ 		return m_playerHistory[eHistory].getSafe(iTurn);
+ 	}
+-	inline void updateHistory(PlayerHistoryTypes eHistory, int iTurn, int iBestScore)
+-	{
+-		FAssertEnumBounds(eHistory);
+-		m_playerHistory[eHistory].set(iTurn, iBestScore);
+-	} // </advc.004s>
+-	const CvPlayerRecord* getPlayerRecord() const; // K-Mod
++	void updateHistory(PlayerHistoryTypes eHistory, int iTurn); // </advc.004s>
++	CvPlayerRecord const* getPlayerRecord() const; // K-Mod
+ 
+ 	// Script data needs to be a narrow string for pickling in Python
+ 	std::string getScriptData() const;																				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 3601b95d3..7efd72023 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -173,10 +173,15 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		for (int iTurn = m_iInitialTurn; iTurn <= m_iFinalTurn; iTurn++)
+ 		{
+ 			TurnData score;
+-			score.m_iScore = kLoopPlayer.getHistory(PLAYER_HISTORY_SCORE, iTurn);
+-			score.m_iAgriculture = kLoopPlayer.getHistory(PLAYER_HISTORY_AGRICULTURE, iTurn);
+-			score.m_iIndustry = kLoopPlayer.getHistory(PLAYER_HISTORY_INDUSTRY, iTurn);
+-			score.m_iEconomy = kLoopPlayer.getHistory(PLAYER_HISTORY_ECONOMY, iTurn);
++			// advc.004s: max(0,) b/c unavailable data is represented as -1
++			score.m_iScore = std::max(0, kLoopPlayer.getHistorySafe(
++					PLAYER_HISTORY_SCORE, iTurn));
++			score.m_iAgriculture = std::max(0, kLoopPlayer.getHistorySafe(
++					PLAYER_HISTORY_AGRICULTURE, iTurn));
++			score.m_iIndustry = std::max(0, kLoopPlayer.getHistorySafe(
++					PLAYER_HISTORY_INDUSTRY, iTurn));
++			score.m_iEconomy = std::max(0, kLoopPlayer.getHistorySafe(
++					PLAYER_HISTORY_ECONOMY, iTurn));
+ 
+ 			playerInfo.m_listScore.push_back(score);
+ 		}
+
+diff --git a/CvGameCoreDLL/PlayerHistory.cpp b/CvGameCoreDLL/PlayerHistory.cpp
+index ef9cada2c..9b10de6b1 100644
+--- a/CvGameCoreDLL/PlayerHistory.cpp
++++ b/CvGameCoreDLL/PlayerHistory.cpp
+@@ -4,11 +4,17 @@
+ 
+ // advc.004s: New implementation file; see comment in header.
+ 
+-void PlayerHistory::set(int iTurn, int iValue)
++void PlayerHistory::grow(int iSize)
+ {
+-	FAssert(iTurn >= 0);
+-	while (iTurn >= size())
++	FAssert(iSize >= 0);
++	while (iSize >= size())
+ 		m_aiValues.push_back(-1);
++}
++
++
++void PlayerHistory::set(int iTurn, int iValue)
++{
++	grow(iTurn);
+ 	if (m_iMovingAvgSamples <= 0)
+ 	{
+ 		m_aiValues[iTurn] = iValue;
+
+diff --git a/CvGameCoreDLL/PlayerHistory.h b/CvGameCoreDLL/PlayerHistory.h
+index df12f2666..2c97bc9a3 100644
+--- a/CvGameCoreDLL/PlayerHistory.h
++++ b/CvGameCoreDLL/PlayerHistory.h
+@@ -17,10 +17,11 @@ public:
+ 		m_iMovingAvgSamples = iMovingAvgSamples;
+ 		m_aiValues.clear();
+ 	}
++	void grow(int iSize);
+ 	inline int size() const { return (int)m_aiValues.size(); }
+ 	inline int get(int iTurn) const
+ 	{
+-		FAssertBounds(0, size(), iTurn);
++		FAssertBounds(0, size(), iTurn); // iTurn is in the future or m_eOwner not alive
+ 		return m_aiValues[iTurn];
+ 	}
+ 	int getSafe(int iTurn) const
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=7985

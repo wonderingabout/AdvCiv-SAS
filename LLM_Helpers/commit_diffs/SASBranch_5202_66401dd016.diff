@@ -1,0 +1,687 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5202
+# Commit: 66401dd0164770c122d87dfbe25ae8bae2f3b968
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 939296900e9eb43bbc4d694f2b57d2b1e7ad77ca
+# Title: Externalise world wonder parameters to sas defines; tech adjustments 6: lower and adjusted wonder costs; doc about how to have more wonders in advciv-sas any...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+41	40	Assets/XML/Buildings/CIV4BuildingInfos.xml
+65	1	Assets/XML/GlobalDefines_advciv_sas.xml
+40	25	CvGameCoreDLL/CvCityAI.cpp
+3	3	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (2).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 8ef00ce8a..b49c348fe 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -21482,7 +21482,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>500</iCost>
++			<iCost>475</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -21855,7 +21855,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>550</iCost>
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22035,7 +22035,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 600 -->
+-			<iCost>600</iCost>
++			<iCost>550</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22419,7 +22419,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 500 -->
+-			<iCost>650</iCost>
++			<iCost>625</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22608,7 +22608,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 600 -->
+-			<iCost>600</iCost>
++			<iCost>550</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22967,7 +22967,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>175</iCost>
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23351,7 +23351,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 350 -->
+-			<iCost>225</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23551,7 +23551,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.310: was 300 in K-Mod, 200 in BtS -->
+-			<iCost>175</iCost>
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23748,7 +23748,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>250</iCost>
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23943,7 +23943,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 250 -->
+-			<iCost>200</iCost>
++			<iCost>175</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24117,7 +24117,8 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: was NONE: now kind of like in civ3 but broader (no pun but anyways etc.): this change makes sense i think as older religions eventually start to fade away; plus it allows not to have ridiculously cheap free tech later in the game if not yet build anyways etc. -->
++			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 			<!-- custom: was TECH_PRIESTHOOD (now removed) -->
+ 			<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			<TechTypes/>
+@@ -24158,7 +24159,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 150 -->
+-			<iCost>175</iCost>
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24344,7 +24345,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 400 -->
+-			<iCost>250</iCost>
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24536,7 +24537,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 500 -->
+-			<iCost>300</iCost>
++			<iCost>275</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24745,7 +24746,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 500 -->
+-			<iCost>375</iCost>
++			<iCost>350</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24940,7 +24941,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 500 -->
+-			<iCost>300</iCost>
++			<iCost>275</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25143,7 +25144,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>375</iCost>
++			<iCost>350</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25347,7 +25348,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
+-			<iCost>425</iCost>
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25533,7 +25534,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 400 -->
+-			<iCost>500</iCost>
++			<iCost>450</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25736,7 +25737,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
+-			<iCost>375</iCost>
++			<iCost>350</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25944,7 +25945,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 700 -->
+-			<iCost>425</iCost>
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26140,7 +26141,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 800 -->
+-			<iCost>625</iCost>
++			<iCost>600</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26328,7 +26329,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder but anyways etc anyways etc) cost anyways etc, was 1250 -->
+-			<iCost>625</iCost>
++			<iCost>575</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26524,7 +26525,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1500!!! Anyways etc -->
+-			<iCost>550</iCost>
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26725,7 +26726,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 800 -->
+-			<iCost>600</iCost>
++			<iCost>550</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26924,7 +26925,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>650</iCost>
++			<iCost>625</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27110,7 +27111,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1000 -->
+-			<iCost>700</iCost>
++			<iCost>650</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27289,7 +27290,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1750 -->
+-			<iCost>650</iCost>
++			<iCost>625</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27467,7 +27468,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1250 -->
+-			<iCost>625</iCost>
++			<iCost>575</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27986,7 +27987,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 350 -->
+-			<iCost>225</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28194,7 +28195,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
+-			<iCost>500</iCost>
++			<iCost>450</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28401,7 +28402,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+ 			<!-- advc.310: Was 150 -->
+-			<iCost>175</iCost>
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28607,7 +28608,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>225</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28799,7 +28800,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 450 -->
+-			<iCost>300</iCost>
++			<iCost>275</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28990,7 +28991,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: now sooner, adjust cost, anyways etc, was 1000 -->
+-			<iCost>575</iCost>
++			<iCost>525</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29204,7 +29205,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>375</iCost>
++			<iCost>275</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29407,7 +29408,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 250 -->
+-			<iCost>500</iCost>
++			<iCost>475</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29603,7 +29604,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 800 -->
+-			<iCost>425</iCost>
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -31046,9 +31047,9 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 350 -->
++			<!-- custom: make cost quite low as it is more of a shared wonder between all players and we want it in more games than not in them but anyways etc., was 350 -->
+ 			<!-- advc.179: was 400 -->
+-			<iCost>325</iCost>
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>300</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 9249ba7ce..73c879905 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -559,15 +559,76 @@
+ 		<DefineName>SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean if i may say but anyways etc -->
++	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean if i may say but anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: knob common to all world wonders, see below for more specific ones alternatively i mean if i may say but anyways etc. -->
++	<!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same). Tune below sub-kobs if you want more precision, or to restore a more base advciv like behaviour of wonder building, disable SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE entirely. I believe building settlers or workers is generally stronger especially early, so i kept the "optimize" flag enabled i mean but anyways etc. But you can disable it if you want a more wonder-building like behaviour, or maybe rather one of the sub-knobs as you prefer (but it can quickly become a rabbit hole xd so beware i mean if i may say but anyways etc.). See below to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- Min base-hammers gate for wonders (used in CvCityAI::AI_buildingValue)
++	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA)
++
++	Important: this gate uses BASE hammers per turn (iBaseHammersPerTurn), i.e. hammers before production multipliers are applied
++	(stone/marble, traits, civics, forge/factory, etc). Production multipliers are handled separately later via getProductionModifier() and iTurnsWW.
++
++	Assume iCurrentEra is 0-based: Era0=0, Era1=1, Era2=2, Era3=3, Era4=4
++
++	Examples (using the values below):
++	World wonders:   MIN_BASE=6,  EXTRA=3  => Era0=6,  Era1=9, Era2=12, Era3=15, Era4=18
++	National wonders:MIN_BASE=6,  EXTRA=2  => Era0=6,  Era1=8, Era2=10, Era3=12, Era4=14
++	Unknown wonders: MIN_BASE=6,  EXTRA=2  => Era0=6,  Era1=8, Era2=10, Era3=12, Era4=14
++
++	City check example (world wonders values):
++	- Era1 threshold is 10: city with 9 BASE hammers is rejected; city with 10 BASE hammers is allowed.
++	-->
++	<!-- custom: setting to -1 effectively disables these as value will be negative, so we'll always have more hammer than say -5 min hammer so it would always be allowed then if i'm not mistaken anyways etc. -->
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS</DefineName>
++		<iDefineIntVal>6</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS</DefineName>
++		<iDefineIntVal>6</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_BASE_HAMMERS</DefineName>
++		<iDefineIntVal>6</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks but anyways etc.). -->
++	<!-- custom: e.g. if this value is 125 (at normal, so 125 * 150 / 100 = turn 187.5 at epic; or 125 * 200 / 100 = turn 250 at as of now marathon, etc. ), then even if our city is not top 2 hammer city with some leeway, we will still not reject building wonder based on this (as top hammers cities are busy expanding so early i guess that would explain autoplay results anyways etc.). But after this turn, it will be a hard reject cause if not met, so for example from turn 126 at normal (or 188.5 at epic, or as of now 251 at marathon in this example anyways etc.) we'll reject building the wonder in this city if this city is not top 2 hammer with some leeway (same behaviour that caused less wonders early, hopefully core cities ar enot busy expanding anymore and can be considered more primarily, plus we don't want to die to rivals so be stricter here at middle game phase onwards as we have less room for mistakes but anyways etc.). -->
++	<!-- custom: note: 0 to disable it would mean expansion phase would be over since the turn game started anyways etc (this allows stricter no wonder policy to hopefully make AI stronger militarily; adjust as you see fit anyways etc.). Otherwise a value like 125 or similar may do fine (test to be sure, adjust as you see fit anyways etc.) -->
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time anyways etc, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code anyways etc -->
++	<!-- custom: update: in autoplay, disabling this increases the number of wonders built from 0 wonders to 2 wonders at turn 100 in an autoplay sample. Implemented as i have noticed that even reducing cost does not increase AI willingness to build more wonders. Upon investigating, disabling SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE in XML fixes the issue and AI suddenly build a lot of wonders, there must be a better way to approach the don't build wonders we risk to waste hammers on logic. But for now making these customizable so players can enable/disble them as they see fit and for testing as well anyways etc. -->
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: specific the number of rivals we max tolerate before we give up on the idea of building this wonder. Note: if we are already (see below for completion percent to keep building it anyways etc.) building it, then ignore this anyways etc. E.g. if value is 3, it means if 3 or more rivals know (as of now but anyways etc.) TECH_CALENDAR, then we won't build the oracle. -->
++	<Define>
++		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
+ 	<Define>
+ 		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -577,6 +638,9 @@
+ 		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++
++	
++
+ 	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
+ 	<!-- // < 6 gpt => not worth it yet -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1b24e1019..bee4dee42 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4767,6 +4767,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 		static const bool bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE");
+ 		static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
++		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options anyways etc. -->
+ 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
+ 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
+ 		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
+@@ -5481,29 +5482,33 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		{
+ 			// <!-- custom: save some computation by processing this early-on anyways etc -->
+ 			// too weak to justify any wonder now
++			// <!-- custom: see SAS defines to specifically tune its suboptions rather anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+ 			{
+-				const int iMinHammersBase = 8;
+-				const int iMinExtraHammersPerEra = 3;
+-				if (iBaseHammersPerTurn < (iMinHammersBase + (iCurrentEra * iMinExtraHammersPerEra)))
++				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS");
++				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
++
++				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
+ 				{
+ 					return 0;
+ 				}
+ 			}
+ 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
+ 			{
+-				const int iMinHammersBase = 8;
+-				const int iMinExtraHammersPerEra = 2;
+-				if (iBaseHammersPerTurn < (iMinHammersBase + (iCurrentEra * iMinExtraHammersPerEra)))
++				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS");
++				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
++
++				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
+ 				{
+ 					return 0;
+ 				}
+ 			}
+ 			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
+ 			{
+-				const int iMinHammersBase = 8;
+-				const int iMinExtraHammersPerEra = 2;
+-				if (iBaseHammersPerTurn < (iMinHammersBase + (iCurrentEra * iMinExtraHammersPerEra)))
++				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_BASE_HAMMERS");
++				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
++
++				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
+ 				{
+ 					return 0;
+ 				}
+@@ -5777,7 +5782,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+ 			{
+ 				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base anyways etc -->
+-				if (!bTop2HammerLeeway)
++				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks but anyways etc.). -->
++				static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL");
++				const int iTurnExpansionPhaseAdjusted = (iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL * iGameSpeedMultiplier) / 100;
++				const bool bExpansionPhaseAdjusted = (iElapsedTurns < iTurnExpansionPhaseAdjusted);
++
++				if (!bExpansionPhaseAdjusted && !bTop2HammerLeeway)
+ 				{
+ 					return 0;
+ 				}
+@@ -5786,23 +5796,28 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				// “Race pressure” (how many rivals can build it?)
+ 				// Super-simple "are rivals eligible already?" gate.
+ 				// If >=3 MET rival teams have the core (AND) tech, assume a hot race and skip.
+-				TechTypes eAndTech = NO_TECH;
+-				eAndTech = kBuilding.getPrereqAndTech();
+-
+-				if (eAndTech != NO_TECH)
++				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks but anyways etc.). -->
++				static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH");
++				if (bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH)
+ 				{
+-					// <!-- custom: to simplify don't check if the or additional prereqs if i am not mistaken in the XML's TechTypes in tech info is/are met or not, check if accurate or is best or satisfying enough and effective enough approach, it was simplest for me to write with chatgpt 5's help hehe and my limited understanding or rather as well knowledge of this if i may say for most in this case i mean but anyways etc -->
+-					int iRivalsWhoCanStart = 0;
+-					const int iMaxRivalsWhoCanStartWonder = 2;
+-					// Only teams we've actually met (cheap + avoids false positives)
+-					for (TeamIter<CIV_ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
++					TechTypes eAndTech = NO_TECH;
++					eAndTech = kBuilding.getPrereqAndTech();
++
++					if (eAndTech != NO_TECH)
+ 					{
+-						TeamTypes eRival = it->getID();
+-						if (eRival == getTeam()) continue;            // skip us
+-						if (GET_TEAM(eRival).isHasTech(eAndTech))    // has the gate tech
++						// <!-- custom: to simplify don't check if the or additional prereqs if i am not mistaken in the XML's TechTypes in tech info is/are met or not, check if accurate or is best or satisfying enough and effective enough approach, it was simplest for me to write with chatgpt 5's help hehe and my limited understanding or rather as well knowledge of this if i may say for most in this case i mean but anyways etc -->
++						int iRivalsWhoCanStart = 0;
++						static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM");
++						// Only teams we've actually met (cheap + avoids false positives)
++						for (TeamIter<CIV_ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
+ 						{
+-							if (++iRivalsWhoCanStart > iMaxRivalsWhoCanStartWonder)            // simple fixed cap
+-								return 0;
++							TeamTypes eRival = it->getID();
++							if (eRival == getTeam()) continue;            // skip us
++							if (GET_TEAM(eRival).isHasTech(eAndTech))    // has the gate tech
++							{
++								if (++iRivalsWhoCanStart >= iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM)            // simple fixed cap
++									return 0;
++							}
+ 						}
+ 					}
+ 				}
+@@ -14327,7 +14342,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 	static const bool bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE");
+ 
+-	// <!-- custom: note: it seems based on autoplay results i mean if i may say but anyways etc that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to eb safe and in case. Check if accurate as i don't know too much about these anyways etc. -->
++	// <!-- custom: note: it seems based on autoplay results i mean if i may say but anyways etc that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to be safe and in case. Check if accurate as i don't know too much about these anyways etc. -->
+ 	if (bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE)
+ 	{
+ 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+
+diff --git a/README.md b/README.md
+index 23e8f32c4..73abd370e 100644
+--- a/README.md
++++ b/README.md
+@@ -76,11 +76,11 @@ See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes
+ 
+ ## Ingame gameplay samples
+ 
+-These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later napoleon ai screenshots are shortly before version 5030, and the screenshots after them are from version 5055.
++These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later screenshots are from version 5055 and around version 5200.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG" alt="0.961_autoplay_about_5030_sample_monarch_1 (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG" alt="0.961_autoplay_about_5030_sample_monarch_1 (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG" alt="0.961_autoplay_about_5200_sample_noble_1 (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (2).JPG" alt="0.961_autoplay_about_5200_sample_noble_1 (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_1 (1).JPG" alt="0.962_autoplay_about_5055_sample_monarch_1 (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" alt="0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_2 (1).JPG" alt="0.962_autoplay_about_5055_sample_monarch_2 (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 3db2ef2d2..03e921a24 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -217,7 +217,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Buildings (AI)
+ 
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+-- added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc.
++- added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc. Note: AdvCiv-SAS uses a quite strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build many as we risk being overrun by our rivals and building wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
+ - Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, by replacing in our prechecks in `CvCityAI::AI_buildingValue` the use of the too broad and unreliable base advciv +/- civ4's `CvCity::getAdditionalHappinessByBuilding` with our new `AI_strictAdditionalHappy`, as well as better account the expected food gains from them after removing unhappy citizens; these changes yielded (no pun but anyways etc) great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 355f97736..9b40252e2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -209,7 +209,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### Buildings (AI)
+ 
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+-- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
++- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**. Note: AdvCiv-SAS uses a quite strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build many as we risk being overrun by our rivals and building wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
+ - **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings (now using, in our prechecks, the new `AI_strictAdditionalHappy` instead of the too-broad `CvCity::getAdditionalHappinessByBuilding`) and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index db60057fa..d077eb687 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG
+deleted file mode 100644
+index 536c5e91d..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG
+deleted file mode 100644
+index 34ebc0ac2..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG
+new file mode 100644
+index 000000000..cbbe78b4d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (2).JPG
+new file mode 100644
+index 000000000..24bbdd128
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5200_sample_noble_1 (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=51260

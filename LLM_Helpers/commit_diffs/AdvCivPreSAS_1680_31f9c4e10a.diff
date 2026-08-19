@@ -1,0 +1,377 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1680
+# Commit: 31f9c4e10ad8ce721c0c760332c3500cf1aefebe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1c56cc6ac149d97c3a28eae56440f4f0ab0183bd
+# Title: Bug fixed in code for lifting naval blockades
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+52	36	CvGameCoreDLL/CvGameInterface.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+19	12	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index c8fb6bb47..d0d2ad4b9 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -45,7 +45,8 @@ void CvGame::updateColoredPlots()
+ 	CvMap const& m = GC.getMap();
+ 	int iPlots = m.numPlots();
+ 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
+-	if(gDLL->getInterfaceIFace()->isShowYields()) { // advc.007
++	if(gDLL->getInterfaceIFace()->isShowYields()) // advc.007
++	{
+ 		// City circles for debugging
+ 		if (isDebugMode())
+ 		{
+@@ -58,7 +59,10 @@ void CvGame::updateColoredPlots()
+ 					{
+ 						if (GET_PLAYER((PlayerTypes)iI).AI_isPlotCitySite(*pLoopPlot))
+ 						{
+-							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(), GC.getColorInfo((ColorTypes)GC.getPlayerColorInfo(GET_PLAYER((PlayerTypes)iI).getPlayerColor()).getColorTypePrimary()).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++									GC.getColorInfo((ColorTypes)GC.getPlayerColorInfo(
++									GET_PLAYER((PlayerTypes)iI).getPlayerColor()).getColorTypePrimary()).getColor(),
++									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 						}
+ 					}
+ 				}
+@@ -84,8 +88,8 @@ void CvGame::updateColoredPlots()
+ 						if (GC.getBuildInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT && eImprovement != GC.getBuildInfo(eBestBuild).getImprovement())
+ 						{
+ 							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(),
+-									GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_RED")).getColor(),
+-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++									GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++									"COLOR_RED")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 						}
+ 					}
+ 				}
+@@ -121,14 +125,18 @@ void CvGame::updateColoredPlots()
+ 				}
+ 				else if (GET_PLAYER(getActivePlayer()).AI_isPlotCitySite(*pLoopPlot))
+ 				{
+-					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++							GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++							"COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 				}
+ 
+ 				if (pLoopPlot->isRevealed(getActiveTeam(), false))
+ 				{
+-					NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_WHITE")).getColor());
++					NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++							"COLOR_WHITE")).getColor());
+ 					color.a = 0.4f;
+-					gDLL->getEngineIFace()->fillAreaBorderPlot(pLoopPlot->getX(), pLoopPlot->getY(), color, AREA_BORDER_LAYER_CITY_RADIUS);
++					gDLL->getEngineIFace()->fillAreaBorderPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++							color, AREA_BORDER_LAYER_CITY_RADIUS);
+ 				}
+ 			}
+ 		}
+@@ -147,9 +155,11 @@ void CvGame::updateColoredPlots()
+ 
+ 					if (pLoopPlot != NULL)
+ 					{
+-						NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_WHITE")).getColor());
++						NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++								"COLOR_WHITE")).getColor());
+ 						color.a = 0.7f;
+-						gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(), color, PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++						gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++								color, PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 					}
+ 				}
+ 			}
+@@ -161,14 +171,14 @@ void CvGame::updateColoredPlots()
+ 			{
+ 				CvCity* pSelectedCity = ::getCity(pSelectedCityNode->m_data);
+ 				pSelectedCityNode = gDLL->getInterfaceIFace()->nextSelectedCitiesNode(pSelectedCityNode);
+-
+ 				if (pSelectedCity != NULL)
+ 				{
+ 					CvPlot* pRallyPlot = pSelectedCity->getRallyPlot();
+-
+ 					if (pRallyPlot != NULL)
+ 					{
+-						gDLL->getEngineIFace()->addColoredPlot(pRallyPlot->getX(), pRallyPlot->getY(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_YELLOW")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++						gDLL->getEngineIFace()->addColoredPlot(pRallyPlot->getX(), pRallyPlot->getY(),
++								GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++								"COLOR_YELLOW")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 					}
+ 				}
+ 			}
+@@ -190,15 +200,16 @@ void CvGame::updateColoredPlots()
+ 				{
+ 					if (pLoopPlot->getWorkingCity() != NULL)
+ 					{
+-						NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")/*(GC.getPlayerColorInfo(GET_PLAYER(pHeadSelectedUnit->getOwner()).getPlayerColor()).getColorTypePrimary())*/).getColor());
++						NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++								"COLOR_HIGHLIGHT_TEXT")/*(GC.getPlayerColorInfo(GET_PLAYER(pHeadSelectedUnit->getOwner()).getPlayerColor()).getColorTypePrimary())*/).getColor());
+ 						color.a = 1.0f;
+-						gDLL->getEngineIFace()->fillAreaBorderPlot(pLoopPlot->getX(), pLoopPlot->getY(), color, AREA_BORDER_LAYER_CITY_RADIUS);
++						gDLL->getEngineIFace()->fillAreaBorderPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++								color, AREA_BORDER_LAYER_CITY_RADIUS);
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+-
+ 	if (pHeadSelectedUnit->getDomainType() == DOMAIN_AIR)
+ 	{
+ 		int iMaxAirRange = 0;
+@@ -208,13 +219,9 @@ void CvGame::updateColoredPlots()
+ 		{
+ 			CvUnit* pSelectedUnit = ::getUnit(pSelectedUnitNode->m_data);
+ 			pSelectedUnitNode = gDLL->getInterfaceIFace()->nextSelectionListNode(pSelectedUnitNode);
+-
+ 			if (pSelectedUnit != NULL)
+-			{
+ 				iMaxAirRange = std::max(iMaxAirRange, pSelectedUnit->airRange());
+-			}
+ 		}
+-
+ 		if (iMaxAirRange > 0)
+ 		{
+ 			for (int iDX = -(iMaxAirRange); iDX <= iMaxAirRange; iDX++)
+@@ -222,14 +229,15 @@ void CvGame::updateColoredPlots()
+ 				for (int iDY = -(iMaxAirRange); iDY <= iMaxAirRange; iDY++)
+ 				{
+ 					CvPlot* pLoopPlot = m.plotXY(pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), iDX, iDY);
+-
+ 					if (pLoopPlot != NULL)
+ 					{
+ 						if (m.plotDistance(pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iMaxAirRange)
+ 						{
+-							NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_YELLOW")).getColor());
++							NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++									"COLOR_YELLOW")).getColor());
+ 							color.a = 0.5f;
+-							gDLL->getEngineIFace()->fillAreaBorderPlot(pLoopPlot->getX(), pLoopPlot->getY(), color, AREA_BORDER_LAYER_RANGED);
++							gDLL->getEngineIFace()->fillAreaBorderPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++									color, AREA_BORDER_LAYER_RANGED);
+ 						}
+ 					}
+ 				}
+@@ -239,9 +247,9 @@ void CvGame::updateColoredPlots()
+ 	else if(pHeadSelectedUnit->airRange() > 0) //other ranged units
+ 	{
+ 		int iRange = pHeadSelectedUnit->airRange();
+-		for (int iDX = -(iRange); iDX <= iRange; iDX++)
++		for (int iDX = -iRange; iDX <= iRange; iDX++)
+ 		{
+-			for (int iDY = -(iRange); iDY <= iRange; iDY++)
++			for (int iDY = -iRange; iDY <= iRange; iDY++)
+ 			{
+ 				CvPlot* pTargetPlot = m.plotXY(pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), iDX, iDY);
+ 				if (pTargetPlot != NULL && pTargetPlot->isVisible(pHeadSelectedUnit->getTeam(), false))
+@@ -250,9 +258,11 @@ void CvGame::updateColoredPlots()
+ 					{
+ 						if (pHeadSelectedUnit->plot()->canSeePlot(pTargetPlot, pHeadSelectedUnit->getTeam(), iRange, pHeadSelectedUnit->getFacingDirection(true)))
+ 						{
+-							NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_YELLOW")).getColor());
++							NiColorA color(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++									"COLOR_YELLOW")).getColor());
+ 							color.a = 0.5f;
+-							gDLL->getEngineIFace()->fillAreaBorderPlot(pTargetPlot->getX(), pTargetPlot->getY(), color, AREA_BORDER_LAYER_RANGED);
++							gDLL->getEngineIFace()->fillAreaBorderPlot(pTargetPlot->getX(), pTargetPlot->getY(),
++									color, AREA_BORDER_LAYER_RANGED);
+ 						}
+ 					}
+ 				}
+@@ -278,13 +288,17 @@ void CvGame::updateColoredPlots()
+ 						pCity->AI_getBestBuildValue(plotCityXY(pCity, pBestPlot)) > 1)
+ 					{
+ 						FAssert(pBestPlot != NULL);
+-						gDLL->getEngineIFace()->addColoredPlot(pBestPlot->getX(), pBestPlot->getY(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++						gDLL->getEngineIFace()->addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
++								GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++								"COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 						CvPlot* pNextBestPlot = NULL;
+ 						if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
+ 							pCity->AI_getBestBuildValue(plotCityXY(pCity, pNextBestPlot)) > 1)
+ 						{
+ 							FAssert(pNextBestPlot != NULL);
+-							gDLL->getEngineIFace()->addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++							gDLL->getEngineIFace()->addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
++									GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++									"COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 						}
+ 					}
+ 				}
+@@ -300,17 +314,17 @@ void CvGame::updateColoredPlots()
+ 		site_path.SetSettings(pHeadSelectedUnit->getGroup(), 0, 7, GC.getMOVE_DENOMINATOR());
+ 		if (pHeadSelectedUnit->canFound()) // advc.004h: was isFound
+ 		{
+-
+ 			for (int i = 0; i < kActivePlayer.AI_getNumCitySites(); i++)
+ 			{
+ 				CvPlot* pSite = kActivePlayer.AI_getCitySite(i);
+ 				if (pSite && site_path.GeneratePath(pSite))
+ 				{
+-					gDLL->getEngineIFace()->addColoredPlot(pSite->getX(), pSite->getY(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++					gDLL->getEngineIFace()->addColoredPlot(pSite->getX(), pSite->getY(),
++							GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++							"COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 				}
+ 			}
+ 		}
+-
+ 		// goody huts
+ 		//if (kHeadUnit.isNoBadGoodies())
+ 		if (pHeadSelectedUnit->canFight()) // advc.004z: Replacing the above
+@@ -332,7 +346,9 @@ void CvGame::updateColoredPlots()
+ 					{
+ 						if (site_path.GeneratePath(pLoopPlot))
+ 						{
+-							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++							gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX(), pLoopPlot->getY(),
++									GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(
++									"COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 						}
+ 					}
+ 				}
+@@ -340,7 +356,6 @@ void CvGame::updateColoredPlots()
+ 		}
+ 		// K-Mod end
+ 	}
+-
+ 	if (pHeadSelectedUnit->isBlockading())
+ 	{
+ 		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+@@ -351,11 +366,12 @@ void CvGame::updateColoredPlots()
+ 			FOR_EACH_UNIT(pLoopUnit, kPlayer)
+ 			{
+ 				if (pLoopUnit->isBlockading())
+-				{	/*  <advc.033> Replacing code that was (mostly) equivalent
+-					to CvUnit::updatePlunder */
++				{ /*  <advc.033> Replacing code that was (mostly) equivalent
++					  to CvUnit::updatePlunder */
+ 					std::vector<CvPlot*> apRange;
+ 					pLoopUnit->blockadeRange(apRange);
+-					for(size_t j = 0; j < apRange.size(); j++) { // </advc.033>
++					for(size_t j = 0; j < apRange.size(); j++) // </advc.033>
++					{
+ 						NiColorA color(GC.getColorInfo((ColorTypes)GC.getPlayerColorInfo(
+ 							GET_PLAYER(getActivePlayer()).getPlayerColor()).
+ 							getColorTypePrimary()).getColor());
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7d020c957..850e78b38 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4837,8 +4837,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			}
+ 
+ 			if (pLoopUnit->isBlockading()
+-					// advc.033: Owner change shouldn't normally disrupt blockade
+-					&& !pLoopUnit->canPlunder(pLoopUnit->plot()))
++				// advc.033: Owner change shouldn't normally disrupt blockade
++				&& !pLoopUnit->canPlunder(pLoopUnit->plot()))
+ 			{
+ 				pLoopUnit->setBlockading(false);
+ 				pLoopUnit->getGroup()->clearMissionQueue();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5ab1462c2..cdd4dc09c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5013,9 +5013,9 @@ bool CvUnit::plunder()
+ /*  <advc.033> For code shared by updatePlunder, collectBlockadeGold and
+ 	CvGame::updateColoredPlots.
+ 	See BBAI notes below about the iExtra param. */
+-void CvUnit::blockadeRange(std::vector<CvPlot*>& r, int iExtra) const {
+-
+-	if(!canPlunder(plot()))
++void CvUnit::blockadeRange(std::vector<CvPlot*>& r, int iExtra, /* advc.033: */ bool bCheckCanPlunder) const
++{
++	if(bCheckCanPlunder && !canPlunder(plot()))
+ 		return;
+ 	// advc: From an old BBAI bugfix; apparently obsolete.
+ 	//gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());
+@@ -5023,11 +5023,13 @@ void CvUnit::blockadeRange(std::vector<CvPlot*>& r, int iExtra) const {
+ 	bool bImpassables = (getDomainType() == DOMAIN_SEA && GET_PLAYER(getOwner()).
+ 			AI_unitImpassableCount(getUnitType()) > 0);
+ 	int const iRange = GC.getDefineINT(CvGlobals::SHIP_BLOCKADE_RANGE);
+-	for(int i = -iRange; i <= iRange; i++) {
+-		for(int j = -iRange; j <= iRange; j++) {
++	for(int i = -iRange; i <= iRange; i++)
++	{
++		for(int j = -iRange; j <= iRange; j++)
++		{
+ 			CvPlot* pLoopPlot = ::plotXY(getX(), getY(), i, j);
+ 			if(pLoopPlot == NULL || pLoopPlot->area() != area() ||
+-					!canPlunder(pLoopPlot)) // advc.033
++					(bCheckCanPlunder && !canPlunder(pLoopPlot))) // advc.033
+ 				continue;
+ 			// BBAI (jdog5000, 12/11/08): No blockading on other side of an isthmus
+ 			int iPathDist =
+@@ -5053,17 +5055,20 @@ void CvUnit::updatePlunder(int iChange, bool bUpdatePlotGroups)
+ {
+ 	// <advc.033> Code moved into new function blockadeRange
+ 	std::vector<CvPlot*> apRange;
+-	blockadeRange(apRange, iChange == -1 ? 2 : 0);
++	blockadeRange(apRange, iChange == -1 ? 2 : 0, iChange >= 0);
+ 	// To avoid updating plot groups unnecessarily
+ 	bool abChanged[MAX_TEAMS] = { false };
+-	for(size_t i = 0; i < apRange.size(); i++) {
++	for(size_t i = 0; i < apRange.size(); i++)
++	{
+ 		CvPlot* pLoopPlot = apRange[i]; // </advc.033>
+-		for(int iTeam = 0; iTeam < MAX_TEAMS; iTeam++) {
++		for(int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
++		{
+ 			CvTeam const& t = GET_TEAM((TeamTypes)iTeam);
+ 			//if (isEnemy(t.getID()))
+ 			// <advc.033> Replacing the above
+ 			if(t.isAlive() && isEnemy(t.getID()) && !t.isVassal(getTeam()) &&
+-					!GET_TEAM(getTeam()).isVassal(t.getID())) { // </advc.033>
++				!GET_TEAM(getTeam()).isVassal(t.getID())) // </advc.033>
++			{
+ 				if(iChange == -1 && pLoopPlot->getBlockadedCount(t.getID()) <= 0)
+ 					continue; // advc
+ 				bool bOldTradeNet = false;
+@@ -5087,8 +5092,10 @@ void CvUnit::updatePlunder(int iChange, bool bUpdatePlotGroups)
+ 			|| GC.suppressCycling()))
+ 		g.updateColoredPlots();
+ 	gDLL->getInterfaceIFace()->setDirty(BlockadedPlots_DIRTY_BIT, true);
+-	if(bUpdatePlotGroups) {
+-		for(int i = 0; i < MAX_PLAYERS; i++) {
++	if(bUpdatePlotGroups)
++	{
++		for(int i = 0; i < MAX_PLAYERS; i++)
++		{
+ 			CvPlayer& p = GET_PLAYER((PlayerTypes)i);
+ 			if(p.isAlive() && abChanged[p.getTeam()])
+ 				p.updatePlotGroups();
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 49da0cb0c..5d93a899a 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -142,7 +142,8 @@ public:
+ 	bool canPlunder(const CvPlot* pPlot, bool bTestVisible = false) const;																					// Exposed to Python
+ 	bool plunder();
+ 	void updatePlunder(int iChange, bool bUpdatePlotGroups);
+-	void blockadeRange(std::vector<CvPlot*>& r, int iExtra = 0) const; // advc
++	void blockadeRange(std::vector<CvPlot*>& r, int iExtra = 0, // advc
++			bool bCheckCanPlunder = true) const; // advc.033
+ 
+ 	int sabotageCost(const CvPlot* pPlot) const;																									// Exposed to Python
+ 	int sabotageProb(const CvPlot* pPlot, ProbabilityTypes eProbStyle = PROBABILITY_REAL) const;	// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=16743

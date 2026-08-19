@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4104
+# Commit: 10d2e429e8d90145a6cc184cab97c10cc77839d8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4d57d63fc61b0f6749988154f829f9a93b27d247
+# Title: Simplify wstring conversion in one place (refactor)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	4	CvGameCoreDLL/RiseFall.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index a792c0257..b077b99dd 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -1483,12 +1483,9 @@ void RiseFall::substituteDiploText(bool gift) {
+ 	CvDiplomacyResponse* resp = findThanks();
+ 	if(resp == NULL || resp->getNumDiplomacyText() <= 0)
+ 		return;
+-	CvWString noThanks = gDLL->getText("TXT_KEY_RF_NO_THANKS");
+ 	/*  Conversion from wstring: breaks if multi-byte chars are involved
+ 		(i.e. non-ASCII). */
+-	CvString replacement;
+-	for(size_t k = 0; k < noThanks.length(); k++)
+-		replacement += (char)noThanks.at(k);
++	CvString replacement(gDLL->getText("TXT_KEY_RF_NO_THANKS"));
+ 	clearDiploStrings();
+ 	for(int j = 0; j < resp->getNumDiplomacyText(); j++) {
+ 		originalThanks.push_back(new CvString(resp->getDiplomacyText(j)));
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=831

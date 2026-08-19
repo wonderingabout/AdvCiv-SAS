@@ -1,0 +1,258 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5948
+# Commit: a9515bf013262e4958c7a8d01e0635a36786fdd8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c5b1443fb2225ec46c2d48d23d59037e0fb26dbb
+# Title: Fixed Base AdvCiv issue: ready city-attack AI stacks could park for future upgrades (sometimes for a very long time) in non-faraway cities too, even when no...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+24	4	Assets/XML/GlobalDefines_advciv_sas.xml
+71	1	CvGameCoreDLL/CvUnitAI.cpp
+46	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8ab409835..aba677e90 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1121,6 +1121,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+ 		<iDefineIntVal>12</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
++	<Define>
++		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: i reduced it from GPT-5.5's value of 16 because i think we should always attack if we can, should be stronger and less costly than waiting. -->
++	<Define>
++		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS</DefineName>
++		<iDefineIntVal>8</iDefineIntVal>
++	</Define>
++	<!-- custom: i reduced it from GPT-5.5's value of 30 (same reasoning) -->
++	<Define>
++		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT</DefineName>
++		<iDefineIntVal>15</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum target path turns for bypassing upgrade waiting. Higher value = bypass upgrade waiting for farther targets too, more aggressive. Lower value = only bypass upgrade waiting for very close targets, more conservative. (ChatGPT-5.5 + GPT-5.5); i increased it it from GPT-5.5's value of 8 (same reasoning) -->
++	<Define>
++		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS</DefineName>
++		<iDefineIntVal>99</iDefineIntVal>
++	</Define>
+ 
+ 
+ 
+@@ -2238,17 +2258,17 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+ 		<iDefineIntVal>9</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
++	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core. Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 to encourage more aggression and flexibility too. -->
++	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core. Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 (same reasoning). -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military. Set to 0 to disable this absolute unit-count gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's value of 24 to encourage more aggression and flexibility too. -->
++	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military. Set to 0 to disable this absolute unit-count gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's value of 24 (same reasoning). -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS</DefineName>
+ 		<iDefineIntVal>16</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index dbd006ce7..40534be23 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -175,6 +175,32 @@ static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes
+ 	return (bForeignCapturedCity && bRemoteFromCore && bLargeStack);
+ }
+ 
++// <!-- custom: Helper accepts CvUnit rather than CvUnitAI because FOR_EACH_UNIT_IN exposes base CvUnit pointers; pass the current attack-stack UnitAI separately so upgrade-wait logic can estimate best upgrade pressure for each unit in the group. (GPT-5.5) -->
++// 1>..\CvUnitAI.cpp(6075): error C2664: 'SAS_getBestUpgradeForLog' : cannot convert parameter 1 from 'const CvUnit' to 'const CvUnitAI &'
++// 1>          Reason: cannot convert from 'const CvUnit' to 'const CvUnitAI'
++// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
++// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
++// 1>  Stop.
++static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnitAI)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvArea* pArea = kUnit.area();
++	int iBestValue = kOwner.AI_unitValue(kUnit.getUnitType(), eUnitAI, pArea) * 100;
++	UnitTypes eBestUnit = NO_UNIT;
++	CvCivilization const& kCiv = kOwner.getCivilization();
++	for (int i = kCiv.getNumUnits() - 1; i >= 0; i--)
++	{
++		UnitTypes const eLoopUnit = kCiv.unitAt(i);
++		int const iValue = 90 * kOwner.AI_unitValue(eLoopUnit, eUnitAI, pArea);
++		if (iValue > iBestValue && kUnit.canUpgrade(eLoopUnit, true))
++		{
++			iBestValue = iValue;
++			eBestUnit = eLoopUnit;
++		}
++	}
++	return eBestUnit;
++}
++
+ // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
+ // only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
+ // to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
+@@ -6040,8 +6066,52 @@ void CvUnitAI::AI_attackCityMove()
+ 							}
+ 							break;
+ 						}
++						// <!-- custom: After fixing the remote captured-city case, BBAI logs still showed very large ready attack stacks waiting many turns for hypothetical upgrades, usually with 0 units able to upgrade now. If a stack is already important, ready, and close to a valid target, attack instead of freezing the advantage: enemies may catch up while we wait, and attacking can spend obsolete units so they no longer need upgrades or future upkeep while captured cities improve economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5) -->
++						int iCanUpgradeNowUnits = 0;
++						FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
++						{
++							if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
++								continue;
++							UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit, AI_getUnitAIType());
++							if (eBestUpgradeForLog == NO_UNIT)
++								continue;
++							if (pUpgradeLogUnit->canUpgrade(eBestUpgradeForLog))
++								iCanUpgradeNowUnits++;
++						}
++						int iTargetPathTurns = -1;
++						generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns);
++						static const bool bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE = (GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE") > 0);
++						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS"));
++						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT"));
++						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS"));
++						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS);
+ 						if (bLogAttackCityParking)
+-							SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, -1);
++						{
++							if (!bSkipUpgradeWaitForReadyAttack)
++								SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns);
++							int iEstimatedUpgradeCost = 0;
++							int iBestUpgradePriceMax = 0;
++							FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
++							{
++								if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
++									continue;
++								UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit, AI_getUnitAIType());
++								if (eBestUpgradeForLog == NO_UNIT)
++									continue;
++								int const iUpgradePrice = pUpgradeLogUnit->upgradePrice(eBestUpgradeForLog);
++								iEstimatedUpgradeCost += iUpgradePrice;
++								iBestUpgradePriceMax = std::max(iBestUpgradePriceMax, iUpgradePrice);
++							}
++							logBBAI("    ATTACK_CITY_UPGRADE_WAIT_DETAIL turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d maxSingleUpgradeCost=%d gold=%d goldRate=%d upgradeBudgetTarget=%d goldTarget=%d financialTrouble=%d targetPathTurns=%d ready=%d targetTooStrong=%d remoteCapturedTrap=%d skipReadyAttack=%d",
++								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost, iBestUpgradePriceMax, kOwner.getGold(), kOwner.calculateGoldRate(), kOwner.AI_goldTarget(true), kOwner.AI_goldTarget(false), kOwner.AI_isFinancialTrouble(), iTargetPathTurns, bReadyToAttack, bTargetTooStrong, bSkipUpgradeWaitForRemoteCapturedTrap, bSkipUpgradeWaitForReadyAttack);
++							if (bSkipUpgradeWaitForReadyAttack)
++							{
++								logBBAI("    ATTACK_CITY_UPGRADE_WAIT_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d gold=%d targetPathTurns=%d",
++									GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost, kOwner.getGold(), iTargetPathTurns);
++							}
++						}
++						if (bSkipUpgradeWaitForReadyAttack)
++							break;
+ 						getGroup()->pushMission(MISSION_SKIP);
+ 						return;
+ 					}
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 350ce31e4..c299fcf5d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -191,6 +191,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [153 - (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#153---fixed-rfc-doc-bug-sevopedia-hill-page-did-not-show-improvements-valid-through-underlying-terrain-feature-or-hill-eligible-bonus-rules)  
+ [154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#154---fixed-base-advciv-issue-great-people-could-wait-too-long-for-golden-age-partners-instead-of-using-lower-but-useful-actions)  
+ [155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
++[156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5745,3 +5746,48 @@ Tuning is as of now exposed through the corresponding SAS defines for the core-d
+ Follow-up diagnostic update: after adding `ATTACK_CITY_REMOTE_PARKING_DETAIL`, three different (save files) fresh autoplay/log samples were reviewed. The upgrade fix kept holding: `remoteCapturedTrap=1 + wait_upgrade` stayed at 0. The bypass also fired broadly, not only in the original Boston-style case; one later sample had 18 remote upgrade bypasses, including very large stacks. Remaining `ATTACK_CITY_REMOTE_PARKING_DETAIL` lines were rare and joiner-related, and looked like short-lived or plausible staging cases rather than a proven evacuation bug. Based on those logs, no joiner-wait bypass, evacuation rule, or broader catch-all parking logger was added as of now.
+ 
+ Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
++
++## 156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wk9367wjB0UK4zUQhdI7aLddY4CvWZIR?usp=sharing).
++
++After fixing the remote captured-city upgrade-wait trap in [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target), BBAI logs still showed a broader related problem: large ready attack stacks could wait many turns because enough units had upgrade potential, even when none of those units could actually upgrade now.
++
++This is inefficient when the stack is already ready and the target is not too strong. Waiting can waste a current military advantage while enemies catch up. Attacking can also spend obsolete units so they no longer need upgrades or future upkeep, capture cities that increase economy and unit support, and punish rivals that expanded thinly before they can recover.
++
++We added `ATTACK_CITY_UPGRADE_WAIT_DETAIL` diagnostics around the generic upgrade-wait branch. The log records stack size, military share, target path turns, upgrade-potential unit count, units that can upgrade now, estimated upgrade cost, available gold, financial state, and whether the new bypass would fire.
++
++One reviewed log showed:
++
++- `ATTACK_CITY_UPGRADE_WAIT_DETAIL`: 155 lines.
++- `ATTACK_CITY_PARKING reason=wait_upgrade`: 155 lines.
++- `affordableUpgradeUnits` / later `canUpgradeNowUnits`: 0 in 154 / 155 lines.
++- `ATTACK_CITY_REMOTE_UPGRADE_BYPASS`: 8 lines.
++- `remoteCapturedTrap=1 + wait_upgrade`: 0 lines.
++
++The main suspicious cases were large non-remote stacks waiting for future upgrades despite close targets:
++
++- USA Washington: T147-T181, up to 59 units, up to 69% of total military, target 3-5 turns away.
++- Mali Gao: T233-T255, up to 42 units, up to 41% of total military, target mostly 4-9 turns away.
++- Mali Vienna: T160-T168, 24 units, up to 46% of total military, gold often already above estimated upgrade cost.
++- French Nuremberg: T231-T236, 33 units, up to 40% of total military, target 3-5 turns away.
++- English Oxford: T212-T219, 24 units, up to 45% of total military, target 2-4 turns away.
++
++Fix: when a city-attack stack is ready, the target is not too strong, no unit can upgrade now, the stack is important enough, and the target is within the configured path-turn gate, bypass the generic upgrade wait and continue into the existing target movement logic. This does not bypass waits when real upgrades are immediately available, and it does not force an attack against a too-strong target.
++
++Follow-up test with the bypass enabled showed:
++
++- `ATTACK_CITY_UPGRADE_WAIT_DETAIL`: 44 lines.
++- `ATTACK_CITY_UPGRADE_WAIT_BYPASS`: 40 lines.
++- `ATTACK_CITY_PARKING reason=wait_upgrade`: 4 lines.
++- `ATTACK_CITY_REMOTE_UPGRADE_BYPASS`: 6 lines.
++- `ATTACK_CITY_REMOTE_PARKING_DETAIL`: 5 lines.
++- `remoteCapturedTrap=1 + wait_upgrade`: 0 lines.
++
++The 4 remaining generic upgrade waits all had `canUpgradeNowUnits > 0`, so they were true immediate upgrade opportunities rather than future-upgrade parking. The clearest sanity case was the USA Seattle stack: it waited on T270-T272 while 6 units could upgrade now, then bypassed on T273 once `canUpgradeNowUnits=0`, and later continued from Nottingham with the same group.
++
++The generic `ATTACK_CITY_PARKING reason=wait_upgrade` log was then moved after the bypass decision, so bypassed cases are no longer counted as true parking. Bypassed cases remain visible through `ATTACK_CITY_UPGRADE_WAIT_DETAIL` and `ATTACK_CITY_UPGRADE_WAIT_BYPASS`.
++
++Tuning is as of now exposed through the corresponding SAS defines for enable/disable, minimum stack size, minimum military share, and maximum target path turns.
++
++Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5e1722695..d17b3da6b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -307,7 +307,6 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city**. Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but).
+-- (Requires AdvCiv-SAS 5947+) **Remote captured-city attack stacks:** large AI attack **stacks in faraway captured cities no longer let upgrade waiting override a ready offensive target**. If the stack is large enough, has a valid target, and the target is not too strong, it keeps using the existing attack movement logic **instead of parking most of the empire's army far from its core** because several units could upgrade, which was very problematic. In the BBAI-log sample, the Celtic Boston trapped-stack pattern was visible from T156 to T256; the stricter remote-trap diagnostic confirmed it from T172 to T214, with up to 41 units / 62% of Celtic military parked in a faraway captured city while still having ready targets. See [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment, in `CvPlayerAI::AI_conquerCity`. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer "split in two" empires). See [KI#64](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity).
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, with a preference for civ-specific units like War Chariots when available. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-in-cvcityaiai_chooseunit).
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only). **Update:** Thresholds have been **slightly relaxed pre-Renaissance**; **extra-relaxed when holding key strategic bonuses** (**Iron**, **Copper**, **Horse**, **Camel**, **Elephants**) to enable offense windows (e.g., longbow + siege); and **heavily relaxed from Renaissance onward** so **Cannons** can serve as a defensive pivot and the AI avoids over-producing Pikemen into Cuirassiers, and more generally since later sieges units are stronger and more effective, to also have a more varied and effective military composition.
+@@ -317,6 +316,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). Note: sometimes/rarely ignored in autoplay.
+ - **Unit upgrades - stop wasting gold on tiny gains:** Fix AI tendency to **over-upgrade units** even when the upgrade is **poor value** (high gold cost for a small strength gain), which can burn many turns of **gold** and **slow tech pace**. Before allowing an upgrade, the AI must pass **simple ROI gates** based on **strength** gained vs gold cost: (1) gold per 10% strength gain, and (2) gold per +1 **flat strength** gain; both gates are **more lenient with higher unit EXP** (high-EXP units keep their promotions after being upgraded which is valuable, so spending more gold on them is more justified), while low-EXP units are treated more strictly (often better to let them die and rebuild if needed, unless it is cheap enough to upgrade them). Example (Knight -> Cuirassier): 10 strength -> 13 strength; if one of the gates requires `15 gold per +1 flat strength gain` with `+1 gold per +1 flat strength gain per 1 EXP`, then we won't upgrade the unit if its upgrade cost is more than `15 * 3 = 45 gold` at **0 EXP**, or `((15 + 18) * 3) = 99 gold` at **18 EXP** for this gate. In autoplay, this seemingly leads to **all AIs teching significantly faster**, especially in the **late game** where there are many units and AI would often have its tech pace stall for dozens of turns. Change in `CvUnit::canUpgrade` (single global gate, like `CvUnit::canScrap`); see [KI#88](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns).
+ - (Requires AdvCiv-SAS 5943+) **Unit upgrades - prefer the important domain for the map:** AI unit-upgrade value now optionally uses the existing **SAS map-script heaviness** logic to **relatively value** unit upgrades (not a hard ban unless relative value is set high): the real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades. As a result, on **land-heavy maps, naval upgrades are treated as lower priority**, so the AI is more likely to **spend gold upgrading land units first** instead of modernizing old ships that have little strategic value on that map. On **naval-heavy maps, the same idea can apply in reverse for land upgrades**.
++- (Requires AdvCiv-SAS 5947+) **Remote captured-city attack stacks:** large AI attack **stacks in faraway captured cities no longer let upgrade waiting override a ready offensive target**. If the stack is large enough, has a valid target, and the target is not too strong, it keeps using the existing attack movement logic **instead of parking most of the empire's army far from its core** because several units could upgrade, which was very problematic. In the BBAI-log sample, the Celtic Boston trapped-stack pattern was visible from T156 to T256; the stricter remote-trap diagnostic confirmed it from T172 to T214, with up to 41 units / 62% of Celtic military parked in a faraway captured city while still having ready targets. See [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target).
++- (Requires AdvCiv-SAS 5948+) **Ready attack stacks stop parking for unavailable upgrades:** if a city-attack stack is ready, the target is not too strong, and **0 units can upgrade now**, the AI now keeps moving toward the target instead of waiting for possible future upgrades. This fixes real offensive freezes: in one BBAI-log sample, USA Washington waited from **T147-T181** with up to **59 units / 69% of total military** while targets were only **3-5 turns** away; Mali Gao waited from **T233-T255** with up to **42 units / 41% of total military**. The AI still waits for real immediate upgrades: a USA Seattle stack waited while **6 units could upgrade now**, then attacked/moved once that number became **0**. This is thought to be much stronger, because it uses the current military advantage before enemies catch up; old units can be spent in war instead of sitting around draining upkeep, needing future upgrade gold (solved if they die as well), and risking obsolescence; successful captures can then increase economy, unit support, and long-term growth; and the needless wait was very problematic and inefficient too. See [KI#156](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now).
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=32837

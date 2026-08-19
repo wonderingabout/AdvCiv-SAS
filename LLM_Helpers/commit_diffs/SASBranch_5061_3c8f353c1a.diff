@@ -1,0 +1,187 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5061
+# Commit: 3c8f353c1a046c7125d68f1cd2b24b866c3bd6c4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6df4f199b07e6891239c67a25a6c3c3cf89345e3
+# Title: fix/tweak incorrect sevopedia ice cap information in displayed unit(s) panels - relevant units panel had units like the scout or the quechua warrior but thes...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+38	4	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index d24bd01c1..f5f44788b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -308,7 +308,15 @@ class SevoPediaFeature:
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				if unitInfo.isCanMoveImpassable():
++				# <!-- custom: note: ingame it seems that bCanMoveImpassable is not enough to move on ice cap (feature ice) that is only allowed on water terrains it seems, so not displaying all units here but anyways etc -->
++				# inside: if self.iFeature == iIce:
++				can_cross_ice = (
++					unitInfo.isCanMoveAllTerrain() or
++					(unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA and
++					(unitInfo.isCanMoveImpassable() or
++					unitInfo.getFeaturePassableTech(iIce) != -1))
++				)
++				if can_cross_ice:
+ 					# Column index (always 0 when numLists=1)
+ 					columnIndex = 0
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+@@ -436,24 +444,50 @@ class SevoPediaFeature:
+ 		if self.iFeature == iIce:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
++				unitInfoDomain = unitInfo.getDomainType()
+ 
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc) ; also not checking unitInfo.isCanMoveAllTerrain() since the ice that is impassable is the ice cap feature if i am not mistaken not the terrain anyways etc -->
+-				if not unitInfo.isCanMoveImpassable():
++				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc); however still require unitInfo.isCanMoveAllTerrain(), as ice cap (ice feature) is only allowed on water terrains it seems, and bCanMoveImpassable is not enough for land units to allow them to walk there if i'm not mistaken but anyways etc. So as of now we'd allow the gunship and airship to walk on ice cap, but not the scout or quechua warrior, even though they all have the bCanMoveImpassable, but only the airship and gunship among these also have canMoveAllTerrain as of now i'm not mistaken so only these can also walk on ice cap on top of walking on peak if i'm not mistaken but anyways etc; note: code provided by chatgpt 5 thanks to my prompts and or such and which i adjusted and/or such, check if accurate but anyways etc -->
++				# <!-- custom: below condition/code by chatgpt 5 which i formatted or refactored/adjusted a bit or not or yes or etc, check if accurate anyways etc -->
++				# Your Relevant Units panel (from earlier) already shows:
++				# - land/air with All-Terrain (Gunship, Airship, Recon Drone), and
++				# - sea units with a bypass (Move-Impassable or passable tech).
++				# This Impassable panel now mirrors Peak-style behavior by listing every other unit that cannot enter Ice Cap, which should remove the “why can these 3 enter?” confusion.
++				# Land/Air: blocked unless they have All-Terrain (your recon/gunship/airship will be allowed)
++				land_or_air_blocked = (unitInfoDomain != DomainTypes.DOMAIN_SEA) and (not unitInfo.isCanMoveAllTerrain())
++
++				# Sea: blocked if no bypass (or explicitly flagged impassable on ICE)
++				sea_blocked = (unitInfoDomain == DomainTypes.DOMAIN_SEA) and (
++					unitInfo.getFeatureImpassable(iIce) or
++					not (unitInfo.isCanMoveImpassable() or
++						unitInfo.getFeaturePassableTech(iIce) != -1 or
++						unitInfo.isCanMoveAllTerrain())
++				)
++
++				if land_or_air_blocked or sea_blocked:
+ 					# Column index (always 0 when numLists=1)
+ 					columnIndex = 0
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		else:
++			info = gc.getFeatureInfo(self.iFeature)
++
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+ 
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				if (unitInfo.getFeatureImpassable(self.iFeature) or (unitInfo.getFeaturePassableTech(self.iFeature) != -1)):
++				# <!-- custom: below condition/code by chatgpt 5, check if accurate anyways etc -->
++				blocked = (
++					(info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and
++					not unitInfo.isCanMoveImpassable() and
++					unitInfo.getFeaturePassableTech(self.iFeature) == -1 and
++					not unitInfo.isCanMoveAllTerrain()
++				)
++				if blocked:
+ 					# Column index (always 0 when numLists=1)
+ 					columnIndex = 0
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 61f4e8a61..979c0cf26 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -43,7 +43,7 @@
+ 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+ 		- peak tiles
+ 		- ice cap tiles
+-		- desert tiles that are not hill and have no bonus
++		- desert tiles that are not hill and have no bonus, and that are not floodplains nor oasis
+ 		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
+ 	Start phase is before our first city is planted/settled/founded but anyways etc.
+ 	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect anyways etc
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 0c000eeb8..b0e79448a 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -194,6 +194,6 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
+-		<English>Cannot move: units without bCanMoveImpassable in their XML (all domains displayed)</English>
++		<English>Cannot move: Domain Land/Air without bCanMoveAllTerrain; Domain Sea without bCanMoveImpassable / bCanMoveAllTerrain / FeaturePassableTech in their XML</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 97ecd77b8..85b56c0de 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -731,7 +731,7 @@ But for the ingame part, it is first time i modify successfully (and even tried
+ 
+ It was thanks to chatgpt's help as well and my prompts and digging too anyways etc, even though it struggled at times if i may say and annoyed me bit i mean, i was quite used or expected it if i may say and together we solved it but anyways etc (may have been harder if i was not prepared for such but anyways etc anyways etc anyways etc most likely but anyways etc anyways etc anyways etc...)
+ 
+-First to solve this i followed the trail of the txt key in sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes anyways etc being able to walk on impassable terrain anyways etc (and explorers too i assume if i am not mistaken in this assumption too or memory from reading or something that it applies or would apply to explore units in general land ones but anyways etc in advciv-sas i mean anyways etc)), and there i added the method.
++First to solve this i followed the trail of the txt key in sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes anyways etc being able to walk on land impassable (peak only as of now if i'm not mistaken but anyways etc) terrain anyways etc (and explorers too i assume if i am not mistaken in this assumption too or memory from reading or something that it applies or would apply to explore units in general land ones but anyways etc in advciv-sas i mean anyways etc)), and there i added the method.
+ 
+ But we needed also to modify not only (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp but also (same anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with anyways etc chatgpt.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 9d155403f..61e4d3bfd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -56,7 +56,7 @@ Also added the remove production and/or time (for example feature_fallout only h
+ 
+ Also clarified the ressources (called bonuses ina advciv-sas as per the code naming if i may say too but anyways etc...) header from rfc doc mod to explicitly name "Bonuses On Any Terrain" for clarification (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details about featurebooleans).
+ 
+-Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
++Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on land or/and water or other if any other but anyways etc impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index a38fff544..8756e3dc8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index 4bd3597c5..50ee2ba52 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+index c88cea37a..4bd3597c5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 44c35cfda..7691423ca 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 591e34a95..3a207be7f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 1d620ece5..35d2e3d83 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=15508

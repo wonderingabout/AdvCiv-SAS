@@ -1,0 +1,318 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5134
+# Commit: 673bfc82b6d10408e28aa7b8b709b0261740ada1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f5d96ce5c18b1a02b8250dd295e0b42075a2d047
+# Title: (Improved) devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue` - update docs for missing en...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+22	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	CvGameCoreDLL/CvCityAI.cpp
+46	0	CvGameCoreDLL/CvPlayerAI.cpp
+15	10	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+15	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+17	10	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index d4f40acdd..fa7910002 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -998,6 +998,28 @@
+ 
+ 
+ 
++	<!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns (and also so that the vassal trades techs it doesn't know preferably from its master as well). Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
++	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
++			- Masters to value “vassal-known” techs less for self-research, and
++			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc.  -->
++	<Define>
++		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- (1) Master: devalue techs that our vassals already know -->
++	<Define>
++		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++	<!-- (2) Vassal: devalue techs that our master already knows -->
++	<Define>
++		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really if i may say i mean but anyways etc; also i mean check if accurate and thanks for help i mean too but anyways etc. -->
+ 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 19b9903a6..3e9257ad4 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -14387,11 +14387,11 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		static const bool bNoAutoHumanArtist    = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_ARTIST_SPECIALIST");
+ 
+ 		static const SpecialistTypes eScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
+-		static const SpecialistTypes eArtist    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+ 		static const SpecialistTypes eEngineer  = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
+ 		static const SpecialistTypes eMerchant  = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT");
+ 		static const SpecialistTypes ePriest    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_PRIEST");
+ 		static const SpecialistTypes eSpy       = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SPY");
++		static const SpecialistTypes eArtist    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+ 
+ 		// 0b) Human-only: block specific auto specialists based on convenience defines
+ 		if (bHuman && new_job.first && new_job.second >= 0)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 252c50426..19d9a924c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6062,6 +6062,52 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	// advc (note): Not a safe was to do this - and no longer needed.
+ 	//iValue = range(iValue, 0, MAX_INT);
+ 	// K-Mod end
++
++	// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other. Also extend this logic so that the vassal as well doesn't research or research as much techs its master already owns (and also so that the vassal trades techs it doesn't know preferably from its master as well). Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issue as of now 77 for details anyways etc. -->
++	// SAS vassalMasterTechResearch
++	// With:
++	// 	- Master-from-vassal penalty,
++	// 	- Vassal-from-master penalty, and
++	// 	- <!-- custom: not directly here anyways etc. --> Tech trade contact boost between vassal ↔ master,
++	// you get:
++	// 	- Less “master re-researches everything the vassal has”.
++	// 	- Less “vassal re-researches everything the master has”.
++	// 	- <!-- custom: not directly here anyways etc. --> More tech swapping along the master–vassal axis, especially when each has something the other doesn’t.
++	// A. Devalue researching techs that our vassals already know and vice versa.
++	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
++	if (bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER)
++	{
++		// (1) Master: devalue techs that our vassals already know
++		if (kTeam.getVassalCount(NO_TEAM) > 0)
++		{
++			for (TeamIter<ALIVE, VASSAL_OF> itVassal(getTeam()); itVassal.hasNext(); ++itVassal)
++			{
++				CvTeam const& kVassal = *itVassal;
++				if (!kVassal.isHasTech(eTech))
++					continue;
++
++				static const int iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT");
++
++				iValue = iValue * iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT / 100;
++
++				// One vassal is enough – don't stack penalties.
++				break;
++			}
++		}
++		// (2) Vassal: devalue techs that our master already knows
++		if (kTeam.isAVassal())
++		{
++			TeamTypes const eMasterTeam = kTeam.getMasterTeam();
++			if (eMasterTeam != NO_TEAM && GET_TEAM(eMasterTeam).isHasTech(eTech))
++			{
++				static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT");
++
++				iValue = iValue * iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT / 100;
++			}
++		}
++	}
++	// End - SAS vassalMasterTechResearch
++
+ 	return iValue;
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 421034727..b186b5051 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -24,6 +24,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#city-plots-ai)  
+ &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-ai)  
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#city-production-ai)  
++&emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#leaders-ai)  
+ &emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#buildings-ai)  
+@@ -31,10 +32,10 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details)  
+ &emsp;[Handicap i.e. difficulty settings (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive-see-the-csv-comparison-tables-locally-libreoffice-etc-or-on-github-recommended-provided-orand-sevopedia-orand-xml-for-details)  
+-&emsp;[Specialists (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Terrains / Features (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Bonuses (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#bonuses-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Improvements and worker builds (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#improvements-and-worker-builds-non-exhaustive-see-sevopedia-orand-xml-for-details)  
++&emsp;[Specialists (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Technologies (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#eras)  
+ &emsp;[Civilizations (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civilizations-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+@@ -185,6 +186,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - massively patched / worked around and seemingly fixed the major base advciv +/- civ4 issue of AI cities being in a no production state (they don't produce anything at all, there is a "no entry" like button as chatgpt 5 describe it xd but anyways etc), not even a unit like a warrior / ancient maceman or such which would absolutely be free and better than litteral nothing. This wastes a lot of hammers, and happens in quite a few cities, not just during one turn. The very effective work around was to add another fallback of "produce most expensive (unless price is extremely and unusually high then cheapest among them instead anyways etc) unit that suits us" (a land unit of offense or defense, not civilian like a scout for example anyways etc). So now cities don't have no production at all anymore, and produce for example an archer instead in the ancient era as of now but anyways etc. Added in `CvCity::AI_doTurn`. See for details with screenshots and such anyways etc [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc).Thanks to the increase in AI efficiency and hammer use due to now using hammer instead of "passing" turns but anyways etc, i have reduced handicap settings a bit more to accomodate that (and so AIs don't go bankrupt, as well as human players having a more even game without excessive penalties too ideally so hopefully for the best in all at least to me if i may say but anyways etc). AI should be quite a bit stronger thanks to this change but anyways etc. Update: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
+ 
++#### Technologies (AI)
++
++- (Requires AdvCiv-SAS 5134+) devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue`. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc).
++
+ #### Leaders (AI)
+ 
+ - adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case anyways etc i know about the topic and quite cautiously and bit more if deemed necessary after double check with web search or and such or and comparing with other leaders anyways etc, for example increased as of now julius caesar's buildunitprob from 30 to 40, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, ramesses 2 from 20 to 25 which means they should build relatively quite if not quite bit lot but anyways etc more units than buildings/wonders if i am not mistaken anyways etc; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example anyways etc, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see Sevopedia/XML for details or/and updated values (altered slightly by DLL so small difference between XML and Sevopedia, but Sevopedia (i.e. after game start) value is the one applicable ingame) anyways etc.
+@@ -272,15 +277,6 @@ Note: please see note here as well in this custom main changes guide about the .
+ - Reduced some handicap settings to accomodate for recent AI improvements in our mod. In particular, as for `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`, they are now the same accross all difficulties/handicap settings. This is possible thanks to recent AI improvements in workers, building choices, scrapping issues, better unit choices, etc, see related changes for more info on those. Hopefully thanks to this the game should feel even or more even, with the AI playing competitively or more competitively ideally (else AI would start to be a bit too strong now if i'm not mistaken but anyways etc), anyways etc.
+ - Disabled entirely `iAIHandicapIncrementTurns`, which would give per turn discounts to AI, making the game gradually harder as the game went on if i understood it correctly with chatgpt 5 too. This was especially aggressive at highest difficulties, and now that our AI is efficient with its hammer usage or more so at least but anyways etc, it would always run away being unbeatable even in emperor autoplay i assume/guess thanks to all the AI enhancements to hammer usage we made. I hope to provide a fair and challenging, winnable challenge not this mess, so disabled it entirely (set to 0 as of now as was in lower difficulties anyways etc). This means the handicap settings like unit hammer to produce reduction, or buildings, or research, etc if any more anyways etc, that were all affected by this, now are rather only influenced by the corresponding handicap xml fields rather (such as `iAITrainPercent` for unit hammer to produce for example anyways etc). I have adjusted these xml fields so game is hard but not in an exponential per turn, gradually impossible to overcome way and perhaps painful but anyways etc, but instead linear per handicap setting that are fair and hard as much as possible rather, to accomodate for this change too. We rely on our AI competency and efficiency improvements rather to provide the needed challenge i want in advciv-sas rather but anyways etc. I also believe it will help AI longterm, as by producing less untis since thye produce so much, they won't go bankrupt too soon if at all, which should help their economy long-term, especially to go from middle game to endgame, which would otherwise become way too warlike xd and lose the early tension of a close game now not possible to match for the human player due to AI just producing too much more units, hopefully more balanced, fun, and harder than base advciv in a fair way now instead, at least i tried to, but anwyays etc.
+ 
+-### Specialists (non-exhaustive, see sevopedia or/and xml for details)
+-
+-- buff the citizen, as of now to give one gold (so total 1 hammer and 1 gold), this was at first mostly to help the AI as it used to allocate a lot of them inefficiently, but may now in all cases anyways etc also help buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+-- (Requires AdvCiv-SAS 5131+) add an option (default and recommended: enabled) to disable auto-citizen specialist auto assignments for the human player as well for convenience, as they are annoying to check in every city every turn, and this is still often a very inefficient specialist to choose unless absolutely necessary (no other plot nor good enough specialist but anyways etc, etc.). Code added in `CvCityAI::AI_jobChangeValue`. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc). Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it anyways etc.).
+-- (Requires AdvCiv-SAS 5132+) similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchants, auto priests, but not auto spies nor auto artists (as long as this is not overriden by external pieces of logic such as the forced artist until we have BFC or/and such)) for the human player as well for convenience. Code added in `CvCityAI::AI_jobChangeValue`. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable them anyways etc.).
+-- also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+-- also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+-- (Requires AdvCiv-SAS 5124+) extend the force an artist if we can until we have our BFC to human players as well for convenience. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it (default and recommended: enabled)).
+-
+ ### Terrains / Features (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - some terrains are buffed, for example snow (see Bonus: deer changes), desert (see Bonus: camel changes), and water tiles (see Bonus: water bonus changes, and Buildings: water buildings changes) are stronger and play a more important role in the game now.
+@@ -322,6 +318,15 @@ Note: please see note here as well in this custom main changes guide about the .
+ - otherwise as of now nerf the workshop a bit (techs giving extra hammer yields relatively a bit later in our reworked tech tree anyways etc) as it was a bit too op, but it and some other builds/improvements also give new extra yields as of now at future_era anyways etc.
+ - railroads can be built sooner or at a different point as per the reworked tech tree in AdvCiv-SAS or/and other mods using it if they do so as well anyways etc, Railroad is an inefficient tech, most likely will be removed in AdvCiv-SAS, so putting railroad now at tech steam power. This also allows railroads to be relevant sooner in the game and not feel like endgame is too far and not worth playing, maybe a bit more like in civ3 where the endgame doesn't feel so out of reach but i may be mistaken in my opinion/memories of it, in all cases is how i'd want to do it in AdvCiv-SAS at least for now anyways etc, hopefully more strategic variety or diversity in possibly tactics or such or not or yes or other anyways etc, see sevopedia ingame for updated latest values anyways etc
+ 
++### Specialists (non-exhaustive, see sevopedia or/and xml for details)
++
++- buff the citizen, as of now to give one gold (so total 1 hammer and 1 gold), this was at first mostly to help the AI as it used to allocate a lot of them inefficiently, but may now in all cases anyways etc also help buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- (Requires AdvCiv-SAS 5124+) extend the force an artist if we can until we have our BFC to human players as well for convenience. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it (default and recommended: enabled)).
++- (Requires AdvCiv-SAS 5131+) add an option (default and recommended: enabled) to disable auto-citizen specialist auto assignments for the human player as well for convenience, as they are annoying to check in every city every turn, and this is still often a very inefficient specialist to choose unless absolutely necessary (no other plot nor good enough specialist but anyways etc, etc.). Code added in `CvCityAI::AI_jobChangeValue`. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc). Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it anyways etc.).
++- (Requires AdvCiv-SAS 5132+) similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchants, auto priests, but not auto spies nor auto artists (as long as this is not overriden by external pieces of logic such as the forced artist until we have BFC or/and such)) for the human player as well for convenience. Code added in `CvCityAI::AI_jobChangeValue`. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable them anyways etc.).
++
+ ### Technologies (non-exhaustive, see sevopedia or/and tech advisor or/and xml for details)
+ 
+ - tech tree is vastly reordered for historical accuracy (for example pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly. Total number of techs is same as in base advciv +/- civ4 too (didn't check how it was in civ4 exactly i mean but i assume so if i am not mistaken but anyways etc), due to the few assessed as inefficient techs removed in advciv-sas, there are now enough techs so that advciv-sas can now have a future era with several / a few techs, all announced by default civ4 announcer with some swapping so that the quote and corresponding audio fits quite well if i may say and if i am not mistaken but anyways etc anyways etc anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 85dcd73f0..4246f0c6f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -110,6 +110,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#74---seemingly-fixedaddressed-base-advciv-bug-of-ai_bestspreadunit-returning-true-even-if-ebestspreadunit-is-no_unit-then-firing-a-failed-assert)  
+ [75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
+ [76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
++[77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2917,3 +2918,17 @@ Added logic to tone it down a bit as we were switching a bit too much, now based
+ Results in autoplay are very very good i mean if i may say but anyways etc. Now even in the early game we go back and forth between caste system and slavery, and later on serfdom and in particular finally our civic_wage_labor is now quite popular among ais, and the distribution is quite even.
+ 
+ Ideally i'd find ways to prevent oscillation or excessive oscillation at least maybe but anyways etc, but hopefully AI should be much stronger and responsive to change (no point to run scientists if we are about to be steamrolled, value engineers or serfdom or such more i mean maybe but anyways etc).
++
++## 77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1oy_TaNgXpqxxCU5rYUxbqRCL6V_4VkNa?usp=sharing) anyways etc.
++
++We have an issue of AI researching techs its vassal already knows which is very inefficient. In this save file Hammurabi (vassal of Ewuare) is way ahead in tech; it seems at a quick glance Ewuare re-researches many techs Hammurabi already owns, which is very inefficient and suboptimal.
++
++Added code with the help of chatgpt 5.1 in `CvPlayerAI::AI_techValue` to devalue these techs since we can get them from our vassal, and vice versa for the vassal since they can get said techs from the master as well, tunable in sas defines as well anyways etc.
++
++Ideally, would also implement preferential trading with our vassal/master as is more competitive to win, but not done in this known issue.
++
++Results in autoplay are hard to evaluate as history changed after applying this change, and Ewuare and Hammurabi took a different path, and Ewuare snowballed and won sooner as well.
++
++Would need to implement preferential master<->vassal tech trading of techs they can get from each other to see if it helps further.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 01102df77..1d3456686 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -20,8 +20,10 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
+ &emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#units-in-general-ai)  
+ &emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai)  
+ &emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#workers-ai)  
++&emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#city-plots-ai)  
+ &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-ai)  
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#city-production-ai)  
++&emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#leaders-ai)  
+ &emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#buildings-ai)  
+@@ -29,10 +31,10 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#general-changes-non-exhaustive-see-globaldefinesxml)  
+ &emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive)  
+-&emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-non-exhaustive)  
+ &emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#terrains--features-non-exhaustive)  
+ &emsp;[Bonuses (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#bonuses-non-exhaustive)  
+ &emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#improvements--worker-builds-non-exhaustive)  
++&emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-non-exhaustive)  
+ &emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#eras)  
+ &emsp;[Civilizations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civilizations-non-exhaustive)  
+@@ -80,6 +82,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ ### Renaming (non-exhaustive)
+ 
+ - “WFYABTA” → “We fear you are trading more than us.” Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
++- Fixed misleading event text such as “The forge has been destroyed” used even when building actually survives (e.g. “The forge has caught fire” instead).
+ - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
+ - “Civilopedia” → “Sevopedia.”
+ - “Ressource(s)” → “Bonus(es).”
+@@ -173,6 +176,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to “any suitable land unit” if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
++#### Technologies (AI)
++
++- (Requires AdvCiv-SAS 5134+) **Master–vassal tech overlap penalty:** In `CvPlayerAI::AI_techValue`, reduce the value of researching techs already known by our vassal(s) or master to discourage redundant research and encourage complementary paths/trades instead. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc).
++
+ #### Leaders (AI)
+ 
+ - **Leaders — targeted `iBuildUnitProb` edits:** Julius Caesar 30→40; Augustus Caesar 25→30; Qin Shi Huang 20→30; Genghis Khan 35→40; Alexander 35→40; Tokugawa 30→35; Stalin 30→35; Brennus 30→35; Boudica 30→35; Catherine 25→30; Mao Zedong 25→35; Isabella 25→30; Kublai Khan 25→30; Ramesses II 20→25. Reductions: Willem van Oranje 25→20; Justinian I 35→30; Sitting Bull 35→30; Zara Yaqob 30→25; Mansa Musa 25→20.
+@@ -254,15 +261,6 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv).
+ - **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with AdvCiv-SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
+ 
+-### Specialists (non-exhaustive)
+-
+-- **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
+-- (Requires AdvCiv-SAS 5131+) Add an option (default/recommended: **enabled**) to disable **auto-Citizen specialist** assignments for the human player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
+-- (Requires AdvCiv-SAS 5132+) Add a similar option (default **disabled**) to restrict other **auto-specialist** assignments for the human player (e.g. allow auto-Scientists/Engineers/Merchants/Priests, but block auto-Spies and auto-Artists), for players who prefer tighter manual control. Does not override explicit helper logic such as the “force one Artist until BFC” rule. Implemented in `CvCityAI::AI_jobChangeValue`. Tunable via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+-- **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
+-- **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
+-- (Requires AdvCiv-SAS 5124+) Extend the “force one Artist until BFC” helper to **human** players for convenience; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
+-
+ ### Terrains / Features (non-exhaustive)
+ 
+ - Overall: **snow**, **desert**, and **water** tiles strengthened via bonus/building changes (see Bonus/Buildings sections).
+@@ -301,6 +299,15 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
+ - **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
+ 
++### Specialists (non-exhaustive)
++
++- **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
++- **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
++- **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
++- (Requires AdvCiv-SAS 5124+) Extend the “force one **Artist until BFC**” helper to **human** players for convenience; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
++- (Requires AdvCiv-SAS 5131+) Add an option (default/recommended: **enabled**) to disable **auto-Citizen specialist** assignments for the **human** player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
++- (Requires AdvCiv-SAS 5132+) Add a similar option (default **disabled**) to restrict **other auto-specialist** assignments for the **human** player (e.g. allow auto-Scientists/Engineers/Merchants/Priests, but block auto-Spies and auto-Artists), for players who prefer tighter manual control. Does not override explicit helper logic such as the “force one Artist until BFC” rule. Implemented in `CvCityAI::AI_jobChangeValue`. Tunable via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
++
+ ### Technologies (non-exhaustive)
+ 
+ - **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=43105

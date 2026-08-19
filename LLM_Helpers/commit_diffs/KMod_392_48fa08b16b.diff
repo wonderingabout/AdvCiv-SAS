@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 392
+# Commit: 48fa08b16bd8b05e5062e73ff871e8f88e5ea216
+# History segment: K-Mod history
+# Parent used for diff: eb480dd36bacf47f9f93d64f88cb36f596f02429
+# Title: Fixed an original BtS problem which made it hard for a player to deselect a unit after all of their units had moved. (The 'wait' command will now deselect th...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	4	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 847b7c7a4..f9cfdef23 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -481,7 +481,8 @@ void CvGame::updateTestEndTurn()
+ 			{
+ 				if (!(gDLL->getInterfaceIFace()->isForcePopup()))
+ 				{
+-					gDLL->getInterfaceIFace()->setForcePopup(true);
++					if (!gDLL->shiftKey()) // K-Mod
++						gDLL->getInterfaceIFace()->setForcePopup(true);
+ 				}
+ 				else
+ 				{
+@@ -739,6 +740,15 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers) con
+ 		FAssert(pNextSelectionGroup->getHeadUnit() != NULL); // K-Mod
+ 		gDLL->getInterfaceIFace()->selectUnit(pNextSelectionGroup->getHeadUnit(), bClear);
+ 	}
++	// K-Mod
++	else
++	{
++		gDLL->getInterfaceIFace()->clearSelectionList();
++		const_cast<CvGame*>(this)->updateTestEndTurn();
++		// again, I'm sorry about the const_cast. this function and updateTestEndTurn are both dllexport functions.
++		// so I can't change the constness of either of them to fix the problem.
++	}
++	// K-Mod end
+ 
+ 	if ((pCycleUnit != gDLL->getInterfaceIFace()->getHeadSelectedUnit()) || ((pCycleUnit != NULL) && pCycleUnit->getGroup()->readyToSelect()))
+ 	{
+@@ -761,9 +771,6 @@ void CvGame::cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bD
+ 		if (!bDelayOnly)
+ 		{
+ 			cycleSelectionGroups(true);
+-			CvUnit* pUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+-			if (pUnit && !pUnit->getGroup()->readyToMove())
+-				gDLL->getInterfaceIFace()->clearSelectionList();
+ 		}
+ 	}
+ 	else
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1573

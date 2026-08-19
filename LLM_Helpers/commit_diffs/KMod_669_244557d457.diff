@@ -1,0 +1,379 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 669
+# Commit: 244557d457be93fd4a2761b9d27e11dfb474335f
+# History segment: K-Mod history
+# Parent used for diff: 20840299aa6d03f4e33b3241ab7e35f6fd6f5a96
+# Title: City governors will now choose to build processes (such as wealth) if they think it is more valuable than constructing a building.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	47	CvGameCoreDLL/CvCity.cpp
+61	78	CvGameCoreDLL/CvCityAI.cpp
+3	4	CvGameCoreDLL/CvCityAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2903aba44..042d35607 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11984,7 +11984,7 @@ void CvCity::clearOrderQueue()
+ 
+ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce)
+ {
+-  OrderData order;
++	OrderData order;
+ 	bool bValid;
+ 	bool bBuildingUnit = false;
+ 	bool bBuildingBuilding = false;
+@@ -11996,8 +11996,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 
+ 	bValid = false;
+ 
+-  switch (eOrder)
+-  {
++	switch (eOrder)
++	{
+ 	case ORDER_TRAIN:
+ 		if (canTrain((UnitTypes)iData1) || bForce)
+ 		{
+@@ -12014,22 +12014,14 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 			bValid = true;
+ 			bBuildingUnit = true;
+ 			CvEventReporter::getInstance().cityBuildingUnit(this, (UnitTypes)iData1);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 			if( gCityLogLevel >= 1 )
+ 			{
+ 				CvWString szString;
+ 				getUnitAIString(szString, (UnitAITypes)iData2);
+ 				logBBAI("    City %S pushes production of unit %S with UNITAI %S", getName().GetCString(), GC.getUnitInfo((UnitTypes) iData1).getDescription(), szString.GetCString() );
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		}
+-    break;
++		break;
+ 
+ 	case ORDER_CONSTRUCT:
+ 		if (canConstruct((BuildingTypes)iData1) || bForce)
+@@ -12039,18 +12031,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 			bValid = true;
+ 			bBuildingBuilding = true;
+ 			CvEventReporter::getInstance().cityBuildingBuilding(this, (BuildingTypes)iData1);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 			if( gCityLogLevel >= 1 )
+-			{
+ 				logBBAI("    City %S pushes production of building %S", getName().GetCString(), GC.getBuildingInfo((BuildingTypes)iData1).getDescription() );
+-			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		}
+ 		break;
+ 
+@@ -12060,18 +12042,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 			GET_TEAM(getTeam()).changeProjectMaking(((ProjectTypes)iData1), 1);
+ 
+ 			bValid = true;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 			if( gCityLogLevel >= 1 )
+-			{
+ 				logBBAI("    City %S pushes production of project %S", getName().GetCString(), GC.getProjectInfo((ProjectTypes)iData1).getDescription() );
+-			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		}
+ 		break;
+ 
+@@ -12079,32 +12051,22 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 		if (canMaintain((ProcessTypes)iData1) || bForce)
+ 		{
+ 			bValid = true;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 			if( gCityLogLevel >= 1 )
+-			{
+ 				logBBAI("    City %S pushes production of process %S", getName().GetCString(), GC.getProcessInfo((ProcessTypes)iData1).getDescription() );
+-			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		}
+ 		break;
+ 
+-  default:
+-    FAssertMsg(false, "iOrder did not match a valid option");
+-    break;
+-  }
++	default:
++		FAssertMsg(false, "iOrder did not match a valid option");
++		break;
++	}
+ 
+ 	if (!bValid)
+ 	{
+ 		return;
+ 	}
+ 
+-  order.eOrderType = eOrder;
++	order.eOrderType = eOrder;
+ 	order.iData1 = iData1;
+ 	order.iData2 = iData2;
+ 	order.bSave = bSave;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 86cb071e2..1856af1e7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2643,6 +2643,23 @@ void CvCityAI::AI_chooseProduction()
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 2. (project value: %d, building value: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue);
+ 		return;
+ 	}
++
++	ProcessTypes eBestProcess = AI_bestProcess();
++	if (eBestProcess != NO_PROCESS)
++	{
++		// unfortunately, the evaluation of eBestProcess is duplicated.
++		int iProcessValue = AI_processValue(eBestProcess);
++		// note: process value has units of 1x commerce; building value has units of 4x commerce.
++		// but building value is ongoing, whereas processes are temporary.
++		// Also, note that as soon as we start working the process, our citizens will rearrange in a way that is likely to devalue the process for the next turn.
++		int iOdds = 100*(iProcessValue - iBestBuildingValue/2)/std::max(1, iBestBuildingValue/2);
++		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
++		{
++			pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
++			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by value", getName().GetCString());
++			return;
++		}
++	}
+ 	// K-Mod end
+ 
+ 	if (AI_chooseBuilding())
+@@ -2660,8 +2677,10 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if (AI_chooseProcess())
++	//if (AI_chooseProcess())
++	if (eBestProcess != NO_PROCESS)
+ 	{
++		pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
+ 		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by default", getName().GetCString());
+ 		return;
+ 	}
+@@ -5832,27 +5851,16 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject)
+ 	return iValue;
+ }
+ 
+-
+-ProcessTypes CvCityAI::AI_bestProcess()
+-{
+-	return AI_bestProcess(NO_COMMERCE);
+-}
+-
+ ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType)
+ {
+-	ProcessTypes eBestProcess;
+-	int iValue;
+-	int iBestValue;
+-	int iI;
+-
+-	iBestValue = 0;
+-	eBestProcess = NO_PROCESS;
++	int iBestValue = 0;
++	ProcessTypes eBestProcess = NO_PROCESS;
+ 
+-	for (iI = 0; iI < GC.getNumProcessInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
+ 	{
+ 		if (canMaintain((ProcessTypes)iI))
+ 		{
+-			iValue = AI_processValue((ProcessTypes)iI, eCommerceType);
++			int iValue = AI_processValue((ProcessTypes)iI, eCommerceType);
+ 
+ 			if (iValue > iBestValue)
+ 			{
+@@ -5865,78 +5873,45 @@ ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType)
+ 	return eBestProcess;
+ }
+ 
+-
+-int CvCityAI::AI_processValue(ProcessTypes eProcess)
+-{
+-	return AI_processValue(eProcess, NO_COMMERCE);
+-}
+-
++// K-Mod. I've rearranged / rewriten most of this function.
++// units of ~1x commerce
+ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType)
+ {
+-	int iValue;
+-	int iTempValue;
+-	int iI;
+ 	bool bValid = (eCommerceType == NO_COMMERCE);
+ 	
+-	iValue = 0;
++	int iValue = 0;
+ 
+-	if (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
++	if (GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD) && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD);
+ 	}
+ 
+ 	// if we own less than 50%, or we need to pop borders
+-	if ((plot()->calculateCulturePercent(getOwnerINLINE()) < 50) || (getCultureLevel() <= (CultureLevelTypes) 1))
++	if (GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE) && (plot()->calculateCulturePercent(getOwnerINLINE()) < 50 || getCultureLevel() <= 1))
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/30/09                                jdog5000      */
+-/*                                                                                              */
+-/* Cultural Victory AI                                                                          */
+-/************************************************************************************************/
+-	if ( GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) )
+-	{
+-		// Final city for cultural victory will build culture to speed up victory
+-		if( findCommerceRateRank(COMMERCE_CULTURE) == GC.getGameINLINE().culturalVictoryNumCultureCities() )
+-		{
+-			iValue += 2*GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	for (CommerceTypes i = (CommerceTypes)0; i < NUM_COMMERCE_TYPES; i = (CommerceTypes)(i+1))
+ 	{
+-		iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(iI);
+-		if (!bValid && ((CommerceTypes)iI == eCommerceType) && (iTempValue > 0))
++		int iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(i);
++		if (iTempValue != 0)
+ 		{
+-			bValid = true;
+-		    iTempValue *= 2;
+-		}
+-
+-		/* original bts code
+-		iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+-		iTempValue /= 100; */
+-		// K-Mod. culture is local, the other commerce types are non-local.
+-		// We don't want the non-local commerceWeights in this function, because maintaining a process is just a short-term arrangement.
+-		iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), iI == COMMERCE_CULTURE ? this : 0);
+-		iTempValue /= 100;
+-		// K-Mod end
++			if (!bValid && i == eCommerceType && iTempValue > 0)
++			{
++				bValid = true;
++				iTempValue *= 2;
++			}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
+-/*                                                                                              */
+-/* Gold AI                                                                                      */
+-/************************************************************************************************/
+-		iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
++			// K-Mod. culture is local, the other commerce types are non-local.
++			// We don't want the non-local commerceWeights in this function, because maintaining a process is just a short-term arrangement.
++			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(i, i == COMMERCE_CULTURE ? this : 0);
++			iTempValue /= 100;
++			// K-Mod end
+ 
+-		iTempValue /= 60;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange(i);
++			iTempValue /= 60;
++		}
+ 
+ 		iValue += iTempValue;
+ 	}
+@@ -11043,21 +11018,29 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		}
+ 	}
+ 
+-	//default
+-	if (AI_chooseBuilding())
++	//process
++	ProcessTypes eBestProcess = AI_bestProcess();
++	if (eBestProcess != NO_PROCESS)
+ 	{
+-		return;
++		// same as in AI_chooseProduction. (as of the time of writing).
++		int iProcessValue = AI_processValue(eBestProcess);
++		int iOdds = 100*(iProcessValue - iBestBuildingValue/2)/std::max(1, iBestBuildingValue/2);
++		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
++		{
++			pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
++			return;
++		}
+ 	}
+ 
+-	if (AI_chooseProcess())
+-	{
++	//default
++	if (AI_chooseBuilding())
+ 		return;
+-	}
++
++	/*if (AI_chooseProcess())
++		return; */
+ 
+     if (AI_chooseUnit())
+-	{
+ 		return;
+-	}
+ }
+ 
+ // K-Mod. This is a chunk of code that I moved out of AI_chooseProduction. The only reason I've moved it is to reduce clutter in the other function.
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 9abe80d26..a54774700 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -46,10 +46,9 @@ public:
+ 	ProjectTypes AI_bestProject(int* piBestValue = 0);
+ 	int AI_projectValue(ProjectTypes eProject);
+ 
+-	ProcessTypes AI_bestProcess();
+-	ProcessTypes AI_bestProcess(CommerceTypes eCommerceType);
+-	int AI_processValue(ProcessTypes eProcess);
+-	int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType);
++	// K-Mod note, I've deleted the single-argument version of the following two functions. They were completely superfluous.
++	ProcessTypes AI_bestProcess(CommerceTypes eCommerceType = NO_COMMERCE);
++	int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType = NO_COMMERCE);
+ 
+ 	int AI_neededSeaWorkers();
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=15321

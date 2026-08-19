@@ -1,0 +1,411 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1231
+# Commit: 48fd4c01102e13acbcfe3091bdb86d97e213702e
+# History segment: K-Mod history
+# Parent used for diff: 1129c1e740652f1008762e8eab8886a4243848da
+# Title: Fixed some memory leaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvDllPythonEvents.cpp
+9	20	CvGameCoreDLL/CvGameTextMgr.cpp
+35	61	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index f621ac2b5..5147eacf2 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -594,7 +594,7 @@ void CvDllPythonEvents::reportSelectionGroupPushMission(CvSelectionGroup* pSelec
+ 
+ 		postEvent(eventData);
+ 
+-		delete aiUnitIds;
++		delete[] aiUnitIds;
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 58d52e396..2aa7ac267 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3218,7 +3218,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 				{
+ 					FAssert(GC.getDefineINT("MAX_EXPERIENCE_PER_COMBAT") > GC.getDefineINT("MIN_EXPERIENCE_PER_COMBAT")); //ensuring the differences is at least 1
+ 					int size = GC.getDefineINT("MAX_EXPERIENCE_PER_COMBAT") - GC.getDefineINT("MIN_EXPERIENCE_PER_COMBAT");
+-					float* CombatRatioThresholds = new float[size];
++					std::vector<float> CombatRatioThresholds(size);
+ 
+ 					for (int i = 0; i < size; i++) //setup the array
+ 					{
+@@ -3285,7 +3285,6 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 							}//if
+ 						}// else if
+ 					}//for
+-					delete CombatRatioThresholds;
+ 					//throw away the array
+ 				}//if
+ 			} // else if
+@@ -4340,20 +4339,10 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			if( bShift && !bAlt)
+ 			{
+ 				const CvPlayerAI& kPlayer = GET_PLAYER(pPlot->getOwnerINLINE());
+-				int* paiBonusClassRevealed;
+-				int* paiBonusClassUnrevealed;
+-				int* paiBonusClassHave;
+ 
+-				paiBonusClassRevealed = new int[GC.getNumBonusClassInfos()];
+-				paiBonusClassUnrevealed = new int[GC.getNumBonusClassInfos()];
+-				paiBonusClassHave = new int[GC.getNumBonusClassInfos()];
+-
+-				for (int iI = 0; iI < GC.getNumBonusClassInfos(); iI++)
+-				{
+-					paiBonusClassRevealed[iI] = 0;
+-					paiBonusClassUnrevealed[iI] = 0;
+-					paiBonusClassHave[iI] = 0;	    
+-				}
++				std::vector<int> viBonusClassRevealed(GC.getNumBonusClassInfos(), 0);
++				std::vector<int> viBonusClassUnrevealed(GC.getNumBonusClassInfos(), 0);
++				std::vector<int> viBonusClassHave(GC.getNumBonusClassInfos(), 0);
+ 
+ 				for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 				{
+@@ -4363,20 +4352,20 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					{
+ 						if ((GET_TEAM(pPlot->getTeam()).isHasTech(eRevealTech)))
+ 						{
+-							paiBonusClassRevealed[eBonusClass]++;
++							viBonusClassRevealed[eBonusClass]++;
+ 						}
+ 						else
+ 						{
+-							paiBonusClassUnrevealed[eBonusClass]++;
++							viBonusClassUnrevealed[eBonusClass]++;
+ 						}
+ 
+ 						if (kPlayer.getNumAvailableBonuses((BonusTypes)iI) > 0)
+ 						{
+-							paiBonusClassHave[eBonusClass]++;                
++							viBonusClassHave[eBonusClass]++;
+ 						}
+ 						else if (kPlayer.countOwnedBonuses((BonusTypes)iI) > 0)
+ 						{
+-							paiBonusClassHave[eBonusClass]++;
++							viBonusClassHave[eBonusClass]++;
+ 						}
+ 					}
+ 				}
+@@ -4389,7 +4378,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 
+ 					if( iPathLength <= 3 && !GET_TEAM(pPlot->getTeam()).isHasTech((TechTypes)iI) )
+ 					{
+-						szString.append(CvWString::format(L"\n%s(%d)=%8d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, kPlayer.AI_techValue((TechTypes)iI, 1, false, true, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
++						szString.append(CvWString::format(L"\n%s(%d)=%8d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, kPlayer.AI_techValue((TechTypes)iI, 1, false, true, viBonusClassRevealed, viBonusClassUnrevealed, viBonusClassHave)));
+ 						szString.append(CvWString::format(L" (bld:%d, ", kPlayer.AI_techBuildingValue((TechTypes)iI, true, bDummy)));
+ 						int iObs = kPlayer.AI_obsoleteBuildingPenalty((TechTypes)iI, true);
+ 						if (iObs != 0)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 27ead64af..485497801 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2928,7 +2928,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	}
+ 	// K-Mod end
+ 
+-	std::vector<int> paiBonusCount(GC.getNumBonusInfos(), 0);
++	std::vector<int> viBonusCount(GC.getNumBonusInfos(), 0);
+ 
+ 	int iBadTile = 0;
+ 
+@@ -3264,12 +3264,12 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				{
+ 					//iBonusValue = AI_bonusVal(eBonus, 1, true) * ((!kSet.bStartingLoc && (getNumTradeableBonuses(eBonus) == 0) && (paiBonusCount[eBonus] == 1)) ? 80 : 20);
+ 					// K-Mod
+-					int iCount = getNumTradeableBonuses(eBonus) == 0 + paiBonusCount[eBonus];
++					int iCount = getNumTradeableBonuses(eBonus) == 0 + viBonusCount[eBonus];
+ 					int iBonusValue = AI_bonusVal(eBonus, 0, true) * 80 / (1 + 2*iCount);
+ 					// Note: 1. the value of starting bonuses is reduced later.
+ 					//       2. iTempValue use to be used throughout this section. I've replaced all references with iBonusValue, for clarity.
+-					paiBonusCount[eBonus]++; // (this use to be above the iBonusValue initialization)
+-					FAssert(paiBonusCount[eBonus] > 0);
++					viBonusCount[eBonus]++; // (this use to be above the iBonusValue initialization)
++					FAssert(viBonusCount[eBonus] > 0);
+ 					//
+ 
+ 					iBonusValue *= (kSet.bStartingLoc ? 100 : kSet.iGreed);
+@@ -3896,8 +3896,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 		int iUniqueBonusCount = 0;
+ 		for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 		{
+-			iBonusCount += paiBonusCount[iI];
+-			iUniqueBonusCount += (paiBonusCount[iI] > 0) ? 1 : 0;
++			iBonusCount += viBonusCount[iI];
++			iUniqueBonusCount += (viBonusCount[iI] > 0) ? 1 : 0;
+ 		}
+ 		if (iBonusCount > 4)
+ 		{
+@@ -4918,20 +4918,9 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bIgnoreCost, bool bAs
+ 	int iPathLength;
+ 	CvTeam& kTeam = GET_TEAM(getTeam());
+ 
+-	int* paiBonusClassRevealed;
+-	int* paiBonusClassUnrevealed;
+-	int* paiBonusClassHave;
+-	
+-	paiBonusClassRevealed = new int[GC.getNumBonusClassInfos()];
+-	paiBonusClassUnrevealed = new int[GC.getNumBonusClassInfos()];
+-	paiBonusClassHave = new int[GC.getNumBonusClassInfos()];
+-	
+-	for (int iI = 0; iI < GC.getNumBonusClassInfos(); iI++)
+-	{
+-        paiBonusClassRevealed[iI] = 0;
+-        paiBonusClassUnrevealed[iI] = 0;
+-        paiBonusClassHave[iI] = 0;	    
+-	}
++	std::vector<int> viBonusClassRevealed(GC.getNumBonusClassInfos(), 0);
++	std::vector<int> viBonusClassUnrevealed(GC.getNumBonusClassInfos(), 0);
++	std::vector<int> viBonusClassHave(GC.getNumBonusClassInfos(), 0);
+ 
+ 	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 	{
+@@ -4941,20 +4930,20 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bIgnoreCost, bool bAs
+ 	    {
+ 	        if ((kTeam.isHasTech(eRevealTech)))
+ 	        {
+-	            paiBonusClassRevealed[eBonusClass]++;
++	            viBonusClassRevealed[eBonusClass]++;
+ 	        }
+ 	        else
+ 	        {
+-	            paiBonusClassUnrevealed[eBonusClass]++;
++	            viBonusClassUnrevealed[eBonusClass]++;
+ 	        }
+ 
+             if (getNumAvailableBonuses((BonusTypes)iI) > 0)
+             {
+-                paiBonusClassHave[eBonusClass]++;                
++                viBonusClassHave[eBonusClass]++;
+             }
+             else if (countOwnedBonuses((BonusTypes)iI) > 0)
+             {
+-                paiBonusClassHave[eBonusClass]++;
++                viBonusClassHave[eBonusClass]++;
+             }
+ 	    }
+ 	}
+@@ -4980,7 +4969,7 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bIgnoreCost, bool bAs
+ 
+ 							if (iPathLength <= iMaxPathLength)
+ 							{
+-								iValue = AI_techValue( (TechTypes)iI, iPathLength, bIgnoreCost, bAsync, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave );
++								iValue = AI_techValue( (TechTypes)iI, iPathLength, bIgnoreCost, bAsync, viBonusClassRevealed, viBonusClassUnrevealed, viBonusClassHave );
+ 
+ 								if( gPlayerLogLevel >= 3 )
+ 								{
+@@ -5005,10 +4994,6 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bIgnoreCost, bool bAs
+ 		logBBAI("  Player %d (%S) selects tech %S with value %d", getID(), getCivilizationDescription(0), GC.getTechInfo(eBestTech).getDescription(), iBestValue );
+ 	}
+ 
+-    SAFE_DELETE_ARRAY(paiBonusClassRevealed);
+-    SAFE_DELETE_ARRAY(paiBonusClassUnrevealed);
+-    SAFE_DELETE_ARRAY(paiBonusClassHave);	
+-
+ 	return eBestTech;
+ }
+ 
+@@ -5016,9 +5001,12 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bIgnoreCost, bool bAs
+ // Note: many of the values used in this function are arbitrary; but I've adjusted them to get closer to having a common scale.
+ // The scale is roughly 4 = 1 commerce per turn.
+ // (Compared to the original numbers, this is * 1/100 * 7 * 4. 28/100)
+-int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const
++int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, const std::vector<int>& viBonusClassRevealed, const std::vector<int>& viBonusClassUnrevealed, const std::vector<int>& viBonusClassHave) const
+ {
+ 	PROFILE_FUNC();
++	FAssert(viBonusClassRevealed.size() == GC.getNumBonusClassInfos());
++	FAssert(viBonusClassUnrevealed.size() == GC.getNumBonusClassInfos());
++	FAssert(viBonusClassHave.size() == GC.getNumBonusClassInfos());
+ 
+ 	long iValue; // K-Mod. (the int was overflowing in parts of the calculation)
+ 
+@@ -5695,7 +5683,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 			iRevealValue += AI_bonusVal((BonusTypes)iJ, 1, true) * iCityCount * 2/3;
+ 
+ 			BonusClassTypes eBonusClass = (BonusClassTypes)GC.getBonusInfo((BonusTypes)iJ).getBonusClassType();
+-			int iBonusClassTotal = (paiBonusClassRevealed[eBonusClass] + paiBonusClassUnrevealed[eBonusClass]);
++			int iBonusClassTotal = (viBonusClassRevealed[eBonusClass] + viBonusClassUnrevealed[eBonusClass]);
+ 
+ 			//iMultiplier is basically a desperation value
+ 			//it gets larger as the AI runs out of options
+@@ -5705,12 +5693,12 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 			int iMultiplier = 0;
+ 			if (iBonusClassTotal > 0)
+ 			{
+-                iMultiplier = (paiBonusClassRevealed[eBonusClass] - paiBonusClassHave[eBonusClass]);
++                iMultiplier = (viBonusClassRevealed[eBonusClass] - viBonusClassHave[eBonusClass]);
+                 iMultiplier *= 100;
+                 iMultiplier /= iBonusClassTotal;
+                 
+-                iMultiplier *= (paiBonusClassRevealed[eBonusClass] + 1);
+-                iMultiplier /= ((paiBonusClassHave[eBonusClass] * iBonusClassTotal) + 1);
++                iMultiplier *= (viBonusClassRevealed[eBonusClass] + 1);
++                iMultiplier /= ((viBonusClassHave[eBonusClass] * iBonusClassTotal) + 1);
+ 			}
+ 
+ 			iMultiplier *= std::min(3, getNumCities());
+@@ -9105,34 +9093,22 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	CLLNode<TradeData>* pBestNode;
+ 	CLLNode<TradeData>* pGoldPerTurnNode;
+ 	CLLNode<TradeData>* pGoldNode;
+-	bool* pabBonusDeal;
+-	CvCity* pCity;
+-	bool bTheirGoldDeal;
+-	bool bOurGoldDeal;
+-	//int iHumanDealWeight;
+-	//int iAIDealWeight;
+ 	int iGoldData;
+ 	int iGoldWeight;
+ 	int iWeight;
+ 	int iBestWeight;
+ 	int iValue;
+ 	int iBestValue;
+-	int iI;
+ 
+-	bTheirGoldDeal = AI_goldDeal(pTheirList);
+-	bOurGoldDeal = AI_goldDeal(pOurList);
++	bool bTheirGoldDeal = AI_goldDeal(pTheirList);
++	bool bOurGoldDeal = AI_goldDeal(pOurList);
+ 
+ 	if (bOurGoldDeal && bTheirGoldDeal)
+ 	{
+ 		return false;
+ 	}
+ 
+-	pabBonusDeal = new bool[GC.getNumBonusInfos()];
+-
+-	for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+-	{
+-		pabBonusDeal[iI] = false;
+-	}
++	std::vector<bool> vbBonusDeal(GC.getNumBonusInfos(), false);
+ 
+ 	pGoldPerTurnNode = NULL;
+ 	pGoldNode = NULL;
+@@ -9226,7 +9202,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 						if (GET_PLAYER(ePlayer).getTradeDenial(getID(), pNode->m_data) == NO_DENIAL)
+ 						{
+-							pCity = GET_PLAYER(ePlayer).getCity(pNode->m_data.m_iData);
++							CvCity* pCity = GET_PLAYER(ePlayer).getCity(pNode->m_data.m_iData);
+ 
+ 							if (pCity != NULL)
+ 							{
+@@ -9323,7 +9299,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			switch (pNode->m_data.m_eItemType)
+ 			{
+ 			case TRADE_RESOURCES:
+-				pabBonusDeal[pNode->m_data.m_iData] = true;
++				vbBonusDeal[pNode->m_data.m_iData] = true;
+ 				break;
+ 			}
+ 		}
+@@ -9344,14 +9320,14 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 						iWeight += GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)(pNode->m_data.m_iData), GET_PLAYER(ePlayer).getTeam());
+ 						break;
+ 					case TRADE_RESOURCES:
+-						if (!pabBonusDeal[pNode->m_data.m_iData])
++						if (!vbBonusDeal[pNode->m_data.m_iData])
+ 						{
+ 							if (GET_PLAYER(ePlayer).getNumTradeableBonuses((BonusTypes)(pNode->m_data.m_iData)) > 1)
+ 							{
+ 								if (GET_PLAYER(ePlayer).AI_corporationBonusVal((BonusTypes)(pNode->m_data.m_iData)) == 0)
+ 								{
+ 									iWeight += AI_bonusTradeVal(((BonusTypes)(pNode->m_data.m_iData)), ePlayer, 1);
+-									pabBonusDeal[pNode->m_data.m_iData] = true;
++									vbBonusDeal[pNode->m_data.m_iData] = true;
+ 								}
+ 							}
+ 						}
+@@ -9450,12 +9426,12 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 					{
+ 						iWeight = 0;
+ 
+-						if (!pabBonusDeal[pNode->m_data.m_iData])
++						if (!vbBonusDeal[pNode->m_data.m_iData])
+ 						{
+ 							if (GET_PLAYER(ePlayer).getNumTradeableBonuses((BonusTypes)(pNode->m_data.m_iData)) > 0)
+ 							{
+ 								iWeight += AI_bonusTradeVal(((BonusTypes)(pNode->m_data.m_iData)), ePlayer, 1);
+-								pabBonusDeal[pNode->m_data.m_iData] = true;
++								vbBonusDeal[pNode->m_data.m_iData] = true;
+ 							}
+ 						}
+ 
+@@ -9521,7 +9497,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 						if (getTradeDenial(ePlayer, pNode->m_data) == NO_DENIAL)
+ 						{
+-							pCity = getCity(pNode->m_data.m_iData);
++							CvCity* pCity = getCity(pNode->m_data.m_iData);
+ 
+ 							if (pCity != NULL)
+ 							{
+@@ -9607,7 +9583,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			switch (pNode->m_data.m_eItemType)
+ 			{
+ 			case TRADE_RESOURCES:
+-				pabBonusDeal[pNode->m_data.m_iData] = true;
++				vbBonusDeal[pNode->m_data.m_iData] = true;
+ 				break;
+ 			}
+ 		}
+@@ -9628,12 +9604,12 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 						iWeight += GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_techTradeVal((TechTypes)(pNode->m_data.m_iData), getTeam());
+ 						break;
+ 					case TRADE_RESOURCES:
+-						if (!pabBonusDeal[pNode->m_data.m_iData])
++						if (!vbBonusDeal[pNode->m_data.m_iData])
+ 						{
+ 							if (getNumTradeableBonuses((BonusTypes)(pNode->m_data.m_iData)) > 1)
+ 							{
+ 								iWeight += GET_PLAYER(ePlayer).AI_bonusTradeVal(((BonusTypes)(pNode->m_data.m_iData)), getID(), 1);
+-								pabBonusDeal[pNode->m_data.m_iData] = true;
++								vbBonusDeal[pNode->m_data.m_iData] = true;
+ 							}
+ 						}
+ 						break;
+@@ -9720,8 +9696,6 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 		}
+ 	}
+ 
+-	SAFE_DELETE_ARRAY(pabBonusDeal);
+-
+ 	/* original bts code
+ 	return ((iValueForThem <= iValueForUs) && ((pOurList->getLength() > 0) || (pOurCounter->getLength() > 0) || (pTheirCounter->getLength() > 0))); */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 75cbc5f1e..329ab7333 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -130,7 +130,7 @@ public:
+ /*                                                                                              */
+ /* Tech AI                                                                                      */
+ /************************************************************************************************/
+-	int AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const;
++	int AI_techValue(TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, const std::vector<int>& viBonusClassRevealed, const std::vector<int>& viBonusClassUnrevealed, const std::vector<int>& viBonusClassHave) const;
+ 	int AI_obsoleteBuildingPenalty(TechTypes eTech, bool bConstCache) const; // K-Mod
+ 	int AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bEnablesWonder) const; // Rewritten for K-Mod
+ 	int AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnablesUnitWonder ) const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=16963

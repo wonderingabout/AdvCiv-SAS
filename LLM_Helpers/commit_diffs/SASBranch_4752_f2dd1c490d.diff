@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4752
+# Commit: f2dd1c490db3de75cc629a383ce094cfd90897ef
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 277746f4154a2424d763d9cc385d6a6bc8ef92bc
+# Title: (very?) small cleanup anyways etc but anyways etc anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	README.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 07c6b3fc8..5300e7212 100644
+--- a/README.md
++++ b/README.md
+@@ -110,7 +110,7 @@ mostly my own modding and first attemps at deciphering civ4's python, not inordi
+ 
+ new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
+ 
+-()anyways etc(,)( )Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... Below are the screenshots (and) enjoy anyways etc, maybe i should read them too now that their formatting is fixed and all if i may say, i am sure it can be instructive but i don't care too much about the technicalities of religions, still the historical part of them is very interesting, to me at least, knowing where we or at least i come from and where we or maybe i at least maybe go too or not or yes or trying to guess it or assess choose or let it be chosen by itself or myself or and other or and not anyways etc and screenshot samples are below for some/most of them please view ingame for more content or/and updated one anyways etc(and thanks(?) i want to say to to you reading really (if someone even reads but i write for myself at least maybe and that being said read after bracket anyways etc:  (even though i like readers but i also like doing my own things alone, so with that said happy if you like, happy if i like, may be mutually exclusive or maybe not, but in all cases hopefully helpful or maybe not or yes or and other or and not anyways etc)) but that being said focus and do civ4 thing or not but anyways etc..):
++(Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... Below are the screenshots (and) enjoy maybe or not or yes or and other or and not anyways etc: after brackets anyways etc)
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3092

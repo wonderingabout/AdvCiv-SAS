@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 321
+# Commit: 56897767099c4937abe47ed4d3c78634cec45eb8
+# History segment: K-Mod history
+# Parent used for diff: b671f06a56f4f69eb2aac3169c5c691e9bfd1e20
+# Title: Gunships now start with the Amphibious promotion. Changed the default autoplays turns from 10 to 1. (because it's more important to set it up fast only doing...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/K-Mod/AIAutoPlay.py
+6	1	Assets/xml/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/K-Mod/AIAutoPlay.py b/Assets/Python/K-Mod/AIAutoPlay.py
+index de638148e..964b969b6 100644
+--- a/Assets/Python/K-Mod/AIAutoPlay.py
++++ b/Assets/Python/K-Mod/AIAutoPlay.py
+@@ -30,7 +30,7 @@ class AIAutoPlay :
+         self.refortify = False
+         self.bSaveAllDeaths = True
+ 
+-        self.DefaultTurnsToAuto = 10
++        self.DefaultTurnsToAuto = 1
+         
+         self.customEM = customEM
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index 03aa23a1b..182e43aa6 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -15596,7 +15596,12 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1059

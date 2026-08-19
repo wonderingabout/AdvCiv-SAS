@@ -1,0 +1,177 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4915
+# Commit: faa3eb266994c15ad1afe8bdbf25d1e14cb09e2b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7ef477d55d5fb784ee3649f4ced196fc52662215
+# Title: sevopedia improvement beautification: move base yields to improvement_pane
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	24	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+2	2	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 43a87c969..2327c23a2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -69,10 +69,10 @@ class SevoPediaImprovement:
+ 		self.Y_REQUIRES = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION
+ 
+-		self.X_BASE_YIELDS = self.X_IMPROVEMENT_PANE
+-		self.Y_BASE_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_BASE_YIELDS = self.W_IMPROVEMENT_ANIMATION
+-		self.H_BASE_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BASE_YIELDS
++		self.X_MOST_YIELDS = self.X_IMPROVEMENT_PANE
++		self.Y_MOST_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
++		self.W_MOST_YIELDS = self.W_IMPROVEMENT_ANIMATION
++		self.H_MOST_YIELDS = self.top.B_PEDIA_PAGE - self.Y_MOST_YIELDS
+ 
+ 		self.X_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
+ 		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_ANIMATION + self.H_IMPROVEMENT_ANIMATION + self.SMALL_MARGIN
+@@ -101,7 +101,7 @@ class SevoPediaImprovement:
+ 		self.placeBonusYields()
+ 		self.placeImprovementAnimation()
+ 		self.placeRequires()
+-		self.placeBaseYields()
++		self.placeMostYields()
+ 		self.placeTerrainMakesValids()
+ 		self.placeFeatureMakesValids()
+ 		self.placeHistory()
+@@ -115,6 +115,43 @@ class SevoPediaImprovement:
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+ 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getImprovementInfo(self.iImprovement).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
++		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe anyways etc (a bit like in sevopedia terrain and sevopedia feature anyways etc), anyways etc -->
++		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
++		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
++		s = u""
++		nCount = 0
++
++		for k in range(YieldTypes.NUM_YIELD_TYPES):
++			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
++
++			if iYieldChange != 0:
++				# <!-- custom: for some reason the production char has one less char or something similar anyways etc, so pad it to the right as advised to me by chatgpt in a different way than what i did here but helped although i had same idea too xd but helped still thanks to find easier the char or see the idea itself so i could reflect on it if i may say anyways etc -->
++				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
++					s += u" "
++
++				if iYieldChange > 0:
++					sign = "+"
++				else:
++					sign = ""
++				s += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
++				nCount += 1
++
++				# <!-- custom: also pad to the right as it seems we miss a char there as well anyways etc -->
++				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
++					s += u" "
++		
++		if nCount > 0:
++			szYield = u"<font=4>%s</font>" % s
++
++			xCenteringAdjust = 0
++			for i in range(nCount):
++				xCenteringAdjust -= 21
++
++			xCenteringPositioning = ((self.W_IMPROVEMENT_PANE-10) / 2) - 4
++			yBottomPositioning = self.H_IMPROVEMENT_PANE - 44
++			
++			screen.addMultilineText(self.top.getNextWidgetName(), szYield, self.X_IMPROVEMENT_PANE + xCenteringPositioning + xCenteringAdjust +5, self.Y_IMPROVEMENT_PANE - 13 + yBottomPositioning, self.W_IMPROVEMENT_PANE-10, self.H_IMPROVEMENT_PANE-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 
+ 
+ 	def placeSpecial(self):
+@@ -199,31 +236,14 @@ class SevoPediaImprovement:
+ 
+ 
+ 
+-	def placeBaseYields(self):
++	def placeMostYields(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BASE_YIELDS, self.Y_BASE_YIELDS, self.W_BASE_YIELDS, self.H_BASE_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
+ 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(listName, False)
+ 
+-		# <!-- custom: changes based on the same idea applied in SevoPediaBonus.py 's placeStats function as it is similar
+-		#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+-		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
+-		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
+-		for k in range(YieldTypes.NUM_YIELD_TYPES):
+-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
+-			if iYieldChange != 0:
+-				szYield = u""
+-				if iYieldChange > 0:
+-					sign = "+"
+-				else:
+-					sign = ""
+-				# <!-- custom: change here, also add a larger font, especially now that we have more room with less text now -->
+-				#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+-				szYield += (u"<font=4>%s%i%c</font>" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+-				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+ 		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getIrrigatedYieldChange(k)
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index ddc6cbb5a..0a0d7f25c 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -135,8 +135,8 @@
+ 	</TEXT>
+ 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>
+-		<English>Base Tile Yield Changes</English>
++		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
++		<English>Irrigation, Hill, River, Tech, Civic, Route Tile Yield Changes</English>
+ 	</TEXT>
+ 	<!-- custom: be careful, this is applied to improvements category not ressources category.
+ 	Also clarifying it to a more detailed/accurate name to hopefully help the player ; also as of now disabled as is prettier and clearer without it anyways etc, was "Bonus Yields"
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index eb3f055e2..a26b2a5e5 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -49,7 +49,7 @@ The core changes is on the panel header naming i mean but anyways etc, to help c
+ 
+ More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part building this build if i may say and if i am not mistaken, which is something different not displayed here but in sevopedia feature, see there or/and the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,)).
+ 
+-Also refactored it and then added TerrainMakesValids, FeatureMakesValids, and History info/panels anyways etc (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details anyways etc), see sevopedia improvement py file or/and xml code comments for details anyways etc).
++Also refactored and beautified it, as well as added new TerrainMakesValids, FeatureMakesValids, and History info/panels anyways etc (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details anyways etc), see sevopedia improvement py file or/and xml code comments for details anyways etc).
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+index ab05a809c..3f26f4da2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+index 5b5d29b3b..de478ff09 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+index 8338797e8..7368eb443 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10515

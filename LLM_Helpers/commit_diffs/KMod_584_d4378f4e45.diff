@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 584
+# Commit: d4378f4e455625134102f71acab7c3256e23c556
+# History segment: K-Mod history
+# Parent used for diff: ba9f03915b0635de97828d70f804f11b039e98da
+# Title: Fixed a problem in AI_attackCityMove which sometimes caused large groups to wander aimlessly if they were not ready to attack a city. Also fixed a related pr...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2fafc9ede..f05436bcc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3527,13 +3527,32 @@ void CvUnitAI::AI_attackCityMove()
+ 	}
+ 	else
+ 	{
++		/* original code
+ 		int iTargetCount = kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
+ 		if( ((iTargetCount * 4) > getGroup()->getNumUnits()) || ((getGroup()->getNumUnits() + iTargetCount) >= (bHuntBarbs ? 3 : AI_stackOfDoomExtra())) )
+ 		{
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			int iJoiners = kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 2);
+ 			
+-			if (5*iJoiners > getGroup()->getNumUnits()) // was 6*
++			if (6*iJoiners > getGroup()->getNumUnits())
++			{
++				getGroup()->pushMission(MISSION_SKIP);
++				return;
++			}
++
++			if (AI_safety())
++			{
++				return;
++			}
++		}*/
++		// K-Mod
++		int iTargetCount = kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
++		if (6*iTargetCount > getGroup()->getNumUnits())
++		{
++			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
++			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 2);
++
++			if (4*iNearbyJoiners > getGroup()->getNumUnits())
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return;
+@@ -3544,6 +3563,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				return;
+ 			}
+ 		}
++		// K-Mod end
+ 
+ 		if ((bombardRate() > 0) && noDefensiveBonus())
+ 		{
+@@ -14645,6 +14665,11 @@ bool CvUnitAI::AI_safety()
+ 
+ 									iValue += pLoopPlot->defenseModifier(getTeam(), false);
+ 
++									// K-Mod
++									iValue += pLoopPlot->getTeam() == getTeam() ? 60 : (isEnemy(pLoopPlot->getTeam(), pLoopPlot) ? -25 : 0);
++									iValue += pLoopPlot->isValidRoute(this) ? 25 : 0;
++									// K-Mod end
++
+ 									if (atPlot(pLoopPlot))
+ 									{
+ 										iValue += 50;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1854

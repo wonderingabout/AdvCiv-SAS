@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2774
+# Commit: 7e06cdbab07bc224c58828e007d0dd0519e9987f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 174c2bf734302d799b8fb6d4cdc50bf942cecb18
+# Title: UWAI: Encourage AI in multiple hopeless wars to seek peace
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	0	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 62a81d108..d6a460f53 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2563,6 +2563,18 @@ void Risk::evaluate() {
+ 		uMinus += costForCapitulation;
+ 		log("Cost halved because of capitulation; %d added", costForCapitulation);
+ 	}
++	/*	Count something extra for elimination just to make sure that peace is
++		sought even when fighting multiple hopeless wars. */
++	if(m->isEliminated(weId) && m->isWar(weId, theyId) &&
++			/*	Don't require them to conquer any cities in the military analysis.
++				Another war enemy may get to us much faster, but it's still good
++				to end wars with any dangerous enemy. */
++			theyAI->getCache().numReachableCities(weId) >= we->getNumCities() &&
++			/*	Require _some_ action though; don't want players to declare war
++				just to extract some reparations. */
++			GET_TEAM(theyId).AI_getWarSuccess(agentId) >= GC.getWAR_SUCCESS_CITY_CAPTURING()) {
++		uMinus += they->getNumCities(); // a little arbitrary ...
++	}
+ 	u -= ::round(uMinus);
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1106

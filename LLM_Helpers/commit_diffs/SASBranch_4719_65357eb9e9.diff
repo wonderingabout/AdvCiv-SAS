@@ -1,0 +1,139 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4719
+# Commit: 65357eb9e92d0f28d0801f721e6123aa8ec781b9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a087e8f7942c0f6bb971cf062e9fcdc246c3708a
+# Title: calculation change: switch to median-based distribution for AI aggregates (idea by me but chatgpt impelemnted it brilliantly a lot more than i could think it...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+47	13	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 1a9b9836e..03ebefe98 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -347,35 +347,69 @@ cache_ai_value_ranges()
+ # Precomputed aggregate scores for each leader
+ AI_AGGREGATE_SCORES = {}
+ 
++
++
++# New cache for percentile normalization
++AI_PERCENTILE_SCORES = {}
++
++# Helper to compute percentile position of a value in a sorted list
++# Returns integer between 0 and 100
++
++def get_percentile(value, sorted_values):
++	if not sorted_values:
++		return 0
++	count = len(sorted_values)
++	for i, v in enumerate(sorted_values):
++		if value <= v:
++			return int(i * 100 / (count - 1))
++	return 100
++
++
+ def cache_ai_aggregate_scores():
+-	global AI_AGGREGATE_SCORES
++	global AI_AGGREGATE_SCORES, AI_PERCENTILE_SCORES
+ 	numLeaders = gc.getNumLeaderHeadInfos()
++	all_trait_values = {}  # {funcName: [v1, v2, ..., vN]}
++
++	# First pass: gather all values by function
++	for funcName in AI_VALUE_RANGES:
++		all_trait_values[funcName] = []
++		for iLeader in range(numLeaders):
++			try:
++				val = getattr(gc.getLeaderHeadInfo(iLeader), funcName)()
++				all_trait_values[funcName].append(val)
++			except:
++				all_trait_values[funcName].append(None)  # Keep alignment
++
++	# Build sorted lists (excluding None)
++	sorted_trait_values = {}
++	for funcName, values in all_trait_values.items():
++		sorted_trait_values[funcName] = sorted([v for v in values if v is not None])
+ 
++	# Second pass: compute aggregate scores
+ 	for iLeader in range(numLeaders):
+ 		leaderInfo = gc.getLeaderHeadInfo(iLeader)
+ 		leaderScores = {}
+ 		for label, fields in AI_AGGREGATES:
+-			total = 0
+-			count = 0
++			score_total = 0
++			score_count = 0
+ 			for funcName, inverse in fields:
+ 				try:
+ 					val = getattr(leaderInfo, funcName)()
+-					min_val, max_val = AI_VALUE_RANGES.get(funcName, (0, 0))
+-					if max_val != min_val:
+-						norm = float(val - min_val) / float(max_val - min_val)
+-						if inverse:
+-							norm = 1.0 - norm
+-						total += int(norm * 100)
+-						count += 1
++					percentile = get_percentile(val, sorted_trait_values[funcName])
++					if inverse:
++						percentile = 100 - percentile
++					score_total += percentile
++					score_count += 1
+ 				except:
+ 					pass
+-			if count > 0:
+-				leaderScores[label] = total // count
++			if score_count > 0:
++				leaderScores[label] = score_total // score_count
+ 			else:
+ 				leaderScores[label] = 0
+ 		AI_AGGREGATE_SCORES[iLeader] = leaderScores
++		AI_PERCENTILE_SCORES[iLeader] = leaderScores  # same for now
+ 
+-# Call this after cache_ai_value_ranges()
++# Re-run after caching ranges
+ cache_ai_aggregate_scores()
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG
+index 5f219d5a3..dc80c9886 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG
+index a626c20e6..07b3220f2 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG
+index 03b1ba974..9b19055c2 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG
+index 7d5483178..cf10241cc 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG
+index 732c04aa4..e66a886c4 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG
+index 42de38ccc..30e25fc9f 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=5020

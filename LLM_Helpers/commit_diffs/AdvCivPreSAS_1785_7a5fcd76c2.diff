@@ -1,0 +1,293 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1785
+# Commit: 7a5fcd76c29ba78d31d9f2b44f3398b917629479
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 19fbdb93ab129070eac82fcfde79334a1ddac29e
+# Title: AI considers tile defense when deciding whether to heal
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+72	89	CvGameCoreDLL/CvUnitAI.cpp
+2	0	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0d8dd29ea..f70230e5a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2834,21 +2834,18 @@ void CvUnitAI::AI_attackCityMove()
+ 		}
+ 	}
+ 
+-	bool bInCity = plot()->isCity();
+-
+-	if (bInCity &&
+-			plot()->getTeam() == getTeam()) // cdtw.9
++	bool const bInCity = plot()->isCity();
++	if (bInCity && /* cdtw.9: */ plot()->getTeam() == getTeam())
+ 	{
+ 		// force heal if we in our own city and damaged
+-		// can we remove this or call AI_heal here?
+-		if (getGroup()->getNumUnits() == 1 && getDamage() > 0)
+-		{
++		/*if (getGroup()->getNumUnits() == 1 && getDamage() > 0) {
+ 			getGroup()->pushMission(MISSION_HEAL);
+ 			return;
+-		}
++		}*/ // <advc.299>
++		if (AI_singleUnitHeal(0, 0))
++			return; // </advc.299>
+ 
+-		/*if (bIgnoreFaster)
+-		{
++		/*if (bIgnoreFaster) {
+ 			// BBAI TODO: split out slow units ... will need to test to make sure this doesn't cause loops
+ 		}*/
+ 
+@@ -4588,15 +4585,9 @@ void CvUnitAI::AI_exploreMove()
+ 			return;
+ 		}
+ 	}
+-
+-	if (getDamage() > 0)
+-	{
+-		if (plot()->getFeatureType() == NO_FEATURE || GC.getInfo(plot()->getFeatureType()).getTurnDamage() == 0)
+-		{
+-			getGroup()->pushMission(MISSION_HEAL);
+-			return;
+-		}
+-	}
++	// <advc.299> Instead of simply healing while getDamage() > 0
++	if (AI_singleUnitHeal(2, 5))
++		return; // </advc.299>
+ 
+ 	if (!isHuman())
+ 	{
+@@ -6649,15 +6640,9 @@ void CvUnitAI::AI_exploreSeaMove()
+ 
+ 	// (advc.017b: Moved the transform/ scrap block down; try nearby exploration first.)
+ 
+-	if (getDamage() > 0)
+-	{
+-		if (plot()->getFeatureType() == NO_FEATURE ||
+-			GC.getInfo(plot()->getFeatureType()).getTurnDamage() <= 0)
+-		{
+-			getGroup()->pushMission(MISSION_HEAL);
+-			return;
+-		}
+-	}
++	// <advc.299> Instead of simply healing while getDamage() > 0
++	if (AI_singleUnitHeal(3, 5))
++		return; // </advc.299>
+ 
+ 	if (!isHuman())
+ 	{
+@@ -11175,49 +11160,67 @@ bool CvUnitAI::AI_chokeDefend()
+ 	return false;
+ }
+ 
+-
+-bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
++// advc.299: Cut from AI_heal
++bool CvUnitAI::AI_singleUnitHeal(int iMaxTurnsExposed, int iMaxTurnsOutsideCity)
+ {
+-	PROFILE_FUNC();
++	CvSelectionGroup& kGroup = *getGroup();
+ 
+-	if (plot()->getFeatureType() != NO_FEATURE)
++	if (isAlwaysHeal() || getDamage() <= 0 || kGroup.getNumUnits() <= 1)
++		return false;
++	bool bHeal = false;
++	if (plot()->isCity())
++		bHeal = true;
++	else
+ 	{
+-		if (GC.getInfo(plot()->getFeatureType()).getTurnDamage() != 0)
+-		{	//Pass through
+-			//(actively seeking a safe spot may result in unit getting stuck)
++		int const iHealTurns = healTurns(plot());
++		if (iHealTurns >= 20) // advc: Feature damage
+ 			return false;
+-		}
++		if (iHealTurns <= iMaxTurnsExposed ||
++				// advc.299:
++				(iHealTurns <= iMaxTurnsOutsideCity && plot()->defenseModifier(getTeam(), true) > 0))
++			bHeal = true;
+ 	}
++	// <advc.306>
++	if (!bHeal && isBarbarian())
++	{
++		int iHeal = healRate(plot());
++		double div = (getDomainType() == DOMAIN_SEA ? 17.5 : 22.5);
++		if (iHeal >= 5 && ::bernoulliSuccess(iHeal / div, "advc.306 (heal)"))
++			bHeal = true;
++	} // </advc.306>
++	if (bHeal)
++	{
++		kGroup.pushMission(MISSION_HEAL, -1, -1, 0, false, false, MISSIONAI_HEAL);
++		return true;
++	}
++	return false;
++}
+ 
+-	CvSelectionGroup* pGroup = getGroup();
+ 
+-	if (iDamagePercent == 0)
++bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
++{
++	PROFILE_FUNC();
++
++	CvSelectionGroup& kGroup = *getGroup();
++
++	if (kGroup.getNumUnits() == 1)
+ 	{
+-		iDamagePercent = 10;
++		// advc.299: Moved into new function
++		if (AI_singleUnitHeal())
++			return true;
++		return false;
+ 	}
+ 
+-	// <advc.306>
+-	// isAlwaysHeal check moved up
+-	if (getGroup()->getNumUnits() == 1 && !isAlwaysHeal() && getDamage() > 0)
++
++	FeatureTypes const eFeature = plot()->getFeatureType();
++	if (eFeature != NO_FEATURE && GC.getInfo(eFeature).getTurnDamage() != 0)
+ 	{
+-		bool bHeal = false;
+-		if(plot()->isCity() || healTurns(plot()) == 1) // Like in BtS
+-			bHeal = true;
+-		else if(isBarbarian())
+-		{
+-			int iHeal = healRate(plot());
+-			double div = (getDomainType() == DOMAIN_SEA ? 17.5 : 22.5);
+-			if(iHeal >= 5 && ::bernoulliSuccess(iHeal / div, "advc.306 (heal)"))
+-				bHeal = true;
+-		}
+-		if(bHeal)
+-		{
+-			getGroup()->pushMission(MISSION_HEAL, -1, -1, 0, false, false, MISSIONAI_HEAL);
+-			return true;
+-		} // </advc.306>
++		//Pass through (actively seeking a safe spot may result in unit getting stuck)
+ 		return false;
+ 	}
+ 
++	if (iDamagePercent == 0)
++		iDamagePercent = 10;
+ 	iMaxPath = std::min(iMaxPath, 2);
+ 
+ 	int iTotalDamage = 0;
+@@ -11225,7 +11228,7 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 	int iHurtUnitCount = 0;
+ 	std::vector<CvUnit*> aeDamagedUnits;
+ 	for (CLLNode<IDInfo> const* pEntityNode = getGroup()->headUnitNode(); pEntityNode != NULL;
+-		pEntityNode = pGroup->nextUnitNode(pEntityNode))
++		pEntityNode = kGroup.nextUnitNode(pEntityNode))
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pEntityNode->m_data);
+ 
+@@ -11238,16 +11241,10 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 
+ 		iTotalDamage += pLoopUnit->getDamage();
+ 		iTotalHitpoints += pLoopUnit->maxHitPoints();
+-		if (pLoopUnit->getDamage() > iDamageThreshold)
++		if (pLoopUnit->getDamage() > iDamageThreshold && !pLoopUnit->hasMoved() &&
++			!pLoopUnit->isAlwaysHeal() && pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
+ 		{
+-			if (!pLoopUnit->hasMoved())
+-			{
+-				if (!pLoopUnit->isAlwaysHeal())
+-				{
+-					if (pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
+-						aeDamagedUnits.push_back(pLoopUnit);
+-				}
+-			}
++			aeDamagedUnits.push_back(pLoopUnit);
+ 		}
+ 	}
+ 	if (iHurtUnitCount == 0)
+@@ -11256,11 +11253,10 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 	bool bPushedMission = false;
+ 	if (plot()->isCity() && (plot()->getOwner() == getOwner()))
+ 	{
+-		FAssertMsg(((int) aeDamagedUnits.size()) <= iHurtUnitCount, "damaged units array is larger than our hurt unit count");
+-
+-		for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
++		FAssert(iHurtUnitCount >= (int)aeDamagedUnits.size());
++		for (size_t i = 0; i < aeDamagedUnits.size(); i++)
+ 		{
+-			CvUnit* pUnitToHeal = aeDamagedUnits[iI];
++			CvUnit* pUnitToHeal = aeDamagedUnits[i];
+ 			pUnitToHeal->joinGroup(NULL);
+ 			pUnitToHeal->getGroup()->pushMission(MISSION_HEAL, -1, -1, 0, false, false, MISSIONAI_HEAL);
+ 
+@@ -11272,15 +11268,14 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 		}
+ 	}
+ 
+-	if (iHurtUnitCount * 2 > pGroup->getNumUnits())
++	if (iHurtUnitCount * 2 > getGroup()->getNumUnits())
+ 	{
+-		FAssertMsg(pGroup->getNumUnits() > 0, "group now has zero units");
++		FAssert(getGroup()->getNumUnits() > 0);
+ 		if (AI_moveIntoCity(2))
+ 			return true;
+-
+-		else if (healRate(plot()) > 10)
++		if (healRate(plot()) > 10)
+ 		{
+-			pGroup->pushMission(MISSION_HEAL, -1, -1, 0, false, false, MISSIONAI_HEAL);
++			getGroup()->pushMission(MISSION_HEAL, -1, -1, 0, false, false, MISSIONAI_HEAL);
+ 			return true;
+ 		}
+ 	}
+@@ -11318,20 +11313,8 @@ bool CvUnitAI::AI_isThreatenedFromLand() const
+ 
+ bool CvUnitAI::AI_afterAttack()
+ {
+-	if (!isMadeAttack())
+-	{
++	if (!canFight() || !isMadeAttack() || /* advc.164: */ !isMadeAllAttacks())
+ 		return false;
+-	}
+-
+-	if (!canFight())
+-	{
+-		return false;
+-	}
+-
+-	if (isBlitz())
+-	{
+-		return false;
+-	}
+ 
+ 	// K-Mod. Large groups may still have important stuff to do!
+ 	if (getGroup()->getNumUnits() > 2)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 46c8e01ec..226197766 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -145,6 +145,8 @@ protected:
+ 	bool AI_pickupTargetSpy();
+ 	bool AI_chokeDefend();
+ 	bool AI_heal(int iDamagePercent = 0, int iMaxPath = MAX_INT);
++	// advc.299:
++	bool AI_singleUnitHeal(int iMaxTurnsExposed = 1, int iMaxTurnsOutsideCity = 2);
+ 	bool AI_isThreatenedFromLand() const; // advc.139
+ 	bool AI_afterAttack();
+ 	bool AI_goldenAge();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7924

@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1543
+# Commit: 512c774e9bba5e75cebfcafd90dd1b4578ce6a2d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4375cc869d40128c69318726acb1df30a5e139e2
+# Title: Just a couple of style changes (CvMap, WarAndPeaceCache)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	5	CvGameCoreDLL/CvMap.h
+5	4	CvGameCoreDLL/WarAndPeaceCache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index fd29d4d1a..15101adfc 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -267,7 +267,7 @@ public: // advc.003: made several functions const
+ #ifdef _USRDLL
+ 	inline int isPlotINLINE(int iX, int iY) const
+ 	{
+-		return ((iX >= 0) && (iX < getGridWidthINLINE()) && (iY >= 0) && (iY < getGridHeightINLINE()));
++		return (iX >= 0 && iX < getGridWidthINLINE() && iY >= 0 && iY < getGridHeightINLINE());
+ 	}
+ #endif
+ 	DllExport int numPlots() const; 																								// Exposed to Python
+@@ -368,24 +368,25 @@ public: // advc.003: made several functions const
+ #ifdef _USRDLL
+ 	inline CvPlot* plotByIndexINLINE(int iIndex) const
+ 	{
+-		return (((iIndex >= 0) && (iIndex < (getGridWidthINLINE() * getGridHeightINLINE()))) ? &(m_pMapPlots[iIndex]) : NULL);
++		return ((iIndex >= 0 && iIndex < getGridWidthINLINE() * getGridHeightINLINE()) ?
++				&(m_pMapPlots[iIndex]) : NULL);
+ 	}
+ #endif
+ 	DllExport CvPlot* plot(int iX, int iY) const;													// Exposed to Python
+ #ifdef _USRDLL
+ 	__forceinline CvPlot* plotINLINE(int iX, int iY) const
+ 	{
+-		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
++		if (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD)
+ 		{
+ 			return NULL;
+ 		}
+ 		int iMapX = coordRange(iX, getGridWidthINLINE(), isWrapXINLINE());
+ 		int iMapY = coordRange(iY, getGridHeightINLINE(), isWrapYINLINE());
+-		return ((isPlotINLINE(iMapX, iMapY)) ? &(m_pMapPlots[plotNumINLINE(iMapX, iMapY)]) : NULL);
++		return (isPlotINLINE(iMapX, iMapY) ? &(m_pMapPlots[plotNumINLINE(iMapX, iMapY)]) : NULL);
+ 	}
+ 	__forceinline CvPlot* plotSorenINLINE(int iX, int iY) const
+ 	{
+-		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
++		if (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD)
+ 		{
+ 			return NULL;
+ 		}
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index f4f1a8c3a..d3d823c76 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -1894,11 +1894,11 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 		double baseTileScore = 1.0 / 3; // i.e. 1/6 of a resource tile
+ 		if(p.isRevealed(t.getID(), false)) {
+ 			// getBonusType ensures that we can see the resource
+-			BonusTypes res = p.getBonusType(t.getID());
+-			if(res != NO_BONUS && !t.isBonusObsolete(res))
++			if(p.getNonObsoleteBonusType(t.getID()) != NO_BONUS) {
+ 				// It's OK if we can't use it yet
+-				//&& !t.isHasTech((TechTypes)GC.getBonusInfo(res).getTechCityTrade())
++				//&& !t.isHasTech((TechTypes)GC.getBonusInfo(eBonus).getTechCityTrade())
+ 				baseTileScore = 2;
++			}
+ 			cultureTestPlot = pp;
+ 			// Skip tiles that are essentially unworkable
+ 			int yf = p.calculateNatureYield(YIELD_FOOD, t.getID()),
+@@ -1941,7 +1941,8 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 	maintCost /= 100.0;
+ 	/*  Add 1 as a conservative estimate of incr. civic upkeep and incr. maint.
+ 		in other cities. Address these increases more carefully in GreedForAssets. */
+-	if(c.getOwnerINLINE() != cacheOwnerId) maintCost += 1;
++	if(c.getOwnerINLINE() != cacheOwnerId)
++		maintCost += 1;
+ 	// Inflation isn't applied by CvCity
+ 	maintCost *= inflationMultiplier;
+ 	/*  B/c it's not really at gpt scale (see comment on top), and to account for
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3308

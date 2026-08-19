@@ -1,0 +1,111 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 326
+# Commit: 0059ba37ac075d3f3e11f7da0a620ea723c2b7ed
+# History segment: K-Mod history
+# Parent used for diff: 8a90570d2ae38e894f04075d68c99409d48b70e6
+# Title: Added K-Mod.ini (which is now disables custom assets.) Updated the changelog. This is version 1.08.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	0	K-Mod.ini
+20	1	changelog.txt
+ create mode 100644 K-Mod.ini
+
+[PATCHES]
+
+diff --git a/K-Mod.ini b/K-Mod.ini
+new file mode 100644
+index 000000000..93fd41a95
+--- /dev/null
++++ b/K-Mod.ini
+@@ -0,0 +1,44 @@
++
++[CONFIG]
++
++; Modular XML Loading
++ModularLoading = 0
++
++; Skip Main menu
++SkipMainMenu = 0
++
++; Custom Art from user folder is not loaded
++NoCustomArt = 0
++
++; Custom XML and Python from user folder are not loaded
++NoCustomAssets = 1
++
++; No Custom Scenario option in main menu
++NoCustomScenario = 0
++
++; No team play allowed
++NoTeams = 0
++
++; Read Game options from XML, not .ini
++ForceGameOptions = 0
++
++; Always start in the standard era
++ForceStandardEra = 0
++
++; Scenario file (Single player)
++ForceScenario = 0
++
++; This mod is only for single player games
++SinglePlayerOnly = 0
++
++; Allow public maps to be used with this mod
++AllowPublicMaps = 1
++
++; Mod Image file
++ImageFile = 0
++
++; Name of Mod
++Name = K-Mod
++
++; Description of Mod
++Description = The mod aims to improve some of the weaker elements of Beyond the Sword without changing the overall flavour.
+\ No newline at end of file
+
+diff --git a/changelog.txt b/changelog.txt
+index dfd663d79..f7337f477 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,8 +1,27 @@
+-This is K-Mod version 1.07b.
++This is K-Mod version 1.08.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v1.08 changelist
++
+++ Gunships now start with the Amphibious promotion.
++
+++ Units will no longer automatically attack if they are ordered to move into an unseen enemy unit in the fog of war.
+++ Fixed a rare divide-by-zero crash.
+++ Added a workaround for a rare bug which sometimes allows the AI to use enemy roads just before declaring war. (The root cause of the bug has not been fixed, but I don't think there are any more cases where it can actually happen.)
++
+++ Added some basic AI memory so that it can remember to walk around well defended choke-points without having to cheat.
+++ Fixed several problems in the sea assault AI, including a somewhat tragic original BtS bug which caused the AI to think 4 units was enough for an invasion force. (The AI may struggle to get enough units for a navel invasion now - but hopefully this will be much better in the long run.)
+++ Made some adjustments to the settler AI. - Mostly to fix a problem which sometimes caused them to not settle in the best places first.
+++ Fixed a K-Mod bug which caused some AIs to expand very slowly at the start of the game.
+++ Fixed some silly mistakes in the AI's strength comparison calculation in AI_attackCityMove.
+++ Tweaked the effect of the expansive flavour flag in the AI's city placement.
+++ Increased the AI's warplan abandon time for overseas wars. (so that it is less likely to give up on its warplan if it isn't quite ready to attack.)
+++ Adjusted the effect of city defensive in how the AI chooses which cities to attack.
++
++--
++
+ v1.07b changelist
+ 
+ + Victory votes now require a minimum number of "full members" rather than just "voting members". This means that the Apostolic Palace victory vote is only valid if there are at least 3 full members.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3116

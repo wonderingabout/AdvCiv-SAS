@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2442
+# Commit: f6e8f097a77e3c2448215816824117b642a9a36a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cb791cd2b362a101b62175563dd0bb194fee72dc
+# Title: Slightly increase map dimensions of MixedContinents
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	PrivateMaps/Mixed_Continents.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index 19fa8caa7..0339c5ea1 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -58,11 +58,11 @@ def getGridSize(argsList):
+ 		return ()
+ 	sizeModifiers = {
+ 		WorldSizeTypes.WORLDSIZE_DUEL:		( 0, 0),
+-		WorldSizeTypes.WORLDSIZE_TINY:		( 0,-1),
++		WorldSizeTypes.WORLDSIZE_TINY:		( 0, 0),
+ 		WorldSizeTypes.WORLDSIZE_SMALL:		(-1, 0),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	(-1,-1),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(-2,-1),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(-2,-2)
++		WorldSizeTypes.WORLDSIZE_STANDARD:	( 0,-1),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(-1,-1),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(-2,-1)
+ 	}
+ 	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+ 	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=880

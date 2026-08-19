@@ -1,0 +1,208 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5590
+# Commit: 09a4bc35a6351e7e0c6c955c25b56f67cb54cdd2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c5b7209bf59337d20f10c04a6ee15bc8c125a9d5
+# Title: adjust domestic advisor dimensions to usual template for advisors that scales dynamically with screen resolution
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	33	Assets/Python/Screens/CvDomesticAdvisor.py
+5	5	README.md
+6	5	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index c2557ddb1..ab1b2d208 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -5,6 +5,7 @@ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+ from SASFontUtils import *
++from SASUtils import *
+ 
+ #	IMPORTANT INFORMATION
+ #	
+@@ -26,49 +27,47 @@ class CvDomesticAdvisor:
+ 	#
+ 	def __init__(self):
+ 		self.listSelectedCities = []
+-		
+-	# Screen construction function
+-	def interfaceScreen(self):
+-	
+-		player = gc.getPlayer(gc.getGame().getActivePlayer())
+-		
+-		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
+-		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+-
+-		# <!-- custom: further beautify: expand to all width (remove the - 30). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+-		# <!-- custom: update: empty left/right edges remain at full resolution and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
+-		# self.iExtraWidth = 0
+-		self.iExtraWidth = 4
+-		self.nScreenWidth = screen.getXResolution() + (2 * self.iExtraWidth)
+-		# advc.120c: Was -250. Need a little more space for the HUD.
+-		# <!-- custom: further beautify: reduce height so more selected unit rows/HUD show (was - 255). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+-		self.nScreenHeight = screen.getYResolution() - 305
+-		self.nTableWidth = self.nScreenWidth - 35
+-		self.nTableHeight = self.nScreenHeight - 85
++		# <!-- custom: keep screen-independent advisor edge constants in init; runtime resolution-dependent geometry is computed in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
++		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
++		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
++		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
++		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
+ 		self.nNormalizedTableWidth = 970
+-
+ 		self.nFirstSpecialistX = 30
+-		self.nSpecialistY = self.nScreenHeight - 55
+ 		self.nSpecialistWidth = 32
+ 		self.nSpecialistLength = 32
+ 		self.nSpecialistDistance = 100
+-
+-		# Offset from Specialist Image/Size for the Specialist Plus/Minus buttons
+ 		self.nPlusOffsetX = -4
+ 		self.nMinusOffsetX = 16
+ 		self.nPlusOffsetY = self.nMinusOffsetY = 30
+ 		self.nPlusWidth = self.nPlusHeight = self.nMinusWidth = self.nMinusHeight = 20
+-
+-		# Offset from Specialist Image for the Specialist Text
+ 		self.nSpecTextOffsetX = 40
+ 		self.nSpecTextOffsetY = 10
+ 
++	def updateRuntimeLayout(self, screen):
++		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
++			screen,
++			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
++			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
++			self.H_TOP_SPACE_FOR_TECH_BAR,
++			self.H_BOTTOM_SPACE
++		)
++		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
++		self.nTableWidth = self.nScreenWidth - 35
++		self.nTableHeight = self.nScreenHeight - 85
++		self.nSpecialistY = self.nScreenHeight - 55
++		
++	# Screen construction function
++	def interfaceScreen(self):
++	
++		player = gc.getPlayer(gc.getGame().getActivePlayer())
++		
++		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
++		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
++		self.updateRuntimeLayout(screen)
++
+ 		screen.setRenderInterfaceOnly(True)
+-		# advc.120c: y position changed from 100 to 85 so that the unit icons aren't obscured. The espionage slider isn't normally visible anyway.
+-		# <!-- custom: further beautify: expand to full width by removing the extra X starting position; also move the screen lower so the espionage slider shows. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+-		# screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
+-		# <!-- custom: update: empty left/right edges remain and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
+-		screen.setDimensions(-self.iExtraWidth, 105, self.nScreenWidth, self.nScreenHeight)
++		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 	
+ 		# Here we set the background widget and exit button, and we show the screen
+@@ -77,7 +76,7 @@ class CvDomesticAdvisor:
+ 				SAS_FONT_TAG_TITLE + # advc.193
+ 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
+ 				+ SAS_FONT_TAG_CLOSE, # advc.193
+-				CvUtil.FONT_RIGHT_JUSTIFY, self.nScreenWidth - 25, self.nScreenHeight - 45, -0.1,
++				CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, -0.1,
+ 				FontTypes.TITLE_FONT,
+ 				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+ 
+@@ -109,7 +108,7 @@ class CvDomesticAdvisor:
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+ 		
+ 		# Zoom to City
+-		screen.setTableColumnHeader( "CityListBackground", 0, "", (30 * self.nTableWidth) / self.nNormalizedTableWidth )
++		screen.setTableColumnHeader( "CityListBackground", 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Name Column (advc.193: Font size increased; was 2.)
+ 		screen.setTableColumnHeader( "CityListBackground", 1, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + SAS_FONT_TAG_CLOSE, (221 * self.nTableWidth) / self.nNormalizedTableWidth )
+@@ -158,7 +157,7 @@ class CvDomesticAdvisor:
+ 		screen.setTableColumnHeader( "CityListBackground", 14, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + SAS_FONT_TAG_CLOSE, (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 				
+ 		# Production Column (advc.193: Font size increased; was 2.)
+-		screen.setTableColumnHeader( "CityListBackground", 15, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE, (132 * self.nTableWidth) / self.nNormalizedTableWidth )
++		screen.setTableColumnHeader( "CityListBackground", 15, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE, (138 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 
+ 		# Liberate Column
+ 		#screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
+
+diff --git a/README.md b/README.md
+index 8d63bb039..aabf0ce95 100644
+--- a/README.md
++++ b/README.md
+@@ -170,7 +170,11 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
+ 
+ ### Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)
+ 
+-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.).
++Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
++
++Also, advisors are now excentered so overall more information is displayed, thus reducing the need for scrolling, while still preserving key relevant information for display (scoreboard, map, commerce sliders and values, etc.). Note: some right space for scoreboard and top space for the top bars of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore).
++
++See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
+ 
+ #### New Advisors
+ 
+@@ -206,8 +210,6 @@ Added with the very nice help of GPT-5.3-Codex thanks.
+ 
+ #### Advisor reworks
+ 
+-We notably refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
+-
+ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+@@ -228,8 +230,6 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab,
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
+ 
+-See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
+-
+ ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
+ 
+ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks, icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such. Also added a tooltip (on hover). See [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e03c8aacb..9e487b6fc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -324,9 +324,12 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor** so it is one of its tabs now.
+-- **Beautified** the **Domestic Advisor** (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor).
+-- **Enlarged, excentered the Foreign Advisor**'s screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+-- Did a similar rework of the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also reworked the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
++- (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
++- **Beautified** the **Domestic Advisor** (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
++- **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
++- Did a similar rework of the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with **Unit Combat and Units buttons** (i.e. icons)
++- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set a **lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked).
++- **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
+ - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn. If table has more than max rows, table expands and Legend link moves to top right. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+@@ -337,8 +340,6 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+-- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set a **lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked).
+-- **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ 
+ ### General changes
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=23675

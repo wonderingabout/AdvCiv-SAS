@@ -1,0 +1,1389 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1687
+# Commit: ef52c71628f14cf9751a2246ef520fce41617c28
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9544d7f0381553ece761c9d75ccd590a6279b28b
+# Title: Improvements to AI city safety, stack strength evaluation.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	Assets/XML/AI_Variables_GlobalDefines.xml
+16	50	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+19	15	CvGameCoreDLL/CvCityAI.cpp
+7	3	CvGameCoreDLL/CvCityAI.h
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	6	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+2	0	CvGameCoreDLL/CvGameCoreDLL.cpp
+3	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+4	5	CvGameCoreDLL/CvGameInterface.cpp
+2	1	CvGameCoreDLL/CvInfo_Unit.h
+2	2	CvGameCoreDLL/CvPlayer.cpp
+88	53	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/CvPlot.cpp
+44	66	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+22	21	CvGameCoreDLL/CvUnit.cpp
+5	3	CvGameCoreDLL/CvUnit.h
+110	50	CvGameCoreDLL/CvUnitAI.cpp
+6	0	CvGameCoreDLL/CvUnitAI.h
+0	8	CvGameCoreDLL/CyCity.cpp
+1	1	CvGameCoreDLL/CyCity.h
+5	2	CvGameCoreDLL/CyCityInterface1.cpp
+1	1	CvGameCoreDLL/CyUnit.cpp
+1	0	CvGameCoreDLL/Project/CvGameCoreDLL.def
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 6113d366c..f5a4afadf 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -236,9 +236,10 @@
+ 			 power values are squared. POWER_CORRECTION = 1 is the BtS behavior;
+ 			 power values then typically equal unit strength, e.g. two Warriors
+ 			 are as good as one Spearman. When squaring, one Spearman is as
+-			 good as four Warriors. (That seems too much.)
+-			 Recommended: 1.66; one Spearman then corresponds to 3.15 Warriors.
+-			 -->
++			 good as four Warriors. (That seems too much.) Recommended:
++			 1.66; one Spearman then corresponds to 3.15 Warriors. -->
++		<!-- advc.159: A fraction (3/4) of this value is also used for some
++			 tactical decisions outside the UWAI component. -->
+         <DefineName>POWER_CORRECTION</DefineName>
+         <fDefineFloatVal>1.66</fDefineFloatVal>
+     </Define>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d1151743b..c0273eff4 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2225,40 +2225,6 @@ const wchar* CvCity::getProductionName() const
+ }
+ 
+ 
+-int CvCity::getGeneralProductionTurnsLeft() const
+-{
+-	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
+-
+-	if (pOrderNode != NULL)
+-	{
+-		switch (pOrderNode->m_data.eOrderType)
+-		{
+-		case ORDER_TRAIN:
+-			return getProductionTurnsLeft((UnitTypes)pOrderNode->m_data.iData1, 0);
+-			break;
+-
+-		case ORDER_CONSTRUCT:
+-			return getProductionTurnsLeft((BuildingTypes)pOrderNode->m_data.iData1, 0);
+-			break;
+-
+-		case ORDER_CREATE:
+-			return getProductionTurnsLeft((ProjectTypes)pOrderNode->m_data.iData1, 0);
+-			break;
+-
+-		case ORDER_MAINTAIN:
+-			return 0;
+-			break;
+-
+-		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
+-			break;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-
+ const wchar* CvCity::getProductionNameKey() const
+ {
+ 	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
+@@ -2507,6 +2473,7 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
+ 	return GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
+ }
+ 
++
+ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
+ {
+ 	int iProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eBuilding);
+@@ -2526,35 +2493,34 @@ int CvCity::getProductionNeeded(ProjectTypes eProject) const
+ 	return GET_PLAYER(getOwner()).getProductionNeeded(eProject);
+ }
+ 
+-int CvCity::getProductionTurnsLeft() const
++/*  advc: Deleted. Did exactly the same thing as getProductionTurnsLeft below
++	except returning 0 instead of MAX_INT for processes. Was unused in the DLL.
++	Python export still in place (see CyCity.cpp). */
++/*int CvCity::getGeneralProductionTurnsLeft() const {
++	// ...
++	return 0;
++} */
++
++
++int CvCity::getProductionTurnsLeft() const  // advc: some style changes
+ {
+ 	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
+-
+ 	if (pOrderNode != NULL)
+ 	{
++		int iData = pOrderNode->m_data.iData1;
+ 		switch (pOrderNode->m_data.eOrderType)
+ 		{
+ 		case ORDER_TRAIN:
+-			return getProductionTurnsLeft(((UnitTypes)(pOrderNode->m_data.iData1)), 0);
+-			break;
+-
++			return getProductionTurnsLeft((UnitTypes)iData, 0);
+ 		case ORDER_CONSTRUCT:
+-			return getProductionTurnsLeft(((BuildingTypes)(pOrderNode->m_data.iData1)), 0);
+-			break;
+-
++			return getProductionTurnsLeft((BuildingTypes)iData, 0);
+ 		case ORDER_CREATE:
+-			return getProductionTurnsLeft(((ProjectTypes)(pOrderNode->m_data.iData1)), 0);
+-			break;
+-
++			return getProductionTurnsLeft((ProjectTypes)iData, 0);
+ 		case ORDER_MAINTAIN:
+ 			break;
+-
+-		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
+-			break;
++		default: FAssertMsg(false, "Unknown order type");
+ 		}
+ 	}
+-
+ 	return MAX_INT;
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 3d8ae1184..0774bec55 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -97,7 +97,6 @@ public:
+ 	ProcessTypes getProductionProcess() const;													// Exposed to Python
+ 	const wchar* getProductionName() const;															// Exposed to Python
+ 	const wchar* getProductionNameKey() const;													// Exposed to Python
+-	int getGeneralProductionTurnsLeft() const;										// Exposed to Python
+ 
+ 	bool isFoodProduction() const;																								// Exposed to Python
+ 	bool isFoodProduction(UnitTypes eUnit) const;																	// Exposed to Python
+@@ -111,6 +110,7 @@ public:
+ 	int getProductionNeeded(UnitTypes eUnit) const;
+ 	int getProductionNeeded(BuildingTypes eBuilding) const;
+ 	int getProductionNeeded(ProjectTypes eProject) const;
++	//int getGeneralProductionTurnsLeft() const; // advc: Redundant; use the function below.			// Exposed to Python
+ 	int getProductionTurnsLeft() const;																	// Exposed to Python
+ 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;					// Exposed to Python
+ 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 452cf2552..ca1e5c6f1 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -43,6 +43,7 @@ CvCityAI::CvCityAI()
+ 	m_iCachePlayerClosenessDistance = -1;
+ 	m_iNeededFloatingDefenders = -1;
+ 	m_iNeededFloatingDefendersCacheTurn = -1;
++	m_iCityValPercent = 0; // advc.139
+ 
+ 	m_bForceEmphasizeCulture = false;
+ 	m_bAssignWorkDirty = false;
+@@ -6452,7 +6453,7 @@ bool CvCityAI::AI_isDanger() /* advc: */ const
+ }
+ 
+ // <advc.139>
+-void CvCityAI::AI_updateSafety(double relativeCityVal)
++void CvCityAI::AI_updateSafety()
+ {
+ 	PROFILE_FUNC();
+ 	m_bEvacuate = false;
+@@ -6469,7 +6470,18 @@ void CvCityAI::AI_updateSafety(double relativeCityVal)
+ 			DOMAIN_LAND, 1, true, false, false, &iAttackers);
+ 	if(iAttStrength <= 0) // shortcut
+ 		return;
+-	int iDefStrength = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 3);
++	int iDefStrength = kOwner.AI_localDefenceStrength(plot(), getTeam(),
++			DOMAIN_LAND, 3, true, false, false, /*bPredictPromotions*/ true);
++	/*  Could let AI_localDefenceStrength do the counting, but I don't want to
++		rely on defenders that could possibly(!) be rallied too much. */
++	int iDefenders = plot()->getNumDefenders(getOwner());
++	// Check if we'll finish a defender at the end of our turn
++	if (iDefenders > 0 && isProductionUnit() && getProductionTurnsLeft() == 1)
++	{
++		CvUnitInfo const& kProductionUnit = GC.getUnitInfo(getProductionUnit());
++		if (kProductionUnit.getCombat() > 0) // Assume an average defender
++			iDefStrength = (iDefStrength * (iDefenders + 1)) / iDefenders;
++	}
+ 	m_bSafe = (iAttStrength * 2 < iDefStrength);
+ 	// Potentially expensive
+ 	if(m_bSafe && GET_TEAM(getTeam()).getNumWars(false, true) > 0)
+@@ -6479,11 +6491,12 @@ void CvCityAI::AI_updateSafety(double relativeCityVal)
+ 		m_bSafe = (iAttStrengthWiderRange * 2 < iDefStrength);
+ 	}
+ 	// Only bail if they can take the city in one turn or almost
+-	if(iAttackers + 1 >= plot()->getNumDefenders(getOwner()))
++	if(iAttackers + 1 >= iDefenders)
+ 	{
+ 		static int const iAI_EVACUATION_THRESH = GC.getDefineINT("AI_EVACUATION_THRESH");
+ 		int iThresh = iAI_EVACUATION_THRESH;
+ 		//  Higher threshold for important cities
++		double relativeCityVal = AI_getCityValPercent() / 100.0;
+ 		if(relativeCityVal > 0.5)
+ 			iThresh = ::round(iThresh * (0.5 + relativeCityVal));
+ 		if(kOwner.getNumCities() <= 2 && isCapital())
+@@ -6493,18 +6506,11 @@ void CvCityAI::AI_updateSafety(double relativeCityVal)
+ }
+ 
+ 
+-bool CvCityAI::AI_isEvacuating() const {
+-
+-	return m_bEvacuate;
+-}
+-
+-
+-bool CvCityAI::AI_isSafe() const
++void CvCityAI::AI_setCityValPercent(int iValue)
+ {
+-	return m_bSafe;
++	m_iCityValPercent = iValue;
+ } // </advc.139>
+ 
+-
+ // K-Mod (advc: Moved from CvCity)
+ int CvCityAI::AI_culturePressureFactor() const
+ {
+@@ -12840,9 +12846,7 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ 		pStream->Read(GC.getNumBuildingClassInfos(), &m_aiConstructionValue[0]);
+ 	}
+ 	if (uiFlag >= 2)
+-	{
+ 		pStream->Read(&m_iCultureWeight);
+-	}
+ 	// K-Mod end
+ }
+ 
+@@ -12878,7 +12882,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(MAX_PLAYERS, m_aiPlayerCloseness);
+ 	pStream->Write(m_iNeededFloatingDefenders);
+ 	pStream->Write(m_iNeededFloatingDefendersCacheTurn);
+-	pStream->Write(m_bEvacuate); // advc.139 (No need to save m_bSafe)
++	pStream->Write(m_bEvacuate); // advc.139 (No need to save m_bSafe, m_iCityValPercent)
+ 	//This needs to be serialized for human workers.
+ 	pStream->Write(m_iWorkersNeeded);
+ 	pStream->Write(m_iWorkersHave);
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index a4122c5e3..99a580e33 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -69,9 +69,12 @@ public:
+ 	// was void AI_updateNeededFloatingDefenders()
+ 	int AI_calculateNeededFloatingDefenders(bool bConstCache) const; // </advc.001n>
+ 	// <advc.139>
+-	void AI_updateSafety(double relativeCityVal);
+-	bool AI_isEvacuating() const;
+-	bool AI_isSafe() const; // </advc.139>
++	void AI_updateSafety();
++	inline bool AI_isEvacuating() const { return m_bEvacuate; }
++	inline bool AI_isSafe() const { return m_bSafe; }
++	void AI_setCityValPercent(int iValue);
++	inline int AI_getCityValPercent() const { return m_iCityValPercent; }
++	// </advc.139>
+ 
+ 	// advc: Moved from CvCity b/c it's part of the AI
+ 	int AI_culturePressureFactor() const; // K-Mod
+@@ -158,6 +161,7 @@ protected:
+ 	int m_iEmphasizeGreatPeopleCount;
+ 	int m_iWorkersNeeded;
+ 	int m_iWorkersHave;
++	int m_iCityValPercent; // advc.139
+ 
+ 	bool m_bAssignWorkDirty;
+ 	// <advc.139>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 4439ed9a5..ecf463a1a 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3383,7 +3383,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		if (!((GC.altKey() || GC.ctrlKey()) && //gDLL->getChtLvl() > 0))
+ 			GC.getGame().isDebugMode())) // advc.135c
+ 		{
+-			if(eActivePlayer != ePlayer) // advc.085
++			if(eActivePlayer != ePlayer && kActiveTeam.isHasMet(eTeam)) // advc.085
+ 				GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
+ 			GAMETEXT.getWarWearinessString(szBuffer, ePlayer, // K-Mod
+ 					eActivePlayer == ePlayer ? NO_PLAYER : // advc.085
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index f3f3b0f10..ab186bd06 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2860,7 +2860,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) cons
+ 		FOR_EACH_UNIT_VAR(u, kOwner)
+ 		{
+ 			gDLL->getEntityIFace()->showPromotionGlow(u->getUnitEntity(),
+-					u->atPlot(pUnit->plot()) && u->isReadyForPromotion());
++					u->atPlot(pUnit->plot()) && u->isPromotionReady());
+ 		}
+ 	} // </advc.002e>
+ 	// K-Mod. the hack (see above)
+@@ -5347,11 +5347,6 @@ void CvGame::updateUnitEnemyGlow()
+ 	}
+ }
+ 
+-HandicapTypes CvGame::getHandicapType() const
+-{
+-	return m_eHandicap;
+-}
+-
+ void CvGame::setHandicapType(HandicapTypes eHandicap)
+ {
+ 	m_eHandicap = eHandicap;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index e0d92f823..69abafab8 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -368,7 +368,7 @@ public:
+ 	bool isInBetweenTurns() const;
+ 	void setInBetweenTurns(bool b); // </advc.106b>
+ 
+-	HandicapTypes getHandicapType() const;
++	inline HandicapTypes getHandicapType() const { return m_eHandicap; } // advc.003f: inline
+ 	void setHandicapType(HandicapTypes eHandicap);
+ 	HandicapTypes getAIHandicap() const; // advc.127
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index f80d215cd..5b44b7b58 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -187,6 +187,8 @@ static ProfileSample* lastExit = NULL;
+ static int exitCount = 0;
+ static bool detailedTraceEnabled = false;
+ 
++#include "CvDLLPythonIFaceBase.h" // advc.make
++
+ static void GenerateTabString(char* buffer,int n)
+ {
+ 	while(n-- > 0)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index c2dc43635..0a97b2a89 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2037,9 +2037,10 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 				still roam the map, the DefenceStrength computation will crash
+ 				when it gets to the point where the UnitCombatType is accessed.
+ 				(Actually, not so exotic b/c advc.300 allows animals to survive
+-				in continents w/o civ cities). */
++				in continents w/o civ cities.) */
+ 			CvUnit* pUnit = kToPlot.getUnitByIndex(0);
+-			if(pUnit != NULL && !pUnit->isAnimal()) { // </advc.001>
++			if(pUnit != NULL && !pUnit->isAnimal()) // </advc.001>
++			{
+ 				iEnemyDefence = GET_PLAYER(pSelectionGroup->getOwner()).
+ 						AI_localDefenceStrength(&kToPlot, NO_TEAM,
+ 						pSelectionGroup->getDomainType(), 0, true, false,
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index eb11032aa..343f1c48d 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -14,11 +14,10 @@
+ #include "CvBugOptions.h"
+ #include <fstream> // advc.003d
+ 
+-/*  advc: This file was, reportedly, added by patch 3.17.
+-	https://forums.civfanatics.com/threads/sdk-using-microsoft-visual-c-2005-express-edition.196283/page-7#post-6942578
+-	Functions previously implemented in CvGame.cpp were moved here. Almost all of
+-	those were DLLExports (exceptions: canDoControl, doControl) -- however, many
+-	other DLLExports remain in CvGame.cpp (for reasons that elude me). */
++/*  advc: This file was, reportedly, added by patch 3.17:
++	forums.civfanatics.com/threads/sdk-using-microsoft-visual-c-2005-express-edition.196283/page-7#post-6942578
++	Functions previously implemented in CvGame.cpp were moved here. Some of those
++	functions are exposed to Python by the EXE and accessed via CyInterface() in Python. */
+ 
+ void CvGame::updateColoredPlots()
+ {
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.h b/CvGameCoreDLL/CvInfo_Unit.h
+index be3cb971f..fdf6496ec 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.h
++++ b/CvGameCoreDLL/CvInfo_Unit.h
+@@ -229,7 +229,8 @@ public: /*  All const functions are exposed to Python except some related to art
+ 	#endif
+ 	bool read(CvXMLLoadUtility* pXML);
+ 	// <advc.315>
+-	inline bool isMostlyDefensive() const {
++	inline bool isMostlyDefensive() const
++	{
+ 		return isOnlyDefensive() || isOnlyAttackAnimals() || isOnlyAttackBarbarians();
+ 	} // </advc.315>
+ 	// advc.opt:
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 091b4d98e..efbb2683e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -13478,7 +13478,7 @@ void CvPlayer::doEspionagePoints()  // advc: some style changes
+ 
+ int CvPlayer::getEspionageSpending(TeamTypes eAgainstTeam) const  // advc: style changes
+ {
+-	PROFILE_FUNC(); // advc.opt
++	PROFILE_FUNC(); // advc (runtime seems totally negligible)
+ 	int iTotalWeight = 0; // Get sum of all weights to be used later on
+ 	int iBestWeight = 0;
+ 	bool bFoundTeam = false;
+@@ -19438,7 +19438,7 @@ void CvPlayer::showForeignPromoGlow(bool b)
+ 		FOR_EACH_UNIT_VAR(u, kPlayer)
+ 		{
+ 			gDLL->getEntityIFace()->showPromotionGlow(u->getUnitEntity(),
+-					u->isReadyForPromotion() && b);
++					u->isPromotionReady() && b);
+ 		}
+ 	}
+ }// </advc.002e>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 61916bcb6..db8268531 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -356,7 +356,9 @@ void CvPlayerAI::updateCacheData()
+ 	int i = 0;
+ 	FOR_EACH_CITYAI_VAR(c, *this)
+ 	{
+-		c->AI_updateSafety(1 - ::percentileRank(cityValues, cityValues[i]));
++		c->AI_setCityValPercent(::round(100 *
++				(1 - ::percentileRank(cityValues, cityValues[i]))));
++		c->AI_updateSafety();
+ 		i++;
+ 	} // </advc.139>
+ }
+@@ -15938,7 +15940,12 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMission
+ // K-Mod
+ 
+ // Total defensive strength of units that can move iRange steps to reach pDefencePlot
+-int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType, int iRange, bool bAtTarget, bool bCheckMoves, bool bNoCache) const
++/*  advc.159 (note): This is not simply the sum of the relevant combat strength values.
++	The result should only be compared with AI_localAttackStrength, AI_localDefenceStrength,
++	AI_cityTargetStrengthByPath or CvSelectionGroupAI::AI_sumStrength. */
++int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam,  // advc: some style changes in the body
++	DomainTypes eDomainType, int iRange, bool bAtTarget, bool bCheckMoves, bool bNoCache,
++	bool bPredictPromotions) const // advc.139
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -15954,38 +15961,43 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam(), false))
+ 				continue;
+ 
+-			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
+-
+ 			int iPlotTotal = 0;
+-			while (pUnitNode != NULL)
++			for (CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL;
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+ 			{
+-				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++				CvUnitAI const& kLoopUnit = *::AI_getUnit(pUnitNode->m_data);
+ 
+-				if (pLoopUnit->getTeam() == eDefenceTeam
+-					|| (eDefenceTeam != NO_TEAM && GET_TEAM(pLoopUnit->getTeam()).isVassal(eDefenceTeam))
+-					|| (eDefenceTeam == NO_TEAM && isPotentialEnemy(getTeam(), pLoopUnit->getTeam())))
++				if (kLoopUnit.getTeam() == eDefenceTeam
++					|| (eDefenceTeam != NO_TEAM && GET_TEAM(kLoopUnit.getTeam()).isVassal(eDefenceTeam))
++					|| (eDefenceTeam == NO_TEAM && isPotentialEnemy(getTeam(), kLoopUnit.getTeam())))
+ 				{
+-					if (eDomainType == NO_DOMAIN || (pLoopUnit->getDomainType() == eDomainType))
++					if (eDomainType == NO_DOMAIN || kLoopUnit.getDomainType() == eDomainType)
+ 					{
+ 						if (bCheckMoves)
+ 						{
+ 							// unfortunately, we can't use the global pathfinder here
+ 							// - because the calling function might be waiting to use some pathfinding results
+ 							// So this check will have to be really rough. :(
+-							int iMoves = pLoopUnit->baseMoves();
+-							if(pLoopPlot->isValidRoute(pLoopUnit, /* advc.001i: */ false))
++							int iMoves = kLoopUnit.baseMoves();
++							if(pLoopPlot->isValidRoute(&kLoopUnit, /* advc.001i: */ false))
+ 								iMoves++;
+ 							int iDistance = std::max(std::abs(iDX), std::abs(iDY));
+ 							if (iDistance > iMoves)
+ 								continue; // can't make it. (maybe?)
+ 						}
+-						int iUnitStr = pLoopUnit->currEffectiveStr(bAtTarget ? pDefencePlot : pLoopPlot, NULL);
+-						// first strikes are not counted in currEffectiveStr.
+-						// actually, the value of first strikes is non-trivial to calculate... but we should do /something/ to take them into account.
+-						iUnitStr *= 100 + 4 * pLoopUnit->firstStrikes() + 2 * pLoopUnit->chanceFirstStrikes();
+-						iUnitStr /= 100;
+-						// note. Most other parts of the code use 5% per first strike, but I figure we should go lower because this unit may get clobbered by collateral damage before fighting.
++						// <advc.139>
++						int iHP = kLoopUnit.currHitPoints();
++						bool const bAssumePromo = (bPredictPromotions && kLoopUnit.isPromotionReady());
++						if (bAssumePromo && kLoopUnit.getDamage() > 0)
++						{
++							iHP += kLoopUnit.promotionHeal();
++							iHP = std::min(kLoopUnit.maxHitPoints(), iHP);
++						} // </advc.139>
++						/*  <advc.159> Call AI_currEffectiveStr instead of currEffectiveStr.
++							Adjustments for first strikes are handled by that new function. */
++						int const iUnitStr = kLoopUnit.AI_currEffectiveStr(
++								bAtTarget ? pDefencePlot : pLoopPlot, // </advc.159>
++								NULL, false, 0, false, iHP, bAssumePromo); // advc.139
+ 						iPlotTotal += iUnitStr;
+ 					}
+ 				}
+@@ -16005,7 +16017,9 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ }
+ 
+ // Total attack strength of units that can move iRange steps to reach pAttackPlot
+-int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAttackTeam, DomainTypes eDomainType, int iRange, bool bUseTarget, bool bCheckMoves, bool bCheckCanAttack,
++// advc.159: See note above AI_localDefenceStrength  
++int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAttackTeam,  // advc: some style changes in the body
++	DomainTypes eDomainType, int iRange, bool bUseTarget, bool bCheckMoves, bool bCheckCanAttack,
+ 	int* piAttackerCount) const // advc.139
+ {
+ 	PROFILE_FUNC();
+@@ -16015,6 +16029,9 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 		: estimateCollateralWeight(0, getTeam());
+ 
+ 	int	iTotal = 0;
++	// <advc.139>
++	if(piAttackerCount != NULL)
++		*piAttackerCount = 0; // </advc.139>
+ 
+ 	for (int iDX = -iRange; iDX <= iRange; iDX++)
+ 	{
+@@ -16024,28 +16041,27 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam(), false))
+ 				continue;
+ 
+-			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
+-			while (pUnitNode != NULL)
++			for (CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL;
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+ 			{
+-				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-				if (pLoopUnit->getTeam() == eAttackTeam	|| (eAttackTeam == NO_TEAM && atWar(getTeam(), pLoopUnit->getTeam())))
++				CvUnitAI const& kLoopUnit = *::AI_getUnit(pUnitNode->m_data);
++				if (kLoopUnit.getTeam() == eAttackTeam || (eAttackTeam == NO_TEAM &&
++					::atWar(getTeam(), kLoopUnit.getTeam())))
+ 				{
+-					if (eDomainType == NO_DOMAIN || (pLoopUnit->getDomainType() == eDomainType))
++					if (eDomainType == NO_DOMAIN || kLoopUnit.getDomainType() == eDomainType)
+ 					{
+-						if (!pLoopUnit->canAttack()) // bCheckCanAttack means something else.
++						if (!kLoopUnit.canAttack()) // bCheckCanAttack means something else.
+ 							continue;
+ 						// <advc.315> See comment in AI_adjacentPotentialAttackers
+-						if(pLoopUnit->getUnitInfo().isMostlyDefensive())
++						if(kLoopUnit.getUnitInfo().isMostlyDefensive())
+ 							continue; // </advc.315>
+ 						if (bCheckMoves)
+ 						{
+ 							// unfortunately, we can't use the global pathfinder here
+ 							// - because the calling function might be waiting to use some pathfinding results
+ 							// So this check will have to be really rough. :(
+-							int iMoves = pLoopUnit->baseMoves();
+-							if(pLoopPlot->isValidRoute(pLoopUnit,
+-									false)) // advc.001i
++							int iMoves = kLoopUnit.baseMoves();
++							if(pLoopPlot->isValidRoute(&kLoopUnit, /* advc.001i: */ false))
+ 								iMoves++;
+ 							int iDistance = std::max(std::abs(iDX), std::abs(iDY));
+ 							if (iDistance > iMoves)
+@@ -16053,34 +16069,26 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 						}
+ 						if (bCheckCanAttack)
+ 						{
+-							if (!pLoopUnit->canMove() ||
+-									//(pLoopUnit->isMadeAttack() && !pLoopUnit->isBlitz())
+-									pLoopUnit->isMadeAllAttacks() // advc.164
+-									|| (bUseTarget && pLoopUnit->combatLimit() < 100 && pLoopPlot->isWater() && !pTargetPlot->isWater()))
+-								continue; // can't attack
+-						}
+-
+-						int iUnitStr = pLoopUnit->currEffectiveStr(bUseTarget ? pTargetPlot : NULL, bUseTarget ? pLoopUnit : NULL);
+-						// first strikes. (see comments in AI_localDefenceStrength... although, maybe 5% would be better here?)
+-						iUnitStr *= 100 + 4 * pLoopUnit->firstStrikes() + 2 * pLoopUnit->chanceFirstStrikes();
+-						iUnitStr /= 100;
+-						//
+-						if (pLoopUnit->collateralDamage() > 0)
+-						{
+-							int iPossibleTargets = std::min(bUseTarget ? pTargetPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1 : MAX_INT, pLoopUnit->collateralDamageMaxUnits());
+-
+-							if (iPossibleTargets > 0)
++							if (!kLoopUnit.canMove() ||
++								//(pLoopUnit->isMadeAttack() && !pLoopUnit->isBlitz())
++								kLoopUnit.isMadeAllAttacks() // advc.164
++								|| (bUseTarget && kLoopUnit.combatLimit() < 100 &&
++								pLoopPlot->isWater() && !pTargetPlot->isWater()))
+ 							{
+-								// collateral damage is not trivial to calculate. This estimate is pretty rough. (cf with calculation in AI_sumStrength)
+-								// (Note: collateralDamage() and iBaseCollateral both include factors of 100.)
+-								iUnitStr += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 10000;
++								continue; // can't attack
+ 							}
+ 						}
++						/*  <advc.159> Call AI_currEffectiveStr instead of currEffectiveStr.
++							Adjustments for first strikes and collateral damage are handled
++							by that new function. */
++						int const iUnitStr = kLoopUnit.AI_currEffectiveStr(
++								bUseTarget ? pTargetPlot : NULL, bUseTarget ? &kLoopUnit : NULL,
++								true, iBaseCollateral, bCheckCanAttack); // </advc.159>
+ 						iTotal += iUnitStr;
+ 						// <advc.139>
+-						if(piAttackerCount != NULL && pLoopUnit->getDamage() < 30)
++						if(piAttackerCount != NULL && kLoopUnit.getDamage() < 30)
+ 						{
+-							CvUnitInfo& u = GC.getUnitInfo(pLoopUnit->getUnitType());
++							CvUnitInfo& u = GC.getUnitInfo(kLoopUnit.getUnitType());
+ 							// 80 is Cannon; don't count the early siege units.
+ 							if(u.getCombatLimit() >= 80)
+ 								(*piAttackerCount)++;
+@@ -16139,6 +16147,33 @@ int CvPlayerAI::AI_cityTargetStrengthByPath(CvCity const* pCity,  // advc: const
+ 	//return iCount;
+ 	return iTotalStrength;
+ }
++/*  <advc.139> May have to update city safety status after one of our units
++	has attacked (possible relief). kDefender can be dead, but all its data
++	should still be acurate. */
++void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
++{
++	// Same checks as in AI_localAttackStrength essentially
++	if (kDefender.getDomainType() != DOMAIN_LAND || !kDefender.canAttack() ||
++			kDefender.getUnitInfo().isMostlyDefensive() || // advc.315
++			kDefender.plot()->isCity())
++		return;
++	int const iRange = kDefender.baseMoves() + (kDefender.plot()->isValidRoute(
++			&kDefender, /* advc.001i: */ false) ? 1 : 0);
++	CvMap const& kMap = GC.getMap();
++	for (int dx = -iRange; dx <= iRange; dx++)
++	{
++		for (int dy = -iRange; dy <= iRange; dy++)
++		{
++			CvPlot const* pPlot = kMap.plot(kDefender.getX(), kDefender.getY());
++			if (pPlot != NULL && pPlot->getOwner() == getID() && pPlot->isCity())
++			{
++				CvCityAI& kCity = *pPlot->AI_getPlotCity();
++				if (!kCity.AI_isSafe()) // It's only going to get safer
++					kCity.AI_updateSafety();
++			}
++		}
++	}
++} // </advc.139>
+ 
+ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const // advc: const CvUnit*
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 63e3141e8..aa1dd47ac 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -339,11 +339,13 @@ public:
+ 	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	// K-Mod start
+-	int AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType = DOMAIN_LAND, int iRange = 0, bool bAtTarget = true, bool bCheckMoves = false, bool bNoCache = false) const;
++	int AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType = DOMAIN_LAND, int iRange = 0, bool bAtTarget = true, bool bCheckMoves = false, bool bNoCache = false,
++			bool bPredictPromotions = false) const; // advc.139
+ 	int AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAttackTeam, DomainTypes eDomainType = DOMAIN_LAND, int iRange = 2, bool bUseTarget = true, bool bCheckMoves = false, bool bCheckCanAttack = false,
+ 			int* piAttackerCount = NULL) const; // advc.139
+ 	int AI_cityTargetStrengthByPath(CvCity const* pCity, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
+ 	// K-Mod end
++	void AI_attackMadeAgainst(CvUnit const& kDefender); // advc.139
+ 	// BBAI start
+ 	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_unitTargetMissionAIs(CvUnit const* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4a2117a65..a9b6b1d9d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4336,7 +4336,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			}
+ 
+ 			if (pLoopUnit->isBlockading()
+-				// advc.033: Owner change shouldn't normally disrupt blockade
++				// advc.033: Owner change shouldn't always disrupt blockade
+ 				&& !pLoopUnit->canPlunder(pLoopUnit->plot()))
+ 			{
+ 				pLoopUnit->setBlockading(false);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 0ece09be0..1150fc659 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -510,81 +510,58 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
+ }
+ 
+ /*  K-Mod. I've removed bCheckMove, and changed bCheckCanAttack to include checks
+-	for moves, and for hasAlreadyAttacked / blitz */
++	for moves, and for hasAlreadyAttacked / blitz */ // advc: style changes
++/*  advc.159: No longer simply a sum of combat strength values; see the comment
++	above CvPlayerAI::AI_localDefenceStrength. */
+ int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot,
+ 	DomainTypes eDomainType, bool bCheckCanAttack) const
+ {
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	int	strSum = 0;
+-	bool bDefenders = pAttackedPlot ? pAttackedPlot->isVisibleEnemyUnit(getHeadOwner()) : false; // K-Mod
+-	bool bCountCollateral = pAttackedPlot && pAttackedPlot != plot(); // K-Mod
+-
+-	pUnitNode = headUnitNode();
+-
+-	int iBaseCollateral = bCountCollateral
+-		? estimateCollateralWeight(pAttackedPlot, getTeam())
+-		: 0;
+-
+-	while (pUnitNode != NULL)
++	bool bDefenders = (pAttackedPlot ? pAttackedPlot->isVisibleEnemyUnit(getHeadOwner()) : false); // K-Mod
++	bool bCountCollateral = (pAttackedPlot && pAttackedPlot != plot()); // K-Mod
++	int iBaseCollateral = (bCountCollateral
++		? estimateCollateralWeight(pAttackedPlot, getTeam()) : 0);
++	int	iSum = 0;
++	for (CLLNode<IDInfo>* pUnitNode = headUnitNode(); pUnitNode != NULL; pUnitNode = nextUnitNode(pUnitNode))
+ 	{
+-		pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = nextUnitNode(pUnitNode);
+-
+-		if (!pLoopUnit->isDead())
++		CvUnitAI const& kLoopUnit = *::AI_getUnit(pUnitNode->m_data);
++		if (kLoopUnit.isDead())
++			continue;
++		// K-Mod. (original checks deleted.)
++		if (bCheckCanAttack)
+ 		{
+-			// K-Mod. (original checks deleted.)
+-			if (bCheckCanAttack)
++			if (kLoopUnit.getDomainType() == DOMAIN_AIR)
+ 			{
+-				if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+-				{
+-					if (!pLoopUnit->canAirAttack() || !pLoopUnit->canMove() ||
+-							(pAttackedPlot && bDefenders &&
+-							!pLoopUnit->canMoveInto(*pAttackedPlot, true, true)))
+-						continue; // can't attack.
+-				}
+-				else
+-				{
+-					if (!pLoopUnit->canAttack() || !pLoopUnit->canMove() ||
+-							(pAttackedPlot && bDefenders && !pLoopUnit->canMoveInto(*pAttackedPlot, true, true)) ||
+-							//(!pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
+-							pLoopUnit->isMadeAllAttacks()) // advc.164
+-						continue; // can't attack.
+-				}
++				if (!kLoopUnit.canAirAttack() || !kLoopUnit.canMove() ||
++						(pAttackedPlot && bDefenders &&
++						!kLoopUnit.canMoveInto(*pAttackedPlot, true, true)))
++					continue; // can't attack.
+ 			}
+-			// K-Mod end
+-
+-			if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
++			else
+ 			{
+-				// strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
+-
+-				// K-Mod estimate the value of first strike, and the attack power of collateral units.
+-				// (cf with calculation in CvPlayerAI::AI_localAttackStrength)
+-				int iUnitStr = pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
+-				iUnitStr *= 100 + 4 * pLoopUnit->firstStrikes() + 2 * pLoopUnit->chanceFirstStrikes();
+-				iUnitStr /= 100;
+-
+-				if (bCountCollateral && pLoopUnit->collateralDamage() > 0)
+-				{
+-					int iPossibleTargets = pLoopUnit->collateralDamageMaxUnits();
+-					// If !bCheckCanAttack, then lets not assume pAttackPlot won't get more units on it.
+-					if (bCheckCanAttack && pAttackedPlot->isVisible(getTeam(), false))
+-						iPossibleTargets = std::min(iPossibleTargets, pAttackedPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1);
+-
+-					if (iPossibleTargets > 0)
+-					{
+-						// collateral damage is not trivial to calculate. This estimate is pretty rough.
+-						// (Note: collateralDamage() and iBaseCollateral both include factors of 100.)
+-						iUnitStr += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 10000;
+-					}
+-				}
+-				strSum += iUnitStr;
+-				// K-Mod end
++				if (!kLoopUnit.canAttack() || !kLoopUnit.canMove() ||
++						(pAttackedPlot && bDefenders && !kLoopUnit.canMoveInto(*pAttackedPlot, true, true)) ||
++						//(!pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
++						kLoopUnit.isMadeAllAttacks()) // advc.164
++					continue; // can't attack.
+ 			}
++		} // K-Mod end
++
++		if (eDomainType == NO_DOMAIN || kLoopUnit.getDomainType() == eDomainType)
++		{
++			// iSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
++			// K-Mod estimate the value of first strike, and the attack power of collateral units.
++			// (cf with calculation in CvPlayerAI::AI_localAttackStrength)
++			/*  <advc.159> Call AI_currEffectiveStr instead of currEffectiveStr.
++				Adjustments for first strikes and collateral damage moved into
++				that new function. */
++			int const iUnitStr = kLoopUnit.AI_currEffectiveStr(pAttackedPlot, &kLoopUnit,
++					bCountCollateral, iBaseCollateral, bCheckCanAttack);
++			// </advc.159>
++			iSum += iUnitStr;
++			// K-Mod end
+ 		}
+ 	}
+-
+-	return strSum;
++	return iSum;
+ }
+ 
+ void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
+@@ -796,8 +773,9 @@ CvUnitAI* CvSelectionGroupAI::AI_ejectBestDefender(CvPlot* pDefendPlot)
+ 		pEntityNode = nextUnitNode(pEntityNode);
+ 		//if (!pLoopUnit->noDefensiveBonus())
+ 		// commented out by K-Mod. The noDefBonus thing is already taken into account.
+-		{
+-			int iValue = pLoopUnit->currEffectiveStr(pDefendPlot, NULL) * 100;
++		{	/*  advc.159: Call AI_currEffectiveStr instead of currEffectiveStr
++				And reduce the precision multiplier from 100 to 10. */
++			int iValue = pLoopUnit->AI_currEffectiveStr(pDefendPlot) * 10;
+ 
+ 			if (pDefendPlot->isCity(true, getTeam()))
+ 			{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a81c285ae..739d5cfb0 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2605,7 +2605,7 @@ int CvTeam::countEnemyDangerByArea(CvArea* pArea, TeamTypes eEnemyTeam) const
+ // <advc.112b>
+ EraTypes CvTeam::getCurrentEra() const
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC(); // (seems entirely unproblematic)
+ 	double sum = 0;
+ 	int iDiv = 0;
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index dfeb76a64..389f14540 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -6842,7 +6842,7 @@ int CvTeamAI::AI_getLowestVictoryCountdown() const
+ 
+ int CvTeamAI::AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const  // advc: style changes
+ {
+-	PROFILE_FUNC();
++	PROFILE_FUNC(); // advc: called not that infrequently
+ 	//bool bWarPlan = (getAnyWarPlanCount(eTeam) > 0);
+ 	bool bWarPlan = (AI_getWarPlan(eTeam) != NO_WARPLAN); // advc.001
+ 	int iValue = 0;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 17167921f..6d28e7c56 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1272,7 +1272,7 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 						/ (pDefender->isBarbarian() ? 2 : 1)); // advc.312
+ 				changeExperience(iExperience, pDefender->maxXPValue(), true, pPlot->getOwner() == getOwner(), !pDefender->isBarbarian());
+ 			}
+-
++			GET_PLAYER(getOwner()).AI_attackMadeAgainst(*pDefender); // advc.139
+ 			break;
+ 		}
+ 	}
+@@ -1746,7 +1746,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 			CvUnit* pUnit = ::getUnit(pNode->m_data);
+ 			if(pUnit != NULL)
+ 			{
+-				bool bGlow = pUnit->isReadyForPromotion();
++				bool bGlow = pUnit->isPromotionReady();
+ 				gDLL->getEntityIFace()->showPromotionGlow(pUnit->getUnitEntity(), bGlow);
+ 			}
+ 		}
+@@ -6145,12 +6145,7 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
+ 		}
+ 		return false;
+ 	}
+-	else
+-	{
+-		if (!isReadyForPromotion()) // advc.002e
+-			return false;
+-	}
+-	return true;
++	return isPromotionReady();
+ }
+ 
+ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
+@@ -6175,7 +6170,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
+ 	if (!GC.getPromotionInfo(ePromotion).isLeader())
+ 	{
+ 		changeLevel(1);
+-		changeDamage(-(getDamage() / 2));
++		changeDamage(-promotionHeal(ePromotion)); // advc: Heal moved into new function
+ 	}
+ 
+ 	setHasPromotion(ePromotion, true);
+@@ -6193,6 +6188,15 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
+ 
+ 	CvEventReporter::getInstance().unitPromoted(this, ePromotion);
+ }
++/*  <advc> Extracted from 'promote' above.
++	Tbd.: Have any AI code that assumes HP from promotions call this.
++	Also: Should set the percentage through XML. */
++int CvUnit::promotionHeal(PromotionTypes ePromotion) const
++{
++	int iHealPercent = (ePromotion != NO_PROMOTION && GC.getPromotionInfo(ePromotion).isLeader() ?
++			0 : 50);
++	return (getDamage() * iHealPercent) / 100;
++} // </advc>
+ 
+ bool CvUnit::lead(int iUnitId)
+ {
+@@ -7537,11 +7541,13 @@ int CvUnit::currFirepower(const CvPlot* pPlot, const CvUnit* pAttacker) const
+ // this nomalizes str by firepower, useful for quick odds calcs
+ // the effect is that a damaged unit will have an effective str lowered by firepower/maxFirepower
+ // doing the algebra, this means we mulitply by 1/2(1 + currHP)/maxHP = (maxHP + currHP) / (2 * maxHP)
+-int CvUnit::currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails) const
++int CvUnit::currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails,
++	int iCurrentHP) const // advc.139
+ {
+ 	int currStr = currCombatStr(pPlot, pAttacker, pCombatDetails);
+ 
+-	currStr *= (maxHitPoints() + currHitPoints());
++	currStr *= (maxHitPoints() + /* advc.139: */ (iCurrentHP > 0 ? iCurrentHP :
++			currHitPoints()));
+ 	currStr /= (2 * maxHitPoints());
+ 
+ 	return currStr;
+@@ -10010,23 +10016,18 @@ void CvUnit::setMadeInterception(bool bNewValue)
+ }
+ 
+ /*  <advc.002e> Lying to the EXE seems to be the only way to stop it from
+-	showing promotion glows after loading a savegame. isReadyForPromotion takes
+-	over the calls from the DLL and Python.
++	showing promotion glow after loading a savegame.
+ 	The EXE also calls isPromotionReady when showing enemy moves. Should be OK
+ 	to show the glow on those only once the human turn starts (in CvPlayer::doWarnings). */
+-bool CvUnit::isPromotionReady() const
++bool CvUnit::isPromotionReadyExternal() const
+ {
+-	return m_bPromotionReady && getBugOptionBOOL("PLE__ShowPromotionGlow", false);
+-}
+-
+-bool CvUnit::isReadyForPromotion() const
+-{
+-	return m_bPromotionReady;
++	return isPromotionReady() && getBugOptionBOOL("PLE__ShowPromotionGlow", false);
+ } // </advc.002e>
+ 
++
+ void CvUnit::setPromotionReady(bool bNewValue)
+ {
+-	if(isReadyForPromotion() == bNewValue) // advc.002e
++	if(isPromotionReady() == bNewValue)
+ 		return;
+ 
+ 	m_bPromotionReady = bNewValue;
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 5d93a899a..8d44af2a1 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -212,6 +212,7 @@ public:
+ 
+ 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;																												// Exposed to Python
+ 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);																																// Exposed to Python
++	int promotionHeal(PromotionTypes ePromotion = NO_PROMOTION) const; // advc
+ 
+ 	int canLead(const CvPlot* pPlot, int iUnitId) const;
+ 	bool lead(int iUnitId);
+@@ -292,7 +293,8 @@ public:
+ 	int maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;		// Exposed to Python
+ 	int currCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;	// Exposed to Python
+ 	int currFirepower(const CvPlot* pPlot, const CvUnit* pAttacker) const;																				// Exposed to Python
+-	int currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;
++	int currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL,
++			int iCurrentHP = -1) const; // advc.139
+ 	DllExport float maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;																	// Exposed to Python
+ 	DllExport float currCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;																	// Exposed to Python
+ 
+@@ -585,8 +587,8 @@ public:
+ 	bool isMadeInterception() const;																													// Exposed to Python
+ 	void setMadeInterception(bool bNewValue);																				// Exposed to Python
+ 
+-	DllExport bool isPromotionReady() const;																									// Exposed to Python
+-	bool isReadyForPromotion() const; // advc.002e
++	bool isPromotionReadyExternal() const; // advc.002e: exported through .def file
++	inline bool isPromotionReady() const { return m_bPromotionReady; } // advc.003f: inline									// Exposed to Python
+ 	void setPromotionReady(bool bNewValue);																					// Exposed to Python
+ 	void testPromotionReady();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9ff2113b3..0cb093f15 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -512,7 +512,7 @@ void CvUnitAI::AI_promote()
+ 	PROFILE_FUNC();
+ 
+ 	// K-Mod. A quick check to see if we can rule out all promotions in one hit, before we go through them one by one.
+-	if (!isReadyForPromotion()) // advc.002e
++	if (!isPromotionReady())
+ 		return; // can't get any normal promotions. (see CvUnit::canPromote)
+ 	// K-Mod end
+ 
+@@ -1013,6 +1013,64 @@ void CvUnitAI::AI_setUnitAIType(UnitAITypes eNewValue)
+ 	}
+ }
+ 
++/*  <advc.159> Like CvUnit::currEffectiveStr, but takes into account first strikes,
++	collateral damage and that combat odds increase superlinearly with combat strength.
++	The scale is arbitrary, i.e. one should only compare the returned values with each other. */
++int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
++	bool bCountCollateral, int iBaseCollateral, bool bCheckCanAttack,
++	int iCurrentHP, bool bAssumePromotion) const // advc.139
++{
++	PROFILE_FUNC(); // Called frequently but not extremely so; fine as it is.
++	int iCombatStrengthPercent = currEffectiveStr(pPlot, pOther, NULL, iCurrentHP);
++	/*  <K-Mod> (Moved from CvSelectionGroupAI::AI_sumStrength. Some of the code
++		had been duplicated in CvPlayerAI::AI_localDefenceStrength, AI_localAttackStrength). */
++	/*  first strikes are not counted in currEffectiveStr.
++		actually, the value of first strikes is non-trivial to calculate...
++		but we should do /something/ to take them into account. */
++	/*  note. Most other parts of the code use 5% per first strike, but I figure
++		we should go lower because this unit may get clobbered by collateral damage
++		before fighting. */
++	// (bCountCollateral means that we're the ones dealing collateral damage)
++	int const iFirstStrikeMultiplier = (bCountCollateral ? 5 : 4);
++	iCombatStrengthPercent *= 100 + iFirstStrikeMultiplier * firstStrikes() +
++			(iFirstStrikeMultiplier / 2) * chanceFirstStrikes()
++			+ (bAssumePromotion ? 7 : 0); // advc.139
++	iCombatStrengthPercent /= 100;
++	if (bCountCollateral && collateralDamage() > 0)
++	{
++		int iPossibleTargets = collateralDamageMaxUnits();
++		if (bCheckCanAttack && pPlot != NULL && pPlot->isVisible(getTeam(), false))
++			iPossibleTargets = std::min(iPossibleTargets, pPlot->getNumVisibleEnemyDefenders(this) - 1);
++		// If !bCheckCanAttack, then lets not assume kPlot won't get more units on it.
++		// advc: But let's put some cap on the number of targets
++		else iPossibleTargets = std::min(10, iPossibleTargets);
++		if (iPossibleTargets > 0)
++		{
++			// collateral damage is not trivial to calculate. This estimate is pretty rough.
++			// (Note: collateralDamage() and iBaseCollateral both include factors of 100.)
++			iCombatStrengthPercent += baseCombatStr() * iBaseCollateral *
++					collateralDamage() * iPossibleTargets / 10000;
++		}
++	} // </K-Mod>
++	FAssert(iCombatStrengthPercent < 100000); // A conservative guard against overflow
++	/*  Generally, there's a good chance that a strong unit can kill a weak unit
++		and then heal ("defeat in detail"). However, this function is used for
++		evaluating imminent stack-on-stack combat. When we already know that
++		a stack of stronger units is facing a larger stack of weaker units
++		we need to assume a high chance of having to fight multiple enemies in a row. */
++	static double exponent = std::max(1.0, 0.75 * GC.getPOWER_CORRECTION());
++	static double const normalizationFactor = (exponent < 1.05 ? 1 :
++			// Pretty arbitrary; only need to weigh rounding errors against the danger of overflow.
++			20000 / std::pow(10000.0, exponent));
++	/*  Make the AI overestimate weak units a little bit on the low and medium difficulty settings.
++		(Not static b/c difficulty can change through load/ new game.) */
++	exponent -= GC.getHandicapInfo(GC.getGame().getHandicapType()).getFreeWinsVsBarbs() / 25.0;
++	return std::min(20000, // Guard against overflow problems for caller
++			::round(std::pow((double)iCombatStrengthPercent, exponent) *
++			normalizationFactor));
++} // </advc.159>
++
++
+ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ {
+ 	int iCollateralDamageValue = 0;
+@@ -1048,7 +1106,7 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 	}
+ 	else
+ 	{
+-		iValue  = 128 * (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
++		iValue = 128 * (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
+ 		iValue *= (100 + iCollateralDamageValue);
+ 
+ 		//iValue /= (100 + cityDefenseModifier());
+@@ -4852,13 +4910,12 @@ void CvUnitAI::AI_greatPersonMove()
+ 	bool bCanHurry = getUnitInfo().getBaseHurry() > 0 || getUnitInfo().getHurryMultiplier() > 0;
+ 
+ 	FOR_EACH_CITYAI(pLoopCity, kPlayer)
+-	{
+-		if (pLoopCity->area() != area())
+-			continue; // advc
+-
++	{	// <advc.139>
++		if (!pLoopCity->AI_isSafe())
++			continue; // </advc.139>
+ 		int iPathTurns;
+-		if (!generatePath(pLoopCity->plot(), iMoveFlags, true, &iPathTurns))
+-			continue;
++		if (pLoopCity->area() != area() || !generatePath(pLoopCity->plot(), iMoveFlags, true, &iPathTurns))
++			continue; // advc
+ 		// Join
+ 		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+ 		{
+@@ -5903,8 +5960,12 @@ void CvUnitAI::AI_pirateSeaMove()
+ 	PROFILE_FUNC();
+ 
+ 	// heal in defended, unthreatened forts and cities
+-	if (plot()->isCity(true) && GET_PLAYER(getOwner()).AI_localDefenceStrength(plot(), getTeam()) > 0 &&
+-		!GET_PLAYER(getOwner()).AI_getAnyPlotDanger(*plot(), 2, false))
++	CvPlot const& kPlot = *plot();
++	// advc.139: Better and faster safety check (though not for Forts)
++	if ((kPlot.isCity(false) && kPlot.AI_getPlotCity()->AI_isSafe()) ||
++		(kPlot.isCity(true) && GET_PLAYER(getOwner()).
++		AI_localDefenceStrength(&kPlot, getTeam()) > 0 &&
++		!GET_PLAYER(getOwner()).AI_getAnyPlotDanger(kPlot, 2, false)))
+ 	{
+ 		if (AI_heal())
+ 		{
+@@ -5946,7 +6007,6 @@ void CvUnitAI::AI_pirateSeaMove()
+ 	if (GC.getGame().getSorenRandNum(10, "AI Pirate Explore") == 0)
+ 	{
+ 		CvArea* pWaterArea = plot()->waterArea();
+-
+ 		if (pWaterArea != NULL)
+ 		{
+ 			if (pWaterArea->getNumUnrevealedTiles(getTeam()) > 0)
+@@ -12128,6 +12188,8 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+ }
+ 
+ // iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
++/*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
++	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
+ bool CvUnitAI::AI_join(int iMaxCount)
+ {
+ 	PROFILE_FUNC();
+@@ -12145,7 +12207,8 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 			canEnterArea(*pLoopCity->area())
+ 			&& AI_plotValid(pLoopCity->plot()))
+ 		{
+-			if (!pLoopCity->plot()->isVisibleEnemyUnit(this))
++			//if (!pLoopCity->plot()->isVisibleEnemyUnit(this))
++			if (pLoopCity->AI_isSafe()) // advc.139: ^How could there be an enemy in our city?
+ 			{
+ 				if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY, true))
+ 				// BETTER_BTS_AI_MOD: END
+@@ -12203,6 +12266,7 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ }
+ 
+ // iMaxCount = 1 would mean construct only if there are no existing buildings constructed by this GP type.
++// advc (note): Only used for Great General; see comment above AI_join.
+ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThreshold)
+ {
+ 	PROFILE_FUNC();
+@@ -12217,7 +12281,8 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
+ 	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+ 	{
+ 		if (!AI_plotValid(pLoopCity->plot()) || pLoopCity->area() != area() ||
+-				pLoopCity->plot()->isVisibleEnemyUnit(this))
++				//pLoopCity->plot()->isVisibleEnemyUnit(this))
++				pLoopCity->AI_isSafe()) // advc.139: Replacing the above
+ 			continue; // advc
+ 
+ 		//if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_CONSTRUCT, getGroup()) == 0)
+@@ -15438,48 +15503,43 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 	int iCollateralDamageScale = estimateCollateralWeight(0, getTeam());
+ 	std::map<CvCityAI const*, int> city_defence_cache; // advc: const
+ 
+-	std::vector<CvUnit*> aGroupCargo;
+-	CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode();
+-	while (pUnitNode != NULL)
++	std::vector<CvUnit const*> aGroupCargo;
++	for (CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode(); pUnitNode != NULL;
++		pUnitNode = plot()->nextUnitNode(pUnitNode))
+ 	{
+-		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = plot()->nextUnitNode(pUnitNode);
+-		CvUnit* pTransport = pLoopUnit->getTransportUnit();
+-		if (pTransport != NULL && pTransport->getGroup() == getGroup())
+-		{
+-			aGroupCargo.push_back(pLoopUnit);
+-			// K-Mod. Gather some data for later...
+-			iLimitedAttackers += (pLoopUnit->combatLimit() < 100 ? 1 : 0);
+-			iAmphibiousAttackers += (pLoopUnit->isAmphib() ? 1 : 0);
+-
+-			// Estimate attack strength, both for landed assaults and amphibious assaults.
+-			//
+-			// Unfortunately, we can't use AI_localAttackStrength because that may miscount
+-			// depending on whether there is another group on this plot and things like that,
+-			// and we can't use AI_sumStrength because that currently only works for groups.
+-			// What we have here is a list of cargo units rather than a group.
+-			if (pLoopUnit->canAttack())
+-			{
+-				int iUnitStr = pLoopUnit->currEffectiveStr(NULL, NULL);
+-
+-				iUnitStr *= 100 + 4 * pLoopUnit->firstStrikes() + 2 * pLoopUnit->chanceFirstStrikes();
+-				iUnitStr /= 100;
+-
+-				if (pLoopUnit->collateralDamage() > 0)
+-					iUnitStr += pLoopUnit->baseCombatStr() * iCollateralDamageScale * pLoopUnit->collateralDamage() * pLoopUnit->collateralDamageMaxUnits() / 10000;
++		CvUnitAI const& kLoopUnit = *::AI_getUnit(pUnitNode->m_data); // advc
++		CvUnit* pTransport = kLoopUnit.getTransportUnit();
++		if (pTransport == NULL || pTransport->getGroup() != getGroup())
++			continue; // advc
+ 
+-				iLandedAttackStrength += iUnitStr;
++		aGroupCargo.push_back(&kLoopUnit);
++		// K-Mod. Gather some data for later...
++		iLimitedAttackers += (kLoopUnit.combatLimit() < 100 ? 1 : 0);
++		iAmphibiousAttackers += (kLoopUnit.isAmphib() ? 1 : 0);
+ 
+-				if (pLoopUnit->combatLimit() >= 100 && pLoopUnit->canMove() && (!pLoopUnit->isMadeAttack() || pLoopUnit->isBlitz()))
+-				{
+-					if (!pLoopUnit->isAmphib())
+-						iUnitStr += iUnitStr * GC.getDefineINT(CvGlobals::AMPHIB_ATTACK_MODIFIER) / 100;
+-
+-					iAmphibiousAttackStrength += iUnitStr;
+-				}
++		// Estimate attack strength, both for landed assaults and amphibious assaults.
++		//
++		/*  Unfortunately, we can't use AI_localAttackStrength because that may miscount
++			depending on whether there is another group on this plot and things like that,
++			and we can't use AI_sumStrength because that currently only works for groups.
++			What we have here is a list of cargo units rather than a group. */
++		if (!kLoopUnit.canAttack())
++			continue; // advc
++		//int iUnitStr = pLoopUnit->currEffectiveStr(NULL, NULL);
++		// advc.159: Also handles first strikes and coll. damage (code here deleted)
++		int iUnitStr = kLoopUnit.AI_currEffectiveStr(NULL, NULL, true, iCollateralDamageScale);
++		iLandedAttackStrength += iUnitStr;
++		if (kLoopUnit.combatLimit() >= 100 && kLoopUnit.canMove() &&
++			!kLoopUnit.isMadeAllAttacks()) // advc.164
++		{
++			if (!kLoopUnit.isAmphib())
++			{
++				// advc (note): The (BtS) modifier is negative
++				iUnitStr += iUnitStr * GC.getDefineINT(CvGlobals::AMPHIB_ATTACK_MODIFIER) / 100;
+ 			}
+-			// K-Mod end
++			iAmphibiousAttackStrength += iUnitStr;
+ 		}
++		// K-Mod end
+ 	}
+ 
+ 	int iFlags = MOVE_AVOID_ENEMY_WEIGHT_3 | MOVE_DECLARE_WAR; // K-Mod
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 3fbd734e4..2093db7ee 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -41,6 +41,12 @@ public:
+ 	void AI_setUnitAIType(UnitAITypes eNewValue);
+ 	CvSelectionGroupAI* AI_getGroup() const; // advc.003u
+ 
++	// <advc.159>
++	int AI_currEffectiveStr(CvPlot const* pPlot = NULL, CvUnit const* pOther = NULL,
++			bool bCountCollateral = false, int iBaseCollateral = 0,
++			bool bCheckCanAttack = false,
++			int iCurrentHP = -1, bool bAssumePromotion = false) const; // advc.139
++	// </advc.159>
+ 	int AI_sacrificeValue(const CvPlot* pPlot) const;
+ 	// Lead From Behind by UncutDragon (edited for K-Mod):
+ 	void LFBgetBetterAttacker(CvUnitAI** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue);
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 9c2adc97c..2b1e29d95 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -231,14 +231,6 @@ std::wstring CyCity::getProductionName()
+ 	return m_pCity ? m_pCity->getProductionName() : L"";
+ }
+ 
+-int CyCity::getGeneralProductionTurnsLeft()
+-{
+-	if(m_pCity == NULL)
+-		return -1;
+-	int r = m_pCity->getGeneralProductionTurnsLeft();
+-	return (r == MAX_INT ? -1 : r); // advc.004x
+-}
+-
+ std::wstring CyCity::getProductionNameKey()
+ {
+ 	return m_pCity ? m_pCity->getProductionNameKey() : L"";
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index 36f17b3af..4ee354e9e 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -70,7 +70,7 @@ public:
+ 	int /*ProcessTypes*/ getProductionProcess();
+ 	std::wstring getProductionName();
+ 	std::wstring getProductionNameKey();
+-	int getGeneralProductionTurnsLeft();
++	//int getGeneralProductionTurnsLeft(); // advc: redundant
+ 	bool isFoodProduction();
+ 	int getFirstUnitOrder(int /*UnitTypes*/ eUnit);
+ 	int getFirstProjectOrder(int /*ProjectTypes*/ eProject);
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 0d23acfe3..f57df53a0 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -61,7 +61,6 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getProductionProject", &CyCity::getProductionProject, "int /*ProjectTypes*/ ()")
+ 		.def("getProductionProcess", &CyCity::getProductionProcess, "int /*ProcessTypes*/ ()")
+ 		.def("getProductionName", &CyCity::getProductionName, "str () - description of item that the city is working on")
+-		.def("getGeneralProductionTurnsLeft", &CyCity::getGeneralProductionTurnsLeft, "int - # of production turns left for the top order node item in a city...")
+ 		.def("getProductionNameKey", &CyCity::getProductionNameKey, "str () - description of item that the city is working on")
+ 		.def("isFoodProduction", &CyCity::isFoodProduction, "bool () - is item under construction being created with food instead of production?")
+ 		.def("getFirstUnitOrder", &CyCity::getFirstUnitOrder, "int (int /*UnitTypes*/ eUnit)")
+@@ -70,7 +69,11 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("isUnitFoodProduction", &CyCity::isUnitFoodProduction, "bool (UnitID) - does UnitID require food to be trained?")
+ 		.def("getProduction", &CyCity::getProduction, "int () - returns the current production towards whatever is top of this city's OrderQueue")
+ 		.def("getProductionNeeded", &CyCity::getProductionNeeded, "int () - # of production needed to complete construction")
+-		.def("getProductionTurnsLeft", &CyCity::getProductionTurnsLeft, "int () - # of turns remaining until item is completed")
++		// advc: Now just an alias of getProductionTurnsLeft
++		.def("getGeneralProductionTurnsLeft", &CyCity::getProductionTurnsLeft, "int - # of production turns left for the top order node item in a city...")
++		/*  advc: Documentation string said "# of turns remaining until item is completed".
++			Use the one from getGeneralProductionTurnsLeft instead. */
++		.def("getProductionTurnsLeft", &CyCity::getProductionTurnsLeft, "int - # of production turns left for the top order node item in a city...")
+ 		.def("getUnitProductionTurnsLeft", &CyCity::getUnitProductionTurnsLeft, "int (UnitID, int iNum) - # of turns remaining to complete UnitID")
+ 		.def("getBuildingProductionTurnsLeft", &CyCity::getBuildingProductionTurnsLeft, "int (BuildingID, int iNum) - # of turns remaining to complete UnitID")
+ 		.def("getProjectProductionTurnsLeft", &CyCity::getProjectProductionTurnsLeft, "int (int /*ProjectTypes*/ eProject, int iNum)")
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 4641d951e..b1e7134a5 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -1444,7 +1444,7 @@ void CyUnit::setMadeInterception(bool bNewValue)
+ 
+ bool CyUnit::isPromotionReady()
+ {
+-	return m_pUnit ? m_pUnit->isReadyForPromotion() : false; // advc.002e
++	return m_pUnit ? m_pUnit->isPromotionReady() : false;
+ }
+ 
+ void CyUnit::setPromotionReady(bool bNewValue)
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.def b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+index 79b7cb425..8f6ab012c 100644
+--- a/CvGameCoreDLL/Project/CvGameCoreDLL.def
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+@@ -20,3 +20,4 @@ EXPORTS
+ ?<hidden-email>@@QBEPAVCvPlot@@<hidden-email>=?<hidden-email>@@QBEPAVCvPlot@@<hidden-email>
+ ?<hidden-email>@@QBEPAVCvPlot@@<hidden-email>=?<hidden-email>@@QBEPAVCvPlot@@<hidden-email>
+ ?<hidden-email>@@QBE_NW4TeamTypes@@@Z=?<hidden-email>@@QBE_NW4TeamTypes@@@Z
++?<hidden-email>@@QBE_NXZ=?<hidden-email>@@QBE_NXZ
+
+[PATCH COVERAGE]
+patchFiles=28 embeddedFiles=28 omittedFiles=0 embeddedPatchBytes=59617

@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4598
+# Commit: e6980602d803c08a5e9ca1ec05509ce813be6df1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 534b6b020f27cb356b9af16da2db1d3d7921266f
+# Title: add/tweak/change boat/naval units (docs only) or/and other fixes/changes/or other
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/{civ4 civs default.png => 0.50_civ4 civs default.png}
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+20	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+24	9	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+ rename _1_AdvCiv-SAS/Docs_And_Appendixes/{civ4 civs default.png => 0.50_civ4 civs default.png} (100%)
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 15dee2784..dfab0abab 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/civ4 civs default.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.50_civ4 civs default.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Docs_And_Appendixes/civ4 civs default.png
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/0.50_civ4 civs default.png
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+index 49701d150..cffa9e31e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+@@ -88,6 +88,7 @@ For now i'm considering to add these ressources, would not want to clutter the m
+ 
+ 1) sea whales (land)
+ 2) Camel i think: https://en.wikipedia.org/wiki/Camel#History
++2.5) onion
+ 3) scorpios: in particular for their venom, maybe an assasination tech too to make arabs op
+ or some other civs (Poison tech or thing related i mean)? Historically they were very strong
+ or relevant, i don't know much, but would increase immersion a lot too
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index ee45e4ffa..9816cce15 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -967,4 +967,24 @@ to the galley, may increase the galley's cost instead, which makes sense when th
+ even though in AdvCiv-SAS it will be able to carry any type of troops, but make it more expensive too based on previous info
+ etc i mean anyways about this, i mean anyways, thanks,
+ 
++- ancient rowboat from around ancient egypt so bronze age: https://en.wikipedia.org/wiki/Rowing#Ancient_Egypt (ancient egypt is around 3000 BCE if i'm not mistaken and(/or rather maybe too aloso about this etc anyways i mean anyways, thanks, ) from the little i've seen too anyways)
+ 
++- galleys history (for design (model) chocies) etc i mean anyways and about this etc i mean anyways, thanks, https://www.warhistoryonline.com/ancient-history/galleys-first-great-warships-m.html and quick look also i mean aobut this really todo delete alater this remark/part of the note but anyways https://curriculumvisions.com/search/G/galley/galley.html
++
++- make upgrade to etiher frigate or privateer (idea from history rewritten but modified their idea etc)
++
++- early galley of realism invictus should fit better and is more distinct that the one in bts that looks quite generic, not
++sure it accurate regarding bronze age designs (of galleys) but maybe/hopefully accurate enough, and i did not find much data
++on this (about this etc i mean anyways, thanks, )
++
++- medieval galley: https://www.quora.com/What-are-some-characteristics-of-medieval-galleys (quite late in medieval era a bit in the middle a little further etc i mean anyways, thanks, )
++
++- oldest privateers around 1200 AD, including it in medieval era even though late part of it, i also find it's a cool design
++where pirates have a golden era (about this etc i mean anyways, etc i mean anyways, thanks, ), where they are stronger than
++even frigates, about this etc i mean anyways, thanks,
++
++- for simplicity skipping some early steam powered boats (to keep the one boat (type) per era "rule", also not that much
++of a difference even though would have been nice maybe, for example the quote about napoleon and steam power if i remember
++correctly that i read quite some time ago but anyways (like 1 year or less or bit more idk exactly most likely bit less but
++anyways about this etc i mean anyways, thanks, )), hopefully clearer or at least smoother gameplay this way, make them around
++1850 AD then, about this etc i mean anyways, etc i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index c3cb129d9..6eccc05e1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -23,6 +23,10 @@ stealth bomber (simplifying the end game, removing stealth air units)
+ fighter (put fokker dr.1 instead)
+ caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
+ ship of the line (too close to the frigate for too little extra benefit, redundant)
++galley (not distinct (from other units) or accurate enough design)
++trireme (same (reason as for the (etc i mean anyways, thanks, )) as galley)
++privateer (same)
++ironclad (same)
+ 
+ 
+ _________________________________________________________________________
+@@ -52,7 +56,7 @@ khmer: ballista elephant history rewritten (based on a google image quick search
+ celts?
+ spain?
+ korea?
+-byzantine? cataphract history rewritten? or use dromon same as in civ3?
++byzantine? cataphract history rewritten? or use dromon (in c2c for example exists) same as in civ3?
+ 
+ 
+ 
+@@ -646,10 +650,10 @@ boats
+ 
+ transport boats:
+ transport 1: raft c2c
+-transport 2: 
+-transport 3: galleon
+-transport 4:
+-transport 5:
++transport 2: sailboat _ ancient rowboat realism invictus
++transport 3: Sailboat (Bireme) _ Bireme Sailboat realism invictus
++transport 4: trade ship (cog) _ cog realism invictus
++transport 5: - (galleon)
+ transport 6:
+ transport 7:
+ transport 8:
+@@ -659,17 +663,28 @@ transport 9:
+ 
+ war boats
+ war boat 1: war canoe c2c
+-war boat 2: - (rename galley to early galley)
+-war boat 3: - (trireme)
+-war boat 4:
++war boat 2: galley - early galley realism invictus (but use the icon of the galley longship)
++war boat 3: galley (eastern trireme) _ trireme galley realism invictus
++war boat 4: war galley _ medieval galley realism invictus
+ war boat 5: - (frigate)
+-war boat 6:
++war boat 6: ironclad _ ironclad warship realism invictus
+ war boat 7:
+ war boat 8:
+ war boat 9:
+ 
+ 
+ 
++war boats foreign:
++-
++-
++-
++war boat foreign 4: - privateer realism invictus
++war boat foreign 5: - heavy privateer realism invictus
++-
++-
++-
++-
++
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6467

@@ -1,0 +1,538 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1863
+# Commit: 8199fe2a9c0e0b98a83c15099a16c6c587183ee0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f6c7be4a3f85096b083f3369406e95c91f678d7b
+# Title: Update EuroWorld scenario (minor changes)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+70	68	EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+25	18	EuroWorld scenario/java/wbo/WBOut.java
+1	0	EuroWorld scenario/readme.txt
+
+[PATCHES]
+
+diff --git a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+index 5c679f1f9..512351b65 100644
+--- a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
++++ b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
+@@ -1,7 +1,6 @@
+ Version=11
+ BeginGame
+ 	Speed=GAMESPEED_EPIC
+-	Calendar=CALENDAR_DEFAULT
+ 	Option=GAMEOPTION_PICK_RELIGION
+ 	Option=GAMEOPTION_LEAD_ANY_CIV
+ 	Option=GAMEOPTION_NO_EVENTS
+@@ -61,12 +60,12 @@ BeginTeam
+ 	Tech=TECH_AGRICULTURE
+ EndTeam
+ BeginTeam
++	Tech=TECH_FISHING
+ 	Tech=TECH_MYSTICISM
+-	Tech=TECH_THE_WHEEL
+ EndTeam
+ BeginTeam
+-	Tech=TECH_FISHING
+ 	Tech=TECH_MYSTICISM
++	Tech=TECH_THE_WHEEL
+ EndTeam
+ BeginTeam
+ 	Tech=TECH_MINING
+@@ -758,13 +757,63 @@ BeginPlayer
+ 	CityList=TXT_KEY_CITY_NAME_HAWILA_ASSARAW
+ 	CityList=TXT_KEY_CITY_NAME_WEQRO
+ EndPlayer
++BeginPlayer
++	LeaderType=LEADER_SURYAVARMAN
++	CivType=CIVILIZATION_KHMER
++	Team=13
++	PlayableCiv=1
++	StartingX=97, StartingY=44
++	Handicap=HANDICAP_PRINCE
++	CityList=TXT_KEY_CITY_NAME_YASODHARAPURA
++	CityList=Nakhon Pathom
++	CityList=Hanoi
++	CityList=TXT_KEY_CITY_NAME_HARIHARALAYA
++	CityList=TXT_KEY_CITY_NAME_ANGKOR_THOM
++	CityList=TXT_KEY_CITY_NAME_NAGARA_JAYASRI
++	CityList=TXT_KEY_CITY_NAME_RAJAVIHARA
++	CityList=TXT_KEY_CITY_NAME_ISVARAPURA
++	CityList=TXT_KEY_CITY_NAME_BANTEAY_KDEI
++	CityList=TXT_KEY_CITY_NAME_JAYENDRANAGARI
++	CityList=TXT_KEY_CITY_NAME_PRE_RUP
++	CityList=TXT_KEY_CITY_NAME_VIMAYAPURA
++	CityList=TXT_KEY_CITY_NAME_LINGAPURA
++	CityList=TXT_KEY_CITY_NAME_KRONG_CHAKTOMUK
++	CityList=TXT_KEY_CITY_NAME_CHOK_GARGYAR
++	CityList=TXT_KEY_CITY_NAME_MAHENDRAPARVATA
++	CityList=TXT_KEY_CITY_NAME_AMARENDRAPURA
++	CityList=TXT_KEY_CITY_NAME_INDRAPURA
++	CityList=TXT_KEY_CITY_NAME_LAVO
++	CityList=TXT_KEY_CITY_NAME_PREAH_VIHEAR
++	CityList=TXT_KEY_CITY_NAME_PHANOM_RUNG
++	CityList=TXT_KEY_CITY_NAME_PHIMAI
++	CityList=TXT_KEY_CITY_NAME_MUANG_TAM
++	CityList=TXT_KEY_CITY_NAME_BENG_MELEA
++	CityList=TXT_KEY_CITY_NAME_PRASAT_BAKAN
++	CityList=TXT_KEY_CITY_NAME_SINGHAPURA
++	CityList=TXT_KEY_CITY_NAME_CHALIENG
++	CityList=TXT_KEY_CITY_NAME_SUKHOTHAI
++	CityList=TXT_KEY_CITY_NAME_VIANGCHAN
++	CityList=TXT_KEY_CITY_NAME_BATTAMBANG
++	CityList=TXT_KEY_CITY_NAME_SURYAPARVATA
++	CityList=TXT_KEY_CITY_NAME_PREY_NOKOR
++	CityList=TXT_KEY_CITY_NAME_O_KEO
++	CityList=TXT_KEY_CITY_NAME_ANINDITAPURA
++	CityList=TXT_KEY_CITY_NAME_ISANAPURA
++	CityList=TXT_KEY_CITY_NAME_SHRESTAPURA
++	CityList=TXT_KEY_CITY_NAME_ANGKOR_BOREI
++	CityList=TXT_KEY_CITY_NAME_VYADHAPURA
++	CityList=TXT_KEY_CITY_NAME_BHAVAPURA
++	CityList=TXT_KEY_CITY_NAME_SAMBHUPURA
++	CityList=TXT_KEY_CITY_NAME_LOVEK
++	CityList=TXT_KEY_CITY_NAME_UDONG
++EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_ASOKA
+ 	CivType=CIVILIZATION_INDIA
+-	Team=13
++	Team=14
+ 	PlayableCiv=1
+ 	StartingX=88, StartingY=43
+-	Handicap=HANDICAP_PRINCE
++	Handicap=HANDICAP_MONARCH
+ 	CityList=TXT_KEY_CITY_NAME_PATALIPUTRA
+ 	CityList=TXT_KEY_CITY_NAME_AMARAVATI
+ 	CityList=TXT_KEY_CITY_NAME_DELHI
+@@ -863,57 +912,6 @@ BeginPlayer
+ 	CityList=TXT_KEY_CITY_NAME_IMPHAL
+ 	CityList=TXT_KEY_CITY_NAME_CHANDIGARH
+ EndPlayer
+-BeginPlayer
+-	LeaderType=LEADER_SURYAVARMAN
+-	CivType=CIVILIZATION_KHMER
+-	Team=14
+-	PlayableCiv=1
+-	StartingX=97, StartingY=44
+-	Handicap=HANDICAP_PRINCE
+-	CityList=TXT_KEY_CITY_NAME_YASODHARAPURA
+-	CityList=Nakhon Pathom
+-	CityList=Indrapura
+-	CityList=Hanoi
+-	CityList=TXT_KEY_CITY_NAME_HARIHARALAYA
+-	CityList=TXT_KEY_CITY_NAME_ANGKOR_THOM
+-	CityList=TXT_KEY_CITY_NAME_NAGARA_JAYASRI
+-	CityList=TXT_KEY_CITY_NAME_RAJAVIHARA
+-	CityList=TXT_KEY_CITY_NAME_ISVARAPURA
+-	CityList=TXT_KEY_CITY_NAME_BANTEAY_KDEI
+-	CityList=TXT_KEY_CITY_NAME_JAYENDRANAGARI
+-	CityList=TXT_KEY_CITY_NAME_PRE_RUP
+-	CityList=TXT_KEY_CITY_NAME_VIMAYAPURA
+-	CityList=TXT_KEY_CITY_NAME_LINGAPURA
+-	CityList=TXT_KEY_CITY_NAME_KRONG_CHAKTOMUK
+-	CityList=TXT_KEY_CITY_NAME_CHOK_GARGYAR
+-	CityList=TXT_KEY_CITY_NAME_MAHENDRAPARVATA
+-	CityList=TXT_KEY_CITY_NAME_AMARENDRAPURA
+-	CityList=TXT_KEY_CITY_NAME_INDRAPURA
+-	CityList=TXT_KEY_CITY_NAME_LAVO
+-	CityList=TXT_KEY_CITY_NAME_PREAH_VIHEAR
+-	CityList=TXT_KEY_CITY_NAME_PHANOM_RUNG
+-	CityList=TXT_KEY_CITY_NAME_PHIMAI
+-	CityList=TXT_KEY_CITY_NAME_MUANG_TAM
+-	CityList=TXT_KEY_CITY_NAME_BENG_MELEA
+-	CityList=TXT_KEY_CITY_NAME_PRASAT_BAKAN
+-	CityList=TXT_KEY_CITY_NAME_SINGHAPURA
+-	CityList=TXT_KEY_CITY_NAME_CHALIENG
+-	CityList=TXT_KEY_CITY_NAME_SUKHOTHAI
+-	CityList=TXT_KEY_CITY_NAME_VIANGCHAN
+-	CityList=TXT_KEY_CITY_NAME_BATTAMBANG
+-	CityList=TXT_KEY_CITY_NAME_SURYAPARVATA
+-	CityList=TXT_KEY_CITY_NAME_PREY_NOKOR
+-	CityList=TXT_KEY_CITY_NAME_O_KEO
+-	CityList=TXT_KEY_CITY_NAME_ANINDITAPURA
+-	CityList=TXT_KEY_CITY_NAME_ISANAPURA
+-	CityList=TXT_KEY_CITY_NAME_SHRESTAPURA
+-	CityList=TXT_KEY_CITY_NAME_ANGKOR_BOREI
+-	CityList=TXT_KEY_CITY_NAME_VYADHAPURA
+-	CityList=TXT_KEY_CITY_NAME_BHAVAPURA
+-	CityList=TXT_KEY_CITY_NAME_SAMBHUPURA
+-	CityList=TXT_KEY_CITY_NAME_LOVEK
+-	CityList=TXT_KEY_CITY_NAME_UDONG
+-EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_MANSA_MUSA
+ 	CivType=CIVILIZATION_MALI
+@@ -1056,7 +1054,7 @@ BeginMap
+ 	wrap Y=0
+ 	top latitude=80
+ 	bottom latitude=-70
+-	world size=WORLDSIZE_LARGE
++	world size=WORLDSIZE_STANDARD
+ 	climate=CLIMATE_TEMPERATE
+ 	sealevel=SEALEVEL_LOW
+ 	num plots written=8640
+@@ -19957,13 +19955,13 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=51,y=53
+-	BonusType=BONUS_SILVER
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=51,y=54
++	BonusType=BONUS_SILVER
+ 	isWOfRiver
+ 	RiverNSDirection=0
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+@@ -22347,13 +22345,13 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=57,y=59
++	BonusType=BONUS_FUR
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=57,y=60
+-	BonusType=BONUS_FUR
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+@@ -23493,12 +23491,12 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=60,y=55
+-	BonusType=BONUS_COW
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=60,y=56
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+ EndPlot
+@@ -23901,9 +23899,9 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=61,y=56
++	BonusType=BONUS_COW
+ 	isWOfRiver
+ 	RiverNSDirection=2
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+ EndPlot
+@@ -24561,6 +24559,7 @@ EndPlot
+ BeginPlot
+ 	x=63,y=29
+ 	BonusType=BONUS_IVORY
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -24700,12 +24699,12 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=63,y=52
+-	BonusType=BONUS_WHEAT
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=63,y=53
++	BonusType=BONUS_WHEAT
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -24965,12 +24964,14 @@ EndPlot
+ BeginPlot
+ 	x=64,y=29
+ 	BonusType=BONUS_COW
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=64,y=30
+ 	BonusType=BONUS_HORSE
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -31062,7 +31063,6 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=79,y=61
+-	BonusType=BONUS_FUR
+ 	isWOfRiver
+ 	RiverNSDirection=0
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=1
+@@ -31474,6 +31474,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=80,y=62
++	BonusType=BONUS_FUR
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_TUNDRA
+ 	PlotType=2
+@@ -33306,14 +33307,13 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=85,y=41
+-	BonusType=BONUS_DYE
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=85,y=42
+-	BonusType=BONUS_COW
++	BonusType=BONUS_DYE
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -33338,12 +33338,13 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=85,y=46
+-	TerrainType=TERRAIN_SNOW
++	BonusType=BONUS_COW
++	TerrainType=TERRAIN_TUNDRA
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=47
+-	TerrainType=TERRAIN_SNOW
++	TerrainType=TERRAIN_TUNDRA
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+@@ -34102,6 +34103,7 @@ BeginPlot
+ 	BonusType=BONUS_GEMS
+ 	isNOfRiver
+ 	RiverWEDirection=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -35727,13 +35729,13 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=91,y=43
+-	BonusType=BONUS_IVORY
+ 	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=91,y=44
++	BonusType=BONUS_IVORY
+ 	isWOfRiver
+ 	RiverNSDirection=2
+ 	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+
+diff --git a/EuroWorld scenario/java/wbo/WBOut.java b/EuroWorld scenario/java/wbo/WBOut.java
+index 48293b53b..e8f42ca75 100644
+--- a/EuroWorld scenario/java/wbo/WBOut.java	
++++ b/EuroWorld scenario/java/wbo/WBOut.java	
+@@ -30,7 +30,6 @@ public class WBOut {
+ 				"Version=11",
+ 				"BeginGame",
+ 				"\tSpeed=GAMESPEED_EPIC",
+-				"\tCalendar=CALENDAR_DEFAULT",
+ 				"\tOption=GAMEOPTION_PICK_RELIGION",
+ 				//"\tOption=GAMEOPTION_RAGING_BARBARIANS",
+ 				// Just to give players a hint that I've mixed and matched a bit
+@@ -61,7 +60,7 @@ public class WBOut {
+ 		Civ civs[] = {	// Gandhi's fav religion agrees with that of Sury; apart from that, I prefer Asoka.
+ 				new Civ("ASOKA", "INDIA", 82, 36, "MYSTICISM", "THE_WHEEL", // The wheel was also of philosophical importance to Ancient India
+ 						new String[]{"PATALIPUTRA","AMARAVATI",/*"UJJAIN"*/},
+-						"PRINCE"),
++						"MONARCH"),
+ 				new Civ("JULIUS_CAESAR"/*"AUGUSTUS"*/, "ROME", 46, 40, "FISHING", "MINING",
+ 						new String[]{"ROME"/*,"SYRACUSE"*/,"LUGDUNUM"/*MARSEILLES?*/}
+ 						/*,"WARLORD"*/),
+@@ -87,7 +86,7 @@ public class WBOut {
+ 				new Civ("SALADIN", "ARABIA", 63, 33, "AGRICULTURE", "THE_WHEEL",
+ 						new String[]{"BABYLON","NINEVEH","MECCA","HITTITE","VAN"}),
+ 				new Civ("SURYAVARMAN", "KHMER", 91,37/*89,45 (Guangzhou)*//*88, 47 (Fuzhou)*/ /*87, 49(NINGBO)*/, "FISHING", "MYSTICISM", // for Hinduism; else AGRICULTURE
+-						new String[]{"YASODHARAPURA","Nakhon Pathom","Indrapura","Hanoi"/*"Fuzhou""NINGBO"*//*"GUANGZHOU","XINYU","MAOMING","KUNMING"*//*,"TAIPEI",*/},
++						new String[]{"YASODHARAPURA","Nakhon Pathom",/*"Indrapura",*/"Hanoi"/*"Fuzhou""NINGBO"*//*"GUANGZHOU","XINYU","MAOMING","KUNMING"*//*,"TAIPEI",*/},
+ 						"PRINCE"),
+ 				new Civ("TOKUGAWA", "JAPAN", 89, 56, "FISHING", "MYSTICISM",
+ 						// Pusan was the major trading port with Japan, but Seoul might be closer the location that Japan tends to settle. Keijo? That was the Japanese name for Seoul after 1910.
+@@ -112,9 +111,9 @@ public class WBOut {
+ 			pr(civs[i].civEntry(i));
+ 		pr("");
+ 		int numPlots = mapWidth * mapHeight;
+-		/* Huge (which matches the dimensions) or Large should mostly be
+-		 * a question of tech pace. */
+-		String worldSz = "LARGE";
++		/* Huge (which matches the dimensions), Large or Standard should
++		   mostly be a question of tech pace. */
++		String worldSz = "STANDARD";
+ 		String mapStr[] = {
+ 				"BeginMap",
+ 				"\tgrid width=" + mapWidth,
+@@ -1670,6 +1669,8 @@ public class WBOut {
+ 				new Point(55,21),
+ 				//new Point(54,22), // Sudd - try a lake instead
+ 				// Tibetan Plateau
++				new Point(79,40),
++				new Point(79,39),
+ 				new Point(79,41),
+ 				new Point(80,41),
+ 				new Point(81,41),
+@@ -1721,9 +1722,7 @@ public class WBOut {
+ 				// Should perhaps be a peak to prevent a city (Leh) here
+ 				new Point(75,39),
+ 				// Changtang
+-				new Point(79,40),
+ 				new Point(78,39),
+-				new Point(79,39),
+ 				new Point(80,39),
+ 				new Point(79,38),
+ 				new Point(80,38),
+@@ -2818,6 +2817,10 @@ public class WBOut {
+ 				new Point(44,25),
+ 				new Point(45,25),
+ 				new Point(47,25),
++				// Ethiopia
++				new Point(58,23),
++				new Point(58,22),
++				new Point(57,22),
+ 				// Great Britain
+ 				new Point(39,54),
+ 				new Point(39,53),
+@@ -2946,7 +2949,7 @@ public class WBOut {
+ 				new Point(53,49),
+ 				new Point(53,51),
+ 				new Point(54,50),
+-				new Point(55,49),
++				new Point(54,49), // Moved from 55,49 to make room for Cow
+ 				new Point(55,50),
+ 				new Point(55,51),
+ 				new Point(56,49),
+@@ -3322,6 +3325,7 @@ public class WBOut {
+ 				new Point(78,30),
+ 				new Point(79,29),
+ 				new Point(80,29),
++				new Point(81,31), // Probably inaccurate, but gems weren't mined until the 16th century. 
+ 				new Point(80,28),
+ 				new Point(82,28),
+ 				new Point(81,27),
+@@ -3701,7 +3705,7 @@ public class WBOut {
+ 				new Bonus("COW",44,48),
+ 				new Bonus("HORSE",45,49), // Moved one up (swapped with a forest) to block HRE city in Denmark
+ 				new Bonus("PIG",45,50),
+-				new Bonus("SILVER",45,46),
++				new Bonus("SILVER",45,47),
+ 				new Bonus("IRON",44,46),
+ 				new Bonus("DYE",46,46),
+ 				new Bonus("URANIUM",47,46), // Czechia
+@@ -3712,11 +3716,11 @@ public class WBOut {
+ 				magyars ? new Bonus("PIG",49,47) : new Bonus("PIG",46,47),
+ 				new Bonus("COAL",49,46),
+ 				new Bonus("GEMS",50,48), // K�nigsberg
+-				new Bonus("COW",54,48), // Belarus/Moscow
++				new Bonus("COW",55,49), // Belarus/Moscow
+ 				new Bonus("ALUMINUM",54,52), // St. Petersburg
+ 				// Finland
+ 				new Bonus("DEER",51,55),
+-				new Bonus("FUR",51,53),
++				new Bonus("FUR",51,52), // 51,53 might be more accurate, but wants to be in the radius of St. Pertersburg.
+ 				new Bonus("MARBLE",53,53),
+ 				// Spitsbergen
+ 				new Bonus("WHALE",51,61),
+@@ -3752,10 +3756,10 @@ public class WBOut {
+ 				new Bonus("IRON",56,44),
+ 				new Bonus("COAL",57,44),
+ 				new Bonus("WINE",56,43),
+-				// W Russia (Wheat and Horse will have to move one up if Moscow is the capital)
++				// W Russia (Horse will have to move one up if Moscow is made the capital)
+ 				new Bonus("STONE",56,48),
+ 				new Bonus("IRON",57,47),
+-				new Bonus("WHEAT",57,45), // Chernozem; moved from S Denmark
++				new Bonus("WHEAT",57,46), // Chernozem; moved from S Denmark. Then moved 1 up for Moscow.
+ 				new Bonus("HORSE",59,46),
+ 				new Bonus("COW",61,46),
+ 				new Bonus("FUR",57,52),
+@@ -3778,7 +3782,7 @@ public class WBOut {
+ 				new Bonus("HORSE",70,47),
+ 				new Bonus("ALUMINUM",67,46),
+ 				new Bonus("COPPER",75,54),
+-				new Bonus("FUR",73,54),
++				new Bonus("FUR",74,55), // Moved 1 NE to prevent an early Silver-Fur-Deer city on the lower Lena 
+ 				new Bonus("URANIUM",76,53),
+ 				//new Bonus("GOLD",71,52), // Olimpiada, not until 1991
+ 				new Bonus("COAL",72,51),
+@@ -3818,6 +3822,7 @@ public class WBOut {
+ 				new Bonus("DYE",75,31),
+ 				new Bonus("OIL",76,31),
+ 				new Bonus("SILK",74,38),
++				new Bonus("COW",79,39), // Tibet
+ 				// India (rest)
+ 				new Bonus("DYE",84,38),
+ 				new Bonus("SUGAR",84,37),
+@@ -3826,11 +3831,11 @@ public class WBOut {
+ 				new Bonus("RICE",83,36),
+ 				new Bonus("IRON",79,36),
+ 				new Bonus("SUGAR",78,35),
+-				new Bonus("COW",79,35),
++				//new Bonus("COW",79,35), // Moved to Tibet
++				new Bonus("DYE",79,35), // was ,34
+ 				new Bonus("COAL",81,35),
+ 				new Bonus("URANIUM",82,35),
+ 				new Bonus("DYE",83,35),
+-				new Bonus("DYE",79,34),
+ 				new Bonus("COAL",80,34),
+ 				new Bonus("IRON",82,34),
+ 				new Bonus("SHEEP",78,33),
+@@ -3933,7 +3938,7 @@ public class WBOut {
+ 				new Bonus("SUGAR",91,47),
+ 				// Indochina
+ 				new Bonus("GEMS",86,38),
+-				new Bonus("IVORY",85,36),
++				new Bonus("IVORY",85,37), // Moved from ,36 b/c Plains Hill Ivory is too attractive as a city center (3 production)
+ 				new Bonus("SUGAR",88,42), // Moved from 87,41 to discourage a city that would block Hanoi
+ 				new Bonus("PIG",88,41),
+ 				new Bonus("DYE",87,40),
+@@ -4008,6 +4013,8 @@ public class WBOut {
+ 					terrain = "GRASS";
+ 				}
+ 				else if(peak.stream().anyMatch(p -> p.equals(plot))) {
++					/* Underlying terrain affects graphics. Would be nicer to set it based
++					 * on the surrounding terrain, but awkward to progream. */ 
+ 					terrain = "SNOW";
+ 					plotType = 0;
+ 				}
+
+diff --git a/EuroWorld scenario/readme.txt b/EuroWorld scenario/readme.txt
+index 87c724358..80e2a4df2 100644
+--- a/EuroWorld scenario/readme.txt	
++++ b/EuroWorld scenario/readme.txt	
+@@ -14,6 +14,7 @@ To be done:
+ * America, Greenland, Southern Africa, Australia, Melanesia, Micronesia, Polynesia
+ * The three non-playable leaders: Shaka, Huayana Capac and Pacal
+ * Rules changes in AdvCiv that forbid Farms on Tundra and remove the health penalty from Jungle. To reduce implausible deforestation. Also, some of the tiles representing spruces and firs should perhaps have no Forest feature at all as those woods have fairly limited uses.
++* Low-latitude Tundra (representing weathered tropical soils) should be displayed as "Shrubland".
+ * Addition of an Islet feature (like in Realism Invictus).
+ * Changes to the AI evaluation of techs that found a religion. Especially leaders with a Medieval favorite religion like Charlemagne should avoid founding one of the early religons. Could then perhaps use Justinian instead of Pericles.
+ * Overhaul of leader personalities. I might swap in Qin for Mao after increasing Qin's peace-weight (pitting him against his warlike neighbors) and Cyrus for Darius after making Cyrus a bit more warlike. The Chinese leader also needs to be more averse to long-distance wars (higher MaxWarMinAdjacentLandPercent).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=17083

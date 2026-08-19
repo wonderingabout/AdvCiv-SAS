@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3960
+# Commit: 7dc00725a7f53cfe7ed7c7355ff6d2cf1a57aed6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4cb9c1ab18501ed922586459b62dc13d24785554
+# Title: AI civs train (more) city attackers against Barbarians
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+43	2	CvGameCoreDLL/CvCityAI.cpp
+73	0	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d160dd52b..db4c9a2b5 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1323,8 +1323,7 @@ void CvCityAI::AI_chooseProduction()
+ 		iAreaBestFoundValue < iMinFoundValue * 2 &&
+ 		// <advc.017>
+ 		!kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) &&
+-		/*	(And exclude Barbarians? Should perhaps also check
+-			CvTeamAI::AI_isLandTarget ...) */
++		// (Maybe check CvTeamAI::AI_isLandTarget?)
+ 		kArea.getNumCities() > kTeam.countNumCitiesByArea(kArea))
+ 		// </advc.017>
+ 	{	//Building city hunting stack.
+@@ -1383,6 +1382,48 @@ void CvCityAI::AI_chooseProduction()
+ 					}
+ 				}
+ 			}
++			/*	<advc.300> The above won't enable the AI to take Barbarian cities;
++				perhaps it was intended to, if so, I think it's far off the mark.
++				It might be helpful for giving the AI an appetite for warfare, so
++				I'm going to keep it. Now, to at least sometimes conquer Barbarians: */
++			if (!kPlayer.AI_isFocusWar())
++			{
++				int iNeededCityAtt = (kPlayer.AI_neededCityAttackersVsBarbarians()
++						/*	Safety margin; some may well be guarding cities or
++							have trouble reaching the main stack. */
++						* fixp(4/3.)).uceil();
++				/*	Even go 1 above the safety margin eventually - in case that
++					the Barbarians have unusually many defenders. */
++				if (iAttackCityCount <= iNeededCityAtt)
++				{
++					scaled rProb = kPlayer.AI_barbarianTargetCityScore(getArea());
++					if (rProb > 0) // to save time
++					{
++						if (iAttackCityCount >= iNeededCityAtt)
++							rProb /= scaled::max(1, 6 - kPlayer.AI_getCurrEraFactor());
++						else
++						{
++							/*	Inertia - the more attackers we still need, the less
++								we're inclined to train any. */
++							scaled rDiv = iNeededCityAtt - iAttackCityCount;
++							rDiv.exponentiate(std::max(fixp(0.5),
++									2 - kPlayer.AI_getCurrEraFactor() / 2));
++							rProb /= rDiv;
++						}
++						/*	The iOdds param causes a re-roll after every production turn.
++							Perhaps that should be amended. For now, avoid using it. */
++						std::vector<int> aiInputs;
++						aiInputs.push_back(getID());
++						aiInputs.push_back(iAttackCityCount);
++						if (scaled::hash(aiInputs, getOwner()) < rProb &&
++							AI_chooseUnit(UNITAI_ATTACK_CITY))
++						{
++							if (gCityLogLevel >= 2) logBBAI("      City %S trains city attacker vs. Barbarians", getName().GetCString());
++							return;
++						}
++					}
++				}
++			} // </advc.300>
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2e74781d5..50413c0da 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16366,6 +16366,79 @@ int CvPlayerAI::AI_estimateBarbarianGarrisonSize() const
+ 	/*	(Don't use AI era factor for Barbarians; don't expect them
+ 		to develop faster in a mod with fewer eras.) */
+ 	return 2 + GET_PLAYER(BARBARIAN_PLAYER).getCurrentEra();
++}
++
++// 0 means nothing worth attacking, 1 definitely something, can also go > 1.
++scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
++{
++	scaled rTotal;
++	FOR_EACH_CITY(pBarbarianCity, GET_PLAYER(BARBARIAN_PLAYER))
++	{
++		if (!pBarbarianCity->isArea(kArea) ||
++			!GET_TEAM(getTeam()).AI_deduceCitySite(*pBarbarianCity))
++		{
++			continue;
++		}
++		CvPlot const& kBarbarianCityPlot = pBarbarianCity->getPlot();
++		int iOurDist = MAX_INT;
++		FOR_EACH_CITY(pOurCity, *this)
++		{
++			iOurDist = std::min(iOurDist,
++					plotDistance(pOurCity->plot(), &kBarbarianCityPlot));
++		}
++		if (iOurDist >= 15)
++			continue;
++		/*	"Other" can be on our team - if a teammate is better positioned
++			than we are, we want to hold back. */
++		int iOtherDist = MAX_INT;
++		// Check only for nearby rival cities - to save time.
++		for (SquareIter itPlot(kBarbarianCityPlot, std::min(iOurDist - 1, 4), false);
++			itPlot.hasNext(); ++itPlot)
++		{
++			if (itPlot->isCity() && itPlot->getOwner() != getID() &&
++				!itPlot->isBarbarian())
++			{
++				iOtherDist = std::min(iOtherDist, plotDistance(&*itPlot,
++						&kBarbarianCityPlot));
++			}
++		}
++		int const iOurCulture = kBarbarianCityPlot.calculateCulturePercent(getID());
++		int iOtherCulture = 0;
++		if (kBarbarianCityPlot.calculateCulturePercent(BARBARIAN_PLAYER) + iOurCulture
++			< 75) // save time
++		{
++			for (PlayerIter<CIV_ALIVE,KNOWN_TO> itOther(getTeam());
++				itOther.hasNext(); ++itOther)
++			{
++				if (itOther->getID() != getID())
++				{
++					iOtherCulture = std::max(iOtherCulture,
++							kBarbarianCityPlot.calculateCulturePercent(itOther->getID()));
++				}
++			}
++		}
++		int iDefModifier = 0;
++		if (pBarbarianCity->isRevealed(getTeam()))
++		{
++			iDefModifier += kBarbarianCityPlot.defenseModifier(
++					BARBARIAN_TEAM, false, getTeam());
++		}
++		int iDefenders = -1;
++		if (pBarbarianCity->isVisible(getTeam()))
++			iDefenders = kBarbarianCityPlot.plotCount(PUF_canDefend);
++		int const iDistFloor = 5;
++		scaled rScore(iDistFloor, std::max(iDistFloor, iOurDist));
++		if (iOtherDist < iOurDist)
++			rScore.mulDiv(iOtherDist, iOurDist);
++		scaled const rCultureWeight = fixp(1.3);
++		rScore *= per100(iOurCulture - iOtherCulture) * rCultureWeight + 1;
++		// Risky (with current AI behavior ...) to go after strongly defended city
++		rScore /= std::max(fixp(0.6),
++				1 + per100(iDefModifier) + (iDefenders < 0 ? 0 : fixp(0.25) *
++				(iDefenders - AI_estimateBarbarianGarrisonSize())));
++		rTotal += rScore;
++	}
++	return rTotal;
+ } // </advc.300>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 9758cecdb..de4f7e7b1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -458,7 +458,8 @@ public:
+ 			int iHash = -1) const;
+ 	// <advc.300>
+ 	scaled AI_neededCityAttackersVsBarbarians() const;
+-	int AI_estimateBarbarianGarrisonSize() const; // </advc.300>
++	int AI_estimateBarbarianGarrisonSize() const;
++	scaled AI_barbarianTargetCityScore(CvArea const& kArea) const; // </advc.300>
+ 
+ 	CivicTypes AI_bestCivic(CivicOptionTypes eCivicOption, int* iBestValue = 0) const;
+ 	int AI_civicValue(CivicTypes eCivic) const;						// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6104

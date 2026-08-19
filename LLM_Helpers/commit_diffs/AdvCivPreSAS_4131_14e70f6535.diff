@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4131
+# Commit: 14e70f65350ac2f090d20738d0258b25c4420be4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d51243547a261e5d057b9e0d0d2c332bf1880190
+# Title: Border spread at edge of Fog of War can trigger meeting
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	14	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+2	0	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d91ca852a..82e8f1429 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4262,7 +4262,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			for (TeamIter<CIV_ALIVE> it; it.hasNext();++it)
+ 			{
+ 				CvTeam& kLoopTeam = *it;
+-				if (isVisible(kLoopTeam.getID()))
++				if (//isVisible(kLoopTeam.getID())
++					/*	advc.071b: See plotThatRevealsOwner about the difference.
++						When it matters, not having a meeting is imo confusing. */
++					isRevealed(kLoopTeam.getID()) &&
++					getRevealedOwner(kLoopTeam.getID()) == getOwner())
+ 				{
+ 					FirstContactData fcData(this); // advc.071
+ 					kLoopTeam.meet(getTeam(), true, /* advc.071: */ &fcData);
+@@ -6014,22 +6018,24 @@ void CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
+ 
+ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
+ {
+-	bool bRevealed = false;
++	// advc.071: Moved into a const helper function
++	if (plotThatRevealsOwner(eTeam) != NULL)
++		setRevealedOwner(eTeam, getOwner());
++}
++
++/*	advc.071: The const portion from updateRevealedOwner. Returns NULL
++	if the owner is unrevealed, otherwise the visible plot (witness)
++	that causes the owner to be revealed. */
++CvPlot* CvPlot::plotThatRevealsOwner(TeamTypes eTeam) const
++{
+ 	if (isVisible(eTeam))
+-		bRevealed = true;
+-	if (!bRevealed)
++		return const_cast<CvPlot*>(this);
++	FOR_EACH_ADJ_PLOT_VAR(*this)
+ 	{
+-		FOR_EACH_ADJ_PLOT(*this)
+-		{
+-			if (pAdj->isVisible(eTeam))
+-			{
+-				bRevealed = true;
+-				break;
+-			}
+-		}
++		if (pAdj->isVisible(eTeam))
++			return pAdj;
+ 	}
+-	if (bRevealed)
+-		setRevealedOwner(eTeam, getOwner());
++	return NULL;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 036a50a3a..9f4b5bc4d 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -637,6 +637,7 @@ public:
+ 	TeamTypes getRevealedTeam(TeamTypes eTeam, bool bDebug) const;									// Exposed to Python
+ 	void setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue);
+ 	void updateRevealedOwner(TeamTypes eTeam);
++	CvPlot* plotThatRevealsOwner(TeamTypes eTeam) const; // advc.071
+ 
+ 	DllExport bool isRiverCrossing(DirectionTypes eDirection) const									// Exposed to Python+
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 3e13277af..7c358a24d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2973,6 +2973,7 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 	{
+ 		if (pAt1->isVisible(getID()))
+ 			pAt = pAt1;
++		else pAt = pAt1->plotThatRevealsOwner(getID());
+ 		if (ePlayerMet == NO_PLAYER)
+ 			ePlayerMet = pAt1->getOwner();
+ 	}
+@@ -2980,6 +2981,7 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 	{
+ 		if (pAt2->isVisible(getID()))
+ 			pAt = pAt2;
++		else pAt = pAt2->plotThatRevealsOwner(getID());
+ 		if (ePlayerMet == NO_PLAYER)
+ 			ePlayerMet = pAt2->getOwner();
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2947

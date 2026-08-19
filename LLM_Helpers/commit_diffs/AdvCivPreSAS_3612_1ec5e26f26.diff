@@ -1,0 +1,211 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3612
+# Commit: 1ec5e26f267218dc154b0861c2eda7e7f9feaf01
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9b0645a506531f298185dc61073b6b43b0e71f21
+# Title: Revert Granary nerf, reduce Slavery production instead.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	5	Assets/XML/Buildings/CIV4BuildingInfos.xml
+3	2	Assets/XML/Buildings/CIV4BuildingsSchema.xml
+2	2	Assets/XML/GameInfo/CIV4HurryInfo.xml
+5	2	Assets/XML/Text/CIV4GameText_advc.xml
+9	3	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+10	4	CvGameCoreDLL/CvCity.cpp
+3	0	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index b02854f1a..e3edd9573 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2426,9 +2426,7 @@
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- advc.160: Was 50. Note that advc.912d multiplies this by 1.2
+-				 in the DLL when playing with the "No Slavery" option. -->
+-			<iFoodKept>40</iFoodKept>
++			<iFoodKept>50</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+ 			<iAirUnitCapacity>0</iAirUnitCapacity>
+@@ -2608,8 +2606,7 @@
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- advc.160: was 50 -->
+-			<iFoodKept>40</iFoodKept>
++			<iFoodKept>50</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+ 			<iAirUnitCapacity>0</iAirUnitCapacity>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingsSchema.xml b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+index 8db90a2a0..865b3d4d0 100644
+--- a/Assets/XML/Buildings/CIV4BuildingsSchema.xml
++++ b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+@@ -473,8 +473,9 @@
+ 		<element type="iGlobalHurryModifier"/>
+ 		<element type="iExperience"/>
+ 		<element type="iGlobalExperience"/>
+-		<!-- advc.912d (note): The DLL increases this by a factor of
+-			 1.2 when playing with the "No Slavery" option -->
++		<!-- advc.912d (note): The DLL (CvPlayer::getFoodKept) increases this
++			 by a factor of 1.2 when playing with the "No Slavery" option.
++			 Upd.: AdvCiv 1.05 has disabled this adjustment. -->
+ 		<element type="iFoodKept"/>
+ 		<element type="iAirlift"/>
+ 		<element type="iAirModifier"/>
+
+diff --git a/Assets/XML/GameInfo/CIV4HurryInfo.xml b/Assets/XML/GameInfo/CIV4HurryInfo.xml
+index ceb269b7c..9d46bd191 100644
+--- a/Assets/XML/GameInfo/CIV4HurryInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HurryInfo.xml
+@@ -3,14 +3,14 @@
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+-<!-- Civ4HurryInfo - This structure describes the name for each multiplayer option. -->
+ <Civ4HurryInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<HurryInfos>
+ 		<HurryInfo>
+ 			<Type>HURRY_POPULATION</Type>
+ 			<Description>TXT_KEY_HURRY_POPULATION</Description>
+ 			<iGoldPerProduction>0</iGoldPerProduction>
+-			<iProductionPerPopulation>30</iProductionPerPopulation>
++			<!-- advc.912d: was 30 -->
++			<iProductionPerPopulation>24</iProductionPerPopulation>
+ 			<bAnger>1</bAnger>
+ 			<Button>Art/Interface/MainScreen/CityScreen/hurry_slavery.dds</Button>
+ 		</HurryInfo>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index e5d2d9f51..4c70abfcb 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2258,11 +2258,14 @@
+ 		<Italian>No schiavismo</Italian>
+ 		<Spanish>Sin esclavitud</Spanish>
+ 	</TEXT>
++	<!-- No longer true as of AdvCiv 1.05:
++		 Human Granaries store 50%% food. (They normally store only 40%% in AdvCiv.)
++		 Kornspeicher menschlicher Spieler speichern 50%% Nahrung (anstatt der 40%%, die sie in AdvCiv ansonsten speichern).-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_NO_SLAVERY_HELP</Tag>
+-		<English>Human players cannot change their civics to Slavery. Only the Aztec Sacrificial Altar allows humans to sacrifice population. Human Granaries store 50%% food. (They normally store only 40%% in AdvCiv.)</English>
++		<English>Human players cannot change their civics to Slavery. Only the Aztec Sacrificial Altar allows humans to sacrifice population.</English>
+ 		<French>Les acteurs humains ne peuvent pas changer leur doctrine en esclavage. Seul l'autel sacrificiel azt�que permet aux humains de sacrifier la population.</French>
+-		<German>Menschliche Spieler k�nnen nicht die Sklaverei als Staatsform w�hlen. Nur der aztekischer Opferaltar erlaubt menschlichen Spielern das Opfern ihrer Bev�lkerung. Kornspeicher menschlicher Spieler speichern 50%% Nahrung (anstatt der 40%%, die sie in AdvCiv ansonsten speichern).</German>
++		<German>Menschliche Spieler k�nnen nicht die Sklaverei als Staatsform w�hlen. Nur der aztekischer Opferaltar erlaubt menschlichen Spielern das Opfern ihrer Bev�lkerung.</German>
+ 		<Italian>I giocatori umani non possono cambiare la loro forma di governo in schiavismo. Solo l'altare sacrificale azteco permette agli umani di sacrificare la popolazione.</Italian>
+ 		<Spanish>Los jugadores humanos no pueden cambiar sus principios a la esclavitud. S�lo el altar de sacrificios azteca permite a los humanos sacrificar a la poblaci�n.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index fc8434405..0f1bf32fe 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -1117,15 +1117,15 @@
+ 		<Spanish>Con el acceso al [COLOR_HIGHLIGHT_TEXT]Uranio[COLOR_REVERT], las [COLOR_BUILDING_TEXT]Centrales nucleares[COLOR_REVERT] suministran energ&#237;a a las [COLOR_BUILDING_TEXT]F&#225;bricas[COLOR_REVERT].</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.912d -->
+-	<TEXT>
++	<!-- advc.912d: (AdvCiv 1.05 has reverted the balance change to Granary) -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUILDING_GRANARY_STRATEGY</Tag>
+ 		<English>[COLOR_BUILDING_TEXT]Granaries[COLOR_REVERT] store food to help increase a city's growth rate. They add additional health if your civ has access to [COLOR_HIGHLIGHT_TEXT]Corn[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Wheat[COLOR_REVERT], and [COLOR_HIGHLIGHT_TEXT]Rice[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] slightly reduces the amount of [ICON_FOOD] stored - except when playing with the [COLOR_HIGHLIGHT_TEXT]No Slavery[COLOR_REVERT] option. ([LINK=CIVIC_SLAVERY]Slavery[\LINK] has a powerful synergy with [ICON_FOOD] being stored after growth.)</English>
+ 		<French>Les [COLOR_BUILDING_TEXT]greniers[COLOR_REVERT] stockent de la nourriture pour favoriser la croissance de la ville. Ils am&#233;liorent la sant&#233; des citoyens si votre civilisation dispose de [COLOR_HIGHLIGHT_TEXT]ma&#239;s[COLOR_REVERT], de [COLOR_HIGHLIGHT_TEXT]bl&#233;[COLOR_REVERT] et de [COLOR_HIGHLIGHT_TEXT]riz[COLOR_REVERT].</French>
+ 		<German>[COLOR_BUILDING_TEXT]Kornspeicher[COLOR_REVERT] beschleunigen das Bev&#246;lkerungswachstum und verbessern die Gesundheit Ihrer Zivilisation, wenn Sie &#252;ber [COLOR_HIGHLIGHT_TEXT]Mais[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Weizen[COLOR_REVERT] und [COLOR_HIGHLIGHT_TEXT]Reis[COLOR_REVERT] verf&#252;gen. [BOLD]AdvCiv[\BOLD] verringert den Wachstumseffekt ein wenig - au�er wenn die Option [COLOR_HIGHLIGHT_TEXT]Keine Sklaverei[COLOR_REVERT] aktiviert ist. (Die Staatsform [LINK=CIVIC_SLAVERY]Sklaverei[\LINK] profitiert besonders von beschleunigtem Bev�lkerungswachstum.)</German>
+ 		<Italian>I [COLOR_BUILDING_TEXT]granai[COLOR_REVERT] conservano il cibo per favorire la crescita della citt&#224;. Se la tua civilt&#224; ha accesso a [COLOR_HIGHLIGHT_TEXT]Granoturco[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Frumento[COLOR_REVERT] e [COLOR_HIGHLIGHT_TEXT]Riso[COLOR_REVERT], genereranno salute extra.</Italian>
+ 		<Spanish>Los [COLOR_BUILDING_TEXT]Graneros[COLOR_REVERT] almacenan alimentos, lo que ayuda a aumentar el ritmo de crecimiento de la ciudad. Suman m&#225;s salud si la civilizaci&#243;n tiene acceso al [COLOR_HIGHLIGHT_TEXT]Ma&#237;z[COLOR_REVERT], el [COLOR_HIGHLIGHT_TEXT]Trigo[COLOR_REVERT] y el [COLOR_HIGHLIGHT_TEXT]Arroz[COLOR_REVERT].</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+ 	<!-- advc.908b -->
+ 	<TEXT>
+@@ -1348,6 +1348,12 @@
+ 		<English>[BOLD]K-Mod[\BOLD] uncouples the extra cost from the difficulty level and AdvCiv sets the cost to the amount that BtS had charged on Deity difficulty (1[ICON_GOLD]/unit) - meaning that this powerful civic has become costlier on all other difficulty levels. When an AI civ uses Pacifism, only half of the extra cost is charged (as was already the case in BtS when playing on Deity difficulty - because the AI is treated as playing on Noble difficulty).</English>
+ 		<German>[BOLD]K-Mod[\BOLD] entkoppelt den zus�tzlichen Milit�runterhalt von der Schwierigkeitsstufe und AdvCiv verwendet 1[ICON_GOLD]/Einheit, was in BtS der h�chsten Schwierigkeitsstufe entsprach. Das hei�t, der Unterhalt auf allen niedrigeren Schwierigkeitsstufen hat sich erh�ht. Pazifistische KI-Spieler zahlen nur die H�lfte - das war auf h�chster Schwierigkeit auch in BtS so, weil KI-Spieler stets auf mittlerer Schwierigkeit (Adliger) spielen.</German>
+ 	</TEXT>
++	<!-- advc.912d -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_SLAVERY_CHANGES_PEDIA</Tag>
++		<English>[BOLD]AdvCiv[\BOLD] has reduced the amount of [ICON_PRODUCTION] per sacrificed [ICON_CITIZEN] because this civic, and especially its interaction with [LINK=BUILDING_GRANARY]Granary[\LINK], is widely regarded as too powerful.</English>
++		<German>[BOLD]AdvCiv[\BOLD] hat den [ICON_PRODUCTION]-Ertrag pro geopfertem [ICON_CITIZEN] reduziert. (Die Staatsform Sklaverei und ihre Synergie mit dem [LINK=BUILDING_GRANARY]Kornspeicher[\LINK] gilt weithin als zu spielstark.)</German>
++	</TEXT>
+ 
+ 	<!-- advc: Point out K-Mod change -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 86d347c9b..872612b67 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11399,8 +11399,13 @@ void CvCity::read(FDataStreamBase* pStream)
+ 	// <advc.912d>
+ 	if(uiFlag >= 4)
+ 		pStream->Read(&m_iPopRushHurryCount);
+-	if (uiFlag < 9 && isHuman() && GC.getGame().isOption(GAMEOPTION_NO_SLAVERY))
+-		m_iFoodKept = (m_iFoodKept * 5) / 4; // </advc.912d>
++	if (uiFlag < 15 &&
++		(uiFlag < 9 || // Everyone had gotten only 40% from Granary prior to version 9
++		// After version 9, players affected by No Slavery had been exempt
++		!isHuman() || !GC.getGame().isOption(GAMEOPTION_NO_SLAVERY)))
++	{	// Now everyone gets 50% again, just like in BtS.
++		m_iMaxFoodKeptPercent = (m_iMaxFoodKeptPercent * 5) / 4;
++	} // </advc.912d>
+ 	// <advc.004x>
+ 	if(uiFlag >= 2)
+ 	{
+@@ -11618,12 +11623,13 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	//uiFlag = 6; // advc.103
+ 	//uiFlag = 7; // advc.003u: m_bChooseProductionDirty
+ 	//uiFlag = 8; // advc.310
+-	//uiFlag = 9; // advc.912d (adjust food kept)
++	//uiFlag = 9; // advc.912d (adjust food kept; NB: should've adjusted MaxFoodKept)
+ 	//uiFlag = 10; // advc.911a, advc.908b
+ 	//uiFlag = 11; // advc.201, advc.098
+ 	//uiFlag = 12; // advc.enum: new enum map save behavior
+ 	//uiFlag = 13; // advc.201: Cathedrals restored to BtS stats
+-	uiFlag = 14; // advc.179, advc.exp.1, advc.exp.2
++	//uiFlag = 14; // advc.179, advc.exp.1, advc.exp.2
++	uiFlag = 15; // advc.912d: Partly reverted, adjust MaxFoodKept.
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dba3c9718..856251972 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10184,6 +10184,8 @@ int CvPlayer::getFoodKept(BuildingTypes eBuilding) const
+ {
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 	int iFoodKept = kBuilding.getFoodKept();
++	// Reverted this in AdvCiv 1.05
++#if 0
+ 	if (GC.getGame().isOption(GAMEOPTION_NO_SLAVERY) &&
+ 		/*	Toggling this on and off during AI Auto Play
+ 			could lead to inconsistent data at CvCity */
+@@ -10192,6 +10194,7 @@ int CvPlayer::getFoodKept(BuildingTypes eBuilding) const
+ 		iFoodKept *= 5;
+ 		iFoodKept /= 4;
+ 	}
++#endif
+ 	return iFoodKept;
+ }
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=11563

@@ -1,0 +1,306 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4995
+# Commit: bf56a70088f859b853c9e72df7fcb8350672d364
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6c71dafc04f1094bf4985efa3c7745fef0f2271f
+# Title: Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp, so t...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	0	Assets/XML/AI_Variables_GlobalDefines.xml
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+31	0	CvGameCoreDLL/UWAIAgent.cpp
+94	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+6	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+6	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 662be2a82..97888157b 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -168,6 +168,7 @@
+ 		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always
+ 		likely to end bad for the AI, so may help the AI to further discourage
+ 		it, was 100 -->
++		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate if i may say but anyways etc) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details anyways etc -->
+ 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
+ 		<iDefineIntVal>300</iDefineIntVal>
+ 	</Define>
+@@ -300,6 +301,7 @@
+ 		should be very bad for the AI to fight multi wars in terms of winning,
+ 		as for roleplaying it is not my core concern especially as this may
+ 		affect AI performance/strength, was 25 last time i modified it -->
++		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate if i may say but anyways etc) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details anyways etc -->
+ 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 18f69b38b..34952ac18 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -742,7 +742,7 @@ short AIFoundValue::evaluate()
+ 					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc ; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i udnerstood got the idea to do of it too i mean if i may say but anyways etc -->
+ 					if (fImp >= 1)
+ 					{
+-						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses ; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to imrpvoed yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much mroe attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts soemwhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
++						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses ; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to imrpvoed yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much mroe attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
+ 						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd if i may say but anyways etc, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had anyways etc -->
+ 						int const iOnBonusFoodPenalty = 600 * fImp;
+ 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8f8efdf8e..1e5ebe1f9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4903,7 +4903,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				(kBuilding.getFreeSpecialistCount(eSpecialistScientist) > 0)
+ 			);
+ 
+-			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or soemthing similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
++			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or something similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
+ 			if (bScienceBuilding)
+ 			{
+ 				if (bAtWar)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 58ffa263e..d3c606dab 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -964,7 +964,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+     static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
+     static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
+ 
+-	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under soem conditoins only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely :) Written in chatgpt style but definitely human xd, somehow felt to write as so but anyways etc, hopefully helpful but anyways etc -->
++	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under some conditoins only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely :) Written in chatgpt style but definitely human xd, somehow felt to write as so but anyways etc, hopefully helpful but anyways etc -->
+ 	static const ImprovementTypes eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
+ 	static const ImprovementTypes eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
+ 	static const ImprovementTypes eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 462c954a9..50c670957 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -527,6 +527,30 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 			that expects to be paid waits for the other side to sue for peace). */
+ 		rPeaceThresh += 10;
+ 	}
++
++	// <!-- custom: we have an issue of hatshepsut ai being the military leader with a strong army at turn 150 and then being badly dogpiled on and dying/been defeated before turn 200. While we need to fix the reasons why wars happened that were detrimental for Hatshepsut ai as well but anyways etc, for now and first i mean here but anyways etc, add pre-checks to enforce/emergency exit multi-wars past a certain count and try to seek peace no matter what, as more war ennemies (not including barbarians hopefully if i'm not mistaken but anyways etc) can only be detrimental to us if i'm not mistaken but anyways etc, code provided by chatgpt 5, check if accurate; see also known issue as of now 65 for details anyways etc; results of these "emergency peace" changes: great!!! Now hatshepsut ai seemingly does not die anymore, makes military gains and makes peace many times based on chatgpt 5 reading of the event log as i had not read it myself at first but then i saw same results looking at event log ingame with multiple peace treaties made by hatshepsut ai quite shortly after war in this case i mean but anyways etc, and hatshepsut ai is still strongest player at turn 200 (although by smaller margin but did very great i would say if i may say but anyways etc)!! See known issue as of now 65 for details anyways etc -->
++	// 
++	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
++	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
++	//
++	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates”)
++	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
++
++	// Combined enemy power vs us (100 = parity)
++	const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
++
++	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace if i may say but anyways etc which would be bit boring too if i may say or waste potential in this case i mean but anyways etc) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd if i may say but anyways etc so treat it as an emergency anyways etc) -->
++	const bool bEmergencyPeace = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
++
++	if (bEmergencyPeace)
++	{
++		m_pReport->log("Emergency peace mode: %d simultaneous wars vs majors — forcing negotiation.", iMajorWars);
++		// Make sure the code doesn't early-out on "utility above threshold":
++		// push iU clearly below the threshold so we go to the negotiation block.
++		iU = std::min(iU, rPeaceThresh.uround() - 100);
++	}
++	// keep the existing log (or adjust) after this
++	//
+ 	m_pReport->log("Threshold for seeking peace: %d", rPeaceThresh.round());
+ 	if (iU >= rPeaceThresh)
+ 	{
+@@ -637,6 +661,13 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 		FAssert(iU < rPeaceThresh);
+ 		rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
+ 	}
++
++	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate anyways etc, and see also known issue as of now 65 for details anyways etc -->
++	if (bEmergencyPeace)
++	{
++		rPeaceProb = fixp(1); // 100%
++	}
++
+ 	if (bOfferPeace)
+ 	{
+ 		m_pReport->log("Probability for peace negotiation: %d percent",
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 27592224a..e2dc017a0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -91,6 +91,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity)  
+ [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc)  
+ [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc)  
++[65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2450,3 +2451,96 @@ I continued the game to see what happens a bit (existing screenshots between 262
+ But then a new barbarian city (Phoenician but anyways etc) spawns nearby (of the old numidian city if i may say but anyways etc) and this time, still before the early window ends as it's still turn 115 (so before turn as of now 120 we defined as early phase for smart razing but anyways etc), german AI who is close enough to it captures it and does not raze it, which is good as it is close to him so he is likely to benefit from it. Also, it shows our code is not paranoid and still allows close enough cities to be captured, which is good and nice to know! (if i may say but anyways etc). So all in all this seems like a very nice code and enhancement of the AI razing behaviour, which should make AI quite a lot stronger and influence the early game quite heavily but anyways etc :)
+ 
+ Note: some of the changes tweak the old logic to make it less restrictive and raze more often, and some of our additions may also include razing isolated cities like i assume islandic or such in the early game which should be fine considering the high cost to go and maintain presence there, although it might be less optimal for non pangea-like maps but maybe fine as such since is in the early game and we want focus forces if i'm not mistaken, check if accurate too and if i am not mistaken and chatgpt 5 helped me lot do all this although i adjusted it too but anyways etc.
++
++## 65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1db_VJaAIRCbPlKANob19QrB7LXja72SV?usp=sharing).
++
++This is another tremendous AI improvement it seems if i may say but anyways etc.
++
++After making the recent known issue changes, i wanted to test if it had an influence on how things would play out if i may say but anyways etc on the old map i tried at first and that i had also tested again more recently after some changes. What i have observed (from turn +/- 60 approximately (a bit before razing olmec city but anyways etc) but anyways etc) now however is that hatshepsut ai takes the lead at turn 150 and is stronger than all other rivals by a significant margin, which didn't happen before these changes.
++
++However, between this now save file turn 150 and (autoplaying 50 turns until but anyways etc) now turn 200 (existing screenshots between 281 and 289 anyways etc), hatshepsut ai who was the leader and possibly likely to win was badly dogpiled by everyone and died before turn 200 actually (despite being strongest leader at turn 150!!).
++
++So to dig why this happened i asked chatgpt 5 to look at the event log screenshots, and based on what it read on them (i didn't read as tedious and bit complicated in this case i mean but anyways etc), this is how it viewed the timeline (check if accurate anyways etc) (also i formatted it a bit but it's its info (based on my prompts and or such too but anyways etc) but anyways etc):
++
++>awesome set of screenshots — here’s what the event log says happened, in order, and why Hatshepsut went from #1 power at T150 (AD 500) to dead by AD 1350.
++>
++>What happened (T150 → T200)
++>AD 470–520: Hatty fights Germany (Bismarck), peaces out.
++>AD 560: Declares on Kublai.
++>AD 780: You declare on Hatty (later peace at AD 920).
++>AD 800: Declares on Bismarck again.
++>AD 860: Berlin captured by Egypt → Germany moves capital to Hamburg. (This puts a permanent target on her back.)
++>AD 880: Rome (Julius Caesar) declares on Hatty.
++>AD 900: Kublai declares on Hatty.
++>AD 960: Khmer (Suryavarman) declares on Hatty.
++>AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
++>
++>City losses, multi-front:
++>AD 1000: Alexandria falls to Khmer.
++>AD 1060: Berlin (Egypt) falls to Rome.
++>AD 1100: Heliopolis falls to Mongolia.
++>AD 1140: Elephantine falls to Khmer.
++>AD 1120–1240: Side stuff (Spiral Minaret; Pacal converts), wars continue.
++>AD 1300: Thebes falls to Rome → Memphis becomes capital.
++>AD 1310: Hatty converts to Judaism (late realignment; AP traffic mentions Berlin and Hindu bloc earlier).
++>AD 1330: Peaces Saladin (too late).
++>AD 1350: Memphis captured by Khmer → Hatshepsut defeated.
++>
++>Why it unraveled
++>
++>1) Dogpile trigger: Capturing Berlin (AD 860) made her the common enemy. Within 20 turns she was at war with Rome, Kublai, Khmer, and then Saladin (bribed). That’s 3–4 fronts plus your earlier war.
++>2) Religious/diplomatic isolation: The Apostolic Palace is Hindu (built by Bismarck). Kublai had converted to Hindu very early; AP vote text appears later. Hatty didn’t share that religion and only switched to Judaism at AD 1310, long after the dogpile began, so she had no bloc protection and was easy to bribe against.
++>3) Frontline collapse sequence: Khmer took the south (Alexandria, Elephantine), Rome took the west/center (Berlin, Thebes), Mongolia took Heliopolis. After losing Thebes, moving the capital to Memphis delayed but didn’t stop the end.
++>4) Army shape vs. coalition pressure: At AD 500 her stack was scary (26 LBs, 19 War Elephants, 11 Catapults), great for one front. But against 3–4 civs, you need either rapid peaces/bribes, Vassal mechanics, or concentrated defense; otherwise, cities start to fall piecemeal as happened.
++>
++>Takeaways (useful for AI tuning, if you want)
++>
++>- Dogpile detection: If at war with ≥2 neighbors and DoWs keep coming (or bribe messages appear), switch to “survive mode”: whip walls/castles/LBs, concentrate stacks, and aggressively buy peace or bribe counter-wars.
++>- AP awareness: Heavily weight aligning (or at least avoiding infamy) with the AP religion owner on maps where AP is active; late switches (AD 1310 here) don’t help.
++>- After big capture: After taking a rival’s capital (Berlin), temporarily cool wars; otherwise it invites the coalition response we saw.
++>
++>Net: Hatty didn’t lose because she was weak at T150 — she got dogpiled by a Hindu-AP-centered coalition and was ground down on three fronts over ~400 years.
++
++So based on this, i thought that at first, before fixing the cause (not switching religion to match other leader's religions, although it would make game bit boring if all leaders have same religion but if best move maybe do so in this case i mean but anyways etc), it was a too good opportunity to pass xd to finally fix the too many wars at same time issue and then test it after fix but anyways etc.
++
++So in `UWAI::Team::considerPeace` in UWAIAgent.cpp i added with the help of chatgpt 5 (check if accurate anyways etc) sanity "emergency peace" pre-checks, so that we make peace urgently no matter what if we have 3+ (see code for details anyways etc) wars at same time, or if we have 2+ wars at same time but the combined power of our ennemies is > 160 % of our power if i'm not mistaken (e.g. 2 ennemies having 0.8 (= 80% if i'm not mistaken anyways etc) (or e.g. 0.9 + 0.7, or 1.0 + 1.6, etc. anyways etc) times our power is enough that combined they would be a threat enough to urgently make peace) then urgently make peace no matter what before they ravage us xd if i may say but anyways etc.
++
++The second check is especially good as even if we have 3 wars, if say ennemies have 0.5 0.4 0.4 in total it would be only 0.5 + 0.4 + 0.4 = 1.3 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong. So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple but anyways etc (also not enough wars would be boring if i may say but anyways etc, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength if i am not mistaken and if i may say but anyways etc).
++
++Results are extremely good!! As can be seen, starting from same save file at turn 150, in existing screenshots between 290 and 295 (run 1 after the changes) and existing screenshots between 296 and 297 (run 2 after the changes but anyways etc), hatshepsut ai is now still alive and still the strongest, she also made nice military gains, and makes short campaigns by declaring peace not long after war instead of collapsing under too many wars! Her military power shrank a bit relatively to other rivals, but she is still strongest so far and has expanded nicely if i may say but anyways etc. It is the result we wanted, of AI being able to keep a lead and not blunder it due to multi wars.
++
++Chatgpt 5 analyzed the event log as such (put run 2 only for concision anyways etc)
++
++>yep — this second run looks a lot healthier for Hatshepsut. Here’s what the stretched log shows and what it implies.
++>
++>What happened (T150 → T200)
++>
++>AD 470 → 540: Hatshepsut DoW Bismarck, then signs quick peace. One-front skirmish, no dogpile.
++>AD 640: DoW Kublai.
++>AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
++>AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
++>AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
++>AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
++>AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
++>AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
++>AD 1320: AP vote about stopping war vs Suleiman (not about her).
++>AD 1330: She DoW Pacal II (sequential, not simultaneous).
++>
++>Why this looks stronger
++>
++>- She avoids multi-front wars and fights sequential campaigns with fast peaces after big captures (Chichén Itzá, then Rome). That’s exactly the survival pattern we wanted.
++>- The AP sanction (“stop trading with Hatshepsut”) fires but doesn’t trigger a diplomatic dogpile; she’s already out of the Khmer war by then.
++>- Army at AD 1400 is intact and tops the field (scoreboard shows 1345 soldiers vs ~1250 for Saladin/Bismarck). Composition is sensible for the era: 22 Longbows, 16 Horse Knights + 8 Camel Knights, 7 Trebuchets, some Pikes. Not siege-starved, not over-committed.
++>
++>Did our emergency-peace change help?
++>
++>Indirectly, yes:
++>
++>- The pattern you see (decisive capture → quick peace → shift target) is exactly what our “don’t let multi-wars spiral” nudge encourages.
++>- Even if the hard trigger didn’t fire every time, the added checks reduce the chance of her continuing a costly war while another one starts.
++
++It seems not important anymore or urgent to fix the cause (religious dogpile) as it adds some game variety, and more importantly in this game hatshepsut ai captured rome ai (surprisingly historically accurate xd although is a random generated map and although i don't know too much this timeline's real history but i know they were invovled with each other on some level if i am not mistaken but anyways etc) so their holy pagan city synergized nicely with hatshepsut ai's paganism as well, so may be fine to leave as such i don't know for sure, however i had the issue in base advciv of strongest ai switching religion then making an enemy of everyone stupidly so may need some tweaking possibly even though i don't know where but i could use this save file as a base for that maybe if i may say but anyways etc (however is not guaranteed i may or may not do so anyways etc).
++
++As for this change of seemingly much better but anyways etc "emergency peace" prechecks, AI should be much stronger as well thanks to these hopefully and possibly be better at keeping its lead while still keeping the ability to bully the weak (i.e. many weak players) in multi wars for its interest (e.g. shortly before turn 200 hastsheput ai goes at it again if i may say but anyways etc and declares war on pacal 2 ai who was dying anyway if i may say but anyways etc and who is nearby so nice gain for her and safe as well in this case i mean but anyways etc).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 5b8c08f08..5b9919823 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -25,6 +25,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#city-production-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#leaders-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#buildings-ai)  
++&emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details)  
+ &emsp;[Handicap i.e. difficulty settings (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#handicap-ie-difficulty-settings-non-exhaustive-see-the-csv-comparison-tables-locally-libreoffice-etc-or-on-github-recommended-provided-orand-sevopedia-orand-xml-for-details)  
+@@ -183,7 +184,11 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+ - added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc ; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc.
+-- Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, as well as better account the expected food gains from them after removing unhappy citizens which yielded great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
++- Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, by replacing in our prechecks in `CvCityAI::AI_buildingValue` the use of the too broad and unreliable base advciv +/- civ4's `CvCity::getAdditionalHappinessByBuilding` with our new `AI_strictAdditionalHappy`, as well as better account the expected food gains from them after removing unhappy citizens; these changes yielded (no pun but anyways etc) great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
++
++#### Diplomacy (AI)
++
++- Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in `UWAI::Team::considerPeace` in `UWAIAgent.cpp`, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio (vs ours as base anyways etc). This should make AI much stronger as it did in the sample testing where at turn 150 Hatshepsut AI who was strongest leader in the game at this stage could keep its lead until turn 200 thanks to our changes and make targeted campaigns in this sample i mean but anyways etc, instead of being badly dogpiled on and actually dying before turn 200 before our changes. Hopefully these are lax enough that plenty wars still happen, but the focus is on AI survivability and efficiency, not entertainment xd if i may say in this case i mean but anyways etc, see [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc) for details anyways etc.
+ 
+ #### Military (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index c4d08f5e4..77b30761e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -23,6 +23,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#city-production-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#buildings-ai)  
++&emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military-ai)  
+ &emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-non-exhaustive-see-globaldefinesxml)  
+ &emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-ie-difficulty-settings-non-exhaustive)  
+@@ -169,7 +170,11 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+ - Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+-- **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
++- **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings (now using, in our prechecks, the new `AI_strictAdditionalHappy` instead of the too-broad `CvCity::getAdditionalHappinessByBuilding`) and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
++
++#### Diplomacy (AI)
++
++- **Multi-war threat management — “emergency peace” pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)**.
+ 
+ #### Military (AI)
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=47198

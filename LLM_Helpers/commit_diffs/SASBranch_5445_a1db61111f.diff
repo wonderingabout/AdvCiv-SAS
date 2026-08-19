@@ -1,0 +1,1362 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5445
+# Commit: a1db61111f9531aba43b27982d7ee53f68922b7e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c02570f3289a562e51fc6efaddcf155ab9003031
+# Title: add Boreal to maps in Simple Game
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds
+627	599	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+2	1	PrivateMaps/Boreal.py
+1	0	README.md
+6	5	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds b/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds
+new file mode 100644
+index 000000000..be1d9ab95
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds differ
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index 8034db25f..c6f8d3447 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -4,629 +4,657 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4WorldPickerInfos.xml as part of adding new world sizes in AdvCiv-SAs based on the XXL World Mod's approach with the help of GPT-Codex-5.2 thanks. -->
+-<!-- World Picker -->
+ <!-- custom: Globe.nif size scale factors: values after 'Random' are ratios to Standard (1.0).
+      Computed as (iGridWidth*iGridHeight) / StandardTiles from CIV4WorldInfo.xml.
+      This matches the Sevopedia 'Ratio to Standard' row (area ratio; no sqrt).
+      Note: if a map script overrides getGridSize(), the preview globe may not match perfectly.
+      IMPORTANT: the order of <Size> entries must match the WorldInfo order; if you reorder
+      CIV4WorldInfo.xml (e.g. to keep Arena first in the world-size list), reorder <Sizes> too. (ChatGPT-5.2 Thinking) -->
++<!-- World Picker -->
++<!-- custom: WorldPickerInfo blocks are kept alphabetical for file clarity, but this does not control full in-game map ordering (e.g. non-PrivateMaps entries). Keep DefaultWorldPicker as the first block so unknown/unmapped scripts fall back to the dark globe instead of bright decals. (GPT-5.3-Codex) -->
+ <Civ4WorldPickerInfos xmlns="x-schema:CIV4InterfaceSchema.xml">
+ 	<WorldPickerInfos>
+ 		<WorldPickerInfo>
+-			<MapName>DefaultWorldPicker</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_DARK.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>DefaultWorldPicker</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_DARK.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
++		<WorldPickerInfo>
++					<MapName>aDebugMap</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
++		<WorldPickerInfo>
++					<MapName>Archipelago</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
++		<WorldPickerInfo>
++					<MapName>Big_And_Small</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>aDebugMap</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Boreal</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Archipelago</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>BTG_Cross</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds</WaterLevelDecalPath>
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
++					</WaterLevelGloss>
++					</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Continents</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++						<MapName>BTG_Lagoon</MapName>
++						<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++						<Sizes>
++							<Size>1.0</Size> <!-- Random -->
++							<Size>0.128</Size> <!-- Arena (14x10) -->
++							<Size>0.214</Size> <!-- Duel -->
++							<Size>0.358</Size> <!-- Tiny -->
++							<Size>0.604</Size> <!-- Small -->
++							<Size>1.0</Size> <!-- Standard -->
++							<Size>1.463</Size> <!-- Large -->
++							<Size>2.308</Size> <!-- Huge -->
++							<Size>3.141</Size> <!-- SAS24 -->
++							<Size>4.103</Size> <!-- SAS32 -->
++							<Size>5.192</Size> <!-- SAS40 -->
++							<Size>6.346</Size> <!-- SAS48 -->
++						</Sizes>
++						<Climates>
++							<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
++						</Climates>
++						<WaterLevelDecals>
++							<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds</WaterLevelDecalPath>
++						</WaterLevelDecals>
++						<WaterLevelGloss>
++							<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
++						</WaterLevelGloss>
++					</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Lakes</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Continents</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+
+ 		<WorldPickerInfo>
+-			<MapName>Pangaea</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++						<MapName>Earth</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Ice_Age</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Earth_IceAge</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Terra</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Earth1000AD</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Inland_Sea</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Earth18Civs</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Oasis</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
+-				<!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_OASIS.dds</WaterLevelDecalPath>
+-				<!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
+-				<!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Great_Plains</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_GREATPLAINS.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Great_Plains</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_GREATPLAINS.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Highlands</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_Highlands.dds</WaterLevelDecalPath> <!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Highlands</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_Highlands.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Ice_Age</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>BTG_Cross</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds</WaterLevelDecalPath>
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
+-			</WaterLevelGloss>
+-			</WorldPickerInfo>
+-			<WorldPickerInfo>
+-				<MapName>BTG_Lagoon</MapName>
+-				<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+-				<Sizes>
+-					<Size>1.0</Size> <!-- Random -->
+-					<Size>0.128</Size> <!-- Arena (14x10) -->
+-					<Size>0.214</Size> <!-- Duel -->
+-					<Size>0.358</Size> <!-- Tiny -->
+-					<Size>0.604</Size> <!-- Small -->
+-					<Size>1.0</Size> <!-- Standard -->
+-					<Size>1.463</Size> <!-- Large -->
+-					<Size>2.308</Size> <!-- Huge -->
+-					<Size>3.141</Size> <!-- SAS24 -->
+-					<Size>4.103</Size> <!-- SAS32 -->
+-					<Size>5.192</Size> <!-- SAS40 -->
+-					<Size>6.346</Size> <!-- SAS48 -->
+-				</Sizes>
+-				<Climates>
+-					<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
+-				</Climates>
+-				<WaterLevelDecals>
+-					<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds</WaterLevelDecalPath>
+-				</WaterLevelDecals>
+-				<WaterLevelGloss>
+-					<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
+-				</WaterLevelGloss>
+-			</WorldPickerInfo>
+-			<WorldPickerInfo>
+-				<MapName>Earth</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Inland_Sea</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Earth1000AD</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Lakes</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Earth_IceAge</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Oasis</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
++						<!-- Random -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_OASIS.dds</WaterLevelDecalPath>
++						<!-- Random -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
++						<!-- Random -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Earth18Civs</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Pangaea</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 		<WorldPickerInfo>
+-			<MapName>Big_And_Small</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+-			<Sizes>
+-				<Size>1.0</Size> <!-- Random -->
+-				<Size>0.128</Size> <!-- Arena (14x10) -->
+-				<Size>0.214</Size> <!-- Duel -->
+-				<Size>0.358</Size> <!-- Tiny -->
+-				<Size>0.604</Size> <!-- Small -->
+-				<Size>1.0</Size> <!-- Standard -->
+-				<Size>1.463</Size> <!-- Large -->
+-				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.141</Size> <!-- SAS24 -->
+-				<Size>4.103</Size> <!-- SAS32 -->
+-				<Size>5.192</Size> <!-- SAS40 -->
+-				<Size>6.346</Size> <!-- SAS48 -->
+-			</Sizes>
+-			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
+-			</Climates>
+-			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH03.dds</WaterLevelDecalPath> <!-- High -->
+-			</WaterLevelDecals>
+-			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
+-			</WaterLevelGloss>
+-		</WorldPickerInfo>
++					<MapName>Terra</MapName>
++					<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++					<Sizes>
++						<Size>1.0</Size> <!-- Random -->
++						<Size>0.128</Size> <!-- Arena (14x10) -->
++						<Size>0.214</Size> <!-- Duel -->
++						<Size>0.358</Size> <!-- Tiny -->
++						<Size>0.604</Size> <!-- Small -->
++						<Size>1.0</Size> <!-- Standard -->
++						<Size>1.463</Size> <!-- Large -->
++						<Size>2.308</Size> <!-- Huge -->
++						<Size>3.141</Size> <!-- SAS24 -->
++						<Size>4.103</Size> <!-- SAS32 -->
++						<Size>5.192</Size> <!-- SAS40 -->
++						<Size>6.346</Size> <!-- SAS48 -->
++					</Sizes>
++					<Climates>
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++						<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++					</Climates>
++					<WaterLevelDecals>
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA01.dds</WaterLevelDecalPath> <!-- Random -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA01.dds</WaterLevelDecalPath> <!-- Low -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA02.dds</WaterLevelDecalPath> <!-- Medium -->
++						<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA03.dds</WaterLevelDecalPath> <!-- High -->
++					</WaterLevelDecals>
++					<WaterLevelGloss>
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra01.dds</WaterLevelGlossPath> <!-- Random -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra01.dds</WaterLevelGlossPath> <!-- Low -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra02.dds</WaterLevelGlossPath> <!-- Medium -->
++						<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra03.dds</WaterLevelGlossPath> <!-- High -->
++					</WaterLevelGloss>
++				</WorldPickerInfo>
+ 	</WorldPickerInfos>
+ </Civ4WorldPickerInfos>
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index b67f04e27..4a9f5c2c2 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -30,7 +30,8 @@ def getDescription():
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+-	return 1
++	# <!-- custom: keep this at 0 so Boreal appears in Simple Game mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
++	return 0
+ 	
+ def isClimateMap():
+ 	return 0
+
+diff --git a/README.md b/README.md
+index 10fb6009b..bad696dda 100644
+--- a/README.md
++++ b/README.md
+@@ -549,6 +549,7 @@ Some of them are selectable in the Simple Game menu, while others only via Custo
+ As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds; some additional examples below:
+ 
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 68a100a63..3f7082faf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -345,16 +345,17 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Maps
+ 
+-- (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps).
+-- (Requires AdvCiv-SAS 5444+) **Deer percentage:** added a Deer percentage tuning **option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**.
+-- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+-- (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+-- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+ - (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py).
+ - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+ - (Requires AdvCiv-SAS 5433+) **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
++- (Requires AdvCiv-SAS 5444+) Add **Deer percentage map option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also See [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
++- (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps).
++- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists.
++- (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
++- (Requires AdvCiv-SAS 5445+) **Add other maps** to **Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py).
++- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ 
+ ### Handicaps
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 5cc49e3e4..9fc89d113 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+new file mode 100644
+index 000000000..6bbadf092
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=73235

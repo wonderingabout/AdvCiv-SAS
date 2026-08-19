@@ -1,0 +1,809 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6057
+# Commit: 05b03177383c158c0962000fb2979a06850456ef
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 235980fe7153930fb4a664a06704b60088be52a7
+# Title: Expand SASGameSummary with final victory snapshots, project-victory progress, exploration, and map/environment history
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	0	CvGameCoreDLL/CvCity.cpp
+2	0	CvGameCoreDLL/CvEventReporter.cpp
+15	3	CvGameCoreDLL/CvGame.cpp
+6	0	CvGameCoreDLL/CvPlayer.cpp
+34	0	CvGameCoreDLL/CvPlot.cpp
+21	1	CvGameCoreDLL/CvUnit.cpp
+243	8	CvGameCoreDLL/SASGameSummaryLog.cpp
+19	0	CvGameCoreDLL/SASGameSummaryLog.h
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 724b401ca..356304c78 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -14,6 +14,7 @@
+ #include "CvGameTextMgr.h"
+ #include "CvBugOptions.h" // advc.060
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++#include "SASGameSummaryLog.h" // <!-- custom: City removal can restore a natural feature on its plot; preserve that non-routine map change in SASGameSummary. (GPT-5.6-Sol) -->
+ 
+ 
+ CvCity::CvCity() // advc.003u: Merged with the deleted reset function
+@@ -174,6 +175,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 	updateCultureLevel(false);
+ 
+ 	CvPlot& kPlot = getPlot();
++	bool const bLogCityPlotChange = (gGameSummaryLogLevel >= 2);
++	SASGameSummaryPlotState kOldCityPlotState;
++	if (bLogCityPlotChange) kOldCityPlotState = SASGameSummaryPlotState(kPlot);
+ 	{
+ 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+ 		static const int iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
+@@ -205,6 +209,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 
+ 	kPlot.setImprovementType(NO_IMPROVEMENT);
+ 	kPlot.updateCityRoute(false);
++	if (bLogCityPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldCityPlotState, "cityPlotChanges", "CITY_FOUNDED", true);
+ 
+ 	for (TeamIter<ALIVE> it; it.hasNext(); ++it)
+ 	{
+@@ -375,6 +380,9 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 		}
+ 	} // </advc.001>
+ 
++	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++	SASGameSummaryPlotState kOldPlotState;
++	if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
+ 	kPlot.setPlotCity(NULL);
+ 	kPlot.setRuinsName(getName()); // advc.005c
+ 
+@@ -438,6 +446,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 		}
+ 	} // </advc.106>
+ 	kPlot.setImprovementType(GC.getRUINS_IMPROVEMENT());
++	if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
+ 	CvEventReporter::getInstance().cityLost(this);
+ 	kOwner.deleteCity(getID());
+ 
+@@ -12838,7 +12847,11 @@ void CvCity::applyEvent(EventTypes eEvent, EventTriggeredData const& kTriggeredD
+ 								"AS2D_PILLAGED", MESSAGE_TYPE_INFO,
+ 								GC.getInfo(pPlot->getImprovementType()).getButton(),
+ 								eColorRed);
++						bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++						SASGameSummaryPlotState kOldPlotState;
++						if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(*pPlot);
+ 						pPlot->setImprovementType(NO_IMPROVEMENT);
++						if (bLogPlotChange) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
+ 						iNumPillaged++;
+ 						break;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index d1de4d0ea..2756dbea8 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -182,6 +182,8 @@ void CvEventReporter::beginGameTurn(int iGameTurn)
+ void CvEventReporter::endGameTurn(int iGameTurn)
+ {
+ 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
++	// <!-- custom: Plot changes and exploration are collected during the turn so SASGameSummary writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its plot changes are included too. (GPT-5.6-Sol) -->
++	if (gGameSummaryLogLevel >= 2) flushSASGameSummaryTurnChanges(iGameTurn);
+ 	// <!-- custom: Periodic game-summary snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
+ 	if (gGameSummaryLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameSummaryTurnInterval) == 0) logSASGameSummaryTurn(iGameTurn);
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 81f51295f..905614f40 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6424,9 +6424,14 @@ void CvGame::doGlobalWarming()
+ 	PROFILE_FUNC();
+ 
+ 	// Calculate change in GW index
+-	int iGlobalWarmingValue = calculateGlobalPollution();
+-	int iGlobalWarmingDefense = calculateGwSustainabilityThreshold(); // Natural global defence
+-	iGlobalWarmingDefense += calculateGwLandDefence(); // defence from features (forests & jungles)
++	bool const bLogMapHistory = (gGameSummaryLogLevel >= 2);
++	int iGlobalWarmingIndexBefore = -1;
++	if (bLogMapHistory) iGlobalWarmingIndexBefore = getGlobalWarmingIndex();
++	// <!-- custom: The inherited logic already calculated pollution, the natural sustainability threshold and feature defense here. Keep the two defense components in separate locals for the environmental row, then add them exactly as before; this adds no calculation when logging is disabled. (GPT-5.6-Sol) -->
++	int const iGlobalWarmingValue = calculateGlobalPollution();
++	int const iSustainabilityThreshold = calculateGwSustainabilityThreshold();
++	int const iLandDefense = calculateGwLandDefence();
++	int const iGlobalWarmingDefense = iSustainabilityThreshold + iLandDefense;
+ 	changeGlobalWarmingIndex(iGlobalWarmingValue - iGlobalWarmingDefense);
+ 
+ 	// check if GW has 'activated'.
+@@ -6508,6 +6513,8 @@ void CvGame::doGlobalWarming()
+ 		TerrainTypes const eTerrain = pPlot->getTerrainType();
+ 		FeatureTypes const eFeature = pPlot->getFeatureType();
+ 		ImprovementTypes const eImprov = pPlot->getImprovementType();
++		SASGameSummaryPlotState kOldPlotState;
++		if (bLogMapHistory) kOldPlotState = SASGameSummaryPlotState(*pPlot);
+ 		// Just for the announcements
+ 		PreGWPlot preGWPlot(pPlot, eTerrain, eFeature, eImprov);
+ 		bool bProtectFeature = false;
+@@ -6611,12 +6618,15 @@ void CvGame::doGlobalWarming()
+ 				FAssert(!bProtectFeature);
+ 			}
+ 			aChangedPlots.push_back(preGWPlot);
++			if (bLogMapHistory) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
+ 			// Do the announcements in a separate loop
+ 			// </advc.055>
+ 			changeGwEventTally(1);
+ 		}
+ 	}
+ 	updateGwPercentAnger();
++	int iGlobalWarmingIndexBeforeRestoration = -1;
++	if (bLogMapHistory) iGlobalWarmingIndexBeforeRestoration = getGlobalWarmingIndex();
+ 	if (getGlobalWarmingIndex() > 0)
+ 	{
+ 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+@@ -6625,6 +6635,8 @@ void CvGame::doGlobalWarming()
+ 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
+ 				iGlobalWarmingRestorationRate/100);
+ 	}
++	// <!-- custom: doGlobalWarming already computes these values every turn. Reuse them for a single low-cost environmental-status row instead of rescanning the map between periodic snapshots. (GPT-5.6-Sol) -->
++	if (bLogMapHistory) logSASGameSummaryEnvironmentTurn(iGlobalWarmingValue, iSustainabilityThreshold, iLandDefense, iGlobalWarmingIndexBefore, iGlobalWarmingIndexBeforeRestoration, getGlobalWarmingIndex(), iGlobalWarmingRolls, getGwEventTally());
+ 	// <advc.055>
+ 	/*	advc.706 (note): These will be shortlived INFO-type messages,
+ 		no need to store those at AI players. */
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7f0c16b1d..ce644a84b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -16430,7 +16430,11 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
+ 						gDLL->UI().addMessage(getID(), false, -1, szBuffer, *pPlot, "AS2D_PILLAGED",
+ 								MESSAGE_TYPE_INFO, GC.getInfo(pPlot->getImprovementType()).getButton(),
+ 								eColorRed);
++						bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++						SASGameSummaryPlotState kOldPlotState;
++						if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(*pPlot);
+ 						pPlot->setImprovementType(NO_IMPROVEMENT);
++						if (bLogPlotChange) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
+ 						iDone++;
+ 						break;
+ 					}
+@@ -17903,6 +17907,8 @@ void CvPlayer::launch(VictoryTypes eVictory)
+ 
+ 	kTeam.finalizeProjectArtTypes();
+ 	kTeam.setVictoryCountdown(eVictory, kTeam.getVictoryDelay(eVictory));
++	// <!-- custom: Project completion alone did not reveal when a spaceship actually launched or when it would arrive. Record the explicit launch after its countdown is set so SASGameSummary can preserve the exact travel time, arrival turn, success chance, and component state. (GPT-5.6-Sol) -->
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryVictoryLaunched(getID(), eVictory);
+ 
+ 	//gDLL->getEngineIFace()->AddLaunch(getID());
+ 	// K-Mod. The spaceship launch causes pitboss to crash
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index eadf019d9..374ac1d9b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -429,7 +429,11 @@ void CvPlot::doImprovement()
+ 		if (getUpgradeProgress() >= GC.getGame().
+ 			getImprovementUpgradeTime(getImprovementType()) * 100)
+ 		{
++			bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++			SASGameSummaryPlotState kOldState;
++			if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
+ 			setImprovementType(eImprovementUpgrade);
++			if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "improvementUpgrades", "IMPROVEMENT_UPGRADE", true);
+ 		}
+ 	}
+ }
+@@ -846,6 +850,9 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
+ 	{
+ 		CvPlot& p = *it;
++		bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++		SASGameSummaryPlotState kOldPlotState;
++		if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(p);
+ 
+ 		// (if we remove roads, don't remove them on the city... XXX)
+ 
+@@ -872,6 +879,7 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ 						} // </advc.650>
+ 						p.setImprovementType(NO_IMPROVEMENT);
+ 						p.setFeatureType(eNUKE_FEATURE);
++						if (bLogPlotChange) recordSASGameSummaryPlotChange(p, kOldPlotState, "nuclearDamage", "NUCLEAR_FALLOUT", true);
+ 					}
+ 				}
+ 			}
+@@ -3158,7 +3166,11 @@ void CvPlot::removeGoody()
+ 	// <advc>
+ 	if (!isGoody())
+ 		return; // </advc>
++	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++	SASGameSummaryPlotState kOldState;
++	if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
+ 	setImprovementType(NO_IMPROVEMENT);
++	if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "goodyHutsRemoved", "GOODY_HUT_REMOVED", true);
+ 	/*	<advc.001> This works around an issue w/ Debug mode: The EXE does (apparently)
+ 		not update the layout of plots unrevealed to the active player (AP).
+ 		So when a rival of the AP enters a goody hut previously revealed to the AP
+@@ -6419,6 +6431,8 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
+ 	}
+ 	if (bOldValue != bNewValue) // </advc.124>
+ 	{
++		// <!-- custom: Buffer permanent map revelation by team and flush it once per turn. This preserves exact exploration coordinates without producing one log row for every newly revealed plot. (GPT-5.6-Sol) -->
++		if (bNewValue && gGameSummaryLogLevel >= 2) recordSASGameSummaryPlotRevealed(*this, eTeam);
+ 		if (eTeam == getActiveTeam())
+ 		{
+ 			updateSymbols();
+@@ -6579,6 +6593,9 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
+ 
+ 	m_aiBuildProgress.set(eBuild, 0);
+ 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
++	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++	SASGameSummaryPlotState kOldState;
++	if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
+ 
+ 	if (kBuild.getImprovement() != NO_IMPROVEMENT)
+ 	{
+@@ -6630,6 +6647,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
+ 
+ 		setFeatureType(NO_FEATURE);
+ 	}
++	// <!-- custom: Completed worker builds can change an improvement, route and feature together. Buffer one coordinate for the whole build rather than logging each underlying plot setter separately. (GPT-5.6-Sol) -->
++	if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "workerBuilds", "WORKER_BUILD", false);
+ 
+ 	return true;
+ }
+@@ -7148,7 +7167,13 @@ void CvPlot::doFeature()
+ 			// UNOFFICIAL_PATCH, Gamespeed scaling, 03/04/10, jdog5000
+ 			int iRoll = 100 * GC.getGame().getSpeedPercent();
+ 			if (SyncRandNum(iRoll) < iProbability) // UNOFFICIAL_PATCH: END
++			{
++				bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++				SASGameSummaryPlotState kOldState;
++				if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
+ 				setFeatureType(NO_FEATURE);
++				if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "naturalFeatureChanges", "FEATURE_DISAPPEARANCE", true);
++			}
+ 		}
+ 	}
+ 	else if (!isUnit() && !isImproved())
+@@ -7193,7 +7218,11 @@ void CvPlot::doFeature()
+ 					getX(), getY()) < iProbability) // advc.007: Log coordinates
+ 				// UNOFFICIAL_PATCH: END
+ 				{
++					bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++					SASGameSummaryPlotState kOldState;
++					if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
+ 					setFeatureType(eLoopFeature);
++					if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "naturalFeatureChanges", "FEATURE_GROWTH", true);
+ 					CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
+ 					if (pCity != NULL &&
+ 						/*	advc.106: K-Mod had added an isVisible check,
+@@ -8117,6 +8146,9 @@ bool CvPlot::canApplyEvent(EventTypes eEvent) const
+ void CvPlot::applyEvent(EventTypes eEvent)
+ {
+ 	CvEventInfo& kEvent = GC.getInfo(eEvent);
++	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++	SASGameSummaryPlotState kOldState;
++	if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
+ 	if (kEvent.getFeatureChange() > 0)
+ 	{
+ 		if (NO_FEATURE != kEvent.getFeature())
+@@ -8155,6 +8187,8 @@ void CvPlot::applyEvent(EventTypes eEvent)
+ 		if (iChange != 0)
+ 			GC.getMap().setPlotExtraYield(*this, eLoopYield, iChange);
+ 	}
++	// <!-- custom: A random event can change several properties of one plot. Preserve one combined before/after record instead of treating its feature, resource, improvement and route effects as unrelated changes. (GPT-5.6-Sol) -->
++	if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "randomEvents", "RANDOM_EVENT", true);
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7c5848627..7049ddbdb 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3098,7 +3098,11 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
+ 		if (!szFeature.IsEmpty())
+ 		{
+ 			FeatureTypes eNewFeature = (FeatureTypes)GC.getInfoTypeForString(szFeature);
++			bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++			SASGameSummaryPlotState kOldPlotState;
++			if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
+ 			kPlot.setFeatureType(eNewFeature);
++			if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "unitTriggeredFeatureChanges", "UNIT_TRIGGERED_FEATURE_CHANGE", true);
+ 		}
+ 		// spawn birds if trees present - JW
+ 		if (isActiveOwned() && !kPlot.isOwned() &&
+@@ -4986,6 +4990,9 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
+ 				to the probability display in CvGameTextMgr::getAirBombPlotHelp */
+ 			if (SyncRandNum(airBombCurrRate()) >= SyncRandNum(iDefense))
+ 			{
++				bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++				SASGameSummaryPlotState kOldPlotState;
++				if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kTarget);
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
+ 						getNameKey(), szStructure);
+ 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
+@@ -5012,6 +5019,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
+ 					kTarget.setImprovementType(GC.getInfo(kTarget.getImprovementType()).
+ 							getImprovementPillage());
+ 				}
++				if (bLogPlotChange) recordSASGameSummaryPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
+ 			}
+ 			else
+ 			{
+@@ -5276,6 +5284,9 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
+ 	}
+ 	ImprovementTypes const eOldImprovement = kPlot.getImprovementType();
+ 	RouteTypes const eOldRoute = kPlot.getRouteType();
++	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
++	SASGameSummaryPlotState kOldPlotState;
++	if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
+ 	// <advc.111>
+ 	bool bPillaged = false;
+ 	if (getDestructibleStructureAt(kPlot, false, bForceImprovement) == STRUCTURE_ROUTE)
+@@ -5296,7 +5307,10 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
+ 	/*	advc.111: (Could just compare old with current, but that wouldn't catch
+ 		improvements that replace themselves upon being pillaged.) */
+ 	if (bPillaged)
++	{
++		if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
+ 		CvEventReporter::getInstance().unitPillage(this, eOldImprovement, eOldRoute, getOwner());
++	}
+ 	return true;
+ }
+ 
+@@ -6604,6 +6618,8 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
+ 
+ 		CvPlot* const pMissionPlot = plot();
+ 		bool const bLogEspionageMission = (gGameSummaryLogLevel >= 2);
++		SASGameSummaryPlotState kOldPlotState;
++		if (bLogEspionageMission) kOldPlotState = SASGameSummaryPlotState(*pMissionPlot);
+ 		int iMissionCost = -1;
+ 		int iEPBefore = -1;
+ 		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
+@@ -6669,7 +6685,11 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
+ 		if (GET_PLAYER(getOwner()).doEspionageMission(eMission, eTargetPlayer,
+ 			pMissionPlot, iData, this))
+ 		{
+-			if (bLogEspionageMission) logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
++			if (bLogEspionageMission)
++			{
++				recordSASGameSummaryPlotChange(*pMissionPlot, kOldPlotState, "espionage", "ESPIONAGE", true);
++				logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
++			}
+ 			if (getPlot().isActiveVisible(false))
+ 				NotifyEntity(MISSION_ESPIONAGE);
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.cpp b/CvGameCoreDLL/SASGameSummaryLog.cpp
+index 9abb7f3aa..ba9fd2b28 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.cpp
++++ b/CvGameCoreDLL/SASGameSummaryLog.cpp
+@@ -26,6 +26,7 @@
+ #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-summary diplomacy-status rows. (ChatGPT-5.5) -->
+ #include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-summary benchmark rows. (GPT-5.5) -->
+ #include <time.h>
++#include <algorithm> // <!-- custom: Needed to deduplicate buffered plot/exploration coordinates within each turn. (GPT-5.6-Sol) -->
+ #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-summary city rows. (ChatGPT-5.5) -->
+ #include <vector> // <!-- custom: Used for compact dynamic buckets in game-summary known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
+ 
+@@ -290,6 +291,17 @@ static int g_aiSASGameSummaryCitiesConquered[MAX_PLAYERS];
+ static int g_aiSASGameSummaryCitiesLostByConquest[MAX_PLAYERS];
+ static int g_aiSASGameSummaryCitiesTradedIn[MAX_PLAYERS];
+ static int g_aiSASGameSummaryCitiesTradedOut[MAX_PLAYERS];
++static int g_iSASGameSummaryLastFullSnapshotTurn = -1;
++
++struct SASGameSummaryPlotChangeGroup
++{
++	CvString szCategory;
++	std::vector<std::pair<int,int> > aCoordinates;
++};
++
++static int g_iSASGameSummaryPendingPlotTurn = -1;
++static std::vector<SASGameSummaryPlotChangeGroup> g_aSASGameSummaryPlotChanges;
++static std::vector<std::pair<int,int> > g_aaSASGameSummaryRevealedPlots[MAX_TEAMS];
+ 
+ struct SASGameSummaryPlayerPrevious
+ {
+@@ -457,6 +469,11 @@ static void resetSASGameSummaryState()
+ 		g_akSASGameSummaryTeamPrevious[iI].bContactsValid = false;
+ 	}
+ 	g_kSASGameSummaryGlobalPrevious.bValid = false;
++	g_iSASGameSummaryLastFullSnapshotTurn = -1;
++	g_iSASGameSummaryPendingPlotTurn = -1;
++	g_aSASGameSummaryPlotChanges.clear();
++	for (int iI = 0; iI < MAX_TEAMS; iI++)
++		g_aaSASGameSummaryRevealedPlots[iI].clear();
+ }
+ 
+ static void appendSASGameSummaryIntList(CvString& szList, int iValue)
+@@ -606,10 +623,158 @@ static const char* getSASGameSummaryRouteType(RouteTypes eRoute)
+ 	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
+ }
+ 
++SASGameSummaryPlotState::SASGameSummaryPlotState()
++{}
++
++SASGameSummaryPlotState::SASGameSummaryPlotState(CvPlot const& kPlot)
++:	eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()),
++	eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
++{
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		aiExtraYield[iI] = GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI);
++}
++
++static bool isSASGameSummaryPlotStateChanged(SASGameSummaryPlotState const& kOldState, CvPlot const& kPlot)
++{
++	if (kOldState.eTerrain != kPlot.getTerrainType() || kOldState.eFeature != kPlot.getFeatureType() || kOldState.eBonus != kPlot.getBonusType() || kOldState.eImprovement != kPlot.getImprovementType() || kOldState.eRoute != kPlot.getRouteType())
++		return true;
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		if (kOldState.aiExtraYield[iI] != GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI))
++			return true;
++	}
++	return false;
++}
++
++static void addSASGameSummaryCoordinate(std::vector<std::pair<int,int> >& aCoordinates, CvPlot const& kPlot)
++{
++	std::pair<int,int> const kCoordinate(kPlot.getX(), kPlot.getY());
++	if (std::find(aCoordinates.begin(), aCoordinates.end(), kCoordinate) == aCoordinates.end())
++		aCoordinates.push_back(kCoordinate);
++}
++
++static void appendSASGameSummaryCoordinateChunks(std::vector<CvString>& aszChunks, CvString& szChunk, char const* szCategory, std::vector<std::pair<int,int> > const& aCoordinates)
++{
++	for (size_t iI = 0; iI < aCoordinates.size(); iI++)
++	{
++		CvString szItem;
++		if (iI == 0)
++			szItem.Format("%s%s=(%d,%d)", szChunk.empty() ? "" : " ", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
++		else szItem.Format(",(%d,%d)", aCoordinates[iI].first, aCoordinates[iI].second);
++		if (!szChunk.empty() && szChunk.length() + szItem.length() > 1500)
++		{
++			aszChunks.push_back(szChunk);
++			szChunk.clear();
++			szItem.Format("%s=(%d,%d)", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
++		}
++		szChunk += szItem;
++	}
++}
++
++static int getSASGameSummaryRevealedPlotCount(TeamTypes eTeam)
++{
++	int iRevealed = 0;
++	int iLoop = 0;
++	for (CvArea const* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
++		iRevealed += pLoopArea->getNumRevealedTiles(eTeam);
++	return iRevealed;
++}
++
++void flushSASGameSummaryTurnChanges(int iGameTurn)
++{
++	if (g_iSASGameSummaryPendingPlotTurn < 0)
++		return;
++	FAssert(iGameTurn == g_iSASGameSummaryPendingPlotTurn);
++	int const iLoggedTurn = iGameTurn;
++	std::vector<CvString> aszPlotChunks;
++	CvString szPlotChunk;
++	for (size_t iI = 0; iI < g_aSASGameSummaryPlotChanges.size(); iI++)
++		appendSASGameSummaryCoordinateChunks(aszPlotChunks, szPlotChunk, g_aSASGameSummaryPlotChanges[iI].szCategory.GetCString(), g_aSASGameSummaryPlotChanges[iI].aCoordinates);
++	if (!szPlotChunk.empty())
++		aszPlotChunks.push_back(szPlotChunk);
++	for (size_t iI = 0; iI < aszPlotChunks.size(); iI++)
++		logSASGameSummary("GAME_SUMMARY_PLOT_CHANGES turn=%d part=%d parts=%d changes=%s", iLoggedTurn, (int)iI + 1, (int)aszPlotChunks.size(), aszPlotChunks[iI].GetCString());
++	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++	{
++		std::vector<std::pair<int,int> > const& aCoordinates = g_aaSASGameSummaryRevealedPlots[iI];
++		if (aCoordinates.empty())
++			continue;
++		std::vector<CvString> aszExplorationChunks;
++		CvString szExplorationChunk;
++		appendSASGameSummaryCoordinateChunks(aszExplorationChunks, szExplorationChunk, "newlyRevealed", aCoordinates);
++		if (!szExplorationChunk.empty())
++			aszExplorationChunks.push_back(szExplorationChunk);
++		// <!-- custom: CvMap::numPlots returns PlotNumTypes; casting it to int keeps MSVC 7.1 std::max template deduction unambiguous and fixed the compile error from adding exploration percentages. (GPT-5.6-Sol) -->
++		int const iExploredPctX100 = (10000 * getSASGameSummaryRevealedPlotCount((TeamTypes)iI)) / std::max(1, (int)GC.getMap().numPlots());
++		for (size_t iJ = 0; iJ < aszExplorationChunks.size(); iJ++)
++			logSASGameSummary("GAME_SUMMARY_EXPLORATION turn=%d team=%d part=%d parts=%d exploredPctX100=%d %s", iLoggedTurn, iI, (int)iJ + 1, (int)aszExplorationChunks.size(), iExploredPctX100, aszExplorationChunks[iJ].GetCString());
++	}
++	g_iSASGameSummaryPendingPlotTurn = -1;
++	g_aSASGameSummaryPlotChanges.clear();
++	for (int iI = 0; iI < MAX_TEAMS; iI++)
++		g_aaSASGameSummaryRevealedPlots[iI].clear();
++}
++
++static void prepareSASGameSummaryTurnChanges()
++{
++	int const iGameTurn = GC.getGame().getGameTurn();
++	if (g_iSASGameSummaryPendingPlotTurn >= 0 && g_iSASGameSummaryPendingPlotTurn != iGameTurn)
++		flushSASGameSummaryTurnChanges(g_iSASGameSummaryPendingPlotTurn);
++	if (g_iSASGameSummaryPendingPlotTurn < 0)
++		g_iSASGameSummaryPendingPlotTurn = iGameTurn;
++}
++
++void recordSASGameSummaryPlotChange(CvPlot const& kPlot, SASGameSummaryPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed)
++{
++	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameSummaryPlotStateChanged(kOldState, kPlot))
++		return;
++	prepareSASGameSummaryTurnChanges();
++	SASGameSummaryPlotChangeGroup* pGroup = NULL;
++	for (size_t iI = 0; iI < g_aSASGameSummaryPlotChanges.size(); iI++)
++	{
++		if (g_aSASGameSummaryPlotChanges[iI].szCategory == szCategory)
++		{
++			pGroup = &g_aSASGameSummaryPlotChanges[iI];
++			break;
++		}
++	}
++	if (pGroup == NULL)
++	{
++		SASGameSummaryPlotChangeGroup kGroup;
++		kGroup.szCategory = szCategory;
++		g_aSASGameSummaryPlotChanges.push_back(kGroup);
++		pGroup = &g_aSASGameSummaryPlotChanges.back();
++	}
++	addSASGameSummaryCoordinate(pGroup->aCoordinates, kPlot);
++	if (bDetailed)
++	{
++		logSASGameSummary("GAME_SUMMARY_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
++				GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(), getSASGameSummaryTerrainType(kOldState.eTerrain), getSASGameSummaryTerrainType(kPlot.getTerrainType()), getSASGameSummaryFeatureType(kOldState.eFeature), getSASGameSummaryFeatureType(kPlot.getFeatureType()), getSASGameSummaryBonusType(kOldState.eBonus), getSASGameSummaryBonusType(kPlot.getBonusType()), getSASGameSummaryImprovementType(kOldState.eImprovement), getSASGameSummaryImprovementType(kPlot.getImprovementType()), getSASGameSummaryRouteType(kOldState.eRoute), getSASGameSummaryRouteType(kPlot.getRouteType()), kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD), kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION), kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
++	}
++}
++
++void recordSASGameSummaryPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
++{
++	if (GC.getGame().getElapsedGameTurns() <= 0 || eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
++		return;
++	prepareSASGameSummaryTurnChanges();
++	// <!-- custom: setRevealed calls this only on false-to-true transitions, so the same team cannot add this plot twice without first losing permanent revelation; append directly instead of repeatedly searching a potentially large map-trade list. (GPT-5.6-Sol) -->
++	g_aaSASGameSummaryRevealedPlots[eTeam].push_back(std::make_pair(kPlot.getX(), kPlot.getY()));
++}
++
++void logSASGameSummaryEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally)
++{
++	logSASGameSummary("GAME_SUMMARY_ENVIRONMENT_TURN turn=%d pollution=%d sustainabilityThreshold=%d landDefense=%d totalDefense=%d indexBefore=%d indexBeforeRestoration=%d indexEnd=%d indexDelta=%+d warmingChances=%d eventTally=%d severityPercent=%d active=%d",
++			GC.getGame().getGameTurn(), iPollution, iSustainabilityThreshold, iLandDefense, iSustainabilityThreshold + iLandDefense, iIndexBefore, iIndexBeforeRestoration, iIndexEnd, iIndexEnd - iIndexBefore, iWarmingChances, iEventTally, GC.getGame().calculateGwSeverityRating(), iIndexEnd > 0);
++}
++
+ void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
+ {
+ 	if (pPlot == NULL || eOldBonus == eNewBonus)
+ 		return;
++	SASGameSummaryPlotState kOldState(*pPlot);
++	kOldState.eBonus = eOldBonus;
++	recordSASGameSummaryPlotChange(*pPlot, kOldState, "resourceChanges", "RESOURCE_CHANGE", false);
+ 	const char* szAction = (eOldBonus == NO_BONUS ? "appeared" : (eNewBonus == NO_BONUS ? "disappeared" : "changed"));
+ 	CvCity const* pWorkingCity = pPlot->getWorkingCity();
+ 	CvCity const* pPlotCity = pPlot->getPlotCity();
+@@ -1001,6 +1166,35 @@ static void logSASGameSummaryBattleBuckets(int iGameTurn)
+ 	}
+ }
+ 
++// <!-- custom: Project completion rows did not show whether a project-based victory had its minimum/full component set or an active launch countdown. Build one compact shared state for periodic progress and the explicit launch action. (GPT-5.6-Sol) -->
++static bool getSASGameSummaryVictoryProjectState(TeamTypes eTeam, VictoryTypes eVictory, int& iPartsBuilt, int& iPartsMinimum, int& iPartsMaximum, bool& bMinimumComplete, CvString& szProjectParts)
++{
++	iPartsBuilt = 0;
++	iPartsMinimum = 0;
++	iPartsMaximum = 0;
++	bMinimumComplete = true;
++	szProjectParts.clear();
++	CvTeam const& kTeam = GET_TEAM(eTeam);
++	FOR_EACH_ENUM(Project)
++	{
++		CvProjectInfo const& kProject = GC.getInfo(eLoopProject);
++		int const iMinimum = kProject.getVictoryMinThreshold(eVictory);
++		int const iMaximum = kProject.getVictoryThreshold(eVictory);
++		if (iMinimum <= 0 && iMaximum <= 0)
++			continue;
++		int const iBuilt = kTeam.getProjectCount(eLoopProject);
++		iPartsBuilt += iBuilt;
++		iPartsMinimum += iMinimum;
++		iPartsMaximum += iMaximum;
++		if (iBuilt < iMinimum)
++			bMinimumComplete = false;
++		CvString szItem;
++		szItem.Format(szProjectParts.empty() ? "%s:%d/%d/%d" : ",%s:%d/%d/%d", getSASGameSummaryProjectType(eLoopProject), iBuilt, iMinimum, iMaximum);
++		szProjectParts += szItem;
++	}
++	return !szProjectParts.empty();
++}
++
+ static void logSASGameSummaryTeamSnapshot(TeamTypes eTeam, int iGameTurn)
+ {
+ 	CvGame const& kGame = GC.getGame();
+@@ -1030,8 +1224,19 @@ static void logSASGameSummaryTeamSnapshot(TeamTypes eTeam, int iGameTurn)
+ 			continue;
+ 		const int iLandNeed = kGame.getAdjustedLandPercent(eLoopVictory);
+ 		const int iPopNeed = kGame.getAdjustedPopulationPercent(eLoopVictory);
+-		if (iLandNeed > 0 || iPopNeed > 0)
+-			logSASGameSummary("GAME_SUMMARY_VICTORY_PROGRESS turn=%d team=%d victory=%s landPctX100=%d landNeed=%d popPctX100=%d popNeed=%d countdown=%d", iGameTurn, eTeam, GC.getInfo(eLoopVictory).getType(), iLandPctX100, iLandNeed, iPopPctX100, iPopNeed, kTeam.getVictoryCountdown(eLoopVictory));
++		int iPartsBuilt = 0;
++		int iPartsMinimum = 0;
++		int iPartsMaximum = 0;
++		bool bMinimumComplete = false;
++		CvString szProjectParts;
++		bool const bProjectVictory = getSASGameSummaryVictoryProjectState(eTeam, eLoopVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
++		if (iLandNeed > 0 || iPopNeed > 0 || bProjectVictory)
++		{
++			int const iCountdown = kTeam.getVictoryCountdown(eLoopVictory);
++			int const iTravelTurns = (bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eLoopVictory) : -1);
++			logSASGameSummary("GAME_SUMMARY_VICTORY_PROGRESS turn=%d team=%d victory=%s landPctX100=%d landNeed=%d popPctX100=%d popNeed=%d projectVictory=%d launched=%d countdown=%d arrivalTurn=%d canLaunch=%d launchSuccessPercent=%d travelTurns=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
++				iGameTurn, eTeam, GC.getInfo(eLoopVictory).getType(), iLandPctX100, iLandNeed, iPopPctX100, iPopNeed, bProjectVictory, bProjectVictory && iCountdown >= 0, iCountdown, iCountdown < 0 ? -1 : iGameTurn + iCountdown, bProjectVictory && kTeam.canLaunch(eLoopVictory), bProjectVictory ? kTeam.getLaunchSuccessRate(eLoopVictory) : -1, iTravelTurns, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
++		}
+ 	}
+ 	if (gGameSummaryLogLevel >= 2) logSASGameSummaryTeamProjects(eTeam, iGameTurn);
+ }
+@@ -2479,12 +2684,12 @@ static void logSASGameSummaryPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ 	kPrevious.iHistoryEspionage = iHistoryEspionage;
+ }
+ 
+-void logSASGameSummaryTurn(int iGameTurn)
++static void logSASGameSummarySnapshot(int iGameTurn, char const* szReason)
+ {
+ 	CvGame const& kGame = GC.getGame();
+-	logSASGameSummary("GAME_SUMMARY_TURN_BEGIN turn=%d elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
+-			iGameTurn, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
+-	logSASGameSummaryRunStatus("snapshot");
++	logSASGameSummary("GAME_SUMMARY_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
++			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
++	logSASGameSummaryRunStatus(szReason);
+ 	if (gGameSummaryLogLevel >= 2)
+ 	{
+ 		logSASGameSummaryMapBonusTotals(iGameTurn);
+@@ -2504,7 +2709,16 @@ void logSASGameSummaryTurn(int iGameTurn)
+ 			logSASGameSummaryTeamSnapshot(eLoopTeam, iGameTurn);
+ 	}
+ 	if (gGameSummaryLogLevel >= 2) logSASGameSummaryBattleBuckets(iGameTurn);
+-	logSASGameSummary("GAME_SUMMARY_TURN_END turn=%d", iGameTurn);
++	logSASGameSummary("GAME_SUMMARY_TURN_END turn=%d reason=%s", iGameTurn, szReason);
++	g_iSASGameSummaryLastFullSnapshotTurn = iGameTurn;
++}
++
++void logSASGameSummaryTurn(int iGameTurn)
++{
++	// <!-- custom: Victory now forces a full snapshot immediately. If it occurs on an ordinary snapshot turn, do not repeat the same large snapshot again at end-of-turn. (GPT-5.6-Sol) -->
++	if (g_iSASGameSummaryLastFullSnapshotTurn == iGameTurn)
++		return;
++	logSASGameSummarySnapshot(iGameTurn, "interval");
+ }
+ 
+ void updateSASGameSummaryPlayerTurnState(PlayerTypes ePlayer)
+@@ -2747,6 +2961,24 @@ void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), getSASGameSummaryProjectType(eProject));
+ }
+ 
++void logSASGameSummaryVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory)
++{
++	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || eVictory == NO_VICTORY)
++		return;
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
++	int iPartsBuilt = 0;
++	int iPartsMinimum = 0;
++	int iPartsMaximum = 0;
++	bool bMinimumComplete = false;
++	CvString szProjectParts;
++	bool const bProjectVictory = getSASGameSummaryVictoryProjectState(kPlayer.getTeam(), eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
++	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
++	// <!-- custom: PROJECT_BUILT rows could only imply a spaceship launch. Record the actual launch and its exact arrival state so a Space victory no longer has to be reconstructed from component timing. (GPT-5.6-Sol) -->
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=SPACESHIP_LAUNCHED player=%d team=%d victory=%s countdown=%d arrivalTurn=%d travelTurns=%d launchSuccessPercent=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
++			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), GC.getInfo(eVictory).getType(), iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown, bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eVictory) : -1, kTeam.getLaunchSuccessRate(eVictory), iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
++}
++
+ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
+ {
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s master=%d vassal=%d", GC.getGame().getGameTurn(), bVassal ? "VASSALAGE_STARTED" : "VASSALAGE_ENDED", eMaster, eVassal);
+@@ -2754,8 +2986,11 @@ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVa
+ 
+ void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory)
+ {
++	// <!-- custom: Victory can be reported before the ordinary end-turn hook. Flush this turn's buffered map history first so the final snapshot does not precede its last plot changes or exploration. (GPT-5.6-Sol) -->
++	if (gGameSummaryLogLevel >= 2) flushSASGameSummaryTurnChanges(GC.getGame().getGameTurn());
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=VICTORY team=%d victory=%s", GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
+-	logSASGameSummaryRunStatus("victory");
++	// <!-- custom: Periodic snapshots could stop several turns before victory, leaving every civilization's exact final state unknown. Force one complete marked snapshot now; the ordinary end-turn hook suppresses a duplicate on the same turn. (GPT-5.6-Sol) -->
++	logSASGameSummarySnapshot(GC.getGame().getGameTurn(), "victory");
+ }
+ 
+ void logSASGameSummaryPlayerEliminated(PlayerTypes ePlayer)
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.h b/CvGameCoreDLL/SASGameSummaryLog.h
+index cb3f5c613..9bb3906e6 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.h
++++ b/CvGameCoreDLL/SASGameSummaryLog.h
+@@ -14,7 +14,24 @@ void startSASGameSummaryLogForLoadedSave();
+ class CvCity;
+ class CvPlot;
+ class CvUnit;
++// <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes. The empty constructor lets caller-gated hooks avoid the map lookups when game-summary logging is disabled. (GPT-5.6-Sol) -->
++struct SASGameSummaryPlotState
++{
++	SASGameSummaryPlotState();
++	explicit SASGameSummaryPlotState(CvPlot const& kPlot);
++	TerrainTypes eTerrain;
++	FeatureTypes eFeature;
++	BonusTypes eBonus;
++	ImprovementTypes eImprovement;
++	RouteTypes eRoute;
++	int aiExtraYield[NUM_YIELD_TYPES];
++};
+ void logSASGameSummaryTurn(int iGameTurn);
++// <!-- custom: Plot changes and permanent team exploration are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. The environment hook receives values already computed by CvGame::doGlobalWarming so it adds no map scan. (GPT-5.6-Sol) -->
++void flushSASGameSummaryTurnChanges(int iGameTurn);
++void recordSASGameSummaryPlotChange(CvPlot const& kPlot, SASGameSummaryPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed);
++void recordSASGameSummaryPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam);
++void logSASGameSummaryEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally);
+ void updateSASGameSummaryPlayerTurnState(PlayerTypes ePlayer);
+ void logSASGameSummaryTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer);
+ void logSASGameSummaryCityBuilt(CvCity const* pCity);
+@@ -30,6 +47,8 @@ void logSASGameSummaryGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, in
+ void logSASGameSummaryAnarchy(PlayerTypes ePlayer, bool bStart);
+ void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
+ void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
++// <!-- custom: Added the victory type so SASGameSummary can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->
++void logSASGameSummaryVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory);
+ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
+ void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory);
+ void logSASGameSummaryRunStatus(char const* szReason);
+
+diff --git a/README.md b/README.md
+index 666a79600..a78a0de5e 100644
+--- a/README.md
++++ b/README.md
+@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SAS game summary log
+ 
+-`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, exploration, environmental and map changes, project-victory progress, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index b37c5ba5e..038413c8b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -7180,7 +7180,7 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+ 
+ Base AdvCiv UWAI ranked eligible rivals, but then rolled separately for each one until a roll succeeded. This mixed two different decisions: whether the AI was willing to prepare any war and which rival was strategically best. If the preferred target failed its roll, a much weaker later candidate could still succeed by chance.
+ 
+-The clearest save-file 450 example occurred on turn 215. China rated Ethiopia at 68% war drive and distance 4, England at 7% and distance 5, and India at only 5% and distance 11. The first two rolls failed and the third succeeded, so China prepared against faraway India despite rating nearby Ethiopia far higher.
++The clearest save-file 450 example occurred on turn 215. China rated Ethiopia at 68% war drive, distance 4 and 51% of China's power; England at 7%, distance 5 and 59% power; and India at only 5%, distance 11 and 38% power. The first two rolls failed and the third succeeded, so China prepared against faraway India despite rating nearby Ethiopia far higher.
+ 
+ With `SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE` enabled, UWAI now finds the highest final adjusted drive after its existing eligibility, personality, and local-target checks, then rolls only that target. If the roll fails, the AI does not prepare a war that turn instead of falling through to a rival it judged worse. The personality roll therefore still decides whether to begin a war preparation, but random chance no longer substitutes an inferior target. Disabling the define restores the inherited independent rolls.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 22c5d3df0..19d490fec 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -153,7 +153,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+-- (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly.
++- (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won.
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact mod context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+@@ -418,7 +418,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6050+) **Large AI armies parked with nothing reachable to attack:** BBAI logging showed a major Base AdvCiv/K-Mod bug: even while at peace, with no planned war and no rival or Barbarian city it could reach, the AI could keep waiting for reinforcements and effectively lock more units into the same army so they could not be released for other duties. For example, in save file 450, a United States group grew from 6 units on T126 to 18 of the empire's 47 military units by T225, and then, after the short war, it returned to peace still holding 21 of 51 units on T247. So it concentrated about 40% of the AI's military in one city and left far fewer units available to defend the rest of its empire or pursue another opportunity, which was very problematic. To fix this, when the AI has nothing to attack, it now stops waiting for more reinforcements: if the army is already in its own territory and not immediately threatened, the AI now only keeps one modest core group ready for a future city attack. As for the excess units, they now instead leave the group and resume defending cities or preparing another expedition. Note: an army that is still abroad or in immediate danger remains together until it returns to its own territory and is no longer immediately threatened, so the fix does not break it apart while exposed. Note 2: the units can also regroup into a large army as soon as a real target or planned war appears. After the fix, confirming runs of save files 450 and 452 showed the intended behavior: in save file 452, Japan reduced its peacetime city-assault group with nothing to attack from 21 to 11 units, freeing 10 units for other duties; at the same time, the AI could still assemble large armies when a real war began, as Carthage attacked Susa with 63 units in save file 450, and China attacked Aksum with roughly 180-202 units in save file 452. See [KI#188.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military).
+ - (Requires AdvCiv-SAS 6051+) **AI war preparations no longer repeatedly gamble away their own mobilization:** BBAI logging in save file 452 showed a major UWAI issue: across all AIs, 152 war preparations began, 130 were canceled or redirected to another target, and only 17 became wars. Whenever UWAI reviewed a preparation whose war value had become negative, it converted how doubtful the plan looked into a chance to abandon it and rolled that chance on every negative review. China alone began 36 preparations: repeated abandonment rolls canceled 19, separate target-switch rolls redirected another 13, and only 2 became wars. Established preparations also used a random roll to decide when to become direct war. This could waste the military advantage and upkeep already committed to mobilization: 32 of 74 cancellations even selected the exact same target again later in the same team turn. To fix this, the AI now keeps a newly chosen plan through its first two reviews unless a hard failure, such as an illegal target or expired unprofitable preparation, requires immediate cancellation. After that, it cancels only when the personality- and game-speed-adjusted evidence reaches the tunable maximum for a clearly bad plan. It switches only when another rival is clearly better, uses a stable readiness threshold before beginning direct war, and cannot cancel and recreate the same target during one team turn; other targets remain available throughout. In the final confirming save-file 452 run, cancellations fell from 74 to 34, target switches from 22 to 15, same-turn reselections from 32 to 0, and reselections within three turns from 41 to 5, while actual wars increased from 22 to 29. Save file 450 independently confirmed no same-turn reselection, 39 preparations advancing to direct war, and 35 wars starting. See [KI#189](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars).
+ - (Requires AdvCiv-SAS 6051+) **War preparations against near-winning rivals no longer forget why the rival was chosen:** the same investigation found an AdvCiv-SAS integration bug in the victory-denial improvements from KI#184. China selected India on T237 with a war value of 320, including 300 because India threatened victory, but the inherited next-turn review omitted that urgency, saw only 17, and switched away. Reviews and alternative-target comparisons now preserve the victory-denial value; if an existing preparation later meets the same narrow distance, power, naval, and victory-timing limits used for emergency war selection, the AI can declare immediately instead of losing more turns. In the independent save-file 450 confirmation, this later direct-war path fired three times and all three declarations appeared in the game history, including wars against near-Space-victory rivals on T255 and T281. See [KI#189](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars) and [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+-- (Requires AdvCiv-SAS 6056+) **When the AI decides to prepare a war, it now chooses the rival it considers best instead of gambling on worse alternatives:** Base AdvCiv UWAI rolled separately for every eligible rival in ranked order. If its preferred target failed the random roll, it could then prepare against a much less valuable rival whose separate roll happened to succeed. For example, on turn 215 of save file 450, China rejected nearby Ethiopia despite rating it at 68% war drive, rejected England at 7%, and then selected faraway India at only 5%. To fix this, the AI now only makes one personality-based roll for its highest final-drive target: if it fails, the AI prepares no war that turn instead of attacking someone it considers worse. In the confirming save-file 450 and 452 runs, all 81 successful selections chose the highest final-drive target, while warfare remained active. This behavior is XML-tunable and can be disabled to restore the inherited independent rolls. See [KI#191](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#191---fixedimproved-base-advciv-uwai-issue-independent-target-rolls-could-reject-the-best-war-target-and-then-select-a-much-worse-rival).
++- (Requires AdvCiv-SAS 6056+) **When the AI decides to prepare a war, it now chooses the rival it considers best instead of gambling on worse alternatives:** Base AdvCiv UWAI rolled separately for every eligible rival in ranked order. If its preferred target failed the random roll, it could then prepare against a much less valuable rival whose separate roll happened to succeed. For example, on turn 215 of save file 450, China rejected nearby Ethiopia (distance 4 and only 51% of China's power) despite rating it at 68% war drive, rejected England (distance 5 and 59% power) at 7%, and then selected faraway India (distance 11 and 38% power) at only 5%. To fix this, the AI now only makes one personality-based roll for its highest final-drive target: if it fails, the AI prepares no war that turn instead of attacking someone it considers worse. In the confirming save-file 450 and 452 runs, all 81 successful selections chose the highest final-drive target, while warfare remained active. This behavior is XML-tunable and can be disabled to restore the inherited independent rolls. See [KI#191](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#191---fixedimproved-base-advciv-uwai-issue-independent-target-rolls-could-reject-the-best-war-target-and-then-select-a-much-worse-rival).
+ - (Requires AdvCiv-SAS 6054+) **AI no longer leaves potentially profitable wars to random peace rolls based on volatile estimates:** BBAI logging showed that Base AdvCiv UWAI left a potentially profitable military outcome to a random roll whenever continuing the war briefly looked worse than peace. This was already unreliable as the underlying estimate could change drastically from one turn to the next. But another issue was also that UWAI rolled again on every such review, so even an unchanged 10% chance had about a 65% chance to end the war within ten turns (because with a e.g. 10% chance each turn, the chance of never rolling peace over 10 turns is 0.9^10 ≈ 35%; therefore, the chance of rolling peace at least once is 1 - 0.9^10 ≈ 65%). Save-file 452 showed the problem: after Egypt captured population-12 Satsuma, it led Japan by 8 cities to 5, 762 power to 550 and war success 99 to 64, but its estimate briefly fell to `-32`; but then recovered to `+87` on the next turn. To fix this, instead of gambling on each uncertain estimate, the AI now has a modest commitment and risk-tolerance margin: it pushes for further gains through a small deficit, but seeks peace immediately once the result becomes decisively bad. The default XML-tunable margin is as of now 40 points below the context-sensitive peace threshold, which is always 0 or negative for AI-vs-AI wars. In the confirming run, Egypt continued through the `-32` dip, captured population-7 Tokyo, and then successfully accepted Japan's later peace request after the extended fighting became costly. Mali similarly continued through a `-7` dip but accepted India's request one turn later at `-70`. Opponents can still offer an acceptable treaty or capitulation during the margin, emergency peace remains immediate, and human peace contact keeps personality-based timing. See [KI#189.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns).
+ - (Requires AdvCiv-SAS 6054+) **Considering another war no longer makes the AI abandon an opponent it is decisively defeating:** Base AdvCiv UWAI treated other possible wars as a reason to end the current war, but that cost could overwhelm all of the current advantage. In save file 452, Mali had 7 cities against Maya's 3, 891 power against 397 and an 83-point war-success lead; nevertheless, beginning a separate preparation against India increased this cost from `-18` to `-96` and made Mali accept peace with Maya. To fix this, when the AI is already so clearly winning, a possible future war can still reduce the value of continuing the current one, but can no longer erase most of that value: the default XML-tunable limit as of now is 15%. An early before/after test on the same save file showed the intended result: instead of accepting peace, Mali continued fighting and captured another Maya city, turning its military advantage into immediate territory. In the final-tuning run, history had already diverged before this decision (due to run variety or such), so the exact case did not recur, but the full run still confirmed that clearly bad wars ended quickly. Note: this protection applies only when the current war is already profitable, the rival has fewer cities and at most half the AI's power, and the AI has a substantial war-success lead. The cap does not reduce the effects of military effort, losses, war weariness or the danger from fighting several enemies, so the AI can still seek peace normally if those costs make continuing the war unprofitable. See [KI#189.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns).
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=62990

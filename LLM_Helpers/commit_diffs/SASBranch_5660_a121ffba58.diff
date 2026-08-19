@@ -1,0 +1,229 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5660
+# Commit: a121ffba5802f868b258698e8bc647be90d5a78f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e43ac9a5a37cd7a0cd6e190d08e8e0a2b4042295
+# Title: upscale and expand moderately CvTechSplashScreen.py
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/Screens/CvDanQuayle.py
+23	18	Assets/Python/Screens/CvTechSplashScreen.py
+5	3	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/{0.981_replay_screen.JPG => 0.982_replay_screen.JPG}
+-	-	_1_AdvCiv-SAS/Images/ui_other/{0.982_dan_qayle_screen.JPG => 0.983_dan_qayle_screen.JPG}
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG
+ rename _1_AdvCiv-SAS/Images/ui_other/{0.981_replay_screen.JPG => 0.982_replay_screen.JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/ui_other/{0.982_dan_qayle_screen.JPG => 0.983_dan_qayle_screen.JPG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDanQuayle.py b/Assets/Python/Screens/CvDanQuayle.py
+index bb1d602b9..1445b30dd 100644
+--- a/Assets/Python/Screens/CvDanQuayle.py
++++ b/Assets/Python/Screens/CvDanQuayle.py
+@@ -1,5 +1,6 @@
+ ## Sid Meier's Civilization 4
+ ## Copyright Firaxis Games 2005
++#
+ # AI, UI, or other modifications
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+diff --git a/Assets/Python/Screens/CvTechSplashScreen.py b/Assets/Python/Screens/CvTechSplashScreen.py
+index 4a389462a..8e01551ed 100644
+--- a/Assets/Python/Screens/CvTechSplashScreen.py
++++ b/Assets/Python/Screens/CvTechSplashScreen.py
+@@ -1,9 +1,15 @@
+ ## Sid Meier's Civilization 4
+ ## Copyright Firaxis Games 2005
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import string
++from SASFontUtils import *
++import SASTextScale
+ 
+ localText = CyTranslator()
+ 
+@@ -35,17 +41,18 @@ class CvTechSplashScreen:
+ 		
+ 		self.iMarginSpace = 15
+ 		
+-		self.X_MAIN_PANEL = 205
+-		self.Y_MAIN_PANEL = 55
+-		self.W_MAIN_PANEL = 620
+-		self.H_MAIN_PANEL = 545
++		# <!-- custom: modest tech splash expansion (+140 width/+100 height) to reduce scrolling for long quotes/unlock lists while preserving the original visual style. (GPT-5.3-Codex) -->
++		self.W_MAIN_PANEL = 760
++		self.H_MAIN_PANEL = 645
++		self.X_MAIN_PANEL = (self.W_SCREEN - self.W_MAIN_PANEL) / 2
++		self.Y_MAIN_PANEL = (self.H_SCREEN - self.H_MAIN_PANEL) / 2
+ 		
+ 		# Upper Panel
+ 		
+ 		self.X_UPPER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
+ 		self.Y_UPPER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
+ 		self.W_UPPER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
+-		self.H_UPPER_PANEL = 200
++		self.H_UPPER_PANEL = 235
+ 		
+ 		self.X_TITLE = self.X_MAIN_PANEL + (self.W_MAIN_PANEL / 2)
+ 		self.Y_TITLE = self.Y_UPPER_PANEL + 12
+@@ -57,12 +64,12 @@ class CvTechSplashScreen:
+ 		
+ 		self.X_ICON_PANEL = self.X_UPPER_PANEL + self.iMarginSpace + 2
+ 		self.Y_ICON_PANEL = self.Y_UPPER_PANEL + self.iMarginSpace + 33
+-		self.W_ICON_PANEL = 140
++		self.W_ICON_PANEL = 150
+ 		self.H_ICON_PANEL = 135#self.H_MAIN_PANEL - (self.iMarginSpace * 2)
+ 		
+ 		self.X_QUOTE = self.X_UPPER_PANEL + self.W_ICON_PANEL + (self.iMarginSpace * 2)
+ 		self.Y_QUOTE = self.Y_UPPER_PANEL + self.iMarginSpace + 36
+-		self.W_QUOTE = 400
++		self.W_QUOTE = 500
+ 		self.H_QUOTE = self.H_UPPER_PANEL - (self.iMarginSpace * 2) - 38
+ 		
+ 		# Lower Panel
+@@ -70,17 +77,17 @@ class CvTechSplashScreen:
+ 		self.X_LOWER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
+ 		self.Y_LOWER_PANEL = self.Y_UPPER_PANEL + self.H_UPPER_PANEL + self.iMarginSpace - 10
+ 		self.W_LOWER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
+-		self.H_LOWER_PANEL = 275#self.H_MAIN_PANEL - (self.iMarginSpace * 2)
++		self.H_LOWER_PANEL = 340#self.H_MAIN_PANEL - (self.iMarginSpace * 2)
+ 		
+ 		self.X_SPECIAL_PANEL = self.X_LOWER_PANEL + self.iMarginSpace
+ 		self.Y_SPECIAL_PANEL = self.Y_LOWER_PANEL + self.iMarginSpace + 25
+ 		self.W_SPECIAL_PANEL = self.W_LOWER_PANEL - (self.iMarginSpace * 2)
+-		self.H_SPECIAL_PANEL = int(self.H_LOWER_PANEL / 2.5)#- (self.iMarginSpace * 2)
++		self.H_SPECIAL_PANEL = int(self.H_LOWER_PANEL / 2.2)#- (self.iMarginSpace * 2)
+ 		
+ 		self.X_ALLOWS_PANEL = self.X_LOWER_PANEL + self.iMarginSpace
+ 		self.Y_ALLOWS_PANEL = self.Y_SPECIAL_PANEL + self.H_SPECIAL_PANEL+ self.iMarginSpace + 15
+ 		self.W_ALLOWS_PANEL = self.W_LOWER_PANEL - (self.iMarginSpace * 2)
+-		self.H_ALLOWS_PANEL = 80
++		self.H_ALLOWS_PANEL = 95
+ 		
+ 		# Contents
+ 		
+@@ -158,10 +165,11 @@ class CvTechSplashScreen:
+ 		screen.setStyle(panelName, "Panel_Black25_Style")
+ 		
+ 		# Add Contents
++		# <!-- custom: scale unlocked-tech splash text in Original view so it follows SAS label/title font defines like other upscaled UI screens. (GPT-5.3-Codex) -->
+ 		
+ 		# Title
+ 		szTech = techInfo.getDescription()
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=4>" + szTech.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY,
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_TITLE + szTech.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY,
+ 			self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		# Tech Icon
+@@ -173,11 +181,11 @@ class CvTechSplashScreen:
+ 			#screen.addPanel( szQuotePanel, "", "", true, true,
+              #                    self.X_QUOTE, self.Y_QUOTE, self.W_QUOTE, self.H_QUOTE, PanelStyles.PANEL_STYLE_IN )
+ 		
+-			screen.addMultilineText( "Text", techInfo.getQuote(),
++			screen.addMultilineText( "Text", SASTextScale.labelText(techInfo.getQuote()),
+ 						 self.X_QUOTE, self.Y_QUOTE + self.iMarginSpace*2, self.W_QUOTE - (self.iMarginSpace * 2), self.H_QUOTE - (self.iMarginSpace * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		
+ 		# Special
+-		szSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
++		szSpecialTitle = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
+ 		szSpecialTitleWidget = "SpecialTitle"
+ 		screen.setText(szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY,
+ 			       self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -185,10 +193,10 @@ class CvTechSplashScreen:
+ 		listName = self.getNextWidgetName()
+ 		
+ 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, True, -1)[1:]
+-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
++		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
+ 		
+ 		# Allows
+-		szAllowsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + u"</font>"
++		szAllowsTitleDesc = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SAS_FONT_TAG_CLOSE
+ 		szAllowsTitleWidget = "AllowsTitle"
+ 		screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY,
+ 			       self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -238,6 +246,3 @@ class CvTechSplashScreen:
+ 		
+ 	def update(self, fDelta):
+ 		return
+-
+-		
+-
+
+diff --git a/README.md b/README.md
+index 21eab3729..8c37147d9 100644
+--- a/README.md
++++ b/README.md
+@@ -260,11 +260,13 @@ Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per
+ 
+ ### Miscallenous screens
+ 
+-Some miscallenous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen).
++Some miscallenous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG" alt="0.980_dawn_of_man_screen.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.981_replay_screen.JPG" alt="0.981_replay_screen.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.982_dan_qayle_screen.JPG" alt="0.982_dan_qayle_screen.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG" alt="0.981_tech_splash_screen.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.982_replay_screen.JPG" alt="0.982_replay_screen.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.983_dan_qayle_screen.JPG" alt="0.983_dan_qayle_screen.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG" alt="0.984_hall_of_fame_screen.JPG" width="250"></img>
+ 
+ ### Main Interface rework
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d2bcafa33..7f4a982ff 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -329,7 +329,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### UI (In-game)
+ 
+-- (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns; [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
++- (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns; [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the **Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG
+new file mode 100644
+index 000000000..1a3de791e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.981_replay_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.982_replay_screen.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/ui_other/0.981_replay_screen.JPG
+rename to _1_AdvCiv-SAS/Images/ui_other/0.982_replay_screen.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.982_dan_qayle_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.983_dan_qayle_screen.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/ui_other/0.982_dan_qayle_screen.JPG
+rename to _1_AdvCiv-SAS/Images/ui_other/0.983_dan_qayle_screen.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG
+new file mode 100644
+index 000000000..cad9e28c0
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=15069

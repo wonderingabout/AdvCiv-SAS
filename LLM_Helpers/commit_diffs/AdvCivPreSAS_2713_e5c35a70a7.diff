@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2713
+# Commit: e5c35a70a76cc178ec3c483d09ff1c9122415122
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4732d38ff525f6ebedaccd562cab0807b7ca97ae
+# Title: Increase lookahead weight in AI tech path evaluation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4cb6bab4b..d4bc05a19 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4083,8 +4083,8 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 	int iThreshold = techs[std::min(iMaxPathLength-1,
+ 			(int)techs.size()-1)].first;
+ 	// Note: this works even if depth=0 isn't big enough.
+-
+-	scaled rDepthRate = fixp(0.62); // advc: 0.8 in k146
++	// advc.550: 0.8 in K-Mod 1.46. AdvCiv had used 0.62 until version 0.99.
++	scaled const rDepthRate = fixp(2/3.);
+ 
+ 	for (int end_depth = 0; end_depth < iMaxPathLength; ++end_depth)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=665

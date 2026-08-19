@@ -1,0 +1,1416 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5692
+# Commit: fb18bad9c46e52dd2f7b30e6a7677f1a7c35b817
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f3d0345919c23538b88de252cb76c9ecf5823ff7
+# Title: add sevopedia votes - load votes before a game is started - fix incorrect vote parse (see KI#121)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+103	0	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt
+81	0	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt
+91	9	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+59	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+23	0	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+405	0	Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+72	0	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+5	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+8	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+125	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+2	1	CvGameCoreDLL/CvInfo_Building.cpp
+15	2	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+7	0	README.md
+28	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+11	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG
+ create mode 100644 Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt
+ create mode 100644 Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt
+new file mode 100644
+index 000000000..bb4455ef2
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt
+@@ -0,0 +1,103 @@
++AI, UI, or other modifications
++Created as part of AdvCiv-SAS improvements
++(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++printObjAttrs(gc.getVoteInfo(self.iVote))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++
++
++
++[DEBUG] Beginning of show obj inner fields.
++
++__class__
++
++__delattr__
++
++__dict__ = {}
++
++__doc__ = None
++
++__getattribute__
++
++__hash__
++
++__init__
++
++__instance_size__ = 368
++
++__module__ = CvPythonExtensions
++
++__new__
++
++__reduce__
++
++__reduce_ex__
++
++__repr__
++
++__setattr__
++
++__str__
++
++__weakref__ = None
++
++getButton
++
++getCivilopedia
++
++getDescription
++
++getDescriptionForm
++
++getHelp
++
++getMinVoters
++
++getPopulationThreshold
++
++getStateReligionVotePercent
++
++getStrategy
++
++getText
++
++getTextKey
++
++getTradeRoutes
++
++getType
++
++isAssignCity
++
++isCityVoting
++
++isCivVoting
++
++isDefensivePact
++
++isForceCivic
++
++isForceNoTrade
++
++isForcePeace
++
++isForceWar
++
++isFreeTrade
++
++isGraphicalOnly
++
++isMatchForLink
++
++isNoNukes
++
++isOpenBorders
++
++isSecretaryGeneral
++
++isVictory
++
++isVoteSourceType
++
++[DEBUG] End of show show obj inner fields.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt
+new file mode 100644
+index 000000000..c71d20f74
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt
+@@ -0,0 +1,81 @@
++AI, UI, or other modifications
++Created as part of AdvCiv-SAS improvements
++(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++iDbgSrc = self._getVoteSourceType()
++if iDbgSrc > -1:
++	printObjAttrs(gc.getVoteSourceInfo(iDbgSrc))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++
++
++
++[DEBUG] Beginning of show obj inner fields.
++
++__class__
++
++__delattr__
++
++__dict__ = {}
++
++__doc__ = None
++
++__getattribute__
++
++__hash__
++
++__init__
++
++__instance_size__ = 404
++
++__module__ = CvPythonExtensions
++
++__new__
++
++__reduce__
++
++__reduce_ex__
++
++__repr__
++
++__setattr__
++
++__str__
++
++__weakref__ = None
++
++getButton
++
++getCivic
++
++getCivilopedia
++
++getDescription
++
++getDescriptionForm
++
++getFreeSpecialist
++
++getHelp
++
++getReligionCommerce
++
++getReligionYield
++
++getSecretaryGeneralText
++
++getStrategy
++
++getText
++
++getTextKey
++
++getType
++
++getVoteInterval
++
++isGraphicalOnly
++
++isMatchForLink
++
++[DEBUG] End of show show obj inner fields.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 6335cc6b8..8aaaaa313 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -64,19 +64,26 @@ class SevoPediaCivic:
+ 		self.W_STATS = 250
+ 		self.H_STATS = 200
+ 
+-		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN)
+-
++		# <!-- custom: left-to-right civic page layout:
++		# civic pane -> effects -> requires (top) / vote source + force votes (bottom) -> favorites.
++		# Effects width is computed from the remaining horizontal space after placing right-side panels. (GPT-5.4?) -->
+ 		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
+ 
+ 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+-
+-		self.W_SPECIAL = self.W_REMAINING_CENTER_SPACE - self.W_REQUIRES
+-
+-		self.X_REQUIRES = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+-
++		self.W_VOTE_SOURCE = self.W_REQUIRES
++		self.W_VOTES = self.W_REQUIRES
++		xRightEdgeBeforeFavorites = self.X_FAVORITES - self.MEDIUM_MARGIN
++		self.W_RIGHT_BLOCK = self.W_REQUIRES + self.MEDIUM_MARGIN + self.W_VOTE_SOURCE
++		self.X_REQUIRES = xRightEdgeBeforeFavorites - self.W_RIGHT_BLOCK
++		self.X_VOTE_SOURCE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.X_VOTES = self.X_VOTE_SOURCE
++		self.W_SPECIAL = self.X_REQUIRES - self.MEDIUM_MARGIN - self.X_SPECIAL
+ 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+-
+-		self.Y_REQUIRES = self.Y_CIVIC_PANE + self.H_CIVIC_PANE - self.H_REQUIRES
++		self.Y_REQUIRES = self.Y_CIVIC_PANE
++		self.Y_VOTE_SOURCE = self.Y_REQUIRES
++		self.H_VOTE_SOURCE = NON_MULTILIST_PANEL_STANDARD_HEIGHT
++		self.Y_VOTES = self.Y_VOTE_SOURCE + self.H_VOTE_SOURCE + self.SMALL_MARGIN
++		self.H_VOTES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.Y_SPECIAL = self.Y_CIVIC_PANE
+ 
+@@ -99,6 +106,8 @@ class SevoPediaCivic:
+ 		self.placeStats()
+ 		self.placeSpecial()
+ 		self.placeRequires()
++		self.placeVoteSource()
++		self.placeVotes()
+ 		self.placeHistory()
+ 
+ 
+@@ -181,6 +190,12 @@ class SevoPediaCivic:
+ 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(listName, False)
+ 		szSpecialText = CyGameTextMgr().parseCivicInfo(self.iCivic, True, False, True)
++		if not szSpecialText or len(szSpecialText.strip()) == 0:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_SPECIAL + (self.H_SPECIAL / 2)
++			screen.addMultilineText(listName, SASTextScale.labelText(szText), self.X_SPECIAL + 7, yPanelCenter, self.W_SPECIAL - 14, self.H_SPECIAL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			return
+ 		# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain -->
+ 		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -196,6 +211,73 @@ class SevoPediaCivic:
+ 		iTech = gc.getCivicInfo(self.iCivic).getTechPrereq()
+ 		if (iTech > -1):
+ 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++		else:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
++			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def placeVotes(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_CIVIC_FORCE_VOTES_PANEL", ()), "", False, True, self.X_VOTES, self.Y_VOTES, self.W_VOTES, self.H_VOTES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.enableSelect(panelName, False)
++		screen.attachLabel(panelName, "", "  ")
++
++		bFound = False
++		for iVote in range(gc.getNumVoteInfos()):
++			voteInfo = gc.getVoteInfo(iVote)
++			if voteInfo and voteInfo.isForceCivic(self.iCivic):
++				szButton = ""
++				for iVoteSource in range(gc.getNumVoteSourceInfos()):
++					if voteInfo.isVoteSourceType(iVoteSource):
++						for iBuilding in range(gc.getNumBuildingInfos()):
++							bi = gc.getBuildingInfo(iBuilding)
++							if bi and bi.getVoteSourceType() == iVoteSource:
++								szButton = bi.getButton()
++								break
++						break
++				if szButton:
++					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVote, False)
++					bFound = True
++				break
++		if not bFound:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_VOTES + (self.H_VOTES / 2)
++			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTES + 7, yPanelCenter, self.W_VOTES - 14, self.H_VOTES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def placeVoteSource(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE", ()), "", False, True, self.X_VOTE_SOURCE, self.Y_VOTE_SOURCE, self.W_VOTE_SOURCE, self.H_VOTE_SOURCE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.enableSelect(panelName, False)
++		screen.attachLabel(panelName, "", "  ")
++
++		bFound = False
++		for iVoteSource in range(gc.getNumVoteSourceInfos()):
++			srcInfo = gc.getVoteSourceInfo(iVoteSource)
++			if srcInfo and srcInfo.getCivic() == self.iCivic:
++				for iBuilding in range(gc.getNumBuildingInfos()):
++					bi = gc.getBuildingInfo(iBuilding)
++					if bi and bi.getVoteSourceType() == iVoteSource:
++						screen.attachImageButton(panelName, "", bi.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++						bFound = True
++						break
++				if bFound:
++					break
++		if not bFound:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_VOTE_SOURCE + (self.H_VOTE_SOURCE / 2)
++			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTE_SOURCE + 7, yPanelCenter, self.W_VOTE_SOURCE - 14, self.H_VOTE_SOURCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 2e18f446f..dd69f2da4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -45,6 +45,7 @@ import SevoPediaHistory
+ import SevoPediaProject
+ import SevoPediaReligion
+ import SevoPediaCorporation
++import SevoPediaVote
+ import SevoPediaMovie
+ import SevoPediaMusic
+ import SevoPediaIndex
+@@ -119,6 +120,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
+ 		self.SAS_PEDIA_PYTHON_CONTENT_RELOAD = 6809
+ 		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
++		# <!-- custom: Votes category has no native engine jump widget (no WIDGET_PEDIA_JUMP_TO_VOTE), so left-list entries use WIDGET_PYTHON dispatched via this id. (Claude code Opus 4.7) -->
++		self.SAS_PEDIA_PYTHON_VOTE_ENTRY = 6811
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -253,6 +256,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheFeaturesTuple = None
+ 		self.SAS_cacheMoviesTuple = None
+ 		self.SAS_cacheMusicTuple = None
++		self.SAS_cacheVotesTuple = None
+ 		self.SAS_musicEraTracks = None
+ 		self.SAS_musicLeaderTracks = None
+ 		self.SAS_musicCivTracks = None
+@@ -354,6 +358,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconOccupation, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
+ 			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconOccupation, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
+ 			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconOccupation, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
++			(SevoScreenEnums.PEDIA_VOTES, "TXT_KEY_PEDIA_CATEGORY_VOTE", iconOccupation, "placeVotes", SevoPediaVote.SevoPediaVote, None),
+ 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
+ 		)
+ 
+@@ -1475,6 +1480,40 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				self.SAS_cacheCorporationsTuple = tuple(baseList)
+ 		return self.SAS_cacheCorporationsTuple
+ 
++	# <!-- custom: Sevopedia Votes category (grouped by vote source). No native engine jump
++	# widget for votes, so items use WIDGET_PYTHON routed via SAS_PEDIA_PYTHON_VOTE_ENTRY.
++	# Vote pages have no dedicated icon art, so the left-list button reuses the hosting
++	# building's icon. Design assumes each vote has exactly one source (modders adding
++	# multi-source votes would need to extend the grouping helper). (Claude code Opus 4.7) -->
++	def placeVotes(self):
++		self.list = self.getVoteList()
++		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getVoteInfoForList)
++
++	def getVoteList(self):
++		if self.SAS_cacheVotesTuple is None:
++			listEntries = SAS_MainGroupings.SAS_getVotesGroupedByVoteSource(self.isSortLists())
++			self.SAS_cacheVotesTuple = tuple(listEntries)
++		return self.SAS_cacheVotesTuple
++
++	def getVoteInfoForList(self, id):
++		# Return CvVoteInfo; used as the `info` arg to placeItems. The button branch in
++		# placeItems detects this function identity and routes to SAS_getVoteButton.
++		return gc.getVoteInfo(id)
++
++	def SAS_getVoteButton(self, iVote):
++		voteInfo = gc.getVoteInfo(iVote)
++		if not voteInfo:
++			return ""
++		for iSrc in range(gc.getNumVoteSourceInfos()):
++			if voteInfo.isVoteSourceType(iSrc):
++				for iBuilding in range(gc.getNumBuildingInfos()):
++					bi = gc.getBuildingInfo(iBuilding)
++					if bi and bi.getVoteSourceType() == iSrc:
++						return bi.getButton()
++				break
++		return ""
++
++
+ 	def placeConcepts(self):
+ 		self.list = self.getConceptList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, gc.getConceptInfo)
+@@ -1981,6 +2020,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 						szButtonPlaceItems = infoObj.getButton()
+ 				elif info == self.getMusicInfo:
+ 					szButtonPlaceItems = self.SAS_getMusicButton(data1)
++				elif info == self.getVoteInfoForList:
++					szButtonPlaceItems = self.SAS_getVoteButton(data1)
+ 				else:
+ 					szButtonPlaceItems = info(data1).getButton()
+ 
+@@ -2011,6 +2052,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					data2 = data1
+ 					data1 = self.SAS_PEDIA_PYTHON_MUSIC_ENTRY
+ 					bSAS_hasCustomData2 = True
++			# <!-- custom: votes use WIDGET_PYTHON routing since no native jump-to-vote widget exists. (Claude code Opus 4.7) -->
++			if info == self.getVoteInfoForList:
++				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
++				if data1 != -1:
++					data2 = data1
++					data1 = self.SAS_PEDIA_PYTHON_VOTE_ENTRY
++					bSAS_hasCustomData2 = True
+ 
+ 			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+@@ -2225,6 +2273,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 						self.pediaJump(SevoScreenEnums.PEDIA_MUSIC, item[1], True, False)
+ 						self.pediaMusic.playMusic(item[1])
+ 						return 1
++			# <!-- custom: Votes list click -> vote page. (Claude code Opus 4.7) -->
++			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_VOTES:
++				iRow = inputClass.getData()
++				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
++				if iListIdx is not None:
++					item = self.list[iListIdx]
++					if item[1] != -1:
++						return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, item[1], True, False)
+ 
+ 		# Existing TOC/INDEX buttons.
+ 		if self.SAS_USE_BOTTOM_TABS:
+@@ -2253,6 +2309,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if iData1 == self.SAS_PEDIA_PYTHON_MUSIC_PLAY:
+ 				self.pediaMusic.playMusic(iData2)
+ 				return 1
++			# <!-- custom: Vote WIDGET_PYTHON route (no native WIDGET_PEDIA_JUMP_TO_VOTE exists). (Claude code Opus 4.7) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_VOTE_ENTRY:
++				return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, iData2, True, False)
+ 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
+ 			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
+ 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 04e1aec35..91723506d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -113,6 +113,8 @@ class SevoPediaReligion:
+ 		self.placeMovie()
+ 		self.placeUnit()
+ 		self.placeRequires()
++		# <!-- custom: no V.Source panel on Religion page: vote sources with religion-yield/religion-commerce effects are global systems
++		# (UN/AP-level) and not specific to one religion entry, so showing them per-religion would be misleading. (GPT-5.3-Codex) -->
+ 		self.placeSpecial()
+ 		self.placeHistory()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index e6825dc79..bfd8454e0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -206,6 +206,29 @@ class SevoPediaSpecialist:
+ 				screen.setLabelAt(textName, scrollName, SASTextScale.titleText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+ 
++		for iVoteSource in xrange(gc.getNumVoteSourceInfos()):
++			voteSourceInfo = gc.getVoteSourceInfo(iVoteSource)
++			if voteSourceInfo.getFreeSpecialist() == self.iSpecialist:
++				iVoteTarget = -1
++				for iVote in xrange(gc.getNumVoteInfos()):
++					voteInfo = gc.getVoteInfo(iVote)
++					if voteInfo and voteInfo.isVoteSourceType(iVoteSource):
++						iVoteTarget = iVote
++						break
++				for iBuilding in xrange(gc.getNumBuildingInfos()):
++					buildingInfo = gc.getBuildingInfo(iBuilding)
++					if buildingInfo.getVoteSourceType() == iVoteSource:
++						textName = self.top.getNextWidgetName()
++						if iVoteTarget > -1:
++							# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo,
++							# while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
++							screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget)
++						else:
++							screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
++						screen.setLabelAt(textName, scrollName, SASTextScale.titleText("+1 Free (V.Sources)"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++						iY += (iButtonSize + 8)
++						break
++
+ 		if iY == 6:
+ 			textName = self.top.getNextWidgetName()
+ 			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+new file mode 100644
+index 000000000..1517580c4
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+@@ -0,0 +1,405 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++
++
++from CvPythonExtensions import *
++import CvUtil
++import SevoScreenEnums
++import SASTextScale
++from _sevopedia_helpers import *
++
++gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
++localText = CyTranslator()
++
++
++
++class SevoPediaVote:
++
++	def __init__(self, main):
++		self.iVote = -1
++		self.top = main
++		self.bHistoryExpanded = False
++
++		self.MEDIUM_MARGIN = 15
++		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++
++		self.X_VOTE_PANE = self.top.X_PEDIA_PAGE
++		self.Y_VOTE_PANE = self.top.Y_PEDIA_PAGE
++		self.W_VOTE_PANE = 200
++		self.H_VOTE_PANE = 230
++
++		self.ICON_SIZE = 64
++		self.ICON_FRAME_SIZE = 164
++		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
++		self.W_ICON = self.ICON_SIZE
++		self.H_ICON = self.ICON_SIZE
++		self.X_ICON = self.X_VOTE_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
++		self.Y_ICON = self.Y_VOTE_PANE + (self.H_VOTE_PANE - self.H_ICON) / 2 + 3
++
++		self.X_RIGHT = self.X_VOTE_PANE + self.W_VOTE_PANE + self.MEDIUM_MARGIN
++
++		self.W_SOURCE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++
++		# <!-- custom: top row order is V.Source/Civic -> Vote Source Info -> Free.Sp,
++		# while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
++		self.X_SOURCE = self.X_RIGHT
++		self.Y_SOURCE = self.Y_VOTE_PANE
++		self.H_SOURCE = (self.H_VOTE_PANE - self.SMALL_MARGIN) / 2
++
++		self.X_SOURCE_INFO = self.X_SOURCE + self.W_SOURCE + self.MEDIUM_MARGIN
++		self.Y_SOURCE_INFO = self.Y_VOTE_PANE
++		self.X_SOURCE_SPECIALIST = self.top.R_PEDIA_PAGE - self.W_SOURCE
++		self.Y_SOURCE_SPECIALIST = self.Y_VOTE_PANE
++		self.W_SOURCE_SPECIALIST = self.W_SOURCE
++		self.H_SOURCE_SPECIALIST = self.H_SOURCE
++
++		self.X_SOURCE_CIVIC = self.X_SOURCE
++		self.Y_SOURCE_CIVIC = self.Y_SOURCE + self.H_SOURCE + self.SMALL_MARGIN
++		self.W_SOURCE_CIVIC = self.W_SOURCE
++		self.H_SOURCE_CIVIC = self.H_VOTE_PANE - self.H_SOURCE - self.SMALL_MARGIN
++
++		self.W_SOURCE_INFO = self.X_SOURCE_SPECIALIST - self.MEDIUM_MARGIN - self.X_SOURCE_INFO
++		self.H_SOURCE_INFO = self.H_VOTE_PANE
++
++		self.X_VOTE_NAME = self.X_VOTE_PANE
++		self.Y_VOTE_NAME = self.Y_VOTE_PANE + self.H_VOTE_PANE + self.SMALL_MARGIN
++		self.W_VOTE_NAME = self.top.R_PEDIA_PAGE - self.X_VOTE_NAME
++		self.H_VOTE_NAME = 75
++
++		# <!-- custom: mid row is split into Requirements (left) and Effects (right), with the
++		# top row dedicated to vote-source panels and the bottom row to Background text. (GPT-5.4?) -->
++		self.X_REQUIREMENTS = self.X_VOTE_PANE
++		self.Y_REQUIREMENTS = self.Y_VOTE_NAME + self.H_VOTE_NAME + self.SMALL_MARGIN
++		self.W_REQUIREMENTS = (self.top.R_PEDIA_PAGE - self.X_REQUIREMENTS - self.MEDIUM_MARGIN) / 2
++		self.H_REQUIREMENTS = 200
++
++		self.X_FORCE_CIVICS = self.X_SOURCE_SPECIALIST
++		self.Y_FORCE_CIVICS = self.Y_REQUIREMENTS
++		self.W_FORCE_CIVICS = self.W_SOURCE
++		self.H_FORCE_CIVICS = self.H_SOURCE
++
++		self.X_SPECIAL = self.X_REQUIREMENTS + self.W_REQUIREMENTS + self.MEDIUM_MARGIN
++		self.Y_SPECIAL = self.Y_REQUIREMENTS
++		self.W_SPECIAL = self.X_FORCE_CIVICS - self.MEDIUM_MARGIN - self.X_SPECIAL
++		self.H_SPECIAL = 200
++
++		self.X_HISTORY = self.X_VOTE_PANE
++		self.Y_HISTORY = self.Y_REQUIREMENTS + self.H_REQUIREMENTS + self.SMALL_MARGIN
++		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_VOTE_PANE
++		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
++
++		self.BULLET_PREFIX = u"%c " % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
++		self.TRADE_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)
++		self.YIELD_CHARS = []
++		for iYield in range(YieldTypes.NUM_YIELD_TYPES):
++			self.YIELD_CHARS.append(gc.getYieldInfo(iYield).getChar())
++		self.COMMERCE_CHARS = []
++		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
++			self.COMMERCE_CHARS.append(gc.getCommerceInfo(iCommerce).getChar())
++
++
++
++	def interfaceScreen(self, iVote):
++		self.iVote = iVote
++
++		self.placeVotePane()
++		self.placeRequirements()
++		self.placeSourceInfo()
++		self.placeSource()
++		self.placeForceCivics()
++		self.placeSourceSpecialist()
++		self.placeSourceCivic()
++		self.placeVoteNameLegend()
++		self.placeSpecial()
++		self.placeHistory()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND")
++
++
++
++	def _getVoteSourceType(self):
++		# Return the first VoteSource this vote belongs to, or -1 if none.
++		voteInfo = gc.getVoteInfo(self.iVote)
++		if not voteInfo:
++			return -1
++		for i in range(gc.getNumVoteSourceInfos()):
++			if voteInfo.isVoteSourceType(i):
++				return i
++		return -1
++
++	def _getHostingBuilding(self, iVoteSource):
++		# Find the building that hosts this vote source (reverse lookup).
++		if iVoteSource < 0:
++			return -1
++		for iBuilding in range(gc.getNumBuildingInfos()):
++			bi = gc.getBuildingInfo(iBuilding)
++			if bi and bi.getVoteSourceType() == iVoteSource:
++				return iBuilding
++		return -1
++
++	def placeVotePane(self):
++		screen = self.top.getScreen()
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_VOTE_PANE, self.Y_VOTE_PANE, self.W_VOTE_PANE, self.H_VOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
++		iVoteSource = self._getVoteSourceType()
++		iBuilding = self._getHostingBuilding(iVoteSource)
++		szButton = ""
++		if iBuilding > -1:
++			szButton = gc.getBuildingInfo(iBuilding).getButton()
++		if szButton:
++			screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++
++
++	def placeSource(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE", ()), "", False, True, self.X_SOURCE, self.Y_SOURCE, self.W_SOURCE, self.H_SOURCE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		iVoteSource = self._getVoteSourceType()
++		iBuilding = self._getHostingBuilding(iVoteSource)
++		if iBuilding > -1:
++			bi = gc.getBuildingInfo(iBuilding)
++			screen.attachImageButton(panelName, "", bi.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++		else:
++			self._drawNoneText(screen, self.X_SOURCE, self.Y_SOURCE, self.W_SOURCE, self.H_SOURCE)
++
++
++
++	def placeRequirements(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_REQUIREMENTS", ()), "", True, False, self.X_REQUIREMENTS, self.Y_REQUIREMENTS, self.W_REQUIREMENTS, self.H_REQUIREMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++
++		voteInfo = gc.getVoteInfo(self.iVote)
++		lines = []
++		if voteInfo:
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_POPULATION_THRESHOLD", ()) + u": %d%%" % voteInfo.getPopulationThreshold())
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_MIN_VOTERS", ()) + u": %d" % voteInfo.getMinVoters())
++			iStateRelPct = voteInfo.getStateReligionVotePercent()
++			if iStateRelPct > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_STATE_RELIGION_VOTE", ()) + u": %d%%" % iStateRelPct)
++			iTradeRoutes = voteInfo.getTradeRoutes()
++			if iTradeRoutes != 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES", ()) + u": %d" % iTradeRoutes)
++
++		textName = self.top.getNextWidgetName()
++		if lines:
++			szText = u"\n".join(lines)
++		else:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
++		# <!-- custom: keep a wider inner margin so text is less cramped against panel borders. (GPT-5.4?) -->
++		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIREMENTS + 14, self.Y_REQUIREMENTS + 34, self.W_REQUIREMENTS - 28, self.H_REQUIREMENTS - 46, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def placeSourceInfo(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INFO", ()), "", True, False, self.X_SOURCE_INFO, self.Y_SOURCE_INFO, self.W_SOURCE_INFO, self.H_SOURCE_INFO, PanelStyles.PANEL_STYLE_BLUE50)
++
++		iVoteSource = self._getVoteSourceType()
++		lines = []
++		if iVoteSource > -1:
++			srcInfo = gc.getVoteSourceInfo(iVoteSource)
++			if srcInfo:
++				szNone = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INTERVAL", ()) + u": %d" % srcInfo.getVoteInterval())
++				szSecretaryText = srcInfo.getSecretaryGeneralText()
++				if not szSecretaryText:
++					szSecretaryText = szNone
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_SECRETARY_GENERAL_TEXT", ()) + u": " + szSecretaryText)
++
++				listYieldParts = []
++				for iYield in range(YieldTypes.NUM_YIELD_TYPES):
++					iChange = srcInfo.getReligionYield(iYield)
++					if iChange != 0:
++						listYieldParts.append(u"%+d%c" % (iChange, self.YIELD_CHARS[iYield]))
++				if len(listYieldParts) == 0:
++					szYields = szNone
++				else:
++					szYields = u", ".join(listYieldParts)
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_YIELDS", ()) + u": " + szYields)
++
++				listCommerceParts = []
++				for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
++					iChange = srcInfo.getReligionCommerce(iCommerce)
++					if iChange != 0:
++						listCommerceParts.append(u"%+d%c" % (iChange, self.COMMERCE_CHARS[iCommerce]))
++				if len(listCommerceParts) == 0:
++					szCommerces = szNone
++				else:
++					szCommerces = u", ".join(listCommerceParts)
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_COMMERCES", ()) + u": " + szCommerces)
++
++		textName = self.top.getNextWidgetName()
++		if lines:
++			szText = u"\n".join(lines)
++		else:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
++		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_SOURCE_INFO + 14, self.Y_SOURCE_INFO + 34, self.W_SOURCE_INFO - 28, self.H_SOURCE_INFO - 46, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def placeSourceSpecialist(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_FREE_SPECIALIST_PANEL", ()), "", False, True, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		iVoteSource = self._getVoteSourceType()
++		if iVoteSource > -1:
++			srcInfo = gc.getVoteSourceInfo(iVoteSource)
++			if srcInfo:
++				iSpecialist = srcInfo.getFreeSpecialist()
++				if iSpecialist > -1:
++					screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
++					return
++		self._drawNoneText(screen, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST)
++
++
++
++	def placeSourceCivic(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE_CIVIC_PANEL", ()), "", False, True, self.X_SOURCE_CIVIC, self.Y_SOURCE_CIVIC, self.W_SOURCE_CIVIC, self.H_SOURCE_CIVIC, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		iVoteSource = self._getVoteSourceType()
++		if iVoteSource > -1:
++			srcInfo = gc.getVoteSourceInfo(iVoteSource)
++			if srcInfo:
++				iCivic = srcInfo.getCivic()
++				if iCivic > -1:
++					screen.attachImageButton(panelName, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
++					return
++		self._drawNoneText(screen, self.X_SOURCE_CIVIC, self.Y_SOURCE_CIVIC, self.W_SOURCE_CIVIC, self.H_SOURCE_CIVIC)
++
++
++
++	def placeForceCivics(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_FORCE_CIVICS", ()), "", False, True, self.X_FORCE_CIVICS, self.Y_FORCE_CIVICS, self.W_FORCE_CIVICS, self.H_FORCE_CIVICS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		voteInfo = gc.getVoteInfo(self.iVote)
++		bFound = False
++		if voteInfo:
++			# <!-- custom: panel is sized for one civic button in AdvCiv-SAS because votes are expected
++			# to force at most one civic; if modders add multiple forced civics later, extra buttons
++			# are still appended in sequence. (GPT-5.4?) -->
++			for iCivic in range(gc.getNumCivicInfos()):
++				if voteInfo.isForceCivic(iCivic):
++					ci = gc.getCivicInfo(iCivic)
++					screen.attachImageButton(panelName, "", ci.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
++					bFound = True
++		if not bFound:
++			self._drawNoneText(screen, self.X_FORCE_CIVICS, self.Y_FORCE_CIVICS, self.W_FORCE_CIVICS, self.H_FORCE_CIVICS)
++
++
++
++	def placeVoteNameLegend(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_NAME", ()), "", True, False, self.X_VOTE_NAME, self.Y_VOTE_NAME, self.W_VOTE_NAME, self.H_VOTE_NAME, PanelStyles.PANEL_STYLE_BLUE50)
++
++		voteInfo = gc.getVoteInfo(self.iVote)
++		szVoteName = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
++		if voteInfo:
++			szVoteName = voteInfo.getDescription()
++		textName = self.top.getNextWidgetName()
++		screen.addMultilineText(textName, SASTextScale.labelText(self.BULLET_PREFIX + szVoteName), self.X_VOTE_NAME + 14, self.Y_VOTE_NAME + 34, self.W_VOTE_NAME - 28, self.H_VOTE_NAME - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def placeSpecial(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
++
++		voteInfo = gc.getVoteInfo(self.iVote)
++		lines = []
++		if voteInfo:
++			# Effect flags — emit one line per enabled flag. Keys reused where possible.
++			if voteInfo.isCityVoting():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CITY_VOTING", ()))
++			if voteInfo.isCivVoting():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CIV_VOTING", ()))
++			if voteInfo.isSecretaryGeneral():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_SECRETARY_GENERAL", ()))
++			if voteInfo.isVictory():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_VICTORY", ()))
++			if voteInfo.isFreeTrade():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FREE_TRADE", ()))
++			if voteInfo.isNoNukes():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_NO_NUKES", ()))
++			if voteInfo.isDefensivePact():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_DEFENSIVE_PACT", ()))
++			if voteInfo.isOpenBorders():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_OPEN_BORDERS", ()))
++			if voteInfo.isForcePeace():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_PEACE", ()))
++			if voteInfo.isForceNoTrade():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_NO_TRADE", ()))
++			if voteInfo.isForceWar():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_WAR", ()))
++			if voteInfo.isAssignCity():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_ASSIGN_CITY", ()))
++			iTradeRoutesEffect = voteInfo.getTradeRoutes()
++			if iTradeRoutesEffect != 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES", ()) + u": %+d%s" % (iTradeRoutesEffect, self.TRADE_CHAR))
++			bHasForcedCivic = False
++			for iCivic in range(gc.getNumCivicInfos()):
++				if voteInfo.isForceCivic(iCivic):
++					bHasForcedCivic = True
++					break
++			if bHasForcedCivic:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_CIVICS_SEE_PANEL", ()))
++
++		listName = self.top.getNextWidgetName()
++		if lines:
++			szText = u"\n".join(lines)
++		else:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
++		screen.addMultilineText(listName, SASTextScale.labelText(szText), self.X_SPECIAL + 14, self.Y_SPECIAL + 34, self.W_SPECIAL - 28, self.H_SPECIAL - 46, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
++	def placeHistory(self):
++		screen = self.top.getScreen()
++		szText = gc.getVoteInfo(self.iVote).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			20
++		)
++
++
++
++	def _drawNoneText(self, screen, iX, iY, iW, iH):
++		textName = self.top.getNextWidgetName()
++		szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
++		yCenter = iY + (iH / 2)
++		screen.addMultilineText(textName, SASTextScale.labelText(szText), iX + 7, yCenter, iW - 14, iH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def handleInput(self, inputClass):
++		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+index 9a9945330..dd5d6f8f4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+@@ -41,3 +41,4 @@ PEDIA_WORLD_SIZE_CHART	= 230
+ PEDIA_ERA_CHART		= 231
+ PEDIA_MOVIES		= 233
+ PEDIA_MUSIC		= 234
++PEDIA_VOTES		= 235
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 6c3f29792..280dbdc83 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1316,6 +1316,78 @@ def _SAS_addSection(listEntries, szHeader, items):
+ 		listEntries.append(x)
+ 
+ 
++# <!-- custom: shorten vote labels in the left list so they fit in the item bar without
++# changing global list width. We strip source prefixes (already shown by section headers),
++# then abbreviate Election -> E: and Resolution # -> R#. Full vote names remain visible on
++# the vote page itself. (GPT-5.4?) -->
++def _SAS_shortenVoteListLabel(szLabel):
++	if not szLabel:
++		return szLabel
++	szOut = szLabel
++	for szPrefix in ("U.N. ", "UN ", "Apostolic Palace "):
++		if szOut.startswith(szPrefix):
++			szOut = szOut[len(szPrefix):]
++			break
++	if szOut.startswith("Election"):
++		szRest = szOut[len("Election"):].strip()
++		if szRest:
++			return "E: " + szRest
++		return "E"
++	if szOut.startswith("Resolution #"):
++		szRest = szOut[len("Resolution #"):].strip()
++		if szRest:
++			return "R#" + szRest
++		return "R#"
++	return szOut
++
++
++# <!-- custom: sort vote sources from oldest to newest using the hosting building's
++# prerequisite AND tech progression (era, then grid X). This places Apostolic Palace
++# before United Nations in default XML. Fallback keeps deterministic order by source id.
++# (GPT-5.4?) -->
++def _SAS_getVoteSourceOldestFirstSortKey(iVoteSource):
++	for iBuilding in range(gc.getNumBuildingInfos()):
++		bi = gc.getBuildingInfo(iBuilding)
++		if bi and bi.getVoteSourceType() == iVoteSource:
++			iTech = bi.getPrereqAndTech()
++			if iTech > -1:
++				ti = gc.getTechInfo(iTech)
++				if ti:
++					return (ti.getEra(), ti.getGridX(), iVoteSource)
++			return (999, 999, iVoteSource)
++	return (999, 999, iVoteSource)
++
++
++# <!-- custom: Sevopedia Votes grouped by vote source. Each vote in current
++# CIV4VoteInfo.xml has exactly one source (isVoteSourceType true for one iVoteSource),
++# so we attribute each vote to the first matching source. Modders adding multi-source votes
++# would need custom duplication/grouping logic. (Claude code Opus 4.7 + GPT-5.4?) -->
++def SAS_getVotesGroupedByVoteSource(bSortLists):
++	listEntries = []
++	iNumVoteSources = gc.getNumVoteSourceInfos()
++	iNumVotes = gc.getNumVoteInfos()
++	listVoteSources = []
++	for iVoteSource in range(iNumVoteSources):
++		srcInfo = gc.getVoteSourceInfo(iVoteSource)
++		if srcInfo:
++			listVoteSources.append((_SAS_getVoteSourceOldestFirstSortKey(iVoteSource), iVoteSource, srcInfo))
++	listVoteSources.sort()
++	for _, iVoteSource, srcInfo in listVoteSources:
++		items = []
++		for iVote in range(iNumVotes):
++			voteInfo = gc.getVoteInfo(iVote)
++			if not voteInfo:
++				continue
++			if voteInfo.isVoteSourceType(iVoteSource):
++				items.append((_SAS_shortenVoteListLabel(voteInfo.getDescription()), iVote))
++		if bSortLists:
++			items.sort()
++		# VoteSourceInfo.getDescription() resolves to the hosting building's name
++		# (TXT_KEY_BUILDING_UNITED_NATIONS / TXT_KEY_BUILDING_APOSTOLIC_PALACE).
++		_SAS_addSection(listEntries, srcInfo.getDescription(), items)
++	return listEntries
++
++
+ def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
+ 	if szSoundScript:
+ 		return szLabel + " - " + szSoundScript
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index dc7a2bc6d..739383cdd 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -43,6 +43,11 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+ 		<NewConceptInfo>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 4d4baa1d2..64248d9b3 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -168,5 +168,13 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND_PEDIA</Tag>
+ 		<English>[H1]Sevopedia Speed Chart Legend[\H1][PARAGRAPH:2]This page explains abbreviated labels used in the Sevopedia Game Speed chart.[PARAGRAPH:2]- Inc Y XX: increments years chunk XX.[PARAGRAPH:2]- Inc M XX: increments months chunk XX.[PARAGRAPH:2]- Cal XX: calendar row XX.[PARAGRAPH:2]- S XX (N%): summary row XX at N percent of total turns.</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Tag>
++		<English>Sevopedia Votes Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Tag>
++		<English>[H1]Sevopedia Votes Legend[\H1][PARAGRAPH:2]This page explains abbreviations used in Sevopedia Votes.[PARAGRAPH:2]List abbreviations:[PARAGRAPH:2]- Source prefixes are removed in entries because votes are already grouped by source section headers (for example, United Nations and Apostolic Palace).[PARAGRAPH:2]- E: means Election.[PARAGRAPH:2]- R# means Resolution #.[PARAGRAPH:2]Panel abbreviations:[PARAGRAPH:2]- V.Source means Vote Source.[PARAGRAPH:2]- S.Civic means Vote Source Civic.[PARAGRAPH:2]- S.Free.Sp means Vote Source Free Specialist.[PARAGRAPH:2]- Fo.Civics means Forced Civics.[PARAGRAPH:2]Scope difference:[PARAGRAPH:2]- Vote Source fields (V.Source, S.Civic, S.Free.Sp, Vote Source Info) apply to the vote source itself and are shared by votes that belong to that source.[PARAGRAPH:2]- Vote fields (Requirements, Effects, Fo.Civics) apply to the selected vote/resolution entry.[PARAGRAPH:2]- Full vote names remain visible in the Name panel.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 6cbdcf660..3b71caa20 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -468,6 +468,131 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_CORPORATIONS</Tag>
+ 		<English>Corporat.</English>
+ 	</TEXT>
++	<!-- custom: Sevopedia Votes category label and grouping section headers. Grouped by vote source (UN / Apostolic Palace); current XML has all votes single-sourced. (Claude code Opus 4.7) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_VOTE</Tag>
++		<English>Votes</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE</Tag>
++		<English>V.Source</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INFO</Tag>
++		<English>Vote Source Info</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INTERVAL</Tag>
++		<English>Vote Interval</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_SECRETARY_GENERAL_TEXT</Tag>
++		<English>Secretary General Text</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_FREE_SPECIALIST_PANEL</Tag>
++		<English>S.Free.Sp</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_CIVIC_PANEL</Tag>
++		<English>S.Civic</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_YIELDS</Tag>
++		<English>Religion Yields</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_COMMERCES</Tag>
++		<English>Religion Commerces</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_REQUIREMENTS</Tag>
++		<English>Requirements</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_FORCE_CIVICS</Tag>
++		<English>Fo.Civics</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_CIVICS_SEE_PANEL</Tag>
++		<English>Force Civic(s) (see Fo.Civics)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_NAME</Tag>
++		<English>Name</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_POPULATION_THRESHOLD</Tag>
++		<English>Population Threshold</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_MIN_VOTERS</Tag>
++		<English>Minimum Voters</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_STATE_RELIGION_VOTE</Tag>
++		<English>State Religion Vote</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES</Tag>
++		<English>Trade Routes</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CITY_VOTING</Tag>
++		<English>City-level voting</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CIV_VOTING</Tag>
++		<English>Civ-level voting</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_SECRETARY_GENERAL</Tag>
++		<English>Elects Secretary General</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_VICTORY</Tag>
++		<English>Diplomatic Victory</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FREE_TRADE</Tag>
++		<English>Free Trade</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_NO_NUKES</Tag>
++		<English>No Nuclear Weapons</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_DEFENSIVE_PACT</Tag>
++		<English>Forced Defensive Pact</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_OPEN_BORDERS</Tag>
++		<English>Forced Open Borders</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_PEACE</Tag>
++		<English>Forces Peace</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_NO_TRADE</Tag>
++		<English>Forces Trade Embargo</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_WAR</Tag>
++		<English>Forces War</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_ASSIGN_CITY</Tag>
++		<English>Assigns City</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES</Tag>
++		<English>All Cities Trade Routes</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_CIVIC_FORCE_VOTES_PANEL</Tag>
++		<English>Fo.Votes</English>
++	</TEXT>
+ 	<!-- custom: full plural labels for Policy advisor tabs (Religion/Corporation) to avoid singular or abbreviated captions in footer tabs. (GPT-5.3-Codex) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POLICY_TAB_RELIGIONS</Tag>
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 76c6c0e68..244222b62 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -960,7 +960,8 @@ bool CvVoteSourceInfo::read(CvXMLLoadUtility* pXML)
+ 		m_aszExtraXMLforPass3.push_back(szTextVal);
+ 	}
+ 	pXML->SetYieldList(ReligionYield(), "ReligionYields");
+-	pXML->SetCommerceList(ReligionYield(), "ReligionCommerces");
++	// <!-- custom: fix base AdvCiv/Civ4 XML parse bug: ReligionCommerces must populate the commerce array, not the yield array; otherwise VoteSourceInfo.getReligionCommerce(...) stays 0 and Sevopedia/Vote-source displays show "None" despite non-zero XML values. See KI#121. (GPT-5.4?) -->
++	pXML->SetCommerceList(ReligionCommerce(), "ReligionCommerces");
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index d1a575be7..8ebc71237 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -698,6 +698,15 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paSpecialUnitInfo, "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paProjectInfo, "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
+ 	LoadGlobalClassInfo(GC.m_paCivicInfo, "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
++	// <!-- custom: moved CIV4VoteInfo load here from LoadPostMenuGlobals
++	// so VoteInfos are parsed at app startup instead of only after leaving the main menu.
++	// Reason: our Sevopedia Votes category would otherwise show an empty list when opened
++	// from the main menu, since gc.getNumVoteInfos() returns 0 pre-game, and Sevopedia
++	// caches that empty list. Placed AFTER CivicInfos because CIV4VoteInfo.xml references
++	// civic types via <ForceCivics>; loading it before civics triggers unknown-civic-type
++	// XML errors at launch. Safe to move: CvVoteInfo is plain XML-backed data with no
++	// per-game state. (Claude code Opus 4.7) -->
++	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
+ 	FOR_EACH_ENUM(VoteSource)
+ 		GC.getInfo(eLoopVoteSource).readPass3();
+ 	LoadGlobalClassInfo(GC.m_paLeaderHeadInfo, "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
+@@ -808,8 +817,12 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paCommandInfo, "CIV4CommandInfos", "Units", "Civ4CommandInfos/CommandInfos/CommandInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paAutomateInfo, "CIV4AutomateInfos", "Units", "Civ4AutomateInfos/AutomateInfos/AutomateInfo", false);
+ 
+-	UpdateProgressCB("Global Vote");
+-	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
++	// <!-- custom: CIV4VoteInfo load moved to LoadPreMenuGlobals (placed right
++	// after CIV4CivicInfos since <ForceCivics> references civic types) so the Sevopedia
++	// Votes category populates from the main menu too. See the matching comment there for
++	// the full rationale. (Claude code Opus 4.7) -->
++	//UpdateProgressCB("Global Vote");
++	//LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
+ 
+ 	UpdateProgressCB("Global Interface");
+ 	// advc.003j:
+
+diff --git a/README.md b/README.md
+index 96652f293..16eb7da62 100644
+--- a/README.md
++++ b/README.md
+@@ -446,6 +446,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.850_sevopedia_shortcuts (1).JPG" alt="0.850_sevopedia_shortcuts (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
+ 
+ #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
+ 
+@@ -989,6 +990,12 @@ See [/LLM_Helpers/](/LLM_Helpers/).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG" alt="gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
+ 
++#### 5.4
++
++GPT-5.4 is bad at coding, at least it's very tedious and exhausting to use. It makes many mistakes, repeatedly, overlooks fixes, is overly verbose and fails simple pattern repetition.
++
++Switching back to GPT-5.3-Codex brought great satisfaction until openai seemingly decided to reroute to GPT-5.4 forcefully, bringiing back all mistakes again. Plus, they have heavily axed usage following their Pro plan release on Plus despite claiming the opposite. Definitely not a good experience.
++
+ ### Claude AI
+ 
+ #### Claude (web chat)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index d064cca5a..4a9775321 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -156,6 +156,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
+ [119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
+ [120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players)  
++[121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4572,3 +4573,30 @@ Why not fixed:
+ Files affected:
+ 
+ - [CvGameCoreDLL/CvInfo_Civilization.cpp](/CvGameCoreDLL/CvInfo_Civilization.cpp) - `CvLeaderHeadInfo::getArtInfo()`
++
++## 121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/17whOKSiVxA88oZxGlBUwIHl2Aa5U5Z1M?usp=sharing).
++
++Observed issue:
++
++- In Sevopedia Votes, `Religion Commerces` could display `None` even when XML had non-zero values in `CIV4VoteSourceInfos.xml` under `<ReligionCommerces>`.
++
++Root cause:
++
++- In `CvVoteSourceInfo::read` (`CvInfo_Building.cpp`), the XML loader call for commerce values incorrectly targeted the yield container:
++  - `SetCommerceList(ReligionYield(), "ReligionCommerces")` (wrong target)
++- Because of that, `getReligionCommerce(i)` returned zeroes, so UI and gameplay readers saw no commerce bonuses from vote sources.
++
++Fix:
++
++- In `CvVoteSourceInfo::read` (`CvInfo_Building.cpp`), changed the loader target, from `SetCommerceList(ReligionYield(), "ReligionCommerces")` (wrong target) to `SetCommerceList(ReligionCommerce(), "ReligionCommerces")` (the proper commerce container).
++
++Result:
++
++- Vote-source commerce values now load from XML correctly.
++- Sevopedia Votes `Vote Source Info` now shows the expected non-zero religion commerce entries instead of `None` when data exists.
++
++File changed:
++
++- [CvGameCoreDLL/CvInfo_Building.cpp](/CvGameCoreDLL/CvInfo_Building.cpp)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1f40d9bf8..d6b8f4827 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -327,6 +327,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5510+) Sevopedia — Corporations: **reworked** and **beautified** the page layout, with **new Competes With, Bonuses Consumed, Bonuses Generated, and Movie** panels. Exposed `getBonusProduced` to Python in [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), and [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp) so the new generated-bonus panel is cleanly supported. See [Sevopedia reworks (Corporations)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category).
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context.
+ - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. See [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
++- (Requires AdvCiv-SAS 5692+) Added a new **Votes category** featuring **exhaustive XML info** about `VoteSourceInfos` (e.g., Apostolic Palace, UN) and `VoteInfo` (e.g., a resolution/vote). Votes are **grouped by vote source**, **abriged** in item bar when necessary. Example of panels include notably Source Civic, Source Free Specialist, Vote's Requirements, Effects, Force Civics. Also added if relevant corresponding Vote Source and Vote panels or blurbs in Sevopedia Civics and Specialists. Moved Vote XML **read time** from to `CvXMLLoadUtility::LoadPostMenuGlobals` to `CvXMLLoadUtility::LoadPreMenuGlobals` (else sevopedia votes would be empty until a game is started). Added **"Legend"** text similarly. See also [KI#121](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array) and [Sevopedia reworks (Votes category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Units: (Requires AdvCiv-SAS 5672+) Notably prepend **unique names** before the **pedia text** in the History (i.e. the "Background") panel; e.g., "Albert Einstein", "Plato" for the Great Scientist unit; "Sargon", "Sun Tzu" for the Great General unit. See also [Sevopedia reworks (Unit List)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index ae76c4f75..c44c6811f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -18,6 +18,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
+ &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
++&emsp;&emsp;[example 0.41 Votes category (VoteInfo and VoteSourceInfos)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos)  
+ &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+ &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
+@@ -143,6 +144,16 @@ Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and
+ 
+ Note: it mirrors the log button we added in the Info screen's [new Timeline Tab](/README.md#new-advisors) we added in AdvCiv-SAS.
+ 
++#### example 0.41 Votes category (VoteInfo and VoteSourceInfos)
++
++More recently, we have added using widget python trick as well a new Votes category that was totally absent from Civ4, with the help of Claude code Opus 4.7 thanks a lot and GPT-5.4? (which i wanted to be GPT-5.3-Codex but it seems openai or such annoyingly forcibly rerouted it to 5.4 causing all kinds of issues or complications) and GPT-5.3-Codex? (not sure if it reverted back somewhere along the way).
++
++It features both VoteInfo and VoteSourceInfos. See [Main Changes Guide](/README.md#main-changes-guide).
++
++<img src="../Images/sevopedia/0.860_sevopedia_votes (1).JPG" alt="0.860_sevopedia_votes (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.860_sevopedia_votes (2).JPG" alt="0.860_sevopedia_votes (2).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
++
+ #### example 0.5: Handicap Chart category
+ 
+ New Sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (1).JPG
+new file mode 100644
+index 000000000..40d5b77ba
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (2).JPG
+new file mode 100644
+index 000000000..400d924a4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG
+new file mode 100644
+index 000000000..265aebe6a
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=21 omittedFiles=1 embeddedPatchBytes=65471

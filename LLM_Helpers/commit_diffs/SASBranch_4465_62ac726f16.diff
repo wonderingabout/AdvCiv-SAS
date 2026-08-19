@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4465
+# Commit: 62ac726f161755abaafc11416543d300cb00f898
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e55e32292f9facc316e4e451ebb74b1704918d2b
+# Title: add info about sarmatian empire and dahomey tribes good candidates for new civs but will see about these i mean etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+index 9cc670c79..7613a3204 100644
+--- a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
++++ b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+@@ -29,7 +29,9 @@ certain in this case i mean anyways)
+ 0.1) new civ see specific text file in new content folders:
+ 
+ 1) Kingdom of Benin (Nigeria)
+-2) Xiongnu Empire: https://en.wikipedia.org/wiki/List_of_ancient_great_powers#Xiongnu and https://en.wikipedia.org/wiki/Xiongnu , snow terrain, unused part of world, long history, rivalry with china, great wall of china built because of them, etc, very useful and connected to main things + desert not farm from them so maybe snow+desert civ etc
++2) Xiongnu Empire: https://en.wikipedia.org/wiki/List_of_ancient_great_powers#Xiongnu and https://en.wikipedia.org/wiki/Xiongnu , snow terrain, unused part of world, long history, rivalry with china, great wall of china built because of them, etc, very useful and connected to main things + desert not farm from them so maybe snow+desert civ etc , also https://www.nouvelobs.com/sciences/20230425.OBS72611/les-xiongnu-un-empire-multiethnique-en-mongolie-antique-ou-les-femmes-jouaient-un-role-crucial.html
++3) Sarmatian Empire: many women give them valkyrie unit from FFH2 that i just discovered i mean anyways, plus geographical lcoation ideal spot still not used, for example https://www.reddit.com/r/history/comments/aordvx/comment/eg3u3l1/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button and https://en.wikipedia.org/wiki/Sarmatians
++4) Dahomey tribes (Benin but not Kingdom), interesting for rivalry or clear confusion or associated with kiongdom of benin by name even though unrelated unless i'm mistaken, give them the flurry from FFH2? But not right as in accurate skin color, indeed african people were black colored but flurry is white todo find better as in more suited unit or something else or other civ but maybe solution about this at least i mean anyways etc
+ 2) Canada:
+ 3) Iceland: 
+ 4) Alaska?: https://en.wikipedia.org/wiki/History_of_Alaska
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2239

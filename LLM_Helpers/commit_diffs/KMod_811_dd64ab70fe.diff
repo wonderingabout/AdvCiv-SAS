@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 811
+# Commit: dd64ab70fe9d36064ef0cd6cb5480b3c5ba2f96c
+# History segment: K-Mod history
+# Parent used for diff: cd08a0531bc4a3df1df317065eba97f91139c798
+# Title: Fixed some problems in new version of AI_calculateConquestVictoryStage.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e0c6c54ab..5c6de936e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19059,7 +19059,7 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
+ 	{
+ 		const CvTeamAI& kLoopTeam = GET_TEAM(i);
+ 
+-		if (i == getTeam() || !kLoopTeam.isAlive() && kLoopTeam.isMinorCiv())
++		if (i == getTeam() || !kLoopTeam.isAlive() || kLoopTeam.isMinorCiv())
+ 			continue;
+ 
+ 		if (kTeam.isHasMet(i) && !kLoopTeam.isAVassal())
+@@ -19107,16 +19107,20 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
+ 		if ((bVeryStrong || bWarmonger || (bTopRank && bHateful)) && iKnownCivs >= iStartCivs*3/4 && iConqueredCivs >= iKnownCivs/3)
+ 		{
+ 			// level 3
+-			if (bVeryStrong && bTopRank && iKnownCivs >= iStartCivs)
++			if (iKnownCivs >= iStartCivs && bTopRank && (bVeryStrong || (bWarmonger && bHateful && iConqueredCivs >= iKnownCivs/2)))
+ 			{
+ 				// finally, before confirming level 4, check that there is at least one team that we can declare war on.
+ 				for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
+ 				{
+ 					const CvTeamAI& kLoopTeam = GET_TEAM(i);
+-					if (kLoopTeam.isAlive() && kTeam.isHasMet(i) && kTeam.canEventuallyDeclareWar(i))
++					if (kLoopTeam.isAlive() && kTeam.isHasMet(i))
+ 					{
+-						if (kTeam.AI_startWarVal(i, WARPLAN_TOTAL) > 0)
++						if (kTeam.AI_getWarPlan(i) != NO_WARPLAN ||
++							(kTeam.canEventuallyDeclareWar(i) /*&& kTeam.AI_startWarVal(i, WARPLAN_TOTAL) > 0*/))
++						{
+ 							return 4;
++						}
++						// I'm still not sure about the WarVal thing, because that value actually depends on conquest victory flags.
+ 					}
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1706

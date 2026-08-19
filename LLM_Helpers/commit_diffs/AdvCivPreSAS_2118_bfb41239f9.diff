@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2118
+# Commit: bfb41239f9304f87ab8d0cb9c25de756c74ce27e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6e9c70fe907320e86368433b9964d0ecd63e1a07
+# Title: Amend UWAI army power calc tweak
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/MilitaryBranch.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 8943a3902..e31a005d4 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -219,10 +219,11 @@ double MilitaryBranch::HomeGuard::initUnitsTrained(int numNonNavalUnits,
+ 	/* 1.5 per city might be more realistic, but humans tend to use especially
+ 	   weak units as garrisons. */
+ 	if(owner.isHuman())
+-		number = std::min(owner.getNumCities(), numNonNavalUnits);
++		number = owner.getNumCities();
+ 	/*	Units with aggressive AI types can be temporarily tied down defending cities.
+ 		So the count based on AI types isn't reliable. */
+ 	else number = scaled::max(number, fixp(10/7.) * owner.getNumCities()).round();
++	number = std::min(number, numNonNavalUnits);
+ 	double r = 0;
+ 	/* Splitting nonNavyPower up based on counted units tends to overestimate
+ 	   the power of garrisons because these tend to be cheaper units. On the
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=946

@@ -1,0 +1,148 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1467
+# Commit: e81f6eab039ec78a56a030233e466ef698cf2241
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4da54ee51c258cd8bb16c6171e22634e0aa8a91e
+# Title: BS2: Added a new configuration: "Final_Release"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/Project/AdvCiv.sln
+30	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+9	1	CvGameCoreDLL/Project/Makefile
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.sln b/CvGameCoreDLL/Project/AdvCiv.sln
+index 3f0999bd4..8cfe0f39b 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.sln
++++ b/CvGameCoreDLL/Project/AdvCiv.sln
+@@ -10,6 +10,7 @@ Global
+ 		Assert|Win32 = Assert|Win32
+ 		Assert-fast|Win32 = Assert-fast|Win32
+ 		Debug|Win32 = Debug|Win32
++		Final_Release-fast|Win32 = Final_Release-fast|Win32
+ 		Profile|Win32 = Profile|Win32
+ 		Release|Win32 = Release|Win32
+ 		Release-fast|Win32 = Release-fast|Win32
+@@ -21,6 +22,8 @@ Global
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert-fast|Win32.Build.0 = Assert-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.ActiveCfg = Debug|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.Build.0 = Debug|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.ActiveCfg = Final_Release-fast|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.Build.0 = Final_Release-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.ActiveCfg = Profile|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.Build.0 = Profile|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release|Win32.ActiveCfg = Release|Win32
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 4008033fd..e625822e4 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -25,6 +25,10 @@
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Final_Release-fast|Win32">
++      <Configuration>Final_Release-fast</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
+   </ItemGroup>
+   <ItemGroup>
+     <ClCompile Include="..\BetterBTSAI.cpp" />
+@@ -271,6 +275,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <CLRSupport>true</CLRSupport>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final_Release-fast|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <CLRSupport>true</CLRSupport>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -292,6 +301,9 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final_Release-fast|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -387,6 +399,24 @@ bin\jom build</NMakeReBuildCommandLine>
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final_Release-fast|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Final_Release
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile  /NOLOGO
++bin\jom build</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Final_Release
++nmake clean /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile  /NOLOGO
++bin\jom build</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Final_Release
++nmake clean /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++
+   <ItemDefinitionGroup>
+   </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index f51a554a3..4c101f158 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -153,6 +153,7 @@ FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
+ GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
+ Debug_CFLAGS=/MD /Zi /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
+ Release_CFLAGS= /MD /O2 /Oy /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
++Final_Release_CFLAGS= /MD /O2 /Oy /Oi /G7 /arch:SSE2 /GL $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ 
+ PRECOMPILE_CFLAGS1 = /Yu"
+ PRECOMPILE_CFLAGS2 = CvGameCoreDLL.h" /Fp"$(Target_PCH)"
+@@ -161,6 +162,8 @@ PRECOMPILE_CFLAGS2 = CvGameCoreDLL.h" /Fp"$(Target_PCH)"
+ GLOBAL_LDFLAGS=/DLL /NOLOGO /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /TLBID:1 /PDB:"$(Target_PDB)" $(CUSTOM_LDFLAGS) $(PROJECT_LDFLAGS)
+ Debug_LDFLAGS=/INCREMENTAL /DEBUG /IMPLIB:"$(Target_STATICLIB)" $(GLOBAL_LDFLAGS)
+ Release_LDFLAGS=/INCREMENTAL:NO /OPT:REF /OPT:ICF $(GLOBAL_LDFLAGS)
++Final_Release_LDFLAGS=/LTCG /INCREMENTAL:NO /OPT:REF /OPT:ICF $(GLOBAL_LDFLAGS)
++Final_Profile_LDFLAGS=/LTCG /DEBUG /IMPLIB:"$(Target_STATICLIB)" $(GLOBAL_LDFLAGS)
+ 
+ #### INCLUDES ####
+ GLOBAL_INCS=/I"$(TOOLKIT)/include" /I"$(PSDK)/Include" /I"$(PSDK)/Include/mfc"
+@@ -214,9 +217,14 @@ LDFLAGS = $(Release_LDFLAGS)
+ CFLAGS  = $(Release_CFLAGS) /Zi
+ LDFLAGS = $(Debug_LDFLAGS)
+ !ENDIF
++!IF "$(TARGET)" == "Final_Release"
++CFLAGS  = $(Final_Release_CFLAGS)
++LDFLAGS = $(Final_Release_LDFLAGS)
++!ENDIF
++
+ 
+ !IFNDEF CFLAGS
+-!ERROR Target "$(TARGET)" not supported. Supported targets: Debug Release Assert Profile
++!ERROR Target "$(TARGET)" not supported. Supported targets: Debug Release Assert Profile Final_Release
+ !ENDIF
+ 
+ !IF EXIST ($(FILE_DEPENDS))
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6172

@@ -1,0 +1,343 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3443
+# Commit: 158447752d60dea7612b00be12e03bf280d3284c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6febe1f05a85e5832d5d2b45ee24f9393e46fbbd
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/Sevopedia_CIV4GameText.xml
+22	27	CvGameCoreDLL/CvCityAI.cpp
+3	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvEnums.h
+5	1	CvGameCoreDLL/CvGameTextMgr.cpp
+2	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+4	0	CvGameCoreDLL/CvSelectionGroupAI.h
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+2	1	CvGameCoreDLL/Project/AdvCiv.cppcheck
+3	3	CvGameCoreDLL/Project/Makefile.project
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/Sevopedia_CIV4GameText.xml b/Assets/XML/Text/Sevopedia_CIV4GameText.xml
+index de9603f51..4efaae421 100644
+--- a/Assets/XML/Text/Sevopedia_CIV4GameText.xml
++++ b/Assets/XML/Text/Sevopedia_CIV4GameText.xml
+@@ -63,7 +63,7 @@
+ 	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
+ 		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
+ 		 it. Concetti di BTS, es. Conceptos BtS)
+-		 because I'm replacing this key in CIV4GameText_advc.008.xml. -->
++		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
+ 		<English>Unique Buildings</English>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 368270c6e..197c9f0a0 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -535,7 +535,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	int const iWarSuccessRating = kTeam.AI_getWarSuccessRating();
+ 	int iEnemyPowerPerc = kTeam.AI_getEnemyPowerPercent(true);
+-	// <cdtw> (Comment from Dave_uk:)
++	// <cdtw> (comment by Dave_uk:)
+ 	/*  if we are the weaker part of a team, and have a land war in our primary
+ 		area, increase enemy power percent so we aren't overconfident due to a
+ 		powerful team-mate who may not actually be that much help */
+@@ -1304,7 +1304,8 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	if	(!bLandWar && !bAssault && getCommerceRate(COMMERCE_CULTURE) == 0)
+ 	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, bAggressiveAI ? 10 : 20, 0, bAggressiveAI ? 33 : 50))
++		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE,
++			bAggressiveAI ? 10 : 20, 0, bAggressiveAI ? 33 : 50))
+ 		{
+ 			if (gCityLogLevel >= 2) logBBAI("      City %S uses minimal culture rate", getName().GetCString());
+ 			return;
+@@ -1321,7 +1322,7 @@ void CvCityAI::AI_chooseProduction()
+ 	// BBAI TODO: Check that this works to produce early rushes on tight maps
+ 	if (!bUnitExempt && !bGetBetterUnits && bCapitalArea && (iAreaBestFoundValue < iMinFoundValue * 2))
+ 	{	//Building city hunting stack.
+-		if ((getDomainFreeExperience(DOMAIN_LAND) == 0) &&
++		if (getDomainFreeExperience(DOMAIN_LAND) == 0 &&
+ 			getYieldRate(YIELD_PRODUCTION) > 4)
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE,
+@@ -1339,8 +1340,8 @@ void CvCityAI::AI_chooseProduction()
+ 		if (iStartAttackStackRand > 0)
+ 		{
+ 			int iAttackCityCount = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY);
+-			int iAttackCount = iAttackCityCount + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK);
+-
++			int iAttackCount = iAttackCityCount +
++					kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK);
+ 			if (iAttackCount == 0)
+ 			{
+ 				if (!bFinancialTrouble)
+@@ -1418,23 +1419,20 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	// K-Mod.
+-	if (iProjectValue < 0 && (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE3) ||
++	if (iProjectValue < 0 &&
++		(kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE3) ||
+ 		!(bLandWar && iWarSuccessRating < 30)))
+ 	{
+ 		eBestProject = AI_bestProject(&iProjectValue);
+ 	} // K-Mod end
+ 
+ 	int iSpreadUnitThreshold = 1000;
+-
+ 	if (bLandWar)
+-	{
+ 		iSpreadUnitThreshold += 800 - 10*iWarSuccessRating;
+-	}
+-	iSpreadUnitThreshold += 1000*getPlot().plotCount(PUF_isUnitAIType, UNITAI_MISSIONARY, -1, getOwner());
+-
++	iSpreadUnitThreshold += 1000*getPlot().plotCount(
++			PUF_isUnitAIType, UNITAI_MISSIONARY, -1, getOwner());
+ 	UnitTypes eBestSpreadUnit = NO_UNIT;
+ 	int iBestSpreadUnitValue = -1;
+-
+ 	if (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE) &&
+ 		!bAssault) // advc.131 (from MNAI)
+ 	{
+@@ -1444,21 +1442,18 @@ void CvCityAI::AI_chooseProduction()
+ 		iSpreadUnitRoll *= (200 + std::max(iProjectValue, iBestBuildingValue));
+ 		iSpreadUnitRoll /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
+ 		// K-Mod end
+-
+-		if (AI_bestSpreadUnit(true, true, iSpreadUnitRoll, &eBestSpreadUnit, &iBestSpreadUnitValue))
++		if (AI_bestSpreadUnit(true, true, iSpreadUnitRoll,
++			&eBestSpreadUnit, &iBestSpreadUnitValue) &&
++			iBestSpreadUnitValue > iSpreadUnitThreshold)
+ 		{
+-			if (iBestSpreadUnitValue > iSpreadUnitThreshold)
++			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
+ 			{
+-				if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
+-				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 1", getName().GetCString());
++				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 1", getName().GetCString());
+ 					return;
+-				}
+-				FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 			}
++			FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 		}
+ 	}
+-
+ 	// K-Mod
+ 	if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
+ 	{
+@@ -1623,7 +1618,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 		// K-Mod (the spies stuff used to be lower down)
+ 		int iNumSpies = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_SPY);
+-				// advc.001j: Commented out
++				// advc.001j: already counted
+ 				//+ kPlayer.AI_getNumTrainAIUnits(UNITAI_SPY);
+ 		int iNeededSpies = iNumCitiesInArea / 3;
+ 		if (bPrimaryArea)
+@@ -1665,14 +1660,13 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 		// K-Mod end
+ 
+-		if (bDefenseWar || (bLandWar && (iWarSuccessRating < -30)))
++		if (bDefenseWar || (bLandWar && iWarSuccessRating < -30))
+ 		{
+ 			UnitTypeWeightArray panicDefenderTypes;
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_RESERVE, 100));
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_COUNTER, 100));
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 100));
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_ATTACK, 100));
+-
+ 			if (AI_chooseLeastRepresentedUnit(panicDefenderTypes, (bGetBetterUnits ? 40 : 60) - iWarSuccessRating/3))
+ 			{
+ 				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose panic defender", getName().GetCString());
+@@ -1743,7 +1737,9 @@ void CvCityAI::AI_chooseProduction()
+ 				return;
+ 			}*/
+ 			// K-Mod
+-			// Reduce the max time when at war (arbitrary - but then again, this part of the AI is not for strategy. It's for flavour.)
++			/*	Reduce the max time when at war
++				(arbitrary - but then again, this part of the AI is not for strategy.
++				It's for flavour.) */
+ 			if (kArea.getAreaAIType(getTeam()) != AREAAI_NEUTRAL)
+ 				iWonderTime = iWonderTime * 2/3;
+ 			// And only build the wonder if it is at least as valuable as the building we would have chosen anyway.
+@@ -1753,8 +1749,7 @@ void CvCityAI::AI_chooseProduction()
+ 				if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", getName().GetCString());
+ 				pushOrder(ORDER_CONSTRUCT, eBestWonder);
+ 				return;
+-			}
+-			// K-Mod end
++			} // K-Mod end
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5cb61b023..75cbf8981 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2329,11 +2329,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 				it.hasNext(); ++it)
+ 			{
+ 				if (it->isCity() &&
+-					// advc.001: Don't give away rival cities in the fog of war
++					/*	<advc.001> Don't give away rival cities in the fog of war.
++						And same-area check added. */
+ 					!kUnitOwner.canFound(kMissionPlot, false, false) &&
+-					/*	advc: This check was missing. Since there is no other reason
+-						for !canFound, it doesn't really matter. */
+-					it->sameArea(kMissionPlot))
++					it->sameArea(kMissionPlot)) // </advc.001>
+ 				{
+ 					szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_ACTION_CANNOT_FOUND",
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 9e05ee803..9b61d7cff 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -67,7 +67,7 @@ DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
+ 
+ /*  advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+ 	still possible to add values through XML only.
+-	(The harcoded world sizes are used by map scripts.) */
++	(The harcoded world sizes are used by map scripts and random events.) */
+ enum WorldSizeTypes
+ {
+ 	NO_WORLDSIZE = -1,
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 6f09bcebe..77e7d1795 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1950,7 +1950,11 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPl
+ 		if (m_apbPromotion.empty())
+ 		{
+ 			for (int i = 0; i < (GC.getNumUnitInfos() * MAX_PLAYERS); i++)
++			{
++				/*	advc (note): The EXE frees this through DeInitialize -
++					or so we shall hope ... */
+ 				m_apbPromotion.push_back(new int[iPromotionInfos]);
++			}
+ 		}
+ 
+ 		for (int i = 0; i < (GC.getNumUnitInfos() * MAX_PLAYERS); i++)
+@@ -7801,7 +7805,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	CvGame const& kGame = GC.getGame(); // advc
+ 
+ 	// show debug info if cheat level > 0 and alt down
+-	bool bAlt = GC.altKey();
++	bool const bAlt = GC.altKey();
+ 	if (bAlt && //(gDLL->getChtLvl() > 0))
+ 		kGame.isDebugMode()) // advc.135c
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1fe71c650..e9fa239cb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4882,8 +4882,8 @@ bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
+ }
+ 
+ 
+-bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible,  /* <advc.001> */
+-	bool bIgnoreFoW) const
++bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible,
++	/* <advc.001> */ bool bIgnoreFoW) const
+ {
+ 	if (!bIgnoreFoW)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 46e81b510..a8fcde4c2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6161,7 +6161,7 @@ int CvPlayerAI::AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bE
+ 	/*if (getNumCities() == 1 && getCurrentEra() == kGame.getStartEra())
+ 		iScale/=2;*/ // I expect we'll want to be building mostly units until we get a second city.
+ 	// <advc.131> Replacing the above
+-	if(bVeryEarly)
++	if (bVeryEarly)
+ 	{
+ 		iScale = scaled(iScale,
+ 				iVeryEarlyPopThresh - getCapital()->getPopulation() + 1).round();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index b79032ded..b0c4be202 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -104,4 +104,8 @@ protected:
+ 	int m_iGroupAttackY;
+ };
+ 
++/*  advc.003k: If this fails, then you've probably added a data member (directly)
++	to CvSelectionGroupAI. */
++BOOST_STATIC_ASSERT(sizeof(CvSelectionGroupAI) == 36 + sizeof(CvSelectionGroup));
++
+ #endif
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 0261c27b4..a14cae844 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -554,7 +554,7 @@ void InvasionGraph::Node::logTypicalUnits()
+ 					m_kReport.leaderName(m_eAgent), iAgentCost, iAgentPow);
+ 		}
+ 	}
+-	m_kReport.log("");
++	m_kReport.logNewline();
+ }
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.cppcheck b/CvGameCoreDLL/Project/AdvCiv.cppcheck
+index 2d05c239c..131892aef 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.cppcheck
++++ b/CvGameCoreDLL/Project/AdvCiv.cppcheck
+@@ -5,7 +5,8 @@
+ 	 it should be easy to tell that the code is working as intended.
+ 	 In particular, the "shadowed local variable ...Anon..." warnings
+ 	 are spurious and "condition always true/false" warnings are guesswork;
+-	 usually false positives. -->
++	 usually false positives.
++	 Note that this comment gets deleted when Cppcheck modifies this file. -->
+ <project version="1">
+     <builddir>AdvCiv-cppcheck-build-dir</builddir>
+     <platform>win32W</platform>
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index 1650de48a..be6d3e51c 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -13,11 +13,11 @@ PROJECT_Profile_CFLAGS = /DPROFILE_AI_AUTO_PLAY
+ PROJECT_LDFLAGS = /DEF:CvGameCoreDLL.def
+ PRECOMPILE_DEPENDENCIES = 
+ # Should use these extra flags for debugging (i.e. when debugging errors that
+-# aren't reproducible with non-optimizing debug builds). Replacing
+-# /O2 with just e.g. /Oi /Ot /Ob1 is also worth a try, or a debug build w/o /RTC1;
++# aren't reproducible with non-optimizing debug builds). Replacing /O2
++# with just e.g. /Oi /Ot /Ob1 is also worth a try, or a debug build without /RTC1;
+ # that would have to be done through the actual Makefile.
+ #PROJECT_DebugOpt_CFLAGS = /DFASSERT_ENABLE /Oy-
+-# Can use global optimizations along with debug symbols; it's just slow to compile.
++# Can use whole-program optimization along with debug symbols; it's just slow to compile.
+ # (But not recommended for profiling with Very Sleepy; I've seen it e.g. claim
+ # that _alldiv calls all sorts of GameCoreDLL functions.)
+ #PROJECT_DebugOpt_CFLAGS = /GL
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=12925

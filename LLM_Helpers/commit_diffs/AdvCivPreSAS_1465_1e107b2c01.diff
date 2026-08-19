@@ -1,0 +1,997 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1465
+# Commit: 1e107b2c01f79eca77c363287362969920c635e6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ca97437c30287693ed66423df16f4734a1ff976e
+# Title: Unit layer updated upon visible moves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	3	Assets/Python/Screens/CvMainInterface.py
+2	2	CvGameCoreDLL/CvCity.cpp
+4	1	CvGameCoreDLL/CvEnums.h
+31	24	CvGameCoreDLL/CvGame.cpp
+4	4	CvGameCoreDLL/CvGame.h
+72	68	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvPlot.cpp
+75	69	CvGameCoreDLL/CvSelectionGroup.cpp
+2	4	CvGameCoreDLL/CvSelectionGroup.h
+11	0	CvGameCoreDLL/CyEnumsInterface.cpp
+5	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+3	2	CvGameCoreDLL/CyGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 0bb919d54..d27aa52e7 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5466,6 +5466,25 @@ class CvMainInterface:
+ 		kGLM = CyGlobeLayerManager()
+ 		#iNumLayers = kGLM.getNumLayers() # advc.003: unused
+ 		iCurrentLayerID = kGLM.getCurrentLayerID()
++		# <advc.004m>
++		# The layer id is meaningless to the DLL. Translate to enum type.
++		eCurrentLayerType = GlobeLayerTypes.NO_GLOBE_LAYER
++		if iCurrentLayerID >= 0:
++			szLayerName = kGLM.getLayer(iCurrentLayerID).getName()[:3]
++			if szLayerName == "STR":
++				eCurrentLayerType = GlobeLayerTypes.GLOBE_LAYER_STRATEGY
++			elif szLayerName == "TRA":
++				eCurrentLayerType = GlobeLayerTypes.GLOBE_LAYER_TRADE
++			elif szLayerName == "UNI":
++				eCurrentLayerType = GlobeLayerTypes.GLOBE_LAYER_UNIT
++			elif szLayerName == "RES":
++				eCurrentLayerType = GlobeLayerTypes.GLOBE_LAYER_RESOURCE
++			elif szLayerName == "REL":
++				eCurrentLayerType = GlobeLayerTypes.GLOBE_LAYER_RELIGION
++			elif szLayerName == "CUL":
++				eCurrentLayerType = GlobeLayerTypes.GLOBE_LAYER_CULTURE
++		gc.getGame().reportCurrentLayer(eCurrentLayerType)
++		# </advc.004m>
+ 
+ 		# Positioning things based on the visibility of the globe
+ 		if kEngine.isGlobeviewUp():
+@@ -5492,9 +5511,10 @@ class CvMainInterface:
+ 		if kEngine.isGlobeviewUp() and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL:
+ 			# set up panel
+ 			# <advc.004z>
+-			bUnitLayer = (kGLM.getLayer(iCurrentLayerID).getName() == "UNITS")
+-			# Clauses for RESOURCES and UNITS added. Would rather set NumOptions to 0, but GlobeLayerManager is not part of the SDK, apparently.
+-			if iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (MainOpt.isResourceIconOptions() or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or not bUnitLayer):
++			bUnitLayer = (eCurrentLayerType == GlobeLayerTypes.GLOBE_LAYER_UNIT)
++			bResourceLayer = (eCurrentLayerType == GlobeLayerTypes.GLOBE_LAYER_RESOURCE)
++			# Clause for the resource layer added. Could instead set NumOptions to 0 in CvGame::getGlobeLayers, but then the resource layer wouldn't update properly when ResourceIconOptions is toggled in the BUG menu.
++			if iCurrentLayerID >= 0 and kGLM.getLayer(iCurrentLayerID).getNumOptions() > 0 and (not bResourceLayer or MainOpt.isResourceIconOptions()):
+ 				# </advc.004z>
+ 				bHasOptions = True		
+ 			else:
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index dd0f2808c..425427449 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4297,7 +4297,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 
+ 		GET_PLAYER(getOwnerINLINE()).changeWondersScore(getWonderScore((BuildingClassTypes)(b.getBuildingClassType())) * iChange);
+ 		// <advc.004w>
+-		if(GC.getGameINLINE().isResourceLayer()) {
++		if(GC.getGameINLINE().getCurrentLayer() == GLOBE_LAYER_RESOURCE) {
+ 			// Update text of resource indicators (CvGameTextMgr::setBonusExtraHelp)
+ 			PlayerTypes eDirtyPlayer = NO_PLAYER;
+ 			if(::isNationalWonderClass(eBuildingClass) &&
+@@ -12196,7 +12196,7 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 					}
+ 				} /* <advc.004w> Update text of resource indicators
+ 					 (CvGameTextMgr::setBonusExtraHelp) */
+-				if(kOwner.getID() == g.getActivePlayer() && g.isResourceLayer())
++				if(kOwner.getID() == g.getActivePlayer() && g.getCurrentLayer() == GLOBE_LAYER_RESOURCE)
+ 				{
+ 					gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+ 					// advc.003p:
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 396d708b5..85029681a 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2783,7 +2783,10 @@ enum GlobeLayerTypes
+ 	GLOBE_LAYER_CULTURE,
+ 
+ #ifdef _USRDLL
+-	NUM_GLOBE_LAYER_TYPES
++	NUM_GLOBE_LAYER_TYPES,
++	// <advc.004m>
++	NO_GLOBE_LAYER,
++	GLOBE_LAYER_UNKNOWN // </advc.004m>
+ #endif
+ };
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index fe05b83da..0971f7db0 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -438,9 +438,7 @@ void CvGame::showDawnOfMan() {
+ 
+ 	if(getActivePlayer() == NO_PLAYER)
+ 		return;
+-	// This appears to require an argument, and I've no clue which
+-	//gDLL->getPythonIFace()->callFunction("CvScreensInterface", "showDawnOfMan");
+-	// Instead (based on CvAllErasDawnOfManScreenEventManager.py):
++	// Based on CvAllErasDawnOfManScreenEventManager.py
+ 	CvPopupInfo* dom = new CvPopupInfo();
+ 	dom->setButtonPopupType(BUTTONPOPUP_PYTHON_SCREEN);
+ 	dom->setText(L"showDawnOfMan");
+@@ -776,8 +774,9 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_ActivePlayerCycledGroups.clear(); // K-Mod
+ 	m_bAITurn = false; // advc.106b
+ 	m_iTurnLoadedFromSave = -1; // advc.044
+-	m_bResourceLayer = bConstructorCall; // advc.004m
+-	m_bResourceLayerSet = false; // advc.003d
++	// <advc.004m>
++	m_eCurrentLayer = GLOBE_LAYER_UNKNOWN;
++	m_bLayerFromSavegame = false; // </advc.004m>
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
+ }
+@@ -2526,10 +2525,9 @@ void CvGame::update()
+ 				autoSave(true); // advc.106l
+ 			/* <advc.004m> This seems to be the earliest place where bubbles can
+ 			   be enabled w/o crashing. */
+-			if(bStartTurn && getBugOptionBOOL("MainInterface__StartWithResourceIcons", true)) {
+-				m_bResourceLayer = true;
++			if(bStartTurn && getBugOptionBOOL("MainInterface__StartWithResourceIcons", true))
+ 				gDLL->getEngineIFace()->setResourceLayer(true);
+-			} // </advc.004m>
++			// </advc.004m>
+ 		}
+ 
+ 		if (getNumGameTurnActive() == 0)
+@@ -2572,13 +2570,6 @@ void CvGame::update()
+ 		} // <advc.705>
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+ 			m_riseFall.restoreDiploText(); // </advc.705>
+-		// <advc.003d>
+-		if(!m_bResourceLayerSet) {
+-			gDLL->getEngineIFace()->setResourceLayer(isResourceLayer());
+-			/*  This flag is only for performance - who knows how long the
+-				line above takes (even if bOn already equals bResourceLayer). */
+-			m_bResourceLayerSet = true;
+-		} // </advc.003d>
+ 	}
+ 	PROFILE_END();
+ 	stopProfilingDLL(false);
+@@ -9474,7 +9465,11 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	pStream->Read((int*)&m_eWinner);
+ 	pStream->Read((int*)&m_eVictory);
+ 	pStream->Read((int*)&m_eGameState);
+-
++	// <advc.004m>
++	if(uiFlag >= 5) {
++		pStream->Read((int*)&m_eCurrentLayer);
++		m_bLayerFromSavegame = true;
++	} // </advc.004m>
+ 	pStream->ReadString(m_szScriptData);
+ 
+ 	if (uiFlag < 1)
+@@ -9669,6 +9664,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	uiFlag = 2; // advc.701: R&F option
+ 	uiFlag = 3; // advc.052
+ 	uiFlag = 4; // advc.003b: Civs and teams EverAlive tracked
++	uiFlag = 5; // advc.004m
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9717,6 +9713,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eWinner);
+ 	pStream->Write(m_eVictory);
+ 	pStream->Write(m_eGameState);
++	pStream->Write(m_eCurrentLayer); // advc.004m
+ 
+ 	pStream->WriteString(m_szScriptData);
+ 
+@@ -9863,10 +9860,7 @@ void CvGame::allGameDataRead() {
+ // Called once the EXE signals that graphics have been initialized (w/e that means exactly)
+ void CvGame::onGraphicsInitialized() {
+ 
+-	// advc.004m:
+-	m_bResourceLayer = getBugOptionBOOL("MainInterface__StartWithResourceIcons", true);
+-	/*  (This causes the resource layer to be disabled when returning to the
+-		main menu rather than remembering the latest status.) */
++	// (Nothing to be done here currently)
+ }
+ // </advc.003>
+ 
+@@ -11289,14 +11283,27 @@ double CvGame::goodyHutEffectFactor(
+ } // </advc.314>
+ 
+ // <advc.004m>
+-bool CvGame::isResourceLayer() const {
++GlobeLayerTypes CvGame::getCurrentLayer() const {
+ 
+-	return m_bResourceLayer;
++	return m_eCurrentLayer;
+ }
+ 
+-void CvGame::reportResourceLayerToggled() {
++// Used by CvMainInterface.py to tell the DLL which layer is active
++void CvGame::reportCurrentLayer(GlobeLayerTypes eLayer) {
+ 
+-	m_bResourceLayer = !m_bResourceLayer;
++	if(m_bLayerFromSavegame && eLayer != m_eCurrentLayer) {
++		m_bLayerFromSavegame = false;
++		/*  Can only enable the Resource and Unit layer from the DLL. That should
++			suffice as the others are only available in Globe view and we're not
++			in Globe view right after loading.
++			(Could call CyGlobeLayerManager.setCurrentLayer via Python to set a
++			Globe-only layer. Would have to write a Python function that first uses
++			CyGlobeLayerManager to figure out the proper layer id based on m_eCurrentLayer.) */
++		gDLL->getEngineIFace()->setResourceLayer(m_eCurrentLayer == GLOBE_LAYER_RESOURCE);
++		if(m_eCurrentLayer == GLOBE_LAYER_UNIT || eLayer == GLOBE_LAYER_UNIT)
++			gDLL->getEngineIFace()->toggleUnitLayer(); // No setter available
++	}
++	else m_eCurrentLayer = eLayer;
+ } // </advc.004m>
+ 
+ // <advc.127b>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 3a441b7bd..7cba359b4 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -638,8 +638,8 @@ public:
+ 	std::set<int> m_ActivePlayerCycledGroups;
+ 	double goodyHutEffectFactor(bool bSpeedAdjust = true) const; // advc.314
+ 	// <advc.004m>
+-	bool isResourceLayer() const;
+-	void reportResourceLayerToggled();
++	GlobeLayerTypes getCurrentLayer() const;
++	void reportCurrentLayer(GlobeLayerTypes eLayer);		// (exposed to Python)
+ 	// </advc.004m>
+ 	// <advc.052>
+ 	bool isScenario() const;
+@@ -710,12 +710,11 @@ protected:
+ 	bool m_bNukesValid;
+ 	int m_iScreenWidth, m_iScreenHeight; // advc.061
+ 	bool m_bAITurn; // advc.106b
+-	bool m_bResourceLayer; // advc.004m
+-	bool m_bResourceLayerSet; // advc.003d
+ 	bool m_bFeignSP; // advc.135c
+ 	bool m_bScenario; // advc.052
+ 	bool m_bAllGameDataRead; // advc.003
+ 	bool m_bDoMShown; // advc.004x
++	bool m_bLayerFromSavegame; // advc.004m
+ 
+ 	HandicapTypes m_eHandicap;
+ 	HandicapTypes m_eAIHandicap; // advc.127
+@@ -724,6 +723,7 @@ protected:
+ 	TeamTypes m_eWinner;
+ 	VictoryTypes m_eVictory;
+ 	GameStateTypes m_eGameState;
++	GlobeLayerTypes m_eCurrentLayer; // advc.004m
+ 	PlayerTypes m_eEventPlayer;
+ 
+ 	CvString m_szScriptData;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 4223abfda..66f7bf309 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1564,44 +1564,44 @@ void CvGame::doControl(ControlTypes eControl)
+ 	CvPlot* pPlot;
+ 
+ 	if (!canDoControl(eControl))
+-	{
+ 		return;
+-	}
+-
++	// <advc.003>
++	CvDLLInterfaceIFaceBase* pInterface = gDLL->getInterfaceIFace();
++	CvDLLEngineIFaceBase* pEngine = gDLL->getEngineIFace(); // </advc.003>
+ 	switch (eControl)
+ 	{
+ 	case CONTROL_CENTERONSELECTION:
+-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
++		pInterface->lookAtSelectionPlot();
+ 		break;
+ 
+ 	case CONTROL_SELECTYUNITTYPE:
+-		pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++		pHeadSelectedUnit = pInterface->getHeadSelectedUnit();
+ 		if (pHeadSelectedUnit != NULL)
+ 		{
+-			gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, true, false);
++			pInterface->selectGroup(pHeadSelectedUnit, false, true, false);
+ 		}
+ 		break;
+ 
+ 	case CONTROL_SELECTYUNITALL:
+-		pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++		pHeadSelectedUnit = pInterface->getHeadSelectedUnit();
+ 		if (pHeadSelectedUnit != NULL)
+ 		{
+-			//gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
+-			gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, true, true); // K-Mod
++			//pInterface->selectGroup(pHeadSelectedUnit, false, false, true);
++			pInterface->selectGroup(pHeadSelectedUnit, false, true, true); // K-Mod
+ 		}
+ 		break;
+ 
+ 	case CONTROL_SELECT_HEALTHY:
+ 		{
+ 			CvUnit* pGroupHead = NULL;
+-			pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+-			gDLL->getInterfaceIFace()->clearSelectionList();
++			pHeadSelectedUnit = pInterface->getHeadSelectedUnit();
++			pInterface->clearSelectionList();
+ 			if (pHeadSelectedUnit != NULL)
+ 			{
+ 				pPlot = pHeadSelectedUnit->plot();
+ 				std::vector<CvUnit *> plotUnits;
+ 				getPlotUnits(pPlot, plotUnits);
+-				gDLL->getInterfaceIFace()->selectionListPreChange();
++				pInterface->selectionListPreChange();
+ 				for (int iI = 0; iI < (int) plotUnits.size(); iI++)
+ 				{
+ 					pUnit = plotUnits[iI];
+@@ -1621,25 +1621,25 @@ void CvGame::doControl(ControlTypes eControl)
+ 									pGroupHead = pUnit;
+ 								}
+ 
+-								gDLL->getInterfaceIFace()->insertIntoSelectionList(pUnit, false, false, true, true, true);
++								pInterface->insertIntoSelectionList(pUnit, false, false, true, true, true);
+ 							}
+ 						}
+ 					}
+ 				}
+ 
+-				gDLL->getInterfaceIFace()->selectionListPostChange();
++				pInterface->selectionListPostChange();
+ 			}
+ 		}
+ 		break;
+ 
+ 	case CONTROL_SELECTCITY:
+-		if (gDLL->getInterfaceIFace()->isCityScreenUp())
++		if (pInterface->isCityScreenUp())
+ 		{
+ 			cycleCities();
+ 		}
+ 		else
+ 		{
+-			gDLL->getInterfaceIFace()->selectLookAtCity();
++			pInterface->selectLookAtCity();
+ 		}
+ 		break;
+ 
+@@ -1647,36 +1647,36 @@ void CvGame::doControl(ControlTypes eControl)
+ 		CvCity* pCapitalCity = GET_PLAYER(getActivePlayer()).getCapitalCity();
+ 		if (pCapitalCity != NULL)
+ 		{
+-			gDLL->getInterfaceIFace()->selectCity(pCapitalCity);
++			pInterface->selectCity(pCapitalCity);
+ 		}
+ 		break;
+ 	}
+ 	case CONTROL_NEXTCITY:
+-		if (gDLL->getInterfaceIFace()->isCitySelection())
++		if (pInterface->isCitySelection())
+ 		{
+-			cycleCities(true, !(gDLL->getInterfaceIFace()->isCityScreenUp()));
++			cycleCities(true, !(pInterface->isCityScreenUp()));
+ 		}
+ 		else
+ 		{
+-			gDLL->getInterfaceIFace()->selectLookAtCity(true);
++			pInterface->selectLookAtCity(true);
+ 		}
+-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
++		pInterface->lookAtSelectionPlot();
+ 		break;
+ 
+ 	case CONTROL_PREVCITY:
+-		if (gDLL->getInterfaceIFace()->isCitySelection())
++		if (pInterface->isCitySelection())
+ 		{
+-			cycleCities(false, !(gDLL->getInterfaceIFace()->isCityScreenUp()));
++			cycleCities(false, !(pInterface->isCityScreenUp()));
+ 		}
+ 		else
+ 		{
+-			gDLL->getInterfaceIFace()->selectLookAtCity(true);
++			pInterface->selectLookAtCity(true);
+ 		}
+-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
++		pInterface->lookAtSelectionPlot();
+ 		break;
+ 
+ 	case CONTROL_NEXTUNIT:
+-		pPlot = gDLL->getInterfaceIFace()->getSelectionPlot();
++		pPlot = pInterface->getSelectionPlot();
+ 		if (pPlot != NULL)
+ 		{
+ 			cyclePlotUnits(pPlot);
+@@ -1684,7 +1684,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 		break;
+ 
+ 	case CONTROL_PREVUNIT:
+-		pPlot = gDLL->getInterfaceIFace()->getSelectionPlot();
++		pPlot = pInterface->getSelectionPlot();
+ 		if (pPlot != NULL)
+ 		{
+ 			cyclePlotUnits(pPlot, false);
+@@ -1701,24 +1701,24 @@ void CvGame::doControl(ControlTypes eControl)
+ 		break;
+ 
+ 	case CONTROL_LASTUNIT:
+-		pUnit = gDLL->getInterfaceIFace()->getLastSelectedUnit();
++		pUnit = pInterface->getLastSelectedUnit();
+ 
+ 		if (pUnit != NULL)
+ 		{
+-			gDLL->getInterfaceIFace()->selectUnit(pUnit, true);
+-			gDLL->getInterfaceIFace()->lookAtSelectionPlot();
++			pInterface->selectUnit(pUnit, true);
++			pInterface->lookAtSelectionPlot();
+ 		}
+ 		else
+ 		{
+ 			cycleSelectionGroups(true, false);
+ 		}
+ 
+-		gDLL->getInterfaceIFace()->setLastSelectedUnit(NULL);
++		pInterface->setLastSelectedUnit(NULL);
+ 		break;
+ 
+ 	case CONTROL_ENDTURN:
+ 	case CONTROL_ENDTURN_ALT:
+-		if (gDLL->getInterfaceIFace()->isEndTurnMessage())
++		if (pInterface->isEndTurnMessage())
+ 		{
+ 			CvMessageControl::getInstance().sendTurnComplete();
+ 		}
+@@ -1733,42 +1733,39 @@ void CvGame::doControl(ControlTypes eControl)
+ 		break;
+ 
+ 	case CONTROL_PING:
+-		gDLL->getInterfaceIFace()->setInterfaceMode(INTERFACEMODE_PING);
++		pInterface->setInterfaceMode(INTERFACEMODE_PING);
+ 		break;
+ 
+ 	case CONTROL_SIGN:
+-		gDLL->getInterfaceIFace()->setInterfaceMode(INTERFACEMODE_SIGN);
++		pInterface->setInterfaceMode(INTERFACEMODE_SIGN);
+ 		break;
+ 
+ 	case CONTROL_GRID:
+-		gDLL->getEngineIFace()->SetGridMode(!(gDLL->getEngineIFace()->GetGridMode()));
++		pEngine->SetGridMode(!pEngine->GetGridMode());
+ 		break;
+ 
+ 	case CONTROL_BARE_MAP:
+-		gDLL->getInterfaceIFace()->toggleBareMapMode();
++		pInterface->toggleBareMapMode();
+ 		break;
+ 
+ 	case CONTROL_YIELDS:
+-		gDLL->getInterfaceIFace()->toggleYieldVisibleMode();
++		pInterface->toggleYieldVisibleMode();
+ 		break;
+ 
+ 	case CONTROL_RESOURCE_ALL:
+-		gDLL->getEngineIFace()->toggleResourceLayer();
+-		/*  advc.004m: Need to keep track of toggling in order to be able to
+-			tell whether it's enabled. */
+-		GC.getGame().reportResourceLayerToggled();
++		pEngine->toggleResourceLayer();
+ 		break;
+ 
+ 	case CONTROL_UNIT_ICONS:
+-		gDLL->getEngineIFace()->toggleUnitLayer();
++		pEngine->toggleUnitLayer();
+ 		break;
+ 
+ 	case CONTROL_GLOBELAYER:
+-		gDLL->getEngineIFace()->toggleGlobeview();
++		pEngine->toggleGlobeview();
+ 		break;
+ 
+ 	case CONTROL_SCORES:
+-		gDLL->getInterfaceIFace()->toggleScoresVisible();
++		pInterface->toggleScoresVisible();
+ 		break;
+ 
+ 	case CONTROL_LOAD_GAME:
+@@ -1783,7 +1780,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 		if(isOption(GAMEOPTION_RISE_FALL)) {
+ 			pInfo = new CvPopupInfo(BUTTONPOPUP_RF_RETIRE);
+ 			if(pInfo != NULL)
+-				gDLL->getInterfaceIFace()->addPopup(pInfo, getActivePlayer(), true);
++				pInterface->addPopup(pInfo, getActivePlayer(), true);
+ 		}
+ 		else // </advc.706>
+ 		// K-Mod. (original code moved into CvGame::retire)
+@@ -1792,7 +1789,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 			if (NULL != pInfo)
+ 			{
+ 				pInfo->setData1(2);
+-				gDLL->getInterfaceIFace()->addPopup(pInfo, getActivePlayer(), true);
++				pInterface->addPopup(pInfo, getActivePlayer(), true);
+ 			}
+ 		}
+ 		// K-Mod end
+@@ -1831,41 +1828,42 @@ void CvGame::doControl(ControlTypes eControl)
+ 					// CTD if loading fails, so let's make sure that the file is good.
+ 					std::ifstream quickSaveFile(quickSavePath);
+ 					if(quickSaveFile.good()) {
+-						gDLL->getInterfaceIFace()->exitingToMainMenu(quickSavePath.c_str());
++						pInterface->exitingToMainMenu(quickSavePath.c_str());
+ 						break;
+ 					}
+ 				}
++				FAssertMsg(false, "Failed to find quicksave");
+ 			} // </advc.003d>
+ 			gDLL->QuickLoad();
+ 		}
+ 		break;
+ 
+ 	case CONTROL_ORTHO_CAMERA:
+-		gDLL->getEngineIFace()->SetOrthoCamera(!(gDLL->getEngineIFace()->GetOrthoCamera()));
++		pEngine->SetOrthoCamera(!pEngine->GetOrthoCamera());
+ 		break;
+ 
+ 	case CONTROL_CYCLE_CAMERA_FLYING_MODES:
+-		gDLL->getEngineIFace()->CycleFlyingMode(1);
++		pEngine->CycleFlyingMode(1);
+ 		break;
+ 
+ 	case CONTROL_ISOMETRIC_CAMERA_LEFT:
+-		gDLL->getEngineIFace()->MoveBaseTurnLeft();
++		pEngine->MoveBaseTurnLeft();
+ 		break;
+ 
+ 	case CONTROL_ISOMETRIC_CAMERA_RIGHT:
+-		gDLL->getEngineIFace()->MoveBaseTurnRight();
++		pEngine->MoveBaseTurnRight();
+ 		break;
+ 
+ 	case CONTROL_FLYING_CAMERA:
+-		gDLL->getEngineIFace()->SetFlying(!(gDLL->getEngineIFace()->GetFlying()));
++		pEngine->SetFlying(!pEngine->GetFlying());
+ 		break;
+ 
+ 	case CONTROL_MOUSE_FLYING_CAMERA:
+-		gDLL->getEngineIFace()->SetMouseFlying(!(gDLL->getEngineIFace()->GetMouseFlying()));
++		pEngine->SetMouseFlying(!pEngine->GetMouseFlying());
+ 		break;
+ 
+ 	case CONTROL_TOP_DOWN_CAMERA:
+-		gDLL->getEngineIFace()->SetSatelliteMode(!(gDLL->getEngineIFace()->GetSatelliteMode()));
++		pEngine->SetSatelliteMode(!pEngine->GetSatelliteMode());
+ 		break;
+ 
+ 	case CONTROL_CIVILOPEDIA:
+@@ -1905,23 +1903,23 @@ void CvGame::doControl(ControlTypes eControl)
+ 		break;
+ 
+ 	case CONTROL_TURN_LOG:
+-		if (!gDLL->GetWorldBuilderMode() || gDLL->getInterfaceIFace()->isInAdvancedStart())
++		if (!gDLL->GetWorldBuilderMode() || pInterface->isInAdvancedStart())
+ 		{
+-			gDLL->getInterfaceIFace()->toggleTurnLog();
++			pInterface->toggleTurnLog();
+ 		}
+ 		break;
+ 
+ 	case CONTROL_CHAT_ALL:
+-		if (!gDLL->GetWorldBuilderMode() || gDLL->getInterfaceIFace()->isInAdvancedStart())
++		if (!gDLL->GetWorldBuilderMode() || pInterface->isInAdvancedStart())
+ 		{
+-			gDLL->getInterfaceIFace()->showTurnLog(CHATTARGET_ALL);
++			pInterface->showTurnLog(CHATTARGET_ALL);
+ 		}
+ 		break;
+ 
+ 	case CONTROL_CHAT_TEAM:
+-		if (!gDLL->GetWorldBuilderMode() || gDLL->getInterfaceIFace()->isInAdvancedStart())
++		if (!gDLL->GetWorldBuilderMode() || pInterface->isInAdvancedStart())
+ 		{
+-			gDLL->getInterfaceIFace()->showTurnLog(CHATTARGET_TEAM);
++			pInterface->showTurnLog(CHATTARGET_TEAM);
+ 		}
+ 		break;
+ 
+@@ -1947,17 +1945,17 @@ void CvGame::doControl(ControlTypes eControl)
+ 		break;
+ 
+ 	case CONTROL_GLOBE_VIEW:
+-		gDLL->getEngineIFace()->toggleGlobeview();
++		pEngine->toggleGlobeview();
+ 		break;
+ 
+ 	case CONTROL_DETAILS:
+-		gDLL->getInterfaceIFace()->showDetails();
++		pInterface->showDetails();
+ 		break;
+ 
+ 	case CONTROL_ADMIN_DETAILS:
+ 		if (GC.getInitCore().getAdminPassword().empty())
+ 		{
+-			gDLL->getInterfaceIFace()->showAdminDetails();
++			pInterface->showAdminDetails();
+ 		}
+ 		else
+ 		{
+@@ -1965,7 +1963,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 			if (NULL != pInfo)
+ 			{
+ 				pInfo->setData1((int)CONTROL_ADMIN_DETAILS);
+-				gDLL->getInterfaceIFace()->addPopup(pInfo, NO_PLAYER, true);
++				pInterface->addPopup(pInfo, NO_PLAYER, true);
+ 			}
+ 		}
+ 		break;
+@@ -1989,7 +1987,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(4);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, getActivePlayer(), true);
++					pInterface->addPopup(pInfo, getActivePlayer(), true);
+ 				}
+ 			} // advc.007
+ 		}
+@@ -2005,7 +2003,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 			pInfo = new CvPopupInfo(BUTTONPOPUP_FREE_COLONY);
+ 			if (pInfo)
+ 			{
+-				gDLL->getInterfaceIFace()->addPopup(pInfo);
++				pInterface->addPopup(pInfo);
+ 			}
+ 		}
+ 		break;
+@@ -2014,7 +2012,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 		pInfo = new CvPopupInfo(BUTTONPOPUP_DIPLOMACY);
+ 		if (NULL != pInfo)
+ 		{
+-			gDLL->getInterfaceIFace()->addPopup(pInfo);
++			pInterface->addPopup(pInfo);
+ 		}
+ 		break;
+ 
+@@ -2086,7 +2084,9 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
+ 	kUnit.m_strName = "UNITS";
+ 	kUnit.m_strButtonHelpTag = "TXT_KEY_GLOBELAYER_UNITS";
+ 	kUnit.m_strButtonStyle = "Button_HUDGlobeUnit_Style";
+-	kUnit.m_iNumOptions = NUM_UNIT_OPTION_TYPES;
++	kUnit.m_iNumOptions =
++			(GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
++			NUM_UNIT_OPTION_TYPES);
+ 	kUnit.m_bGlobeViewRequired = false;
+ 	aLayers.push_back(kUnit);
+ 
+@@ -2094,6 +2094,10 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
+ 	kResource.m_strName = "RESOURCES";
+ 	kResource.m_strButtonHelpTag = "TXT_KEY_GLOBELAYER_RESOURCES";
+ 	kResource.m_strButtonStyle = "Button_HUDBtnResources_Style";
++	/*  advc.004z (comment): Could check and enforce
++		getBugOptionBOOL("MainInterface__ResourceIconOptions", false)
++		here, but then the BUG option would require a restart. Therefore,
++		this is done in CvMainInterface.py (updateGlobeviewButtons) instead. */
+ 	kResource.m_iNumOptions = NUM_RESOURCE_OPTION_TYPES;
+ 	kResource.m_bGlobeViewRequired = false;
+ 	aLayers.push_back(kResource);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7fecb5d0e..6f94286ee 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3755,7 +3755,7 @@ void CvPlot::removeGoody()
+ {
+ 	setImprovementType(NO_IMPROVEMENT);
+ 	// <advc.004z>
+-	if(GC.getGameINLINE().isResourceLayer() && isVisibleToWatchingHuman())
++	if(GC.getGameINLINE().getCurrentLayer() == GLOBE_LAYER_RESOURCE && isVisibleToWatchingHuman())
+ 		gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+ 	// </advc.004z>
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 676a6b510..b548bdb34 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -329,71 +329,70 @@ void CvSelectionGroup::doTurnPost() {
+ 
+ 
+ bool CvSelectionGroup::showMoves(
+-		CvPlot const& fromPlot) const // advc.102
++		CvPlot const& kFromPlot) const // advc.102
+ {
+-	if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || GC.getGameINLINE().isSimultaneousTeamTurns()
+-			|| gDLL->getEngineIFace()->isGlobeviewUp()) // advc.102
++	if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) ||
++			GC.getGameINLINE().isSimultaneousTeamTurns())
+ 		return false;
+ 
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-		// <advc.003> To reduce indentation
+ 		if(!kLoopPlayer.isAlive() || !kLoopPlayer.isHuman())
+-			continue;
++			continue; // advc.003
+ 		CvUnit* pHeadUnit = getHeadUnit();
+ 		if(pHeadUnit == NULL)
+-			continue; // </advc.003>
++			continue;
+ 		if (pHeadUnit->isEnemy(kLoopPlayer.getTeam()))
+ 		{
+ 			if (kLoopPlayer.isOption(PLAYEROPTION_SHOW_ENEMY_MOVES))
+-			{
+ 				return true;
+-			} // <advc.003>
+ 			else continue; 
+ 		}
+ 		if(!kLoopPlayer.isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
+-			continue; // </advc.003>
++			continue;
+ 		// <advc.102> Hide uninteresting friendly moves
+-		PlayerTypes groupOwner = m_eOwner;
+-		TeamTypes spectator = kLoopPlayer.getTeam();
+-		CvPlot const& toPlot = *plot();
+-		PlayerTypes fromOwner = fromPlot.getOwnerINLINE();
+-		PlayerTypes toOwner = toPlot.getOwnerINLINE();
+-		bool isAwayFromHome = groupOwner != toOwner || groupOwner != fromOwner;
+-		bool isInSpectatorsBorders = (fromOwner != NO_PLAYER &&
+-				spectator == TEAMID(fromOwner)) || (toOwner != NO_PLAYER &&
+-				spectator == TEAMID(toOwner));
+-		bool showWorkers = GC.getDefineINT("SHOW_FRIENDLY_WORKER_MOVES"),
+-			   showShips = GC.getDefineINT("SHOW_FRIENDLY_SEA_MOVES"),
+-		  // Also refers to Executives; those have the same Unit AI
+-		showMissionaries = GC.getDefineINT("SHOW_FRIENDLY_MISSIONARY_MOVES");
+-		bool enteringOrLeaving = plot()->isVisible(spectator, false) !=
+-				fromPlot.isVisible(spectator, false);
+-		if(isInSpectatorsBorders) // Just to avoid cycling through the units
++		PlayerTypes eGroupOwner = m_eOwner;
++		TeamTypes eObs = kLoopPlayer.getTeam();
++		CvPlot const& kToPlot = *plot();
++		PlayerTypes eFromOwner = kFromPlot.getOwnerINLINE();
++		PlayerTypes eToOwner = kToPlot.getOwnerINLINE();
++		bool bAwayFromHome = (eGroupOwner != eToOwner || eGroupOwner != eFromOwner);
++		bool bInSpectatorsBorders = ((eFromOwner != NO_PLAYER &&
++				eObs == TEAMID(eFromOwner)) || (eToOwner != NO_PLAYER &&
++				eObs == TEAMID(eToOwner)));
++		bool bShowWorkers = GC.getDefineINT("SHOW_FRIENDLY_WORKER_MOVES"),
++			 bShowShips = GC.getDefineINT("SHOW_FRIENDLY_SEA_MOVES"),
++			// Also refers to Executives; those have the same Unit AI.
++			 bShowMissionaries = GC.getDefineINT("SHOW_FRIENDLY_MISSIONARY_MOVES");
++		bool bEnteringOrLeaving = (plot()->isVisible(eObs, false) != kFromPlot.isVisible(eObs, false));
++		if(bInSpectatorsBorders) // Just to avoid cycling through the units
+ 			return true;
+-		if(showWorkers && showShips && showMissionaries)
++		if(bShowWorkers && bShowShips && bShowMissionaries)
+ 			return true;
+-		for(CLLNode<IDInfo>* uNode = headUnitNode(); uNode != NULL;
+-				uNode = nextUnitNode(uNode)) {
+-			CvUnit& u = *(::getUnit(uNode->m_data));
+-			bool isSeaUnit = u.getDomainType() == DOMAIN_SEA;
+-			bool isCombatant = u.getUnitCombatType() != NO_UNITCOMBAT;
+-			if(!isSeaUnit && isCombatant && !isAwayFromHome
+-					&& plot()->getNumUnits() == 1)
++		for(CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL; pNode = nextUnitNode(pNode)) {
++			CvUnit const* pLoopUnit = ::getUnit(pNode->m_data);
++			if(pLoopUnit == NULL) {
++				FAssert(false); // An invalid unit id while the stack is moving would be strange
++				continue;
++			}
++			CvUnit const& u = *pLoopUnit;
++			bool bSeaUnit = u.getDomainType() == DOMAIN_SEA;
++			bool bCombatant = u.getUnitCombatType() != NO_UNITCOMBAT;
++			if(!bSeaUnit && bCombatant && !bAwayFromHome && plot()->getNumUnits() == 1)
+ 				break;
+-			bool isWorker = (u.AI_getUnitAIType() == UNITAI_WORKER ||
++			bool bWorker = (u.AI_getUnitAIType() == UNITAI_WORKER ||
+ 					u.AI_getUnitAIType() == UNITAI_WORKER_SEA);
+-			bool isNonCargoShip = (isSeaUnit && !u.isHuman() &&
++			bool bNonTransportShip = (bSeaUnit && !u.isHuman() &&
+ 					(u.cargoSpace() <= 1 || AI_getMissionAIType() == MISSIONAI_PATROL));
+-			bool isMissionary = u.AI_getUnitAIType() == UNITAI_MISSIONARY;
+-			if(!isMissionary && isAwayFromHome && (!isSeaUnit ||
+-					!isNonCargoShip || showShips || enteringOrLeaving))
++			bool bMissionary = (u.AI_getUnitAIType() == UNITAI_MISSIONARY);
++			if(!bMissionary && bAwayFromHome && (!bSeaUnit ||
++					!bNonTransportShip || bShowShips || bEnteringOrLeaving))
+ 				return true;
+-			if((isWorker && showWorkers) || (isNonCargoShip && showShips &&
+-					enteringOrLeaving) || (isMissionary && showMissionaries))
++			if((bWorker && bShowWorkers) || (bNonTransportShip && bShowShips &&
++					bEnteringOrLeaving) || (bMissionary && bShowMissionaries))
+ 				return true;
+-			if(!isWorker && !isNonCargoShip && !isMissionary)
++			if(!bWorker && !bNonTransportShip && !bMissionary)
+ 				return true;
+ 			// </advc.102>
+ 		}
+@@ -1624,32 +1623,36 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps) // advc.003: refactored
+ 		}
+ 	}
+ 
+-	if (bAction)
+-	{	//if (bDone || !canAllMove())
+-		if (bDone || !readyForMission()) // K-Mod (I don't think this actually matters)
+-		{	// <advc.102> Previously only DestVisible was checked
+-			bool bDestVisible = plot()->isVisibleToWatchingHuman();
+-			bool bStartVisible = pFromPlot->isVisibleToWatchingHuman();
+-			if(bDestVisible || (bStartVisible && m->bInitiallyVisible)) {
+-				// Pass fromPlot
+-				updateMissionTimer(iSteps, pFromPlot);
+-				if(showMoves(*pFromPlot) // </advc.102>
+-						&& g.getActivePlayer() != NO_PLAYER
+-						&& getOwnerINLINE() != g.getActivePlayer())
+-				{
+-					// <advc.102> Show FromPlot when moving out of sight
+-					bool bDestActiveVisible = !isInvisible(g.getActiveTeam());
+-					bool bStartActiveVisible = bDestActiveVisible &&
+-							pFromPlot->isActiveVisible(false);
+-					bDestActiveVisible = bDestActiveVisible &&
+-							plot()->isActiveVisible(false);
+-					if(bDestActiveVisible && bDestVisible) // </advc.102>
+-						gDLL->getInterfaceIFace()->lookAt(plot()->getPoint(), CAMERALOOKAT_NORMAL);
+-					// <advc.102>
+-					else if(bStartActiveVisible && bStartVisible)
+-						gDLL->getInterfaceIFace()->lookAt(pFromPlot->getPoint(), CAMERALOOKAT_NORMAL);
+-					// </advc.102>
++	if (bAction &&
++			//(bDone || !canAllMove())
++			(bDone || !readyForMission())) // K-Mod (I don't think this actually matters)
++	{	// <advc.102>
++		bool bDestVisible = plot()->isVisibleToWatchingHuman();
++		bool bStartVisible = pFromPlot->isVisibleToWatchingHuman();
++		// Previously only DestVisible was checked
++		if(bDestVisible || (bStartVisible && m->bInitiallyVisible)) {
++			// Pass pFromPlot
++			updateMissionTimer(iSteps, pFromPlot);
++			if(showMoves(*pFromPlot)
++					&& g.getActivePlayer() != NO_PLAYER
++					&& getOwnerINLINE() != g.getActivePlayer()) {
++				// Show FromPlot when moving out of sight
++				bool bDestActiveVisible = !isInvisible(g.getActiveTeam());
++				bool bStartActiveVisible = (bDestActiveVisible &&
++						pFromPlot->isActiveVisible(false));
++				bDestActiveVisible = (bDestActiveVisible &&
++						plot()->isActiveVisible(false));
++				CvDLLInterfaceIFaceBase* pInterface = gDLL->getInterfaceIFace();
++				if(gDLL->getEngineIFace()->isGlobeviewUp()) {
++					if(bDestActiveVisible && g.getCurrentLayer() == GLOBE_LAYER_UNIT)
++						pInterface->setDirty(GlobeLayer_DIRTY_BIT, true);
+ 				}
++				else {
++					if(bDestActiveVisible && bDestVisible)
++						pInterface->lookAt(plot()->getPoint(), CAMERALOOKAT_NORMAL);
++					else if(bStartActiveVisible && bStartVisible)
++						pInterface->lookAt(pFromPlot->getPoint(), CAMERALOOKAT_NORMAL);
++				} // </advc.102>
+ 			}
+ 		}
+ 	}
+@@ -4041,14 +4044,17 @@ void CvSelectionGroup::changeMissionTimer(int iChange)
+ 
+ 
+ void CvSelectionGroup::updateMissionTimer(int iSteps,
+-		CvPlot* fromPlot) // advc.102
++		CvPlot* pFromPlot) // advc.102
+ {
+ 	CvUnit* pTargetUnit;
+ 	CvPlot* pTargetPlot;
+ 	int iTime;
+ 
+-	if (!isHuman() && !showMoves(
+-			fromPlot == NULL ? *plot() : *fromPlot)) // advc.102
++	if (!isHuman() && (!showMoves( // <advc.102>
++			pFromPlot == NULL ? *plot() : *pFromPlot) ||
++			// Are these timers synchronized?
++			(!GC.getGameINLINE().isNetworkMultiPlayer() &&
++			gDLL->getEngineIFace()->isGlobeviewUp()))) // </advc.102>
+ 	{
+ 		iTime = 0;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index b61fbb623..5875c9ff7 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -29,8 +29,7 @@ public:
+ 
+ 	void doTurn();
+ 	void doTurnPost(); // advc.004l
+-	bool showMoves( // <advc.102>
+-			CvPlot const& fromPlot) const;
++	bool showMoves( /* <advc.102> */ CvPlot const& kFromPlot) const;
+ 	void setInitiallyVisible(bool b); // </advc.102>
+ 
+ 	void updateTimers();
+@@ -155,8 +154,7 @@ public:
+ 	int getMissionTimer() const;
+ 	void setMissionTimer(int iNewValue);
+ 	void changeMissionTimer(int iChange);
+-	void updateMissionTimer(int iSteps = 0,
+-		CvPlot* fromPlot = NULL); // advc.102
++	void updateMissionTimer(int iSteps = 0, /* advc.102: */ CvPlot* pFromPlot = NULL);
+ 
+ 	inline bool isForceUpdate() { return m_bForceUpdate; } // K-Mod made inline
+ 	inline void setForceUpdate(bool bNewValue) { m_bForceUpdate = bNewValue; } // K-Mod made inline
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 82fe95723..19cf0ce74 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1975,4 +1975,15 @@ void CyEnumsPythonInterface()
+ 		.value("ADVANCEDSTARTACTION_VISIBILITY", ADVANCEDSTARTACTION_VISIBILITY)
+ 		.value("ADVANCEDSTARTACTION_AUTOMATE", ADVANCEDSTARTACTION_AUTOMATE)
+ 		;
++	// <advc.004m>
++	python::enum_<GlobeLayerTypes>("GlobeLayerTypes")
++		.value("GLOBE_LAYER_STRATEGY", GLOBE_LAYER_STRATEGY)
++		.value("GLOBE_LAYER_TRADE", GLOBE_LAYER_TRADE)
++		.value("GLOBE_LAYER_UNIT", GLOBE_LAYER_UNIT)
++		.value("GLOBE_LAYER_RESOURCE", GLOBE_LAYER_RESOURCE)
++		.value("GLOBE_LAYER_RELIGION", GLOBE_LAYER_RELIGION)
++		.value("GLOBE_LAYER_CULTURE", GLOBE_LAYER_CULTURE)
++		.value("NUM_GLOBE_LAYER_TYPES", NUM_GLOBE_LAYER_TYPES)
++		.value("NO_GLOBE_LAYER", NUM_GLOBE_LAYER_TYPES)
++		; // </advc.004m>
+ }
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index b4c6f3aa1..26887d6d8 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1317,3 +1317,8 @@ bool CyGame::isAITurn() {
+ 		return false;
+ 	return m_pGame->isAITurn();
+ } // </advc.706>
++// <advc.004m>
++void CyGame::reportCurrentLayer(int iLayer) {
++	if(m_pGame != NULL)
++		m_pGame->reportCurrentLayer((GlobeLayerTypes)iLayer);
++} // </advc.004m>
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 89a0f968c..87a339d16 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -309,6 +309,7 @@ public:
+ 	bool isRFInterlude();
+ 	bool isRFBlockPopups();
+ 	bool isAITurn(); // </advc.706>
++	void reportCurrentLayer(int iLayer); // advc.004m
+ 
+ protected:
+ 	CvGame* m_pGame;
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 7e4921863..c2e3a5771 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -302,8 +302,9 @@ void CyGamePythonInterface()
+ 		// </advc.704><advc.706>
+ 		.def("isRFInterlude", &CyGame::isRFInterlude, "bool ()")
+ 		.def("isRFBlockPopups", &CyGame::isRFBlockPopups, "bool ()")
+-		.def("isAITurn", &CyGame::isAITurn, "bool ()")
+-		// </advc.706>
++		.def("isAITurn", &CyGame::isAITurn, "bool ()") // </advc.706>
++		// advc.004m:
++		.def("reportCurrentLayer", &CyGame::reportCurrentLayer, "void(int /*GlobeLayerTypes*/)")
+ 		;
+ 
+ 	python::class_<CyDeal>("CyDeal")
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=35843

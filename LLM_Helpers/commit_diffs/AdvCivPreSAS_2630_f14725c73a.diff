@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2630
+# Commit: f14725c73a3f01656d19ce40b1eda91acc131a95
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1c909f88f123579619d14d4f86a2da1cf6a04cea
+# Title: Tiny bit of polishing for new PlayerHistory class
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/PlayerHistory.cpp
+1	1	CvGameCoreDLL/PlayerHistory.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index d9846e3ec..9e42d20d9 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1273,7 +1273,7 @@ public:
+ 	DllExport void showSpaceShip();
+ 	DllExport void clearSpaceShipPopups();
+ 	void doChangeCivicsPopup(CivicTypes eCivic); // advc.004x
+-	// <advc.004s> Replacing implementation based on stdext::map
++	// <advc.004s> Replacing implementation based on stdext::hash_map
+ 	inline int getHistory(PlayerHistoryTypes eHistory, int iTurn) const
+ 	{
+ 		FAssertEnumBounds(eHistory);
+
+diff --git a/CvGameCoreDLL/PlayerHistory.cpp b/CvGameCoreDLL/PlayerHistory.cpp
+index de3bca18c..ef9cada2c 100644
+--- a/CvGameCoreDLL/PlayerHistory.cpp
++++ b/CvGameCoreDLL/PlayerHistory.cpp
+@@ -25,7 +25,7 @@ void PlayerHistory::set(int iTurn, int iValue)
+ 	}
+ 	for (int i = iTurn - 1; i >= iTurn - iOldSamples; i--)
+ 		iSum += std::max(m_aiValues[i], 0);
+-	m_aiValues[iTurn] = scaled(iSum, std::max(1, iSamples)).round();
++	m_aiValues[iTurn] = ROUND_DIVIDE(iSum, std::max(1, iSamples));
+ }
+
+diff --git a/CvGameCoreDLL/PlayerHistory.h b/CvGameCoreDLL/PlayerHistory.h
+index 4e2694af2..df12f2666 100644
+--- a/CvGameCoreDLL/PlayerHistory.h
++++ b/CvGameCoreDLL/PlayerHistory.h
+@@ -11,7 +11,7 @@ class PlayerHistory
+ {
+ public:
+ 	PlayerHistory() : m_iMovingAvgSamples(0), m_eOwner(NO_PLAYER) {}
+-	void reset(PlayerTypes eOwner, int iMovingAvgSamples = 3)
++	void reset(PlayerTypes eOwner, int iMovingAvgSamples = 0)
+ 	{
+ 		m_eOwner = eOwner;
+ 		m_iMovingAvgSamples = iMovingAvgSamples;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1537

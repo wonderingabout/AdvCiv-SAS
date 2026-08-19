@@ -1,0 +1,954 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4800
+# Commit: 62740785adfaea76ea3d4522e8ee6c1880f70210
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4dcf9870c33b1ab62ca26fc99ef998a5927befef
+# Title: make handicap settings more gradual, fix/tweak handicap data to csv and md script, update docs and similar changes or not anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+90	90	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+4	6	README.md
+41	41	_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_csv_base_advciv.csv
+0	0	_0_Common_Docs/AdvCiv Base Doc/{handicap_data_table_base_advciv.md => handicap_data_to_md_base_advciv.md}
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+12	10	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG
+35	20	flatten_handicap_info_to_csv_and_md.py
+49	49	handicap_data_to_csv.csv => handicap_data_to_csv_advciv-sas.csv
+12	12	handicap_data_table.md => handicap_data_to_md_advciv-sas.md
+ rename _0_Common_Docs/AdvCiv Base Doc/{handicap_data_table_base_advciv.md => handicap_data_to_md_base_advciv.md} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG
+ rename handicap_data_to_csv.csv => handicap_data_to_csv_advciv-sas.csv (56%)
+ rename handicap_data_table.md => handicap_data_to_md_advciv-sas.md (91%)
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index ce8d082ef..4bdbb4a9f 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -137,10 +137,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
+ 			<iStartingExploreUnits>1</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>60</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+@@ -151,19 +151,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: increase AI costs to make the game last longer maybe, was 90 -->
+ 			<iAIResearchPercent>95</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+-			<iAITrainPercent>125</iAITrainPercent>
+-			<iAIWorldTrainPercent>125</iAIWorldTrainPercent>
+-			<iAIConstructPercent>120</iAIConstructPercent>
+-			<iAIWorldConstructPercent>125</iAIWorldConstructPercent>
+-			<iAICreatePercent>110</iAICreatePercent>
+-			<iAIWorldCreatePercent>125</iAIWorldCreatePercent>
++			<iAITrainPercent>109</iAITrainPercent>
++			<iAIWorldTrainPercent>106</iAIWorldTrainPercent>
++			<iAIConstructPercent>106</iAIConstructPercent>
++			<iAIWorldConstructPercent>106</iAIWorldConstructPercent>
++			<iAICreatePercent>106</iAICreatePercent>
++			<iAIWorldCreatePercent>106</iAIWorldCreatePercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitCostPercent>109</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>100</iAIInflationPercent>
+-			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>112</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+ 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 100 -->
+@@ -344,10 +344,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>80</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+@@ -356,19 +356,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>120</iAIGPThresholdPercent>
+ 			<iAIResearchPercent>100</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+-			<iAITrainPercent>120</iAITrainPercent>
+-			<iAIWorldTrainPercent>120</iAIWorldTrainPercent>
+-			<iAIConstructPercent>115</iAIConstructPercent>
+-			<iAIWorldConstructPercent>120</iAIWorldConstructPercent>
+-			<iAICreatePercent>105</iAICreatePercent>
+-			<iAIWorldCreatePercent>120</iAIWorldCreatePercent>
++			<iAITrainPercent>106</iAITrainPercent>
++			<iAIWorldTrainPercent>104</iAIWorldTrainPercent>
++			<iAIConstructPercent>104</iAIConstructPercent>
++			<iAIWorldConstructPercent>104</iAIWorldConstructPercent>
++			<iAICreatePercent>104</iAICreatePercent>
++			<iAIWorldCreatePercent>104</iAIWorldCreatePercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitCostPercent>106</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>90</iAIInflationPercent>
+-			<iAIWarWearinessPercent>90</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>108</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+ 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 100 -->
+@@ -517,7 +517,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>2</iBarbarianDefenders>
+@@ -528,18 +528,18 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>100</iAIResearchPercent>
+-			<iAITrainPercent>110</iAITrainPercent>
+-			<iAIWorldTrainPercent>110</iAIWorldTrainPercent>
+-			<iAIConstructPercent>105</iAIConstructPercent>
+-			<iAIWorldConstructPercent>110</iAIWorldConstructPercent>
+-			<iAICreatePercent>100</iAICreatePercent>
+-			<iAIWorldCreatePercent>110</iAIWorldCreatePercent>
++			<iAITrainPercent>103</iAITrainPercent>
++			<iAIWorldTrainPercent>102</iAIWorldTrainPercent>
++			<iAIConstructPercent>102</iAIConstructPercent>
++			<iAIWorldConstructPercent>102</iAIWorldConstructPercent>
++			<iAICreatePercent>102</iAICreatePercent>
++			<iAIWorldCreatePercent>102</iAIWorldCreatePercent>
+ 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>100</iAIUnitCostPercent>
++			<iAIUnitCostPercent>103</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>104</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+ 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 100 -->
+@@ -691,10 +691,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
+@@ -713,7 +713,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+ 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
+@@ -876,33 +876,33 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 0 -->
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 10 -->
+-			<iAIWorkRateModifier>5</iAIWorkRateModifier>
++			<iAIWorkRateModifier>6</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+ 			<!-- custom: try to make the game last longer by increasing AI costs a bit, was 103 -->
+-			<iAIResearchPercent>108</iAIResearchPercent>
+-			<iAITrainPercent>95</iAITrainPercent>
+-			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+-			<iAIConstructPercent>95</iAIConstructPercent>
+-			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+-			<iAICreatePercent>95</iAICreatePercent>
+-			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
++			<iAIResearchPercent>104</iAIResearchPercent>
++			<iAITrainPercent>97</iAITrainPercent>
++			<iAIWorldTrainPercent>98</iAIWorldTrainPercent>
++			<iAIConstructPercent>98</iAIConstructPercent>
++			<iAIWorldConstructPercent>98</iAIWorldConstructPercent>
++			<iAICreatePercent>98</iAICreatePercent>
++			<iAIWorldCreatePercent>98</iAIWorldCreatePercent>
+ 			<iAICivicUpkeepPercent>95</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>95</iAIUnitCostPercent>
++			<iAIUnitCostPercent>97</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>96</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 1 per era. -->
+ 			<iAIHandicapIncrementTurns>100</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 110 -->
+@@ -1065,7 +1065,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 1 -->
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+@@ -1073,30 +1073,30 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>110</iAIDeclareWarProb>
+ 			<!-- advc.251: was 20 -->
+-			<iAIWorkRateModifier>10</iAIWorkRateModifier>
++			<iAIWorkRateModifier>12</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>95</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+ 			<!-- custom: increase this slightly so the game is slightly longer paced, was 110-->
+-			<iAIResearchPercent>112</iAIResearchPercent>
++			<iAIResearchPercent>108</iAIResearchPercent>
+ 			<!-- was 90 -->
+-			<iAITrainPercent>95</iAITrainPercent>
++			<iAITrainPercent>94</iAITrainPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldTrainPercent>95</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>96</iAIWorldTrainPercent>
+ 			<!-- was 90 -->
+-			<iAIConstructPercent>95</iAIConstructPercent>
++			<iAIConstructPercent>96</iAIConstructPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldConstructPercent>95</iAIWorldConstructPercent>
+-			<iAICreatePercent>90</iAICreatePercent>
++			<iAIWorldConstructPercent>96</iAIWorldConstructPercent>
++			<iAICreatePercent>96</iAICreatePercent>
+ 			<!-- was 100 -->
+-			<iAIWorldCreatePercent>95</iAIWorldCreatePercent>
++			<iAIWorldCreatePercent>96</iAIWorldCreatePercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAICivicUpkeepPercent>90</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>90</iAIUnitCostPercent>
++			<iAIUnitCostPercent>94</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>75</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>92</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 2 per era. -->
+ 			<iAIHandicapIncrementTurns>50</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 120 -->
+@@ -1266,40 +1266,40 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 2 -->
+-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>4</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>120</iAIDeclareWarProb>
+ 			<!-- advc.251: was 50 -->
+-			<iAIWorkRateModifier>15</iAIWorkRateModifier>
++			<iAIWorkRateModifier>18</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+ 			<!-- custom: increase this slightly so the game is slightly longer paced, was 115-->
+-			<iAIResearchPercent>116</iAIResearchPercent>
++			<iAIResearchPercent>112</iAIResearchPercent>
+ 			<!-- was 85 -->
+-			<iAITrainPercent>95</iAITrainPercent>
++			<iAITrainPercent>91</iAITrainPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldTrainPercent>95</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>94</iAIWorldTrainPercent>
+ 			<!-- was 85 -->
+-			<iAIConstructPercent>90</iAIConstructPercent>
++			<iAIConstructPercent>94</iAIConstructPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldConstructPercent>95</iAIWorldConstructPercent>
+-			<iAICreatePercent>85</iAICreatePercent>
++			<iAIWorldConstructPercent>94</iAIWorldConstructPercent>
++			<iAICreatePercent>94</iAICreatePercent>
+ 			<!-- was 100 -->
+-			<iAIWorldCreatePercent>95</iAIWorldCreatePercent>
++			<iAIWorldCreatePercent>94</iAIWorldCreatePercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAICivicUpkeepPercent>85</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>85</iAIUnitCostPercent>
++			<iAIUnitCostPercent>91</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 3 per era. -->
+ 			<iAIHandicapIncrementTurns>33</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 135 -->
+@@ -1482,39 +1482,39 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 2 -->
+-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+-			<iBarbarianDefenders>4</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>130</iAIDeclareWarProb>
+ 			<!-- advc.251: was 75 -->
+-			<iAIWorkRateModifier>20</iAIWorkRateModifier>
++			<iAIWorkRateModifier>24</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>85</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>120</iAIResearchPercent>
++			<iAIResearchPercent>116</iAIResearchPercent>
+ 			<!-- was 80 -->
+-			<iAITrainPercent>90</iAITrainPercent>
++			<iAITrainPercent>88</iAITrainPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
+-			<iAIConstructPercent>80</iAIConstructPercent>
++			<iAIWorldTrainPercent>92</iAIWorldTrainPercent>
++			<iAIConstructPercent>92</iAIConstructPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldConstructPercent>90</iAIWorldConstructPercent>
+-			<iAICreatePercent>80</iAICreatePercent>
++			<iAIWorldConstructPercent>92</iAIWorldConstructPercent>
++			<iAICreatePercent>92</iAICreatePercent>
+ 			<!-- was 100 -->
+-			<iAIWorldCreatePercent>90</iAIWorldCreatePercent>
++			<iAIWorldCreatePercent>92</iAIWorldCreatePercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAICivicUpkeepPercent>80</iAICivicUpkeepPercent>
+-			<iAIUnitCostPercent>80</iAIUnitCostPercent>
++			<iAIUnitCostPercent>88</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>60</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>84</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 4 per era. -->
+ 			<iAIHandicapIncrementTurns>25</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 150 -->
+@@ -1708,39 +1708,39 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 3 -->
+-			<iAIStartingDefenseUnits>6</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>5</iBarbarianDefenders>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>140</iAIDeclareWarProb>
+ 			<!-- advc.251: was 100 -->
+-			<iAIWorkRateModifier>25</iAIWorkRateModifier>
++			<iAIWorkRateModifier>30</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>80</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>124</iAIResearchPercent>
++			<iAIResearchPercent>120</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>85</iAITrainPercent>
+ 			<!-- was 100-->
+-			<iAIWorldTrainPercent>85</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
+ 			<!-- was 60 -->
+-			<iAIConstructPercent>75</iAIConstructPercent>
++			<iAIConstructPercent>90</iAIConstructPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldConstructPercent>85</iAIWorldConstructPercent>
++			<iAIWorldConstructPercent>90</iAIWorldConstructPercent>
+ 			<!-- was 60 -->
+-			<iAICreatePercent>75</iAICreatePercent>
++			<iAICreatePercent>90</iAICreatePercent>
+ 			<!-- was 100 -->
+-			<iAIWorldCreatePercent>85</iAIWorldCreatePercent>
++			<iAIWorldCreatePercent>90</iAIWorldCreatePercent>
+ 			<!-- was 60 -->
+ 			<iAICivicUpkeepPercent>75</iAICivicUpkeepPercent>
+ 			<!-- was 60 -->
+-			<iAIUnitCostPercent>75</iAIUnitCostPercent>
++			<iAIUnitCostPercent>85</iAIUnitCostPercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+-			<iAIWarWearinessPercent>50</iAIWarWearinessPercent>
++			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 5 per era. -->
+ 			<iAIHandicapIncrementTurns>20</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 170 -->
+
+diff --git a/README.md b/README.md
+index fa22ca6f4..46f5310b2 100644
+--- a/README.md
++++ b/README.md
+@@ -93,15 +93,13 @@ So far there is:
+ - [flatten_handicap_info_to_csv_and_md](/flatten_handicap_info_to_csv_and_md.py)
+ - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+ 
+-#### csv and md view of the handicap (difficulties info in a table for all difficulties)
++#### csv and md view of the handicap (difficulties info in a table for all difficulties) info/data
+ 
+-Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the:
+-- [.csv view to view it on GitHub website for example](/handicap_data_to_csv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+-- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
++Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) and view the .csv output handicap data with github view on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc.
+ 
+-Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, and links to base advciv files data of handicap info as of now to compare too with what our mod does (files are in in our mod path [here](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
++Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info/data but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings (base advciv handicap data tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+
+diff --git a/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_csv_base_advciv.csv b/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_csv_base_advciv.csv
+index f07a5f375..16af28da7 100644
+--- a/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_csv_base_advciv.csv	
++++ b/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_csv_base_advciv.csv	
+@@ -79,44 +79,44 @@ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+ 
+ 
+ ,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
+--------,-------,-------,-------,-------,AIFT_0,AIFT_1,AIFT_2,AIFT_3,
+--,-,-,-,-,Archery,Archery,Archery,Archery,
+--,-,-,-,-,Mathematics,Mathematics,Mathematics,Mathematics,
+--,-,-,-,-,Machinery,Machinery,Machinery,Machinery,
+--,-,-,-,-,Printing Press,Printing Press,Printing Press,Printing Press,
+--,-,-,-,-,Steam Power,Steam Power,Steam Power,Steam Power,
+--,-,-,-,-,Plastics,Plastics,Plastics,Plastics,
+--,-,-,-,-,-,Hunting,Hunting,Hunting,
+--,-,-,-,-,-,-,-,The Wheel,
+--,-,-,-,-,-,-,-,Iron W.,
+--,-,-,-,-,-,-,-,Feudalism,
+--,-,-,-,-,-,-,-,Gunpowder,
+--,-,-,-,-,-,-,-,Steel,
+--,-,-,-,-,-,-,-,Refrigeration,
+-FT_0,FT_1,FT_2,-------,-------,-------,-------,-------,-------,
+-The Wheel,The Wheel,The Wheel,-,-,-,-,-,-,
+-Agriculture,Agriculture,-,-,-,-,-,-,-,
+-Mining,-,-,-,-,-,-,-,-,
+-Mathematics,Mathematics,-,-,-,-,-,-,-,
+-Alphabet,-,-,-,-,-,-,-,-,
+-Machinery,Machinery,-,-,-,-,-,-,-,
+-Feudalism,-,-,-,-,-,-,-,-,
+-Printing Press,Printing Press,-,-,-,-,-,-,-,
+-Gunpowder,-,-,-,-,-,-,-,-,
+-Steam Power,Steam Power,-,-,-,-,-,-,-,
+-Steel,-,-,-,-,-,-,-,-,
+-Plastics,Plastics,-,-,-,-,-,-,-,
+-Refrigeration,-,-,-,-,-,-,-,-,
+-G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8,
+-High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-,
+-Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,
+-Map,Map,Map,Map,Map,Map,Map,Map,Map,
+-Settler,Settler,-,-,-,-,-,-,-,
+-Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,
+-Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,
+-Worker,Worker,Worker,-,-,-,-,-,-,
+-Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,
+-Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,
+-Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,
+--,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,
+--,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,
++,-------,-------,-------,-------,-------,AIFT_0,AIFT_1,AIFT_2,AIFT_3
++,-,-,-,-,-,Archery,Archery,Archery,Archery
++,-,-,-,-,-,Mathematics,Mathematics,Mathematics,Mathematics
++,-,-,-,-,-,Machinery,Machinery,Machinery,Machinery
++,-,-,-,-,-,Printing Press,Printing Press,Printing Press,Printing Press
++,-,-,-,-,-,Steam Power,Steam Power,Steam Power,Steam Power
++,-,-,-,-,-,Plastics,Plastics,Plastics,Plastics
++,-,-,-,-,-,-,Hunting,Hunting,Hunting
++,-,-,-,-,-,-,-,-,The Wheel
++,-,-,-,-,-,-,-,-,Iron W.
++,-,-,-,-,-,-,-,-,Feudalism
++,-,-,-,-,-,-,-,-,Gunpowder
++,-,-,-,-,-,-,-,-,Steel
++,-,-,-,-,-,-,-,-,Refrigeration
++,FT_0,FT_1,FT_2,-------,-------,-------,-------,-------,-------
++,The Wheel,The Wheel,The Wheel,-,-,-,-,-,-
++,Agriculture,Agriculture,-,-,-,-,-,-,-
++,Mining,-,-,-,-,-,-,-,-
++,Mathematics,Mathematics,-,-,-,-,-,-,-
++,Alphabet,-,-,-,-,-,-,-,-
++,Machinery,Machinery,-,-,-,-,-,-,-
++,Feudalism,-,-,-,-,-,-,-,-
++,Printing Press,Printing Press,-,-,-,-,-,-,-
++,Gunpowder,-,-,-,-,-,-,-,-
++,Steam Power,Steam Power,-,-,-,-,-,-,-
++,Steel,-,-,-,-,-,-,-,-
++,Plastics,Plastics,-,-,-,-,-,-,-
++,Refrigeration,-,-,-,-,-,-,-,-
++,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
++,High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-
++,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold
++,Map,Map,Map,Map,Map,Map,Map,Map,Map
++,Settler,Settler,-,-,-,-,-,-,-
++,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior
++,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout
++,Worker,Worker,Worker,-,-,-,-,-,-
++,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.
++,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing
++,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech
++,-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak
++,-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong
+
+diff --git a/_0_Common_Docs/AdvCiv Base Doc/handicap_data_table_base_advciv.md b/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md
+similarity index 100%
+rename from _0_Common_Docs/AdvCiv Base Doc/handicap_data_table_base_advciv.md
+rename to _0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 7854f3d3e..ff35a999f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -61,7 +61,7 @@ note: about the below example, a global search on "HandicapIncrementTurns" direc
+ 
+ VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
+ 
+-For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
++For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
+ 
+ Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt i mean anyways etc):
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index ee0f2b078..7d28f74f0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -220,7 +220,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ # flatten_handicap_info_to_csv_and_md.py
+ 
+-Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
++Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+ 
+ also note: you need to generate the data (.csv and .md by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
+ 
+@@ -238,21 +238,24 @@ Example of usage:
+ 
+ As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
+ 
+-- [.csv view to view it on GitHub website for example](/handicap_data_to_csv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+-- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
++- [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
++- [.md view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
+ 
+-note: you can remove the timestamp too if not needed anymore (year and time and such info in filename anyways etc) or/and if needed or wnted by you or and other or and not or do or not anyways etc
++note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
+ 
+ ## csv
+ 
+ libre office view example (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
+ 
+-<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+-<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" width="250"></img>
+ 
+ ## md
+ 
+-Currently less advanced version of this (with the legend, but maybe displays quite well),
++Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt/becomingthrough sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
++
++So in short or not short but anyways etc.. I'd recommend viewing the .csv file/version rather but anyways etc, above, but here below is also a .md file/version/(of the) data if you want too and i want too but anyways etc (may or not be updated, best to view the files directly as shown in screenshots but with the real files for accurate or/and exhaustive or/and reliable data if i may say but anyways etc):
+ 
+ <img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+@@ -267,8 +270,8 @@ Usage is similarly (running it from base advciv mod folder with the advciv-sas p
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python ..\AdvCiv-SAS\flatten_handicap_info_to_csv_and_md.py
+ ```
+ 
+-- [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+-- [.md view to view it on GitHub website for example](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_table_base_advciv.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
++- [.csv (base advciv) (recommended as display is clearer and better aligned, with line number and such other features if need(ed) or not or yes or etc anyways etc)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv) with github view on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
++- [.md view to view it on GitHub website for example](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
+ 
+ # leaders_data_to_csv.py
+ 
+@@ -282,7 +285,6 @@ Similar(ly) to other scripts, usage is for example for Steam users (adjust paths
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
+ ```
+ 
+-<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 7857e4fbe..529d9d94f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -30,11 +30,11 @@ For more screenshot samples of new sevopedia entries or udpated ones (not exhaus
+ 
+ ## Handicap info tables .csv and .md and info about the .py script that can regenerate them if need and how
+ 
+-To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties) for details
++To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata) for details
+ 
+ Example output (non-exhaustive, also screenshot may not be updated, best to see link above i would say but anyways etc for details if interested but anyways etc):
+ 
+-<img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+ 
+ ## Full exhaustive very long and exhaustive changes
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG
+new file mode 100644
+index 000000000..b9147f145
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG
+deleted file mode 100644
+index d315dedba..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG and /dev/null differ
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index 0724ad060..d787e03f5 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -1,14 +1,28 @@
+-# --- Convert CIV4HandicapInfo.xml to a row-wise CSV with difficulty columns ---
++# --- Convert CIV4HandicapInfo.xml to CSV and Markdown with Legends ---
++#
++# This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml.
++# It transforms XML fields into a column-aligned CSV table and a Markdown summary,
++# replacing multi-entry lists (e.g. <FreeTechs>) with unique short legend keys (e.g. FT_0),
++# and writing an aligned legend block showing actual entries.
++# The CSV includes a right-shifted, tabular [LEGEND] block for spreadsheet use.
++# The Markdown version is GitHub-friendly and includes both tables and legend mappings.
++#
++# Features:
++# - Enum beautification (e.g. HANDICAP_NOBLE → Noble)
++# - Comma-separated list flattening for <Goodies>, <FreeTechs>, <AIFreeTechs>
++# - Short key assignment (FT_, G_, AIFT_) with index
++# - Consistent horizontal alignment across difficulty columns
++# - Modular formatting of legends (aligned by row, not by raw string) <!-- custom: for
++# the CSV version we export anyways etc -->
++# - Markdown export with proper table and readable legend
++#
+ # This script is part of the AdvCiv-SAS mod project.
+ # (c) 2025 wonderingabout & becomingthrough
+ 
+-import os
+ import csv
+ import xml.etree.ElementTree as ET
+ from datetime import datetime
+ import re
+-import io
+-from pathlib import Path
+ 
+ # --- Step 1: Setup paths ---
+ XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
+@@ -166,17 +180,6 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 		writer.writerow(shortened_row)
+ 
+ 	def format_vertical_legend_block(legend_dict):
+-		aift_keys_ordered = []
+-		for row in rows:
+-			if row["Field"] != "AIFreeTechs":
+-				continue
+-			for difficulty in difficulty_types:
+-				ref = row.get(difficulty, "")
+-				if ref.startswith("AIFT_"):
+-					aift_keys_ordered.append(ref if ref in legend_dict else None)
+-				else:
+-					aift_keys_ordered.append(None)
+-
+ 		def extract_ordered_unique(keys_ordered, prefix):
+ 			unique = []
+ 			seen = set()
+@@ -208,7 +211,14 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 
+ 		lines = []
+ 
+-		# AIFT
++		# AIFT (same style as FT/G)
++		aift_keys_ordered = []
++		for row in rows:
++			if row["Field"] == "AIFreeTechs":
++				for difficulty in difficulty_types:
++					ref = row.get(difficulty, "")
++					aift_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
++
+ 		aift_unique = extract_ordered_unique(aift_keys_ordered, "AIFT_")
+ 		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, "AIFT_")
+ 		lines.append('\t'.join(aift_headers))
+@@ -257,20 +267,25 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 
+ 	# Write a fully padded [LEGEND] header row
+ 	# Determine where actual legend columns begin (e.g., skip the 'Field' column)
++	# <!-- custom: shift the entire display of the "[LEGEND]" items's line one column to the right ( [""] ) if i am not mistaken anyways etc -->
+ 	legend_header_row = [""] + ["[LEGEND]"] * (NUM_COLUMNS - 1)
+ 	legend_csv.writerow(legend_header_row)
+ 
+ 	# Write padded legend rows
+ 	for line in legend_lines:
+-		parts = line.split("\t") # Prepend empty cell to each line <!-- custom: to move the entire display of the legend one column to the right if i am not mistaken anyways etc -->
+-		padded = parts + [""] * (NUM_COLUMNS - len(parts))
+-		legend_csv.writerow(padded)
++		# Shift all contents one column to the right (like the LEGEND header)
++		parts = [""] + line.split("\t")
++
++		# Pad to exactly NUM_COLUMNS columns
++		parts += [""] * (NUM_COLUMNS - len(parts))
++
++		legend_csv.writerow(parts)
+ 
+ print("✔ Export complete with legend references.")
+ print(f"→ Output CSV saved as: {csv_filename}")
+ 
+ # --- Step 8: Write Markdown table ---
+-md_filename = f"handicap_data_table_{timestamp}.md"
++md_filename = f"handicap_data_to_md_{timestamp}.md"
+ with open(md_filename, "w", encoding="utf-8") as md:
+ 	# Header
+ 	md.write("| Field | " + " | ".join(columns[1:]) + " |\n")
+
+diff --git a/handicap_data_to_csv.csv b/handicap_data_to_csv_advciv-sas.csv
+similarity index 56%
+rename from handicap_data_to_csv.csv
+rename to handicap_data_to_csv_advciv-sas.csv
+index de96cecdd..146cb10c5 100644
+--- a/handicap_data_to_csv.csv
++++ b/handicap_data_to_csv_advciv-sas.csv
+@@ -4,27 +4,27 @@ iAIAnimalBonus,-30,-25,-20,0,0,0,0,0,0
+ iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
+ iAIBarbarianBonus,-30,-25,0,0,0,0,0,0,0
+ iAICivicUpkeepPercent,100,100,100,100,95,90,85,80,75
+-iAIConstructPercent,120,115,105,100,95,95,90,80,75
+-iAICreatePercent,110,105,100,100,95,90,85,80,75
++iAIConstructPercent,106,104,102,100,98,96,94,92,90
++iAICreatePercent,106,104,102,100,98,96,94,92,90
+ iAIDeclareWarProb,60,80,100,100,100,110,120,130,140
+ iAIGPThresholdPercent,125,120,110,100,100,95,90,85,80
+ iAIGrowthPercent,125,120,110,100,100,95,90,85,80
+ iAIHandicapIncrementTurns,0,0,0,0,100,50,33,25,20
+ iAIInflationPercent,100,90,80,80,80,80,80,80,80
+-iAIResearchPercent,95,100,100,100,108,112,116,120,124
+-iAIStartingDefenseUnits,4,4,4,4,4,4,5,5,6
++iAIResearchPercent,95,100,100,100,104,108,112,116,120
++iAIStartingDefenseUnits,1,2,2,2,3,3,4,4,5
+ iAIStartingExploreUnits,0,0,0,0,1,1,1,1,1
+ iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
+ iAIStartingWorkerUnits,0,0,0,0,0,0,0,1,1
+-iAITrainPercent,125,120,110,100,95,95,95,90,85
+-iAIUnitCostPercent,100,100,100,100,95,90,85,80,75
++iAITrainPercent,109,106,103,100,97,94,91,88,85
++iAIUnitCostPercent,109,106,103,100,97,94,91,88,85
+ iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
+ iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50
+-iAIWarWearinessPercent,100,90,80,80,80,75,70,60,50
+-iAIWorkRateModifier,0,0,0,0,5,10,15,20,25
+-iAIWorldConstructPercent,125,120,110,100,100,95,95,90,85
+-iAIWorldCreatePercent,125,120,110,100,100,95,95,90,85
+-iAIWorldTrainPercent,125,120,110,100,100,95,95,90,85
++iAIWarWearinessPercent,112,108,104,100,96,92,88,84,80
++iAIWorkRateModifier,0,0,0,0,6,12,18,24,30
++iAIWorldConstructPercent,106,104,102,100,98,96,94,92,90
++iAIWorldCreatePercent,106,104,102,100,98,96,94,92,90
++iAIWorldTrainPercent,106,104,102,100,98,96,94,92,90
+ iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
+ iAnimalAttackProb,30,50,60,70,70,70,70,70,70
+ iAnimalBonus,-30,-25,-20,0,0,0,0,0,0
+@@ -34,7 +34,7 @@ iBarbarianCityAttackBonus,,,,,0,0,0,0,0
+ iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
+ iBarbarianCityCreationTurnsElapsed,60,55,50,45,40,35,30,25,25
+ iBarbarianCreationTurnsElapsed,45,42,39,36,33,30,27,24,16
+-iBarbarianDefenders,2,2,2,3,3,3,4,4,5
++iBarbarianDefenders,1,1,2,2,2,3,3,3,4
+ iBaseGrowthThresholdPercent,80,95,100,100,100,100,110,120,130
+ iBuildTimePercent,100,100,100,100,100,100,110,115,120
+ iCivicUpkeepPercent,60,70,80,90,95,100,100,100,100
+@@ -79,40 +79,40 @@ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+ 
+ 
+ ,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
+-AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8,
+-Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,
+-Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,
+-Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,
+-Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass,
+-Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,
+-Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,
+--,-,-,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,
+--,-,-,-,-,Drama,Drama,Drama,Drama,
+--,-,-,-,-,Industr.,Industr.,Industr.,Industr.,
+--,-,-,-,-,-,Fishing,Fishing,Fishing,
+--,-,-,-,-,-,-,Animal H.,Animal H.,
+--,-,-,-,-,-,-,-,Mysticism,
+--,-,-,-,-,-,-,-,Optics,
+--,-,-,-,-,-,-,-,Biology,
+-FT_0,-------,-------,-------,-------,-------,-------,-------,-------,
+-The Wheel,-,-,-,-,-,-,-,-,
+-Agriculture,-,-,-,-,-,-,-,-,
+-Hunting,-,-,-,-,-,-,-,-,
+-Mining,-,-,-,-,-,-,-,-,
+-Pottery,-,-,-,-,-,-,-,-,
+-Animal H.,-,-,-,-,-,-,-,-,
+-Bronze W.,-,-,-,-,-,-,-,-,
+-Iron W.,-,-,-,-,-,-,-,-,
+-G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8,
+-High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-,
+-Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,
+-Map,Map,Map,Map,Map,Map,Map,Map,Map,
+-Settler,Settler,-,-,-,-,-,-,-,
+-Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,
+-Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,
+-Worker,Worker,Worker,-,-,-,-,-,-,
+-Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,
+-Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,
+-Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,
+--,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,
+--,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,
++,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
++,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery
++,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.
++,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency
++,Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass
++,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry
++,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser
++,-,-,-,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy
++,-,-,-,-,-,Drama,Drama,Drama,Drama
++,-,-,-,-,-,Industr.,Industr.,Industr.,Industr.
++,-,-,-,-,-,-,Fishing,Fishing,Fishing
++,-,-,-,-,-,-,-,Animal H.,Animal H.
++,-,-,-,-,-,-,-,-,Mysticism
++,-,-,-,-,-,-,-,-,Optics
++,-,-,-,-,-,-,-,-,Biology
++,FT_0,-------,-------,-------,-------,-------,-------,-------,-------
++,The Wheel,-,-,-,-,-,-,-,-
++,Agriculture,-,-,-,-,-,-,-,-
++,Hunting,-,-,-,-,-,-,-,-
++,Mining,-,-,-,-,-,-,-,-
++,Pottery,-,-,-,-,-,-,-,-
++,Animal H.,-,-,-,-,-,-,-,-
++,Bronze W.,-,-,-,-,-,-,-,-
++,Iron W.,-,-,-,-,-,-,-,-
++,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
++,High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-
++,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold
++,Map,Map,Map,Map,Map,Map,Map,Map,Map
++,Settler,Settler,-,-,-,-,-,-,-
++,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior
++,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout
++,Worker,Worker,Worker,-,-,-,-,-,-
++,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.
++,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing
++,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech
++,-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak
++,-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong
+
+diff --git a/handicap_data_table.md b/handicap_data_to_md_advciv-sas.md
+similarity index 91%
+rename from handicap_data_table.md
+rename to handicap_data_to_md_advciv-sas.md
+index ba4162174..1aeed4d03 100644
+--- a/handicap_data_table.md
++++ b/handicap_data_to_md_advciv-sas.md
+@@ -5,27 +5,27 @@
+ | iAIAttitudeChangePercent | 30 | 30 | 30 | 30 | 40 | 50 | 60 | 70 | 90 |
+ | iAIBarbarianBonus | -30 | -25 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+ | iAICivicUpkeepPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
+-| iAIConstructPercent | 120 | 115 | 105 | 100 | 95 | 95 | 90 | 80 | 75 |
+-| iAICreatePercent | 110 | 105 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
++| iAIConstructPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
++| iAICreatePercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+ | iAIDeclareWarProb | 60 | 80 | 100 | 100 | 100 | 110 | 120 | 130 | 140 |
+ | iAIGPThresholdPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+ | iAIGrowthPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+ | iAIHandicapIncrementTurns | 0 | 0 | 0 | 0 | 100 | 50 | 33 | 25 | 20 |
+ | iAIInflationPercent | 100 | 90 | 80 | 80 | 80 | 80 | 80 | 80 | 80 |
+-| iAIResearchPercent | 95 | 100 | 100 | 100 | 108 | 112 | 116 | 120 | 124 |
+-| iAIStartingDefenseUnits | 4 | 4 | 4 | 4 | 4 | 4 | 5 | 5 | 6 |
++| iAIResearchPercent | 95 | 100 | 100 | 100 | 104 | 108 | 112 | 116 | 120 |
++| iAIStartingDefenseUnits | 1 | 2 | 2 | 2 | 3 | 3 | 4 | 4 | 5 |
+ | iAIStartingExploreUnits | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 |
+ | iAIStartingUnitMultiplier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+ | iAIStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 |
+-| iAITrainPercent | 125 | 120 | 110 | 100 | 95 | 95 | 95 | 90 | 85 |
+-| iAIUnitCostPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
++| iAITrainPercent | 109 | 106 | 103 | 100 | 97 | 94 | 91 | 88 | 85 |
++| iAIUnitCostPercent | 109 | 106 | 103 | 100 | 97 | 94 | 91 | 88 | 85 |
+ | iAIUnitSupplyPercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+ | iAIUnitUpgradePercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+-| iAIWarWearinessPercent | 100 | 90 | 80 | 80 | 80 | 75 | 70 | 60 | 50 |
+-| iAIWorkRateModifier | 0 | 0 | 0 | 0 | 5 | 10 | 15 | 20 | 25 |
+-| iAIWorldConstructPercent | 125 | 120 | 110 | 100 | 100 | 95 | 95 | 90 | 85 |
+-| iAIWorldCreatePercent | 125 | 120 | 110 | 100 | 100 | 95 | 95 | 90 | 85 |
+-| iAIWorldTrainPercent | 125 | 120 | 110 | 100 | 100 | 95 | 95 | 90 | 85 |
++| iAIWarWearinessPercent | 112 | 108 | 104 | 100 | 96 | 92 | 88 | 84 | 80 |
++| iAIWorkRateModifier | 0 | 0 | 0 | 0 | 6 | 12 | 18 | 24 | 30 |
++| iAIWorldConstructPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
++| iAIWorldCreatePercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
++| iAIWorldTrainPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+ | iAdvancedStartPointsMod | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+ | iAnimalAttackProb | 30 | 50 | 60 | 70 | 70 | 70 | 70 | 70 | 70 |
+ | iAnimalBonus | -30 | -25 | -20 | 0 | 0 | 0 | 0 | 0 | 0 |
+@@ -35,7 +35,7 @@
+ | iBarbarianCityCreationProb | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 |
+ | iBarbarianCityCreationTurnsElapsed | 60 | 55 | 50 | 45 | 40 | 35 | 30 | 25 | 25 |
+ | iBarbarianCreationTurnsElapsed | 45 | 42 | 39 | 36 | 33 | 30 | 27 | 24 | 16 |
+-| iBarbarianDefenders | 2 | 2 | 2 | 3 | 3 | 3 | 4 | 4 | 5 |
++| iBarbarianDefenders | 1 | 1 | 2 | 2 | 2 | 3 | 3 | 3 | 4 |
+ | iBaseGrowthThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+ | iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 110 | 115 | 120 |
+ | iCivicUpkeepPercent | 60 | 70 | 80 | 90 | 95 | 100 | 100 | 100 | 100 |
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=55643

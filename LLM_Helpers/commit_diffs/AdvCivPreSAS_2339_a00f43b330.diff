@@ -1,0 +1,196 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2339
+# Commit: a00f43b3301df4cae4b69befadb762494e44b9a9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fe3fb64c3f0203eaab1b9a255e567889250ddfcc
+# Title: Fix ship production in cities with limited sea access
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	12	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+0	13	CvGameCoreDLL/CvCityAI.cpp
+32	8	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ac4397c3f..c259f72f1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1342,14 +1342,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
+ 	{
+ 		return true;
+ 	}
+-	/*  <advc.041> Don't allow any ships to be trained at lakes, except
+-		Work Boat if there are resources in the lake. */
+-	CvUnitInfo const& u = GC.getInfo(eUnit);
+-	if(u.getDomainType() == DOMAIN_SEA && !isCoastal() &&
+-		(!u.isPrereqBonuses() || !isPrereqBonusSea()))
+-	{
+-		return false; // </advc.041>
+-	}
++
+ 	if(!GET_PLAYER(getOwner()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost))
+ 		return false;
+ 
+@@ -3297,17 +3290,21 @@ bool CvCity::isCapital() const
+ 	return (GET_PLAYER(getOwner()).getCapitalCity() == this);
+ }
+ 
+-// <advc.041>
++// advc: Cut from CvPlot::canTrain
+ bool CvCity::isPrereqBonusSea() const
+ {
+ 	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* p = plotDirection(getX(), getY(), eLoopDirection);
+-		if(p != NULL && p->isWater() && p->getArea().isAnyBonus())
++		CvPlot* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if(pAdj != NULL && pAdj->isWater() &&
++			!pAdj->isImpassable() && // advc.041
++			pAdj->getArea().isAnyBonus())
++		{
+ 			return true;
++		}
+ 	}
+ 	return false;
+-}// </advc.041>
++}
+ 
+ bool CvCity::isCoastal(int iMinWaterSize) const
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index e7d9dcdaf..7f31e5c45 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -215,7 +215,7 @@ public:
+ 	}
+ 
+ 	bool isCapital() const;																						// Exposed to Python
+-	bool isPrereqBonusSea() const; // advc.041
++	bool isPrereqBonusSea() const; // advc
+ 	/* advc: -1 means use MIN_WATER_SIZE_FOR_OCEAN. Removed MIN_WATER_SIZE_FOR_OCEAN
+ 	   from all calls to this function (except those from Python). */
+ 	bool isCoastal(int iMinWaterSize = -1) const;																// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b7b9d91c7..eee79fe8d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3079,19 +3079,6 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 		if (!canTrain(eUnit))
+ 			continue;
+ 		// <advc.041> Mostly cut and pasted from CvPlot::canTrain
+-		CvUnitInfo& kUnit = GC.getInfo(eUnit);
+-		if(kUnit.isPrereqBonuses())
+-		{
+-			if(kUnit.getDomainType() == DOMAIN_SEA)
+-			{
+-				if(!isPrereqBonusSea())
+-					continue;
+-			}
+-			/*  This was '> 0' in CvPlot::canTrain, which is apparently a bug,
+-				but doesn't really matter b/c no land unit has this prereq. */
+-			else if(!getArea().isAnyBonus())
+-				continue;
+-		}
+ 		int iMinAreaSz = kUnit.getMinAreaSize();
+ 		if (iMinAreaSz > 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 48c470a36..4560c626b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1121,6 +1121,18 @@ bool CvPlot::isAdjacentFreshWater() const
+ 	return false;
+ }
+ 
++// advc.041:
++bool CvPlot::isAdjacentSaltWater() const
++{
++	FOR_EACH_ENUM(Direction)
++	{
++		CvPlot* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if (pAdj != NULL && pAdj->isWater() && !pAdj->isLake())
++			return true;
++	}
++	return false;
++}
++
+ 
+ bool CvPlot::isPotentialIrrigation() const
+ {
+@@ -8008,25 +8020,37 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 			return false;
+ 	}
+ 
+-	/*if (GC.getInfo(eUnit).isPrereqBonuses()) {
+-		// ...
++	if (kUnit.isPrereqBonuses())
++	{
++		if (kUnit.getDomainType() == DOMAIN_SEA)
++		{	// advc: Moved to CvCity
++			if (bCity && !pCity->isPrereqBonusSea())
++				return false;
++		}
++		else
++		{
++			//if (getArea().getNumTotalBonuses() > 0)
++			if(!getArea().isAnyBonus()) // advc.001
++				return false;
++		}
+ 	}
+-	if (isCity()) {
++	/*if (isCity()) {
+ 		// ...
+ 	}
+-	else if (getArea().getNumTiles() < GC.getInfo(eUnit).getMinAreaSize())
++	else if (getArea().getNumTiles() < kUnit.getMinAreaSize())
+ 		return false;
+ 	/*  <advc.041> Replacing the above (moved into CvCityAI::AI_bestUnitAI). I.e.
+-		treat MinAreaSize and PrereqBonuses as mere recommendations (for the AI)
+-		rather than game rules.
++		treat MinAreaSize as a mere recommendation for the AI rather than a game rule.
+ 		NB: MinAreaSize is still enforced as a rule for buildings.
+ 		The last clause above should perhaps be checked by the AI before
+ 		upgrading units; but AI sea units can end up in small water areas only via
+ 		WorldBuilder [or possibly teleport -> advc.046], so I'm not bothering with this. */
+ 	if (bCity)
+ 	{
+-		if(GC.getInfo(eUnit).getDomainType() == DOMAIN_SEA && !isWater() &&
+-			!isCoastalLand())
++		/*  Don't allow any ships to be trained at lakes, except Work Boat
++			(if there are resources in the lake; already checked above). */
++		if (kUnit.getDomainType() == DOMAIN_SEA && !kUnit.isPrereqBonuses() &&
++			!isAdjacentSaltWater())
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 7a7277a86..2baa23b7f 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -84,6 +84,7 @@ public:
+ 	DllExport bool isLake() const;																															// Exposed to Python
+ 	bool isFreshWater() const;																												// Exposed to Python
+ 	bool isAdjacentFreshWater() const; // advc.108
++	bool isAdjacentSaltWater() const; // advc.041
+ 	bool isPotentialIrrigation() const;																													// Exposed to Python
+ 	bool canHavePotentialIrrigation() const;																										// Exposed to Python
+ 	DllExport bool isIrrigationAvailable(bool bIgnoreSelf = false) const;													// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5665

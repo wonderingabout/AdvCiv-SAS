@@ -1,0 +1,411 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2518
+# Commit: f8031a49e877a28a6eb51c0c6de264d74d2c502c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d313b5fec1336e164961fda5b5586f31faaba9d4
+# Title: Some misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvInfoScreen.py
+8	3	CvGameCoreDLL/CvGameTextMgr.cpp
+3	3	CvGameCoreDLL/CvGlobals.cpp
+13	21	CvGameCoreDLL/CvPlayer.cpp
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+4	2	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvReplayInfo.cpp
+6	2	CvGameCoreDLL/CvSelectionGroup.cpp
+6	3	CvGameCoreDLL/CvSelectionGroupAI.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+13	12	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/FreeListTraversal.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index ea0600482..fbdcada62 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -2537,7 +2537,7 @@ class CvInfoScreen:
+ 			pPlayer = gc.getPlayer(iPlayerLoop)
+ 			iPlayerTeam = pPlayer.getTeam()
+ 
+-			# No barbs and only display national wonders for the active player's team
++			# No Barbarians and only display national wonders for the active player's team
+ 			if (pPlayer and not pPlayer.isBarbarian() and ((self.szWonderDisplayMode != self.szWDM_NatnlWonder) or (iPlayerTeam == gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).getID()))):
+ 
+ 				# Loop through this player's cities and determine if they have any wonders to display
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index dfb3e74e9..43985ae78 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -535,13 +535,16 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		int iTurns = pUnit->getPlot().getBuildTurnsLeft(eBuild,
+ 				/* advc.251: */ pUnit->getOwner(), 0, 0);
+ 		bool bSuspend = false;
+-		if(iTurns > 1) {
++		if(iTurns > 1)
++		{
+ 			CLLNode<MissionData>* pNode = pUnit->getGroup()->headMissionQueueNode();
+ 			if(pNode != NULL)
+ 			{
+ 				if(pNode->m_data.bModified && (GC.ctrlKey() ||
+-						BUGOption::isEnabled("MiscHover__PartialBuildsAlways", false)))
++					BUGOption::isEnabled("MiscHover__PartialBuildsAlways", false)))
++				{
+ 					bSuspend = true;
++				}
+ 			}
+ 		}
+ 		if(bSuspend)
+@@ -14348,8 +14351,10 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 		{
+ 			CLLNode<OrderData>* pOrderNode = pCity->headOrderQueueNode();
+ 			if(pOrderNode != NULL && pOrderNode->m_data.eOrderType == ORDER_CONSTRUCT &&
+-					pOrderNode->m_data.iData1 == eBuilding)
++				pOrderNode->m_data.iData1 == eBuilding)
++			{
+ 				bConstructing = true;
++			}
+ 		}
+ 		bool bHighlight = (bConstructing ||
+ 				(eActivePlayer != NO_PLAYER && pCity == NULL &&
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 3d9f41e3d..50c595c78 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -927,7 +927,7 @@ bool CvGlobals::isDLLProfilerEnabled() const
+ int CvGlobals::getTypesEnum(const char* szType,
+ 	bool bHideAssert, bool bFromPython) const // advc.006
+ {
+-	FAssertMsg(szType, "null type string");
++	FAssertMsg(szType != NULL, "null type string");
+ 	TypesMap::const_iterator it = m_typesMap.find(szType);
+ 	if (it != m_typesMap.end())
+ 		return it->second;
+@@ -974,7 +974,7 @@ void CvGlobals::setHoFScreenUp(bool b)
+ int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert,
+ 	bool bFromPython) const // advc.006
+ {
+-	FAssertMsg(szType, "null info type string");
++	FAssertMsg(szType != NULL, "null info type string");
+ 	InfosMap::const_iterator it = m_infosMap.find(szType);
+ 	if (it != m_infosMap.end())
+ 		return it->second;
+@@ -986,7 +986,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert,
+ 
+ void CvGlobals::setInfoTypeFromString(const char* szType, int idx)
+ {
+-	FAssertMsg(szType, "null info type string");
++	FAssertMsg(szType != NULL, "null info type string");
+ #ifdef _DEBUG
+ 	InfosMap::const_iterator it = m_infosMap.find(szType);
+ 	int iExisting = (it!=m_infosMap.end()) ? it->second : -1;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c7da1af76..a8c2d9b13 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -245,8 +245,8 @@ void CvPlayer::initAlerts(bool bSilentCheck)
+ 		return;
+ 	if (!m_paAlerts.empty())
+ 	{
+-		// OK if this happens when the active player is defeated during Auto Play
+-		FAssertMsg(!isAlive() && isHumanDisabled(), "initAlerts called redundantly");
++		FAssertMsg(!isAlive() && isHumanDisabled(), "initAlerts called redundantly "
++				"(OK upon defeat of active player during Auto Play)");
+ 		uninitAlerts();
+ 	}
+ 	/*  The order of this array needs to correspond to the ids returned
+@@ -1407,25 +1407,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	bool bPeaceDeal) // advc.ctr
+ {
+ 	CvPlot& kCityPlot = *pOldCity->plot();
+-	{	// Kill ICBMs
+-		CLinkList<IDInfo> oldUnits; // (I doubt that it's necessary to copy the plot's unit list here)
+-		{
+-			for (CLLNode<IDInfo> const* pUnitNode = kCityPlot.headUnitNode(); pUnitNode != NULL;
+-				pUnitNode = kCityPlot.nextUnitNode(pUnitNode))
+-			{
+-				oldUnits.insertAtEnd(pUnitNode->m_data);
+-			}
+-		}
+-		CLLNode<IDInfo>* pUnitNode = oldUnits.head();
+-		while (pUnitNode != NULL)
++	// Kill ICBMs
++	//CLinkList<IDInfo> oldUnits; ... // advc: Deleted; unnecessary.
++	CLLNode<IDInfo>* pNode = kCityPlot.headUnitNode();
++	while (pNode != NULL)
++	{
++		CvUnit& kUnit = *::getUnit(pNode->m_data);
++		pNode = kCityPlot.nextUnitNode(pNode);
++		if (kUnit.getDomainType() == DOMAIN_IMMOBILE &&
++			kUnit.getTeam() != getTeam())
+ 		{
+-			CvUnit& kUnit = *::getUnit(pUnitNode->m_data);
+-			pUnitNode = oldUnits.next(pUnitNode);
+-			if (kUnit.getTeam() != getTeam())
+-			{
+-				if (kUnit.getDomainType() == DOMAIN_IMMOBILE)
+-					kUnit.kill(false, getID());
+-			}
++			kUnit.kill(false, getID());
+ 		}
+ 	}
+ 	if (bConquest) // Force unowned after conquest
+@@ -10475,7 +10467,7 @@ int CvPlayer::getQueuePosition(TechTypes eTech) const
+ {
+ 	int i = 1;
+ 	for (CLLNode<TechTypes>* pResearchNode = headResearchQueueNode();
+-		pResearchNode; pResearchNode = nextResearchQueueNode(pResearchNode))
++		pResearchNode != NULL; pResearchNode = nextResearchQueueNode(pResearchNode))
+ 	{
+ 		if (pResearchNode->m_data == eTech)
+ 			return i;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 367970eac..4f148c4a6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8790,7 +8790,8 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 
+ 	if (iChange > -1)
+ 	{
+-		for (CLLNode<TradeData> const* pNode = kWeGive.head(); pNode; pNode = kWeGive.next(pNode))
++		for (CLLNode<TradeData> const* pNode = kWeGive.head(); pNode != NULL;
++			pNode = kWeGive.next(pNode))
+ 		{
+ 			if (getTradeDenial(ePlayer, pNode->m_data) != NO_DENIAL)
+ 				return false;
+@@ -14133,20 +14134,20 @@ int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot const& kPlot, bool bTestCan
+ 		for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL;
+ 			pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+ 		{
+-			CvUnitAI* pLoopUnit = ::AI_getUnit(pUnitNode->m_data);
++			CvUnitAI const* pLoopUnit = ::AI_getUnit(pUnitNode->m_data);
+ 			if (pLoopUnit->getOwner() != getID())
+ 				continue; // advc
+ 			//if (pLoopUnit->getDomainType() == ((pPlot->isWater()) ? DOMAIN_SEA : DOMAIN_LAND))
+ 			// advc.030: Replacing the above
+ 			if(kPlotArea.canBeEntered(kFromArea, pLoopUnit))
+ 			{
+-				if (pLoopUnit->canAttack()
++				if (pLoopUnit->canAttack() &&
+ 				/*  advc.315: This way, no units with OnlyAttackBarbarians are counted
+ 					as potential attackers. Could check if the CenterUnit of pPlot
+ 					is Barbarian, but only Explorer has OnlyAttackBarbarians and
+ 					I don't think the AI will or should use Explorers for any
+ 					coordinated attacks anyway. */
+-					&& !pLoopUnit->getUnitInfo().isMostlyDefensive())
++					!pLoopUnit->getUnitInfo().isMostlyDefensive())
+ 				{
+ 					if (!bTestCanMove || pLoopUnit->canMove())
+ 					{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index bf33a6271..47b77612b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -143,8 +143,10 @@ void CvPlot::erase()  // advc: some style changes
+ 	CLinkList<IDInfo> oldUnits;
+ 	{
+ 		for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+-				pUnitNode = nextUnitNode(pUnitNode))
++			pUnitNode = nextUnitNode(pUnitNode))
++		{
+ 			oldUnits.insertAtEnd(pUnitNode->m_data);
++		}
+ 	}
+ 	// kill units
+ 	CLLNode<IDInfo>* pUnitNode = oldUnits.head();
+@@ -249,7 +251,7 @@ void CvPlot::doTurn()
+ 	/*if (!isOwned())
+ 		doImprovementUpgrade();*/ // advc (comment): Was already commented out in BtS
+ 
+-	// advc: This sounds pretty slow and I'm not that I've ever needed it
++	// advc: This sounds pretty slow and I don't think I've ever needed it
+ 	/*#ifdef _DEBUG // XXX
+ 	for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+ 		pUnitNode = nextUnitNode(pUnitNode))
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 20b68b3af..e18064d5b 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -183,7 +183,8 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		m_listPlayerScoreHistory.push_back(playerInfo);
+ 	}
+ 
+-	m_listReplayMessages.clear();
++	//m_listReplayMessages.clear();
++	FAssert(m_listReplayMessages.empty()); // advc: The above would leak memory
+ 	// <advc.106h>
+ 	if(kGame.getGameState() == GAMESTATE_OVER &&
+ 		GC.getDefineINT("SETTINGS_IN_REPLAYS") > 0)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 0496495b9..2db9a6fb5 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1664,8 +1664,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)  // advc: style changes
+ 					{
+ 						CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+ 						if (pLoopGroup->getMissionType(0) == MISSION_BUILD &&
+-								pLoopGroup->getMissionData1(0) == eBuildType)
++							pLoopGroup->getMissionData1(0) == eBuildType)
++						{
+ 							pLoopGroup->deleteMissionQueueNode(pLoopGroup->headMissionQueueNode());
++						}
+ 					}
+ 				}
+ 			}
+@@ -2647,8 +2649,10 @@ void CvSelectionGroup::NotifyEntity(MissionTypes eMission)
+ void CvSelectionGroup::airCircle(bool bStart)
+ {
+ 	for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+-			pUnitNode = nextUnitNode(pUnitNode))
++		pUnitNode = nextUnitNode(pUnitNode))
++	{
+ 		::getUnit(pUnitNode->m_data)->airCircle(bStart);
++	}
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index a15e12cd3..e4146eb90 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -229,17 +229,20 @@ bool CvSelectionGroupAI::AI_update()
+ 				/*  What we do here might split the group. So to avoid problems,
+ 					lets make a list of our units. */
+ 				std::vector<IDInfo> originalGroup;
+-				for(CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL; pUnitNode = nextUnitNode(pUnitNode))
++				for(CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
++					pUnitNode = nextUnitNode(pUnitNode))
+  				{
+ 					originalGroup.push_back(pUnitNode->m_data);
+ 				}
+ 				FAssert(originalGroup.size() == getNumUnits());
+ 				bool bFirst = true;
+ 				path_finder.Reset();
+-				for (std::vector<IDInfo>::iterator it = originalGroup.begin(); it != originalGroup.end(); ++it)
++				for (std::vector<IDInfo>::iterator it = originalGroup.begin();
++					it != originalGroup.end(); ++it)
+ 				{
+ 					CvUnitAI* pLoopUnit = ::AI_getUnit(*it);
+-					if (pLoopUnit && pLoopUnit->getGroupID() == getID() && pLoopUnit->canMove())
++					if (pLoopUnit && pLoopUnit->getGroupID() == getID() &&
++						pLoopUnit->canMove())
+ 					{
+ 						if (pLoopUnit->AI_follow(bFirst))
+ 						{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 24723a892..b757bc671 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6,7 +6,7 @@
+ #include "CvSelectionGroupAI.h"
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+-#include "UWAIAgent.h" // advc.104
++#include "UWAIAgent.h"
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+ #include "CvArea.h"
+@@ -1915,7 +1915,8 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ 	if(bForceClear || iMode <= 0 || !canFound())
+ 		return;
+ 	CvSelectionGroup* gr = getGroup();
+-	for(CLLNode<IDInfo> const* pNode = gr->headUnitNode(); pNode != NULL; pNode = gr->nextUnitNode(pNode))
++	for(CLLNode<IDInfo> const* pNode = gr->headUnitNode(); pNode != NULL;
++		pNode = gr->nextUnitNode(pNode))
+ 	{
+ 		CvUnit const* pUnit = ::getUnit(pNode->m_data);
+ 		if(pUnit == NULL || (pUnit->IsSelected() && !pUnit->canFound()))
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3d5121aa9..9ef36758d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21534,22 +21534,21 @@ bool CvUnitAI::AI_poach()
+ 	return false;
+ }
+ #endif
++
+ // K-Mod. I've rewritten most of this function.
+ bool CvUnitAI::AI_choke(int iRange, bool bDefensive, int iFlags)
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iPercentDefensive;
++	scaled rDefensive; // advc (nicer)
++	for (CLLNode<IDInfo> const* pUnitNode = getGroup()->headUnitNode();
++		pUnitNode != NULL; pUnitNode = getGroup()->nextUnitNode(pUnitNode))
+ 	{
+-		int iDefCount = 0;
+-		for (CLLNode<IDInfo> const* pUnitNode = getGroup()->headUnitNode();
+-			pUnitNode != NULL; pUnitNode = getGroup()->nextUnitNode(pUnitNode))
+-		{
+-			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			iDefCount += pLoopUnit->noDefensiveBonus() ? 0 : 1;
+-		}
+-		iPercentDefensive = 100 * iDefCount / getGroup()->getNumUnits();
++		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		if (!pLoopUnit->noDefensiveBonus())
++			rDefensive++;
+ 	}
++	rDefensive /= getGroup()->getNumUnits();
+ 
+ 	CvPlot* pBestPlot = 0;
+ 	CvPlot* pEndTurnPlot = 0;
+@@ -21581,9 +21580,11 @@ bool CvUnitAI::AI_choke(int iRange, bool bDefensive, int iFlags)
+ 			iValue += AI_pillageValue(p, 0) / (bDefensive ? 2 : 1);
+ 		if (iValue <= 0)
+ 			continue; // advc
+-		iValue *= (bDefensive ? 25 : 50) + (iPercentDefensive *
+-				//pLoopPlot->defenseModifier(getTeam(), false)
+-				AI_plotDefense(&p)) / 100; // advc.012
++
++		scaled rDefFactor = per100(bDefensive ? 25 : 50) +
++				rDefensive * //p.defenseModifier(getTeam(), false)
++				per100(AI_plotDefense(&p)); // advc.012
++		iValue = (iValue * rDefFactor).round();
+ 
+ 		if (bDefensive)
+ 		{
+
+diff --git a/CvGameCoreDLL/FreeListTraversal.h b/CvGameCoreDLL/FreeListTraversal.h
+index 87a9c6360..6a21979f4 100644
+--- a/CvGameCoreDLL/FreeListTraversal.h
++++ b/CvGameCoreDLL/FreeListTraversal.h
+@@ -3,7 +3,7 @@
+ #ifndef FREE_LIST_TRAVERSAL_H
+ #define FREE_LIST_TRAVERSAL_H
+ 
+-// advc.003s: Macros for traversing  FFreeListTrashArray
++// advc.003s: Macros for traversing FFreeListTrashArray
+ // advc.003u: Added variants that provide a pointer to an AI object (e.g. FOR_EACH_UNITAI).
+ 
+ /*  All FOR_EACH macros need to be listed in cpp.hint so that Visual Studio can
+@@ -12,7 +12,7 @@
+ 	with more recent versions.) */
+ 
+ // ('iLoopCounter_##__LINE__' won't work)
+-#define LOOPCOUNTERNAME CONCATVARNAME(iLoopCounter_, __LINE__)
++#define LOOPCOUNTERNAME CONCATVARNAME(iAnonLoopCounter_, __LINE__)
+ 
+ /*  pointerType argument to allow the caller to choose AI or non-AI type and
+ 	const or non-const. -- Not intuitive enough; create a separate macro for every
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=14928

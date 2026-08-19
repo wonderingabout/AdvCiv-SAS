@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2768
+# Commit: 68196b1cd152615955a0cbece59f8987acdfc5d6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 71627e8a7e10946c1e6c5e00d8c2df10578f4151
+# Title: UWAI: Tweak "loathing" aspect of war utility calculation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	3	CvGameCoreDLL/UWAIAgent.cpp
+2	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 8d823bffd..b3212f431 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -2578,9 +2578,21 @@ double UWAI::Civ::confidenceAgainstHuman() const {
+ int UWAI::Civ::vengefulness() const {
+ 
+ 	CvPlayerAI const& we = GET_PLAYER(weId);
+-	// AI assumes that humans are calculating, not vengeful
+-	if(we.isHuman())
+-		return 0;
++	/*	AI assumes that humans are mostly calculating.
++		But player feedback has shown that most humans are at least
++		a little bit vengeful, casual players a bit more so.
++		On the bottom line, this is relevant mainly for the reparations
++		that the AI is willing to pay. */
++	if(we.isHuman()) {
++		if(GC.getGame().isOption(GAMEOPTION_RISE_FALL)) // Difficulty not so telling in R&F
++			return 1;
++		int const diffic = GC.getInfo(we.getHandicapType()).getDifficulty();
++		if(diffic >= 50)
++			return 1;
++		if(diffic > 20)
++			return 2;
++		return 3;
++	}
+ 	/*  RefuseToTalkWarThreshold loses its original meaning because UWAI
+ 		doesn't sulk. It fits pretty well for carrying a grudge. Sitting Bull
+ 		has the highest value (12) and De Gaulle the lowest (5).
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 56c20d168..79ceb831f 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -981,7 +981,8 @@ void Loathing::evaluate() {
+ 				worst enemy, but Furious attitude is unusual even when at war. */
+ 			agent.AI_getWorstEnemy() != TEAMID(theyId))) ||
+ 			// Capitulated is as good as dead
+-			GET_TEAM(theyId).isCapitulated())
++			GET_TEAM(theyId).isCapitulated() ||
++			m->isEliminated(weId)) // Don't suicide just to inconvenience an enemy
+ 		return;
+ 	int veng = weAI->vengefulness();
+ 	if(veng == 0) {
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1803

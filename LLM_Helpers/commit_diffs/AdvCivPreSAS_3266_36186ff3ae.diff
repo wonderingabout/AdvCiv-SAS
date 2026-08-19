@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3266
+# Commit: 36186ff3ae123f5e6d730b9cf25044fb85510eaa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 81b9a8bb7deac223597c5e20a5394893f44a7dfa
+# Title: Attach city bar help to city name on Domestic Advisor
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	3	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+5	1	Assets/Python/Screens/CvDomesticAdvisor.py
+2	2	CvGameCoreDLL/CvDLLButtonPopup.cpp
+4	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	0	CvGameCoreDLL/CvEnums.h
+2	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index bb4daa438..d77f86aac 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -2298,20 +2298,28 @@ class CvCustomizableDomesticAdvisor:
+ 						return;
+ 
+ 					colorFunc = self.ColorCityValues
++					# <advc.186b> Attach examine text to the city name column (if present) - rather than to the zoom button.
++					# (I'm calling this inner function in three places below)
++					def widgetDataForCity(city):
++						if (columnDef[0] == "NAME"):
++							return (WidgetTypes.WIDGET_EXAMINE_CITY, city.getOwner(), city.getID())
++						return (WidgetTypes.WIDGET_GENERAL, -1, -1) # </advc.186b>
+ 
+ 					if(columnDef[3]):
+ 						calcFunc = columnDef[3]
+ 						# Loop through the cities
+ 						for i in cityRange:
+ 							szValue = colorFunc(unicode(calcFunc(cityList[i].city)), key)
+-							funcTableWrite (page, value + 1, i, szValue, "", WidgetTypes.WIDGET_GENERAL, -1, -1, justify)
++							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
++							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
+ 						
+ 					elif(columnDef[4]):
+ 						calcFunc = columnDef[4]
+ 						# Loop through the cities
+ 						for i in cityRange:
+ 							szValue = colorFunc(unicode(calcFunc(cityList[i].city, columnDef[5])), key)
+-							funcTableWrite (page, value + 1, i, szValue, "", WidgetTypes.WIDGET_GENERAL, -1, -1, justify)
++							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
++							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
+ 
+ 					else:
+ 						calcFunc = columnDef[6]
+@@ -2319,7 +2327,8 @@ class CvCustomizableDomesticAdvisor:
+ 						# Loop through the cities
+ 						for i in cityRange:
+ 							szValue = colorFunc(unicode(calcFunc(cityList[i].city, key, columnDef[7])), key)
+-							funcTableWrite (page, value + 1, i, szValue, "", WidgetTypes.WIDGET_GENERAL, -1, -1, justify)
++							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
++							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
+ 
+ 				except KeyError:
+ 					continue
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index c162a0933..668c6f8f2 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -215,7 +215,11 @@ class CvDomesticAdvisor:
+ 				szName += (u"%c" % gc.getCorporationInfo(iCorporation).getChar())
+ 					
+ 		# City name...
+-		screen.setTableText( "CityListBackground", 1, i, szName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableText( "CityListBackground", 1, i, szName, "",
++				#WidgetTypes.WIDGET_GENERAL, -1, -1,
++				# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
++				WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(),
++				CvUtil.FONT_LEFT_JUSTIFY )
+ 		
+ 		# Population
+ 		screen.setTableInt( "CityListBackground", 2, i, unicode(pLoopCity.getPopulation()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index feb398f11..03369854f 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1074,8 +1074,8 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 				ARTFILEMGR.getInterfaceArtPath("INTERFACE_BUTTONS_CITYSELECTION"),
+ 				iExamineCityID,
+ 				//WIDGET_GENERAL, -1, -1,
+-				// BULL - Zoom City Details (advc.186b):
+-				WIDGET_ZOOM_CITY, getActivePlayer(), info.getData1(),
++				// advc.186b (for BULL - Zoom City Details):
++				WIDGET_EXAMINE_CITY, getActivePlayer(), info.getData1(),
+ 				true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+ 	}
+ 	// Were never read before being reassigned
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 0b506d0a4..a9c737674 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -184,10 +184,12 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		break;
+ 
+ 	case WIDGET_ZOOM_CITY:
++	case WIDGET_EXAMINE_CITY: // advc.186b
+ 		szBuffer.append(gDLL->getText("TXT_KEY_ZOOM_CITY_HELP"));
+ 		// BUG - Zoom City Details - start (advc.186b)
+-		// Only if the active player owns the city
+-		if (getActivePlayer() == widgetDataStruct.m_iData1)
++		if (widgetDataStruct.m_eWidgetType == WIDGET_EXAMINE_CITY &&
++			// Only if the active player owns the city
++			eActivePlayer == widgetDataStruct.m_iData1)
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			GAMETEXT.setCityBarHelp(szBuffer,
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 52b3078df..e1e29d7dd 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -506,6 +506,7 @@ ENUM_START(Widget, WIDGET)
+ 	WIDGET_ANARCHY, // </advc.085>
+ 	WIDGET_CITY_TRADE, // advc.ctr
+ 	WIDGET_CYCLE_UNIT, // advc.154
++	WIDGET_EXAMINE_CITY, // advc.186b (for BULL - Zoom City Details)
+ ENUM_END(Widget, WIDGET)
+ 
+ ENUM_START(ButtonPopup, BUTTONPOPUP)
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 9142b4d81..9c9bf2459 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -428,6 +428,8 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_ANARCHY", WIDGET_ANARCHY) // </advc.085>
+ 		.value("WIDGET_CITY_TRADE", WIDGET_CITY_TRADE) // advc.ctr
+ 		.value("WIDGET_CYCLE_UNIT", WIDGET_CYCLE_UNIT) // advc.154
++		// advc.186b: (for BULL - Zoom City Details)
++		.value("WIDGET_EXAMINE_CITY", WIDGET_EXAMINE_CITY)
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5857

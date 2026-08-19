@@ -1,0 +1,102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 518
+# Commit: 7143f627e521efc44ba061c0876f079eb69b5846
+# History segment: K-Mod history
+# Parent used for diff: c3d1c81aec3c0e8dba0a5c0c5e52111022e453d4
+# Title: Fixed some problems with the food component of AI_citizenSacrificeValue. Increased the movement cost of moving from one unrevealed tile to another. (So that...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	16	CvGameCoreDLL/CvCityAI.cpp
+4	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f80145744..537f9a8f2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9079,15 +9079,18 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 	int iTotalFood = getYieldRate(YIELD_FOOD) - iWastedFood;
+ 
+ 	// calculate the total cost-per-turn from missing iCitLoss citizens.
+-	// -- unfortunately, the calculation for food is slightly more complex, so we have to do that later.
+ 	int iBaseCostPerTurn = 0;
+ 	for (int j = 0; j < NUM_YIELD_TYPES; j++)
+ 	{
+-		if (j != YIELD_FOOD)
+-		{
+-			if (iYields[j] > 0)
+-				iBaseCostPerTurn += 4 * iYields[j] * AI_yieldMultiplier((YieldTypes)j) * kOwner.AI_yieldWeight((YieldTypes)j) / 100;
+-		}
++		if (iYields[j] > 0)
++			iBaseCostPerTurn += 4 * iYields[j] * AI_yieldMultiplier((YieldTypes)j) * kOwner.AI_yieldWeight((YieldTypes)j) / 100;
++	}
++	// reduce value of food used for production - otherwise our citizens might be overvalued due to working extra food.
++	if (isFoodProduction())
++	{
++		int iExtraFood = iTotalFood - getPopulation() * GC.getFOOD_CONSUMPTION_PER_POPULATION();
++		iExtraFood = std::min(iExtraFood, iYields[YIELD_FOOD]*AI_yieldMultiplier(YIELD_FOOD)/100);
++		iBaseCostPerTurn -= 4 * iExtraFood * (kOwner.AI_yieldWeight(YIELD_FOOD)-kOwner.AI_yieldWeight(YIELD_PRODUCTION)); // note that we're keeping a factor of 100.
+ 	}
+ 	//
+ 
+@@ -9109,18 +9112,14 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 
+ 		int iRecoveryTurns = iFoodRate > 0 ? (iFoodLoss+iFoodRate-1) / iFoodRate : iFoodLoss * 3 / 2;
+ 		int iCostPerTurn = iBaseCostPerTurn;
+-		// food component
+-		{
+-			int f = iYields[YIELD_FOOD]* AI_yieldMultiplier(YIELD_FOOD)/100 - (std::min(iWastedFood, i) + GC.getFOOD_CONSUMPTION_PER_POPULATION()*job_scores.size());
+-			if (f != 0)
+-				iCostPerTurn += 4 * f * kOwner.AI_yieldWeight(isFoodProduction() ? YIELD_PRODUCTION : YIELD_FOOD);
+-		}
++		// extra food from reducing the population:
++		iCostPerTurn -= 4 * (std::min(iWastedFood, i) + i*GC.getFOOD_CONSUMPTION_PER_POPULATION()) * kOwner.AI_yieldWeight(YIELD_FOOD);
+ 
+ 		iCostPerTurn *= iScoreLoss;
+ 		iCostPerTurn /= std::max(1, iTotalScore * 100);
+ 		iCostPerTurn += 2*i; // just a little bit of extra cost, to show that we care...
+ 
+-		FAssert(iCostPerTurn > 0 && iRecoveryTurns > 0);
++		FAssert(iCostPerTurn > 0 && iRecoveryTurns > 0); // iCostPerTurn <= 0 is possible, but it should be rare - This assert is just for testing.
+ 
+ 		// recovery isn't complete if the citizen is still angry
+ 		iAngerTimer -= iRecoveryTurns;
+@@ -9144,9 +9143,6 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 		if (iAngerTimer > 0)
+ 		{
+ 			int iCostPerTurn = iBaseCostPerTurn;
+-			int f = iYields[YIELD_FOOD] * AI_yieldMultiplier(YIELD_FOOD)/100 - GC.getFOOD_CONSUMPTION_PER_POPULATION()*job_scores.size();
+-			if (f > 0)
+-				iCostPerTurn += 4 * f * kOwner.AI_yieldWeight(YIELD_FOOD);
+ 
+ 			iCostPerTurn *= iAverageScore * (iNewAnger + 1 - iHappyLevel);
+ 			iCostPerTurn /= std::max(1, iTotalScore * 100);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 5e622165c..25b0b03c0 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2793,7 +2793,10 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
+ 	// K-Mod. Why let the AI cheat this?
+ 	if (!isRevealed(pUnit->getTeam(), false))
+ 	{
+-		return GC.getMOVE_DENOMINATOR();
++		if (!pFromPlot->isRevealed(pUnit->getTeam(), false))
++			return pUnit->maxMoves();
++		else
++			return GC.getMOVE_DENOMINATOR() + 1;
+ 	}
+ 	// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3650

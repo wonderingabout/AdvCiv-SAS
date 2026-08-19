@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 926
+# Commit: cab7f149bab2f4a5ddf48494a55fbbb6fab5be53
+# History segment: K-Mod history
+# Parent used for diff: fe1e7798c8abad95d50a977d4fc398274ff24204
+# Title: Fixed a bug which sometimes caused free specialist to be poorly assigned
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	1	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8b8aaf05f..e2f0d0ddb 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9004,7 +9004,27 @@ void CvCityAI::AI_juggleCitizens()
+ 		}
+ 		// if values are equal - prefer to work the specialist job. (perhaps a different city can use the plot)
+ 
+-		// don't let us reassign our free specialists onto plots
++		// make sure our free specialists get the best jobs, regardless of plot value,
++		// and don't let us reassign our free specialists onto plots
++		if (getSpecialistPopulation() <= iTotalFreeSpecialists && iWorkedSpecValue < iWorkedPlotValue)
++		{
++			if (iUnworkedSpecValue > iWorkedSpecValue && eUnworkedSpecialist != eLatestSpecialist)
++			{
++				int iWorkedForce = bForcedSpecialists && eWorkedSpecialist != NO_SPECIALIST
++					? getForceSpecialistCount(eWorkedSpecialist) * 128 / iTotalForcedSpecialists - getSpecialistCount(eWorkedSpecialist) * 128 / (getSpecialistPopulation()+1)
++					: 0;
++				if (iWorkedForce >= iUnworkedSpecForce)
++				{
++					iUnworkedSpecValue = INT_MAX; // force specialist swap
++				}
++			}
++
++			if (iUnworkedPlotValue > iUnworkedSpecValue)
++			{
++				iWorkedSpecValue = INT_MAX; // block spec removal
++			}
++		}
++
+ 		if (iWorkedSpecValue < iWorkedPlotValue && iUnworkedPlotValue > iUnworkedSpecValue &&
+ 			getSpecialistPopulation() <= iTotalFreeSpecialists)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1400

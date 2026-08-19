@@ -1,0 +1,2910 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2893
+# Commit: 675506d2b5433e2cf0ff117f6adf0bc9d3a1bd76
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b6c5d8305485eed12b8c5c2be0a1b1821d365f9e
+# Title: Rename eIndex variables in CvCity functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+417	407	CvGameCoreDLL/CvCity.cpp
+299	299	CvGameCoreDLL/CvCity.h
+14	17	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b5743ad7c..f547ef98a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1,5 +1,3 @@
+-// city.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvCity.h"
+ #include "CvCityAI.h"
+@@ -2837,7 +2835,7 @@ int CvCity::getBonusPower(BonusTypes eBonus, bool bDirty) const
+ }
+ 
+ 
+-int CvCity::getBonusYieldRateModifier(YieldTypes eIndex, BonusTypes eBonus) const
++int CvCity::getBonusYieldRateModifier(YieldTypes eYield, BonusTypes eBonus) const
+ {
+ 	int iModifier = 0;
+ 	CvCivilization const& kCiv = getCivilization();
+@@ -2845,7 +2843,7 @@ int CvCity::getBonusYieldRateModifier(YieldTypes eIndex, BonusTypes eBonus) cons
+ 	{
+ 		BuildingTypes const eBuilding = kCiv.buildingAt(i);
+ 		iModifier += getNumActiveBuilding(eBuilding) *
+-				GC.getInfo(eBuilding).getBonusYieldModifier(eBonus, eIndex);
++				GC.getInfo(eBuilding).getBonusYieldModifier(eBonus, eYield);
+ 	}
+ 	return iModifier;
+ }
+@@ -3331,9 +3329,9 @@ bool CvCity::isNoMaintenance() const
+ }
+ 
+ 
+-bool CvCity::isHolyCity(ReligionTypes eIndex) const
++bool CvCity::isHolyCity(ReligionTypes eReligion) const
+ {
+-	return (GC.getGame().getHolyCity(eIndex) == this);
++	return (GC.getGame().getHolyCity(eReligion) == this);
+ }
+ 
+ 
+@@ -3348,15 +3346,15 @@ bool CvCity::isHolyCity() const
+ }
+ 
+ 
+-bool CvCity::isHeadquarters(CorporationTypes eIndex) const
++bool CvCity::isHeadquarters(CorporationTypes eCorp) const
+ {
+-	return (GC.getGame().getHeadquarters(eIndex) == this);
++	return (GC.getGame().getHeadquarters(eCorp) == this);
+ }
+ 
+-void CvCity::setHeadquarters(CorporationTypes eIndex)
++void CvCity::setHeadquarters(CorporationTypes eCorp)
+ {
+-	GC.getGame().setHeadquarters(eIndex, this, /* advc.106e: */ false);
+-	UnitClassTypes eFreeClass = (UnitClassTypes)GC.getInfo(eIndex).getFreeUnitClass();
++	GC.getGame().setHeadquarters(eCorp, this, /* advc.106e: */ false);
++	UnitClassTypes eFreeClass = (UnitClassTypes)GC.getInfo(eCorp).getFreeUnitClass();
+ 	if (eFreeClass != NO_UNITCLASS)
+ 	{
+ 		UnitTypes eFreeUnit = getCivilization().getUnit(eFreeClass);
+@@ -4242,10 +4240,10 @@ PlayerTypes CvCity::calculateCulturalOwner() const
+ }
+ 
+ 
+-int CvCity::getNumBuilding(BuildingTypes eIndex) const
++int CvCity::getNumBuilding(BuildingTypes eBuilding) const
+ {
+ 	return std::min(GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS),
+-			getNumRealBuilding(eIndex) + getNumFreeBuilding(eIndex));
++			getNumRealBuilding(eBuilding) + getNumFreeBuilding(eBuilding));
+ }
+ 
+ // advc.003w:
+@@ -4258,11 +4256,11 @@ int CvCity::getNumBuilding(BuildingClassTypes eBuildingClass) const
+ }
+ 
+ 
+-int CvCity::getNumActiveBuilding(BuildingTypes eIndex) const
++int CvCity::getNumActiveBuilding(BuildingTypes eBuilding) const
+ {
+-	if (GET_TEAM(getTeam()).isObsoleteBuilding(eIndex))
++	if (GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
+ 		return 0;
+-	return getNumBuilding(eIndex);
++	return getNumBuilding(eBuilding);
+ }
+ 
+ // UNOFFICIAL_PATCH, War tactics AI, 03/04/10, Mongoose & jdog5000:
+@@ -4293,29 +4291,6 @@ int CvCity::getNumActiveWorldWonders(int iStopCountAt, // advc
+ 	return iCount;
+ }
+ 
+-
+-int CvCity::getReligionCount() const
+-{
+-	int iCount = 0;
+-	FOR_EACH_ENUM(Religion)
+-	{
+-		if (isHasReligion(eLoopReligion))
+-			iCount++;
+-	}
+-	return iCount;
+-}
+-
+-int CvCity::getCorporationCount() const
+-{
+-	int iCount = 0;
+-	FOR_EACH_ENUM(Corporation)
+-	{
+-		if (isHasCorporation(eLoopCorporation))
+-			iCount++;
+-	}
+-	return iCount;
+-}
+-
+ // advc:
+ CvCity* CvCity::fromIDInfo(IDInfo id)
+ {
+@@ -6481,7 +6456,8 @@ void CvCity::setProductionAutomated(bool bNewValue, bool bClear)
+ 		AI().AI_chooseProduction();
+ }
+ 
+-
++/*	allows you to programmatically specify a cities walls
++	rather than having them be generated automagically */
+ bool CvCity::isWallOverride() const
+ {
+ 	return m_bWallOverride;
+@@ -6713,23 +6689,23 @@ int CvCity::getCultureTurnsLeft() const
+ }
+ 
+ 
+-void CvCity::changeSeaPlotYield(YieldTypes eIndex, int iChange)
++void CvCity::changeSeaPlotYield(YieldTypes eYield, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiSeaPlotYield.add(eIndex, iChange);
+-		FAssert(getSeaPlotYield(eIndex) >= 0);
++		m_aiSeaPlotYield.add(eYield, iChange);
++		FAssert(getSeaPlotYield(eYield) >= 0);
+ 		updateYield();
+ 	}
+ }
+ 
+ 
+-void CvCity::changeRiverPlotYield(YieldTypes eIndex, int iChange)
++void CvCity::changeRiverPlotYield(YieldTypes eYield, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiRiverPlotYield.add(eIndex, iChange);
+-		FAssert(getRiverPlotYield(eIndex) >= 0);
++		m_aiRiverPlotYield.add(eYield, iChange);
++		FAssert(getRiverPlotYield(eYield) >= 0);
+ 		updateYield();
+ 	}
+ }
+@@ -6934,19 +6910,19 @@ int CvCity::getAdditionalBaseYieldRateBySpecialist(YieldTypes eYield, Specialist
+ }
+ // BUG - Specialist Additional Yield - end
+ 
+-int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra) const
++int CvCity::getBaseYieldRateModifier(YieldTypes eYield, int iExtra) const
+ {
+-	int iModifier = getYieldRateModifier(eIndex);
+-	iModifier += getBonusYieldRateModifier(eIndex);
++	int iModifier = getYieldRateModifier(eYield);
++	iModifier += getBonusYieldRateModifier(eYield);
+ 
+ 	if (isPower())
+-		iModifier += getPowerYieldRateModifier(eIndex);
++		iModifier += getPowerYieldRateModifier(eYield);
+ 
+-	iModifier += getArea().getYieldRateModifier(getOwner(), eIndex);
+-	iModifier += GET_PLAYER(getOwner()).getYieldRateModifier(eIndex);
++	iModifier += getArea().getYieldRateModifier(getOwner(), eYield);
++	iModifier += GET_PLAYER(getOwner()).getYieldRateModifier(eYield);
+ 
+ 	if (isCapital())
+-		iModifier += GET_PLAYER(getOwner()).getCapitalYieldRateModifier(eIndex);
++		iModifier += GET_PLAYER(getOwner()).getCapitalYieldRateModifier(eYield);
+ 
+ 	iModifier += iExtra;
+ 
+@@ -6957,16 +6933,16 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra) const
+ }
+ 
+ 
+-void CvCity::setBaseYieldRate(YieldTypes eIndex, int iNewValue)
++void CvCity::setBaseYieldRate(YieldTypes eYield, int iNewValue)
+ {
+-	if (getBaseYieldRate(eIndex) == iNewValue)
++	if (getBaseYieldRate(eYield) == iNewValue)
+ 		return; // advc
+ 
+ 	FAssert(iNewValue >= 0);
+ 	//FAssert((iNewValue * 100) / 100 >= 0); // advc: ??
+ 
+-	m_aiBaseYieldRate.set(eIndex, iNewValue);
+-	FAssert(getYieldRate(eIndex) >= 0);
++	m_aiBaseYieldRate.set(eYield, iNewValue);
++	FAssert(getYieldRate(eYield) >= 0);
+ 
+ 	updateCommerce();
+ 
+@@ -6982,22 +6958,22 @@ void CvCity::setBaseYieldRate(YieldTypes eIndex, int iNewValue)
+ }
+ 
+ 
+-void CvCity::changeBaseYieldRate(YieldTypes eIndex, int iChange)
++void CvCity::changeBaseYieldRate(YieldTypes eYield, int iChange)
+ {
+-	setBaseYieldRate(eIndex, getBaseYieldRate(eIndex) + iChange);
++	setBaseYieldRate(eYield, getBaseYieldRate(eYield) + iChange);
+ }
+ 
+ 
+-void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
++void CvCity::changeYieldRateModifier(YieldTypes eYield, int iChange)
+ {
+ 	if (iChange == 0)
+ 		return;
+ 
+-	m_aiYieldRateModifier.add(eIndex, iChange);
+-	FAssert(getYieldRate(eIndex) >= 0);
+-	GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
++	m_aiYieldRateModifier.add(eYield, iChange);
++	FAssert(getYieldRate(eYield) >= 0);
++	GET_PLAYER(getOwner()).invalidateYieldRankCache(eYield);
+ 
+-	if (eIndex == YIELD_COMMERCE)
++	if (eYield == YIELD_COMMERCE)
+ 		updateCommerce();
+ 	AI_setAssignWorkDirty(true);
+ 
+@@ -7006,16 +6982,16 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
+ }
+ 
+ 
+-void CvCity::changePowerYieldRateModifier(YieldTypes eIndex, int iChange)
++void CvCity::changePowerYieldRateModifier(YieldTypes eYield, int iChange)
+ {
+ 	if (iChange == 0)
+ 		return;
+ 
+-	m_aiPowerYieldRateModifier.add(eIndex, iChange);
+-	FAssert(getYieldRate(eIndex) >= 0);
+-	GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
++	m_aiPowerYieldRateModifier.add(eYield, iChange);
++	FAssert(getYieldRate(eYield) >= 0);
++	GET_PLAYER(getOwner()).invalidateYieldRankCache(eYield);
+ 
+-	if (eIndex == YIELD_COMMERCE)
++	if (eYield == YIELD_COMMERCE)
+ 		updateCommerce();
+ 	AI_setAssignWorkDirty(true);
+ 
+@@ -7024,16 +7000,16 @@ void CvCity::changePowerYieldRateModifier(YieldTypes eIndex, int iChange)
+ }
+ 
+ 
+-void CvCity::changeBonusYieldRateModifier(YieldTypes eIndex, int iChange)
++void CvCity::changeBonusYieldRateModifier(YieldTypes eYield, int iChange)
+ {
+ 	if (iChange == 0)
+ 		return;
+ 
+-	m_aiBonusYieldRateModifier.add(eIndex, iChange);
+-	FAssert(getYieldRate(eIndex) >= 0);
+-	GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
++	m_aiBonusYieldRateModifier.add(eYield, iChange);
++	FAssert(getYieldRate(eYield) >= 0);
++	GET_PLAYER(getOwner()).invalidateYieldRankCache(eYield);
+ 
+-	if (eIndex == YIELD_COMMERCE)
++	if (eYield == YIELD_COMMERCE)
+ 		updateCommerce();
+ 	AI_setAssignWorkDirty(true);
+ 
+@@ -7068,6 +7044,7 @@ int CvCity::totalTradeModifier(CvCity const* pOtherCity) const // advc: const Cv
+ 	return iModifier;
+ }
+ 
++
+ int CvCity::getPopulationTradeModifier() const
+ {
+ 	static int const iOUR_POPULATION_TRADE_MODIFIER = GC.getDefineINT("OUR_POPULATION_TRADE_MODIFIER"); // advc.opt
+@@ -7075,6 +7052,7 @@ int CvCity::getPopulationTradeModifier() const
+ 	return std::max(0, (getPopulation() + iOUR_POPULATION_TRADE_MODIFIER_OFFSET) * iOUR_POPULATION_TRADE_MODIFIER);
+ }
+ 
++
+ int CvCity::getPeaceTradeModifier(TeamTypes eTeam) const
+ {
+ 	FAssert(NO_TEAM != eTeam);
+@@ -7094,6 +7072,7 @@ int CvCity::getPeaceTradeModifier(TeamTypes eTeam) const
+ 			std::max(1, iFOREIGN_TRADE_FULL_CREDIT_PEACE_TURNS);
+ }
+ 
++
+ int CvCity::getBaseTradeProfit(CvCity const* pCity) const // advc: const CvCity*
+ {
+ 	static int const iTHEIR_POPULATION_TRADE_PERCENT = GC.getDefineINT("THEIR_POPULATION_TRADE_PERCENT"); // advc.opt
+@@ -7109,6 +7088,7 @@ int CvCity::getBaseTradeProfit(CvCity const* pCity) const // advc: const CvCity*
+ 	return iProfit;
+ }
+ 
++
+ int CvCity::calculateTradeProfitTimes100(CvCity const* pCity) const // advc: const CvCity*
+ {
+ 	int iProfit = getBaseTradeProfit(pCity);
+@@ -7118,17 +7098,17 @@ int CvCity::calculateTradeProfitTimes100(CvCity const* pCity) const // advc: con
+ }
+ 
+ 
+-int CvCity::calculateTradeYield(YieldTypes eIndex, int iTradeProfit) const
++int CvCity::calculateTradeYield(YieldTypes eYield, int iTradeProfit) const
+ {
+-	if (iTradeProfit > 0 && GET_PLAYER(getOwner()).getTradeYieldModifier(eIndex) > 0)
+-		return (iTradeProfit * GET_PLAYER(getOwner()).getTradeYieldModifier(eIndex)) / 100;
++	if (iTradeProfit > 0 && GET_PLAYER(getOwner()).getTradeYieldModifier(eYield) > 0)
++		return (iTradeProfit * GET_PLAYER(getOwner()).getTradeYieldModifier(eYield)) / 100;
+ 	return 0;
+ }
+ 
+ // BULL - Trade Hover:  (advc: simplified a bit, _MOD_FRACTRADE removed)
+ /*  Adds the yield and count for each trade route with eWithPlayer to the
+ 	int references (out parameters). */
+-void CvCity::calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& iDomesticRoutes,
++void CvCity::calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes,
+ 	int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer) const
+ {
+ 	if(isDisorder())
+@@ -7142,7 +7122,7 @@ void CvCity::calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& i
+ 			pTradeCity->getOwner() == eWithPlayer))
+ 		{
+ 			int iTradeYield = calculateTradeYield(//YIELD_COMMERCE
+-					eIndex, // advc.001
++					eYield, // advc.001
+ 					calculateTradeProfit(pTradeCity));
+ 			if (pTradeCity->getOwner() == getOwner())
+ 			{
+@@ -7158,22 +7138,23 @@ void CvCity::calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& i
+ 	}
+ }
+ 
+-void CvCity::setTradeYield(YieldTypes eIndex, int iNewValue)
++
++void CvCity::setTradeYield(YieldTypes eYield, int iNewValue)
+ {
+-	int const iOldValue = getTradeYield(eIndex);
++	int const iOldValue = getTradeYield(eYield);
+ 	if (iOldValue != iNewValue)
+ 	{
+-		m_aiTradeYield.set(eIndex, iNewValue);
+-		FAssert(getTradeYield(eIndex) >= 0);
+-		changeBaseYieldRate(eIndex, iNewValue - iOldValue);
++		m_aiTradeYield.set(eYield, iNewValue);
++		FAssert(getTradeYield(eYield) >= 0);
++		changeBaseYieldRate(eYield, iNewValue - iOldValue);
+ 	}
+ }
+ 
+ 
+-int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const
++int CvCity::getExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist) const
+ {
+ 	return (getSpecialistCount(eSpecialist) + getFreeSpecialistCount(eSpecialist)) *
+-			GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex);
++			GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eYield);
+ }
+ 
+ 
+@@ -7200,80 +7181,86 @@ void CvCity::updateExtraSpecialistYield()
+ }
+ 
+ 
+-int CvCity::getCommerceRate(CommerceTypes eIndex) const
++int CvCity::getCommerceRate(CommerceTypes eCommerce) const
+ {
+-	return getCommerceRateTimes100(eIndex) / 100;
++	return getCommerceRateTimes100(eCommerce) / 100;
+ }
+ 
+-int CvCity::getCommerceRateTimes100(CommerceTypes eIndex) const
++
++int CvCity::getCommerceRateTimes100(CommerceTypes eCommerce) const
+ {
+-	int iRate = m_aiCommerceRate.get(eIndex);
++	int iRate = m_aiCommerceRate.get(eCommerce);
+ 	if (GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+ 	{
+-		if (eIndex == COMMERCE_CULTURE)
++		if (eCommerce == COMMERCE_CULTURE)
+ 			iRate += m_aiCommerceRate.get(COMMERCE_ESPIONAGE);
+-		else if (eIndex == COMMERCE_ESPIONAGE)
++		else if (eCommerce == COMMERCE_ESPIONAGE)
+ 			iRate = 0;
+ 	}
+ 	return iRate;
+ }
+ 
+ 
+-int CvCity::getCommerceFromPercent(CommerceTypes eIndex, int iYieldRate) const
++int CvCity::getCommerceFromPercent(CommerceTypes eCommerce, int iYieldRate) const
+ {
+-	int iCommerce = (iYieldRate * GET_PLAYER(getOwner()).getCommercePercent(eIndex)) / 100;
+-	if (eIndex == COMMERCE_GOLD)
++	int iCommerceRate = (iYieldRate *
++			GET_PLAYER(getOwner()).getCommercePercent(eCommerce)) / 100;
++	if (eCommerce == COMMERCE_GOLD)
+ 	{
+-		iCommerce += (iYieldRate - iCommerce -
++		iCommerceRate += (iYieldRate - iCommerceRate -
+ 				getCommerceFromPercent(COMMERCE_RESEARCH, iYieldRate) -
+ 				getCommerceFromPercent(COMMERCE_CULTURE, iYieldRate) -
+ 				getCommerceFromPercent(COMMERCE_ESPIONAGE, iYieldRate));
+ 	}
+-	return iCommerce;
++	return iCommerceRate;
+ }
+ 
+ 
+-int CvCity::getBaseCommerceRateTimes100(CommerceTypes eIndex) const
++int CvCity::getBaseCommerceRateTimes100(CommerceTypes eCommerce) const
+ {
+-	int iBaseCommerceRate = getCommerceFromPercent(eIndex, getYieldRate(YIELD_COMMERCE) * 100);
++	int iBaseCommerceRate = getCommerceFromPercent(eCommerce,
++			getYieldRate(YIELD_COMMERCE) * 100);
+ 	iBaseCommerceRate += 100 * ((getSpecialistPopulation() + getNumGreatPeople()) *
+-			GET_PLAYER(getOwner()).getSpecialistExtraCommerce(eIndex));
+-	iBaseCommerceRate += 100 * (getBuildingCommerce(eIndex) + getSpecialistCommerce(eIndex) +
+-			getReligionCommerce(eIndex) + getCorporationCommerce(eIndex) +
+-			GET_PLAYER(getOwner()).getFreeCityCommerce(eIndex));
++			GET_PLAYER(getOwner()).getSpecialistExtraCommerce(eCommerce));
++	iBaseCommerceRate += 100 *
++			(getBuildingCommerce(eCommerce) +
++			getSpecialistCommerce(eCommerce) +
++			getReligionCommerce(eCommerce) +
++			getCorporationCommerce(eCommerce) +
++			GET_PLAYER(getOwner()).getFreeCityCommerce(eCommerce));
+ 	return iBaseCommerceRate;
+ }
+ 
+ 
+-int CvCity::getTotalCommerceRateModifier(CommerceTypes eIndex) const
++int CvCity::getTotalCommerceRateModifier(CommerceTypes eCommerce) const
+ {
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+-	return std::max(0, getCommerceRateModifier(eIndex) +
+-			kOwner.getCommerceRateModifier(eIndex) +
+-			(isCapital() ? kOwner.getCapitalCommerceRateModifier(eIndex) : 0) + 100);
++	return std::max(0, getCommerceRateModifier(eCommerce) +
++			kOwner.getCommerceRateModifier(eCommerce) +
++			(isCapital() ? kOwner.getCapitalCommerceRateModifier(eCommerce) : 0) + 100);
+ }
+ 
+ 
+-void CvCity::updateCommerce(CommerceTypes eIndex)
++void CvCity::updateCommerce(CommerceTypes eCommerce)
+ {
+-	int const iOldCommerce = m_aiCommerceRate.get(eIndex);
+-	int iNewCommerce = 0;
+-	if (!isDisorder())
+ 	{
+-		iNewCommerce += (getBaseCommerceRateTimes100(eIndex) *
+-				getTotalCommerceRateModifier(eIndex)) / 100;
+-		iNewCommerce += getYieldRate(YIELD_PRODUCTION) *
+-				getProductionToCommerceModifier(eIndex);
+-	}
+-	if (iOldCommerce == iNewCommerce)
+-		return; // advc
+-
+-	m_aiCommerceRate.set(eIndex, iNewCommerce);
+-	FAssert(m_aiCommerceRate.get(eIndex) >= 0);
+-
+-	GET_PLAYER(getOwner()).invalidateCommerceRankCache(eIndex);
+-	GET_PLAYER(getOwner()).changeCommerceRate(eIndex, iNewCommerce - iOldCommerce);
++		int const iOldRate = m_aiCommerceRate.get(eCommerce);
++		int iNewRate = 0;
++		if (!isDisorder())
++		{
++			iNewRate += (getBaseCommerceRateTimes100(eCommerce) *
++					getTotalCommerceRateModifier(eCommerce)) / 100;
++			iNewRate += getYieldRate(YIELD_PRODUCTION) *
++					getProductionToCommerceModifier(eCommerce);
++		}
++		if (iOldRate == iNewRate)
++			return;
+ 
++		m_aiCommerceRate.set(eCommerce, iNewRate);
++		FAssert(m_aiCommerceRate.get(eCommerce) >= 0);
++		GET_PLAYER(getOwner()).changeCommerceRate(eCommerce, iNewRate - iOldRate);
++	}
++	GET_PLAYER(getOwner()).invalidateCommerceRankCache(eCommerce);
+ 	if (isCitySelected())
+ 	{
+ 		gDLL->UI().setDirty(InfoPane_DIRTY_BIT, true);
+@@ -7290,59 +7277,63 @@ void CvCity::updateCommerce()
+ }
+ 
+ 
+-void CvCity::changeProductionToCommerceModifier(CommerceTypes eIndex, int iChange)
++void CvCity::changeProductionToCommerceModifier(CommerceTypes eCommerce, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiProductionToCommerceModifier.add(eIndex, iChange);
+-		updateCommerce(eIndex);
++		m_aiProductionToCommerceModifier.add(eCommerce, iChange);
++		updateCommerce(eCommerce);
+ 	}
+ }
+ 
+ 
+-int CvCity::getBuildingCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const
++int CvCity::getBuildingCommerceByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const
+ {
+-	// K-Mod. I've rearranged some stuff so that bonus commerce does not get doubled at the end.
+-	// (eg. the bonus culture that the Sistine Chapel gives to religious buildings should not be doubled.)
++	/*	K-Mod. I've rearranged some stuff so that bonus commerce does
++		not get doubled at the end. (eg. the bonus culture that the Sistine Chapel
++		gives to religious buildings should not be doubled.) */
+ 
+ 	if (getNumBuilding(eBuilding) <= 0)
+ 		return 0; // advc
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+-	if (kBuilding.isCommerceChangeOriginalOwner(eIndex) &&
++	if (kBuilding.isCommerceChangeOriginalOwner(eCommerce) &&
+ 		getBuildingOriginalOwner(eBuilding) != getOwner())
+ 	{
+ 		return 0; // advc
+ 	}
+ 
+-	int iTimeFactor = ((kBuilding.getCommerceChangeDoubleTime(eIndex) != 0 &&
++	int iTimeFactor = ((kBuilding.getCommerceChangeDoubleTime(eCommerce) != 0 &&
+ 			getBuildingOriginalTime(eBuilding) != MIN_INT &&
+ 			GC.getGame().getGameTurnYear() - getBuildingOriginalTime(eBuilding) >=
+-			kBuilding.getCommerceChangeDoubleTime(eIndex)) ? 2 : 1);
++			kBuilding.getCommerceChangeDoubleTime(eCommerce)) ? 2 : 1);
+ 	/*	there are just two components which get multiplied by the time factor:
+ 		1) the "safe" commerce and 2) the standard commerce;
+ 		the rest of the components are bonuses which should not be doubled. */
+ 
+-	int iCommerce = kBuilding.getObsoleteSafeCommerceChange(eIndex) *
++	int iCommerceRate = kBuilding.getObsoleteSafeCommerceChange(eCommerce) *
+ 			getNumBuilding(eBuilding) * iTimeFactor; // 1)
+ 
+ 	if (getNumActiveBuilding(eBuilding) > 0)
+ 	{
+-		iCommerce += kBuilding.getCommerceChange(eIndex) *
++		iCommerceRate += kBuilding.getCommerceChange(eCommerce) *
+ 				getNumActiveBuilding(eBuilding) * iTimeFactor; // 2)
+-		iCommerce += getBuildingCommerceChange(kBuilding.getBuildingClassType(), eIndex) *
++		iCommerceRate += getBuildingCommerceChange(
++				kBuilding.getBuildingClassType(), eCommerce) *
+ 				getNumActiveBuilding(eBuilding);
+ 
+ 		if (kBuilding.getReligionType() != NO_RELIGION &&
+ 			kBuilding.getReligionType() == GET_PLAYER(getOwner()).getStateReligion())
+ 		{
+-			iCommerce += GET_PLAYER(getOwner()).getStateReligionBuildingCommerce(eIndex) *
++			iCommerceRate += GET_PLAYER(getOwner()).
++					getStateReligionBuildingCommerce(eCommerce) *
+ 					getNumActiveBuilding(eBuilding);
+ 		}
+ 		{
+ 			ReligionTypes const eGlobalCommerceReligion = kBuilding.getGlobalReligionCommerce();
+ 			if (eGlobalCommerceReligion != NO_RELIGION)
+ 			{
+-				iCommerce += (GC.getInfo(eGlobalCommerceReligion).getGlobalReligionCommerce(eIndex) *
++				iCommerceRate += (GC.getInfo(eGlobalCommerceReligion).
++						getGlobalReligionCommerce(eCommerce) *
+ 						GC.getGame().countReligionLevels(eGlobalCommerceReligion)) *
+ 						getNumActiveBuilding(eBuilding);
+ 			}
+@@ -7351,13 +7342,14 @@ int CvCity::getBuildingCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eB
+ 			CorporationTypes const eGlobalCommerceCorp = kBuilding.getGlobalCorporationCommerce();
+ 			if (eGlobalCommerceCorp != NO_CORPORATION)
+ 			{
+-				iCommerce += (GC.getInfo(eGlobalCommerceCorp).getHeadquarterCommerce(eIndex) *
++				iCommerceRate += (GC.getInfo(eGlobalCommerceCorp).
++						getHeadquarterCommerce(eCommerce) *
+ 						GC.getGame().countCorporationLevels(eGlobalCommerceCorp)) *
+ 						getNumActiveBuilding(eBuilding);
+ 			}
+ 		}
+ 	}
+-	return iCommerce;
++	return iCommerceRate;
+ }
+ 
+ 
+@@ -7381,19 +7373,23 @@ void CvCity::updateBuildingCommerce()
+ }
+ 
+ // BUG - Building Additional Commerce - start
+-/*  Returns the total additional commerce times 100 that adding one of the given buildings will provide.
++/*  Returns the total additional commerce times 100 that
++	adding one of the given buildings will provide.
+ 	Doesn't check if the building can be constructed in this city.
+ 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
+-int CvCity::getAdditionalCommerceTimes100ByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const
++int CvCity::getAdditionalCommerceTimes100ByBuilding(CommerceTypes eCommerce,
++	BuildingTypes eBuilding) const
+ {
+-	int iExtraRate = getAdditionalBaseCommerceRateByBuilding(eIndex, eBuilding);
+-	int iExtraModifier = getAdditionalCommerceRateModifierByBuilding(eIndex, eBuilding);
++	int iExtraRate = getAdditionalBaseCommerceRateByBuilding(eCommerce, eBuilding);
++	int iExtraModifier = getAdditionalCommerceRateModifierByBuilding(eCommerce, eBuilding);
+ 	if (iExtraRate == 0 && iExtraModifier == 0)
+ 		return 0;
+ 
+-	int iRateTimes100 = getBaseCommerceRateTimes100(eIndex);
+-	int iModifier = getTotalCommerceRateModifier(eIndex);
+-	int iExtraTimes100 = ((iModifier + iExtraModifier) * (100 * iExtraRate + iRateTimes100) / 100) - (iModifier * iRateTimes100 / 100);
++	int iRateTimes100 = getBaseCommerceRateTimes100(eCommerce);
++	int iModifier = getTotalCommerceRateModifier(eCommerce);
++	int iExtraTimes100 = ((iModifier + iExtraModifier) *
++			(100 * iExtraRate + iRateTimes100) / 100)
++			- (iModifier * iRateTimes100 / 100);
+ 
+ 	return iExtraTimes100;
+ }
+@@ -7401,41 +7397,47 @@ int CvCity::getAdditionalCommerceTimes100ByBuilding(CommerceTypes eIndex, Buildi
+ /*  Returns the additional base commerce rate constructing the given building will provide.
+ 	Doesn't check if the building can be constructed in this city.
+ 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
+-int CvCity::getAdditionalBaseCommerceRateByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const
++int CvCity::getAdditionalBaseCommerceRateByBuilding(CommerceTypes eCommerce,
++	BuildingTypes eBuilding) const
+ {
+ 	bool bNoEspionage = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE);
+-	if (bNoEspionage && eIndex == COMMERCE_ESPIONAGE)
++	if (bNoEspionage && eCommerce == COMMERCE_ESPIONAGE)
+ 		return 0;
+ 
+-	int iExtraRate = getAdditionalBaseCommerceRateByBuildingImpl(eIndex, eBuilding);
+-	if (bNoEspionage && eIndex == COMMERCE_CULTURE)
+-		iExtraRate += getAdditionalBaseCommerceRateByBuildingImpl(COMMERCE_ESPIONAGE, eBuilding);
++	int iExtraRate = getAdditionalBaseCommerceRateByBuildingImpl(eCommerce, eBuilding);
++	if (bNoEspionage && eCommerce == COMMERCE_CULTURE)
++	{
++		iExtraRate += getAdditionalBaseCommerceRateByBuildingImpl(
++				COMMERCE_ESPIONAGE, eBuilding);
++	}
+ 	return iExtraRate;
+ }
+ 
+ /*  Returns the additional base commerce rate constructing the given building will provide.
+ 	Doesn't check if the building can be constructed in this city. */
+-int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eIndex, BuildingTypes eBuilding) const
++int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eCommerce,
++	BuildingTypes eBuilding) const
+ {
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 
+-	int iExtraRate = kBuilding.getObsoleteSafeCommerceChange(eIndex);
++	int iExtraRate = kBuilding.getObsoleteSafeCommerceChange(eCommerce);
+ 	if (GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
+-		return iExtraRate; // advc
++		return iExtraRate;
+ 
+-	iExtraRate += kBuilding.getCommerceChange(eIndex);
+-	iExtraRate += getBuildingCommerceChange(kBuilding.getBuildingClassType(), eIndex);
++	iExtraRate += kBuilding.getCommerceChange(eCommerce);
++	iExtraRate += getBuildingCommerceChange(kBuilding.getBuildingClassType(), eCommerce);
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 	if (kBuilding.getReligionType() != NO_RELIGION)
+ 	{
+ 		if (kBuilding.getReligionType() == kOwner.getStateReligion())
+-			iExtraRate += kOwner.getStateReligionBuildingCommerce(eIndex);
++			iExtraRate += kOwner.getStateReligionBuildingCommerce(eCommerce);
+ 	}
+ 	{
+ 		ReligionTypes const eGlobalCommerceReligion = kBuilding.getGlobalReligionCommerce();
+ 		if (eGlobalCommerceReligion != NO_RELIGION)
+ 		{
+-			iExtraRate += GC.getInfo(eGlobalCommerceReligion).getGlobalReligionCommerce(eIndex) *
++			iExtraRate += GC.getInfo(eGlobalCommerceReligion).
++					getGlobalReligionCommerce(eCommerce) *
+ 					GC.getGame().countReligionLevels(eGlobalCommerceReligion);
+ 		}
+ 	}
+@@ -7443,7 +7445,8 @@ int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eIndex, Bu
+ 		CorporationTypes eGlobalCommerceCorp = kBuilding.getGlobalCorporationCommerce();
+ 		if (eGlobalCommerceCorp != NO_CORPORATION)
+ 		{
+-			iExtraRate += GC.getInfo(eGlobalCommerceCorp).getHeadquarterCommerce(eIndex) *
++			iExtraRate += GC.getInfo(eGlobalCommerceCorp).
++					getHeadquarterCommerce(eCommerce) *
+ 					GC.getGame().countCorporationLevels(eGlobalCommerceCorp);
+ 		}
+ 	}
+@@ -7453,7 +7456,7 @@ int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eIndex, Bu
+ 	{
+ 		if (kBuilding.getFreeSpecialistCount(eLoopSpecialist) != 0)
+ 		{
+-			iExtraRate += getAdditionalBaseCommerceRateBySpecialistImpl(eIndex,
++			iExtraRate += getAdditionalBaseCommerceRateBySpecialistImpl(eCommerce,
+ 					eLoopSpecialist, kBuilding.getFreeSpecialistCount(eLoopSpecialist));
+ 		}
+ 	}
+@@ -7463,15 +7466,16 @@ int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eIndex, Bu
+ 
+ /*  Doesn't check if the building can be constructed in this city.
+ 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
+-int CvCity::getAdditionalCommerceRateModifierByBuilding(CommerceTypes eIndex,
++int CvCity::getAdditionalCommerceRateModifierByBuilding(CommerceTypes eCommerce,
+ 	BuildingTypes eBuilding) const
+ {
+ 	bool const bNoEspionage = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE);
+-	if (bNoEspionage && eIndex == COMMERCE_ESPIONAGE)
++	if (bNoEspionage && eCommerce == COMMERCE_ESPIONAGE)
+ 		return 0;
+ 
+-	int iExtraModifier = getAdditionalCommerceRateModifierByBuildingImpl(eIndex, eBuilding);
+-	if (bNoEspionage && eIndex == COMMERCE_CULTURE)
++	int iExtraModifier = getAdditionalCommerceRateModifierByBuildingImpl(
++			eCommerce, eBuilding);
++	if (bNoEspionage && eCommerce == COMMERCE_CULTURE)
+ 	{
+ 		iExtraModifier += getAdditionalCommerceRateModifierByBuildingImpl(
+ 				COMMERCE_ESPIONAGE, eBuilding);
+@@ -7481,26 +7485,26 @@ int CvCity::getAdditionalCommerceRateModifierByBuilding(CommerceTypes eIndex,
+ 
+ /*  Returns the additional commerce rate modifier constructing the given building will provide.
+ 	Doesn't check if the building can be constructed in this city. */
+-int CvCity::getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eIndex,
++int CvCity::getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eCommerce,
+ 	BuildingTypes eBuilding) const
+ {
+ 	if (!GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
+ 	{
+ 		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+-		return kBuilding.getCommerceModifier(eIndex) +
+-				kBuilding.getGlobalCommerceModifier(eIndex);
++		return kBuilding.getCommerceModifier(eCommerce) +
++				kBuilding.getGlobalCommerceModifier(eCommerce);
+ 	}
+ 	return 0;
+ }
+ // BUG - Building Additional Commerce - end
+ 
+-void CvCity::changeSpecialistCommerce(CommerceTypes eIndex, int iChange)
++void CvCity::changeSpecialistCommerce(CommerceTypes eCommerce, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiSpecialistCommerce.add(eIndex, iChange);
+-		FAssert(getSpecialistCommerce(eIndex) >= 0);
+-		updateCommerce(eIndex);
++		m_aiSpecialistCommerce.add(eCommerce, iChange);
++		FAssert(getSpecialistCommerce(eCommerce) >= 0);
++		updateCommerce(eCommerce);
+ 	}
+ }
+ 
+@@ -7508,15 +7512,16 @@ void CvCity::changeSpecialistCommerce(CommerceTypes eIndex, int iChange)
+ /*  Returns the total additional commerce times 100 that changing the number
+ 	of given specialists will provide/remove.
+ 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
+-int CvCity::getAdditionalCommerceTimes100BySpecialist(CommerceTypes eIndex,
++int CvCity::getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce,
+ 	SpecialistTypes eSpecialist, int iChange) const
+ {
+-	int iExtraRate = getAdditionalBaseCommerceRateBySpecialist(eIndex, eSpecialist, iChange);
++	int iExtraRate = getAdditionalBaseCommerceRateBySpecialist(
++			eCommerce, eSpecialist, iChange);
+ 	if (iExtraRate == 0)
+ 		return 0;
+ 
+-	int iRateTimes100 = getBaseCommerceRateTimes100(eIndex);
+-	int iModifier = getTotalCommerceRateModifier(eIndex);
++	int iRateTimes100 = getBaseCommerceRateTimes100(eCommerce);
++	int iModifier = getTotalCommerceRateModifier(eCommerce);
+ 	int iExtraTimes100 = (iModifier * (100 * iExtraRate + iRateTimes100) / 100) -
+ 			(iModifier * iRateTimes100 / 100);
+ 
+@@ -7526,16 +7531,16 @@ int CvCity::getAdditionalCommerceTimes100BySpecialist(CommerceTypes eIndex,
+ /*  Returns the additional base commerce rate that changing the number
+ 	of given specialists will provide/remove.
+ 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
+-int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eIndex,
++int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce,
+ 	SpecialistTypes eSpecialist, int iChange) const
+ {
+ 	bool const bNoEspionage = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE);
+-	if (bNoEspionage && eIndex == COMMERCE_ESPIONAGE)
++	if (bNoEspionage && eCommerce == COMMERCE_ESPIONAGE)
+ 		return 0;
+ 
+ 	int iExtraRate = getAdditionalBaseCommerceRateBySpecialistImpl(
+-			eIndex, eSpecialist, iChange);
+-	if (bNoEspionage && eIndex == COMMERCE_CULTURE)
++			eCommerce, eSpecialist, iChange);
++	if (bNoEspionage && eCommerce == COMMERCE_CULTURE)
+ 	{
+ 		iExtraRate += getAdditionalBaseCommerceRateBySpecialistImpl(
+ 				COMMERCE_ESPIONAGE, eSpecialist, iChange);
+@@ -7545,43 +7550,44 @@ int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eIndex,
+ 
+ /*	Returns the additional base commerce rate that changing the number
+ 	of given specialists will provide/remove. */
+-int CvCity::getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eIndex,
++int CvCity::getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce,
+ 	SpecialistTypes eSpecialist, int iChange) const
+ {
+ 	CvSpecialistInfo const& kSpecialist = GC.getInfo(eSpecialist);
+-	return iChange * (kSpecialist.getCommerceChange(eIndex) +
+-			GET_PLAYER(getOwner()).getSpecialistExtraCommerce(eIndex));
++	return iChange * (kSpecialist.getCommerceChange(eCommerce) +
++			GET_PLAYER(getOwner()).getSpecialistExtraCommerce(eCommerce));
+ }
+ // BUG - Specialist Additional Commerce - end
+ 
+-int CvCity::getReligionCommerceByReligion(CommerceTypes eIndex, ReligionTypes eReligion) const
++int CvCity::getReligionCommerceByReligion(CommerceTypes eCommerce,
++	ReligionTypes eReligion) const
+ {
+-	int iCommerce = 0;
++	int iCommerceRate = 0;
+ 	if (GET_PLAYER(getOwner()).getStateReligion() == eReligion ||
+ 		GET_PLAYER(getOwner()).getStateReligion() == NO_RELIGION)
+ 	{
+ 		if (isHasReligion(eReligion))
+ 		{
+-			iCommerce += GC.getInfo(eReligion).getStateReligionCommerce(eIndex);
++			iCommerceRate += GC.getInfo(eReligion).getStateReligionCommerce(eCommerce);
+ 			if (isHolyCity(eReligion))
+-				iCommerce += GC.getInfo(eReligion).getHolyCityCommerce(eIndex);
++				iCommerceRate += GC.getInfo(eReligion).getHolyCityCommerce(eCommerce);
+ 		}
+ 	}
+-	return iCommerce;
++	return iCommerceRate;
+ }
+ 
+ // XXX can this be simplified???
+-void CvCity::updateReligionCommerce(CommerceTypes eIndex)
++void CvCity::updateReligionCommerce(CommerceTypes eCommerce)
+ {
+ 	int iNewReligionCommerce = 0;
+ 	FOR_EACH_ENUM(Religion)
+-		iNewReligionCommerce += getReligionCommerceByReligion(eIndex, eLoopReligion);
++		iNewReligionCommerce += getReligionCommerceByReligion(eCommerce, eLoopReligion);
+ 
+-	if (getReligionCommerce(eIndex) != iNewReligionCommerce)
++	if (getReligionCommerce(eCommerce) != iNewReligionCommerce)
+ 	{
+-		m_aiReligionCommerce.set(eIndex, iNewReligionCommerce);
+-		FAssert(getReligionCommerce(eIndex) >= 0);
+-		updateCommerce(eIndex);
++		m_aiReligionCommerce.set(eCommerce, iNewReligionCommerce);
++		FAssert(getReligionCommerce(eCommerce) >= 0);
++		updateCommerce(eCommerce);
+ 	}
+ }
+ 
+@@ -7593,22 +7599,22 @@ void CvCity::updateReligionCommerce()
+ }
+ 
+ 
+-void CvCity::setCorporationYield(YieldTypes eIndex, int iNewValue)
++void CvCity::setCorporationYield(YieldTypes eYield, int iNewValue)
+ {
+-	int const iOldValue = getCorporationYield(eIndex);
++	int const iOldValue = getCorporationYield(eYield);
+ 	if (iOldValue != iNewValue)
+ 	{
+-		m_aiCorporationYield.set(eIndex, iNewValue);
+-		FAssert(getCorporationYield(eIndex) >= 0);
+-		changeBaseYieldRate(eIndex, (iNewValue - iOldValue));
++		m_aiCorporationYield.set(eYield, iNewValue);
++		FAssert(getCorporationYield(eYield) >= 0);
++		changeBaseYieldRate(eYield, iNewValue - iOldValue);
+ 	}
+ }
+ 
+ 
+-int CvCity::getCorporationYieldByCorporation(YieldTypes eIndex,
++int CvCity::getCorporationYieldByCorporation(YieldTypes eYield,
+ 	CorporationTypes eCorporation) const
+ {
+-	int iYield = 0;
++	int iYieldRate = 0;
+ 	if (isActiveCorporation(eCorporation) && !isDisorder())
+ 	{
+ 		for (int i = 0; i < GC.getInfo(eCorporation).getNumPrereqBonuses(); i++)
+@@ -7616,19 +7622,19 @@ int CvCity::getCorporationYieldByCorporation(YieldTypes eIndex,
+ 			BonusTypes const eBonus = GC.getInfo(eCorporation).getPrereqBonus(i);
+ 			if (getNumBonuses(eBonus) > 0)
+ 			{
+-				iYield += (GC.getInfo(eCorporation).getYieldProduced(eIndex) *
++				iYieldRate += (GC.getInfo(eCorporation).getYieldProduced(eYield) *
+ 						getNumBonuses(eBonus) * GC.getInfo(GC.getMap().getWorldSize()).
+ 						getCorporationMaintenancePercent()) / 100;
+ 			}
+ 		}
+ 	}
+-	return (iYield + 99) / 100;
++	return (iYieldRate + 99) / 100;
+ }
+ 
+-int CvCity::getCorporationCommerceByCorporation(CommerceTypes eIndex,
++int CvCity::getCorporationCommerceByCorporation(CommerceTypes eCommerce,
+ 	CorporationTypes eCorporation) const
+ {
+-	int iCommerce = 0;
++	int iCommerceRate = 0;
+ 	if (isActiveCorporation(eCorporation) && !isDisorder())
+ 	{
+ 		for (int i = 0; i < GC.getInfo(eCorporation).getNumPrereqBonuses(); i++)
+@@ -7636,42 +7642,43 @@ int CvCity::getCorporationCommerceByCorporation(CommerceTypes eIndex,
+ 			BonusTypes const eBonus = GC.getInfo(eCorporation).getPrereqBonus(i);
+ 			if (getNumBonuses(eBonus) > 0)
+ 			{
+-				iCommerce += (GC.getInfo(eCorporation).getCommerceProduced(eIndex) *
++				iCommerceRate += (GC.getInfo(eCorporation).
++						getCommerceProduced(eCommerce) *
+ 						getNumBonuses(eBonus) * GC.getInfo(GC.getMap().getWorldSize()).
+ 						getCorporationMaintenancePercent()) / 100;
+ 			}
+ 		}
+ 	}
+-	return (iCommerce + 99) / 100;
++	return (iCommerceRate + 99) / 100;
+ }
+ 
+-void CvCity::updateCorporationCommerce(CommerceTypes eIndex)
++void CvCity::updateCorporationCommerce(CommerceTypes eCommerce)
+ {
+-	int iNewCommerce = 0;
++	int iNewRate = 0;
+ 	FOR_EACH_ENUM(Corporation)
+-		iNewCommerce += getCorporationCommerceByCorporation(eIndex, eLoopCorporation);
++		iNewRate += getCorporationCommerceByCorporation(eCommerce, eLoopCorporation);
+ 
+-	if (getCorporationCommerce(eIndex) != iNewCommerce)
++	if (getCorporationCommerce(eCommerce) != iNewRate)
+ 	{
+-		m_aiCorporationCommerce.set(eIndex, iNewCommerce);
+-		FAssert(getCorporationCommerce(eIndex) >= 0);
+-		updateCommerce(eIndex);
++		m_aiCorporationCommerce.set(eCommerce, iNewRate);
++		FAssert(getCorporationCommerce(eCommerce) >= 0);
++		updateCommerce(eCommerce);
+ 	}
+ }
+ 
+-void CvCity::updateCorporationYield(YieldTypes eIndex)
++void CvCity::updateCorporationYield(YieldTypes eYield)
+ {
+-	int const iOldYield = getCorporationYield(eIndex);
+-	int iNewYield = 0;
++	int const iOldRate = getCorporationYield(eYield);
++	int iNewRate = 0;
+ 
+ 	FOR_EACH_ENUM(Corporation)
+-		iNewYield += getCorporationYieldByCorporation(eIndex, eLoopCorporation);
++		iNewRate += getCorporationYieldByCorporation(eYield, eLoopCorporation);
+ 
+-	if (iOldYield != iNewYield)
++	if (iOldRate != iNewRate)
+ 	{
+-		m_aiCorporationYield.set(eIndex, iNewYield);
+-		FAssert(getCorporationYield(eIndex) >= 0);
+-		changeBaseYieldRate(eIndex, (iNewYield - iOldYield));
++		m_aiCorporationYield.set(eYield, iNewRate);
++		FAssert(getCorporationYield(eYield) >= 0);
++		changeBaseYieldRate(eYield, iNewRate - iOldRate);
+ 	}
+ }
+ 
+@@ -7760,12 +7767,12 @@ void CvCity::updateCorporationBonus(/* advc.064d: */ bool bVerifyProduction)
+ }
+ 
+ 
+-void CvCity::changeCommerceRateModifier(CommerceTypes eIndex, int iChange)
++void CvCity::changeCommerceRateModifier(CommerceTypes eCommerce, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiCommerceRateModifier.add(eIndex, iChange);
+-		updateCommerce(eIndex);
++		m_aiCommerceRateModifier.add(eCommerce, iChange);
++		updateCommerce(eCommerce);
+ 		AI_setAssignWorkDirty(true);
+ 	}
+ }
+@@ -7787,27 +7794,27 @@ int CvCity::getCommerceHappiness() const
+ }
+ 
+ 
+-void CvCity::changeCommerceHappinessPer(CommerceTypes eIndex, int iChange)
++void CvCity::changeCommerceHappinessPer(CommerceTypes eCommerce, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiCommerceHappinessPer.add(eIndex, iChange);
+-		FAssert(getCommerceHappinessPer(eIndex) >= 0);
++		m_aiCommerceHappinessPer.add(eCommerce, iChange);
++		FAssert(getCommerceHappinessPer(eCommerce) >= 0);
+ 		AI_setAssignWorkDirty(true);
+ 	}
+ }
+ 
+ 
+-void CvCity::changeDomainFreeExperience(DomainTypes eIndex, int iChange)
++void CvCity::changeDomainFreeExperience(DomainTypes eDomain, int iChange)
+ {
+-	m_aiDomainFreeExperience.add(eIndex, iChange);
+-	FAssert(getDomainFreeExperience(eIndex) >= 0);
++	m_aiDomainFreeExperience.add(eDomain, iChange);
++	FAssert(getDomainFreeExperience(eDomain) >= 0);
+ }
+ 
+ 
+-void CvCity::changeDomainProductionModifier(DomainTypes eIndex, int iChange)
++void CvCity::changeDomainProductionModifier(DomainTypes eDomain, int iChange)
+ {
+-	m_aiDomainProductionModifier.add(eIndex, iChange);
++	m_aiDomainProductionModifier.add(eDomain, iChange);
+ }
+ 
+ 
+@@ -7946,46 +7953,48 @@ bool CvCity::canCultureFlip(PlayerTypes eToPlayer, /* advc.101: */ bool bCheckPr
+ }
+ 
+ 
+-int CvCity::calculateCulturePercent(PlayerTypes eIndex) const
++int CvCity::calculateCulturePercent(PlayerTypes ePlayer) const
+ {
+ 	int iTotalCulture = countTotalCultureTimes100();
+ 	if (iTotalCulture > 0)
+-		return ((getCultureTimes100(eIndex) * 100) / iTotalCulture);
++		return (getCultureTimes100(ePlayer) * 100) / iTotalCulture;
+ 	return 0;
+ }
+ 
+ 
+-int CvCity::calculateTeamCulturePercent(TeamTypes eIndex) const
++int CvCity::calculateTeamCulturePercent(TeamTypes eTeam) const
+ {
+-	int r = 0;
+-	for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(eIndex); it.hasNext(); ++it) // advc.099: was ALIVE
++	int iR = 0;
++	for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(eTeam); it.hasNext(); ++it) // advc.099: was ALIVE
+ 	{
+-		r += calculateCulturePercent(it->getID());
++		iR += calculateCulturePercent(it->getID());
+ 	}
+-	return r;
++	return iR;
+ }
+ 
+ 
+-void CvCity::setCulture(PlayerTypes eIndex, int iNewValue, bool bPlots, bool bUpdatePlotGroups)
++void CvCity::setCulture(PlayerTypes ePlayer, int iNewValue, bool bPlots,
++	bool bUpdatePlotGroups)
+ {
+-	setCultureTimes100(eIndex, 100 * iNewValue, bPlots, bUpdatePlotGroups);
++	setCultureTimes100(ePlayer, 100 * iNewValue, bPlots, bUpdatePlotGroups);
+ }
+ 
+-void CvCity::setCultureTimes100(PlayerTypes eIndex, int iNewValue, bool bPlots, bool bUpdatePlotGroups)
++void CvCity::setCultureTimes100(PlayerTypes ePlayer, int iNewValue, bool bPlots,
++	bool bUpdatePlotGroups)
+ {
+-	//if (getCultureTimes100(eIndex) != iNewValue)
++	//if (getCultureTimes100(ePlayer) != iNewValue)
+ 	// K-Mod, 26/sep/10: fixed so that plots actually get the culture difference
+-	int const iOldValue = getCultureTimes100(eIndex);
++	int const iOldValue = getCultureTimes100(ePlayer);
+ 	if (iNewValue != iOldValue)
+ 	{
+-		m_aiCulture.set(eIndex, iNewValue);
+-		FAssert(getCultureTimes100(eIndex) >= 0);
++		m_aiCulture.set(ePlayer, iNewValue);
++		FAssert(getCultureTimes100(ePlayer) >= 0);
+ 		updateCultureLevel(bUpdatePlotGroups);
+ 		if (bPlots)
+ 		{
+-			//doPlotCulture(true, eIndex, 0);
+-			//doPlotCulture(true, eIndex, (iNewValue - iOldValue) / 100);
+-			doPlotCultureTimes100(true, eIndex, iNewValue - iOldValue, false);
++			//doPlotCulture(true, ePlayer, 0);
++			//doPlotCulture(true, ePlayer, (iNewValue - iOldValue) / 100);
++			doPlotCultureTimes100(true, ePlayer, iNewValue - iOldValue, false);
+ 			/*	note: this function no longer applies free city culture.
+ 				also, note that if a city's culture is decreased to zero,
+ 				there will probably still be some residual plot culture around the city.
+@@ -7996,18 +8005,18 @@ void CvCity::setCultureTimes100(PlayerTypes eIndex, int iNewValue, bool bPlots,
+ }
+ 
+ 
+-void CvCity::changeCulture(PlayerTypes eIndex, int iChange, bool bPlots,
++void CvCity::changeCulture(PlayerTypes ePlayer, int iChange, bool bPlots,
+ 	bool bUpdatePlotGroups)
+ {
+-	setCultureTimes100(eIndex, getCultureTimes100(eIndex) + 100 * iChange,
++	setCultureTimes100(ePlayer, getCultureTimes100(ePlayer) + 100 * iChange,
+ 			bPlots, bUpdatePlotGroups);
+ }
+ 
+ 
+-void CvCity::changeCultureTimes100(PlayerTypes eIndex, int iChange, bool bPlots,
++void CvCity::changeCultureTimes100(PlayerTypes ePlayer, int iChange, bool bPlots,
+ 	bool bUpdatePlotGroups)
+ {
+-	setCultureTimes100(eIndex, getCultureTimes100(eIndex) + iChange,
++	setCultureTimes100(ePlayer, getCultureTimes100(ePlayer) + iChange,
+ 			bPlots, bUpdatePlotGroups);
+ }
+ 
+@@ -8021,10 +8030,10 @@ int CvCity::getNumRevolts() const
+ } // </advc.099c>
+ 
+ 
+-void CvCity::changeNumRevolts(PlayerTypes eIndex, int iChange)
++void CvCity::changeNumRevolts(PlayerTypes ePlayer, int iChange)
+ {
+-	m_aiNumRevolts.add(eIndex, iChange);
+-	FAssert(getNumRevolts(eIndex) >= 0);
++	m_aiNumRevolts.add(ePlayer, iChange);
++	FAssert(getNumRevolts(ePlayer) >= 0);
+ }
+ 
+ 
+@@ -8077,48 +8086,48 @@ void CvCity::addRevoltFreeUnits()
+ }
+ 
+ 
+-void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
++void CvCity::setEverOwned(PlayerTypes ePlayer, bool bNewValue)
+ {
+-	m_abEverOwned.set(eIndex, bNewValue);
++	m_abEverOwned.set(ePlayer, bNewValue);
+ }
+ 
+ 
+-void CvCity::setTradeRoute(PlayerTypes eIndex, bool bNewValue)
++void CvCity::setTradeRoute(PlayerTypes ePlayer, bool bNewValue)
+ {
+-	m_abTradeRoute.set(eIndex, bNewValue);
++	m_abTradeRoute.set(ePlayer, bNewValue);
+ }
+ 
+ 
+-bool CvCity::isRevealed(TeamTypes eIndex, bool bDebug) const
++bool CvCity::isRevealed(TeamTypes eTeam, bool bDebug) const
+ {
+ 	if (bDebug && GC.getGame().isDebugMode())
+ 		return true;
+-	return isRevealed(eIndex); // advc.inl: Call inline version
++	return isRevealed(eTeam); // advc.inl: Call inline version
+ }
+ 
+ 
+-void CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
++void CvCity::setRevealed(TeamTypes eTeam, bool bNewValue)
+ {
+-	if(isRevealed(eIndex) == bNewValue)
++	if(isRevealed(eTeam) == bNewValue)
+ 		return;
+ 
+-	m_abRevealed.set(eIndex, bNewValue);
++	m_abRevealed.set(eTeam, bNewValue);
+ 
+ 	// K-Mod
+ 	if (bNewValue)
+ 	{
+-		GET_TEAM(eIndex).makeHasSeen(getTeam());
++		GET_TEAM(eTeam).makeHasSeen(getTeam());
+ 		// <advc.130n>
+ 		FOR_EACH_ENUM(Religion)
+ 		{
+ 			if(isHasReligion(eLoopReligion))
+-				GET_TEAM(eIndex).AI_reportNewReligion(eLoopReligion);
++				GET_TEAM(eTeam).AI_reportNewReligion(eLoopReligion);
+ 		} // </advc.130n>
+ 	} // K-Mod end
+ 
+ 	updateVisibility();
+ 
+-	if (eIndex == GC.getGame().getActiveTeam())
++	if (eTeam == GC.getGame().getActiveTeam())
+ 	{
+ 		for (CityPlotIter it(*this); it.hasNext(); ++it)
+ 		{
+@@ -8128,12 +8137,12 @@ void CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
+ }
+ 
+ 
+-void CvCity::setEspionageVisibility(TeamTypes eIndex, bool bNewValue, bool bUpdatePlotGroups)
++void CvCity::setEspionageVisibility(TeamTypes eTeam, bool bNewValue, bool bUpdatePlotGroups)
+ {
+-	if (getEspionageVisibility(eIndex) != bNewValue)
++	if (getEspionageVisibility(eTeam) != bNewValue)
+ 	{
+ 		getPlot().updateSight(false, bUpdatePlotGroups);
+-		m_abEspionageVisibility.set(eIndex, bNewValue);
++		m_abEspionageVisibility.set(eTeam, bNewValue);
+ 		getPlot().updateSight(true, bUpdatePlotGroups);
+ 	}
+ }
+@@ -8252,22 +8261,22 @@ void CvCity::setScriptData(std::string szNewValue)
+ }
+ 
+ 
+-void CvCity::changeNoBonusCount(BonusTypes eIndex, int iChange)
++void CvCity::changeNoBonusCount(BonusTypes eBonus, int iChange)
+ {
+ 	if (iChange == 0)
+ 		return; // advc
+ 
+-	if (getNumBonuses(eIndex) > 0)
++	if (getNumBonuses(eBonus) > 0)
+ 	{
+-		processBonus(eIndex, -1);
++		processBonus(eBonus, -1);
+ 		verifyProduction(); // advc.064d
+ 	}
+ 
+-	m_aiNoBonus.add(eIndex, iChange);
+-	FAssert(getNoBonusCount(eIndex) >= 0);
++	m_aiNoBonus.add(eBonus, iChange);
++	FAssert(getNoBonusCount(eBonus) >= 0);
+ 
+-	if (getNumBonuses(eIndex) > 0)
+-		processBonus(eIndex, 1);
++	if (getNumBonuses(eBonus) > 0)
++		processBonus(eBonus, 1);
+ 
+ 	updateCorporation();
+ 
+@@ -8276,43 +8285,43 @@ void CvCity::changeNoBonusCount(BonusTypes eIndex, int iChange)
+ }
+ 
+ 
+-void CvCity::changeFreeBonus(BonusTypes eIndex, int iChange)
++void CvCity::changeFreeBonus(BonusTypes eBonus, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+ 		getPlot().updatePlotGroupBonus(false, /* advc.064d: */ false);
+-		m_aiFreeBonus.add(eIndex, iChange);
+-		FAssert(getFreeBonus(eIndex) >= 0);
++		m_aiFreeBonus.add(eBonus, iChange);
++		FAssert(getFreeBonus(eBonus) >= 0);
+ 		getPlot().updatePlotGroupBonus(true);
+ 	}
+ }
+ 
+-int CvCity::getNumBonuses(BonusTypes eIndex) const
++int CvCity::getNumBonuses(BonusTypes eBonus) const
+ {
+-	if (isNoBonus(eIndex))
++	if (isNoBonus(eBonus))
+ 		return 0;
+-	return m_aiNumBonuses.get(eIndex) + //m_aiNumCorpProducedBonuses.get(eIndex);
++	return m_aiNumBonuses.get(eBonus) + //m_aiNumCorpProducedBonuses.get(eBonus);
+ 			// advc.003j: Don't want to leave this function entirely unused
+-			getNumCorpProducedBonuses(eIndex);
++			getNumCorpProducedBonuses(eBonus);
+ }
+ 
+ 
+-void CvCity::changeNumBonuses(BonusTypes eIndex, int iChange,
++void CvCity::changeNumBonuses(BonusTypes eBonus, int iChange,
+ 	bool bVerifyProduction) // advc.064d
+ {
+ 	if (iChange == 0)
+ 		return;
+ 
+-	bool const bOldHasBonus = hasBonus(eIndex);
+-	m_aiNumBonuses.add(eIndex, iChange);
+-	if (bOldHasBonus != hasBonus(eIndex))
++	bool const bOldHasBonus = hasBonus(eBonus);
++	m_aiNumBonuses.add(eBonus, iChange);
++	if (bOldHasBonus != hasBonus(eBonus))
+ 	{
+-		if (hasBonus(eIndex))
+-			processBonus(eIndex, 1);
+-		else processBonus(eIndex, -1);
++		if (hasBonus(eBonus))
++			processBonus(eBonus, 1);
++		else processBonus(eBonus, -1);
+ 	}
+ 
+-	if (isCorporationBonus(eIndex))
++	if (isCorporationBonus(eBonus))
+ 		updateCorporation(/* advc.06d: */ bVerifyProduction);
+ }
+ 
+@@ -8367,13 +8376,13 @@ bool CvCity::isActiveCorporation(CorporationTypes eCorporation) const
+ }
+ 
+ 
+-void CvCity::setBuildingProduction(BuildingTypes eIndex, int iNewValue)
++void CvCity::setBuildingProduction(BuildingTypes eBuilding, int iNewValue)
+ {
+-	if (getBuildingProduction(eIndex) == iNewValue)
++	if (getBuildingProduction(eBuilding) == iNewValue)
+ 		return; // advc
+ 
+-	m_aiBuildingProduction.set(eIndex, iNewValue);
+-	FAssert(getBuildingProduction(eIndex) >= 0);
++	m_aiBuildingProduction.set(eBuilding, iNewValue);
++	FAssert(getBuildingProduction(eBuilding) >= 0);
+ 
+ 	if (getTeam() == GC.getGame().getActiveTeam())
+ 		setInfoDirty(true);
+@@ -8383,32 +8392,32 @@ void CvCity::setBuildingProduction(BuildingTypes eIndex, int iNewValue)
+ }
+ 
+ 
+-void CvCity::changeBuildingProduction(BuildingTypes eIndex, int iChange)
++void CvCity::changeBuildingProduction(BuildingTypes eBuilding, int iChange)
+ {
+-	setBuildingProduction(eIndex, getBuildingProduction(eIndex) + iChange);
++	setBuildingProduction(eBuilding, getBuildingProduction(eBuilding) + iChange);
+ }
+ 
+ 
+-void CvCity::setBuildingProductionTime(BuildingTypes eIndex, int iNewValue)
++void CvCity::setBuildingProductionTime(BuildingTypes eBuilding, int iNewValue)
+ {
+-	m_aiBuildingProductionTime.set(eIndex, iNewValue);
+-	FAssert(getBuildingProductionTime(eIndex) >= 0);
++	m_aiBuildingProductionTime.set(eBuilding, iNewValue);
++	FAssert(getBuildingProductionTime(eBuilding) >= 0);
+ }
+ 
+ 
+-void CvCity::changeBuildingProductionTime(BuildingTypes eIndex, int iChange)
++void CvCity::changeBuildingProductionTime(BuildingTypes eBuilding, int iChange)
+ {
+-	setBuildingProductionTime(eIndex, getBuildingProductionTime(eIndex) + iChange);
++	setBuildingProductionTime(eBuilding, getBuildingProductionTime(eBuilding) + iChange);
+ }
+ 
+ 
+-void CvCity::setProjectProduction(ProjectTypes eIndex, int iNewValue)
++void CvCity::setProjectProduction(ProjectTypes eProject, int iNewValue)
+ {
+-	if (getProjectProduction(eIndex) == iNewValue)
++	if (getProjectProduction(eProject) == iNewValue)
+ 		return; // advc
+ 
+-	m_aiProjectProduction.set(eIndex, iNewValue);
+-	FAssert(getProjectProduction(eIndex) >= 0);
++	m_aiProjectProduction.set(eProject, iNewValue);
++	FAssert(getProjectProduction(eProject) >= 0);
+ 
+ 	if (getTeam() == GC.getGame().getActiveTeam())
+ 		setInfoDirty(true);
+@@ -8418,19 +8427,19 @@ void CvCity::setProjectProduction(ProjectTypes eIndex, int iNewValue)
+ }
+ 
+ 
+-void CvCity::changeProjectProduction(ProjectTypes eIndex, int iChange)
++void CvCity::changeProjectProduction(ProjectTypes eProject, int iChange)
+ {
+-	setProjectProduction(eIndex, getProjectProduction(eIndex) + iChange);
++	setProjectProduction(eProject, getProjectProduction(eProject) + iChange);
+ }
+ 
+ 
+-void CvCity::setUnitProduction(UnitTypes eIndex, int iNewValue)
++void CvCity::setUnitProduction(UnitTypes eUnit, int iNewValue)
+ {
+-	if (getUnitProduction(eIndex) == iNewValue)
+-		return; // advc
++	if (getUnitProduction(eUnit) == iNewValue)
++		return;
+ 
+-	m_aiUnitProduction.set(eIndex, iNewValue);
+-	FAssert(getUnitProduction(eIndex) >= 0);
++	m_aiUnitProduction.set(eUnit, iNewValue);
++	FAssert(getUnitProduction(eUnit) >= 0);
+ 
+ 	if (getTeam() == GC.getGame().getActiveTeam())
+ 		setInfoDirty(true);
+@@ -8440,22 +8449,22 @@ void CvCity::setUnitProduction(UnitTypes eIndex, int iNewValue)
+ }
+ 
+ 
+-void CvCity::changeUnitProduction(UnitTypes eIndex, int iChange)
++void CvCity::changeUnitProduction(UnitTypes eUnit, int iChange)
+ {
+-	setUnitProduction(eIndex, getUnitProduction(eIndex) + iChange);
++	setUnitProduction(eUnit, getUnitProduction(eUnit) + iChange);
+ }
+ 
+ 
+-void CvCity::setUnitProductionTime(UnitTypes eIndex, int iNewValue)
++void CvCity::setUnitProductionTime(UnitTypes eUnit, int iNewValue)
+ {
+-	m_aiUnitProductionTime.set(eIndex, iNewValue);
+-	FAssert(getUnitProductionTime(eIndex) >= 0);
++	m_aiUnitProductionTime.set(eUnit, iNewValue);
++	FAssert(getUnitProductionTime(eUnit) >= 0);
+ }
+ 
+ 
+-void CvCity::changeUnitProductionTime(UnitTypes eIndex, int iChange)
++void CvCity::changeUnitProductionTime(UnitTypes eUnit, int iChange)
+ {
+-	setUnitProductionTime(eIndex, getUnitProductionTime(eIndex) + iChange);
++	setUnitProductionTime(eUnit, getUnitProductionTime(eUnit) + iChange);
+ }
+ 
+ // advc.opt: Taking advantage of EnumMap.hasContent
+@@ -8473,101 +8482,102 @@ bool CvCity::isAnyProductionProgress(OrderTypes eOrder) const
+ }
+ 
+ 
+-void CvCity::setGreatPeopleUnitRate(UnitTypes eIndex, int iNewValue)
++void CvCity::setGreatPeopleUnitRate(UnitTypes eUnit, int iNewValue)
+ {
+ 	if (GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) &&
+-		GC.getInfo(eIndex).getEspionagePoints() > 0)
++		GC.getInfo(eUnit).getEspionagePoints() > 0)
+ 	{
+ 		return;
+ 	}
+-	m_aiGreatPeopleUnitRate.set(eIndex, iNewValue);
+-	FAssert(getGreatPeopleUnitRate(eIndex) >= 0);
++	m_aiGreatPeopleUnitRate.set(eUnit, iNewValue);
++	FAssert(getGreatPeopleUnitRate(eUnit) >= 0);
+ }
+ 
+ 
+-void CvCity::changeGreatPeopleUnitRate(UnitTypes eIndex, int iChange)
++void CvCity::changeGreatPeopleUnitRate(UnitTypes eUnit, int iChange)
+ {
+-	setGreatPeopleUnitRate(eIndex, getGreatPeopleUnitRate(eIndex) + iChange);
++	setGreatPeopleUnitRate(eUnit, getGreatPeopleUnitRate(eUnit) + iChange);
+ }
+ 
+ 
+-void CvCity::setGreatPeopleUnitProgress(UnitTypes eIndex, int iNewValue)
++void CvCity::setGreatPeopleUnitProgress(UnitTypes eUnit, int iNewValue)
+ {
+-	m_aiGreatPeopleUnitProgress.set(eIndex, iNewValue);
+-	FAssert(getGreatPeopleUnitProgress(eIndex) >= 0);
++	m_aiGreatPeopleUnitProgress.set(eUnit, iNewValue);
++	FAssert(getGreatPeopleUnitProgress(eUnit) >= 0);
+ }
+ 
+ 
+-void CvCity::changeGreatPeopleUnitProgress(UnitTypes eIndex, int iChange)
++void CvCity::changeGreatPeopleUnitProgress(UnitTypes eUnit, int iChange)
+ {
+-	setGreatPeopleUnitProgress(eIndex, getGreatPeopleUnitProgress(eIndex) + iChange);
++	setGreatPeopleUnitProgress(eUnit, getGreatPeopleUnitProgress(eUnit) + iChange);
+ }
+ 
+ 
+-void CvCity::setSpecialistCount(SpecialistTypes eIndex, int iNewValue)
++void CvCity::setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
+ {
+-	int const iOldValue = getSpecialistCount(eIndex);
++	int const iOldValue = getSpecialistCount(eSpecialist);
+ 	if (iOldValue == iNewValue)
+ 		return; // advc
+ 
+-	m_aiSpecialistCount.set(eIndex, iNewValue);
+-	FAssert(getSpecialistCount(eIndex) >= 0);
++	m_aiSpecialistCount.set(eSpecialist, iNewValue);
++	FAssert(getSpecialistCount(eSpecialist) >= 0);
+ 
+ 	changeSpecialistPopulation(iNewValue - iOldValue);
+-	processSpecialist(eIndex, (iNewValue - iOldValue));
++	processSpecialist(eSpecialist, (iNewValue - iOldValue));
+ 
+ 	if (isCitySelected())
+ 		gDLL->UI().setDirty(CitizenButtons_DIRTY_BIT, true);
+ }
+ 
+ 
+-void CvCity::changeSpecialistCount(SpecialistTypes eIndex, int iChange)
++void CvCity::changeSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ {
+-	setSpecialistCount(eIndex, getSpecialistCount(eIndex) + iChange);
++	setSpecialistCount(eSpecialist, getSpecialistCount(eSpecialist) + iChange);
+ }
+ 
+ 
+-void CvCity::alterSpecialistCount(SpecialistTypes eIndex, int iChange)
++void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ {
+ 	if(iChange == 0)
+ 		return;
+ 
+ 	if (isCitizensAutomated())
+ 	{
+-		if (getForceSpecialistCount(eIndex) + iChange < 0)
++		if (getForceSpecialistCount(eSpecialist) + iChange < 0)
+ 			setCitizensAutomated(false);
+ 	}
+ 
+ 	if (isCitizensAutomated())
+ 	{
+-		changeForceSpecialistCount(eIndex, iChange);
++		changeForceSpecialistCount(eSpecialist, iChange);
+ 		//return;
+-		// (K-Mod. Without the following block, extra care is needed inside AI_assignWorkingPlots.)
++		/*	(K-Mod. Without the following block,
++			extra care is needed inside AI_assignWorkingPlots.) */
+ 	}
+ 	if (iChange > 0)
+ 	{
+-		for (int iI = 0; iI < iChange; iI++)
++		for (int i = 0; i < iChange; i++)
+ 		{
+-			if (extraPopulation() > 0 || AI().AI_removeWorstCitizen(eIndex))
++			if (extraPopulation() > 0 || AI().AI_removeWorstCitizen(eSpecialist))
+ 			{
+-				if (isSpecialistValid(eIndex, 1))
+-					changeSpecialistCount(eIndex, 1);
++				if (isSpecialistValid(eSpecialist, 1))
++					changeSpecialistCount(eSpecialist, 1);
+ 			}
+ 		}
+ 	}
+ 	else
+ 	{
+-		for (int iI = 0; iI < -iChange; iI++)  // advc: continue statements (to reduce indent)
++		for (int i = 0; i < -iChange; i++)
+ 		{
+-			if (getSpecialistCount(eIndex) <= 0)
++			if (getSpecialistCount(eSpecialist) <= 0)
+ 				continue;
+ 
+-			changeSpecialistCount(eIndex, -1);
++			changeSpecialistCount(eSpecialist, -1);
+ 
+-			if (eIndex != GC.getDEFAULT_SPECIALIST() &&
++			if (eSpecialist != GC.getDEFAULT_SPECIALIST() &&
+ 				GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
+ 			{
+-				changeSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST(), 1);
++				changeSpecialistCount(GC.getDEFAULT_SPECIALIST(), 1);
+ 				continue;
+ 			}
+ 			if (extraFreeSpecialists() > 0)
+@@ -8589,22 +8599,22 @@ void CvCity::alterSpecialistCount(SpecialistTypes eIndex, int iChange)
+ }
+ 
+ 
+-bool CvCity::isSpecialistValid(SpecialistTypes eIndex, int iExtra) const
++bool CvCity::isSpecialistValid(SpecialistTypes eSpecialist, int iExtra) const
+ {
+-	return (((getSpecialistCount(eIndex) + iExtra) <= getMaxSpecialistCount(eIndex)) ||
+-		GET_PLAYER(getOwner()).isSpecialistValid(eIndex) ||
+-		eIndex == GC.getDEFAULT_SPECIALIST());
++	return (getSpecialistCount(eSpecialist) + iExtra <= getMaxSpecialistCount(eSpecialist) ||
++		GET_PLAYER(getOwner()).isSpecialistValid(eSpecialist) ||
++		eSpecialist == GC.getDEFAULT_SPECIALIST());
+ }
+ 
+ 
+-void CvCity::changeMaxSpecialistCount(SpecialistTypes eIndex, int iChange)
++void CvCity::changeMaxSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		//m_aiMaxSpecialistCount.set(eIndex, std::max(0, m_aiMaxSpecialistCount.get(eIndex) + iChange));
++		//m_aiMaxSpecialistCount.set(eSpecialist, std::max(0, m_aiMaxSpecialistCount.get(eSpecialist) + iChange));
+ 		// <advc>
+-		m_aiMaxSpecialistCount.add(eIndex, iChange);
+-		FAssert(m_aiMaxSpecialistCount.get(eIndex) >= 0); // </advc>
++		m_aiMaxSpecialistCount.add(eSpecialist, iChange);
++		FAssert(m_aiMaxSpecialistCount.get(eSpecialist) >= 0); // </advc>
+ 		AI_setAssignWorkDirty(true);
+ 	}
+ }
+@@ -8621,15 +8631,15 @@ bool CvCity::isSpecialistForced() const
+ }
+ 
+ 
+-void CvCity::setForceSpecialistCount(SpecialistTypes eIndex, int iNewValue)
++void CvCity::setForceSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
+ {
+-	if (getForceSpecialistCount(eIndex) == iNewValue)
+-		return; // advc
++	if (getForceSpecialistCount(eSpecialist) == iNewValue)
++		return;
+ 
+-	//m_aiForceSpecialistCount.set(eIndex, std::max(0, iNewValue));
++	//m_aiForceSpecialistCount.set(eSpecialist, std::max(0, iNewValue));
+ 	// <advc>
+ 	FAssert(iNewValue >= 0);
+-	m_aiForceSpecialistCount.set(eIndex, iNewValue); // </advc>
++	m_aiForceSpecialistCount.set(eSpecialist, iNewValue); // </advc>
+ 
+ 	if (isCitySelected())
+ 		gDLL->UI().setDirty(Help_DIRTY_BIT, true);
+@@ -8637,23 +8647,23 @@ void CvCity::setForceSpecialistCount(SpecialistTypes eIndex, int iNewValue)
+ }
+ 
+ 
+-void CvCity::changeForceSpecialistCount(SpecialistTypes eIndex, int iChange)
++void CvCity::changeForceSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ {
+-	setForceSpecialistCount(eIndex, getForceSpecialistCount(eIndex) + iChange);
++	setForceSpecialistCount(eSpecialist, getForceSpecialistCount(eSpecialist) + iChange);
+ }
+ 
+ 
+-int CvCity::getAddedFreeSpecialistCount(SpecialistTypes eIndex) const
++int CvCity::getAddedFreeSpecialistCount(SpecialistTypes eSpecialist) const
+ {
+-	int iR = getFreeSpecialistCount(eIndex);
++	int iR = getFreeSpecialistCount(eSpecialist);
+ 	CvCivilization const& kCiv = getCivilization();
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+ 		BuildingTypes eBuilding = kCiv.buildingAt(i);
+-		if (GC.getInfo(eBuilding).getFreeSpecialistCount(eIndex) > 0)
++		if (GC.getInfo(eBuilding).getFreeSpecialistCount(eSpecialist) > 0)
+ 		{
+ 			iR -= getNumActiveBuilding(eBuilding) *
+-					GC.getInfo(eBuilding).getFreeSpecialistCount(eIndex);
++					GC.getInfo(eBuilding).getFreeSpecialistCount(eSpecialist);
+ 		}
+ 	}
+ 	FAssert(iR >= 0);
+@@ -8661,42 +8671,42 @@ int CvCity::getAddedFreeSpecialistCount(SpecialistTypes eIndex) const
+ }
+ 
+ 
+-void CvCity::setFreeSpecialistCount(SpecialistTypes eIndex, int iNewValue)
++void CvCity::setFreeSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
+ {
+-	int const iOldValue = getFreeSpecialistCount(eIndex);
++	int const iOldValue = getFreeSpecialistCount(eSpecialist);
+ 	if (iOldValue == iNewValue)
+ 		return; // advc
+ 
+-	m_aiFreeSpecialistCount.set(eIndex, iNewValue);
+-	FAssert(getFreeSpecialistCount(eIndex) >= 0);
++	m_aiFreeSpecialistCount.set(eSpecialist, iNewValue);
++	FAssert(getFreeSpecialistCount(eSpecialist) >= 0);
+ 
+ 	changeNumGreatPeople(iNewValue - iOldValue);
+-	processSpecialist(eIndex, (iNewValue - iOldValue));
++	processSpecialist(eSpecialist, iNewValue - iOldValue);
+ 
+ 	if (isCitySelected())
+ 		gDLL->UI().setDirty(CitizenButtons_DIRTY_BIT, true);
+ }
+ 
+ 
+-void CvCity::changeFreeSpecialistCount(SpecialistTypes eIndex, int iChange)
++void CvCity::changeFreeSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ {
+-	setFreeSpecialistCount(eIndex, getFreeSpecialistCount(eIndex) + iChange);
++	setFreeSpecialistCount(eSpecialist, getFreeSpecialistCount(eSpecialist) + iChange);
+ }
+ 
+ 
+-void CvCity::changeImprovementFreeSpecialists(ImprovementTypes eIndex, int iChange)
++void CvCity::changeImprovementFreeSpecialists(ImprovementTypes eImprov, int iChange)
+ {
+-	//m_aiImprovementFreeSpecialists.set(eIndex, std::max(0, m_aiImprovementFreeSpecialists.get(eIndex) + iChange));
++	//m_aiImprovementFreeSpecialists.set(eImprov, std::max(0, m_aiImprovementFreeSpecialists.get(eImprov) + iChange));
+ 	// <advc>
+-	m_aiImprovementFreeSpecialists.add(eIndex, iChange);
+-	FAssert(m_aiImprovementFreeSpecialists.get(eIndex) >= 0); // </advc>
++	m_aiImprovementFreeSpecialists.add(eImprov, iChange);
++	FAssert(m_aiImprovementFreeSpecialists.get(eImprov) >= 0); // </advc>
+ }
+ 
+ 
+-void CvCity::changeReligionInfluence(ReligionTypes eIndex, int iChange)
++void CvCity::changeReligionInfluence(ReligionTypes eReligion, int iChange)
+ {
+-	m_aiReligionInfluence.add(eIndex, iChange);
+-	FAssert(getReligionInfluence(eIndex) >= 0);
++	m_aiReligionInfluence.add(eReligion, iChange);
++	FAssert(getReligionInfluence(eReligion) >= 0);
+ }
+ 
+ 
+@@ -8708,27 +8718,27 @@ int CvCity::getCurrentStateReligionHappiness() const
+ }
+ 
+ 
+-void CvCity::changeStateReligionHappiness(ReligionTypes eIndex, int iChange)
++void CvCity::changeStateReligionHappiness(ReligionTypes eReligion, int iChange)
+ {
+ 	if (iChange != 0)
+ 	{
+-		m_aiStateReligionHappiness.add(eIndex, iChange);
++		m_aiStateReligionHappiness.add(eReligion, iChange);
+ 		AI_setAssignWorkDirty(true);
+ 	}
+ }
+ 
+ 
+-void CvCity::changeUnitCombatFreeExperience(UnitCombatTypes eIndex, int iChange)
++void CvCity::changeUnitCombatFreeExperience(UnitCombatTypes eUnitCombat, int iChange)
+ {
+-	m_aiUnitCombatFreeExperience.add(eIndex, iChange);
+-	FAssert(getUnitCombatFreeExperience(eIndex) >= 0);
++	m_aiUnitCombatFreeExperience.add(eUnitCombat, iChange);
++	FAssert(getUnitCombatFreeExperience(eUnitCombat) >= 0);
+ }
+ 
+ 
+-void CvCity::changeFreePromotionCount(PromotionTypes eIndex, int iChange)
++void CvCity::changeFreePromotionCount(PromotionTypes ePromo, int iChange)
+ {
+-	m_aiFreePromotionCount.add(eIndex, iChange);
+-	FAssert(getFreePromotionCount(eIndex) >= 0);
++	m_aiFreePromotionCount.add(ePromo, iChange);
++	FAssert(getFreePromotionCount(ePromo) >= 0);
+ }
+ 
+ 
+@@ -8850,10 +8860,10 @@ int CvCity::getNumRealBuilding(BuildingClassTypes eBuildingClass) const
+ }
+ 
+ 
+-void CvCity::setNumRealBuilding(BuildingTypes eIndex, int iNewValue,
++void CvCity::setNumRealBuilding(BuildingTypes eBuilding, int iNewValue,
+ 	bool bEndOfTurn) // advc.001x
+ {
+-	setNumRealBuildingTimed(eIndex, iNewValue, true, getOwner(),
++	setNumRealBuildingTimed(eBuilding, iNewValue, true, getOwner(),
+ 			GC.getGame().getGameTurnYear(), /* advc.001x: */ bEndOfTurn);
+ }
+ 
+@@ -9050,8 +9060,8 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
+ 				}
+ 			}
+ 			//if (iCountExisting == 1 && iNewValue == 0)
+-			/*  advc.001: m_aiNumRealBuilding.get(eIndex) has already been decreased
+-				(and the loop above skips eIndex anyway), so iCountExisting isn't
++			/*  advc.001: m_aiNumRealBuilding.get(eBuilding) has already been decreased
++				(and the loop above skips eBuilding anyway), so iCountExisting isn't
+ 				going to be 1. */
+ 			if (iCountExisting <= 0 && iOldNumBuilding > 0 && iNewValue <= 0)
+ 				gDLL->getEngineIFace()->RemoveGreatWall(this);
+@@ -9065,15 +9075,15 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
+ }
+ 
+ 
+-void CvCity::setNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
++void CvCity::setNumFreeBuilding(BuildingTypes eBuilding, int iNewValue)
+ {
+-	if(getNumFreeBuilding(eIndex) == iNewValue)
++	if(getNumFreeBuilding(eBuilding) == iNewValue)
+ 		return;
+ 
+-	int const iOldNumBuilding = getNumBuilding(eIndex);
+-	m_aiNumFreeBuilding.set(eIndex, iNewValue);
+-	if (iOldNumBuilding != getNumBuilding(eIndex))
+-		processBuilding(eIndex, iNewValue - iOldNumBuilding);
++	int const iOldNumBuilding = getNumBuilding(eBuilding);
++	m_aiNumFreeBuilding.set(eBuilding, iNewValue);
++	if (iOldNumBuilding != getNumBuilding(eBuilding))
++		processBuilding(eBuilding, iNewValue - iOldNumBuilding);
+ }
+ 
+ 
+@@ -9124,7 +9134,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
+ 						eSpreadPlayer == kObs.getID() || // </advc.106e>
+ 						kOwner.getID() == kObs.getID() ||
+ 						// advc.106e: Disable this clause
+-						//(kObs.getStateReligion() == eIndex) ||
++						//(kObs.getStateReligion() == eReligion) ||
+ 						kObs.hasHolyCity(eReligion))
+ 					{
+ 						CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_SPREAD",
+@@ -9367,7 +9377,7 @@ void CvCity::setHasCorporation(CorporationTypes eCorp, bool bNewValue, bool bAnn
+ 			// <advc.106e>
+ 			if(kObs.hasHeadquarters(eCorp))
+ 				getPlot().setRevealed(kObs.getTeam(), true, false, NO_TEAM, false);
+-			//if (getOwner() == kObs.getID() || kObs.hasHeadquarters(eIndex)) // BtS
++			//if (getOwner() == kObs.getID() || kObs.hasHeadquarters(eCorp)) // BtS
+ 			if (isRevealed(kObs.getTeam())) // </advc.106e>
+ 			{
+ 				if (getOwner() == kObs.getID())
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 5ea555624..0ae131a88 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -189,7 +189,7 @@ public:
+ 	int getBonusHealth(BonusTypes eBonus) const;																// Exposed to Python
+ 	int getBonusHappiness(BonusTypes eBonus) const;																// Exposed to Python
+ 	int getBonusPower(BonusTypes eBonus, bool bDirty) const;													// Exposed to Python
+-	int getBonusYieldRateModifier(YieldTypes eIndex, BonusTypes eBonus) const;									// Exposed to Python
++	int getBonusYieldRateModifier(YieldTypes eYield, BonusTypes eBonus) const;									// Exposed to Python
+ 
+ 	void processBonus(BonusTypes eBonus, int iChange);
+ 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolete = false);
+@@ -223,12 +223,12 @@ public:
+ 	bool isCoastal(int iMinWaterSize = -1) const;																// Exposed to Python
+ 	bool isDisorder() const;																					// Exposed to Python
+ 	bool isNoMaintenance() const; //advc
+-	bool isHolyCity(ReligionTypes eIndex) const;																// Exposed to Python
++	bool isHolyCity(ReligionTypes eReligion) const;																// Exposed to Python
+ 	bool isHolyCity() const;																					// Exposed to Python
+ 	bool hasShrine(ReligionTypes eReligion) const;
+-	bool isHeadquarters(CorporationTypes eIndex) const;															// Exposed to Python
++	bool isHeadquarters(CorporationTypes eCorp) const;															// Exposed to Python
+ 	bool isHeadquarters() const;																				// Exposed to Python
+-	void setHeadquarters(CorporationTypes eIndex);
++	void setHeadquarters(CorporationTypes eCorp);
+ 
+ 	int getOvercrowdingPercentAnger(int iExtra = 0) const;														// Exposed to Python
+ 	int getNoMilitaryPercentAnger() const;																		// Exposed to Python
+@@ -291,9 +291,9 @@ public:
+ 	int cultureGarrison(PlayerTypes ePlayer) const;																// Exposed to Python
+ 	PlayerTypes calculateCulturalOwner() const; // advc.099c
+ 
+-	int getNumBuilding(BuildingTypes eIndex) const;																// Exposed to Python
++	int getNumBuilding(BuildingTypes eBuilding) const;															// Exposed to Python
+ 	int getNumBuilding(BuildingClassTypes eBuildingClass) const; // advc.003w
+-	int getNumActiveBuilding(BuildingTypes eIndex) const;														// Exposed to Python
++	int getNumActiveBuilding(BuildingTypes eBuilding) const;													// Exposed to Python
+ 	bool hasActiveWorldWonder() const																			// Exposed to Python
+ 	{
+ 		return (getNumActiveWorldWonders(1) > 0); // advc
+@@ -302,8 +302,8 @@ public:
+ 	int getNumActiveWorldWonders(/* advc: */ int iStopCountAt = MAX_INT,
+ 			PlayerTypes eOwner = NO_PLAYER) const; // advc.104d: Hypothetical owner
+ 
+-	int getReligionCount() const;																				// Exposed to Python
+-	int getCorporationCount() const;																			// Exposed to Python
++	int getReligionCount() const { return m_abHasReligion.getTotal(); } // advc.opt								// Exposed to Python
++	int getCorporationCount() const { return m_abHasCorporation.getTotal(); } // advc.opt						// Exposed to Python
+ 	static CvCity* fromIDInfo(IDInfo id); // advc
+ 	// <advc.inl>
+ 	DllExport inline int getID() const { return m_iID; }														// Exposed to Python
+@@ -552,128 +552,127 @@ public:
+ 	// K-Mod end
+ 
+ 	int getBuildingOnlyHealthyCount() const { return m_iBuildingOnlyHealthyCount; }
+-	bool isBuildingOnlyHealthy() const;																				// Exposed to Python
++	bool isBuildingOnlyHealthy() const;																			// Exposed to Python
+ 	void changeBuildingOnlyHealthyCount(int iChange);
+ 
+-	int getFood() const { return m_iFood; }																			// Exposed to Python
+-	void setFood(int iNewValue);																					// Exposed to Python
+-	void changeFood(int iChange);																					// Exposed to Python
+-	int getFoodKept() const { return m_iFoodKept; }																	// Exposed to Python
++	int getFood() const { return m_iFood; }																		// Exposed to Python
++	void setFood(int iNewValue);																				// Exposed to Python
++	void changeFood(int iChange);																				// Exposed to Python
++	int getFoodKept() const { return m_iFoodKept; }																// Exposed to Python
+ 	void setFoodKept(int iNewValue);
+ 	void changeFoodKept(int iChange);
+-	int getMaxFoodKeptPercent() const { return m_iMaxFoodKeptPercent; }												// Exposed to Python
++	int getMaxFoodKeptPercent() const { return m_iMaxFoodKeptPercent; }											// Exposed to Python
+ 	void changeMaxFoodKeptPercent(int iChange);
+ 
+-	int getOverflowProduction() const { return m_iOverflowProduction; }												// Exposed to Python
+-	void setOverflowProduction(int iNewValue);																		// Exposed to Python
++	int getOverflowProduction() const { return m_iOverflowProduction; }											// Exposed to Python
++	void setOverflowProduction(int iNewValue);																	// Exposed to Python
+ 	void changeOverflowProduction(int iChange, int iProductionModifier);
+ 	// advc.064b:
+ 	int unmodifyOverflow(int iRawOverflow, int iProductionModifier) const;
+ 
+-	int getFeatureProduction() const { return m_iFeatureProduction; }												// Exposed to Python
+-	void setFeatureProduction(int iNewValue);																		// Exposed to Python
++	int getFeatureProduction() const { return m_iFeatureProduction; }											// Exposed to Python
++	void setFeatureProduction(int iNewValue);																	// Exposed to Python
+ 	void changeFeatureProduction(int iChange);
+ 
+-	int getMilitaryProductionModifier() const { return m_iMilitaryProductionModifier; }								// Exposed to Python
++	int getMilitaryProductionModifier() const { return m_iMilitaryProductionModifier; }							// Exposed to Python
+ 	void changeMilitaryProductionModifier(int iChange);
+-	int getSpaceProductionModifier() const { return m_iSpaceProductionModifier; }									// Exposed to Python
++	int getSpaceProductionModifier() const { return m_iSpaceProductionModifier; }								// Exposed to Python
+ 	void changeSpaceProductionModifier(int iChange);
+ 
+-	int getExtraTradeRoutes() const { return m_iExtraTradeRoutes; }													// Exposed to Python
+-	void changeExtraTradeRoutes(int iChange);																		// Exposed to Python
+-	int getTradeRouteModifier() const { return m_iTradeRouteModifier; }												// Exposed to Python
++	int getExtraTradeRoutes() const { return m_iExtraTradeRoutes; }												// Exposed to Python
++	void changeExtraTradeRoutes(int iChange);																	// Exposed to Python
++	int getTradeRouteModifier() const { return m_iTradeRouteModifier; }											// Exposed to Python
+ 	void changeTradeRouteModifier(int iChange);
+-	int getForeignTradeRouteModifier() const { return m_iForeignTradeRouteModifier; }								// Exposed to Python
++	int getForeignTradeRouteModifier() const { return m_iForeignTradeRouteModifier; }							// Exposed to Python
+ 	void changeForeignTradeRouteModifier(int iChange);
+ 
+ 	// K-Mod, 26/sep/10 (Trade culture calculation)
+-	int getTradeCultureRateTimes100() const;																		// Exposed to Python
++	int getTradeCultureRateTimes100() const;																	// Exposed to Python
+ 
+-	int getBuildingDefense() const { return m_iBuildingDefense; }													// Exposed to Python
++	int getBuildingDefense() const { return m_iBuildingDefense; }												// Exposed to Python
+ 	void changeBuildingDefense(int iChange);
+ 	// BUG - Building Additional Defense:
+ 	int getAdditionalDefenseByBuilding(BuildingTypes eBuilding) const;
+ 
+-	int getBuildingBombardDefense() const { return m_iBuildingBombardDefense; }										// Exposed to Python
++	int getBuildingBombardDefense() const { return m_iBuildingBombardDefense; }									// Exposed to Python
+ 	void changeBuildingBombardDefense(int iChange);
+ 
+-	int getFreeExperience() const { return m_iFreeExperience; }														// Exposed to Python
++	int getFreeExperience() const { return m_iFreeExperience; }													// Exposed to Python
+ 	void changeFreeExperience(int iChange);
+ 
+-	int getCurrAirlift() const { return m_iCurrAirlift; }															// Exposed to Python
++	int getCurrAirlift() const { return m_iCurrAirlift; }														// Exposed to Python
+ 	void setCurrAirlift(int iNewValue);
+ 	void changeCurrAirlift(int iChange);
+-	int getMaxAirlift() const { return m_iMaxAirlift; }																// Exposed to Python
++	int getMaxAirlift() const { return m_iMaxAirlift; }															// Exposed to Python
+ 	void changeMaxAirlift(int iChange);
+ 
+-	int getAirModifier() const { return m_iAirModifier; }															// Exposed to Python
++	int getAirModifier() const { return m_iAirModifier; }														// Exposed to Python
+ 	void changeAirModifier(int iChange);
+ 
+-	int getAirUnitCapacity(TeamTypes eTeam) const;																	// Exposed to Python
+-	void changeAirUnitCapacity(int iChange);																		// Exposed to Python
++	int getAirUnitCapacity(TeamTypes eTeam) const;																// Exposed to Python
++	void changeAirUnitCapacity(int iChange);																	// Exposed to Python
+ 
+-	int getNukeModifier() const { return m_iNukeModifier; }															// Exposed to Python
++	int getNukeModifier() const { return m_iNukeModifier; }														// Exposed to Python
+ 	void changeNukeModifier(int iChange);
+ 
+-	int getFreeSpecialist() const { return m_iFreeSpecialist; }														// Exposed to Python
++	int getFreeSpecialist() const { return m_iFreeSpecialist; }													// Exposed to Python
+ 	void changeFreeSpecialist(int iChange);
+ 
+ 	int getPowerCount() const { return m_iPowerCount; }			
+-	bool isPower() const { return (getPowerCount() > 0 || isAreaCleanPower()); }									// Exposed to Python
+-	bool isAreaCleanPower() const;																					// Exposed to Python
++	bool isPower() const { return (getPowerCount() > 0 || isAreaCleanPower()); }								// Exposed to Python
++	bool isAreaCleanPower() const;																				// Exposed to Python
+ 	int getDirtyPowerCount() const { return m_iDirtyPowerCount; }			
+-	bool isDirtyPower() const;																						// Exposed to Python
++	bool isDirtyPower() const;																					// Exposed to Python
+ 	void changePowerCount(int iChange, bool bDirty);
+ 
+-	bool isAreaBorderObstacle() const;																				// Exposed to Python
++	bool isAreaBorderObstacle() const;																			// Exposed to Python
+ 
+-	int getDefenseDamage() const { return m_iDefenseDamage; }														// Exposed to Python
+-	void changeDefenseDamage(int iChange);																			// Exposed to Python
+-	void changeDefenseModifier(int iChange);																		// Exposed to Python
+-	int getLastDefenseDamage() const;																				// Exposed to Python
++	int getDefenseDamage() const { return m_iDefenseDamage; }													// Exposed to Python
++	void changeDefenseDamage(int iChange);																		// Exposed to Python
++	void changeDefenseModifier(int iChange);																	// Exposed to Python
++	int getLastDefenseDamage() const;																			// Exposed to Python
+ 	void setLastDefenseDamage(int iNewValue);
+ 
+-	bool isBombardable(const CvUnit* pUnit) const;																	// Exposed to Python
+-	int getNaturalDefense() const;																					// Exposed to Python
+-	int getTotalDefense(bool bIgnoreBuilding) const;																// Exposed to Python
+-	int getDefenseModifier(bool bIgnoreBuilding) const;																// Exposed to Python
++	bool isBombardable(const CvUnit* pUnit) const;																// Exposed to Python
++	int getNaturalDefense() const;																				// Exposed to Python
++	int getTotalDefense(bool bIgnoreBuilding) const;															// Exposed to Python
++	int getDefenseModifier(bool bIgnoreBuilding) const;															// Exposed to Python
+ 
+-	int getOccupationTimer() const { return m_iOccupationTimer; }													// Exposed to Python
+-	bool isOccupation() const { return (getOccupationTimer() > 0); }												// Exposed to Python
+-	void setOccupationTimer(int iNewValue);																			// Exposed to Python
+-	void changeOccupationTimer(int iChange);																		// Exposed to Python
++	int getOccupationTimer() const { return m_iOccupationTimer; }												// Exposed to Python
++	bool isOccupation() const { return (getOccupationTimer() > 0); }											// Exposed to Python
++	void setOccupationTimer(int iNewValue);																		// Exposed to Python
++	void changeOccupationTimer(int iChange);																	// Exposed to Python
+ 
+-	int getCultureUpdateTimer() const { return m_iCultureUpdateTimer; }												// Exposed to Python
++	int getCultureUpdateTimer() const { return m_iCultureUpdateTimer; }											// Exposed to Python
+ 	void setCultureUpdateTimer(int iNewValue);
+-	void changeCultureUpdateTimer(int iChange);																		// Exposed to Python
++	void changeCultureUpdateTimer(int iChange);																	// Exposed to Python
+ 
+ 	int getCitySizeBoost() const;
+ 	void setCitySizeBoost(int iBoost);
+ 
+-	bool isNeverLost() const;																						// Exposed to Python
+-	void setNeverLost(bool bNewValue);																				// Exposed to Python
++	bool isNeverLost() const;																					// Exposed to Python
++	void setNeverLost(bool bNewValue);																			// Exposed to Python
+ 
+-	bool isBombarded() const { return m_bBombarded; }																// Exposed to Python
+-	void setBombarded(bool bNewValue);																				// Exposed to Python
++	bool isBombarded() const { return m_bBombarded; }															// Exposed to Python
++	void setBombarded(bool bNewValue);																			// Exposed to Python
+ 
+-	bool isDrafted() const { return m_bDrafted; }																	// Exposed to Python
+-	void setDrafted(bool bNewValue);																				// Exposed to Python
++	bool isDrafted() const { return m_bDrafted; }																// Exposed to Python
++	void setDrafted(bool bNewValue);																			// Exposed to Python
+ 
+-	bool isAirliftTargeted() const { return m_bAirliftTargeted; }													// Exposed to Python
+-	void setAirliftTargeted(bool bNewValue);																		// Exposed to Python
++	bool isAirliftTargeted() const { return m_bAirliftTargeted; }												// Exposed to Python
++	void setAirliftTargeted(bool bNewValue);																	// Exposed to Python
+ 
+-	bool isPlundered() const { return m_bPlundered; }																// Exposed to Python
+-	void setPlundered(bool bNewValue);																				// Exposed to Python
++	bool isPlundered() const { return m_bPlundered; }															// Exposed to Python
++	void setPlundered(bool bNewValue);																			// Exposed to Python
+ 
+-	bool isWeLoveTheKingDay() const;																				// Exposed to Python
++	bool isWeLoveTheKingDay() const;																			// Exposed to Python
+ 	void setWeLoveTheKingDay(bool bNewValue);
+ 
+-	bool isCitizensAutomated() const { return m_bCitizensAutomated; }												// Exposed to Python
+-	void setCitizensAutomated(bool bNewValue);																		// Exposed to Python
+-	bool isProductionAutomated() const { return m_bProductionAutomated; }											// Exposed to Python
+-	void setProductionAutomated(bool bNewValue, bool bClear);														// Exposed to Python
++	bool isCitizensAutomated() const { return m_bCitizensAutomated; }											// Exposed to Python
++	void setCitizensAutomated(bool bNewValue);																	// Exposed to Python
++	bool isProductionAutomated() const { return m_bProductionAutomated; }										// Exposed to Python
++	void setProductionAutomated(bool bNewValue, bool bClear);													// Exposed to Python
+ 
+-	// allows you to programmatically specify a cities walls rather than having them be generated automagically
+ 	DllExport bool isWallOverride() const;
+ 	void setWallOverride(bool bOverride);
+ 
+@@ -682,16 +681,16 @@ public:
+ 	DllExport bool isLayoutDirty() const;
+ 	DllExport void setLayoutDirty(bool bNewValue);
+ 
+-	PlayerTypes getOwnerExternal() const; // advc.inl: Exported through .def file									// Exposed to Python
++	PlayerTypes getOwnerExternal() const; // advc.inl: Exported through .def file								// Exposed to Python
+ 	inline PlayerTypes getOwner() const { return m_eOwner; } // advc.inl: Renamed from getOwnerINLINE
+-	DllExport TeamTypes getTeam() const;																			// Exposed to Python
+-	PlayerTypes getPreviousOwner() const { return m_ePreviousOwner; }												// Exposed to Python
++	DllExport TeamTypes getTeam() const;																		// Exposed to Python
++	PlayerTypes getPreviousOwner() const { return m_ePreviousOwner; }											// Exposed to Python
+ 	void setPreviousOwner(PlayerTypes eNewValue);
+-	PlayerTypes getOriginalOwner() const { return m_eOriginalOwner; }												// Exposed to Python
++	PlayerTypes getOriginalOwner() const { return m_eOriginalOwner; }											// Exposed to Python
+ 	void setOriginalOwner(PlayerTypes eNewValue);
+ 
+-	CultureLevelTypes getCultureLevel() const { return m_eCultureLevel; }											// Exposed to Python
+-	int getCultureThreshold() const { return getCultureThreshold(getCultureLevel()); }								// Exposed to Python
++	CultureLevelTypes getCultureLevel() const { return m_eCultureLevel; }										// Exposed to Python
++	int getCultureThreshold() const { return getCultureThreshold(getCultureLevel()); }							// Exposed to Python
+ 	static int getCultureThreshold(CultureLevelTypes eLevel);
+ 	void setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups);
+ 	void updateCultureLevel(bool bUpdatePlotGroups);
+@@ -699,10 +698,10 @@ public:
+ 	int getNumPartisanUnits(PlayerTypes ePartisanPlayer) const; // advc.003y
+ 	int getCultureTurnsLeft() const; // advc.042
+ 
+-	int getSeaPlotYield(YieldTypes eIndex) const { return m_aiSeaPlotYield.get(eIndex); }							// Exposed to Python
+-	void changeSeaPlotYield(YieldTypes eIndex, int iChange);
+-	int getRiverPlotYield(YieldTypes eIndex) const { return m_aiRiverPlotYield.get(eIndex); }						// Exposed to Python
+-	void changeRiverPlotYield(YieldTypes eIndex, int iChange);
++	int getSeaPlotYield(YieldTypes eYield) const { return m_aiSeaPlotYield.get(eYield); }						// Exposed to Python
++	void changeSeaPlotYield(YieldTypes eYield, int iChange);
++	int getRiverPlotYield(YieldTypes eYield) const { return m_aiRiverPlotYield.get(eYield); }					// Exposed to Python
++	void changeRiverPlotYield(YieldTypes eYield, int iChange);
+ 
+ 	// BUG - Building Additional Yield - start
+ 	int getAdditionalYieldByBuilding(YieldTypes eYield, BuildingTypes eBuilding) const;
+@@ -714,161 +713,162 @@ public:
+ 	int getAdditionalBaseYieldRateBySpecialist(YieldTypes eYield, SpecialistTypes eSpecialist, int iChange = 1) const;
+ 	// BUG - Specialist Additional Yield - end
+ 
+-	int getBaseYieldRate(YieldTypes eIndex) const { return m_aiBaseYieldRate.get(eIndex); }							// Exposed to Python
+-	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0) const;											// Exposed to Python
+-	int getYieldRate(YieldTypes eIndex) const																		// Exposed to Python
++	int getBaseYieldRate(YieldTypes eYield) const { return m_aiBaseYieldRate.get(eYield); }						// Exposed to Python
++	int getBaseYieldRateModifier(YieldTypes eYield, int iExtra = 0) const;										// Exposed to Python
++	int getYieldRate(YieldTypes eYield) const																	// Exposed to Python
+ 	{
+-		return (getBaseYieldRate(eIndex) * getBaseYieldRateModifier(eIndex)) / 100;
++		return (getBaseYieldRate(eYield) * getBaseYieldRateModifier(eYield)) / 100;
+ 	}
+-	void setBaseYieldRate(YieldTypes eIndex, int iNewValue);														// Exposed to Python
+-	void changeBaseYieldRate(YieldTypes eIndex, int iChange);														// Exposed to Python
++	void setBaseYieldRate(YieldTypes eYield, int iNewValue);													// Exposed to Python
++	void changeBaseYieldRate(YieldTypes eYield, int iChange);													// Exposed to Python
+ 	int calculateBaseYieldRate(YieldTypes eYield); // advc.104u
+-	int getYieldRateModifier(YieldTypes eIndex) const { return m_aiYieldRateModifier.get(eIndex); }					// Exposed to Python
+-	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
++	int getYieldRateModifier(YieldTypes eYield) const { return m_aiYieldRateModifier.get(eYield); }				// Exposed to Python
++	void changeYieldRateModifier(YieldTypes eYield, int iChange);
+ 
+-	int getPowerYieldRateModifier(YieldTypes eIndex) const															// Exposed to Python
++	int getPowerYieldRateModifier(YieldTypes eYield) const														// Exposed to Python
+ 	{
+-		return m_aiPowerYieldRateModifier.get(eIndex);
++		return m_aiPowerYieldRateModifier.get(eYield);
+ 	}
+-	void changePowerYieldRateModifier(YieldTypes eIndex, int iChange);
+-	int getBonusYieldRateModifier(YieldTypes eIndex) const															// Exposed to Python
++	void changePowerYieldRateModifier(YieldTypes eYield, int iChange);
++	int getBonusYieldRateModifier(YieldTypes eYield) const														// Exposed to Python
+ 	{
+-		return m_aiBonusYieldRateModifier.get(eIndex);
++		return m_aiBonusYieldRateModifier.get(eYield);
+ 	}
+-	void changeBonusYieldRateModifier(YieldTypes eIndex, int iChange);
+-	int getTradeYield(YieldTypes eIndex) const { return m_aiTradeYield.get(eIndex); }								// Exposed to Python
+-	int totalTradeModifier(CvCity const* pOtherCity = NULL) const;													// Exposed to Python
++	void changeBonusYieldRateModifier(YieldTypes eYield, int iChange);
++	int getTradeYield(YieldTypes eYield) const { return m_aiTradeYield.get(eYield); }							// Exposed to Python
++	int totalTradeModifier(CvCity const* pOtherCity = NULL) const;												// Exposed to Python
+ 	int getPopulationTradeModifier() const;
+ 	int getPeaceTradeModifier(TeamTypes eTeam) const;
+ 	int getBaseTradeProfit(CvCity const* pCity) const;
+-	int calculateTradeProfit(CvCity const* pCity) const																// Exposed to Python
++	int calculateTradeProfit(CvCity const* pCity) const															// Exposed to Python
+ 	{
+ 		return calculateTradeProfitTimes100(pCity) / 100;
+ 	}
+ 	int calculateTradeProfitTimes100(CvCity const* pCity) const; // advc.004
+-	int calculateTradeYield(YieldTypes eIndex, int iTradeProfit) const;												// Exposed to Python
++	int calculateTradeYield(YieldTypes eYield, int iTradeProfit) const;											// Exposed to Python
+ 	// BULL - Trade Hover - start
+-	void calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& iDomesticRoutes,
++	void calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes,
+ 			int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer = NO_PLAYER) const;
+ 	// BULL - Trade Hover - end
+-	void setTradeYield(YieldTypes eIndex, int iNewValue);
++	void setTradeYield(YieldTypes eYield, int iNewValue);
+ 
+-	int getExtraSpecialistYield(YieldTypes eIndex) const															// Exposed to Python
++	int getExtraSpecialistYield(YieldTypes eYield) const														// Exposed to Python
+ 	{
+-		return m_aiExtraSpecialistYield.get(eIndex);
++		return m_aiExtraSpecialistYield.get(eYield);
+ 	}
+-	int getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const;								// Exposed to Python
++	int getExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist) const;							// Exposed to Python
+ 	void updateExtraSpecialistYield(YieldTypes eYield);
+ 	void updateExtraSpecialistYield();
+ 
+-	int getCommerceRate(CommerceTypes eIndex) const;																// Exposed to Python
+-	int getCommerceRateTimes100(CommerceTypes eIndex) const;														// Exposed to Python
+-	int getCommerceFromPercent(CommerceTypes eIndex, int iYieldRate) const;											// Exposed to Python
+-	int getBaseCommerceRate(CommerceTypes eIndex) const																// Exposed to Python
++	int getCommerceRate(CommerceTypes eCommerce) const;															// Exposed to Python
++	int getCommerceRateTimes100(CommerceTypes eCommerce) const;													// Exposed to Python
++	int getCommerceFromPercent(CommerceTypes eCommerce, int iYieldRate) const;									// Exposed to Python
++	int getBaseCommerceRate(CommerceTypes eCommerce) const														// Exposed to Python
+ 	{
+-		return (getBaseCommerceRateTimes100(eIndex) / 100);
++		return (getBaseCommerceRateTimes100(eCommerce) / 100);
+ 	}
+-	int getBaseCommerceRateTimes100(CommerceTypes eIndex) const;													// Exposed to Python
+-	int getTotalCommerceRateModifier(CommerceTypes eIndex) const;													// Exposed to Python
+-	void updateCommerce(CommerceTypes eIndex);
++	int getBaseCommerceRateTimes100(CommerceTypes eCommerce) const;												// Exposed to Python
++	int getTotalCommerceRateModifier(CommerceTypes eCommerce) const;											// Exposed to Python
++	void updateCommerce(CommerceTypes eCommerce);
+ 	void updateCommerce();
+ 
+-	int getProductionToCommerceModifier(CommerceTypes eIndex) const													// Exposed to Python
++	int getProductionToCommerceModifier(CommerceTypes eCommerce) const											// Exposed to Python
+ 	{
+-		return m_aiProductionToCommerceModifier.get(eIndex);
++		return m_aiProductionToCommerceModifier.get(eCommerce);
+ 	}
+-	void changeProductionToCommerceModifier(CommerceTypes eIndex, int iChange);
++	void changeProductionToCommerceModifier(CommerceTypes eCommerce, int iChange);
+ 
+-	int getBuildingCommerce(CommerceTypes eIndex) const { return m_aiBuildingCommerce.get(eIndex); }				// Exposed to Python
+-	int getBuildingCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const;							// Exposed to Python
++	int getBuildingCommerce(CommerceTypes eCommerce) const { return m_aiBuildingCommerce.get(eCommerce); }		// Exposed to Python
++	int getBuildingCommerceByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const;					// Exposed to Python
+ 	void updateBuildingCommerce();
+ 	// BUG - Building Additional Commerce - start
+-	int getAdditionalCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const
++	int getAdditionalCommerceByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const
+ 	{
+-		return getAdditionalCommerceTimes100ByBuilding(eIndex, eBuilding) / 100;
++		return getAdditionalCommerceTimes100ByBuilding(eCommerce, eBuilding) / 100;
+ 	}
+-	int getAdditionalCommerceTimes100ByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const;
+-	int getAdditionalBaseCommerceRateByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const;
+-	int getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eIndex, BuildingTypes eBuilding) const;
+-	int getAdditionalCommerceRateModifierByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const;
+-	int getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eIndex, BuildingTypes eBuilding) const;
++	int getAdditionalCommerceTimes100ByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
++	int getAdditionalBaseCommerceRateByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
++	int getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
++	int getAdditionalCommerceRateModifierByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
++	int getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
+ 	// BUG - Building Additional Commerce - end
+-	int getSpecialistCommerce(CommerceTypes eIndex) const															// Exposed to Python
++	int getSpecialistCommerce(CommerceTypes eCommerce) const													// Exposed to Python
+ 	{
+-		return m_aiSpecialistCommerce.get(eIndex);
++		return m_aiSpecialistCommerce.get(eCommerce);
+ 	}
+-	void changeSpecialistCommerce(CommerceTypes eIndex, int iChange);												// Exposed to Python
++	void changeSpecialistCommerce(CommerceTypes eCommerce, int iChange);										// Exposed to Python
+ 	// BUG - Specialist Additional Commerce - start
+-	int getAdditionalCommerceBySpecialist(CommerceTypes eIndex,														// Exposed to Python
++	int getAdditionalCommerceBySpecialist(CommerceTypes eCommerce,												// Exposed to Python
+ 		SpecialistTypes eSpecialist, int iChange = 1) const
+ 	{
+-		return getAdditionalCommerceTimes100BySpecialist(eIndex, eSpecialist, iChange) / 100;
++		return getAdditionalCommerceTimes100BySpecialist(eCommerce, eSpecialist, iChange) / 100;
+ 	}
+-	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eIndex,												// Exposed to Python
++	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce,										// Exposed to Python
+ 			SpecialistTypes eSpecialist, int iChange = 1) const;
+-	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eIndex,												// Exposed to Python
++	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce,										// Exposed to Python
+ 			SpecialistTypes eSpecialist, int iChange = 1) const;
+-	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eIndex,
++	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce,
+ 			SpecialistTypes eSpecialist, int iChange = 1) const;
+ 	// BUG - Specialist Additional Commerce - end
+ 
+-	int getReligionCommerce(CommerceTypes eIndex) const																// Exposed to Python
++	int getReligionCommerce(CommerceTypes eCommerce) const														// Exposed to Python
+ 	{
+-		return m_aiReligionCommerce.get(eIndex);
++		return m_aiReligionCommerce.get(eCommerce);
+ 	}
+-	int getReligionCommerceByReligion(CommerceTypes eIndex, ReligionTypes eReligion) const;							// Exposed to Python
+-	void updateReligionCommerce(CommerceTypes eIndex);
++	int getReligionCommerceByReligion(CommerceTypes eCommerce,													// Exposed to Python
++			ReligionTypes eReligion) const;
++	void updateReligionCommerce(CommerceTypes eCommerce);
+ 	void updateReligionCommerce();
+ 
+-	void setCorporationYield(YieldTypes eIndex, int iNewValue);
+-	int getCorporationCommerce(CommerceTypes eIndex) const															// Exposed to Python
++	void setCorporationYield(YieldTypes eYield, int iNewValue);
++	int getCorporationCommerce(CommerceTypes eCommerce) const													// Exposed to Python
+ 	{
+-		return m_aiCorporationCommerce.get(eIndex);
++		return m_aiCorporationCommerce.get(eCommerce);
+ 	}
+-	int getCorporationCommerceByCorporation(CommerceTypes eIndex, CorporationTypes eCorporation) const;				// Exposed to Python
+-	int getCorporationYield(YieldTypes eIndex) const { return m_aiCorporationYield.get(eIndex); }					// Exposed to Python
+-	int getCorporationYieldByCorporation(YieldTypes eIndex, CorporationTypes eCorporation) const;					// Exposed to Python
++	int getCorporationCommerceByCorporation(CommerceTypes eCommerce, CorporationTypes eCorporation) const;		// Exposed to Python
++	int getCorporationYield(YieldTypes eYield) const { return m_aiCorporationYield.get(eYield); }				// Exposed to Python
++	int getCorporationYieldByCorporation(YieldTypes eYield, CorporationTypes eCorporation) const;				// Exposed to Python
+ 	void updateCorporation(/* advc.064d: */ bool bVerifyProduction = true);
+-	void updateCorporationCommerce(CommerceTypes eIndex);
+-	void updateCorporationYield(YieldTypes eIndex);
++	void updateCorporationCommerce(CommerceTypes eCommerce);
++	void updateCorporationYield(YieldTypes eYield);
+ 	void updateCorporationBonus(/* advc.064d: */ bool bVerifyProduction = true);
+ 
+-	int getCommerceRateModifier(CommerceTypes eIndex) const															// Exposed to Python
++	int getCommerceRateModifier(CommerceTypes eCommerce) const													// Exposed to Python
+ 	{
+-		return m_aiCommerceRateModifier.get(eIndex);
++		return m_aiCommerceRateModifier.get(eCommerce);
+ 	}
+-	void changeCommerceRateModifier(CommerceTypes eIndex, int iChange);
++	void changeCommerceRateModifier(CommerceTypes eCommerce, int iChange);
+ 
+-	int getCommerceHappinessPer(CommerceTypes eIndex) const															// Exposed to Python
++	int getCommerceHappinessPer(CommerceTypes eCommerce) const													// Exposed to Python
+ 	{
+-		return m_aiCommerceHappinessPer.get(eIndex);
++		return m_aiCommerceHappinessPer.get(eCommerce);
+ 	}
+-	int getCommerceHappinessByType(CommerceTypes eIndex) const;														// Exposed to Python
+-	int getCommerceHappiness() const;																				// Exposed to Python
+-	void changeCommerceHappinessPer(CommerceTypes eIndex, int iChange);
++	int getCommerceHappinessByType(CommerceTypes eCommerce) const;												// Exposed to Python
++	int getCommerceHappiness() const;																			// Exposed to Python
++	void changeCommerceHappinessPer(CommerceTypes eCommerce, int iChange);
+ 
+-	int getDomainFreeExperience(DomainTypes eIndex) const															// Exposed to Python
++	int getDomainFreeExperience(DomainTypes eDomain) const														// Exposed to Python
+ 	{
+-		return m_aiDomainFreeExperience.get(eIndex);
++		return m_aiDomainFreeExperience.get(eDomain);
+ 	}
+-	void changeDomainFreeExperience(DomainTypes eIndex, int iChange);
++	void changeDomainFreeExperience(DomainTypes eDomain, int iChange);
+ 
+-	int getDomainProductionModifier(DomainTypes eIndex) const														// Exposed to Python
++	int getDomainProductionModifier(DomainTypes eDomain) const													// Exposed to Python
+ 	{
+-		return m_aiDomainProductionModifier.get(eIndex);
++		return m_aiDomainProductionModifier.get(eDomain);
+ 	}
+-	void changeDomainProductionModifier(DomainTypes eIndex, int iChange);
++	void changeDomainProductionModifier(DomainTypes eDomain, int iChange);
+ 
+-	int getCulture(PlayerTypes eIndex) const																		// Exposed to Python
++	int getCulture(PlayerTypes ePlayer) const																	// Exposed to Python
+ 	{	// advc: Delegate to the Times100 function
+-		return getCultureTimes100(eIndex) / 100;
++		return getCultureTimes100(ePlayer) / 100;
+ 	}
+-	inline int getCultureTimes100(PlayerTypes eIndex) const															// Exposed to Python
++	inline int getCultureTimes100(PlayerTypes ePlayer) const													// Exposed to Python
+ 	{
+-		return m_aiCulture.get(eIndex);
++		return m_aiCulture.get(ePlayer);
+ 	}
+-	int countTotalCultureTimes100() const;																			// Exposed to Python
+-	PlayerTypes findHighestCulture() const;																			// Exposed to Python
++	int countTotalCultureTimes100() const;																		// Exposed to Python
++	PlayerTypes findHighestCulture() const;																		// Exposed to Python
+ 	// advc.101:  (advc.ctr: exposed to Python)
+ 	double revoltProbability( // <advc.023>
+ 			bool bIgnoreWar = false, bool biIgnoreGarrison = false,
+@@ -877,44 +877,44 @@ public:
+ 	// K-Mod: (advc.ctr: exposed to Python)
+ 	bool canCultureFlip(PlayerTypes eToPlayer /* <advc.101> */ = NO_PLAYER,
+ 			bool bCheckPriorRevolts = true) const; // </advc.101>
+-	int calculateCulturePercent(PlayerTypes eIndex) const;															// Exposed to Python
+-	int calculateTeamCulturePercent(TeamTypes eIndex) const;														// Exposed to Python
+-	void setCulture(PlayerTypes eIndex, int iNewValue, bool bPlots, bool bUpdatePlotGroups);						// Exposed to Python
+-	void setCultureTimes100(PlayerTypes eIndex, int iNewValue, bool bPlots, bool bUpdatePlotGroups);				// Exposed to Python
+-	void changeCulture(PlayerTypes eIndex, int iChange, bool bPlots, bool bUpdatePlotGroups);						// Exposed to Python
+-	void changeCultureTimes100(PlayerTypes eIndex, int iChange, bool bPlots, bool bUpdatePlotGroups);				// Exposed to Python
++	int calculateCulturePercent(PlayerTypes ePlayer) const;														// Exposed to Python
++	int calculateTeamCulturePercent(TeamTypes eTeam) const;														// Exposed to Python
++	void setCulture(PlayerTypes ePlayer, int iNewValue, bool bPlots, bool bUpdatePlotGroups);					// Exposed to Python
++	void setCultureTimes100(PlayerTypes ePlayer, int iNewValue, bool bPlots, bool bUpdatePlotGroups);			// Exposed to Python
++	void changeCulture(PlayerTypes ePlayer, int iChange, bool bPlots, bool bUpdatePlotGroups);					// Exposed to Python
++	void changeCultureTimes100(PlayerTypes ePlayer, int iChange, bool bPlots, bool bUpdatePlotGroups);			// Exposed to Python
+ 
+-	int getNumRevolts(PlayerTypes eIndex) const
++	int getNumRevolts(PlayerTypes ePlayer) const
+ 	{
+-		return m_aiNumRevolts.get(eIndex);
++		return m_aiNumRevolts.get(ePlayer);
+ 	}
+ 	int getNumRevolts() const; // advc.099c
+-	void changeNumRevolts(PlayerTypes eIndex, int iChange);
++	void changeNumRevolts(PlayerTypes ePlayer, int iChange);
+ 	double getRevoltTestProbability() const; // advc.101: Now between 0 and 1
+ 	int getRevoltProtection() const; // advc.101
+ 	void addRevoltFreeUnits(); // advc
+ 
+-	bool isTradeRoute(PlayerTypes eIndex) const																		// Exposed to Python
++	bool isTradeRoute(PlayerTypes ePlayer) const																// Exposed to Python
+ 	{
+-		return m_abTradeRoute.get(eIndex);
++		return m_abTradeRoute.get(ePlayer);
+ 	}
+-	void setTradeRoute(PlayerTypes eIndex, bool bNewValue);
++	void setTradeRoute(PlayerTypes ePlayer, bool bNewValue);
+ 
+-	bool isEverOwned(PlayerTypes eIndex) const																		// Exposed to Python
++	bool isEverOwned(PlayerTypes ePlayer) const																	// Exposed to Python
+ 	{
+-		return m_abEverOwned.get(eIndex);
++		return m_abEverOwned.get(ePlayer);
+ 	}
+-	void setEverOwned(PlayerTypes eIndex, bool bNewValue);
++	void setEverOwned(PlayerTypes ePlayer, bool bNewValue);
+ 
+-	DllExport bool isRevealed(TeamTypes eIndex, bool bDebug) const;													// Exposed to Python
++	DllExport bool isRevealed(TeamTypes eTeam, bool bDebug) const;												// Exposed to Python
+ 	// <advc.inl> Faster implementation for non-UI code
+ 	inline bool isRevealed(TeamTypes eToTeam) const
+ 	{
+ 		return m_abRevealed.get(eToTeam);
+ 	} // </advc.inl>
+-	void setRevealed(TeamTypes eIndex, bool bNewValue);																// Exposed to Python
++	void setRevealed(TeamTypes eTeam, bool bNewValue);															// Exposed to Python
+ 
+-	bool getEspionageVisibility(TeamTypes eTeam) const																// Exposed to Python
++	bool getEspionageVisibility(TeamTypes eTeam) const															// Exposed to Python
+ 	{
+ 		return m_abEspionageVisibility.get(eTeam);
+ 	}  // <advc.opt>
+@@ -925,249 +925,249 @@ public:
+ 	void setEspionageVisibility(TeamTypes eTeam, bool bVisible, bool bUpdatePlotGroups);
+ 	void updateEspionageVisibility(bool bUpdatePlotGroups);
+ 
+-	DllExport const CvWString getName(uint uiForm = 0) const;														// Exposed to Python
+-	DllExport const wchar* getNameKey() const;																		// Exposed to Python
+-	void setName(const wchar* szNewValue, bool bFound = false,														// Exposed to Python
++	DllExport const CvWString getName(uint uiForm = 0) const;													// Exposed to Python
++	DllExport const wchar* getNameKey() const;																	// Exposed to Python
++	void setName(const wchar* szNewValue, bool bFound = false,													// Exposed to Python
+ 			bool bInitial = false); // advc.106k
+ 	void doFoundMessage();
+ 
+ 	// Script data needs to be a narrow string for pickling in Python
+-	std::string getScriptData() const;																				// Exposed to Python
+-	void setScriptData(std::string szNewValue);																		// Exposed to Python
++	std::string getScriptData() const;																			// Exposed to Python
++	void setScriptData(std::string szNewValue);																	// Exposed to Python
+ 
+-	int getFreeBonus(BonusTypes eIndex) const																		// Exposed to Python
++	int getFreeBonus(BonusTypes eBonus) const																	// Exposed to Python
+ 	{
+-		return m_aiFreeBonus.get(eIndex);
++		return m_aiFreeBonus.get(eBonus);
+ 	}  // <advc.opt>
+ 	bool isAnyFreeBonus() const
+ 	{
+ 		return m_aiFreeBonus.hasContent();
+ 	} // </advc.opt>
+-	void changeFreeBonus(BonusTypes eIndex, int iChange);															// Exposed to Python
+-	int getNumBonuses(BonusTypes eIndex) const;																		// Exposed to Python
+-	bool hasBonus(BonusTypes eIndex) const																			// Exposed to Python
++	void changeFreeBonus(BonusTypes eBonus, int iChange);														// Exposed to Python
++	int getNumBonuses(BonusTypes eBonus) const;																	// Exposed to Python
++	bool hasBonus(BonusTypes eBonus) const																		// Exposed to Python
+ 	{
+-		return (getNumBonuses(eIndex) > 0);
++		return (getNumBonuses(eBonus) > 0);
+ 	}
+-	void changeNumBonuses(BonusTypes eIndex, int iChange,
++	void changeNumBonuses(BonusTypes eBonus, int iChange,
+ 			bool bVerifyProduction = true); // advc.064d
+ 	int countUniqueBonuses() const; // advc.149
+-	int getNumCorpProducedBonuses(BonusTypes eIndex) const
++	int getNumCorpProducedBonuses(BonusTypes eBonus) const
+ 	{
+-		return m_aiNumCorpProducedBonuses.get(eIndex);
++		return m_aiNumCorpProducedBonuses.get(eBonus);
+ 	}
+ 	bool isCorporationBonus(BonusTypes eBonus) const;
+ 	bool isActiveCorporation(CorporationTypes eCorporation) const;
+ 
+-	int getBuildingProduction(BuildingTypes eIndex) const															// Exposed to Python
++	int getBuildingProduction(BuildingTypes eBuilding) const													// Exposed to Python
+ 	{
+-		return m_aiBuildingProduction.get(eIndex);
++		return m_aiBuildingProduction.get(eBuilding);
+ 	}
+-	void setBuildingProduction(BuildingTypes eIndex, int iNewValue);												// Exposed to Python
+-	void changeBuildingProduction(BuildingTypes eIndex, int iChange);												// Exposed to Python
++	void setBuildingProduction(BuildingTypes eBuilding, int iNewValue);											// Exposed to Python
++	void changeBuildingProduction(BuildingTypes eBuilding, int iChange);										// Exposed to Python
+ 
+-	int getBuildingProductionTime(BuildingTypes eIndex) const														// Exposed to Python
++	int getBuildingProductionTime(BuildingTypes eBuilding) const												// Exposed to Python
+ 	{
+-		return m_aiBuildingProductionTime.get(eIndex);
++		return m_aiBuildingProductionTime.get(eBuilding);
+ 	}
+-	void setBuildingProductionTime(BuildingTypes eIndex, int iNewValue);											// Exposed to Python
+-	void changeBuildingProductionTime(BuildingTypes eIndex, int iChange);											// Exposed to Python
++	void setBuildingProductionTime(BuildingTypes eBuilding, int iNewValue);										// Exposed to Python
++	void changeBuildingProductionTime(BuildingTypes eBuilding, int iChange);									// Exposed to Python
+ 
+-	int getProjectProduction(ProjectTypes eIndex) const																// Exposed to Python
++	int getProjectProduction(ProjectTypes eProject) const														// Exposed to Python
+ 	{
+-		return m_aiProjectProduction.get(eIndex);
++		return m_aiProjectProduction.get(eProject);
+ 	}
+-	void setProjectProduction(ProjectTypes eIndex, int iNewValue);													// Exposed to Python
+-	void changeProjectProduction(ProjectTypes eIndex, int iChange);													// Exposed to Python
++	void setProjectProduction(ProjectTypes eProject, int iNewValue);											// Exposed to Python
++	void changeProjectProduction(ProjectTypes eProject, int iChange);											// Exposed to Python
+ 
+-	PlayerTypes getBuildingOriginalOwner(BuildingTypes eIndex) const														// Exposed to Python
++	PlayerTypes getBuildingOriginalOwner(BuildingTypes eBuilding) const											// Exposed to Python
+ 	{
+-		return m_aeBuildingOriginalOwner.get(eIndex);
++		return m_aeBuildingOriginalOwner.get(eBuilding);
+ 	}
+-	int getBuildingOriginalTime(BuildingTypes eIndex) const															// Exposed to Python
++	int getBuildingOriginalTime(BuildingTypes eBuilding) const													// Exposed to Python
+ 	{
+-		return m_aiBuildingOriginalTime.get(eIndex);
++		return m_aiBuildingOriginalTime.get(eBuilding);
+ 	}
+ 
+-	int getUnitProduction(UnitTypes eIndex) const																	// Exposed to Python
++	int getUnitProduction(UnitTypes eUnit) const																// Exposed to Python
+ 	{
+-		return m_aiUnitProduction.get(eIndex);
++		return m_aiUnitProduction.get(eUnit);
+ 	}
+-	void setUnitProduction(UnitTypes eIndex, int iNewValue);														// Exposed to Python
+-	void changeUnitProduction(UnitTypes eIndex, int iChange);														// Exposed to Python
++	void setUnitProduction(UnitTypes eUnit, int iNewValue);														// Exposed to Python
++	void changeUnitProduction(UnitTypes eUnit, int iChange);													// Exposed to Python
+ 
+-	int getUnitProductionTime(UnitTypes eIndex) const																// Exposed to Python
++	int getUnitProductionTime(UnitTypes eUnit) const															// Exposed to Python
+ 	{
+-		return m_aiUnitProductionTime.get(eIndex);
++		return m_aiUnitProductionTime.get(eUnit);
+ 	}
+-	void setUnitProductionTime(UnitTypes eIndex, int iNewValue);													// Exposed to Python
+-	void changeUnitProductionTime(UnitTypes eIndex, int iChange);													// Exposed to Python
++	void setUnitProductionTime(UnitTypes eUnit, int iNewValue);													// Exposed to Python
++	void changeUnitProductionTime(UnitTypes eUnit, int iChange);												// Exposed to Python
+ 
+ 	bool isAnyProductionProgress(OrderTypes eOrder) const; // advc.opt
+ 
+-	int getGreatPeopleUnitRate(UnitTypes eIndex) const																// Exposed to Python
++	int getGreatPeopleUnitRate(UnitTypes eUnit) const															// Exposed to Python
+ 	{
+-		return m_aiGreatPeopleUnitRate.get(eIndex);
++		return m_aiGreatPeopleUnitRate.get(eUnit);
+ 	}
+-	void setGreatPeopleUnitRate(UnitTypes eIndex, int iNewValue);
+-	void changeGreatPeopleUnitRate(UnitTypes eIndex, int iChange);
++	void setGreatPeopleUnitRate(UnitTypes eUnit, int iNewValue);
++	void changeGreatPeopleUnitRate(UnitTypes eUnit, int iChange);
+ 
+-	int getGreatPeopleUnitProgress(UnitTypes eIndex) const															// Exposed to Python
++	int getGreatPeopleUnitProgress(UnitTypes eUnit) const														// Exposed to Python
+ 	{
+-		return m_aiGreatPeopleUnitProgress.get(eIndex);
++		return m_aiGreatPeopleUnitProgress.get(eUnit);
+ 	}
+-	void setGreatPeopleUnitProgress(UnitTypes eIndex, int iNewValue);												// Exposed to Python
+-	void changeGreatPeopleUnitProgress(UnitTypes eIndex, int iChange);												// Exposed to Python
++	void setGreatPeopleUnitProgress(UnitTypes eUnit, int iNewValue);											// Exposed to Python
++	void changeGreatPeopleUnitProgress(UnitTypes eUnit, int iChange);											// Exposed to Python
+ 
+-	int getSpecialistCount(SpecialistTypes eIndex) const															// Exposed to Python
++	int getSpecialistCount(SpecialistTypes eSpecialist) const													// Exposed to Python
+ 	{
+-		return m_aiSpecialistCount.get(eIndex);
++		return m_aiSpecialistCount.get(eSpecialist);
+ 	}
+-	void setSpecialistCount(SpecialistTypes eIndex, int iNewValue);
+-	void changeSpecialistCount(SpecialistTypes eIndex, int iChange);
+-	void alterSpecialistCount(SpecialistTypes eIndex, int iChange);													// Exposed to Python
++	void setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);
++	void changeSpecialistCount(SpecialistTypes eSpecialist, int iChange);
++	void alterSpecialistCount(SpecialistTypes eSpecialist, int iChange);										// Exposed to Python
+ 
+-	int getMaxSpecialistCount(SpecialistTypes eIndex) const															// Exposed to Python
++	int getMaxSpecialistCount(SpecialistTypes eSpecialist) const												// Exposed to Python
+ 	{
+-		return m_aiMaxSpecialistCount.get(eIndex);
++		return m_aiMaxSpecialistCount.get(eSpecialist);
+ 	}
+-	bool isSpecialistValid(SpecialistTypes eIndex, int iExtra = 0) const;											// Exposed to Python
+-	void changeMaxSpecialistCount(SpecialistTypes eIndex, int iChange);
++	bool isSpecialistValid(SpecialistTypes eSpecialist, int iExtra = 0) const;									// Exposed to Python
++	void changeMaxSpecialistCount(SpecialistTypes eSpecialist, int iChange);
+ 
+-	int getForceSpecialistCount(SpecialistTypes eIndex) const														// Exposed to Python
++	int getForceSpecialistCount(SpecialistTypes eSpecialist) const												// Exposed to Python
+ 	{
+-		return m_aiForceSpecialistCount.get(eIndex);
++		return m_aiForceSpecialistCount.get(eSpecialist);
+ 	}
+-	bool isSpecialistForced() const;																				// Exposed to Python
+-	void setForceSpecialistCount(SpecialistTypes eIndex, int iNewValue);											// Exposed to Python
+-	void changeForceSpecialistCount(SpecialistTypes eIndex, int iChange);											// Exposed to Python
++	bool isSpecialistForced() const;																			// Exposed to Python
++	void setForceSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);									// Exposed to Python
++	void changeForceSpecialistCount(SpecialistTypes eSpecialist, int iChange);									// Exposed to Python
+ 
+-	int getFreeSpecialistCount(SpecialistTypes eIndex) const														// Exposed to Python
++	int getFreeSpecialistCount(SpecialistTypes eSpecialist) const												// Exposed to Python
+ 	{
+-		return m_aiFreeSpecialistCount.get(eIndex);
++		return m_aiFreeSpecialistCount.get(eSpecialist);
+ 	}
+-	void setFreeSpecialistCount(SpecialistTypes eIndex, int iNewValue);												// Exposed to Python
+-	void changeFreeSpecialistCount(SpecialistTypes eIndex, int iChange);											// Exposed to Python
+-	int getAddedFreeSpecialistCount(SpecialistTypes eIndex) const;													// Exposed to Python
++	void setFreeSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);									// Exposed to Python
++	void changeFreeSpecialistCount(SpecialistTypes eSpecialist, int iChange);									// Exposed to Python
++	int getAddedFreeSpecialistCount(SpecialistTypes eSpecialist) const;											// Exposed to Python
+ 
+-	int getImprovementFreeSpecialists(ImprovementTypes eIndex) const												// Exposed to Python
++	int getImprovementFreeSpecialists(ImprovementTypes eImprov) const											// Exposed to Python
+ 	{
+-		return m_aiImprovementFreeSpecialists.get(eIndex);
++		return m_aiImprovementFreeSpecialists.get(eImprov);
+ 	}  // <advc.opt>
+ 	bool isAnyImprovementFreeSpecialist() const
+ 	{
+ 		return m_aiImprovementFreeSpecialists.hasContent();
+ 	} // </advc.opt>
+-	void changeImprovementFreeSpecialists(ImprovementTypes eIndex, int iChange);									// Exposed to Python
++	void changeImprovementFreeSpecialists(ImprovementTypes eImprov, int iChange);								// Exposed to Python
+ 
+-	int getReligionInfluence(ReligionTypes eIndex) const															// Exposed to Python
++	int getReligionInfluence(ReligionTypes eReligion) const														// Exposed to Python
+ 	{
+-		return m_aiReligionInfluence.get(eIndex);
++		return m_aiReligionInfluence.get(eReligion);
+ 	}
+-	void changeReligionInfluence(ReligionTypes eIndex, int iChange);												// Exposed to Python
++	void changeReligionInfluence(ReligionTypes eReligion, int iChange);											// Exposed to Python
+ 
+-	int getCurrentStateReligionHappiness() const;																	// Exposed to Python
+-	int getStateReligionHappiness(ReligionTypes eIndex) const														// Exposed to Python
++	int getCurrentStateReligionHappiness() const;																// Exposed to Python
++	int getStateReligionHappiness(ReligionTypes eReligion) const												// Exposed to Python
+ 	{
+-		return m_aiStateReligionHappiness.get(eIndex);
++		return m_aiStateReligionHappiness.get(eReligion);
+ 	}
+-	void changeStateReligionHappiness(ReligionTypes eIndex, int iChange);											// Exposed to Python
++	void changeStateReligionHappiness(ReligionTypes eReligion, int iChange);									// Exposed to Python
+ 
+-	int getUnitCombatFreeExperience(UnitCombatTypes eIndex) const													// Exposed to Python
++	int getUnitCombatFreeExperience(UnitCombatTypes eUnitCombat) const											// Exposed to Python
+ 	{
+-		return m_aiUnitCombatFreeExperience.get(eIndex);
++		return m_aiUnitCombatFreeExperience.get(eUnitCombat);
+ 	}
+-	void changeUnitCombatFreeExperience(UnitCombatTypes eIndex, int iChange);
++	void changeUnitCombatFreeExperience(UnitCombatTypes eUnitCombat, int iChange);
+ 
+-	int getFreePromotionCount(PromotionTypes eIndex) const															// Exposed to Python
++	int getFreePromotionCount(PromotionTypes ePromo) const														// Exposed to Python
+ 	{
+-		return m_aiFreePromotionCount.get(eIndex);
++		return m_aiFreePromotionCount.get(ePromo);
+ 	}
+-	bool isFreePromotion(PromotionTypes eIndex) const																// Exposed to Python
++	bool isFreePromotion(PromotionTypes ePromo) const															// Exposed to Python
+ 	{
+-		return (getFreePromotionCount(eIndex) > 0);
++		return (getFreePromotionCount(ePromo) > 0);
+ 	}  // <advc.opt>
+ 	bool isAnyFreePromotion() const
+ 	{
+ 		return m_aiFreePromotionCount.hasContent();
+ 	} // </advc.opt>
+-	void changeFreePromotionCount(PromotionTypes eIndex, int iChange);
++	void changeFreePromotionCount(PromotionTypes ePromo, int iChange);
+ 
+-	int getSpecialistFreeExperience() const																			// Exposed to Python
++	int getSpecialistFreeExperience() const																		// Exposed to Python
+ 	{
+ 		return m_iSpecialistFreeExperience;
+ 	}
+ 	void changeSpecialistFreeExperience(int iChange);
+ 
+-	int getEspionageDefenseModifier() const																			// Exposed to Python
++	int getEspionageDefenseModifier() const																		// Exposed to Python
+ 	{
+ 		return m_iEspionageDefenseModifier;
+ 	}
+ 	void changeEspionageDefenseModifier(int iChange);
+ 
+-	bool isWorkingPlot(CityPlotTypes ePlot) const																	// Exposed to Python
++	bool isWorkingPlot(CityPlotTypes ePlot) const																// Exposed to Python
+ 	{
+ 		return m_abWorkingPlot.get(ePlot);
+ 	}
+-	bool isWorkingPlot(CvPlot const& kPlot) const;																	// Exposed to Python
++	bool isWorkingPlot(CvPlot const& kPlot) const;																// Exposed to Python
+ 	void setWorkingPlot(CityPlotTypes ePlot, bool bNewValue);
+ 	void setWorkingPlot(CvPlot& kPlot, bool bNewValue);
+-	void alterWorkingPlot(CityPlotTypes ePlot);																		// Exposed to Python
++	void alterWorkingPlot(CityPlotTypes ePlot);																	// Exposed to Python
+ 
+-	int getNumRealBuilding(BuildingTypes eIndex) const																// Exposed to Python
++	int getNumRealBuilding(BuildingTypes eBuilding) const														// Exposed to Python
+ 	{
+-		return m_aiNumRealBuilding.get(eIndex);
++		return m_aiNumRealBuilding.get(eBuilding);
+ 	}
+ 	int getNumRealBuilding(BuildingClassTypes eBuildingClass) const; // advc.003w
+-	void setNumRealBuilding(BuildingTypes eBuilding, int iNewValue,													// Exposed to Python
++	void setNumRealBuilding(BuildingTypes eBuilding, int iNewValue,												// Exposed to Python
+ 			bool bEndOfTurn = false); // advc.001x
+-	void setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst,
++	void setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, bool bFirst,
+ 			PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x */ bool bEndOfTurn = false);
+-	//bool isValidBuildingLocation(BuildingTypes eIndex) const; // advc: Replaced by CvPlot::canConstruct
++	//bool isValidBuildingLocation(BuildingTypes eBuilding) const; // advc: Replaced by CvPlot::canConstruct
+ 
+-	int getNumFreeBuilding(BuildingTypes eIndex) const																// Exposed to Python
++	int getNumFreeBuilding(BuildingTypes eBuilding) const														// Exposed to Python
+ 	{
+-		return m_aiNumFreeBuilding.get(eIndex);
++		return m_aiNumFreeBuilding.get(eBuilding);
+ 	}
+-	void setNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
++	void setNumFreeBuilding(BuildingTypes eBuilding, int iNewValue);
+ 
+ 	bool isMeltdownBuilding(BuildingTypes eBuilding) const; // advc.652
+ 	bool isMeltdownBuildingSuperseded(BuildingTypes eBuilding) const; // advc.652
+ 
+-	bool isHasReligion(ReligionTypes eIndex) const																	// Exposed to Python
++	bool isHasReligion(ReligionTypes eReligion) const															// Exposed to Python
+ 	{
+-		return m_abHasReligion.get(eIndex);
++		return m_abHasReligion.get(eReligion);
+ 	}
+ 	void setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnounce, bool bArrows = true,
+ 			PlayerTypes eSpreadPlayer = NO_PLAYER); // advc.106e
+ 	int getReligionGrip(ReligionTypes eReligion) const; // K-Mod
+-	bool isHasCorporation(CorporationTypes eIndex) const															// Exposed to Python
++	bool isHasCorporation(CorporationTypes eCorp) const															// Exposed to Python
+ 	{
+-		return m_abHasCorporation.get(eIndex);
++		return m_abHasCorporation.get(eCorp);
+ 	}
+-	void setHasCorporation(CorporationTypes eIndex, bool bNewValue,
++	void setHasCorporation(CorporationTypes eCorp, bool bNewValue,
+ 			bool bAnnounce, bool bArrows = true);
+ 
+-	CvCity* getTradeCity(int iIndex) const;																			// Exposed to Python
+-	int getTradeRoutes() const;																						// Exposed to Python
++	CvCity* getTradeCity(int iIndex) const;																		// Exposed to Python
++	int getTradeRoutes() const;																					// Exposed to Python
+ 	void clearTradeRoutes();
+ 	void updateTradeRoutes();
+ 
+-	void clearOrderQueue();																							// Exposed to Python
++	void clearOrderQueue();																						// Exposed to Python
+ 	//void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce = false);
+ 	// K-Mod. (the old version is still exposed to Python)
+ 	void pushOrder(OrderTypes eOrder, int iData1, int iData2 = -1, bool bSave = false,
+ 			bool bPop = false, int iPosition = 0, bool bForce = false);
+ 	enum ChooseProductionPlayers { NONE_CHOOSE, HUMAN_CHOOSE, AI_CHOOSE, ALL_CHOOSE }; // advc.064d
+-	void popOrder(int iNum, bool bFinish = false, ChooseProductionPlayers eChoose = NONE_CHOOSE,							// Exposed to Python
++	void popOrder(int iNum, bool bFinish = false, ChooseProductionPlayers eChoose = NONE_CHOOSE,				// Exposed to Python
+ 			bool bEndOfTurn = true); // advc.001x
+ 	void startHeadOrder();
+ 	void stopHeadOrder();
+-	int getOrderQueueLength() /* advc: */ const																		// Exposed to Python
++	int getOrderQueueLength() /* advc: */ const																	// Exposed to Python
+ 	{
+ 		return m_orderQueue.getLength(); // advc.inl
+ 	}
+-	OrderData* getOrderFromQueue(int iIndex) const;																	// Exposed to Python
++	OrderData* getOrderFromQueue(int iIndex) const;																// Exposed to Python
+ 	CLLNode<OrderData>* nextOrderQueueNode(CLLNode<OrderData>* pNode) const
+ 	{
+ 		return m_orderQueue.next(pNode); // advc.inl
+@@ -1211,27 +1211,27 @@ public:
+ 	void setEventOccured(EventTypes eEvent, bool bOccured);
+ 	void doPartisans(); // advc.003y
+ 
+-	int getBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;							// Exposed to Python
+-	void setBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);					// Exposed to Python
++	int getBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;						// Exposed to Python
++	void setBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);				// Exposed to Python
+ 	void changeBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
+-	int getBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce) const;				// Exposed to Python
+-	void setBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange);		// Exposed to Python
++	int getBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce) const;			// Exposed to Python
++	void setBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange);	// Exposed to Python
+ 	void changeBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange);
+-	int getBuildingHappyChange(BuildingClassTypes eBuildingClass) const;											// Exposed to Python
+-	void setBuildingHappyChange(BuildingClassTypes eBuildingClass, int iChange);								  	// Exposed to Python
+-	int getBuildingHealthChange(BuildingClassTypes eBuildingClass) const;											// Exposed to Python
+-	void setBuildingHealthChange(BuildingClassTypes eBuildingClass, int iChange);									// Exposed to Python
++	int getBuildingHappyChange(BuildingClassTypes eBuildingClass) const;										// Exposed to Python
++	void setBuildingHappyChange(BuildingClassTypes eBuildingClass, int iChange);								// Exposed to Python
++	int getBuildingHealthChange(BuildingClassTypes eBuildingClass) const;										// Exposed to Python
++	void setBuildingHealthChange(BuildingClassTypes eBuildingClass, int iChange);								// Exposed to Python
+ 
+-	PlayerTypes getLiberationPlayer(bool bConquest /* advc: */ = false) const;										// Exposed to Python
+-	void liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal = false);											// Exposed to Python
++	PlayerTypes getLiberationPlayer(bool bConquest /* advc: */ = false) const;									// Exposed to Python
++	void liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal = false);										// Exposed to Python
+ 	void meetNewOwner(TeamTypes eOtherTeam, TeamTypes eNewOwner) const; // advc.071
+ 
+-	void changeNoBonusCount(BonusTypes eBonus, int iChange);														// Exposed to Python
++	void changeNoBonusCount(BonusTypes eBonus, int iChange);													// Exposed to Python
+ 	int getNoBonusCount(BonusTypes eBonus) const
+ 	{
+ 		return m_aiNoBonus.get(eBonus);
+ 	}
+-	bool isNoBonus(BonusTypes eBonus) const																			// Exposed to Python
++	bool isNoBonus(BonusTypes eBonus) const																		// Exposed to Python
+ 	{
+ 		return (getNoBonusCount(eBonus) > 0);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 0e30006da..e8f4217ba 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -13563,7 +13563,8 @@ void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes
+ 	}
+ }
+ 
+-void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTypes eCorporation, bool bCivilopedia)
++void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer,
++	CorporationTypes eCorporation, bool bCivilopedia)
+ {
+ 	if (eCorporation == NO_CORPORATION)
+ 		return;
+@@ -13577,10 +13578,10 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTyp
+ 	}
+ 
+ 	CvWString szTempBuffer;
+-	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
++	FOR_EACH_ENUM(Yield)
+ 	{
+ 		int iYieldProduced = GC.getInfo(eCorporation).
+-				getYieldProduced((YieldTypes)iI);
++				getYieldProduced(eLoopYield);
+ 		if (NO_PLAYER != GC.getGame().getActivePlayer())
+ 		{
+ 			iYieldProduced *= GC.getInfo(GC.getMap().getWorldSize()).
+@@ -13591,23 +13592,20 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTyp
+ 		if (iYieldProduced != 0)
+ 		{
+ 			if (!szTempBuffer.empty())
+-			{
+ 				szTempBuffer += L", ";
+-			}
+-
+ 			if (iYieldProduced % 100 == 0)
+ 			{
+ 				szTempBuffer += CvWString::format(L"%s%d%c",
+ 					iYieldProduced > 0 ? L"+" : L"",
+ 					iYieldProduced / 100,
+-					GC.getInfo((YieldTypes)iI).getChar());
++					GC.getInfo(eLoopYield).getChar());
+ 			}
+ 			else
+ 			{
+ 				szTempBuffer += CvWString::format(L"%s%.2f%c",
+ 					iYieldProduced > 0 ? L"+" : L"",
+ 					0.01f * abs(iYieldProduced),
+-					GC.getInfo((YieldTypes)iI).getChar());
++					GC.getInfo(eLoopYield).getChar());
+ 			}
+ 		}
+ 	}
+@@ -13620,10 +13618,10 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTyp
+ 	}
+ 
+ 	szTempBuffer.clear();
+-	for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
++	FOR_EACH_ENUM(Commerce)
+ 	{
+ 		int iCommerceProduced = GC.getInfo(eCorporation).
+-				getCommerceProduced((CommerceTypes)iI);
++				getCommerceProduced(eLoopCommerce);
+ 		if (GC.getGame().getActivePlayer() != NO_PLAYER)
+ 		{
+ 			iCommerceProduced *= GC.getInfo(GC.getMap().getWorldSize()).
+@@ -13640,35 +13638,34 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTyp
+ 				szTempBuffer += CvWString::format(L"%s%d%c",
+ 					iCommerceProduced > 0 ? L"+" : L"",
+ 					iCommerceProduced / 100,
+-					GC.getInfo((CommerceTypes)iI).getChar());
++					GC.getInfo(eLoopCommerce).getChar());
+ 			}
+ 			else
+ 			{
+ 				szTempBuffer += CvWString::format(L"%s%.2f%c",
+ 					iCommerceProduced > 0 ? L"+" : L"",
+ 					0.01f * abs(iCommerceProduced),
+-					GC.getInfo((CommerceTypes)iI).getChar());
++					GC.getInfo(eLoopCommerce).getChar());
+ 			}
+ 
+ 		}
+ 	}
+-
+ 	if (!szTempBuffer.empty())
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_ALL_CITIES", szTempBuffer.GetCString()));
++		szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_ALL_CITIES",
++				szTempBuffer.GetCString()));
+ 	}
+-
+ 	if (!bCivilopedia)
+ 	{
+ 		if (kCorporation.getTechPrereq() != NO_TECH)
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_FOUNDED_FIRST",
+-					GC.getInfo((TechTypes)kCorporation.getTechPrereq()).getTextKeyWide()));
++					GC.getInfo((TechTypes)kCorporation.getTechPrereq()).
++					getTextKeyWide()));
+ 		}
+ 	}
+-
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_BONUS_REQUIRED"));
+ 	bool bFirst = true;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=130153

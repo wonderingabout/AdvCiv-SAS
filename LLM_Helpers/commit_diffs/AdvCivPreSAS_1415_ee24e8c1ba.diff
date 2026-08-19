@@ -1,0 +1,351 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1415
+# Commit: ee24e8c1ba5d5ad0113bee25cc1c3f267c49c29f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3272cda385d064bcc030dd9756913da4a42d422
+# Title: Option added to show culture in unowned tiles
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	Assets/Config/BULL Misc Hovers.xml
+6	6	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+4	5	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+5	1	Assets/xml/GameInfo/CIV4Hints.xml
+30	8	Assets/xml/Text/BULL Misc Hovers Options.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+27	18	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BULL Misc Hovers.xml b/Assets/Config/BULL Misc Hovers.xml
+index 15529c5bf..7cd76b069 100644
+--- a/Assets/Config/BULL Misc Hovers.xml	
++++ b/Assets/Config/BULL Misc Hovers.xml	
+@@ -14,14 +14,15 @@
+ 	 dll="0">
+ 	 
+ 	<options id="MiscHover" file="BUG Misc Hovers.ini">
+-		<section id="Leaderhead">
++		<!-- advc.sha: Permanently disabled -->
++		<!--section id="Leaderhead">
+ 			<option id="LeaderheadHiddenAttitude" key="Show Hidden Attitude" 
+ 					type="boolean" default="False" dll="2"/>
+ 			<option id="LeaderheadWorstEnemy" key="Show Worst Enemy" 
+ 					type="boolean" default="False"/>
+ 			<option id="LeaderheadDefensivePacts" key="Show Defensive Pacts" 
+ 					type="boolean" default="False"/>
+-		</section>
++		</section-->
+ 		
+ 		<section id="Plot">
+ 			<!--option id="LatLongCoords" key="Lat Long Coords" 
+@@ -31,6 +32,9 @@
+ 			<!-- advc.011b -->
+ 			<option id="PartialBuildsAlways" key="Partial Builds Always"
+ 					type="boolean" default="False"/>
++			<!-- advc.099f -->
++			<option id="CultureInUnownedTiles" key="Culture in Unowned Tiles"
++					type="boolean" default="False"/>
+ 		</section>
+ 		
+ 		<section id="Unit">
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index a557bf274..a8d2f892f 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -50,12 +50,12 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, panel, "MainInterface__Combat_Counter")
+ 		# advc.004: Moved from Misc
+ 		self.addCheckbox(screen, panel, "MainInterface__ProgressBarsTickMarks")
+-		
+-	def createLeaderheadPanel(self, screen, panel):
+-		self.addLabel(screen, panel, "Leaderheads", "Leaderheads:")
+-		self.addCheckbox(screen, panel, "MiscHover__LeaderheadHiddenAttitude")
+-		self.addCheckbox(screen, panel, "MiscHover__LeaderheadWorstEnemy")
+-		self.addCheckbox(screen, panel, "MiscHover__LeaderheadDefensivePacts")
++	# advc.sha: Permanently disabled
++	#def createLeaderheadPanel(self, screen, panel):
++	#	self.addLabel(screen, panel, "Leaderheads", "Leaderheads:")
++	#	self.addCheckbox(screen, panel, "MiscHover__LeaderheadHiddenAttitude")
++	#	self.addCheckbox(screen, panel, "MiscHover__LeaderheadWorstEnemy")
++	#	self.addCheckbox(screen, panel, "MiscHover__LeaderheadDefensivePacts")
+ 		
+ 	def createAutoSavePanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "AutoSave", "AutoSave:")
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index c863654ef..1e0342b52 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -43,15 +43,14 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addTextEdit(screen, leftL, leftR, "StrategyOverlay__DotMapDotIcon")
+ 		self.addSlider(screen, leftL, leftR, "StrategyOverlay__DotMapBrightness", False, False, False, "up", 0, 100)
+ 		self.addSlider(screen, leftL, leftR, "StrategyOverlay__DotMapHighlightBrightness", False, False, False, "up", 0, 100)
+-		
+-		# advc (comment): I suppose EmperorFool disabled these lines (BULL options that BUG doesn't support). Anyway, it wasn't me.
+ 		#self.addLabel(screen, center, "CityBar", "CityBar:")
+-		#self.addCheckbox(screen, center, "CityBar__AirportIcons")
+ 		#self.addCheckbox(screen, center, "CityBar__StarvationTurns")
+-		# <advc.011b>
++		# advc.011b, advc.099f:
+ 		self.addLabel(screen, center, "TileHover", "Tile Hover:")
++		# advc.011b:
+ 		self.addCheckbox(screen, center, "MiscHover__PartialBuildsAlways")
+-		# </advc.011b>
++		# advc.099f:
++		self.addCheckbox(screen, center, "MiscHover__CultureInUnownedTiles")
+ 		# advc.061:
+ 		self.addCheckbox(screen, center, "MainInterface__ListUnitsPerOwner")
+ 		#self.addCheckbox(screen, center, "MiscHover__LatLongCoords")
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 006d91b2f..d401e2baa 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -636,7 +636,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_21</Description>
+ 		</HintInfo>
+-		<!-- Skip 22-26 and 33; shouldn't be as frequent. -->
++		<!-- Skip 22-26; shouldn't be as frequent. -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_27</Description>
+ 		</HintInfo>
+@@ -655,6 +655,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_32</Description>
+ 		</HintInfo>
++		<!-- Skip 33-34; shouldn't be as frequent. -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -749,5 +750,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_33</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_34</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/BULL Misc Hovers Options.xml b/Assets/xml/Text/BULL Misc Hovers Options.xml
+index 824d5d5e3..44ee038bb 100644
+--- a/Assets/xml/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/xml/Text/BULL Misc Hovers Options.xml	
+@@ -9,7 +9,8 @@
+ 
+ <!-- Leaderhead -->
+ 
+-	<TEXT>
++	<!-- advc.sha: Permanently disabled (won't merge this from BULL) -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
+ 		<English>Hidden Attitude</English>
+ 		<French>Hidden Attitude</French>
+@@ -58,11 +59,12 @@
+ 		<German>Zeigt die Verteidigungsb�ndnisse jedes Gegenspielers an, wenn der Mauszeiger �ber desssen Symbol bewegt wird</German>
+ 		<Italian>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</Italian>
+ 		<Spanish>Permite mostrar los acuerdos de protecci�n de cada rival en su texto flotante.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+ <!-- Plot -->
+ 
+-	<TEXT>
++	<!-- advc.004: Permanently disabled (won't merge this from BULL) -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_TEXT</Tag>
+ 		<English>Longitude / Latitude</English>
+ 		<French>Longitude / Latitude</French>
+@@ -78,7 +80,8 @@
+ 		<Italian>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</Italian>
+ 		<Spanish>Muestra la latitud y longitud cuando se deje el rat�n sobre una casilla una vez est� centrado el mapa.</Spanish>
+ 	</TEXT>
+-	<!--TEXT>
++
++	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_TEXT</Tag>
+ 		<English>Partial Builds</English>
+ 		<French>Partial Builds</French>
+@@ -99,7 +102,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDSALWAYS_TEXT</Tag>
+ 		<English>Always Show Partial Builds</English>
+ 		<French>Always Show Partial Builds</French>
+-		<German>Unfertige Arbeiten immer zeigen</German>
++		<German>Unfertige Arbeiten stets anzeigen</German>
+ 		<Italian>Sempre mostra costruzione parziale</Italian>
+ 		<Spanish>Siempre muestra Construcci�n Parcial</Spanish>
+ 	</TEXT>
+@@ -112,8 +115,26 @@
+ 		<Spanish>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the Ctrl key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</Spanish>
+ 	</TEXT>
+ 
+-<!-- Unit -->
++	<!-- advc.099f -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_TEXT</Tag>
++		<English>Always Show Tile Culture</English>
++		<French>Always Show Tile Culture</French>
++		<German>Kulturanteile stets anzeigen</German>
++		<Italian>Always Show Tile Culture</Italian>
++		<Spanish>Always Show Tile Culture</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_HOVER</Tag>
++		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</English>
++		<French>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</French>
++		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedr�ckter Umschalttaste angezeigt.</German>
++		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</Italian>
++		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down.</Spanish>
++	</TEXT>
+ 
++<!-- Unit -->
++	<!-- advc (tbd.): Move this to 'Unit Naming Options.xml' -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__UPDATEUNITNAMEONUPGRADE_TEXT</Tag>
+ 		<English>Upgrade Name</English>
+@@ -186,7 +207,8 @@
+ 
+ <!-- Tech -->
+ 	
+-	<TEXT>
++	<!-- advc.910: Permanently disabled (won't merge this from BULL) -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPEDUPTECHS_TEXT</Tag>
+ 		<English>Speeds Up ...</English>
+ 		<French>Speeds Up ...</French>
+@@ -201,7 +223,7 @@
+ 		<German>Zeigt Technologien an, die durch das Vorhandensein der Technologie beschleunigt w�rden, �ber der sich der Mauszeiger befindet (beispielsweise w�rde "Tierzucht" bei "Landwirtschaft" erscheinen, wenn bereits "Jagd" erforscht w�re)</German>
+ 		<Italian>Quando � selezionato, nel testo a comparsa di una Tecnologia vengono mostrate le Tecnologie che risultano accelerate dall'acquisizione della Tecnologia in questione (p. es. una volta acquisita la tecnologia 'Caccia', se posizionerete il cursore sulla tecnologia 'Agricoltura' vi verr� ricordato che questa accelerer� la tecnologia 'Allevamento di animali').</Italian>
+ 		<Spanish>Permite mostrar las tecnolog�as cuyo avance ser� acelerado una vez adquieras la tecnolog�a sobre la cual mantienes el rat�n (por ejemplo, Ganader�a se mostrar�a para Agricultura una vez que adquieras Caza).</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__TECHTRADEDENIAL_TEXT</Tag>
+ 		<English>Technology Trade Denial</English>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index ca1a7920c..cd8b48c4d 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -915,4 +915,14 @@
+ 	<Spanish>(AdvCiv) When any member of your team is researching the same technology as you are, you both receive a 10% penalty on your research rates. Still, when a particular technology is urgently needed by the team, it can make sense to research that technology together.</Spanish>
+ </TEXT>
+ 
++<!-- advc.099f -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_34</Tag>
++	<English>(AdvCiv) To see the culture percentages of unowned tiles, hold down [Shift] or enable "Always Show Tile Culture" on the "Map" tab of the BUG menu.</English>
++	<French>(AdvCiv) To see the culture percentages of unowned tiles, hold down [Shift] or enable "Always Show Tile Culture" on the "Map" tab of the BUG menu.</French>
++	<German>(AdvCiv) Die Kulturanteile auf neutralen Feldern lassen sich mit der Umschalttaste einblenden, oder �ber die Option "Kultur stets anzeigen" auf dem Reiter "Karte" im BUG-Men�.</German>
++	<Italian>(AdvCiv) To see the culture percentages of unowned tiles, hold down [Shift] or enable "Always Show Tile Culture" on the "Map" tab of the BUG menu.</Italian>
++	<Spanish>(AdvCiv) To see the culture percentages of unowned tiles, hold down [Shift] or enable "Always Show Tile Culture" on the "Map" tab of the BUG menu.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4d55ce583..dfcb56404 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4380,10 +4380,11 @@ void createTestFontString(CvWStringBuffer& szString)
+ 
+ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ {
++	bool bShift = GC.shiftKey();
+ 	// <advc.135c>
+ 	if(GC.getGameINLINE().isDebugMode()) {
+ 		setPlotHelpDebug(szString, *pPlot);
+-		if(GC.ctrlKey() || GC.shiftKey() || GC.altKey())
++		if(bShift || GC.ctrlKey() || GC.altKey())
+ 			return;
+ 	} // </advc.135c>
+ 
+@@ -4393,8 +4394,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	CvWString szTempBuffer;
+ 
+ 	PlayerTypes eRevealOwner = pPlot->getRevealedOwner(eActiveTeam, true);
+-
+-	if (eRevealOwner != NO_PLAYER)
++	if (eRevealOwner != NO_PLAYER
++			// advc.099f:
++			|| bShift || getBugOptionBOOL("MiscHover__CultureInUnownedTiles", false))
+ 	{
+ 		if (pPlot->isActiveVisible(true))
+ 		{	/*  <advc.101> Similar to code added in
+@@ -4430,10 +4432,17 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					szString.append(NEWLINE);
+ 				} // </advc.023>
+ 			} // </advc.101>
+-			szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, pPlot->calculateCulturePercent(eRevealOwner), GET_PLAYER(eRevealOwner).getPlayerTextColorR(), GET_PLAYER(eRevealOwner).getPlayerTextColorG(), GET_PLAYER(eRevealOwner).getPlayerTextColorB(), GET_PLAYER(eRevealOwner).getPlayerTextColorA(), GET_PLAYER(eRevealOwner).getCivilizationAdjective());
+-			szString.append(szTempBuffer);
+-			szString.append(NEWLINE);
+-
++			if(eRevealOwner != NO_PLAYER) { // advc.099f
++				szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR,
++						pPlot->calculateCulturePercent(eRevealOwner),
++						GET_PLAYER(eRevealOwner).getPlayerTextColorR(),
++						GET_PLAYER(eRevealOwner).getPlayerTextColorG(),
++						GET_PLAYER(eRevealOwner).getPlayerTextColorB(),
++						GET_PLAYER(eRevealOwner).getPlayerTextColorA(),
++						GET_PLAYER(eRevealOwner).getCivilizationAdjective());
++				szString.append(szTempBuffer);
++				szString.append(NEWLINE);
++			}
+ 			for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+ 			{
+ 				if (iPlayer != eRevealOwner)
+@@ -4441,29 +4450,29 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+ 					// advc.099: Replaced "Alive" with "EverAlive"
+ 					if (kPlayer.isEverAlive() && pPlot->getCulture((PlayerTypes)iPlayer) > 0)
+-					{
+-					/**
+-					*** K-Mod, 29/sep/10, Karadoc
+-					*** Prevented display of 0% culture, to reduce the spam created by trade culture.
+-					***/
++					{/* K-Mod, 29/sep/10, Karadoc
++						Prevented display of 0% culture, to reduce the spam created by trade culture. */
+ 						/* original bts code
+ 						szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, pPlot->calculateCulturePercent((PlayerTypes)iPlayer), kPlayer.getPlayerTextColorR(), kPlayer.getPlayerTextColorG(), kPlayer.getPlayerTextColorB(), kPlayer.getPlayerTextColorA(), kPlayer.getCivilizationAdjective());
+ 						szString.append(szTempBuffer);
+-						szString.append(NEWLINE);
+-						*/
++						szString.append(NEWLINE);*/
+ 						int iCulturePercent = pPlot->calculateCulturePercent((PlayerTypes)iPlayer);
+ 						if (iCulturePercent >= 1)
+ 						{
+-							szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, iCulturePercent, kPlayer.getPlayerTextColorR(), kPlayer.getPlayerTextColorG(), kPlayer.getPlayerTextColorB(), kPlayer.getPlayerTextColorA(), kPlayer.getCivilizationAdjective());
++							szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR,
++									iCulturePercent, kPlayer.getPlayerTextColorR(),
++									kPlayer.getPlayerTextColorG(),
++									kPlayer.getPlayerTextColorB(),
++									kPlayer.getPlayerTextColorA(),
++									kPlayer.getCivilizationAdjective());
+ 							szString.append(szTempBuffer);
+ 							szString.append(NEWLINE);
+-						}
+-					// K-Mod end
++						} // K-Mod end
+ 					}
+ 				}
+ 			}
+ 		}
+-		else
++		else if(eRevealOwner != NO_PLAYER) // advc.099f
+ 		{
+ 			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(eRevealOwner).getPlayerTextColorR(), GET_PLAYER(eRevealOwner).getPlayerTextColorG(), GET_PLAYER(eRevealOwner).getPlayerTextColorB(), GET_PLAYER(eRevealOwner).getPlayerTextColorA(), GET_PLAYER(eRevealOwner).getCivilizationDescription());
+ 			szString.append(szTempBuffer);
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=16066

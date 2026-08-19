@@ -1,0 +1,915 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1269
+# Commit: 08e2f890e6ae89ccf9bdc2920cc23a7725adea20
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e11525d3039c7b1baf017b3f5a25a963a8abef50
+# Title: Additions to v0.89rc: * Tweaked the code that determines how starting locations are distributed among the continents. There had been a tendency to place too...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/Screens/CvMainInterface.py
+5	5	Assets/Python/Screens/CvVictoryScreen.py
+18	18	Assets/xml/Text/CIV4GameText_advc.008d.xml
+89	33	Assets/xml/Text/CIV4GameText_advc.xml
+3	3	Assets/xml/Text/K-Mod hints.xml
+29	4	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+17	3	CvGameCoreDLL/CvGameTextMgr.cpp
+12	5	CvGameCoreDLL/CvMapGenerator.cpp
+35	2	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/CvReplayInfo.cpp
+4	0	CvGameCoreDLL/RFChapterScore.cpp
+25	20	CvGameCoreDLL/RiseFall.cpp
+0	1	CvGameCoreDLL/RiseFall.h
+-	-	manual.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 41990d63b..bd682de38 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1200,7 +1200,7 @@ class CvMainInterface:
+ 
+ 	# Will redraw the interface
+ 	def redraw( self ):
+-		# <advc.706> Freezy main interface during interlude
++		# <advc.706> Freeze main interface during interlude
+ 		if gc.getGame().isRFInterlude():
+ 			return 0 # </advc.706>
+ #		BugUtil.debug("redraw - Turn %d, Player %d, Interface %d, End Turn Button %d",
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 74008ae5a..e4c50afbd 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -96,11 +96,11 @@ class CvVictoryScreen:
+ 		self.TABLE2_WIDTH_0 = 740
+ 		self.TABLE2_WIDTH_1 = 265
+ 		# <advc.703>
+-		self.RF_TABLEW_0 = 120
++		self.RF_TABLEW_0 = 125
+ 		self.RF_TABLEW_1 = 180
+ 		self.RF_TABLEW_2 = 220
+ 		self.RF_TABLEW_3 = 260
+-		self.RF_TABLEW_4 = 210
++		self.RF_TABLEW_4 = 205
+ 		# </advc.703>
+ # BUG Additions Start
+ 		self.TABLE3_WIDTH_0 = 450
+@@ -208,7 +208,7 @@ class CvVictoryScreen:
+ 			else:
+ 				screen.setText(self.UN_RESOLUTION_TAB_ID, "", u"<font=4>" + localText.getColorText("TXT_KEY_VOTING_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLink += self.DX_LINK
+-			# advc.703: Merge members into resolution when R&F enabled
++			# advc.703: Merge Members into Resolutions when R&F enabled
+ 			if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+ 				if (self.iScreen != UN_MEMBERS_SCREEN):
+ 					screen.setText(self.UN_MEMBERS_TAB_ID, "", u"<font=4>" + localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper() + "</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -320,7 +320,7 @@ class CvVictoryScreen:
+ 		if screen.getTableNumRows(szTable) > 0:
+ 			screen.setTableNumRows(szTable, screen.getTableNumRows(szTable)-1)
+ 		#
+-		# <advc.703> Add info from members tab
++		# <advc.703> Add info from Members tab
+ 		if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+ 			self.drawTabs()
+ 			pass
+@@ -791,7 +791,7 @@ class CvVictoryScreen:
+ 			elif currentTurn >= scoreTurn:
+ 				# Doesn't actually imply that the chapter's already scored b/c
+ 				# the chapter civ could come later in the turn order than the
+-				# current civ; but I'm lazy to export isScored to Python.
++				# current civ; but I'm too lazy to export isScored to Python.
+ 				s = self.highlight(s)
+ 			elif chapterCiv < 0 or not gc.getTeam(gc.getPlayer(chapterCiv).getTeam()).isHasMet(gc.getPlayer(activeCiv).getTeam()):
+ 				s += " (" + localText.getText("TXT_KEY_RF_CHAPTER_LAST_KNOWN", (endTurn,)) + ")"
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 51d37b88d..2f82ab4d1 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -10,7 +10,7 @@
+ 	<Tag>TXT_KEY_HINT_70</Tag>
+ 	<English>(AdvCiv) The behavior of your capitulated vassals reflects on you. If they raze cities or trade with a pariah, your rivals will hold you responsible.</English>
+ 	<French>(AdvCiv) The behavior of your capitulated vassals reflects on you. If they raze cities or trade with a pariah, your rivals will hold you responsible.</French>
+-	<German>(AdvCiv) Sie sind f�r das Verhalten Ihrer kapitulierten Vasallen verantwortlich. Wenn diese St�dte vernichten oder mit unbeliebten Zivilisationen tauschen, f�llt das auf Sie zur�ck. Statten Sie Vasallen nicht leichtfertig mit Atomwaffen aus.</German>
++	<German>(AdvCiv) Sie sind f�r das Verhalten Ihrer kapitulierten Vasallen verantwortlich. Wenn diese St�dte vernichten oder mit unbeliebten Zivilisationen tauschen, f�llt das auf Sie zur�ck.</German>
+ 	<Italian>(AdvCiv) The behavior of your capitulated vassals reflects on you. If they raze cities or trade with a pariah, your rivals will hold you responsible.</Italian>
+ 	<Spanish>(AdvCiv) The behavior of your capitulated vassals reflects on you. If they raze cities or trade with a pariah, your rivals will hold you responsible.</Spanish>
+ </TEXT>
+@@ -120,6 +120,16 @@
+ 	<Spanish>Use [Alt + M] to set a reminder for yourself.</Spanish>
+ </TEXT>
+ 
++<!-- advc.102: I've extended this hint a bit. -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_INTERFACE_15</Tag>
++	<English>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</English>
++	<French>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</French>
++	<German>Per [Ctrl + O] k�nnen Sie auch w�hrend gegnerischer Z�ge auf das Optionsmen� zugreifen. Falls gegnerische Z�ge einmal kein Ende nehmen wollen, k�nnen Sie so direkt auf Schnellen Kampf schalten oder gegnerische Z�ge ausblenden.</German>
++	<Italian>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</Italian>
++	<Spanish>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</Spanish>
++</TEXT>
++
+ 
+ <!-- New hints not replacing anything -->
+ <!-- advc.300 -->
+@@ -207,7 +217,7 @@
+ 	<Tag>TXT_KEY_ADVC_HINT_9</Tag>
+ 	<English>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</English>
+ 	<French>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</French>
+-	<German>(AdvCiv) Wenn sich Gegner �ber Ihren Expansionsdrang beklagen, kann es helfen, einige Ihrer St�dte als Kolonie zu befreien; allerdings kann auch dieser Vasallenstaat Ihrer Beliebtheit schaden. Letztlich ist es zu viel verlangt, von der Welt geliebt zu werden, w�hrend Sie die Welt erobern.</German>
++	<German>(AdvCiv) Wenn sich Gegner �ber Ihren Expansionsdrang beklagen, kann es helfen, einige Ihrer St�dte als Kolonie zu befreien; allerdings kann auch diese als Vasallenstaat Ihrer Beliebtheit schaden. Letztlich ist es zu viel verlangt, von der Welt geliebt zu werden, w�hrend Sie die Welt erobern.</German>
+ 	<Italian>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</Italian>
+ 	<Spanish>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</Spanish>
+ </TEXT>
+@@ -264,7 +274,7 @@
+ 	<Tag>TXT_KEY_ADVC_HINT_15</Tag>
+ 	<English>(AdvCiv) You can't have trade routes with cities that you haven't located on the map. Be sure to regularly scout for new foreign cities in order to get the full trade benefits from your [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] agreements.</English>
+ 	<French>(AdvCiv) You can't have trade routes with cities that you haven't located on the map. Be sure to regularly scout for new foreign cities in order to get the full trade benefits from your [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] agreements.</French>
+-	<German>(AdvCiv) Sie k�nnen nur mit St�dten Handel treiben, deren Lage Sie kennen. Daher lohnt es sich, nach regelm��ig neugegr�ndeten St�dten Ausschau zu halten.</German>
++	<German>(AdvCiv) Sie k�nnen nur mit St�dten Handel treiben, deren Lage Sie kennen. Daher lohnt es sich, regelm��ig nach neugegr�ndeten St�dten Ausschau zu halten.</German>
+ 	<Italian>(AdvCiv) You can't have trade routes with cities that you haven't located on the map. Be sure to regularly scout for new foreign cities in order to get the full trade benefits from your [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] agreements.</Italian>
+ 	<Spanish>(AdvCiv) You can't have trade routes with cities that you haven't located on the map. Be sure to regularly scout for new foreign cities in order to get the full trade benefits from your [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] agreements.</Spanish>
+ </TEXT>
+@@ -318,14 +328,13 @@
+ 	<Spanish>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</Spanish>
+ </TEXT>
+ 
+-<!-- advc.102 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_21</Tag>
+-	<English>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</English>
+-	<French>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</French>
+-	<German>Per [Ctrl + O] k�nnen Sie auch w�hrend gegnerischer Z�ge auf das Optionsmen� zugreifen. Falls gegnerische Z�ge einmal kein Ende nehmen wollen, k�nnen Sie so direkt auf Schnellen Kampf schalten oder gegnerische Z�ge ausblenden.</German>
+-	<Italian>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</Italian>
+-	<Spanish>Press [Ctrl + O] to access the player options menu even during your opponents' turns. If animations of rival moves seem to take forever, you can, right there, enable quick combat or hide foreign moves.</Spanish>
++	<English>Press [ALT + D] to change the name of your leader and civilization.</English>
++	<French>Press [ALT + D] to change the name of your leader and civilization.</French>
++	<German>Per [ALT + D] k�nnen Sie den Namen Ihres Herrschers und Ihrer Zivilisation �ndern.</German>
++	<Italian>Press [ALT + D] to change the name of your leader and civilization.</Italian>
++	<Spanish>Press [ALT + D] to change the name of your leader and civilization.</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+@@ -373,13 +382,4 @@
+ 	<Spanish>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</Spanish>
+ </TEXT>
+ 
+-<TEXT>
+-	<Tag>TXT_KEY_ADVC_HINT_27</Tag>
+-	<English>Press [ALT + D] to change the name of your leader and civilization.</English>
+-	<French>Press [ALT + D] to change the name of your leader and civilization.</French>
+-	<German>Per [ALT + D] k�nnen Sie den Namen Ihres Herrschers und Ihrer Zivilisation �ndern.</German>
+-	<Italian>Press [ALT + D] to change the name of your leader and civilization.</Italian>
+-	<Spanish>Press [ALT + D] to change the name of your leader and civilization.</Spanish>
+-</TEXT>
+-
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 717309708..14da7e043 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -138,7 +138,7 @@
+ 		<Tag>TXT_KEY_DAWN_OF_MAN_TEXT1</Tag>
+ 		<English>The sun rises on the year %s1_year. Since time immemorial, the %s2_civ people have lived a nomadic life. After years of wandering, they are ready to settle down and found your first city. [NEWLINE][NEWLINE]</English>
+ 		<French>Le soleil se l&#232;ve sur l'an %s1_year. Depuis des temps imm&#233;moriaux, les %s2_civ vivent en nomades. Apr&#232;s des ann&#233;es d'errance, ils sont pr&#234;ts &#224; s'installer et &#224; fonder votre premi&#232;re ville. [NEWLINE][NEWLINE]</French>
+-		<German>Die Sonne erhellt das Jahr %s1_year. Das %s2:3_civ Volk f&#252;hrt seit uralter Zeit ein Nomadenleben. Doch nun, nach so vielen Jahren des Umherziehens, sind die Menschen bereit, sich niederzulassen und Eure erste Stadt zu gr&#252;nden. [NEWLINE][NEWLINE]</German>
++		<German>Die Sonne erhellt das Jahr %s1_year Das %s2:3_civ Volk f&#252;hrt seit uralter Zeit ein Nomadenleben. Doch nun, nach so vielen Jahren des Umherziehens, sind die Menschen bereit, sich niederzulassen und Eure erste Stadt zu gr&#252;nden. [NEWLINE][NEWLINE]</German>
+ 		<Italian>Il sole sorge nell'anno %s1_year. Da tempi immemori, la popolazione %s2:2_civ ha condotto una vita nomade. Dopo anni di vagabondaggi, sono infine pronti a stabilirsi e a fondare la tua prima citt&#224;. [NEWLINE][NEWLINE]</Italian>
+ 		<Spanish>El sol se alza en el a&#241;o %s1_year. Desde tiempos inmemoriales, los %s2:3_civ han llevado una vida n&#243;mada. Tras a&#241;os de deambular, est&#225;n listos para asentarse y fundar vuestra primera ciudad. [NEWLINE][NEWLINE]</Spanish>
+ 	</TEXT>
+@@ -192,6 +192,31 @@
+             <Plural>0</Plural>
+         </Spanish>
+     </TEXT>
++	<!-- Only changing the German text. Was "Koenig"; need that for KING. -->
++	<TEXT>
++		<Tag>TXT_KEY_HANDICAP_MONARCH</Tag>
++		<English>Monarch</English>
++		<French>
++			<Text>Monarque</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Monarch</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Monarca</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Monarca</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ 	
+ 	<!-- [advc.004a]
+ 	     Used in help text of promotion buttons.
+@@ -609,15 +634,36 @@
+ 	
+ 	<!-- advc.004s: Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+-		 in CIV4GameText_Misc1.xml. -->
++		 in CIV4GameText_Misc1.xml.
++		 German: Not enough room for "BSP (...)". -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DEMO_SCREEN_ECONOMY_TEXT</Tag>
+ 		<English>GNP (Gold+Science)</English>
+ 		<French>PNB (or+science)</French>
+-		<German>BSP (Gold+Wissenschaft)</German>
++		<German>Gold+Wissensch.</German>
+ 		<Italian>PIL (oro+scienza)</Italian>
+ 		<Spanish>PNB (oro+ciencia)</Spanish>
+ 	</TEXT>
++	<!-- Only shortened the German translation -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_AGRICULTURE_TEXT</Tag>
++		<English>Crop Yield (Food)</English>
++		<French>R&#233;colte (Nour.)</French>
++		<German>Nahrungsertrag</German>
++		<Italian>Prod. raccolto (cibo)</Italian>
++		<Spanish>Rend. cosechas (Alim.)</Spanish>
++	</TEXT>
++	<!-- Warlords has shortened these (CIV4GameText_Warlords_Civ4Changed.xml). 
++		 I'm keeping the Warlords version except for the German translation
++		 "Ind. (Prod.)", which is too cryptic. -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_INDUSTRY_TEXT</Tag>
++		<English>Mfg. Goods (Prod.)</English>
++		<French>March. (Prod.)</French>
++		<German>Produktion</German>
++		<Italian>Beni (Prod.)</Italian>
++		<Spanish>Merc.fabric.(Prod)</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.150a: Akin to TXT_KEY_MISC_PLAYER_CONVERT_RELIGION in
+ 	     (Vanilla) Civ4GameTextInfos. -->
+@@ -699,7 +745,7 @@
+ 		<Tag>TXT_KEY_BARB_START</Tag>
+ 		<English>starting after turn</English>
+ 		<French>&#224; partir de tour</French>
+-		<German>ab Spielzug</German>
++		<German>ab Runde</German>
+ 		<Italian>da turno</Italian>
+ 		<Spanish>desde turno</Spanish>
+ 	</TEXT>
+@@ -752,6 +798,16 @@
+ 		<Spanish>Alto</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.704: Originally in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_DAWN_OF_MAN_SCREEN_TITLE</Tag>
++		<English>The Dawn of Civilization</English>
++		<French>L'aube de la civilisation</French>
++		<German>Die Anf�nge einer Zivilisation</German>
++		<Italian>L'alba della civilt&#224;</Italian>
++		<Spanish>Los Albores de la Civilizaci�n</Spanish>
++	</TEXT>
++
+ 	<!-- advc.101: Both copied from Civ4GameText_Misc1.xml and negated. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_FLIPPING_AFTER_CONQUEST</Tag>
+@@ -784,7 +840,7 @@
+ 		<Tag>TXT_KEY_GAME_OPTION_NO_ANIMALS_HELP</Tag>
+ 		<English>No Animals will appear</English>
+ 		<French>Aucun animal n'appara&#238;tra sur la carte.</French>
+-		<German>Es erscheinen Tiere</German>
++		<German>Es erscheinen keine Tiere.</German>
+ 		<Italian>Non appariranno animali</Italian>
+ 		<Spanish>No aparecer&#225;n animales.</Spanish>
+ 	</TEXT>
+@@ -1736,7 +1792,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_COUNTDOWN</Tag>
+ 		<English>Turn  %d1_Trn/%d2_Trn</English>
+ 		<French>Turn  %d1_Trn/%d2_Trn</French>
+-		<German>Zug  %d1_Trn/%d2_Trn</German>
++		<German>Runde  %d1_Trn/%d2_Trn</German>
+ 		<Italian>Turn  %d1_Trn/%d2_Trn</Italian>
+ 		<Spanish>Turn  %d1_Trn/%d2_Trn</Spanish>
+ 	</TEXT>
+@@ -1744,7 +1800,7 @@
+ 		<Tag>TXT_KEY_RF_INTERLUDE_COUNTDOWN</Tag>
+ 		<English>Auto Play: %d1_Trn</English>
+ 		<French>Auto Play: %d1_Trn</French>
+-		<German>Autom. Z�ge: %d1_Trn</German>
++		<German>Autom. Runden: %d1_Trn</German>
+ 		<Italian>Auto Play: %d1_Trn</Italian>
+ 		<Spanish>Auto Play: %d1_Trn</Spanish>
+ 	</TEXT>
+@@ -1758,17 +1814,17 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_FINAL_TURN</Tag>
+-		<English>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you decided on your next civ yet?</English>
+-		<French>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you decided on your next civ yet?</French>
+-		<German>Letzter Zug des %d1_Chpt. Abschnitts. Noch weitreichende Entscheidungen auf den letzten Dr�cker? (Krieg/ Frieden, Staatsform, Bef�rderungen ...). Haben Sie Ihre n�chste Zivilisation ins Auge gefasst?</German>
+-		<Italian>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you decided on your next civ yet?</Italian>
+-		<Spanish>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you decided on your next civ yet?</Spanish>
++		<English>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</English>
++		<French>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</French>
++		<German>Letzte Runde des %d1_Chpt. Abschnitts. Noch weitreichende Entscheidungen auf den letzten Dr�cker? (Krieg/ Frieden, Staatsform, Bef�rderungen ...). Haben Sie Ihre n�chste Zivilisation ins Auge gefasst?</German>
++		<Italian>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</Italian>
++		<Spanish>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_AUTO_PLAY</Tag>
+ 		<English>[NEWLINE][NEWLINE]Before Chapter %d1_Chpt, there's an intermediate period of %d2_Trns turns on Auto Play.</English>
+ 		<French>[NEWLINE][NEWLINE]Before Chapter %d1_Chpt, there's an intermediate period of %d2_Trns turns on Auto Play.</French>
+-		<German>[NEWLINE][NEWLINE]Der %d1_Chpt. Spielabschnitt beginnt erst nach einer Zwischenzeit von %d2_Trns automatisierten Z�gen.</German>
++		<German>[NEWLINE][NEWLINE]Der %d1_Chpt. Spielabschnitt beginnt erst nach einer Zwischenzeit von %d2_Trns automatisierten Runden.</German>
+ 		<Italian>[NEWLINE][NEWLINE]Before Chapter %d1_Chpt, there's an intermediate period of %d2_Trns turns on Auto Play.</Italian>
+ 		<Spanish>[NEWLINE][NEWLINE]Before Chapter %d1_Chpt, there's an intermediate period of %d2_Trns turns on Auto Play.</Spanish>
+ 	</TEXT>
+@@ -1786,7 +1842,7 @@
+ 		<Tag>TXT_KEY_GAME_OPTION_RISE_FALL_HELP</Tag>
+ 		<English>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</English>
+ 		<French>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</French>
+-		<German>�bernehmen Sie in jedem Spielabschnitt eine andere Zivilisation von der KI. (Nur Einzelspielermodus; gro�e oder riesige Karte empfohlen.)</German>
++		<German>Der Spieler in jedem Spielabschnitt eine andere Zivilisation von der KI. (Nur Einzelspielermodus; gro�e oder riesige Karte empfohlen.)</German>
+ 		<Italian>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</Italian>
+ 		<Spanish>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</Spanish>
+ 	</TEXT>
+@@ -1854,7 +1910,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_INTERVAL</Tag>
+ 		<English>Turn %d1_Strt to %d2_End</English>
+ 		<French>Turn %d1_Strt to %d2_End</French>
+-		<German>Zug %d1_Strt bis %d2_End</German>
++		<German>Runde %d1_Strt bis %d2_End</German>
+ 		<Italian>Turn %d1_Strt to %d2_End</Italian>
+ 		<Spanish>Turn %d1_Strt to %d2_End</Spanish>
+ 	</TEXT>
+@@ -1863,7 +1919,7 @@
+ 		<Tag>TXT_KEY_RF_TURN</Tag>
+ 		<English>Turn %d1_Trn</English>
+ 		<French>Turn %d1_Trn</French>
+-		<German>Zug %d1_Trn</German>
++		<German>Runde %d1_Trn</German>
+ 		<Italian>Turn %d1_Trn</Italian>
+ 		<Spanish>Turn %d1_Trn</Spanish>
+ 	</TEXT>
+@@ -1887,7 +1943,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_REMAIN</Tag>
+ 		<English>turns remaining: %d1_Trns</English>
+ 		<French>turns remaining: %d1_Trns</French>
+-		<German>Noch %d1_Trns Z�ge</German>
++		<German>Noch %d1_Trns Runden</German>
+ 		<Italian>turns remaining: %d1_Trns</Italian>
+ 		<Spanish>turns remaining: %d1_Trns</Spanish>
+ 	</TEXT>
+@@ -1895,7 +1951,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_LAST_KNOWN</Tag>
+ 		<English>status on turn %d1_Trn</English>
+ 		<French>status on turn %d1_Trn</French>
+-		<German>Stand Zug %d1_Trn</German>
++		<German>Stand Runde %d1_Trn</German>
+ 		<Italian>status on turn %d1_Trn</Italian>
+ 		<Spanish>status on turn %d1_Trn</Spanish>
+ 	</TEXT>
+@@ -1903,7 +1959,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_FINAL</Tag>
+ 		<English>final turn</English>
+ 		<French>final turn</French>
+-		<German>letzter Zug</German>
++		<German>letzte Runde</German>
+ 		<Italian>final turn</Italian>
+ 		<Spanish>final turn</Spanish>
+ 	</TEXT>
+@@ -1911,7 +1967,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_SCORE_TURN</Tag>
+ 		<English>Scored on Turn %d1_Trn</English>
+ 		<French>Scored on Turn %d1_Trn</French>
+-		<German>Gewertet in Zug %d1_Trn</German>
++		<German>Gewertet in Runde %d1_Trn</German>
+ 		<Italian>Scored on Turn %d1_Trn</Italian>
+ 		<Spanish>Scored on Turn %d1_Trn</Spanish>
+ 	</TEXT>
+@@ -1943,7 +1999,7 @@
+ 		<Tag>TXT_KEY_RF_RISE_BREAKDOWN_H</Tag>
+ 		<English>Rise Score by winning this turn</English>
+ 		<French>Rise Score by winning this turn</French>
+-		<German>Aufstiegspunkte bei Sieg in diesem Zug</German>
++		<German>Aufstiegspunkte bei Sieg in dieser Runde</German>
+ 		<Italian>Rise Score by winning this turn</Italian>
+ 		<Spanish>Rise Score by winning this turn</Spanish>
+ 	</TEXT>
+@@ -2002,7 +2058,7 @@
+ 		<Tag>TXT_KEY_RF_CHAPTER_BOTTOM_LINE_MINUS</Tag>
+ 		<English>%s3  %d1_Pts[TAB]in total; negative total reduced to[NEWLINE]%s4  %d2_Pts[TAB](square root times three)</English>
+ 		<French>%s3  %d1_Pts[TAB]in total; negative total reduced to[NEWLINE]%s4  %d2_Pts[TAB](square root times three)</French>
+-		<German>%s3  %d1_Pts[TAB]insgesamt; negative Summe reduziert auf[NEWLINE]%s4  %d2_Pts[TAB](dreimal die Wurzel)</German>
++		<German>%s3  %d1_Pts[TAB]insgesamt; negative Summe reduziert auf[NEWLINE]%s4  %d2_Pts[TAB](dreimal die Quadratwurzel)</German>
+ 		<Italian>%s3  %d1_Pts[TAB]in total; negative total reduced to[NEWLINE]%s4  %d2_Pts[TAB](square root times three)</Italian>
+ 		<Spanish>%s3  %d1_Pts[TAB]in total; negative total reduced to[NEWLINE]%s4  %d2_Pts[TAB](square root times three)</Spanish>
+ 	</TEXT>
+@@ -2028,7 +2084,7 @@
+ 		<Tag>TXT_KEY_RF_CIV_SCORE_BREAKDOWN</Tag>
+ 		<English>%d1 from Population (%d2_pop/%d3_pop_max)[NEWLINE]%d4 from Land (%d5_land/%d6_land_max)[NEWLINE]%d7 from Technology (%d8_tech/%d9_tech_max)[NEWLINE]%d10 from Wonders (%d11_wonder/%d12_wonder_max)[NEWLINE]------------------------[NEWLINE]Total = %d13[NEWLINE]See Score Tab (F8) for Chapter Score</English>
+ 		<French>%d1 pour population (%d2_pop/%d3_pop_max)[NEWLINE]%d4 pour territoire (%d5_land/%d6_land_max)[NEWLINE]%d7 pour technologies (%d8_tech/%d9_tech_max)[NEWLINE]%d10 pour Merveilles (%d11_wonder/%d12_wonder_max)[NEWLINE]------------------------[NEWLINE]Total = %d13[NEWLINE]Voir le Score Tab (F8) pour le score du chapitre</French>
+-		<German>%d1 f&#252;r Bev&#246;lkerung (%d2_pop/%d3_pop_max)[NEWLINE]%d4 f&#252;r Land (%d5_land/%d6_land_max)[NEWLINE]%d7 f&#252;r Technologie (%d8_tech/%d9_tech_max)[NEWLINE]%d10 f&#252;r Wunder (%d11_wonder/%d12_wonder_max)[NEWLINE]------------------------[NEWLINE]Gesamt = %d13[NEWLINE]Abschnittspunktzahl: Siehe Score Tab (F8)</German>
++		<German>%d1 f&#252;r Bev&#246;lkerung (%d2_pop/%d3_pop_max)[NEWLINE]%d4 f&#252;r Land (%d5_land/%d6_land_max)[NEWLINE]%d7 f&#252;r Technologie (%d8_tech/%d9_tech_max)[NEWLINE]%d10 f&#252;r Wunder (%d11_wonder/%d12_wonder_max)[NEWLINE]------------------------[NEWLINE]Gesamt = %d13[NEWLINE]Abschnittspunktzahl: Siehe Punktestand (F8)</German>
+ 		<Italian>%d1 dalla popolazione (%d2_pop/%d3_pop_max)[NEWLINE]%d4 dal territorio (%d5_land/%d6_land_max)[NEWLINE]%d7 dalla tecnologia (%d8_tech/%d9_tech_max)[NEWLINE]%d10 dalle Meraviglie (%d11_wonder/%d12_wonder_max)[NEWLINE]------------------------[NEWLINE]Totale = %d13[NEWLINE]Vedi il Score Tab (F8) per il punteggio del capitolo</Italian>
+ 		<Spanish>%d1 por poblaci&#243;n (%d2_pop/%d3_pop_max)[NEWLINE]%d4 por territorio (%d5_land/%d6_land_max)[NEWLINE]%d7 por tecnolog&#237;a (%d8_tech/%d9_tech_max)[NEWLINE]%d10 por maravillas (%d11_wonder/%d12_wonder_max)[NEWLINE]------------------------[NEWLINE]Puntuaci&#243;n Total = %d13[NEWLINE]V&#233;ase el Score Tab (F8) por el puntuaci&#243;n del cap&#237;tulo</Spanish>
+ 	</TEXT>
+@@ -2072,7 +2128,7 @@
+ 		<Tag>TXT_KEY_RF_DOM_FOUND</Tag>
+ 		<English>For %d1 turns, the %s2_civ are vesting absolute power in you, trusting that you can found a Civilization to stand the test of time!</English>
+ 		<French>For %d1 turns, the %s2_civ are vesting absolute power in you, trusting that you can found a Civilization to stand the test of time!</French>
+-		<German>F�r %d1 Z�ge verleiht das %s2:2 Volk Euch absolute Macht und vertraut darauf, dass Ihr eine Zivilisation begr&#252;nden werdet, die die Zeit &#252;berdauert!</German>
++		<German>F�r %d1 Runden verleiht das %s2:2 Volk Euch absolute Macht und vertraut darauf, dass Ihr eine Zivilisation begr&#252;nden werdet, die die Zeit &#252;berdauert!</German>
+ 		<Italian>For %d1 turns, the %s2_civ are vesting absolute power in you, trusting that you can found a Civilization to stand the test of time!</Italian>
+ 		<Spanish>For %d1 turns, the %s2_civ are vesting absolute power in you, trusting that you can found a Civilization to stand the test of time!</Spanish>
+ 	</TEXT>
+@@ -2080,7 +2136,7 @@
+ 		<Tag>TXT_KEY_RF_DOM</Tag>
+ 		<English>The sun rises on the year %s1_year. For %d2 turns, the %s3_civ are vesting absolute power in you, trusting that you can lead their Civilization to its zenith.[NEWLINE][NEWLINE]All units have been awoken for a roll call. You may want to investigate your cities, and confer with your advisors about ongoing/ potential deals, civics, espionage, finances and current research.</English>
+ 		<French>The sun rises on the year %s1_year. For %d2 turns, the %s3_civ are vesting absolute power in you, trusting that you can lead their Civilization to its zenith.[NEWLINE][NEWLINE]All units have been awoken for a roll call. You may want to investigate your cities, and confer with your advisors about ongoing/ potential deals, civics, espionage, finances and current research.</French>
+-		<German>Die Sonne erhellt das Jahr %s1_year. F�r %d2 Z�ge verleiht das %s3:2 Volk Euch absolute Macht und vertraut darauf, dass Ihr seine Zivilisation in goldene Zeiten f�hren werdet.[NEWLINE][NEWLINE]Alle Einheiten wurden geweckt und sind zum Appell angetreten. Eure Gouverneure und Berater stehen bereit, um jegliche Anweisungen umzusetzen - betreffs Stadtverwaltung, Diplomatie, Staatsformen, Spionage, Finanzen, Forschung ...</German>
++		<German>Die Sonne erhellt das Jahr %s1_year F�r %d2 Runden verleiht das %s3:2 Volk Euch absolute Macht und vertraut darauf, dass Ihr seine Zivilisation in goldene Zeiten f�hren werdet.[NEWLINE][NEWLINE]Alle Einheiten wurden geweckt und sind zum Appell angetreten. Eure Gouverneure und Berater stehen bereit, um jegliche Anweisungen umzusetzen - betreffs Stadtverwaltung, Diplomatie, Staatsformen, Spionage, Finanzen, Forschung ...</German>
+ 		<Italian>The sun rises on the year %s1_year. For %d2 turns, the %s3_civ are vesting absolute power in you, trusting that you can lead their Civilization to its zenith.[NEWLINE][NEWLINE]All units have been awoken for a roll call. You may want to investigate your cities, and confer with your advisors about ongoing/ potential deals, civics, espionage, finances and current research.</Italian>
+ 		<Spanish>The sun rises on the year %s1_year. For %d2 turns, the %s3_civ are vesting absolute power in you, trusting that you can lead their Civilization to its zenith.[NEWLINE][NEWLINE]All units have been awoken for a roll call. You may want to investigate your cities, and confer with your advisors about ongoing/ potential deals, civics, espionage, finances and current research.</Spanish>
+ 	</TEXT>
+@@ -2120,7 +2176,7 @@
+ 		<Tag>TXT_KEY_RF_CONFIRM_RETIRE</Tag>
+ 		<English>If you retire, your remaining %d1 turns of the chapter are played by the AI.</English>
+ 		<French>If you retire, your remaining %d1 turns of the chapter are played by the AI.</French>
+-		<German>Wenn Sie abdanken, �bernimmt die KI die �brigen %d1 Z�ge des Kapitels.</German>
++		<German>Wenn Sie abdanken, �bernimmt die KI die �brigen %d1 Runden des Kapitels.</German>
+ 		<Italian>If you retire, your remaining %d1 turns of the chapter are played by the AI.</Italian>
+ 		<Spanish>If you retire, your remaining %d1 turns of the chapter are played by the AI.</Spanish>
+ 	</TEXT>
+@@ -2128,23 +2184,23 @@
+ 		<Tag>TXT_KEY_RF_CONFIRM_RETIRE_INTERLUDE</Tag>
+ 		<English>Plus a %d1-turn intermediate period on Auto Play.</English>
+ 		<French>Plus a %d1-turn intermediate period on Auto Play.</French>
+-		<German>Plus eine Zwischenzeit von %d1 automatisierten Z�gen.</German>
++		<German>Plus eine Zwischenzeit von %d1 automatisierten Runden.</German>
+ 		<Italian>Plus a %d1-turn intermediate period on Auto Play.</Italian>
+ 		<Spanish>Plus a %d1-turn intermediate period on Auto Play.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_RECOMMEND_RETIRE</Tag>
+-		<English>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much more, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</English>
+-		<French>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much more, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</French>
++		<English>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</English>
++		<French>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</French>
+ 		<German>Empfehlung: Falls Sie nicht noch in diesem Spielabschnitt gewinnen k�nnen, sollten Sie eine Abdankung (Hauptmen�) in Betracht ziehen. Da Sie schon in F�hrung sind, wird sich Ihre Punktzahl f�r diesen Abschnitt kaum noch erh�hen, aber %s1_Civ k�nnte in sp�teren Abschnitten ein gef�hrlicher Gegner werden. Die Abdankung l�sst die KI den Abschnitt zu Ende spielen und bringt einige Zusatzpunkte.</German>
+-		<Italian>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much more, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Italian>
+-		<Spanish>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much more, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Spanish>
++		<Italian>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Italian>
++		<Spanish>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_DEFEAT</Tag>
+ 		<English>The next chapter will start on turn %d1 after %d2 turns of Auto Play.</English>
+ 		<French>The next chapter will start on turn %d1 after %d2 turns of Auto Play.</French>
+-		<German>Der n�chste Abschnitt beginnt in Zug %d1 nach %d2 automatisierten Z�gen.</German>
++		<German>Der n�chste Abschnitt beginnt in Runde %d1 nach %d2 automatisierten Runden.</German>
+ 		<Italian>The next chapter will start on turn %d1 after %d2 turns of Auto Play.</Italian>
+ 		<Spanish>The next chapter will start on turn %d1 after %d2 turns of Auto Play.</Spanish>
+ 	</TEXT>
+@@ -2176,7 +2232,7 @@
+ 		<Tag>TXT_KEY_RF_SKIP_CHAPTER</Tag>
+ 		<English>Skip to Chapter %d1 (%d2 turns of Auto Play).</English>
+ 		<French>Skip to Chapter %d1 (%d2 turns of Auto Play).</French>
+-		<German>Weiter zum %d1. Abschnitt (%d2 automatisierte Z�ge)</German>
++		<German>Weiter zum %d1. Abschnitt (%d2 automatisierte Runden)</German>
+ 		<Italian>Skip to Chapter %d1 (%d2 turns of Auto Play).</Italian>
+ 		<Spanish>Skip to Chapter %d1 (%d2 turns of Auto Play).</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index e18b0837e..ee2140ce3 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -76,7 +76,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_7</Tag>
+ 	<English>(K-Mod) When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</English>
+ 	<French>(K-Mod) When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</French>
+-	<German>(K-Mod) Wenn ein Gro�er General sich dazu entschlie�t, eine Einheit als Kriegsherr zu f�hren, teilt er einmalig einige Erfahrungspunkte mit allen Einheiten der Gruppe. Gr��ere Gruppen erhalten dabei mehr Punkte als kleine.</German>
++	<German>(K-Mod) Wenn ein Gro�er General sich dazu entschlie�t, eine Einheit als Kriegsherr zu f�hren, teilt er einmalig Erfahrungspunkte mit allen Einheiten der Gruppe. Gr��ere Gruppen erhalten dabei mehr Punkte als kleine.</German>
+ 	<Italian>(K-Mod) Quando un Grande Generale decide di unirsi ad un unit� come Grande Condottiero, distribuisce in immediato aumento di esperienza con tutte le unit� sulla stessa casella. Maggiore lo stack, maggiore l'esperienza.</Italian>
+ 	<Spanish>(K-Mod) Cuando un Gran General elige liderar una unidad como un caudillo, comparte un aumento inmediato de experiencia a todas las unidades en el grupo. M�s puntos de experiencia son dados a grupos m�s grandes.</Spanish>
+ </TEXT>
+@@ -85,7 +85,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_8</Tag>
+ 	<English>(K-Mod) In the city screen, hold down the [ALT] key and point to a building or specialist to see its net effect.</English>
+ 	<French>(K-Mod) In the city screen, hold down the [ALT] key and point to a building or specialist to see its net effect.</French>
+-	<German>(K-Mod) Halte im Stadtbildschirm [Alt] gedr�ckt und zeige auf ein Geb�ude oder einen Spezialisten, um seinen Netto-Effekt zu sehen.</German>
++	<German>(K-Mod) Halten Sie im Stadtbildschirm [Alt] gedr�ckt und zeigen Sie auf ein Geb�ude oder einen Spezialisten, um seinen Netto-Effekt zu sehen.</German>
+ 	<Italian>(K-Mod) In the city screen, hold down the [ALT] key and point to a building or specialist to see its net effect.</Italian>
+ 	<Spanish>(K-Mod) Mant�n la tecla [ALT] presionada y apunta a un edificio o especialista para ver el efecto si estuviera en la ciudad actual.</Spanish>
+ </TEXT>
+@@ -161,7 +161,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_14</Tag>
+ 	<English>(K-Mod) Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</English>
+ 	<French>(K-Mod) Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</French>
+-	<German>(K-Mod) Halte 'X' gedr�ckt um den automatischen Einheitenwechsel zu unterdr�cken.</German>
++	<German>(K-Mod) Halten Sie 'X' gedr�ckt, um den automatischen Einheitenwechsel zu unterdr�cken.</German>
+ 	<Italian>(K-Mod) Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</Italian>
+ 	<Spanish>(K-Mod) Mantener la tecla 'X' presionada cuando das una �rden para suprimir temporalmente el ciclo de unidades.</Spanish>
+ </TEXT>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 419f4062a..bb087b5ac 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -380,7 +380,10 @@ void CvGame::regenerateMap()
+ 	CvMapGenerator::GetInstance().addGameElements();
+ 
+ 	gDLL->getEngineIFace()->RebuildAllPlots();
+-
++	// <advc.004j>
++	if(isOption(GAMEOPTION_ADVANCED_START))
++		setStartTurn(0); // Increased below by setInitialItems
++	else setGameTurn(getStartTurn()); // <advc.004j>
+ 	CvEventReporter::getInstance().resetStatistics();
+ 
+ 	setInitialItems();
+@@ -394,9 +397,17 @@ void CvGame::regenerateMap()
+ 	gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+ 
+ 	cycleSelectionGroups_delayed(1, false);
+-
+-	gDLL->getEngineIFace()->AutoSave(true);
+-
++	// <advc.700>
++	if(isOption(GAMEOPTION_RISE_FALL)) {
++		riseFall.reset();
++		riseFall.init();
++	}
++	else { // </advc.700>
++		gDLL->getEngineIFace()->AutoSave(true);
++		// <advc.004j> Somehow doesn't work with Adv. Start; DoM screen doesn't appear.
++		if(!isOption(GAMEOPTION_ADVANCED_START))
++			showDawnOfMan();
++	} // </advc.004j>
+ 	if (NO_PLAYER != getActivePlayer())
+ 	{
+ 		CvPlot* pPlot = GET_PLAYER(getActivePlayer()).getStartingPlot();
+@@ -411,6 +422,20 @@ void CvGame::regenerateMap()
+ 	}
+ }
+ 
++// <advc.004j>
++void CvGame::showDawnOfMan() {
++
++	if(getActivePlayer() == NO_PLAYER)
++		return;
++	// This appears to require an argument, and I've no clue which
++	//gDLL->getPythonIFace()->callFunction("CvScreensInterface", "showDawnOfMan");
++	// Instead (based on CvAllErasDawnOfManScreenEventManager.py):
++	CvPopupInfo* dom = new CvPopupInfo();
++	dom->setButtonPopupType(BUTTONPOPUP_PYTHON_SCREEN);
++	dom->setText(L"showDawnOfMan");
++	GET_PLAYER(getActivePlayer()).addPopup(dom);
++} // </advc.004j>
++
+ 
+ void CvGame::uninit()
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 63a840edb..ae2bcb66b 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -40,7 +40,7 @@ public:
+ 
+ 	DllExport void setInitialItems();
+ 	DllExport void regenerateMap();
+-
++	void showDawnOfMan(); // advc.004j
+ 	DllExport void initDiplomacy();
+ 	DllExport void initFreeState();
+ 	DllExport void initFreeUnits();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4e31c4c3d..ecaf51143 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4516,7 +4516,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 		}
+-		return;	
++		//return; // advc.027: No need to return; only else branches left.
+ 	}
+ 	else if (bShift && !bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+@@ -4556,7 +4556,6 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+ 		char tempChar = 'x';
+ 		if(pPlot->getRiverNSDirection() == CARDINALDIRECTION_NORTH)
+ 		{
+@@ -5746,8 +5745,23 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ /*************************************************************************************************/
+ /* UNOFFICIAL_PATCH                         END                                                  */
+ /*************************************************************************************************/
+-
+ 	}
++	/*  <advc.027> Shift+Ctrl on a plot w/o a unit shows a breakdown of the
++		area score computed in CvPlayer::findStartingArea. */
++	CvArea* a = pPlot->area();
++	PlayerTypes activePl = GC.getGame().getActivePlayer();
++	if(!a->isWater() && bShift && bCtrl && !bAlt && !pPlot->isUnit() &&
++			activePl != NO_PLAYER) {
++		int total = 0; int tmp = 0;
++		tmp=a->calculateTotalBestNatureYield();total+=tmp;szTempBuffer.Format(L"\nTotalBestNatureYield: %d", tmp); szString.append(szTempBuffer);
++		tmp=a->countCoastalLand() * 2;szTempBuffer.Format(L"\n(CoastalLand*2: %d)", tmp); szString.append(szTempBuffer);
++		tmp=a->getNumRiverEdges();szTempBuffer.Format(L"\n(RiverEdges: %d)", tmp); szString.append(szTempBuffer);
++		tmp=GET_PLAYER(activePl).coastRiverStartingAreaScore(a);total+=tmp;szTempBuffer.Format(L"\nCoastRiverScore: %d", tmp); szString.append(szTempBuffer);
++		tmp=a->getNumTiles()/2;total+=tmp;szTempBuffer.Format(L"\nTiles*0.5: %d", tmp); szString.append(szTempBuffer);
++		tmp=::round(a->getNumTotalBonuses() * 1.5);total+=tmp;szTempBuffer.Format(L"\nBonuses*1.5: %d", tmp); szString.append(szTempBuffer);
++		tmp=100*::round(std::min(NUM_CITY_PLOTS + 1, a->getNumTiles() + 1)/ (NUM_CITY_PLOTS + 1.0));total+=tmp;szTempBuffer.Format(L"\nTilePercent: %d", tmp); szString.append(szTempBuffer);
++		szTempBuffer.Format(L"\nAreaScore: %d", total); szString.append(szTempBuffer);
++	} // </advc.027>
+ }
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 27b295eb3..a61c5691f 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -14,8 +14,6 @@
+ #include "CyPlot.h"
+ #include "CyArgsList.h"
+ #include <set> // K-Mod
+-// advc.129:
+-#include <algorithm>
+ 
+ //
+ // static
+@@ -956,17 +954,26 @@ int CvMapGenerator::placeGroup(BonusTypes eBonusType, CvPlot const& center,
+ 				groupRange.push_back(p);
+ 		}
+ 	}
+-	std::random_shuffle(groupRange.begin(), groupRange.end());
+-	for(size_t j = 0; j < groupRange.size() && limit > 0; j++) {
++	// Would've been nice, but must use MapRand instead.
++	//std::random_shuffle(groupRange.begin(), groupRange.end());
++	int sz = (int)groupRange.size();
++	if(sz <= 0)
++		return 0;
++	int* shuffl = new int[sz];
++	for(int i = 0; i < sz; i++)
++		shuffl[i] = i;
++	::shuffleArray(shuffl, sz, GC.getGame().getMapRand());
++	for(int j = 0; j < sz && limit > 0; j++) {
+ 		int prPercent = pBonusInfo.getGroupRand();
+ 		prPercent = ::round(prPercent * std::pow(2/3.0, placed));
+ 		if (GC.getGameINLINE().getMapRandNum(
+ 				100, "addNonUniqueBonusType") < prPercent) {
+-			groupRange[j]->setBonusType(eBonusType);
++			groupRange[shuffl[j]]->setBonusType(eBonusType);
+ 			limit--;
+ 			placed++;
+ 		}
+ 	}
++	delete[] shuffl;
+ 	FAssert(limit >= 0);
+ 	return placed;
+ } // </advc.129>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 45937b828..3125dba4b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1857,6 +1857,31 @@ int CvPlayer::startingPlotDistanceFactor(CvPlot* pPlot, PlayerTypes ePlayer, int
+ 
+ }
+ 
++// <advc.027>
++int CvPlayer::coastRiverStartingAreaScore(CvArea const* a) const {
++
++	if(a == NULL) {
++		FAssert(a != NULL);
++		return 0;
++	}
++	int r = 0;
++	// Loop based on CvArea::countCoastalLand
++	for(int i = 0; i < GC.getMapINLINE().numPlotsINLINE(); i++) {
++		CvPlot* p = GC.getMapINLINE().plotByIndexINLINE(i);
++		if(p->isPeak() || p->getArea() != a->getID())
++			continue;
++		int totalYield = p->calculateTotalBestNatureYield(getTeam());
++		int foodYield = p->calculateBestNatureYield(YIELD_FOOD, getTeam());
++		if((foodYield > 0 && totalYield >= 2) || totalYield >= 3) {
++			if(p->isCoastalLand())
++				r += 2;
++			if(p->isRiver())
++				r++;
++		}
++	}
++	return r;
++} // </advc.027>
++
+ 
+ // Returns the id of the best area, or -1 if it doesn't matter:
+ int CvPlayer::findStartingArea() const
+@@ -1895,7 +1920,15 @@ int CvPlayer::findStartingArea() const
+ 		{
+ 			// iNumPlayersOnArea is the number of players starting on the area, plus this player
+ 			int iNumPlayersOnArea = (pLoopArea->getNumStartingPlots() + 1);
+-			int iTileValue = ((pLoopArea->calculateTotalBestNatureYield() + (pLoopArea->countCoastalLand() * 2) + pLoopArea->getNumRiverEdges() + (pLoopArea->getNumTiles())) + 1);
++			// <advc.027>
++			int iTileValue = 1 + pLoopArea->calculateTotalBestNatureYield() + 
++					/*2 * pLoopArea->countCoastalLand() +
++					pLoopArea->getNumRiverEdges() +*/
++					coastRiverStartingAreaScore(pLoopArea) + // Replacing the above
++					// New: factor in bonus resources
++					::round(pLoopArea->getNumTotalBonuses() * 1.5) +
++					pLoopArea->getNumTiles() / 2; // Halved
++			// </advc.027>
+ 			iValue = iTileValue / iNumPlayersOnArea;
+ 
+ 			iValue *= std::min(NUM_CITY_PLOTS + 1, pLoopArea->getNumTiles() + 1);
+@@ -1941,7 +1974,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 					/*  advc.021a: Tectonics apparently assigns all starting plots
+ 						at once on its own and then returns "None". Or something;
+ 						doesn't seem to be a problem anyway. Now I'm having it
+-						return -10 to indicate that it's non-/known issue. */
++						return -10 to indicate that it's a known (or non-) issue. */
+ 					result == -10
+ 					, "python findStartingPlot() returned an invalid plot index!");
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index e4852577d..15503af19 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -80,6 +80,8 @@ public:
+ 	bool startingPlotWithinRange(CvPlot* pPlot, PlayerTypes ePlayer, int iRange, int iPass) const;									// Exposed to Python
+ 	int startingPlotDistanceFactor(CvPlot* pPlot, PlayerTypes ePlayer, int iRange) const;
+ 	int findStartingArea() const;
++	// advc.027: New auxiliary function
++	int coastRiverStartingAreaScore(CvArea const* a) const;
+ 	CvPlot* findStartingPlot(bool bRandomize = false);																																									// Exposed to Python
+ 
+ 	CvPlotGroup* initPlotGroup(CvPlot* pPlot);
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 2c9cfae7c..9469b68fb 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -529,7 +529,7 @@ int CvReplayInfo::getFinalPlayerScore() const
+ {
+ 	return getPlayerScore(m_iActivePlayer, m_iFinalTurn);
+ }
+-// Can now also set the final score to sth. different from the player score
++// Can now also set the final score to sth. other than the player score
+ void CvReplayInfo::setFinalScore(int sc)
+ {
+ 	m_iFinalScore = sc;
+
+diff --git a/CvGameCoreDLL/RFChapterScore.cpp b/CvGameCoreDLL/RFChapterScore.cpp
+index 2a83563a5..2e25c67f3 100644
+--- a/CvGameCoreDLL/RFChapterScore.cpp
++++ b/CvGameCoreDLL/RFChapterScore.cpp
+@@ -184,6 +184,10 @@ void RFChapterScore::update() {
+ 	civScorePercent = ::round((100.0 * civScore) / nextBestScore);
+ 	fromCivScore = civScorePercent;
+ 	initialCivScorePercent = ::round((100.0 * initialCivScore) / referenceScore);
++	/*  Assume that scores at game start are all equal (although that's not true
++		on difficulty settings above Noble) */
++	if(chapter->getPosition() == 0)
++		initialCivScorePercent = 100;
+ 	fromInitialCivScore = -initialCivScorePercent;
+ 	fromRank = ::round((100.0 * (initialRivals - rank + 1)) /
+ 			std::max(1, initialRivals));
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 67fbe01b6..21fe6be1b 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -74,7 +74,7 @@ void RiseFall::init() {
+ 	int totalTurns = endTurn - startTurn;
+ 	chapterModifier *= totalTurns / (double)endTurn;
+ 	int civs = g.countCivPlayersAlive();
+-	{	// If few civs, stick to unmodified maxChapters
++	{	// If few civs, stick to unmodified maxChapters.
+ 		int maxChaptersModified = ::round(maxChapters * chapterModifier);
+ 		if(maxChaptersModified > maxChapters) {
+ 			int bound = std::max(::round(civs / 1.51), maxChapters);
+@@ -89,7 +89,7 @@ void RiseFall::init() {
+ 	}
+ 	interludeLength = GC.getDefineINT("RF_INTERLUDE_LENGTH_BASE");
+ 	interludeLength = ::range(::round((interludeLength * speed.getTrainPercent())
+-			/ 100.0), 5, 10);
++			/ 100.0), std::min(interludeLength, 5), std::max(interludeLength, 10));
+ 	int playLength = totalTurns - (maxChapters - 1) * interludeLength;
+ 	int partialLength = 0;
+ 	for(int i = 0; i < maxChapters - 1; i++) {
+@@ -140,7 +140,7 @@ void RiseFall::init() {
+ 	/*  Initial auto-save. Normally happens already in CvGame::update, but
+ 		RiseFall isn't yet initialized then. */
+ 	gDLL->getEngineIFace()->AutoSave(true);
+-	showDawnOfMan();
++	g.showDawnOfMan();
+ }
+ 
+ void RiseFall::write(FDataStreamBase* pStream) {
+@@ -501,7 +501,7 @@ void RiseFall::welcomeToNextChapter(int pos) {
+ 	CvPlayer& p = GET_PLAYER(ch.getCiv());
+ 	centerCamera(p.getID());
+ 	abandonPlans(p.getID()); // Also tries to move the camera
+-	showDawnOfMan();
++	GC.getGame().showDawnOfMan();
+ 	showDoW();
+ 	showQuests();
+ 	offLimits.clear();
+@@ -523,17 +523,6 @@ void RiseFall::centerCamera(PlayerTypes civId) {
+ 	}
+ }
+ 
+-void RiseFall::showDawnOfMan() {
+-
+-	// This appears to require an argument, and I've no clue which
+-	//gDLL->getPythonIFace()->callFunction("CvScreensInterface", "showDawnOfMan");
+-	// Instead (based on CvAllErasDawnOfManScreenEventManager.py):
+-	CvPopupInfo* dom = new CvPopupInfo();
+-	dom->setButtonPopupType(BUTTONPOPUP_PYTHON_SCREEN);
+-	dom->setText(L"showDawnOfMan");
+-	GET_PLAYER(GC.getGame().getActivePlayer()).addPopup(dom);
+-}
+-
+ void RiseFall::showDoW() {
+ 
+ 	CvGame& g = GC.getGame();
+@@ -995,16 +984,32 @@ void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer,
+ CvWString RiseFall::knownName(PlayerTypes civId, bool nameNumber) const {
+ 
+ 	bool hasMet = false;
+-	for(size_t j = 0; j < chapters.size(); j++) {
+-		if(!chapters[j]->hasEnded())
++	for(size_t i = 0; i < chapters.size(); i++) {
++		if(!chapters[i]->hasEnded())
+ 			break;
+-		if(TEAMREF(chapters[j]->getCiv()).isHasMet(TEAMID(civId))) {
++		if(TEAMREF(chapters[i]->getCiv()).isHasMet(TEAMID(civId))) {
+ 			hasMet = true;
+ 			break;
+ 		}
+ 	}
+-	if(hasMet)
+-		return GET_PLAYER(civId).getCivilizationShortDescription();
++	if(hasMet) {
++		CvPlayer const& civ = GET_PLAYER(civId);
++		bool unique = true;
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayer const& other = GET_PLAYER((PlayerTypes)i);
++			if(other.isEverAlive() && other.getID() != civId &&
++					other.getCivilizationType() == civ.getCivilizationType()) {
++				unique = false;
++				break;
++			}
++		}
++		/*  Nicer to show civ names, but if one civ is in the game multiple times,
++			will have to show the leader name. */
++		if(unique)
++			return civ.getCivilizationShortDescription();
++		return CvWString(GC.getLeaderHeadInfo(civ.getLeaderType()).getDescription()) +
++				L"'s " + civ.getCivilizationShortDescription();
++	}
+ 	if(!nameNumber)
+ 		return gDLL->getText("TXT_KEY_TOPCIVS_UNKNOWN");
+ 	// Order has to be consistent with the numbering in launchCivSelectionPopup
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index 003ff0020..e8cfa309d 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -82,7 +82,6 @@ private:
+ 	void setPlayerControl(PlayerTypes civId, bool b);
+ 	void welcomeToNextChapter(int pos);
+ 	void centerCamera(PlayerTypes civId);
+-	void showDawnOfMan();
+ 	void showDoW();
+ 	void showQuests();
+ 	void abandonPlans(PlayerTypes civId);
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=15 omittedFiles=2 embeddedPatchBytes=54514

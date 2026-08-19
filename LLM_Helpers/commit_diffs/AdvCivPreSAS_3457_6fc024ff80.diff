@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3457
+# Commit: 6fc024ff8030464f90dfa3f2c924ad284a31f8d8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7949f0ccae312893e791e0c274a319a3642a221f
+# Title: Tweak how AI production discounts affect target stack size
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	6	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index bba166efd..2eae40906 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21413,13 +21413,10 @@ int CvUnitAI::AI_stackOfDoomExtra() const
+ 	// K-Mod end
+ 	// <advc.104p>
+ 	scaled rMult = 1;
+-	/*  Bigger AI stacks on higher difficulty (b/c units are cheaper to train then,
+-		not b/c bigger stacks are generally smarter) */
+-	if(!kOwner.isHuman() && !isBarbarian())
++	// Bigger AI stacks when units are cheaper to train
+ 	{
+-		scaled rTrainMod = per100(GC.getInfo(GC.getGame().
+-				getHandicapType()).getAITrainPercent());
+-		rTrainMod.increaseTo(fixp(0.75));
++		scaled rTrainMod = kOwner.trainingModifierFromHandicap();
++		rTrainMod.increaseTo(fixp(0.7));
+ 		rMult /= rTrainMod;
+ 	}
+ 	// A little extra for naval assault
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=820

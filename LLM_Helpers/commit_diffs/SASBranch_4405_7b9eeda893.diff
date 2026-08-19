@@ -1,0 +1,40 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4405
+# Commit: 7b9eeda8937e814ddc3a416086e7b171c88a392e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 067246d659e22aa9d5723976eadf78c4ba844231
+# Title: Fix Unit layer options overlapping with scores in Globe view
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 339fc5296..210ace068 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -2424,7 +2424,10 @@ class CvMainInterface:
+ 				gAlignedScoreboard.hide(screen, True)
+ 			CyInterface().setDirty(InterfaceDirtyBits.ScoreHelp_DIRTY_BIT, False)
+ 		# </advc.085>
+-		if (CyInterface().isDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT) == True):
++		if (CyInterface().isDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT) == True
++				# advc.004z: Need to determine whether there are options to show
++				# even if GlobeInfo hasn't changed. And hide the scores accordingly.
++				or (bScoreStringsUpdated and CyEngine().isGlobeviewUp())):
+ 			# Globeview and Globelayer buttons
+ 			CyInterface().setDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT, False)
+ 			#self.updateGlobeviewButtons()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=916

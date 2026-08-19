@@ -1,0 +1,269 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1354
+# Commit: 6de61ea758866b0413a63f32a2277ab772b317c5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a133dd74a0ca49932a3e167cc5fc998c9a33eeb6
+# Title: v0.93 (DLL, manual, a few final changes)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	3	CvGameCoreDLL/CvPlayer.cpp
+34	17	CvGameCoreDLL/CvPlayerAI.cpp
+22	2	CvGameCoreDLL/RiseFall.cpp
+1	0	CvGameCoreDLL/RiseFall.h
+6	3	CvGameCoreDLL/WarAndPeaceAI.cpp
+-	-	manual.odt
+-	-	manual.pdf
+-	-	manual_0.93.odt
+ delete mode 100644 manual_0.93.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 104a7ba04..ecb704dca 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2712,8 +2712,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		{
+ 			CvEventReporter::getInstance().cityAcquiredAndKept(getID(), pNewCity);
+ 		}
+-	}
+-
++	} // <advc.004x>
++	if(bTrade && isHuman())
++		pNewCity->chooseProduction(); // </advc.004x>
+ 	// Forcing events that deal with the old city not to expire just because we conquered that city
+ 	for (CvEventMap::iterator it = m_mapEventsOccured.begin(); it != m_mapEventsOccured.end(); ++it)
+ 	{
+@@ -13786,7 +13787,8 @@ void CvPlayer::changeHasReligionCount(ReligionTypes eIndex, int iChange)
+ // <advc.132> Body adopted from CvPlayerAI::AI_religionTrade
+ bool CvPlayer::isMinorityReligion(ReligionTypes rel) const {
+ 
+-	if(getStateReligion() == NO_RELIGION) return true;
++	if(getStateReligion() == NO_RELIGION)
++		return true;
+ 	int const relCount = getHasReligionCount(rel);
+ 	return relCount < getNumCities() / 2 &&
+ 		   relCount < getHasReligionCount(getStateReligion()) - 1;
+@@ -24870,6 +24872,8 @@ int CvPlayer::getCapitalY() const {
+ // <advc.004x>
+ void CvPlayer::killAll(ButtonPopupTypes bpt, int data1) {
+ 
++	if(getID() != GC.getGameINLINE().getActivePlayer() || !isHuman())
++		return;
+ 	// Preserve the popups we don't want killed in newQueue
+ 	std::list<CvPopupInfo*> newQueue;
+ 	for(int pass = 0; pass < 2; pass++) {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c05afcd78..235e42acf 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11465,8 +11465,9 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 			return false; // </advc.133>
+ 		// <advc.130o>
+ 		bool demand = false;
+-		bool accept = true; // </advc.130o>
+-		if (kOurTeam.isVassal(kPlayer.getTeam()) && CvDeal::isVassalTributeDeal(pOurList))
++		bool accept = true;
++		bool vassal = kOurTeam.isVassal(kPlayer.getTeam()); // </advc.130o>
++		if(vassal && CvDeal::isVassalTributeDeal(pOurList))
+ 		{
+ 			if (AI_getAttitude(ePlayer, false) <= GC.getLeaderHeadInfo(getPersonalityType()).getVassalRefuseAttitudeThreshold()
+ 				//&& kOurTeam.getAtWarCount(true) == 0
+@@ -11491,7 +11492,7 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 				leaders, so no functional change. */
+ 			AttitudeTypes const noGiveHelpThresh = (AttitudeTypes)GC.getLeaderHeadInfo(
+ 					getPersonalityType()).getNoGiveHelpAttitudeThreshold();
+-			demand = AI_getAttitude(ePlayer) <= noGiveHelpThresh;
++			demand = (AI_getAttitude(ePlayer) <= noGiveHelpThresh);
+ 			if (demand) // </advc.130o>
+ 			{
+ 				FAssert(bHuman);
+@@ -11499,11 +11500,16 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 				{	// advc.130o: Don't return just yet
+ 					accept = false;
+ 				}
+-			} // <advc.130o>
+-			// </advc.130o> <advc.144>
+-			else if(!bSameTeam && // advc.155
+-					::hash(GC.getGameINLINE().getGameTurn(), getID()) < prDenyHelp())
+-				return false; // </advc.144>
++			} // <advc.144>
++			else { // <advc.130v>
++				if(AI_getAttitude(ePlayer, false) <= noGiveHelpThresh)
++					return false; // </advc.130v>
++				if(!bSameTeam && // advc.155
++						!vassal && // advc.130v
++						::hash(GC.getGameINLINE().getGameTurn(), getID()) <
++						prDenyHelp())
++					return false; // </advc.144>
++			}
+ 			// <advc.104m>
+ 			if(accept && demand && getWPAI.isEnabled() &&
+ 					!bSameTeam) // advc.155
+@@ -11516,20 +11522,25 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 			iThreshold *= 2;
+ 			// <advc.155>
+ 			if(bSameTeam)
+-				iThreshold *= 5;
+-			else { // </advc.155>
++				iThreshold *= 5; // </advc.155>
++			else if(!vassal) { // advc.130v
+ 				if (TEAMREF(ePlayer).AI_isLandTarget(getTeam()))
+ 				{
+ 					iThreshold *= 3;
+ 				} 
+ 				iThreshold *= (TEAMREF(ePlayer).getPower(false) + 100);
+ 				iThreshold /= (kOurTeam.getPower(false) + 100);
+-			} // advc.155
++			} // <advc.155>
++			int randExtra = ::round((::hash(g.getGameTurn(), getID()) - 0.5) *
++					iThreshold * 0.2);
++			iThreshold += randExtra; // </advc.155>
+ 			iThreshold -= kPlayer.AI_getPeacetimeGrantValue(getID());
+ 
+ 			accept = (iOurValue < iThreshold); // advc.130o: Don't return yet
+ 			// <advc.144>
+-			if(accept && !demand && getWPAI.isEnabled())
++			if(accept && !demand &&
++					!vassal && // advc.130v
++					getWPAI.isEnabled())
+ 				accept = warAndPeaceAI().considerGiftRequest(ePlayer, iOurValue);
+ 			// </advc.144>
+ 		}
+@@ -11566,8 +11577,10 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 			double thresh = g.getRiseFall().dealThresh(isAnnualDeal(*pOurList));
+ 			if(iChange < 0)
+ 				thresh = std::min(thresh, std::max(0.4, thresh - 0.15));
+-			if(pessimisticVal / (iTheirValue + 0.01) < thresh)
+-				return g.getRiseFall().isSquareDeal(*pOurList, *pTheirList, getID());
++			if(pessimisticVal / (iTheirValue + 0.01) < thresh) {
++				return (g.getRiseFall().isSquareDeal(*pOurList, *pTheirList, getID()) ||
++						g.getRiseFall().isNeededWarTrade(*pOurList));
++			}
+ 		}
+ 		if(!kOurTeam.isGoldTrading() && !TEAMREF(ePlayer).isGoldTrading())
+ 			iOurValue = ::round(0.9 * iOurValue);
+@@ -11868,8 +11881,9 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 			double thresh = g.getRiseFall().dealThresh(isAnnualDeal(ourListCounter));
+ 			if(bDeal && g.getRiseFall().pessimisticDealVal(getID(), iValueForThem,
+ 					ourListCounter) / (iValueForUs + 0.01) < thresh)
+-				bDeal = (g.getRiseFall().isSquareDeal(*pOurList, *pTheirList, getID()) &&
+-						 g.getRiseFall().isSquareDeal(*pOurCounter, *pTheirCounter, getID()));
++				bDeal = ((g.getRiseFall().isSquareDeal(*pOurList, *pTheirList, getID()) &&
++						 g.getRiseFall().isSquareDeal(*pOurCounter, *pTheirCounter, getID())) ||
++						 g.getRiseFall().isNeededWarTrade(*pOurList));
+ 		}
+ 		double const secondAttempt = 0.9;
+ 		if(!bDeal && !GET_TEAM(getTeam()).isGoldTrading() &&
+@@ -14080,7 +14094,10 @@ DenialTypes CvPlayerAI::AI_religionTrade(ReligionTypes eReligion, PlayerTypes eP
+ 	{
+ 		return NO_DENIAL;
+ 	}
+-
++	// <advc.132>
++	if(GET_PLAYER(ePlayer).isStateReligion() && eReligion != GET_PLAYER(ePlayer).
++			getStateReligion())
++		return DENIAL_JOKING; // </advc.132>
+ 	if (GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()))
+ 	{
+ 		return NO_DENIAL;
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 79bca3d38..f70756766 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -735,8 +735,8 @@ bool RiseFall::isDeliverMessages(PlayerTypes civId) const {
+ bool RiseFall::isCooperationRestricted(PlayerTypes aiCiv) const {
+ 
+ 	PlayerTypes masterId = GET_TEAM(GET_PLAYER(aiCiv).getMasterTeam()).getLeaderID();
+-	if(masterId != aiCiv && isCooperationRestricted(masterId))
+-		return true;
++	if(masterId != aiCiv)
++		return isCooperationRestricted(masterId);
+ 	PlayerTypes human = GC.getGameINLINE().getActivePlayer();
+ 	if(aiCiv == human)
+ 		return false;
+@@ -1264,6 +1264,26 @@ bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives,
+ 	return false;
+ }
+ 
++bool RiseFall::isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const {
++
++	CvPlayerAI const& human = GET_PLAYER(GC.getGameINLINE().getActivePlayer());
++	for(CLLNode<TradeData>* node = humanReceives.head();
++			node != NULL; node = humanReceives.next(node)) {
++		if(node->m_data.m_eItemType == TRADE_WAR) {
++			TeamTypes targetId = (TeamTypes)node->m_data.m_iData;
++			if(targetId == NO_PLAYER) {
++				FAssert(targetId != NO_PLAYER);
++				return false;
++			}
++			if(GET_TEAM(targetId).AI_getWarSuccess(human.getTeam()) >
++					GC.getWAR_SUCCESS_CITY_CAPTURING() && 
++					GET_TEAM(human.getTeam()).AI_getEnemyPowerPercent() > 100)
++				return true;
++		}
++	}
++	return false;
++}
++
+ bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
+ 		PlayerTypes to) const {
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index aed89399f..a46f9d7ad 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -49,6 +49,7 @@ public:
+ 	// Some deals are non-collusive regardless of trade value
+ 	bool isSquareDeal(CLinkList<TradeData> const& humanReceives,
+ 			CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const;
++	bool isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const;
+ 	/*  Deal value assuming that certain items like civics changes are of low
+ 		value to the human side. */
+ 	int pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index c83419d97..d04f7063f 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1096,11 +1096,14 @@ int WarAndPeaceAI::Team::tradeValJointWar(TeamTypes targetId,
+ 	FAssert(!GET_TEAM(allyId).isHuman());
+ 	PROFILE_FUNC();
+ 	int u = uJointWar(targetId, allyId); // Compares joint war with solo war
+-	if(u < 0)
++	/*  Low u suggests that we're not sure that we'll need help. Also,
++		war evaluation doesn't account for MEMORY_HIRED_WAR_ALLY and
++		CvTeam::makeUnwillingToTalk (advc.104o). */
++	if(u < 5 + 9 * ::hash(GC.getGameINLINE().getGameTurn(),
++			GET_TEAM(agentId).getLeaderID()))
+ 		return 0;
+ 	// NB: declareWarTrade applies an additional threshold
+-	int const thresh = dwtUtilityThresh;
+-	return ::round(utilityToTradeVal(std::min(u, -thresh)));
++	return ::round(utilityToTradeVal(std::min(u, -dwtUtilityThresh)));
+ }
+ 
+ int WarAndPeaceAI::Team::reluctanceToPeace(TeamTypes otherId,
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual_0.93.odt b/manual_0.93.odt reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=5 omittedFiles=4 embeddedPatchBytes=9548

@@ -1,0 +1,480 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5337
+# Commit: fb9054847f6ae68379383a1331e7296de5a6ae3d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d0c8fa479d1415e7bf00950a0ddb65ab9868582d
+# Title: add Obsoletes With panel and reorder Sevopedia Unit, fix right click working but not left click for linking, and other changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	.claude/settings.local.json
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+19	9	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+100	33	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+12	12	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index 2655bc4b0..c8cb35f05 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -6,7 +6,8 @@
+       "Bash(for:*)",
+       "Bash(done)",
+       "Bash(sort:*)",
+-      "Bash(xargs sed:*)"
++      "Bash(xargs sed:*)",
++      "Bash(python -m py_compile:*)"
+     ]
+   }
+ }
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 2f6f7a921..46411bea4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -84,8 +84,8 @@ if IS_DEBUG_LEADER:
+ # - If you change emoji settings or leader XML, you need to re-dump
+ # - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+ # === Cache dump/load config and helpers ===
+-IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED") > 0)
+-IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG") > 0)
++IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED") > 0)
++IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG") > 0)
+ # Name of the pre-dumped module (without .py extension)
+ PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
+ 
+@@ -146,7 +146,7 @@ def try_load_predumped_cache():
+ 		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
+ 	
+ 	except:
+-		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
++		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 3f312c80a..50ed9c6d2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -332,14 +332,15 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			# add the red X overlay at the same position using addDDSGFC
+ 
+ 			# Obsolete Buildings
++			# <!-- custom: use iData2=-1 instead of 1 to fix left-click not working (same pattern as SevoPediaBuilding's obsolete tech) -->
+ 			for iBuilding in obsoleteBuildings:
+ 				buildingInfo = gc.getBuildingInfo(iBuilding)
+-				screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++				screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+ 
+ 			# Obsolete Bonuses
+ 			for iBonus in obsoleteBonuses:
+ 				bonusInfo = gc.getBonusInfo(iBonus)
+-				screen.attachImageButton(panelName, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
++				screen.attachImageButton(panelName, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, -1, False)
+ 
+ 			# Obsolete Special Buildings - show individual buildings that belong to this special building type
+ 			for iSpecialBuilding in obsoleteSpecialBuildings:
+@@ -348,7 +349,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 				for iBuilding in range(gc.getNumBuildingInfos()):
+ 					buildingInfo = gc.getBuildingInfo(iBuilding)
+ 					if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
+-						screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++						screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+ 
+ 			# Obsolete Units
+ 			iActivePlayer = gc.getGame().getActivePlayer()
+@@ -357,7 +358,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 				szButton = unitInfo.getButton()
+ 				if iActivePlayer >= 0:
+ 					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
+-				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
+ 
+ 			# Now add red X overlays on top of all buttons (if enabled via SAS define)
+ 			if IS_SHOW_OBSOLETES_RED_X:
+@@ -378,19 +379,23 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 				iOverlaySize = self.RED_X_BUTTON_SIZE  # Size of the thin red X DDS (128px to fit properly)
+ 				iOverlayOffset = (iButtonSize - iOverlaySize) / 2  # Center overlay on button (will be negative if overlay > button)
+ 				iCurrentX = self.X_OBSOLETES + 10 + iOverlayOffset  # Starting position with centering offset
+-				iOverlayY = self.Y_OBSOLETES + 36 + iOverlayOffset  # Y position with centering offset
++				# <!-- custom: for some reason after switching from addDDSGFC to addDDSGFCAt to fix linking issues clicking (right click works but left click doesn't which is not consistent with how other panel's clicking works (either left only or both), the RedX has shifted vertically a bit, so we need to reduce the original + 36 added to iOverlayY -->
++				iOverlayY = self.Y_OBSOLETES + 8 + iOverlayOffset  # Y position with centering offset
+ 				iButtonSpacing = iButtonSize + 4  # Actual button spacing (64 + 4 = 68)
+ 
+ 				# Process buildings
+ 				for iBuilding in obsoleteBuildings:
+ 					szOverlayName = self.top.getNextWidgetName()
+-					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
++					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
++					# <!-- custom: overlay should not intercept clicks; disable hit testing so underlying obsolete button handles left/right click (GPT-5.2-Codex) -->
++					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
+ 					iCurrentX += iButtonSpacing
+ 
+ 				# Process bonuses
+ 				for iBonus in obsoleteBonuses:
+ 					szOverlayName = self.top.getNextWidgetName()
+-					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1)
++					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, -1, False)
++					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
+ 					iCurrentX += iButtonSpacing
+ 
+ 				# Process special buildings (individual buildings)
+@@ -399,13 +404,15 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 						buildingInfo = gc.getBuildingInfo(iBuilding)
+ 						if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
+ 							szOverlayName = self.top.getNextWidgetName()
+-							screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
++							screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
++							screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
+ 							iCurrentX += iButtonSpacing
+ 
+ 				# Process units
+ 				for iUnit in obsoleteUnits:
+ 					szOverlayName = self.top.getNextWidgetName()
+-					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1)
++					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
++					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
+ 					iCurrentX += iButtonSpacing
+ 		
+ 		else:
+@@ -703,6 +710,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	# <!-- custom: add non-tradeable (<bTrade>) tech list at the end of placeSpecial, addition with the help of chatgpt thanks. -->
++	# <!-- custom: Note: We intentionally keep all textual info here (units, buildings, civics, bonuses, builds, promotions)
++	# even though they're also displayed as buttons in the Enables panel. This duplication is helpful because
++	# users find it easier to read and scan the textual list for quick reference. (Claude code Opus 4.5) -->
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 0f3b87d34..20da016f0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -83,44 +83,71 @@ class SevoPediaUnit:
+ 		# <!-- custom: see sevopediabuilding's self.W_TOTAL_EFFECTIVE_BUILDING_PANE for differences in implementation -->
+ 		self.W_TOTAL_EFFECTIVE_UNIT_PANE = self.W_UNIT_PANE + self.W_PROMO_PANE - self.W_MERGE_PANELS_EFFECT
+ 
++		# <!-- custom: reorganized layout (Claude code Opus 4.5):
++		# Row 1 (left half): Requires (bigger) | Obsolete With (84px) | Free Promotions (small, 2 buttons)
++		# Row 2 (left half): Replaces (bigger) | Civs (84px) | Upgrades To (same W as Free Promotions)
++		# Row 2 (right half, under animation): Against Classes | Peak/Hill/City
++		# Row 3-4: Of Other Units panel (full width, 2 rows height)
++		# Row 5: Special | History -->
++
++		self.H_REQUIRES = 110
++
++		# Narrow panels width (same as SevoPediaBuilding's obsolete panel)
++		self.W_OBSOLETE_WITH = 84
++		self.W_CIVILIZATIONS = 84
++
++		# Small panels width - fits ~2 buttons with scroll if more (64px per button + padding)
++		self.W_SMALL_PANEL = 150
++
++		# Row 1 left half: Requires | Obsolete With | Free Promotions
++		self.W_FREE_PROMOTIONS = self.W_SMALL_PANEL
++
++		# Requires takes remaining space
+ 		self.X_REQUIRES = self.X_UNIT_PANE
+ 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
+-		self.W_REQUIRES = ((self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN)/ 2) 
++		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+ 		self.H_REQUIRES = 110
+ 
+-		self.X_UPGRADES_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+-		self.Y_UPGRADES_TO = self.Y_REQUIRES
+-		self.W_UPGRADES_TO = ((self.W_REQUIRES - self.MEDIUM_MARGIN)/ 2) 
+-		self.H_UPGRADES_TO = self.H_REQUIRES
++		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.Y_OBSOLETE_WITH = self.Y_REQUIRES
++		self.H_OBSOLETE_WITH = self.H_REQUIRES
+ 
+-		self.X_FREE_PROMOTIONS = self.X_UPGRADES_TO + self.W_UPGRADES_TO + self.MEDIUM_MARGIN
+-		self.Y_FREE_PROMOTIONS = self.Y_UPGRADES_TO
+-		self.W_FREE_PROMOTIONS = self.W_UPGRADES_TO
+-		self.H_FREE_PROMOTIONS = self.H_UPGRADES_TO
++		self.X_FREE_PROMOTIONS = self.X_OBSOLETE_WITH + self.W_OBSOLETE_WITH + self.MEDIUM_MARGIN
++		self.Y_FREE_PROMOTIONS = self.Y_REQUIRES
++		self.H_FREE_PROMOTIONS = self.H_REQUIRES
+ 
+-		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_PANE
+-		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.W_REQUIRES
+-		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_REQUIRES
++		# Row 2 left half: Replaces | Civs | Upgrades To (aligned under Free Promotions)
++		self.W_UPGRADES_TO = self.W_SMALL_PANEL
++		self.X_UPGRADES_TO = self.X_FREE_PROMOTIONS  # Aligned under Free Promotions
++		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
++		self.H_UPGRADES_TO = self.H_REQUIRES
+ 
+-		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
+-		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+-		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+-		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
++		# Civs aligned under Obsolete With
++		self.X_CIVILIZATIONS = self.X_OBSOLETE_WITH  # Aligned under Obsolete With
++		self.Y_CIVILIZATIONS = self.Y_UPGRADES_TO
++		self.H_CIVILIZATIONS = self.H_REQUIRES
++
++		self.X_REPLACE = self.X_UNIT_PANE
++		self.Y_REPLACE = self.Y_UPGRADES_TO
++		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - self.MEDIUM_MARGIN  # Takes remaining space (same as Requires)
++		self.H_REPLACE = self.H_REQUIRES
+ 
+ 		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; check if accurate as i don't know too much about these. -->
+ 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+ 
++		# Row 3-4: Of Other Units panel (full width, 2 rows height) - under Row 2
+ 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
+-		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.SMALL_MARGIN
++		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + self.SMALL_MARGIN
+ 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
+ 		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+ 
++		# Row 5: Special panel (left half)
+ 		self.X_SPECIAL = self.X_UNIT_PANE
+ 		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_UNIT_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
++		# Right column: Unit Animation
+ 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
+ 
+ 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
+@@ -134,22 +161,25 @@ class SevoPediaUnit:
+ 		self.Z_ROTATION_UNIT_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 1.0
+ 
+-		self.W_CIVILIZATIONS = 84
+-
+-		self.X_REPLACE = self.X_UNIT_ANIMATION
+-		self.Y_REPLACE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
+-		self.W_REPLACE = self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN - self.W_CIVILIZATIONS
+-		self.H_REPLACE = self.H_REQUIRES
++		# Row 2 right half (under animation): Against Classes (left) | Peak/Hill/City (right)
++		# <!-- custom: swapped positions - Against Classes on left, Peak/Hill/City on right -->
++		self.H_UNDER_ANIMATION_PANELS = self.H_REQUIRES
+ 
+-		self.X_CIVILIZATIONS = self.X_UNIT_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
+-		self.Y_CIVILIZATIONS = self.Y_REPLACE
++		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_ANIMATION
++		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
++		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = (self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN) / 2
++		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_UNDER_ANIMATION_PANELS
+ 
+-		self.H_CIVILIZATIONS = self.H_REPLACE
++		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
++		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
++		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
++		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
+ 
+ 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
++		# Row 5 right half: History panel - aligned with Special panel
+ 		self.X_HISTORY = self.X_UNIT_ANIMATION
+-		self.Y_HISTORY = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_SPECIAL  # Same Y as Special panel for alignment
+ 		self.W_HISTORY = self.W_UNIT_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+@@ -158,18 +188,29 @@ class SevoPediaUnit:
+ 	def interfaceScreen(self, iUnit):
+ 		self.iUnit = iUnit
+ 
++		# Row 0: Unit Pane + Promotions (left) | Animation (right)
+ 		self.placeUnitPane()
+ 		self.placeStats()
+ 		self.placePromotions()
++		self.placeUnitAnimation()
++
++		# Row 1 left: Requires | Obsolete With | Free Promotions
+ 		self.placeRequires()
+-		self.placeUpgradesTo()
++		self.placeObsoleteWith()
+ 		self.placeFreePromotions()
+-		self.placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes()
+-		self.placePeakHillCityTerrainsFeaturesModifiers()
+-		self.placeUnitAnimation()
++
++		# Row 2 left: Replaces | Civs | Upgrades To
++		# Row 2 right (under animation): Against Classes | Peak/Hill/City
+ 		self.placeReplace()
+ 		self.placeCivilizations()
++		self.placeUpgradesTo()
++		self.placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes()
++		self.placePeakHillCityTerrainsFeaturesModifiers()
++
++		# Row 3-4: Of Other Units panel (full width)
+ 		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
++
++		# Row 5: Special (left) | History (right)
+ 		self.placeSpecial()
+ 		self.placeHistory()
+ 
+@@ -898,6 +939,32 @@ class SevoPediaUnit:
+ 
+ 
+ 
++	# <!-- custom: placeObsoleteWith - mirrors SevoPediaBuilding's obsolete with panel (Claude code Opus 4.5) -->
++	def placeObsoleteWith(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++
++		# Create panel with proper styling - use same text key as SevoPediaBuilding
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
++		# Additional left side padding for the button(s)
++		screen.attachLabel(panelName, "", "  ")
++
++		unitInfo = gc.getUnitInfo(self.iUnit)
++
++		# Check if the unit has an obsolete tech
++		iObsoleteTech = unitInfo.getObsoleteTech()
++
++		if iObsoleteTech != -1:
++			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
++		else:
++			# No obsolete tech - show "Never" message (same as SevoPediaBuilding)
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
++			yCenterPanel = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
++			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yCenterPanel, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -910,7 +977,7 @@ class SevoPediaUnit:
+ 		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
+ 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index b0df5bdcd..e6b761c08 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -11,31 +11,31 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
++	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #132 -->
+ 	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
+ 	Set to 0 to compute at runtime  -->
+ 	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED</DefineName>
++		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later). Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such. -->
++	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later). Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such. -->
+ 	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG</DefineName>
++		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
+-	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+-	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.  -->
++	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.  -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
++	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
+ 	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
++		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index aedf5bb75..f573d23ca 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9796,7 +9796,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 			szBuffer.append(szTempBuffer);
+ 		}
+ 	} // </advc.905b>
+-	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar), so safe to remove and uneeded to keep now. -->
++	// <!-- custom: in sevopedia, remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except defensive bonus" or something similar), so safe to remove and uneeded to keep now. -->
+ 	if (!bCivilopediaText)
+ 	{
+ 		bool bFirst = true;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index fa64ba0fa..53f4dcf23 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -257,6 +257,8 @@ Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for
+ 
+ More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
+ 
++Then, i added a new Obsolete With panel similarly to how was done in sevopedia building, with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!
++
+ <img src="../Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (2).JPG" alt="0.680_sevopedia_units (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (3).JPG" alt="0.680_sevopedia_units (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG
+index 15f8b38ac..a326131d5 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG
+index ab1925948..06fc725be 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (1).JPG
+index 44d495488..a807ca507 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (2).JPG
+index e15cd3aaf..c0a4c4205 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG
+index 7541f8d8e..8b305bec6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG
+index 2e57873da..039230b3d 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG
+index c952d63f7..97bfd2d31 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=2 bytes=3074
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=14 omittedFiles=1 embeddedPatchBytes=31989

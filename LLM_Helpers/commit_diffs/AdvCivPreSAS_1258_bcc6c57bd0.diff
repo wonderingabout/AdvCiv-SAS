@@ -1,0 +1,263 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1258
+# Commit: bcc6c57bd0dd9496cbe34988fa22b0bab53bf7d5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e2f43585cfac3c4d7a3e3355a5f4813a03d05c39
+# Title: v0.81: UWAI made less aggressive towards humans in the first 100 turns. (After getting Archer rushed over a long distance in a test game on Emperor difficulty.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/WarEvaluator.cpp
+77	43	CvGameCoreDLL/WarUtilityAspect.cpp
+2	0	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index eac1d938b..66e7ccac2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8379,7 +8379,7 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 	limit = std::min(limit, 1 + turnsShared / div);
+ 	r += range((int)(theirContribution /
+ 			// This divisor seems to produce roughly the result I have in mind
+-			(2.5 * GC.getWAR_SUCCESS_CITY_CAPTURING() * div)), 0, limit);
++			(3.5 * GC.getWAR_SUCCESS_CITY_CAPTURING() * div)), 0, limit);
+ 	return r;
+ 	// </advc.130m>
+ }
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 7267e04ba..d2c7ed017 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -276,7 +276,7 @@ void WarEvaluator::fillWithAspects(vector<WarUtilityAspect*>& v) {
+ 	v.push_back(new UlteriorMotives(params));
+ 	v.push_back(new TacticalSituation(params));
+ 	v.push_back(new Bellicosity(params));
+-	//v.push_back(new FairPlay(params));
++	v.push_back(new FairPlay(params));
+ }
+ 
+ void WarEvaluator::evaluate(PlayerTypes weId, vector<WarUtilityAspect*>& aspects) {
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index d938fdf0a..d1aae03f1 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -510,7 +510,7 @@ bool WarUtilityBroaderAspect::concernsOnlyWarParties() const {
+ }
+ 
+ GreedForAssets::GreedForAssets(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
++	: WarUtilityAspect(params) { ourDist = -1; }
+ 
+ char const* GreedForAssets::aspectName() const { return "Greed for assets"; }
+ 
+@@ -533,7 +533,7 @@ void GreedForAssets::evaluate() {
+ 	log("Cost modifiers: %d percent for overextension, %d for defensibility",
+ 			::round(100 * overextCost), ::round(100 * defCost));
+ 	double uPlus = baseUtility * (1 - overextCost - defCost);
+-	// Mostly to make very early rushes by very peaceful leaders very unlikely
++	// Greed shouldn't motivate peaceful leaders too much
+ 	if(we->AI_getPeaceWeight() >= 7) {
+ 		double cap = 260 - 10 * we->AI_getPeaceWeight();
+ 		if(cap < uPlus) {
+@@ -577,9 +577,23 @@ double GreedForAssets::defensibilityCost() {
+ 		cities later, so, conquering cities near them could also be an advantage. */
+ 	double threatFactor = 0;
+ 	initCitiesPerArea();
++	ourDist = medianDistFromOurConquests(weId);
+ 	for(size_t i = 0; i < properCivs.size(); i++)
+ 		threatFactor += threatToCities(properCivs[i]);
+ 	freeCitiesPerArea();
++	CvGame const& g = GC.getGameINLINE();
++	if(ourDist > 5 && !g.isOption(GAMEOPTION_NO_BARBARIANS) &&
++			g.getCurrentEra() < 2) {
++		double barbThreat = 1;
++		if(g.isOption(GAMEOPTION_RAGING_BARBARIANS))
++			barbThreat *= 1.5;
++		barbThreat *= ourDist / 60;
++		barbThreat = std::min(0.25, barbThreat);
++		if(barbThreat > 0.005)
++			log("Threat factor from barbarians: %d percent",
++					::round(barbThreat * 100));
++		threatFactor += barbThreat;
++	}
+ 	if(threatFactor <= 0)
+ 		return 0;
+ 	// A little arcane
+@@ -606,6 +620,7 @@ double GreedForAssets::threatToCities(PlayerTypes civId) {
+ 	if(civ.getTeam() == agentId || civ.getTeam() == TEAMID(theyId) ||
+ 			GET_TEAM(civ.getTeam()).isAVassal() ||
+ 			!agent.isHasMet(civ.getTeam()) ||
++			we->getCapitalCity() == NULL ||
+ 			civ.getCapitalCity() == NULL ||
+ 			!we->AI_deduceCitySite(civ.getCapitalCity()) ||
+ 			(!civ.isHuman() && civ.AI_getAttitude(weId) >= ATTITUDE_FRIENDLY))
+@@ -629,40 +644,37 @@ double GreedForAssets::threatToCities(PlayerTypes civId) {
+ 			pos->second <= (int)weConquerFromThem.size() / 2)
+ 		return 0;
+ 	// Only worry about civs that are closer to our conquests than we are
+-	vector<double> civDistances;
+-	vector<double> ourDistances;
+-	for(size_t i = 0; i < weConquerFromThem.size(); i++) {
+-		City* cp = ourCache->lookupCity(weConquerFromThem[i]);
+-		if(cp == NULL) continue; City const& c = *cp;
+-		int d = c.getDistance();
+-		if(d < 0) d = INT_MAX; // -1 means unreachable
+-		ourDistances.push_back(d);
+-	}
++	double ourDist = medianDistFromOurConquests(weId);
++	double civDist = medianDistFromOurConquests(civId);
++	if(5 * civDist >= 4 * ourDist || civDist > 10)
++		return 0;
++	log("Dangerous civ near our conquests: %s (dist. ratio %d/%d)",
++			report.leaderName(civ.getID()), ::round(civDist), ::round(ourDist));
++	double powerRatio = std::max(0.0, civPower / std::max(10.0, ourPower) - 0.1);
++	FAssert(powerRatio > 0);
++	return powerRatio * powerRatio;
++}
++
++double GreedForAssets::medianDistFromOurConquests(PlayerTypes civId) {
++
++	CvPlayerAI const& civ = GET_PLAYER(civId);
++	vector<double> distances;
+ 	for(size_t i = 0; i < weConquerFromThem.size(); i++) {
+ 		/*  Cheating a bit: We know where the capital of 'civ' is, but the
+ 			distance info is based on all of 'civ' cities. For a human,
+ 			it's almost always easy to tell whether one civ is closer to a set
+ 			of cities than another, so the AI figuring it out magically isn't
+-			really an issue to me. */
++			really an issue for me. */
+ 		City* cp = civ.warAndPeaceAI().getCache().lookupCity(weConquerFromThem[i]);
+ 		if(cp == NULL) continue; City const& c = *cp;
+ 		int d = c.getDistance();
+-		if(d < 0) d = INT_MAX;
+-		civDistances.push_back(d);
+-	}
+-	double civDist = 10000;
+-	double ourDist = 10000;
+-	if(!civDistances.empty())
+-		civDist = ::median(civDistances);
+-	if(!ourDistances.empty())
+-		ourDist = ::median(ourDistances);
+-	if(5 * civDist >= 4 * ourDist || civDist > 10)
+-		return 0;
+-	log("Dangerous civ near our conquests: %s (dist. ratio %d/%d)",
+-			report.leaderName(civ.getID()), ::round(civDist), ::round(ourDist));
+-	double powerRatio = std::max(0.0, civPower / std::max(10.0, ourPower) - 0.1);
+-	FAssert(powerRatio > 0);
+-	return powerRatio * powerRatio;
++		if(d < 0) d = INT_MAX; // -1 means unreachable
++		distances.push_back(d);
++	}
++	double r = INT_MAX;
++	if(!distances.empty())
++		r = ::median(distances);
++	return r;
+ }
+ 
+ double GreedForAssets::competitionMultiplier() {
+@@ -1919,6 +1931,11 @@ KingMaking::KingMaking(WarEvalParameters& params)
+ 
+ int KingMaking::preEvaluate() {
+ 
++	/*  Never too early to think about winning, but need to reduce the frequency
++		of very early wars. */
++	if(GC.getGameINLINE().getCurrentEra() <= GC.getGameINLINE().getStartEra() &&
++			we->getCurrentEra() < 3)
++		return 0;
+ 	/*  Three classes of civs; all in the best non-empty category are likely
+ 		winners in our book. */
+ 	// I: Civs at victory stage 4
+@@ -2954,27 +2971,44 @@ FairPlay::FairPlay(WarEvalParameters& params) : WarUtilityAspect(params) {}
+ 
+ void FairPlay::evaluate() {
+ 
+-	/*  Very early rushes are a bit unfair if one civ starts with more units
+-		than another. I think (especially) the Effort cost will discourage
+-		AI rushes sufficiently.
+-		Currently disabled in WarEvaluator::fillWithAspects.
+-		Not tested. */
+ 	CvGame& g = GC.getGameINLINE();
+-	if(g.getCurrentEra() > g.getStartEra())
++	/*  Assume that AI-on-AI wars are always fair b/c they have the same handicap.
++		Not actually true in e.g. EarthAD1000 scenario. Still, early attacks on
++		AI civs aren't a serious problem. */
++	if(g.getCurrentEra() > 0 || !they->isHuman() || we->isHuman() ||
++			m->getWarsDeclaredBy(weId).count(theyId) <= 0)
+ 		return;
+-	int ourUnits = initialMilitaryUnits(weId);
+-	if(ourUnits <= 0) return;
+-	int theirUnits = initialMilitaryUnits(theyId);
+-	if(theirUnits >= ourUnits) return;
+-	double uMinus = 35;
+-	if(theirUnits > 0)
+-		uMinus = 10 * ourUnits / theirUnits;
+-	log("Our starting military: %d units, theirs: %d units", ourUnits, theirUnits);
+-	u -= ::round(uMinus);
++	CvHandicapInfo& h = GC.getHandicapInfo(g.getHandicapType());
++	/*  Mostly care about Archery, which has power 6. The Wheel isn't unfair
++		(power 4). BW and IW have power 8 and 10. */
++	/*bool powerTechFound = false;
++	for(int i = 0; i < GC.getNumTechInfos(); i++) {
++		if(h.isAIFreeTechs(i) && GC.getTechInfo((TechTypes)i).
++				getPowerValue() >= 5) {
++			powerTechFound = true;
++			break;
++		}
++	}
++	if(!powerTechFound)
++		return;*/
++	/*  Actually, never mind checking for starting tech. Don't want early rushes
++		on low difficulty either, and on King the AI doesn't get Archery, but lots
++		of other freebies. */
++	int trainPercent = GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent();
++	if(trainPercent <= 0) {
++		FAssert(trainPercent > 0);
++		return;
++	}
++	int t = ::round(g.getElapsedGameTurns() / (trainPercent / 100.0));
++	/*  All bets off by turn 100, but, already by turn 50, the cost may
++		no longer be prohibitive. */
++	double uMinus = std::pow((100 - t) / 2.0, 1.28);
++	u -= std::max(0, ::round(uMinus));
+ }
+ 
+ int FairPlay::initialMilitaryUnits(PlayerTypes civId) {
+ 
++	// (this function isn't currently used)
+ 	CvPlayer const& civ = GET_PLAYER(civId);
+ 	CvHandicapInfo& h = GC.getHandicapInfo(civ.getHandicapType());
+ 	// DefenseUnits aren't all that defensive
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 7fab282ef..5ff1b9a4a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -143,9 +143,11 @@ private:
+ 	void freeCitiesPerArea();
+ 	double overextensionCost();
+ 	double defensibilityCost();
++	double medianDistFromOurConquests(PlayerTypes civId);
+ 	double threatToCities(PlayerTypes civId);
+ 	double competitionMultiplier();
+ 	std::map<int,int>* citiesPerArea[MAX_CIV_PLAYERS];
++	double ourDist;
+ };
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=9371

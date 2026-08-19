@@ -1,0 +1,102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 533
+# Commit: ff9c7aacf1578743d1de9ce3951f44fa72b1ffb4
+# History segment: K-Mod history
+# Parent used for diff: 821f067722f857a040493ea399391899ba089fdc
+# Title: The starting position normalizer now values river plots more highly than before. When units are bumped to a different plot, their mission queue is now cleare...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/LeadFromBehind_GlobalDefines.xml
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+4	0	CvGameCoreDLL/CvUnit.cpp
+3	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	PublicMaps/not_too_Big_or_Small.py
+
+[PATCHES]
+
+diff --git a/Assets/xml/LeadFromBehind_GlobalDefines.xml b/Assets/xml/LeadFromBehind_GlobalDefines.xml
+index 9737baf81..9d64bb20d 100644
+--- a/Assets/xml/LeadFromBehind_GlobalDefines.xml
++++ b/Assets/xml/LeadFromBehind_GlobalDefines.xml
+@@ -1,5 +1,5 @@
+ <?xml version="1.0"?>
+-<!-- Global Defines for Lead From Behind mod by Uncut Dragon -->
++<!-- Global Defines for Lead From Behind mod by Uncut Dragon, rebalanced by Karadoc -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 	<Define>
+ 		<DefineName>LFB_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index db9fb3d46..3a0a31c7d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3249,7 +3249,7 @@ short CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet)
+ 			{
+ 				//iTempValue += 10;
+ 				// K-Mod
+-				iTempValue += (kSet.bFinancial ? 25 : 5);
++				iTempValue += (kSet.bFinancial || kSet.bStartingLoc) ? 25 : 5;
+ 				iTempValue += (pPlot->isRiver() ? 15 : 0);
+ 			}
+ 			// K-Mod
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a550c1a54..cbf02ef55 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3088,6 +3088,10 @@ bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
+ 	bool bValid = true;
+ 	if (pBestPlot != NULL)
+ 	{
++		// K-Mod. If a unit is bumped, we should clear their mission queue
++		if (pBestPlot != plot())
++			getGroup()->clearMissionQueue();
++		// K-Mod end
+ 		setXY(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), bGroup);
+ 	}
+ 	else
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5434b0cad..919300678 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1411,11 +1411,13 @@ void CvUnitAI::AI_settleMove()
+ 			{
+ 				return;
+ 			}
++			/* original bts code
+ 			if (AI_safety())
+ 			{
+ 				return;
+ 			}
+-			getGroup()->pushMission(MISSION_SKIP);
++			getGroup()->pushMission(MISSION_SKIP); */
++			// fallthrough. There might be something useful we can do. eg. AI_handleStranded!
+ 		}
+ 	}
+
+diff --git a/PublicMaps/not_too_Big_or_Small.py b/PublicMaps/not_too_Big_or_Small.py
+index 5801bb587..871f121e8 100644
+--- a/PublicMaps/not_too_Big_or_Small.py
++++ b/PublicMaps/not_too_Big_or_Small.py
+@@ -112,7 +112,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		iVerticalZones = max(1, (self.iH+iTargetSize/2) / iTargetSize)
+ 		
+ 		iTotalZones = iHorizontalZones * iVerticalZones
+-		iContinentZones = (iTotalZones+1)/2 + self.dice.get(1+(iTotalZones+1)/4, "number of 'big' zones")
++		iContinentZones = (iTotalZones+1)/2 + self.dice.get(1+(iTotalZones-1)/2, "number of 'big' zones")
+ 		iIslandZones = iTotalZones - iContinentZones
+ 		
+ 		zone_types = [0] * iTotalZones
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=2780

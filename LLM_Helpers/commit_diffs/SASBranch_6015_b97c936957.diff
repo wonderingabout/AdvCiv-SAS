@@ -1,0 +1,165 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6015
+# Commit: b97c9369572c86bab4c9d9c27ab8547fd8797648
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 69dfeb2f51d56e8ee40e7259138f4371aeda8eae
+# Title: Refine AI first-city scouting returns to preserve strong new sites without undoing useful exploration
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	5	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+19	13	CvGameCoreDLL/CvUnitAI.cpp
+7	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 97c350543..f49217b2a 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -112,15 +112,13 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Do NOT commit changes without explicit user approval - wait for review at the end.
+ - Preserve problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
+ - Pattern: Keep technical details and "why" verbose, remove conversational filler
++- If sentences in comments are long, make a few natural/logical sentence(s) lines rather than wrapping at a certain character count awkwardly mid-sentence, so it reads and is easier to maintain for agents and perhaps users too, while still being compact enough.
+ 
+ ## Comment Style Example
+ 
+ ```cpp
+-// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
+-// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
+-// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+-// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
+-// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
++// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers. This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
++// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+ // Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.3-Codex) -->
+ ```
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2d5caeb72..73bc4afe7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -168,8 +168,10 @@ static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes
+ 	return iUnrevealedPlots;
+ }
+ 
+-// <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking. Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
+-static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerAI const& kOwner, int iSearchRange, int iTravelValuePerTurn, int& iRawValue, int& iAdjustedValue, int& iPathTurns)
++// <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking.
++// The early deadline can instead protect the best raw-value site, using travel cost only to break exact ties, so wandering cannot progressively replace it with weaker nearby sites.
++// Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
++static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerAI const& kOwner, int iSearchRange, int iTravelValuePerTurn, bool bPrioritizeRawValue, int& iRawValue, int& iAdjustedValue, int& iPathTurns)
+ {
+ 	CvPlot* pBestPlot = NULL;
+ 	iRawValue = -MAX_INT;
+@@ -185,7 +187,8 @@ static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerA
+ 			continue;
+ 		const int iLoopRawValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+ 		const int iLoopAdjustedValue = iLoopRawValue - iTravelValuePerTurn * iLoopPathTurns;
+-		if (iLoopAdjustedValue > iAdjustedValue)
++		const bool bBetterSite = (bPrioritizeRawValue ? (iLoopRawValue > iRawValue || (iLoopRawValue == iRawValue && iLoopAdjustedValue > iAdjustedValue)) : iLoopAdjustedValue > iAdjustedValue);
++		if (bBetterSite)
+ 		{
+ 			pBestPlot = &kLoopPlot;
+ 			iRawValue = iLoopRawValue;
+@@ -196,11 +199,8 @@ static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerA
+ 	return pBestPlot;
+ }
+ 
+-// <!-- custom: High-detail diagnostics for fickle first-city starting-site choices. The BFC tile dump itself is generic,
+-// but this helper is first-city-specific as of now because it logs first-city found values, path turns, and the
+-// roam/scout/found context that chose the candidate. At BBAI unit log level 3, log the evaluated city plot plus every
+-// revealed BFC tile with coordinates, yields, terrain/feature, bonus, and fresh-water/river state, so
+-// Karakorum/Beijing-style first-city decisions are reviewable from BBAI.log without guessing from screenshots. (GPT-5.5) -->
++// <!-- custom: High-detail diagnostics for fickle first-city starting-site choices. The BFC tile dump itself is generic, but this helper is first-city-specific as of now because it logs first-city found values, path turns, and the roam/scout/found context that chose the candidate.
++// At BBAI unit log level 3, log the evaluated city plot plus every revealed BFC tile with coordinates, yields, terrain/feature, bonus, and fresh-water/river state, so Karakorum/Beijing-style first-city decisions are reviewable from BBAI.log without guessing from screenshots. (GPT-5.5) -->
+ static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int iFoundValue, int iAdjustedValue, int iPathTurns)
+ {
+ 	int iFoodBonuses = 0;
+@@ -3806,19 +3806,25 @@ bool CvUnitAI::AI_foundFirstCity()
+ 			int iBestEarlyReturnRawValue = -MAX_INT;
+ 			int iBestEarlyReturnAdjustedValue = -MAX_INT;
+ 			int iBestEarlyReturnPathTurns = -1;
+-			CvPlot* pBestEarlyReturnPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns);
+-			// <!-- custom: The configured maximum should bound the whole capital search, not only outbound exploration. In save file 431, Cuzco previously scouted through turn 7 and then spent three more turns returning to (38,44); in save file 360, Karakorum similarly returned four turns to (50,40). Commit when one more scouting turn plus the best known return would exceed the deadline. At exact equality, commit only when already at the best site: this lets Aztec found strong (34,24) in save file 431 instead of taking a pointless last step, while still letting Cuzco reveal (38,44) rather than returning prematurely to (41,46). Queue FOUND behind a return move so arrival cannot restart scouting as happened in an earlier attempted return guard. (GPT-5.5) -->
++			CvPlot* pBestEarlyReturnPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, true, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns);
++			const bool bRawBestIsAbandonedScoutOrigin = (pBestEarlyReturnPlot != NULL && pBestEarlyReturnPlot == pFirstCityScoutOrigin);
++			if (bRawBestIsAbandonedScoutOrigin)
++				pBestEarlyReturnPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, false, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns);
++			// <!-- custom: The configured maximum should bound the whole capital search, not only outbound exploration. In save file 431, Cuzco previously scouted through turn 7 and then spent three more turns returning to (38,44); in save file 360, Karakorum similarly returned four turns to (50,40). Commit when one more scouting turn plus the best raw-value known return would exceed the deadline; travel cost only breaks an exact raw-value tie here.
++			// A later save-file-442 Berlin test wandered from (35,10) to (39,19), where travel adjustment made nearby (41,18), raw value 3640, beat the stronger newly discovered (33,13), raw value 3961, because the latter was now five return turns away. Protecting a newly discovered raw-value winner makes the settler turn back before its own wandering can replace the best site; BBAI retesting fixed Berlin by founding at (33,13) on turn 7 instead of (41,18).
++			// Save-file-431 follow-up testing showed why the remembered scout origin is different: Cuzco deliberately left poor (41,46), but its fully revealed raw value 3488 later beat still-partly-fogged nearby (38,44) at 3355 and pulled the settler back. When the raw winner is the abandoned scout origin, keep travel-adjusted selection so nearby exploration can finish instead of undoing it. Final three-map BBAI retesting preserved Berlin at (33,13) and Karakorum at (50,40), and restored Cuzco to (38,44).
++			// At exact equality, commit only when already at the best site: this lets Aztec found strong (34,24) in save file 431 instead of taking a pointless last step. Queue FOUND behind a return move so arrival cannot restart scouting as happened in an earlier attempted return guard. (GPT-5.5) -->
+ 			const int iFirstCityScoutAndReturnTurn = kGame.getElapsedGameTurns() + 1 + iBestEarlyReturnPathTurns;
+ 			if (pBestEarlyReturnPlot != NULL && (iFirstCityScoutAndReturnTurn > iMaxTurnsToFound || (iFirstCityScoutAndReturnTurn == iMaxTurnsToFound && at(*pBestEarlyReturnPlot))))
+ 			{
+ 				if (at(*pBestEarlyReturnPlot))
+ 				{
+-					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d at best travel-adjusted site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
++					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d at best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+ 					getGroup()->pushMission(MISSION_FOUND);
+ 				}
+ 				else
+ 				{
+-					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d and committing return from %d,%d to best travel-adjusted site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
++					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d and committing return from %d,%d to best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+ 					pushGroupMoveTo(*pBestEarlyReturnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
+ 					getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
+ 				}
+@@ -3916,7 +3922,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 		int iBestPostScoutRawValue = -MAX_INT;
+ 		int iBestPostScoutAdjustedValue = -MAX_INT;
+ 		int iBestPostScoutPathTurns = -1;
+-		CvPlot* pBestPostScoutPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
++		CvPlot* pBestPostScoutPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, false, iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
+ 		// <!-- custom: First-city scouting previously ended by blindly founding under the settler. In the Karakorum test, the seven-turn scout ended on 52,45 (value 1907) despite revealed 49,43 scoring 6806. Once scouting ends, reconsider all revealed reachable sites by complete found value with the tunable return-travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
+ 		if (pBestPostScoutPlot != NULL && !at(*pBestPostScoutPlot))
+ 		{
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index b7d3306b1..b40f8be4a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -5428,6 +5428,13 @@ First-city scouting efficiency follow-up:
+ - Before each further generic scouting step, the settler now compares its current plot and other revealed reachable sites by complete found value minus `SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN` for each return-path turn. If another step would make the best return exceed the search window, it commits to that site; movement and founding are queued together so the settler cannot restart scouting on arrival. The current plot is included so a strong site such as Aztec `(34,24)` is not abandoned for a weaker return target.
+ - Final regression testing preserved Berlin `(33,13)` on turn 6 in save file 442. Karakorum committed on turn 5 to `(50,40)` two turns away in save file 360, and Cuzco committed on turn 5 to `(38,44)` two turns away instead of founding around turn 10 in save file 431. The same save file 431 test kept the Aztec capital at `(34,24)` and founded it on turn 6; no return/restart loops occurred.
+ 
++Later save-file-442 Berlin return regression:
++
++- In a later run, Berlin's settler wandered from its `(35,10)` start to `(39,19)`. At turn 6, the deadline check still saw strong `(33,13)` at raw found value `3961`, but because it was now five return turns away, the travel adjustment let nearby `(41,18)` win despite its lower raw value of `3640`; Berlin then founded there.
++- The deadline now protects the highest raw found-value reachable site and uses return cost only to break an exact tie. This makes the settler turn back before its own outbound wandering can progressively replace the strongest known capital site with a weaker nearby endpoint. BBAI retesting with save file 442 fixed Berlin by founding at `(33,13)` on turn 7 instead of `(41,18)`. The post-window safety fallback still uses travel-adjusted value when choosing between returning sites.
++- Detailed regression testing then preserved Karakorum at `(50,40)` in save file 360, but exposed the opposite Cuzco case in save file 431. Cuzco had deliberately left poor `(41,46)` to keep scouting; at the deadline, that fully revealed origin still scored `3488`, while nearby `(38,44)` scored only `3355` with four BFC plots still unrevealed. Strict raw priority pulled the settler back to `(41,46)`.
++- Raw priority therefore protects a newly discovered best site, as in Berlin and Karakorum, but not the abandoned scout origin itself. When the raw winner is that origin, sites are compared after subtracting their return-path cost so nearby scouting can finish rather than being undone. Final three-map BBAI retesting preserved Berlin at `(33,13)` in save file 442 and Karakorum at `(50,40)` in save file 360, and restored Cuzco to `(38,44)` in save file 431.
++
+ ## 145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen
+ 
+ In the Military Advisor Map tab, selecting another leader was not preserved when switching to another Military Advisor tab, returning to the Map tab, or closing and reopening the advisor. The Map tab leader selection was reset to the active player each time.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8813df0a5..0ccc16ee3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -314,7 +314,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Free window:** during the first ~75 turns at Normal speed (scaled by game speed), a "free to produce settler" period lets the capital grow before switching into chosen early strategy (offense, defense, etc.).
+ - **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse "preferred" site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes).
+ - (Requires AdvCiv-SAS 5940+) **First-city roaming**: Since the first city is especially important, unlike later cities that can be more strategic or semi-decent resource grabs, starting settlers can now **roam briefly for a better first-city site when the current site is bad enough**. Settlers can spend the bounded early window to **move to visible good-enough sites**, do **safe adjacent scouting for better information**, or **wait if no safe scouting step exists**. (Requires AdvCiv-SAS 5976+) Starting-site checks use a shared **potential-food environment score** (using the same logic described under Low-food environments). Food-surplus plots offset poor plots, productive Grass Hills remain neutral, and no-yield peaks/ice receive an extra citizen-unworkable penalty because they are dead BFC slots. This keeps useful resources/coasts from looking poor while still moving away from bad tundra/plains/peak-heavy starts.
+-- (Requires AdvCiv-SAS 6009+) **First-city recheck and efficient return after scouting:** After leaving a very poor spawn location, the AI settler explores nearby unrevealed plots (fog) within a limited scouting window (in turns) instead of founding the first merely good-enough site, trying to find better first-city sites, like a human player would. Only fully revealed BFCs can interrupt scouting; before each further step, the AI settler compares its current plot and other revealed reachable sites by full city-site value minus a tunable return-path cost. The turns window includes the trip back, so the AI settler commits before further scouting would make its best return too late, then queues movement and founding together instead of restarting scouting on arrival or founding wherever scouting stopped. Empirically and as BBAI logging also showed, this helped Berlin, Karakorum, Cuzco, and the Aztecs choose strong revealed sites and found promptly in save files 442, 360, and 431. As of now this applies only to the first city, which critically benefits from extra information and founds much stronger first-city sites, while later AI settlers usually know more of the local map and so do not need to use this (so as of now disabled for them). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
++- (Requires AdvCiv-SAS 6009+) **First-city recheck and efficient return after scouting:** After leaving a very poor spawn location, the AI settler explores nearby unrevealed plots (fog) within a limited scouting window (in turns) instead of founding the first merely good-enough site, trying to find better first-city sites, like a human player would. Only fully revealed BFCs can interrupt scouting; before each further step, the AI settler protects the strongest newly discovered reachable site by full city-site value, with the tunable return-path cost breaking exact ties. If the raw-value winner is instead the poor scout origin it deliberately left, sites are compared after subtracting their return-path cost so a nearby partly revealed candidate can finish being explored instead of needlessly undoing the scouting trip. The turns window includes the trip back, so the AI settler commits before further scouting would make its strongest return too late, then queues movement and founding together instead of restarting scouting on arrival or founding wherever scouting stopped. Once this window has ended, return-path cost can still favor a nearly equal nearby site over lengthy backtracking. Empirically and as BBAI logging also showed, this helped Berlin, Karakorum, Cuzco, and the Aztecs choose strong revealed sites and found promptly in save files 442, 360, and 431. As of now this applies only to the first city, which critically benefits from extra information and founds much stronger first-city sites, while later AI settlers usually know more of the local map and so do not need to use this (so as of now disabled for them). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+ - (Requires AdvCiv-SAS 5928+) **Optional naval-heavy-map coastal settling bias:** Naval-heavy maps can now add a tunable first-city or later-city preference for coastal settling in naval-heavy maps. This should be more useful and strategically stronger in such maps, notably for coastal access, work boats, scouting/contact, trade, first galleys, Moai, or other water-focused strategies. However, following the [KI#173](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings) and related AI settler/found scoring changes, BBAI logging showed even a value of `0` correctly selects the strong Cuzco coastal site in save file 420, while Japan no longer favors the old tundra-heavy candidates that motivated this new feature. So use only a fairly small naval settling bias positive value for additional strategic coastal preference. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
+ - **Parking addressed (early game):** Reduced cases of settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` to found sooner when conditions allow. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (settler production varies somehow, but we move much sooner after we have it now). See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=24305

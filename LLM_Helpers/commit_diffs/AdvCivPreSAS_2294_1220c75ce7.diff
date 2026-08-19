@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2294
+# Commit: 1220c75ce7f8cd50d9f2deb2edcc99fe00765842
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 786861d30efedc81fb9f85fcf72648a367f8058b
+# Title: Fix rare overflow in CvCity food multiplier
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d33c407b8..d54f575c2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7356,6 +7356,9 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	iFoodMultiplier /= std::max(1, (iUnworkedPlots + iWorkedPlots) *
+ 			GC.getFOOD_CONSUMPTION_PER_POPULATION() *
+ 			(iFoodTotal-iExtraFoodForGrowth));
++	/*	advc.121: I've seen this go above 60000. I guess the formulas above
++		don't deal well with tiny cities that are supposed to grow big. */
++	iFoodMultiplier = std::min(iFoodMultiplier, 5000);
+ 
+ 	// Note: this food multiplier calculation still doesn't account for possible food yield multipliers. Sorry.
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=731

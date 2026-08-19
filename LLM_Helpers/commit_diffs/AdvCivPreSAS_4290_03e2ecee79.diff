@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4290
+# Commit: 03e2ecee79be5ac8b52873f13b99c473f8eaf4ef
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 22ea840dc8a3698853ccfbee70d40f6901246ea4
+# Title: Take back some of the fader-based city billboard enlargement
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	9	Assets/XML/Misc/CIV4DetailManager.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 165203a1e..15729c8f8 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -95,15 +95,15 @@
+ 		<Name>CITYBILLBOARD_SCALE</Name>
+ 		<!-- changes the size of the billboards based on the camera distance -->
+ 		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67).
+-			 The new values are scaled by a factor of 1.17 to accommodate
+-			 large displays better. -->
+-		<Key>500,    2.1645</Key>
+-		<Key>2500,   1.3455</Key>
+-		<Key>3800,   1.1349</Key>
+-		<Key>6000,   0.8892</Key>
+-		<Key>8500,   0.7839</Key>
+-		<Key>11500,  0.702</Key>
+-		<Key>13500,  0.6786</Key>
++			 Some 10% bigger for the medium distances to accommodate large
++			 displays better. More enlargement close up. -->
++		<Key>500,    2.00</Key>
++		<Key>2500,   1.30</Key>
++		<Key>3800,   1.10</Key>
++		<Key>6000,   0.84</Key>
++		<Key>8500,   0.75</Key>
++		<Key>11500,  0.70</Key>
++		<Key>13500,  0.67</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_HEIGHT</Name>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1073

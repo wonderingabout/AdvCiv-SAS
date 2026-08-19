@@ -1,0 +1,333 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5383
+# Commit: d2500dc40107815d6a0afef5b481b9d2073c1743
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: beac43db401678c9f5b25557b797632aa0a56eb0
+# Title: (Fixed) Base AdvCiv major CvSelectionGroup::plot crash - Finally found and fixed the fairly rare but very nasty and annoying `CvSelectionGroup::plot` recurri...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+20	4	CvGameCoreDLL/CvGameInterface.cpp
+29	6	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+7	2	CvGameCoreDLL/GroupPathFinder.cpp
+5	2	CvGameCoreDLL/RiseFall.cpp
+8	8	README.md
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+11	2	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 77f79e173..2e0ef85f4 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1096,6 +1096,10 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
+ 		return false;
+ 	}
+ 	CvSelectionGroup* pSelectedInterfaceList = gDLL->UI().getSelectionList();
++	// <!-- custom: guard missing selection list so action handling never calls CvSelectionGroup::plot on a null group; crash had null this in CvSelectionGroup::plot. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectedInterfaceList == NULL)
++		return false;
++	// <!-- custom: end guard for selection list null in action handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ 	if (kAction.getMissionType() != NO_MISSION)
+ 	{
+ 		CvPlot* pMissionPlot = NULL;
+@@ -1140,7 +1144,11 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
+ 
+ void CvGame::setupActionCache() const
+ {
+-	gDLL->UI().getSelectionList()->setupActionCache();
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: guard missing selection list so setupActionCache does not touch a null group; avoids CvSelectionGroup::plot null deref chain. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList != NULL)
++		pSelectionList->setupActionCache();
++	// <!-- custom: end guard for selection list null in setupActionCache. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ }
+ 
+ 
+@@ -1154,8 +1162,10 @@ void CvGame::handleAction(int iAction)
+ 	CvActionInfo const& kAction = GC.getActionInfo(iAction);
+ 	if (kAction.getControlType() != NO_CONTROL)
+ 		doControl((ControlTypes)kAction.getControlType());
+-	if (gDLL->UI().canDoInterfaceMode((InterfaceModeTypes)kAction.getInterfaceModeType(),
+-		gDLL->UI().getSelectionList()))
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: avoid calling canDoInterfaceMode with a null selection group to prevent CvSelectionGroup::plot null deref. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList != NULL && gDLL->UI().canDoInterfaceMode(
++		(InterfaceModeTypes)kAction.getInterfaceModeType(), pSelectionList))
+ 	{
+ 		CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
+ 		if (pHeadSelectedUnit != NULL)
+@@ -1176,6 +1186,7 @@ void CvGame::handleAction(int iAction)
+ 		gDLL->UI().setInterfaceMode((InterfaceModeTypes)
+ 				kAction.getInterfaceModeType());
+ 	}
++	// <!-- custom: end guard for selection list null in interface-mode handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ 	if (kAction.getMissionType() != NO_MISSION)
+ 	{
+ 		selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, kAction.getMissionType(),
+@@ -2221,7 +2232,12 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
+ 	case INTERFACEMODE_SAVE_PLOT_NIFS:
+ 		return eNegativeColor;
+ 	}
+-	bool bCanDoMode = gDLL->UI().getSelectionList()->
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: return safe highlight color if no selection list to avoid null selection group access during plot highlight. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList == NULL)
++		return eNegativeColor;
++	// <!-- custom: end guard for selection list null in plot highlight color. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	bool bCanDoMode = pSelectionList->
+ 			canDoInterfaceModeAt(gDLL->UI().getInterfaceMode(), pPlot);
+ 	// <advc.653>
+ 	if (updateNukeAreaOfEffect(bCanDoMode ? pPlot : NULL))
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 54ef5344c..3057569a6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2665,7 +2665,12 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	if (iLengthSelectionList <= 0)
+ 		return false;
+ 	// advc.048:
+-	CvSelectionGroupAI const& kSelectionList = gDLL->UI().getSelectionList()->AI();
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: guard selection list null before AI queries to prevent CvSelectionGroup::plot null deref in combat help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList == NULL)
++		return false;
++	// <!-- custom: end guard for selection list null in combat help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	CvSelectionGroupAI const& kSelectionList = pSelectionList->AI();
+ 	bool bValid = false;
+ 	switch (kSelectionList.getDomainType())
+ 	{
+@@ -5951,11 +5956,13 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
+ 			}
+ 		}
+ 	}
+-	if (iExcessStrength != 0 && pSelectedUnit != NULL)
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: selection list can be null during UI help; avoid iterating and calling CvSelectionGroup::plot indirectly. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (iExcessStrength != 0 && pSelectedUnit != NULL && pSelectionList != NULL)
+ 	{
+ 		int iSelected = 0;
+ 		int iSelectedStrength = 0;
+-		FOR_EACH_UNIT_IN(pUnit, *gDLL->UI().getSelectionList())
++		FOR_EACH_UNIT_IN(pUnit, *pSelectionList)
+ 		{
+ 			int iStr = pUnit->garrisonStrength();
+ 			if (iStr != 0)
+@@ -5973,6 +5980,7 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
+ 					intdiv::uround(iSelectedStrength, 100)));
+ 		}
+ 	}
++	// <!-- custom: end guard for selection list null in revolt help strength summary. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ }
+ 
+ 
+@@ -21320,7 +21328,12 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
+ 	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+ {
+-	CvUnit const* pBestSelectedUnit = gDLL->UI().getSelectionList()->AI().
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: guard null selection list so air-bomb help does not call into AI on a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList == NULL)
++		return;
++	// <!-- custom: end guard for selection list null in air-bomb help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	CvUnit const* pBestSelectedUnit = pSelectionList->AI().
+ 			AI_bestUnitForMission(MISSION_AIRBOMB, &kPlot);
+ 	if (pBestSelectedUnit == NULL || !pBestSelectedUnit->canAirBombAt(kPlot))
+ 		return;
+@@ -21399,10 +21412,15 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
+ void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot,
+ 	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+ {
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: guard null selection list so air-strike help does not query AI on a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList == NULL)
++		return;
++	// <!-- custom: end guard for selection list null in air-strike help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ 	int iOddsDummy=-1;
+ 	bool const bMaxSurvival = GC.altKey(); // advc.048
+ 	// Matching the call in CvSelectionGroup::groupAttack
+-	CvUnit const* pBestSelectedUnit = gDLL->UI().getSelectionList()->AI().
++	CvUnit const* pBestSelectedUnit = pSelectionList->AI().
+ 			AI_getBestGroupAttacker(&kPlot,
+ 			false, iOddsDummy, false, false,
+ 			!bMaxSurvival, bMaxSurvival); // advc.048
+@@ -21414,9 +21432,14 @@ void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot,
+ void CvGameTextMgr::getParadropPlotHelp(CvPlot const& kPlot,
+ 	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+ {
++	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
++	// <!-- custom: guard null selection list so paradrop help does not iterate a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pSelectionList == NULL)
++		return;
++	// <!-- custom: end guard for selection list null in paradrop help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ 	CvUnit const* pBestSelectedUnit = NULL;
+ 	int iMaxEvasionProb = MIN_INT;
+-	FOR_EACH_UNIT_IN(pUnit, *gDLL->UI().getSelectionList())
++	FOR_EACH_UNIT_IN(pUnit, *pSelectionList)
+ 	{
+ 		int iLoopProb = pUnit->evasionProbability();
+ 		if (iLoopProb > iMaxEvasionProb)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 94cfd83c8..a1edd3364 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -16293,7 +16293,7 @@ bool CvUnitAI::AI_evacuateCity()
+ 		return false;
+ 
+ 	// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
+-	// <!-- custom: important note!! You need at least 2 autoplay runs ON A ROW (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
++	// <!-- custom: important note!! You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
+ 	// scaled rEvacProb = 1;
+ 	// /*  Units that don't receive def. modifiers should always evacuate.
+ 	// 	AI_defensiveCollateral can still happen, but not when the threat ratio is
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index ce8a70056..c45fef5af 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -811,8 +811,13 @@ void GroupPathFinder::invalidateGroup(CvSelectionGroup const& kGroup)
+ 
+ bool GroupPathFinder::generatePath(CvPlot const& kTo)
+ {
+-	FAssertMsg(m_stepMetric.getGroup() != NULL, "Must call SetSettings before GeneratePath");
+-	return generatePath(m_stepMetric.getGroup()->getPlot(), kTo);
++	CvSelectionGroup const* pGroup = m_stepMetric.getGroup();
++	FAssertMsg(pGroup != NULL, "Must call SetSettings before GeneratePath");
++	// <!-- custom: guard missing group in release builds so pathfinder does not call getPlot on null; avoids CvSelectionGroup::plot crash path. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	if (pGroup == NULL)
++		return false;
++	// <!-- custom: end guard for missing group in pathfinder. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++	return generatePath(pGroup->getPlot(), kTo);
+ }
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 0f0a34e90..ec4c70168 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -690,8 +690,11 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
+ 			gDLL->UI().lookAtSelectionPlot();
+ 		}
+ 		// Without this, units outside owner's borders don't appear on the main interface.
+-		if(gr->plot()->getOwner() != civId)
+-			gr->plot()->updateCenterUnit();
++		CvPlot* pGroupPlot = gr->plot();
++		// <!-- custom: guard null group plot so updateCenterUnit does not follow a null plot during abandonPlans; avoids CvSelectionGroup::plot crash path. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
++		if(pGroupPlot != NULL && pGroupPlot->getOwner() != civId)
++			pGroupPlot->updateCenterUnit();
++		// <!-- custom: end guard for null group plot in abandonPlans. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+ 		/* ^Perhaps no longer needed due to a change in CvPlot::updateVisibility
+ 			(advc.061). Should test this some time. */
+ 	}
+
+diff --git a/README.md b/README.md
+index 9c5427933..2dc01b8ce 100644
+--- a/README.md
++++ b/README.md
+@@ -6,9 +6,13 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (item grouping, new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel and other in-category charts, Movies (with audio support), Music with the ~1750 audio scripts of AdvCiv-SAS that can be listened to), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular:
+ 
+-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc); new Advisor screens (e.g. History Tab in the Info Screen Advisor).
++- UI: Sevopedia (item grouping, new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel and other in-category charts, Movies (with audio support), Music with the ~1750 audio scripts of AdvCiv-SAS that can be listened to)
++- UI: Most Advisor screens reworked or new ones (e.g. History Tab in the Info Screen Advisor), and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++- Mechanics: new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units)
++
++Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+@@ -541,11 +545,7 @@ A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGa
+ 
+ To use it, rename old base 18 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
+ 
+-I have run a test run for fun and to test it too, as well as documented this DLL i tried for the first time xd, and to answer [this](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316) CFC forum request.
+-
+-See [google drive link here](https://drive.google.com/drive/folders/1wTLu7SdP3aeKOWPjtP_ORcDT2Bpdef3b?usp=sharing) for files and screenshots of this run
+-
+- All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map.
++All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map.
+ 
+ Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
+ 
+@@ -658,7 +658,7 @@ According to chatgpt 5, these may not have been MAF and the .dmp file (see for d
+ 
+ If not, it might be a bug to fix or something. I don't know too much about these, but i fixed a few such reproducible bugs through (painfully xd but successfully seemingly did) trial and error.
+ 
+-Our game should be as of now mostly if not really stable, i very rarely encounter crashes, and if they do it's generally very late in the game. Now i know that some of these could simply be "temporary" crashes and not real bugs per se to fix, but as i don't know too much about these check if accurate, and i don't guarantee no crash at all to happen, just from experience it seems really rare now to the point i'd consider the game stable, as for the few that had said crashes i didn't test if they are temporary or not now but they might/may be.
++As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, the [KI#100 that fixed Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash) may also help address many such cases.
+ 
+ ## Not supported in AdvCiv-SAS
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index ba6b6bd5a..aecf8555f 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -1059,7 +1059,7 @@ Then ingame (save file load, new map, etc), press ctrl+z if your mod has this sh
+ 
+ I don't know if autoplay is a feature of base civ4 or bts or some mods that then most mods implemented check to know more (you could ask chatbots like chatgpt or such if you don't know, but their answers may be inaccurate or lead you astray, so double check or such even though they could be accurate or do web search for you or such but check to be sure) (or your best bet may be alternatively to check in cfc or such forums somewhere or google it xd)
+ 
+-Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 autoplay runs ON A ROW (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
++Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
+ 
+ ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in Sevopedia tech 's placeSpecial and in tech tree view (technology advisor)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 460eb57c5..e41ff6a7a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -133,6 +133,7 @@ hopefully helpful, thanks thanks,
+ [97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
+ [98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon)  
+ [99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#99---fixed-base-advciv-bug-of-k-mod-unwrapped-in-text-xml-text)  
++[100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2302,8 +2303,6 @@ So overall very good results it seems!
+ 
+ While doing this, i also enhanced the code of the fallback unit choice `CvCity::doTurn()` in as of now [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure) with quite similar logic as well (actually improved it while doing changes here and then ported these improvements in a relevant wayto the chooseunit function).
+ 
+-Note: i noticed during testing rare crashes at turn 90-100 in a few autoplay maps, disappears after reloading a recent save file, so did not dig further, but i found for info in the .dmp file with windbg which i don't know too much about the culprit to likely be `CvSelectionGroup::plot` or something near it, but check if accurate, and since it is only a ["temporary" crash](/README.md#temporary-crashes), not investigating further.
+-
+ Update: we as of now now favour civ-specific counter units just as much, with an optional config flag not to in sas defines.
+ 
+ Update 2: see another example of windbg usage to bugfix (i don't know too much about these but seems to help looking at these error messages and .dmp analyze results and feeding them to chatgpt 5 or such other ai for review, check if accurate): [Known issue #71](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)
+@@ -4102,3 +4101,13 @@ Fixed by adding De Gaulle specific assets with the help of Claude code Sonnet 4.
+ ```
+ 
+ Fixed this based advciv bug, as of now in [Civ4GameText_K-Mod.xml](/Assets/XML/Text/Civ4GameText_K-Mod.xml).
++
++## 100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1UlG0EloFY2b9bFoAb6Mw9d9Y_BaHbM0b?usp=sharing).
++
++Finally found and fixed the fairly rare but very nasty and annoying `CvSelectionGroup::plot` recurring and reproducible crash.
++
++Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as part of implementing Terrain Yield Changes, and committed just the fix separately.
++
++See files for details about the fix.
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=4 bytes=1410
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=8 omittedFiles=2 embeddedPatchBytes=27062

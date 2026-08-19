@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4274
+# Commit: 83f12daabae3144a03d3714005b5c486fd59c613
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6eccf1d187537927e85273bb803fc81159c9c211
+# Title: Fix defeated civs not being counted for Conquest vict. stage
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/AgentIterator.h
+3	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index eaea93a17..ad7ec37c4 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -71,7 +71,8 @@ protected:
+ 				(eSTATUS == ANY_AGENT_STATUS ? CvAgents::ALL :
+ 				(eSTATUS == EVER_ALIVE ? CvAgents::CIV_EVER_ALIVE : CvAgents::VASSAL_ALIVE)) :
+ 			// These four can apply to non-major agents
+-			(eRELATION == POTENTIAL_ENEMY_OF || eRELATION == KNOWN_TO ||
++			(eRELATION == POTENTIAL_ENEMY_OF ||
++			eRELATION == KNOWN_TO || eRELATION == OTHER_KNOWN_TO ||
+ 			eRELATION == KNOWN_POTENTIAL_ENEMY_OF || eRELATION == ENEMY_OF) ?
+ 				(eSTATUS >= MAJOR_CIV ? CvAgents::MAJOR_ALIVE :
+ 				(eSTATUS >= CIV_ALIVE ? CvAgents::CIV_ALIVE : CvAgents::ALL)) :
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 33ce288c8..eac272640 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -24462,7 +24462,6 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
+ 	// first, gather some data.
+ 	int iDoWs = 0, iKnownCivs = 0, iRivalPop = 0, iStartCivs = 0,
+ 			iConqueredCivs = 0, iAttitudeWeight = 0;
+-
+ 	for (PlayerAIIter<EVER_ALIVE,OTHER_KNOWN_TO> itPlayer(getTeam());
+ 		itPlayer.hasNext(); ++itPlayer)
+ 	{
+@@ -24470,7 +24469,9 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
+ 		CvTeamAI const& kLoopTeam = GET_TEAM(kLoopPlayer.getTeam());
+ 		if (!kLoopTeam.isMajorCiv())
+ 			continue;
+-
++		/*	advc (note): Dead players retain this memory unless they get reused.
++			And also the has-met data checked by the loop header. Caveat: Accessing
++			such info at the level of teams may well fail. */
+ 		iDoWs += kLoopPlayer.AI_getMemoryCount(getID(), MEMORY_DECLARED_WAR);
+ 		/*  advc.130j: DoW memory counted times 3, but there's also decay now
+ 			and CvTeamAI::forgiveEnemies, so let's go with 2.5. */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1858

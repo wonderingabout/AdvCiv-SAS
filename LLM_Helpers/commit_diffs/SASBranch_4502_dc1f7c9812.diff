@@ -1,0 +1,276 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4502
+# Commit: dc1f7c9812b4613c1a84bfaa93e9250166d36c69
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fc9542ccc8be33f75a7b632bbd0dd01c3e932083
+# Title: remove "Production: "[...] to only keep "+1 (with Mine)" and same for all Improvements Bonus Tile Yields fix also the description to an even clearer one (if...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+60	12	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+76	11	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index fc12b35e2..0cc67d5b6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -108,6 +108,7 @@ class SevoPediaBonus:
+ 		#screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE - 18, self.W_STATS_PANE + 380 , self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(panelName, False)
++		
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iYieldChange = gc.getBonusInfo(self.iBonus).getYieldChange(k)
+ 			if (iYieldChange != 0):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 479ae82f5..83ef3f71c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -89,11 +89,24 @@ class SevoPediaImprovement:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		# advc.004y: text key was TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		listName = self.top.getNextWidgetName()
+ 		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+ 		screen.enableSelect(listName, False)
+-		info = gc.getImprovementInfo(self.iImprovement)
++
++		# <!-- custom: changes based on the same idea i
++		# applied in SevoPediaBonus.py 's placeStats function
++		# as it is similar about this at least i mean anyways
++		# i mean anyways, thanks,
++		#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
++		# <!-- custom: line removed that seemed safe to do
++		# so for i mean anyways about that at least i mean
++		# anyways, see diff with earlier code for comparison,
++		# thanks -->,
++		# <!-- custom: this part is for yields that do not
++		# require any additional tech than the one required
++		# to gain access to the ressources (for example
++		# + 2 hammer with mine, + 4 commerce with town)
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
+ 			if (iYieldChange != 0):
+@@ -102,50 +115,85 @@ class SevoPediaImprovement:
+ 					sign = "+"
+ 				else:
+ 					sign = ""
+-				szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+-				screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				# <!-- custom: change here -->
++				#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
++				szYield += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
++				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getIrrigatedYieldChange(k)
+ 			if (iYieldChange != 0):
+-				szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
+-				screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-
++				# <!-- custom: change here -->
++				#szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
++				# note: event though we don't use the %s1
++				# field anymore, the parameter is needed for
++				# localText.getText else the display shows
++				# something weird, so since we don't use it,
++				# just leave a "" instead, as long as there
++				# is something even if empty should be fine
++				# for our need i mean anyways i mean anyways,
++				# at least about this i mean anyways
++				# thanks,		
++				szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", ("", iYieldChange, gc.getYieldInfo(k).getChar()))
++				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		# <!-- custom: (it seems) no improvement of the
++		# sevopedia in base bts/advciv uses this part.
++		# Doing a global search (with vs code i mean anyways)
++		# in root civ4 folder, i found this:
++		# TXT_KEY_PEDIA_HILLS_YIELD
++		# <English>%s1: %D2%F3 (on Hills)</English>
++		# we don't currently have hills specific improvement
++		# bonuses, but may be useful if someone were to
++		# reuse these sevopedia changes i did (quite proudly)
++		# if i may say i mean anyways (but my hand or arm
++		# hurts to i am a contortionist in position while writing xd if i may say, about this at least i mean
++		# anyways.
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
+ 			if (iYieldChange != 0):
+ 				szYield = localText.getText("TXT_KEY_PEDIA_HILLS_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
+-				screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++		#<!-- custom: similarly (done) as for for/in
++		# TXT_KEY_PEDIA_HILLS_YIELD -->
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			szYield = u""
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getRiverSideYieldChange(k)
+ 			if (iYieldChange != 0):
+ 				szYield = localText.getText("TXT_KEY_PEDIA_RIVER_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
+-				screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++		# <!-- custom: this part is for yields that require an additional tech than the one required to gain access to the ressources (for example
++		# + 1 hammer with mine (requires railroad), + 1 commerce with town (requires printing press))
+ 		for iTech in range(gc.getNumTechInfos()):
+ 			for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 				szYield = u""
+ 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getTechYieldChanges(iTech, k)
+ 				if (iYieldChange != 0):
+ 					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getTechInfo(iTech).getDescription()))
+-					screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++					screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++		# 	<!-- custom: similarly (done) as for for/in
++		# TXT_KEY_PEDIA_HILLS_YIELD, at least about this
++		# i mean anyways, thanks, -->
+ 		for iCivic in range(gc.getNumCivicInfos()):
+ 			for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 				szYield = u""
+ 				iYieldChange = gc.getCivicInfo(iCivic).getImprovementYieldChanges(self.iImprovement, k)
+ 				if (iYieldChange != 0):
+ 					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getCivicInfo(iCivic).getDescription()))
+-					screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++					screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++		#<!-- custom: similarly (done) as for for/in
++		# TXT_KEY_PEDIA_HILLS_YIELD -->
+ 		for iRoute in range(gc.getNumRouteInfos()):
+ 			for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getRouteYieldChanges(iRoute, k)
+ 				if (iYieldChange != 0):										
+ 					szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey())) + u"\n"
+-					screen.appendListBoxString( listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++					screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 8c90e9108..b1a435298 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -83,7 +83,7 @@
+ 
+ 
+ 	<!-- custom -->
+-	<!--				TERRAIN CATEGORY				-->
++	<!--				TERRAINS CATEGORY				-->
+ 	<!-- custom: rename "Base Terrain" to "Terrains"
+ 	(also switching to the plural form, same as for
+ 	"Features" (no reason why not and why it was not
+@@ -269,13 +269,17 @@
+ 			<Plural>1</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- custom: using the singular form here as this is
++	only about our current (selected) improvement's
++	yields, at least about this i mean anyways i mean
++	anyways, thanks, -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
+-		<English>Natural Bonus Tile Yields</English>
+-		<French>Natural Bonus Tile Yields</French>
+-		<German>Natural Bonus Tile Yields</German>
+-		<Italian>Natural Bonus Tile Yields</Italian>
+-		<Spanish>Natural Bonus Tile Yields</Spanish>
++		<English>Improvement Bonus Tile Yields</English>
++		<French>Improvement Bonus Tile Yields</French>
++		<German>Improvement Bonus Tile Yields</German>
++		<Italian>Improvement Bonus Tile Yields</Italian>
++		<Spanish>Improvement Bonus Tile Yields</Spanish>
+ 	</TEXT>
+ 	<!-- custom: be careful, unlike what the txt key says, this
+ 	TXT_KEY_PEDIA_BONUS_YIELDS is applied to improvements category
+@@ -286,11 +290,72 @@
+ 	was "Bonus Yields", thanks, -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
+-		<English>Improvements Bonus Tile Yields</English>
+-		<French>Improvements Bonus Tile Yields</French>
+-		<German>Improvements Bonus Tile Yields</German>
+-		<Italian>Improvements Bonus Tile Yields</Italian>
+-		<Spanish>Improvements Bonus Tile Yields</Spanish>
++		<English>On Ressources Extra Improvements Bonus Tile Yields</English>
++		<French>On Ressources Extra Improvements Bonus Tile Yields</French>
++		<German>On Ressources Extra Improvements Bonus Tile Yields</German>
++		<Italian>On Ressources Extra Improvements Bonus Tile Yields</Italian>
++		<Spanish>On Ressources Extra Improvements Bonus Tile Yields</Spanish>
++	</TEXT>
++	<!-- custom: "Food: +1F (with Irrigation)" becomes
++	now "+1F (with Irrigation)", remove the uneeded
++	"%s1: " too now at least about this i mean anyways,
++	see placeYield in SevoPediaImprovement.py for
++	details, thanks, -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_IRRIGATED_YIELD</Tag>
++		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
++		<English>%D2%F3 (with Irrigation)</English>
++		<French>%D2%F3 (avec irrigation)</French>
++		<German>Modernisierung %s1: %D2%F3 (mit Bew&#228;sserung)</German>
++		<Italian>%D2%F3 (con irrigazione)</Italian>
++		<Spanish>%D2 %F3 (con riego)</Spanish>
++	</TEXT>
++	<!-- custom: for the german translation the	text was/
++	looks(ed) weird so i applied the english one instead at
++	least about this i mean anyways, thanks,
++	"Production: +1H (on Hills)" is now "+1H (on Hills)"
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_HILLS_YIELD</Tag>
++		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
++		<English>%D2%F3 (on Hills)</English>
++		<French>%D2%F3 (sur les collines)</French>
++		<German>%D2%F3 (on Hills)</German>
++		<Italian>%D2%F3 (sulle colline)</Italian>
++		<Spanish>%D2 %F3 (en colinas)</Spanish>
++	</TEXT>
++	<!-- custom: similarly (done) as for for/in
++	TXT_KEY_PEDIA_HILLS_YIELD, at least about this
++	i mean anyways, thanks, -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_RIVER_YIELD</Tag>
++		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
++		<English>%D2%F3 (next to River)</English>
++		<French>%D2%F3 (pr&#232;s des fleuves)</French>
++		<German>%D2%F3 (next to River)</German>
++		<Italian>%D2%F3 (vicino a un fiume)</Italian>
++		<Spanish>%D2 %F3 (junto a un r&#237;o)</Spanish>
++	</TEXT>
++	<!-- custom: similarly (done) as for for/in
++	TXT_KEY_PEDIA_HILLS_YIELD -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TECH_YIELD</Tag>
++		<!-- %s1 = TXT_KEY_IMPROVEMENT  %s4 = TXT_KEY_BONUS -->
++		<English>%D2%F3 (with [LINK=literal]%s4[\LINK])</English>
++		<French>%D2%F3 (avec [LINK=literal]%s4[\LINK])</French>
++		<German>%D2%F3 (with [LINK=literal]%s4[\LINK])</German>
++		<Italian>%D2%F3 (con [LINK=literal]%s4[\LINK])</Italian>
++		<Spanish>%D2 %F3 (con [LINK=literal]%s4[\LINK])</Spanish>
++	</TEXT>
++	<!-- custom: similarly (done) as for for/in
++	TXT_KEY_PEDIA_HILLS_YIELD -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_ROUTE_YIELD</Tag>
++		<English>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</English>
++		<French>%D2%F3 (avec [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</French>
++		<German>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</German>
++		<Italian>%D2%F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Italian>
++		<Spanish>%D2 %F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Spanish>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=13739

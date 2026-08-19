@@ -1,0 +1,281 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 109
+# Commit: a37354ba78e0f421a6400c4a6d78c9c053de8882
+# History segment: K-Mod history
+# Parent used for diff: 9b5a1b4ba61a28019a1bdd461cf41ec1ac5e1796
+# Title: Changed the way the AI decides whether or not to cancel a deal - previously the AI would always cancel deal with other AIs after 20 turns, I suspect this was...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	1	CvGameCoreDLL/CvCityAI.cpp
+62	20	CvGameCoreDLL/CvPlayerAI.cpp
+6	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 286d477c7..e173bafdf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2533,7 +2533,8 @@ void CvCityAI::AI_chooseProduction()
+ 			invaderTypes.push_back(std::make_pair(UNITAI_COUNTER, 50));
+ 			invaderTypes.push_back(std::make_pair(UNITAI_ATTACK, 40));
+ 			invaderTypes.push_back(std::make_pair(UNITAI_PARADROP, (kPlayer.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ) ? 30 : 20) / (bAssault ? 2 : 1)));
+-			if (!bAssault)
++			//if (!bAssault)
++			if (!bAssault && !bCrushStrategy) // K-Mod
+ 			{
+ 				if (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_PILLAGE) <= ((iNumCitiesInArea + 1) / 2))
+ 				{
+@@ -2541,6 +2542,22 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 			}
+ 
++			// K-Mod - get more seige units for crush
++			if (bCrushStrategy && GC.getGameINLINE().getSorenRandNum(100, "City AI extra crush bombard") < iTrainInvaderChance)
++			{
++				UnitTypes eCityAttackUnit = NO_UNIT;
++				kPlayer.AI_bestCityUnitAIValue(UNITAI_ATTACK_CITY, this, &eCityAttackUnit);
++				if (eCityAttackUnit != NO_UNIT && GC.getUnitInfo(eCityAttackUnit).getBombardRate() > 0)
++				{
++					if (AI_chooseUnit(eCityAttackUnit, UNITAI_ATTACK_CITY))
++					{
++						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses extra crush bombard", getName().GetCString());
++						return;
++					}
++				}
++			}
++			// K-Mod end
++
+ 			if (AI_chooseLeastRepresentedUnit(invaderTypes, iTrainInvaderChance))
+ 			{
+ 				return;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 595f34559..7abd55260 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7883,6 +7883,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 			}
+ 		}
+ 	}
++	// K-Mod
++	if (GET_TEAM(getTeam()).AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
++		return false;
++	// K-Mod end
+ 
+ 	if (GET_PLAYER(ePlayer).getTeam() == getTeam())
+ 	{
+@@ -7896,33 +7900,36 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ /************************************************************************************************/
+ 	// Don't always accept giving deals, TRADE_VASSAL and TRADE_SURRENDER come with strings attached
+ 	bool bVassalTrade = false;
+-	for (pNode = pTheirList->head(); pNode; pNode = pTheirList->next(pNode))
++	if (iChange > -1) // K-Mod
+ 	{
+-		if( pNode->m_data.m_eItemType == TRADE_VASSAL )
++		for (pNode = pTheirList->head(); pNode; pNode = pTheirList->next(pNode))
+ 		{
+-			bVassalTrade = true;
+-
+-			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
++			if( pNode->m_data.m_eItemType == TRADE_VASSAL )
+ 			{
+-				if (GET_TEAM((TeamTypes)iTeam).isAlive())
++				bVassalTrade = true;
++
++				for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
+ 				{
+-					if (iTeam != getTeam() && iTeam != GET_PLAYER(ePlayer).getTeam() && atWar(GET_PLAYER(ePlayer).getTeam(), (TeamTypes)iTeam) && !atWar(getTeam(), (TeamTypes)iTeam))
++					if (GET_TEAM((TeamTypes)iTeam).isAlive())
+ 					{
+-						if (GET_TEAM(getTeam()).AI_declareWarTrade((TeamTypes)iTeam, GET_PLAYER(ePlayer).getTeam(), false) != NO_DENIAL)
++						if (iTeam != getTeam() && iTeam != GET_PLAYER(ePlayer).getTeam() && atWar(GET_PLAYER(ePlayer).getTeam(), (TeamTypes)iTeam) && !atWar(getTeam(), (TeamTypes)iTeam))
+ 						{
+-							return false;
++							if (GET_TEAM(getTeam()).AI_declareWarTrade((TeamTypes)iTeam, GET_PLAYER(ePlayer).getTeam(), false) != NO_DENIAL)
++							{
++								return false;
++							}
+ 						}
+ 					}
+ 				}
+ 			}
+-		}
+-		else if( pNode->m_data.m_eItemType == TRADE_SURRENDER )
+-		{
+-			bVassalTrade = true;
+-
+-			if( !(GET_TEAM(getTeam()).AI_acceptSurrender(GET_PLAYER(ePlayer).getTeam())) )
++			else if( pNode->m_data.m_eItemType == TRADE_SURRENDER )
+ 			{
+-				return false;
++				bVassalTrade = true;
++
++				if( !(GET_TEAM(getTeam()).AI_acceptSurrender(GET_PLAYER(ePlayer).getTeam())) )
++				{
++					return false;
++				}
+ 			}
+ 		}
+ 	}
+@@ -7943,6 +7950,26 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 
+ 	if (iOurValue > 0 && 0 == pTheirList->getLength() && 0 == iTheirValue)
+ 	{
++		// K-Mod. Don't cancel gift deals to vassals that you like, unless you need the gift back.
++		if (iChange < 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam()))
++		{
++			/*if (iOurValue > AI_dealVal(ePlayer, pOurList, false, 1))
++				return true;
++			else
++				return false; */
++			// Simply comparing deal values doesn't work because the value from voluntary vassals gets halved.
++			// So unfortunately, I'm going to use a kludge:
++			if (pOurList->getLength() == 1 && pOurList->head()->m_data.m_eItemType == TRADE_RESOURCES)
++			{
++				BonusTypes eBonus = (BonusTypes)pOurList->head()->m_data.m_iData;
++				if (GET_PLAYER(ePlayer).AI_bonusVal(eBonus, -1) > AI_bonusVal(eBonus, 1))
++					return true;
++				else
++					return false;
++			}
++		}
++		// K-Mod end
++
+ 		if (GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()) && CvDeal::isVassalTributeDeal(pOurList))
+ 		{
+ 			if (AI_getAttitude(ePlayer, false) <= GC.getLeaderHeadInfo(getPersonalityType()).getVassalRefuseAttitudeThreshold()
+@@ -8000,7 +8027,8 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 
+ 	if (iChange < 0)
+ 	{
+-		return (iTheirValue * 110 >= iOurValue * 100);
++		//return (iTheirValue * 110 >= iOurValue * 100);
++		return (iTheirValue * 125 >= iOurValue * 100); // K-Mod
+ 	}
+ 
+ 	return (iTheirValue >= iOurValue);
+@@ -14292,12 +14320,13 @@ void CvPlayerAI::AI_doDiplo()
+ 							{
+ 								if (pLoopDeal->isCancelable(getID()))
+ 								{
+-									if ((GC.getGameINLINE().getGameTurn() - pLoopDeal->getInitialGameTurn()) >= (GC.getDefineINT("PEACE_TREATY_LENGTH") * 2))
++									// if ((GC.getGameINLINE().getGameTurn() - pLoopDeal->getInitialGameTurn()) >= (GC.getDefineINT("PEACE_TREATY_LENGTH") * 2)) // K-Mod disabled
+ 									{
+ 										bCancelDeal = false;
+ 
+ 										if ((pLoopDeal->getFirstPlayer() == getID()) && (pLoopDeal->getSecondPlayer() == ((PlayerTypes)iI)))
+ 										{
++											/* original bts code
+ 											if (GET_PLAYER((PlayerTypes)iI).isHuman())
+ 											{
+ 												if (!AI_considerOffer(((PlayerTypes)iI), pLoopDeal->getSecondTrades(), pLoopDeal->getFirstTrades(), -1))
+@@ -14315,10 +14344,16 @@ void CvPlayerAI::AI_doDiplo()
+ 														break;
+ 													}
+ 												}
++											}*/
++											// K-Mod. getTradeDenial is not equiped to consider deal cancelation properly.
++											if (!AI_considerOffer(((PlayerTypes)iI), pLoopDeal->getSecondTrades(), pLoopDeal->getFirstTrades(), -1))
++											{
++												bCancelDeal = true;
+ 											}
+ 										}
+ 										else if ((pLoopDeal->getFirstPlayer() == ((PlayerTypes)iI)) && (pLoopDeal->getSecondPlayer() == getID()))
+ 										{
++											/* original bts code
+ 											if (GET_PLAYER((PlayerTypes)iI).isHuman())
+ 											{
+ 												if (!AI_considerOffer(((PlayerTypes)iI), pLoopDeal->getFirstTrades(), pLoopDeal->getSecondTrades(), -1))
+@@ -14336,6 +14371,11 @@ void CvPlayerAI::AI_doDiplo()
+ 														break;
+ 													}
+ 												}
++											}*/
++											// K-Mod
++											if (!AI_considerOffer(((PlayerTypes)iI), pLoopDeal->getFirstTrades(), pLoopDeal->getSecondTrades(), -1))
++											{
++												bCancelDeal = true;
+ 											}
+ 										}
+ 
+@@ -14380,7 +14420,6 @@ void CvPlayerAI::AI_doDiplo()
+ 														pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_NO_VASSAL"));
+ 														pDiplo->setAIContact(true);
+ 														gDLL->beginDiplomacy(pDiplo, ((PlayerTypes)iI));
+-
+ 													}
+ 													else
+ 													{
+@@ -18575,7 +18614,9 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 		//iCrushValue += (iNonsense % 3000) / (400+GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand());
+ 	// On second thought, lets try this
+ 		iCrushValue += AI_getStrategyRand(13) % (4 + AI_getFlavorValue(AI_FLAVOR_MILITARY)/2);
++		iCrushValue += std::min(0, GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio()/15);
+ 		// note: flavor military is between 0 and 10
++		// K-Mod end
+ 		if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3))
+ 		{
+ 			iCrushValue += 1;
+@@ -18659,7 +18700,8 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 				}
+ 			}
+ 		}
+-		if ((iWarCount <= 1) && (iCrushValue >= ((iLastStrategyHash & AI_STRATEGY_CRUSH) ? 9 :10)))
++		//if ((iWarCount <= 1) && (iCrushValue >= ((iLastStrategyHash & AI_STRATEGY_CRUSH) ? 9 :10)))
++		if ((iWarCount == 1) && (iCrushValue >= ((iLastStrategyHash & AI_STRATEGY_CRUSH) ? 9 :10))) // K-Mod
+ 		{
+ 			m_iStrategyHash |= AI_STRATEGY_CRUSH;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f43d6495d..d27ae72c5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5279,6 +5279,8 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	iGoldenAgeValue /= 100;
+ 
+ 	int iDiscoverValue = std::max(1, getDiscoverResearch(NO_TECH));
++	iDiscoverValue *= 2 * GC.getNumEraInfos() - kPlayer.getCurrentEra();
++	iDiscoverValue /= GC.getNumEraInfos();
+ 	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) || kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2))
+ 	{
+ 		iDiscoverValue *= (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE ? 4 : 3);
+@@ -5292,14 +5294,12 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	iFirstDiscoverValue /= std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+ 	iFirstDiscoverValue *= 100;
+ 	iFirstDiscoverValue /= std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent()); // twice, because this is important
+-	iFirstDiscoverValue *= 2 * (GC.getNumEraInfos() - kPlayer.getCurrentEra());
+-	iFirstDiscoverValue /= GC.getNumEraInfos();
+ 
+ 	// SlowValue is meant to be a rough estimation of how much value we'll get from doing the best join / build mission.
+ 	int iSlowValue = iBestValue;
+ 	iSlowValue *= (GC.getNumEraInfos() - kPlayer.getCurrentEra());
+-	// at this point, we have roughly 100 * commerce per turn * number of eras remaining. Scale it to 40 * era.
+-	iSlowValue = 40 * iSlowValue / 100;
++	// at this point, we have roughly 100 * commerce per turn * number of eras remaining. Scale it down.
++	iSlowValue = 35 * iSlowValue / 100;
+ 	iSlowValue /= kPlayer.AI_isDoVictoryStrategyLevel3() ? 2 : 1;
+ 	iSlowValue /= kPlayer.AI_isDoVictoryStrategyLevel4() ? 2 : 1;
+ 	iSlowValue *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
+@@ -5309,6 +5309,8 @@ bool CvUnitAI::AI_greatPersonMove()
+ 
+ 	CvPlot* pBestTradePlot;
+ 	int iTradeValue = AI_tradeMissionValue(pBestTradePlot, iDiscoverValue / 2);
++	iTradeValue *= 2 * GC.getNumEraInfos() - kPlayer.getCurrentEra();
++	iTradeValue /= GC.getNumEraInfos();
+ 	iTradeValue *= kPlayer.AI_commerceWeight(COMMERCE_GOLD);
+ 	iTradeValue /= 100;
+ 	iTradeValue *= (75 + kPlayer.AI_getStrategyRand(9) % 51);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10890

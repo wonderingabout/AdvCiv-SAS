@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2428
+# Commit: 0f0c8454f6b2408dee7c8cfc7ac0a328d153eb54
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7baef9e48fe283f4805c58bf6cfb863dfe067558
+# Title: Fix Python calls to CyPlayer::getCivicUpkeep
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	7	CvGameCoreDLL/CyPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 0dfa62eba..d68476fcc 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -1888,8 +1888,10 @@ int CyPlayer::getCivicUpkeep(boost::python::list& kCivics, bool bIgnoreAnarchy)
+ {
+ 	if (m_pPlayer == NULL)
+ 		return -1;
+-	CivicMap aeCivics; // advc.enum
+-	pyListToCivicMap(kCivics, aeCivics); // advc
++	// <advc.enum>
++	CivicMap aeCivics;
++	m_pPlayer->getCivics(aeCivics);
++	pyListToCivicMap(kCivics, aeCivics); // </advc.enum>
+ 	return m_pPlayer->getCivicUpkeep(&aeCivics, bIgnoreAnarchy);
+ }
+ 
+@@ -2399,9 +2401,11 @@ void CyPlayer::pyListToCivicMap(boost::python::list const& kFrom, CivicMap& kTo)
+ {
+ 	int* piTmp = NULL;
+ 	gDLL->getPythonIFace()->putSeqInArray(kFrom.ptr(), &piTmp);
+-	// <advc.enum>
+-	FOR_EACH_ENUM(CivicOption)
+-		kTo.set(eLoopCivicOption, (CivicTypes)piTmp[eLoopCivicOption]);
+-	// </advc.enum>
+-	delete[] piTmp;
++	if (piTmp != NULL)
++	{	// <advc.enum>
++		FOR_EACH_ENUM(CivicOption)
++			kTo.set(eLoopCivicOption, (CivicTypes)piTmp[eLoopCivicOption]);
++		// </advc.enum>
++		delete[] piTmp;
++	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1111

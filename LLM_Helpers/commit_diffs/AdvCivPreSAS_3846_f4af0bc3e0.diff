@@ -1,0 +1,622 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3846
+# Commit: f4af0bc3e0056ee18b9b4b04578b1120a03b4bcb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5d4ac98e72f43361c7c98fc2271e883f4bc6c300
+# Title: Store mod name, path at CvGlobals.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	Assets/XML/GlobalDefines_advc.xml
+4	3	CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+1	0	CvGameCoreDLL/CvGameCoreDLL.h
+0	12	CvGameCoreDLL/CvGameCoreUtils.cpp
+0	3	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+20	0	CvGameCoreDLL/CvGlobals.cpp
+10	3	CvGameCoreDLL/CvGlobals.h
+3	5	CvGameCoreDLL/CvPlayer.cpp
+7	7	CvGameCoreDLL/CvReplayInfo.cpp
+0	1	CvGameCoreDLL/CvReplayInfo.h
+16	0	CvGameCoreDLL/CvString.h
+18	0	CvGameCoreDLL/ModName.cpp
+34	0	CvGameCoreDLL/ModName.h
+2	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+42	27	CvGameCoreDLL/SelfMod.cpp
+4	3	CvGameCoreDLL/SelfMod.h
+ create mode 100644 CvGameCoreDLL/ModName.cpp
+ create mode 100644 CvGameCoreDLL/ModName.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 9ed4901d9..82fef8871 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -126,6 +126,15 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.092b: Set to 1 to disable all code that modifies the EXE
++		 at runtime. In case that those modifications render the mod unplayable
++		 with some edition of BtS or operating system and no one is around to
++		 properly fix the issue. -->
++	<Define>
++		<DefineName>DISABLE_EXE_RUNTIME_MODS</DefineName>
++        <iDefineIntVal>0</iDefineIntVal>
++    </Define>
++
+     <!-- [advc.100]
+ 		 Only relevant if UWAI disabled (or only in the background).
+ 		 When an AI civ is willing to declare war in exchange for gold or tech,
+
+diff --git a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+index 7b95706d7..de3fe8ee2 100644
+--- a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+@@ -251,10 +251,11 @@ public:
+ 	virtual bool ChangeINIKeyValue(const char* szGroupKey, const char* szKeyValue, const char* szOut) = 0;
+ 
+ 	virtual char* md5String(char* szString) = 0;
+-
+-	virtual const char* getModName(bool bFullPath = true) const = 0;
++	/*	advc.106i: Renamed from "getModName". Should generally use the name
++		cached by the DLL instead (CvGlobals::getModName). */
++	virtual const char* getExternalModName(bool bFullPath = true) const = 0;
+ 	virtual bool hasSkippedSaveChecksum() const = 0;
+ 	virtual void reportStatistics() = 0;
+ };
+ 
+-#endif	// CvDLLUtilityIFaceBase_h
++#endif
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 584da6bc4..0cd5d74f9 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -85,6 +85,7 @@
+ #include "CvDefines.h"
+ #include "CvRandom.h"
+ #include "CvEnums.h" // (advc.enum: includes CvEnumMacros.h)
++#include "ModName.h" // advc.106i
+ #include "CvGlobals.h"
+ #include "EnumTraits.h"
+ #include "IntegerConversion.h" // advc
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 967834440..44131e23d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -422,18 +422,6 @@ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* s
+ 	iLastListID = iListID; // advc: And deleted this line from every call location
+ } // </advc>
+ 
+-// advc:
+-CvWString getModName()
+-{
+-	CvWString szModName(gDLL->getModName(false));
+-	size_t posMods = szModName.find(L"Mods");
+-	if (posMods == CvWString::npos)
+-		return szModName;
+-	// Skip over "Mods" plus the path separator. And chop off the separator at the end.
+-	return szModName.substr(posMods + 5, szModName.length() - posMods - 6);
+-}
+-
+-
+ bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1, int iDummy2)
+ {
+ 	FAssert(iDummy1 == -1 && iDummy2 == -1);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 59a1a7f89..d333d78e5 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -114,9 +114,6 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
+ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
+ 		wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
+ 
+-// advc: Just the folder name, no /Mods/. And as a wide string.
+-CvWString getModName();
+-
+ // PlotUnitFunc's...  (advc: Parameters iData1, iData2 renamed)
+ bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1 = -1, int iDummy2 = -1);
+ bool PUF_isPlayer(CvUnit const* pUnit, int iOwner, int iForTeam = NO_TEAM);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 0cd802ba7..b866df2da 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -19212,7 +19212,7 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_FROM"));
+ 				szBuffer.append(L" ");
+ 				// Well, it's sth. a mod might change, for balance reasons or so.
+-				CvWString szModName(::getModName());
++				CvWString szModName(GC.getModName().getName());
+ 				szBuffer.append(szModName);
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 858359244..cab2afcd0 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -790,6 +790,19 @@ void CvGlobals::setDEFAULT_SPECIALIST(int iValue)
+ 	m_eDEFAULT_SPECIALIST = (SpecialistTypes)iValue;
+ } // </advc.opt>
+ 
++/*	advc: The EXE constantly polls stagger time while idle.
++	That's annoying when debugging/ reverse-engineering. */
++int CvGlobals::getDefineINTExternal(char const* szName) const
++{
++	/*	This address for the "EVENT_MESSAGE_STAGGER_TIME" string is hardcoded in
++		the EXE. Checking for that is obviously faster than a string comparison.
++		(And it's not really a problem if the check fails for some strange version
++		of the EXE.) */
++	if (szName == reinterpret_cast<char const*>(0x00C9C868))
++		return getDefineINT(EVENT_MESSAGE_STAGGER_TIME);
++	return getDefineINT(szName);
++}
++
+ int CvGlobals::getDefineINT(char const* szName,
+ 	// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
+ 	int iDefault) const
+@@ -918,6 +931,13 @@ int CvGlobals::getUSE_FINISH_TEXT_CALLBACK()
+ 
+ void CvGlobals::setDLLIFace(CvDLLUtilityIFaceBase* pDll)
+ {
++	// <advc.106i>
++	if (pDll != m_pDLL && pDll != NULL)
++	{
++		m_modName.update(
++				pDll->getExternalModName(true),
++				pDll->getExternalModName(false));
++	} // </advc.106i>
+ 	m_pDLL = pDll;
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 71aa02e6b..1b826fa00 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -31,6 +31,7 @@ class CvRandom;
+ class CvGame; // advc.003u
+ class CvGameAI;
+ class CvAgents; // advc.agent
++class ModName; // advc.106i
+ class CvInitCore;
+ class CvStatsReporter;
+ class CvDLLInterfaceIFaceBase;
+@@ -402,10 +403,12 @@ public:
+ 	bool isCachingDone() const { return (m_aiGlobalDefinesCache != NULL); } // advc.003c
+ 
+ 	// ***** EXPOSED TO PYTHON *****
+-	DllExport int getDefineINT(char const* szName) const
++	int getDefineINT(char const* szName) const
+ 	{
+ 		return getDefineINT(szName, 0); // advc.opt: Call the BBAI version
+ 	}
++	// advc: Separate function for external calls (exported through .def file)
++	int getDefineINTExternal(char const* szName) const;
+ 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:
+ 	int getDefineINT(char const* szName, int iDefault) const;
+ 	// <advc>
+@@ -516,6 +519,7 @@ public:
+ 		DO(NUKE_UNIT_DAMAGE_BASE) \
+ 		DO(NUKE_UNIT_DAMAGE_RAND_1) \
+ 		DO(NUKE_UNIT_DAMAGE_RAND_2) \
++		DO(EVENT_MESSAGE_STAGGER_TIME) \
+ 		/* </advc.opt> */ \
+ 		DO(PATH_DAMAGE_WEIGHT) \
+ 		DO(HILLS_EXTRA_DEFENSE) \
+@@ -698,8 +702,9 @@ public:
+ 
+ 	DllExport void setDLLIFace(CvDLLUtilityIFaceBase* pDll);
+ 	CvDLLUtilityIFaceBase* getDLLIFace() const { return m_pDLL; } // advc: const
+-
+ 	DllExport CvDLLUtilityIFaceBase* getDLLIFaceNonInl();
++	ModName const& getModName() const { return m_modName; } // advc.106i
++
+ 	DllExport void setDLLProfiler(FProfiler* prof);
+ 	FProfiler* getDLLProfiler();
+ 	DllExport void enableDLLProfiler(bool bEnable);
+@@ -816,8 +821,9 @@ protected:
+ 	bool m_bZoomOut;
+ 	bool m_bZoomIn;
+ 	bool m_bLoadGameFromFile;*/ // advc.003j: Unused; not even written.
++	ModName m_modName; // advc.106i
+ 
+-	FMPIManager * m_pFMPMgr;
++	FMPIManager* m_pFMPMgr;
+ 
+ 	CvRandomExtended* m_asyncRand; // advc.007c (was CvRandom)
+ 	CvPythonCaller* m_pPythonCaller; // advc.003y
+@@ -962,6 +968,7 @@ private:
+ 	// advc.006:
+ 	void handleUnknownTypeString(char const* szType, bool bHideAssert, bool bFromPython) const;
+ 	//void addToInfosVectors(void* infoVector); // advc.enum (no longer used)
++	void updateModName(); // advc.106i
+ };
+ 
+ extern CvGlobals gGlobals;	// for debugging
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d88ff8bcd..96fe98f57 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2547,11 +2547,9 @@ const wchar* CvPlayer::getName(uint uiForm) const
+ 		// No prefix if the key isn't present
+ 		if(szKey.compare(szPrefix) == 0)
+ 			szPrefix = L"";
+-		/*  Same hack as above. Don't call gDll->getModName b/c then I'd have
+-			to deal with narrow/wide string conversion. */
+-		static CvWString r; // Important to put the assignment on a separate line
+-		r = szPrefix + GC.getInitCore().getLeaderName(getID(), uiForm);
+-		return r;
++		static CvWString szName; // Important to put the assignment on a separate line
++		szName = szPrefix + GC.getInitCore().getLeaderName(getID(), uiForm);
++		return szName;
+ 	} // </advc.106i>
+ 	return GC.getInitCore().getLeaderName(getID(), uiForm);
+ }
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index d38db860b..5d78025fc 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -35,7 +35,6 @@ CvReplayInfo::CvReplayInfo() :
+ 	m->iNormalizedScore = 0, // </advc.003k>
+ 	m->iFinalScore = -1; // advc.707
+ 	// <advc.106i>
+-	m->szPurportedModName = gDLL->getModName(); // Local copy; not sure if necessary.
+ 	m->iVersionRead = -1;
+ 	m->bDisplayOtherMods = false;
+ 	// See comment in GlobalDefines_advc.xml
+@@ -72,8 +71,8 @@ CvReplayInfo::~CvReplayInfo()
+ 
+ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ {
+-	if(!STORE_REPLAYS_AS_BTS) // advc.106i (and moved up)
+-		m_szModName = gDLL->getModName();
++	if (!STORE_REPLAYS_AS_BTS) // advc.106i (and moved up)
++		m_szModName = GC.getModName().getFullPath();
+ 	CvGame const& kGame = GC.getGame();
+ 	CvMap const& kMap = GC.getMap();
+ 	/*  <advc>: createInfo gets called when Python scripts are (re-)loaded.
+@@ -361,7 +360,7 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 	}
+ 	if(iOptions > 0)
+ 		szSettings = szSettings.substr(0, szSettings.length() - 2) + L"\n";
+-	// CvWString szModName(::getModName()) // I'd like the prefix to be optional
++	//CvWString szModName(GC.getModName().getName) // I'd like the prefix to be configurable
+ 	CvWString const szKey = "TXT_KEY_REPLAY_PREFIX";
+ 	CvWString szModName = gDLL->getText(szKey);
+ 	// Don't list mod name if the tag isn't present
+@@ -686,7 +685,7 @@ const char* CvReplayInfo::getModName() const
+ 			as the mod name. (I don't remember if this was on purpose.) */
+ 		m_szModName.empty())
+ 	{
+-		return m->szPurportedModName;
++		return GC.getModName().getFullPath();
+ 	} // </advc.106i>
+ 	return m_szModName;
+ }
+@@ -873,9 +872,10 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 					return false;
+ 			}
+ 			else if(!m->bDisplayOtherMods &&
+-					std::strcmp(m_szModName.GetCString(), gDLL->getModName()) != 0)
++				std::strcmp(m_szModName.c_str(), GC.getModName().getFullPath()) != 0)
++			{
+ 				return false; // Replay from a different mod
+-			// </advc.106i>
++			} // </advc.106i>
+ 		} // <advc.707>
+ 		if(iVersion == 5)
+ 			stream.Read(&m->iFinalScore);
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index b19ad0136..c8dbcbe63 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -127,7 +127,6 @@ protected:
+ 		// <advc.106i>
+ 		int iVersionRead;
+ 		bool bDisplayOtherMods;
+-		CvString szPurportedModName;
+ 		// </advc.106i>
+ 		friend CvReplayInfo;
+ 	};
+
+diff --git a/CvGameCoreDLL/CvString.h b/CvGameCoreDLL/CvString.h
+index 080c0f2a3..154505f70 100644
+--- a/CvGameCoreDLL/CvString.h
++++ b/CvGameCoreDLL/CvString.h
+@@ -207,4 +207,20 @@ BOOST_STATIC_ASSERT(sizeof(CvWStringBuffer) == 12); // </advc.003k>
+ // Don't move these into a cpp file, since I don't want CvString to be part of the DLL, MT
+ // advc: I've done just that - since CvString is part of the DLL.
+ 
++
++/*	advc (side note): Regarding the FString classes mentioned in Firaxis comments,
++	the EXE does use those, and, based on disassembly, the memory layout might be: */
++#if 0
++struct FString // (Or maybe this is only a component that FString holds a pointer to)
++{
++	int m_iCapacity;
++	int m_iSize;
++	char m_cFirstChar;
++	char const* GetCString() const { return &m_cFirstChar; }
++	/*	I guess growth must involve allocation of raw memory and a reinterpret_cast.
++		It's not a static array like MSVC's std::string uses:
++		union { Elem _Buf[_BUF_SIZE]; _Elem *_Ptr; ) */
++};
++#endif
++
+ #endif
+
+diff --git a/CvGameCoreDLL/ModName.cpp b/CvGameCoreDLL/ModName.cpp
+new file mode 100644
+index 000000000..a493013a3
+--- /dev/null
++++ b/CvGameCoreDLL/ModName.cpp
+@@ -0,0 +1,18 @@
++#include "CvGameCoreDLL.h"
++#include "ModName.h"
++
++// advc.xxx: New implementation file; see comment in header.
++
++void ModName::update(char const* szFullPath, char const* szPathInRoot)
++{
++	m_sFullPath = szFullPath;
++	m_sPathInRoot = szPathInRoot;
++	m_sName = m_sPathInRoot;
++	size_t posMods = m_sName.find("Mods");
++	if (posMods != CvString::npos)
++	{
++		/*	Skip over "Mods" plus the path separator.
++			And chop off the separator at the end. */
++		m_sName = m_sName.substr(posMods + 5, m_sName.length() - posMods - 6);
++	}
++}
+
+diff --git a/CvGameCoreDLL/ModName.h b/CvGameCoreDLL/ModName.h
+new file mode 100644
+index 000000000..893684876
+--- /dev/null
++++ b/CvGameCoreDLL/ModName.h
+@@ -0,0 +1,34 @@
++#pragma once
++#ifndef MOD_NAME_H
++#define MOD_NAME_H
++
++/*	advc.106i: Small class for caching the mod's name and install location.
++	(Could be expanded to also modify the name stored by the EXE; see the
++	the ModName class in the Taurus mod.) */
++
++class ModName
++{
++public:
++	/*	The first param (and our m_sFullPath) is for the result of
++		CvDLLUtilityIFaceBase::getExternalModName with bFullPath=true,
++		the second (our m_sPathInRoot) is the result for bFullPath=false.
++		I'm always seeing the same result, namely a path relative to the
++		folder containing the Mods folder (I'll refer to that folder as "root"):
++		"Mods\AdvCiv\"
++		I don't know that the bFullPath parameter will never matter, so
++		it seems safer to store both strings. Maybe the full path could
++		be longer than what I've seen, maybe the non-full path could be
++		just the actual mod name. We will, in any case, extract the actual
++		mod name into m_sName. */
++	void update(char const* szFullPath, char const* szPathInRoot);
++	char const* getFullPath() const { return m_sFullPath.c_str(); }
++	char const* getPathInRoot() const { return m_sPathInRoot.c_str(); }
++	char const* getName() const { return m_sName.c_str(); } // name of the AdvCiv folder
++	
++private:
++	CvString m_sFullPath;
++	CvString m_sPathInRoot;
++	CvString m_sName;
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index d31d0431c..4feede770 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -172,6 +172,7 @@
+     <ClCompile Include="..\FAStarFunc.cpp" />
+     <ClCompile Include="..\GroupPathFinder.cpp" />
+     <ClCompile Include="..\KmodPathFinderLegacy.cpp" />
++    <ClCompile Include="..\ModName.cpp" />
+     <ClCompile Include="..\PlayerHistory.cpp" />
+     <ClCompile Include="..\ReproTest.cpp" />
+     <ClCompile Include="..\FDialogTemplate.cpp" />
+@@ -339,6 +340,7 @@
+     <ClInclude Include="..\KmodPathFinder.h" />
+     <ClInclude Include="..\KmodPathFinderLegacy.h" />
+     <ClInclude Include="..\LinkedListTraversal.h" />
++    <ClInclude Include="..\ModName.h" />
+     <ClInclude Include="..\PlayerHistory.h" />
+     <ClInclude Include="..\PlotAdjListTraversal.h" />
+     <ClInclude Include="..\PragmaWarnings.h" />
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index 61f3073b4..5d578e41d 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -15,13 +15,28 @@ class RuntimePatch : boost::noncopyable
+ {
+ public:
+ 	virtual ~RuntimePatch() { restorePageProtections(); }
+-	virtual void apply()=0;
++	// Return false on unexpected failure
++	bool applyIfEnabled()
++	{
++//		if (!GC.getDefineBOOL("DISABLE_EXE_RUNTIME_MODS"))
++			return apply();
++		return true;
++	}
++	/*	Derived classes can override this to be exempt from the
++		DISABLE_EXE_RUNTIME_MODS check */
++	virtual bool isOptionalThroughXML() const { return true; }
+ 
+ protected:
++	virtual bool apply()=0; // See applyIfEnabled about the return value
+ 	bool unprotectPage(LPVOID pAddress, SIZE_T uiSize,
+ 		DWORD ulNewProtect = PAGE_EXECUTE_READWRITE)
+ 	{
+-		/*	Getting a segmentation fault when writing to the code section under
++		/*	Any actual self-modifying code (which is what this class is really
++			inteded for) should have the saafety switch in XML */
++		FAssert((ulNewProtect != PAGE_EXECUTE &&
++				ulNewProtect != PAGE_EXECUTE_READ &&
++				ulNewProtect != PAGE_EXECUTE_READWRITE) || isOptionalThroughXML());
++		/*	Getting a segmentation fault when writing to the text segment under
+ 			Win 8.1. Probably the same on all Windows versions that anyone still uses.
+ 			Need to unprotect the virtual memory page first. Let's hope that this
+ 			long outdated version of VirtualProtect from WinBase.h (nowadays located
+@@ -71,12 +86,12 @@ private:
+ 	}
+ };
+ 
+-class PlotIndicatorSizePatch : RuntimePatch
++class PlotIndicatorSizePatch : public RuntimePatch
+ {
+ public:
+ 	PlotIndicatorSizePatch(int iScreenHeight) : m_iScreenHeight(iScreenHeight) {}
+-
+-	void apply() // override
++protected:
++	bool apply() // override
+ 	{
+ 		// Cache for performance (though probably not a concern)
+ 		static PlotIndicatorSize ffMostRecentBaseSize;
+@@ -128,14 +143,14 @@ public:
+ 		{
+ 			int iUserChoice = BUGOption::getValue("MainInterface__OffScreenUnitSizeMult", 3);
+ 			if (iUserChoice == 7)
+-			{	// Meaning "disable". 0 size seems to do accomplish that.
++			{	// Meaning "disable". 0 size seems to accomplish that.
+ 				ffBaseSize.offScreen = 0;
+ 			}
+ 			else ffBaseSize.offScreen = ffBaseSize.onScreen * (0.8f + 0.2f * iUserChoice);
+ 		}
+ 
+ 		if (ffBaseSize.equals(ffMostRecentBaseSize))
+-			return;
++			return true;
+ 		ffMostRecentBaseSize = ffBaseSize;
+ 
+ 		/*	The onscreen size is hardcoded as an immediate operand (in FP32 format)
+@@ -208,7 +223,7 @@ public:
+ 				if (pos == pHaystackEnd)
+ 				{
+ 					FErrorMsg("Failed to locate plot indicator code bytes in EXE");
+-					return;
++					return false;
+ 				}
+ 				iAddressOffset = ((int)std::distance(aHaystackBytes, pos))
+ 						- iMaxAbsOffset;
+@@ -218,7 +233,7 @@ public:
+ 			if (!testCodeLayout(iAddressOffset))
+ 			{
+ 				FErrorMsg("Address offset likely incorrect");
+-				return;
++				return false;
+ 			}
+ 		}
+ 
+@@ -230,11 +245,27 @@ public:
+ 			FAssert(((int)uiCodeAddress) > -iAddressOffset);
+ 			uiCodeAddress += iAddressOffset;
+ 			if (!unprotectPage(reinterpret_cast<LPVOID>(uiCodeAddress), sizeof(float)))
+-				return;
++				return false;
+ 			*reinterpret_cast<float*>(uiCodeAddress) = fSize;
+ 		}
++		return true;
+ 	}
+ 
++private:
++	int m_iScreenHeight;
++	struct PlotIndicatorSize
++	{
++		PlotIndicatorSize(float fOnScreen = 0, float fOffScreen = 0)
++		:	onScreen(fOnScreen), offScreen(fOffScreen) {}
++		// Overriding operator== for this nested thing would be a PITA
++		bool equals(PlotIndicatorSizePatch::PlotIndicatorSize const& kOther)
++		{	// Exact floating point comparison
++			return (onScreen == kOther.onScreen &&
++					offScreen == kOther.offScreen);
++		}
++		float onScreen, offScreen;
++	};
++
+ 	bool testCodeLayout(int iAddressOffset = 0)
+ 	{
+ 		/*	This is the call to CvPlayer::getGlobeLayerColors:
+@@ -255,21 +286,6 @@ public:
+ 		}
+ 		return true; // Looks good, we don't worry.
+ 	}
+-	
+-private:
+-	int m_iScreenHeight;
+-	struct PlotIndicatorSize
+-	{
+-		PlotIndicatorSize(float fOnScreen = 0, float fOffScreen = 0)
+-		:	onScreen(fOnScreen), offScreen(fOffScreen) {}
+-		// Overriding operator== for this nested thing would be a PITA
+-		bool equals(PlotIndicatorSizePatch::PlotIndicatorSize const& kOther)
+-		{	// Exact floating point comparison
+-			return (onScreen == kOther.onScreen &&
+-					offScreen == kOther.offScreen);
+-		}
+-		float onScreen, offScreen;
+-	};
+ };
+ 
+ } // (end of unnamed namespace)
+@@ -285,6 +301,5 @@ void Civ4BeyondSwordMods::patchPlotIndicatorSize()
+ 	}
+ 	// (If we fail past here, there won't be a point in trying again.)
+ 	m_bPlotIndicatorSizePatched = true;
+-	PlotIndicatorSizePatch patch(iScreenHeight);
+-	patch.apply();
++	PlotIndicatorSizePatch(iScreenHeight).applyIfEnabled();
+ }
+
+diff --git a/CvGameCoreDLL/SelfMod.h b/CvGameCoreDLL/SelfMod.h
+index fd2ee25b3..6d3f97730 100644
+--- a/CvGameCoreDLL/SelfMod.h
++++ b/CvGameCoreDLL/SelfMod.h
+@@ -3,14 +3,15 @@
+ #define SELF_MOD_H
+ 
+ /*	advc.092b: Let's put all runtime patches for Civ4BeyondSword.exe (v3.19)
+-	in a single place. (But, so far, there's only one.) For the time being,
+-	functions are exposed to Python through CyGameCoreUtils. */
++	in one place. */
++
++
+ 
+ class Civ4BeyondSwordMods
+ {
+ public:
+ 	bool isPlotIndicatorSizePatched() const { return m_bPlotIndicatorSizePatched; }
+-	void patchPlotIndicatorSize(); // (exposed to Python)
++	void patchPlotIndicatorSize(); // (exposed to Python via CyGameCoreUtils)
+ private:
+ 	bool m_bPlotIndicatorSizePatched;
+ };
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=20955

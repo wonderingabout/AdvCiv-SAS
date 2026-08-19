@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4177
+# Commit: b9a4d92120119f02e19c290813ef548918b37d99
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 69059b49739d34ef30ca9c6fe18d84c84d80be73
+# Title: Correct some Python documentation strings (from MNAI)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	15	CvGameCoreDLL/CyCityInterface1.cpp
+3	3	CvGameCoreDLL/CyGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index ca8df1e95..ef64d5b0b 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -3,7 +3,7 @@
+ 
+ //
+ // published python interface for CyCity
+-//
++// advc.mnai: Corrected some documentation strings
+ 
+ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ {
+@@ -30,7 +30,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("findYieldRateRank", &CyCity::findYieldRateRank, "int (int /*YieldTypes*/ eYield)")
+ 		.def("findCommerceRateRank", &CyCity::findCommerceRateRank, "int (int /*CommerceTypes*/ eCommerce)")
+ 
+-		.def("allUpgradesAvailable", &CyCity::allUpgradesAvailable, "int UnitTypes (int eUnit, int iUpgradeCount)")
++		.def("allUpgradesAvailable", &CyCity::allUpgradesAvailable, "int /*UnitTypes*/ (int eUnit, int iUpgradeCount)")
+ 		.def("isWorldWondersMaxed", &CyCity::isWorldWondersMaxed, "bool ()")
+ 		.def("isTeamWondersMaxed", &CyCity::isTeamWondersMaxed, "bool ()")
+ 		.def("isNationalWondersMaxed", &CyCity::isNationalWondersMaxed, "bool ()")
+@@ -53,7 +53,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("addProductionExperience", &CyCity::addProductionExperience, "void (CyUnit* pUnit, bool bConscript)")
+ 
+ 		.def("getProductionUnit", &CyCity::getProductionUnit, "UnitID () - ID for unit that is being trained")
+-		.def("getProductionUnitAI", &CyCity::getProductionUnitAI, "int eUnitAIType ()")
++		.def("getProductionUnitAI", &CyCity::getProductionUnitAI, "int /*UnitAIType*/ ()")
+ 		.def("getProductionBuilding", &CyCity::getProductionBuilding, "BuildingID () - ID for building that is under construction")
+ 		.def("getProductionProject", &CyCity::getProductionProject, "int /*ProjectTypes*/ ()")
+ 		.def("getProductionProcess", &CyCity::getProductionProcess, "int /*ProcessTypes*/ ()")
+@@ -67,7 +67,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getProduction", &CyCity::getProduction, "int () - returns the current production towards whatever is top of this city's OrderQueue")
+ 		.def("getProductionNeeded", &CyCity::getProductionNeeded, "int () - # of production needed to complete construction")
+ 		// advc: Now just an alias of getProductionTurnsLeft
+-		.def("getGeneralProductionTurnsLeft", &CyCity::getProductionTurnsLeft, "int - # of production turns left for the top order node item in a city...")
++		.def("getGeneralProductionTurnsLeft", &CyCity::getProductionTurnsLeft, "int () - # of production turns left for the top order node item in a city...")
+ 		/*  advc: Documentation string said "# of turns remaining until item is completed".
+ 			Use the one from getGeneralProductionTurnsLeft instead. */
+ 		.def("getProductionTurnsLeft", &CyCity::getProductionTurnsLeft, "int - # of production turns left for the top order node item in a city...")
+@@ -85,7 +85,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 
+ 		.def("getExtraProductionDifference", &CyCity::getExtraProductionDifference, "int (int iExtra)")
+ 
+-		.def("canHurry", &CyCity::canHurry, "bool (HurryTypes eHurry, bool bTestVisible = 0) - can player eHurry in this city?")
++		.def("canHurry", &CyCity::canHurry, "bool (HurryTypes eHurry, bool bTestVisible) - can player eHurry in this city?")
+ 		.def("hurry", &CyCity::hurry, "void (HurryTypes eHurry) - forces the city to rush production using eHurry")
+ 		.def("minPlotProduction", &CyCity::minPlotProduction, "int ()") // advc.064b
+ 		// advc.064:
+@@ -131,7 +131,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("extraFreeSpecialists", &CyCity::extraFreeSpecialists, "int () - # of specialist that are allowed for free")
+ 		.def("extraPopulation", &CyCity::extraPopulation, "int () - # of extra/available citizens")
+ 		.def("extraSpecialists", &CyCity::extraSpecialists, "int () - # of extra/available specialists")
+-		.def("unhealthyPopulation", &CyCity::unhealthyPopulation, "int (bool bNoAngry), int (iExtra)")
++		.def("unhealthyPopulation", &CyCity::unhealthyPopulation, "int (bool bNoAngry, int iExtra)")
+ 		.def("totalGoodBuildingHealth", &CyCity::totalGoodBuildingHealth, "int ()")
+ 		.def("totalBadBuildingHealth", &CyCity::totalBadBuildingHealth, "int ()")
+ 		.def("goodHealth", &CyCity::goodHealth, "int () - total health")
+@@ -156,7 +156,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("revoltProbability", &CyCity::revoltProbability, "float ()")
+ 		.def("canCultureFlip", &CyCity::canCultureFlip, "bool ()")
+ 		// </advc.ctr>
+-		.def("getNumBuilding", &CyCity::getNumBuilding, "int - (BuildingID) - How many BuildingID does this city have (real or free)?")
++		.def("getNumBuilding", &CyCity::getNumBuilding, "int () - (BuildingID) - How many BuildingID does this city have (real or free)?")
+ 		.def("isHasBuilding", &CyCity::isHasBuilding, "bool (int iBuildingID) - This function actually no longer exists in C++, this is a helper function which hooks up to getNumBuilding() to help mod backwards compatibility")
+ 		.def("getNumActiveBuilding", &CyCity::getNumActiveBuilding, "bool (BuildingID) - is BuildingID active in the city (present & not obsolete)?")
+ 		.def("getID", &CyCity::getID, "int () - index ID # for the city - use with pPlayer.getCity(ID) to obtain city instance")
+@@ -167,7 +167,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("plot", &CyCity::plot, python::return_value_policy<python::manage_new_object>(), "CyPlot () - returns cities plot instance")
+ 		.def("isConnectedTo", &CyCity::isConnectedTo, "bool (CyCity*) - is city connected to CyCity* via the Trade Network?")
+ 		.def("isConnectedToCapital", &CyCity::isConnectedToCapital, "bool (iOwner) - connected to the capital?")
+-		.def("area", &CyCity::area, python::return_value_policy<python::manage_new_object>(), "CyArea() () - returns CyArea instance for location of city")
++		.def("area", &CyCity::area, python::return_value_policy<python::manage_new_object>(), "CyArea () - returns CyArea instance for location of city")
+ 		.def("waterArea", &CyCity::waterArea, python::return_value_policy<python::manage_new_object>(), "CyArea* ()")
+ 		.def("getRallyPlot", &CyCity::getRallyPlot, python::return_value_policy<python::manage_new_object>(), "CyPlot () - returns city's rally plot instance")
+ 		.def("getGameTurnFounded", &CyCity::getGameTurnFounded, "int () - GameTurn the city was founded")
+@@ -177,7 +177,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("setPopulation", &CyCity::setPopulation, "void (int iNewValue) - sets the city population to iNewValue")
+ 		.def("changePopulation", &CyCity::changePopulation, "void (int iChange) - adjusts the city population by iChange")
+ 		.def("getRealPopulation", &CyCity::getRealPopulation, "int () - total city population in \"real\" numbers")
+-		.def("getHighestPopulation", &CyCity::getHighestPopulation, "int () ")
++		.def("getHighestPopulation", &CyCity::getHighestPopulation, "int ()")
+ 		.def("setHighestPopulation", &CyCity::setHighestPopulation, "void (iNewValue)")
+ 		.def("getWorkingPopulation", &CyCity::getWorkingPopulation, "int () - # of citizens who are working")
+ 		.def("getSpecialistPopulation", &CyCity::getSpecialistPopulation, "int () - # of specialists")
+@@ -226,7 +226,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getBonusGoodHealth", &CyCity::getBonusGoodHealth, "int ()")
+ 		.def("getBonusBadHealth", &CyCity::getBonusBadHealth, "int ()")
+ 		.def("getMilitaryHappiness", &CyCity::getMilitaryHappiness, "int () - happiness created by military units stationed in the city")
+-		.def("getMilitaryHappinessUnits", &CyCity::getMilitaryHappinessUnits, "number of military units creating happiness")
++		.def("getMilitaryHappinessUnits", &CyCity::getMilitaryHappinessUnits, "int () - number of military units creating happiness")
+ 		.def("getBuildingGoodHappiness", &CyCity::getBuildingGoodHappiness, "int ()")
+ 		.def("getBuildingBadHappiness", &CyCity::getBuildingBadHappiness, "int ()")
+ 		.def("getBuildingHappiness", &CyCity::getBuildingHappiness, "int (int eBuilding)")
+@@ -369,10 +369,10 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("findHighestCulture", &CyCity::findHighestCulture, "PlayerTypes ()")
+ 		.def("calculateCulturePercent", &CyCity::calculateCulturePercent, "int (int eIndex)")
+ 		.def("calculateTeamCulturePercent", &CyCity::calculateTeamCulturePercent, "int /*TeamTypes*/ ()")
+-		.def("setCulture", &CyCity::setCulture, "void (int PlayerTypes eIndex`, bool bPlots)")
+-		.def("setCultureTimes100", &CyCity::setCultureTimes100, "void (int PlayerTypes eIndex, int iNewValue, bool bPlots)")
+-		.def("changeCulture", &CyCity::changeCulture, "void (int PlayerTypes eIndex, int iChange, bool bPlots)")
+-		.def("changeCultureTimes100", &CyCity::changeCultureTimes100, "void (int PlayerTypes eIndex, int iChange, bool bPlots)")
++		.def("setCulture", &CyCity::setCulture, "void (int /*PlayerTypes*/ eIndex, bool bPlots)")
++		.def("setCultureTimes100", &CyCity::setCultureTimes100, "void (int /*PlayerTypes*/ eIndex, int iNewValue, bool bPlots)")
++		.def("changeCulture", &CyCity::changeCulture, "void (int /*PlayerTypes*/ eIndex, int iChange, bool bPlots)")
++		.def("changeCultureTimes100", &CyCity::changeCultureTimes100, "void (int /*PlayerTypes*/ eIndex, int iChange, bool bPlots)")
+ 
+ 		.def("isTradeRoute", &CyCity::isTradeRoute, "bool ()")
+ 		.def("isEverOwned", &CyCity::isEverOwned, "bool ()")
+@@ -389,7 +389,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getFreeBonus", &CyCity::getFreeBonus, "int (int eIndex)")
+ 		.def("changeFreeBonus", &CyCity::changeFreeBonus, "void (int eIndex, int iChange)")
+ 		.def("getNumBonuses", &CyCity::getNumBonuses, "int (PlayerID)")
+-		.def("hasBonus", &CyCity::hasBonus, "bool - (BonusID) - is BonusID connected to the city?")
++		.def("hasBonus", &CyCity::hasBonus, "bool (BonusID) - is BonusID connected to the city?")
+ 		.def("getBuildingProduction", &CyCity::getBuildingProduction, "int (BuildingID) - current production towards BuildingID")
+ 		.def("setBuildingProduction", &CyCity::setBuildingProduction, "void (BuildingID, iNewValue) - set progress towards BuildingID as iNewValue")
+ 		.def("changeBuildingProduction", &CyCity::changeBuildingProduction, "void (BuildingID, iChange) - adjusts progress towards BuildingID by iChange")
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 90efcede7..76d880d91 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -5,7 +5,7 @@
+ 
+ //
+ // published python interface for CyGame
+-//
++// advc.mnai: Corrected a couple of documentation strings
+ 
+ void CyGamePythonInterface()
+ {
+@@ -213,10 +213,10 @@ void CyGamePythonInterface()
+ 		.def("isSpecialBuildingValid", &CyGame::isSpecialBuildingValid)
+ 		.def("makeSpecialBuildingValid", &CyGame::makeSpecialBuildingValid)
+ 
+-		.def("isNukesValid", &CyGame::isNukesValid, "bool")
++		.def("isNukesValid", &CyGame::isNukesValid, "bool ()")
+ 		.def("makeNukesValid", &CyGame::makeNukesValid, " void (bool bValid)")
+ 
+-		.def("isInAdvancedStart", &CyGame::isInAdvancedStart, "bool")
++		.def("isInAdvancedStart", &CyGame::isInAdvancedStart, "bool ()")
+ 
+ 		.def("getHolyCity", &CyGame::getHolyCity, python::return_value_policy<python::manage_new_object>(), "CyCity getHolyCity()")
+ 		.def("setHolyCity", &CyGame::setHolyCity, "void (int eIndex, CyCity *pNewValue, bAnnounce) - Sets holy city for religion eIndex to pNewValue")
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=11471

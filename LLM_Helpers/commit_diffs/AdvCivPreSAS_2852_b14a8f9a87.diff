@@ -1,0 +1,685 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2852
+# Commit: b14a8f9a874e83ad4f5c6d44cbd570c0573e5b2d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b839684d5f5889623549211714d5cbe3da7e4e7f
+# Title: intdiv::round, uround replacing ROUND_DIVIDE
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CombatOdds.cpp
+6	6	CvGameCoreDLL/CvCity.cpp
+3	2	CvGameCoreDLL/CvCityAI.cpp
+7	7	CvGameCoreDLL/CvGame.cpp
+19	13	CvGameCoreDLL/CvGameCoreUtils.h
+22	20	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvInfo_GameOption.h
+1	1	CvGameCoreDLL/CvMapGenerator.cpp
+5	5	CvGameCoreDLL/CvPlayer.cpp
+18	15	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/PlayerHistory.cpp
+2	2	CvGameCoreDLL/ScaledNum.h
+2	2	CvGameCoreDLL/UWAICache.cpp
+2	2	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CombatOdds.cpp b/CvGameCoreDLL/CombatOdds.cpp
+index eb9cbbff1..4377be434 100644
+--- a/CvGameCoreDLL/CombatOdds.cpp
++++ b/CvGameCoreDLL/CombatOdds.cpp
+@@ -361,7 +361,7 @@ int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrik
+ 		int iMaxOdds = LFBlookupCombatOdds(pAttOdds, iMaxOddsIndex, iFirstStrikes,
+ 				iNeededRoundsAttacker, iNeededRoundsDefender, iMaxOddsValue);
+ 		// Do a simple weighted average on the two odds
+-		iOdds += ROUND_DIVIDE( // K-Mod: rounded rather than truncated
++		iOdds += intdiv::uround( // K-Mod: rounded rather than truncated
+ 				(iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds),
+ 				LFB_ODDS_INTERVAL_SIZE);
+ 	}
+@@ -427,7 +427,7 @@ int LFBcalculateCombatOdds(Combatant const& att, Combatant const& def)
+ 		(since all are equally possible) */
+ 	iOdds /= (att.FSChances() + 1) * (def.FSChances() + 1);
+ 	// Now that we have the final odds, we can remove the extra accuracy
+-	iOdds = ROUND_DIVIDE(iOdds, LFB_ODDS_EXTRA_ACCURACY);
++	iOdds = intdiv::uround(iOdds, LFB_ODDS_EXTRA_ACCURACY);
+ 	// If we flipped the perspective in the computation/lookup, need to flip it back now.
+ 	if (bFlip)
+ 		iOdds = 1000 - iOdds;
+@@ -546,7 +546,7 @@ int calculateCombatOddsLegacy(Combatant const& att, Combatant const& def)
+ 		}
+ 	}
+ 	// Weigh the total to the number of possible combinations of first strikes events
+-	return ROUND_DIVIDE(iOdds, (att.FSChances() + 1) * (def.FSChances() + 1));
++	return intdiv::uround(iOdds, (att.FSChances() + 1) * (def.FSChances() + 1));
+ }
+ 
+ // advc.test:
+@@ -614,7 +614,7 @@ int estimateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, int iSa
+ 		if (simulateCombat(kAttacker, kDefender))
+ 			iWins++;
+ 	}
+-	return ROUND_DIVIDE(iWins * 1000, iSamples);
++	return intdiv::uround(iWins * 1000, iSamples);
+ }
+ #endif // MONTE_CARLO_ODDS_TEST
+ } // (end of unnamed namespace)
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 99c4f0dcf..3fa163636 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3695,8 +3695,7 @@ int CvCity::unhealthyPopulation(bool bNoAngry, int iExtra) const
+ 	return std::max(0, getPopulation() + iExtra - (bNoAngry ? angryPopulation(iExtra) : 0));*/ // BtS
+ 	int iUnhealth = getPopulation() + iExtra - (bNoAngry ? angryPopulation(iExtra) : 0);
+ 	iUnhealth *= std::max(0, 100 + getUnhealthyPopulationModifier());
+-	iUnhealth = ROUND_DIVIDE(iUnhealth, 100);
+-	return std::max(0, iUnhealth);
++	return intdiv::uround(std::max(0, iUnhealth), 100);
+ 	// K-Mod end
+ }
+ 
+@@ -4042,7 +4041,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 				((rTimeFactor + 1) / 2) * rOwnerTechPercent);
+ 		// Decrease resolution - to avoid frequent changes in revolt chance
+ 		int const iGrain = 10;
+-		int iTechPercentQuantized = ROUND_DIVIDE(rTechPercent.getPercent(), iGrain);
++		int iTechPercentQuantized = intdiv::uround(rTechPercent.getPercent(), iGrain);
+ 		if (iTechPercentQuantized > 0)
+ 		{
+ 			rEraFactor = iTechPercentQuantized * scaled(GC.getNumEraInfos() - 1, iGrain);
+@@ -4222,7 +4221,8 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 	}
+ 	/*if (atWar(GET_PLAYER(ePlayer).getTeam(), getTeam()))
+ 		iGarrison *= 2;*/ // advc.023: commented out
+-	return ROUND_DIVIDE(iGarrison, 100); // advc.101: iGarrison now has times-100 precision
++	// advc.101: iGarrison now has times-100 precision
++	return intdiv::uround(iGarrison, 100);
+ }
+ 
+ // advc.099c:
+@@ -4741,7 +4741,7 @@ int CvCity::getSavedMaintenanceTimes100ByBuilding(BuildingTypes eBuilding) const
+ 	{
+ 		int iNewMaintenance = calculateBaseMaintenanceTimes100() *
+ 				std::max(0, getMaintenanceModifier() + iModifier + 100) / 100;
+-		return ROUND_DIVIDE((getMaintenanceTimes100() - iNewMaintenance) *
++		return intdiv::round((getMaintenanceTimes100() - iNewMaintenance) *
+ 				(100 + GET_PLAYER(getOwner()).calculateInflationRate()), 100); // K-Mod
+ 	}
+ 	return 0;
+@@ -5683,7 +5683,7 @@ int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, i
+ 	if (kBuilding.getUnhealthyPopulationModifier() + getUnhealthyPopulationModifier() < -100)
+ 		iEffectiveModifier = std::min(0, -100 - getUnhealthyPopulationModifier());
+ 	else iEffectiveModifier = std::max(-100, kBuilding.getUnhealthyPopulationModifier());
+-	iBad += ROUND_DIVIDE(getPopulation() * iEffectiveModifier, 100);
++	iBad += intdiv::round(getPopulation() * iEffectiveModifier, 100);
+ 	// K-Mod end
+ 	return iGood - iBad - iStarting;
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 88973102a..56bd19d2e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8521,7 +8521,8 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 				iHappyDiff = iHurryPopulation - GC.getDefineINT(CvGlobals::HURRY_POP_ANGER);
+ 				if (iHurryAngerLength > 0 && getHurryAngerTimer() > 1)
+ 				{
+-					iHappyDiff -= ROUND_DIVIDE((kOwner.AI_getFlavorValue(FLAVOR_GROWTH) > 0 ? 4 : 3) *
++					iHappyDiff -= intdiv::uround(
++							(kOwner.AI_getFlavorValue(FLAVOR_GROWTH) > 0 ? 4 : 3) *
+ 							getHurryAngerTimer(), iHurryAngerLength);
+ 				}
+ 			}
+@@ -9638,7 +9639,7 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 
+ 	FAssert((int)job_scores.size() >= iCitLoss);
+ 	std::partial_sort(job_scores.begin(), job_scores.begin()+iCitLoss, job_scores.end());
+-	int iAverageScore = ROUND_DIVIDE(iTotalScore, job_scores.size());
++	int iAverageScore = intdiv::round(iTotalScore, job_scores.size());
+ 
+ 	int iWastedFood = -healthRate();
+ 	int iTotalFood = getYieldRate(YIELD_FOOD) - iWastedFood;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ca84fa354..ed8d7ff61 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -868,7 +868,7 @@ void CvGame::initGameHandicap()
+ 		{
+ 			/*  advc.250a: Relies on no strange new handicaps being placed
+ 				between Settler and Deity. Same in CvTeam::getHandicapType. */
+-				setHandicapType((HandicapTypes) /* kekm.22: */ ROUND_DIVIDE(
++				setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(
+ 						iSum, 10 * iDiv));
+ 		}
+ 		FAssertMsg(iDiv > 0, "All-AI game. Not necessarily wrong, but unexpected.");
+@@ -886,7 +886,7 @@ void CvGame::initGameHandicap()
+ 		}
+ 	}
+ 	if(iDiv > 0) // Leaves it at STANDARD_HANDICAP in all-human games
+-		m_eAIHandicap = (HandicapTypes)ROUND_DIVIDE(iHandicapSum, iDiv);
++		m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+ }
+ 
+ 
+@@ -1346,7 +1346,7 @@ void CvGame::applyStartingLocHandicaps(
+ 					getStartingLocationPercent();
+ 		}
+ 		aStartingLocPercentPerTeam.push_back(std::make_pair(
+-				&*itTeam, ROUND_DIVIDE(iStartingLocPercent, itMember.nextIndex())));
++				&*itTeam, intdiv::round(iStartingLocPercent, itMember.nextIndex())));
+ 	}
+ 	sortByStartingLocHandicap(aStartingLocPercentPerTeam, apTeamsByHandicap);
+ 	for (size_t i = 0; i < apTeamsByHandicap.size(); i++)
+@@ -1681,7 +1681,7 @@ int CvGame::getTeamClosenessScore(  // advc: params used to be arrays
+ 		else
+ 		{
+ 			// The avg distance between team edges is the team score
+-			iTeamScore = ROUND_DIVIDE(iTeamTotalDist, iNumEdges);
++			iTeamScore = intdiv::uround(iTeamTotalDist, iNumEdges);
+ 		}
+ 		iScore += iTeamScore;
+ 	}
+@@ -3161,7 +3161,7 @@ void CvGame::updateGwPercentAnger()
+ 
+ 			static int const iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
+ 			iAngerPercent = iGLOBAL_WARMING_BASE_ANGER_PERCENT * iGwSeverityRating * iResponsibilityFactor;
+-			iAngerPercent = ROUND_DIVIDE(iAngerPercent, 10000);// div, 100 * 100
++			iAngerPercent = intdiv::round(iAngerPercent, 100 * 100);
+ 		}
+ 		kPlayer.setGwPercentAnger(iAngerPercent);
+ 	}
+@@ -4104,7 +4104,7 @@ EraTypes CvGame::getCurrentEra() const
+ 	if (iCount > 0)
+ 	{
+ 		//return (EraTypes)(iEra / iCount);
+-		return (EraTypes)ROUND_DIVIDE(iEra, iCount); // kekm.17
++		return (EraTypes)intdiv::uround(iEra, iCount); // kekm.17
+ 	}
+ 	FAssert(iCount > 0); // advc
+ 	return NO_ERA;
+@@ -4836,7 +4836,7 @@ int CvGame::getGlobalWarmingChances() const
+ 	int iIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+ 	iIndexPerChance*=GC.getInfo(getGameSpeedType()).getVictoryDelayPercent();
+ 	iIndexPerChance/=100;
+-	return ROUND_DIVIDE(getGlobalWarmingIndex(), std::max(1, iIndexPerChance));
++	return intdiv::round(getGlobalWarmingIndex(), std::max(1, iIndexPerChance));
+ }
+ 
+ int CvGame::getGwEventTally() const
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index b3d595a2e..81152c8c3 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -16,22 +16,28 @@ class FAStar;
+ 
+ #define SQR(x) ((x)*(x))
+ 
+-// K-Mod: Created the following function for rounded integer division
+-// advc: Moved from CvGlobals.h and static specifier removed
+-inline int ROUND_DIVIDE(int a, int b)
+-{
+-	//return (a+((a/b>0)?1:-1)*(b/2)) / b;
+-	// <advc.001> The above would round 2/3 to 0
+-	int iSign = ((a ^ b) >= 0 ? 1 : -1);
+-	return (a + iSign * b / 2) / b;
+-	// </advc.001>
+-}
+-
++/*	(advc: Can also use ScaledNum. Maybe these functions read a bit better in
++	code that doesn't use fractions much. The "u" versions -- only for
++	nonnegative numbers -- are also a bit more efficient than ScaledNum.) */
+ namespace intdiv
+ {
+-	inline int uceil(int a, int b)
++	// Replacing K-Mod's (incorrectly implemented) ROUND_DIVIDE (CvGlobals.h)
++	inline int round(int iDividend, int iDivisor)
++	{
++		int iSign = ((iDividend ^ iDivisor) >= 0 ? 1 : -1);
++		return (iDividend + iSign * iDivisor / 2) / iDivisor;
++	}
++
++	inline int uround(int iDividend, int iDivisor)
++	{
++		FAssert((iDividend ^ iDivisor) >= 0); // Both negative is OK
++		return (iDividend + iDivisor / 2) / iDivisor;
++	}
++
++	inline int uceil(int iDividend, int iDivisor)
+ 	{
+-		return 1 + (a - 1) / b;
++		FAssert(iDividend >= 0 && iDivisor > 0);
++		return 1 + (iDividend - 1) / iDivisor;
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a548a264c..8a15e101c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -17142,11 +17142,13 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 
+ 	// K-Mod include inflation
+ 	int const iInflFactor = 100 + kPlayer.calculateInflationRate();
+-	iCost = ROUND_DIVIDE(iCost * iInflFactor, 100);
+-	iUnitCost = ROUND_DIVIDE(iUnitCost * iInflFactor, 100);
+-	iMilitaryCost = ROUND_DIVIDE(iMilitaryCost * iInflFactor, 100);
+-	iHandicap = ROUND_DIVIDE(iHandicap * iInflFactor, 100);
+-	// K-Mod end
++	{
++		using namespace intdiv;
++		iCost = round(iCost * iInflFactor, 100);
++		iUnitCost = round(iUnitCost * iInflFactor, 100);
++		iMilitaryCost = round(iMilitaryCost * iInflFactor, 100);
++		iHandicap = round(iHandicap * iInflFactor, 100);
++	}	// K-Mod end
+ 	CvWString szTmp; // advc.086
+ 	szTmp.append(NEWLINE);
+ 	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST",
+@@ -17176,20 +17178,19 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 
+ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+-	if (NO_PLAYER == ePlayer)
++	if (ePlayer == NO_PLAYER)
+ 		return;
+-	CvPlayer& player = GET_PLAYER(ePlayer);
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+ 
+ 	int iPaidUnits = 0;
+ 	int iBaseCost = 0;
+-	int iCost = player.calculateUnitSupply(iPaidUnits, iBaseCost);
++	int iCost = kPlayer.calculateUnitSupply(iPaidUnits, iBaseCost);
+ 	int iHandicap = iCost - iBaseCost;
+-
+ 	// K-Mod include inflation
+-	int const inflFactor = 100+player.calculateInflationRate();
+-	iCost = ROUND_DIVIDE(iCost*inflFactor, 100);
+-	iBaseCost = ROUND_DIVIDE(iBaseCost*inflFactor, 100);
+-	iHandicap = ROUND_DIVIDE(iHandicap*inflFactor, 100);
++	int const iInflFactor = 100 + kPlayer.calculateInflationRate();
++	iCost = intdiv::round(iCost * iInflFactor, 100);
++	iBaseCost = intdiv::round(iBaseCost * iInflFactor, 100);
++	iHandicap = intdiv::round(iHandicap * iInflFactor, 100);
+ 	// K-Mod end
+ 
+ 	CvWString szHandicap;
+@@ -17203,7 +17204,7 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST",
+ 			//iPaidUnits, GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"),
+ 			// K-Mod:
+-			player.getNumOutsideUnits(), player.getNumOutsideUnits() - iPaidUnits,
++			kPlayer.getNumOutsideUnits(), kPlayer.getNumOutsideUnits() - iPaidUnits,
+ 			iBaseCost, szHandicap.GetCString(), iCost));
+ 	// <advc.086>
+ 	if(szBuffer.isEmpty())
+@@ -17279,7 +17280,8 @@ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, Pla
+ 		{
+ 			CvWString szTemp;
+ 			szTemp.Format(L"%d%c: %s",
+-					ROUND_DIVIDE(kPlayer.getSingleCivicUpkeep(eCivic) * iInflFactor, 100), // K-Mod
++					// K-Mod:
++					intdiv::round(kPlayer.getSingleCivicUpkeep(eCivic) * iInflFactor, 100),
+ 					GC.getInfo(COMMERCE_GOLD).getChar(), GC.getInfo(eCivic).getDescription());
+ 			szCivicOptionCosts += NEWLINE + szTemp;
+ 		}
+@@ -17289,7 +17291,7 @@ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, Pla
+ 	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST",
+ 			szCivicOptionCosts.GetCString(),
+ 			//player.getCivicUpkeep()));
+-			ROUND_DIVIDE(kPlayer.getCivicUpkeep() * iInflFactor, 100))); // K-Mod
++			intdiv::round(kPlayer.getCivicUpkeep() * iInflFactor, 100))); // K-Mod
+ 	// <advc.086>
+ 	if(szBuffer.isEmpty())
+ 		szBuffer.assign(szTmp.substr(2, szTmp.length()));
+@@ -18926,7 +18928,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
+ 	int iPopScore = 0;
+ 	if (iMaxPop > 0)
+ 	{
+-		iPopScore = ROUND_DIVIDE( // advc.003y: round
++		iPopScore = intdiv::round( // advc.003y: round
+ 				GC.getDefineINT("SCORE_POPULATION_FACTOR") * iPop, iMaxPop);
+ 	}
+ 	int iLand = kPlayer.getLandScore();
+@@ -18934,7 +18936,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
+ 	int iLandScore = 0;
+ 	if (iMaxLand > 0)
+ 	{
+-		iLandScore = ROUND_DIVIDE( // advc.003y
++		iLandScore = intdiv::round( // advc.003y
+ 				GC.getDefineINT("SCORE_LAND_FACTOR") * iLand, iMaxLand);
+ 	}
+ 	int iTech = kPlayer.getTechScore();
+@@ -18942,7 +18944,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
+ 	int iTechScore = 0;
+ 	if (iMaxTech > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
+ 	{
+-		iTechScore = ROUND_DIVIDE( // advc.003y
++		iTechScore = intdiv::round( // advc.003y
+ 				GC.getDefineINT("SCORE_TECH_FACTOR") * iTech, iMaxTech);
+ 	}
+ 	int iWonders = kPlayer.getWondersScore();
+@@ -18950,7 +18952,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
+ 	int iWondersScore = 0;
+ 	if (iMaxWonders > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
+ 	{
+-		iWondersScore = ROUND_DIVIDE( // advc.003y
++		iWondersScore = intdiv::round( // advc.003y
+ 				GC.getDefineINT("SCORE_WONDER_FACTOR") * iWonders, iMaxWonders);
+ 	}
+ 	int iTotalScore = iPopScore + iLandScore + iTechScore + iWondersScore;
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 8e10652c8..69148cc76 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -158,7 +158,7 @@ public: // All the const functions are exposed to Python except those added by m
+ 			in such a case. normalizeEraNum is really only for era differences. */
+ 		FAssertEnumBounds((EraTypes)iEra);
+ 		/*	[Kek-Mod doesn't count the BtS Future era here:
+-			ROUND_DIVIDE(eEra * 6, GC.getNumEraInfos() - 1)] */
++			intdiv::uround(eEra * 6, GC.getNumEraInfos() - 1)] */
+ 		return scaled(iEra * 7, GC.getNumEraInfos());
+ 	}
+ 	// </advc.erai>
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index cf851fad4..61dc2ddce 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -833,7 +833,7 @@ void CvMapGenerator::addGoodies()
+ 
+ 			CvArea const& kArea = kPlot.getArea();
+ 			if (goodiesPerArea[kArea.getID()] < // advc.opt: was kArea.getNumImprovements(eImprov)
+-				ROUND_DIVIDE(kArea.getNumTiles(), iTilesPerGoody))
++				intdiv::uround(kArea.getNumTiles(), iTilesPerGoody))
+ 			{
+ 				if (canPlaceGoodyAt(eGoody, kPlot.getX(), kPlot.getY()))
+ 				{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d993cd8de..bdadc9207 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1207,7 +1207,7 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(
+ 				pLoopArea->getNumRiverEdges() +*/
+ 				coastRiverStartingAreaScore(*pLoopArea) + // Replacing the above
+ 				// New: factor in bonus resources
+-				ROUND_DIVIDE(pLoopArea->getNumTotalBonuses() * 3, 2) +
++				intdiv::uround(pLoopArea->getNumTotalBonuses() * 3, 2) +
+ 				pLoopArea->getNumTiles() / 2; // Halved
+ 		// </advc.027>
+ 		int iValue = iTileValue / iNumPlayersOnArea;
+@@ -7071,12 +7071,12 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
+ 	iThreshold *= GC.getInfo(kGame.getStartEra()).getGreatPeoplePercent();
+ 	iThreshold /= 100;
+ 	// <advc.251>
+-	iThreshold = ::roundToMultiple(0.01 * iThreshold * GC.getInfo(
+-			getHandicapType()).getGPThresholdPercent(),
++	iThreshold = (per100(1) * iThreshold * GC.getInfo(
++			getHandicapType()).getGPThresholdPercent()).roundToMultiple(
+ 			isHuman() ? 5 : 1);
+ 	if (!isHuman() && !isBarbarian())
+ 	{
+-		iThreshold = ROUND_DIVIDE(iThreshold * GC.getInfo(
++		iThreshold = intdiv::round(iThreshold * GC.getInfo(
+ 				kGame.getHandicapType()).getAIGPThresholdPercent(), 100);
+ 	} // </advc.251>
+ 
+@@ -19415,7 +19415,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors,
+ 					iExtra += (aieOwners[i].first * iColorsPerPlot) / iTotalCulture;
+ 				else if (iPass == 1) // Round to nearest
+ 				{
+-					iExtra += ROUND_DIVIDE(aieOwners[i].first * iColorsPerPlot,
++					iExtra += intdiv::round(aieOwners[i].first * iColorsPerPlot,
+ 							iTotalCulture);
+ 				} // Respect size limit
+ 				iExtra = std::min(iExtra, iColorsPerPlot - (int)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 849c99bef..f2e460e9b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1033,7 +1033,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStarting)  // advc: refactored
+ 				// Unless it doesn't have fresh water
+ 				kLoopPlot.isFreshWater())
+ 			{
+-				iValue = toShort(iValue + ROUND_DIVIDE(iValue, 20));
++				iValue = toShort(iValue + intdiv::round(iValue, 20));
+ 			} // </advc.108>
+ 		}
+ 		kLoopPlot.setFoundValue(getID(), iValue);
+@@ -2898,7 +2898,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize,
+ 		if (pUWAICity != NULL && pUWAICity->canReach())
+ 		{
+ 			if (iPathTurns >= 0)
+-				iPathTurns = ROUND_DIVIDE(iPathTurns + pUWAICity->getDistance(), 2);
++				iPathTurns = intdiv::round(iPathTurns + pUWAICity->getDistance(), 2);
+ 			else iPathTurns = pUWAICity->getDistance();
+ 		}
+ 	}*/
+@@ -2936,7 +2936,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize,
+ 			adding maxStepDistance isn't a good idea, but, in terms of giving
+ 			iPathDist its proper weight, the BtS formula was closer to the mark. */
+ 		if (iPathTurns >= 0)
+-			iValue += ROUND_DIVIDE(4 * std::max(0, 30 - iPathTurns), 3);
++			iValue += intdiv::uround(4 * std::max(0, 30 - iPathTurns), 3);
+ 	}
+ 	else
+ 	{
+@@ -2974,7 +2974,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize,
+ 	}
+ 	// Now handled upfront
+ 	/*if (kCity.isAutoRaze(getID()))
+-		iValue = ROUND_DIVIDE(iValue + 2, 3);*/ // K-Mod
++		iValue = intdiv::round(iValue + 2, 3);*/ // K-Mod
+ 	// </advc.104d>
+ 	return iValue;
+ }
+@@ -2999,7 +2999,7 @@ int CvPlayerAI::AI_cityWonderVal(CvCity const& c) const
+ 				still not have the religion. Or if they do, we can use these
+ 				cities to build missionaries to convert foreign cities. */
+ 			if(getStateReligion() == eLoopReligion)
+-				iReligionCities += ROUND_DIVIDE(2 * getNumCities(), 5);
++				iReligionCities += intdiv::uround(2 * getNumCities(), 5);
+ 			/* K-Mod comment: "the -4 at the end is mostly there to offset the
+ 				'wonder' value that will be added later. I don't want to double count
+ 				the value of the shrine, and the religion [the holy city?]
+@@ -11480,7 +11480,7 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus, /* advc.036: */ bool b
+ 			the price for humans a bit in order to stop the AI from offering 1-ofs
+ 			as soon as a player founds a corporation. */
+ 		if(bTrade && isHuman())
+-			iCorps = std::min(getNumCities(), 1 + ROUND_DIVIDE(iCorps * 4, 3));
++			iCorps = std::min(getNumCities(), 1 + intdiv::uround(iCorps * 4, 3));
+ 		// </advc.036>
+ 		iCorps += getNumCities() / 6 + 1;
+ 		CvCorporationInfo const& kCorp = GC.getInfo(eCorp);
+@@ -11513,7 +11513,7 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus, /* advc.036: */ bool b
+ 	iValue /= 10;	//match AI_baseBonusVal
+ 	return iValue;*/
+ 	// advc.036: To increase accuracy
+-	return ROUND_DIVIDE(iValue, 1000);
++	return intdiv::round(iValue, 1000);
+ }
+ 
+ // advc.036:
+@@ -15877,10 +15877,12 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		if (isCivic(eCivic)) // Fudge factor
+ 		{
+ 			iGwAnger *= 100;
+-			iGwAnger /= 100 - 2*kCivic.getUnhealthyPopulationModifier()/3;
+-			// Note, this fudge factor is actually pretty good at estimating what the GwAnger would have been.
++			/*	Note, this fudge factor is actually pretty good at
++				estimating what the GwAnger would have been. */
++			iGwAnger /= 100 - 2 * kCivic.getUnhealthyPopulationModifier() / 3;
+ 		}
+-		int const iHappy = iS*ROUND_DIVIDE(-kCivic.getUnhealthyPopulationModifier()*iGwAnger*2,300);
++		int const iHappy = iS * intdiv::round(
++				-kCivic.getUnhealthyPopulationModifier() * iGwAnger * 2, 300);
+ 		// <advc.001> Shouldn't call AI_getHappinessWeight with iHappy=0
+ 		int iCleanValue = 0;
+ 		if(iHappy != 0) // </advc.001>
+@@ -16290,7 +16292,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	}
+ 	if (kCivic.getWarWearinessModifier() != 0) // K-Mod. (original code deleted)
+ 	{
+-		iValue += (12 * iCities * iS * AI_getHappinessWeight(iS*ROUND_DIVIDE(
++		iValue += (12 * iCities * iS * AI_getHappinessWeight(
++				iS * intdiv::round(
+ 				getWarWearinessPercentAnger() * -getWarWearinessModifier(),
+ 				GC.getPERCENT_ANGER_DIVISOR()), 1, true)) / 100;
+ 	}
+@@ -17847,7 +17850,7 @@ bool CvPlayerAI::AI_processTradeValue(CLinkList<TradeData> const& kItems,
+ {
+ 	/*  advc.550a: Ignore discounts when it comes to fair-trade diplo bonuses?
+ 		Hard to decide, apply half the discount for now. */
+-	int iValue = ROUND_DIVIDE(
++	int iValue = intdiv::round(
+ 			AI_dealVal(eFromPlayer, kItems, true, 1, true, true,
+ 			true, bAIRequest, true) + // advc.ctr
+ 			AI_dealVal(eFromPlayer, kItems, true, 1, false, true,
+@@ -23362,7 +23365,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 	if(isHuman()) // Perhaps not inclined, but very capable.
+ 		iValue += 100;
+ 	else iValue += GC.getInfo(getPersonalityType()).getDiplomacyVictoryWeight();
+-	iValue = ROUND_DIVIDE(iValue * 2, 3); // Victory weight too high
++	iValue = intdiv::round(iValue * 2, 3); // Victory weight too high
+ 	int iVoteTarget=MIN_INT;
+ 	int iVotesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&iVoteTarget);
+ 	if(iVoteTarget == -1)
+@@ -27515,7 +27518,7 @@ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent)
+ 		iCityHappy -= std::max(0, pLoopCity->getCommerceHappiness());
+ 		int iHappyNow = iCityHappy;
+ 		int iHappyThen = iCityHappy +
+-			(bPercent ? ROUND_DIVIDE(pLoopCity->getPopulation()*iHappy, 100) : iHappy);
++			(bPercent ? intdiv::round(pLoopCity->getPopulation()*iHappy, 100) : iHappy);
+ 		//Integration
+ 		int iTempValue = (((100 * iHappyThen - 10 * iHappyThen * iHappyThen)) - (100 * iHappyNow - 10 * iHappyNow * iHappyNow));
+ 		if (iHappy > 0)
+@@ -27946,7 +27949,7 @@ bool CvPlayerAI::AI_canBeExpectedToTrain(UnitTypes eUnit) const
+ 	int iMinAreaSz = std::max(0, u.getMinAreaSize());
+ 	/*  Should be able to train at least two units in ten turns (i.e. one in five);
+ 		otherwise, the unit probably won't be trained at all, or just 1 or 2. */
+-	int iTargetProduction = ROUND_DIVIDE(getProductionNeeded(eUnit), 5);
++	int iTargetProduction = intdiv::round(getProductionNeeded(eUnit), 5);
+ 	int iPartialSum = 0;
+ 	FOR_EACH_CITY(c, *this)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f1d98e7db..d0325f00b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13673,7 +13673,7 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags
+ 	int const iSearchRange = (bFollow ? 1 : AI_searchRange(iRange));
+ 	// <advc.128> Within this range, the AI is able see to units on hidden tiles.
+ 	int const iSearchRangeRand = std::max(1,
+-			ROUND_DIVIDE(iSearchRange * m_iSearchRangeRandPercent, 100)); // </advc.128>
++			intdiv::round(iSearchRange * m_iSearchRangeRandPercent, 100)); // </advc.128>
+ 	bool const bDeclareWar = (eFlags & MOVE_DECLARE_WAR);
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestOdds = iOddsThreshold - 1; // advc
+@@ -21294,7 +21294,7 @@ int CvUnitAI::AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const
+ 	{
+ 		int iDilution = GC.getDefineINT(CvGlobals::LFB_BASEDONEXPERIENCE) +
+ 				GC.getDefineINT(CvGlobals::LFB_BASEDONHEALER) +
+-				ROUND_DIVIDE(10 * GC.getDefineINT(CvGlobals::LFB_BASEDONEXPERIENCE) *
++				intdiv::round(10 * GC.getDefineINT(CvGlobals::LFB_BASEDONEXPERIENCE) *
+ 				(GC.getGame().getCurrentEra() - GC.getGame().getStartEra() + 1),
+ 				std::max(1, GC.getNumEraInfos() - GC.getGame().getStartEra()));
+ 		int iOurValue = LFBgetRelativeValueRating() + iDilution;
+
+diff --git a/CvGameCoreDLL/PlayerHistory.cpp b/CvGameCoreDLL/PlayerHistory.cpp
+index 028c9b29a..6f6f050c3 100644
+--- a/CvGameCoreDLL/PlayerHistory.cpp
++++ b/CvGameCoreDLL/PlayerHistory.cpp
+@@ -31,7 +31,7 @@ void PlayerHistory::set(int iTurn, int iValue)
+ 	}
+ 	for (int i = iTurn - 1; i >= iTurn - iOldSamples; i--)
+ 		iSum += std::max(m_aiValues[i], 0);
+-	m_aiValues[iTurn] = ROUND_DIVIDE(iSum, std::max(1, iSamples));
++	m_aiValues[iTurn] = intdiv::round(iSum, std::max(1, iSamples));
+ }
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 2a3a2a215..2e0b8236b 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -7,7 +7,7 @@
+ 
+ #include "FixedPointPowTables.h" // Large lookup table, but ScaledNum.h gets precompiled.
+ #include "TypeChoice.h"
+-/*	Other non-BtS dependencies: ROUND_DIVIDE, round and intHash in CvGameCoreUtils.h.
++/*	Other non-BtS dependencies: intdiv::round, round, intHash, all in CvGameCoreUtils.h.
+ 	(Tbd.: Move those global functions here.)
+ 	For inclusion in PCH, one may have to define NOMINMAX before including windows.h;
+ 	see CvGameCoreDLL.h.
+@@ -660,7 +660,7 @@ private:
+ 		{
+ 			int i = multiplicand;
+ 			i *= multiplier;
+-			i = ROUND_DIVIDE(i, divisor);
++			i = intdiv::round(i, divisor);
+ 			i /= divisor;
+ 			return static_cast<ReturnType>(i);
+ 		} // In all remaining cases, mulDiv rounds too.
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index e72ad1788..aaa0efa11 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1419,7 +1419,7 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 		/*	Search from target to source. TeamStepMetric is symmetrical in that regard.
+ 			Doing it backwards allows intermediate results to be reused. */
+ 		if(pf->landFinder().generatePath(targetCity.getPlot(), *p)) {
+-			pwd = ROUND_DIVIDE(pf->landFinder().getPathCost(),
++			pwd = intdiv::uround(pf->landFinder().getPathCost(),
+ 					GC.getMOVE_DENOMINATOR());
+ 			if(pwd == 0) // Make sure 0 is reserved for own cities
+ 				pwd = 1;
+@@ -1461,7 +1461,7 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 						d = pf->shallowWaterFinder().getPathCost();
+ 				}
+ 				if(d > 0) {
+-					d = seaPenalty + ROUND_DIVIDE(d,
++					d = seaPenalty + intdiv::uround(d,
+ 							GC.getMOVE_DENOMINATOR() * cacheOwner.uwai().shipSpeed());
+ 					if(pwd < 0 || d < pwd) {
+ 						pwd = d;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 8f1eca0f3..a839bcd90 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3517,7 +3517,7 @@ void TacticalSituation::evalEngagement() {
+ 		ourTotal += groupSize;
+ 		// Assume units in cities to be less engaged
+ 		if(gr->getPlot().isCity())
+-			groupSize = ROUND_DIVIDE(groupSize, 2);
++			groupSize = intdiv::uround(groupSize, 2);
+ 		int iRange = 1; // (avoid shadowing ::range())
+ 		CvPlot const& groupPlot = gr->getPlot();
+ 		PlayerTypes const plotOwner = groupPlot.getOwner();
+@@ -3619,7 +3619,7 @@ void TacticalSituation::evalEngagement() {
+ 			pairs of units. */
+ 		theirUnits = std::min(theirUnits, ourUnits);
+ 		if(p.isCity()) {
+-			theirUnits = ROUND_DIVIDE(theirUnits, 2);
++			theirUnits = intdiv::uround(theirUnits, 2);
+ 			theirDamaged = 0; // Covered by theirEvac
+ 		}
+ 		entangled += theirUnits;
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=29016

@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2152
+# Commit: 9cef199a0aee056419d5d314a5e5d87024a1296c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a1a1166a9722005e34bc9f20f6c7f8c18ad2de15
+# Title: Inline a couple of CvGame functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvCityAI.cpp
+2	20	CvGameCoreDLL/CvGame.cpp
+3	3	CvGameCoreDLL/CvGame.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index dd1518123..65f7743b3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6603,6 +6603,7 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
+ 
+ void CvCityAI::AI_setCityValPercent(int iValue)
+ {
++	FAssert(iValue <= 101);
+ 	m_iCityValPercent = iValue;
+ } // </advc.139>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3fa169238..08fd7d1cd 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10606,13 +10606,7 @@ BuildingTypes CvGame::getVoteSourceBuilding(VoteSourceTypes eVS) const
+ 	return NO_BUILDING;
+ } // </advc.127b>
+ 
+-// <advc.052>
+-bool CvGame::isScenario() const
+-{
+-	return m_bScenario;
+-}
+-
+-
++// advc.052:
+ void CvGame::setScenario(bool b)
+ {
+ 	m_bScenario = b;
+@@ -10620,7 +10614,7 @@ void CvGame::setScenario(bool b)
+ 		so one can't be certain what they check and how long it might take. */
+ 	FAssert(m_bScenario == gDLL->isWBMapScript());
+ 	FAssert(m_bScenario == GC.getInitCore().getWBMapScript());
+-} // </advc.052>
++}
+ 
+ // advc.250b:
+ StartPointsAsHandicap const& CvGame::startPointsAsHandicap() const
+@@ -10628,18 +10622,6 @@ StartPointsAsHandicap const& CvGame::startPointsAsHandicap() const
+ 	return *m_pSpah;
+ }
+ 
+-// <advc.703>
+-RiseFall const& CvGame::getRiseFall() const
+-{
+-	return *m_pRiseFall;
+-}
+-
+-
+-RiseFall& CvGame::getRiseFall()
+-{
+-	return *m_pRiseFall;
+-} // </advc.703>
+-
+ // <advc.106i>
+ void CvGame::setHallOfFame(CvHallOfFameInfo* pHallOfFame)
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index d0c6665fe..645a605a0 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -751,7 +751,7 @@ public:
+ 	GlobeLayerTypes getCurrentLayer() const;
+ 	void reportCurrentLayer(GlobeLayerTypes eLayer);		// (exposed to Python)
+ 	// </advc.004m>  <advc.052>
+-	bool isScenario() const;
++	bool isScenario() const { return m_bScenario; }
+ 	void setScenario(bool b);
+ 	// </advc.052>  <advc.127b>
+ 	/*  Returns (-1,-1) if 'vs' doesn't exist in any city or (eObserver!=NO_TEAM)
+@@ -769,8 +769,8 @@ public:
+ 	int getBarbarianStartTurn() const; // advc.300		(exposed to Python)
+ 	bool isBarbarianCreationEra() const; // advc.307
+ 	// <advc.703>
+-	RiseFall const& getRiseFall() const;
+-	RiseFall& getRiseFall();
++	RiseFall const& getRiseFall() const { return *m_pRiseFall; }
++	RiseFall& getRiseFall() { return *m_pRiseFall; }
+ 	// </advc.703>
+ 	void setHallOfFame(CvHallOfFameInfo* pHallOfFame); // advc.106i
+ 	std::set<int>& getActivePlayerCycledGroups(); // advc
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2565

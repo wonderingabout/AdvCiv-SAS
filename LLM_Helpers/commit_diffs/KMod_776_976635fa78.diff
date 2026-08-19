@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 776
+# Commit: 976635fa7886371427515f337e2d346f46cba406
+# History segment: K-Mod history
+# Parent used for diff: 16c872779e2e5f65cd0427781dd89fa97e68f890
+# Title: Fixed a couple of corporation spread AI problems.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	CvGameCoreDLL/CvCityAI.cpp
+14	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8f5453bee..a1d3d8ede 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2866,9 +2866,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				if (iSuccessRatio > 0)
+ 				{
+ 					aiUnitAIVal[UNITAI_ATTACK] += iSuccessRatio * iMilitaryWeight / 800;
+-					aiUnitAIVal[UNITAI_ATTACK_CITY] += iSuccessRatio * iMilitaryWeight / 800;
+-					aiUnitAIVal[UNITAI_COUNTER] += iSuccessRatio * iMilitaryWeight / 1200;
+-					aiUnitAIVal[UNITAI_PARADROP] += iSuccessRatio * iMilitaryWeight / 800;
++					aiUnitAIVal[UNITAI_ATTACK_CITY] += iSuccessRatio * iMilitaryWeight / 1000;
++					aiUnitAIVal[UNITAI_COUNTER] += iSuccessRatio * iMilitaryWeight / 1400;
++					aiUnitAIVal[UNITAI_PARADROP] += iSuccessRatio * iMilitaryWeight / 1000;
+ 				}
+ 			}
+ 			// K-Mod end
+@@ -2881,6 +2881,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	{
+ 		aiUnitAIVal[UNITAI_SETTLE] = 0;
+ 		aiUnitAIVal[UNITAI_WORKER] = 0;
++		aiUnitAIVal[UNITAI_EXPLORE] = 0;
++		aiUnitAIVal[UNITAI_ATTACK_CITY] /= 3;
++		aiUnitAIVal[UNITAI_COLLATERAL] /= 2;
+ 	}
+ 	else
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0ec0af199..256af3cca 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13047,7 +13047,20 @@ bool CvUnitAI::AI_spreadCorporation()
+ 							{
+ 								int iValue = 10 + pLoopCity->getPopulation() * 2;
+ 								iValue += bHasHQ ? 1000 : 0; // we should probably calculate the true HqValue, but I couldn't be bothered right now.
+-								iValue += pLoopCity->getTeam() == getTeam() ? kOwner.AI_corporationValue(eCorporation, pLoopCity) : 0;
++								if (pLoopCity->getTeam() == getTeam())
++								{
++									const CvPlayerAI& kCityOwner = GET_PLAYER(pLoopCity->getOwnerINLINE());
++									iValue += kCityOwner.AI_corporationValue(eCorporation, pLoopCity);
++
++									for (CorporationTypes i = (CorporationTypes)0; i < GC.getNumCorporationInfos(); i=(CorporationTypes)(i+1))
++									{
++										if (pLoopCity->isHasCorporation(i) && GC.getGameINLINE().isCompetingCorporation(i, eCorporation))
++										{
++											iValue -= kCityOwner.AI_corporationValue(i, pLoopCity) + (GET_TEAM(getTeam()).hasHeadquarters(i) ? 1100 : 100);
++											// cf. iValue before AI_corporationValue is added.
++										}
++									}
++								}
+ 
+ 								/* if (iI == eTargetPlayer)
+ 									iValue *= 15;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2496

@@ -1,0 +1,498 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3160
+# Commit: 5b197fbc9c6226f7c063f091ddd5c5df55aec051
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cf125d35a7b9183854827824985fb831fff61fd8
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/AgentIterator.h
+15	16	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvEnums.h
+9	11	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGameCoreDLL.h
+6	5	CvGameCoreDLL/CvGameTextMgr.cpp
+5	0	CvGameCoreDLL/CvInfoEnums.h
+3	3	CvGameCoreDLL/CvPlayer.cpp
+23	25	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+0	9	CvGameCoreDLL/EnumMap.h
+1	1	CvGameCoreDLL/GroupPathFinder.cpp
+2	2	CvGameCoreDLL/PragmaWarnings.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index e22828bf4..8dcec7c47 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -144,7 +144,7 @@ public:
+ 
+ protected:
+ 	AgentIterator(TeamTypes eTeam = NO_TEAM)
+-	:	ExplicitAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>(eTeam), m_iSkipped(0)
++	:	ExplicitAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>(eTeam)
+ 	{
+ 		/*  ExplicitAgentIterator gets instantiated for all combinations of template parameters,
+ 			so these static assertions would fail in that class. In this derived class, they'll
+@@ -152,8 +152,8 @@ protected:
+ 			See comments in AgentPredicates.h about the specific assertions. */
+ 		BOOST_STATIC_ASSERT(eSTATUS != ANY_AGENT_STATUS || eRELATION <= NOT_SAME_TEAM_AS);
+ 		BOOST_STATIC_ASSERT(eRELATION != VASSAL_OF || eSTATUS != FREE_MAJOR_CIV);
+-
+ 		FAssert(eRELATION == ANY_AGENT_RELATION || (eTeam > NO_TEAM && eTeam < MAX_TEAMS));
++
+ 		if (bAPPLY_FILTERS)
+ 		{
+ 			if (eCACHE_SUPER < CvAgents::NUM_STATUS_CACHES)
+@@ -166,6 +166,7 @@ protected:
+ 				m_pCache = m_pAgents->getAgentSeqCache<AgentAIType>(eCACHE_SUBSETEQ);
+ 			else m_pCache = m_pAgents->getPerTeamSeqCache<AgentAIType>(eCACHE_SUBSETEQ, eTeam);
+ 		}
++		m_iSkipped = 0;
+ 		m_iPos = 0;
+ 		// Cache the cache size (std::vector computes it as 'end' minus 'begin')
+ 		m_iCacheSize = static_cast<short>(m_pCache->size());
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 72c99d854..07689f778 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6871,7 +6871,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eYield, int iExtra) const
+ 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
+ 	// so if any extra checked things are added here, the cache needs to be invalidated
+ 
+-	return std::max(0, (iModifier + 100));
++	return std::max(0, iModifier + 100);
+ }
+ 
+ 
+@@ -7647,11 +7647,11 @@ void CvCity::updateCorporation(/* advc.064d: */ bool bVerifyProduction)
+ 	updateCorporationBonus(/* advc.06d: */ bVerifyProduction);
+ 	updateBuildingCommerce();
+ 
+-	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+-		updateCorporationYield((YieldTypes)iI);
++	FOR_EACH_ENUM(Yield)
++		updateCorporationYield(eLoopYield);
+ 
+-	for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+-		updateCorporationCommerce((CommerceTypes)iI);
++	FOR_EACH_ENUM(Commerce)
++		updateCorporationCommerce(eLoopCommerce);
+ 
+ 	updateMaintenance();
+ }
+@@ -10689,7 +10689,7 @@ void CvCity::doReligion()
+ 	// weakest religion already in the city
+ 	ReligionTypes eWeakestReligion = NO_RELIGION;
+ 	int iWeakestGrip = MAX_INT;
+-	static int const iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT"); // advc.opt: 3x static
++	static int const iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+ 	static int const iDivisorBase = GC.getDefineINT("RELIGION_SPREAD_DIVISOR_BASE");
+ 	static int const iDistanceFactor = GC.getDefineINT("RELIGION_SPREAD_DISTANCE_FACTOR");
+ 
+@@ -10744,10 +10744,10 @@ void CvCity::doReligion()
+ 				GET_PLAYER(getOwner()).getStateReligion() == eLoopReligion);
+ 
+ 		int iRandThreshold = 0;
+-
+-		for (PlayerIter<ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
++		for (PlayerIter<ALIVE,KNOWN_TO> itPlayer(getTeam());
++			itPlayer.hasNext(); ++itPlayer)
+ 		{
+-			FOR_EACH_CITY(pLoopCity, *it)
++			FOR_EACH_CITY(pLoopCity, *itPlayer)
+ 			{
+ 				if (!pLoopCity->isConnectedTo(*this))
+ 					continue;
+@@ -10756,15 +10756,14 @@ void CvCity::doReligion()
+ 				iSpread *= GC.getInfo(eLoopReligion).getSpreadFactor();
+ 				if (iSpread > 0)
+ 				{
+-					//iSpread /= std::max(1, (((GC.getDefineINT("RELIGION_SPREAD_DISTANCE_DIVISOR") * plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY())) / GC.getMap().maxPlotDistance()) - 5));
++					/*iSpread /= std::max(1, (GC.getDefineINT("RELIGION_SPREAD_DISTANCE_DIVISOR", 100) *
++							plotDistance(plot(), pLoopCity->plot())) / GC.getMap().maxPlotDistance() - 5);*/
+ 					/*	K-Mod. The original formula basically divided the spread
+-						by the percent of max distance.
+-						(RELIGION_SPREAD_DISTANCE_DIVISOR == 100)
+-						In my view, this produced too much spread at short distance
+-						and too little at long. */
++						by the percent of max distance. In my view, this produced
++						too much spread at short distance and too little at long. */
+ 					int iDivisor = std::max(1, iDivisorBase);
+-					iDivisor *= 100 + 100 * iDistanceFactor *
+-							plotDistance(plot(), pLoopCity->plot()) /
++					iDivisor *= 100 + (100 * iDistanceFactor *
++							plotDistance(plot(), pLoopCity->plot())) /
+ 							GC.getMap().maxTypicalDistance();  // advc.140: was maxPlotDistance
+ 					iDivisor /= 100;
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 1d02a565f..007e0a78d 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1803,6 +1803,7 @@ enum ChatTargetTypes
+ enum PlayerVoteTypes
+ {
+ 	NO_PLAYER_VOTE_CHECKED = -6,
++	FIRST_PLAYER_VOTE = NO_PLAYER_VOTE_CHECKED, // advc.enum
+ 	PLAYER_VOTE_NEVER = -5,
+ 	PLAYER_VOTE_ABSTAIN = -4,
+ 	PLAYER_VOTE_NO = -3,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a0fa61707..442ef285f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7128,29 +7128,28 @@ void CvGame::doHolyCity()
+ {
+ 	if (GC.getPythonCaller()->doHolyCity())
+ 		return;
+-
+ 	if (getElapsedGameTurns() < 5 && !isOption(GAMEOPTION_ADVANCED_START))
+ 		return;
+ 
+ 	int iRandOffset = getSorenRandNum(GC.getNumReligionInfos(), "Holy City religion offset");
+ 	for (int iLoop = 0; iLoop < GC.getNumReligionInfos(); ++iLoop)
+ 	{
+-		int iI = ((iLoop + iRandOffset) % GC.getNumReligionInfos());
+-		ReligionTypes eReligion = (ReligionTypes)iI;
++		ReligionTypes eReligion = (ReligionTypes)(
++				(iLoop + iRandOffset) % GC.getNumReligionInfos());
+ 		if (isReligionSlotTaken(eReligion))
+ 			continue;
+-
+ 		TeamTypes eBestTeam = NO_TEAM;
+-		{ // scope for iBestValue
++		{
+ 			int iBestValue = MAX_INT;
+ 			/*  advc.001: Was MAX_TEAMS. Make sure Barbarians can't found a religion
+-				somehow.Inspired by Mongoose SDK ReligionMod. */
++				somehow. Inspired by Mongoose SDK ReligionMod. */
+ 			for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 			{
+-				if (!itTeam->isHasTech((TechTypes)GC.getInfo(eReligion).getTechPrereq()))
+-					continue;
+-				if (itTeam->getNumCities() <= 0)
++				if (!itTeam->isHasTech((TechTypes)GC.getInfo(eReligion).getTechPrereq()) ||
++					itTeam->getNumCities() <= 0)
++				{
+ 					continue;
++				}
+ 
+ 				int iValue = getSorenRandNum(10, "Found Religion (Team)");
+ 				FOR_EACH_ENUM(Religion)
+@@ -7159,8 +7158,7 @@ void CvGame::doHolyCity()
+ 					if (iReligionCount > 0)
+ 						iValue += iReligionCount * 20;
+ 				}
+-				// advc.138:
+-				iValue -= religionPriority(itTeam->getID(), eReligion);
++				iValue -= religionPriority(itTeam->getID(), eReligion); // advc.138
+ 				if (iValue < iBestValue)
+ 				{
+ 					iBestValue = iValue;
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 4f764be93..4ec0d9dbe 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -55,7 +55,7 @@
+ // (advc.make: Some macros moved into new header Trigonometry.h)
+ 
+ // <advc.003s> For generating variable names. (The layer of indirection is necessary.)
+-#define CONCATVARNAME_IMPL(prefix, lineNum) prefix##lineNum
++#define CONCATVARNAME_IMPL(prefix, suffix) prefix##suffix
+ #define CONCATVARNAME(prefix, suffix) CONCATVARNAME_IMPL(prefix, suffix) // </advc.003s>
+ 
+ // <advc> Stuff moved into separate headers
+@@ -125,4 +125,4 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ 	#define printToConsole(szMsg)
+ #endif // </advc.wine>
+ 
+-#endif	// CvGameCoreDLL_h
++#endif
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 9c2f8b905..3876f3503 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8187,12 +8187,13 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 			szBuffer.append(NEWLINE);
+ 			// <advc.004x> (based on BtS code)
+ 			bool bShowTurns = GET_PLAYER(eActivePlayer).isResearch();
+-			int iTurnsLeft = (bShowTurns ? GET_PLAYER(eActivePlayer).
++			int iTurnsLeft = (!bShowTurns ? -1 :
+ 					/*	Note: bTreeInfo is _false_ when hovering on the tech tree.
+-						The Shift check is for queuing up techs; don't know what
+-						the Ctrl check is for. */
+-					getResearchTurnsLeft(eTech, !bTreeInfo &&
+-					(GC.ctrlKey() || !GC.shiftKey())) : -1);
++						The Shift check is for queuing up techs; don't know
++						what the Ctrl check is for. */
++					GET_PLAYER(eActivePlayer).getResearchTurnsLeft(eTech,
++					(!bTreeInfo && (GC.ctrlKey() || !GC.shiftKey())) ||
++					bStrategyText)); // Do include overflow in choose-tech popup
+ 			if (iTurnsLeft < 0)
+ 				bShowTurns = false;
+ 			if (bDiplo) // To set the cost apart from trade denial text
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index 3e39cb7c5..7f878f032 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -288,6 +288,11 @@ DEFINE_INCREMENT_OPERATORS(Name##Types)
+ 	enumerators from the EXE through _USRDLL checks. Since we can't
+ 	recompile the EXE, let's not bother with that. */
+ 
++template<typename E>
++bool checkEnumBounds(E eIndex)
++{
++	return (eIndex >= 0 && eIndex < getEnumLength(eIndex));
++}
+ namespace info_enum_detail
+ {
+ 	template<typename E>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index be43e2729..b5ed9817a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1248,12 +1248,12 @@ CvPlot* CvPlayer::findStartingPlot(
+ 		*pbAreaFoundByMapScript = false;
+ 	// </advc.027>
+ 	{
+-		CvPlot* r = GC.getPythonCaller()->findStartingPlot(getID());
+-		if (r != NULL)
++		CvPlot* pPlot = GC.getPythonCaller()->findStartingPlot(getID());
++		if (pPlot != NULL)
+ 		{	// <advc.027>
+ 			if (pbPlotFoundByMapScript != NULL)
+ 				*pbPlotFoundByMapScript = true; // </advc.027>
+-			return r;
++			return pPlot;
+ 		}
+ 	}
+ 	//int iBestArea = -1;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 06dd8dad9..13393e34f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5156,10 +5156,10 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		}
+ 	}
+ 
+-	//the way feature-remove is done in XML is pretty weird
+-	//I believe this code needs to be outside the general BuildTypes loop
+-	//to ensure the feature-remove is only counted once rather than once per build
+-	//which could be a lot since nearly every build clears jungle...
++	/*	The way feature-remove is done in XML is pretty weird.
++		I believe this code needs to be outside the general BuildTypes loop
++		to ensure the feature-remove is only counted once rather than once per build
++		which could be a lot since nearly every build clears jungle... */
+ 
+ 	FOR_EACH_ENUM(Feature)
+ 	{
+@@ -6212,7 +6212,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 	{
+ 		UnitTypes eLoopUnit = kCiv.unitAt(i);
+-		CvUnitInfo& kLoopUnit = GC.getInfo(eLoopUnit);
++		CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
+ 		if (!kLoopUnit.isTechRequired(eTech))
+ 			continue;
+ 		UnitClassTypes eLoopClass = kCiv.unitClassAt(i);
+@@ -6225,8 +6225,8 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 			iTotalUnitValue += 600;
+ 
+ 		if (kLoopUnit.getPrereqAndTech() == eTech ||
+-			kTeam.isHasTech((TechTypes)kLoopUnit.getPrereqAndTech()) ||
+-			canResearch((TechTypes)kLoopUnit.getPrereqAndTech()))
++			kTeam.isHasTech(kLoopUnit.getPrereqAndTech()) ||
++			canResearch(kLoopUnit.getPrereqAndTech()))
+ 		{
+ 			int iNavalValue = 0;
+ 			int iOffenceValue = 0;
+@@ -6243,18 +6243,18 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 				{
+ 					// Score the default AI type as a direct competitor to the current best.
+ 					iWeight = std::min(250, 70 * // k146
+-							AI_unitValue(eLoopUnit, eAI, 0) /
+-							std::max(1, AI_bestAreaUnitAIValue(eAI, 0)));
++							AI_unitValue(eLoopUnit, eAI) /
++							std::max(1, AI_bestAreaUnitAIValue(eAI)));
+ 				}
+ 				// only consider types which are flagged in the xml.
+ 				else if (kLoopUnit.getUnitAIType(eAI))
+ 				{
+ 					/*	For the other AI types, only score
+ 						based on the improvement over the current best. */
+-					int iTypeValue = AI_unitValue(eLoopUnit, eAI, 0);
++					int iTypeValue = AI_unitValue(eLoopUnit, eAI);
+ 					if (iTypeValue > 0)
+ 					{
+-						int iOldValue = AI_bestAreaUnitAIValue(eAI, 0);
++						int iOldValue = AI_bestAreaUnitAIValue(eAI);
+ 						iWeight = std::min(150, // k146
+ 								100 * (iTypeValue - iOldValue) / std::max(1, iOldValue));
+ 					}
+@@ -13517,7 +13517,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
+ 			Note: The original bts bombard evaluation has been deleted. */
+ 		int iSiegeValue = 0;
+ 		iSiegeValue += iCombatValue * u.getCollateralDamage() *
+-				(4+u.getCollateralDamageMaxUnits()) / 600;
++				(4 + u.getCollateralDamageMaxUnits()) / 600;
+ 		if (u.getBombardRate() > 0 && !AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
+ 		{
+ 			int iBombardValue = (u.getBombardRate() + 3) * 6;
+@@ -13537,24 +13537,21 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
+ 			PROFILE("AI_unitValue, UNITAI_ATTACK_CITY combat limit adjustment");
+ 			// count the number of existing combat-limited units.
+ 			int iLimitedUnits = 0;
+-
+ 			/*	Unfortunately, when counting units like this we can't distiguish
+ 				between attack unit and collateral defensive units. Most of the time,
+ 				unitai_collateral units will be combat limited, and so we should
+-				subtract them from out limited unit tally. But in some situations
++				subtract them from our limited unit tally. But in some situations
+ 				there are collateral damage units without combat limits
+ 				(eg. Cho-Ko-Nu). When such units are in use, we should not assume
+ 				that all unitai_collateral are limited.
+ 				This whole business is an ugly kludge... I hope it works. */
+ 			int iNoLimitCollateral = 0;
+-
+ 			CvCivilization const& kCiv = getCivilization(); // advc.003w 
+ 			for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 			{
+ 				UnitTypes eLoopUnit = kCiv.unitAt(i);
+ 				UnitClassTypes eUnitClass = kCiv.unitClassAt(i);
+-				const CvUnitInfo& kLoopInfo = GC.getInfo(eLoopUnit);
+-
++				CvUnitInfo const& kLoopInfo = GC.getInfo(eLoopUnit);
+ 				if (kLoopInfo.getDomainType() == DOMAIN_LAND &&
+ 					kLoopInfo.getCombat() > 0 &&
+ 					!kLoopInfo.isMostlyDefensive()) // advc.315
+@@ -13570,9 +13567,9 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
+ 					AI_totalUnitAIs(UNITAI_COLLATERAL) - iNoLimitCollateral / 2,
+ 					0, iLimitedUnits);
+ 			FAssert(iLimitedUnits >= 0);
+-			// floor value just to avoid division by zero
+-			int iAttackUnits = std::max(1, AI_totalUnitAIs(UNITAI_ATTACK) +
+-					AI_totalUnitAIs(UNITAI_ATTACK_CITY));
++			int iAttackUnits = AI_totalUnitAIs(UNITAI_ATTACK) +
++					AI_totalUnitAIs(UNITAI_ATTACK_CITY);
++			iAttackUnits = std::max(1, iAttackUnits);
+ 			/*	this is not strictly guaranteed, but I expect it to
+ 				always be true under normal playing conditions. */
+ 			/*  advc.006: +1 added and replaced iLimitedUnits with iAttackUnits
+@@ -27396,17 +27393,18 @@ int CvPlayerAI::AI_bestAreaUnitAIValue(UnitAITypes eUnitAI, CvArea const* pArea,
+ }
+ 
+ 
+-int CvPlayerAI::AI_bestCityUnitAIValue(UnitAITypes eUnitAI, CvCity const* pCity, UnitTypes* peBestUnitType) const // advc: const CvCity*
++int CvPlayerAI::AI_bestCityUnitAIValue(UnitAITypes eUnitAI, CvCity const* pCity,
++	UnitTypes* peBestUnitType) const
+ {
+-	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
++	FAssert(eUnitAI != NO_UNITAI);
+ 
+ 	int iBestValue = 0;
+-	CvCivilization const& kCiv = getCivilization(); // advc.003w
++	CvCivilization const& kCiv = getCivilization();
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 	{
+ 		UnitTypes eLoopUnit = kCiv.unitAt(i);
+ 		//if (!isHuman() || (GC.getInfo(eLoopUnit).getDefaultUnitAIType() == eUnitAI)) { // disabled by K-Mod
+-		if (NULL == pCity ? (canTrain(eLoopUnit) &&
++		if (pCity == NULL ? (canTrain(eLoopUnit) &&
+ 			AI_haveResourcesToTrain(eLoopUnit)) : // k146
+ 			pCity->canTrain(eLoopUnit))
+ 		{
+@@ -27428,7 +27426,7 @@ int CvPlayerAI::AI_calculateTotalBombard(DomainTypes eDomain,
+ 	int iMaxCount) const // advc.opt
+ {
+ 	int iTotalBombard = 0;
+-	CvCivilization const& kCiv = getCivilization(); // advc.003w
++	CvCivilization const& kCiv = getCivilization();
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 	{
+ 		UnitTypes eLoopUnit = kCiv.unitAt(i);
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 3fc6d610a..7a88baa44 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1800,7 +1800,7 @@ void CvXMLLoadUtility::SetVariableListTagPair(T** pptList, TCHAR const* szRootTa
+ 	if (pMap == NULL)
+ 	{
+ 		if (!bListModified && tDefaultListVal == 0)
+-		SAFE_DELETE_ARRAY(*pptList);
++			SAFE_DELETE_ARRAY(*pptList);
+ 	}
+ 	else pMap->finalizeInsertions(); // </advc.003t>
+ }
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 926f4d7b0..e45fe6793 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -210,15 +210,6 @@ private:
+ 		SAVE_ARRAY_EMPTY_SHORT = 0xFFFF,
+ 	};
+ 
+-	class interval
+-	{
+-	public:
+-		IndexType first;
+-		IndexType last;
+-
+-		interval() : first((IndexType)0), last((IndexType)0) {}
+-	};
+-
+ 	/*	bool helpers
+ 		advc.003t (note): ArrayEnumMap uses the same logic */
+ 	__inline int getBoolArrayBlock(int iIndex) const
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 7b5d2afae..3abc299b5 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -634,7 +634,7 @@ bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
+ 			iUnitMoves = std::max(iUnitMoves, 0);
+ 			iMoves = std::min(iMoves, iUnitMoves);
+ 		}*/ // BtS
+-		/*K-Mod. The original code would give incorrect results for groups
++		/*	K-Mod. The original code would give incorrect results for groups
+ 			where one unit had more moves but also had higher move cost.
+ 			(the most obvious example is when a group with 1-move units and 2-move units
+ 			is moving on a railroad. - In this situation, the original code would consistently
+
+diff --git a/CvGameCoreDLL/PragmaWarnings.h b/CvGameCoreDLL/PragmaWarnings.h
+index 64dff4b7f..c612161e9 100644
+--- a/CvGameCoreDLL/PragmaWarnings.h
++++ b/CvGameCoreDLL/PragmaWarnings.h
+@@ -6,8 +6,8 @@
+ /*	advc.make: Header for custom compiler warnings through pragma.
+ 	(I'm using a shorthand that allows subtracting 4000 from warning numbers;
+ 	e.g. 251 corresponds to c4251 in compiler output and documentation.)
+-	BtS had disabled number 251 (redundantly in several headers),
+-	100 (through CvDLLEntityIFaceBase.h), 127 (through CvInfo.h).
++	BtS had disabled numbers 251 (redundantly in several headers),
++	100 (through CvDLLEntityIFaceBase.h) and 127 (through CvInfo.h).
+ 	I'm not sure if it was necessary to disable those explicitly in BtS,
+ 	but I do need to disable them now b/c of the /W4 compiler option.
+ 	I'm not disabling number 530 ("C++ exception handler used,
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=19384

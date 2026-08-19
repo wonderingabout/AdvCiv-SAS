@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4591
+# Commit: 5ecc141fae00de96293d734518b0f881b263cd95
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c2488bd788c101cb258d9e9e25fdfc8723867056
+# Title: minor update code comments
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	5	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 1eca40a9c..9fa21016a 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -5,14 +5,19 @@
+ <!-- -->
+ <!-- Basic Infos -->
+ <Civ4NewConceptInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+-	<!-- custom: test remove espionnage bts concept to move it to game concepts -->
+ 	<NewConceptInfos>
+-		<!-- custom: removed the entries that are composed of links to civ4
+-		bts new content (as opposed to vanilla). No need to maintain these
+-		as BTS can be considered the base game now, plus this information is
+-		available elsewhere and already part of the game with all other
++		<!-- custom: removed entirely the entries that are composed of links
++		to civ4	bts new content (as opposed to vanilla). No need to maintain
++		these as BTS can be considered the base game now, plus this information
++		is available elsewhere and already part of the game with all other
+ 		civ4 vanilla+BTS content, for example in the sevopedia pages specific
+ 		to each of these, about this i mean anyways -->
++
++		<!-- custom: moved many NewConceptInfos to C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
++		(or the equivalent of this folder for your civ4 installation path,
++		please read the code comments there (currently at least i mean anyways
++		at the top of this mentionned CIV4BasicInfos.xml file) for details,
++		thanks, ) -->
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
+ 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1718

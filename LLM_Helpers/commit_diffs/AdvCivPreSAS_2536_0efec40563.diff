@@ -1,0 +1,201 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2536
+# Commit: 0efec40563d950823ef46c1df3b724e575ffcebb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d6f5189db49cda5b93edc6af4d8fd6d1d86949a3
+# Title: Some further minor but notable bugfixes (pre-AdvCiv bugs)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvCity.cpp
+8	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+24	15	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyPlayer.cpp
+1	1	CvGameCoreDLL/CyPlayer.h
+3	1	CvGameCoreDLL/CyUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 149d75429..ded301ce7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7142,7 +7142,8 @@ void CvCity::calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& i
+ 			pTradeCity->getOwner() == eWithPlayer))
+ 		{
+ 			int iTradeYield = getBaseTradeProfit(pTradeCity);
+-			iTradeYield = calculateTradeYield(YIELD_COMMERCE,
++			iTradeYield = calculateTradeYield(//YIELD_COMMERCE
++					eIndex, // advc.001
+ 					calculateTradeProfit(pTradeCity));
+ 			if (pTradeCity->getOwner() == getOwner())
+ 			{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dd5686eb8..e2c459a93 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -17606,14 +17606,20 @@ void CvPlayer::invalidatePopulationRankCache()
+ void CvPlayer::invalidateYieldRankCache(YieldTypes eYield)
+ {
+ 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+-		pLoopCity->invalidateYieldRankCache();
++	{
++		pLoopCity->invalidateYieldRankCache(
++				eYield); // advc.001: was NO_YIELD
++	}
+ }
+ 
+ 
+ void CvPlayer::invalidateCommerceRankCache(CommerceTypes eCommerce)
+ {
+ 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+-		pLoopCity->invalidateCommerceRankCache();
++	{
++		pLoopCity->invalidateCommerceRankCache(
++				eCommerce); // advc.001: was NO_COMMERCE
++	}
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index dd9d06f70..41c2046bc 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2437,7 +2437,7 @@ bool CvSelectionGroup::canBombard(CvPlot const& kPlot) const // advc: CvPlot ref
+ 	return false;
+ }
+ 
+-bool CvSelectionGroup::visibilityRange() /* advc: */ const
++int CvSelectionGroup::visibilityRange() const // advc: const; return type was bool
+ {
+ 	int iMaxRange = 0;
+ 	for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index a638fe3ef..5cde6ca62 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -103,7 +103,7 @@ public:
+ 	bool canFight() const;																																										// Exposed to Python
+ 	bool canDefend() const;																																										// Exposed to Python
+ 	bool canBombard(CvPlot const& kPlot) const;
+-	bool visibilityRange() const;
++	int visibilityRange() const;
+ 
+ 	// BETTER_BTS_AI_MOD, General AI, 08/19/09, jdog5000: START
+ 	int getBombardTurns(CvCity const* pCity) const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 11656db04..ba0dad093 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13149,19 +13149,24 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 				{
+ 					// add a random bias in favour of land paths, so that not all stacks try to use boats.
+ 					//int iLandBias =AI_getBirthmark()%6 +(AI_getBirthmark() % (bLandPath ? 3 : 6) ? 6 : 1);
+-					/*  <advc> That's equivalent to this (I've checked through
+-						the assertion below): */
+-					int iLandBias = (AI_getBirthmark() % 6) +
+-							(((AI_getBirthmark() % (bLandPath ? 3 : 6)) > 0 ? 6 : 1));
+-					//FAssert(iLandBias == (AI_getBirthmark()%6 +(AI_getBirthmark() % (bLandPath ? 3 : 6) ? 6 : 1)));
+-					/*  But does it make sense? It seems that the expected value is
+-						higher if bLand is false, namely 2.5+6*5/6+1/5 > 2.5+6*2/3+1/3.
+-						Should it be '==0' instead of '>0'?
+-						Also: "so that not all stacks try to use boats" --
+-						but we're only picking a target city here; the choice
+-						how to move there is made later. */
+-					// </advc>
+-					if (!pBestTransport && iPathTurns > iLandBias + 2)
++					/*	<advc.001> I guess the intention is to roll a 6-sided die
++						(birthmark%6 plus at least 1 in the end) with another 5 added for
++						some portion of units - depending on whether there is a land path. */
++					int iLandBias = (AI_getBirthmark() % 6) + 1;
++					/*	Now, should 2 in 3 units have increased land bias
++						when there is a land path and otherwise 5 in 6?
++						You'd think that there should be more land bias
++						when there is a land path. So I'm going to flip the condition,
++						i.e. 1 in 3 units have increased land bias
++						when there is a land path and otherwise 1 in 6. */
++					if ((AI_getBirthmark() % (bLandPath ? 3 : 6)) == 0)
++						iLandBias += 5;
++					/*  (I also wonder if such randomization would fit better near the
++						"we have to walk" comment in AI_attackCityMove. AI_pickTargetCity
++						only decides which units target which city, not how they
++						ultimately move there.) */
++					// </advc.001>
++					if (pBestTransport != NULL && iPathTurns > iLandBias + 2)
+ 					{
+ 						pBestTransport = AI_findTransport(UNITAI_ASSAULT_SEA, iFlags,
+ 								std::min(iMaxPathTurns, iPathTurns));
+@@ -13199,8 +13204,12 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 						pLoopCity, getGroup(), iPathTurns);
+ 				if (pLoopCity->isVisible(kOurTeam.getID()))
+ 				{
+-					iEnemyDefence = kOwner.AI_localDefenceStrength(pLoopCity->plot(),
+-							NO_TEAM, DOMAIN_LAND, true, iPathTurns > 1 ? 2 : 0);
++					iEnemyDefence = kOwner.AI_localDefenceStrength(
++							pLoopCity->plot(), NO_TEAM, DOMAIN_LAND,
++							/*	advc.001: Probably a remnant of bDefensiveBonuses=true
++								in BBAI's AI_getEnemyPlotStrength. */
++							//true,
++							iPathTurns > 1 ? 2 : 0);
+ 					if (iPathTurns > 2)
+ 					{
+ 						int iAttackRatio = ((GC.getMAX_CITY_DEFENSE_DAMAGE() -
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index dc1718e05..cbdd557c1 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -1241,7 +1241,7 @@ int CyPlayer::getUnhealthyPopulationModifier()
+ 	return m_pPlayer ? m_pPlayer->getUnhealthyPopulationModifier() : 0;
+ }
+ 
+-bool CyPlayer::getExpInBorderModifier()
++int CyPlayer::getExpInBorderModifier() // advc: was bool
+ {
+ 	return m_pPlayer ? m_pPlayer->getExpInBorderModifier() : false;
+ }
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 66ae5121c..503b815c7 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -297,7 +297,7 @@ public:
+ 	int getOverflowResearch();
+ 	//bool isNoUnhealthyPopulation();
+ 	int getUnhealthyPopulationModifier(); // K-Mod
+-	bool getExpInBorderModifier();
++	int getExpInBorderModifier();
+ 	bool isBuildingOnlyHealthy();
+ 
+ 	int getDistanceMaintenanceModifier();
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 0cf75705a..1952f939e 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -307,7 +307,9 @@ bool CyUnit::canSpread(CyPlot* pPlot, int /*ReligionTypes*/ eReligion, bool bTes
+ 
+ bool CyUnit::canJoin(CyPlot* pPlot, int /*SpecialistTypes*/ eSpecialist)
+ {
+-	return m_pUnit ? m_pUnit->canFound(pPlot->getPlot(), (SpecialistTypes) eSpecialist) : false;
++	return m_pUnit ? //m_pUnit->canFound(
++			m_pUnit->canJoin( // advc.001
++			pPlot->getPlot(), (SpecialistTypes)eSpecialist) : false;
+ }
+ 
+ bool CyUnit::canConstruct(CyPlot* pPlot, int /*BuildingTypes*/ eBuilding)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=7143

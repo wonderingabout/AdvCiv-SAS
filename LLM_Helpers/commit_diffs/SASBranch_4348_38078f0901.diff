@@ -1,0 +1,120 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4348
+# Commit: 38078f09013f86ac6639741ea004ecff101e0717
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b56dd1598984ea20fb39e1f40a5481e894e1b502
+# Title: make early siege units more likely to be defenders Catapults and Trebuchet units and their special units variations would ideally not get baited during enemy...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+56	3	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 0f631c670..5388e0a5b 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -15588,8 +15588,30 @@
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15769,12 +15791,30 @@
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15955,6 +15995,11 @@
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative chance to avoid trebuchets suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs>
+ 				<UnitAI>
+@@ -15965,6 +16010,14 @@
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative chance to avoid trebuchets suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2980

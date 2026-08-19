@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4163
+# Commit: bc8bd19b5e1c503c10bea252b10ff705b96daa85
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 16c2fc9ae8cd3f2aaeb4423da2c8452968ef793c
+# Title: Remove an old leftover translation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/Text/ActualQuotesText.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/ActualQuotesText.xml b/Assets/XML/Text/ActualQuotesText.xml
+index 2729831e1..bb2bf8d2a 100644
+--- a/Assets/XML/Text/ActualQuotesText.xml
++++ b/Assets/XML/Text/ActualQuotesText.xml
+@@ -2201,8 +2201,7 @@
+ 		<Tag>AI_DIPLO_DECLARE_WAR_LEADER_ALEXANDER_1</Tag>
+ 		<English>I've brought a kaffis of mustard seed for you to foretaste the bitterness of my victory. ([OUR_NAME] declares war!)</English>
+ 		<French>Ce monde n'est pas assez grand pour nous deux ! ([OUR_NAME] vous d&#233;clare la guerre !)</French>
+-		<German>Ich lasse Euch Senfk�rner zukommen -- als einen Vorgeschmack auf eure bittere Niederlage! ([OUR_NAME] declares war!)</German>
+-		<German>Diese Welt ist nicht gro&#223; genug f&#252;r uns beide! ([OUR_NAME] erkl&#228;rt Euch den Krieg!)</German>
++		<German>Ich lasse Euch Senfk�rner zukommen -- als Vorgeschmack auf eure bittere Niederlage! ([OUR_NAME] declares war!)</German>
+ 		<Italian>Questo mondo non &#232; grande abbastanza per tutti e due! ([OUR_NAME] dichiara guerra!)</Italian>
+ 		<Spanish>&#161;Este mundo no es lo bastante grande para nuestras dos naciones! (&#161;[OUR_NAME] os declara la guerra!)</Spanish>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1178

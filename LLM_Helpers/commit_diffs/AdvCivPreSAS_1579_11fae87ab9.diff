@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1579
+# Commit: 11fae87ab9160c55bfa16c154046b96b23f7c571
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2508e67f15e818e7e13e257e3f0d7b98c10bf063
+# Title: Changed the order of culture percentages in tile help text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+55	38	CvGameCoreDLL/CvGameTextMgr.cpp
+1	2	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ce9ee7f92..81e440af7 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4343,8 +4343,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	PlayerTypes eActivePlayer = g.getActivePlayer();
+ 	CvWString szTempBuffer;
+ 
+-	PlayerTypes eRevealOwner = pPlot->getRevealedOwner(eActiveTeam, true);
+-	if (eRevealOwner != NO_PLAYER
++	PlayerTypes eRevealedOwner = pPlot->getRevealedOwner(eActiveTeam, true);
++	if (eRevealedOwner != NO_PLAYER
+ 			// advc.099f:
+ 			|| bShift || getBugOptionBOOL("MiscHover__CultureInUnownedTiles", false))
+ 	{
+@@ -4388,43 +4388,60 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					szString.append(NEWLINE);
+ 				} // </advc.023>
+ 			} // </advc.101>
+-			if(eRevealOwner != NO_PLAYER) { // advc.099f
+-				CvPlayer const& kRevealOwner = GET_PLAYER(eRevealOwner);
+-				szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR,
+-						pPlot->calculateCulturePercent(eRevealOwner),
+-						PLAYER_TEXT_COLOR(kRevealOwner), kRevealOwner.getCivilizationAdjective());
+-				szString.append(szTempBuffer);
+-				szString.append(NEWLINE);
+-			}
+-			for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+-			{
+-				if (iPlayer != eRevealOwner)
+-				{
+-					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-					// advc.099: Replaced "Alive" with "EverAlive"
+-					if (kPlayer.isEverAlive() && pPlot->getCulture((PlayerTypes)iPlayer) > 0)
+-					{/* K-Mod, 29/sep/10, Karadoc
+-						Prevented display of 0% culture, to reduce the spam created by trade culture. */
+-						/* original bts code
+-						szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, pPlot->calculateCulturePercent((PlayerTypes)iPlayer), PLAYER_TEXT_COLOR(kPlayer), kPlayer.getCivilizationAdjective());
+-						szString.append(szTempBuffer);
+-						szString.append(NEWLINE);*/
+-						int iCulturePercent = pPlot->calculateCulturePercent((PlayerTypes)iPlayer);
+-						if (iCulturePercent >= 1)
+-						{
+-							szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR,
+-									iCulturePercent, PLAYER_TEXT_COLOR(kPlayer),
+-									kPlayer.getCivilizationAdjective());
+-							szString.append(szTempBuffer);
+-							szString.append(NEWLINE);
+-						} // K-Mod end
++			// <advc.099g> Put the players w/ tile culture in a container first
++			std::vector<std::pair<int,PlayerTypes> > aieCulturePerPlayer;
++			/*  Go backwards b/c of the stable_sort call below. Removing that call
++				will restore the BtS ordering (except for the special treatment
++				of eActivePlayer). */
++			for (int i = MAX_PLAYERS - 1; i >= 0; i--)
++			{
++				if (i == eRevealedOwner || i == eActivePlayer) // Prepended below
++					continue; // </advc.099g>
++				CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)i);
++				// advc.099: Replaced "Alive" with "EverAlive"
++				if (kPlayer.isEverAlive() && pPlot->getCulture(kPlayer.getID()) > 0)
++				{
++					int iCulture = pPlot->calculateCulturePercent(kPlayer.getID());
++					/*  K-Mod, 29/sep/10, Karadoc
++						Prevent display of 0% culture, to reduce the spam created by trade culture. */
++					if (iCulture >= 1)
++					{	// advc.099g:
++						aieCulturePerPlayer.push_back(std::make_pair(iCulture, kPlayer.getID()));
+ 					}
+ 				}
++			} // <advc.099g>
++			std::stable_sort(aieCulturePerPlayer.begin(), aieCulturePerPlayer.end());
++			if(eActivePlayer != eRevealedOwner) {
++				int iCulture = pPlot->calculateCulturePercent(eActivePlayer);
++				if(iCulture >= 1)
++					aieCulturePerPlayer.push_back(std::make_pair(iCulture, eActivePlayer));
++			}
++			if(eRevealedOwner != NO_PLAYER) // advc.099f
++			{
++				int iCulture = pPlot->calculateCulturePercent(eRevealedOwner);
++				if(iCulture >= 1)
++					aieCulturePerPlayer.push_back(std::make_pair(iCulture, eRevealedOwner));
++			}
++			std::reverse(aieCulturePerPlayer.begin(), aieCulturePerPlayer.end());
++			for (size_t i = 0; i < aieCulturePerPlayer.size(); i++)
++			{
++				CvPlayer const& kPlayer = GET_PLAYER(aieCulturePerPlayer[i].second);
++				int iCulture = aieCulturePerPlayer[i].first;
++				// </advc.099g>
++				szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, iCulture,
++						PLAYER_TEXT_COLOR(kPlayer), kPlayer.getCivilizationAdjective());
++				szString.append(szTempBuffer);
++				szString.append(NEWLINE);
++				// <advc.099g> Put it all on one line? I guess better not.
++				//setListHelp(szString, L"", szTempBuffer.GetCString(), L", ", i == 0);
+ 			}
++			/*if(!aieCulturePerPlayer.empty())
++				szString.append(NEWLINE);*/
++			// </advc.099g>
+ 		}
+-		else if(eRevealOwner != NO_PLAYER) // advc.099f
++		else if(eRevealedOwner != NO_PLAYER) // advc.099f
+ 		{
+-			CvPlayer const& kRevealOwner = GET_PLAYER(eRevealOwner);
++			CvPlayer const& kRevealOwner = GET_PLAYER(eRevealedOwner);
+ 			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+ 					PLAYER_TEXT_COLOR(kRevealOwner), kRevealOwner.getCivilizationDescription());
+ 			szString.append(szTempBuffer);
+@@ -4433,8 +4450,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	}
+ 	CvUnit* pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit(); // advc.003
+ 	// <advc.012> 
+-	TeamTypes eDefTeam = (eRevealOwner != NO_PLAYER ?
+-			GET_PLAYER(eRevealOwner).getTeam() :
++	TeamTypes eDefTeam = (eRevealedOwner != NO_PLAYER ?
++			GET_PLAYER(eRevealedOwner).getTeam() :
+ 			NO_TEAM);
+ 	int iDefWithFeatures = pPlot->defenseModifier(eDefTeam, true, NO_TEAM, true);
+ 	int iDefWithoutFeatures = pPlot->defenseModifier(eDefTeam, true,
+@@ -4650,7 +4667,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 								GC.getBuildInfo((BuildTypes) iI).getImprovement(),
+ 								eActiveTeam, true))
+ 							continue;
+-						if(!bConnected && eRevealOwner != NO_PLAYER && // advc.047
++						if(!bConnected && eRevealedOwner != NO_PLAYER && // advc.047
+ 								GET_TEAM(eActiveTeam).isHasTech(
+ 								(TechTypes)GC.getBuildInfo((BuildTypes)iI).
+ 								getTechPrereq())) {
+@@ -4817,7 +4834,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		{
+ 			if ((pPlot->getUpgradeProgress() > 0) || pPlot->isBeingWorked())
+ 			{
+-				int iTurns = pPlot->getUpgradeTimeLeft(ePlotImprovement, eRevealOwner);
++				int iTurns = pPlot->getUpgradeTimeLeft(ePlotImprovement, eRevealedOwner);
+ 
+ 				szString.append(gDLL->getText("TXT_KEY_PLOT_IMP_UPGRADE", iTurns, GC.getImprovementInfo((ImprovementTypes) GC.getImprovementInfo(ePlotImprovement).getImprovementUpgrade()).getTextKeyWide()));
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3cdaf6956..3d8293693 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -158,7 +158,6 @@ void CvPlayer::init(PlayerTypes eID)
+ 	AI_init();
+ }
+ 
+-
+ // advc.003q: Cut from CvPlayer::init
+ void CvPlayer::initContainers() {
+ 
+@@ -22482,7 +22481,7 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 				/*  Hack: Check if we're expecting a renegotiate-popup from
+ 					the EXE. Don't want any resources in the canceled deal to
+ 					be excluded from the trade table. */
+-				if(bHuman) { // Even if already bValid=true, may need to clear j from m_cancelingExport.
++				if(!bValid) {
+ 					for(CLLNode<std::pair<PlayerTypes,BonusTypes> >* pNode =
+ 							m_cancelingExport.head(); pNode != NULL; pNode =
+ 							m_cancelingExport.next(pNode)) {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 95f1b0ada..dcc8e4f9f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19617,13 +19617,13 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther) {
+ 			CLinkList<TradeData> theirList;
+ 			bool bVassalDeal = pLoopDeal->isVassalDeal(); // K-Mod
+ 			CLLNode<TradeData>* pNode;
+-			// advc.003: Use the improved CvDeal interface!
+ 			for (pNode = pLoopDeal->headGivesNode(getID()); pNode != NULL;
+ 					pNode = pLoopDeal->nextGivesNode(pNode, getID()))
+ 			{
+ 				ourList.insertAtEnd(pNode->m_data);
+ 				/*  <advc.074> Remember the canceled resources to avoid
+-					excluding them in CvPlayer::buildTradeTable */
++					excluding them in CvPlayer::buildTradeTable. Known issue:
++					Won't work when multiple trades are canceled in a row. */
+ 				if(pNode->m_data.m_eItemType == TRADE_RESOURCES) {
+ 					m_cancelingExport.insertAtEnd(std::make_pair(
+ 							eOther, (BonusTypes)pNode->m_data.m_iData));
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8415

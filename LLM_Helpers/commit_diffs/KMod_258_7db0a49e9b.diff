@@ -1,0 +1,1257 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 258
+# Commit: 7db0a49e9b5fb125b510dcda2acdc5dca7cfa286
+# History segment: K-Mod history
+# Parent used for diff: 22f989acbf61c6c4e5a3d692537ec0afaa8e16c9
+# Title: Copied the internal profiling code from C2C - hopefully this will help me find where I can make speed gains.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvCityAI.cpp
+5	2	CvGameCoreDLL/CvGame.cpp
+584	7	CvGameCoreDLL/CvGameCoreDLL.cpp
+62	2	CvGameCoreDLL/CvGameCoreDLL.h
+20	0	CvGameCoreDLL/CvGameCoreDLL.vcproj
+8	1	CvGameCoreDLL/CvGlobals.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+4	6	CvGameCoreDLL/CvSelectionGroup.cpp
+57	9	CvGameCoreDLL/FProfiler.h
+64	2	CvGameCoreDLL/Makefile
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7449ff425..1892d6da2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9830,6 +9830,7 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ // Note. I've changed the scale to match the building evaluation code: ~4x commerce.
+ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth, bool bIgnoreStarvation, bool bWorkerOptimization) const
+ {
++	PROFILE_FUNC();
+ 	const int iBaseProductionValue = 7;
+ 	const int iBaseCommerceValue = 4;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 935ad6817..b70f43504 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2074,7 +2074,8 @@ int CvGame::getTeamClosenessScore(int** aaiDistances, int* aiStartingLocs)
+ 
+ void CvGame::update()
+ {
+-	PROFILE("CvGame::update");
++	startProfilingDLL(false);
++	PROFILE_BEGIN("CvGame::update");
+ 
+ 	if (!gDLL->GetWorldBuilderMode() || isInAdvancedStart())
+ 	{
+@@ -2128,6 +2129,8 @@ void CvGame::update()
+ 			gDLL->getInterfaceIFace()->setWorldBuilder(true);
+ 		}
+ 	}
++	PROFILE_END();
++	stopProfilingDLL(false);
+ }
+ 
+ 
+@@ -6059,7 +6062,7 @@ void CvGame::doTurn()
+ 
+ 	PROFILE_END();
+ 
+-	stopProfilingDLL();
++	stopProfilingDLL(true);
+ 
+ 	gDLL->getEngineIFace()->AutoSave();
+ }
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 6a47e53b1..43fdd5063 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -8,6 +8,35 @@
+ #include "FProfiler.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ 
++#include <psapi.h>
++
++#ifdef MEMORY_TRACKING
++void	ProfileTrackAlloc(void* ptr);
++
++void	ProfileTrackDeAlloc(void* ptr);
++
++void DumpMemUsage(const char* fn, int line)
++{
++	PROCESS_MEMORY_COUNTERS pmc;
++
++	if ( GetProcessMemoryInfo( GetCurrentProcess(), &pmc, sizeof(pmc)) )
++	{
++		char buffer[200];
++
++		sprintf(buffer, "memory (%s,%d): %d Kbytes, peak %d\n", fn, line, (int)(pmc.WorkingSetSize/1024), (int)(pmc.PeakWorkingSetSize/1024));
++		OutputDebugString(buffer);
++	}
++}
++
++#define	PROFILE_TRACK_ALLOC(x)		ProfileTrackAlloc(x);
++#define	PROFILE_TRACK_DEALLOC(x)	ProfileTrackDeAlloc(x);
++#else
++#define	PROFILE_TRACK_ALLOC(x)	
++#define	PROFILE_TRACK_DEALLOC(x)	
++#endif
++
++static allocCount = 0;
++
+ //
+ // operator global new and delete override for gamecore DLL 
+ //
+@@ -15,8 +44,25 @@ void *__cdecl operator new(size_t size)
+ {
+ 	if (gDLL)
+ 	{
+-		return gDLL->newMem(size, __FILE__, __LINE__);
++		void* result = NULL;
++
++		try
++		{
++			result = gDLL->newMem(size, __FILE__, __LINE__);
++			memset(result,0,size);
++
++			PROFILE_TRACK_ALLOC(result);
++		}
++		catch(std::exception ex)
++		{
++			OutputDebugString("Allocation failure\n");
++		}
++
++		return result;
+ 	}
++
++	OutputDebugString("Alloc [unsafe]");
++	//::MessageBoxA(NULL,"UNsafe alloc","CvGameCore",MB_OK); // disabled by K-Mod, for now.
+ 	return malloc(size);
+ }
+ 
+@@ -24,6 +70,8 @@ void __cdecl operator delete (void *p)
+ {
+ 	if (gDLL)
+ 	{
++		PROFILE_TRACK_DEALLOC(p);
++
+ 		gDLL->delMem(p, __FILE__, __LINE__);
+ 	}
+ 	else
+@@ -35,7 +83,17 @@ void __cdecl operator delete (void *p)
+ void* operator new[](size_t size)
+ {
+ 	if (gDLL)
+-		return gDLL->newMemArray(size, __FILE__, __LINE__);
++	{
++		//OutputDebugString("Alloc [safe]");
++		void* result = gDLL->newMemArray(size, __FILE__, __LINE__);
++
++		memset(result,0,size);
++
++		return result;
++	}
++
++	OutputDebugString("Alloc [unsafe]");
++	::MessageBoxA(NULL,"UNsafe alloc","CvGameCore",MB_OK);
+ 	return malloc(size);
+ }
+ 
+@@ -53,12 +111,18 @@ void operator delete[](void* pvMem)
+ 
+ void *__cdecl operator new(size_t size, char* pcFile, int iLine)
+ {
+-	return gDLL->newMem(size, pcFile, iLine);
++	void* result = gDLL->newMem(size, pcFile, iLine);
++
++	memset(result,0,size);
++	return result;
+ }
+ 
+ void *__cdecl operator new[](size_t size, char* pcFile, int iLine)
+ {
+-	return gDLL->newMem(size, pcFile, iLine);
++	void* result = gDLL->newMem(size, pcFile, iLine);
++
++	memset(result,0,size);
++	return result;
+ }
+ 
+ void __cdecl operator delete(void* pvMem, char* pcFile, int iLine)
+@@ -104,33 +168,546 @@ BOOL APIENTRY DllMain(HANDLE hModule,
+ 		// OutputDebugString("DLL_THREAD_DETACH\n");
+ 		break;
+ 	case DLL_PROCESS_DETACH:
++
+ 		OutputDebugString("DLL_PROCESS_DETACH\n");
+ 		timeEndPeriod(1);
+-		GC.setDLLIFace(NULL);
+ 		break;
+ 	}
+ 	
+ 	return TRUE;	// success
+ }
+ 
++#ifdef USE_INTERNAL_PROFILER
++
++//	Uncomment the following line to provide (very) detailed tracing to
++//	the debug stream (view with DbgView or a debugger)
++#define DETAILED_TRACE
++
++#define MAX_SAMPLES 900
++static ProfileSample* _currentSample = NULL;
++static int numSamples = 0;
++static ProfileSample* sampleList[MAX_SAMPLES];
++static ProfileSample* sampleStack[MAX_SAMPLES];
++static int depth = -1;
++
++#ifdef DETAILED_TRACE
++static ProfileSample* lastExit = NULL;
++static int exitCount = 0;
++static bool detailedTraceEnabled = false;
++
++static void GenerateTabString(char* buffer,int n)
++{
++	while(n-- > 0)
++	{
++		*buffer++ = '\t';
++	}
++
++	*buffer = '\0';
++}
++#endif
++
++void EnableDetailedTrace(bool enable)
++{
++#ifdef DETAILED_TRACE
++	detailedTraceEnabled = enable;
++#endif
++}
++
++void IFPBeginSample(ProfileSample* sample)
++{
++	if ( sample->Id == -1 )
++	{
++		if ( numSamples == MAX_SAMPLES )
++		{
++			dumpProfileStack();
++			::MessageBox(NULL,"Profile sample limit exceeded","CvGameCore",MB_OK);
++			return;
++		}
++		sample->Id = numSamples;
++		sample->OpenProfiles = 0;
++		sample->ProfileInstances = 0;
++		sample->Accumulator.QuadPart = 0;
++		sample->ChildrenSampleTime.QuadPart = 0;
++		sampleList[numSamples++] = sample;
++	}
++
++	if ( ++depth == MAX_SAMPLES )
++	{
++		::MessageBox(NULL,"Sample stack overflow","CvGameCore",MB_OK);
++	}
++	else
++	{
++		sampleStack[depth] = sample;
++	}
++
++	sample->ProfileInstances++;
++	sample->OpenProfiles++;
++
++	if ( sample->OpenProfiles == 1 )
++	{
++		if ( _currentSample == NULL )
++		{
++			sample->Parent = -1;
++		}
++		else
++		{
++			sample->Parent = _currentSample->Id;
++		}
++
++		QueryPerformanceCounter(&sample->StartTime);
++	}
++
++	_currentSample = sample;
++
++#ifdef DETAILED_TRACE
++	if ( detailedTraceEnabled && lastExit != sample )
++	{
++		char buffer[300];
++
++		if ( exitCount != 0 )
++		{
++			GenerateTabString(buffer, depth);
++			sprintf(buffer+depth, "[%d]\n", exitCount);
++			OutputDebugString(buffer);
++
++			exitCount = 0;
++		}
++
++		GenerateTabString(buffer, depth);
++		sprintf(buffer+depth, "-->%s\n", sample->Name);
++
++		OutputDebugString(buffer);
++	}
++#endif
++}
++
++void IFPEndSample(ProfileSample* sample)
++{
++	if ( _currentSample != sample )
++	{
++		MessageBox(NULL,"Sample closure not matched","CvGameCore",MB_OK);
++	}
++
++	if ( depth < 0 )
++	{
++		MessageBox(NULL,"Too many end-samples","CvGameCore",MB_OK);
++	}
++	else if ( depth == 0 )
++	{
++		_currentSample = NULL;
++		depth = -1;
++	}
++	else
++	{
++		_currentSample = sampleStack[--depth];
++	}
++
++	if ( sample->OpenProfiles-- == 1 )
++	{
++		LARGE_INTEGER now;
++		LONGLONG ellapsed;
++
++		QueryPerformanceCounter(&now);
++
++		ellapsed = (now.QuadPart - sample->StartTime.QuadPart);
++		sample->Accumulator.QuadPart += ellapsed;
++
++		if ( _currentSample != NULL )
++		{
++			_currentSample->ChildrenSampleTime.QuadPart += ellapsed;
++		}
++	}
++
++#ifdef DETAILED_TRACE
++	if ( detailedTraceEnabled && lastExit != sample )
++	{
++		char buffer[300];
++
++		GenerateTabString(buffer, depth+1);
++		strcpy(buffer+depth+1, "...\n");
++
++		OutputDebugString(buffer);
++		exitCount = 1;
++	}
++	else
++	{
++		exitCount++;
++	}
++
++	lastExit = sample;
++#endif
++}
++
++void IFPBegin(void)
++{
++	for(int i = 0; i < numSamples; i++ )
++	{
++		sampleList[i]->Accumulator.QuadPart = 0;
++		sampleList[i]->ChildrenSampleTime.QuadPart = 0;
++		sampleList[i]->ProfileInstances = sampleList[i]->OpenProfiles;
++	}
++}
++
++void IFPEnd(void)
++{
++	//	Log the timings
++	char buffer[300];
++	LARGE_INTEGER freq;
++
++	QueryPerformanceFrequency(&freq);
++
++	gDLL->logMsg("IFP_log.txt","Fn\tTime (mS)\tAvg time\t#calls\tChild time\tParent\n");
++
++	for(int i = 0; i < numSamples; i++ )
++	{
++		if ( sampleList[i]->ProfileInstances != 0 )
++		{
++			sprintf(buffer,
++					"%s\t%d\t%d\t%d\t%d\t%s\n",
++					sampleList[i]->Name,
++					(int)((1000*sampleList[i]->Accumulator.QuadPart)/freq.QuadPart),
++					(int)((1000*sampleList[i]->Accumulator.QuadPart)/(freq.QuadPart*sampleList[i]->ProfileInstances)),
++					sampleList[i]->ProfileInstances,
++					(int)((1000*sampleList[i]->ChildrenSampleTime.QuadPart)/freq.QuadPart),
++					sampleList[i]->Parent == -1 ? "" : sampleList[sampleList[i]->Parent]->Name);
++			gDLL->logMsg("IFP_log.txt",buffer);
++		}
++	}
++}
++
++static bool isInLongLivedSection = false;
++static ProfileSample rootSample__("Root");
++
++//
++// dump the current (profile) call stack to debug output
++//
++void dumpProfileStack(void)
++{
++	int i = 0;
++	int dumpDepth = depth;
++	char buffer[200];
++
++	OutputDebugString("Profile stack:\n");
++
++	while(dumpDepth >= 0)
++	{
++		char* ptr = buffer;
++
++		i++;
++		for(int j = 0; j < i; j++)
++		{
++			*ptr++ = '\t';
++		}
++		strcpy(ptr,sampleStack[dumpDepth--]->Name);
++		strcat(ptr, "\n");
++		OutputDebugString(buffer);
++	}
++}
++
++static int pythonDepth = 0;
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg)
++{
++	PROFILE("IFPPythonCall1");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool result = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return result;
++}
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, long* result)
++{
++	PROFILE("IFPPythonCall2");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool bResult = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, result);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return bResult;
++}
++
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, CvString* result)
++{
++	PROFILE("IFPPythonCall3");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool bResult = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, result);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return bResult;
++}
++
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, CvWString* result)
++{
++	PROFILE("IFPPythonCall4");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool bResult = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, result);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return bResult;
++}
++
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, std::vector<byte>* pList)
++{
++	PROFILE("IFPPythonCall5");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool result = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, pList);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return result;
++}
++
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, std::vector<int> *pIntList)
++{
++	PROFILE("IFPPythonCall6");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool result = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, pIntList);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return result;
++}
++
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, int* pIntList, int* iListSize)
++{
++	PROFILE("IFPPythonCall7");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool result = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, pIntList, iListSize);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return result;
++}
++
++
++bool IFPPythonCall(const char* callerFn, const char* moduleName, const char* fxnName, void* fxnArg, std::vector<float> *pFloatList)
++{
++	PROFILE("IFPPythonCall8");
++
++	//OutputDebugString(CvString::format("Python call to %s::%s [%d]\n", moduleName, fxnName, pythonDepth++).c_str());
++
++	bool result = gDLL->getPythonIFace()->callFunction(moduleName, fxnName, fxnArg, pFloatList);
++	
++	//OutputDebugString("...complete\n");
++	pythonDepth--;
++
++	return result;
++}
++
++
++
++#endif
++
+ //
+ // enable dll profiler if necessary, clear history
+ //
+-void startProfilingDLL()
++void startProfilingDLL(bool longLived)
+ {
++#ifdef USE_INTERNAL_PROFILER
++	if ( longLived )
++	{
++		isInLongLivedSection = true;
++	}
++	else if (GC.isDLLProfilerEnabled() && !isInLongLivedSection)
++	{
++		IFPBegin();
++		IFPBeginSample(&rootSample__);
++	}
++#else
+ 	if (GC.isDLLProfilerEnabled())
+ 	{
+ 		gDLL->ProfilerBegin();
+ 	}
++#endif
+ }
+ 
+ //
+ // dump profile stats on-screen
+ //
+-void stopProfilingDLL()
++void stopProfilingDLL(bool longLived)
+ {
++#ifdef USE_INTERNAL_PROFILER
++	if ( longLived )
++	{
++		isInLongLivedSection = false;
++	}
++	else if (GC.isDLLProfilerEnabled() && !isInLongLivedSection)
++	{
++		IFPEndSample(&rootSample__);
++		IFPEnd();
++	}
++#else
+ 	if (GC.isDLLProfilerEnabled())
+ 	{
+ 		gDLL->ProfilerEnd();
+ 	}
++#endif
+ }
++
++#ifdef MEMORY_TRACKING
++CMemoryTrack*	CMemoryTrack::trackStack[MAX_TRACK_DEPTH];
++int CMemoryTrack::m_trackStackDepth = 0;
++
++CMemoryTrack::CMemoryTrack(const char* name, bool valid)
++{
++	m_highWater = 0;
++	m_name = name;
++	m_valid = valid;
++
++	if ( m_trackStackDepth < MAX_TRACK_DEPTH )
++	{
++		trackStack[m_trackStackDepth++] = this;
++	}
++}
++
++CMemoryTrack::~CMemoryTrack()
++{
++	if ( m_valid )
++	{
++		for(int i = 0; i < m_highWater; i++)
++		{
++			if ( m_track[i] != NULL )
++			{
++				char buffer[200];
++
++				sprintf(buffer, "Apparent memory leak detected in %s\n", m_name);
++				OutputDebugString(buffer);
++			}
++		}
++	}
++
++	if ( trackStack[m_trackStackDepth-1] == this )
++	{
++		m_trackStackDepth--;
++	}
++}
++
++void CMemoryTrack::NoteAlloc(void* ptr)
++{
++	if ( m_valid )
++	{
++		for(int i = 0; i < m_highWater; i++)
++		{
++			if ( m_track[i] == NULL )
++			{
++				break;
++			}
++		}
++
++		if ( i == m_highWater )
++		{
++			if ( m_highWater < MAX_TRACKED_ALLOCS )
++			{
++				m_highWater++;
++			}
++			else
++			{
++				m_valid = false;
++				return;
++			}
++		}
++
++		m_track[i] = ptr;
++	}
++}
++
++void CMemoryTrack::NoteDeAlloc(void* ptr)
++{
++	if ( m_valid )
++	{
++		for(int i = 0; i < m_highWater; i++)
++		{
++			if ( m_track[i] == ptr )
++			{
++				m_track[i] = NULL;
++				break;
++			}
++		}
++	}
++}
++
++CMemoryTrack* CMemoryTrack::GetCurrent(void)
++{
++	if ( 0 < m_trackStackDepth && m_trackStackDepth < MAX_TRACK_DEPTH )
++	{
++		return trackStack[m_trackStackDepth-1];
++	}
++	else
++	{
++		return NULL;
++	}
++}
++
++CMemoryTrace::CMemoryTrace(const char* name)
++{
++	PROCESS_MEMORY_COUNTERS pmc;
++
++	GetProcessMemoryInfo( GetCurrentProcess(), &pmc, sizeof(pmc));
++	m_name = name;
++	m_start = pmc.WorkingSetSize;
++}
++
++CMemoryTrace::~CMemoryTrace()
++{
++	PROCESS_MEMORY_COUNTERS pmc;
++
++	if ( GetProcessMemoryInfo( GetCurrentProcess(), &pmc, sizeof(pmc)) )
++	{
++		char buffer[200];
++
++		sprintf(buffer, "function %s added %dK bytes, total now %dK\n", m_name, (int)(pmc.WorkingSetSize - m_start)/1024, (int)pmc.WorkingSetSize/1024);
++		OutputDebugString(buffer);
++	}
++}
++
++void ProfileTrackAlloc(void* ptr)
++{
++	CMemoryTrack* current = CMemoryTrack::GetCurrent();
++
++	if ( current != NULL )
++	{
++		current->NoteAlloc(ptr);
++	}
++}
++
++void ProfileTrackDeAlloc(void* ptr)
++{
++	CMemoryTrack* current = CMemoryTrack::GetCurrent();
++
++	if ( current != NULL )
++	{
++		current->NoteDeAlloc(ptr);
++	}
++}
++
++#endif
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 5bc05c5d1..6e2df065b 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -155,8 +155,68 @@ __forceinline DWORD FtoDW( float f ) { return *(DWORD*)&f; }
+ __forceinline float DWtoF( dword n ) { return *(float*)&n; }
+ __forceinline float MaxFloat() { return DWtoF(0x7f7fffff); }
+ 
+-void startProfilingDLL();
+-void stopProfilingDLL();
++void startProfilingDLL(bool longLived);
++void stopProfilingDLL(bool longLived);
++
++#ifdef USE_INTERNAL_PROFILER
++struct ProfileSample;
++void IFPBeginSample(ProfileSample* sample);
++void IFPEndSample(ProfileSample* sample);
++void dumpProfileStack(void);
++void EnableDetailedTrace(bool enable);
++#endif
++
++#ifdef _DEBUG
++//#define MEMORY_TRACKING
++#endif
++
++#ifdef MEMORY_TRACKING
++class CMemoryTrack
++{
++#define	MAX_TRACKED_ALLOCS	1000
++	void*	m_track[MAX_TRACKED_ALLOCS];
++	int		m_highWater;
++	const char* m_name;
++	bool	m_valid;
++#define MAX_TRACK_DEPTH		50
++	static	CMemoryTrack*	trackStack[MAX_TRACK_DEPTH];
++	static	m_trackStackDepth;
++
++public:
++	CMemoryTrack(const char* name, bool valid);
++
++	~CMemoryTrack();
++
++	void NoteAlloc(void* ptr);
++	void NoteDeAlloc(void* ptr);
++
++	static CMemoryTrack* GetCurrent(void);
++};
++
++class CMemoryTrace
++{
++	int		m_start;
++	const char* m_name;
++
++public:
++	CMemoryTrace(const char* name);
++
++	~CMemoryTrace();
++};
++
++void DumpMemUsage(const char* fn, int line);
++
++#define DUMP_MEMORY_USAGE()	DumpMemUsage(__FUNCTION__,__LINE__);
++#define MEMORY_TRACK()	CMemoryTrack __memoryTrack(__FUNCTION__, true);
++#define MEMORY_TRACK_EXEMPT()	CMemoryTrack __memoryTrackExemption(NULL, false);
++#define MEMORY_TRACE_FUNCTION()	CMemoryTrace __memoryTrace(__FUNCTION__);
++#else
++#define DUMP_MEMORY_USAGE()	
++#define	MEMORY_TRACK()
++#define MEMORY_TRACK_EXEMPT()
++#define MEMORY_TRACE_FUNCTION()
++#endif
++
+ 
+ //
+ // Boost Python
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.vcproj b/CvGameCoreDLL/CvGameCoreDLL.vcproj
+index 3e45f5a18..8f7393245 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.vcproj
++++ b/CvGameCoreDLL/CvGameCoreDLL.vcproj
+@@ -55,6 +55,26 @@
+ 				CompileAsManaged=""
+ 			/>
+ 		</Configuration>
++		<Configuration
++			Name="Profile|Win32"
++			OutputDirectory="$(ConfigurationName)"
++			IntermediateDirectory="$(ConfigurationName)"
++			ConfigurationType="0"
++			>
++			<Tool
++				Name="VCNMakeTool"
++				BuildCommandLine="nmake Profile"
++				ReBuildCommandLine="nmake Profile_clean&#x0D;&#x0A;nmake Profile"
++				CleanCommandLine="nmake Profile_clean"
++				Output=""
++				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;FP_PROFILE_ENABLE;USE_INTERNAL_PROFILER"
++				IncludeSearchPath=""
++				ForcedIncludes=""
++				AssemblySearchPath=""
++				ForcedUsingAssemblies=""
++				CompileAsManaged=""
++			/>
++		</Configuration>
+ 	</Configurations>
+ 	<References>
+ 	</References>
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 0955ee0b3..91241da52 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -3281,7 +3281,14 @@ void CvGlobals::enableDLLProfiler(bool bEnable)
+ 
+ bool CvGlobals::isDLLProfilerEnabled() const
+ {
+-	return m_bDLLProfiler;
++	//return m_bDLLProfiler;
++	// K-Mod. (I don't know how to enable this in-game...)
++#ifdef FP_PROFILE_ENABLE
++	return true;
++#else
++	return false;
++#endif
++	// K-Mod end
+ }
+ 
+ bool CvGlobals::readBuildingInfoArray(FDataStreamBase* pStream)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 47345cc91..8b1cb217c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11163,7 +11163,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 			// start profiling DLL if desired
+ 			if (getID() == GC.getGameINLINE().getActivePlayer())
+ 			{
+-				startProfilingDLL();
++				startProfilingDLL(true);
+ 			}
+ 
+ 			GC.getGameINLINE().changeNumGameTurnActive(-1);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index dd279f6bd..82044e7d3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3510,8 +3510,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 	//if (iFlags & MOVE_THROUGH_ENEMY)
+ 	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK)) // K-Mod
+ 	{
+-		//if (generatePath(plot(), pDestPlot, iFlags))
+-		if (generatePath(plot(), pDestPlot, iFlags, true)) // K-Mod
++		if (generatePath(plot(), pDestPlot, iFlags))
+ 		{
+ 			pDestPlot = getPathFirstPlot();
+ 		}
+@@ -3529,7 +3528,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 		if ((getDomainType() == DOMAIN_AIR) || (stepDistance(getX(), getY(), pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) == 1))
+ 		{
+ 			//if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+-			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (generatePath(plot(), pDestPlot, iFlags, true) && getPathFirstPlot() == pDestPlot)) // K-Mod
++			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (generatePath(plot(), pDestPlot, iFlags) && getPathFirstPlot() == pDestPlot)) // K-Mod
+ 			{
+ 				int iAttackOdds;
+ 				CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+@@ -3726,8 +3725,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	}
+ 	else
+ 	{
+-		//if (!generatePath(plot(), pDestPlot, iFlags))
+-		if (!generatePath(plot(), pDestPlot, iFlags, true)) // K-Mod
++		if (!generatePath(plot(), pDestPlot, iFlags))
+ 		{
+ 			return false;
+ 		}
+@@ -4483,7 +4481,7 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 	//	Invalidate the cache again so that callers from outside the DLL to path generation don't
+ 	//	invoke a stale cache
+ 	m_cachedPathValidityFromPlotX = -2;	//	-2 blocks all attempts to use the cache
+-	//lastPathGeneratedFor = this;
++	lastPathGeneratedFor = this;
+ 
+ 	if (piPathTurns != NULL)
+ 	{
+
+diff --git a/CvGameCoreDLL/FProfiler.h b/CvGameCoreDLL/FProfiler.h
+index 929ce0310..75eff3ec4 100644
+--- a/CvGameCoreDLL/FProfiler.h
++++ b/CvGameCoreDLL/FProfiler.h
+@@ -13,29 +13,43 @@
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGlobals.h"	// for gDLL
+ 
+-#ifndef FINAL_RELEASE
+-#ifndef FP_PROFILE_ENABLE 
+-	#define FP_PROFILE_ENABLE 
+-#endif
+-#endif
+ 
+-//NOTE: This struct must be identical ot the same struct in  FireEngine/FProfiler.h
++//NOTE: This struct must be identical ot the same struct in  FireEngine/FProfiler.h if the
++//standard profiler is being used (USE_INTERNAL_PROFILER not defined)
+ //---------------------------------------------------------------------------------------------------------------------
+ struct ProfileSample
+ {
+-	ProfileSample(char *name)					{ strcpy(Name, name); Added=false; Parent=-1; }
++	ProfileSample(char *name)
++	{	
++		strcpy(Name, name);
++		Added=false;
++		Parent=-1;
++#ifdef USE_INTERNAL_PROFILER
++		Id = -1;
++#endif
++	}
+ 
+ 	char	Name[256];						// Name of sample;
+ 
+ 	unsigned int	ProfileInstances;		// # of times ProfileBegin Called
+ 	int				OpenProfiles;			// # of time ProfileBegin called w/o ProfileEnd
++#ifdef USE_INTERNAL_PROFILER
++	LARGE_INTEGER	StartTime;				// The current open profile start time
++	LARGE_INTEGER	Accumulator;			// All samples this frame added together
++
++	LARGE_INTEGER	ChildrenSampleTime;		// Time taken by all children
++#else
+ 	double			StartTime;				// The current open profile start time
+ 	double			Accumulator;			// All samples this frame added together
+ 
+ 	double			ChildrenSampleTime;		// Time taken by all children
++#endif
+ 	unsigned int	NumParents;				// Number of profile Parents
+ 	bool			Added;					// true when added to the list
+ 	int				Parent;
++#ifdef USE_INTERNAL_PROFILER
++	int				Id;
++#endif
+ };
+ 
+ //---------------------------------------------------------------------------------------------------------------------
+@@ -48,14 +62,26 @@ public:
+ 	CProfileScope(ProfileSample *pSample)
+ 	{
+ 		m_pSample = pSample;
+-		bValid = true;
+-		gDLL->BeginSample(m_pSample);
++		bValid = false;
++		//if (!giProfilerDisabled)
++		{
++			bValid = true;
++#ifdef USE_INTERNAL_PROFILER
++			IFPBeginSample(m_pSample);
++#else
++			gDLL->BeginSample(m_pSample);
++#endif
++		}
+ 	};
+ 	~CProfileScope()
+ 	{
+ 		if(bValid )
+ 		{
++#ifdef USE_INTERNAL_PROFILER
++			IFPEndSample(m_pSample);
++#else
+ 			gDLL->EndSample(m_pSample);
++#endif
+ 			bValid = false;
+ 		}	
+ 	};
+@@ -69,6 +95,25 @@ private:
+ 
+ // Main Interface for Profile
+ #ifdef FP_PROFILE_ENABLE				// Turn Profiling On or Off .. 
++#ifdef USE_INTERNAL_PROFILER
++#define PROFILE(name)\
++	static ProfileSample sample(name);\
++	CProfileScope ProfileScope(&sample);		
++
++//BEGIN & END macros:		Only needed if you don't want to use the scope macro above. 
++// Macros must be in the same scope
++#define PROFILE_BEGIN(name)\
++	static ProfileSample sample__(name);\
++	IFPBeginSample(&sample__);
++#define PROFILE_END()\
++	IFPEndSample(&sample__);
++
++#define PROFILE_FUNC()\
++	static ProfileSample sample(__FUNCTION__);\
++	CProfileScope ProfileScope(&sample);	
++
++#define PROFILE_STACK_DUMP	dumpProfileStack();
++#else
+ #define PROFILE(name)\
+ 	static ProfileSample sample(name);\
+ 	CProfileScope ProfileScope(&sample);		
+@@ -85,11 +130,14 @@ private:
+ 	static ProfileSample sample(__FUNCTION__);\
+ 	CProfileScope ProfileScope(&sample);	
+ 
++#define PROFILE_STACK_DUMP ;
++#endif
+ #else
+ #define PROFILE(name)				// Remove profiling code
+ #define PROFILE_BEGIN(name)
+ #define PROFILE_END()
+ #define PROFILE_FUNC()
++#define PROFILE_STACK_DUMP ;
+ #endif
+
+diff --git a/CvGameCoreDLL/Makefile b/CvGameCoreDLL/Makefile
+index 5e9e21a76..5dc1f3f5f 100644
+--- a/CvGameCoreDLL/Makefile
++++ b/CvGameCoreDLL/Makefile
+@@ -26,52 +26,64 @@ BLACKLIST=CvTextScreens
+ #### Target Files ####
+ Debug_BIN=Debug\CvGameCoreDLL.dll
+ Release_BIN=Release\CvGameCoreDLL.dll
++Profile_BIN=Profile\CvGameCoreDLL.dll
+ 
+ !IF [IF NOT EXIST CvGameCoreDLL.rc EXIT 1] == 0
+ Debug_RESOURCE=Debug\CvGameCoreDLL.res
+ Release_RESOURCE=Release\CvGameCoreDLL.res
++Profile_RESOURCE=Profile\CvGameCoreDLL.res
+ !ENDIF
+ 
+ Debug_STATICLIB=Debug\CvGameCoreDLL.lib
+ Release_STATICLIB=Release\CvGameCoreDLL.lib
++Profile_STATICLIB=Profile\CvGameCoreDLL.lib
+ 
+ Debug_LIBDEF=Debug\CvGameCoreDLL.def
+ Release_LIBDEF=Release\CvGameCoreDLL.def
++Profile_LIBDEF=Profile\CvGameCoreDLL.def
+ 
+ Debug_PCH=Debug\CvGameCoreDLL.pch
+ Release_PCH=Release\CvGameCoreDLL.pch
++Profile_PCH=Profile\CvGameCoreDLL.pch
+ 
+ Debug_PDB=Debug\CvGameCoreDLL.pdb
+ Release_PDB=Release\CvGameCoreDLL.pdb
++Profile_PDB=Profile\CvGameCoreDLL.pdb
+ 
+ Debug_OTHER=Debug\CvGameCoreDLL.exp Debug\CvGameCoreDLL.ilk
+ Release_OTHER=Release\CvGameCoreDLL.exp
++Profile_OTHER=Profile\CvGameCoreDLL.exp
+ 
+ #### CFLAGS ####
+ GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /Yu"CvGameCoreDLL.h"
+ Debug_CFLAGS=/MD /Zi /Od /D_DEBUG /DLOG_AI /RTC1 /Fp"$(Debug_PCH)" $(GLOBAL_CFLAGS)
+ Release_CFLAGS=/MD /O2 /Oy /Oi /G7 /DNDEBUG /DFINAL_RELEASE /Fp"$(Release_PCH)" $(GLOBAL_CFLAGS)
++Profile_CFLAGS=/MD /O2 /Oy /Oi /G7 /DNDEBUG /DFP_PROFILE_ENABLE /DUSE_INTERNAL_PROFILER /Fp"$(Profile_PCH)" $(GLOBAL_CFLAGS)
+ 
+ #### LDFLAGS ####
+ GLOBAL_LDFLAGS=/DLL /NOLOGO /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /TLBID:1
+ Debug_LDFLAGS=/INCREMENTAL /DEBUG /PDB:"$(Debug_PDB)" /IMPLIB:"$(Debug_STATICLIB)" $(GLOBAL_LDFLAGS)
+ Release_LDFLAGS=/INCREMENTAL:NO /OPT:REF /OPT:ICF /PDB:"$(Release_PDB)" $(GLOBAL_LDFLAGS)
++Profile_LDFLAGS=/INCREMENTAL:NO /OPT:REF /OPT:ICF /PDB:"$(Profile_PDB)" $(GLOBAL_LDFLAGS)
+ 
+ #### INCLUDES ####
+ GLOBAL_INCS=/I"$(TOOLKIT)/include" /I"$(PSDK)/Include" /I"$(PSDK)/Include/mfc"
+ PROJECT_INCS=/IBoost-1.32.0/include /IPython24/include
+ Debug_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
+ Release_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
++Profile_INCS=$(PROJECT_INCS) $(GLOBAL_INCS)
+ 
+ #### LIBS ####
+ GLOBAL_LIBS=/LIBPATH:"$(TOOLKIT)/lib" /LIBPATH:"$(PSDK)/Lib" winmm.lib user32.lib
+ PROJECT_LIBS=/LIBPATH:Python24/libs /LIBPATH:boost-1.32.0/libs/ boost_python-vc71-mt-1_32.lib
+ Debug_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS) msvcprt.lib
+ Release_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS)
++Profile_LIBS=$(PROJECT_LIBS) $(GLOBAL_LIBS)
+ 
+ #### Objects ####
+ Debug_LINKOBJS=$(Debug_OBJS)
+ Release_LINKOBJS=$(Release_OBJS)
++Profile_LINKOBJS=$(Profile_OBJS)
+ 
+ #### Auto SOURCES/OBJS ####
+ !IF [ECHO SOURCES= \> sources.mk] == 0 && \
+@@ -82,6 +94,9 @@ Release_LINKOBJS=$(Release_OBJS)
+     [ECHO.>> sources.mk] == 0 && \
+     [ECHO Release_OBJS= \>> sources.mk] == 0 && \
+     [FOR /F "delims=." %i IN ('dir /b *.cpp') DO @ECHO. Release\%i.obj \>> sources.mk] == 0 && \
++    [ECHO.>> sources.mk] == 0 && \
++    [ECHO Profile_OBJS= \>> sources.mk] == 0 && \
++    [FOR /F "delims=." %i IN ('dir /b *.cpp') DO @ECHO. Profile\%i.obj \>> sources.mk] == 0 && \
+     [ECHO.>> sources.mk] == 0
+ !INCLUDE sources.mk
+ !IF [DEL sources.mk]
+@@ -91,11 +106,11 @@ Release_LINKOBJS=$(Release_OBJS)
+ #### Targets ####
+ #################
+ 
+-.PHONY: all clean Debug_clean Release_clean Debug Release
++.PHONY: all clean Debug_clean Release_clean Profile_clean Debug Release Profile
+ 
+ all: Debug Release
+ 
+-clean: Debug_clean Release_clean 
++clean: Debug_clean Release_clean Profile_clean
+ 
+ Debug_clean:
+ 	@FOR %i IN ($(Debug_BIN) $(Debug_STATICLIB) $(Debug_LIBDEF) \
+@@ -107,6 +122,11 @@ Release_clean:
+ 		Release\*.obj Release\*.@ $(Release_RESOURCE) \
+ 		$(Release_PCH) $(Release_PDB) $(Release_OTHER)) DO @IF EXIST "%i" DEL "%i"
+ 
++Profile_clean:
++	@FOR %i IN ($(Profile_BIN) $(Profile_STATICLIB) $(Profile_LIBDEF) \
++		Profile\*.obj Profile\*.@ $(Profile_RESOURCE) \
++		$(Profile_PCH) $(Profile_PDB) $(Profile_OTHER)) DO @IF EXIST "%i" DEL "%i"
++
+ Debug: Debug_DIR Debug_unfinished $(Debug_PCH) $(Debug_BIN)
+ !IFDEF YOURMOD
+ 	-COPY "$(Debug_BIN)" "$(YOURMOD)\Assets\."
+@@ -117,12 +137,20 @@ Release: Release_DIR Release_unfinished $(Release_PCH) $(Release_BIN)
+ 	-COPY "$(Release_BIN)" "$(YOURMOD)\Assets\."
+ !ENDIF
+ 
++Profile: Profile_DIR Profile_unfinished $(Profile_PCH) $(Profile_BIN)
++!IFDEF YOURMOD
++	-COPY "$(Profile_BIN)" "$(YOURMOD)\Assets\."
++!ENDIF
++
+ Debug_DIR:
+ 	<hidden-email> NOT EXIST "Debug\." MKDIR "Debug"
+ 
+ Release_DIR:
+ 	<hidden-email> NOT EXIST "Release\." MKDIR "Release"
+ 
++Profile_DIR:
++	<hidden-email> NOT EXIST "Profile\." MKDIR "Profile"
++
+ Debug_unfinished:
+ 	@ECHO.>Debug\unfinished.@
+ 	@FOR /F "delims=@" %i IN ('dir /b Debug\*.@') DO \
+@@ -137,12 +165,22 @@ Release_unfinished:
+ 	@FOR /F %i IN ('dir /b Release\*.@') DO \
+ 		@IF EXIST "Release\%i" DEL "Release\%i"
+ 
++Profile_unfinished:
++	@ECHO.>Profile\unfinished.@
++	@FOR /F "delims=@" %i IN ('dir /b Profile\*.@') DO \
++		@IF EXIST "Profile\%i" DEL "Profile\%i"
++	@FOR /F %i IN ('dir /b Profile\*.@') DO \
++		@IF EXIST "Profile\%i" DEL "Profile\%i"
++		
+ $(Debug_BIN): $(Debug_LINKOBJS) $(Debug_RESOURCE)
+ 	$(LD) /out:$(Debug_BIN) $(Debug_LDFLAGS) $(Debug_LIBS) $(Debug_LINKOBJS) $(Debug_RESOURCE)
+ 
+ $(Release_BIN): $(Release_LINKOBJS) $(Release_RESOURCE)
+ 	$(LD) /out:$(Release_BIN) $(Release_LDFLAGS) $(Release_LIBS) $(Release_LINKOBJS) $(Release_RESOURCE)
+ 
++$(Profile_BIN): $(Profile_LINKOBJS) $(Profile_RESOURCE)
++	$(LD) /out:$(Profile_BIN) $(Profile_LDFLAGS) $(Profile_LIBS) $(Profile_LINKOBJS) $(Profile_RESOURCE)
++
+ .cpp{Debug}.obj:
+ 	@ECHO.>"$*.obj.@"
+     $(CPP) /nologo $(Debug_CFLAGS) $(Debug_INCS) /Fo$*.obj /c $<
+@@ -153,6 +191,11 @@ $(Release_BIN): $(Release_LINKOBJS) $(Release_RESOURCE)
+     $(CPP) /nologo $(Release_CFLAGS) $(Release_INCS) /Fo$*.obj /c $<
+ 	@DEL "$*.obj.@"
+ 
++.cpp{Profile}.obj:
++	@ECHO.>"$*.obj.@"
++    $(CPP) /nologo $(Profile_CFLAGS) $(Profile_INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
+ $(Debug_PCH) Debug\_precompile.obj:
+ 	@ECHO.>"$(Debug_PCH).@"
+ 	@ECHO.>"Debug\_precompile.obj.@"
+@@ -167,6 +210,13 @@ $(Release_PCH) Release\_precompile.obj:
+ 	@DEL "$(Release_PCH).@"
+ 	@DEL "Release\_precompile.obj.@"
+ 
++$(Profile_PCH) Profile\_precompile.obj:
++	@ECHO.>"$(Profile_PCH).@"
++	@ECHO.>"Profile\_precompile.obj.@"
++    $(CPP) /nologo $(Profile_CFLAGS) $(Profile_INCS) /YcCvGameCoreDLL.h /Fo"Profile\_precompile.obj" /c _precompile.cpp
++	@DEL "$(Profile_PCH).@"
++	@DEL "Profile\_precompile.obj.@"
++
+ .rc{Debug}.res:
+ 	@ECHO.>"$*.res.@"
+ 	$(RC) /Fo$@ $(Debug_INCS) $<
+@@ -177,6 +227,11 @@ $(Release_PCH) Release\_precompile.obj:
+ 	$(RC) /Fo$@ $(Release_INCS) $<
+ 	@DEL "$*.res.@"
+ 
++.rc{Profile}.res:
++	@ECHO.>"$*.res.@"
++	$(RC) /Fo$@ $(Profile_INCS) $<
++	@DEL "$*.res.@"
++
+ !IFDEF BLACKLIST
+ 
+ Debug\$(BLACKLIST).obj: $(BLACKLIST).cpp
+@@ -193,6 +248,13 @@ Release\$(BLACKLIST).obj: $(BLACKLIST).cpp
+ 	@DEL "$*-dummy.cpp"
+ 	@DEL "$*.obj.@"
+ 
++Profile\$(BLACKLIST).obj: $(BLACKLIST).cpp
++	@ECHO.>"$*.obj.@"
++	@ECHO.>"$*-dummy.cpp"
++	$(CPP) /nologo $(Profile_CFLAGS) $(Profile_INCS) /Y- /Fo$@ /c "$*-dummy.cpp"
++	@DEL "$*-dummy.cpp"
++	@DEL "$*.obj.@"
++
+ !ENDIF
+ 
+ !IFDEF FD
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=32952

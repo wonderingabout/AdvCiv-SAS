@@ -1,0 +1,895 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2778
+# Commit: 4098fbb24851e4cdc6f2f615f4458adedf97da75
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8b80297713b1fd0f2b79d6eb234e5bb92e943369
+# Title: Various UI improvements for bombard and air bomb missions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+81	0	Assets/XML/Text/CIV4GameText_advc.xml
+5	3	CvGameCoreDLL/CvCity.cpp
+36	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+136	18	CvGameCoreDLL/CvGameTextMgr.cpp
+1	0	CvGameCoreDLL/CvGameTextMgr.h
+139	27	CvGameCoreDLL/CvSelectionGroup.cpp
+90	45	CvGameCoreDLL/CvUnit.cpp
+2	0	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 362e096bc..5daff7838 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6236,6 +6236,87 @@
+ 		<Italian>[ICON_BULLET]%d1_Mod%% alla difesa in tutte le citt&#224;</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Mod%% a la defensa en todas las ciudades</Spanish>
+ 	</TEXT>
++	<!-- advc.004c: Replacing the generic TXT_KEY_MISSION_BOMBARD_HELP
++		 (CIV4GameText_Help.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_ACTION_BOMBARD_MISSION</Tag>
++		<English>Reduces the defensive modifier of %s1_CityName by %d2[ICON_DEFENSE] points.</English>
++		<French>R&#233;duire le modificateur d&#233;fensif de %s1_CityName par %d2 points [ICON_DEFENSE].</French>
++		<German>Senkt den Defensivbonus von %s1_CityName um %d2[ICON_DEFENSE]-Punkte.</German>
++		<Italian>Riduce il modificatore difensivo di %s1_CityName per %d2 punti [ICON_DEFENSE].</Italian>
++		<Spanish>Reduce lel modificador defensivo de %s1_CityName en %d2 puntos [ICON_DEFENSE].</Spanish>
++	</TEXT>
++	<!-- (Too lazy for proper FIS translations) -->
++	<TEXT>
++		<Tag>TXT_KEY_ACTION_BOMBARD_MISSION_NO_DAMAGE</Tag>
++		<English>Prevents the defensive modifier of %s1_CityName from recovering in between turns.</English>
++		<French>R&#233;duire le modificateur d&#233;fensif de %s1_CityName par 0 points [ICON_DEFENSE].</French>
++		<German>Verhindert, dass sich der Verteidigungsbonus von %s1_CityName am Zugende wiederaufl�dt.</German>
++		<Italian>Riduce il modificatore difensivo di %s1_CityName per 0 punti [ICON_DEFENSE].</Italian>
++		<Spanish>Reduce lel modificador defensivo de %s1_CityName en 0 puntos [ICON_DEFENSE].</Spanish>
++	</TEXT>
++	<!-- Same for air bomb interface mode (more compact) -->
++	<TEXT>
++		<Tag>TXT_KEY_AIR_BOMB_MODE_HELP_CITY_DEFENSE</Tag>
++		<English>Bomb [COLOR_HIGHLIGHT_TEXT]%s1_CityName[COLOR_REVERT]: -%d2[ICON_DEFENSE] points</English>
++		<French>R&#233;duire le modificateur d&#233;fensif de %s1_CityName par %d2 points [ICON_DEFENSE].</French>
++		<German>Bombardiere [COLOR_HIGHLIGHT_TEXT]%s1_CityName[COLOR_REVERT]: -%d2[ICON_DEFENSE]-Punkte.</German>
++		<Italian>Riduce il modificatore difensivo di %s1_CityName per %d2 punti [ICON_DEFENSE].</Italian>
++		<Spanish>Reduce lel modificador defensivo de %s1_CityName en %d2 puntos [ICON_DEFENSE].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIR_BOMB_MODE_HELP_CITY_DEFENSE_NO_DAMAGE</Tag>
++		<English>Bomb [COLOR_HIGHLIGHT_TEXT]%s1_CityName[COLOR_REVERT]: Prevent [ICON_DEFENSE] from recovering in between turns</English>
++		<French>R&#233;duire le modificateur d&#233;fensif de %s1_CityName par 0 points [ICON_DEFENSE].</French>
++		<German>Bombardiere [COLOR_HIGHLIGHT_TEXT]%s1_CityName[COLOR_REVERT] (verhindert Aufladen von [ICON_DEFENSE] am Zugende).</German>
++		<Italian>Riduce il modificatore difensivo di %s1_CityName per 0 punti [ICON_DEFENSE].</Italian>
++		<Spanish>Reduce lel modificador defensivo de %s1_CityName en 0 puntos [ICON_DEFENSE].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIR_BOMB_MODE_HELP_DESTR_IMPROV</Tag>
++		<English>Bomb [COLOR_HIGHLIGHT_TEXT]%s1_ImprovDesc[COLOR_REVERT]: %d2%% Odds (if not Intercepted)</English>
++		<French>Bombarder [COLOR_HIGHLIGHT_TEXT]%s1_ImprovDesc[COLOR_REVERT]: %d2%% probabilit&#233; (sans interception)</French>
++		<German>Bombardiere [COLOR_HIGHLIGHT_TEXT]%s1_ImprovDesc[COLOR_REVERT]: %d2%% Chance (falls nicht abgefangen)</German>
++		<Italian>Bomba [COLOR_HIGHLIGHT_TEXT]%s1_ImprovDesc[COLOR_REVERT]: %d2%% probabilit� (se non intercettata)</Italian>
++		<Spanish>Bombear [COLOR_HIGHLIGHT_TEXT]%s1_ImprovDesc[COLOR_REVERT]: %d2%% probabilidades (si no es interceptada)</Spanish>
++	</TEXT>
++	<!-- advc.004c: Both from CIV4GameTextInfos.xml.
++		 I'm only replacing the percentage sign with the defense icon. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_BOMBARD_RATE</Tag>
++		<English>[ICON_BULLET]Can Bombard City Defenses (-%d1_Mod[ICON_DEFENSE]/Turn)</English>
++		<French>[ICON_BULLET]Peut bombarder les d&#233;fenses d'une ville (-%d1_Mod[ICON_DEFENSE]/tour)</French>
++		<German>[ICON_BULLET]Kann Stadtverteidigungen bombardieren (-%d1_Mod[ICON_DEFENSE]/Runde)</German>
++		<Italian>[ICON_BULLET]Pu&#242; bombardare le difese cittadine (-%d1_Mod[ICON_DEFENSE]/turno)</Italian>
++		<Spanish>[ICON_BULLET]Puede ca&#241;onear las defensas de las ciudades (-%d1_Mod[ICON_DEFENSE]/turno)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_BOMBARD_RATE_SHORT</Tag>
++		<English>[ICON_BULLET]Bombard City: -%d1_Mod[ICON_DEFENSE]/Turn</English>
++		<French>[ICON_BULLET]Bombardement : -%d1_Mod[ICON_DEFENSE]/tour</French>
++		<German>[ICON_BULLET]Stadt bombardieren: -%d1_Mod[ICON_DEFENSE]/Runde</German>
++		<Italian>[ICON_BULLET]Bombarda citt&#224;: -%d1_Mod[ICON_DEFENSE]/turno</Italian>
++		<Spanish>[ICON_BULLET]Ca&#241;onear ciudad: -%d1_Mod[ICON_DEFENSE]/turno</Spanish>
++	</TEXT>
++	<!-- Based on the above (translations actually exactly as above) -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_AIR_BOMB_RATE_SHORT</Tag>
++		<English>[ICON_BULLET]Air Bomb City: -%d1_Mod[ICON_DEFENSE]/Turn</English>
++		<French>[ICON_BULLET]Bombardement : -%d1_Mod[ICON_DEFENSE]/tour</French>
++		<German>[ICON_BULLET]Stadt bombardieren: -%d1_Mod[ICON_DEFENSE]/Runde</German>
++		<Italian>[ICON_BULLET]Bombarda citt&#224;: -%d1_Mod[ICON_DEFENSE]/turno</Italian>
++		<Spanish>[ICON_BULLET]Ca&#241;onear ciudad: -%d1_Mod[ICON_DEFENSE]/turno</Spanish>
++	</TEXT>
++	<!-- advc.004c: Based on TXT_KEY_MISC_YOU_UNIT_FAIL_DESTROY_IMP
++		 (CIV4GameTextInfos.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_AIR_BOMB_FAIL_IMP_GONE</Tag>
++		<English>Your %s1_UnitName has failed to engage any air bomb target. (Looks like it had existed only in the Fog of War.)</English>
++		<French>Votre unit&#233; (%s1_UnitName) n'a pas pu d&#233;truire l'am&#233;nagement.</French>
++		<German>Eure Einheit %s1_UnitName hat kein Ziel f�r eine Bombardierung vorgefunden. (Es existierte wohl blo� im Nebel des Krieges.)</German>
++		<Italian>[NUM1:Il tuo: La tua: I tuoi: Le tue] %s1_UnitName non sono riusciti a distruggere il miglioramento.</Italian>
++		<Spanish>[NUM1:Vuestro:Vuestra:Vuestros:Vuestras] %s1_UnitName no [NUM1:ha:ha:han:han] conseguido destruir la mejora.</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.004k: From CIV4GameText_BTS.xml. Clarify who attacks and
+ 		 under which circumstances. German was totally wrong. (FIS unchanged)-->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0287f3e02..5837bdfe0 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6263,15 +6263,17 @@ void CvCity::setLastDefenseDamage(int iNewValue)
+ 
+ bool CvCity::isBombardable(const CvUnit* pUnit) const
+ {
+-	if (NULL != pUnit && !pUnit->isEnemy(getTeam()))
++	if (pUnit != NULL && !pUnit->isEnemy(getTeam()))
+ 		return false;
+ 
+-	return (getDefenseModifier(false) > 0) ||
++	return (getDefenseModifier(false) > 0 ||
++			// advc.004c: Don't give away 0 defense in the fog of war to human attacker
++			(pUnit != NULL && pUnit->isHuman() && !isVisible(pUnit->getTeam())) ||
+ 			/*  advc.004c: Allow bombarding defenseless cities (to keep their def at 0),
+ 				except cities that have nothing to recover.
+ 				Don't allow the AI to do this b/c the AI can't tell if it matters.
+ 				Much easier to prevent 0-bombardment by the AI here than in CvUnitAI. */
+-			(getTotalDefense(false) > 0 && pUnit->isHuman() && !isBombarded());
++			(getTotalDefense(false) > 0 && pUnit->isHuman() && !isBombarded()));
+ }
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index d33ab708f..4101d8b6a 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2687,6 +2687,37 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		GAMETEXT.setEspionageMissionHelp(szBuffer, &kUnit);
+ 		break;
+ 	}
++	/*	<advc.004c> (Note: similar code in CvGameTextMgr::getAirBombPlotHelp
++		for air bomb mission) */
++	case MISSION_BOMBARD:
++	{
++		CvCity const* pBombardCity = kUnit.bombardTarget(kMissionPlot);
++		if (pBombardCity == NULL)
++			break;
++		int const iMaxDamage = pBombardCity->getDefenseModifier(
++				kUnit.ignoreBuildingDefense());
++		int iDamage = 0;
++		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
++			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
++		{
++			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
++			iDamage += kSelectedUnit.damageToBombardTarget(kMissionPlot);
++			if (iDamage >= iMaxDamage)
++			{
++				iDamage = iMaxDamage;
++				break;
++			}
++		}
++		szBuffer.append(NEWLINE);
++		if (iDamage > 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_ACTION_BOMBARD_MISSION",
++					pBombardCity->getNameKey(), iDamage));
++		}
++		else szBuffer.append(gDLL->getText("TXT_KEY_ACTION_BOMBARD_MISSION_NO_DAMAGE",
++					pBombardCity->getNameKey()));
++		break;
++	} // </advc.004c>
+ 	case MISSION_BUILD:
+ 	{
+ 		BuildTypes eBuild = (BuildTypes)kAction.getMissionData();
+@@ -3065,9 +3096,12 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 
+ 	if (!CvWString(GC.getInfo(eMission).getHelp()).empty())
+ 	{	// <advc.004a>
+-		if(eMission == MISSION_DISCOVER)
++		if (eMission == MISSION_DISCOVER)
+ 			szBuffer.append(getDiscoverPathText(kUnit.getUnitType(), kUnitOwner.getID()));
+-		else // </advc.004a>
++		else // </advc.004a>  <advc.004c>
++		if (eMission == MISSION_BOMBARD && kUnit.bombardTarget(kMissionPlot) != NULL)
++		{} // Fully handled in switch block above
++		else // </advc.004c>
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(GC.getInfo(eMission).getHelp());
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a28ad7e35..02e0eb19a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1236,19 +1236,32 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 						szTempBuffer.GetCString()));
+ 			}
+ 		}
+-		if (pUnit->bombardRate() > 0)
+ 		{
+-			if (bShort)
++			int iBombRate = pUnit->bombardRate();
++			// <advc.004c>
++			bool bAirBomb = false;
++			if (iBombRate <= 0)
+ 			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_UNIT_BOMBARD_RATE_SHORT",
+-						(pUnit->bombardRate() * 100) / GC.getMAX_CITY_DEFENSE_DAMAGE()));
+-			}
+-			else
++				iBombRate = pUnit->airBombCurrRate();
++				bAirBomb = true;
++			} // </advc.004c>
++			if (iBombRate > 0)
+ 			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_UNIT_BOMBARD_RATE",
+-						(pUnit->bombardRate() * 100) / GC.getMAX_CITY_DEFENSE_DAMAGE()));
++				if (bShort ||
++					bAirBomb) // advc.004c: Always use the short version for that
++				{
++					szString.append(NEWLINE);
++					szString.append(gDLL->getText(
++							bAirBomb ? "TXT_KEY_UNIT_AIR_BOMB_RATE_SHORT" : // advc.004c
++							"TXT_KEY_UNIT_BOMBARD_RATE_SHORT",
++							(iBombRate * 100) / GC.getMAX_CITY_DEFENSE_DAMAGE()));
++				}
++				else
++				{
++					szString.append(NEWLINE);
++					szString.append(gDLL->getText("TXT_KEY_UNIT_BOMBARD_RATE",
++							(iBombRate * 100) / GC.getMAX_CITY_DEFENSE_DAMAGE()));
++				}
+ 			}
+ 		}
+ 
+@@ -1557,17 +1570,28 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
+ 	// (The code below was written for iFontSize=14, so that's fontFactor=1.)
+ 	double fontFactor = 14.0 / iFontSize;
+ 	// </advc.002b>
+-	CvGame const& g = GC.getGame();
+-	int iScreenHeight = g.getScreenHeight();
++	CvGame const& kGame = GC.getGame();
++	int iScreenHeight = kGame.getScreenHeight();
+ 	int iLineLimit = (iScreenHeight == 0 ? 25 :
+-			::round(32 * fontFactor * g.getScreenHeight() / 1000.0 - 5));
++			::round(32 * fontFactor * kGame.getScreenHeight() / 1000.0 - 5));
+ 	/*  When hovering over an indicator bubble (unit layer), only info about units
+ 		in kPlot is shown. This means more space. Same when hovering over a flag
+ 		(bShort). */
+ 	if(bIndicator || bShort)
+ 		iLineLimit += 4;
+-	TeamTypes eActiveTeam = g.getActiveTeam();
+-	PlayerTypes eActivePlayer = g.getActivePlayer();
++	{	// Reserve space for interface mode info
++		InterfaceModeTypes eMode = gDLL->UI().getInterfaceMode();
++		if (eMode != INTERFACEMODE_SELECTION && eMode != INTERFACEMODE_GRIP &&
++			eMode != INTERFACEMODE_PYTHON_PICK_PLOT && eMode != INTERFACEMODE_GO_TO)
++		{
++			iLineLimit--;
++			// <advc.004c> Will usually take up an extra line
++			if (eMode == INTERFACEMODE_AIRBOMB)
++				iLineLimit--; // </advc.004c>
++		}
++	}
++	TeamTypes const eActiveTeam = kGame.getActiveTeam();
++	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+ 	// Adjust to other info to be displayed
+ 	iLineLimit += 4;
+ 	if(kPlot.isImproved())
+@@ -21045,6 +21069,10 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* p
+ 			case INTERFACEMODE_NUKE:
+ 				getNukePlotHelp(pMouseOverPlot, szTempBuffer);
+ 				break;
++			// <advc.004c>
++			case INTERFACEMODE_AIRBOMB:
++				getAirBombPlotHelp(pMouseOverPlot, szTempBuffer);
++				break; // </advc.004c>
+ 			}
+ 			szTempBuffer += strHelp.getCString();
+ 			strHelp.assign(szTempBuffer);
+@@ -21092,13 +21120,103 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot* pPlot, CvWString& strHelp)
+ 		TeamTypes eVictimTeam = (TeamTypes)iI;
+ 		if(pHeadSelectedUnit->isNukeVictim(pPlot, eVictimTeam) &&
+ 			!pHeadSelectedUnit->isEnemy(eVictimTeam))
+-		{
+-			// advc.130q: No newline
++		{	// advc.130q: No newline
+ 			strHelp += gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS");
+ 			break;
+ 		}
+ 	}
+-	strHelp += NEWLINE; // advc.130q: Newline added
++	strHelp += NEWLINE; // advc.130q
++}
++
++/*	advc.004c: (Beginning based on getNukePlotHelp; the middle part is akin
++	to the MISSION_BOMBARD case in CvDLLWidgetData::parseActionHelp_Mission): */
++void CvGameTextMgr::getAirBombPlotHelp(CvPlot* pPlot, CvWString& strHelp)
++{
++	if(pPlot == NULL)
++		return;
++	CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
++	if(pHeadSelectedUnit == NULL)
++		return;
++
++	TeamTypes const eActiveTeam = GC.getGame().getActiveTeam();
++	CvCity const* pBombardCity = pPlot->getPlotCity();
++	if (pBombardCity != NULL && pBombardCity->isRevealed(eActiveTeam))
++	{
++		int const iMaxDamage = (pBombardCity->isVisible(eActiveTeam) ?
++				pBombardCity->getDefenseModifier(true) : MAX_INT);
++		int iDamage = 0;
++		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
++			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
++		{
++			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
++			iDamage += kSelectedUnit.airBombDefenseDamage(*pBombardCity);
++			if (iDamage >= iMaxDamage)
++			{
++				iDamage = iMaxDamage;
++				break;
++			}
++		}
++		if (iDamage > 0)
++		{
++			strHelp.append(gDLL->getText("TXT_KEY_AIR_BOMB_MODE_HELP_CITY_DEFENSE",
++					pBombardCity->getNameKey(), iDamage));
++		}
++		else strHelp.append(gDLL->getText("TXT_KEY_AIR_BOMB_MODE_HELP_CITY_DEFENSE_NO_DAMAGE",
++					pBombardCity->getNameKey()));
++		strHelp.append(NEWLINE);
++	}
++	else
++	{
++		ImprovementTypes eImprov = pPlot->getRevealedImprovementType(eActiveTeam);
++		if (eImprov != NO_IMPROVEMENT)
++		{
++			CvUnit const* pBestSelectedUnit = NULL;
++			/*	Selection of best unit needs to be consistent with prioritization
++				in CvSelectionGroup::startMission */
++			int iMaxPriority = 0;
++			for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
++				pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
++			{
++				CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
++				int iPriority = 1;
++				if (kSelectedUnit.canMove())
++					iPriority += 1000;
++				iPriority += kSelectedUnit.airBombCurrRate();
++				if (iPriority > iMaxPriority)
++				{
++					iPriority = iMaxPriority;
++					pBestSelectedUnit = &kSelectedUnit;
++				}
++			}
++			// Formula matches dice roll in CvUnit::airBomb
++			int const iAttack = pBestSelectedUnit->airBombCurrRate();
++			int const iDefense = GC.getInfo(eImprov).getAirBombDefense();
++			scaled prSuccess = 1;
++			if (iDefense > 0)
++			{
++				if (iAttack <= 0)
++					prSuccess = 0;
++				else
++				{	/*	Probability of iAttack-sided die rolling greater than
++						or equal to iDefense-sided die */
++					prSuccess = (iAttack > iDefense ?
++							1 - scaled(iDefense - 1, 2 * iAttack) :
++							scaled(iAttack + 1, 2 * iDefense));
++				}
++			}
++			if (prSuccess > 0)
++			{
++				int iRounded = prSuccess.getPercent();
++				if (iRounded == 0) // Don't show uncertain outcome as certain
++					iRounded++;
++				if (iRounded == 100 && prSuccess < 1)
++					iRounded--;
++				strHelp.append(gDLL->getText("TXT_KEY_AIR_BOMB_MODE_HELP_DESTR_IMPROV",
++						GC.getInfo(eImprov).getDescription(), iRounded));
++				strHelp.append(NEWLINE);
++			}
++		}
++	}
+ }
+ 
+ void CvGameTextMgr::getInterfaceCenterText(CvWString& strText)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 6dcfd816a..c8ca52fda 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -267,6 +267,7 @@ public:
+ 	DllExport void getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp);
+ 	void getRebasePlotHelp(CvPlot* pPlot, CvWString& strHelp);
+ 	void getNukePlotHelp(CvPlot* pPlot, CvWString& strHelp);
++	void getAirBombPlotHelp(CvPlot* pPlot, CvWString& strHelp); // advc.004c
+ 	DllExport void getInterfaceCenterText(CvWString& strText);
+ 	DllExport void getTurnTimerText(CvWString& strText);
+ 	DllExport void getFontSymbols(std::vector< std::vector<wchar> >& aacSymbols, std::vector<int>& aiMaxNumRows);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 899bb5dd1..392ac9a60 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -744,6 +744,29 @@ bool CvSelectionGroup::canStartMission(
+ 	return canDoMission(eMission, iData1, iData2, pPlot, bTestVisible, false);
+ }
+ 
++// advc.004c: Auxiliary functions for mission start prioritization (within a group)
++namespace
++{
++	scaled bombMissionPriority(CvUnit const& kUnit)
++	{	// Crude ...
++		return kUnit.getUnitInfo().getProductionCost() *
++				(1 + per100(6) * kUnit.getExperience());
++	}
++
++	scaled bombMissionPriority(CvUnit const& kUnit, int iDamage, int iRemainingDefense)
++	{
++		int iWasted = 0;
++		if (iDamage > 0)
++		{
++			iWasted = iDamage - iRemainingDefense;
++			iWasted = std::max(0, iWasted);
++		}
++		scaled rPriority = std::max(0, iDamage - iWasted) * 1000 - iWasted * 100;
++		rPriority -= bombMissionPriority(kUnit);
++		return rPriority;
++	}
++}
++
+ 
+ void CvSelectionGroup::startMission()
+ {
+@@ -888,8 +911,6 @@ void CvSelectionGroup::startMission()
+ 		case MISSION_NUKE:
+ 		case MISSION_RECON:
+ 		case MISSION_PARADROP:
+-		case MISSION_AIRBOMB:
+-		case MISSION_BOMBARD:
+ 		case MISSION_RANGE_ATTACK:
+ 		case MISSION_SABOTAGE:
+ 		case MISSION_DESTROY:
+@@ -911,30 +932,32 @@ void CvSelectionGroup::startMission()
+ 		case MISSION_PILLAGE:
+ 		{
+ 			// Fast units pillage first
+-			std::vector<std::pair<int,int> > aUnitsByPriority;
++			std::vector<std::pair<int,int> > aiiUnitsByPriority;
+ 			FOR_EACH_UNIT_IN(pUnit, *this)
+ 			{
+-				if (pUnit->canMove() && pUnit->canPillage(pUnit->getPlot()))
+-				{
+-					int iPriority = 0;
+-					if (pUnit->bombardRate() > 0)
+-						iPriority--;
+-					if (pUnit->isMadeAttack())
+-						iPriority++;
+-					if (pUnit->isHurt() && !pUnit->hasMoved())
+-						iPriority--;
+-
+-					iPriority = (3 + iPriority) * pUnit->movesLeft() / 3;
+-					aUnitsByPriority.push_back(std::make_pair(
+-							iPriority, pUnit->getID()));
+-				}
++				if (!pUnit->canMove() || !pUnit->canPillage(pUnit->getPlot()))
++					continue;
++				int iPriority = 3;
++				if (pUnit->bombardRate() > 0)
++					iPriority--;
++				if (pUnit->isMadeAttack())
++					iPriority++;
++				if (pUnit->isHurt() && !pUnit->hasMoved())
++					iPriority--;
++				// <advc.004c>
++				iPriority *= 10000;
++				iPriority -= bombMissionPriority(*pUnit).round();
++				// </advc.004c>
++				//iPriority = (3 + iPriority) * pUnit->movesLeft() / 3;
++				// advc.004c: Add 3 upfront. Don't see what good the division would do.
++				iPriority *= pUnit->movesLeft();
++				aiiUnitsByPriority.push_back(std::make_pair(iPriority, pUnit->getID()));
+ 			}
+-			std::sort(aUnitsByPriority.begin(), aUnitsByPriority.end(),
+-					std::greater<std::pair<int, int> >());
+-			CvPlayer const& kOwner = GET_PLAYER(getOwner());
+-			for (size_t i = 0; i < aUnitsByPriority.size(); i++)
++			std::sort(aiiUnitsByPriority.begin(), aiiUnitsByPriority.end(),
++					std::greater<std::pair<int,int> >());
++			for (size_t i = 0; i < aiiUnitsByPriority.size(); i++)
+ 			{
+-				CvUnit& kUnit = *kOwner.getUnit(aUnitsByPriority[i].second);
++				CvUnit& kUnit = *kOwner.getUnit(aiiUnitsByPriority[i].second);
+ 				if (kUnit.pillage())
+ 				{
+ 					bAction = true;
+@@ -949,12 +972,99 @@ void CvSelectionGroup::startMission()
+ 					Since post-combat code clears the mission queue (and this sets
+ 					activity to ACTIVITY_AWAKE) and also deals with unit selection
+ 					for the active player, we can just skip rest of the function here." */
+-                if (!headMissionQueueNode() || kUnit.isAttacking())
++                if (headMissionQueueNode() == NULL || kUnit.isAttacking())
+                     return; // </kekm.37>
+ 			}
+ 			break;
+ 		}
+-
++		case MISSION_BOMBARD:
++		/*	<advc.004c> Based on the K-Mod code above (pillage case). Use selection sort
++			though b/c that makes it easier to compute the wasted damage. */
++		{
++			while (true)
++			{
++				CvUnit* pBestUnit = NULL;
++				scaled rMaxPriority = scaled::MIN();
++				CvPlot const& kAt = getPlot();
++				FOR_EACH_UNIT_VAR_IN(pLoopUnit, *this)
++				{
++					if (!pLoopUnit->canMove() || !pLoopUnit->canBombard(kAt))
++						continue;
++					int iDamage = pLoopUnit->damageToBombardTarget(kAt);
++					scaled rPriority = bombMissionPriority(*pLoopUnit,
++							iDamage, iDamage <= 0 ? 0 :
++							pLoopUnit->bombardTarget(kAt)->
++							getDefenseModifier(pLoopUnit->ignoreBuildingDefense()));
++					if (rPriority > rMaxPriority)
++					{
++						rMaxPriority = rPriority;
++						pBestUnit = pLoopUnit;
++					}
++				}
++				if (pBestUnit == NULL || !pBestUnit->bombard())
++					break;
++				bAction = true;
++			}
++			break;
++		}
++		case MISSION_AIRBOMB:
++		{
++			CvPlot const& kMissionPlot = GC.getMap().getPlot(
++					headMissionQueueNode()->m_data.iData1,
++					headMissionQueueNode()->m_data.iData2);
++			if (kMissionPlot.isCity())
++			{
++				CvCity const& kTargetCity = *kMissionPlot.getPlotCity();
++				while (true)
++				{
++					CvUnit* pBestUnit = NULL;
++					scaled rMaxPriority = scaled::MIN();
++					FOR_EACH_UNIT_VAR_IN(pLoopUnit, *this)
++					{
++						if (!pLoopUnit->canMove() || !pLoopUnit->canAirBomb(&kMissionPlot))
++							continue;
++						int iDamage = pLoopUnit->airBombDefenseDamage(kTargetCity);
++						scaled rPriority = bombMissionPriority(*pLoopUnit, iDamage,
++								iDamage <= 0 ? 0 : kTargetCity.getDefenseModifier(false));
++						if (rPriority > rMaxPriority)
++						{
++							rMaxPriority = rPriority;
++							pBestUnit = pLoopUnit;
++						}
++					}
++					if (pBestUnit == NULL ||
++						!pBestUnit->airBomb(kMissionPlot.getX(), kMissionPlot.getY()))
++					{
++						break;
++					}
++					bAction = true;
++				}
++			}
++			else
++			{
++				std::vector<std::pair<scaled,int> > ariUnitsByPriority;
++				FOR_EACH_UNIT_IN(pUnit, *this)
++				{
++					if (!pUnit->canMove())
++						continue;
++					/*	Maximize airBombCurrRate. This needs to be consistent with
++						CvGameTextMgr::getAirBombPlotHelp. */
++					scaled rPriority = pUnit->airBombCurrRate();
++					rPriority *= 10000;
++					rPriority -= bombMissionPriority(*pUnit); // Tie-breaker
++					ariUnitsByPriority.push_back(std::make_pair(rPriority, pUnit->getID()));
++				}
++				std::sort(ariUnitsByPriority.begin(), ariUnitsByPriority.end(),
++						std::greater<std::pair<scaled,int> >());
++				for (size_t i = 0; i < ariUnitsByPriority.size(); i++)
++				{
++					CvUnit& kUnit = *kOwner.getUnit(ariUnitsByPriority[i].second);
++					if (kUnit.airBomb(kMissionPlot.getX(), kMissionPlot.getY()))
++						bAction = true;
++				}
++			}
++			break;
++		} // </advc.004c>
+ 		/*	K-Mod. If the worker is already in danger when the command is issued,
+ 			use the MOVE_IGNORE_DANGER flag. */
+ 		case MISSION_BUILD:
+@@ -1034,6 +1144,9 @@ void CvSelectionGroup::startMission()
+ 				case MISSION_SENTRY_HEAL: // advc.004l
+ 				case MISSION_SENTRY:
+ 				case MISSION_PILLAGE:
++				// <advc.004c> Already handled above
++				case MISSION_BOMBARD:
++				case MISSION_AIRBOMB: // </advc.004c>
+ 				case MISSION_BUILD:
+ 					// K-Mod. Nothing to do, so we might as well abort the unit loop.
+ 					goto exit_unit_loop;
+@@ -1073,15 +1186,14 @@ void CvSelectionGroup::startMission()
+ 					else apUnitsLeftBehind.push_back(pUnit); // K-Mod
+ 					break;
+ 
+-				case MISSION_AIRBOMB:
++				/*case MISSION_AIRBOMB:
+ 					if (pUnit->airBomb(iData1, iData2))
+ 						bAction = true;
+ 					break;
+-
+ 				case MISSION_BOMBARD:
+ 					if (pUnit->bombard())
+ 						bAction = true;
+-					break;
++					break;*/ // advc.004c: Moved up
+ 
+ 				case MISSION_RANGE_ATTACK:
+ 					if (pUnit->rangeStrike(iData1, iData2))
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8bd0adbb8..ce9dc8638 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4159,20 +4159,22 @@ bool CvUnit::canAirBombAt(const CvPlot* pPlot, int iX, int iY) const
+ 	if (plotDistance(pPlot, pTargetPlot) > airRange())
+ 		return false;
+ 
+-	if (pTargetPlot->isOwned())
++	if (pTargetPlot->isOwned() &&
++		// advc.004c: Don't give away revealed owner to humans
++		(!isHuman() || pTargetPlot->getRevealedOwner(getTeam()) != NO_PLAYER))
+ 	{
+ 		// advc (note): This boils down to isEnemy for humans
+ 		if (!AI().AI_mayAttack(*pTargetPlot))
+ 			return false;
+ 	}
+ 
+-	CvCity* pCity = pTargetPlot->getPlotCity();
+-	if (pCity != NULL)
++	CvCity const* pCity = pTargetPlot->getPlotCity();
++	if (pCity != NULL &&
++		// advc.004c: Don't give away unrevealed cities to humans
++		(!isHuman() || pCity->isRevealed(getTeam())))
+ 	{
+ 		if (!pCity->isBombardable(this) || /* K-Mod: */ !pCity->isRevealed(getTeam()))
+-		{
+ 			return false;
+-		}
+ 	}
+ 	else
+ 	{
+@@ -4185,19 +4187,44 @@ bool CvUnit::canAirBombAt(const CvPlot* pPlot, int iX, int iY) const
+ 		// K-Mod. Don't allow the player to bomb improvements that they don't know exist.
+ 		ImprovementTypes eActualImprovement = pTargetPlot->getImprovementType();
+ 		ImprovementTypes eRevealedImprovement = pTargetPlot->getRevealedImprovementType(getTeam());
+-
++		/*	<advc.004c> The K-Mod code still gives away improvements that
++			have been removed. Instead, allow humans to make futile attacks
++			against improvements that no longer exist. */
++		if (isHuman())
++		{
++			if (!pTargetPlot->isVisible(getTeam()))
++				eActualImprovement = eRevealedImprovement;
++			else FAssert(eActualImprovement == eRevealedImprovement);
++		} // </advc.004c>
+ 		if (eActualImprovement == NO_IMPROVEMENT || eRevealedImprovement == NO_IMPROVEMENT)
+ 			return false;
+-		if (GC.getInfo(eActualImprovement).isPermanent() || GC.getInfo(eRevealedImprovement).isPermanent())
++		if (GC.getInfo(eActualImprovement).isPermanent() ||
++			GC.getInfo(eRevealedImprovement).isPermanent())
++		{
+ 			return false;
+-		if (GC.getInfo(eActualImprovement).getAirBombDefense() == -1 || GC.getInfo(eRevealedImprovement).getAirBombDefense() == -1)
++		}
++		if (GC.getInfo(eActualImprovement).getAirBombDefense() == -1 ||
++			GC.getInfo(eRevealedImprovement).getAirBombDefense() == -1)
++		{
+ 			return false;
+-		// K-Mod end
++		} // K-Mod end
+ 	}
+ 
+ 	return true;
+ }
+ 
++// advc: Moved out of CvUnit::airBomb
++int CvUnit::airBombDefenseDamage(CvCity const& kCity) const
++{
++	/*  <advc.004c> Same as in damageToBombardTarget except that IgnoreBuildingDefense
++		doesn't have to be checked here b/c all air units have that */
++	int iDefWithBuildings = kCity.getDefenseModifier(false);
++	int iDefSansBuildings = kCity.getDefenseModifier(true);
++	FAssertMsg(iDefSansBuildings > 0 || isHuman(),
++			"The AI shoudn't bombard cities whose def is already 0");
++	return (airBombCurrRate() * scaled(iDefWithBuildings, iDefSansBuildings)).round();
++}
++
+ 
+ bool CvUnit::airBomb(int iX, int iY)
+ {
+@@ -4219,20 +4246,13 @@ bool CvUnit::airBomb(int iX, int iY)
+ 	CvCity* pCity = kPlot.getPlotCity();
+ 	if (pCity != NULL)
+ 	{
+-		/*  <advc.004c> Same as in CvUnit::bombard except that IgnoreBuildingDefense
+-			doesn't have to be checked here b/c all air units have that */
+-		int iDefWithBuildings = pCity->getDefenseModifier(false);
+-		int iDefSansBuildings = pCity->getDefenseModifier(true);
+-		FAssertMsg(iDefSansBuildings > 0 || isHuman(),
+-				"The AI shoudn't bombard cities whose def is already 0");
+-		double chg = -airBombCurrRate() * (iDefWithBuildings / (double)iDefSansBuildings);
+-		pCity->changeDefenseModifier(std::min(0, ::round(chg)));
+-		// Replacing this line: // </advc.004c>
+ 		//pCity->changeDefenseModifier(-airBombCurrRate());
+-
++		// advc.004c:
++		pCity->changeDefenseModifier(-std::max(0, airBombDefenseDamage(*pCity)));	
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DEFENSES_REDUCED_TO",
+ 				pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
+-		gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer, pCity->getPlot(),
++		gDLL->UI().addMessage(pCity->getOwner(), true, // advc.004g: was false
++				-1, szBuffer, pCity->getPlot(),
+ 				"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_ENEMY_DEFENSES_REDUCED_TO", getNameKey(),
+ 				pCity->getNameKey(), pCity->getDefenseModifier(false));
+@@ -4242,9 +4262,12 @@ bool CvUnit::airBomb(int iX, int iY)
+ 	else
+ 	{
+ 		if (kPlot.isImproved())
+-		{
+-			if (GC.getGame().getSorenRandNum(airBombCurrRate(), "Air Bomb - Offense") >=
+-				GC.getGame().getSorenRandNum(GC.getInfo(kPlot.getImprovementType()).getAirBombDefense(), "Air Bomb - Defense"))
++		{	/*	advc.004c (note) Changes to this dice roll should be matched with
++				changes to the probability display in CvGameTextMgr::getAirBombPlotHelp */
++			if (GC.getGame().getSorenRandNum(
++				airBombCurrRate(), "Air Bomb - Offense") >=
++				GC.getGame().getSorenRandNum(
++				GC.getInfo(kPlot.getImprovementType()).getAirBombDefense(), "Air Bomb - Defense"))
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP", getNameKey(),
+ 						GC.getInfo(kPlot.getImprovementType()).getTextKeyWide());
+@@ -4256,11 +4279,12 @@ bool CvUnit::airBomb(int iX, int iY)
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_IMP_WAS_DESTROYED",
+ 							GC.getInfo(kPlot.getImprovementType()).getTextKeyWide(), getNameKey(), 
+ 							getVisualCivAdjective(kPlot.getTeam()));
+-					gDLL->UI().addMessage(kPlot.getOwner(), /* advc.106j: */ true, -1,
+-							szBuffer, kPlot, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
++					gDLL->UI().addMessage(kPlot.getOwner(), true, // advc.004g: was false
++							-1, szBuffer, kPlot, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
+ 							getButton(), GC.getColorType("RED"));
+ 				}
+-				kPlot.setImprovementType(GC.getInfo(kPlot.getImprovementType()).getImprovementPillage());
++				kPlot.setImprovementType(GC.getInfo(kPlot.getImprovementType()).
++						getImprovementPillage());
+ 			}
+ 			else
+ 			{
+@@ -4270,7 +4294,14 @@ bool CvUnit::airBomb(int iX, int iY)
+ 						"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
+ 						GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
+ 			}
+-		}
++		}  // <advc.004c> Can now fail when the improvement only existed in the FoW
++		else
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_AIR_BOMB_FAIL_IMP_GONE", getNameKey());
++			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
++					"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
++					NO_COLOR, kPlot.getX(), kPlot.getY());
++		} // </advc.004c>
+ 	}
+ 
+ 	setReconPlot(&kPlot);
+@@ -4341,36 +4372,49 @@ bool CvUnit::canBombard(CvPlot const& kPlot) const
+ 	return true;
+ }
+ 
+-
+-bool CvUnit::bombard()
++// Moved out of CvUnit::bombard (note: may exceed the target's defensive modifier)
++int CvUnit::damageToBombardTarget(CvPlot const& kPlot) const
+ {
+-	if (!canBombard(getPlot()))
+-		return false;
+-
+-	CvCity* pBombardCity = bombardTarget(getPlot());
+-	if (!isEnemy(pBombardCity->getTeam())) // (advc: simplified)
+-	{
+-		//getGroup()->groupDeclareWar(pTargetPlot, true); // Disabled by K-Mod
+-		return false;
+-	} // <advc.004c>
+-	bool bIgnore = ignoreBuildingDefense();
++	CvCity const* pBombardCity = bombardTarget(kPlot);
++	if (pBombardCity == NULL)
++		return 0;
++	// <advc.004c>
+ 	int iDefWithBuildings = pBombardCity->getDefenseModifier(false);
+ 	FAssertMsg(iDefWithBuildings > 0 || isHuman(),
+ 			"The AI shoudn't bombard cities whose def is already 0");
+ 	int iDefSansBuildings = pBombardCity->getDefenseModifier(true);
++	bool const bIgnore = ignoreBuildingDefense();
+ 	// </advc.004c>
+ 	int iBombardModifier = 0;
+ 	if (!bIgnore) // advc.004c
+ 		iBombardModifier -= pBombardCity->getBuildingBombardDefense();
+ 	// <advc.004c> Same formula as in BtS (except for rounding)
+-	double chg = -(bombardRate() * std::max(0, 100 + iBombardModifier)) / 100.0;
+-	if(bIgnore && iDefSansBuildings > 0) /*  bIgnore doesn't just ignore
++	scaled rDamage = bombardRate();
++	rDamage *= 1 + per100(iBombardModifier);
++	rDamage.increaseTo(0);
++	if (bIgnore && iDefSansBuildings > 0) /*  bIgnore doesn't just ignore
+ 			BombardDefense, also need to decrease DefenseModifier proportional
+ 			to the effect of buildings in order to properly ignore BuildingDefense. */
+-		chg *= iDefWithBuildings / (double)iDefSansBuildings;
++		rDamage *= scaled(iDefWithBuildings, iDefSansBuildings);
++	return rDamage.round(); // </advc.004c>
++}
++
++
++bool CvUnit::bombard()
++{
++	if (!canBombard(getPlot()))
++		return false;
++
++	CvCity* pBombardCity = bombardTarget(getPlot());
++	if (!isEnemy(pBombardCity->getTeam())) // (advc: simplified)
++	{
++		//getGroup()->groupDeclareWar(pTargetPlot, true); // Disabled by K-Mod
++		return false;
++	}
++
+ 	bool bFirstBombardment = !pBombardCity->isBombarded(); // advc.004g
+-	pBombardCity->changeDefenseModifier(std::min(0, ::round(chg)));
+-	// </advc.004c>
++	// advc: Moved into subroutine
++	pBombardCity->changeDefenseModifier(-std::max(0, damageToBombardTarget(getPlot())));
+ 	setMadeAttack(true);
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 
+@@ -4385,7 +4429,8 @@ bool CvUnit::bombard()
+ 			"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+ 	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_REDUCE_CITY_DEFENSES",
+ 			getNameKey(), pBombardCity->getNameKey(),
+-			pBombardCity->getDefenseModifier(bIgnore)); // advc.004g: arg was false
++			pBombardCity->getDefenseModifier(//false
++			ignoreBuildingDefense())); // advc.004g
+ 	gDLL->UI().addMessage(getOwner(), true,
+ 			-1, szBuffer, "AS2D_BOMBARD",
+ 			MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 5295cb21b..ae89bf78c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -153,10 +153,12 @@ public:
+ 
+ 	bool canAirBomb(const CvPlot* pPlot) const;																// Exposed to Python
+ 	bool canAirBombAt(const CvPlot* pPlot, int iX, int iY) const;											// Exposed to Python
++	int airBombDefenseDamage(CvCity const& kCity) const; // advc
+ 	bool airBomb(int iX, int iY);
+ 
+ 	CvCity* bombardTarget(CvPlot const& kPlot) const;														// Exposed to Python
+ 	bool canBombard(CvPlot const& kPlot) const;																// Exposed to Python
++	int damageToBombardTarget(CvPlot const& kPlot) const; // advc
+ 	bool bombard();
+ 
+ 	bool canParadrop(const CvPlot* pPlot) const;															// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=35472

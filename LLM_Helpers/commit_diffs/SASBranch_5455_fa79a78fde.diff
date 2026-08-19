@@ -1,0 +1,491 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5455
+# Commit: fa79a78fde6e898e6401c2b77b6da2bb7fc5b1e8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 093b59bae4fe33e96c12ec04a84b2b0acc8aab13
+# Title: add SAS_Longworld.py, a new AdvCiv-SAS original mapscript; update 48 civs DLL see docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds
+-	-	Assets/CvGameCoreDLL_48_civs_DLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+27	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+1	1	Long_Comments/Long_Comments_py.txt
+221	0	PrivateMaps/SAS_Longworld.py
+18	6	README.md
+2	2	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+4	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds
+ create mode 100644 PrivateMaps/SAS_Longworld.py
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds b/Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds
+new file mode 100644
+index 000000000..31d7b94dd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds differ
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_48_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 0732ad9a9..392064aa2 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -302,7 +302,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>Fractal,Hemispheres,Pangaea,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Grid,BTG_Lagoon,Planet_Generator_0_68,Peirce</DefineTextVal>
++		<DefineTextVal>Fractal,Hemispheres,Pangaea,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,SAS_Longworld,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Grid,BTG_Lagoon,Planet_Generator_0_68,Peirce</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+ 	<Define>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index cfd27147c..c50925059 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -751,6 +751,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>SAS_Longworld</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Terra</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+
+diff --git a/Long_Comments/Long_Comments_py.txt b/Long_Comments/Long_Comments_py.txt
+index 107faafbc..c174239a8 100644
+--- a/Long_Comments/Long_Comments_py.txt
++++ b/Long_Comments/Long_Comments_py.txt
+@@ -818,7 +818,7 @@ and undoing it as it told me later solved the error. So i think or at least it s
+ 			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild” toggle for testing.
+ 			# -->
+ 
+-===== \Assets\PrivateMaps\Planet_Generator_0_68.py =====
++===== PrivateMaps\Planet_Generator_0_68.py =====
+ ----- Comment #14 -----
+ 
+ """
+
+diff --git a/PrivateMaps/SAS_Longworld.py b/PrivateMaps/SAS_Longworld.py
+new file mode 100644
+index 000000000..56416ea68
+--- /dev/null
++++ b/PrivateMaps/SAS_Longworld.py
+@@ -0,0 +1,221 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# FILE: SAS_Longworld.py
++# PURPOSE: Lightweight long-format world map for AdvCiv-SAS.
++#
++# AUTHORS: wonderingabout & GPT-5.3-Codex
++# <!-- custom: inspired by the Ringworld3 v1.02 map -->
++
++
++from CvPythonExtensions import *
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++
++
++def getVersion():
++	return "1.00"
++
++
++def getDescription():
++	return "A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified."
++
++
++def isAdvancedMap():
++	"This map should show up in Simple Game."
++	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
++	return 0
++
++
++def getWrapX():
++	return True
++
++
++def getWrapY():
++	return False
++
++
++def getTopLatitude():
++	return 70
++
++
++def getBottomLatitude():
++	return -70
++
++
++def minStartingDistanceModifier():
++	# <!-- custom: Tight long-strip maps need very low min start distance so high player-count games don't fail start assignment. (GPT-5.3-Codex) -->
++	return -95
++
++
++def getStripBounds(iH):
++	# <!-- custom: Keep one connected horizontal land strip, but thicken it on taller maps to avoid overly cramped land. (GPT-5.3-Codex) -->
++	iBandHeight = 2
++	if iH >= 8:
++		iBandHeight = 5
++	elif iH >= 6:
++		iBandHeight = 4
++	elif iH >= 5:
++		iBandHeight = 3
++
++	iTopRow = max(1, (iH / 2) - (iBandHeight / 2))
++	iBottomRow = iTopRow + iBandHeight - 1
++	if iBottomRow > iH - 2:
++		iBottomRow = iH - 2
++		iTopRow = max(1, iBottomRow - iBandHeight + 1)
++	return (iTopRow, iBottomRow)
++
++
++def findStartingPlot(argsList):
++	# <!-- custom: Force starts onto the long central strip with even horizontal spacing so high player-count games always get valid starts. (GPT-5.3-Codex) -->
++	[playerID] = argsList
++	gc = CyGlobalContext()
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	(iTopRow, iBottomRow) = getStripBounds(iH)
++	strip_rows = range(iTopRow, iBottomRow + 1)
++
++	player_ids = []
++	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++		pPlayer = gc.getPlayer(iPlayer)
++		if pPlayer.isAlive():
++			player_ids.append(iPlayer)
++
++	if len(player_ids) == 0:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	player_ids.sort()
++	if playerID not in player_ids:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	iIndex = player_ids.index(playerID)
++	iCount = len(player_ids)
++	iMargin = 2
++	iSpan = max(1, iW - 2 * iMargin)
++	iX = iMargin + (iIndex * iSpan) / iCount
++	if iX >= iW:
++		iX = iW - 1
++	iY = strip_rows[iIndex % len(strip_rows)]
++
++	pPlot = map_obj.plot(iX, iY)
++	if pPlot.isWater() or pPlot.isImpassable():
++		for dx in range(iW):
++			iTryX = (iX + dx) % iW
++			for iTryY in strip_rows:
++				pTry = map_obj.plot(iTryX, iTryY)
++				if not pTry.isWater() and not pTry.isImpassable():
++					return map_obj.plotNum(iTryX, iTryY)
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	return map_obj.plotNum(iX, iY)
++
++
++def getGridSize(argsList):
++	if argsList[0] == -1:
++		return []
++
++	grid_sizes = {
++		0:									( 7, 4),  # ARENA
++		WorldSizeTypes.WORLDSIZE_DUEL:		(10, 4),
++		WorldSizeTypes.WORLDSIZE_TINY:		(15, 5),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(23, 6),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(29, 6),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(34, 6),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(44, 6),
++	}
++
++	[eWorldSize] = argsList
++	if eWorldSize in grid_sizes:
++		return grid_sizes[eWorldSize]
++
++	# <!-- custom: For post-Huge SAS sizes, keep long-map height and scale width by default player ratio from Huge anchor. (GPT-5.3-Codex) -->
++	gc = CyGlobalContext()
++	if eWorldSize > WorldSizeTypes.WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
++		(iAnchorWidth, iAnchorHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
++		iAnchorPlayers = max(1, gc.getWorldInfo(WorldSizeTypes.WORLDSIZE_HUGE).getDefaultPlayers())
++		iTargetPlayers = max(1, gc.getWorldInfo(eWorldSize).getDefaultPlayers())
++		iTargetWidth = max(iAnchorWidth + 1, int((float(iAnchorWidth) * float(iTargetPlayers)) / float(iAnchorPlayers) + 0.5))
++		return (iTargetWidth, iAnchorHeight)
++
++	return grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
++
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python SAS_Longworld) ...")
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	dice = CyGlobalContext().getGame().getMapRand()
++	plot_types = [PlotTypes.PLOT_OCEAN] * (iW * iH)
++
++	# <!-- custom: Build one continuous horizontal land strip (single connected landmass) centered on the map. (GPT-5.3-Codex) -->
++	if iH < 3:
++		for x in range(iW):
++			plot_types[map_obj.plotNum(x, 0)] = PlotTypes.PLOT_LAND
++		return plot_types
++
++	(iTopRow, iBottomRow) = getStripBounds(iH)
++	iBaseBandHeight = iBottomRow - iTopRow + 1
++	iMinBandHeight = max(3, iBaseBandHeight - 2)
++	iPrevTop = iTopRow
++	iPrevBottom = iBottomRow
++	for x in range(iW):
++		iTopTrim = 0
++		iBottomTrim = 0
++		if dice.get(100, "SAS_Longworld border top trim") < 35:
++			iTopTrim = 1
++			if dice.get(100, "SAS_Longworld border top trim extra") < 10:
++				iTopTrim = 2
++		if dice.get(100, "SAS_Longworld border bottom trim") < 35:
++			iBottomTrim = 1
++			if dice.get(100, "SAS_Longworld border bottom trim extra") < 10:
++				iBottomTrim = 2
++
++		iLocalTop = iTopRow + iTopTrim
++		iLocalBottom = iBottomRow - iBottomTrim
++		if iLocalBottom - iLocalTop + 1 < iMinBandHeight:
++			iLocalTop = iTopRow
++			iLocalBottom = iBottomRow
++
++		iLocalTop = max(iPrevTop - 1, min(iPrevTop + 1, iLocalTop))
++		iLocalBottom = max(iPrevBottom - 1, min(iPrevBottom + 1, iLocalBottom))
++		if iLocalBottom - iLocalTop + 1 < iMinBandHeight:
++			iLocalTop = iPrevTop
++			iLocalBottom = iPrevBottom
++
++		for y in range(iLocalTop, iLocalBottom + 1):
++			plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++
++		iPrevTop = iLocalTop
++		iPrevBottom = iLocalBottom
++
++	# Add sparse hills/peaks on the strip for texture, but keep enough flat plots for starts.
++	for x in range(iW):
++		for y in range(iTopRow, iBottomRow + 1):
++			i = map_obj.plotNum(x, y)
++			if plot_types[i] != PlotTypes.PLOT_LAND:
++				continue
++			iChance = dice.get(20, "SAS_Longworld hills")
++			if iChance <= 2:
++				plot_types[i] = PlotTypes.PLOT_HILLS
++
++	return plot_types
++
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python SAS_Longworld) ...")
++	terrain_gen = TerrainGenerator()
++	return terrain_gen.generateTerrain()
++
++
++def addFeatures():
++	NiTextOut("Adding Features (Python SAS_Longworld) ...")
++	feature_gen = FeatureGenerator()
++	feature_gen.addFeatures()
++	return 0
+
+diff --git a/README.md b/README.md
+index eff8f75a9..29ea4627e 100644
+--- a/README.md
++++ b/README.md
+@@ -6,14 +6,14 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework. New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Maps (e.g., `BTG_Cross`, `BTG_Lagoon`, etc.).
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++
++New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`).
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+-AdvCiv-SAS is now generally stable, but if issues were to arise such as bugs or such, i may not be too available to help, so your best bet may be to open a thread and ping me there rather (or reply in the discussion thread mentioned above), so that if i were not to reply, perhaps someone else would provide some solution or guidance maybe.
+-
+ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
+ 
+ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+@@ -57,7 +57,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [48 Civs DLL](/README.md#48-civs-dll)  
+ &emsp;[How to use](/README.md#how-to-use)  
+ &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+-[Maps](/README.md#maps)  
++[Mapscripts](/README.md#mapscripts)  
+ &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
+ &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
+ [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
+@@ -145,7 +145,7 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
+ 
+ Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
+ 
+-Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Maps](/README.md#maps).
++Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Mapscripts](/README.md#mapscripts).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (2).JPG" alt="0.310_main_menu_simple_game (2).JPG" width="250"></img>
+@@ -530,7 +530,19 @@ Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Panga
+ 
+ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ 
+-## Maps
++## Mapscripts
++
++### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld)
++
++We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
++
++>A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified.
++
++Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and player count.
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
+ 
+ ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index aa0af5da7..853b1e47c 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -38,7 +38,7 @@ Instead of:
+ &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
+ [A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)  
+ [In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)  
+-[Maps](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps)  
++[Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts)  
+ [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)  
+ [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)  
+ [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)  
+@@ -382,7 +382,7 @@ Great people AIs:
+ For unit AIs that are correct in the OP, I didn't write anything.
+ ```
+ 
+-## Maps
++## Mapscripts
+ 
+ ### Locations
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 9ca54dd33..ee313ffcf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1338,7 +1338,7 @@ Update: see also related known issue as of nowwith extra very nice improvement(s
+ 
+ Note: see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but)
+ 
+-See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
++See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+ 
+ This is a major change as well.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 353aeb319..d2c334df7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -41,6 +41,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
+ &emsp;[General changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes)  
+ &emsp;[Game Speeds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds)  
+ &emsp;[World Size/Scaling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#world-sizescaling)  
++&emsp;[Mapscripts](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mapscripts)  
+ &emsp;[Handicaps](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicaps)  
+ &emsp;[Terrains / Features](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features)  
+ &emsp;[Bonuses](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses)  
+@@ -344,9 +345,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Research — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+ - **Research — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
+ 
+-### Maps
++### Mapscripts
+ 
+-- (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
++- (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+ - (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [PerfectMongoose.py](/PrivateMaps/PerfectMongoose.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py), [Terra.py](/PrivateMaps/Terra.py).
+ - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+@@ -355,6 +356,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+ - (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
++- (Requires AdvCiv-SAS 5455+) **Add** a new AdvCiv-SAS original map: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified. See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld)
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+ - (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)).
+ - (Requires AdvCiv-SAS 5445+) Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 420650910..abf2ef8b3 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG
+new file mode 100644
+index 000000000..aee854c61
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG
+new file mode 100644
+index 000000000..91c2ef0b2
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG
+new file mode 100644
+index 000000000..68793231b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=13 omittedFiles=1 embeddedPatchBytes=29603

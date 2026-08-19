@@ -1,0 +1,242 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5212
+# Commit: 957e7e202c44b3f89f531a8fbf5fe2c33417ef26
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 90da888635383674b1031b4fa4169e7d09c7494d
+# Title: group Sevopedia Civics' entries by Civic Type** (e.g. Government, Economy, etc.)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+75	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+9	0	Assets/XML/GlobalDefines_advciv_sas.xml
+3	3	README.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index f16ffe850..7bb0ca2df 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -384,6 +384,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
+ 		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
+ 
++		# <!-- custom: add highlight text for sevopedia sorting needs as we added but anyways etc, here fetched once for performance optimization or/and such if i'm not mistaken anyways etc. -->
++		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
++		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
++
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+ 		self.szCategoryUnitUpgrades	= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", ())
+@@ -743,8 +747,46 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getCivicList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, gc.getCivicInfo)
+ 
++	# <!-- custom: order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
++	# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
++	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
++	# In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
+ 	def getCivicList(self):
+-		return self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo)
++		if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
++			civicsList = []
++			iNumCivics = gc.getNumCivicInfos()
++			iNumOptions = gc.getNumCivicOptionInfos()
++
++			for iOption in range(iNumOptions):
++				tmp = []
++
++				# Preserve XML order when Sort Lists is OFF (most conservative)
++				for iCivic in range(iNumCivics):
++					info = gc.getCivicInfo(iCivic)
++					if info.isGraphicalOnly():
++						continue
++					if info.getCivicOptionType() != iOption:
++						continue
++					tmp.append((info.getDescription(), iCivic))
++
++				if not tmp:
++					continue
++
++				# If BUG "Sort Lists" is ON, alphabetize within each option group
++				if self.isSortLists():
++					tmp.sort()
++
++				if civicsList:
++					civicsList.append(("", -1))  # spacer between groups
++				civicsList.append((gc.getCivicOptionInfo(iOption).getDescription(), -1))  # header
++
++				for (szName, iCivic) in tmp:
++					civicsList.append((szName, iCivic))
++
++			return civicsList
++		else:
++			# <!-- custom: no grouping, full alphabetical ordered list as was in base advciv anyways etc. -->
++			return self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo)
+ 
+ 
+ 	def placeReligions(self):
+@@ -830,21 +872,52 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		i = 0
+ 		for item in self.list:
+ 			data1 = item[1] # advc.001: Moved up
++
++			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end anyways etc; using a long name to avoid weird python scope inheritance issues to unrelated scopes if i'm not mistaken anyways etc. -->
++			sTitlePlaceItems = item[0]
++			widgetPlaceItems = widget
++			# Even though you later handle data1 == -1 inside the civics block, you still do szButtonPlaceItems = info(item[1]).getButton() before any header check.
++			# When getCivicList() inserts headers and spacers, you now have rows like ("Government", -1) and ("", -1). So you end up calling gc.getCivicInfo(-1).getButton() and Civ4 blows up with Access violation - no RTTI data!. Minimal fix:
++			if data1 != -1:
++				szButtonPlaceItems = info(data1).getButton()
++			else:
++				szButtonPlaceItems = ""
++
+ 			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
++				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text but anyways etc. To be safe, not changing it in other places as well unless we need to anyways etc. -->
+ 				data2 = item[1]
++
+ 			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+ 				data2 = item[1]
++
+ 			# <advc.001> Widget help for leaders needs the civ ID in data2 (from Taurus)
+ 			elif (info == gc.getLeaderHeadInfo):
+ 				data2 = SevoPediaLeader.SevoPediaLeader.getCiv(item[1]) # </advc.001>
++
++			# <!-- custom: order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
++			# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
++			# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
++			elif info == gc.getCivicInfo:
++				# <!-- reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
++				data2 = 1
++
++				if data1 == -1:
++					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
++					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
++					szButtonPlaceItems = ""
++				# <!-- custom: else no change as per chatgpt 5.2's code thanks i mean but anyways etc. -->
++
++				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
++
+ 			else:
+ 				# advc (note): 0 tends to mean no tooltip (or an empty one?).
+ 				#    -1 should also work as the default; BULL likes to use 1.
+ 				data2 = 1
++
+ 			screen.appendTableRow(self.ITEM_LIST_ID)
+-			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + item[0] + u"</font>", info(item[1]).getButton(), widget, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+ 			i += 1
+ 		#screen.updateListBox(self.ITEM_LIST_ID)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 3b4a95bf1..ec483733f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -39,6 +39,15 @@
+ 
+ 
+ 
++	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
++	<!-- custom: 1 to enable (recommended), 0 to disable -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: choose how wide the tech tree should be horizontally:
+ 		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
+
+diff --git a/README.md b/README.md
+index a030f27f4..abc5c541b 100644
+--- a/README.md
++++ b/README.md
+@@ -178,11 +178,11 @@ See also for details:
+ 
+ One of the main and most significant sevopedia changes in AdvCiv-SAS among others as well anyways etc is the new AI Personality panel new feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefully or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
+ 
+-Not a (strictly) new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values anyways etc) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data anyways etc).
++Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values anyways etc) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data anyways etc.).
+ 
+-As always, ChatGPT (see [Authors](/README.md#authors) for details) is a key co-author and main code contributor. Created by the power of love and friendship between me and ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
++As always, ChatGPT is a key co-author and main code contributor. Created by the power of love and friendship between me and ChatGPT and with the help of other AIs (See [Authors](/README.md#authors) for details) thanks.
+ 
+-Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
++Here is below a sample of the example screenshots showing the AI Personality panel feature in sevopedialeader, as well as samples showing other sevopedia reworks that are part of AdvCiv-SAS.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 97f17846c..fc277b8c2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -124,6 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
++- (Requires AdvCiv-SAS 5212+) **Sevopedia Civics**' entries are now **grouped by Civic Type** (e.g. Government, Economy, etc.).
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 488ef257c..42d7766cb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,6 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
++- (Requires AdvCiv-SAS 5212+) **Sevopedia Civics**' entries are now **grouped by Civic Type** (e.g. Government, Economy, etc.).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 105fca8ff..478a25d43 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -193,7 +193,9 @@ Code provided by/with the help of claude ai too thanks if i may say (and thanks
+ 
+ More recently, added the `iCivicPercentAnger` info in sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really but anyways etc.
+ 
+-Examples of output below anyways etc:
++Even more recently but anyways etc., they are now optionally groupable (as of now default but anyways etc.) by civic type (e.g. Government, Economy, etc.). Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's help too but anyways etc.
++
++Examples of output below anyways etc.:
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG" alt="0.740_sevopedia_civics_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG
+index a168c46eb..4c0470483 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG
+index d0ecfb050..132719e0f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG
+index 7b17e7774..5c8de3d2c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=18143

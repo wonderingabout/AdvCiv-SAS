@@ -1,0 +1,140 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 719
+# Commit: bcb90e7ae920f4fc18cfabd1262b59539ab39226
+# History segment: K-Mod history
+# Parent used for diff: bd1134bee253141232530945687b13646c5ddfe4
+# Title: Changed when and how the group cycle order is updated. (It is now updated for all groups at the end of the turn rather than just for groups which have moved....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.cpp
+17	12	CvGameCoreDLL/CvPlayer.cpp
+5	0	CvGameCoreDLL/CvSelectionGroup.cpp
+0	4	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index d71f02f3a..feb2ed7f4 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7249,7 +7249,7 @@ void CvGame::updateMoves()
+ 							// While we're here, update the group cycle order
+ 							// (Ideally this would be done after AI_update rather than before. But again, that would cause problems if AI_update gets the group killed.)
+ 							CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
+-							if (pHeadUnit && pHeadUnit->hasMoved() && pHeadUnit->canMove())
++							if (pHeadUnit && pHeadUnit->hasMoved() && pHeadUnit->canMove() && !pLoopSelectionGroup->isWaiting())
+ 								player.updateGroupCycle(pLoopSelectionGroup);
+ 							//
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b34974569..92009843c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3417,15 +3417,7 @@ void CvPlayer::doTurnUnits()
+ 
+ 	for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 	{
+-		//pLoopSelectionGroup->doDelayedDeath();
+-		// K-Mod
+-		if (!pLoopSelectionGroup->doDelayedDeath())
+-		{
+-			FAssert(pLoopSelectionGroup->getHeadUnit()); // otherwise doDelayedDeath would have returned true.
+-			if (pLoopSelectionGroup->getHeadUnit()->hasMoved())
+-				updateGroupCycle(pLoopSelectionGroup);
+-		}
+-		// K-Mod end
++		pLoopSelectionGroup->doDelayedDeath();
+ 	}
+ 
+ 	for (int iPass = 0; iPass < 4; iPass++)
+@@ -3470,6 +3462,13 @@ void CvPlayer::doTurnUnits()
+ 		}
+ 	}
+ 
++	// K-Mod. This is the primary update for the group cycle ordering. (it use to be done inside CvUnit::setXY, but now it isn't.)
++	for (pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++	{
++		updateGroupCycle(pLoopSelectionGroup);
++	}
++	// K-Mod end
++
+ 	if (getID() == GC.getGameINLINE().getActivePlayer())
+ 	{
+ 		gDLL->getFAStarIFace()->ForceReset(&GC.getInterfacePathFinder());
+@@ -13114,7 +13113,7 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes
+ 
+ 
+ // K-Mod. I've changed this function from using pUnit to using pGroup.
+-// I've also rearranged the code to be more robust and readable.
++// I've also rearranged the code to be more robust and readable, and adjusted the group ordering method
+ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ {
+ 	PROFILE_FUNC();
+@@ -13188,14 +13187,20 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 		}
+ 		else
+ 		{
+-			int iValue = plotDistance(pUnit->getX_INLINE(), pUnit->getY_INLINE(), pLoopHead->getX_INLINE(), pLoopHead->getY_INLINE());
+-			// K-Mod. Show some bias towards units of the same type / purpose
++			//int iValue = plotDistance(pUnit->getX_INLINE(), pUnit->getY_INLINE(), pLoopHead->getX_INLINE(), pLoopHead->getY_INLINE());
++			// K-Mod. Show some bias towards units of the same type / purpose / status
++			int iValue = 4;
+ 			if (pUnit->getUnitCombatType() != pLoopHead->getUnitCombatType())
+ 			{
+ 				iValue += 2;
+ 				if (pUnit->canFight() != pLoopHead->canFight())
+ 					iValue += 2;
+ 			}
++			if ((pLoopSelectionGroup->getActivityType() == ACTIVITY_AWAKE) != (pGroup->getActivityType() == ACTIVITY_AWAKE))
++				iValue += 8;
++
++			iValue *= plotDistance(pUnit->getX_INLINE(), pUnit->getY_INLINE(), pLoopHead->getX_INLINE(), pLoopHead->getY_INLINE());
++			// K-Mod end
+ 
+ 			if (iValue < iBestValue)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 0dbe70197..13f55f299 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4108,6 +4108,11 @@ void CvSelectionGroup::setActivityType(ActivityTypes eNewValue)
+ 
+ 					pLoopUnit->NotifyEntity(MISSION_IDLE);
+ 				}
++
++				// K-Mod
++				if (eOldActivity == ACTIVITY_SLEEP && getActivityType() == ACTIVITY_AWAKE)
++					GET_PLAYER(getOwnerINLINE()).updateGroupCycle(this);
++				// K-Mod end
+ 			}
+ 
+ 			if (getTeam() == GC.getGameINLINE().getActiveTeam())
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 41aa9f8ad..765a3ebd0 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11442,10 +11442,6 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
+ 		if (pOldTransportUnit != NULL)
+ 		{
+ 			pOldTransportUnit->changeCargo(-1);
+-			// K-Mod
+-			if (isGroupHead())
+-				GET_PLAYER(getOwnerINLINE()).updateGroupCycle(getGroup());
+-			// K-Mod end
+ 		}
+ 
+ 		if (pTransportUnit != NULL)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4533

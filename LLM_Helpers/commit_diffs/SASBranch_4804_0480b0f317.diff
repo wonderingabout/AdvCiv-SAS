@@ -1,0 +1,233 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4804
+# Commit: 0480b0f317c66ef16bd685a8965d2fab265ceff9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 34b60ccc647b0a7aef701e6228349003fde8e435
+# Title: make emoji buttons in sevopedia leader an optional config flag in the py file with instructions on how to enable / disable Was a bit too distracting to me bu...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	7	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+7	0	Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+3	1	README.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+37	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.621_sevopedia_AI_Personality_sample (1).JPG => 0.620_sevopedia_AI_Personality_sample (1).JPG}
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.621_sevopedia_AI_Personality_sample (3).JPG => 0.620_sevopedia_AI_Personality_sample (3).JPG}
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG
+ rename _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.621_sevopedia_AI_Personality_sample (1).JPG => 0.620_sevopedia_AI_Personality_sample (1).JPG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG
+ rename _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.621_sevopedia_AI_Personality_sample (3).JPG => 0.620_sevopedia_AI_Personality_sample (3).JPG} (100%)
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index f85dfe88f..6584b01f1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -684,13 +684,17 @@ class SevoPediaLeader:
+ 					first = False
+ 
+ 				# --- Category Header ---
+-				# Add button <!-- custom: to/in category header anyways etc -->
+-				buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
+-				buttonSize = 16
+-				szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
+-				szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)
+-				# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the category start anyways etc -->
+-				xOffsetButton = xLabel - 7
++				if DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
++				# Add button <!-- custom: to/in category header anyways etc-->
++					buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
++					buttonSize = 16
++					szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
++					szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)
++					# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the category start anyways etc -->
++					xOffsetButton = xLabel - 7
++				else:
++					szText2 = u"<font=3b>%s</font>" % category
++					xOffsetButton = xLabel
+ 
+ 				screen.setText(self.top.getNextWidgetName(), "", szText2, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				y += self.H_AI_LINE_HEIGHT
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+index 1bd5e85d7..14d5a5c24 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+@@ -4,6 +4,13 @@
+ # (c) 2025 wonderingabout & becomingthrough
+ # -->
+ 
++
++
++# <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
++DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
++
++
++
+ # --- AI Personality Configuration Constants ---
+ AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES = "Contact Offer Probabilities"
+ AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES = "Contact Demand Probabilities"
+
+diff --git a/README.md b/README.md
+index 8ead10883..7136e00e9 100644
+--- a/README.md
++++ b/README.md
+@@ -70,7 +70,7 @@ As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for detail
+ 
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
+@@ -81,6 +81,8 @@ Here is below a very small sample of the example screenshots of how the AI Perso
+ 
+ For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+ 
++Note: specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to `DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True` in ``, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
++
+ ### Python Scripts
+ 
+ Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 6cf412d8d..5c7645c45 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -20,9 +20,9 @@ The ai attributes (simply) aim to and display:
+ 
+ Here is an example below of how it looks ingame in the sevopedia leader category:
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+ More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 529d9d94f..07940c965 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -22,9 +22,9 @@ There are also other additions, in particular written/coded by me wonderingabout
+ 
+ A copy of the screenshots (may not be latest version of it) of how it looks ingame:
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+ For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 2f5116800..31d96cc57 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -4,14 +4,48 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia rework
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++### examples
++
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+ For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+ 
+ note: icons as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
+ 
++### how to enable/disable emoji buttons in sevopedia leader
++
++note 2: you can enable/disable icons as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
++
++To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
++
++Then navigate to [/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py) file which has most of our config fo the AI Personality Panel feature (in the .py file) line:
++
++As shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
++
++<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
++
++Change this line:
++
++```
++DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
++```
++
++to (or vice versa change `True` to `False` if you want to disable it anyways etc)
++
++```
++DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
++```
++
++As in the screenshot below as well similarly anyways etc:
++
++<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
++
++And vice versa to disable it (restart the game to apply changes if game was already running)
++
++Look at the screenshots above of sevopedia leader samples of the few or not few or few or and other or and not but anyways etc but anyways etc leader examples provided here anyways etc to see how differently it looks with vs without emojis or and test it yourself anyways etc
++
+ ## example 2: unit chart category
+ 
+ (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG
+rename to _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG
+new file mode 100644
+index 000000000..8e3476132
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG
+rename to _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG
+deleted file mode 100644
+index ae3e2f345..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG
+new file mode 100644
+index 000000000..fdb373294
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG
+new file mode 100644
+index 000000000..dc84eabb2
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=14632

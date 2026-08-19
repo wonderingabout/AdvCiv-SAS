@@ -1,0 +1,1113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5049
+# Commit: 6efb7c12cd95125024f7a589fdb0f4a9df4e14aa
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2cbb1069bfbf7b4381d25c9cb957c186fc417931
+# Title: replace the "HOLY_ROMAN_LANDSKNECHT" with the "HOLY_ROMAN_HOUFNICE (better match with holy roman empire's aggressive profile, tight medieval window, and the...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannonier.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Celtic_Chariot_Rider_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_128_gloss.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_damage_states.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_heal.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_hurta.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_idle.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_ranged_idle.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie_fade.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedfortify.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedstrike.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_run.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadein.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadeout.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cuirassier_rider_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/hat.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_basecolor.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_gloss.dds
+1	1	Assets/Python/Contrib/CvModName.py
+35	25	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+7	5	Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+8	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+2	1	Assets/XML/Text/CIV4GameText_advc.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+249	261	Assets/XML/Units/CIV4UnitInfos.xml
+7	7	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+8	8	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannonier.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Celtic_Chariot_Rider_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_128_gloss.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_damage_states.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_heal.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_hurta.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_idle.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_ranged_idle.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie_fade.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedfortify.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedstrike.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_run.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadein.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadeout.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cuirassier_rider_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/hat.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_basecolor.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_gloss.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds
+new file mode 100644
+index 000000000..bb4a02a1f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannonier.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannonier.dds
+new file mode 100644
+index 000000000..9df6f5f7e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannonier.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Celtic_Chariot_Rider_128.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Celtic_Chariot_Rider_128.dds
+new file mode 100644
+index 000000000..5368a011b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Celtic_Chariot_Rider_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.dds
+new file mode 100644
+index 000000000..dd80b3ee6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm
+new file mode 100644
+index 000000000..4b6579dab
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.nif b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.nif
+new file mode 100644
+index 000000000..6b1681898
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_128_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_128_gloss.dds
+new file mode 100644
+index 000000000..613b2bf89
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_128_gloss.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_damage_states.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_damage_states.dds
+new file mode 100644
+index 000000000..0b7894040
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_damage_states.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_heal.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_heal.kf
+new file mode 100644
+index 000000000..591762dd7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_heal.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_hurta.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_hurta.kf
+new file mode 100644
+index 000000000..c0701178b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_hurta.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_idle.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_idle.kf
+new file mode 100644
+index 000000000..d3b09ec4d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_idle.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_ranged_idle.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_ranged_idle.kf
+new file mode 100644
+index 000000000..0c28d4d40
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_ranged_idle.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie.kf
+new file mode 100644
+index 000000000..fda5d5e77
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie_fade.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie_fade.kf
+new file mode 100644
+index 000000000..9f2766d3e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangeddie_fade.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedfortify.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedfortify.kf
+new file mode 100644
+index 000000000..8b5d2f9f6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedfortify.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedstrike.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedstrike.kf
+new file mode 100644
+index 000000000..0a0551ae3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_rangedstrike.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_run.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_run.kf
+new file mode 100644
+index 000000000..1636df78f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_run.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadein.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadein.kf
+new file mode 100644
+index 000000000..d75efb551
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadein.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadeout.kf b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadeout.kf
+new file mode 100644
+index 000000000..d4cb0e726
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon_md_xfadeout.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cuirassier_rider_128.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cuirassier_rider_128.dds
+new file mode 100644
+index 000000000..4ec379238
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cuirassier_rider_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/hat.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/hat.dds
+new file mode 100644
+index 000000000..bf130977b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/hat.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_basecolor.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_basecolor.dds
+new file mode 100644
+index 000000000..e8e196365
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_basecolor.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_gloss.dds
+new file mode 100644
+index 000000000..95d6f9692
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/swedish_cannon_age2_mata_gloss.dds differ
+
+diff --git a/Assets/Python/Contrib/CvModName.py b/Assets/Python/Contrib/CvModName.py
+index aa4e80c0f..8c5e2e634 100644
+--- a/Assets/Python/Contrib/CvModName.py
++++ b/Assets/Python/Contrib/CvModName.py
+@@ -1,6 +1,6 @@
+ #CvModName.py
+ 
+-# <!-- custom: change mod name displayed ingame from "AdvCiv" to as of now "AdvCiv-SAS" as our mod is named as of now but anyways etc, and so that it also appears in "Settings" menu ingame (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
++# <!-- custom: change mod name displayed ingame from "AdvCiv" (would appear as "AdvCiv Mod" but anyways etc) to as of now "AdvCiv-SAS" (now appears as "AdvCiv-SAS Mod" but anyways etc) so th as our mod is named as of now but anyways etc, and so that it also appears in "Settings" menu ingame (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
+ modName = "AdvCiv-SAS" # advc.009
+ displayName = "AdvCiv-SAS" #advc.009
+ modVersion = ""
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 5fec2b553..f7e79544b 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -931,31 +931,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_HOLY_ROMAN_LANDSKNECHT</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,10</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique_HolyRomanEmpire_Landsknecht/Unique_HolyRoman_Landsknecht.nif</NIF>
+-			<KFM>Art/Units/Unique_HolyRomanEmpire_Landsknecht/Unique_HolyRoman_Landsknecht.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique_HolyRomanEmpire_Landsknecht/Unique_HolyRoman_Landsknecht_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<!-- BBAI: was ..._BUILD_UNIT -->
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_ARCHER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
+@@ -2342,6 +2317,41 @@
+ 			<SelectionSound>AS3D_UN_CATAPULT_HEAL</SelectionSound>
+ 			<ActionSound>AS3D_UN_CATAPULT_HEAL</ActionSound>
+ 		</UnitArtInfo>
++		<!-- custom: art import from ri mod (their svn version so no fpk nice much easier if i may say thanks but anyways etc)'s ART_DEF_UNIT_CANNON_VIKING, adjusted or not for AdvCiv-SAS but anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_HOLY_ROMAN_HOUFNICE</Type>
++			<Button>Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/cannon.dds</Button>
++			<!-- advc.002j: was 0.53 -->
++			<fScale>0.52</fScale>
++			<!-- custom: was 0.8 in the generic cannon in base advciv anyways etc -->
++			<fInterfaceScale>0.85</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannon.nif</NIF>
++			<KFM>Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannon.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/Cannon.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/CannonShadow.nif</ShadowNIF>
++				<ShadowAttachNode/>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<TrailDefinition>
++				<Texture>Art/Shared/wheeltread.dds</Texture>
++				<fWidth>1.0</fWidth>
++				<fLength>180.0</fLength>
++				<fTaper>0.0</fTaper>
++				<fFadeStartTime>0.2</fFadeStartTime>
++				<fFadeFalloff>0.35</fFadeFalloff>
++			</TrailDefinition>
++			<fBattleDistance>0.5</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop>LOOPSTEP_WHEELS</AudioRunTypeLoop>
++				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MODERN_ARTILLERY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Artillery.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,11</Button>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index c3230f182..38a8135ff 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1785,8 +1785,8 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_PIKEMAN</UnitClassType>
+-					<UnitType>UNIT_HOLY_ROMAN_LANDSKNECHT</UnitType>
++					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
++					<UnitType>UNIT_HOLY_ROMAN_HOUFNICE</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index ab062c2f5..cf55704c2 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -769,7 +769,7 @@
+ 	</Define>
+ 
+ 
+-
++	<!-- custom: note: as of now copper exception (alternative bonus to iron anyways etc) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future (ideally would but not guaranteed, i may or i may not but anyways etc) but anyways etc -->
+ 	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
+ 	<Define>
+ 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT</DefineName>
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText_Custom.xml b/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+index 8275b83c2..9e0154ffe 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+@@ -885,14 +885,11 @@
+ 		<Spanish>Severo</Spanish>
+ 	</TEXT>
+ 	
++	<!-- custom: was Ressources -->
+ 	<!-- Strategic Advantages Tab -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
+-		<English>Resources</English>
+-		<French>Ressources</French>
+-		<German>Ressourcen</German>
+-		<Italian>Risorse</Italian>
+-		<Spanish>Recursos</Spanish>
++		<English>Bonuses</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_STRATADV_OURS</Tag>
+@@ -1354,6 +1351,11 @@
+ 		<Italian>Possibili Forme di Governo Favorite</Italian>
+ 		<Spanish>Posibles Principios Favoritos</Spanish>
+ 	</TEXT>
++	<!-- custom: rename from "Ressources" anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
++		<English>Bonuses</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT</Tag>
+ 		<English>Govt</English>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index acfe2b9a4..373249012 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -430,6 +430,14 @@
+ 
+ 
+ 
++	<!-- custom: replace the "HOLY_ROMAN_LANDSKNECHT" with the "HOLY_ROMAN_HOUFNICE" -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_HOLY_ROMAN_HOUFNICE</Tag>
++		<English>Houfnice</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 47540d8a6..feaa5b9f3 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -4,6 +4,7 @@
+ 	 Some of the Romance-language translations are based on www.deepl.com. -->
+ <Civ4GameText>
+ 
++	<!-- custom: rename "AdvCiv mod" to "AdvCiv-SAS mod" in replay screen too but anyways etc, was [AdvCiv] anyways etc -->
+ 	<!-- advc.106i: Mod name to be used as a prefix for replay file names and
+ 		 to be written into the first replay message (the DLL removes the
+ 		 square brackets in that context). If this text key is removed
+@@ -11,7 +12,7 @@
+ 		 first replay message. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_REPLAY_PREFIX</Tag>
+-		<English>[AdvCiv]</English>
++		<English>[AdvCiv-SAS]</English>
+ 	</TEXT>
+ 
+ 	<!-- advc.100: In-game text for displaying and logging messages about
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index c483eb1e2..156902557 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -243,6 +243,14 @@
+ 
+ 
+ 
++	<!-- custom: based on https://en.wikipedia.org/wiki/Howitzer anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_HOLY_ROMAN_HOUFNICE_PEDIA</Tag>
++		<English>[TAB]The English word howitzer comes from the Czech word houfnice, from houf, 'crowd', and houf is in turn a borrowing from the Middle High German word H?fe or Houfe (modern German Haufen), meaning 'crowd, throng', plus the Czech nominal suffix -nice. Haufen, sometimes in the compound Gewalthaufen, also designated a pike square formation in German.[PARAGRAPH:1]In the Hussite Wars of the 1420s and 1430s, the Hussites used short-barreled houfnice cannons to fire at short distances into crowds of infantry, or into charging heavy cavalry, to make horses shy away. The word was rendered into German as aufeniz in the earliest attested use in a document dating from 1440; later German renderings include haussnitz and, eventually haubitze, from which derive the Scandinavian haubits, Polish and Croatian haubica, Estonian haubits, Finnish haupitsi, Russian gaubitsa, Serbian haubica, Ukrainian, Italian obice, Spanish ob�s, Portuguese obus, French obusier, Romanian obuzier and the Dutch word houwitser, which led to the English word howitzer.[PARAGRAPH:1]Since World War I, the word howitzer has been changing to describe artillery pieces that previously would have belonged to the category of gun-howitzers - relatively long barrels and high muzzle velocities combined with multiple propelling charges and high maximum elevations. This is particularly true in the armed forces of the United States, where gun-howitzers have been officially described as howitzers since World War II. Because of this practice, the word howitzer is used in some armies as a generic term for any kind of artillery piece that is designed to attack targets using indirect fire. Thus, artillery pieces that bear little resemblance to howitzers of earlier eras are now described as howitzers, although the British call them guns.[PARAGRAPH:1]The British had a further method of nomenclature. In the 18th century, they adopted projectile weight for guns replacing an older naming system (such as culverin, saker, etc.) that had developed in the late 15th century. Mortars had been categorized by calibre in inches in the 17th century, and this was duplicated with howitzers.[PARAGRAPH:1]U.S. military doctrine defines howitzers as any cannon artillery capable of both high-angle fire (45� to 90� elevation) and low-angle fire (0� to 45� elevation); guns are defined as being only capable of low-angle fire (0� to 45� elevation); and mortars are defined as being only capable of high-angle fire (45� to 90� elevation).[PARAGRAPH:2]The first artillery identified as howitzers developed in the late 16th century as a medium-trajectory weapon between the low trajectory (direct fire) of cannons and the high trajectory (indirect fire) of mortars. Originally intended for use in siege warfare, they were particularly useful for delivering cast iron shells filled with gunpowder or incendiary materials into the interior of fortifications. In contrast to contemporaneous mortars, which were fired at a fixed angle and were entirely dependent on adjustments to the size of propellant charges to vary range, howitzers could be fired at a wide variety of angles. Thus, while howitzer gunnery was more complicated than the technique of employing mortars, the howitzer was an inherently more flexible weapon that could fire its projectiles along a wide range of trajectories.[PARAGRAPH:1]In the middle of the 18th century, a number of European armies began to introduce howitzers that were mobile enough to accompany armies in the field. Though usually fired at the relatively high angles of fire used by contemporary siege howitzers, these field howitzers were rarely defined by this capability. Rather, as the field guns of the day were usually restricted to inert projectiles (which relied entirely on momentum for their destructive effects), the field howitzers of the 18th century were chiefly valued for their ability to fire explosive shells. Many, for the sake of simplicity and rapidity of fire, dispensed with adjustable propellant charges.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", and/plus anyways etc unit reworked, now based on the swordsman at least as of now anyways etc, entry from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index f5781c6b6..a15242ecf 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -9468,262 +9468,6 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_PIKEMAN, type: UNIT_HOLY_ROMAN_LANDSKNECHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_PIKEMAN</Class>
+-			<Type>UNIT_HOLY_ROMAN_LANDSKNECHT</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+-			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: strong enough to be a versatile unit, nice and effective defender suits it most though so hopefully the below fits if i am not mistaken but anyways etc; hopefully our cities are defended enough as such anyways etc (i hope xd but i don't know for sure check to be sure but anyways etc) -->
+-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
+-			<Civilopedia>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>1</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>1</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+-			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>0</bMechanized>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: see code comment at the generic pikeman for details anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<!-- custom: better suited as defenders with our changes anyways etc, but allow some offensive variety as well in case it helps if a city is somehow guarded by mounted units only or such anyways etc anyways etc ; this civ-specific unit could be used about either way although a bit better at defense so favour that for AIs as well anyways etc  -->
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
+-			<!-- custom: copper may be a good enough material for that. May also allow more diversity in gameplays, was iron only -->
+-			<BonusType>NONE</BonusType>
+-			<PrereqBonuses>
+-				<BonusType>BONUS_COPPER</BonusType>
+-				<BonusType>BONUS_IRON</BonusType>
+-				<BonusType>NONE</BonusType>
+-				<BonusType>NONE</BonusType>
+-			</PrereqBonuses>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<!-- custom: note: unit is stronger than base pike, but also symbolizes it being a mercenary and requiring higher costs perhaps, make them strong enough to justify it for flavor or maybe here rather if i may say in this case but anyways etc accuracy anyways etc; but since as of now maces are already cheaper, don't overdo it anyways etc, was 60 -->
+-			<iCost>80</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<iAirRange>0</iAirRange>
+-			<iAirUnitCap>0</iAirUnitCap>
+-			<iDropRange>0</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<!-- custom: was 6 -->
+-			<iCombat>8</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
+-			<iAirCombat>0</iAirCombat>
+-			<iAirCombatLimit>0</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<!-- custom: since they are more mercenaries from what i've read and prone to mutiny, unlike the reworked pikemen i do not give them any city defense bonus -->
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: unit rework, higher than the reworked pikeman as they seem to have been doing very well in most terrains, was 0 -->
+-			<iHillsAttack>25</iHillsAttack>
+-			<iHillsDefense>25</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems to be good in most if not all terrains, so removing the woods penalties that the reworked pikemen have, otherwise respecting consistently if i may say but anyways etc the civ's geography with adjustments based on climate (see german_hussar 's code comment at terrain and feature attacks and defenses for details but anyways etc hopefully helpful or not or yes or etc but anyways etc) -->
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>50</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>50</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<!-- custom: was "MOUNTED" 100 and UNITCOMBAT_MELEE 100 -->
+-			<!-- custom: see code comment at the generic pikeman for details or/and related info but anyways etc -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods/>
+-			<BonusProductionModifiers/>
+-			<iBombRate>0</iBombRate>
+-			<iBombardRate>0</iBombardRate>
+-			<SpecialCargo>NONE</SpecialCargo>
+-			<DomainCargo>NONE</DomainCargo>
+-			<iCargo>0</iCargo>
+-			<iConscription>3</iConscription>
+-			<iCultureGarrison>6</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
+-			<!-- custom: was 6 -->
+-			<iPower>10</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>3</iGroupSize>
+-				<fMaxSpeed>1.75</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>0</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_HOLY_ROMAN_LANDSKNECHT</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: from what i've read it seems they were very good at using many war formations. I had also intended to make them extra good against mounted units, but 2 free promotions is a bit too op, move it to combat modifiers rather (although there are no units later so keep strongest but also most relevant i think if i'm not mistaken from what i remember of it in this case i mean but anyways etc here anyways etc), was empty -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_ARCHER, type: UNIT_ARCHER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_ARCHER</Class>
+ 			<Type>UNIT_ARCHER</Type>
+@@ -10638,8 +10382,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<!-- custom: make a more versatile city profile, was in our new advciv-sas longbowman as of now 10/50 anyways etc -->
+-			<iCityAttack>25</iCityAttack>
++			<!-- custom: make a more versatile city profile, was in our new advciv-sas longbowman as of now 10/50 anyways etc (see as of now freepromotions as well anyways etc) -->
++			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -10708,9 +10452,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was PROMOTION_RETREAT1 in the generic advciv-sas longbowman anyways etc; should be fine considering these are otherwise mostly defensive units even after being upgraded until much later in the game; plus, they are not so efficient at attack otherwise so should be balanced hopefully but check if you want to be sure i mean if i may say in this case i mean but anyways etc -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<PromotionType>PROMOTION_CITY_RAIDER1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -20501,8 +20246,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<!-- custom: was 6, below info by chatgpt 5 that i formatted and/or such and thanks to my prompt(s) and or such, check if accurate anyways etc -->
++			<!-- Is “more defenders” relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->
+ 			<!-- K-Mod: was 7 -->
+-			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
++			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -20574,7 +20321,248 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: was empty anyways etc, info below by chatgpt 5 quite similarly if i may say i mean but anyways etc thanks anyways etc -->
++			<!-- "The Hwacha fires singijeon rocket arrows and has a unique "shoot-and-scoot" withdrawal mechanic due to its light cart. Giving it free "Retreat I" would work for this, although it's largely thematic." -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
++		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_HOLY_ROMAN_HOUFNICE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CANNON</Class>
++			<Type>UNIT_HOLY_ROMAN_HOUFNICE</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_SIEGE</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_HOLY_ROMAN_HOUFNICE</Description>
++			<Civilopedia>TXT_KEY_UNIT_HOLY_ROMAN_HOUFNICE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<!-- custom: was 0 -->
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
++			<bNoDefensiveBonus>1</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MODERN_ARTILLERY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
++			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
++			<TechTypes/>
++			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasnoning below, check if accurate anyways etc, was iron only in generic cannon in advciv-sas as of now but anyways etc. Note: for now not changed for all cannons so including the generic cannon but anyways etc, as bit tedious to consider in this case i mean but anyways etc, plus it would remove some of the strategic importance of iron, which is fine in itself but not needed for now if not always or not so left as such as of now for other units but anyways etc -->
++			<!-- "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." -->
++			<!-- "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically." -->
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_COPPER</BonusType>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 140 in the generic cannon in advciv-sas as of now but anyways etc -->
++			<iCost>130</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<!-- custom: was 12 -->
++			<iCombat>13</iCombat>
++			<!-- custom: was 80. Note: still below modern_artillery so fine as in not a downgrade later if i may say i mean but anyways etc -->
++			<iCombatLimit>85</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>100</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<!-- custom: was 6 -->
++			<!-- K-Mod: was 7 -->
++			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems to be good in most if not all terrains, so removing the woods penalties that the reworked pikemen have, otherwise respecting consistently if i may say but anyways etc the civ's geography with adjustments based on climate (see german_hussar 's code comment at terrain and feature attacks and defenses for details but anyways etc hopefully helpful or not or yes or etc but anyways etc) -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>50</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods/>
++			<UnitCombatCollateralImmunes>
++				<UnitCombatCollateralImmune>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<iUnitCombatCollateralImmune>1</iUnitCombatCollateralImmune>
++				</UnitCombatCollateralImmune>
++			</UnitCombatCollateralImmunes>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>12</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<!-- advc.101: was 7 (unused since AdvCiv 0.97) -->
++			<iCultureGarrison>4</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>3</iAsset>
++			<!-- custom: was 13 in the generic cannon in advciv-sas as of now but anyways etc -->
++			<iPower>14</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>2</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>2</iMeleeWaveSize>
++				<iRangedWaveSize>2</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_HOLY_ROMAN_HOUFNICE</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d51a55a22..7e16752a9 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -158,7 +158,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### Workers (AI)
+ 
+-- note: this specific one should not be relevant anymore as we have overhauled AI worker builds entirely if i am not mistaken, but just in case and to be exhaustive too, anyways etc: further discourage AI workers to build forts on bonus/ressources (but since the more extensive AI worker changes i don't know if this is needed anymore but no harm to keep there maybe in this case i mean but anyways etc), as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv, also allowing/letting the ennemy pillage and rebuild ressources/bonuses that shouldn't be vital for any unless i'm mistaken then rebuilding the improvement later with nice yields should be much cheaper and more efficient i think at least if i may say in this case at least but anyways etc and if i am not mistaken too but anyways etc than guarding it with low yields the entire game), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details for details
++- note: this specific one should not be relevant anymore as we have overhauled AI worker builds entirely if i am not mistaken, but just in case and to be exhaustive too, anyways etc: further discourage AI workers to build forts on bonuses/ressources (but since the more extensive AI worker changes i don't know if this is needed anymore but no harm to keep there maybe in this case i mean but anyways etc), as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv, also allowing/letting the ennemy pillage and rebuild ressources/bonuses that shouldn't be vital for any unless i'm mistaken then rebuilding the improvement later with nice yields should be much cheaper and more efficient i think at least if i may say in this case at least but anyways etc and if i am not mistaken too but anyways etc than guarding it with low yields the entire game), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details for details
+ - make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting `CvUnitAI::AI_bestCityBuild`, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+ - Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+@@ -241,13 +241,13 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive, see the .csv comparison tables locally (libreoffice, etc.) or on github (recommended) provided, or/and sevopedia, or/and xml for details)
+ 
+-Note: please see note here as well in this quick guide about the .csv tables where you can compare and view each handicap/difficulty's value and browse it even on github viewer but anyways etc, in: [README_Quick_Get_Started_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how)
++Note: please see note here as well in this quick guide about the .csv tables where you can compare and view each handicap/difficulty's value and browse it even on github viewer but anyways etc, see info in the handicap tables readme section: [README_Quick_Get_Started_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how)
+ 
+ - handicap (i.e. difficulty) settings are now gradually harder, lower/lowest handicap being harder (i don't want them to be placeholders anymore), and highest difficulties being less of a grind and hard in their own ways at least in theory and ideally i mean anyways etc, see docs for details and status update on these or/and xml for details.
+ - AIs get no free techs now, they should perform well enough, and receive other types of bonuses, that they don't need techs for free, it won't feel anymore like they are playing a different kind of game hopefully, also less of a grind at higher difficulties. I also hope games will be more versatile this way with AIs not going on always same narrow tech paths even if a bit more if not lot but anyways etc
+ - free techs also disabled for human players.
+ - costs of tech and units (`iResearchPercent` and `iTrainPercent`) are always the same for the human player at all handicap/difficulties settings unlike in base AdvCiv, now only AI costs (`iAIResearchPercent` and `iAITrainPercent`) vary across difficulties anyways etc, maybe it helps for example for calculations and such to have a fixed unit or tech price at all difficulties if you want to go from one difficulty to the other, a unit or tech is always same price for the human player, so you can reuse some strategies more easily maybe or quicker adjust. Tech costs have been adjusted to match this change if i am not mistaken anyways etc.
+-- there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now if i want and if not already done after writing this anyways etc, please check docs xml or better or additionally maybe too anyways etc maybe also the handicap data .csv table (link at head of this doc anyways etc)
++- there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now if i want and if not already done after writing this anyways etc, please check docs xml or better or additionally maybe too anyways etc maybe also the [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv).
+ - disabled `INCREASE_START_TURN`, so for immortal and deity and advanced starts if i am not mistaken too anyways etc, now game starts at turn 0 for everyone and all handicap/difficulty settings anyways. This is because i would want handicap/difficulty settings to be reliable and reliably harder at each difficulty, plus we don't have free techs nor ai free techs anymore now in advciv-sas, and the handicap/difficulty increase is gradual at all difficulties, so i would like all other matetrs to be equal as well anyways etc, reduce handicap/difficulty chosen if too hard or/and i or (other or same anyways etc) players/modders may have to adjust handicap settings directly rather if they are really out of reach anyways etc, see [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details anyways etc. Handicap help texts (descriptions anyways etc) have also been rewritten in AdvCiv-SAS to accomodate this change as well as better reflect the new gradual settings and overall difficulty, as well as not commit to a specific number if i may say too in advciv-sas unlike in base advciv description if i am not mistaken but anyways etc anyways etc anyways etc hopefully helpful anyways etc but anyways etc anyways etc.
+ - `iAIWorkRateModifier`: now reduced to 0 at all difficulties, meaning if i'm not mistaken that now at all difficulties, individual AI workers will build improvements (e.g. pasture, farm, etc.) at same speed (in number of turns i mean if i'm not mistaken anyways etc) as human players. Since we made so much changes in bestcitybuild and such other places and to AI worker efficiency more generally as well, we can probably afford it and AI will still be competitive, with a fairer experience for human players as well. If needed, may increase the worker count rather at higher difficulties, but not sure this is needed as AI otherwise get many discounts already so not done for now if i'm not mistaken as of now at least if not always or not but anyways etc.
+ - `iAIStartingWorkerUnits`: now reduced to 0 at all difficulties as well similarly, as AI workers are now with our changes but anyways etc effiicent and smart enough to be competitive without needing a worker advantage, vs how it was in base advciv as of now at least if i'm not mistaken but anyways etc of highest difficulties giving AIs a free worker which breaks balance but anyways etc.
+@@ -310,8 +310,8 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - some gameplay elements happen at different times, can resarch sooner, build culture sooner, slavery sooner, plantations sooner
+ - nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new this technology "Cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new this technology "Cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+-- game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+-- reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
++- game pace advances exponentially: later eras have relatively fewer techs (except future era that has more techs) and unit types. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
++- reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc. Note: the future era is the exception: it has it's own GPs anyways etc.
+ - reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tech_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 4 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unlike this message xd but that i hope is sitll helpful i mean but anyways etc)
+ 
+ ### Eras
+@@ -412,13 +412,13 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech, and the french_musketeer has 1 move not 2 anymore but instead has as of now now anti mounted and small collateral kit which is much stronger and relevant for renaissance plus anyways etc, which is nice as the unit was way too weak and underwhelming if i may say but anyways etc.
+-- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), or the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (better match with holy roman empire's aggressive profile, tight medieval window, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+ - for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, and pikemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, cavalry units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
+ - similarly, also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc
+-- relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires iron as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
++- relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires iron as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc). The Holy Roman Houfnice can as well for example (historically plausible bronze artillery). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
+ - in [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml), disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire, and them merging with the empire, becoming its citizens, something to pay attention to maybe in particular if you don't want it to happen to other rivals anyways etc anyways etc
+ - move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non- military techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 147cf2063..ebb33b9a1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -211,7 +211,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, with a preference for civ-specific units like War Chariots when available. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc).
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). **Update:** From the **Renaissance** onward, thresholds are **heavily relaxed** in `CvCityAI::AI_chooseUnit` and in `CvCity::doTurn`—when **Cannons** unlock they can serve as a practical **defensive pivot** (esp. if you lack bonuses/muskets), and the AI avoids **over-producing Pikemen** into **Cuirassiers**, leading to **more varied stacks** and improved survival. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+-- **Mounted “Counter” role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonus/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
++- **Mounted “Counter” role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+ - **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In AdvCiv-SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). **Update (fallback production):** Applied the same cap inside CvCity::doTurn’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100).
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+@@ -228,7 +228,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive)
+ 
+-See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)).
++See the **CSV/MD tables** for exact values ([handicap tables readme section](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)).
+ 
+ - **No free techs** for AI or human.
+ - **Human costs fixed** across difficulties for tech/unit (`iResearchPercent`, `iTrainPercent` stay constant for the human). AI equivalents scale with difficulty.
+@@ -237,7 +237,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **AI worker speed**: `iAIWorkRateModifier` **0** on all difficulties.
+ - **AI starting workers**: `iAIStartingWorkerUnits` **0** on all difficulties.
+ - **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high difficulties); increase **experience** rewards at higher difficulties.
+-- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info).
++- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv).
+ - **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with AdvCiv-SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
+ 
+ ### Specialists (non-exhaustive)
+@@ -286,12 +286,12 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ ### Technologies (non-exhaustive)
+ 
+-- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base.
++- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
+ - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
+ - Many techs flagged **“Cannot be traded.”** New UI strings added to Sevopedia Tech (Special Abilities) and Tech Advisor to display this. See *Modding_Ressources/README* entry.
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+-- **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
+-- **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
++- **Exponential pacing**: fewer late‑era techs and unit types to avoid a tedious endgame; the **Future** era is the exception and is expanded.
++- **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.
+ - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs (civ list & rationale)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc).
+ 
+ ### Eras
+@@ -397,7 +397,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+   - **Logistics** now at **The Wheel** (was Military Science).
+   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
+ - **Unit redesigns:**
+-  - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses).
++  - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman **Landsknecht** → **Houfnice** — aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)).
+   - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
+   - **Air** unit costs generally increased.
+ - **Upgrade paths** simplified and made more sensible:
+@@ -406,7 +406,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+   - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+   - **Cavalry → Tanks** now.
+ - **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
+-- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized). The **generic Swordsman** remains **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
++- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
+ - `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
+ - **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
+ - **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+index 8ec09ae98..215a70bd5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+index 7bbec7d6f..d4d28b3b3 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+index 6f49315dd..19f555b8c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG
+index 23173a6c2..ab1925948 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG
+index 22dbb6752..9d91a32a8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=39 embeddedFiles=39 omittedFiles=0 embeddedPatchBytes=102566

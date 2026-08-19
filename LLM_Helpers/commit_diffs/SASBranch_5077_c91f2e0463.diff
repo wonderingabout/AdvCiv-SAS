@@ -1,0 +1,600 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5077
+# Commit: c91f2e0463ab436113c1d6d5e4adb98b962187df
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ce8cc2aa4d966a9ed164381e089c35752bc2e442
+# Title: multiple balance changes - further reduce wonders' costs: 225->200 250->225 300->250 375->300 450->375 500->425 550->500 600->575 625->600 650(pentagon)->625...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+59	40	Assets/XML/Buildings/CIV4BuildingInfos.xml
+17	13	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 12bac6ebb..f8e05549d 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3401,7 +3401,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
++			<!-- custom: half chance of capture on conquest for barbarian civ-specific buildings as there cities are overall easier to capture anyways etc -->
++			<iConquestProb>33</iConquestProb>
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+ 			<iLevelPrereq>0</iLevelPrereq>
+@@ -5233,7 +5234,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>10</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
++			<!-- custom: half chance of capture on conquest for barbarian civ-specific buildings as there cities are overall easier to capture anyways etc -->
++			<iConquestProb>33</iConquestProb>
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+ 			<iLevelPrereq>0</iLevelPrereq>
+@@ -5613,7 +5615,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>10</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
++			<!-- custom: half chance of capture on conquest for barbarian civ-specific buildings as there cities are overall easier to capture anyways etc -->
++			<iConquestProb>33</iConquestProb>
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+ 			<iLevelPrereq>0</iLevelPrereq>
+@@ -9476,16 +9479,18 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
++			<!-- custom: was -15 -->
+ 			<!-- K-Mod: Instead of 1 health -->
+-			<iUnhealthyPopulationModifier>-15</iUnhealthyPopulationModifier>
++			<iUnhealthyPopulationModifier>-20</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 150 -->
+ 			<!-- advc.200: K-Mod had increased this to 200 -->
+-			<iCost>150</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -21477,7 +21482,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>450</iCost>
++			<iCost>375</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -21850,7 +21855,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>600</iCost>
++			<iCost>550</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22029,6 +22034,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 600 -->
+ 			<iCost>600</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -22413,7 +22419,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 500 -->
+-			<iCost>725</iCost>
++			<iCost>650</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22602,7 +22608,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 600 -->
+-			<iCost>650</iCost>
++			<iCost>600</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23345,7 +23351,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 350 -->
+-			<iCost>250</iCost>
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23741,7 +23747,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<!-- custom: was 300 -->
++			<iCost>250</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -23936,7 +23943,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 250 -->
+-			<iCost>225</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24336,7 +24343,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<!-- custom: was 400 -->
++			<iCost>250</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24527,7 +24535,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>375</iCost>
++			<!-- custom: was 500 -->
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24735,7 +24744,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>450</iCost>
++			<!-- custom: was 500 -->
++			<iCost>375</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24929,7 +24939,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>375</iCost>
++			<!-- custom: was 500 -->
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25131,7 +25142,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>250</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25334,7 +25345,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>500</iCost>
++			<!-- custom: was 550 -->
++			<iCost>425</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25519,7 +25531,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>550</iCost>
++			<!-- custom: was 400 -->
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25721,7 +25734,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>450</iCost>
++			<!-- custom: was 550 -->
++			<iCost>375</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25929,7 +25943,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 700 -->
+-			<iCost>450</iCost>
++			<iCost>375</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26125,7 +26139,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 800 -->
+-			<iCost>700</iCost>
++			<iCost>625</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26273,7 +26287,7 @@
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well, and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
+ 			<!-- advc.200: -->
+-			<PrereqTech>TECH_NATIONALISM</PrereqTech>
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -26313,7 +26327,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder but anyways etc anyways etc) cost anyways etc, was 1250 -->
+-			<iCost>675</iCost>
++			<iCost>600</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26509,7 +26523,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1500!!! Anyways etc -->
+-			<iCost>625</iCost>
++			<iCost>575</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26710,7 +26724,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 800 -->
+-			<iCost>625</iCost>
++			<iCost>575</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26909,7 +26923,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>725</iCost>
++			<iCost>650</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27095,7 +27109,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1000 -->
+-			<iCost>750</iCost>
++			<iCost>700</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27231,8 +27245,12 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: make it available sooner so it is built before endgame anyways etc, should also be historically or/and thematically quite accurate too but anyways etc, was the now removed anyways etc TECH_PLASTICS -->
+-			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+-			<TechTypes/>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -27270,7 +27288,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1750 -->
+-			<iCost>700</iCost>
++			<iCost>650</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27409,7 +27427,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while this other tech has more space to use anyways etc would be more balanced and make it/this tech stronger as well anyways etc, was TECH_ASSEMBLY_LINE -->
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -27448,7 +27466,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1250 -->
+-			<iCost>650</iCost>
++			<iCost>625</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27969,7 +27987,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 350 -->
+-			<iCost>250</iCost>
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28177,7 +28195,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
+-			<iCost>550</iCost>
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28590,7 +28608,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>250</iCost>
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28781,7 +28799,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>375</iCost>
++			<!-- custom: was 450 -->
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28972,7 +28991,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: now sooner, adjust cost, anyways etc, was 1000 -->
+-			<iCost>625</iCost>
++			<iCost>575</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29389,7 +29408,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 250 -->
+-			<iCost>550</iCost>
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29585,7 +29604,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 800 -->
+-			<iCost>500</iCost>
++			<iCost>425</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 95734c642..5ed6b2763 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -235,7 +235,7 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>1</iHealth>
++			<iHealth>3</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>56</iAsset>
+@@ -267,7 +267,7 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -275,7 +275,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>1</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4043,8 +4043,8 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>-6</iHealth>
+-			<iHappiness>-6</iHappiness>
++			<iHealth>-8</iHealth>
++			<iHappiness>-8</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+@@ -4218,7 +4218,7 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+@@ -4377,7 +4377,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4626,7 +4626,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>1</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>56</iAsset>
+ 			<iPower>6</iPower>
+@@ -6090,7 +6090,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHappiness>2</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>64</iAsset>
+ 			<iPower>0</iPower>
+@@ -6140,6 +6140,10 @@
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_FUSION</PrereqTech>
+@@ -6599,7 +6603,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>1</iHappiness>
++			<iHappiness>2</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>64</iAsset>
+ 			<iPower>10</iPower>
+@@ -6640,14 +6644,14 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_FUSION</PrereqTech>
++				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_TERRAFORMING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_TERRAFORMING</Sound>
+@@ -6852,7 +6856,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1692bc7d0..e9e44759c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2939,7 +2939,7 @@ static int countImprovedTiles(CvCity const* pCity)
+ 		}
+ 
+         // Count any improvement in the city radius.
+-        ImprovementTypes eImp = pPlot->getImprovementType();
++        const ImprovementTypes eImp = pPlot->getImprovementType();
+         if (eImp != NO_IMPROVEMENT)
+ 		{
+             ++iCount;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 31a4722e2..6f519e919 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -340,6 +340,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - barbarians are now stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant a bit longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a more important part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Among the ways in which they are now stronger, their overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible but anwyays etc)) is gradual with difficulties, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, and the .csv table files that compare handicap settings in advciv-sas, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc. Since AIs are so efficient now in their hammer usage and availability (as of now no scrapping or weird no production bugs (or almost none if any but anyways etc) (at least much more than in base advciv +/- civ4 if i'm not mistaken but anyways etc)), they produce too much units, so barbarians are a nice help for that goal so that AIs don't go bankrupt too soon and that they can grow more earlier due to having less units as counter intuitive as it may seem, especially since barbarians should burn a bunch of the early and not so useful later units like ancient macemen, archers, longbowmen, etc, so should hopefully help a lot, and AIs are now seemingly (more than in this case i mean but anyways etc) strong enough to defend well or well enough even against such strong barbarians so hopefully helpful but anyways etc.
+ - added a code in `CvCityAI::AI_chooseBuilding` so barbarians don't waste hammer attempting to or building world wonders, which they sometimes could successfully do before other players due to their economic strength improvement. I suspect/assume issue was also in base advciv, and they just are now able to actually complete them before other players, unless some other xml change i did somehow triggered this, but most likely not and it was already there although i am not 100% sure but anyways etc. As a result of this no world wonder for barbarians change, barbarians may be more efficient with their hammers if they sank some of these in base advciv into attempting to build world wonders rather than say units but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc) for details anyways etc
+ - the barbarian workers are now a civ-specific unit that cannot be captured (this avoids worker farming abuse and is perhaps thematically relevant as well anyways etc), see sevopedia unit where this info has now been added, or `<Capture>` in XML for updated values anyways etc. (Note: the barbarian workboat is a civ-specific unit as of now but only for balance and lower costs purpose to help barbarians catch up, as of now no special effect otherwise from the base workboat if i'm not mistaken, check if accurate, anyways etc)
++- Barbarian civ-specific buildings can be captured (`iConquestProb`) with half the chance of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
+ - the barbarian leader now has a distinct button (i.e. mini-image / "icon" (even though icons in civ4 are more like textual characters not mages if i am not mistaken but is to explain if i may say but anyways etc)) to make it distinct from genghis khan as was very inaccurately shown, visible in sevopedia civilization category mostly but also sevopedia leaders category to a esser extent if i may say in this case but anyways etc, button import from ri mod thanks anways etc thanks anyways etc
+ 
+ ### Traits (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 4a7a5892e..c55233560 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -318,6 +318,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ - **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the AdvCiv-SAS **handicap tables** in the repo for comparative values.
+ - **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
++- Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
+ - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).
+ - Barbarian **workboat** is civ-specific mainly for cost/balance.
+ - Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s). See XML for the new button source credit.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index dfc571185..27b3e64f6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 373e0ec27..cbe1963b1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 1f97e22f2..fa0ccb8a8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 779b634c6..f53dc9c9a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=29116

@@ -1,0 +1,94 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 938
+# Commit: 4664d36d518112cd342e84ba002e6c94c7e79a99
+# History segment: K-Mod history
+# Parent used for diff: d4f66f3c9ef4997e9825d51f0f35b35a02bb839c
+# Title: The AI will now focus more strongly on building spaceship with SPACE4.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	8	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e2f0d0ddb..f3b606aa0 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1037,9 +1037,30 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
++	// K-Mod. Make room for a 'best project'. -1 indicates that we haven't yet calculated the best project.
++	// Well evaluate it soon if we are aiming for a space victory; otherwise we'll just leave it until the end.
++	ProjectTypes eBestProject = NO_PROJECT;
++	int iProjectValue = -1;
++	// K-Mod end
++
+ 	// K-Mod, short-circuit production choice if we already have something really good in mind
+ 	if (kPlayer.getNumCities() > 1) // don't use this short circuit if this is our only city.
+ 	{
++		if (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4))
++		{
++			eBestProject = AI_bestProject(&iProjectValue);
++			if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
++			{
++				int iOdds = std::max(0, 100 * iProjectValue / (3 * iProjectValue + 300) - 10);
++				if (GC.getGameINLINE().getSorenRandNum(100, "Build Project short circuit 1") < iOdds)
++				{
++					pushOrder(ORDER_CREATE, eBestProject);
++					if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project short-circuit 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
++					return;
++				}
++			}
++		}
++
+ 		int iOdds = std::max(0, 100 * iBestBuildingValue / (3 * iBestBuildingValue + 300) - 10);
+ 		if (AI_chooseBuilding(0, INT_MAX, 0, iOdds))
+ 		{
+@@ -1574,13 +1595,9 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	// K-Mod
+-	ProjectTypes eBestProject = NO_PROJECT;
+-	int iProjectValue = 0; //
+-	if (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) || !(bLandWar && iWarSuccessRating < 30))
+-	{
++	// K-Mod.
++	if (iProjectValue < 0 && (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) || !(bLandWar && iWarSuccessRating < 30)))
+ 		eBestProject = AI_bestProject(&iProjectValue);
+-	}
+ 	// K-Mod end
+ 
+ 	int iSpreadUnitThreshold = 1000;
+@@ -2640,7 +2657,8 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	} */
+ 	// K-Mod
+-	if (eBestProject == NO_PROJECT)
++	FAssert((eBestProject == NO_PROJECT) == (iProjectValue <= 0));
++	if (iProjectValue < 0)
+ 		eBestProject = AI_bestProject(&iProjectValue);
+ 	if (iProjectValue > iBestBuildingValue)
+ 	{
+@@ -5689,7 +5707,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue)
+ 		}
+ 	}
+ 
+-	if (piBestValue)
++	if (piBestValue) // note: piBestValue is set even if there is no best project.
+ 		*piBestValue = iBestValue;
+ 
+ 	return eBestProject;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2578

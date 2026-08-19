@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 27
+# Commit: cbc8dd3dc427a7f3900c6fc1f66677a50279f08d
+# History segment: K-Mod history
+# Parent used for diff: c5160fe82d10bef90fab262875be6432f92c6201
+# Title: Rewrote the global warming terrain change code. Changed the game initialization to set the game handicap level to be the minimum of the human players' handic...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+93	2	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 965ed83c9..850f1d8d6 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -344,6 +344,35 @@ void CvGame::regenerateMap()
+ 
+ 	CvEventReporter::getInstance().resetStatistics();
+ 
++/*
++** K-Mod, 25/apr/2011, karadoc
++** Adjust the AI handicap to be the minimum of all the human player's handicap.
++*/
++	if (isGameMultiPlayer())
++	{
++		HandicapTypes eMinHandicap = (HandicapTypes)INT_MAX;
++		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if (GET_PLAYER((PlayerTypes)iI).isHuman())
++			{
++				eMinHandicap = std::min(GET_PLAYER((PlayerTypes)iI).getHandicapType(), eMinHandicap);
++			}
++		}
++		setHandicapType(eMinHandicap);
++
++		/* I don't think we need this. In fact, I think it might be the opposite of what we want. But I haven't checked...
++		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if (!GET_PLAYER((PlayerTypes)iI).isHuman())
++			{
++				GC.getInitCore().setHandicap(PlayerTypes(iI), eMinHandicap)
++			}
++		}*/
++	}
++/*
++** K-Mod end
++*/
++
+ 	setInitialItems();
+ 
+ 	initScoreCalculation();
+@@ -6163,10 +6192,11 @@ void CvGame::doGlobalWarming()
+ 
+ 			if (pPlot != NULL)
+ 			{
+-				FeatureTypes eFeature = pPlot->getFeatureType();
+ 				bool bChanged = false;
+-				if (pPlot->getFeatureType() != NO_FEATURE && pPlot->getFeatureType() != GC.getDefineINT("NUKE_FEATURE"))
++				/* (I've rewritten the following section to correct a few problems)
++				if (pPlot->getFeatureType() != NO_FEATURE && pPlot->getFeatureType() != eFalloutFeature)
+ 				{// don't remove features if underlaying terrain can melt
++					
+ 					if (pPlot->getFeatureType() != eColdFeature)
+ 					{
+ 						if ((pPlot->calculateBestNatureYield(YIELD_FOOD, NO_TEAM) > 1) && (pPlot->getFeatureType() == eTemperateFeature))
+@@ -6195,6 +6225,7 @@ void CvGame::doGlobalWarming()
+ 						pPlot->setFeatureType(NO_FEATURE);
+ 						bChanged = true;
+ 					}
++					
+ 				}
+ 
+ 				{// GWMod stepped terrain changes M.A.
+@@ -6235,6 +6266,66 @@ void CvGame::doGlobalWarming()
+ 						bChanged = true;
+ 					}
+ 				}
++				*/
++				/*
++				** rewritten terrain changing code:
++				*/
++				// 1) Melt frozen terrain
++				if (pPlot->getFeatureType() == eColdFeature)
++				{
++					pPlot->setFeatureType(NO_FEATURE);
++					bChanged = true;
++				}
++				else if (pPlot->getTerrainType() == eFrozenTerrain)
++				{
++						pPlot->setTerrainType(eColdTerrain);
++						bChanged = true;
++				}
++				else if (pPlot->getTerrainType() == eColdTerrain)
++				{
++					pPlot->setTerrainType(eTemperateTerrain);
++					bChanged = true;
++				}
++				// 2) Forest -> Jungle
++				else if (pPlot->getFeatureType() == eTemperateFeature)
++				{
++					pPlot->setFeatureType(eWarmFeature);
++					bChanged = true;
++				}
++				// 3) Remove other features
++				else if (pPlot->getFeatureType() != NO_FEATURE && pPlot->getFeatureType() != eFalloutFeature)
++				{
++					pPlot->setFeatureType(NO_FEATURE);
++					bChanged = true;
++				}
++				// 4) Dry the terrain
++				// Rising seas
++				else if (pPlot->getTerrainType() == eTemperateTerrain)
++				{
++					pPlot->setTerrainType(eDryTerrain);
++					bChanged = true;
++				}
++				else if (pPlot->getTerrainType() == eDryTerrain)
++				{
++					pPlot->setTerrainType(eBarrenTerrain);
++					bChanged = true;
++				}
++				// 5) Sink coastal desert
++				else if (pPlot->getTerrainType() == eBarrenTerrain)
++				{
++					// if (isOption(GAMEOPTION_RISING_SEAS)) (always enabled)
++					{
++						if (pPlot->isCoastalLand())
++						{
++							if (!pPlot->isHills() && !pPlot->isPeak())
++							{
++								pPlot->forceBumpUnits();
++								pPlot->setPlotType(PLOT_OCEAN);
++								bChanged = true;
++							}
++						}
++					}
++				}					
+ 
+ 				if (bChanged)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 07a258a18..42c4a3c1f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5823,6 +5823,7 @@ void CvPlayerAI::AI_chooseResearch()
+ ** experimental AI functions
+ */
+ 
++#if 0
+ int CvPlayerAI::KAI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const
+ {
+ 	PROFILE_FUNC();
+@@ -6640,6 +6641,7 @@ int CvPlayerAI::KAI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCos
+ 	return iValue;
+ }
+ 
++#endif
+ /*
+ ** K-Mod end experimental AI functions
+ */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index a0e9d547b..17b982217 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -126,7 +126,7 @@ public:
+ ** K-Mod, 1/mar/11, karadoc
+ ** experimental AI functions
+ */
+-	int KAI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const;
++	//int KAI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const;
+ /*
+ ** K-Mod end
+ */
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5001

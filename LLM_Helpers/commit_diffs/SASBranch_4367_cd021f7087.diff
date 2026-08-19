@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4367
+# Commit: cd021f708751bc3f1c8d564f2489ec04288cda8e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f6c7733d1e66f68caf5dc858a528a16a5f1d5ff2
+# Title: give free techs to eligible players at all eras To make AIs keep up with the human player as the human player catches up in the later game, boosting the earl...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_backup.dll
+15	0	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/Project/.gitignore
+3	3	CvGameCoreDLL/Project/Makefile.user
+ create mode 100644 Assets/CvGameCoreDLL_backup.dll
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_backup.dll b/Assets/CvGameCoreDLL_backup.dll reason=binary/generated-file changedLines=0 bytes=194
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 987054e67..fce49fb6a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -886,8 +886,23 @@ void CvGame::initFreeCivState()
+ 	FOR_EACH_ENUM(Tech)
+ 	{
+ 		// <advc.126> Later-era free tech only for later-era starts.
++		/* custom: rever this logic and give free techs to AIs regardless of eras.
++		   as the game goes on they are more likely to be caught up by the human
++		   player. To keep things still challenging for the human player, giving
++		   free techs at all eras to all eligible players (in lower difficulties the
++		   human player would gain free techs instead).
++		   I think that a more conservative approach to the techs needed rather than
++		   disabling this entirely should help the AI a lot without hurting the human
++		   player too much. Key techs of a low tech cost (such as currency, or much
++		   less needed ones to not have AIs spend time on them (such as compass) may
++		   help the AI stay competitive.
++		   If it is too hard for the human players, there should be other areas to
++		   balance this, the purpose is to make the AI catch up with the game and
++		   not gradually losing, i would want the battle to be more decisive and intense
++		   with this change)
+ 		if (GC.getInfo(eLoopTech).getEra() > getStartEra())
+ 			continue; // </advc.126>
++		*/
+ 		for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 		{
+ 			CvTeam& kTeam = *itTeam;
+
+diff --git a/CvGameCoreDLL/Project/.gitignore b/CvGameCoreDLL/Project/.gitignore
+index 7e8b53107..a626f68d2 100644
+--- a/CvGameCoreDLL/Project/.gitignore
++++ b/CvGameCoreDLL/Project/.gitignore
+@@ -20,3 +20,5 @@ temp_files/
+ *.opensdf
+ Makefile.settings
+ Makefile.user
++Boost-1.32.0
++Python24
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/Project/Makefile.user b/CvGameCoreDLL/Project/Makefile.user
+index fa0d49b04..0687863a4 100644
+--- a/CvGameCoreDLL/Project/Makefile.user
++++ b/CvGameCoreDLL/Project/Makefile.user
+@@ -1,3 +1,3 @@
+-TOOLKIT=
+-PSDK=
+-CIV4_PATH=
++TOOLKIT=$(PROGRAMFILES)/Civ4SDK/Microsoft Visual C++ Toolkit 2003
++PSDK=$(PROGRAMFILES)/Civ4SDK\WindowsSDK
++CIV4_PATH=$(PROGRAMFILES)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=3 omittedFiles=2 embeddedPatchBytes=2238

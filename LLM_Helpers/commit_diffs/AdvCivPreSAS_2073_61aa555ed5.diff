@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2073
+# Commit: 61aa555ed5f37539d5b2918e513ffe2fa49c24f8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c409ee332b4b544c4259c4d1997374d8897ba961
+# Title: Fix a minor issue with the renegotiate diplo popup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	0	CvGameCoreDLL/CvPlayer.cpp
+4	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 84af72706..79fce3843 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -16256,6 +16256,20 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 			{
+ 				pDiplo->read(*pStream);
+ 				m_listDiplomacy.push_back(pDiplo);
++				// <advc.074> (see comment in CvPlayerAI::AI_doDeals)
++				if (pDiplo->getDiploComment() == GC.getAIDiploCommentType("CANCEL_DEAL"))
++				{
++					for (CLLNode<TradeData> const* pNode = pDiplo->getOurOfferList().head();
++						pNode != NULL; pNode =  pDiplo->getOurOfferList().next(pNode))
++					{
++						if (pNode->m_data.m_eItemType == TRADE_RESOURCES)
++						{
++							m_cancelingExport.insertAtEnd(std::make_pair(
++									pDiplo->getWhoTalkingTo(),
++									(BonusTypes)pNode->m_data.m_iData));
++						}
++					}
++				} // </advc.074>
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2070fb936..541942630 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -18237,8 +18237,10 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
+ 					iHumanReceivedGold += pNode->m_data.m_iData;
+ 				else humanReceived.insertAtEnd(pNode->m_data);
+ 				/*  <advc.074> Remember the canceled resources to avoid
+-					excluding them in CvPlayer::buildTradeTable. */
+-				if(pNode->m_data.m_eItemType == TRADE_RESOURCES)
++					excluding them in CvPlayer::buildTradeTable. I've put
++					similar code in CvPlayer::read so that m_cancelingExport
++					is also set properly after loading a savegame. */
++				if (pNode->m_data.m_eItemType == TRADE_RESOURCES)
+ 				{
+ 					m_cancelingExport.insertAtEnd(std::make_pair(
+ 							eOther, (BonusTypes)pNode->m_data.m_iData));
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1741

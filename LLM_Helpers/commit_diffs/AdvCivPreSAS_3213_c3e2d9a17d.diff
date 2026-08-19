@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3213
+# Commit: c3e2d9a17d365e5f88a198267c1b19aaed21e462
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0b3640b71a2c89d5293d9f55e654089202a5b519
+# Title: Reactivate AI strength memory for Barbarians
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	3	CvGameCoreDLL/AIStrengthMemoryMap.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AIStrengthMemoryMap.cpp b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+index bb96d30dd..e38160592 100644
+--- a/CvGameCoreDLL/AIStrengthMemoryMap.cpp
++++ b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+@@ -111,9 +111,6 @@ void AIStrengthMemoryMap::decay()
+ 	/*if (m_aiMap.size() != GC.getMap().numPlots())
+ 		return;*/
+ 	CvTeam const& kTeam = CvTeam::getTeam(m_eTeam);
+-	/*	advc.304: Barbarians shouldn't use strength memory.
+-		They use activity memory instead. */
+-	FAssert(!kTeam.isBarbarian() || m_map.empty());
+ 	// K-Mod: reduce by 4% (arbitrary number), rounding down.
+ 	int const iDecayPercent = 4;
+ 	/*for (int i = 0; i < GC.getMap().numPlots(); i++)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0bc71694d..7cd61e964 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15801,9 +15801,9 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 		}
+ 		/*	since we're here, we might as well update our memory.
+ 			(human players don't track strength memory)
+-			advc.158: They do track it now (unless bNoCache). But not the Barbarians.
++			advc.158: They do track it now (unless bNoCache).
+ 			Note that this is currently the _only_ place where strength memory is set. */
+-		if (!bNoCache && /*!isHuman() &&*/ !isBarbarian() && eDefenceTeam == NO_TEAM &&
++		if (!bNoCache && /*!isHuman() &&*/ eDefenceTeam == NO_TEAM &&
+ 			eDomainType == DOMAIN_LAND && !bCheckMoves &&
+ 			(!bMoveToTarget || &p == pDefencePlot))
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1525

@@ -1,0 +1,254 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1673
+# Commit: 2b7abc5aa209962a8390d4c2f4c86af28d4f5d46
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: be68163ac3bfab6e04b107df78c7b02daedef021
+# Title: Show custom map options on Settings tab
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	7	Assets/Python/Screens/CvVictoryScreen.py
+15	9	CvGameCoreDLL/CvMap.cpp
+2	1	CvGameCoreDLL/CvMap.h
+19	5	CvGameCoreDLL/CvPythonCaller.cpp
+3	0	CvGameCoreDLL/CvPythonCaller.h
+5	1	CvGameCoreDLL/CyMap.cpp
+1	0	CvGameCoreDLL/CyMap.h
+2	0	CvGameCoreDLL/CyMapInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index dc2a51c8e..19e682f6e 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -935,6 +935,7 @@ class CvVictoryScreen:
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		g = gc.getGame() # advc
++		m = gc.getMap() # advc
+ 		#screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod. In multiplayer games, show both the game difficulty and the player difficulty
+ 		if activePlayer.getHandicapType() == g.getHandicapType():
+@@ -945,14 +946,14 @@ class CvVictoryScreen:
+ 		# K-Mod end
+ 
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, gc.getMap().getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.appendListBoxStringNoUpdate(szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(gc.getMap().getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(gc.getMap().getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.137> Use TXT_KEY_LOW/HIGH instead of SEA_LEVEL keys. (The SEA_LEVEL keys include the recommendation for the Custom Game screen - don't want that here.
+-		seaLvl = gc.getSeaLevelInfo(gc.getMap().getSeaLevel()).getSeaLevelChange()
++		seaLvl = gc.getSeaLevelInfo(m.getSeaLevel()).getSeaLevelChange()
+ 		if seaLvl == 0: # Medium sea level - use the BtS code.
+-			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(gc.getMap().getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		else:
+ 			szKey = "TXT_KEY_HIGH"
+ 			if seaLvl < 0:
+@@ -960,8 +961,15 @@ class CvVictoryScreen:
+ 			s = localText.getText(szKey, ())
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (s,)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# </advc.137>
+-		# advc.004:
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# <advc.004>
++		for i in range(m.getNumCustomMapOptions()):
++			# Don't know how to call map script functions in Python, so I've implemented that in the DLL.
++			szDesc = m.getNonDefaultCustomMapOptionDesc(i)
++			if len(szDesc) <= 0: # Meaning that the option is set to its default value
++				continue
++			screen.appendListBoxStringNoUpdate(szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxStringNoUpdate(szSettingsTable, str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# </advc.004>
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.251>
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index f70d4b0ff..11d27939c 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -961,11 +961,23 @@ int CvMap::getNumCustomMapOptions() const
+ }
+ 
+ 
+-CustomMapOptionTypes CvMap::getCustomMapOption(int iOption)
++CustomMapOptionTypes CvMap::getCustomMapOption(int iOption) /* advc: */ const
+ {
+ 	return GC.getInitCore().getCustomMapOption(iOption);
+ }
+ 
++// <advc.004> Returns an empty string if the option is set to its default value
++CvWString CvMap::getNonDefaultCustomMapOptionDesc(int iOption) const
++{
++	CvPythonCaller const& py = *GC.getPythonCaller();
++	CvString szMapScriptNameNarrow;
++	::narrowUnsafe(GC.getInitCore().getMapScriptName(), szMapScriptNameNarrow);
++	CustomMapOptionTypes eOptionValue = getCustomMapOption(iOption);
++	if (eOptionValue == py.customMapOptionDefault(szMapScriptNameNarrow.c_str(), iOption))
++		return L"";
++	return py.customMapOptionDescription(szMapScriptNameNarrow.c_str(), iOption, eOptionValue);
++} // </advc.004>
++
+ 
+ int CvMap::getNumBonuses(BonusTypes eIndex) const
+ {
+@@ -1075,17 +1087,11 @@ CvArea* CvMap::nextArea(int *pIterIdx, bool bRev) const
+ 
+ void CvMap::recalculateAreas()
+ {
+-	PROFILE("CvMap::recalculateAreas");
+-
+-	int iI;
++	PROFILE_FUNC();
+ 
+-	for (iI = 0; iI < numPlots(); iI++)
+-	{
++	for (int iI = 0; iI < numPlots(); iI++)
+ 		plotByIndex(iI)->setArea(FFreeList::INVALID_INDEX);
+-	}
+-
+ 	m_areas->removeAll();
+-
+ 	calculateAreas();
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 6e4f0c818..97c3f9740 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -339,7 +339,8 @@ public: // advc: made several functions const
+ 	SeaLevelTypes getSeaLevel() const;																// Exposed to Python
+ 
+ 	int getNumCustomMapOptions() const;
+-	CustomMapOptionTypes getCustomMapOption(int iOption);											// Exposed to Python
++	CustomMapOptionTypes getCustomMapOption(int iOption) const;											// Exposed to Python
++	CvWString getNonDefaultCustomMapOptionDesc(int iOption) const; // advc.004 (exposed to Python)
+ 
+ 	int getNumBonuses(BonusTypes eIndex) const;																	// Exposed to Python
+ 	void changeNumBonuses(BonusTypes eIndex, int iChange);
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index e34a3dbc9..ed56043cb 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -171,7 +171,8 @@ CvPlot* CvPythonCaller::WBGetHighlightPlot() const
+ 
+ void CvPythonCaller::onOKClicked(CvPopupInfo const& kInfo, int iButtonClicked) const
+ {
+-	if (kInfo.getOnClickedPythonCallback().IsEmpty())
++	char const* szFunctionName = kInfo.getOnClickedPythonCallback().c_str();
++	if (std::strlen(szFunctionName) <= 0)
+ 		return;
+ 	FAssertMsg(!GC.getGame().isNetworkMultiPlayer(), "Danger: Out of Sync");
+ 	CyArgsList argsList;
+@@ -183,10 +184,8 @@ void CvPythonCaller::onOKClicked(CvPopupInfo const& kInfo, int iButtonClicked) c
+ 	argsList.add(kInfo.getText());
+ 	argsList.add(kInfo.getOption1());
+ 	argsList.add(kInfo.getOption2());
+-	m_bLastCallSuccessful = m_python.callFunction(kInfo.getPythonModule().IsEmpty() ?
+-			PYScreensModule : kInfo.getPythonModule(),
+-			kInfo.getOnClickedPythonCallback(), argsList.makeFunctionArgs());
+-	FAssert(m_bLastCallSuccessful);
++	call(szFunctionName, argsList, kInfo.getPythonModule().IsEmpty() ?
++			PYScreensModule : kInfo.getPythonModule());
+ }
+ 
+ bool CvPythonCaller::onFocus(CvPopupInfo const& kInfo) const
+@@ -1204,6 +1203,21 @@ CustomMapOptionTypes CvPythonCaller::customMapOptionDefault(char const* szMapScr
+ 	call("getCustomMapOptionDefault", argsList, lResult, szMapScriptName);
+ 	return (CustomMapOptionTypes)toInt(lResult);
+ }
++// <advc.004>
++CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName,
++	int iOption, CustomMapOptionTypes eOptionValue) const
++{
++	CvWString szResult;
++	CyArgsList argsList;
++	argsList.add(iOption);
++	argsList.add(eOptionValue);
++	m_bLastCallSuccessful = m_python.callFunction(szMapScriptName, "getCustomMapOptionDescAt",
++			argsList.makeFunctionArgs(), &szResult);
++	/*  If the game was started from a savegame, then the map script may have been
++		uninstalled; that's OK. */
++	FAssert(m_bLastCallSuccessful || GC.getInitCore().getSavedGame());
++	return szResult;
++} // </advc.004>
+ 
+ void CvPythonCaller::mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, int& iHeight) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.h b/CvGameCoreDLL/CvPythonCaller.h
+index 5b2c128a9..a414afe8e 100644
+--- a/CvGameCoreDLL/CvPythonCaller.h
++++ b/CvGameCoreDLL/CvPythonCaller.h
+@@ -136,6 +136,9 @@ public:
+ 	bool callMapFunction(char const* szFunctionName) const;
+ 	int numCustomMapOptions(char const* szMapScriptName, bool bHidden) const;
+ 	CustomMapOptionTypes customMapOptionDefault(char const* szMapScriptName, int iOption) const;
++	// <advc.004>
++	CvWString customMapOptionDescription(char const* szMapScriptName, int iOption,
++			CustomMapOptionTypes eOptionValue) const; // </advc.004>
+ 	void mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, int& iHeight) const;
+ 	void mapLatitudeExtremes(int& iTop, int& iBottom) const;
+ 	void mapWraps(bool& bWrapX, bool& bWrapY) const;
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index 89491893e..55e81676d 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -183,7 +183,11 @@ CustomMapOptionTypes CyMap::getCustomMapOption(int iOption)
+ {
+ 	return m_pMap ? m_pMap->getCustomMapOption(iOption) : NO_CUSTOM_MAPOPTION;
+ }
+-
++// <advc.004>
++std::wstring CyMap::getNonDefaultCustomMapOptionDesc(int iOption)
++{
++	return m_pMap == NULL ? "" : m_pMap->getNonDefaultCustomMapOptionDesc(iOption);
++} // </advc.004>
+ int CyMap::getNumBonuses(int /* BonusTypes */ eIndex)
+ {
+ 	return m_pMap ? m_pMap->getNumBonuses((BonusTypes)eIndex) : -1;
+
+diff --git a/CvGameCoreDLL/CyMap.h b/CvGameCoreDLL/CyMap.h
+index 5b2caa34c..eaba1530a 100644
+--- a/CvGameCoreDLL/CyMap.h
++++ b/CvGameCoreDLL/CyMap.h
+@@ -62,6 +62,7 @@ public:
+ 	SeaLevelTypes getSeaLevel();
+ 	int getNumCustomMapOptions();
+ 	CustomMapOptionTypes getCustomMapOption(int iOption);
++	std::wstring getNonDefaultCustomMapOptionDesc(int iOption); // advc.004
+ 	int getNumBonuses(int /* BonusTypes */ eIndex);
+ 	int getNumBonusesOnLand(int /* BonusTypes */ eIndex);
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index f424b929e..9ccd5f255 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -55,6 +55,8 @@ void CyMapPythonInterface()
+ 
+ 		.def("getNumCustomMapOptions", &CyMap::getNumCustomMapOptions, "int () - number of custom map settings")
+ 		.def("getCustomMapOption", &CyMap::getCustomMapOption, "CustomMapOptionTypes () - user defined map setting at this option id")
++		// advc.004:
++		.def("getNonDefaultCustomMapOptionDesc", &CyMap::getNonDefaultCustomMapOptionDesc, "wstring (int)")
+ 
+ 		.def("getNumBonuses", &CyMap::getNumBonuses, "int () - total bonuses")
+ 		.def("getNumBonusesOnLand", &CyMap::getNumBonusesOnLand, "int () - total bonuses on land plots")
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=11928

@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 209
+# Commit: a3bd24f338b9bf765cf826520599ce167c879db4
+# History segment: K-Mod history
+# Parent used for diff: f0792f5d52be2ff0203928b85b5bfd9560bc5f13
+# Title: AI_foundValue (used for the AI's choice of city site, and for recommending sites to human players) will no longer count the value of tiles that are not revea...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvCityAI.cpp
+14	4	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 00ea7868c..281c1653f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9754,7 +9754,8 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 	{
+ 		// tiny food factor, to ensure that even when we don't want to grow, 
+ 		// we still prefer more food if everything else is equal
+-		iValue += (aiYields[YIELD_FOOD] * 1);
++		//iValue += (aiYields[YIELD_FOOD] * 1);
++		iValue += bFoodIsProduction ? 0 : aiYields[YIELD_FOOD] * 1; // K-Mod
+ 
+ 		//int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+ 		int iFoodPerTurn = getYieldRate(YIELD_FOOD) - foodConsumption() - (bRemove? aiYields[YIELD_FOOD] : 0); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 05364d52d..8ee9fc6b4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2585,6 +2585,7 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ 	bFinancial = false;
+ 	bDefensive = false;
+ 	bSeafaring = false;
++	bAllSeeing = bStartingLoc || kPlayer.isBarbarian();
+ 
+ 	if (!bStartingLoc)
+ 	{
+@@ -2708,6 +2709,13 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ 		iGreed = 200; // overruling previous value;
+ 	}
+ 
++	if (kPlayer.isHuman())
++	{
++		// don't use personality based traits for human players.
++		bAmbitious = false;
++		bDefensive = false;
++	}
++
+     iClaimThreshold = GC.getGameINLINE().getCultureThreshold((CultureLevelTypes)(std::min(2, (GC.getNumCultureLevelInfos() - 1))));
+     iClaimThreshold = std::max(1, iClaimThreshold);
+ 	iClaimThreshold *= (bEasyCulture && kPlayer.getCurrentEra() < 2 ? 140 : 100);
+@@ -2980,7 +2988,7 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 			{
+ 				CvPlot* pLoopPlot = plotCity(iX, iY, iI);
+ 
+-				if (pLoopPlot != NULL)
++				if (pLoopPlot != NULL && (kSet.bAllSeeing || pLoopPlot->isVisible(getTeam(), false)))
+ 				{
+ 					if (!(pLoopPlot->isOwned()))
+ 					{
+@@ -3055,7 +3063,8 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 				iTeammateTakenTiles++;
+ 			}
+ 		}
+-		else // K-Mod Note: it kind of sucks that no value is counted for taken tiles. Tile sharing / stealing should be allowed.
++		// K-Mod Note: it kind of sucks that no value is counted for taken tiles. Tile sharing / stealing should be allowed.
++		else if (kSet.bAllSeeing || pLoopPlot->isVisible(getTeam(), false))
+ 		{
+ 			int iTempValue = 0;
+ 
+@@ -18992,8 +19001,9 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 	// Economic focus (K-Mod) - This strategy is a gambit. The goal is to tech faster by neglecting military.
+ 	if (kTeam.getAnyWarPlanCount(true) == 0)
+ 	{
+-		int iFocus = (100 - iParanoia) / 20;
+-		iFocus += std::abs(iAverageEnemyUnit - iTypicalDefence) / 10; // either above, or below.
++		int iFocus = 100 - iParanoia / 20;
++		iFocus += std::max(0, iTypicalDefence - iAverageEnemyUnit) / 10;
++		iFocus += std::max(0, iAverageEnemyUnit - iTypicalAttack) / 10;
+ 		//Note: if we haven't met anyone then average enemy is zero. So this essentially assures economic strategy when in isolation.
+ 		iFocus += (AI_getPeaceWeight() + AI_getStrategyRand(2)%10)/3; // note: peace weight will be between 0 and 12
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 4df2de8e7..40aa1f34e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -88,6 +88,7 @@ public:
+ 		bool bFinancial; // more value for rivers
+ 		bool bDefensive; // more value for settlings on hills
+ 		bool bSeafaring; // special affection for coast cities due to unique building or unit.
++		bool bAllSeeing; // doesn't need vision of a plot to know what's there.
+ 	};
+ 	int AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) const;
+ 	// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3900

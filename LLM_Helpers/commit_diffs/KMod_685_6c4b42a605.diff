@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 685
+# Commit: 6c4b42a605e871f808dafb96bee3bafc789ce1d6
+# History segment: K-Mod history
+# Parent used for diff: bd8426c9e098777a3861210ef068351899626f0b
+# Title: AI_techUnitValue will no longer always give 100% weight to the default AI. Instead, it gives min(100, 100 * new_value / old_value).
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6fe539bd6..f8d912821 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6423,13 +6423,15 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 
+ 			for (UnitAITypes eAI = (UnitAITypes)0; eAI < NUM_UNITAI_TYPES; eAI = (UnitAITypes)(eAI+1))
+ 			{
+-				// Always score the default AI type at full weight.
+ 				int iWeight = 0;
+ 				if (eAI == kLoopUnit.getDefaultUnitAIType())
+-					iWeight = 100;
++				{
++					// Score the default AI type as a direct competitor to the current best.
++					iWeight = std::min(100, 100 * AI_unitValue(eLoopUnit, eAI, 0) / std::max(1, AI_bestAreaUnitAIValue(eAI, 0)));
++				}
+ 				else if (kLoopUnit.getUnitAIType(eAI)) // only consider types which are flagged in the xml. (??)
+ 				{
+-					// score only the AI types for which we rate better than our current best unit.
++					// For the other AI types, only score based on the improvement over the current best.
+ 					int iTypeValue = AI_unitValue(eLoopUnit, eAI, 0);
+ 					if (iTypeValue > 0)
+ 					{
+@@ -6439,6 +6441,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 				}
+ 				if (iWeight <= 0)
+ 					continue;
++				FAssert(iWeight <= 100);
+ 
+ 				switch (eAI)
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1326

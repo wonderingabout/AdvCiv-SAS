@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 748
+# Commit: 072a3cb8ac88760a7c42dee0a4ba2dc07351f09a
+# History segment: K-Mod history
+# Parent used for diff: 25386497bd5d76dcb87261248f8461e6fcf60056
+# Title: Added a temporary compatibility bridge for the new "disorganized" promotion.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvCity.cpp
+6	2	CvGameCoreDLL/CvInfos.cpp
+5	2	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a00fc692f..9b059276f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13573,7 +13573,10 @@ void CvCity::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumReligionInfos(), m_paiReligionInfluence);
+ 	pStream->Read(GC.getNumReligionInfos(), m_paiStateReligionHappiness);
+ 	pStream->Read(GC.getNumUnitCombatInfos(), m_paiUnitCombatFreeExperience);
+-	pStream->Read(GC.getNumPromotionInfos(), m_paiFreePromotionCount);
++	// K-Mod. Temporary compatibilty fix for the adding of the "disorganized" promotion
++	//pStream->Read(GC.getNumPromotionInfos(), m_paiFreePromotionCount);
++	pStream->Read(GC.getNumPromotionInfos() - (uiFlag < 1 ? 1 : 0), m_paiFreePromotionCount);
++	// K-Mod end
+ 	pStream->Read(GC.getNumBuildingInfos(), m_paiNumRealBuilding);
+ 	pStream->Read(GC.getNumBuildingInfos(), m_paiNumFreeBuilding);
+ 
+@@ -13652,7 +13655,7 @@ void CvCity::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+ 
+-	uint uiFlag=0;
++	uint uiFlag=1;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index efef6d958..34f7fe38f 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -4450,7 +4450,11 @@ void CvUnitInfo::read(FDataStreamBase* stream)
+ 
+ 	SAFE_DELETE_ARRAY(m_pbFreePromotions);
+ 	m_pbFreePromotions = new bool[GC.getNumPromotionInfos()];
+-	stream->Read(GC.getNumPromotionInfos(), m_pbFreePromotions);
++	// K-Mod. Temporary compatibilty fix for the adding of the "disorganized" promotion
++	//stream->Read(GC.getNumPromotionInfos(), m_pbFreePromotions);
++	stream->Read(GC.getNumPromotionInfos() - (uiFlag < 1 ? 1 : 0), m_pbFreePromotions);
++	m_pbFreePromotions[GC.getNumPromotionInfos()-1] = false;
++	// K-Mod end
+ 
+ 	stream->Read(&m_iLeaderPromotion);
+ 	stream->Read(&m_iLeaderExperience);
+@@ -4480,7 +4484,7 @@ void CvUnitInfo::write(FDataStreamBase* stream)
+ {
+ 	CvHotkeyInfo::write(stream);
+ 
+-	uint uiFlag=0;
++	uint uiFlag=1;
+ 	stream->Write(uiFlag);		// flag for expansion
+ 
+ 	stream->Write(m_iAIWeight);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index abab98633..62ddc8dcf 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12077,7 +12077,10 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 	pStream->ReadString(m_szName);
+ 	pStream->ReadString(m_szScriptData);
+ 
+-	pStream->Read(GC.getNumPromotionInfos(), m_pabHasPromotion);
++	// K-Mod. Temporary compatibilty fix for the adding of the "disorganized" promotion
++	//pStream->Read(GC.getNumPromotionInfos(), m_pabHasPromotion);
++	pStream->Read(GC.getNumPromotionInfos() - (uiFlag < 3 ? 1 : 0), m_pabHasPromotion);
++	// K-Mod end
+ 
+ 	pStream->Read(GC.getNumTerrainInfos(), m_paiTerrainDoubleMoveCount);
+ 	pStream->Read(GC.getNumFeatureInfos(), m_paiFeatureDoubleMoveCount);
+@@ -12091,7 +12094,7 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 
+ void CvUnit::write(FDataStreamBase* pStream)
+ {
+-	uint uiFlag=2;
++	uint uiFlag=3;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iID);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3102

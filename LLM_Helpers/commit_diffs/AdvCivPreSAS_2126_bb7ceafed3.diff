@@ -1,0 +1,1244 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2126
+# Commit: bb7ceafed329563942c0fb548289c51e7c280ead
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 968880bb420387f4d1022cb9296c8ada3dbfd8f9
+# Title: Fix memory corruption issues (crash on Wine)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvDiploParameters.h
+3	1	CvGameCoreDLL/CvFractal.h
+3	4	CvGameCoreDLL/CvGlobals.cpp
+2	0	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/CvPopupInfo.cpp
+5	2	CvGameCoreDLL/CvPopupInfo.h
+140	19	CvGameCoreDLL/CvPopupReturn.cpp
+36	172	CvGameCoreDLL/CvPopupReturn.h
+15	7	CvGameCoreDLL/CvReplayInfo.cpp
+5	3	CvGameCoreDLL/CvReplayInfo.h
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+25	22	CvGameCoreDLL/CvTalkingHeadMessage.cpp
+12	5	CvGameCoreDLL/CvTalkingHeadMessage.h
+19	19	CvGameCoreDLL/CvXMLLoadUtility.cpp
+21	15	CvGameCoreDLL/CvXMLLoadUtility.h
+15	21	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+16	18	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.h b/CvGameCoreDLL/CvDiploParameters.h
+index a08b60548..7577c6f8b 100644
+--- a/CvGameCoreDLL/CvDiploParameters.h
++++ b/CvGameCoreDLL/CvDiploParameters.h
+@@ -51,7 +51,7 @@ public:
+ 	DllExport void read(FDataStreamBase& stream);
+ 	DllExport void write(FDataStreamBase& stream) const;
+ 
+-private:
++private: // advc.003k (warning): It's not safe to add data members to this class!
+ 	PlayerTypes m_eWhoTalkingTo;
+ 	DiploCommentTypes m_eCommentType;
+ 	CLinkList<TradeData> m_ourOffer;
+@@ -67,4 +67,6 @@ private:
+ 	std::vector<FVariable> m_diploCommentArgs;
+ };
+ 
++BOOST_STATIC_ASSERT(sizeof(CvDiploParameters) == 100); // advc.003k
++
+ #endif
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvFractal.h b/CvGameCoreDLL/CvFractal.h
+index 2de0db91f..1c7569c70 100644
+--- a/CvGameCoreDLL/CvFractal.h
++++ b/CvGameCoreDLL/CvFractal.h
+@@ -42,7 +42,7 @@ public:
+ 	void uninit();
+ 
+ protected:
+-
++	// advc.003k (warning): It's not safe to add data members to this class!
+ 	int m_iXs;
+ 	int m_iYs;
+ 	int m_iFlags;
+@@ -63,4 +63,6 @@ protected:
+ 	int polarHeight(); // advc.tsl
+ };
+ 
++BOOST_STATIC_ASSERT(sizeof(CvFractal) == 44); // advc.003k
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 2fb63d870..2cf1325fb 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -617,7 +617,9 @@ CvString const& CvGlobals::getCurrentXMLFile() const
+ 	return m_szCurrentXMLFile;
+ }
+ // <advc.003v>
+-// It seems that the DLL wasn't keeping a handle to the XMLLoadUtility so far
++/*	It seems that the DLL wasn't keeping a handle to the XMLLoadUtility so far.
++	(Could perhaps simply create a new instance as needed instead -
++	as it's done in CvArtFileMgr::Reset.) */
+ void CvGlobals::setXMLLoadUtility(CvXMLLoadUtility* pXML)
+ {
+ 	m_pXMLLoadUtility = pXML;
+@@ -945,9 +947,6 @@ void CvGlobals::setHoFScreenUp(bool b)
+ 	m_bHoFScreenUp = b;
+ } // </advc.106i>
+ 
+-//
+-// Global Infos Hash Map
+-//
+ 
+ int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert,
+ 	bool bFromPython) const // advc.006
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 7ba03472d..b2ac18175 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -21,6 +21,8 @@ class CvUnit; class CvUnitAI;
+ class CvSelectionGroup; class CvSelectionGroupAI;
+ // </advc.003u>
+ class CvCivilization; // advc.003w
++ /*	advc (note): Can't easily change this to <CvTalkingHeadMessage*>
++	b/c of DllExport getGameMessages */
+ typedef std::list<CvTalkingHeadMessage> CvMessageQueue;
+ typedef std::list<CvPopupInfo*> CvPopupQueue;
+ typedef std::list<CvDiploParameters*> CvDiploQueue;
+
+diff --git a/CvGameCoreDLL/CvPopupInfo.cpp b/CvGameCoreDLL/CvPopupInfo.cpp
+index 8a82e3c20..bc4d895d3 100644
+--- a/CvGameCoreDLL/CvPopupInfo.cpp
++++ b/CvGameCoreDLL/CvPopupInfo.cpp
+@@ -37,7 +37,7 @@ const CvPopupInfo& CvPopupInfo::operator=(const CvPopupInfo& other)
+ 		m_aPythonButtons.push_back(other.m_aPythonButtons[i]);
+ 	}
+ 
+-	return (*this);
++	return *this;
+ }
+
+diff --git a/CvGameCoreDLL/CvPopupInfo.h b/CvGameCoreDLL/CvPopupInfo.h
+index 62999d193..7b76930f9 100644
+--- a/CvGameCoreDLL/CvPopupInfo.h
++++ b/CvGameCoreDLL/CvPopupInfo.h
+@@ -12,7 +12,9 @@ struct CvPopupButtonPython
+ class CvPopupInfo
+ {
+ public:
+-	DllExport CvPopupInfo(ButtonPopupTypes eButtonPopupType = BUTTONPOPUP_TEXT, int iData1 = -1, int iData2 = -1, int iData3 = -1, int iFlags = 0, bool bOption1 = false, bool bOption2 = false);
++	DllExport CvPopupInfo(ButtonPopupTypes eButtonPopupType = BUTTONPOPUP_TEXT,
++			int iData1 = -1, int iData2 = -1, int iData3 = -1, int iFlags = 0,
++			bool bOption1 = false, bool bOption2 = false);
+ 	DllExport virtual ~CvPopupInfo();
+ 
+ 	DllExport void read(FDataStreamBase& stream);
+@@ -51,7 +53,7 @@ public:
+ 	DllExport void setPythonModule(const char* szModule);
+ 	DllExport void addPythonButton(const wchar* szText, const char* szArt);
+ 
+-protected:
++protected: // advc.003k (warning): It's not safe to add data members to this class!
+ 	int m_iData1;
+ 	int m_iData2;
+ 	int m_iData3;
+@@ -69,5 +71,6 @@ protected:
+ 	bool m_bPendingDelete;
+ };
+ 
++BOOST_STATIC_ASSERT(sizeof(CvPopupInfo) == 160); // advc.003k
+ 
+ #endif
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvPopupReturn.cpp b/CvGameCoreDLL/CvPopupReturn.cpp
+index 8b12c5b8f..1d6e9de34 100644
+--- a/CvGameCoreDLL/CvPopupReturn.cpp
++++ b/CvGameCoreDLL/CvPopupReturn.cpp
+@@ -7,7 +7,9 @@
+ 
+ PopupReturn::PopupReturn(const PopupReturn &popupReturn)
+ {
+-	int iI;
++	// advc: (and original code commented out)
++	FAssertMsg(false, "PopupReturn copy-constructor not implemented");
++	/*int iI;
+ 
+ 	for (iI = 0; iI < popupReturn.getRadioButtonSize(); iI++)
+ 	{
+@@ -47,7 +49,7 @@ PopupReturn::PopupReturn(const PopupReturn &popupReturn)
+ 	for (iI = 0; iI < popupReturn.getButtonSize(); iI++)
+ 	{
+ 		CvPopup_SetAtGrow(m_aiButtonID, iI, popupReturn.getButtonClicked(iI));
+-	}
++	}*/
+ }
+ 
+ // Assignment operator
+@@ -98,15 +100,12 @@ PopupReturn &PopupReturn::operator=(const PopupReturn &source)
+ 	return *this;
+ }
+ 
+-//
+-// read object from a stream
+-//
++
+ void PopupReturn::read(FDataStreamBase* pStream)
+ {
+-	int iSize;
+-	int iValue;
++	int iSize=-1;
++	int iValue=-1;
+ 	int i;
+-	wchar szValue[1024];
+ 
+ 	pStream->Read(&iSize);
+ 	for (i = 0; i < iSize; i++)
+@@ -121,14 +120,15 @@ void PopupReturn::read(FDataStreamBase* pStream)
+ 		pStream->Read(&iValue);
+ 		CvPopup_SetAtGrow(m_aiBitField, i, iValue);
+ 	}
+-
+-	pStream->Read(&iSize);
+-	for (i = 0; i < iSize; i++)
+ 	{
+-		pStream->ReadString(szValue);
+-		CvPopup_SetAtGrow(m_aszEditBoxString, i, szValue);
++		pStream->Read(&iSize);
++		wchar szValue[1024];
++		for (i = 0; i < iSize; i++)
++		{
++			pStream->ReadString(szValue);
++			CvPopup_SetAtGrow(m_aszEditBoxString, i, szValue);
++		}
+ 	}
+-
+ 	pStream->Read(&iSize);
+ 	for (i = 0; i < iSize; i++)
+ 	{
+@@ -165,13 +165,10 @@ void PopupReturn::read(FDataStreamBase* pStream)
+ 	}
+ }
+ 
+-//
+-// write object to a stream
+-//
++
+ void PopupReturn::write(FDataStreamBase* pStream) const
+ {
+-	unsigned int iI;
+-	//char szString[1024];
++	size_t iI;
+ 
+ 	pStream->Write(m_aiSelectedRadioButton.size());
+ 	for (iI = 0; iI < m_aiSelectedRadioButton.size(); iI++)
+@@ -223,3 +220,127 @@ void PopupReturn::write(FDataStreamBase* pStream) const
+ 	}
+ }
+ 
++/*	<advc> Implementations moved from header. Neater. These don't need to be inlined.
++	Replaced some operator[] accesses with vector::at. */
++void PopupReturn::setSelectedRadioButton(int iValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aiSelectedRadioButton, iGroup, iValue);
++}
++
++int PopupReturn::getSelectedRadioButton(int iGroup) const
++{
++	return m_aiSelectedRadioButton.at(iGroup);
++}
++
++int PopupReturn::getRadioButtonSize() const
++{
++	return m_aiSelectedRadioButton.size();
++}
++
++void PopupReturn::setCheckboxBitfield(int iValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aiBitField, iGroup, iValue);
++}
++
++int PopupReturn::getCheckboxBitfield(int iGroup) const
++{
++	return m_aiBitField.at(iGroup);
++}
++
++int PopupReturn::getCheckboxSize() const
++{
++	return m_aiBitField.size();
++}
++
++void PopupReturn::setEditBoxString(CvWString szValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aszEditBoxString, iGroup, szValue);
++}
++
++wchar const* PopupReturn::getEditBoxString(int iGroup) const
++{
++	if (iGroup < (int)m_aszEditBoxString.size())
++		return m_aszEditBoxString.at(iGroup);
++	return NULL;
++}
++
++int PopupReturn::getEditboxSize() const
++{
++	return m_aszEditBoxString.size();
++}
++
++void PopupReturn::setSpinnerWidgetValue(const int iValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aiSpinnerWidgetValues, iGroup, iValue);
++}
++
++int PopupReturn::getSpinnerWidgetValue(int iGroup) const
++{
++	return (iGroup < ((int)m_aiSpinBoxID.size()) ? m_aiSpinBoxID.at(iGroup) : -1);
++}
++
++int PopupReturn::getSpinnerWidsize() const
++{
++	return m_aiSpinnerWidgetValues.size();
++}
++
++void PopupReturn::setSelectedPulldownValue(int iValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aiPulldownID, iGroup, iValue);
++}
++
++int PopupReturn::getSelectedPullDownValue(int iGroup) const
++{
++	return m_aiPulldownID.at(iGroup);
++}
++
++int PopupReturn::getPulldownSize() const
++{
++	return m_aiPulldownID.size();
++}
++
++void PopupReturn::setSelectedListBoxValue(int iValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aiListBoxID, iGroup, iValue);
++}
++
++int PopupReturn::getSelectedListBoxValue(int iGroup) const
++{
++	return (iGroup < ((int)m_aiListBoxID.size()) ? m_aiListBoxID.at(iGroup) : -1);
++}
++
++int PopupReturn::getListBoxSize() const
++{
++	return m_aiListBoxID.size();
++}
++
++void PopupReturn::setCurrentSpinBoxValue(int iValue, int iIndex)
++{
++	CvPopup_SetAtGrow(m_aiSpinBoxID, iIndex, iValue);
++}
++
++int PopupReturn::getCurrentSpinBoxValue(int iIndex) const
++{
++	return (iIndex < ((int)m_aiSpinBoxID.size()) ? m_aiSpinBoxID.at(iIndex) : -1);
++}
++
++int PopupReturn::getSpinBoxSize() const
++{
++	return m_aiSpinBoxID.size();
++}
++
++void PopupReturn::setButtonClicked(int iValue, int iGroup)
++{
++	CvPopup_SetAtGrow(m_aiButtonID, iGroup, iValue);
++}
++
++int PopupReturn::getButtonClicked(int iGroup) const
++{
++	return m_aiButtonID.at(iGroup);
++}
++
++int PopupReturn::getButtonSize() const
++{
++	return m_aiButtonID.size();
++}
++// </advc> (end of moved implementations)
+
+diff --git a/CvGameCoreDLL/CvPopupReturn.h b/CvGameCoreDLL/CvPopupReturn.h
+index 776a586ce..a166338d2 100644
+--- a/CvGameCoreDLL/CvPopupReturn.h
++++ b/CvGameCoreDLL/CvPopupReturn.h
+@@ -1,14 +1,9 @@
+ #pragma once
+-
+-#ifndef CVPOPUPRETURN_h
+-#define CVPOPUPRETURN_h
+-
+-//	Class:		PopupReturn
+ //	Purpose:	Return structure for popups
+ //	Author:		Patrick Dawson
+-//------------------------------------------------------------------------------------------------
+ //  Copyright (c) 2002 Firaxis Games, Inc. All rights reserved.
+-//------------------------------------------------------------------------------------------------
++#ifndef CVPOPUPRETURN_h
++#define CVPOPUPRETURN_h
+ 
+ class FDataStream;
+ #define CvPopup_SetAtGrow(kArray, iIdx, kValue)\
+@@ -17,180 +12,47 @@ class FDataStream;
+ 
+ class PopupReturn
+ {
++	PopupReturn(PopupReturn const&); // advc: Made private (was unused)
+ 
+ public:
++	DllExport PopupReturn& operator=(PopupReturn const& source);
++	/*	<advc> Implementations moved to CvPopupReturn.cpp.
++		Removed most of the uninformative comments. */
++	void setSelectedRadioButton(int iValue, int iGroup = 0);
++	int getSelectedRadioButton(int iGroup = 0) const;												// Exposed to Python (JS)
++	int getRadioButtonSize() const;
++	void setCheckboxBitfield(int iValue, int iGroup = 0); // set the bitfield for checkboxes
++	int getCheckboxBitfield(int iGroup = 0) const; // get the selected bitfield
++	int getCheckboxSize() const;
++	void setEditBoxString(CvWString szValue, int iGroup = 0); // set the editbox string
++	const wchar *getEditBoxString(int iGroup = 0) const; // get the selected editbox string			// Exposed to Python
++	int getEditboxSize() const;
++	void setSpinnerWidgetValue(const int iValue, int iGroup = 0); // set the spinner widget value
++	int getSpinnerWidgetValue(int iGroup = 0) const;
++	int getSpinnerWidsize() const; // get the spinner widget size
++	void setSelectedPulldownValue(int iValue, int iGroup = 0); // set the selected pulldown value
++	int getSelectedPullDownValue(int iGroup = 0) const;												// Exposed to Python
++	int getPulldownSize() const;
++	void setSelectedListBoxValue(int iValue, int iGroup = 0); // set the selected listbox value
++	int getSelectedListBoxValue(int iGroup = 0) const;												// Exposed to Python
++	int getListBoxSize() const;
++	void setCurrentSpinBoxValue(int iValue, int iIndex = 0); // set the current spinbox value
++	int getCurrentSpinBoxValue(int iIndex = 0) const;												// Exposed to Python
++	int getSpinBoxSize() const;
++	void setButtonClicked(int iValue, int iGroup = 0); // set the button clicked
++	
++	int getButtonClicked(int iGroup = 0) const; // get the button ID								// Exposed to Python
++	int getButtonSize() const;
+ 
+-	// default ctor
+-	PopupReturn() {}
+-
+-	//	Copy constructor
+-	PopupReturn(const PopupReturn &popupReturn);
+-
+-	// Assignment operator
+-	DllExport PopupReturn &operator=(const PopupReturn &source);
+-
+-	//	Set the selected Radio Button
+-	void setSelectedRadioButton(int iValue, int iGroup = 0)
+-	{
+-		CvPopup_SetAtGrow(m_aiSelectedRadioButton, iGroup, iValue);
+-		//m_aiSelectedRadioButton, iGroup, iValue);
+-	}
+-
+-	//	Will get the selected radio button
+-	int getSelectedRadioButton(int iGroup = 0) const															// Exposed to Python (JS)
+-	{
+-		return m_aiSelectedRadioButton[iGroup];
+-	}
+-
+-	//	Will get the radio button size
+-	int getRadioButtonSize() const
+-	{
+-		return m_aiSelectedRadioButton.size();
+-	}
+-
+-	//	Will set the bitfield for checkboxes
+-	void setCheckboxBitfield(int iValue, int iGroup = 0)
+-	{
+-		//m_aiBitField, iGroup, iValue);
+-		CvPopup_SetAtGrow(m_aiBitField, iGroup, iValue);
+-	}
+-
+-	//	Will get the selected bitfield
+-	int getCheckboxBitfield(int iGroup = 0) const
+-	{
+-		return m_aiBitField[iGroup];
+-	}
+-
+-	//	Will get the checkbox size
+-	int getCheckboxSize() const
+-	{
+-		return m_aiBitField.size();
+-	}
+-
+-	//	Will set the editbox string
+-	void setEditBoxString(CvWString szValue, int iGroup = 0)
+-	{
+-		//m_aszEditBoxString, iGroup, szValue.c_str());
+-		CvPopup_SetAtGrow(m_aszEditBoxString, iGroup, szValue);
+-	}
+-
+-	//	Will get the selected editbox string
+-	const wchar *getEditBoxString(int iGroup = 0) const														// Exposed to Python
+-	{
+-//		return ((uint)iGroup<m_aszEditBoxString.size()) ? m_aszEditBoxString[iGroup] : NULL;
+-		if ((uint)iGroup<m_aszEditBoxString.size())
+-			return m_aszEditBoxString[iGroup];
+-		return NULL;
+-	}
+-
+-	//	Will get the editbox size
+-	int getEditboxSize() const
+-	{
+-		return m_aszEditBoxString.size();
+-	}
+-
+-	//	Sets the spinner widget value
+-	void setSpinnerWidgetValue(const int iValue, int iGroup = 0)
+-	{
+-		//		m_aiSpinnerWidgetValues, iGroup, iValue );
+-		CvPopup_SetAtGrow(m_aiSpinnerWidgetValues, iGroup, iValue);
+-	}
+-
+-	//	Will get the selected spinner widget value
+-	int getSpinnerWidgetValue(int iGroup = 0) const
+-	{
+-		return ((uint)iGroup<m_aiSpinBoxID.size()) ? m_aiSpinBoxID[iGroup] : -1;
+-	}
+-
+-	//	Will get the spinner widget size
+-	int getSpinnerWidsize() const
+-	{
+-		return m_aiSpinnerWidgetValues.size();
+-	}
+-
+-	//	Will set the selected pulldown value
+-	void setSelectedPulldownValue(int iValue, int iGroup = 0)
+-	{
+-		CvPopup_SetAtGrow(m_aiPulldownID, iGroup, iValue);
+-	}
+-
+-	//	Will get the selected pulldown value
+-	int getSelectedPullDownValue(int iGroup = 0) const														// Exposed to Python
+-	{
+-		return m_aiPulldownID[iGroup];
+-	}
+-
+-	//	Will get the pulldown size
+-	int getPulldownSize() const
+-	{
+-		return m_aiPulldownID.size();
+-	}
+-
+-	//	Will set the selected listbox value
+-	void setSelectedListBoxValue(int iValue, int iGroup = 0)
+-	{
+-		CvPopup_SetAtGrow(m_aiListBoxID, iGroup, iValue);
+-	}
+-
+-	//	Will get the selected listbox value
+-	int getSelectedListBoxValue(int iGroup = 0) const															// Exposed to Python
+-	{
+-		return ((uint)iGroup<m_aiListBoxID.size()) ? m_aiListBoxID[iGroup] : -1;
+-	}
+-
+-	//	Will get the listbox size
+-	int getListBoxSize() const
+-	{
+-		return m_aiListBoxID.size();
+-	}
+-
+-	//	Will set the current spinbox value
+-	void setCurrentSpinBoxValue(int iValue, int iIndex = 0)
+-	{
+-		CvPopup_SetAtGrow(m_aiSpinBoxID, iIndex, iValue);
+-	}
+-
+-	//	Will get the current spinbox value
+-	int getCurrentSpinBoxValue(int iIndex = 0) const															// Exposed to Python
+-	{
+-		return ((uint)iIndex<m_aiSpinBoxID.size()) ? m_aiSpinBoxID[iIndex] : -1;
+-	}
+-
+-	//	Will get the spinbox size
+-	int getSpinBoxSize() const
+-	{
+-		return m_aiSpinBoxID.size();
+-	}
+-
+-	//	Will set the button clicked
+-	void setButtonClicked(int iValue, int iGroup = 0)
+-	{
+-		CvPopup_SetAtGrow(m_aiButtonID, iGroup, iValue);
+-	}
+-
+-	//	Will get the button ID
+-	int getButtonClicked(int iGroup = 0) const																// Exposed to Python
+-	{
+-		return m_aiButtonID[iGroup];
+-	}
+-
+-	//	Will get the button size
+-	int getButtonSize() const
+-	{
+-		return m_aiButtonID.size();
+-	}
+-
+-	// read and write object to a stream
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream) const;
+ 
+-private:
+-
++private: // advc.003k (warning): It's not safe to add data members to this class!
+ 	std::vector<int> m_aiSelectedRadioButton;		//	Selected Radio Button
+ 	std::vector<int> m_aiBitField;					//	BitField
+-	std::vector<CvWString> m_aszEditBoxString;			//	EditBox String
++	std::vector<CvWString> m_aszEditBoxString;		//	EditBox String
+ 	std::vector<int> m_aiSpinnerWidgetValues;		//	Spinner Widget Values
+-	std::vector<int> m_aiPulldownID;					//	Pulldown ID
++	std::vector<int> m_aiPulldownID;				//	Pulldown ID
+ 	std::vector<int> m_aiListBoxID;					//	ListBox ID
+ 	std::vector<int> m_aiButtonID;					//	The button clicked on
+ 	std::vector<int> m_aiSpinBoxID;					//	SpinBox ID
+@@ -198,4 +60,6 @@ private:
+ 
+ #undef CvPopup_SetAtGrow
+ 
++BOOST_STATIC_ASSERT(sizeof(PopupReturn) == 128); // advc.003k
++
+ #endif	// CVPOPUPRETURN_h
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 6bfcb2d7d..dc0c0c7a8 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -26,12 +26,13 @@ CvReplayInfo::CvReplayInfo() :
+ 	m_iMapWidth(0),
+ 	m_pcMinimapPixels(NULL),
+ 	m_eCalendar(NO_CALENDAR), // advc: Safer to initialize it here
+-	m_iNormalizedScore(0),
+ 	m_bMultiplayer(false),
+ 	m_iStartYear(0)
+ {
+ 	m_iMinimapSize = -1; // advc.106m: To be read from replay file
+-	m = new Data(); // advc.003k
++	// <advc.003k>
++	m = new Data();
++	m->iNormalizedScore = 0, // </advc.003k>
+ 	m->iFinalScore = -1; // advc.707
+ 	// <advc.106i>
+ 	m->szPurportedModName = gDLL->getModName(); // Local copy; not sure if necessary.
+@@ -51,6 +52,13 @@ CvReplayInfo::CvReplayInfo() :
+ 	// advc.106m:
+ 	FAssert(!STORE_REPLAYS_AS_BTS || GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) == 512);
+ }
++/*	advc.003k: Needs to have a copy-constructor b/c of its Python counterpart,
++	but I don't think it'll actually get called. Copying m_pcMinimapPixels
++	would seem undesirable. */
++CvReplayInfo::CvReplayInfo(CvReplayInfo const&)
++{
++	FAssertMsg(false, "No copy-constructor implemented for CvReplayInfo");
++}
+ 
+ CvReplayInfo::~CvReplayInfo()
+ {
+@@ -120,7 +128,7 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 			m_eVictoryType = game.getVictory();
+ 		else m_eVictoryType = NO_VICTORY;
+ 
+-		m_iNormalizedScore = player.calculateScore(true, player.getTeam() == game.getWinner());
++		m->iNormalizedScore = player.calculateScore(true, player.getTeam() == game.getWinner());
+ 		// <advc.707> Treat R&F games as "Score" victory (previously unused)
+ 		if(game.isOption(GAMEOPTION_RISE_FALL))
+ 		{
+@@ -637,7 +645,7 @@ int CvReplayInfo::getFinalAgriculture() const
+ 
+ int CvReplayInfo::getNormalizedScore() const
+ {
+-	return m_iNormalizedScore;
++	return m->iNormalizedScore;
+ }
+ 
+ int CvReplayInfo::getMapHeight() const
+@@ -785,8 +793,8 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 		stream.Read(&iType);
+ 		m_eCalendar = (CalendarTypes)iType;
+ 		if(!checkBounds(m_eCalendar, 0, NUM_CALENDAR_TYPES - 1)) return false; // advc.106i
+-		stream.Read(&m_iNormalizedScore);
+-		if(!checkBounds(m_iNormalizedScore, -10000, 1000000)) return false; // advc.106i
++		stream.Read(&m->iNormalizedScore);
++		if(!checkBounds(m->iNormalizedScore, -10000, 1000000)) return false; // advc.106i
+ 		stream.Read(&iNumTypes);
+ 		if(!checkBounds(iNumTypes, 1, 64)) return false; // advc.106i
+ 		for (int i = 0; i < iNumTypes; i++)
+@@ -912,7 +920,7 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	stream.Write(m_iFinalTurn);
+ 	stream.WriteString(m_szFinalDate);
+ 	stream.Write((int)m_eCalendar);
+-	stream.Write(m_iNormalizedScore);
++	stream.Write(m->iNormalizedScore);
+ 	stream.Write((int)m_listPlayerScoreHistory.size());
+ 	for (uint i = 0; i < m_listPlayerScoreHistory.size(); i++)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index 3ce3b0808..4b9df877b 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -9,6 +9,7 @@ class CvReplayInfo
+ {
+ public:
+ 	DllExport CvReplayInfo();
++	CvReplayInfo(CvReplayInfo const&); // advc.003k
+ 	virtual ~CvReplayInfo();
+ 
+ 	void createInfo(PlayerTypes ePlayer);
+@@ -116,7 +117,6 @@ protected:
+ 	int m_iStartYear;
+ 	CvWString m_szFinalDate;
+ 	CalendarTypes m_eCalendar;
+-	int m_iNormalizedScore;
+ 
+ 	struct TurnData
+ 	{
+@@ -145,7 +145,9 @@ protected:
+ 	CvString m_szModName;
+ 
+ 	// <advc.003k> Additional data members
+-	class Data {
++	class Data
++	{
++		int iNormalizedScore; // (moved into Data to make room for Data* m)
+ 		int iFinalScore; // advc.707
+ 		// <advc.106i>
+ 		int iVersionRead;
+@@ -156,6 +158,6 @@ protected:
+ 	};
+ 	Data* m;
+ };
+-BOOST_STATIC_ASSERT(sizeof(CvReplayInfo) == 340);
++BOOST_STATIC_ASSERT(sizeof(CvReplayInfo) == 336);
+ // </advc.003k>
+ #endif
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 81500cd47..1029bbc22 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -14,7 +14,7 @@ class FAStarNode;
+ class CvSelectionGroupAI; // advc.003u
+ 
+ 
+-class CvSelectionGroup
++class CvSelectionGroup /* advc.003k: */ : private boost::noncopyable
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvTalkingHeadMessage.cpp b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+index 1e6d9e83b..39404bd77 100644
+--- a/CvGameCoreDLL/CvTalkingHeadMessage.cpp
++++ b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+@@ -2,25 +2,28 @@
+ #include "CvTalkingHeadMessage.h"
+ #include "CvGame.h"
+ 
+-CvTalkingHeadMessage::CvTalkingHeadMessage(int iMessageTurn, int iLen, LPCWSTR pszDesc, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCTSTR pszIcon, ColorTypes eColor, int iX, int iY, bool bShowOffScreenArrows, bool bShowOnScreenArrows) :
+-	m_iTurn(iMessageTurn),
+-	m_szDescription(pszDesc),
+-	m_szSound(pszSound),
+-	m_szIcon(pszIcon),
+-	m_iLength(iLen),
+-	m_eFlashColor(eColor),
+-	m_iFlashX(iX),
+-	m_iFlashY(iY),
+-	m_bOffScreenArrows(bShowOffScreenArrows),
+-	m_bOnScreenArrows(bShowOnScreenArrows),
+-	m_eMessageType(eType),
+-	m_eFromPlayer(NO_PLAYER),
+-	m_eTarget(NO_CHATTARGET),
+-	m_bShown(false),
+-	bSoundPlayed(false) // advc.106b
++CvTalkingHeadMessage::CvTalkingHeadMessage(int iMessageTurn, int iLen,
++	LPCWSTR pszDesc, LPCTSTR pszSound, InterfaceMessageTypes eType,
++	LPCTSTR pszIcon, ColorTypes eColor, int iX, int iY,
++	bool bShowOffScreenArrows, bool bShowOnScreenArrows) :
++m_iTurn(iMessageTurn),
++m_szDescription(pszDesc),
++m_szSound(pszSound),
++m_szIcon(pszIcon),
++m_iLength(iLen),
++m_eFlashColor(eColor),
++m_iFlashX(iX),
++m_iFlashY(iY),
++m_bOffScreenArrows(bShowOffScreenArrows),
++m_bOnScreenArrows(bShowOnScreenArrows),
++m_eMessageType(eType),
++m_eFromPlayer(NO_PLAYER),
++m_eTarget(NO_CHATTARGET),
++m_bShown(false),
++m_bSoundPlayed(false) // advc.106b
+ {}
+ 
+-CvTalkingHeadMessage::~CvTalkingHeadMessage(void) {}
++CvTalkingHeadMessage::~CvTalkingHeadMessage() {}
+ 
+ 
+ void CvTalkingHeadMessage::read(FDataStreamBase& stream)
+@@ -47,7 +50,7 @@ void CvTalkingHeadMessage::read(FDataStreamBase& stream)
+ 	stream.Read(&m_bShown);
+ 	/*  advc.106b: I don't think we ever want to play a sound after loading
+ 		a savegame */
+-	bSoundPlayed = true;
++	m_bSoundPlayed = true;
+ }
+ 
+ void CvTalkingHeadMessage::write(FDataStreamBase& stream) const
+@@ -84,7 +87,7 @@ const CvString& CvTalkingHeadMessage::getSound() const
+ {
+ 	/*  advc.106b: A hack that relies on the EXE triggering the sound after calling
+ 		getSound */
+-	bSoundPlayed = true;
++	m_bSoundPlayed = true;
+ 	return m_szSound;
+ }
+ 
+@@ -274,8 +277,8 @@ void CvTalkingHeadMessage::setShown(bool bShown)
+ 	m_bShown = bShown;
+ }
+ 
+-// <advc.106b>
++// advc.106b:
+ bool CvTalkingHeadMessage::getSoundPlayed() const
+ {
+-	return bSoundPlayed;
+-} // </advc.106b>
++	return m_bSoundPlayed;
++}
+
+diff --git a/CvGameCoreDLL/CvTalkingHeadMessage.h b/CvGameCoreDLL/CvTalkingHeadMessage.h
+index a79b5a247..6eb97d7f8 100644
+--- a/CvGameCoreDLL/CvTalkingHeadMessage.h
++++ b/CvGameCoreDLL/CvTalkingHeadMessage.h
+@@ -6,8 +6,12 @@
+ class CvTalkingHeadMessage
+ {
+ public:
+-	DllExport CvTalkingHeadMessage(int iMessageTurn = 0, int iLen = 0, LPCWSTR pszDesc = NULL, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCTSTR icon = NULL, ColorTypes eColor = NO_COLOR, int iX = -1, int iY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+-	DllExport virtual ~CvTalkingHeadMessage(void);
++	DllExport CvTalkingHeadMessage(int iMessageTurn = 0, int iLen = 0,
++			LPCWSTR pszDesc = NULL, LPCTSTR pszSound = NULL, 
++			InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCTSTR icon = NULL,
++			ColorTypes eColor = NO_COLOR, int iX = -1, int iY = -1,
++			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
++	DllExport virtual ~CvTalkingHeadMessage();
+ 
+ 	void read(FDataStreamBase& stream);
+ 	void write(FDataStreamBase& stream) const;
+@@ -44,8 +48,7 @@ public:
+ 	bool getSoundPlayed() const; // advc.106b
+ 	int getExpireTurn(/* advc.700: */ bool bHuman = true);
+ 
+-
+-protected:
++protected: // advc.003k (warning): It's not safe to add data members to this class!
+ 	CvWString m_szDescription;
+ 	CvString m_szSound;
+ 	CvString m_szIcon;
+@@ -60,7 +63,11 @@ protected:
+ 	PlayerTypes m_eFromPlayer;
+ 	ChatTargetTypes m_eTarget;
+ 	bool m_bShown;
+-	mutable bool bSoundPlayed; // advc.106b
++	/*	advc.106b: (This one bool doesn't actually increase the class size.
++		Could even add two more.) */
++	mutable bool m_bSoundPlayed;
+ };
+ 
++BOOST_STATIC_ASSERT(sizeof(CvTalkingHeadMessage) == 128); // advc.003k
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 787296f70..9d7028eb3 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -55,19 +55,24 @@ void CvXMLLoadUtility::DestroyFXml()
+ 
+ 
+ CvXMLLoadUtility::CvXMLLoadUtility() :
+-m_iCurProgressStep(0),
+-m_pCBFxn(NULL),
+-m_pFXml(NULL),
+-m_bEventsLoaded(false), m_bThroneRoomLoaded(false), // advc.003v
+-m_bAssertMandatory(true) // advc.006b
++//m_iCurProgressStep(0), m_pCBFxn(NULL)
++m_pDummy(NULL), // advc.003k
++m_pFXml(NULL)
+ {
++	m = new Data(); // advc.003k
++	m->bAssertMandatory = true; // advc.006b
++	m->bEventsLoaded = m->bThroneRoomLoaded = false; // advc.003v
+ 	m_pSchemaCache = gDLL->getXMLIFace()->CreateFXmlSchemaCache();
+ }
+ 
+ 
+-CvXMLLoadUtility::~CvXMLLoadUtility(void)
++CvXMLLoadUtility::~CvXMLLoadUtility()
+ {
++	/*	advc (note): The EXE only seems to call this when exiting from the main menu.
++		But possibly deleting it twice seems worse than never, so I'm not going to
++		delete CvGlobals::m_pXMLLoadUtility in CvDLLButtonPopup::OnOkClicked . */
+ 	gDLL->getXMLIFace()->DestroyFXmlSchemaCache(m_pSchemaCache);
++	SAFE_DELETE(m); // advc.003k
+ }
+ 
+ // Clean up items for in-game reloading
+@@ -223,7 +228,7 @@ void CvXMLLoadUtility::MakeMaskFromString(unsigned int *puiMask, char* szMask)
+ 			*puiMask += 13;
+ 		}
+ 		// if the current character in the string is a E, 14
+-		else if ((szMask[i] == 'd') || (szMask[i] == 'E'))
++		else if ((szMask[i] == 'e') || (szMask[i] == 'E')) // advc.001: first one was 'd'
+ 		{
+ 			// shift the current value of the mask to the left by 4 bits
+ 			*puiMask <<= 4;
+@@ -298,22 +303,17 @@ bool CvXMLLoadUtility::LoadCivXml(FXml* pFXml, const TCHAR* szFilename)
+ 	OutputDebugString("\n");
+ 
+ 	CvString szPath = szFilename;
+-	CvString fsFilename = szFilename;
+-
+ 	if (!gDLL->fileManagerEnabled())
+ 		szPath = "Assets//" + szPath;
+-
+ 	logMsg("Loading XML file %s\n", szPath.c_str());
+-
+ 	if (!gDLL->getXMLIFace()->LoadXml(pFXml, szPath))
+ 	{
+ 		logMsg("Load XML file %s FAILED\n", szPath.c_str());
+ 		return false;
+ 	}
+-
+ 	logMsg("Load XML file %s SUCCEEDED\n", szPath.c_str());
+ 	CvGlobals::getInstance().setCurrentXMLFile(szFilename);
+-	return true;	// success
++	return true; // success
+ }
+ 
+ // see KeyStringFromKBCode
+@@ -506,14 +506,14 @@ CvWString CvXMLLoadUtility::KeyStringFromKBCode(const TCHAR* pszHotKey)
+ // call the progress updater fxn if it exists
+ void CvXMLLoadUtility::UpdateProgressCB(const char* szMessage)
+ {
+-	// advc: RegisterProgressCB is never called, so m_pCBFxn is alway NULL.
++	/*	advc.003k: RegisterProgressCB is never called, so m_pCBFxn is alway NULL.
++		The memory previously allocated for m_iCurProgressStep has been repurposed;
++		see comments in header. */
+ 	/*if (m_iCurProgressStep > GetNumProgressSteps())
+ 		m_iCurProgressStep = 1; // wrap
+-
+-	if (m_pCBFxn != NULL)
+-	{
+-		m_pCBFxn(++m_iCurProgressStep, GetNumProgressSteps(), CvString::format("Reading XML %s",
+-			szMessage ? szMessage : "").c_str());
++	if (m_pCBFxn != NULL) {
++		m_pCBFxn(++m_iCurProgressStep, GetNumProgressSteps(), CvString::format(
++				"Reading XML %s", szMessage ? szMessage : "").c_str());
+ 	}*/
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index c07a9a3c6..16bc693ab 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -18,11 +18,11 @@ class CvCacheObject;
+ class CvImprovementBonusInfo;
+ 
+ 
+-class CvXMLLoadUtility
++class CvXMLLoadUtility /* advc.003k: */ : private boost::noncopyable
+ {
+ public:
+ 	DllExport CvXMLLoadUtility();
+-	DllExport ~CvXMLLoadUtility(void);
++	DllExport ~CvXMLLoadUtility();
+ 
+ 	bool CreateFXml();
+ 	void DestroyFXml();
+@@ -52,11 +52,10 @@ public:
+ 	bool SetHelpText();
+ 	DllExport void ResetGlobalEffectInfo();
+ 
+-	// for progress bars
+-	typedef void (*ProgressCB)(int iStepNum, int iTotalSteps, const char* szMessage);
++	// for progress bars  // advc.003k: all unused
++	/*typedef void (*ProgressCB)(int iStepNum, int iTotalSteps, const char* szMessage);
+ 	static int GetNumProgressSteps();
+-	// advc (note): unused
+-	void RegisterProgressCB(ProgressCB cbFxn);
++	void RegisterProgressCB(ProgressCB cbFxn);*/
+ 
+ 	bool SkipToNextVal();
+ 
+@@ -172,15 +171,19 @@ private:
+ 	FXml* m_pFXml;
+ 	// keep a single schema cache, instead of loading the same schemas multiple times
+ 	FXmlSchemaCache* m_pSchemaCache;
+-	int m_iCurProgressStep;
+-	ProgressCB m_pCBFxn;
+-
+-	bool m_bEventsLoaded, m_bThroneRoomLoaded; // advc.003v
+-	// <advc.006b>
+-	bool m_bAssertMandatory;
+-	static CvString szAssertMsg;
+-	// </advc.006b>
+-
++	static CvString szAssertMsg; // advc.006b
++	// <advc.003k>
++	class Data
++	{
++		bool bAssertMandatory; // advc.006b
++		bool bEventsLoaded, bThroneRoomLoaded; // advc.003v
++		friend CvXMLLoadUtility;
++	};
++	//int m_iCurProgressStep; // Unused, remove it to make room.
++	//ProgressCB m_pCBFxn;// Also unused, but have no other use for that memory, so:
++	void* m_pDummy; // (not sure if decreasing the class size would be a problem)
++	Data* m; // additional members
++	// Still called, still has no effect:  // </advc.003k>
+ 	void UpdateProgressCB(const char* szMessage=NULL);
+ 
+ 	void SetGlobalStringArray(CvString** ppszString, char* szTagName, int* iNumVals, bool bUseEnum = false);
+@@ -231,6 +234,9 @@ private:
+ 	void logMsg(char* format, ...);
+ };
+ 
++// Size 20 also seems OK, 28 definitely not, causes Wine to crash.
++BOOST_STATIC_ASSERT(sizeof(CvXMLLoadUtility) == 16);
++
+ #ifdef _USRDLL
+ // inlines / templates ...
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index 8b3d47b18..c96f5ff3b 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -7,22 +7,16 @@
+ #include "CvXMLLoadUtility.h"
+ #include "FInputDevice.h"
+ 
+-//
+-// STATIC
+-// for progress bar display
+-// returns the number of steps we use
+-//
+-int CvXMLLoadUtility::GetNumProgressSteps()
+-{
++
++// For progress bar display. Returns the number of steps we use.
++// advc.003k: Commented out; was unused.
++/*int CvXMLLoadUtility::GetNumProgressSteps() {
+ 	return 20; // the function UpdateProgressCB() is called 20 times by CvXMLLoadUtilitySet
+-	//^advc: That's not true, but the UpdateProgressCB calls have no effect anyway.
++	//^advc: That's not true btw
+ }
+-
+-void CvXMLLoadUtility::RegisterProgressCB(ProgressCB cbFxn)
+-{
+-	FAssertMsg(false, "Warning: The body of UpdateProgressCB is commented out"); // advc
++void CvXMLLoadUtility::RegisterProgressCB(ProgressCB cbFxn) {
+ 	m_pCBFxn = cbFxn;
+-}
++}*/
+ 
+ // <advc>
+ namespace
+@@ -526,7 +520,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar
+ 	}*/ // <advc.006b> Replacing the asserts above (which were already commented out)
+ 	/*  If pszDefault was set by the caller, we assume that it's OK to fall back
+ 		on pszDefault. Otherwise warn. */
+-	FAssertMsg(szDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
++	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006b>
+ }
+ 
+@@ -567,7 +561,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(char* r, TCHAR const* szName, char c
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	FAssertMsg(szDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
++	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006>
+ }
+ 
+@@ -606,7 +600,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::string& r, TCHAR const* szName,
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	FAssertMsg(szDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
++	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006>
+ }
+ 
+@@ -645,7 +639,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& r, TCHAR const* szName
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	FAssertMsg(szDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
++	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006>
+ }
+ 
+@@ -684,7 +678,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(int* r, TCHAR const* szName, int iDe
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	if(iDefault == MIN_INT && m_bAssertMandatory)
++	if(iDefault == MIN_INT && m->bAssertMandatory)
+ 	{
+ 		FAssertMsg(false, (szAssertMsg + szName).c_str());
+ 		/*  Try to allow the caller to ignore the error by setting a
+@@ -729,7 +723,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(float* r, TCHAR const* szName, float
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	if(fDefault == FLT_MIN && m_bAssertMandatory)
++	if(fDefault == FLT_MIN && m->bAssertMandatory)
+ 	{
+ 		FAssertMsg(false, (szAssertMsg + szName).c_str());
+ 		*r = 0; // See See GetChildXmlValByName(int*...)
+@@ -773,14 +767,14 @@ bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName,
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	FAssertMsg(!bMandatory || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
++	FAssertMsg(!bMandatory || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006b>
+ }
+ 
+ // <advc.006b>
+ void CvXMLLoadUtility::setAssertMandatoryEnabled(bool b)
+ {
+-	m_bAssertMandatory = b;
++	m->bAssertMandatory = b;
+ } // </advc.006b>
+ 
+ /*	Returns either the integer value of the keyboard mapping for the hot key --
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 0ae7d627c..81d7068b4 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -703,7 +703,6 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ 	/* advc: Replaced all GC.get...Info() calls with direct accesses; see the
+ 		comment under the friend declaration in CvGlobals.h. */
+ 
+-	//throne room disabled
+ 	// advc.003v: Moved into LoadThroneRoomInfo
+ 	//UpdateProgressCB("Global Throne Room");
+ 	// ...
+@@ -762,7 +761,6 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paEspionageMissionInfo, "CIV4EspionageMissionInfo", "GameInfo", "Civ4EspionageMissionInfo/EspionageMissionInfos/EspionageMissionInfo", false);
+ 
+ 	DestroyFXml();
+-
+ 	GC.setCurrentXMLFile(NULL); // advc.006e
+ 
+ 	// <advc.enum>
+@@ -781,7 +779,7 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ // <advc.003v>
+ bool CvXMLLoadUtility::LoadOptionalGlobals()
+ {
+-	if (m_bEventsLoaded || GC.getGame().isOption(GAMEOPTION_NO_EVENTS))
++	if (m->bEventsLoaded || GC.getGame().isOption(GAMEOPTION_NO_EVENTS))
+ 		return true;
+ 
+ 	if (!CreateFXml())
+@@ -790,24 +788,26 @@ bool CvXMLLoadUtility::LoadOptionalGlobals()
+ 	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+ 	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+ 	DestroyFXml();
+-	m_bEventsLoaded = true;
++	m->bEventsLoaded = true;
++
+ 	return true;
+-} // </advc.003v>
++}
+ 
+ 
+ bool CvXMLLoadUtility::LoadThroneRoomInfo()
+ {
+-	if (m_bThroneRoomLoaded)
++	if (m->bThroneRoomLoaded)
+ 		return true;
+ 
+ 	if (!CreateFXml())
+ 		return false;
+-	FAssert(GC.getGame().isDebugMode());
++	FAssert(gDLL->getChtLvl() > 0); // (Ctrl+D unfortunately doesn't require DebugMode)
+ 	LoadGlobalClassInfo(GC.m_paThroneRoomCameraInfo, "CIV4ThroneRoomCameraInfos", "Interface", "Civ4ThroneRoomCameraInfos/ThroneRoomCameraInfos/ThroneRoomCamera", false);
+ 	LoadGlobalClassInfo(GC.m_paThroneRoomInfo, "CIV4ThroneRoomInfos", "Interface", "Civ4ThroneRoomInfos/ThroneRoomInfos/ThroneRoomInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paThroneRoomStyleInfo, "CIV4ThroneRoomStyleInfos", "Interface", "Civ4ThroneRoomStyleInfos/ThroneRoomStyleInfos/ThroneRoomStyleInfo", false);
+ 	DestroyFXml();
+-	m_bThroneRoomLoaded = true;
++	m->bThroneRoomLoaded = true;
++
+ 	return true;
+ } // </advc.003v>
+ 
+@@ -1336,15 +1336,15 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
+ 
+ template <class T>
+ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+-		const char* szFileRoot, const char* szFileDirectory,
+-		const char* szXmlPath, bool bTwoPass,
+-		CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (const TCHAR*))
++	const char* szFileRoot, const char* szFileDirectory,
++	const char* szXmlPath, bool bTwoPass,
++	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (const TCHAR*))
+ {
+ 	pArgFunction = NULL; // advc.003i: Disable XML cache
+ 	bool bLoaded = false;
+ 	bool bWriteCache = true;
+ 	CvCacheObject* pCache = NULL;
+-	GC.addToInfosVectors(&aInfos);
++	//GC.addToInfosVectors(aInfos); // advc.enum (no longer needed)
+ 
+ 	if (pArgFunction != NULL)
+ 	{
+@@ -2161,10 +2161,9 @@ DllExport bool CvXMLLoadUtility::LoadPlayerOptions()
+ {
+ 	if (!CreateFXml())
+ 		return false;
+-
+-	LoadGlobalClassInfo(GC.m_paPlayerOptionInfo, "CIV4PlayerOptionInfos", "GameInfo", "Civ4PlayerOptionInfos/PlayerOptionInfos/PlayerOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paPlayerOptionInfo, "CIV4PlayerOptionInfos", "GameInfo",
++			"Civ4PlayerOptionInfos/PlayerOptionInfos/PlayerOptionInfo", false);
+ 	FAssert(GC.getNumPlayerOptionInfos() == NUM_PLAYEROPTION_TYPES);
+-
+ 	DestroyFXml();
+ 	return true;
+ }
+@@ -2173,10 +2172,9 @@ DllExport bool CvXMLLoadUtility::LoadGraphicOptions()
+ {
+ 	if (!CreateFXml())
+ 		return false;
+-
+-	LoadGlobalClassInfo(GC.m_paGraphicOptionInfo, "CIV4GraphicOptionInfos", "GameInfo", "Civ4GraphicOptionInfos/GraphicOptionInfos/GraphicOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paGraphicOptionInfo, "CIV4GraphicOptionInfos", "GameInfo",
++			"Civ4GraphicOptionInfos/GraphicOptionInfos/GraphicOptionInfo", false);
+ 	FAssert(GC.getNumGraphicOptions() == NUM_GRAPHICOPTION_TYPES);
+-
+ 	DestroyFXml();
+ 	return true;
+ }
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=39988

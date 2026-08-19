@@ -1,0 +1,215 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1606
+# Commit: 1348cbcaf8cf1eda819361affd41305d68598293
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f049724de34686b2b9493f0343be5f05991f4975
+# Title: Amendment to recent bugfix for deal renegotiation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvEventReporter.cpp
+6	6	CvGameCoreDLL/CvGame.cpp
+6	10	CvGameCoreDLL/CvGame.h
+8	9	CvGameCoreDLL/CvPlayer.cpp
+0	5	CvGameCoreDLL/CyGame.cpp
+1	2	CvGameCoreDLL/CyGame.h
+1	2	CvGameCoreDLL/CyGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index d256c9cca..b9297ba4d 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -427,7 +427,7 @@ void CvEventReporter::preSave()
+ 	bool bQuickSave = m_bPreQuickSave;
+ 	m_bPreAutoSave = m_bPreQuickSave = false;
+ 	CvGame const& g = GC.getGame();
+-	FAssertMsg(bAutoSave || !g.isAITurn() || g.isNetworkMultiPlayer(),
++	FAssertMsg(bAutoSave || !g.isInBetweenTurns() || g.isNetworkMultiPlayer(),
+ 			"Quicksave in between turns?");
+ 	char const* szDefineName = "";
+ 	CvWString szMsgTag;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index beaf3b186..dd1b64ca9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -759,7 +759,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 		AI_reset();
+ 	}
+ 	m_ActivePlayerCycledGroups.clear(); // K-Mod
+-	m_bAITurn = false; // advc.106b
++	m_bInBetweenTurns = false; // advc.106b
+ 	m_iTurnLoadedFromSave = -1; // advc.044
+ 	// <advc.004m>
+ 	m_eCurrentLayer = GLOBE_LAYER_UNKNOWN;
+@@ -2392,7 +2392,7 @@ void CvGame::update()
+ 			game turn. I've tried doing that through BugEventManager.py, but soon
+ 			gave up. Tagging advc.706 b/c it's especially important to supress
+ 			the update when R&F is enabled. */
+-		if(!isAITurn()) {
++		if(!isInBetweenTurns()) {
+ 			CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+ 			// <advc.003r>
+ 			for(int i = 0; i < NUM_UPDATE_TIMER_TYPES; i++)
+@@ -6581,14 +6581,14 @@ void CvGame::doTurn()
+ }
+ 
+ // <advc.106b>
+-bool CvGame::isAITurn() const {
++bool CvGame::isInBetweenTurns() const {
+ 
+-	return m_bAITurn;
++	return m_bInBetweenTurns;
+ }
+ 
+-void CvGame::setAITurn(bool b) {
++void CvGame::setInBetweenTurns(bool b) {
+ 
+-	m_bAITurn = b;
++	m_bInBetweenTurns = b;
+ } // </advc.106b>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 3c741898a..3db7152b1 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -343,15 +343,11 @@ public:
+ 	void updateActiveVisibility(); // advc.706
+ 	DllExport void updateUnitEnemyGlow();
+ 	/* <advc.106b> When a DLL function is called from the EXE, there is no (other)
+-	   way to determine whether it's during a human turn. */
+-	/*  advc.706: Also need these functions to make sure that
+-		ActivePlayerTurnStart events are fired only on human turns.
+-		Exported isAITurn to Python for that reason, though I'm actually
+-		suppressing the Python event through CvGame::update now, so the
+-		Python export is currently unused. */
+-	bool isAITurn() const; // Exposed to Python
+-	void setAITurn(bool b);
+-	// </advc.106b>
++	   way to determine whether it's during a human turn.
++	   (Or would CvPlayer::isTurnActive work? But that's not as convenient ...) */
++	// Also used for various other AdvCiv changes
++	bool isInBetweenTurns() const;
++	void setInBetweenTurns(bool b); // </advc.106b>
+ 
+ 	HandicapTypes getHandicapType() const;
+ 	void setHandicapType(HandicapTypes eHandicap);
+@@ -724,7 +720,7 @@ protected:
+ 	bool m_bPlayerOptionsSent;
+ 	bool m_bNukesValid;
+ 	int m_iScreenWidth, m_iScreenHeight; // advc.061
+-	bool m_bAITurn; // advc.106b
++	bool m_bInBetweenTurns; // advc.106b
+ 	bool m_bFeignSP; // advc.135c
+ 	bool m_bScenario; // advc.052
+ 	bool m_bAllGameDataRead; // advc.003
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c2322f0b4..e974392da 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3072,7 +3072,7 @@ void CvPlayer::doTurn()  // advc.003: style changes
+ 	CvGame& g = GC.getGame();
+ 	/* <advc.106b> Can't figure out from within CvGame whether it's an AI turn,
+ 	   need assistance from CvPlayer. */
+-	g.setAITurn(true);
++	g.setInBetweenTurns(true);
+ 	if(isHuman() && //getStartOfTurnMessageLimit() >= 0 && // The message should be helpful even if the log doesn't auto-open
+ 			g.getElapsedGameTurns() > 0 && !m_listGameMessages.empty()) {
+ 		gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, 0,
+@@ -13445,9 +13445,8 @@ void CvPlayer::addMessage(const CvTalkingHeadMessage& message)
+ 	// </advc.706>
+ 	m_listGameMessages.push_back(message);
+ 	// <advc.106b>
+-	/*  Special treatment only for events in other civs' turns.
+-		NB: ActivePlayer is always human. */
+-	if(!g.isAITurn() && g.getActivePlayer() == getID())
++	// Special treatment only for events in other civs' turns.
++	if(!g.isInBetweenTurns() && g.getActivePlayer() == getID())
+ 		return;
+ 	/* DISPLAY_ONLY, COMBAT, CHAT, QUEST don't show up on the Event tab
+ 	   of the Turn Log, and therefore shouldn't count.
+@@ -13539,7 +13538,7 @@ void CvPlayer::postProcessMessages() {
+ 	for(size_t i = 0; i < m_aMajorMsgs.size(); i++)
+ 		SAFE_DELETE(m_aMajorMsgs[i]);
+ 	m_aMajorMsgs.clear();
+-	GC.getGame().setAITurn(false);
++	GC.getGame().setInBetweenTurns(false);
+ }
+ 
+ int CvPlayer::getStartOfTurnMessageLimit() const {
+@@ -22483,10 +22482,10 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 				// <advc.074>
+ 				bool bHuman = (bOtherHuman || isHuman());
+ 				bool bValid = (!bHuman || getTradeDenial(eOtherPlayer, item) != DENIAL_JOKING);
+-				/*  Hack: Check if we're expecting a renegotiate-popup from
+-					the EXE. Don't want any resources in the canceled deal to
+-					be excluded from the trade table. */
+-				if(!bValid) {
++				/*  Hack: Check if we're expecting a renegotiate-popup from the EXE.
++					Don't want any resources in the canceled deal to be excluded
++					from the trade table. */
++				if(!bValid && !GC.getGame().isInBetweenTurns()) {
+ 					for(CLLNode<std::pair<PlayerTypes,BonusTypes> >* pNode =
+ 							m_cancelingExport.head(); pNode != NULL; pNode =
+ 							m_cancelingExport.next(pNode)) {
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index ae4766c22..f65f59f11 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1319,11 +1319,6 @@ bool CyGame::isRFBlockPopups() {
+ 		return false;
+ 	return (m_pGame->isOption(GAMEOPTION_RISE_FALL) &&
+ 			m_pGame->getRiseFall().isBlockPopups());
+-}
+-bool CyGame::isAITurn() {
+-	if(m_pGame == NULL)
+-		return false;
+-	return m_pGame->isAITurn();
+ } // </advc.706>
+ // <advc.004m>
+ void CyGame::reportCurrentLayer(int iLayer) {
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 3943cc883..18ef45776 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -301,8 +301,7 @@ public:
+ 	// </advc.703>
+ 	// <advc.706>
+ 	bool isRFInterlude();
+-	bool isRFBlockPopups();
+-	bool isAITurn(); // </advc.706>
++	bool isRFBlockPopups(); // </advc.706>
+ 	void reportCurrentLayer(int iLayer); // advc.004m
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 005bdf2fe..6cfe879ee 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -296,8 +296,7 @@ void CyGamePythonInterface()
+ 		.def("riseScoreBreakdown", &CyGame::riseScoreBreakdown)
+ 		// </advc.704><advc.706>
+ 		.def("isRFInterlude", &CyGame::isRFInterlude, "bool ()")
+-		.def("isRFBlockPopups", &CyGame::isRFBlockPopups, "bool ()")
+-		.def("isAITurn", &CyGame::isAITurn, "bool ()") // </advc.706>
++		.def("isRFBlockPopups", &CyGame::isRFBlockPopups, "bool ()") // </advc.706>
+ 		// advc.004m:
+ 		.def("reportCurrentLayer", &CyGame::reportCurrentLayer, "void(int /*GlobeLayerTypes*/)")
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=7359

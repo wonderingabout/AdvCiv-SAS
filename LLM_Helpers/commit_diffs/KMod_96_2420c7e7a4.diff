@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 96
+# Commit: 2420c7e7a47b1739d58ca8271ea8817d618be809
+# History segment: K-Mod history
+# Parent used for diff: 3286c1505586472122b371936c6d2f3c114b8dc0
+# Title: AI now values bulbing more if it thinks it is in danger.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8f3292d9b..015a0ebff 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5242,6 +5242,11 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	iGoldenAgeValue /= 100;
+ 
+ 	int iDiscoverValue = std::max(1, getDiscoverResearch(NO_TECH));
++	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) || kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2))
++	{
++		iDiscoverValue *= (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE ? 4 : 3);
++		iDiscoverValue /= 2;
++	}
+ 	iDiscoverValue *= (75 + kPlayer.AI_getStrategyRand(3) % 51);
+ 	iDiscoverValue /= 100;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=625

@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5656
+# Commit: 7d69f981421e91a82cc0f0c095805d6e4da057f4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 905a5090a8b23fb374000000db041fa4fe83e56c
+# Title: upscale most of diplomacy screen (when it was possible)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+25	1	Assets/Python/CvDiplomacy.py
+21	0	CvGameCoreDLL/CvPlayer.cpp
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index 8aae92514..cbbb5105f 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -1,14 +1,21 @@
+ ## Sid Meier's Civilization 4
+ ## Copyright Firaxis Games 2005
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
+ from CvPythonExtensions import *
+ import CvUtil
+ import PyHelpers
++import SASTextScale
+ 
+ PyPlayer = PyHelpers.PyPlayer
+ 
+ DebugLogging = False
+ 
+ gc = CyGlobalContext()
++localText = CyTranslator()
+ 
+ class CvDiplomacy:
+ 	# Code used by Civ Diplomacy interface
+@@ -358,7 +365,9 @@ class CvDiplomacy:
+ 		# Helper for adding User Comments
+ 		#
+ 		iComment = self.getCommentID( eComment )
+-		self.diploScreen.addUserComment( iComment, iData1, iData2, self.getDiplomacyComment(iComment), args)
++		# <!-- custom: diplomacy response-option text uses label scaling for readability consistency with other upscaled UI screens. (GPT-5.3-Codex) -->
++		szComment, tArgs = self.getScaledDiplomacyDisplayText(self.getDiplomacyComment(iComment), args)
++		self.diploScreen.addUserComment( iComment, iData1, iData2, szComment, tArgs)
+ 		
+ 	def setAIComment (self, eComment, *args):
+ 		# Handles the determining the AI comments
+@@ -371,6 +380,9 @@ class CvDiplomacy:
+ 				print "args", args
+ 			AIString = "(%d) - %s" %(self.getLastResponseID(), AIString)
+ 
++		# <!-- custom: diplomacy main AI line text uses label scaling so upscaled UI font settings apply here too. (GPT-5.3-Codex) -->
++		AIString, args = self.getScaledDiplomacyDisplayText(AIString, args)
++		
+ 		self.diploScreen.setAIString(AIString, args)
+ 		self.diploScreen.setAIComment(eComment)
+ 		self.determineResponses(eComment)
+@@ -469,6 +481,18 @@ class CvDiplomacy:
+ 	def setLastResponseID(self, iResponse):
+ 		self.iLastResponseID = iResponse
+ 
++	def getScaledDiplomacyDisplayText(self, szText, args):
++		# <!-- custom: simple diplomacy scaling with one localization attempt and one fallback rule:
++		# if unresolved text still looks like a key (contains "_"), pass it through unchanged so EXE fallback can resolve it;
++		# otherwise scale plain/localized text directly. (GPT-5.3-Codex) -->
++		tArgs = tuple(args)
++		szLocalized = localText.getText(CvUtil.convertToStr(szText), tArgs)
++		if szLocalized != szText:
++			return (CvUtil.convertToStr(SASTextScale.labelText(szLocalized)), ())
++		if isinstance(szText, basestring) and ("_" in szText):
++			return (CvUtil.convertToStr(szText), tArgs)
++		return (CvUtil.convertToStr(SASTextScale.labelText(szText)), tArgs)
++	
+ 	def getLastResponseID(self):
+ 		return self.iLastResponseID
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index df62149e0..cb8f952f8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -18957,6 +18957,24 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
+ 
+ /*	advc (note): This function doesn't use any CvPlayer members, but I suppose
+ 	that could change. Can't easily move it b/c of DllExport. */
++namespace
++{
++	void applySASDiploTradeFont(CvWString& szText)
++	{
++		// <!-- custom: diplomacy trade-table strings are composed in DLL and rendered by EXE widgets (not Python-managed table text), so apply SAS label scaling here at the source string. (GPT-5.3-Codex) -->
++		if (szText.empty())
++			return;
++		static int const iSAS_UI_FONT_LABEL = GC.getDefineINT("SAS_UI_FONT_LABEL");
++		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
++			return;
++		CvWString szWrapped;
++		szWrapped.Format(L"<font=%d>", iSAS_UI_FONT_LABEL);
++		szWrapped.append(szText);
++		szWrapped.append(L"</font>");
++		szText = szWrapped;
++	}
++}
++
+ bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem,
+ 	CvWString& szString, CvString& szIcon) const
+ {
+@@ -19001,6 +19019,7 @@ bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eI
+ 		return false;
+ 	}
+ 	szString = gDLL->getText(szTag); // advc: Moved out of the cases
++	// <!-- custom: do not wrap trade-table headings with <font=...>; this EXE header widget can render font tags literally (e.g. "<font=4>Technology"), so keep headings unwrapped. (GPT-5.3-Codex) -->
+ 
+ 	return true;
+ }
+@@ -19226,6 +19245,8 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
+ 		szString.append(gDLL->getText("INTERFACE_CITY_TURNS",
+ 				pDeal->turnsToCancel()).GetCString());
+ 	} // </advc.072>
++	// <!-- custom: diplomacy trade-table rows are EXE-rendered from DLL strings, so wrap item text here to apply SAS label upscaling consistently. (GPT-5.3-Codex) -->
++	applySASDiploTradeFont(szString);
+ 	return true;
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8a19fbefb..dda9de083 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -285,7 +285,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Common)
+ 
+-- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text**. Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
++- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, most of **diplomacy screen** (when it was possible; in [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) and `CvPlayer::getItemTradeString` (for trading table)) and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text**. Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+ - (Requires AdvCiv-SAS 5530+) **Upscaling adjustments** include notably: smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **smaller Sevopedia speeds first column** (only at **lower resolutions** since these don't have enough horizontal room per column to show them without clipping),  **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**, **do not upscale icons** in the Foreign Diplomacy Advisor's **Glance Tab** when text is upscaled and there are **>= 2 icons** (e.g., worst enemy + at war icons) (See [KI#116](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)), added **attitude icon chars** in [GameFont.tga](/Assets/res/Fonts/GameFont.tga) (21x20 icon size): previously they existed only in [GameFont_75.tga](/Assets/res/Fonts/GameFont_75.tga) (16x16 icon size), causing attitude icon chars to **disappear** (e.g., in Score Tab) **when font was upscaled (attitude font size >= 3)** (see [KI#117](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)).
+ - (Requires AdvCiv-SAS 5527+) **Increase hover text** base **font size** from **2 to 3** and most UI elements (e.g., scoreboard, advisors, main interface, sevopedia) **from body (i.e. 2) to label (i.e. 3)**, and **increased font2 billboard from 100 to 120 percent** so it is **more readable**.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=8544

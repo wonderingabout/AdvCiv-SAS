@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4096
+# Commit: d59abeaa59e46dd086e27240351bc6d122aa1a6f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0495953ec634f62620c54cd6d89db9ba7250f9f0
+# Title: Correct position of help text area on high screen res.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 583e5d022..bc3fbde8f 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -846,7 +846,12 @@ class CvMainInterface:
+ 				iPlotListUnitBtnSz)
+ 		gSetRect("DefaultHelpArea", "Top",
+ 				HSPACE(7),
+-				-(VSPACE(5) + gRect("CenterBottomPanel").height() + self.plotListUnitButtonSize()),
++				# Turns out that this overlaps with the lower left corner on very high resolutions
++				#-(VSPACE(5) + gRect("CenterBottomPanel").height() + self.plotListUnitButtonSize())
++				# BtS leaves some space here, but we want the text area as low as possible
++				# to maximize the amount of text we can display (while also having tall corners
++				# for the sake of a large minimap).
++				gRect("LowerLeftCornerBackgr").y(),
+ 				# Default area will actually ignore this, but it's relevant
+ 				# for the PLE Info Pane.
+ 				gRect("LowerLeftCorner").width() + HLEN(6), 0)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1007

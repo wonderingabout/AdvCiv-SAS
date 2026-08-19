@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1998
+# Commit: 4b4b875fb981e03a25647221096bd1ab1d063874
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9b379e7c3f6663e6f7ba29f2511a1971c5415a0f
+# Title: Fix recent bug: AI explorers had avoided goody huts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5fa8c2d61..9b1a790a4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12840,7 +12840,7 @@ bool CvUnitAI::AI_goody(int iRange)  // advc: style changes
+ 		CvPlot const& p =*it;
+ 		if (/*!AI_plotValid(p)*/!AI_canEnterByLand(p.getArea())) // advc.opt
+ 			continue;
+-		if (p.isRevealedGoody(getTeam()) || p.isVisibleEnemyUnit(this))
++		if (!p.isRevealedGoody(getTeam()) || p.isVisibleEnemyUnit(this))
+ 			continue;
+ 		int iPathTurns;
+ 		if (!generatePath(&p, 0, true, &iPathTurns, iRange))
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=587

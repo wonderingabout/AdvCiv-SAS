@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2264
+# Commit: 3bed0c1bc8e78d54885bd746204caf1614c03258
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4c63694d3dcdafe5411e4b3b0341a7dbc6ad4adc
+# Title: 0.97a (DLL) fixing Space victory bug
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+12	2	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 03dd5d50a..6f40222ab 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5593,7 +5593,16 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 	m_aiTerrainTradeCount.Read(pStream);
+ 	m_aiVictoryCountdown.Read(pStream);
+ 	// <advc.opt>
+-	if (uiFlag < 7)
++	if (uiFlag == 10) // Fix a bug in AdvCiv 0.97
++	{
++		FOR_EACH_ENUM(Victory)
++		{	/*	Is 0 a legit value? Well, let's hope that it represents
++				"no countdown started" in this savegame. */
++			if (getVictoryCountdown(eLoopVictory) == 0)
++				m_aiVictoryCountdown.set(eLoopVictory, -1);
++		}
++	}
++	if (uiFlag < 7 || uiFlag == 10)
+ 	{
+ 		FOR_EACH_ENUM(Victory)
+ 		{
+@@ -5652,7 +5661,8 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	uiFlag = 7; // advc.opt: m_bAnyVictoryCountdown
+ 	uiFlag = 8; // advc.opt: change in updateLeaderID
+ 	uiFlag = 9; // advc.opt: remove m_abVassal; advc.enum/ advc.034: write m_abDisengage[BARBARIAN_TEAM]
+-	uiFlag = 10; // advc.101: m_itechCount
++	uiFlag = 10; // advc.101: m_iTechCount
++	uiFlag = 11; // advc.opt: fix m_aiVictoryCountdown bug
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iNumMembers);
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index cc8f2ad38..1a7e20459 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -563,7 +563,7 @@ protected:
+ 	EnumMap<TechTypes,int> m_aiResearchProgress;
+ 	EnumMap<TechTypes,int> m_aiTechCount;
+ 	EnumMap<TerrainTypes,int> m_aiTerrainTradeCount;
+-	EnumMap<VictoryTypes,int> m_aiVictoryCountdown;
++	EnumMapDefault<VictoryTypes,int,-1> m_aiVictoryCountdown;
+ 
+ 	EnumMap2D<ImprovementTypes,YieldTypes,int> m_aaiImprovementYieldChange; // Should make this <...,char>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=1714

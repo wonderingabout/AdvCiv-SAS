@@ -1,0 +1,224 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3277
+# Commit: c14e3715a979e6e5c4ad346b50d2793302857316
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6038c23116d4ef4621b617dc69285f0fa48614bc
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+7	25	CvGameCoreDLL/CvDLLWidgetData.cpp
+12	12	CvGameCoreDLL/CvGame.cpp
+1	2	CvGameCoreDLL/CvGame.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8a8a62e85..61781501f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5153,7 +5153,7 @@ int CvCity::getAdditionalStarvation(int iSpoiledFood) const
+ 	return 0;
+ } // BUG - Actual Effects - end
+ 
+-/*  <advc.001c> These two function bodies are mostly cut and pasted from
++/*  <advc.001c> These two functions are based on code cut from
+ 	CvGameTextMgr::parseGreatPeopleHelp */
+ int CvCity::GPTurnsLeft() const
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index c1dba14b0..33547de31 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4440,39 +4440,23 @@ void CvDLLWidgetData::parseRevolutionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ void CvDLLWidgetData::parseAutomateCitizensHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-	CvCity* pHeadSelectedCity;
+-
+-	pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+-
++	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	if (pHeadSelectedCity != NULL)
+ 	{
+ 		if (pHeadSelectedCity->isCitizensAutomated())
+-		{
+ 			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_OFF_CITIZEN_AUTO"));
+-		}
+-		else
+-		{
+-			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_ON_CITIZEN_AUTO"));
+-		}
++		else szBuffer.assign(gDLL->getText("TXT_KEY_MISC_ON_CITIZEN_AUTO"));
+ 	}
+ }
+ 
+ void CvDLLWidgetData::parseAutomateProductionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-	CvCity* pHeadSelectedCity;
+-
+-	pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+-
++	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	if (pHeadSelectedCity != NULL)
+ 	{
+ 		if (pHeadSelectedCity->isProductionAutomated())
+-		{
+ 			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_OFF_PROD_AUTO"));
+-		}
+-		else
+-		{
+-			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_ON_PROD_AUTO"));
+-		}
++		else szBuffer.assign(gDLL->getText("TXT_KEY_MISC_ON_PROD_AUTO"));
+ 	}
+ }
+ 
+@@ -4483,14 +4467,12 @@ void CvDLLWidgetData::parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, C
+ 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	if (pHeadSelectedCity != NULL)
+ 	{
+-		if (pHeadSelectedCity->AI().AI_isEmphasize((EmphasizeTypes)widgetDataStruct.m_iData1))
++		if (pHeadSelectedCity->AI().AI_isEmphasize((EmphasizeTypes)
++			widgetDataStruct.m_iData1))
+ 		{
+ 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_TURN_OFF"));
+ 		}
+-		else
+-		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_MISC_TURN_ON"));
+-		}
++		else szBuffer.append(gDLL->getText("TXT_KEY_MISC_TURN_ON"));
+ 	}
+ 
+ 	szBuffer.append(GC.getInfo((EmphasizeTypes)widgetDataStruct.m_iData1).getDescription());
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 0ce04e60d..d7f2a115d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8650,9 +8650,9 @@ CvDeal* CvGame::addDeal()
+ /*  advc.072: All the FAssert(false) in this function mean that we're somehow
+ 	out of step with the iteration that happens in the EXE. */
+ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
+-		TradeableItems eItemType, int iData, bool bWidget)
++	TradeableItems eItemType, int iData, bool bWidget)
+ {
+-	if(!m_bShowingCurrentDeals)
++	if (!m_bShowingCurrentDeals)
+ 	{
+ 		m_currentDeals.clear(); // Probably not needed, but can't hurt to clear them.
+ 		m_currentDealsWidget.clear();
+@@ -8660,30 +8660,30 @@ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePla
+ 	}
+ 	// Probably not needed:
+ 	PlayerTypes eDiploPlayer = (PlayerTypes)gDLL->getDiplomacyPlayer();
+-	if(!((getActivePlayer() == eGivePlayer && eDiploPlayer == eReceivePlayer) ||
++	if (!((getActivePlayer() == eGivePlayer && eDiploPlayer == eReceivePlayer) ||
+ 		(getActivePlayer() == eReceivePlayer && eDiploPlayer == eGivePlayer)))
+ 	{
+ 		return NULL;
+ 	}
+ 	CLinkList<DealItemData>& kCurrentDeals = (bWidget ? m_currentDealsWidget :
+ 			m_currentDeals);
+-	if(kCurrentDeals.getLength() <= 0)
++	if (kCurrentDeals.getLength() <= 0)
+ 	{
+ 		bool bFirstFound = false;
+ 		FOR_EACH_DEAL(d)
+ 		{
+-			if(!d->isBetween(eGivePlayer, eReceivePlayer))
++			if (!d->isBetween(eGivePlayer, eReceivePlayer))
+ 				continue;
+ 			CLinkList<TradeData> const& kGiveList = (d->getFirstPlayer() == eGivePlayer ?
+ 					d->getFirstList() : d->getSecondList());
+ 			FOR_EACH_TRADE_ITEM(kGiveList)
+ 			{
+-				if(!CvDeal::isAnnual(pItem->m_eItemType) &&
++				if (!CvDeal::isAnnual(pItem->m_eItemType) &&
+ 					pItem->m_eItemType != TRADE_PEACE_TREATY)
+ 				{
+ 					break;
+ 				}
+-				if(!bFirstFound)
++				if (!bFirstFound)
+ 				{
+ 					if(pItem->m_eItemType != eItemType ||
+ 						pItem->m_iData != iData)
+@@ -8699,24 +8699,24 @@ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePla
+ 			}
+ 		}
+ 	}
+-	if(kCurrentDeals.getLength() <= 0)
++	if (kCurrentDeals.getLength() <= 0)
+ 	{
+ 		FAssert(false);
+ 		return NULL;
+ 	}
+ 	CLLNode<DealItemData>* pNode = kCurrentDeals.head();
+ 	DealItemData data = pNode->m_data;
+-	if(data.eGivePlayer != eGivePlayer || data.eReceivePlayer != eReceivePlayer ||
++	if (data.eGivePlayer != eGivePlayer || data.eReceivePlayer != eReceivePlayer ||
+ 		data.iData != iData || data.eItemType != eItemType)
+ 	{
+ 		kCurrentDeals.clear();
+ 		FAssert(false);
+ 		return NULL;
+ 	}
+-	CvDeal* r = getDeal(pNode->m_data.iDeal);
++	CvDeal* pNext = getDeal(pNode->m_data.iDeal);
+ 	kCurrentDeals.deleteNode(pNode);
+-	FAssert(r != NULL);
+-	return r;
++	FAssert(pNext != NULL);
++	return pNext;
+ }
+ 
+ // advc.027b:
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index d1b375443..242269bf3 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -672,12 +672,11 @@ public:
+ 	DllExport int getIndexAfterLastDeal();																								// Exposed to Python
+ 	int getNumDeals();																													// Exposed to Python
+ 
+-	// advc.inl: const version, inline
+ 	DllExport CvDeal* getDeal(int iID)																	// Exposed to Python
+ 	{
+ 		return m_deals.getAt(iID);
+ 	}
+-	CvDeal const* getDeal(int iID) const
++	CvDeal const* getDeal(int iID) const // advc: const version
+ 	{
+ 		return m_deals.getAt(iID);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3ca34411f..788b9ddf7 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8608,7 +8608,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 	if (u.getGreatWorkCulture() > 0)
+ 	{
+ 		int iCulture = u.getGreatWorkCulture();
+-		if (NO_GAMESPEED != GC.getGame().getGameSpeedType())
++		if (GC.getGame().getGameSpeedType() != NO_GAMESPEED)
+ 		{
+ 			iCulture *= GC.getInfo(GC.getGame().getGameSpeedType()).getUnitGreatWorkPercent();
+ 			iCulture /= 100;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6777

@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1964
+# Commit: ee4842fae0345bc6b7eb3f2a03f79b40f0b83cb7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9b771b950fba5b1fddf3a5077c4a965fdf75e475
+# Title: Fix minor bug in AI city evacuation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	12	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6c4badb71..c9644c5ab 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13915,21 +13915,17 @@ void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
+ 	}
+ 	int const iRange = kDefender.baseMoves() + (kDefender.getPlot().isValidRoute(
+ 			&kDefender, /* advc.001i: */ false) ? 1 : 0);
+-	CvMap const& kMap = GC.getMap();
+-	for (int dx = -iRange; dx <= iRange; dx++)
++	for (SquareIter it(kDefender, iRange); it.hasNext(); ++it)
+ 	{
+-		for (int dy = -iRange; dy <= iRange; dy++)
++		CvPlot const& kPlot = *it;
++		if (kPlot.getOwner() == getID() && kPlot.isCity())
+ 		{
+-			CvPlot const* pPlot = kMap.plot(kDefender.getX(), kDefender.getY());
+-			if (pPlot != NULL && pPlot->getOwner() == getID() && pPlot->isCity())
++			CvCityAI& kCity = *kPlot.AI_getPlotCity();
++			if (!kCity.AI_isSafe()) // It's only going to get safer
+ 			{
+-				CvCityAI& kCity = *pPlot->AI_getPlotCity();
+-				if (!kCity.AI_isSafe()) // It's only going to get safer
+-				{
+-					// advc.test:
+-					FAssertMsg(false, "Only to see how frequently this happens (or rather: just how rarely)");
+-					kCity.AI_updateSafety();
+-				}
++				// advc.test:
++				FAssertMsg(false, "Only to see how frequently this happens (or rather: just how rarely)");
++				kCity.AI_updateSafety();
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1371

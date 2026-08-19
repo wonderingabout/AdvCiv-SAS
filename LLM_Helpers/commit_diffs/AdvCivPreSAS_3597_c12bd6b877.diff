@@ -1,0 +1,327 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3597
+# Commit: c12bd6b877dd6ae350edc433bdf132c253921b75
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1fffdf0ae515ceda560d94694a0ad7d9af0997b3
+# Title: Fix map knowledge leaked by unit action recommendations
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	6	CvGameCoreDLL/CitySiteEvaluator.cpp
+4	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+9	6	CvGameCoreDLL/CvPlayer.cpp
+21	9	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+13	9	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 0bb8cef0e..b4df9a681 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -367,9 +367,9 @@ AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettin
+ {
+ 	PROFILE_FUNC();
+ 	if (!kPlayer.canFound(kPlot, false,
+-		/*	advc.001: Don't let unit action recommendations for human settlers
++		/*	advc.181: Don't let action recommendations for human settlers
+ 			give away rival cities founded in the fog of war. */
+-		!kPlayer.isHuman()))
++		!kPlayer.isHuman() || kSet.isAllSeeing()))
+ 	{
+ 		return;
+ 	}
+@@ -3097,10 +3097,8 @@ bool AIFoundValue::isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) co
+ 		if (!isRevealed(kOtherSite) && !kOtherSite.isAdjacentRevealed(eTeam))
+ 			continue; // </advc.031>
+ 		//canFound usually returns very quickly
+-		if (kPlayer.canFound(kOtherSite.getX(), kOtherSite.getY(),
+-				/*  advc.031: Was false; whether to check visibility of cities that
+-					prevent founding in kOtherSite. */
+-				kSet.isAllSeeing()))
++		if (kPlayer.canFound(kOtherSite,
++			false, kSet.isAllSeeing())) // advc.181
+ 		{
+ 			bNeverFound = false;
+ 			if (stepDistance(&kPlot, &kOtherSite) > iMinRange ||
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 54743a230..dc4f3fbf4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2397,16 +2397,16 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 	}
+ 	case MISSION_FOUND:
+ 	{
+-		if (!kUnitOwner.canFound(kMissionPlot.getX(), kMissionPlot.getY()))
++		if (!kUnitOwner.canFound(kMissionPlot, /* advc.181: */ false, false))
+ 		{
+ 			for (SquareIter it(kMissionPlot, GC.getDefineINT(CvGlobals::MIN_CITY_RANGE));
+ 				it.hasNext(); ++it)
+ 			{
+ 				if (it->isCity() &&
+-					/*	<advc.001> Don't give away rival cities in the fog of war.
++					/*	<advc.181> Don't give away rival cities in the fog of war.
+ 						And same-area check added. */
+ 					!kUnitOwner.canFound(kMissionPlot, false, false) &&
+-					it->sameArea(kMissionPlot)) // </advc.001>
++					it->sameArea(kMissionPlot)) // </advc.181>
+ 				{
+ 					szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_ACTION_CANNOT_FOUND",
+@@ -2416,7 +2416,7 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 			}
+ 		}
+ 		// <advc.004b> Show the projected increase in city maintenance
+-		if (kUnitOwner.canFound(kMissionPlot, false, false))
++		else
+ 		{
+ 			// No projection for the initial city
+ 			if(kUnitOwner.getNumCities() > 0)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 22d273e3f..7dd5bba94 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3439,7 +3439,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 	FOR_EACH_ENUM2(Build, eBuild)
+ 	{
+ 		if(kPlot.getBuildProgress(eBuild) <= 0 ||
+-			!kPlot.canBuild(eBuild, eActivePlayer))
++			!kPlot.canBuild(eBuild, eActivePlayer, false, false))
+ 		{
+ 			continue;
+ 		}
+@@ -3548,7 +3548,7 @@ void CvGameTextMgr::setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot con
+ 			FOR_EACH_ENUM(Build)
+ 			{
+ 				if (GC.getInfo(eLoopBuild).isFeatureRemove(kPlot.getFeatureType()) &&
+-					pHeadSelectedUnit->canBuild(kPlot, eLoopBuild))
++					pHeadSelectedUnit->canBuild(kPlot, eLoopBuild, false, false))
+ 				{
+ 					bCanRemove = true;
+ 					break;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 34497b411..86e2f7432 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4930,7 +4930,7 @@ bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
+ 
+ 
+ bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible,
+-	/* <advc.001> */ bool bIgnoreFoW) const
++	/* <advc.181> */ bool bIgnoreFoW) const
+ {
+ 	if (!bIgnoreFoW)
+ 	{
+@@ -4938,12 +4938,12 @@ bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible,
+ 		if (eRevealedOwner != NO_PLAYER && eRevealedOwner != getID())
+ 			return false;
+ 	}
+-	else // </advc.001>
++	else // </advc.181>
+ 	if (kPlot.isOwned() && kPlot.getOwner() != getID())
+ 		return false;
+ 	// advc: Checks that don't depend on player moved into new function at CvPlot
+ 	if (!kPlot.canFound(bTestVisible,
+-		bIgnoreFoW ? NO_TEAM : getTeam())) // advc.001
++		bIgnoreFoW ? NO_TEAM : getTeam())) // advc.181
+ 	{
+ 		return false;
+ 	}
+@@ -5709,12 +5709,15 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, CvArea& kAr
+ }
+ 
+ 
+-bool CvPlayer::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible) const
++bool CvPlayer::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestEra,
++	bool bTestVisible, /* advc.181: */ bool bIgnoreFoW) const
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+-	if (!kPlot.canBuild(eBuild, getID(), bTestVisible))
++	if (!kPlot.canBuild(eBuild, getID(), bTestVisible,
++		bIgnoreFoW)) // advc.181
++	{
+ 		return false;
+-
++	}
+ 	if (GC.getInfo(eBuild).getTechPrereq() != NO_TECH)
+ 	{	// advc:
+ 		TechTypes ePrereqTech = GC.getInfo(eBuild).getTechPrereq();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index bcf72c80b..e621880ea 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2249,7 +2249,8 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ }
+ 
+ 
+-bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible) const
++bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
++	bool bIgnoreFoW) const // advc.181
+ {
+ 	if (eBuild == NO_BUILD)
+ 		return false;
+@@ -2268,14 +2269,17 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible)
+ 		{
+ 			return false;
+ 		}
+-		if (isImproved())
++		ImprovementTypes const eOldImprov = (bIgnoreFoW ? getImprovementType() :
++				getRevealedImprovementType(TEAMID(ePlayer)));
++		if (eOldImprov != NO_IMPROVEMENT) // advc.181
++		//if (isImproved())
+ 		{
+-			if (GC.getInfo(getImprovementType()).isPermanent())
++			if (GC.getInfo(eOldImprov).isPermanent())
+ 				return false;
+-			if (getImprovementType() == eImprovement)
++			if (eOldImprov == eImprovement)
+ 				return false;
+ 			ImprovementTypes eFinalImprovementType = CvImprovementInfo::
+-					finalUpgrade(getImprovementType());
++					finalUpgrade(eOldImprov);
+ 			if (eFinalImprovementType != NO_IMPROVEMENT)
+ 			{
+ 				if (eFinalImprovementType == CvImprovementInfo::finalUpgrade(eImprovement))
+@@ -2301,9 +2305,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible)
+ 	RouteTypes const eRoute = GC.getInfo(eBuild).getRoute();
+ 	if (eRoute != NO_ROUTE)
+ 	{
+-		if (isRoute())
++		// <advc.181>
++		RouteTypes const eOldRoute = (bIgnoreFoW ? getRouteType() :
++				getRevealedRouteType(TEAMID(ePlayer)));
++		if (eOldRoute != NO_ROUTE) // </advc.181>
++		//if (isRoute())
+ 		{
+-			if (GC.getInfo(getRouteType()).getValue() >= GC.getInfo(eRoute).getValue())
++			if (GC.getInfo(eOldRoute).getValue() >= GC.getInfo(eRoute).getValue())
+ 				return false;
+ 		}
+ 		if (!bTestVisible)
+@@ -5589,10 +5597,14 @@ void CvPlot::setFoundValue(PlayerTypes eIndex, short iNewValue)
+ 
+ // advc: Cut from CvPlayer::canFound (for advc.027)
+ bool CvPlot::canFound(bool bTestVisible,
+-	TeamTypes eTeam) const // advc.001
++	TeamTypes eTeam) const // advc.181
+ {
+ 	if (!canEverFound()) // advc.129d: Moved into another new function
+ 		return false;
++	/*	<advc.181> Info leaks and AI cheats are already addressed elsewhere,
++		but doesn't hurt to make sure. */
++	if (eTeam != NO_TEAM && !isRevealed(eTeam))
++		return false; // </advc.181>
+ 	
+ 	if (isFeature() && GC.getInfo(getFeatureType()).isNoCity())
+ 		return false; // (advc.opt: Moved down)
+@@ -5604,7 +5616,7 @@ bool CvPlot::canFound(bool bTestVisible,
+ 		it.hasNext(); ++it)
+ 	{
+ 		if (it->isCity() && it->sameArea(*this) &&
+-			(eTeam == NO_TEAM || it->getPlotCity()->isRevealed(eTeam))) // advc.001
++			(eTeam == NO_TEAM || it->getPlotCity()->isRevealed(eTeam))) // advc.181
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 7dbfff186..75016798a 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -122,7 +122,8 @@ public:
+ 			TeamTypes eTeam = NO_TEAM, bool bPotential = false,
+ 			BuildTypes eBuild = NO_BUILD, bool bAnyBuild = true) const; // kekm.9
+ 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER,								// Exposed to Python
+-			bool bTestVisible = false) const;
++			bool bTestVisible = false,
++			bool bIgnoreFoW = true) const; // advc.181
+ 	int getBuildTime(BuildTypes eBuild,																// Exposed to Python
+ 			PlayerTypes ePlayer) const; // advc.251
+ 	int getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer,
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 248e70fe1..2ede9a9e6 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1734,8 +1734,10 @@ bool CvUnit::isActionRecommended(int iAction)
+ 	CvPlot const* pTmpPlot = gDLL->UI().getGotoPlot();
+ 	if (pTmpPlot == NULL && GC.shiftKey())
+ 		pTmpPlot = getGroup()->lastMissionPlot();
+-	CvPlot const& kPlot = (pTmpPlot == NULL ? getPlot() : *pTmpPlot);
+-	// </advc>
++	CvPlot const& kPlot = (pTmpPlot == NULL ? getPlot() : *pTmpPlot); // </advc>
++	// <advc.181>
++	if (!kPlot.isRevealed(getTeam()))
++		return false; // </advc.181>
+ 	switch (GC.getActionInfo(iAction).getMissionType()) // advc
+ 	{
+ 	case MISSION_FORTIFY:
+@@ -1770,13 +1772,11 @@ bool CvUnit::isActionRecommended(int iAction)
+ 		FAssert(eBuild != NO_BUILD);
+ 		FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+-		if (!canBuild(kPlot, eBuild))
++		if (!canBuild(kPlot, eBuild, /* advc.181: */ false, false))
+ 			break;
+-
+-		// K-Mod
++		// <K-Mod>
+ 		if (kPlot.getBuildProgress(eBuild) > 0)
+-			return true;
+-		// K-Mod end
++			return true; // </K-Mod>
+ 
+ 		ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+ 		RouteTypes const eRoute = GC.getInfo(eBuild).getRoute();
+@@ -6038,12 +6038,16 @@ bool CvUnit::goldenAge()
+ }
+ 
+ 
+-bool CvUnit::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestVisible) const // advc: 1st param was pointer
++bool CvUnit::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestVisible,
++	bool bIgnoreFoW) const // advc.181
+ {
+ 	if (!m_pUnitInfo->getBuilds(eBuild))
+ 		return false;
+-	if (!GET_PLAYER(getOwner()).canBuild(kPlot, eBuild, false, bTestVisible))
++	if (!GET_PLAYER(getOwner()).canBuild(kPlot, eBuild, false, bTestVisible,
++		bIgnoreFoW)) // advc.181
++	{
+ 		return false;
++	}
+ 	if (!isValidDomain(kPlot.isWater()))
+ 		return false;
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 6908156c3..bac5b589f 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -243,7 +243,8 @@ public:
+ 	bool canGoldenAge(const CvPlot* pPlot, bool bTestVisible = false) const;								// Exposed to Python
+ 	bool goldenAge();
+ 
+-	bool canBuild(CvPlot const& pPlot, BuildTypes eBuild, bool bTestVisible = false) const;					// Exposed to Python
++	bool canBuild(CvPlot const& pPlot, BuildTypes eBuild,													// Exposed to Python
++			bool bTestVisible = false, /* advc.181: */ bool bIgnoreFoW = true) const;
+ 	bool build(BuildTypes eBuild);
+ 
+ 	bool canPromote(PromotionTypes ePromotion,																// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=11407

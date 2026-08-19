@@ -1,0 +1,267 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 285
+# Commit: be1f3aaed366c2d750031f8039f8fa3a797c8c33
+# History segment: K-Mod history
+# Parent used for diff: a287c65a732eceed4088b6bfd1bac5895c98f9d3
+# Title: Fixed several big problems with the corporation spread AI. (it thought it couldn't move in its own territory without "open borders", there was an extra facto...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvGameInterface.cpp
+12	9	CvGameCoreDLL/CvPlayer.cpp
+17	5	CvGameCoreDLL/CvPlayerAI.cpp
+5	10	CvGameCoreDLL/CvSelectionGroupAI.cpp
+6	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index b68af063b..3c9de7c30 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -750,8 +750,10 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers) con
+ void CvGame::cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bDelayOnly) const
+ {
+ 	PROFILE_FUNC(); // I'm just hoping that the python call doesn't hurt the respose times
+-	bool bFastCycle = getBugOptionBOOL("MainInterface__RapidUnitCycling", false, "RAPID_UNIT_CYCLING");
+-	if (bFastCycle)
++	// Only rapid-cycle when not doing auto-play.
++	PlayerTypes eActive = getActivePlayer();
++	if (eActive != NO_PLAYER && GET_PLAYER(eActive).isHuman() &&
++		getBugOptionBOOL("MainInterface__RapidUnitCycling", false, "RAPID_UNIT_CYCLING"))
+ 	{
+ 		if (!bDelayOnly)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5f66f2621..fa2d43feb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4054,7 +4054,8 @@ int CvPlayer::countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorpo
+ 	int iLoop;
+ 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+ 	{
+-		if (pLoopUnit->area() == pArea)
++		//if (pLoopUnit->area() == pArea)
++		if (pArea == NULL || pLoopUnit->area() == pArea) // K-Mod
+ 		{
+ 			if (pLoopUnit->getUnitInfo().getCorporationSpreads(eCorporation) > 0)
+ 			{
+@@ -4063,18 +4064,20 @@ int CvPlayer::countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorpo
+ 		}
+ 	}
+ 
+-	if( bIncludeTraining )
++	if (bIncludeTraining)
+ 	{
+-		CvCity* pLoopCity;
+-		for( pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop) )
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 		{
+-			UnitTypes eUnit = pLoopCity->getProductionUnit();
+-
+-			if( eUnit != NO_UNIT )
++			if (pArea == NULL || pLoopCity->area() == pArea) // K-Mod
+ 			{
+-				if(GC.getUnitInfo(eUnit).getCorporationSpreads(eCorporation) > 0)
++				UnitTypes eUnit = pLoopCity->getProductionUnit();
++
++				if (eUnit != NO_UNIT)
+ 				{
+-					iCount++;
++					if(GC.getUnitInfo(eUnit).getCorporationSpreads(eCorporation) > 0)
++					{
++						iCount++;
++					}
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6201fc639..1657d9a05 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4687,18 +4687,29 @@ int CvPlayerAI::AI_goldTarget() const
+ 
+ 		if (!isNoCorporations())
+ 		{
++			// recall: target turns for gold target = 4 * gamespeed.getResearchPercent()/100
++			// so if we want to get enough money to spread next turn, we need to inflate the target gold
++			int iImmediateMultiplier = 4 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
++
+ 			for (int iI = 0; iI < GC.getNumCorporationInfos(); iI++)
+ 			{
+ 				if (getHasCorporationCount((CorporationTypes)iI) > 0)
+ 				{
+-					iSpreadCost = std::max(iSpreadCost, GC.getCorporationInfo((CorporationTypes)iI).getSpreadCost());
++					int iExecs = countCorporationSpreadUnits(NULL, (CorporationTypes)iI, true);
++					if (iExecs > 0)
++					{
++						int iTempCost = GC.getCorporationInfo((CorporationTypes)iI).getSpreadCost();
++						iTempCost *= iImmediateMultiplier * (iExecs + 1); // execs + 1 because actual spread cost can be higher than the base cost.
++						iTempCost /= 100;
++						iSpreadCost = std::max(iTempCost, GC.getCorporationInfo((CorporationTypes)iI).getSpreadCost());
++					}
+ 				}
+ 			}
+ 		}
+ 		if (iSpreadCost > 0)
+ 		{
+ 			iSpreadCost *= 100 + calculateInflationRate();
+-			iSpreadCost /= 50;
++			iSpreadCost /= 100;
+ 			iGold += iSpreadCost;
+ 		}
+ 		// K-Mod end
+@@ -11740,7 +11751,7 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 		int iNumCities = pArea ? pArea->getCitiesPerPlayer((PlayerTypes)iPlayer) : kLoopPlayer.getNumCities();
+ 		if (kLoopPlayer.isAlive() && iNumCities > 0)
+ 		{
+-			if (GET_TEAM(kLoopPlayer.getTeam()).isOpenBorders(getTeam()))
++			if (GET_TEAM(getTeam()).isFriendlyTerritory(kLoopPlayer.getTeam()) || GET_TEAM(kLoopPlayer.getTeam()).isOpenBorders(getTeam()))
+ 			{
+ 				if (!kLoopPlayer.isNoCorporations() && (iPlayer == getID() || !kLoopPlayer.isNoForeignCorporations()))
+ 				{
+@@ -11764,7 +11775,7 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 
+ 					int iCorpValue = kLoopPlayer.AI_corporationValue(eCorporation);
+ 					int iValue = iSpreadExternalValue;
+-					iValue += iCorpValue * iAttitudeWeight;
++					iValue += (iCorpValue * iAttitudeWeight)/100;
+ 					if (iValue > 0 && iCorpValue > 0 && iCitiesHave == 0)
+ 					{
+ 						// if the player will spread the corp themselves, then that's good for us.
+@@ -14208,7 +14219,8 @@ void CvPlayerAI::AI_doCommerce()
+ 				int iResearchTurnsLeft = getResearchTurnsLeft(eCurrentResearch, true);
+ 				
+ 				// if we can finish the current research without running out of gold, let us spend 2/3rds of our gold 
+-				if (getGold() >= iResearchTurnsLeft * iGoldRate)
++				//if (getGold() >= iResearchTurnsLeft * iGoldRate)
++				if (getGold() >= iResearchTurnsLeft * -iGoldRate) // K-Mod
+ 				{
+ 					iGoldTarget /= 3;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 6e4043d95..05c10de34 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -71,11 +71,10 @@ void CvSelectionGroupAI::AI_separate()
+ 		pEntityNode = nextUnitNode(pEntityNode);
+ 
+ 		pLoopUnit->joinGroup(NULL);
+-		/* original bts code
+ 		if (pLoopUnit->plot()->getTeam() == getTeam())
+ 		{
+ 			pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+-		} */ // disabled by K-Mod
++		}
+ 	}
+ }
+ 
+@@ -98,11 +97,10 @@ void CvSelectionGroupAI::AI_separateNonAI(UnitAITypes eUnitAI)
+ 		if (pLoopUnit->AI_getUnitAIType() != eUnitAI)
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+-			/* original bts code
+ 			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+-			} */ // disabled by K-Mod
++			}
+ 		}
+ 	}
+ }
+@@ -122,11 +120,10 @@ void CvSelectionGroupAI::AI_separateAI(UnitAITypes eUnitAI)
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+ 			// Was potential crash in use of plot() if group emptied
+-			/* original bts code
+ 			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+-			} */ // disabled by K-Mod
++			}
+ 		}
+ 	}
+ }
+@@ -146,11 +143,10 @@ void CvSelectionGroupAI::AI_separateImpassable()
+ 		if( (kPlayer.AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0) )
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+-			/* original bts code
+ 			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+-			} */ // disabled by K-Mod
++			}
+ 		}
+ 	}
+ }
+@@ -169,11 +165,10 @@ void CvSelectionGroupAI::AI_separateEmptyTransports()
+ 		if ((pLoopUnit->AI_getUnitAIType() == UNITAI_ASSAULT_SEA) && (pLoopUnit->getCargo() == 0))
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+-			/* original bts code
+ 			if (pLoopUnit->plot()->getTeam() == getTeam())
+ 			{
+ 				pLoopUnit->getGroup()->pushMission(MISSION_SKIP);
+-			} */ // disabled by K-Mod
++			}
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index afd440f93..362e277d5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2143,8 +2143,8 @@ void CvUnitAI::AI_attackMove()
+ 
+ 					// Since ATTACK can try to joing ATTACK_CITY again, need these units to
+ 					// take a break to let ATTACK_CITY group move and avoid hang
+-					/* getGroup()->pushMission(MISSION_SKIP);
+-					return; */ // K-Mod disabled. I think it'll be fine.
++					getGroup()->pushMission(MISSION_SKIP);
++					return;
+ 				}
+ 			}
+ 		}
+@@ -12889,6 +12889,8 @@ bool CvUnitAI::AI_spreadCorporation()
+ {
+ 	PROFILE_FUNC();
+ 
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++
+ 	CorporationTypes eCorporation = NO_CORPORATION;	
+ 
+ 	int iI;
+@@ -12901,7 +12903,8 @@ bool CvUnitAI::AI_spreadCorporation()
+ 		}
+ 	}
+ 
+-	if (NO_CORPORATION == eCorporation)
++	//if (NO_CORPORATION == eCorporation)
++	if (NO_CORPORATION == eCorporation || !kOwner.isActiveCorporation(eCorporation))
+ 	{
+ 		return false;
+ 	}
+@@ -12930,7 +12933,6 @@ bool CvUnitAI::AI_spreadCorporation()
+ 	if (pBestSpreadPlot == NULL)
+ 	{
+ 		PlayerTypes eTargetPlayer = NO_PLAYER;
+-		const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 
+ 		if (isHuman())
+ 			eTargetPlayer = plot()->isOwned() ? plot()->getOwnerINLINE() : getOwnerINLINE();
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8600

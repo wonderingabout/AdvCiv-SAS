@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3283
+# Commit: 5430cec8bef60fdcb477a00bda12c1926a31352d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0c3c1963edf00b70d16e7ea9fd7385c3e73f4967
+# Title: Click-Map-to-Exit option (city screen) enabled by default
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/BUG City Screen.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index 499914424..3018997b8 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -41,7 +41,7 @@
+ 
+ 			<!-- advc.004t: -->
+ 			<option id="ClickMapToExit" key="Click Map To Exit" 
+-					type="boolean" default="False"/>
++					type="boolean" default="True"/>
+ 			
+ 			<!-- FoodAssist by EmperorFool
+ 				 advc.004: default was False in K-Mod -->
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=463

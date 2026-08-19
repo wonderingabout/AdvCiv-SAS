@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 932
+# Commit: d29ee421fd423cdd3fe6e879799df77e3c80e1b1
+# History segment: K-Mod history
+# Parent used for diff: f930f6de3494bb8c23a6c672403444b6540a354f
+# Title: Made some adjustments to the AI's bombard target when evaluating units
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 741dc0afa..b4d8f3618 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11248,19 +11248,27 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 
+ 		if (!AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
+ 		{
+-			//int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * 8;
+-			int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * (GC.getUnitInfo(eUnit).isIgnoreBuildingDefense()?12 :8);
++			int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * 8;
++			//int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * (GC.getUnitInfo(eUnit).isIgnoreBuildingDefense()?12 :8);
+ 			if (iBombardValue > 0)
+ 			{
+ 				//int iGoalTotalBombardRate = 200;
+ 				// K-Mod note: This goal has no dependancy on civ size, map size, era, strategy, or anything else that matters
+ 				// a flat goal of 200... This needs to be fixed, but for now, I'll just replace it with something rough.
+ 				//int iGoalTotalBombardRate = (getNumCities()+3) * (getCurrentEra()+2) * (AI_isDoStrategy(AI_STRATEGY_CRUSH)?10 :5);
+-				int iGoalTotalBombardRate = AI_totalUnitAIs(UNITAI_ATTACK_CITY) * (getCurrentEra()+3);
+-				if (AI_isDoStrategy(AI_STRATEGY_CRUSH))
++				int iGoalTotalBombardRate = (AI_totalUnitAIs(UNITAI_ATTACK) + AI_totalUnitAIs(UNITAI_ATTACK_CITY)) * (getCurrentEra()+3);
++				/* if (AI_isDoStrategy(AI_STRATEGY_CRUSH))
+ 				{
+ 					iGoalTotalBombardRate *= 3;
+ 					iGoalTotalBombardRate /= 2;
++				} */
++				// Decrease the bombard target if we own every city in the area, or if we are fighting an overseas war
++				if (pArea &&
++					(pArea->getNumCities() == pArea->getCitiesPerPlayer(getID()) ||
++					(pArea->getAreaAIType(getTeam()) != AREAAI_NEUTRAL && !AI_isLandWar(pArea))))
++				{
++					iGoalTotalBombardRate *= 2;
++					iGoalTotalBombardRate /= 3;
+ 				}
+ 
+ 				// Note: this also counts UNITAI_COLLATERAL units, which only play defense
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1984

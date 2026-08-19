@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3200
+# Commit: f509b046ba517a46ed72fa606f52679b88bd4241
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 75dc960b61f6b62a2879d71b4291687970cd40e5
+# Title: Fix AdvCiv bug in Barbarian Spearman tech checks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	25	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1a6837ba8..329a1ab18 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8077,17 +8077,20 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& kArea)
+ 		}
+ 		// <advc.301>
+ 		BonusTypes const eAndBonus = kUnit.getPrereqAndBonus();
+-		std::vector<TechTypes> aeAndBonusTechs(2, NO_TECH);
++		std::vector<TechTypes> aeAndBonusTechs;
+ 		if (eAndBonus != NO_BONUS)
+ 		{
+ 			CvBonusInfo const& kAndBonus = GC.getInfo(eAndBonus);
+-			aeAndBonusTechs.push_back(kAndBonus.getTechCityTrade()); // (as in BtS)
+-			aeAndBonusTechs.push_back(kAndBonus.getTechReveal());
++			TechTypes eTradeTech = kAndBonus.getTechCityTrade(); // (as in BtS)
++			if (eTradeTech != NO_TECH)
++				aeAndBonusTechs.push_back(eTradeTech);
++			TechTypes eRevealTech = kAndBonus.getTechReveal();
++			if (eRevealTech != NO_TECH)
++				aeAndBonusTechs.push_back(eRevealTech);
+ 			bool bValid = true;
+ 			for (size_t j = 0; j < aeAndBonusTechs.size(); j++)
+ 			{
+-				if (aeAndBonusTechs[j] != NO_TECH &&
+-					!GET_TEAM(BARBARIAN_TEAM).isHasTech(aeAndBonusTechs[j]))
++				if (!GET_TEAM(BARBARIAN_TEAM).isHasTech(aeAndBonusTechs[j]))
+ 				{
+ 					bValid = false;
+ 					break;
+@@ -8106,36 +8109,25 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& kArea)
+ 			iUnitEra = GC.getInfo(eAndTech).getEra();
+ 		for (size_t j = 0; j < aeAndBonusTechs.size(); j++)
+ 		{
+-			if (aeAndBonusTechs[j] != NO_TECH)
+-			{
+-				iUnitEra = std::max<int>(iUnitEra,
+-						GC.getInfo(aeAndBonusTechs[j]).getEra());
+-			}
++			iUnitEra = std::max<int>(iUnitEra,
++					GC.getInfo(aeAndBonusTechs[j]).getEra());
+ 		}
+ 		if (iUnitEra + 1 < getCurrentEra())
+ 			continue; // </advc.301>
+ 		bool bFound = false;
+ 		bool bRequires = false;
+ 		for (int j = 0; j < kUnit.getNumPrereqOrBonuses() &&
+-			!bFound; j++) // advc.301
++			!bFound; j++)
+ 		{
++			bRequires = true;
+ 			BonusTypes const eOrBonus = kUnit.getPrereqOrBonuses(j);
+ 			CvBonusInfo const& kOrBonus = GC.getInfo(eOrBonus);
+-			// <advc.301>
+-			std::vector<TechTypes> aeOrBonusTechs(2, NO_TECH);
+-			aeOrBonusTechs.push_back(kOrBonus.getTechCityTrade()); // (as in BtS)
+-			aeOrBonusTechs.push_back(kOrBonus.getTechReveal());
+-			for (size_t k = 0; k < aeOrBonusTechs.size(); k++)
++			if (GET_TEAM(BARBARIAN_TEAM).isHasTech(kOrBonus.getTechCityTrade()) &&
++				// <advc.301>
++				GET_TEAM(BARBARIAN_TEAM).isHasTech(kOrBonus.getTechReveal()) &&
++				kArea.hasAnyAreaPlayerBonus(eOrBonus)) // </advc.301>
+ 			{
+-				if (aeOrBonusTechs[k] == NO_TECH)
+-					continue;
+-				bRequires = true;
+-				if (GET_TEAM(BARBARIAN_TEAM).isHasTech(aeOrBonusTechs[k]) &&
+-					kArea.hasAnyAreaPlayerBonus(eOrBonus)) // </advc.301>
+-				{
+-					bFound = true;
+-					break;
+-				}
++				bFound = true;
+ 			}
+ 		}
+ 		if (bRequires && !bFound)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2855

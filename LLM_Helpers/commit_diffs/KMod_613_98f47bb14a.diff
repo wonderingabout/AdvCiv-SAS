@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 613
+# Commit: 98f47bb14a42fa522a3885749d532ce6117004e8
+# History segment: K-Mod history
+# Parent used for diff: ecf594ace89b74e0210b1826670304c4873b2db2
+# Title: Added some more strategy tips for the loading screen.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	0	Assets/xml/GameInfo/CIV4Hints.xml
+44	4	Assets/xml/Text/K-Mod hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index da854bf7c..4eeb591dd 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -451,5 +451,20 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_7</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_8</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_9</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_10</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_11</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_12</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index bc2182720..450bac883 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -57,11 +57,11 @@
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_6</Tag>
+-	<English>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</English>
+-	<French>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</French>
+-	<German>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</German>
++	<English>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</English>
++	<French>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</French>
++	<German>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</German>
+ 	<Italian>Le unit� con la promozione "Leadership" (Grande Generale richiesto) riducono maggiormente le probabilit� di rivolta di una citt�.</Italian>
+-	<Spanish>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</Spanish>
++	<Spanish>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</Spanish>
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_7</Tag>
+@@ -71,6 +71,46 @@
+ 	<Italian>Quando un Grande Generale decide di unirsi ad un unit� come Grande Condottiero, distribuisce in immediato aumento di esperienza con tutte le unit� sulla stessa casella. Maggiore lo stack, maggiore l'esperienza.</Italian>
+ 	<Spanish>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</Spanish>
+ </TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_8</Tag>
++	<English>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</English>
++	<French>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</French>
++	<German>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</German>
++	<Italian>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</Italian>
++	<Spanish>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_9</Tag>
++	<English>As religions grow older, they become slightly less likely to spread.</English>
++	<French>As religions grow older, they become slightly less likely to spread.</French>
++	<German>As religions grow older, they become slightly less likely to spread.</German>
++	<Italian>As religions grow older, they become slightly less likely to spread.</Italian>
++	<Spanish>As religions grow older, they become slightly less likely to spread.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_10</Tag>
++	<English>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</English>
++	<French>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</French>
++	<German>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</German>
++	<Italian>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</Italian>
++	<Spanish>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_11</Tag>
++	<English>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</English>
++	<French>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</French>
++	<German>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</German>
++	<Italian>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</Italian>
++	<Spanish>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_12</Tag>
++	<English>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</English>
++	<French>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</French>
++	<German>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</German>
++	<Italian>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</Italian>
++	<Spanish>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</Spanish>
++</TEXT>
+ <!-- replacement text for the inaccurate barbarian tip (changed english only)-->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_12</Tag>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6325

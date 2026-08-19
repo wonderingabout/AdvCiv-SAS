@@ -1,0 +1,716 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1330
+# Commit: 7e2049e85cbff9227b4148c567d0e37b261c3381
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f45077d73ad55b7d98819dd92200adc7bafdbc69
+# Title: Merged changes by DarkLunaPhantom (Kek-Mod 0.20) from late May. https://github.com/DarkLunaPhantom/Civ4-K-Mod/commits/master
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/AdvCiv4lerts.cpp
+52	57	CvGameCoreDLL/CvCity.cpp
+55	13	CvGameCoreDLL/CvGame.cpp
+48	22	CvGameCoreDLL/CvPlayer.cpp
+39	15	CvGameCoreDLL/CvPlayerAI.cpp
+12	3	CvGameCoreDLL/CvTeamAI.cpp
+0	35	CvGameCoreDLL/WarAndPeaceAI.cpp
+0	7	CvGameCoreDLL/WarAndPeaceAI.h
+-	-	manual_0.92e.odt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index db8479395..590ecc396 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -15,6 +15,8 @@ using std::set_difference;
+ AdvCiv4lert::AdvCiv4lert() {
+ 
+ 	isSilent = false;
++	/*  Set this to true in a subclass constructor in order to test or debug a
++		particular alert through AI Auto Play */
+ 	isDebug = false;
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 1c3a5ff2c..01bd47b45 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -15934,81 +15934,76 @@ int CvCity::getBuildingHealthChange(BuildingClassTypes eBuildingClass) const
+ }
+ 
+ void CvCity::liberate(bool bConquest)
+-{
+-	CvPlot* pPlot = plot();
++{	// <advc.003>
+ 	PlayerTypes ePlayer = getLiberationPlayer(bConquest);
++	if(NO_PLAYER == ePlayer)
++		return; // </advc.003>
++	CvPlot* pPlot = plot();
+ 	PlayerTypes eOwner = getOwnerINLINE();
+ 
+-	if (NO_PLAYER != ePlayer)
++	int iOldOwnerCulture = getCultureTimes100(eOwner);
++	int iOldMasterLand = 0;
++	int iOldVassalLand = 0;
++	bool bPreviouslyOwned = isEverOwned(ePlayer); // K-Mod, for use below
++	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(GET_PLAYER(eOwner).getTeam()))
+ 	{
+-		int iOldOwnerCulture = getCultureTimes100(eOwner);
+-		int iOldMasterLand = 0;
+-		int iOldVassalLand = 0;
+-		bool bPreviouslyOwned = isEverOwned(ePlayer); // K-Mod, for use below
+-		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(GET_PLAYER(eOwner).getTeam()))
+-		{
+-			iOldMasterLand = GET_TEAM(GET_PLAYER(eOwner).getTeam()).getTotalLand();
+-			iOldVassalLand = std::max(10, // advc.112: Lower bound added
+-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getTotalLand(false));
+-		}
++		iOldMasterLand = GET_TEAM(GET_PLAYER(eOwner).getTeam()).getTotalLand();
++		iOldVassalLand = std::max(10, // advc.112: Lower bound added
++			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getTotalLand(false));
++	}
+ 
+-		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_LIBERATED", getNameKey(), GET_PLAYER(eOwner).getNameKey(), GET_PLAYER(ePlayer).getCivilizationAdjectiveKey());
+-		for (int iI = 0; iI < MAX_PLAYERS; ++iI)
++	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_LIBERATED", getNameKey(), GET_PLAYER(eOwner).getNameKey(), GET_PLAYER(ePlayer).getCivilizationAdjectiveKey());
++	for (int iI = 0; iI < MAX_PLAYERS; ++iI)
++	{
++		CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++		if (civ.isAlive())
+ 		{
+-			CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
+-			if (civ.isAlive())
++			if (isRevealed(civ.getTeam(), false)
++					|| civ.isSpectator()) // advc.127
+ 			{
+-				if (isRevealed(civ.getTeam(), false)
+-						|| civ.isSpectator()) // advc.127
+-				{
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_REVOLTEND",
+-							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
+-							ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), getX_INLINE(), getY_INLINE(), true, true);
+-				}
++				gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_REVOLTEND",
++					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
++					ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), getX_INLINE(), getY_INLINE(), true, true);
+ 			}
+ 		}
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eOwner, szBuffer, getX_INLINE(), getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++	}
++	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eOwner, szBuffer, getX_INLINE(), getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+-		GET_PLAYER(ePlayer).acquireCity(this, false, true, true);
+-		// advc.130j:
+-		GET_PLAYER(ePlayer).AI_rememberEvent(eOwner, MEMORY_LIBERATED_CITIES);
++	GET_PLAYER(ePlayer).acquireCity(this, false, true, true);
++	// advc.130j:
++	GET_PLAYER(ePlayer).AI_rememberEvent(eOwner, MEMORY_LIBERATED_CITIES);
+ 
+-		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(GET_PLAYER(eOwner).getTeam()))
+-		{
+-			int iNewMasterLand = GET_TEAM(GET_PLAYER(eOwner).getTeam()).getTotalLand();
+-			int iNewVassalLand = std::max(10, // advc.112: Lower bound added
+-					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getTotalLand(false));
++	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(GET_PLAYER(eOwner).getTeam()))
++	{
++		int iNewMasterLand = GET_TEAM(GET_PLAYER(eOwner).getTeam()).getTotalLand();
++		int iNewVassalLand = std::max(10, // advc.112: Lower bound added
++				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getTotalLand(false));
+ 
+-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).setMasterPower(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getMasterPower() + iNewMasterLand - iOldMasterLand);
+-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).setVassalPower(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getVassalPower() + iNewVassalLand - iOldVassalLand);
++		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).setMasterPower(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getMasterPower() + iNewMasterLand - iOldMasterLand);
++		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).setVassalPower(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getVassalPower() + iNewVassalLand - iOldVassalLand);
++	}
++	// dlph.23: Commented out. setCulture now done by advc.122 in acquireCity.
++	/*if (NULL != pPlot)
++	{
++		CvCity* pCity = pPlot->getPlotCity();
++		if (NULL != pCity)
++		{
++			// K-Mod, 7/jan/11, karadoc
++			// This mechanic was exploitable. Players could increase their culture indefinitely in a single turn by gifting cities backwards and forwards.
++			// I've attempted to close the exploit.
++			if (!bPreviouslyOwned) // K-Mod
++				pCity->setCultureTimes100(ePlayer, pCity->getCultureTimes100(ePlayer) + iOldOwnerCulture / 2, true, true);
++			// K-Mod end
+ 		}
+ 		
+-		if (NULL != pPlot)
++		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAVassal())
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-			if (NULL != pCity)
++			for (int i = 0; i < GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS"); ++i)
+ 			{
+-/*
+-** K-Mod, 7/jan/11, karadoc
+-** This mechanic was exploitable. Players could increase their culture indefinitely in a single turn by gifting cities backwards and forwards.
+-** I've attempted to close the exploit.
+-*/
+-				if (!bPreviouslyOwned) // K-Mod
+-					pCity->setCultureTimes100(ePlayer, pCity->getCultureTimes100(ePlayer) + iOldOwnerCulture / 2, true, true);
+-/*
+-** K-Mod end
+-*/
+-			}
+-
+-			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAVassal())
+-			{
+-				for (int i = 0; i < GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS"); ++i)
+-				{
+-					pCity->initConscriptedUnit();
+-				}
++				pCity->initConscriptedUnit();
+ 			}
+ 		}
+-	}
++	}*/
+ }
+ 
+ PlayerTypes CvCity::getLiberationPlayer(bool bConquest) const
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3cd5274dc..350bba0b5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -319,7 +319,8 @@ void CvGame::setInitialItems()
+         CvDeal* d; int dummy;
+         for(d = firstDeal(&dummy); d != NULL; d = nextDeal(&dummy))
+             d->setInitialGameTurn(getGameTurn());
+-	} // </advc.250c></advc.251>
++	} // </advc.250c>
++	// </advc.251>
+ 	for (int i = 0; i < MAX_PLAYERS; ++i)
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+@@ -4999,8 +5000,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		{
+ 			return false;
+ 		}
+-
+-		if (!kPlayer.isFullMember(eVoteSource))
++		//if (!kPlayer.isFullMember(eVoteSource))
++		// dlph.25: 'These are not necessarily the same.'
++		if (!GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 		{
+ 			return false;
+ 		}
+@@ -5029,8 +5031,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 	else if (GC.getVoteInfo(kData.eVote).isForceNoTrade())
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+-
+-		if (kPlayer.isFullMember(eVoteSource))
++		//if (kPlayer.isFullMember(eVoteSource))
++		// dlph.25: 'These are not necessarily the same.'
++		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 		{
+ 			return false;
+ 		}
+@@ -5041,7 +5044,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			CvPlayer& kPlayer2 = GET_PLAYER((PlayerTypes)iPlayer2);
+ 			if (kPlayer2.getTeam() != kPlayer.getTeam())
+ 			{
+-				if (kPlayer2.isFullMember(eVoteSource))
++				//if (kPlayer2.isFullMember(eVoteSource))
++				// dlph.25: 'These are not necessarily the same.'
++				if (GET_TEAM(kPlayer2.getTeam()).isFullMember(eVoteSource))
+ 				{
+ 					if (kPlayer2.canStopTradingWithTeam(kPlayer.getTeam()))
+ 					{
+@@ -5066,8 +5071,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		{
+ 			return false;
+ 		}
+-
+-		if (kPlayer.isFullMember(eVoteSource))
++		//if (kPlayer.isFullMember(eVoteSource))
++		// dlph.25: 'These are not necessarily the same.'
++		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 		{
+ 			return false;
+ 		}
+@@ -5094,9 +5100,11 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			return false;
+ 		}
+ 
+-		// Can be passed against a non-member only if he is already at war with a member 
+-		if (!kPlayer.isVotingMember(eVoteSource))
++		//if (!kPlayer.isVotingMember(eVoteSource))
++		// dlph.25: Replacing the above
++		if (!GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 		{
++			// Can be passed only if already at war with a member
+ 			bool bValid = false;
+ 			for (int iTeam2 = 0; iTeam2 < MAX_CIV_TEAMS; ++iTeam2)
+ 			{
+@@ -5121,7 +5129,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 	else if (GC.getVoteInfo(kData.eVote).isAssignCity())
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+-		if (kPlayer.isFullMember(eVoteSource) || !kPlayer.isVotingMember(eVoteSource))
++		//if (kPlayer.isFullMember(eVoteSource) || !kPlayer.isVotingMember(eVoteSource))
++		// dlph.25: 'These are not necessarily the same'
++		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource) || !GET_TEAM(kPlayer.getTeam()).isVotingMember(eVoteSource))
+ 		{
+ 			return false;
+ 		}
+@@ -5149,7 +5159,9 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			return false;
+ 		}
+ 
+-		if (!kOtherPlayer.isFullMember(eVoteSource))
++		//if (!kOtherPlayer.isFullMember(eVoteSource))
++		// dlph.25: 'These are not necessarily the same'
++		if (!GET_TEAM(kOtherPlayer.getTeam()).isFullMember(eVoteSource))
+ 		{
+ 			return false;			
+ 		}
+@@ -8875,7 +8887,37 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
++			// <dlph.25> 'Cancel defensive pacts with the attackers first'
++			int foo=-1;
++			for(CvDeal* pLoopDeal = GC.getGameINLINE().firstDeal(&foo);
++					pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&foo)) {
++				bool bCancelDeal = false;
++				if((TEAMID(pLoopDeal->getFirstPlayer()) == kPlayer.getTeam() &&
++						TEAMREF(pLoopDeal->getSecondPlayer()).isVotingMember(
++						kData.eVoteSource)) || (GET_PLAYER(pLoopDeal->
++						getSecondPlayer()).getTeam() == kPlayer.getTeam() &&
++						TEAMREF(pLoopDeal->getFirstPlayer()).isVotingMember(
++						kData.eVoteSource))) {
++					for(CLLNode<TradeData>* pNode = pLoopDeal->headFirstTradesNode();
++							pNode != NULL; pNode = pLoopDeal->nextFirstTradesNode(pNode)) {
++						if(pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT) {
++							bCancelDeal = true;
++							break;
++						}
++					}
++					if(!bCancelDeal) {
++						for(CLLNode<TradeData>* pNode = pLoopDeal->headSecondTradesNode();
++								pNode != NULL; pNode = pLoopDeal->nextSecondTradesNode(pNode)) {
++							if(pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT) {
++								bCancelDeal = true;
++								break;
++							}
++						}
++					}
++				}
++				if(bCancelDeal)
++					pLoopDeal->kill();
++			} // </dlph.25>
+ 			for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+ 			{
+ 				CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 92d667588..f8307b493 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2448,8 +2448,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	{
+ 		pNewCity->setEverOwned(((PlayerTypes)iI), abEverOwned[iI]);
+ 		pNewCity->setCultureTimes100(((PlayerTypes)iI), aiCulture[iI], false, false);
+-	}
+-
++	} // <dlph.23>
++	if(bTrade) {
++		int oldOwnerCulture = pNewCity->getCultureTimes100(eOldOwner);
++		int newOwnerCulture = pNewCity->getCultureTimes100(getID());
++		// Round down to a multiple of 100
++		int convertedCulture = (oldOwnerCulture / 300) * 100;
++		pNewCity->setCultureTimes100(getID(),
++				newOwnerCulture + convertedCulture, true, false);
++		pNewCity->setCultureTimes100(eOldOwner,
++				oldOwnerCulture - convertedCulture, true, false);
++    } // </dlph.23>
+ 	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+ 	{
+ 		int iNum = 0;
+@@ -19638,7 +19647,7 @@ void CvPlayer::setTriggerFired(const EventTriggeredData& kTriggeredData, bool bO
+ 					}
+ 				}
+ 			}
+-			// advc.106: Exclude from replay log
++			// advc.106g:
+ 			//GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), kTriggeredData.m_szGlobalText, kTriggeredData.m_iPlotX, kTriggeredData.m_iPlotY, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 		}
+ 		else if (!kTriggeredData.m_szText.empty())
+@@ -21140,8 +21149,8 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
+ 				}
+ 			}
+ 		}
+-
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szGlobalText, pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++		// advc.106g:
++		//GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szGlobalText, pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 	}
+ 
+ 	if (!CvWString(kEvent.getLocalInfoTextKey()).empty())
+@@ -22321,8 +22330,8 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 				}
+ 			}
+ 		}
+-
+-		for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
++		// dlph.24: Commented out
++		/*for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
+ 		{
+ 			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+ 
+@@ -22331,7 +22340,7 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 				kNewTeam.setEspionagePointsAgainstTeam((TeamTypes)iTeam, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam));
+ 				kLoopTeam.setEspionagePointsAgainstTeam(GET_PLAYER(eNewPlayer).getTeam(), kLoopTeam.getEspionagePointsAgainstTeam(getTeam()));
+ 			}
+-		}
++		}*/
+ 		kNewTeam.setEspionagePointsEver(GET_TEAM(getTeam()).getEspionagePointsEver());
+ 
+ 		GET_TEAM(getTeam()).assignVassal(GET_PLAYER(eNewPlayer).getTeam(), false);
+@@ -22947,11 +22956,17 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 					return false;
+ 				}
+ 
+-				if (kOurTeam.getAtWarCount(true) > 0 || GET_TEAM((TeamTypes)iTeam2).getAtWarCount(true) > 0)
++				if ((kOurTeam.getAtWarCount(true) > 0 || GET_TEAM((TeamTypes)iTeam2).getAtWarCount(true) > 0)
++						// dlph.25: 'Sometimes defensive pact can be signed while at war'
++						&& GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() == 0)
+ 				{
+ 					return false;
+-				}
+-
++				} // <dlph.25>
++				if(kOurTeam.isAtWar((TeamTypes)iTeam2)
++						/*  advc: Same additional restriction as for DP between
++							AI teams (dlph.3) */
++						|| !kOurTeam.allWarsShared((TeamTypes)iTeam2))
++					return false; // </dlph.25>
+ 				if (!kOurTeam.canSignDefensivePact((TeamTypes)iTeam2))
+ 				{
+ 					return false;
+@@ -23041,8 +23056,13 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 	{
+ 		return false;
+ 	}
+-
+-	if (GC.getVoteInfo(kData.eVote).isOpenBorders())
++	CvVoteInfo const& vi = GC.getVoteInfo(kData.eVote); // advc.003
++	// <dlph.25> advc: Kek-Mod just checks isAVassal
++	if(GET_TEAM(getTeam()).isCapitulated()
++			|| (GET_TEAM(getTeam()).isAVassal() &&
++			(vi.isForceWar() || vi.isForcePeace())))
++		return false; // </dlph.25>
++	if (vi.isOpenBorders())
+ 	{
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+@@ -23059,7 +23079,7 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 			}
+ 		}
+ 	}
+-	else if (GC.getVoteInfo(kData.eVote).isDefensivePact())
++	else if (vi.isDefensivePact())
+ 	{
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+@@ -23076,13 +23096,15 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 			}
+ 		}
+ 	}
+-	else if (GC.getVoteInfo(kData.eVote).isForceNoTrade())
++	else if (vi.isForceNoTrade())
+ 	{
+ 		return true;
+ 	}
+-	else if (GC.getVoteInfo(kData.eVote).isForceWar())
++	else if (vi.isForceWar())
+ 	{
+-		if (!::atWar(getTeam(), GET_PLAYER(kData.ePlayer).getTeam()))
++		if (!::atWar(getTeam(), TEAMID(kData.ePlayer))
++				// dlph.25: 'Cannot defy war declaration against itself'
++				&& TEAMREF(kData.ePlayer).getMasterTeam() != getMasterTeam())
+ 		{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      12/31/08                                jdog5000      */
+@@ -23090,7 +23112,8 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ /*                                                                                              */
+ /************************************************************************************************/
+ 			// Vassals can't defy declarations of war
+-			if( !GET_TEAM(getTeam()).isAVassal() )
++			// dlph.25: Vassals already handled
++			//if( !GET_TEAM(getTeam()).isAVassal() )
+ 			{
+ 				return true;
+ 			}
+@@ -23099,7 +23122,7 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ /************************************************************************************************/
+ 		}
+ 	}
+-	else if (GC.getVoteInfo(kData.eVote).isForcePeace())
++	else if (vi.isForcePeace())
+ 	{
+ 		if (GET_PLAYER(kData.ePlayer).getTeam() == getTeam())
+ 		{
+@@ -23111,9 +23134,11 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 			return true;
+ 		}
+ 	}
+-	else if (GC.getVoteInfo(kData.eVote).isAssignCity())
++	else if (vi.isAssignCity())
+ 	{
+-		if (kData.ePlayer == getID())
++		if (kData.ePlayer == getID()
++				// dlph.25: 'You can defy resolution giving you a city'
++				|| kData.eOtherPlayer == getID())
+ 		{
+ 			return true;
+ 		}
+@@ -23129,7 +23154,8 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 
+ void CvPlayer::setDefiedResolution(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kData)
+ {
+-	FAssert(canDefyResolution(eVoteSource, kData));
++	FAssertMsg(canDefyResolution(eVoteSource, kData),
++			"OK to fail when a team member defies a resolution"); // dlph.25
+ 
+ 	// cities get unhappiness
+ 	int iLoop;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8103bcf6c..ec8c541f2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10015,16 +10015,22 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ */
+ 		// Remove blanket auto approval for friendly secretary
+ 		bool bFriendlyToSecretary = false;
++		// dlph.25: (The bRepeal code is really advc code)
++		bool bRepeal = false;
+ 		if (!bPropose)
+-		{
++		{	// dlph.25:
++			bRepeal = (g.getVoteOutcome(eVote) == PLAYER_VOTE_YES);
+ 			if (eSecretaryGeneral != NO_TEAM)
+ 			{
+ 				if (eSecretaryGeneral == getTeam()
+ 						// <advc.130v>
+ 						|| (GET_TEAM(getTeam()).isVassal(eSecretaryGeneral)
+ 						&& GET_TEAM(getTeam()).isCapitulated())) // </advc.130v>
+-				{
+-					return PLAYER_VOTE_YES;
++				{	// <dlph.25>
++					if(bRepeal)
++						return PLAYER_VOTE_NO;
++					else // </dlph.25>
++						return PLAYER_VOTE_YES;
+ 				}
+ 				else
+ 				{
+@@ -10105,8 +10111,11 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+ 				if (bFriendlyToSecretary)
+-				{
+-					return PLAYER_VOTE_YES;
++				{	// <dlph.25>
++					if(bRepeal)
++						return PLAYER_VOTE_NO;
++					else // </dlph.25>
++						return PLAYER_VOTE_YES;
+ 				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -10155,9 +10164,15 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+ 				if (bFriendlyToSecretary)
+-				{
+-					iVoteBanThreshold *= 2;
+-					iVoteBanThreshold /= 3;
++				{	// <dlph.25>
++					if(bRepeal) {
++						iVoteBanThreshold *= 3;
++						iVoteBanThreshold /= 2;
++					}
++					else { // </dlph.25>
++						iVoteBanThreshold *= 2;
++						iVoteBanThreshold /= 3;
++					}
+ 				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -10193,8 +10208,11 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+ 				if (bFriendlyToSecretary)
+-				{
+-					return PLAYER_VOTE_YES;
++				{	// <dlph.25>
++					if(bRepeal)
++						return PLAYER_VOTE_NO;
++					else // </dlph.25>
++						return PLAYER_VOTE_YES;
+ 				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -10243,8 +10261,11 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+ 				if (bFriendlyToSecretary)
+-				{
+-					return PLAYER_VOTE_YES;
++				{	// <dlph.25>
++					if(bRepeal)
++						return PLAYER_VOTE_NO;
++					else // </dlph.25>
++						return PLAYER_VOTE_YES;
+ 				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -10275,8 +10296,11 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+ 				if (bFriendlyToSecretary)
+-				{
+-					return PLAYER_VOTE_YES;
++				{	// <dlph.25>
++					if(bRepeal)
++						return PLAYER_VOTE_NO;
++					else // </dlph.25>
++						return PLAYER_VOTE_YES;
+ 				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -11195,7 +11219,7 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 			if(mc > 0)
+ 				return false; // </advc.130o>
+ 			/*  <advc.130o> Was hard-coded, but the XML value is CAUTIOUS for all
+-				leaders, so, no functional change. */
++				leaders, so no functional change. */
+ 			AttitudeTypes const noGiveHelpThresh = (AttitudeTypes)GC.getLeaderHeadInfo(
+ 					getPersonalityType()).getNoGiveHelpAttitudeThreshold();
+ 			demand = AI_getAttitude(ePlayer) <= noGiveHelpThresh;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 09eda178a..1a3d6d590 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1308,9 +1308,18 @@ int CvTeamAI::AI_chooseElection(const VoteSelectionData& kVoteSelectionData) con
+ 				{
+ 					if (GET_PLAYER((PlayerTypes)iJ).getTeam() == getID())
+ 					{
+-						PlayerVoteTypes eVote = GET_PLAYER((PlayerTypes)iJ).AI_diploVote(kVoteSelectionData.aVoteOptions[iI], eVoteSource, true);
+-
+-						if (eVote != PLAYER_VOTE_YES || eVote == GC.getGameINLINE().getVoteOutcome((VoteTypes)iI))
++						PlayerVoteTypes //eVote =
++								ePlayerVote = // dlph.25: 'Same variable name was confusing'
++								GET_PLAYER((PlayerTypes)iJ).AI_diploVote(kVoteSelectionData.aVoteOptions[iI], eVoteSource, true);
++						//if (eVote != PLAYER_VOTE_YES || eVote == GC.getGameINLINE().getVoteOutcome((VoteTypes)iI))
++						/*  <dlph.25> Replacing the above.
++							'AI can choose to repeal an already passed resolution
++							if all team members agree' */
++						bool bVoteYes = (ePlayerVote == PLAYER_VOTE_YES);
++						bool bAlreadyPassed = (GC.getGameINLINE().getVoteOutcome(
++								eVote) == PLAYER_VOTE_YES);
++						  if((bVoteYes && bAlreadyPassed) || (!bVoteYes && !bAlreadyPassed))
++						// </dlph.25>
+ 						{
+ 							bValid = false;
+ 							break;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index ea2dddc6f..f4d13841b 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2004,24 +2004,6 @@ void WarAndPeaceAI::Civ::read(FDataStreamBase* stream) {
+ 	cache.read(stream);
+ }
+ 
+-int WarAndPeaceAI::Civ::limitedWarRand() const {
+-
+-	return GC.getLeaderHeadInfo(GET_PLAYER(weId).getPersonalityType()).
+-			getLimitedWarRand();
+-}
+-
+-int WarAndPeaceAI::Civ::totalWarRand() const {
+-
+-	return GC.getLeaderHeadInfo(GET_PLAYER(weId).getPersonalityType()).
+-			getMaxWarRand();
+-}
+-
+-int WarAndPeaceAI::Civ::dogpileWarRand() const {
+-
+-	return GC.getLeaderHeadInfo(GET_PLAYER(weId).getPersonalityType()).
+-			getDogpileWarRand();
+-}
+-
+ bool WarAndPeaceAI::Civ::considerDemand(PlayerTypes theyId, int tradeVal) const {
+ 
+ 	CvPlayerAI const& we = GET_PLAYER(weId);
+@@ -2296,23 +2278,6 @@ int WarAndPeaceAI::Civ::getDominationStage() const {
+ 	return 0;
+ }
+ 
+-int WarAndPeaceAI::Civ::closeBordersAttitudeChangePercent(
+-		PlayerTypes civId) const {
+-
+-	/* A bit of a hack. The attitude-change value is first factored in by 
+-	   AI_getCloseBordersAttitude, then factored out again. This causes
+-	   rounding errors too.
+-	   It's fast, though, b/c AI_getCloseBordersAttitude uses caching. The
+-	   clean solution would be to cache the result of this function instead.
+-	   That's too laborious to program considering what this function is used
+-	   for. */
+-	CvPlayerAI& we = GET_PLAYER(weId);
+-	int cbac = GC.getLeaderHeadInfo(we.getPersonalityType()).
+-			getCloseBordersAttitudeChange();
+-	if(cbac == 0) return 0;
+-	return (we.AI_getCloseBordersAttitude(civId) * 100) / cbac;
+-}
+-
+ double WarAndPeaceAI::Civ::militaryPower(CvUnitInfo const& u,
+ 		double baseValue) const {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index b18a45385..025e2f7f5 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -217,10 +217,6 @@ public:
+ 		  void write(FDataStreamBase* stream);
+ 		  void read(FDataStreamBase* stream);
+ 		WarAndPeaceCache const& getCache() const; WarAndPeaceCache& getCache();
+-	    // WarRand: CvTeamAI only provides averaged values per team
+-		  int totalWarRand() const;
+-		  int limitedWarRand() const;
+-		  int dogpileWarRand() const;
+ 		// Request and demands. BtS handles these in CvPlayerAI::AI_considerOffer.
+ 		bool considerDemand(PlayerTypes theyId, int tradeVal) const;
+ 		bool considerGiftRequest(PlayerTypes theyId, int tradeVal) const;
+@@ -238,9 +234,6 @@ public:
+ 		bool isNearMilitaryVictory(int stage) const;
+ 		int getConquestStage() const;
+ 		int getDominationStage() const;
+-		/* Only the percentage that says how much pressure there is at the borders;
+-		   without the leader-specific factor (CloseBordersAttitudeChange). */
+-		int closeBordersAttitudeChangePercent(PlayerTypes civId) const;
+ 		/* This function isn't specific to a given civ. Should perhaps
+ 		   be in a wrapper/ subclass of CvUnitInfo. Leaving it here for now.
+ 		   At least it's easily accessible this way.
+
+[PATCH OMITTED] file=a/manual_0.92e.odt b/manual_0.92e.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=28836

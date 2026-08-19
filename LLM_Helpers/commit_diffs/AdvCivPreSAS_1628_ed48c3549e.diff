@@ -1,0 +1,794 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1628
+# Commit: ed48c3549ef7bdc407fc86f9518adffeabb62b20
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 437002d30474397556d9f633a925270144733674
+# Title: Style changes and minor performance tweaks in canConstruct
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+73	106	CvGameCoreDLL/CvCity.cpp
+26	21	CvGameCoreDLL/CvGame.cpp
+55	93	CvGameCoreDLL/CvPlayer.cpp
+69	39	CvGameCoreDLL/CvTeam.cpp
+2	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 07b767562..4d16739a9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1866,22 +1866,15 @@ int CvCity::getNumNationalWondersLeft() const {
+ 
+ bool CvCity::isBuildingsMaxed() const
+ {
+-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+-	{
+-		return false;
+-	}
++	// <advc.003b> -1 unless a mod-mod changes it
++	static int iMaxBuildingsPerCity = GC.getDefineINT("MAX_BUILDINGS_PER_CITY");
++	if (iMaxBuildingsPerCity < 0)
++		return false; // </advc.003b>
+ 
+-	if (GC.getDefineINT("MAX_BUILDINGS_PER_CITY") == -1)
+-	{
++	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+ 		return false;
+-	}
+ 
+-	if (getNumBuildings() >= GC.getDefineINT("MAX_BUILDINGS_PER_CITY"))
+-	{
+-		return true;
+-	}
+-
+-	return false;
++	return (getNumBuildings() >= iMaxBuildingsPerCity);
+ }
+ 
+ // <advc.064d>
+@@ -1983,9 +1976,11 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
+ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
+ 		bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
+ {
+-	if(eBuilding == NO_BUILDING)
++	if(eBuilding == NO_BUILDING) // advc.test: Safe to remove this check?
++	{
++		FAssert(false);
+ 		return false;
+-
++	}
+ 	if(GC.getUSE_CAN_CONSTRUCT_CALLBACK()) {
+ 		CyCity* pyCity = new CyCity((CvCity*)this);
+ 		CyArgsList argsList;
+@@ -2005,81 +2000,67 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
+ 	if(getNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS())
+ 		return false;
+ 
+-	CvBuildingInfo const& bi = GC.getBuildingInfo(eBuilding);
+-	if (bi.isPrereqReligion())
++	CvBuildingInfo const& kBuilding = GC.getBuildingInfo(eBuilding);
++	if (kBuilding.isPrereqReligion() &&
++			//getReligionCount() > 0
++			getReligionCount() <= 0) // K-Mod
++		return false;
+ 	{
+-		//if (getReligionCount() > 0)
+-		if(getReligionCount() == 0) // K-Mod
++		ReligionTypes ePrereqReligion = (ReligionTypes)kBuilding.getPrereqReligion();
++		if (ePrereqReligion != NO_RELIGION && !isHasReligion(ePrereqReligion))
+ 			return false;
+ 	}
+-
+-	if (bi.isStateReligion())
++	if (kBuilding.isStateReligion())
+ 	{
+ 		ReligionTypes eStateReligion = GET_PLAYER(getOwner()).getStateReligion();
+-		if(NO_RELIGION == eStateReligion || !isHasReligion(eStateReligion))
++		if(eStateReligion == NO_RELIGION || !isHasReligion(eStateReligion))
+ 			return false;
+ 	}
+-
+-	if (bi.getPrereqReligion() != NO_RELIGION)
+ 	{
+-		if(!isHasReligion((ReligionTypes)(bi.getPrereqReligion())))
+-			return false;
+-	}
+-
+-	CorporationTypes ePrereqCorp = (CorporationTypes)bi.getPrereqCorporation();
+-	if (ePrereqCorp != NO_CORPORATION)
+-	{
+-		if(!isHasCorporation(ePrereqCorp))
+-			return false;
++		CorporationTypes ePrereqCorp = (CorporationTypes)kBuilding.getPrereqCorporation();
++		if (ePrereqCorp != NO_CORPORATION)
++		{
++			if(!isHasCorporation(ePrereqCorp))
++				return false;
++		}
+ 	}
+ 
+-	CorporationTypes eFoundCorp = (CorporationTypes)bi.getFoundsCorporation();
++	CorporationTypes eFoundCorp = (CorporationTypes)kBuilding.getFoundsCorporation();
+ 	if (eFoundCorp != NO_CORPORATION)
+ 	{
+-		if(GC.getGame().isCorporationFounded(eFoundCorp))
+-			return false;
+-
+-		for (int iCorporation = 0; iCorporation < GC.getNumCorporationInfos(); ++iCorporation)
++		for (int i = 0; i < GC.getNumCorporationInfos(); i++)
+ 		{
+-			CorporationTypes eLoopCorp = (CorporationTypes)iCorporation;
+-			if (isHeadquarters(eLoopCorp))
+-			{
+-				if(GC.getGame().isCompetingCorporation(eLoopCorp, eFoundCorp))
+-					return false;
+-			}
++			CorporationTypes eLoopCorp = (CorporationTypes)i;
++			if (isHeadquarters(eLoopCorp) && GC.getGame().
++					isCompetingCorporation(eLoopCorp, eFoundCorp))
++				return false;
+ 		}
+ 	}
+-
+ 	if(!isValidBuildingLocation(eBuilding))
+ 		return false;
+ 
+-	if (bi.isGovernmentCenter())
+-	{
+-		if(isGovernmentCenter())
+-			return false;
+-	}
++	if (kBuilding.isGovernmentCenter() && isGovernmentCenter())
++		return false;
+ 
+ 	if (!bTestVisible)
+ 	{
+-		if (!bContinue)
+-		{
+-			if(getFirstBuildingOrder(eBuilding) != -1)
+-				return false;
+-		}
+-		BuildingClassTypes bct = (BuildingClassTypes)(bi.getBuildingClassType());
+-		if (!(GC.getBuildingClassInfo(bct)).isNoLimit())
++		if (!bContinue && getFirstBuildingOrder(eBuilding) != -1)
++			return false;
++
++		BuildingClassTypes bct = (BuildingClassTypes)kBuilding.getBuildingClassType();
++		if (!GC.getBuildingClassInfo(bct).isNoLimit())
+ 		{
+-			if (isWorldWonderClass(bct))
++			if (::isWorldWonderClass(bct))
+ 			{
+ 				if(isWorldWondersMaxed())
+ 					return false;
+ 			}
+-			else if (isTeamWonderClass(bct))
++			else if (::isTeamWonderClass(bct))
+ 			{
+ 				if(isTeamWondersMaxed())
+ 					return false;
+ 			}
+-			else if (isNationalWonderClass(bct))
++			else if (::isNationalWonderClass(bct))
+ 			{
+ 				if(isNationalWondersMaxed())
+ 					return false;
+@@ -2087,76 +2068,62 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
+ 			else if(isBuildingsMaxed())
+ 				return false;
+ 		}
+-
+-		if (bi.getHolyCity() != NO_RELIGION)
+-		{
+-			if(!isHolyCity(((ReligionTypes)(bi.getHolyCity()))))
+-				return false;
+-		}
+-
+-		if (bi.getPrereqAndBonus() != NO_BONUS)
+ 		{
+-			if(!hasBonus((BonusTypes)bi.getPrereqAndBonus()))
++			ReligionTypes eHolyCityReligion = (ReligionTypes)kBuilding.getHolyCity();
++			if (eHolyCityReligion != NO_RELIGION && !isHolyCity(eHolyCityReligion))
+ 				return false;
+ 		}
++		if (kBuilding.getPrereqAndBonus() != NO_BONUS &&
++				!hasBonus((BonusTypes)kBuilding.getPrereqAndBonus()))
++			return false;
+ 
+ 		if (eFoundCorp != NO_CORPORATION)
+ 		{
+-			if(GC.getGame().isCorporationFounded(eFoundCorp))
+-				return false;
+-
+-			if(GET_PLAYER(getOwner()).isNoCorporations())
+-				return false;
+-
+-			bool bValid = false;
+-			for (int i = 0; i < GC.getNUM_CORPORATION_PREREQ_BONUSES(); ++i)
++			bool bValidBonus = false;
++			for (int i = 0; i < GC.getNUM_CORPORATION_PREREQ_BONUSES(); i++)
+ 			{
+-				BonusTypes eBonus = (BonusTypes)GC.getCorporationInfo(eFoundCorp).getPrereqBonus(i);
+-				if (NO_BONUS != eBonus)
++				BonusTypes ePrereqBonus = (BonusTypes)GC.getCorporationInfo(eFoundCorp).getPrereqBonus(i);
++				if (ePrereqBonus != NO_BONUS && hasBonus(ePrereqBonus))
+ 				{
+-					if (hasBonus(eBonus))
+-					{
+-						bValid = true;
+-						break;
+-					}
++					bValidBonus = true;
++					break;
+ 				}
+ 			}
+-
+-			if(!bValid)
++			if(!bValidBonus)
+ 				return false;
+ 		}
+ 
+-		if(plot()->getLatitude() > bi.getMaxLatitude())
++		if(plot()->getLatitude() > kBuilding.getMaxLatitude())
+ 			return false;
+-		if(plot()->getLatitude() < bi.getMinLatitude())
++		if(plot()->getLatitude() < kBuilding.getMinLatitude())
+ 			return false;
+-
+-		bool bRequiresBonus = false;
+-		bool bNeedsBonus = true;
+-
+-		for (int iI = 0; iI < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); iI++)
+ 		{
+-			if (GC.getBuildingInfo(eBuilding).getPrereqOrBonuses(iI) != NO_BONUS)
++			bool bPrereqBonus = false;
++			bool bValidBonus = false;
++			for (int i = 0; i < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); i++)
+ 			{
+-				bRequiresBonus = true;
+-				if(hasBonus((BonusTypes)GC.getBuildingInfo(eBuilding).getPrereqOrBonuses(iI)))
+-					bNeedsBonus = false;
++				BonusTypes ePrereqBonus = (BonusTypes)kBuilding.getPrereqOrBonuses(i);
++				if (ePrereqBonus != NO_BONUS)
++				{
++					bPrereqBonus = true;
++					if(hasBonus(ePrereqBonus))
++						bValidBonus = true;
++				}
+ 			}
++			if(bPrereqBonus && !bValidBonus)
++				return false;
+ 		}
+-
+-		if(bRequiresBonus && bNeedsBonus)
+-			return false;
+-
+-		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++		for (int i = 0; i < GC.getNumBuildingClassInfos(); i++)
+ 		{
+-			if (bi.isBuildingClassNeededInCity(iI))
++			BuildingClassTypes ePrereqClass = (BuildingClassTypes)i;
++			if (kBuilding.isBuildingClassNeededInCity(ePrereqClass))
+ 			{
+ 				BuildingTypes ePrereqBuilding = (BuildingTypes)
+-						(GC.getCivilizationInfo(getCivilizationType()).
+-						getCivilizationBuildings(iI));
++						GC.getCivilizationInfo(getCivilizationType()).
++						getCivilizationBuildings(ePrereqClass);
+ 				if (ePrereqBuilding != NO_BUILDING)
+ 				{
+-					if(getNumBuilding(ePrereqBuilding) == 0
++					if(getNumBuilding(ePrereqBuilding) <= 0
+ 							/* && (bContinue || (getFirstBuildingOrder(ePrereqBuilding) == -1))*/)
+ 						return false;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index dc2bb8f07..181e5684d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5704,29 +5704,30 @@ void CvGame::setForceControl(ForceControlTypes eIndex, bool bEnabled)
+ // advc.003: Mostly cut from CvPlayer::canConstruct
+ bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const {
+ 
+-	if(!bIgnoreCost && GC.getBuildingInfo(eBuilding).getProductionCost() == -1)
+-		return false;
+-
+-	if(getCivTeamsEverAlive() < GC.getBuildingInfo(eBuilding).getNumTeamsPrereq())
+-		return false;
++	CvBuildingInfo const& kBuilding = GC.getBuildingInfo(eBuilding);
+ 
+-	VictoryTypes ePrereqVict = (VictoryTypes)GC.getBuildingInfo(eBuilding).
+-			getVictoryPrereq();
+-	if(ePrereqVict != NO_VICTORY && !isVictoryValid(ePrereqVict))
++	if(!bIgnoreCost && kBuilding.getProductionCost() == -1)
+ 		return false;
+ 
+-	int iMaxStartEra = GC.getBuildingInfo(eBuilding).getMaxStartEra();
+-	if(iMaxStartEra != NO_ERA && getStartEra() > iMaxStartEra)
++	if(getCivTeamsEverAlive() < kBuilding.getNumTeamsPrereq())
+ 		return false;
+-
+-	if(isBuildingClassMaxedOut((BuildingClassTypes)
+-			(GC.getBuildingInfo(eBuilding).getBuildingClassType())))
++	{
++		VictoryTypes ePrereqVict = (VictoryTypes)kBuilding.getVictoryPrereq();
++		if(ePrereqVict != NO_VICTORY && !isVictoryValid(ePrereqVict))
++			return false;
++	}
++	{
++		int iMaxStartEra = kBuilding.getMaxStartEra();
++		if(iMaxStartEra != NO_ERA && getStartEra() > iMaxStartEra)
++			return false;
++	}
++	if(isBuildingClassMaxedOut((BuildingClassTypes)kBuilding.getBuildingClassType()))
+ 		return false;
+ 
+ 	if(bTestVisible)
+ 		return true;
+ 
+-	if(isNoNukes() && GC.getBuildingInfo(eBuilding).isAllowsNukes()) {
++	if(isNoNukes() && kBuilding.isAllowsNukes()) {
+ 		return false;
+ 		// What the original code did:
+ 		/*for(int i = 0; i < GC.getNumUnitInfos(); i++) {
+@@ -5734,15 +5735,19 @@ bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestV
+ 				return false;
+ 		}*/
+ 	}
+-
+-	SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)GC.getBuildingInfo(eBuilding).
+-			getSpecialBuildingType();
+-	if(eSpecial != NO_SPECIALBUILDING && !isSpecialBuildingValid(eSpecial))
+-		return false;
+-
++	{
++		SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)GC.getBuildingInfo(eBuilding).
++				getSpecialBuildingType();
++		if(eSpecial != NO_SPECIALBUILDING && !isSpecialBuildingValid(eSpecial))
++			return false;
++	}
+ 	if(getNumCities() < GC.getBuildingInfo(eBuilding).getNumCitiesPrereq())
+ 		return false;
+-
++	{
++		CorporationTypes eFoundCorp = (CorporationTypes)kBuilding.getFoundsCorporation();
++		if (eFoundCorp != NO_CORPORATION && isCorporationFounded(eFoundCorp))
++			return false;
++	}
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9a7e2f6ab..2921db17d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5653,142 +5653,104 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ }
+ 
+ 
+-bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
++bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const  // advc.003: style changes
+ {
+-	/*  <advc.003> Global checks moved into new function. These are all fast
+-		(now that CivTeamsEverAlive is cached). */
++	/*  advc: Global checks moved into new function. These are all fast (now that
++		CivTeamsEverAlive is cached). */
+ 	if(!GC.getGame().canConstruct(eBuilding, bIgnoreCost, bTestVisible))
+-		return false; // </advc.003>
++		return false;
+ 
+-	int iI;
+-	CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+-	BuildingClassTypes eBuildingClass = (BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType());
++	CvBuildingInfo const& kBuilding = GC.getBuildingInfo(eBuilding);
++	BuildingClassTypes eBuildingClass = (BuildingClassTypes)(kBuilding.getBuildingClassType());
+ 
+ 	if (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eBuildingClass) != eBuilding)
+-	{
+ 		return false;
+-	}
+ 
++	CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+ 	if (!bIgnoreTech) // K-Mod
+ 	{
+-		if (!kOurTeam.isHasTech((TechTypes) GC.getBuildingInfo(eBuilding).getPrereqAndTech()))
+-		{
++		if (!kOurTeam.isHasTech((TechTypes)kBuilding.getPrereqAndTech()))
+ 			return false;
+-		}
+ 
+-		for (iI = 0; iI < GC.getNUM_BUILDING_AND_TECH_PREREQS(); iI++)
++		for (int i = 0; i < GC.getNUM_BUILDING_AND_TECH_PREREQS(); i++)
+ 		{
+-			if (GC.getBuildingInfo(eBuilding).getPrereqAndTechs(iI) != NO_TECH)
+-			{
+-				if (!kOurTeam.isHasTech((TechTypes)GC.getBuildingInfo(eBuilding).getPrereqAndTechs(iI)))
+-				{
+-					return false;
+-				}
+-			}
++			if (!kOurTeam.isHasTech((TechTypes)kBuilding.getPrereqAndTechs(i)))
++				return false;
+ 		}
+ 	}
+ 
+ 	if (kOurTeam.isObsoleteBuilding(eBuilding))
+-	{
+ 		return false;
+-	}
+-
+-	SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)GC.getBuildingInfo(eBuilding).getSpecialBuildingType(); // advc.003
+-	if (eSpecial != NO_SPECIALBUILDING)
+ 	{
+-		if (!kOurTeam.isHasTech((TechTypes)GC.getSpecialBuildingInfo(eSpecial).getTechPrereq()))
+-		{
++		SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)kBuilding.getSpecialBuildingType();
++		if (eSpecial != NO_SPECIALBUILDING && !kOurTeam.isHasTech((TechTypes)
++				GC.getSpecialBuildingInfo(eSpecial).getTechPrereq()))
+ 			return false;
+-		}
+ 	}
+-
+-	if (GC.getBuildingInfo(eBuilding).getStateReligion() != NO_RELIGION)
+ 	{
+-		if (getStateReligion() != GC.getBuildingInfo(eBuilding).getStateReligion())
+-		{
++		ReligionTypes ePrereqStateReligion = (ReligionTypes)GC.getBuildingInfo(eBuilding).getStateReligion();
++		if (ePrereqStateReligion != NO_RELIGION && ePrereqStateReligion != getStateReligion())
+ 			return false;
+-		}
+ 	}
+-
+-	if (GC.getBuildingInfo(eBuilding).getVictoryPrereq() != NO_VICTORY)
+ 	{
+-		if (isMinorCiv())
++		VictoryTypes ePrereqVictory = (VictoryTypes)kBuilding.getVictoryPrereq();
++		if (ePrereqVictory != NO_VICTORY)
+ 		{
+-			return false;
+-		}
++			if (isMinorCiv() || isBarbarian())
++				return false;
+ 
+-		if (kOurTeam.getVictoryCountdown((VictoryTypes)GC.getBuildingInfo(eBuilding).getVictoryPrereq()) >= 0)
+-		{
+-			return false;
+-		}
+-	}
+-	// <dlph.19>
+-	if(eBuilding == (BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).
+-			getCivilizationBuildings(GC.getDefineINT("CAPITAL_BUILDINGCLASS")))) {
+-		for(int i = 0; i < GC.getNumVictoryInfos(); i++) {
+-			if(kOurTeam.getVictoryCountdown((VictoryTypes)i) >= 0 &&
+-					GC.getGame().getGameState() == GAMESTATE_ON)
++			if (kOurTeam.getVictoryCountdown(ePrereqVictory) >= 0)
+ 				return false;
+ 		}
+-	} // </dlph.19>
++	}
++	{
++		CorporationTypes eFoundCorp = (CorporationTypes)kBuilding.getFoundsCorporation();
++		if (eFoundCorp != NO_CORPORATION && isNoCorporations())
++			return false;
++	}
++	// <dlph.19> (advc: simplified)
++	if (kBuilding.isCapital() && GC.getGame().getGameState() == GAMESTATE_ON &&
++			GET_TEAM(getTeam()).isAnyVictoryCountdown()) // advc.003b
++		return false; // </dlph.19>
+ 
+ 	if (kOurTeam.isBuildingClassMaxedOut(eBuildingClass))
+-	{
+ 		return false;
+-	}
+ 
+ 	if (isBuildingClassMaxedOut(eBuildingClass))
+-	{
+ 		return false;
+-	}
+ 
+-	CvCivilizationInfo &civilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+-	int numBuildingClassInfos = GC.getNumBuildingClassInfos();
+-	for (iI = 0; iI < numBuildingClassInfos; iI++)
++	CvCivilizationInfo const& kCivilization = GC.getCivilizationInfo(getCivilizationType());
++	for (int i = 0; i < GC.getNumBuildingClassInfos(); i++)
+ 	{
+-		BuildingTypes ePrereqBuilding = (BuildingTypes)civilizationInfo.getCivilizationBuildings(iI);
+-		if (NO_BUILDING != ePrereqBuilding && kOurTeam.isObsoleteBuilding(ePrereqBuilding))
+-		{
+-			if (getBuildingClassCount((BuildingClassTypes)iI) < getBuildingClassPrereqBuilding(eBuilding, (BuildingClassTypes)iI, 0))
+-			{
+-				return false;
+-			}
+-		}
++		BuildingClassTypes ePrereqClass = (BuildingClassTypes)i;
++		BuildingTypes ePrereqBuilding = (BuildingTypes)kCivilization.getCivilizationBuildings(ePrereqClass);
++		if (ePrereqBuilding != NO_BUILDING && kOurTeam.isObsoleteBuilding(ePrereqBuilding) &&
++				getBuildingClassCount(ePrereqClass) < getBuildingClassPrereqBuilding(eBuilding, ePrereqClass, 0))
++			return false;
+ 	}
+ 
+ 	if(bTestVisible)
+-		return true; // advc.003
+-
+-	if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass,
+-			(kOurTeam.getBuildingClassMaking(eBuildingClass) +
+-			((bContinue) ? -1 : 0))))
+-	{
+-		return false;
+-	}
+-
+-	if (kOurTeam.isBuildingClassMaxedOut(eBuildingClass,
+-			(kOurTeam.getBuildingClassMaking(eBuildingClass) +
+-			((bContinue) ? -1 : 0))))
+-	{
+-		return false;
+-	}
+-
+-	if (isBuildingClassMaxedOut(eBuildingClass,
+-			(getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
+-	{
+-		return false;
+-	}
++		return true;
+ 
+-	if (getHighestUnitLevel() < GC.getBuildingInfo(eBuilding).getUnitLevelPrereq())
+-	{
++	if (getHighestUnitLevel() < kBuilding.getUnitLevelPrereq())
+ 		return false;
+-	}
+-
+-	for (iI = 0; iI < numBuildingClassInfos; iI++)
+ 	{
+-		if (getBuildingClassCount((BuildingClassTypes)iI) < getBuildingClassPrereqBuilding(eBuilding, ((BuildingClassTypes)iI), ((bContinue) ? 0 : getBuildingClassMaking(eBuildingClass))))
+-		{
++		int iTeamMaking = kOurTeam.getBuildingClassMaking(eBuildingClass);
++		int iTeamMakingCont = iTeamMaking + (bContinue ? -1 : 0);
++		if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass, iTeamMakingCont))
+ 			return false;
++		if (kOurTeam.isBuildingClassMaxedOut(eBuildingClass, iTeamMakingCont))
++			return false;
++		int iMaking = getBuildingClassMaking(eBuildingClass);
++		int iMakingCont = iMaking + (bContinue ? -1 : 0);
++		if (isBuildingClassMaxedOut(eBuildingClass, iMakingCont))
++			return false;
++		for (int i = 0; i < GC.getNumBuildingClassInfos(); i++)
++		{
++			BuildingClassTypes ePrereqClass = (BuildingClassTypes)i;
++			if (getBuildingClassCount(ePrereqClass) < getBuildingClassPrereqBuilding(
++					eBuilding, ePrereqClass, bContinue ? 0 : iMaking))
++				return false;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 3e07de41b..c28e2a41b 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -191,6 +191,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 	m_bMinorTeam = false; // </advc.003m>
+ 	m_bMapCentering = false;
+ 	m_bCapitulated = false;
++	m_bAnyVictoryCountdown = false; // advc.003b
+ 
+ 	m_eID = eID;
+ 	// <advc.134a>
+@@ -2974,7 +2975,7 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 	// <advc.910> Moved from CvPlayer::calculateResearchModifier
+ 	EraTypes eTechEra = (EraTypes)GC.getTechInfo(eTech).getEra();
+ 	int iModifier = 100 + GC.getEraInfo(eTechEra).getTechCostModifier();
+-	/*  This is a BBAI tech diffusion thing, but since it applies always, I think
++	/*  This is a BBAI tech diffusion thing, but, since it applies always, I think
+ 		it's better to let it reduce the tech cost than to modify research rate. */
+ 	iModifier += GC.getTECH_COST_MODIFIER();
+ 	// </advc.910>
+@@ -5523,21 +5524,32 @@ void CvTeam::setVictoryCountdown(VictoryTypes eIndex, int iTurnsLeft)
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	m_aiVictoryCountdown[eIndex] = iTurnsLeft;
++	// <advc.003b>
++	if (iTurnsLeft >= 0)
++		m_bAnyVictoryCountdown = true;
++	else
++	{
++		m_bAnyVictoryCountdown = false;
++		for (int i = 0; i < GC.getNumVictoryInfos(); i++)
++		{
++			if (i != eIndex && getVictoryCountdown((VictoryTypes)i) >= 0)
++				m_bAnyVictoryCountdown = true;
++		}
++	} // </advc.003b>
+ }
+ 
+ 
+ void CvTeam::changeVictoryCountdown(VictoryTypes eIndex, int iChange)
+ {
+-	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+-	FAssertMsg(eIndex < GC.getNumVictoryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+-
+-	if (iChange != 0)
+-	{
+-		m_aiVictoryCountdown[eIndex] += iChange;
+-		FAssert(m_aiVictoryCountdown[eIndex] >= 0);
+-	}
++	setVictoryCountdown(eIndex, getVictoryCountdown(eIndex) + iChange); // advc.003: was m_aiVictoryCountdown[eIndex] += iChange
+ }
+ 
++// <advc.003b>
++bool CvTeam::isAnyVictoryCountdown() const
++{
++	return m_bAnyVictoryCountdown;
++} // </advc.003b>
++
+ 
+ int CvTeam::getVictoryDelay(VictoryTypes eVictory) const
+ {
+@@ -5598,50 +5610,54 @@ int CvTeam::getLaunchSuccessRate(VictoryTypes eVictory) const
+ }
+ 
+ void CvTeam::resetVictoryProgress()
+-{
++{	// <advc.003b>
++	if (!isAnyVictoryCountdown() || GC.getGame().getGameState() != GAMESTATE_ON)
++		return; // </advc.003b>
+ 	for (int iI = 0; iI < GC.getNumVictoryInfos(); ++iI)
+ 	{
+-		if (getVictoryCountdown((VictoryTypes)iI) >= 0 && GC.getGame().getGameState() == GAMESTATE_ON)
+-		{
+-			setVictoryCountdown((VictoryTypes)iI, -1);
++		if (getVictoryCountdown((VictoryTypes)iI) < 0)
++			continue;
++
++		setVictoryCountdown((VictoryTypes)iI, -1);
+ 
+-			for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
++		for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
++		{
++			if (GC.getProjectInfo((ProjectTypes)iK).getVictoryMinThreshold((VictoryTypes)iI) > 0)
+ 			{
+-				if (GC.getProjectInfo((ProjectTypes)iK).getVictoryMinThreshold((VictoryTypes)iI) > 0)
+-				{
+-					changeProjectCount((ProjectTypes)iK, -getProjectCount((ProjectTypes)iK));
+-				}
++				changeProjectCount((ProjectTypes)iK, -getProjectCount((ProjectTypes)iK));
+ 			}
++		}
+ 
+-			CvWString szBuffer = gDLL->getText("TXT_KEY_VICTORY_RESET", getReplayName().GetCString(), GC.getVictoryInfo((VictoryTypes)iI).getTextKeyWide());
++		CvWString szBuffer = gDLL->getText("TXT_KEY_VICTORY_RESET", getReplayName().GetCString(), GC.getVictoryInfo((VictoryTypes)iI).getTextKeyWide());
+ 
+-			for (int iJ = 0; iJ < MAX_PLAYERS; ++iJ)
++		for (int iJ = 0; iJ < MAX_PLAYERS; ++iJ)
++		{
++			CvPlayer& kObs = GET_PLAYER((PlayerTypes)iJ);
++			if(!kObs.isAlive())
++				continue; // advc.003
++			gDLL->getInterfaceIFace()->addHumanMessage(kObs.getID(),
++					false, GC.getEVENT_MESSAGE_TIME(), szBuffer,
++					"AS2D_MELTDOWN", MESSAGE_TYPE_MAJOR_EVENT,
++					// <advc.127b>
++					NULL, NO_COLOR, getCapitalX(kObs.getTeam(), true),
++					getCapitalY(kObs.getTeam(), true)); // </advc.127b>
++			if(kObs.getTeam() == getID())
+ 			{
+-				CvPlayer& kObs = GET_PLAYER((PlayerTypes)iJ);
+-				if(!kObs.isAlive())
+-					continue; // advc.003
+-				gDLL->getInterfaceIFace()->addHumanMessage(kObs.getID(),
+-						false, GC.getEVENT_MESSAGE_TIME(), szBuffer,
+-						"AS2D_MELTDOWN", MESSAGE_TYPE_MAJOR_EVENT,
+-						// <advc.127b>
+-						NULL, NO_COLOR, getCapitalX(kObs.getTeam(), true),
+-						getCapitalY(kObs.getTeam(), true)); // </advc.127b>
+-				if(kObs.getTeam() == getID())
+-				{
+-					CvPopupInfo* pInfo = new CvPopupInfo();
+-					pInfo->setText(szBuffer);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes) iJ);
+-				}
++				CvPopupInfo* pInfo = new CvPopupInfo();
++				pInfo->setText(szBuffer);
++				gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes) iJ);
+ 			}
+-
+-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 		}
++
++		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 	}
+ }
+ 
+ // K-Mod, code moved from CvPlayer::hasSpaceshipArrived. (it makes more sense to be here)
+ bool CvTeam::hasSpaceshipArrived() const
+-{
++{	// <advc.003b>
++	if (!isAnyVictoryCountdown())
++		return false; // </advc.003b>
+ 	VictoryTypes eSpaceVictory = GC.getGame().getSpaceVictory();
+ 	if (eSpaceVictory != NO_VICTORY)
+ 	{
+@@ -7292,6 +7308,9 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&m_bMapCentering);
+ 	pStream->Read(&m_bCapitulated);
++	// <advc.003b>
++	if (uiFlag >= 7)
++		pStream->Read(&m_bAnyVictoryCountdown); // </advc.003b>
+ 
+ 	pStream->Read((int*)&m_eID);
+ 
+@@ -7358,6 +7377,13 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumTechInfos(), m_paiTechCount);
+ 	pStream->Read(GC.getNumTerrainInfos(), m_paiTerrainTradeCount);
+ 	pStream->Read(GC.getNumVictoryInfos(), m_aiVictoryCountdown);
++	// <advc.003b>
++	if (uiFlag < 7)
++	{
++		for (int i = 0; i < GC.getNumVictoryInfos(); i++)
++			if (getVictoryCountdown((VictoryTypes)i) >= 0)
++				m_bAnyVictoryCountdown = true;
++	} // </advc.003b>
+ 
+ 	pStream->Read(GC.getNumTechInfos(), m_pabHasTech);
+ 	pStream->Read(GC.getNumTechInfos(), m_pabNoTradeTech);
+@@ -7406,6 +7432,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	uiFlag = 4; // advc.162
+ 	uiFlag = 5; // advc.003m
+ 	uiFlag = 6; // advc.120g
++	uiFlag = 7; // advc.003b: m_bAnyVictoryCountdown
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iNumMembers);
+@@ -7440,6 +7467,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	// </advc.003m>
+ 	pStream->Write(m_bMapCentering);
+ 	pStream->Write(m_bCapitulated);
++	pStream->Write(m_bAnyVictoryCountdown); // advc.003b
+ 
+ 	pStream->Write(m_eID);
+ 
+@@ -7556,7 +7584,9 @@ int CvTeam::getProjectPartNumber(ProjectTypes eProject, bool bAssert) const
+ }
+ 
+ bool CvTeam::hasLaunched() const
+-{
++{	// <advc.003b>
++	if (!isAnyVictoryCountdown())
++		return false; // </advc.003b>
+ 	VictoryTypes spaceVictory = GC.getGame().getSpaceVictory();
+ 	if (spaceVictory != NO_VICTORY)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 3154c93c7..bebc6f184 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -340,6 +340,7 @@ public:
+ 	int getVictoryCountdown(VictoryTypes eIndex) const;																							// Exposed to Python
+ 	void setVictoryCountdown(VictoryTypes eIndex, int iTurnsLeft);
+ 	void changeVictoryCountdown(VictoryTypes eIndex, int iChange);
++	bool isAnyVictoryCountdown() const; // advc.003b
+ 	int getVictoryDelay(VictoryTypes eVictory) const;
+ 	bool canLaunch(VictoryTypes eVictory) const;									// Exposed to Python
+ 	void setCanLaunch(VictoryTypes eVictory, bool bCan);
+@@ -496,6 +497,7 @@ protected:
+ 	// </advc.003m>
+ 	bool m_bMapCentering;
+ 	bool m_bCapitulated;
++	bool m_bAnyVictoryCountdown; // advc.003b
+ 
+ 	int* m_aiStolenVisibilityTimer;
+ 	int* m_aiWarWeariness;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=26524

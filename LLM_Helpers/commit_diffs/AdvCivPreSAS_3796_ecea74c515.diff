@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3796
+# Commit: ecea74c5152ff8f2592f94eb7e07e5f188c2cb09
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 42c987073f06a4b07f1dc2234a12a75a0787c425
+# Title: Minor non-functional changes to SelfMod.cpp
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	CvGameCoreDLL/SelfMod.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index 6e646fa5f..02d22d154 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -166,12 +166,12 @@ public:
+ 				just as we expect - they're merely in a (slightly?) different place. */
+ 			/*	The first 27 instructions at the start of the function that calls
+ 				CvPlayer::getGlobeLayerColors. This is a fairly long sequence w/o any
+-				absolute code locations in operands. After this sequence, there are a
+-				bunch of DLL calls, the last one being CvPlayer::getGlobeLayerColors.
+-				It would be nice to search for those calls as well - since native code
+-				has fairly low entropy, meaning that my pattern of 27 instructions may
+-				not be as unique as I hope - but I'm not sure if the call addresses for
+-				external functions would be the same in a slightly abnormal EXE. */
++				absolute addresses in operands. After this sequence, there are a bunch
++				of DLL calls, the last one being CvPlayer::getGlobeLayerColors. It would
++				be nice to search for those calls as well - since native code has fairly
++				low entropy, meaning that my pattern of 27 instructions may not be as
++				unique as I hope - but I'm not sure if the call addresses for external
++				functions would be the same in a slightly abnormal EXE. */
+ 			byte aNeedleBytes[] = {
+ 				0x6A, 0xFF, 0x68, 0x15, 0xB9, 0xA3, 0x00, 0x64, 0xA1, 0x00, 0x00, 0x00,
+ 				0x00, 0x50, 0x64, 0x89, 0x25, 0x00, 0x00, 0x00, 0x00, 0x83, 0xEC, 0x68,
+@@ -183,7 +183,7 @@ public:
+ 				0x41, 0x08, 0x50 
+ 			};
+ 			// Where we expect the needle at iAddressOffset=0
+-			uint uiStartAddress = 0x00464930;
++			uint const uiStartAddress = 0x00464930;
+ 			// How big a uiAdressOffset we contemplate
+ 			int const iMaxAbsOffset = 256 * 1024;
+ 			if (uiStartAddress >= iMaxAbsOffset &&
+@@ -208,7 +208,7 @@ public:
+ 				iAddressOffset = ((int)std::distance(aHaystackBytes, pos))
+ 						- iMaxAbsOffset;
+ 			}
+-			else FErrorMsg("aCodeAddresses don't look like code addresses");
++			else FErrorMsg("uiStartAddress doesn't look like a code address");
+ 			// Run our initial test again to be on the safe side
+ 			if (!testCodeLayout(iAddressOffset))
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2192

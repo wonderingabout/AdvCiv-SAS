@@ -1,0 +1,793 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5881
+# Commit: 882d6f2e3452d9a14a225983e30cd2b7d80a913d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 005b40a4dc680fe4f6cbea45d93f499f62494636
+# Title: add/use targeted collapse_multiline_calls2.py
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/Python/BUG/configobj.py
+2	12	Assets/Python/CvMapGeneratorUtil.py
+18	0	LLM_Helpers/README.md
+389	0	LLM_Helpers/collapse_multiline_calls2.py
+2	8	PrivateMaps/Great_Plains.py
+1	2	PrivateMaps/Highlands.py
+3	14	PrivateMaps/Hub.py
+2	8	PrivateMaps/Ice_Age.py
+1	2	PrivateMaps/Inland_Sea.py
+1	2	PrivateMaps/Lakes.py
+1	2	PrivateMaps/Rainforest.py
+3	14	PrivateMaps/Ring.py
+1	2	PrivateMaps/Water.py
+4	23	PrivateMaps/Wheel.py
+ create mode 100644 LLM_Helpers/collapse_multiline_calls2.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 04cef081a..3c7fff89d 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -607,8 +607,7 @@ class Section(dict):
+         self.comments[newkey] = comm
+         self.inline_comments[newkey] = inline_comment
+ 
+-    def walk(self, function, raise_errors=True,
+-            call_on_sections=False, **keywargs):
++    def walk(self, function, raise_errors=True, call_on_sections=False, **keywargs):
+         """
+         Walk every member and call a function on the keyword and value.
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 0865ca3b4..f05124c97 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -868,15 +868,7 @@ class MultilayeredFractal:
+ 			landWeights[i] = landWeight
+ 		return landWeights
+ 
+-	def generatePlotsInRegion(self, iWaterPercent, 
+-	iRegionWidth, iRegionHeight, 
+-	iRegionWestX, iRegionSouthY, 
+-	iRegionGrain, iRegionHillsGrain, 
+-	iRegionPlotFlags, iRegionTerrainFlags, 
+-	iRegionFracXExp = -1, iRegionFracYExp = -1, 
+-	bShift = True, iStrip = 15, 
+-	rift_grain = -1, has_center_rift = False, 
+-	invert_heights = False):
++	def generatePlotsInRegion(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
+ 		# This is the code to generate each fractal.
+ 		# Determine and pass in the appropriate arguments from the controlling function.
+ 		#
+@@ -1337,9 +1329,7 @@ class TerrainGenerator:
+ 	
+ class FeatureGenerator:
+ 	# advc.108: Default iForestPercent lowered from 60 - to compensate for fewer forests placed during normalization. (Smaller percentage leads to more forests.)
+-	def __init__(self, iJunglePercent=80, iForestPercent=57,
+-	jungle_grain=5, forest_grain=6, 
+-	fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=80, iForestPercent=57, jungle_grain=5, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index b17c7c0c1..5dd7677a4 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -17,6 +17,7 @@ Always review diffs before committing generated source changes.
+ 
+ - [Source-rewrite helpers](#source-rewrite-helpers)
+   - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
++  - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
+   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
+ - [CvMainInterface single-line cleanup reference scripts](#cvmaininterface-single-line-cleanup-reference-scripts)
+@@ -70,6 +71,23 @@ Broad staged-review workflow from Git Bash after the files were modified. This s
+ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/staged_collapse_multiline_calls_${ts}.diff" && git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add && git diff --cached --ignore-space-at-eol > "$out" && git diff --cached --ignore-space-at-eol --stat && git diff --cached --check && echo "wrote $out"
+ ```
+ 
++### `collapse_multiline_calls2.py`
++
++Targeted second-pass source-rewrite helper.
++
++- Separate follow-up to `collapse_multiline_calls.py`; keep the first helper as the committed known-good pass 1.
++- Collapses multiline `def` headers such as `def __init__(..., ...):`.
++- Collapses selected long map-generation calls such as `generatePlotsInRegion(...)`, `generateCenter(...)`, and `generateCenterPlot(...)`.
++- Skips comments inside the collapsed statement, multiline strings, explicit backslash continuations, list/dict/table assignments, calls whose first argument is a list/dict literal, and long boolean return cascades beyond the conservative line cap.
++- Preserves line endings and refuses to write if significant token sequence changes.
++- Intended for narrow cleanup after the first collapse pass, not as a general formatter.
++
++Tested broad run workflow from Git Bash. The helper itself processes one file at a time, but this was tested as a broad repo pass using a temporary runner. The loop applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
++
++```bash
++cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_calls2.py" "LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_collapse_multiline_calls2_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
++```
++
+ ### `collapse_multiline_brackets.py`
+ 
+ Legacy/reference helper.
+
+diff --git a/LLM_Helpers/collapse_multiline_calls2.py b/LLM_Helpers/collapse_multiline_calls2.py
+new file mode 100644
+index 000000000..90434ba93
+--- /dev/null
++++ b/LLM_Helpers/collapse_multiline_calls2.py
+@@ -0,0 +1,389 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Targeted second-pass multiline collapse helper.
++#
++# This is a separate follow-up to collapse_multiline_calls.py.
++# Keep collapse_multiline_calls.py as the committed known-good pass 1.
++#
++# This pass 2 helper keeps the same basic safety idea:
++# - collapse only selected multiline logical statements;
++# - preserve line endings;
++# - refuse to write if significant token sequence changes.
++#
++# Extra pass 2 targets:
++# - multiline def headers, e.g. def __init__(..., ...):
++# - selected long map-generation calls, e.g. generatePlotsInRegion(...)
++#
++# Deliberate skips:
++# - if/elif/while/for/with/try/except headers;
++# - comments inside the collapsed statement;
++# - multiline strings;
++# - explicit backslash continuations;
++# - list/dict/table assignments;
++# - calls whose first argument is a list/dict literal, e.g. foo([...]) or foo({...});
++# - long boolean return cascades beyond the normal conservative line cap.
++#
++# Review git diff after use. This is not a general formatter.
++
++from __future__ import print_function
++
++import argparse
++import difflib
++import io
++import re
++import sys
++import tokenize
++from pathlib import Path
++
++DEFAULT_MAX_LINE_LEN = 380
++DEFAULT_DEF_HEADER_MAX_LINE_LEN = 900
++DEFAULT_LONG_CALL_MAX_LINE_LEN = 1200
++DEFAULT_LONG_CALL_NAMES = "generatePlotsInRegion,generateCenter,generateCenterPlot"
++
++HEADER_KEYWORDS = (
++    "def ", "class ", "if ", "elif ", "while ", "for ", "with ",
++    "try:", "except", "finally:", "else:"
++)
++
++CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*$")
++ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A-Za-z0-9_\.]*$")
++RETURN_CALL_PREFIX_RE = re.compile(r"^return\s+[A-Za-z_][A-Za-z0-9_\.]*$")
++DEF_HEADER_PREFIX_RE = re.compile(r"^def\s+[A-Za-z_][A-Za-z0-9_]*$")
++
++
++def decode_bytes(raw):
++    if raw.startswith(b"\xef\xbb\xbf"):
++        return "utf-8-sig", raw.decode("utf-8-sig")
++    try:
++        return "utf-8", raw.decode("utf-8")
++    except UnicodeDecodeError:
++        return "latin-1", raw.decode("latin-1")
++
++
++def line_ending_from_bytes(raw):
++    return "\r\n" if b"\r\n" in raw else "\n"
++
++
++def leading_indent(s):
++    return s[:len(s) - len(s.lstrip(" \t"))]
++
++
++def strip_line_ending(s):
++    return s.rstrip("\r\n")
++
++
++def parse_name_set(value):
++    if not value:
++        return set()
++    return set(part.strip() for part in value.split(",") if part.strip())
++
++
++def join_parts(parts):
++    body = ""
++    for part in parts:
++        if not body:
++            body = part
++            continue
++        left = body.rstrip()
++        right = part.lstrip()
++        if left.endswith(("(", "[", "{")):
++            body += right
++        elif right.startswith((")", "]", "}", ":", ",")):
++            body += right
++        else:
++            body += " " + right
++    return body
++
++
++def significant_tokens_from_text(text):
++    # Tokenize does not require Python 3 parsing. It is usually enough for
++    # Python 2.4-era code where ast.parse/py_compile would fail on old syntax.
++    result = []
++    reader = io.BytesIO(text.encode("utf-8", errors="surrogatepass")).readline
++    for tok in tokenize.tokenize(reader):
++        if tok.type in (
++            tokenize.ENCODING,
++            tokenize.ENDMARKER,
++            tokenize.NL,
++            tokenize.NEWLINE,
++        ):
++            continue
++        result.append((tok.type, tok.string))
++    return result
++
++
++def first_opener(text):
++    in_str = None
++    triple = None
++    i = 0
++    while i < len(text):
++        c = text[i]
++        if in_str:
++            if c == "\\":
++                i += 2
++                continue
++            if triple:
++                if text[i:i + 3] == triple:
++                    in_str = None
++                    triple = None
++                    i += 3
++                    continue
++            elif c == in_str:
++                in_str = None
++            i += 1
++            continue
++        if c in ("'", '"'):
++            if text[i:i + 3] in ("'''", "\"\"\""):
++                in_str = c
++                triple = text[i:i + 3]
++                i += 3
++                continue
++            in_str = c
++            i += 1
++            continue
++        if c in "([{":
++            return c, i
++        i += 1
++    return None, -1
++
++
++def prefix_call_name(prefix):
++    # For assignment-call prefixes such as "x = Foo", use "Foo".
++    if "=" in prefix:
++        prefix = prefix.rsplit("=", 1)[1].strip()
++    if prefix.startswith("return "):
++        prefix = prefix[len("return "):].strip()
++    return prefix
++
++
++def call_name_matches(call_name, allowed_names):
++    if not call_name or not allowed_names:
++        return False
++    final_part = call_name.rsplit(".", 1)[-1]
++    return call_name in allowed_names or final_part in allowed_names
++
++
++def is_def_header_statement(stripped):
++    opener, idx = first_opener(stripped)
++    if opener != "(" or idx < 1:
++        return False
++    prefix = stripped[:idx].strip()
++    return DEF_HEADER_PREFIX_RE.match(prefix) is not None and stripped.rstrip().endswith(":")
++
++
++def starts_with_container_argument(stripped):
++    opener, idx = first_opener(stripped)
++    if opener != "(" or idx < 1:
++        return False
++    i = idx + 1
++    while i < len(stripped) and stripped[i] in " \t":
++        i += 1
++    return i < len(stripped) and stripped[i] in "[{"
++
++
++def classify_statement(joined_body, long_call_names):
++    stripped = joined_body.strip()
++    if not stripped:
++        return None
++
++    if is_def_header_statement(stripped):
++        return "def_header"
++
++    if stripped.startswith(HEADER_KEYWORDS):
++        return None
++    if stripped.startswith(("import ", "from ", "global ", "assert ")):
++        return None
++
++    opener, idx = first_opener(stripped)
++    if opener != "(" or idx < 1:
++        return None
++
++    prefix = stripped[:idx].strip()
++    call_name = prefix_call_name(prefix)
++
++    if CALL_PREFIX_RE.match(prefix):
++        if call_name_matches(call_name, long_call_names):
++            return "long_named_call"
++        return "normal_call"
++
++    if RETURN_CALL_PREFIX_RE.match(prefix):
++        return "return_expr"
++
++    if ASSIGN_CALL_PREFIX_RE.match(prefix):
++        if call_name_matches(call_name, long_call_names):
++            return "long_named_call"
++        return "normal_call"
++
++    return None
++
++
++def max_len_for_kind(kind, max_line_len, def_header_max_line_len, long_call_max_line_len):
++    if kind == "def_header":
++        return def_header_max_line_len
++    if kind == "long_named_call":
++        return long_call_max_line_len
++    return max_line_len
++
++
++def should_skip_group(lines, start, end, toks, joined_body, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len):
++    if end <= start:
++        return "single_line"
++    if any(t.type == tokenize.COMMENT for t in toks):
++        return "comment"
++    if any(t.type == tokenize.STRING and t.start[0] != t.end[0] for t in toks):
++        return "multiline_string"
++    if any(lines[i - 1].rstrip("\r\n").rstrip().endswith("\\") for i in range(start, end)):
++        return "backslash"
++
++    stripped_start = lines[start - 1].strip()
++
++    # Large data containers are usually clearer and safer one item per line.
++    if ("= [" in stripped_start or "= {" in stripped_start or stripped_start.endswith(("= [", "= {"))):
++        return "list_or_dict_assignment"
++
++    kind = classify_statement(joined_body, long_call_names)
++    if kind is None:
++        return "not_call_like"
++
++    # Avoid collapsing structured row/list blocks such as aSupport.extend([...]).
++    if kind != "def_header" and starts_with_container_argument(joined_body.strip()):
++        return "container_argument"
++
++    limit = max_len_for_kind(kind, max_line_len, def_header_max_line_len, long_call_max_line_len)
++    if len(leading_indent(lines[start - 1]) + joined_body) > limit:
++        return "too_long"
++
++    return None
++
++
++def collect_logical_groups(text):
++    groups = []
++    cur = []
++    reader = io.BytesIO(text.encode("utf-8", errors="surrogatepass")).readline
++    for tok in tokenize.tokenize(reader):
++        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER):
++            continue
++        if not cur and tok.type in (tokenize.NL, tokenize.COMMENT, tokenize.INDENT, tokenize.DEDENT):
++            continue
++        cur.append(tok)
++        if tok.type == tokenize.NEWLINE:
++            if cur:
++                groups.append((cur[0].start[0], cur[-1].end[0], cur[:]))
++            cur = []
++    return groups
++
++
++def transform_text(text, newline, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len):
++    lines = text.splitlines(True)
++    groups = collect_logical_groups(text)
++    candidate_ranges = {}
++    skipped = {
++        "single_line": 0,
++        "comment": 0,
++        "multiline_string": 0,
++        "backslash": 0,
++        "list_or_dict_assignment": 0,
++        "container_argument": 0,
++        "not_call_like": 0,
++        "too_long": 0,
++    }
++    changed = 0
++    removed_lines = 0
++
++    for start, end, toks in groups:
++        parts = []
++        for line_no in range(start, end + 1):
++            part = strip_line_ending(lines[line_no - 1]).strip()
++            if part:
++                parts.append(part)
++        joined_body = join_parts(parts)
++
++        skip_reason = should_skip_group(lines, start, end, toks, joined_body, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len,)
++        if skip_reason is not None:
++            skipped[skip_reason] = skipped.get(skip_reason, 0) + 1
++            continue
++
++        indent = leading_indent(lines[start - 1])
++        replacement = indent + joined_body + newline
++        candidate_ranges[start] = (end, replacement)
++        changed += 1
++        removed_lines += end - start
++
++    out = []
++    i = 1
++    n = len(lines)
++    while i <= n:
++        if i in candidate_ranges:
++            end, replacement = candidate_ranges[i]
++            out.append(replacement)
++            i = end + 1
++        else:
++            out.append(lines[i - 1])
++            i += 1
++
++    return "".join(out), changed, removed_lines, skipped
++
++
++def main(argv):
++    parser = argparse.ArgumentParser(description="Targeted second-pass multiline collapse helper.")
++    parser.add_argument("path", help="Python source file to process")
++    parser.add_argument("--in-place", action="store_true", help="rewrite the input file")
++    parser.add_argument("--output", help="write transformed text to this path")
++    parser.add_argument("--diff", action="store_true", help="print unified diff")
++    parser.add_argument("--max-line-len", type=int, default=DEFAULT_MAX_LINE_LEN)
++    parser.add_argument("--def-header-max-line-len", type=int, default=DEFAULT_DEF_HEADER_MAX_LINE_LEN)
++    parser.add_argument("--long-call-names", default=DEFAULT_LONG_CALL_NAMES)
++    parser.add_argument("--long-call-max-line-len", type=int, default=DEFAULT_LONG_CALL_MAX_LINE_LEN)
++    args = parser.parse_args(argv)
++
++    src_path = Path(args.path)
++    raw = src_path.read_bytes()
++    encoding, text = decode_bytes(raw)
++    newline = line_ending_from_bytes(raw)
++
++    long_call_names = parse_name_set(args.long_call_names)
++
++    new_text, changed, removed_lines, skipped = transform_text(
++        text, newline, args.max_line_len,
++        args.def_header_max_line_len,
++        long_call_names, args.long_call_max_line_len,
++    )
++
++    if changed:
++        orig_tokens = significant_tokens_from_text(text)
++        new_tokens = significant_tokens_from_text(new_text)
++        if orig_tokens != new_tokens:
++            print("ERROR: significant token sequence changed; refusing to write.", file=sys.stderr)
++            for idx, pair in enumerate(zip(orig_tokens, new_tokens)):
++                if pair[0] != pair[1]:
++                    print("first_token_difference_at=%d orig=%r new=%r" % (idx, pair[0], pair[1]), file=sys.stderr)
++                    break
++            return 1
++
++    if args.diff:
++        diff = difflib.unified_diff(text.splitlines(True), new_text.splitlines(True), fromfile=str(src_path), tofile=str(src_path) + ".collapsed2",)
++        sys.stdout.write("".join(diff))
++
++    write_encoding = encoding if encoding != "utf-8-sig" else "utf-8"
++    if args.output:
++        Path(args.output).write_bytes(new_text.encode(write_encoding))
++    if args.in_place:
++        src_path.write_bytes(new_text.encode(write_encoding))
++
++    print("changed_logical_statements=%d" % changed)
++    print("removed_physical_lines=%d" % removed_lines)
++    print("max_line_len=%d" % args.max_line_len)
++    print("def_header_max_line_len=%d" % args.def_header_max_line_len)
++    print("long_call_names=%s" % ",".join(sorted(long_call_names)))
++    print("long_call_max_line_len=%d" % args.long_call_max_line_len)
++    print("skipped=%s" % skipped)
++    if not args.in_place and not args.output:
++        print("dry_run_only=true")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main(sys.argv[1:]))
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index fac54d261..0ac0055ab 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -304,11 +304,7 @@ def generatePlotTypes():
+ 
+ # subclass TerrainGenerator to redefine everything. This is a regional map.
+ class GreatPlainsTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+-	def __init__(self, iRockyDesertPercent=50, iRockyPlainsPercent=30, 
+-	             iGrassPercent=17, iDesertPercent=8, iTexDesertPercent=20,
+-	             iEastDesertPercent=2, iEastPlainsPercent=23, 
+-	             fWestLongitude=0.15, fEastLongitude=0.65, fTexLat=0.37,
+-	             fTexEast=0.55, fracXExp=-1, fracYExp=-1, grain_amount=4):
++	def __init__(self, iRockyDesertPercent=50, iRockyPlainsPercent=30, iGrassPercent=17, iDesertPercent=8, iTexDesertPercent=20, iEastDesertPercent=2, iEastPlainsPercent=23, fWestLongitude=0.15, fEastLongitude=0.65, fTexLat=0.37, fTexEast=0.55, fracXExp=-1, fracYExp=-1, grain_amount=4):
+ 		# Note: If you change longitude values here, then you will...
+ 		# ...need to change them elsewhere in the script, as well.
+ 		self.gc = CyGlobalContext()
+@@ -473,9 +469,7 @@ def generateTerrainTypes():
+ 	return terrainTypes
+ 
+ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=40, iEastForestPercent=45, 
+-	             iForestPercent=8, iRockyForestPercent=55, 
+-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=40, iEastForestPercent=45, iForestPercent=8, iRockyForestPercent=55, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+ 		self.mapRand = self.gc.getGame().getMapRand()
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index e4ca90696..3ad6ab1ef 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -403,8 +403,7 @@ def generateTerrainTypes():
+ 	return terrainTypes
+ 
+ class HighlandsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=60, iForestPercent=45, iHotForestPercent = 25,
+-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=60, iForestPercent=45, iHotForestPercent = 25, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+ 		self.mapRand = self.gc.getGame().getMapRand()
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index 46ec15670..523d76630 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -642,15 +642,7 @@ def beforeGeneration():
+ 
+ class HubMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	# Custom genPlotsInRegion to overwrite spoke flatlands with hills while generating the center region.
+-	def generateCenter(self, iWaterPercent, 
+-	                   iRegionWidth, iRegionHeight, 
+-	                   iRegionWestX, iRegionSouthY, 
+-	                   iRegionGrain, iRegionHillsGrain, 
+-	                   iRegionPlotFlags, iRegionTerrainFlags, 
+-	                   iRegionFracXExp = -1, iRegionFracYExp = -1, 
+-	                   bShift = True, iStrip = 15, 
+-	                   rift_grain = -1, has_center_rift = False, 
+-	                   invert_heights = False):
++	def generateCenter(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
+ 		# This is the code to generate each fractal.
+ 		# Determine and pass in the appropriate arguments from the controlling function.
+ 		#
+@@ -872,9 +864,7 @@ class HubTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 	"If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar. \
+ 	Note that all percentages are approximate, as values have to be roughened to achieve a natural look."
+ 	
+-	def __init__(self, iDesertPercent=20, iPlainsPercent=25,
+-	             iIcePercent=50, iTundraPercent=35,
+-	             fracXExp=-1, fracYExp=-1, grain_amount=5):
++	def __init__(self, iDesertPercent=20, iPlainsPercent=25, iIcePercent=50, iTundraPercent=35, fracXExp=-1, fracYExp=-1, grain_amount=5):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+@@ -973,8 +963,7 @@ def generateTerrainTypes():
+ 	return terrainTypes
+ 
+ class HubFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=25, iForestPercent=40,
+-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=25, iForestPercent=40, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index c48cd2958..7b1b3476b 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -162,11 +162,7 @@ def generatePlotTypes():
+ # subclass TerrainGenerator to cool the climate compared to normal.
+ # Also, desert reduced, plains dramatically increased. Latitudes shifted colder.
+ class IceAgeTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+-	def __init__(self, iDesertPercent=20, iPlainsPercent=50, 
+-	             fSnowLatitude=0.4, fTundraLatitude=0.3,
+-	             fGrassLatitude=0.0, fDesertBottomLatitude=0.1, 
+-	             fDesertTopLatitude=0.2, fracXExp=-1, 
+-	             fracYExp=-1, grain_amount=4):
++	def __init__(self, iDesertPercent=20, iPlainsPercent=50, fSnowLatitude=0.4, fTundraLatitude=0.3, fGrassLatitude=0.0, fDesertBottomLatitude=0.1, fDesertTopLatitude=0.2, fracXExp=-1, fracYExp=-1, grain_amount=4):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+@@ -232,9 +228,7 @@ def generateTerrainTypes():
+ # Jungles only appear on grass near equator. Percentage appearance reduced.
+ # Forest percentage reduced slightly.
+ class IceAgeFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=30, iForestPercent=50, 
+-	             jungle_grain=7, forest_grain=6, 
+-	             fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=30, iForestPercent=50, jungle_grain=7, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+ 		self.mapRand = self.gc.getGame().getMapRand()
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index e95fd7acb..5514834ea 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -629,8 +629,7 @@ def getGridSize(argsList):
+ 
+ # Subclasses to fix the FRAC_POLAR zero row bugs.
+ class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
+-	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, 
+-	                      grain_amount=3):
++	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
+ 		# Check for changes to User Input variances.
+ 		self.checkForOverrideDefaultUserInputVariances()
+
+diff --git a/PrivateMaps/Lakes.py b/PrivateMaps/Lakes.py
+index a62e1918e..b0cc172ea 100644
+--- a/PrivateMaps/Lakes.py
++++ b/PrivateMaps/Lakes.py
+@@ -135,8 +135,7 @@ def findStartingArea(argsList):
+ 
+ # Subclass to customize sea level effects.
+ class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
+-	def generatePlotTypes(self, water_percent=9, shift_plot_types=True, 
+-	                      grain_amount=3):
++	def generatePlotTypes(self, water_percent=9, shift_plot_types=True, grain_amount=3):
+ 		# Check for changes to User Input variances.
+ 		self.checkForOverrideDefaultUserInputVariances()
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 9d197f171..b3e001edb 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -210,8 +210,7 @@ def generateTerrainTypes():
+ 	return terrainTypes
+ 
+ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=85, iForestPercent=15,
+-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=85, iForestPercent=15, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+ 		self.mapRand = self.gc.getGame().getMapRand()
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index e8d6dacec..318b98df7 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -603,15 +603,7 @@ def beforeGeneration():
+ 
+ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	# Override InRegion to increase hills, make up for those lost to the ring path.
+-	def generatePlotsInRegion(self, iWaterPercent, 
+-	                          iRegionWidth, iRegionHeight, 
+-	                          iRegionWestX, iRegionSouthY, 
+-	                          iRegionGrain, iRegionHillsGrain, 
+-	                          iRegionPlotFlags, iRegionTerrainFlags, 
+-	                          iRegionFracXExp = -1, iRegionFracYExp = -1, 
+-	                          bShift = True, iStrip = 15, 
+-	                          rift_grain = -1, has_center_rift = False, 
+-	                          invert_heights = False):
++	def generatePlotsInRegion(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
+ 		# This is the code to generate each fractal.
+ 		# Determine and pass in the appropriate arguments from the controlling function.
+ 		#
+@@ -841,9 +833,7 @@ class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 	"If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar. \
+ 	Note that all percentages are approximate, as values have to be roughened to achieve a natural look."
+ 	
+-	def __init__(self, iDesertPercent=20, iPlainsPercent=25,
+-	             iIcePercent=50, iTundraPercent=35,
+-	             fracXExp=-1, fracYExp=-1, grain_amount=5):
++	def __init__(self, iDesertPercent=20, iPlainsPercent=25, iIcePercent=50, iTundraPercent=35, fracXExp=-1, fracYExp=-1, grain_amount=5):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+@@ -942,8 +932,7 @@ def generateTerrainTypes():
+ 	return terrainTypes
+ 
+ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=25, iForestPercent=40,
+-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=25, iForestPercent=40, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index d896c4479..7ccd41a98 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -57,8 +57,7 @@ def findStartingArea(argsList):
+ 
+ # Subclass to customize sea level effects.
+ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
+-	def generatePlotTypes(self, water_percent=30, shift_plot_types=False, 
+-						grain_amount=3):
++	def generatePlotTypes(self, water_percent=30, shift_plot_types=False, grain_amount=3):
+ 		# Check for changes to User Input variances.
+ 		self.checkForOverrideDefaultUserInputVariances()
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index b7913c051..96354c2e6 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -693,15 +693,7 @@ def beforeGeneration():
+ 
+ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	# Override InRegion to increase hills, make up for those lost to the ring path.
+-	def generatePlotsInRegion(self, iWaterPercent, 
+-	                          iRegionWidth, iRegionHeight, 
+-	                          iRegionWestX, iRegionSouthY, 
+-	                          iRegionGrain, iRegionHillsGrain, 
+-	                          iRegionPlotFlags, iRegionTerrainFlags, 
+-	                          iRegionFracXExp = -1, iRegionFracYExp = -1, 
+-	                          bShift = True, iStrip = 15, 
+-	                          rift_grain = -1, has_center_rift = False, 
+-	                          invert_heights = False):
++	def generatePlotsInRegion(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
+ 		# This is the code to generate each fractal.
+ 		# Determine and pass in the appropriate arguments from the controlling function.
+ 		#
+@@ -772,15 +764,7 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		return
+ 
+ 	# Custom genPlotsInRegion to overwrite spoke flatlands with hills while generating the center region.
+-	def generateCenter(self, iWaterPercent, 
+-	                   iRegionWidth, iRegionHeight, 
+-	                   iRegionWestX, iRegionSouthY, 
+-	                   iRegionGrain, iRegionHillsGrain, 
+-	                   iRegionPlotFlags, iRegionTerrainFlags, 
+-	                   iRegionFracXExp = -1, iRegionFracYExp = -1, 
+-	                   bShift = True, iStrip = 15, 
+-	                   rift_grain = -1, has_center_rift = False, 
+-	                   invert_heights = False):
++	def generateCenter(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
+ 		# This is the code to generate each fractal.
+ 		# Determine and pass in the appropriate arguments from the controlling function.
+ 		#
+@@ -1036,9 +1020,7 @@ class WheelTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 	"If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar. \
+ 	Note that all percentages are approximate, as values have to be roughened to achieve a natural look."
+ 	
+-	def __init__(self, iDesertPercent=20, iPlainsPercent=25,
+-	             iIcePercent=50, iTundraPercent=35,
+-	             fracXExp=-1, fracYExp=-1, grain_amount=5):
++	def __init__(self, iDesertPercent=20, iPlainsPercent=25, iIcePercent=50, iTundraPercent=35, fracXExp=-1, fracYExp=-1, grain_amount=5):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+@@ -1137,8 +1119,7 @@ def generateTerrainTypes():
+ 	return terrainTypes
+ 
+ class WheelFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+-	def __init__(self, iJunglePercent=25, iForestPercent=40,
+-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
++	def __init__(self, iJunglePercent=25, iForestPercent=40, forest_grain=6, fracXExp=-1, fracYExp=-1):
+ 		
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=33891

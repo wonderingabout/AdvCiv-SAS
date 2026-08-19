@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4185
+# Commit: c8b6f1f1257821a020dc488d080f9e3af3c24857
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6b3ece079dab0c0acf9fa89b23e002ffdd421d0f
+# Title: AI considers Barrage promotions in some combat decisions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+9	5	CvGameCoreDLL/CvUnitAI.cpp
+8	0	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index fa80179cc..de2647d89 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -418,7 +418,9 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 						kLoopUnit.collateralDamageMaxUnits());
+ 				if (iPossibleTargets > 0)
+ 				{
+-					iValue *= (100 + (kLoopUnit.collateralDamage() * iPossibleTargets) / 5);
++					iValue *= 100 + ((kLoopUnit.//collateralDamage()
++							AI_collateralDmgFactor() * // advc.159
++							iPossibleTargets)) / 5;
+ 					iValue /= 100;
+ 				}
+ 			}
+@@ -760,7 +762,7 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
+ 			rPriority *= std::max(1, 15 + iBombard - iWaste);
+ 			scaled rOdds = per100(pUnit->AI_attackOdds(pMissionPlot, false));
+ 			rPriority *= (1 - rOdds);
+-			rPriority /= 1 + per100(pUnit->collateralDamage());
++			rPriority /= 1 + per100(pUnit->AI_collateralDmgFactor());
+ 			rPriority /= 15 + std::min(iDefenders, pUnit->collateralDamageMaxUnits());
+ 			/*	(CollateralDamageLimit gets ignored by all AI code so far,
+ 				so I'm not going to bother with it here either.) */
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 9d40677fe..0efc19c5c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -581,7 +581,7 @@ public:
+ 	int withdrawalProbability() const;																		// Exposed to Python
+ 
+ 	int collateralDamage() const																			// Exposed to Python
+-	{
++	{	// advc.159 (note): getExtraCollateralDamage works multiplicatively since BtS 3.17
+ 		return std::max(0, m_pUnitInfo->getCollateralDamage());
+ 	}
+ 	int collateralDamageLimit() const																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 63e1e078f..a8ca49340 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1044,8 +1044,10 @@ int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
+ 		{
+ 			/*	collateral damage is not trivial to calculate. This estimate is pretty rough.
+ 				(Note: collateralDamage() and iBaseCollateral both include factors of 100.) */
+-			iCombatStrengthPercent += baseCombatStr() * iBaseCollateral *
+-					collateralDamage() * iPossibleTargets / 10000;
++			iCombatStrengthPercent += (baseCombatStr() * iBaseCollateral *
++					iPossibleTargets * //collateralDamage()
++					AI_collateralDmgFactor()) // advc.159
++					/ 10000;
+ 		}
+ 	} // </K-Mod>
+ 	FAssert(iCombatStrengthPercent < 100000); // A conservative guard against overflow
+@@ -1207,7 +1209,9 @@ void CvUnitAI::LFBgetBetterAttacker(CvUnitAI** ppAttacker, // advc.003u: param w
+ 				collateralDamageMaxUnits());
+ 		if (iPossibleTargets > 0)
+ 		{
+-			iValue *= 100 + (collateralDamage() * iPossibleTargets) / 5;
++			iValue *= 100 + (//collateralDamage()
++					AI_collateralDmgFactor() // advc.159
++					* iPossibleTargets) / 5;
+ 			iValue /= 100;
+ 		}
+ 	}
+@@ -19686,7 +19690,7 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 			iStrikeValue = std::max(0,
+ 					std::min(pDefender->getDamage() + iDamage, airCombatLimit())
+ 					- pDefender->getDamage());
+-			iStrikeValue += iDamage * collateralDamage() *
++			iStrikeValue += iDamage * AI_collateralDmgFactor() *
+ 					std::min(iDefenders - 1, collateralDamageMaxUnits()) / 200;
+ 			iStrikeValue *= (3 + iAdjacentAttackers + iAssaultEnRoute / 2);
+ 			iStrikeValue /= (iAdjacentAttackers + iAssaultEnRoute > 0 ? 4 : 6) +
+@@ -19793,7 +19797,7 @@ bool CvUnitAI::AI_defendBaseAirStrike()
+ 		int const iDamage = airCombatDamage(pDefender);
+ 		iValue = std::max(0, (std::min((pDefender->getDamage() + iDamage),
+ 				airCombatLimit()) - pDefender->getDamage()));
+-		iValue += ((iDamage * collateralDamage()) *
++		iValue += ((iDamage * AI_collateralDmgFactor()) *
+ 				std::min((p.getNumVisibleEnemyDefenders(this) - 1),
+ 				collateralDamageMaxUnits())) / (2*100);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index c950cd055..8d82a69f0 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -54,6 +54,14 @@ public:
+ 			bool bCountCollateral = false, int iBaseCollateral = 0,
+ 			bool bCheckCanAttack = false,
+ 			int iCurrentHP = -1, bool bAssumePromotion = false) const; // advc.139
++	/*	collateralDamage no longer includes promotions since Patch 3.13, but
++		the AI should take promotions into account when estimating coll. damage.
++		Not currently used for deciding whether a unit deals coll. damage at all. */
++	int AI_collateralDmgFactor() const
++	{	/*	Multiplication would be closer to how collateralCombat works, but,
++			for most units, it won't matter much, and addition is faster. */
++		return collateralDamage() + getExtraCollateralDamage();
++	}
+ 	// </advc.159>
+ 	int AI_sacrificeValue(const CvPlot* pPlot) const;
+ 	// Lead From Behind by UncutDragon (edited for K-Mod):
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4919

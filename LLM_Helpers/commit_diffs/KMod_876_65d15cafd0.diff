@@ -1,0 +1,51 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 876
+# Commit: 65d15cafd05587a02e75183452bc0c6b839987e8
+# History segment: K-Mod history
+# Parent used for diff: c2684af394cc8d146e70498dce2377f2d7a05b15
+# Title: Fixed a GPP evaluation bug; adjusted yield value for perm. specialists
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e9f7b4dd8..f710c43c7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -518,7 +518,7 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bRemove, bool
+ 		// Scale based on how often this city will actually get a great person.
+ 		if (!AI_isEmphasizeGreatPeople())
+ 		{
+-			int iCityRate = getGreatPeopleRate() + bRemove ? 0 : iGreatPeopleRate/100;
++			int iCityRate = getGreatPeopleRate() + (bRemove ? 0 : iGreatPeopleRate/100);
+ 			int iHighestRate = 0;
+ 			int iLoop;
+ 			for (CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
+@@ -604,9 +604,10 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 	{
+ 		int iFoodX, iProdX, iComX, iUnused;
+ 		AI_getYieldMultipliers(iFoodX, iProdX, iComX, iUnused);
+-		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD) * iFoodX / 100;
+-		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION) * iProdX / 100;
+-		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE) * iComX / 100;
++		// I'm going to dilute the yield value multipliers, because they are ultimately less stable than commerce multipliers.
++		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
++		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
++		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
+ 	}
+ 
+ 	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1884

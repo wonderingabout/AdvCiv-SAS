@@ -1,0 +1,690 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1197
+# Commit: efe8a852fa0d6c56a7c3dd57af2eeced1a99b72c
+# History segment: K-Mod history
+# Parent used for diff: c99693a157c3991c8ff0e4a76ca4b55c81a7a26d
+# Title: Changed UI text to include inflation whenever displaying costs.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+374	0	Assets/Python/Screens/CvCivicsScreen.py
+2	1	Assets/Python/Screens/CvMainInterface.py
+14	10	Assets/Python/Screens/EconomicsAdvisor.py
+2	1	CvGameCoreDLL/CvCity.cpp
+18	5	CvGameCoreDLL/CvDLLWidgetData.cpp
+37	15	CvGameCoreDLL/CvGameTextMgr.cpp
+ create mode 100644 Assets/Python/Screens/CvCivicsScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvCivicsScreen.py b/Assets/Python/Screens/CvCivicsScreen.py
+new file mode 100644
+index 000000000..8799ea95c
+--- /dev/null
++++ b/Assets/Python/Screens/CvCivicsScreen.py
+@@ -0,0 +1,374 @@
++## Sid Meier's Civilization 4
++## Copyright Firaxis Games 2005
++from CvPythonExtensions import *
++import CvUtil
++import ScreenInput
++import CvScreenEnums
++import string
++import CvScreensInterface
++
++# globals
++gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
++localText = CyTranslator()
++
++class CvCivicsScreen:
++	"Civics Screen"
++
++	def __init__(self):
++		self.SCREEN_NAME = "CivicsScreen"
++		self.CANCEL_NAME = "CivicsCancel"
++		self.EXIT_NAME = "CivicsExit"
++		self.TITLE_NAME = "CivicsTitleHeader"
++		self.BUTTON_NAME = "CivicsScreenButton"
++		self.TEXT_NAME = "CivicsScreenText"
++		self.AREA_NAME = "CivicsScreenArea"
++		self.HELP_AREA_NAME = "CivicsScreenHelpArea"
++		self.HELP_IMAGE_NAME = "CivicsScreenCivicOptionImage"
++		self.DEBUG_DROPDOWN_ID =  "CivicsDropdownWidget"
++		self.BACKGROUND_ID = "CivicsBackground"
++		self.HELP_HEADER_NAME = "CivicsScreenHeaderName"
++
++		self.HEADINGS_WIDTH = 199
++		self.HEADINGS_TOP = 70
++		self.HEADINGS_SPACING = 5
++		self.HEADINGS_BOTTOM = 280
++		self.HELP_TOP = 350
++		self.HELP_BOTTOM = 610
++		self.TEXT_MARGIN = 15
++		self.BUTTON_SIZE = 24
++		self.BIG_BUTTON_SIZE = 64
++		self.BOTTOM_LINE_TOP = 630
++		self.BOTTOM_LINE_WIDTH = 1014
++		self.BOTTOM_LINE_HEIGHT = 60
++
++		self.X_EXIT = 994
++		self.Y_EXIT = 726
++
++		self.X_CANCEL = 552
++		self.Y_CANCEL = 726
++
++		self.X_SCREEN = 500
++		self.Y_SCREEN = 396
++		self.W_SCREEN = 1024
++		self.H_SCREEN = 768
++		self.Z_SCREEN = -6.1
++		self.Y_TITLE = 8		
++		self.Z_TEXT = self.Z_SCREEN - 0.2
++
++		self.CivicsScreenInputMap = {
++			self.BUTTON_NAME		: self.CivicsButton,
++			self.TEXT_NAME			: self.CivicsButton,
++			self.EXIT_NAME			: self.Revolution,
++			self.CANCEL_NAME		: self.Cancel,
++			}
++
++		self.iActivePlayer = -1
++
++		self.m_paeCurrentCivics = []
++		self.m_paeDisplayCivics = []
++		self.m_paeOriginalCivics = []
++
++	def getScreen(self):
++		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.CIVICS_SCREEN)
++
++	def setActivePlayer(self, iPlayer):
++
++		self.iActivePlayer = iPlayer
++		activePlayer = gc.getPlayer(iPlayer)
++
++		self.m_paeCurrentCivics = []
++		self.m_paeDisplayCivics = []
++		self.m_paeOriginalCivics = []
++		for i in range (gc.getNumCivicOptionInfos()):
++			self.m_paeCurrentCivics.append(activePlayer.getCivics(i));
++			self.m_paeDisplayCivics.append(activePlayer.getCivics(i));
++			self.m_paeOriginalCivics.append(activePlayer.getCivics(i));
++
++	def interfaceScreen (self):
++
++		screen = self.getScreen()
++		if screen.isActive():
++			return
++		screen.setRenderInterfaceOnly(True);
++		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
++	
++		# Set the background and exit button, and show the screen
++		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
++		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
++		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
++		screen.showWindowBackground(False)
++		screen.setText(self.CANCEL_NAME, "Background", u"<font=4>" + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_CANCEL, self.Y_CANCEL, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
++
++		# Header...
++		screen.setText(self.TITLE_NAME, "Background", u"<font=4b>" + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		
++		self.setActivePlayer(gc.getGame().getActivePlayer())						
++
++		if (CyGame().isDebugMode()):
++			self.szDropdownName = self.DEBUG_DROPDOWN_ID
++			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
++			for j in range(gc.getMAX_PLAYERS()):
++				if (gc.getPlayer(j).isAlive()):
++					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
++
++		screen.addPanel("CivicsBottomLine", "", "", True, True, self.HEADINGS_SPACING, self.BOTTOM_LINE_TOP, self.BOTTOM_LINE_WIDTH, self.BOTTOM_LINE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
++
++		# Draw Contents
++		self.drawContents()
++
++		return 0
++
++	# Draw the contents...
++	def drawContents(self):
++	
++		# Draw the radio buttons
++		self.drawAllButtons()
++				
++		# Draw Help Text
++		self.drawAllHelpText()
++		
++		# Update Maintenance/anarchy/etc.
++		self.updateAnarchy()
++
++	def drawCivicOptionButtons(self, iCivicOption):
++
++		activePlayer = gc.getPlayer(self.iActivePlayer)
++		screen = self.getScreen()
++		
++		for j in range(gc.getNumCivicInfos()):
++
++			if (gc.getCivicInfo(j).getCivicOptionType() == iCivicOption):										
++				screen.setState(self.getCivicsButtonName(j), self.m_paeCurrentCivics[iCivicOption] == j)
++							
++				if (self.m_paeDisplayCivics[iCivicOption] == j):
++					#screen.setState(self.getCivicsButtonName(j), True)
++					screen.show(self.getCivicsButtonName(j))
++				elif (activePlayer.canDoCivics(j)):
++					#screen.setState(self.getCivicsButtonName(j), False)
++					screen.show(self.getCivicsButtonName(j))
++				else:
++					screen.hide(self.getCivicsButtonName(j))
++								
++	# Will draw the radio buttons (and revolution)
++	def drawAllButtons(self):				
++
++		for i in range(gc.getNumCivicOptionInfos()):
++		
++			fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
++			fY = self.HEADINGS_TOP
++			szAreaID = self.AREA_NAME + str(i)
++			screen = self.getScreen()
++			screen.addPanel(szAreaID, "", "", True, True, fX, fY, self.HEADINGS_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP, PanelStyles.PANEL_STYLE_MAIN)
++			screen.setLabel("", "Background",  u"<font=3>" + gc.getCivicOptionInfo(i).getDescription().upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++			fY += self.TEXT_MARGIN
++			
++			for j in range(gc.getNumCivicInfos()):
++				if (gc.getCivicInfo(j).getCivicOptionType() == i):										
++					fY += 2 * self.TEXT_MARGIN
++					screen.addCheckBoxGFC(self.getCivicsButtonName(j), gc.getCivicInfo(j).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
++					screen.setText(self.getCivicsTextName(j), "", gc.getCivicInfo(j).getDescription(), CvUtil.FONT_LEFT_JUSTIFY, fX + self.BUTTON_SIZE + self.TEXT_MARGIN, fY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++			self.drawCivicOptionButtons(i)
++					
++							
++	def highlight(self, iCivic):
++		iCivicOption = gc.getCivicInfo(iCivic).getCivicOptionType()
++		if self.m_paeDisplayCivics[iCivicOption] != iCivic:
++			self.m_paeDisplayCivics[iCivicOption] = iCivic
++			self.drawCivicOptionButtons(iCivicOption)
++			return True
++		return False
++		
++	def unHighlight(self, iCivic):		
++		iCivicOption = gc.getCivicInfo(iCivic).getCivicOptionType()
++		if self.m_paeDisplayCivics[iCivicOption] != self.m_paeCurrentCivics[iCivicOption]:
++			self.m_paeDisplayCivics[iCivicOption] = self.m_paeCurrentCivics[iCivicOption]
++			self.drawCivicOptionButtons(iCivicOption)
++			return True
++		return False
++		
++	def select(self, iCivic):
++		activePlayer = gc.getPlayer(self.iActivePlayer)
++		if (not activePlayer.canDoCivics(iCivic)):
++			# If you can't even do this, get out....
++			return 0
++			
++		iCivicOption = gc.getCivicInfo(iCivic).getCivicOptionType()
++		
++		# Set the previous widget
++		iCivicPrev = self.m_paeCurrentCivics[iCivicOption]
++		
++		# Switch the widgets
++		self.m_paeCurrentCivics[iCivicOption] = iCivic
++		
++		# Unighlight the previous widget
++		self.unHighlight(iCivicPrev)
++		self.getScreen().setState(self.getCivicsButtonName(iCivicPrev), False)
++
++		# highlight the new widget
++		self.highlight(iCivic)		
++		self.getScreen().setState(self.getCivicsButtonName(iCivic), True)
++		
++		return 0
++
++	def CivicsButton(self, inputClass):
++	
++		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED) :
++			if (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
++				CvScreensInterface.pediaJumpToCivic((inputClass.getID(), ))
++			else:
++				# Select button
++				self.select(inputClass.getID())
++				self.drawHelpText(gc.getCivicInfo(inputClass.getID()).getCivicOptionType())
++				self.updateAnarchy()
++		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CURSOR_MOVE_ON) :
++			# Highlight this button
++			if self.highlight(inputClass.getID()):
++				self.drawHelpText(gc.getCivicInfo(inputClass.getID()).getCivicOptionType())
++				self.updateAnarchy()
++		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CURSOR_MOVE_OFF) :
++			if self.unHighlight(inputClass.getID()):
++				self.drawHelpText(gc.getCivicInfo(inputClass.getID()).getCivicOptionType())
++				self.updateAnarchy()
++
++		return 0
++
++		
++	def drawHelpText(self, iCivicOption):
++		
++		activePlayer = gc.getPlayer(self.iActivePlayer)
++		iCivic = self.m_paeDisplayCivics[iCivicOption]
++
++		szPaneID = "CivicsHelpTextBackground" + str(iCivicOption)
++		screen = self.getScreen()
++
++		szHelpText = u""
++
++		# Upkeep string
++		if ((gc.getCivicInfo(iCivic).getUpkeep() != -1) and not activePlayer.isNoCivicUpkeep(iCivicOption)):
++			szHelpText = gc.getUpkeepInfo(gc.getCivicInfo(iCivic).getUpkeep()).getDescription()
++		else:
++			szHelpText = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
++
++		szHelpText += CyGameTextMgr().parseCivicInfo(iCivic, False, True, True)
++
++		fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
++
++		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background",  u"<font=3>" + gc.getCivicInfo(self.m_paeDisplayCivics[iCivicOption]).getDescription().upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++		fY = self.HELP_TOP - self.BIG_BUTTON_SIZE
++		szHelpImageID = self.HELP_IMAGE_NAME + str(iCivicOption)		
++		screen.setImageButton(szHelpImageID, gc.getCivicInfo(iCivic).getButton(), fX + self.HEADINGS_WIDTH/2 - self.BIG_BUTTON_SIZE/2, fY, self.BIG_BUTTON_SIZE, self.BIG_BUTTON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1)
++
++		fY = self.HELP_TOP + 3 * self.TEXT_MARGIN
++		szHelpAreaID = self.HELP_AREA_NAME + str(iCivicOption)		
++		screen.addMultilineText(szHelpAreaID, szHelpText, fX+5, fY, self.HEADINGS_WIDTH-7, self.HELP_BOTTOM - fY-2, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)				
++		
++		
++	# Will draw the help text
++	def drawAllHelpText(self):
++		for i in range (gc.getNumCivicOptionInfos()):		
++
++			fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
++
++			szPaneID = "CivicsHelpTextBackground" + str(i)
++			screen = self.getScreen()
++			screen.addPanel(szPaneID, "", "", True, True, fX, self.HELP_TOP, self.HEADINGS_WIDTH, self.HELP_BOTTOM - self.HELP_TOP, PanelStyles.PANEL_STYLE_MAIN)
++
++			self.drawHelpText(i)
++
++
++	# Will Update the maintenance/anarchy/etc
++	def updateAnarchy(self):
++
++		screen = self.getScreen()
++
++		activePlayer = gc.getPlayer(self.iActivePlayer)
++
++		bChange = False
++		i = 0
++		while (i  < gc.getNumCivicOptionInfos() and not bChange):
++			if (self.m_paeCurrentCivics[i] != self.m_paeOriginalCivics[i]):
++				bChange = True
++			i += 1		
++		
++		# Make the revolution button
++		screen.deleteWidget(self.EXIT_NAME)
++		if (activePlayer.canRevolution(0) and bChange):			
++			screen.setText(self.EXIT_NAME, "Background", u"<font=4>" + localText.getText("TXT_KEY_CONCEPT_REVOLUTION", ( )).upper() + u"</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_REVOLUTION, 1, 0)
++			screen.show(self.CANCEL_NAME)
++		else:
++			screen.setText(self.EXIT_NAME, "Background", u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ( )).upper() + u"</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, -1)
++			screen.hide(self.CANCEL_NAME)
++
++		# Anarchy
++		iTurns = activePlayer.getCivicAnarchyLength(self.m_paeDisplayCivics);
++		
++		if (activePlayer.canRevolution(0)):
++			szText = localText.getText("TXT_KEY_ANARCHY_TURNS", (iTurns, ))
++		else:
++			szText = CyGameTextMgr().setRevolutionHelp(self.iActivePlayer)
++
++		screen.setLabel("CivicsRevText", "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.BOTTOM_LINE_TOP + self.TEXT_MARGIN//2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++		# Maintenance		
++		#szText = localText.getText("TXT_KEY_CIVIC_SCREEN_UPKEEP", (activePlayer.getCivicUpkeep(self.m_paeDisplayCivics, True), ))
++		szText = localText.getText("TXT_KEY_CIVIC_SCREEN_UPKEEP", (activePlayer.getCivicUpkeep(self.m_paeDisplayCivics, True)*(100+activePlayer.getInflationRate())/100, )) # K-Mod
++		screen.setLabel("CivicsUpkeepText", "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.BOTTOM_LINE_TOP + self.BOTTOM_LINE_HEIGHT - 2 * self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		
++	# Revolution!!!
++	def Revolution(self, inputClass):
++
++		activePlayer = gc.getPlayer(self.iActivePlayer)
++
++		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED) :
++			if (activePlayer.canRevolution(0)):
++				messageControl = CyMessageControl()
++				messageControl.sendUpdateCivics(self.m_paeDisplayCivics)			
++			screen = self.getScreen()
++			screen.hideScreen()
++
++
++	def Cancel(self, inputClass):
++		screen = self.getScreen()
++		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED) :
++			for i in range (gc.getNumCivicOptionInfos()):
++				self.m_paeCurrentCivics[i] = self.m_paeOriginalCivics[i]
++				self.m_paeDisplayCivics[i] = self.m_paeOriginalCivics[i]
++			
++			self.drawContents()
++			
++	def getCivicsButtonName(self, iCivic):
++		szName = self.BUTTON_NAME + str(iCivic)
++		return szName
++
++	def getCivicsTextName(self, iCivic):
++		szName = self.TEXT_NAME + str(iCivic)
++		return szName
++
++	# Will handle the input for this screen...
++	def handleInput(self, inputClass):
++		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
++			screen = self.getScreen()
++			iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
++			self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
++			self.drawContents()
++			return 1
++		elif (self.CivicsScreenInputMap.has_key(inputClass.getFunctionName())):	
++			'Calls function mapped in CvCivicsScreen'
++			# only get from the map if it has the key		
++
++			# get bound function from map and call it
++			self.CivicsScreenInputMap.get(inputClass.getFunctionName())(inputClass)
++			return 1
++		return 0
++		
++	def update(self, fDelta):
++		return
++
++
++
++
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 6f5283540..44999e0d8 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -4016,7 +4016,8 @@ class CvMainInterface:
+ 				g_iNumCenterBonus = iCenterCount
+ 				g_iNumRightBonus = iRightCount
+ 				
+-				iMaintenance = pHeadSelectedCity.getMaintenanceTimes100()
++				#iMaintenance = pHeadSelectedCity.getMaintenanceTimes100()
++				iMaintenance = pHeadSelectedCity.getMaintenanceTimes100() * (100+gc.getPlayer(pHeadSelectedCity.getOwner()).getInflationRate()) / 100 # K-Mod
+ 
+ 				szBuffer = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 205e22b74..221a8d6b6 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -133,10 +133,13 @@ class EconomicsAdvisor:
+ 
+ 		numCities = player.getNumCities()	
+ 
+-		totalUnitCost = player.calculateUnitCost()
+-		totalUnitSupply = player.calculateUnitSupply()
+-		totalMaintenance = player.getTotalMaintenance()
+-		totalCivicUpkeep = player.getCivicUpkeep([], False)
++		# K-Mod - I've changed these costs to include inflation.
++		inflationFactor = 100+player.getInflationRate()
++		totalUnitCost = (player.calculateUnitCost() * inflationFactor + 50)/100
++		totalUnitSupply = (player.calculateUnitSupply() * inflationFactor + 50)/100
++		totalMaintenance = (player.getTotalMaintenance() * inflationFactor + 50)/100
++		totalCivicUpkeep = (player.getCivicUpkeep([], False) * inflationFactor + 50)/100
++
+ 		totalPreInflatedCosts = player.calculatePreInflatedCosts()
+ 		totalInflatedCosts = player.calculateInflatedCosts()
+ 		goldCommerce = player.getCommerceRate(CommerceTypes.COMMERCE_GOLD)
+@@ -458,15 +461,16 @@ class EconomicsAdvisor:
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(-goldFromCivs) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iActiveLeader, 1)
+ 			iExpenses -= goldFromCivs
+ 
+-		yLocation += self.Y_SPACING
+-		iInflation = totalInflatedCosts - totalPreInflatedCosts
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INFLATION", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iActiveLeader, 1)
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iInflation) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iActiveLeader, 1)
+-		iExpenses += iInflation
++		# yLocation += self.Y_SPACING
++		# iInflation = totalInflatedCosts - totalPreInflatedCosts
++		# screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>(" + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INFLATION", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iActiveLeader, 1)
++		# screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iInflation) + ")</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iActiveLeader, 1)
++		# iExpenses += iInflation
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iExpenses) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iExpenses) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(totalInflatedCosts) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iActiveLeader, 1 )		
+ 
+ 		return 0
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3e990f4cd..df7dc32cf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5848,7 +5848,8 @@ int CvCity::getSavedMaintenanceTimes100ByBuilding(BuildingTypes eBuilding) const
+ 	if (iModifier != 0 && !isDisorder() && !isWeLoveTheKingDay() && (getPopulation() > 0))
+ 	{
+ 		int iNewMaintenance = calculateBaseMaintenanceTimes100() * std::max(0, getMaintenanceModifier() + iModifier + 100) / 100;
+-		return getMaintenanceTimes100() - iNewMaintenance;
++		//return getMaintenanceTimes100() - iNewMaintenance;
++		return ROUND_DIVIDE((getMaintenanceTimes100() - iNewMaintenance)*(100+GET_PLAYER(getOwnerINLINE()).getInflationRate()), 100); // K-Mod
+ 	}
+ 
+ 	return 0;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index a62d218fb..cec5e8a58 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4717,11 +4717,14 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		}
+ 		else
+ 		{
++			int iInflationFactor = 100 + GET_PLAYER(pHeadSelectedCity->getOwnerINLINE()).getInflationRate(); // K-Mod
++
+ 			//		szBuffer = "Maintenance represents the total cost of governing this city.\n";
+ 			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_MAINT_INFO"));
+ 			szBuffer.append(NEWLINE);
+ 
+-			iMaintenanceValue = pHeadSelectedCity->calculateDistanceMaintenanceTimes100();
++			//iMaintenanceValue = pHeadSelectedCity->calculateDistanceMaintenanceTimes100();
++			iMaintenanceValue = pHeadSelectedCity->calculateDistanceMaintenanceTimes100()*iInflationFactor/100; // K-Mod
+ 			if (iMaintenanceValue != 0)
+ 			{
+ 				//			swprintf(szTempBuffer, "\n%s%d%c: %s", ((iMaintenanceValue > 0) ?  "+" : ""), iMaintenanceValue, GC.getCommerceInfo(COMMERCE_GOLD).getChar(), ((GET_PLAYER(pHeadSelectedCity->getOwnerINLINE()).getNumGovernmentCenters() > 0) ? "Distance from Palace" : "No Palace Penalty"));
+@@ -4730,7 +4733,8 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_NUM_MAINT_FLOAT", szMaint.GetCString()) + ((GET_PLAYER(pHeadSelectedCity->getOwnerINLINE()).getNumGovernmentCenters() > 0) ? gDLL->getText("TXT_KEY_MISC_DISTANCE_FROM_PALACE") : gDLL->getText("TXT_KEY_MISC_NO_PALACE_PENALTY")));
+ 			}
+ 
+-			iMaintenanceValue = pHeadSelectedCity->calculateNumCitiesMaintenanceTimes100();
++			//iMaintenanceValue = pHeadSelectedCity->calculateNumCitiesMaintenanceTimes100();
++			iMaintenanceValue = pHeadSelectedCity->calculateNumCitiesMaintenanceTimes100()*iInflationFactor/100; // K-Mod
+ 			if (iMaintenanceValue != 0)
+ 			{
+ 				//			swprintf(szTempBuffer, "\n%s%d%c: Number of Cities", ((iMaintenanceValue > 0) ? "+" : ""), iMaintenanceValue, GC.getCommerceInfo(COMMERCE_GOLD).getChar());
+@@ -4739,7 +4743,8 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_NUM_CITIES_FLOAT", szMaint.GetCString()));
+ 			}
+ 
+-			iMaintenanceValue = pHeadSelectedCity->calculateColonyMaintenanceTimes100();
++			//iMaintenanceValue = pHeadSelectedCity->calculateColonyMaintenanceTimes100();
++			iMaintenanceValue = pHeadSelectedCity->calculateColonyMaintenanceTimes100()*iInflationFactor/100; // K-Mod
+ 			if (iMaintenanceValue != 0)
+ 			{
+ 				CvWString szMaint = CvWString::format(L"%d.%02d", iMaintenanceValue/100, iMaintenanceValue%100);
+@@ -4747,7 +4752,8 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_COLONY_MAINT_FLOAT", szMaint.GetCString()));
+ 			}
+ 
+-			iMaintenanceValue = pHeadSelectedCity->calculateCorporationMaintenanceTimes100();
++			//iMaintenanceValue = pHeadSelectedCity->calculateCorporationMaintenanceTimes100();
++			iMaintenanceValue = pHeadSelectedCity->calculateCorporationMaintenanceTimes100()*iInflationFactor/100; // K-Mod
+ 			if (iMaintenanceValue != 0)
+ 			{
+ 				CvWString szMaint = CvWString::format(L"%d.%02d", iMaintenanceValue/100, iMaintenanceValue%100);
+@@ -4758,9 +4764,16 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			szBuffer.append(SEPARATOR);
+ 
+ 			//		swprintf(szTempBuffer, "\n%d%c Total Maintenance", pHeadSelectedCity->getMaintenance(), GC.getCommerceInfo(COMMERCE_GOLD).getChar());
+-			CvWString szMaint = CvWString::format(L"%d.%02d", pHeadSelectedCity->getMaintenanceTimes100()/100, pHeadSelectedCity->getMaintenanceTimes100()%100);
++			/* CvWString szMaint = CvWString::format(L"%d.%02d", pHeadSelectedCity->getMaintenanceTimes100()/100, pHeadSelectedCity->getMaintenanceTimes100()%100);
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_TOTAL_MAINT_FLOAT", szMaint.GetCString())); */
++			// K-Mod
++			iMaintenanceValue = pHeadSelectedCity->getMaintenanceTimes100()*iInflationFactor/100;
++
++			CvWString szMaint = CvWString::format(L"%d.%02d", iMaintenanceValue/100, iMaintenanceValue%100);
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_TOTAL_MAINT_FLOAT", szMaint.GetCString()));
++			//
+ 
+ 			iMaintenanceValue = pHeadSelectedCity->getMaintenanceModifier();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 30fd9a53f..f624560a6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5770,7 +5770,8 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 
+ 	szString.append(NEWLINE);
+ 	szString.append(gDLL->getText("INTERFACE_CITY_MAINTENANCE"));
+-	int iMaintenance = pCity->getMaintenanceTimes100();
++	//int iMaintenance = pCity->getMaintenanceTimes100();
++	int iMaintenance = pCity->getMaintenanceTimes100() * (100+GET_PLAYER(pCity->getOwnerINLINE()).getInflationRate()) / 100; // K-Mod
+ 	szString.append(CvWString::format(L" -%d.%02d %c", iMaintenance/100, iMaintenance%100, GC.getCommerceInfo(COMMERCE_GOLD).getChar()));
+ 
+ 	bFirst = true;
+@@ -7550,13 +7551,14 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 		}
+ 	}
+ 
++	float fInflationFactor = bPlayerContext ? (float)(100 + GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getInflationRate())/100 : 1.0f; // K-Mod
+ 	//	Gold cost per unit
+ 	if (GC.getCivicInfo(eCivic).getGoldPerUnit() != 0)
+ 	{
+ 		/* szHelpText.append(NEWLINE);
+ 		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_SUPPORT_COSTS", (GC.getCivicInfo(eCivic).getGoldPerUnit() > 0), GC.getCommerceInfo(COMMERCE_GOLD).getChar())); */
+-		// K-Mod
+-		szHelpText.append(CvWString::format(L"\n%c%+.2f%c %s", gDLL->getSymbolID(BULLET_CHAR), (float)GC.getCivicInfo(eCivic).getGoldPerUnit()/100, GC.getCommerceInfo(COMMERCE_GOLD).getChar(),
++		// K-Mod.
++		szHelpText.append(CvWString::format(L"\n%c%+.2f%c %s", gDLL->getSymbolID(BULLET_CHAR), (float)GC.getCivicInfo(eCivic).getGoldPerUnit()*fInflationFactor/100, GC.getCommerceInfo(COMMERCE_GOLD).getChar(),
+ 			gDLL->getText("TXT_KEY_CIVIC_SUPPORT_COSTS").GetCString()));
+ 		// K-Mod end
+ 	}
+@@ -7567,7 +7569,7 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 		/* szHelpText.append(NEWLINE);
+ 		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_MILITARY_SUPPORT_COSTS", (GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit() > 0), GC.getCommerceInfo(COMMERCE_GOLD).getChar())); */
+ 		// K-Mod
+-		szHelpText.append(CvWString::format(L"\n%c%+.2f%c %s", gDLL->getSymbolID(BULLET_CHAR), (float)GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit()/100, GC.getCommerceInfo(COMMERCE_GOLD).getChar(),
++		szHelpText.append(CvWString::format(L"\n%c%+.2f%c %s", gDLL->getSymbolID(BULLET_CHAR), (float)GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit()*fInflationFactor/100, GC.getCommerceInfo(COMMERCE_GOLD).getChar(),
+ 			gDLL->getText("TXT_KEY_CIVIC_MILITARY_SUPPORT_COSTS").GetCString()));
+ 		// K-Mod end
+ 	}
+@@ -12951,6 +12953,7 @@ void CvGameTextMgr::setCorporationHelpCity(CvWStringBuffer &szBuffer, Corporatio
+ 		iMaintenance += pCity->calculateCorporationMaintenanceTimes100(eCorporation);
+ 		iMaintenance *= 100 + pCity->getMaintenanceModifier();
+ 		iMaintenance /= 100;
++		iMaintenance = (100+GET_PLAYER(pCity->getOwnerINLINE()).getInflationRate())*iMaintenance / 100; // K-Mod
+ 	}
+ 
+ 	if (0 != iMaintenance)
+@@ -14529,7 +14532,7 @@ void CvGameTextMgr::buildFinanceInflationString(CvWStringBuffer& szBuffer, Playe
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 
+ 	int iInflationRate = kPlayer.getInflationRate();
+-	if (iInflationRate != 0)
++	//if (iInflationRate != 0)
+ 	{
+ 		int iPreInflation = kPlayer.calculatePreInflatedCosts();
+ 		szBuffer.append(NEWLINE);
+@@ -14557,6 +14560,13 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 	int iCost = player.calculateUnitCost(iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iUnitCost, iMilitaryCost, iExtraCost);
+ 	int iHandicap = iCost-iUnitCost-iMilitaryCost-iExtraCost;
+ 
++	// K-Mod include inflation
++	iCost = ROUND_DIVIDE(iCost*(100+player.getInflationRate()), 100);
++	iUnitCost = ROUND_DIVIDE(iUnitCost*(100+player.getInflationRate()), 100);
++	iMilitaryCost = ROUND_DIVIDE(iMilitaryCost*(100+player.getInflationRate()), 100);
++	iHandicap = ROUND_DIVIDE(iHandicap*(100+player.getInflationRate()), 100);
++	// K-Mod end
++
+ 	szBuffer.append(NEWLINE);
+ 	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iPaidUnits, iFreeUnits, iBaseUnitCost));
+ 	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iUnits, iFreeUnits, iUnitCost)); // K-Mod
+@@ -14593,6 +14603,12 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 	int iCost = player.calculateUnitSupply(iPaidUnits, iBaseCost);
+ 	int iHandicap = iCost - iBaseCost;
+ 
++	// K-Mod include inflation
++	iCost = ROUND_DIVIDE(iCost*(100+player.getInflationRate()), 100);
++	iBaseCost = ROUND_DIVIDE(iBaseCost*(100+player.getInflationRate()), 100);
++	iHandicap = ROUND_DIVIDE(iHandicap*(100+player.getInflationRate()), 100);
++	// K-Mod end
++
+ 	CvWString szHandicap;
+ 	if (iHandicap != 0)
+ 	{
+@@ -14631,22 +14647,26 @@ void CvGameTextMgr::buildFinanceCityMaintString(CvWStringBuffer& szBuffer, Playe
+ 		*/
+ 		if (!pLoopCity->isDisorder() && !pLoopCity->isWeLoveTheKingDay() && (pLoopCity->getPopulation() > 0))
+ 		{
+-			iDistanceMaint += (pLoopCity->calculateDistanceMaintenanceTimes100() * std::max(0, (pLoopCity->getMaintenanceModifier() + 100))) / 100;
+-			iColonyMaint += (pLoopCity->calculateColonyMaintenanceTimes100() * std::max(0, (pLoopCity->getMaintenanceModifier() + 100))) / 100;
+-			iCorporationMaint += (pLoopCity->calculateCorporationMaintenanceTimes100() * std::max(0, (pLoopCity->getMaintenanceModifier() + 100))) / 100;
++			iDistanceMaint += (pLoopCity->calculateDistanceMaintenanceTimes100() * std::max(0, (pLoopCity->getMaintenanceModifier() + 100))+50) / 100;
++			iColonyMaint += (pLoopCity->calculateColonyMaintenanceTimes100() * std::max(0, (pLoopCity->getMaintenanceModifier() + 100))+50) / 100;
++			iCorporationMaint += (pLoopCity->calculateCorporationMaintenanceTimes100() * std::max(0, (pLoopCity->getMaintenanceModifier() + 100))+50) / 100;
+ 		}
+ /**
+ *** K-Mod end
+ **/
+ 	}
+-	iDistanceMaint /= 100;
+-	iColonyMaint /= 100;
+-	iCorporationMaint /= 100;
+ 
+-	int iNumCityMaint = player.getTotalMaintenance() - iDistanceMaint - iColonyMaint - iCorporationMaint;
++	// K-Mod. Changed to include the effects of inflation.
++	int iInflationFactor = player.getInflationRate()+100;
++
++	iDistanceMaint = ROUND_DIVIDE(iDistanceMaint * iInflationFactor, 10000);
++	iColonyMaint = ROUND_DIVIDE(iColonyMaint * iInflationFactor, 10000);
++	iCorporationMaint = ROUND_DIVIDE(iCorporationMaint * iInflationFactor, 10000); // Note: currently, calculateCorporationMaintenanceTimes100 includes the inverse of this factor.
++
++	int iNumCityMaint = ROUND_DIVIDE(player.getTotalMaintenance() * iInflationFactor, 100) - iDistanceMaint - iColonyMaint - iCorporationMaint;
+ 
+ 	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CITY_MAINT_COST", iDistanceMaint, iNumCityMaint, iColonyMaint, iCorporationMaint, player.getTotalMaintenance()));
++	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CITY_MAINT_COST", iDistanceMaint, iNumCityMaint, iColonyMaint, iCorporationMaint, player.getTotalMaintenance()*iInflationFactor/100));
+ }
+ 
+ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+@@ -14663,13 +14683,15 @@ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, Pla
+ 		if (NO_CIVIC != eCivic)
+ 		{
+ 			CvWString szTemp;
+-			szTemp.Format(L"%d%c: %s", player.getSingleCivicUpkeep(eCivic), GC.getCommerceInfo(COMMERCE_GOLD).getChar(),  GC.getCivicInfo(eCivic).getDescription());
++			//szTemp.Format(L"%d%c: %s", player.getSingleCivicUpkeep(eCivic), GC.getCommerceInfo(COMMERCE_GOLD).getChar(),  GC.getCivicInfo(eCivic).getDescription());
++			szTemp.Format(L"%d%c: %s", ROUND_DIVIDE(player.getSingleCivicUpkeep(eCivic)*(100+player.getInflationRate()),100), GC.getCommerceInfo(COMMERCE_GOLD).getChar(),  GC.getCivicInfo(eCivic).getDescription()); // K-Mod
+ 			szCivicOptionCosts += NEWLINE + szTemp;
+ 		}
+ 	}
+ 
+ 	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST", szCivicOptionCosts.GetCString(), player.getCivicUpkeep()));
++	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST", szCivicOptionCosts.GetCString(), player.getCivicUpkeep()));
++	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST", szCivicOptionCosts.GetCString(), ROUND_DIVIDE(player.getCivicUpkeep()*(100+player.getInflationRate()),100))); // K-Mod
+ }
+ 
+ void CvGameTextMgr::buildFinanceForeignIncomeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=34340

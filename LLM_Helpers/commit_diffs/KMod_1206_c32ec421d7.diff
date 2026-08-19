@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1206
+# Commit: c32ec421d7c1fd0e8854da8eaee2a610530ab97b
+# History segment: K-Mod history
+# Parent used for diff: 7027bf8ed2aad34de6f3b6f5f810e7ac428f8f5e
+# Title: Adjusted CvTeam::shareCounters to prevent lose of circumnavigation bonus.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	1	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 6a5e3546a..1b473ae2a 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -900,7 +900,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
+ 		if (iDelta > 0)
+ 		{
+ 			changeProjectCount(eProject, iDelta);
+-			// don't count the additional projects that have been added in thiw way
++			// don't count the additional projects that have been added in this way
+ 			GC.getGameINLINE().incrementProjectCreatedCount(eProject, -iDelta);
+ 		}
+ 		//else
+@@ -959,6 +959,16 @@ void CvTeam::shareCounters(TeamTypes eTeam)
+ 		//	kShareTeam.setNoTradeTech((eTech), false);
+ 		//
+ 	}
++
++	// K-Mod. Share extra moves.
++	// Note: there is no reliable way to do this. We can't tell if the bonus is from something unique- such as circumnavigation,
++	//       or from something that is already taken into account - such as refrigeration.
++	for (DomainTypes t = (DomainTypes)0; t < NUM_DOMAIN_TYPES; t=(DomainTypes)(t+1))
++	{
++		if (kShareTeam.getExtraMoves(t) > getExtraMoves(t))
++			changeExtraMoves(t, kShareTeam.getExtraMoves(t)-getExtraMoves(t));
++	}
++	// K-Mod end
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1137

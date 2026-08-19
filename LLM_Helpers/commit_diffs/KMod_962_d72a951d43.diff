@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 962
+# Commit: d72a951d43d3424f8b8a5e70b6a3b5b750434554
+# History segment: K-Mod history
+# Parent used for diff: 497fb82dc172cbf4914728706bc99166760e2692
+# Title: Improved the stateReligionCommerce part in CvCityAI::AI_buildingValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	0	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5e9b3f54a..2742226c8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5086,10 +5086,30 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					iTempValue += ((kBuilding.getGlobalCommerceModifier(iI) * iNumCities) / 4);
+ 					// iTempValue += ((kBuilding.getSpecialistExtraCommerce(iI) * kOwner.getTotalPopulation()) / 3); // moved up (K-Mod)
+ 
++					/* original bts code
+ 					if (eStateReligion != NO_RELIGION)
+ 					{
+ 						iTempValue += (kBuilding.getStateReligionCommerce(iI) * kOwner.getHasReligionCount(eStateReligion) * 3);
++					} */
++					// K-Mod. A more accurate calculation of the value from increasing commerce on all state religion buildings. (eg. Sankore)
++					if (eStateReligion != NO_RELIGION && kBuilding.getStateReligionCommerce(iI) != 0)
++					{
++						int iCount = 0;
++						for (BuildingClassTypes eLoopClass = (BuildingClassTypes)0; eLoopClass < GC.getNumBuildingClassInfos(); eLoopClass = (BuildingClassTypes)(eLoopClass+1))
++						{
++							BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eLoopClass); // K-Mod
++
++							if (eLoopBuilding != NO_BUILDING &&
++								GC.getBuildingInfo(eLoopBuilding).getReligionType() == eStateReligion &&
++								!GET_TEAM(kOwner.getTeam()).isObsoleteBuilding(eLoopBuilding))
++							{
++								iCount += kOwner.getBuildingClassCountPlusMaking(eLoopClass);
++							}
++						}
++						iCount = std::max(iCount, kOwner.getHasReligionCount(eStateReligion));
++						iTempValue += iCount * 35 * kOwner.AI_averageCommerceMultiplier((CommerceTypes)iI) / 1000;
+ 					}
++					// K-Mod end
+ 
+ 					if (kBuilding.getGlobalReligionCommerce() != NO_RELIGION)
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1819

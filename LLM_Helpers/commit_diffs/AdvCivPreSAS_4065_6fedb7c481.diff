@@ -1,0 +1,51 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4065
+# Commit: 6fedb7c4810d3b714150b905bc8edab8c0f9e57f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e8af49a7a7e207072ed65cb23bf06652b6aea35f
+# Title: Fix an issue with UWAI initialization in scenarios
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+2	1	CvGameCoreDLL/UWAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 073eb6a13..2db6f401b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1054,7 +1054,7 @@ void CvTeamAI::AI_preMakePeace(TeamTypes eTarget, CLinkList<TradeData> const* pR
+ {
+ 	CvTeamAI& kTarget = GET_TEAM(eTarget);
+ 	// <advc.104> Report who won the war before war success is reset
+-	if (getUWAI().isEnabled())
++	if (getUWAI().isEnabled() && getUWAI().isReady())
+ 	{
+ 		uwai().reportWarEnding(eTarget, pReparations, NULL);
+ 		kTarget.uwai().reportWarEnding(getID(), NULL, pReparations);
+
+diff --git a/CvGameCoreDLL/UWAI.cpp b/CvGameCoreDLL/UWAI.cpp
+index b593124be..29c8f6c63 100644
+--- a/CvGameCoreDLL/UWAI.cpp
++++ b/CvGameCoreDLL/UWAI.cpp
+@@ -84,7 +84,8 @@ bool UWAI::isReady() const
+ 	/*  In scenarios, CvTeamAI functions aren't properly called during the first
+ 		turn. Should skip war planning in the first two turns to make sure that
+ 		all AI data is properly initialized and updated. */
+-	return (!GC.getGame().isScenario() || GC.getGame().getElapsedGameTurns() > 1);
++	return ((!GC.getGame().isScenario() && !GC.getInitCore().getScenario()) ||
++			GC.getGame().getElapsedGameTurns() > 1);
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1199

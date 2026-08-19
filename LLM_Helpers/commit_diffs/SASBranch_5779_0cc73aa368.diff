@@ -1,0 +1,429 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5779
+# Commit: 0cc73aa368513c08675b6125655242912ef75006
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 980efa1ffc1d5e0b1252f5fd35847740afccc3ee
+# Title: rename Units tab to Map tab, and map to map_minimap in Military Advisor; refactor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	7	Assets/Python/Screens/CvDomesticAdvisor.py
+46	52	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	7	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+1	7	Assets/Python/Screens/CvTechChooser.py
+1	7	Assets/Python/Screens/CvVictoryScreen.py
+2	2	Assets/XML/Text/AdvCiv-SAS_main.xml
+5	5	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index b0d702323..d0d58228c 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -193,13 +193,7 @@ class CvDomesticAdvisor:
+ 		self.TEXT_FIN_EXPENSES = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES", ())
+ 
+ 	def updateRuntimeLayout(self, screen):
+-		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
+-			screen,
+-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+-			self.H_TOP_SPACE_FOR_TECH_BAR,
+-			self.H_BOTTOM_SPACE
+-		)
++		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
+ 		(self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight), (self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight) = getAdvisorMaximizedPanelLayout(self.nScreenWidth, self.Y_BOTTOM_PANEL)
+ 		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 168553a8d..6217794e7 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -41,7 +41,7 @@ class CvMilitaryAdvisor:
+ 		self.ATTACHED_WIDGET_ID = "MilitaryAdvisorAttachedWidget" # no need to explicitly delete these
+ 		self.LEADER_BUTTON_ID = "MilitaryAdvisorLeaderButton"
+ 		self.UNIT_PANEL_ID = "MilitaryAdvisorUnitPanel"
+-		self.MAP_PANEL_ID = "MilitaryAdvisorMapPanel"
++		self.MAP_MINIMAP_PANEL_ID = "MilitaryAdvisorMapMinimapPanel"
+ 		self.UNIT_BUTTON_ID = "MilitaryAdvisorUnitButton"
+ 		self.UNIT_BUTTON_LABEL_ID = "MilitaryAdvisorUnitButtonLabel"
+ 		self.LEADER_PANEL_ID = "MilitaryAdvisorLeaderPanel"
+@@ -52,12 +52,12 @@ class CvMilitaryAdvisor:
+ 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
+ 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
+ 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
+-		self.PAGE_UNITS = 0
++		self.PAGE_MAP = 0
+ 		self.PAGE_BATTLES = 1
+ 		self.PAGE_COMPOSITION = 2
+-		self.iActivePage = self.PAGE_UNITS
++		self.iActivePage = self.PAGE_MAP
+ 		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2"]
+-		self.PAGE_IDS = [self.PAGE_UNITS, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
++		self.PAGE_IDS = [self.PAGE_MAP, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
+ 		self.PAGE_LINK_WIDTH = [0, 0, 0]
+ 		self.COMPOSITION_UNITS_TABLE_ID = "MilitaryAdvisorCompositionUnitsTable"
+ 		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
+@@ -85,7 +85,7 @@ class CvMilitaryAdvisor:
+ 		self.selectedPlayerList = []
+ 		self.selectedGroupList = []
+ 		self.selectedUnitList = []
+-		self.bMinimapInitDone = False
++		self.bMapMinimapInitDone = False
+ 		self.iLanguageLoaded = -1
+ 
+ 		# <!-- custom: expand/layout elements (e.g., great general bar) to use the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+@@ -105,10 +105,10 @@ class CvMilitaryAdvisor:
+ 		# --- B. Unit List (Right Side - Fixed Width) ---
+ 		self.W_TEXT = 430
+ 
+-		# --- C. Map Panel (Left Side - Fills Remaining Space) ---
+-		self.X_MAP = 20
+-		# <!-- custom: MAP_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
+-		self.MAP_MARGIN = 20
++		# --- C. Minimap Panel (Left Side - Fills Remaining Space) ---
++		self.X_MAP_MINIMAP = 20
++		# <!-- custom: PANEL_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
++		self.PANEL_MARGIN = 20
+ 
+ 		# --- D. Great General Bar (Moved to Bottom Left)
+ 		self.H_GREAT_GENERAL_BAR = 30
+@@ -168,10 +168,10 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
+ 		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
+ 		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
+-		self.TEXT_TAB_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB", ()).upper()
++		self.TEXT_TAB_MAP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB", ()).upper()
+ 		self.TEXT_TAB_BATTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", ()).upper()
+ 		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
+-		self.PAGE_NAME_LIST = [self.TEXT_TAB_UNITS, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
++		self.PAGE_NAME_LIST = [self.TEXT_TAB_MAP, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
+ 		self.TEXT_COMPOSITION_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS", ())
+ 		self.TEXT_COMPOSITION_PROMOTIONS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS", ())
+ 		self.TEXT_COMPOSITION_COMBATS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS", ())
+@@ -219,42 +219,36 @@ class CvMilitaryAdvisor:
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
+-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+-			screen,
+-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+-			self.H_TOP_SPACE_FOR_TECH_BAR,
+-			self.H_BOTTOM_SPACE
+-		)
++		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+ 		self.Y_LINK = self.Y_EXIT
+ 
+-		# <!-- custom: units panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map vertical gap kept small because every pixel cut from H_MAP_MAX shrinks W_MAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the map X / W to stay flush with it. (Claude code Opus 4.7) -->
++		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map-minimap vertical gap kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7) -->
+ 		iAdvisorMargin = 20
+-		iLeaderToMapGap = 10
++		iLeaderToMapMinimapGap = 10
+ 		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
+ 		self.Y_TEXT = self.Y_LEADERS
+ 		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
+ 
+-		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapGap
++		self.Y_MAP_MINIMAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapMinimapGap
+ 		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iAdvisorMargin
+-		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapGap - self.Y_MAP
++		self.H_MAP_MINIMAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapMinimapGap - self.Y_MAP_MINIMAP
+ 
+ 		iGridW = CyMap().getGridWidth()
+ 		iGridH = CyMap().getGridHeight()
+ 		iMaxColW = self.W_SCREEN - 3 * iAdvisorMargin - self.W_TEXT
+-		self.W_MAP = (self.H_MAP_MAX * iGridW) / iGridH
+-		self.H_MAP = self.H_MAP_MAX
+-		if self.W_MAP > iMaxColW:
+-			self.W_MAP = iMaxColW
+-			self.H_MAP = (self.W_MAP * iGridH) / iGridW
+-		iGap = (self.W_SCREEN - self.W_MAP - self.W_TEXT) / 3
++		self.W_MAP_MINIMAP = (self.H_MAP_MINIMAP_MAX * iGridW) / iGridH
++		self.H_MAP_MINIMAP = self.H_MAP_MINIMAP_MAX
++		if self.W_MAP_MINIMAP > iMaxColW:
++			self.W_MAP_MINIMAP = iMaxColW
++			self.H_MAP_MINIMAP = (self.W_MAP_MINIMAP * iGridH) / iGridW
++		iGap = (self.W_SCREEN - self.W_MAP_MINIMAP - self.W_TEXT) / 3
+ 		self.X_LEADERS = iGap
+-		self.X_MAP = iGap
++		self.X_MAP_MINIMAP = iGap
+ 		self.X_GREAT_GENERAL_BAR = iGap
+-		self.X_TEXT = self.X_LEADERS + self.W_MAP + iGap
+-		self.W_LEADERS = self.W_MAP
+-		self.W_GREAT_GENERAL_BAR = self.W_MAP
++		self.X_TEXT = self.X_LEADERS + self.W_MAP_MINIMAP + iGap
++		self.W_LEADERS = self.W_MAP_MINIMAP
++		self.W_GREAT_GENERAL_BAR = self.W_MAP_MINIMAP
+ 		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+ 
+ 		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
+@@ -278,7 +272,7 @@ class CvMilitaryAdvisor:
+ 		while self.nWidgetCount < iCount:
+ 			screen.deleteWidget(self.getNextWidgetName())
+ 		self.nWidgetCount = 0
+-		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Units-tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
++		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Map tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
+ 		for szWidget in (
+ 			self.UNIT_PANEL_ID,
+ 			self.UNIT_BUTTON_ID,
+@@ -311,7 +305,7 @@ class CvMilitaryAdvisor:
+ 		self.initDefines()
+ 		self.initText()
+ 		self.updateRuntimeLayout(screen)
+-		self.bMinimapInitDone = False
++		self.bMapMinimapInitDone = False
+ 
+ 		self.nWidgetCount = 0
+ 
+@@ -355,11 +349,11 @@ class CvMilitaryAdvisor:
+ 		self.iActivePlayer = gc.getGame().getActivePlayer()
+ 
+ 		# Minimap initialization
+-		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Units-tab minimap would stop rendering after returning from Battles/Composition. Initialize the map frame/minimap once per real advisor opening, then refresh/re-front it when returning to Units. See KI#129. (GPT-5.5) -->
+-		if not self.bMinimapInitDone:
+-			screen.addPanel(self.MAP_PANEL_ID, u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
+-			screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
+-			self.bMinimapInitDone = True
++		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Map tab minimap would stop rendering after returning from Battles/Composition. Initialize the minimap frame once per real advisor opening, then refresh/re-front it when returning to Map. See KI#129. (GPT-5.5) -->
++		if not self.bMapMinimapInitDone:
++			screen.addPanel(self.MAP_MINIMAP_PANEL_ID, u"", "", False, False, self.X_MAP_MINIMAP, self.Y_MAP_MINIMAP, self.W_MAP_MINIMAP, self.H_MAP_MINIMAP, PanelStyles.PANEL_STYLE_MAIN)
++			screen.initMinimap(self.X_MAP_MINIMAP + self.PANEL_MARGIN, self.X_MAP_MINIMAP + self.W_MAP_MINIMAP - self.PANEL_MARGIN, self.Y_MAP_MINIMAP + self.PANEL_MARGIN, self.Y_MAP_MINIMAP + self.H_MAP_MINIMAP - self.PANEL_MARGIN, self.Z_CONTROLS)
++			self.bMapMinimapInitDone = True
+ 		screen.updateMinimapSection(False, False)
+ 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
+ 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
+@@ -620,7 +614,7 @@ class CvMilitaryAdvisor:
+ 
+ 	def drawBattleHistory(self):
+ 		screen = self.getScreen()
+-		# <!-- custom: Units tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
++		# <!-- custom: Map tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
+ 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
+ 		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
+@@ -810,7 +804,7 @@ class CvMilitaryAdvisor:
+ 			print("OpponentPlayer: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
+ 
+ 
+-	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Units tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current and "Current" stays free for a future detailed-units tab. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Units tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
++	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Map tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Map tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
+ 	def collectCompositionData(self):
+ 		dUnits = {}
+ 		dPromotions = {}
+@@ -866,7 +860,7 @@ class CvMilitaryAdvisor:
+ 
+ 
+ 	def drawCombatExperience(self):
+-		if self.iActivePage != self.PAGE_UNITS:
++		if self.iActivePage != self.PAGE_MAP:
+ 			return
+ 		# <!-- custom: hoist repeated active-player/threshold lookups to locals for this draw pass (same behavior, fewer repeated engine calls). (GPT-5.3-Codex) -->
+ 		kActivePlayer = gc.getPlayer(self.iActivePlayer)
+@@ -937,7 +931,7 @@ class CvMilitaryAdvisor:
+ 		return 0
+ 
+ 	def update(self, fDelta):
+-		if self.iActivePage != self.PAGE_UNITS:
++		if self.iActivePage != self.PAGE_MAP:
+ 			return
+ 		screen = self.getScreen()
+ 		screen.updateMinimap(fDelta)
+@@ -973,7 +967,7 @@ class CvMilitaryAdvisor:
+ 		return ((iPlayer, iUnitId) in self.selectedUnitList)
+ 		
+ 	def refreshSelectedLeader(self, iPlayer):
+-		if self.iActivePage != self.PAGE_UNITS:
++		if self.iActivePage != self.PAGE_MAP:
+ 			return
+ 		if self.iShiftKeyDown == 1:
+ 			if (iPlayer in self.selectedPlayerList):
+@@ -991,7 +985,7 @@ class CvMilitaryAdvisor:
+ 		return szName
+ 
+ 	def refreshSelectedGroup(self, iSelected):
+-		if self.iActivePage != self.PAGE_UNITS:
++		if self.iActivePage != self.PAGE_MAP:
+ 			return
+ 		if (iSelected in self.selectedGroupList):
+ 			self.selectedGroupList.remove(iSelected)
+@@ -1000,7 +994,7 @@ class CvMilitaryAdvisor:
+ 		self.refreshUnitSelection(false)
+ 			
+ 	def refreshSelectedUnit(self, iPlayer, iUnitId):
+-		if self.iActivePage != self.PAGE_UNITS:
++		if self.iActivePage != self.PAGE_MAP:
+ 			return
+ 		selectedUnit = (iPlayer, iUnitId)
+ 		if (selectedUnit in self.selectedUnitList):
+@@ -1028,8 +1022,8 @@ class CvMilitaryAdvisor:
+ 			else:
+ 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
+ 				szButtonText = self.TEXT_UNIT_TOGGLE_ON
+-			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
+-			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.PANEL_MARGIN, self.Y_TEXT + self.PANEL_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
++			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.PANEL_MARGIN + 22, self.Y_TEXT + self.PANEL_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
+ 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
+@@ -1043,10 +1037,10 @@ class CvMilitaryAdvisor:
+ 		iFont = CvUtil.FONT_LEFT_JUSTIFY
+ 
+ 		# <!-- custom: render icons inline in list rows so icon/text stay aligned while scrolling; this replaces the old overlay-button workaround that did not scroll with rows. (GPT-5.3-Codex) -->
+-		iListX = self.X_TEXT + self.MAP_MARGIN
+-		iListY = self.Y_TEXT + self.MAP_MARGIN + 15
+-		iListW = self.W_TEXT - 2*self.MAP_MARGIN
+-		iListH = self.H_TEXT - 2*self.MAP_MARGIN - 15
++		iListX = self.X_TEXT + self.PANEL_MARGIN
++		iListY = self.Y_TEXT + self.PANEL_MARGIN + 15
++		iListW = self.W_TEXT - 2*self.PANEL_MARGIN
++		iListH = self.H_TEXT - 2*self.PANEL_MARGIN - 15
+ 		# Extra text-indent is only needed when icons are disabled.
+ 		szUnitIndentSpace = u"  "  # <!-- custom: level 1: unit-type rows (e.g. Warrior (3)) (GPT-5.3-Codex) -->
+ 		szDetailIndentSpace = u"      "  # <!-- custom: level 2: individual unit detail rows (expanded view) (GPT-5.3-Codex) -->
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index 52ab4c6fb..b83fdddd0 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -249,13 +249,7 @@ class CvPolicyAdvisorScreen:
+ 		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+ 
+ 	def updateRuntimeLayout(self, screen):
+-		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+-			screen,
+-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+-			self.H_TOP_SPACE_FOR_TECH_BAR,
+-			self.H_BOTTOM_SPACE
+-		)
++		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+ 		self.X_CANCEL = self.W_SCREEN / 2
+ 		self.X_SCREEN = self.W_SCREEN / 2
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index af63b3c85..d74622811 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -265,13 +265,7 @@ class CvTechChooser:
+ 			iRightSpaceForScoreboard = 0
+ 		if iTopSpaceForTechBar < 0:
+ 			iTopSpaceForTechBar = 0
+-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+-			screen,
+-			SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+-			iRightSpaceForScoreboard,
+-			iTopSpaceForTechBar,
+-			SAS_ADVISOR_BOTTOM_SPACE
+-		)
++		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS, iRightSpaceForScoreboard, iTopSpaceForTechBar, SAS_ADVISOR_BOTTOM_SPACE)
+ 		self.iX_LEFT_START = 30
+ 		self.iX_LEFT_START_OR_PREREQS = 24
+ 		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 307032447..f71f4ce87 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -158,13 +158,7 @@ class CvVictoryScreen:
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		# <!-- custom: runtime-only geometry (X/Y/W/H anchors and content areas) is computed here from actual resolution; we intentionally avoid init-time placeholders for these screen-dependent values. (GPT-5.3-Codex) -->
+-		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+-			screen,
+-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+-			self.H_TOP_SPACE_FOR_TECH_BAR,
+-			self.H_BOTTOM_SPACE
+-		)
++		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+ 		self.X_SCREEN, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+ 		self.W_AREA = self.W_SCREEN - 14
+ 		self.H_AREA = self.H_SCREEN - 118
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index e9a44455d..3b40acf72 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -33,8 +33,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Bonuses</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB</Tag>
+-		<English>Units</English>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB</Tag>
++		<English>Map</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index b8f8766fc..cd9ee4f5d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -164,7 +164,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
+ [127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
+ [128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
+-[129 - (Fixed) Military Advisor Units-tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-units-tab-minimap-disappeared-after-switching-tabs)  
++[129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4770,14 +4770,14 @@ Files changed:
+ - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+ - [Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)
+ 
+-## 129 - (Fixed) Military Advisor Units-tab minimap disappeared after switching tabs
++## 129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GKzU-m50WLj0CUBHCJPxTPbHfrJ33izg?usp=sharing).
+ 
+ Observed issue:
+ 
+-- In the (base) Military Advisor, after we added new tabs (Battles and Composition, and named "Units" (tab) the original advisor screen view), the Units tab minimap initially displayed correctly when opening the advisor.
+-- After switching from Units to another Military Advisor tab (Battles or Composition) and then back to Units, the minimap area no longer rendered correctly.
++- In the (base) Military Advisor, after we added new tabs (Battles and Composition, and named "Map" (tab) the original advisor screen view), the Map tab minimap initially displayed correctly when opening the advisor.
++- After switching from Map to another Military Advisor tab (Battles or Composition) and then back to Map, the minimap area no longer rendered correctly.
+ - Earlier attempts changed the symptom but did not fully fix it: `bringMinimapToFront()` alone did not restore the minimap; deleting/recreating several widgets could still leave a blank/blue map area; trying to reuse the minimap after `hideScreen()`/`interfaceScreen()` avoided some covering but could show the advisor background instead of the minimap.
+ - Exiting the Military Advisor and reopening it restored the minimap.
+ - The BUG Military Advisor variant did not show this issue when switching between its tabs.
+@@ -4786,7 +4786,7 @@ Fix:
+ 
+ - Military Advisor tab switches now redraw the advisor contents in place instead of calling `hideScreen()` and then `interfaceScreen()` again.
+ - The redraw deletes page-owned widgets only, while leaving the screen shell and minimap frame alive.
+-- The Units tab initializes the minimap once per real advisor opening, then refreshes/re-fronts it when returning to Units.
++- The Map tab initializes the minimap once per real advisor opening, then refreshes/re-fronts it when returning to Map.
+ 
+ Notes:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index eccf362ba..33b28db9c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -360,7 +360,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically), and use the space gained from expanding the advisor to **increase leader icon bar from 1 to 2 rows**, and **do not halve icon size until both rows are full**. For example, this allows **at 1080p to show up to 24 players** (including barbarian) at **full leader icon size** before leader icon size is halved, which should now cover most games. Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.  See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+-- (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab). See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-units-tab-minimap-disappeared-after-switching-tabs).
++- (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab). See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - (Requires AdvCiv-SAS 5718+) New **World Advisor**: shows **detailed BFC, suburbs, and territory geography** information as **sortable tables**. BFC tabs show **counts per city (rows) and per field (columns)**, and have a **click to enter city button** (similar to the Info Screen's Wonders tab). The BFC1 tab shows mostly **plot type** (Peak, Hill, Water, Land) and other information (**River, Lake, Coastal Land, sortable City found year and population**) and **Terrains/Features** information; the BFC2 tab shows mostly **Bonuses** and **Improvements** with other information (**Routes**). The Territory tab shows a **condensed count summary** with 4 tables of the former BFC tabs, with a BFC, suburbs (i.e. plots outside BFC), and **total columns** for each field (rows), **total fields (rows)** for each table, **hover support** and **pedia redirect on click** (if a corresponding pedia page exists), and a legend link. Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill). The **environment tab** is now part of the World advisor (better thematic fit).
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=35287

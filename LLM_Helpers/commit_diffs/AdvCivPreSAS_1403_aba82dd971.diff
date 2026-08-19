@@ -1,0 +1,895 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1403
+# Commit: aba82dd97182435b92397679c35ca903988e90d6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bd47281d75e600ef0e08dff0fffdd853fbacf536
+# Title: A few additions to the previous commit:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/xml/Text/Advanced Scoreboard Options.xml
+7	2	Assets/xml/Text/Autolog Options.xml
+1	1	Assets/xml/Text/BUG Advisors Options.xml
+2	2	Assets/xml/Text/BUG City Screen Options.xml
+1	1	Assets/xml/Text/BUG Options Screen.xml
+2	1	Assets/xml/Text/BUG_CIV4GameText.xml
+2	2	Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
+1	1	Assets/xml/Text/Civ4lerts Options.xml
+1	1	Assets/xml/Text/CustDomAdv Options.xml
+2	2	Assets/xml/Text/EventSigns Options.xml
+2	2	Assets/xml/Text/Not Just Another Game Clock Options.xml
+3	5	Assets/xml/Text/Plot List Enhancements Options.xml
+2	2	CvGameCoreDLL/CvBugOptions.cpp
+3	2	CvGameCoreDLL/CvBugOptions.h
+1	1	CvGameCoreDLL/CvCity.cpp
+5	10	CvGameCoreDLL/CvDLLWidgetData.cpp
+3	3	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+36	44	CvGameCoreDLL/CvGameTextMgr.cpp
+43	43	CvGameCoreDLL/CvPlayer.cpp
+3	3	Settings/About this folder.txt
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index 3d394ce7a..543f2cf2a 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -187,7 +187,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__ATTITUDE_HOVER</Tag>
+-		<English>When checked, shows smileys that indicate attitude of the AI leaders toward you.</English>
++		<English>When checked, shows smileys that indicate the attitudes of the AI leaders toward you.</English>
+ 		<French>En activant, utilise des smileys pour indiquer l'attitude des IA envers vous.</French>
+ 		<German>Zeigt durch Smilies die Einstellung der KI-Spieler Ihnen gegen�ber an.</German>
+ 		<Italian>Quando � selezionato, nel Pannello del Punteggio vengono mostrate delle emoticons che rappresentano l'atteggiamento delle altre Civilt� verso di te.</Italian>
+@@ -276,7 +276,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_HOVER</Tag>
+ 		<English>When checked, the scoreboard is aligned to an (invisible) grid and can be customized through the options in the bottom half of this tab.</English>
+ 		<French>En activant, le panneau des scores devient un tableau, et les options dans cette colonne l'affectent.</French>
+-		<German>Aktiviert das BUG-Layout, welches die Punkteanzeige an einem (unsichtbaren) Raster anordnet, und mit den nachstehenden Optionen individuell angepasst werden kann.</German>
++		<German>Aktiviert das BUG-Layout, welches die Punkteanzeige an einem (unsichtbaren) Raster ausrichtet, und mit den nachstehenden Optionen individuell angepasst werden kann.</German>
+ 		<Italian>Quando � selezionato, il Pannello del Punteggio viene strutturato come griglia (vedi l'opzione seguente).</Italian>
+ 		<Spanish>Si se activa, se muestra la tabla de puntuaciones como una rejilla, y el resto de opciones en esta secci�n afectan a la tabla.</Spanish>
+ 	</TEXT>
+@@ -296,7 +296,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__MAXPLAYERS_HOVER</Tag>
+ 		<English>The upper limit for the number of rows on the scoreboard. If the number of civilizations to display exceeds this limit, the lower ranks are omitted. [COLOR_HIGHLIGHT_TEXT]0[COLOR_REVERT] means unlimited.</English>
+ 		<French>Select the maximum number of civilizations to display (0 for unlimited).</French>
+-		<German>Obergrenze f�r die Anzahl der Eintr�ge in der Punkteanzeige. Falls nicht alle Zivilisationen angezeigt werden k�nnen, werden die unteren R�nge weggelassen. [COLOR_HIGHLIGHT_TEXT]0[COLOR_REVERT] bedeutet unbegrenzt.</German>
++		<German>Obergrenze f�r die Anzahl der Eintr�ge in der Punkteanzeige. Falls nicht alle Zivilisationen Platz finden, werden die unteren R�nge weggelassen. [COLOR_HIGHLIGHT_TEXT]0[COLOR_REVERT] bedeutet unbegrenzt.</German>
+ 		<Italian>Seleziona il massimo numero di Civilt� che verranno mostrate (0 significa illimitate).</Italian>
+ 		<Spanish>Permite seleccionar el m�ximo n�mero de civilizaciones a mostrar (0 indica que no hay l�mite).</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Autolog Options.xml b/Assets/xml/Text/Autolog Options.xml
+index 2993b4465..eac259852 100644
+--- a/Assets/xml/Text/Autolog Options.xml	
++++ b/Assets/xml/Text/Autolog Options.xml	
+@@ -173,7 +173,12 @@
+ 		<Spanish>Permite seleccionar a qu� n�mero de turno se corresponde el 4000 a.C.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: Don't need a cryptic shorthand for this -->
++	<!-- advc.004: The help file says that the IBT option was
++		 "added to split user actions and AI actions."
++		 But it doesn't seem to work at all. I suppose a line is missing in		 
++		 autologEventManager.py to discard the in-between-turn events if IBT
++		 isn't set. I'm not sure if such a split option would really be useful,
++		 so I'm leaving it (and describing it) as it is. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__IBT_TEXT</Tag>
+ 		<English>Log End of Turn</English>
+@@ -773,7 +778,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGWARDEMAND_HOVER</Tag>
+-		<English>When checked, will log join-war requests and your respons to them.</English>
++		<English>When checked, will log join-war requests and your response to them.</English>
+ 		<French>When checked, will log AI requests to declare war on a third party and your responses.</French>
+ 		<German>Protokolliert Aufforderungen zur Kriegsteilnahme und Ihre Reaktion darauf.</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico registra le richieste di dichiarazione di guerra delle altre Civilt� e le vostre risposte.</Italian>
+
+diff --git a/Assets/xml/Text/BUG Advisors Options.xml b/Assets/xml/Text/BUG Advisors Options.xml
+index 24a71603a..f4cd3750e 100644
+--- a/Assets/xml/Text/BUG Advisors Options.xml	
++++ b/Assets/xml/Text/BUG Advisors Options.xml	
+@@ -28,7 +28,7 @@
+ 
+ <!-- Exotic Foreign Advisor -->
+ 
+-	<!-- advc.004: The tab called "Einblick" in German (though "�berblick"
++	<!-- advc.004: The tab is called "Einblick" in German (though "�berblick"
+ 		 would perhaps indeed be a better name) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT</Tag>
+
+diff --git a/Assets/xml/Text/BUG City Screen Options.xml b/Assets/xml/Text/BUG City Screen Options.xml
+index 270c8f044..61e5fda9d 100644
+--- a/Assets/xml/Text/BUG City Screen Options.xml	
++++ b/Assets/xml/Text/BUG City Screen Options.xml	
+@@ -94,7 +94,7 @@
+ 	<!-- advc.004: Minor changes -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__FOODASSIST_HOVER</Tag>
+-		<English>When checked, displays the food surplus to the left of the food bar, and on the food bar the number of turns until starvation when the surplus is negative.</English>
++		<English>When checked, displays the food surplus to the left of the food bar, and, on the food bar, the number of turns until starvation when the surplus is negative.</English>
+ 		<French>When checked, displays the food difference generated per turn (plus or minus) and the number of turns until starvation when the food supply is shrinking.</French>
+ 		<German>Zeigt links neben dem Nahrungsbalken den aktuellen Nahrungs�berschuss an und im Balken die Anzahl der Runden bis zum Bev�lkerungsverlust, falls Nahrungsmangel besteht.</German>
+ 		<Italian>Quando � selezionato, visualizza la differenza del cibo generato ogni turno (positiva o negativa); quando le risorse alimentari sono in riduzione, visualizza anche il numero di turni prima della carestia.</Italian>
+@@ -194,7 +194,7 @@
+ 		<Spanish>S�lo Religiones Presentes</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: Supprt for more than 7 religions is interesting to know for
++	<!-- advc.004: Support for more than 7 religions is interesting to know for
+ 		 modders, but shouldn't be the players' concern. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTRELIGIONS_HOVER</Tag>
+
+diff --git a/Assets/xml/Text/BUG Options Screen.xml b/Assets/xml/Text/BUG Options Screen.xml
+index cf5f15a34..4c60ccd30 100644
+--- a/Assets/xml/Text/BUG Options Screen.xml	
++++ b/Assets/xml/Text/BUG Options Screen.xml	
+@@ -104,7 +104,7 @@
+ 		<Spanish>Acciones:</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: This was hardcoded to "Unit/Stack Info:" in
++	<!-- advc.004: This was hardcoded as "Unit/Stack Info:" in
+ 		 BugGeneralOptionsTab.py -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_INFOPANE</Tag>
+
+diff --git a/Assets/xml/Text/BUG_CIV4GameText.xml b/Assets/xml/Text/BUG_CIV4GameText.xml
+index a42dfdd69..79e5aa8bf 100644
+--- a/Assets/xml/Text/BUG_CIV4GameText.xml
++++ b/Assets/xml/Text/BUG_CIV4GameText.xml
+@@ -357,7 +357,8 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RAW_YIELD_VIEW_PRODUCTION</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT] Production breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_PRODUCTION] sources and modifiers (generic ones and modifiers specific to what the city is currently producing).</English>
+-		<French>[COLOR_HIGHLIGHT_TEXT]View Raw Production[COLOR_REVERT][NEWLINE]Displays a breakdown of all [ICON_PRODUCTION] sources and modifiers.</French>	<German>[COLOR_HIGHLIGHT_TEXT]Produktionsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_PRODUCTION]-Ertr�ge und [ICON_PRODUCTION]-Modifikatoren (generische Modifikatoren und solche, die vom derzeitigen Produktionsauftrag abh�ngen k�nnen)</German>
++		<French>[COLOR_HIGHLIGHT_TEXT]View Raw Production[COLOR_REVERT][NEWLINE]Displays a breakdown of all [ICON_PRODUCTION] sources and modifiers.</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Produktionsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_PRODUCTION]-Ertr�ge und [ICON_PRODUCTION]-Modifikatoren (generische Modifikatoren und solche, die vom derzeitigen Produktionsauftrag abh�ngen k�nnen)</German>
+ 		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Produzione[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_PRODUCTION] ed i modificatori relativi.</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Producci�n en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes y modificadores de [ICON_PRODUCTION].</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml b/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
+index 0178aa81c..cbb877e9d 100644
+--- a/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
++++ b/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
+@@ -89,7 +89,7 @@
+ 		<Tag>TXT_KEY_PLE_RESET_FILTERS</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</French>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Filter zur�cksetzen[COLOR_REVERT][NEWLINE]Zeige alle Einheiten</German>
++		<German>[COLOR_HIGHLIGHT_TEXT]Filter zur�cksetzen[COLOR_REVERT][NEWLINE]Zeige alle Einheiten an</German>
+ 		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Limpiar filtros[COLOR_REVERT][NEWLINE]Mostrar todas las unidades</Spanish>
+ 	</TEXT>
+@@ -97,7 +97,7 @@
+ 		<Tag>TXT_KEY_PLE_RESET_FILTERS_ON</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</French>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Filter zur�cksetzen[COLOR_REVERT][NEWLINE]Zeige alle Einheiten</German>
++		<German>[COLOR_HIGHLIGHT_TEXT]Filter zur�cksetzen[COLOR_REVERT][NEWLINE]Zeige alle Einheiten an</German>
+ 		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Limpiar filtros[COLOR_REVERT][NEWLINE]Mostrar todas las unidades</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Civ4lerts Options.xml b/Assets/xml/Text/Civ4lerts Options.xml
+index 6e4b8410f..7e87381ba 100644
+--- a/Assets/xml/Text/Civ4lerts Options.xml	
++++ b/Assets/xml/Text/Civ4lerts Options.xml	
+@@ -16,7 +16,7 @@
+ 		<Spanish>Activar Civ4lerts</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.106d: Rewritten (English, German(; credits to Dr. Elmer Jiggle
++	<!-- advc.106d: Rewritten (English, German); credits to Dr. Elmer Jiggle
+ 		 removed; have the BUG help file for that. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__ENABLED_HOVER</Tag>
+
+diff --git a/Assets/xml/Text/CustDomAdv Options.xml b/Assets/xml/Text/CustDomAdv Options.xml
+index 9dfa39062..550b30d79 100644
+--- a/Assets/xml/Text/CustDomAdv Options.xml	
++++ b/Assets/xml/Text/CustDomAdv Options.xml	
+@@ -41,7 +41,7 @@
+ 		<Spanish>Ninguno|Peque�o|Mediano|Grande</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: Only corrected a type - said "culture sliders" instead of
++	<!-- advc.004: Only corrected a typo - said "culture sliders" instead of
+ 		 "commerce sliders". -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__SPACETOP_HOVER</Tag>
+
+diff --git a/Assets/xml/Text/EventSigns Options.xml b/Assets/xml/Text/EventSigns Options.xml
+index 06194ee96..ca0b20717 100644
+--- a/Assets/xml/Text/EventSigns Options.xml	
++++ b/Assets/xml/Text/EventSigns Options.xml	
+@@ -18,9 +18,9 @@
+ 	<!-- advc.004: Added mention of Alt+S -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_EVENTSIGNS__ENABLED_HOVER</Tag>
+-		<English>When checked, places signs on tiles whose yields have been changed by random events. Regardless of this option, you can always place and remove signs manually by pressing Alt+S.</English>
++		<English>When checked, a sign is placed on the map when a random event changes the yield of a tile. Regardless of this option, you can always place and remove signs manually by pressing Alt+S.</English>
+ 		<French>When checked, places signs on plots whose yields have changed because of random events.</French>
+-		<German>Markiert Gel�ndefelder, deren Ertr�ge sich durch zuf�llige Ereignisse ver�ndert haben, mit einem Hinweis. Unabh�ngig von dieser Option k�nnen Sie mit Alt+S solche Markierungen anbringen oder entfernen.</German>
++		<German>Markiert Gel�ndefelder, wenn sich deren Ertr�ge durch ein Zufallsereignis ver�ndern. Unabh�ngig von dieser Option k�nnen Sie mit Alt+S Markierungen anbringen oder entfernen.</German>
+ 		<Italian>Quando � selezionato, le caselle che hanno avuto la propria resa produttiva modificata da un evento casuale vengono marcate sulla mappa con una indicazione di tale modifica.</Italian>
+ 		<Spanish>Si se activa, se colocan carteles en las casillas cuya producci�n haya sido modificada a causa de eventos aleatorios.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Not Just Another Game Clock Options.xml b/Assets/xml/Text/Not Just Another Game Clock Options.xml
+index 184d8ce43..4259d991e 100644
+--- a/Assets/xml/Text/Not Just Another Game Clock Options.xml	
++++ b/Assets/xml/Text/Not Just Another Game Clock Options.xml	
+@@ -39,7 +39,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWERA_HOVER</Tag>
+ 		<English>When checked, the current era of your civilization is displayed to the left of the research bar.</English>
+ 		<French>En activant, l'�re actualle est montr�e � gauche de la barre des recherches.</French>
+-		<German>Zeigt die derzeitige Epoche Ihrer Zivilisation links neben dem Forschungsbalken an.</German>
++		<German>Zeigt das derzeitige Zeitalter Ihrer Zivilisation links neben dem Forschungsbalken an.</German>
+ 		<Italian>Quando � selezionato, viene mostrata l'Era corrente a sinistra della Barra di Ricerca Tecnologica.</Italian>
+ 		<Spanish>Si se activa, muestra la era actual a la izquierda de la barra de investigaci�n.</Spanish>
+ 	</TEXT>
+@@ -67,7 +67,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWERACOLOR_TEXT</Tag>
+ 		<English>Era Colors</English>
+ 		<French>Coloriser les Eres</French>
+-		<German>Epoche einf�rben</German>
++		<German>Zeitalter einf�rben</German>
+ 		<Italian>Usa colori dell'Era</Italian>
+ 		<Spanish>Usar color de la Era</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Plot List Enhancements Options.xml b/Assets/xml/Text/Plot List Enhancements Options.xml
+index f7ad24afb..747a2d681 100644
+--- a/Assets/xml/Text/Plot List Enhancements Options.xml	
++++ b/Assets/xml/Text/Plot List Enhancements Options.xml	
+@@ -355,7 +355,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__HAS_MOVED_COLOR_HOVER</Tag>
+-		<English>The colorfor the portion of the bar that show the sepnt movement points.</English>
++		<English>The color for the portion of the bar that show the sepnt movement points.</English>
+ 		<French>La couleur pour indiquer les points de mouvement utilis�s.</French>
+ 		<German>Farbe f�r den Balken, der die in diesem Zug bereits verbrauchten Bewegungspunkte anzeigt.</German>
+ 		<Italian>Il colore da utilizzare per la porzione della barra corrispondente ai punti-movimento utilizzati.</Italian>
+@@ -444,7 +444,7 @@
+ 	<!-- advc.069: said lower right -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__UPGRADE_INDICATOR_HOVER</Tag>
+-		<English>Places an orange up arrow in the lower left corner of units that can be upgraded. The arrow is placed regardless of the available gold.</English>
++		<English>Places an orange up arrow in the lower left corner of a unit icon if the unit can be upgraded. The arrow is placed regardless of the available gold.</English>
+ 		<French>Place une fl�che orange sur les Unit�s capables de s'am�liorer, sans tenir compte des frais.</French>
+ 		<German>Zeigt einen orangefarbenen Pfeil in der unteren linken Ecke des Einheitensymbols an, wenn eine Einheit modernisiert werden kann (unabh�ngig von den Gold-Kosten).</German>
+ 		<Italian>Visualizza una freccia arancio nell'angolo inferiore destro delle Unit� che possono godere di un avanzamento (non tenendo conto del costo dell'avanzamento).</Italian>
+@@ -570,9 +570,7 @@
+ 		<Spanish>Espaciado Promociones</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.069: Rewrittwen (English, German). I' m not convinced that
+-		 fonts would be an issue; after all, AdvCiv uses larger fonts and
+-		 the position is fine at 0 offset. -->
++	<!-- advc.069: rewritten (English, German) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_PROMO_ICON_OFFSET_Y_HOVER</Tag>
+ 		<English>This offset can be used to adjust the vertical position of the promotion icons displayed by PLE inside the help text for a unit icon. A positive offset moves the icons up, a negative one moves them down.</English>
+
+diff --git a/CvGameCoreDLL/CvBugOptions.cpp b/CvGameCoreDLL/CvBugOptions.cpp
+index a69df5a55..0123238e1 100644
+--- a/CvGameCoreDLL/CvBugOptions.cpp
++++ b/CvGameCoreDLL/CvBugOptions.cpp
+@@ -44,7 +44,7 @@ int getDefineINT(const char* xmlKey, int iDefault)
+ }
+ 
+ 
+-bool getBugOptionBOOL(const char* id, bool bDefault, const char* xmlKey)
++bool getBugOptionBOOL(const char* id, bool bDefault)
+ {
+ 	CyArgsList argsList;
+ 	long lResult = 0;
+@@ -57,7 +57,7 @@ bool getBugOptionBOOL(const char* id, bool bDefault, const char* xmlKey)
+ 	return lResult != 0;
+ }
+ 
+-int getBugOptionINT(const char* id, int iDefault, const char* xmlKey)
++int getBugOptionINT(const char* id, int iDefault)
+ {
+ 	CyArgsList argsList;
+ 	long lResult = 0;
+
+diff --git a/CvGameCoreDLL/CvBugOptions.h b/CvGameCoreDLL/CvBugOptions.h
+index 9e8a5252a..46b7015a1 100644
+--- a/CvGameCoreDLL/CvBugOptions.h
++++ b/CvGameCoreDLL/CvBugOptions.h
+@@ -29,7 +29,8 @@ void setIsBug(bool bIsBug);
+ bool getDefineBOOL(const char* xmlKey, bool bDefault = false);
+ int getDefineINT(const char* xmlKey, int iDefault = 0);
+ 
+-bool getBugOptionBOOL(const char* id, bool bDefault = true, const char* xmlKey = NULL);
+-int getBugOptionINT(const char* id, int iDefault = 0, const char* xmlKey = NULL);
++// advc.003: Removed unused param char const* xmlKey = NULL
++bool getBugOptionBOOL(const char* id, bool bDefault = true);
++int getBugOptionINT(const char* id, int iDefault = 0);
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c12847f22..c84cdbf8d 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13007,7 +13007,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 					//show the spaceship progress
+ 					if(isHuman() &&
+ 							// advc.060:
+-							getBugOptionBOOL("TechWindow__ShowSSScreen", false, "TechWindow_SHOW_SS_SCREEN"))
++							getBugOptionBOOL("TechWindow__ShowSSScreen", false))
+ 					{
+ 						if(!GC.getGameINLINE().isNetworkMultiPlayer())
+ 						{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index a44bd5e77..f4835ac08 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1922,12 +1922,10 @@ void CvDLLWidgetData::parseHurryHelp(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ 	}
+ 
+ 	// BUG - Hurry Overflow - start (advc.064)
+-	if(getBugOptionBOOL("MiscHover__HurryOverflow", false,
+-			"BUG_HURRY_OVERFLOW_HOVER")) {
++	if(getBugOptionBOOL("MiscHover__HurryOverflow", true)) {
+ 		int iOverflowProduction = 0;
+ 		int iOverflowGold = 0;
+-		bool bIncludeCurrent = getBugOptionBOOL("MiscHover__HurryOverflowIncludeCurrent",
+-				false, "BUG_HURRY_OVERFLOW_HOVER_INCLUDE_CURRENT");
++		bool bIncludeCurrent = getBugOptionBOOL("MiscHover__HurryOverflowIncludeCurrent", false);
+ 		if(pHeadSelectedCity->hurryOverflow((HurryTypes)(widgetDataStruct.m_iData1),
+ 				&iOverflowProduction, &iOverflowGold, bIncludeCurrent)) {
+ 			if(iOverflowProduction > 0 || iOverflowGold > 0) {
+@@ -4897,8 +4895,7 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ // BUG - Building Saved Maintenance - start
+ 			if (pHeadSelectedCity->getOwnerINLINE() == GC.getGame().getActivePlayer() &&
+-					(getBugOptionBOOL("MiscHover__BuildingSavedMaintenance", false,
+-					"BUG_BUILDING_SAVED_MAINTENANCE_HOVER") ||
++					(getBugOptionBOOL("MiscHover__BuildingSavedMaintenance", false) ||
+ 					GC.altKey())) // advc.063
+ 				GAMETEXT.setBuildingSavedMaintenanceHelp(szBuffer, *pHeadSelectedCity, DOUBLE_SEPARATOR);
+ // BUG - Building Saved Maintenance - end
+@@ -4918,8 +4915,7 @@ void CvDLLWidgetData::parseHealthHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
+ 
+ // BUG - Building Additional Health - start
+ 		if (pHeadSelectedCity->getOwnerINLINE() == GC.getGame().getActivePlayer() &&
+-				(getBugOptionBOOL("MiscHover__BuildingAdditionalHealth",
+-				false, "BUG_BUILDING_ADDITIONAL_HEALTH_HOVER")
++				(getBugOptionBOOL("MiscHover__BuildingAdditionalHealth", false)
+ 				|| GC.altKey())) // advc.063
+ 			GAMETEXT.setBuildingAdditionalHealthHelp(szBuffer, *pHeadSelectedCity, DOUBLE_SEPARATOR);
+ // BUG - Building Additional Health - end
+@@ -5022,8 +5018,7 @@ void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct, C
+ 
+ // BUG - Building Additional Happiness - start
+ 		if (pHeadSelectedCity->getOwnerINLINE() == GC.getGame().getActivePlayer() &&
+-				(getBugOptionBOOL("MiscHover__BuildingAdditionalHappiness", false,
+-				"BUG_BUILDING_ADDITIONAL_HAPPINESS_HOVER")
++				(getBugOptionBOOL("MiscHover__BuildingAdditionalHappiness", false)
+ 				|| GC.altKey())) // advc.063
+ 			GAMETEXT.setBuildingAdditionalHappinessHelp(szBuffer, *pHeadSelectedCity, DOUBLE_SEPARATOR);
+ // BUG - Building Additional Happiness - end
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3940e5295..3602f8820 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -778,7 +778,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	// <advc.004m>
+ 	if(bConstructorCall)
+ 		m_bResourceLayer = true;
+-	else if(!getBugOptionBOOL("MainInterface__StartWithResourceIcons", true, "START_WITH_RESOURCE_ICONS")) {
++	else if(!getBugOptionBOOL("MainInterface__StartWithResourceIcons", true)) {
+ 		/*  This causes the resource layer to be disabled when returning to the
+ 			main menu. (Rather than remembering the latest status.) */
+ 		m_bResourceLayer = false;
+@@ -2531,7 +2531,7 @@ void CvGame::update()
+ 				gDLL->getEngineIFace()->AutoSave(true);
+ 			/* <advc.004m> This seems to be the earliest place where bubbles can
+ 			   be enabled w/o crashing. */
+-			if(bStartTurn && getBugOptionBOOL("MainInterface__StartWithResourceIcons", true, "START_WITH_RESOURCE_ICONS")) {
++			if(bStartTurn && getBugOptionBOOL("MainInterface__StartWithResourceIcons", true)) {
+ 				m_bResourceLayer = true;
+ 				gDLL->getEngineIFace()->setResourceLayer(true);
+ 			} // </advc.004m>
+@@ -2872,7 +2872,7 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound) c
+ 	} */
+ 	// K-Mod. Redesigned to make selection more sensible and predictable
+ 	// In 'simple mode', shift always groups and always targets a only a single unit.
+-	bool bSimpleMode = getBugOptionBOOL("MainInterface__SimpleSelectionMode", false, "SIMPLE_SELECTION_MODE");
++	bool bSimpleMode = getBugOptionBOOL("MainInterface__SimpleSelectionMode", false);
+ 
+ 	bool bExplicitDeselect = false;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 5b84afe6e..336608dc1 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -805,7 +805,7 @@ void CvGame::cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bD
+ 	PlayerTypes eActive = getActivePlayer();
+ 	if (GC.getGameINLINE().isFinalInitialized() &&
+ 		eActive != NO_PLAYER && GET_PLAYER(eActive).isHuman() &&
+-		getBugOptionBOOL("MainInterface__RapidUnitCycling", false, "RAPID_UNIT_CYCLING"))
++		getBugOptionBOOL("MainInterface__RapidUnitCycling", false))
+ 	{
+ 		if (!bDelayOnly)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index dc004a5c2..ca942047c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -522,8 +522,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 	int iCurrMoves = (pUnit->movesLeft() / iDenom) +
+ 			(((pUnit->movesLeft() % iDenom) > 0) ? 1 : 0);
+ 	// <advc.069>
+-	bool bFract = getBugOptionBOOL("MainInterface__UnitMovementPointsFraction",
+-			true, "MAIN_INTERFACE_UNIT_MOVEMENT_POINTS_FRACTION");
++	bool bFract = getBugOptionBOOL("MainInterface__UnitMovementPointsFraction", true);
+ 	if(pUnit->baseMoves() == (bFract ? pUnit->movesLeft() : iCurrMoves)
+ 			// </advc.069>
+ 			|| pUnit->getTeam() != g.getActiveTeam())
+@@ -561,8 +560,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 			CLLNode<MissionData>* pNode = pUnit->getGroup()->headMissionQueueNode();
+ 			if(pNode != NULL) {
+ 				if(pNode->m_data.bModified && (GC.ctrlKey() ||
+-						getBugOptionBOOL("MiscHover__PartialBuildsAlways", false,
+-						"MISC_HOVER_PARTIAL_BUILDS_ALWAYS")))
++						getBugOptionBOOL("MiscHover__PartialBuildsAlways", false)))
+ 					bSuspend = true;
+ 			}
+ 		}
+@@ -1791,8 +1789,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot,
+ 		return;
+ 	}
+ 	// <advc.061>
+-	if(getBugOptionBOOL("MainInterface__ListUnitsPerOwner", false,
+-			"MainInterface_LIST_UNITS_PER_OWNER")) {
++	if(getBugOptionBOOL("MainInterface__ListUnitsPerOwner", false)) {
+ 		setPlotListHelpPerOwner(szString, *pPlot, bIndicator, bShort);
+ 		return;
+ 	} // </advc.061>
+@@ -2484,7 +2481,7 @@ static float getCombatOddsSpecific(CvUnit* pAttacker, CvUnit* pDefender, int n_A
+ 	iAttackerOdds = GC.getDefineINT("COMBAT_DIE_SIDES") - iDefenderOdds;
+ 	/*  advc.001: Replacing the check below. The BUG authors must've missed this
+ 		one when they integrated ACO into BUG. */
+-	if(!getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false, "ACO_IGNORE_BARB_FREE_WINS")
++	if(!getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false)
+ 	//GC.getDefineINT("ACO_IgnoreBarbFreeWins")==0
+ 			&& !GC.getGameINLINE().isOption(GAMEOPTION_SPAH)) // advc.250b
+ 	{
+@@ -2683,10 +2680,10 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	It is fine for a human player mouse-over (which is what it is used for).
+ 	*/
+ /* New Code */
+-	bool ACO_enabled = getBugOptionBOOL("ACO__Enabled", false, "ACO_ENABLED");
++	bool ACO_enabled = getBugOptionBOOL("ACO__Enabled", false);
+ 	bool bShift = GC.shiftKey();
+ 	int iView = bShift ? 2 : 1;
+-	if (getBugOptionBOOL("ACO__SwapViews", false, "ACO_SWAP_VIEWS"))
++	if (getBugOptionBOOL("ACO__SwapViews", false))
+ 	{
+ 		iView = 3 - iView; //swaps 1 and 2.
+ 	}
+@@ -2768,7 +2765,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 		if (pAttacker->combatLimit() >= GC.getMAX_HIT_POINTS())
+ 		{
+-			if (!ACO_enabled || getBugOptionBOOL("ACO__ForceOriginalOdds", false, "ACO_FORCE_ORIGINAL_ODDS"))
++			if (!ACO_enabled || getBugOptionBOOL("ACO__ForceOriginalOdds", false))
+ 			{
+ 				if (iCombatOdds > 999)
+ 				{
+@@ -2803,7 +2800,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 		if (iWithdrawal > 0 || pAttacker->combatLimit() < GC.getMAX_HIT_POINTS())
+ 		{
+-			if (!ACO_enabled || getBugOptionBOOL("ACO__ForceOriginalOdds", false, "ACO_FORCE_ORIGINAL_ODDS"))
++			if (!ACO_enabled || getBugOptionBOOL("ACO__ForceOriginalOdds", false))
+ 			{
+ 				if (iWithdrawal > 99900)
+ 				{
+@@ -2844,7 +2841,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			// </advc.312>
+ 			BOOL ACO_debug = false;
+ 			//Change this to true when you need to spot errors, particular in the expected hit points calculations
+-			ACO_debug = getBugOptionBOOL("ACO__Debug", false, "ACO_DEBUG");
++			ACO_debug = getBugOptionBOOL("ACO__Debug", false);
+ 
+ 			/** phungus sart **/
+ //					bool bctrl; bctrl = GC.ctrlKey();
+@@ -2899,7 +2896,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			/*  advc.001: The section below deals with FreeWins, so it should
+ 				only be executed if !IgnoreBarbFreeWins. The condition was
+ 				checking the opposite. */
+-			if (!getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false, "ACO_IGNORE_BARB_FREE_WINS")
++			if (!getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false)
+ 					&& !GC.getGameINLINE().isOption(GAMEOPTION_SPAH) // advc.250b
+ 				)//Are we not going to ignore barb free wins?  If not, skip this section...
+ 			{
+@@ -3233,7 +3230,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 
+ 
+-			if (iView & getBugOptionINT("ACO__ShowSurvivalOdds", 3, "ACO_SHOW_SURVIVAL_ODDS"))
++			if (iView & getBugOptionINT("ACO__ShowSurvivalOdds", 0))
+ 			{
+ 				szTempBuffer.Format(L"%.2f%%",100.0f*(AttackerKillOdds+RetreatOdds+PullOutOdds));
+ 				szTempBuffer2.Format(L"%.2f%%", 100.0f*(RetreatOdds+PullOutOdds+DefenderKillOdds));
+@@ -3414,7 +3411,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			szString.append(")");
+ 
+ 			// <advc.048> XP details moved up so that it appears right after the basic XP info above
+-			bool bDoRange = ((iView & getBugOptionINT("ACO__ShowExperienceRange", 2, "ACO_SHOW_EXPERIENCE_RANGE"))
++			bool bDoRange = ((iView & getBugOptionINT("ACO__ShowExperienceRange", 0))
+ 					&& pAttacker->combatLimit() >= pDefender->maxHitPoints()); //medium and high only
+ 			/*  Had to leave behind the part that shows the combat ratio; don't want
+ 				that this early. */
+@@ -3529,7 +3526,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			} // else if
+ 			//Finished Showing XP range display
+ 			// advc.048: Moved up so that it's shown right after the XP range
+-			if (iView & getBugOptionINT("ACO__ShowUnroundedExperience", 0, "ACO_SHOW_UNROUNDED_EXPERIENCE"))
++			if (iView & getBugOptionINT("ACO__ShowUnroundedExperience", 2))
+ 			{
+ 				szTempBuffer.Format(L"%.2f", AttXP);
+ 				szTempBuffer2.Format(L"%.2f", DefXP);
+@@ -3538,7 +3535,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			}
+ 
+ 			float HP_percent_cutoff = 0.5f; // Probabilities lower than this (in percent) will not be shown individually for the HP detail section.
+-			if (!getBugOptionBOOL("ACO__MergeShortBars", true, "ACO_MERGE_SHORT_BARS"))
++			if (!getBugOptionBOOL("ACO__MergeShortBars", true))
+ 			{
+ 				HP_percent_cutoff = 0.0f;
+ 			}
+@@ -3552,7 +3549,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 			//START ATTACKER DETAIL HP HERE
+ 			// Individual bars for each attacker HP outcome.
+-			if (iView & getBugOptionINT("ACO__ShowAttackerHealthBars", 2, "ACO_SHOW_ATTACKER_HEALTH_BARS"))
++			if (iView & getBugOptionINT("ACO__ShowAttackerHealthBars", 1))
+ 			{
+ 				for (int n_A = 0; n_A < iNeededRoundsDefender-1; n_A++)
+ 				{
+@@ -3747,7 +3744,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 			//START DEFENDER DETAIL HP HERE
+ 			first_combined_HP_Def = pDefender->currHitPoints();
+-			if (iView & getBugOptionINT("ACO__ShowDefenderHealthBars", 2, "ACO_SHOW_DEFENDER_HEALTH_BARS"))
++			if (iView & getBugOptionINT("ACO__ShowDefenderHealthBars", 2))
+ 			{
+ 				float prob = 0.0f;
+ 				for (int n_D = iNeededRoundsAttacker; n_D >= 1; n_D--)//
+@@ -3935,14 +3932,14 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			//END DEFENDER DETAIL HP HERE
+ 
+ 			// advc.048: Avg. health and unharmed odds move up; placed right after bar diagrams.
+-			if (iView & getBugOptionINT("ACO__ShowAverageHealth", 2, "ACO_SHOW_AVERAGE_HEALTH"))
++			if (iView & getBugOptionINT("ACO__ShowAverageHealth", 2))
+ 			{
+ 				szTempBuffer.Format(L"%.1f",E_HP_Att);
+ 				szTempBuffer2.Format(L"%.1f",E_HP_Def);
+ 				szString.append(gDLL->getText("TXT_ACO_AverageHP"));
+ 				szString.append(gDLL->getText("TXT_ACO_VS", szTempBuffer.GetCString(), szTempBuffer2.GetCString()));
+ 			}
+-			if (iView & getBugOptionINT("ACO__ShowUnharmedOdds", 2, "ACO_SHOW_UNHARMED_ODDS"))
++			if (iView & getBugOptionINT("ACO__ShowUnharmedOdds", 0))
+ 			{
+ 				szTempBuffer.Format(L"%.2f%%",100.0f*AttackerUnharmed);
+ 				szTempBuffer2.Format(L"%.2f%%",100.0f*DefenderUnharmed);
+@@ -3950,7 +3947,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 				szString.append(gDLL->getText("TXT_ACO_VS", szTempBuffer.GetCString(), szTempBuffer2.GetCString()));
+ 			}
+ 
+-			if (iView & getBugOptionINT("ACO__ShowBasicInfo", 3, "ACO_SHOW_BASIC_INFO"))
++			if (iView & getBugOptionINT("ACO__ShowBasicInfo", 2))
+ 			{	// advc.048: Opening parenthesis added
+ 				szTempBuffer.Format(L"(" SETCOLR L"%d" ENDCOLR L", " SETCOLR L"%d " ENDCOLR,
+ 					TEXT_COLOR("COLOR_POSITIVE_TEXT"), iDamageToDefender, TEXT_COLOR("COLOR_NEGATIVE_TEXT"), iDamageToAttacker);
+@@ -3974,7 +3971,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 				which has moved (way) up. */
+ 			if(!bDoRange)
+ 			{
+-				if (iView & getBugOptionINT("ACO__ShowBasicInfo", 3, "ACO_SHOW_BASIC_INFO"))
++				if (iView & getBugOptionINT("ACO__ShowBasicInfo", 2))
+ 				{	// advc.048: Semicolon instead of period
+ 					szTempBuffer.Format(L"; R=" SETCOLR L"%.2f" ENDCOLR,
+ 						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),CombatRatio);
+@@ -3984,7 +3981,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			// (advc.048: XP info, avg. health and unharmed odds moved up)
+ 			szString.append(NEWLINE);
+ 
+-			if (iView & getBugOptionINT("ACO__ShowShiftInstructions", 1, "ACO_SHOW_SHIFT_INSTRUCTIONS"))
++			if (iView & getBugOptionINT("ACO__ShowShiftInstructions", 1))
+ 			{
+ 				szString.append(gDLL->getText("TXT_ACO_PressSHIFT"));
+ 				szString.append(NEWLINE);
+@@ -4027,7 +4024,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 		szString.append(gDLL->getText("TXT_ACO_VS", szTempBuffer.GetCString(), szTempBuffer2.GetCString()));
+ 		// advc.048: Moved attacker info above the modifier label
+-		if ((iView & getBugOptionINT("ACO__ShowAttackerInfo", 0, "ACO_SHOW_ATTACKER_INFO")))
++		if ((iView & getBugOptionINT("ACO__ShowAttackerInfo", 3)))
+ 		{
+ 			szString.append(NEWLINE);
+ 			setUnitHelp(szString, pAttacker, true, true);
+@@ -4036,7 +4033,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		if (((!(pDefender->immuneToFirstStrikes())) && (pAttacker->maxFirstStrikes() > 0)) || (pAttacker->maxCombatStr(NULL,NULL)!=pAttacker->baseCombatStr()*100))
+ 		{
+ 			//if attacker uninjured strength is not the same as base strength (i.e. modifiers are in effect) or first strikes exist, then
+-			if (getBugOptionBOOL("ACO__ShowModifierLabels", false, "ACO_SHOW_MODIFIER_LABELS"))
++			if (getBugOptionBOOL("ACO__ShowModifierLabels", false))
+ 			{
+ 				szString.append(gDLL->getText("TXT_ACO_AttackModifiers"));
+ 			}
+@@ -4086,7 +4083,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		szString.append(L' ');//XXX
+ 
+ 		// advc.048: Moved defender info above the modifier label
+-		if (iView & getBugOptionINT("ACO__ShowDefenderInfo", 3, "ACO_SHOW_DEFENDER_INFO"))
++		if (iView & getBugOptionINT("ACO__ShowDefenderInfo", 3))
+ 		{
+ 			szString.append(NEWLINE);
+ 			setUnitHelp(szString, pDefender, true, true);
+@@ -4095,14 +4092,14 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		if (((!(pAttacker->immuneToFirstStrikes())) && (pDefender->maxFirstStrikes() > 0)) || (pDefender->maxCombatStr(pPlot,pAttacker)!=pDefender->baseCombatStr()*100))
+ 		{
+ 			//if attacker uninjured strength is not the same as base strength (i.e. modifiers are in effect) or first strikes exist, then
+-			if (getBugOptionBOOL("ACO__ShowModifierLabels", false, "ACO_SHOW_MODIFIER_LABELS"))
++			if (getBugOptionBOOL("ACO__ShowModifierLabels", false))
+ 			{
+ 				szString.append(gDLL->getText("TXT_ACO_DefenseModifiers"));
+ 			}
+ 		}
+ 
+ 
+-		if (iView & getBugOptionINT("ACO__ShowDefenseModifiers", 3, "ACO_SHOW_DEFENSE_MODIFIERS"))
++		if (iView & getBugOptionINT("ACO__ShowDefenseModifiers", 3))
+ 		{
+ 			//if defense modifiers are enabled - recommend leaving this on unless Total defense Modifier is enabled
+ 
+@@ -4153,7 +4150,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 		szString.append(L' ');//XXX
+ 
+-		if (iView & getBugOptionINT("ACO__ShowTotalDefenseModifier", 2, "ACO_SHOW_TOTAL_DEFENSE_MODIFIER"))
++		if (iView & getBugOptionINT("ACO__ShowTotalDefenseModifier", 2))
+ 		{
+ 			//szString.append(L' ');//XXX
+ 			if (pDefender->maxCombatStr(pPlot,pAttacker)>pDefender->baseCombatStr()*100) // modifier is positive
+@@ -4890,8 +4887,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				}
+ 			}
+ 		}
+-		if(GC.ctrlKey() || getBugOptionBOOL("MiscHover__PartialBuildsAlways", false,
+-				"MISC_HOVER_PARTIAL_BUILDS_ALWAYS")) {
++		if(GC.ctrlKey() || getBugOptionBOOL("MiscHover__PartialBuildsAlways", false)) {
+ 			szString.append(NEWLINE);
+ 			szString.append(szBuildDescr);
+ 			szString.append(CvWString::format(L" (%d/%d %s%s)",
+@@ -7056,7 +7052,8 @@ void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, Specialis
+ 		}
+ 
+ // BUG - Specialist Actual Effects - start
+-		if (pCity && (GC.altKey() || getBugOptionBOOL("MiscHover__SpecialistActualEffects", false, "BUG_MISC_SPECIALIST_HOVER_ACTUAL_EFFECTS")) && (pCity->getOwnerINLINE() == GC.getGame().getActivePlayer() ||
++		if (pCity && (GC.altKey() || getBugOptionBOOL("MiscHover__SpecialistActualEffects", false)) &&
++				(pCity->getOwnerINLINE() == GC.getGame().getActivePlayer() ||
+ 				//gDLL->getChtLvl() > 0))
+ 				GC.getGameINLINE().isDebugMode())) // advc.135c
+ 		{
+@@ -11515,12 +11512,11 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 			else
+ 			{
+ 		// BUG - Building Actual Effects (edited and moved by K-Mod) - start
+-				if (bActual && (GC.altKey() || getBugOptionBOOL("MiscHover__BuildingActualEffects", false, "BUG_BUILDING_HOVER_ACTUAL_EFFECTS")) && (pCity->getOwnerINLINE() == g.getActivePlayer() ||
++				if (bActual && (GC.altKey() || getBugOptionBOOL("MiscHover__BuildingActualEffects", false)) &&
++						(pCity->getOwnerINLINE() == g.getActivePlayer() ||
+ 						//gDLL->getChtLvl() > 0))
+ 						GC.getGameINLINE().isDebugMode())) // advc.135c
+-				{
+ 					setBuildingNetEffectsHelp(szBuffer, eBuilding, pCity);
+-				}
+ 		// BUG - Building Actual Effects - end
+ 
+ 				szBuffer.append(NEWLINE);
+@@ -16140,8 +16136,7 @@ void CvGameTextMgr::setProductionHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 
+ 	//if (city.getCurrentProductionDifference(false, true) == 0)
+ // BUG - Building Additional Production - start
+-	bool bBuildingAdditionalYield = (getBugOptionBOOL("MiscHover__BuildingAdditionalProduction",
+-			false, "BUG_BUILDING_ADDITIONAL_PRODUCTION_HOVER")
++	bool bBuildingAdditionalYield = (getBugOptionBOOL("MiscHover__BuildingAdditionalProduction", false)
+ 			|| GC.altKey()); // advc.063
+ 	if (city.getCurrentProductionDifference(false, true) == 0 && !bBuildingAdditionalYield)
+ // BUG - Building Additional Production - end
+@@ -16714,8 +16709,7 @@ void CvGameTextMgr::buildHintsList(CvWStringBuffer& szBuffer)
+ void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity& city, CommerceTypes eCommerceType)
+ {
+ // BUG - Building Additional Commerce - start
+-	bool bBuildingAdditionalCommerce = (getBugOptionBOOL("MiscHover__BuildingAdditionalCommerce",
+-			false, "BUG_BUILDING_ADDITIONAL_COMMERCE_HOVER")
++	bool bBuildingAdditionalCommerce = (getBugOptionBOOL("MiscHover__BuildingAdditionalCommerce", false)
+ 			|| GC.altKey()); // advc.063
+ 	if (NO_COMMERCE == eCommerceType || (0 == city.getCommerceRateTimes100(eCommerceType) && !bBuildingAdditionalCommerce)
+ 		|| city.isDisorder()) /* advc.001: This case contradicted an assertion
+@@ -16808,8 +16802,7 @@ void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity& city, Com
+ // BUG - Base Commerce - start
+ 		if (bNeedSubtotal && city.getCommerceRateModifier(eCommerceType) != 0
+ 				// advc.065: No longer optional
+-				/*&& getBugOptionBOOL("MiscHover__BaseCommerce", false,
+-				"BUG_CITY_SCREEN_BASE_COMMERCE_HOVER")*/)
++				/*&& getBugOptionBOOL("MiscHover__BaseCommerce", false)*/)
+ 		{
+ 			CvWString szYield = CvWString::format(L"%d.%02d", iBaseCommerceRate/100, iBaseCommerceRate%100);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_COMMERCE_SUBTOTAL_YIELD_FLOAT", info.getTextKeyWide(), szYield.GetCString(), info.getChar()));
+@@ -17214,8 +17207,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity& city
+ 
+ 	//if (city.getGreatPeopleRate() == 0)
+ // BUG - Building Additional Great People - start
+-	bool bBuildingAdditionalGreatPeople = (getBugOptionBOOL("MiscHover__BuildingAdditionalGreatPeople",
+-			false, "BUG_BUILDING_ADDITIONAL_GREAT_PEOPLE_HOVER")
++	bool bBuildingAdditionalGreatPeople = (getBugOptionBOOL("MiscHover__BuildingAdditionalGreatPeople", false)
+ 			|| GC.altKey()); // advc.063
+ 	if (city.getGreatPeopleRate() == 0 && !bBuildingAdditionalGreatPeople)
+ // BUG - Building Additional Great People - end
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c551330f0..547ea557d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11350,54 +11350,56 @@ int CvPlayer::getCombatExperience() const
+ void CvPlayer::setCombatExperience(int iExperience)
+ {
+ 	FAssert(iExperience >= 0);
++	// <advc.003>
++	if(iExperience == getCombatExperience())
++		return;
++	m_iCombatExperience = iExperience;
++	if(isBarbarian())
++		return;
++	CvGame& g = GC.getGameINLINE();
++	// </advc.003>
+ 
+-	if (iExperience != getCombatExperience())
+-	{
+-		m_iCombatExperience = iExperience;
+-
+-		if (!isBarbarian())
++	int iExperienceThreshold = greatPeopleThreshold(true);
++	if (m_iCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
++	{	// create great person
++		CvCity* pBestCity = NULL;
++		int iBestValue = MAX_INT;
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 		{
+-			int iExperienceThreshold = greatPeopleThreshold(true);
+-			if (m_iCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
+-			{
+-				// create great person
+-				CvCity* pBestCity = NULL;
+-				int iBestValue = MAX_INT;
+-				int iLoop;
+-				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+-				{
+-					int iValue = 4 * GC.getGameINLINE().getSorenRandNum(getNumCities(), "Warlord City Selection");
++			int iValue = 4 * g.getSorenRandNum(getNumCities(), "Warlord City Selection");
+ 
+-					for (int i = 0; i < NUM_YIELD_TYPES; i++)
+-					{
+-						iValue += pLoopCity->findYieldRateRank((YieldTypes)i);
+-					}
+-					iValue += pLoopCity->findPopulationRank();
++			for (int i = 0; i < NUM_YIELD_TYPES; i++)
++			{
++				iValue += pLoopCity->findYieldRateRank((YieldTypes)i);
++			}
++			iValue += pLoopCity->findPopulationRank();
+ 
+-					if (iValue < iBestValue)
+-					{
+-						pBestCity = pLoopCity;
+-						iBestValue = iValue;
+-					}
+-				}
++			if (iValue < iBestValue)
++			{
++				pBestCity = pLoopCity;
++				iBestValue = iValue;
++			}
++		}
+ 
+-				if (pBestCity)
++		if (pBestCity)
++		{
++			int iRandOffset = g.getSorenRandNum(GC.getNumUnitInfos(), "Warlord Unit Generation");
++			for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
++			{
++				UnitTypes eLoopUnit = (UnitTypes)((iI + iRandOffset) % GC.getNumUnitInfos());
++				if (GC.getUnitInfo(eLoopUnit).getLeaderExperience() > 0 || GC.getUnitInfo(eLoopUnit).getLeaderPromotion() != NO_PROMOTION)
+ 				{
+-					int iRandOffset = GC.getGameINLINE().getSorenRandNum(GC.getNumUnitInfos(), "Warlord Unit Generation");
+-					for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+-					{
+-						UnitTypes eLoopUnit = (UnitTypes)((iI + iRandOffset) % GC.getNumUnitInfos());
+-						if (GC.getUnitInfo(eLoopUnit).getLeaderExperience() > 0 || GC.getUnitInfo(eLoopUnit).getLeaderPromotion() != NO_PROMOTION)
+-						{
+-							pBestCity->createGreatPeople(eLoopUnit, false, true);
+-							setCombatExperience(getCombatExperience() - iExperienceThreshold);
+-							break;
+-						}
+-					}
++					pBestCity->createGreatPeople(eLoopUnit, false, true);
++					setCombatExperience(getCombatExperience() - iExperienceThreshold);
++					break;
+ 				}
+ 			}
+ 		}
+-	}
++	} // <advc.004>
++	if(getID() == g.getActivePlayer() && getBugOptionBOOL("MainInterface__Combat_Counter", false))
++		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
++	// </advc.004>
+ }
+ 
+ void CvPlayer::changeCombatExperience(int iChange)
+@@ -14757,11 +14759,9 @@ void CvPlayer::postProcessBeginTurnEvents() {
+ 
+ int CvPlayer::getStartOfTurnMessageLimit() const {
+ 
+-	if(!getBugOptionBOOL("MainInterface__AutoOpenEventLog", true,
+-			"AUTO_OPEN_EVENT_LOG"))
++	if(!getBugOptionBOOL("MainInterface__AutoOpenEventLog", true))
+ 		return -1;
+-	int r = getBugOptionINT("MainInterface__MessageLimit", 3,
+-			"MESSAGE_LIMIT");
++	int r = getBugOptionINT("MainInterface__MessageLimit", 3);
+ 	if(!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
+ 			GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
+ 		return -1;
+
+diff --git a/Settings/About this folder.txt b/Settings/About this folder.txt
+index dfc7dd774..8a06957e9 100644
+--- a/Settings/About this folder.txt	
++++ b/Settings/About this folder.txt	
+@@ -1,9 +1,9 @@
+ [advc.009]
+-
+-This folder only contains default settings for the mod components
++Contains only settings for the mod components
+ * Advanced Unit Naming and
+-* Customizable Domestic Advisor Pages
++* Customizable Domestic Advisor
+ (both disabled by default through the BUG menu).
+ The folder has to have the same name as the BUG settings folder under /My Games/, which is set to SETTINGS_FOLDER = "Settings" in BugPath.py.
+ 
+ For configuring other BUG options, the in-game menu should be used; most of the defaults are set in /Assets/Config. The /Assets/XML root folder contains global settings for BUG, BBAI, K-Mod and AdvCiv.
++[/advc.009]
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=21 omittedFiles=0 embeddedPatchBytes=46361

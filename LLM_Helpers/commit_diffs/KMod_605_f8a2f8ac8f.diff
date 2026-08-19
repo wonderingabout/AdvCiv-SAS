@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 605
+# Commit: f8a2f8ac8f5d1b548676e907f01cd7b184324933
+# History segment: K-Mod history
+# Parent used for diff: 534f3005db89cba76085e2e08efb2e0edf2d8585
+# Title: AI_afterAttack will no longer take control of stacks larger than 2 units, even if the group leader has attacked already. AI_afterAttack will now attempt to c...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvSelectionGroup.h
+18	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index e5f7b5e9f..638e3c86e 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2649,7 +2649,8 @@ bool CvSelectionGroup::canMoveInto(CvPlot* pPlot, bool bAttack)
+ }
+ 
+ 
+-bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar)
++//bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar)
++bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool bCheckMoves) // K-Mod
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -2663,7 +2664,8 @@ bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar)
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			pUnitNode = nextUnitNode(pUnitNode);
+ 
+-			if (pLoopUnit->canMoveOrAttackInto(pPlot, bDeclareWar))
++			//if (pLoopUnit->canMoveOrAttackInto(pPlot, bDeclareWar))
++			if ((!bCheckMoves || pLoopUnit->canMove()) && pLoopUnit->canMoveOrAttackInto(pPlot, bDeclareWar)) // K-Mod
+ 			{
+ 				return true;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index e85f5c2ca..b913b195f 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -76,7 +76,8 @@ public:
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false);																		// Exposed to Python
+-	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false);												// Exposed to Python
++	//DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false);												// Exposed to Python
++	bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false, bool bCheckMoves = false); // Exposed to Python, K-Mod added bCheckMoves. (who needs "DllExport"?)
+ 	bool canMoveThrough(CvPlot* pPlot, bool bDeclareWar = false) const; // Exposed to Python, K-Mod added bDeclareWar
+ 	bool canFight();																																										// Exposed to Python 
+ 	bool canDefend();																																										// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1b2cefebd..18ab2aa04 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2761,13 +2761,13 @@ void CvUnitAI::AI_paratrooperMove()
+ 		}
+ 	}
+ 
+-	if (collateralDamage() > 0)
++	/* if (collateralDamage() > 0)
+ 	{
+ 		if (AI_anyAttack(1, 45, 0, 3))
+ 		{
+ 			return;
+ 		}
+-	}
++	} */ // disabled by K-Mod. (redundant)
+ 
+ 	if (AI_pillageRange(1, 15))
+ 	{
+@@ -12714,12 +12714,26 @@ bool CvUnitAI::AI_afterAttack()
+ 		return false;
+ 	}
+ 
++	// K-Mod. Large groups may still have important stuff to do!
++	if (getGroup()->getNumUnits() > 2)
++		return false;
++	// K-Mod end
++
+ 	if (getDomainType() == DOMAIN_LAND)
+ 	{
+ 		if (AI_guardCity(false, true, 1))
+ 		{
+ 			return true;
+ 		}
++
++		// K-Mod. We might be able to capture an undefended city, or at least a worker. (think paratrooper)
++		// (note: it's also possible that we are asking our group partner to attack something.)
++		// (also, note that AI_anyAttack will favour undefended cities over workers.)
++		if (AI_anyAttack(1, 65))
++		{
++			return true;
++		}
++		// K-Mod end
+ 	}
+ 
+ 	if (AI_pillageRange(1))
+@@ -15905,7 +15919,7 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 						{
+ 							if (!atPlot(pLoopPlot) && (bFollow ? canMoveOrAttackInto(pLoopPlot, bDeclareWar) : generatePath(pLoopPlot, iFlags, true, 0, iRange)))
+ 							{
+-								int iOdds = iEnemies == 0 ? 100 : AI_getWeightedOdds(pLoopPlot, false);
++								int iOdds = iEnemies == 0 ? (pLoopPlot->isCity() ? 101 : 100) : AI_getWeightedOdds(pLoopPlot, false); // 101 for cities, because that's a better thing to capture.
+ 								if (iOdds >= iOddsThreshold)
+ 								{
+ 									iOddsThreshold = iOdds;
+@@ -24544,7 +24558,7 @@ bool CvUnitAI::AI_stackAttackCity(int iPowerThreshold)
+ 					if (AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
+ 					{
+ 						//if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, /*bAttack*/ true, /*bDeclareWar*/ true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+-						if (!atPlot(pLoopPlot) && getGroup()->canMoveOrAttackInto(pLoopPlot, true))
++						if (!atPlot(pLoopPlot) && getGroup()->canMoveOrAttackInto(pLoopPlot, true, true))
+ 						{
+ 							// K-Mod
+ 							if (iPowerThreshold < 0)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4610

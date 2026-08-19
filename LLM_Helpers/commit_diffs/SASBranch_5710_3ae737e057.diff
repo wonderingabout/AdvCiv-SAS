@@ -1,0 +1,414 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5710
+# Commit: 3ae737e057cbbe46e96c7cd0920ae2a96e7367f6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6574be4005596d686cacee4444d2d70153995ccd
+# Title: Add new World Advisor (F7), move the Environment tab there
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	0	Assets/Python/EntryPoints/CvScreensInterface.py
+1	4	Assets/Python/Screens/CvInfoScreen.py
+15	2	Assets/Python/Screens/CvMainInterface.py
+2	0	Assets/Python/Screens/CvScreenEnums.py
+36	0	Assets/Python/Screens/CvWorldAdvisorScreen.py
+3	3	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+5	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+16	0	Assets/XML/Units/CIV4ControlInfos.xml
+2	0	CvGameCoreDLL/CvEnums.h
+7	0	CvGameCoreDLL/CvGameInterface.cpp
+2	0	CvGameCoreDLL/CyEnumsInterface.cpp
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Python/Screens/CvWorldAdvisorScreen.py
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index 6976914c2..e697e3bf4 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -22,6 +22,7 @@ import CvDawnOfMan
+ import CvTechSplashScreen
+ import CvTopCivs
+ import CvInfoScreen
++import CvWorldAdvisorScreen
+ 
+ import CvIntroMovieScreen
+ import CvVictoryMovieScreen
+@@ -243,6 +244,12 @@ def showInfoScreen(argsList):
+ 		iEndGame = argsList[1]
+ 		infoScreen.showScreen(-1, iTabID, iEndGame)
+ 
++# <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
++worldAdvisorScreen = CvWorldAdvisorScreen.CvWorldAdvisorScreen(WORLD_ADVISOR)
++def showWorldAdvisorScreen():
++	if (-1 != CyGame().getActivePlayer()):
++		worldAdvisorScreen.showScreen()
++
+ debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
+ def showDebugInfoScreen():
+ 	debugInfoScreen.interfaceScreen()
+@@ -1198,6 +1205,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
+ 					INTRO_MOVIE_SCREEN : introMovie,
+ 					OPTIONS_SCREEN : optionsScreen,
+ 					INFO_SCREEN : infoScreen,
++					WORLD_ADVISOR : worldAdvisorScreen,
+ 					REPLAY_SCREEN : replayScreen,
+ 					VICTORY_SCREEN : victoryScreen,
+ 					TOP_CIVS : topCivs,
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 335f277bc..574109ffb 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -106,7 +106,6 @@ class CvInfoScreen:
+ 			"TXT_KEY_DEMO_SCREEN_TITLE",
+ 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
+ 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
+-			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
+ 			]
+ 		self.PAGE_DRAW_LIST = [
+ 			self.drawGraphTab,
+@@ -115,7 +114,6 @@ class CvInfoScreen:
+ 			self.drawDemographicsTab,
+ 			self.drawTopCitiesTab,
+ 			self.drawStatsTab,
+-			self.drawEnvironmentTab,
+ 			]
+ 
+ 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
+@@ -136,7 +134,6 @@ class CvInfoScreen:
+ 		self.iDemographicsID	= 3
+ 		self.iTopCitiesID		= 4
+ 		self.iStatsID			= 5
+-		self.iEnvironmentID		= 6
+ 
+ 		# <!-- custom: Environment tab constants independent from resolution; keep in init for consistency with other integrated tabs. (GPT-5.3-Codex) -->
+ 		self.ENV_INNER_MARGIN = 24
+@@ -899,7 +896,7 @@ class CvInfoScreen:
+ 		self.graphZoom	= self.graphEnd - CyGame().getStartTurn()
+ 
+ #		self.iActiveTab = iTabID
+-		if self.iActiveTab == -1:
++		if self.iActiveTab == -1 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
+ 			self.iActiveTab = self.iGraphID
+ 
+ 		if (self.iNumPlayersMet > 1):
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index ebfdc9785..7cb75218b 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1439,9 +1439,9 @@ class CvMainInterface:
+ 
+ 	def setAdvisorButtonRects(self):
+ 		iSize = BTNSZ(28)
+-		# <!-- custom: advisor button order follows active shortcuts (F1/F2/F3...); Religion/Corporation buttons removed. (GPT-5.3-Codex) -->
++		# <!-- custom: advisor button order follows active shortcuts (F1/F2/F3...); Religion/Corporation buttons removed, and World Advisor uses F7. (GPT-5.5) -->
+ 		advisorNames = [ "Domestic", "Policy", "ForeignDiplomacy", "Foreign", "Military", "Tech",
+-				"Info", "Victory" ]
++				"World", "Info", "Victory" ]
+ 		if GameUtil.isEspionage():
+ 			advisorNames.append("Espionage")
+ 		iButtons = len(advisorNames)
+@@ -2117,6 +2117,10 @@ class CvMainInterface:
+ 				WidgetTypes.WIDGET_ACTION,
+ 				gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
+ 		screen.hide("TechAdvisorButton")
++		self.setStyledButton("WorldAdvisorButton", "Button_HUDAdvisorReligious_Style",
++				WidgetTypes.WIDGET_ACTION,
++				gc.getControlInfo(ControlTypes.CONTROL_WORLD_ADVISOR_SCREEN).getActionInfoIndex())
++		screen.hide("WorldAdvisorButton")
+ 		# <!-- custom: Religion/Corporation advisor HUD buttons removed; those screens are planned to be merged as Policy tabs. (GPT-5.3-Codex) -->
+ 		self.setStyledButton("VictoryAdvisorButton", "Button_HUDAdvisorVictory_Style",
+ 				WidgetTypes.WIDGET_ACTION,
+@@ -3231,6 +3235,7 @@ class CvMainInterface:
+ 			screen.hide("DomesticAdvisorButton")
+ 			screen.hide("ForeignAdvisorButton")
+ 			screen.hide("TechAdvisorButton")
++			screen.hide("WorldAdvisorButton")
+ 			screen.hide("PolicyAdvisorButton")
+ 			screen.hide("ForeignDiplomacyAdvisorButton")
+ 			screen.hide("MilitaryAdvisorButton")
+@@ -3260,6 +3265,7 @@ class CvMainInterface:
+ 			screen.hide("DomesticAdvisorButton")
+ 			screen.hide("ForeignAdvisorButton")
+ 			screen.hide("TechAdvisorButton")
++			screen.hide("WorldAdvisorButton")
+ 			screen.hide("PolicyAdvisorButton")
+ 			screen.hide("ForeignDiplomacyAdvisorButton")
+ 			screen.hide("MilitaryAdvisorButton")
+@@ -3290,6 +3296,7 @@ class CvMainInterface:
+ 			screen.show("DomesticAdvisorButton")
+ 			screen.show("ForeignAdvisorButton")
+ 			screen.show("TechAdvisorButton")
++			screen.show("WorldAdvisorButton")
+ 			screen.show("PolicyAdvisorButton")
+ 			screen.show("ForeignDiplomacyAdvisorButton")
+ 			screen.show("MilitaryAdvisorButton")
+@@ -3312,6 +3319,7 @@ class CvMainInterface:
+ 			screen.moveToFront("DomesticAdvisorButton")
+ 			screen.moveToFront("ForeignAdvisorButton")
+ 			screen.moveToFront("TechAdvisorButton")
++			screen.moveToFront("WorldAdvisorButton")
+ 			screen.moveToFront("PolicyAdvisorButton")
+ 			screen.moveToFront("ForeignDiplomacyAdvisorButton")
+ 			screen.moveToFront("MilitaryAdvisorButton")
+@@ -3333,6 +3341,7 @@ class CvMainInterface:
+ 			screen.hide("DomesticAdvisorButton")
+ 			screen.hide("ForeignAdvisorButton")
+ 			screen.hide("TechAdvisorButton")
++			screen.hide("WorldAdvisorButton")
+ 			screen.hide("PolicyAdvisorButton")
+ 			screen.hide("ForeignDiplomacyAdvisorButton")
+ 			screen.hide("MilitaryAdvisorButton")
+@@ -3359,6 +3368,7 @@ class CvMainInterface:
+ 			screen.show("DomesticAdvisorButton")
+ 			screen.show("ForeignAdvisorButton")
+ 			screen.show("TechAdvisorButton")
++			screen.show("WorldAdvisorButton")
+ 			screen.show("PolicyAdvisorButton")
+ 			screen.show("ForeignDiplomacyAdvisorButton")
+ 			screen.show("MilitaryAdvisorButton")
+@@ -3381,6 +3391,7 @@ class CvMainInterface:
+ 			screen.moveToFront("DomesticAdvisorButton")
+ 			screen.moveToFront("ForeignAdvisorButton")
+ 			screen.moveToFront("TechAdvisorButton")
++			screen.moveToFront("WorldAdvisorButton")
+ 			screen.moveToFront("PolicyAdvisorButton")
+ 			screen.moveToFront("ForeignDiplomacyAdvisorButton")
+ 			screen.moveToFront("MilitaryAdvisorButton")
+@@ -3403,6 +3414,7 @@ class CvMainInterface:
+ 			screen.show("DomesticAdvisorButton")
+ 			screen.show("ForeignAdvisorButton")
+ 			screen.show("TechAdvisorButton")
++			screen.show("WorldAdvisorButton")
+ 			screen.show("PolicyAdvisorButton")
+ 			screen.show("ForeignDiplomacyAdvisorButton")
+ 			screen.show("MilitaryAdvisorButton")
+@@ -3433,6 +3445,7 @@ class CvMainInterface:
+ 			screen.moveToFront("DomesticAdvisorButton")
+ 			screen.moveToFront("ForeignAdvisorButton")
+ 			screen.moveToFront("TechAdvisorButton")
++			screen.moveToFront("WorldAdvisorButton")
+ 			screen.moveToFront("PolicyAdvisorButton")
+ 			screen.moveToFront("ForeignDiplomacyAdvisorButton")
+ 			screen.moveToFront("MilitaryAdvisorButton")
+
+diff --git a/Assets/Python/Screens/CvScreenEnums.py b/Assets/Python/Screens/CvScreenEnums.py
+index b216ab6e1..4a1130ddb 100644
+--- a/Assets/Python/Screens/CvScreenEnums.py
++++ b/Assets/Python/Screens/CvScreenEnums.py
+@@ -39,6 +39,8 @@ SPACE_SHIP_SCREEN = 28
+ CORPORATION_SCREEN = 29
+ # <!-- custom: split Foreign advisor shell id for diplomacy/intel cluster (F3 slot). (GPT-5.3-Codex) -->
+ FOREIGN_DIPLOMACY_ADVISOR = 30
++# <!-- custom: World Advisor owns the Environment tab (moved out of its former location). (GPT-5.5) -->
++WORLD_ADVISOR = 31
+ 
+ GAMEFONT_DISPLAY_SCREEN = 75 # advc.gfd
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+new file mode 100644
+index 000000000..2160b5fa4
+--- /dev/null
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -0,0 +1,36 @@
++## Sid Meier's Civilization 4
++## Copyright Firaxis Games 2005
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++from CvPythonExtensions import *
++from SASFontUtils import *
++from CvInfoScreen import CvInfoScreen
++
++localText = CyTranslator()
++
++class CvWorldAdvisorScreen(CvInfoScreen):
++	"World Advisor! Contains the Environment tab."
++
++	def __init__(self, screenId):
++		CvInfoScreen.__init__(self, screenId)
++		# <!-- custom: World Advisor starts with the moved Environment tab and reuses CvInfoScreen's environment drawing code. (GPT-5.5) -->
++		self.PAGE_NAME_LIST = [
++			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
++			]
++		self.PAGE_DRAW_LIST = [
++			self.drawEnvironmentTab,
++			]
++		self.PAGE_LINK_WIDTH = []
++		self.iEnvironmentID = 0
++		self.iActiveTab = self.iEnvironmentID
++
++	def initText(self):
++		CvInfoScreen.initText(self)
++		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_WORLD_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++
++	def showScreen(self):
++		self.iActiveTab = self.iEnvironmentID
++		CvInfoScreen.showScreen(self, -1, self.iEnvironmentID, False)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 2f8cc9091..c623162db 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -132,7 +132,7 @@ Created as part of AdvCiv-SAS improvements
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SPY_UNIT_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Tag>
+-		<English>[TAB]Spies differ greatly from most units. Completely invisible to enemy Civilizations, Spies can enter enemy territory to perform one Espionage Mission per turn. Active missions are tile sensitive, meaning you will have to sneak your Spy onto the enemy improvement or city you wish to affect. Performing a mission costs a certain number of Espionage Points and will cause an indicator to pop-up for your opponent over the location of the mission, informing him of the act (but not necessarily of your Spy). If the mission succeeds, the Spy may  survive to perform more Missions, or she may be caught and destroyed. If the mission fails, the Spy will be destroyed, but no Espionage Points will be consumed. The cost of these Espionage Missions decrease the longer a Spy remains stationary on a tile, but every turn a Spy remains in enemy territory, there is a chance that she will be caught and destroyed. The chances of being caught increase with your opponent's Espionage spending, with the presence of a Security Bureau and if your Spy has recently performed a mission against that tile. If the Spy is caught, there is also a chance that its owner will be revealed.[PARAGRAPH:1]In addition to performing Espionage Missions, Spies also make excellent intelligence gatherers. They can use enemy roads and enter the cities of opponents with whom the player is at war, allowing the player access to otherwise unreachable information. The downside is that spies have a chance to get caught when they end their turn in unwelcome territory, even if they perform no active missions. Unwelcome territory is any territory belonging to a rival with whom you do not have an open borders agreement.[PARAGRAPH:2][BOLD]Missions[\BOLD][PARAGRAPH:1]To perform an Espionage Mission, a player must move a Spy unit to the plot or city where they would like to perform the mission and select the Espionage Mission button.[PARAGRAPH:1]The Espionage Missions are:[NEWLINE][TAB][BOLD]Sabotage Improvement[\BOLD] - Destroy an enemy improvement or route[NEWLINE][TAB][BOLD]Sabotage Building[\BOLD] - Destroy a building within an enemy city[NEWLINE][TAB][BOLD]Steal Treasury[\BOLD] - Steal a portion of your opponent's treasury, between 10 and 100%%[NEWLINE][TAB][BOLD]Spread Culture[\BOLD] - Increase your cultural influence in a city[NEWLINE][TAB][BOLD]Poison Water[\BOLD] - Temporarily increase the amount of unhealthiness within an enemy city[NEWLINE][TAB][BOLD]Foment Unhappiness[\BOLD] - Temporarily increase unhappiness within an enemy city[NEWLINE][TAB][BOLD]Support City Revolt[\BOLD] - Send a city into revolt for one turn. This lowers enemy city defense, but does not remove cultural borders[NEWLINE][TAB][BOLD]Steal Technology[\BOLD] - Steal a technology from an opponent[NEWLINE][TAB][BOLD]Sabotage Production[\BOLD] - Destroys all hammers accumulated towards construction in a city[NEWLINE][TAB][BOLD]Sabotage Project[\BOLD] - Destroys an already completed Spaceship Part[NEWLINE][TAB][BOLD]Influence Civics[\BOLD] - Switch one opponent's civic to match a civic you have adopted[NEWLINE][TAB][BOLD]Influence Religion[\BOLD] - Switch an opponent's state religion to your state religion[NEWLINE][TAB][BOLD]Perform Counterespionage[\BOLD] - Temporarily doubles cost of enemy espionage missions[PARAGRAPH:2][BOLD]Passive Missions[\BOLD][PARAGRAPH:1]Passive Missions activate automatically as you accumulate certain levels of Espionage Points against an opponent. But as your opponent increases his own cache of Espionage Points, the Point costs of your Passive Missions increase in kind, requiring you to up your own Espionage spending to keep the effects. [PARAGRAPH:1]The Passive Missions are:[NEWLINE][TAB][BOLD]Can See Demographics[\BOLD] - Allows you to see enemy demographics on the Info Screen [F9][NEWLINE][TAB][BOLD]Can See Research[\BOLD] - Allows you to see what your opponent is researching and how many turns they have until completion[NEWLINE][TAB][BOLD]City Visibility[\BOLD] - Enemy cities are added to your visibility[NEWLINE][TAB][BOLD]Investigate City[\BOLD] - You may enter enemy city screens by double-clicking on them.</English>
++		<English>[TAB]Spies differ greatly from most units. Completely invisible to enemy Civilizations, Spies can enter enemy territory to perform one Espionage Mission per turn. Active missions are tile sensitive, meaning you will have to sneak your Spy onto the enemy improvement or city you wish to affect. Performing a mission costs a certain number of Espionage Points and will cause an indicator to pop-up for your opponent over the location of the mission, informing him of the act (but not necessarily of your Spy). If the mission succeeds, the Spy may  survive to perform more Missions, or she may be caught and destroyed. If the mission fails, the Spy will be destroyed, but no Espionage Points will be consumed. The cost of these Espionage Missions decrease the longer a Spy remains stationary on a tile, but every turn a Spy remains in enemy territory, there is a chance that she will be caught and destroyed. The chances of being caught increase with your opponent's Espionage spending, with the presence of a Security Bureau and if your Spy has recently performed a mission against that tile. If the Spy is caught, there is also a chance that its owner will be revealed.[PARAGRAPH:1]In addition to performing Espionage Missions, Spies also make excellent intelligence gatherers. They can use enemy roads and enter the cities of opponents with whom the player is at war, allowing the player access to otherwise unreachable information. The downside is that spies have a chance to get caught when they end their turn in unwelcome territory, even if they perform no active missions. Unwelcome territory is any territory belonging to a rival with whom you do not have an open borders agreement.[PARAGRAPH:2][BOLD]Missions[\BOLD][PARAGRAPH:1]To perform an Espionage Mission, a player must move a Spy unit to the plot or city where they would like to perform the mission and select the Espionage Mission button.[PARAGRAPH:1]The Espionage Missions are:[NEWLINE][TAB][BOLD]Sabotage Improvement[\BOLD] - Destroy an enemy improvement or route[NEWLINE][TAB][BOLD]Sabotage Building[\BOLD] - Destroy a building within an enemy city[NEWLINE][TAB][BOLD]Steal Treasury[\BOLD] - Steal a portion of your opponent's treasury, between 10 and 100%%[NEWLINE][TAB][BOLD]Spread Culture[\BOLD] - Increase your cultural influence in a city[NEWLINE][TAB][BOLD]Poison Water[\BOLD] - Temporarily increase the amount of unhealthiness within an enemy city[NEWLINE][TAB][BOLD]Foment Unhappiness[\BOLD] - Temporarily increase unhappiness within an enemy city[NEWLINE][TAB][BOLD]Support City Revolt[\BOLD] - Send a city into revolt for one turn. This lowers enemy city defense, but does not remove cultural borders[NEWLINE][TAB][BOLD]Steal Technology[\BOLD] - Steal a technology from an opponent[NEWLINE][TAB][BOLD]Sabotage Production[\BOLD] - Destroys all hammers accumulated towards construction in a city[NEWLINE][TAB][BOLD]Sabotage Project[\BOLD] - Destroys an already completed Spaceship Part[NEWLINE][TAB][BOLD]Influence Civics[\BOLD] - Switch one opponent's civic to match a civic you have adopted[NEWLINE][TAB][BOLD]Influence Religion[\BOLD] - Switch an opponent's state religion to your state religion[NEWLINE][TAB][BOLD]Perform Counterespionage[\BOLD] - Temporarily doubles cost of enemy espionage missions[PARAGRAPH:2][BOLD]Passive Missions[\BOLD][PARAGRAPH:1]Passive Missions activate automatically as you accumulate certain levels of Espionage Points against an opponent. But as your opponent increases his own cache of Espionage Points, the Point costs of your Passive Missions increase in kind, requiring you to up your own Espionage spending to keep the effects. [PARAGRAPH:1]The Passive Missions are:[NEWLINE][TAB][BOLD]Can See Demographics[\BOLD] - Allows you to see enemy demographics on the Info Screen[NEWLINE][TAB][BOLD]Can See Research[\BOLD] - Allows you to see what your opponent is researching and how many turns they have until completion[NEWLINE][TAB][BOLD]City Visibility[\BOLD] - Enemy cities are added to your visibility[NEWLINE][TAB][BOLD]Investigate City[\BOLD] - You may enter enemy city screens by double-clicking on them.</English>
+ 	</TEXT>
+ 
+ 
+@@ -1438,10 +1438,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+ 		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
+-	<!-- custom: advisor shortcuts updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
++	<!-- custom: advisor shortcuts updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, World Advisor = F7, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex + GPT-5.5), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
+-		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt + F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Policy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Diplomacy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Trade Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
++		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt + F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Policy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Diplomacy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Trade Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]World Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
+ 	</TEXT>
+ 	<!-- advc.002b: Added/removed tabs to fix alignment (only for English
+ 		 though) -->
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 74af2c6b8..9dfb4c150 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3703,7 +3703,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
+ 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+ 	</TEXT>
+-	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.3-Codex) -->
++	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, World Advisor = F7, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.5) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FOREIGN_ADVISOR_TITLE</Tag>
+ 		<English>Foreign Diplomacy Advisor</English>
+@@ -3728,6 +3728,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CIVICS_SCREEN_TITLE</Tag>
+ 		<English>Policy Advisor</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TITLE</Tag>
++		<English>World Advisor</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_INFO_SCREEN</Tag>
+ 		<English>Info Screen</English>
+
+diff --git a/Assets/XML/Units/CIV4ControlInfos.xml b/Assets/XML/Units/CIV4ControlInfos.xml
+index fc85dda21..bd13281c2 100644
+--- a/Assets/XML/Units/CIV4ControlInfos.xml
++++ b/Assets/XML/Units/CIV4ControlInfos.xml
+@@ -700,6 +700,22 @@
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+ 		</ControlInfo>
++		<!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
++		<ControlInfo>
++			<Type>CONTROL_WORLD_ADVISOR_SCREEN</Type>
++			<Description>TXT_KEY_WORLD_ADVISOR_TITLE</Description>
++			<Help/>
++			<HotKey>KB_F7</HotKey>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<HotKeyAlt/>
++			<bAltDownAlt>0</bAltDownAlt>
++			<bShiftDownAlt>0</bShiftDownAlt>
++			<bCtrlDownAlt>0</bCtrlDownAlt>
++			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
++		</ControlInfo>
+ 		<ControlInfo>
+ 			<Type>CONTROL_TURN_LOG</Type>
+ 			<Description>TXT_KEY_EVENT_LOG</Description>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 5df80da0b..beaafa75a 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1058,6 +1058,8 @@ ENUM_START(Control, CONTROL)
+ 	CONTROL_FOREIGN_DIPLOMACY_SCREEN,
+ 	CONTROL_MILITARY_SCREEN,
+ 	CONTROL_TECH_CHOOSER,
++	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
++	CONTROL_WORLD_ADVISOR_SCREEN,
+ 	CONTROL_TURN_LOG,
+ 	CONTROL_CHAT_ALL,
+ 	CONTROL_CHAT_TEAM,
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index bcade070a..9a8cef343 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1321,6 +1321,8 @@ bool CvGame::canDoControl(ControlTypes eControl) const
+ 	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
+ 	case CONTROL_MILITARY_SCREEN:
+ 	case CONTROL_TECH_CHOOSER:
++	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
++	case CONTROL_WORLD_ADVISOR_SCREEN:
+ 	case CONTROL_DIPLOMACY:
+ 	case CONTROL_HALL_OF_FAME:
+ 	case CONTROL_INFO:
+@@ -1705,6 +1707,11 @@ void CvGame::doControl(ControlTypes eControl)
+ 		GC.getPythonCaller()->showPythonScreen("TechChooser");
+ 		break;
+ 
++	// <!-- custom: F7 World Advisor. (GPT-5.5) -->
++	case CONTROL_WORLD_ADVISOR_SCREEN:
++		GC.getPythonCaller()->showPythonScreen("WorldAdvisorScreen");
++		break;
++
+ 	case CONTROL_TURN_LOG:
+ 		if (!gDLL->GetWorldBuilderMode() || kUI.isInAdvancedStart())
+ 			kUI.toggleTurnLog();
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 845ff3552..dce8a0add 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1188,6 +1188,8 @@ void CyEnumsPythonInterface()
+ 		.value("CONTROL_FOREIGN_DIPLOMACY_SCREEN", CONTROL_FOREIGN_DIPLOMACY_SCREEN)
+ 		.value("CONTROL_MILITARY_SCREEN", CONTROL_MILITARY_SCREEN)
+ 		.value("CONTROL_TECH_CHOOSER", CONTROL_TECH_CHOOSER)
++		// <!-- custom: expose the F7 World Advisor control to Python. (GPT-5.5) -->
++		.value("CONTROL_WORLD_ADVISOR_SCREEN", CONTROL_WORLD_ADVISOR_SCREEN)
+ 		.value("CONTROL_TURN_LOG", CONTROL_TURN_LOG)
+ 		.value("CONTROL_CHAT_ALL", CONTROL_CHAT_ALL)
+ 		.value("CONTROL_CHAT_TEAM", CONTROL_CHAT_TEAM)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 678e5a462..cc953c59d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -339,7 +339,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### UI (In-game)
+ 
+ - (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
+-- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the **Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
++- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the new **World Advisor**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=33737

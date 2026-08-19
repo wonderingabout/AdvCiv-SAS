@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2568
+# Commit: 75290f2219ae8b2c440a306985f92b68cf7e7890
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5018495a9b1a5cdc0dc04cc5b7cff6c3abc899b8
+# Title: UWAI: Better estimate of ship speed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index a038724f3..e013e9e32 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -2415,7 +2415,13 @@ double UWAI::Civ::buildUnitProb() const {
+ 
+ double UWAI::Civ::shipSpeed() const {
+ 
+-	// Tbd.: Use the actual speed of our typical LOGISTICS unit
++	MilitaryBranch const* logistics = getCache().getPowerValues()[LOGISTICS];
++	if(logistics != NULL) {
++		CvUnitInfo const* typicalTransport = logistics->getTypicalUnit();
++		if(typicalTransport != NULL)
++			return typicalTransport->getMoves();
++	}
++	// Fallback (needed?)
+ 	return ::dRange(GET_PLAYER(weId).getCurrentEra() + 1.0, 3.0, 5.0);
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=686

@@ -1,0 +1,558 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6018
+# Commit: a36859f6a2411e2ca05ceb86986e5b174075aa9d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 40c1c1f9d4b090399d6c4f21a19e561215300727
+# Title: Improve AI worker job selection, feature-removal follow-ups, and hill development
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+15	5	Assets/XML/GlobalDefines_advciv_sas.xml
+6	2	CvGameCoreDLL/CvSelectionGroup.cpp
+82	99	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.h
+5	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 61b9dcaee..fe7ac5574 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1367,6 +1367,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Value subtracted for each estimated travel turn when workers compare the best available jobs across cities. For example, 25 makes a Mine valued at 1650 and 3 turns away score 1575 before other adjustments, still well above a nearby unused tundra Workshop valued at 260. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
+ 	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>
+@@ -1524,11 +1529,11 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 
+ 	<!-- custom: Grass Hills with enough food:
+-	- BUILD_MINE: strong early production while still having enough natural food to be workable; helps avoid overprioritizing flat Grass Cottages and neglecting production.
+-	- CvUnitAI adds the old population adjustment: roughly pop 1=1540, pop 2=1590, pop 3+=1640, so early low-pop cities still prefer key 1600-value Cottages before Mines become competitive. (GPT-5.5 + ChatGPT-5.5) -->
++	- BUILD_MINE: strong early production while still having enough natural food to be workable; helps avoid overprioritizing flat Grass Cottages and neglecting production; considering a city usually has a food source early or some excess, it seems reasonable to capitalize on it for high early hammer yield and small food cost.
++	- CvUnitAI adds the old population adjustment. BBAI testing showed value 1650 still left Beijing's bare Grass Hill at (27,13) unimproved until turn 101 because repeated 1710-value jobs won; 1700 makes strong Mine production competitive without changing the low-food or poor-terrain branches. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL</DefineName>
+-		<DefineTextVal>BUILD_MINE:1590</DefineTextVal>
++		<DefineTextVal>BUILD_MINE:1700</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: Low-food Grass Hills:
+ 	- BUILD_WINDMILL: acceptable lower-yield fallback when food pressure matters; helps the city keep growing or stop stagnating.
+@@ -1554,10 +1559,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineTextVal>BUILD_FARM:1460,BUILD_COTTAGE:1300,BUILD_WORKSHOP:600</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: Plains Hills with enough food:
+-	- BUILD_MINE: straightforward hammer tile when the city can afford the food cost. (GPT-5.5 + ChatGPT-5.5) -->
++	- BUILD_MINE: strong production when the city can afford the food cost. The sufficient-food branch already handles that cost, so do not penalize it again far below Grass Hill Mines; 1500 moved tested Mines from about turns 184-195 into the 140s, but Cologne's (30,10) still repeatedly lost to ordinary 1535-1585 jobs, so 1600 makes it properly competitive. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL</DefineName>
+-		<DefineTextVal>BUILD_MINE:800</DefineTextVal>
++		<DefineTextVal>BUILD_MINE:1600</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: Low-food Plains Hills:
+ 	- BUILD_WINDMILL: preferred because the tile costs food to work.
+@@ -1667,6 +1672,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Minimum adjusted value of an ordinary no-bonus improvement for a worker to continue directly from explicit Forest/Jungle/Fallout removal into that improvement. The separate removal pays feature production sooner than a combined build, while preserving a sufficiently valuable AI_bestCityBuild choice avoids delayed yields and a second trip; lower-value Tundra/Snow/Desert work normally stops after removal and is reevaluated. Bonus-specific improvements are not subject to this minimum. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE</DefineName>
++		<iDefineIntVal>800</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Master switch for the empirically tuned non-bonus food-support Farm value in CvUnitAI. The heuristic is still computed from Farm/irrigation-chain context, but the generic picker applies its resulting pressure to the buildable candidate with the best food outcome on the exact plot. This keeps the formula coherent for now instead of exposing every internal term; set to 0 for quick A/B testing if the support-food logic overfarms. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 61ff74c45..46eeb0cd0 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1735,9 +1735,13 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			}
+ 			else deleteMissionQueueNode(pHeadMission);
+ 
+-			// start the next mission
++			// <!-- custom: Explicit Chop/Clear followed by an evaluator-selected improvement was queued correctly, but completing the removal consumed all worker moves. Immediate activation deleted the follow-up; merely delaying activation left the group AWAKE, so AI turn-start cleanup still cleared it. Berlin (32,12), Beijing (28,12), and Cologne (29,11) therefore lost queued Mines and workers left their newly cleared Hills. Keep a waiting follow-up in MISSION activity until the next turn; invalid builds that consume no moves can continue immediately. (GPT-5.5) -->
+ 			if (headMissionQueueNode() != NULL)
+-				activateHeadMission();
++			{
++				if (missionData.eMissionType != MISSION_BUILD || readyForMission())
++					activateHeadMission();
++				else setActivityType(ACTIVITY_MISSION);
++			}
+ 			// <advc.153>
+ 			else if (!isAIControlled() &&
+ 				(missionData.eMissionType == MISSION_BUILD ||
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c2869612b..d7ea267b3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1329,6 +1329,8 @@ struct CandidatePlot
+ 	CvPlot* pPlot;
+ 	CityPlotTypes ePlot;
+ 	BuildTypes eBuild;
++	// <!-- custom: Preserve a sufficiently valuable improvement selected before explicit feature removal so the same worker can collect feature production early and then finish the plot without another trip. (GPT-5.5) -->
++	BuildTypes eFollowupBuild;
+ 
+ 	bool operator>(const CandidatePlot& other) const
+ 	{
+@@ -1678,7 +1680,7 @@ static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlo
+ // features, and yield potential, similar to city founding logic.
+ // It aims to fix issues like building farms on valuable bonus tiles <!-- custom: like spices instead of a plantation (wait to improve it at all ideally) -->
+ // and inefficiently clearing forests or improving low-yield tiles.
+-bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit) const
++bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit, int* piBestValue, BuildTypes* peFollowupBuild) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -1686,6 +1688,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 	// And no—you won’t be “back to square one" or re-introduce the crash as long as you add two tiny safety fixes:
+ 	if (ppBestPlot)  *ppBestPlot  = NULL;
+ 	if (peBestBuild) *peBestBuild = NO_BUILD;
++	if (piBestValue) *piBestValue = 0;
++	if (peFollowupBuild) *peFollowupBuild = NO_BUILD;
+ 	// ... PHASE 1 builds candidates ...
+ 
+ 	// <!-- custom: attempt to support terrains and feature(s) conditional logic -->
+@@ -1737,6 +1741,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
+ 	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD");
+ 	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE");
++	static const int iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE");
+ 	static const bool bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE");
+ 	static const EraTypes eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA = (EraTypes)GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA");
+ 
+@@ -1867,6 +1872,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 			bool const bTargetLowFoodUnimproved = (bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop);
+ 			if (!bTargetDryFarm && !bTargetLowFoodUnimproved)
+ 				continue;
++			// <!-- custom: Berlin workers pursued many different high-scoring connector plots toward the same speculative low-food target while known Frankfurt Mines waited until about turns 176-184. Retain only the best current connector for each irrigation target; the existing one-worker-per-plot reservation then makes another worker choose a different useful job instead of an alternative route to the same target. (GPT-5.5) -->
++			CandidatePlot bestConnectorPlot;
++			bestConnectorPlot.iValue = MIN_INT;
++			bestConnectorPlot.pPlot = NULL;
++			bestConnectorPlot.ePlot = NO_CITYPLOT;
++			bestConnectorPlot.eBuild = eBuildFarm;
++			bestConnectorPlot.eFollowupBuild = NO_BUILD;
++			int iBestConnectorDistance = 0;
++			int iBestConnectorOverwritePenalty = 0;
+ 			for (SquareIter itConnector(kTargetPlot, 4, false); itConnector.hasNext(); ++itConnector)
+ 			{
+ 				CvPlot& kConnectorPlot = *itConnector;
+@@ -1903,18 +1917,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 					iConnectorGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY * iConnectorGrowthLevel :
+ 					iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY
+ 				);
+-				CandidatePlot candidatePlot;
+-				candidatePlot.iValue = (bTargetDryFarm ? 11500 : 8500) - (350 * (iChainStepDistance - 1)) - iConnectorOverwritePenalty;
+-				candidatePlot.pPlot = &kConnectorPlot;
+-				candidatePlot.ePlot = NO_CITYPLOT;
+-				candidatePlot.eBuild = eBuildFarm;
+-				if (candidatePlot.iValue > 0)
++				int const iConnectorValue = (bTargetDryFarm ? 11500 : 8500) - (350 * (iChainStepDistance - 1)) - iConnectorOverwritePenalty;
++				if (iConnectorValue > bestConnectorPlot.iValue)
+ 				{
+-					if (gWorkerLogLevel >= 3)
+-						logBBAI("    %S worker considers irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kConnectorPlot.getX(), kConnectorPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(), candidatePlot.iValue, iChainStepDistance, bTargetDryFarm, iConnectorOverwritePenalty, iCityFoodSupportPressure);
+-					candidatePlots.push_back(candidatePlot);
++					bestConnectorPlot.iValue = iConnectorValue;
++					bestConnectorPlot.pPlot = &kConnectorPlot;
++					iBestConnectorDistance = iChainStepDistance;
++					iBestConnectorOverwritePenalty = iConnectorOverwritePenalty;
+ 				}
+ 			}
++			if (bestConnectorPlot.pPlot != NULL && bestConnectorPlot.iValue > 0)
++			{
++				if (gWorkerLogLevel >= 3)
++					logBBAI("    %S worker considers best irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), bestConnectorPlot.pPlot->getX(), bestConnectorPlot.pPlot->getY(), kTargetPlot.getX(), kTargetPlot.getY(), bestConnectorPlot.iValue, iBestConnectorDistance, bTargetDryFarm, iBestConnectorOverwritePenalty, iCityFoodSupportPressure);
++				candidatePlots.push_back(bestConnectorPlot);
++			}
+ 		}
+ 	}
+ 
+@@ -1940,6 +1957,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 		// <!-- custom: move eBuild definition here in doing so -->
+ 		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
+ 		BuildTypes eBestSupposedBuild = NO_BUILD;
++		BuildTypes eFeatureRemovalFollowupBuild = NO_BUILD;
+ 
+ 		TerrainTypes const eTerrain = kPlot.getTerrainType();
+ 		FeatureTypes const eFeature = kPlot.getFeatureType();
+@@ -1968,6 +1986,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 					if (canBuild(kPlot, eBuildRemoveForest))
+ 					{
+ 						eBestSupposedBuild = eBuildRemoveForest;
++						if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
++							eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
+ 						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+ 					}
+ 					else
+@@ -1990,6 +2010,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 					if (canBuild(kPlot, eBuildRemoveJungle))
+ 					{
+ 						eBestSupposedBuild = eBuildRemoveJungle;
++						if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
++							eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
+ 						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+ 					}
+ 					else
+@@ -2005,6 +2027,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				if (canBuild(kPlot, eBuildScrubFallout))
+ 				{
+ 					eBestSupposedBuild = eBuildScrubFallout;
++					if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
++						eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
+ 
+ 					// <!-- custom: more important than improving any bonus, and add some value so it is also more important than scrubing non-bonus fallout tiles (not sure it makes a difference since we want to clear all fallout anyway before improving any bonus but maybe the distinction helps if we change the code someday or someone does it or such) -->
+ 					iValue += iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE;
+@@ -2307,6 +2331,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 			{
+ 				continue;
+ 			}
++			BuildTypes const ePreFeatureRemovalBuild = eBestSupposedBuild;
++			int const iPreFeatureRemovalBuildValue = iValue;
+ 
+ 			// <!-- custom: PHASE 1.2 - feature removal overlay for non-bonus plots. The normal no-bonus branch picker chooses ordinary improvements first; this overlay then lets Forest/Jungle/Fallout removal adjust or override that choice when the feature itself is the main worker problem. Detailed scoring rationale and default values live in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+ 			if (eFeature == eFeatureForest)
+@@ -2378,6 +2404,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 					continue;
+ 				}
+ 			}
++			if (eBestSupposedBuild != ePreFeatureRemovalBuild && ePreFeatureRemovalBuild != NO_BUILD && iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE && GC.getInfo(ePreFeatureRemovalBuild).getImprovement() != NO_IMPROVEMENT && canBuild(kPlot, ePreFeatureRemovalBuild))
++				eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
+ 
+ 			// else: no special feature handling; KEEP the eBestSupposedBuild chosen above
+ 			// <!-- custom: modify this if you implement new terrains/features/builds in your mod and want AI workers to support them with custom priorities. Unknown builds (not set up here) would be NO_BUILD and rejected later in plot loop. Add modifications wherever relevant (likely phase 1) for AI workers to use them in city tiles. (Claude code Sonnet 4.5 (summarized)) -->
+@@ -2488,6 +2516,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 		candidatePlot.pPlot = &kPlot;
+ 		candidatePlot.ePlot = ePlot;
+ 		candidatePlot.eBuild = eBestSupposedBuild;
++		candidatePlot.eFollowupBuild = eFeatureRemovalFollowupBuild;
+ 
+ 		candidatePlots.push_back(candidatePlot);
+ 	}
+@@ -2596,6 +2625,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 
+ 	CvPlot* pBestPlot = NULL;
+ 	BuildTypes eBestBuild = NO_BUILD;
++	BuildTypes eBestFollowupBuild = NO_BUILD;
++	int iBestValue = 0;
+ 	bool bFound = false;
+ 	int const iRange = 0;
+ 	// <!-- custom: pathable/reservable blank-BFC work should be tried before ordinary replacement churn, but raw blank candidates alone are not enough.
+@@ -2729,6 +2760,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				// ACCEPT the candidate: set locals (NOT out-params), mark found, and break
+ 				pBestPlot  = pB;
+ 				eBestBuild = eB;
++				eBestFollowupBuild = candidatePlots[i].eFollowupBuild;
++				iBestValue = candidatePlots[i].iValue;
+ 				bFound     = true;
+ 				if (gWorkerLogLevel >= 2 && iCityPopulation >= 6)
+ 				{
+@@ -2787,6 +2820,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 	}
+ 	if (ppBestPlot)  *ppBestPlot  = bFound ? pBestPlot  : NULL;
+ 	if (peBestBuild) *peBestBuild = bFound ? eBestBuild : NO_BUILD;
++	if (piBestValue) *piBestValue = bFound ? iBestValue : 0;
++	if (peFollowupBuild) *peFollowupBuild = bFound ? eBestFollowupBuild : NO_BUILD;
+ 	return bFound;
+ }
+ 
+@@ -4353,7 +4388,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		// Short answer: you’re good — with A and B in place, you don’t need to change anything for option C.
+ 		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed" on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
+ 		// - The local-work path still runs when no switch happens: after the first switch attempt, you fall through and try AI_improveCity(*pCity) and AI_improveLocalPlot(...), so the worker won’t park if it stayed in place.
+-		if (AI_improveCity(*pCity))
++		// <!-- custom: Compare the current city's best job with all other cities before committing to local work. This prevents a worker in a developed city from repeatedly building low-value unused improvements while another city has valuable worked plots waiting. (GPT-5.5) -->
++		if (AI_nextCityToImprove(pCity))
+ 			return;
+ 	}
+ 
+@@ -20514,9 +20550,10 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
+ 
+ 	CvPlot* pBestPlot=NULL;
+ 	BuildTypes eBestBuild=NO_BUILD;
++	BuildTypes eFollowupBuild=NO_BUILD;
+ 
+ 	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
+-	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
++	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this, NULL, &eFollowupBuild))
+ 		return false; // advc
+ 	FAssert(pBestPlot != NULL);
+ 	FAssertEnumBounds(eBestBuild);
+@@ -20533,11 +20570,13 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
+ 			pBestPlot->getX(), pBestPlot->getY(),
+ 			eFlags, false, false,
+ 			MISSIONAI_BUILD, pBestPlot);
+-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
++	// <!-- custom: AI_bestCityBuild already selected and scored the exact build; postprocessing could replace Chop with an unrelated Road and separate the executed job from its evaluation. (GPT-5.5) -->
+ 	getGroup()->pushMission(MISSION_BUILD,
+ 			eBestBuild, -1,
+ 			eFlags, /*(getGroup()->getLengthMissionQueue() > 0)*/ true, // K-Mod
+ 			false, MISSIONAI_BUILD, pBestPlot);
++	if (eFollowupBuild != NO_BUILD)
++		getGroup()->pushMission(MISSION_BUILD, eFollowupBuild, -1, eFlags, true, false, MISSIONAI_BUILD, pBestPlot);
+ 	return true;
+ }
+ 
+@@ -20706,6 +20745,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	// <!-- custom: now unused, see below for details -->
+ 	// int iBestValue = 0;
+ 	BuildTypes eBestBuild = NO_BUILD;
++	BuildTypes eBestFollowupBuild = NO_BUILD;
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
+@@ -20774,27 +20814,13 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+     GroupPathFinder& pf = CvSelectionGroup::pathFinder();
+     pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
+ 
+-	// <!-- custom: rank cities to decide to which we should move to. Favour the strategic ones (i.e. the ones that have an iAIObjective bonus like iron or such so we make sure to improve it first) and lowest pop ones, as they are the most likely ones to need improvements -->
+-    // NEW: track best score instead of 'break on first'
++	// <!-- custom: Compare every city's best available job instead of stopping at the first viable city. (GPT-5.5) -->
+     int bestScore = MIN_INT;
+ 
+-	// <!-- custom: try to improve our current cityif no other city is good rather than bailing entirely, at least we'd be using our workers rather than them doing nothing at all -->
+-	// yup, that plan is clean: don’t recurse; while scanning cities, also test your current city and stash a “self candidate." If nothing else wins, fall back to that. Below is a tiny drop-in that reuses the exact same guards you already use (bestBuild gate → 1-per-tile reservation → pathable), plus a final sanity check before pushing missions.
+-	// Minimal patch
+-	// 1. Add these locals before the FOR_EACH_CITYAI loop:
+-	CvPlot*   pSelfPlot   = NULL;
+-	BuildTypes eSelfBuild  = NO_BUILD;
+-	bool      bSelfImprovable = false;
+ 	bool const bLogWorkerCityTargetLevel = (gWorkerLogLevel >= 3);
+ 
+     FOR_EACH_CITYAI(pLoopCity, kOwner)
+     {
+-		// Minimal patch
+-		// 2. Inside the loop, remove the early continue on the current city and handle it inline. Replace:
+-        // if (pLoopCity == pCity) // don’t pick current city A
+-        //     continue;
+-		bool const bIsSelf = (pLoopCity == pCity);
+-
+         // land workers stick to same land area (keeps it sane)
+         if (!pLoopCity->isArea(getArea()))
+             continue;
+@@ -20803,12 +20829,11 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // Ask the per-city logic for its single best target plot + build
+         CvPlot* pPlot = NULL;
+         BuildTypes eBuild = NO_BUILD;
+-		// <!-- custom: update: another crash caused by this function is now fixed, read below null and such checks code comments, so this one may be fixed too, but check if accurate -->
+-		// <!-- custom: note: for some reason we crash when only try to check AI_bestCityBuild function call and not AI_getBestBuild function call if i'm not mistaken. I don't know if it's related to my heavy changes in the function or not or if it wa already here before or not. My idea is since we handle all (land) improvements as we want now directly in AI_bestCityBuild, we maybe don't need anymore the old AI_getBestBuild that we disabled in our rewritten AI_bestCityBuild to compute value of each plot ourselves, but maybe this interferes or removes or doesn't handle some logic like workboats, roads, water tiles? I don't know enough nor did i check, so these are just guesses of me anyways, but since it seems to work as is, i'm adding this info just for reference or if useful to debug or such. -->
+-		// <!-- custom: so after the update, now that the crash is fixed, trying to disable old interference of AI_getbestCityBuild since our funciton is more optimized in case the other function gives us too many NO_BUILD or bad improvements or such(is just a guess from me so check if accurate); result update: we don't crash anymore!!! Even if not relying on the old and most likely faulty AI_bestCityBuild, our logic is now reliable, and our city D or such are now improved much sooner as we want -->
+-		// <!-- custom: update after all above code code comments: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
++		BuildTypes eFollowupBuild = NO_BUILD;
++		int iBuildValue = 0;
++		// <!-- custom: Legacy context: calling only our rewritten AI_bestCityBuild initially exposed crashes around turns 77/156, so its callers and outputs retain explicit null/NO_BUILD guards. This version no longer depends on old AI_getBestBuild filtering, which had hidden valid custom worker jobs; attempted bonus-roading additions were reverted after making workers less efficient. (GPT-5.5) -->
+         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
+-        if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
++        if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this, &iBuildValue, &eFollowupBuild))
+         {
+ 			if (bLogWorkerCityTarget)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation());
+@@ -20845,30 +20870,16 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+             continue;
+ 		}
+ 
+-        // // Found the first viable target in another city — take it.
+-        // eBestBuild = eBuild;
+-        // pBestPlot = pPlot;
+-        // break;
+-
+-		// Minimal patch
+-		// 3. Keep your existing candidate checks (AI_getBestBuild / AI_bestCityBuild / null guards / reservation / path). After those checks pass, do this:
+-		if (bIsSelf)
+-		{
+-			// Store a “self" candidate for later fallback; don’t compete in scoring here.
+-			bSelfImprovable = true;
+-			pSelfPlot  = pPlot;
+-			eSelfBuild = eBuild;
+-			if (bLogWorkerCityTarget)
+-				logBBAI("    %S worker city-target scan: self city=%S pop=%d stored fallback plot=(%d,%d) build=%S pathTurns=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), pf.getPathTurns());
+-			continue; // still let the loop look for better (other-city) jobs
+-		}
+-
+-        // --- NEW: compute a simple score ---
+-        int score = 1000;
+-
+-        // prefer closer jobs slightly
+-        int pathTurns = pf.getPathTurns();
+-        score -= 25 * pathTurns;
++		// <!-- custom: Workers heavily improved unused Dortmund tundra while Cologne/Chengdu lacked valuable Grass Hill Mines until very late. Rank work across all cities by the shared per-plot build value, scaled proportionally only while a city lacks enough completed or already-assigned improvements for its population; counting assigned workers prevents dogpiling while preserving one-worker-per-plot reservations. This avoids both the old high-population penalty and arbitrary additive/working-plot bonuses, while leaving candidate valuation responsible for Food-vs-Production tradeoffs. Distance remains a modest efficiency cost. (GPT-5.5) -->
++		static const int iPathTurnValuePenalty = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY");
++		bool const bWorkedPlot = pLoopCity->isWorkingPlot(*pPlot);
++		int const iImprovedPlots = countImprovedTiles(pLoopCity);
++		int const iAssignedWorkers = std::max(0, pLoopCity->AI_getWorkersHave() - (pLoopCity == pCity ? 1 : 0));
++		int const iEffectiveImprovedPlots = iImprovedPlots + iAssignedWorkers;
++		int const iReadinessPercent = std::max(100, 100 * (pLoopCity->getPopulation() + 1) / (iEffectiveImprovedPlots + 1));
++        int score = iBuildValue * iReadinessPercent / 100;
++        int const pathTurns = pf.getPathTurns();
++        score -= iPathTurnValuePenalty * pathTurns;
+ 
+         // If this target is on a bonus, fold in <iAIObjective>
+         BonusTypes eB = pPlot->getNonObsoleteBonusType(getTeam());
+@@ -20882,37 +20893,23 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			}
+ 		}
+ 
+-		// <!-- custom: favour low pop cities, they are most likely to most urgently need our improvements -->
+-		// prefer lower-pop cities (small weight; just a tiebreaker direction)
+-		// --- population-based reduction: 5% per pop beyond 1, capped at 50% ---
+-		const int pop = pLoopCity->getPopulation();
+-		const int over = std::max(0, pop - 1);                  // 0 at pop=1
+-		const int reductionPermille = std::min(500, over * 50); // 5% per pop, cap at 50%
+-		const int factorPermille = 1000 - reductionPermille;    // 1000..500
+-
+-		// Pick ONE of the two lines:
+-		// score = (score * factorPermille) / 1000;              // simple (safe if score < ~2.1M)
+-		// or the bullet-proof version:
+-		const int q = score / 1000, r = score - q * 1000;
+-		score = q * factorPermille + (r * factorPermille) / 1000;
+-
+         if (bLogWorkerCityTarget)
+         {
+ 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
+ 			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
+-			logBBAI("    %S worker city-target candidate: city=%S pop=%d plot=(%d,%d) build=%S bonus=%S pathTurns=%d score=%d bestBefore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), szDiagnosticBonus, pf.getPathTurns(), score, bestScore);
++			wchar const* szDiagnosticFollowup = (eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription());
++			logBBAI("    %S worker city-target candidate: city=%S pop=%d improved=%d assignedWorkers=%d effectiveImproved=%d readinessPercent=%d plot=(%d,%d) worked=%d build=%S followup=%S buildValue=%d bonus=%S pathTurns=%d score=%d bestBefore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), iImprovedPlots, iAssignedWorkers, iEffectiveImprovedPlots, iReadinessPercent, pPlot->getX(), pPlot->getY(), bWorkedPlot, GC.getInfo(eBuild).getDescription(), szDiagnosticFollowup, iBuildValue, szDiagnosticBonus, pf.getPathTurns(), score, bestScore);
+ 		}
+         if (score > bestScore)
+         {
+             bestScore = score;
+             eBestBuild = eBuild;
++			eBestFollowupBuild = eFollowupBuild;
+             pBestPlot  = pPlot;
+         }
+ 
+ 	}
+ 
+-	// <!-- custom: then back to old code -->
+-
+ 	// <!-- custom: turn 156 rare crash; proper guard added below. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+ 	// if (pBestPlot == NULL)
+ 	// 	return false;
+@@ -20924,27 +20921,6 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	if (NULL != pBestPlot->getWorkingCity())
+ 		pBestPlot->getWorkingCity()->AI_changeWorkersHave(+1);*/
+ 
+-	// // <!-- custom: doing a more exhaustive best plot check again to be sure, doesn't solve rare crash at turn 156 but still a bit more robust -->
+-	// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+-	// 	return false;
+-	// <!-- custom: add in addition to this sanity check if i'm not mistakena new extra logic to try to improve our city if we have no other city to improve at all, better than doing nothing and bailing,, code by chatgpt 5, check if accurate-->
+-	// Minimal patch
+-	// 4. Fallback to the stored “self" candidate if no other-city target was found:
+-	// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate -->
+-	// A) Gate the self fallback (stop returning a no-op)
+-	// Replace your fallback block with this guard so it only fires when there’s real work to do:
+-	// Fallback to stored self target *only if actionable*
+-	// This keeps your self-candidate idea but prevents “successful" no-ops that lead to parking. (Your current fallback is here.)
+-	if ((pBestPlot == NULL || eBestBuild == NO_BUILD) && bSelfImprovable)
+-	{
+-		// Use self only if we're not already standing there,
+-		// or if we can actually start the build right now.
+-		if (!atPlot(pSelfPlot) || canBuild(*pSelfPlot, eSelfBuild))
+-		{
+-			pBestPlot  = pSelfPlot;
+-			eBestBuild = eSelfBuild;
+-		}
+-	}
+ 	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+ 		return false;
+ 
+@@ -20956,7 +20932,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	if (gWorkerLogLevel >= 2)
+ 	{
+ 		CvCity const* pChosenWorkingCity = pBestPlot->getWorkingCity();
+-		logBBAI("    %S worker next-city chosen: from=(%d,%d) targetCity=%S plot=(%d,%d) build=%S selfFallback=%d bestScore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(), (pChosenWorkingCity == NULL ? L"-" : pChosenWorkingCity->getName().GetCString()), pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), (pBestPlot == pSelfPlot && eBestBuild == eSelfBuild), bestScore);
++		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
++		logBBAI("    %S worker city-job chosen: from=(%d,%d) targetCity=%S plot=(%d,%d) build=%S followup=%S currentCity=%d bestScore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(), (pChosenWorkingCity == NULL ? L"-" : pChosenWorkingCity->getName().GetCString()), pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), szFollowupBuild, (pChosenWorkingCity == pCity), bestScore);
+ 	}
+ 
+ 	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled -->
+@@ -20977,16 +20954,22 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			pBestPlot->getX(), pBestPlot->getY(),
+ 			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
+ 			false, false, MISSIONAI_BUILD, pBestPlot);
+-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
++	// <!-- custom: AI_bestCityBuild already evaluates the city, plot, feature removal, and exact build together. Chengdu selected Chop Forest at (29,11) on turn 106, but postprocessing it through AI_betterPlotBuild replaced the scored and reserved job with Road; execute the selected build unchanged so worker assignment remains consistent with its full evaluation. (GPT-5.5) -->
+ 	getGroup()->pushMission(MISSION_BUILD,
+ 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
+ 			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+ 			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
++	// <!-- custom: AI_bestCityBuild deliberately chooses standalone feature removal so Forest/Jungle production arrives sooner, but previously forgot the valuable Mine/Farm/Cottage/etc. it had selected underneath. Continue into that evaluator-selected improvement when supplied; low-value no-bonus follow-ups are filtered by XML, while mission legality is checked again when the queued build executes. (GPT-5.5) -->
++	if (eBestFollowupBuild != NO_BUILD)
++	{
++		getGroup()->pushMission(MISSION_BUILD, eBestFollowupBuild, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
++	}
+ 	// <!-- custom: Pair the chosen city job with the exact worker, movement mode, and resulting queue so repeated selections can be distinguished from separate workers and traced through mission execution. No behavior change. (GPT-5.5) -->
+ 	if (gWorkerLogLevel >= 3)
+ 	{
+-		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=%d build=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
+-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), eMission, GC.getInfo(eBestBuild).getDescription(), AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
++		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
++		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=%d build=%S followup=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
++			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), eMission, GC.getInfo(eBestBuild).getDescription(), szFollowupBuild, AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
+ 	}
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 87031ff96..ef9c34548 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -31,7 +31,7 @@ public:
+ 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+ 	int AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const; // advc
+ 
+-	bool AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, CvPlot* pIgnorePlot = NULL, CvUnit* pUnit = NULL) const;
++	bool AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, CvPlot* pIgnorePlot = NULL, CvUnit* pUnit = NULL, int* piBestValue = NULL, BuildTypes* peFollowupBuild = NULL) const;
+ 	bool AI_isCityAIType() const;
+ 	// <advc>
+ 	bool AI_mayAttack(TeamTypes eTeam, CvPlot const& kPlot) const; // Renamed from AI_potentialEnemy
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 40d5f681a..e640b9775 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -326,14 +326,15 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - (Requires AdvCiv-SAS 5916+) **Reliable Worker availability without early overproduction:** AI cities rebuild enough Workers for each land area before other production priorities can leave them short indefinitely, without producing more than the AI calculates it needs. Maintaining enough Workers throughout the game lets the AI improve food/production/commerce, connect resources and routes, repair pillaging, and develop new or underdeveloped cities sooner, especially after Worker losses or earlier underproduction. This normally aims for 1 Worker per city plus a capital-area reserve. As a refinement, a one-city empire needs at most 1 land Worker until its capital has ever reached a tunable population (5 by default), avoiding early double-Worker production and the resulting halted growth; normal demand resumes after the capital matures or another city is founded. Ordinary Worker choices, cases where a blocked Settler choice falls back to a Worker, general unit selection, and Worker scrapping now use the same centralized target. Four BBAI test runs then completed exactly 1 early Worker per empire, with the only later automatic second Worker beginning when its capital reached population 5.
+-- Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**, but still ensure **important bonus connections** (road/route when the bonus is connectable and not yet connected). See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
++- (Requires AdvCiv-SAS 6018+) **Yield-first build execution:** workers build the exact improvement selected through the full city/plot evaluation instead of letting the older `AI_betterPlotBuild` postprocessing replace a scored Chop, Mine, Farm, etc. with an unrelated Road. Roads/routes remain strongly de-prioritized early unless they are truly the best move, while important connectable bonuses are still connected. See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+ - **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, **more aggressive early slaving**, or **specialist economies**; (Requires AdvCiv-SAS 5914+) concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield ((Requires AdvCiv-SAS 5926+) **Reserve** likely irrigation/farm connector plots **from non-farm builds** to reduce AI worker farm/non-farm oscillation).
+ - (Requires AdvCiv-SAS 5949+) **Worker lower-food replacement guard:** from a **tunable era onward** (default as of now: Medieval), AI workers no longer replace existing **no-bonus** improvements with lower-food alternatives. This targets **repeated food-threshold oscillation** such as **Farm → Cottage → Farm → Cottage** or **Mine → Windmill → Mine** after the city briefly looks food-safe. It still allows equal-food retools, food-restoration changes such as Cottage → Farm, and cleanup of City Ruins or obsolete/non-active improvements. In the tested BBAI log, the worst Mali farm/cottage loops reached Farm again and then skipped later Farm → Cottage attempts from about T128/T130 onward. This change is because before this era, cities are often small or health/happiness-capped (extra/excess food may not necessarily help or could be inefficient early) and early cottages still have time to mature, but later, cities are usually larger, health sources are generally multiple, and specialist yields are stronger than plot yields (so any food can be used and is generally strong/stronger), and cottages/growth improvements have less time to grow and pay back, so preserving food support is usually stronger.
+ - **Feature-removal health handling in `CvUnitAI::AI_bestCityBuild`:** forests provide city health, so non-bonus forest chops are **weighted by city population and health surplus**; **small cities** can still chop, but when health is tight the AI usually **prefers other useful improvements** because removing forest health can make the city unhealthy or more unhealthy. **Jungle is different** because it **adds unhealth** and is **generally targeted** for removal/improvement. (Requires AdvCiv-SAS 5941+) For **medium/large cities**, non-bonus forested BFC plots have a **softer health penalty**. This is because later in the game we usually have many health sources (trade, owned bonuses, buildings, techs, etc.), **higher population** can use or needs more improved BFC plots, and **improved yields are stronger**, so leaving useful forested tiles unimproved forever can be worse than accepting the forest-health loss.
+-- **Mobility:** workers leave "over-improved" cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but).
+-- Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals. (Requires AdvCiv-SAS 5938+) Update 2: **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn (e.g., **Mine ↔ Windmill**, **Cottage ↔ Farm**) ((Requires AdvCiv-SAS 5944+) unless there is no other pathable and unreserved unimproved BFC improvement candidate for this worker), while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain farms. (Requires AdvCiv-SAS 5942+) Update 3: the small-city rotation shortcut no longer makes a worker leave **if it is already standing on this same city's owned/workable non-home BFC plot** and `AI_bestCityBuild` selects that plot as the current best local build. This fixed or reduced cases like workers roading a useful forested or otherwise improvable plot and then walking away instead of finishing the chop/improvement, then leaving it unimproved late in the game.
++- (Requires AdvCiv-SAS 6018+) **Compare the best useful work across all cities:** workers now compare each city's strongest reachable job by its complete Food/Production/Commerce/resource/terrain evaluation, with only a modest travel cost, instead of favoring cities mainly by population or staying near weaker local work. Cities that lack enough completed or already-assigned improvements for their population receive proportionally more help; counting assigned workers discourages crowding one city, while reserving one worker per plot prevents several workers from targeting the same tile. In BBAI testing in save file 442, this redirected workers from low-value unused Tundra Workshops toward valuable Grass/Plains Hill Mines in underdeveloped cities. See also [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-im-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but).
++- **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn (e.g. **Mine ↔ Windmill**, **Cottage ↔ Farm**) while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain Farms. The small-city rotation shortcut does not make a worker leave when it is already standing on this same city's (Requires AdvCiv-SAS 6018+) useful BFC plot and that plot is the city's best current job.
++- (Requires AdvCiv-SAS 6018+) **Finish valuable followup builds after feature removal:** a worker can complete standalone Forest/Jungle/Fallout removal (including receiving Forest chop production sooner, separated from e.g. a 2 in 1 mine that would deliver hammer on feature remove later plus would be less flexible), then continue directly into the worthwhile Mine, Farm, Cottage, resource improvement, etc. selected for that plot. This prevents workers from chopping or clearing a strong tile, walking away, and paying another trip later (which is especially inefficient if this costs movement/delay again); weak ordinary follow-ups are still reconsidered instead of being forced. Queued follow-ups now wait for the worker's next turn when removal consumes all movement rather than being silently discarded.
+ - **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
+-- (Requires AdvCiv-SAS 5918+) **Worker irrigation-chain hunting:** updated SAS AI worker logic so it now **starts from actual dry-farm / low-food BFC targets** and **hunt short owned irrigation-chain steps**, including first links **outside the city BFC**. This fixed Chaco Canyon and Harappan-style cases where a nearby (2-3 plots away from BFC) water source existed but BFC-only worker logic missed the first link, though workers currently may still not always immediately finish every remaining chain link.
++- (Requires AdvCiv-SAS 5918+) **Worker irrigation-chain hunting:** updated SAS AI worker logic so it now **starts from actual dry-farm / low-food BFC targets** and **hunts short owned irrigation-chain steps**, including first links **outside the city BFC**. This fixed Chaco Canyon and Harappan-style cases where a nearby (2-3 plots away from BFC) water source existed but BFC-only worker logic missed the first link. (Requires AdvCiv-SAS 6018+) Workers now retain only the strongest available connector toward each target instead of treating several alternative routes to the same Farm as separate urgent jobs, leaving other workers free to pursue valuable improvements elsewhere.
+ 
+ ##### Other Civilian Units (AI)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=54178

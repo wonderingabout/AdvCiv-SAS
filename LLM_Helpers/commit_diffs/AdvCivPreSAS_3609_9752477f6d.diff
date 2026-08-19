@@ -1,0 +1,236 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3609
+# Commit: 9752477f6dd207c53b7423f191660847d9142a50
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 23ed804b87498f64e43db5417f9fe6c71656b835
+# Title: Smoothen rank-based diplo modifier
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvGame.cpp
+49	38	CvGameCoreDLL/CvPlayerAI.cpp
+1	3	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 72be32344..0905c6acf 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9522,8 +9522,9 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 13; // advc.148: RELATIONS_THRESH_WORST_ENEMY
+ 	//uiFlag = 14; // advc.148, advc.130n, advc.130x (religion attitude)
+ 	//uiFlag = 15; // advc.tsl: new game option
+-	uiFlag = 16; // advc.tsl: map regen counter
+-	uiFlag = 17; // advc.tsl: game options moved around
++	//uiFlag = 16; // advc.tsl: map regen counter
++	//uiFlag = 17; // advc.tsl: game options moved around
++	uiFlag = 18; // advc.130c: change in rank hate calc
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9743,7 +9744,7 @@ void CvGame::onAllGameDataRead()
+ 	} // </advc.opt>
+ 	m_bAllGameDataRead = true;
+ 	// <advc.130n>, advc.148, advc.130x
+-	if (m_uiSaveFlag < 14 ||
++	if (m_uiSaveFlag < 18 ||
+ 		// <advc.127> Save created during AI Auto Play
+ 		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2bae1489f..a76525b57 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -202,7 +202,6 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 		{
+ 			m_aeLastBrag[iI] = NO_UNIT;
+ 			m_aeLastWarn[iI] = NO_TEAM; // </advc.079>
+-			m_abTheyFarAhead[iI] = m_abTheyBarelyAhead[iI] = false; // advc.130c
+ 		}
+ 		m_abFirstContact[iI] = false;
+ 		for (int iJ = 0; iJ < NUM_CONTACT_TYPES; iJ++)
+@@ -231,8 +230,6 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 			{
+ 				kLoopPlayer.m_aeLastBrag[getID()] = NO_UNIT;
+ 				kLoopPlayer.m_aeLastWarn[getID()] = NO_TEAM; // </advc.079>
+-				// advc.130c:
+-				kLoopPlayer.m_abTheyFarAhead[getID()] = kLoopPlayer.m_abTheyBarelyAhead[getID()] = false;
+ 			}
+ 			kLoopPlayer.m_abFirstContact[getID()] = false;
+ 			for (int iJ = 0; iJ < NUM_CONTACT_TYPES; iJ++)
+@@ -7350,19 +7347,10 @@ void CvPlayerAI::AI_updateAttitude(PlayerTypes ePlayer, /* advc.130e: */ bool bU
+ 	if (!GC.getGame().isFinalInitialized() || ePlayer == getID() ||
+ 		!isAlive() || !kPlayer.isAlive() || !GET_TEAM(getTeam()).isHasMet(kPlayer.getTeam()))
+ 	{
+-		m_abTheyFarAhead[ePlayer] = m_abTheyBarelyAhead[ePlayer] = false; // advc.130c
+ 		m_aiAttitude[ePlayer] = 0;
+ 		return;
+ 	}
+ 	int const iOldAttitude = m_aiAttitude[ePlayer]; // advc.001
+-
+-	// <advc.130c> Are they (ePlayer) 150% ahead in score?
+-	CvGame const& kGame = GC.getGame();
+-	int iTheirScore = kGame.getPlayerScore(ePlayer);
+-	int iOurScore = kGame.getPlayerScore(getID());
+-	m_abTheyFarAhead[ePlayer] = (iTheirScore * 10 > iOurScore * 15);
+-	m_abTheyBarelyAhead[ePlayer] = (iTheirScore > iOurScore &&
+-			iTheirScore - iOurScore < 25); // </advc.130c>
+ 	// <advc.sha> Now computed in subroutines
+ 	int iAttitude = AI_getFirstImpressionAttitude(ePlayer);
+ 	iAttitude += AI_getTeamSizeAttitude(ePlayer);
+@@ -8259,9 +8247,7 @@ int CvPlayerAI::AI_getTeamSizeAttitude(PlayerTypes ePlayer) const
+ // advc.130c:
+ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ {
+-	// Cached separately to avoid updating the whole cache w/e scores change
+-	if (m_abTheyFarAhead[ePlayer] || // No hate if they're way ahead
+-		GET_TEAM(getTeam()).isCapitulated() || GET_TEAM(ePlayer).isCapitulated() ||
++	if (GET_TEAM(getTeam()).isCapitulated() || GET_TEAM(ePlayer).isCapitulated() ||
+ 		getTeam() == TEAMID(ePlayer))
+ 	{
+ 		return 0;
+@@ -8273,6 +8259,10 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ 	int iRankDifference = AI_knownRankDifference(ePlayer, rOutrankBothRatio);
+ 	CvLeaderHeadInfo const& kPers = GC.getInfo(getPersonalityType());
+ 	CvGame const& kGame = GC.getGame();
++	int const iOurScore = kGame.getPlayerScore(getID());
++	int const iTheirScore = kGame.getPlayerScore(ePlayer);
++	scaled const rTheirScoreToOurs = (iOurScore <= 0 ? 2 :
++			scaled(iTheirScore, iOurScore));
+ 	// Don't count minor civs, defeated civs for rank differences.
+ 	int const iMajorCivsAlive = PlayerIter<MAJOR_CIV>::count();
+ 	// This was "+ 1" in BtS, which was arguably a bug.
+@@ -8280,31 +8270,52 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ 	int iBase = 0;
+ 	scaled rMultiplier;
+ 	// If we're ranked worse than they are:
+-	if(iRankDifference > 0)
++	if (iRankDifference > 0)
+ 	{
++		FAssert(rTheirScoreToOurs >= 1);
+ 		iBase = kPers.getWorseRankDifferenceAttitudeChange();
+-		/*  Want multiplier to be 1 when the rank difference is 35% of CivPlayersEverAlive,
+-			and near 0 when greater than 50% of CivPlayersEverAlive. */
+-		rMultiplier = 1 -
+-				(2 * iRankDifference - fixp(0.35) * iMaxRankDifference).abs() /
+-				iMaxRankDifference;
+-		rMultiplier.increaseTo(0);
+-		// Don't hate them much when both struggling to keep up
+-		rMultiplier *= fixp(5/4.) - rOutrankBothRatio;
++		if (iBase != 0) // save time
++		{
++			/*  Want multiplier to be 1 when the rank difference is 35% of
++				CivPlayersEverAlive, and near 0 when greater than 50% of
++				CivPlayersEverAlive. */
++			rMultiplier = 1 -
++					(2 * iRankDifference - fixp(0.35) * iMaxRankDifference).abs() /
++					iMaxRankDifference;
++			rMultiplier.increaseTo(0);
++			// Don't hate them much when both struggling to keep up
++			rMultiplier *= fixp(5/4.) - rOutrankBothRatio;
++			// Smoothen based on score ratio
++			scaled const rPeakScoreRatio = fixp(1.22);
++			scaled rFarAheadThresh = fixp(1.7);
++			scaled rMultFromScore = (rTheirScoreToOurs > rPeakScoreRatio ?
++					(rFarAheadThresh - rTheirScoreToOurs) /
++					(rFarAheadThresh - rPeakScoreRatio) :
++					(rTheirScoreToOurs - 1) /
++					(rPeakScoreRatio - 1));
++			rMultiplier += rMultFromScore;
++			rMultiplier /= 2;
++		}
+ 	}
+ 	/*  If we're ranked better, as in BtS, the modifier is proportional
+ 		to the relative rank difference. */
+ 	else
+ 	{
++		FAssert(rTheirScoreToOurs <= 1);
+ 		iBase = kPers.getBetterRankDifferenceAttitudeChange();
+-		rMultiplier = scaled(-iRankDifference, iMaxRankDifference);
++		if (iBase != 0)
++		{
++			rMultiplier = scaled(-iRankDifference, iMaxRankDifference);
++			// Make sure not to like them if they're close in score
++			rMultiplier.decreaseTo(2 * (1 - rTheirScoreToOurs));
++		}
+ 	}
+ 	int iResult = (iBase * rMultiplier).round();
+-	// Don't hate them if they're still in the first era
+-	if(iResult < 0 && (GET_PLAYER(ePlayer).getCurrentEra() <= kGame.getStartEra() ||
+-		/*  nor if the score difference is small (otherwise attitude
++	// Don't hate them if they're still in the first era ...
++	if (iResult < 0 && (GET_PLAYER(ePlayer).getCurrentEra() <= kGame.getStartEra() ||
++		/*	... nor if the score difference is small (otherwise attitude
+ 			changes too frequently in the early game) */
+-		m_abTheyBarelyAhead[ePlayer]))
++		iOurScore + 25 >= iTheirScore))
+ 	{
+ 		return 0;
+ 	}
+@@ -22417,11 +22428,13 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 		}
+ 	} // </advc.079>
+ 	// <advc.130c>
+-	if(uiFlag >= 13)
+-		pStream->Read(MAX_CIV_PLAYERS, m_abTheyFarAhead);
+-	if(uiFlag >= 14)
+-		pStream->Read(MAX_CIV_PLAYERS, m_abTheyBarelyAhead);
+-	// </advc.130c>
++	{
++		bool m_abDisusedCache[MAX_CIV_PLAYERS];
++		if (uiFlag >= 13 && uiFlag < 21)
++			pStream->Read(MAX_CIV_PLAYERS, m_abDisusedCache);
++		if (uiFlag >= 14 && uiFlag < 21)
++			pStream->Read(MAX_CIV_PLAYERS, m_abDisusedCache);
++	} // </advc.130c>
+ 	/*	K-Mod. Load the attitude cache. (In BBAI and the CAR Mod, this was not saved.
+ 		But there are rare situations in which it needs to be saved/read
+ 		to avoid OOS errors.) */
+@@ -22573,7 +22586,8 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	//uiFlag = 17; // advc.550g
+ 	//uiFlag = 18; // advc.130n
+ 	//uiFlag = 19; // advc.130n (mostly removed again)
+-	uiFlag = 20; // advc.115f
++	//uiFlag = 20; // advc.115f
++	uiFlag = 21; // advc.130c (remove separate cache for score diff)
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -22620,9 +22634,6 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 		pStream->Write(m_aeLastBrag[i]);
+ 		pStream->Write(m_aeLastWarn[i]);
+ 	} // </advc.079>
+-	// <advc.130c>
+-	pStream->Write(MAX_CIV_PLAYERS, m_abTheyFarAhead);
+-	pStream->Write(MAX_CIV_PLAYERS, m_abTheyBarelyAhead); // </advc.130c>
+ 	// K-Mod. save the attitude cache. (to avoid OOS problems)
+ 	pStream->Write(MAX_PLAYERS, &m_aiAttitude[0]);
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index d49673f5a..9c08ec07d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -799,9 +799,7 @@ protected:
+ 	int* m_aiUnitClassWeights;
+ 	int* m_aiUnitCombatWeights;
+ 	ArrayEnumMap<VictoryTypes,short> m_aiVictoryWeights; // advc.115f
+-	// <advc.130c>
+-	bool m_abTheyFarAhead[MAX_CIV_PLAYERS];
+-	bool m_abTheyBarelyAhead[MAX_CIV_PLAYERS]; // </advc.130c>
++
+ 	std::map<UnitClassTypes, int> m_GreatPersonWeights; // K-Mod
+ 	std::map<int,int> m_neededExplorersByArea; // advc.opt
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8897

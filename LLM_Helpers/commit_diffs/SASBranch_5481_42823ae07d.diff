@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5481
+# Commit: 42823ae07df0f8e19602467de9df7faa1b5a2fbe
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 51122e118be36acef43bf9785d005e9187ee382a
+# Title: add leader icons (make peace / declare war / embargo) in the diplomacy screen
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+27	6	CvGameCoreDLL/CvPlayer.cpp
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9839b4bf7..df62149e0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19148,30 +19148,51 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
+ 		}
+ 		break;
+ 	}
++	// <!-- custom: diplomacy target-team rows (make peace / declare war / embargo) use the target leader portrait button via szIcon.
++	// This keeps each row visually identifiable at a glance and reduces name-scanning when several red target names are listed.
++	// The icon is only assigned for valid alive leaders to avoid bad/no-player lookups. (GPT-5.3-Codex) -->
+ 	case TRADE_PEACE:
++	{
++		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
+ 		if (bOffer)
+ 		{
+ 			szString = gDLL->getText("TXT_KEY_TRADE_PEACE_WITH");
+-			szString += GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
++			szString += GET_TEAM(eTargetTeam).getName();
+ 		}
+-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
++		else szString = GET_TEAM(eTargetTeam).getName();
++		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
++		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
++			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
+ 		break;
++	}
+ 	case TRADE_WAR:
++	{
++		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
+ 		if (bOffer)
+ 		{
+ 			szString = gDLL->getText("TXT_KEY_TRADE_WAR_WITH");
+-			szString += GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
++			szString += GET_TEAM(eTargetTeam).getName();
+ 		}
+-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
++		else szString = GET_TEAM(eTargetTeam).getName();
++		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
++		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
++			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
+ 		break;
++	}
+ 	case TRADE_EMBARGO:
++	{
++		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
+ 		if (bOffer)
+ 		{
+ 			szString = gDLL->getText("TXT_KEY_TRADE_STOP_TRADING_WITH");
+-			szString += L" " + GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
++			szString += L" " + GET_TEAM(eTargetTeam).getName();
+ 		}
+-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
++		else szString = GET_TEAM(eTargetTeam).getName();
++		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
++		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
++			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
+ 		break;
++	}
+ 	case TRADE_CIVIC:
+ 		if (bOffer)
+ 		{
+
+diff --git a/README.md b/README.md
+index 47f532e34..d8519bbb3 100644
+--- a/README.md
++++ b/README.md
+@@ -226,7 +226,7 @@ Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so
+ 
+ ### Diplomacy Screen
+ 
+-Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc.).
++Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc; also leader icons ((make peace / declare war / embargo))).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (1).JPG" alt="0.970_diplomacy_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG" alt="0.970_diplomacy_screen (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7f4c80a2c..77fbd63d4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -320,7 +320,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5479+) Beautified the **Diplomacy Screen**'s trading rows with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
++- (Requires AdvCiv-SAS 5479+) Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit.
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG
+index b772d47f9..618b4441d 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG
+index cdc332667..986eebc41 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=8756

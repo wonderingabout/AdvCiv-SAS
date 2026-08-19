@@ -1,0 +1,223 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5193
+# Commit: 905b71dc7e653deac04b779526a931ba563d159a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b9d4edfdac1ec20b6485f66edb951721e38a8d47
+# Title: tech tree adjustments and enhancements with the help of gemini 3 pro thanks but anyways etc. - TECH_THE_WHEEL: TECH_ANIMAL_HUSBANDRY AND TECH_MASONRY to the...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvTechChooser.py
+9	6	Assets/XML/GameInfo/CIV4CivicInfos.xml
+17	22	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index d3ca652f7..99a93839a 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -405,7 +405,7 @@ class CvTechChooser:
+ 		self.drawArrows(screen, sPanel, bANDPreReq, bORPreReq)
+ 
+ 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
+-		# <!-- custom: note: trying to comment out the above to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
++		# <!-- custom: note: trying to comment out the turn > 0 check below but anyways etc. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
+ 		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
+ 		if CyGame().getElapsedGameTurns() > 0:
+ 			self.updateTechPrefs()
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index a32cd0fb6..681078995 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -5,6 +5,13 @@
+ 	<!-- Copyright Firaxis Games 2005 -->
+ 	<!-- -->
+ 	<!-- Civic Infos -->
++	<!-- custom: vassalage civic tech prereq rationale changed as chatgpt 5.1 confirms thanks but anyways etc; also as a side effect closer to bts early vassalage availability anyways etc, was TECH_FEUDALISM -->
++	<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->
++	<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
++	<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
++	Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
++	<!-- custom: update: at TECH_PHILOSOPHY rather as recommended by gemini 3 pro and more balanced as such (clearer military vs culture lines, philosophy was empty, and thematically more relevant as well) but anyways etc. -->
++	<!-- "While Western "Feudalism" (Knights) comes later, the concept of strict social hierarchy was defined in the Classical Era by Philosophers." + "Confucius (Kung Fuzi): His entire philosophy was about the "Five Bonds" (Ruler to Subject, Father to Son). He taught that social stability comes from everyone knowing their place and serving their superior." + "Aristotle/Plato: They wrote extensively on the "Republic" and the natural hierarchy of society." + "This creates a very strong "Social Band" in your Middle Rows:" + "Code of Laws (Courthouses) $\rightarrow$ Philosophy (Vassalage/Daoism) $\rightarrow$ Civil Service (Bureaucracy)" + "Recommendation: Move Vassalage to Philosophy. It makes the tech valuable and fits the "Social Order" theme perfectly." --> 
+ 	<CivicInfos>
+ 		<CivicInfo>
+ 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
+@@ -510,12 +517,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_VASSALAGE_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Vassalage.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,1,4</Button>
+-			<!-- custom: as chatgpt 5.1 confirms thanks but anyways etc; also as a side effect closer to bts early vassalage availability anyways etc, was TECH_FEUDALISM -->
+-			<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->
+-			<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
+-			<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
+-			Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
+-			<TechPrereq>TECH_DRAMA</TechPrereq>
++			<!-- custom: see rationale at top of doc to not clutter here or slow if it slows perf at all but anyways etc -->
++			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<!-- custom: was UPKEEP_HIGH -->
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 72e14187f..76c186c26 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -632,8 +632,7 @@
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+ 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+-			<!-- custom: was 0 anyways etc -->
+-			<bVassalTrading>1</bVassalTrading>
++			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+@@ -646,12 +645,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc, reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc, change FLAVOR_MILITARY (was 3) -->
++			<!-- custom: reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc. -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -668,9 +663,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MUSIC_THEORY</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_DRAMA</Sound>
+ 			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
+@@ -1054,7 +1047,7 @@
+ 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CHIVALRY</Sound>
+@@ -2046,7 +2039,7 @@
+ 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_MASONRY</PrereqTech>
++				<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_THE_WHEEL_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_THE_WHEEL</Sound>
+@@ -2793,7 +2786,8 @@
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+ 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+-			<bVassalTrading>0</bVassalTrading>
++			<!-- custom: was 0 anyways etc -->
++			<bVassalTrading>1</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+@@ -2804,10 +2798,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc.). -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -2815,7 +2810,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4897,9 +4896,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_BRONZE_WORKING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_BRONZEWORK</Sound>
+ 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
+@@ -5378,9 +5375,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_MACHINERY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MACHINERY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
+@@ -5457,7 +5452,7 @@
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
++				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ENGINEERING</Sound>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 98810071b..09a691999 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -3168,7 +3168,7 @@ For concision, i put the rationale here since the issue is solved, no need to cl
+ 
+ ```py
+ 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
+-		# <!-- custom: note: trying to comment out the above to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
++		# <!-- custom: note: trying to comment out the turn > 0 check below but anyways etc. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
+ 		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
+ 		# 
+ 		# The error AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor' occurs because the game attempts to update the Tech Preferences during the initialization phase (preGameStart), before the necessary data (like the Active Player's tech state) is fully ready.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 85a782e94..6d12d4a73 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 4b2068e4f..8e16159d8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=14130

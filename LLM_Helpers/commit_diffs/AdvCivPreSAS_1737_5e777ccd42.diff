@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1737
+# Commit: 5e777ccd42e12ecd716e8df9b078e5de4550d49e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d8d5621174abe680e7800840d6b45288cdf2f7b7
+# Title: Don't write UWAI log in multiplayer
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	Assets/XML/GlobalDefines_devel.xml
+4	0	CvGameCoreDLL/WarAndPeaceReport.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_devel.xml b/Assets/XML/GlobalDefines_devel.xml
+index 4129bdf84..64ab61ef7 100644
+--- a/Assets/XML/GlobalDefines_devel.xml
++++ b/Assets/XML/GlobalDefines_devel.xml
+@@ -8,9 +8,11 @@
+ 		 If logging is enabled in /My Games/
+ 		 Beyond The Sword/CivilizationIV.ini, a log file is written to
+ 		 /My Games/Beyond The Sword/Logs every REPORT_INTERVAL turns.
+-		 It's not necessary to compile a debug DLL in order
+-		 to see the reports. Each report records the war planning of all
+-		 AI civs during a single turn. Set to 0 or less to disable logging. -->
++		 For multiplayer games, the MessageLog (CivilizationIV.ini) needs to be
++		 enabled in addition.
++		 It's not necessary to compile a debug DLL in order to see the reports.
++		 Each report records the war planning of all AI civs during a single 
++		 turn. Set to 0 or less to disable logging. -->
+     <Define>
+         <DefineName>REPORT_INTERVAL</DefineName>
+         <iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.cpp b/CvGameCoreDLL/WarAndPeaceReport.cpp
+index 7d3d54a71..ca223aa4d 100644
+--- a/CvGameCoreDLL/WarAndPeaceReport.cpp
++++ b/CvGameCoreDLL/WarAndPeaceReport.cpp
+@@ -11,6 +11,10 @@ using std::string;
+ 
+ WarAndPeaceReport::WarAndPeaceReport(bool silent) { // default : false
+ 
++	/*  The log could be used to cheat in multiplayer. It's OK if MessageLog
++		is enabled; the game will warn the other player about that. */
++	if (GC.getGame().isNetworkMultiPlayer() && !GC.isLogging())
++		silent = true;
+ 	setSilent(silent);
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1554

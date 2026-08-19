@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1228
+# Commit: 3f64e50e0f91c0663790103da348538d04694509
+# History segment: K-Mod history
+# Parent used for diff: 8087d5578a7eda0cd09c524319d2055d217f657c
+# Title: Changed some corporation maintenance.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/xml/GameInfo/CIV4CorporationInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CorporationInfo.xml b/Assets/xml/GameInfo/CIV4CorporationInfo.xml
+index 1e9f2611b..188ece360 100644
+--- a/Assets/xml/GameInfo/CIV4CorporationInfo.xml
++++ b/Assets/xml/GameInfo/CIV4CorporationInfo.xml
+@@ -81,7 +81,7 @@
+ 			<FreeUnitClass>NONE</FreeUnitClass>
+ 			<iSpreadFactor>200</iSpreadFactor>
+ 			<iSpreadCost>50</iSpreadCost>
+-			<iMaintenance>100</iMaintenance>
++			<iMaintenance>80</iMaintenance>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_CORN</BonusType>
+ 				<BonusType>BONUS_SUGAR</BonusType>
+@@ -187,7 +187,7 @@
+ 			<FreeUnitClass>NONE</FreeUnitClass>
+ 			<iSpreadFactor>200</iSpreadFactor>
+ 			<iSpreadCost>50</iSpreadCost>
+-			<iMaintenance>100</iMaintenance>
++			<iMaintenance>80</iMaintenance>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_COAL</BonusType>
+ 			</PrereqBonuses>
+@@ -219,7 +219,7 @@
+ 			<FreeUnitClass>NONE</FreeUnitClass>
+ 			<iSpreadFactor>200</iSpreadFactor>
+ 			<iSpreadCost>50</iSpreadCost>
+-			<iMaintenance>100</iMaintenance>
++			<iMaintenance>120</iMaintenance>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_GOLD</BonusType>
+ 				<BonusType>BONUS_SILVER</BonusType>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1132

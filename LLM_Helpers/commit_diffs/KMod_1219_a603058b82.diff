@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1219
+# Commit: a603058b827f1b7b6785532ae01667915c7b061a
+# History segment: K-Mod history
+# Parent used for diff: 9892983332b1a61f5aab81b3ab9286eccf962b5d
+# Title: Fixed an AI bug preventing DoW with transports that ignore borders.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b7f000cf8..cd3e92174 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1261,14 +1261,17 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 
+ // Protected Functions...
+ 
+-// K-Mod - test if we should declare war become moving to the target plot.
++// K-Mod - test if we should declare war before moving to the target plot.
+ // (originally, DOW were made inside the unit movement mechanics. To me, that seems like a really dumb idea.)
+ bool CvUnitAI::AI_considerDOW(CvPlot* pPlot)
+ {
+ 	CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+ 	TeamTypes ePlotTeam = pPlot->getTeam();
+ 
+-	if (!canEnterArea(ePlotTeam, pPlot->area(), true))
++	// Note: We might be a transport ship which ignores borders, but with escorts and cargo who don't ignore borders.
++	// So, we should check that the whole group can enter the borders. (There are be faster ways to check, but this is good enough.)
++	// If it's an amphibious landing, lets just assume that our cargo will need a DoW!
++	if (!getGroup()->canEnterArea(ePlotTeam, pPlot->area(), true) || getGroup()->isAmphibPlot(pPlot))
+ 	{
+ 		if (ePlotTeam != NO_TEAM && kOurTeam.AI_isSneakAttackReady(ePlotTeam))
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1250

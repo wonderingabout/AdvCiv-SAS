@@ -1,0 +1,115 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4176
+# Commit: 69059b49739d34ef30ca9c6fe18d84c84d80be73
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3fd0f234586a198d60478268e69940c11a4b4481
+# Title: Minor misc refactoring (not much)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvBugOptions.h
+1	1	CvGameCoreDLL/CvInfo_Civilization.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+4	5	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvBugOptions.h b/CvGameCoreDLL/CvBugOptions.h
+index e72c68e56..c871d68f1 100644
+--- a/CvGameCoreDLL/CvBugOptions.h
++++ b/CvGameCoreDLL/CvBugOptions.h
+@@ -38,9 +38,10 @@ namespace BUGOption // advc: Functions renamed from getBugOptionBOOL/INT
+ 	/*  advc: Removed unused param char const* xmlKey = NULL
+ 		bWarn added */
+ 	bool isEnabled(const char* szOptionId, bool bDefault = true, bool bWarn = true);
+-	/*  For options with a list of choices, the returned number indicates the position
+-		of the selected choice starting at 0 for the topmost choice. That means, if
+-		the choices are reordered in the config file, the C++ code needs to be adapted. */
++	/*  For options with a list of choice strings, the returned number indicates
++		the position of the selected choice starting at 0 for the topmost choice.
++		That means, if the choices are reordered in the config file, the C++ code
++		needs to be adapted. */
+ 	int getValue(const char* szOptionId, int iDefault = 0, bool bWarn = true);
+ 	CvString userDirPath(); // advc.003d
+ };
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 842ad44b6..dc52afb01 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -306,7 +306,7 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
+ 		pXML->SetStringList(&m_paszCityNames, &m_iNumCityNames);
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
+-	// advc.003: Reduce code duplication
++	// advc: Reduce code duplication
+ 	for (int i = 0; i < 2; i++)
+ 	{
+ 		bool bBuildings = (i == 0);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 469a6acf0..0d59e7ff5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7829,13 +7829,13 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	{
+ 		if (pDefender->collateralDamage() > 0)
+ 		{
+-			iOurDefense *= (100 + pDefender->collateralDamage());
++			iOurDefense *= 100 + pDefender->collateralDamage();
+ 			iOurDefense /= 100;
+ 		}
+ 
+ 		if (pDefender->currInterceptionProbability() > 0)
+ 		{
+-			iOurDefense *= (100 + pDefender->currInterceptionProbability());
++			iOurDefense *= 100 + pDefender->currInterceptionProbability();
+ 			iOurDefense /= 100;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 44855cbfc..63e1e078f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -465,7 +465,8 @@ void CvUnitAI::AI_upgrade()
+ 				pUpgradeUnit->joinGroup(NULL);
+ 				/*	indicate that the unit intends to rejoin the old group
+ 					(although it might not actually do so...) */
+-				pUpgradeUnit->getGroup()->AI().AI_setMissionAI(MISSIONAI_GROUP, 0, pGroup->getHeadUnit());
++				pUpgradeUnit->getGroup()->AI().AI_setMissionAI(MISSIONAI_GROUP, NULL,
++						pGroup->getHeadUnit());
+ 			}
+ 		}
+ 	}
+@@ -5491,9 +5492,7 @@ void CvUnitAI::AI_spyMove()
+ 				break;
+ 			case MISSIONAI_EXPLORE:
+ 				/*if (atPlot(pMissionPlot))
+-				{
+-					getGroup()->AI_setMissionAI(NO_MISSIONAI, 0, 0);
+-				}*/
++					getGroup()->AI_setMissionAI(NO_MISSIONAI, NULL, NULL);*/
+ 				break;
+ 			case MISSIONAI_LOAD_SPECIAL:
+ 				if (AI_load(UNITAI_SPY_SEA, MISSIONAI_LOAD_SPECIAL))
+@@ -16081,7 +16080,7 @@ bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTarge
+ 						!pLoopGroup->isFull())
+ 					{
+ 						pLoopGroup->clearMissionQueue();
+-						pLoopGroup->AI_setMissionAI(NO_MISSIONAI, 0, 0);
++						pLoopGroup->AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
+ 					}
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3553

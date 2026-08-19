@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 129
+# Commit: c286d6ba07845e1fe4a73eb4195f99fbdd02ecb5
+# History segment: K-Mod history
+# Parent used for diff: 90493be308dda987b6388189ffe87099c782a867
+# Title: Refactored the code tech value modification based on how many civs know the tech. Adjusted the great person bulb value of techs to use the new tech knowledge...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	0	CvGameCoreDLL/CvTeamAI.cpp
+2	0	CvGameCoreDLL/CvTeamAI.h
+9	6	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 04874b79f..f176a296d 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1486,10 +1486,32 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const
+ 	}
+ }
+ 
++// K-Mod. This is the tech value modifier for devaluing techs that are known by other civs
++// It's based on the original bts code from AI_techTradVal
++int CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const
++{
++	int iTechCivs = 0;
++	int iCivsMet = 0;
++
++	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++	{
++		if (GET_TEAM((TeamTypes)iI).isAlive() && iI != getID() && isHasMet((TeamTypes)iI))
++		{
++			if (GET_TEAM((TeamTypes)iI).isHasTech(eTech))
++				iTechCivs++;
++
++			iCivsMet++;
++		}
++	}
++
++	return 50 * (iCivsMet - iTechCivs) / iCivsMet;
++}
++// K-Mod end
+ 
+ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam) const
+ {
+ 	FAssert(eTeam != getID());
++	/* original bts code
+ 	int iKnownCount;
+ 	int iPossibleKnownCount;
+ 	int iCost;
+@@ -1523,6 +1545,10 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam) const
+ 	}
+ 
+ 	iValue += (((iCost / 2) * (iPossibleKnownCount - iKnownCount)) / iPossibleKnownCount);
++	*/
++	// K-Mod
++	int iValue = (150 + AI_knownTechValModifier(eTech)) * std::max(0, (getResearchCost(eTech) - getResearchProgress(eTech))) / 100;
++	// K-Mod end
+ 
+ 	iValue *= std::max(0, (GC.getTechInfo(eTech).getAITradeModifier() + 100));
+ 	iValue /= 100;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index eaa9d3838..be2a1c82b 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -94,6 +94,8 @@ public:
+ 	int AI_startWarVal(TeamTypes eTeam) const;
+ 	int AI_endWarVal(TeamTypes eTeam) const;
+ 
++	int CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const; // K-Mod
++
+ 	int AI_techTradeVal(TechTypes eTech, TeamTypes eTeam) const;
+ 	DenialTypes AI_techTrade(TechTypes eTech, TeamTypes eTeam) const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index abff837e5..10254e777 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5285,7 +5285,11 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	iGoldenAgeValue *= (75 + kPlayer.AI_getStrategyRand(0) % 51);
+ 	iGoldenAgeValue /= 100;
+ 
+-	int iDiscoverValue = std::max(1, getDiscoverResearch(NO_TECH));
++	TechTypes eDiscoverTech = getDiscoveryTech(); // could be NO_TECH.
++	int iTechScorePercent = std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent());
++	int iDiscoverValue = getDiscoverResearch(eDiscoverTech);
++	iDiscoverValue *= 100 + 100*GET_TEAM(getTeam()).AI_knownTechValModifier(eDiscoverTech)/iTechScorePercent;
++	iDiscoverValue /= 100;
+ 	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) || kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2))
+ 	{
+ 		iDiscoverValue *= (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE ? 4 : 3);
+@@ -5295,10 +5299,9 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	iDiscoverValue /= 100;
+ 
+ 	int iFirstDiscoverValue = iDiscoverValue;
++	// some extra value on top of the high AI_knownTechValModifier bonus
+ 	iFirstDiscoverValue *= (200 - GC.getLeaderHeadInfo(kPlayer.getPersonalityType()).getTechTradeKnownPercent());
+-	iFirstDiscoverValue /= std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+-	iFirstDiscoverValue *= 150;
+-	iFirstDiscoverValue /= std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent()); // twice, because this is important
++	iFirstDiscoverValue /= iTechScorePercent;
+ 
+ 	// SlowValue is meant to be a rough estimation of how much value we'll get from doing the best join / build mission.
+ 	int iSlowValue = iBestValue;
+@@ -5321,8 +5324,8 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	iTradeValue /= 100;
+ 	iTradeValue *= kPlayer.AI_averageCommerceMultiplier(COMMERCE_RESEARCH);
+ 	iTradeValue /= kPlayer.AI_averageCommerceMultiplier(COMMERCE_GOLD);
+-	// and unlike bulb beckers, gold can be targeted where it is needed
+-	iTradeValue *= 130;
++	// gold can be targeted where it is needed. (cf AI_knownTechValModifier)
++	iTradeValue *= 150;
+ 	iTradeValue /= 100;
+ 	iTradeValue *= (75 + kPlayer.AI_getStrategyRand(9) % 51);
+ 	iTradeValue /= 100;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4125

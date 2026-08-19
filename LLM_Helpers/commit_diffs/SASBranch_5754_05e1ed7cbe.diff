@@ -1,0 +1,447 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5754
+# Commit: 05e1ed7cbef1de655688d7d53e0be8b4e7b817d5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5ba9eb9bf87c0b658de202a99276f4d377e74053
+# Title: refactor debug dropdown code to helper; add barbarian to a few advisors
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.markdownlint.jsonc
+19	0	Assets/Python/SASUtils.py
+5	12	Assets/Python/Screens/CvDomesticAdvisor.py
+2	9	Assets/Python/Screens/CvForeignAdvisor.py
+2	6	Assets/Python/Screens/CvInfoScreen.py
+4	10	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+2	6	Assets/Python/Screens/CvVictoryScreen.py
+2	7	Assets/Python/Screens/CvWorldAdvisorScreen.py
+11	11	README.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+4	4	_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (1).JPG => 0.513_foreign_advisor (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (2).JPG => 0.513_foreign_advisor (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (3).JPG => 0.513_foreign_advisor (3).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (4).JPG => 0.513_foreign_advisor (4).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (5).JPG => 0.513_foreign_advisor (5).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (6).JPG => 0.513_foreign_advisor (6).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (7).JPG => 0.513_foreign_advisor (7).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (1).JPG => 0.516_technology_advisor (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (2).JPG => 0.516_technology_advisor (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (3).JPG => 0.516_technology_advisor (3).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (4).JPG => 0.516_technology_advisor (4).JPG}
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (1).JPG => 0.513_foreign_advisor (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (2).JPG => 0.513_foreign_advisor (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (3).JPG => 0.513_foreign_advisor (3).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (4).JPG => 0.513_foreign_advisor (4).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (5).JPG => 0.513_foreign_advisor (5).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (6).JPG => 0.513_foreign_advisor (6).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (7).JPG => 0.513_foreign_advisor (7).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (1).JPG => 0.516_technology_advisor (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (2).JPG => 0.516_technology_advisor (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (3).JPG => 0.516_technology_advisor (3).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.34_technology_advisor (4).JPG => 0.516_technology_advisor (4).JPG} (100%)
+
+[PATCHES]
+
+diff --git a/.markdownlint.jsonc b/.markdownlint.jsonc
+index 98b7886e0..e09767701 100644
+--- a/.markdownlint.jsonc
++++ b/.markdownlint.jsonc
+@@ -8,5 +8,5 @@
+ 	"default": true,
+ 	"MD010": false, // <!-- custom: tabs are valid in fenced code blocks do not remove them, since i didn't easily found a rule specifically for tabs in fenced code blocks and this seems like a global rule, easier to disable the rule entirely even though we would benefit slightly but less from tab checking globally, minus in fenced code blocks. -->
+ 	"MD013": false, // <!-- custom: similarly some very long lines are valid in our code, generally for commented-out code but maybe not only (didn't check if there are exceptions), so show them as such -->
+-	"MD033": false // <!-- custom: similarly or also we use tags like <img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (1).JPG" alt="0.34_technology_advisor (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size) or at least it doesn't seem functional, so until and if i ever find hopefully such an option, i am fine to keep it as is as this seems functional, so disable the markdownlint rule instead -->
++	"MD033": false // <!-- custom: similarly or also we use tags like <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size) or at least it doesn't seem functional, so until and if i ever find hopefully such an option, i am fine to keep it as is as this seems functional, so disable the markdownlint rule instead -->
+ }
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 6f4513ff3..cf722dfcf 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -66,6 +66,25 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
+ 	return aiLinkWidths
+ 
+ 
++# <!-- custom: shared debug-player dropdown for advisors; callers keep control of barbarian inclusion (MAX_PLAYERS vs MAX_CIV_PLAYERS) and active-row preselection because legacy advisors differ in both details. (GPT-5.5) -->
++def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT):
++	if not CyGame().isDebugMode():
++		return False
++	screen.addDropDownBoxGFC(szDropdownName, iX, iY, iW, WidgetTypes.WIDGET_GENERAL, -1, -1, eFont)
++	iMaxPlayers = gc.getMAX_CIV_PLAYERS()
++	if bIncludeBarbarians:
++		iMaxPlayers = gc.getMAX_PLAYERS()
++	for iPlayer in range(iMaxPlayers):
++		if gc.getPlayer(iPlayer).isAlive():
++			screen.addPullDownString(szDropdownName, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, bSelectActive and iPlayer == iActivePlayer)
++	return True
++
++
++def getAdvisorDebugDropdownSelectedPlayer(screen, szDropdownName):
++	iIndex = screen.getSelectedPullDownID(szDropdownName)
++	return screen.getPullDownData(szDropdownName, iIndex)
++
++
+ 
+ # <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->
+ # <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass; done with the help of chatgpt thanks -->
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index c56d51939..6209b0561 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -79,9 +79,9 @@ class CvDomesticAdvisor:
+ 		self.TABLE_OVERVIEW3 = "CityListBackground3"
+ 		self.TABLE_OVERVIEW4 = "CityListBackground4"
+ 		self.OVERVIEW_CITY_COL_WIDTH = 100
+-		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 50
++		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 55
+ 		self.OVERVIEW_CORPORATION_BASE_COL_WIDTH = 50
+-		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 132
++		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 127
+ 		# <!-- custom: 40px empirically fits upscaled signed modifiers like "+150" with some leeway; keep it modest because the overview tables are otherwise nearly full. (GPT-5.5) -->
+ 		self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH = 40
+ 		self.bOverview1TableCreated = False
+@@ -263,14 +263,8 @@ class CvDomesticAdvisor:
+ 		self.drawContents()
+ 
+ 	def drawDebugDropdown(self):
+-		if not CyGame().isDebugMode():
+-			return
+-		screen = self.getScreen()
+ 		# <!-- custom: add the debug player dropdown missing from the old Domestic Advisor layout; the reworked tabbed advisor now mirrors other advisors and can inspect another player's cities without changing the real active player. (GPT-5.5) -->
+-		screen.addDropDownBoxGFC(self.DEBUG_DROPDOWN_ID, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-		for iPlayer in range(gc.getMAX_PLAYERS()):
+-			if gc.getPlayer(iPlayer).isAlive():
+-				screen.addPullDownString(self.DEBUG_DROPDOWN_ID, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == self.iActivePlayer)
++		addAdvisorDebugDropdown(self.getScreen(), self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True)
+ 
+ 	def drawTabs(self):
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+@@ -376,7 +370,7 @@ class CvDomesticAdvisor:
+ 					iCityReligions += 1
+ 			iMaxCityReligions = max(iMaxCityReligions, iCityReligions)
+ 			(pLoopCity, iter) = player.nextCity(iter, false)
+-		# <!-- custom: 50px fits roughly three religion glyphs with the current upscaled Domestic Advisor font; size linearly from the inspected player's widest city, capped by XML religion count, and borrow only from Producing where clipped text is acceptable. (GPT-5.5) -->
++		# <!-- custom: ~55px fits roughly three religion glyphs with the current upscaled Domestic Advisor font; size linearly from the inspected player's widest city, capped by XML religion count, and borrow only from Producing where clipped text is acceptable. (GPT-5.5) -->
+ 		iReligionGlyphs = min(gc.getNumReligionInfos(), iMaxCityReligions)
+ 		return max(self.OVERVIEW_RELIGION_BASE_COL_WIDTH, (self.OVERVIEW_RELIGION_BASE_COL_WIDTH * iReligionGlyphs + 2) / 3)
+ 
+@@ -1483,8 +1477,7 @@ class CvDomesticAdvisor:
+ 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
+ 			if inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
+ 				screen = self.getScreen()
+-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
++				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
+ 				self.listSelectedCities = []
+ 				self.drawContents()
+ 				return 1
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 474485e7f..7a19e82d4 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -623,13 +623,7 @@ class CvForeignAdvisor:
+ 		
+ 		if (CyGame().isDebugMode()):
+ 			self.szDropdownName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
+-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: Exclude Barbarians
+-				if (gc.getPlayer(j).isAlive()):
+-					bSelected = False
+-					if j == self.iActiveLeader:
+-						bSelected = True
+-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, bSelected )
++			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActiveLeader) # advc.007: Exclude Barbarians
+ 
+ 		CyInterface().setDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT, False)
+ 		
+@@ -2467,8 +2461,7 @@ class CvForeignAdvisor:
+ 			if (inputClass.getFunctionName() + str(inputClass.getID()) == self.getWidgetName(self.DEBUG_DROPDOWN_ID)):
+ 				print 'debug dropdown event'
+ 				szName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
+-				iIndex = self.getScreen().getSelectedPullDownID(szName)
+-				self.iActiveLeader = self.getScreen().getPullDownData(szName, iIndex)
++				self.iActiveLeader = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
+ 				self.drawContents(True)
+ 				return 1
+ 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 731b73b39..af21bdbde 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -819,10 +819,7 @@ class CvInfoScreen:
+ 		if (CyGame().isDebugMode()):
+ 			self.DEBUG_DROPDOWN_ID = "InfoScreenDropdownWidget"
+ 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
+-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: was MAX_PLAYERS
+-				if (gc.getPlayer(j).isAlive()):
+-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False)
++			addAdvisorDebugDropdown(screen, self.szDropdownName, CyGame().getActivePlayer(), bSelectActive=False) # advc.007: was MAX_PLAYERS
+ 
+ 		self.iActivePlayer = CyGame().getActivePlayer()
+ 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
+@@ -4222,8 +4219,7 @@ class CvInfoScreen:
+ 
+ 			# Debug dropdown
+ 			if (inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID):
+-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
++				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
+ 				self.reset() # advc.001d
+ 				self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 				self.iActiveTeam = self.pActivePlayer.getTeam()
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index d9b636eb7..999d45a6b 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -361,10 +361,7 @@ class CvPolicyAdvisorScreen:
+ 
+ 		if (CyGame().isDebugMode()):
+ 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
+-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for j in range(gc.getMAX_PLAYERS()):
+-				if (gc.getPlayer(j).isAlive()):
+-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
++			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bSelectActive=False)
+ 
+ 		# Draw Contents
+ 		self.drawContents()
+@@ -1340,20 +1337,17 @@ class CvPolicyAdvisorScreen:
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
+ 			screen = self.getScreen()
+ 			if self.iPage == self.PAGE_POLICY:
+-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+-				self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
++				self.setActivePlayer(getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID))
+ 				self.drawContents()
+ 			elif self.iPage == self.PAGE_RELIGION:
+ 				szWidgetName = inputClass.getFunctionName()
+ 				if szWidgetName != self.RELIGION_TABLE_ID:
+-					iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+-					self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
++					self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
+ 					self.drawReligionInfo()
+ 					self.drawHelpInfo()
+ 					self.drawCityInfo(self.iReligionSelected)
+ 			else:
+-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
++				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
+ 				self.drawCorporationInfo()
+ 				self.drawCorporationCityInfo(self.iCorporationSelected)
+ 			return 1
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index bfd0f06f1..307032447 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -2143,10 +2143,7 @@ class CvVictoryScreen:
+ 		# civ picker dropdown
+ 		if (CyGame().isDebugMode()):
+ 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
+-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: barbs excluded
+-				if (gc.getPlayer(j).isAlive()):
+-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
++			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False) # advc.007: barbs excluded
+ 		
+ 		self.drawTabs()
+ 
+@@ -2377,8 +2374,7 @@ class CvVictoryScreen:
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
+ 			if (sWidget == self.DEBUG_DROPDOWN_ID):
+ 				szName = self.DEBUG_DROPDOWN_ID
+-				iIndex = self.getScreen().getSelectedPullDownID(szName)
+-				self.iActivePlayer = self.getScreen().getPullDownData(szName, iIndex)
++				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
+ 				self.iScreen = VICTORY_CONDITION_SCREEN
+ 				self.showVictoryConditionScreen()
+ 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 33c530d93..1e1b47b64 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -217,11 +217,7 @@ class CvWorldAdvisorScreen:
+ 
+ 		screen.setHelpTextArea(self.W_HELP_AREA, FontTypes.SMALL_FONT, self.X_SCREEN, self.Y_SCREEN, self.Z_HELP_AREA, 1, self.ART_POPUPS_BACKGROUND_TRANSPARENT, True, True, CvUtil.FONT_LEFT_JUSTIFY, 0)
+ 
+-		if CyGame().isDebugMode():
+-			screen.addDropDownBoxGFC(self.DEBUG_DROPDOWN_ID, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+-				if gc.getPlayer(iPlayer).isAlive():
+-					screen.addPullDownString(self.DEBUG_DROPDOWN_ID, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == self.iActivePlayer)
++		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer)
+ 
+ 		self.iNumPermanentWidgets = self.nWidgetCount
+ 		if self.iActiveTab < 0 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
+@@ -848,8 +844,7 @@ class CvWorldAdvisorScreen:
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED:
+ 			if inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
+ 				screen = self.getScreen()
+-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
++				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
+ 				self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 				self.iActiveTeam = self.pActivePlayer.getTeam()
+ 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
+
+diff --git a/README.md b/README.md
+index 6eea32f2f..717d27f1b 100644
+--- a/README.md
++++ b/README.md
+@@ -88,10 +88,10 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ 
+ Before going more in depth about/in the changes and how to play or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or bigger size)
+ 
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (1).JPG" alt="0.34_technology_advisor (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (2).JPG" alt="0.34_technology_advisor (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (3).JPG" alt="0.34_technology_advisor (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (4).JPG" alt="0.34_technology_advisor (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (2).JPG" alt="0.516_technology_advisor (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (3).JPG" alt="0.516_technology_advisor (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (4).JPG" alt="0.516_technology_advisor (4).JPG" width="250"></img>
+ 
+ For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
+ 
+@@ -236,13 +236,13 @@ Added with the very nice help of GPT-5.3-Codex thanks.
+ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG" alt="0.510_foreign_advisor (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG" alt="0.510_foreign_advisor (7).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (1).JPG" alt="0.513_foreign_advisor (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (2).JPG" alt="0.513_foreign_advisor (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (3).JPG" alt="0.513_foreign_advisor (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG" alt="0.513_foreign_advisor (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e63c642ed..2e14b204b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -118,6 +118,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
++- (Requires AdvCiv-SAS 5754+) Refactor to **helper files** reusable logic; e.g., debug dropdown making and place legend link or geometry for advisors [SASUtils.py](/Assets/Python/SASUtils.py); expanded text and animation panels or draw none text ([_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), and many others.
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+@@ -345,8 +346,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, moved away the **Environment Tab** from the former **Economic Advisor** (now removed), the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
++- (Requires AdvCiv-SAS 5754+) Add **debug mode support** (for player selection) in the Domestic Advisor. Add **Barbarian** to **selectable leaders** in debug mode in advisors where it is relevant: Domestic Advisor, Policy Advisor, World Advisor, and Info Screen.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen).
+-- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Added **debug mode support** (for player selection). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
++- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5528+) Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+index 2e1912646..08803ce6d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+@@ -16,10 +16,10 @@ If any images below in this readme mention a google drive link, you can access i
+ 
+ ## Current Tech Tree ingame
+ 
+-<img src="../Images/advisors/0.34_technology_advisor (1).JPG" alt="0.34_technology_advisor (1).JPG" width="250"></img>
+-<img src="../Images/advisors/0.34_technology_advisor (2).JPG" alt="0.34_technology_advisor (2).JPG" width="250"></img>
+-<img src="../Images/advisors/0.34_technology_advisor (3).JPG" alt="0.34_technology_advisor (3).JPG" width="250"></img>
+-<img src="../Images/advisors/0.34_technology_advisor (4).JPG" alt="0.34_technology_advisor (4).JPG" width="250"></img>
++<img src="../Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img>
++<img src="../Images/advisors/0.516_technology_advisor (2).JPG" alt="0.516_technology_advisor (2).JPG" width="250"></img>
++<img src="../Images/advisors/0.516_technology_advisor (3).JPG" alt="0.516_technology_advisor (3).JPG" width="250"></img>
++<img src="../Images/advisors/0.516_technology_advisor (4).JPG" alt="0.516_technology_advisor (4).JPG" width="250"></img>
+ 
+ ## Additional info about the tech tree
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG
+index 5d1477bab..a3f109eb7 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (1).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (2).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (3).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (4).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (4).JPG
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=37213

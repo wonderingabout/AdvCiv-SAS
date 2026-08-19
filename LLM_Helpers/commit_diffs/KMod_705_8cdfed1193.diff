@@ -1,0 +1,107 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 705
+# Commit: 8cdfed11935050394f13422b96de9fa405346f39
+# History segment: K-Mod history
+# Parent used for diff: 26896fb79eb2bc1e97edee9aa543c3a495221726
+# Title: Added a missing 'return' in AI_movementPriority. (The movement priority of land units has been messed up for awhile because of this.) Reformatted AI_leaveAtt...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvPlayerAI.cpp
+19	22	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2d5b09055..9d985db5a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1248,6 +1248,7 @@ int CvPlayerAI::AI_movementPriority(CvSelectionGroup* pGroup) const
+ 		default:
+ 			break;
+ 		}
++		return iPriority;
+ 	}
+ 	/* old code
+ 		if (pHeadUnit->canFight())
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7018fc093..5b31566f5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15840,6 +15840,7 @@ bool CvUnitAI::AI_rangeAttack(int iRange)
+ 	return false;
+ }
+ 
++// (heavily edited for K-Mod)
+ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThreshold)
+ {
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
+@@ -15888,31 +15889,27 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+-			if (pLoopPlot != NULL)
++			if (pLoopPlot == NULL || !AI_plotValid(pLoopPlot))
++				continue;
++
++			/*if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+ 			{
+-				if (AI_plotValid(pLoopPlot))
++				//if (pLoopPlot->getNumVisibleEnemyDefenders(this) > 0) */
++			if (pLoopPlot->isVisibleEnemyDefender(this)) // K-Mod
++			{
++				if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, 0, true, 0, iRange))
+ 				{
+-					//if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+-					if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && isEnemy(pLoopPlot->getPlotCity()->getTeam()))) // K-Mod
++					//iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
++					int iValue = AI_getWeightedOdds(pLoopPlot, false); // K-Mod
++
++					//if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
++					if (iValue >= iOddsThreshold) // K-mod
+ 					{
+-						if (pLoopPlot->getNumVisibleEnemyDefenders(this) > 0)
++						if (iValue > iBestValue)
+ 						{
+-							if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, 0, true, 0, iRange))
+-							{
+-								//iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
+-								int iValue = AI_getWeightedOdds(pLoopPlot, false); // K-Mod
+-
+-								//if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
+-								if (iValue >= iOddsThreshold) // K-mod
+-								{
+-									if (iValue > iBestValue)
+-									{
+-										iBestValue = iValue;
+-										pBestPlot = getPathEndTurnPlot();
+-										FAssert(!atPlot(pBestPlot));
+-									}
+-								}
+-							}
++							iBestValue = iValue;
++							pBestPlot = getPathEndTurnPlot();
++							FAssert(!atPlot(pBestPlot));
+ 						}
+ 					}
+ 				}
+@@ -16085,7 +16082,7 @@ bool CvUnitAI::AI_defendTeritory(int iThreshold, int iFlags, int iMaxPathTurns,
+ 							FAssert(iBonus <= 100 - iOdds);
+ 
+ 							iValue += iBonus;*/
+-							iValue += 100 * (iOdds+10) * (iOurAttack-iEnemyDefence)/((iThreshold+100) * iEnemyDefence);
++							iValue += 100 * (iOdds+15) * (iOurAttack-iEnemyDefence)/((iThreshold+100) * iEnemyDefence);
+ 						}
+ 					}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3160

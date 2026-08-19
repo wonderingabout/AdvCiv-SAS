@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4152
+# Commit: 6010882e9c0660eb7bc9e800454ab236d51840da
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 31c7c8ec75cab01da3c5b07f9dd927a67b1726b3
+# Title: Fix Civ4lert predictions about anger timers
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	Assets/Python/Contrib/Civ4lerts.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 8ef3e6e40..38711ce04 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -528,13 +528,16 @@ class CityHappiness(AbstractCityTestAlert):
+ 		iHappy = city.happyLevel()
+ 		iUnhappy = city.unhappyLevel(iExtra)
+ 		if (iUnhappy > 0 and city.getHurryAngerTimer() > 0 
+-		and city.getHurryAngerTimer() % city.flatHurryAngerLength() == 0):
++		# advc.001: minus 1
++		and (city.getHurryAngerTimer() - 1) % city.flatHurryAngerLength() == 0):
+ 			iUnhappy -= 1
+ 		if (iUnhappy > 0 and city.getConscriptAngerTimer()
+-		and city.getConscriptAngerTimer() % city.flatConscriptAngerLength() == 0):
++		# advc.001: minus 1
++		and (city.getConscriptAngerTimer() - 1) % city.flatConscriptAngerLength() == 0):
+ 			iUnhappy -= 1
+ 		if (iUnhappy > 0 and city.getDefyResolutionAngerTimer() > 0
+-		and city.getDefyResolutionAngerTimer() % city.flatDefyResolutionAngerLength() == 0):
++		# advc.001: minus 1
++		and (city.getDefyResolutionAngerTimer() - 1) % city.flatDefyResolutionAngerLength() == 0):
+ 			iUnhappy -= 1
+ 		if (iUnhappy > 0 and city.getEspionageHappinessCounter() > 0):
+ 			iUnhappy -= 1
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1205

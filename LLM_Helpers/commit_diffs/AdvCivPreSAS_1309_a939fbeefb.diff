@@ -1,0 +1,1620 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1309
+# Commit: a939fbeefb83e987e90c08f4bd64b7515a1738dc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 14b0397d7ac27ba570cd0afa180e01a5403073ac
+# Title: Cosmetic changes concerning Civilopedia and the Apostolic Palace:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	5	Assets/XML/Buildings/CIV4BuildingInfos.xml
+922	0	Assets/XML/Text/CIV4GameText_advc.008e.xml
+111	0	Assets/xml/Text/CIV4GameText_advc.008.xml
+44	0	Assets/xml/Text/CIV4GameText_advc.xml
+4	8	Assets/xml/Text/Sevopedia_CIV4GameText.xml
+78	55	CvGameCoreDLL/CvCity.cpp
+117	33	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGameTextMgr.h
+ create mode 100644 Assets/XML/Text/CIV4GameText_advc.008e.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 9e6e40acc..75452749a 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -384,7 +384,8 @@
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
++			<!-- advc.008a: was ERA_INDUSTRIAL -->
++			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
+ 			<TechTypes/>
+@@ -7817,7 +7818,7 @@
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+ 			<!-- advc.020: Was 10 Science. While Monuments should be the
+-				 preferred method of popping borders fro Culture-flavored
++				 preferred method of popping borders for Culture-flavored
+ 				 leaders, they should eventually also be interested in
+ 				 Libraries (and more so than the average leader). -->
+ 			<Flavors>
+@@ -26324,7 +26325,8 @@
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
++			<!-- advc.310: was ERA_ANCIENT -->
++			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+ 			<!-- advc.310: Was NONE -->
+ 			<ObsoleteTech>TECH_CORPORATION</ObsoleteTech>
+ 			<!-- advc.310: Was TECH_MASONRY -->
+@@ -26525,7 +26527,8 @@
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
++			<!-- advc.008a: was ERA_ANCIENT -->
++			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+@@ -27074,7 +27077,8 @@
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
++			<!-- advc.008a: was ERA_RENAISSANCE -->
++			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008e.xml b/Assets/XML/Text/CIV4GameText_advc.008e.xml
+new file mode 100644
+index 000000000..b49ec7035
+--- /dev/null
++++ b/Assets/XML/Text/CIV4GameText_advc.008e.xml
+@@ -0,0 +1,922 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++
++<Civ4GameText>
++	
++	<!-- advc.008e: The first two are from
++		 CIV4GameText_Objects_BTS.xml, the next two from
++		 CIV4GameText_Warlords_Objects.xml and the rest from
++		 CIV4GameTextInfos_Objects.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_APOSTOLIC_PALACE</Tag>
++		<English>Apostolic Palace</English>
++		<French>
++			<Text>Palais apostolique</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Apostolischer Palast</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Palazzo Apostolico</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Palacio Apost&#243;lico</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_STATUE_OF_ZEUS</Tag>
++		<English>Statue of Zeus</English>
++		<French>
++			<Text>Statue de Zeus</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Zeus-Statue</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Statua di Zeus</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Estatua de Zeus</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ARTEMIS</Tag>
++		<English>Temple of Artemis</English>
++		<French>
++			<Text>Temple d'Art&#233;mis</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Artemis-Tempel</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</German>
++		<Italian>
++			<Text>Tempio di Artemide</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Templo de Artemisa:Templos de Artemisa</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GREAT_WALL</Tag>
++		<English>Great Wall</English>
++		<French>
++			<Text>Grande muraille</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Gro�e Mauer</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</German>
++		<Italian>
++			<Text>Grande Muraglia</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Gran Muralla:Grandes Murallas</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_JEWISH_SHRINE</Tag>
++		<English>Temple of Solomon</English>
++		<French>
++			<Text>Temple de Salomon</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Salomons Tempel</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Tempio di Salomone</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Templo de Salom&#243;n</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CHRISTIAN_SHRINE</Tag>
++		<English>Church of the Nativity</English>
++		<French>
++			<Text>Basilique de la Nativit&#233;</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Geburtskirche</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Chiesa della Nativit&#224;</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Iglesia de la Natividad</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ISLAMIC_SHRINE</Tag>
++		<English>Masjid al-Haram</English>
++		<French>
++			<Text>Masjid al-Haraam</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Masjid al-Haram</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Masjid al-Haram</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Mezquita al-Haram</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_BUDDHIST_SHRINE</Tag>
++		<English>Mahabodhi</English>
++		<French>
++			<Text>Mahabodhi</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Mahabodhi</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Mahabodhi</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Mahabodhi</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_HINDU_SHRINE</Tag>
++		<English>Kashi Vishwanath</English>
++		<French>
++			<Text>Kashi Vishwanath</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kashi Vishwanath</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Kashi Vishwanath</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Kashi Vishwanath</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CONFUCIAN_SHRINE</Tag>
++		<English>Kong Miao</English>
++		<French>
++			<Text>Kong Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kong Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Kong Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Kong Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_TAOIST_SHRINE</Tag>
++		<English>Dai Miao</English>
++		<French>
++			<Text>Daimiao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Dai Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Dai Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Dai Miao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_HEROIC_EPIC</Tag>
++		<English>Heroic Epic</English>
++		<French>
++			<Text>Epop&#233;e h&#233;ro&#239;que</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Heldenepos</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Poema epico</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Epopeya heroica:Epopeyas heroicas</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NATIONAL_EPIC</Tag>
++		<English>National Epic</English>
++		<French>
++			<Text>Epop&#233;e nationale</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Nationalepos</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Poema patriottico</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Epopeya nacional:Epopeyas nacionales</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GLOBE_THEATRE</Tag>
++		<English>Globe Theatre</English>
++		<French>
++			<Text>Th&#233;&#226;tre du Globe</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Globe Theatre</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Teatro di Shakespeare</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Globe Theatre:Globe Theatres</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_HERMITAGE</Tag>
++		<English>Hermitage</English>
++		<French>
++			<Text>Ermitage</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Eremitage</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Hermitage</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Hermitage:Hermitage</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_OXFORD_UNIVERSITY</Tag>
++		<English>Oxford University</English>
++		<French>
++			<Text>Universit&#233; d'Oxford</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Universit&#228;t von Oxford</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Universit&#224; di Oxford</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Universidad de Oxford:Universidades de Oxford</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_WEST_POINT</Tag>
++		<English>West Point</English>
++		<French>
++			<Text>West Point</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>West Point</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>West Point</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Academia de West Point:Academias de West Point</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_MT_RUSHMORE</Tag>
++		<English>Mt. Rushmore</English>
++		<French>
++			<Text>Mont Rushmore</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Mount Rushmore</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Monte Rushmore</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Monte Rushmore:Montes Rushmore</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_RED_CROSS</Tag>
++		<English>Red Cross</English>
++		<French>
++			<Text>Croix-Rouge</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Rotes Kreuz</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Croce Rossa</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Cruz Roja:Cruces Rojas</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_PYRAMID</Tag>
++		<English>Pyramids</English>
++		<French>
++			<Text>Pyramides</Text>
++			<Gender>Female</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Pyramiden</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Piramidi</Text>
++			<Gender>Female</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Pir&#225;mides:Pir&#225;mides</Text>
++			<Gender>Female</Gender>
++			<Plural>1:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GREAT_LIBRARY</Tag>
++		<English>Great Library</English>
++		<French>
++			<Text>Grande biblioth&#232;que</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Gro&#223;e Bibliothek</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Grande Biblioteca</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Gran Biblioteca:Grandes Bibliotecas</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GREAT_LIGHTHOUSE</Tag>
++		<English>Great Lighthouse</English>
++		<French>
++			<Text>Grand Phare</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Gro&#223;er Leuchtturm</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Grande Faro</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Gran Faro:Grandes Faros</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_HANGING_GARDEN</Tag>
++		<English>Hanging Gardens</English>
++		<French>
++			<Text>Jardins suspendus</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>H&#228;ngende G&#228;rten</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Giardini Pensili</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Jardines Colgantes:Jardines Colgantes</Text>
++			<Gender>Male</Gender>
++			<Plural>1:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_COLOSSUS</Tag>
++		<English>Colossus</English>
++		<French>
++			<Text>Colosse</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Koloss</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Colosso</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Coloso:Colosos</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ORACLE</Tag>
++		<English>Oracle</English>
++		<French>
++			<Text>Oracle</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Orakel</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Oracolo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Or&#225;culo:Or&#225;culos</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_PARTHENON</Tag>
++		<English>Parthenon</English>
++		<French>
++			<Text>Parth&#233;non</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Parthenon</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Partenone</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Parten&#243;n:Partenones</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_HAGIA_SOPHIA</Tag>
++		<English>Hagia Sophia</English>
++		<French>
++			<Text>Sainte-Sophie</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Hagia Sophia</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Santa Sofia</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Santa Sof&#237;a:Santas Sof&#237;as</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SISTINE_CHAPEL</Tag>
++		<English>Sistine Chapel</English>
++		<French>
++			<Text>Chapelle Sixtine</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Sixtinische Kapelle</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Cappella Sistina</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Capilla Sixtina:Capillas Sixtinas</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SPIRAL_MINARET</Tag>
++		<English>Spiral Minaret</English>
++		<French>
++			<Text>Minaret en spirale</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Spiralminarett</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Minareto a spirale</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Minarete Helicoidal:Minaretes Helicoidales</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_TAJ_MAHAL</Tag>
++		<English>Taj Mahal</English>
++		<French>
++			<Text>Taj Mahal</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Taj Mahal</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Taj Mahal</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Taj Mahal:Taj Mahal</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_KREMLIN</Tag>
++		<English>Kremlin</English>
++		<French>
++			<Text>Kremlin</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kreml</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Cremlino</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Kremlin:Kremlin</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_EIFFEL_TOWER</Tag>
++		<English>Eiffel Tower</English>
++		<French>
++			<Text>Tour Eiffel</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Eiffelturm</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Torre Eiffel</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Torre Eiffel:Torres Eiffel</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_STATUE_OF_LIBERTY</Tag>
++		<English>Statue of Liberty</English>
++		<French>
++			<Text>Statue de la Libert&#233;</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Freiheitsstatue</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Statua della Libert&#224;</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Estatua de la Libertad:Estatuas de la Libertad</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ROCKNROLL</Tag>
++		<English>Rock N Roll</English>
++		<French>
++			<Text>Rock'n'roll</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Rock 'n' Roll</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Rock N Roll</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Rock &amp; Roll:Rock &amp; Roll</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GREAT_DAM</Tag>
++		<English>Three Gorges Dam</English>
++		<French>
++			<Text>Barrage des Trois Gorges</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Drei-Schluchten-Damm</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Diga delle Tre Gole</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Presa de las Tres Gargantas:Presas de las Tres Gargantas</Text>
++			<Gender>Female</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_PENTAGON</Tag>
++		<English>Pentagon</English>
++		<French>
++			<Text>Pentagone</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Pentagon</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Pentagono</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Pent&#225;gono:Pent&#225;gonos</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_UNITED_NATIONS</Tag>
++		<English>United Nations</English>
++		<French>
++			<Text>ONU</Text>
++			<Gender>Female</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Vereinte Nationen</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Nazioni Unite</Text>
++			<Gender>Female</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Naciones Unidas:Naciones Unidas</Text>
++			<Gender>Female</Gender>
++			<Plural>1:1</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SPACE_ELEVATOR</Tag>
++		<English>Space Elevator</English>
++		<French>
++			<Text>Ascenseur spatial</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Weltraumlift</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Ascensore Spaziale</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Ascensor Espacial:los Ascensores Espaciales</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++		 
++</Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008.xml b/Assets/xml/Text/CIV4GameText_advc.008.xml
+index 067bbcacb..87e19606d 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008.xml
+@@ -7,6 +7,21 @@
+ 
+ <Civ4GameText>
+ 
++	<!-- advc.008a: Removed "Only" because this is going to be shown for
++		 wonders like Stonehenge that become unavailable surprisingly early
++		 (Classical start), but also for e.g. Apostolic Palace, which becomes
++		 unavailable surprisingly late (Industrial start).
++		 German and Italian text was missing the "start era" part and thus
++		 misleading. Original key in CIV4GameTextInfos.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_MAX_START_ERA</Tag>
++		<English>[ICON_BULLET]Can be Built on %s1_Name and Earlier Starts</English>
++		<French>[ICON_BULLET]Construction possible &#224; l'&#233;poque "%s1_Name" et pour les d&#233;buts de partie plus pr&#233;coces</French>
++		<German>[ICON_BULLET]Kann bei Start im Zeitalter %s1_Name oder fr&#252;her errichtet werden</German>
++		<Italian>[ICON_BULLET]Pu� essere costruito quando si inizia nell'era %s1_Name o prima</Italian>
++		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
++	</TEXT>
++
+ 	<!-- Overwrites CIV4GameText_Civilopedia_BTS.
+ 	     Addition: K-Mod requires three full members for AP victory. -->
+ 	<TEXT>
+@@ -503,4 +518,100 @@
+ 		<Spanish>Los [COLOR_UNIT_TEXT]Exploradores[COLOR_REVERT] descubren el territorio inexplorado m&#225;s r&#225;pidamente que los [COLOR_UNIT_TEXT]Batidores[COLOR_REVERT], y obtienen mejores resultados de las [COLOR_HIGHLIGHT_TEXT]Aldeas tribales[COLOR_REVERT]. Sin embargo, no pueden atacar a las dem&#225;s unidades.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.148: Overwriting the key in CIV4GameText_Civilopedia_
++		 Concepts.xml. AI voting behavior outlined. Victory vote was missing
++		 entirely in German. -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Tag>
++		<English>[H1]United Nations[\H1][PARAGRAPH:2]The United Nations is an important great wonder that can be built at the end of the game after a civilization discovers the [LINK=TECH_MASS_MEDIA]Mass Media[\LINK] technology. The construction of the United Nations opens up the possibility of a [LINK=CONCEPT_VICTORY]Diplomatic Victory[\LINK].[PARAGRAPH:2][H2]Voting[\H2][PARAGRAPH:2]Once the United Nations has been built anywhere in the world, votes will begin being held every few turns. Every civilization that is still alive participates in these votes, regardless of how strong or weak they may be. The number of votes that a civilization receives is determined by population; the larger the population of a civilization, the more votes that its leader casts in United Nations elections.[PARAGRAPH:2][H2]Types of Votes[\H2][PARAGRAPH:2][BOLD]Secretary General Elections[\BOLD][PARAGRAPH:2]The first United Nations vote will always be to determine which leader will be selected as Secretary General (see below for more information on the powers granted to the Secretary General). The civilization that builds the United Nations will always be one of the two candidates to stand for Secretary General; the other candidate for Secretary General will be the leader whose civilization has the highest population (or second-highest if that is the civilization who builds the United Nations). When voting for the Secretary General, each civilization will choose one of the two candidates to cast their votes in favor of, or can choose to abstain altogether. If one of the two candidates receives a majority of the total votes (including the civilizations who abstain), that candidate becomes the Secretary General. If there is no majority, the election is inconclusive and there will be another election for Secretary General again a few turns later. Nothing else may be accomplished until the United Nations selects a Secretary General.[PARAGRAPH:2]When a Secretary General has been chosen, he or she can choose from a list of the following resolutions to put to a vote. After three such resolutions have been voted upon, there is a new election for Secretary General, and the process repeats. Unlike the simple majority vote to determine the Secretary General, all of the following resolutions require 60 percent or greater of the total votes to be adopted.[PARAGRAPH:2][BOLD]Single Currency[\BOLD][PARAGRAPH:2]Adopting a Single Currency for the entire globe will naturally increase trade and commerce. Every city in the world receives an extra trade route.[PARAGRAPH:2][BOLD]Free Trade[\BOLD][PARAGRAPH:2]Adopting the Free Trade resolution removes all barriers to trade everywhere in the world. Trade routes function as though all civs have Open Borders with one another regardless of what their diplomatic situation may be.[PARAGRAPH:2][BOLD]No Nukes[\BOLD][PARAGRAPH:2]Adopting this resolution causes an end to the proliferation of nuclear weapons. No civilizations anywhere in the world can construct nuclear weapons (although existing nukes do not disappear).[PARAGRAPH:2][BOLD]Universal Suffrage[\BOLD][PARAGRAPH:2]Adopting this resolution forces all civilizations to change to the civic [LINK=CIVIC_UNIVERSAL_SUFFRAGE]Universal Suffrage[\LINK], regardless of whether or not they possess the technology to do so normally.[PARAGRAPH:2][BOLD]Free Speech[\BOLD][PARAGRAPH:2]Adopting this resolution forces all civilizations to change to the civic [LINK=CIVIC_FREE_SPEECH]Free Speech[\LINK], regardless of whether or not they possess the technology to do so normally.[PARAGRAPH:2][BOLD]Emancipation[\BOLD][PARAGRAPH:2]Adopting this resolution forces all civilizations to change to the civic [LINK=CIVIC_EMANCIPATION]Emancipation[\LINK], regardless of whether or not they possess the technology to do so normally.[PARAGRAPH:2][BOLD]Environmentalism[\BOLD][PARAGRAPH:2]Adopting this resolution forces all civilizations to change to the civic [LINK=CIVIC_ENVIRONMENTALISM]Environmentalism[\LINK], regardless of whether or not they possess the technology to do so normally.[PARAGRAPH:2][BOLD]Free Religion[\BOLD][PARAGRAPH:2]Adopting this resolution forces all civilizations to change to the civic [LINK=CIVIC_FREE_RELIGION]Free Religion[\LINK], regardless of whether or not they possess the technology to do so normally.[PARAGRAPH:2][BOLD]Diplomatic Victory[\BOLD][PARAGRAPH:2]The Secretary General may also put him or herself up for a Diplomatic Victory. With enough votes from the other civilizations of the world, he or she can win the game through becoming the undisputed leader of the United Nations. Who said nice guys finish last? [BOLD]AdvCiv[\BOLD]: Only Friendly AI leaders will consider voting for a victory candidate; previously, +8 relations was sufficient. Some more specifics: The Secretary General is one of two candidates; the second candidate is selected based on population. If AI-controlled, the two candidates always vote for themselves. Other AI leaders abstain if they don't like any candidate enough (not Friendly) or if they like both candidates equally (same relations value), and else vote for the candidate that they like best (higher relations value). See also the BtS Concepts page about UN votes added by the BtS expansion.[PARAGRAPH:2]</English>
++		<French>[H1]Nations unies[\H1][PARAGRAPH:2]Les Nations unies sont une merveille de premier ordre qui peut &#234;tre construite &#224; la fin de la partie une fois qu'une civilisation a d&#233;couvert la technologie des [LINK=TECH_MASS_MEDIA]mass m&#233;dia[\LINK]. La construction des Nations unies ouvre la possibilit&#233; d'une [LINK=CONCEPT_VICTORY_PEDIA]Victoire diplomatique [\LINK].[PARAGRAPH:2][H2]Les votes[\H2][PARAGRAPH:2]Une fois les Nations unies construites, n'importe o&#249; dans le monde, les votes ont lieu tous les quelques tours. Chaque civilisation qui est encore pr&#233;sente participe &#224; ces votes, quelle qu'elle soit, sans aucune distinction de puissance. Le nombre de voix qu'une civilisation se voit octroyer est fonction de sa population ; plus la population est nombreuse, plus le chef de cette population poss&#232;de de voix aux &#233;lections des Nations unies.[PARAGRAPH:2][H2]Types de votes[\H2][PARAGRAPH:1]Elections du Secr&#233;taire g&#233;n&#233;ral[PARAGRAPH:2]Le premier vote des Nations unies aura pour but d'&#233;lire le Secr&#233;taire g&#233;n&#233;ral (voir plus bas pour plus d'informations sur les pouvoirs et recours du Secr&#233;taire g&#233;n&#233;ral). La civilisation qui construit les Nations unies pr&#233;sente syst&#233;matiquement un des deux candidats au poste de Secr&#233;tariat g&#233;n&#233;ral ; l'autre candidat sera le chef de la civilisation qui comprend la plus grande population (ou la deuxi&#232;me plus grande population, si la civilisation qui a construit les Nations unies est &#233;galement la civilisation la plus nombreuse). Lors de l'&#233;lection du Secr&#233;taire g&#233;n&#233;ral, chaque civilisation doit voter pour l'un des deux candidats, ou peut choisir de s'abstenir. Si l'un des deux candidats re&#231;oit la majorit&#233; des voix (en comptant les civilisations qui se seraient abstenues), ce candidat devient le Secr&#233;taire g&#233;n&#233;ral. Si aucune majorit&#233; ne se d&#233;gage, les &#233;lections sont reconduites et un nouveau vote est organis&#233;, un peu plus tard. Rien ne peut &#234;tre accompli par les Nations unies avant d'avoir choisi un Secr&#233;taire g&#233;n&#233;ral.[PARAGRAPH:2]Lorsque le Secr&#233;taire g&#233;n&#233;ral a &#233;t&#233; &#233;lu, il ou elle a la possibilit&#233; de choisir des r&#233;solutions &#224; soumettre au vote &#224; partir de la liste de r&#233;solutions ci-dessous. Apr&#232;s le vote de trois de ces r&#233;solutions, de nouvelles &#233;lections sont organis&#233;es pour &#233;lire un nouveau Secr&#233;taire g&#233;n&#233;ral et ainsi de suite. A la diff&#233;rence de l'&#233;lection du Secr&#233;taire g&#233;n&#233;ral, tous les autres votes de r&#233;solutions n&#233;cessitent d'&#234;tre ratifi&#233;s &#224; 60 pourcent ou plus pour &#234;tre adopt&#233;s.[PARAGRAPH:2][BOLD]Monnaie unique[\BOLD][PARAGRAPH:2]La monnaie unique pour la plan&#232;te enti&#232;re permet de favoriser le commerce et l'&#233;conomie. Chaque ville du globe re&#231;oit alors une route commerciale suppl&#233;mentaire.[PARAGRAPH:2][BOLD]Libre-&#233;change[\BOLD][PARAGRAPH:2]Adopter une r&#233;solution portant sur le libre-&#233;change permet de faire sauter les barri&#232;res commerciales partout dans le monde. Les routes commerciales fonctionnent comme si toutes les civilisations avaient conclu des accords de libre passage, quelles que soient leurs relations diplomatiques.[PARAGRAPH:2][BOLD]Non prolif&#233;ration des armes nucl&#233;aires[\BOLD][PARAGRAPH:2]Cette r&#233;solution permet de mettre un terme &#224; la prolif&#233;ration des armes nucl&#233;aires. Plus aucune civilisation ne peut construire d'armes nucl&#233;aires (m&#234;me si les armes d&#233;j&#224; existantes ne sont pas supprim&#233;es).[PARAGRAPH:2][BOLD]Suffrage universel[\BOLD][PARAGRAPH:2]Cette r&#233;solution force toutes les civilisations &#224; adopter le [LINK=CIVIC_UNIVERSAL_SUFFRAGE]suffrage universel[\LINK], qu'ils aient les moyens technologiques de le d&#233;velopper normalement, ou non.[PARAGRAPH:2][BOLD]Libert&#233; d'expression[\BOLD][PARAGRAPH:2]Cette r&#233;solution contraint toutes les civilisations &#224; se plier au droit de la [LINK=CIVIC_FREE_SPEECH]libert&#233; d'expression[\LINK], qu'ils aient les moyens technologiques de la d&#233;velopper normalement, ou non.[PARAGRAPH:2][BOLD]Emancipation[\BOLD][PARAGRAPH:2]Cette r&#233;solution contraint toutes les civilisations &#224; se plier au droit de [LINK=CIVIC_EMANCIPATION]l'&#233;mancipation[\LINK], qu'ils aient les moyens technologiques de la d&#233;velopper normalement, ou non.[PARAGRAPH:2][BOLD]Environnementalisme[\BOLD][PARAGRAPH:2]Cette r&#233;solution contraint toutes les civilisations &#224; se plier au droit de [LINK=CIVIC_ENVIRONMENTALISM]l'Environnementalisme[\LINK], qu'ils aient les moyens technologiques de le d&#233;velopper normalement, ou non.[PARAGRAPH:2][BOLD]Libert&#233; de culte [\BOLD][PARAGRAPH:2]Cette r&#233;solution contraint toutes les civilisations &#224; se plier au droit de [LINK=CIVIC_FREE_RELIGION]la libert&#233; de culte [\LINK], qu'ils aient les moyens technologiques de la d&#233;velopper normalement, ou non.[PARAGRAPH:2][BOLD]Victoire diplomatique [\BOLD][PARAGRAPH:2]Le Secr&#233;taire g&#233;n&#233;ral peut &#233;galement se pr&#233;senter pour obtenir une Victoire diplomatique. A condition d'obtenir assez de voix des autres civilisations du monde, il ou elle peut gagner la partie en devenant le chef incontest&#233; des Nations unies. Comme quoi, &#231;a paye aussi, d'&#234;tre un gentil ![PARAGRAPH:2]</French>
++		<German>[H1]Vereinte Nationen[\H1][PARAGRAPH:2]Die Vereinten Nationen sind ein wichtiges Weltwunder. Sie k&#246;nnen in der Endphase des Spiels nach der Erforschung der Technologie [LINK=TECH_MASS_MEDIA]Massenmedien[\LINK] gebaut werden. Die Vereinten Nationen sind die Grundvoraussetzung f&#252;r einen [LINK=CONCEPT_VICTORY]Diplomatischen Sieg[\LINK].[PARAGRAPH:2][H2]Abstimmung[\H2][PARAGRAPH:2]Nach der Gr&#252;ndung der Vereinten Nationen finden in aller Welt in regelm&#228;&#223;igen Abst&#228;nden Abstimmungen statt, an denen alle Zivilisationen (unabh&#228;ngig von ihrer St&#228;rke) teilnehmen. Die Zahl der Stimmen einer Zivilisation h&#228;ngt von der Gr&#246;&#223;e ihrer Bev&#246;lkerung ab. Je gr&#246;&#223;er ein Volk ist, desto mehr Stimmen stehen dem jeweiligen Staatsoberhaupt zu.[PARAGRAPH:2][H2]Abstimmungsarten[\H2][PARAGRAPH:2]Wahl des Generalsekret&#228;rs[PARAGRAPH:2]Mit ihrer ersten Resolution w&#228;hlen die Vereinten Nationen aus den Reihen der Staatsoberh&#228;upter einen Generalsekret&#228;r. Weitere Informationen &#252;ber die Machtbefugnisse eines Generalsekret&#228;rs finden Sie weiter unten. Die Zivilisation, die die Vereinten Nationen vollendet hat, stellt automatisch einen der beiden Kandidaten f&#252;r das Amt des Generalsekret&#228;rs. Der Gegenkandidat ist das Staatsoberhaupt der bev&#246;lkerungsst&#228;rksten Zivilisation. Hat diese die Vereinten Nationen ins Leben gerufen, r&#252;ckt das Staatsoberhaupt des zweitgr&#246;&#223;ten Volkes als Kandidat nach. Bei der Wahl des Generalsekret&#228;rs geben die wahlberechtigten Staatsoberh&#228;upter ihrem Wunschkandidaten ihre Stimme (oder enthalten sich). Vereint einer der beiden Kandidaten die Mehrheit der Stimmen (einschlie&#223;lich der Stimmenthaltungen) auf sich, wird er zum Generalsekret&#228;r ernannt. Erringt keiner der Kandidaten die erforderliche Mehrheit, ist die Wahl ung&#252;ltig und wird einige Runden sp&#228;ter wiederholt. Bis zur Wahl eines Generalsekret&#228;rs bleiben die Vereinten Nationen allerdings handlungsunf&#228;hig.[PARAGRAPH:2]Der Generalsekret&#228;r hat die M&#246;glichkeit, &#252;ber eine der folgenden Resolutionen abstimmen zu lassen. Nach drei Resolutionen wird ein neuer Generalsekret&#228;r gew&#228;hlt. W&#228;hrend f&#252;r die Wahl des Generalsekret&#228;rs eine einfache Mehrheit der Stimmen ausreicht, m&#252;ssen den folgenden Resolutionen mindestens 60 Prozent der Stimmberechtigten zustimmen.[PARAGRAPH:2][BOLD]Einheitsw&#228;hrung[\BOLD][PARAGRAPH:2]Eine weltweite Einheitsw&#228;hrung f&#246;rdert den Handel und die Wirtschaft. Dadurch erhalten alle St&#228;dte einen zus&#228;tzlichen Handelsweg.[PARAGRAPH:2][BOLD]Offene M&#228;rkte[\BOLD][PARAGRAPH:2]Offene M&#228;rkte &#252;berwinden s&#228;mtliche Handelsbarrieren. Handelswege funktionieren nun, als h&#228;tten alle Zivilisationen (unabh&#228;ngig von der politischen Gesamtlage) Offene-Grenzen-Abkommen geschlossen.[PARAGRAPH:2][BOLD]Atomwaffensperrvertrag[\BOLD][PARAGRAPH:2]Diese Resolution unterbindet den Bau neuer Atomwaffen. Vorhandene Atomwaffen werden allerdings nicht zerst&#246;rt.[PARAGRAPH:2][BOLD]Allgemeines Wahlrecht[\BOLD][PARAGRAPH:2]Diese Resolution zwingt alle Zivilisationen, die Staatsform [LINK=CIVIC_UNIVERSAL_SUFFRAGE]Allgemeines Wahlrecht[\LINK] einzuf&#252;hren. Die dazu n&#246;tige Technologie ist in diesem Fall nicht erforderlich.[PARAGRAPH:2][BOLD]Meinungsfreiheit[\BOLD][PARAGRAPH:2]Diese Resolution zwingt alle Zivilisationen, die Staatsform [LINK=CIVIC_FREE_SPEECH]Meinungsfreiheit[\LINK] einzuf&#252;hren. Die dazu n&#246;tige Technologie ist in diesem Fall nicht erforderlich.[PARAGRAPH:2][BOLD]Emanzipation[\BOLD][PARAGRAPH:2]Diese Resolution zwingt alle Zivilisationen, die Staatsform [LINK=CIVIC_EMANCIPATION]Emanzipation[\LINK] einzuf&#252;hren. Die dazu n&#246;tige Technologie ist in diesem Fall nicht erforderlich.[PARAGRAPH:2][BOLD]Umweltschutz[\BOLD][PARAGRAPH:2]Diese Resolution zwingt alle Zivilisationen, die Staatsform [LINK=CIVIC_ENVIRONMENTALISM]Umweltschutz[\LINK] einzuf&#252;hren. Die dazu n&#246;tige Technologie ist in diesem Fall nicht erforderlich.[PARAGRAPH:2][BOLD]Religionsfreiheit[\BOLD][PARAGRAPH:2]Diese Resolution zwingt alle Zivilisationen, die Staatsform [LINK=CIVIC_FREE_RELIGION]Religionsfreiheit[\LINK] einzuf&#252;hren. Die dazu n&#246;tige Technologie ist in diesem Fall nicht erforderlich.[PARAGRAPH:2][BOLD]Diplomatiesieg[\BOLD][PARAGRAPH:2]Der Generalsekret�r kann sich selbst f�r einen Diplomatiesieg nominieren. Erh�lt er genug Stimmen der anderen Herrscher, gewinnt er das Spiel. Wer sagt da noch, dass Nettsein sich nicht auszahle? [BOLD]AdvCiv[\BOLD]: KI-Herrscher stimmen nur dann f�r den Sieg eines anderen, wenn sie freundlich gesinnt sind; vorher reichte ein Beziehungswert von +8. Genaueres zum Ablauf: Basierend auf Bev�lkerungszahl wird ein zweiter Kandidat aufgestellt. Sofern sie KI-kontrolliert sind, stimmen die beiden Kandidaten stets f�r sich selbst. Die �brigen KI-Herrscher enthalten sich, wenn sie keinen der Kandidaten genug m�gen (nicht freundlich gesinnt) oder wenn sie beide gleicherma�en m�gen (gleicher Beziehungswert), und stimmen anonsten f�r den Kandidaten, den sie lieber m�gen (h�herer Beziehungswert). Unter "BtS-Konzepte" werden UN-Resolutionen beschrieben, die mit der BtS-Erweiterung dazugekommen sind.[PARAGRAPH:2]</German>
++		<Italian>[H1]Nazioni Unite[\H1][PARAGRAPH:2]Le Nazioni Unite sono un'importante Grande Meraviglia che pu&#242; essere realizzata verso la fine del gioco, quando una civilt&#224; scopre la tecnologia [LINK=TECH_MASS_MEDIA]Mass media[\LINK]. La realizzazione delle Nazioni Unite fornisce la possibilit&#224; di una [LINK=CONCEPT_VICTORY]Vittoria diplomatica[\LINK].[PARAGRAPH:2][H2]Votazione[\H2][PARAGRAPH:2]Quando le Nazioni Unite vengono realizzate in una parte qualsiasi del mondo, dopo pochi turni verranno indette le votazioni. Ogni civilt&#224; ancora in gioco dovr&#224; partecipare alla votazione, indipendentemente dalla propria forza. Il numero di voti di una civilt&#224; dipende dalla popolazione: pi&#249; grande sar&#224;, maggiori saranno i voti a disposizione del leader.[PARAGRAPH:2][H2]Tipi di votazione[\H2][PARAGRAPH:2][BOLD]Elezione del segretario generale[\BOLD][PARAGRAPH:2]La prima votazione delle Nazioni Unite serve sempre a determinare quale leader verr&#224; eletto come segretario generale (vedi sotto per ulteriori informazioni sui poteri conferiti al segretario generale). La civilt&#224; che realizza le Nazioni Unite fornisce automaticamente il proprio leader come uno dei due candidati (l'altro &#232; il leader della civilt&#224; con la popolazione maggiore, o la seconda, se al primo posto c'&#232; la civilt&#224; che ha realizzato la Meraviglia). Quando si vota per l'elezione del segretario generale, ciascuna civilt&#224; pu&#242; scegliere di dare il proprio voto a uno dei due candidati oppure astenersi. Se uno dei due candidati riceve la maggioranza dei voti (inclusi gli astenuti), viene eletto segretario generale. Se non si raggiunge una maggioranza, l'elezione viene considerata nulla ed entro pochi turni verr&#224; avviata un'altra votazione. Non si pu&#242; fare altro finch&#233; non viene eletto un segretario generale.[PARAGRAPH:2]Quando viene eletto un segretario generale, questo pu&#242; scegliere una della seguenti mozioni e avviare una votazione. Dopo che sono state votate tre mozioni, viene avviata una nuova elezione per il segretario generale e il processo viene ripetuto. Al contrario della votazione semplice per l'elezione del segretario generale, dove basta la maggioranza, per le mozioni &#232; necessario raggiungere il 60%% di voti favorevoli affinch&#233; venga adottata.[PARAGRAPH:2][BOLD]Valuta unica[\BOLD][PARAGRAPH:2]Adottando una valuta unica in tutto il pianeta, si aumenteranno di conseguenza il commercio e gli scambi. Ogni citt&#224; ricever&#224; una rotta commerciale extra.[PARAGRAPH:2][BOLD]Mercato libero[\BOLD][PARAGRAPH:2]Adottando la mozione per il commercio libero, verranno rimosse le barriere commerciali in tutto il mondo. Le rotte commerciali funzionano come se tutte le civilt&#224; avessero il diritto di passaggio con una nazione, indipendentemente dalla reciproca situazione diplomatica.[PARAGRAPH:2][BOLD]Disarmo nucleare[\BOLD][PARAGRAPH:2]Adottando questa mozione, si metter&#224; fine alla proliferazione di armamenti nucleari nel mondo. Nessuna civilt&#224; potr&#224; pi&#249; costruire armi nucleari, malgrado le bombe atomiche esistenti non vengano smantellate.[PARAGRAPH:2][BOLD]Suffragio universale[\BOLD][PARAGRAPH:2]Votando questa mozione, tutte le nazioni adotteranno la forma di governo [LINK=CIVIC_UNIVERSAL_SUFFRAGE]Suffragio universale[\LINK], indipendentemente dal fatto che le civilt&#224; posseggano la tecnologia per farlo.[PARAGRAPH:2][BOLD]Libert&#224; di parola[\BOLD][PARAGRAPH:2]Votando questa riforma, tutte le nazioni adotteranno la forma di governo [LINK=CIVIC_FREE_SPEECH]Libert&#224; di parola[\LINK], indipendentemente dal fatto che le civilt&#224; posseggano la tecnologia per farlo.[PARAGRAPH:2][BOLD]Emancipazione[\BOLD][PARAGRAPH:2]Votando questa riforma, tutte le nazioni adotteranno la forma di governo [LINK=CIVIC_EMANCIPATION]Emancipazione[\LINK], indipendentemente dal fatto che le civilt&#224; posseggano la tecnologia per farlo.[PARAGRAPH:2][BOLD]Ambientalismo[\BOLD][PARAGRAPH:2]Votando questa riforma, tutte le nazioni adotteranno la forma di governo [LINK=CIVIC_ENVIRONMENTALISM]Ambientalismo[\LINK], indipendentemente dal fatto che le civilt&#224; posseggano la tecnologia per farlo.[PARAGRAPH:2][BOLD]Libert&#224; religiosa[\BOLD][PARAGRAPH:2]Votando questa riforma, tutte le nazioni adotteranno la forma di governo [LINK=CIVIC_FREE_RELIGION]Libert&#224; religiosa[\LINK], indipendentemente dal fatto che le civilt&#224; posseggano la tecnologia per farlo.[PARAGRAPH:2][BOLD]Vittoria diplomatica[\BOLD][PARAGRAPH:2]Il segretario generale pu&#242; anche candidarsi a una vittoria diplomatica: ottenendo abbastanza voti dalle altre civilt&#224;, il segretario generale pu&#242; essere eletto leader mondiale. Chi ha detto che le persone gentili devono essere sempre le ultime?[PARAGRAPH:2]</Italian>
++		<Spanish>[H1]Naciones Unidas[\H1][PARAGRAPH:2]Naciones Unidas es una importante gran maravilla que se puede crear en la parte final del juego, despu&#233;s de que alguna civilizaci&#243;n descubra los [LINK=TECH_MASS_MEDIA]medios de comunicaci&#243;n[\LINK]. La construcci&#243;n de esta maravilla abre la posibilidad de la [LINK=CONCEPT_VICTORY]victoria diplom&#225;tica[\LINK].[PARAGRAPH:2][H2]Votaciones[\H2][PARAGRAPH:2]Una vez se construya Naciones Unidas en cualquier parte del mundo, habr&#225; votaciones cada pocos turnos. Todas las civilizaciones que sobrevivan participar&#225;n en ellas, sin que importe lo fuertes o d&#233;biles que sean. El n&#250;mero de votos que recibe cada civilizaci&#243;n depende de su poblaci&#243;n. Cuanto mayor sea &#233;sta, m&#225;s votos tendr&#225; su l&#237;der en las elecciones.[PARAGRAPH:2][H2]Tipos de votaciones[\H2][PARAGRAPH:2]Elecciones a la secretar&#237;a general[PARAGRAPH:2]La primera votaci&#243;n en Naciones Unidas ser&#225; siempre para elegir al Secretario General (ver m&#225;s adelante qu&#233; poderes se le confieren a la persona que ostenta este cargo). La civilizaci&#243;n que construya Naciones Unidas siempre aportar&#225; una de las dos candidaturas a la secretar&#237;a general. El otro candidato ser&#225; el l&#237;der de la civilizaci&#243;n con mayor poblaci&#243;n (o la segunda mayor, en caso de que la civilizaci&#243;n fundadora de Naciones Unidas sea la que m&#225;s poblaci&#243;n tenga). En la elecci&#243;n del Secretario General, cada civilizaci&#243;n votar&#225; por uno de los dos candidatos o se abstendr&#225;. Si uno de los dos candidatos recibe la mayor&#237;a del total de votos (incluyendo a las civilizaciones que se hayan abstenido) se convertir&#225; en Secretario General. Si no hay tal mayor&#237;a, la votaci&#243;n no saldr&#225; adelante y habr&#225; nuevas elecciones a la secretar&#237;a general unos turnos despu&#233;s. No podr&#225; hacerse nada m&#225;s hasta que Naciones Unidas tenga Secretario General.[PARAGRAPH:2]Cuando se haya elegido Secretario General, quien ostente el cargo podr&#225; elegir qu&#233; resoluciones de una lista someter a votaci&#243;n. Cuando se hayan votado tres de esas resoluciones, habr&#225; nuevas elecciones a Secretario General y el proceso se repetir&#225;. Al contrario que la elecci&#243;n del Secretario General, que requiere mayor&#237;a simple, todas las dem&#225;s resoluciones necesitan un 60%% de los votos para salir adelante.[PARAGRAPH:2][BOLD]Moneda &#250;nica[\BOLD][PARAGRAPH:2]Si se adopta una moneda &#250;nica en todo el planeta, el comercio y los intercambios aumentar&#225;n de manera natural. Todas las ciudades del mundo recibir&#225;n una ruta comercial adicional.[PARAGRAPH:2][BOLD]Mercado libre[\BOLD][PARAGRAPH:2]Si sale adelante esta resoluci&#243;n, desaparecer&#225;n las barreras al intercambio en todo el mundo. Las rutas comerciales funcionar&#225;n como si todas las civilizaciones tuvieran "apertura de fronteras", sin que importe cu&#225;les sean sus relaciones diplom&#225;ticas.[PARAGRAPH:2][BOLD]No proliferaci&#243;n de armas nucleares[\BOLD][PARAGRAPH:2]Si esta resoluci&#243;n sale adelante, terminar&#225; la proliferaci&#243;n de armas nucleares. Ninguna civilizaci&#243;n del mundo podr&#225; fabricarlas (aunque las armas nucleares existentes no desaparecer&#225;n).[PARAGRAPH:2][BOLD]Sufragio universal[\BOLD][PARAGRAPH:2]Al salir adelante esta resoluci&#243;n, todas las civilizaciones se ven obligadas a adoptar el principio de [LINK=CIVIC_UNIVERSAL_SUFFRAGE]sufragio universal[\LINK], sin que importe que posean o no la tecnolog&#237;a necesaria para ello.[PARAGRAPH:2][BOLD]Libertad de expresi&#243;n[\BOLD][PARAGRAPH:2]Al salir adelante esta resoluci&#243;n, todas las civilizaciones se ven obligadas a adoptar el principio de [LINK=CIVIC_FREE_SPEECH]libertad de  expresi&#243;n[\LINK], sin que importe que posean o no la tecnolog&#237;a necesaria para ello.[PARAGRAPH:2][BOLD]Emancipaci&#243;n[\BOLD][PARAGRAPH:2]Al salir adelante esta resoluci&#243;n, todas las civilizaciones se ven obligadas a adoptar el principio de [LINK=CIVIC_EMANCIPATION]emancipaci&#243;n[\LINK], sin que importe que posean o no la tecnolog&#237;a necesaria para ello.[PARAGRAPH:2][BOLD]Ecologismo[\BOLD][PARAGRAPH:2]Al salir adelante esta resoluci&#243;n, todas las civilizaciones se ven obligadas a adoptar el principio de [LINK=CIVIC_ENVIRONMENTALISM]ecologismo[\LINK], sin que importe que posean o no la tecnolog&#237;a necesaria para ello.[PARAGRAPH:2][BOLD]Libertad religiosa[\BOLD][PARAGRAPH:2]Al salir adelante esta resoluci&#243;n, todas las civilizaciones se ven obligadas a adoptar el principio de [LINK=CIVIC_FREE_RELIGION]libertad religiosa[\LINK], sin que importe que posean o no la tecnolog&#237;a necesaria para ello.[PARAGRAPH:2][BOLD]Victoria diplom&#225;tica[\BOLD][PARAGRAPH:2]Adem&#225;s, el Secretario General puede someterse a una votaci&#243;n para alcanzar la victoria diplom&#225;tica. Si obtiene los votos suficientes de las otras civilizaciones del mundo, ganar&#225; la partida al convertirse en el l&#237;der indiscutible de Naciones Unidas. &#191;Qui&#233;n dijo que los buenos chicos acaban despu&#233;s?[PARAGRAPH:2]</Spanish>
++	</TEXT>
++
++	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
++		 names can be displayed despite the increased font size.
++		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_BTS_CIVS</Tag>
++		<English>BtS Civilizations</English>
++		<French>Civilisations de BtS</French>
++		<German>BtS-Zivilisationen</German>
++		<Italian>Civilt&#224; di BtS</Italian>
++		<Spanish>Civilizaciones de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BTS_BUILDINGS</Tag>
++		<English>BtS Buildings</English>
++		<French>B&#226;timents de BtS</French>
++		<German>BtS-Geb&#228;ude</German>
++		<Italian>Edifici di BtS</Italian>
++		<Spanish>Edificios de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BTS_UNITS</Tag>
++		<English>BtS Units</English>
++		<French>Unit&#233;s de BtS</French>
++		<German>BtS-Einheiten</German>
++		<Italian>Unit&#224; di BtS</Italian>
++		<Spanish>Unidades de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BTS_LEADERS</Tag>
++		<English>BtS Leaders</English>
++		<French>Dirigeants de BtS</French>
++		<German>BtS-Herrscher</German>
++		<Italian>Leader di BtS</Italian>
++		<Spanish>L&#237;deres de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BTS_WONDERS</Tag>
++		<English>BtS Wonders</English>
++		<French>Merveilles de BtS</French>
++		<German>BtS-Wunder</German>
++		<Italian>Meraviglie di BtS</Italian>
++		<Spanish>Maravillas de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BTS_TECHS</Tag>
++		<English>BtS Technologies</English>
++		<French>Technologies de BtS</French>
++		<German>BtS-Technologien</German>
++		<Italian>Tecnologie di BtS</Italian>
++		<Spanish>Tecnolog&#237;as de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
++		<English>BtS Rules Changes</English>
++		<French>R&#232;gles modifi&#233;es de BtS</French>
++		<German>BtS-Regel&#228;nderungen</German>
++		<Italian>Cambiamenti delle regole di BtS</Italian>
++		<Spanish>Cambios en las reglas de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
++		<English>BtS Concepts</English>
++		<French>
++			<Text>Concepts de BtS</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>BtS-Konzepte</Text>
++			<Gender>Neuter</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Nozioni di BtS</Text>
++			<Gender>Female</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Conceptos de "BtS"</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Spanish>
++	</TEXT>
++		 
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index f2e17f4b0..af166c8e8 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -3314,4 +3314,48 @@
+ 		<Spanish>%s1_Ldr ha entrado en [NUM2:el:la:los:las] %s2_era.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.179 (not confident in my translations) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_RELIGION_YIELD</Tag>
++		<English>for all Buildings of the %s1_BldName Religion (can benefit Rivals)</English>
++		<French>pour tous les b�timents de la religion [NUM1:du:de l'] %s1_BldName (rivaux peuvent profiter)</French>
++		<German>f�r alle religi�sen Geb�ude, deren Religion mit diesem Geb�ude �bereinstimmt (davon k�nnen auch Gegner profitieren)</German>
++		<Italian>per tutti gli edifici della religione [NUM1:del:dell'] %s1_BldName (pu� aiutare i rivali)</Italian>
++		<Spanish>para todos los edificios de la religi�n de [NUM1:el:la] %s1_BldName (puede beneficiar a rivales)</Spanish>
++	</TEXT>
++	<!-- advc.179: Added a half sentence about building religion. This should
++		 make clear what is meant by the "Apostolic Palace religion". Show this
++		 with a bullet and in white because it's no longer purely a restriction.
++		 Originally in CIV4GameText_BTS.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_REQUIRES_STATE_RELIGION</Tag>
++		<English>[ICON_BULLET]State Religion must be present in City and becomes this Building's Religion</English>
++		<French>[ICON_BULLET]La religion d'Etat doit &#234;tre pr&#233;sente dans cette ville et deviendra la religion de ce b�timent</French>
++		<German>[ICON_BULLET]Staatsreligion muss in der Stadt vorhanden sein und wird dann zur Religion dieses Geb�udes</German>
++		<Italian>[ICON_BULLET]deve essere presente la religione di stato in citt&#224; e diventer� la religione di questo edificio</Italian>
++		<Spanish>[ICON_BULLET]La religi&#243;n oficial ha de estar presente en la ciudad e ser� la religi�n de este edificio.</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_BUILDING_ELECTION_ELIGIBILITY in
++		 CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ELECTION_ELIGIBILITY_SHORT</Tag>
++		<English>and Guarantees Eligibility</English>
++		<French>et garantit l'&#233;ligibilit&#233;</French>
++		<German>und garantiert Kandidatur</German>
++		<Italian>e garantisce l'idoneit&#224;</Italian>
++		<Spanish>e garantiza la validez de los votos</Spanish>
++	</TEXT>
++	<!-- Removed "global" because "Apostolic Palace Global Elections" is too
++		 long. "UN" implies "global" anyway. Replacing the key in
++		 CIV4GameTextChanged_BTS.xml (which used to replace the one in
++		 CIV4GameTextInfos.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_DIPLO_VOTE</Tag>
++		<English>[ICON_BULLET]Triggers %s1 Elections</English>
++		<French>[ICON_BULLET]D&#233;clenche %s1 &#233;lections</French>
++		<German>[ICON_BULLET]L&#246;st globale Wahlen aus (%s1).</German>
++		<Italian>[ICON_BULLET]Attiva le %s1 Elezioni</Italian>
++		<Spanish>[ICON_BULLET]Activa el sufragio mundial (%s1).</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Sevopedia_CIV4GameText.xml b/Assets/xml/Text/Sevopedia_CIV4GameText.xml
+index 351b23325..759443d55 100644
+--- a/Assets/xml/Text/Sevopedia_CIV4GameText.xml
++++ b/Assets/xml/Text/Sevopedia_CIV4GameText.xml
+@@ -60,14 +60,10 @@
+ 		<Italian>Grandi Merav.</Italian>
+ 		<Spanish>Maravillas del Mundo</Spanish>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+-		<English>BTS Concepts</English>
+-		<French>Conceptes BTS</French>
+-		<German>Beyond the Sword-Konzepte</German>
+-		<Italian>Concetti di BTS</Italian>
+-		<Spanish>Conceptos BtS</Spanish>
+-	</TEXT>
++	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
++		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
++		 it. Concetti di BTS, es. Conceptos BtS)
++		 because I'm replacing this key in CIV4GameText_advc.008.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
+ 		<English>Unique Buildings</English>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index eca1ddac6..6e58f27d4 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8794,84 +8794,107 @@ int CvCity::getAdditionalBaseYieldRateByBuilding(YieldTypes eIndex, BuildingType
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+ 	bool bObsolete = GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding);
+ 	int iExtraRate = 0;
+-
+-	if (!bObsolete)
++	// <advc.003>
++	if(bObsolete)
++		return 0; // </advc.003>
++	// <advc.179> Some overlap with code in CvGameTextMgr::buildBuildingReligionYieldString
++	for(int i = 0; i < GC.getNumVoteSourceInfos(); i++) {
++		VoteSourceTypes vsId = (VoteSourceTypes)i;
++		if(vsId != kBuilding.getVoteSourceType())
++			continue;
++		CvVoteSourceInfo& vs = GC.getVoteSourceInfo(vsId);
++		if(vs.getReligionYield(eIndex) != 0) {
++			ReligionTypes vsReligion =
++				// This would be NO_RELIGION b/c the vote source doesn't exist yet
++				//GC.getGameINLINE().getVoteSourceReligion(vsId);
++				GET_PLAYER(getOwnerINLINE()).getStateReligion();
++			if(vsReligion != NO_RELIGION) {
++				// Based on processVoteSourceBonus
++				for(int j = 0; j < GC.getNumBuildingInfos(); j++) {
++					BuildingTypes bt = (BuildingTypes)j;
++					if(getNumBuilding(bt) <= 0 || GET_TEAM(getTeam()).
++							isObsoleteBuilding(bt))
++						continue;
++					if(GC.getBuildingInfo(bt).getReligionType() == vsReligion)
++						iExtraRate += vs.getReligionYield(eIndex);
++				}
++			}
++		}
++	} // </advc.179>
++	if (kBuilding.getSeaPlotYieldChange(eIndex) != 0)
+ 	{
+-		if (kBuilding.getSeaPlotYieldChange(eIndex) != 0)
++		int iChange = kBuilding.getSeaPlotYieldChange(eIndex);
++		for (int iI = 0; iI < NUM_CITY_PLOTS; ++iI)
+ 		{
+-			int iChange = kBuilding.getSeaPlotYieldChange(eIndex);
+-			for (int iI = 0; iI < NUM_CITY_PLOTS; ++iI)
++			if (isWorkingPlot(iI) && getCityIndexPlot(iI)->isWater())
+ 			{
+-				if (isWorkingPlot(iI) && getCityIndexPlot(iI)->isWater())
+-				{
+-					iExtraRate += iChange;
+-				}
++				iExtraRate += iChange;
+ 			}
+ 		}
+-		if (kBuilding.getRiverPlotYieldChange(eIndex) != 0)
++	}
++	if (kBuilding.getRiverPlotYieldChange(eIndex) != 0)
++	{
++		int iChange = kBuilding.getRiverPlotYieldChange(eIndex);
++		for (int iI = 0; iI < NUM_CITY_PLOTS; ++iI)
+ 		{
+-			int iChange = kBuilding.getRiverPlotYieldChange(eIndex);
+-			for (int iI = 0; iI < NUM_CITY_PLOTS; ++iI)
++			if (isWorkingPlot(iI) && getCityIndexPlot(iI)->isRiver())
+ 			{
+-				if (isWorkingPlot(iI) && getCityIndexPlot(iI)->isRiver())
+-				{
+-					iExtraRate += iChange;
+-				}
++				iExtraRate += iChange;
+ 			}
+ 		}
+-		iExtraRate += kBuilding.getYieldChange(eIndex);
+-		iExtraRate += getBuildingYieldChange((BuildingClassTypes)kBuilding.getBuildingClassType(), eIndex);
++	}
++	iExtraRate += kBuilding.getYieldChange(eIndex);
++	iExtraRate += getBuildingYieldChange((BuildingClassTypes)kBuilding.getBuildingClassType(), eIndex);
+ 
+-		// Trade
+-		int iPlayerTradeYieldModifier = GET_PLAYER(getOwnerINLINE()).getTradeYieldModifier(eIndex);
+-		if (iPlayerTradeYieldModifier > 0 && (kBuilding.getTradeRouteModifier() != 0 || kBuilding.getForeignTradeRouteModifier() != 0))
+-		{
+-			int iTotalTradeYield = 0;
+-			int iNewTotalTradeYield = 0;
+-// BUG - Fractional Trade Routes - start
++	// Trade
++	int iPlayerTradeYieldModifier = GET_PLAYER(getOwnerINLINE()).getTradeYieldModifier(eIndex);
++	if (iPlayerTradeYieldModifier > 0 && (kBuilding.getTradeRouteModifier() != 0 || kBuilding.getForeignTradeRouteModifier() != 0))
++	{
++		int iTotalTradeYield = 0;
++		int iNewTotalTradeYield = 0;
++		// BUG - Fractional Trade Routes - start
+ #ifdef _MOD_FRACTRADE
+-			int iTradeProfitDivisor = 100;
++		int iTradeProfitDivisor = 100;
+ #else
+-			int iTradeProfitDivisor = 10000;
++		int iTradeProfitDivisor = 10000;
+ #endif
+-// BUG - Fractional Trade Routes - end
++		// BUG - Fractional Trade Routes - end
+ 
+-			for (int iI = 0; iI < getTradeRoutes(); ++iI)
++		for (int iI = 0; iI < getTradeRoutes(); ++iI)
++		{
++			CvCity* pCity = getTradeCity(iI);
++			if (pCity)
+ 			{
+-				CvCity* pCity = getTradeCity(iI);
+-				if (pCity)
+-				{
+-					int iTradeProfit = getBaseTradeProfit(pCity);
+-					int iTradeModifier = totalTradeModifier(pCity);
+-					int iTradeYield = iTradeProfit * iTradeModifier / iTradeProfitDivisor * iPlayerTradeYieldModifier / 100;
+-					iTotalTradeYield += iTradeYield;
++				int iTradeProfit = getBaseTradeProfit(pCity);
++				int iTradeModifier = totalTradeModifier(pCity);
++				int iTradeYield = iTradeProfit * iTradeModifier / iTradeProfitDivisor * iPlayerTradeYieldModifier / 100;
++				iTotalTradeYield += iTradeYield;
+ 
+-					iTradeModifier += kBuilding.getTradeRouteModifier();
+-					if (pCity->getOwnerINLINE() != getOwnerINLINE())
+-					{
+-						iTradeModifier += kBuilding.getForeignTradeRouteModifier();
+-					}
+-					int iNewTradeYield = iTradeProfit * iTradeModifier / iTradeProfitDivisor * iPlayerTradeYieldModifier / 100;
+-					iNewTotalTradeYield += iNewTradeYield;
++				iTradeModifier += kBuilding.getTradeRouteModifier();
++				if (pCity->getOwnerINLINE() != getOwnerINLINE())
++				{
++					iTradeModifier += kBuilding.getForeignTradeRouteModifier();
+ 				}
++				int iNewTradeYield = iTradeProfit * iTradeModifier / iTradeProfitDivisor * iPlayerTradeYieldModifier / 100;
++				iNewTotalTradeYield += iNewTradeYield;
+ 			}
++		}
+ 
+-// BUG - Fractional Trade Routes - start
++		// BUG - Fractional Trade Routes - start
+ #ifdef _MOD_FRACTRADE
+-			iTotalTradeYield /= 100;
+-			iNewTotalTradeYield /= 100;
++		iTotalTradeYield /= 100;
++		iNewTotalTradeYield /= 100;
+ #endif
+-// BUG - Fractional Trade Routes - end
+-			iExtraRate += iNewTotalTradeYield - iTotalTradeYield;
+-		}
++		// BUG - Fractional Trade Routes - end
++		iExtraRate += iNewTotalTradeYield - iTotalTradeYield;
++	}
+ 
+-		// Specialists
+-		for (int iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
++	// Specialists
++	for (int iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
++	{
++		if (kBuilding.getFreeSpecialistCount((SpecialistTypes)iI) != 0)
+ 		{
+-			if (kBuilding.getFreeSpecialistCount((SpecialistTypes)iI) != 0)
+-			{
+-				iExtraRate += getAdditionalBaseYieldRateBySpecialist(eIndex, (SpecialistTypes)iI, kBuilding.getFreeSpecialistCount((SpecialistTypes)iI));
+-			}
++			iExtraRate += getAdditionalBaseYieldRateBySpecialist(eIndex, (SpecialistTypes)iI, kBuilding.getFreeSpecialistCount((SpecialistTypes)iI));
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d38ea20d0..8e914f4b8 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9100,7 +9100,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		return;
+ 	CvBuildingClassInfo& bci = GC.getBuildingClassInfo(bct);
+ 	/*  ePlayer is NULL if Civilopedia accessed from main menu.
+-		bCivilopedia is false then by the way (fixme?). */
++		bCivilopediaText is false then by the way (fixme?). */
+ 	CvPlayer const* pPlayer = (ePlayer == NO_PLAYER ? NULL : &GET_PLAYER(ePlayer));
+ 	//if(!bCivilopediaText && ePlayer != NO_PLAYER) {
+ 	if(!bCivilopediaText) { // </advc.003>
+@@ -9421,7 +9421,9 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_PER_CITY_WITH", GC.getReligionInfo((ReligionTypes) kBuilding.getGlobalReligionCommerce()).getChar());
+ 		setCommerceChangeHelp(szBuffer, L"", L"", szFirstBuffer, GC.getReligionInfo((ReligionTypes) kBuilding.getGlobalReligionCommerce()).getGlobalReligionCommerceArray());
+ 	}
+-
++	// <advc.179>
++	if(!bCivilopediaText)
++		buildBuildingReligionYieldString(szBuffer, kBuilding); // </advc.179>
+ 	if (NO_CORPORATION != kBuilding.getFoundsCorporation()
+ 			&& !inBuildingList) // advc.004w
+ 	{
+@@ -9524,20 +9526,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_BORDER_OBSTACLE"));
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumVoteSourceInfos(); ++iI)
+-	{
+-		if (kBuilding.getVoteSourceType() == (VoteSourceTypes)iI)
+-		{
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_DIPLO_VOTE", GC.getVoteSourceInfo((VoteSourceTypes)iI).getTextKeyWide()));
+-		}
+-	}
+-
+-	if (kBuilding.isForceTeamVoteEligible())
+-	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_ELECTION_ELIGIBILITY"));
+-	}
++	// advc.179: Triggered Election, Eligibility text moved down
+ 
+ 	if (kBuilding.isCapital())
+ 	{
+@@ -10739,6 +10728,33 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 				szBuffer.append(gDLL->getText("TXT_KEY_REQUIRES_STATE_RELIGION"));
+ 			}
+ 		}
++		// <advc.179>
++		if(bCivilopediaText || ePlayer == NO_PLAYER)
++			buildBuildingReligionYieldString(szBuffer, kBuilding);
++		bool bEligibilityDone = false;
++		/*  Moved Triggered Election and Eligibility down so that the
++			VoteSource stuff appears in one place. */ 
++		// </advc.179>
++		for (int iI = 0; iI < GC.getNumVoteSourceInfos(); ++iI)
++		{
++			if (kBuilding.getVoteSourceType() == (VoteSourceTypes)iI)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_DIPLO_VOTE", GC.getVoteSourceInfo((VoteSourceTypes)iI).getTextKeyWide()));
++				// <advc.179> Put eligiblity in the same line
++				if(kBuilding.isForceTeamVoteEligible()) {
++					szBuffer.append(L" " + gDLL->getText(
++							"TXT_KEY_BUILDING_ELECTION_ELIGIBILITY_SHORT"));
++					bEligibilityDone = true;
++				} // </advc.179>
++			}
++		}
++		if (kBuilding.isForceTeamVoteEligible()
++				&& !bEligibilityDone) // advc.179
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_ELECTION_ELIGIBILITY"));
++		}
+ 
+ 		if (kBuilding.getNumCitiesPrereq() > 0)
+ 		{
+@@ -10796,24 +10812,54 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 		}
+ 
+ 		if (bCivilopediaText)
+-		{
+-			if (kBuilding.getVictoryPrereq() != NO_VICTORY)
++		{	// advc.008a: Moved this block up a bit
++			if (kBuilding.getNumTeamsPrereq() > 0)
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_REQUIRES_VICTORY", GC.getVictoryInfo((VictoryTypes)(kBuilding.getVictoryPrereq())).getTextKeyWide()));
++				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_REQUIRES_NUM_TEAMS", kBuilding.getNumTeamsPrereq()));
+ 			}
+-
+-			if (kBuilding.getMaxStartEra() != NO_ERA)
++			if (kBuilding.getVictoryPrereq() != NO_VICTORY)
+ 			{
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_MAX_START_ERA", GC.getEraInfo((EraTypes)kBuilding.getMaxStartEra()).getTextKeyWide()));
++				// <advc.008a>
++				if(ePlayer == NO_PLAYER ||
++						!GC.getGameINLINE().isVictoryValid((VictoryTypes)
++						(kBuilding.getVictoryPrereq()))) {
++					if(ePlayer != NO_PLAYER)
++						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
++					// </advc.008a>
++					szBuffer.append(NEWLINE);
++					szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_REQUIRES_VICTORY", GC.getVictoryInfo((VictoryTypes)(kBuilding.getVictoryPrereq())).getTextKeyWide()));
++					// <advc.008a>
++					if(ePlayer != NO_PLAYER)
++						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
++				}
++					// </advc.008a>
+ 			}
+ 
+-			if (kBuilding.getNumTeamsPrereq() > 0)
+-			{
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_REQUIRES_NUM_TEAMS", kBuilding.getNumTeamsPrereq()));
++			if (kBuilding.getMaxStartEra() != NO_ERA)
++			{	// <advc.008a>
++				TechTypes techReq = (TechTypes)kBuilding.getPrereqAndTech();
++				bool bUnavailable = (ePlayer != NO_PLAYER &&
++						GC.getGameINLINE().getStartEra() >
++						kBuilding.getMaxStartEra());
++				if(bUnavailable || (ePlayer == NO_PLAYER && (techReq == NO_TECH ||
++						GC.getTechInfo(techReq).getEra() !=
++						kBuilding.getMaxStartEra() - 1))) { // </advc.008a>
++					szBuffer.append(NEWLINE);
++					// <advc.008a>
++					if(bUnavailable)
++						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
++					// </advc.008a>
++					szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_MAX_START_ERA",
++							GC.getEraInfo((EraTypes)kBuilding.getMaxStartEra()).
++							getTextKeyWide()));
++					// <advc.008a>
++					if(bUnavailable)
++						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
++					// </advc.008a>
++				}
+ 			}
++			// advc.008a: REQUIRES_NUM_TEAMS moved up
+ 		}
+ 		else
+ 		{
+@@ -10922,6 +10968,31 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 	}
+ }
+ 
++// <advc.179>
++void CvGameTextMgr::buildBuildingReligionYieldString(CvWStringBuffer& szBuffer,
++		CvBuildingInfo const& kBuilding) {
++
++	for(int i = 0; i < GC.getNumVoteSourceInfos(); i++) {
++		VoteSourceTypes vsId = (VoteSourceTypes)i;
++		if(vsId != kBuilding.getVoteSourceType())
++			continue;
++		CvVoteSourceInfo& vs = GC.getVoteSourceInfo(vsId);
++		bool bYield = false;
++		int aiYields[NUM_YIELD_TYPES];
++		for(int j = 0; j < NUM_YIELD_TYPES; j++) {
++			aiYields[j] = vs.getReligionYield(j);
++			if(vs.getReligionYield(j) != 0)
++				bYield = true;
++		}
++		if(bYield) {
++			setResumableYieldChangeHelp(szBuffer, L"", L"", L"", aiYields);
++			szBuffer.append(L" " + gDLL->getText(
++					"TXT_KEY_BUILDING_RELIGION_YIELD",
++					kBuilding.getDescription()));
++		}
++	}
++}
++// </advc.179>
+ 
+ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject, bool bCivilopediaText, CvCity* pCity)
+ {
+@@ -10948,9 +11019,11 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 	else
+ 	{
+ 		ePlayer = GC.getGameINLINE().getActivePlayer();
+-	} // <advc.003
+-	szTempBuffer.Format( SETCOLR L"<link=literal>%s</link>" ENDCOLR , TEXT_COLOR("COLOR_PROJECT_TEXT"), kProject.getDescription());
+-	szBuffer.append(szTempBuffer); // </advc.003>
++	}
++	if(!bCivilopediaText) { // <advc.003
++		szTempBuffer.Format( SETCOLR L"<link=literal>%s</link>" ENDCOLR , TEXT_COLOR("COLOR_PROJECT_TEXT"), kProject.getDescription());
++		szBuffer.append(szTempBuffer);
++	}
+ 	if (!bCivilopediaText
+ 			// advc.004w: Civilopedia from main menu
+ 			&& ePlayer != NO_PLAYER)
+@@ -11131,9 +11204,20 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 		if (bCivilopediaText)
+ 		{
+ 			if (kProject.getVictoryPrereq() != NO_VICTORY)
+-			{
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_STRING_VICTORY", GC.getVictoryInfo((VictoryTypes)(kProject.getVictoryPrereq())).getTextKeyWide()));
++			{	// <advc.008a>
++				if(ePlayer == NO_PLAYER ||
++						!GC.getGameINLINE().isVictoryValid((VictoryTypes)
++						(kProject.getVictoryPrereq()))) {
++					if(ePlayer != NO_PLAYER)
++						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
++					// </advc.008a>
++					szBuffer.append(NEWLINE);
++					szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_STRING_VICTORY", GC.getVictoryInfo((VictoryTypes)(kProject.getVictoryPrereq())).getTextKeyWide()));
++					// <advc.008a>
++					if(ePlayer != NO_PLAYER)
++						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
++					// </advc.008a>
++				}
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 8c510ae25..a0817b7ae 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -175,6 +175,9 @@ public:
+ 	DllExport bool buildPromotionString( CvWStringBuffer& szBuffer, TechTypes eTech, int iPromotionType, bool bFirst, bool bList = false, bool bPlayerContext = false );
+ 	DllExport void buildHintsList(CvWStringBuffer& szBuffer);
+ 	DllExport void buildBuildingRequiresString(CvWStringBuffer& szBuffer, BuildingTypes eBuilding, bool bCivilopediaText, bool bTechChooserText, const CvCity* pCity);
++	// <advc.179>
++	void buildBuildingReligionYieldString(CvWStringBuffer& szBuffer,
++			CvBuildingInfo const& kBuilding); // </advc.179>
+ 
+ 	DllExport void buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvCity* pCity);
+ 	DllExport void buildCityBillboardCityNameString( CvWStringBuffer& szBuffer, CvCity* pCity);
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=74266

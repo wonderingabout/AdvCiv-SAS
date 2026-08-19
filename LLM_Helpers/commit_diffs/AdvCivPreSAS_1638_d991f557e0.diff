@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1638
+# Commit: d991f557e010f0ca12e30387bc626dda904f2002
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8fdfdf2c1d7f9de2dcee87657e73a928fd75b80f
+# Title: Restored getForceBuildings function for Python
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	5	CvGameCoreDLL/CvInfos.cpp
+1	1	CvGameCoreDLL/CvInfos.h
+1	1	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 36be6d367..ab9a7080b 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -4092,13 +4092,17 @@ bool CvUnitInfo::getBuildings(int i) const
+ 	FAssertMsg(i > -1, "Index out of bounds");
+ 	return m_pbBuildings ? m_pbBuildings[i] : false;
+ }
+-// advc.003t
+-/*bool CvUnitInfo::getForceBuildings(int i) const
++
++bool CvUnitInfo::getForceBuildings(int i) const
+ {
+-	FAssertMsg(i < GC.getNumBuildingInfos(), "Index out of bounds");
++	/*FAssertMsg(i < GC.getNumBuildingInfos(), "Index out of bounds");
+ 	FAssertMsg(i > -1, "Index out of bounds");
+-	return m_pbForceBuildings ? m_pbForceBuildings[i] : false;
+-}*/
++	return m_pbForceBuildings ? m_pbForceBuildings[i] : false;*/
++	/*  advc.003t: I've removed the tag from XML, but don't want to break Python
++		code (yet). Specifically, the BtS CvCorporationScreen.py calls
++		getForceBuldings in line 153. */
++	return false;
++}
+ 
+ bool CvUnitInfo::getTerrainImpassable(int i) const
+ {
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index dd5c35545..5be356617 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -1004,7 +1004,7 @@ public:
+ 	bool getGreatPeoples(int i) const;			// Exposed to Python
+ 	bool getBuildings(int i) const;					// Exposed to Python
+ 	inline bool isAnyBuildings() const { return (m_pbBuildings != NULL); } // advc.003t
+-	//bool getForceBuildings(int i) const; // advc.003t
++	bool getForceBuildings(int i) const; // advc.003t: Dummy function
+ 	bool getTerrainImpassable(int i) const;				// Exposed to Python
+ 	inline bool isAnyTerrainImpassable() const { return (m_pbTerrainImpassable != NULL); } // advc.003t
+ 	bool getFeatureImpassable(int i) const;				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index feca063e0..c1d34eac0 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -348,7 +348,7 @@ void CyInfoPythonInterface1()
+ 		.def("getGreatPeoples", &CvUnitInfo::getGreatPeoples, "bool (int i)")
+ 		.def("getBuildings", &CvUnitInfo::getBuildings, "bool (int i)")
+ 		// advc.003t:
+-		//.def("getForceBuildings", &CvUnitInfo::getForceBuildings, "bool (int i)")
++		.def("getForceBuildings", &CvUnitInfo::getForceBuildings, "bool (int i)")
+ 		.def("getTerrainImpassable", &CvUnitInfo::getTerrainImpassable, "bool (int i)")
+ 		.def("getFeatureImpassable", &CvUnitInfo::getFeatureImpassable, "bool (int i)")
+ 		.def("getTerrainNative", &CvUnitInfo::getTerrainNative, "bool (int i)")
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2567

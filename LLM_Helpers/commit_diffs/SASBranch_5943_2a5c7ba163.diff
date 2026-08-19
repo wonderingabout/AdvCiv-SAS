@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5943
+# Commit: 2a5c7ba163286d1b9661b4de4be9f41d0bc470e2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b45eb19a0a45fee7e75c7a1ecb0856a4d98c3dac
+# Title: Relatively value AI unit upgrade priority/cost depending on map-heaviness (real cost unchanged) (less likely to upgrade naval units on land-heavy maps and vi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+45	2	CvGameCoreDLL/CvUnit.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 2d2780dc3..794492085 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1641,6 +1641,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: AI upgrade ROI effective-price multiplier for sea-unit upgrades on land-heavy maps. The real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades, so low-value ship upgrades are less likely to spend limited AI upgrade gold before stronger land upgrades. 100 disables the domain penalty. (ChatGPT-5.2 + GPT-5.5); Empirically a too high value (e.g., 150 or 200 causes naval upgrades to be effectively always ignored, adjust as you see fit). -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT</DefineName>
++		<iDefineIntVal>125</iDefineIntVal>
++	</Define>
++	<!-- custom: AI upgrade ROI effective-price multiplier for land-unit upgrades on naval-heavy maps. The real gold price is unchanged; this helps prioritize naval upgrades on maps where ships usually have higher strategic leverage. 100 disables the domain penalty. (ChatGPT-5.2 + ChatGPT-5.5 + GPT-5.5); (i'm guessing the same applies for land upgrades) -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT</DefineName>
++		<iDefineIntVal>125</iDefineIntVal>
++	</Define>
+ 	<!-- AI upgrade cost check: maximum gold per 10% strength gain. Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
+ 	<!-- custom: Long_Comments_XML.txt #105 -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8b1569776..79ab8bc1c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7245,6 +7245,35 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ 				int const iFromStrength = std::max(kFromUnit.getCombat(), kFromUnit.getAirCombat());
+ 				int const iToStrength   = std::max(kToUnit.getCombat(),   kToUnit.getAirCombat());
+ 				int const iStrengthGain = (iToStrength - iFromStrength);
++				int iEffectivePrice = iPrice;
++				int iDomainPricePercent = 100;
++				// <!-- custom: The real upgrade price stays unchanged; this only makes off-domain upgrades pass the AI ROI gates less often.
++				// On land-heavy maps, limited AI upgrade gold is usually better spent on land units than ships; on naval-heavy maps, ships are usually
++				// higher leverage than land upgrades. Keep this as an effective-price multiplier instead of a hard domain ban so experienced or
++				// high-impact off-domain upgrades can still pass when they are worth enough. (ChatGPT-5.2 + GPT-5.5) -->
++				{
++					CvGame const& kGame = GC.getGame();
++					if (kGame.isLandHeavyMapnameCached() && getDomainType() == DOMAIN_SEA)
++					{
++						static const int iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT");
++						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT);
++					}
++					else if (kGame.isNavalHeavyMapnameCached() && getDomainType() == DOMAIN_LAND)
++					{
++						static const int iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT");
++						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT);
++					}
++					if (iDomainPricePercent != 100)
++					{
++						iEffectivePrice = (iPrice * iDomainPricePercent + 50) / 100;
++						// <!-- custom: commented-out as (with a value of 200) it fires ~27k times on a ~T408 pangea large normal game speed autoplay (domain adjustments: 27,310, domain-adjusted blocked upgrades: 26,773, actual upgrades: 1,340, naval upgrades detected: 0) (according to ChatGPT-5.5's analysis of the corresponding BBAI log) -->
++						// if (gUnitLogLevel >= 3)
++						// {
++						// 	logBBAI("    %S AI upgrade domain ROI adjustment: %S -> %S domain=%d price=%d effectivePrice=%d domainPercent=%d",
++						// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), getDomainType(), iPrice, iEffectivePrice, iDomainPricePercent);
++						// }
++					}
++				}
+ 
+ 				// If there is no strength gain, do not block the upgrade (upgrades can also be valuable for non-strength reasons).
+ 				if (iFromStrength > 0 && iStrengthGain > 0)
+@@ -7266,8 +7295,15 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ 						{
+ 							// allowed gold = (gold per 10%) * (percent gain / 10%)
+ 							int const iAllowedGold = (iMaxGoldPer10Pct * iPercentStrengthGain + 5) / 10;
+-							if (iPrice > iAllowedGold)
++							if (iEffectivePrice > iAllowedGold)
++							{
++								// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
++								// {
++								// 	logBBAI("    %S AI upgrade blocked by domain-adjusted percent ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
++								// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
++								// }
+ 								return false;
++							}
+ 						}
+ 					}
+ 
+@@ -7283,8 +7319,15 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ 
+ 						// allowed gold = (gold per +1 flat strength) * (flat strength gain)
+ 						int const iAllowedGold = iMaxGoldPerFlatStr * iStrengthGain;
+-						if (iPrice > iAllowedGold)
++						if (iEffectivePrice > iAllowedGold)
++						{
++							// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
++							// {
++							// 	logBBAI("    %S AI upgrade blocked by domain-adjusted flat ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
++							// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
++							// }
+ 							return false;
++						}
+ 					}
+ 				}
+ 			}
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e9844c4a3..30b4edeea 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -306,6 +306,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Stack attack order — spend expendables first:** stack attacks now prefer **bombard/collateral** and **low-effective-strength/low-XP** units first (once the stack commits to attack), preserving elite finishers. Rationale: economically efficient (older/weaker units cost upkeep but scale poorly) and strategically safer (keep high-value units for decisive blows or retreats). Change in `CvSelectionGroupAI::AI_getBestGroupAttacker`. Toggle via SAS defines for A/B testing. See [KI#89](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first).
+ - **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). Note: sometimes/rarely ignored in autoplay.
+ - **Unit upgrades - stop wasting gold on tiny gains:** Fix AI tendency to **over-upgrade units** even when the upgrade is **poor value** (high gold cost for a small strength gain), which can burn many turns of **gold** and **slow tech pace**. Before allowing an upgrade, the AI must pass **simple ROI gates** based on **strength** gained vs gold cost: (1) gold per 10% strength gain, and (2) gold per +1 **flat strength** gain; both gates are **more lenient with higher unit EXP** (high-EXP units keep their promotions after being upgraded which is valuable, so spending more gold on them is more justified), while low-EXP units are treated more strictly (often better to let them die and rebuild if needed, unless it is cheap enough to upgrade them). Example (Knight -> Cuirassier): 10 strength -> 13 strength; if one of the gates requires `15 gold per +1 flat strength gain` with `+1 gold per +1 flat strength gain per 1 EXP`, then we won't upgrade the unit if its upgrade cost is more than `15 * 3 = 45 gold` at **0 EXP**, or `((15 + 18) * 3) = 99 gold` at **18 EXP** for this gate. In autoplay, this seemingly leads to **all AIs teching significantly faster**, especially in the **late game** where there are many units and AI would often have its tech pace stall for dozens of turns. Change in `CvUnit::canUpgrade` (single global gate, like `CvUnit::canScrap`); see [KI#88](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns).
++- (Requires AdvCiv-SAS 5943+) **Unit upgrades - prefer the important domain for the map:** AI unit-upgrade value now optionally uses the existing **SAS map-script heaviness** logic to **relatively value** unit upgrades (not a hard ban unless relative value is set high): the real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades. As a result, on **land-heavy maps, naval upgrades are treated as lower priority**, so the AI is more likely to **spend gold upgrading land units first** instead of modernizing old ships that have little strategic value on that map. On **naval-heavy maps, the same idea can apply in reverse for land upgrades**.
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=10479

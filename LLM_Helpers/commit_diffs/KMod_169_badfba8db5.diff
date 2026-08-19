@@ -1,0 +1,252 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 169
+# Commit: badfba8db5eed1a3ad698ebb3fe8dcdf0b24363c
+# History segment: K-Mod history
+# Parent used for diff: f2c41e4abdd234768bd14062c99c97c7c82a15e5
+# Title: Merge branch 'master' into immutable
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/CvCity.h
+23	14	CvGameCoreDLL/CvCityAI.cpp
+11	11	CvGameCoreDLL/CvCityAI.h
+3	0	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 8874c942d..342d615eb 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -984,14 +984,14 @@ public:
+ 	virtual void AI_setAssignWorkDirty(bool bNewValue) = 0;
+ 	virtual bool AI_isChooseProductionDirty() = 0;
+ 	virtual void AI_setChooseProductionDirty(bool bNewValue) = 0;
+-	virtual bool AI_isEmphasize(EmphasizeTypes eIndex) = 0;											// Exposed to Python
++	virtual bool AI_isEmphasize(EmphasizeTypes eIndex) const = 0;											// Exposed to Python
+ 	virtual void AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue) = 0;
+ 	virtual int AI_getBestBuildValue(int iIndex) = 0;
+ 	// K-Mod note: the following functions were originally created by jdog5000 for debugging BBAI. I've adopted them and changed them.
+-	virtual int AI_getTargetPopulation() = 0;
+-	virtual int AI_getGoodTileCount() = 0;
+-	virtual int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) = 0;
+-	virtual void AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange ) = 0;
++	virtual int AI_getTargetPopulation() const = 0;
++	virtual int AI_getGoodTileCount() const = 0;
++	virtual int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) const = 0;
++	virtual void AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange ) const = 0;
+ 	// K-Mod end
+ 	virtual int AI_totalBestBuildValue(CvArea* pArea) = 0;
+ 	virtual int AI_countBestBuilds(CvArea* pArea) = 0;													// Exposed to Python
+@@ -1003,7 +1003,7 @@ public:
+ 	virtual int AI_calculateCulturePressure(bool bGreatWork = false) = 0;
+ 	virtual int AI_calculateWaterWorldPercent() = 0;
+ 	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) = 0;
+-	virtual int AI_yieldMultiplier(YieldTypes eYield) = 0;
++	virtual int AI_yieldMultiplier(YieldTypes eYield) const = 0;
+ 	virtual int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance = 7) = 0;
+ 	virtual int AI_cityThreat(bool bDangerPercent = false) = 0;
+ 	virtual BuildingTypes AI_bestAdvancedStartBuilding(int iPass) = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6009f2453..516dd6df6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6313,7 +6313,7 @@ void CvCityAI::AI_updateRouteToCity()
+ }
+ 
+ 
+-int CvCityAI::AI_getEmphasizeYieldCount(YieldTypes eIndex)
++int CvCityAI::AI_getEmphasizeYieldCount(YieldTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+@@ -6321,13 +6321,13 @@ int CvCityAI::AI_getEmphasizeYieldCount(YieldTypes eIndex)
+ }
+ 
+ 
+-bool CvCityAI::AI_isEmphasizeYield(YieldTypes eIndex)
++bool CvCityAI::AI_isEmphasizeYield(YieldTypes eIndex) const
+ {
+ 	return (AI_getEmphasizeYieldCount(eIndex) > 0);
+ }
+ 
+ 
+-int CvCityAI::AI_getEmphasizeCommerceCount(CommerceTypes eIndex)
++int CvCityAI::AI_getEmphasizeCommerceCount(CommerceTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < NUM_COMMERCE_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+@@ -6335,13 +6335,13 @@ int CvCityAI::AI_getEmphasizeCommerceCount(CommerceTypes eIndex)
+ }
+ 
+ 
+-bool CvCityAI::AI_isEmphasizeCommerce(CommerceTypes eIndex)
++bool CvCityAI::AI_isEmphasizeCommerce(CommerceTypes eIndex) const
+ {
+ 	return (AI_getEmphasizeCommerceCount(eIndex) > 0);
+ }
+ 
+ 
+-bool CvCityAI::AI_isEmphasize(EmphasizeTypes eIndex)
++bool CvCityAI::AI_isEmphasize(EmphasizeTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < GC.getNumEmphasizeInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+@@ -6527,7 +6527,7 @@ int CvCityAI::AI_clearFeatureValue(int iIndex)
+ }
+ 
+ // K-Mod, based on ideas from BBAI (this code is currently duplicated in AI_getYieldMultipliers and AI_countWorkedPoorTiles)
+-int CvCityAI::AI_getGoodTileCount()
++int CvCityAI::AI_getGoodTileCount() const
+ {
+ 	int iGoodTileCount = 0;
+ 	int aiFinalYields[NUM_YIELD_TYPES];
+@@ -6603,7 +6603,7 @@ int CvCityAI::AI_getGoodTileCount()
+ 	return iGoodTileCount;
+ }
+ 
+-int CvCityAI::AI_countWorkedPoorTiles()
++int CvCityAI::AI_countWorkedPoorTiles() const
+ {
+ 	int iWorkedPoorTileCount = 0;
+ 	int aiFinalYields[NUM_YIELD_TYPES];
+@@ -6681,7 +6681,7 @@ int CvCityAI::AI_countWorkedPoorTiles()
+ }
+ 
+ // K-Mod, based on BBAI ideas
+-int CvCityAI::AI_getTargetPopulation()
++int CvCityAI::AI_getTargetPopulation() const
+ {
+ 	int iHealth = goodHealth() - badHealth() + getEspionageHealthCounter();
+ 	int iTargetSize = AI_getGoodTileCount();
+@@ -6700,7 +6700,7 @@ int CvCityAI::AI_getTargetPopulation()
+ 
+ // K-Mod note: This function was once used for Debug only, but I've made it the one and only way to get the yield multipliers.
+ // This way we don't have to put up with duplicated code.
+-void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange )
++void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange ) const
+ {
+ 	PROFILE_FUNC();
+ 	
+@@ -7096,7 +7096,7 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ }
+ 
+ 
+-int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild)
++int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
+ {
+ 	// first check if the improvement is valid on this plot
+ 	// this also allows us work out whether or not the improvement will remove the plot feature...
+@@ -10596,7 +10596,8 @@ int CvCityAI::AI_cityValue() const
+ 	/* original bts code
+ 	iValue += getCommerceRateTimes100(COMMERCE_GOLD);
+ 	iValue += getCommerceRateTimes100(COMMERCE_RESEARCH);
+-	iValue += 100 * getYieldRate(YIELD_PRODUCTION); */
++	iValue += 100 * getYieldRate(YIELD_PRODUCTION);
++	iValue -= 3 * calculateColonyMaintenanceTimes100(); */
+ 	// K-Mod. The original code fails for civs using high espionage or high culture.
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 	iValue += getCommerceRateTimes100(COMMERCE_GOLD);
+@@ -10608,8 +10609,16 @@ int CvCityAI::AI_cityValue() const
+ 	// but the problem is that CULTURE4 doesn't always run its full course. ... so I'm going to make a small ad hoc adjustment...
+ 	iValue += 100 * getYieldRate(YIELD_PRODUCTION);
+ 	iValue *= kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4)? 2 : 1;
+-	//iValue -= 3 * calculateColonyMaintenanceTimes100(); // original bts code
+-	iValue -= 2 * calculateColonyMaintenanceTimes100() + getMaintenanceTimes100() / 2;
++	int iCosts = 2 * calculateColonyMaintenanceTimes100() + getMaintenanceTimes100() / 2;
++	int iTargetPop = AI_getTargetPopulation();
++	if (getPopulation() > 0 && getPopulation() < iTargetPop)
++	{
++		iValue *= iTargetPop;
++		iValue /= std::max(1, getPopulation());
++		iCosts *= getPopulation();
++		iCosts /= iTargetPop;
++	}
++	iValue -= iCosts;
+ 	// K-Mod end
+ 
+ /*
+@@ -11218,7 +11227,7 @@ int CvCityAI::AI_buildingSpecialYieldChangeValue(BuildingTypes eBuilding, YieldT
+ }
+ 
+ 
+-int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
++int CvCityAI::AI_yieldMultiplier(YieldTypes eYield) const
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index ffc06f90c..67635fb24 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -88,13 +88,13 @@ public:
+ 	CvCity* AI_getRouteToCity() const;
+ 	void AI_updateRouteToCity();
+ 
+-	int AI_getEmphasizeYieldCount(YieldTypes eIndex);
+-	bool AI_isEmphasizeYield(YieldTypes eIndex);
++	int AI_getEmphasizeYieldCount(YieldTypes eIndex) const;
++	bool AI_isEmphasizeYield(YieldTypes eIndex) const;
+ 
+-	int AI_getEmphasizeCommerceCount(CommerceTypes eIndex);
+-	bool AI_isEmphasizeCommerce(CommerceTypes eIndex);
++	int AI_getEmphasizeCommerceCount(CommerceTypes eIndex) const;
++	bool AI_isEmphasizeCommerce(CommerceTypes eIndex) const;
+ 
+-	bool AI_isEmphasize(EmphasizeTypes eIndex);
++	bool AI_isEmphasize(EmphasizeTypes eIndex) const;
+ 	void AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue);
+ 	void AI_forceEmphasizeCulture(bool bNewValue);
+ 
+@@ -103,11 +103,11 @@ public:
+ 
+ 	int AI_clearFeatureValue(int iIndex);
+ 	// K-Mod note: the following functions were originally created by jdog5000 for debugging BBAI. I've adopted them and changed them.
+-	int AI_getGoodTileCount();
+-	int AI_countWorkedPoorTiles();
+-	int AI_getTargetPopulation();
+-	int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0);
+-	void AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange);
++	int AI_getGoodTileCount() const;
++	int AI_countWorkedPoorTiles() const;
++	int AI_getTargetPopulation() const;
++	int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) const;
++	void AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange) const;
+ 	// K-Mod end
+ 	BuildTypes AI_getBestBuild(int iIndex);
+ 	int AI_countBestBuilds(CvArea* pArea);
+@@ -121,7 +121,7 @@ public:
+ 
+ 	int AI_calculateMilitaryOutput() const; // K-Mod
+     
+-    int AI_yieldMultiplier(YieldTypes eYield);
++    int AI_yieldMultiplier(YieldTypes eYield) const;
+     void AI_updateSpecialYieldMultiplier();
+     int AI_specialYieldMultiplier(YieldTypes eYield);
+
+diff --git a/changelog.txt b/changelog.txt
+index f8cede835..015c909ea 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -134,6 +134,9 @@ AI changes:
+ + Rewrote the AI's city evaluation of specialists.
+ + Rewrote parts of the AI's evaluation of corporation HQ, effect on cities, and civics. [It will now choose its HQ cities more wisely.]
+ 
++v0.97b
+++ Fixed a bug which was completely preventing global warming.
++
+ --
+ 
+ v0.96 changelist
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=11152

@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5728
+# Commit: c0087237931dd4875d8c8c3df33d57031ce3267a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 554f98b0194b5d2f4e89c20b678472d7330b42f5
+# Title: fix first open of e.g., specialists category having UP/DOWN keyboard not working but 2nd visit then working
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 92bef8475..c12a92d3c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -713,6 +713,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			# <!-- custom: same cleanup for history-expanded re-render; prevents leftover page controls (e.g. AI panel/expand button) when switching items while expanded. (GPT-5.3-Codex) -->
+ 			self.deleteAllWidgets()
+ 			func.interfaceScreen(iItem)
++		# <!-- custom: fix first-visit Sevopedia category keyboard navigation within the same open Sevopedia session:
++		# the first click on Specialists left UP/DOWN inactive, but after clicking Bonuses and then Specialists again,
++		# UP/DOWN worked in Specialists. Tested: first Specialists open now has working UP/DOWN. Additional sanity checks,
++		# not confirmed original failures: first direct open to expanded panels works, and first direct open to the Leaders
++		# category animation panel works. (GPT-5.5) -->
++		self.SAS_refocusItemListForKeyboardNavigation()
+ 
+ 	def determineNewConceptSubCategory(self, iItem):
+ 		info = gc.getNewConceptInfo(iItem)
+@@ -731,6 +737,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				return item[1]
+ 		return -1
+ 
++	def SAS_refocusItemListForKeyboardNavigation(self):
++		if self.SAS_lastItemsWidget is None:
++			return
++		try:
++			self.getScreen().setFocus(self.ITEM_LIST_ID)
++		except:
++			pass
++
+ 	def isContentsShowing(self):
+ 		return self.tab == self.TAB_TOC
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1583

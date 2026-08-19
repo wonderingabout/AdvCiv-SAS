@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1245
+# Commit: 103ef3477753a12f9364cb6a091e30d81e6e17a3
+# History segment: K-Mod history
+# Parent used for diff: ea33ae5ac77216e79be9411aea7e7251d5fa0840
+# Title: Replaced several misuses of CvUnit::getMoves with baseMoves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	5	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 665123377..9d8fbdaed 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6661,7 +6661,7 @@ void CvUnitAI::AI_attackSeaMove()
+ 				return;
+ 			}
+ 
+-			if (AI_shadow(UNITAI_ASSAULT_SEA, 4, 34, false, true, getMoves()))
++			if (AI_shadow(UNITAI_ASSAULT_SEA, 4, 34, false, true, baseMoves()))
+ 			{
+ 				return;
+ 			}
+@@ -6911,7 +6911,7 @@ void CvUnitAI::AI_reserveSeaMove()
+ 				return;
+ 			}
+ 
+-			if (AI_shadow(UNITAI_SETTLER_SEA, 2, -1, false, true, getMoves()))
++			if (AI_shadow(UNITAI_SETTLER_SEA, 2, -1, false, true, baseMoves()))
+ 			{
+ 				return;
+ 			}
+@@ -7126,7 +7126,7 @@ void CvUnitAI::AI_escortSeaMove()
+ 				return;
+ 			}
+ 
+-			if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 1, -1, /*bIgnoreFaster*/ true, false, false, /*iMaxPath*/ getMoves()))
++			if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 1, -1, /*bIgnoreFaster*/ true, false, false, /*iMaxPath*/ baseMoves()))
+ 			{
+ 				return;
+ 			}
+@@ -8984,7 +8984,7 @@ void CvUnitAI::AI_missileCarrierSeaMove()
+ 
+ 		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
+ 		{
+-			if (AI_shadow(UNITAI_ASSAULT_SEA, 1, 50, false, true, getMoves()))
++			if (AI_shadow(UNITAI_ASSAULT_SEA, 1, 50, false, true, baseMoves()))
+ 			{
+ 				return;
+ 			}
+@@ -16182,6 +16182,7 @@ bool CvUnitAI::AI_blockade()
+ 
+ 
+ // Returns true if a mission was pushed...
++// K-Mod todo: this function is very slow on large maps. Consider rewritting it!
+ bool CvUnitAI::AI_pirateBlockade()
+ {
+ 	PROFILE_FUNC();
+@@ -16213,7 +16214,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 							{
+ 								if (pLoopUnit->currEffectiveStr(NULL, NULL, NULL) > currEffectiveStr(pLoopPlot, pLoopUnit, NULL))
+ 								{
+-									iBestHostileMoves = std::max(iBestHostileMoves, pLoopUnit->getMoves());									
++									iBestHostileMoves = std::max(iBestHostileMoves, pLoopUnit->baseMoves());
+ 								}
+ 							}
+ 						}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1946

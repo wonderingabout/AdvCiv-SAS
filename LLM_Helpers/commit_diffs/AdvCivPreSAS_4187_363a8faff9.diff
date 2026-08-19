@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4187
+# Commit: 363a8faff9b665099c4d5f659b4fbfc799992817
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e81ef0b3c7f458bce6397df2b3cbfb72746b3051
+# Title: Assert that Steam version of the EXE isn't used
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/SelfMod.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index 1a21badad..4d3b9ddc0 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -190,7 +190,8 @@ bool SelfMod::testCodeLayout(byte* pBytes, int iBytes, uint uiStart) const
+ 						until SelfMod is finished */
+ 					"Debugger breakpoint?");
+ 		#endif
+-			FErrorMsg("Unexpected memory layout of EXE");
++			FErrorMsg("Unexpected memory layout of EXE"
++				" (Steam version? will need to switch to \"unsupported beta\" version of BtS)");
+ 			return false;
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=547

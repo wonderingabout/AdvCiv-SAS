@@ -1,0 +1,89 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4575
+# Commit: de2199ccab94573e8fb79b6d827b75c444c47e3b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1a0cf032bcb8fdf367577729caaad2d4e6dd2ac6
+# Title: rename "Ace" to "Air Evasion", buff Air evasion + minor other fixes and/or additions or/and changes, about this i mean anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+5	3	Assets/XML/Units/CIV4PromotionInfos.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index bba2b9d5d..1318c85bc 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -381,6 +381,33 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- custom: an ace can be on the ground/land too, about this i
++	mean anyways, thanks, hopefully clearer now, about this i mean
++	anyways, thanks, -->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
++		<English>Air Evasion</English>
++		<French>
++			<Text>Air Evasion</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Air Evasion</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Air Evasion</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Air Evasion</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ 	<!-- custom: name is more epic, not necessarily clearer (especially
+ 	with new tech requirement that is sooner, in earlier eras, but it
+ 	is historically more correct according to my research about this
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 2a9e12a8c..1fd0a2ccd 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -4595,10 +4595,12 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Description>TXT_KEY_PROMOTION_ACE</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_COMBAT3</PromotionPrereqOr1>
++			<!-- custom: -->
++			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
++			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<!-- custom: -->
++			<TechPrereq>TECH_FLIGHT</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+index 7a3ff41a1..c82f65336 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2480

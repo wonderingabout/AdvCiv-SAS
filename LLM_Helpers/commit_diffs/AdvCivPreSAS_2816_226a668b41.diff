@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2816
+# Commit: 226a668b41a6bbebceaf3eafd465bb1fa25dd343
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 24cf92c4982621db3eb8358edcd45afd7f16aee5
+# Title: Amend fair play commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	7	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 0a2d133a5..d2bc09356 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3374,11 +3374,10 @@ void FairPlay::evaluate() {
+ 	/*  Actually, never mind checking for starting tech. Don't want early rushes
+ 		on low difficulty either. */
+ 	EraTypes const startEra = game.getStartEra();
+-	int const trainMod = speed.getTrainPercent() * GC.getInfo(startEra).getTrainPercent();
+-	if(trainMod <= 0) {
+-		FAssert(trainMod > 0);
+-		return;
+-	}
++	double const trainMod = (speed.getTrainPercent() *
++			GC.getInfo(startEra).getTrainPercent()) / (100.0 * 100.0);
++	FAssert(trainMod > 0);
++
+ 	double uMinus = 0;
+ 	/*  All bets off by turn 100, but, already by turn 50, the cost may
+ 		no longer be prohibitive. */
+@@ -3387,7 +3386,7 @@ void FairPlay::evaluate() {
+ 	iTargetTurn = ::round(iTargetTurn *
+ 			((1 + 1.5 * (game.getRecommendedPlayers() /
+ 			(double)game.getCivPlayersEverAlive())) / 2.5));
+-	int iElapsed = ::round(game.getElapsedGameTurns() / (trainMod / 10000.0));
++	int iElapsed = ::round(game.getElapsedGameTurns() / trainMod);
+ 	int iTurnsRemaining = iTargetTurn - iElapsed - GC.getInfo(startEra).getStartPercent();
+ 	if(iTurnsRemaining > 0)
+ 	{
+@@ -3395,7 +3394,7 @@ void FairPlay::evaluate() {
+ 		uMinus = std::pow(iTurnsRemaining / 2.0, 1.28);
+ 		if(gameEra > startEra) {
+ 			log("The game era has surpassed the start era");
+-			uMinus *= 3/3.;
++			uMinus *= 3/4.;
+ 		}
+ 		if(they->getCurrentEra() > startEra) {
+ 			log("Their era has surpassed the start era");
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1598

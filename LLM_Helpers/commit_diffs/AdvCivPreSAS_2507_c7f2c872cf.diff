@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2507
+# Commit: c7f2c872cf19b8c0aabeaca59eecde8acf1a6987
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fa4cf96b69bfb5f23414822038dd4c49070ff4f4
+# Title: Apply culture strength modifiers only after scale adjustment
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	8	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c6819e445..410e1c75e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4126,6 +4126,17 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 	rSecondPartyModifier.clamp(0, 1);
+ 	rStrength *= rSecondPartyModifier;
+ 
++	/*	Culture strength too low in the late game - or garrison strength too high, but
++		garrison strength is what players can directly control; needs to be simple, linear.
++		Make this adjustment before applying grievance modifiers (or any other modifiers
++		that the UI communicates to the player). */
++	static scaled const rFOREIGN_CULTURE_STRENGTH_EXPONENT = per100(
++			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT"));
++	static scaled const rFOREIGN_CULTURE_STRENGTH_FACTOR = per100(
++			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_FACTOR"));
++	rStrength.exponentiate(rFOREIGN_CULTURE_STRENGTH_EXPONENT);
++	rStrength *= rFOREIGN_CULTURE_STRENGTH_FACTOR;
++
+ 	static scaled const rREVOLT_OFFENSE_STATE_RELIGION_MODIFIER = per100(
+ 			GC.getDefineINT("REVOLT_OFFENSE_STATE_RELIGION_MODIFIER"));
+ 	static scaled const rREVOLT_DEFENSE_STATE_RELIGION_MODIFIER = per100(
+@@ -4199,14 +4210,8 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 	if(rGrievanceModifier < 0)
+ 		rGrievanceModifier /= 2;
+ 	rStrength *= (1 + scaled::max(-1, rGrievanceModifier));
+-	/*	Culture strength too low in the late game - or garrison strength too high, but
+-		garrison strength is what players can directly control; needs to be simple, linear. */
+-	static scaled const rFOREIGN_CULTURE_STRENGTH_EXPONENT = per100(
+-			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT"));
+-	static scaled const rFOREIGN_CULTURE_STRENGTH_FACTOR = per100(
+-			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_FACTOR"));
+-	return (rFOREIGN_CULTURE_STRENGTH_FACTOR *
+-			rStrength.pow(rFOREIGN_CULTURE_STRENGTH_EXPONENT)).round();
++
++	return rStrength.round();
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1929

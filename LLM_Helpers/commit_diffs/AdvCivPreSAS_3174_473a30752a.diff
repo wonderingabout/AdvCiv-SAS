@@ -1,0 +1,243 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3174
+# Commit: 473a30752a743301785e477d7079bd580a8444a7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f82a10cfb7d787cc7a417af3e14701811642aa87
+# Title: Move some bitwise helper code out of EnumMap.h
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+39	23	CvGameCoreDLL/BitUtil.h
+3	15	CvGameCoreDLL/CvInfo_EnumMap.h
+5	16	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+index 382d07c00..31b865dfd 100644
+--- a/CvGameCoreDLL/BitUtil.h
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -7,10 +7,10 @@
+ 	"We the People" mod (all code by Nightinggale), which keeps these functions
+ 	directly in CvGameCoreDLL.h. */
+ 
+-namespace BitUtil // advc: Don't want these in the global namespace (for now)
++namespace BitUtil // advc: Don't want these in the global namespace
+ {
+ 	template <typename T>
+-	bool HasBit(const T x, const int y)
++	bool GetBit(const T x, const int y) // advc: renamed from "HasBit"
+ 	{
+ 		return (x & ((T)1U << y)) != 0;
+ 	}
+@@ -21,39 +21,29 @@ namespace BitUtil // advc: Don't want these in the global namespace (for now)
+ 		return x = (T)(x | ((T)1U << y));
+ 	}
+ 
+-	// use one of the previous functions instead of hardcoding bValue
+-	// this function is only for cases where a bit can be turned both on and off
+-	template <typename T>
+-	T SetBit(T &x, const int y, const bool bValue)
+-	{
+-		if (bValue)
+-		{
+-			return x = (T)(x | ((T)1U << y));
+-		}
+-		else
+-		{
+-			return x = (T)(x & ~((T)1U << y));
+-		}
+-	}
+-// advc: The rest are unused for now
+-#if 0
+ 	template <typename T>
+ 	T ClrBit(T &x, const int y)
+ 	{
+ 		return x = (T)(x & ~((T)1U << y));
+ 	}
+ 
+-	// use both has and get prefix as both fits and remembering both appears to be a pain
++	// use one of the previous functions instead of hardcoding bValue
++	// this function is only for cases where a bit can be turned both on and off
+ 	template <typename T>
+-	T GetBits(T &x, const int iIndex, const int iNumBits)
++	T SetBit(T &x, const int y, const bool bValue)
+ 	{
+-		return (x >> iIndex) & (((T)1u << iNumBits) - 1);
++		// advc: Forward the call instead of duplicating code
++		if (bValue)
++			return SetBit(x, y);
++		return ClrBit(x, y);
+ 	}
+ 
++// advc: These are unused for now
++#if 0
+ 	template <typename T>
+-	T HasBits(T &x, const int iIndex, const int iNumBits)
++	T GetBits(T &x, const int iIndex, const int iNumBits)
+ 	{
+-		return GetBits(x, iIndex, iNumBits);
++		return (x >> iIndex) & (((T)1u << iNumBits) - 1);
+ 	}
+ 
+ 	template <typename T>
+@@ -64,6 +54,32 @@ namespace BitUtil // advc: Don't want these in the global namespace (for now)
+ 		return x;
+ 	}
+ #endif
++
++	/*	<advc> Helpers for representing bits as arrays of uint blocks.
++		These were EnumMap members in WtP; moved. */
++	inline int getIndexInBlock(int iBitPos)
++	{
++		// bitmasks to get the bits, which gives the indexes to store 8 or 32 bit.
++		// modulo is slow at runtime, binary AND is fast. They give the same result in this case.
++		// Maybe the compiler will optimize to a binary and, but explicitly writing it means we are certain it will optimize.
++		// In fact this way it's "optimized" even in debug builds.
++		return iBitPos & 0x1F;
++	}
++	
++	// Add these for convenience ...
++	inline bool getBitFromBlocks(uint const* auiBlocks, int iBitPos)
++	{
++		return GetBit(
++				auiBlocks[iBitPos / 32],
++				getIndexInBlock(iBitPos));
++	}
++	inline void setBitInBlocks(uint* auiBlocks, int iBitPos, bool bValue)
++	{
++		SetBit(auiBlocks[iBitPos / 32],
++				getIndexInBlock(iBitPos),
++				bValue);
++	}
++	// </advc>
+ };
+ 
+ // advc.enum (not from WtP): Macro for (somewhat) type-safe bitmasks
+
+diff --git a/CvGameCoreDLL/CvInfo_EnumMap.h b/CvGameCoreDLL/CvInfo_EnumMap.h
+index c2359a985..18c6ce797 100644
+--- a/CvGameCoreDLL/CvInfo_EnumMap.h
++++ b/CvGameCoreDLL/CvInfo_EnumMap.h
+@@ -621,7 +621,7 @@ private:
+ 	template<>
+ 	void _setUnsafe<bool>(E eKey, bool bValue)
+ 	{
+-		BitUtil::SetBit(m_blocks[getBlock(eKey)], getIndexInBlock(eKey), bValue);
++		BitUtil::setBitInBlocks(m_blocks, eKey, bValue);
+ 	}
+ 
+ 	template<typename T>
+@@ -633,24 +633,12 @@ private:
+ 	template<>
+ 	bool _getUnsafe<bool>(E eKey) const
+ 	{
+-		return BitUtil::HasBit(m_blocks[getBlock(eKey)], getIndexInBlock(eKey));
+-	}
+-
+-	/*	From the WtP enum map (EnumMap.h) ...  (Should only be called if V==bool,
+-		but I'm not going to bother safeguarding that requirement.) */
+-	int getBlock(int i) const
+-	{
+-		return i / 32;
+-	}
+-
+-	int getIndexInBlock(int i) const
+-	{
+-		return i & 0x1F;
++		return BitUtil::getBitFromBlocks(m_blocks, eKey);
+ 	}
+ 
+ 	int numBlocks() const
+ 	{
+-		return intdiv::uceil(fullLength(), 32);
++		return (fullLength() + 31) / 32;
+ 	}
+ // <advc.003i>
+ protected:
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index e45fe6793..758828b9d 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -62,13 +62,6 @@ enum
+ 	// if a bool array has <= this number of bits, then, instead of allocating memory elsewhere,
+ 	// the data will be placed in the class itself
+ 	ENUMMAP_MAX_INLINE_BOOL = 64,
+-
+-	// bitmasks to get the bits, which gives the indexes to store 8 or 32 bit.
+-	// modulo is slow at runtime, binary AND is fast. They give the same result in this case.
+-	// Maybe the compiler will optimize to a binary and, but explicitly writing it means we are certain it will optimize.
+-	// In fact this way it's "optimized" even in debug builds.
+-	//ENUMMAP_BITMASK_8_BIT = 7, // advc: unused for now
+-	ENUMMAP_BITMASK_32_BIT = 0x1F,
+ };
+ 
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET = IndexType, class LengthType = IndexType>
+@@ -211,7 +204,7 @@ private:
+ 	};
+ 
+ 	/*	bool helpers
+-		advc.003t (note): ArrayEnumMap uses the same logic */
++		advc: getBoolArrayIndexInBlock replaced with BitUtil::getIndexInBlock */
+ 	__inline int getBoolArrayBlock(int iIndex) const
+ 	{
+ 		if (bINLINE_BOOL && NUM_BOOL_BLOCKS == 1)
+@@ -223,10 +216,6 @@ private:
+ 		}
+ 		return iIndex / 32;
+ 	}
+-	int getBoolArrayIndexInBlock(int iIndex) const
+-	{
+-		return iIndex & ENUMMAP_BITMASK_32_BIT;
+-	}
+ 
+ 	////
+ 	//// Specialized functions
+@@ -299,7 +288,7 @@ private:
+ 	template<>
+ 	T _get<false, ENUMMAP_SIZE_BOOL>(int iIndex) const
+ 	{
+-		return m_pArrayBool ? BitUtil::HasBit(m_pArrayBool[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex)) : DEFAULT;
++		return m_pArrayBool ? BitUtil::GetBit(m_pArrayBool[getBoolArrayBlock(iIndex)], BitUtil::getIndexInBlock(iIndex)) : DEFAULT;
+ 	}
+ 	/*template<>
+ 	T _get<true, ENUMMAP_SIZE_NATIVE>(int iIndex) const
+@@ -319,7 +308,7 @@ private:
+ 	template<>
+ 	T _get<true, ENUMMAP_SIZE_BOOL>(int iIndex) const
+ 	{
+-		return BitUtil::HasBit(m_InlineBoolArray[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex));
++		return BitUtil::GetBit(m_InlineBoolArray[getBoolArrayBlock(iIndex)], BitUtil::getIndexInBlock(iIndex));
+ 	}
+ 
+ 	// set
+@@ -342,7 +331,7 @@ private:
+ 	void _set<false, ENUMMAP_SIZE_BOOL>(int iIndex, T tValue)
+ 	{
+ 		BitUtil::SetBit(m_pArrayBool[getBoolArrayBlock(iIndex)],
+-				getBoolArrayIndexInBlock(iIndex), tValue ? 1 : 0);
++				BitUtil::getIndexInBlock(iIndex), tValue ? 1 : 0);
+ 	}
+ 	/*template<>
+ 	void _set<true, ENUMMAP_SIZE_NATIVE>(int iIndex, T tValue)
+@@ -362,7 +351,7 @@ private:
+ 	template<>
+ 	void _set<true, ENUMMAP_SIZE_BOOL>(int iIndex, T tValue)
+ 	{
+-		BitUtil::SetBit(m_InlineBoolArray[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex), tValue ? 1 : 0);
++		BitUtil::SetBit(m_InlineBoolArray[getBoolArrayBlock(iIndex)], BitUtil::getIndexInBlock(iIndex), tValue ? 1 : 0);
+ 	}
+ 
+ 	// setAll
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7122

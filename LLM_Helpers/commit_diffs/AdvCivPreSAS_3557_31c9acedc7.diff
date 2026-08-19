@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3557
+# Commit: 31c9acedc799a6f1ab17efc4b952a40d322e9693
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: acf333fe61d1037edc5918d1621c9bee4bae9576
+# Title: Place all map scripts in PrivateMaps
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	0	{PublicMaps => PrivateMaps}/Fractal.py
+0	0	{PublicMaps => PrivateMaps}/Hemispheres.py
+0	0	{PublicMaps => PrivateMaps}/Pangaea.py
+0	0	{PublicMaps => PrivateMaps}/Tectonics.py
+0	0	{PublicMaps => PrivateMaps}/Terra.py
+ rename {PublicMaps => PrivateMaps}/Fractal.py (100%)
+ rename {PublicMaps => PrivateMaps}/Hemispheres.py (100%)
+ rename {PublicMaps => PrivateMaps}/Pangaea.py (100%)
+ rename {PublicMaps => PrivateMaps}/Tectonics.py (100%)
+ rename {PublicMaps => PrivateMaps}/Terra.py (100%)
+
+[PATCHES]
+
+diff --git a/PublicMaps/Fractal.py b/PrivateMaps/Fractal.py
+similarity index 100%
+rename from PublicMaps/Fractal.py
+rename to PrivateMaps/Fractal.py
+
+diff --git a/PublicMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+similarity index 100%
+rename from PublicMaps/Hemispheres.py
+rename to PrivateMaps/Hemispheres.py
+
+diff --git a/PublicMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+similarity index 100%
+rename from PublicMaps/Pangaea.py
+rename to PrivateMaps/Pangaea.py
+
+diff --git a/PublicMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+similarity index 100%
+rename from PublicMaps/Tectonics.py
+rename to PrivateMaps/Tectonics.py
+
+diff --git a/PublicMaps/Terra.py b/PrivateMaps/Terra.py
+similarity index 100%
+rename from PublicMaps/Terra.py
+rename to PrivateMaps/Terra.py
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=756

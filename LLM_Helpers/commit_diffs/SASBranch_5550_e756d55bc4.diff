@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5550
+# Commit: e756d55bc40bc91cff369ac9a95c7b3f028d177b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2f57a2d8a727e06e92b3ece1c165139eef0b7423
+# Title: shorter numTxt abbreviations and better centering (more to the right) to match shorter abbreviation needing so
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	16	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+35	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+2	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 1b4ee584f..308e4e3a5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -604,7 +604,7 @@ class SevoPediaBuilding:
+ 				if iDefaultBuilding != -1:
+ 					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+ 
+-					numTxt = "AllC %s+RM" % iNumRequired
++					numTxt = "AC %s+R" % iNumRequired
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+ 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+@@ -723,7 +723,7 @@ class SevoPediaBuilding:
+ 			if iNumRequired > 0:
+ 				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
+ 
+-				numTxt = "AllC %s+RM" % iNumRequired
++				numTxt = "AC %s+R" % iNumRequired
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+ 				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+@@ -741,7 +741,7 @@ class SevoPediaBuilding:
+ 
+ 				# <!-- custom: add numTxt info that this building prereq is or may beoverriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of -->
+ 				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
+-					numTxt = "(!)Civic(s)"
++					numTxt = "(!)Cvc"
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+ 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+@@ -833,7 +833,7 @@ class SevoPediaBuilding:
+ 		if iFreePromotion != -1:
+ 			screen.appendMultiListButton(rowListName, gc.getPromotionInfo(iFreePromotion).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, 1, False)
+ 
+-			numTxt = "All Un.C"
++			numTxt = "AUC"
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+ 			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+@@ -849,7 +849,7 @@ class SevoPediaBuilding:
+ 			if iDefaultBuilding != -1:
+ 				screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+ 
+-				numTxt = "All Cs"
++				numTxt = "ACs"
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+ 				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 2138a8514..7123e0c85 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -479,22 +479,7 @@ class SevoPediaTerrain:
+ 					if (iHillsAttack != 0 or iHillsDefense != 0):
+ 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
+ 					else:
+-						# <!-- custom: display first the modifier, and only if there are no modifiers, try to display the promotion(s) instead if there are any promotion(s); also efficient code computationally provided added with the help of chatgpt thanks. -->
+-						s = ""
+-						if isHasHM1:
+-							s = "HM1"
+-						if isHasHM2:
+-							if s:
+-								s += "+2"
+-							else:
+-								s = "HM2"
+-						if isHasHM3:
+-							if s:
+-								s += "+3"
+-							else:
+-								s = "HM3"
+-						if s:
+-							numTxt = s
++						numTxt = get_numTxt_promotion_tier_compact("HM", isHasHM1, isHasHM2, isHasHM3)
+ 
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+ 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index c5477015d..b0377db72 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -364,10 +364,36 @@ def get_numTxt_combat_type_modifiers(iModCombat):
+ 
+ 
+ 
++def get_numTxt_promotion_tier_compact(prefix, bHasTier1, bHasTier2, bHasTier3):
++	tierIds = []
++	if bHasTier1:
++		tierIds.append(1)
++	if bHasTier2:
++		tierIds.append(2)
++	if bHasTier3:
++		tierIds.append(3)
++	if len(tierIds) == 0:
++		return ""
++	if len(tierIds) == 1:
++		return "%s%d" % (prefix, tierIds[0])
++
++	iMin = min(tierIds)
++	iMax = max(tierIds)
++	bContiguous = (len(tierIds) == (iMax - iMin + 1))
++	if bContiguous:
++		return "%s%d-%d" % (prefix, iMin, iMax)
++
++	szText = "%s%d" % (prefix, tierIds[0])
++	for iTier in tierIds[1:]:
++		szText += "+%d" % iTier
++	return szText
++
++
++
+ def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
+ 	# <!-- custom: note: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of sevopedia building py file if needed: based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this -->
+ 	if iNumFreeBonuses == -1:
+-		return "RM"
++		return "FBBR"
+ 	elif iNumFreeBonuses >= 1:
+ 		return "%d" % (iNumFreeBonuses)
+ 	else:
+@@ -376,6 +402,14 @@ def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
+ 
+ 
+ def get_extra_correction_x(numTxt):
++	# <!-- custom: shorter custom abbreviations (InC, ACs, AUC, AC N+R, etc.) looked slightly left after shortening, so nudge them right without changing generic modifier labels. (GPT-5.3-Codex) -->
++	if numTxt in ("InC", "ACs", "AUC"):
++		return -3
++	if numTxt in ("(!)Cvc", "FBBR"):
++		return -2
++	if numTxt.startswith("AC ") and numTxt.endswith("+R"):
++		return -4
++
+ 	if len(numTxt) <= 3:
+ 		# <!-- custom: example "_/_", "1", etc -->
+ 		return -6
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 612e2c18f..db04d5dd1 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -150,7 +150,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND_PEDIA</Tag>
+-		<English>[H1]Sevopedia numTxt Legend[\H1][PARAGRAPH:2]This page explains abbreviated labels shown under icon buttons in Sevopedia Building, Unit, Terrain, and Feature pages.[PARAGRAPH:2][H2]Building page numTxt[\H2][PARAGRAPH:2]- InC: required in city (the prerequisite building must be in the same city).[PARAGRAPH:2]- RM: world-size requirement modifier (not random). This is the same RM used inside AllC N+RM.[PARAGRAPH:2]- AllC N+RM: required in all cities. N = base XML requirement, RM = world-size requirement modifier from World Size iBuildingClassPrereqModifier (rounded up). [PARAGRAPH:2]- Example for AllC with N=2: Duel/Tiny (modifier 0) => 2; Standard (+38) => 3; Huge (+75) => 4.[PARAGRAPH:2]- All Cs: applies to all cities.[PARAGRAPH:2]- All Un.C: applies to all eligible unit classes/combats.[PARAGRAPH:2]- (!)Civic(s): this prerequisite can be bypassed or altered by civic rules.[PARAGRAPH:2]- OR: alternative prerequisite grouping; one of the OR-linked icons can satisfy that part.[PARAGRAPH:2]- Plain number (for example 1, 2, 3): exact count linked to that icon (for example free specialists count).[PARAGRAPH:2]- RM (when shown alone for free bonus count): world-size dependent free bonus count (iNumFreeBuildingBonuses). In this mod, for example: Standard=4, Huge=6.[PARAGRAPH:2][H2]Unit/Terrain/Feature page numTxt[\H2][PARAGRAPH:2]- +A/+D: attack and defense percent modifiers.[PARAGRAPH:2]- +A/_: attack-only modifier.[PARAGRAPH:2]- _/+D: defense-only modifier.[PARAGRAPH:2]- _/_: no attack/defense modifier.[PARAGRAPH:2]- +X%: single percent modifier (for example combat-class modifier).[PARAGRAPH:2]- N: unit has free Navigator promotion.[PARAGRAPH:2]- HM1, HM2, HM3: unit has free Hills Master tier 1/2/3. Combined forms (for example HM1+2+3) indicate multiple free tiers.[PARAGRAPH:2]- W1, W2, W3: unit has free Woodsman tier 1/2/3. Combined forms (for example W1+2+3) indicate multiple free tiers.</English>
++		<English>[H1]Sevopedia numTxt Legend[\H1][PARAGRAPH:2]This page explains abbreviated labels shown under icon buttons in Sevopedia Building, Unit, Terrain, and Feature pages.[PARAGRAPH:2][H2]Building page numTxt[\H2][PARAGRAPH:2]- InC: required in city (the prerequisite building must be in the same city).[PARAGRAPH:2]- R: world-size requirement modifier (not random). This is the same R used inside AC N+R.[PARAGRAPH:2]- AC N+R: required in all cities. N = base XML requirement, R = world-size requirement modifier from World Size iBuildingClassPrereqModifier (rounded up). [PARAGRAPH:2]- Example for AC with N=2: Duel/Tiny (modifier 0) => 2; Standard (+38) => 3; Huge (+75) => 4.[PARAGRAPH:2]- ACs: applies to all cities.[PARAGRAPH:2]- AUC: applies to all eligible unit classes/combats.[PARAGRAPH:2]- (!)Cvc: this prerequisite can be bypassed or altered by civic rules.[PARAGRAPH:2]- OR: alternative prerequisite grouping; one of the OR-linked icons can satisfy that part.[PARAGRAPH:2]- Plain number (for example 1, 2, 3): exact count linked to that icon (for example free specialists count).[PARAGRAPH:2]- FBBR (when shown alone for free bonus count): world-size dependent free bonus count (iNumFreeBuildingBonuses). In this mod, for example: Standard=4, Huge=6.[PARAGRAPH:2][H2]Unit/Terrain/Feature page numTxt[\H2][PARAGRAPH:2]- +A/+D: attack and defense percent modifiers.[PARAGRAPH:2]- +A/_: attack-only modifier.[PARAGRAPH:2]- _/+D: defense-only modifier.[PARAGRAPH:2]- _/_: no attack/defense modifier.[PARAGRAPH:2]- +X%: single percent modifier (for example combat-class modifier).[PARAGRAPH:2]- N: unit has free Navigator promotion.[PARAGRAPH:2]- HM1, HM2, HM3: unit has free Hills Master tier 1/2/3. Contiguous tiers use ranges (for example HM1-3); gaps keep addition (for example HM1+3).[PARAGRAPH:2]- W1, W2, W3: unit has free Woodsman tier 1/2/3. Combined forms (for example W1+2+3) indicate multiple free tiers.</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND</Tag>
+@@ -161,3 +161,4 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>[H1]Sevopedia Categories Legend[\H1][PARAGRAPH:2]This page explains shortened category labels used in the left Sevopedia category list.[PARAGRAPH:2]- Improv.: Improvements.[PARAGRAPH:2]- Un. List: Unit List.[PARAGRAPH:2]- Un. Tree: Unit Upgrade Tree.[PARAGRAPH:2]- Pr. List: Promotion List.[PARAGRAPH:2]- Pr. Tree: Promotion Tree.[PARAGRAPH:2]- N. Wond.: National Wonders.[PARAGRAPH:2]- W. Wond.: World Wonders.[PARAGRAPH:2]- W. Sizes: World Sizes.[PARAGRAPH:2]- Corporat.: Corporations.[PARAGRAPH:2]- Outdated: legacy/reference pages kept for compatibility/history.[PARAGRAPH:2]- Mods Info: custom AdvCiv-SAS concept pages and legends.[PARAGRAPH:2]Labels are shortened mainly to fit sidebar width cleanly at different resolutions and UI scales.</English>
+ 	</TEXT>
+ </Civ4GameText>
++
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG
+index c38089212..1e4358e7a 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=12370

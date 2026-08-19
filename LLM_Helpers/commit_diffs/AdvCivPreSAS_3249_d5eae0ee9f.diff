@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3249
+# Commit: d5eae0ee9f5baa429c9d55167af680b844714f6a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1860dd4e320df53cf01624af8fba6de57c4a4ce3
+# Title: Show civics strategy help, balance changes in Sevopedia
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	3	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+87	1	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 0e606ef18..4529d9930 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -117,9 +117,31 @@ class SevoPediaCivic:
+ 	def placeText(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50 )
+-		szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
+-		screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# advc.004y: Label added for this panel
++		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "",
++				True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT,
++				PanelStyles.PANEL_STYLE_BLUE50)
++		#szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
++		# <advc.004y> Show strategy help; same as for units.
++		szText = u""
++		if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
++			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
++			szText += gc.getCivicInfo(self.iCivic).getStrategy()
++			# Balance changes need to have a separate key b/c strategy help gets shown in popups; needs to be concise.
++			# I'm hardcoding the text key here out of laziness - and also b/c it shouldn't be referenced anywhere else.
++			szKey = "TXT_KEY_CIVIC_"
++			szKey += gc.getCivicInfo(self.iCivic).getDescription().upper()
++			szKey += "_CHANGES_PEDIA"
++			szChanges = localText.getText(str(szKey.replace(" ", "_")), ())
++			if not szChanges.endswith("PEDIA"):
++				szText += u"\n\t"
++				szText += szChanges
++		szText += u"\n\n"
++		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
++		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
++		# </advc.004y>
++		screen.attachMultilineText(panelName, "Text", szText,
++				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 08ebed86b..312f6a39f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -1173,7 +1173,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Tag>
+ 		<English>In order to weaken this trait and to prevent a synergy with the K-Mod effect of the [LINK=CIVIC_SERFDOM]Serfdom[\LINK] civic, AdvCiv increases the threshold for the extra [ICON_COMMERCE] - unless the natural [ICON_COMMERCE] (not counting terrain improvements) reaches the original threshold.</English>
+-		<German>Um dieses Merkmal zu schw�chen und eine Wechselwirkung mit der durch K-Mod ver�nderten Staatsform [LINK=CIVIC_SERFDOM]Leibeigenschaft[\LINK] zu verhindern, erh�ht AdvCiv die Schwelle f�r den zus�tzlichen [ICON_COMMERCE]-Ertrag - au�er wenn der nat�rliche [ICON_COMMERCE]-Ertrag (ohne Gel�ndeverbesserungen) die urspr�ngliche Schwelle erreicht.</German>
++		<German>Um dieses Merkmal zu schw�chen und eine Wechselwirkung mit der durch K-Mod ver�nderten Staatsform [LINK=CIVIC_SERFDOM]Leibeigenschaft[\LINK] zu verhindern, erh�ht AdvCiv die Schwelle f�r den zus�tzlichen [ICON_COMMERCE]-Ertrag - au�er wenn der nat�rliche [ICON_COMMERCE]-Ertrag (ohne Modernisierungen) die urspr�ngliche Schwelle erreicht.</German>
+ 	</TEXT>
+ 	<!-- advc -->
+ 	<TEXT>
+@@ -1263,4 +1263,90 @@
+ 		<Spanish>Construye un [COLOR_BUILDING_TEXT]Servicio de contraespionaje[COLOR_REVERT] para aumentar el coste de las misiones de espionaje enemigas en la ciudad.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.912c -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_HEREDITARY_RULE_CHANGES_PEDIA</Tag>
++		<English>[BOLD]AdvCiv[\BOLD] has reduced the amount of [ICON_HAPPY] per unit and added a small [ICON_HAPPY] increase for luxury resources. In part, because AI civs, with their large city garrisons, were swimming in [ICON_HAPPY] during the midgame, and that caused problems with the more rational resource trade behavior in AdvCiv.</English>
++		<German>[BOLD]AdvCiv[\BOLD] reduziert die [ICON_HAPPY] pro Einheit und f�gt ein wenig zus�tzliche [ICON_HAPPY] durch Luxusg�ter hinzu. Zum Teil, weil die KI-St�dte durch ihre gro�z�gig bemessenen Garnisonen ab der Spielmitte mit [ICON_HAPPY] �berversorgt waren, was zu Problemen mit AdvCivs vernuftbasierten KI-Verhalten beim Handel mit Ressourcen f�hrte.</German>
++	</TEXT>
++	<!-- advc: Point out K-Mod change -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_VASSALAGE_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] has made this civic more powerful by letting it reduce city maintenance costs.</English>
++		<German>[BOLD]K-Mod[\BOLD] hat diese Staatsform durch eine Reduktion von Unterhaltskosten f�r St�dte - nicht nur f�r Einheiten - spielst�rker gemacht.</German>
++	</TEXT>
++	<!-- advc: Had said that 3 units can be drafted. Depends on the map size,
++		 and we shouldn't commit to a specific number in any case. -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_NATIONHOOD_STRATEGY</Tag>
++		<English>Can draft population into the military; happiness from barracks; increased espionage</English>
++		<French>Permet de mobiliser 3 unit&#233;s par tour, la caserne accro&#238;t le bonheur.</French>
++		<German>Erm&#246;glicht die Rekrutierung von Zivilisten, Zufriedenheit durch Kasernen, verbessert Spionage</German>
++		<Italian>Pu&#242; reclutare tre unit&#224; per turno; le caserme producono felicit&#224; extra</Italian>
++		<Spanish>Se pueden reclutar tres unidades por turno, los cuarteles generan felicidad adicional.</Spanish>
++	</TEXT>
++	<!-- advc: Point out K-Mod change -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_FREE_SPEECH_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] has significantly reduced the [ICON_CULTURE] modifier (was 100%% in BtS), in part, because K-Mod increases the range of [ICON_CULTURE] spread from cities onto surrounding tiles.</English>
++		<French>Augmente le commerce des petites villes et am&#233;liore la culture g&#233;n&#233;r&#233;e par toutes les villes.</French>
++		<German>[BOLD]K-Mod[\BOLD] hat den [ICON_CULTURE]-Effekt deutlich verringert (war 100%% in BtS), zum Teil, da K-Mod die Reichweite der [ICON_CULTURE]-Ausbreitung von St�dten auf umliegende Gel�nderfelder vergr��ert.</German>
++		<Italian>Commercio extra dai paesi; aumenta la cultura in tutte le citt&#224;</Italian>
++		<Spanish>Comercio adicional en los pueblos, aumenta la producci&#243;n cultural en todas las ciudades.</Spanish>
++	</TEXT>
++	<!-- advc.912a -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_SERFDOM_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] has added effects on tile improvement yields in order to make this civic competitive with the other early Labor civics. AdvCiv has toned this balance change down a bit by increasing the upkeep cost (was Low in Bts and K-Mod). Also note that an AdvCiv change to the [LINK=literal]Financial[\LINK] trait mostly prevents a synergy between that trait and Serfdom.</English>
++		<German>[BOLD]K-Mod[\BOLD] hat Ertrags-Effekte hinzugef�gt, um diese Staatsform an die Spielst�rke anderer Arbeits-Staatsformen anzun�hern. AdvCiv schw�cht diese �nderung durch h�here Unterhaltskosten (urspr�nglich "gering") ein wenig ab. AdvCiv nimmt auch eine �nderung am Merkmal "finanzorientiert" vor, die verhindert, dass finanzorientierte Staatsoberh�upter besonders von den Leibeigenschafts-Ertr�gen profitieren.</German>
++	</TEXT>
++	<!-- advc: BtS had added "increased espionage output" here, but that
++		 actually ended up at Nationhood.  -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_POLICE_STATE_STRATEGY</Tag>
++		<English>Faster military unit production; less war anger</English>
++		<French>Acc&#233;l&#232;re la production des unit&#233;s militaires. R&#233;duit le m&#233;contentement d&#251; &#224; la guerre. Augmente la production de l'espionnage.</French>
++		<German>Beschleunigte Produktion von Milit&#228;reinheiten, geringere Kriegsm&#252;digkeit</German>
++		<Italian>Produzione delle unit&#224; militari pi&#249; veloce; ridotta stanchezza della guerra; maggiore resa dello spionaggio.</Italian>
++		<Spanish>Producci&#243;n m&#225;s r&#225;pida de unidades militares, menor hast&#237;o b&#233;lico, mayor rendimiento del espionaje</Spanish>
++	</TEXT>
++	<!-- advc: Point out K-Mod changes -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_MERCANTILISM_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] has strengthened this civic a little by decreasing its upkeep cost (was Medium in BtS).</English>
++		<German>[BOLD]K-Mod[\BOLD] hat diese Staatsform durch verringerte Unterhaltskosten (urspr�nglich "mittel") etwas spielst�rker gemacht.</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_STATE_PROPERTY_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] treats colony maintenance as separate from distance maintenance, so this civic no longer affects colony maintenance.</English>
++		<German>[BOLD]K-Mod[\BOLD] behandelt Kolonialunterhalt nicht als Teil der Entfernungs-basierten Unterhaltsstrafe. Diese Staatsform wirkt sich also nicht mehr auf Kolonialunterhalt aus.</German>
++	</TEXT>
++	<!-- advc: Rewritten; vague now, but at least not wrong. -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_ENVIRONMENTALISM_STRATEGY</Tag>
++		<English>Increased health; extra yields from eco-friendly terrain improvements</English>
++		<French>Meilleure sant&#233; dans toutes les villes. Les for&#234;ts et jungles &#224; proximit&#233; des villes rendent les citoyens heureux.</French>
++		<German>Gr&#246;&#223;ere Gesundheit; Zusatzertr�ge f�r umweltfreundliche Modernisierungen</German>
++		<Italian>Salute extra nelle citt&#224;; le foreste e le giungle vicine rendono felici gli abitanti</Italian>
++		<Spanish>Salud adicional en todas las ciudades. Los bosques y selvas cercanos hacen m&#225;s felices a los ciudadanos.</Spanish>
++	</TEXT>
++	<!-- advc: Describe K-Mod changes -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_ENVIRONMENTALISM_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] removes a penalty for corporations that the BtS expansion had added, adds [ICON_HAPPY] from [LINK=BUILDING_PUBLIC_TRANSPORTATION]Public Transportation[\LINK] instead of [ICON_HEALTHY] and increases the civic upkeep (was Medium). Moreover, Environmentalism (and Public Transportation) now reduce [ICON_UNHEALTHY] from population instead of granting [ICON_HEALTHY], which makes them more effective against Global Warming.</English>
++		<German>[BOLD]K-Mod[\BOLD] deaktiviert einen Malus f�r Kapitalgesellschaften den die BtS-Erweiterung eingef�hrt hatte, ersetzt die zus�tzlichen [ICON_HEALTHY]-Punkte durch [LINK=BUILDING_PUBLIC_TRANSPORTATION]�ffentliche Verkehrsmittel[\LINK] durch [ICON_HAPPY]-Punkte und erh�ht die Unterhaltskosten ("mittel" in BtS). Ferner verringern Umweltschutz (und auch �ffentliche Verkehrsmittel) nun durch B�rger verursachte [ICON_UNHEALTHY]-Punkte anstatt [ICON_HEALTHY]-Punkte zu erzeugen; ersteres wirkt der Erderw�rmung besser entgegen.</German>
++	</TEXT>
++	<!-- advc.123a -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_THEOCRACY_CHANGES_PEDIA</Tag>
++		<English>[BOLD]AdvCiv[\BOLD] also prevents civs in this civic from receiving Missionaries as a gift.</English>
++		<German>[BOLD]AdvCiv[\BOLD] verhindert auch das verschenken von Missionaren an Spieler mit dieser Staatsform.</German>
++	</TEXT>
++	<!-- advc.912b -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_PACIFISM_CHANGES_PEDIA</Tag>
++		<English>[BOLD]K-Mod[\BOLD] uncouples the extra cost from the difficulty level and AdvCiv sets the cost to the amount that BtS had charged on Deity difficulty (1[ICON_GOLD]/unit) - meaning that this powerful civic has become costlier on all other difficulty levels. When an AI civ uses Pacifism, only half of the extra cost is charged (as was already the case in BtS when playing on Deity difficulty - because the AI is treated as playing on Noble difficulty).</English>
++		<German>[BOLD]K-Mod[\BOLD] entkoppelt den zus�tzlichen Milit�runterhalt von der Schwierigkeitsstufe und AdvCiv verwendet 1[ICON_GOLD]/Einheit, was in BtS der h�chsten Schwierigkeitsstufe entsprach. Das hei�t, der Unterhalt auf allen niedrigeren Schwierigkeitsstufen hat sich erh�ht. Pazifistische KI-Spieler zahlen nur die H�lfte - das war auf h�chster Schwierigkeit auch in BtS so, weil KI-Spieler stets auf mittlerer Schwierigkeit (Adliger) spielen.</German>
++	</TEXT>
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=12436

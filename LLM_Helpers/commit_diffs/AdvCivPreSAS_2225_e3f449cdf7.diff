@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2225
+# Commit: e3f449cdf7093c0959c951a9390b973ca4d4f211
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 695a749c321b639dda47c6722f691e962e54269c
+# Title: Tweak conditions for Barbarian spawns aboard Galleys
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	2	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvGame.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3121aba8c..514b6a4d9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7233,7 +7233,10 @@ void CvGame::createBarbarianUnits()
+ 			// advc: BBAI code deleted -- sanity check based on Barbarian cities instead:
+ 			if (iShips > iBarbCities + 2)
+ 				iNeededSea = 0;
+-			iNeededLand -= createBarbarianUnits(iNeededSea, a, shelves[i],
++			// <advc.306> Keep spawning units on ships
++			if (iNeededSea <= 0 && iNeededLand <= 0 && a.getNumCivCities() > 0)
++				createBarbarianUnits(1, a, shelves[i], true, true); // </advc.306>
++			else iNeededLand -= createBarbarianUnits(iNeededSea, a, shelves[i],
+ 					iNeededLand > 0); // advc.306
+ 		}
+ 		/*  Don't spawn Barbarian units on (or on shelves around) continents where
+@@ -7447,11 +7450,13 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ }
+ 
+ // Returns the number of land units spawned (possibly in cargo). The first half is new code.
+-int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAllowed) // </advc.300>
++int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAllowed,
++	bool bOnlyCargo) // </advc.300>
+ {
+ 	/* <advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
+ 	   would always be an eligible target and too many ships would carry cargo. */
+ 	FAssert(!bCargoAllowed || pShelf != NULL);
++	FAssert(!bOnlyCargo || bCargoAllowed);
+ 	int r = 0;
+ 	if(bCargoAllowed)
+ 	{
+@@ -7481,6 +7486,8 @@ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAll
+ 					break;
+ 			}
+ 		}
++		if (bOnlyCargo)
++			return r;
+ 	} // </advc.306>
+ 
+ 	for (int iI = 0; iI < n; iI++)
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 5cbcc12d4..cb0af5692 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -955,7 +955,8 @@ protected:
+ 	void createBarbarianCity(bool bNoCivCities, int iProbModifierPercent = 100);
+ 	int numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ 			int iUnitsPresent, int iBarbarianCities = 0);
+-	int createBarbarianUnits(int n, CvArea& a, Shelf* shelf, bool bCargoAllowed = false);
++	int createBarbarianUnits(int n, CvArea& a, Shelf* shelf, bool bCargoAllowed = false,
++			bool bOnlyCargo = false);
+ 	CvPlot* randomBarbarianPlot(CvArea const& a, Shelf* shelf) const;
+ 	bool killBarbarian(int iPresent, int iTiles, int iPop, CvArea& a, Shelf* shelf);
+ 	UnitTypes randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& a);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2543

@@ -1,0 +1,899 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3136
+# Commit: 198d60fede276e989860cc830dab3c566b20e8dd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1f1c31acaf76415a3ba20c7780b719657603f499
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	10	CvGameCoreDLL/CvCity.cpp
+5	4	CvGameCoreDLL/CvCityAI.cpp
+4	7	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	2	CvGameCoreDLL/CvGameInterface.cpp
+128	180	CvGameCoreDLL/CvGameTextMgr.cpp
+3	1	CvGameCoreDLL/CvGameTextMgr.h
+13	12	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvInfo_Civics.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+3	2	CvGameCoreDLL/CvPlayerAI.h
+2	2	CvGameCoreDLL/CvPlot.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+8	9	CvGameCoreDLL/EnumMap.h
+2	1	CvGameCoreDLL/FVariableSystem.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7a072418c..bba8d4780 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3682,14 +3682,13 @@ int CvCity::extraFreeSpecialists() const
+ 
+ int CvCity::unhealthyPopulation(bool bNoAngry, int iExtra) const
+ {
+-	// K-Mod, 27/dec/10: replaced with UnhealthyPopulationModifier
+ 	/*if (isNoUnhealthyPopulation())
+ 		return 0;
+ 	return std::max(0, getPopulation() + iExtra - (bNoAngry ? angryPopulation(iExtra) : 0));*/ // BtS
++	// K-Mod, 27/dec/10: replaced with UnhealthyPopulationModifier
+ 	int iUnhealth = getPopulation() + iExtra - (bNoAngry ? angryPopulation(iExtra) : 0);
+ 	iUnhealth *= std::max(0, 100 + getUnhealthyPopulationModifier());
+ 	return intdiv::uround(std::max(0, iUnhealth), 100);
+-	// K-Mod end
+ }
+ 
+ 
+@@ -10255,29 +10254,28 @@ void CvCity::doCulture()
+ 	{
+ 		/*	add up the culture contribution for each player before applying it
+ 			so that we avoid excessive calls to change culture and reduce rounding errors */
+-		// advc: Array replaced with vector
+-		std::vector<int> aiTradeCultureTimes100(PlayerIter<>::count(), 0);
++		EnumMap<PlayerTypes,int> aiTradeCultureTimes100;
+ 		for (int i = 0; i < GC.getDefineINT(CvGlobals::MAX_TRADE_ROUTES); i++)
+ 		{
+ 			CvCity* pLoopCity = getTradeCity(i);
+ 			if(pLoopCity != NULL)
+ 			{	// foreign and domestic
+ 				//if (pLoopCity->getOwner() != getOwner())
+-				aiTradeCultureTimes100[pLoopCity->getOwner()] +=
+-						pLoopCity->getTradeCultureRateTimes100();
++				aiTradeCultureTimes100.add(pLoopCity->getOwner(),
++						pLoopCity->getTradeCultureRateTimes100());
+ 			}
+ 		}
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it) // advc.003n: MAJOR
+ 		{
+ 			PlayerTypes ePlayer = it->getID();
+-			if (aiTradeCultureTimes100[ePlayer] > 0)
++			if (aiTradeCultureTimes100.get(ePlayer) > 0)
+ 			{
+ 				// <advc.125>
+ 				if(iUseKModTradeCulture < 0 && getPlot().getCulture(ePlayer) <= 0)
+ 					continue; // </advc.125>
+ 				// plot culture only.
+-				//changeCultureTimes100(ePlayer, iTradeCultureTimes100[ePlayer], false, false);
+-				doPlotCultureTimes100(false, ePlayer, aiTradeCultureTimes100[ePlayer], false);
++				//changeCultureTimes100(ePlayer, aiTradeCultureTimes100.get(ePlayer), false, false);
++				doPlotCultureTimes100(false, ePlayer, aiTradeCultureTimes100.get(ePlayer), false);
+ 			}
+ 		}
+ 		// K-Mod END
+@@ -10290,7 +10288,7 @@ void CvCity::doCulture()
+ 	A note about scale: the city plot itself gets roughly 10x culture.
+ 	The outer edges of the cultural influence get 1x culture
+ 	(ie. the influence that extends beyond the borders). */
+-void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,  // advc: some refactoring
++void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+ 	int iCultureRateTimes100, bool bCityCulture)
+ {
+ 	FAssert(ePlayer != NO_PLAYER);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ea9308483..363207124 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10538,7 +10538,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		{
+ 		iYield -= old_job.first ?
+ 				kOwner.specialistYield((SpecialistTypes)old_job.second, eLoopYield) :
+-			getCityIndexPlot((CityPlotTypes)old_job.second)->getYield(eLoopYield);
++				getCityIndexPlot((CityPlotTypes)old_job.second)->getYield(eLoopYield);
+ 		}
+ 
+ 		if (iYield >= 0)
+@@ -10556,9 +10556,10 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		Note, AI_finalImprovementYieldDifference will update the yield vectors. */
+ 	bool bUpgradeYields = false;
+ 	if (new_job.second >= 0 && !new_job.first && AI_finalImprovementYieldDifference(
+-			*getCityIndexPlot((CityPlotTypes)new_job.second), aiYieldGained))
+-	bUpgradeYields = true;
+-
++		*getCityIndexPlot((CityPlotTypes)new_job.second), aiYieldGained))
++	{
++		bUpgradeYields = true;
++	}
+ 	if (old_job.second >= 0 && !old_job.first && AI_finalImprovementYieldDifference(
+ 		*getCityIndexPlot((CityPlotTypes)old_job.second), aiYieldLost))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 2844f3659..770327dc5 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1472,8 +1472,7 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 		{
+ 			// Warning: use of this is not multiplayer compatible
+ 			// K-Mod, since this it isn't MP compatible, I'm going to disable it for the time being.
+-			if (false && !GC.getGame().isGameMultiPlayer())
+-			{
++			/*{
+ 				if (GET_TEAM(GC.getGame().getActiveTeam()).canDeclareWar(eWidgetTeam))
+ 				{
+ 					if (GET_TEAM(GC.getGame().getActiveTeam()).AI_getWarPlan(eWidgetTeam) == WARPLAN_PREPARING_TOTAL)
+@@ -1486,8 +1485,7 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 					}
+ 					gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 				}
+-			}
+-			// K-Mod end
++			}*/ // K-Mod end
+ 		}
+ 		else
+ 		{
+@@ -1943,7 +1941,7 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
+ 
+ 
+ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+-		CvWStringBuffer &szBuffer)
++	CvWStringBuffer &szBuffer)
+ {
+ 	CvWString szTemp;
+ 	CvActionInfo const& kAction = GC.getActionInfo(widgetDataStruct.m_iData1);
+@@ -2374,8 +2372,7 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		{
+ 			if (GET_PLAYER(pMissionCity->getOwner()).isNoNonStateReligionSpread())
+ 			{
+-				if (eReligion != GET_PLAYER(pMissionCity->getOwner()).
+-						getStateReligion())
++				if (eReligion != GET_PLAYER(pMissionCity->getOwner()).getStateReligion())
+ 				{
+ 					szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_ACTION_CANNOT_SPREAD_NON_STATE_RELIGION"));
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 0f371f62a..858c56342 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1144,8 +1144,7 @@ void CvGame::handleAction(int iAction)
+ 	if (kAction.getControlType() != NO_CONTROL)
+ 		doControl((ControlTypes)kAction.getControlType());
+ 
+-	if (gDLL->UI().canDoInterfaceMode((InterfaceModeTypes)
+-		kAction.getInterfaceModeType(),
++	if (gDLL->UI().canDoInterfaceMode((InterfaceModeTypes)kAction.getInterfaceModeType(),
+ 		gDLL->UI().getSelectionList()))
+ 	{
+ 		CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 8e97784fa..a9ed5f09d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18903,187 +18903,140 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
+ 	}
+ }
+ 
+-void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit)
++void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
++	EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
++	CvPlot const* pPlot, int iExtraData, CvUnit const* pSpyUnit)
+ {
+-	CvPlayer& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+-	CvEspionageMissionInfo& kMission = GC.getInfo(eMission);
++	CvPlayer const& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
++	CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
+ 
+ 	//szBuffer.assign(kMission.getDescription());
+ 
+-	int iMissionCost = kPlayer.getEspionageMissionBaseCost(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
++	int iMissionCost = kPlayer.getEspionageMissionBaseCost(
++			eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
+ 	//iMissionCost *= GET_TEAM(kPlayer.getTeam()).getNumMembers(); // K-Mod
+ 	// kekm.33/advc:
+ 	iMissionCost = kPlayer.adjustMissionCostToTeamSize(iMissionCost, eTargetPlayer);
+ 
+-	if (kMission.isDestroyImprovement())
++	if (kMission.isDestroyImprovement() && pPlot != NULL && pPlot->isImproved())
+ 	{
+-		if (NULL != pPlot && pPlot->isImproved())
+-		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_IMPROVEMENT", GC.getInfo(pPlot->getImprovementType()).getTextKeyWide()));
+-			szBuffer.append(NEWLINE);
+-		}
++		szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_IMPROVEMENT",
++				GC.getInfo(pPlot->getImprovementType()).getTextKeyWide()));
++		szBuffer.append(NEWLINE);
+ 	}
+-
+-	if (kMission.getDestroyBuildingCostFactor() > 0)
++	if (kMission.getDestroyBuildingCostFactor() > 0 && pPlot != NULL)
+ 	{
+-		BuildingTypes eTargetBuilding = (BuildingTypes)iExtraData;
+-
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_IMPROVEMENT", GC.getInfo(eTargetBuilding).getTextKeyWide()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_IMPROVEMENT",
++					GC.getInfo((BuildingTypes)iExtraData).getTextKeyWide()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getDestroyProjectCostFactor() > 0)
++	if (kMission.getDestroyProjectCostFactor() > 0 && pPlot != NULL)
+ 	{
+-		ProjectTypes eTargetProject = (ProjectTypes)iExtraData;
+-
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_IMPROVEMENT", GC.getInfo(eTargetProject).getTextKeyWide()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_IMPROVEMENT",
++					GC.getInfo((ProjectTypes)iExtraData).getTextKeyWide()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getDestroyProductionCostFactor() > 0)
++	if (kMission.getDestroyProductionCostFactor() > 0 && pPlot != NULL)
+ 	{
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_PRODUCTION", pCity->getProduction()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_PRODUCTION",
++					pCity->getProduction()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getDestroyUnitCostFactor() > 0)
++	if (kMission.getDestroyUnitCostFactor() > 0 && eTargetPlayer != NO_PLAYER)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		int iTargetUnitID = iExtraData;
++		CvUnit const* pUnit = GET_PLAYER(eTargetPlayer).getUnit(iTargetUnitID);
++		if (pUnit != NULL)
+ 		{
+-			int iTargetUnitID = iExtraData;
+-
+-			CvUnit* pUnit = GET_PLAYER(eTargetPlayer).getUnit(iTargetUnitID);
+-
+-			if (NULL != pUnit)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_UNIT", pUnit->getNameKey()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_DESTROY_UNIT",
++					pUnit->getNameKey()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getBuyUnitCostFactor() > 0)
++	if (kMission.getBuyUnitCostFactor() > 0 && eTargetPlayer != NO_PLAYER)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		int iTargetUnitID = iExtraData;
++		CvUnit const* pUnit = GET_PLAYER(eTargetPlayer).getUnit(iTargetUnitID);
++		if (pUnit != NULL)
+ 		{
+-			int iTargetUnitID = iExtraData;
+-
+-			CvUnit* pUnit = GET_PLAYER(eTargetPlayer).getUnit(iTargetUnitID);
+-
+-			if (NULL != pUnit)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_BRIBE", pUnit->getNameKey()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_BRIBE",
++					pUnit->getNameKey()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+ 
+-	if (kMission.getBuyCityCostFactor() > 0)
++	if (kMission.getBuyCityCostFactor() > 0 && pPlot != NULL)
+ 	{
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_BRIBE", pCity->getNameKey()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_BRIBE",
++					pCity->getNameKey()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getCityInsertCultureCostFactor() > 0)
++	if (kMission.getCityInsertCultureCostFactor() > 0 && pPlot != NULL)
+ 	{
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL && pPlot->getCulture(kPlayer.getID()) > 0)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity && pPlot->getCulture(kPlayer.getID()) > 0)
+-			{
+-				int iCultureAmount = kMission.getCityInsertCultureAmountFactor() *  pCity->countTotalCultureTimes100();
+-				iCultureAmount /= 10000;
+-				iCultureAmount = std::max(1, iCultureAmount);
+-
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_INSERT_CULTURE",
+-						pCity->getNameKey(), iCultureAmount,
+-						kMission.getCityInsertCultureAmountFactor()));
+-				szBuffer.append(NEWLINE);
+-			}
++			int iCultureAmount = kMission.getCityInsertCultureAmountFactor() *
++					pCity->countTotalCultureTimes100();
++			iCultureAmount /= 10000;
++			iCultureAmount = std::max(1, iCultureAmount);
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_INSERT_CULTURE",
++					pCity->getNameKey(), iCultureAmount,
++					kMission.getCityInsertCultureAmountFactor()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getCityPoisonWaterCounter() > 0)
++	if (kMission.getCityPoisonWaterCounter() > 0 && pPlot != NULL)
+ 	{
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_POISON",
+-						kMission.getCityPoisonWaterCounter(),
+-						gDLL->getSymbolID(UNHEALTHY_CHAR), pCity->getNameKey(),
+-						kMission.getCityPoisonWaterCounter()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_POISON",
++					kMission.getCityPoisonWaterCounter(),
++					gDLL->getSymbolID(UNHEALTHY_CHAR), pCity->getNameKey(),
++					kMission.getCityPoisonWaterCounter()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getCityUnhappinessCounter() > 0)
++	if (kMission.getCityUnhappinessCounter() > 0 && pPlot != NULL)
+ 	{
+-		if (NULL != pPlot)
++		CvCity const * pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_POISON",
+-						kMission.getCityUnhappinessCounter(),
+-						gDLL->getSymbolID(UNHAPPY_CHAR), pCity->getNameKey(),
+-						kMission.getCityUnhappinessCounter()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_POISON",
++					kMission.getCityUnhappinessCounter(),
++					gDLL->getSymbolID(UNHAPPY_CHAR), pCity->getNameKey(),
++					kMission.getCityUnhappinessCounter()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getCityRevoltCounter() > 0)
++	if (kMission.getCityRevoltCounter() > 0 && pPlot != NULL)
+ 	{
+-		if (NULL != pPlot)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_REVOLT",
+-						pCity->getNameKey(), kMission.getCityRevoltCounter()));
+-				szBuffer.append(NEWLINE);
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_REVOLT",
++					pCity->getNameKey(), kMission.getCityRevoltCounter()));
++			szBuffer.append(NEWLINE);
+ 		}
+ 	}
++	}
+ 
+ 	if (kMission.getStealTreasuryTypes() > 0)
+ 	{
+@@ -19118,57 +19071,62 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 				GC.getInfo((TechTypes)iExtraData).getTextKeyWide()));
+ 		szBuffer.append(NEWLINE);
+ 	}
+-
+ 	if (kMission.getSwitchCivicCostFactor() > 0)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		if (eTargetPlayer != NO_PLAYER)
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_SWITCH_CIVIC", GET_PLAYER(eTargetPlayer).getNameKey(), GC.getInfo((CivicTypes)iExtraData).getTextKeyWide()));
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_SWITCH_CIVIC",
++					GET_PLAYER(eTargetPlayer).getNameKey(),
++					GC.getInfo((CivicTypes)iExtraData).getTextKeyWide()));
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+ 	if (kMission.getSwitchReligionCostFactor() > 0)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		if (eTargetPlayer != NO_PLAYER)
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_SWITCH_CIVIC", GET_PLAYER(eTargetPlayer).getNameKey(), GC.getInfo((ReligionTypes)iExtraData).getTextKeyWide()));
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_SWITCH_CIVIC",
++					GET_PLAYER(eTargetPlayer).getNameKey(),
++					GC.getInfo((ReligionTypes)iExtraData).getTextKeyWide()));
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+ 	if (kMission.getPlayerAnarchyCounter() > 0)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		if (eTargetPlayer != NO_PLAYER)
+ 		{
+-			int iTurns = (kMission.getPlayerAnarchyCounter() * GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent()) / 100;
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_ANARCHY", GET_PLAYER(eTargetPlayer).getNameKey(), iTurns));
++			int iTurns = (kMission.getPlayerAnarchyCounter() *
++					GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent()) / 100;
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_ANARCHY",
++					GET_PLAYER(eTargetPlayer).getNameKey(), iTurns));
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-
+-	if (kMission.getCounterespionageNumTurns() > 0 && kMission.getCounterespionageMod() > 0)
++	if (kMission.getCounterespionageNumTurns() > 0 &&
++		kMission.getCounterespionageMod() > 0)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		if (eTargetPlayer != NO_PLAYER)
+ 		{
+-			int iTurns = (kMission.getCounterespionageNumTurns() * GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent()) / 100;
+-
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_COUNTERESPIONAGE", kMission.getCounterespionageMod(), GET_PLAYER(eTargetPlayer).getCivilizationAdjectiveKey(), iTurns));
++			int iTurns = (kMission.getCounterespionageNumTurns() *
++					GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent()) / 100;
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_COUNTERESPIONAGE",
++					kMission.getCounterespionageMod(),
++					GET_PLAYER(eTargetPlayer).getCivilizationAdjectiveKey(), iTurns));
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+ 	// <advc.103>
+ 	if(kMission.isInvestigateCity() && pPlot != NULL)
+ 	{
+-		CvCity* pCity = pPlot->getPlotCity();
+-		if(pCity != NULL)
++		CvCity const* pCity = pPlot->getPlotCity();
++		if (pCity != NULL)
+ 		{
+ 			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_INVESTIGATE",
+ 					pCity->getNameKey()));
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-	if(!kMission.isReturnToCapital() || kPlayer.getCapital() == NULL)
++	if (!kMission.isReturnToCapital() || kPlayer.getCapital() == NULL)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_NO_RETURN"));
+@@ -19182,59 +19140,47 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 	{
+ 		int iModifier = 100;
+ 		int iTempModifier = 0;
+-		CvCity* pCity = NULL;
+-		if (NULL != pPlot)
+-		{
+-			pCity = pPlot->getPlotCity();
+-		}
+-
++		CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
+ 		if (pCity != NULL && kMission.isTargetsCity())
+ 		{
+-			// City Population
+-			iTempModifier = (GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD") * (pCity->getPopulation() - 1));
++			iTempModifier = GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD") *
++					(pCity->getPopulation() - 1);
+ 			if (iTempModifier != 0)
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_POPULATION_MOD", iTempModifier));
++				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_POPULATION_MOD",
++						iTempModifier));
+ 				iModifier *= 100 + iTempModifier;
+ 				iModifier /= 100;
+ 			}
+-
+-			// Trade Route
+ 			if (pCity->isTradeRoute(kPlayer.getID()))
+ 			{
+ 				iTempModifier = GC.getDefineINT("ESPIONAGE_CITY_TRADE_ROUTE_MOD");
+ 				if (iTempModifier != 0)
+ 				{
+ 					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_TRADE_ROUTE_MOD", iTempModifier));
++					szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_TRADE_ROUTE_MOD",
++							iTempModifier));
+ 					iModifier *= 100 + iTempModifier;
+ 					iModifier /= 100;
+ 				}
+ 			}
+-
+ 			ReligionTypes eReligion = kPlayer.getStateReligion();
+-			if (NO_RELIGION != eReligion)
++			if (eReligion != NO_RELIGION)
+ 			{
+ 				iTempModifier = 0;
+-
+ 				if (pCity->isHasReligion(eReligion))
+ 				{
+ 					if (GET_PLAYER(eTargetPlayer).getStateReligion() != eReligion)
+-					{
+ 						iTempModifier += GC.getDefineINT("ESPIONAGE_CITY_RELIGION_STATE_MOD");
+-					}
+-
+ 					if (kPlayer.hasHolyCity(eReligion))
+-					{
+ 						iTempModifier += GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
+-					}
+ 				}
+-
+ 				if (iTempModifier != 0)
+ 				{
+ 					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_RELIGION_MOD", iTempModifier));
++					szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_RELIGION_MOD",
++							iTempModifier));
+ 					iModifier *= 100 + iTempModifier;
+ 					iModifier /= 100;
+ 				}
+@@ -19242,8 +19188,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 
+ 			// City's culture affects cost
+ 			/*iTempModifier = - (pCity->getCultureTimes100(kPlayer.getID()) * GC.getDefineINT("ESPIONAGE_CULTURE_MULTIPLIER_MOD")) / std::max(1, pCity->getCultureTimes100(eTargetPlayer) + pCity->getCultureTimes100(kPlayer.getID()));
+-			if (iTempModifier != 0)
+-			{
++			if (iTempModifier != 0) {
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_CULTURE_MOD", iTempModifier));
+ 				iModifier *= 100 + iTempModifier;
+@@ -19311,9 +19256,10 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 		}
+ 
+ 		// Spy presence mission cost alteration
+-		if (NULL != pSpyUnit)
++		if (pSpyUnit != NULL)
+ 		{
+-			iTempModifier = -(pSpyUnit->getFortifyTurns() * GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE"));
++			iTempModifier = -(pSpyUnit->getFortifyTurns() *
++					GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE"));
+ 			if (iTempModifier != 0)
+ 			{
+ 				szBuffer.append(NEWLINE);
+@@ -19340,7 +19286,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 		if (kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()) > 0)
+ 		{
+ 			//iTempModifier = kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()) - 100;
+-			// K-Mod
++			// K-Mod:
+ 			iTempModifier = std::max(-100, kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()));
+ 			if (iTempModifier != 0)
+ 			{
+@@ -19365,13 +19311,15 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 		szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_COST_TOTAL", iMissionCost));
+ 
+ 
+-		if (NULL != pSpyUnit)
++		if (pSpyUnit != NULL)
+ 		{
+-			int iInterceptChance = (pSpyUnit->getSpyInterceptPercent(GET_PLAYER(eTargetPlayer).getTeam(), true) * (100 + kMission.getDifficultyMod())) / 100;
+-
++			int iInterceptChance =
++					(pSpyUnit->getSpyInterceptPercent(GET_PLAYER(eTargetPlayer).getTeam(), true) *
++					(100 + kMission.getDifficultyMod())) / 100;
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_CHANCE_OF_SUCCESS", std::min(100, std::max(0, 100 - iInterceptChance))));
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_CHANCE_OF_SUCCESS",
++					std::min(100, std::max(0, 100 - iInterceptChance))));
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 756a0fa4a..375ecd4be 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -181,7 +181,9 @@ public:
+ 	void setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMaster, TeamTypes eVassal);
+ 	void setEventHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, int iEventTriggeredId, PlayerTypes ePlayer);
+ 	void setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvCity* pCity);
+-	void setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit);
++	void setEspionageCostHelp(CvWStringBuffer &szBuffer,
++			EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
++			CvPlot const* pPlot, int iExtraData, CvUnit const* pSpyUnit);
+ 	void setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvUnit* pUnit);
+ 	// advc.059:
+ 	void setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer, CvPlot const& kPlot, BuildTypes eBuild) const;
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 6a6f64ad3..18b10a9ce 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -10,6 +10,19 @@
+ 	All globals and global types should be contained in this class. */
+ 
+ #pragma region ForwardDeclarations
++// External classes ...
++class CMessageControl;
++class CvDropMgr;
++class CMessageQueue;
++class CvSetupData;
++class CvMessageCodeTranslator;
++class CvPortal;
++class CvDiplomacyScreen;
++class CMPDiplomacyScreen;
++class FAStar;
++class FMPIManager;
++class CvInterface;
++
+ class FProfiler;
+ class CvDLLUtilityIFaceBase;
+ class CvPythonCaller; // advc.003y
+@@ -18,21 +31,10 @@ class CvRandom;
+ class CvGame; // advc.003u
+ class CvGameAI;
+ class CvAgents; // advc.agent
+-class CMessageControl;
+-class CvDropMgr;
+-class CMessageQueue;
+-class CvSetupData;
+ class CvInitCore;
+-class CvMessageCodeTranslator;
+-class CvPortal;
+ class CvStatsReporter;
+ class CvDLLInterfaceIFaceBase;
+ class CvPlayerAI;
+-class CvDiplomacyScreen;
+-class CMPDiplomacyScreen;
+-class FMPIManager;
+-class FAStar;
+-class CvInterface;
+ class CvArtFileMgr;
+ class FVariableSystem;
+ class CvMap;
+@@ -74,7 +76,6 @@ public:
+ 
+ 	DllExport CvDiplomacyScreen* getDiplomacyScreen();
+ 	DllExport CMPDiplomacyScreen* getMPDiplomacyScreen();
+-
+ 	DllExport FMPIManager*& getFMPMgrPtr();
+ 	DllExport CvPortal& getPortal();
+ 	DllExport CvSetupData& getSetupData();
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index 8c8b549ee..668a7adea 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -435,7 +435,7 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iMaxConscript, "iMaxConscript");
+ 	//pXML->GetChildXmlValByName(&m_bNoUnhealthyPopulation, "bNoUnhealthyPopulation");
+ 	// K-Mod (advc - optional):
+-	pXML->GetChildXmlValByName(&m_iUnhealthyPopulationModifier, "iUnhealthyPopulationModifier", 0); // K-Mod
++	pXML->GetChildXmlValByName(&m_iUnhealthyPopulationModifier, "iUnhealthyPopulationModifier", 0);
+ 	pXML->GetChildXmlValByName(&m_bBuildingOnlyHealthy, "bBuildingOnlyHealthy");
+ 	pXML->GetChildXmlValByName(&m_iLargestCityHappiness, "iLargestCityHappiness");
+ 	pXML->GetChildXmlValByName(&m_iWarWearinessModifier, "iWarWearinessModifier");
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 782a5d5c9..26c3cd466 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14218,7 +14218,7 @@ bool CvPlayerAI::AI_isOutdatedUnit(UnitTypes eUnit, UnitAITypes eRole,
+ // advc.042: Cut from CvPlayer.cpp
+ /*  K-Mod. I've rearranged some stuff in this function to fix a couple of minor bugs;
+ 	and to make the code neater and less error prone. */
+-int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot* pFromPlot,
++int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFromPlot,
+ 	int iLookAhead) const
+ {
+ 	PROFILE_FUNC();
+@@ -14324,7 +14324,7 @@ int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus,
+ /*  advc.042: Mostly cut from BtS/K-Mod CvPlayer::isUnimprovedBonus
+ 	(now CvPlayerAI::AI_isUnimprovedBonus; see above).
+ 	Relies on caller to reset GC.getBorderFinder(). */
+-bool CvPlayerAI::AI_isUnimprovedBonus(CvPlot const& p, CvPlot* pFromPlot,
++bool CvPlayerAI::AI_isUnimprovedBonus(CvPlot const& p, CvPlot const* pFromPlot,
+ 	bool bCheckPath) const
+ {
+ 	if (p.isCity())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 16728ea68..3084ef7e3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -327,7 +327,8 @@ public:
+ 	bool AI_isOutdatedUnit(UnitTypes eUnit, UnitAITypes eRole, CvArea const* pArea = NULL) const;
+ 	// </advc.017b>
+ 	// <advc.042> Moved from CvPlayer and iLookAhead param added
+-	int AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot* pFromPlot = NULL, int iLookAhead = 0) const;														// Exposed to Python
++	int AI_countUnimprovedBonuses(CvArea const& kArea,													// Exposed to Python
++			CvPlot const* pFromPlot = NULL, int iLookAhead = 0) const;
+ 	int AI_countOwnedBonuses(BonusTypes eBonus, // </advc.042>											// Exposed to Python
+ 			/* <advc.opt> */ int iMaxCount = MAX_INT) const;
+ 	bool AI_isAnyOwnedBonus(BonusTypes eBonus) const
+@@ -905,7 +906,7 @@ protected:
+ 	// advc.130c:
+ 	int AI_knownRankDifference(PlayerTypes eOther, scaled& rOutrankingBothRatio) const;
+ 	// advc.042: Relies on caller to reset GC.getBorderFinder()
+-	bool AI_isUnimprovedBonus(CvPlot const& p, CvPlot* pFromPlot, bool bCheckPath) const;
++	bool AI_isUnimprovedBonus(CvPlot const& p, CvPlot const* pFromPlot, bool bCheckPath) const;
+ 	void AI_updateCityAttitude(CvPlot const& kCityPlot); // advc.130w
+ 	int AI_neededExplorers_bulk(CvArea const& kArea) const; // advc.opt
+ 	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/17/10, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e001a1e8d..d046b5d8c 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5382,9 +5382,9 @@ void CvPlot::updateTeam() // advc.opt: What getTeam used to do
+ TeamTypes CvPlot::findHighestCultureTeam() const
+ {
+ 	PlayerTypes eBestPlayer = findHighestCulturePlayer();
+-	if (NO_PLAYER == eBestPlayer)
++	if (eBestPlayer == NO_PLAYER)
+ 		return NO_TEAM;
+-	return GET_PLAYER(eBestPlayer).getTeam();
++	return TEAMID(eBestPlayer);
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index e62d744de..0c5fc3d21 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11147,9 +11147,10 @@ int CvUnit::getTriggerValue(EventTriggerTypes eTrigger, const CvPlot* pPlot, boo
+ {
+ 	CvEventTriggerInfo& kTrigger = GC.getInfo(eTrigger);
+ 	if (kTrigger.getNumUnits() <= 0 || isDead() ||
+-			!GC.getPythonCaller()->canTriggerEvent(*this, eTrigger))
++		!GC.getPythonCaller()->canTriggerEvent(*this, eTrigger))
++	{
+ 		return MIN_INT;
+-
++	}
+ 	if (kTrigger.getNumUnitsRequired() > 0)
+ 	{
+ 		bool bFoundValid = false;
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 6de4fe49b..926f4d7b0 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -286,7 +286,7 @@ private:
+ 	void _WriteRecursive(FDataStreamBase* pStream) const; // </advc.fract>
+ 
+ 	//
+-	// The actual specialized impletation of the functions
++	// The actual specialized implementation of the functions
+ 	//
+ 
+ 	// get
+@@ -1332,9 +1332,9 @@ typedef EnumMap<CivicOptionTypes,CivicTypes> CivicMap; // advc: Needed rather fr
+ /*	K - key; V - value; CK, CV compact representation of key and value;
+ 	vDEFAULT - value returned for keys not listed.
+ 	V needs to be an integral type (bool and long long not tested);
+-	K can be any small-ish type, but a static cast from K to CK needs to be possible
+-	(not a problem if CK=K). Both CK and CV need to have read and write functions
+-	in FDataStreamBase.h. */
++	K can be any small-ish type with a suitable operator==, however, a static cast
++	from K to CK needs to be possible (not a problem if CK=K).
++	Both CK and CV need to have read and write functions in FDataStreamBase.h. */
+ template<typename K, typename V, typename CK = K, typename CV = V, V vDEFAULT = 0>
+ class SortedPairList : private boost::noncopyable
+ {
+@@ -1585,7 +1585,7 @@ public:
+ 		EnumMapGetDefault<E2>::MAX_LENGTH == 1, \
+ 		char, short>::type
+ 
+-/*	Will need to call some hidden base-class functions
++/*	Will need to call some hidden base class functions
+ 	and the base class type is ... verbose. */
+ #define SORTED_PAIR_LIST_BASE \
+ 		SortedPairList \
+@@ -1672,11 +1672,10 @@ public:
+ 	for (std::pair<EnumPrefix##Types,ValueType> per##EnumPrefix##Val; \
+ 		kEnumMap.nextNonDefault(iANON_NON_DEFAULT_ITER, per##EnumPrefix##Val); )
+ /*	Example:
+-FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getUnitCombatFreeXP(), UnitCombat, int)
++FOR_EACH_NON_DEFAULT_PAIR(m_aiBlockadedCount, Team, int)
+ 	expands to
+ int iAnonNonDefaultIter_L3947 = 0;
+-for (std::pair<UnitCombatTypes,int> perUnitCombatVal;
+-	kBuilding.getUnitCombatFreeXP().nextNonDefault(
+-		iAnonNonDefaultIter_L3947, perUnitCombatVal); )*/
++for (std::pair<TeamTypes,int> perTeamVal;
++	m_aiBlockadedCount.nextNonDefault(iAnonNonDefaultIter_L3947, perTeamVal); )*/
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/FVariableSystem.h b/CvGameCoreDLL/FVariableSystem.h
+index f1dfed138..ffd26eecf 100644
+--- a/CvGameCoreDLL/FVariableSystem.h
++++ b/CvGameCoreDLL/FVariableSystem.h
+@@ -153,7 +153,8 @@ public:
+ 	eVariableType	m_eType;		// The type of data contained in this variable
+ };
+ BOOST_STATIC_ASSERT(sizeof(FVariable) == 24); // advc.003k
+-// (Looks like the union takes up 16 byte - weird; plus 4 byte of padding after m_eType.)
++/*	(That's 4 for the vtable, 4 for m_eType and - apparently -
++	16 for the union and padding. A little weird, but must stay this way.) */
+ 
+ typedef stdext::hash_map<std::string, FVariable*> FVariableHash;
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=33789

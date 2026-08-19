@@ -1,0 +1,409 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2510
+# Commit: 2027a3c07bc430c7e6a2f6b86bc2b0f9f2681dba
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 423c5ddd33c230260722af9dc4c719af2a4d96cb
+# Title: Hide CvPlot::getUnitByIndex (and some other refactoring)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+6	1	CvGameCoreDLL/CvPlot.h
+8	11	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+44	40	CvGameCoreDLL/CvUnitAI.cpp
+20	20	CvGameCoreDLL/Shelf.cpp
+1	1	CvGameCoreDLL/Shelf.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 410e1c75e..34c0f3cf1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13061,9 +13061,10 @@ scaled CvCity::defensiveGarrison(
+ 	CvCity const* pCapital = kOwner.getCapital();
+ 	if (pCapital == this)
+ 		pCapital = NULL;
+-	for (int i = 0; i < kPlot.getNumUnits(); i++)
++	for (CLLNode<IDInfo> const* pNode = kPlot.headUnitNode(); pNode != NULL;
++		pNode = kPlot.nextUnitNode(pNode))
+ 	{
+-		CvUnit const& kUnit = *kPlot.getUnitByIndex(i);
++		CvUnit const& kUnit = *::getUnit(pNode->m_data);
+ 		CvUnitInfo const& u = kUnit.getUnitInfo();
+ 		// Exclude naval units but not Explorer and Gunship
+ 		if (!u.isMilitaryHappiness() && u.getCultureGarrisonValue() <= 0)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4106eb582..e462278d9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7710,7 +7710,7 @@ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAll
+ 	int r = 0;
+ 	if(bCargoAllowed)
+ 	{
+-		CvUnit* pTransport = pShelf->randomBarbarianCargoUnit();
++		CvUnit* pTransport = pShelf->randomBarbarianTransport();
+ 		if (pTransport != NULL)
+ 		{
+ 			UnitAITypes eLoadAI = UNITAI_ATTACK;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 6c9ecf6f5..93cd0e390 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1207,7 +1207,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 				when it gets to the point where the UnitCombatType is accessed.
+ 				(Actually, not so exotic b/c advc.300 allows animals to survive
+ 				in continents w/o civ cities.) */
+-			CvUnit* pUnit = kToPlot.getUnitByIndex(0);
++			CvUnit* pUnit = kToPlot.headUnit();
+ 			if (pUnit != NULL && !pUnit->isAnimal()) // </advc.001>
+ 			{
+ 				iEnemyDefence = GET_PLAYER(pSelectionGroup->getOwner()).
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index f1fc7a64e..de4667be2 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -668,7 +668,6 @@ public:
+ 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);					// Exposed to Python
+ 
+ 	inline int getNumUnits() const { return m_units.getLength(); } // advc.inl												// Exposed to Python
+-	CvUnit* getUnitByIndex(int iIndex) const;																													// Exposed to Python
+ 	void addUnit(CvUnit const& kUnit, bool bUpdate = true);
+ 	void removeUnit(CvUnit* pUnit, bool bUpdate = true);
+ 	// advc.inl: 2x inline
+@@ -691,6 +690,7 @@ public:
+ 	} // </advc.003s>
+ 	DllExport CLLNode<IDInfo>* headUnitNode() const { return m_units.head(); } // advc.inl
+ 	CLLNode<IDInfo>* tailUnitNode() const { return m_units.tail(); } // advc.inl
++	inline CvUnit* headUnit() const { return getUnitByIndex(0); } // advc
+ 
+ 	int getNumSymbols() const;
+ 	CvSymbol* getSymbol(int iID) const;
+@@ -836,6 +836,11 @@ protected:
+ 	ColorTypes plotMinimapColor();
+ 	void updateImpassable(); // advc.opt
+ 
++	/*	advc: protected b/c iteration through headUnitNode/ nextUnitNode is faster.
++		Iteration by index is needed for Python export though. */
++	CvUnit* getUnitByIndex(int iIndex) const;															// Exposed to Python
++
++	friend class CyPlot; // advc (see above)
+ 	// added so under cheat mode we can access protected stuff
+ 	friend class CvGameTextMgr;
+ };
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 8f2f1c3f2..a15e12cd3 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -430,19 +430,16 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 	}
+ 	iUnitOdds = iBestOdds;
+ 	// <advc.048> Cut from CvSelectionGroup::groupAttack
+-	if(bSacrifice)
++	if(bSacrifice && iUnitOdds < iOddsThresh)
+ 	{
+-		if(iUnitOdds < iOddsThresh)
++		CvUnitAI* pBestSacrifice = AI_getBestGroupSacrifice(pPlot,
++				bPotentialEnemy, bForce, /* advc.164: */ bNoBlitz);
++		if(pBestSacrifice != NULL)
+ 		{
+-			CvUnitAI* pBestSacrifice = AI_getBestGroupSacrifice(pPlot,
+-					bPotentialEnemy, bForce, /* advc.164: */ bNoBlitz);
+-			if(pBestSacrifice != NULL)
+-			{
+-				pBestUnit = pBestSacrifice;
+-				/*  I.e. caller mustn't use these odds. Don't want to compute them here
+-					if the caller doesn't need them. */
+-				iUnitOdds = -1;
+-			}
++			pBestUnit = pBestSacrifice;
++			/*  I.e. caller mustn't use these odds. Don't want to compute them here
++				if the caller doesn't need them. */
++			iUnitOdds = -1;
+ 		}
+ 	} // </advc.048>
+ 	return pBestUnit;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 41f77e08f..12d45d3d7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3482,7 +3482,7 @@ int CvUnit::healRate(bool bLocation, bool bUnits, CvPlot const* pAt) const
+ 					(bFriendly ? getExtraFriendlyHeal() : getExtraNeutralHeal());
+ 			CvCity const* pCity = kPlot.getPlotCity();
+ 			if (pCity == NULL) // fort
+-				iTotalHeal += iCITY_HEAL_RATE;
++				iTotalHeal += iCITY_HEAL_RATE; // advc.023
+ 			else if (!pCity->isOccupation())
+ 				iTotalHeal += pCity->getHealRate() /* <advc.023> */ + iCITY_HEAL_RATE;
+ 			else iTotalHeal += (bFriendly ? iFRIENDLY_HEAL_RATE : iNEUTRAL_HEAL_RATE);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 6d3a3fe80..3d5121aa9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10607,43 +10607,43 @@ bool CvUnitAI::AI_barbAmphibiousCapture()
+ 	MissionAITypes eMissionAI = MISSIONAI_PILLAGE;
+ 	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* pLoopPlot = plotDirection(getX(), getY(), eLoopDirection);
+-		if (pLoopPlot == NULL)
++		CvPlot* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if (pAdj == NULL)
+ 			continue;
+ 		// <advc.306>
+-		if(pLoopPlot->getTeam() != NO_TEAM &&
+-			pLoopPlot->getArea().isBorderObstacle(pLoopPlot->getTeam()))
++		if(pAdj->isOwned() &&
++			pAdj->getArea().isBorderObstacle(pAdj->getTeam()))
+ 		{
+ 			continue;
+ 		} // </advc.306>
+ 		/*  Undefended city (perhaps unnecessary; not sure if the assault routine
+ 			gets this right, or if it would drop units next to the city) */
+-		CvCity* c = pLoopPlot->getPlotCity();
+-		if(c != NULL && !c->isBarbarian() && !pLoopPlot->isVisibleEnemyDefender(this))
++		CvCity const* pCity = pAdj->getPlotCity();
++		if(pCity != NULL && pCity->getTeam() != getTeam() && !pAdj->isVisibleEnemyDefender(this))
+ 		{
+-			pDest = pLoopPlot;
++			pDest = pAdj;
+ 			// Sudden attacks on undefended cities are OK (see below)
+ 			bTargetWithinOwnBorders = false; // Not a good variable name
+ 			eMissionAI = MISSIONAI_ASSAULT;
+ 			break;
+ 		}
+-		if(!pLoopPlot->isUnit() || pLoopPlot->isWater())
++		if(!pAdj->isUnit() || pAdj->isWater())
+ 			continue;
+ 		/*  Don't attack stacks of AI civilians. Can't be so lenient with humans;
+ 			could be exploited by having threatened Workers huddle together. */
+-		if(pLoopPlot->getNumUnits() > 2 && pLoopPlot->getOwner() != NO_PLAYER &&
+-			!GET_PLAYER(pLoopPlot->getOwner()).isHuman())
++		if(pAdj->getNumUnits() > 2 && pAdj->isOwned() &&
++			!GET_PLAYER(pAdj->getOwner()).isHuman())
+ 		{
+ 			continue;
+ 		}
+-		CvUnit* pHead = pLoopPlot->getUnitByIndex(0);
+-		if(pHead->getOwner() != getOwner() && !pHead->canFight())
++		CvUnit const* pHead = pAdj->headUnit();
++		if(pHead->getTeam() != getTeam() && !pHead->canFight())
+ 		{
+-			bool bPlotWithinOwnBorders = (pLoopPlot->getOwner() == pHead->getOwner());
++			bool bPlotWithinOwnBorders = (pAdj->getOwner() == pHead->getOwner());
+ 			// Prefer target outside its borders (see below)
+ 			if(pDest == NULL || (bTargetWithinOwnBorders && !bPlotWithinOwnBorders))
+ 			{
+-				pDest = pLoopPlot;
++				pDest = pAdj;
+ 				bTargetWithinOwnBorders = bPlotWithinOwnBorders;
+ 				if(!bTargetWithinOwnBorders)
+ 					break;
+@@ -19283,16 +19283,19 @@ bool CvUnitAI::AI_airStrike(int iThreshold)
+ }
+ 
+ /*  advc: Body cut from AI_airStrike in order to make the code easier to read.
+-	iCurrentBest is only for saving time. Comments aren't mine. */
++	iCurrentBest is only for saving time. It's K-Mod code; comments are karadoc's. */
+ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBombard) const
+ {
++	bBombard = false;
++
+ 	int iStrikeValue = 0;
+ 	int iBombValue = 0;
+ 	int iAdjacentAttackers = 0; // (only count adjacent units if we can air-strike)
+ 	int iAssaultEnRoute = !kPlot.isCity() ? 0 : GET_PLAYER(getOwner()).
+ 			AI_plotTargetMissionAIs(kPlot, MISSIONAI_ASSAULT, getGroup(), 1);
+ 
+-	// TODO: consider changing the evaluation system so that instead of simply counting units, it counts attack / defence power.
++	/*	TODO: consider changing the evaluation system so that
++		instead of simply counting units, it counts attack / defence power. */
+ 
+ 	// air strike (damage)
+ 	if (canMoveInto(kPlot, true))
+@@ -19306,9 +19309,11 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 
+ 			int iDamage = airCombatDamage(pDefender);
+ 			int iDefenders = kPlot.getNumVisibleEnemyDefenders(this);
+-			iStrikeValue = std::max(0, std::min(pDefender->getDamage() + iDamage,
+-					airCombatLimit()) - pDefender->getDamage());
+-			iStrikeValue += iDamage * collateralDamage() * std::min(iDefenders - 1, collateralDamageMaxUnits()) / 200;
++			iStrikeValue = std::max(0,
++					std::min(pDefender->getDamage() + iDamage, airCombatLimit())
++					- pDefender->getDamage());
++			iStrikeValue += iDamage * collateralDamage() *
++					std::min(iDefenders - 1, collateralDamageMaxUnits()) / 200;
+ 			iStrikeValue *= (3 + iAdjacentAttackers + iAssaultEnRoute / 2);
+ 			iStrikeValue /= (iAdjacentAttackers + iAssaultEnRoute > 0 ? 4 : 6) +
+ 					std::min(iAdjacentAttackers + iAssaultEnRoute / 2, iDefenders)/2;
+@@ -19352,20 +19357,19 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 			}
+ 		}
+ 	}
+-	// factor in air defenses but try to avoid using bestInterceptor, because that's a slow function.
+-	if (iBombValue <= iCurrentBest && iStrikeValue <= iCurrentBest) // values only decreased from here on.
+-	{
+-		bBombard = false;
+-		return 0;
+-	}
++	/*	factor in air defenses but try to avoid using bestInterceptor,
++		because that's a slow function. */
++	if (iBombValue <= iCurrentBest && iStrikeValue <= iCurrentBest)
++		return 0; // values only decreased from here on.
+ 
+ 	if (isSuicide())
+ 	{
+ 		iStrikeValue /= 2;
+ 		iBombValue /= 2;
+ 	}
+-	else if (!canAirDefend()) // assume that air defenders are strong.. and that they are willing to fight
++	else if (!canAirDefend())
+ 	{
++		// assume that air defenders are strong.. and that they are willing to fight
+ 		CvUnit* pInterceptor = bestInterceptor(&kPlot);
+ 		if (pInterceptor != NULL)
+ 		{
+@@ -20696,27 +20700,27 @@ bool CvUnitAI::AI_followBombard()
+ std::pair<int,int> CvUnitAI::AI_countPiracyTargets(CvPlot const& kPlot,
+ 	bool bStopIfAnyTarget) const
+ {
+-	std::pair<int,int> r(0, 0);
++	std::pair<int,int> iiDefTotal(0, 0);
+ 	if(!isAlwaysHostile(kPlot))
+-		//|| !p.isVisible(getTeam(), false))// This is handled by searchRange
++		//|| !kPlot.isVisible(getTeam(), false))// This is handled by searchRange
+ 	{
+-		return r;
++		return iiDefTotal;
+ 	}
+-	for(int i = 0; i < kPlot.getNumUnits(); i++)
++	for (CLLNode<IDInfo> const* pNode = kPlot.headUnitNode(); pNode != NULL;
++		pNode = kPlot.nextUnitNode(pNode))
+ 	{
+-		CvUnit* pUnit = kPlot.getUnitByIndex(i);
+-		if(pUnit == NULL) continue; CvUnit const& u = *pUnit;
+-		if(u.isInvisible(getTeam(), false))
++		CvUnit const& kUnit = *::getUnit(pNode->m_data);
++		if (kUnit.isInvisible(getTeam(), false))
+ 			continue;
+-		if(!GET_PLAYER(getOwner()).AI_isPiracyTarget(u.getOwner()))
++		if (!GET_PLAYER(getOwner()).AI_isPiracyTarget(kUnit.getOwner()))
+ 			continue;
+-		r.second++;
+-		if(bStopIfAnyTarget)
+-			return r;
+-		if(u.canDefend())
+-			r.first++;
++		iiDefTotal.second++;
++		if (bStopIfAnyTarget)
++			return iiDefTotal;
++		if (kUnit.canDefend())
++			iiDefTotal.first++;
+ 	}
+-	return r;
++	return iiDefTotal;
+ }
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 2cbe1f5fc..926efee19 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -1,10 +1,11 @@
+-// <advc.300> New class; see Shelf.h for description
++// advc.300: New class; see Shelf.h for description
+ 
+ #include "CvGameCoreDLL.h"
+ #include "Shelf.h"
+ #include "CvGame.h"
+ #include "CvPlot.h"
+ #include "CvUnit.h"
++#include "CvPlayer.h"
+ 
+ using std::vector;
+ 
+@@ -105,36 +106,35 @@ bool Shelf::killBarbarian()
+ 	return false;
+ }
+ 
+-// <advc.306>
+-CvUnit* Shelf::randomBarbarianCargoUnit() const
++// advc.306:
++CvUnit* Shelf::randomBarbarianTransport() const
+ {
+-	vector<CvUnit*> legal;
++	vector<CvUnit*> apValid;
+ 	for(size_t i = 0; i < plots.size(); i++)
+ 	{
+ 		if(plots[i] == NULL) continue; CvPlot const& plot = *plots[i];
+ 		if(plot.isVisibleToCivTeam())
+ 			continue;
+-		for(int j = 0; j < plot.getNumUnits(); j++)
++		for(CLLNode<IDInfo> const* pNode = plot.headUnitNode(); pNode != NULL;
++			pNode = plot.nextUnitNode(pNode))
+ 		{
+-			CvUnit* u = plot.getUnitByIndex(j); if(u == NULL) continue;
+-			if(u->getOwner() != BARBARIAN_PLAYER)
++			CvUnit& kUnit = *::getUnit(pNode->m_data);
++			if(kUnit.getOwner() != BARBARIAN_PLAYER)
+ 				break;
+-			CvUnitInfo const& ui = GC.getInfo(u->getUnitType());
+-			int cargoSpace = std::min(2, ui.getCargoSpace()); // Load at most 2
+-			cargoSpace -= std::max(0, u->getCargo());
+-			if(cargoSpace > 0)
+-				legal.push_back(u);
++			CvUnitInfo const& u = GC.getInfo(kUnit.getUnitType());
++			int iCargo = std::min(2, u.getCargoSpace()); // Load at most 2
++			iCargo -= std::max(0, kUnit.getCargo());
++			if(iCargo > 0)
++				apValid.push_back(&kUnit);
+ 		}
+ 	}
+-	int nLegal = legal.size();
+-	if(nLegal == 0)
++	if(apValid.empty())
+ 		return NULL;
+-	double pr = 0.2 + nLegal / 10.0;
+-	if(!::bernoulliSuccess(pr, "advc.306 (shelf)"))
++	int iValid = apValid.size();
++	scaled rNoneProb = fixp(0.2) + scaled(iValid, 10);
++	if(!rNoneProb.bernoulliSuccess(GC.getGame().getSRand(), "no Barbarian transport"))
+ 		return NULL;
+-	return legal[GC.getGame().getSorenRandNum(nLegal, "advc.306")];
+-} // </advc.306>
+-
++	return apValid[GC.getGame().getSorenRandNum(iValid, "choose Barbarian transport")];
++}
+ 
+ Shelf::Id::Id(int landId, int waterId) : std::pair<int,int>(landId, waterId) {}
+-// </advc.300>
+
+diff --git a/CvGameCoreDLL/Shelf.h b/CvGameCoreDLL/Shelf.h
+index f1f29e265..79f6a6e14 100644
+--- a/CvGameCoreDLL/Shelf.h
++++ b/CvGameCoreDLL/Shelf.h
+@@ -19,7 +19,7 @@ public:
+ 	int size() const;
+ 	int countUnownedPlots() const;
+ 	int countBarbarians() const;
+-	CvUnit* randomBarbarianCargoUnit() const; // advc.306
++	CvUnit* randomBarbarianTransport() const; // advc.306
+ 	bool killBarbarian(); // Just any one Barbarian ship; false if none.
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=14720

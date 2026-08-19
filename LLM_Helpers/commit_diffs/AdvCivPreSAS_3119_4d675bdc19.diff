@@ -1,0 +1,207 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3119
+# Commit: 4d675bdc19cc7520e8005303512f6b16d5d29529
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b25510b1a22f768af80ad422e617bd9a071f1503
+# Title: City defense bonuses only in territory of war allies
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvGameTextMgr.cpp
+16	7	CvGameCoreDLL/CvPlot.cpp
+14	2	CvGameCoreDLL/CvTeam.cpp
+2	1	CvGameCoreDLL/CvTeam.h
+10	5	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7a954439b..d012b9206 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20875,7 +20875,8 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
+ 				kDefender.getDomainType()),
+ 				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+ 				GC.getInfo(kDefender.getDomainType()).getTextKeyWide());
+-		if (GET_TEAM(kDefender.getTeam()).isCityDefense(kPlot)) // advc: was isCity
++		if (GET_TEAM(kDefender.getTeam()).isCityDefense(kPlot, // advc: was isCity
++			kAttacker.getTeam())) // advc.183
+ 		{
+ 			appendCombatModifier(szBuffer,
+ 					kAttacker.cityAttackModifier(),
+@@ -20990,7 +20991,8 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
+ 	appendCombatModifier(szBuffer,
+ 			kDefender.fortifyModifier(),
+ 			params, "TXT_KEY_COMBAT_PLOT_FORTIFY_MOD");
+-	if (GET_TEAM(kDefender.getTeam()).isCityDefense(kPlot)) // advc: was isCity
++	if (GET_TEAM(kDefender.getTeam()).isCityDefense(kPlot, // advc: was isCity
++		kAttacker.getTeam())) // advc.183
+ 	{
+ 		appendCombatModifier(szBuffer,
+ 				kDefender.cityDefenseModifier(),
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 46bb554de..5e605207d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2535,13 +2535,19 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 	if (bHelp)
+ 		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
+ 	else eImprovement = getImprovementType();
+-
+-	if (eImprovement != NO_IMPROVEMENT)
++	// <advc.183> No city defense should apply then
++	if (eDefender == NO_TEAM)
+ 	{
+-		if (eDefender != NO_TEAM &&
+-			// advc.183: OutsideBorders check added
+-			((!isOwned() && GC.getInfo(eImprovement).isOutsideBorders()) ||
+-			GET_TEAM(eDefender).isFriendlyTerritory(getTeam())))
++		FAssert(!bGarrisonStrength); // advc.500b
++		return iModifier;
++	}
++	/*	Note: The rest of this function (city defense) needs to be
++		consistent with CvTeam::isCityDefense. */ // </advc.183>
++	if (eImprovement != NO_IMPROVEMENT)
++	{	// advc.183: OutsideBorders check added
++		if ((!isOwned() && GC.getInfo(eImprovement).isOutsideBorders()) ||
++			// advc.183: was isFriendlyTerritory
++			GET_TEAM(eDefender).isAlliedTerritory(getTeam(), eAttacker))
+ 		{
+ 			iModifier += GC.getInfo(eImprovement).getDefenseModifier();
+ 		}
+@@ -2555,7 +2561,10 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 			if (bGarrisonStrength)
+ 				iModifier += pCity->getBuildingDefense();
+ 			else // </advc.500b>
+-				iModifier += pCity->getDefenseModifier(bIgnoreBuilding);
++			{	// advc.183: Open Borders shouldn't be enough
++				if (GET_TEAM(eDefender).isAlliedTerritory(getTeam(), eAttacker))
++					iModifier += pCity->getDefenseModifier(bIgnoreBuilding);
++			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 9cd3a5860..d231c595d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4696,6 +4696,17 @@ bool CvTeam::isFriendlyTerritory(TeamTypes eTerritoryOwner) const
+ 	return false;
+ }
+ 
++/*	advc.183: A status between friendly territory and territory that can merely
++	be peacefully entered. Only applies wrt. a specific shared enemy. */
++bool CvTeam::isAlliedTerritory(TeamTypes eTerritoryOwner, TeamTypes eEnemy) const
++{
++	if (isFriendlyTerritory(eTerritoryOwner))
++		return true;
++	if (eEnemy == NO_TEAM) // Allow this for the callers' convenience
++		return false;
++	return (isAtWar(eEnemy) && GET_TEAM(eTerritoryOwner).isAtWar(eEnemy));
++}
++
+ /*	advc: Says whether kPlot is a land plot that sea units of this team can enter
+ 	-- or could enter if kPlot were adjacent to water (not checked).
+ 	Was previously handled by CvPlot::isCity(bool,TeamTypes). */
+@@ -4729,7 +4740,7 @@ bool CvTeam::isRevealedBase(CvPlot const& kPlot) const
+ 	city-like defensive advantages to this team. No fog-of-war checks.
+ 	Was previously handled by CvPlot::isCity(bool,TeamTypes).
+ 	Needs to be consistent with CvPlot::defenseModifier. */
+-bool CvTeam::isCityDefense(CvPlot const& kPlot) const
++bool CvTeam::isCityDefense(CvPlot const& kPlot, TeamTypes eAttacker) const
+ {
+ 	/*	I'm assuming that calls happen in the context of imminent combat, and
+ 		then the combatants wouldn't be visible if the plot weren't visible as well.
+@@ -4738,7 +4749,8 @@ bool CvTeam::isCityDefense(CvPlot const& kPlot) const
+ 	//FAssert(kPlot.isVisible(getID()));
+ 	if (kPlot.isOwned())
+ 	{
+-		if (!isFriendlyTerritory(kPlot.getTeam()))
++		//if (!isFriendlyTerritory(kPlot.getTeam()))
++		if (!isAlliedTerritory(kPlot.getTeam(), eAttacker)) // advc.183
+ 			return false;
+ 		if (kPlot.isCity())
+ 			return true;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 3752557bf..7c6432a4d 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -468,6 +468,7 @@ public:
+ 				getID() == eTerritoryOwner || getTeam(eTerritoryOwner).isVassal(getID()));
+ 	}
+ 	bool isFriendlyTerritory(TeamTypes eTerritoryOwner) const;
++	bool isAlliedTerritory(TeamTypes eTerritoryOwner, TeamTypes eEnemy) const; // advc.183
+ 	// <advc> Same as isRevealedBase (but doesn't have to be)
+ 	inline bool isRevealedAirBase(CvPlot const& kPlot) const { return isRevealedBase(kPlot); }
+ 	inline bool isRevealedCityHeal(CvPlot const& kPlot) const { return isRevealedBase(kPlot); }
+@@ -477,7 +478,7 @@ public:
+ 	inline bool isAirBase(CvPlot const& kPlot) const { return isBase(kPlot); }
+ 	inline bool isCityHeal(CvPlot const& kPlot) const { return isBase(kPlot); }
+ 	bool isBase(CvPlot const& kPlot) const;
+-	bool isCityDefense(CvPlot const& kPlot) const; // </advc>
++	bool isCityDefense(CvPlot const& kPlot, TeamTypes eAttacker = NO_TEAM) const; // </advc>
+ 	bool canAccessHappyHealth(CvPlot const& kPlot, int iHealthOrHappy) const; // advc.901
+ 
+ 	int getEspionageModifier(TeamTypes eTarget) const;								// Exposed to Python (though CyGameCoreUtils)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index af9109b58..b8d57ebb5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7046,7 +7046,8 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 		if (pCombatDetails != NULL)
+ 			pCombatDetails->iFortifyModifier = iExtraModifier;
+ 		//if (pPlot->isCity(true, getTeam()))
+-		if (GET_TEAM(getTeam()).isCityDefense(*pPlot)) // advc
++		if (GET_TEAM(getTeam()).isCityDefense(*pPlot, // advc
++			pAttacker == NULL ? NO_TEAM : pAttacker->getTeam())) // advc.183
+ 		{
+ 			iExtraModifier = cityDefenseModifier();
+ 			iModifier += iExtraModifier;
+@@ -7085,7 +7086,8 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 	{
+ 		int iTempModifier = 0;
+ 		//if (pAttackedPlot->isCity(true, getTeam()))
+-		if (GET_TEAM(getTeam()).isCityDefense(*pAttackedPlot)) // advc
++		if (GET_TEAM(getTeam()).isCityDefense(*pAttackedPlot, // advc
++			pAttacker->getTeam())) // advc.183
+ 		{
+ 			iExtraModifier = -pAttacker->cityAttackModifier();
+ 			iTempModifier += iExtraModifier;
+@@ -10476,9 +10478,11 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
+ 	CvUnit const* pSkipUnit)
+ {
+ 	//if (pPlot->isCity(true, pSkipUnit->getTeam()))
+-	if (GET_TEAM(pSkipUnit->getTeam()).isCityDefense(*pPlot)) // advc
++	if (GET_TEAM(pSkipUnit->getTeam()).isCityDefense(*pPlot, // advc
++		getTeam())) // advc.183
++	{
+ 		return;
+-
++	}
+ 	std::vector<std::pair<CvUnit*,int> > aFlankDamagePerUnit;
+ 	FOR_EACH_UNIT_VAR_IN(pLoopUnit, *pPlot)
+ 	{
+@@ -11067,7 +11071,8 @@ bool CvUnit::isTargetOf(CvUnit const& kAttacker) const
+ {
+ 	CvUnitInfo const& kAttackerInfo = kAttacker.getUnitInfo();
+ 	//if (!getPlot().isCity(true, getTeam()))
+-	if (!GET_TEAM(getTeam()).isCityDefense(getPlot())) // advc
++	if (!GET_TEAM(getTeam()).isCityDefense(getPlot(), // advc
++		kAttacker.getTeam())) // advc.183
+ 	{
+ 		if (getUnitClassType() != NO_UNITCLASS &&
+ 			kAttackerInfo.getTargetUnitClass(getUnitClassType()))
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7962

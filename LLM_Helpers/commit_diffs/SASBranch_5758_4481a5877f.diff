@@ -1,0 +1,298 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5758
+# Commit: 4481a5877f859eab67a1d972fd76535d7ac00fd8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 62ceac98ee02a609db5819b9379e599c74116a74
+# Title: add debug dropdown and for vassals too; minor other changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/Python/SASBattleHistory.py
+2	2	Assets/Python/Screens/CvMainInterface.py
+36	1	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 610234193..be46ae27e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -623,7 +623,7 @@ class SevoPediaBuilding:
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+ 			# X: Standard centering works correctly.
+-			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
+ 			buttonX = (self.W_MOVIE - buttonSize) / 2
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index ffcd8b963..6cc4921d1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -154,7 +154,7 @@ class SevoPediaProject:
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+ 			# X: Standard centering works correctly.
+-			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
+ 			buttonX = (self.W_MOVIE - buttonSize) / 2
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 452a9c355..3d8c03387 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -207,7 +207,7 @@ class SevoPediaReligion:
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+ 			# X: Standard centering works correctly.
+-			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
+ 			buttonX = (self.W_MOVIE - buttonSize) / 2
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index f761c5daa..5411aa9b6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -357,7 +357,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+-		# <!-- custom: Music system uses packed keys (unlike Movies which use separate type+id). (Claude Code Sonnet 4.5) -->
++		# <!-- custom: Music system uses packed keys (unlike Movies which use separate type+id). (Claude code Sonnet 4.5) -->
+ 		iMusicType = self.top.SAS_PEDIA_MUSIC_TYPE_TECH
+ 		iPackedMusic = self.top.SAS_packMusicKey(iMusicType, self.iTech)
+ 
+@@ -365,7 +365,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+ 			# X: Standard centering works correctly.
+-			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
+ 			buttonX = (self.W_MUSIC - buttonSize) / 2
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
+@@ -777,7 +777,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		# Route movement change (faster roads)
+ 		# <!-- custom: use BUTTON_SIZE_46 for interface art buttons - this is the largest size the engine supports for attachImageButton;
+-		# unintended but beneficial side effect: the smaller size helps visually distinguish these "ability" icons from the 64px game object buttons above (Claude Code Opus 4.5) -->
++		# unintended but beneficial side effect: the smaller size helps visually distinguish these "ability" icons from the 64px game object buttons above (Claude code Opus 4.5) -->
+ 		for iRoute in range(gc.getNumRouteInfos()):
+ 			if gc.getRouteInfo(iRoute).getTechMovementChange(self.iTech) != 0:
+ 				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MOVE_BONUS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MOVE_BONUS, self.iTech, -1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 30e08beff..413861f76 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -151,7 +151,7 @@ FAVORITE_LEADER_TYPE_CIVIC = 1
+ 
+ 
+ 
+-# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude Code Opus 4.5) -->
++# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude code Opus 4.5) -->
+ #
+ # <!-- custom: Common constants for chart tables -->
+ CHART_TABLE_MARGIN = 4
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index 4ab26611d..049be5074 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -106,7 +106,7 @@ def recordCombatResult(pWinner, pLoser):
+ 	)
+ 	if _PENDING_COMBAT_ACTORS is not None:
+ 		iAttacker, iDefender = _PENDING_COMBAT_ACTORS[:2]
+-		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude Code Opus 4.7 review. (GPT-5.5) -->
++		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude code Opus 4.7 review. (GPT-5.5) -->
+ 		if (iAttacker == iWinner and iDefender == iLoser) or (iAttacker == iLoser and iDefender == iWinner):
+ 			entry += _PENDING_COMBAT_ACTORS
+ 	_PENDING_COMBAT_ACTORS = None
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 12e28def9..1387c5f80 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -793,7 +793,7 @@ class CvMainInterface:
+ 		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
+ 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+ 		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED").getPath()
+-		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
++		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude code Sonnet 4.5) -->
+ 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+ 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
+ 		self.szBuildFilterTooltipNational = "TXT_KEY_BUILDING_FILTER_NATIONAL"
+@@ -8312,7 +8312,7 @@ class CvMainInterface:
+ 			return self.handleRawYieldsButtons(inputClass)
+ # BUG - Raw Yields - end
+ 
+-		# <!-- custom: building filter button hover tooltips (Claude Code Sonnet 4.5) -->
++		# <!-- custom: building filter button hover tooltips (Claude code Sonnet 4.5) -->
+ 		if (inputClass.getFunctionName().startswith("BuildFilter")):
+ 			return self.handleBuildingFilterButtons(inputClass)
+ 		# <!-- custom: end - building filter button hover tooltips -->
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index ea3afdf0a..874d58afe 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -48,6 +48,7 @@ class CvMilitaryAdvisor:
+ 		self.UNIT_ICON_ID = "MilitaryAdvisorUnitIcon"
+ 		self.GREAT_GENERAL_BAR_ID = "MilitaryAdvisorGreatGeneralBar"
+ 		self.GREAT_GENERAL_LABEL_ID = "MilitaryAdvisorGreatGeneralLabel"
++		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
+ 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
+ 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
+ 		self.BATTLE_PLOT_COL_ID = 15
+@@ -224,11 +225,13 @@ class CvMilitaryAdvisor:
+ 		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		self.drawTabs()
+ 
+-		self.iActivePlayer = gc.getGame().getActivePlayer()
+ 		if self.iActivePage == self.PAGE_BATTLES:
++			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 			self.drawBattleHistory()
+ 			return
+ 
++		self.iActivePlayer = gc.getGame().getActivePlayer()
++
+ 		# Minimap initialization
+ 		self.H_MAP = (self.W_MAP * CyMap().getGridHeight()) / CyMap().getGridWidth()
+ 		if (self.H_MAP > self.H_MAP_MAX):
+@@ -346,6 +349,8 @@ class CvMilitaryAdvisor:
+ 
+ 	def drawBattleHistory(self):
+ 		screen = self.getScreen()
++		# <!-- custom: Units tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
++		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 		iX = self.SIDE_MARGIN
+ 		iY = 65
+ 		iW = self.W_SCREEN - 2 * self.SIDE_MARGIN
+@@ -423,6 +428,7 @@ class CvMilitaryAdvisor:
+ 			print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_EMPTY")
+ 			return
+ 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
++		self.dbgLogBattleHistoryPlayers(aEntries)
+ 		print("Turn | Year | Result | AttackerPID | AttackerStrC | AttackerStrM | Attacker | DefenderPID | DefenderStrC | DefenderStrM | Defender | X | Y")
+ 		for entry in aEntries:
+ 			tColumns = self.getBattleEntryColumns(entry)
+@@ -446,6 +452,27 @@ class CvMilitaryAdvisor:
+ 			))
+ 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_END")
+ 
++	def dbgLogBattleHistoryPlayers(self, aEntries):
++		# <!-- custom: Battles log uses PID columns because rows are relative to the inspected player; unlike the more or less universal Info-screen timeline, this needs a compact PID legend so copied logs identify duplicate leaders/civs clearly. (GPT-5.5) -->
++		aiPlayers = []
++		for entry in aEntries:
++			tColumns = self.getBattleEntryColumns(entry)
++			if tColumns is None:
++				continue
++			iAttacker = tColumns[3]
++			iDefender = tColumns[7]
++			if iAttacker not in aiPlayers:
++				aiPlayers.append(iAttacker)
++			if iDefender not in aiPlayers:
++				aiPlayers.append(iDefender)
++		aiPlayers.sort()
++		print("Players: PID | PlayerName | LeaderType | CivType")
++		for iPlayer in aiPlayers:
++			kPlayer = gc.getPlayer(iPlayer)
++			szLeaderType = gc.getLeaderHeadInfo(kPlayer.getLeaderType()).getType()
++			szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
++			print("Player: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
++		
+ 	def drawCombatExperience(self):
+ 		if self.iActivePage != self.PAGE_UNITS:
+ 			return
+@@ -478,6 +505,9 @@ class CvMilitaryAdvisor:
+ 				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_MILITARY, iX, iY, -1, 0.6)
+ 
+ 	def getBattlePlotFromInput(self, inputClass):
++		# <!-- custom: prefer the row cache because table cell data1/data2 can empirically arrive as valid-looking default map-corner coordinates (e.g. 0,0), making the camera jump to a corner instead of the battle plot. (GPT-5.5) -->
++		if inputClass.getData() in self.BATTLE_ROW_PLOTS:
++			return self.BATTLE_ROW_PLOTS[inputClass.getData()]
+ 		iX = inputClass.getData1()
+ 		iY = inputClass.getData2()
+ 		if 0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight():
+@@ -486,6 +516,11 @@ class CvMilitaryAdvisor:
+ 																				
+ 	# handle the input for this screen...
+ 	def handleInput (self, inputClass):
++		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
++			self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), self.DEBUG_DROPDOWN_ID)
++			self.hideScreen()
++			self.interfaceScreen()
++			return 1
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.BATTLE_LOG_BUTTON_ID:
+ 			self.dbgLogBattleHistory()
+ 			return 1
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 7c00d7a9f..bfd63ef8d 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -12602,7 +12602,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Willhem_Van_Oranje -->
++		<LeaderHeadInfo> <!-- custom: Willem_Van_Oranje -->
+ 			<Type>LEADER_WILLEM_VAN_ORANJE</Type>
+ 			<Description>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA</Civilopedia>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 0439ee6d3..f30c7901e 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3162,7 +3162,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
+ 		<English>Augustus</English>
+ 	</TEXT>
+-	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willhem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
++	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
+ 	<TEXT>
+ 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
+ 		<English>Willem</English>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5ee3930c7..0b3267c26 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -290,7 +290,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ### UI (Common)
+ 
+ - (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, most of **diplomacy screen** (when it was possible) in [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) and `CvPlayer::getItemTradeString` (for trading table), **Event Log** window (as of now only **Event Log** and **Combat Log** tabs are supported) and **event message popup** (top-center) in [CvUtil.py](/Assets/Python/CvUtil.py) and [CvEventManager.py](/Assets/Python/CvEventManager.py) and `CvDLLInterfaceIFaceBase::addMessage` (note: Event related message upscaling **only applies to new messages written after upscaling is enabled**, not to previously written event messages before upscaling was applied), miscallenous screens such as the [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py) (i.e. the e.g., "You have entered the Renaissance era!" screen), [CvWonderMovieScreen.py](/Assets/Python/Screens/CvWonderMovieScreen.py), (from hardcoded `<font=4b>` to SAS FONT `TITLE` (more readable without bold)), [CvSpaceShipScreen.py](/Assets/Python/Screens/CvSpaceShipScreen.py), and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text**. Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). A **simple way to upscale all text to max font size** is for example to set `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL`, `SAS_UI_FONT_TITLE` and `SAS_UI_FONT_HOVER` all to max font size which is 4. See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+-- (Requires AdvCiv-SAS 5530+) **Upscaling adjustments** include generally to expand them so text does not overflow, or notably: smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **smaller Sevopedia speeds first column** (only at **lower resolutions** since these don't have enough horizontal room per column to show them without clipping),  **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**, **do not upscale icons** in the Foreign Diplomacy Advisor's **Glance Tab** when text is upscaled and there are **>= 2 icons** (e.g., worst enemy + at war icons) (See [KI#116](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)), added **attitude icon chars** in [GameFont.tga](/Assets/res/Fonts/GameFont.tga) (21x20 icon size): previously they existed only in [GameFont_75.tga](/Assets/res/Fonts/GameFont_75.tga) (16x16 icon size), causing attitude icon chars to **disappear** (e.g., in Score Tab) **when font was upscaled (attitude font size >= 3)** (see [KI#117](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)), increase **vertical spacing** in Info screen's **Graph Tab** between **leader lines** when text is upscaled (label > 3), **dynamically adjust** the Info Screen's **Graph tab**'s legend (i.e. leaders') **line height** (**reduced** when there are **many leaders** (e.g., > 36) but **expanded if vertical resolution is high** enough to accomodate it (e.g., >= 1440p)), and adjust legend **line width** depending on **font size** (label >= 3) (and further enlarge it for long leader names e.g., "Willhem van Oranje").
++- (Requires AdvCiv-SAS 5530+) **Upscaling adjustments** include generally to expand them so text does not overflow, or notably: smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **smaller Sevopedia speeds first column** (only at **lower resolutions** since these don't have enough horizontal room per column to show them without clipping),  **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**, **do not upscale icons** in the Foreign Diplomacy Advisor's **Glance Tab** when text is upscaled and there are **>= 2 icons** (e.g., worst enemy + at war icons) (See [KI#116](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)), added **attitude icon chars** in [GameFont.tga](/Assets/res/Fonts/GameFont.tga) (21x20 icon size): previously they existed only in [GameFont_75.tga](/Assets/res/Fonts/GameFont_75.tga) (16x16 icon size), causing attitude icon chars to **disappear** (e.g., in Score Tab) **when font was upscaled (attitude font size >= 3)** (see [KI#117](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)), increase **vertical spacing** in Info screen's **Graph Tab** between **leader lines** when text is upscaled (label > 3), **dynamically adjust** the Info Screen's **Graph tab**'s legend (i.e. leaders') **line height** (**reduced** when there are **many leaders** (e.g., > 36) but **expanded if vertical resolution is high** enough to accomodate it (e.g., >= 1440p)), and adjust legend **line width** depending on **font size** (label >= 3) (and further enlarge it for long leader names).
+ - (Requires AdvCiv-SAS 5527+) **Increase hover text** base **font size** from **2 to 3** and most UI elements (e.g., scoreboard, advisors, main interface, sevopedia) **from body (i.e. 2) to label (i.e. 3)**, and **increased font2 billboard from 100 to 120 percent** so it is **more readable**.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=2 bytes=4478
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=22171

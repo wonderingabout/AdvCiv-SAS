@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5587
+# Commit: 208a8b6a910dd97ec90306d1831c9afa843c82e4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8f60e16c5115455ed852b9f02ad8932676231145
+# Title: adjust info screen tabs' dimensions (log button when upscaled, demographics' first column, wonders tab)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	7	Assets/Python/Screens/CvInfoScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index eb542c121..2645640ea 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -500,8 +500,13 @@ class CvInfoScreen:
+ 		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
+ 
+ 		# LOG button - positioned in top header bar (0-55px height)
+-		self.W_HISTORY_TABLE_LOG_BUTTON = 48
+-		self.H_HISTORY_TABLE_LOG_BUTTON = 28
++		# <!-- custom: scale History log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
++		if getSASUIFontBody() > 2:
++			self.W_HISTORY_TABLE_LOG_BUTTON = 60
++			self.H_HISTORY_TABLE_LOG_BUTTON = 30
++		else:
++			self.W_HISTORY_TABLE_LOG_BUTTON = 48
++			self.H_HISTORY_TABLE_LOG_BUTTON = 28
+ 		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
+ 		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
+ 
+@@ -578,7 +583,7 @@ class CvInfoScreen:
+ 		demographics_Y_TEXT_BUFFER = 43
+ 
+ 		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
+-		self.W_DEMOGRAPHICS_COL_DEM = 260
++		self.W_DEMOGRAPHICS_COL_DEM = 320
+ 		demographicsNumericalColsW = 150
+ 		demographicsRivalColsW = 220
+ 		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
+@@ -613,7 +618,7 @@ class CvInfoScreen:
+ 		# TOP CITIES
+ 
+ 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
+-		self.W_WONDERS_RIGHT_PANE = 640
++		self.W_WONDERS_RIGHT_PANE = 765
+ 		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
+ 		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
+ 
+@@ -697,9 +702,11 @@ class CvInfoScreen:
+ 
+ 		self.W_WONDERS_CHART_COL_BUTTON = 30
+ 		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
+-		self.W_WONDERS_CHART_COL_DATE = 85
+-		self.W_WONDERS_CHART_COL_OWNER = 145
+-		self.W_WONDERS_CHART_COL_CITY = 145
++		# <!-- custom: rebalanced Wonders table after widening the Wonders pane and shrinking Top 5 Cities:
++		# allocate roughly half of the gained width to Name (residual column) and the other half to Date/Owner/City. (GPT-5.3-Codex) -->
++		self.W_WONDERS_CHART_COL_DATE = 110
++		self.W_WONDERS_CHART_COL_OWNER = 155
++		self.W_WONDERS_CHART_COL_CITY = 155
+ 		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
+ 		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2613

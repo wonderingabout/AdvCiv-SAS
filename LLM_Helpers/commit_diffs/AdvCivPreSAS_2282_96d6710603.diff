@@ -1,0 +1,642 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2282
+# Commit: 96d6710603295e681a1ee208c101a5d978df1d74
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0a47c0f4d68bc1a1b88b50fb0588b59de03a963c
+# Title: Improve how AI deals with units that can't enter all terrain
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+5	3	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+85	33	CvGameCoreDLL/CvPlayerAI.cpp
+9	2	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+19	5	CvGameCoreDLL/CvUnit.cpp
+49	28	CvGameCoreDLL/CvUnitAI.cpp
+10	7	CvGameCoreDLL/RiseFall.cpp
+1	1	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 214de5c1a..f4a460200 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9459,7 +9459,7 @@ void CvGame::changeHumanPlayer(PlayerTypes eNewHuman)
+ 	gDLL->getInterfaceIFace()->clearSelectedCities(); // </advc.001>
+ 	setActivePlayer(eNewHuman, false);
+ 
+-	GET_PLAYER(eCurHuman).setIsHuman(false);
++	GET_PLAYER(eCurHuman).setIsHuman(false, /* advc.127c: */ true);
+ 	GET_PLAYER(eCurHuman).updateHuman(); // advc.127
+ } // BETTER_BTS_AI_MOD: END
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 449873bae..43d0f304e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16412,7 +16412,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 		iTotal != iTotalCached && !g.isNetworkMultiPlayer())
+ 	{
+ 		FAssertMsg(iTotal == iTotalCached, "Attitude cache out of date "
+-				"(OK after loading a save created prior to v0.95 or Alt+Z)");
++				"(OK after loading a save created prior to AdvCiv 0.95)");
+ 		kPlayer.AI_updateAttitude(eTargetPlayer, true);
+ 		// Try again, this time without recursion. szBuffer hasn't been changed yet.
+ 		getAttitudeString(szBuffer, ePlayer, eTargetPlayer, true);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 07c037a12..5447e3725 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -999,7 +999,7 @@ void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader)
+ 
+ // (advc: Moved up so that all the CHANGE_PLAYER code dated 08/17/08 is in one place)
+ // for changing whether this player is human or not
+-void CvPlayer::setIsHuman(bool bNewValue)
++void CvPlayer::setIsHuman(bool bNewValue, /* advc.127c: */ bool bUpdateAI)
+ {
+ 	// <advc.706> Make sure that these are consistent
+ 	if(!bNewValue)
+@@ -1017,6 +1017,8 @@ void CvPlayer::setIsHuman(bool bNewValue)
+ 		initAlerts(true);
+ 	}
+ 	else uninitAlerts(); // </advc.210>
++	if (bUpdateAI)
++		AI().AI_setHuman(bNewValue);
+ }
+ // CHANGE_PLAYER: END
+ // CHANGE_PLAYER, 05/09/09, jdog5000: START
+@@ -2679,7 +2681,7 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
+ 	CvWString szReplayText;
+ 	if (bNewVal && !m_bDisableHuman)
+ 	{
+-		AI().AI_setHumanDisabled(true);
++		AI().AI_setHuman(false);
+ 		if(bActive)
+ 		{	// advc.004h:
+ 			gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_FOUNDING_BORDER);
+@@ -2689,7 +2691,7 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
+ 	}
+ 	else if (!bNewVal && m_bDisableHuman)
+ 	{
+-		AI().AI_setHumanDisabled(false);
++		AI().AI_setHuman(true);
+ 		m_iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
+ 		if(bActive)
+ 			szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_ENDED");
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 96c7f6cf1..9edfae0be 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -114,7 +114,7 @@ public:
+ 	void resetCivTypeEffects(/* advc.003q: */ bool bInit);
+ 	void changeLeader(LeaderHeadTypes eNewLeader);
+ 	void changeCiv(CivilizationTypes eNewCiv);
+-	void setIsHuman(bool bNewValue);
++	void setIsHuman(bool bNewValue, /* advc.127c: */ bool bAIUpdate = false);
+ 	// CHANGE_PLAYER: END
+ 	// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000: START
+ 	void setHumanDisabled(bool bNewVal);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1dfb3c0d4..b5ef71577 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -506,9 +506,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 			switch (iPass)
+ 			{
+ 			case 0:
+-				// BBAI note:  Effectively only for galleys, triremes, and ironclads ... unit types which are limited in
+-				// what terrain they can operate in
+-				if (AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0)
++				if (AI_isAnyImpassable(pLoopUnit->getUnitType()))
+ 					bValid = true;
+ 				break;
+ 			case 1:
+@@ -6142,14 +6140,18 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 				int iAssaultValue = 0;
+ 				UnitTypes eExistingUnit = NO_UNIT;
+ 				if (AI_bestAreaUnitAIValue(UNITAI_ASSAULT_SEA, NULL, &eExistingUnit) == 0)
+-				{
+ 					iAssaultValue += 100; // k146: was 250
+-				}
+ 				else if (eExistingUnit != NO_UNIT)
+-				{
+-					iAssaultValue += 500 * // k146: was 1000*
+-							std::max(0, AI_unitImpassableCount(eLoopUnit) - AI_unitImpassableCount(eExistingUnit));
+-
++				{	// k146: Was 1000* in BBAI, 100 in BtS.
++					/*iAssaultValue += 500 * std::max(0,
++							AI_unitImpassableCount(eLoopUnit) - AI_unitImpassableCount(eExistingUnit));*/
++					// advc.001: We want the new unit to have _fewer_ impassables!
++					// <advc.057>
++					if (AI_unitImpassables(eLoopUnit) < AI_unitImpassables(eExistingUnit))
++					{	// Given that 0 was counted previously, 500 seems excessive.
++						iAssaultValue += 300;
++					} /* </advc.057> (Would be nice to subtract sth. if the old unit
++						 has fewer impassables, but can't easily check that anymore.) */
+ 					int iNewCapacity = kLoopUnit.getMoves() * kLoopUnit.getCargoSpace();
+ 					int iOldCapacity = GC.getInfo(eExistingUnit).getMoves() * GC.getInfo(eExistingUnit).getCargoSpace();
+ 
+@@ -6159,15 +6161,9 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 
+ 				if (iAssaultValue > 0)
+ 				{
+-					// k146: (bAnyAssault calculation removed; now done earlier)
+-					if (bAnyAssault)
+-					{
++					if (bAnyAssault) // k146: (bAnyAssault calculation moved up)
+ 						iTotalUnitValue += iAssaultValue * 4;
+-					}
+-					else
+-					{
+-						iTotalUnitValue += iAssaultValue;
+-					}
++					else iTotalUnitValue += iAssaultValue;
+ 				}
+ 			}
+ 
+@@ -6229,8 +6225,8 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 				// Landlocked expansion over ocean
+ 				else if (eExistingUnit != NO_UNIT)
+ 				{
+-					if (AI_unitImpassableCount(eLoopUnit) <
+-						AI_unitImpassableCount(eExistingUnit) &&
++					if (AI_unitImpassables(eLoopUnit) <
++						AI_unitImpassables(eExistingUnit) &&
+ 						iBestAreaValue < AI_getMinFoundValue())
+ 					{
+ 						iTotalUnitValue += AI_atVictoryStage(AI_VICTORY_DOMINATION2) ? 2000 : 500;
+@@ -12477,22 +12473,33 @@ DenialTypes CvPlayerAI::AI_religionTrade(ReligionTypes eReligion, PlayerTypes eP
+ 	return NO_DENIAL;
+ }
+ 
+-
+-int CvPlayerAI::AI_unitImpassableCount(UnitTypes eUnit) const
++// advc.057: Renamed from "AI_unitImpassableCount"; return type was int.
++uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
+ {	// <advc.003t>
+ 	if (!GC.getInfo(eUnit).isAnyTerrainImpassable() &&
+ 		!GC.getInfo(eUnit).isAnyFeatureImpassable())
+ 	{
+ 		return 0; // </advc.003t>
+ 	}
+-	int iCount = 0;
++	uint uiCount = 0;
++	// <advc.057>
++	uint const uiCountBits = 3;
++	uint const uiFlagBits = std::numeric_limits<uint>::digits - uiCountBits;
++	uint const uiTerrains = (uint)GC.getNumTerrainInfos();
++	uint const uiFeatures = (uint)GC.getNumFeatureInfos();
++	FAssert(uiTerrains + uiFeatures <= uiFlagBits);
++	uint uiFlags = 0; // </advc.057>
+ 	FOR_EACH_ENUM(Terrain)
+ 	{
+ 		if (GC.getInfo(eUnit).getTerrainImpassable(eLoopTerrain))
+ 		{
+ 			TechTypes eTech = GC.getInfo(eUnit).getTerrainPassableTech(eLoopTerrain);
+ 			if (eTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eTech))
+-				iCount++;
++			{
++				uiCount++;
++				// advc.057:
++				uiFlags += 1u << std::min<uint>(uiFlagBits - 1, eLoopTerrain);
++			}
+ 		}
+ 	}
+ 	FOR_EACH_ENUM(Feature)
+@@ -12501,10 +12508,19 @@ int CvPlayerAI::AI_unitImpassableCount(UnitTypes eUnit) const
+ 		{
+ 			TechTypes eTech = GC.getInfo(eUnit).getFeaturePassableTech(eLoopFeature);
+ 			if (eTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eTech))
+-				iCount++;
++			{
++				uiCount++;
++				// advc.057:
++				uiFlags += 1u << std::min<uint>(uiFlagBits - 1, uiTerrains + eLoopFeature);
++			}
+ 		}
+ 	}
+-	return iCount;
++	//return iCount;
++	/*	<advc.057> Put the count in the most significant bits so that the return values
++		can be used for ordering units by count */
++	uiCount = std::min(uiCount, (1u << uiCountBits) - 1);
++	uiFlags |= (uiCount << uiFlagBits);
++	return uiFlags; // </advc.057>
+ }
+ 
+ // K-Mod note: currently, unit promotions are considered in CvCityAI::AI_bestUnitAI rather than here.
+@@ -12694,7 +12710,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 			// if (u.getCombat() > 0)
+ 			if (!u.isNoRevealMap() && (u.getCombat() > 0 || u.isInvisible())) // K-Mod
+ 			{
+-				if (AI_unitImpassableCount(eUnit) == 0)
++				if (!AI_isAnyImpassable(eUnit))
+ 					bValid = true;
+ 			}
+ 			break;
+@@ -12774,7 +12790,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 
+ 		case UNITAI_ESCORT_SEA:
+ 			if (u.getCombat() > 0 && u.getCargoSpace() == 0 &&
+-				AI_unitImpassableCount(eUnit) == 0)
++				!AI_isAnyImpassable(eUnit))
+ 			{
+ 				bValid = true;
+ 			}
+@@ -13364,7 +13380,10 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 					* iExploreValue;
+ 			if (u.isAlwaysHostile())
+ 				iValue /= 2;
+-			iValue /= (1 + AI_unitImpassableCount(eUnit));
++			//iValue /= 1 + AI_unitImpassableCount(eUnit)
++			// <advc.057>
++			if (AI_isAnyImpassable(eUnit))
++				iValue /= 2; // </advc.057>
+ 		}
+ 		break;
+ 
+@@ -13376,8 +13395,12 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 		iValue += u.getMoves() * 200;
+ 		iValue += u.getCargoSpace() * 300;
+ 		/*  BETTER_BTS_AI_MOD, City AI, 05/18/09, jdog5000:
+-			Never build galley transports when ocean faring ones exist (issue mainly for Carracks) */
+-		iValue /= (1 + AI_unitImpassableCount(eUnit));
++			Never build galley transports when ocean faring ones exist
++			(issue mainly for Carracks) */
++		//iValue /= 1 + AI_unitImpassableCount(eUnit);
++		// <advc.057>
++		if (AI_isAnyImpassable(eUnit))
++			iValue /= 2; // </advc.057>
+ 		break;
+ 
+ 	case UNITAI_CARRIER_SEA:
+@@ -27425,13 +27448,42 @@ bool CvPlayerAI::AI_hasSharedPrimaryArea(PlayerTypes eOther) const
+ 	return false;
+ } // <advc>
+ 
+-/*  advc.127: (Tbd.: There may well be other AI data to be updated when
+-	human control is suspended or resumed.) */
+-void CvPlayerAI::AI_setHumanDisabled(bool bDisabled)
++// advc.127:
++void CvPlayerAI::AI_setHuman(bool b)
+ {
+ 	// Some of the first-impression modifiers don't apply to human players
+ 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		it->AI_updateAttitude();
++	if (b)
++		return;
++	/*	<advc.057> Enforce invariant: AI group head has highest impassable count.
++		Cf. CvUnitAI::AI_omniGroup. */
++	std::vector<CvSelectionGroup*> apSplitGroups;
++	FOR_EACH_GROUP_VAR(pGroup, *this)
++	{
++		if (pGroup->getNumUnits() <= 1)
++			continue;
++		CLLNode<IDInfo> const* pUnitNode = pGroup->headUnitNode();
++		CvUnit const& kHeadUnit = *::getUnit(pUnitNode->m_data);
++		if (kHeadUnit.AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
++			continue;
++		uint const uiHeadImpassables = AI_unitImpassables(kHeadUnit.getUnitType());
++		for (pUnitNode = pGroup->nextUnitNode(pUnitNode); pUnitNode != NULL;
++			pUnitNode = pGroup->nextUnitNode(pUnitNode))
++		{
++			CvUnit const& kUnit = *::getUnit(pUnitNode->m_data);
++			if (AI_unitImpassables(kUnit.getUnitType()) > uiHeadImpassables)
++			{
++				apSplitGroups.push_back(pGroup);
++				break;
++			}
++		}
++	}
++	for (size_t i = 0; i < apSplitGroups.size(); i++)
++	{
++		apSplitGroups[i]->splitGroup(1);
++	}
++	// </advc.057>
+ }
+ 
+ // advc.031c:
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 2b2e346b4..2d862f051 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -290,7 +290,14 @@ public:
+ 	int AI_religionTradeVal(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+ 	DenialTypes AI_religionTrade(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+ 
+-	int AI_unitImpassableCount(UnitTypes eUnit) const;
++	uint AI_unitImpassables(UnitTypes eUnit) const;
++	// advc.057:
++	inline bool AI_isAnyImpassable(UnitTypes eUnit) const
++	{
++		/*	BBAI note [moved from some call location]: For galleys, triremes, ironclads ...
++			unit types which are limited in what terrain they can operate in. */
++		return (AI_unitImpassables(eUnit) != 0u);
++	}
+ 
+ 	int AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const* pArea = NULL) const;			// Exposed to Python
+ 	int AI_totalUnitAIs(UnitAITypes eUnitAI) const;														// Exposed to Python
+@@ -881,7 +888,7 @@ protected:
+ 	void AI_doEnemyUnitData();
+ 	//void AI_invalidateCloseBordersAttitude(); // disabled by K-Mod
+ 	bool AI_isCommercePlot(CvPlot* pPlot) const; // advc: Was public; deprecated.
+-	void AI_setHumanDisabled(bool bDisabled); // advc.127
++	void AI_setHuman(bool b); // advc.127
+ 	void logFoundValue(int iX, int iY, bool bStartingLoc = false) const; // advc.031c
+ 
+ 	friend class CvGameTextMgr;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index b8c30a348..5debb16b5 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -94,7 +94,7 @@ bool CvSelectionGroupAI::AI_separateImpassable()
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pEntityNode->m_data);
+ 		pEntityNode = nextUnitNode(pEntityNode);
+-		if (kPlayer.AI_unitImpassableCount(pLoopUnit->getUnitType()) > 0)
++		if (kPlayer.AI_isAnyImpassable(pLoopUnit->getUnitType()))
+ 		{
+ 			pLoopUnit->joinGroup(NULL);
+ 			bSeparated = true;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 67b86cca3..cb18a76fd 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5380,7 +5380,7 @@ bool CvTeamAI::AI_isPursuingCircumnavigation() const
+ 			UnitTypes eUnit = kCiv.unitAt(i);
+ 			if(GC.getInfo(eUnit).getDomainType() != DOMAIN_SEA)
+ 				continue;
+-			if(kMember.AI_unitImpassableCount(eUnit) <= 0 && kMember.canTrain(eUnit))
++			if(!kMember.AI_isAnyImpassable(eUnit) && kMember.canTrain(eUnit))
+ 				return true;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ea514cc7b..e7932f6bd 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4532,7 +4532,7 @@ void CvUnit::blockadeRange(std::vector<CvPlot*>& r, int iExtra, /* advc.033: */
+ 	//gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());
+ 	// See comment in UWAICache::updateTrainCargo
+ 	bool bImpassables = (getDomainType() == DOMAIN_SEA && GET_PLAYER(getOwner()).
+-			AI_unitImpassableCount(getUnitType()) > 0);
++			AI_isAnyImpassable(getUnitType()));
+ 	int const iRange = GC.getDefineINT(CvGlobals::SHIP_BLOCKADE_RANGE);
+ 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
+ 	{
+@@ -6389,12 +6389,26 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
+ 	if (!canUpgrade(eUnit))
+ 		return this;
+ 
+-	GET_PLAYER(getOwner()).changeGold(-upgradePrice(eUnit));
+-	CvUnit* pUpgradeUnit = GET_PLAYER(getOwner()).initUnit(eUnit, getX(), getY(), AI_getUnitAIType());
++	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
++	kOwner.changeGold(-upgradePrice(eUnit));
++	CvUnit* pUpgradeUnit = kOwner.initUnit(eUnit, getX(), getY(), AI_getUnitAIType());
+ 	FAssert(pUpgradeUnit != NULL);
+ 
+ 	pUpgradeUnit->convert(this);
+-	pUpgradeUnit->joinGroup(getGroup()); // K-Mod, swapped order with convert. (otherwise units on boats would be ungrouped.)
++	/*	<advc.057> Crude; don't want to spend too much effort on this for now
++		b/c it's only relevant for mod-mods. */
++	if (!isHuman() && getGroup()->getNumUnits() > 1 &&
++		AI_getUnitAIType() != UNITAI_ASSAULT_SEA &&
++		(kOwner.AI_isAnyImpassable(eUnit) ||
++		kOwner.AI_isAnyImpassable(getGroup()->getUnitAt(0)->getUnitType())))
++	{
++		pUpgradeUnit->joinGroup(NULL);
++	}
++	else // </advc.057>
++	{
++		// K-Mod, swapped order with convert. (otherwise units on boats would be ungrouped.)
++		pUpgradeUnit->joinGroup(getGroup());
++	}
+ 	pUpgradeUnit->finishMoves();
+ 	// advc.080: Moved into subroutine
+ 	pUpgradeUnit->changeExperience(pUpgradeUnit->upgradeXPChange(eUnit));
+@@ -9846,7 +9860,7 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
+ 	if(kPromo.getMovesChange() > 0 &&
+ 		// Note: Unit extra moves can currently only come from promotions
+ 		kPromo.getMovesChange() + m_pUnitInfo->getMoves() + getExtraMoves() > 4 &&
+-		GET_PLAYER(getOwner()).AI_unitImpassableCount(getUnitType()) > 0 &&
++		GET_PLAYER(getOwner()).AI_isAnyImpassable(getUnitType()) &&
+ 		// Allow Morale
+ 		(ePrereq == NO_PROMOTION || !GC.getInfo(ePrereq).isLeader()))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f20eb6922..0ee777a36 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6936,7 +6936,8 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		if (pCity != NULL && getPlot().getOwner() == getOwner())
+ 		{
+ 			// split out galleys from stack of ocean capable ships
+-			if (kOwner.AI_unitImpassableCount(getUnitType()) == 0 && getGroup()->getNumUnits() > 1)
++			if (getGroup()->getNumUnits() > 1 &&
++				!kOwner.AI_isAnyImpassable(getUnitType()))
+ 			{
+ 				//AI_getGroup()->AI_separateImpassable();
+ 				// K-Mod
+@@ -6953,7 +6954,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 
+ 			// galleys with upgrade available should get that ASAP
+-			if (kOwner.AI_unitImpassableCount(getUnitType()) > 0)
++			if (kOwner.AI_isAnyImpassable(getUnitType()))
+ 			{
+ 				CvCity* pUpgradeCity = getUpgradeCity(false);
+ 				if (pUpgradeCity != NULL && pUpgradeCity == pCity)
+@@ -7713,14 +7714,14 @@ void CvUnitAI::AI_settlerSeaMove()
+ 		if (eBestSettlerTransport != NO_UNIT)
+ 		{
+ 			if (eBestSettlerTransport != getUnitType() &&
+-				kOwner.AI_unitImpassableCount(eBestSettlerTransport) == 0)
++				!kOwner.AI_isAnyImpassable(eBestSettlerTransport))
+ 			{
+ 				UnitClassTypes ePotentialUpgradeClass = GC.getInfo(eBestSettlerTransport).getUnitClassType();
+ 				if (!upgradeAvailable(getUnitType(), ePotentialUpgradeClass))
+ 				{
+ 					getGroup()->unloadAll();
+ 
+-					if (kOwner.AI_unitImpassableCount(getUnitType()) > 0)
++					if (kOwner.AI_isAnyImpassable(getUnitType()))
+ 					{
+ 						scrap();
+ 						return;
+@@ -9542,19 +9543,25 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 	{
+ 		return false;
+ 	}
+-
+-	int iOurImpassableCount = 0;
+-	for (CLLNode<IDInfo> const* pUnitNode = getGroup()->headUnitNode(); pUnitNode != NULL;
+-		pUnitNode = getGroup()->nextUnitNode(pUnitNode))
+-	{
+-		CvUnit const* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-		iOurImpassableCount = std::max(iOurImpassableCount,
+-				GET_PLAYER(getOwner()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	/*	<advc.057> Except for assault groups, the head unit should have the
++		most restrictive impassable types. */
++	int const iOurGroupFirstVal = AI_groupFirstVal();
++	uint uiOurMaxImpassables = kOwner.AI_unitImpassables(getUnitType());
++	if (AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
++	{
++		for (CLLNode<IDInfo> const* pUnitNode = // We're the head; already done.
++			getGroup()->nextUnitNode(getGroup()->headUnitNode()); // </advc.057>
++			pUnitNode != NULL; pUnitNode = getGroup()->nextUnitNode(pUnitNode))
++		{
++			CvUnit const& kImpassUnit = *::getUnit(pUnitNode->m_data);
++			uiOurMaxImpassables = std::max(uiOurMaxImpassables,
++					kOwner.AI_unitImpassables(kImpassUnit.getUnitType()));
++		}
+ 	}
+-
+ 	CvUnit* pBestUnit = NULL;
+ 	int iBestValue = MAX_INT;
+-	FOR_EACH_GROUPAI(pLoopGroup, GET_PLAYER(getOwner()))
++	FOR_EACH_GROUPAI(pLoopGroup, kOwner)
+ 	{
+ 		CvUnitAI* pLoopUnit = pLoopGroup->AI_getHeadUnit();
+ 		if (pLoopUnit == NULL)
+@@ -9607,20 +9614,35 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 			)
+ 		{
+ 			FAssert(!kLoopPlot.isVisibleEnemyUnit(this));
+-			if (iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
+-			{
+-				int iTheirImpassableCount = 0;
+-				CLLNode<IDInfo>* pUnitNode = pLoopGroup->headUnitNode();
+-				while (pUnitNode != NULL)
++			//if (iOurMaxImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA) { ...
++			{	// <advc.057> Check their impassable count even if ours is 0
++				CLLNode<IDInfo> const* pUnitNode = pLoopGroup->headUnitNode();
++				CvUnitAI const& kHeadUnit = *::AI_getUnit(pUnitNode->m_data);
++				uint uiTheirMaxImpassables = kOwner.AI_unitImpassables(
++						kHeadUnit.getUnitType());
++				/*	Assault groups aren't always formed through this function;
++					can't rely on head having the most impassable types. */
++				if (kHeadUnit.AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
+ 				{
+-					CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-					pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
+-					iTheirImpassableCount = std::max(iTheirImpassableCount,
+-							GET_PLAYER(getOwner()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
++					for (pUnitNode = getGroup()->nextUnitNode(pUnitNode);
++						pUnitNode != NULL; pUnitNode = getGroup()->nextUnitNode(pUnitNode))
++					{
++						CvUnit const& kUnit = *::getUnit(pUnitNode->m_data);
++						uiTheirMaxImpassables = std::max(uiTheirMaxImpassables,
++								kOwner.AI_unitImpassables(kUnit.getUnitType()));
++					}
+ 				}
+-				if (iOurImpassableCount != iTheirImpassableCount)
++				int const iTheirGroupFirstValue = kHeadUnit.AI_groupFirstVal();
++				/*	Disallow the group if we can't rule out that the impassable count
++					of the head will decrease */
++				if ((iTheirGroupFirstValue >= iOurGroupFirstVal &&
++					uiTheirMaxImpassables < uiOurMaxImpassables) ||
++					(iTheirGroupFirstValue <= iOurGroupFirstVal &&
++					uiTheirMaxImpassables > uiOurMaxImpassables))
++				{
+ 					continue;
+-			}
++				}
++			} // </advc.057>
+ 			int iPathTurns = 0;
+ 			if (at(kLoopPlot) || generatePath(&kLoopPlot, iFlags, true, &iPathTurns, iMaxPath))
+ 			{
+@@ -12932,7 +12954,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 	int iBestValue = 0;
+ 	CvPlot* pBestExplorePlot = NULL;
+ 
+-	int const iImpassableCount = GET_PLAYER(getOwner()).AI_unitImpassableCount(getUnitType());
++	bool const bAnyImpassable = GET_PLAYER(getOwner()).AI_isAnyImpassable(getUnitType());
+ 	CvTeam const& kTeam = GET_TEAM(getTeam()); // K-Mod
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // advc
+ 	CvMap const& kMap = GC.getMap();
+@@ -13012,8 +13034,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 		if (p.isOwned())
+ 			iValue += 5000;
+ 
+-		if (!isHuman() && AI_getUnitAIType() == UNITAI_EXPLORE_SEA &&
+-			iImpassableCount == 0)
++		if (!isHuman() && AI_getUnitAIType() == UNITAI_EXPLORE_SEA && !bAnyImpassable)
+ 		{
+ 			// <advc.plotr>
+ 			int const iDX = p.getX() - getX();
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 1ecbcbc13..d0657783e 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -462,8 +462,8 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 		GC.getInitCore().setHandicap(civId, g.getHandicapType());
+ 	}
+ 	else {
+-		civ.setIsHuman(false);
+ 		GC.getInitCore().setHandicap(civId, g.getAIHandicap());
++		civ.setIsHuman(false, true);
+ 		GC.getInitCore().setLeaderName(civId,
+ 				GC.getInfo(civ.getLeaderType()).getDescription());
+ 		gDLL->UI().flushTalkingHeadMessages();
+@@ -488,12 +488,15 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 		CvPlayerAI& other = GET_PLAYER((PlayerTypes)i);
+ 		if(!other.isAlive() || other.isMinorCiv())
+ 			continue;
+-		if(other.getID() != civId && GET_TEAM(civId).isHasMet(other.getTeam()))
+-			other.AI_updateAttitude(civId);
+-		if(b && formerHumanCiv != NO_PLAYER && civId != formerHumanCiv &&
+-				other.getID() != formerHumanCiv && GET_TEAM(formerHumanCiv).
+-				isHasMet(other.getTeam()))
+-			other.AI_updateAttitude(formerHumanCiv);
++		if (b) // (Otherwise CvPlayer::setIsHuman has already updated the full attitude cache)
++		{
++			if(other.getID() != civId && GET_TEAM(civId).isHasMet(other.getTeam()))
++				other.AI_updateAttitude(civId);
++			if(formerHumanCiv != NO_PLAYER && civId != formerHumanCiv &&
++					other.getID() != formerHumanCiv && GET_TEAM(formerHumanCiv).
++					isHasMet(other.getTeam()))
++				other.AI_updateAttitude(formerHumanCiv);
++		}
+ 	}
+ 	if(b) { // Updates to apply human modifiers
+ 		civ.updateWarWearinessPercentAnger();
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 134799738..e1b564d27 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -549,7 +549,7 @@ void UWAICache::updateTrainCargo() {
+ 			/*  A check for GC.getWATER_TERRAIN(false) would be better for
+ 				future modding. However, counting impassable terrain types is
+ 				used everywhere else as well. */
+-			if(owner.AI_unitImpassableCount(ut) == 0)
++			if(!owner.AI_isAnyImpassable(ut))
+ 				trainDeepSeaCargo = true;
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=24576

@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2037
+# Commit: f37efff88b7c5c8f965e6d9f141be9349ab82768
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6f81e8d3860ebb93be87a33d42ea0d2c64d01066
+# Title: Amend a few comments
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/GameInfo/CIV4EraInfos.xml
+1	1	CvGameCoreDLL/CvGame.cpp
+0	1	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/ReproTest.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4EraInfos.xml b/Assets/XML/GameInfo/CIV4EraInfos.xml
+index 0757eaedd..2f39cea88 100644
+--- a/Assets/XML/GameInfo/CIV4EraInfos.xml
++++ b/Assets/XML/GameInfo/CIV4EraInfos.xml
+@@ -482,7 +482,7 @@
+ 			<iTechCostModifier>7</iTechCostModifier>
+ 			<!-- advc.groundbr: start -->
+ 			<iAIMaxGroundbreakingPenalty>0</iAIMaxGroundbreakingPenalty>
+-			<!-- 50 in DoC; perhaps that makes sense with DoC's additional;
++			<!-- 50 in DoC; perhaps that makes sense with DoC's additional
+ 				 late-game content. -->
+ 			<iHumanMaxGroundbreakingPenalty>0</iHumanMaxGroundbreakingPenalty>
+ 			<!-- advc.groundbr: end -->
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9174da2ba..602d45604 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9183,7 +9183,7 @@ void CvGame::onAllGameDataRead()
+ 			continue;
+ 		/*	Bad idea (by me). The cache data has to be serialized instead.
+ 			It gets updated at the start of a turn, yes, but if we rely on
+-			that, then it won't safe to access data from another player's
++			that, then it won't be safe to access data from another player's
+ 			cache (who may not have taken a turn since a savegame was loaded).
+ 			Could update all caches after loading, but that would result in
+ 			more recent data after loading than upon saving. */
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b7bfa1404..60b100a34 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7279,7 +7279,6 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	if(!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
+ 		m_eSecondOwner = m_eOwner;
+ 	pStream->Write(m_eSecondOwner); // <advc.035>
+-	// advc (tbd.): Store these owners as char
+ 	pStream->Write(m_plotCity.eOwner);
+ 	pStream->Write(m_plotCity.iID);
+ 	pStream->Write(m_workingCity.eOwner);
+
+diff --git a/CvGameCoreDLL/ReproTest.cpp b/CvGameCoreDLL/ReproTest.cpp
+index b2149a56f..d84f70af6 100644
+--- a/CvGameCoreDLL/ReproTest.cpp
++++ b/CvGameCoreDLL/ReproTest.cpp
+@@ -29,7 +29,7 @@ ReproTest::ReproTest(int iTurns)
+ 
+ void ReproTest::recordData(int iBytes, byte const aBytes[])
+ {
+-	// aBytes can be NULL despite iBytes > 0 when it's pointer to the 0th element of a vector
++	// NULL possible despite iBytes > 0 when aBytes points to the 0th element of an empty vector
+ 	if (iBytes <= 0 || aBytes == NULL || GC.getGame().getAIAutoPlay() > 0)
+ 		return;
+ 	for (int i = 0; i < iBytes; i++)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2447

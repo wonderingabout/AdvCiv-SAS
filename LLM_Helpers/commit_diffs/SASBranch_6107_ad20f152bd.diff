@@ -1,0 +1,709 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6107
+# Commit: ad20f152bd488a871c26a72c4471e5d3beba63cd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a7a071f1be63b652070811ccb7eda27a7b1cfbdf
+# Title: Add aspect-correct SASGameRecord ASCII maps and full LLM review examples
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	.gitattributes
+1	1	.github/workflows/README.md
+4	4	.github/workflows/build/sas_game_record_log.py
+2	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+30	1	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+330	3	CvGameCoreDLL/SASGameRecordLog.cpp
+1	1	LLM_Helpers/README.md
+1	0	LLM_Helpers/make_light_source_zip.py
+9	6	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/LLM/{sas_game_record_log_example.PNG => SASGameRecord_example.PNG}
+-	-	_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_1.PNG
+-	-	_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_2.PNG
+72441	0	_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log
+0	0	_1_AdvCiv-SAS/{Docs/examples/chatgpt_sas_game_record_example.md => SASGameRecord_log/chatgpt_sas_game_record_review.md}
+ rename _1_AdvCiv-SAS/Images/LLM/{sas_game_record_log_example.PNG => SASGameRecord_example.PNG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_2.PNG
+ create mode 100644 _1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log
+ rename _1_AdvCiv-SAS/{Docs/examples/chatgpt_sas_game_record_example.md => SASGameRecord_log/chatgpt_sas_game_record_review.md} (100%)
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 9f8223595..5fffd080c 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -53,3 +53,7 @@
+ 
+ # <!-- custom: include most doc or debug as not too heavy and may be useful if downloaded as ZIP (manual.odt, manual.txt, CIV4BUG_Sourceforge_net_All_Classes_Doc, git_logs folders, Modding_Ressources, Sevopedia/Debug/) -->
+ /Assets/Res/Fonts/other_mods/                             export-ignore
++
++# <!-- custom: Keep a full raw SASGameRecord sample in git for LLM/dev review, but exclude it from GitHub Download ZIP / release archives because the log is large and diagnostic-only. (GPT-5.6) -->
++/_1_AdvCiv-SAS/SASGameRecord_log/     export-ignore
++/_1_AdvCiv-SAS/SASGameRecord_log/**   export-ignore
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 12f261710..2b2fba939 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -255,7 +255,7 @@ Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv
+ 
+ ### `build/sas_game_record_log.py`
+ 
+-Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; the snapshot interval, timestamped filenames, default-on anonymous performance metrics, and default level-2 display/runtime context are also checked because they configure how enabled records behave but do not enable record logging themselves.
++Verifies the independent `SASGameRecord` report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; the snapshot interval, timestamped filenames, default-on anonymous performance metrics, and default level-2 display/runtime context are also checked because they configure how enabled records behave but do not enable record logging themselves.
+ 
+ ### `build/fonts.py`
+
+diff --git a/.github/workflows/build/sas_game_record_log.py b/.github/workflows/build/sas_game_record_log.py
+index e0745f1a3..27f85759c 100644
+--- a/.github/workflows/build/sas_game_record_log.py
++++ b/.github/workflows/build/sas_game_record_log.py
+@@ -3,7 +3,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# Build check: SAS game-record report logging must be disabled by default.
++# Build check: SASGameRecord report logging must be disabled by default.
+ 
+ from pathlib import Path
+ import argparse
+@@ -25,18 +25,18 @@ EXPECTED_GAME_RECORD_DEFAULTS = {
+ 
+ 
+ def main() -> int:
+-	parser = argparse.ArgumentParser(description="Check that SAS game-record report logging is disabled by default unless explicitly listed as non-enabling configuration.")
++	parser = argparse.ArgumentParser(description="Check that SASGameRecord report logging is disabled by default unless explicitly listed as non-enabling configuration.")
+ 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
+ 	args = parser.parse_args()
+ 
+ 	defines = read_global_define_ints(args.repo_root)
+ 	failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
+ 	if failures:
+-		print("FAIL SAS game-record report logging disabled by default")
++		print("FAIL SASGameRecord report logging disabled by default")
+ 		for failure in failures:
+ 			print(f"  - {failure}")
+ 		return 1
+-	print(f"PASS SAS game-record report logging disabled by default: checked {len(EXPECTED_GAME_RECORD_DEFAULTS)} define(s)")
++	print(f"PASS SASGameRecord report logging disabled by default: checked {len(EXPECTED_GAME_RECORD_DEFAULTS)} define(s)")
+ 	return 0
+
+diff --git a/AGENTS.md b/AGENTS.md
+index bd2a3d43c..1e70a709b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -44,6 +44,7 @@ In particular but not only, these are usually helpful:
+ - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord.log" or timestamped (e.g., `SASGameRecord_20260710T064839Z_load1.log`) (after enabling the AdvCiv-SAS game-record XML defines). This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, city-defense/bombard history, tactical air use, and high-level game state; use BBAI for detailed AI-decision diagnostics. It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces. It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
++- A full raw example is kept at [_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) for development/LLM review.
+ 
+ The root Program Files Civ4 folder is here:
+ 
+@@ -95,7 +96,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Preserve important technical specifics verbatim (e.g., "0 / 0 / 0 / 0 / 100", "2 placeholders vs 3 substitutions", "remove the extra X starting position").
+ - Preserve all technical qualifiers - e.g., "debug DLL" not just "DLL", "tech advisor screen height" not just "screen height", etc. These distinctions matter.
+ - Preserve specific scope qualifiers in technical details; avoid vague rewrites that drop precise context (e.g., keep "tech advisor screen height" rather than just "screen height").
+-- Avoid unclear wording where one word can mean several Civ4 things. For example, "citizen" can mean a population member assigned to a city plot or a `SPECIALIST_CITIZEN`; "worked" can mean a plot assigned by the city or a tile improvement or build or route or such made by a `UNITCLASS_WORKER` or `UNITCLASS_WORKBOAT` or such unit; "event" can mean a BBAI/game-record log row/action or an XML `EventInfo`/`EventTrigger`; "reserve" can mean remaining defenders or `UNITAI_RESERVE`; "warlord" can mean Great General attached-to-unit use or `HANDICAP_WARLORD`. Use the exact meaning instead, e.g. "remaining healthy defenders after giving one to the Settler"; additionally when writing user facing doc like in the `README_Main_Changes_Guide.md`, this helps make it clearer too.
++- Avoid unclear wording where one word can mean several Civ4 things. For example, "citizen" can mean a population member assigned to a city plot or a `SPECIALIST_CITIZEN`; "worked" can mean a plot assigned by the city or a tile improvement or build or route or such made by a `UNITCLASS_WORKER` or `UNITCLASS_WORKBOAT` or such unit; "event" can mean a BBAI/SASGameRecord log row/action or an XML `EventInfo`/`EventTrigger`; "reserve" can mean remaining defenders or `UNITAI_RESERVE`; "warlord" can mean Great General attached-to-unit use or `HANDICAP_WARLORD`. Use the exact meaning instead, e.g. "remaining healthy defenders after giving one to the Settler"; additionally when writing user facing doc like in the `README_Main_Changes_Guide.md`, this helps make it clearer too.
+ - Keep exact technical phrasing; avoid substituting terms like "starting position" -> "start" or dropping modifiers like "vertically".
+ - Preserve exact spacing/formatting in technical details (e.g., "- 30" vs "-30").
+ - Preserve exact counts/quantities when they are mentioned (e.g., "3 strings").
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 017972d4c..594cc0ef7 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1495,7 +1495,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: Dedicated structured SAS game-record report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
++	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -1510,6 +1510,35 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each one-time level-3 SASGameRecord ASCII map layer. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit the ASCII preview without disabling other level-3 rows. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH</DefineName>
++		<iDefineIntVal>160</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT</DefineName>
++		<iDefineIntVal>120</iDefineIntVal>
++	</Define>
++	<!-- custom: Repeat each resampled map symbol horizontally to compensate for monospace characters usually being about half as wide as they are tall; 2 therefore makes the text-map proportions resemble square Civ4 plots much more closely. The final repeated drawing still fits the maximum character width above. Clamped to 1..4 and cached in SASGameRecordLog.cpp because fonts differ and the setting is used throughout each drawing. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<!-- custom: Geography-map symbols in this order: open water, lake, flat land, hills, peaks, mostly-water coast, balanced coast, mostly-land coast. Use comma-separated single printable characters; because literal whitespace and delimiter punctuation are fragile in XML, SPACE, COMMA, COLON, and SEMICOLON are recognized names. Symbols must be unique within this layer, and pipe is reserved for the picture frame. Invalid palettes produce a clear game-record configuration-error row and omit the map instead of silently changing symbols. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS</DefineName>
++		<DefineTextVal>SPACE,~,.,h,^,COMMA,COLON,SEMICOLON</DefineTextVal>
++	</Define>
++	<!-- custom: Political-map symbols in this order: unowned water, unowned land, mixed unowned water/land, civilization city, Barbarian city, mixed civilization/Barbarian cities, multiple starting players, Barbarian territory. It uses the same comma-separated character and named-token rules as the geography palette, and symbols must be unique within this layer. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS</DefineName>
++		<DefineTextVal>SPACE,.,COLON,@,!,*,+,?</DefineTextVal>
++	</Define>
++	<!-- custom: Direct player-symbol string with exactly MAX_CIV_PLAYERS unique printable characters that do not reuse either map layer's symbols. The default has 48 symbols for AdvCiv-SAS and deliberately omits lowercase h used for hills. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS</DefineName>
++		<DefineTextVal>0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgijklm</DefineTextVal>
++	</Define>
+ 	<!-- custom: Anonymous runtime metrics for SAS game-record performance review. 1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots. 0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1. This setting has no effect while SAS_GAME_RECORD_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 60fae506d..088a9793e 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4694,7 +4694,7 @@ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerSta
+ {
+ 	int const iOldAIAutoPlay = std::max(0, m_iAIAutoPlay);
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
+-	// <!-- custom: SAS game-record logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
++	// <!-- custom: SASGameRecord logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
+ 	if (gGameRecordLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
+ 		logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus);
+ 	if (!bChangePlayerStatus)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 36769831c..274a4ad4b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9043,7 +9043,7 @@ void CvPlayer::setAlive(bool bNewValue)
+ 		//killUnits(); // advc.003m: Moved up
+ 		killCities();
+ 		killAllDeals();
+-		// <!-- custom: SAS game-record logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
++		// <!-- custom: SASGameRecord logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
+ 		if (gGameRecordLogLevel >= 2 && bEverAlive && !isBarbarian())
+ 			logSASGameRecordPlayerEliminated(getID());
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index f7f1fa6f9..be38bbd2d 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -77,6 +77,25 @@ int getSASGameRecordTurnInterval()
+ 	return iInterval;
+ }
+ 
++// <!-- custom: Cache the tunable preview bounds and horizontal character ratio like the other SASGameRecord settings; 0 for either bound lets level 3 keep its other detail while omitting both text-map layers. (GPT-5.6-Sol) -->
++static int getSASGameRecordMapAsciiMaxWidth()
++{
++	static const int iMaxWidth = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH"));
++	return iMaxWidth;
++}
++
++static int getSASGameRecordMapAsciiMaxHeight()
++{
++	static const int iMaxHeight = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT"));
++	return iMaxHeight;
++}
++
++static int getSASGameRecordMapAsciiHorizontalCharsPerCell()
++{
++	static const int iChars = std::min(4, std::max(1, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL")));
++	return iChars;
++}
++
+ // <!-- custom: Accept the sampled time so snapshot UTC and elapsed durations use exactly the same clock reading. (GPT-5.6-Sol) -->
+ static CvString createSASGameRecordLogTimestamp(time_t kNow)
+ {
+@@ -374,7 +393,7 @@ static void logSASGameRecordDisplayContext()
+ 	g_bSASGameRecordDisplayContextLogged = true;
+ }
+ 
+-// <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
++// <!-- custom: Use "row" wording for generic SASGameRecord row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+ static void logSASGameRecordGameState(const char* szRowType)
+ {
+ 	CvGame& kGame = GC.getGame();
+@@ -463,8 +482,8 @@ static void logSASGameRecordGameState(const char* szRowType)
+ 
+ static void logSASGameRecordLogSettings()
+ {
+-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
+-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
++	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
++			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
+ }
+ 
+ static void resetSASGameRecordState();
+@@ -2552,6 +2571,313 @@ static void logSASGameRecordGeography()
+ 	}
+ }
+ 
++enum
++{
++	SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT = 8,
++	SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT = 8
++};
++
++struct SASGameRecordMapAsciiPalette
++{
++	bool bValid;
++	char acGeography[SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT];
++	char acPolitical[SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT];
++	CvString szPlayers;
++	CvString szGeographyDefine;
++	CvString szPoliticalDefine;
++	CvString szError;
++};
++
++static bool parseSASGameRecordMapAsciiSymbol(CvString const& szToken, char& cSymbol)
++{
++	if (szToken == "SPACE") cSymbol = ' ';
++	else if (szToken == "COMMA") cSymbol = ',';
++	else if (szToken == "COLON") cSymbol = ':';
++	else if (szToken == "SEMICOLON") cSymbol = ';';
++	else if (szToken.length() == 1) cSymbol = szToken[0];
++	else return false;
++	return (cSymbol >= 32 && cSymbol <= 126 && cSymbol != '"' && cSymbol != '\\' && cSymbol != '|');
++}
++
++static bool parseSASGameRecordMapAsciiPaletteDefine(char const* szDefineName, int iExpectedSymbols, char* acSymbols, CvString& szRaw, CvString& szError)
++{
++	szRaw = GC.getDefineSTRING(szDefineName);
++	std::vector<CvString> aszTokens;
++	szRaw.getTokens(",", aszTokens);
++	if ((int)aszTokens.size() != iExpectedSymbols)
++	{
++		szError.Format("%s requires %d comma-separated symbols but has %d", szDefineName, iExpectedSymbols, (int)aszTokens.size());
++		return false;
++	}
++	bool abUsed[127] = { false };
++	for (int iSymbol = 0; iSymbol < iExpectedSymbols; iSymbol++)
++	{
++		if (!parseSASGameRecordMapAsciiSymbol(aszTokens[iSymbol], acSymbols[iSymbol]))
++		{
++			szError.Format("%s symbol %d must be one safe printable character or SPACE/COMMA/COLON/SEMICOLON", szDefineName, iSymbol);
++			return false;
++		}
++		unsigned char const ucSymbol = (unsigned char)acSymbols[iSymbol];
++		if (abUsed[ucSymbol])
++		{
++			szError.Format("%s repeats symbol ASCII %d", szDefineName, (int)ucSymbol);
++			return false;
++		}
++		abUsed[ucSymbol] = true;
++	}
++	return true;
++}
++
++static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
++{
++	static SASGameRecordMapAsciiPalette kPalette;
++	static bool bInitialized = false;
++	if (bInitialized)
++		return kPalette;
++	bInitialized = true;
++	kPalette.bValid = false;
++	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
++			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError))
++		return kPalette;
++	kPalette.szPlayers = GC.getDefineSTRING("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS");
++	if ((int)kPalette.szPlayers.length() != MAX_CIV_PLAYERS)
++	{
++		kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS requires exactly MAX_CIV_PLAYERS=%d characters but has %d", MAX_CIV_PLAYERS, (int)kPalette.szPlayers.length());
++		return kPalette;
++	}
++	bool abPlayerSymbols[127] = { false };
++	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
++	{
++		unsigned char const ucSymbol = (unsigned char)kPalette.szPlayers[iPlayer];
++		if (ucSymbol < 33 || ucSymbol > 126 || ucSymbol == '"' || ucSymbol == '\\' || ucSymbol == '|' || ucSymbol == ',' || ucSymbol == ';' || ucSymbol == '=')
++		{
++			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d uses unsafe ASCII %d", iPlayer, (int)ucSymbol);
++			return kPalette;
++		}
++		if (abPlayerSymbols[ucSymbol])
++		{
++			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS repeats symbol ASCII %d", (int)ucSymbol);
++			return kPalette;
++		}
++		for (int iSymbol = 0; iSymbol < SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT; iSymbol++)
++		{
++			if (ucSymbol == (unsigned char)kPalette.acGeography[iSymbol])
++			{
++				kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d reuses geography symbol ASCII %d", iPlayer, (int)ucSymbol);
++				return kPalette;
++			}
++		}
++		for (int iSymbol = 0; iSymbol < SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT; iSymbol++)
++		{
++			if (ucSymbol == (unsigned char)kPalette.acPolitical[iSymbol])
++			{
++				kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d reuses political symbol ASCII %d", iPlayer, (int)ucSymbol);
++				return kPalette;
++			}
++		}
++		abPlayerSymbols[ucSymbol] = true;
++	}
++	kPalette.bValid = true;
++	return kPalette;
++}
++
++static char getSASGameRecordMapAsciiPlayerSymbol(PlayerTypes ePlayer, SASGameRecordMapAsciiPalette const& kPalette)
++{
++	int const iPlayer = (int)ePlayer;
++	return (iPlayer >= 0 && iPlayer < MAX_CIV_PLAYERS ? kPalette.szPlayers[iPlayer] : '?');
++}
++
++static void appendSASGameRecordMapAsciiSymbol(CvString& szRow, char cSymbol)
++{
++	char acSymbol[2] = { cSymbol, '\0' };
++	szRow += acSymbol;
++}
++
++static char getSASGameRecordMapAsciiGeographySymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
++{
++	int iWater = 0;
++	int iLake = 0;
++	int iLand = 0;
++	int iHills = 0;
++	int iPeaks = 0;
++	for (int iY = iMinY; iY < iMaxY; iY++)
++	{
++		for (int iX = iMinX; iX < iMaxX; iX++)
++		{
++			CvPlot const& kPlot = *kMap.plot(iX, iY);
++			if (kPlot.isWater())
++			{
++				iWater++;
++				if (kPlot.isLake()) iLake++;
++			}
++			else
++			{
++				iLand++;
++				if (kPlot.isPeak()) iPeaks++;
++				else if (kPlot.isHills()) iHills++;
++			}
++		}
++	}
++	if (iLand <= 0)
++		return (iLake == iWater ? kPalette.acGeography[1] : kPalette.acGeography[0]);
++	if (iWater > 0)
++	{
++		int const iPlots = iLand + iWater;
++		if (3 * iLand < iPlots) return kPalette.acGeography[5];
++		if (3 * iLand > 2 * iPlots) return kPalette.acGeography[7];
++		return kPalette.acGeography[6];
++	}
++	if (2 * iPeaks >= iLand) return kPalette.acGeography[4];
++	if (2 * iHills >= iLand) return kPalette.acGeography[3];
++	return kPalette.acGeography[2];
++}
++
++static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, std::vector<PlayerTypes> const& aeStartingPlayers, int iMinX, int iMaxX, int iMinY, int iMaxY)
++{
++	int aiOwnerPlots[MAX_PLAYERS] = { 0 };
++	PlayerTypes eStartingPlayer = NO_PLAYER;
++	bool bMultipleStartingPlayers = false;
++	bool bCivilizationCity = false;
++	bool bBarbarianCity = false;
++	int iWater = 0;
++	int iLand = 0;
++	for (int iY = iMinY; iY < iMaxY; iY++)
++	{
++		for (int iX = iMinX; iX < iMaxX; iX++)
++		{
++			CvPlot const& kPlot = *kMap.plot(iX, iY);
++			if (kPlot.isWater()) iWater++;
++			else iLand++;
++			PlayerTypes const eOwner = kPlot.getOwner();
++			if (eOwner >= 0 && eOwner < MAX_PLAYERS)
++				aiOwnerPlots[eOwner]++;
++			CvCity const* pCity = kPlot.getPlotCity();
++			if (pCity != NULL)
++			{
++				if (pCity->isBarbarian()) bBarbarianCity = true;
++				else bCivilizationCity = true;
++			}
++			PlayerTypes const ePlotStartingPlayer = aeStartingPlayers[kMap.plotNum(iX, iY)];
++			if (ePlotStartingPlayer != NO_PLAYER)
++			{
++				if (eStartingPlayer == NO_PLAYER) eStartingPlayer = ePlotStartingPlayer;
++				else if (eStartingPlayer != ePlotStartingPlayer) bMultipleStartingPlayers = true;
++			}
++		}
++	}
++	if (bCivilizationCity && bBarbarianCity) return kPalette.acPolitical[5];
++	if (bBarbarianCity) return kPalette.acPolitical[4];
++	if (bCivilizationCity) return kPalette.acPolitical[3];
++	if (bMultipleStartingPlayers) return kPalette.acPolitical[6];
++	if (eStartingPlayer != NO_PLAYER) return getSASGameRecordMapAsciiPlayerSymbol(eStartingPlayer, kPalette);
++	PlayerTypes eDominantOwner = NO_PLAYER;
++	int iDominantOwnerPlots = 0;
++	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
++	{
++		if (aiOwnerPlots[iPlayer] > iDominantOwnerPlots)
++		{
++			iDominantOwnerPlots = aiOwnerPlots[iPlayer];
++			eDominantOwner = (PlayerTypes)iPlayer;
++		}
++	}
++	if (eDominantOwner == BARBARIAN_PLAYER) return kPalette.acPolitical[7];
++	if (eDominantOwner != NO_PLAYER) return getSASGameRecordMapAsciiPlayerSymbol(eDominantOwner, kPalette);
++	if (iWater > 0 && iLand > 0) return kPalette.acPolitical[2];
++	return (iWater > 0 ? kPalette.acPolitical[0] : kPalette.acPolitical[1]);
++}
++
++// <!-- custom: A bounded text map gives external LLMs and text-only reviewers the broad spatial relationships that aggregate landmass statistics cannot show. Fit the generated map, rather than the selected XML world size, into the tunable box with one scale so Tiny maps remain exact while horizontal SAS_Longworld and possible vertical/tower maps preserve their shapes.
++// Monospace characters are usually much taller than wide, so repeat each map cell horizontally by a tunable amount. Keep metadata outside the pipe-framed drawing rows so humans and LLMs can parse each layer as one uninterrupted picture; detailed plot/city facts continue through the structured rows elsewhere. (GPT-5.6-Sol) -->
++static void logSASGameRecordMapAscii()
++{
++	int const iMaxWidth = getSASGameRecordMapAsciiMaxWidth();
++	int const iMaxHeight = getSASGameRecordMapAsciiMaxHeight();
++	if (iMaxWidth <= 0 || iMaxHeight <= 0)
++		return;
++	SASGameRecordMapAsciiPalette const& kPalette = getSASGameRecordMapAsciiPalette();
++	if (!kPalette.bValid)
++	{
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_CONFIG_ERROR error=%s", getSASGameRecordQuoted(kPalette.szError.GetCString()).GetCString());
++		FAssertMsg(false, kPalette.szError.GetCString());
++		return;
++	}
++	CvMap const& kMap = GC.getMap();
++	int const iSourceWidth = kMap.getGridWidth();
++	int const iSourceHeight = kMap.getGridHeight();
++	if (iSourceWidth <= 0 || iSourceHeight <= 0)
++		return;
++	int const iHorizontalCharsPerCell = getSASGameRecordMapAsciiHorizontalCharsPerCell();
++	int const iMaxCellWidth = std::max(1, iMaxWidth / iHorizontalCharsPerCell);
++	int iPreviewWidth = iSourceWidth;
++	int iPreviewHeight = iSourceHeight;
++	if (iSourceWidth > iMaxCellWidth || iSourceHeight > iMaxHeight)
++	{
++		if (iSourceWidth * iMaxHeight >= iSourceHeight * iMaxCellWidth)
++		{
++			iPreviewWidth = iMaxCellWidth;
++			iPreviewHeight = std::max(1, (iSourceHeight * iMaxCellWidth + iSourceWidth / 2) / iSourceWidth);
++		}
++		else
++		{
++			iPreviewHeight = iMaxHeight;
++			iPreviewWidth = std::max(1, (iSourceWidth * iMaxHeight + iSourceHeight / 2) / iSourceHeight);
++		}
++	}
++	int const iOutputWidth = iPreviewWidth * iHorizontalCharsPerCell;
++	bool const bMarkStartingPlots = (GC.getGame().getElapsedGameTurns() == 0);
++	std::vector<PlayerTypes> aeStartingPlayers(kMap.numPlots(), NO_PLAYER);
++	CvString szPlayerSymbols;
++	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
++	{
++		PlayerTypes const ePlayer = (PlayerTypes)iPlayer;
++		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++		if (!kPlayer.isEverAlive())
++			continue;
++		if (bMarkStartingPlots && kPlayer.getStartingPlot() != NULL)
++			aeStartingPlayers[kMap.plotNum(kPlayer.getStartingPlot()->getX(), kPlayer.getStartingPlot()->getY())] = ePlayer;
++		// <!-- custom: Copy each display name before calling the next getter because CvInitCore localized-name getters share temporary storage; passing both getters directly left the human player name empty in a confirming game record. (GPT-5.6-Sol) -->
++		CvWString const szCivilizationName = kPlayer.getCivilizationShortDescription(0);
++		CvWString const szPlayerName = kPlayer.getName(0);
++		CvString szPlayerSymbol;
++		szPlayerSymbol.Format("%c=%d:%S(%S)", getSASGameRecordMapAsciiPlayerSymbol(ePlayer, kPalette), iPlayer, szCivilizationName.GetCString(), szPlayerName.GetCString());
++		if (!szPlayerSymbols.empty()) szPlayerSymbols += ";";
++		szPlayerSymbols += szPlayerSymbol;
++	}
++	CvString const szPlayerSymbolsQuoted = getSASGameRecordQuoted(getSASGameRecordOrDash(szPlayerSymbols).GetCString());
++	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE",
++			GC.getGame().getGameTurn(), iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY());
++	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY palette=%s order=water,lake,flat_or_mostly_flat_land,mostly_hills,mostly_peaks,mostly_water_mixed_land,balanced_water_land,mostly_land_mixed_water",
++		getSASGameRecordQuoted(kPalette.szGeographyDefine.GetCString()).GetCString());
++	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID:CIV(PLAYER_NAME) playerSymbols=%s startingPlotsMarked=%d",
++		getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
++	for (int iLayer = 0; iLayer < 2; iLayer++)
++	{
++		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : "POLITICAL");
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
++		for (int iRow = 0; iRow < iPreviewHeight; iRow++)
++		{
++			int const iPreviewY = iPreviewHeight - iRow - 1;
++			int const iMinY = (iPreviewY * iSourceHeight) / iPreviewHeight;
++			int const iMaxY = ((iPreviewY + 1) * iSourceHeight) / iPreviewHeight;
++			CvString szPlots = "|";
++			for (int iPreviewX = 0; iPreviewX < iPreviewWidth; iPreviewX++)
++			{
++				int const iMinX = (iPreviewX * iSourceWidth) / iPreviewWidth;
++				int const iMaxX = ((iPreviewX + 1) * iSourceWidth) / iPreviewWidth;
++				char const cSymbol = (iLayer == 0 ?
++						getSASGameRecordMapAsciiGeographySymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY) :
++						getSASGameRecordMapAsciiPoliticalSymbol(kMap, kPalette, aeStartingPlayers, iMinX, iMaxX, iMinY, iMaxY));
++				for (int iRepeat = 0; iRepeat < iHorizontalCharsPerCell; iRepeat++)
++					appendSASGameRecordMapAsciiSymbol(szPlots, cSymbol);
++			}
++			szPlots += "|";
++			logSASGameRecord("%s", szPlots.GetCString());
++		}
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s", szLayer);
++	}
++	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d layers=2 rowsPerLayer=%d", GC.getGame().getGameTurn(), iPreviewHeight);
++}
++
+ static void logSASGameRecordInitialContext()
+ {
+ 	// <!-- custom: Archived records can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
+@@ -2559,6 +2885,7 @@ static void logSASGameRecordInitialContext()
+ 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
+ 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
+ 	logSASGameRecordGeography();
++	if (gGameRecordLogLevel >= 3) logSASGameRecordMapAscii();
+ 	if (gGameRecordLogLevel >= 2) logSASGameRecordAttitudeLegend();
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 38b0af0d3..1a502dbb4 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -909,7 +909,7 @@ In short: this script is kept as a historical and practical discovery helper, wh
+ - Prints final ZIP size and write duration by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
+ - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
+ - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
+-- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), and selected screenshot folders useful for LLM/UI review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/). Screenshots are useful because they show what the mod actually looks like in advisors, Sevopedia, the main menu, and common UI. Local agentic tools can inspect these folders directly, while external/ZIP-only LLMs depend on the archive contents; including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
++- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), [_1_AdvCiv-SAS/SASGameRecord_log](/_1_AdvCiv-SAS/SASGameRecord_log/) full `SASGameRecord` examples, and selected screenshot folders useful for LLM/UI review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/). The included `SASGameRecord` sample is a useful illustration of what a full `SASGameRecord` log looks like for external LLM analysis/review and development reference, and is cheap enough after compression: the folder is about 19.4 MB raw but compresses to about 2.7 MB at ZIP level 6. The selected screenshot folders similarly provide practical visual reference for understanding/reviewing the mod and for developing or modding UI changes, by showing what the mod actually looks like in advisors, Sevopedia, the main menu, and common UI. Local agentic tools can inspect these folders directly, while external/ZIP-only LLMs depend on the archive contents; including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
+ - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
+ - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+ - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+
+diff --git a/LLM_Helpers/make_light_source_zip.py b/LLM_Helpers/make_light_source_zip.py
+index 140bb6b55..16743e289 100644
+--- a/LLM_Helpers/make_light_source_zip.py
++++ b/LLM_Helpers/make_light_source_zip.py
+@@ -41,6 +41,7 @@ ROOT_SUBDIRS = (
+ EXTRA_SUBDIRS = (
+     "_1_AdvCiv-SAS/Docs",
+     "_1_AdvCiv-SAS/git_logs",
++    "_1_AdvCiv-SAS/SASGameRecord_log",
+ )
+ 
+ # Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g.
+
+diff --git a/README.md b/README.md
+index 1b5fc3aa6..3fa013a06 100644
+--- a/README.md
++++ b/README.md
+@@ -81,7 +81,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [Python scripts](/README.md#python-scripts)\
+ [DLL Logging](/README.md#dll-logging)\
+ &emsp;[BBAI logging and head example](/README.md#bbai-logging-and-head-example)\
+-&emsp;[SAS game record log](/README.md#sas-game-record-log)\
++&emsp;[SASGameRecord log](/README.md#sasgamerecord-log)\
+ [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)\
+ [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
+ ["Temporary" crashes](/README.md#temporary-crashes)\
+@@ -921,15 +921,15 @@ BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
+ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
+ ```
+ 
+-### SAS game record log
++### SASGameRecord log
+ 
+-`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. Level 3 also includes compact text-map previews of geography and player positions so broad spatial relationships can be understood without screenshots.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+ 
+-The record includes the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
++The record includes the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM needs for analysis.
+ 
+-See also [ChatGPT-5.6-Sol SASGameRecord analysis example](/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_record_example.md) for an example of an external LLM using the game-record log to review an autoplay run.
++See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) and [ChatGPT SASGameRecord review example](/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sas_game_record_review.md) for an example of an external LLM using the `SASGameRecord` log to review an autoplay run.
+ 
+ For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
+ 
+@@ -945,11 +945,14 @@ GAME_RECORD_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSK
+ GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
+ ```
+ 
+-<img src="./_1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG" alt="sas_game_record_log_example.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG" alt="SASGameRecord_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
+ 
++<img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_1.PNG" alt="SASGameRecord_text_art_map_1" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_2.PNG" alt="SASGameRecord_text_art_map_2" width="250"></img>
++
+ ## CuCuGS
+ 
+ Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 68fd0fccb..64f0c513e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -6682,7 +6682,7 @@ Validation so far:
+ - follow-up BBAI logs from save file 450 showed exposed Settlers waiting when no spare escort was available, then moving once a defender was attached;
+ - guarded Settler groups were logged with `groupDefenders>=1` and `groupCanDefend=1` before moving to or founding exposed sites;
+ - donor cities below the configured remaining-defenders threshold did not give up escorts and instead kept the Settler waiting;
+-- the follow-up game-record log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
++- the follow-up `SASGameRecord` log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
+ 
+ AdvCiv-SAS 6067 later refined only the direct founding restriction after KI#194's save-file 449 testing exposed the opposite failure. An Indian Settler reached the valid island site at `(44,10)` around turn 142 with no defender, but `SAS_shouldBlockExposedUnescortedSettler` treated every unowned plot as dangerous. It refused to found despite both current and target plot danger being 0, then remained exposed while moving or waiting for more than 100 turns and finally founded Agra only on turn 257. Once a Settler is already standing unescorted on a valid danger-free site, refusing to found does not protect it; it merely leaves the same unit exposed while forfeiting city growth, production, commerce and culture.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 0ff918ab4..e86c35629 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -177,12 +177,13 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+ - (Requires AdvCiv-SAS 6085+) **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging. Higher detail notably records unit-build probability, spending limits, building/nonunit gates, unit selection and rejection reasons, and no-production fallback decisions.
+-- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won.
++- (Requires AdvCiv-SAS 6022+) **SASGameRecord log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won.
+ - (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
+ - (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options. (Requires AdvCiv-SAS 6103+) It also synthesizes one summary for every war between civilization teams, including declaration and peace context, elapsed turns, war-success changes, units destroyed and their total production cost, city-plot battle wins, and cities/population captured. Wars already active when a save is loaded are explicitly partial, while wars still active at victory or autoplay end remain marked ongoing rather than being misreported as peace. A full turn-474 test matched all 115 declarations to exactly 91 ordinary-peace summaries, 4 capitulations, 13 state-change/elimination summaries, and 7 wars still ongoing at victory.
+ - (Requires AdvCiv-SAS 6105+) Setup context also records the calendar, starting turn/year, and each player's actual assigned color with its primary RGB values, which helps connect the text record to maps and screenshots. When the game is won, one final row per civilization pairs its ordinary score with Civ4's normalized final score. (Requires AdvCiv-SAS 6104+) Full interval and victory snapshots also record UTC to milliseconds, total real milliseconds since the log session began, and milliseconds since the previous snapshot. This makes autoplay speed and late-game slowdown directly comparable without external timing or timestamp subtraction; real time includes pauses and user interaction. Anonymous process-memory, system memory-load percentage, available 32-bit address space, and exact foreground/minimized samples can be disabled separately without disabling timing or gameplay records. A separate privacy/detail level defaults to display context (resolution, fullscreen/windowed state, and graphics options), Windows versus Wine/Proton, and pointer width; it can be lowered to hide these or raised to add logical processor count and total RAM.
+ - (Requires AdvCiv-SAS 6106+) Barbarian activity is also preserved without forcing ordinary civilization economy/diplomacy rows onto the Barbarian player. Interval snapshots record Barbarian cities, animals, unit types/roles, and how many units are in Barbarian, unowned, or civilization-owned territory; concise city rows show their development and defenses. At level 3, exact positions, fog/goody-hut/cargo spawn causes, and Barbarian combat outcomes make pressure on nearby civilizations traceable. In a confirming full run, these rows captured 84 spawns, 182 combats, Barbarian city development, and eventual eradication, while adding only about 350-400 rows to an 18.5 MB record.
+-- Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
++- (Requires AdvCiv-SAS 6107+) **Level-3 text-map previews:** `SASGameRecord` includes separate geography and political pictures so humans and LLMs can immediately see landmass shapes, islands, narrow passages, and player positions instead of reconstructing them from coordinates. Clean fixed-width rows preserve the generated map's proportions in horizontal, square, or vertical maps; the political legend directly maps each symbol to its player ID, civilization, and displayed player name. XML defines control the picture bounds, monospace-width correction, and validated symbols.
++- (Requires AdvCiv-SAS 6022+) Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, `SASGameRecord` log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context and full `SASGameRecord` examples while staying compact enough to upload and share. See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log), and [README.md (DLL Logging)](/README.md#dll-logging).
+ 
+ ### 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG
+rename to _1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_1.PNG b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_1.PNG
+new file mode 100644
+index 000000000..020f98e4f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_2.PNG b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_2.PNG
+new file mode 100644
+index 000000000..e86ca50ae
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_2.PNG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log b/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log reason=known-generated/noisy-history changedLines=72441 bytes=21651603
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_record_example.md b/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sas_game_record_review.md reason=known-generated/noisy-history changedLines=0 bytes=316
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=16 omittedFiles=3 embeddedPatchBytes=59610

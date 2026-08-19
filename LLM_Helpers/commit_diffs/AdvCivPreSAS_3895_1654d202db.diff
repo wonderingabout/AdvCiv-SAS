@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3895
+# Commit: 1654d202db98740e698da13cbef3854b1ab82b18
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bab7b6eb90c00f7ce27be25d73e569ee52a1cdec
+# Title: Increase Gandhi's no-war probs beyond 100
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 1296fd088..3054918db 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -4031,7 +4031,7 @@
+ 					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
+ 				</MemoryAttitudePercent>
+ 			</MemoryAttitudePercents>
+-			<!-- advc.005a: was 0/30/70/100 -->
++			<!-- advc.005a: was 0/30/70/100/100 -->
+ 			<NoWarAttitudeProbs>
+ 				<NoWarAttitudeProb>
+ 					<AttitudeType>ATTITUDE_FURIOUS</AttitudeType>
+@@ -4043,11 +4043,15 @@
+ 				</NoWarAttitudeProb>
+ 				<NoWarAttitudeProb>
+ 					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+-					<iNoWarProb>80</iNoWarProb>
++					<iNoWarProb>85</iNoWarProb>
+ 				</NoWarAttitudeProb>
+ 				<NoWarAttitudeProb>
+ 					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+-					<iNoWarProb>100</iNoWarProb>
++					<iNoWarProb>110</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
++					<iNoWarProb>115</iNoWarProb>
+ 				</NoWarAttitudeProb>
+ 			</NoWarAttitudeProbs>
+ 			<!-- advc.005a: Was Worker 100. India cleared large areas of
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1205

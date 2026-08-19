@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2977
+# Commit: f88b0d6bc83d29d70585d6f3b0c97713ae954500
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bf2626706876e0d58a29f6f193278031ba18e5c3
+# Title: Fix a release-build compilation error
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	CvGameCoreDLL/CvGlobals.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 41aa9b9ee..ef7d8045d 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -631,11 +631,13 @@ void CvGlobals::loadOptionalXMLInfo()
+ {
+ 	#ifdef FASSERT_ENABLE
+ 	bool bSuccess = false;
++	#endif
+ 	if (m_pXMLLoadUtility != NULL)
+ 	{
++		#ifdef FASSERT_ENABLE
+ 		bSuccess =
+-	#endif
+-			m_pXMLLoadUtility->LoadOptionalGlobals();
++		#endif
++		m_pXMLLoadUtility->LoadOptionalGlobals();
+ 	}
+ 	FAssertMsg(bSuccess, "Failed to load optional XML data");
+ }
+@@ -644,11 +646,13 @@ void CvGlobals::loadThroneRoomInfo()
+ {
+ 	#ifdef FASSERT_ENABLE
+ 	bool bSuccess = false;
++	#endif
+ 	if (m_pXMLLoadUtility != NULL)
+ 	{
++		#ifdef FASSERT_ENABLE
+ 		bSuccess =
+-	#endif
+-			m_pXMLLoadUtility->LoadThroneRoomInfo();
++		#endif
++		m_pXMLLoadUtility->LoadThroneRoomInfo();
+ 	}
+ 	FAssertMsg(bSuccess, "Failed to load XML data for Throne Room");
+ } // </advc.003v>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=940

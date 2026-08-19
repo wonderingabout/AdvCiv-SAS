@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2829
+# Commit: 5828f2ff9a7c61ea4c9806b0f6a0a195cdf87006
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 05642e9650dd8bac67708cf94115469dc902a62b
+# Title: Mention hi-res screenshot shortcut in loading-screen hint
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Text/CIV4GameText_advc_hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index a0f60e517..f570f6c23 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -157,12 +157,12 @@
+ </TEXT>
+ 
+ <!-- Said that the screenshot gets saved in Civ4\Screenshots, which is no
+-	 longer true in BtS. -->
++	 longer true in BtS. Also mention Ctrl. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_13</Tag>
+-	<English>Press [PRINT SCREEN] to take a screenshot. It gets saved in the screenshots folder under "My Games\Beyond the Sword".</English>
++	<English>Press [PRINT SCREEN] to take a screenshot. It gets saved in the screenshots folder under "My Games\Beyond the Sword". Hold [CTRL] for a high-resolution screenshot.</English>
+ 	<French>Appuyez sur [IMPR ECRAN] pour faire une capture d'&#233;cran (sauvegard&#233;e dans le r&#233;pertoire Beyond the Sword\Screenshots).</French>
+-	<German>Dr&#252;cken Sie [DRUCK], um einen Screenshot zu machen und unter "Beyond the Sword\Screenshots" zu speichern.</German>
++	<German>Dr&#252;cken Sie [DRUCK], um einen Screenshot zu machen und unter "Beyond the Sword\Screenshots" zu speichern. Wenn Sie au�erdem [STRG] gedr�ckt halten, erstellen Sie einen besonders hochaufl�senden Screenshot.</German>
+ 	<Italian>Premi [STAMP] per scattare una foto che verr&#224; salvata nella directory Beyond the Sword\Screenshots...</Italian>
+ 	<Spanish>Pulsar [IMPR PANT] para hacer una captura de pantalla (se guardar&#225; en la carpeta Beyond the Sword\Screenshots)...</Spanish>
+ </TEXT>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1584

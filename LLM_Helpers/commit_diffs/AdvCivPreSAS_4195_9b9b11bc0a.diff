@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4195
+# Commit: 9b9b11bc0afb4d1aca2c417069233169847ce509
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b5f0ddcbc04c9e1aba66ff5523e9f480ba83f44c
+# Title: Amend a comment about Barrage promo AI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index da175b1cf..0419d7299 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -54,7 +54,7 @@ public:
+ 			bool bCountCollateral = false, int iBaseCollateral = 0,
+ 			bool bCheckCanAttack = false,
+ 			int iCurrentHP = -1, bool bAssumePromotion = false) const; // advc.139
+-	/*	collateralDamage no longer includes promotions since Patch 3.13, but
++	/*	collateralDamage no longer includes promotions since BtS 3.17, but
+ 		the AI should take promotions into account when estimating coll. damage.
+ 		Not currently used for deciding whether a unit deals _any_ coll. damage. */
+ 	int AI_collateralDmgFactor() const
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=693

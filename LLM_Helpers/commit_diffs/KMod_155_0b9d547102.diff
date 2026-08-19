@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 155
+# Commit: 0b9d5471023d40dce721b4adee004265f47404a3
+# History segment: K-Mod history
+# Parent used for diff: cdbfc0083a1e9c70ae32b6de02685cd3fb7daefb
+# Title: Fixed a bug which caused the AI to never actually carry out their intended sabotage plot improvement espionage missions.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	CvGameCoreDLL/CvPlayerAI.cpp
+11	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 35f165b23..b013eca2a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13039,6 +13039,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ bool CvPlayerAI::isMaliciousEspionageTarget(PlayerTypes eTarget) const
+ {
++	if (GET_PLAYER(eTarget).getTeam() == getTeam())
++		return false;
+ 	return (AI_getAttitudeWeight(eTarget) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1) || GET_TEAM(getTeam()).AI_getWarPlan(GET_PLAYER(eTarget).getTeam()) != NO_WARPLAN);
+ }
+ 
+@@ -17344,7 +17346,9 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 			}
+ 		}
+ 		iValue += iScore / std::max(1, iTotalPop);
+-		iValue -= AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) ? 10 : 0; // space is more important
++		iValue -= AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST1) ? 20 : 0;
++		iValue -= AI_isDoVictoryStrategy(AI_VICTORY_SPACE2) ? 10 : 0;
++		iValue -= AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) ? 20 : 0;
+ 		// K-Mod end
+ 	}
+ 	/*
+@@ -17433,9 +17437,11 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 		}
+     }
+ 
+-	//if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + AI_getStrategyRand(2) % 2))
++	//if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
+ 	if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + AI_getStrategyRand(1) % 2) || iHighCultureCount >= iVictoryCities-1)
+ 	{
++		if (iHighCultureCount < getCurrentEra() + iVictoryCities - GC.getNumEraInfos())
++			return 1;
+ 	    return 2;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e6e42811c..fbe190a25 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5732,9 +5732,18 @@ void CvUnitAI::AI_spyMove()
+ 		}
+ 	}
+ 	
+-	if (iSpontaneousChance > 0 && (plot()->isCity() || plot()->getNonObsoleteBonusType(getTeam(), true) != NO_BONUS))
++	if (plot()->getNonObsoleteBonusType(getTeam(), true) != NO_BONUS && kOwner.isMaliciousEspionageTarget(plot()->getOwner()) && getGroup()->AI_getMissionAIType() == MISSIONAI_ATTACK_SPY)
+ 	{
+-		if (GC.getGame().getSorenRandNum(7, "AI Spy Skip Turn") > 0)
++		// assume this is the target of our destroy improvement mission.
++		if (getFortifyTurns() >= GC.getDefineINT("MAX_FORTIFY_TURNS"))
++		{
++			if (AI_espionageSpy())
++			{
++				return;
++			}
++		}
++
++		if (GC.getGame().getSorenRandNum(10, "AI Spy skip turn at improvement") > 0)
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+ 			return;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2542

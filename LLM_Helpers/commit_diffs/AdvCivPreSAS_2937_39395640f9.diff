@@ -1,0 +1,182 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2937
+# Commit: 39395640f981e32805a4d4cf1735a46f3603160b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 882e0f4609f58286443a89189c22c32aa9d2e828
+# Title: A few style, comment nits
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	5	CvGameCoreDLL/CvBugOptions.cpp
+2	2	CvGameCoreDLL/CvCity.cpp
+4	4	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+9	9	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvBugOptions.cpp b/CvGameCoreDLL/CvBugOptions.cpp
+index 580141269..a1a9a1c0b 100644
+--- a/CvGameCoreDLL/CvBugOptions.cpp
++++ b/CvGameCoreDLL/CvBugOptions.cpp
+@@ -1,8 +1,6 @@
+-/**********************************************************************
+-File:		CvBugOptions.cpp
+-Author:		EmperorFool
+-Created:	2009-01-21Copyright (c) 2009 The BUG Mod. All rights reserved.
+-**********************************************************************/
++/*	Author:		EmperorFool
++	Created:	2009-01-21
++	Copyright (c) 2009 The BUG Mod. All rights reserved. */
+ // This file has been edited for K-Mod
+ 
+ #include "CvGameCoreDLL.h"
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e8f1f40f0..72127efa7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10713,8 +10713,8 @@ void CvCity::doReligion()
+ 		return;
+ 
+ 	// gives some of the top religions a shot at spreading to the city.
+-	int iChances = 1 + (getCultureLevel() >= 4 ? 1 : 0) +
+-			(getPopulation() + 3) / 8 - getReligionCount();
++	int iChances = 1 - getReligionCount() + (getCultureLevel() >= 4 ? 1 : 0) +
++			(getPopulation() + 3) / 8;
+ 	// (breakpoints at pop = 5, 13, 21, ...)
+ 
+ 	if (iChances <= 0)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5bd8807c2..52ac8b8ff 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10707,7 +10707,7 @@ bool CvCityAI::AI_finalImprovementYieldDifference(/* advc: */ CvPlot const& kPlo
+ 	decreasing by a factor of `e` for each `time_scale` turns.) */
+ bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, ImprovementTypes eImprovement,
+ 	int iTimeScale, // advc.912f (note): 0 now means infinity
+-	EnumMap<YieldTypes,scaled>& weightedYields) const // advc: was vector<float>&
++	EnumMap<YieldTypes,scaled>& kWeightedYields) const // advc: was vector<float>&
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -10719,7 +10719,7 @@ bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, Improvement
+ 		If it isn't too slow, I'll use it for lots of things. */
+ 	// weighted yield = integral from 0 to inf. of (yield(t) * e^(-t/scale)), w.r.t.  t
+ 
+-	weightedYields.reset();
++	kWeightedYields.reset();
+ 	std::set<ImprovementTypes> citedImprovements;
+ 	int iTotalTurns = 0;
+ 
+@@ -10753,7 +10753,7 @@ bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, Improvement
+ 			//if (kOwner.getExtraYieldThreshold(i) > 0)
+ 				// ;
+ 
+-			weightedYields.add(eLoopYield, iYieldDiff * rValueFactor);
++			kWeightedYields.add(eLoopYield, iYieldDiff * rValueFactor);
+ 		}
+ 
+ 		iTotalTurns += kImprovement.getUpgradeTime();
+@@ -10766,7 +10766,7 @@ bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, Improvement
+ 			normalise the yield values based on what we've got so far. */
+ 		FOR_EACH_ENUM(Yield)
+ 		{
+-			weightedYields.set(eLoopYield, weightedYields.get(eLoopYield) /
++			kWeightedYields.set(eLoopYield, kWeightedYields.get(eLoopYield) /
+ 					(1 - scaled(iTotalTurns, -iTimeScale).exp()));
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 914568426..861409356 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -245,7 +245,7 @@ protected:
+ 	bool AI_finalImprovementYieldDifference(CvPlot const& kPlot, int* piYields) const;
+ 	// time-weighted yields for improvements which have upgrades
+ 	bool AI_timeWeightedImprovementYields(CvPlot const& kPlot, ImprovementTypes eImprovement,
+-			int iTimeScale, EnumMap<YieldTypes,scaled>& weightedYields) const;
++			int iTimeScale, EnumMap<YieldTypes,scaled>& kWeightedYields) const;
+ 	// value for working a plot in addition to its yields
+ 	int AI_specialPlotImprovementValue(CvPlot* pPlot) const;
+ 	int AI_growthValuePerFood() const;
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 61dc2ddce..e4826b3be 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -207,7 +207,7 @@ void CvMapGenerator::addRivers()  // advc: refactored
+ 	int const iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
+ 	int const iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+ 	int const iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
+-	// advc.129: Randomize the traversal order
++	// advc.129: Randomize the traversal
+ 	int* aiShuffledIndices = ::shuffle(GC.getMap().numPlots(), GC.getGame().getMapRand());
+ 	for (int iPass = 0; iPass < 4; iPass++)
+ 	{
+@@ -233,12 +233,12 @@ void CvMapGenerator::addRivers()  // advc: refactored
+ 				break;
+ 			case 2:
+ 				bValid =  ((p.isHills() || p.isPeak()) &&
+-					  p.getArea().getNumRiverEdges() < 1 +
+-					  p.getArea().getNumTiles() / iPlotsPerRiverEdge);
++						p.getArea().getNumRiverEdges() <
++						1 + p.getArea().getNumTiles() / iPlotsPerRiverEdge);
+ 				break;
+ 			case 3:
+-				bValid = (p.getArea().getNumRiverEdges() < 1 +
+-						p.getArea().getNumTiles() / iPlotsPerRiverEdge);
++				bValid = (p.getArea().getNumRiverEdges() <
++						1 + p.getArea().getNumTiles() / iPlotsPerRiverEdge);
+ 				break;
+ 			default: FErrorMsg("Invalid iPass");
+ 			}
+@@ -296,7 +296,7 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 		pRiverPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
+ 				CARDINALDIRECTION_NORTH);
+ 	}
+-	else if (eLastCardinalDirection==CARDINALDIRECTION_EAST)
++	else if (eLastCardinalDirection == CARDINALDIRECTION_EAST)
+ 	{
+ 		pRiverPlot = plotCardinalDirection(pStartPlot->getX(), pStartPlot->getY(),
+ 				CARDINALDIRECTION_EAST);
+@@ -312,7 +312,7 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 		pStartPlot->setRiverID(iThisRiverID);
+ 		pRiverPlot->setNOfRiver(true, eLastCardinalDirection);
+ 	}
+-	else if (eLastCardinalDirection==CARDINALDIRECTION_SOUTH)
++	else if (eLastCardinalDirection == CARDINALDIRECTION_SOUTH)
+ 	{
+ 		pRiverPlot = plotCardinalDirection(pStartPlot->getX(), pStartPlot->getY(),
+ 			CARDINALDIRECTION_SOUTH);
+@@ -328,7 +328,7 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 		pStartPlot->setRiverID(iThisRiverID);
+ 		pRiverPlot->setWOfRiver(true, eLastCardinalDirection);
+ 	}
+-	else if (eLastCardinalDirection==CARDINALDIRECTION_WEST)
++	else if (eLastCardinalDirection == CARDINALDIRECTION_WEST)
+ 	{
+ 		pRiverPlot = pStartPlot;
+ 		if (pRiverPlot == NULL)
+@@ -398,7 +398,7 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ //Although I veto'd its use since I like that you don't always
+ //get fresh water starts.
+ /*	advc (note): This function isn't unused though. It's a fallback
+-	in case that no lake can be placed. Though I'm not sure if can
++	in case that no lake can be placed. Though I'm not sure if it can
+ 	succeed where CvGame::normalizeFindLakePlot fails. */
+ // pFreshWaterPlot = the plot we want to give a fresh water river
+ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6961

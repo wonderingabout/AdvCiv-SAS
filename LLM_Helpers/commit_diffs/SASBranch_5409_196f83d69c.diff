@@ -1,0 +1,205 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5409
+# Commit: 196f83d69c3f772406d44eefed780c869d95098d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f6f434765542a77c22317b1736ed79854d154f12
+# Title: add SAS_WorldSizes.py helper
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	22	PrivateMaps/Fantasy_Realm.py
+3	9	PrivateMaps/Highlands.py
+40	0	PrivateMaps/SAS_WorldSizes.py
+2	5	PrivateMaps/aDebugMap.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 PrivateMaps/SAS_WorldSizes.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index 9e834e1af..fe7d4264f 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -17,6 +17,7 @@ import CvUtil
+ import CvMapGeneratorUtil
+ import random
+ import sys
++from SAS_WorldSizes import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+@@ -118,11 +119,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	iWorldSize = int(eWorldSize)
+-	if iWorldSize in grid_sizes:
+-		return grid_sizes[iWorldSize]
+-	else:
+-		return grid_sizes[10]  # Fallback to largest size
++	return sas_lookup_world_size(eWorldSize, grid_sizes)
+ 
+ def minStartingDistanceModifier():
+ 	return -25
+@@ -499,23 +496,8 @@ def addBonusType(argsList):
+ 	# size modifier is a fixed component based on world size
+ 	# <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
+ 	sizekey = int(map.getWorldSize())
+-	sizevalues = {
+-		0:  1,   # ARENA
+-		1:  1,   # DUEL
+-		2:  1,   # TINY
+-		3:  1,   # SMALL
+-		4:  2,   # STANDARD
+-		5:  2,   # LARGE
+-		6:  3,   # HUGE
+-		7:  4,   # SAS24
+-		8:  5,   # SAS32
+-		9:  6,   # SAS40
+-		10: 7,   # SAS48
+-	}
+-	if sizekey in sizevalues:
+-		sizemodifier = sizevalues[sizekey]
+-	else:
+-		sizemodifier = 7  # Fallback to largest
++	sizevalues = sas_default_sizevalues()
++	sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
+ 	# playermodifier involves two layers of randomnity.
+ 	players = gc.getGame().countCivPlayersEverAlive()
+ 	plrcomponent1 = int(players / 3.0) # Bonus Method Fixed Component
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 6067d010a..98f1a1840 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -17,6 +17,7 @@ import CvUtil
+ import CvMapGeneratorUtil
+ import random
+ import sys
++from SAS_WorldSizes import *
+ from math import sqrt
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+@@ -196,14 +197,7 @@ def getGridSize(argsList):
+ 		10: (45, 28),  # SAS48 (base 99x70 -> reduced)
+ 	}
+ 
+-	# Convert WorldSizeTypes enum to int for lookup
+-	iWorldSize = int(eWorldSize)
+-
+-	if iWorldSize in grid_sizes:
+-		return grid_sizes[iWorldSize]
+-	else:
+-		# Fallback for any unknown world size: use largest known size
+-		return grid_sizes[10]
++	return sas_lookup_world_size(eWorldSize, grid_sizes)
+ 
+ def minStartingDistanceModifier():
+ 	return -35
+@@ -540,7 +534,7 @@ def assignStartingPlots():
+ 	# Obtain player numbers. (Account for possibility of Open slots!)
+ 	# <!-- custom: AdvCiv-SAS: Increased from 18 to 52 to support up to 48 civs (SAS48 world size) (Claude code Opus 4.5) -->
+ 	player_list = []
+-	for plrCheckLoop in range(52):
++	for plrCheckLoop in range(sas_max_players()):
+ 		pPlayer = CyGlobalContext().getPlayer(plrCheckLoop)
+ 		if pPlayer and pPlayer.isEverAlive():
+ 			player_list.append(plrCheckLoop)
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/PrivateMaps/SAS_WorldSizes.py
+new file mode 100644
+index 000000000..6eea8b9a2
+--- /dev/null
++++ b/PrivateMaps/SAS_WorldSizes.py
+@@ -0,0 +1,40 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS: Shared helpers for ARENA/SAS world sizes in map scripts. (GPT-5.2-Codex) -->
++
++
++
++SAS_WORLDSIZE_LARGEST = 10
++SAS_MAX_PLAYERS = 52
++
++
++
++def sas_max_players():
++	return SAS_MAX_PLAYERS
++
++
++
++def sas_default_sizevalues():
++	return {
++		0:  1,   # ARENA
++		1:  1,   # DUEL
++		2:  1,   # TINY
++		3:  1,   # SMALL
++		4:  2,   # STANDARD
++		5:  2,   # LARGE
++		6:  3,   # HUGE
++		7:  4,   # SAS24
++		8:  5,   # SAS32
++		9:  6,   # SAS40
++		10: 7,   # SAS48
++	}
++
++
++
++def sas_lookup_world_size(eWorldSize, values):
++	iWorldSize = int(eWorldSize)
++	if iWorldSize in values:
++		return values[iWorldSize]
++	return values[SAS_WORLDSIZE_LARGEST]
+
+diff --git a/PrivateMaps/aDebugMap.py b/PrivateMaps/aDebugMap.py
+index a4c9f9798..91d29d4c6 100644
+--- a/PrivateMaps/aDebugMap.py
++++ b/PrivateMaps/aDebugMap.py
+@@ -12,6 +12,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ import sys
++from SAS_WorldSizes import *
+ 
+ def getDescription():
+ 	"Description shown in the main menu"
+@@ -42,11 +43,7 @@ def getGridSize(argsList):
+ 		return []
+ 	[eWorldSize] = argsList
+ 	# <!-- custom: AdvCiv-SAS: Convert enum to int for lookup, with fallback for unknown sizes (Claude code Opus 4.5) -->
+-	iWorldSize = int(eWorldSize)
+-	if iWorldSize in grid_sizes:
+-		return grid_sizes[iWorldSize]
+-	else:
+-		return (5, 5)  # Fallback for any unknown world size
++	return sas_lookup_world_size(eWorldSize, grid_sizes)
+ 
+ def getWrapX(): return False
+ def getWrapY(): return False
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index cddbdb732..d31d64686 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -342,7 +342,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Maps
+ 
+-- (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
++- (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+ - (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py).
+ 
+ ### Handicaps
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6326

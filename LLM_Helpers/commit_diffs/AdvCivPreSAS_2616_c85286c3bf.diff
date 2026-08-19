@@ -1,0 +1,503 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2616
+# Commit: c85286c3bf3fd57eef2c9dcf30760c0979586272
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 37c346fe07e26da820c46fb4c369d79d2d19d84b
+# Title: Adjacency list at CvPlot; FOR_EACH_ADJ_PLOT macros.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/CvMap.cpp
+2	1	CvGameCoreDLL/CvMap.h
+80	0	CvGameCoreDLL/CvPlot.cpp
+17	1	CvGameCoreDLL/CvPlot.h
+1	5	CvGameCoreDLL/GroupPathFinder.cpp
+3	7	CvGameCoreDLL/KmodPathFinder.h
+4	5	CvGameCoreDLL/KmodPathFinderLegacy.cpp
+74	0	CvGameCoreDLL/PlotAdjListTraversal.h
+2	0	CvGameCoreDLL/PlotRadiusIterator.h
+1	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+6	18	CvGameCoreDLL/TeamPathFinder.cpp
+17	0	CvGameCoreDLL/cpp.hint
+ create mode 100644 CvGameCoreDLL/PlotAdjListTraversal.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 889abb3b6..9d6b34a31 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -66,6 +66,9 @@ void CvMap::init(CvMapInitData* pInitInfo)
+ 			getPlot(iX, iY).init(iX, iY);
+ 		}
+ 	}
++	// <advc.opt>
++	FOR_EACH_ENUM(PlotNum)
++		getPlotByIndex(eLoopPlotNum).initAdjList(); // </advc.opt>
+ 	calculateAreas();
+ 	gDLL->logMemState("CvMap after init plots");
+ }
+@@ -1177,6 +1180,8 @@ void CvMap::read(FDataStreamBase* pStream)
+ 		for (int i = 0; i < numPlots(); i++)
+ 			m_pMapPlots[i].read(pStream);
+ 		// <advc.opt>
++		for (int i = 0; i < numPlots(); i++)
++			m_pMapPlots[i].initAdjList();
+ 		if (uiFlag < 2)
+ 		{
+ 			for (int i = 0; i < numPlots(); i++)
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 745402b1f..15764d1c9 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -324,7 +324,8 @@ public: // advc: made several functions const
+ 		return m_ePlots;//getGridWidth() * getGridHeight(); // advc.opt
+ 	}
+ 	/*	advc.inl: Merged with plotNumINLINE (plotNum wasn't called externally).
+-		advc.enum: return type changed from int. */
++		advc.enum: return type changed from int.
++		Tbd(?).: Cache this at CvPlot (and possibly CvCity)? */
+ 	inline PlotNumTypes plotNum(int iX, int iY) const 												// Exposed to Python
+ 	{
+ 		return (PlotNumTypes)(iY * getGridWidth() + iX);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e4cca0b68..72e29e1b6 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -46,6 +46,9 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ 	m_pCenterUnit = NULL;
+ 	m_szScriptData = NULL;
+ 	m_szMostRecentCityName = NULL; // advc.005c
++	// <advc.opt>
++	m_paAdjList = NULL;
++	m_iAdjPlots = 0; // </advc.opt>
+ 
+ 	m_iX = 0;
+ 	m_iY = 0;
+@@ -97,6 +100,7 @@ CvPlot::~CvPlot() // advc: Merged with the deleted uninit function
+ {
+ 	SAFE_DELETE_ARRAY(m_szScriptData);
+ 	SAFE_DELETE_ARRAY(m_szMostRecentCityName); // advc.005c
++	SAFE_DELETE_ARRAY(m_paAdjList); // advc.opt
+ 
+ 	gDLL->getFeatureIFace()->destroy(m_pFeatureSymbol);
+ 	if(m_pPlotBuilder)
+@@ -119,6 +123,82 @@ void CvPlot::init(int iX, int iY)
+ 	m_iLatitude = calculateLatitude(); // advc.tsl
+ }
+ 
++// advc.opt:
++void CvPlot::initAdjList()
++{
++	std::vector<CvPlot*> apAdjList;
++	apAdjList.reserve(NUM_DIRECTION_TYPES);
++	/*	To ensure that diagonally adjacent plots receive only odd indices
++		(for fast loops over only orthogonal or only diagonal neighbors),
++		enumerate the adjacent plots starting with the northern neighbor
++		for one half of the map, and starting with the southern neighbor
++		for the other half of the map. Continue clockwise in any case.
++		Which half should start in the north depends on the world wrap.
++		(It's the margins that cause problems.)
++		[Alt. idea: Go N-W-E-S and NE-SE-SW-NW, alternating between these
++		two sequences whenever a (non-NULL) has been added to m_paAdjList.] */
++	CvMap const& kMap = GC.getMap();
++	int const iWidth = kMap.getGridWidth();
++	int const iHeight = kMap.getGridHeight();
++	int iStartDirection = DIRECTION_NORTH;
++	if (!kMap.isWrap())
++	{
++		// Diagonal split: southwestern half starts in the south
++		if (getX() * iHeight > getY() * iWidth)
++			iStartDirection = DIRECTION_SOUTH;
++	}
++	else if (kMap.isWrapX() && !kMap.isWrapY())
++	{
++		// Southern half starts in the south
++		if (2 * getY() < iHeight)
++			iStartDirection = DIRECTION_SOUTH;
++		/*	If the map is a single row, we'll have plots
++			with 2 orthogonal and 0 diagonal neighbors. */
++		FAssert(iHeight > 1);
++	}
++	else if (kMap.isWrapY() && !kMap.isWrapX())
++	{
++		// Eastern half starts in the south
++		if (2 * getX() > iWidth)
++			iStartDirection = DIRECTION_SOUTH;
++		/*	If the map is a single column, we'll have plots
++			with 2 orthogonal and 0 diagonal neighbors. */
++		FAssert(iWidth > 1);
++	}
++	//else ... // If there are no margins, then we can start wherever.
++
++	FOR_EACH_ENUM(Direction)
++	{
++		DirectionTypes eOffsetDir = (DirectionTypes)(
++				(eLoopDirection + iStartDirection) % NUM_DIRECTION_TYPES);
++		CvPlot* p = plotDirection(getX(), getY(), eOffsetDir);
++		if (p != NULL)
++			apAdjList.push_back(p);
++	}
++	m_iAdjPlots = apAdjList.size();
++	m_paAdjList = new CvPlot*[m_iAdjPlots];
++	for (int i = 0; i < m_iAdjPlots; i++)
++		m_paAdjList[i] = apAdjList[i];
++	#ifdef FASSERT_ENABLE // advc.test
++	/*FOR_EACH_ENUM(Direction)
++	{
++		CvPlot const* p = plotDirection(getX(), getY(), eLoopDirection);
++		if (p == NULL)
++			continue;
++		bool bOrth = (p->getX() == getX() || p->getY() == getY());
++		{
++			int i;
++			for (i = 0; i < numAdjacentPlots(); i++)
++			{
++				if (getAdjacentPlotUnchecked(i) == p)
++					break;
++			}
++			FAssert(i % 2 == (bOrth ? 0 : 1));
++		}
++	}*/
++	#endif
++}
++
+ 
+ void CvPlot::setupGraphical()
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 8afdb049a..6dd00d450 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -3,6 +3,8 @@
+ #ifndef CIV4_PLOT_H
+ #define CIV4_PLOT_H
+ 
++#include "PlotAdjListTraversal.h" // advc.003s
++
+ class CvArea;
+ class CvMap;
+ class CvPlotBuilder;
+@@ -26,6 +28,7 @@ public:
+ 	~CvPlot();
+ 
+ 	void init(int iX, int iY);
++	void initAdjList(); // advc.opt
+ 	void setupGraphical();
+ 	void updateGraphicEra();
+ 
+@@ -753,6 +756,17 @@ public:
+ 	DllExport bool checkLateEra() const;
+ 	void killRandomUnit(PlayerTypes eOwner, DomainTypes eDomain); // advc.300
+ 
++	// <advc.opt>
++	/*	advc.003s: No assertion of iAt being within array bounds; should
++		call this only via a FOR_EACH_ADJ_PLOT macro (PlotAdjListTraversal.h). */
++	inline CvPlot* getAdjacentPlotUnchecked(int iAt) const
++	{
++		//FAssertBounds(0, numAdjacentPlots(), iAt);
++		return m_paAdjList[iAt];
++	}
++	inline int numAdjacentPlots() const { return m_iAdjPlots; }
++	// </advc.opt>
++
+ 	wchar const* debugStr() const; // advc.031c
+ 
+ 	void read(FDataStreamBase* pStream);
+@@ -806,6 +820,8 @@ protected:
+ 	char /*CardinalDirectionTypes*/ m_eRiverNSDirection;
+ 	char /*CardinalDirectionTypes*/ m_eRiverWEDirection;
+ 	char /*PlayerTypes*/ m_eSecondOwner; // advc.035
++	char m_iAdjPlots; // advc.opt
++	CvPlot** m_paAdjList; // advc.opt (a vector would take up 16 byte)
+ 	// <advc> m_pArea is enough - except while loading a savegame.
+ 	union
+ 	{
+@@ -878,7 +894,7 @@ protected:
+ };
+ 
+ // advc.opt: It's fine to change the size, but might want to double check if it can be avoided.
+-BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 212);
++BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 216);
+ 
+ /*	advc.enum: For functions that choose random plots.
+ 	Moved from CvDefines, turned into an enum, exposed to Python. */
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 886111796..e4da8f9a8 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -585,11 +585,8 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 				iWorstCost *= ((eFlags & MOVE_AVOID_ENEMY_WEIGHT_3) ? 3 : 2);
+ 			else
+ 			{
+-				FOR_EACH_ENUM(Direction)
++				FOR_EACH_ADJ_PLOT(kTo)
+ 				{
+-					CvPlot const* pAdj = plotDirection(kTo.getX(), kTo.getY(), eLoopDirection);
+-					if (pAdj == NULL)
+-						continue;
+ 					if (pAdj->isOwned() &&
+ 						GET_TEAM(pAdj->getTeam()).isAtWar(kGroup.getHeadTeam()))
+ 					{
+@@ -707,7 +704,6 @@ bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
+ 							false); // advc.001i
+ 					FAssert(iUnitMoves > 0 || i == 1);
+ 				}
+-
+ 				iUnitMoves = std::max(iUnitMoves, 0);
+ 				iMoves = std::min(iMoves, iUnitMoves);
+ 			}
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 41eee588c..81b31a3df 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -3,6 +3,8 @@
+ #ifndef KMOD_PATHFINDER_H
+ #define KMOD_PATHFINDER_H
+ 
++#include "CvPlot.h" // advc.opt: for accessing adjacency lists
++
+ /*	advc.pf, advc.104b: Refactored, moving the parts specific to group movement
+ 	into a derived class in GroupPathFinder.h.
+ 	Header-only in order to avoid explicit instantiations.
+@@ -549,16 +551,10 @@ bool KmodPathFinder<StepMetric,Node>::processNode()
+ 		otherwise the iterator will be invalid. */
+ 	m_openList.close(itBest);
+ 	CvPlot const& kParentPlot = kParent.getPlot();
+-	// (advc: This clutter will go away when I cache plot adjacency lists)
+-	int const iParentX = kParentPlot.getX();
+-	int const iParentY = kParentPlot.getY();
+ 
+ 	// Open a new node for each direction coming off the chosen node
+-	FOR_EACH_ENUM(Direction)
++	FOR_EACH_ADJ_PLOT_VAR2(pChildPlot, kParentPlot)
+ 	{
+-		CvPlot* pChildPlot = plotDirection(iParentX, iParentY, eLoopDirection);
+-		if (pChildPlot == NULL)
+-			continue;
+ 		if (kParent.m_pParent != NULL && pChildPlot == &kParent.m_pParent->getPlot())
+ 			continue; // don't backtrack
+ 		// advc: Moved up; no functional difference.
+
+diff --git a/CvGameCoreDLL/KmodPathFinderLegacy.cpp b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+index 49f70cb64..bdac802b5 100644
+--- a/CvGameCoreDLL/KmodPathFinderLegacy.cpp
++++ b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+@@ -335,12 +335,11 @@ bool KmodPathFinderLegacy::ProcessNode()
+ 	FAssert(&nodeMap->get(parent_node->m_iX, parent_node->m_iY) == parent_node);
+ 
+ 	// open a new node for each direction coming off the chosen node.
+-	FOR_EACH_ENUM(Direction)
++	/*	<advc.test> For my testing purposes, the order of iteration here
++		needs to be the same as in the new KmodPathFinder. */
++	CvPlot const& kParentPlot = GC.getMap().getPlot(parent_node->m_iX, parent_node->m_iY);
++	FOR_EACH_ADJ_PLOT_VAR(kParentPlot) // </advc.test>
+ 	{
+-		CvPlot* pAdj = plotDirection(parent_node->m_iX, parent_node->m_iY, eLoopDirection);
+-		if (!pAdj)
+-			continue;
+-
+ 		const int& x = pAdj->getX(); // convenience
+ 		const int& y = pAdj->getY(); //
+
+diff --git a/CvGameCoreDLL/PlotAdjListTraversal.h b/CvGameCoreDLL/PlotAdjListTraversal.h
+new file mode 100644
+index 000000000..88be11012
+--- /dev/null
++++ b/CvGameCoreDLL/PlotAdjListTraversal.h
+@@ -0,0 +1,74 @@
++#pragma once
++
++#ifndef PLOT_ADJ_LIST_TRAVERSAL_H
++#define PLOT_ADJ_LIST_TRAVERSAL_H
++
++// advc.003s: Macros for traversing the adjacency list of a CvPlot
++
++// Helpers ...
++
++#define iANON_ADJ_LIST_POS CONCATVARNAME(iAnonAdjListPos_, __LINE__)
++
++#define FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlotType, iInitialPos, iStep) \
++	int iANON_ADJ_LIST_POS = iInitialPos; \
++	for (CvPlotType* pLoopPlot; \
++		/* Need to do the loop step as part of the termination check */ \
++		/* to avoid stepping out of bounds */ \
++		iANON_ADJ_LIST_POS < (kCenterPlot).numAdjacentPlots() && \
++		(pLoopPlot = (kCenterPlot).getAdjacentPlotUnchecked(iANON_ADJ_LIST_POS), true) && \
++		(iANON_ADJ_LIST_POS += iStep, true); )
++
++#define aiANON_ADJ_LIST_INDICES CONCATVARNAME(aiAnonAdjListIndices, __LINE__)
++
++#define FOR_EACH_ADJ_PLOT_RAND_HELPER(kCenterPlot, pLoopPlot, CvPlotType, kRand) \
++	std::vector<int> aiANON_ADJ_LIST_INDICES((kCenterPlot).numAdjacentPlots()); \
++	::shuffleVector(aiANON_ADJ_LIST_INDICES, (kRand)); \
++	int iANON_ADJ_LIST_POS = 0; \
++	for (CvPlotType* pLoopPlot; \
++		iANON_ADJ_LIST_POS < (kCenterPlot).numAdjacentPlots() && \
++		(pLoopPlot = (kCenterPlot).getAdjacentPlotUnchecked( \
++		aiANON_ADJ_LIST_INDICES[iANON_ADJ_LIST_POS]), true) && \
++		(iANON_ADJ_LIST_POS++, true); )
++
++typedef CvPlot const CvPlot_const_t; // Looks a bit ugly in IntelliSense :(
++
++/*	16 combinations:
++	const vs. variable,
++	automatically named loop variable vs. manually named (2-argument macro),
++	all adjacent plots vs. only cardinal directions vs. only intermediate directions.
++	Plus 4 combinations with randomized order (only for all adjacent plots). */
++#define FOR_EACH_ADJ_PLOT(kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pAdj, CvPlot_const_t, 0, 1)
++#define FOR_EACH_ADJ_PLOT_VAR(kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pAdj, CvPlot, 0, 1)
++#define FOR_EACH_ADJ_PLOT2(pLoopPlot, kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlot_const_t, 0, 1)
++#define FOR_EACH_ADJ_PLOT_VAR2(pLoopPlot, kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlot, 0, 1)
++#define FOR_EACH_ORTH_ADJ_PLOT(kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pAdj, CvPlot_const_t, 0, 2)
++#define FOR_EACH_ORTH_ADJ_PLOT_VAR(kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pAdj, CvPlot, 0, 2)
++#define FOR_EACH_ORTH_ADJ_PLOT2(pLoopPlot, kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlot_const_t, 0, 2)
++#define FOR_EACH_ORTH_ADJ_PLOT_VAR2(pLoopPlot, kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlot, 0, 2)
++#define FOR_EACH_DIAG_ADJ_PLOT(kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pAdj, CvPlot_const_t, 1, 2)
++#define FOR_EACH_DIAG_ADJ_PLOT_VAR(kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pAdj, CvPlot, 1, 2)
++#define FOR_EACH_DIAG_ADJ_PLOT2(pLoopPlot, kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlot_const_t, 1, 2)
++#define FOR_EACH_DIAG_ADJ_PLOT_VAR2(pLoopPlot, kCenterPlot) \
++	FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlot, 1, 2)
++
++#define FOR_EACH_ADJ_PLOT_RAND(kCenterPlot, kRand) \
++	FOR_EACH_ADJ_PLOT_RAND_HELPER(kCenterPlot, pAdj, CvPlot_const_t, kRand)
++#define FOR_EACH_ADJ_PLOT_VAR_RAND(kCenterPlot, kRand) \
++	FOR_EACH_ADJ_PLOT_RAND_HELPER(kCenterPlot, pAdj, CvPlot, kRand)
++#define FOR_EACH_ADJ_PLOT_RAND2(pLoopPlot, kCenterPlot, kRand) \
++	FOR_EACH_ADJ_PLOT_RAND_HELPER(kCenterPlot, pLoopPlot, CvPlot_const_t, kRand)
++#define FOR_EACH_ADJ_PLOT_VAR_RAND2(pLoopPlot, kCenterPlot, kRand) \
++	FOR_EACH_ADJ_PLOT_RAND_HELPER(kCenterPlot, pLoopPlot, CvPlot, kRand)
++
++#endif
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.h b/CvGameCoreDLL/PlotRadiusIterator.h
+index f5773fb61..e295fbdc1 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.h
++++ b/CvGameCoreDLL/PlotRadiusIterator.h
+@@ -19,6 +19,8 @@
+ 	(That's also what the BtS code did.)
+ 	There are derived classes at the end of this file that hide the template parameter.
+ 	For the special case of iterating over a city radius, see CityPlotIterator.h.
++	If iRadius is known to be 1 at compile time, then one of the macros in
++	PlotAdjListTraversal.h should be preferred; they're faster.
+ 
+ 	The order of traversal corresponds to a North-East-South-West (clockwise) spiral.
+ 	NULL plots are skipped, but CvUnitAI::AI_plotValid isn't checked - should only be
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 1c1a199ce..3759fd6b0 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -319,6 +319,7 @@
+     <ClInclude Include="..\KmodPathFinder.h" />
+     <ClInclude Include="..\KmodPathFinderLegacy.h" />
+     <ClInclude Include="..\LinkedListTraversal.h" />
++    <ClInclude Include="..\PlotAdjListTraversal.h" />
+     <ClInclude Include="..\PragmaWarnings.h" />
+     <ClInclude Include="..\ReproTest.h" />
+     <ClInclude Include="..\EnumMap.h" />
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.cpp b/CvGameCoreDLL/TeamPathFinder.cpp
+index 36ee1bade..5c1130a83 100644
+--- a/CvGameCoreDLL/TeamPathFinder.cpp
++++ b/CvGameCoreDLL/TeamPathFinder.cpp
+@@ -105,24 +105,17 @@ bool TeamStepMetric<eMODE>::isValidDest(CvPlot const& kStart, CvPlot const& kDes
+ 		if (kDest.isWater())
+ 			return /*kStart.sameArea(kDest)*/ true;
+ 		// May unload onto a coastal land plot (but not pass through)
+-		FOR_EACH_ENUM(Direction)
++		FOR_EACH_ADJ_PLOT(kDest)
+ 		{
+-			CvPlot const* pAdj = plotDirection(kDest.getX(), kDest.getY(),
+-					eLoopDirection);
+-			if (pAdj != NULL && //pAdj->sameArea(kStart)
+-				pAdj->isWater())
+-			{
++			if (pAdj->isWater()) //pAdj->sameArea(kStart)
+ 				return true;
+-			}
+ 		}
+ 		return false;
+ 	}
+ 	// Water movement starting on land: need to be adjacent to water.
+-	FOR_EACH_ENUM2(Direction, eDirStart)
++	FOR_EACH_ADJ_PLOT2(pAdjStart, kStart)
+ 	{
+-		CvPlot const* pAdjStart = plotDirection(kStart.getX(), kStart.getY(),
+-				eDirStart);
+-		if (pAdjStart == NULL || !pAdjStart->isWater())
++		if (!pAdjStart->isWater())
+ 			continue;
+ 		//if (pAdjStart->sameArea(kDest))
+ 		if (kDest.isWater())
+@@ -130,15 +123,10 @@ bool TeamStepMetric<eMODE>::isValidDest(CvPlot const& kStart, CvPlot const& kDes
+ 		//if (!kDest.isWater())
+ 		else
+ 		{
+-			FOR_EACH_ENUM2(Direction, eDirDest)
++			FOR_EACH_ADJ_PLOT2(pAdjDest, kDest)
+ 			{
+-				CvPlot const* pAdjDest = plotDirection(kDest.getX(), kDest.getY(),
+-						eDirDest);
+-				if (pAdjDest != NULL && //pAdjStart->sameArea(*pAdjDest)
+-					pAdjDest->isWater())
+-				{
++				if (pAdjDest->isWater()) //pAdjStart->sameArea(*pAdjDest)
+ 					return true;
+-				}
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/cpp.hint b/CvGameCoreDLL/cpp.hint
+index b85b4c8a8..b5dd900df 100644
+--- a/CvGameCoreDLL/cpp.hint
++++ b/CvGameCoreDLL/cpp.hint
+@@ -32,3 +32,20 @@
+ #define FOR_EACH_UNITAI_VAR_IN(pUnit, kUnitListWrapper)
+ 
+ FOR_EACH_TRADE_ITEM(pItemVar, itemList)
++
++#define FOR_EACH_ADJ_PLOT(kCenterPlot)
++#define FOR_EACH_ADJ_PLOT_VAR(kCenterPlot)
++#define FOR_EACH_ADJ_PLOT2(pLoopPlot, kCenterPlot)
++#define FOR_EACH_ADJ_PLOT_VAR2(pLoopPlot, kCenterPlot)
++#define FOR_EACH_ORTH_ADJ_PLOT(kCenterPlot)
++#define FOR_EACH_ORTH_ADJ_PLOT_VAR(kCenterPlot)
++#define FOR_EACH_ORTH_ADJ_PLOT2(pLoopPlot, kCenterPlot)
++#define FOR_EACH_ORTH_ADJ_PLOT_VAR2(pLoopPlot, kCenterPlot)
++#define FOR_EACH_DIAG_ADJ_PLOT(kCenterPlot)
++#define FOR_EACH_DIAG_ADJ_PLOT_VAR(kCenterPlot)
++#define FOR_EACH_DIAG_ADJ_PLOT2(pLoopPlot, kCenterPlot)
++#define FOR_EACH_DIAG_ADJ_PLOT_VAR2(pLoopPlot, kCenterPlot)
++#define FOR_EACH_ADJ_PLOT_RAND(kCenterPlot, kRand)
++#define FOR_EACH_ADJ_PLOT_VAR_RAND(kCenterPlot, kRand)
++#define FOR_EACH_ADJ_PLOT_RAND2(pLoopPlot, kCenterPlot, kRand)
++#define FOR_EACH_ADJ_PLOT_VAR_RAND2(pLoopPlot, kCenterPlot, kRand)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=17744

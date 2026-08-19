@@ -1,0 +1,117 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 552
+# Commit: 9bfa52ee151b3296dae5600740e10b0704442756
+# History segment: K-Mod history
+# Parent used for diff: 0b98d28c1d77ee5258d1edcaaa29106d499b6d70
+# Title: Fixed some mistakes in the prereq part of AI_buildingValue. (There was some confusion about which building was the prereq, and which building was being enabl...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	29	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 667da42f5..b65e8f105 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4512,9 +4512,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						}
+ 					}
+ 					//
+-
+-					int iCountMaking = -1; // we'll count it when it is first needed.
+-
+ 					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 					{
+ 						BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings((BuildingClassTypes)iI); // K-Mod
+@@ -4534,21 +4531,45 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 						if (kLoopBuilding.getPrereqNumOfBuildingClass(eBuildingClass) > 0)
+ 						{
+-							// if we haven't already, count how many of eBuildingClass we are currently making
+-							if (iCountMaking < 0)
+-								iCountMaking = kOwner.getBuildingClassMaking(eBuildingClass);
++							BuildingClassTypes eLoopClass = (BuildingClassTypes)kLoopBuilding.getBuildingClassType();
++
++							// calculate how many more of eBuilding we actually need, given that we might be constructing some eLoopBuilding already.
++							iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eLoopBuilding, eBuildingClass, kOwner.getBuildingClassMaking(eLoopClass));
++							FAssert(iPrereqBuildings > 0);
+ 
+-							// calculate how many more of eBuilding we actually need.
+-							iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eLoopBuilding, eBuildingClass, iCountMaking);
++							// subtract the number of eBuildings we have already.
++							// (Note, both BuildingClassCount and BuildingClassMaking are cached. This is fast.)
++							iPrereqBuildings -= kOwner.getBuildingClassCount(eBuildingClass);
++						}
++
++						// only score the local building requirement if the civ-wide requirement is already met
++						if (kLoopBuilding.isBuildingClassNeededInCity(kBuilding.getBuildingClassType()) &&
++							getNumBuilding(eBuilding) == 0 && iPrereqBuildings <= 0)
++						{
++							if (kBuilding.getProductionCost() > 0 && kLoopBuilding.getProductionCost() > 0)
++							{
++								int iTempValue = AI_buildingValue(eLoopBuilding, 0, 0, bConstCache, false);
++								if (iTempValue > 0)
++								{
++									// scale the bonus value by a rough approximation of how likely we are the build the thing
++									// (note. the combined production cost is essentially the cost of completing kLoopBuilding given our current position.)
++									iTempValue *= 2*kBuilding.getProductionCost();
++									iTempValue /= 2*kBuilding.getProductionCost() + 3*kLoopBuilding.getProductionCost();
++									iValue += iTempValue;
++								}
++							}
+ 						}
+ 
+ 						if (iPrereqBuildings > 0 && iPrereqBuildings <= iNumCities)
+ 						{
+-							// do we need more than what we are currently building?
+-							iPrereqBuildings -= kOwner.getBuildingClassCountPlusMaking(eBuildingClass);
++							// We've already subtracted the number of eBuilding that are already built.
++							// Now we subtract the number of eBuilding that we are currently constructing.
++							//iPrereqBuildings -= kOwner.getBuildingClassMaking(eBuildingClass) - (getFirstBuildingOrder(eBuilding) < 0 ? 0 : 1);
++							iPrereqBuildings -= kOwner.getBuildingClassMaking(eBuildingClass); // (keep it simple)
+ 							if (iPrereqBuildings > 0)
+ 							{
+-								// K-Mod, lets do it the long and slow way...
++								// Now we work out how valuable it would be to enable eLoopBuilding;
++								// and then scale that value by how many more eBuildings we need.
+ 								CvCity* pLoopCity;
+ 								int iLoop;
+ 								int iHighestValue = 0;
+@@ -4574,24 +4595,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 								}
+ 							}
+ 						}
+-
+-						// only score the local building requirement if the civ-wide requirement is already met, or will be met by building the prereq here.
+-						if (kLoopBuilding.isBuildingClassNeededInCity(kBuilding.getBuildingClassType()) &&
+-							getNumBuilding(eBuilding) == 0 && iPrereqBuildings <= (getProductionBuilding() == eBuilding ? 0 : 1))
+-						{
+-							if (kBuilding.getProductionCost() > 0 && kLoopBuilding.getProductionCost() > 0)
+-							{
+-								int iTempValue = AI_buildingValue(eLoopBuilding, 0, 0, bConstCache, false);
+-								if (iTempValue > 0)
+-								{
+-									// scale the bonus value by a rough approximation of how likely we are the build the thing
+-									// (note. the combined production cost is essentially the cost of completing kLoopBuilding given our current position.)
+-									iTempValue *= 2*kBuilding.getProductionCost();
+-									iTempValue /= 2*kBuilding.getProductionCost() + 3*kLoopBuilding.getProductionCost();
+-									iValue += iTempValue;
+-								}
+-							}
+-						}
+ 					}
+ 				}
+ 				// K-Mod end (prereqs)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4886

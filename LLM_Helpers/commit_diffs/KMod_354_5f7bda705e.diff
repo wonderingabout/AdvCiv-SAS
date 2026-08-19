@@ -1,0 +1,722 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 354
+# Commit: 5f7bda705edd5a5d480cb23acb6b51e9836d5613
+# History segment: K-Mod history
+# Parent used for diff: 3d1097eb4f6b51bd414949857d1647aea5178f20
+# Title: Wrote the K-Mod pathfinder, and enabled it.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvGameCoreDLL.h
+3	3	CvGameCoreDLL/CvGameCoreDLL.vcproj
+23	29	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	15	CvGameCoreDLL/CvGameCoreUtils.h
+2	2	CvGameCoreDLL/CvGameInterface.cpp
+14	6	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvSelectionGroup.h
+236	10	CvGameCoreDLL/KmodPathFinder.cpp
+30	14	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 6e2df065b..ccab01c6e 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -13,6 +13,8 @@
+ //
+ #pragma warning( disable: 4530 )	// C++ exception handler used, but unwind semantics are not enabled
+ 
++#define KMOD_PATH_FINDER // K-Mod!
++
+ #define WIN32_LEAN_AND_MEAN
+ #include <windows.h>
+ #include <MMSystem.h>
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.vcproj b/CvGameCoreDLL/CvGameCoreDLL.vcproj
+index a3310295b..39f523d22 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.vcproj
++++ b/CvGameCoreDLL/CvGameCoreDLL.vcproj
+@@ -27,7 +27,7 @@
+ 				ReBuildCommandLine="nmake Debug_clean&#x0D;&#x0A;nmake Debug"
+ 				CleanCommandLine="nmake Debug_clean"
+ 				Output=""
+-				PreprocessorDefinitions="WIN32;_DEBUG;_USRDLL"
++				PreprocessorDefinitions="WIN32;_DEBUG;_USRDLL;KMOD_PATH_FINDER"
+ 				IncludeSearchPath=""
+ 				ForcedIncludes=""
+ 				AssemblySearchPath=""
+@@ -47,7 +47,7 @@
+ 				ReBuildCommandLine="nmake Release_clean&#x0D;&#x0A;nmake Release"
+ 				CleanCommandLine="nmake Release_clean"
+ 				Output=""
+-				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL"
++				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;KMOD_PATH_FINDER"
+ 				IncludeSearchPath=""
+ 				ForcedIncludes=""
+ 				AssemblySearchPath=""
+@@ -67,7 +67,7 @@
+ 				ReBuildCommandLine="nmake Profile_clean&#x0D;&#x0A;nmake Profile"
+ 				CleanCommandLine="nmake Profile_clean"
+ 				Output=""
+-				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;FP_PROFILE_ENABLE;USE_INTERNAL_PROFILER"
++				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;FP_PROFILE_ENABLE;USE_INTERNAL_PROFILER;KMOD_PATH_FINDER"
+ 				IncludeSearchPath=""
+ 				ForcedIncludes=""
+ 				AssemblySearchPath=""
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 8444dcf0a..da1081df3 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1355,8 +1355,9 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 
+ 	//pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvPathData* pPathData = (CvPathData*)pointer;
+-	pSelectionGroup = pPathData->pGroup;
++	CvPathSettings* pPathSettings = (CvPathSettings*)pointer;
++	pSelectionGroup = pPathSettings->pGroup;
++	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : pPathSettings->iFlags;
+ 	// K-Mod end
+ 
+ 	if (pSelectionGroup->atPlot(pToPlot))
+@@ -1394,7 +1395,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 			}
+ 		}	
+ 
+-		if (!(gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_IGNORE_DANGER))
++		if (!(iFlags & MOVE_IGNORE_DANGER))
+ 		{
+ 			if (!(pSelectionGroup->canFight()) && !(pSelectionGroup->alwaysInvisible()))
+ 			{
+@@ -1436,7 +1437,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 						{
+ 							if (pLoopUnit2->isGroupHead())
+ 							{
+-								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_DECLARE_WAR))))
++								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (iFlags & MOVE_DECLARE_WAR))))
+ 								{
+ 									bValid = true;
+ 									break;
+@@ -1456,7 +1457,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 		}
+ 		else
+ 		{
+-			if (!(pSelectionGroup->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_DECLARE_WAR)))))
++			if (!(pSelectionGroup->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (iFlags & MOVE_DECLARE_WAR)))))
+ 			{
+ 				return FALSE;
+ 			}
+@@ -1486,8 +1487,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	//CvSelectionGroup* pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvPathData* pPathData = (CvPathData*)pointer;
+-	CvSelectionGroup* pSelectionGroup = pPathData->pGroup;
++	CvPathSettings* pPathSettings = (CvPathSettings*)pointer;
++	CvSelectionGroup* pSelectionGroup = pPathSettings->pGroup;
+ 	// K-Mod end
+ 
+ 
+@@ -1495,10 +1496,10 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	int iWorstMovesLeft = MAX_INT;
+ 	int iWorstMaxMoves = MAX_INT;
+ 
+-	int iFlags = gDLL->getFAStarIFace()->GetInfo(finder);
++	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : pPathSettings->iFlags;
+ 	TeamTypes eTeam = pSelectionGroup->getHeadTeam();
+ 
+-	CvDLLFAStarIFaceBase* pAStar = gDLL->getFAStarIFace();
++	//CvDLLFAStarIFaceBase* pAStar = gDLL->getFAStarIFace();
+ 
+ 	{
+ 		CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode();
+@@ -1547,8 +1548,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		return iWorstCost;
+ 
+ 	// the cost of battle...
+-	if (iFlags & MOVE_ATTACK_STACK &&
+-		!pAStar->IsPathDest(finder, pToPlot->getX_INLINE(), pToPlot->getY_INLINE()))
++	if (iFlags & MOVE_ATTACK_STACK)
+ 	{
+ 		FAssert(pSelectionGroup->AI_isControlled()); // only the AI uses MOVE_ATTACK_STACK
+ 		FAssert(pSelectionGroup->getDomainType() == DOMAIN_LAND);
+@@ -1632,8 +1632,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 				// defence for units who stay behind after attacking an enemy.
+ 				//if (pSelectionGroup->AI_isControlled()) // let human players have this convenience...
+-				if (pSelectionGroup->AI_isControlled() || // but only if we aren't trying to do a 1 step move.
+-					stepDistance(pAStar->GetStartX(finder), pAStar->GetStartY(finder), pAStar->GetDestX(finder), pAStar->GetDestY(finder)) > 1)
++				if (pSelectionGroup->AI_isControlled() || parent->m_iKnownCost != 0) // but not for the first step.
+ 				{
+ 					if (pLoopUnit->canAttack())
+ 					{
+@@ -1723,17 +1722,18 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	return iWorstCost;
+ }
+ 
+-static int pathValidInternal(FAStarNode* parent, FAStarNode* node, int data, CvSelectionGroup* pSelectionGroup, FAStar* finder)
++static int pathValidInternal(FAStarNode* parent, FAStarNode* node, int data, CvPathSettings* pPathSettings, FAStar* finder)
+ {
+ 	CvPlot* pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
+ 	//CvPlot* pToPlot = GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
++	CvSelectionGroup* pSelectionGroup = pPathSettings->pGroup;
++	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : pPathSettings->iFlags;
+ 
+ 	if (pSelectionGroup->atPlot(pFromPlot))
+ 	{
+ 		return TRUE;
+ 	}
+ 
+-	int iFlags = gDLL->getFAStarIFace()->GetInfo(finder); // K-Mod. (and now used throughout this function)
+ 	if (iFlags & MOVE_SAFE_TERRITORY)
+ 	{
+ 		PROFILE("pathValid move save");
+@@ -1862,9 +1862,9 @@ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 
+ 	//pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvPathData* pPathData = (CvPathData*)pointer;
+-	pSelectionGroup = pPathData->pGroup;
+-	if (pPathData->iMaxPath > 0 && parent->m_iData2 > pPathData->iMaxPath)
++	CvPathSettings* pPathSettings = (CvPathSettings*)pointer;
++	pSelectionGroup = pPathSettings->pGroup;
++	if (pPathSettings->iMaxPath > 0 && parent->m_iData2 > pPathSettings->iMaxPath)
+ 		return FALSE;
+ 	// K-Mod end
+ 
+@@ -1894,7 +1894,7 @@ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 		return bResult;
+ 	}
+ 
+-	bResult = pathValidInternal(parent, node, data, pSelectionGroup, finder);
++	bResult = pathValidInternal(parent, node, data, pPathSettings, finder);
+ 
+ 	pSelectionGroup->CachePathValidityResult( pFromPlot, bResult );
+ 
+@@ -1903,19 +1903,14 @@ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 
+ 
+ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+-{
+-	// K-Mod. I've moved the bulk of this function, so that I can have a new function that doesn't need FAStar* finder.
+-	return pathAdd_bulk(parent, node, data, pointer, gDLL->getFAStarIFace()->GetInfo(finder));
+-}
+-
+-int pathAdd_bulk(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, int flags)
+ {
+ 	PROFILE_FUNC();
+ 
+ 	//CvSelectionGroup* pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvPathData* pPathData = (CvPathData*)pointer;
+-	CvSelectionGroup* pSelectionGroup = pPathData->pGroup;
++	CvPathSettings* pPathSettings = (CvPathSettings*)pointer;
++	CvSelectionGroup* pSelectionGroup = pPathSettings->pGroup;
++	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : pPathSettings->iFlags;
+ 	// K-Mod end
+ 	FAssert(pSelectionGroup->getNumUnits() > 0);
+ 
+@@ -1924,8 +1919,7 @@ int pathAdd_bulk(FAStarNode* parent, FAStarNode* node, int data, const void* poi
+ 
+ 	if (data == ASNC_INITIALADD)
+ 	{
+-		//bool bMaxMoves = (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_MAX_MOVES);
+-		bool bMaxMoves = flags & MOVE_MAX_MOVES; // K-Mod
++		bool bMaxMoves = (iFlags & MOVE_MAX_MOVES);
+ 		if (bMaxMoves)
+ 		{
+ 			iMoves = 0;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 0e2e82383..3a1626498 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -326,20 +326,6 @@ bool PUF_isFiniteRangeAndNotJustProduced(const CvUnit* pUnit, int iData1, int iD
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
+-// K-Mod
+-// I want some additional data for the pathfinder, so rather than using CvSelectionGroup* as the miscellaneous void* data,
+-// I'm going to use the following struct:
+-struct CvPathData
+-{
+-	CvPathData(CvSelectionGroup* pGroup, int iMaxPath = -1) : pGroup(pGroup), iMaxPath(iMaxPath) { }
+-
+-	CvSelectionGroup* pGroup;
+-	int iMaxPath;
+-	// I may choose to add more data in the future.
+-};
+-// Note. this data cannot be added directly to CvSelectionGroup, because that causes the game to crash.
+-// K-Mod end
+-
+ // FAStarFunc...
+ int potentialIrrigation(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int checkFreshWater(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+@@ -349,12 +335,12 @@ int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+-int pathAdd_bulk(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, int flags); // K-Mod
+ int stepDestValid(int iToX, int iToY, const void* pointer, FAStar* finder);
+ int stepHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+ int stepValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int stepCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int stepAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
++
+ /********************************************************************************/
+ /* 	BETTER_BTS_AI_MOD					11/30/08				jdog5000	*/
+ /* 																			*/
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 88d10b5b6..e8703104c 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2111,8 +2111,8 @@ void CvGame::startFlyoutMenu(const CvPlot* pPlot, std::vector<CvFlyoutMenuData>&
+ 	{
+ 		//gDLL->getFAStarIFace()->SetData(&GC.getInterfacePathFinder(), gDLL->getInterfaceIFace()->getSelectionList());
+ 		// K-Mod
+-		CvPathData path_data(gDLL->getInterfaceIFace()->getSelectionList());
+-		gDLL->getFAStarIFace()->SetData(&GC.getInterfacePathFinder(), &path_data);
++		CvPathSettings path_settings(gDLL->getInterfaceIFace()->getSelectionList(), MOVE_DECLARE_WAR);
++		gDLL->getFAStarIFace()->SetData(&GC.getInterfacePathFinder(), &path_settings);
+ 		// K-Mod end
+ 		if ((pHeadSelectedUnit->getDomainType() == DOMAIN_AIR) || gDLL->getFAStarIFace()->GeneratePath(&GC.getInterfacePathFinder(), pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), pPlot->getX(), pPlot->getY(), false, MOVE_DECLARE_WAR, true))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index caa56a716..734dc1ce0 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -35,6 +35,7 @@
+ //	KOSHLING MOD - path validity cache, used only within a single
+ //	call to GneratePath()
+ const CvSelectionGroup* CvSelectionGroup::lastPathGeneratedFor = NULL; // K-Mod
++KmodPathFinder CvSelectionGroup::path_finder; // K-Mod
+ int CvSelectionGroup::m_cachedPathValidityFromPlotX = -2;
+ int CvSelectionGroup::m_cachedPathValidityFromPlotY;
+ bool CvSelectionGroup::m_cachedPathValidityResult;
+@@ -4373,7 +4374,11 @@ void CvSelectionGroup::setAutomateType(AutomateTypes eNewValue)
+ 
+ FAStarNode* CvSelectionGroup::getPathLastNode() const
+ {
++#ifdef KMOD_PATH_FINDER
++	return path_finder.GetEndNode();
++#else
+ 	return gDLL->getFAStarIFace()->GetLastNode(&GC.getPathFinder());
++#endif
+ }
+ 
+ 
+@@ -4456,11 +4461,9 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ /************************************************************************************************/
+ 
+ 	//gDLL->getFAStarIFace()->SetData(&GC.getPathFinder(), this);
+-	// K-Mod. the pathfinder now uses CvPathData* instead of just CvSelectionGroup*.
+-	// I'm really sorry about the const_cast. I can't fix the const-correctness of all the relevant functions,
+-	// because some of them are dllexports. The original code essentially does the same thing anyway, with void* casts.
+-	CvPathData path_data(const_cast<CvSelectionGroup*>(this), iMaxPath);
+-	gDLL->getFAStarIFace()->SetData(&GC.getPathFinder(), &path_data);
++	// K-Mod. the pathfinder now uses CvPathSettings* instead of just CvSelectionGroup*.
++	CvPathSettings path_settings(this, iFlags, -1); // change -1 to iMaxPath to enable
++	gDLL->getFAStarIFace()->SetData(&GC.getPathFinder(), &path_settings);
+ 	// K-Mod end
+ 
+ 	//	KOSHLING MOD - the path finder in the core engine is somewhat inefficient and calls pathValid() multiple times for single
+@@ -4476,7 +4479,12 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 		resetPath();
+ 	}
+ 
++#ifdef KMOD_PATH_FINDER
++	path_finder.SetSettings(path_settings);
++	bSuccess = path_finder.GeneratePath(pFromPlot->getX_INLINE(), pFromPlot->getY_INLINE(), pToPlot->getX_INLINE(), pToPlot->getY_INLINE());
++#else
+ 	bSuccess = gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX_INLINE(), pFromPlot->getY_INLINE(), pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), false, iFlags, bReuse);
++#endif
+ 
+ 	//	Invalidate the cache again so that callers from outside the DLL to path generation don't
+ 	//	invoke a stale cache
+@@ -4494,7 +4502,7 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 			if (pNode != NULL)
+ 			{
+ 				*piPathTurns = pNode->m_iData2;
+-				FAssert(iMaxPath <= 0 || iMaxPath >= pNode->m_iData2); // K-Mod
++				//FAssert(iMaxPath <= 0 || iMaxPath >= pNode->m_iData2); // K-Mod
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index c5ba157f2..07ae2e7e4 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -7,6 +7,7 @@
+ 
+ //#include "CvStructs.h"
+ #include "LinkedList.h"
++#include "KmodPathFinder.h"
+ 
+ class CvPlot;
+ class CvArea;
+@@ -14,7 +15,6 @@ class FAStarNode;
+ 
+ class CvSelectionGroup
+ {
+-
+ public:
+ 
+ 	CvSelectionGroup();
+@@ -293,6 +293,7 @@ public:
+ 	//	single threaded nature of the application and the fact that cache validity is only
+ 	//	required across a single path generation call, which cannot interleave
+ 	static const CvSelectionGroup* lastPathGeneratedFor; // K-Mod
++	static KmodPathFinder path_finder; // K-Mod! I'd rather this not be static, but I can't do that here.
+ 	static int m_cachedPathValidityFromPlotX;
+ 	static int m_cachedPathValidityFromPlotY;
+ 	static bool m_cachedPathValidityResult;
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 4eea8ebcc..1655b359d 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -4,24 +4,250 @@
+ #include "KmodPathFinder.h"
+ #include "FAStarNode.h"
+ #include "CvGameCoreUtils.h"
++#include <boost/bind.hpp>
++#include <boost/lambda/lambda.hpp>
+ 
+-void KmodPathFinder::OpenNextInQueue()
++bool KmodPathFinder::OpenList_sortPred::operator()(const boost::shared_ptr<FAStarNode> &left, const boost::shared_ptr<FAStarNode> &right)
+ {
+-	boost::shared_ptr<FAStarNode> node = open_list[0].second;
++	return left->m_iTotalCost < right->m_iTotalCost;
++}
++
++bool KmodPathFinder::GeneratePath(int x1, int y1, int x2, int y2)
++{
++	end_node.reset();
++
++	if (!settings.pGroup)
++		return false;
++
++	if (!pathDestValid(x2, y2, &settings, 0))
++		return false;
++
++	bool bRecalcHeuristics = false;
++	//if (x1 != start_x || y1 != start_y)
++	{
++		// it may be possible to salvage some of the old data.
++		// if the moves recorded on the node match the group,
++		// just delete everything that isn't a direct descendant of the new start.
++		// and then subtract the start cost & moves off all the remaining nodes
++		Reset(); // but this is easier.
++	}
++	if (dest_x != x2 || dest_y != y2)
++		bRecalcHeuristics = true;
++
++	// note: even if we have the same starting position, the data might be invalid if our group's moves have changed.
++	// .. I might fix that problem later.
++
++	start_x = x1;
++	start_y = y1;
++	dest_x = x2;
++	dest_y = y2;
++
++	{
++		int iPlotNum = GC.getMapINLINE().plotNumINLINE(x1, y1);
++		FAssert(iPlotNum >= 0 && iPlotNum < GC.getMapINLINE().numPlotsINLINE());
++		NodeMap_t::iterator it = node_map.find(iPlotNum);
++		if (it == node_map.end())
++		{
++			// add initial node.
++			boost::shared_ptr<FAStarNode> start_node(new FAStarNode);
++			start_node->m_iX = x1;
++			start_node->m_iY = y1;
++			pathAdd(0, start_node.get(), ASNC_INITIALADD, &settings, 0);
++			start_node->m_iKnownCost = 0;
++			open_list.push_back(start_node);
++			node_map[iPlotNum] = start_node;
++			bRecalcHeuristics = true;
++		}
++	}
++
++	if (bRecalcHeuristics)
++	{
++		// recalculate heuristic cost for all open nodes.
++		for (OpenList_t::iterator i = open_list.begin(); i != open_list.end(); ++i)
++		{
++			int h = pathHeuristic((*i)->m_iX, (*i)->m_iY, dest_x, dest_y);
++			(*i)->m_iHeuristicCost = h;
++			(*i)->m_iTotalCost = h + (*i)->m_iKnownCost;
++		}
++	}
++
++	{
++		int iEndPlot = GC.getMapINLINE().plotNumINLINE(x2, y2);
++		FAssert(iEndPlot >= 0 && iEndPlot < GC.getMapINLINE().numPlotsINLINE());
++
++		NodeMap_t::iterator end_it = node_map.find(iEndPlot);
++
++		if (end_it != node_map.end())
++			end_node = end_it->second;
++	}
++
++	while (ProcessNode())
++	{
++		// nothing
++	}
++
++	if (end_node && (settings.iMaxPath < 0 || end_node->m_iData2 <= settings.iMaxPath))
++		return true;
++
++	return false;
++}
++
++void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
++{
++	if (settings.pGroup != new_settings.pGroup || settings.iFlags != new_settings.iFlags)
++	{
++		Reset();
++	}
++	settings = new_settings;
++}
++
++void KmodPathFinder::Reset()
++{
++	node_map.clear();
++	open_list.clear();
++	// start & dest don't matter.
++	// settings is set separately.
++}
+ 
++bool KmodPathFinder::ProcessNode()
++{
++	OpenList_t::iterator best_it = open_list.end();
++	{
++		int iLowestCost = MAX_INT;
++		for (OpenList_t::iterator it = open_list.begin(); it != open_list.end(); ++it)
++		{
++			if ((*it)->m_iTotalCost < iLowestCost &&
++				(settings.iMaxPath < 0 || (*it)->m_iData2 <= settings.iMaxPath) &&
++				(!end_node || end_node->m_iKnownCost > (*it)->m_iTotalCost))
++			{
++				best_it = it;
++			}
++		}
++	}
++
++	// if we didn't find a suitable node to process, then quit.
++	if (best_it == open_list.end())
++		return false;
++
++	boost::shared_ptr<FAStarNode> parent_node = (*best_it);
++
++	// erase the node from the open_list.
++	// Note: this needs to be done before pushing new entries, otherwise the iterator will be invalid.
++	open_list.erase(best_it);
++
++	FAssert(node_map.find(GC.getMapINLINE().plotNumINLINE(parent_node->m_iX, parent_node->m_iY)) != node_map.end());
++
++	// open a new node for each direction coming off the chosen node.
+ 	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+ 	{
+-		CvPlot* pAdjacentPlot = plotDirection(node->m_iX, node->m_iX, (DirectionTypes)i);
+-		if (pAdjacentPlot)
++		CvPlot* pAdjacentPlot = plotDirection(parent_node->m_iX, parent_node->m_iY, (DirectionTypes)i);
++		if (!pAdjacentPlot)
++			continue;
++
++		const int& x = pAdjacentPlot->getX_INLINE(); // convenience
++		const int& y = pAdjacentPlot->getY_INLINE(); //
++
++		if (parent_node->m_pParent && parent_node->m_pParent->m_iX == x && parent_node->m_pParent->m_iY == y)
++			continue; // no need to backtrack.
++
++		int iPlotNum = GC.getMapINLINE().plotNumINLINE(x, y);
++		FAssert(iPlotNum >= 0 && iPlotNum < GC.getMapINLINE().numPlotsINLINE());
++		bool bDestination = iPlotNum == GC.getMapINLINE().plotNumINLINE(dest_x, dest_y);
++
++		NodeMap_t::iterator it = node_map.find(iPlotNum);
++		bool bNewNode = it == node_map.end();
++
++		boost::shared_ptr<FAStarNode> child_node;
++
++		if (bNewNode)
+ 		{
+-			// not the fastest way to get the plot number... but it's good enough for now.
+-			int iPlotNum = GC.getMapINLINE().plotNumINLINE(pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE());
+-			NodeMap_t::iterator it = node_map.find(iPlotNum);
+-			if (it == node_map.end())
++			child_node.reset(new FAStarNode);
++			child_node->m_iX = x;
++			child_node->m_iY = y;
++			pathAdd(parent_node.get(), child_node.get(), ASNC_NEWADD, &settings, 0);
++
++			child_node->m_iKnownCost = MAX_INT;
++			child_node->m_iHeuristicCost = pathHeuristic(x, y, dest_x, dest_y);
++		}
++		else
++		{
++			child_node = it->second;
++			FAssert(child_node->m_iX == x && child_node->m_iY == y);
++		}
++
++		const int yo_moma = 666;
++		bool bValid = pathValid(parent_node.get(), child_node.get(), yo_moma, &settings, 0);
++		if ((bValid || bDestination) && parent_node->m_iKnownCost < child_node->m_iKnownCost)
++		{
++			int iNewCost = parent_node->m_iKnownCost
++				+ pathCost(parent_node.get(), child_node.get(), yo_moma, &settings, 0);
++			FAssert(iNewCost > 0);
++			if (iNewCost < child_node->m_iKnownCost || bNewNode)
+ 			{
+-				boost::shared_ptr<FAStarNode> new_node(new FAStarNode);
+-				//pathAdd(node.get() , new_node.get(), int data, const void* pointer, FAStar* finder);
++				int cost_delta = iNewCost - child_node->m_iKnownCost; // new minus old. Negative value.
++
++				child_node->m_iKnownCost = iNewCost;
++				child_node->m_iTotalCost = child_node->m_iKnownCost + child_node->m_iHeuristicCost;
++				if (child_node->m_pParent)
++				{
++					FAStarNode* x_parent = child_node->m_pParent;
++					// x_parent just lost one of its children. We have to break the news to them.
++					// this would easier if we had stl instead of bog arrays.
++					for (int j = 0; j < x_parent->m_iNumChildren; j++)
++					{
++						if (x_parent->m_apChildren[j] == child_node.get())
++						{
++							// found it.
++							for (j++ ; j < x_parent->m_iNumChildren; j++)
++								x_parent->m_apChildren[j-1] = x_parent->m_apChildren[j];
++							x_parent->m_apChildren[j-1] = 0; // not necessary, but easy enough to keep things neat.
++
++							x_parent->m_iNumChildren--;
++						}
++					}
++				}
++				child_node->m_pParent = parent_node.get();
++
++				if (bValid)
++				{
++					// non valid nodes may go out of scope, so we can't put them on the children list.
++					FAssert(parent_node->m_iNumChildren < NUM_DIRECTION_TYPES);
++					parent_node->m_apChildren[parent_node->m_iNumChildren] = child_node.get();
++					parent_node->m_iNumChildren++;
++
++					FAssert(child_node->m_iNumChildren == 0 || !bNewNode);
++					ForwardPropagate(child_node.get(), cost_delta);
++				}
++
++				FAssert(child_node->m_iKnownCost > parent_node->m_iKnownCost);
+ 			}
++			else
++				FAssert(!bNewNode);
++			if (bNewNode && bValid)
++			{
++				open_list.push_back(child_node);
++				node_map[iPlotNum] = child_node;
++			}
++		}
++		if (bDestination)
++		{
++			end_node = child_node;
+ 		}
+ 	}
++	return true;
++}
++
++void KmodPathFinder::ForwardPropagate(FAStarNode* head, int cost_delta)
++{
++	FAssert(cost_delta < 0 || head->m_iNumChildren == 0);
++	// change the known cost of all children by cost_delta, recursively
++	for (int i = 0; i < head->m_iNumChildren; i++)
++	{
++		head->m_apChildren[i]->m_iKnownCost += cost_delta;
++		head->m_apChildren[i]->m_iTotalCost += cost_delta;
++		FAssert(head->m_apChildren[i]->m_pParent == head);
++		FAssert(head->m_apChildren[i]->m_iKnownCost > head->m_iKnownCost);
++
++		ForwardPropagate(head->m_apChildren[i], cost_delta);
++	}
+ }
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 9c92e9272..335b95cc3 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -1,32 +1,48 @@
+-#include "CvDLLFAStarIFaceBase.h"
++#pragma once
++
+ #include <hash_map>
+ #include <boost/shared_ptr.hpp>
++#include <list>
+ 
+-/*struct KmodPathNode;
+-struct KmodPathNode
++struct CvPathSettings
+ {
+-	int turns;
+-	int moves;
+-	int total_cost;
+-	int known_cost;
+-	int heuristic_cost;
+-
+-	bool bFinal;
++	CvPathSettings(const CvSelectionGroup* pGroup = 0, int iFlags = 0, int iMaxPath = -1)
++		: pGroup(const_cast<CvSelectionGroup*>(pGroup)), iFlags(iFlags), iMaxPath(iMaxPath) { }
++	// I'm really sorry about the const_cast. I can't fix the const-correctness of all the relevant functions,
++	// because some of them are dllexports. The original code essentially does the same thing anyway, with void* casts.
+ 
+-	KModPathNode* parent_node;
+-};*/
++	CvSelectionGroup* pGroup;
++	int iFlags;
++	int iMaxPath;
++};
+ 
+ class FAStarNode;
+ 
+ class KmodPathFinder
+ {
+-	void OpenNextInQueue();
++public:
++	bool GeneratePath(int x1, int y1, int x2, int y2);
++	FAStarNode* GetEndNode() { FAssert(end_node); return end_node.get(); }
++	void SetSettings(const CvPathSettings& new_settings);
++	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath)); }
++	void Reset();
++
++protected:
++	bool ProcessNode();
++	void ForwardPropagate(FAStarNode* head, int cost_delta);
+ 	typedef stdext::hash_map<int, boost::shared_ptr<FAStarNode> > NodeMap_t;
+-	typedef std::vector<std::pair<int, boost::shared_ptr<FAStarNode> > > OpenList_t;
++	typedef std::list<boost::shared_ptr<FAStarNode> > OpenList_t;
++
++	struct OpenList_sortPred
++	{
++		bool operator()(const boost::shared_ptr<FAStarNode> &left, const boost::shared_ptr<FAStarNode> &right);
++	};
+ 
+ 	NodeMap_t node_map;
+ 	OpenList_t open_list;
+ 
+ 	int dest_x, dest_y;
+ 	int start_x, start_y;
++	boost::shared_ptr<FAStarNode> end_node;
++	CvPathSettings settings;
+ };
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=26995

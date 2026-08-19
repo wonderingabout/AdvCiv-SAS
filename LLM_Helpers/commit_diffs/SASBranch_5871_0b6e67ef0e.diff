@@ -1,0 +1,643 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5871
+# Commit: 0b6e67ef0e6b94cf798fd6ae784205e4bc58e9fe
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 673092a70ea5a67ebda12e8190bb8d3f0df0e6f2
+# Title: fix ruff E701 - pass 3
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	LLM_Helpers/comment_cleanup_pass_v2.py
+2	1	PrivateMaps/Archipelago.py
+6	3	PrivateMaps/BTG_Cross.py
+2	1	PrivateMaps/BTG_Grid.py
+2	1	PrivateMaps/Equal_Islands_V2_beta.py
+24	12	PrivateMaps/Fantasy_Realm.py
+2	1	PrivateMaps/Global_Highlands.py
+50	25	PrivateMaps/Great_Plains.py
+2	1	PrivateMaps/Islands.py
+20	10	PrivateMaps/Oasis.py
+2	1	PrivateMaps/Pangaea.py
+6	3	PrivateMaps/Rainforest.py
+32	16	PrivateMaps/RandomScriptMap.py
+4	2	PrivateMaps/Shuffle.py
+8	4	PrivateMaps/Terra.py
+
+[PATCHES]
+
+diff --git a/LLM_Helpers/comment_cleanup_pass_v2.py b/LLM_Helpers/comment_cleanup_pass_v2.py
+index 386d3c40f..2b7de4978 100644
+--- a/LLM_Helpers/comment_cleanup_pass_v2.py
++++ b/LLM_Helpers/comment_cleanup_pass_v2.py
+@@ -95,7 +95,8 @@ def maybe_flush_group(out, indent, group):
+ def transform(text):
+     src_lines=text.split('\n')
+     ends=text.endswith('\n')
+-    if ends: src_lines=src_lines[:-1]
++    if ends:
++    	src_lines=src_lines[:-1]
+     lines=[]; typos=0
+     for l in src_lines:
+         n,c=fix_typos(l); lines.append(n); typos+=c
+@@ -134,7 +135,8 @@ def transform(text):
+         collapsed += any_collapse
+         i=j
+     result='\n'.join(out)
+-    if ends: result+='\n'
++    if ends:
++    	result+='\n'
+     return result,typos,collapsed
+ 
+ raw=SRC.read_bytes(); use_crlf=b'\r\n' in raw
+
+diff --git a/PrivateMaps/Archipelago.py b/PrivateMaps/Archipelago.py
+index 38acb7cf3..bc0a6e6e8 100644
+--- a/PrivateMaps/Archipelago.py
++++ b/PrivateMaps/Archipelago.py
+@@ -369,7 +369,8 @@ def assignStartingPlots():
+ 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
+ 						iPlotYield += (iFertileCheck - 1)
+ 					iRegionNetYield += iPlotYield
+-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
++					if pPlot.isHills():
++						iRegionNetYield += 1 # Add a bonus point for Hills plots.
+ 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
+ 						iNumLandAreas += 1
+ 						land_areas.append(iArea)
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 7d08fa488..4eba0d43f 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -386,8 +386,10 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 			iWidth = iEastX - iWestX + 1
+ 			iHeight = iNorthY - iSouthY + 1
+ 
+-			if region_duplicated[3] == 0 : region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
+-			elif (iWidth > region_duplicated[3]) and ((iWidth > region_duplicated[3]) < region_duplicated[3]) : region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
++			if region_duplicated[3] == 0 :
++				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
++			elif (iWidth > region_duplicated[3]) and ((iWidth > region_duplicated[3]) < region_duplicated[3]) :
++				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
+ 			
+                 region_roll = region_duplicated[0]
+                 thisRegion = remaining_regions[region_roll]
+@@ -800,7 +802,8 @@ def assignStartingPlots():
+ 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
+ 						iPlotYield += (iFertileCheck - 1)
+ 					iRegionNetYield += iPlotYield
+-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
++					if pPlot.isHills():
++						iRegionNetYield += 1 # Add a bonus point for Hills plots.
+ 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
+ 						iNumLandAreas += 1
+ 						land_areas.append(iArea)
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index ff394ff67..1248bac0b 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -992,7 +992,8 @@ def assignStartingPlots():
+ 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
+ 						iPlotYield += (iFertileCheck - 1)
+ 					iRegionNetYield += iPlotYield
+-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
++					if pPlot.isHills():
++						iRegionNetYield += 1 # Add a bonus point for Hills plots.
+ 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
+ 						iNumLandAreas += 1
+ 						land_areas.append(iArea)
+
+diff --git a/PrivateMaps/Equal_Islands_V2_beta.py b/PrivateMaps/Equal_Islands_V2_beta.py
+index 033000282..aaf42438a 100644
+--- a/PrivateMaps/Equal_Islands_V2_beta.py
++++ b/PrivateMaps/Equal_Islands_V2_beta.py
+@@ -529,7 +529,8 @@ def assignStartingPlots():
+ 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
+ 						iPlotYield += (iFertileCheck - 1)
+ 					iRegionNetYield += iPlotYield
+-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
++					if pPlot.isHills():
++						iRegionNetYield += 1 # Add a bonus point for Hills plots.
+ 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
+ 						iNumLandAreas += 1
+ 						land_areas.append(iArea)
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index 8ed7410d2..d72304f3c 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -469,18 +469,30 @@ def addBonusType(argsList):
+ 	forceNoJungle = False
+ 	forceNoForest = False
+ 	forceNoFresh = False
+-	if type_string in forcePlacementOnFlats: forceFlats = True
+-	if type_string in forcePlacementOnHills: forceHills = True
+-	if type_string in forcePlacementInFloodPlains: forceFlood = True
+-	if type_string in forcePlacementInJungle: forceJungle = True
+-	if type_string in forcePlacementInForest: forceForest = True
+-	if type_string in forceNotInGrass: forceNoGrass = True
+-	if type_string in forceNotInDesert: forceNoDesert = True
+-	if type_string in forceNotInSnow: forceNoSnow = True
+-	if type_string in forceNotInPlains: forceNoPlains = True
+-	if type_string in forceNotInJungle: forceNoJungle = True
+-	if type_string in forceNotInForest: forceNoForest = True
+-	if type_string in forceNotInFreshWater: forceNoFresh = True
++	if type_string in forcePlacementOnFlats:
++		forceFlats = True
++	if type_string in forcePlacementOnHills:
++		forceHills = True
++	if type_string in forcePlacementInFloodPlains:
++		forceFlood = True
++	if type_string in forcePlacementInJungle:
++		forceJungle = True
++	if type_string in forcePlacementInForest:
++		forceForest = True
++	if type_string in forceNotInGrass:
++		forceNoGrass = True
++	if type_string in forceNotInDesert:
++		forceNoDesert = True
++	if type_string in forceNotInSnow:
++		forceNoSnow = True
++	if type_string in forceNotInPlains:
++		forceNoPlains = True
++	if type_string in forceNotInJungle:
++		forceNoJungle = True
++	if type_string in forceNotInForest:
++		forceNoForest = True
++	if type_string in forceNotInFreshWater:
++		forceNoFresh = True
+ 
+ 	# determine number of bonuses to place (defined as count)
+ 	# size modifier is a fixed component based on world size
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+index b4cc54641..1fa3544af 100644
+--- a/PrivateMaps/Global_Highlands.py
++++ b/PrivateMaps/Global_Highlands.py
+@@ -218,7 +218,8 @@ def generatePlotTypes():
+ 	
+ 	if userInputLandmass == 3: #Random landmass sizes
+ 		grainRoll = 1 + dice.get(7, "Fractal Grain - Global Highlands PYTHON")
+-		if grainRoll > 4: grainRoll -= 4
++		if grainRoll > 4:
++			grainRoll -= 4
+ 		if grainRoll == 4:
+ 			fractal_world.initFractal(polar = True)
+ 			plotTypes = fractal_world.generatePlotTypes(water_percent=75)
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 091d3d7af..80f6e92ef 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -187,12 +187,16 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 				i = y*self.iNumPlotsX + x
+ 				ozarks.append(i)
+ 			leftSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
+-			if leftSeed == 4: leftSeed = 0
+-			if leftSeed == 3: leftSeed = 1
++			if leftSeed == 4:
++				leftSeed = 0
++			if leftSeed == 3:
++				leftSeed = 1
+ 			varLeft += leftSeed
+ 			rightSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
+-			if rightSeed == 4: rightSeed = 0
+-			if rightSeed == 3: rightSeed = 1
++			if rightSeed == 4:
++				rightSeed = 0
++			if rightSeed == 3:
++				rightSeed = 1
+ 			varRight -= rightSeed
+ 		# Second Loop
+ 		varLeft = leftOzark
+@@ -204,12 +208,16 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 				i = y*self.iNumPlotsX + x
+ 				ozarks.append(i)
+ 			leftSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
+-			if leftSeed == 4: leftSeed = 0
+-			if leftSeed == 3: leftSeed = 1
++			if leftSeed == 4:
++				leftSeed = 0
++			if leftSeed == 3:
++				leftSeed = 1
+ 			varLeft += leftSeed
+ 			rightSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
+-			if rightSeed == 4: rightSeed = 0
+-			if rightSeed == 3: rightSeed = 1
++			if rightSeed == 4:
++				rightSeed = 0
++			if rightSeed == 3:
++				rightSeed = 1
+ 			varRight -= rightSeed
+ 		# now define the four easiest regions and append their plots to their plot lists
+ 		NiTextOut("Simulate the Rockies (Python Great Plains) ...")
+@@ -218,8 +226,10 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 				i = y*self.iNumPlotsX + x
+ 				lat = x/float(self.iNumPlotsX)
+ 				lat += (128 - regionsFrac.getHeight(x, y))/(255.0 * 5.0)
+-				if lat < 0: lat = 0.0
+-				if lat > 1: lat = 1.0
++				if lat < 0:
++					lat = 0.0
++				if lat > 1:
++					lat = 1.0
+ 				if y >= south and lat <= plainsWest:
+ 					rockies.append(i)
+ 				elif y < south and lat <= plainsWest:
+@@ -633,12 +643,15 @@ def addBonusType(argsList):
+ 		iH = map.getGridHeight()
+ 
+ 		# init forced-eligibility flags
+-		if (type_string not in resourcesToForce): unforced = True
++		if (type_string not in resourcesToForce):
++			unforced = True
+ 		else: unforced = False
+ 		forceFlats = False
+ 		forceHills = False
+-		if (type_string in forcePlacementOnFlats): forceFlats = True
+-		if (type_string in forcePlacementOnHills): forceHills = True
++		if (type_string in forcePlacementOnFlats):
++			forceFlats = True
++		if (type_string in forcePlacementOnHills):
++			forceHills = True
+ 
+ 		# init bonus in regions. NOTE: a bonus can exist in more than one region!
+ 		inRockies = False
+@@ -647,12 +660,18 @@ def addBonusType(argsList):
+ 		inNorth = False
+ 		inSW = False
+ 		inTexas = False
+-		if (type_string in resourcesInRockies): inRockies = True
+-		if (type_string in resourcesInPlains): inPlains = True
+-		if (type_string in resourcesInEast): inEast = True
+-		if (type_string in resourcesInSW): inSW = True
+-		if (type_string in resourcesInNorth): inNorth = True
+-		if (type_string in resourcesInTexas): inTexas = True
++		if (type_string in resourcesInRockies):
++			inRockies = True
++		if (type_string in resourcesInPlains):
++			inPlains = True
++		if (type_string in resourcesInEast):
++			inEast = True
++		if (type_string in resourcesInSW):
++			inSW = True
++		if (type_string in resourcesInNorth):
++			inNorth = True
++		if (type_string in resourcesInTexas):
++			inTexas = True
+ 
+ 		# Generate buffalo herds (Cows!) all over the Great Plains!
+ 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for regional bonuses.
+@@ -762,12 +781,18 @@ def addBonusType(argsList):
+ 				# tests could be designed and used, including lists.
+ 				long = x/float(iW)
+ 				lat = y/float(iH)
+-				if long <= westlong and lat >= southlat: plotInRockies = True
+-				if long > westlong and long <= eastlong: plotInPlains = True
+-				if long > eastlong: plotInEast = True
+-				if long > westlong and lat > northlat: plotInNorth = True
+-				if long <= westlong and lat < southlat: plotInSW = True
+-				if (long > westlong and long < eastlong) and lat <= texlat: plotInTexas = True
++				if long <= westlong and lat >= southlat:
++					plotInRockies = True
++				if long > westlong and long <= eastlong:
++					plotInPlains = True
++				if long > eastlong:
++					plotInEast = True
++				if long > westlong and lat > northlat:
++					plotInNorth = True
++				if long <= westlong and lat < southlat:
++					plotInSW = True
++				if (long > westlong and long < eastlong) and lat <= texlat:
++					plotInTexas = True
+ 				# Check regional bonus eligibility vs plot membership.
+ 				if (inNorth and plotInNorth):
+ 					pass
+
+diff --git a/PrivateMaps/Islands.py b/PrivateMaps/Islands.py
+index 4b17d53f1..561b87031 100644
+--- a/PrivateMaps/Islands.py
++++ b/PrivateMaps/Islands.py
+@@ -531,7 +531,8 @@ def assignStartingPlots():
+ 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
+ 						iPlotYield += (iFertileCheck - 1)
+ 					iRegionNetYield += iPlotYield
+-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
++					if pPlot.isHills():
++						iRegionNetYield += 1 # Add a bonus point for Hills plots.
+ 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
+ 						iNumLandAreas += 1
+ 						land_areas.append(iArea)
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 3d1c19c43..54a456247 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -709,14 +709,18 @@ def addBonusType(argsList):
+ 			# Can you say "Now That's Corny"? =)
+ 
+ 		# init forced-eligibility flags
+-		if (type_string not in resourcesToForce): unforced = True
++		if (type_string not in resourcesToForce):
++			unforced = True
+ 		else: unforced = False
+ 		forceForest = False
+ 		forceGrass = False
+ 		forceHills = False
+-		if (type_string in forcePlacementInForest): forceForest = True
+-		if (type_string in forcePlacementOnGrass): forceGrass = True
+-		if (type_string in forcePlacementOnHills): forceHills = True
++		if (type_string in forcePlacementInForest):
++			forceForest = True
++		if (type_string in forcePlacementOnGrass):
++			forceGrass = True
++		if (type_string in forcePlacementOnHills):
++			forceHills = True
+ 
+ 		# determine number of bonuses to place (defined as count)
+ 		# size modifier is a fixed component based on world size
+@@ -752,9 +756,12 @@ def addBonusType(argsList):
+ 		inNorth = False
+ 		inOasis = False
+ 		inSouth = False
+-		if (type_string in resourcesInOasis): inOasis = True
+-		if (type_string in resourcesInNorth): inNorth = True
+-		if (type_string in resourcesInSouth): inSouth = True
++		if (type_string in resourcesInOasis):
++			inOasis = True
++		if (type_string in resourcesInNorth):
++			inNorth = True
++		if (type_string in resourcesInSouth):
++			inSouth = True
+ 
+ 		# Set plot eligibility for current bonus.
+ 		# Begin by initiating the list, into which eligible plots will be recorded.
+@@ -782,9 +789,12 @@ def addBonusType(argsList):
+ 				# Oasis is using latitude to check, but other
+ 				# tests could be designed and used, including lists.
+ 				lat = desert.getLatitudeAtPlot(x, y)
+-				if lat >= northlat: plotInNorth = True
+-				if lat < northoasis and lat > southoasis: plotInOasis = True
+-				if lat <= southlat: plotInSouth = True
++				if lat >= northlat:
++					plotInNorth = True
++				if lat < northoasis and lat > southoasis:
++					plotInOasis = True
++				if lat <= southlat:
++					plotInSouth = True
+ 				# Check regional bonus eligibility vs plot membership.
+ 				if (inNorth and plotInNorth):
+ 					pass
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 64474f254..b5a2d1666 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -290,7 +290,8 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		elif pangaea_type == 1: # Pressed Equatorial
+ 			# Define potential subcontinent slots (regional definitions).
+ 			equRoll = self.dice.get(4, "Subcontinents - Pangaea PYTHON")
+-			if equRoll == 3: equRoll = 1 # 50% chance result = 1
++			if equRoll == 3:
++				equRoll = 1 # 50% chance result = 1
+ 			numSubcontinents = 2 + equRoll
+ 			# List values: [westLon, southLat, vertRange, horzRange, southShift]
+ 			scValues = [[0.05, 0.2, 0.2, 0.0, 0.0],
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 61428893d..049c6119b 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -587,12 +587,15 @@ def addBonusType(argsList):
+ 		iH = map.getGridHeight()
+ 
+ 		# init forced-eligibility flags
+-		if (type_string not in resourcesToForce): unforced = True
++		if (type_string not in resourcesToForce):
++			unforced = True
+ 		else: unforced = False
+ 		forceFlats = False
+ 		forceHills = False
+-		if (type_string in forcePlacementOnFlats): forceFlats = True
+-		if (type_string in forcePlacementOnHills): forceHills = True
++		if (type_string in forcePlacementOnFlats):
++			forceFlats = True
++		if (type_string in forcePlacementOnHills):
++			forceHills = True
+ 
+ 		# Generate jungle food
+ 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for forced bonuses.
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index 4c00339be..2b348afc8 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -151,9 +151,12 @@ def getNumCustomMapOptions():
+ #
+ def getCustomMapOptionName(argsList):
+ 	dummy = argsList[0]
+-	if (dummy == 0)  : szName = "TXT_KEY_MAP_SCRIPT_CREATION_METHOD"
+-	elif (dummy == 1): szName = "TXT_KEY_MAP_SCRIPT_AI_START"
+-	elif (dummy == 2): szName = "TXT_KEY_MAP_SCRIPT_PLAYER_START"
++	if (dummy == 0)  :
++		szName = "TXT_KEY_MAP_SCRIPT_CREATION_METHOD"
++	elif (dummy == 1):
++		szName = "TXT_KEY_MAP_SCRIPT_AI_START"
++	elif (dummy == 2):
++		szName = "TXT_KEY_MAP_SCRIPT_PLAYER_START"
+ 	else : szName = "TXT_KEY_MAP_SCRIPT_EXCLUDE_METHOD"
+ 	
+ 	return unicode(CyTranslator().getText(szName, ()))
+@@ -198,9 +201,12 @@ def getCustomMapOptionDescAt(argsList):
+ 			 "TXT_KEY_MAP_SCRIPT_NEAR_COAST",
+ 			 "TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT",
+ 			 "TXT_KEY_MAP_SCRIPT_COASTAL_LARGEST_CONTINENT"]
+-	if (dummy == 0)  : szName = genMethod_names[iSelection]
+-	elif (dummy == 1): szName = startAi_names[iSelection]
+-	elif (dummy == 2): szName = startPl_names[iSelection]
++	if (dummy == 0)  :
++		szName = genMethod_names[iSelection]
++	elif (dummy == 1):
++		szName = startAi_names[iSelection]
++	elif (dummy == 2):
++		szName = startPl_names[iSelection]
+ 	else : szName = exclude_names[iSelection]
+ 	return unicode(CyTranslator().getText(szName, ()))
+ 
+@@ -728,14 +734,16 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+     def generatePlotsByRegion(self, forceCGrain = False):   
+ 
+         cGrain = 2 + self.dice.get(4, "Python, RandomScriptUtil, Conti")
+-        if ( cGrain > 2 ) : cGrain = 2
++        if ( cGrain > 2 ) :
++        	cGrain = 2
+         rGrain = 5
+         sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
+         sea = min(sea, 5)
+         sea = max(sea, -5)
+         iWater = 81 + sea
+ 	mainWater = 76 + sea
+-        if ( forceCGrain ) : cGrain = 2
++        if ( forceCGrain ) :
++        	cGrain = 2
+ 
+         subSlot1 = 5 + self.dice.get(2, "Python, RndScriptUtil, Conti")
+         subSlot2 = 1 + self.dice.get(4, "Python, RndScriptUtil, Conti")
+@@ -1249,7 +1257,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # Now simulate South America
+         nwsRoll = self.dice.get(2, "RandomScriptUtil PYTHON")
+         nwsVar = 0.0
+-        if nwsRoll == 1: nwsVar = 0.05
++        if nwsRoll == 1:
++        	nwsVar = 0.05
+         nwsWestX = nwWestX + int(self.iW * (0.08 - nwsVar))
+         # Not as wide as the north
+         nwsEastX = nwEastX - int(self.iW * (0.03 + nwsVar))
+@@ -1294,7 +1303,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         twWidth = int(self.iW * 0.15)
+         twWestX = nwWestX
+         boreal = self.dice.get(2, "RandomScriptUtil PYTHON")
+-        if boreal == 1: twWestX += int(self.iW * 0.15)
++        if boreal == 1:
++        	twWestX += int(self.iW * 0.15)
+         twEastX = twWestX + twWidth
+         twNorthY = int(self.iH * 0.93)
+         twSouthY = int(self.iH * 0.75)
+@@ -1339,7 +1349,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # Now simulate Central America
+         nwcVar = 0.0
+         nwcRoll = self.dice.get(2, "RandomScriptUtil PYTHON")
+-        if nwcRoll == 1: nwcVar = 0.04
++        if nwcRoll == 1:
++        	nwcVar = 0.04
+         nwcWidth = int(self.iW * 0.06)
+         nwcWestX = nwWestX + int(self.iW * (0.1 + nwcVar))
+         nwcEastX = nwcWestX + nwcWidth
+@@ -1361,7 +1372,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+         # Now the Carribean islands
+         carVar = 0.0
+-        if nwcRoll == 1: carVar = 0.15
++        if nwcRoll == 1:
++        	carVar = 0.15
+         twWidth = int(0.15 * self.iW)
+         twEastX = nwEastX - int(carVar * self.iW)
+         twWestX = twEastX - twWidth
+@@ -1504,7 +1516,8 @@ class R_BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         global xShiftRoll
+         xShiftRoll = self.dice.get(2, "Python, RndMapUtil, Bns")
+         iContinentsGrain = 1 + self.dice.get(3, "Python, RndMapUtil, Bns")
+-        if (iContinentsGrain > 2) : iContinentsGrain = 1
++        if (iContinentsGrain > 2) :
++        	iContinentsGrain = 1
+         iIslandsGrain = 4
+         contiPart = 0.4 + 0.01 * self.dice.get(21, "Python, RndMapUtil, Bns")
+ 	contiShift = 0.0 + 0.01 * self.dice.get(100, "Python, RndMapUtil, Bns")
+@@ -1593,7 +1606,8 @@ class R_MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	yShiftRoll1 = self.dice.get(2, "Python, RndMapUtil, Mns")
+ 	yShiftRoll2 = self.dice.get(4, "Python, RndMapUtil, Mns")
+ 	if ( yShiftRoll2 > 1 ) :
+-		if ( yShiftRoll1 == 0 ) : yShiftRoll2 == 1
++		if ( yShiftRoll1 == 0 ) :
++			yShiftRoll2 == 1
+ 		else : yShiftRoll2 == 0
+ 	iContinentsGrainWest = 1 + self.dice.get(2, "Python, RndMapUtil, Mns")
+ 	iContinentsGrainEast = 1 + self.dice.get(2, "Python, RndMapUtil, Mns") 
+@@ -1868,7 +1882,8 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # Generate 2 or 3 Varied Regions
+         iCGrain_1 = 1 + self.dice.get(2, "Python, RndMapUtil, Hemispheres")
+         iCGrain_2 = 1 + self.dice.get(3, "Python, RndMapUtil, Hemispheres")
+-	if (iCGrain_2 > 2) : iCGrain_2 = 1
++	if (iCGrain_2 > 2) :
++		iCGrain_2 = 1
+         iCGrain_3 = 1 + self.dice.get(3, "Python, RndMapUtil, Hemispheres")
+         iWater_1 = 72 + self.dice.get(5, "Python, RndMapUtil, Hemispheres")
+         iWater_2 = 72 + self.dice.get(9, "Python, RndMapUtil, Hemispheres")
+@@ -1885,7 +1900,8 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         iIslandVariance_3 = self.dice.get(3, "Python, RndMapHelper, Hemi.")
+         
+         regions = 2 + self.dice.get(3, "Python, RndMapUtil, Hemisph.")
+-        if (regions > 3) : regions = 3
++        if (regions > 3) :
++        	regions = 3
+         if (regions == 2):
+             tripleSplit = 0
+         else :
+
+diff --git a/PrivateMaps/Shuffle.py b/PrivateMaps/Shuffle.py
+index d82303977..3a26e5429 100644
+--- a/PrivateMaps/Shuffle.py
++++ b/PrivateMaps/Shuffle.py
+@@ -122,12 +122,14 @@ def generatePlotTypes():
+ 	dice = gc.getGame().getMapRand()
+ 	fractal_world = FractalWorld()
+ 	grainRoll = 1 + dice.get(8, "Fractal Grain - Shuffle PYTHON")
+-	if grainRoll > 5: grainRoll -= 5
++	if grainRoll > 5:
++		grainRoll -= 5
+ 	if grainRoll == 2:
+ 		fractal_world.initFractal(polar = True)
+ 		return fractal_world.generatePlotTypes(water_percent=75)
+ 	else:
+-		if grainRoll == 5: grainRoll -= 3
++		if grainRoll == 5:
++			grainRoll -= 3
+ 		fractal_world.initFractal(continent_grain = grainRoll, rift_grain = -1, has_center_rift = False, polar = True)
+ 		return fractal_world.generatePlotTypes()
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+index e7ff62065..23dc17a6f 100644
+--- a/PrivateMaps/Terra.py
++++ b/PrivateMaps/Terra.py
+@@ -303,7 +303,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		# Now simulate South America
+ 		nwsRoll = self.dice.get(2, "New World South E/W - Terra PYTHON")
+ 		nwsVar = 0.0
+-		if nwsRoll == 1: nwsVar = 0.05
++		if nwsRoll == 1:
++			nwsVar = 0.05
+ 		nwsWestX = nwWestX + int(self.iW * (0.08 - nwsVar)) # Not as wide as the north
+ 		nwsEastX = nwEastX - int(self.iW * (0.03 + nwsVar))
+ 		nwsNorthY = int(self.iH * 0.47)
+@@ -348,7 +349,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		twWidth = int(self.iW * 0.15)
+ 		twWestX = nwWestX
+ 		boreal = self.dice.get(2, "New World North E/W - Terra PYTHON")
+-		if boreal == 1: twWestX += int(self.iW * 0.15)
++		if boreal == 1:
++			twWestX += int(self.iW * 0.15)
+ 		twEastX = twWestX + twWidth
+ 		twNorthY = int(self.iH * 0.93)
+ 		twSouthY = int(self.iH * 0.75)
+@@ -394,7 +396,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+  		# Now simulate Central America
+  		nwcVar = 0.0
+-		if nwsRoll == 1: nwcVar = 0.04
++		if nwsRoll == 1:
++			nwcVar = 0.04
+ 		nwcWidth = int(self.iW * 0.06)
+ 		nwcRoll = self.dice.get(2, "Central America and Carribean Placement - Terra PYTHON")
+ 		nwcWestX = nwWestX + int(self.iW * (0.1 + nwcVar))
+@@ -418,7 +421,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+ 		# Now the Carribean islands
+  		carVar = 0.0
+-		if nwsRoll == 1: carVar = 0.15
++		if nwsRoll == 1:
++			carVar = 0.15
+ 		twWidth = int(0.15 * self.iW)
+ 		twEastX = nwEastX - int(carVar * self.iW)
+ 		twWestX = twEastX - twWidth
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=24774

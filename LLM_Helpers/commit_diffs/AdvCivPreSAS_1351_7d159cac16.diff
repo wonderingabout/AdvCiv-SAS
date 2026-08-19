@@ -1,0 +1,747 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1351
+# Commit: 7d159cac168542a7079e45413122b5353bde93ea
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 70430d909e3021b6bccaaefcac5885a829a12244
+# Title: Misc. changes resulting from a test game with v0.93rc
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+4	4	Assets/XML/Interface/CIV4ColorVals.xml
+20	9	Assets/xml/GameInfo/CIV4WorldInfo.xml
+1	1	CvGameCoreDLL/CvGame.cpp
+7	5	CvGameCoreDLL/CvGameTextMgr.cpp
+10	11	CvGameCoreDLL/CvPlayer.cpp
+132	165	CvGameCoreDLL/CvPlayerAI.cpp
+12	8	CvGameCoreDLL/RiseFall.cpp
+-	-	manual_0.93.odt
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 2733955b1..992515cd2 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -26473,10 +26473,9 @@
+ 			<DomainFreeExperiences/>
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+-			<!-- advc.310: Walls as prereq. Num-Needed refers to Tiny/Duel
+-				 map size; scaled up for other sizes. A change to the
+-				 rounding method in CvPlayer.cpp makes it so that the req.
+-				 number is 2 on Small, Normal, Large and Huge. -->
++			<!-- advc.310: i...Needed refers to Duel map size. Note that
++				 advc.054 changes the map-size adjustment so that 2 Walls are
++				 required on all map sizes above Tiny.  -->
+ 			<PrereqBuildingClasses>
+ 				<PrereqBuildingClass>
+ 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+
+diff --git a/Assets/XML/Interface/CIV4ColorVals.xml b/Assets/XML/Interface/CIV4ColorVals.xml
+index e5119f3d5..89b788301 100644
+--- a/Assets/XML/Interface/CIV4ColorVals.xml
++++ b/Assets/XML/Interface/CIV4ColorVals.xml
+@@ -623,8 +623,8 @@
+ 		</ColorVal>
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_PURPLE_TEXT</Type>
+-			<fRed>0.98</fRed>
+-			<fGreen>0.62</fGreen>
++			<fRed>0.95</fRed>
++			<fGreen>0.58</fGreen>
+ 			<fBlue>1.00</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+@@ -713,8 +713,8 @@
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_LIGHT_YELLOW_TEXT</Type>
+ 			<fRed>0.87</fRed>
+-			<fGreen>0.86</fGreen>
+-			<fBlue>0.45</fBlue>
++			<fGreen>0.87</fGreen>
++			<fBlue>0.63</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<ColorVal>
+
+diff --git a/Assets/xml/GameInfo/CIV4WorldInfo.xml b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+index e779669d4..6a09df57a 100644
+--- a/Assets/xml/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+@@ -25,7 +25,8 @@
+ 			<iResearchPercent>100</iResearchPercent>
+ 			<iTradeProfitPercent>80</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>50</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>45</iNumCitiesMaintenancePercent>
++			<!-- advc.140: was 45 -->
++			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>67</iColonyMaintenancePercent>
+ 			<iCorporationMaintenancePercent>400</iCorporationMaintenancePercent>
+ 			<iNumCitiesAnarchyPercent>11</iNumCitiesAnarchyPercent>
+@@ -50,7 +51,8 @@
+ 			<iResearchPercent>110</iResearchPercent>
+ 			<iTradeProfitPercent>70</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>60</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
++			<!-- advc.140: was 40 -->
++			<iNumCitiesMaintenancePercent>37</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>60</iColonyMaintenancePercent>
+ 			<iCorporationMaintenancePercent>200</iCorporationMaintenancePercent>
+ 			<iNumCitiesAnarchyPercent>10</iNumCitiesAnarchyPercent>
+@@ -75,7 +77,8 @@
+ 			<iResearchPercent>120</iResearchPercent>
+ 			<iTradeProfitPercent>60</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>70</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>35</iNumCitiesMaintenancePercent>
++			<!-- advc.140: was 35 -->
++			<iNumCitiesMaintenancePercent>34</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>52</iColonyMaintenancePercent>
+ 			<iCorporationMaintenancePercent>150</iCorporationMaintenancePercent>
+ 			<iNumCitiesAnarchyPercent>9</iNumCitiesAnarchyPercent>
+@@ -91,7 +94,10 @@
+ 			<iUnitNameModifier>20</iUnitNameModifier>
+ 			<iTargetNumCities>5</iTargetNumCities>
+ 			<iNumFreeBuildingBonuses>5</iNumFreeBuildingBonuses>
+-			<iBuildingClassPrereqModifier>50</iBuildingClassPrereqModifier>
++			<!-- advc.054: Was 50. Doesn't actually make a difference b/c of
++				 rounding and b/c the base number of req. buildings is always
++				 1, 2 or 4 (never 3). -->
++			<iBuildingClassPrereqModifier>38</iBuildingClassPrereqModifier>
+ 			<iMaxConscriptModifier>25</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-10</iWarWearinessModifier>
+ 			<iGridWidth>21</iGridWidth>
+@@ -101,7 +107,8 @@
+ 			<iResearchPercent>130</iResearchPercent>
+ 			<iTradeProfitPercent>50</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>80</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>30</iNumCitiesMaintenancePercent>
++			<!-- advc.140: was 30 -->
++			<iNumCitiesMaintenancePercent>31</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>45</iColonyMaintenancePercent>
+ 			<iCorporationMaintenancePercent>100</iCorporationMaintenancePercent>
+ 			<iNumCitiesAnarchyPercent>8</iNumCitiesAnarchyPercent>
+@@ -116,7 +123,8 @@
+ 			<iUnitNameModifier>10</iUnitNameModifier>
+ 			<iTargetNumCities>6</iTargetNumCities>
+ 			<iNumFreeBuildingBonuses>6</iNumFreeBuildingBonuses>
+-			<iBuildingClassPrereqModifier>75</iBuildingClassPrereqModifier>
++			<!-- advc.054: was 75 -->
++			<iBuildingClassPrereqModifier>50</iBuildingClassPrereqModifier>
+ 			<iMaxConscriptModifier>50</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-30</iWarWearinessModifier>
+ 			<iGridWidth>26</iGridWidth>
+@@ -127,7 +135,8 @@
+ 			<iResearchPercent>150</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>25</iNumCitiesMaintenancePercent>
++			<!-- advc.140: was 25 -->
++			<iNumCitiesMaintenancePercent>28</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>37</iColonyMaintenancePercent>
+ 			<iCorporationMaintenancePercent>75</iCorporationMaintenancePercent>
+ 			<iNumCitiesAnarchyPercent>7</iNumCitiesAnarchyPercent>
+@@ -143,7 +152,8 @@
+ 			<iUnitNameModifier>0</iUnitNameModifier>
+ 			<iTargetNumCities>6</iTargetNumCities>
+ 			<iNumFreeBuildingBonuses>7</iNumFreeBuildingBonuses>
+-			<iBuildingClassPrereqModifier>100</iBuildingClassPrereqModifier>
++			<!-- advc.054: was 100 -->
++			<iBuildingClassPrereqModifier>75</iBuildingClassPrereqModifier>
+ 			<iMaxConscriptModifier>75</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-50</iWarWearinessModifier>
+ 			<iGridWidth>32</iGridWidth>
+@@ -154,7 +164,8 @@
+ 			<iResearchPercent>170</iResearchPercent>
+ 			<iTradeProfitPercent>30</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>20</iNumCitiesMaintenancePercent>
++			<!-- advc.140: was 20 -->
++			<iNumCitiesMaintenancePercent>25</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>30</iColonyMaintenancePercent>
+ 			<iCorporationMaintenancePercent>50</iCorporationMaintenancePercent>
+ 			<iNumCitiesAnarchyPercent>6</iNumCitiesAnarchyPercent>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ccf9ba50a..cb7005dee 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5701,7 +5701,7 @@ void CvGame::setRankPlayer(int iRank, PlayerTypes ePlayer)
+ 
+ 
+ int CvGame::getPlayerRank(PlayerTypes ePlayer) const														 
+-{
++{	// advc.003 (comment): The topmost rank is 0
+ 	FAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+ 	return m_aiPlayerRank[ePlayer];
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e0a6604a8..2ca4b8dbc 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10786,11 +10786,13 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 				if (ePlayer == NO_PLAYER)
+ 				{	// <advc.004y>
+ 					int iLow = kBuilding.getPrereqNumOfBuildingClass((BuildingClassTypes)iI);
+-					int iHigh = iLow * std::max(0, (GC.getWorldInfo(GC.getMapINLINE().
+-							getWorldSize()).getBuildingClassPrereqModifier()
+-							+ 100));
+-					if(iHigh > 100 && iHigh < 200) iHigh = 2; else // advc.310
+-					iHigh /= 100; // </advc.004y>
++					WorldSizeTypes wsz = (WorldSizeTypes)(GC.getNumWorldInfos() - 1);
++					if(ePlayer != NO_PLAYER)
++						wsz = GC.getMapINLINE().getWorldSize();
++					int iHigh = iLow * std::max(0, (GC.getWorldInfo(wsz).
++							getBuildingClassPrereqModifier() + 100));
++					iHigh = (int)::ceil(iHigh / 100.0); // advc.054
++					// </advc.004y>
+ 					CvWString szTempBuffer;
+ 					szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText(
+ 							// <advc.004y>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 90ef86ec9..1238d3e5f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7476,11 +7476,8 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
+ 	BuildingClassTypes eBuildingClass = (BuildingClassTypes)kBuilding.getBuildingClassType();
+ 
+ 	iPrereqs *= std::max(0, (GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getBuildingClassPrereqModifier() + 100));
+-	/*  advc.310: Round up if between 1 and 2. Otherwise, the prereq number can't
+-		ever be 2 in a normal-size world. (The modifier is 50%, and there is
+-		no integer that	yields 2 when increased by 50% and rounded down). */
+-	if(iPrereqs > 100 && iPrereqs < 200) iPrereqs = 2; else
+-	iPrereqs /= 100;
++	//iPrereqs /= 100;
++	iPrereqs = (int)::ceil(iPrereqs / 100.0); // advc.954: Round up
+ 
+ 	if (!isLimitedWonderClass(eBuildingClass))
+ 	{
+@@ -24598,13 +24595,15 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 			case SHOW_HEALTH_RESOURCES:
+ 				bOfInterest = (kBonusInfo.getHappiness() == 0) && (kBonusInfo.getHealth() != 0);
+ 				break;
+-			} // <advc.004z>
+-		}
++			}
++		} // <advc.004z>
++		ImprovementTypes impr = NO_IMPROVEMENT; 
+ 		if(!bOfInterest && eOption == SHOW_ALL_RESOURCES &&
+-				pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
+ 				isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
+ 				GC.getDefineINT("SHOW_GOODY_HUTS_ON_RESOURCE_LAYER") > 0) {
+-			bOfInterest = GC.getImprovementInfo(pLoopPlot->getImprovementType()).isGoody();
++			impr = pLoopPlot->getRevealedImprovementType(getTeam(), false);
++			bOfInterest = (impr != NO_IMPROVEMENT && GC.getImprovementInfo(impr).
++					isGoody());
+ 		} // </advc.004z>
+ 		if (bOfInterest)
+ 		{
+@@ -24612,8 +24611,8 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 			kData.m_strLabel = "RESOURCES";
+ 			kData.m_eVisibility = PLOT_INDICATOR_VISIBLE_ONSCREEN_ONLY;
+ 			kData.m_strIcon = // <advc.004z>
+-					(eCurType == NO_BONUS ? GC.getImprovementInfo(pLoopPlot->
+-					getImprovementType()).getButton() // </advc.004z>
++					(eCurType == NO_BONUS ? GC.getImprovementInfo(impr).
++					getButton() // </advc.004z>
+ 					: GC.getBonusInfo(eCurType).getButton());
+ 
+ 			int x = pLoopPlot->getX();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index aa6537b1a..421d1bb84 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11386,7 +11386,8 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 	{
+ 		if ((pOurList->getLength() == 0) && (pTheirList->getLength() > 0))
+ 		{	// <advc.705>
+-			if(possibleCollusion) {
++			if(possibleCollusion && !g.getRiseFall().isSquareDeal(
++					*pOurList, *pTheirList, getID())) {
+ 				g.getRiseFall().substituteDiploText(true);
+ 				return false;
+ 			}
+@@ -11861,10 +11862,11 @@ bool CvPlayerAI::counterProposeBulk(PlayerTypes ePlayer, const CLinkList<TradeDa
+ 	CvGame const& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) && GET_PLAYER(ePlayer).isHuman()) {
+ 		if(g.getRiseFall().isCooperationRestricted(getID())) {
+-			double thresh = g.getRiseFall().dealThresh(isAnnualDeal(*pOurList));
+-			if(bDeal && g.getRiseFall().pessimisticDealVal(
+-					getID(), iValueForThem, *pOurList) / (iValueForUs + 0.01) <
+-					thresh)
++			CLinkList<TradeData> const& ourListCounter =
++					(pOurList->getLength() <= 0 ? *pOurCounter : *pOurList);
++			double thresh = g.getRiseFall().dealThresh(isAnnualDeal(ourListCounter));
++			if(bDeal && g.getRiseFall().pessimisticDealVal(getID(), iValueForThem,
++					ourListCounter) / (iValueForUs + 0.01) < thresh)
+ 				bDeal = (g.getRiseFall().isSquareDeal(*pOurList, *pTheirList, getID()) &&
+ 						 g.getRiseFall().isSquareDeal(*pOurCounter, *pTheirCounter, getID()));
+ 		}
+@@ -17985,44 +17987,39 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ {
+ 	TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
+ 
+-	if (eTargetPlayer == NO_PLAYER)
+-	{
++	if(eTargetPlayer == NO_PLAYER ||
++			!canDoEspionageMission(eMission, eTargetPlayer, pPlot, iData, NULL))
+ 		return 0;
+-	}
+-
+-	//int iCost = getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iData);
+-
+-	if (!canDoEspionageMission(eMission, eTargetPlayer, pPlot, iData, NULL))
+-	{
++	// <advc.003> I'm removing the other pPlot checks in this function
++	if(pPlot == NULL) {
++		FAssert(pPlot != NULL);
+ 		return 0;
+ 	}
+-
+-	bool bMalicious = AI_isMaliciousEspionageTarget(eTargetPlayer);
++	CvCity* const pCity = pPlot->getPlotCity(); // </advc.003>
++	bool const bMalicious = AI_isMaliciousEspionageTarget(eTargetPlayer);
++	bool const bDisorder = (pCity != NULL && pCity->isDisorder()); // advc.120b
+ 
+ 	int iValue = 0;
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).isDestroyImprovement())
+ 	{
+-		if (NULL != pPlot)
++		if (pPlot->getOwnerINLINE() == eTargetPlayer)
+ 		{
+-			if (pPlot->getOwnerINLINE() == eTargetPlayer)
++			ImprovementTypes eImprovement = pPlot->getImprovementType();
++			if (eImprovement != NO_IMPROVEMENT)
+ 			{
+-				ImprovementTypes eImprovement = pPlot->getImprovementType();
+-				if (eImprovement != NO_IMPROVEMENT)
++				BonusTypes eBonus = pPlot->getNonObsoleteBonusType(GET_PLAYER(eTargetPlayer).getTeam());
++				if (NO_BONUS != eBonus)
+ 				{
+-					BonusTypes eBonus = pPlot->getNonObsoleteBonusType(GET_PLAYER(eTargetPlayer).getTeam());
+-					if (NO_BONUS != eBonus)
+-					{
+-						iValue += 2*GET_PLAYER(eTargetPlayer).AI_bonusVal(eBonus, -1); // was 1*
++					iValue += 2*GET_PLAYER(eTargetPlayer).AI_bonusVal(eBonus, -1); // was 1*
+ 
+-						int iTempValue = 0;
+-						if (NULL != pPlot->getWorkingCity())
+-						{
+-							iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, pPlot->getOwnerINLINE()) * 2);
+-							iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_PRODUCTION, pPlot->getOwnerINLINE()) * 1);
+-							iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_COMMERCE, pPlot->getOwnerINLINE()) * 2);
+-							iTempValue += GC.getImprovementInfo(eImprovement).getUpgradeTime() / 2;
+-							iValue += iTempValue;
+-						}
++					int iTempValue = 0;
++					if (NULL != pPlot->getWorkingCity())
++					{
++						iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, pPlot->getOwnerINLINE()) * 2);
++						iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_PRODUCTION, pPlot->getOwnerINLINE()) * 1);
++						iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_COMMERCE, pPlot->getOwnerINLINE()) * 2);
++						iTempValue += GC.getImprovementInfo(eImprovement).getUpgradeTime() / 2;
++						iValue += iTempValue;
+ 					}
+ 				}
+ 			}
+@@ -18034,26 +18031,20 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		FAssert(iData >= 0 && iData < GC.getNumBuildingInfos());
+ 		if (canSpyDestroyBuilding(eTargetPlayer, (BuildingTypes)iData))
+ 		{
+-			if (NULL != pPlot)
++			if (NULL != pCity)
+ 			{
+-				CvCity* pCity = pPlot->getPlotCity();
+-
+-				if (NULL != pCity)
++				if (pCity->getNumRealBuilding((BuildingTypes)iData) > 0)
+ 				{
+-					if (pCity->getNumRealBuilding((BuildingTypes)iData) > 0)
++					CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
++					if (!bDisorder) // K-Mod: disorder messes up the evaluation of production and of building value. That's the only reason for this condition.
+ 					{
+-						CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
+-						// K-Mod
+-						if (!pCity->isDisorder()) // disorder messes up the evaluation of production and of building value. That's the only reason for this condition.
+-						{
+-							// Note: I'm not allowing recursion in the building evaluation.
+-							// This may cause the cached value to be inaccurate, but it doesn't really matter, because the building is already built!
+-							// (AI_buildingValue gives units of 4x commerce/turn)
+-							iValue += kBuilding.getProductionCost() / 2;
+-							iValue += (2 + pCity->getProductionTurnsLeft((BuildingTypes)iData, 1)) * pCity->AI_buildingValue((BuildingTypes)iData, 0, 0, false, false) / 5;
+-						}
+-						// K-Mod end
++						// Note: I'm not allowing recursion in the building evaluation.
++						// This may cause the cached value to be inaccurate, but it doesn't really matter, because the building is already built!
++						// (AI_buildingValue gives units of 4x commerce/turn)
++						iValue += kBuilding.getProductionCost() / 2;
++						iValue += (2 + pCity->getProductionTurnsLeft((BuildingTypes)iData, 1)) * pCity->AI_buildingValue((BuildingTypes)iData, 0, 0, false, false) / 5;
+ 					}
++					// K-Mod end
+ 				}
+ 			}
+ 		}
+@@ -18072,76 +18063,69 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getDestroyProductionCostFactor() > 0)
+ 	{
+-		if (NULL != pPlot)
++		FAssert(pCity != NULL);
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-			FAssert(pCity != NULL);
+-			if (pCity != NULL)
++			int iTempValue = pCity->getProduction();
++			if (iTempValue > 0)
+ 			{
+-				int iTempValue = pCity->getProduction();
+-				if (iTempValue > 0)
++				if (pCity->getProductionProject() != NO_PROJECT)
+ 				{
+-					if (pCity->getProductionProject() != NO_PROJECT)
+-					{
+-						CvProjectInfo& kProject = GC.getProjectInfo(pCity->getProductionProject());
+-						iValue += iTempValue * ((kProject.getMaxTeamInstances() == 1) ? 6 : 3);	// was 4 : 2
+-					}
+-					else if (pCity->getProductionBuilding() != NO_BUILDING)
+-					{
+-						CvBuildingInfo& kBuilding = GC.getBuildingInfo(pCity->getProductionBuilding());
+-						if (isWorldWonderClass((BuildingClassTypes)kBuilding.getBuildingClassType()))
+-						{
+-							iValue += 3 * iTempValue;
+-						}
+-						iValue += iTempValue;
+-					}
+-					else
++					CvProjectInfo& kProject = GC.getProjectInfo(pCity->getProductionProject());
++					iValue += iTempValue * ((kProject.getMaxTeamInstances() == 1) ? 6 : 3);	// was 4 : 2
++				}
++				else if (pCity->getProductionBuilding() != NO_BUILDING)
++				{
++					CvBuildingInfo& kBuilding = GC.getBuildingInfo(pCity->getProductionBuilding());
++					if (isWorldWonderClass((BuildingClassTypes)kBuilding.getBuildingClassType()))
+ 					{
+-						iValue += iTempValue;
++						iValue += 3 * iTempValue;
+ 					}
++					iValue += iTempValue;
++				}
++				else
++				{
++					iValue += iTempValue;
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+ 
+-	if (bMalicious && (GC.getEspionageMissionInfo(eMission).getDestroyUnitCostFactor() > 0 || GC.getEspionageMissionInfo(eMission).getBuyUnitCostFactor() > 0) )
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getDestroyUnitCostFactor() > 0 || GC.getEspionageMissionInfo(eMission).getBuyUnitCostFactor() > 0 )
+ 	{
+-		if (NULL != pPlot)
+-		{
+-			CvUnit* pUnit = GET_PLAYER(eTargetPlayer).getUnit(iData);
++		CvUnit* pUnit = GET_PLAYER(eTargetPlayer).getUnit(iData);
+ 
+-			if (NULL != pUnit)
+-			{
+-				UnitTypes eUnit = pUnit->getUnitType();
++		if (NULL != pUnit)
++		{
++			UnitTypes eUnit = pUnit->getUnitType();
+ 
+-				iValue += GET_PLAYER(eTargetPlayer).AI_unitValue(eUnit, (UnitAITypes)GC.getUnitInfo(eUnit).getDefaultUnitAIType(), pUnit->area());
++			iValue += GET_PLAYER(eTargetPlayer).AI_unitValue(eUnit, (UnitAITypes)GC.getUnitInfo(eUnit).getDefaultUnitAIType(), pUnit->area());
+ 
+-				if (GC.getEspionageMissionInfo(eMission).getBuyUnitCostFactor() > 0)
++			if (GC.getEspionageMissionInfo(eMission).getBuyUnitCostFactor() > 0)
++			{
++				/*if (!canTrain(eUnit) || getProductionNeeded(eUnit) > iCost)
+ 				{
+-					/*if (!canTrain(eUnit) || getProductionNeeded(eUnit) > iCost)
+-					{
+-						iValue += AI_unitValue(eUnit, (UnitAITypes)GC.getUnitInfo(eUnit).getDefaultUnitAIType(), pUnit->area());
+-					}*/
+-					// K-Mod. AI_unitValue is a relative rating value. It shouldn't be used for this.
+-					// (The espionage mission is not enabled anyway, so I'm not going to put a lot of effort into it.)
+-					iValue += GC.getUnitInfo(eUnit).getProductionCost() * (canTrain(eUnit) ? 4 : 8); // kmodx: Parentheses added; not sure if needed
+-					//
+-				}
++				iValue += AI_unitValue(eUnit, (UnitAITypes)GC.getUnitInfo(eUnit).getDefaultUnitAIType(), pUnit->area());
++				}*/
++				// K-Mod. AI_unitValue is a relative rating value. It shouldn't be used for this.
++				// (The espionage mission is not enabled anyway, so I'm not going to put a lot of effort into it.)
++				iValue += GC.getUnitInfo(eUnit).getProductionCost() * (canTrain(eUnit) ? 4 : 8); // kmodx: Parentheses added; not sure if needed
++				//
+ 			}
+ 		}
+ 	}
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes() > 0)
+ 	{
+-		if( pPlot != NULL && pPlot->getPlotCity() != NULL )
++		if(pCity != NULL)
+ 		{
+ 			/* int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;
+ 			iGoldStolen *= pPlot->getPlotCity()->getPopulation();
+ 			iGoldStolen /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
+ 			iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));*/
+ 			// K-Mod
+-			int iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pPlot->getPlotCity());
++			int iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 			iValue += (GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble() ? 6 : 4) * iGoldStolen;
+ 		}
+ 	}
+@@ -18166,119 +18150,102 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getBuyCityCostFactor() > 0)
+ 	{
+-		if (NULL != pPlot)
++		if (NULL != pCity)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-
+-			if (NULL != pCity)
+-			{
+-				iValue += AI_cityTradeVal(pCity);
+-			}
++			iValue += AI_cityTradeVal(pCity);
+ 		}
+ 	}
+ 
+ 	if (GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() > 0)
+ 	{
+-		if (NULL != pPlot)
++		if (NULL != pCity)
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
+-			if (NULL != pCity)
++			if (pCity->getOwner() != getID())
+ 			{
+-				if (pCity->getOwner() != getID())
++				int iCultureAmount = GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() * pPlot->getCulture(getID());
++				iCultureAmount /= 100;
++				/* if (pCity->calculateCulturePercent(getID()) > 40)
+ 				{
+-					int iCultureAmount = GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() * pPlot->getCulture(getID());
+-					iCultureAmount /= 100;
+-					/* if (pCity->calculateCulturePercent(getID()) > 40)
+-					{
+-						iValue += iCultureAmount * 3;
+-					}*/
+-					// K-Mod - both offensive & defensive use of spread culture mission. (The first "if" is really just for effeciency.)
+-					if (pCity->calculateCulturePercent(getID()) >= 8)
++				iValue += iCultureAmount * 3;
++				}*/
++				// K-Mod - both offensive & defensive use of spread culture mission. (The first "if" is really just for effeciency.)
++				if (pCity->calculateCulturePercent(getID()) >= 8)
++				{
++					const CvCity* pOurClosestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), getID());
++					if (pOurClosestCity != NULL)
+ 					{
+-						const CvCity* pOurClosestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), getID());
+-						if (pOurClosestCity != NULL)
++						int iDistance = pCity->cultureDistance(xDistance(pPlot->getX(), pOurClosestCity->getX()), yDistance(pPlot->getY(), pOurClosestCity->getY()));
++						if (iDistance < 6)
+ 						{
+-							int iDistance = pCity->cultureDistance(xDistance(pPlot->getX(), pOurClosestCity->getX()), yDistance(pPlot->getY(), pOurClosestCity->getY()));
+-							if (iDistance < 6)
+-							{
+-								int iPressure = std::max(pCity->AI_culturePressureFactor() - 100, pOurClosestCity->AI_culturePressureFactor());
+-								int iMultiplier = std::min(2, (6 - iDistance) * iPressure / 500);
+-								iValue += iCultureAmount * iMultiplier;
+-							}
++							int iPressure = std::max(pCity->AI_culturePressureFactor() - 100, pOurClosestCity->AI_culturePressureFactor());
++							int iMultiplier = std::min(2, (6 - iDistance) * iPressure / 500);
++							iValue += iCultureAmount * iMultiplier;
+ 						}
+ 					}
+-					// K-Mod end
+ 				}
++				// K-Mod end
+ 			}
+ 		}
+ 	}
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter() > 0)
+ 	{
+-		if (NULL != pPlot)
++		if (NULL != pCity &&
++				!bDisorder) // advc.120b
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
++			int iCityHealth = pCity->goodHealth() - pCity->badHealth(false, 0);
++			//int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter();
++			int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter() - std::max(pCity->getOccupationTimer(), GET_PLAYER(eTargetPlayer).getAnarchyTurns());
+ 
+-			if (NULL != pCity)
+-			{
+-				int iCityHealth = pCity->goodHealth() - pCity->badHealth(false, 0);
+-				//int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter();
+-				int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter() - std::max(pCity->getOccupationTimer(), GET_PLAYER(eTargetPlayer).getAnarchyTurns());
+-
+-				// K-Mod: fixing some "wtf".
+-				/*
+-				int iAvgFoodShortage = std::max(0, iBaseUnhealth - iCityHealth) - pCity->foodDifference();
+-				iAvgFoodShortage += std::max(0, iBaseUnhealth/2 - iCityHealth) - pCity->foodDifference();
++			// K-Mod: fixing some "wtf".
++			/*
++			int iAvgFoodShortage = std::max(0, iBaseUnhealth - iCityHealth) - pCity->foodDifference();
++			iAvgFoodShortage += std::max(0, iBaseUnhealth/2 - iCityHealth) - pCity->foodDifference();
+ 
+-				iAvgFoodShortage /= 2;
++			iAvgFoodShortage /= 2;
+ 
+-				if( iAvgFoodShortage > 0 )
+-				{
+-					iValue += 8 * iAvgFoodShortage * iAvgFoodShortage;
+-				}*/
+-				int iAvgFoodShortage = (std::max(0, iBaseUnhealth - iCityHealth) + std::max(0, -iCityHealth))/2 - pCity->foodDifference(true, true);
++			if( iAvgFoodShortage > 0 )
++			{
++			iValue += 8 * iAvgFoodShortage * iAvgFoodShortage;
++			}*/
++			int iAvgFoodShortage = (std::max(0, iBaseUnhealth - iCityHealth) + std::max(0, -iCityHealth))/2 - pCity->foodDifference(true, true);
+ 
+-				if (iAvgFoodShortage > 0)
+-				{
+-					iValue += 3 * iAvgFoodShortage * iBaseUnhealth;
+-					/*  advc.160: Prefer large cities w/o Granaries.
+-						Too little impact?
+-						iValue could be sth. like 100, threshold e.g. 30,
+-						food kept 12. */
+-					iValue += pCity->growthThreshold() - pCity->getFoodKept();
+-				}
+-				// K-Mod end
++			if (iAvgFoodShortage > 0)
++			{
++				iValue += 3 * iAvgFoodShortage * iBaseUnhealth;
++				/*  advc.160: Prefer large cities w/o Granaries.
++				Too little impact?
++				iValue could be sth. like 100, threshold e.g. 30,
++				food kept 12. */
++				iValue += pCity->growthThreshold() - pCity->getFoodKept();
+ 			}
++			// K-Mod end
+ 		}
+ 	}
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter() > 0)
+ 	{
+-		if (NULL != pPlot)
++		if (NULL != pCity &&
++				!bDisorder) // advc.120b
+ 		{
+-			CvCity* pCity = pPlot->getPlotCity();
++			int iCityCurAngerLevel = pCity->happyLevel() - pCity->unhappyLevel(0);
++			//int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter();
++			// K-Mod
++			int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter() - std::max(pCity->getOccupationTimer(), GET_PLAYER(eTargetPlayer).getAnarchyTurns());
++			// K-Mod end
++			int iAvgUnhappy = iCityCurAngerLevel - iBaseAnger/2;
+ 
+-			if (NULL != pCity)
++			if (iAvgUnhappy < 0)
+ 			{
+-				int iCityCurAngerLevel = pCity->happyLevel() - pCity->unhappyLevel(0);
+-				//int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter();
+-				// K-Mod
+-				int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter() - std::max(pCity->getOccupationTimer(), GET_PLAYER(eTargetPlayer).getAnarchyTurns());
+-				// K-Mod end
+-				int iAvgUnhappy = iCityCurAngerLevel - iBaseAnger/2;
+-				
+-				if (iAvgUnhappy < 0)
+-				{
+-					iValue += 7 * abs(iAvgUnhappy) * iBaseAnger;// down from 14
+-				}
++				iValue += 7 * abs(iAvgUnhappy) * iBaseAnger;// down from 14
+ 			}
+ 		}
+ 	}
+ 
+-	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityRevoltCounter() > 0)
++	/*if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityRevoltCounter() > 0)
+ 	{
+ 		// Handled elsewhere
+-	}
++	}*/
+ 
+ 	if (GC.getEspionageMissionInfo(eMission).getBuyTechCostFactor() > 0)
+ 	{
+@@ -18308,10 +18275,10 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		iValue += AI_religionTradeVal((ReligionTypes)iData, eTargetPlayer);
+ 	}
+ 
+-	if (bMalicious && GC.getEspionageMissionInfo(eMission).getPlayerAnarchyCounter() > 0)
++	/*if (bMalicious && GC.getEspionageMissionInfo(eMission).getPlayerAnarchyCounter() > 0)
+ 	{
+ 		// AI doesn't use Player Anarchy
+-	}
++	}*/
+ 
+ 	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 5e8507f4d..79bca3d38 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -753,11 +753,17 @@ bool RiseFall::isCooperationRestricted(PlayerTypes aiCiv) const {
+ 			prevChCiv = chapters[currentChPos - 1]->getCiv();
+ 		return prevChCiv == aiCiv;
+ 	}
+-	// Assume that each civ is played only once
+ 	for(int i = 0; i <= currentChPos; i++)
+-		if(chapters[i]->isScored() && chapters[i]->getCiv() == aiCiv)
+-			return false;
+-	return true;
++		if(chapters[i]->getCiv() == aiCiv)
++			return !chapters[i]->isScored();
++	if(GET_PLAYER(aiCiv).AI_isDoVictoryStrategyLevel3())
++		return true;
++	CvGame const& g = GC.getGameINLINE();
++	if(g.getCurrentEra() >= 4)
++		return true;
++	int const iRank = g.getPlayerRank(aiCiv);
++	int const iKnown = TEAMREF(human).getHasMetCivCount() + 1; // +1 for human
++	return (iRank >= iKnown / 2);
+ }
+ 
+ RFChapter* RiseFall::mostRecentlyFinished() const {
+@@ -1273,9 +1279,7 @@ bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
+ 			allVassal = false;
+ 		if(item == TRADE_CITIES) {
+ 			CvCity* c = GET_PLAYER(from).getCity(node->m_data.m_iData);
+-			if(c == NULL)
+-				allLiberation = false;
+-			else if(c->getLiberationPlayer(false) == to)
++			if(c == NULL || c->getLiberationPlayer(false) != to)
+ 				allLiberation = false;
+ 		}
+ 		else allLiberation = false;
+@@ -1340,7 +1344,7 @@ int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
+ 
+ double RiseFall::dealThresh(bool annual) const {
+ 
+-	if(annual) // Resource trades are less problematic
++	if(annual) // Resource trades (and peace treaties) are less problematic
+ 		return 0.35;
+ 	return 0.65;
+ }
+
+[PATCH OMITTED] file=a/manual_0.93.odt b/manual_0.93.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=31084

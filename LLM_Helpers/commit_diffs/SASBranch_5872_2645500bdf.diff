@@ -1,0 +1,95 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5872
+# Commit: 2645500bdfb1e40d3556df824b49e745e8c336a2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0b6e67ef0e6b94cf798fd6ae784205e4bc58e9fe
+# Title: fix ruff E701 - pass 4
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	13	PrivateMaps/RandomScriptMap.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index 2b348afc8..4bffacc3b 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -166,9 +166,12 @@ def getCustomMapOptionName(argsList):
+ #
+ def getNumCustomMapOptionValues(argsList):
+ 	dummy = argsList[0]
+-	if (dummy == 0)  : return 8 # Force Script
+-	elif (dummy == 1): return 3 # AI Start
+-	elif (dummy == 2): return 4 # Player Start
++	if (dummy == 0)  :
++		return 8 # Force Script
++	elif (dummy == 1):
++		return 3 # AI Start
++	elif (dummy == 2):
++		return 4 # Player Start
+ 	else : return 8             # Excludes
+ 
+ #-----------------------------------------------------------------------------
+@@ -215,9 +218,12 @@ def getCustomMapOptionDescAt(argsList):
+ #
+ def isRandomCustomMapOption(argsList):
+ 	dummy = argsList[0]
+-	if (dummy == 0)   : return False
+-	elif (dummy == 1) : return False
+-	elif (dummy == 2) : return False
++	if (dummy == 0)   :
++		return False
++	elif (dummy == 1) :
++		return False
++	elif (dummy == 2) :
++		return False
+ 	else: return True
+ 	return True
+ #-----------------------------------------------------------------------------
+@@ -226,12 +232,18 @@ def isRandomCustomMapOption(argsList):
+ #
+ def getCustomMapOptionDefault(argsList):
+ 	dummy = argsList[0]
+-	if (dummy == 0)  : return c_genMethodDefault
+-	elif (dummy == 1): return c_aiStartDefault
+-	elif (dummy == 2): return c_plStartDefault
+-	elif (dummy == 3): return c_exclude1Default
+-	elif (dummy == 4): return c_exclude2Default
+-	elif (dummy == 5): return c_exclude3Default
++	if (dummy == 0)  :
++		return c_genMethodDefault
++	elif (dummy == 1):
++		return c_aiStartDefault
++	elif (dummy == 2):
++		return c_plStartDefault
++	elif (dummy == 3):
++		return c_exclude1Default
++	elif (dummy == 4):
++		return c_exclude2Default
++	elif (dummy == 5):
++		return c_exclude3Default
+ 	else : return 0
+ 	return 0
+ 
+@@ -1831,7 +1843,8 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+     def generateIslandRegion(self, numTinies,
+                              iWestX, iSouthY,
+                              iWidth, iHeight):
+-        if ( numTinies == 0 ) : return 0
++        if ( numTinies == 0 ) :
++        	return 0
+         for tiny_loop in range(numTinies):
+             vVariance = 0.01 * self.dice.get(9, "Python, RndMapUtil, Hemi.")
+             hVariance = 0.01 * self.dice.get(9, "Python, RndMapUtil, Hemi.")
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2423

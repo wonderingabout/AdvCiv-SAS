@@ -1,0 +1,288 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2859
+# Commit: e11fde368111ff6aff4323edbe07c526f793deca
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: efdd74fc19a7383d3dd9ad61cb39d402c00c7d73
+# Title: Some more (minor) refactoring in FVariableSystem
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	11	CvGameCoreDLL/CvDiploParameters.cpp
+11	4	CvGameCoreDLL/CvDiploParameters.h
+16	7	CvGameCoreDLL/FVariableSystem.h
+20	26	CvGameCoreDLL/FVariableSystem.inl
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.cpp b/CvGameCoreDLL/CvDiploParameters.cpp
+index 11ae40aa7..f3d1073f8 100644
+--- a/CvGameCoreDLL/CvDiploParameters.cpp
++++ b/CvGameCoreDLL/CvDiploParameters.cpp
+@@ -97,16 +97,12 @@ SET_DIPLO_COMMENT_ARGS
+ void CvDiploParameters::setDiploComment(DiploCommentTypes eCommentType, int arg1, int arg2, int arg3)
+ SET_DIPLO_COMMENT_ARGS
+ 
+-void CvDiploParameters::setDiploComment(DiploCommentTypes eCommentType, const std::vector<FVariable>* args)
++void CvDiploParameters::setDiploComment(DiploCommentTypes eCommentType,
++	std::vector<FVariable> const* pArgs)
+ {
+ 	m_eCommentType = eCommentType;
+-	if (args)
+-		m_diploCommentArgs = *args;
+-}
+-
+-DiploCommentTypes CvDiploParameters::getDiploComment() const
+-{
+-	return m_eCommentType;
++	if (pArgs != NULL)
++		m_diploCommentArgs = *pArgs;
+ }
+ 
+ void CvDiploParameters::setOurOfferList(CLinkList<TradeData> const& kOurOffer)
+@@ -216,13 +212,12 @@ const wchar* CvDiploParameters::getChatText() const
+ 	return m_szChatText;
+ }
+ 
+-
+ void CvDiploParameters::read(FDataStreamBase& stream)
+ {
+-	int iType;
+-	uint uiFlag=0;
++	uint uiFlag;
+ 	stream.Read(&uiFlag);
+ 
++	int iType;
+ 	stream.Read(&iType);
+ 	m_eWhoTalkingTo = (PlayerTypes)iType;
+ 	stream.Read(&iType);
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.h b/CvGameCoreDLL/CvDiploParameters.h
+index a4346ae79..2073ee3cd 100644
+--- a/CvGameCoreDLL/CvDiploParameters.h
++++ b/CvGameCoreDLL/CvDiploParameters.h
+@@ -13,7 +13,8 @@ public:
+ 	DllExport void setWhoTalkingTo(PlayerTypes eWhoTalkingTo);
+ 	DllExport PlayerTypes getWhoTalkingTo() const;
+ 
+-	void setDiploComment(DiploCommentTypes eCommentType, const std::vector<FVariable>* args=NULL);
++	void setDiploComment(DiploCommentTypes eCommentType,
++			std::vector<FVariable> const* pArgs = NULL);
+ 
+ 	// allow 3 args either int or string.  can't really use va_argslist here
+ 	void setDiploComment(DiploCommentTypes eCommentType, CvWString  arg1, CvWString  arg2="", CvWString  arg3="");
+@@ -25,7 +26,10 @@ public:
+ 	void setDiploComment(DiploCommentTypes eCommentType, int arg1, int arg2=MAX_INT, CvWString  arg3="");
+ 	void setDiploComment(DiploCommentTypes eCommentType, int arg1, int arg2, int arg3=MAX_INT);
+ 
+-	DllExport DiploCommentTypes getDiploComment() const;
++	DllExport DiploCommentTypes getDiploComment() const
++	{
++		return m_eCommentType; // advc.inl
++	}
+ 	DllExport void setOurOfferList(CLinkList<TradeData> const& kOurOffer);
+ 	DllExport const CLinkList<TradeData>& getOurOfferList() const;
+ 	DllExport void setTheirOfferList(CLinkList<TradeData> const& kTheirOffer);
+@@ -46,13 +50,16 @@ public:
+ 	DllExport bool getTheirOffering() const;
+ 	DllExport void setChatText(const wchar* szText);
+ 	DllExport const wchar* getChatText() const;
+-	const std::vector<FVariable>& getDiploCommentArgs() const { return m_diploCommentArgs; }
++	/*	advc.003k (note): Unused. I don't know how the EXE accesses
++		m_diploCommentArgs; not through read/write either. memcopy I guess? */
++	std::vector<FVariable> const& getDiploCommentArgs() const { return m_diploCommentArgs; }
+ 	/*	advc (note): These two get called externally when a human-to-human trade
+ 		is offered in a hotseat game. They get called internally when creating a savegame. */
+ 	DllExport void read(FDataStreamBase& stream);
+ 	DllExport void write(FDataStreamBase& stream) const;
+ 
+-private: // advc.003k (warning): It's not safe to add data members to this class!
++private: /*	advc.003k (warning): It's not safe to add data members to this class,
++			nor to rearrange the existing members! */
+ 	PlayerTypes m_eWhoTalkingTo;
+ 	DiploCommentTypes m_eCommentType;
+ 	CLinkList<TradeData> m_ourOffer;
+
+diff --git a/CvGameCoreDLL/FVariableSystem.h b/CvGameCoreDLL/FVariableSystem.h
+index 301e9d2d2..360efa360 100644
+--- a/CvGameCoreDLL/FVariableSystem.h
++++ b/CvGameCoreDLL/FVariableSystem.h
+@@ -48,8 +48,8 @@ public:
+ 		return *this;
+ 	}
+ 	void CopyFrom(const FVariable& varSrc);
+-	void Read(FDataStreamBase *);
+-	void Write(FDataStreamBase *) const;
++	void Read(FDataStreamBase* pStream);
++	void Write(FDataStreamBase* pSTream) const;
+ 
+ 	/*	<advc> Not nice, but gets rid of even more clutter in FVariableSystem.
+ 		If we want e.g.
+@@ -150,7 +150,14 @@ public:
+ 		char*		m_szValue;
+ 		wchar*		m_wszValue;
+ 	}; // advc.003k: Memory layout mustn't change, i.e. m_eType needs to come last.
+-	eVariableType	m_eType;		// The type of data contained in this variable/*	Creates a system in which variables can be added/removed/queried/modified at runtime.
++	eVariableType	m_eType;		// The type of data contained in this variable
++};
++BOOST_STATIC_ASSERT(sizeof(FVariable) == 24); // advc.003k
++// (Looks like the union takes up 16 byte - weird; plus 4 byte of padding after m_eType.)
++
++typedef stdext::hash_map<std::string, FVariable*> FVariableHash;
++
++/*	Creates a system in which variables can be added/removed/queried/modified at runtime.
+ 	This should be used when the application is managing variable data obtained
+ 	from/exposed to an external source. For example, if variables are read from an XML file,
+ 	and the variable names are not known beforehand, this system can manage them. */
+@@ -168,14 +175,14 @@ public:
+ 		Returns true if the variable value was retrieved,
+ 		false otherwise (value will be unchanged from input). */
+ 	bool GetValue(char const* szVariable, float& fValue) const;
+-	bool GetValue(char const* szVariable, double& dValue) const;
+-	template<typename T> // advc
++	bool GetValue(char const* szVariable, double& dValue) const; // (unused)
++	template<typename T> // advc (used only for T=int, T=char const*)
+ 	bool GetValue(char const* szVariable, T& tValue) const;
+ 	/*	Gets a pointer to the variable object that contains the given variable.
+ 		szVariable: The name of the variable to obtain.
+ 		Returns a pointer to the requested FVariable, or
+ 		NULL if the variable does not exist. */
+-	FVariable const* GetVariable(char const* szVariable) const;
++	FVariable const* GetVariable(char const* szVariable) const; // (unused)
+ 
+ 	/*	Variable additions/modifiers. If a variable does not exist, it will be added.
+ 		Creates (or modifies) a variable with the given name and sets it value.
+@@ -184,11 +191,13 @@ public:
+ 	template<typename T> // advc
+ 	void SetValue(char const* szVariable, T tValue);
+ 
++	// advc (note): The rest of the functions are unused ...
++
+ 	/*	Removes a variable from the system.
+ 		szVariable: The name of the variable to remove.
+ 		Returns true if the variable was removed,
+ 		false otherwise (probably does not exist). */
+-	bool RemValue(char const* szVariable); // Variable removal
++	bool RemValue(char const* szVariable);
+ 
+ 	// Iteration
+ 	/*	Gets the name of the "first" variable in the system.
+
+diff --git a/CvGameCoreDLL/FVariableSystem.inl b/CvGameCoreDLL/FVariableSystem.inl
+index b322b5d13..d4247c3ad 100644
+--- a/CvGameCoreDLL/FVariableSystem.inl
++++ b/CvGameCoreDLL/FVariableSystem.inl
+@@ -19,17 +19,16 @@ inline FVariable::~FVariable()
+ 
+ inline void FVariable::CopyFrom(FVariable const& varSrc)
+ {
+-	if (varSrc.m_eType == FVARTYPE_STRING && varSrc.m_szValue)
++	if (varSrc.m_eType == FVARTYPE_STRING && varSrc.m_szValue != 0)
+ 	{
+ 		// copy string to new allocation
+-		m_szValue = new char[strlen(varSrc.m_szValue)+1];
++		m_szValue = new char[strlen(varSrc.m_szValue) + 1];
+ 		strcpy(m_szValue, varSrc.m_szValue);
+ 	}
+-	else
+-	if (varSrc.m_eType == FVARTYPE_WSTRING && varSrc.m_wszValue)
++	else if (varSrc.m_eType == FVARTYPE_WSTRING && varSrc.m_wszValue != 0)
+ 	{
+ 		// copy string to new allocation
+-		m_wszValue = new wchar[wcslen(varSrc.m_wszValue)+1];
++		m_wszValue = new wchar[wcslen(varSrc.m_wszValue) + 1];
+ 		wcscpy(m_wszValue, varSrc.m_wszValue);
+ 	}
+ 	else
+@@ -37,7 +36,6 @@ inline void FVariable::CopyFrom(FVariable const& varSrc)
+ 		// this should copy the contents of the union
+ 		memcpy((void*)&m_dValue, (void*)&varSrc.m_dValue, sizeof(m_dValue));
+ 	}
+-
+ 	m_eType = varSrc.m_eType;
+ }
+ 
+@@ -45,9 +43,9 @@ inline void FVariable::CopyFrom(FVariable const& varSrc)
+ inline void FVariable::Read(FDataStreamBase* pStream)
+ {
+ 	pStream->Read((int*)&m_eType);
+-	if (m_eType==FVARTYPE_STRING)
++	if (m_eType == FVARTYPE_STRING)
+ 		m_szValue = pStream->ReadString();
+-	else if (m_eType==FVARTYPE_WSTRING)
++	else if (m_eType == FVARTYPE_WSTRING)
+ 		m_wszValue = pStream->ReadWideString();
+ 	// read the maximum size of the union
+ 	else pStream->Read(sizeof(m_dValue), (byte*)&m_dValue);
+@@ -57,9 +55,9 @@ inline void FVariable::Read(FDataStreamBase* pStream)
+ inline void FVariable::Write(FDataStreamBase *pStream) const
+ {
+ 	pStream->Write(m_eType);
+-	if (m_eType==FVARTYPE_STRING)
++	if (m_eType == FVARTYPE_STRING)
+ 		pStream->WriteString(m_szValue);
+-	else if (m_eType==FVARTYPE_WSTRING)
++	else if (m_eType == FVARTYPE_WSTRING)
+ 		pStream->WriteString(m_wszValue);
+ 	// write the maximum size of the union
+ 	else pStream->Write(sizeof(m_dValue), (byte*)&m_dValue);
+@@ -180,18 +178,16 @@ inline bool FVariableSystem::GetValue(char const* szVariable, float& fValue) con
+ 		break;
+ 	case FVARTYPE_STRING:
+ 	{
+-		char const* szValue;
+-		if (!GetValue(szVariable, szValue))
+-			return false;
+-		fValue = (float)atof(szValue);
++		/*char const* szValue;
++		if (!GetValue(szVariable, szValue)) return false;*/
++		fValue = (float)atof(/* advc.opt: */ kVariable.m_szValue);
+ 		break;
+ 	}
+ 	case FVARTYPE_WSTRING:
+ 	{
+-		wchar const* szValue;
+-		if (!GetValue(szVariable, szValue))
+-			return false;
+-		fValue = (float)_wtof(szValue);
++		/*wchar const* szValue;
++		if (!GetValue(szVariable, szValue)) return false;*/
++		fValue = (float)_wtof(/* advc.opt: */ kVariable.m_wszValue);
+ 		break;
+ 	}
+ 	default: FAssert(false);
+@@ -217,18 +213,16 @@ inline bool FVariableSystem::GetValue(char const* szVariable, double& dValue) co
+ 		break;
+ 	case FVARTYPE_STRING:
+ 	{
+-		char const* szValue;
+-		if (!GetValue(szVariable, szValue))
+-			return false;
+-		dValue = atof(szValue);
++		/*char const* szValue;
++		if (!GetValue(szVariable, szValue)) return false;*/
++		dValue = atof(/* advc.opt: */ kVariable.m_szValue);
+ 		break;
+ 	}
+ 	case FVARTYPE_WSTRING:
+ 	{
+-		wchar const* szValue;
+-		if (!GetValue(szVariable, szValue))
+-			return false;
+-		dValue = _wtof(szValue);
++		/*wchar const* szValue;
++		if (!GetValue(szVariable, szValue)) return false;*/
++		dValue = _wtof(/* advc.opt: */ kVariable.m_wszValue);
+ 		break;
+ 	}
+ 	default: FAssert(false);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=10329

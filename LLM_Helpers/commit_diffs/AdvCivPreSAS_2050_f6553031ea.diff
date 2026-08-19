@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2050
+# Commit: f6553031ea26f56ba9586ab34d0875e656e6290b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f5f15d1d24fb1737c5a2a07949ea893283406271
+# Title: Fix flickering of expanded scoreboard during diplomacy
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+22	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 26f044dbf..5ee6227ae 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1455,7 +1455,10 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 			gDLL->UI().toggleScoresMinimized();
+ 		}
+ 		return;
+-	}
++	}  /* <advc.085> Give the player time to move the cursor off the scoreboard
++		  (cf. comments in CvPlayer::setScoreboardExpanded) */
++	if (BUGOption::isEnabled("Scores__ExpandOnHover", false, false))
++		GC.getGame().setUpdateTimer(CvGame::UPDATE_DIRTY_SCORE_BOARD, 4); // </advc.085>
+ 	// BETTER_BTS_AI_MOD, Player Interface, 01/11/09, jdog5000: START
+ 	if (GC.shiftKey() && !GC.altKey())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 429355ea2..23bf88968 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -20697,6 +20697,28 @@ void CvPlayer::calculateTradeTotals(YieldTypes eIndex,
+ // <advc.085>
+ void CvPlayer::setScoreboardExpanded(bool b)
+ {
++	CvGame& kGame = GC.getGame();
++	/*	During diplomacy, my code for detecting whether the cursor
++		has been moved away from the scoreboard causes the
++		hover text box to flicker. Don't think I can fix that.
++		Workaround: If the player expands the scoreboard during
++		diplomacy, it remains expanded until diplomacy ends. */
++	if (gDLL->isDiplomacy())
++	{
++		if (!BUGOption::isEnabled("Scores__ExpandOnHover", false, false))
++			return;
++		/*	Expand the scoreboard. (Note: An update timer set by
++			CvDLLWidgetData::doContactCiv prevents the scoreboard
++			from already getting stuck at expanded when the player
++			clicks on the scoreboard to initiate diplomacy.) */
++		if (b && !m_bScoreboardExpanded)
++			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		m_bScoreboardExpanded = b;
++		// Schedule callback for collapse
++		kGame.setUpdateTimer(CvGame::UPDATE_COLLAPSE_SCORE_BOARD, 1);
++		// Ignore callback while diplomacy ongoing
++		return;
++	}
+ 	if (b)
+ 	{
+ 		FAssert(BUGOption::isEnabled("Scores__AlignIcons", true, false));
+@@ -20705,7 +20727,6 @@ void CvPlayer::setScoreboardExpanded(bool b)
+ 			/*  A delay of 1 means that the scoreboard collapses after
+ 				two game updates (250 ms) */
+ 			int const iDelay = 1;
+-			CvGame& kGame = GC.getGame();
+ 			/*  So long as the mouse hovers over a scoreboard widget,
+ 				setScoreboardExpanded(true) keeps getting called and
+ 				the collapse timer keeps getting reset. */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2499

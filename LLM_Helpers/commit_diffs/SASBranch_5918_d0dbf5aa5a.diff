@@ -1,0 +1,127 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5918
+# Commit: d0dbf5aa5a895a6a9aab94393a39db0a4594ad57
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4f80a1600776cbf3af01333a56ac85a84c22d0d2
+# Title: Improve SAS AI worker irrigation-chain targeting
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+67	0	CvGameCoreDLL/CvUnitAI.cpp
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1d2433099..18ae983ec 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1089,6 +1089,71 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 	const int penaltyForOverwritingPlot = 300;
+ 
++	if (GET_TEAM(getTeam()).isIrrigation())
++	{
++		// <!-- custom: AI_bestCityBuild normally scans only the city's BFC. The first outside-BFC connector attempt produced log noise and sometimes chose connector-looking plots, but did not fix Chaco Canyon/Harappan-style dry-farm cities. Instead, start from concrete city BFC targets: existing non-bonus dry farms, plus low-food unimproved non-bonus tiles when the city has high food-support pressure. Then choose a farmable owned plot that can receive irrigation now and moves water toward that target through a short owned farm chain. This fixed the Chaco Canyon and Harappan test cases by making workers find the first link toward water; imperfectly, Harappan's worker then wandered after irrigating the first link instead of immediately finishing the full chain to the BFC. This keeps the old broad AI_irrigateTerritory spam disabled while making the chain goal explicit. (GPT-5.5) -->
++		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
++		{
++			CvPlot& kTargetPlot = *itBFC;
++			if (kTargetPlot.getOwner() != getOwner() || kTargetPlot.isWater() || kTargetPlot.isHills() || kTargetPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kTargetPlot.canHavePotentialIrrigation())
++				continue;
++			bool const bTargetDryFarm = (kTargetPlot.getImprovementType() == eImprovementFarm && !kTargetPlot.isIrrigated() && !kTargetPlot.isIrrigationAvailable(true));
++			bool const bTargetLowFoodUnimproved = (bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop);
++			if (!bTargetDryFarm && !bTargetLowFoodUnimproved)
++				continue;
++			for (SquareIter itConnector(kTargetPlot, 4, false); itConnector.hasNext(); ++itConnector)
++			{
++				CvPlot& kConnectorPlot = *itConnector;
++				if (&kConnectorPlot == pIgnorePlot || &kConnectorPlot == &kTargetPlot || kConnectorPlot.getOwner() != getOwner() || kConnectorPlot.isWater() || kConnectorPlot.isHills() || kConnectorPlot.isCity() || !kConnectorPlot.isArea(getArea()) || GET_PLAYER(getOwner()).isAutomationSafe(kConnectorPlot))
++					continue;
++				if (kConnectorPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kConnectorPlot.canHavePotentialIrrigation() || (!kConnectorPlot.isFreshWater() && !kConnectorPlot.isIrrigationAvailable(true)) || !canBuild(kConnectorPlot, eBuildFarm))
++					continue;
++				int const iChainStepDistance = stepDistance(&kConnectorPlot, &kTargetPlot);
++				if (iChainStepDistance <= 0 || iChainStepDistance > 4)
++					continue;
++				if (iChainStepDistance > 1)
++				{
++					bool bHasOwnedFarmableBridge = false;
++					for (SquareIter itBridge(kConnectorPlot, 1, false); itBridge.hasNext(); ++itBridge)
++					{
++						CvPlot& kBridgePlot = *itBridge;
++						if (&kBridgePlot == &kTargetPlot || kBridgePlot.getOwner() != getOwner() || kBridgePlot.isWater() || kBridgePlot.isHills() || kBridgePlot.isCity() || !kBridgePlot.isArea(getArea()) || kBridgePlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kBridgePlot.canHavePotentialIrrigation() || stepDistance(&kBridgePlot, &kTargetPlot) >= iChainStepDistance)
++							continue;
++						if (kBridgePlot.getImprovementType() == eImprovementFarm || canBuild(kBridgePlot, eBuildFarm))
++						{
++							bHasOwnedFarmableBridge = true;
++							break;
++						}
++					}
++					if (!bHasOwnedFarmableBridge)
++						continue;
++				}
++
++				ImprovementTypes const eConnectorImprovement = kConnectorPlot.getImprovementType();
++				int const iConnectorOverwritePenalty = (
++					eConnectorImprovement == NO_IMPROVEMENT ? 0 :
++					eConnectorImprovement == eImprovementWorkshop ? 150 :
++					eConnectorImprovement == eImprovementCottage ? 250 :
++					eConnectorImprovement == eImprovementHamlet ? 700 :
++					eConnectorImprovement == eImprovementVillage ? 1200 :
++					eConnectorImprovement == eImprovementTown ? 1800 :
++					2200
++				);
++				CandidatePlot candidatePlot;
++				candidatePlot.iValue = (bTargetDryFarm ? 11500 : 8500) - (350 * (iChainStepDistance - 1)) - iConnectorOverwritePenalty;
++				candidatePlot.pPlot = &kConnectorPlot;
++				candidatePlot.ePlot = NO_CITYPLOT;
++				candidatePlot.eBuild = eBuildFarm;
++				if (candidatePlot.iValue > 0)
++				{
++					if (gUnitLogLevel >= 2)
++						logBBAI("    %S worker considers irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kConnectorPlot.getX(), kConnectorPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(), candidatePlot.iValue, iChainStepDistance, bTargetDryFarm, iConnectorOverwritePenalty, iCityFoodSupportPressure);
++					candidatePlots.push_back(candidatePlot);
++				}
++			}
++		}
++	}
++
+ 	// ===================================================
+ 	// PHASE 1: A single loop to find ALL valid candidate <!-- custom: plots --> and their values.
+ 	// ===================================================
+@@ -2174,6 +2239,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				pBestPlot  = pB;
+ 				eBestBuild = eB;
+ 				bFound     = true;
++				if (gUnitLogLevel >= 2 && candidatePlots[i].ePlot == NO_CITYPLOT && eB == eBuildFarm)
++					logBBAI("    %S worker chooses irrigation-chain step at (%d,%d), value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pB->getX(), pB->getY(), candidatePlots[i].iValue);
+ 				break;
+ 			}
+ 		}
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4a95f9778..bf7cabf4d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -189,6 +189,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Mobility:** workers leave "over-improved" cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but). Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals.
+ - **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
+ 
++- (Requires AdvCiv-SAS 5918+) **Worker irrigation-chain hunting:** updated SAS AI worker logic so it now **starts from actual dry-farm / low-food BFC targets** and **hunt short owned irrigation-chain steps**, including first links **outside the city BFC**. This fixed Chaco Canyon and Harappan-style cases where a nearby (2-3 plots away from BFC) water source existed but BFC-only worker logic missed the first link, though workers currently may still not always immediately finish every remaining chain link.
++
+ #### City Plots (AI)
+ 
+ - Fix K-Mod some allocation pathologies: e.g. starving/stagnant cities no longer choose **+1 hammer** over **+4 food** unworked plots; also fix the "food is production" valuation so settlers/workers don’t undervalue food. See [KI#34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=9199

@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 944
+# Commit: 2a3db92125b15fa2c978e86f26a7e6ac0e6ac735
+# History segment: K-Mod history
+# Parent used for diff: 592a7d9ef855e2b67a781e8cc9262eedf79ae8da
+# Title: Fixed tech progress and some other minor issues with CvTeam::addTeam
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	15	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a8fe3b9b9..44c3fee0d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -416,6 +416,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	bool bValid;
+ 	int iLoop;
+ 	int iI, iJ;
++	int iOriginalTeamSize = getNumMembers();// K-Mod
+ 
+ 	FAssert(eTeam != NO_TEAM);
+ 	FAssert(eTeam != getID());
+@@ -567,7 +568,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			{
+ 				if (GET_TEAM(eTeam).isVassal((TeamTypes)iI))
+ 				{
+-					setVassal(((TeamTypes)iI), true, isCapitulated());
++					//setVassal(((TeamTypes)iI), true, isCapitulated());
++					setVassal(((TeamTypes)iI), true, GET_TEAM(eTeam).isCapitulated()); // K-Mod
+ 				}
+ 				else if (isVassal((TeamTypes)iI))
+ 				{
+@@ -607,6 +609,23 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 		}
+ 	}
+ 
++	// K-Mod. Adjust the progress of unfinished research so that it is proportionally the same as it was before the merge.
++	{
++		// cf. CvTeam::getResearchCost
++		int iCostMultiplier = 100;
++		iCostMultiplier *= 100 + GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") * (getNumMembers() - 1); // new
++		iCostMultiplier /= 100 + GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") * (iOriginalTeamSize - 1); // old
++
++		FAssert(iCostMultiplier >= 100);
++
++		for (TechTypes i = (TechTypes)0; i < GC.getNumTechInfos(); i=(TechTypes)(i+1))
++		{
++			if (!isHasTech(i) && getResearchProgress(i) > 0)
++				setResearchProgress(i, getResearchProgress(i)*iCostMultiplier/100, getLeaderID());
++		}
++	}
++	// K-Mod end
++
+ 	// K-Mod. The following cancel deals code has been moved from higher up.
+ 	// I've done this so that when open-borders is canceled, it doesn't bump our new allies out of our borders.
+ 	for (pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+@@ -739,6 +758,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 	{
+ 		setEspionagePointsAgainstTeam((TeamTypes)iTeam, std::max(GET_TEAM(eTeam).getEspionagePointsAgainstTeam((TeamTypes)iTeam), getEspionagePointsAgainstTeam((TeamTypes)iTeam)));
+ 	}
++	setEspionagePointsEver(std::max(GET_TEAM(eTeam).getEspionagePointsEver(), getEspionagePointsEver())); // K-Mod
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+@@ -859,25 +879,11 @@ void CvTeam::shareCounters(TeamTypes eTeam)
+ 			//else
+ 			//	kShareTeam.AI_setEnemyPeacetimeGrantValue(eLoopTeam, AI_getEnemyPeacetimeGrantValue(eLoopTeam));
+ 
+-			// K-Mod - share unspent espionage
+-			if (kShareTeam.getEspionagePointsAgainstTeam(eLoopTeam) > getEspionagePointsAgainstTeam(eLoopTeam))
+-				setEspionagePointsAgainstTeam(eLoopTeam, kShareTeam.getEspionagePointsAgainstTeam(eLoopTeam));
+-			//else
+-			//	kShareTeam.setEspionagePointsAgainstTeam(eLoopTeam, getEspionagePointsAgainstTeam(eLoopTeam));
+-			// K-Mod end
+-
+ 			kShareTeam.AI_setWarPlan(eLoopTeam, NO_WARPLAN, false);
+ 			// K-Mod note. presumably, the warplan is cleared under the assumption that kShareTeam is going to be removed.
+ 		}
+ 	}
+ 
+-	// K-Mod total espionage
+-	if (kShareTeam.getEspionagePointsEver() > getEspionagePointsEver())
+-		setEspionagePointsEver(kShareTeam.getEspionagePointsEver());
+-	//else
+-	//	kShareTeam.setEspionagePointsEver(getEspionagePointsEver());
+-	// K-Mod end
+-
+ 	for (ProjectTypes eProject = (ProjectTypes)0; eProject < GC.getNumProjectInfos(); eProject=(ProjectTypes)(eProject+1))
+ 	{
+ 		/* int iExtraProjects = kShareTeam.getProjectCount(eProject) - getProjectCount(eProject);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3458

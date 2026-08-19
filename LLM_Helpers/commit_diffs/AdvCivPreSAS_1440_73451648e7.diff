@@ -1,0 +1,192 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1440
+# Commit: 73451648e722a7f35a85195d7b683c2028f162f5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 65a1472094e89d913ccf565c76687027a530a30d
+# Title: Change overflow handling (work in progress)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	0	Assets/xml/Text/CIV4GameText_advc.xml
+10	4	Assets/xml/Text/K-Mod hints.xml
+28	11	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 917e81d32..5981c79c8 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -5188,4 +5188,15 @@
+ 		<Spanish>[COLOR_WARNING_TEXT]Perder�n %d1 PX en total[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.064b: Based on TXT_KEY_MISC_HELP_PROD_OVERFLOW in
++		 CIV4GameTextInfos.xml-->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_EXCESS_OVERFLOW</Tag>
++		<English>Production overflow in %s1_CityName has been turned into an additional %s2_UnitName unit.</English>
++		<French>Des exc�dents de la production � %s1_CityName ont �t� utilis�s pour une autre unit� %s2_UnitName.</French>
++		<German>Produktions�bersch�sse in %s1_CityName wurden f�r eine weitere %s2_UnitName-Einheit verwendet.</German>
++		<Italian>Le eccedenze di produzione a %s1_CityName sono state utilizzate per un'altra unit� di %s2_UnitName.</Italian>
++		<Spanish>El exceso de producci�n de %s1_CityName se utiliz� para otra unidad de %s2_UnitName.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 7967713f3..62bf06e3a 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -149,12 +149,18 @@
+ 	<Spanish>Los b�rbaros no reaparecer�n en dos pasos de cualquiera de las unidades. Con el posicionamiento cuidadoso de batidores puedes bloquear completamente grupos de pillaje que se formen en tu �rea.</Spanish>
+ </TEXT>
+ <!-- replacement text for the double-click tip, because I've changed the functionality of double-click -->
++<!-- advc.008c: The K-Mod text was "Double clicking a stack of units will wake
++	 them all up." (And German: " Ein Doppelklick auf einen Einheitenstapel
++	 weckt sie alle auf.") My text hopefully makes clearer that the 3D models or
++	 the flag (in cities - to avoid entering the city screen) needs to be
++	 clicked, not the unit icons. Will also wake up a single unit if there
++	 isn't a stack. I've left the Spanish text alone. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_6</Tag>
+-	<English>(K-Mod) Double clicking on a stack of units will wake them all up.</English>
+-	<French>(K-Mod) Double clicking on a stack of units will wake them all up.</French>
+-	<German>(K-Mod) Ein Doppelklick auf einen Einheitenstapel weckt sie alle auf.</German>
+-	<Italian>(K-Mod) Double clicking on a stack of units will wake them all up.</Italian>
++	<English>(K-Mod) Double-click a tile to wake all units up. For city tiles, this only works if you double-click the units' flag.</English>
++	<French>(K-Mod) Double-click a tile to wake all units up. For city tiles, this only works if you double-click the units' flag.</French>
++	<German>(K-Mod) Ein Doppelklick auf ein Gel�ndefeld weckt alle Einheiten dort auf. Bei Stadtfeldern funktioniert dies nur, wenn Sie auf die Flagge der Einheiten klicken.</German>
++	<Italian>(K-Mod) Double-click a tile to wake all units up. For city tiles, this only works if you double-click the units' flag.</Italian>
+ 	<Spanish>(K-Mod) Doble click en una pila de unidades las despertar� a todas.</Spanish>
+ </TEXT>
+ <TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2d534a2b3..a4be3d13e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3560,6 +3560,13 @@ void CvCity::hurry(HurryTypes eHurry)
+ 	CvEventReporter::getInstance().cityHurry(this, eHurry);
+ }
+ 
++// <advc.064b>
++int CvCity::getOverflowCapacity() const {
++
++	return std::max(getCurrentProductionDifference(false, false), // as in BtS/K-Mod
++			growthThreshold());
++} // </advc.064b>
++
+ // BUG - Hurry Overflow - start (advc.064)
+ bool CvCity::hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold,
+ 		bool bCountThisTurn) const {
+@@ -3606,7 +3613,8 @@ bool CvCity::hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold,
+ 		// include chops and previous overflow here
+ 		iOverflow += getCurrentProductionDifference(false, true);
+ 	}
+-	int iMaxOverflow = std::max(iTotal, getCurrentProductionDifference(false, false));
++	int iMaxOverflow = //std::max(iTotal, getCurrentProductionDifference(false, false));
++			getOverflowCapacity(); // advc.064b
+ 	int iLostProduction = (bOverflowCap ? std::max(0, iOverflow - iMaxOverflow) : 0);
+ 	int iBaseModifier = getBaseYieldRateModifier(YIELD_PRODUCTION);
+ 	int iTotalModifier = getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier);
+@@ -12706,10 +12714,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 		if (bFinish)
+ 		{
+ 			int iProductionNeeded = getProductionNeeded(eTrainUnit);
+-
+-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
+ 			int iOverflow = getUnitProduction(eTrainUnit) - iProductionNeeded;
+-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
++			// max overflow is the value of the item produced (to eliminate prebuild exploits)
++			int iMaxOverflow = //std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
++					getOverflowCapacity(); // advc.064b
+ 			// UNOFFICIAL_PATCH Start
+ 			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+ 			iOverflow = std::min(iMaxOverflow, iOverflow);
+@@ -12773,8 +12781,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 					getUnitAIString(szString, pUnit->AI_getUnitAIType());
+ 					logBBAI("    City %S finishes production of unit %S with UNITAI %S", getName().GetCString(), pUnit->getName(0).GetCString(), szString.GetCString() );
+ 				}
+-
+-				if (GC.getUnitInfo(eTrainUnit).getDomainType() == DOMAIN_AIR)
++				CvUnitInfo const& kUnitInfo = GC.getUnitInfo(eTrainUnit);
++				if (kUnitInfo.getDomainType() == DOMAIN_AIR)
+ 				{
+ 					if (plot()->countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
+ 					{
+@@ -12782,6 +12790,14 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 					}
+ 				} // <advc.001v>
+ 				iTrained++;
++				if(iTrained > 1) {
++					CvWString szMsg(gDLL->getText("TXT_KEY_MISC_EXCESS_OVERFLOW",
++							getName().c_str(), kUnitInfo.getDescription()));
++					gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(),
++							false, GC.getEVENT_MESSAGE_TIME(), szMsg,
++							"AS2D_WONDERGOLD", MESSAGE_TYPE_INFO, kUnitInfo.getButton(),
++							NO_COLOR, getX_INLINE(), getY_INLINE(), false, false);
++				}
+ 			} while(iTrained < iToTrain && canTrain(eTrainUnit)); // </advc.001v>
+ 			iLostProduction -= iProductionNeeded * (iTrained - 1);
+ 			FAssert(iLostProduction >= 0);
+@@ -12871,9 +12887,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 			setNumRealBuilding(eConstructBuilding, getNumRealBuilding(eConstructBuilding) + 1);
+ 
+ 			int iProductionNeeded = getProductionNeeded(eConstructBuilding);
+-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
+ 			int iOverflow = getBuildingProduction(eConstructBuilding) - iProductionNeeded;
+-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
++			// max overflow is the value of the item produced (to eliminate prebuild exploits)
++			int iMaxOverflow = //std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
++					getOverflowCapacity(); // advc.064b
+ 			// UNOFFICIAL_PATCH Start
+ 			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+ 			iOverflow = std::min(iMaxOverflow, iOverflow);
+@@ -12989,9 +13006,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 			}
+ 
+ 			int iProductionNeeded = getProductionNeeded(eCreateProject);
+-			// max overflow is the value of the item produced (to eliminate pre-build exploits)
+ 			int iOverflow = getProjectProduction(eCreateProject) - iProductionNeeded;
+-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
++			// max overflow is the value of the item produced (to eliminate prebuild exploits)
++			int iMaxOverflow = //std::max(iProductionNeeded, getCurrentProductionDifference(false, false));
++					getOverflowCapacity(); // advc.064b
+ 			// UNOFFICIAL_PATCH Start
+ 			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+ 			iOverflow = std::min(iMaxOverflow, iOverflow);
+@@ -13001,7 +13019,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 			}
+ 			setProjectProduction(eCreateProject, 0);
+ 
+-
+ 			// * Limited which production modifiers affect gold from production overflow. 3/3
+ 			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
+ 			iLostProduction /= std::max(1, getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eCreateProject)));
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 7bf3f129e..97ccd5631 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -149,7 +149,7 @@ public:
+ 
+ 	bool canHurry(HurryTypes eHurry, bool bTestVisible = false) const;		// Exposed to Python
+ 	void hurry(HurryTypes eHurry);																						// Exposed to Python
+-	// <advc.064>
++	int getOverflowCapacity() const; // advc.064b   <advc.064>
+ 	bool hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold,
+ 			bool bCountThisTurn = false) const;		// (exposed to Python)
+ 	// </advc.064>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9233

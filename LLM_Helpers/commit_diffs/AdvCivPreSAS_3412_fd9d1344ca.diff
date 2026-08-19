@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3412
+# Commit: fd9d1344cafffdb9ffd50f1a7defac334a48d1a4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 52202ea4da499e4a34187d78f13a2a3d1ecf31a1
+# Title: Slightly increase diplo penalty for expansionism
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 471c3a394..01bcc94b5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7872,7 +7872,8 @@ int CvPlayerAI::AI_getExpansionistAttitude(PlayerTypes ePlayer) const
+ 		rCitiesPerCiv.decreaseTo(3 * (1 + rEra));
+ 	scaled rPersonalFactor = AI_expansionistHate(ePlayer);
+ 	return -std::min(4,
+-			(rPersonalFactor * fixp(2.4) * rForeignCities / rCitiesPerCiv).round());
++			(rPersonalFactor * fixp(8/3.) * rForeignCities / rCitiesPerCiv).
++			round());
+ }
+ 
+ // advc.130n:
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=572

@@ -1,0 +1,417 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5952
+# Commit: bd9c02aac4d56d35291c39f2a794eccd47141e5c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 856ac747bcf2d6f80286382bcc845296a97f25c3
+# Title: Fixed Base AdvCiv issue: ready AI attack-capable stacks ignored nearby barbarian cities without normal war targets (See KI#158) - **AI attack stacks now oppo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+23	0	CvGameCoreDLL/CvPlayerAI.cpp
+185	0	CvGameCoreDLL/CvUnitAI.cpp
+1	1	README.md
+55	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 858846a9a..be11e6b33 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -42,7 +42,7 @@ In particular but not only, these are usually helpful:
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+-- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first, then verify the resulting hypothesis locally while still using the log as evidence.
++- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+ 
+ The root Program Files Civ4 folder is here:
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8592957f9..58b4e3e5d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17492,12 +17492,19 @@ int CvPlayerAI::AI_estimateBarbarianGarrisonSize() const
+ // 0 means nothing worth attacking, 1 definitely something, can also go > 1.
+ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
+ {
++	// <!-- custom: Diagnostic for late-game weak barbarian cities surviving near strong AI players. This production-side score only creates appetite for more city attackers; it does not by itself order existing stacks to clean up nearby barbarian cities, so log candidate distance/value gates before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
++	bool const bLogBarbTargets = (gPlayerLogLevel >= 2 && GET_PLAYER(BARBARIAN_PLAYER).getNumCities() > 0);
+ 	scaled rTotal;
+ 	FOR_EACH_CITY(pBarbarianCity, GET_PLAYER(BARBARIAN_PLAYER))
+ 	{
+ 		if (!pBarbarianCity->isArea(kArea) ||
+ 			!GET_TEAM(getTeam()).AI_deduceCitySite(*pBarbarianCity))
+ 		{
++			if (bLogBarbTargets && pBarbarianCity->isArea(kArea))
++			{
++				logBBAI("    BARB_CITY_SCORE_SKIP turn=%d player=%d %S area=%d target=%S target=(%d,%d) reason=not_deduced",
++					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY());
++			}
+ 			continue;
+ 		}
+ 		CvPlot const& kBarbarianCityPlot = pBarbarianCity->getPlot();
+@@ -17508,7 +17515,14 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
+ 					plotDistance(pOurCity->plot(), &kBarbarianCityPlot));
+ 		}
+ 		if (iOurDist >= 15)
++		{
++			if (bLogBarbTargets)
++			{
++				logBBAI("    BARB_CITY_SCORE_SKIP turn=%d player=%d %S area=%d target=%S target=(%d,%d) pop=%d reason=distance ourDist=%d",
++					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist);
++			}
+ 			continue;
++		}
+ 		/*	"Other" can be on our team - if a teammate is better positioned
+ 			than we are, we want to hold back. */
+ 		int iOtherDist = MAX_INT;
+@@ -17558,8 +17572,17 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
+ 		rScore /= std::max(fixp(0.6),
+ 				1 + per100(iDefModifier) + (iDefenders < 0 ? 0 : fixp(0.25) *
+ 				(iDefenders - AI_estimateBarbarianGarrisonSize())));
++		if (bLogBarbTargets)
++		{
++			logBBAI("    BARB_CITY_SCORE_TARGET turn=%d player=%d %S area=%d target=%S target=(%d,%d) pop=%d ourDist=%d otherDist=%d ourCulture=%d otherCulture=%d defModifier=%d defenders=%d estimatedGarrison=%d score=%d scorePercent=%d",
++				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist, (iOtherDist == MAX_INT ? -1 : iOtherDist), iOurCulture, iOtherCulture, iDefModifier, iDefenders, AI_estimateBarbarianGarrisonSize(), rScore.round(), rScore.getPercent());
++		}
+ 		rTotal += rScore;
+ 	}
++	if (bLogBarbTargets && rTotal > 0)
++	{
++		logBBAI("    BARB_CITY_SCORE_SUMMARY turn=%d player=%d %S area=%d totalScore=%d totalScorePercent=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), rTotal.round(), rTotal.getPercent());
++	}
+ 	return rTotal;
+ } // </advc.300>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9042a0008..098f16ca4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -229,6 +229,132 @@ static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnit
+ 	return eBestUnit;
+ }
+ 
++static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvCity const* pBestOverallBarbCity = NULL;
++	CvCity* pBestPathableBarbCity = NULL;
++	int iBestOverallValue = MIN_INT;
++	int iBestOverallStepDistance = -1;
++	int iBestOverallTargetValue = -1;
++	int iBestPathableValue = MIN_INT;
++	int iBestPathablePathTurns = -1;
++	int iBestPathableStepDistance = -1;
++	int iBestPathableDefenders = -1;
++	int iBestPathableTargetValue = -1;
++	int iCandidateCount = 0;
++	int iPathableCandidateCount = 0;
++	FOR_EACH_CITY(pBarbCity, GET_PLAYER(BARBARIAN_PLAYER))
++	{
++		if (!pBarbCity->isRevealed(kUnit.getTeam()) || !GET_TEAM(kUnit.getTeam()).AI_deduceCitySite(*pBarbCity))
++			continue;
++		iCandidateCount++;
++		int iPathTurns = -1;
++		bool const bPath = kUnit.generatePath(pBarbCity->getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns);
++		int const iStepDistance = stepDistance(kUnit.plot(), pBarbCity->plot());
++		int const iTargetValue = kOwner.AI_targetCityValue(*pBarbCity, false, true, NULL);
++		int const iOverallValue = iTargetValue * 100 - iStepDistance;
++		if (iOverallValue > iBestOverallValue)
++		{
++			iBestOverallValue = iOverallValue;
++			iBestOverallStepDistance = iStepDistance;
++			iBestOverallTargetValue = iTargetValue;
++			pBestOverallBarbCity = pBarbCity;
++		}
++		if (!bPath)
++			continue;
++		iPathableCandidateCount++;
++		int const iPathableValue = iTargetValue * 100 - 10 * iPathTurns - iStepDistance;
++		if (iPathableValue > iBestPathableValue)
++		{
++			iBestPathableValue = iPathableValue;
++			iBestPathablePathTurns = iPathTurns;
++			iBestPathableStepDistance = iStepDistance;
++			iBestPathableDefenders = pBarbCity->getPlot().plotCount(PUF_canDefend);
++			iBestPathableTargetValue = iTargetValue;
++			// <!-- custom: Note: pBestPathableBarbCity = pBarbCity; had the below compile error, fixed with the help of GPT-5.5 thanks -->
++			// 1>..\CvUnitAI.cpp(275): error C2440: '=' : cannot convert from 'const CvCity *' to 'CvCity *'
++			// 1>          Conversion loses qualifiers
++			// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
++			pBestPathableBarbCity = GET_PLAYER(BARBARIAN_PLAYER).AI_getCity(pBarbCity->getID());
++		}
++	}
++	if (piPathTurns != NULL)
++		*piPathTurns = iBestPathablePathTurns;
++	if (piTargetValue != NULL)
++		*piTargetValue = iBestPathableTargetValue;
++	if (piStepDistance != NULL)
++		*piStepDistance = iBestPathableStepDistance;
++	if (piDefenders != NULL)
++		*piDefenders = iBestPathableDefenders;
++	if (piValue != NULL)
++		*piValue = iBestPathableValue;
++	if (piCandidates != NULL)
++		*piCandidates = iCandidateCount;
++	if (piPathableCandidates != NULL)
++		*piPathableCandidates = iPathableCandidateCount;
++	if (ppBestOverallBarbCity != NULL)
++		*ppBestOverallBarbCity = pBestOverallBarbCity;
++	if (piBestOverallValue != NULL)
++		*piBestOverallValue = iBestOverallValue;
++	if (piBestOverallTargetValue != NULL)
++		*piBestOverallTargetValue = iBestOverallTargetValue;
++	if (piBestOverallStepDistance != NULL)
++		*piBestOverallStepDistance = iBestOverallStepDistance;
++	return pBestPathableBarbCity;
++}
++
++// <!-- custom: Count actual attack/city-capture capability instead of only UNITAI_ATTACK_CITY labels. Broad attacker types can still capture barbarian cities, while pure collateral/no-city-capture units should not make a stack look sufficient by themselves. (GPT-5.5 + ChatGPT-5.5) -->
++static void SAS_countGroupCityAttackCapability(CvSelectionGroup const& kGroup, int& iCanAttack, int& iCityCapture)
++{
++	iCanAttack = 0;
++	iCityCapture = 0;
++	FOR_EACH_UNIT_IN(pLoopUnit, kGroup)
++	{
++		if (!pLoopUnit->canAttack())
++			continue;
++		iCanAttack++;
++		if (!pLoopUnit->isNoCityCapture())
++			iCityCapture++;
++	}
++}
++
++// <!-- custom: Diagnostic for late-game weak barbarian cities surviving near strong AI players. PlayerAI already has a production-side barbarian-city score, but existing attack stacks can still sit or follow normal war targets; log nearby revealed barbarian city opportunities from the stack's actual movement context before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
++static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTargetCity, bool bHuntBarbs, bool bReadyToAttack, bool bTargetTooStrong, MovementFlags eMoveFlags)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvSelectionGroup const* pGroup = kUnit.getGroup();
++	int iCanAttack = 0;
++	int iCityCapture = 0;
++	SAS_countGroupCityAttackCapability(*pGroup, iCanAttack, iCityCapture);
++	int const iAttackCityUnitAI = pGroup->countNumUnitAIType(UNITAI_ATTACK_CITY);
++	CvCity const* pBestOverallBarbCity = NULL;
++	int iBestOverallValue = MIN_INT;
++	int iBestOverallStepDistance = -1;
++	int iBestOverallTargetValue = -1;
++	int iBestPathablePathTurns = -1;
++	int iBestPathableStepDistance = -1;
++	int iBestPathableDefenders = -1;
++	int iBestPathableTargetValue = -1;
++	int iBestPathableValue = MIN_INT;
++	int iCandidateCount = 0;
++	int iPathableCandidateCount = 0;
++	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
++	if (pBestOverallBarbCity == NULL)
++		return;
++	int iTargetPathTurns = -1;
++	int const iPickedTargetValue = (pTargetCity == NULL ? -1 : kOwner.AI_targetCityValue(*pTargetCity, false, true, NULL));
++	int const iPickedTargetDefenders = (pTargetCity == NULL ? -1 : pTargetCity->getPlot().plotCount(PUF_canDefend));
++	if (pTargetCity != NULL)
++		kUnit.generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns, 20);
++	logBBAI("    BARB_CITY_OPPORTUNITY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d attackCityUnitAI=%d canAttack=%d cityCapture=%d at=(%d,%d) huntBarbs=%d ready=%d targetTooStrong=%d pickedTarget=%S pickedTarget=(%d,%d) pickedTargetOwner=%d pickedTargetPop=%d pickedTargetDefenders=%d pickedTargetValue=%d pickedBarb=%d pickedPathTurns=%d candidates=%d pathableCandidates=%d bestOverallBarb=%S bestOverallBarb=(%d,%d) bestOverallValue=%d bestOverallTargetValue=%d bestOverallStepDistance=%d bestPathableBarb=%S bestPathableBarb=(%d,%d) bestPathablePop=%d bestPathableDefenders=%d bestPathableValue=%d bestPathableTargetValue=%d bestPathablePathTurns=%d bestPathableStepDistance=%d areaAI=%d wars=%d anyWarPlan=%d financialTrouble=%d",
++		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iAttackCityUnitAI, iCanAttack, iCityCapture, kUnit.getX(), kUnit.getY(), bHuntBarbs, bReadyToAttack, bTargetTooStrong,
++		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getOwner()), (pTargetCity == NULL ? -1 : pTargetCity->getPopulation()), iPickedTargetDefenders, iPickedTargetValue, (pTargetCity != NULL && pTargetCity->isBarbarian()), iTargetPathTurns,
++		iCandidateCount, iPathableCandidateCount,
++		pBestOverallBarbCity->getName().GetCString(), pBestOverallBarbCity->getX(), pBestOverallBarbCity->getY(), iBestOverallValue, iBestOverallTargetValue, iBestOverallStepDistance,
++		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue, iBestPathableTargetValue, iBestPathablePathTurns, iBestPathableStepDistance, kUnit.getArea().getAreaAIType(kUnit.getTeam()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), kOwner.AI_isFinancialTrouble());
++}
++
+ // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
+ // only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
+ // to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
+@@ -5792,6 +5918,8 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 		}
+ 	}
++	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
++		SAS_logAttackCityBarbOpportunity(*this, pTargetCity, bHuntBarbs, bReadyToAttack, bTargetTooStrong, eMoveFlags);
+ 
+ 	/*	K-Mod. Lets have some slightly smarter stack vs. stack AI.
+ 		it would be nice to have some personality effection here...
+@@ -6265,6 +6393,63 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 			// K-Mod end
+ 		}
++		if (!isBarbarian() && pTargetCity == NULL)
++		{
++			int iCanAttack = 0;
++			int iCityCapture = 0;
++			SAS_countGroupCityAttackCapability(*getGroup(), iCanAttack, iCityCapture);
++			bool const bLogBarbFallback = (gUnitLogLevel >= 2 || gPlayerLogLevel >= 2);
++			if (GET_TEAM(getTeam()).getNumWars() > 0)
++			{
++				if (bLogBarbFallback)
++				{
++					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=active_war unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
++						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
++				}
++			}
++			else if (iCityCapture < 2)
++			{
++				if (bLogBarbFallback)
++				{
++					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=too_few_city_capture unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
++						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
++				}
++			}
++			else
++			{
++				// <!-- custom: BBAI logs showed ready city-attack stacks with no picked target and no active war while pathable weak barbarian cities still existed; the useful cases often had a preparation war plan but no current target. Do not override normal targets or active wars, but if there is no target at all, use the same pathable barbarian-city picker as the diagnostic log so idle attack stacks can clean up barb cities. Barbarian cities are usually weak, have little/no diplomatic or war cost, and can add population, land, resources, unit support, and future growth instead of letting nearby rivals claim them later; capturing a close/profitable barb city also avoids spending a settler and slowing city growth or other projects. K-Mod disabled AI_goToTargetBarbCity, so explicitly pass the picked barbarian city through AI_goToTargetCity. See KI#158. (GPT-5.5 + ChatGPT-5.5) -->
++				if (bLogBarbFallback)
++				{
++					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_TRY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
++						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
++				}
++				int iFallbackPickedPathTurns = -1;
++				int iFallbackPickedTargetValue = -1;
++				int iFallbackPickedStepDistance = -1;
++				int iFallbackPickedDefenders = -1;
++				int iFallbackPickedValue = MIN_INT;
++				// <!-- custom: note: if (AI_goToTargetBarbCity(12)) caused a compile error, fixed with the help of GPT-5.5 thanks -->
++				// 1>..\CvUnitAI.cpp(6341): error C3861: 'AI_goToTargetBarbCity': identifier not found, even with argument-dependent lookup
++				// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
++				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
++				if (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian() && AI_goToTargetCity(eMoveFlags, 12, pBarbTargetCity))
++				{
++					if (bLogBarbFallback)
++					{
++						logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SUCCESS turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) target=%S target=(%d,%d) pathTurns=%d targetValue=%d value=%d stepDistance=%d defenders=%d",
++							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
++							pBarbTargetCity->getName().GetCString(), pBarbTargetCity->getX(), pBarbTargetCity->getY(), iFallbackPickedPathTurns, iFallbackPickedTargetValue, iFallbackPickedValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
++					}
++					return;
++				}
++				if (bLogBarbFallback)
++				{
++					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) fallbackPickedTarget=%S fallbackPickedTarget=(%d,%d) fallbackPickedOwner=%d fallbackPickedBarb=%d fallbackPickedPathTurns=%d fallbackPickedValue=%d fallbackPickedTargetValue=%d fallbackPickedStepDistance=%d fallbackPickedDefenders=%d",
++						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
++						(pBarbTargetCity == NULL ? L"-" : pBarbTargetCity->getName().GetCString()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getX()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getY()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getOwner()), (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian()), iFallbackPickedPathTurns, iFallbackPickedValue, iFallbackPickedTargetValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
++				}
++			}
++		}
+ 	}
+ 	else
+ 	{
+
+diff --git a/README.md b/README.md
+index 65194f75c..b3d3d301d 100644
+--- a/README.md
++++ b/README.md
+@@ -16,7 +16,7 @@ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slo
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+ 
+-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now does not not consume our agentic tokens (e.g., Codex, Claude Code). Note: now optionally default written as a new file with a time stamp (e.g., `BBAI_20260608T065231Z.log` instead of expanding launch/session the existing `BBAI.log` which was very tedious to cleanup everytime or identify/store/read/review/upload).
++Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: now optionally default written as a new file with a time stamp (e.g., `BBAI_20260608T065231Z.log` instead of expanding launch/session the existing `BBAI.log` which was very tedious to cleanup everytime or identify/store/read/review/upload).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index e6332c08e..c703c6ac2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -193,6 +193,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
+ [156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
+ [157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
++[158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5830,3 +5831,57 @@ Following this, Work Boat production is reduced (e.g., from 34 Work Boats before
+ Conclusion: the remaining high Work Boat count is largely genuine replacement after enemy or pirate pillaging/harassment, not the old produce/scrap or overqueue bug. Future work should therefore probably target naval defense or repeated sea-improvement loss response, not add broader Work Boat production suppression.
+ 
+ Fixed/diagnosed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
++
++## 158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1aUU_p1Lv3apbNx34YpAnqy6JZSE7iAUc?usp=sharing).
++
++While reviewing late-game barbarian cities that stayed alive for too long, BBAI logs showed that the broad AI was able to capture barbarian cities eventually, but nearby players could still fail to use ready attack stacks against them for a long time.
++
++The initial symptom was that weak barbarian cities could remain near strong or nearby AI players until around T300-T400. In one comparison, Shaka was close to the barbarian cities for a long time but did not invade them early, and stayed one of the weaker players. After the fix, he invaded them around T140 and became one of the strongest players through much of the middle and late game, almost winning.
++
++The first diagnostics split the problem into two parts:
++
++- `BARB_CITY_SCORE_*` showed the production-side barbarian-city appetite was often skipped by distance or had very small scores. That explained why the AI often would not produce extra city attackers specifically for pop-1 or distant barbarian cities.
++- `BARB_CITY_OPPORTUNITY` showed what existing `AI_attackCityMove` stacks could see from their actual movement context.
++
++After adding target values to the opportunity log, most cases where a stack ignored a pathable barbarian city were not clearly wrong: the picked normal target was often higher value. The real bug class was narrower:
++
++- `pickedTarget=-`
++- `ready=1`
++- `targetTooStrong=0`
++- `wars=0`
++- `anyWarPlan=1`
++- `pathableCandidates>0`
++
++In other words, a stack could be ready, have no active war, have no picked city target, and have a pathable barbarian city nearby, but still skip the barbarian city because the team had a preparation/future war plan. This meant the AI could wait for a future war while cheap nearby barbarian conquest opportunities stayed open.
++
++Fix: in `CvUnitAI::AI_attackCityMove`, when a non-barbarian attack stack is ready, has no picked target, and has no active war, allow a fallback to a pathable barbarian city even if the team has a future war plan. This does not override normal targets and does not fire during active wars. It only fills a no-target idle gap.
++
++We added `SAS_pickPathableBarbCityForAttackStack` so the behavior uses the same best pathable barbarian-city candidate as the diagnostic log. This avoided an earlier mismatch where diagnostics found a pathable barbarian city, but a separate fallback call to `AI_pickTargetCity(..., true)` returned no target. K-Mod/AdvCiv disabled the old BBAI-style `AI_goToTargetBarbCity`, so the selected barbarian city is explicitly passed through `AI_goToTargetCity`.
++
++The stack gate uses actual group capability instead of only `UNITAI_ATTACK_CITY` labels. `SAS_countGroupCityAttackCapability` counts units that can attack and units that can actually capture cities, so broad attacker types such as attack, counter, reserve, or pillage units can help, while pure collateral/no-city-capture units do not make the stack look sufficient by themselves.
++
++Rationale: close/profitable barbarian cities are usually low-risk because they are often weak and have little/no diplomatic or war cost. Capturing them can add population, land, resources, unit support, and future growth. It can also avoid spending a settler and slowing city growth or other projects, while denying the opportunity to nearby rivals.
++
++After the final behavior and logging cleanup, the reviewed log showed:
++
++- `BARB_CITY_NO_TARGET_FALLBACK_TRY`: 487
++- `BARB_CITY_NO_TARGET_FALLBACK_FAIL`: 478
++- `BARB_CITY_NO_TARGET_FALLBACK_SUCCESS`: 9
++- `BARB_CITY_NO_TARGET_FALLBACK_SKIP`: 33, all `active_war`
++
++The fail count was not concerning because all failures had `fallbackPickedTarget=-` and `fallbackPickedPathTurns=-1`, meaning no pathable barbarian city existed within the fallback limit. The important signal was that the previously suspicious pattern was gone: there were 0 remaining cases of `pickedTarget=-`, `ready=1`, `wars=0`, and `pathableCandidates>0`.
++
++Behaviorally, the same broad situation improved from barbarian cities surviving around T300-T400 to early cleanup:
++
++- T121: France captures Alemanni.
++- T124: Barbarians recapture Alemanni.
++- T127: Zulu captures Hurrian.
++- T132: Zulu captures Alemanni.
++- T148: Zulu captures Visigoth.
++- T153: Zulu captures Gaul and razes it.
++
++The France recapture case is a separate possible post-capture garrison/retreat issue, not part of this fallback.
++
++Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 062951d74..4edb9d411 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -141,7 +141,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+-- **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis.
++- **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - (Requires AdvCiv-SAS 5925+) **BBAI log files timestamped name**: Optionally log BBAI to a **new file each time** Civ4 launch/session with a **new UTC-timestamp** in filename such as (e.g., `BBAI_20260608T065231Z.log`) instead of repeatedly appending to `BBAI.log`. This **avoids previous tedious manual clearing** `BBAI.log` before restarting Civ4, prevents one **massive mixed log from accumulating** across many test runs, and makes the **relevant log easier to identify, store, or upload** for review.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+ 
+@@ -320,6 +320,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 5943+) **Unit upgrades - prefer the important domain for the map:** AI unit-upgrade value now optionally uses the existing **SAS map-script heaviness** logic to **relatively value** unit upgrades (not a hard ban unless relative value is set high): the real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades. As a result, on **land-heavy maps, naval upgrades are treated as lower priority**, so the AI is more likely to **spend gold upgrading land units first** instead of modernizing old ships that have little strategic value on that map. On **naval-heavy maps, the same idea can apply in reverse for land upgrades**.
+ - (Requires AdvCiv-SAS 5947+) **Remote captured-city attack stacks:** large AI attack **stacks in faraway captured cities no longer let upgrade waiting override a ready offensive target**. If the stack is large enough, has a valid target, and the target is not too strong, it keeps using the existing attack movement logic **instead of parking most of the empire's army far from its core** because several units could upgrade, which was very problematic. In the BBAI-log sample, the Celtic Boston trapped-stack pattern was visible from T156 to T256; the stricter remote-trap diagnostic confirmed it from T172 to T214, with up to 41 units / 62% of Celtic military parked in a faraway captured city while still having ready targets. See [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target).
+ - (Requires AdvCiv-SAS 5948+) **Ready attack stacks stop parking for unavailable upgrades:** if a city-attack stack is ready, the target is not too strong, and **0 units can upgrade now**, the AI now keeps moving toward the target instead of waiting for possible future upgrades. This fixes real offensive freezes: in one BBAI-log sample, USA Washington waited from **T147-T181** with up to **59 units / 69% of total military** while targets were only **3-5 turns** away; Mali Gao waited from **T233-T255** with up to **42 units / 41% of total military**. The AI still waits for real immediate upgrades: a USA Seattle stack waited while **6 units could upgrade now**, then attacked/moved once that number became **0**. This is thought to be much stronger, because it uses the current military advantage before enemies catch up; old units can be spent in war instead of sitting around draining upkeep, needing future upgrade gold (solved if they die as well), and risking obsolescence; successful captures can then increase economy, unit support, and long-term growth; and the needless wait was very problematic and inefficient too. See [KI#156](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now).
++- (Requires AdvCiv-SAS 5952+) **AI attack stacks now opportunistically capture nearby barbarian cities:** before this fix, ready city-attack-capable (i.e. not just `UNITAI_ATTACK_CITY`) stacks could sit idle because the AI had **no normal war target yet**, even with a **nearby pathable barbarian city**. Now, if the AI has **no normal target** and is **not already busy with an active war**, the stack can **attack that barbarian city instead**. This does not override normal wars or normal war targets; it fills the no-target idle gap. This change is usually a **strong** move: barbarian cities are often weak, cost little diplomatically, and capturing them can give land, population, resources, unit support, and future growth without spending a settler or interrupting city production nor growth. In the tested save before the fix, nearby barbarian cities survived at game end at ~T400 despite reachable AI armies to Napoleon and Shaka, and barbarian being very weak in comparison, yet bonuses-rich, and Shaka was among weakest players; after the fix, Zulu captured Hurrian at T127, Alemanni at T132, Visigoth at T148, and Gaul at T153, turning those nearby barb cities into an early expansion boost and making Shaka the strongest player for almost all middle game and end game, almost allowing him to win. This change should make AI significantly stronger. See [KI#158](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war).
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=37886

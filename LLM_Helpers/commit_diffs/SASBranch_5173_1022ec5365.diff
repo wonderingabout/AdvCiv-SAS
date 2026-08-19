@@ -1,0 +1,226 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5173
+# Commit: 1022ec5365188ec73df05e65a178898b1e2b84ea
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8cf11089499e0152e4b4664042e879a9262be019
+# Title: Beautified the Domestic Advisor: now shows in Producing column the button of the current item being built **Beautified** the **Domestic Advisor** (F1 key): n...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	1	Assets/Python/Screens/CvDomesticAdvisor.py
+36	33	README.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index de4c74ccc..bb1bb7784 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -318,7 +318,38 @@ class CvDomesticAdvisor:
+ 		iProductionTurns = pLoopCity.getGeneralProductionTurnsLeft()
+ 		if iProductionTurns > 0: # advc.004x
+ 			szProducing += " (" + str(iProductionTurns) + ")"
+-		screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++
++		# <!-- custom: also show the button of the current thing we are building. Done with the help of gemini 3 pro thanks anyways etc. -->
++		# add the button (icon) to the "Producing" column.
++		# Get the button art for the current item
++		szButton = ""
++		iWidget = WidgetTypes.WIDGET_GENERAL
++		iData1 = -1
++		iData2 = -1
++
++		if pLoopCity.isProductionUnit():
++			iUnit = pLoopCity.getProductionUnit()
++			szButton = gc.getUnitInfo(iUnit).getButton()
++			iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT
++			iData1 = iUnit
++		elif pLoopCity.isProductionBuilding():
++			iBuilding = pLoopCity.getProductionBuilding()
++			szButton = gc.getBuildingInfo(iBuilding).getButton()
++			iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING
++			iData1 = iBuilding
++		elif pLoopCity.isProductionProject():
++			iProject = pLoopCity.getProductionProject()
++			szButton = gc.getProjectInfo(iProject).getButton()
++			iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT
++			iData1 = iProject
++		elif pLoopCity.isProductionProcess():
++			iProcess = pLoopCity.getProductionProcess()
++			szButton = gc.getProcessInfo(iProcess).getButton()
++
++		# Pass szButton as the 5th argument to display the icon next to the text
++		#screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, szButton, iWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY )
++		# End - add the button (icon) to the "Producing" column.
+ 
+ 		# Liberation
+ 		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
+
+diff --git a/README.md b/README.md
+index b80788acc..8bd37b542 100644
+--- a/README.md
++++ b/README.md
+@@ -24,15 +24,15 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
+ [Main Changes Guide](/README.md#main-changes-guide)  
+ [Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
++[Advisors and other reworks examples](/README.md#advisors-and-other-reworks-examples)  
+ [Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
+ &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
+ &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
+-&emsp;[Advisors and other reworks examples](/README.md#advisors-and-other-reworks-examples)  
+ &emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
+ &emsp;[Mods Info](/README.md#mods-info)  
+-&emsp;[Python Scripts](/README.md#python-scripts)  
+-&emsp;&emsp;[csv and md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
+-&emsp;&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
++[Python Scripts](/README.md#python-scripts)  
++&emsp;[csv and md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
++&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
+ [Less Generic-neutral unit names or/and combat types and note about woman units](/README.md#less-generic-neutral-unit-names-orand-combat-types-and-note-about-woman-units)  
+ [AI-generated images](/README.md#ai-generated-images)  
+ [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
+@@ -122,6 +122,35 @@ You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/D
+ 
+ This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
+ 
++## Advisors and other reworks examples
++
++### Other advisors' rework
++
++Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed.
++
++Some examples below:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
++
++See for related and similar changes [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game).
++
++### Untradeable techs (bTrade) display information
++
++For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG" alt="0.500_bTrade_bRepeat_example.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
++
++See also for details:
++
++- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
++- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
++- [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
++
+ ## Important Sevopedia reworks (click on the images below to view them full size)
+ 
+ ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
+@@ -156,32 +185,6 @@ note 1: its performance should be very very efficient and optimized, see for det
+ 
+ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
+ 
+-### Advisors and other reworks examples
+-
+-#### Untradeable techs (bTrade) display information
+-
+-For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG" alt="0.500_bTrade_bRepeat_example.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+-
+-See also for details:
+-
+-- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
+-- [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+-- [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+-
+-#### Other advisors' rework
+-
+-Also reworked, expanded and beautified some of the other Advisors' UI, as it was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed.
+-
+-Some examples below:
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG" alt="0.511_foreign_advisor_info.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+-
+ ### Concepts (as of now in the "Outdated" sevopedia category)
+ 
+ These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
+@@ -210,7 +213,7 @@ As of now this mostly contain other mod than advciv-sas changes (non-exhaustive
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+ 
+-### Python Scripts
++## Python Scripts
+ 
+ Mostly for modders, and not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+ 
+@@ -223,7 +226,7 @@ So far there is:
+ - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+ - [global XML duplication scanner](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+ 
+-#### csv and md view of the handicap (difficulties info in a table for all difficulties) info
++### csv and md view of the handicap (difficulties info in a table for all difficulties) info
+ 
+ Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here:
+ 
+@@ -238,7 +241,7 @@ Also code is provided thanks to chatgpt and my prompts or/and adjustments or not
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
+ 
+-#### csv github view for the flatten_leaders_data_to_csv conversion script
++### csv github view for the flatten_leaders_data_to_csv conversion script
+ 
+ About the flatten_leaders_data_to_csv script anyways output:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 25ee6b51f..2e4d914d1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -120,7 +120,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5162+ to 5168+) **Enlarged, excentered the Foreign Advisor screen**, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **military advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5173+) **Beautified** the **Domestic Advisor** (F1 key): now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5162+ to 5168+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 6ea720d84..e9627e6a2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -113,7 +113,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ - Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5162+ to 5168+) **Enlarged, excentered the Foreign Advisor screen**, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **military advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5173+) **Beautified** the **Domestic Advisor** (F1 key): now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5162+ to 5168+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+ 
+ ### Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+new file mode 100644
+index 000000000..f07cb95da
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=24762

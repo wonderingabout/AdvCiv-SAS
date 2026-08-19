@@ -1,0 +1,264 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2892
+# Commit: b6c5d8305485eed12b8c5c2be0a1b1821d365f9e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dcadf9b0294ebf16a6a83d95e2857a9b711193d9
+# Title: Increase meltdown chance, show number in help text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+11	0	Assets/XML/Text/CIV4GameText_advc.xml
+68	61	CvGameCoreDLL/CvCity.cpp
+3	0	CvGameCoreDLL/CvCity.h
+13	5	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 9a59bb80e..ff76efad5 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6344,7 +6344,8 @@
+ 			<iAirModifier>0</iAirModifier>
+ 			<iAirUnitCapacity>0</iAirUnitCapacity>
+ 			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>2000</iNukeExplosionRand>
++			<!-- advc: Was 2000. 1/1429 is ca. 0.7 permille. -->
++			<iNukeExplosionRand>1429</iNukeExplosionRand>
+ 			<iFreeSpecialist>0</iFreeSpecialist>
+ 			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+ 			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index bc9b2239c..5062ad2e9 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6627,4 +6627,15 @@
+ 		<Spanish>[ICON_BULLET]Incorpora %s1_corporation</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.652: From Civ4GameTextInfos.xml. Say how high the chance
++		 is exactly (instead of "small"). -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NUKE_EXPLOSION_CHANCE</Tag>
++		<English>[ICON_BULLET]Chance of Nuclear Meltdown: %s1 permille per turn</English>
++		<French>[ICON_BULLET]Chances de r&#233;action nucl&#233;aire : %s1 permille par tour</French>
++		<German>[ICON_BULLET]Kernschmelze m�glich (Chance %s1 Tausendstel pro Runde)</German>
++		<Italian>[ICON_BULLET]Probabilit&#224; di disastro nucleare: %s1 permille per turno</Italian>
++		<Spanish>[ICON_BULLET]Peque&#241;a probabilidad de accidente nuclear: %s1 permille por turno</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5133d91da..b5743ad7c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10924,73 +10924,17 @@ void CvCity::doMeltdown()
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+ 		BuildingTypes eDangerBuilding = kCiv.buildingAt(i);
+-		CvBuildingInfo const& kDangerBuilding = GC.getInfo(eDangerBuilding);
+-		// <kekm.5> (advc: Restructured the Kek-Mod code the code a bit)
+-		int const iOddsDivisor = kDangerBuilding.getNukeExplosionRand();
+-		if (iOddsDivisor <= 0)
+-			continue; // Save some time
+-		if (getNumActiveBuilding(eDangerBuilding) == 0) // was getNumBuilding
++		if (!isMeltdownBuilding(eDangerBuilding))
+ 			continue;
+-		if (isAreaCleanPower() ||
+-			(!kDangerBuilding.isPower() && kDangerBuilding.getPowerBonus() == NO_BONUS) ||
+-			(kDangerBuilding.getPowerBonus() != NO_BONUS &&
+-			!hasBonus(kDangerBuilding.getPowerBonus())))
+-		{
+-			continue;
+-		} // </kekm.5>
+ 		// advc.opt: Roll the dice before checking for a safe power source.
++		int const iOddsDivisor = GC.getInfo(eDangerBuilding).getNukeExplosionRand();
+ 		// advc.652: Adjust to game speed
+ 		scaled rNukePr = 1 / (iOddsDivisor * GC.getGame().gameSpeedMultiplier());
+-		if (!rNukePr.bernoulliSuccess(GC.getGame().getSRand(), "Meltdown"))
++		if (!rNukePr.bernoulliSuccess(GC.getGame().getSRand(), "Meltdown") ||
++			isMeltdownBuildingSuperseded(eDangerBuilding)) // kekm5
++		{
+ 			continue;
+-		// <kekm.5>
+-		bool bUnused = false;
+-		// Check for hydroplant (or any modded plant with less severe drawbacks)
+-		for (int j = 0; j < kCiv.getNumBuildings(); j++)
+-		{
+-			BuildingTypes eSafeBuilding = kCiv.buildingAt(j);
+-			if (eDangerBuilding == eSafeBuilding ||
+-				getNumActiveBuilding(eSafeBuilding) <= 0)
+-			{
+-				continue;
+-			}
+-			CvBuildingInfo const& kSafeBuilding = GC.getInfo(eSafeBuilding);
+-			if(!kSafeBuilding.isPower() &&
+-				(kSafeBuilding.getPowerBonus() == NO_BONUS ||
+-				!hasBonus(kSafeBuilding.getPowerBonus())))
+-			{
+-				continue;
+-			}
+-			if (kDangerBuilding.isDirtyPower() && !kSafeBuilding.isDirtyPower())
+-			{
+-				bUnused = true;
+-				break;
+-			}
+-			if (kDangerBuilding.isDirtyPower() != kSafeBuilding.isDirtyPower())
+-				continue;
+-			if (kSafeBuilding.getNukeExplosionRand() == 0)
+-			{
+-				bUnused = true;
+-				break;
+-			}
+-			if (kDangerBuilding.getNukeExplosionRand() > kSafeBuilding.getNukeExplosionRand())
+-			{
+-				continue;
+-			}
+-			if (kDangerBuilding.getNukeExplosionRand() < kSafeBuilding.getNukeExplosionRand())
+-			{
+-				bUnused = true;
+-				break;
+-			}
+-			if (eDangerBuilding < eSafeBuilding)
+-			{
+-				bUnused = true;
+-				break;
+-			}
+ 		}
+-		if (bUnused)
+-			continue; // </kekm.5>
+-
+ 		if (getNumRealBuilding(eDangerBuilding) > 0)
+ 			setNumRealBuilding(eDangerBuilding, 0);
+ 		getPlot().nukeExplosion(1, /* K-Mod: */ 0, false);
+@@ -11020,6 +10964,69 @@ void CvCity::doMeltdown()
+ 			getX(), getY(), GET_PLAYER(getOwner()).getPlayerTextColor());*/ // </advc.106>
+ }
+ 
++// advc.652: Kek-Mod code moved into subroutine
++bool CvCity::isMeltdownBuilding(BuildingTypes eBuilding) const
++{
++	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
++	// <kekm.5>
++	if (kBuilding.getNukeExplosionRand() <= 0)
++		return false;
++	if (getNumActiveBuilding(eBuilding) <= 0) // getNumBuilding in Kek-Mod
++		return false;
++	if (isAreaCleanPower() ||
++		(!kBuilding.isPower() && kBuilding.getPowerBonus() == NO_BONUS) ||
++		(kBuilding.getPowerBonus() != NO_BONUS &&
++		!hasBonus(kBuilding.getPowerBonus())))
++	{
++		return false;
++	} // </kekm.5>
++	return true;
++}
++
++/*	advc.652: Kek-Mod code moved into subroutine. Caller should ensure that
++	eDangerBuilding can cause a meltdown when assuming that no other power source
++	exists in this city. */
++bool CvCity::isMeltdownBuildingSuperseded(BuildingTypes eDangerBuilding) const
++{
++	CvBuildingInfo const& kDangerBuilding = GC.getInfo(eDangerBuilding);
++	CvCivilization const& kCiv = getCivilization();
++	// <kekm.5>
++	// Check for hydroplant (or any modded plant with less severe drawbacks)
++	for (int i = 0; i < kCiv.getNumBuildings(); i++)
++	{
++		BuildingTypes eSafeBuilding = kCiv.buildingAt(i);
++		if (eDangerBuilding == eSafeBuilding ||
++			getNumActiveBuilding(eSafeBuilding) <= 0)
++		{
++			continue;
++		}
++		CvBuildingInfo const& kSafeBuilding = GC.getInfo(eSafeBuilding);
++		if(!kSafeBuilding.isPower() &&
++			(kSafeBuilding.getPowerBonus() == NO_BONUS ||
++			!hasBonus(kSafeBuilding.getPowerBonus())))
++		{
++			continue;
++		}
++		if (kDangerBuilding.isDirtyPower() && !kSafeBuilding.isDirtyPower())
++			return true;
++
++		if (kDangerBuilding.isDirtyPower() != kSafeBuilding.isDirtyPower())
++			continue;
++		if (kSafeBuilding.getNukeExplosionRand() == 0)
++			return true;
++		if (kDangerBuilding.getNukeExplosionRand() >
++			kSafeBuilding.getNukeExplosionRand())
++		{
++			continue;
++		}
++		if (kDangerBuilding.getNukeExplosionRand() < kSafeBuilding.getNukeExplosionRand())
++			return true;
++		if (eDangerBuilding < eSafeBuilding)
++			return true;
++	}
++	return false;
++}
++
+ 
+ void CvCity::read(FDataStreamBase* pStream)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 2c1ffe45f..5ea555624 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1131,6 +1131,9 @@ public:
+ 	}
+ 	void setNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
+ 
++	bool isMeltdownBuilding(BuildingTypes eBuilding) const; // advc.652
++	bool isMeltdownBuildingSuperseded(BuildingTypes eBuilding) const; // advc.652
++
+ 	bool isHasReligion(ReligionTypes eIndex) const																	// Exposed to Python
+ 	{
+ 		return m_abHasReligion.get(eIndex);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d2b120603..0e30006da 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10130,13 +10130,21 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUKE_DAMAGE_MOD",
+ 				kBuilding.getNukeModifier()));
+ 	}
+-
+-	if (kBuilding.getNukeExplosionRand() != 0)
+ 	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUKE_EXPLOSION_CHANCE"));
++		int const iMeltdownRand = kBuilding.getNukeExplosionRand();
++		if (iMeltdownRand > 0 &&
++			// <advc.652> Don't show chance when building not operated
++			(pCity == NULL || pCity->getNumBuilding(eBuilding) <= 0 ||
++			(pCity->isMeltdownBuilding(eBuilding) &&
++			!pCity->isMeltdownBuildingSuperseded(eBuilding))))
++		{
++			szBuffer.append(NEWLINE);
++			float fPermilleChance = 1000.f / kBuilding.getNukeExplosionRand();
++			szTempBuffer.Format(L"%.2g", fPermilleChance); // </advc.652>
++			szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUKE_EXPLOSION_CHANCE",
++					szTempBuffer.c_str())); // advc.652
++		}
+ 	}
+-
+ 	if (kBuilding.getFreeSpecialist() != 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8525

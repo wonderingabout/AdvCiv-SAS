@@ -1,0 +1,101 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 631
+# Commit: 9a312e4c89621f52bb1af55db7cc347efb6bd882
+# History segment: K-Mod history
+# Parent used for diff: 88292139b9026259711178097d530762e2736a0e
+# Title: Adjusted the text and format of the unit cost mouse-over in the finacial advisor screen.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+10	4	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index affd96de6..934dff18f 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -67,6 +67,22 @@
+ 		<Italian>Trasferimento dati</Italian>
+ 		<Spanish>Transfiriendo datos de la partida</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FINANCE_ADVISOR_UNIT_COST</Tag>
++		<English>[NEWLINE]%d3[ICON_GOLD]: Unit cost for %d1 [NUM1:unit:units] (free support for %d2)</English>
++		<French>[NEWLINE]%d3[ICON_GOLD] : Co�t unitaire pour %d1 [NUM1:unit�:unit�s] (gratuit pour les %d2)</French>
++		<German>[NEWLINE]%d3[ICON_GOLD]: Einheitenkosten f&#252;r %d1 [NUM1:Einheit:Einheiten] (freier Unterhalt f&#252;r %d2)</German>
++		<Italian>[NEWLINE]%d3[ICON_GOLD]: Costo per %d1 unit&#224; (supporto gratuito per %d2)</Italian>
++		<Spanish>[NEWLINE]%d3 [ICON_GOLD]: coste unitario de %d1 [NUM1:unidad:unidades] (abastecimiento gratis para %d2)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FINANCE_ADVISOR_UNIT_COST_2</Tag>
++		<English>[NEWLINE]%d3[ICON_GOLD]: Military Supply cost for %d1 [NUM1:unit:units] (free support for %d2)</English>
++		<French>[NEWLINE]%d3[ICON_GOLD] : Co&#251;t de ravitaillement pour %d1 unit�s militaires (gratuit pour %d2)</French>
++		<German>[NEWLINE]%d3[ICON_GOLD]: Milit&#228;rkosten f&#252;r %d1 Einheiten (freier Unterhalt f&#252;r %d2)</German>
++		<Italian>[NEWLINE]%d3[ICON_GOLD]: Costo per %d1 unit&#224; militari (supporto gratuito per %d2)</Italian>
++		<Spanish>[NEWLINE]%d3 [ICON_GOLD]: coste unitario de %d1 [NUM1:unidad militar:unidades militares] (abastecimiento gratis para %d2)</Spanish>
++	</TEXT>
+ 	<!-- "-X% strength to opposing city defenders"?
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_CITY_ATTACK_TEXT</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 6eb1f0226..0ff55e17f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14469,11 +14469,14 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 	int iHandicap = iCost-iBaseUnitCost-iMilitaryCost-iExtraCost;
+ 
+ 	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iPaidUnits, iFreeUnits, iBaseUnitCost));
++	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iPaidUnits, iFreeUnits, iBaseUnitCost));
++	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iUnits, iFreeUnits, iBaseUnitCost)); // K-Mod
+ 
+-	if (iPaidMilitaryUnits != 0)
++	//if (iPaidMilitaryUnits != 0)
++	if (iMilitaryCost != 0) // K-Mod
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST_2", iPaidMilitaryUnits, iFreeMilitaryUnits, iMilitaryCost));
++		//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST_2", iPaidMilitaryUnits, iFreeMilitaryUnits, iMilitaryCost));
++		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST_2", iMilitaryUnits, iFreeMilitaryUnits, iMilitaryCost)); // K-Mod
+ 	}
+ 	if (iExtraCost != 0)
+ 	{
+@@ -14482,6 +14485,7 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 	if (iHandicap != 0)
+ 	{
+ 		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_HANDICAP_COST", iHandicap));
++		szBuffer.append(CvWString::format(L" (%+d%%)", GC.getHandicapInfo(player.getHandicapType()).getUnitCostPercent()-100)); // K-Mod
+ 	}
+ 	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST_4", iCost));
+ }
+@@ -14494,6 +14498,7 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 	}
+ 	CvPlayer& player = GET_PLAYER(ePlayer);
+ 
++	int iFreeUnits = GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"); // K-Mod
+ 	int iPaidUnits = 0;
+ 	int iBaseCost = 0;
+ 	int iCost = player.calculateUnitSupply(iPaidUnits, iBaseCost);
+@@ -14506,7 +14511,8 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 	}
+ 
+ 	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST", iPaidUnits, GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"), iBaseCost, szHandicap.GetCString(), iCost));
++	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST", iPaidUnits, GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"), iBaseCost, szHandicap.GetCString(), iCost));
++	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST", iPaidUnits + iFreeUnits, iFreeUnits, iBaseCost, szHandicap.GetCString(), iCost)); // K-Mod
+ }
+ 
+ void CvGameTextMgr::buildFinanceCityMaintString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4562

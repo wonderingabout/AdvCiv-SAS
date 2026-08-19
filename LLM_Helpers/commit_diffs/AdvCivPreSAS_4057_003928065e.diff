@@ -1,0 +1,269 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4057
+# Commit: 003928065ed30ac5a0807575c8b0e66409022cec
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ce6a48ef0153b4d9c456fe19c4d5bff023f69ffa
+# Title: Amend fix for scoreboard lag
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+51	13	Assets/Python/BUG/Scoreboard.py
+37	52	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 0135dee1f..f6bf8ea14 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -395,16 +395,52 @@ class Scoreboard:
+ 		for p in range( gc.getMAX_CIV_PLAYERS() ):
+ 			name = "ScoreText%d" %( p ) # the part that flashes? holds the score and name
+ 			screen.hide( name )
+-			# <advc.085> (The point is to trigger a mouse-over check for widget help,
+-			# resulting in a call to CvDLLWidgetData::parseHelp)
+-			if bUnhide:
+-				screen.show(name) # </advc.085>
+ 			for c in range( NUM_PARTS ):
+ 				name = "ScoreText%d-%d" %( p, c )
+ 				screen.hide( name )
+-				# <advc.085>
+-				if bUnhide:
+-					screen.show(name) # </advc.085>
++		# <advc.085>
++		if not bUnhide:
++			return
++		# (The point is to trigger a mouse-over check for widget help,
++		# resulting in a call to CvDLLWidgetData::parseHelp)
++		for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++			if (not Scoreboard.isShowTeamScore(gc.getPlayer(iPlayer).getTeam()) or
++					not Scoreboard.isShowPlayerScore(iPlayer)):
++				continue
++			sName = "ScoreText%d" %(iPlayer)
++			screen.show(sName)
++			for iPart in range(NUM_PARTS):
++				sName = "ScoreText%d-%d" %(iPlayer, iPart)
++				screen.show(sName)
++			
++
++	# Both cut from CvMainInterface.updateScoreStrings
++	@staticmethod
++	def isShowTeamScore(iTeam):
++		t = gc.getTeam(iTeam)
++		if not t.isEverAlive():
++			return False
++		if not t.isAlive() and not ScoreOpt.isShowDeadCivs(): # BUG - Dead Civs
++			return False
++		if t.isBarbarian():
++			return False
++		if (t.isMinorCiv() and not ScoreOpt.isShowMinorCivs()): # BUG - Minor Civs
++			return False
++		return (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(iTeam) or
++				t.isHuman() or
++				gc.getGame().isDebugMode() or
++				# advc.004v: Show members of unmet dead teams
++				(not t.isAlive() and ScoreOpt.isShowDeadCivs()))
++
++	@staticmethod
++	def isShowPlayerScore(iPlayer):
++		p = gc.getPlayer(iPlayer)
++		if (CyInterface().isScoresMinimized() and
++				gc.getGame().getActivePlayer() != iPlayer):
++			return False
++		# BUG - Dead Civs:
++		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
++	# </advc.085>
+ 
+ 	
+ 		
+@@ -500,7 +536,8 @@ class Scoreboard:
+ 				value = column.text
+ 				x -= spacing
+ 				for p, playerScore in enumerate(self._playerScores):
+-					name = "ScoreText%d-%d" %( p, c ) # advc.085: Moved up
++					# advc.085: Moved up, insert player ID (not _playerScores index)
++					name = "ScoreText%d-%d" %( playerScore.getID(), c )
+ 					if (playerScore.has(c) and playerScore.value(c)):
+ 						widget = playerScore.widget(c)
+ 						if widget is None:
+@@ -550,7 +587,8 @@ class Scoreboard:
+ 					continue
+ 				x -= spacing
+ 				for p, playerScore in enumerate(self._playerScores):
+-					name = "ScoreText%d-%d" %( p, c ) # advc.085: Moved up
++					# advc.085: Moved up, insert player ID.
++					name = "ScoreText%d-%d" %( playerScore.getID(), c )
+ 					if (playerScore.has(c)):
+ 						value = playerScore.value(c)
+ 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
+@@ -561,7 +599,7 @@ class Scoreboard:
+ 						align = CvUtil.FONT_RIGHT_JUSTIFY
+ 						adjustX = 0
+ 						if (c == NAME):
+-							name = "ScoreText%d" % p
++							name = "ScoreText%d" % playerScore.getID() # advc.085: was p
+ 							if (ScoreOpt.isLeftAlignName()):
+ 								align = CvUtil.FONT_LEFT_JUSTIFY
+ 								adjustX = width
+@@ -605,7 +643,7 @@ class Scoreboard:
+ 					for p, playerScore in enumerate(self._playerScores):
+ 						if (playerScore.has(c)):
+ 							tech = playerScore.value(c)
+-							name = "ScoreTech%d" % p
++							name = "ScoreTech%d" % playerScore.getID() # advc.085: was p
+ 							info = gc.getTechInfo(tech)
+ 							iData2 = 0 # advc.085: was -1
+ 							screen.addDDSGFC(name, info.getButton(),
+@@ -621,7 +659,7 @@ class Scoreboard:
+ 					for p, playerScore in enumerate(self._playerScores):
+ 						if (playerScore.has(c)):
+ 							leader = playerScore.value(c)
+-							name = "ScoreLeader%d" % p
++							name = "ScoreLeader%d" % playerScore.getID() # advc.085: was p
+ 							info = gc.getLeaderHeadInfo(leader)
+ 							screen.addDDSGFC(name, info.getButton(),
+ 									x - techIconSize, y - p * height + iYIconOffset,
+@@ -635,7 +673,7 @@ class Scoreboard:
+ 					for p, playerScore in enumerate(self._playerScores):
+ 						if (playerScore.has(c)):
+ 							civ = playerScore.value(c)
+-							name = "ScoreCiv%d" % p
++							name = "ScoreCiv%d" % playerScore.getID() # advc.085: was p
+ 							info = gc.getCivilizationInfo(civ)
+ 							screen.addDDSGFC(name, info.getButton(),
+ 									x - techIconSize, y - p * height + iYIconOffset,
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 2be4bc6a3..f1f28708e 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1955,7 +1955,7 @@ class CvMainInterface:
+ 				PanelStyles.PANEL_STYLE_HUD_HELP)
+ 		screen.hide("ScoreBackground")
+ 
+-		for i in range(gc.getMAX_PLAYERS()):
++		for i in range(gc.getMAX_CIV_PLAYERS()):
+ 			szName = "ScoreText" + str(i)
+ 			screen.setText(szName, "Background",
+ 					u"", CvUtil.FONT_RIGHT_JUSTIFY,
+@@ -6303,73 +6303,58 @@ class CvMainInterface:
+ # BUG - Align Icons - end
+ 		# (BUG - Power Rating)  advc: Moved into the loop
+ 		i = gc.getMAX_CIV_TEAMS() - 1
+-		while (i > -1):
++		while i > -1:
+ 			eTeam = gc.getGame().getRankTeam(i)
+-			# advc.004v: Show members of unmet dead teams
+-			if (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam) or
+-					gc.getTeam(eTeam).isHuman() or
+-					gc.getGame().isDebugMode() or
+-					(not gc.getTeam(eTeam).isAlive() and
+-					gc.getTeam(eTeam).isEverAlive() and
+-					ScoreOpt.isShowDeadCivs())):
++			# advc.085: Moved to BUG Scoreboard (static method)
++			if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+ # BUG - Align Icons - start
+-				if (bAlignIcons):
++				if bAlignIcons:
+ 					scores.addTeam(gc.getTeam(eTeam), i)
+ # BUG - Align Icons - end
+ 				j = gc.getMAX_CIV_PLAYERS() - 1
+-				while (j > -1):
++				while j > -1:
+ 					ePlayer = gc.getGame().getRankPlayer(j)
+-					if (not CyInterface().isScoresMinimized() or
+-							gc.getGame().getActivePlayer() == ePlayer):
+-# BUG - Dead Civs - start
+-						if (gc.getPlayer(ePlayer).isEverAlive() and
+-								not gc.getPlayer(ePlayer).isBarbarian()
+-								and (gc.getPlayer(ePlayer).isAlive() or
+-								ScoreOpt.isShowDeadCivs())):
+-# BUG - Dead Civs - end
+-# BUG - Minor Civs - start
+-							if (not gc.getPlayer(ePlayer).isMinorCiv() or
+-									ScoreOpt.isShowMinorCivs()):
+-# BUG - Minor Civs - end
+-								if (gc.getPlayer(ePlayer).getTeam() == eTeam):
+-									szBuffer = u"<font=2>"
++					# advc.085: Moved to BUG Scoreboard
++					if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
++							gc.getPlayer(ePlayer).getTeam() == eTeam):
++						szBuffer = u"<font=2>"
+ # BUG - Align Icons - start
+-									if (bAlignIcons):
+-										scores.addPlayer(gc.getPlayer(ePlayer), j)
++						if bAlignIcons:
++							scores.addPlayer(gc.getPlayer(ePlayer), j)
+ # BUG - Align Icons - end
+-									# advc: Code moved into auxiliary function
+-									szBuffer += self.playerScoreString(ePlayer, scores, bAlignIcons)
+-									szBuffer = szBuffer + "</font>"
++						# advc: Code moved into auxiliary function
++						szBuffer += self.playerScoreString(ePlayer, scores, bAlignIcons)
++						szBuffer = szBuffer + "</font>"
+ # BUG - Align Icons - start
+-									if not bAlignIcons:
+-										if CyInterface().determineWidth(szBuffer) > iWidth:
+-											iWidth = CyInterface().determineWidth(szBuffer)
+-										szName = "ScoreText" + str(ePlayer)
++						if not bAlignIcons:
++							if CyInterface().determineWidth(szBuffer) > iWidth:
++								iWidth = CyInterface().determineWidth(szBuffer)
++							szName = "ScoreText" + str(ePlayer)
+ # BUG - Dead Civs - start
+-										# Don't try to contact dead civs
+-										if gc.getPlayer(ePlayer).isAlive():
+-											iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
+-											eContactPlayer = ePlayer
+-										else:
+-											iWidgetType = WidgetTypes.WIDGET_GENERAL
+-											eContactPlayer = -1
+-										yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
+-										screen.setText(szName, "Background",
+-												szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
+-												gPoint("ScoreTextLowerRight").x(),
+-												yCoord - iCount * iBtnHeight,
+-												-0.3, FontTypes.SMALL_FONT,
+-												iWidgetType, eContactPlayer, -1)
++							# Don't try to contact dead civs
++							if gc.getPlayer(ePlayer).isAlive():
++								iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
++								eContactPlayer = ePlayer
++							else:
++								iWidgetType = WidgetTypes.WIDGET_GENERAL
++								eContactPlayer = -1
++							yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
++							screen.setText(szName, "Background",
++									szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
++									gPoint("ScoreTextLowerRight").x(),
++									yCoord - iCount * iBtnHeight,
++									-0.3, FontTypes.SMALL_FONT,
++									iWidgetType, eContactPlayer, -1)
+ # BUG - Dead Civs - end
+-										screen.show(szName)
+-										CyInterface().checkFlashReset(ePlayer)
+-										iCount += 1
++							screen.show(szName)
++							CyInterface().checkFlashReset(ePlayer)
++							iCount += 1
+ # BUG - Align Icons - end
+ 					j = j - 1
+ 			i = i - 1
+ 
+ # BUG - Align Icons - start
+-		if (bAlignIcons):
++		if bAlignIcons:
+ 			scores.draw(screen)
+ 		else:
+ 			self.updateScoreBackgrSize(iWidth, iBtnHeight * iCount) # advc.092
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=9548

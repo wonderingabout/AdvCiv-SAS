@@ -1,0 +1,892 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5431
+# Commit: 30dd3faa8ce67b3edd08ebd3b6dcb441d7e7da34
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3bf18c08eca65df9071ca976b9a9575707c1da41
+# Title: refactor multilists, with the help of GPT-5.3-Codex thanks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	24	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+19	65	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	8	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+7	27	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+4	20	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+2	8	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+16	38	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+2	3	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+15	49	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+6	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+5	2	Assets/Python/Screens/CvInfoScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 3bf392d77..c0f8e93cc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -404,11 +404,7 @@ class SevoPediaBonus:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+@@ -417,9 +413,7 @@ class SevoPediaBonus:
+ 		for iTerrain in xrange(gc.getNumTerrainInfos()):
+ 			# Check if bonus can appear on this terrain
+ 			if gc.getBonusInfo(self.iBonus).isTerrain(iTerrain):
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
+ 
+ 				isButtonFound = True
+ 				#iButtonIndex += 1
+@@ -456,11 +450,7 @@ class SevoPediaBonus:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+@@ -469,9 +459,7 @@ class SevoPediaBonus:
+ 		for iFeature in xrange(gc.getNumFeatureInfos()):
+ 			# Check if bonus can appear on this feature
+ 			if gc.getBonusInfo(self.iBonus).isFeature(iFeature):
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+ 
+ 				isButtonFound = True
+ 				#iButtonIndex += 1
+@@ -509,11 +497,7 @@ class SevoPediaBonus:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+@@ -521,9 +505,7 @@ class SevoPediaBonus:
+ 		# <!-- custom: core logic provided with the help of chatgpt thanks. -->
+ 		for iTerrain in xrange(gc.getNumTerrainInfos()):
+ 			if gc.getBonusInfo(self.iBonus).isFeatureTerrain(iTerrain):
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
+ 
+ 				isButtonFound = True
+ 				#iButtonIndex += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index db5c2b325..3a8d38d43 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -479,23 +479,16 @@ class SevoPediaBuilding:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		# <!-- custom: SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		for iPrereqTech in xrange(gc.getNumTechInfos()):
+ 			if isTechRequiredForBuilding(iPrereqTech, self.iBuilding):
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getTechInfo(iPrereqTech).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereqTech, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getTechInfo(iPrereqTech).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereqTech, 1, False)
+ 
+ 				isButtonFound = True
+ 				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned -->
+@@ -503,9 +496,7 @@ class SevoPediaBuilding:
+ 
+ 		iPrereqAndBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
+ 		if iPrereqAndBonus >= 0:
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqAndBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqAndBonus, 1, False)
++			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqAndBonus).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqAndBonus, 1, False)
+ 
+ 			isButtonFound = True
+ 			iButtonIndex += 1
+@@ -513,9 +504,7 @@ class SevoPediaBuilding:
+ 		for k in range(gc.getNUM_BUILDING_PREREQ_OR_BONUSES()):
+ 			iPrereqOrBonus = gc.getBuildingInfo(self.iBuilding).getPrereqOrBonuses(k)
+ 			if iPrereqOrBonus >= 0:
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqOrBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqOrBonus, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqOrBonus).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqOrBonus, 1, False)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -527,9 +516,7 @@ class SevoPediaBuilding:
+ 				iPrereqCorporationBonus = gc.getCorporationInfo(iCorporation).getPrereqBonus(k)
+ 				if iPrereqCorporationBonus >= 0:
+ 					# <!-- custom: in all cases (whether there is a numTxt or not to place as well), place the button -->
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqCorporationBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqCorporationBonus, 1, False)
++					screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqCorporationBonus).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqCorporationBonus, 1, False)
+ 
+ 					# <!-- custom: then before incrementing the position for the next numTxt, handle the "or" numTxt placement of the current button we just placed -->
+ 					if not bFirst:
+@@ -546,9 +533,7 @@ class SevoPediaBuilding:
+ 
+ 		iPrereqReligion = gc.getBuildingInfo(self.iBuilding).getPrereqReligion()
+ 		if iPrereqReligion >= 0:
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, gc.getReligionInfo(iPrereqReligion).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereqReligion, 1, False)
++			screen.appendMultiListButton(rowListName, gc.getReligionInfo(iPrereqReligion).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereqReligion, 1, False)
+ 
+ 			isButtonFound = True
+ 			iButtonIndex += 1
+@@ -564,9 +549,7 @@ class SevoPediaBuilding:
+ 			for iProject in range(gc.getNumProjectInfos()):
+ 				projectInfo = gc.getProjectInfo(iProject)
+ 				if projectInfo.getEveryoneSpecialBuilding() == iSpecialBuildingType:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, projectInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
++					screen.appendMultiListButton(rowListName, projectInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
+ 
+ 					if not bFirst:
+ 						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad), not having thus to rewrite our otherwise working code. -->
+@@ -592,9 +575,7 @@ class SevoPediaBuilding:
+ 				
+ 				# If a valid building exists, display its button
+ 				if iDefaultBuilding != -1:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
++					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+ 
+ 					numTxt = "InC"
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -613,9 +594,7 @@ class SevoPediaBuilding:
+ 				
+ 				# If a valid building exists, display its button with number required
+ 				if iDefaultBuilding != -1:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
++					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+ 
+ 					numTxt = "AllC %s+RM" % iNumRequired
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -707,16 +686,10 @@ class SevoPediaBuilding:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 		
+ 		# Get the building class of our current building
+@@ -728,9 +701,7 @@ class SevoPediaBuilding:
+ 			
+ 			# Check if this building is needed via BuildingClassNeededs
+ 			if loopBuildingInfo.isBuildingClassNeededInCity(iCurrentBuildingClass):
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
++				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
+ 
+ 				numTxt = "InC"
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -742,9 +713,7 @@ class SevoPediaBuilding:
+ 			# Check if this building is needed via PrereqBuildingClasses
+ 			iNumRequired = loopBuildingInfo.getPrereqNumOfBuildingClass(iCurrentBuildingClass)
+ 			if iNumRequired > 0:
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
++				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
+ 
+ 				numTxt = "AllC %s+RM" % iNumRequired
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -760,8 +729,7 @@ class SevoPediaBuilding:
+ 			iPrereqBuilding = loopUnitInfo.getPrereqBuilding()
+ 
+ 			if iPrereqBuilding == self.iBuilding:
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, loopUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iLoopUnit, 1, False)
++				screen.appendMultiListButton(rowListName, loopUnitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iLoopUnit, 1, False)
+ 
+ 				# <!-- custom: add numTxt info that this building prereq is or may beoverriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of -->
+ 				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
+@@ -843,16 +811,10 @@ class SevoPediaBuilding:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# Get the building info
+@@ -861,9 +823,7 @@ class SevoPediaBuilding:
+ 		# Check if the building grants a free promotion, and attach it -->
+ 		iFreePromotion = buildingInfo.getFreePromotion()
+ 		if iFreePromotion != -1:
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, gc.getPromotionInfo(iFreePromotion).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, 1, False)
++			screen.appendMultiListButton(rowListName, gc.getPromotionInfo(iFreePromotion).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, 1, False)
+ 
+ 			numTxt = "All Un.C"
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -879,9 +839,7 @@ class SevoPediaBuilding:
+ 			
+ 			# If a valid building exists, display its button
+ 			if iDefaultBuilding != -1:
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+ 
+ 				numTxt = "All Cs"
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -896,9 +854,7 @@ class SevoPediaBuilding:
+ 		if iFreeBonus != -1:
+ 			iNumFreeBonuses = buildingInfo.getNumFreeBonuses()
+ 
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iFreeBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, 1, False)
++			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iFreeBonus).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, 1, False)
+ 
+ 			numTxt = get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -912,9 +868,7 @@ class SevoPediaBuilding:
+ 			if buildingInfo.getFreeSpecialistCount(iSpecialist) > 0:
+ 				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
+ 
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getSpecialistInfo(iSpecialist).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getSpecialistInfo(iSpecialist).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
+ 
+ 				numTxt = "%d" % iSpecialistCount
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 36889d835..93e593255 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -133,20 +133,14 @@ class SevoPediaCivic:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Find all leaders who have this civic as favorite
+ 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+ 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+ 			if leaderInfo.getFavoriteCivic() == self.iCivic:
+ 				leaderInfo = gc.getLeaderHeadInfo(iLeader)
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
++				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 2f942caeb..c45c611a2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -367,16 +367,10 @@ class SevoPediaFeature:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		#isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# <!-- custom: handle feature(s) that is (are) impassable such as of now only the ice cap feature quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences, see code comments at sevopedia feature's placeUnitsImpassable -->
+@@ -398,9 +392,7 @@ class SevoPediaFeature:
+ 					unitInfo.getFeaturePassableTech(iIce) != -1))
+ 				)
+ 				if can_cross_ice:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 					iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
+ 					iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
+@@ -429,9 +421,7 @@ class SevoPediaFeature:
+ 				isHasW3 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN3)
+ 
+ 				if ((iFeatureAttack != 0) or (iFeatureDefense != 0) or isHasW1 or isHasW2 or isHasW3):
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 					if iFeatureAttack != 0 or iFeatureDefense != 0:
+ 						numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+@@ -469,9 +459,7 @@ class SevoPediaFeature:
+ 				iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
+ 
+ 				if iFeatureAttack != 0 or iFeatureDefense != 0:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 					numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -508,11 +496,7 @@ class SevoPediaFeature:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		iIce = self.I_FEATURE_ICE
+ 		if self.iFeature == iIce:
+@@ -542,9 +526,7 @@ class SevoPediaFeature:
+ 				)
+ 
+ 				if land_or_air_blocked or sea_blocked:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		else:
+ 			info = gc.getFeatureInfo(self.iFeature)
+@@ -563,9 +545,7 @@ class SevoPediaFeature:
+ 					not unitInfo.isCanMoveAllTerrain()
+ 				)
+ 				if blocked:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 908c3f8ab..f1ecc5e57 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -174,16 +174,10 @@ class SevoPediaPromotion:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually
+ 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
+@@ -193,9 +187,7 @@ class SevoPediaPromotion:
+ 			
+ 			# Check if this unit has the current promotion as a free promotion
+ 			if unitInfo.getFreePromotions(self.iPromotion):
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 				isButtonFound = True
+ 				#iButtonIndex += 1
+@@ -231,16 +223,10 @@ class SevoPediaPromotion:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
+@@ -250,9 +236,7 @@ class SevoPediaPromotion:
+ 			
+ 			# Check if this building grants the current promotion
+ 			if buildingInfo.getFreePromotion() == self.iPromotion:
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+ 
+ 				isButtonFound = True
+ 				#iButtonIndex += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index ff6016a0c..387c0ce1e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -153,20 +153,14 @@ class SevoPediaReligion:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: (not catch them all... or maybe.. or not or yes... xd) -->
+ 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+ 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+ 			if leaderInfo.getFavoriteReligion() == self.iReligion:
+ 				leaderInfo = gc.getLeaderHeadInfo(iLeader)
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
++				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index e5b47220c..1d6a58c6a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -406,16 +406,10 @@ class SevoPediaTerrain:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		#isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		iPeak = self.I_TERRAIN_PEAK
+@@ -443,19 +437,17 @@ class SevoPediaTerrain:
+ 				)
+ 
+ 				if can_walk_on_peak:
+-						# Column index (always 0 when numLists=1)
+-						columnIndex = 0
+-						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+-						iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+-						iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
++					iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
++					iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+ 
+-						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+-						extraCorrectionX = get_extra_correction_x(numTxt)
+-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
++					extraCorrectionX = get_extra_correction_x(numTxt)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-						#isButtonFound = True
+-						iButtonIndex += 1
++					#isButtonFound = True
++					iButtonIndex += 1
+ 
+ 		elif self.iTerrain == self.I_TERRAIN_HILL:
+ 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such) -->
+@@ -473,9 +465,7 @@ class SevoPediaTerrain:
+ 				isHasHM3 = unitInfo.getFreePromotions(self.I_PROMOTION_HILLS_MASTER3)
+ 
+ 				if ((iHillsAttack != 0) or (iHillsDefense != 0) or isHasHM1 or isHasHM2 or isHasHM3):
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 					if (iHillsAttack != 0 or iHillsDefense != 0):
+ 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
+@@ -517,8 +507,7 @@ class SevoPediaTerrain:
+ 				isHasN = unitInfo.getFreePromotions(self.I_PROMOTION_NAVIGATOR)
+ 
+ 				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN):
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 					if iTerrainAttack != 0 or iTerrainDefense != 0:
+ 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+@@ -544,9 +533,7 @@ class SevoPediaTerrain:
+ 				iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+ 
+ 				if iTerrainAttack != 0 or iTerrainDefense != 0:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -581,11 +568,7 @@ class SevoPediaTerrain:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		iPeak = self.I_TERRAIN_PEAK
+ 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
+@@ -612,9 +595,7 @@ class SevoPediaTerrain:
+ 				)
+ 
+ 				if blocked:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		elif self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+@@ -626,8 +607,7 @@ class SevoPediaTerrain:
+ 				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeRelevantUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
+ 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA:
+ 					if ((unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)) and (not unitInfo.isCanMoveAllTerrain())):
+-						columnIndex = 0
+-						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++						screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		else:
+ 			# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure-->
+@@ -647,9 +627,7 @@ class SevoPediaTerrain:
+ 					not unitInfo.isCanMoveAllTerrain()
+ 				)
+ 				if blocked:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 0846da850..aeb873299 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -249,14 +249,13 @@ class SevoPediaTrait:
+ 		multiListY = self.Y_LEADERS + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = self.W_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = self.H_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_H
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		for iLeader in leadersWithTrait:
+ 			self.iLeader = iLeader
+ 			iCiv = leaderToCiv.get(iLeader, -1)
+ 			if iCiv == -1:
+ 				continue
+-			screen.appendMultiListButton(rowListName, gc.getLeaderHeadInfo(iLeader).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
++			screen.appendMultiListButton(rowListName, gc.getLeaderHeadInfo(iLeader).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 5dd03bc8e..4dbe178e4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -483,16 +483,10 @@ class SevoPediaUnit:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# Get the unit info
+@@ -505,13 +499,11 @@ class SevoPediaUnit:
+ 			iModDefense = unitInfo.getUnitClassDefenseModifier(i)
+ 
+ 			if iModAttack != 0 or iModDefense != 0:
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) -->
++# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) -->
+ 				# Find a representative unit from this class
+ 				unitClassInfo = gc.getUnitClassInfo(i)
+ 				iRepresentativeUnit = unitClassInfo.getDefaultUnitIndex()
+-				screen.appendMultiListButton(rowListName, gc.getUnitInfo(iRepresentativeUnit).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iRepresentativeUnit, 1, False)
++				screen.appendMultiListButton(rowListName, gc.getUnitInfo(iRepresentativeUnit).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iRepresentativeUnit, 1, False)
+ 
+ 				# Handle class modifiers with x/y format
+ 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+@@ -530,10 +522,8 @@ class SevoPediaUnit:
+ 				iModCombat = unitInfo.getUnitCombatModifier(i)
+ 
+ 				if iModCombat != 0:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case, our previous code was seemingly mistaken -->
+-					screen.appendMultiListButton(rowListName, gc.getUnitCombatInfo(i).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
++# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case, our previous code was seemingly mistaken -->
++					screen.appendMultiListButton(rowListName, gc.getUnitCombatInfo(i).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
+ 
+ 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -572,16 +562,10 @@ class SevoPediaUnit:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# Get the unit info for the current unit
+@@ -598,9 +582,7 @@ class SevoPediaUnit:
+ 			iModDefense = otherUnitInfo.getUnitClassDefenseModifier(iUnitClass)
+ 
+ 			if iModAttack != 0 or iModDefense != 0:
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
++				screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
+ 
+ 				# Handle class modifiers with x/y format
+ 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+@@ -618,9 +600,7 @@ class SevoPediaUnit:
+ 				iModCombat = otherUnitInfo.getUnitCombatModifier(iUnitCombatType)
+ 				
+ 				if iModCombat != 0:
+-					# Column index (always 0 when numLists=1)
+-					columnIndex = 0
+-					screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
++					screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
+ 
+ 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -659,16 +639,10 @@ class SevoPediaUnit:
+ 		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+ 		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+-		# Per documentation, the numLists parameter (7th) is actually number of columns
+-		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		# Using 1 for auto-calculation of buttons per row
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+-
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 		
+ 		# Get the unit info
+@@ -684,9 +658,7 @@ class SevoPediaUnit:
+ 			iHill = self.I_TERRAIN_HILL
+ 			widgetID2 = -1
+ 
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iHill).getButton(), columnIndex, widgetType, iHill, widgetID2, False)
++			screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iHill).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, widgetType, iHill, widgetID2, False)
+ 
+ 			numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -705,9 +677,7 @@ class SevoPediaUnit:
+ 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
+ 				widgetID2 = -1
+ 
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(i).getButton(), columnIndex, widgetType, i, widgetID2, False)
++				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(i).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, widgetType, i, widgetID2, False)
+ 
+ 				numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -724,9 +694,7 @@ class SevoPediaUnit:
+ 			citiesConceptID = get_concept_id("CONCEPT_CITIES")
+ 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(citiesConceptID, WidgetTypes, CivilopediaPageTypes)
+ 
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, self.citiesButtonPath, columnIndex, widgetType, widgetID1, widgetID2, False)
++			screen.appendMultiListButton(rowListName, self.citiesButtonPath, SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, widgetType, widgetID1, widgetID2, False)
+ 
+ 			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -744,9 +712,7 @@ class SevoPediaUnit:
+ 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE
+ 				widgetID2 = -1
+ 
+-				# Column index (always 0 when numLists=1)
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(i).getButton(), columnIndex, widgetType, i, widgetID2, False)
++				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(i).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, widgetType, i, widgetID2, False)
+ 
+ 				numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+@@ -982,7 +948,7 @@ class SevoPediaUnit:
+ 		# <!-- custom: no TXT_KEY_PEDIA_CATEGORY_PROMOTION "header" for smoother display with how the unit pane is done (and promo pane is next to it now) -->
+ 		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		rowListName = self.top.getNextWidgetName()
+-		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml -->
+ 		eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()
+@@ -994,7 +960,7 @@ class SevoPediaUnit:
+ 			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate; check if accurate.). -->
+ 			#if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
+ 			if gc.getPromotionInfo(k).getUnitCombat(eUnitCombat) > 0 and not gc.getPromotionInfo(k).isGraphicalOnly():
+-				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)
++				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 8fd12890f..4441e9aeb 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -38,6 +38,12 @@ HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
+ HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
+ # <!-- custom: when displaying only one row, adjust height to hide the 2nd row's buttons so it is prettier/clearer to read -->
+ HIDE_SECOND_ROW_MULTI_LIST = - 4
++# Per documentation, the numLists parameter (7th) is actually number of columns
++# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++# Using 1 for auto-calculation of buttons per row
++SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE = 1
++# Column index (always 0 when numLists=1)
++SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 7e1b0564a..0f5ef5394 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -382,6 +382,9 @@ class CvInfoScreen:
+ 		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
+ 		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
+ 		self.iTopCitiesWonderButtonSize = 46
++		# <!-- custom: mirror Sevopedia multilist constants pattern (without shared module dependency). (GPT-5.3-Codex) -->
++		self.iTopCitiesWonderNumListsAutoCalculate = 1
++		self.iTopCitiesWonderColumnIndexAuto = 0
+ 		self.iTopCitiesWonderNumRows = 2
+ 		self.iTopCitiesWonderPanelMargin = 8
+ 		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
+@@ -2577,7 +2580,7 @@ class CvInfoScreen:
+ 				iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER,
+ 				iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER),
+ 				iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER),
+-				1,  # numLists (1 for auto-calculate buttons per row)
++				self.iTopCitiesWonderNumListsAutoCalculate,
+ 				self.iTopCitiesWonderButtonSize,
+ 				self.iTopCitiesWonderButtonSize,
+ 				TableStyles.TABLE_STYLE_STANDARD)
+@@ -2586,7 +2589,7 @@ class CvInfoScreen:
+ 			for iWonderLoop in range(aiTopCitiesNumWonders[iCityLoop]):
+ 				iBuildingID = aaiTopCitiesWonders[iCityLoop][iWonderLoop]
+ 				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(),
+-					0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
++					self.iTopCitiesWonderColumnIndexAuto, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
+ 
+ 	def calculateTopCities(self):
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=59038

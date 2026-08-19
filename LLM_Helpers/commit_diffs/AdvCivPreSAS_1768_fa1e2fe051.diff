@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1768
+# Commit: fa1e2fe0517ea97354f87f36e195faf733b07b7f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2cb47d8b7abe2bd3b260794e67d268d75975b860
+# Title: Show feature health help only when a selected worker is able to remove the feature.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/XML/GameInfo/CIV4Hints.xml
+10	0	Assets/XML/Text/CIV4GameText_advc.008d.xml
+17	6	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index c00a84634..0bf3fd23b 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -672,6 +672,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_39</Description>
+ 		</HintInfo>
++		<!-- Skip 40 -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -784,5 +785,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_39</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_40</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008d.xml b/Assets/XML/Text/CIV4GameText_advc.008d.xml
+index 4de586962..baebb016f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008d.xml
+@@ -1013,4 +1013,14 @@
+ 	<Spanish>(AdvCiv) Your AI rivals will not consider proposals for a trade embargo so long as you have trades with the target of the embargo. In contrast, you can always tell your vassals to stop trading with any target.</Spanish>
+ </TEXT>
+ 
++<!-- advc.059 -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_40</Tag>
++	<English>(AdvCiv) To see which tiles affect the health of a city, click the city's name on the main map and then hover over the surrounding tiles.</English>
++	<French>(AdvCiv) To see which tiles affect the health of a city, click the city's name on the main map and then hover over the surrounding tiles.</French>
++	<German>(AdvCiv) Um zu sehen, welche Felder die Gesundheit einer Stadt beeinflussen, klicken Sie auf den Stadtnamen und bewegen Sie dann den Mauszeiger �ber die Felder in der Umgebung.</German>
++	<Italian>(AdvCiv) To see which tiles affect the health of a city, click the city's name on the main map and then hover over the surrounding tiles.</Italian>
++	<Spanish>(AdvCiv) To see which tiles affect the health of a city, click the city's name on the main map and then hover over the surrounding tiles.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index bdbeb4795..bb63ea43a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5011,20 +5011,31 @@ void CvGameTextMgr::setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot con
+ 	CvTeam const& kActiveTeam = GET_TEAM(GC.getGame().getActiveTeam());
+ 	CvPlayer const& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+ 	CvUnit* pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+-	bool bBuild = false;
++	bool bCanRemove = false;
+ 	// <advc.004b>
+ 	bool bFound = false;
+ 	if (pHeadSelectedUnit != NULL)
+ 	{
+ 		if (pHeadSelectedUnit->canFound()) // advc.004h
+ 			bFound = true; // </advc.004b>
+-		if (pHeadSelectedUnit->AI_getUnitAIType() == UNITAI_WORKER && pHeadSelectedUnit->at(kPlot))
+-			bBuild = true;
++		if (pHeadSelectedUnit->AI_getUnitAIType() == UNITAI_WORKER && pHeadSelectedUnit->at(kPlot) &&
++			kPlot.getFeatureType() != NO_FEATURE)
++		{
++			FOR_EACH_ENUM(Build)
++			{
++				if (GC.getInfo(eLoopBuild).isFeatureRemove(kPlot.getFeatureType()) &&
++					pHeadSelectedUnit->canBuild(&kPlot, eLoopBuild))
++				{
++					bCanRemove = true;
++					break;
++				}
++			}
++		}
+ 	}
+-	if(!bFound && !bBuild && !kPlot.isCityRadius())
++	if(!bFound && !bCanRemove && !kPlot.isCityRadius())
+ 		return;
+ 	bool bNearSelectedCity = false;
+-	if (!bFound && !bBuild)
++	if (!bFound && !bCanRemove)
+ 	{
+ 		bool bOurCity = false;
+ 		for (int i = 0; i < NUM_CITY_PLOTS; i++) // Look for a city
+@@ -5064,7 +5075,7 @@ void CvGameTextMgr::setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot con
+ 			iHealthPercent += kImprov.get(CvImprovementInfo::HealthPercent); // </advc.901>
+ 	}
+ 	bool bCitySelected = (gDLL->getInterfaceIFace()->getHeadSelectedCity() != NULL);
+-	bool bAlwaysShow = (bFound || bBuild || bNearSelectedCity);
++	bool bAlwaysShow = (bFound || bCanRemove || bNearSelectedCity);
+ 	if (iHappy != 0)
+ 	{
+ 		if (bAlwaysShow || !bCitySelected)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4007

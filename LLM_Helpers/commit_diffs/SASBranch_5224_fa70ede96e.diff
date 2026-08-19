@@ -1,0 +1,822 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5224
+# Commit: fa70ede96e9492d492bd1cced32fc7f7f1305214
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9d743273aea6e3e7fba4d9a0dd191d0f3c44ff2c
+# Title: group bonuses by improvement type with the very nice help of chatgpt 5.2 anyways etc. based on RFC DOC mod's code as well as my adjustments or mostly review...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+138	20	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+133	0	Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt
+4	2	Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
+2	2	Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
+3	2	Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt
+139	0	Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt
+2	2	Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt
+2	2	Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt
+5	4	Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
+4	2	Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
+6	1	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+ create mode 100644 Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt
+ create mode 100644 Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index b9fd23f2a..938c20658 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -190,6 +190,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheReligionsTuple = None
+ 		self.SAS_cacheProjectsTuple = None
+ 		self.SAS_cacheSpecialistsTuple = None
++		self.SAS_cacheBonusesTuple = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -407,6 +408,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -571,7 +573,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				techsList.append(x)
+ 
+-		return tuple(techsList)
++		return techsList
+ 
+ 	def placeTechs(self):
+ 		self.list = self.getTechList()
+@@ -586,7 +588,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getTechList(self):
+ 		if self.SAS_cacheTechsTuple is None:
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
+-				self.SAS_cacheTechsTuple = self.SAS_getTechsGroupedByEra()
++				self.SAS_cacheTechsTuple = tuple(self.SAS_getTechsGroupedByEra())
+ 			else:
+ 				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
+ 				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
+@@ -688,14 +690,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				unitsList.append(x)
+ 
+-		return tuple(unitsList)
++		return unitsList
+ 
+ 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getUnitList(self):
+ 		if self.SAS_cacheUnitsTuple is None:
+ 			baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
+-				self.SAS_cacheUnitsTuple = self.SAS_getUnitsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheUnitsTuple = tuple(self.SAS_getUnitsGroupedByEra_fromBaseList(baseList))
+ 			else:
+ 				self.SAS_cacheUnitsTuple = tuple(baseList)
+ 		return self.SAS_cacheUnitsTuple
+@@ -837,7 +839,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				buildingsList.append(x)
+ 
+-		return tuple(buildingsList)
++		return buildingsList
+ 
+ 
+ 	def placeBuildings(self):
+@@ -849,7 +851,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.SAS_cacheRegularBuildingsTuple is None:
+ 			baseList = self.pediaBuilding.getBuildingSortedList(0)
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+-				self.SAS_cacheRegularBuildingsTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheRegularBuildingsTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
+ 			else:
+ 				self.SAS_cacheRegularBuildingsTuple = tuple(baseList)
+ 		return self.SAS_cacheRegularBuildingsTuple
+@@ -864,7 +866,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+ 			if self.SAS_cacheNationalWondersTuple is None:
+ 				baseList = self.pediaBuilding.getBuildingSortedList(1)
+-				self.SAS_cacheNationalWondersTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheNationalWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
+ 			return self.SAS_cacheNationalWondersTuple
+ 		else:
+ 			if self.SAS_cacheNationalWondersTuple is None:
+@@ -881,7 +883,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+ 			if self.SAS_cacheWorldWondersTuple is None:
+ 				baseList = self.pediaBuilding.getBuildingSortedList(2)
+-				self.SAS_cacheWorldWondersTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheWorldWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
+ 			return self.SAS_cacheWorldWondersTuple
+ 		else:
+ 			if self.SAS_cacheWorldWondersTuple is None:
+@@ -949,7 +951,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				projectsList.append(x)
+ 
+-		return tuple(projectsList)
++		return projectsList
+ 
+ 	def placeProjects(self):
+ 		self.list = self.getProjectList()
+@@ -960,13 +962,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.SAS_cacheProjectsTuple is None:
+ 			baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
+-				self.SAS_cacheProjectsTuple = self.SAS_getProjectsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheProjectsTuple = tuple(self.SAS_getProjectsGroupedByEra_fromBaseList(baseList))
+ 			else:
+ 				self.SAS_cacheProjectsTuple = tuple(baseList)
+ 		return self.SAS_cacheProjectsTuple
+ 
+ 
+-	# Helper to group specialists by type (regular vs great). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
++	# Helper to group specialists by type (e.g. Engineer vs Great Engineer). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
+ 	def SAS_getSpecialistsGroupedByType(self):
+ 		specialistsList = []
+ 		greatSpecialistsList = []
+@@ -1005,7 +1007,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in greatSpecialistsList:
+ 				outList.append(x)
+ 
+-		return tuple(outList)
++		return outList
+ 
+ 	def placeSpecialists(self):
+ 		self.list = self.getSpecialistList()
+@@ -1018,7 +1020,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getSpecialistList(self):
+ 		if self.SAS_cacheSpecialistsTuple is None:
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE:
+-				self.SAS_cacheSpecialistsTuple = self.SAS_getSpecialistsGroupedByType()
++				self.SAS_cacheSpecialistsTuple = tuple(self.SAS_getSpecialistsGroupedByType())
+ 			else:
+ 				self.SAS_cacheSpecialistsTuple = tuple(self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo))
+ 		return self.SAS_cacheSpecialistsTuple
+@@ -1057,12 +1059,128 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
+ 
+ 
++	# Helper: pick the primary improvement that makes a bonus tradable (i.e. "improves" it). This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping. If multiple improvements can trade the same bonus (rare; mostly in modmods), we prefer an improvement that matches the bonus's water/land nature.
++	# That traceback is exactly because BtS/AdvCiv’s CvBonusInfo wrapper does not expose isWater() in Python (your dump confirms it: there’s no isWater in the bonus methods list) (__SevoPediaBonus-gc-inner-debug...)
++	# Meanwhile CvImprovementInfo does expose isWater() (and also uses isImprovementBonusTrade(...) in the wrapper), which is what we should rely on instead. (__SevoPediaImprovement-gc-inner…)
++	# So the fix is: stop calling bInfo.isWater() and infer land/water purely from the improvements that can trade the bonus.	
++	def SAS_getPrimaryImprovementForBonus(self, iBonus):
++		bInfo = gc.getBonusInfo(iBonus)
++		if not bInfo or bInfo.isGraphicalOnly():
++			return -1
++
++		# CvBonusInfo does not expose isWater() in Python (BtS/AdvCiv wrapper).
++		# Infer land/water only from improvements that can trade the bonus.
++		# If both exist (e.g. Oil in some mods), prefer land for now.
++		iBestAny = -1
++		iBestLand = -1
++		iBestWater = -1
++
++		for iImprovement in range(gc.getNumImprovementInfos()):
++			imprInfo = gc.getImprovementInfo(iImprovement)
++			if not imprInfo or imprInfo.isGraphicalOnly():
++				continue
++
++			# RFC DoC often uses isBonusTrade(); BtS/AdvCiv wrapper typically has
++			# isImprovementBonusTrade(). Support both safely.
++			if hasattr(imprInfo, "isBonusTrade"):
++				bTrades = imprInfo.isBonusTrade(iBonus)
++			else:
++				bTrades = imprInfo.isImprovementBonusTrade(iBonus)
++
++			if not bTrades:
++				continue
++
++			if iBestAny == -1:
++				iBestAny = iImprovement
++
++			if imprInfo.isWater():
++				if iBestWater == -1:
++					iBestWater = iImprovement
++			else:
++				if iBestLand == -1:
++					iBestLand = iImprovement
++
++		# If only one side exists, use it. If both exist, prefer land for now.
++		if iBestLand != -1 and iBestWater == -1:
++			return iBestLand
++		if iBestWater != -1 and iBestLand == -1:
++			return iBestWater
++		if iBestLand != -1:
++			return iBestLand
++		return iBestAny
++
++	# Group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc).
++	# This mirrors RFC DoC's approach in CvPediaMain.placeResources(), adapted to our cached-list style.
++	# Notes on behavior (so it matches what you expect):
++	# 	- The improvement bucket is determined by improvement.isBonusTrade(bonus), which is exactly what you want for “Farm header contains Corn/Wheat”.
++	# 	- If a bonus can be improved by multiple improvements (rare), it picks a “primary” one, preferring water improvements for water bonuses and land improvements for land bonuses.
++	# 	- Header order is improvement XML order (consistent with your other grouped lists). BUG “Sort Lists” only sorts within each header.
++	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
++		bonusesList = []
++
++		noImprovement = []
++		groups = {}  # iImprovement -> [(szName, iBonus), ...]
++
++		# One pass over bonuses preserves XML order within each group when Sort Lists is OFF.
++		for (szName, iBonus) in baseList:
++			iImprovement = self.SAS_getPrimaryImprovementForBonus(iBonus)
++			if iImprovement == -1:
++				noImprovement.append((szName, iBonus))
++				continue
++
++			tmp = groups.get(iImprovement, None)
++			if tmp is None:
++				tmp = []
++				groups[iImprovement] = tmp
++			tmp.append((szName, iBonus))
++
++		# Optional sorting within each improvement group (when BUG "Sort Lists" is ON)
++		if self.isSortLists():
++			for k in groups.keys():
++				groups[k].sort()
++			noImprovement.sort()
++
++		# Preserve improvement XML order for headers (matches our other grouped lists).
++		for iImprovementLoop in range(gc.getNumImprovementInfos()):
++			tmp = groups.get(iImprovementLoop, None)
++			if not tmp:
++				continue
++
++			if bonusesList:
++				bonusesList.append(("", -1))
++
++			imprInfo = gc.getImprovementInfo(iImprovementLoop)
++			# Defensive: should exist, but keep safe.
++			szHeader = "Improvement"
++			if imprInfo:
++				szHeader = imprInfo.getDescription()
++			bonusesList.append((szHeader, -1))
++
++			for x in tmp:
++				bonusesList.append(x)
++
++		# Fallback bucket for bonuses that have no "bonus trade" improvement (rare)
++		if noImprovement:
++			if bonusesList:
++				bonusesList.append(("", -1))
++			bonusesList.append(("Other", -1))
++			for x in noImprovement:
++				bonusesList.append(x)
++
++		return bonusesList
++
+ 	def placeBonuses(self):
+ 		self.list = self.getBonusList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, gc.getBonusInfo)
+ 	
+ 	def getBonusList(self):
+-		return self.getSortedList(gc.getNumBonusInfos(), gc.getBonusInfo)
++		if self.SAS_cacheBonusesTuple is None:
++			baseList = self.getSortedList(gc.getNumBonusInfos(), gc.getBonusInfo)
++			if self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT:
++				self.SAS_cacheBonusesTuple = tuple(self.SAS_getBonusesGroupedByImprovement_fromBaseList(baseList))
++			else:
++				self.SAS_cacheBonusesTuple = tuple(baseList)
++		return self.SAS_cacheBonusesTuple
+ 
+ 
+ 	def placeImprovements(self):
+@@ -1187,7 +1305,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				civicsList.append(x)
+ 
+-		return tuple(civicsList)
++		return civicsList
+ 
+ 	def placeCivics(self):
+ 		self.list = self.getCivicList()
+@@ -1200,7 +1318,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getCivicList(self):
+ 		if self.SAS_cacheCivicsTuple is None:
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
+-				self.SAS_cacheCivicsTuple = self.SAS_getCivicsGroupedByCivicOption()
++				self.SAS_cacheCivicsTuple = tuple(self.SAS_getCivicsGroupedByCivicOption())
+ 			else:
+ 				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
+ 		return self.SAS_cacheCivicsTuple
+@@ -1266,7 +1384,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				religionsList.append(x)
+ 
+-		return tuple(religionsList)
++		return religionsList
+ 
+ 	def placeReligions(self):
+ 		self.list = self.getReligionList()
+@@ -1277,7 +1395,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+ 		if self.SAS_cacheReligionsTuple is None:
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
+-				self.SAS_cacheReligionsTuple = self.SAS_getReligionsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheReligionsTuple = tuple(self.SAS_getReligionsGroupedByEra_fromBaseList(baseList))
+ 			else:
+ 				self.SAS_cacheReligionsTuple = tuple(baseList)
+ 		return self.SAS_cacheReligionsTuple
+@@ -1359,7 +1477,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in tmp:
+ 				corpsList.append(x)
+ 
+-		return tuple(corpsList)
++		return corpsList
+ 
+ 	def placeCorporations(self):
+ 		self.list = self.getCorporationList()
+@@ -1370,7 +1488,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.SAS_cacheCorporationsTuple is None:
+ 			baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
+-				self.SAS_cacheCorporationsTuple = self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList)
++				self.SAS_cacheCorporationsTuple = tuple(self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList))
+ 			else:
+ 				self.SAS_cacheCorporationsTuple = tuple(baseList)
+ 		return self.SAS_cacheCorporationsTuple
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt
+new file mode 100644
+index 000000000..d36fc1091
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt
+@@ -0,0 +1,133 @@
++in sevopediabonus, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++printObjAttrs(gc.getBonusInfo(self.iBonus))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
++
++
++
++[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.
++
++__class__
++
++__delattr__
++
++__dict__ = {}
++
++__doc__ = None
++
++__getattribute__
++
++__hash__
++
++__init__
++
++__instance_size__ = 484
++
++__module__ = CvPythonExtensions
++
++__new__
++
++__reduce__
++
++__reduce_ex__
++
++__repr__
++
++__setattr__
++
++__str__
++
++__weakref__ = None
++
++getAIObjective
++
++getAITradeModifier
++
++getArtDefineTag
++
++getArtInfo
++
++getBonusClassType
++
++getButton
++
++getChar
++
++getCivilopedia
++
++getConstAppearance
++
++getDescription
++
++getDescriptionForm
++
++getGroupRand
++
++getGroupRange
++
++getHappiness
++
++getHealth
++
++getHelp
++
++getMaxLatitude
++
++getMinAreaSize
++
++getMinLandPercent
++
++getMinLatitude
++
++getPercentPerPlayer
++
++getPlacementOrder
++
++getRandAppearance1
++
++getRandAppearance2
++
++getRandAppearance3
++
++getRandAppearance4
++
++getStrategy
++
++getTechCityTrade
++
++getTechObsolete
++
++getTechReveal
++
++getText
++
++getTextKey
++
++getTilesPer
++
++getType
++
++getUniqueRange
++
++getYieldChange
++
++isFeature
++
++isFeatureTerrain
++
++isFlatlands
++
++isGraphicalOnly
++
++isHills
++
++isMatchForLink
++
++isNoRiverSide
++
++isNormalize
++
++isOneArea
++
++isTerrain
++
++[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
+index fd59310d6..49bf9e8f3 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
+@@ -1,6 +1,8 @@
+-in sevopediabuilding,
++in sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc)
+-returns/logs/prints this anyways etc:
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
++
++Note:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
+index caa688ca1..2687951f8 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
+@@ -1,6 +1,6 @@
+-in sevopediabuilding, after importing the sevopedia_debuggers (`from sevopedia_debuggers import *` or something similar in case i made a typo or such but anyways etc)
++in sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getFeatureInfo(self.iFeature))
+-returns/logs/prints this anyways etc:
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt
+index 8a1cb8971..23a170089 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt
+@@ -1,6 +1,7 @@
+-in sevopediabuilding,
++in sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getFeatureInfo(self.iBuilding))
+-returns/logs/prints this anyways etc:
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
++
+ 
+ 
+ __class__
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt
+new file mode 100644
+index 000000000..3bebaf765
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt
+@@ -0,0 +1,139 @@
++in sevopediaimprovement, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++printObjAttrs(gc.getImprovementInfo(self.iImprovement))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
++
++
++
++[DEBUG] Beginning of show obj inner fields if i am not mistaken anyways etc.
++
++__class__
++
++__delattr__
++
++__dict__ = {}
++
++__doc__ = None
++
++__getattribute__
++
++__hash__
++
++__init__
++
++__instance_size__ = 500
++
++__module__ = CvPythonExtensions
++
++__new__
++
++__reduce__
++
++__reduce_ex__
++
++__repr__
++
++__setattr__
++
++__str__
++
++__weakref__ = None
++
++getAirBombDefense
++
++getArtDefineTag
++
++getButton
++
++getCivilopedia
++
++getDefenseModifier
++
++getDescription
++
++getDescriptionForm
++
++getFeatureGrowthProbability
++
++getFeatureMakesValid
++
++getGoodyUniqueRange
++
++getHappiness
++
++getHelp
++
++getHillsYieldChange
++
++getImprovementBonusDiscoverRand
++
++getImprovementBonusYield
++
++getImprovementPillage
++
++getImprovementUpgrade
++
++getIrrigatedYieldChange
++
++getPillageGold
++
++getPrereqNatureYield
++
++getRiverSideYieldChange
++
++getRouteYieldChanges
++
++getStrategy
++
++getTechYieldChanges
++
++getTerrainMakesValid
++
++getText
++
++getTextKey
++
++getTilesPerGoody
++
++getType
++
++getUpgradeTime
++
++getYieldChange
++
++isActsAsCity
++
++isCarriesIrrigation
++
++isFreshWaterMakesValid
++
++isGoody
++
++isGraphicalOnly
++
++isHillsMakesValid
++
++isImprovementBonusMakesValid
++
++isImprovementBonusTrade
++
++isMatchForLink
++
++isNoFreshWater
++
++isOutsideBorders
++
++isPermanent
++
++isRequiresFeature
++
++isRequiresFlatlands
++
++isRequiresIrrigation
++
++isRequiresRiverSide
++
++isRiverSideMakesValid
++
++isWater
++
++[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt
+index ec661d3d4..58f50a961 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt
+@@ -1,6 +1,6 @@
+-in sevopedialeader,
++in sevopedialeader, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getLeaderHeadInfo(self.iLeader))
+-returns/logs/prints this anyways etc:__class__
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt
+index 363bfb8f2..d09461625 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt
+@@ -1,6 +1,6 @@
+-in sevopediatech,
++in sevopediatech, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getTechInfo(self.iTech))
+-returns/logs/prints this anyways etc:
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
+index 58598192e..06e9b5664 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
+@@ -1,7 +1,8 @@
+-in sevopediaunit,
+-printObjAttrs(unitInfo) where unitInfo is gc.getUnitInfo(self.iUnit), so in other words:
+-printObjAttrs(gc.getUnitInfo(self.iUnit)) if i am not mistaken anyways etc,
+-returns/logs/prints this anyways etc:
++in sevopediaunit, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++printObjAttrs(gc.getUnitInfo(self.iUnit))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
++
++Note: if i'm not mistaken we don't need to inspect the full gc for each file since it should be common, so i only inspected one here, but did instead the inner-debug-content rather anyways etc., but it's just a guess and i don't know too much about these, check if accurate anyways etc.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
+index 61f9ef517..302595fb0 100644
+--- a/Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
++++ b/Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
+@@ -1,7 +1,9 @@
+-in sevopediaproject,
++in sevopediaproject, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(projectInfo) where projectInfo is gc.getProjectInfo(self.iProject) , so in other words:
+ printObjAttrs(gc.getProjectInfo(self.iProject)) if i am not mistaken anyways etc,
+-returns/logs/prints this anyways etc:
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log anyways etc:
++
++
+ 
+ __class__
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 23832a50b..1bd106523 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -72,12 +72,17 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: in sevopedia main specialists list, group specialists by type (regular vs great) based on how RFC DOC mod does it thanks but anyways etc. -->
++	<!-- custom: in sevopedia main specialists list, group specialists by type (e.g. Engineer vs Great Engineer) based on how RFC DOC mod does it thanks but anyways etc. -->
+ 	<!-- custom: 1 to enable (recommended), 0 to disable -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: in sevopedia bonuses list, group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) based on how RFC DOC mod does it thanks but anyways etc. -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index bf5468f70..95b04b61b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -124,7 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+-- (Requires AdvCiv-SAS 5212+ to 5222+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialists. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5224+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist, **by Improvement Type** (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) in Sevopedia Bonus. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index b0b0bade4..d54028627 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
+-- (Requires AdvCiv-SAS 5212+ to 5222+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialists. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5224+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist, **by Improvement Type** (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) in Sevopedia Bonus. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 87a59e3b8..543292714 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -2,7 +2,7 @@
+ 
+ Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
+ 
+-Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings if any. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
++Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
+ 
+ Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
+ 
+@@ -88,6 +88,8 @@ More recently, also added thanks to bit of chatgpt's help too hehe even though m
+ 
+ Update: since then, added AI information about `iAIObjective` and/or such fields in sevopedia bonus's placeSpecial panel (effects) anyways etc. Viewable ingame in sevopedia bonus or/and in xml, and done with the help of claude ai thanks to my prompts too and/or such anyways etc.
+ 
++Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) based on RFC DOC mod code's thanks and chatgpt 5.2's help as well thanks but anyways etc.
++
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG" alt="0.650_sevopedia_bonuses_sample (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+index d14f8bbbb..a2e07f00b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+index a83474bc2..5e34a7620 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+index a0c08c1d6..0d600deef 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=36504

@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1736
+# Commit: d8d5621174abe680e7800840d6b45288cdf2f7b7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 81c4d11a9fb492d2ba9c62af55c74cdc82d25abd
+# Title: Another tweak to the demand-better-protection option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	5	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e40f5b116..813988d7c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -15297,22 +15297,26 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
+ double CvCity::garrisonStrength(double stopCountingAt) const
+ {
+ 	/*  Time is now acceptable, but still not negligible (slightly above 1%).
+-		Probably b/c of the allUpgradesAvailable check. Should probably simply
++		Probably b/c of the allUpgradesAvailable check. Should simply
+ 		cache the result of getNoMilitaryPercentAnger. */
+ 	PROFILE_FUNC();
+ 	double r = 0;
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 	CvPlot const& kPlot = *plot();
++	CvCity const* pCapital = kOwner.getCapitalCity();
++	if (pCapital == this)
++		pCapital = NULL;
+ 	for(int i = 0; i < kPlot.getNumUnits(); i++)
+ 	{
+-		CvUnit* pUnit = kPlot.getUnitByIndex(i);
+-		CvUnitInfo const& u = pUnit->getUnitInfo();
++		CvUnit const& kUnit = *kPlot.getUnitByIndex(i);
++		CvUnitInfo const& u = kUnit.getUnitInfo();
+ 		// Exclude naval units but not Explorer and Gunship
+ 		if(!u.isMilitaryHappiness() && u.getCultureGarrisonValue() <= 0)
+ 			continue;
+-		double defStr = pUnit->maxCombatStr(&kPlot, NULL, NULL, true); // Or use currCombatStr?
++		double defStr = kUnit.maxCombatStr(&kPlot, NULL, NULL, true);
+ 		// Outdated units count half
+-		if(allUpgradesAvailable(pUnit->getUnitType()) != NO_UNIT)
++		if(allUpgradesAvailable(kUnit.getUnitType()) != NO_UNIT ||
++				(pCapital != NULL && pCapital->allUpgradesAvailable(kUnit.getUnitType())))
+ 			defStr /= 2;
+ 		r += defStr;
+ 		if (stopCountingAt > 0 && r > stopCountingAt)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1654

@@ -1,0 +1,486 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4824
+# Commit: c9756e0b33dd10d983724abf81661d1a51f8d697
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 34509ed6fa7ec5b08e9ee0832af91b39fcde985c
+# Title: flatten/display goodies as individual fields in flatten_handicap_info_to_csv_and_md.py and add a legend footnote as chatgpt/becomingthrough explained to me t...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	README.md
+13	14	_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv
+6	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/{csv_md_handicap_github_view_search_bar_example.PNG => csv_handicap_github_view_search_bar_example.PNG}
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG
+94	38	flatten_handicap_info_to_csv_and_md.py
+43	2	flatten_leaders_data_to_csv.py
+0	2	generate_leaders_data.py
+13	14	handicap_info_to_csv_advciv-sas.csv
+ rename _1_AdvCiv-SAS/Images_In_General/scripts/{csv_md_handicap_github_view_search_bar_example.PNG => csv_handicap_github_view_search_bar_example.PNG} (100%)
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 539816930..cedf0eba9 100644
+--- a/README.md
++++ b/README.md
+@@ -102,7 +102,7 @@ Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py
+ Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
+ 
+ (note: base advciv handicap info .csv table +/- .md version of the same info tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
+
+diff --git a/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv b/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv
+index 16af28da7..31b3369cd 100644
+--- a/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv	
++++ b/_0_Common_Docs/AdvCiv Base Doc/handicap_info_to_csv_base_advciv.csv	
+@@ -71,9 +71,20 @@ iUnownedTilesPerBarbarianCity,160,150,140,130,120,110,100,90,80
+ iUnownedTilesPerBarbarianUnit,125,80,66,56,48,42,38,34,30
+ iUnownedTilesPerGameAnimal,85,70,62,52,50,44,40,36,32
+ iUnownedWaterTilesPerBarbarianUnit,750,600,550,500,450,400,350,300,250
++GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,2,3,4
++GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,3,3,3
++GOODY_EXPERIENCE (*),1,1,1,2,2,2,1,1,1
++GOODY_HEALING (*),1,1,1,1,1,1,1,1,1
++GOODY_HIGH_GOLD (*),4,3,3,2,1,1,0,0,0
++GOODY_LOW_GOLD (*),2,2,2,3,4,3,4,4,4
++GOODY_MAP (*),1,1,2,2,2,2,2,2,1
++GOODY_SCOUT (*),1,1,1,1,1,1,1,1,1
++GOODY_SETTLER (*),1,1,0,0,0,0,0,0,0
++GOODY_TECH (*),4,4,4,4,4,3,3,3,3
++GOODY_WARRIOR (*),2,2,2,2,2,2,1,1,1
++GOODY_WORKER (*),2,2,1,0,0,0,0,0,0
+ AIFreeTechs,,,,,,AIFT_0,AIFT_1,AIFT_2,AIFT_3
+ FreeTechs,FT_0,FT_1,FT_2,,,,,,
+-Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+ 
+ 
+ 
+@@ -107,16 +118,4 @@ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+ ,Steel,-,-,-,-,-,-,-,-
+ ,Plastics,Plastics,-,-,-,-,-,-,-
+ ,Refrigeration,-,-,-,-,-,-,-,-
+-,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+-,High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-
+-,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold
+-,Map,Map,Map,Map,Map,Map,Map,Map,Map
+-,Settler,Settler,-,-,-,-,-,-,-
+-,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior
+-,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout
+-,Worker,Worker,Worker,-,-,-,-,-,-
+-,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.
+-,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing
+-,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech
+-,-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak
+-,-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong
++,,,,,,,,,,"(*): This element is listed under the heading ""Goodies (20)"" in the XML file. It indicates the chance (x-in-20) of a ""goody hut"" yielding this result when ""popped"" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)"
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 352c43560..40fa17a69 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -258,7 +258,7 @@ note: you can remove the timestamp (i.e. the year and time and such info in file
+ GitHub website view example (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc)
+ 
+ <img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+-<img src="../Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+ 
+ Libre Office view example (or similar software or not anyways etc) (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
+ 
+@@ -280,7 +280,9 @@ So in short or not short but anyways etc.. I'd recommend viewing the .csv file/v
+ 
+ (you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+ 
+-To generate handicap info table for another mod (for example for base AdvCiv) using the flatten_handicap_info_to_csv_and_md.py script, for example for base AdvCiv), the safer way regardless of whether you posess the AdvCiv-SAS mod installed in your civ4 Mods folder or not, is to also have a copy of the flatten_handicap_info_to_csv_and_md.py script in your own mod folder, for example copy flatten_handicap_info_to_csv_and_md.py (find it on AdvCiv-SAS's github or somewhere if you don't have the script) to your mod path, for example for base AdvCiv it would be copied to `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\flatten_handicap_info_to_csv_and_md.py`, then run this command from for example base AdvCiv mod in this case/example:
++To generate handicap info table for another mod (for example for base AdvCiv) using the flatten_handicap_info_to_csv_and_md.py script, for example for base AdvCiv), copy the flatten_handicap_info_to_csv_and_md.py script from the AdvCiv-SAS folder to your mod folder, for example copy flatten_handicap_info_to_csv_and_md.py (find it on AdvCiv-SAS's github or somewhere if you don't have the script) to for example for base AdvCiv to (adjust paths and/or such similar things anyways if not steam user) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\flatten_handicap_info_to_csv_and_md.py`
++
++Then run this command from for example base AdvCiv mod in this case/example (adjust paths and/or such similar things anyways if not steam user):
+ 
+ ```
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_handicap_info_to_csv_and_md.py
+@@ -288,11 +290,9 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ (now from "AdvCiv" mod for example, not from "AdvCiv-SAS" mod folder)
+ 
+-This is the easiest and most reliable way, you are now totally independent from AdvCiv folder regardless of what happens to it. Drawback as per the independence is you have to manage the script yourself, it will always work-function if worked-functionned once, but you need or may want to update to a newer version of the flatten_handicap_info_to_csv_and_md.py script in your mod if for example AdvCiv-SAS or some other mod adds new changes/enhancements/fixes to this script, else you'd still be running the old version of the script, even though it would work-function, you'd miss out on the enhancements, but i still recommend this method for other users, as it is more reliable and easier once you have the script. As for me, since i often modify the script during testing and such at least as of now as they are not finalized, it is easier and less tedious for me to run it with the above command from AdvCiv-SAS rather as is tedious to copy and replace the script at each change i make to it at least as of now during testing, but for another mod and user, i'd recommend this method rather of copying the script anyways etc as you prefer or not or yes or etc or and other or and not anyways etc.
+-
+ ### output handicap_info table .csv and optionally .md for another mod (for example "AdvCiv" (base AdvCiv) mod) anyways etc
+ 
+-Regardless of the method you chose, output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
++Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
+ 
+ - [.csv (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
+ - .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
+@@ -327,7 +327,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ ## output table .csv and legend .md
+ 
+-files (.csv and .md) can be viewed directly there:
++Output files (.csv and .md) can be viewed directly there:
+ - [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
+ - legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG
+rename to _1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG
+index 73750f2ea..516789887 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG and b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG differ
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index 24809e3cd..d25e4a5df 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -1,23 +1,34 @@
+-# --- Convert CIV4HandicapInfo.xml to CSV and Markdown with Legends ---
++# --- Convert CIV4HandicapInfo.xml to CSV with Full Difficulty Settings and Goody Table ---
++# This script is part of the AdvCiv-SAS mod project.
++# (c) 2025 wonderingabout & becomingthrough
+ #
+-# This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml.
+-# It transforms XML fields into a column-aligned CSV table and a Markdown summary,
+-# replacing multi-entry lists (e.g. <FreeTechs>) with unique short legend keys (e.g. FT_0),
+-# and writing an aligned legend block showing actual entries.
+-# The CSV includes a right-shifted, tabular [LEGEND] block for spreadsheet use.
+-# The Markdown version is GitHub-friendly and includes both tables and legend mappings.
++# This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml
++# into a structured, spreadsheet-friendly CSV table, suitable for data analysis or mod balancing.
+ #
+-# Features:
+-# - Enum beautification (e.g. HANDICAP_NOBLE → Noble)
+-# - Comma-separated list flattening for <Goodies>, <FreeTechs>, <AIFreeTechs>
+-# - Short key assignment (FT_, G_, AIFT_) with index
+-# - Consistent horizontal alignment across difficulty columns
+-# - Modular formatting of legends (aligned by row, not by raw string) <!-- custom: for
+-# the CSV version we export anyways etc -->
+-# - Markdown export with proper table and readable legend
++# It parses each <HandicapInfo> entry and outputs:
++# - One row per numeric or structured field (e.g. iAIBarbarianBonus, iTrainPercent)
++# - One column per difficulty (e.g. Settler → Deity), with beautified headers (e.g. "HANDICAP_PRINCE" → "Prince")
+ #
+-# This script is part of the AdvCiv-SAS mod project.
+-# (c) 2025 wonderingabout & becomingthrough
++# Special handling is applied to:
++#
++# 1. <Goodies>:
++#    - All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
++#    - Output field names use their original enum name (e.g. "GOODY_LOW_GOLD").
++#    - In the CSV, each goody field is labeled with "(*)" and followed by a footnote explaining the x-in-20 hut chance system.
++#
++# 2. <FreeTechs> and <AIFreeTechs>:
++#    - These are parsed as comma-separated strings per difficulty.
++#    - Their long values are replaced with short legend keys (e.g. FT_0), and a visual [LEGEND] block shows full mappings.
++#
++# Output Features:
++# - Fully aligned columns and rows across all difficulties
++# - Legends shifted one column to the right for better spreadsheet readability
++# - Enum beautification for difficulty names (e.g. HANDICAP_IMMORTAL → Immortal)
++# - Consistent sorting and field placement, including manual repositioning of goodies and nested fields
++# - Final footnote explaining hut behavior for goodies, placed after the [LEGEND] block
++#
++# Markdown export is present but disabled by default.
++
+ 
+ import csv
+ import xml.etree.ElementTree as ET
+@@ -39,6 +50,37 @@ handicap_infos = root.find('ns:HandicapInfos', namespace)
+ all_fields = set()
+ parsed_data = {}
+ 
++# <!-- custom: generated by chatgpt/becomingthrough thanks to my prompt too as is for all this script anyways etc, but here anyways etc also source is https://gforestshade.github.io/kujira/post/keyichiran/#%E9%83%A8%E6%97%8F%E9%9B%86%E8%90%BD (translated to English with web browser page view right click in context menu translate to english anyways etc), which says
++""" Tribal settlement type key		event
++GOODY_LOW_GOLD						Gold (small)
++GOODY_HIGH_GOLD						Gold (many)
++GOODY_MAP							map
++GOODY_SETTLER						開拓者
++GOODY_WARRIOR						Warrior
++GOODY_SCOUT							Scout
++GOODY_WORKER						laborer
++GOODY_EXPERIENCE					Experience Points
++GOODY_HEALING						recovery
++GOODY_TECH							技術
++GOODY_BARBARIANS_WEAK				Weak Hostile
++GOODY_BARBARIANS_STRONG				Hostile (Strong)
++"""
++# anyways etc -->
++ALL_GOODY_TYPES = (
++	"GOODY_LOW_GOLD",
++	"GOODY_HIGH_GOLD",
++	"GOODY_MAP",
++	"GOODY_SETTLER",
++	"GOODY_WARRIOR",
++	"GOODY_SCOUT",
++	"GOODY_WORKER",
++	"GOODY_EXPERIENCE",
++	"GOODY_HEALING",
++	"GOODY_TECH",
++	"GOODY_BARBARIANS_WEAK",
++	"GOODY_BARBARIANS_STRONG",
++)
++
+ def beautify_enum_name(raw_name):
+ 	"""
+ 	Convert raw enum strings like 'TECH_THE_WHEEL', 'GOODY_LOW_GOLD',
+@@ -75,7 +117,22 @@ for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
+ 		tag = elem.tag.split('}')[-1]
+ 		if tag in ("Type", "Description", "Help"):
+ 			continue
+-		elif tag in ("Goodies", "FreeTechs", "AIFreeTechs"):
++
++		elif tag in ("Goodies"):
++			# Count occurrences of each GoodyType
++			goody_counts = {gt: 0 for gt in ALL_GOODY_TYPES}
++
++			for goody_elem in elem.findall('ns:GoodyType', namespace):
++				goody = goody_elem.text.strip()
++				if goody in goody_counts:
++					goody_counts[goody] += 1
++
++			# Flatten into individual fields like iGoodyLowGold
++			for gt in ALL_GOODY_TYPES:
++				field_name = gt  # Just use the original full enum name
++				handicap_dict[field_name] = str(goody_counts[gt])
++
++		elif tag in ("FreeTechs", "AIFreeTechs"):
+ 			# Serialize list fields as comma-separated strings
+ 			entries = []
+ 			for child in elem.findall('.//*'):
+@@ -105,16 +162,20 @@ for field in all_fields:
+ 	rows.append(row)
+ 
+ # --- Step 4.5: Move nested fields to a fixed location ---
+-NESTED_FIELDS = ("AIFreeTechs", "FreeTechs", "Goodies")
++GOODY_FIELDS = tuple(sorted(gt for gt in ALL_GOODY_TYPES if gt in all_fields))
++NESTED_FIELDS = ("AIFreeTechs", "FreeTechs")
+ ANCHOR_FIELD = "iUnownedWaterTilesPerBarbarianUnit"
+ 
+ # Split rows into parts
+ before = []
++goody_rows = []
+ nested = []
+ after_anchor = False
+ 
+ for row in rows:
+-	if row["Field"] in NESTED_FIELDS:
++	if row["Field"] in GOODY_FIELDS:
++		goody_rows.append(row)
++	elif row["Field"] in NESTED_FIELDS:
+ 		nested.append(row)
+ 	elif row["Field"] == ANCHOR_FIELD:
+ 		before.append(row)
+@@ -125,12 +186,12 @@ for row in rows:
+ 		else:
+ 			before.append(row)
+ 
+-# Reinsert nested rows after the anchor
++# Reinsert in proper order
+ new_rows = []
+-found_anchor = False
+ for row in before:
+ 	new_rows.append(row)
+ 	if row["Field"] == ANCHOR_FIELD:
++		new_rows.extend(goody_rows)
+ 		new_rows.extend(nested)
+ rows = new_rows
+ 
+@@ -165,7 +226,7 @@ for row in rows:
+ 	for difficulty in difficulty_types:
+ 		value = row.get(difficulty, "")
+ 		# This ensures all values (even single items) in the specified fields are always substituted with a legend key, no matter the length.
+-		if row["Field"] in ("Goodies", "FreeTechs", "AIFreeTechs"):
++		if row["Field"] in ("FreeTechs", "AIFreeTechs"):
+ 			row[difficulty] = get_legend_key(row["Field"], value)
+ 
+ # --- Step 7: Write CSV with right-shifted legend ---
+@@ -174,7 +235,11 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 	writer.writeheader()
+ 
+ 	for row in rows:
+-		shortened_row = {'Field': row['Field']}
++		field_name = row['Field']
++		if field_name in GOODY_FIELDS:
++			field_name += " (*)"
++		shortened_row = {'Field': field_name}
++		
+ 		for full_difficulty, short_difficulty in difficulty_column_map.items():
+ 			shortened_row[short_difficulty] = row.get(full_difficulty, "")
+ 		writer.writerow(shortened_row)
+@@ -239,20 +304,6 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 		for row in zip(*ft_columns):
+ 			lines.append('\t'.join(row))
+ 
+-		# G
+-		g_keys_ordered = []
+-		for row in rows:
+-			if row["Field"] == "Goodies":
+-				for difficulty in difficulty_types:
+-					ref = row.get(difficulty, "")
+-					g_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
+-
+-		g_unique = extract_ordered_unique(g_keys_ordered, "G_")
+-		g_headers, g_columns = build_columns(g_keys_ordered, g_unique, "G_")
+-		lines.append('\t'.join(g_headers))
+-		for row in zip(*g_columns):
+-			lines.append('\t'.join(row))
+-
+ 		return lines
+ 
+ 	f.write("\n\n")
+@@ -281,6 +332,11 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ 
+ 		legend_csv.writerow(parts)
+ 
++	# Add extra footnote/comment row after the legend
++	footnote_text = '(*): This element is listed under the heading "Goodies (20)" in the XML file. It indicates the chance (x-in-20) of a "goody hut" yielding this result when "popped" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)'
++	footnote_row = ([""] * NUM_COLUMNS) + [footnote_text]
++	legend_csv.writerow(footnote_row)
++
+ print("✔ Export complete with legend references.")
+ print(f"→ Output CSV saved as: {csv_filename}")
+
+diff --git a/flatten_leaders_data_to_csv.py b/flatten_leaders_data_to_csv.py
+index 3a35f42c4..42c88e026 100644
+--- a/flatten_leaders_data_to_csv.py
++++ b/flatten_leaders_data_to_csv.py
+@@ -1,6 +1,48 @@
+-# --- Convert/Flatten leaders_data into a readable .csv ---
++# --- Convert leaders_data (parsed XML) into a structured CSV and Markdown legend ---
+ # This script is part of the AdvCiv-SAS mod project.
+ # (c) 2025 wonderingabout & becomingthrough
++#
++# This script flattens and formats all leader AI configuration data from the `PARSED_XML_LEADERS_DATA`
++# Python dictionary into a clean CSV table for spreadsheet analysis and documentation purposes.
++#
++# The script does not parse the original XML directly; it requires that the `leaders_data.py` file
++# (typically auto-generated from CIV4LeaderHeadInfos.xml) already exists and contains a pre-parsed
++# Python structure.
++#
++# Output:
++# - A CSV file with one row per leader (e.g. GANDHI, RAGNAR) and one column per attribute
++# - A Markdown (.md) file listing abbreviation-to-field mappings for easier CSV readability
++#
++# Features:
++# - Fully flattened leader data (including nested lists like Traits, Flavor, Contact, and Memory arrays)
++# - Automatic categorization of numeric fields:
++#   • Raw values
++#   • Victory weights (e.g. iConquestVictoryWeight)
++#   • Flavors (e.g. iFlavorMilitary)
++#   • Attitude and threshold logic (e.g. iAttitudeChangeLimit, iNoWarAttitudeProb*)
++#   • Aggregated or normalized values (e.g. iAggregatedWarmongerScore)
++# - Non-numeric fields (e.g. FavoriteCivic, Traits, ImprovementWeightModifiers) are appended after numeric fields
++#
++# Special Formatting:
++# - Enums like FavoriteCivic = CIVIC_VASSALAGE are stripped to show only "VASSALAGE"
++# - Trait lists (e.g. Aggressive, Philosophical) are joined as comma-separated values
++# - Structured dictionaries like ImprovementWeightModifiers are serialized as readable entries (e.g. "MINE: 30")
++#
++# Abbreviations:
++# - Each CSV column is labeled with a short 2–4 character abbreviation (e.g. "FC" for FavoriteCivic)
++# - Conflicts are resolved with suffixes (e.g. FC0, FC1, FCa...)
++# - A Markdown legend maps each abbreviation to its full field name
++#
++# Notes:
++# - Fields such as ArtDefineTag, Description, Civilopedia, and DiplomacyMusic are excluded by default
++# - The CSV output is sorted alphabetically by leader name, with the "LEADER_" prefix removed
++# - Fields not recognized as numeric are preserved as-is for completeness and clarity
++#
++# Dependencies:
++# - `PARSED_XML_LEADERS_DATA` must be defined and importable from `leaders_data.py`
++# - Output files include:
++#     • `leaders_data_to_csv_<timestamp>.csv`
++#     • `leaders_data_to_csv_legend_<timestamp>.md`
+ 
+ import csv
+ from datetime import datetime
+@@ -145,7 +187,6 @@ for base_abbr, fields in abbrev_usage.items():
+ 				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
+ 			abbrev_map[field] = abbr
+ 
+-
+ # --- Step 5: Assemble cleaned, sorted rows ---
+ def strip_leader_prefix(leader_id):
+ 	return leader_id.replace("LEADER_", "")
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index a20ba5109..0a2e770b9 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -261,7 +261,6 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
+ 	attr_name = f"i{tag}"
+ 	leader_data[attr_name] = ATTITUDE_MAP[text]
+ 
+-
+ # <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching NO_WAR_ATTITUDE_FIELDS[0]) -->
+ def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
+ 	"""
+@@ -415,7 +414,6 @@ def parse_contact_delays_inline(parent_node):
+ 			raise ValueError(f"[MISSING] ContactDelay is missing field(s): {contact_type=} {delay_val=}")
+ 	return results
+ 
+-
+ def parse_contact_rands_inline(parent_node):
+ 	results = []
+ 	for entry in parent_node.findall("civ4:ContactRand", ns):
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index 465d3e7d0..09e44a2fa 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -71,9 +71,20 @@ iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
+ iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
+ iUnownedTilesPerGameAnimal,54,51,48,45,42,39,36,33,30
+ iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
++GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,2,3,4
++GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,3,3,3
++GOODY_EXPERIENCE (*),1,1,1,2,2,2,1,1,1
++GOODY_HEALING (*),1,1,1,1,1,1,1,1,1
++GOODY_HIGH_GOLD (*),4,3,3,2,1,1,0,0,0
++GOODY_LOW_GOLD (*),2,2,2,3,4,3,4,4,4
++GOODY_MAP (*),1,1,2,2,2,2,2,2,1
++GOODY_SCOUT (*),1,1,1,1,1,1,1,1,1
++GOODY_SETTLER (*),1,1,0,0,0,0,0,0,0
++GOODY_TECH (*),4,4,4,4,4,3,3,3,3
++GOODY_WARRIOR (*),2,2,2,2,2,2,1,1,1
++GOODY_WORKER (*),2,2,1,0,0,0,0,0,0
+ AIFreeTechs,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
+ FreeTechs,FT_0,,,,,,,,
+-Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+ 
+ 
+ 
+@@ -103,16 +114,4 @@ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+ ,Animal H.,-,-,-,-,-,-,-,-
+ ,Bronze W.,-,-,-,-,-,-,-,-
+ ,Iron W.,-,-,-,-,-,-,-,-
+-,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+-,High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-
+-,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold
+-,Map,Map,Map,Map,Map,Map,Map,Map,Map
+-,Settler,Settler,-,-,-,-,-,-,-
+-,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior
+-,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout
+-,Worker,Worker,Worker,-,-,-,-,-,-
+-,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.
+-,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing
+-,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech
+-,-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak
+-,-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong
++,,,,,,,,,,"(*): This element is listed under the heading ""Goodies (20)"" in the XML file. It indicates the chance (x-in-20) of a ""goody hut"" yielding this result when ""popped"" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)"
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=27579

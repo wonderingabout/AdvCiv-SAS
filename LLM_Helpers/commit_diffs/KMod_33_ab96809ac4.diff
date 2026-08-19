@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 33
+# Commit: ab96809ac4913aa2488aa47f94166fa6d4129b6a
+# History segment: K-Mod history
+# Parent used for diff: c7139e44596ef883cf9eeab3660b5f4883b57cc2
+# Title: Enhanced the AI's understanding of techs that "enable" resources and techs that "reveal" resources. Roughly speaking, the result is that Scientific Method an...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d65eceeea..e57a89baa 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4677,13 +4677,33 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 			iRevealValue *= 100 + iMultiplier;
+ 			iRevealValue /= 100;
+ 
++			// K-Mod
++			// If we don't yet have the 'enable' tech, reduce the value of the reveal.
++			if (GC.getBonusInfo((BonusTypes)iJ).getTechCityTrade() != eTech &&
++				!GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes)iJ).getTechCityTrade())))
++				iValue /= 3;
++			// K-Mod end
+ 
+ 			iValue += iRevealValue;
++		}
++		// K-Mod: Value for enabling resources that are already revealed
++		else if (GC.getBonusInfo((BonusTypes)iJ).getTechCityTrade() == eTech &&
++			GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes)iJ).getTechReveal())))
++		{
++			int iOwned = countOwnedBonuses((BonusTypes)iJ);
++			if (iOwned > 0)
++			{
++				int iEnableValue = 150;
++				iEnableValue += (AI_bonusVal((BonusTypes)iJ) * 50);
++				iEnableValue *= (iOwned > 1) ? 150 : 100;
++				iEnableValue /= 100;
+ 
++				iValue += iEnableValue;
++			}
+ 		}
++		// K-Mod end
+ 	}
+ 
+-
+ 	/* ------------------ Unit Value  ------------------ */
+ 	bool bEnablesUnitWonder;
+ 	iValue += AI_techUnitValue( eTech, iPathLength, bEnablesUnitWonder );
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1387

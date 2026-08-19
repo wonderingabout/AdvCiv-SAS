@@ -1,0 +1,237 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4599
+# Commit: 4e9900938ab412378a4ebe137294a6ae86d23bae
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e6980602d803c08a5e9ca1ec05509ce813be6df1
+# Title: finally finished sorting all units!!!!! about this etc i mean anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	7	Assets/XML/Units/CIV4UnitInfos.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+15	2	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+57	12	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 6bee1d2f0..5fdd0fdd7 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -18377,13 +18377,8 @@ for example for the archer
+ 					<UnitClassUpgradeType>UNITCLASS_FRIGATE</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_ATTACK_SUBMARINE</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_DESTROYER</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				<!-- custom: caravel into attack submarine and destroyer very weird, and
++				does not suit the units in my mod, removed -->
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index dfab0abab..13abaf9ed 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+index d7a52177e..7fcdd36d2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+@@ -228,3 +228,7 @@ time maybe. I am not sure but i think it is quite fine to put it here.
+ - iron age from 1200 BCE to 500 BCE: https://en.wikipedia.org/wiki/Iron_Age
+ for the purposes of this game/mod extending it a bit to include a part of the classical era: https://en.wikipedia.org/wiki/Classical_antiquity , seems also to depend on parts of the world so probably fine, at least i want to do so i think etc: https://en.wikipedia.org/wiki/Iron_Age_Europe
+ - medieval era, similarly starting it sooner
++
++- maybe make key nodes "converge" (convergeion?) points for example depopulation before entering any tech from robotic era
++maybe, maybe apply this to other techs like scientific method before renaissance or something maybe that is historically
++accurate, maybe is gameplay interesting would need to try to be sure about this etc i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 9816cce15..590ba7a14 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -967,7 +967,7 @@ to the galley, may increase the galley's cost instead, which makes sense when th
+ even though in AdvCiv-SAS it will be able to carry any type of troops, but make it more expensive too based on previous info
+ etc i mean anyways about this, i mean anyways, thanks,
+ 
+-- ancient rowboat from around ancient egypt so bronze age: https://en.wikipedia.org/wiki/Rowing#Ancient_Egypt (ancient egypt is around 3000 BCE if i'm not mistaken and(/or rather maybe too aloso about this etc anyways i mean anyways, thanks, ) from the little i've seen too anyways)
++- ancient rowboat from around ancient egypt so bronze age: https://en.wikipedia.org/wiki/Rowing#Ancient_Egypt (ancient egypt is around 3000 BCE if i'm not mistaken and(/or rather maybe too also about this etc anyways i mean anyways, thanks, ) from the little i've seen too anyways)
+ 
+ - galleys history (for design (model) chocies) etc i mean anyways and about this etc i mean anyways, thanks, https://www.warhistoryonline.com/ancient-history/galleys-first-great-warships-m.html and quick look also i mean aobut this really todo delete alater this remark/part of the note but anyways https://curriculumvisions.com/search/G/galley/galley.html
+ 
+@@ -981,10 +981,23 @@ on this (about this etc i mean anyways, thanks, )
+ 
+ - oldest privateers around 1200 AD, including it in medieval era even though late part of it, i also find it's a cool design
+ where pirates have a golden era (about this etc i mean anyways, etc i mean anyways, thanks, ), where they are stronger than
+-even frigates, about this etc i mean anyways, thanks,
++even frigates, about this etc i mean anyways, thanks, ; or maybe bit weaker than frigates but much sooner etc is about this
++too at least i mean not mislead delete later wanted say etc i mean anyways, thanks, most likely no one is reading but still
++even if someone is i say this for myself not tohaev a reply not that it is forbidden or somethign but i'd rather focus on
++myself etc etc etc etc i mean anyways delete later before merging this pr etc i mean anyways, thanks,
+ 
+ - for simplicity skipping some early steam powered boats (to keep the one boat (type) per era "rule", also not that much
+ of a difference even though would have been nice maybe, for example the quote about napoleon and steam power if i remember
+ correctly that i read quite some time ago but anyways (like 1 year or less or bit more idk exactly most likely bit less but
+ anyways about this etc i mean anyways, thanks, )), hopefully clearer or at least smoother gameplay this way, make them around
+ 1850 AD then, about this etc i mean anyways, etc i mean anyways, thanks,
++
++- first paddle steamer around 1774, so make them a bit sooner than ironclad https://en.wikipedia.org/wiki/Paddle_steamer#History , small inconsistency as a result that ironclad is available later than paddle steamer even though it is a military and should have a later technology such as steam power, but probably fine in civ4 if techs are close enough, could even be same tech maybe to simplify maybe, and i want end game to be faster, anyways,
++
++- first destroyer in 1885: https://en.wikipedia.org/wiki/Destroyer
++
++- first potentially viable as a weapon submarine in 1866 https://en.wikipedia.org/wiki/History_of_submarines#Mechanical_power , make it as same time as early destroyer to simplify, use the u-boat from realism invictus for nostalgy of empire earth 1 maybe and also because/as it is a reliable memory of me a bit if not deluded but is about this etc i mean anyways maybe delete this (part of the) remark or maybe not etc i mean anyways, thanks,
++
++- nuclear submarines are submarines powered by nuclear energy, not necessarily having nuclear weapons https://en.wikipedia.org/wiki/Nuclear_submarine , due to their high cost, removing them to simplify end game and also less things to implement, but main reason is they make less sense, i had assumed ignorantly but as it is that it had nuclear weapon, is about this etc i mean anyways, thanks, is thanks to realism invictus that i noticed they have (it seems) no submarines, removed them before that, then added them for exhaustiveness, then after hcecking for realism invictus models and seeing they seemingly don't have them ((thanks to their very nice search bar i am thankful for aobut this etc i mean anyways, thanks, ) but don't want to implement at least not yet about this etc i mean anyways thanks not mislead is really about this i may be the one deluded even though didn't think of it though but anyways, still does not change what i have to do which is to focus on myself and would stay same in infinite future most likely unless i would meet someone else i mesh well with as unpleasant it may be to read but most likely no one is reading this well anyways delete this later and do my own thing etc i mean anywyas etc i mean anyways thanks, but thanks if interested in my project, even though it may sound unneeded or undesired charity and was not my intention else would have said maybe or not but anyways delete later before merging this PR), so now reverting back to only one type of submarine but is about this etc i mean anyways at least etc i mean anyways not to mislead delete later etc i mean anyways would be same in infinite future that i do'nt want this feeling i have but anyways etc or maybe longing or whatever it is but best to focus on myself even though free to feel or wonder about it but safer to leave it at that and not mislead, more reasonable maybe too anyways etc i mean anwyays not to mislead, myself or others, is safer or maybe even better for me at least this way maybe, not that i am bittr anymore, i think, (?), but anyways (this would mean i am open to talk, but not to take things further, i think, as hurtful is to read this, but most likely no one is reading this, hopefully, but maybe someone or few is/are, if so it would not be a problem, as these are my true feelings, and i am not ashamed to say them, even though not all need to know them nor do i want to share them with all, but anyways) etc i mean anwyays delete this before megring this pr etc i mean anyways, thanks, and put back (nuclear) submarine in robotic era (9) about this etc i mean anyways, thanks,
++
++- first sea plane carrier in 1912: https://en.wikipedia.org/wiki/History_of_the_aircraft_carrier ; to simplify make them available at flight but add another tech requirement so it's slightly later but not a lot (for example flight + assembly line but would need to check so this is just an example, it may be wrong as a result, see latest sevopedia implementation if i don't forget to do it about this etc i mean anyways, thanks, for the accurate and udpate version i chose if i didn't forget it and is about this etc i mean anyways, thanks, )
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 6eccc05e1..bc51283ea 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -9,26 +9,47 @@ eras:
+ 8 = modern era
+ 9 = robotic era
+ 
+-_________________________________________________________________________
++_______________________________________________________________________
++__
+ base units removed:
+ pikeman (not useful about this i mean anyways, thanks)
+-chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
++chariot sword (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+ swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
+ catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
+ cavalry (same reason as rifleman, see below, thanks,)
+ rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
++grenadier (same)
+ infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
+ air bomber (put B52 instead)
+ stealth bomber (simplifying the end game, removing stealth air units)
+ fighter (put fokker dr.1 instead)
++bomber (same as infantry)
+ caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
+ ship of the line (too close to the frigate for too little extra benefit, redundant)
+ galley (not distinct (from other units) or accurate enough design)
+ trireme (same (reason as for the (etc i mean anyways, thanks, )) as galley)
+ privateer (same)
+ ironclad (same)
++transport (same)
++attack submarine (same)
++nuclear submarine (same, also not accurate see docs for details, thanks, )
++battleship (simplify gameplay)
++missile cruiser (same)
++stealth destroyer (same)
++carrier (same as infantry)
++
++
++special units removed:
++those that replaced, if the previous unit that was replaced is not
++used for something else (another unit etc i mean anwyays about this
++etc i mean anyways, thanks, )
+ 
+ 
++
++maybe add:
++boat anti air unit (same as in empire eath nostlagy but was maybe cool mechanic too anyways etc i mean anyways, thanks, )
++add again missile cruiser? Is about this etc i mean anyways, thanks,
++
+ _________________________________________________________________________
+ civilization units
+ 
+@@ -654,10 +675,10 @@ transport 2: sailboat _ ancient rowboat realism invictus
+ transport 3: Sailboat (Bireme) _ Bireme Sailboat realism invictus
+ transport 4: trade ship (cog) _ cog realism invictus
+ transport 5: - (galleon)
+-transport 6:
+-transport 7:
+-transport 8:
+-transport 9:
++transport 6: paddlewheeler _ paddle steamer realism invictus
++transport 7: troopship _ industrial transport realism invictus
++transport 8: transport _ early modern transport realism invictus
++transport 9: amphibious transport dock _ early robotic transport
+ 
+ 
+ 
+@@ -668,9 +689,9 @@ war boat 3: galley (eastern trireme) _ trireme galley realism invictus
+ war boat 4: war galley _ medieval galley realism invictus
+ war boat 5: - (frigate)
+ war boat 6: ironclad _ ironclad warship realism invictus
+-war boat 7:
+-war boat 8:
+-war boat 9:
++war boat 7: escort _ early atomic destroyer realism invictus
++war boat 8: destroyer _ early modern destroyer realism invictus
++war boat 9: modern destroyer _ early robotic destroyer realism invictus
+ 
+ 
+ 
+@@ -678,22 +699,46 @@ war boats foreign:
+ -
+ -
+ -
+-war boat foreign 4: - privateer realism invictus
+-war boat foreign 5: - heavy privateer realism invictus
++war boat foreign 4: - privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open broder etc, if declares war auto is fine unles AI does it accidentally about this mean anyways etc i mean anwyays thanks)
++war boat foreign 5: - heavy privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open broder etc, if declares war auto is fine unles AI does it accidentally about this mean anyways etc i mean anwyays thanks)
++-
++-
++-
++-
++
++
++
++submarines:
++-
++-
+ -
+ -
+ -
+ -
++submarine 7: coastal submarine (german) _ early submarine (U-Boat) realism invictus
++submarine 8: submarine (shchuka-class) _ early modern submarine realism invictus
++submarine 9: ballistic submarine (Astute-class)_ ballistic submarine (Astute) realism invictus
+ 
+ 
+ 
+ 
++carrier boats:
++-
++-
++-
++-
++-
++-
++-
++carrier boat 8: carrier (graf zeppelin-class) _ early carrier realism invictus
++carrier boat 9: modern carrier (Type 001A) _ early robotic carrier (Type 001A) realism invictus
++
+ 
+ 
+ 
+ 
+ ____________________________________________________________________________________________
+-assasin units: (maybe not do? Gameplay too untidy with this maybe? Etc)
++assasin units? (maybe not do? Gameplay too untidy with this maybe? Etc)
+ spy of civ4 give it attack too? and early spy?
+ assassin (arab i think unit or generic)
+ assassin ffh2
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=14795

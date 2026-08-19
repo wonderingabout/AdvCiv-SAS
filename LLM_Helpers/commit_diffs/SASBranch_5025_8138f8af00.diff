@@ -1,0 +1,1386 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5025
+# Commit: 8138f8af0093c1d1e7dcbad91ffb174a0289e5ec
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 93f2d43f9ff8f9e290e903717b0d5ecfa1b89a3e
+# Title: replace the "ENGLISH_REDCOAT" with the "ENGLISH_YEOMAN_ARCHER" (crossbow based, better fits their defensive profile, better cover if no bonus early anyways e...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/longbowman_england.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128_gloss.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_128f.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_gloss.dds
+48	45	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/Audio3DScripts.xml
+4	4	Assets/XML/Audio/AudioDefines.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+7	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+235	226	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/longbowman_england.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128_gloss.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_128f.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_gloss.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/longbowman_england.dds b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/longbowman_england.dds
+new file mode 100644
+index 000000000..603a50f1f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/longbowman_england.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128.dds b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128.dds
+new file mode 100644
+index 000000000..545b87f22
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128_gloss.dds
+new file mode 100644
+index 000000000..021ec1a8f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Light_Spearman_128_gloss.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.dds b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.dds
+new file mode 100644
+index 000000000..ad5ac4d5e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.nif b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.nif
+new file mode 100644
+index 000000000..fb5f06e31
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_128f.dds b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_128f.dds
+new file mode 100644
+index 000000000..d2220fc8b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_128f.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_gloss.dds
+new file mode 100644
+index 000000000..ab496bcc4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/longbowman_gloss.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 1e02e9f44..f67a46486 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -981,15 +981,15 @@
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_MALI_SKIRMISHER</Type>
+-			<Button>,Art/Interface/Buttons/Units/Skirmisher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,7</Button>
++			<Type>ART_DEF_UNIT_LONGBOWMAN</Type>
++			<Button>,Art/Interface/Buttons/Units/Longbowman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,7</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique/Mali/Skirmisher/MaliSkirmisher.nif</NIF>
+-			<KFM>Art/Units/Unique/Mali/Skirmisher/MaliSkirmisher.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique/Mali/Skirmisher/MaliSkirmisher_FX.nif</SHADERNIF>
++			<NIF>Art/Units/Longbowman/Longbowman.nif</NIF>
++			<KFM>Art/Units/Longbowman/Longbowman.kfm</KFM>
++			<SHADERNIF>Art/Units/Longbowman/Longbowman.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+@@ -998,31 +998,30 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_BABYLON_BOWMAN</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,10</Button>
++			<Type>ART_DEF_UNIT_MALI_SKIRMISHER</Type>
++			<Button>,Art/Interface/Buttons/Units/Skirmisher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,7</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique_Babylon_Bowman/Unique_Babylon_Bowman.nif</NIF>
+-			<KFM>Art/Units/Unique_Babylon_Bowman/Unique_Babylon_Bowman.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique_Babylon_Bowman/Unique_Babylon_Bowman_FX.nif</SHADERNIF>
++			<NIF>Art/Units/Unique/Mali/Skirmisher/MaliSkirmisher.nif</NIF>
++			<KFM>Art/Units/Unique/Mali/Skirmisher/MaliSkirmisher.kfm</KFM>
++			<SHADERNIF>Art/Units/Unique/Mali/Skirmisher/MaliSkirmisher_FX.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>0.85</fShadowScale>
++				<fShadowScale>1.0</fShadowScale>
+ 			</ShadowDef>
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
+-			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -1030,24 +1029,25 @@
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_LONGBOWMAN</Type>
+-			<Button>,Art/Interface/Buttons/Units/Longbowman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,7</Button>
++			<Type>ART_DEF_UNIT_BABYLON_BOWMAN</Type>
++			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,10</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Longbowman/Longbowman.nif</NIF>
+-			<KFM>Art/Units/Longbowman/Longbowman.kfm</KFM>
+-			<SHADERNIF>Art/Units/Longbowman/Longbowman.nif</SHADERNIF>
++			<NIF>Art/Units/Unique_Babylon_Bowman/Unique_Babylon_Bowman.nif</NIF>
++			<KFM>Art/Units/Unique_Babylon_Bowman/Unique_Babylon_Bowman.kfm</KFM>
++			<SHADERNIF>Art/Units/Unique_Babylon_Bowman/Unique_Babylon_Bowman_FX.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
++				<fShadowScale>0.85</fShadowScale>
+ 			</ShadowDef>
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<!-- BBAI: was ..._BUILD_UNIT -->
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+ 				<AudioRunTypeEnd/>
+@@ -1126,6 +1126,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanks but anyways etc so no need to go painfully through fpks and now very very easy to fetch assets thanks lot if i may say in this case i mean but anyways etc) anyways etc; note: the .kfm is the base advciv +/- civ4 one if i'm not mistaken but anyways etc; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean if i may say but anyways etc) at longbowman.dds so added to our own unit much cleaner as in easier to find as such in this case i mean but anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_ENGLISH_YEOMAN_ARCHER</Type>
++			<Button>Art/AdvCiv_SAS/Units/English_Yeoman_Archer/Longbowman_england.dds</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Longbowman.nif</NIF>
++			<KFM>Art/Units/Longbowman/Longbowman.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/English_Yeoman_Archer/nif/Longbowman.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.05</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MUSKETMAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Musketman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,1</Button>
+@@ -1297,30 +1322,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_ENGLISH_REDCOAT</Type>
+-			<Button>,Art/Interface/Buttons/Units/RedCoat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,4</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique/England/Redcoat/RedCoat.nif</NIF>
+-			<KFM>Art/Units/Unique/England/Redcoat/RedCoat.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique/England/Redcoat/RedCoat_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.05</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very very bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial abotu ti evne though ideally there would be no issue was easy enough to solve in this case thanks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_USA_PATRIOT</Type>
+@@ -2304,6 +2305,7 @@
+ 				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: note: about this unit's sound assets but anyways etc: i can't find the korean unit audio file nor the corresponding asset, in audiodefines; i don't know too much how these work in this case i mean but anyways etc, but changing it to be safe or consistent with other units, but really i have no idea how it works and your best may be to check or ask to be sure in this case i mean but anyways etc, at least we're more likely (i guess, i don't know! But anyways etc xd but anyways etc) to get the generic as of now cannon (i hope in this case i mean but anyways etc) rather than no sound but anyways etc. (Didn't want to make the comment too long inside the info asset in case it breaks something (but is just a guess of mine too check to be sure in this case i mean but anyways etc) in this case i mean but anyways etc) -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_KOREAN_HWACHA</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,10</Button>
+@@ -2331,7 +2333,8 @@
+ 			<fBattleDistance>0.5</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<!-- custom: see above for details anyways etc, was AS2D_UNIT_BUILD_UNIQUE_UNIT -->
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop>LOOPSTEP_WHEELS</AudioRunTypeLoop>
+ 				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 7899a52e6..a4c1de015 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -16670,8 +16670,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_UNIT_BUILD_ENGLISH_REDCOAT</ScriptID>
+-		<SoundID>SND_BUILD_ENGLISH_REDCOAT</SoundID>
++		<ScriptID>AS2D_UNIT_BUILD_ENGLISH_YEOMAN_ARCHER</ScriptID>
++		<SoundID>SND_BUILD_ENGLISH_YEOMAN_ARCHER</SoundID>
+ 		<SoundType>GAME_SFX</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/Audio3DScripts.xml b/Assets/XML/Audio/Audio3DScripts.xml
+index 6a0767967..1bdeb749e 100644
+--- a/Assets/XML/Audio/Audio3DScripts.xml
++++ b/Assets/XML/Audio/Audio3DScripts.xml
+@@ -6098,8 +6098,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script3DSound>
+ 	<Script3DSound>
+-		<ScriptID>AS3D_UN_REDCOAT_FIDGT_VOX</ScriptID>
+-		<SoundID>SND_REDCOAT_FIDGT_VOX</SoundID>
++		<ScriptID>AS3D_UN_YEOMAN_ARCHER_FIDGT_VOX</ScriptID>
++		<SoundID>SND_YEOMAN_ARCHER_FIDGT_VOX</SoundID>
+ 		<SoundType>GAME_SFX</SoundType>
+ 		<iMinVolume>45</iMinVolume>
+ 		<iMaxVolume>70</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index fbfb15021..a9f2f94ac 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -4644,8 +4644,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_BUILD_ENGLISH_REDCOAT</SoundID>
+-			<Filename>Sounds/Units/BuildEnglishRedcoat</Filename>
++			<SoundID>SND_BUILD_ENGLISH_YEOMAN_ARCHER</SoundID>
++			<Filename>Sounds/Units/BuildLongbowman</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -4792,7 +4792,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_PERSIAN_IMMORTAL</SoundID>
+-			<Filename>Sounds/Units/BuildPersianImmortal</Filename>
++			<Filename>Sounds/Units/BuildSpearman</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -5302,7 +5302,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_REDCOAT_FIDGT_VOX</SoundID>
++			<SoundID>SND_YEOMAN_ARCHER_FIDGT_VOX</SoundID>
+ 			<Filename>Sounds/Units/RedcoatFidgtVox</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index f53e3652f..f9569b0ca 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1083,8 +1083,8 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
+-					<UnitType>UNIT_ENGLISH_REDCOAT</UnitType>
++					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
++					<UnitType>UNIT_ENGLISH_YEOMAN_ARCHER</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 458b1d4a0..a4ccb24fd 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -339,6 +339,13 @@
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ENGLISH_YEOMAN_ARCHER</Tag>
++		<English>Yeoman Archer</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
+ 		<English>Gord</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index a14d5e434..8c7dbd03c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -178,6 +178,14 @@
+ 
+ 
+ 
++	<!-- custom: entry based on https://en.wikipedia.org/wiki/Yeoman_archer quite similarly but anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ENGLISH_YEOMAN_ARCHER_PEDIA</Tag>
++		<English>[TAB]The Yeoman Archer is a term applied specifically to English and Welsh military longbow archers (either mounted or on foot) of the 14th-15th centuries. Yeoman archers were commoners; free-born members of the social classes below the nobility and gentry. They were a product of the English form of feudalism in which the military duty of a knight to his lord (which was implicit in tenure feudalism) was replaced by paid, short-term service. By negating the tactical advantage of large numbers of cavalry (mounted knights and men-at-arms) with their ability to rapidly fire volleys of arrows, Yeoman Archers are considered part of the Infantry Revolution of the 14th century. The Battles of Cr�cy and Agincourt are the best known victories of the Yeoman Archers.[PARAGRAPH:2]The Yeoman Archers were the English Army's response to a chronic manpower problem when trying to field an army on Continental Europe during the 14th century. Against 27,000 French knights, England could only muster at most 5,000 men-at-arms. With this 5:1 tactical disadvantage, the English needed a strategic advantage.[PARAGRAPH:2]When Edward I invaded Wales in 1282, he quickly realized the battlefield importance of the opposing Welsh archers. Firing from ambush, they inflicted serious casualties on Edward's army. When Edward invaded Scotland for the second time in 1298, his army consisted mostly of infantry (12,500 of 15,000 men). 2,000 men, including archers, were raised as part of the Lancashire and Cheshire levies under the Commission of Array. At the Battle of Falkirk, the English army archers opened up the Scottish schiltrons with hails of arrows. The Scottish infantrymen fled the battlefield, to be pursued and killed by the English cavalry. Between 1300 and 1304, Edward returned to Scotland four more times to complete his conquest. However, the size of his army grew smaller with each campaign, as the Scots refused to meet Edward in battle. Edward appeared to realize that large numbers of infantry troops were not mobile enough to chase and do battle with an elusive opponent. In the meantime, however, the men of North Wales and the English counties along the Scottish border were acquiring military experience. The yeoman archers were learning new skills as mounted archers.[PARAGRAPH:2]Edward died in 1307, while en route to Scotland for yet another invasion. His son, now King Edward II, continued his father's Scottish campaigns beginning in 1313. Then came the disastrous defeat at Battle of Bannockburn in 1314. The army was in marching order, with the archers at the rear of the column. They could do nothing against the Scottish spearmen attacking the front of the column. Edward II was later deposed in 1327 by a coup engineered by his wife, Queen Isabella and her paramour, Roger Mortimer. Three years later, his son King Edward III, wrested control of England from his mother and executed Mortimer.[PARAGRAPH:2]In 1333, Edward III undertook his first invasion of Scotland, which culminated with the Battle of Halidon Hill. Halidon Hill is where the 20-year old Edward III learned how to combine archers and dismounted men-at-arms - tactics that he would employ during his Crecy Campaign in France.[PARAGRAPH:2]The 1344 Household Ordinance of King Edward III provides some contemporary evidence for the use of archers in Edward's Crecy Campaign in France. Only The King's Archers (a total of 121 men) are identified with a functional title. The rest of the archers are listed as either Archers, Archers on foot, or Archers on horse. The latter title does not imply archers shooting from horseback. It refers to the English practice of having mounted archers being able to reach the scene quickly, dismount, and set up a firing line. The Archers on foot would then follow as reinforcements. The Esquires of the King's Household (a total of 101) were responsible for 60 Archers on horse, and 21 Archers on foot. The Household Officers and Ministers had 21 Archers on horse for their protection. Even the 19 Minstrels had 3 Archers on horse and 3 Archers on foot assigned as protection. At the end of the listing, a total of 20,076 Archers was given for Edward's entire army. The daily wage for the three classes of archers is interesting when compared to the Yeomen of the King's Chamber, who received 6 pence a day. The King's Archers received 6 pence; Archers on horse received 4 pence; and Archers on foot received 3 pence. In contrast, the 4,244 Welshmen on foot received just 2 pence. From the description Welshmen on foot and only receiving a daily wage of 2 pence, it is uncertain that these Welshmen were archers.[PARAGRAPH:1]Cr�cy was followed by another English victory at the Battle of Poitiers, and a final victory at the Siege of Calais. By the end of the Hundred Years War, the Yeoman Archer had become as legendary as his bow.[PARAGRAPH:2]Edward I had used the Commission of Array to conscript his infantry and archers. Unfortunately, this method tended to scoop up men from the very bottom rungs of feudal social ladder, and very few archers. His grandson, Edward III, introduced a new recruiting technique called contracted indentures. They were agreements for military service for a specified period at a specified price. The indenture was agreed between the King and an individual commander. Usually, these were the same men who would have owed the King feudal military service. Under the indenture, the commander would recruit his own archers and men-at-arms (usually squires) as a single cohesive force. Thus, those going into battle were among men they knew and had trained with. Furthermore, since the archers had to provide their own horses, they would be of at least moderate means. Economics of war drew the social levels of the men-at-arms and the yeoman closer together. Yeomen archers were becoming the lower level of the gentry.[PARAGRAPH:1]There were four reasons why a man-at-arms or a yeoman would go to war in France: pay; plunder; patronage; and pardon. The daily wage was rather attractive; as described above. But English kings were notoriously slow with their pay, especially in time of war. Plunder was a much greater attraction. The division of battle spoils was actually written into the indentures. Normally, the king was entitled to one-third of all the spoils taken by his contracted commanders. In turn, the commanders were entitled to one-third of the spoils taken by their men. Patronage was almost as attractive as booty. Combat camaraderie counts for a lot once the war is over. Just as the king would look more favorably upon a commander who served him well in the campaign, so would that commander look more favorably upon a yeoman who served him faithfully. Finally, there is a pardon. Many excellent archers were outlaws, and the king offered pardons for all their offenses, including murder.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd.. But anyways etc...) unit if i am not mistaken too but anyways etc... ; as for description replaced with a wikipedia based one as civ4 one was too inaccurate even uninformative even from little i know about it anyways etc, from https://en.wikipedia.org/wiki/Knight and adjusted or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_HORSE_KNIGHT_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index d6f2bd8ab..7b1f09384 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -10139,7 +10139,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
++			<!-- custom: their bow seems short and they are or/and seem more melee-leaning so adjust as such maybe anyways etc, chatgpt 5 also agrees after asking it too so seems fine as such even more so if i may say but anyways etc, check if accurate anyways etc -->
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: more versatile unit now anyways etc, was UNITAI_CITY_DEFENSE -->
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+@@ -10401,7 +10402,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
++			<!-- custom: their bow seems short and they are or/and seem more melee-leaning so adjust as such maybe anyways etc, chatgpt 5 also agrees after asking it too so seems fine as such even more so if i may say but anyways etc, check if accurate anyways etc -->
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: more versatile unit now anyways etc, was UNITAI_CITY_DEFENSE -->
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+@@ -11112,7 +11114,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<!-- custom: was as of now 0 in the generic crossbow in advciv-sas anyways etc -->
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -11216,8 +11219,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<!-- custom: was 0 -->
+-			<iWithdrawalProb>25</iWithdrawalProb>
++			<!-- custom: was 25 in the advciv-sas generic crossbowman anyways etc -->
++			<iWithdrawalProb>35</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+@@ -11302,20 +11305,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_MUSKETMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_MUSKETMAN</Class>
+-			<Type>UNIT_MUSKETMAN</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_ENGLISH_YEOMAN_ARCHER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CROSSBOWMAN</Class>
++			<Type>UNIT_ENGLISH_YEOMAN_ARCHER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_GUN</Combat>
++			<!-- custom: note: unlike the generic crossbow, this unit is combat type bow (long) as it is historically if i am not mistaken and based on my understanding of chatgpt 5's (check if accurate) historical recalling/explanation of it too to me in this case i mean but anyways etc -->
++			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: make it a bit more flexible if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MUSKETMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MUSKETMAN_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_ENGLISH_YEOMAN_ARCHER</Description>
++			<Civilopedia>TXT_KEY_UNIT_ENGLISH_YEOMAN_ARCHER_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -11352,9 +11355,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_RIFLEMAN</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -11363,18 +11367,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: add attack_city anyways etc -->
++			<!-- custom: more versatile unit, can definitely be used for attack i think anyways etc but avoid city attack as melee units are less likely to be there defending if i'm not mistaken anyways etc -->
++			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below anyways etc -->
++			<!-- custom: this civ-specific variant is also a solid defensive choice unlike the generic crossbowman as of now; very hammer efficient and with a stronger focus on defense. With the no bonus requirement, it's a nice alternative for the english empire if they don't have bonuses, or simply to better fit their more defensive profile anyways etc so added as of now defensive unitais, and removed very offensive ones if i am not mistaken and as chatgpt 5 recommends as well (check if accurate anyways etc) in my thinking (check too or not maybe in this case i mean but anyways etc) but anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: can be useful for versatile defense, and possibly offense as well if i am not mistaken but anyways etc, against melee units maybe if i am not mistaken in my guess but anyways etc -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+@@ -11394,16 +11405,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_GUNPOWDER -->
+-			<PrereqTech>TECH_FIREARMS</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
++			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<!-- custom: was BONUS_IRON in the advciv-sas generic crossbowman anyways etc -->
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 80 -->
+-			<iCost>100</iCost>
++			<!-- custom: was 65 in the advciv-sas generic crossbowman anyways etc, as they were cheaper units and historically longbows were cheaper to produce or such if i'm not mistaken but check if accurate anyways etc -->
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11427,35 +11443,55 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 9 -->
+-			<iCombat>12</iCombat>
++			<!-- custom: was 6 in the advciv-sas generic crossbowman anyways etc -->
++			<iCombat>7</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
++			<iFirstStrikes>1</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<!-- custom: was 0 -->
++			<iWithdrawalProb>25</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
++			<!-- custom: was 0 in the advciv-sas generic crossbowman anyways etc -->
++			<iCityDefense>10</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: was 25/25 in the advciv-sas generic crossbowman anyways etc -->
++			<iHillsAttack>15</iHillsAttack>
++			<iHillsDefense>15</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: see related comment at the babylon longbow, which as of now essential is more or less an ancient crossbow in terms of stats if i'm not mistaken but anyways etc; let's assume crossbows don't crack pikes, just a guess of mine but check if accurate anyways etc -->
++			<!-- custom: was UNITCOMBAT_MELEE_SHOCK 50 in the advciv-sas generic crossbowman anyways etc -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -11464,21 +11500,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+-			<iConscription>4</iConscription>
+-			<iCultureGarrison>7</iCultureGarrison>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<!-- custom: was 9 -->
+-			<iPower>12</iPower>
++			<iAsset>2</iAsset>
++			<!-- custom: was 7 in the advciv-sas generic crossbowman anyways etc -->
++			<iPower>8</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+ 				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>0</iRangedWaveSize>
++				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MUSKETMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ENGLISH_YEOMAN_ARCHER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -11487,23 +11523,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: was empty in the advciv-sas generic crossbowman anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_SENTRY</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_OTTOMAN_JANISSARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_MUSKETMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MUSKETMAN</Class>
+-			<Type>UNIT_OTTOMAN_JANISSARY</Type>
++			<Type>UNIT_MUSKETMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<!-- custom: make it a bit more flexible if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_OTTOMAN_JANISSARY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_OTTOMAN_JANISSARY_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_MUSKETMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_MUSKETMAN_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -11591,7 +11634,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>110</iCost>
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11616,8 +11659,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 9 -->
+-			<iCombat>14</iCombat>
+-			<iCombatLimit>110</iCombatLimit>
++			<iCombat>12</iCombat>
++			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+@@ -11637,34 +11680,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+@@ -11683,7 +11700,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>14</iPower>
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11692,7 +11709,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_OTTOMAN_JANISSARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MUSKETMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -11705,20 +11722,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_FRENCH_MUSKETEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_OTTOMAN_JANISSARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MUSKETMAN</Class>
+-			<Type>UNIT_FRENCH_MUSKETEER</Type>
++			<Type>UNIT_OTTOMAN_JANISSARY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: make it a bit more flexible if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
+-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_FRENCH_MUSKETEER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_FRENCH_MUSKETEER_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_OTTOMAN_JANISSARY</Description>
++			<Civilopedia>TXT_KEY_UNIT_OTTOMAN_JANISSARY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -11766,7 +11782,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: remove unitai_pillage, see other code comments for details anyways etc, add attack_city and counter anyways etc -->
++			<!-- custom: add attack_city anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -11776,10 +11792,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -11810,12 +11822,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>100</iCost>
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
++			<iMoves>1</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -11835,8 +11847,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 9 -->
+-			<iCombat>12</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
++			<iCombat>14</iCombat>
++			<iCombatLimit>110</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+@@ -11845,7 +11857,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<!-- advc.200: was 15 in K-Mod -->
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -11859,36 +11870,34 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>50</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>50</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -11905,7 +11914,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>12</iPower>
++			<iPower>14</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11914,7 +11923,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_FRENCH_MUSKETEER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_OTTOMAN_JANISSARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -11927,9 +11936,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_ETHIOPIAN_OROMO_WARRIOR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_FRENCH_MUSKETEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MUSKETMAN</Class>
+-			<Type>UNIT_ETHIOPIAN_OROMO_WARRIOR</Type>
++			<Type>UNIT_FRENCH_MUSKETEER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -11939,8 +11948,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR</Description>
+-			<Civilopedia>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_FRENCH_MUSKETEER</Description>
++			<Civilopedia>TXT_KEY_UNIT_FRENCH_MUSKETEER_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -11963,7 +11972,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>1</bFirstStrikeImmune>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -11988,7 +11997,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: add attack_city anyways etc -->
++			<!-- custom: remove unitai_pillage, see other code comments for details anyways etc, add attack_city and counter anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -11998,6 +12007,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -12028,12 +12041,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>90</iCost>
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
++			<iMoves>2</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -12059,10 +12072,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>1</iFirstStrikes>
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
++			<!-- advc.200: was 15 in K-Mod -->
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -12076,34 +12090,36 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+ 					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>50</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -12128,48 +12144,34 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iMeleeWaveSize>3</iMeleeWaveSize>
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ETHIOPIAN_OROMO_WARRIOR_ORANGE</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ETHIOPIAN_OROMO_WARRIOR_BLUE</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ETHIOPIAN_OROMO_WARRIOR_GREEN</EarlyArtDefineTag>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_FRENCH_MUSKETEER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was PROMOTION_FIRST_STRIKE1 and PROMOTION_FIRST_STRIKE2 -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_RIFLEMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_RIFLEMAN</Class>
+-			<Type>UNIT_RIFLEMAN</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_ETHIOPIAN_OROMO_WARRIOR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_MUSKETMAN</Class>
++			<Type>UNIT_ETHIOPIAN_OROMO_WARRIOR</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: make it a bit more flexible if i'm not mistaken anyways etc, was UNITAI_CITY_DEFENSE -->
+-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
++			<!-- custom: make it a bit more flexible if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_RIFLEMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_RIFLEMAN_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR</Description>
++			<Civilopedia>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -12192,7 +12194,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -12208,7 +12210,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_INFANTRY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_RIFLEMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -12217,27 +12219,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- custom: add attack_city anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- K-Mod -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- K-Mod -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -12253,20 +12250,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_FIREARMS with techTypes empty anyways etc -->
+-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_FIREARMS</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<!-- custom: was TECH_GUNPOWDER -->
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
++			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 110 -->
+-			<iCost>120</iCost>
++			<!-- custom: was 80 -->
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12290,14 +12283,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 14 -->
+-			<iCombat>15</iCombat>
++			<!-- custom: was 9 -->
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
++			<iFirstStrikes>1</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+@@ -12312,23 +12305,39 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was "MOUNTED" 25 and UNITCOMBAT_GUN 25 -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -12337,12 +12346,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+-			<iConscription>5</iConscription>
+-			<iCultureGarrison>8</iCultureGarrison>
++			<iConscription>4</iConscription>
++			<iCultureGarrison>7</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<!-- custom: was 14 -->
+-			<iPower>15</iPower>
++			<!-- custom: was 9 -->
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12350,23 +12359,37 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iMeleeWaveSize>3</iMeleeWaveSize>
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_RIFLEMAN</EarlyArtDefineTag>
++					<iRequired>1</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ETHIOPIAN_OROMO_WARRIOR_ORANGE</EarlyArtDefineTag>
++				</UnitMeshGroup>
++				<UnitMeshGroup>
++					<iRequired>1</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ETHIOPIAN_OROMO_WARRIOR_BLUE</EarlyArtDefineTag>
++				</UnitMeshGroup>
++				<UnitMeshGroup>
++					<iRequired>1</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ETHIOPIAN_OROMO_WARRIOR_GREEN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: was PROMOTION_FIRST_STRIKE1 and PROMOTION_FIRST_STRIKE2 -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_ENGLISH_REDCOAT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_RIFLEMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_RIFLEMAN</Class>
+-			<Type>UNIT_ENGLISH_REDCOAT</Type>
++			<Type>UNIT_RIFLEMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -12376,8 +12399,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_ENGLISH_REDCOAT</Description>
+-			<Civilopedia>TXT_KEY_UNIT_ENGLISH_REDCOAT_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_RIFLEMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_RIFLEMAN_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -12522,18 +12545,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>50</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was "MOUNTED" 25 and UNITCOMBAT_GUN 25 -->
+@@ -12546,10 +12559,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -12564,7 +12573,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 14 -->
+-			<iPower>16</iPower>
++			<iPower>15</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12573,7 +12582,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ENGLISH_REDCOAT</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_RIFLEMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 938a43b92..153be3555 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -203,7 +203,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend (10+ galleons and barely any land defender) by doing changes in `CvCityAI::AI_bestUnit`. Hopefully makes AI much stronger on land relatively even if it comes at the cost of being slightly weaker on/at naval warfare, i believe most of the critical fighting spot is on land anyway, so i hope the now (although i didn't test it but anyways etc) naval military unit output is still enough at least to protect workboats or such, but besides that i wouldn't want it to be a handicap and mislead it if i may say in this case but anyways etc to build many naval units (10+ galleons in the screenshot in the following link and barely and land defender then die easily by a land invasion). Also, as part of this fix/tentative patch, do not build extra more military naval units if city is landlocked (i.e. for example coastal but in a lake only, these units would be quite pointless) as noted by gemini ai. Also do not build extra more naval military units if war is possible, focus on land warfare rather. Hopefully AI is stronger with these (unless playing archipelago maybe xd but even then cities wouldn't be invaded at least maybe but anyways etc, i hope AI is much more efficient with these at least in theory as i didn't test it but i assume it would do so but anyways etc), and it fixes the example 148 in base advciv issue i had reported at the time, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender) for details with a screenshot and such anyways etc.
+ - (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well, by doing changes in `CvCityAI::AI_bestUnit` as well but anyways etc. I hope AI is much stronger or at least not weaker in such circumstances as i had noticed happen twice in same game in base advciv in example 47, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc) for details anyways etc. See also [README_Quick_Get_Started_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#civilian-units) for additional or related info (settler now a national unit), which may help quite a lot AI effiency on top of adding extra strategy for all players too but anyways etc. Note: thanks to our changes in known issue as of now 53, this can most likely be removed if desired, AI will stick to one settler at a time now if i'm not mistaken and our new code works as intended as quickly tested successfully for privateers and galleons, and no settler at war, so if you prefer disable it if you want many settlers at a time, hopefully AI will still stick to our rule of 1 at a time or now none if danger or such. But may be fine to keep it as such anyways etc.
+-- disabled for AIs the unreliable unitais that are unreliable (`UNITAI_COLLATERAL` to aim for less suicides and getting baited and more focused defense or offense units, `UNITAI_PILLAGE` (no time to waste running around, this unit will not be focused attacking or defending if i am not mistaken, avoid this, inefficient), and `UNITAI_PIRATE_SEA` again not efficient and annoying, is also part of reducing naval warfare influence (see below for details anyways etc), as a result we use our hammers more efficiently to have a more effective and efficient unitais. Say a swordsman will be an attacker or a defender, but not a pillager, so the stack will be stronger, and the cities more guarded, at least in theory, results seem good, as Khmer AI could pull an early rush on Medina and capture it with a strong stack.)
++- disabled for AIs the unreliable unitais that are unreliable (`UNITAI_COLLATERAL` to aim for less suicides and getting baited and more focused defense or offense units, `UNITAI_PILLAGE` (no time to waste running around, this unit will not be focused attacking or defending if i am not mistaken, avoid this, inefficient, although they seem to still pillage sometimes ingame anyways etc), and `UNITAI_PIRATE_SEA` again not efficient and annoying, is also part of reducing naval warfare influence (see below for details anyways etc), as a result we use our hammers more efficiently to have a more effective and efficient unitais. Say a swordsman will be an attacker or a defender, but not a pillager, so the stack will be stronger, and the cities more guarded, at least in theory, results seem good, as Khmer AI could pull an early rush on Medina and capture it with a strong stack.)
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place (as they sometimes seem to be overriden but rarely so and maybe it me not understanding or/and knowing how this works rather or additionally but in all cases i mean anyways etc), in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far ; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, just to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimmed through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
+ - to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc, like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc ; also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them, see also [CIV4UnitInf_os_UnitAI_and_notes.txt](/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt) for details anyways etc
+ - reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc)) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
+@@ -407,7 +407,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech
+-- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), or the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), or the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc ; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index bdbcbd6d1..4fc38eb93 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -192,7 +192,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Curb **naval overbuild**: in `CvCityAI::AI_bestUnit`, reduce making excess naval combat units (esp. when landlocked or when land war is likely) to prevent getting invaded on land with too few defenders. See **[KI#35](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender)**.
+ - Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc)** and **[Civilian Units](#civilian-units)**.
+-- Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE`, `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
++- Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE` (but despite that, AI still seems to occasionally pillage), `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
+ - Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps. Goal: fewer wandering/baited units; more decisive stacks.
+ - Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See `/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt`.
+ - **Barracks**: lower flavor military (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
+@@ -392,7 +392,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+   - **Logistics** now at **The Wheel** (was Military Science).
+   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
+ - **Unit redesigns:**
+-  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the **Ger**, longer medieval span, higher hammer rate, and more historical).
++  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the **Ger**, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses).
+   - **Air** unit costs generally increased.
+ - **Upgrade paths** simplified and made more sensible:
+   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=90040

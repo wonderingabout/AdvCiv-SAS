@@ -1,0 +1,145 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4551
+# Commit: 78d99e9330e474afcfca17bd5436dd662efed90e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 53c64a7b10e42cb00cb92c2fa67557da2e873423
+# Title: minor add some notes, or/and add comments i mean anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+21	20	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 6498d7da4..7f5952f3f 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 1a191ad62..0179035d4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -511,3 +511,7 @@ mean anywyas, consciously or rather willingly or rather intendedly or unintendly
+ inaccurate, basically i mean anyways not with that as an original intention/thought, but eventually
+ and about this i mean anyways an intention i willingly implemented later on, after having thought
+ and considered it, but it is again about this i mean anyways, i mean anyways, thanks,
++
++- the worker is a very important and often used unit so i may go extra lengthy, about this i mean
++anyways thanks, into making sure it gets as many graphical updates as possible, at least about this
++i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 4f77d73bd..af8f6e7b2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -46,32 +46,33 @@ gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean an
+ 
+ 
+ 
+-workers (same as work boat maybe not worth it so much or just once in later eras maybe about this i mean anyways, thanks,)
+--
+--
+-worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading them, will see/think (is) about this i mean anyways i mean anyways, thanks,
+--
+--
+-worker 6: labourer history rewritten
+--
+--
++workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it) : 
++worker 1:
++worker 2: -
++worker 3: -
++worker 4:
++worker 5:
++worker 6: 
++worker 7: labourer history rewritten
++worker 8: - ?
+ worker 9: service droid c2c
+ 
+ 
+ 
+-work boats
+-now that it auto upgrades, i want to add graphics to it, less tedious for me to implement
+-and for player to upgrade them everytime (it is done auto)
+-(auto-upgrades, graphics update only)
++work boats (auto-upgrades)
+ work boat 1:
++work boat 2:
++work boat 3:
+ -
+ -
++work boat 5:
+ -
+ -
+ -
+ 
+ 
+-settlers
++settlers (now that auto-upgrades i may want to add more unit designs, but not much functional benefit so todo maybe at few eras but much later in mod developement of AdvCiv-SAS about this i mean anyways, thanks)
++-
+ -
+ -
+ -
+@@ -80,7 +81,7 @@ settlers
+ -
+ 
+ 
+-scout/explorer
++scouts (auto-upgrades)
+ scout 1: -
+ -
+ explore 3: scout c2c
+@@ -91,12 +92,12 @@ explore 7: maybe add one here too for consistency and realism (one every 2 eras,
+ -
+ explore 9: scout droid c2c
+ 
+-air explore
++air explore (auto-upgrades)
+ -
+ -
+ -
+ -
+-air explore 5: hot air baloon c2c
++air explore 5: hot air baloon c2c (but late in renaissance)
+ air explore 6: Dirigible _ -
+ air explore 7: -
+ -
+@@ -105,7 +106,7 @@ air explore 9: drone helicopter c2c
+ 
+ 
+ ___________________________________________________________________________________________
+-boats:
++boats
+ 
+ transport boats:
+ transport 1: raft c2c
+@@ -481,7 +482,7 @@ corporations todo
+ coropration mace: cartwright c2c
+ corporation axe: adventurer ffh2
+ corporation lance: rogue c2c
+-corporation sword: valkyrie ffh2
++corporation sword: valkyrie ffh2 (looks like saber so nice i could use it here i mean anyways, thanks, todo ; also too unlikel to be used as military unit graphically, but glad i found another use for it todo, is about this i mean anywyas, at least but i focus and should i mean anyways, so and and is really about this at least.. i mean anyways but focus i mean anyways and maybe is just about this, but anyways i mean anywyas as is or not or yes or etc maybe yes or not anywyas as is etc i mean anyways, thanks, to not mislead or other i mean anyways, is this what this person meant idk or not but anyways, todo delete this comment too before merging pr, but still is as is i mean anywyas, thanks, among other possible meaning or not but anyways still is as is and i should focus or not or yes etc i mean anyways, thanks, )
+ corporation archer: firebow ffh2
+ corporation assasin: adept ffh2
+ corporation gun:
+@@ -492,7 +493,7 @@ ________________________________________________________________________________
+ special units
+ 
+ persia: immortal (foot) history rewritten
+-samratian or their western neighbour or other: bactrian c2c
++samratian or their western neighbour or other: bactrian c2c or some other unit if bactrian horse lance(r) is used i mean anyways, thanks,
+ xiongnu or their neighbour: flurry ffh2
+ englant: longbow welsh realism invictus?
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5076

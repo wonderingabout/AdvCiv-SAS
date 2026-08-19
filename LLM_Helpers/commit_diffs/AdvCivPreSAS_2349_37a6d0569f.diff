@@ -1,0 +1,173 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2349
+# Commit: 37a6d0569fefc7c8f11ecccd7a59b11bd732fb2a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d80c166e381aed417c796b3febc21f93841a379e
+# Title: Alert when too-much-on-hands status changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	0	Assets/XML/Text/CIV4GameText_advc.xml
+43	12	CvGameCoreDLL/AdvCiv4lerts.cpp
+4	1	CvGameCoreDLL/AdvCiv4lerts.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 4dffc9c77..4d1153bd7 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3243,6 +3243,23 @@
+ 		<Italian>%s1_TeamName non potrebbe pi� essere indotto � una guerra contro</Italian>
+ 		<Spanish>%s1_TeamName ya no es dispuesto a una guerra contra</Spanish>
+ 	</TEXT>
++	<!-- (quoting TXT_KEY_DENIAL_TOO_MANY_WARS in Civ4GameTextInfos.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV4LERTS_TOO_MANY_WARS</Tag>
++		<English>%s1_LeaderName is now preparing for war ("too much on our hands").</English>
++		<French>%s1_LeaderName se pr�pare � la guerre ("suffisamment � faire").</French>
++		<German>%s1_LeaderName trifft Kriegsvorbereitungen ("genug andere Sorgen").</German>
++		<Italian>%s1_LeaderName si prepara alla guerra ("troppi conflitti").</Italian>
++		<Spanish>%s1_LeaderName e prepara para la guerra ("demasiado entre manos").</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV4LERTS_NO_LONGER_TOO_MANY_WARS</Tag>
++		<English>%s1_LeaderName may have abandoned [NUM1:his:her] war preparations.</English>
++		<French>%s1_LeaderName ne para�t plus se pr�parer � la guerre.</French>
++		<German>%s1_LeaderName scheint keinen Krieg mehr vorzubereiten.</German>
++		<Italian>%s1_LeaderName non pare pi� prepararsi alla guerra.</Italian>
++		<Spanish>%s1_LeaderName ya no parece prepararse para la guerra.</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.210b -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index a2b5f9bdc..e6e79c3eb 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -81,22 +81,29 @@ void WarTradeAlert::check()
+ 				owner.canContact(warTeam.getLeaderID(), true));
+ 		std::vector<TeamTypes> willTradeMsgTeams;
+ 		std::vector<TeamTypes> noLongerTradeMsgTeams;
++		bool nowTooManyWars = false; // Only relevant when UWAI is disabled
+ 		for(int j = 0; j < MAX_CIV_TEAMS; j++)
+ 		{
+ 			CvTeam const& victim = GET_TEAM((TeamTypes)j);
+-			bool newValue = (valid && victim.isAlive() && !victim.isAVassal() &&
++			bool otherValid = (valid && victim.isAlive() && !victim.isAVassal() &&
+ 					!victim.isMinorCiv() && victim.getID() != owner.getTeam() &&
+ 					victim.getID() != warTeam.getID() &&
+ 					!warTeam.isAtWar(victim.getID()) &&
+ 					GET_TEAM(owner.getTeam()).isHasMet(victim.getID()) &&
+ 					// Can't suggest war trade otherwise
+-					warTeam.isOpenBordersTrading() &&
+-					warTeam.AI_declareWarTrade(victim.getID(), owner.getTeam()) ==
+-					NO_DENIAL);
+-			if(newValue == willWar[i][j])
++					warTeam.isOpenBordersTrading());
++			DenialTypes tradeDenial = (otherValid ? warTeam.AI_declareWarTrade(
++					victim.getID(), owner.getTeam()) : NO_DENIAL);
++			bool willNowWar = (otherValid && tradeDenial == NO_DENIAL);
++			if (!getUWAI.isEnabled() && otherValid && !nowTooManyWars &&
++				tradeDenial == DENIAL_TOO_MANY_WARS && warTeam.getNumWars() <= 0)
++			{
++				nowTooManyWars = true;
++			}
++			if(willNowWar == willWar[i][j])
+ 				continue;
+-			willWar[i][j] = newValue;
+-			if(newValue)
++			willWar[i][j] = willNowWar;
++			if(willNowWar)
+ 				willTradeMsgTeams.push_back(victim.getID());
+ 			/*  Obviously can't hire warTeam if it has already declared war
+ 				or if victim has been eliminated. */
+@@ -104,19 +111,27 @@ void WarTradeAlert::check()
+ 				noLongerTradeMsgTeams.push_back(victim.getID());
+ 		}
+ 		msg(warTeam.getID(), willTradeMsgTeams, true);
+-		if(GC.getDefineINT("ALERT_ON_NO_LONGER_WAR_TRADE") > 0)
++		if(GC.getDefineBOOL("ALERT_ON_NO_LONGER_WAR_TRADE"))
+ 			msg(warTeam.getID(), noLongerTradeMsgTeams, false);
++		if (!getUWAI.isEnabled() && nowTooManyWars != tooManyWars.get(warTeam.getID()) &&
++			// Willingness to start a war implies not having "too much on their hands"
++			(willTradeMsgTeams.empty() || nowTooManyWars))
++		{
++			msg(warTeam.getID(), nowTooManyWars);
++		}
++		tooManyWars.set(warTeam.getID(), nowTooManyWars);
+ 	}
+ }
+ 
+-void WarTradeAlert::msg(TeamTypes warTeamId, std::vector<TeamTypes> victims, bool bTrade)
++void WarTradeAlert::msg(TeamTypes warTeamId, std::vector<TeamTypes> victims,
++	bool bTrade) const
+ {
+ 	if(victims.empty())
+ 		return;
+ 	CvTeam const& warTeam = GET_TEAM(warTeamId);
+ 	CvWString text = gDLL->getText((bTrade ? "TXT_KEY_CIV4LERTS_TRADE_WAR" :
+ 			"TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR"),
+-			warTeam.getName().GetCString());
++			GET_PLAYER(warTeam.getLeaderID()).getName());
+ 	if(victims.size() > 1)
+ 		text += L":";
+ 	text += L" ";
+@@ -127,10 +142,26 @@ void WarTradeAlert::msg(TeamTypes warTeamId, std::vector<TeamTypes> victims, boo
+ 			text += L", ";
+ 		else text += L".";
+ 	}
++	msg(text, warTeamId);
++}
++
++
++void WarTradeAlert::msg(TeamTypes warTeamId, bool bNowTooManyWars) const
++{
++	CvTeam const& warTeam = GET_TEAM(warTeamId);
++	CvWString text = gDLL->getText((bNowTooManyWars ? "TXT_KEY_CIV4LERTS_TOO_MANY_WARS" :
++			"TXT_KEY_CIV4LERTS_NO_LONGER_TOO_MANY_WARS"),
++			warTeam.getName().GetCString());
++	msg(text, warTeamId);
++}
++
++
++void WarTradeAlert::msg(CvWString text, TeamTypes warTeamId) const
++{
+ 	AdvCiv4lert::msg(text, NULL,
+ 			// <advc.127b>
+-			warTeam.getCapitalX(TEAMID(ownerId)),
+-			warTeam.getCapitalY(TEAMID(ownerId)), // </advc.127b>
++			GET_TEAM(warTeamId).getCapitalX(TEAMID(ownerId)),
++			GET_TEAM(warTeamId).getCapitalY(TEAMID(ownerId)), // </advc.127b>
+ 			GC.getColorType("WAR_TRADE_ALERT"));
+ } // </advc.210a>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.h b/CvGameCoreDLL/AdvCiv4lerts.h
+index c7b7663bd..63032d3d9 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.h
++++ b/CvGameCoreDLL/AdvCiv4lerts.h
+@@ -31,8 +31,11 @@ public:
+ protected:
+ 	void check();
+ private:
+-	void msg(TeamTypes warTeamId, std::vector<TeamTypes> victims, bool bTrade);
++	void msg(TeamTypes warTeamId, std::vector<TeamTypes> victims, bool bTrade) const;
++	void msg(TeamTypes warTeamId, bool bNowTooManyWars) const;
++	void msg(CvWString text, TeamTypes warTeamId) const;
+ 	bool willWar[MAX_CIV_TEAMS][MAX_CIV_TEAMS];
++	EnumMap<TeamTypes,bool> tooManyWars;
+ }; // </advc.210a>
+ 
+ // <advc.210b>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6074

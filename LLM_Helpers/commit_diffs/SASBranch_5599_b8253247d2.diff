@@ -1,0 +1,164 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5599
+# Commit: b8253247d2dadbeda665c638c0c22a8896958ecd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2934fc73cf6db5fb8ff49723d817fdfb2b6fbf99
+# Title: mirror the other advisors' structure in domestic advisor (add top and bottom advisor) + beautify using clearer constrast
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	31	Assets/Python/Screens/CvDomesticAdvisor.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 000583b65..0a41f9c6e 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -44,6 +44,7 @@ class CvDomesticAdvisor:
+ 		self.nPlusWidth = self.nPlusHeight = self.nMinusWidth = self.nMinusHeight = 20
+ 		self.nSpecTextOffsetX = 40
+ 		self.nSpecTextOffsetY = 10
++		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+ 
+ 	def initText(self):
+ 		# <!-- custom: cache Domestic Advisor header texts/icons once per language to avoid repeated translation/symbol lookups on redraw. Keep column widths runtime-based because they depend on current screen size. (GPT-5.3-Codex) -->
+@@ -67,6 +68,7 @@ class CvDomesticAdvisor:
+ 		self.HEADER_GARRISON = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + SAS_FONT_TAG_CLOSE
+ 		self.HEADER_PRODUCING = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE
+ 		self.HEADER_REVOLT = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
+@@ -77,15 +79,27 @@ class CvDomesticAdvisor:
+ 			self.H_BOTTOM_SPACE
+ 		)
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
+-		self.nTableWidth = self.nScreenWidth - 35
+-		self.nTableHeight = self.nScreenHeight - 85
+-		self.nSpecialistY = self.nScreenHeight - 55
++		# <!-- custom: use the shared advisor shell layout (top/bottom bars + single content panel) so Domestic Advisor mirrors Victory/Info/Foreign structure instead of a floating table. (GPT-5.3-Codex) -->
++		# <!-- custom: remove outer advisor-content margins so Domestic can use the full area between top/bottom bars; keep spacing only as inner table margin. (GPT-5.3-Codex) -->
++		self.nMainPanelX = 0
++		# <!-- custom: panel styles can leave thin Y-axis seams at the shell boundaries; use a local vertical bleed and apply it symmetrically to top/bottom. (GPT-5.3-Codex) -->
++		iMainPanelYBleed = 10
++		self.nMainPanelY = 55 - iMainPanelYBleed
++		self.nMainPanelWidth = self.nScreenWidth - (2 * self.nMainPanelX)
++		self.nMainPanelHeight = (self.Y_BOTTOM_PANEL - self.nMainPanelY) + iMainPanelYBleed
++		self.nTableMargin = 8
++		# <!-- custom: TABLE_STYLE_STANDARD draws the header slightly above the anchor; add a tiny visual top offset so apparent top margin matches left/right/bottom. (GPT-5.3-Codex) -->
++		self.nTableTopVisualAdjust = 6
++		self.nTableX = self.nMainPanelX + self.nTableMargin
++		self.nTableY = self.nMainPanelY + self.nTableMargin + self.nTableTopVisualAdjust
++		self.nTableWidth = self.nMainPanelWidth - (2 * self.nTableMargin)
++		self.nTableHeight = self.nMainPanelHeight - (2 * self.nTableMargin) - self.nTableTopVisualAdjust
++		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->
++		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
+ 		
+ 	# Screen construction function
+ 	def interfaceScreen(self):
+ 	
+-		player = gc.getPlayer(gc.getGame().getActivePlayer())
+-		
+ 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+ 		self.updateRuntimeLayout(screen)
+@@ -93,9 +107,14 @@ class CvDomesticAdvisor:
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
++		self.initText()
+ 	
+ 		# Here we set the background widget and exit button, and we show the screen
+-		screen.addPanel( "DomesticAdvisorBG", u"", u"", True, False, 0, 0, self.nScreenWidth, self.nScreenHeight, PanelStyles.PANEL_STYLE_MAIN )
++		screen.addDrawControl("DomesticAdvisorBackground", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.nScreenWidth, self.nScreenHeight, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addPanel( "DomesticTopPanel", u"", u"", True, False, 0, 0, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
++		screen.addPanel( "DomesticBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
++		screen.showWindowBackground(False)
++		screen.setLabel("DomesticTitleHeader", "Background", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setText("DomesticExit", "Background",
+ 				SAS_FONT_TAG_TITLE + # advc.193
+ 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
+@@ -103,21 +122,7 @@ class CvDomesticAdvisor:
+ 				CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, -0.1,
+ 				FontTypes.TITLE_FONT,
+ 				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+-
+-		bCanLiberate = false
+-		(loopCity, iter) = player.firstCity(false)
+-		while(loopCity):
+-			if loopCity.getLiberationPlayer(false) != -1:
+-				# UNOFFICIAL_PATCH begin
+-				if not gc.getTeam(gc.getPlayer(loopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
+-					bCanLiberate = true
+-					break
+-				# UNOFFICIAL_PATCH end
+-			(loopCity, iter) = player.nextCity(iter, false)
+-		
+-		if (bCanLiberate or gc.getPlayer(gc.getGame().getActivePlayer()).canSplitEmpire()):
+-			screen.setImageButton( "DomesticSplit", "", self.nScreenWidth - 110, self.nScreenHeight - 45, 28, 28, WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FREE_COLONY).getActionInfoIndex(), -1 )
+-			screen.setStyle( "DomesticSplit", "Button_HUDAdvisorVictory_Style" )
++		screen.addPanel("DomesticMainPanel", "", "", True, True, self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+ 		# Erase the flag?
+ 		CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, True)
+@@ -194,10 +199,8 @@ class CvDomesticAdvisor:
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+ 		player = gc.getPlayer(CyGame().getActivePlayer())
+ 		
+-		screen.moveToFront( "Background" )
+-		
+ 		# Build the table	
+-		screen.addTableControlGFC( "CityListBackground", 19, 18, 21, self.nTableWidth, self.nTableHeight, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD )
++		screen.addTableControlGFC( "CityListBackground", 19, self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD )
+ 		screen.enableSelect( "CityListBackground", True )
+ 		screen.enableSort( "CityListBackground" )
+ 		screen.setStyle("CityListBackground", "Table_StandardCiv_Style")
+@@ -217,8 +220,6 @@ class CvDomesticAdvisor:
+ 		
+ 		self.drawSpecialists()
+ 		
+-		screen.moveToBack( "DomesticAdvisorBG" )
+-		
+ 		self.updateAppropriateCitySelection()
+ 		
+ 		CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, true)
+@@ -485,11 +486,6 @@ class CvDomesticAdvisor:
+ 			else:
+ 				self.updateAppropriateCitySelection()
+ 				self.updateSpecialists()
+-		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+-			if (inputClass.getFunctionName() == "DomesticSplit"):
+-				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+-				screen.hideScreen()
+-			
+ 		return 0
+ 	
+ 	def updateAppropriateCitySelection(self):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5e05c17c6..5563a38ac 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -325,7 +325,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor** so it is one of its tabs now.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
+-- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
++- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5522+) **Beautified** the **Civics Advisor**: enlarge **top panels text** so **long civic names don't overflow**. Change in [CvCivicsScreen.py](/Assets/Python/Screens/CvCivicsScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=12963

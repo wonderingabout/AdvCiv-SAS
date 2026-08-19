@@ -1,0 +1,566 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5216
+# Commit: fc1bcdb31c3a0329a329f11d9820ca00edf13231
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 41147936349a90955e1c5b8ef8da843a35928144
+# Title: executives now require the same tech(s) as their corresponding corporation building - **Executives** now **require the same Tech(s)** to be built as their co...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+160	15	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	6	Assets/Python/Screens/CvMainInterface.py
+8	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+46	15	Assets/XML/Units/CIV4UnitInfos.xml
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index f33185c0b..fa8915ddb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -184,6 +184,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheRegularBuildingsTuple = None
+ 		self.SAS_cacheNationalWondersTuple = None
+ 		self.SAS_cacheWorldWondersTuple = None
++		self.SAS_cacheUnitsTuple = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -396,6 +397,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -583,8 +585,157 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getUnitList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, gc.getUnitInfo)
+ 
++	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getUnitList(self):
+-		return self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
++		if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
++			if self.SAS_cacheUnitsTuple is None:
++				unitsList = []
++				baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
++
++				iNumEras = gc.getNumEraInfos()
++				iNumAndTechs = gc.getNUM_UNIT_AND_TECH_PREREQS()
++
++				# We also consider unit PrereqBuilding tech prereqs, since some units are gated by a building whose tech prereq might be indirect (special building).
++				iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
++
++				# --- "No Tech Prerequisite" group first ---
++				tmp = []
++				for (szName, iUnit) in baseList:
++					info = gc.getUnitInfo(iUnit)
++					if info.isGraphicalOnly():
++						continue
++
++					iEra = -1
++
++					# Unit tech prereqs: <PrereqTech> + <TechTypes>
++					iTech = info.getPrereqAndTech()
++					if iTech >= 0:
++						iEra = gc.getTechInfo(iTech).getEra()
++
++					for j in range(iNumAndTechs):
++						iTech2 = info.getPrereqAndTechs(j)
++						if iTech2 >= 0:
++							iEra2 = gc.getTechInfo(iTech2).getEra()
++							if iEra2 > iEra:
++								iEra = iEra2
++
++					# PrereqBuilding tech prereqs (if any)
++					iPrereqBuilding = info.getPrereqBuilding()
++					if iPrereqBuilding >= 0:
++						bInfo = gc.getBuildingInfo(iPrereqBuilding)
++						iBuildingEra = -1
++
++						iBTech = bInfo.getPrereqAndTech()
++						if iBTech >= 0:
++							iBuildingEra = gc.getTechInfo(iBTech).getEra()
++
++						for k in range(iNumBuildingAndTechs):
++							iBTech2 = bInfo.getPrereqAndTechs(k)
++							if iBTech2 >= 0:
++								iBera2 = gc.getTechInfo(iBTech2).getEra()
++								if iBera2 > iBuildingEra:
++									iBuildingEra = iBera2
++
++						# SpecialBuilding tech prereq (monastery-like gating)
++						iSpecialBuildingType = bInfo.getSpecialBuildingType()
++						if iSpecialBuildingType >= 0:
++							iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
++							if iSpecialTech >= 0:
++								iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
++								if iSpecialEra > iBuildingEra:
++									iBuildingEra = iSpecialEra
++
++						if iBuildingEra > iEra:
++							iEra = iBuildingEra
++
++					# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale anyways etc.). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not anyways etc.); check if accurate anyways etc. -->
++					# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
++
++					if iEra == -1:
++						tmp.append((szName, iUnit))
++
++				if tmp:
++					if self.isSortLists():
++						tmp.sort()
++					unitsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
++					for x in tmp:
++						unitsList.append(x)
++
++				# --- Era groups ---
++				for iEraLoop in range(iNumEras):
++					tmp = []
++
++					for (szName, iUnit) in baseList:
++						info = gc.getUnitInfo(iUnit)
++						if info.isGraphicalOnly():
++							continue
++
++						iEra = -1
++
++						iTech = info.getPrereqAndTech()
++						if iTech >= 0:
++							iEra = gc.getTechInfo(iTech).getEra()
++
++						for j in range(iNumAndTechs):
++							iTech2 = info.getPrereqAndTechs(j)
++							if iTech2 >= 0:
++								iEra2 = gc.getTechInfo(iTech2).getEra()
++								if iEra2 > iEra:
++									iEra = iEra2
++
++						iPrereqBuilding = info.getPrereqBuilding()
++						if iPrereqBuilding >= 0:
++							bInfo = gc.getBuildingInfo(iPrereqBuilding)
++							iBuildingEra = -1
++
++							iBTech = bInfo.getPrereqAndTech()
++							if iBTech >= 0:
++								iBuildingEra = gc.getTechInfo(iBTech).getEra()
++
++							for k in range(iNumBuildingAndTechs):
++								iBTech2 = bInfo.getPrereqAndTechs(k)
++								if iBTech2 >= 0:
++									iBera2 = gc.getTechInfo(iBTech2).getEra()
++									if iBera2 > iBuildingEra:
++										iBuildingEra = iBera2
++
++							iSpecialBuildingType = bInfo.getSpecialBuildingType()
++							if iSpecialBuildingType >= 0:
++								iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
++								if iSpecialTech >= 0:
++									iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
++									if iSpecialEra > iBuildingEra:
++										iBuildingEra = iSpecialEra
++
++							if iBuildingEra > iEra:
++								iEra = iBuildingEra
++
++						if iEra != iEraLoop:
++							continue
++
++						tmp.append((szName, iUnit))
++
++					if not tmp:
++						continue
++
++					if self.isSortLists():
++						tmp.sort()
++
++					if unitsList:
++						unitsList.append(("", -1))
++
++					unitsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
++					for x in tmp:
++						unitsList.append(x)
++
++				self.SAS_cacheUnitsTuple = tuple(unitsList)
++
++			return self.SAS_cacheUnitsTuple
++
++		else:
++			if self.SAS_cacheUnitsTuple is None:
++				self.SAS_cacheUnitsTuple = tuple(self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo))
++			return self.SAS_cacheUnitsTuple
+ 
+ 
+ 	def placeUnitUpgrades(self):
+@@ -1094,26 +1245,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			elif (info == gc.getLeaderHeadInfo):
+ 				data2 = SevoPediaLeader.SevoPediaLeader.getCiv(item[1]) # </advc.001>
+ 
+-			# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+-			# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
+-			# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
+-			# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+-			elif info == gc.getCivicInfo or info == gc.getTechInfo or info == gc.getBuildingInfo:
+-				# <!-- custom: reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
++			else:
++				# advc (note): 0 tends to mean no tooltip (or an empty one?).
++				#    -1 should also work as the default; BULL likes to use 1.
+ 				data2 = 1
+ 
++				# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
++				# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
++				# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
++				# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
++				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
+ 				if data1 == -1:
+ 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
+ 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
+ 					szButtonPlaceItems = ""
+-				# <!-- custom: else no change as per chatgpt 5.2's code thanks i mean but anyways etc. -->
+-
+-				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
+-
+-			else:
+-				# advc (note): 0 tends to mean no tooltip (or an empty one?).
+-				#    -1 should also work as the default; BULL likes to use 1.
+-				data2 = 1
+ 
+ 			screen.appendTableRow(self.ITEM_LIST_ID)
+ 			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 5d063729a..2f2ad12e8 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -451,6 +451,7 @@ class CvMainInterface:
+ 		self.iBarExtraRowsExtraManualAdjust = None
+ 		# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
+ 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
++		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
+ 		# 1) Add a pinned-row member (once)
+ 		self.iCityBuildBarPinnedRow = None
+ 
+@@ -3522,11 +3523,8 @@ class CvMainInterface:
+ 						bFound = True
+ 
+ 				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
+-				# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
+-				# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+ 				# 3) Replace the selectMultiList(...getCityTabSelectionRow()) in the city-screen block
+-				# When extra rows are shown, don't let clicks on lower rows change the scroll position
+-				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that we click on the upper rows when we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such anyways etc. -->
++				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that when we click on the upper rows while we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such anyways etc. -->
+ 				# screen.selectMultiList("BottomButtonList", CyInterface().getCityTabSelectionRow())
+ 				if self.iBarExtraRows > 0:
+ 					if self.iCityBuildBarPinnedRow is None:
+@@ -7366,8 +7364,6 @@ class CvMainInterface:
+ # BUG - PLE - end
+ 
+ 			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
+-			# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
+-			# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+ 			# 2) Update that pin only when the user clicks the city tab / scroll arrows
+ 			# Prevent BottomButtonList from auto-jumping when showing multiple build rows
+ 			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 983bfefac..1e7e24301 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -29759,6 +29759,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: note: Executives now require tech(s) to be built (see there for details anyways etc.) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit i mean anyways etc., was NONE. -->
+ 			<!-- custom: was TECH_MEDICINE -->
+ 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+ 			<TechTypes>
+@@ -29936,6 +29937,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
+ 			<!-- K-Mod: was MEDICINE -->
+ 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes>
+@@ -30114,6 +30116,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
+ 			<!-- K-Mod: was PLASTICS -->
+ 			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			<TechTypes>
+@@ -30291,6 +30294,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
+ 			<!-- custom: was TECH_MARINE_TECHNOLOGY -->
+ 			<!-- K-Mod: was COMBUSTION -->
+ 			<PrereqTech>TECH_RADIO</PrereqTech>
+@@ -30470,7 +30474,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: changed to another / to account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc, was the now removed TECH_RAILROAD anyways etc -->
++			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
++			<!-- custom: changed to another tech to accomodate reworked tech tree changes anyways etc., was the now removed TECH_RAILROAD anyways etc. -->
+ 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+@@ -30647,6 +30652,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
+ 			<!-- custom: was TECH_ROCKETRY and techtypes TECH_CORPORATION -->
+ 			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+ 			<TechTypes>
+@@ -30825,6 +30831,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 anyways etc. -->
+ 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
+ 			<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 			<TechTypes/>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 7290ae02d..8cf033d4a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -55,6 +55,11 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: similarly for other sevopedia pages anyways etc. -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index a97bc46cc..621843335 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -3157,8 +3157,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_1</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s). This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit i mean anyways etc.; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_ECOLOGY</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -3324,8 +3329,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_2</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -3491,8 +3501,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_3</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_COMBUSTION</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -3658,8 +3673,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_4</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_RADIO</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -3825,8 +3845,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_5</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -3992,8 +4017,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_6</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -4159,7 +4189,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>CORPORATION_7</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
++			<!-- custom: Executives now require a tech. See code comment at UNITCLASS_EXECUTIVE_1 anyways etc; was PrereqTech NONE and TechTypes empty anyways etc. -->
++			<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -20027,7 +20058,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
++			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_STEEL (now removed) -->
+ 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			<!-- custom: was empty anyways etc -->
+ 			<TechTypes>
+@@ -20443,7 +20474,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
++			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_STEEL (now removed) -->
+ 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			<!-- custom: was empty anyways etc -->
+ 			<TechTypes>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 638ba5cf0..419b1c794 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -403,11 +403,12 @@ Note: please see note here as well in this custom main changes guide about the .
+ - one new religion, paganism is added, confucianism is removed, maybe more early wars, also historically more relevant +/- accurate too i think, it also has much few adepts if i may say so makes sense to remove this one rather anyways etc. As for judaism, a similar reasoning could have been applied ideally, but it is significant due to preceding the other abrahamic based following religions so serves quite well as the first monotheistic instance representative in the game if i may say anyways etc (i don't know if another monotheistic religion existed before judaism (most likely, but from a quick search lat time i looked i mean anyways etc i didn't find any occurence or result, but i'd expect monotheism to be much older than judaism but is just a guess could or could not be mistaken ideally i'd research more into it if i want (but maybe not too important of a topic at least to me even though maybe "good" to know for general info but anyways etc) but anyways etc)) so keep it maybe as is both simple and nicely representating this part of religious history while keeping a low number of religions for efficiency as well as i seem to have read that 7 was deemed the efficient number firaxis or civ4 devs assessed to be if i am not mistaken in remembering this but anyways etc hopefully helpful or and informative this info and all i added and all or not or yes or other but anyways etc
+ - missionaries have their cost significantly reduced
+ - simplified monasteries rework: now a espionage with low great person modifier rate too, also does not obsolete / is not obsolete anymore at any tech i mean anyways etc, and before that does not give science which doesn't/didn't make sense at least to me, as religion drives further away from science not the opposite, plus was not balanced with other science buildings with this being a weird mix, hopefully clearer or more interesting this way if i may say or not or yes but anyways etc, see sevopedia ingame or and xml for details and/or updated values anyways etc
+-- shrines now require a religion to be built, for example the daoist shrine now (also) requires to have the daoism religion, and not just own the holy city, this way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)), but also seems to make more sense unless i am mistaken or/and it (may?) create other issues possibly or maybe not, then (i'd) try it and see, this means for example conquerring a city is now not enough to build a shrine, you need the specific religion for it, which again seems to make more sense to me too so maybe an all in all better change, unless i am mistaken, but try and see, maybe works well or maybe not or yes or other, anyways etc
++- shrines now require a religion to be built, for example the daoist shrine now (also) requires to have the daoism religion, and not just own the holy city, this way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)), but also seems to make more sense unless i am mistaken or/and it (may?) create other issues possibly or maybe not, then (i'd) try it and see, this means for example conquering (or any way to acquire) a city is now not enough to build a shrine, you need the specific religion for it, which again seems to make more sense to me too so maybe an all in all better change, unless i am mistaken, but try and see, maybe works well or maybe not or yes or other, anyways etc
+ - shrines now also require a tech to be built, which is their religion's tech requirement. This allows to make shrines to also appear in tech tree, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it (in tech tree display, also about the conquest thing or similar or other issues or examples of what may happen but anyways etc as these are world wonders unlike the temple, the monastery, and the cathedral), tech prerequirement for shrines was NONE. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc) for details if any more than this are there anyways such as the/some anyways etc screenshots or and such or and not anyways etc
+ 
+ ### Corporations (non-exhaustive, see sevopedia or/and xml for details)
+ 
++- (Requires AdvCiv-SAS 5216+)**Executives** now **require the same Tech(s)** to be built as their corresponding corporation's does (e.g. `TECH_MARINE_TECHNOLOGY` and `TECH_CORPORATION` for the Sid Sushi's executive unit; was `NONE`.) to be built. This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (i.e. not until the later eras). This also balances **rival city acquisition** so a player **cannot produce executives if we do not have the corresponding Corporation** in the city (mirroring the shrine prerequirement change).
+ - corporation executives have their cost significantly reduced
+ - have greater variety in great person type, one great person type per corporation type without overlap anyways etc, see xml or sevopedia for updated values anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index cc98fc272..66b0c7bf4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -391,11 +391,12 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Religions roster:** added **Paganism**; removed **Confucianism** (chosen partly because it has fewer adherents in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
+ - **Missionaries:** significantly **cheaper**.
+ - **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer)..
+-- **Shrines:** now require **(1) the religion present in the city** and **(2) the religion’s tech** (previously shrine TechPrereq was `NONE`). This makes shrines show up properly in the **Religion** Sevopedia building list and in the **tech tree**, and prevents “conquer holy city ⇒ build shrine immediately” without the religion/tech. See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion), [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree), and [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category).
++- **Shrines:** now require **(1) the religion present in the city** and **(2) the religion’s tech** (previously shrine TechPrereq was `NONE`). This makes shrines show up properly in the **Religion** Sevopedia building list and in the **tech tree**, and prevents “conquer (or any way to acquire) holy city ⇒ build shrine immediately” without the religion/tech. See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion), [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree), and [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category).
+ 
+ ### Corporations (non-exhaustive)
+ 
+ - **Executives:** significantly **cheaper**.
++- (Requires AdvCiv-SAS 5216+)**Executives** now **require the same Tech(s)** to be built as their corresponding corporation's does (e.g. `TECH_MARINE_TECHNOLOGY` and `TECH_CORPORATION` for the Sid Sushi's executive unit; was `NONE`.) to be built. This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (i.e. not until the later eras). This also balances **rival city acquisition** so a player **cannot produce executives if we do not have the corresponding Corporation** in the city (mirroring the shrine prerequirement change).
+ - **Great Person variety:** each corporation uses **one distinct Great Person type** (no overlaps).
+ 
+ ### Buildings (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 9c65aefed..9fbd76d36 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -124,6 +124,8 @@ Also added the AI information now of as of now the UnitAI and iAIWeight informat
+ 
+ Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker anyways etc) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc but anyways etc.
+ 
++Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
++
+ <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>
+@@ -134,7 +136,7 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
+ 
+ Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
+ 
+-Now grouped by eras (tech prereq of the building) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
++Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 88e97ecac..eacad1516 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index 1d7771dbe..f2ebe9a29 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index e0530db0c..354408e72 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+index 1956d03e5..186224092 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=40767

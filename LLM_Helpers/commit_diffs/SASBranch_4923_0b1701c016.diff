@@ -1,0 +1,511 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4923
+# Commit: 0b1701c0163d1902939cbb98b81bc7ab02f29a4c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7e7a47589715cd152f53d5af9fe3d0f553effea4
+# Title: (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unalloc...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+2	2	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+42	19	CvGameCoreDLL/CvCityAI.cpp
+9	9	CvGameCoreDLL/CvUnitAI.cpp
+2	0	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+47	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+5	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 07e5553b2..0fb7fd8b1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -31,7 +31,7 @@
+ # 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields like flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
+ #	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc....)
+ #	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more cusotmization later if needed maybe evne though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packign all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
+-# 2) UI: nothing remains only displayign it, nothign left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
++# 2) UI: nothing remains only displayign it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
+ #
+ # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
+ 
+@@ -96,7 +96,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 
+ 
+ 	def check_required_newly_exposed_python_getters_gc_leader_exist():
+-		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or soemthign too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
++		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or something too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
+ 
+ 		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
+ 			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 2038fbd30..c34cc119e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -372,7 +372,7 @@ class SevoPediaTerrain:
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc ; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us anyways etc or anythign else you'd want or i'd want too but i am fine with this if i may say (and i coded it xd but anyways etc...) hopefully helpful or not or yes or etc but anyways etc... -->
++				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc ; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us anyways etc or anything else you'd want or i'd want too but i am fine with this if i may say (and i coded it xd but anyways etc...) hopefully helpful or not or yes or etc but anyways etc... -->
+ 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
+ 					if unitInfo.isCanMoveImpassable() or unitInfo.isCanMoveAllTerrain():
+ 						# Column index (always 0 when numLists=1)
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 7583f3cfd..cf2a5b173 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6859,7 +6859,7 @@
+ 				</DomainProductionModifier>
+ 			</DomainProductionModifiers>
+ 			<BuildingHappinessChanges/>
+-			<!-- custom: having a harder or hard at all in this case anyways etc building +/- class here but anyways etc prereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe anyways etc, is also thematically consistent with the theme of gradually increasing produciton, here in this case naval production but anyways etc, with gradually more specialized buildings if i may say but anyways etc, was empty -->
++			<!-- custom: having a harder or hard at all in this case anyways etc building +/- class here but anyways etc prereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe anyways etc, is also thematically consistent with the theme of gradually increasing production, here in this case naval production but anyways etc, with gradually more specialized buildings if i may say but anyways etc, was empty -->
+ 			<PrereqBuildingClasses/>
+ 			<BuildingClassNeededs>
+ 				<BuildingClassNeeded>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index b57489d5c..36853927b 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -44,7 +44,7 @@
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc), was 10 -->
+ 			<iRazeCityProb>60</iRazeCityProb>
+-			<!-- custom: The barbarians issue/bug of them building wonders and completing them before other players now that they are economically strong enough in this case but anyways etc is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, it also didn't always solve the issue even at 100, but increase it significantly in this case still at least if i may say but anyways etc, after all the barbarians 's main role, at least in advciv-sas if i may say but anyways etc, is to mostly build units and attack other players, not buildings or not too much, but allow them in some cases, in particular as of now the low hammer cost barbarian buildings that help them catch up with othe rplayers due to their later start but anyways etc, so not increasing this too high that they would never or much less considering building these, and so they keep focusing on units but not too much, anyways etc, but still mostly focus on units anyways etc, was 50 -->
++			<!-- custom: The barbarians issue/bug of them building wonders and completing them before other players now that they are economically strong enough in this case but anyways etc is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, it also didn't always solve the issue even at 100, but increase it significantly in this case still at least if i may say but anyways etc, after all the barbarians 's main role, at least in advciv-sas if i may say but anyways etc, is to mostly build units and attack other players, not buildings or not too much, but allow them in some cases, in particular as of now the low hammer cost barbarian buildings that help them catch up with other players due to their later start but anyways etc, so not increasing this too high that they would never or much less considering building these, and so they keep focusing on units but not too much, anyways etc, but still mostly focus on units anyways etc, was 50 -->
+ 			<iBuildUnitProb>70</iBuildUnitProb>
+ 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
+ 			<!-- advc.114d: was 0 -->
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 86db47da8..c047fbbba 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2626,7 +2626,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think soemone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
++			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
+ 			<iPower>4</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2865,7 +2865,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think soemone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
++			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
+ 			<iPower>5</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index d638d5648..fc05e3692 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2824,7 +2824,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
+ }
+ 
+ 
+-// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production anyways etc for example if i am not mistaken anyways etc, but point is don't reject city just because it may have low produciton, look at overall terrain and such yields which we already do anyways etc, so remove this specific if i may say in this case but anyways etc logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken but check to be sure anyways etc anyways etc) -->
++// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production anyways etc for example if i am not mistaken anyways etc, but point is don't reject city just because it may have low production, look at overall terrain and such yields which we already do anyways etc, so remove this specific if i may say in this case but anyways etc logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken but check to be sure anyways etc anyways etc) -->
+ // int AIFoundValue::adjustToProduction(int iValue, scaled rBaseProduction) const
+ // {
+ // 	// K-Mod. reduce value of cities which will struggle to get any productivity.
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ebc6d66e5..e6c838586 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9762,17 +9762,18 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 
+ 	// work out how much food deficit would be acceptable
+ 	int iStarvingAllowance = 0;
+-	{
+-		int iFoodLevel = getFood();
+-		int iFoodToGrow = growthThreshold();
+-		int iHappinessLevel = happyLevel() - unhappyLevel(0);
+-
+-		if (AI_isEmphasizeAvoidGrowth() || iHappinessLevel < (isHuman() ? 0 : 1))
+-		{
+-			iStarvingAllowance = std::max(0, (iFoodLevel - std::max(1, ((7 * iFoodToGrow) / 10))));
+-			iStarvingAllowance /= (iHappinessLevel+getEspionageHappinessCounter()/2 >= 0 ? 2 : 1);
+-		}
+-	}
++	// <!-- custom: cities starve too often, on top of failing to allocate best food tiles ; make it stricter by not allowing any allowance, as advised by claude ai when asking it thanks to my prompts and or such or not contributions or not too if i may say but anyways etc -->
++	// {
++	// 	int iFoodLevel = getFood();
++	// 	int iFoodToGrow = growthThreshold();
++	// 	int iHappinessLevel = happyLevel() - unhappyLevel(0);
++
++	// 	if (AI_isEmphasizeAvoidGrowth() || iHappinessLevel < (isHuman() ? 0 : 1))
++	// 	{
++	// 		iStarvingAllowance = std::max(0, (iFoodLevel - std::max(1, ((7 * iFoodToGrow) / 10))));
++	// 		iStarvingAllowance /= (iHappinessLevel+getEspionageHappinessCounter()/2 >= 0 ? 2 : 1);
++	// 	}
++	// }
+ 
+ 	//
+ 
+@@ -9871,7 +9872,11 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 				? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworked_it->second.second, YIELD_FOOD)
+ 				: getCityIndexPlot((CityPlotTypes)unworked_it->second.second)->getYield(YIELD_FOOD);
+ 
+-			if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
++			// <!-- custom: seemingly a bug found by claude ai ; indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs anyways etc with screenshots there in the google drive anyways etc) -->
++			// OLD: Only avoid starvation if we're not already starving
++			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
++			// NEW: Always check if job change improves/worsens food situation
++			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+ 			{
+ 				bTakeNewJob = false;
+ 			}
+@@ -10407,9 +10412,32 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 			iGrowthValue += 8 // in addition to other effects.
+ 					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
+ 		} // </k146>
++		// <!-- custom: we have a major big of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34 but anyways etc) ; both seem to come down to cities choosing production over food. Attempt for now in this change i mean but anyways etc to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd but anyways etc, hopefully helpful or not or yes or etc but check to be sure if i may say but anyways etc -->
++		// Add a small boost for non-emphasized food to make it more valuable than production
++		else if (iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth()) {
++			iGrowthValue += 2;
++		}
++
++		// <!-- custom: moved up so we can use these in our checks anyways etc -->
++		int iHealthLevel = goodHealth() - badHealth();
++		int iHappinessLevel = (isNoUnhappiness() ?
++				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
++
++		// <!-- custom: actually even if food is production, food is just as valuable, i noticed in tundra cities workers would go before our reworked workers (didn't check since since they also settle elsewhere now but i assume would be different with the new priority system of builds but anyways etc) 4 food is just as good as 4 hammer to produce a settler, no reason to negate here i think if i understood it correctly but anyways etc ; i seem to have solved the issue of 1 hammer being preferred over 5 food even if city has to starve for it (see known issue 34 for details with screenshots and documentation about it too i mean anyways etc), now ulundi is growing big, not starving while unallocating the food, and high food tiles are all allocated although production is a bit low though now so need to reduce the crazy * 100 multiplier i put as well as a test on top of removing the foodisproduction check to fix / enhance things -->
+ 		// tiny food factor, to ensure that even when we don't want to grow,
+ 		// we still prefer more food if everything else is equal
+-		iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
++		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
++		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
++		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
++		if (iHappinessLevel > 0)
++		{
++			iValue += ((iFoodYieldTimes100+50)/100) * 3;
++		}
++		else
++		{
++			iValue += ((iFoodYieldTimes100+50)/100);
++		}
++
+ 
+ 		int const iFoodPerTurn = getYieldRate(YIELD_FOOD) - foodConsumption() -
+ 				(bRemove? iFoodYield : 0);
+@@ -10420,10 +10448,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 			but currently there is no way to know we're doing that.) */
+ 		int const iAdjustedFoodPerTurn = iFoodPerTurn;
+ 
+-		int iHealthLevel = goodHealth() - badHealth();
+-		int iHappinessLevel = (isNoUnhappiness() ?
+-				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+-
+ 		// if we not human, allow us to starve to half full if avoiding growth
+ 		if (!bIgnoreStarvation)
+ 		{
+@@ -10450,7 +10474,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 				// value food high, but not forced
+ 				//iValue += 36 * std::min(iFoodYield, -iFoodPerTurn+(bReassign ? iConsumtionPerPop : 0));
+ 				iValue += (iHappinessLevel >= 0 ? 2: 1)*std::max(iGrowthValue, iBaseProductionValue*3) * std::min(iFoodYield, -(iFoodPerTurn + iStarvingAllowance));
+-				// note. iGrowthValue only counts unworked plots - so it isn't entirely suitable for this. Hence the arbitrary minimum value.
+ 			}
+ 		}
+ 
+@@ -10861,7 +10884,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 
+-	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
++	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at begining of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
+ 	// === ADVANCE AI: Disincentivize AI from choosing the generic Citizen specialist ===
+ 	// This block should be placed at the very beginning of the function.
+ 	// It short-circuits evaluation for AI players trying to pick the default Citizen specialist.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4b80385bd..fd26f8af9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1074,7 +1074,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+         // Logic to prioritize farms on high-food terrains like grassland and plains.
+ 		else
+ 		{
+-			// <!-- custom: for non-bonus tiles, never destroy high value improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
++			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
+ 			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect if i am not mistaken too anyways etc -->
+ 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+ 			// Now using the newly defined constants for clarity and consistency.
+@@ -1254,7 +1254,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								iValue += 100;
+ 							}
+ 						}
+-						// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve. -->
++						// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
+ 						else if (canBuild(kPlot, eBuildCottage))
+ 						{
+ 							eBestSupposedBuild = eBuildCottage;
+@@ -1304,7 +1304,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							}
+ 							else if (canBuild(kPlot, eBuildMine))
+ 							{
+-								// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall produciton for cheap food -->
++								// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall production for cheap food -->
+ 								eBestSupposedBuild = eBuildMine;
+ 
+ 								iValue += 1300;
+@@ -1327,7 +1327,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							{
+ 								eBestSupposedBuild = eBuildWorkshop;
+ 
+-								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in imrpoved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
++								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
+ 								iValue += 1650;
+ 							}
+ 							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
+@@ -1360,7 +1360,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 									iValue += 100;
+ 								}
+ 							}
+-							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
++							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+ 							else if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+ 								eBestSupposedBuild = eBuildWorkshop;
+@@ -1473,7 +1473,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 									iValue += 100;
+ 								}
+ 							}
+-							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
++							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+ 							else if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+ 								eBestSupposedBuild = eBuildWorkshop;
+@@ -1567,7 +1567,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 									iValue += 100;
+ 								}
+ 							}
+-							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
++							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+ 							else if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+ 								eBestSupposedBuild = eBuildWorkshop;
+@@ -1691,7 +1691,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or/and adjust future builds if needed anyways etc -->
+ 		}
+ 
+-		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonu plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
++		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonus plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
+ 
+ 		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot if i may say anyways etc -->
+ 		if (!canBuild(kPlot, eBestSupposedBuild) || eBestSupposedBuild == NO_BUILD)
+@@ -19044,7 +19044,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)
+ 				return eBuildRemoveJungle;
+ 			}
+ 		}
+-		// <!-- custom: not sure it is needed but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case othe rfuncitons call this soemhwo (i ddin't check) anyways etc)) -->
++		// <!-- custom: not sure it is needed but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check) anyways etc)) -->
+ 		else if (eFeature == eFeatureFallout)
+ 		{
+ 			// Find a build type that specifically removes this feature.
+
+diff --git a/README.md b/README.md
+index 2b62fd8b5..36db0b9a2 100644
+--- a/README.md
++++ b/README.md
+@@ -325,9 +325,11 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - (now seemingly fixed): prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot"), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot) for details anyways etc
+ - Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
++- disable AIFoundValue::adjustToBadHealth, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc.
+ - make ai cities wider spread and simplify conditions with changes in AIFoundValue::isTooManyTakenTiles and AIFoundValue::adjustToCivSurroundings (remove long distance penalties of settling cities in this case i mean but anyways etc, and if i am not mistaken anyways etc), they were often times too or even very much way too crowded and close in a way that doesn't allow them to grow past size 4 or 6 and they'd compete for yields, hopefully much more efficient now with a wider spreading, although as a result they are a bit thinner and militarily weaker but should be very worth it or so i think but anyways etc.
+ - AIFoundValue::evaluateDefense: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - AIFoundValue::adjustToBarbarianSurroundings: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
++- (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) with screenshots and detailed (at least more detailed) analysis there, hopefully AI is a lot or quite a lot or quite a bit or such in this case i mean but anyways etc stronger or more versatile this way while not having the opposite downside of valuing food too much as well hopefully, see there for details, anyways etc.
+ 
+ ## Not supported in AdvCiv-SAS
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index ce66ba9a1..38e1ac789 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -642,7 +642,7 @@ This is just an example, adapt as you see fit
+ 
+ Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button i mean but anyways etc), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas but anyways etc, but an earlier version used static images if i may say and am not mistaken in saying so but anyways etc. But these instructions may be helpful to me or others maybe so adding them for reference anyways etc.
+ 
+-Fourthly, then for the leaderhead button (mini icon of the leader in the sevopedia if i am not mistaken), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon anyways etc without any resize (stretching or compression of ratio or anythign that alters ratio this time if i am not mistaken anyways etc )) from the native image if i am not mistaken (for example .png, any size should do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched)) should maybe do fine anyways if i am not mistaken anyways etc)
++Fourthly, then for the leaderhead button (mini icon of the leader in the sevopedia if i am not mistaken), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon anyways etc without any resize (stretching or compression of ratio or anything that alters ratio this time if i am not mistaken anyways etc )) from the native image if i am not mistaken (for example .png, any size should do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched)) should maybe do fine anyways if i am not mistaken anyways etc)
+ 
+ So for example you can first make a 96 x 96 crop selection around his head with Paint.NET, then fine tune it (i.e. redo a crop selection on this 96 x 96 (for example .png maybe anyways etc image) to 64 x 64 in a similar manner to the area you prefer to appear in the leader's final icon/button), and save it as a different file for example Ogiso_Igodo_button.dds.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index cb193d882..2d1d769ed 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2,6 +2,8 @@
+ 
+ Some known issues (non-exhaustive ideally yes but maybe not anyways etc) about AdvCiv code or earlier or/and AdvCiv-SAS specific code that may be fixed someday or not (ideally yes too same but maybe not especially if deemed not so bad or even part of the necessary mechanic but then would not be an issue but if known maybe or not or yes but anyways etc anyways etc anyways etc).
+ 
++Note: if a google drive link is missing or redundantly copy pasted from one known issue to another, you might be able to find it in their parent folder if i may say in this case but anyways etc here in this [Base AdvCiv issues examples](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8?usp=sharing). Not all issues have a drive folder, but as of now most do.
++
+ hopefully helpful, thanks, anyways, thanks,
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+@@ -806,7 +808,7 @@ This seems to fix the issue (see screenshots for details, as we specifically now
+ 
+ ## 28 - (now fixed) Wallpaper of our mod's custom being stretched vertically while some of the top of the wallpaper is not shown at all, at 1920 x 1080 game resolution
+ 
+-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-j9EHLeY7FzJ0iHZqBXIAOyOPfzJVC0t?usp=sharing)
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-j9EHLeY7FzJ0iHZqBXIAOyOPfzJVC0t?usp=sharing)..
+ 
+ When adding our mod's custom wallpaper instead of default base advciv +/- civ4 one, one issue i encountered is that our image was stretched vertically, while some of the top of the image was entirely missing.
+ 
+@@ -848,7 +850,7 @@ Again, screenshots of intermediate steps are also shown in the google drive link
+ 
+ ## 29 - (as of now with a workaround) clicking on a specific spot in tech advisor at tech transhumanism's blue box causes a crash
+ 
+-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing)
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing).
+ 
+ I don't know what the cause is, but clicking, in tech advisor (i.e. tech tree view if i am not mistaken anyways etc), on as of now tech_transhumanism's box (the blue rectalnge) specific position, we consistently get a crash and i have no idea why.
+ 
+@@ -876,13 +878,13 @@ See also, although not directly related: [README_Known_Issues_In_Base_AdvCiv_Civ
+ 
+ ## 30 - (Attemptingly fixed) AI workers not prioritizing bonuses to improve, especially food bonuses, and other AI workers optimizations or/and changes anyways etc
+ 
+-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xeAY-R41d3jQ8W4JvK8mhdRBlkKINpQu?usp=sharing)
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xeAY-R41d3jQ8W4JvK8mhdRBlkKINpQu?usp=sharing).
+ 
+ This is an issue i had in base advciv, and this solution may not necessarily in all cases be better, but i believe and hope in most cases it helps, at least for the part of the code changed. Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/README.md#gemini-ai](/README.md#gemini-ai)) for details anyways etc.
+ 
+ I have written most details there, so only adding here as less tedious to do so anyways etc, but hopefully helpful or not or yes or etc but anyways etc a few or quite a few screenshots in the google drive link folder mentionned at the top of this known issue section (as of now number 30 anyways etc)
+ 
+-These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not imrpoved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
++These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not improved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
+ 
+ Ideally i would track other places where changes may be necessary, not sure i would do but maybe, or maybe not ; in this case i mean, anyways etc.
+ 
+@@ -912,7 +914,7 @@ Hopefully i'd continue improving these ideally but may or may not do anyways etc
+ 
+ ## 32 - (now seemingly fixed) Prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot")
+ 
+-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing)
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing).
+ 
+ It was an issue i had in base advciv, when AI is in a low environment, say many tundra tiles for example i mean anyways etc, it is likely city would starve soon, so settling on the coast if in reach is much more valuable.
+ 
+@@ -928,7 +930,7 @@ Hopefully AI is stronger with these changes anyways etc.
+ 
+ ## 33 - Tremendously improved and fixed and enhanced AI worker build/improvement logic in CvUnitAI::AI_bestCityBuild
+ 
+-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing)
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1WQUG049I2F1nPMhTVrnTstgNYjVslg9i?usp=sharing).
+ 
+ As written in the quick start guide:
+ 
+@@ -955,3 +957,42 @@ Note for modders: since this is done with if and/or else if and/or else checks,
+ As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc.
+ 
+ Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
++
++## 34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1yqmOZ1hSXPtgeVY69eFlj6R6OAM9mdze?usp=sharing).
++
++These are a few of major k-mod bugs or/and very suboptimal city population plot allocation issues i have encountered. I noticed them while still in save file 334 which is a save file which helped me a lot enhance the AI (save file at turn 0 in drive in this known issue or/and related ones as of now anyways etc) if i may say with gemini ai and claude ai's help as well for most and my help too xd if i may say but anyways etc...
++
++About the issues fixed here or patched if not fully fixed, as can be seen in screenshots, before the fixes/patches:
++
++- Screenshots 1573 and 1574 (the "Ulundi screenshots"): a city is starving while having one unhappy citizen, but this could be avoided by allocating any of the pig flatland grass or sheep flatland grass tiles. Although there would be no benefit to do so as city can't grow, starving is not good either, as if the food situation is resolved in the future, we'd be happy to start from a higher point, even if it costs a bit short term production, no need to starve ourselves to death just to produce a bit faster, pay a bit more food ideally to sustain our population during this time even if a bit and even if production is a bit less (ideally only a bit) relatively in this case i mean but anyways etc
++- Screenshots 1595 and 1596 (the "Prague screenshots"): a city is stagnant while unhappy as well (1 citizen). Problem: the city allocates a 2 food 1 hammer tile instead of a 5 food 1 commerce tile. I don't believe 1 hammer is better than 3 food, we may want to grow, even if unhappy, and who knows, slave later, or maybe in the meantime unhappiness situation would improve, and we'd be happy to have the extra citizen, potentially also the food bar full and growing in the meantime. But don't overdo this, no point in growing too much if too many citizens are unhappy, but it needs some help here i think, even at the cost of some production, value food a bit more i think, but be careful to not overdo it
++- Screenshots 1472 (and 1475 too if i am not mistaken if it is indeed from same time but anyways etc) (the "Boston Screenshots" again if i may say anyways etc): a city is building a worker (food is production (same for the settler too if i am not mistaken and as of now anyways etc)), but it could allocate the fish in anticipation of the worker being completed, so that city could grow at end of project. 3 hammer (and 1 commerce) is same as 3 food (and 1 commerce as well anyways etc) to produce a worker, but the food is more liekly than not, in most cases to be useful, especially for this tundra city that is low on food, so allocate rather the food than the hammer, if all other things are equal).
++- Screenshot 1473 (the "Mycenian screenshot"): a city is stagnant, but it has many food tiles it could use to grow. Even if city is barbarian, the flatland grass tiles could be allocated. Note: the specialist usage seems a bit aggressive so we may want to tone it down early so cities can grow more, maybe, but not sure, kept as reference if want to see it later/again in this case i mean but anyways etc
++
++The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or/and inconvenience hopefully fine or nto too bad to read but as it is maybe too but or not but or yes but anyways etc...) but anyways etc:
++
++- the "Boston Screenshots" issue: i didn't test it, but i think one of the lines if not the line triggering it or related to it was `iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;` in `CvCityAI::AI_yieldValue`. Problem of this approach if i am not mistaken is that to produce a worker or settler, 3 hammer or 3 food is the exact same, it is 3 production, therefore food should be valued just as much, not 0. When worker is completed, city would be in a position to continue to grow, instead of stagnate or starve, even if a bit. I am not sure this is the only way or thing to fix and didn't check since, but i hope this helps. As of now, it is as such: `iValue += ((iFoodYieldTimes100+50)/100);` with some implementations differences (see below). It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker i mean if i may say but anyways etc) ends if if i am not mistaken anyways etc), although it used a more exteme approach to try to fix and debug it (see below at ulundi screenshots but anyways etc), when producing a settler, the city does use food yields now even if it is just a small sampel and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile. Although i am no sure this fixes it, it does seem to be better or at least not worse in this sample, while not deteriorating city behaviour early, hoepfully helps and better this way anyways etc.
++- the "Ulundi screenshots" issue: in screenshots 1573 and 1574, similarly here, or rather not my bad, but i would say at least that we can maybe fix it or patch it at that line. I tried and implemented other tentative ways to boost food quite conservatively, else cities are very unhappy, low production and high pop (screenshot 1663 and 1664 if i am not mistaken too anyways etc), and similarly the same at aachen (screenshots 1666 and 1667 if i am not mistaken too anyways etc), which is inefficient, but at least all food plots were allocated, very nice ! This indicated if i am not mistaken that issue could be addressed this way, even if in a milder way but anyways etc. So i added a check that if we are unhappy (reusing old k-mod or/and civ4 bits for that but with a new check anyways etc) value food only a bit more, but if we are happy (i.e. that we'd have room to grow), value food quite a bit extra more (but not too much i tried else we'd go back to high pop low production very angry inefficient city). So by giving a food boost but relatively milder one, we now grow but only a bit more, when angry, not a lot more (and when not angry (i.e. happy city anyways etc) we'd grow a lot more although not shown here if i am not mistaken anyways etc)). I didn't contine to check what happens at next turns, but in screenshots 1669 and 1670 for example after this fix or tentative patch, plot allocation seems now to be very very good. Production is high, and city is not starving, growing moderately, which is about perfect i'd say. After all we could slave as said before and would very much need or want the pop if our unhappiness solves. Aachen (screenshot 1672, but difference is city is not unhappy (i.e. is happy but anyways etc)) has also a very good food profile, with high plot plots all allocated and fast growth and quite high production, about perfect too!! Very good response or behaviour in screenshot 1674 as well in karakoum, which is happy too with high food and high production.
++- As for the "Prague screenshots" (stagnant city not allocating food), i didn't retest it since prague was settled elsewhere many times, as shown in screnshot 1673, and consistently, i don't know if my change caused this somehow, but this is a fine choice too and a good location, after removing the jungle it is a quite strong grass spot, although a bit weak before that, and is coastal too so good for late game. So i don't have a definitive repsonse but i hope all in all these changes help a lot. Also, i don't know when i took this screenshot but seemingly later during the test changes phase, but seemingly AI would prefer a 1 food 1 hammer 1 commerce flatland plains cottage over an improved 5 food 1 commerce sheep grassland, just because it has 1 unhappy citizen. 1 hammer is not superior to 5 food!!! (or 4 food with the diff even), even if unhappy, extra pop could be used later to slave or when unhapiness is solved food would be more full even if we produce slightly less to do so!!!
++
++The code that seemed to make a nice and decisive positive difference it seems to me at least but anyways etc was as of now this one i added if i am not mistaken anyways etc:
++
++```cpp
++		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
++		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
++		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
++		if (iHappinessLevel > 0)
++		{
++			iValue += ((iFoodYieldTimes100+50)/100) * 3;
++		}
++		else
++		{
++			iValue += ((iFoodYieldTimes100+50)/100);
++		}
++```
++
++I also did a few other tentative changes that may be relevant or not, not documented here, see commit [todo add link](todo add link) for details anyways etc.
++
++Hopefully AI is a bit stronger with this changed i attempted to make in a balanced way (not too much food, not as it was too much production)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 0bf113bae..594d6aa3d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -64,10 +64,11 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ ### AI general behaviour (non-exhaustive, see global defines and ai variables and such xml files for details)
+ 
+ - global defines and AI variables and such similar or related files's values have been changed quite extensively to favour AI efficiency and opportunism, sort of mercilessness over role-playing or seemingly suboptimal settings. These changes include but not only religion importance, now being higher (in terms of culture strength (not exactly sure what this means but should be fine and as i intend i think maybe)) or also lower revolt chance, anger from war quite a bit reduced, etc. So overall the AI will be at least in theory / ideally as planned anyways etc be a lot more pragmatic or/and opportunistic AI, and will not be much more aggressive than in AdvCiv, but will hesitate less to declare war if there is profit, but also bother less to engage in wars or/and be cautious about them, especially multi wars, if not to its benefit (which often is not), and also have a higher reluctance to agree to a war trade. AI may also act more on tribute threats and transform them into immediate war declarations if refused (might is right as one or they people may say but is realistic as sad as it may be such is life i mean for better or worse but anyways etc). As well as many other changes, see files such as [GlobalDefines_advc.xml](/Assets/XML/AI_Variables_GlobalDefines.xml), [AI_Variables_GlobalDefines.xml](/Assets/XML/AI_Variables_GlobalDefines.xml), and [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml) for much more exhaustive details there anyways etc (note: as i don't know much C++ i didn't modify AI behaviour much more if at all than in xml files, but i hope this is still quite extensive and very significant in terms of changes in particular vs base advciv AI i mean anyways etc). Some changes handpicked from these xml files if i may say, but not exhaustive i mean anyways etc, are also available as scattered items throughout this quick get started guide main changes sections if i may say anyways etc, hopefully helpful, anyways etc.
+-- attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc. For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good, it seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference.
++- attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc (if not solved, then hopefully should happen much less now if i am not mistaken but anyways etc, check to be sure i mean too but anyways etc). For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good, it seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference.
+ - about water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+ - even for non bonus water ressources, also told the AI to now prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot"), which should make AI settling significantly stronger instead of otherwise starving at very low pop, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot) for details anyways etc
+ - told AI which terrains and features environments are best to settle near. Note that as of now however, won't fix local best tile (e.g. on desert rather than on flood plains) to settle on due to this AI behaviour: AI settling on grass instead of locally say desert or snow tile for optimization. I implemented a code that AI do exactly that, but this also resulted in AI going for tundra environment just not to settle on a grass tile, i'd prefer it to settle on a grass tile if surrounded by more grass tiles, rather than going to a tundra environement to optimize not wasting the grass tile. It would be ideal if AI both went for the nicest environment, and then also looked at best plot in said environment ; but until and if i do that (not guaranteed, i have an idea how but not sure is worth wasting best site just for slightly although significantly forgot sentence but anyways etc, what i mean is we could for example (an idea i got didn't check if relevant or not or if other pieces of code already do that except or out of those we added that do that for other parts of the code (storing candidate plots as of now in a struct for tiles to improve in cvunitai but anyways etc) or maybe check where ai found value function is called and tweak there is needed but anyways etc, but for now giving ai best chances by telling it which tiles are good, for non-bonus tiles ; as for bonus tiles as of now still using this system to discourage AI settling on them often (settle on sheep grass is very bad unless locally otherwise extremely good if i am not mistaken but anyways etc) or missing them (having fish in range and not going for coastal location that includes it if i am not mistaken but anyways etc, which seems to work-fucntion better with our change that reverts it stronger and closer to kmod code if i am not mistaken but anyways etc)))
++- disable AIFoundValue::adjustToBadHealth, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc.
+ - make ai cities wider spread and simplify conditions with changes in AIFoundValue::isTooManyTakenTiles and AIFoundValue::adjustToCivSurroundings (remove long distance penalties of settling cities in this case i mean but anyways etc, and if i am not mistaken anyways etc), they were often times too or even very much way too crowded and close in a way that doesn't allow them to grow past size 4 or 6 and they'd compete for yields, hopefully much more efficient now with a wider spreading, although as a result they are a bit thinner and militarily weaker but should be very worth it or so i think but anyways etc.
+ - make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting CvUnitAI::AI_bestCityBuild, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
+@@ -76,6 +77,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
+ - AIFoundValue::evaluateDefense: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - AIFoundValue::adjustToBarbarianSurroundings: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
++- (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) with screenshots and detailed (at least more detailed) analysis there, hopefully AI is a lot or quite a lot or quite a bit or such in this case i mean but anyways etc stronger or more versatile this way while not having the opposite downside of valuing food too much as well hopefully, see there for details, anyways etc.
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+@@ -135,9 +137,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - also reduced quite bit slightly but anyways etc the repartition of other high food land animal bonuses/ressources anyways etc to accomodate bonus_camel being quite present in the map and have ressources/bonuses being still rare enough hopefully so players fight/compete for them as should be ideally in a strategy game i mean maybe but anyways etc
+ - bonus_gemstones spawns on new terrains or/and features, in particular it spawns on flood_plains now. It also does not spawn on hills anymore: this is to allow floodplains, but also as flatland plains or desert seem to also be valid in real world for gemstones harvesting according to chatgpt (i very quickly checked geographical aread but not in detail, still should be fine or relevant maybe but anyways etc for/in civ4 terms at least is how i want it to be in advciv-sas if i may say anyways etc), see sevopedia bonus's gemstone page or/and sevopedia terrain's Hill page as well or/and xml for details or/and updated values anyways etc
+ 
+-### Improvements (non-exhaustive, see sevopedia or/and xml for details)
++### Improvements and worker builds (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- further discourage AI workers to build forts on bonus/ressources, as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv, also allowing/letting the ennemy pillage and rebuild ressources/bonuses that shouldn't be vital for any unless i'm mistaken then rebuilding the improvement later with nice yields should be much cheaper and more efficient i think at least if i may say in this case at least but anyways etc and if i am not mistaken too but anyways etc than guarding it with low yields the entire game), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details for details
++- further discourage AI workers to build forts on bonus/ressources (but since the more extensive AI worker changes i don't know if this is needed anymroe but no harm to keep there maybe in this case i mean but anyways etc), as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv, also allowing/letting the ennemy pillage and rebuild ressources/bonuses that shouldn't be vital for any unless i'm mistaken then rebuilding the improvement later with nice yields should be much cheaper and more efficient i think at least if i may say in this case at least but anyways etc and if i am not mistaken too but anyways etc than guarding it with low yields the entire game), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details for details
+ - some improvement (worker) or/and build 's techs prerequirements and/or such have been adjusted as well, for example build quarry is sooner, and remove forest and remove jungle are now at same time and sooner in tech tree anyways etc, see sevopedia ingame or/and tech tree view ingame or/and xml for details anyways etc
+ - the "can build farms without irrigation" ability is unlocked much sooner, as of now now at tech_engineering, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for update value/tech if any i mean hopefully helpful anyways etc anyways etc
+ - worker cost is reduced
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=91441

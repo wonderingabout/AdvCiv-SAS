@@ -1,0 +1,487 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1369
+# Commit: 349186581e3cef4b660a0bbb382876d494d282f3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c153864ce201d61d2d810da835dcba17fe4a8ace
+# Title: Minor changes; mostly AI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+21	0	Assets/xml/Text/CIV4GameText_advc.xml
+9	28	CvGameCoreDLL/CvCityAI.cpp
+20	2	CvGameCoreDLL/CvDLLButtonPopup.cpp
+57	14	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+3	21	CvGameCoreDLL/CvTeam.cpp
+34	16	CvGameCoreDLL/CvUnitAI.cpp
+-	-	manual_0.93b.odt
+
+[PATCHES]
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 464ff06d6..70d45cdba 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -42,8 +42,10 @@
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>10</iRazeCityProb>
+ 			<iBuildUnitProb>50</iBuildUnitProb>
+-			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
+-			<iAttackOddsChangeRand>16</iAttackOddsChangeRand>
++			<!-- advc.114d: was 0 -->
++			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
++			<!-- advc.114d: was 16 -->
++			<iAttackOddsChangeRand>18</iAttackOddsChangeRand>
+ 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>0</iCloseBordersAttitudeChange>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 79135d4f1..06d1227fa 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -3749,4 +3749,25 @@
+ 		<Spanish>Fin de AI Auto Play</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.130h: Romance-language translations via deepl.com -->
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_DOW_PENALTIES</Tag>
++		<English>These third parties will disapprove:</English>
++		<French>Ces tiers vont d�sapprouver :</French>
++		<German>Au�enstehende, die diesen Krieg ablehnen werden:</German>
++		<Italian>Queste terze parti disapproveranno:</Italian>
++		<Spanish>Estos terceros lo van a desaprobar:</Spanish>
++	</TEXT>
++	<!-- Originally in Vanilla Civ4GameTextInfos.xml
++		 Color added so that the war target stands out more when third parties
++		 are listed. And Italian was missing the "contro" part. -->
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_DOES_THIS_MEAN_WAR</Tag>
++		<English>Does this mean WAR?!? (vs. [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</English>
++		<French>Cela signifie la GUERRE ?! (contre : [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</French>
++		<German>Soll das KRIEG bedeuten?!? (gegen [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</German>
++		<Italian>Ci&#242; vuol dire GUERRA? (contro [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</Italian>
++		<Spanish>&#191;Esto es la GUERRA? (contra [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e24ccabc3..cbf8d5f89 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1552,16 +1552,19 @@ void CvCityAI::AI_chooseProduction()
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
+ 			return;
+ 		}
+-	}
+-	// K-Mod end
+-
++	} // K-Mod end
++	// <advc.003>
++	int const iMinDefenders = AI_minDefenders() + iPlotSettlerCount;
++	bool const bSpendingExempt = (bUnitExempt ||
++			(bFinancialTrouble && iUnitSpending > iMaxUnitSpending));
++	// </advc.003>
+ 	//minimal defense.
+ 	//if (!bUnitExempt && iPlotCityDefenderCount < (AI_minDefenders() + iPlotSettlerCount))
+ 	// K-Mod.. take into account any defenders that are on their way. (recall that in AI_guardCityMinDefender, defenders can be shuffled around)
+ 	// (I'm doing the min defender check twice for efficiency - so that we don't count targetmissionAIs when we don't need to)
+-	if (!bUnitExempt && !(bFinancialTrouble && iUnitSpending > iMaxUnitSpending)
+-		&& iPlotCityDefenderCount < (AI_minDefenders() + iPlotSettlerCount)
+-		&& iPlotCityDefenderCount < (AI_minDefenders() + iPlotSettlerCount - kPlayer.AI_plotTargetMissionAIs(plot(), MISSIONAI_GUARD_CITY)))
++	if (!bSpendingExempt &&
++			iPlotCityDefenderCount < iMinDefenders &&
++			iPlotCityDefenderCount < iMinDefenders - kPlayer.AI_plotTargetMissionAIs(plot(), MISSIONAI_GUARD_CITY))
+ 	// K-Mod end
+ 	{
+ 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+@@ -1644,17 +1647,6 @@ void CvCityAI::AI_chooseProduction()
+ 			}
+ 		}
+ 	}
+-	// <advc.rom1> Koshling: increased priority for economic builds
+-	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION | BUILDINGFOCUS_GOLD |
+-			BUILDINGFOCUS_RESEARCH |
+-			// advc: Let's omit these
+-			//BUILDINGFOCUS_MAINTENANCE | BUILDINGFOCUS_HAPPY | BUILDINGFOCUS_HEALTHY |
+-			// wonders in if they appear best
+-			BUILDINGFOCUS_WONDEROK, 20, 0, 50))
+-	{
+-		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose Economy Flags (Koshling)", getName().GetCString());
+-		return;
+-	} // </advc.rom1>
+ 
+ 	// don't build frivolous things if this is an important city unless we at war
+     if (!bImportantCity || bLandWar || bAssault)
+@@ -5582,17 +5574,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			{
+ 				int iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) *
+ 						getBaseCommerceRate(COMMERCE_RESEARCH)) / 40);
+-				// <advc.rom1> (koshling; comments by him)
+-				if(iTempValue > 0)
+-				{
+-					iTempValue += 3; //	Discounted futures
+-					iTempValue += (2 * iTempValue * (1 +
+-							getBaseCommerceRate(COMMERCE_RESEARCH))) /
+-							// Proportion of whole
+-							(1 + GET_PLAYER(getOwnerINLINE()).
+-							getCommerceRate(COMMERCE_RESEARCH));
+-				} // </advc.rom1>
+-
+ 				if (iTempValue != 0)
+ 				{
+ 					/*if (MAX_INT == aiCommerceRank[COMMERCE_RESEARCH])
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index ecdb2fee6..cb4efdc90 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1799,11 +1799,13 @@ bool CvDLLButtonPopup::launchDeclareWarMovePopup(CvPopup* pPopup, CvPopupInfo &i
+ 	CvPlot* pPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 
+ 	CvWString szBuffer;
+-	if ((pPlot != NULL) && (pPlot->getTeam() == eRivalTeam))
++	// advc.130h:
++	CvTeam const& activeTeam = GET_TEAM(GC.getGameINLINE().getActiveTeam());
++	if (pPlot != NULL && pPlot->getTeam() == eRivalTeam)
+ 	{
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_ENTER_LANDS_WAR", GET_PLAYER(pPlot->getOwnerINLINE()).getCivilizationAdjective());
+ 
+-		if (GET_TEAM(GC.getGameINLINE().getActiveTeam()).isOpenBordersTrading())
++		if (activeTeam.isOpenBordersTrading())
+ 		{
+ 			szBuffer += gDLL->getText("TXT_KEY_POPUP_ENTER_WITH_OPEN_BORDERS");
+ 		}
+@@ -1812,6 +1814,22 @@ bool CvDLLButtonPopup::launchDeclareWarMovePopup(CvPopup* pPopup, CvPopupInfo &i
+ 	{
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_DOES_THIS_MEAN_WAR", GET_TEAM(eRivalTeam).getName().GetCString());
+ 	}
++	// <advc.130h>
++	std::vector<PlayerTypes> disapproving;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayerAI const& aiCiv = GET_PLAYER((PlayerTypes)i);
++		if(!aiCiv.isHuman() && activeTeam.isHasMet(aiCiv.getTeam()) &&
++				aiCiv.disapprovesOfDoW(activeTeam.getID(), eRivalTeam))
++			disapproving.push_back(aiCiv.getID());
++	}
++	if(!disapproving.empty()) {
++		szBuffer += NEWLINE + gDLL->getText("TXT_KEY_POPUP_DOW_PENALTIES") + NEWLINE;
++		for(size_t i = 0; i < disapproving.size(); i++) {
++			szBuffer += GET_PLAYER(disapproving[i]).getName();
++			if(i < disapproving.size() - 1)
++				szBuffer += L", ";
++		}
++	} // </advc.130h>
+ 	gDLL->getInterfaceIFace()->popupSetBodyString(pPopup, szBuffer);
+ 	gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_DECLARE_WAR_YES").c_str(), NULL, 0);
+ 	gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_DECLARE_WAR_NO").c_str());
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 57d8c9572..04890ea3c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9452,6 +9452,13 @@ int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer,
+ 				perCityCount++;
+ 				if(perCityCount >= upperBound)
+ 					break;
++				if(p.getNonObsoleteBonusType(
++					/*  onlyNonWorkable implies that we're interested in tiles
++						ePlayer would like to be able to work */
++						onlyNonWorkable ? TEAMID(ePlayer) : getTeam()) != NO_BONUS)
++					perCityCount++;
++				if(perCityCount >= upperBound)
++					break;
+ 			}
+ 		}
+ 		iCount += perCityCount;
+@@ -9508,8 +9515,8 @@ void CvPlayerAI::AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer)
+ 		return;
+ 	}
+ 	double theySteal_weight = 8;
+-	double weSteal_weight = 4;
+-	double adj_weight = 4;
++	double weSteal_weight = 5;
++	double adj_weight = 5;
+ 	// </advc.147>
+ 	// <advc.035>
+ 	double flip_weight = 6;
+@@ -9550,7 +9557,7 @@ void CvPlayerAI::AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer)
+ 	if (kOurTeam.AI_hasCitiesInPrimaryArea(eTheirTeam)) {
+ 		int adjLand = kOurTeam.AI_calculateAdjacentLandPlots(eTheirTeam);
+ 		if(adjLand > 5)
+-			iPercent += std::min(35, ::round(adjLand * adj_weight));
++			iPercent += std::min(40, ::round(adjLand * adj_weight));
+ 	} // </advc.147>
+ 	// <advc.130v>
+ 	if(TEAMREF(ePlayer).isCapitulated())
+@@ -19397,12 +19404,16 @@ void CvPlayerAI::AI_doMilitary()
+ 					&& ((int)iDisbandCount <= std::max(1, (int)getCurrentEra()) ||
+ 					isStrike())); // </advc.110>
+ 		}
+-	}
+-	// K-Mod end
+-
+-	AI_setAttackOddsChange(GC.getLeaderHeadInfo(getPersonalityType()).getBaseAttackOddsChange() +
+-		GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getAttackOddsChangeRand(), "AI Attack Odds Change #1") +
+-		GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getAttackOddsChangeRand(), "AI Attack Odds Change #2"));
++	} // K-Mod end
++	// <advc.003>
++	CvGame& g = GC.getGameINLINE();
++	CvLeaderHeadInfo const& lh = GC.getLeaderHeadInfo(getPersonalityType());
++	int const iAttackOddsChangeRand = lh.getAttackOddsChangeRand();
++	// </advc.003>
++	AI_setAttackOddsChange(lh.getBaseAttackOddsChange() +
++			g.getSorenRandNum(iAttackOddsChangeRand, "AI Attack Odds Change #1") +
++			g.getSorenRandNum(iAttackOddsChangeRand, "AI Attack Odds Change #2")
++			/ 2); // advc.114d
+ }
+ 
+ 
+@@ -21864,7 +21875,7 @@ bool CvPlayerAI::askHelp(PlayerTypes humanId) {
+ 				eBestReceiveTech = (TechTypes)i;
+ 			}
+ 		}
+-FAssert(eBestReceiveTech == NULL); // advc.tmp: Throw the random choice loop out once it's certain that it isn't needed
++FAssert(eBestReceiveTech == NO_TECH); // advc.tmp: Throw the random choice loop out once it's certain that it isn't needed
+ 	}
+ 	if(eBestReceiveTech == NO_TECH)
+ 		return false;
+@@ -21922,6 +21933,9 @@ bool CvPlayerAI::demandTribute(PlayerTypes humanId, int tributeType) {
+ 	} case 2: {
+ 		int iBestValue = 0;
+ 		TechTypes eBestReceiveTech = NO_TECH;
++		// <advc.144>
++		TechTypes eMostUsefulTech = AI_bestTech(1, false, false, NO_TECH, NO_ADVISOR,
++				humanId); // </advc.144>
+ 		for(int i = 0; i < GC.getNumTechInfos(); i++) {
+ 			setTradeItem(&item, TRADE_TECHNOLOGIES, i);
+ 			if(!human.canTradeItem(getID(), item))
+@@ -21929,8 +21943,11 @@ bool CvPlayerAI::demandTribute(PlayerTypes humanId, int tributeType) {
+ 			TechTypes eTech = (TechTypes)i;
+ 			if(GC.getGameINLINE().countKnownTechNumTeams(eTech) <= 1)
+ 				continue;
+-			int iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000,
+-					"AI Demanding Tribute (Tech)"));
++			int iValue = 1 + GC.getGameINLINE().getSorenRandNum(10000,
++					"AI Demanding Tribute (Tech)");
++			// <advc.144>
++			if(eTech == eMostUsefulTech)
++				iValue *= 3; // </advc.144>
+ 			if(iValue > iBestValue) {
+ 				iBestValue = iValue;
+ 				eBestReceiveTech = eTech;
+@@ -28741,7 +28758,7 @@ bool CvPlayerAI::isPiracyTarget(PlayerTypes targetId) const {
+ 			getDeclareWarThemRefuseAttitudeThreshold());
+ } // </advc.033>
+ 
+-// <advc.130r><advc.130h>
++// <advc.130h><advc.130r>
+ bool CvPlayerAI::atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked) const {
+ 
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+@@ -28758,7 +28775,33 @@ bool CvPlayerAI::atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked) c
+ 		}
+ 	}
+ 	return false;
+-} // </advc.130h></advc.130r>
++} // </advc.130r>
++
++/*  Only a CvPlayer-level function b/c I want to call atWarWithPartner
++	(which should probably be at CvTeamAI -- tbd.) */
++bool CvPlayerAI::disapprovesOfDoW(TeamTypes aggressorId, TeamTypes victimId) const {
++
++	if(!isAlive() || isBarbarian() || isMinorCiv() || aggressorId == getID() ||
++			victimId == getID())
++		return false;
++	CvTeamAI const& aggressor = GET_TEAM(aggressorId);
++	if(!aggressor.isAlive() || aggressor.isBarbarian() || aggressor.isMinorCiv())
++		return false;
++	CvTeamAI const& victim = GET_TEAM(victimId);
++	if(!victim.isAlive() || victim.isBarbarian() || victim.isMinorCiv() ||
++			victim.isCapitulated())
++		return false;
++	CvTeamAI const& ourTeam = GET_TEAM(getTeam());
++	if(//!ourTeam.isHasMet(aggressorId) || // Not checked by BtS either
++			!ourTeam.isHasMet(victimId) || ourTeam.isAtWar(victimId) ||
++			victim.getMasterTeam() == ourTeam.getMasterTeam())
++		return false;
++	// Not if eTeam is also fighting a partner and (appears to have) started it
++	if((ourTeam.AI_getMemoryCount(victimId, MEMORY_DECLARED_WAR_ON_FRIEND) > 0) &&
++			atWarWithPartner(victimId, true))
++		return false;
++	return (ourTeam.AI_getAttitude(victimId) >= ATTITUDE_PLEASED);
++} // </advc.130h>
+ 
+ // <advc.651>
+ void CvPlayerAI::checkDangerFromSubmarines() {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 2b0452f80..28b945f14 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -567,6 +567,7 @@ public:
+ 	/*  advc.130h: If checkPartnerAttacked==true, then only partners w/ war plan
+ 		"attacked" or "attacked recent" count. */
+ 	bool atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked = false) const;
++	bool disapprovesOfDoW(TeamTypes aggressorId, TeamTypes victimId) const;
+ 	// advc.001: needed for bNeighbouringReligion in AI_techValue
+ 	bool AI_hasSharedPrimaryArea(PlayerTypes pId) const;
+ 	bool proposeResourceTrade(PlayerTypes otherId); // advc.133
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index d195b16fb..625897126 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1467,27 +1467,9 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 					kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR); // advc.130j
+ 				// advc.130y:
+ 				else kPlayer_j.AI_changeMemoryCount(i, MEMORY_DECLARED_WAR, 2);
+-			}
+-			else if (kPlayer_j.getTeam() != getID())
+-			{
+-				const CvTeamAI& kTeam_j = GET_TEAM(kPlayer_j.getTeam());
+-
+-				if (kTeam_j.isHasMet(eTeam) && !kTeam_j.isAtWar(eTeam))
+-				{
+-					if (kTeam_j.AI_getAttitude(eTeam) >= ATTITUDE_PLEASED &&
+-							// <advc.130h>
+-							!GET_TEAM(eTeam).isCapitulated() &&
+-							GET_TEAM(eTeam).getMasterTeam() != kTeam_j.getMasterTeam() &&
+-							/*  Not if eTeam is also fighting a partner and
+-								(appears to have) started it. */
+-							((kTeam_j.AI_getMemoryCount(eTeam, MEMORY_DECLARED_WAR_ON_FRIEND) <= 0) ||
+-							!kPlayer_j.atWarWithPartner(eTeam, true)))
+-							// </advc.130h>
+-					{   // advc.130j:
+-						kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR_ON_FRIEND);
+-					}
+-				}
+-			}
++			} // advc.130h:
++			if(kPlayer_j.disapprovesOfDoW(getID(), eTeam)) // advc.130j:
++				kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR_ON_FRIEND);
+ 		}
+ 	}
+ 	// K-Mod end.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f720cc2ce..d9db0576b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2074,7 +2074,7 @@ void CvUnitAI::AI_workerMove()
+ void CvUnitAI::AI_barbAttackMove()
+ {
+ 	PROFILE_FUNC();
+-
++	CvGame& g = GC.getGameINLINE();
+ 	if (AI_guardCity(false, true, 1))
+ 	{
+ 		return;
+@@ -2102,7 +2102,7 @@ void CvUnitAI::AI_barbAttackMove()
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/		
+ 
+-	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0)
++	if (g.getSorenRandNum(2, "AI Barb") == 0)
+ 	{
+ 		if (AI_pillageRange(1))
+ 		{
+@@ -2119,7 +2119,6 @@ void CvUnitAI::AI_barbAttackMove()
+ 	   all those stats are precomputed. */
+ 	int nCivsInArea = area()->countCivs(true);
+ 	int nCivCitiesInArea = area()->countCivCities();
+-	CvGame& g = GC.getGameINLINE();
+ 
+   // Docile unless outnumbered (matters mostly for the New World)
+   if(area()->getAreaAIType(getTeam()) != AREAAI_ASSAULT) {
+@@ -2129,7 +2128,7 @@ void CvUnitAI::AI_barbAttackMove()
+ 			(2 * g.getNumCivCities() > 3 * g.countCivPlayersAlive())) ||
+ 			GC.getGameSpeedInfo(g.getGameSpeedType()).getBarbPercent() <= 100) &&
+ 	  // </advc.300>
+-			GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS))
++			g.isOption(GAMEOPTION_RAGING_BARBARIANS))
+ 	{
+ 		if (AI_pillageRange(4))
+ 		{
+@@ -2172,8 +2171,7 @@ void CvUnitAI::AI_barbAttackMove()
+ 	   Barb cities no longer count, but threshold lowered to 2.5. */
+ 	else if(nCivsInArea > 1 ? (2 * nCivCitiesInArea > 5 * nCivsInArea) :
+ 			// Else, the BtS condition:
+-			(GC.getGameINLINE().getNumCivCities() >
+-			(GC.getGameINLINE().countCivPlayersAlive() * 3)))
++			(g.getNumCivCities() > g.countCivPlayersAlive() * 3))
+ 	{
+ 		if (AI_cityAttack(1, 15))
+ 		{
+@@ -2218,18 +2216,12 @@ void CvUnitAI::AI_barbAttackMove()
+ 	}
+ 	// advc.300: See previous comment
+ 	else if(nCivsInArea > 1 ? (nCivCitiesInArea > 2 * nCivsInArea) :
+-		(GC.getGameINLINE().getNumCivCities() >
+-		(GC.getGameINLINE().countCivPlayersAlive() * 2)))
++		(g.getNumCivCities() > g.countCivPlayersAlive() * 2))
+ 	{
+-		if (AI_pillageRange(2))
+-		{
++		if(AI_pillageRange(2))
+ 			return;
+-		}
+-
+-		if (AI_cityAttack(1, 10))
+-		{
++		if(AI_cityAttack(1, 10))
+ 			return;
+-		}
+ 	}
+   }
+ 	
+@@ -12388,7 +12380,33 @@ bool CvUnitAI::AI_guardCitySite()
+ 			}
+ 		}
+ 	}
+-	
++	// <advc.300> Guard an adjacent plot if it's better for fogbusting
++	if(pBestGuardPlot != NULL) {
++		CvMap const& m = GC.getMapINLINE();
++		int iBestGuardVal = 0;
++		CvPlot* pBetterGuardPlot = pBestGuardPlot;
++		for(int dx = -1; dx <= 1; dx++) {
++			for(int dy = -1; dy <= 1; dy++) {
++				CvPlot* adj = m.plot(pBestGuardPlot->getX_INLINE() + dx,
++						pBestGuardPlot->getY_INLINE() + dy);
++				if(adj == NULL || adj->isImpassable())
++					continue;
++				int iGuardVal = adj->defenseModifier(getTeam(), true);
++				iGuardVal += adj->seeFromLevel(getTeam()) * 30;
++				if(adj == pBestGuardPlot)
++					iGuardVal += 1; // Tiebreaker
++				if(iGuardVal > iBestGuardVal) {
++					iBestGuardVal = iGuardVal;
++					pBetterGuardPlot = adj;
++				}
++			}
++		}
++		if(pBetterGuardPlot != pBestGuardPlot && 
++				generatePath(pBetterGuardPlot, 0, true, &iPathTurns)) {
++			pBestPlot = getPathEndTurnPlot();
++			pBestGuardPlot = pBetterGuardPlot;
++		}
++	} // </advc.300>
+ 	if ((pBestPlot != NULL) && (pBestGuardPlot != NULL))
+ 	{
+
+[PATCH OMITTED] file=a/manual_0.93b.odt b/manual_0.93b.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=18644

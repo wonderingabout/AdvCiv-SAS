@@ -1,0 +1,535 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4005
+# Commit: cf83cd90b3b4635bb4ccfafa98b5cf9e399dab87
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3747d698ea82261df5d1a28d153e417efe64e136
+# Title: Use DFS to check if plot group update needed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	0	CvGameCoreDLL/CvGlobals.cpp
+3	3	CvGameCoreDLL/CvGlobals.h
+46	54	CvGameCoreDLL/CvMap.cpp
+1	2	CvGameCoreDLL/CvMap.h
+2	0	CvGameCoreDLL/CvPlot.cpp
+77	7	CvGameCoreDLL/CvPlotGroup.cpp
+107	0	CvGameCoreDLL/DepthFirstPlotSearch.h
+2	2	CvGameCoreDLL/FAStarFunc.h
+1	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/DepthFirstPlotSearch.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index b556f90b5..52f9f15f3 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -6,6 +6,7 @@
+ #include "CvGameAI.h"
+ #include "CvAgents.h" // advc.agent
+ #include "CvMap.h"
++#include "FAStarFunc.h" // advc: only for getPlotGroupFinder
+ #include "CvInfo_All.h"
+ #include "CvXMLLoadUtility.h" // advc.003v
+ // <advc.003o>
+@@ -365,6 +366,24 @@ CvDropMgr& CvGlobals::getDropMgr()
+ 	return *m_dropMgr;
+ }
+ 
++DllExport FAStar& CvGlobals::getPlotGroupFinder()
++{
++	/*	advc.pf: Unused within the DLL now (cf. CvPlotGroup::recalculatePlots).
++		I don't think the EXE uses this either, so I've moved the initialization
++		code from CvMap - to have the obsolete code in one place. */
++	FErrorMsg("Does this actually get called?"); // advc.test
++	if (m_plotGroupFinder == NULL)
++	{
++		CvMap const& kMap = getMap();
++		gDLL->getFAStarIFace()->Initialize(m_plotGroupFinder,
++				kMap.getGridWidth(), kMap.getGridHeight(),
++				kMap.isWrapX(), kMap.isWrapY(),
++				NULL, NULL, NULL, plotGroupValid,
++				NULL, countPlotGroup, NULL);
++	}
++	return *m_plotGroupFinder;
++}
++
+ // advc.003j: unused
+ //NiPoint3& CvGlobals::getPt3Origin() { return m_pt3Origin; }
+ //NiPoint3& CvGlobals::getPt3CameraDir() { return m_pt3CameraDir; }
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index ffbb5ec05..41938b727 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -129,8 +129,7 @@ public:
+ 	FAStar& getBorderFinder() const { return *m_borderFinder; }
+ 	DllExport FAStar& getAreaFinder() { CvGlobals const& kThis = *this; return kThis.getAreaFinder(); }
+ 	FAStar& getAreaFinder() const { return *m_areaFinder; }
+-	DllExport FAStar& getPlotGroupFinder() { CvGlobals const& kThis = *this; return kThis.getPlotGroupFinder(); }
+-	FAStar& getPlotGroupFinder() const { return *m_plotGroupFinder; }
++	DllExport FAStar& getPlotGroupFinder();
+ 	//NiPoint3& getPt3Origin(); // advc.003j: unused
+ 	//NiPoint3& getPt3CameraDir(); // advc.003j: unused
+ 	DllExport bool& getLogging() { return m_bLogging; }
+@@ -562,7 +561,8 @@ public:
+ 		DO(TRUE_STARTS_SANITIZE_SCENARIOS) /* advc.tsl */ \
+ 		DO(RF_PLAYER_HANDICAP_ADJUSTMENT) /* advc.708 */ \
+ 		DO(BASE_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
+-		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */
++		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
++		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */
+ 	#define MAKE_ENUMERATOR(VAR) VAR,
+ 	enum GlobalDefines
+ 	{
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 1cd874e76..75c491977 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -16,6 +16,7 @@
+ #include "CvPlotGroup.h"
+ #include "CvFractal.h"
+ #include "CvMapGenerator.h"
++#include "DepthFirstPlotSearch.h" // advc.030
+ #include "GroupPathFinder.h"
+ #include "FAStarFunc.h"
+ #include "FAStarNode.h"
+@@ -233,10 +234,8 @@ void CvMap::setup()
+ 			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
+ 			NULL,			NULL,			NULL,		areaValid,
+ 			NULL,			joinArea,		NULL);
+-	kAStar.Initialize(&GC.getPlotGroupFinder(),
+-			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
+-			NULL,			NULL,			NULL,		plotGroupValid,
+-			NULL,			countPlotGroup,	NULL);
++	/*	(PlotGroupFinder now probably unused, gets instantiated,
++		if necessary, by CvGlobals::getPlotGroupFinder.) */
+ 	// advc (note): IrrigatedFinder gets instantiated in updateIrrigated
+ 	// <advc.pf>
+ 	CvSelectionGroup::initPathFinder();
+@@ -1154,6 +1153,8 @@ void CvMap::updateIrrigated(CvPlot& kPlot)
+ 	if (!GC.getGame().isFinalInitialized())
+ 		return;
+ 
++	/*	advc.opt (note): Perhaps better to use singleton (at CvGlobals) for this?
++		Might avoid repeated memory allocation that way. */
+ 	FAStar* pIrrigatedFinder = gDLL->getFAStarIFace()->create();
+ 	if (kPlot.isIrrigated())
+ 	{
+@@ -1420,7 +1421,7 @@ void CvMap::calculateAreas()
+ 			based on areas. Also, some scenarios don't call CvGame::
+ 			setInitialItems; these only get the initial calculation based on
+ 			land, sea and peaks (not ice). */
+-		calculateAreas_advc();
++		calculateAreas_dfs();
+ 		calculateReprAreas();
+ 		return;
+ 	} // </advc.030>
+@@ -1442,27 +1443,50 @@ void CvMap::calculateAreas()
+ }
+ 
+ // <advc.030>
+-void CvMap::calculateAreas_advc()
++class CvAreaAggregator : public PlotVisitor<>
++{
++protected:
++	CvMap& m_kMap;
++	CvArea& m_kArea;
++public:
++	CvAreaAggregator(CvMap& kMap, CvArea& kArea) : m_kMap(kMap), m_kArea(kArea) {}
++	bool isVisited(CvPlot const& kPlot) const
++	{
++		return (kPlot.area() != NULL);
++	}
++	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const
++	{
++		return (kFrom.isWater() == kPlot.isWater() &&
++				!m_kMap.isSeparatedByIsthmus(kFrom, kPlot) &&
++				/*	At an impassable plot, continue only to other impassables
++					so that mountain ranges and ice packs end up in one area. */
++				(!kFrom.isImpassable() || kPlot.isImpassable()));
++	}
++	bool visit(CvPlot& kPlot)
++	{
++		kPlot.setArea(&m_kArea);
++		return true;
++	}
++};
++
++void CvMap::calculateAreas_dfs()
+ {
+-	for(int iPass = 0; iPass <= 1; iPass++)
++	for (int iPass = 0; iPass <= 1; iPass++)
+ 	{
+-		for(int i = 0; i < numPlots(); i++)
++		FOR_EACH_ENUM(PlotNum)
+ 		{
+-			CvPlot& p = getPlotByIndex(i);
+-			if(iPass == 0)
+-			{
+-				/*  Second pass for impassables; can't handle
+-					all-peak/ice areas otherwise. */
+-				if(p.isImpassable())
+-					continue;
+-			}
+-			if(p.area() != NULL)
++			CvPlot& kPlot = getPlotByIndex(eLoopPlotNum);
++			if (kPlot.area() != NULL)
++				continue;
++			/*	Second pass for impassables; can't handle
++				all-peak/ice areas otherwise. */
++			if (iPass == 0 && kPlot.isImpassable())
+ 				continue;
+-			FAssert(iPass == 0 || p.isImpassable());
+-			CvArea& a = *addArea();
+-			a.init(p.isWater());
+-			p.setArea(&a);
+-			calculateAreas_DFS(p);
++			FAssert(iPass == 0 || kPlot.isImpassable());
++			CvArea& kArea = *addArea();
++			kArea.init(kPlot.isWater());
++			CvAreaAggregator aggr(*this, kArea);
++			DepthFirstPlotSearch<CvAreaAggregator> dfs(kPlot, aggr);
+ 			gDLL->callUpdater(); // Allow UI to update
+ 		}
+ 	}
+@@ -1528,38 +1552,6 @@ void CvMap::calculateReprAreas()
+ 		}
+ 	} while(iReprChanged > 0);
+ 	updateLakes();
+-}
+-
+-
+-void CvMap::calculateAreas_DFS(CvPlot const& kStart)
+-{
+-	/*  Explicit stack b/c memory can be an issue if a map has dimensions
+-		considerably larger than Huge and very large areas.
+-		I've run out of memory with a recursive implementation (with an attached
+-		debugger) after about 20000 calls on a 148x148 map generated by LPlate2's
+-		Eyeball Planet script. With the stack, at least the Release build should
+-		be pretty safe. */
+-	std::stack<CvPlot const*> stack;
+-	stack.push(&kStart);
+-	while(!stack.empty())
+-	{
+-		CvPlot const& p = *stack.top();
+-		stack.pop();
+-		FOR_EACH_ADJ_PLOT_VAR2(pAdjacent, p)
+-		{
+-			CvPlot& q = *pAdjacent;
+-			if(q.area() == NULL && p.isWater() == q.isWater() &&
+-				!isSeparatedByIsthmus(p, q) &&
+-				/*  Depth-first search that doesn't continue at impassables
+-					except to other impassables so that mountain ranges and
+-					ice packs end up in one CvArea. */
+-				(!p.isImpassable() || q.isImpassable()))
+-			{
+-				q.setArea(p.area());
+-				stack.push(&q);
+-			}
+-		}
+-	}
+ } // </advc.030>
+ 
+ // <advc.300>
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 6fbb94d51..fdd05cad9 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -612,9 +612,8 @@ protected:
+ 
+ 	void calculateAreas();
+ 	// <advc.030>
+-	void calculateAreas_advc();
++	void calculateAreas_dfs();
+ 	void calculateReprAreas();
+-	void calculateAreas_DFS(CvPlot const& p);
+ 	void updateLakes();
+ 	// </advc.030>
+ 	void updateNumPlots(); // advc.opt
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e6cd6acf7..ffd0d23da 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5768,6 +5768,8 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
+ 		if (bRecalculate)
+ 		{
+ 			bool bConnected = false;
++			/*	advc (note): These trade network checks need to be consistent
++				with the plot count performed in CvPlotGroup::recalculatePlots */
+ 			if (isTradeNetwork(eTeam))
+ 			{
+ 				bConnected = true;
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index 6f8a273f8..b6228ab47 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -3,6 +3,7 @@
+ #include "CvPlayer.h"
+ #include "CvCity.h"
+ #include "CvMap.h"
++#include "DepthFirstPlotSearch.h" // advc.opt
+ 
+ int CvPlotGroup::m_iRecalculating = 0; // advc.064d
+ 
+@@ -68,6 +69,65 @@ void CvPlotGroup::removePlot(CvPlot* pPlot, /* advc.064d: */ bool bVerifyProduct
+ 	}
+ }
+ 
++// advc.opt: Replacing CvGlobals::m_plotGroupFinder
++class CvPlotGroupSizeCheck : public SingleVisitPlotVisitor<false>
++{
++protected:
++	PlayerTypes m_eOwner;
++	TeamTypes m_eTeam;
++	int m_iCount;
++	int m_iMaxCount;
++public:
++	CvPlotGroupSizeCheck(CvPlayer const& kOwner, int iMaxCount = MAX_INT)
++	{
++		reset(kOwner, iMaxCount);
++	}
++	/*	Will have to reset before use if this ctor is used (owning player is required).
++		Intended for reusable instances (reuse saves a little bit of time in the
++		base class). */
++	CvPlotGroupSizeCheck(CvPlayer const* pOwner = NULL, int iMaxCount = MAX_INT)
++	{
++		reset(pOwner, iMaxCount);
++	}
++	void reset(CvPlayer const& kOwner, int iMaxCount = MAX_INT)
++	{
++		reset(&kOwner, iMaxCount);
++	}
++	int getCount() const { return m_iCount; }
++	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const
++	{
++		return (kFrom.isSamePlotGroup(kPlot, m_eOwner) &&
++				// These need to be consistent with CvPlot::updatePlotGroup
++				kPlot.isTradeNetwork(m_eTeam) &&
++				kPlot.isTradeNetworkConnected(kFrom, m_eTeam));
++	}
++	bool visit(CvPlot& kPlot)
++	{
++		m_iCount++;
++		if (m_iCount >= m_iMaxCount)
++			return false;
++		setVisited(kPlot);
++		return true;
++	}
++private:
++	void reset(CvPlayer const* pOwner, int iMaxCount)
++	{
++		if (pOwner == NULL)
++		{
++			m_eOwner = NO_PLAYER;
++			m_eTeam = NO_TEAM;
++		}
++		else
++		{
++			m_eOwner = pOwner->getID();
++			m_eTeam = pOwner->getTeam();
++		}
++		m_iCount = 0;
++		m_iMaxCount = iMaxCount;
++		SingleVisitPlotVisitor<false>::reset();
++	}
++};
++
+ 
+ void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
+ {
+@@ -75,17 +135,27 @@ void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
+ 	{
+ 		CLLNode<XYCoords>* pPlotNode = headPlotsNode();
+ 		if (pPlotNode != NULL)
+-		{	/*	advc: This takes up the bulk of the time. Try it w/o this check?
+-				Derive a replacement from KmodPathFinder? (A function for exploring
+-				all plots reachable from the source would have to be added.) */
++		{
+ 			PROFILE("CvPlotGroup::recalculatePlots PlotGroupFinder");
+-			CvPlot const& kPlot = GC.getMap().getPlot(
++			int const iOldCount = getLengthPlots();
++			CvPlot& kPlot = GC.getMap().getPlot(
+ 					pPlotNode->m_data.iX, pPlotNode->m_data.iY);
+-			int iCount = 0;
++			int iCount;/*= 0;
+ 			gDLL->getFAStarIFace()->SetData(&GC.getPlotGroupFinder(), &iCount);
+ 			gDLL->getFAStarIFace()->GeneratePath(&GC.getPlotGroupFinder(),
+-					kPlot.getX(), kPlot.getY(), -1, -1, false, eOwner);
+-			if (iCount == getLengthPlots())
++					kPlot.getX(), kPlot.getY(), -1, -1, false, eOwner);*/
++			/*	<advc.pf> This upfront check had taken up the bulk of the time.
++				Running a simple DFS seems about 4 times faster than using the
++				FAStar finder for this purpose. Semantically, it's the same check
++				as in BtS: whether all plots in the (old) group are still connected.
++				I guess expanding plot groups are handled by CvPlot::updatePlotGroup. */
++			// Static to avoid reallocating memory for visited flags
++			static CvPlotGroupSizeCheck check;
++			check.reset(GET_PLAYER(eOwner), iOldCount + 1);
++			DepthFirstPlotSearch<CvPlotGroupSizeCheck> dfs(kPlot, check);
++			iCount = check.getCount();
++			FAssert(iCount <= iOldCount); // </advc.pf>
++			if (iCount == iOldCount)
+ 				return;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/DepthFirstPlotSearch.h b/CvGameCoreDLL/DepthFirstPlotSearch.h
+new file mode 100644
+index 000000000..df91f29cf
+--- /dev/null
++++ b/CvGameCoreDLL/DepthFirstPlotSearch.h
+@@ -0,0 +1,107 @@
++#pragma once
++
++#ifndef DEPTH_FIRST_PLOT_SEARCH_H
++#define DEPTH_FIRST_PLOT_SEARCH_H
++
++/*	advc.pf: Generic implementation of depth-first search on the directed graph
++	defined by adjacent plots of GC.getMap() or a subgraph thereof.
++	Policy-based design (compile-time polymorphism). */
++
++#include "CvPlot.h" // for accessing adjacency lists
++
++/*	bFULL_TRAVERSAL needs to be set to false to allow the visit function
++	to cut the search short */
++template<bool bFULL_TRAVERSAL = true>
++class PlotVisitor
++{
++public:
++	// Expose param publically
++	static bool const m_bFullTraversal = bFULL_TRAVERSAL;
++	bool isVisited(CvPlot const& kPlot) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		// Should check some property of kPlot here
++		return true;
++	}
++	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const
++	{
++		/*	Returning true means that any two plots adjacent on the map
++			are treated as adjacent in the graph */
++		return true;
++	}
++	// Return false to abort the traversal. Need to set bFULL_TRAVERSAL=false then.
++	bool visit(CvPlot& kPlot)
++	{
++		/*	Derived classes need to change kPlot or their own state here;
++			otherwise, there's no point in performing the search. */
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return true;
++	}
++};
++
++/*	This class keeps track of which plots have already been visited.
++	If visited plots need to be modified, then it may be faster to let isVisited
++	check for modified plot data instead; should then not derive from this class.
++	When deriving from this class, the visit function should call setVisited. */
++template<bool bFULL_TRAVERSAL = true>
++class SingleVisitPlotVisitor : public PlotVisitor<bFULL_TRAVERSAL>
++{
++protected:
++	EagerEnumMap<PlotNumTypes,bool> m_abVisited;
++
++public:
++	bool isVisited(CvPlot const& kPlot) const
++	{
++		return m_abVisited.get(kPlot.plotNum());
++	}
++	void setVisited(CvPlot const& kPlot)
++	{
++		m_abVisited.set(kPlot.plotNum(), true);
++	}
++	// Needs to be called when using the same instance for multiple searches
++	void reset()
++	{
++		m_abVisited.reset();
++	}
++};
++
++// V should be derived from PlotVisitor
++template<class V>
++class DepthFirstPlotSearch
++{
++public:
++	// For now, we can do all we need directly in the ctor.
++	DepthFirstPlotSearch(CvPlot& kStart, V& kVisitor)
++	{
++		kVisitor.visit(kStart);
++		/*	Explicit stack b/c memory can be an issue if a map has dimensions
++			considerably larger than Huge and very large areas.
++			I've run out of memory with a recursive implementation (with an attached
++			debugger) after about 20000 calls on a 148x148 map generated by LPlate2's
++			Eyeball Planet script. With the stack, at least the Release build should
++			be pretty safe. */
++		std::stack<CvPlot*> stack;
++		stack.push(&kStart);
++		while (!stack.empty())
++		{
++			CvPlot& p = *stack.top();
++			stack.pop();
++			FOR_EACH_ADJ_PLOT_VAR(p)
++			{
++				CvPlot& q = *pAdj;
++				if (!kVisitor.isVisited(q) && kVisitor.canVisit(p, q))
++				{
++					bool bCont = kVisitor.visit(q);
++					if (!V::m_bFullTraversal)
++					{
++						if (!bCont)
++							return;
++					}
++					stack.push(&q);
++				}
++			}
++		}
++	}
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/FAStarFunc.h b/CvGameCoreDLL/FAStarFunc.h
+index bdead64fa..dc5bf9739 100644
+--- a/CvGameCoreDLL/FAStarFunc.h
++++ b/CvGameCoreDLL/FAStarFunc.h
+@@ -33,10 +33,10 @@ int stepCost(FAStarNode* parent, FAStarNode* node, int data, void const* pointer
+ BOOL routeValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ // BorderFinder
+ BOOL borderValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+-// AreaFinder ...
++// AreaFinder ... (advc.030: Unused unless PASSABLE_AREAS GlobalDefine is set)
+ BOOL areaValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ BOOL joinArea(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+-// PlotGroupFinder ...
++// PlotGroupFinder ... (advc.pf: Now likely unused)
+ BOOL plotGroupValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ BOOL countPlotGroup(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ // IrrigatedFinder ...
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 4feede770..12a767a43 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -329,6 +329,7 @@
+     <ClInclude Include="..\CySelectionGroup.h" />
+     <ClInclude Include="..\CyTeam.h" />
+     <ClInclude Include="..\CyUnit.h" />
++    <ClInclude Include="..\DepthFirstPlotSearch.h" />
+     <ClInclude Include="..\EnumMap.h" />
+     <ClInclude Include="..\EnumTraits.h" />
+     <ClInclude Include="..\FAStarFunc.h" />
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=16958

@@ -1,0 +1,130 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1567
+# Commit: 6c075dfe22533ac5d9a75d5cc4a4808fe23c699e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2759fdb3156b5654a41c7b3e85218f423687ed78
+# Title: A couple of DllExport and Py interface changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Python/CvEventManager.py
+2	2	CvGameCoreDLL/CvArtFileMgr.h
+1	1	CvGameCoreDLL/CvGame.h
+2	12	CvGameCoreDLL/CyCityInterface1.cpp
+13	3	CvGameCoreDLL/CyCityInterface2.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index 63d4a26c9..9d44aafee 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -399,7 +399,9 @@ class CvEventManager:
+ 		unitY = PyInfo.UnitInfo(pLoser.getUnitType())
+ 		if (not self.__LOG_COMBAT):
+ 			return
+-		if playerX and playerX and unitX and playerY:
++		#if playerX and playerX and unitX and playerY:
++		# advc.001: The above looks like a copy-paste error
++		if playerX and playerY and unitX and unitY:
+ 			CvUtil.pyPrint('Player %d Civilization %s Unit %s has defeated Player %d Civilization %s Unit %s' 
+ 				%(playerX.getID(), playerX.getCivilizationName(), unitX.getDescription(), 
+ 				playerY.getID(), playerY.getCivilizationName(), unitY.getDescription()))
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.h b/CvGameCoreDLL/CvArtFileMgr.h
+index 2292c0b8d..3e4c7b28e 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.h
++++ b/CvGameCoreDLL/CvArtFileMgr.h
+@@ -45,8 +45,8 @@ class CvArtInfoInterface;
+ public: \
+ 	friend class Cv##name##ArtInfoItem; \
+ 	DllExport CvArtInfo##name##* get##name##ArtInfo(const char *szArtDefineTag) const; \
+-	DllExport int getNum##name##ArtInfos() { return (int)m_pa##name##ArtInfo.size(); } \
+-	DllExport std::vector<CvArtInfo##name##*>& get##name##ArtInfo() { return m_pa##name##ArtInfo; } \
++	int getNum##name##ArtInfos() { return (int)m_pa##name##ArtInfo.size(); } \
++	std::vector<CvArtInfo##name##*>& get##name##ArtInfo() { return m_pa##name##ArtInfo; } \
+ 	DllExport CvArtInfo##name##& get##name##ArtInfo(int i); \
+ private: \
+ 	typedef std::map<const char* /* index */,CvArtInfo##name##* /*value */, ltstr> ArtInfo##name##MapType; \
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 885c0fd7b..56af0d68b 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -199,7 +199,7 @@ public:
+ 	int getCutoffSlice() const;
+ 	void setCutoffSlice(int iNewValue);
+ 	void changeCutoffSlice(int iChange);
+-	int getTurnSlicesRemaining()
++	DllExport int getTurnSlicesRemaining()
+ 	// <advc.003> Need a const version
+ 	{	CvGame const& kThis = *this;
+ 		return kThis.getTurnSlicesRemaining();
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 802e75f6d..d83740273 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -460,22 +460,12 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("AI_isEmphasize", &CyCity::AI_isEmphasize, "bool (int iEmphasizeType)")
+ 		.def("AI_countBestBuilds", &CyCity::AI_countBestBuilds, "int (CyArea* pArea)")
+ 		.def("AI_cityValue", &CyCity::AI_cityValue, "int ()")
++		// advc.001n:
++		.def("AI_neededFloatingDefenders", &CyCity::AI_neededFloatingDefenders, "int ()")
+ 
+ 		.def("getScriptData", &CyCity::getScriptData, "str () - Get stored custom data (via pickle)")
+ 		.def("setScriptData", &CyCity::setScriptData, "void (str) - Set stored custom data (via pickle)")
+ 
+ 		.def("visiblePopulation", &CyCity::visiblePopulation, "int ()")
+-
+-		.def("getBuildingYieldChange", &CyCity::getBuildingYieldChange, "int (int /*BuildingClassTypes*/ eBuildingClass, int /*YieldTypes*/ eYield)")
+-		.def("setBuildingYieldChange", &CyCity::setBuildingYieldChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int /*YieldTypes*/ eYield, int iChange)")
+-		.def("getBuildingCommerceChange", &CyCity::getBuildingCommerceChange, "int (int /*BuildingClassTypes*/ eBuildingClass, int /*CommerceTypes*/ eCommerce)")
+-		.def("setBuildingCommerceChange", &CyCity::setBuildingCommerceChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int /*CommerceTypes*/ eCommerce, int iChange)")
+-		.def("getBuildingHappyChange", &CyCity::getBuildingHappyChange, "int (int /*BuildingClassTypes*/ eBuildingClass)")
+-		.def("setBuildingHappyChange", &CyCity::setBuildingHappyChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int iChange)")
+-		.def("getBuildingHealthChange", &CyCity::getBuildingHealthChange, "int (int /*BuildingClassTypes*/ eBuildingClass)")
+-		.def("setBuildingHealthChange", &CyCity::setBuildingHealthChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int iChange)")
+-
+-		.def("getLiberationPlayer", &CyCity::getLiberationPlayer, "int ()")
+-		.def("liberate", &CyCity::liberate, "void ()")
+ 		;
+ }
+
+diff --git a/CvGameCoreDLL/CyCityInterface2.cpp b/CvGameCoreDLL/CyCityInterface2.cpp
+index 98793d744..3505ca106 100644
+--- a/CvGameCoreDLL/CyCityInterface2.cpp
++++ b/CvGameCoreDLL/CyCityInterface2.cpp
+@@ -7,8 +7,18 @@ void CyCityPythonInterface2(python::class_<CyCity>& x)
+ {
+ 	OutputDebugString("Python Extension Module - CyCityPythonInterface2\n");
+ 
+-	x
+-		// advc.001n: (Moved here from CyCityInterface1.cpp as an example)
+-		.def("AI_neededFloatingDefenders", &CyCity::AI_neededFloatingDefenders, "int ()")
++	x	/*  advc: Arbitrarily moved these from CyCityInterface1.cpp so
++			that nothing breaks if a few more functions are added there. */
++		.def("getBuildingYieldChange", &CyCity::getBuildingYieldChange, "int (int /*BuildingClassTypes*/ eBuildingClass, int /*YieldTypes*/ eYield)")
++		.def("setBuildingYieldChange", &CyCity::setBuildingYieldChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int /*YieldTypes*/ eYield, int iChange)")
++		.def("getBuildingCommerceChange", &CyCity::getBuildingCommerceChange, "int (int /*BuildingClassTypes*/ eBuildingClass, int /*CommerceTypes*/ eCommerce)")
++		.def("setBuildingCommerceChange", &CyCity::setBuildingCommerceChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int /*CommerceTypes*/ eCommerce, int iChange)")
++		.def("getBuildingHappyChange", &CyCity::getBuildingHappyChange, "int (int /*BuildingClassTypes*/ eBuildingClass)")
++		.def("setBuildingHappyChange", &CyCity::setBuildingHappyChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int iChange)")
++		.def("getBuildingHealthChange", &CyCity::getBuildingHealthChange, "int (int /*BuildingClassTypes*/ eBuildingClass)")
++		.def("setBuildingHealthChange", &CyCity::setBuildingHealthChange, "void (int /*BuildingClassTypes*/ eBuildingClass, int iChange)")
++
++		.def("getLiberationPlayer", &CyCity::getLiberationPlayer, "int ()")
++		.def("liberate", &CyCity::liberate, "void ()")
+ 		;
+ }
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6194

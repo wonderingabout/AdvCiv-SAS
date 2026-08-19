@@ -1,0 +1,203 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3138
+# Commit: 654dbe682e2e2776db10b74b0c4362a9e790dec7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 502ea2612d6d13c5b47421ec2390b711dda91ca5
+# Title: Cache flatMovementCost at CvUnit; use bitfields.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvGameTextMgr.cpp
+39	10	CvGameCoreDLL/CvUnit.cpp
+12	9	CvGameCoreDLL/CvUnit.h
+2	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d731065f3..975ef1bdf 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -754,8 +754,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 				szString.append(NEWLINE);
+ 				szString.append(gDLL->getText("TXT_KEY_UNIT_NO_DEFENSE_BONUSES"));
+ 			}
+-
+-			if (pUnit->flatMovementCost())
++			/*	advc.opt: was pUnit->flatMovementCost, which is now always true
++				for air units. Don't want to show text for those. */
++			if (pUnit->getUnitInfo().isFlatMovementCost())
+ 			{
+ 				szString.append(NEWLINE);
+ 				szString.append(gDLL->getText("TXT_KEY_UNIT_FLAT_MOVEMENT"));
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 0c5fc3d21..b86fdc888 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -89,6 +89,7 @@ CvUnit::CvUnit() // advc.003u: Body cut from the deleted reset function
+ 	m_bInfoBarDirty = false;
+ 	m_bBlockading = false;
+ 	m_bAirCombat = false;
++	m_bFlatMovement = false; // advc.opt
+ 
+ 	m_eOwner = NO_PLAYER;
+ 	m_eCapturingPlayer = NO_PLAYER;
+@@ -113,12 +114,19 @@ void CvUnit::init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY,
+ 	m_eFacingDirection = eFacingDirection;
+ 	m_pUnitInfo = &GC.getInfo(m_eUnitType);
+ 	m_iBaseCombat = m_pUnitInfo->getCombat();
++	updateFlatMovement(); // advc.opt
+ 	m_iCargoCapacity = m_pUnitInfo->getCargoSpace();
+ 	setXY(iX, iY, false, false);
+ 	/*  advc.003u: Rest of the body moved into finalizeInit so that subclasses
+ 		can do their init code in between */
+ }
+ 
++// advc.opt:
++void CvUnit::updateFlatMovement()
++{
++	m_bFlatMovement = (m_pUnitInfo->isFlatMovementCost() || getDomainType() == DOMAIN_AIR);
++}
++
+ 
+ CvUnit::~CvUnit()
+ {
+@@ -10197,19 +10205,38 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 			m_iMadeAttacks = 1;
+ 		else m_iMadeAttacks = 0;
+ 	} // </advc.164>
+-	pStream->Read(&m_bMadeInterception);
+-	pStream->Read(&m_bPromotionReady);
+-	pStream->Read(&m_bDeathDelay);
+-	pStream->Read(&m_bCombatFocus);
+-	// m_bInfoBarDirty not saved...
+-	pStream->Read(&m_bBlockading);
+-	if (uiFlag > 0)
+-		pStream->Read(&m_bAirCombat);
+-
++	{
++		bool bTmp; // advc.pt: For reading bitfield members
++		pStream->Read(&bTmp);
++		m_bMadeInterception = bTmp;
++		pStream->Read(&bTmp);
++		m_bPromotionReady = bTmp;
++		pStream->Read(&bTmp);
++		m_bDeathDelay = bTmp;
++		pStream->Read(&bTmp);
++		m_bCombatFocus = bTmp;
++		// m_bInfoBarDirty not saved...
++		pStream->Read(&bTmp);
++		m_bBlockading = bTmp;
++		if (uiFlag > 0)
++		{
++			pStream->Read(&bTmp);
++			m_bAirCombat = bTmp;
++		}
++		// <advc.opt>
++		if (uiFlag >= 6)
++		{
++			pStream->Read(&bTmp);
++			m_bFlatMovement = bTmp;
++		} // </advc.opt>
++	}
+ 	pStream->Read((int*)&m_eOwner);
+ 	pStream->Read((int*)&m_eCapturingPlayer);
+ 	pStream->Read((int*)&m_eUnitType);
+ 	m_pUnitInfo = &GC.getInfo(m_eUnitType);
++	// <advc.opt>
++	if (uiFlag <= 6)
++		updateFlatMovement(); // </advc.opt>
+ 	pStream->Read((int*)&m_eLeaderUnitType);
+ 	pStream->Read((int*)&m_combatUnit.eOwner);
+ 	pStream->Read(&m_combatUnit.iID);
+@@ -10244,7 +10271,8 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	//uiFlag = 2; // BtS
+ 	//uiFlag = 3; // K-Mod
+ 	//uiFlag = 4; // advc.029
+-	uiFlag = 5; // advc.164
++	//uiFlag = 5; // advc.164
++	uiFlag = 6; // advc.opt (m_bFlatMovement)
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+@@ -10314,6 +10342,7 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	// m_bInfoBarDirty not saved...
+ 	pStream->Write(m_bBlockading);
+ 	pStream->Write(m_bAirCombat);
++	pStream->Write(m_bFlatMovement); // advc.opt
+ 
+ 	pStream->Write(m_eOwner);
+ 	pStream->Write(m_eCapturingPlayer);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 5931772d8..47570cee5 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -531,8 +531,8 @@ public:
+ 		return m_pUnitInfo->isCanMoveAllTerrain();
+ 	}
+ 	bool flatMovementCost() const																			// Exposed to Python
+-	{
+-		return m_pUnitInfo->isFlatMovementCost();
++	{	// advc.opt: Now also true for all air units
++		return m_bFlatMovement;
+ 	}
+ 	bool ignoreTerrainCost() const																			// Exposed to Python
+ 	{
+@@ -1135,13 +1135,15 @@ protected:
+ 
+ 	//bool m_bMadeAttack;
+ 	int m_iMadeAttacks; // advc.164
+-	bool m_bMadeInterception;
+-	bool m_bPromotionReady;
+-	bool m_bDeathDelay;
+-	bool m_bCombatFocus;
+-	bool m_bInfoBarDirty;
+-	bool m_bBlockading;
+-	bool m_bAirCombat;
++	// advc.opt: Since we have exactly 8 booleans ...
++	bool m_bMadeInterception:1;
++	bool m_bPromotionReady:1;
++	bool m_bDeathDelay:1;
++	bool m_bCombatFocus:1;
++	bool m_bInfoBarDirty:1;
++	bool m_bBlockading:1;
++	bool m_bAirCombat:1;
++	bool m_bFlatMovement:1; // advc.opt
+ 
+ 	PlayerTypes m_eCapturingPlayer;
+ 	UnitTypes m_eUnitType;
+@@ -1200,6 +1202,7 @@ protected:
+ 	bool suppressStackAttackSound(CvUnit const& kDefender) const; // advc.002l
+ 	void resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionDefinition& kBattle);
+ 	void checkRemoveSelectionAfterAttack();
++	void updateFlatMovement();
+ // <advc.003u>
+ private:
+ 	void uninitEntity(); // I don't think subclasses should ever call this
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7fefcd092..25d26940e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21214,6 +21214,8 @@ int CvUnitAI::AI_searchRange(int iRange)
+ {
+ 	if (iRange == 0)
+ 		return 0;
++	/*	advc.opt (note): Flat-movement now also true for all air units.
++		(Not sure if this function gets called for those ...) */
+ 	if (flatMovementCost() || getDomainType() == DOMAIN_SEA)
+ 		return iRange * baseMoves();
+ 	return (iRange + 1) * (baseMoves() + 1);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5681

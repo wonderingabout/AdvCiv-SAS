@@ -1,0 +1,161 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3604
+# Commit: 0b8d415a2bb9c697931820eb7fbc421cd73f8470
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e7e9227fefb63f2ae96bdb2e87ebeb868ad5cfec
+# Title: Update to Kek-Mod 0.26
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+67	21	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6d080cc31..dba3c9718 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1308,7 +1308,8 @@ CvPlot* CvPlayer::findStartingPlot(
+ 		}
+ 	}
+ 	//int iBestArea = -1;
+-	// kekm.35: "This function is adjusted to work with a list of possible starting areas instead of a single one."
++	/*	kekm.35: "This function is adjusted to work with a list of
++		possible starting areas instead of a single one." */
+ 	std::vector<std::pair<int,int> > areasByValue;
+ 	bool bNew = false;
+ 	if (getStartingPlot() != NULL)
+@@ -1327,6 +1328,23 @@ CvPlot* CvPlayer::findStartingPlot(
+ 		areasByValue = findStartingAreas( // kekm.35
+ 				pbAreaFoundByMapScript); // advc.027
+ 	}
++	// <advc.opt> Compute this upfront for kekm.35
++	int const iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
++	EagerEnumMap<PlotNumTypes,bool> abPlotTaken;
++	FOR_EACH_ENUM(PlotNum)
++	{
++		CvPlot const& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
++		for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++		{
++			if (itPlayer->getStartingPlot() != NULL &&
++				plotDistance(itPlayer->getStartingPlot(), &kPlot) <=
++				iStartingRange + 1) // (+2 in Kek-Mod)
++			{
++				abPlotTaken.set(eLoopPlotNum, true);
++				break;
++			}
++		}
++	} // </advc.opt>
+ 	/*  <advc.140> Cut and pasted from CvMap::maxPlotDistance. I've changed that
+ 		function, but I think the original formula might be needed here.
+ 		I'm not sure I understand the purpose of this outer loop. */
+@@ -1336,17 +1354,19 @@ CvPlot* CvPlayer::findStartingPlot(
+ 			((m.isWrapY()) ? (m.getGridHeight() / 2) :
+ 			(m.getGridHeight() - 1))));
+ 	for(int iPass = 0; iPass < iMaxPlotDist; iPass++)*/ // </advc.140>
+-	/*  <kekm.35> "First pass avoids starting locations that have very little food
++	/*  <kekm.35> "Earlier passes avoid starting locations that have low yields
+ 		(before normalization) to avoid starting on the edge of very bad terrain." */
+-	int const iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+ 	CvMap const& kMap = GC.getMap();
+-	int const iMaxPass = 1;
++	int const iMaxPass = 4;
+ 	for (int iPass = 0; iPass <= iMaxPass; iPass++)
+ 	{
+-		for (size_t j = 0; j < areasByValue.size(); j++)
+-		{ // </kekm.35>
++		FAssertMsg(iPass * 2 <= iMaxPass, "trouble finding starting plot with decent yields"); // advc
++		/*	"First try to find a starting location in the best area,
++			then second best, etc." */
++		for (size_t j = 0; j < areasByValue.size(); j++) // </kekm.35>
++		{
+ 			CvPlot *pBestPlot = NULL;
+-			int iBestValue = iMaxPass - iPass; // advc: was 0 flat
++			int iBestValue = (iPass <= 0 ? 1 : 0); // advc: was 0 flat
+ 			for (int i = 0; i < kMap.numPlots(); i++)
+ 			{
+ 				CvPlot* pLoopPlot = kMap.plotByIndex(i);
+@@ -1354,23 +1374,48 @@ CvPlot* CvPlayer::findStartingPlot(
+ 				// <kekm.35>
+ 				if (pLoopPlot->getArea().getID() != areasByValue[j].first)
+ 					continue;
+-				if (iPass == 0) // "Avoid very bad terrain in the first pass."
++				// "Avoid locations with low yields in the advanced start sized area."
++				scaled rLandYield;
++				scaled rWaterYield;
++				int iLandPlots = 0;
++				int iWaterPlots = 0;
++				for (PlotCircleIter it(*pLoopPlot, iStartingRange); it.hasNext(); ++it)
+ 				{
+-					int iTotalFood = 0;
+-					int iLandPlots = 0;
+-					for (PlotCircleIter it(*pLoopPlot, iStartingRange); it.hasNext(); ++it)
++					scaled& rYield = (it->isWater() ? rWaterYield : rLandYield);
++					int& iPlots = (it->isWater() ? iWaterPlots : iLandPlots);
++					iPlots++;
++					if (!abPlotTaken.get(it->plotNum()) && it->isPotentialCityWork())
+ 					{
+-						CvPlot const& kCheckPlot = *it;
+-						if (!kCheckPlot.isWater())
++						FOR_EACH_ENUM(Yield)
+ 						{
+-							iLandPlots++;
+-							iTotalFood += kCheckPlot.calculateBestNatureYield(
+-									YIELD_FOOD, NO_TEAM);
++							/*	advc: Kek-Mod had used eTeam=getTeam(), I suppose
++								for a pessimistic yield count, but I want the
++								starting plots to be independent of player knowledge. */
++							rYield += it->calculateNatureYield(eLoopYield);
+ 						}
+ 					}
+-					if (iTotalFood < std::max(1, iLandPlots) / 2)
+-						continue;
+-				} // </kekm.35>
++				}
++				scaled rMeanLandYield;
++				if (iLandPlots > 0)
++					rMeanLandYield = rLandYield / iLandPlots;
++				scaled rMeanYield;
++				{
++					int iTotalPlots = iLandPlots + iWaterPlots;
++					if (iTotalPlots > 0)
++						rMeanYield = (rLandYield + rWaterYield) / iTotalPlots;
++				}
++				scaled rYieldThresh;
++				// advc: Make this part more adjustable
++				{
++					scaled const rMaxThresh = 2;
++					scaled rStep = rMaxThresh;
++					if (iMaxPass > 0)
++						rStep /= iMaxPass;
++					rYieldThresh = rMaxThresh - iPass * rStep;
++				}
++				if (std::min(rMeanLandYield, rMeanYield) < rYieldThresh)
++					continue;
++				// </kekm.35>
+ 				//the distance factor is now done inside foundValue
+ 				int iValue = pLoopPlot->getFoundValue(getID(),
+ 					/*	advc.027: Replacing the randomization below, which is crude
+@@ -1390,8 +1435,9 @@ CvPlot* CvPlayer::findStartingPlot(
+ 			}
+ 			if (pBestPlot != NULL)
+ 				return pBestPlot;
+-		} // kekm.35: end of areas_by_value loop
+-		FAssertMsg(iPass != 0, "CvPlayer::findStartingPlot - could not find starting plot in first pass.");
++		} // kekm.35: end of areasByValue loop
++		// advc: Replaced with an assertion at the start of the loop
++		//FAssertMsg(iPass != 0, "CvPlayer::findStartingPlot - could not find starting plot in first pass.");
+ 	}
+ 
+ 	FErrorMsg("Could not find starting plot.");
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5540

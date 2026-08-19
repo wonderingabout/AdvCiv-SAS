@@ -1,0 +1,278 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2093
+# Commit: e3b5a1f536bb761f065c9cffaef06faac52b7a7d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4ba8a6293f71a0ad72f2cf1d1333abfe627da600
+# Title: Replace CvCityAI::m_bSafe and m_bEvacuating with an enum
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+58	35	CvGameCoreDLL/CvCityAI.cpp
+4	6	CvGameCoreDLL/CvCityAI.h
+7	0	CvGameCoreDLL/CvEnums.h
+15	5	CvGameCoreDLL/CvPlot.cpp
+3	2	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 987a1f616..ab85b907a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -54,7 +54,7 @@ CvCityAI::CvCityAI() // advc.003u: Merged with AI_reset
+ 
+ 	m_bForceEmphasizeCulture = false;
+ 	m_bAssignWorkDirty = false;
+-	m_bEvacuate = m_bSafe = false; // advc.139
++	m_eSafety = CITYSAFETY_SAFE; // advc.139
+ }
+ 
+ 
+@@ -6524,8 +6524,7 @@ bool CvCityAI::AI_isDanger() /* advc: */ const
+ void CvCityAI::AI_updateSafety()
+ {
+ 	PROFILE_FUNC();
+-	m_bEvacuate = false;
+-	m_bSafe = true;
++	m_eSafety = CITYSAFETY_SAFE;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	if(kOwner.getNumCities() <= 1)
+ 		return;
+@@ -6536,28 +6535,40 @@ void CvCityAI::AI_updateSafety()
+ 	int iAttackers = 0;
+ 	int iAttStrength = kOwner.AI_localAttackStrength(plot(), NO_TEAM,
+ 			DOMAIN_LAND, 1, true, false, false, &iAttackers);
+-	if(iAttStrength <= 0) // shortcut
++	bool bSafe = true;
++	int iDefenders = -1;
++	int iDefStrength = -1;
++	if (iAttStrength > 0) // To save time
++	{
++		iDefStrength = kOwner.AI_localDefenceStrength(plot(), getTeam(),
++				DOMAIN_LAND, 3, true, false, false, /*bPredictPromotions*/ true);
++		/*  Could let AI_localDefenceStrength do the counting, but I don't want
++			to rely on defenders that could possibly(!) be rallied too much. */
++		iDefenders = getPlot().getNumDefenders(getOwner());
++		// Check if we'll finish a defender at the end of our turn
++		if (iDefenders > 0 && isProductionUnit() && getProductionTurnsLeft() == 1)
++		{
++			CvUnitInfo const& kProductionUnit = GC.getInfo(getProductionUnit());
++			if (kProductionUnit.getCombat() > 0) // Assume an average defender
++				iDefStrength = (iDefStrength * (iDefenders + 1)) / iDefenders;
++		}
++		bSafe = (iAttStrength * 2 < iDefStrength);
++		// Potentially expensive
++		if(bSafe && GET_TEAM(getTeam()).getNumWars(false, true) > 0)
++		{
++			int iAttStrengthWiderRange = kOwner.AI_localAttackStrength(
++					plot(), NO_TEAM, DOMAIN_LAND, 3);
++			bSafe = (iAttStrengthWiderRange * 2 < iDefStrength);
++		}
++	}
++	if (bSafe)
++	{	// <advc.ctr>
++		if (!getPlot().isVisibleEnemyCityAttacker(kOwner.getID(), NO_TEAM, 2))
++			m_eSafety = CITYSAFETY_PERFECT; // </advc.ctr>
+ 		return;
+-	int iDefStrength = kOwner.AI_localDefenceStrength(plot(), getTeam(),
+-			DOMAIN_LAND, 3, true, false, false, /*bPredictPromotions*/ true);
+-	/*  Could let AI_localDefenceStrength do the counting, but I don't want to
+-		rely on defenders that could possibly(!) be rallied too much. */
+-	int iDefenders = getPlot().getNumDefenders(getOwner());
+-	// Check if we'll finish a defender at the end of our turn
+-	if (iDefenders > 0 && isProductionUnit() && getProductionTurnsLeft() == 1)
+-	{
+-		CvUnitInfo const& kProductionUnit = GC.getInfo(getProductionUnit());
+-		if (kProductionUnit.getCombat() > 0) // Assume an average defender
+-			iDefStrength = (iDefStrength * (iDefenders + 1)) / iDefenders;
+-	}
+-	m_bSafe = (iAttStrength * 2 < iDefStrength);
+-	// Potentially expensive
+-	if(m_bSafe && GET_TEAM(getTeam()).getNumWars(false, true) > 0)
+-	{
+-		int iAttStrengthWiderRange = kOwner.AI_localAttackStrength(plot(), NO_TEAM,
+-				DOMAIN_LAND, 3);
+-		m_bSafe = (iAttStrengthWiderRange * 2 < iDefStrength);
+ 	}
++	FAssert(iDefenders >= 0 && iDefStrength >= 0);
++	bool bEvac = false;
+ 	// Only bail if they can take the city in one turn or almost
+ 	if(iAttackers + 1 >= iDefenders)
+ 	{
+@@ -6569,8 +6580,11 @@ void CvCityAI::AI_updateSafety()
+ 			iThresh = ::round(iThresh * (0.5 + relativeCityVal));
+ 		if(kOwner.getNumCities() <= 2 && isCapital())
+ 			iThresh *= 2;
+-		m_bEvacuate = ((iAttStrength * 100) / (iDefStrength + 1.0) > iThresh);
++		bEvac = ((iAttStrength * 100) / (iDefStrength + 1.0) > iThresh);
+ 	}
++	if (bEvac)
++		m_eSafety = CITYSAFETY_EVACUATING;
++	else m_eSafety = CITYSAFETY_THREATENED;
+ }
+ 
+ 
+@@ -12838,14 +12852,23 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iNeededFloatingDefenders);
+ 	pStream->Read(&m_iNeededFloatingDefendersCacheTurn);
+ 	// <advc.139>
+-	if (uiFlag >= 3)
+-		pStream->Read(&m_bEvacuate);
+ 	if (uiFlag >= 7)
+-	{
+-		pStream->Read(&m_bSafe);
+ 		pStream->Read(&m_iCityValPercent);
+-	}
+-	else m_bSafe = true; // </advc.139>
++	if (uiFlag >= 8)
++		pStream->Read((int*)&m_eSafety);
++	else
++	{
++		bool bEvac = false;
++		bool bSafe = true;
++		if (uiFlag >= 3)
++			pStream->Read(&bEvac);
++		if (uiFlag >= 7)
++			pStream->Read(&bSafe);
++		if (bEvac)
++			m_eSafety = CITYSAFETY_EVACUATING;
++		else if (!bSafe)
++			m_eSafety = CITYSAFETY_THREATENED;
++	} // </advc.139>
+ 	pStream->Read(&m_iWorkersNeeded);
+ 	pStream->Read(&m_iWorkersHave);
+ 	// K-Mod
+@@ -12866,11 +12889,12 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	uint uiFlag = 0;
+ 	uiFlag = 1; // K-Mod: m_aiConstructionValue
+ 	uiFlag = 2; // K-Mod: m_iCultureWeight
+-	uiFlag = 3; // advc.139 (m_bEvacuate)
+-	uiFlag = 4; // advc.opt (m_eBestBuild)
++	uiFlag = 3; // advc.139: m_bEvacuate
++	uiFlag = 4; // advc.opt: m_eBestBuild
+ 	uiFlag = 5; // advc.003u: Move m_bChooseProductionDirty to CvCity
+ 	uiFlag = 6; // advc.opt: Per-player meta data for closeness cache
+-	uiFlag = 7; // advc.139 (m_bSafe, m_iCityValPercent)
++	uiFlag = 7; // advc.139: m_bSafe, m_iCityValPercent
++	uiFlag = 8; // advc.139: m_eSafety
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE(CvString::format("CityAI(%d,%d)", getX(), getY()));
+ 	pStream->Write(m_iEmphasizeAvoidGrowthCount);
+@@ -12895,8 +12919,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iNeededFloatingDefenders);
+ 	pStream->Write(m_iNeededFloatingDefendersCacheTurn);
+ 	// <advc.139>
+-	pStream->Write(m_bEvacuate);
+-	pStream->Write(m_bSafe);
++	pStream->Write(m_eSafety);
+ 	pStream->Write(m_iCityValPercent);
+ 	// </advc.139>
+ 	//This needs to be serialized for human workers.
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 651ae439b..525604234 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -78,8 +78,9 @@ public:
+ 	int AI_neededCultureDefenders() const; // </advc.099c>
+ 	// <advc.139>
+ 	void AI_updateSafety();
+-	inline bool AI_isEvacuating() const { return m_bEvacuate; }
+-	inline bool AI_isSafe() const { return m_bSafe; }
++	inline CitySafetyTypes AI_getSafety() const { return m_eSafety; }
++	inline bool AI_isEvacuating() const { return (m_eSafety == CITYSAFETY_EVACUATING); }
++	inline bool AI_isSafe() const { return (m_eSafety >= CITYSAFETY_SAFE); }
+ 	void AI_setCityValPercent(int iValue);
+ 	inline int AI_getCityValPercent() const { return m_iCityValPercent; }
+ 	// </advc.139>
+@@ -173,10 +174,7 @@ protected:
+ 	int m_iCityValPercent; // advc.139
+ 
+ 	bool m_bAssignWorkDirty;
+-	// <advc.139>
+-	bool m_bEvacuate;
+-	bool m_bSafe;
+-	// </advc.139>
++	CitySafetyTypes m_eSafety; // advc.139
+ 
+ 	IDInfo m_routeToCity;
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index c2e82a3bf..ee695c3b2 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1177,6 +1177,13 @@ ENUM_START(DiplomacyPower, DIPLOMACYPOWER)
+ 	DIPLOMACYPOWER_EQUAL,
+ 	DIPLOMACYPOWER_STRONGER,
+ ENUM_END(DiplomacyPower, DIPLOMACYPOWER)
++// <advc.139>
++ENUM_START(CitySafety, CITYSAFETY)
++	CITYSAFETY_EVACUATING,
++	CITYSAFETY_THREATENED,
++	CITYSAFETY_SAFE,
++	CITYSAFETY_PERFECT, // for advc.ctr
++ENUM_END(CitySafety, CITYSAFETY) // </advc.139>
+ 
+ ENUM_START(Feat, FEAT)
+ 	FEAT_UNITCOMBAT_ARCHER,
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a5d6319e2..62553b24b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3053,12 +3053,22 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
+ {
+ 	return (plotCheck(PUF_isEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL);
+ }
+-// <advc.ctr>
+-bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace) const
++
++// advc.ctr:
++bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace,
++	int iRange) const
+ {
+-	return (plotCheck(PUF_isEnemyCityAttacker, eDefender, eAssumePeace,
+-			NO_PLAYER, NO_TEAM, PUF_isVisible, eDefender) != NULL);
+-} // </advc.ctr>
++	PROFILE_FUNC(); // advc.test: To be profiled
++	for (SquareIter it(*this, iRange, true); it.hasNext(); ++it)
++	{
++		if (it->plotCheck(PUF_isEnemyCityAttacker, eDefender, eAssumePeace,
++			NO_PLAYER, NO_TEAM, PUF_isVisible, eDefender) != NULL)
++		{
++			return true;
++		}
++	}
++	return false;
++}
+ 
+ 
+ int CvPlot::getNumVisibleUnits(PlayerTypes ePlayer) const
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 3298b4300..aa28a5d52 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -245,8 +245,9 @@ public:
+ 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;																				// Exposed to Python
+ 	// (advc: getNumVisiblePotentialEnemyDefenders has become CvUnitAI::AI_countEnemyDefenders)
+ 	DllExport bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;																			// Exposed to Python
+-	// advc.ctr:
+-	bool isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace = NO_TEAM) const;
++	// <advc.ctr>
++	bool isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace = NO_TEAM,
++			int iRange = 0) const; // </advc.ctr>
+ 	// (advc: isVisiblePotentialEnemyUnit has become CvTeamAI::AI_mayAttack(CvPlot const&))
+ 	DllExport int getNumVisibleUnits(PlayerTypes ePlayer) const;
+ 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9384

@@ -1,0 +1,296 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1173
+# Commit: 4c5b1010d17bfd034a39ae641b747a192dcda1de
+# History segment: K-Mod history
+# Parent used for diff: 51e5ee601626cd188f6beb21a0c0ea65de0bd471
+# Title: Removed AI_techBuildingValue_old. (Obsolete)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+0	232	CvGameCoreDLL/CvPlayerAI.cpp
+0	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 1671167db..e840b682d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4390,7 +4390,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					if( iPathLength <= 3 && !GET_TEAM(pPlot->getTeam()).isHasTech((TechTypes)iI) )
+ 					{
+ 						szString.append(CvWString::format(L"\n%s(%d)=%8d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, kPlayer.AI_techValue((TechTypes)iI, 1, false, true, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
+-						szString.append(CvWString::format(L" (bld:%d (%d old), ", kPlayer.AI_techBuildingValue((TechTypes)iI, true, bDummy), kPlayer.AI_techBuildingValue_old((TechTypes)iI, 1, bDummy)));
++						szString.append(CvWString::format(L" (bld:%d, ", kPlayer.AI_techBuildingValue((TechTypes)iI, true, bDummy)));
+ 						int iObs = kPlayer.AI_obsoleteBuildingPenalty((TechTypes)iI, true);
+ 						if (iObs != 0)
+ 							szString.append(CvWString::format(L"obs:%d, ", -iObs));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6a9acf296..7b3ce6a16 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6522,238 +6522,6 @@ int CvPlayerAI::AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bE
+ }
+ // K-Mod end
+ 
+-int CvPlayerAI::AI_techBuildingValue_old( TechTypes eTech, int iPathLength, bool &bEnablesWonder ) const
+-{
+-	PROFILE_FUNC();
+-
+-	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() > 0) ? AI_isCapitalAreaAlone() : false;
+-	bool bFinancialTrouble = AI_isFinancialTrouble();
+-	int iTeamCityCount = GET_TEAM(getTeam()).getNumCities();
+-	int iCoastalCities = countNumCoastalCities();
+-	int iCityCount = getNumCities();
+-
+-	BuildingTypes eLoopBuilding;
+-	int iTempValue = 0;
+-	int iValue = 0;
+-
+-	int iBestLandBuildingValue = 0;
+-	bEnablesWonder = false;
+-	int iExistingCultureBuildingCount = 0;
+-	bool bIsCultureBuilding = false;
+-	for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+-	{
+-		eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)));
+-
+-		//if (eLoopBuilding != NO_BUILDING)
+-		// K-Mod. don't count corp hq, academies, or another buildings that require a great person.
+-		// (it's not that these buildings don't deserve to be counted; but rather that this function isn't
+-		// smart enough to properly account for their rarity. I'm not a fan of this function...)
+-		if (eLoopBuilding != NO_BUILDING && GC.getBuildingInfo(eLoopBuilding).getProductionCost() > 0)
+-		// K-Mod end
+-		{
+-			CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+-			if (isTechRequiredForBuilding((eTech), eLoopBuilding))
+-			{
+-				int iBuildingValue = AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) ? 200 : 100; // was 0 (moved the 100 from later)
+-				
+-				if (kLoopBuilding.getSpecialBuildingType() != NO_BUILDING)
+-				{
+-					iBuildingValue += ((bCapitalAlone) ? 50 : 25); // was 100 : 25
+-				}
+-				else
+-				{
+-					iBuildingValue += ((bCapitalAlone) ? 100 : 50); // was 200 : 50
+-				}
+-
+-				//the granary effect is SO powerful it deserves special code
+-				if (kLoopBuilding.getFoodKept() > 0)
+-				{
+-					iBuildingValue += (15 * kLoopBuilding.getFoodKept());
+-				}
+-
+-				if (kLoopBuilding.getMaintenanceModifier() < 0)
+-				{
+-					int iLoop;
+-					int iCount = 0;
+-					CvCity* pLoopCity;
+-					iTempValue = 0;
+-					for (pLoopCity = firstCity(&iLoop, true); pLoopCity != NULL; pLoopCity = nextCity(&iLoop, true))
+-					{
+-						iTempValue += pLoopCity->getMaintenanceTimes100();
+-						iCount++;
+-						if (iCount > 4)
+-						{
+-							break;
+-						}
+-					}
+-					iTempValue /= std::max(1, iCount);
+-					iTempValue *= -kLoopBuilding.getMaintenanceModifier();
+-					iTempValue /= 10 * 100;
+-
+-					iValue += iTempValue;
+-				}
+-
+-				// iBuildingValue += 100; // moved to the top
+-
+-                if ((GC.getBuildingClassInfo((BuildingClassTypes)iJ).getDefaultBuildingIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)))
+-                {
+-                    //UB
+-                    iBuildingValue += 600;
+-                }
+-                
+-				if( !isLimitedWonderClass((BuildingClassTypes)iJ) )
+-				{
+-					if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) > 0 || kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0)
+-					{
+-						bIsCultureBuilding = true;
+-					}
+-				}
+-                
+-                if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
+-                {
+-                    /* original bts code
+-					int iMultiplier = (isLimitedWonderClass((BuildingClassTypes)iJ) ? 1 : 3);
+-                    iBuildingValue += (150 * (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) + kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE))) * iMultiplier;
+-                    iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ; */
+-					// K-Mod (just tweaking some of the numbers)
+-					int iWeight = isLimitedWonderClass((BuildingClassTypes)iJ) ? 50 : 250;
+-                    iBuildingValue += iWeight * (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) + kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE));
+-                    iBuildingValue += (350 + 3 * iWeight) * kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) / 100;
+-					// K-Mod end
+-                }
+-
+-				if (bFinancialTrouble)
+-				{
+-					iBuildingValue += (-kLoopBuilding.getMaintenanceModifier()) * 15;
+-					iBuildingValue += kLoopBuilding.getYieldModifier(YIELD_COMMERCE) * 8;
+-					iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_GOLD) * 15;
+-				}
+-
+-				// if this is a religious building, its not as useful
+-				ReligionTypes eReligion = (ReligionTypes) kLoopBuilding.getReligionType();
+-				if (eReligion != NO_RELIGION)
+-				{
+-					
+-					// reduce by a factor based on how many cities we have with that relgion
+-					if (iTeamCityCount > 0)
+-					{
+-						int iCitiesWithReligion = GET_TEAM(getTeam()).getHasReligionCount(eReligion);
+-						
+-						iBuildingValue *= (4 + iCitiesWithReligion);
+-						iBuildingValue /= (4 + iTeamCityCount);
+-					}
+-
+-					// if this building requires a religion, then only count it as 1/7th as much
+-					// or in other words, only count things like temples once, not 7 times
+-					// doing it this way in case some mods give buildings to only one religion
+-					iBuildingValue /= std::max(1, GC.getNumReligionInfos());
+-				}
+-
+-				// if we're close to pop domination, we love medicine!
+-				// don't adjust for negative modifiers to prevent ignoring assembly line, etc.
+-				if ( AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3) && kLoopBuilding.getHealth() > 0)
+-				{
+-					iBuildingValue += kLoopBuilding.getHealth() * 100; // was 150
+-				}
+-
+-				if (kLoopBuilding.getPrereqAndTech() == eTech)
+-				{
+-					if (iPathLength <= 1)
+-					{
+-						if (getTotalPopulation() > 5)
+-						{
+-							if (isWorldWonderClass((BuildingClassTypes)iJ))
+-							{
+-								if (!(GC.getGameINLINE().isBuildingClassMaxedOut((BuildingClassTypes)iJ)))
+-								{
+-									bEnablesWonder = true;
+-
+-									if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1))
+-									{
+-										/*if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) >= 3 || 
+-											kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) >= 3 ||
+-											kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) >= 10)*/
+-										// K-Mod. Lets not fall over ourselves to get a small-culture wonder.
+-										if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) +
+-											kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) >= 4 ||
+-											kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) >= 20)
+-										{
+-											iValue += 400;
+-										}
+-									}
+-
+-									if (bCapitalAlone)
+-									{
+-										iBuildingValue += 400;
+-									}
+-								}
+-							}
+-						}
+-					}
+-				}
+-
+-				if( AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1) )
+-				{
+-					if( kLoopBuilding.getVoteSourceType() >= 0 )
+-					{
+-						iValue += 400;
+-					}
+-				}
+-
+-				if (iBuildingValue > iBestLandBuildingValue)
+-				{
+-					iBestLandBuildingValue = iBuildingValue;
+-				}
+-
+-				// if water building, weight by coastal cities
+-				if (kLoopBuilding.isWater())
+-				{
+-					iBuildingValue *= iCoastalCities;
+-					iBuildingValue /= std::max(1, iCityCount/2);
+-				}
+-				// if land building, is it the best?
+-				else if (iBuildingValue > iBestLandBuildingValue)
+-				{
+-					iBestLandBuildingValue = iBuildingValue;
+-				}
+-
+-				iValue += iBuildingValue;
+-			}
+-			else
+-			{
+-				if (canConstruct(eLoopBuilding))
+-				{
+-					if (!isLimitedWonderClass((BuildingClassTypes)iJ))
+-					{
+-						if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) > 0 || kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0)
+-						{
+-							iExistingCultureBuildingCount++;
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-	
+-	if (bIsCultureBuilding && iExistingCultureBuildingCount < 2)
+-	{
+-		if (getFreeCityCommerce(COMMERCE_CULTURE) == 0)
+-		{
+-			if (getNumCities() > 1)
+-			{
+-				iValue += 150 * std::max(1, (3 - 2 * iExistingCultureBuildingCount)) * (getNumCities() - 1);
+-			}
+-		}
+-	}
+-	// if tech gives at least one building (so we can count each individual building less)
+-	if (iBestLandBuildingValue > 0)
+-	{
+-		iValue += iBestLandBuildingValue;
+-	}
+-
+-	return iValue;
+-}
+-
+ // This function has been mostly rewriten for K-Mod
+ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnablesUnitWonder) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index a2c47cf1f..75cbc5f1e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -133,7 +133,6 @@ public:
+ 	int AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const;
+ 	int AI_obsoleteBuildingPenalty(TechTypes eTech, bool bConstCache) const; // K-Mod
+ 	int AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bEnablesWonder) const; // Rewritten for K-Mod
+-	int AI_techBuildingValue_old( TechTypes eTech, int iPathLength, bool &bEnablesWonder ) const;
+ 	int AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnablesUnitWonder ) const;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10627

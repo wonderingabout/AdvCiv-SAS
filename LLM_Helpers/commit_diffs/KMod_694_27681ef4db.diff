@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 694
+# Commit: 27681ef4dba9290384b5ad243fc1511a58a331e5
+# History segment: K-Mod history
+# Parent used for diff: 3265fc03b61f49ac4dea7a04171352eeff8cc1c1
+# Title: Reverted a previous K-Mod change which prevented units from being loaded onto boats during their creation process. (This caused problems with some scenarios....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	6	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9e0fc2461..c47b4849d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -454,11 +454,16 @@ void CvUnit::convert(CvUnit* pUnit)
+ 	setLeaderUnitType(pUnit->getLeaderUnitType());
+ 
+ 	CvUnit* pTransportUnit = pUnit->getTransportUnit();
+-	if (pTransportUnit != NULL)
++	/* if (pTransportUnit != NULL)
+ 	{
+ 		pUnit->setTransportUnit(NULL);
+ 		setTransportUnit(pTransportUnit);
+-	}
++	} */
++	// K-Mod
++	if (pTransportUnit != NULL)
++		pUnit->setTransportUnit(NULL);
++	setTransportUnit(pTransportUnit);
++	// K-Mod end
+ 
+ 	std::vector<CvUnit*> aCargoUnits;
+ 	pUnit->getCargoUnits(aCargoUnits);
+@@ -7536,9 +7541,8 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
+ 
+ 	FAssertMsg(pUpgradeUnit != NULL, "UpgradeUnit is not assigned a valid value");
+ 
+-	pUpgradeUnit->joinGroup(getGroup());
+-
+ 	pUpgradeUnit->convert(this);
++	pUpgradeUnit->joinGroup(getGroup()); // K-Mod, swapped order with convert. (otherwise units on boats would be ungrouped.)
+ 
+ 	pUpgradeUnit->finishMoves();
+ 
+@@ -9935,8 +9939,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 			GET_PLAYER(getOwnerINLINE()).changeNumOutsideUnits(1);
+ 		}
+ 
+-		//if (shouldLoadOnMove(pNewPlot))
+-		if (pOldPlot && shouldLoadOnMove(pNewPlot)) // K-Mod. (don't load units during the unit initialization process.)
++		if (shouldLoadOnMove(pNewPlot))
+ 		{
+ 			load();
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1471

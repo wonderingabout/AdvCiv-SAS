@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 560
+# Commit: cb86b19e33c02c34d16725de57c931c32f3dd9d2
+# History segment: K-Mod history
+# Parent used for diff: 22c59b7879715cce4321ef46119b4bf612da6309
+# Title: Fixed a rare OOS bug caused by attitude cache from the CAR mod. (The attitudes can be affected by the changes in CvTeamAI::AI_doCounter, but the cache was no...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	1	CvGameCoreDLL/CvGame.cpp
+1	11	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5e5d6e6db..6ebebd8a2 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5964,7 +5964,14 @@ void CvGame::doTurn()
+ 
+ 	doUpdateCacheOnTurn();
+ 
+-	CvSelectionGroup::path_finder.Reset(); // K-Mod. (this is the only manual reset we need. - I hope.)
++	CvSelectionGroup::path_finder.Reset(); // K-Mod. (one of the few manual resets we need)
++	// K-Mod - fixing a problem from the CAR mod.
++	// (CvTeamAI::AI_doCounter has a couple of things which invalidate the cache without clearing it. So I'm clearing the cache here to avoid OOS errors.)
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		GET_PLAYER((PlayerTypes)iI).AI_invalidateAttitudeCache();
++	}
++	// K-Mod end
+ 
+ 	updateScore();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e0ba04cc3..fa80f13ee 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -405,17 +405,7 @@ void CvPlayerAI::AI_doTurnPre()
+ 
+ 	AI_doCounter();
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-	// From Sanguo Mod Performance, ie the CAR Mod
+-	// Attitude cache
+-	AI_invalidateAttitudeCache();
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// AI_invalidateAttitudeCache(); // (Moved by K-Mod to avoid a particular OOS problem)
+ 
+ 	AI_updateBonusValue();
+ 	// K-Mod. GP weights can take a little bit of time, so lets only do it once every 3 turns.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2130

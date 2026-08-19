@@ -1,0 +1,1268 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1383
+# Commit: d4fd8b627725487982f600b0f7f9327fa3756119
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f061a21281641ce4d56cd6d87f95d78df549adc2
+# Title: More stop-trading tweaks, UI tweaks (combat odds, animations, city alerts), a few minor bugfixes (AdvCiv,K-Mod)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Config/Advanced Combat Odds.xml
+5	3	Assets/Config/Civ4lerts.xml
+-	-	Assets/CvGameCoreDLL.dll
+8	6	Assets/Python/Contrib/Civ4lerts.py
+27	0	Assets/xml/GlobalDefinesAlt.xml
+12	0	Assets/xml/Text/CIV4GameText_advc.008.xml
+20	0	Assets/xml/Text/CIV4GameText_advc.xml
+23	16	Assets/xml/Text/Civ4lerts Options.xml
+1	1	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvDLLButtonPopup.cpp
+14	7	CvGameCoreDLL/CvGameInterface.cpp
+43	16	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGameTextMgr.h
+26	14	CvGameCoreDLL/CvPlayer.cpp
+5	4	CvGameCoreDLL/CvPlayer.h
+72	13	CvGameCoreDLL/CvPlayerAI.cpp
+3	0	CvGameCoreDLL/CvPlayerAI.h
+117	90	CvGameCoreDLL/CvPlot.cpp
+4	1	CvGameCoreDLL/CvPlot.h
+39	8	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CyPlot.cpp
+-	-	manual_0.94.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Combat Odds.xml b/Assets/Config/Advanced Combat Odds.xml
+index cc26ad834..25846037e 100644
+--- a/Assets/Config/Advanced Combat Odds.xml	
++++ b/Assets/Config/Advanced Combat Odds.xml	
+@@ -32,8 +32,9 @@
+ 			<list   id="ShowBasicInfo" key="Show Basic Info" 
+ 					type="int" default="3" listType="string" 
+ 					values="Never|Normal|Shifted|Both"/>
++			<!-- advc.048: default was 0 -->
+ 			<list   id="ShowAttackerInfo" key="Show Attacker Info" 
+-					type="int" default="0" listType="string" 
++					type="int" default="3" listType="string" 
+ 					values="ACO__ShowBasicInfo"/>
+ 			<list   id="ShowDefenderInfo" key="Show Defender Info" 
+ 					type="int" default="3" listType="string"
+
+diff --git a/Assets/Config/Civ4lerts.xml b/Assets/Config/Civ4lerts.xml
+index efa66eca6..a9c53b9f6 100644
+--- a/Assets/Config/Civ4lerts.xml
++++ b/Assets/Config/Civ4lerts.xml
+@@ -14,11 +14,12 @@
+ 	 
+ 	<link id="WhipAssistOverflowCountCurrentProduction" 
+ 		  to="CityScreen__WhipAssistOverflowCountCurrentProduction"/>
+-	
++	<!-- advc (comment): I don't think the help text from this file is used when
++		 there is text in 'Civ4lerts Options.xml' -->
+ 	<options id="Civ4lerts" file="Civ4lerts.ini">
+ 		<section id="Civ4lerts">
+ 			<!-- Move this outside of INI once Mod objects hold options -->
+-			<!-- advc.106d: Enabled by default. -->
++			<!-- advc.106d: default was False in K-Mod -->
+ 			<option id="Enabled" key="Enabled" 
+ 					type="boolean" default="True" 
+ 					get="isEnabled" set="setEnabled" 
+@@ -36,8 +37,9 @@
+ 					get="isShowCityGrowthAlert" set="setShowCityGrowthAlert" 
+ 					label="Growth" 
+ 					help="When checked, displays an alert when a city's population has grown or shrunk."/>
++			<!-- advc.106d: default was False in K-Mod -->
+ 			<option id="CityPendingHappiness" key="City Pending Happiness" 
+-					type="boolean" default="False" and="Enabled" 
++					type="boolean" default="True" and="Enabled" 
+ 					get="isShowCityPendingHappinessAlert" set="setShowCityPendingHappinessAlert" 
+ 					label="Pending" 
+ 					help="When checked, displays an alert when a city will become happy or unhappy next turn."/>
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index f529f51a5..d9eb4d411 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -356,7 +356,7 @@ class AbstractCityTestAlert(AbstractCityAlert):
+ 		elif (self._isShowPendingAlert(passes)):
+ 			# See if city will switch next turn
+ 			willPass = self._willPassTest(city)
+-			if (passed != willPass):
++			if passed != willPass and willPass: # avdc.106d: 'and willPass' added
+ 				message, icon = self._getPendingAlertMessageIcon(city, willPass)
+ 		if (message):
+ 			addMessageAtCity(iPlayer, message, icon, city)
+@@ -412,11 +412,13 @@ class CityPendingGrowth(AbstractCityAlert):
+ 	def checkCity(self, cityId, city, iPlayer, player):
+ 		if (Civ4lertsOpt.isShowCityPendingGrowthAlert()):
+ 			if (CityUtil.willGrowThisTurn(city)):
+-				message = localText.getText(
+-						"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH",
+-						(city.getName(), city.getPopulation() + 1))
+-				icon = "Art/Interface/Symbols/Food/food05.dds"
+-				addMessageAtCity(iPlayer, message, icon, city)
++				#message = localText.getText(
++				#		"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH",
++				#		(city.getName(), city.getPopulation() + 1))
++				#icon = "Art/Interface/Symbols/Food/food05.dds"
++				#addMessageAtCity(iPlayer, message, icon, city)
++				# advc.106d: Don't show pending growth
++				pass
+ 			elif (CityUtil.willShrinkThisTurn(city)):
+ 				message = localText.getText(
+ 						"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_SHRINKAGE",
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index f91d3a346..12eaab2d7 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -180,4 +180,31 @@
+ 		<DefineName>STANDARD_BATTLE_ANIMATION_ROUNDS</DefineName>
+ 		<iDefineIntVal>6</iDefineIntVal> <!-- introduced by K-Mod -->
+ 	</Define>
++	<!-- advc.002m: Added to STANDARD_BATTLE_ANIMATION_ROUNDS. Recommended:
++		 -1, i.e. subtract 1 per era. Set to 0 for K-Mod behavior. -->
++	<Define>
++		<DefineName>PER_ERA_BATTLE_ANIMATION_ROUNDS</DefineName>
++		<iDefineIntVal>-1</iDefineIntVal>
++	</Define>
++	<!-- If set to a value greater than 0, starting from TRUNCATE_ANIMATIONS_ERA,
++		 combat animations end after TRUNCATE_ANIMATION_TURNS animation turns
++		 even if there are still units shown as alive on both sides.
++		 1 (recommded) applies this behavior only on the defense,
++		 2 only on the offense and 3 always.
++		 Use 0 for BtS/ K-Mod behavior (animations never truncated). -->
++	<Define>
++		<DefineName>TRUNCATE_ANIMATIONS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- Recommended: 3 (Renaissance) -->
++	<Define>
++		<DefineName>TRUNCATE_ANIMATIONS_ERA</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
++	<!-- Recommended: 14 -->
++	<Define>
++		<DefineName>TRUNCATE_ANIMATION_TURNS</DefineName>
++		<iDefineIntVal>14</iDefineIntVal>
++	</Define>
++	
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008.xml b/Assets/xml/Text/CIV4GameText_advc.008.xml
+index 8105acfc6..59286ede7 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008.xml
+@@ -784,4 +784,16 @@
+ 		<Spanish>Los [COLOR_UNIT_TEXT]Destructores[COLOR_REVERT] tienen una peque&#241;a probabilidad de interceptar aeronaves enemigas y tambi&#233;n son muy &#250;tiles para detectar y destruir [COLOR_UNIT_TEXT]Submarinos[COLOR_REVERT] enemigos (que son invisibles para la mayor&#237;a de las unidades). Se suelen apilar con unidades de [COLOR_UNIT_TEXT]Portaaviones[COLOR_REVERT] y [COLOR_UNIT_TEXT]Transportes[COLOR_REVERT].</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.048b: "retreat" changed to "withdraw", and title changed from 
++		 "Improved Siege Combat" to "BtS Siege Combat".
++		  Original key in CIV4GameText_BTS.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_FLANK_ATTACK_PEDIA</Tag>
++		<English>[H1]BtS Siege Combat[\H1][PARAGRAPH:2]Siege Units now have a "Maximum Damage" limit. When a siege unit attacks, they may cause damage up to their limit and will then withdraw. Additional siege units will be unable to attack that target again until its health has returned above the siege unit's "Maximum Damage" limit. Later siege units have a higher "Maximum Damage" limit, so be sure to upgrade your catapults to cannons and your cannons to artillery as fast as possible. A defending siege unit can still kill an attacker.[PARAGRAPH:1]In addition, mounted units may cause "Flank Attack" damage to all Siege Units in a stack. When attacking a stack with Siege Units, the Mounted Unit will inflict this Flank Attack damage so long as it survives combat, whether it withdraws or wins. If it dies, no Flank Attack damage will be inflicted. So when you see the enemy approaching with strong siege weapon stacks, give your mounted units the "Flanking" promotion, so that they have a higher chance of withdrawal and thus a higher chance to inflict damage on the siege weapons.</English>
++		<French>[H1]Techniques de si&#232;ge avanc&#233;es[\H1][PARAGRAPH:2]Les unit&#233;s de si&#232;ge ont d&#233;sormais une limite de d&#233;g&#226;ts. Quand une unit&#233; de si&#232;ge attaque, elle peut infliger des d&#233;g&#226;ts jusqu'&#224; sa limite, puis doit se replier. Il sera impossible d'attaquer sa cible avec d'autres unit&#233;s de si&#232;ge tant que la sant&#233; de cette cible ne sera pas remont&#233;e au-dessus de la limite de d&#233;g&#226;ts de l'unit&#233; de si&#232;ge. Les unit&#233;s de si&#232;ge plus tardives ont une limite de d&#233;g&#226;ts plus &#233;lev&#233;e, alors pensez &#224; am&#233;liorer vos catapultes en canons et vos canons en artillerie le plus vite possible. Les unit&#233;s de si&#232;ge des d&#233;fenseurs peuvent toujours tuer les assaillants.[PARAGRAPH:1]De plus, les unit&#233;s mont&#233;es peuvent endommager toutes les unit&#233;s de si&#232;ge d'un groupe avec des attaques de flanc. Si vous attaquez un groupe comprenant une unit&#233; mont&#233;e avec des unit&#233;s de si&#232;ge, l'unit&#233; mont&#233;e infligera des d&#233;g&#226;ts d'attaque de flanc tant qu'elle sera en vie, qu'elle finisse par remporter le combat ou qu'elle se replie. Si elle meurt, aucun d&#233;g&#226;t d'attaque de flanc ne sera inflig&#233;. Quand vous voyez l'ennemi approcher avec de puissantes armes de si&#232;ge, pensez &#224; donner la promotion "Contournement" &#224; vos unit&#233;s, afin qu'elles aient plus de chances de se replier et donc plus de chances d'infliger des d&#233;g&#226;ts aux machines de si&#232;ge.</French>
++		<German>[H1]Belagerungskampf in BtS[\H1][PARAGRAPH:2]Belagerungseinheiten besitzen in dieser Spielversion einen "maximalen Schadenswert", das hei&#223;t: Sie k&#246;nnen so lange angreifen, bis der f&#252;r sie maximal m&#246;gliche Schadenswert erreicht ist und treten dann den R&#252;ckzug an. Anschlie&#223;end kann dasselbe Zielobjekt nicht erneut angegriffen werden, bis sich die Belagerungseinheiten wieder auf ihren "maximalen Schadenswert" regeneriert haben. Da die moderneren Belagerungseinheiten einen h&#246;heren "maximalen Schadenswert" aufweisen, sollten Sie Ihre Katapulte schnellstm&#246;glich zu Kanonen und die Kanonen dann zu Artillerie aufr&#252;sten. Defensive Belagerungseinheiten k&#246;nnen einen Angreifer &#252;brigens immer noch vernichten.[PARAGRAPH:1]Dar&#252;ber hinaus k&#246;nnen berittene Einheiten nun allen Belagerungseinheiten, die im Verband organisiert sind, so genannten "Flankenangriffsschaden" zuf&#252;gen. Greift eine berittene Einheit einen Verband von Belagerungseinheiten an, verursacht sie diesen Flankenangriffsschaden so lange, wie sie die Schlacht &#252;berlebt - unabh&#228;ngig davon, ob sie den R&#252;ckzug antritt oder am Ende siegreich hervorgeht. Wird sie hingegen selbst vernichtet, hat auch der Flankenangriffsschaden ein Ende. Wenn Sie also gr&#246;&#223;ere feindliche Verb&#228;nde von Belagerungseinheiten anr&#252;cken sehen, sollten Sie Ihre berittenen Einheiten mit der Bef&#246;rderung "Flanke" versehen, damit sie bessere R&#252;ckzugschancen erhalten und au&#223;erdem die Wahrscheinlichkeit steigt, dass sie den Belagerungseinheiten Schaden zuf&#252;gen.</German>
++		<Italian>[H1]Combattimento d'assedio migliorato[\H1][PARAGRAPH:2]Adesso le unit&#224; d'assedio hanno un limite di "danno massimo". Quando un'unit&#224; d'assedio attacca, puoi causare il massimo danno e poi ritirarsi. Le unit&#224; d'assedio supplementari non potranno attaccare il bersaglio finch&#233; la sua salute non torner&#224; a essere oltre il limite "danno massimo". Le unit&#224; d'assedio pi&#249; evolute hanno un limite di "danno massimo" superiore, perci&#242; migliora le tue catapulte in cannoni e i tuoi cannoni in artiglieria appena possibile. Un'unit&#224; d'assedio difensiva pu&#242; ancora uccidere l'unit&#224; attaccante.[PARAGRAPH:1]Inoltre, le unit&#224; montate possono causare danno da "attacco ai fianchi" a tutte le unit&#224; d'assedio raggruppate. Quando attacca un gruppo di unit&#224; d'assedio, l'unit&#224; montata infligge il danno da "attacco ai fianchi" finch&#233; sopravvive nel combattimento. Se muore, non viene inflitto nessun tipo di danno da "attacco ai fianchi". Perci&#242;, quando vedi avvicinarsi un nemico con molti gruppi di unit&#224; d'assedio, promuovi le tue unit&#224; montate con "Attacco laterale", in modo da avere una maggior probabilit&#224; di infliggere danni e di ritirarsi.</Italian>
++		<Spanish>[H1]Combate de asedio mejorado[\H1][PARAGRAPH:2]Ahora, las unidades de asedio tienen un l&#237;mite de "da&#241;o m&#225;ximo". Cuando una unidad de asedio ataca, puede causar da&#241;os hasta un l&#237;mite, tras lo cual se retirar&#225;. Las unidades de asedio adicionales no podr&#225;n atacar dicho objetivo de nuevo hasta que su salud vuelva a estar por encima del l&#237;mite de "da&#241;o m&#225;ximo" de la unidad de asedio. Las unidades de asedio m&#225;s modernas tienen un l&#237;mite de "da&#241;o m&#225;ximo" m&#225;s alto, as&#237; que aseg&#250;rate de modernizar lo antes posible tus catapultas para convertirlas en ca&#241;ones, o tus ca&#241;ones en artiller&#237;a. No obstante, una unidad de asedio defensiva puede matar a un atacante.[PARAGRAPH:1]Adem&#225;s, las unidades montadas pueden causar da&#241;os de "flanqueo" a todas las unidades de asedio de un apilamiento. Al atacar un apilamiento con unidades de asedio, la unidad montada infligir&#225; este da&#241;o de flanqueo siempre que sobreviva al combate, tanto si se retira como si gana. Si muere, no se infligir&#225; da&#241;o de flanqueo alguno. Por tanto, cuando veas acercarse al enemigo con apilamientos de potentes armas de asedio, otorga a tus unidades montadas el ascenso "flanqueo" para que tengan una mayor probabilidad de retirada y, por tanto, tambi&#233;n de infligir da&#241;o a las armas de asedio.</Spanish>
++	</TEXT>
++		 
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index f71b8ffac..db59a154a 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4100,4 +4100,24 @@
+ 		<Spanish>&#191;Esto es la GUERRA? (contra [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.048: Based on TXT_KEY_PROMOTION_VERSUS_TEXT in
++		 CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_VS</Tag>
++		<English>vs.</English>
++		<French>contre</French>
++		<German>gegen</German>
++		<Italian>contro</Italian>
++		<Spanish>contra</Spanish>
++	</TEXT>
++	<!-- advc.048b: Overwrites CIV4GameText_Warlords.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_COMBAT_PLOT_ODDS_RETREAT</Tag>
++		<English>Withdrawal odds: %s1%%</English>
++		<French>Chances de retraite : %s1 %%</French>
++		<German>R&#252;ckzugschance: %s1%%</German>
++		<Italian>Probabilit&#224; di ritirata: %s1%%</Italian>
++		<Spanish>Probabilidades de retirada: %s1%%</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Civ4lerts Options.xml b/Assets/xml/Text/Civ4lerts Options.xml
+index 27b3e4f54..11d996807 100644
+--- a/Assets/xml/Text/Civ4lerts Options.xml	
++++ b/Assets/xml/Text/Civ4lerts Options.xml	
+@@ -15,9 +15,11 @@
+ 		<Italian>Abilita Avvisi</Italian>
+ 		<Spanish>Activar Civ4lerts</Spanish>
+ 	</TEXT>
++	<!-- advc.106d: Credits to Dr. Elmer Jiggle removed; have the BUG help file
++		 for that. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__ENABLED_HOVER</Tag>
+-		<English>When checked, messages are displayed to alert you to various pending and existing conditions using Dr. Elmer Jiggle's Civ4lerts mod.</English>
++		<English>When checked, messages are displayed to alert you to various pending and existing conditions.</English>
+ 		<French>En activant, des messages apparaissent pour vous informer de l'�tat de plusieurs �l�ments du jeu, gr�ce au mod Civ4lerts de Dr. Elmer Jiggle.</French>
+ 		<German>L�sst Warnungen erscheinen, die bevorstehende oder bereits eingetretene Ereignisse melden (verwendet Dr. Elmer Jiggles "Civ4lerts"-Mod)</German>
+ 		<Italian>Quando � selezionato, vengono visualizzati dei messaggi per avvertirti di varie condizioni presenti o imminenti (utilizzando il Civ4lerts Mod di Dr. Elmer Jiggle's).</Italian>
+@@ -34,13 +36,14 @@
+ 		<Italian>Imminente</Italian>
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
++	<!-- advc.106d: No longer triggers on growth -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGGROWTH_HOVER</Tag>
+-		<English>When checked, displays an alert when a city's population will grow or shrink next turn.</English>
+-		<French>En activant, une alerte sera montr�e quand la population d'une ville grandira ou retr�cira au prochain tour.</French>
+-		<German>L�sst eine Warnung erscheinen, wenn die Bev�lkerung einer Stadt in der n�chsten Runde w�chst oder schrumpft</German>
+-		<Italian>Quando � selezionato, viene visualizzato un avviso quando la popolazione di una citt� crescer� o si ridurr� al turno successivo.</Italian>
+-		<Spanish>Muestra un aviso cuando la poblaci�n de una ciudad vaya a crecer o a reducirse en el pr�ximo turno.</Spanish>
++		<English>When checked, displays an alert when a city's population will shrink next turn.</English>
++		<French>En activant, une alerte sera montr�e quand la population d'une ville retr�cira au prochain tour.</French>
++		<German>L�sst eine Warnung erscheinen, wenn die Bev�lkerung einer Stadt in der n�chsten Runde schrumpft</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando la popolazione di una citt� si ridurr� al turno successivo.</Italian>
++		<Spanish>Muestra un aviso cuando la poblaci�n de una ciudad vaya a reducirse en el pr�ximo turno.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYGROWTH_TEXT</Tag>
+@@ -67,13 +70,15 @@
+ 		<Italian>Imminente</Italian>
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
++	<!-- advc.106d: No longer triggers on will-become-happy. And German text
++		 was misleading and too long. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGHAPPINESS_HOVER</Tag>
+-		<English>When checked, displays an alert when a city will become happy or unhappy next turn.</English>
+-		<French>En activant, une alerte sera montr�e quand une ville deviendra heureuse ou malheureuse au prochain tour.</French>
+-		<German>L�sst eine Warnung erscheinen, wenn sich die Zufriedenheit der Bev�lkerung einer Stadt in der n�chsten Runde verbessert oder verschlechtert</German>
+-		<Italian>Quando � selezionato,viene visualizzato un avviso quando la popolazione di una citt� diverr� felice o infelice al turno successivo.</Italian>
+-		<Spanish>Muestra un aviso cuando la felicidad de una ciudad vaya a cambiar en el pr�ximo turno.</Spanish>
++		<English>When checked, displays an alert when a city will become unhappy next turn.</English>
++		<French>En activant, une alerte sera montr�e quand une ville deviendra malheureuse au prochain tour.</French>
++		<German>Meldet, wenn die Bev�lkerung einer Stadt in der n�chsten Runde unzufrieden werden wird.</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando la popolazione di una citt� diverr� infelice al turno successivo.</Italian>
++		<Spanish>Muestra un aviso cuando una ciudad se vuelve infeliz en el pr�ximo turno.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHAPPINESS_TEXT</Tag>
+@@ -100,13 +105,15 @@
+ 		<Italian>Imminente</Italian>
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
++	<!-- advc.106d: No longer triggers on will-become-healthy. And German text
++		 was misleading and too long. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGHEALTHINESS_HOVER</Tag>
+-		<English>When checked, displays an alert when a city will become healthy or unhealthy next turn.</English>
+-		<French>En activant, une alerte sera montr�e quand une ville deviendra saine ou malsaine au prochain tour.</French>
+-		<German>L�sst eine Warnung erscheinen, wenn sich die Gesundheit der Bev�lkerung einer Stadt in der n�chsten Runde verbessert oder verschlechtert</German>
+-		<Italian>Quando � selezionato, viene visualizzato un avviso quando una citt� diverr� salubre o insalubre al turno successivo.</Italian>
+-		<Spanish>Muestra un aviso cuando la salud de una ciudad vaya a cambiar en el pr�ximo turno.</Spanish>
++		<English>When checked, displays an alert when a city will become unhealthy next turn.</English>
++		<French>En activant, une alerte sera montr�e quand une ville deviendra malsaine au prochain tour.</French>
++		<German>Meldet, wenn die Bev�lkerung einer Stadt in der n�chsten Runde krank werden wird.</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando una citt� diverr� insalubre al turno successivo.</Italian>
++		<Spanish>Muestra un aviso cuando una ciudad se vuelve insalubre en el pr�ximo turno.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHEALTHINESS_TEXT</Tag>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f6cdbd39a..c9efc349a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4502,7 +4502,7 @@ int CvCity::getCulturePercentAnger() const
+ {
+ 	// advc.003: Removed C-style declarations
+ 
+-	int iTotalCulture = plot()->countTotalCulture();
++	int iTotalCulture = plot()->getTotalCulture(); // advc.003b: was countTotalCulture
+ 
+ 	if (iTotalCulture == 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index a964a65a9..54fb56b51 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1795,6 +1795,7 @@ bool CvDLLButtonPopup::launchDeclareWarMovePopup(CvPopup* pPopup, CvPopupInfo &i
+ 			disapproving.push_back(aiCiv.getID());
+ 	}
+ 	if(!disapproving.empty()) {
++		szBuffer += NEWLINE;
+ 		szBuffer += NEWLINE + gDLL->getText("TXT_KEY_POPUP_DOW_PENALTIES") + NEWLINE;
+ 		for(size_t i = 0; i < disapproving.size(); i++) {
+ 			szBuffer += GET_PLAYER(disapproving[i]).getName();
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index da330d96c..ab7efa9e5 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1173,13 +1173,20 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
+ 						while (pSelectedUnitNode != NULL)
+ 						{
+ 							pSelectedUnit = ::getUnit(pSelectedUnitNode->m_data);
+-							/*  advc.001 Player apparently wants to attack the
+-								enemy unit if there is one (rather than declare war
+-								against a third party): */
+-							if(!pPlot->isVisibleEnemyUnit(pSelectedUnit)) {
+-								TeamTypes eRivalTeam = pSelectedUnit->getDeclareWarMove(pPlot);
+-								if (eRivalTeam != NO_TEAM)
+-								{
++							TeamTypes eRivalTeam = pSelectedUnit->getDeclareWarMove(pPlot);
++							if (eRivalTeam != NO_TEAM)
++							{/* <advc.001> If an enemy unit is stacked with a
++								neutral one, then the player apparently wants to
++								attack the enemy unit (rather than declare war on
++								the neutral party). However, if the enemy unit is on
++								a tile owned by a third party that the player
++								doesn't have OB or a vassal treaty with, then only
++								a DoW on the third party makes sense. */
++								if((pPlot->getTeam() != NO_TEAM &&
++										!GET_TEAM(pSelectedUnit->getTeam()).
++										isFriendlyTerritory(pPlot->getTeam())) ||
++										!pPlot->isVisibleEnemyUnit(pSelectedUnit))
++								{ // </advc.001>
+ 									CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DECLAREWARMOVE);
+ 									if (NULL != pInfo)
+ 									{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c15884881..cb0269fff 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -452,7 +452,13 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
+ 
+ 
+ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine, bool bShort)
+-{
++{	// <advc.048>
++	setUnitHelpBulk(szString, pUnit, bOneLine, bShort, false);
++}
++
++void CvGameTextMgr::setUnitHelpBulk(CvWStringBuffer &szString, const CvUnit* pUnit,
++		bool bOneLine, bool bShort, bool bColorHostile) { // </advc.048>
++
+ 	PROFILE_FUNC();
+ 
+ 	CvWString szTempBuffer;
+@@ -466,8 +472,15 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 	// <advc.007> Make info more compact in debug mode
+ 	if(GC.getGameINLINE().isDebugMode() && bOneLine)
+ 		bShort = true; // </advc.007>
+-
+-	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString());
++	// <advc.048>
++	char const* szColTag = "COLOR_UNIT_TEXT";
++	if(bColorHostile) {
++		szColTag = (pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
++				"COLOR_WARNING_TEXT" : "COLOR_POSITIVE_TEXT");
++	} // </advc.048>
++	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(
++			szColTag), // advc.048
++			pUnit->getName().GetCString());
+ 	szString.append(szTempBuffer);
+ 
+ 	szString.append(L", ");
+@@ -2112,8 +2125,9 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	CvWString szOffenseOdds;
+ 	CvWString szDefenseOdds;
+ 	int iModifier;
+-
+-	if (gDLL->getInterfaceIFace()->getLengthSelectionList() == 0)
++	// advc.048:
++	int iLengthSelectionList = gDLL->getInterfaceIFace()->getLengthSelectionList();
++	if (iLengthSelectionList == 0)
+ 	{
+ 		return false;
+ 	}
+@@ -2161,7 +2175,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		return false;
+ 
+ 	// K-Mod. If the plot's center unit isn't one of our own units, then use this defender as the plot's center unit.
+-	// With this, the map will accurately shows who we're up against.
++	// With this, the map will accurately show who we're up against.
+ 	if (gDLL->getInterfaceIFace()->getSelectionPlot() != pPlot)
+ 	{
+ 		if (pDefender->getOwnerINLINE() == GC.getGameINLINE().getActivePlayer() ||
+@@ -2170,8 +2184,8 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		{
+ 			pPlot->setCenterUnit(pDefender);
+ 		}
+-	}
+-	// K-Mod end
++		
++	} // K-Mod end
+ 
+ 	if (pAttacker->getDomainType() != DOMAIN_AIR)
+ 	{
+@@ -2785,7 +2799,8 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 				szString.append(NEWLINE);
+ 				szTempBuffer.Format(L": " SETCOLR L"%.2f%% " ENDCOLR SETCOLR L"%d" ENDCOLR,
+ 					TEXT_COLOR("COLOR_UNIT_TEXT"),100.0f*RetreatOdds,TEXT_COLOR("COLOR_POSITIVE_TEXT"),GC.getDefineINT("EXPERIENCE_FROM_WITHDRAWL"));
+-				szString.append(gDLL->getText("TXT_ACO_Retreat"));
++				//szString.append(gDLL->getText("TXT_ACO_Retreat"));
++				szString.append(gDLL->getText("TXT_ACO_Withdraw")); // advc.048b
+ 				szString.append(szTempBuffer.GetCString());
+ 				if (iAttackerExperienceModifier > 0)
+ 				{
+@@ -3569,6 +3584,13 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ /** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
+ /** END                                                                         v2.0             */
+ /*************************************************************************************************/
++
++		// <advc.048>
++		if(iLengthSelectionList > 1) {
++			szString.append(NEWLINE);
++			setUnitHelpBulk(szString, pAttacker, true, true, true);
++		} // </advc.048>
++
+ 		szOffenseOdds.Format(L"%.2f", ((pAttacker->getDomainType() == DOMAIN_AIR) ? pAttacker->airCurrCombatStrFloat(pDefender) : pAttacker->currCombatStrFloat(NULL, NULL)));
+ 		szDefenseOdds.Format(L"%.2f", pDefender->currCombatStrFloat(pPlot, pAttacker));
+ 		szString.append(NEWLINE);
+@@ -3615,12 +3637,12 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 				}
+ 			}
+ 		}
+-
+-		if (pAttacker->isHurt())
++		// advc.048: Commented out
++		/*if (pAttacker->isHurt())
+ 		{
+ 			szString.append(NEWLINE);
+ 			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pAttacker->currHitPoints(), pAttacker->maxHitPoints()));
+-		}
++		}*/
+ 
+ 		szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+ 
+@@ -3656,13 +3678,18 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 					szString.append(gDLL->getText("TXT_KEY_UNIT_FIRST_STRIKE_CHANCES", pDefender->firstStrikes(), pDefender->maxFirstStrikes()));
+ 				}
+ 			}
+-		}
+-
+-		if (pDefender->isHurt())
++		} // <advc.048>
++		szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_MISC_VS"));
++		szString.append(L' ');
++		setUnitHelpBulk(szString, pDefender, true, true, true);
++		// Commented out: </advc.048>
++		/*if (pDefender->isHurt())
+ 		{
+ 			szString.append(NEWLINE);
+ 			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints()));
+-		}
++		}*/
+ 	}
+ 
+ 	szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 6a9f2d733..bcf36780a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -55,6 +55,9 @@ public:
+ 	DllExport void setMinimizePopupHelp(CvWString& szString, const CvPopupInfo & info);
+ 
+ 	DllExport void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine = false, bool bShort = false);
++	// <advc.048> param added
++	void setUnitHelpBulk(CvWStringBuffer &szString, const CvUnit* pUnit,
++			bool bOneLine, bool bShort, bool bColorHostile); // </advc.048>
+ 	DllExport void setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort);
+ 	DllExport bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+ 	DllExport void setPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 60deb8688..d3dc3962f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5702,18 +5702,14 @@ bool CvPlayer::canStopTradingWithTeam(TeamTypes eTeam, bool bContinueNotTrading)
+ 	{
+ 		return false;
+ 	}*/
+-	/*  <advc.130f> ContinueNotTrading is only set when checking if
+-		a ForceNoTrade resolution is legal. Can propose it when having no
+-		deals or when all deals can be canceled, but not when there is an
+-		uncancelable deal. I'm handling this case upfront to make things
+-		easier below. */
+ 	if(bContinueNotTrading) {
+-		if(isTradingWithTeam(eTeam, false) || !isTradingWithTeam(eTeam, true))
+-			return true;
+-		return false;
+-	} // The easy part:
++		// <advc.130f>
++		// Allow resolutions to overrule turns-to-cancel
++		return true;
++	}
+ 	return isTradingWithTeam(eTeam, true);
+-	// BtS code commented out: // </advc.130f>
++	// BtS code: // </advc.130f>
++
+ 	/*if (!isTradingWithTeam(eTeam, false))
+ 	{
+ 		if (bContinueNotTrading && !isTradingWithTeam(eTeam, true))
+@@ -5769,6 +5765,17 @@ void CvPlayer::stopTradingWithTeam(TeamTypes eTeam,
+ 	}
+ }
+ 
++// <advc.130f>
++bool CvPlayer::isAnyDealTooRecentToCancel(TeamTypes eTeam) const {
++
++	CvGame& g = GC.getGameINLINE(); int foo=-1;
++	for(CvDeal* d = g.firstDeal(&foo); d != NULL; d = g.nextDeal(&foo)) {
++		if(d->isBetween(getTeam(), eTeam) && !d->isCancelable(getID()) &&
++				!d->isPeaceDeal() && !d->isDisengage()) // advc.034
++			return true;
++	}
++	return false;
++} // </advc.130f>
+ 
+ void CvPlayer::killAllDeals()
+ {
+@@ -23009,7 +23016,7 @@ int CvPlayer::getVotes(VoteTypes eVote, VoteSourceTypes eVoteSource) const
+ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kData) const
+ {
+ 	CvTeam& kOurTeam = GET_TEAM(getTeam());
+-
++	CvGame const& g = GC.getGameINLINE(); // advc.003
+ 	if (NO_PLAYER != kData.ePlayer)
+ 	{
+ 		if (!kOurTeam.isHasMet(GET_PLAYER(kData.ePlayer).getTeam()))
+@@ -23116,7 +23123,7 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 			}
+ 			if ((!GET_TEAM(eMaster).canDeclareWar(kPlayer.getTeam()) &&
+ 					// <dlph.25/advc>
+-					GC.getGameINLINE().getSecretaryGeneral(eVoteSource) == eMaster) ||
++					g.getSecretaryGeneral(eVoteSource) == eMaster) ||
+ 					!GET_TEAM(eMaster).canEventuallyDeclareWar(kPlayer.getTeam()))
+ 					// </advc.25/advc>
+ 				return false;
+@@ -23126,6 +23133,11 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 	{
+ 		FAssert(NO_PLAYER != kData.ePlayer);
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
++		/*  <advc.130f> Don't allow players to propose resolutions that would cancel
++			deals with turnsToCancel > 0 */
++		if(g.getSecretaryGeneral(eVoteSource) == getID() && 
++				isAnyDealTooRecentToCancel(kPlayer.getTeam()))
++			return false; // </advc.130f>
+ 		if (!canStopTradingWithTeam(kPlayer.getTeam(), true))
+ 		{
+ 			return false;
+@@ -24777,7 +24789,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-		int iTotalCulture = pLoopPlot->countTotalCulture();
++		int iTotalCulture = pLoopPlot->getTotalCulture(); // advc.003b: was countTotalCulture
+ 		if (iTotalCulture > iMaxTotalCulture)
+ 		{
+ 			iMaxTotalCulture = iTotalCulture;
+@@ -24799,7 +24811,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 		std::vector < std::pair<int,int> > plot_owners;
+ 		//int iNumNonzeroOwners = 0;
+ 		// K-Mod
+-		int iTotalCulture = pLoopPlot->countTotalCulture();
++		int iTotalCulture = pLoopPlot->getTotalCulture(); // advc.003b: was countTotalCulture
+ 		if (iTotalCulture == 0)
+ 			continue;
+ 		// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 2d050ac05..9988fe9f7 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -214,12 +214,13 @@ public:
+ 	DllExport int getNumTradeableBonuses(BonusTypes eBonus) const;																				// Exposed to Python
+ 	int getNumTradeBonusImports(PlayerTypes ePlayer) const;																								// Exposed to Python
+ 	bool hasBonus(BonusTypes eBonus) const;									// Exposed to Python
+-	// advc.003: Said "IncludeCancelable" but it actually does the opposite
++	// advc.003: Said "IncludeCancelable", but actually does the opposite.
+ 	bool isTradingWithTeam(TeamTypes eTeam, bool bIncludeUncancelable) const;
+ 	bool canStopTradingWithTeam(TeamTypes eTeam, bool bContinueNotTrading = false) const;																										// Exposed to Python
+-	void stopTradingWithTeam(TeamTypes eTeam
+-		, bool diploPenalty = true // advc.130f
+-		);																											// Exposed to Python
++	void stopTradingWithTeam(TeamTypes eTeam,																										// Exposed to Python
++			// <advc.130f>
++			bool diploPenalty = true);
++	bool isAnyDealTooRecentToCancel(TeamTypes eTeam) const; // </advc.130f>
+ 	void killAllDeals();																																						// Exposed to Python
+ 
+ 	void findNewCapital();																																					// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f4013d91d..00b0e4289 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11007,7 +11007,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 			{
+ 				FAssert(kVoteData.ePlayer != NO_PLAYER);
+ 				TeamTypes eEmbargoTeam = GET_PLAYER(kVoteData.ePlayer).getTeam();
+-
++				// <advc.130f> Try to honor commitments
++				if(isAnyDealTooRecentToCancel(eEmbargoTeam))
++					return PLAYER_VOTE_NO; // </advc.130f>
+ 				if (eSecretaryGeneral == getTeam() && !bPropose)
+ 				{
+ 					bValid = true;
+@@ -11258,6 +11260,9 @@ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pLis
+ 
+ 	// advc.104o: Can't be hired for more than one war at a time
+ 	int iWars = 0;
++	// <advc.036>
++	int iHealthBonuses = 0;
++	int iHappyBonuses = 0; // </advc.036>
+ 	for (pNode = pList->head(); pNode; pNode = pList->next(pNode))
+ 	{
+ 		FAssertMsg(!(pNode->m_data.m_bHidden), "(pNode->m_data.m_bHidden) did not return false as expected");
+@@ -11275,9 +11280,21 @@ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pLis
+ 			iValue += GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)(pNode->m_data.m_iData), GET_PLAYER(ePlayer).getTeam()
+ 					, ignoreDiscount); // advc.550a
+ 			break;
+-		case TRADE_RESOURCES:
+-			iValue += AI_bonusTradeVal(((BonusTypes)(pNode->m_data.m_iData)), ePlayer, iChange);
++		case TRADE_RESOURCES: {
++			// <advc.036>
++			BonusTypes eBonus = (BonusTypes)pNode->m_data.m_iData;
++			CvBonusInfo const& bi = GC.getBonusInfo(eBonus);
++			if(bi.getHappiness() > 0)
++				iHappyBonuses += iChange;
++			if(bi.getHealth() > 0)
++				iHealthBonuses += iChange; // </advc.036>
++			iValue += AI_bonusTradeValBulk(eBonus, ePlayer, iChange,
++					// <advc.036>
++					(std::abs(iHappyBonuses) > 1 && bi.getHappiness() > 0) ||
++					(std::abs(iHealthBonuses) > 1 && bi.getHealth() > 0));
++					// <advc.036>
+ 			break;
++		}
+ 		case TRADE_CITIES:
+ 			pCity = GET_PLAYER(ePlayer).getCity(pNode->m_data.m_iData);
+ 			if (pCity != NULL)
+@@ -11314,7 +11331,7 @@ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pLis
+ 			if(getWPAI.isEnabled()) {
+ 				iWars++;
+ 				if(iWars > 1)
+-					iValue += 100000; // More than they can pay
++					iValue += 1000000; // More than they can pay
+ 			} // </advc.104o>
+ 			iValue += GET_TEAM(getTeam()).AI_declareWarTradeVal(((TeamTypes)(pNode->m_data.m_iData)), GET_PLAYER(ePlayer).getTeam());
+ 			break;
+@@ -12169,7 +12186,10 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 					// Don't ask for the last of a resource, or corporation resources; because we're not going to evaluate losses.
+ 					// <advc.036> AI_bonusTradeVal evaluates losses now; moved up:
+ 					BonusTypes eBonus = (BonusTypes)data.m_iData;
+-					iItemValue = AI_bonusTradeVal(eBonus, ePlayer, 1);
++					CvBonusInfo& bi = GC.getBonusInfo(eBonus);
++					iItemValue = AI_bonusTradeValBulk(eBonus, ePlayer, 1,
++							(bi.getHealth() > 0 && healthLeft == 1) ||
++							(bi.getHappiness() > 0 && happyLeft == 1));
+ 					/*  Bias AI-AI trades against resources that are of low value
+ 						to the recipient; should rather try to trade these to
+ 						someone else. */
+@@ -12196,7 +12216,6 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 								through trial and error. */
+ 							|| (!isHuman() && !kPlayer.isHuman()))
+ 						bNonsurplus = false;
+-					CvBonusInfo& bi = GC.getBonusInfo(eBonus);
+ 					/*  Don't worry about happyLeft and healthLeft when there's
+ 						just 1 item on the table */
+ 					if(iOtherListLength > 1 || pList->getLength() > 1) {
+@@ -13461,9 +13480,15 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus) const
+ 	return iValue;
+ }
+ 
+-// <advc.036> Rewritten
+-int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer,
+-		int iChange) const {
++int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer, int iChange) const {
++
++	// <advc.036>
++	return AI_bonusTradeValBulk(eBonus, ePlayer, iChange, false);
++}
++
++// Rewritten
++int CvPlayerAI::AI_bonusTradeValBulk(BonusTypes eBonus, PlayerTypes ePlayer, int iChange,
++		bool bExtraHappyOrHealth) const {
+ 
+ 	PROFILE_FUNC();
+ 	FAssert(ePlayer != getID());
+@@ -13500,6 +13525,15 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer,
+ 	double ourVal = bUseOurBonusVal ? AI_bonusVal(eBonus, iChange, false, true) :
+ 			// Use ePlayer's value as a substitute
+ 			kPlayer.AI_bonusVal(eBonus, 0, false, true);
++	if(!isHuman() && kPlayer.isHuman()) {
++		/*  For now, only address the case of a human civ receiving two health
++			resources or two happiness resources from an AI civ (and cancelation
++			of such a deal). More than 2 is ruled out by the caller. */
++		if(bExtraHappyOrHealth && iChange > 0)
++			ourVal *= 0.75;
++		if(bExtraHappyOrHealth && iChange < 0)
++			ourVal /= 0.75;
++	}
+ 	ourVal *= getNumCities(); // bonusVal is per city
+ 	/*  Don't pay fully b/c trade doesn't give us permanent access to the
+ 		resource, and b/c it tends to be (and should be) a buyer's market. */
+@@ -14126,7 +14160,8 @@ DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam,
+ 	CvCity* pPlayerCapital = GET_PLAYER(ePlayer).getCapitalCity();
+ 	if(pOurCapital != NULL && pTargetCapital != NULL && pPlayerCapital != NULL &&
+ 			kOurTeam.isOpenBorders(eTradeTeam) &&
+-			kOurTeam.getPower(true) *
++			!GET_TEAM(eTradeTeam).isAVassal() &&
++			GET_TEAM(kOurTeam.getMasterTeam()).getPower(true) *
+ 			(::stepDistance(pOurCapital->plot(), pTargetCapital->plot()) <
+ 			::stepDistance(pPlayerCapital->plot(), pTargetCapital->plot()) ?
+ 			130 : 200) < 100 * GET_TEAM(eTradeTeam).getPower(true) &&
+@@ -14153,12 +14188,36 @@ DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam,
+ 			return DENIAL_ATTITUDE;
+ 		int iThreshThem = lh.getStopTradingThemRefuseAttitudeThreshold();
+ 		// <advc.130f>
+-		if(iDelta >= 1 && iThreshThem < ATTITUDE_CAUTIOUS)
++		if(iDelta <= -1 && iThreshThem < ATTITUDE_CAUTIOUS)
+ 			iThreshThem++; // </advc.130f>
+ 		if(eAttitudeThem > iThreshThem)
+ 			return DENIAL_ATTITUDE_THEM;
+-	}
+-	
++	} // <advc.130f> Avoid canceling reparations
++	if(GET_TEAM(getTeam()).isForcePeace(eTradeTeam)) { // Check this first for performance
++		CvGame& g = GC.getGameINLINE(); int foo=-1;
++		for(CvDeal* d = g.firstDeal(&foo); d != NULL; d = g.nextDeal(&foo)) {
++			if(!d->isBetween(getTeam(), eTradeTeam))
++				continue;
++			CLinkList<TradeData> const* lists[2] = {
++				d->getFirstTrades(), d->getSecondTrades() };
++			for(int i = 0; i < 2; i++) {
++				if(lists[i] == NULL)
++					continue;
++				bool bPeaceTreaty = false;
++				bool bAnnualPayment = false;
++				CLLNode<TradeData>* node;
++				for(node = lists[i]->head(); node != NULL; node = lists[i]->next(node)) {
++					TradeableItems eItem = node->m_data.m_eItemType;
++					if(eItem == TRADE_PEACE_TREATY)
++						bPeaceTreaty = true;
++					if(eItem == TRADE_RESOURCES || eItem == TRADE_GOLD_PER_TURN)
++						bAnnualPayment = true;
++				}
++				if(bPeaceTreaty && bAnnualPayment)
++					return DENIAL_RECENT_CANCEL;
++			}
++		}
++	} // </advc.130f>
+ 	return NO_DENIAL;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 9fba17775..5b19e7ff7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -280,6 +280,9 @@ public:
+ 	int AI_baseBonusVal(BonusTypes eBonus,
+ 			bool bTrade = false) const; // advc.036
+ 	int AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer, int iChange) const;
++	// <advc.036> Not safe to add parameters to AI_bonusTradeVal
++	int AI_bonusTradeValBulk(BonusTypes eBonus, PlayerTypes ePlayer, int iChange,
++			bool bExtraHappyOrHealth) const; // <advc.036>
+ 	DenialTypes AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 			int iChange = 0) const; // advc.133
+ 	// advc.210e: Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index fd950ad0f..8d3d6daf9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -246,6 +246,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ /************************************************************************************************/
+ 	turnsBuildsInterrupted = -2; // advc.011: Meaning none in progress
+ 	mostRecentCityName = ""; // advc.005c
++	int m_iTotalCulture = 0; // advc.003b
+ }
+ 
+ 
+@@ -783,35 +784,42 @@ void CvPlot::updateCenterUnit()
+ 
+ 	setCenterUnit(getSelectedUnit());
+ 
+-	if (getCenterUnit() == NULL)
++	/*if (getCenterUnit() == NULL)
+ 	{
+-		setCenterUnit(getBestDefender(GC.getGameINLINE().getActivePlayer(), NO_PLAYER, NULL, false, false, true));
+-	}
+-
++		setCenterUnit(getBestDefender(GC.getGameINLINE().getActivePlayer(), NO_PLAYER,
++				NULL, false, false, true));
++	}*/
++	PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer(); // advc.003
+ 	if (getCenterUnit() == NULL)
+ 	{
+-		setCenterUnit(getBestDefender(GC.getGameINLINE().getActivePlayer()));
++		setCenterUnit(getBestDefender(eActivePlayer));
+ 	}
+ 
+-	/* if (getCenterUnit() == NULL)
+-	{
+-		setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit(), true));
+-	} */ // disabled by K-Mod. I don't think its relevent whether or not the best defender can move.
++	if (getCenterUnit() == NULL)
++	{	// <advc.028>
++		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
++				gDLL->getInterfaceIFace()->getHeadSelectedUnit(), true);
++		if(pBestDef != NULL && !pBestDef->isInvisible(TEAMID(eActivePlayer), true))
++			setCenterUnit(pBestDef); // </advc.028>
++	} // disabled by K-Mod. I don't think it's relevant whether or not the best defender can move.
++	/*  advc.001: Enabled again, instead disabled the one with bTestCanMove=true --
++		I think that's the one karadoc had meant to disable. */
+ 
+ 	if (getCenterUnit() == NULL)
+ 	{	// <advc.028>
+-		CvUnit* bestDef = getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit());
+-		if(bestDef != NULL && !bestDef->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+-			setCenterUnit(bestDef);
++		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
++				gDLL->getInterfaceIFace()->getHeadSelectedUnit());
++		if(pBestDef != NULL && !pBestDef->isInvisible(TEAMID(eActivePlayer), true))
++			setCenterUnit(pBestDef);
+ 		//setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit()));
+ 		// (Replaced by the above) // </advc.028>
+ 	}
+ 
+ 	if (getCenterUnit() == NULL)
+ 	{	// <advc.028>
+-		CvUnit* bestDef = getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer());
+-		if(bestDef != NULL && !bestDef->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+-			setCenterUnit(bestDef);
++		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer);
++		if(pBestDef != NULL && !pBestDef->isInvisible(TEAMID(eActivePlayer), true))
++			setCenterUnit(pBestDef);
+ 		//setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer()));
+ 		// (Replaced by the above) // </advc.028>
+ 	}
+@@ -5431,7 +5439,7 @@ bool CvPlot::isContestedByRival(PlayerTypes rivalId) const {
+ 	else if(GC.getCITY_RADIUS_DECAY() > 0) {
+ 		if(firstOwner == rivalId) // No longer contested; they own it.
+ 			return false;
+-		int totalCulture = countTotalCulture();
++		int totalCulture = getTotalCulture();
+ 		double exclWeight = GET_PLAYER(firstOwner).exclusiveRadiusWeight();
+ 		int ourCulture = getCulture(firstOwner);
+ 		// Just for efficiency
+@@ -6950,23 +6958,25 @@ int CvPlot::getCulture(PlayerTypes eIndex) const
+ 
+ int CvPlot::countTotalCulture() const
+ {
+-	int iTotalCulture;
+-	int iI;
+-
+-	iTotalCulture = 0;
++	int iTotal = 0;
+ 
+-	for (iI = 0; iI < MAX_PLAYERS; ++iI)
++	for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+ 	{
+ 		// advc.099: Replaced "Alive" with "EverAlive"
+ 		if (GET_PLAYER((PlayerTypes)iI).isEverAlive())
+ 		{
+-			iTotalCulture += getCulture((PlayerTypes)iI);
++			iTotal += getCulture((PlayerTypes)iI);
+ 		}
+ 	}
+ 
+-	return iTotalCulture;
++	return iTotal;
+ }
+ 
++// <advc.003b>
++int CvPlot::getTotalCulture() const {
++
++	return m_iTotalCulture;
++} // </advc.003b>
+ 
+ TeamTypes CvPlot::findHighestCultureTeam() const
+ {
+@@ -7010,9 +7020,7 @@ PlayerTypes CvPlot::findHighestCulturePlayer(
+ 
+ int CvPlot::calculateCulturePercent(PlayerTypes eIndex) const
+ {
+-	int iTotalCulture;
+-
+-	iTotalCulture = countTotalCulture();
++	int iTotalCulture = getTotalCulture(); // advc.003b: was countTotalCulture
+ 
+ 	if (iTotalCulture > 0)
+ 	{
+@@ -7046,42 +7054,35 @@ int CvPlot::calculateTeamCulturePercent(TeamTypes eIndex) const
+ 	return iTeamCulturePercent;
+ }
+ 
+-
++// advc.003: Refactored
+ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bUpdatePlotGroups)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvCity* pCity;
++	FAssert(eIndex >= 0);
++	FAssert(eIndex < MAX_PLAYERS);
+ 
+-	FAssertMsg(eIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+-	FAssertMsg(eIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
++	if(getCulture(eIndex) == iNewValue)
++		return;
+ 	
+-	if (getCulture(eIndex) != iNewValue)
++	if(m_aiCulture == NULL)
+ 	{
+-		if(NULL == m_aiCulture)
+-		{
+-			m_aiCulture = new int[MAX_PLAYERS];
+-			for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+-			{
+-				m_aiCulture[iI] = 0;
+-			}
+-		}
+-
+-		m_aiCulture[eIndex] = iNewValue;
+-		FAssert(getCulture(eIndex) >= 0);
+-
+-		if (bUpdate)
+-		{
+-			updateCulture(true, bUpdatePlotGroups);
+-		}
++		m_aiCulture = new int[MAX_PLAYERS];
++		for(int iI = 0; iI < MAX_PLAYERS; ++iI)
++			m_aiCulture[iI] = 0;
++		m_iTotalCulture = 0; // advc.003b
++	} // <advc.003b>
++	if(GET_PLAYER(eIndex).isEverAlive())
++		m_iTotalCulture += iNewValue - m_aiCulture[eIndex]; // </advc.003b>
++	m_aiCulture[eIndex] = iNewValue;
++	FAssert(getCulture(eIndex) >= 0);
+ 
+-		pCity = getPlotCity();
++	if(bUpdate)
++		updateCulture(true, bUpdatePlotGroups);
+ 
+-		if (pCity != NULL)
+-		{
+-			pCity->AI_setAssignWorkDirty(true);
+-		}
+-	}
++	CvCity* pCity = getPlotCity();
++	if(pCity != NULL)
++		pCity->AI_setAssignWorkDirty(true);
+ }
+ 
+ 
+@@ -9174,45 +9175,60 @@ void CvPlot::doCulture() {
+ void CvPlot::doCultureDecay() {
+ 
+ 	PROFILE_FUNC();
+-	int const exclDecay = GC.getCITY_RADIUS_DECAY();
+-	int const baseDecayPerMill = GC.getTILE_CULTURE_DECAY_PER_MILL();
+-	bool inRadius[MAX_CIV_PLAYERS] = {false};
+-	bool inAnyRadius = false;
+-	int maxRadiusCulture = 0;
+-	int minDist = 10;
+-	if(exclDecay != 0 && isOwned() && !isCity() &&
+-			!isBeingWorked()) { // advc.003b: Just for performance
+-		for(int i = 0; i < NUM_CITY_PLOTS; i++) {
+-			CvPlot* pp = ::plotCity(getX_INLINE(), getY_INLINE(), i);
+-			if(pp == NULL) continue; CvPlot& p = *pp;
+-			if(!p.isCity())
+-				continue;
+-			PlayerTypes const cityOwnerId = p.getOwnerINLINE();
+-			if(cityOwnerId != NO_PLAYER && cityOwnerId != BARBARIAN_PLAYER) {
+-				minDist = std::min(minDist, ::plotDistance(&p, this));
+-				maxRadiusCulture = std::max(maxRadiusCulture,
+-						getCulture(cityOwnerId));
+-				inRadius[cityOwnerId] = true;
+-				inAnyRadius = true;
++	if(getTotalCulture() <= 0)
++		return;
++	int const iExclDecay = GC.getCITY_RADIUS_DECAY();
++	int const iBaseDecayPerMill = GC.getTILE_CULTURE_DECAY_PER_MILL();
++	bool abInRadius[MAX_CIV_PLAYERS] = {false};
++	bool bInAnyRadius = false;
++	int iMaxRadiusCulture = 0;
++	int iMinDist = 10;
++	/*  To avoid ownership oscillation and to avoid making players worried that a
++		tile might flip */
++	int const iCulturePercentThresh = 55;
++	if(iExclDecay != 0 && isOwned() && !isCity()) {
++		CvCity* pWorkingCity = getWorkingCity();
++		if(pWorkingCity == NULL || calculateCulturePercent(
++				// Check this only for performance reasons
++				pWorkingCity->getOwnerINLINE()) < iCulturePercentThresh) {
++			for(int i = 0; i < NUM_CITY_PLOTS; i++) {
++				CvPlot* pp = ::plotCity(getX_INLINE(), getY_INLINE(), i);
++				if(pp == NULL) continue; CvPlot& p = *pp;
++				if(!p.isCity())
++					continue;
++				PlayerTypes const eCityOwnerId = p.getOwnerINLINE();
++				if(eCityOwnerId != NO_PLAYER && eCityOwnerId != BARBARIAN_PLAYER) {
++					iMinDist = std::min(iMinDist, ::plotDistance(&p, this));
++					iMaxRadiusCulture = std::max(iMaxRadiusCulture,
++							getCulture(eCityOwnerId));
++					abInRadius[eCityOwnerId] = true;
++					bInAnyRadius = true;
++				}
+ 			}
+ 		}
+ 	}
+ 	for(int i = 0; i < MAX_PLAYERS; i++) {
+ 		PlayerTypes civId = (PlayerTypes)i;
+-		int culture = getCulture(civId);
+-		if(culture <= 0)
++		int iCulture = getCulture(civId);
++		if(iCulture <= 0)
+ 			continue;
+-		int decayPerMill = baseDecayPerMill;
+-		if(inAnyRadius && !inRadius[i] &&
+-				// Times 0.95 to avoid ownership oscillation
+-				culture > 0.95 * maxRadiusCulture) {
+-			if(minDist <= 2)
+-				decayPerMill += exclDecay;
+-			if(minDist <= 1)
+-				decayPerMill += exclDecay;
+-		}
+-		culture -= (culture * decayPerMill) / 1000;
+-		setCulture(civId, culture, false, false);
++		int iDecayPerMill = iBaseDecayPerMill;
++		if(bInAnyRadius && !abInRadius[i] && iCulture >
++				((100.0 - iCulturePercentThresh) /
++				iCulturePercentThresh) * iMaxRadiusCulture) {
++			double exclDecay = 0;
++			if(iMinDist <= 2)
++				exclDecay += iExclDecay;
++			if(iMinDist <= 1)
++				exclDecay += iExclDecay;
++			if(iCulture < iMaxRadiusCulture) {
++				// Gradually throttle decay when approaching the threshold
++				exclDecay *= iCulture / (double)iMaxRadiusCulture;
++			}
++			iDecayPerMill += ::round(exclDecay);
++		}
++		iCulture -= (iCulture * iDecayPerMill) / 1000;
++		setCulture(civId, iCulture, false, false);
+ 	}
+ } // </advc.099b>
+ 
+@@ -9606,7 +9622,16 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	}
+ 	pStream->Read(&turnsBuildsInterrupted); // advc.011
+ 	pStream->ReadString(mostRecentCityName); // advc.005c
+-
++	// <advc.003b>
++	if(uiFlag >= 2)
++		pStream->Read(&m_iTotalCulture);
++	else if(m_aiCulture != NULL) {//m_iTotalCulture = countTotalCulture();
++		/*  countTotalCulture checks CvPlayer::isEverAlive, but CvPlayer objects
++			aren't loaded yet. I'm pretty sure though that the isEverAlive check
++			can't make a difference in this case. */
++		for(int i = 0; i < MAX_PLAYERS; i++)
++			m_iTotalCulture += m_aiCulture[i];
++	} // </advc.003b>
+ 	if (NULL != m_apaiCultureRangeCities)
+ 	{
+ 		for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+@@ -9674,6 +9699,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.035
++	uiFlag = 2; // advc.003b
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iX);
+@@ -9854,6 +9880,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	}
+ 	pStream->Write(turnsBuildsInterrupted); // advc.011
+ 	pStream->WriteString(mostRecentCityName); // advc.005c
++	pStream->Write(m_iTotalCulture); // advc.003b
+ 
+ 	if (NULL == m_apaiCultureRangeCities)
+ 	{
+@@ -10712,7 +10739,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 
+ int CvPlot::countFriendlyCulture(TeamTypes eTeam) const
+ {
+-	int iTotalCulture = 0;
++	int iTotal = 0;
+ 
+ 	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+ 	{
+@@ -10723,12 +10750,12 @@ int CvPlot::countFriendlyCulture(TeamTypes eTeam) const
+ 			CvTeam& kLoopTeam = GET_TEAM(kLoopPlayer.getTeam());
+ 			if (kLoopPlayer.getTeam() == eTeam || kLoopTeam.isVassal(eTeam) || kLoopTeam.isOpenBorders(eTeam))
+ 			{
+-				iTotalCulture += getCulture((PlayerTypes)iPlayer);
++				iTotal += getCulture((PlayerTypes)iPlayer);
+ 			}
+ 		}
+ 	}
+ 
+-	return iTotalCulture;
++	return iTotal;
+ }
+ 
+ int CvPlot::countNumAirUnits(TeamTypes eTeam) const
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 0ccde82bc..e44eae408 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -427,7 +427,9 @@ public:
+ 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade) const;
+ 
+ 	int getCulture(PlayerTypes eIndex) const;																									// Exposed to Python
+-	int countTotalCulture() const;																														// Exposed to Python
++		// advc.003b: Replaced by getTotalCulture
++		private: int countTotalCulture() const; public:
++	int getTotalCulture() const;
+ 	int countFriendlyCulture(TeamTypes eTeam) const;
+ 	TeamTypes findHighestCultureTeam() const;																														// Exposed to Python
+ 	PlayerTypes findHighestCulturePlayer(
+@@ -646,6 +648,7 @@ protected:
+ 	short* m_paiBuildProgress;
+ 	int turnsBuildsInterrupted; // advc.011
+ 	CvWString mostRecentCityName; // advc.005c
++	int m_iTotalCulture; // advc.003b
+ 
+ 	CvFeature* m_pFeatureSymbol;
+ 	CvRoute* m_pRouteSymbol;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3a30843ff..741b6f797 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1431,8 +1431,12 @@ void CvUnit::updateCombat(bool bQuick)
+ 	bool bVisible = false;
+ 
+ 	if (getCombatTimer() > 0)
+-	{
+-		FAssert(getCombatUnit() && getCombatUnit()->getAttackPlot() == NULL); // K-Mod
++	{	/*  advc.006: Assertion
++			getCombatUnit() && ...
++			fails for air strikes when "Quick Combat (Offense)" is disabled,
++			but I don't think there's a problem. */
++		FAssert(getCombatUnit() == NULL ||
++				getCombatUnit()->getAttackPlot() == NULL); // K-Mod
+ 		changeCombatTimer(-1);
+ 
+ 		if (getCombatTimer() > 0)
+@@ -2929,7 +2933,7 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 						/* original bts code
+ 						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack && !(bAttack && pPlot->getPlotCity() && !isNoCapture()))) */
+ 						// K-Mod. I'm not entirely sure I understand what they were trying to do here. But I'm pretty sure it's wrong.
+-						// I think the rule should be that bAttack means we have to actually fight an enemy unit. Capturing an undefended city doesn't not count.
++						// I think the rule should be that bAttack means we have to actually fight an enemy unit. Capturing an undefended city doesn't count.
+ 						// (there is no "isVisiblePotentialEnemyUnit" function, so I just wrote the code directly.)
+ 						if (!bAttack || !bDeclareWar || !pPlot->isVisiblePotentialEnemyUnit(getOwnerINLINE()))
+ 						// K-Mod end
+@@ -13378,7 +13382,7 @@ bool CvUnit::rangeStrike(int iX, int iY)
+ //! \retval     The number of game turns that the battle should be given.
+ //------------------------------------------------------------------------------------------------
+ 
+-// Rewriten for K-Mod!
++// Rewritten for K-Mod!
+ int CvUnit::planBattle(CvBattleDefinition& kBattle, const std::vector<int>& combat_log_argument) const
+ {
+ 	const int BATTLE_TURNS_SETUP = 4;
+@@ -13414,9 +13418,22 @@ int CvUnit::planBattle(CvBattleDefinition& kBattle, const std::vector<int>& comb
+ 	// int iFirstStrikeRounds = kBattle.getFirstStrikes(BATTLE_UNIT_ATTACKER) + kBattle.getFirstStrikes(BATTLE_UNIT_DEFENDER);
+ 	bool bRanged = true;
+ 
+-	const static int iStandardNumRounds = GC.getDefineINT("STANDARD_BATTLE_ANIMATION_ROUNDS", 6);
+-
+-	int iTotalBattleRounds = (iStandardNumRounds * (int)combat_log.size() * GC.getCOMBAT_DAMAGE() + GC.getMAX_HIT_POINTS()) / (2*GC.getMAX_HIT_POINTS());
++	static const int iStandardNumRounds = GC.getDefineINT("STANDARD_BATTLE_ANIMATION_ROUNDS", 6);
++	// <advc.002m>
++	static const int iPerEraNumRounds = GC.getDefineINT("PER_ERA_BATTLE_ANIMATION_ROUNDS");
++	CvGame const& g = GC.getGameINLINE();
++	bool bNetworkedMP = g.isNetworkMultiPlayer();
++	/*  I prefer using the player era, but karadoc's comment at the end of
++		this function suggests that this could cause OOS problems. */
++	int iEra = (bNetworkedMP ? g.getCurrentEra() :	
++			GET_PLAYER(g.getActivePlayer()).getCurrentEra());
++	int iBaseRounds = iStandardNumRounds + iPerEraNumRounds * iEra;
++	iBaseRounds = std::max(2, iBaseRounds);
++	if(!bNetworkedMP && gDLL->getGraphicOption(GRAPHICOPTION_SINGLE_UNIT_GRAPHICS))
++		iBaseRounds /= 2; 
++	int iTotalBattleRounds = (iBaseRounds * // </advc.002m>
++		   (int)combat_log.size() * GC.getCOMBAT_DAMAGE() + GC.getMAX_HIT_POINTS()) /
++		   (2*GC.getMAX_HIT_POINTS());
+ 
+ 	// Reduce number of rounds if both units have groupSize == 1, because nothing much happens in those battles.
+ 	if (pAttackUnit->getGroupSize() == 1 && pDefenceUnit->getGroupSize() == 1)
+@@ -13522,7 +13539,21 @@ int CvUnit::planBattle(CvBattleDefinition& kBattle, const std::vector<int>& comb
+ 	//   gDLL->getEntityIFace()->GetSiegeTower(pAttackUnit->getUnitEntity()) || gDLL->getEntityIFace()->GetSiegeTower(pDefenceUnit->getUnitEntity())
+ 	// I've changed that to use showSiegeTower, because GetSiegeTower does not work for the Pitboss host, and therefore can cause OOS errors.
+ 
+-	return BATTLE_TURNS_SETUP + BATTLE_TURNS_ENDING + kBattle.getNumMeleeRounds() * BATTLE_TURNS_MELEE + kBattle.getNumRangedRounds() * BATTLE_TURNS_MELEE + extraTime;
++	int r = BATTLE_TURNS_SETUP + BATTLE_TURNS_ENDING +
++			kBattle.getNumMeleeRounds() * BATTLE_TURNS_MELEE +
++			kBattle.getNumRangedRounds() * BATTLE_TURNS_MELEE +
++			extraTime;
++	// <advc.002m>
++	static int const iTruncate = GC.getDefineINT("TRUNCATE_ANIMATIONS");
++	static int const iTruncateEra = GC.getDefineINT("TRUNCATE_ANIMATIONS_ERA");
++	static int const iTruncateTurns = std::max(2, GC.getDefineINT("TRUNCATE_ANIMATION_TURNS"));
++	if(iTruncate <= 0 || iEra < iTruncateEra)
++		return r;
++	bool bHumanDefense = pDefenceUnit->isHuman();
++	if(iTruncate < 3 && (iTruncate == 1 != bHumanDefense))
++		return r;
++	return std::min(iTruncateTurns, r);
++	// </advc.002m>
+ }
+ 
+ //------------------------------------------------------------------------------------------------
+
+diff --git a/CvGameCoreDLL/CyPlot.cpp b/CvGameCoreDLL/CyPlot.cpp
+index c962256c0..1eed45be3 100644
+--- a/CvGameCoreDLL/CyPlot.cpp
++++ b/CvGameCoreDLL/CyPlot.cpp
+@@ -875,8 +875,8 @@ int CyPlot::getCulture(int /*PlayerTypes*/ eIndex)
+ }
+ 
+ int CyPlot::countTotalCulture()
+-{
+-	return m_pPlot ? m_pPlot->countTotalCulture() : -1;
++{	// advc.003b: was calling CvPlot::countTotalCulture
++	return m_pPlot ? m_pPlot->getTotalCulture() : -1;
+ }
+ 
+ int /*TeamTypes*/ CyPlot::findHighestCultureTeam()
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=20 omittedFiles=2 embeddedPatchBytes=59999

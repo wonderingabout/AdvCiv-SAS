@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1709
+# Commit: f6e8caf701c5823dafc87cc4779fbba57d766091
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a7c66858aa713929fd4bf1e6ef9d16a005fae6b5
+# Title: Don't obscure memory-based relations when memory>1
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 9c8afc18b..dfba74823 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15956,7 +15956,8 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 				/*  <advc.004q> Cap attitude change at 1 for memory types that
+ 					can give away a leader's hidden personality. */
+ 				int iAbsAttitudeChange = std::abs(iAttitudeChange);
+-				if (iAbsAttitudeChange > 1 && bObscurePersonality)
++				if (iAbsAttitudeChange > 1 && bObscurePersonality &&
++					kPlayer.AI_getMemoryCount(eTargetPlayer, (MemoryTypes)iI) <= 2)
+ 				{
+ 					for (int j = 0; j < iNumObscureMemoryTypes; j++)
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=726

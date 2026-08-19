@@ -1,0 +1,105 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 73
+# Commit: 8aff352e9943e6f7d1c3101bb0138dda0200bddb
+# History segment: K-Mod history
+# Parent used for diff: 7265253f19630d7f64a9e8e0e8737d76b8dbcdf9
+# Title: Fixed a bug which was completely preventing global warming. Added missing file: CIV4UpKeepInfo.xml.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	0	Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+5	3	CvGameCoreDLL/CvGame.cpp
+4	1	changelog.txt
+ create mode 100644 Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4UpKeepInfo.xml b/Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+new file mode 100644
+index 000000000..afde86d56
+--- /dev/null
++++ b/Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Upkeep -->
++<Civ4UpkeepInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<UpkeepInfos>
++		<UpkeepInfo>
++			<Type>UPKEEP_LOW</Type>
++			<Description>TXT_KEY_UPKEEP_LOW</Description>
++			<Strategy>TXT_KEY_UPKEEP_LOW_HELP</Strategy>
++			<iPopulationPercent>8</iPopulationPercent>
++			<iCityPercent>30</iCityPercent>
++		</UpkeepInfo>
++		<UpkeepInfo>
++			<Type>UPKEEP_MEDIUM</Type>
++			<Description>TXT_KEY_UPKEEP_MEDIUM</Description>
++			<Strategy>TXT_KEY_UPKEEP_MEDIUM_HELP</Strategy>
++			<iPopulationPercent>14</iPopulationPercent>
++			<iCityPercent>40</iCityPercent>
++		</UpkeepInfo>
++		<UpkeepInfo>
++			<Type>UPKEEP_HIGH</Type>
++			<Description>TXT_KEY_UPKEEP_HIGH</Description>
++			<Strategy>TXT_KEY_UPKEEP_HIGH_HELP</Strategy>
++			<iPopulationPercent>20</iPopulationPercent>
++			<iCityPercent>50</iCityPercent>
++		</UpkeepInfo>
++	</UpkeepInfos>
++</Civ4UpkeepInfo>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 632481748..520e0d87d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6400,9 +6400,11 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
+ 
+ 		if (iTestScore > iBestScore)
+ 		{
+-			/*pBestPlot = pTestPlot;
+-			iBestScore = iTestScore;*/
+-			return pBestPlot; // lets not target the ice too much...
++			if (iBestScore > 0)
++				return pTestPlot; // lets not target the ice too much...
++
++			pBestPlot = pTestPlot;
++			iBestScore = iTestScore;
+ 		}
+ 	}
+ 	return pBestPlot;
+
+diff --git a/changelog.txt b/changelog.txt
+index 0352cee4f..db5c5b14e 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 0.97.
++This is K-Mod version 0.97b.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+@@ -33,6 +33,9 @@ AI changes:
+ + Rewrote the AI's city evaluation of specialists.
+ + Rewrote parts of the AI's evaluation of corporation HQ, effect on cities, and civics. [It will now choose its HQ cities more wisely.]
+ 
++v0.97b
+++ Fixed a bug which was completely preventing global warming.
++
+ --
+ 
+ v0.96 changelist
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2502

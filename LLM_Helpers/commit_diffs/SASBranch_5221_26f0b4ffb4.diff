@@ -1,0 +1,143 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5221
+# Commit: 26f0b4ffb4a2ee07fe284edbb67bfad939416d39
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ad4d8f8cb6d559ac65117fcdefbbc9cab229d2e2
+# Title: group projects by era similarly with the very nice help of chatgpt 5.2 anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+74	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	0	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 3ff647a82..2e218fa74 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -188,6 +188,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheCorporationsTuple = None
+ 		self.SAS_cacheCorporationHQBuildingByCorp = None
+ 		self.SAS_cacheReligionsTuple = None
++		self.SAS_cacheProjectsTuple = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -403,6 +404,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -892,12 +894,83 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return self.SAS_cacheWorldWondersTuple
+ 
+ 
++	# Compute the "availability era" for a project, factoring in its tech prereq.
++	def SAS_getProjectAvailabilityEra(self, iProject):
++		info = gc.getProjectInfo(iProject)
++		if not info or info.isGraphicalOnly():
++			return None  # caller should skip
++
++		iTech = info.getTechPrereq()
++		if iTech >= 0:
++			return gc.getTechInfo(iTech).getEra()
++
++		return -1  # "No Tech Prerequisite" bucket
++
++
++	# Helper we can reuse for project lists, with the help of chatgpt 5.2 thanks anyways etc.
++	def SAS_getProjectsGroupedByEra_fromBaseList(self, baseList):
++		projectsList = []
++
++		iNumEras = gc.getNumEraInfos()
++
++		noTech = []
++		groups = {}  # iEra -> [(szName, iProject), ...]
++
++		# One pass: compute era once and bucket
++		for (szName, iProject) in baseList:
++			iEra = self.SAS_getProjectAvailabilityEra(iProject)
++			if iEra is None:
++				continue
++
++			if iEra == -1:
++				noTech.append((szName, iProject))
++			else:
++				if iEra not in groups:
++					groups[iEra] = []
++				groups[iEra].append((szName, iProject))
++
++		# Optional sorting within each bucket
++		if self.isSortLists():
++			noTech.sort()
++			for k in groups.keys():
++				groups[k].sort()
++
++		# "No Tech Prereq" group first
++		if noTech:
++			projectsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
++			for x in noTech:
++				projectsList.append(x)
++
++		# Era groups in order
++		for iEraLoop in range(iNumEras):
++			tmp = groups.get(iEraLoop, None)
++			if not tmp:
++				continue
++
++			if projectsList:
++				projectsList.append(("", -1))
++
++			projectsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
++			for x in tmp:
++				projectsList.append(x)
++
++		return tuple(projectsList)
++
+ 	def placeProjects(self):
+ 		self.list = self.getProjectList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, gc.getProjectInfo)
+ 
++	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getProjectList(self):
+-		return self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
++		if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
++			if self.SAS_cacheProjectsTuple is None:
++				baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
++				self.SAS_cacheProjectsTuple = self.SAS_getProjectsGroupedByEra_fromBaseList(baseList)
++			return self.SAS_cacheProjectsTuple
++		else:
++			if self.SAS_cacheProjectsTuple is None:
++				self.SAS_cacheProjectsTuple = tuple(self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo))
++			return self.SAS_cacheProjectsTuple
+ 
+ 
+ 	def placeSpecialists(self):
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 520d597b7..78e92ff54 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -68,6 +68,10 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5154

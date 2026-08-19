@@ -1,0 +1,353 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5588
+# Commit: a00938c20d5e4b7f8333488b7c338bcf6e4d8010
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 208a8b6a910dd97ec90306d1831c9afa843c82e4
+# Title: make tech chooser scale with game resolution, make tech chooser right space customizable for lower resolutions (so one more column or more is shown in tech c...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	Assets/Python/SASUtils.py
+37	56	Assets/Python/Screens/CvTechChooser.py
+16	6	Assets/XML/GlobalDefines_advciv_sas.xml
+1	14	Long_Comments/Long_Comments_XML.txt
+1	3	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+0	14	_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 460cf48e1..8b082c1b7 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -23,7 +23,6 @@ SAS_ADVISOR_EXIT_X_OFFSET = 30
+ SAS_ADVISOR_EXIT_Y_OFFSET = 42
+ SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET = 55
+ 
+-
+ # <!-- custom: shared runtime advisor bounds (screen-dependent) and shared title/exit/link anchors; callers pass screen and configured margins from __init__. (GPT-5.3-Codex) -->
+ def getAdvisorRuntimeBounds(screen, iLeftSpace, iRightSpace, iTopSpace, iBottomSpace):
+ 	iXScreen = iLeftSpace
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 7bff8fb59..cd4c9c830 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -10,6 +10,7 @@ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+ from SASFontUtils import *
++from SASUtils import *
+ import CvScreensInterface
+ 
+ TEXTURE_SIZE = 24
+@@ -38,10 +39,9 @@ import BugUtil
+ PREF_ICON_SIZE = 24
+ #PREF_ICON_TOP = 168
+ # <advc.004a>
+-# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+-# PREF_ICON_BOTTOM = 738
+-PREF_ICON_BOTTOM = 926
+-PREF_ICON_LEFT = 40 # was a bit farther left (10)
++# <!-- custom: GP pref icon anchor is runtime-derived from the Exit baseline; keep only a screen-independent offset here for fast tuning. (GPT-5.3-Codex) -->
++PREF_ICON_BOTTOM_FROM_EXIT_OFFSET = 10
++PREF_ICON_LEFT_OFFSET = 10
+ # </advc.004a>
+ FLAVORS = [
+ 	TechPrefs.FLAVOR_PRODUCTION,
+@@ -162,16 +162,17 @@ class CvTechChooser:
+ 		self.BOX_INCREMENT_Y_SPACING = 6 #Should be a multiple of 3...
+ 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
+ 
+-		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = None
+-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
+ 		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
+ 		self.iX_LEFT_START = 30
+ 		self.SAS_PEDIA_PYTHON_BUILD = 6798
+ 		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
+ 		self.iX_LEFT_START_OR_PREREQS = 24
+-		# <!-- custom: adjust tech bulbing left starting position so we align vertically with the first tech button. (GPT-5.2-Codex (summarized)) -->
+-		self.PREF_ICON_LEFT = PREF_ICON_LEFT
++
++		self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = None
++		self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = None
++		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
++		self.PREF_ICON_BOTTOM = 0
+ 
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen( "TechChooser", CvScreenEnums.TECH_CHOOSER )
+@@ -183,6 +184,31 @@ class CvTechChooser:
+ 		# Hide the screen
+ 		screen.hideScreen()
+ 
++	def updateRuntimeLayout(self, screen):
++		# <!-- custom: runtime geometry wrapper to mirror Info/Foreign advisor structure: keep resolution-dependent bounds in one place and out of init-time setup. (GPT-5.3-Codex) -->
++		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH is None:
++			self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH")
++		if self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES is None:
++			self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = gc.getDefineINT("SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES")
++		iRightSpaceForScoreboard = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
++		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
++		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH > 0 and screen.getXResolution() < self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH:
++			iRightSpaceForScoreboard = self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES
++		if iRightSpaceForScoreboard < 0:
++			iRightSpaceForScoreboard = 0
++		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
++			screen,
++			SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
++			iRightSpaceForScoreboard,
++			SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR,
++			SAS_ADVISOR_BOTTOM_SPACE
++		)
++		self.iX_LEFT_START = 30
++		self.iX_LEFT_START_OR_PREREQS = 24
++		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
++		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
++		self.PREF_ICON_BOTTOM = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET + PREF_ICON_BOTTOM_FROM_EXIT_OFFSET
++
+ 	# Screen construction function
+ 	def interfaceScreen(self):
+ #		BugUtil.debug("CvTechChooser: interfacescreen")
+@@ -194,29 +220,6 @@ class CvTechChooser:
+ 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
+ 		screen = self.getScreen()
+ 
+-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
+-		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE is None:
+-			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE")
+-		
+-		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
+-		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE <= 0:
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
+-			# <!-- custom: move bulbing indicators more to the left. (GPT-5.2-Codex (summarized)) -->
+-			self.PREF_ICON_LEFT = 10
+-			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still too far right vs bulbing in-game; reduce to fit the last column. (GPT-5.2-Codex (summarized)) -->
+-			extraXAdjust = -5
+-			self.iX_LEFT_START = 10 + extraXAdjust
+-			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
+-		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 1:
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
+-			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+-		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 2:
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 105
+-			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+-		else:
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
+-			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+-		
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 
+@@ -267,30 +270,8 @@ class CvTechChooser:
+ 			screen.hide("AddTechButton")
+ 
+ # BUG - Tech Screen Resolution - start
+-		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
+-		# <!-- custom: simplify and rework the old wide-screen sizing logic. (GPT-5.2-Codex (summarized)) -->
+-		# if screen.getXResolution() > 1024:
+-		# 	xPanelWidth = screen.getXResolution() - 60 - 500
+-		# else:
+-		# 	xPanelWidth = 1024
+-		# yPanelHeight = 768
+-		# <!-- custom: preserve key display (commerce sliders, scoreboard, etc.) while maximizing game window usage. (GPT-5.2-Codex (summarized)) -->
+-		
+-		# <!-- custom: unlike in the foreign advisor and similar files, self.X_SCREEN/self.Y_SCREEN/etc. are initialized in interfaceScreen, so we can use the real screen resolution here. In those files, screen wasn't available in init and trying it caused crashes, so they keep hardcoded 1920x1080 minus gaps. This uses the available screen var to stay fully dynamic; per Gemini 3 Pro advice and empirical checks. (GPT-5.2-Codex (summarized)) -->
+-
+-		wLeftSpace = 0
+-		self.X_SCREEN = wLeftSpace
+-		# <!-- custom: wide enough to preserve the right panel (scoreboard, map, etc.); less conservative on the left so it is not centered and sits closer to the left. (GPT-5.2-Codex (summarized)) -->
+-		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
+-		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
+-
+-		# <!-- custom: 115 or higher adds an annoying vertical scrolling arrow on the right; 114 still shows the commerce sliders, so use 114. (GPT-5.2-Codex (summarized)) -->
+-		hTopSpaceForCommerceSliders = 114
+-		self.Y_SCREEN = hTopSpaceForCommerceSliders
+-		hBottomSpace = 0
+-		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
+-		self.H_SCREEN = screen.getYResolution() - hTopSpaceForCommerceSliders - hBottomSpace
+-
++		# <!-- custom: Tech Chooser now follows the same runtime-layout template as Foreign/Info screens: compute all screen-dependent bounds in interfaceScreen via shared SAS helper formulas. (GPT-5.3-Codex) -->
++		self.updateRuntimeLayout(screen)
+ 		xPanelWidth = self.W_SCREEN
+ 		yPanelHeight = self.H_SCREEN
+ 
+@@ -1257,7 +1238,7 @@ class CvTechChooser:
+ 			return
+ 		# <advc.004a>
+ 		iX = self.PREF_ICON_LEFT 
+-		iY = PREF_ICON_BOTTOM
++		iY = self.PREF_ICON_BOTTOM
+ 		# </advc.004a>
+ 
+ 		# Always redraw the GP icons because otherwise they are prone to disappearing
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 7bae0873f..f5525ee37 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -88,7 +88,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #376. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+@@ -379,12 +379,22 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: choose how wide the tech tree should be horizontally -->
+-	<!-- custom: Tech chooser width preset: 0 = compact (keeps scoreboard names), 1 = medium (partial names), 2 = wide (hide names, keep tech/%), 3 = max (hide scoreboard + minimap). (GPT-5.2-Codex (summarized)) -->
+-	<!-- custom: Long_Comments_XML.txt #106 -->
++	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
++	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
++	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
++	(GPT-5.3-Codex) -->
+ 	<Define>
+-		<DefineName>SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
++		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
++		<iDefineIntVal>2560</iDefineIntVal>
++	</Define>
++	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active.
++	Lower value => wider tech tree and more chance to fit one extra column at low resolution.
++	Higher value => preserves more scoreboard/map area.
++	This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible.
++	Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
++	<Define>
++		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
++		<iDefineIntVal>206</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index bd55cdaee..7ed8ddef9 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -2343,15 +2343,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #106 -----
+ 
+-	<!-- 
+-		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
+-
+-		-> 1: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about half of the scoreboard on the right: we see about half of the player names on the scoreboard unless theirs is extremely short (e.g. "Joao II" not visible, most are visible partially), plus the tech they are researching (if we know it), their tech %.
+-
+-		-> 2: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about 2 thirds of the scoreboard on the right: we don't see player names on the scoreboard anymore, but we see the tech players are researching (if we know it) and their tech %.
+-
+-		-> 3: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to the rightmost part of the screen on the right: it provides maximum immersion visually as potentially distracting info is removed, but we don't know anymore their tech (and the world map is now hidden as well).
+-	-->
++Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). The original hover text used FontTypes.SMALL_FONT in the setHelpTextArea() call, which corresponds to <font=2> in the tag system. So the old/default hover size was effectively 2
+ 
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #107 -----
+@@ -4964,8 +4956,3 @@ humans would have little to gain from stacking them past a certain point fairly
+ ----- Comment #375 -----
+ 
+ , so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this
+-
+-===== \Assets\XML\Buildings\GlobalDefines_advciv_sas.xml =====
+------ Comment #376 -----
+-
+-Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). The original hover text used FontTypes.SMALL_FONT in the setHelpTextArea() call, which corresponds to <font=2> in the tag system. So the old/default hover size was effectively 2
+
+diff --git a/README.md b/README.md
+index 5513e4454..8d63bb039 100644
+--- a/README.md
++++ b/README.md
+@@ -206,9 +206,7 @@ Added with the very nice help of GPT-5.3-Codex thanks.
+ 
+ #### Advisor reworks
+ 
+-For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it. Notably, it also features the new "Remove Jungle" and "Chop Down a Forest" buttons (from the Middle-Earth mod thanks!).
+-
+-Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
++We notably refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
+ 
+ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 94c8608ef..d5d26ef61 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -337,7 +337,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+-- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width).
++- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set a **lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ 
+ ### General changes
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+index 8194f8d86..2e1912646 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+@@ -13,7 +13,6 @@ If any images below in this readme mention a google drive link, you can access i
+ [Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-prototype--alternative-version)  
+ [Earlier but much later version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-but-much-later-version)  
+ [Starting techs rework](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#starting-techs-rework)  
+-[Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width)  
+ 
+ ## Current Tech Tree ingame
+ 
+@@ -74,16 +73,3 @@ Then much later i did this swapping based version but that was based or closer (
+ ## Starting techs rework
+ 
+ After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md (Civs' Starting techs rework)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework) for details/results.
+-
+-## Customizable technology advisor width
+-
+-Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 3 (4 different options possible in total) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE` there).
+-
+-Visual comparison of how each looks below.
+-
+-<img src="../Images/advisors/0.5150_technology_advisor_custom_w (1).JPG" alt="0.5150_technology_advisor_custom_w (1).JPG" width="250"></img>
+-<img src="../Images/advisors/0.5150_technology_advisor_custom_w (2).JPG" alt="0.5150_technology_advisor_custom_w (2).JPG" width="250"></img>
+-<img src="../Images/advisors/0.5150_technology_advisor_custom_w (3).JPG" alt="0.5150_technology_advisor_custom_w (3).JPG" width="250"></img>
+-<img src="../Images/advisors/0.5150_technology_advisor_custom_w (4).JPG" alt="0.5150_technology_advisor_custom_w (4).JPG" width="250"></img>
+-
+-See also [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG
+deleted file mode 100644
+index 742bc28f4..000000000
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG
+deleted file mode 100644
+index 3cf4596b2..000000000
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG
+deleted file mode 100644
+index 8c4c82e1d..000000000
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG
+deleted file mode 100644
+index 8ba65cc23..000000000
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=25004

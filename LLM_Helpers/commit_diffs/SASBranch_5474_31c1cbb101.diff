@@ -1,0 +1,687 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5474
+# Commit: 31c1cbb1017da6eb784272962f4c53154f450ea9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e8ad16f2471264e0f26a414045ea5dc18e34ce8c
+# Title: increase tech costs to fix too fast pacing - partially addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strate...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+62	62	Assets/XML/Technologies/CIV4TechInfos.xml
+6	6	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+6	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+3	3	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+5	5	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 339da19b4..5607a62f2 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -299,7 +299,7 @@
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>275</iCost>
++			<iCost>300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_ANCIENT -->
+@@ -467,7 +467,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 200 -->
+-			<iCost>140</iCost>
++			<iCost>150</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_CLASSICAL -->
+@@ -548,7 +548,7 @@
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>200</iCost>
++			<iCost>225</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_CLASSICAL</Era>
+@@ -699,7 +699,7 @@
+ 			<iAIWeight>25</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<iCost>700</iCost>
++			<iCost>750</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -773,7 +773,7 @@
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>525</iCost>
++			<iCost>550</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_MEDIEVAL -->
+@@ -846,7 +846,7 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -917,7 +917,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>525</iCost>
++			<iCost>550</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_MEDIEVAL -->
+@@ -1010,7 +1010,7 @@
+ 			<iAIWeight>100</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>950</iCost>
++			<iCost>1000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -1078,7 +1078,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.174: was 1200 -->
+-			<iCost>700</iCost>
++			<iCost>750</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -1156,7 +1156,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2075</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1244,7 +1244,7 @@
+ 			<!-- custom: is a strong military tech or quite strong one at least, was 0 -->
+ 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1317,7 +1317,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>525</iCost>
++			<iCost>550</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1396,7 +1396,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 1400 -->
+-			<iCost>1750</iCost>
++			<iCost>1800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1470,7 +1470,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1500</iCost>
++			<iCost>1700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1536,7 +1536,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2075</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1607,7 +1607,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2300</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -1693,7 +1693,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2350</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -1771,7 +1771,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 3600 -->
+-			<iCost>2400</iCost>
++			<iCost>2600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -1847,7 +1847,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2075</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: ERA_MODERN -->
+@@ -2461,7 +2461,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>200</iCost>
++			<iCost>225</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_CLASSICAL</Era>
+@@ -2533,7 +2533,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1500</iCost>
++			<iCost>1700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -2708,7 +2708,7 @@
+ 			<iAIWeight>20</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- custom: trying to make tech pace more gradual or accurate, was 400 -->
+-			<iCost>140</iCost>
++			<iCost>150</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_CLASSICAL -->
+@@ -2856,7 +2856,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2350</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -2930,7 +2930,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<iCost>1250</iCost>
++			<iCost>1300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -2997,7 +2997,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>950</iCost>
++			<iCost>1000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3069,7 +3069,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1250</iCost>
++			<iCost>1300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3145,7 +3145,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3220,7 +3220,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1250</iCost>
++			<iCost>1300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3299,7 +3299,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1500</iCost>
++			<iCost>1700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -3366,7 +3366,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>525</iCost>
++			<iCost>550</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3458,7 +3458,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1750</iCost>
++			<iCost>1800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3532,7 +3532,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 3600 -->
+-			<iCost>1950</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3604,7 +3604,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>700</iCost>
++			<iCost>750</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3682,7 +3682,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2350</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3753,7 +3753,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2350</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3824,7 +3824,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2500</iCost>
++			<iCost>2800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL????? -->
+@@ -3897,7 +3897,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -3979,7 +3979,7 @@
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 5000 -->
+-			<iCost>2500</iCost>
++			<iCost>2800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -4183,7 +4183,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>7000</iCost>
++			<iCost>8000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -4253,7 +4253,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2500</iCost>
++			<iCost>2800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_FUTURE -->
+@@ -4409,7 +4409,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>5500</iCost>
++			<iCost>6000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -4856,7 +4856,7 @@
+ 			<!-- custom: bronze working is extra important to get early on, to upgrade the warrior free defenders into axemen at higher difficulties, or to know more optimal city spots (that include copper) sooner, among other possible reasons -->
+ 			<iAIWeight>30</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>140</iCost>
++			<iCost>150</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_ANCIENT</Era>
+@@ -4935,7 +4935,7 @@
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.301 -->
+ 			<iBarbarianFreeTechModifier>50</iBarbarianFreeTechModifier>
+-			<iCost>275</iCost>
++			<iCost>300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_CLASSICAL</Era>
+@@ -5005,7 +5005,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.131b: was 200 -->
+-			<iCost>275</iCost>
++			<iCost>300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_CLASSICAL</Era>
+@@ -5241,7 +5241,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>140</iCost>
++			<iCost>150</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_CLASSICAL -->
+@@ -5327,7 +5327,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<!-- advc.306: was 700 -->
+-			<iCost>950</iCost>
++			<iCost>1000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -5559,7 +5559,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1250</iCost>
++			<iCost>1300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5634,7 +5634,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -5711,7 +5711,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5781,7 +5781,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1500</iCost>
++			<iCost>1700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -5854,7 +5854,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -5931,7 +5931,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2300</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6007,7 +6007,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2075</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -6080,7 +6080,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>7000</iCost>
++			<iCost>8000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -6165,7 +6165,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2300</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: ERA_INDUSTRIAL -->
+@@ -6232,7 +6232,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2500</iCost>
++			<iCost>2800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -6312,7 +6312,7 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2300</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6379,7 +6379,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2500</iCost>
++			<iCost>2800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6582,7 +6582,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>7000</iCost>
++			<iCost>8000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -6656,7 +6656,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2500</iCost>
++			<iCost>2800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6798,7 +6798,7 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>5500</iCost>
++			<iCost>6000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -6872,7 +6872,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>5500</iCost>
++			<iCost>6000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index eee6ce2f0..4c66d7645 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1404,22 +1404,22 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: AI-generated with the help of GPT-5.2-Thinking thanks -->
++	<!-- custom: AI-generated with the help of GPT-5.2-Thinking, then made more wiki sounding with the help of Kimi K2.5 thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG_PEDIA</Tag>
+-		<English>[TAB]The Changping Granary (Changpingcang), often called an "ever-normal granary", was not just a warehouse: it was a public tool for managing the grain market. Already in the 1st century BC, officials in the Han realm treated grain prices as a political danger in both directions: when prices fell too low after harvest, farmers suffered; when prices rose during scarcity, city households and the poor were squeezed. The solution was simple in principle and demanding in practice. Counties were ordered to maintain reserve granaries, buying grain when it was cheap to prevent a collapse in prices, then releasing grain when it was dear to pull prices back down and keep food within reach.[PARAGRAPH:1]Over later dynasties the idea persisted and expanded, with large-scale county systems especially associated with the Qing. The goal was steady supply: grain on hand for local shortfalls, fewer price shocks, and fewer panics when harvests failed. By moving grain through official buying and selling, the state aimed to keep the market "ever normal" - stable enough that ordinary people could plan their lives and survive bad years without chaos.[PARAGRAPH:1]In a rice-growing city, such a system meant more than full storehouses. It meant cleaner reserves, fewer losses to spoilage, and a calmer table when the staple harvest was good.</English>
++		<English>[TAB]The Changping Granary (Changpingcang), also known as an "ever-normal granary," served as a government mechanism for grain price stabilization in imperial China. Dating to the Han Dynasty, the system addressed the dual problem of agricultural price volatility: low post-harvest prices harmed rural producers, while scarcity-driven highs burdened urban consumers and the poor. The operational model required county-level administrations to maintain strategic grain reserves, purchasing surplus during periods of low prices to support farmer incomes, then distributing stock during shortages to moderate market rates and maintain food accessibility.[PARAGRAPH:1]The institution persisted across successive dynasties, with extensive county networks particularly developed during the Qing Dynasty. Its primary functions included securing local grain supplies, mitigating price shocks, and preventing social instability during crop failures. Through state intervention in grain markets?buying when prices declined and selling when they rose?the system sought to maintain price equilibrium sufficient for household economic planning and subsistence security during adverse agricultural conditions.[PARAGRAPH:1]In rice-cultivating regions, the Changping system contributed to reduced grain spoilage, improved storage practices, and enhanced food security during favorable harvest cycles.</English>
+ 	</TEXT>
+ 
+ 
+ 
+-	<!-- custom: based on https://en.wikipedia.org/wiki/La_T%C3%A8ne_culture + AI-generated blurb with the help of GPT-5.2-Thinking thanks -->
++	<!-- custom: based on https://en.wikipedia.org/wiki/La_T%C3%A8ne_culture + AI-generated blurb with the help of GPT-5.2-Thinking then made more wiki sounding with the help of Kimi K2.5 thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY_PEDIA</Tag>
+-		<English>[TAB]The La T�ne culture was a European Iron Age culture. It developed and flourished during the late Iron Age (from about 450 BC to the Roman conquest in the 1st century BC), succeeding the early Iron Age Hallstatt culture without any definite cultural break, under considerable Mediterranean influence from the Greeks in pre-Roman Gaul, the Etruscans, and the Golasecca culture, but whose artistic style nevertheless did not depend on those Mediterranean influences.[PARAGRAPH:1]La T�ne culture's territorial extent corresponded to what is now France, Belgium, Switzerland, Austria, England, Southern Germany, the Czech Republic, Northern Italy and Central Italy, Slovenia, Hungary and Liechtenstein, as well as adjacent parts of the Netherlands, Slovakia, Serbia, Croatia, Transylvania (western Romania), and Transcarpathia (western Ukraine). The Celtiberians of western Iberia shared many aspects of the culture, though not generally the artistic style. To the north extended the contemporary Pre-Roman Iron Age of Northern Europe, including the Jastorf culture of Northern Germany and Denmark and all the way to Galatia in Asia Minor (today Turkey).[PARAGRAPH:1]Centered on ancient Gaul, the culture became very widespread, and encompasses a wide variety of local differences. It is often distinguished from earlier and neighbouring cultures mainly by the La T�ne style of Celtic art, characterized by curving "swirly" decoration, especially of metalwork.[PARAGRAPH:1]It is named after the type site of La T�ne on the north side of Lake Neuch�tel in Switzerland, where thousands of objects had been deposited in the lake, as was discovered after the water level dropped in 1857 (due to the Jura water correction).[PARAGRAPH:1]In the popular understanding, La T�ne describes the culture and art of the ancient Celts, a term that is firmly entrenched in the popular understanding, but it is considered controversial by modern scholarship.[PARAGRAPH:2]In the La T�ne world, metalwork was a signature craft, with bronze, iron and gold objects made in the distinctive La T�ne style of curving decoration, spirals and interlace. Archaeological finds include elite jewelry such as torcs and fibulae, but also helmets, shields, and horse trappings, showing that smithing mattered for both prestige and war. A smithy is the working shop of a blacksmith, where heated metal is forged on an anvil and shaped into tools, fittings, and weapons.[PARAGRAPH:1]A La T�ne Smithy represents the skilled labor and workshop tradition behind this culture: turning raw metal into useful equipment and visible status objects. In game terms, access to copper and iron supports the smithy with steady supply, repairs, and replacement gear, which can translate into stronger morale and confidence.</English>
++		<English>[TAB]The La T�ne culture was a European Iron Age culture. It developed and flourished during the late Iron Age (from about 450 BC to the Roman conquest in the 1st century BC), succeeding the early Iron Age Hallstatt culture without any definite cultural break, under considerable Mediterranean influence from the Greeks in pre-Roman Gaul, the Etruscans, and the Golasecca culture, but whose artistic style nevertheless did not depend on those Mediterranean influences.[PARAGRAPH:1]La T�ne culture's territorial extent corresponded to what is now France, Belgium, Switzerland, Austria, England, Southern Germany, the Czech Republic, Northern Italy and Central Italy, Slovenia, Hungary and Liechtenstein, as well as adjacent parts of the Netherlands, Slovakia, Serbia, Croatia, Transylvania (western Romania), and Transcarpathia (western Ukraine). The Celtiberians of western Iberia shared many aspects of the culture, though not generally the artistic style. To the north extended the contemporary Pre-Roman Iron Age of Northern Europe, including the Jastorf culture of Northern Germany and Denmark and all the way to Galatia in Asia Minor (today Turkey).[PARAGRAPH:1]Centered on ancient Gaul, the culture became very widespread, and encompasses a wide variety of local differences. It is often distinguished from earlier and neighbouring cultures mainly by the La T�ne style of Celtic art, characterized by curving "swirly" decoration, especially of metalwork.[PARAGRAPH:1]It is named after the type site of La T�ne on the north side of Lake Neuch�tel in Switzerland, where thousands of objects had been deposited in the lake, as was discovered after the water level dropped in 1857 (due to the Jura water correction).[PARAGRAPH:1]In the popular understanding, La T�ne describes the culture and art of the ancient Celts, a term that is firmly entrenched in the popular understanding, but it is considered controversial by modern scholarship.[PARAGRAPH:2]Metalworking constituted a central craft of La T�ne material culture, encompassing the production of bronze, iron, and gold objects characterized by curvilinear decoration, spirals, and interlace patterns. Archaeological assemblages include high-status personal adornments such as torcs and fibulae alongside martial equipment including helmets, shields, and horse trappings, attesting to the dual role of metallurgy in social display and warfare.[PARAGRAPH:1]The smithy served as the primary workshop for blacksmiths, where metal was heated, forged on an anvil, and worked into tools, fittings, and weaponry. Within La T�ne society, such workshops represented centers of skilled labor where raw materials were transformed into both utilitarian goods and prestige objects.</English>
+ 	</TEXT>
+-	<!-- custom: AI-generated with the help of GPT-5.2-Thinking thanks -->
++	<!-- custom: AI-generated with the help of GPT-5.2-Thinking, then made more wiki sounding with the help of Kimi K2.5 thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+-		<English>[TAB]Traditional education in the Ethiopian Orthodox world is organized as a ladder of church schools. Students begin in the Nebab Bet (house of reading), learning to read and memorizing core prayers and the Psalms. Advanced tracks include liturgy, chant, and poetry, and culminate in the Metsehaf Bet, a school centered on deep textual interpretation.[PARAGRAPH:1]Metsehaf Bet is described as a general term for a school of commentaries with four branches: Old Testament (Beluy), New Testament (Haddis), Church Fathers and related studies (Liqawent, including canon law and calendar calculation), and monastic literature (Menekosat). Instruction emphasizes close reading where lines of a text are interpreted and theological, moral, and historical questions are developed from the commentary tradition.</English>
++		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 80648565c..0850ae174 100644
+--- a/README.md
++++ b/README.md
+@@ -932,4 +932,10 @@ I added some of its thoughts as of now after the issue was solved hehe to summar
+ 
+ ### Kimi AI
+ 
++#### K2
++
+ I tested Kimi K2 and it looks very fun! Although i barely tested it yet to have an extensive opinion or experience or such i mean.
++
++#### K2.5
++
++Look ssolid at least seems to be advertised as such; i tested it for example to make ai-generated more wiki like and the result is decent and quite good thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 7a02ceda6..4b2e69941 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -961,7 +961,7 @@ Note 2: it looks like a small part of the image is trimmed horizontally, i could
+ 
+ If you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`
+ 
+-Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background), white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above, or other text beautification(s) (see code comments there for details).
++Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background), white was too bright so now is black, screenshots are visible in the google drive folder corresponding to known issue above, or other text beautification(s) (see code comments there for details).
+ 
+ ## How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index ee313ffcf..4b28072b1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1177,7 +1177,7 @@ See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#40---seemingly-fixed--addre
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15-WwGpkgFQ87O6t-tCQtJCAeiWQdQRXD?usp=sharing).
+ 
+-It is from when i was still playing base advciv, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file but or not but or yes but or etc), so the save file(s) or screenhsots linked in this google drive issue come from base advciv nor our mod, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made.
++It is from when i was still playing base advciv, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file), so the save file(s) or screenhsots linked in this google drive issue come from base advciv nor our mod, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made.
+ 
+ I did not test it since then, but i hope the patch/tweak/ tentative fix i added in as of now`CvCityAI::AI_bestUnit` helps and addresses that, making AI much more land-focused and overall stronger, even if it would now come i assume although i didn't check/test in this case at the cost of being military weaker on naval warfare, but i hope in most cases it would most benefit AI largely to do so.
+ 
+@@ -1211,7 +1211,7 @@ As for the screenshots, after this change, in screenshots 1684 to 1689, the nati
+ 
+ Also this change is also thanks to claude ai which (who?) helped me locate where to make units national in the xml although i could have found myself but it helped still thanks claude ai.
+ 
+-Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details/illustration of it if i may say but or not but or yes but or and etc.
++Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details.
+ 
+ ## 38 - (No idea why) Sometimes compile mysteriously/strangely/inconsistently fails, and recompiling succeeds under/withexact same source files
+ 
+@@ -1881,7 +1881,7 @@ This was started from a save file that had the issue, i assume that with this ne
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1trFS19b14RsYA6kHc8RT6zFyc36KqILw?usp=sharing)
+ 
+-This is an issue i had noticed in advciv, in example 69.3 of the list issues (i had named it example 69.3 when i was still playing base advciv here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made at that time, also available in this gogole drive's issue), but it happened only once at least i noticed it only once, but it did seem to affect several cities in the screenshot, but since it was the turn after victory i didn't think too much of it and said it's maybe not too urgent, although not ideal, but documented it still if helps.
++This is an issue i had noticed in advciv, in example 69.3 of the list issues (i had named it example 69.3 when i was still playing base advciv here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made at that time, also available in this google drive's issue), but it happened only once at least i noticed it only once, but it did seem to affect several cities in the screenshot, but since it was the turn after victory i didn't think too much of it and said it's maybe not too urgent, although not ideal, but documented it still if helps.
+ 
+ But while solving/addressing known issue as of now 49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns. For example, in screenshots 2633 (2) and 2634, kyoto has no production, when anything could be best since it is free to produce units if nothing else is good, else the hammer is wasted.
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=10 bytes=10904
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=40427

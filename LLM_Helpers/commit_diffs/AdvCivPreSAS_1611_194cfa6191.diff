@@ -1,0 +1,667 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1611
+# Commit: 194cfa6191a69e639e5387e9d0e42f640b4ab405
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 409be17bbd437acf2670994d2bb5d1516ada865e
+# Title: Refactoring around getBestDefender; bugfix "Civilian" filter.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvGameTextMgr.cpp
+3	1	CvGameCoreDLL/CvPlayer.cpp
+13	27	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+236	210	CvGameCoreDLL/CvUnit.cpp
+7	3	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3238c257f..226f616fc 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1913,16 +1913,17 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot,
+ 
+ 	if (iNumVisibleUnits > 0)
+ 	{
+-		if (pPlot->getCenterUnit())
++		CvUnit* pCenterUnit = Plot->getCenterUnit(); // advc.003
++		if (pCenterUnit != NULL)
+ 		{
+-			setUnitHelp(szString, pPlot->getCenterUnit(), iNumVisibleUnits > iMaxNumUnits, true,
++			setUnitHelp(szString, pCenterUnit, iNumVisibleUnits > iMaxNumUnits, true,
+ 					false, false, bIndicator); // advc.007
+ 		}
+ 		uint iNumShown = std::min<uint>(iMaxNumUnits, iNumVisibleUnits);
+ 		for (uint iI = 0; iI < iNumShown && iI < (int) plotUnits.size(); iI++)
+ 		{
+ 			CvUnit* pLoopUnit = plotUnits[iI];
+-			if (pLoopUnit != pPlot->getCenterUnit())
++			if (pLoopUnit != pCenterUnit)
+ 			{
+ 				szString.append(NEWLINE);
+ 				setUnitHelp(szString, pLoopUnit, true, true,
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e974392da..1d38c6ede 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -23162,7 +23162,9 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 					continue;
+ 
+ 				// now, is this unit of interest?
+-				bool bMilitary = pUnit->baseCombatStr() > 0;
++				bool bMilitary = //pUnit->baseCombatStr() > 0;
++						// advc.004z: The above doesn't work for air units
++						pUnit->canCombat();
+ 				bool bEnemy = pUnit->isEnemy(getTeam());
+ 				bool bOnOurTeam = pUnit->getTeam() == getTeam();
+ 				bool bOfInterest = false;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e53cc02e4..6658e436e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2630,40 +2630,25 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
+ 
+ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
+ 		CvUnit const* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy,
+-		bool bTestCanMove, /* advc.028: */ bool bVisible) const
++		bool bTestCanMove, /* advc.028: */ bool bTestVisible) const
+ {
++	FAssert(!bTestCanMove); // advc.003: Tbd.: Confirm that unused, then remove this param.
+ 	// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000
+ 	int iBestUnitRank = -1;
+ 	CvUnit* pBestUnit = NULL;
+-	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+-	while (pUnitNode != NULL)
++	for (CLLNode<IDInfo>* pUnitNode = headUnitNode(); pUnitNode != NULL; pUnitNode = nextUnitNode(pUnitNode)) // advc.003: while loop replaced
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = nextUnitNode(pUnitNode);
+-
+-		if ((eOwner == NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
+-		{
+-			if(!bVisible || // advc.028
+-					eAttackingPlayer == NO_PLAYER ||
+-					!pLoopUnit->isInvisible(TEAMID(eAttackingPlayer),
+-					true)) // advc.028
++		if (eOwner == NO_PLAYER || pLoopUnit->getOwner() == eOwner)
++		{	// advc.003: Moved the other conditions into an auxiliary function
++			if(pLoopUnit->canDefendAtCurrentPlot(eAttackingPlayer, pAttacker,
++					bTestAtWar, bTestPotentialEnemy, bTestCanMove,
++					bTestVisible)) // advc.028
+ 			{
+-				if (!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
+-				{
+-					if (!bTestPotentialEnemy || (eAttackingPlayer == NO_PLAYER) ||  pLoopUnit->isPotentialEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isPotentialEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
+-					{
+-						if (!bTestCanMove || (pLoopUnit->canMove() && !pLoopUnit->isCargo()))
+-						{
+-							if (pAttacker == NULL || pAttacker->getDomainType() != DOMAIN_AIR || pLoopUnit->getDamage() < pAttacker->airCombatLimit())
+-							{
+-								if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker,
+-										&iBestUnitRank, // UncutDragon
+-										bVisible)) // advc.061
+-									pBestUnit = pLoopUnit;
+-							}
+-						}
+-					}
+-				}
++				if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker,
++						&iBestUnitRank, // UncutDragon
++						bTestVisible)) // advc.061
++					pBestUnit = pLoopUnit;
+ 			}
+ 		}
+ 	}
+@@ -2671,6 +2656,7 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 	return pBestUnit;
+ }
+ 
++
+ CvUnit* CvPlot::getSelectedUnit() const
+ {
+ 	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 80a934e11..03b142d5d 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -147,7 +147,7 @@ public:
+ 	CvUnit* getBestDefender(PlayerTypes eOwner,
+ 			PlayerTypes eAttackingPlayer, CvUnit const* pAttacker,
+ 			bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove,
+-			bool bVisible) const; // </advc.028>
++			bool bTestVisible) const; // </advc.028>
+ 	// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+ 	bool hasDefender(bool bCheckCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false) const;
+ 	// disabled by K-Mod:
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d54cb1080..73f6af83e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2047,201 +2047,6 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const {
+ } // </advc.004h>
+ 
+ 
+-bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
+-		int* pBestDefenderRank, // Lead From Behind by UncutDragon
+-		bool bPreferUnowned) const // advc.061
+-{
+-	TeamTypes eAttackerTeam = NO_TEAM;
+-	if (NULL != pAttacker)
+-		eAttackerTeam = pAttacker->getTeam();
+-
+-	// <advc.028>
+-	bool bInvisible = (eAttackerTeam != NO_TEAM && isInvisible(eAttackerTeam, false));
+-	// Only pick invisible unit as defender once attack is underway ...
+-	if(bInvisible && pAttacker->getAttackPlot() == NULL)
+-		return false;
+-	/*  and if there is some visible team unit that could get attacked otherwise
+-		(better: check if our team has the best visible defender; tbd.): */
+-	if(bInvisible) {
+-		bool bFound = false;
+-		CLLNode<IDInfo>* pNode = plot()->headUnitNode();
+-		while(pNode != NULL) {
+-			CvUnit* pUnit = ::getUnit(pNode->m_data);
+-			pNode = plot()->nextUnitNode(pNode);
+-			if(pUnit->getTeam() == getTeam() && !pUnit->isInvisible(eAttackerTeam, false))
+-				bFound = true;
+-		}
+-		if(!bFound)
+-			return false;
+-	}
+-	// Moved down: // </advc.028>
+-	if (pDefender == NULL)
+-		return true;
+-	// <advc.028>
+-	if(pDefender->getTeam() != getTeam() && bInvisible)
+-		return false; // </advc.028>
+-	if (canCoexistWithEnemyUnit(eAttackerTeam))
+-	{
+-		return false;
+-	}
+-
+-	if (!canDefend())
+-	{
+-		return false;
+-	}
+-
+-	if (canDefend() && !pDefender->canDefend())
+-	{
+-		return true;
+-	}
+-
+-	// <advc.061>
+-	if(bPreferUnowned) {
+-		bool bUnowned = isUnowned();
+-		if(bUnowned != pDefender->isUnowned())
+-			return bUnowned;
+-	} // </advc.061>
+-
+-	if (pAttacker)
+-	{
+-		if (isTargetOf(*pAttacker) && !pDefender->isTargetOf(*pAttacker))
+-		{
+-			return true;
+-		}
+-
+-		if (!isTargetOf(*pAttacker) && pDefender->isTargetOf(*pAttacker))
+-		{
+-			return false;
+-		}
+-
+-		if (pAttacker->canAttack(*pDefender) && !pAttacker->canAttack(*this))
+-		{
+-			return false;
+-		}
+-
+-		if (pAttacker->canAttack(*this) && !pAttacker->canAttack(*pDefender))
+-		{
+-			return true;
+-		}
+-	}
+-
+-	// UncutDragon
+-	// To cut down on changes to existing code, we just short-circuit the method
+-	// and this point and call our own version instead
+-	if (GC.getLFBEnable())
+-		return LFBisBetterDefenderThan(pDefender, pAttacker, pBestDefenderRank);
+-	// /UncutDragon
+-
+-// advc (comment): Start of legacy BtS code
+-	int iOurDefense = currCombatStr(plot(), pAttacker);
+-	if (::isWorldUnitClass(getUnitClassType()))
+-	{
+-		iOurDefense /= 2;
+-	}
+-
+-	if (NULL == pAttacker)
+-	{
+-		if (pDefender->collateralDamage() > 0)
+-		{
+-			iOurDefense *= (100 + pDefender->collateralDamage());
+-			iOurDefense /= 100;
+-		}
+-
+-		if (pDefender->currInterceptionProbability() > 0)
+-		{
+-			iOurDefense *= (100 + pDefender->currInterceptionProbability());
+-			iOurDefense /= 100;
+-		}
+-	}
+-	else
+-	{
+-		if (!(pAttacker->immuneToFirstStrikes()))
+-		{
+-			iOurDefense *= 100 + (firstStrikes() * 2 + chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+-			iOurDefense /= 100;
+-		}
+-
+-		if (immuneToFirstStrikes())
+-		{
+-			iOurDefense *= 100 + (pAttacker->firstStrikes() * 2 + pAttacker->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+-			iOurDefense /= 100;
+-		}
+-	}
+-
+-	int iAssetValue = std::max(1, getUnitInfo().getAssetValue());
+-	int iCargoAssetValue = 0;
+-	std::vector<CvUnit*> aCargoUnits;
+-	getCargoUnits(aCargoUnits);
+-	for (uint i = 0; i < aCargoUnits.size(); ++i)
+-	{
+-		iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
+-	}
+-	iOurDefense = iOurDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
+-
+-	int iTheirDefense = pDefender->currCombatStr(plot(), pAttacker);
+-	if (::isWorldUnitClass(pDefender->getUnitClassType()))
+-	{
+-		iTheirDefense /= 2;
+-	}
+-
+-	if (NULL == pAttacker)
+-	{
+-		if (collateralDamage() > 0)
+-		{
+-			iTheirDefense *= (100 + collateralDamage());
+-			iTheirDefense /= 100;
+-		}
+-
+-		if (currInterceptionProbability() > 0)
+-		{
+-			iTheirDefense *= (100 + currInterceptionProbability());
+-			iTheirDefense /= 100;
+-		}
+-	}
+-	else
+-	{
+-		if (!(pAttacker->immuneToFirstStrikes()))
+-		{
+-			iTheirDefense *= 100 + (pDefender->firstStrikes() * 2 + pDefender->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+-			iTheirDefense /= 100;
+-		}
+-
+-		if (pDefender->immuneToFirstStrikes())
+-		{
+-			iTheirDefense *= 100 + (pAttacker->firstStrikes() * 2 + pAttacker->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+-			iTheirDefense /= 100;
+-		}
+-	}
+-
+-	iAssetValue = std::max(1, pDefender->getUnitInfo().getAssetValue());
+-	iCargoAssetValue = 0;
+-	pDefender->getCargoUnits(aCargoUnits);
+-	for (uint i = 0; i < aCargoUnits.size(); ++i)
+-	{
+-		iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
+-	}
+-	iTheirDefense = iTheirDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
+-
+-	if (iOurDefense == iTheirDefense)
+-	{
+-		if (NO_UNIT == getLeaderUnitType() && NO_UNIT != pDefender->getLeaderUnitType())
+-		{
+-			++iOurDefense;
+-		}
+-		else if (NO_UNIT != getLeaderUnitType() && NO_UNIT == pDefender->getLeaderUnitType())
+-		{
+-			++iTheirDefense;
+-		}
+-		else if (isBeforeUnitCycle(this, pDefender))
+-		{
+-			++iOurDefense;
+-		}
+-	}
+-
+-	return (iOurDefense > iTheirDefense);
+-// advc (comment): End of legacy BtS code
+-}
+-
+ /*  <advc.061> See comment at call location in CvGameTextMgr::setPlotListHelpPerOwner.
+ 	Doesn't check isVisible. */
+ bool CvUnit::isUnowned() const {
+@@ -8712,6 +8517,36 @@ bool CvUnit::canFight() const
+ }
+ 
+ 
++bool CvUnit::canSiege(TeamTypes eTeam) const
++{
++	if (!canDefend())
++	{
++		return false;
++	}
++
++	if (!isEnemy(eTeam))
++	{
++		return false;
++	}
++
++	if (!isNeverInvisible())
++	{
++		return false;
++	} // <advc.033>
++	if(eTeam != NO_TEAM && (GET_TEAM(eTeam).isVassal(getTeam()) ||
++			GET_TEAM(getTeam()).isVassal(eTeam)))
++		return false; // </advc.033>
++	return true;
++}
++
++// <dlph.8> "Added function for checking whether a unit is a combat unit."
++bool CvUnit::canCombat() const {
++
++	// avdc: Check getUnitInfo().isMilitaryProduction() instead?
++	return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || nukeRange() >= 0);
++} // </dlph.8>
++
++
+ bool CvUnit::canAttack() const
+ {
+ 	if (!canFight())
+@@ -8772,34 +8607,225 @@ bool CvUnit::canDefend(const CvPlot* pPlot) const
+ 	return true;
+ }
+ 
++// advc.003: Body cut from CvPlot::getBestDefender
++bool CvUnit::canDefendAtCurrentPlot(PlayerTypes eAttackingPlayer,
++	CvUnit const* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy,
++	bool bTestCanMove, bool bTestVisible) const
++{
++	return
++		((eAttackingPlayer == NO_PLAYER || /* advc.028: */ !bTestVisible ||
++		!isInvisible(TEAMID(eAttackingPlayer), /* advc.028: */ true)) 
++		&&
++		(!bTestAtWar || eAttackingPlayer == NO_PLAYER ||
++		isEnemy(TEAMID(eAttackingPlayer), plot()) ||
++		(pAttacker != NULL && pAttacker->isEnemy(getTeam(), plot())))
++		&&
++		(!bTestPotentialEnemy || eAttackingPlayer == NO_PLAYER ||
++		isPotentialEnemy(TEAMID(eAttackingPlayer), plot()) ||
++		(pAttacker != NULL && pAttacker->isPotentialEnemy(getTeam(), plot())))
++		&&
++		(!bTestCanMove || (canMove() && !isCargo()))
++		&&
++		(pAttacker == NULL || pAttacker->getDomainType() != DOMAIN_AIR ||
++		getDamage() < pAttacker->airCombatLimit()));
++}
+ 
+-bool CvUnit::canSiege(TeamTypes eTeam) const
++
++bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
++		int* pBestDefenderRank, // Lead From Behind by UncutDragon
++		bool bPreferUnowned) const // advc.061
+ {
+-	if (!canDefend())
++	TeamTypes eAttackerTeam = NO_TEAM;
++	if (NULL != pAttacker)
++		eAttackerTeam = pAttacker->getTeam();
++
++	// <advc.028>
++	bool bInvisible = (eAttackerTeam != NO_TEAM && isInvisible(eAttackerTeam, false));
++	// Only pick invisible unit as defender once attack is underway ...
++	if(bInvisible && pAttacker->getAttackPlot() == NULL)
++		return false;
++	/*  and if there is some visible team unit that could get attacked otherwise
++		(better: check if our team has the best visible defender; tbd.): */
++	if(bInvisible) {
++		bool bFound = false;
++		CLLNode<IDInfo>* pNode = plot()->headUnitNode();
++		while(pNode != NULL) {
++			CvUnit* pUnit = ::getUnit(pNode->m_data);
++			pNode = plot()->nextUnitNode(pNode);
++			if(pUnit->getTeam() == getTeam() && !pUnit->isInvisible(eAttackerTeam, false))
++				bFound = true;
++		}
++		if(!bFound)
++			return false;
++	}
++	// Moved down: // </advc.028>
++	if (pDefender == NULL)
++		return true;
++	// <advc.028>
++	if(pDefender->getTeam() != getTeam() && bInvisible)
++		return false; // </advc.028>
++	if (canCoexistWithEnemyUnit(eAttackerTeam))
+ 	{
+ 		return false;
+ 	}
+ 
+-	if (!isEnemy(eTeam))
++	if (!canDefend())
+ 	{
+ 		return false;
+ 	}
+ 
+-	if (!isNeverInvisible())
++	if (canDefend() && !pDefender->canDefend())
+ 	{
+-		return false;
+-	} // <advc.033>
+-	if(eTeam != NO_TEAM && (GET_TEAM(eTeam).isVassal(getTeam()) ||
+-			GET_TEAM(getTeam()).isVassal(eTeam)))
+-		return false; // </advc.033>
+-	return true;
+-}
++		return true;
++	}
+ 
+-// <dlph.8> "Added function for checking whether a unit is a combat unit."
+-bool CvUnit::canCombat() const {
++	// <advc.061>
++	if(bPreferUnowned) {
++		bool bUnowned = isUnowned();
++		if(bUnowned != pDefender->isUnowned())
++			return bUnowned;
++	} // </advc.061>
++
++	if (pAttacker)
++	{
++		if (isTargetOf(*pAttacker) && !pDefender->isTargetOf(*pAttacker))
++		{
++			return true;
++		}
++
++		if (!isTargetOf(*pAttacker) && pDefender->isTargetOf(*pAttacker))
++		{
++			return false;
++		}
++
++		if (pAttacker->canAttack(*pDefender) && !pAttacker->canAttack(*this))
++		{
++			return false;
++		}
++
++		if (pAttacker->canAttack(*this) && !pAttacker->canAttack(*pDefender))
++		{
++			return true;
++		}
++	}
++
++	// UncutDragon
++	// To cut down on changes to existing code, we just short-circuit the method
++	// and this point and call our own version instead
++	if (GC.getLFBEnable())
++		return LFBisBetterDefenderThan(pDefender, pAttacker, pBestDefenderRank);
++	// /UncutDragon
++
++// advc (comment): Start of legacy BtS code
++	int iOurDefense = currCombatStr(plot(), pAttacker);
++	if (::isWorldUnitClass(getUnitClassType()))
++	{
++		iOurDefense /= 2;
++	}
++
++	if (NULL == pAttacker)
++	{
++		if (pDefender->collateralDamage() > 0)
++		{
++			iOurDefense *= (100 + pDefender->collateralDamage());
++			iOurDefense /= 100;
++		}
++
++		if (pDefender->currInterceptionProbability() > 0)
++		{
++			iOurDefense *= (100 + pDefender->currInterceptionProbability());
++			iOurDefense /= 100;
++		}
++	}
++	else
++	{
++		if (!(pAttacker->immuneToFirstStrikes()))
++		{
++			iOurDefense *= 100 + (firstStrikes() * 2 + chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
++			iOurDefense /= 100;
++		}
++
++		if (immuneToFirstStrikes())
++		{
++			iOurDefense *= 100 + (pAttacker->firstStrikes() * 2 + pAttacker->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
++			iOurDefense /= 100;
++		}
++	}
++
++	int iAssetValue = std::max(1, getUnitInfo().getAssetValue());
++	int iCargoAssetValue = 0;
++	std::vector<CvUnit*> aCargoUnits;
++	getCargoUnits(aCargoUnits);
++	for (uint i = 0; i < aCargoUnits.size(); ++i)
++	{
++		iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
++	}
++	iOurDefense = iOurDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
++
++	int iTheirDefense = pDefender->currCombatStr(plot(), pAttacker);
++	if (::isWorldUnitClass(pDefender->getUnitClassType()))
++	{
++		iTheirDefense /= 2;
++	}
++
++	if (NULL == pAttacker)
++	{
++		if (collateralDamage() > 0)
++		{
++			iTheirDefense *= (100 + collateralDamage());
++			iTheirDefense /= 100;
++		}
++
++		if (currInterceptionProbability() > 0)
++		{
++			iTheirDefense *= (100 + currInterceptionProbability());
++			iTheirDefense /= 100;
++		}
++	}
++	else
++	{
++		if (!(pAttacker->immuneToFirstStrikes()))
++		{
++			iTheirDefense *= 100 + (pDefender->firstStrikes() * 2 + pDefender->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
++			iTheirDefense /= 100;
++		}
++
++		if (pDefender->immuneToFirstStrikes())
++		{
++			iTheirDefense *= 100 + (pAttacker->firstStrikes() * 2 + pAttacker->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
++			iTheirDefense /= 100;
++		}
++	}
++
++	iAssetValue = std::max(1, pDefender->getUnitInfo().getAssetValue());
++	iCargoAssetValue = 0;
++	pDefender->getCargoUnits(aCargoUnits);
++	for (uint i = 0; i < aCargoUnits.size(); ++i)
++	{
++		iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
++	}
++	iTheirDefense = iTheirDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
++
++	if (iOurDefense == iTheirDefense)
++	{
++		if (NO_UNIT == getLeaderUnitType() && NO_UNIT != pDefender->getLeaderUnitType())
++		{
++			++iOurDefense;
++		}
++		else if (NO_UNIT != getLeaderUnitType() && NO_UNIT == pDefender->getLeaderUnitType())
++		{
++			++iTheirDefense;
++		}
++		else if (isBeforeUnitCycle(this, pDefender))
++		{
++			++iOurDefense;
++		}
++	}
++
++	return (iOurDefense > iTheirDefense);
++// advc (comment): End of legacy BtS code
++}
+ 
+-	return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || nukeRange() >= 0);
+-} // </dlph.8>
+ 
+ int CvUnit::airBaseCombatStr() const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index ad87b6daa..ccc96f4f4 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -92,7 +92,6 @@ public:
+ 	bool isActionRecommended(int iAction);
+ 	void updateFoundingBorder(bool bForceClear = false) const; // advc.004h
+ 
+-	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;						// Exposed to Python
+ 	bool isUnowned() const; // advc.061
+ 
+ 	bool canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible = false, bool bTestBusy = true);	// Exposed to Python
+@@ -349,11 +348,16 @@ public:
+ 	DllExport float currCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;																	// Exposed to Python
+ 
+ 	DllExport bool canFight() const;																									// Exposed to Python
++	bool canSiege(TeamTypes eTeam) const;																							// Exposed to Python
++	bool canCombat() const; // dlph.8
+ 	bool canAttack() const;																														// Exposed to Python
+ 	bool canAttack(const CvUnit& defender) const;
+ 	bool canDefend(const CvPlot* pPlot = NULL) const;																	// Exposed to Python
+-	bool canSiege(TeamTypes eTeam) const;																							// Exposed to Python
+-	bool canCombat() const; // dlph.8
++	// <advc.003>
++	bool canDefendAtCurrentPlot(PlayerTypes eAttackingPlayer,
++			CvUnit const* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy,
++			bool bTestCanMove, bool bTestVisible) const; // </advc.003>
++	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;						// Exposed to Python
+ 
+ 	int airBaseCombatStr() const;																						// Exposed to Python
+ 	int airMaxCombatStr(const CvUnit* pOther) const;																						// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=20291

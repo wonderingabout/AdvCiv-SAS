@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 288
+# Commit: 4a6c37bc59986060192e6036adf9410f7bfac899
+# History segment: K-Mod history
+# Parent used for diff: 9c4c0532bbaefd2cf0a96fb48c5af943b4c05360
+# Title: Made a minor change to forced specialists in AI_juggleCitizens. Updated the changelog. This is version 1.06.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+33	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 103b577e9..e77088f59 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9636,7 +9636,7 @@ void CvCityAI::AI_juggleCitizens()
+ 			if (isSpecialistValid((SpecialistTypes)iI, 1))
+ 			{
+ 				int iValue = AI_specialistValue(((SpecialistTypes)iI), bAvoidGrowth, false);
+-				int iForceValue = bForcedSpecialists ? getForceSpecialistCount((SpecialistTypes)iI) * 128 / iTotalForcedSpecialists - (getSpecialistCount((SpecialistTypes)iI)+1) * 128 / (getSpecialistPopulation()+1) : 0;
++				int iForceValue = bForcedSpecialists ? getForceSpecialistCount((SpecialistTypes)iI) * 128 / iTotalForcedSpecialists - getSpecialistCount((SpecialistTypes)iI) * 128 / (getSpecialistPopulation()+1) : 0;
+ 				if (iForceValue > iUnworkedSpecForce || (iForceValue >= iUnworkedSpecForce && iValue > iUnworkedSpecValue))
+ 				{
+ 					eUnworkedSpecialist = (SpecialistTypes)iI;
+
+diff --git a/changelog.txt b/changelog.txt
+index a4d9c40cd..4b8beb632 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,8 +1,40 @@
+-This is K-Mod version 1.05.
++This is K-Mod version 1.06.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v1.06 changelist
++
+++ Fixed some problems with AI unit training probability being too small (caused by side effects of some of my other changes)
+++ Fixed several problems with the new corporation spread AI.
+++ Fixed an original BtS bug which essentially always caused the AI's gold target to be divided by 3.
+++ Rewrote some of the AI's gold budgeting functions to compensate for the gold target bugfix and to improve their gold usage.
+++ Removed double-counting of the yield value of plot features when calculating improvement value, and rebalanced some other values to compensate for the change.
+++ Fixed a problem with AI_calculateAreaAIType which caused the AI to overestimate enemy power while preparing for war. (This caused the AI to abandon war-plans more often than it should.)
+++ Made some adjustments to the AI's reasoning for splitting their empire.
+++ Tightened the AI's rules for when to disband workers.
+++ Tightened the conditions for when the AI will choose to build a new worker. (these two changes are meant to fix a problem which sometimes caused the AI to constantly build and disband workers.)
+++ Fixed an original BtS bug in evaluation of workers in AI_disbandUnit. (This is not currently being used anyway.)
+++ The AI will now accept gifted great people even while in financial trouble. (not that anyone is likely to want to give away great people anyway...)
+++ Fixed a bug in the original code which could (very rarely) cause AI units to get stuck trying to attack an enemy that is inside the borders of some third civ.
+++ Fixed an int overflow bug in the original BtS code for AI_specialistValue.
+++ Made some changes to AI diplomacy. The game will now check that _both players_ are willing to talk to one another before they set up a trade. (Previously the check was one-sided.)
+++ Made structural changes to some parts of the AI. (Some changes for efficiency; some to lay the foundations for future changes - I'm just mentioning this because there might be new bugs...)
++
+++ Fixed a problem with the new auto citizen assignment - a rare case which could cause cities to unnecessarily starve while building settlers.
+++ Fixed a rare bug which sometimes allowed the automatic citizen assignment to assign a free specialist to a plot. (Triggered when the value of the plot was exactly equal to the value of the specialist.)
+++ Fixed a rare crash bug. (Triggered when an AI spy arrives at a targeted bonus improvement on the same turn that the plot loses all player ownership.)
++
+++ Added a new BUG option: Rapid Unit Cycling. This option removes the delay between issuing a command to a unit and the automatic selection of your next unit.
+++ Added a new BUG option for the stats tab of the info screen: "non-zero stats only".
+++ Changed some of the default BUG settings and fixed some minor interface problems. (Note: there was a minor problem in the previous defaults settings which will only be fixed if "Advanced Scoreboard.ini" is deleted from the K-Mod settings folder.)
+++ Changed the behaviour of automatic citizen assignment with forced specialists. (Previously, having any forced specialists would forbid the assignment of any non-forced specialists. Now it will allow other specialists when no more of the forced type can be placed.)
+++ The diplomacy screen should now allow the human player to declare war even if the AI player refuses to talk. (untested)
+++ Alt+click on a leader's name will now open a declare-war popup window rather than just instantly declaring war.
+++ Right clicking on a unit in neutral territory will no longer open a declare-war popup. (This makes it more consistent with other right-click behaviour.)
++
++--
++
+ v1.05 changelist
+ 
+ + Fixed a major performance problem in the original BtS code. The AI's turns will now take around half the time they took before. ie. The AI is now 100% faster.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5138

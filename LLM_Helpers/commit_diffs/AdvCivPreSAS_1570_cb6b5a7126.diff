@@ -1,0 +1,226 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1570
+# Commit: cb6b5a712654bb4d10153699db03b9b31aa9214f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5f9ee649b2491e886e1a889ab285c02f9ec5f86c
+# Title: Great Wall graphic not shown along borders with other civs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/GlobalDefines_advc.xml
+66	4	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+6	1	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 92b45c533..59c7d0fc5 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -607,6 +607,16 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.310: Only two modes (so far):
++		 0: Draw the Great Wall as in BtS.
++		 1: Omit edges that border on the territory of another civ or a peak.
++		 The main point is to avoid a very long wall graphic when the
++		 Great Wall gets constructed late. -->
++	<Define>
++		<DefineName>GREAT_WALL_GRAPHIC_MODE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	
+ 	<!-- [advc.314] Settings for goody hut outcomes. See also Civ4GoodyInfo.xml
+ 		 and Civ4HandicapInfo.xml. Turn numbers are adjusted to the game speed
+ 		 by the DLL. -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ead015102..2f3bce4d7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1394,13 +1394,13 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
+ 
+ int CvCity::getCityPlotIndex(const CvPlot* pPlot) const
+ {
+-	return plotCityXY(this, pPlot);
++	return ::plotCityXY(this, pPlot);
+ }
+ 
+ 
+ CvPlot* CvCity::getCityIndexPlot(int iIndex) const
+ {
+-	return plotCity(getX(), getY(), iIndex);
++	return ::plotCity(getX(), getY(), iIndex);
+ }
+ 
+ 
+@@ -11675,6 +11675,11 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool b
+ 			}
+ 
+ 			GC.getGame().incrementBuildingClassCreatedCount((BuildingClassTypes)(GC.getBuildingInfo(eIndex).getBuildingClassType()));
++			/*  advc.003: Increments greater than 1 aren't supported. As for decrements:
++				a building that gets destroyed has nevertheless been created ...
++				That said, removing and recreating world wonders through WB will
++				lead to failed assertions in CvGame::isBuildingClassMaxedOut. */
++			FAssert(iChangeNumRealBuilding == 1);
+ 		}
+ 	}
+ 
+@@ -11695,13 +11700,18 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool b
+ 				}
+ 			}
+ 
+-			if (iCountExisting == 1 && iNewValue == 0)
++			//if (iCountExisting == 1 && iNewValue == 0)
++			/*  advc.001: m_paiNumRealBuilding[eIndex] has already been decreased
++				(and the loop above skips eIndex anyway), so iCountExisting isn't
++				going to be 1. */
++			if (iCountExisting <= 0 && iOldNumBuilding > 0 && iNewValue <= 0)
+ 			{
+ 				gDLL->getEngineIFace()->RemoveGreatWall(this);
+ 			}
+ 			else if (iCountExisting == 0 && iNewValue > 0)
+ 			{
+-				gDLL->getEngineIFace()->AddGreatWall(this);
++				//gDLL->getEngineIFace()->AddGreatWall(this);
++				addGreatWall(); // advc.310
+ 			}
+ 		}
+ 	}
+@@ -12798,11 +12808,13 @@ CLLNode<OrderData>* CvCity::headOrderQueueNode() const
+ 	return m_orderQueue.head();
+ }
+ 
++
+ int CvCity::getNumOrdersQueued() const
+ {
+ 	return m_orderQueue.getLength();
+ }
+ 
++
+ OrderData CvCity::getOrderData(int iIndex) const
+ {
+ 	int iCount = 0;
+@@ -12824,12 +12836,62 @@ OrderData CvCity::getOrderData(int iIndex) const
+ 	return kData;
+ }
+ 
++
+ void CvCity::setWallOverridePoints(const std::vector< std::pair<float, float> >& kPoints)
+ {
+ 	m_kWallOverridePoints = kPoints;
+ 	setLayoutDirty(true);
+ }
+ 
++// <advc.310>
++void CvCity::addGreatWall() {
++
++	if(GC.getDefineINT("GREAT_WALL_GRAPHIC_MODE") != 1) {
++		gDLL->getEngineIFace()->AddGreatWall(this);
++		return;
++	}
++	// All plots orthogonally adjacent to a (desired) wall segment
++	std::set<int> aiWallPlots;
++	CvMap& m = GC.getMap();
++	for(int i = 0; i < m.numPlots(); i++) {
++		CvPlot* p = m.plotByIndex(i);
++		if(p->area() != area() || p->getOwner() != getOwner() // as in BtS
++				|| p->isImpassable()) // new: don't wall off peaks
++			continue;
++		bool bFound = false;
++		// Add p if we find an adjacent q such that (p, q) should have a segment in between
++		for(int j = 0; j < NUM_DIRECTION_TYPES; j++) {
++			if(j % 2 != 0) // Cardinal directions have even numbers
++				continue;
++			CvPlot* q = ::plotDirection(p->getX(), p->getY(), (DirectionTypes)j);
++			if(q == NULL || q->area() != area() || q->isImpassable())
++				continue;
++			PlayerTypes eOwner = q->getOwner();
++			if(eOwner == NO_PLAYER || eOwner == BARBARIAN_PLAYER) { // Not: any civ
++				aiWallPlots.insert(m.plotNum(q->getX(), q->getY()));
++				bFound = true;
++			}
++		}
++		if(bFound)
++			aiWallPlots.insert(m.plotNum(p->getX(), p->getY()));
++	}
++	/*  Hack: Use a dummy CvArea object to prevent CvEngine from placing segments
++		along plots not in aiWallPlots. */
++	CvArea* pTmpArea = m.addArea();
++	pTmpArea->init(pTmpArea->getID(), false);
++	/*  The city plot needs to be in the area as well b/c CvEngine will consider
++		only tiles in the same CvArea as the Great Wall city */
++	aiWallPlots.insert(plotNum());
++	// To be restored presently. They all have the same actual area.
++	int iActualArea = getArea();
++	for(std::set<int>::iterator it = aiWallPlots.begin(); it != aiWallPlots.end(); it++)
++		m.plotByIndex(*it)->setArea(pTmpArea->getID(), /*bProcess=*/false);
++	gDLL->getEngineIFace()->AddGreatWall(this);
++	for(std::set<int>::iterator it = aiWallPlots.begin(); it != aiWallPlots.end(); it++)
++		m.plotByIndex(*it)->setArea(iActualArea, false);
++	m.deleteArea(pTmpArea->getID());
++} // </advc.310>
++
+ 
+ const std::vector< std::pair<float, float> >& CvCity::getWallOverridePoints() const
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 419ca72fb..351099116 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -634,6 +634,7 @@ public:
+ 	/* allows you to programmatically specify a cities walls rather than having them be generated automagically */
+ 	DllExport bool isWallOverride() const; 
+ 	void setWallOverride(bool bOverride);
++	void addGreatWall(); // advc.310: Wrapper for CvEngine::AddGreatWall
+ 
+ 	DllExport bool isInfoDirty() const;
+ 	DllExport void setInfoDirty(bool bNewValue);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 31a0b12e8..31ebcf2cf 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4248,8 +4248,13 @@ int CvPlot::getArea() const
+ }
+ 
+ 
+-void CvPlot::setArea(int iNewValue) {  // advc.003: style changes
++void CvPlot::setArea(int iNewValue,  // advc.003: style changes
++		/* <advc.310> */ bool bProcess) {
+ 
++	if(!bProcess) {
++		m_iArea = iNewValue;
++		return;
++	} // </advc.310>
+ 	if(getArea() == iNewValue)
+ 		return;
+ 	if(area() != NULL)
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 8044aac34..fdc8c9fb2 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -279,7 +279,7 @@ public:
+ 			bool bNoImpassable = false) const;
+ 	CvArea* secondWaterArea() const;
+ 	int getArea() const;																																		// Exposed to Python
+-	void setArea(int iNewValue);
++	void setArea(int iNewValue, /* advc.310: */ bool bProcess = true);
+ 
+ 	DllExport int getFeatureVariety() const;																													// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6907

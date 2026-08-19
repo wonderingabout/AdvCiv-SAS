@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 492
+# Commit: 5f506efca81e1d55645246d1dbbcb19796681daa
+# History segment: K-Mod history
+# Parent used for diff: fc3deade895615daaf1d86f38a61d1f7543637b8
+# Title: Fixed a bug in AI_retreatToCity which caused pass 1 and 2 to be the same, rather than using "ignore danger" on pass 2. (This bug was my fault.) In AI_reconSp...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	7	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 74241c2ee..bc42ad73d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1992,10 +1992,10 @@ void CvUnitAI::AI_workerMove()
+ 		}
+ 	}
+ 
+-	if (AI_retreatToCity(false, true))
++	/*if (AI_retreatToCity(false, true))
+ 	{
+ 		return;
+-	}
++	}*/ // disabled by K-Mod (redundant)
+ 
+ 	if (AI_retreatToCity())
+ 	{
+@@ -20542,7 +20542,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bAirlift, int iMaxPath)
+ 								continue;
+ 							}
+ 
+-							if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), (iPass >= 3 ? MOVE_IGNORE_DANGER : 0), true, &iPathTurns, iMaxPath))
++							if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), (iPass >= 2 ? MOVE_IGNORE_DANGER : 0), true, &iPathTurns, iMaxPath)) // was iPass >= 3
+ 							{
+ 								if (iPathTurns <= iMaxPath)
+ 								{
+@@ -20632,7 +20632,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bAirlift, int iMaxPath)
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
+-		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iPass >= 3 ? MOVE_IGNORE_DANGER : 0, false, false, MISSIONAI_RETREAT);
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iPass >= 2 ? MOVE_IGNORE_DANGER : 0, false, false, MISSIONAI_RETREAT); // was iPass >= 3
+ 		return true;
+ 	}
+ 
+@@ -22973,12 +22973,12 @@ bool CvUnitAI::AI_reconSpy(int iRange)
+ 				int iValue = 0;
+ 				if (pLoopPlot->getPlotCity() != NULL)
+ 				{
+-					iValue += GC.getGameINLINE().getSorenRandNum(4000, "AI Spy Scout City");
++					iValue += GC.getGameINLINE().getSorenRandNum(2400, "AI Spy Scout City"); // was 4000
+ 				}
+ 				
+ 				if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 				{
+-					iValue += GC.getGameINLINE().getSorenRandNum(1000, "AI Spy Recon Bonus");
++					iValue += GC.getGameINLINE().getSorenRandNum(800, "AI Spy Recon Bonus"); // was 1000
+ 				}
+ 				
+ 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+@@ -22998,7 +22998,9 @@ bool CvUnitAI::AI_reconSpy(int iRange)
+ 					}
+ 				}
+ 				// K-Mod
+-				if (isPotentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
++				if (pLoopPlot->getTeam() == getTeam())
++					iValue /= 4;
++				else if (isPotentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
+ 					iValue *= 2;
+ 				// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2366

@@ -1,0 +1,541 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5377
+# Commit: c13f5a3c6132ab58824b3cae022e1c52f51143fd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8c59cab63149f34da216f98d79cc4461f8f8a3d0
+# Title: Make Play button in sevopedia civilizations, leaders redirect to corresponding 3D script first item - rename music groupings to TXT Keys instead of hardcoded...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+33	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+78	52	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+81	13	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 028cc8b19..36377c713 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -141,7 +141,12 @@ class SevoPediaCivilization:
+ 		buttonSize = 64
+ 		buttonX = (self.W_MUSIC - buttonSize) / 2
+ 		buttonY = 10
+-		screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
++		# <!-- custom: redirect to first civilization 3D script in Sevopedia Music category (GPT-5.2-Codex) -->
++		iMusicKey = self.top.SAS_getFirstCivScript3DMusicKey()
++		if iMusicKey != -1:
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
++		else:
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index dacf4c5b1..fccaa9e6a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -92,7 +92,12 @@ class SevoPediaEraChart:
+ 			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
+ 			if playButtonPath:
+ 				playButtonX = buttonRowStartX - wNum
+-				screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
++				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
++				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
++				if iFirstEraMusicKey != -1:
++					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
++				else:
++					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+ 
+ 			era_count = gc.getNumEraInfos()
+ 			for iEra in xrange(era_count):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index e7a69c0dd..b3e799cc7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -207,7 +207,12 @@ class SevoPediaLeader:
+ 		buttonSize = 64
+ 		buttonX = (self.W_MUSIC - buttonSize) / 2
+ 		buttonY = 10
+-		screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
++		# <!-- custom: redirect to leader's peace music entry in Sevopedia Music category -->
++		iMusicKey = self.top.SAS_getLeaderPeaceMusicKey(self.iLeader)
++		if iMusicKey != -1:
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
++		else:
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index e445ac8d4..0ce8ff3d5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -243,6 +243,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_musicLeaderTracks = None
+ 		self.SAS_musicScriptTracks = None
+ 		self.SAS_musicScript3DTracks = None
++		self.SAS_firstCivScript3DMusicKey = None
+ 
+ 		# <!-- custom: type-to-filter search bar state variables (chatgpt 5.2 + claude opus 4.5) -->
+ 		self.SAS_szSearchString = u""
+@@ -1469,7 +1470,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				self.SAS_musicEraTracks,
+ 				self.SAS_musicLeaderTracks,
+ 				self.SAS_musicScriptTracks,
+-				self.SAS_musicScript3DTracks
++				self.SAS_musicScript3DTracks,
++				self.SAS_firstCivScript3DMusicKey
+ 			) = SAS_MainGroupings.SAS_getMusicListAndTables(
+ 				self.isSortLists(),
+ 				self.SAS_packMusicKey, self.SAS_unpackMusicKey,
+@@ -1661,6 +1663,36 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return iLeader
+ 		return -1
+ 
++	def SAS_getLeaderPeaceMusicKey(self, iLeader):
++		# Returns the packed music key for a leader's "Peace" music entry, or -1 if not found
++		# Ensure music cache is populated first
++		if self.SAS_musicLeaderTracks is None:
++			self.getMusicList()
++		if self.SAS_musicLeaderTracks is None or len(self.SAS_musicLeaderTracks) == 0:
++			return -1
++		for iMusicId, track in enumerate(self.SAS_musicLeaderTracks):
++			trackLeader, _, trackType, _, _ = track
++			if trackLeader == iLeader and trackType == "Peace":
++				return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iMusicId)
++		return -1
++
++	def SAS_getFirstEraMusicKey(self):
++		# Returns the packed music key for the first era track (Track 01 of Ancient era), or -1 if not found
++		# Ensure music cache is populated first
++		if self.SAS_musicEraTracks is None:
++			self.getMusicList()
++		if self.SAS_musicEraTracks is None or len(self.SAS_musicEraTracks) == 0:
++			return -1
++		return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_ERA, 0)
++
++	def SAS_getFirstCivScript3DMusicKey(self):
++		# Returns the packed music key for the first item in the Civilizations 3D scripts grouping.
++		if self.SAS_firstCivScript3DMusicKey is None:
++			self.getMusicList()
++		if self.SAS_firstCivScript3DMusicKey is None:
++			return -1
++		return self.SAS_firstCivScript3DMusicKey
++
+ 	def isShortcutInfo(self, info):
+ 		return info.getType().find("SHORTCUTS") != -1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 57f605efe..719e254a0 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1300,7 +1300,7 @@ def _SAS_extractTagValue(line, tagName):
+ 
+ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
+ 	# Return:
+-	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks)
++	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
+ 	#
+ 	# These tables are required by SevoPediaMusic for Play button behavior and for showing Track IDs.
+ 	#
+@@ -1347,7 +1347,8 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 		szEraName = info.getDescription()
+ 		if szEraName.endswith(" Era"):
+ 			szEraName = szEraName[:-len(" Era")]
+-		_SAS_addSection(listEntries, "Quotes (" + szEraName + ")", items)
++		szQuotesHeader = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES", ())
++		_SAS_addSection(listEntries, szQuotesHeader + " (" + szEraName + ")", items)
+ 
+ 	# Era soundtrack tracks (grouped by Era)
+ 	for iEra in range(gc.getNumEraInfos()):
+@@ -1492,27 +1493,41 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				musicLeaderTracks.append((iLeader, iEra, "War", iWarId, szLabel))
+ 				leaderWarItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
+ 
+-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_PEACE", ()), leaderIntroPeaceItems)
+-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_PEACE", ()), leaderPeaceItems)
+-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
+-	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_WAR", ()), leaderWarItems)
++	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_PEACE", ()), leaderIntroPeaceItems)
++	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_PEACE", ()), leaderPeaceItems)
++	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
++	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR", ()), leaderWarItems)
+ 
+ 	
+ 	# Sound scripts (2D) - keep grouping/labels identical to the original SevoPediaMain implementation.
++	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
++	_SCRIPT_2D_OPENING = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D"
++	_SCRIPT_2D_SONGS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SONGS_2D"
++	_SCRIPT_2D_DIPLO = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_DIPLO_2D"
++	_SCRIPT_2D_TECH = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TECH_2D"
++	_SCRIPT_2D_TUTORIAL = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TUTORIAL_2D"
++	_SCRIPT_2D_BUILDS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_BUILDS_2D"
++	_SCRIPT_2D_UNITS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_2D"
++	_SCRIPT_2D_INTERFACE = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_INTERFACE_2D"
++	_SCRIPT_2D_AMBIENT = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENT_2D"
++	_SCRIPT_2D_GOODY = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_GOODY_2D"
++	_SCRIPT_2D_EVENTS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_EVENTS_2D"
++	_SCRIPT_2D_SFX = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SFX_2D"
++	_SCRIPT_2D_OTHER = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_2D"
+ 	scriptGroups = {
+-		"Scripts (Opening, 2D)": [],
+-		"Scripts (Songs, 2D)": [],
+-		"Scripts (Diplo, 2D)": [],
+-		"Scripts (Tech, 2D)": [],
+-		"Scripts (Tutorial, 2D)": [],
+-		"Scripts (Builds, 2D)": [],
+-		"Scripts (Units, 2D)": [],
+-		"Scripts (Interface, 2D)": [],
+-		"Scripts (Ambient, 2D)": [],
+-		"Scripts (Goody, 2D)": [],
+-		"Scripts (Events, 2D)": [],
+-		"Scripts (SFX, 2D)": [],
+-		"Scripts (Other, 2D)": [],
++		_SCRIPT_2D_OPENING: [],
++		_SCRIPT_2D_SONGS: [],
++		_SCRIPT_2D_DIPLO: [],
++		_SCRIPT_2D_TECH: [],
++		_SCRIPT_2D_TUTORIAL: [],
++		_SCRIPT_2D_BUILDS: [],
++		_SCRIPT_2D_UNITS: [],
++		_SCRIPT_2D_INTERFACE: [],
++		_SCRIPT_2D_AMBIENT: [],
++		_SCRIPT_2D_GOODY: [],
++		_SCRIPT_2D_EVENTS: [],
++		_SCRIPT_2D_SFX: [],
++		_SCRIPT_2D_OTHER: [],
+ 	}
+ 
+ 	szScript = None
+@@ -1528,29 +1543,29 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 			elif "</Script2DSound>" in line:
+ 				if szScript and szSound:
+ 					if szSound.startswith("SONG_OPENING"):
+-						szGroup = "Scripts (Opening, 2D)"
++						szGroup = _SCRIPT_2D_OPENING
+ 					elif szSound.startswith("SONG_"):
+-						szGroup = "Scripts (Songs, 2D)"
++						szGroup = _SCRIPT_2D_SONGS
+ 					elif szSound.startswith("DIPLO_") or szScript.startswith("AS2D_DIPLO_"):
+-						szGroup = "Scripts (Diplo, 2D)"
++						szGroup = _SCRIPT_2D_DIPLO
+ 					elif szSound.startswith("SND_TECH"):
+-						szGroup = "Scripts (Tech, 2D)"
++						szGroup = _SCRIPT_2D_TECH
+ 					elif szScript.startswith("AS2D_TUTORIAL"):
+-						szGroup = "Scripts (Tutorial, 2D)"
++						szGroup = _SCRIPT_2D_TUTORIAL
+ 					elif szScript.startswith("AS2D_BUILD"):
+-						szGroup = "Scripts (Builds, 2D)"
++						szGroup = _SCRIPT_2D_BUILDS
+ 					elif szScript.startswith("AS2D_UNIT"):
+-						szGroup = "Scripts (Units, 2D)"
++						szGroup = _SCRIPT_2D_UNITS
+ 					elif szScript.startswith("AS2D_IF"):
+-						szGroup = "Scripts (Interface, 2D)"
++						szGroup = _SCRIPT_2D_INTERFACE
+ 					elif (
+ 						szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or
+ 						szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or
+ 						szSound.startswith("SND_TOWNMUSIC")
+ 					):
+-						szGroup = "Scripts (Ambient, 2D)"
++						szGroup = _SCRIPT_2D_AMBIENT
+ 					elif szSound.startswith("SND_GOODY"):
+-						szGroup = "Scripts (Goody, 2D)"
++						szGroup = _SCRIPT_2D_GOODY
+ 					elif (
+ 						szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or
+ 						szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or
+@@ -1558,11 +1573,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 						szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or
+ 						szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT")
+ 					):
+-						szGroup = "Scripts (Events, 2D)"
++						szGroup = _SCRIPT_2D_EVENTS
+ 					elif szSound.startswith("SND_"):
+-						szGroup = "Scripts (SFX, 2D)"
++						szGroup = _SCRIPT_2D_SFX
+ 					else:
+-						szGroup = "Scripts (Other, 2D)"
++						szGroup = _SCRIPT_2D_OTHER
+ 
+ 					szLabel = szSound
+ 
+@@ -1587,23 +1602,30 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 		scriptGroups = {}
+ 
+ 	for szHeader in (
+-		"Scripts (Opening, 2D)", "Scripts (Songs, 2D)", "Scripts (Diplo, 2D)", "Scripts (Tech, 2D)",
+-		"Scripts (Tutorial, 2D)", "Scripts (Builds, 2D)", "Scripts (Units, 2D)", "Scripts (Interface, 2D)",
+-		"Scripts (Ambient, 2D)", "Scripts (Goody, 2D)", "Scripts (Events, 2D)", "Scripts (SFX, 2D)",
+-		"Scripts (Other, 2D)"
++		_SCRIPT_2D_OPENING, _SCRIPT_2D_SONGS, _SCRIPT_2D_DIPLO, _SCRIPT_2D_TECH,
++		_SCRIPT_2D_TUTORIAL, _SCRIPT_2D_BUILDS, _SCRIPT_2D_UNITS, _SCRIPT_2D_INTERFACE,
++		_SCRIPT_2D_AMBIENT, _SCRIPT_2D_GOODY, _SCRIPT_2D_EVENTS, _SCRIPT_2D_SFX,
++		_SCRIPT_2D_OTHER
+ 	):
+ 		items = scriptGroups.get(szHeader, [])
+-		if bSortLists and szHeader != "Scripts (Other, 2D)":
++		if bSortLists and szHeader != _SCRIPT_2D_OTHER:
+ 			items.sort()
+-		_SAS_addSection(listEntries, szHeader, items)
++		szDisplayHeader = localText.getText(szHeader, ())
++		_SAS_addSection(listEntries, szDisplayHeader, items)
+ 
+ 	# Sound scripts (3D) - keep grouping/labels identical to the original SevoPediaMain implementation.
++	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
++	_SCRIPT_3D_UNITS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_3D"
++	_SCRIPT_3D_AMBIENCE = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENCE_3D"
++	_SCRIPT_3D_IMPROVEMENTS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_IMPROVEMENTS_3D"
++	_SCRIPT_3D_CIVILIZATIONS = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_CIVILIZATIONS_3D"
++	_SCRIPT_3D_OTHER = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_3D"
+ 	script3DGroups = {
+-		"Scripts (Units, 3D)": [],
+-		"Scripts (Ambience, 3D)": [],
+-		"Scripts (Improvements, 3D)": [],
+-		"Scripts (Civilizations, 3D)": [],
+-		"Scripts (Other, 3D)": [],
++		_SCRIPT_3D_UNITS: [],
++		_SCRIPT_3D_AMBIENCE: [],
++		_SCRIPT_3D_IMPROVEMENTS: [],
++		_SCRIPT_3D_CIVILIZATIONS: [],
++		_SCRIPT_3D_OTHER: [],
+ 	}
+ 
+ 	szScript3D = None
+@@ -1619,15 +1641,15 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 			elif "</Script3DSound>" in line:
+ 				if szScript3D and szSound3D:
+ 					if szScript3D.startswith("AS3D_UN_"):
+-						szGroup3D = "Scripts (Units, 3D)"
++						szGroup3D = _SCRIPT_3D_UNITS
+ 					elif szScript3D.startswith("AS3D_SS_"):
+-						szGroup3D = "Scripts (Ambience, 3D)"
++						szGroup3D = _SCRIPT_3D_AMBIENCE
+ 					elif szScript3D.startswith("AS3D_IMPROV"):
+-						szGroup3D = "Scripts (Improvements, 3D)"
++						szGroup3D = _SCRIPT_3D_IMPROVEMENTS
+ 					elif szScript3D.endswith("_SELECT") or szScript3D.endswith("_ORDER"):
+-						szGroup3D = "Scripts (Civilizations, 3D)"
++						szGroup3D = _SCRIPT_3D_CIVILIZATIONS
+ 					else:
+-						szGroup3D = "Scripts (Other, 3D)"
++						szGroup3D = _SCRIPT_3D_OTHER
+ 
+ 					szLabel3D = szSound3D
+ 
+@@ -1651,10 +1673,14 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 	except:
+ 		script3DGroups = {}
+ 
+-	for szHeader3D in ("Scripts (Units, 3D)", "Scripts (Ambience, 3D)", "Scripts (Improvements, 3D)", "Scripts (Civilizations, 3D)", "Scripts (Other, 3D)"):
++	firstCivScript3DKey = -1
++	for szHeader3D in (_SCRIPT_3D_UNITS, _SCRIPT_3D_AMBIENCE, _SCRIPT_3D_IMPROVEMENTS, _SCRIPT_3D_CIVILIZATIONS, _SCRIPT_3D_OTHER):
+ 		items3D = script3DGroups.get(szHeader3D, [])
+-		if bSortLists and szHeader3D != "Scripts (Other, 3D)":
++		if bSortLists and szHeader3D != _SCRIPT_3D_OTHER:
+ 			items3D.sort()
+-		_SAS_addSection(listEntries, szHeader3D, items3D)
++		if (szHeader3D == _SCRIPT_3D_CIVILIZATIONS) and items3D and (firstCivScript3DKey == -1):
++			firstCivScript3DKey = items3D[0][1]
++		szDisplayHeader3D = localText.getText(szHeader3D, ())
++		_SAS_addSection(listEntries, szDisplayHeader3D, items3D)
+ 
+-	return (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks)
++	return (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 16c3b1a15..f9d0862d5 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -364,33 +364,106 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Eras</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_TECH_QUOTES</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES</Tag>
+ 		<English>Tech Quotes</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_DIPLO</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_DIPLO</Tag>
+ 		<English>Leaders Diplo</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_PEACE</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_PEACE</Tag>
+ 		<English>Leaders (Intro Peace)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_PEACE</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_PEACE</Tag>
+ 		<English>Leaders (Peace)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_INTRO_WAR</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR</Tag>
+ 		<English>Leaders (Intro War)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_LEADERS_WAR</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR</Tag>
+ 		<English>Leaders (War)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_HEADER_MENUS_OPENING</Tag>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING</Tag>
+ 		<English>Menus (Opening)</English>
+ 	</TEXT>
++	<!-- custom: script headers for music category (Claude code Sonnet 4.5) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D</Tag>
++		<English>Scripts (Opening, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SONGS_2D</Tag>
++		<English>Scripts (Songs, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_DIPLO_2D</Tag>
++		<English>Scripts (Diplo, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TECH_2D</Tag>
++		<English>Scripts (Tech, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TUTORIAL_2D</Tag>
++		<English>Scripts (Tutorial, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_BUILDS_2D</Tag>
++		<English>Scripts (Builds, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_2D</Tag>
++		<English>Scripts (Units, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_INTERFACE_2D</Tag>
++		<English>Scripts (Interface, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENT_2D</Tag>
++		<English>Scripts (Ambient, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_GOODY_2D</Tag>
++		<English>Scripts (Goody, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_EVENTS_2D</Tag>
++		<English>Scripts (Events, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SFX_2D</Tag>
++		<English>Scripts (SFX, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_2D</Tag>
++		<English>Scripts (Other, 2D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_3D</Tag>
++		<English>Scripts (Units, 3D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENCE_3D</Tag>
++		<English>Scripts (Ambience, 3D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_IMPROVEMENTS_3D</Tag>
++		<English>Scripts (Improvements, 3D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_CIVILIZATIONS_3D</Tag>
++		<English>Scripts (Civilizations, 3D)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_3D</Tag>
++		<English>Scripts (Other, 3D)</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -417,20 +490,17 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: Long_Comments_XML.txt #148 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+-		<!-- custom: <English>Concepts (Outdated)</English>-->
+ 		<English>Outdated</English>
+ 	</TEXT>
+ 
+ 	<!-- custom: Long_Comments_XML.txt #228 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+-		<!-- custom: <English>Mods Information</English>-->
+ 		<English>Mods Info</English>
+ 	</TEXT>
+ 	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_TECH</Tag>
+-		<!-- custom: <English>Technologies</English>-->
+ 		<English>Techs</English>
+ 	</TEXT>
+ 	<TEXT>
+@@ -443,12 +513,10 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
+-		<!-- custom: <English>Resources</English>-->
+ 		<English>Bonuses</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CIV</Tag>
+-		<!-- custom: <English>Civilizations</English>-->
+ 		<English>Civs</English>
+ 	</TEXT>
+ 	<TEXT>
+@@ -1487,7 +1555,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you('d) need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
++	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
+ 		<English></English>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index b6dba8081..ed2898520 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -216,13 +216,12 @@ As of now, click on "OK" or Right-click to stop the media playing; press Escape
+ 
+ The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
+ 
+-- In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
++- In Sevopedia Music, parse properly Civilization tracks from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
+ - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+ - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
+ - Maybe generalize script name for other things than era tracks
+ - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
+ - in header add music id / total (like total 1759)
+-- In Sevopedia Leader, Civilization, and Eras Chart (to first era sound), redirect to the real track item not just to sevopedia Music page
+ 
+ <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=24796

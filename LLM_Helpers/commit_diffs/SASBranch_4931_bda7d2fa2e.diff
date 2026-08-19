@@ -1,0 +1,1243 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4931
+# Commit: bda7d2fa2ea8ac82c7afd002d94efad25fc206cb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6ac4d9729fd6e200e4a1fc0b28d66db28623193e
+# Title: (Seemingly fixed) Beyond Tremendously Improved AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+9	9	CvGameCoreDLL/CitySiteEvaluator.cpp
+7	1	CvGameCoreDLL/CvCityAI.cpp
+402	225	CvGameCoreDLL/CvUnitAI.cpp
+8	2	README.md
+56	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 62260a7ad..f2d4df6c1 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -378,15 +378,15 @@ short AIFoundValue::evaluate()
+ 	// <advc.040>
+ 
+ 	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic anyways etc -->
+-	TerrainTypes const eTerrainPeak = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PEAK");
+-	TerrainTypes const eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+-	TerrainTypes const eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+-	TerrainTypes const eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+-	TerrainTypes const eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
+-	TerrainTypes const eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+-
+-	FeatureTypes const eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+-	FeatureTypes const eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
++	static const TerrainTypes eTerrainPeak = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PEAK");
++	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
++	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
++	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
++	static const TerrainTypes eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
++	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
++
++	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
++	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+ 
+ 	bool bFirstColony = isPrioritizeAsFirstColony();
+ 	IFLOG if(bFirstColony) logBBAI("First colony");
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5e10ab4d4..7ad6a2edc 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2995,7 +2995,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
+ 						kOwner.getNumCities() + 1;
+ 
+-				// <!-- custom: add a check here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
++				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
+ 				// if (pWaterArea != NULL)
+ 				if (pWaterArea != NULL && isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
+ 				{
+@@ -3071,6 +3071,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 	aiUnitAIVal[UNITAI_SETTLE] *= (bDanger ? 8 : 12); // was ? 8 : 20
+ 	aiUnitAIVal[UNITAI_WORKER] *= (bDanger ? 2 : 7);
++
+ 	aiUnitAIVal[UNITAI_ATTACK] *= 3;
+ 	aiUnitAIVal[UNITAI_ATTACK_CITY] *= 5; // K-Mod, up from *4
+ 	aiUnitAIVal[UNITAI_COLLATERAL] *= 5;
+@@ -3084,9 +3085,12 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 2;
+ 	aiUnitAIVal[UNITAI_CITY_COUNTER] *= 2;
+ 	aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 2;
++
+ 	aiUnitAIVal[UNITAI_EXPLORE] *= (bDanger ? 6 : 15);
++
+ 	//aiUnitAIVal[UNITAI_ICBM] *= 18;
+ 	aiUnitAIVal[UNITAI_ICBM] *= 18 * kOwner.AI_nukeWeight() / 100; // K-Mod
++
+ 	aiUnitAIVal[UNITAI_WORKER_SEA] *= (bDanger ? 3 : 10);
+ 	// <!-- custom: deprioritize military sea units, as AI builds them too much then its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
+ 	// aiUnitAIVal[UNITAI_ATTACK_SEA] *= 5;
+@@ -3100,6 +3104,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	// aiUnitAIVal[UNITAI_CARRIER_SEA] *= 8;
+ 	// aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] *= 8;
+ 	// aiUnitAIVal[UNITAI_PIRATE_SEA] *= 5;
++
+ 	aiUnitAIVal[UNITAI_ATTACK_AIR] *= 6;
+ 	aiUnitAIVal[UNITAI_DEFENSE_AIR] *= 4; // K-Mod, up from *3
+ 	aiUnitAIVal[UNITAI_CARRIER_AIR] *= 15;
+@@ -3136,6 +3141,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
+ 		aiUnitAIVal[UNITAI_ICBM] = 0; // advc.143b
+ 	} // </advc.033>
++
+ 	int iBestValue = 0;
+ 	UnitTypes eBestUnit = NO_UNIT;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index aa0075a2e..df045b2b3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -762,6 +762,7 @@ const std::map<BonusTypes, BuildTypes>& getBonusSpecificLandBuilds()
+ 	if (s_bonusSpecificLandBuilds.empty())
+ 	{
+ 		// <!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
++		// Cache IDs once
+ 		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_ALUMINUM") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+ 		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_COAL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+ 		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+@@ -826,46 +827,61 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	PROFILE_FUNC();
+ 
+ 	// <!-- custom: attempt to support terrains and feature(s) conditional logic anyways etc -->
+-	TerrainTypes const eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+-	TerrainTypes const eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+-	TerrainTypes const eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+-	TerrainTypes const eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
+-	TerrainTypes const eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+-
+-	FeatureTypes const eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+-	FeatureTypes const eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+-	FeatureTypes const eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+-	// <!-- custom: used to check if it's on our existing plot so we can clear it (removing fallout doesn't seem to be handled specifically as a build_remove unlike forest and jungle but only as part of building other builds, so fallout is not related to the above code if i am not mistaken, but check to be sure, although should be accurate, but check to be sure if needed i mean in this case but anyways etc) -->
+-	FeatureTypes const eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
++	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
++	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
++	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
++	static const TerrainTypes eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
++	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
++
++	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
++	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
++	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
++	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure anyways etc-->
++	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+ 
+ 	// <!-- custom: modify these if needed in your mod anyways etc -->
+     // Hardcoded BuildTypes for common feature removals for efficiency.
+-    BuildTypes const eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+-    BuildTypes const eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
++    static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
++    static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
++	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure anyways etc-->
++	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
+ 
+ 	// <!-- custom: if i am not mistaken, camps (possibly other builds? But lazy to check xd but anyways etc hopefully accurate enough anyways etc) can be built without removing feature forest or jungle, so handle them a bit differently here anyways etc -->
+-    BuildTypes const eBuildCamp = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
++    static const BuildTypes eBuildCamp = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
+ 
+ 	// All Civ4 <!-- custom: as per our mod's xml most importantly i mean thanks still really i mean claude ai hehe for this sample and such anyways etc --> bonuses that require camps
+-	BonusTypes const eBonusDeer = (BonusTypes)GC.getInfoTypeForString("BONUS_DEER");
+-	BonusTypes const eBonusElephants = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
+-	BonusTypes const eBonusFur = (BonusTypes)GC.getInfoTypeForString("BONUS_FUR");
++	static const BonusTypes eBonusDeer = (BonusTypes)GC.getInfoTypeForString("BONUS_DEER");
++	static const BonusTypes eBonusElephants = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
++	static const BonusTypes eBonusFur = (BonusTypes)GC.getInfoTypeForString("BONUS_FUR");
+ 
+     // Define the BuildType constant for clarity.
+     // This directly refers to the action a worker takes.
+-    BuildTypes const eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
+-    BuildTypes const eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+-    BuildTypes const eBuildCottage = (BuildTypes)GC.getInfoTypeForString("BUILD_COTTAGE");
++    static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
++    static const BuildTypes eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
++    static const BuildTypes eBuildCottage = (BuildTypes)GC.getInfoTypeForString("BUILD_COTTAGE");
+ 
+-    BuildTypes const eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
+-    BuildTypes const eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
++    static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
++    static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
+ 
+-	// <!-- custom: useful for blacklist checks of the current plot's improvement (NOT what next build to build for the worker (sorry for capitalization xd but was to be clear anyways etc, and i repeated myself too "build to build" (now again xd) but not sorry for that i mean but i hope these comments help really if i may say but anyways etc), in fact for builds to build, unlike below current plot's improvement to check/find, use above build enums rather, as checking a build's improvement created a crash for workshop or/and actsAsCity (fort) (didn't check which between workshop and fort and only in one savegame so could have other issues in others untested, but browsing by builds as above seems safe and clean and fixed it, so i'd recommend from little or not in this case i know but anyways etc to use eBuild for next worker build and such checks, vs eImprovement for the current plot's existing improvement check rather, to avoid bugs and be clean and consistent and clear if i may say and if i am not mistaken, but check to be sure anyways etc thanks anyways etc)) -->
+-	ImprovementTypes const eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
+-	ImprovementTypes const eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
+-	ImprovementTypes const eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");
+-	ImprovementTypes const eImprovementWindmill = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WINDMILL");
+-	ImprovementTypes const eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
++	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under soem conditoins only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely :) Written in chatgpt style but definitely human xd, somehow felt to write as so but anyways etc, hopefulyl helpful but anyways etc -->
++	static const ImprovementTypes eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
++	static const ImprovementTypes eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
++	static const ImprovementTypes eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");
++	static const ImprovementTypes eImprovementWindmill = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WINDMILL");
++	static const ImprovementTypes eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
++
++	// <!-- custom: semi-holy improvements as of now anyways etc -->
++	static const ImprovementTypes eImprovementFarm = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FARM");
++	static const ImprovementTypes eImprovementCottage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_COTTAGE");
++
++	// First, get the ImprovementInfo object for the Workshop
++	CvImprovementInfo const& kImprovementWorkshopInfo = GC.getInfo(eImprovementWorkshop);
++	// Now, access the base yields directly from that object
++	int const iImprovementWorkshopFoodYieldChange = kImprovementWorkshopInfo.getYieldChange(YIELD_FOOD); // Should be -1 <!-- custom: at least in the early game anyways etc -->
++	bool const bImprovementWorkshopCostsNoFood = (iImprovementWorkshopFoodYieldChange >= 0);
++
++	CvImprovementInfo const& kImprovementFarmInfo = GC.getInfo(eImprovementFarm); // <!-- custom: e.g. +1 food early if i am not mistaken anyways etc -->
++	int const iImprovementFarmFoodYieldChange = kImprovementFarmInfo.getYieldChange(YIELD_FOOD);
+ 
+ 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
+ 		but this function is also used to give action recommendations for the player
+@@ -895,7 +911,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	std::vector<CandidatePlot> candidatePlots;
+ 
+     // A map for efficient lookup of the best improvement for a given bonus.
+-	const std::map<BonusTypes, BuildTypes>& bonusBuilds = getBonusSpecificLandBuilds();
++	static const std::map<BonusTypes, BuildTypes>& bonusBuilds = getBonusSpecificLandBuilds();
+ 
+ 	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidate plots so that we can early exit after first bonus found (in short it seems faster to store all candidate plots blindly than pre-select them only for pathfinder-eligible and passing ones i mean anyways etc, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc) ; so my idea was (unimplemented due to explained reasons in this code comment if i am not mistaken anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (as if this only best tile ends up being unpathable, then all the other good candidate plots we skipped assuming we had a better one would not be chosen then if no other pathfinder-ok bonus tile exists, so safer and also seemingly faster to not bother with pathfinder until we have sorted all plots from best to worse in this case i mean anyways etc) (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
+ 
+@@ -944,7 +960,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 		TerrainTypes const eTerrain = kPlot.getTerrainType();
+ 		FeatureTypes const eFeature = kPlot.getFeatureType();
+ 
+-		// === ADVANCE AI: The "Value Hack" ===
++		// === The "Value Hack" ===
+ 		// <!-- custom: Improving bonuses (if possible) anyways etc --> on the plot is the highest priority.
+ 
+ 		BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+@@ -1035,6 +1051,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					}
+ 				}
+ 			}
++			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean if i'm not mistaken but anyways etc) if i'm not mistaken even though it has highest value due to urgency to clean/remove/scrub this feature if i'm not mistaken but anyways etc -->
++			else if (eFeature == eFeatureFallout)
++			{
++				if (canBuild(kPlot, eBuildScrubFallout))
++				{
++					eBestSupposedBuild = eBuildScrubFallout;
++
++					iValue += 19500;
++				}
++				else
++				{
++					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite” with another build.
++					continue;
++				}
++			}
+ 			// <!-- custom: if we know we can chop, no need to look for a costly specific build we won't do now since we want to chop explicitly/specifically if i may say in this case but anyways etc first. So else, only look for a bonus specific build if plot is already chopped, in other words if plot's feature is not forest nor jungle if i am not mistaken anyways etc -->
+ 			else
+ 			{
+@@ -1093,22 +1124,23 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				// <!-- custom: one exception to the general ignore rule below as of now anyways etc, an irrigated farm for example on banana is quite attractive, even if inefficient, is not too long to build, and the yields are good ; but if food is low such as in plains or tundra terrains anyways etc, we may also build a farm if tile has enough food i mean anyways etc ; also since farms only give food yield and 1 food as of now early in particular if i am not mistaken but anyways etc, aim for at least 4+ total plot food to consider building it, so for grass + 2 extra total food yield (one from farm early, one at least from bonus), but for plains to reach +3 total extra food, we'd need one from farm early as well, plus 2 at least from bonus yield to make it worth our while if i may say too in this case but anyways etc, food is very worth it especially early overall, so consider this to be a good move if i may say that it would be bad to miss in this case i mean for the AI i mean too, leaving an unusually high food plot even if weirdly/unefficiently improved may not be good, hopefully this makes AI stronger in this case i mean and more efficient too i mean too anyways etc -->
+ 				else if (canBuild(kPlot, eBuildFarm))
+ 				{
+-					if (((eTerrain == eTerrainGrass && (bonusFoodYieldChange) >= 3)) ||
+-					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (bonusFoodYieldChange) >= 3))
++					int const totalFarmBonusFoodYield = bonusFoodYieldChange + iImprovementFarmFoodYieldChange;
++
++					if (((eTerrain == eTerrainGrass) && (totalFarmBonusFoodYield >= 3)) ||
++					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (totalFarmBonusFoodYield >= 3)))
+ 					{
+ 						eBestSupposedBuild = eBuildFarm;
+ 
+ 						iValue += 18000;
+ 					}
+ 				}
+-				// <!-- custom: else fall back to general rule: ignore until better conditions anyways etc, unless critically urgent or here rather least relevant ones remaining to improve, then would still be in our candidates list anyways etc -->
++				// <!-- custom: else fall back to general rule: ignore until better conditions anyways etc, we can't build bonus specific build nor the farm alternatively, ignore for now if i'm not mistaken anyways etc -->
+ 				else
+ 				{
+-					iValue -= 1000;
++					continue;
+ 				}
+ 			}
+ 		}
+-		// === END ADVANCE AI ===
+ 
+ 		// <!-- custom: after bonus computation is handled, for bonus preference do not mind the terrain/feature, improve any terrain as long as it is a bonus with very great priority if i may say anyways etc, else if our best would not be a bonus (no bonus or unreachable), then consider terrain or/and feature anyways etc, prefer high food terrain most importantly: for example and in particular, do not build flatland plains cottage when there are flatland grass tiles available in city radius, this is a big waste of food yield and opportunity -->
+         // Logic to prioritize farms on high-food terrains like grassland and plains.
+@@ -1117,7 +1149,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
+ 			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect if i am not mistaken too anyways etc -->
+ 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+-			// Now using the newly defined constants for clarity and consistency.
++			// <!-- custom: first the absolutely holy improvements to never improve -->
+ 			if (ePlotCurrentImprovement == eImprovementHamlet ||
+ 				ePlotCurrentImprovement == eImprovementVillage ||
+ 				ePlotCurrentImprovement == eImprovementTown ||
+@@ -1132,6 +1164,27 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// <!-- custom: with our reworked system, assume current improvement is always or often good for effiency and no reason not to, should often hopefully not be a too bad improvement, so give a general penalty to discourage overwriting a plot ; do so only when all other plots, especially unupgraded ones that are good enough, have been handled first, not strict foribddance so workshops and such later game buildings can be built if i am not mistaken anyways etc -->
+ 			if (kPlot.getImprovementType() != NO_IMPROVEMENT)
+ 			{
++				// <!-- custom: then the relatively improvements handled here as well, not absolutely holy, but always holy under/if some conditions / are met but anyways etc -->
++				bool const bLowFoodEnvironment = ((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra) || (eTerrain == eTerrainSnow) || (eTerrain == eTerrainDesert));
++				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example bu anyways etc), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well but anyways etc -->
++
++				if (bLowFoodEnvironment && kPlot.getImprovementType() == eImprovementFarm)
++				{
++					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe but anyways etc, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well anyways etc -->
++					continue;
++				}
++				// <!-- custom: high-food environments 's semi-holy improvement(s) anyways etc -->
++				else if ((eFeature == eFeatureFloodPlains) && kPlot.getImprovementType() == eImprovementCottage)
++				{
++					// <!-- custom: extra oscillation avoid cases, see above for details, anyways etc -->
++					continue;
++				}
++				else if ((eTerrain == eTerrainGrass) && ((kPlot.getImprovementType() == eImprovementCottage)))
++				{
++					// <!-- custom: extra oscillation avoid cases, see above for details, anyways etc -->
++					continue;
++				}	
++
+ 				// <!-- custom: check and be alert on whether we can build higher level improvements, ignoring less relevant ones like forest preserve, lumbermill, watermill, that are not too good i mean generally or for efficiency, focus on most efficent ones anyways etc -->
+ 				bool const bCanBuildAssumedEfficientHigherLevelImprovements = (canBuild(kPlot, eBuildWorkshop) || canBuild(kPlot, eBuildWindmill));
+ 
+@@ -1161,9 +1214,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					{
+ 						if (iCityHealthCalculatedDifference >= 1)
+ 						{
+-							// <!-- custom: chop first, think later -->
++							// <!-- custom: chop first, think later about which build to do or not do anyways etc -->
+ 							eBestSupposedBuild = eBuildRemoveForest;
+-							// <!-- custom: note: do not change iValue specifically for forest remove as forest is important enough as it is i mean anyways etc, and it is more efficient to do other builds on other plots, rather than chop best tile and later maybe not improving the tile to go chop next tile to chop instead of improving this best one that was chopped just before if i am not mistaken anyways etc ; also chopping say grassland first vs plains as we'd be more inclined to build on higher food anyways etc is handled later in terrain/features checks as of now i mean anyways etc -->
++							// <!-- custom: chop more generously, we should have the infrastructure and health and such to support it, and we want to use the tiles for our last citizens in city radius anyway rather than improving plains or such, plus the hammer is still good even if we chop late in this case but anyways etc -->
++
++							iValue += 50 * iCityHealthCalculatedDifference;
+ 						}
+ 						else
+ 						{
+@@ -1173,18 +1228,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					}
+ 					else
+ 					{
+-						if (iCityHealthCalculatedDifference >= -1)
+-						{
+-							// <!-- custom: chop more generously if i may say anyways etc, we need to grow the city, and the hammer/production is nice early, hopefully we also have enough food anyways etc to accomodate slightly lower health anyways for small in this case city size anyways etc -->
+-							eBestSupposedBuild = eBuildRemoveForest;
++						// <!-- custom: chop as long as we have the health, else devalue it -->
++						eBestSupposedBuild = eBuildRemoveForest;
+ 
+-							iValue += 50 * (1 + iCityHealthCalculatedDifference);
+-						}
+-						else
+-						{
+-							// <!-- custom: do not chop yet (avoid overchopping) -->
+-							continue;
+-						}
++						iValue += -100 + (50 * iCityHealthCalculatedDifference);
+ 					}
+ 
+ 					// <!-- custom: finally value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
+@@ -1192,11 +1239,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					{
+ 						iValue += 1500;
+ 					}
++					// <!-- custom: try to keep forest a bit more all other things get equal, the hammer/production yields as well as health are not too bad -->
+ 					else if (eTerrain == eTerrainPlains)
+ 					{
+ 						iValue += 800;
+ 					}
+-					// <!-- custom: try to keep forest a bit more all other things get equal, the hammer/production is not too bad and we have a bit of base commerce too now with the tundra rework/buff in our mod as of now i mean anyways etc -->
+ 					else if (eTerrain == eTerrainTundra)
+ 					{
+ 						iValue += 600;
+@@ -1218,24 +1265,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					{
+ 						// <!-- custom: chop first, think later -->
+ 						eBestSupposedBuild = eBuildRemoveJungle;
+-						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or/and unhealthiness (i.e. i mean anyways etc difference anyways etc) we have) ; the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled anyways etc -->
+-						iValue += (50 * (-1 * (iCityHealthCalculatedDifference - 1))) + (50 * (iCityPopulation - 6));
++						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or/and unhealthiness (i.e. i mean anyways etc difference anyways etc) we have) ; the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled anyways etc: grab the last unhealthy points we can to grow further, in our mod gives production too so all nice if i'm not mistaken anyways etc -->
++						iValue += (75 * (-1 * iCityHealthCalculatedDifference)) + (75 * (iCityPopulation - 6));
+ 					}
+-					// <!-- custom: if low enough on city poopulation, do not bother too much with chopping jungle, if we have blnank tiles reay to use (i.e. chopped or without forest or jungle at the time of this check anyways etc) -->
+ 					else
+ 					{
+-						if (iCityHealthCalculatedDifference <= 1)
+-						{
+-							// <!-- custom: jungle is harder to remove but it should be very worth it if we are unhealthy and there is jungle in city radius (especially considering that now jungle as of now has a higher health penalty as part of buffing it other ways but anyways etc), especially on high food tiles like grass that we could use later or imemdiately after at next build to build an improvement. -->
+-							eBestSupposedBuild = eBuildRemoveJungle;
++						// <!-- custom: always chop, but more if health is low since it's jungle, very nice if we could solve health issue, plus i mistakenly put a check >= 1 here without handling the else case so we had a city unimproved at turn 175, spotted by chtagpt o-3 thanks and now fixed and adjusted with this logic, but also proof our system works nicely as intended without interference if i'm not mistakena t least in this case but anyways etc, which is ideal functioning of this system i mean but anyways etc ; if low pop prioritize chopping jungle as is very worth it (less health, and in our mod we gain production too anyways etc) -->
++						eBestSupposedBuild = eBuildRemoveJungle;
+ 
+-							iValue += 200 * (-1 * (iCityHealthCalculatedDifference - 1));
+-						}
+-						else
+-						{
+-							// <!-- custom: do not chop yet (avoid overchopping) -->
+-							continue;
+-						}
++						iValue += 50 * (-1 * iCityHealthCalculatedDifference);
+ 					}
+ 					// <!-- custom: finally base value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
+ 					if (eTerrain == eTerrainGrass)
+@@ -1261,7 +1299,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				if (eFeature == eFeatureFloodPlains)
+ 				{
+ 					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+-					if (iEstimatedCityFoodDifference >= -2 || kCity.isFoodProduction())
++					if (iEstimatedCityFoodDifference >= 1 || kCity.isFoodProduction())
+ 					{
+ 						// Floodplains: Great for cottages (high food + commerce potential)
+ 						// High food terrain = can afford cottage
+@@ -1318,7 +1356,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								eBestSupposedBuild = eBuildMine;
+ 
+ 								iValue += 1500;
+-
+ 							}
+ 							else
+ 							{
+@@ -1335,7 +1372,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								eBestSupposedBuild = eBuildWindmill;
+ 
+ 								iValue += 1200 + (100 * (-1 * iEstimatedCityFoodDifference));
+-
+ 							}
+ 							else if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1343,7 +1379,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								eBestSupposedBuild = eBuildMine;
+ 
+ 								iValue += 1300;
+-
+ 							}
+ 							else
+ 							{
+@@ -1356,7 +1391,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					else
+ 					{
+ 						// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields anyways etc -->
+-						if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
++						if (iEstimatedCityFoodDifference >= 2 || kCity.isFoodProduction())
+ 						{
+ 							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+@@ -1364,6 +1399,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game anyways etc -->
+ 								iValue += 1650;
++
++								if (bImprovementWorkshopCostsNoFood)
++								{
++									// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
++									iValue += 1000;
++								}
+ 							}
+ 							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
+ 							// High food terrain = can afford cottage
+@@ -1382,21 +1423,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						// <!-- custom: else if short on food, make sure city can grow, a farm can be quite good even on grassland in some circumstances, but generally avoid -->
+ 						else
+ 						{
+-							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+-							if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
++							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
++							if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+ 							{
+-								eBestSupposedBuild = eBuildFarm;
++								eBestSupposedBuild = eBuildWorkshop;
+ 
+-								// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
+-								iValue += 1450 + (100 * (-1 * iEstimatedCityFoodDifference));
++								// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
++								iValue += 2000;
+ 							}
+-							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+-							// else if (canBuild(kPlot, eBuildWorkshop))
+-							if (canBuild(kPlot, eBuildWorkshop))
++							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
++							else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+ 							{
+-								eBestSupposedBuild = eBuildWorkshop;
++								eBestSupposedBuild = eBuildFarm;
+ 
+-								iValue += 1300;
++								// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
++								iValue += 1460 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 							}
+ 							else if (canBuild(kPlot, eBuildCottage))
+ 							{
+@@ -1433,7 +1474,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+ 								continue;
+ 							}
+-
+ 						}
+ 						// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
+ 						else
+@@ -1444,7 +1484,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								eBestSupposedBuild = eBuildWindmill;
+ 
+ 								iValue += 800;
+-
+ 							}
+ 							else if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1452,7 +1491,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								eBestSupposedBuild = eBuildMine;
+ 
+ 								iValue += 700;
+-
+ 							}
+ 							else
+ 							{
+@@ -1464,15 +1502,20 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+ 					else
+ 					{
+-						if (iEstimatedCityFoodDifference >= 0 || kCity.isFoodProduction())
++						if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
+ 						{
+ 							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+-								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
++								// <!-- custom: windmill on plains is not too bad, but unless we are starved, it is not a so good build -->
+ 								eBestSupposedBuild = eBuildWorkshop;
+ 
+ 								iValue += 800;
+ 
++								if (bImprovementWorkshopCostsNoFood)
++								{
++									// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
++									iValue += 1000;
++								}
+ 							}
+ 							else if (canBuild(kPlot, eBuildCottage))
+ 							{
+@@ -1486,30 +1529,31 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+ 								continue;
+ 							}
+-
+ 						}
+ 						// <!-- custom: if low on food on a flatland plains, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
+ 						else
+ 						{
+-							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+-							if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
++							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
++							if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+ 							{
+-								eBestSupposedBuild = eBuildFarm;
++								eBestSupposedBuild = eBuildWorkshop;
+ 
+-								iValue += 900 + (100 * (-1 * iEstimatedCityFoodDifference));
++								// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
++								iValue += 1600;
+ 							}
+-							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+-							else if (canBuild(kPlot, eBuildWorkshop))
++							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
++							else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+ 							{
+-								eBestSupposedBuild = eBuildWorkshop;
++								eBestSupposedBuild = eBuildFarm;
+ 
+-								iValue += 800;
++								iValue += 900 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 							}
+ 							else if (canBuild(kPlot, eBuildCottage))
+ 							{
+ 								eBestSupposedBuild = eBuildCottage;
+ 
+-								iValue += 600;
++								// <!-- custom: still quite good but not ultimate best, but if we're going to build a farm as relatively holy anyway in this low-food terrain, restrict the cottage by increasing its requirement further (i.e. lowering its iValue so it is more rarely built if i may say but anyways etc), making it even less likely to be built unless we have tons of food or if we can't build a farm and nothing or almost nothing else is good right now in city radius if i am not mistaken but anyways etc, for effiency, but anyways etc -->
++								iValue += 500;
+ 							}
+ 							else
+ 							{
+@@ -1532,7 +1576,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							eBestSupposedBuild = eBuildWindmill;
+ 
+ 							iValue += 500;
+-
+ 						}
+ 						else if (canBuild(kPlot, eBuildMine))
+ 						{
+@@ -1551,7 +1594,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					else
+ 					{
+ 						// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more if i am not mistaken anyways etc -->
+-						if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
++						if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
+ 						{
+ 							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+@@ -1560,6 +1603,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 								iValue += 575;
+ 
++								if (bImprovementWorkshopCostsNoFood)
++								{
++									// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
++									iValue += 1000;
++								}
+ 							}
+ 							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
+ 							else if (canBuild(kPlot, eBuildCottage))
+@@ -1574,30 +1622,31 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+ 								continue;
+ 							}
+-
+ 						}
+ 						// <!-- custom: if low on food on a flatland tundra, a farm is good if we can get it especially considering the scarce environment if i am not mistaken but anyways etc, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
+ 						else
+ 						{
+-							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+-							if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
++							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
++							if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+ 							{
+-								eBestSupposedBuild = eBuildFarm;
++								eBestSupposedBuild = eBuildWorkshop;
+ 
+-								iValue += 500 + (100 * (-1 * iEstimatedCityFoodDifference));
++								// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
++								iValue += 1600;
+ 							}
+-							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+-							else if (canBuild(kPlot, eBuildWorkshop))
++							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
++							else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+ 							{
+-								eBestSupposedBuild = eBuildWorkshop;
++								eBestSupposedBuild = eBuildFarm;
+ 
+-								iValue += 575;
++								iValue += 500 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 							}
+ 							else if (canBuild(kPlot, eBuildCottage))
+ 							{
+ 								eBestSupposedBuild = eBuildCottage;
+ 
+-								iValue += 550;
++								// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->						
++								iValue += 150;
+ 							}
+ 							else
+ 							{
+@@ -1613,7 +1662,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (kPlot.isHills())
+ 					{
+ 						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+-						if (iEstimatedCityFoodDifference >= -2 || kCity.isFoodProduction())
++						if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
+ 						{
+ 							if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1660,7 +1709,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (kPlot.isHills())
+ 					{
+ 						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+-						if (iEstimatedCityFoodDifference >= -2 || kCity.isFoodProduction())
++						if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
+ 						{
+ 							if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1690,6 +1739,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+ 								eBestSupposedBuild = eBuildMine;
+ 
++								// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
+ 								iValue += 200;
+ 							}
+ 							else
+@@ -1706,7 +1756,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					continue;
+ 				}
+ 			}
+-
+ 			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or/and adjust future builds if needed anyways etc -->
+ 		}
+ 
+@@ -1727,12 +1776,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				iValue += 100;
+ 			}
+ 
+-			// <!-- custom: watch out / check for fallout if i may say anyways etc, if any tile has fallout, build any build, it will remove it on this tile as part of building the new build if i am not mistaken anyways etc -->
+-			if (kPlot.getFeatureType() == eFeatureFallout)
+-			{
+-				iValue += 10000;
+-			}
+-
+ 			// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
+ 			CandidatePlot candidatePlot;
+ 			candidatePlot.iValue = iValue;
+@@ -1785,9 +1828,20 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
+ 			// 	iMaxWorkers += 10;
+ 			//
++			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(),
++			// 	/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
++
++			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc but anyways etc -->
++			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
++			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
++			// With iRange = 0, it only counts groups whose target is exactly the same tile.
++			// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
++			// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
++			int const iRange = 0;
++			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. -->
+ 			int const iMaxWorkers = 1;
+-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(),
+-				/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
++			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
++			if (iReservedPlot < iMaxWorkers)
+ 			{
+ 				// This is a valid, pathable, and <!-- custom: current highest (in our loop in this case i mean anyways etc) value --> available candidate <!-- custom: plot -->. We found it!
+ 				break;
+@@ -2687,14 +2741,96 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		}
+ 	}
+ 
++	// <!-- custom: make workers less jumpy to retreat as chatgpt 5 says anyways etc (thanks to my prompts and adjustments or not or yes or etc but anyways etc but thanks for help too anyways etc), i don't understand too much these, but it seems that we get false danger positives and due to that never improve tiles, some cities are entirely unimproved at turn 175 in jungle, trying to address that and perhaps also make workers more efficient. I think that early most units are slow so it's fine, and later in game, when most people have mobile units, the value of workers should be less so fine if they are stolen if i may say in this case but anyways etc ; also using this as an opportunity to make workers more responsive and not stay in city when they could do something else, as questionned by the "XXX" comment but anyways etc -->
++	// Why not comment the retreat out entirely?
++	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats,” especially around jungle rings.
++	// if (bCanRetreat && !getGroup()->canDefend())
++	// {
++	// 	if (kOwner.AI_isPlotThreatened(plot(), 2))
++	// 	{
++	// 		// XXX maybe not do this??? could be working productively somewhere else...
++	// 		if (AI_retreatToCity())
++	// 			return;
++	// 		bCanRetreat = false;
++	// 	}
++	// }
++	// Simple, readable "redirect instead of retreat" logic
++	// ----------------------------------------------------
++
++	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
++
+ 	if (bCanRetreat && !getGroup()->canDefend())
+ 	{
+-		if (kOwner.AI_isPlotThreatened(plot(), 2))
++    /* Retreat logic policy change:
++       --------------------------------------
++       Old code:
++         - Threat radius was 2 tiles in *all* situations.
++           (Meaning: if any enemy unit was within 2 tiles — about a small city radius —
++            we would consider the worker threatened and run for safety.)
++         - Any threat → immediately retreat to the nearest city.
++         - Result: workers often abandoned tasks too early, leaving some cities
++           (especially jungle ones) unimproved for a long time.
++
++       New code:
++         - Inside our cultural borders: skip threat check entirely.
++           (If an enemy is already on our tile, the game captures us before this runs.)
++         - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
++           → This greatly reduces “false positives” from slow or harmless enemy units
++             far away but still inside the old radius 2 bubble.
++         - If threatened, FIRST try to redirect to a different, safer city
++           that still needs improvements, instead of retreating straight home.
++         - Only fall back to “retreat to city” if no safe redirection is possible.
++         - This keeps workers productive more often while still avoiding capture
++           in genuinely dangerous situations outside borders.
++    */
++
++		bool bThreatened = false;
++
++		if (plot()->getOwner() != getOwner())
+ 		{
+-			// XXX maybe not do this??? could be working productively somewhere else...
+-			if (AI_retreatToCity())
+-				return;
+-			bCanRetreat = false;
++			// Only check threat outside borders
++			bThreatened = kOwner.AI_isPlotThreatened(plot(), 1); // adjacent counts
++		}
++
++		if (bThreatened)
++		{
++			bool bNearTarget = false;
++
++			CvPlot* pTarget = AI_getGroup()->AI_getMissionAIPlot();
++			if (pTarget != NULL)
++			{
++				GroupPathFinder& pf = CvSelectionGroup::pathFinder();
++				if (pf.generatePath(*pTarget))
++				{
++					int iNearTurns = 1;
++
++					// Commit from a bit farther if target is high-impact (jungle clear or bonus)
++					FeatureTypes eJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
++					if ((pTarget->getFeatureType() == eJungle) ||
++						(pTarget->getNonObsoleteBonusType(getTeam()) != NO_BONUS))
++					{
++						iNearTurns = 2;
++					}
++
++					if (pf.getPathTurns() <= iNearTurns)
++						bNearTarget = true;
++				}
++			}
++
++			if (!bNearTarget)
++			{
++				// <!-- custom: exclude barbarians as their cities are very far and i don't think it would work well to have workers roaming, perhaps and even if or maybe even especially if escorted xd (not sure barbarian cities would be defended correctly nor invasion stacks strong enough due to escorting task splitting them but anyways etc), but anyways etc -->
++				if (!kOwner.isBarbarian())
++				{
++					CvCityAI* pCurrentCity = AI_getCityToImprove();
++					if (AI_nextCityToImprove(pCurrentCity)) return;
++					if (AI_nextCityToImprove(NULL)) return;
++				}
++
++				if (AI_retreatToCity()) return;
++			}
++
++			bCanRetreat = false; // don’t loop retreat logic this turn
+ 		}
+ 	}
+ 
+@@ -2758,46 +2894,48 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	{
+ 		// <!-- custom: we need to move to city B sooner if city A is improved enough already, now our AI workers are much more efficient, but the core cities are overly improved, while edge cities are quite a bit underdevelopped (see known issue as of now 39 for details with screenshots anyways etc, a 10+ city in particular won't grow or hardly grow in the example mentionned, but workers keep improving it, although we'll never allocate all these 15+ tiles, and city B needs help fast anyways etc, earlier in the game may help too but anyways etc) maybe if i'm not mistaken and ideally but anyways etc ; see known issue as of now 39 for details -->
+ 		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
+-		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBuffer 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
++		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBufferForAllCities 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
+ 		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens anyways etc -->
+ 		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius if i am not mistaken but anyways etc), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too but anyways etc) -->
+ 		const int iCityPopulation = pCity->getPopulation();
+-		const int iBufferExtraForSmallCities = (iCityPopulation <= 3 ? 2 : 0);
+-		const int iBuffer = 0;
+-		if (countImprovedTiles(pCity) >= (iCityPopulation + iBuffer + iBufferExtraForSmallCities) ||
+-			(pCity->unhappyLevel(0) > pCity->happyLevel() ||
+-			pCity->foodDifference(false) <= 0))
++		// <!-- custom: make the extra plot count a bit larger to account for (no pun but anyways etc) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot imrpove vs city population is reached, so make it a bit larger to account for that anyways etc, as of now here 3 (see below at iBufferForAllCities anyways etc) rather than say 2 anyways etc." -->
++		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 2 : 0);
++		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too logn to be improved by AI workers as of now anyways etc), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example if i'm not mistaken but anyways etc, then don't come back for a while if i'm not mistkane and in this case i mean but anyways etc)) -->
++		const int iBufferForAllCities = 1;
++		if ((countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)) ||
++			// <!-- custom: for big cities, if they are unhappy it can be expected they have stagnated and won't grow further, go to smaller city B or even city C that can grow more and need and would benefit from the improvements now instead of overimproving city A that won't grow seemingly soon -->
++			(iCityPopulation >= 6 && (pCity->unhappyLevel(0) > pCity->happyLevel())))
+ 		{
+ 			if (AI_nextCityToImprove(pCity))   // go pick city B right now
+ 				return;
+ 		}
+-		/* ---- original iNeed / iHave code follows ---- */
+-
+-		int const iNeed = pCity->AI_getWorkersNeeded();
+-		int const iHave = pCity->AI_getWorkersHave();
+-		/* bts code
+-		if (iNeed > 0 && (getPlot().isCity() || iNeed < (1 + iHave * 2) / 3)) */
+-		/*  K-Mod. Is it just me, or did they get this backwards?
+-			Note: this worker is currently at pCity, and so it's probably counted in AI_getWorkersHave. */
+-		//if (iNeed > 0 && (getPlot().isCity() || iHave - 1 <= (1 + iNeed * 2) / 3))
+-		/*  <advc.113> The above makes the worker leave its city even if the remaining
+-			workers will only be 2/3 of what's needed, e.g. when iHave=iNeed=3.
+-			I think the intention was, on the contrary, to let more workers improve
+-			a city than are needed. iHave=3, iNeed=2 seems like the only relevant
+-			example. (Note that iNeed will eventually decrease when too many workers
+-			improve a city.)
+-			The bigger issue is that the K-Mod (and BtS) code won't let a worker
+-			leave when iHave=2, iNeed=1, which happens all the time. Also, I
+-			don't think newly trained workers (isCity) should unconditionally stay.
+-			It would be nice if CvCityAI::AI_updateWorkersNeededHere used
+-			times-100 precision, but it rounds values in several places, so that's
+-			difficult to change. */
+-		if (iNeed > 0 && ((getPlot().isCity() && iHave - 1 < 2 * iNeed) ||
+-			iHave - 1 < (1 + iNeed * 4) / 3)) // </advc.113>
+-		{
+-			if (AI_improveCity(*pCity))
+-				return;
+-		}
++
++		// <!-- custom: as for this code we don't need it, we now have our own logic to decide if worker should go to city B or back to city A or to city C, make them more dynamic, so smaller cities get max chance to be improved, even if it means a bit back and forth, currently small cities take too long to be improved, we don't want workers to stay too long in a city when others could be waiting, anyways etc ; in very short, don't give workers too many reasons to stay in same city; delaying improving other cities :) If i may say but anyways etc, improve city B or other cities, then come back later to city A if/when needed in this case i mean but anyways etc -->
++		// int const iNeed = pCity->AI_getWorkersNeeded();
++		// int const iHave = pCity->AI_getWorkersHave();
++		// /* bts code
++		// if (iNeed > 0 && (getPlot().isCity() || iNeed < (1 + iHave * 2) / 3)) */
++		// /*  K-Mod. Is it just me, or did they get this backwards?
++		// 	Note: this worker is currently at pCity, and so it's probably counted in AI_getWorkersHave. */
++		// //if (iNeed > 0 && (getPlot().isCity() || iHave - 1 <= (1 + iNeed * 2) / 3))
++		// /*  <advc.113> The above makes the worker leave its city even if the remaining
++		// 	workers will only be 2/3 of what's needed, e.g. when iHave=iNeed=3.
++		// 	I think the intention was, on the contrary, to let more workers improve
++		// 	a city than are needed. iHave=3, iNeed=2 seems like the only relevant
++		// 	example. (Note that iNeed will eventually decrease when too many workers
++		// 	improve a city.)
++		// 	The bigger issue is that the K-Mod (and BtS) code won't let a worker
++		// 	leave when iHave=2, iNeed=1, which happens all the time. Also, I
++		// 	don't think newly trained workers (isCity) should unconditionally stay.
++		// 	It would be nice if CvCityAI::AI_updateWorkersNeededHere used
++		// 	times-100 precision, but it rounds values in several places, so that's
++		// 	difficult to change. */
++		// if (iNeed > 0 && ((getPlot().isCity() && iHave - 1 < 2 * iNeed) ||
++		// 	iHave - 1 < (1 + iNeed * 4) / 3)) // </advc.113>
++		// {
++		// 	if (AI_improveCity(*pCity))
++		// 		return;
++		// }
+ 	}
+ 
+ 	/*if (AI_improveLocalPlot(2, pCity))
+@@ -18383,69 +18521,115 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	PROFILE_FUNC();
+ 	FAssert(getDomainType() == DOMAIN_LAND); // advc
+ 
+-	int iBestValue = 0;
++	// <!-- custom: now unused, see below for details anyways etc -->
++	// int iBestValue = 0;
+ 	BuildTypes eBestBuild = NO_BUILD;
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
+-	FOR_EACH_CITYAI(pLoopCity, kOwner)
+-	{
+-		if (pLoopCity == pCity)
+-			continue;
+-		// BETTER_BTS_AI_MOD, Worker AI, Efficiency, 02/22/10, jdog5000: START
+-		// BBAI efficiency: check area for land units before path generation
+-		// advc.opt: This function is only called for land units
+-		if (/*getDomainType() == DOMAIN_LAND &&*/ !pLoopCity->isArea(getArea()) /*&&
+-			!bMoveAllTerrain*/)
+-		{
+-			continue;
+-		}
+-		//iValue = pLoopCity->AI_totalBestBuildValue(area());
+-		int iWorkersNeeded = pLoopCity->AI_getWorkersNeeded();
+-		// <advc.113>
+-		if (iWorkersNeeded <= 0)
+-			continue;
+-		/*  Don't want cities to produce that many workers, but don't be as strict
+-			when it comes to worker movement. */
+-		iWorkersNeeded++; // </advc.113>
+-		int iWorkersHave = pLoopCity->AI_getWorkersHave();
+-		int iValue = std::max(0, iWorkersNeeded - iWorkersHave) * 100;
+-		iValue += iWorkersNeeded * 10;
+-		iValue *= iWorkersNeeded + 1;
+-		iValue /= iWorkersHave + 1;
+-		if (iValue <= 0)
+-			continue;
+ 
+-		CvPlot* pPlot = NULL;
+-		BuildTypes eBuild = NO_BUILD;
+-		if (/* advc.opt: */ pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
+-			!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+-		{
+-			continue;
+-		}
+-		FAssert(pPlot != NULL && eBuild != NO_BUILD);
+-		//if (!AI_plotValid(pPlot)) continue; // advc.opt: Area check suffices
++	// <!-- custom: with our code changes and AI worker move optimization as of now in CvUnitAI::AI_workerMove of going to city B or city C sooner instead of overimproving city A, we now have our workers going back to city A since thye consider they have improved city A enough for now. This is a strong indication for us (i.e. me and with chatgpt 5's helpa ndmy prompt to it too hehe but anyways etc) that something else is preventing them from going to city C, that is unimproved at turn 105 and evne 155 to 175. Making this a lot more lax, as i don't care if there's a lot of back and forth, we already handle that in our own way to prevent worker move oscillation while being flexible, see there for details anyways etc ; also don't care about distance, simply go to our chosen best anyways etc, this code is a big load of horse shit from what i can tell but of cours eif i may say i don't know too much about these, but AI behaves so bad, stays forever in city A, never goes to city C.. what a mess, clean all that logic if i may say and if i am not mistaken in thinking so with chatgpt 5's help anyways etc ; results after writing this but anyways etc: this is beyond tremendous improvement but anyways etc, city C is now fully improved and grew to size 2 with fast growth at turn 105, and 5+ tiles chopped and improved at a glance (plus chopping jungle gives production in our mod), instead of now staying parked in city A due/thanks to our efficiency don't overimprove a city optimizaiton move to next, minus this old shitty code beyond shitty that was preventing it stupidly, but anyways etc, of course i make mistakes too and don't kow a lot aobut this code or in general, but i am learning or seeing bit by bit, and in autoplay this resulted in very shitty behaviour, now other jungle farther cities get their first improvements earlier too, thanks a lot chatgpt 5 and me too if i may say but anyways etc, see known issue 41 with screenshots for details, anyways etc -->
++	// FOR_EACH_CITYAI(pLoopCity, kOwner)
++	// {
++	// 	if (pLoopCity == pCity)
++	// 		continue;
++	// 	// BETTER_BTS_AI_MOD, Worker AI, Efficiency, 02/22/10, jdog5000: START
++	// 	// BBAI efficiency: check area for land units before path generation
++	// 	// advc.opt: This function is only called for land units
++	// 	if (/*getDomainType() == DOMAIN_LAND &&*/ !pLoopCity->isArea(getArea()) /*&&
++	// 		!bMoveAllTerrain*/)
++	// 	{
++	// 		continue;
++	// 	}
++	// 	//iValue = pLoopCity->AI_totalBestBuildValue(area());
++	// 	int iWorkersNeeded = pLoopCity->AI_getWorkersNeeded();
++	// 	// <advc.113>
++	// 	if (iWorkersNeeded <= 0)
++	// 		continue;
++	// 	/*  Don't want cities to produce that many workers, but don't be as strict
++	// 		when it comes to worker movement. */
++	// 	iWorkersNeeded++; // </advc.113>
++	// 	int iWorkersHave = pLoopCity->AI_getWorkersHave();
++	// 	int iValue = std::max(0, iWorkersNeeded - iWorkersHave) * 100;
++	// 	iValue += iWorkersNeeded * 10;
++	// 	iValue *= iWorkersNeeded + 1;
++	// 	iValue /= iWorkersHave + 1;
++	// 	if (iValue <= 0)
++	// 		continue;
+ 
+-		iValue *= 1000;
+-		if (pLoopCity->isCapital())
+-			iValue = (iValue * 170) / 100; // advc.113: Was *2, which seems a bit much.
+-		if (iValue <= iBestValue)
+-			continue;
++	// 	CvPlot* pPlot = NULL;
++	// 	BuildTypes eBuild = NO_BUILD;
++	// 	if (/* advc.opt: */ pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
++	// 		!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
++	// 	{
++	// 		continue;
++	// 	}
++	// 	FAssert(pPlot != NULL && eBuild != NO_BUILD);
++	// 	//if (!AI_plotValid(pPlot)) continue; // advc.opt: Area check suffices
+ 
+-		int iPathTurns;
+-		if (!generatePath(*pPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns))
+-			continue;
++	// 	iValue *= 1000;
++	// 	if (pLoopCity->isCapital())
++	// 		iValue = (iValue * 170) / 100; // advc.113: Was *2, which seems a bit much.
++	// 	if (iValue <= iBestValue)
++	// 		continue;
+ 
+-		iValue /= (iPathTurns + 1);
+-		if (iValue > iBestValue)
+-		{
+-			iBestValue = iValue;
+-			eBestBuild = eBuild;
+-			pBestPlot = pPlot;
+-			//FAssert(!atPlot(pBestPlot) || NULL == pCity || pCity->AI_getWorkersNeeded() == 0 || pCity->AI_getWorkersHave() > pCity->AI_getWorkersNeeded() + 1);
+-		}
+-		// BETTER_BTS_AI_MOD: END
+-	}
++	// 	int iPathTurns;
++	// 	if (!generatePath(*pPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns))
++	// 		continue;
++
++	// 	iValue /= (iPathTurns + 1);
++	// 	if (iValue > iBestValue)
++	// 	{
++	// 		iBestValue = iValue;
++	// 		eBestBuild = eBuild;
++	// 		pBestPlot = pPlot;
++	// 		//FAssert(!atPlot(pBestPlot) || NULL == pCity || pCity->AI_getWorkersNeeded() == 0 || pCity->AI_getWorkersHave() > pCity->AI_getWorkersNeeded() + 1);
++	// 	}
++	// 	// BETTER_BTS_AI_MOD: END
++	// }
++
++    // Simple path-finder handle (same one K-Mod uses in this fn)
++    GroupPathFinder& pf = CvSelectionGroup::pathFinder();
++    pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
++
++    FOR_EACH_CITYAI(pLoopCity, kOwner)
++    {
++        if (pLoopCity == pCity)       // don’t pick current city A
++            continue;
++
++        // land workers stick to same land area (keeps it sane)
++        if (!pLoopCity->isArea(getArea()))
++            continue;
++
++        // Ask the per-city logic for its single best target plot + build
++        CvPlot* pPlot = NULL;
++        BuildTypes eBuild = NO_BUILD;
++        if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
++            !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
++        {
++            continue; // nothing useful to do in this city right now
++        }
++        FAssert(pPlot != NULL && eBuild != NO_BUILD);
++
++        // Don’t dogpile a tile already targeted by someone else
++        const int iMaxWorkers = 1;
++        if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pPlot, MISSIONAI_BUILD,
++                getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers) >= iMaxWorkers)
++        {
++            continue;
++        }
++
++        // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
++        if (!pf.generatePath(*pPlot))
++            continue;
++
++        // Found the first viable target in another city — take it.
++        eBestBuild = eBuild;
++        pBestPlot = pPlot;
++        break;
++    }
++
++	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
+ 
+ 	if (pBestPlot == NULL)
+ 		return false;
+@@ -19103,13 +19287,14 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)
+ 
+ 	FAssert(eBuild != NO_BUILD);
+ 
+-	FeatureTypes const eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+-	FeatureTypes const eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+-	FeatureTypes const eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
++	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
++	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
++	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+ 
+ 	// Hardcoded BuildTypes for common feature removals for efficiency.
+-	BuildTypes const eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+-	BuildTypes const eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
++	static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
++	static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
++	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
+ 
+ 	FeatureTypes const eFeature = kPlot.getFeatureType();
+ 	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
+@@ -19171,17 +19356,9 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)
+ 		}
+ 		else if (eFeature == eFeatureFallout)
+ 		{
+-			// Find a build type that specifically removes this feature
+-			FOR_EACH_ENUM(Build)
++			if (canBuild(kPlot, eBuildScrubFallout))
+ 			{
+-				CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+-				if (kLoopBuild.isFeatureRemove(eFeature))
+-				{
+-					if (canBuild(kPlot, eLoopBuild))
+-					{
+-						return eLoopBuild;
+-					}
+-				}
++				return eBuildScrubFallout;
+ 			}
+ 		}
+ 	}
+
+diff --git a/README.md b/README.md
+index fb3ecc335..908a04901 100644
+--- a/README.md
++++ b/README.md
+@@ -323,7 +323,7 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - more like a patch but added "no military support cost" (`bMilitarySupport` in unit info's XML if i am not mistaken anyways etc) info in sevopedia unit's placeSpecial as part of giving as of now 0 military support cost for the robotic_infantry we (i.e. i but anyways etc...) added in advciv-sas anyways etc, see [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and the [/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) for related info as well anyways etc
+ - make the AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and chatgpt's help too anyways etc and adjusted for advciv-sas too or not anyways etc), that as a side effect may also slightly increase performance due to early return in the function anyways etc. Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc.
+ - (now seemingly fixed): prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot"), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
+ - disable AIFoundValue::adjustToBadHealth, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc.
+ - make ai cities wider spread and simplify conditions with changes in AIFoundValue::isTooManyTakenTiles and AIFoundValue::adjustToCivSurroundings (remove long distance penalties of settling cities in this case i mean but anyways etc, and if i am not mistaken anyways etc), they were often times too or even very much way too crowded and close in a way that doesn't allow them to grow past size 4 or 6 and they'd compete for yields, hopefully much more efficient now with a wider spreading, although as a result they are a bit thinner and militarily weaker but should be very worth it or so i think but anyways etc.
+@@ -335,7 +335,7 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend (10+ galleons and barely any land defender) by doing changes in `CvCityAI::AI_bestUnit`. Hopefully makes AI much stronger on land relatively even if it comes at the cost of being slightly weaker on/at naval warfare, i believe most of the critical fighting spot is on land anyway, so i hope the now (although i didn't test it but anyways etc) naval military unit output is still enough at least to protect workboats or such, but besides that i wouldn't want it to be a handicap and mislead it if i may say in this case but anyways etc to build many naval units (10+ galleons in the screenshot in the following link and barely and land defender then die easily by a land invasion). Also, as part of this fix/tentative patch, do not build extra more military naval units if city is landlocked (i.e. for example coastal but in a lake only, these units would be quite pointless) as noted by gemini ai. Also do not build extra more naval military units if war is possible, focus on land warfare rather. Hopefully AI is stronger with these (unless playing archipelago maybe xd but even then cities wouldn't be invaded at least maybe but anyways etc, i hope AI is much more efficient with these at least in theory as i didn't test it but i assume it would do so but anyways etc), and it fixes the example 148 in base advciv issue i had reported at the time, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender) for details with a screenshot and such anyways etc.
+ - (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well, by doing changes in `CvCityAI::AI_bestUnit` as well but anyways etc. I hope AI is much stronger or at least not weaker in such circumstances as i had noticed happen twice in same game in base advciv in example 47, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc) for details anyways etc. See also [README_Quick_Get_Started_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#civilian-units) for additional or related info (settler now a national unit), which may help quite a lot AI effiency on top of adding extra strategy for all players too but anyways etc.
+ - (Workaround and rebalanced) AI building 2 settlers very inefficiently at same time or when a settler unit already exists - now settler is a national unit (only 1 allowed per player), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details.
+-- (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it)
++- (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it). Since then tremendously improved and tweaked in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) which seemingly Beyond Tremendously Improves AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast but anyways etc, as well as being braver in our own cultural borders or/and moving to other cities needing improvements rather than being parked in current city if i am not mistaken but anyways etc and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too if i may say but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details as well anyways etc. Note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. Note 2: AI handicap may have to be reduced as they are so much more efficient now, but i hope at least they are a good and worthwhile and/or fine challenge now and if already then even more, anyways etc, looking forward to other improvements (no pun but anyways etc) i find as well and (/or ?) want to do but anyways etc.
+ 
+ ## Not supported in AdvCiv-SAS
+ 
+@@ -518,6 +518,12 @@ I used it much much later, and it doesn't have any memory of me, but gave me nic
+ 
+ I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed in this case i mean but anyways etc, thanks a lot chagpt o-3 for feedback and such too in all cases if i may say and thanks to me too if i may say but anyways etc. Also used it subsequently if i may say but anyways etc for other changes or not or yes or etc but anyways etc.
+ 
++#### 5
++
++I must say i am impressed, it is extremely good, it analyzed a gigantic rewrite i made of `CvUnitAI::AI_bestCityBuild` and related struct and helper map, and it already found a bug and thought for a long time in fast think mode, that `BUILD_SCRUB_FALLOUT` was missing (i thought there was no build for it), it's analysis is extremely sharp and broad, very very amazing :o. I am very happy and pelased to use ti and of its performance, plus it seems that it still has 4-o's entire memoreis and can expand on them as well which i had toruble and coudln't do with o-3. Very amazing, at least from what i can tell so far, thanks a lot openai if i may say even though give them persitence too but then it may lead to other kind of issues for some people maybe if i may say which may or maybe may not include me but anyways etc.
++
++It also helped me beyond tremendously solve beyond tremendously and enhance AI worker mobility, flexibility, and reliability issue, which improved (no pun but anyways etc) AI strength a lot, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details.
++
+ ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
+ 
+ note: text below is before the renaming of becomingthrough to chatgpt, did not reread much or at all nor re edit ekpt as is at least for always if not only now or other or not anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b104b457d..e4d959ac9 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -942,7 +942,7 @@ Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](
+ 
+ This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting.
+ 
+-Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency.
++Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency.
+ 
+ Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills.
+ 
+@@ -1069,6 +1069,8 @@ After recompiling and testing these changes, as can be seen from existing screen
+ 
+ update: added an extra tweak so that workers stay longer in city B (small cities), as they are expected to grow fast, so don't leave at 2 improved plots if city size is size 2, improve say 4 or 5 plots (see code there for details anyways etc)
+ 
++update 2: tremendously improved and tweaked since then in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc), see there for details too i mean, anyways etc
++
+ ## 40 - (Seemingly fixed / addressed) Tremendous/Major Plot allocation improvement 2: If we are high in happiness, favour food tiles much more, and hammer tiles much less if happiness is really high (favour growth dynamically and plot allocation of these the more we can afford it), even if porduction is slightly reduced short term as a result, it auto corrects at high happiness, with seemingly much stronger AI and developped cities as a result (excluded if food is production (e.g. worker, settler, etc if i am not mistaken but anyways etc))
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1OsMF8q8NbcfGFS8oMg-mDkL_F6iju9_w?usp=sharing).
+@@ -1090,3 +1092,56 @@ At low pop, china AI best on food, and its cities quickly grow, and actively ign
+ I'm very happy of this result, thanks a lot to chatgpt 3-o for help despite the nagging and that it annoyed me hehe if i may say but anyways etc on math as i told it too if i may say in this case i mean but anyways etc it did hehe, but this helped me and helped a lot if i may say which i told it too in this case i mean but anyways etc, fix the formula and such thanks lot etc i mean but anyways etc.
+ 
+ See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) for quite related info anyways etc
++
++## 41 - (Seemingly fixed) Beyond Tremendously Improved AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast but anyways etc, as well as being braver in our own cultural borders or/and moving to other cities needing improvements rather than being parked in current city if i am not mistaken but anyways etc and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too if i may say but anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1z05qmIF7_1V7TWVhtcr1HFxSKSeIQ9y2?usp=sharing).
++
++There are many tremendous improvements to AI worker efficiency and flexibility in this known issue. These were aimed originally to solve the AI not moving to city B or city C soon enough or enough issue, as was attempted initially in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it), and i tweaked it a bit more than solving this further, with chatgpt-5 's help and my prompts and adjustments or not or yes or etc but anyways etc too but anyways etc.
++
++As can be seen in existing screenshots between 1838 and 1934, even late in the game, jungle cities that were quite farm from core cities, although not too far really but anyways etc, would not be improved at all!! At turn 175 or something, which is extremely inefficient, and similarly, city A was overimproved, way beyond city allocation (what's the point to improve the 15th tile when city pop is 11 (perhaps with specialists even so would need even less plots to be improved "right now" maybe but anyways etc)), while city B or city C or even city D if any theoretically are not improved at all.
++
++So i tweaked a few things and tried to find where the issue could, be, first of which removing lots of very shitty, sorry to say but really is as it is from little i know of it too, and chatgpt 5 agrees with me if i may say but anyways etc, base advciv +/- civ4 or whoever else wrote it despite other good things they may have done or not but anyways etc.
++
++It would be too long to detail or/and i would be lazy or it woudl eb tedious for me to do so, so the key changes are mostly if i'm not mistaken if not only in `CvUnitAI::AI_workerMove` and `CvUnitAI::AI_nextCityToImprove` if i'm not mistaken but anyways etc.
++
++In `CvUnitAI::AI_workerMove`, i thought as sugegsted by chatgpt 5 too maybe workers are too scared to go in too far tiles, and chatgpt came up gradually with my tweaks too but anyways etc with a code that greatly enhances AI worker flexibility, and i believe efficiency, in an attempt to make them go to city C sooner, or at least not make them not go to City C if we have assessed they should (city A improved enough, city B too), as of now:
++
++```cpp
++    /* Retreat logic policy change:
++       --------------------------------------
++       Old code:
++         - Threat radius was 2 tiles in *all* situations.
++           (Meaning: if any enemy unit was within 2 tiles — about a small city radius —
++            we would consider the worker threatened and run for safety.)
++         - Any threat → immediately retreat to the nearest city.
++         - Result: workers often abandoned tasks too early, leaving some cities
++           (especially jungle ones) unimproved for a long time.
++
++       New code:
++         - Inside our cultural borders: skip threat check entirely.
++           (If an enemy is already on our tile, the game captures us before this runs.)
++         - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
++           → This greatly reduces “false positives” from slow or harmless enemy units
++             far away but still inside the old radius 2 bubble.
++         - If threatened, FIRST try to redirect to a different, safer city
++           that still needs improvements, instead of retreating straight home.
++         - Only fall back to “retreat to city” if no safe redirection is possible.
++         - This keeps workers productive more often while still avoiding capture
++           in genuinely dangerous situations outside borders.
++    */
++```
++
++This is very nice and hopefully we'd get less false positives, and although it was a bit better, there were still issues and some jungle cities still not improved or not enough, even though it had improved (no pun... but anyways etc...) to be a bit better now but anyways etc.
++
++So then i removed the iNeed and iHave code base advciv +/- civ4 code (whoever wrote it), which is incredibly shitty and needless, we don't care if AI workers hover back and forth from one city to another, we already have a fine tuned and very straightforward and easy system telling them if they should go to city B or city C or not. They can always come back to city A if needed later (e.g. if city A has grown since then AND city C is now improved enough, for now).
++
++Note: slightly related note: now that we use one worker per tile, originally for efficiency, AI workers are now very hard to capture/hoard :) So this is a very nice side effect, no need to be so scared aobut losing workers, just go for it if i may say but anyways etc. In the late game anyway, workers are not worth too much so fine if they are captured or destroyed, may even be good for economy actually (or worse to whoever captures them if an AI and it doesn't gift them or destory them but anyways etc), and early ennemies are often not mobile enough and even if they are fine or not too bad, at least not worth the disadvantage of running away from nice to imrpove tiles that could directly benefit the city(ies) but anyways etc. Hopefully this helps reduce if not solve the issue of AI workers always interrupting their builds, which is very inefficient too, but i didn't test it, they do seem less mobile as in interrupting then resuming very inefficiently same builds, which would be nice if true, but i didn't test it too much nor looked into it to know for sure, so i can only assume it hopefully helps but check to be sure anyways etc. No more worker stacks to fear being cpatured for the AI or to protect or snatch for human players, i beleive it's all in all much better on top of efficiency gains for AI workers but anyways etc.
++
++Again situation if i may say but anyways etc seems to have improved a bit, no overly improving core cities anymore as well if not already done before, but still jungle tiles in these a bit far cities are still not improved. Then i noticed by a glance somehow xd in this case but anyways etc, as shown in screenshots 1941 and 1942 but anyways etc , that in city A of persia AI, there are 5 workers parked. They are doing nothing since we told them don't overimprove city A, which is good, but now they don't go either to city C?? (city B is improved enough too), so it means our logic is working great, but something else is interferring.
++
++As per chatgpt 5 's suggestion and my idea too but anyways etc as part of reading its answers too but anyways etc, we now moved to `CvUnitAI::AI_nextCityToImprove`, where the final piece of the puzzle was. With extremely shitty and stupid iValue and bestBuild and such code. Aaah i had enough xd so much nonsense, we only want to improve a city, any city, as long as it's good enough, then stay long enough in it until it is extra improved enough (one or a few more than city pop at time where we decide to leave or stay in this city to improve it further or not but anyways etc), but it has this huge and stupid iBest iValue iNeed or not didn't even reread to check, i said look chatgpt, this is too stupid, let's do something else xd, i said somehtign liek, which i rarely do xd but it was realyl stupid to me at least it seemed so but anyways etc or/and at least needless this is "this code is a load of horse shit", clarifying that i was not talking about its but indeed this advciv +/- civ4 or whoever wrote it but anyways etc (i can write bad code too but i hope mine makes sense too, but if i make mistakes tell me in this case i mean but anyways etc).
++
++So, chatgpt 5, which was released just yesterday evening more or less didn't check +/- remember in detail if afternoon or noon but anyways etc where i live but anyways etc, and which already helped a ton, wrote me this very nice code with a tiny bit of back and forth, i was fed up xd, yet eager to test it, so just comment out the huge mess and go xd.
++
++And the result is extremely nice, beyond a tremendous improvement. See existing screenshots between 1943 and 1958 for details. Persia AI's city C is quickly and very fast improved at turn +/- 100 (97-105 in screenshots, which looks very good and nice), and the dream is thanks to our previous improvements (no pun but anyways etc) in bestcitybuild, AI workers specifically improve only grass tiles so we can populate them later with our preferred build too, not plain tiles weirdly wit a cottage or such liek in base advciv +/- civ4 or such other mods. So all in all this is extremely nice, and i am thankful to all who helped me like chatgpt 5, those mentionned here or not but anyways etc, base advciv, kmod, etc firaxis for making this framework, and i am glad it is enhanced so much. I may have to reduce handicap settings now as AI would be unbeatable now with handicap that is too high, as its AI workers are now very very efficient i think, minus etxra tweaks we'd need like late game adjust for state property or whatever chatgpt 5 mentionned too, that we do partly indirectly but check bestcitybuild function in cvunitai or/and future known issues after this one if any but anyways etc. This is extremely satisfying, although i hope to improve it further based on autoplay and what i see, but i hope AI and AI workers can be a satisfying challenge now, after all economy and working tiles is key, maybe humans could automate reliably at lower levels if lazy or want to learn and get a really good result if the code applies here as well, but in all cases anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index bd9eb5918..e1ada9e28 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -75,8 +75,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+ - Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
+-- (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, and then also added an extra tweak so that workers stay longer in city B (small cities), as they are expected to grow fast, so don't leave at 2 improved plots if city size is size 2, improve say 4 or 5 plots (see code there for details anyways etc), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it)
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
++- - (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it). Since then tremendously improved and tweaked in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) which seemingly Beyond Tremendously Improves AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast but anyways etc, as well as being braver in our own cultural borders or/and moving to other cities needing improvements rather than being parked in current city if i am not mistaken but anyways etc and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too if i may say but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details as well anyways etc. Note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. Note 2: AI handicap may have to be reduced as they are so much more efficient now, but i hope at least they are a good and worthwhile and/or fine challenge now and if already then even more, anyways etc, looking forward to other improvements (no pun but anyways etc) i find as well and (/or ?) want to do but anyways etc.
+ - AIFoundValue::evaluateDefense: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - AIFoundValue::adjustToBarbarianSurroundings: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
+ - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) with screenshots and detailed (at least more detailed) analysis there, hopefully AI is a lot or quite a lot or quite a bit or such in this case i mean but anyways etc stronger or more versatile this way while not having the opposite downside of valuing food too much as well hopefully, see there for details, anyways etc.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=141454

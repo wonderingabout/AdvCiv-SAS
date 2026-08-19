@@ -1,0 +1,47 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3444
+# Commit: a463fab69f4b4a090c6b3d0915122c5cc6aa5d44
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 158447752d60dea7612b00be12e03bf280d3284c
+# Title: Fix Py crash upon inspecting Glance tab during AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	Assets/Python/Screens/CvExoticForeignAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 11900cc16..ab0606ee0 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -820,14 +820,16 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.nCount = 0
+ 		self.ltPlayerRelations = [[0] * gc.getMAX_PLAYERS() for i in range (gc.getMAX_PLAYERS())]
+ 		self.ltPlayerMet = [False] * gc.getMAX_PLAYERS()
+-		# advc.130v: isCapitulated check added
+ 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+ 			if (gc.getPlayer(iLoopPlayer).isAlive()
+ 			and (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())
+ 			or gc.getGame().isDebugMode())
+ 			and not gc.getPlayer(iLoopPlayer).isBarbarian()
+-			and not gc.getPlayer(iLoopPlayer).isMinorCiv() and (not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isCapitulated() or gc.getPlayer(iLoopPlayer).isHuman())):
+-
++			and not gc.getPlayer(iLoopPlayer).isMinorCiv()
++			# <advc.130v> Exclude capitulated vassals. The last check is for AI Auto Play.
++			and (not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isCapitulated()
++			or gc.getPlayer(iLoopPlayer).isHuman() or iLoopPlayer == self.iActiveLeader)):
++			# </advc.130v>
+ #				ExoticForPrint ("Player = %d" % iLoopPlayer)
+ 				self.ltPlayerMet [iLoopPlayer] = True
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1412

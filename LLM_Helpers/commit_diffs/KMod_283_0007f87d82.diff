@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 283
+# Commit: 0007f87d8293834898e0d68ac26d8cdbf624a0ba
+# History segment: K-Mod history
+# Parent used for diff: 808055686e7e9faa994e23cff15e1cdee47d7740
+# Title: Fixed a minor problem with Fast Unit Cycling.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4862b913e..3939c7ce3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -5271,7 +5271,7 @@ void CvSelectionGroup::deactivateHeadMission()
+ 		{
+ 			if (IsSelected())
+ 			{
+-				GC.getGameINLINE().cycleSelectionGroups_delayed(1, true, canAllMove());
++				GC.getGameINLINE().cycleSelectionGroups_delayed(1, true, canAnyMove());
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=471

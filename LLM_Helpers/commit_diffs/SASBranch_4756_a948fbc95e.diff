@@ -1,0 +1,594 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4756
+# Commit: a948fbc95e7c9679466aa3848e7957aea8687914
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: adf53965fae3e9507b9cc3d710e84520a97f7016
+# Title: update and restructure(ate?) docs or/and minor other changes or not anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+4	3	CvGameCoreDLL/CvGameTextMgr.cpp
+14	77	README.md
+1	1	README_AI_Personality_Panel.md
+94	8	README_Known_Issues.md => README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	82	README_Python_Scripts.md
+78	0	README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG
+3	3	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+ rename README_Known_Issues.md => README_Known_Issues_In_Base_AdvCiv_Civ4.md (70%)
+ create mode 100644 README_Sevopedia_Reworks.md
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3ce53f5d6..b4b58605e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9653,8 +9653,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 	CvUnitClassInfo const& kUnitClass = GC.getInfo(eUnitClass); // advc
+ 	UnitTypes const eDefaultUnit = kUnitClass.getDefaultUnit();
+ 
+-	if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
+-	{
++	// <!-- custom: removing the check entirely now as we have/use placeExclusiveCivs code now instead to display civ buttons, see below the nested "custom:" code comment for details -->
++	//if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
++	//{
+ 		// <!-- custom: now that we have the new placeExclusiveCivs added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel-->
+ 		//FOR_EACH_ENUM(Civilization)
+ 		//{
+@@ -9671,7 +9672,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 		//szBuffer.append(NEWLINE);
+ 		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
+ 		//		GC.getInfo(eDefaultUnit).getTextKeyWide()));
+-	}
++	//}
+ 
+ 	if (kUnitClass.isWorldUnit())
+ 	{
+
+diff --git a/README.md b/README.md
+index 6138cef94..036547e75 100644
+--- a/README.md
++++ b/README.md
+@@ -58,89 +58,26 @@ So far there is:
+ - [global XML duplication scanner](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+ - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+ 
+-#### AI Personality Panel SevopediaLeader feature
++#### AI Personality Panel in SevopediaLeader and other sevopedia reworks 
+ 
+-I have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
+-Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
+-
+-As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways.
++About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
+ 
+-Here is an example below of how it looks ingame in the sevopedia leader category:
++Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG" width="250"></img>
+-
+-#### Other sevopedia category examples
+-
+-##### example 1: unit chart category
+-
+-(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
++As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
++Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+-##### example 2: features category
++For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/README_Sevopedia_Reworks.md)
+ 
+-based on rfc doc's and slightly tweaked or not, thanks a lot
++So with that said here is a very small example sample below of how it looks ingame in the sevopedia leader category and of the other main sevopedia reworks:
+ 
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+-
+-##### example 3: ressources category
+-
+-mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+-
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+-
+-##### example 4: religion category
+-
+-new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
+-
+-(Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... anyways etc anyways etc...)
+-
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG" width="250"></img>
+-
+-looks quite very great hehe (at least i think so) anyways etc...
+-
+-##### example 5: civilization category
+-
+-new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
+-
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
+-
+-##### example 6: unit list category
+-
+-Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
+-
+-Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC as well as new Exclusive Civs (Civilizations) panel from Claude AI thanks to my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details):
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
+ 
+ ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
+ 
+@@ -237,14 +174,14 @@ Additionally, A preview of the changes (screenshots), can be found on this googl
+ If you want to know more about the project, how i ordered the tree tech historically, why i decided
+ on balance changes and such, please visit these pages (as well).
+ 
+-## Known issues
++## Known issues in base AdvCiv or/and Civ4
+ 
+-See [README_Known_Issues.md](/README_Known_Issues.md) for details
++See [README_Known_Issues_In_Base_AdvCiv_Civ4](/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
+ 
+-## Main (bug) fixes from base AdvCiv code
++## Main (bug) fixed from base AdvCiv code
+ 
+-- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were [pleased(110) / pleased(115)](/README_Python_Scripts.md#context-of-howwhy-i-made-this-script-with-chatgptbecomingthrough-anyways) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)
+-- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues.md#now-fixed-barbarians-cities-building-wonders) for details
++- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see [2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
++- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+ 
+ ## More details on previous mods changes (civ4 BTS, K-Mod)
+
+diff --git a/README_AI_Personality_Panel.md b/README_AI_Personality_Panel.md
+index 618d1c3f1..279b48257 100644
+--- a/README_AI_Personality_Panel.md
++++ b/README_AI_Personality_Panel.md
+@@ -45,7 +45,7 @@ note: to understand/find the meaning of abbreviations used in the ai panel, the
+     AI_HEADER_WAR_STRATEGY: (
+         ("T.W Likely", "iMaxWarRand", ""),
+ ```
+-A line like this means that in the "War Strategy" category, the 1st item/ai attribute displayed is shortened (name) as "T.W Likely", (i meant Total War Likely but since space is scarce is abbreviated it anyways), and if you want to know what it refers to, ctrl+f the corresponding code name ai attribute, like "iMaxWarRand" here in this example, and go on the 2 sources mentionned [above](/README.md#ai-personality-panel-sevopedia-leader-feature) (kujira's and modiki's websites (for example)), then you'll find more info about what they do that should be quite if not very reliable anyways.
++A line like this means that in the "War Strategy" category, the 1st item/ai attribute displayed is shortened (name) as "T.W Likely", (i meant Total War Likely but since space is scarce is abbreviated it anyways), and if you want to know what it refers to, ctrl+f the corresponding code name ai attribute, like "iMaxWarRand" here in this example, and go on the 2 sources mentionned [above](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) (kujira's and modiki's websites (for example)), then you'll find more info about what they do that should be quite if not very reliable anyways.
+ 
+ Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "borad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+
+diff --git a/README_Known_Issues.md b/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+similarity index 70%
+rename from README_Known_Issues.md
+rename to README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 88d7ea451..88f437697 100644
+--- a/README_Known_Issues.md
++++ b/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2,7 +2,9 @@
+ 
+ Some known issues (non-exhaustive ideally yes but maybe not anyways etc) about AdvCiv code or earlier or/and AdvCiv-SAS specific code that may be fixed someday or not (ideally yes too same but maybe not especially if deemed not so bad or even part of the necessary mechanic but then would not be an issue but if known maybe or not or yes but anyways etc anywyas etc anyways etc).
+ 
+-## Redundant attribute values for all AI Civs
++hopefully helpful, thanks, anyways, thanks,
++
++## 1 - Redundant attribute values for all AI Civs
+ 
+ Some known issues, that will not necessarily be fixed, but maybe or not but anyways, however good and maybe useful to keep them as reminder in case we want or for souvenir, anyways:
+ 
+@@ -58,13 +60,97 @@ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *raw* value (
+ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
+ ```
+ 
+-Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [AI Personality Panel Feature section](/README.md#ai-personality-sevopedia-feature) for (more) details, and more specifically in the full AI Personality Panel Feature [this part](/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
++Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for (more) details, and more specifically in the full AI Personality Panel Feature [this part](/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
+ 
+ Leaving as is otherwise (except from hiding most or/and commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not anyways etc.
+ 
+ We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are way too often shared between leaders, not just the common to all leaders, may be a good opportunity perhaps, but not sure or guarnateed, for now only mentionning the issue.
+ 
+-## (now fixed) Barbarians (cities) building wonders
++## 2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)
++
++For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attributes (from AdvCiv), where pleased was repeated twice, while enhancing and addingon the [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) script:
++
++```
++            {
++                "MemoryType": "MEMORY_VOTED_AGAINST_US",
++                "iMemoryAttitudePercent": "0"
++            }
++        ],
++        "NoWarAttitudeProbs": [
++            {
++                "AttitudeType": "ATTITUDE_FURIOUS",
++                "iNoWarProb": "20"
++            },
++            {
++                "AttitudeType": "ATTITUDE_ANNOYED",
++                "iNoWarProb": "50"
++            },
++            {
++                "AttitudeType": "ATTITUDE_CAUTIOUS",
++                "iNoWarProb": "85"
++            },
++            {
++                "AttitudeType": "ATTITUDE_PLEASED",
++                "iNoWarProb": "110"
++            },
++            {
++                "AttitudeType": "ATTITUDE_PLEASED",
++                "iNoWarProb": "115"
++            }
++        ],
++        "UnitAIWeightModifiers": "",
++```
++
++It is almost certainly a mistake and should be:
++
++```
++            {
++                "AttitudeType": "ATTITUDE_FRIENDLY",
++                "iNoWarProb": "115"
++            }
++```
++
++Our [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
++
++```
++Microsoft Windows [version 10.0.19045.5737]
++(c) Microsoft Corporation. Tous droits réservés.
++
++C:\Users\PC>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python generate_leaders_data.py
++[WARNING] Duplicate NoWarAttitudeProb 'ATTITUDE_PLEASED' for leader LEADER_GANDHI
++[SUCCESS] Leader data written to: leaders_data_20250426_100035.py
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
++```
++
++And after fixing Gandhi's XML we now have:
++
++```
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & scan_xml_duplicates-3.3.py
++[SUCCESS] Leader data written to: leaders_data_20250426_100152.py
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
++```
++
++So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the reult is our now [xml_duplication_check](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans), currently if not always or not etc anyways version 3.3 as per chatgpt's naming and greta help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
++
++Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
++
++Results are very good, if you have good eyes or are veyr patient or/and know where and what to look at or/and other things or not anyways, we successfulyl spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
++
++A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing)
++
++before XML fix:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG" width="250"></img>
++
++and successfully not spot/count it anymore after fix:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG" width="250"></img>
++
++## 3 - (now fixed) Barbarians (cities) building wonders
+ 
+ UPDATE: seemingly now fixed using builUnitProb 100 or a similar value, testing more to be sure but seems extremely effective in stopping all (great and wonder) building tendency entirely in barbarian, ened to test more to be sure (in case) i am not mistaken anyways etc, may tone it dow a bit so they can build the barabarian lighthouse they seemingly never do now, but anyways etc
+ 
+@@ -80,7 +166,7 @@ For now trying the FLAVOR_MILITARY 10 approach (inspired or rather taken (as i a
+ 
+ Currently testing a builUnitProb 100 or similar in leader barbarian that seems very very effective, but testing more if i test to be sure, may be fixed now for real or maybe not, hopefully, but maybe or maybe not, but anyways etc anyways etc anyways etc
+ 
+-## Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc)
++## 4 - Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc)
+ 
+ This is a bug i have noticed in AdvCiv and after checking, many other mods, among those (few i tried): ROM 291, RFC DOC, Neoteric World (since i have it too (to check their sevopedia content or/and such or/and other or/and not anyways) even though i did not use anything from it at least but may be useful some day or not anyways etc anyways etc), History Rewritten too.
+ 
+@@ -94,9 +180,9 @@ As for me this is quite minor, and even though i would have loved (really) to fi
+ 
+ A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1vRIFzwNijAjbmPBVUvSk90YjURXh-lG1?usp=sharing)
+ 
+-## player name same as windows (10's for example anyways etc) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
++## 5 - (seemingly fixed now) player name same as windows (10's for example anyways etc) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
+ 
+-A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the [placeExclusiveCivs new sevopediaunit feature](/README.md#example-6-unit-list-category)
++A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeExclusiveCivs new sevopedia feature (see [/README_Sevopedia_Reworks.md#example-7-unit-list-category](/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
+ 
+ A few screenshots of the issue here in as well as the DLL with which i had the issue (not sure is the cause but happened while having it if i am not mistaken anyways etc)[this Google Drive folder](https://drive.google.com/drive/folders/19T9I75vGCk58pFSR60y2Tmj69-NoFFtk?usp=sharing)
+ 
+@@ -104,8 +190,8 @@ More context of how i implemented the change in the .cpp and such can be found i
+ 
+ I don't know if fastdep compiel was the cause or just some weird corruption unnotified happened (i don't know a lot about these if at all hehe but it was reproductible, and my player name also unusually changed just after this fast compile so i can quite confidently say it is maybe indeed related but anyways etc (for example after checking indeed Civ4ScreenShot3010 in the advciv-sas's mod journey drive (see main README.md for link anyways etc), with last compiled DLL before this Claude AI related .cpp change and recompile, had my windows username as default player name as can be seen in screenshot, but the screenshots of the issue in the drive linked above, that happen between Civ4ScreenShot3095(new game not yet started after the cpp changes and recompile) and Civ4ScreenShot3096 (where issue is solved)); in short if my long sentence still makes sense xd and i didnt get tangled into it if this is a word too but anyways etc anyways etc, default civ4 player game suddenly changed from windows username to steam username (that i didnt want to show in screenshots too as is private to me but anyways etc, and this coincidated if this is a word but anyways etc with this screen being stuck issue))
+ 
+-To solve it, or at least after doing this issue that was reproductible if i am not mistaken is now solved, i deleted (adjust to where your mod path is anyways etc) for example for me this is where the folder temp_files/Release/ is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Release\ , this folder (i deleted it anyways etc), and after recompiling cleanly, now i can play with windows username as usual, even though i had to change back the steam username to the name i wanted, here and for testing at least if not always or not anyways etc or maybe not but for testing or not if i want or not or and other or and not or do or not or etc or etc anyways etc, the windows username is fine with me ("PC" in the screenshots anyways etc anyways etc...)
++To solve it, or at least after doing this issue that was reproductible if i am not mistaken is now solved, i deleted (adjust to where your mod path is anyways etc) for example for me this is where the folder temp_files/Release/ is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Release\ , this folder (i deleted it anyways etc), and after recompiling cleanly, now i can play with windows username as usual, even though i had to change back the steam username to the name i wanted (first manually ingame at new game settings screen, then after seeing it works in CivilizationIV.ini (see [CivilizationIV.ini shortcut for example](/_CivilizationIV.ini%20-%20User%20Shortcut%20Example.lnk))), here and for testing at least if not always or not anyways etc or maybe not but for testing or not if i want or not or and other or and not or do or not or etc or etc anyways etc, the windows username is fine with me ("PC" in the screenshots anyways etc anyways etc...)
+ 
+-Not sure what the issue was, would have liked to be notified of the error/corruption cause of it somehow, but program runs fine as usual now, so maybe corrupted unnotified compilation, or fastdep issue perhaps (even though fastdep compiles seemed to work fine in the past as in jsut yesterday/the day before for the [unitai renaming (commit)](https://github.com/wonderingabout/AdvCiv-SAS/commit/701e2e31279d7ab152f91b431a81c1bae9c22734) but anyways etc as long as is solved is all good maybe even though bit weird but unsettling but whatever it is/was is maybe consistently solved now (not gauranteed, may or not be the case but anyways etc))
++Not sure what the issue was, would have liked to be notified of the error/corruption cause of it somehow, but program runs fine as usual now, so maybe corrupted unnotified compilation, or fastdep issue perhaps (even though fastdep compiles seemed to work fine in the past as in just yesterday/the day before for the [unitai renaming (commit)](https://github.com/wonderingabout/AdvCiv-SAS/commit/701e2e31279d7ab152f91b431a81c1bae9c22734) but anyways etc as long as is solved is all good maybe even though bit weird but unsettling but whatever it is/was is maybe consistently solved now (not gauranteed, may or not be the case but anyways etc))
+ 
+ So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me or and others or and not anyways etc anyways etc.
+
+diff --git a/README_Python_Scripts.md b/README_Python_Scripts.md
+index f382a686d..341ed989f 100644
+--- a/README_Python_Scripts.md
++++ b/README_Python_Scripts.md
+@@ -18,7 +18,7 @@ You can safely delete such log files or/and folders if you wish so (especially i
+ 
+ ### Description
+ 
+-This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [this](README.md#ai-personality-sevopedia-feature) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
++This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
+ 
+ While generating it, it also checks for missing fields in the xml, or int to string or string to int or other types conversions (maybe not encessarily all, but gives a general idea and safety check anyways)
+ 
+@@ -206,87 +206,7 @@ Example for Steam users (adjust paths and/or such similar things anyways if not
+ 
+ ### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
+ 
+-For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attributes (from AdvCiv), where pleased was repeated twice, while enhancing and addingon the [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) script:
+-
+-```
+-            {
+-                "MemoryType": "MEMORY_VOTED_AGAINST_US",
+-                "iMemoryAttitudePercent": "0"
+-            }
+-        ],
+-        "NoWarAttitudeProbs": [
+-            {
+-                "AttitudeType": "ATTITUDE_FURIOUS",
+-                "iNoWarProb": "20"
+-            },
+-            {
+-                "AttitudeType": "ATTITUDE_ANNOYED",
+-                "iNoWarProb": "50"
+-            },
+-            {
+-                "AttitudeType": "ATTITUDE_CAUTIOUS",
+-                "iNoWarProb": "85"
+-            },
+-            {
+-                "AttitudeType": "ATTITUDE_PLEASED",
+-                "iNoWarProb": "110"
+-            },
+-            {
+-                "AttitudeType": "ATTITUDE_PLEASED",
+-                "iNoWarProb": "115"
+-            }
+-        ],
+-        "UnitAIWeightModifiers": "",
+-```
+-
+-It is almost certainly a mistake and should be:
+-
+-```
+-            {
+-                "AttitudeType": "ATTITUDE_FRIENDLY",
+-                "iNoWarProb": "115"
+-            }
+-```
+-
+-Our [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
+-
+-```
+-Microsoft Windows [version 10.0.19045.5737]
+-(c) Microsoft Corporation. Tous droits réservés.
+-
+-C:\Users\PC>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python generate_leaders_data.py
+-[WARNING] Duplicate NoWarAttitudeProb 'ATTITUDE_PLEASED' for leader LEADER_GANDHI
+-[SUCCESS] Leader data written to: leaders_data_20250426_100035.py
+-
+-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
+-```
+-
+-And after fixing Gandhi's XML we now have:
+-
+-```
+-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & scan_xml_duplicates-3.3.py
+-[SUCCESS] Leader data written to: leaders_data_20250426_100152.py
+-
+-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
+-```
+-
+-So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the reult is our now [xml_duplication_check](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans), currently if not always or not etc anyways version 3.3 as per chatgpt's naming and greta help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
+-
+-Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
+-
+-Results are very good, if you have good eyes or are veyr patient or/and know where and what to look at or/and other things or not anyways, we successfulyl spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
+-
+-before XML fix:
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG" width="250"></img>
+-
+-and successfully not spot/count it anymore after fix:
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG" width="250"></img>
+-
+-hopefully helpful, thanks, anyways, thanks,
++See [2- (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+ 
+ # test_normalize_to_100
+
+diff --git a/README_Sevopedia_Reworks.md b/README_Sevopedia_Reworks.md
+new file mode 100644
+index 000000000..460589e04
+--- /dev/null
++++ b/README_Sevopedia_Reworks.md
+@@ -0,0 +1,78 @@
++# README_Sevopedia_Reworks.md
++
++Below/here is a/the more detailed examples(/sample(s?)?) of the [/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks).
++
++## example 1: more AI Personality examples (in leaders category)
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG" width="250"></img>
++
++## example 2: unit chart category
++
++(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
++
++## example 3: features category
++
++based on rfc doc's and slightly tweaked or not, thanks a lot
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
++
++## example 4: ressources/bonus category
++
++mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
++
++## example 5: religion category
++
++new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
++
++(Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... anyways etc anyways etc...)
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG" width="250"></img>
++
++looks quite very great hehe (at least i think so) anyways etc...
++
++## example 6: civilization category
++
++new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
++
++## example 7: unit list category
++
++Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
++
++Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC as well as new Exclusive Civs (Civilizations) panel from Claude AI thanks to my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details):
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG b/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG
+deleted file mode 100644
+index 056df82a1..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG b/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG
+deleted file mode 100644
+index 3961a52fd..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG b/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG
+deleted file mode 100644
+index c4a59430f..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG b/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG
+deleted file mode 100644
+index dcb24bdff..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 7be3171f3..b50647e52 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -16,7 +16,7 @@ idea):
+ 
+ <img src="./Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+ 
+-There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works [from the main README.md link](/README.md#advciv-sas-core-changes-from-advciv), [or directly here](/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
++There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
+ 
+ A copy of the screenshots (may not be latest version of it) of how it looks ingame:
+ 
+@@ -24,7 +24,7 @@ A copy of the screenshots (may not be latest version of it) of how it looks inga
+ <img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+ <img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+-For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit [the AI personality panel sevopedialeader feature page of the main README.md](/README.md#ai-personality-panel-sevopedialeader-feature).
++For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+ 
+ ## Full exhaustive changes
+ 
+@@ -304,7 +304,7 @@ famililar with and that makes more sense to me, hopefulyl clearer for others or/
+ maybe not anyways etc
+ - shrines now require a religion to be built, for example the daoist shrine now
+ (also) requires to have the daoism religion, and not just own the holy city, this
+-way the shrine can appear in the sevopedia religion new buildings panel (see [the main README.md's note/screenshots for details about Sevopedia religion changes](/README.md#other-sevopedia-category-examples)),
++way the shrine can appear in the sevopedia religion new buildings panel (see [README_Sevopedia_Reworks.md#example-5-religion-category](/README_Sevopedia_Reworks.md#example-5-religion-category)),
+ but also seems to make more sense unless i am mistaken or/and it (may?) create other
+ issues possibly or maybe not, then (i'd) try it and see, this means for example
+ conquerring a city is now not enough to build a shrine, you need the specific
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=54046

@@ -1,0 +1,122 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 830
+# Commit: 034f00bd181ae8fdf6b91b9dc61edb20064ce797
+# History segment: K-Mod history
+# Parent used for diff: c8f86a9f6d5a1e7bc04aad85a50dc501f9fda6a7
+# Title: Implemented unit cycling suppression with the X key.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/xml/GameInfo/CIV4Hints.xml
+4	0	Assets/xml/Text/K-Mod hints.xml
+9	4	CvGameCoreDLL/CvGameInterface.cpp
+2	0	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index c274385dd..19af164c8 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -469,5 +469,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_13</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_14</Description>
++		</HintInfo> <!-- suppress cycling -->
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 74df41f28..ad35ea7ec 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -137,4 +137,8 @@
+ 	<Italian>Double clicking on a stack of units will wake them all up.</Italian>
+ 	<Spanish>Double clicking on a stack of units will wake them all up.</Spanish>
+ </TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_14</Tag>
++	<English>Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</English>
++</TEXT>
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 66d5c74eb..4ed16d725 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -437,7 +437,8 @@ void CvGame::updateSelectionList()
+ {
+ 	CvUnit* pHeadSelectedUnit;
+ 
+-	if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
++	//if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
++	if (GC.suppressCycling() || GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_CYCLING)) // K-Mod
+ 	{
+ 		return;
+ 	}
+@@ -470,7 +471,7 @@ void CvGame::updateSelectionList()
+ void CvGame::updateTestEndTurn()
+ {
+ 	bool bAny;
+-	bool bShift = GC.shiftKey() || (GetKeyState(VK_SHIFT) & 0x8000); // K-Mod.
++	bool bShift = GC.shiftKey();
+ 
+ 	bAny = ((gDLL->getInterfaceIFace()->getHeadSelectedUnit() != NULL) && !(GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_CYCLING)));
+ 
+@@ -489,7 +490,7 @@ void CvGame::updateTestEndTurn()
+ 			{
+ 				if (!(gDLL->getInterfaceIFace()->isForcePopup()))
+ 				{
+-					if (!bShift) // K-Mod
++					if (!bShift && !GC.suppressCycling()) // K-Mod
+ 						gDLL->getInterfaceIFace()->setForcePopup(true);
+ 				}
+ 				else
+@@ -499,7 +500,7 @@ void CvGame::updateTestEndTurn()
+ 						//if (!(GC.shiftKey()))
+ 						// K-Mod. Don't start automoves if we currently have a group selected which would move.
+ 						CvUnit* pSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+-						if (!GC.shiftKey() && (pSelectedUnit == NULL || !pSelectedUnit->getGroup()->readyToAuto()))
++						if (!bShift && !GC.suppressCycling() && (pSelectedUnit == NULL || !pSelectedUnit->getGroup()->readyToAuto()))
+ 						// K-Mod end
+ 						{
+ 							CvMessageControl::getInstance().sendAutoMoves();
+@@ -776,6 +777,10 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers) con
+ void CvGame::cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bDelayOnly) const
+ {
+ 	PROFILE_FUNC(); // I'm just hoping that the python call doesn't hurt the respose times
++
++	if (GC.suppressCycling()) // cf. GvGame::updateSelectionList
++		return;
++
+ 	// Only rapid-cycle when not doing auto-play.
+ 	// Also note, cycleSelectionGroups currently causes a crash if the game is not initialised.
+ 	// (and this function is indirectly called during the set of up a new game - so we currently need that init check.)
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 6170590f3..daebd8573 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -815,6 +815,8 @@ public:
+ 	inline bool ctrlKey() { return (GetKeyState(VK_CONTROL) & 0x8000); }
+ 	inline bool shiftKey() { return (GetKeyState(VK_SHIFT) & 0x8000); }
+ 	// NOTE: I've replaced all calls to the gDLL key functions with calls to these functions.
++
++	inline bool suppressCycling() { return (GetKeyState('X') & 0x8000); } // hold X to temporarily suppress automatic unit cycling.
+ 	// K-Mod end
+ 
+ 	DllExport int getMAX_CIV_PLAYERS();
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4024

@@ -1,0 +1,726 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3938
+# Commit: 80f875fef49a798ffb7dca43ea8d9aa8e74ec6a3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 09af802e15211f80e904e27f9c0dedf3667a0a7c
+# Title: Show Barbarian combat handicaps in unit help
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/Interface/Buttons/promotions/broken_combat.dds
+10	2	Assets/Python/CvUtil.py
+21	0	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+33	9	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+21	0	Assets/XML/Text/CIV4GameText_advc.xml
+7	4	Assets/XML/Units/CIV4PromotionInfos.xml
+7	6	CvGameCoreDLL/CvGame.cpp
+60	4	CvGameCoreDLL/CvGameTextMgr.cpp
+6	0	CvGameCoreDLL/CvInfo_GameOption.h
+50	5	CvGameCoreDLL/CvUnit.cpp
+18	3	CvGameCoreDLL/CvUnit.h
+7	1	CvGameCoreDLL/CyStructsInterface1.cpp
+12	11	CvGameCoreDLL/EnumMap.h
+ delete mode 100644 Assets/Art/Interface/Buttons/promotions/broken_combat.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/Interface/Buttons/promotions/broken_combat.dds b/Assets/Art/Interface/Buttons/promotions/broken_combat.dds
+deleted file mode 100644
+index c5cbbd3e0..000000000
+Binary files a/Assets/Art/Interface/Buttons/promotions/broken_combat.dds and /dev/null differ
+
+diff --git a/Assets/Python/CvUtil.py b/Assets/Python/CvUtil.py
+index ce18d4097..1e9174497 100644
+--- a/Assets/Python/CvUtil.py
++++ b/Assets/Python/CvUtil.py
+@@ -281,6 +281,12 @@ def combatDetailMessageBuilder(cdUnit, ePlayer, iChange):
+ 			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
+ 	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierAB * iChange,
+ 			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
++	# <advc.313>
++	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierTB * iChange,
++			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
++	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierAB * iChange,
++			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
++	# </advc.313>
+ 	_addCombatMsg(ePlayer, cdUnit.iPlotDefenseModifier * iChange,
+ 			"TXT_KEY_COMBAT_MESSAGE_PLOT_DEFENSE")
+ 	_addCombatMsg(ePlayer, cdUnit.iFortifyModifier * iChange,
+@@ -303,8 +309,10 @@ def combatDetailMessageBuilder(cdUnit, ePlayer, iChange):
+ 			"TXT_KEY_COMBAT_MESSAGE_CITY_ATTACK")
+ 	_addCombatMsg(ePlayer, cdUnit.iDomainDefenseModifier * iChange,
+ 			"TXT_KEY_COMBAT_MESSAGE_CITY_DOMAIN_DEFENSE")
+-	_addCombatMsg(ePlayer, cdUnit.iCityBarbarianDefenseModifier * iChange,
+-			"TXT_KEY_COMBAT_MESSAGE_CITY_BARBARIAN_DEFENSE")
++	#_addCombatMsg(ePlayer, cdUnit.iCityBarbarianDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_BARBARIAN_DEFENSE")
++	# <advc.313>
++	_addCombatMsg(ePlayer, cdUnit.iBarbarianCityAttackModifier * iChange,
++			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_CITY") # </advc.313>
+ 	_addCombatMsg(ePlayer, cdUnit.iClassDefenseModifier * iChange,
+ 			"TXT_KEY_COMBAT_MESSAGE_CLASS_DEFENSE")
+ 	_addCombatMsg(ePlayer, cdUnit.iClassAttackModifier * iChange,
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index b4e046f81..095585ca3 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -361,6 +361,19 @@
+ 	<ElementType name="iBarbarianCityCreationProb" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAnimalBonus" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iBarbarianBonus" content="textOnly" dt:type="int"/>
++	<!-- advc.313: start
++		 Refer to the strength modifiers as "bonuses" to be consistent with
++		 the two modifier elements above. Barbarian strength modifiers are
++		 additively cumulative (except that the iAI... modifiers replace
++		 their non-AI counterparts rather than add to them).
++		 Either sign should work. -->
++	<!-- Replacing CITY_BARBARIAN_DEFENSE_MODIFIER in BtS GlobalDefines -->
++	<ElementType name="iBarbarianCityAttackBonus" content="textOnly" dt:type="int"/>
++	<!-- Replacing K-Mod's Disorganized promotion -->
++	<ElementType name="iSeaBarbarianBonus" content="textOnly" dt:type="int"/>
++	<!-- Extra moves for Barbarian sea units. Can be negative. -->
++	<ElementType name="iSeaBarbarianExtraMoves" content="textOnly" dt:type="int"/>
++	<!-- advc.313: end -->
+ 	<ElementType name="iAIAnimalBonus" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAIBarbarianBonus" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iStartingDefenseUnits" content="textOnly" dt:type="int"/>
+@@ -460,6 +473,14 @@
+ 		<element type="iBarbarianCityCreationProb"/>
+ 		<element type="iAnimalBonus"/>
+ 		<element type="iBarbarianBonus"/>
++		<!-- advc.313: start
++			 Default values (set in the DLL), respectively:
++			 -25 (as in BtS), -10 (like the Disorganized promotion in K-Mod),
++			 -1 (negating the speed increase for ships in AdvCiv) -->
++		<element type="iBarbarianCityAttackBonus" minOccurs="0"/>
++		<element type="iSeaBarbarianBonus" minOccurs="0"/>
++		<element type="iSeaBarbarianExtraMoves" minOccurs="0"/>
++		<!-- advc.313: end -->
+ 		<element type="iAIAnimalBonus"/>
+ 		<element type="iAIBarbarianBonus"/>
+ 		<element type="iStartingDefenseUnits"/>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 73adc197f..083ea9160 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -669,8 +669,12 @@
+ 			<!-- advc.313: was -30 -->
+ 			<iAnimalBonus>-20</iAnimalBonus>
+ 			<iBarbarianBonus>-5</iBarbarianBonus>
+-			<!-- advc.313: was -40 -->
++			<!-- advc.313: start -->
++			<!-- was (effectively) -25 -->
++			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
++			<!-- was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
++			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+@@ -797,12 +801,16 @@
+ 			<!-- advc.300: was 30 -->
+ 			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
+-			<!-- advc.313: was -20 -->
++			<!-- advc.313: start -->
++			<!-- was -20 -->
+ 			<iAnimalBonus>-15</iAnimalBonus>
+-			<!-- advc.313: was 0 -->
++			<!-- was 0 -->
+ 			<iBarbarianBonus>-5</iBarbarianBonus>
+-			<!-- advc.313: was -40 -->
++			<!-- was (effectively) -25 -->
++			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
++			<!-- was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
++			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+@@ -953,10 +961,14 @@
+ 			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>-10</iAnimalBonus>
+-			<!-- advc.313: was 0 -->
++			<!-- advc.313: start -->
++			<!-- was 0 -->
+ 			<iBarbarianBonus>-5</iBarbarianBonus>
+-			<!-- advc.313: was -40 -->
++			<!-- was (effectively) -25 -->
++			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
++			<!-- was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
++			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+@@ -1116,10 +1128,14 @@
+ 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>-5</iAnimalBonus>
+-			<!-- advc.313: was 0 -->
++			<!-- advc.313: start -->
++			<!-- was 0 -->
+ 			<iBarbarianBonus>-5</iBarbarianBonus>
+-			<!-- advc.313: was -40 -->
++			<!-- was (effectively) -25 -->
++			<iBarbarianCityAttackBonus>-15</iBarbarianCityAttackBonus>
++			<!-- was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
++			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+@@ -1284,8 +1300,16 @@
+ 			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<iBarbarianBonus>0</iBarbarianBonus>
+-			<!-- advc.313: was -40 -->
++			<!-- advc.313: start -->
++			<!-- was (effectively) -25 -->
++			<iBarbarianCityAttackBonus>-10</iBarbarianCityAttackBonus>
++			<!-- was (effectively) -10 in K-Mod -->
++			<iSeaBarbarianBonus>-5</iSeaBarbarianBonus>
++			<!-- (Let Barbarians benefit from the advc.905a speed increase) -->
++			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
++			<!-- was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
++			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 90d0ae04c..b42c6a5c6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1999,6 +1999,27 @@
+ 		<Spanish>desde turno</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.313: Replacement for TXT_KEY_COMBAT_MESSAGE_CITY_BARBARIAN_DEFENSE
++		 (CIV4GameText_Misc1.xml); translation based on
++		 TXT_KEY_COMBAT_MESSAGE_CITY_ATTACK. -->
++	<TEXT>
++		<Tag>TXT_KEY_COMBAT_MESSAGE_BARBARIAN_CITY</Tag>
++		<English>(Barbarian City Attack: %D1%%)</English>
++		<French>(Attaque barbare contre ville : %D1%%)</French>
++		<German>(Barbaren-Angriff auf Stadt: %D1%%)</German>
++		<Italian>(Attacco barbare contro citt&#224;: %D1%%)</Italian>
++		<Spanish>(Ataque b&#225;rbaro contra ciudad: %D1%%)</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT -->
++	<TEXT>
++		<Tag>TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA</Tag>
++		<English>(Barbarian Sea Combat: %D1%%)</English>
++		<French>(Combat barbare navale : %D1%%)</French>
++		<German>(Barbaren-Seekampf: %D1%%)</German>
++		<Italian>(Combattimento navale Barbari: %D1%%)</Italian>
++		<Spanish>(Combate naval del b&#225;rbaro: %D1%%)</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.314: Based on TXT_KEY_GOODY_SCOUT in Vanilla
+ 		 Civ4GameTextInfos.xml. -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index eb301c112..f1124c787 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -4497,8 +4497,12 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,15</Button>
+ 		</PromotionInfo>
+-		<!-- K-Mod, special penalty promotion -->
+-		<PromotionInfo>
++		<!-- K-Mod, special penalty promotion.
++			 advc.905a: iMovesChange set to -1
++			 advc.313: Replaced with handicap-based modifiers.
++			 broken_combat.dds has also been botted from AdvCiv, will need to
++			 copy it from K-Mod to restore this promotion. -->
++		<!--PromotionInfo>
+ 			<Type>PROMOTION_DISORGANIZED</Type>
+ 			<Description>TXT_KEY_PROMOTION_DISORGANIZED</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+@@ -4517,7 +4521,6 @@
+ 			<bHillsDoubleMove>0</bHillsDoubleMove>
+ 			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
+ 			<iVisibilityChange>0</iVisibilityChange>
+-			<!-- advc.905a: was 0 -->
+ 			<iMovesChange>-1</iMovesChange>
+ 			<iMoveDiscountChange>0</iMoveDiscountChange>
+ 			<iAirRangeChange>0</iAirRangeChange>
+@@ -4560,6 +4563,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/Interface/Buttons/Promotions/broken_combat.dds</Button>
+-		</PromotionInfo>
++		</PromotionInfo-->
+ 	</PromotionInfos>
+ </Civ4PromotionInfos>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index f19f9180e..4e1ef17a3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7482,23 +7482,24 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
+ 		UnitTypes eUnitType = randomBarbarianUnit(eUnitAI, *pPlot);
+ 		if (eUnitType == NO_UNIT)
+ 			return iCreated;
+-		CvUnit* pNewUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType,
++		/*CvUnit* pNewUnit =*/GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType,
+ 				pPlot->getX(), pPlot->getY(), eUnitAI);
+ 		if (!pPlot->isWater())
+ 			iCreated++;
+ 		// </advc.300>
+-		// K-Mod. Give a combat penalty to barbarian boats.
++	// advc.313: Replaced by a handicap-based modifier
++	#if 0
++		/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
++			real civilizations to defend against. */
+ 		if (pPlot->isWater() &&
+ 			!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
+-		{	// find the "disorganized" promotion. (is there a better way to do this?)
++		{
+ 			PromotionTypes eDisorganized = (PromotionTypes)
+ 					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+ 			if (eDisorganized != NO_PROMOTION)
+-			{	/*	Sorry, barbarians. Free ships are just too dangerous for
+-					real civilizations to defend against. */
+ 				pNewUnit->setHasPromotion(eDisorganized, true);
+-			}
+ 		} // K-Mod end
++	#endif
+ 		// <advc.304> Discourage nearby unit placement for some time
+ 		getBarbarianWeightMap().getActivityMap().change(*pPlot,
+ 				BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7727683ee..4faadb8a8 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -631,6 +631,32 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 	if (pUnit->isActiveTeam())
+ 		setEspionageMissionHelp(szString, pUnit);
+ 
++	// <advc.313>
++	int iBarbarianMovesHandicap = 0;
++	int iBarbarianCombatHandicap = 0;
++	int iBarbarianCityAttackHandicap = 0;
++	if (!bShort && pUnit->isBarbarian() && pUnit->canFight())
++	{
++		CvHandicapInfo const& kHandicap = GC.getInfo(
++				GET_PLAYER(getActivePlayer()).getHandicapType());
++		iBarbarianCombatHandicap += kHandicap.getBarbarianCombatModifier();
++		if (pUnit->isAnimal())
++			iBarbarianCombatHandicap += kHandicap.getAnimalCombatModifier();
++		else if (pUnit->isKnownSeaBarbarian())
++		{
++			iBarbarianCombatHandicap += kHandicap.get(
++					CvHandicapInfo::SeaBarbarianBonus);
++			iBarbarianMovesHandicap += kHandicap.get(
++					CvHandicapInfo::SeaBarbarianExtraMoves);
++		}
++		else if (pUnit->getDomainType() == DOMAIN_LAND)
++		{
++			iBarbarianCityAttackHandicap += kHandicap.get(
++					CvHandicapInfo::BarbarianCityAttackBonus);
++		}
++		// (Will display these below along with promotion effects)
++	} // </advc.313>
++
+ 	if (pUnit->cargoSpace() > 0)
+ 	{
+ 		CvWString szTempBuffer;
+@@ -957,14 +983,30 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		szString.append(gDLL->getText("TXT_KEY_PROMOTION_COLLATERAL_PROTECTION_TEXT",
+ 				pUnit->getCollateralDamageProtection()));
+ 	}
+-
++	// <advc.313>
++	if (iBarbarianCombatHandicap != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++				PLAYER_TEXT_COLOR(GET_PLAYER(pUnit->getOwner())),
++				gDLL->getText("TXT_KEY_PROMOTION_STRENGTH_TEXT",
++				iBarbarianCombatHandicap).c_str()));
++	} // </advc.313>
+ 	if (pUnit->getExtraCombatPercent() != 0)
+ 	{
+ 		szString.append(NEWLINE);
+ 		szString.append(gDLL->getText("TXT_KEY_PROMOTION_STRENGTH_TEXT",
+ 				pUnit->getExtraCombatPercent()));
+ 	}
+-
++	// <advc.313>
++	if (iBarbarianCityAttackHandicap != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++				PLAYER_TEXT_COLOR(GET_PLAYER(pUnit->getOwner())),
++				gDLL->getText("TXT_KEY_PROMOTION_CITY_ATTACK_TEXT",
++				iBarbarianCityAttackHandicap).c_str()));
++	} // </advc.313>
+ 	if (pUnit->cityAttackModifier() == pUnit->cityDefenseModifier())
+ 	{
+ 		if (pUnit->cityAttackModifier() != 0)
+@@ -1256,6 +1298,15 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		szString.append(NEWLINE);
+ 		szString.append(gDLL->getText("TXT_KEY_UNIT_VISIBILITY_MOVE_RANGE"));
+ 	}
++	// <advc.313>
++	if (iBarbarianMovesHandicap != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++				PLAYER_TEXT_COLOR(GET_PLAYER(pUnit->getOwner())),
++				gDLL->getText("TXT_KEY_PROMOTION_MOVE_TEXT",
++				iBarbarianMovesHandicap).c_str()));
++	} // </advc.313>
+ 
+ 	if (!CvWString(kInfo.getHelp()).empty())
+ 	{
+@@ -21579,6 +21630,13 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
+ 						GET_PLAYER(kAttacker.getOwner()). // K-Mod
+ 						getHandicapType()).getAnimalCombatModifier();
+ 			}
++			// <advc.313>
++			if (kDefender.isKnownSeaBarbarian())
++			{
++				iModifier -= GC.getInfo(
++						GET_PLAYER(kAttacker.getOwner()).
++						getHandicapType()).get(CvHandicapInfo::SeaBarbarianBonus);
++			} // </advc.313>
+ 			appendCombatModifier(szBuffer, iModifier,
+ 					params, "TXT_KEY_MISC_FROM_HANDICAP");
+ 			// </advc.315c>
+@@ -21605,8 +21663,6 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
+ 	}
+ 	if (!bOnlyNonGeneric)
+ 	{
+-		/*	(advc.001: appendCombatModifier will pick the proper color
+-			for K-Mod's Disorganized promotion when ACO is enabled) */
+ 		appendCombatModifier(szBuffer,
+ 				kDefender.getExtraCombatPercent(),
+ 				params, "TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH");
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 30d9ee4b6..a8b356394 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -419,11 +419,17 @@ protected:
+ 		/*	(Didn't have this framework when I implemented change advc.251,
+ 			otherwise, I would've used it for that too.) */
+ 		kElements.addInt(ForeignCultureStrength, "ForeignCultureStrength"); // advc.101
++		// <advc.313>
++		kElements.addInt(BarbarianCityAttackBonus, "BarbarianCityAttackBonus", -25);
++		kElements.addInt(SeaBarbarianBonus, "SeaBarbarianBonus", -10);
++		kElements.addInt(SeaBarbarianExtraMoves, "SeaBarbarianExtraMoves", -1);
++		// </advc.313>
+ 	}
+ public:
+ 	enum IntElementTypes
+ 	{
+ 		ForeignCultureStrength = base_t::NUM_INT_ELEMENT_TYPES, // advc.101
++		BarbarianCityAttackBonus, SeaBarbarianBonus, SeaBarbarianExtraMoves, // advc.313
+ 		NUM_INT_ELEMENT_TYPES
+ 	};
+ 	int get(IntElementTypes e) const
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 11dadb624..98b63b79d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -115,6 +115,12 @@ void CvUnit::init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY,
+ 	m_eFacingDirection = eFacingDirection;
+ 	m_pUnitInfo = &GC.getInfo(m_eUnitType);
+ 	m_iBaseCombat = m_pUnitInfo->getCombat();
++	// <advc.313>
++	if (isKnownSeaBarbarian())
++	{
++		changeExtraMoves(GC.getInfo(GC.getGame().getHandicapType()).get(
++				CvHandicapInfo::SeaBarbarianExtraMoves));
++	} // </advc.313>
+ 	updateFlatMovement(); // advc.opt
+ 	m_iCargoCapacity = m_pUnitInfo->getCargoSpace();
+ 	setXY(iX, iY, false, false);
+@@ -7117,6 +7123,16 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 				if (pCombatDetails != NULL)
+ 					pCombatDetails->iAIBarbarianCombatModifierTB = iExtraModifier;
+ 			}
++			// <advc.313>
++			if (isKnownSeaBarbarian())
++			{
++				iExtraModifier = GC.getInfo(
++						GET_PLAYER(pAttacker->getOwner()).getHandicapType()).
++						get(CvHandicapInfo::SeaBarbarianBonus);
++				iModifier += iExtraModifier;
++				if (pCombatDetails != NULL)
++					pCombatDetails->iSeaBarbarianModifierTB = iExtraModifier;
++			} // </advc.313>
+ 		}
+ 
+ 		if (pAttacker->isBarbarian())
+@@ -7139,6 +7155,16 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 				if (pCombatDetails != NULL)
+ 					pCombatDetails->iAIBarbarianCombatModifierTB = iExtraModifier;
+ 			}
++			// <advc.313>
++			if (pAttacker->isKnownSeaBarbarian())
++			{
++				iExtraModifier = -GC.getInfo(
++						GC.getGame().getHandicapType()).
++						get(CvHandicapInfo::SeaBarbarianBonus);
++				iModifier += iExtraModifier;
++				if (pCombatDetails != NULL)
++					pCombatDetails->iSeaBarbarianModifierAB = iExtraModifier;
++			} // </advc.313>
+ 		}
+ 	}
+ 
+@@ -7234,10 +7260,16 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 				pCombatDetails->iCityAttackModifier = iExtraModifier;
+ 			if (pAttacker->isBarbarian())
+ 			{
+-				iExtraModifier = GC.getDefineINT("CITY_BARBARIAN_DEFENSE_MODIFIER");
++				iExtraModifier = //GC.getDefineINT("CITY_BARBARIAN_DEFENSE_MODIFIER")
++						// <advc.313>
++						-GC.getInfo(GC.getGame().getHandicapType()).
++						get(CvHandicapInfo::BarbarianCityAttackBonus); // </advc.313>
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-					pCombatDetails->iCityBarbarianDefenseModifier = iExtraModifier;
++				{
++					pCombatDetails->//iCityBarbarianDefenseModifier
++							iBarbarianCityAttackModifier = iExtraModifier; // advc.313
++				}
+ 			}
+ 		}
+ 		if (pAttackedPlot->isHills())
+@@ -10393,9 +10425,22 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 	pStream->ReadString(m_szName);
+ 	pStream->ReadString(m_szScriptData);
+ 
++	// <advc.313>
++	if (uiFlag >= 8)
++		m_abHasPromotion.read(pStream);
++	else if (uiFlag == 7)
++	{	// Skip loading Disorganized promo
++		m_abHasPromotion.read(pStream, -1);
++		/*	Promo effects get cached in m_iExtra... members, which get saved.
++			This is good for the extra moves, not good for the strength modifier
++			b/c that gets applied on the fly now. */
++		if (isKnownSeaBarbarian())
++			m_iExtraCombatPercent += 10;
++	}
++	else // </advc.313>
++		m_abHasPromotion.readArray<bool>(pStream);
+ 	if (uiFlag >= 7)
+ 	{
+-		m_abHasPromotion.read(pStream);
+ 		m_aiTerrainDoubleMoveCount.read(pStream);
+ 		m_aiFeatureDoubleMoveCount.read(pStream);
+ 		m_aiExtraTerrainAttackPercent.read(pStream);
+@@ -10406,7 +10451,6 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 	}
+ 	else
+ 	{
+-		m_abHasPromotion.readArray<bool>(pStream);
+ 		m_aiTerrainDoubleMoveCount.readArray<int>(pStream);
+ 		m_aiFeatureDoubleMoveCount.readArray<int>(pStream);
+ 		m_aiExtraTerrainAttackPercent.readArray<int>(pStream);
+@@ -10428,7 +10472,8 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	//uiFlag = 4; // advc.029
+ 	//uiFlag = 5; // advc.164
+ 	//uiFlag = 6; // advc.opt (m_bFlatMovement)
+-	uiFlag = 7; // advc.enum: new enum map save behavior
++	//uiFlag = 7; // advc.enum: new enum map save behavior
++	uiFlag = 8; // advc.313: Disorganized promo removed
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index c486e575a..42a56e160 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -327,6 +327,13 @@ public:
+ 	}
+ 
+ 	bool isBarbarian() const;																				// Exposed to Python
++	// advc.313:
++	bool isKnownSeaBarbarian() const
++	{
++		return (isBarbarian() && getDomainType() == DOMAIN_SEA &&
++				// Future-proof for Barbarian Privateers
++				!m_pUnitInfo->isHiddenNationality());
++	}
+ 	bool isHuman() const;																					// Exposed to Python
+ 
+ 	int visibilityRange() const;																			// Exposed to Python
+@@ -1231,6 +1238,10 @@ private:
+ struct CombatDetails											// Exposed to Python
+ {
+ 	int iExtraCombatPercent;
++	/*	advc.313 (note): Not sure what these suffixes are supposed to abbreviate.
++		I'll be assuming "T" for "This", meaning the defender, and then:
++		"TA" = "This is Animal", "AA" = "Attacker is Animal",
++		"TB" = "This is Barbarian", "AB" = "Attacker is Barbarian". */
+ 	int iAnimalCombatModifierTA;
+ 	int iAIAnimalCombatModifierTA;
+ 	int iAnimalCombatModifierAA;
+@@ -1239,6 +1250,10 @@ struct CombatDetails											// Exposed to Python
+ 	int iAIBarbarianCombatModifierTB;
+ 	int iBarbarianCombatModifierAB;
+ 	int iAIBarbarianCombatModifierAB;
++	// <advc.313>
++	int iBarbarianCityAttackModifier;
++	int iSeaBarbarianModifierTB;
++	int iSeaBarbarianModifierAB; // </advc.313>
+ 	int iPlotDefenseModifier;
+ 	int iFortifyModifier;
+ 	int iCityDefenseModifier;
+@@ -1250,7 +1265,7 @@ struct CombatDetails											// Exposed to Python
+ 	int iTerrainDefenseModifier;
+ 	int iCityAttackModifier;
+ 	int iDomainDefenseModifier;
+-	int iCityBarbarianDefenseModifier;
++	//int iCityBarbarianDefenseModifier; // advc.313: replaced above
+ 	int iClassDefenseModifier;
+ 	int iClassAttackModifier;
+ 	int iCombatModifierT;
+@@ -1277,8 +1292,8 @@ struct CombatDetails											// Exposed to Python
+ 	{
+ 		/*	Not nice - but we mustn't zero the string, and we don't want to
+ 			repeat all the int members. */
+-		ZeroMemory(this, 39 * sizeof(int));
+-		BOOST_STATIC_ASSERT(sizeof(CombatDetails) == 39 * sizeof(int) + 2 * sizeof(PlayerTypes) + sizeof(std::wstring));
++		ZeroMemory(this, 41 * sizeof(int));
++		BOOST_STATIC_ASSERT(sizeof(CombatDetails) == 41 * sizeof(int) + 2 * sizeof(PlayerTypes) + sizeof(std::wstring));
+ 		this->eOwner = eOwner;
+ 		this->eVisualOwner = eVisualOwner;
+ 		this->sUnitName = sUnitName;
+
+diff --git a/CvGameCoreDLL/CyStructsInterface1.cpp b/CvGameCoreDLL/CyStructsInterface1.cpp
+index af023ef0d..30b9543b7 100644
+--- a/CvGameCoreDLL/CyStructsInterface1.cpp
++++ b/CvGameCoreDLL/CyStructsInterface1.cpp
+@@ -148,6 +148,11 @@ void CyStructsPythonInterface1()
+ 		.def_readwrite("iAIBarbarianCombatModifierTB", &CombatDetails::iAIBarbarianCombatModifierTB)
+ 		.def_readwrite("iBarbarianCombatModifierAB", &CombatDetails::iBarbarianCombatModifierAB)
+ 		.def_readwrite("iAIBarbarianCombatModifierAB", &CombatDetails::iAIBarbarianCombatModifierAB)
++		// <advc.313>
++		.def_readwrite("iBarbarianCityAttackModifier", &CombatDetails::iBarbarianCityAttackModifier)
++		.def_readwrite("iSeaBarbarianModifierTB", &CombatDetails::iSeaBarbarianModifierTB)
++		.def_readwrite("iSeaBarbarianModifierAB", &CombatDetails::iSeaBarbarianModifierAB)
++		// </advc.313>
+ 		.def_readwrite("iPlotDefenseModifier", &CombatDetails::iPlotDefenseModifier)
+ 		.def_readwrite("iFortifyModifier", &CombatDetails::iFortifyModifier)
+ 		.def_readwrite("iCityDefenseModifier", &CombatDetails::iCityDefenseModifier)
+@@ -159,7 +164,8 @@ void CyStructsPythonInterface1()
+ 		.def_readwrite("iTerrainDefenseModifier", &CombatDetails::iTerrainDefenseModifier)
+ 		.def_readwrite("iCityAttackModifier", &CombatDetails::iCityAttackModifier)
+ 		.def_readwrite("iDomainDefenseModifier", &CombatDetails::iDomainDefenseModifier)
+-		.def_readwrite("iCityBarbarianDefenseModifier", &CombatDetails::iCityBarbarianDefenseModifier)
++		// advc.313: Replaced above
++		//.def_readwrite("iCityBarbarianDefenseModifier", &CombatDetails::iCityBarbarianDefenseModifier)
+ 		.def_readwrite("iClassDefenseModifier", &CombatDetails::iClassDefenseModifier)
+ 		.def_readwrite("iClassAttackModifier", &CombatDetails::iClassAttackModifier)
+ 		.def_readwrite("iCombatModifierT", &CombatDetails::iCombatModifierT)
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index de50f2345..c483b1e98 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -283,9 +283,9 @@ public:
+ 	{
+ 		derived().writeArray<CompactV>(pStream);
+ 	}
+-	void read(FDataStreamBase* pStream, uint uiSubtrahend = 0)
++	void read(FDataStreamBase* pStream, int iSubtrahend = 0)
+ 	{
+-		derived().readArray<CompactV>(pStream, uiSubtrahend);
++		derived().readArray<CompactV>(pStream, iSubtrahend);
+ 	}
+ 	template<typename SizeType, typename ValueType>
+ 	void writeLazyArray(FDataStreamBase* pStream) const
+@@ -299,13 +299,13 @@ public:
+ 	}
+ 	template<typename SizeType, typename ValueType>
+ 	void readLazyArray(FDataStreamBase* pStream,
+-		uint uiSubtrahend = 0) // (Could also get this from sz)
++		int iSubtrahend = 0) // (Could also get this from sz)
+ 	{
+ 		SizeType sz;
+ 		pStream->Read(&sz);
+ 		if (sz == 0)
+ 			return;
+-		derived().readArray<ValueType>(pStream, uiSubtrahend);
++		derived().readArray<ValueType>(pStream, iSubtrahend);
+ 	}
+ 	template<class DataStream>
+ 	void writeLazyIntArray(DataStream* pStream) const
+@@ -323,11 +323,11 @@ public:
+ 			writeVal(pStream, safeCast<ValueType>(derived().getUnsafe(eKey)));
+ 	}
+ 	template<typename ValueType>
+-	void readArray(FDataStreamBase* pStream, uint uiSubtrahend = 0)
++	void readArray(FDataStreamBase* pStream, int iSubtrahend = 0)
+ 	{
+ 		/*	Allocating an array and calling Read(getLength(), array) might be faster,
+ 			might be slower. Reading one value at a time is at least easier to debug. */
+-		int const iLen = getLength() - (int)uiSubtrahend;
++		int const iLen = getLength() - iSubtrahend;
+ 		for (E eKey = enum_traits<E>::first; eKey < iLen; ++eKey)
+ 		{
+ 			ValueType val;
+@@ -1411,16 +1411,17 @@ public:
+ 			pStream->Write(false);
+ 		}
+ 	}
+-	void read(FDataStreamBase* pStream, uint uiSubtrahend = 0)
++	void read(FDataStreamBase* pStream, int iSubtrahend = 0)
+ 	{
+-		FAssert(!bBIT_BLOCKS || uiSubtrahend == 0);
++// Fixme: arraySize function is not taking into account bBIT_BLOCKS when !bSTATIC_MEMORY
++//		FAssert(!bBIT_BLOCKS || iSubtrahend == 0);
+ 		bool bAnyNonDefault;
+ 		pStream->Read(&bAnyNonDefault);
+ 		if (bAnyNonDefault)
+ 		{
+ 			if (!isAllocated())
+ 				allocate();
+-			pStream->Read(arraySize() - (int)uiSubtrahend, values());
++			pStream->Read(arraySize() - iSubtrahend, values());
+ 		}
+ 	}
+ 
+@@ -2160,12 +2161,12 @@ public:
+ 			lookup(eOuterKey).writeArray<ValueType>(pStream);
+ 	}
+ 	template<typename ValueType>
+-	void readArray(FDataStreamBase* pStream, uint uiSubtrahend = 0)
++	void readArray(FDataStreamBase* pStream, int iSubtrahend = 0)
+ 	{
+ 		FOR_EACH_OUTER_KEY(eOuterKey)
+ 		{
+ 			InnerEncodableMap innerMap;
+-			innerMap.readArray<ValueType>(pStream, uiSubtrahend);
++			innerMap.readArray<ValueType>(pStream, iSubtrahend);
+ 			set(eOuterKey, innerMap.encode());
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=28373

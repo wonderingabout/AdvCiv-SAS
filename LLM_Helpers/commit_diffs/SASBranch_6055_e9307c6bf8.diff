@@ -1,0 +1,463 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6055
+# Commit: e9307c6bf89d374789c4f23d1a10779357b6a089
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3a31b23545b80e0071699f7aef89e8a4148d61c0
+# Title: (Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could waste the launch countdown on other cities and routine actions instead of trying to capture...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+19	1	Assets/XML/GlobalDefines_advciv_sas.xml
+3	1	CvGameCoreDLL/CvPlayerAI.cpp
+159	16	CvGameCoreDLL/CvUnitAI.cpp
+20	3	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+4	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 21478fc42..ff11e7c05 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2935,11 +2935,19 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. Also acts as the minimum city-assault nucleus retained when a peaceful army has no target or war plan; the estimated Barbarian requirement can retain more, while excess suitable units return to general military duties until a target appears. See KI#104 and KI#188.3. (GPT-5.2-Codex + Claude code Opus 4.5 + GPT-5.6-Sol) -->
++	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. See KI#104. (GPT-5.2-Codex + Claude code Opus 4.5) -->
+ 	<Define>
+ 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+ 		<iDefineIntVal>9</iDefineIntVal>
+ 	</Define>
++
++
++
++	<!-- custom: Minimum city-assault group retained while an AI is at peace without a target or war plan. The estimated number of attackers needed against Barbarian cities can retain more; excess suitable units return to general military duties until a target appears. Minimum 1. See KI#188.3. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS</DefineName>
++		<iDefineIntVal>9</iDefineIntVal>
++	</Define>
+ 	<!-- custom: While at peace and not yet ready for a sneak attack, cap each barbarian-city expedition at this multiple of the estimated garrison (minus one, preserving base AdvCiv's former `< 3 * garrison` boundary). Actual attack and city-capture capability counts regardless of UnitAI role; oversized capable groups are split into independently useful expeditions instead of being marked not ready and attracting still more joiners. The estimated attackers needed remains the minimum cap. BBAI testing found single groups holding 65-82% of an empire's military under the old feedback loop. Minimum 1. See KI#188. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER</DefineName>
+@@ -3300,6 +3308,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Additive ordinary target-city value for the capital of an AI at Space victory stage 4 before its launch countdown begins. Base AdvCiv hardcoded 10 (reduced from 20). Focused save-file 450 diagnostics showed that changing this alone cannot solve anti-spaceship targeting because downstream distance and tactical multipliers could favor a nearby city by 249333 to 3477. Keep 10 as the ordinary pre-launch preference; the separate emergency capital-rush rule below applies only after launch. See KI#190. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_SPACE4_CAPITAL_TARGET_VALUE_BONUS</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<!-- custom: When enabled, city-assault armies at war with a rival whose spaceship has launched treat its reachable capital as an emergency objective instead of comparing it with ordinary conquest value. Capturing or razing the current capital during the active countdown resets the spaceship projects and stops the imminent victory; before launch, completed projects survive capital relocation, so ordinary target scoring remains in charge. A group only overrides its target when its path can arrive within the remaining countdown, then moves directly instead of spending that countdown on ordinary regrouping, healing retreats, opportunistic combat, reinforcement waits or upgrade waits. An army below its immediate attack threshold holds as soon as it is within one path turn to recover and receive reinforcements, avoiding exposure beside the city when possible; it advances and forces its assault only when no countdown slack remains. Base AdvCiv's existing enough-offence-en-route check can leave surplus armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 658989451..a8e8857bd 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3400,7 +3400,9 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize, bool bI
+ 			} // </advc.104d>
+ 			if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4))
+ 			{
+-				iValue += 10; // was 20
++				// <!-- custom: Base AdvCiv reduced this pre-launch capital priority from 20 to 10. Make the current value tunable before testing whether anti-spaceship armies should focus more strongly on the capital, whose loss resets spaceship progress. Default 10 preserves Base AdvCiv behavior. (GPT-5.6-Sol) -->
++				static int const iSpace4CapitalTargetValueBonus = GC.getDefineINT("SAS_AI_SPACE4_CAPITAL_TARGET_VALUE_BONUS");
++				iValue += iSpace4CapitalTargetValueBonus;
+ 				if (GET_TEAM(kCity.getTeam()).
+ 					getVictoryCountdown(kGame.getSpaceVictory()) >= 0)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 704308f31..d42154b93 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6662,23 +6662,32 @@ void CvUnitAI::AI_attackCityMove()
+ 	}
+ 	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units. Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
+ 	bool const bHasTargetOrWarPlan = (pTargetCity != NULL || bAnyWarPlan);
++	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
++	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
++	bool const bLaunchedSpaceCapitalTarget = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && pTargetCity != NULL && pTargetCity->isCapital());
++	int const iSpaceCapitalCountdown = (bLaunchedSpaceCapitalTarget ? GET_TEAM(pTargetCity->getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
++	int iSpaceCapitalPathTurns = -1;
++	bool const bSpaceCapitalEmergency = (iSpaceCapitalCountdown >= 0 && generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iSpaceCapitalPathTurns) && iSpaceCapitalPathTurns <= iSpaceCapitalCountdown);
++	bool const bSpaceCapitalMustAttackNow = (bSpaceCapitalEmergency && iSpaceCapitalPathTurns >= iSpaceCapitalCountdown);
+ 
+ 	/*	K-Mod. This is used to prevent the AI from oscillating
+ 		between moving to attack moving to pillage. */
+ 	bool bTargetTooStrong = false;
+ 	// advc.114c: Moved up. Target strength ratio for city attack.
+ 	int iAttackRatio = -1;
++	// <!-- custom: A save-file 450 army reached Delhi but repeatedly declined both its adjacent assault and further movement. Preserve K-Mod's immediate and projected readiness values for the launched-capital diagnostic below so testing can identify which assessment disagreed. (GPT-5.6-Sol) -->
++	int iSpaceCapitalImmediateCompare = -1;
++	int iSpaceCapitalPostBombardCompare = -1;
++	int iSpaceCapitalAttackRatioSkipBombard = -1;
++	int iSpaceCapitalBombardTurns = -1;
+ 
+ 	int iStepDistToTarget = MAX_INT;
+ 	// K-Mod note.: I've rearranged some parts of the code below, sometimes without comment.
+ 	if (pTargetCity != NULL)
+ 	{
+-		int iComparePostBombard =
+-				/*	advc.159: Avoid overflow when applying the modifier below.
+-					Will only get compared with attack ratio percentages, which
+-					should be 3-digit numbers. So 10k is a huge ceiling. */
+-				std::min(10000,
+-				AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
++		/* advc.159: Avoid overflow when applying the modifier below. Will only get compared with attack ratio percentages, which should be 3-digit numbers. So 10k is a huge ceiling. */
++		int const iCompareNow = std::min(10000, AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
++		int iComparePostBombard = iCompareNow;
+ 		int iBombardTurns = AI_getGroup()->AI_getBombardTurns(pTargetCity);
+ 		// K-Mod note: AI_compareStacks will try to use the AI memory if it can't see.
+ 		{
+@@ -6736,10 +6745,20 @@ void CvUnitAI::AI_attackCityMove()
+ 		} // K-Mod end
+ 
+ 		bTargetTooStrong = (iComparePostBombard < iAttackRatio);
++		if (bSpaceCapitalEmergency)
++		{
++			iSpaceCapitalImmediateCompare = iCompareNow;
++			if (gWarLogLevel >= 2)
++			{
++				iSpaceCapitalPostBombardCompare = iComparePostBombard;
++				iSpaceCapitalAttackRatioSkipBombard = iAttackRatioSkipBombard;
++				iSpaceCapitalBombardTurns = iBombardTurns;
++			}
++		}
+ 		if (iStepDistToTarget <= 2)
+ 		{	// K-Mod. I've rearranged and rewritten most of this block - removing the bbai code.
+ 
+-			if (bTargetTooStrong)
++			if (bTargetTooStrong && !bSpaceCapitalEmergency)
+ 			{
+ 				if (AI_stackVsStack(2, iAttackRatio, 80, eMoveFlags))
+ 					return;
+@@ -6806,7 +6825,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			{
+ 				/*	Consider getting into a better position for attack.
+ 					only if we don't already have overwhelming force */
+-				if (iComparePostBombard < GC.getDefineINT(
++				if (!bSpaceCapitalMustAttackNow && iComparePostBombard < GC.getDefineINT(
+ 					CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) &&
+ 					(iComparePostBombard < iAttackRatioSkipBombard ||
+ 					2 * pTargetCity->getDefenseDamage() < GC.getMAX_CITY_DEFENSE_DAMAGE() ||
+@@ -6830,7 +6849,7 @@ void CvUnitAI::AI_attackCityMove()
+ 						return;
+ 				}
+ 				// we're satisfied with our position already. But we still want to consider bombarding.
+-				else if (iComparePostBombard >= iAttackRatio && AI_bombardCity())
++				else if (!bSpaceCapitalMustAttackNow && iComparePostBombard >= iAttackRatio && AI_bombardCity())
+ 					return;
+ 
+ 				if (iComparePostBombard >= iAttackRatio)
+@@ -6848,6 +6867,36 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 		}
+ 	}
++	// <!-- custom: BBAI save-file 450 testing showed the launched-capital override selecting Cahokia from countdown 12 onward, but ordinary K-Mod execution spent the available turns on opportunistic attacks, regrouping and healing. A 22-unit army reached two path turns from Cahokia, became fully wounded fighting elsewhere, retreated to heal and failed to stop the Space victory.
++	// Once a launched capital is reachable within its countdown, preserve the adjacent bombard/attack checks above but otherwise move toward it immediately. If its immediate strength remains below the normal attack threshold after those checks, an army within one path turn holds to heal and receive reinforcements, avoiding an adjacent stall caused by K-Mod's higher projected post-bombard ratio; it forces an unfavorable final assault only when no countdown slack remains. Generic recovery or secondary opportunities can resume if the capital falls and resets the spaceship. See KI#190. (GPT-5.6-Sol) -->
++	if (bSpaceCapitalEmergency)
++	{
++		int const iSourceX = getX();
++		int const iSourceY = getY();
++		bool const bSpaceCapitalImmediatelyReady = (iSpaceCapitalImmediateCompare >= iAttackRatio);
++		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_READINESS turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d stepDistance=%d immediateCompare=%d postBombardCompare=%d attackRatio=%d skipBombardRatio=%d targetTooStrong=%d bombardTurns=%d canBombard=%d defenseDamage=%d maxDefenseDamage=%d defenseModifier=%d",
++			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns, iStepDistToTarget, iSpaceCapitalImmediateCompare, iSpaceCapitalPostBombardCompare, iAttackRatio, iSpaceCapitalAttackRatioSkipBombard, bTargetTooStrong, iSpaceCapitalBombardTurns, getGroup()->canBombard(getPlot()), pTargetCity->getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), pTargetCity->getDefenseModifier(false));
++		if (iStepDistToTarget == 1 && bSpaceCapitalMustAttackNow)
++		{
++			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=force_final_assault",
++				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
++			if (AI_stackAttackCity(1))
++				return;
++		}
++		if (iSpaceCapitalPathTurns <= 1 && !bSpaceCapitalImmediatelyReady && !bSpaceCapitalMustAttackNow)
++		{
++			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=hold_within_one_turn_for_recovery_or_reinforcements",
++				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
++			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
++			return;
++		}
++		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack",
++			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
++		if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
++			return;
++		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack_failed",
++			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
++	}
+ 	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "checkpoint_after_target", pTargetCity);
+ 	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
+ 		SAS_logAttackCityBarbOpportunity(*this, pTargetCity, bHuntBarbs, bReadyToAttack, bTargetTooStrong, eMoveFlags);
+@@ -13966,7 +14015,7 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 	int iEffectiveMaxGroup = iMaxGroup;
+ 	bool bEffectiveStackOfDoom = bStackOfDoom;
+ 	// <!-- custom: BBAI diagnostics found 166 grouping decisions that bypassed the peaceful barbarian-expedition cap: 113 from UNITAI_COUNTER, 48 from other UNITAI_ATTACK_CITY groups, and 5 from UNITAI_CITY_DEFENSE. Enforce the cap centrally whenever any UnitAI groups with an attack-city expedition, rather than relying on every present and future caller to duplicate it.
+-	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, retain only the larger of the normal minimum city-assault stack and estimated Barbarian requirement; this prevents released general attackers from immediately rebuilding the parked army. AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188 and KI#188.3. (GPT-5.6-Sol) -->
++	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, retain only the larger of the separately tunable peaceful city-assault nucleus and estimated Barbarian requirement; this prevents released general attackers from immediately rebuilding the parked army. AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188 and KI#188.3. (GPT-5.6-Sol) -->
+ 	if (eUnitAI == UNITAI_ATTACK_CITY && !isBarbarian() && bMergeGroups)
+ 	{
+ 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
+@@ -13975,8 +14024,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 			int iActualGroupMax = -1;
+ 			if (!kTeam.AI_isAnyWarPlan())
+ 			{
+-				static int const iMinAttackCityStack = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
+-				iActualGroupMax = std::max(iMinAttackCityStack, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
++				static int const iTargetlessPeacefulGroupMinUnits = std::max(1, GC.getDefineINT("SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS"));
++				iActualGroupMax = std::max(iTargetlessPeacefulGroupMinUnits, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+ 			}
+ 			else
+ 			{
+@@ -17796,6 +17845,27 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // advc
+ 	// K-Mod
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	// <!-- custom: Capturing the current capital resets spaceship projects only during an active launch countdown; before launch, the completed projects survive capital relocation. BBAI save-file 450 testing confirmed that a hard pre-launch override made armies chase England's successive capitals while its spaceship progress remained intact.
++	// When enabled, keep one separately ranked reachable capital objective after launch, when its capture can actually stop the imminent Space victory. Base AdvCiv's ordinary pre-launch capital preference remains unchanged, and its existing enough-offence-en-route check can leave additional armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
++	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
++	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
++	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
++	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
++	bool bHasSpaceThreatTarget = false;
++	CvCity* pBestSpaceCapital = NULL;
++	int iBestSpaceCapitalCountdown = -1;
++	int iBestSpaceCapitalPartsPercent = -1;
++	int iBestSpaceCapitalBaseValue = -1;
++	int iBestSpaceCapitalValue = -1;
++	int iBestSpaceCapitalPathTurns = -1;
++	int iBestSpaceCapitalEnemyDefence = -1;
++	int iBestSpaceCapitalOffenceEnRoute = -1;
++	int iBestSpaceCapitalTotalOffence = -1;
++	int iBestBaseValue = -1;
++	int iBestPathTurns = -1;
++	int iBestEnemyDefence = -1;
++	int iBestOffenceEnRoute = -1;
++	int iBestTotalOffence = -1;
+ 	int iOurOffence = -1; // We calculate this for the first city only.
+ 	CvUnit* pBestTransport = NULL;
+ 	/*	iLoadTurns < 0 implies we should look for a transport;
+@@ -17818,11 +17888,23 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 		{
+ 			continue;
+ 		}
++		int iSpaceStage = -1;
++		bool const bAtWarWithTarget = kOurTeam.isAtWar(kTargetPlayer.getTeam());
++		if (bLogSpaceTargetChoice && bAtWarWithTarget)
++			iSpaceStage = getSASTeamSpaceVictoryStage(kTargetPlayer.getTeam());
++		bool const bSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget &&
++			(iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
++		int const iSpaceCountdown = (bSpaceCapitalRush && bAtWarWithTarget ? GET_TEAM(kTargetPlayer.getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
++		bool const bSpaceCapitalRushTarget = (iSpaceCountdown >= 0);
++		if (bSpaceThreatTarget)
++			bHasSpaceThreatTarget = true;
+ 		FOR_EACH_CITY_VAR(pLoopCity, kTargetPlayer)
+ 		{
+ 			if (!pLoopCity->isArea(getArea()))
+ 				//|| !AI_plotValid(pLoopCity->plot()) // advc.opt: area check suffices
+ 			{
++				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
++					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
+ 				continue;
+ 			}
+ 			if (!AI_mayAttack(kTargetPlayer.getTeam(), pLoopCity->getPlot()))
+@@ -17883,7 +17965,11 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				}
+ 
+ 				if (iPathTurns >= iMaxPathTurns)
++				{
++					if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
++						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
+ 					continue;
++				}
+ 				/*	If city is visible and our force already in position
+ 					is dominantly powerful or we have a huge force
+ 					already on the way, pick a different target */
+@@ -17907,7 +17993,11 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 								GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_MIN_STACK_RATIO)) /
+ 								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
+ 						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
++						{
++							if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
++								GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns, iEnemyDefence, iOffenceEnRoute, iAttackRatio, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
+ 							continue;
++						}
+ 					}
+ 				}
+ 				if (iOurOffence == -1)
+@@ -17921,10 +18011,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				FAssert(iOurOffence > 0);
+ 				int iTotalOffence = iOurOffence + iOffenceEnRoute;
+ 
+-				int iValue = 0;
+-				if (AI_getUnitAIType() == UNITAI_ATTACK_CITY) //lemming?
+-					iValue = kOwner.AI_targetCityValue(*pLoopCity, false, false);
+-				else iValue = kOwner.AI_targetCityValue(*pLoopCity, true, true);
++				int const iBaseValue = (AI_getUnitAIType() == UNITAI_ATTACK_CITY ? // lemming?
++					kOwner.AI_targetCityValue(*pLoopCity, false, false) : kOwner.AI_targetCityValue(*pLoopCity, true, true));
++				int iValue = iBaseValue;
+ 				// adjust value based on defensive bonuses
+ 				{
+ 					int iMod = std::min(8, AI_getGroup()->AI_getBombardTurns(pLoopCity)) *
+@@ -18030,10 +18119,47 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				// (already taken into account.)
+ 
+ 				iValue /= 8 + SQR(iPathTurns); // was 4+
++				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
++					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown(), iBaseValue, iValue, iPathTurns, bLandPath, iEnemyDefence, iOurOffence, iOffenceEnRoute, iTotalOffence, pLoopCity == pTargetCity);
++				if (bSpaceCapitalRushTarget && pLoopCity->isCapital())
++				{
++					int const iSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam());
++					bool const bCanArriveBeforeVictory = (iPathTurns <= iSpaceCountdown);
++					bool const bMoreUrgent = (pBestSpaceCapital == NULL ||
++						iSpaceCountdown < iBestSpaceCapitalCountdown ||
++						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent > iBestSpaceCapitalPartsPercent) ||
++						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent == iBestSpaceCapitalPartsPercent && iPathTurns < iBestSpaceCapitalPathTurns) ||
++						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent == iBestSpaceCapitalPartsPercent && iPathTurns == iBestSpaceCapitalPathTurns && iValue > iBestSpaceCapitalValue));
++					if (bCanArriveBeforeVictory && bMoreUrgent)
++					{
++						pBestSpaceCapital = pLoopCity;
++						iBestSpaceCapitalCountdown = iSpaceCountdown;
++						iBestSpaceCapitalPartsPercent = iSpaceshipPartsPercent;
++						iBestSpaceCapitalValue = iValue;
++						iBestSpaceCapitalPathTurns = iPathTurns;
++						if (bLogSpaceTargetChoice)
++						{
++							iBestSpaceCapitalBaseValue = iBaseValue;
++							iBestSpaceCapitalEnemyDefence = iEnemyDefence;
++							iBestSpaceCapitalOffenceEnRoute = iOffenceEnRoute;
++							iBestSpaceCapitalTotalOffence = iTotalOffence;
++						}
++					}
++					else if (!bCanArriveBeforeVictory && bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S countdown=%d pathTurns=%d reason=cannot_arrive_before_victory",
++						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), iSpaceCountdown, iPathTurns);
++				}
+ 				if (iValue > iBestValue)
+ 				{
+ 					iBestValue = iValue;
+ 					pBestCity = pLoopCity;
++					if (bLogSpaceTargetChoice)
++					{
++						iBestBaseValue = iBaseValue;
++						iBestPathTurns = iPathTurns;
++						iBestEnemyDefence = iEnemyDefence;
++						iBestOffenceEnRoute = iOffenceEnRoute;
++						iBestTotalOffence = iTotalOffence;
++					}
+ 				}
+ 			} // end if revealed.
+ 			/*	K-Mod. If no city in the area is revealed,
+@@ -18048,6 +18174,23 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 			// K-Mod end
+ 		}
+ 	}
++	if (pBestSpaceCapital != NULL)
++	{
++		if (bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_TARGET turn=%d player=%d groupId=%d groupUnits=%d ordinaryPlayer=%d ordinaryCity=%S ordinaryValue=%d capitalPlayer=%d capital=%S capitalValue=%d countdown=%d spaceshipPartsPercent=%d pathTurns=%d action=%s",
++			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), iBestValue, pBestSpaceCapital->getOwner(), pBestSpaceCapital->getName().GetCString(), iBestSpaceCapitalValue, iBestSpaceCapitalCountdown, iBestSpaceCapitalPartsPercent, iBestSpaceCapitalPathTurns, (pBestCity == pBestSpaceCapital ? "already_selected" : "override_ordinary_target"));
++		pBestCity = pBestSpaceCapital;
++		iBestValue = iBestSpaceCapitalValue;
++		if (bLogSpaceTargetChoice)
++		{
++			iBestBaseValue = iBestSpaceCapitalBaseValue;
++			iBestPathTurns = iBestSpaceCapitalPathTurns;
++			iBestEnemyDefence = iBestSpaceCapitalEnemyDefence;
++			iBestOffenceEnRoute = iBestSpaceCapitalOffenceEnRoute;
++			iBestTotalOffence = iBestSpaceCapitalTotalOffence;
++		}
++	}
++	if (bHasSpaceThreatTarget) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
++		GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (pBestCity != NULL && pBestCity->isCapital()), (pBestCity == NULL ? -1 : getSASTeamSpaceVictoryStage(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsBuilt(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsPercent(pBestCity->getTeam())), (pBestCity == NULL ? -1 : GET_TEAM(pBestCity->getTeam()).AI_getLowestVictoryCountdown()), iBestBaseValue, iBestValue, iBestPathTurns, iBestEnemyDefence, iOurOffence, iBestOffenceEnRoute, iBestTotalOffence);
+ 
+ 	return pBestCity;
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 11db45598..622bf3c84 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -233,6 +233,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [188.3 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely and park 40-53% of an AI's military](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military)\
+ [189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars)\
+ [189.2 - (Fixed/Improved) Base AdvCiv UWAI issues: volatile war estimates, compounding random peace rolls and excessive future-war costs could prematurely end profitable campaigns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1892---fixedimproved-base-advciv-uwai-issues-volatile-war-estimates-compounding-random-peace-rolls-and-excessive-future-war-costs-could-prematurely-end-profitable-campaigns)\
++[190 - (Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could attack other cities or spend the launch countdown on ordinary tactics instead of trying to capture the spaceship owner's capital](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#190---fixedimproved-base-advcivk-mod-issue-anti-space-armies-could-attack-other-cities-or-spend-the-launch-countdown-on-ordinary-tactics-instead-of-trying-to-capture-the-spaceship-owners-capital)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7093,7 +7094,7 @@ The cure preserves preparation without keeping the whole army unavailable:
+ 
+ - Reinforcement waits now require either a selected target city or an actual war plan. A peaceful group with neither continues through the no-target handling instead of waiting merely because more units are approaching.
+ - After both normal and Barbarian target selection fail, an army at peace with no war plan releases excess units once it is safely inside its owner's territory and the plot is not threatened. It is not fragmented in foreign territory or immediate danger.
+-- The group head and a useful nucleus remain together. The retained size is the larger of `SAS_MIN_ATTACK_CITY_STACK_UNITS` and the estimated number of attackers needed against Barbarian cities.
++- The group head and a useful nucleus remain together. The retained size is the larger of `SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS` and the estimated number of attackers needed against Barbarian cities.
+ - Units already assigned to other military roles are detached first. Only excess `UNITAI_ATTACK_CITY` units with positive general-attack value are converted to `UNITAI_ATTACK`, so units unsuitable for ordinary attack duties are not discarded from their specialist role.
+ - While there is no war plan, the central `AI_omniGroup` cap prevents released units from immediately rebuilding the parked group. Active wars, war plans, sneak-attack readiness, and turtle strategy retain normal large-army grouping.
+ 
+@@ -7101,8 +7102,6 @@ The confirming save-file 450 run logged 59 releases across eight civilizations.
+ 
+ Save file 452 independently confirmed the behavior with 93 releases across ten civilizations and 463 detachments or reassignments, again with no unreleased excess. Of those, 439 units already had other military roles and only 24 city-assault units were converted. Japan's targetless peaceful group was reduced from 21 to 11. Wartime armies remained unrestricted: China assembled roughly 180-202 units for its attack on Aksum, and several other empires launched 40-57-unit offensives. When peace followed Aksum's capture, the Chinese army immediately began splitting; China then adopted another war plan on the following turn, so it was free to regroup rather than being incorrectly dismantled during renewed preparation.
+ 
+-This reuses `SAS_MIN_ATTACK_CITY_STACK_UNITS` rather than adding another tuning value, because the existing minimum already expresses how large a generally useful city-assault nucleus should be.
+-
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+ 
+ ## 189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars
+@@ -7157,3 +7156,21 @@ A 50% cost-cap prototype kept Mali fighting long enough to capture another Maya
+ In the final full run, all 7 marginal AI-vs-AI reviews continued, 139 decisive reviews sought peace immediately, and no AI-vs-AI peace decision used the old random roll. Ordinary early wars still lasted 8, 24, 25 and 30 turns. A two-turn war that ended successfully was not a regression: its initiating AI was already at `-76` against an opponent with 157% of its power. The resulting decisions are more stable without making every war long or preventing rational early peace.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 190 - (Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could attack other cities or spend the launch countdown on ordinary tactics instead of trying to capture the spaceship owner's capital
++
++KI#184 and KI#184.2 made AIs start and preserve wars against serious victory threats, but the city-assault AI did not know the decisive objective after a spaceship launched. It still compared cities through ordinary conquest value, so an easy nearby capture could beat the current capital even though only the capital could stop the imminent Space victory. BBAI save-file 450 testing showed Pataliputra score `318888` against Delhi's `26333`, Djenne score `249333` against Delhi's `3477`, and Bombay score `798444` against Delhi's `64588`. Capturing those cities could weaken India, but it did not reset India's launch countdown.
++
++Base AdvCiv added only 10 to the capital's raw target value at late Space stage. Distance, defenses and other tactical multipliers were applied afterward, so merely increasing that additive value could not reliably overcome differences such as `249333` against `3477` without also distorting ordinary conquest decisions. `SAS_AI_SPACE4_CAPITAL_TARGET_VALUE_BONUS`, default 10, now exposes the inherited preference for tuning, but it remains an ordinary city-value adjustment rather than the emergency cure.
++
++The investigation also corrected the intended scope. `CvCity::kill` calls `CvTeam::resetVictoryProgress` when a capital is lost, but that function removes spaceship projects only for a victory whose countdown is already active. Before launch, spaceship components are team-wide projects rather than objects stored in the capital: capturing the capital merely relocates it and preserves the completed parts. One prototype empirically chased England through successive capitals while England retained 75% spaceship completion. A hard capital override would therefore be wasteful before launch; after launch, however, capturing or razing the current capital resets the active countdown and removes the completed spaceship projects, immediately preventing that Space victory.
++
++With `SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE` enabled, a civilization AI city-assault group at war now separately ranks launched-spaceship capitals that it can reach within the remaining countdown. The shortest countdown has priority, followed by greater spaceship completion, a shorter route and then ordinary target value. This emergency selection cannot be defeated by the value of an easier non-capital city. Base AdvCiv's existing estimate of enough offense already traveling toward a target remains in effect, so every surplus army does not have to converge on the same capital. Once the capital falls and the countdown resets, ordinary city targeting resumes.
++
++Selection alone was not enough. In an early save-file 450 test, Egypt selected launched Cahokia 33 times, but normal K-Mod execution still spent the countdown on opportunistic combat, grouping, healing retreats and other waits; the main army's remaining route changed from five turns to two and then back to four and three before Native America won. The cure therefore lets a reachable launched-capital objective move directly before those generic alternatives, while preserving the normal adjacent bombard and attack decisions. When an army's immediate strength is below the normal attack threshold after those checks, it waits once it is within one path turn so it can recover or receive reinforcements without advancing beside the city too early. If no countdown slack remains, it attempts the capital assault even at unfavorable odds because preserving the army while certainly losing the game is no longer useful.
++
++Focused testing found and fixed one last mismatch between those stages. A roughly 50-unit Native American army reached Delhi's attack tile but failed to act for five turns: K-Mod's projected post-bombard comparison considered it ready, its immediate attack comparison declined the assault, and its movement helper correctly returned false because it was already on the preferred adjacent plot. A later London run measured the same disagreement precisely: immediate strength `108` was below the required `121`, while projected post-bombard strength was `130` even though that group could not bombard. The emergency hold now uses immediate strength, while the projected value remains available for normal bombard planning. The next confirming run recorded 49 direct advances, 16 deliberate understrength holds, two final-turn assaults and zero failed direct advances.
++
++The strategic results confirm that the rule improves the attempt rather than guaranteeing victory. One run had several armies converge on launched England and Native America captured and razed London on turn 247, canceling England's Space victory. In the final save-file 450 confirmation, Delhi was captured and razed on turn 265, Timbuktu was captured and razed on turn 279, and London had already been captured on turn 254. Native America still won Space from Cahokia on turn 291: nearby Egyptian groups had only 58% and 21% immediate strength, while a stronger 24-unit final assault could not finish the city. The AI now pursues the only target that can stop a launched spaceship, moves there without wasting the countdown, gathers strength when time permits and still makes the desperate attempt when necessary, but a well-defended Space victory can legitimately survive.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4dc08630c..f5ef09653 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -181,11 +181,14 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ Note: cultural victory bullets as of now assume 3 legendary cities are required, if this is changed in a mod mod or such the below explanation would need to be adjusted accordingly.
+ 
+-Note 2: AI victory stages are internal AI strategy markers per victory route (`AI_VICTORY_*1` to `AI_VICTORY_*4`); stage 4 means a late/near-completion push. A victory countdown means the AI has an active turns-to-win estimate/launch countdown. UWAI war preparation means the AI has selected `WARPLAN_PREPARING_*` rather than declaring immediately; this can be too slow when a rival is close to winning.
++(Requires AdvCiv-SAS 6038+) Note 2: AI victory stages are internal AI strategy markers per victory route (`AI_VICTORY_*1` to `AI_VICTORY_*4`); stage 4 means a late/near-completion push. A victory countdown means the AI has an active turns-to-win estimate/launch countdown. UWAI war preparation means the AI has selected `WARPLAN_PREPARING_*` rather than declaring immediately; this can be too slow when a rival is close to winning.
++
++(Requires AdvCiv-SAS 6055+) Note 3: Before a spaceship launches, capturing its owner’s capital only moves the capital to another remaining city; completed spaceship parts remain because progress (e.g. 75%) belongs to the team. After launch, however, capturing the owner’s current capital resets the active Space-victory countdown and stops that spaceship. This is why AdvCiv-SAS targets the capital more aggressively as the decisive target during this narrow window, especially when a militarily weak player is about to win through a Space victory against stronger rivals.
+ 
+ - (Requires AdvCiv-SAS 6038+) **AI victory denial is much more urgent:** BBAI testing in save file 450 showed a deep UWAI issue that UWAI could let a rival close to winning survive too easily: in the Lincoln runs, Lincoln was very weak militarily (~0.7 military power) but still won Space despite much stronger nearby AIs (up to ~2.1) and no war declared on him in the checked late-game snapshots (`wars=-` at T260, T270, T280, T290, then wins Space at T292); in the Ramesses runs, Ramesses was militarily strong (top 2 at ~1.9 vs ~2.1 for top 1) and likewise won Space without being at war in the checked late-game snapshots either (`wars=-` at T260, T270, T280, then wins Space at T290). After fixing the missing-war response, follow-up tests exposed additional failure modes: war could start too late, start but end after 1-2 turns through ordinary peace deals, or happen without enough impact. The decisive checks in this fix are now therefore low-level enough, because higher-level targeted patches did not reliably solve the observed chain of failures (similar in spirit to the AdvCiv-SAS scrapping or `AI_chooseUnit` final guards): in `UWAI::Team::scheme` and related functions. The fix now boosts war utility for stage-4/countdown victory threats, can convert that into direct war when the target is weak and near enough, and refuses ordinary peace while the target remains a serious victory threat. In the final Lincoln-branch retest, Lincoln was weak at T260 as usual (4 cities / 55 military units / 1818 power), but this time Persia, Egypt, France, and Babylon declared at T267-T269, peace was blocked, and America was eliminated at T272. In the separate Ramesses-branch retest, strong Ramesses still survived, but was no longer ignored: he lost 2 cities, 49 city-population points, 28 total units / 30 military units, and about a quarter of his power from T260 to T290. The direct-war gates stay intentionally narrow so distant or naval-heavy threats can receive utility pressure without forcing reckless cross-map attacks. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ - (Requires AdvCiv-SAS 6053+) Update: Follow-up diagnostics found 57 cases in which an AI tried to make ordinary peace with a rival close to victory. The earlier AdvCiv-SAS fix kept the war active as intended, but didn't take into account that UWAI had already accepted the peace treaty internally even though the teams remained at war: the SAS rejection was too late in the process. To fix this, these treaties are now rejected before UWAI processes them, so its decisions and logs correctly show that the war continues; capitulation remains available, and confirming runs had zero false peace successes. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ - (Requires AdvCiv-SAS 6039+) **Space victory denial now starts before the final launch window when parts are already high:** After KI#184 made AIs react faster and harder to immediate Space-win threats, BBAI follow-up logs showed that some Space rivals were sometimes still too close to winning before the countdown response began. In save file 450, Arabia still won because its recent war with Hannibal, the strongest nearby threat, had ended in normal Civ4 forced peace, temporarily preventing Hannibal from immediately restarting the war; by the time another anti-Space war could happen, Arabia was already at countdown 4. Save file 452 showed why this was not only a forced-peace edge case: Churchill's fast Space race was already dangerous while still pre-countdown / stage 3, so the KI#184 countdown/stage-4 response had not yet become strong enough. So Stage-3 Space leaders now also receive earlier utility pressure, direct-war consideration, and peace refusal once their spaceship is sufficiently complete and they are close enough to the spaceship-parts leader. In save file 452, Churchill still won, but was attacked around the 8/16-parts point and lost Oxford next turn; in save file 450, the Ramesses branch won, but likewise triggered wars and peace blocking at 8/16 parts, with later direct wars and cities changing hands. This is meant to start real pressure before the countdown, not to dogpile every Apollo builder. See [KI#184.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown).
++- (Requires AdvCiv-SAS 6055+) **When enabled, armies now try to capture the capital after a rival launches its spaceship to cancel the Space-victory countdown, instead of winning ordinary cities while the game-ending countdown continues:** Earlier AdvCiv-SAS victory-denial improvements could start and preserve the necessary war against a rival threatening a Space victory, but Base AdvCiv/K-Mod still chose cities by normal conquest value. For example, in save file 450, nearby Djenne scored `249333` while India's current capital Delhi scored only `3477` after launch, so although taking Djenne could remain profitable by ordinary conquest standards, only taking the current capital during the active countdown could remove the launched spaceship and prevent the imminent defeat. So to fix this, city-assault armies that can reach the capital before the countdown ends now make it their emergency objective and remain focused on reaching it, rather than being diverted by regrouping, healing, upgrading or less important battles. Once the capital is captured and the spaceship is stopped, they return to normal targeting. Note: an understrength army can wait near the capital to recover or receive reinforcements if enough countdown turns remain, but if waiting more turns would let the rival win, the army attacks immediately despite the unfavorable odds. In the confirming save-file 450 run, all 49 direct advances succeeded, 16 understrength armies deliberately waited, and two made final-turn assaults; Delhi was captured and razed on turn 265, Timbuktu on turn 279, and London had already been captured on turn 254. Native America still won from well-defended Cahokia on turn 291 because it was strong enough to repel the attackers so it could complete the Space victory. So this fix does not guarantee successful Space denial, but makes it more likely, especially against weaker contenders. Note 3: as it is gameplay-altering, it is tunable and can be disabled to restore the old Base AdvCiv/K-Mod behavior. See [KI#190](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#190---fixedimproved-base-advcivk-mod-issue-anti-space-armies-could-attack-other-cities-or-spend-the-launch-countdown-on-ordinary-tactics-instead-of-trying-to-capture-the-spaceship-owners-capital).
+ - **Cultural-victory AI is viability and bottleneck-focused:** The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory. Even the early preparation stage could then raise culture priorities in every city. As a result, the AI could spend production, specialists, and commerce on cities culturally ranked lower than the cultural-victory target group (i.e., the top 3 cities that must reach Legendary culture), on a target city already much closer to Legendary than another target city, or even on a city that had already become Legendary. This was inefficient and could leave the AI dangerously underinvested in stronger economic, scientific, or military priorities. To address these issues, the AI no longer treats its culture slider alone as a cultural-victory commitment, and early preparation no longer raises culture priority throughout the empire. Before serious cultural victory pursuit begins, at least 2 of the 3 target cities must now each have already accumulated a tunable share of the Legendary requirement (10% by default), and the AI must rank among the configured number of leading cultural contenders (No point pursuing culture if we won't win culturally anyway). Once committed, only the target cities receive victory-specific culture weight, shifted toward the city projected to take longest (no point having a city have 70% legendary culture and another 10% legendary culture only, as several legendary cities are required to win culturally, so have the spread be more even); a city that is already Legendary keeps only independent local-border value. Converting production to culture remains available for first-ring expansion and strongly contested borders, but otherwise only to active target cities.
+ - **Hopeless late cultural pursuits are abandoned:** The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes. The AI now returns to preparation when its maximum affordable culture-slider projection misses the estimated deadline beyond the tunable grace or falls too far behind competing cultural contenders, freeing resources for stronger victory routes.
+ - **Cultural pursuit gated by strong current or planned war enemies:** no point investing heavily in a future cultural victory if the AI may lose the war first. The AI no longer pursues serious culture-victory if its current or planned war enemies reach the shared `bEnemyStrong` power threshold (>=120% enemy power ratio by default) (the local `bDanger` is intentionally absent, because one threatened city should not veto an empire-wide victory strategy), reducing culture-victory pressure on production, specialists, and commerce while preserving ordinary local-border culture. This is not an absolute ban but relative to military high enemy power and cultural advancement: Culture 2 can still remain available against weaker current or planned war opponents, culture can resume after peace if relevant, and a close late cultural win is not abandoned if all target cities already have credible high-culture countdowns. In BBAI tests, a midgame map test showed the rule firing 25 times for Spain at 124% to 288% enemy power, blocking Culture 2+ pursuit despite otherwise meeting the new culture-victory foundation gates; Culture 2 remained available during a weaker war at 67% enemy power and resumed for four consecutive turns after peace.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=54858

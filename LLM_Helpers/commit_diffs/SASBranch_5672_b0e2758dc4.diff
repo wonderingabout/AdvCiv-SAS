@@ -1,0 +1,382 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5672
+# Commit: b0e2758dc4c1756fb0ef779a010af4934a58cdd2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f1d93d53e6b2e59558c46f0b0d0285bf7a46ccf5
+# Title: add unique names to sevopedia unit's placeHistory - upscale pedia text when it is a concept in seovpedia unit
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+50	11	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+82	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	0	Assets/Python/SASTextScale.py
+12	3	README.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+12	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 6dd88b83a..088d30f2e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -114,6 +114,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_PYTHON_MUSIC_ENTRY = 6802
+ 		self.SAS_PEDIA_PYTHON_MUSIC_PLAY = 6803
+ 		self.SAS_PEDIA_PYTHON_CHART_LOG = 6804
++		# <!-- custom: note: 6805 = SAS_PEDIA_PYTHON_LEADER_ATTITUDE and 6806 = SAS_PEDIA_PYTHON_LEADER_ACTION are already defined as module-level constants in SevoPediaLeader.py. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
++		self.SAS_PEDIA_PYTHON_HISTORY_EXPAND = 6807
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -2219,6 +2221,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
+ 					self.pediaEraChart.dumpCsvLog()
+ 					return 1
++			# <!-- custom: toggle expanded Background/History overlay for any pedia category via WIDGET_PYTHON routing. All categories share one ID since only one category is active at a time. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_HISTORY_EXPAND:
++				if self.iCategory == SevoScreenEnums.PEDIA_UNITS and self.iItem != -1:
++					pediaScreen = self.mapScreenFunctions.get(SevoScreenEnums.PEDIA_UNITS, None)
++					if pediaScreen:
++						pediaScreen.setHistoryExpanded(iData2 == 1)
++					self.pediaJump(SevoScreenEnums.PEDIA_UNITS, self.iItem, False, False)
++					return 1
+ 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
+ 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
+ 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 6493d78ce..619cd2bc1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -40,6 +40,7 @@ class SevoPediaUnit:
+ 	def __init__(self, main):
+ 		self.iUnit = -1
+ 		self.top = main
++		self.bHistoryExpanded = False
+ 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -191,6 +192,8 @@ class SevoPediaUnit:
+ 
+ 
+ 	def interfaceScreen(self, iUnit):
++		if self.iUnit != iUnit:
++			self.bHistoryExpanded = False
+ 		self.iUnit = iUnit
+ 
+ 		# Row 0: Unit Pane + Promotions (left) | Animation (right)
+@@ -222,6 +225,39 @@ class SevoPediaUnit:
+ 
+ 
+ 
++	def _getHistoryText(self):
++		szText = u""
++		unitInfo = gc.getUnitInfo(self.iUnit)
++		# <!-- custom: prepend unique names for units that define them, then keep original background text below. (GPT-5.3-Codex) -->
++		aUniqueNames = []
++		for iName in xrange(unitInfo.getNumUnitNames()):
++			szName = localText.getText(unitInfo.getUnitNames(iName), ())
++			if szName and szName not in aUniqueNames:
++				aUniqueNames.append(szName)
++		if len(aUniqueNames) > 0:
++			szText += SAS_FONT_TAG_TITLE + u"Unique Names" + SAS_FONT_TAG_CLOSE + u"\n\n"
++			for i in xrange(len(aUniqueNames)):
++				if i == 0:
++					szLine = localText.getText("[ICON_STAR]", ()) + aUniqueNames[i]
++				else:
++					szLine = localText.getText("[ICON_BULLET]", ()) + aUniqueNames[i]
++				if i > 0:
++					szText += u"\n"
++				szText += SAS_FONT_TAG_LABEL + szLine + SAS_FONT_TAG_CLOSE
++			szText += u"\n\n"
++		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
++		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
++		# <!-- custom: normalize/upscale concept text in Sevopedia Unit history panel ("Background") to match concept page readability. (GPT-5.3-Codex) -->
++		szText += SASTextScale.normalizeLabelText(unitInfo.getCivilopedia())
++		return szText
++
++
++
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeUnitPane(self):
+ 		screen = self.top.getScreen()
+ 
+@@ -945,17 +981,20 @@ class SevoPediaUnit:
+ 
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		textName = self.top.getNextWidgetName()
+-		szText = u""
+-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+-		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
+-		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
+-		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
+-		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = self._getHistoryText()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 05baa58ea..21f9916d4 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -326,6 +326,88 @@ def place_new_concept_legend_link(top, new_concept_type):
+ 	)
+ 
+ 
++
++def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, panelH, szText, bExpanded, iPythonWidgetData1, iCollapsedTextYOffset=0):
++	# <!-- custom: reusable Sevopedia expandable text panel helper (collapsed panel + opaque full-page overlay). Use WIDGET_PYTHON routing via iPythonWidgetData1. data2=1 expands, data2=0 closes. (GPT-5.3-Codex) -->
++	iCloseButtonW = 85
++	iExpandButtonW = 107
++	if bExpanded:
++		iOverlayX = top.X_PEDIA_PAGE
++		iOverlayY = top.Y_PEDIA_PAGE
++		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
++		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
++
++		screen.addDDSGFC(
++			top.getNextWidgetName(),
++			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
++			iOverlayX,
++			iOverlayY,
++			iOverlayW,
++			iOverlayH,
++			WidgetTypes.WIDGET_GENERAL,
++			-1,
++			-1
++		)
++		panelName = top.getNextWidgetName()
++		screen.addPanel(panelName, panelTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
++		screen.setButtonGFC(
++			top.getNextWidgetName(),
++			SASTextScale.labelText(u"CLOSE"),
++			"",
++			iOverlayX + iOverlayW - (iCloseButtonW + 10),
++			iOverlayY + 8,
++			iCloseButtonW,
++			26,
++			WidgetTypes.WIDGET_PYTHON,
++			iPythonWidgetData1,
++			0,
++			ButtonStyles.BUTTON_STYLE_STANDARD
++		)
++		screen.addMultilineText(
++			top.getNextWidgetName(),
++			SASTextScale.labelText(szText),
++			iOverlayX + 10,
++			iOverlayY + 40,
++			iOverlayW - 20,
++			iOverlayH - 50,
++			WidgetTypes.WIDGET_GENERAL,
++			-1,
++			-1,
++			CvUtil.FONT_LEFT_JUSTIFY
++		)
++		return 1
++
++	panelName = top.getNextWidgetName()
++	screen.addPanel(panelName, panelTitle, "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
++	screen.setButtonGFC(
++		top.getNextWidgetName(),
++		SASTextScale.labelText(u"EXPAND"),
++		"",
++		panelX + panelW - (iExpandButtonW + 8),
++		panelY + 6,
++		iExpandButtonW,
++		24,
++		WidgetTypes.WIDGET_PYTHON,
++		iPythonWidgetData1,
++		1,
++		ButtonStyles.BUTTON_STYLE_STANDARD
++	)
++	screen.addMultilineText(
++		top.getNextWidgetName(),
++		SASTextScale.labelText(szText),
++		panelX + 7,
++		panelY + 10 + iCollapsedTextYOffset,
++		panelW - 5,
++		panelH - (15 * 2) - 25,
++		WidgetTypes.WIDGET_GENERAL,
++		-1,
++		-1,
++		CvUtil.FONT_LEFT_JUSTIFY
++	)
++	return 0
++
++
++
+ def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):
+ 	if conceptID != -1:
+ 		# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
+
+diff --git a/Assets/Python/SASTextScale.py b/Assets/Python/SASTextScale.py
+index ee8a485d3..dd9f2aea5 100644
+--- a/Assets/Python/SASTextScale.py
++++ b/Assets/Python/SASTextScale.py
+@@ -29,6 +29,7 @@ def applyFontTag(szText, szTag):
+ 	# Escalate to normalize* only after reproducing a real failure with simple wrapping in that exact caller/data path.
+ 	# Note: this guidance was established while working on Sevopedia paths. Advisors/other UI also use this helper, but they were not necessarily migrated under the same strict "escalate to normalize* only after failure" rule.
+ 	# Current empirical examples: ConceptInfo/NewConceptInfo and Sevopedia Leader Civilopedia text need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) often work with simple bodyText/labelText. (GPT-5.3-Codex) -->
++	# Extra example: Sevopedia Unit history panel ("Background") for concept-based entries (e.g. Great People units) needed normalizeLabelText; simple wrapping did not apply SAS scaling there. (GPT-5.3-Codex) -->
+ 	if szUnicode.find(u"<font=") != -1:
+ 		return szUnicode
+ 	return szTag + szUnicode + SAS_FONT_TAG_CLOSE
+
+diff --git a/README.md b/README.md
+index 1e06bee1b..301456f8b 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), Exapnded Text Panels, and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+ Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+@@ -47,7 +47,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
+ &emsp;[Scoreboard](/README.md#scoreboard)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+-&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia)  
++&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+ &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+@@ -303,7 +303,7 @@ New features have been added: scroll up button, scroll down button, the do not r
+ 
+ Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+ 
+-### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)
++### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels
+ 
+ #### Items grouping
+ 
+@@ -369,6 +369,15 @@ We also added a new Sevopedia Music that allows to play ~1750 audio scripts in S
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
+ 
++#### Expanded Text Panels
++
++We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons.
++
++See [Sevopedia Reworks (example 0.93: Expanded text panel (with EXPAND and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
++
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
++
+ ### Other new categories
+ 
+ #### Widget Python 6798 to link (e.g. for Builds, for Traits)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7c18f4a3f..4b3f8ac87 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -312,6 +312,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, (Requires AdvCiv-SAS 5511+) **Corporations**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
++- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Gret General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but preserves footer, header, item bar and category bar for easy browsing. Added as an optional helper shared accross several categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+@@ -325,6 +326,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. See [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
++- Sevopedia — Units: (Requires AdvCiv-SAS 5672+) Notably prepend **unique names** before the **pedia text** in the History (i.e. the "Background") panel; e.g., "Albert Einstein", "Plato" for the Great Scientist unit; "Sargon", "Sun Tzu" for the Great General unit. See also [Sevopedia reworks (Unit List)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog ("Enter caption") to add/remove text on the selected tile.
+ 
+ ### UI (In-game)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index e11a72e50..9bf7156c6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -26,6 +26,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;&emsp;[example 0.90: Media Player](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player)  
+ &emsp;&emsp;[example 0.91: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support)  
+ &emsp;&emsp;[example 0.92: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia)  
++&emsp;&emsp;[example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons)  
+ [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
+ &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
+@@ -260,6 +261,15 @@ The implementation still needs some minor polish, but it is as of now entirely f
+ <img src="../Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
+ 
++### example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)
++
++We also added the ability to view text panel using the item's full page space. Originally to show the newly added great person units' uniquenames (in `placeHistory`), it was added to [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) to be reused in other sevopedia categories.
++
++Added with the very nice help of GPT-5.3-Codex thanks.
++
++<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
++
+ ## Sevopedia Pages individual reworks
+ 
+ This section focuses on the higher level changes we did to Sevopedia, mostly about UI or such.
+@@ -433,6 +443,8 @@ Then, i added a new Obsolete With panel similarly to how was done in Sevopedia b
+ 
+ Then added worker speed modifiers bullet with the help of GPT-5.3-Codex thanks.
+ 
++More recently, added unique names in the history (as of now "Background") panel in Sevopedia Unit (e.g., Great General, Great Scientist, Great Prophet) as prepended text before the rest of `placeHistory` pedia text based on the `placeCities`,  with the help of GPT-5.3-Codex thanks.
++
+ <img src="../Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (2).JPG" alt="0.680_sevopedia_units (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (3).JPG" alt="0.680_sevopedia_units (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG
+index 36e5d6105..eec7c41cf 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+new file mode 100644
+index 000000000..1cef425f6
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+new file mode 100644
+index 000000000..c450ddd8c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=26797

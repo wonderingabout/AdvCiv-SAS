@@ -1,0 +1,1241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3413
+# Commit: 4be30af01caf1ffefd832c6ee4dea66bd290456e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fd9d1344cafffdb9ffd50f1a7defac334a48d1a4
+# Title: Streamline religion, civic AI diplo adjustments
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+111	55	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+23	26	CvGameCoreDLL/CvCity.cpp
+9	19	CvGameCoreDLL/CvGame.cpp
+10	31	CvGameCoreDLL/CvPlayer.cpp
+123	176	CvGameCoreDLL/CvPlayerAI.cpp
+5	15	CvGameCoreDLL/CvPlayerAI.h
+1	4	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 35099ee40..a6ff60dcb 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -229,9 +229,13 @@
+ 			<iSameReligionAttitudeChange>1</iSameReligionAttitudeChange>
+ 			<iSameReligionAttitudeDivisor>10</iSameReligionAttitudeDivisor>
+ 			<iSameReligionAttitudeChangeLimit>0</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
+-			<iDifferentReligionAttitudeDivisor>-5</iDifferentReligionAttitudeDivisor>
+-			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
++			<!-- advc.130n: Was leader-specific, swapped with
++				 iDifferentReligionAttitudeChangeLimit -->
++			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was -5 -->
++			<iDifferentReligionAttitudeDivisor>-15</iDifferentReligionAttitudeDivisor>
++			<!-- advc.130n: Was -1 for all leaders, now leader-specific. -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iBonusTradeAttitudeDivisor>50</iBonusTradeAttitudeDivisor>
+ 			<iBonusTradeAttitudeChangeLimit>2</iBonusTradeAttitudeChangeLimit>
+ 			<iOpenBordersAttitudeDivisor>25</iOpenBordersAttitudeDivisor>
+@@ -880,7 +884,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -1082,7 +1087,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 7 -->
+ 			<iSameReligionAttitudeChangeLimit>6</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -1322,7 +1328,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -1536,7 +1543,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -1744,7 +1752,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>5</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -1949,7 +1958,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 6 -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -2154,7 +2164,8 @@
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>NONE</TechRefuseAttitudeThreshold>
+@@ -2390,7 +2401,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was  -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -2596,7 +2608,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -2808,7 +2821,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -3027,7 +3041,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -3247,7 +3262,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>6</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -3461,7 +3477,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -3673,7 +3690,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -3883,7 +3901,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 6 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>5</iFavoriteCivicAttitudeChangeLimit>
+@@ -4139,7 +4158,8 @@
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -4358,7 +4378,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -4562,7 +4583,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -4761,7 +4783,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -4966,7 +4989,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -5202,7 +5226,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -5423,7 +5448,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 6 -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -5661,7 +5687,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -5866,7 +5893,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -6072,7 +6100,8 @@
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 6 -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -6283,7 +6312,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -6538,7 +6568,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -6744,7 +6775,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>2</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -6967,7 +6999,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 6 -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -7170,7 +7203,8 @@
+ 			<!-- advc.005a: was -2 -->
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 6 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>5</iFavoriteCivicAttitudeChangeLimit>
+@@ -7376,7 +7410,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -7577,7 +7612,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -7805,7 +7841,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -8018,7 +8055,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -8227,7 +8265,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -8436,7 +8475,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -8676,7 +8716,8 @@
+ 			<!-- advc.005a: was -4 -->
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -8905,7 +8946,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 6 -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -9140,7 +9182,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</TechRefuseAttitudeThreshold>
+@@ -9342,7 +9385,8 @@
+ 			<!-- advc.005a: was -3 -->
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -9561,7 +9605,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>1</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -9796,7 +9841,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</TechRefuseAttitudeThreshold>
+@@ -9989,7 +10035,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -10194,7 +10241,8 @@
+ 			<!-- advc.005a: was -2 -->
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 6 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>5</iFavoriteCivicAttitudeChangeLimit>
+@@ -10432,7 +10480,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>5</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -10639,7 +10688,8 @@
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -10875,7 +10925,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 5 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+@@ -11126,7 +11177,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 4 -->
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -11322,7 +11374,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>3</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+@@ -11531,7 +11584,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 5 -->
+ 			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-1</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+@@ -11768,7 +11822,8 @@
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-1</iCloseBordersAttitudeChange>
+ 			<iSameReligionAttitudeChangeLimit>1</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>0</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>4</iShareWarAttitudeChangeLimit>
+ 			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+@@ -11975,7 +12030,8 @@
+ 			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<!-- advc.148: was 7 -->
+ 			<iSameReligionAttitudeChangeLimit>6</iSameReligionAttitudeChangeLimit>
+-			<iDifferentReligionAttitudeChange>-2</iDifferentReligionAttitudeChange>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+ 			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+ 			<!-- advc.148: was 4 -->
+ 			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c3439a76d..c115a8268 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8100,28 +8100,23 @@ void CvCity::setRevealed(TeamTypes eTeam, bool bNewValue)
+ {
+ 	if(isRevealed(eTeam) == bNewValue)
+ 		return;
+-
++	// <advc.130n>
++	for (MemberAIIter itMember(eTeam); itMember.hasNext(); ++itMember)
++		itMember->AI_updateIdeologyAttitude(-1, *this); // </advc.130n>
+ 	m_abRevealed.set(eTeam, bNewValue);
+-
++	// <advc.130n>
++	for (MemberAIIter itMember(eTeam); itMember.hasNext(); ++itMember)
++		itMember->AI_updateIdeologyAttitude(1, *this); // </advc.130n>
+ 	// K-Mod
+ 	if (bNewValue)
+ 	{
+ 		GET_TEAM(eTeam).makeHasSeen(getTeam());
+-		// <advc.130n>
+-		if (GET_TEAM(getTeam()).isMajorCiv() && GET_TEAM(eTeam).isMajorCiv())
++		// <advc.130w>
++		if (GET_TEAM(eTeam).isMajorCiv() &&
++			GET_TEAM(getTeam()).isMajorCiv() &&
++			getPlot().findHighestCultureTeam() != getTeam())
+ 		{
+-			FOR_EACH_ENUM(Religion)
+-			{
+-				if (!isHasReligion(eLoopReligion))
+-					continue;
+-				for (MemberAIIter itMember(eTeam); itMember.hasNext(); ++itMember)
+-				{
+-					itMember->AI_updateDifferentReligionThreat(eLoopReligion);
+-				}
+-			} // </advc.130n>
+-			// <advc.130w>
+-			if (getPlot().findHighestCultureTeam() != getTeam())
+-				GET_TEAM(eTeam).AI_updateAttitude(getTeam());
++			GET_TEAM(eTeam).AI_updateAttitude(getTeam());
+ 		} // </advc.130w>
+ 	} // K-Mod end
+ 
+@@ -9119,9 +9114,19 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
+ 
+ 	FOR_EACH_ENUM(VoteSource)
+ 		processVoteSource(eLoopVoteSource, false);
+-
++	// <advc.130n>
++	for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		if (isRevealed(itPlayer->getTeam()))
++			itPlayer->AI_updateIdeologyAttitude(-1, *this);
++	} // </advc.130n>
+ 	m_abHasReligion.set(eReligion, bNewValue);
+-
++	// <advc.130n>
++	for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		if (isRevealed(itPlayer->getTeam()))
++			itPlayer->AI_updateIdeologyAttitude(1, *this);
++	} // </advc.130n>
+ 	FOR_EACH_ENUM(VoteSource)
+ 		processVoteSource(eLoopVoteSource, true);
+ 
+@@ -9217,15 +9222,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
+ 		}
+ 	} // K-Mod end
+ 	if (bNewValue)
+-	{
+ 		CvEventReporter::getInstance().religionSpread(eReligion, kOwner.getID(), this);
+-		// <advc.130n>
+-		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-		{
+-			if (isRevealed(itPlayer->getTeam()))
+-				itPlayer->AI_updateDifferentReligionThreat(eReligion);
+-		} // </advc.130n>
+-	}
+ 	else CvEventReporter::getInstance().religionRemove(eReligion, kOwner.getID(), this);
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 61fb4922f..5e3906fa5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9400,7 +9400,9 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 9; // advc (m_aeVoteSourceReligion)
+ 	//uiFlag = 10; // advc.099f
+ 	//uiFlag = 11; // advc.enum: new enum map save behavior
+-	uiFlag = 12; // advc.130n: DifferentReligionThreat added to CvPlayerAI
++	//uiFlag = 12; // advc.130n: DifferentReligionThreat added to CvPlayerAI
++	//uiFlag = 13; // advc.148: RELATIONS_THRESH_WORST_ENEMY
++	uiFlag = 14; // advc.148, advc.130n, advc.130x (religion attitude)
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9616,27 +9618,15 @@ void CvGame::onAllGameDataRead()
+ 		}
+ 	} // </advc.opt>
+ 	m_bAllGameDataRead = true;
+-	// <advc.127> Save created during AI Auto Play
+-	bool bUpdateAttitudeCache = (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer());
+-	m_iAIAutoPlay = 0; // </advc.127>
+-	// <advc.130n>
+-	if (m_uiSaveFlag < 12)
++	// <advc.130n>, advc.148, advc.130x
++	if (m_uiSaveFlag < 14 ||
++		// <advc.127> Save created during AI Auto Play
++		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+ 	{
++		m_iAIAutoPlay = 0; // </advc.127>
+ 		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-		{
+-			if (itPlayer->getStateReligion() != NO_RELIGION)
+-			{
+-				itPlayer->AI_updateDifferentReligionThreat(NO_RELIGION, false);
+-				if (!bUpdateAttitudeCache) // Don't do it twice
+-					itPlayer->AI_updateAttitude();
+-			}
+-		}
++			itPlayer->AI_updateAttitude();
+ 	} // </advc.130n>
+-	if (bUpdateAttitudeCache)
+-	{
+-		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-			it->AI_updateAttitude();
+-	}
+ 	// <advc.172>
+ 	if (m_uiSaveFlag < 8)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 07e8f2488..3f1ef37e9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8122,12 +8122,6 @@ void CvPlayer::changeStateReligionCount(int iChange)
+ 	updateMaintenance();
+ 	updateReligionHappiness();
+ 	updateReligionCommerce();
+-	// <advc.130n>
+-	for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itPlayer(getTeam());
+-		itPlayer.hasNext(); ++itPlayer)
+-	{
+-		itPlayer->AI_updateDifferentReligionThreat();
+-	} // </advc.130n>
+ 	GC.getGame().AI_makeAssignWorkDirty();
+ 	gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ }
+@@ -9307,35 +9301,18 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewReligion)
+ 
+ 	// Python Event
+ 	CvEventReporter::getInstance().playerChangeStateReligion(getID(), eNewReligion, eOldReligion);
+-	// <advc.130n>
+-	AI().AI_updateDifferentReligionThreat();
+-	for (PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itPlayer(getTeam());
+-		itPlayer.hasNext(); ++itPlayer)
+-	{
+-		if (eNewReligion != NO_RELIGION &&
+-			itPlayer->getStateReligion() == eNewReligion)
+-		{
+-			/*	Number of (known) adherents of itPlayer's state religion has
+-				(or may have) changed -- need to update all threat values. */
+-			itPlayer->AI_updateDifferentReligionThreat();
+-		}
+-		else // Threat value of rival religions may have changed
+-		{
+-			if (eOldReligion != NO_RELIGION)
+-				itPlayer->AI_updateDifferentReligionThreat(eOldReligion);
+-			if (eNewReligion != NO_RELIGION)
+-				itPlayer->AI_updateDifferentReligionThreat(eNewReligion);
+-		}
+-	} // </advc.130n>
+ 	if (isMajorCiv()) // advc.003n
+ 	{	// <K-Mod>
+ 		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it) // advc.003n
+ 		{
+-			CvPlayerAI& kLoopPlayer = *it;
+-			if (kLoopPlayer.getStateReligion() != NO_RELIGION)
++			if (it->getStateReligion() != NO_RELIGION ||
++				/*	advc.001: Update our own cache if we renounce. (Redundant
++					when we renounce by switching to a no-state-religion civic.
++					But perhaps we just chose no religion.) */
++				it->getID() == getID())
+ 			{
+-				AI().AI_updateAttitude(kLoopPlayer.getID());
+-				kLoopPlayer.AI_updateAttitude(getID());
++				AI().AI_updateAttitude(it->getID());
++				it->AI_updateAttitude(getID());
+ 			}
+ 		} // </K-Mod end>
+ 	}
+@@ -10405,9 +10382,11 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
+ 	GC.getGame().updateGwPercentAnger();
+ 	if (isMajorCiv()) // advc.003n
+ 	{	// <K-Mod>
+-		for (PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam()); // advc.003n
++		for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itOther(getTeam()); // advc.003n
+ 			itOther.hasNext(); ++itOther)
+ 		{
++			if (itOther->getID() == getID())
++				continue;
+ 			AI().AI_updateAttitude(itOther->getID());
+ 			itOther->AI_updateAttitude(getID());
+ 		} // </K-Mod>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 01bcc94b5..05b429369 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -299,7 +299,6 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 	{
+ 		m_aiUnitCombatWeights[iI] = 0;
+ 	}
+-	m_arDifferentReligionThreat.reset(); // advc.130n
+ 
+ 	/*for (iI = 0; iI < MAX_PLAYERS; iI++) {
+ 		m_aiCloseBordersAttitude[iI] = 0;
+@@ -7698,21 +7697,20 @@ int CvPlayerAI::AI_getPeaceAttitude(PlayerTypes ePlayer) const
+ 
+ int CvPlayerAI::AI_getSameReligionAttitude(PlayerTypes ePlayer) const
+ {
+-	int iAttitude = 0;
+-	if (getStateReligion() != NO_RELIGION && getStateReligion() == GET_PLAYER(ePlayer).getStateReligion())
++	if (getStateReligion() == NO_RELIGION ||
++		getStateReligion() != GET_PLAYER(ePlayer).getStateReligion())
+ 	{
+-		iAttitude += GC.getInfo(getPersonalityType()).getSameReligionAttitudeChange();
+-		if (hasHolyCity(getStateReligion()))
+-			iAttitude++;
+-		if (GC.getInfo(getPersonalityType()).getSameReligionAttitudeDivisor() != 0)
+-		{
+-			int iAttitudeChange = (AI_getSameReligionCounter(ePlayer) /
+-					GC.getInfo(getPersonalityType()).getSameReligionAttitudeDivisor());
+-			// <advc.130x>
+-			int iLimit = AI_ideologyDiploLimit(ePlayer, SAME_RELIGION);
+-			iAttitude += range(iAttitudeChange, -iLimit, iLimit); // </advc.130x>
+-		}
++		return 0;
+ 	}
++	int iAttitude = GC.getInfo(getPersonalityType()).getSameReligionAttitudeChange();
++	if (hasHolyCity(getStateReligion()))
++		iAttitude++;
++	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
++	// advc.130n: Moved into new function
++	iAttitude += AI_ideologyAttitudeChange(ePlayer, SAME_RELIGION,
++			AI_getSameReligionCounter(ePlayer),
++			kPersonality.getSameReligionAttitudeDivisor(),
++			kPersonality.getSameReligionAttitudeChangeLimit());
+ 	return iAttitude;
+ }
+ 
+@@ -7727,30 +7725,14 @@ int CvPlayerAI::AI_getDifferentReligionAttitude(PlayerTypes ePlayer) const
+ 		return 0;
+ 	}
+ 	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
+-	int iDiv = kPersonality.getDifferentReligionAttitudeDivisor();
+-	if (iDiv == 0)
+-		return 0;
+-	int iPersonalModifier = kPersonality.getDifferentReligionAttitudeChange();
+-	int iAttitude = iPersonalModifier;
+-	int iLimit = AI_ideologyDiploLimit(ePlayer, DIFFERENT_RELIGION); // advc.130x
+-	iAttitude += range(AI_getDifferentReligionCounter(ePlayer) / iDiv, -iLimit, iLimit);
+-	if (iAttitude < 0)
+-	{	// <advc.130n>
+-		scaled rThreatFactor = m_arDifferentReligionThreat.get(
+-				kPlayer.getStateReligion());
+-		rThreatFactor = (rThreatFactor * 3).pow(fixp(2/3.));
+-		iAttitude = -((-iAttitude * rThreatFactor).uceil());
+-		/*	Allow threat factor to increase the penalty (if the threat
+-			is unusually high), but respect the limit. This gets complicated
+-			b/c iPersonalModifier isn't supposed to be subject to the limit ... */
+-		iAttitude = std::max(iAttitude, -iLimit + (iPersonalModifier < 0 ? iPersonalModifier : 0));
+-		// Also don't want 0 threat to eliminate a personal modifier of -2
+-		if (iPersonalModifier < -1)
+-			iAttitude = std::min(iAttitude, iPersonalModifier / 2);
+-		// </advc.130n>
+-		if (hasHolyCity(getStateReligion()))
+-			iAttitude--;
+-	}
++	int iAttitude = kPersonality.getDifferentReligionAttitudeChange();
++	if (hasHolyCity(getStateReligion()))
++		iAttitude--;
++	// advc.130n: Moved into new function
++	iAttitude += AI_ideologyAttitudeChange(ePlayer, DIFFERENT_RELIGION,
++			AI_getDifferentReligionCounter(ePlayer),
++			kPersonality.getDifferentReligionAttitudeDivisor(),
++			kPersonality.getDifferentReligionAttitudeChangeLimit());
+ 	return iAttitude;
+ }
+ 
+@@ -7877,89 +7859,22 @@ int CvPlayerAI::AI_getExpansionistAttitude(PlayerTypes ePlayer) const
+ }
+ 
+ // advc.130n:
+-void CvPlayerAI::AI_updateDifferentReligionThreat(ReligionTypes eReligion,
+-	bool bUpdateAttitude)
++void CvPlayerAI::AI_updateIdeologyAttitude(int iChange, CvCity const& kCity)
+ {
+-	ReligionTypes const eStateReligion = getStateReligion();
+-	if (eStateReligion == NO_RELIGION || getNumCities() <= 0)
+-	{	// Just to save time
+-		if (!bUpdateAttitude)
+-		{
+-			m_arDifferentReligionThreat.reset();
+-			return;
+-		}
+-		if (!m_arDifferentReligionThreat.isAnyNonDefault())
+-			return;
+-		FOR_EACH_ENUM(Religion)
+-			AI_setDifferentReligionThreat(eLoopReligion, 0, bUpdateAttitude);
+-		return;
+-	}
+-	if (eReligion == NO_RELIGION)
+-	{
+-		FOR_EACH_ENUM(Religion)
+-		{
+-			AI_updateDifferentReligionThreat(eLoopReligion); // recursion
+-		}
+-		return;
+-	}
+-	if (!GC.getGame().isReligionFounded(eReligion))
++	if (!isMajorCiv() || GET_PLAYER(kCity.getOwner()).isMajorCiv())
+ 		return;
+-	if (eStateReligion == eReligion)
+-	{
+-		AI_setDifferentReligionThreat(eReligion, 0, bUpdateAttitude);
+-		return;
+-	}
+-	int iDifferentReligionPop = 0;
+-	int iSameReligionPop = 0;
+-	int iTotalPop = 0;
+-	for (PlayerIter<ALIVE,KNOWN_TO> itPlayer(getTeam()); itPlayer.hasNext(); ++itPlayer)
++	for (PlayerIter<MAJOR_CIV,KNOWN_TO> itOther(getTeam());
++		itOther.hasNext(); ++itOther)
+ 	{
+-		FOR_EACH_CITY(pCity, *itPlayer)
+-		{
+-			if (!pCity->isRevealed(getTeam()))
+-				continue;
+-			int const iPop = pCity->getPopulation();
+-			iTotalPop += iPop;
+-			if (pCity->isHasReligion(eReligion))
+-				iDifferentReligionPop += iPop;
+-			if (pCity->isHasReligion(eStateReligion))
+-				iSameReligionPop += iPop;
+-		}
++		PlayerTypes const eOther = itOther->getID();
++		if (eOther == getID())
++			continue;
++		AI_changeCachedAttitude(eOther, iChange * AI_getSameReligionAttitude(eOther));
++		AI_changeCachedAttitude(eOther, iChange * AI_getDifferentReligionAttitude(eOther));
++		AI_changeCachedAttitude(eOther, iChange * AI_getFavoriteCivicAttitude(eOther));
+ 	}
+-	/*	The bigger our religion is and the more widespread theirs,
+-		the more threatened/ antagonistic we feel. */
+-	scaled rThreat(std::min(iDifferentReligionPop, iSameReligionPop), iTotalPop);
+-	AI_setDifferentReligionThreat(eReligion, rThreat, bUpdateAttitude);
+ }
+ 
+-// advc.130n:
+-void CvPlayerAI::AI_setDifferentReligionThreat(ReligionTypes eReligion,
+-	scaled rNewValue, bool bUpdateAttitude)
+-{
+-	if (rNewValue == m_arDifferentReligionThreat.get(eReligion))
+-		return;
+-	CivPlayerMap<int> aeiCachedAttitude;
+-	if (bUpdateAttitude)
+-	{
+-		for (PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam());
+-			itOther.hasNext(); ++itOther)
+-		{
+-			aeiCachedAttitude.set(itOther->getID(),
+-					AI_getDifferentReligionAttitude(itOther->getID()));
+-		}
+-	}
+-	m_arDifferentReligionThreat.set(eReligion, rNewValue);
+-	if (bUpdateAttitude)
+-	{
+-		for (PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam());
+-			itOther.hasNext(); ++itOther)
+-		{
+-			AI_changeCachedAttitude(itOther->getID(),
+-					AI_getDifferentReligionAttitude(itOther->getID())
+-					- aeiCachedAttitude.get(itOther->getID()));
+-		}
+-	}
+-}
+ 
+ int CvPlayerAI::AI_getRivalVassalAttitude(PlayerTypes ePlayer) const
+ {
+@@ -8106,26 +8021,18 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 
+ int CvPlayerAI::AI_getFavoriteCivicAttitude(PlayerTypes ePlayer) const
+ {
+-	int iAttitude = 0;
+-	if (GC.getInfo(getPersonalityType()).getFavoriteCivic() != NO_CIVIC)
++	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
++	CivicTypes const eFavCivic = kPersonality.getFavoriteCivic();
++	if (eFavCivic != NO_CIVIC &&
++		isCivic(eFavCivic) && GET_PLAYER(ePlayer).isCivic(eFavCivic))
+ 	{
+-		if (isCivic(GC.getInfo(getPersonalityType()).getFavoriteCivic()) &&
+-			GET_PLAYER(ePlayer).isCivic(GC.getInfo(getPersonalityType()).getFavoriteCivic()))
+-		{
+-			iAttitude += GC.getInfo(getPersonalityType()).getFavoriteCivicAttitudeChange();
+-
+-			if (GC.getInfo(getPersonalityType()).getFavoriteCivicAttitudeDivisor() != 0)
+-			{
+-				int iAttitudeChange = (AI_getFavoriteCivicCounter(ePlayer) /
+-						GC.getInfo(getPersonalityType()).getFavoriteCivicAttitudeDivisor());
+-				// <advc.130x>
+-				int iLimit = AI_ideologyDiploLimit(ePlayer, SAME_CIVIC);
+-				iAttitude += range(iAttitudeChange, -iLimit, iLimit); // </advc.130x>
+-			}
+-		}
++		// advc.130n: Moved into new function
++		return AI_ideologyAttitudeChange(ePlayer, SAME_CIVIC,
++				AI_getFavoriteCivicCounter(ePlayer),
++				kPersonality.getFavoriteCivicAttitudeDivisor(),
++				kPersonality.getFavoriteCivicAttitudeChangeLimit());
+ 	}
+-
+-	return iAttitude;
++	return 0;
+ }
+ 
+ // <advc.130p>
+@@ -18284,62 +18191,99 @@ void CvPlayerAI::AI_setBonusTradeCounter(PlayerTypes eIndex, int iValue)
+ 	m_aiBonusTradeCounter[eIndex] = iValue;
+ } // </advc.130k>
+ 
+-/*  advc.130x: Returns the absolute value of the limit for the
+-	time-based religion/civics relations modifier. */
+-int CvPlayerAI::AI_ideologyDiploLimit(PlayerTypes eOther, IdeologyDiploEffect eMode) const
++// advc.130n:
++int CvPlayerAI::AI_ideologyAttitudeChange(PlayerTypes eOther, IdeologicMarker eMarker,
++	int iCounter, int iDivisor, int iLimit) const
+ {
+-	CvLeaderHeadInfo const& kPers = GC.getInfo(getPersonalityType());
+-	int iLHLimit = 0;
+-	switch(eMode)
+-	{
+-	case SAME_RELIGION: iLHLimit = kPers.getSameReligionAttitudeChangeLimit(); break;
+-	case DIFFERENT_RELIGION: iLHLimit = kPers.getDifferentReligionAttitudeChangeLimit(); break;
+-	case SAME_CIVIC: iLHLimit = kPers.getFavoriteCivicAttitudeChangeLimit(); break;
+-	default: FAssert(false);
+-	}
+-	iLHLimit = abs(iLHLimit);
+-	// Don't further reduce a limit of 1
+-	if(iLHLimit <= 1)
+-		return iLHLimit;
++	if (iDivisor == 0 || iLimit == 0 || iCounter < abs(iDivisor))
++		return 0;
++	FAssert((iLimit < 0) == (iDivisor < 0));
++
+ 	int iTotal = 0;
+-	int iCount = 0;
+-	for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> itThird(getTeam());
+-		itThird.hasNext(); ++itThird)
++	int iMatching = 0;
++	for (PlayerIter<MAJOR_CIV,KNOWN_TO> itPlayer(getTeam());
++		itPlayer.hasNext(); ++itPlayer)
+ 	{
+-		if (itThird->getID() == eOther ||
+-			GET_TEAM(itThird->getTeam()).isCapitulated())
+-		{
++		if (GET_TEAM(itPlayer->getTeam()).isCapitulated())
+ 			continue;
+-		}
+-		iTotal++;
+-		if (eMode == SAME_RELIGION && getStateReligion() != NO_RELIGION &&
+-			getStateReligion() == itThird->getStateReligion())
++		int iCities = 0;
++		if (itPlayer->getID() == eOther || itPlayer->getTeam() == getTeam())
+ 		{
+-			iCount++;
++			/*	Vision cheat - could, in principle, give away AI city counts,
++				but I think it'll normally only provide a rough estimate,
++				no better than guessing based on the player score.
++				Don't want to give players an incentive to hide or reveal
++				their cities. */
++			iCities = itPlayer->getNumCities();
+ 		}
+-		else if (eMode == DIFFERENT_RELIGION && getStateReligion() != NO_RELIGION &&
+-			itThird->getStateReligion() != NO_RELIGION &&
+-			getStateReligion() != itThird->getStateReligion())
++		else
+ 		{
+-			iCount++;
++			FOR_EACH_CITY(pCity, *itPlayer)
++			{
++				if (pCity->isRevealed(getTeam()))
++					iCities++;
++			}
+ 		}
+-		else if (eMode == SAME_CIVIC)
++		iTotal += iCities;
++		switch (eMarker)
+ 		{
+-			CivicTypes eFavCivic = kPers.getFavoriteCivic();
++		case SAME_RELIGION:
++			if (getStateReligion() != NO_RELIGION &&
++				getStateReligion() == itPlayer->getStateReligion())
++			{
++				iMatching += iCities;
++			}
++			break;
++		case DIFFERENT_RELIGION:
++			if (getStateReligion() != NO_RELIGION &&
++				itPlayer->getStateReligion() != NO_RELIGION &&
++				getStateReligion() != itPlayer->getStateReligion())
++			{
++				iMatching += iCities;
++			}
++			break;
++		case SAME_CIVIC:
++		{
++			CivicTypes eFavCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
+ 			if (eFavCivic != NO_CIVIC && isCivic(eFavCivic) &&
+-				itThird->isCivic(eFavCivic))
++				itPlayer->isCivic(eFavCivic))
+ 			{
+-				iCount++;
++				iMatching += iCities;
+ 			}
+ 		}
++		}
+ 	}
+ 	scaled rRatio = fixp(0.5);
+ 	/*  Since we're not counting us and them, the total can be 0. Treat this case
+ 		as if 50% of the other civs were sharing the ideology. */
+-	if(iTotal > 0)
+-		rRatio = scaled(iCount, iTotal);
+-	// 0.51: To make sure we round up if the ratio is 100%
+-	return iLHLimit - (fixp(0.51) * rRatio * iLHLimit).round();
++	if (iTotal > 0)
++		rRatio = scaled(iMatching, iTotal);
++	scaled const rWeight = (eMarker == SAME_RELIGION ? fixp(0.5) :
++			(eMarker == SAME_CIVIC ? fixp(0.4) : fixp(1/3.)));
++	if (iLimit > 0)
++		iLimit -= (rWeight * rRatio * iLimit).round();
++	else
++	{
++		/*	Decreased dislike when the ratio is either small (their ideology is
++			not threatening) or large (can't kill the world). */
++		if (rRatio > fixp(0.5))
++			rRatio.flipFraction();
++		rRatio.decreaseTo(rWeight);
++		iLimit = (iLimit * rRatio / rWeight).round();
++	}
++	//return range(iCounter / iDivisor, -iLimit, iLimit)
++	// <advc.130x> Higher attitude changes take slightly more time
++	int iAbsDiv = abs(iDivisor);
++	int iChange = 0;
++	while (iCounter >= iAbsDiv &&
++		iChange < iLimit && iChange > -iLimit)
++	{
++		iChange = iChange + (iDivisor > 0 ? 1 : -1);
++		iCounter -= iAbsDiv;
++		iAbsDiv++;
++	}
++	return iChange;
++	// </advc.130x>
+ }
+ 
+ 
+@@ -22412,8 +22356,11 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Read(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
+ 	// <advc.130n>
+-	if (uiFlag >= 18) // (Otherwise update it in CvGame::onAllGameDataRead)
+-		m_arDifferentReligionThreat.read(pStream); // </advc.130n>
++	if (uiFlag == 18)
++	{
++		ArrayEnumMap<ReligionTypes,scaled> arDifferentReligionThreat;
++		arDifferentReligionThreat.read(pStream); // discard
++	} // </advc.130n>
+ 	// K-Mod
+ 	m_GreatPersonWeights.clear();
+ 	if (uiFlag >= 5)
+@@ -22506,7 +22453,8 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	//uiFlag = 15; // advc.104: Don't save UWAI cache of dead civ
+ 	//uiFlag = 16; // advc.651
+ 	//uiFlag = 17; // advc.550g
+-	uiFlag = 18; // advc.130n
++	//uiFlag = 18; // advc.130n
++	uiFlag = 19; // advc.130n (mostly removed again)
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -22588,7 +22536,6 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 
+ 	pStream->Write(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Write(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
+-	m_arDifferentReligionThreat.write(pStream); // advc.130n
+ 	// K-Mod. save great person weights.
+ 	{
+ 		int iItems = m_GreatPersonWeights.size();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 24fbd7d3e..fec3a550e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -246,11 +246,7 @@ public:
+ 	//int AI_getKnownPlayerRank(PlayerTypes ePlayer) const; // advc.sha
+ 	// END: Show Hidden Attitude Mod
+ 	int AI_getExpansionistAttitude(PlayerTypes ePlayer) const; // advc.130w
+-	// <advc.130n>
+-	void AI_updateDifferentReligionThreat(ReligionTypes eReligion = NO_RELIGION,
+-			bool bUpdateAttitude = true);
+-	void AI_setDifferentReligionThreat(ReligionTypes eReligion, scaled rNewValue,
+-			bool bUpdateAttitude = true); // </advc.130n>
++	void AI_updateIdeologyAttitude(int iChange, CvCity const& kCity); // advc.130n
+ 
+ 	PlayerVoteTypes AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose);
+ 
+@@ -792,7 +788,6 @@ protected:
+ 	int* m_aiBonusValueTrade; // advc.036
+ 	int* m_aiUnitClassWeights;
+ 	int* m_aiUnitCombatWeights;
+-	ArrayEnumMap<ReligionTypes,scaled> m_arDifferentReligionThreat; // advc.130n
+ 	// <advc.130c>
+ 	bool m_abTheyFarAhead[MAX_CIV_PLAYERS];
+ 	bool m_abTheyBarelyAhead[MAX_CIV_PLAYERS]; // </advc.130c>
+@@ -849,15 +844,10 @@ protected:
+ 	void AI_setPeacetimeTradeValue(PlayerTypes eIndex, int iVal);
+ 	void AI_setPeacetimeGrantValue(PlayerTypes eIndex, int iVal);
+ 	// </advc.130p>
+-	// <advc.130x>
+-	enum IdeologyDiploEffect
+-	{
+-		SAME_RELIGION,
+-		DIFFERENT_RELIGION,
+-		SAME_CIVIC
+-	};
+-	int AI_ideologyDiploLimit(PlayerTypes eOther, IdeologyDiploEffect eMode) const;
+-	// </advc.130x>
++	// <advc.130n>
++	enum IdeologicMarker { SAME_RELIGION, DIFFERENT_RELIGION, SAME_CIVIC };
++	int AI_ideologyAttitudeChange(PlayerTypes eOther, IdeologicMarker eMarker,
++			int iCounter, int iDivisor, int iLimit) const; // </advc.130n>
+ 	// advc.130r: Are they at war with a partner of ours?
+ 	bool AI_atWarWithPartner(TeamTypes eOtherTeam,
+ 			/*  advc.130h: If CheckPartnerAttacked==true, then only partners with
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 005f49dc9..ba2f668d5 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -124,9 +124,6 @@ void CvTeamAI::AI_doTurnPost()
+ 		for (MemberAIIter itMember(getID()); itMember.hasNext(); ++itMember)
+ 		{
+ 			itMember->AI_updateCloseBorderAttitude();
+-			/*	advc.130n: Once per turn, rather than updating after
+-				every change in religious city population. */
+-			itMember->AI_updateDifferentReligionThreat(NO_RELIGION, false);
+ 			itMember->AI_updateAttitude();
+ 		} // K-Mod end
+ 		// <advc.109>
+@@ -5036,7 +5033,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ 	//uiFlag = 4; // advc.158
+ 	//uiFlag = 5; // advc.650
+ 	//uiFlag = 6; // advc.enum: new enum map save behavior
+-	uiFlag = 7; // advc.130n (Now handled by CvPlayerAI)
++	uiFlag = 7; // advc.130n (Now handled w/o extra data)
+ 	pStream->Write(uiFlag);
+ 
+ 	m_aiWarPlanStateCounter.write(pStream);
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=58774

@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 848
+# Commit: 26b0df8e6bdb625c63bdb662b7d051dda714d344
+# History segment: K-Mod history
+# Parent used for diff: 8fa5349bc0d3bcb4bb0c756aa9e7c9fbdfa1f303
+# Title: The AI now uses MISSION_FORTIFY in a number of places (for aesthetics).
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0c61d3fa4..37cb0450e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11332,7 +11332,7 @@ bool CvUnitAI::AI_guardCityBestDefender()
+ 		{
+ 			if (pPlot->getBestDefender(getOwnerINLINE()) == this)
+ 			{
+-				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
++				getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+ 			}
+ 		}
+@@ -11351,7 +11351,7 @@ bool CvUnitAI::AI_guardCityOnlyDefender()
+ 	{
+ 		if (plot()->plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwnerINLINE()) <= (getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY ? 1 : 0))
+ 		{
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, noDefensiveBonus() ? NO_MISSIONAI : MISSIONAI_GUARD_CITY, 0);
++			getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, noDefensiveBonus() ? NO_MISSIONAI : MISSIONAI_GUARD_CITY, 0);
+ 			return true;
+ 		}
+ 	}
+@@ -11388,7 +11388,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 		{
+ 			if (iDefendersHave <= 1 || GC.getGame().getSorenRandNum(area()->getNumAIUnits(getOwnerINLINE(), UNITAI_CITY_DEFENSE) + 5, "AI shuffle defender") > 1)
+ 			{
+-				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
++				getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+ 			}
+ 		}
+@@ -11465,7 +11465,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 			if (atPlot(pBestGuardPlot))
+ 			{
+ 				FAssert(pBestGuardPlot == pBestPlot);
+-				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
++				getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+ 			}
+ 			FAssert(!atPlot(pBestPlot));
+@@ -11841,7 +11841,7 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 		if (atPlot(pBestGuardPlot))
+ 		{
+ 			//getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot);
+-			getGroup()->pushMission(canSeaPatrol(pBestGuardPlot) ? MISSION_SEAPATROL : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot); // K-Mod
++			getGroup()->pushMission(canSeaPatrol(pBestGuardPlot) ? MISSION_SEAPATROL : (isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP), -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot); // K-Mod
+ 			return true;
+ 		}
+ 		else
+@@ -11927,7 +11927,7 @@ bool CvUnitAI::AI_guardFort(bool bSearch)
+ 			{
+ 				if (plot()->plotCount(PUF_isCityAIType, -1, -1, getOwnerINLINE()) <= AI_getPlotDefendersNeeded(plot(), 0))
+ 				{
+-					getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, plot());
++					getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, plot());
+ 					return true;
+ 				}
+ 			}
+@@ -11991,7 +11991,7 @@ bool CvUnitAI::AI_guardFort(bool bSearch)
+ 	{
+ 		if (atPlot(pBestGuardPlot))
+ 		{
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot);
++			getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot);
+ 			return true;
+ 		}
+ 		else
+@@ -12044,7 +12044,7 @@ bool CvUnitAI::AI_guardCitySite()
+ 	{
+ 		if (atPlot(pBestGuardPlot))
+ 		{
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, pBestGuardPlot);
++			getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, pBestGuardPlot);
+ 			return true;
+ 		}
+ 		else
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3903

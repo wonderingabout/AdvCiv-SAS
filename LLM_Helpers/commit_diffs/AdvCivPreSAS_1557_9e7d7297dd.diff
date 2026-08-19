@@ -1,0 +1,363 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1557
+# Commit: 9e7d7297dd4030eb4fc64ffd3739e7f5420a1462
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e79a7375249529f59cfecb99ad7b78f4fe81ce90
+# Title: Reduced AI train-Worker odds during war preparations
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+40	41	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvTeam.cpp
+3	3	CvGameCoreDLL/CvTeam.h
+21	17	CvGameCoreDLL/CvTeamAI.cpp
+4	4	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d52bcb5c3..4c213c70b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -486,7 +486,8 @@ void CvCityAI::AI_chooseProduction()
+ 	bool bDanger = AI_isDanger();
+ 
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+-	CvGame& g = GC.getGameINLINE(); // advc.003
++	CvTeamAI const& kTeam = GET_TEAM(getTeam()); // advc.003
++	CvGame& g = GC.getGameINLINE();
+ 
+ 	if (isProduction())
+ 	{
+@@ -550,7 +551,7 @@ void CvCityAI::AI_chooseProduction()
+ 		clearOrderQueue();
+ 	}
+ 
+-	//if (GET_PLAYER(getOwnerINLINE()).isAnarchy()) // original bts code
++	//if (kPlayer.isAnarchy()) // original bts code
+ 	if (isDisorder()) // K-Mod
+ 	{
+ 		return;
+@@ -599,22 +600,19 @@ void CvCityAI::AI_chooseProduction()
+ 	if (pWaterArea != NULL)
+ 	{
+ 		bMaybeWaterArea = true;
+-		if (!GET_TEAM(getTeam()).AI_isWaterAreaRelevant(pWaterArea))
+-		{
++		if (!kTeam.AI_isWaterAreaRelevant(pWaterArea))
+ 			pWaterArea = NULL;
+-		}
+-
+ 		bWaterDanger = kPlayer.AI_getWaterDanger(plot(), 4) > 0;
+ 	}
+ 	// advc.003: Some old and unused code deleted
+ 	bool bLandWar = kPlayer.AI_isLandWar(pArea); // K-Mod
+ 	bool bDefenseWar = (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 	bool bAssaultAssist = (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_ASSIST);
+-	bool bTotalWar = GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL) // K-Mod
++	bool bTotalWar = kTeam.getWarPlanCount(WARPLAN_TOTAL) // K-Mod
+ 			// <advc.104s>
+-			+ (getWPAI.isEnabled() ? GET_TEAM(getTeam()).
+-			getWarPlanCount(WARPLAN_PREPARING_TOTAL) : 0); // </advc.104s>
+-	bool bAssault = bAssaultAssist || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT) || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING);
++			+ (getWPAI.isEnabled() ?
++			kTeam.getWarPlanCount(WARPLAN_PREPARING_TOTAL) : 0); // </advc.104s>
++	bool bAssault = (bAssaultAssist || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT) || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING));
+ 	bool bPrimaryArea = kPlayer.AI_isPrimaryArea(pArea);
+ 	bool bFinancialTrouble = kPlayer.AI_isFinancialTrouble();
+ 	int iNumCitiesInArea = pArea->getCitiesPerPlayer(getOwnerINLINE());
+@@ -622,28 +620,26 @@ void CvCityAI::AI_chooseProduction()
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+ 	int iCulturalVictoryNumCultureCities = g.culturalVictoryNumCultureCities();
+ 
+-	int iWarSuccessRating = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+-	int iEnemyPowerPerc = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
++	int iWarSuccessRating = kTeam.AI_getWarSuccessRating();
++	int iEnemyPowerPerc = kTeam.AI_getEnemyPowerPercent(true);
+ 	// <cdtw> (Comment from Dave_uk:)
+ 	/*  if we are the weaker part of a team, and have a land war in our primary
+ 		area, increase enemy power percent so we aren't overconfident due to a
+ 		powerful team-mate who may not actually be that much help */
+-	if (bLandWar && bPrimaryArea && !GET_TEAM(getTeam()).isAVassal() &&
+-			GET_TEAM(getTeam()).getNumMembers() > 1) {
+-		int iOurPowerPercent = (100 * GET_PLAYER(getOwnerINLINE()).getPower()) /
+-				GET_TEAM(getTeam()).getPower(false);
+-		if(iOurPowerPercent < (100 / GET_TEAM(getTeam()).getNumMembers())) {
+-			iEnemyPowerPerc *= (100 / GET_TEAM(getTeam()).getNumMembers());
+-			iEnemyPowerPerc /= std::max(1, iOurPowerPercent);
++	if (bLandWar && bPrimaryArea && !kTeam.isAVassal() && kTeam.getNumMembers() > 1) {
++		int iOurPowerPercent = (100 * kPlayer.getPower()) / kTeam.getPower(false);
++		if(iOurPowerPercent * kTeam.getNumMembers() < 100) {
++			iEnemyPowerPerc *= 100;
++			iEnemyPowerPerc /= std::max(1, iOurPowerPercent * kTeam.getNumMembers());
+ 		}
+ 	} // </cdtw>
+-	if( !bLandWar && !bAssault && GET_TEAM(getTeam()).isAVassal() )
++	if( !bLandWar && !bAssault && kTeam.isAVassal() )
+ 	{
+-		bLandWar = GET_TEAM(getTeam()).isMasterPlanningLandWar(area());
++		bLandWar = kTeam.isMasterPlanningLandWar(area());
+ 
+ 		if( !bLandWar )
+ 		{
+-			bAssault = GET_TEAM(getTeam()).isMasterPlanningSeaWar(area());
++			bAssault = kTeam.isMasterPlanningSeaWar(area());
+ 		}
+ 	}
+ 
+@@ -675,7 +671,7 @@ void CvCityAI::AI_chooseProduction()
+ 	{
+ 		pWaterSettlerArea = GC.getMapINLINE().findBiggestArea(true);
+ 		if(pWaterSettlerArea != NULL && // advc.001: What if there is no water at all?
+-				GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0 )
++				kPlayer.AI_totalWaterAreaUnitAIs(pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0 )
+ 			pWaterSettlerArea = NULL;
+ 	}
+ 	int iNumWaterAreaCitySites = (pWaterSettlerArea == NULL) ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(pWaterSettlerArea->getID(), getArea(), iWaterAreaBestFoundValue);
+@@ -1011,15 +1007,15 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 	/* original bts code (disabled by K-Mod. I don't think these are helpful)
+-	if ( kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3) ) {
+-        if ((goodHealth() - badHealth(true, 0)) < 1) {
+-			if ( AI_chooseBuilding(BUILDINGFOCUS_HEALTHY, 20, 0, (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4) ? 50 : 20)) )
++	if (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3)) {
++        if (goodHealth() - badHealth(true, 0) < 1) {
++			if (AI_chooseBuilding(BUILDINGFOCUS_HEALTHY, 20, 0, (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4) ? 50 : 20)) )
+ 				return;
+ 		}
+ 	}
+-	if( GET_TEAM(getTeam()).isAVassal() && GET_TEAM(getTeam()).isCapitulated() ) {
++	if (kTeam.isAVassal() && kTeam.isCapitulated()) {
+ 		if( !bLandWar ) {
+-			if ((goodHealth() - badHealth(true, 0)) < 1) {
++			if (goodHealth() - badHealth(true, 0) < 1) {
+ 				if (AI_chooseBuilding(BUILDINGFOCUS_HEALTHY, 30, 0, 3*getPopulation()))
+ 					return;
+ 			}
+@@ -1197,7 +1193,10 @@ void CvCityAI::AI_chooseProduction()
+ 		{
+ 			if (3*AI_getWorkersHave()/2 < AI_getWorkersNeeded() // local
+ 					// advc.113: was RandNum(80)
+-					|| g.getSorenRandNum(123, "choose worker 6") > iBestBuildingValue + (iBuildUnitProb + 50)/2)
++					|| g.getSorenRandNum(120, "choose worker 6") >
++					iBestBuildingValue + (iBuildUnitProb + 50) /
++					// advc.113: Divisor was 2 flat; war prep check added.
++					(kTeam.AI_isSneakAttackPreparing() ? 1 : 2))
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+@@ -1654,13 +1653,13 @@ void CvCityAI::AI_chooseProduction()
+ 		if (iNumSpies < iNeededSpies)
+ 		{
+ 			int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) ||
+-					//GET_TEAM(getTeam()).getAnyWarPlanCount(true)
++					//kTeam.getAnyWarPlanCount(true)
+ 					// advc.105: If anything
+-					//GET_PLAYER(getOwnerINLINE()).AI_isFocusWar(area())
++					//kPlayer.AI_isFocusWar(area())
+ 					/*  <advc.120> ... but actually, I don't think training extra
+ 						spies during war is a good idea at all. */
+-					GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_PREPARING_LIMITED) +
+-					GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_PREPARING_TOTAL) > 0
++					kTeam.getWarPlanCount(WARPLAN_PREPARING_LIMITED) +
++					kTeam.getWarPlanCount(WARPLAN_PREPARING_TOTAL) > 0
+ 					// </advc.120>
+ 				) ? 45 : 35;
+ 			iOdds *= 50 + std::max(iProjectValue, iBestBuildingValue);
+@@ -1777,7 +1776,7 @@ void CvCityAI::AI_chooseProduction()
+ 	// <advc.081>
+ 	if(pWaterArea != NULL && !bUnitExempt && !bImportantCity &&
+ 			iEnemyPowerPerc - iWarSuccessRating < 150 && // else give up at sea
+-			GET_TEAM(getTeam()).getAtWarCount(false, true) > 0) { // for performance
++			kTeam.getAtWarCount(false, true) > 0) { // for performance
+ 		int iHostile = kPlayer.AI_countNumAreaHostileUnits(pWaterArea, true, false, false, false, plot());
+ 		if(iHostile > 0) {
+ 			int iOurWarships = 0;
+@@ -1836,16 +1835,16 @@ void CvCityAI::AI_chooseProduction()
+ 			pAssaultWaterArea = pWaterArea;
+ 
+ 			// If on offensive and can't reach enemy cities from here, act like using AREAAI_ASSAULT
+-			if( (pAssaultWaterArea != NULL) && !bBuildAssault )
++			if (pAssaultWaterArea != NULL && !bBuildAssault)
+ 			{
+-				if( (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0) )
++				if (kTeam.getAnyWarPlanCount(true) > 0)
+ 				{
+-					if( (pArea->getAreaAIType(getTeam()) != AREAAI_DEFENSIVE) )
++					if (pArea->getAreaAIType(getTeam()) != AREAAI_DEFENSIVE)
+ 					{	// <advc.030b>
+ 						bool bAssaultTargetFound = false;
+ 						for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 							CvPlayer const& kTarget = GET_PLAYER((PlayerTypes)i);
+-							if(!kTarget.isAlive() || GET_TEAM(getTeam()).AI_getWarPlan(
++							if(!kTarget.isAlive() || kTeam.AI_getWarPlan(
+ 									kTarget.getTeam()) == NO_WARPLAN)
+ 								continue;
+ 							if(pWaterArea->getCitiesPerPlayer(kTarget.getID(), true) > 0) {
+@@ -1934,7 +1933,7 @@ void CvCityAI::AI_chooseProduction()
+ 				double maxThreat = 0;
+ 				for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 					CvPlayerAI const& kEnemy = GET_PLAYER((PlayerTypes)i);
+-					if(kEnemy.isAlive() && GET_TEAM(getTeam()).AI_getWarPlan(
++					if(kEnemy.isAlive() && kTeam.AI_getWarPlan(
+ 							kEnemy.getMasterTeam()) != NO_WARPLAN) {
+ 						/*  Tbd.: Should perhaps check if the enemy sea attackers even
+ 							pose a danger to our cargo ships; could be Frigates
+@@ -12548,10 +12547,10 @@ int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValu
+ 	FAssert(iAreaSites + iWaterAreaSites > 0);
+ 	if(iAreaSites <= 0)
+ 		return 60; // Don't really want to pace AI colonization
+-	int r = 19;
++	int r = 20;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	int iMinFoundValue = std::max(1, kOwner.AI_getMinFoundValue());
+-	r += (9 * std::max(iBestAreaFoundValue, iBestWaterAreaFoundValue)) / iMinFoundValue;
++	r += (10 * std::max(iBestAreaFoundValue, iBestWaterAreaFoundValue)) / iMinFoundValue;
+ 	CvTeam const& kTeam = GET_TEAM(getTeam());
+ 	CvGame const& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_ALWAYS_WAR))
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 75e4b2585..2cabeb9d9 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2663,7 +2663,7 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const {
+ } // </advc.112>
+ 
+ // BETTER_BTS_AI_MOD, General AI, 07/20/09, jdog5000: START
+-bool CvTeam::isMasterPlanningLandWar(CvArea* pArea)
++bool CvTeam::isMasterPlanningLandWar(CvArea* pArea) const
+ {
+ 	if( !isAVassal() )
+ 	{
+@@ -2713,7 +2713,7 @@ bool CvTeam::isMasterPlanningLandWar(CvArea* pArea)
+ }
+ 
+ 
+-bool CvTeam::isMasterPlanningSeaWar(CvArea* pArea)
++bool CvTeam::isMasterPlanningSeaWar(CvArea* pArea) const
+ {
+ 	if( !isAVassal() )
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index f2d6805fd..4aba85985 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -74,9 +74,9 @@ public:
+ 	bool isVotingMember(VoteSourceTypes eVoteSource) const;
+ 	bool isFullMember(VoteSourceTypes eVoteSource) const;
+ 
+-	// BETTER_BTS_AI_MOD, 01/10/09, jdog5000: START
+-	bool isMasterPlanningLandWar(CvArea* pArea);
+-	bool isMasterPlanningSeaWar(CvArea* pArea);
++	// BETTER_BTS_AI_MOD, 01/10/09, jdog5000: START  (advc.003: x2 const added)
++	bool isMasterPlanningLandWar(CvArea* pArea) const;
++	bool isMasterPlanningSeaWar(CvArea* pArea) const;
+ 	/*  advc.003: Adding a default value for bIgnoreMinors to all WarPlan functions.
+ 		Also: beware of confusing getAtWarCount with CvTeamAI::AI_getAtWarCounter. */
+ 	int getAtWarCount(bool bIgnoreMinors = true, bool bIgnoreVassals = false) const;																				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a0d47122e..171996778 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4850,30 +4850,34 @@ bool CvTeamAI::isAnyChosenWar() const {
+ } // </advc.105>
+ 
+ 
+-bool CvTeamAI::AI_isSneakAttackPreparing(TeamTypes eIndex) const
+-{
+-	WarPlanTypes eWarPlan = AI_getWarPlan(GET_TEAM(eIndex).getMasterTeam()); // advc.104j
+-	return (eWarPlan == WARPLAN_PREPARING_LIMITED || eWarPlan == WARPLAN_PREPARING_TOTAL);
+-}
+-
+-
+ bool CvTeamAI::AI_isSneakAttackReady(TeamTypes eIndex) const
+ {
+-	//return (AI_isChosenWar(eIndex) && !(AI_isSneakAttackPreparing(eIndex)));
+-	return !isAtWar(eIndex) && AI_isChosenWar(eIndex) && !AI_isSneakAttackPreparing(eIndex); // K-Mod
++	//return (AI_isChosenWar(eIndex) && !(AI_isSneakAttackPreparing(eIndex))); // BtS
++	// K-Mod  (advc.003: K-Mod code from an overloaded function)
++	if(eIndex != NO_TEAM)
++		return !isAtWar(eIndex) && AI_isChosenWar(eIndex) && !AI_isSneakAttackPreparing(eIndex); // K-Mod
++	for (int i = 0; i < MAX_CIV_TEAMS; i++) {
++		if (AI_isSneakAttackReady((TeamTypes)i))
++			return true;
++	}
++	return false;
++	// K-Mod end
+ }
+ 
+-// K-Mod
+-bool CvTeamAI::AI_isSneakAttackReady() const
++
++bool CvTeamAI::AI_isSneakAttackPreparing(TeamTypes eIndex) const
+ {
+-	for (int i = 0; i < MAX_CIV_TEAMS; i++)
+-	{
+-		if (AI_isSneakAttackReady((TeamTypes)i))
++	if(eIndex != NO_TEAM) { // advc.003
++		WarPlanTypes eWarPlan = AI_getWarPlan(GET_TEAM(eIndex).getMasterTeam()); // advc.104j
++		return (eWarPlan == WARPLAN_PREPARING_LIMITED || eWarPlan == WARPLAN_PREPARING_TOTAL);
++	} // <advc.003> (based on K-Mod code above)
++	for (int i = 0; i < MAX_CIV_TEAMS; i++) {
++		if (AI_isSneakAttackPreparing((TeamTypes)i))
+ 			return true;
+ 	}
+-	return false;
++	return false; // </advc.003>
+ }
+-// K-Mod end
++
+ 
+ void CvTeamAI::AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar)  // advc.003: style changes
+ {
+@@ -6727,7 +6731,7 @@ int CvTeamAI::AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const
+ 	
+ }
+ 
+-bool CvTeamAI::AI_isWaterAreaRelevant(CvArea* pArea)
++bool CvTeamAI::AI_isWaterAreaRelevant(CvArea* pArea) const
+ {
+ 	int iTeamCities = 0;
+ 	int iOtherTeamCities = 0;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 30d06ebf0..162e7f4e6 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -219,9 +219,9 @@ public:
+ 	WarPlanTypes AI_getWarPlan(TeamTypes eIndex) const;
+ 	bool AI_isChosenWar(TeamTypes eIndex) const;
+ 	bool isAnyChosenWar() const; // advc.105
+-	bool AI_isSneakAttackPreparing(TeamTypes eIndex) const;
+-	bool AI_isSneakAttackReady(TeamTypes eIndex) const;
+-	bool AI_isSneakAttackReady() const; // K-Mod (any team)
++	bool AI_isSneakAttackReady(TeamTypes eIndex
++			= NO_TEAM) const; // K-Mod (any team)
++	bool AI_isSneakAttackPreparing(TeamTypes eIndex /* advc.003: */= NO_TEAM) const;
+ 	void AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar = true);
+ 	// advc.104:
+ 	void AI_setWarPlanNoUpdate(TeamTypes eIndex, WarPlanTypes eNewValue);
+@@ -254,7 +254,7 @@ public:
+ 	
+ 	int AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const;
+ 	
+-	bool AI_isWaterAreaRelevant(CvArea* pArea);
++	bool AI_isWaterAreaRelevant(CvArea* pArea) /* advc.003: */ const;
+ 	
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=14744

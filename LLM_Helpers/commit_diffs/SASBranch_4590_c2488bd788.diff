@@ -1,0 +1,866 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4590
+# Commit: c2488bd788c101cb258d9e9e25fdfc8723867056
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 25ee4d8dd2c1f86fe378030b49ce2813b7948a36
+# Title: rename "Game Concepts" and "BtS Concepts", without necessarily matching order, "Mods Info" and "Bts Info (Outdated)", then move All bts concepts to be with c...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+34	4	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+447	0	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+7	73	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+88	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+14	24	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+36	0	README.md
+ create mode 100644 Assets/XML/BasicInfos/CIV4BasicInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 655d8e8d0..1b7a81e6b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -74,6 +74,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.ITEM_LIST_ID	= "PediaMainItemList"
+ 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
+ 
++		# <!-- custom: support 1920 x 1080 as default, not 1024 x 768, there are more
++		# benefits in supporting and using all the screen space than to accomodate
++		# older screen resolutions, even though would have been nice to if possible
++		# or convenient, i believe the extra space will be useful.
++		# Also we don't use the outside margins part of the screen while in the
++		# sevopedia, trying to maximize it too, distracts less too maybe.
++		# As for the margins, not much value in being able to see the advisors tab
++		# (if i understand it correctly that it is the buttons on top right during
++		# a game i mean etc i mean anyways, thanks, ), i think, however i also think
++		# i mean anyways, thanks, that the place/extra room should be useful to fit
++		# more data or simply enlarge the view, hopefully making it all clearer and
++		# more pleasant to see, while also displaying more data.
++		# seems to be how realism invictus runs at 1920 x 1080 at least when i play
++		# it i mean on my computer, i mean, not to say we should do so because they
++		# did, just i think it's a more desirable design for AdvCiv-SAS, about this
++		# i mean etc anyways i mean anyways, thanks,
++		# todo -->
+ 		self.H_SCREEN = 768
+ 		self.W_SCREEN = 1024
+ 		# <advc.004y>
+@@ -388,8 +405,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.szCategoryCivics		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIVIC", ())
+ 		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
+ 		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
+-		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
++		# <!-- custom: see below at self.categoryList 's code comment -->
+ 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
++		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
+ 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
+ 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
+ 		
+@@ -416,8 +434,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			["CIVICS",	self.szCategoryCivics],
+ 			["CIVICS",	self.szCategoryReligions],
+ 			["CIVICS",	self.szCategoryCorporations],
+-			["HINTS",	self.szCategoryConcepts],
++			# <!-- custom: put "Mods Info" before "BtS Info (Outdated)", hopefully
++			# more visible this way (as i think it is more relevant, more likely
++			# to be useful, more visible hopefully as the first icon, about this
++			# i mean etc i mean anyways, thanks, -->
+ 			["HINTS",	self.szCategoryConceptsNew],
++			["HINTS",	self.szCategoryConcepts],
+ 			["HINTS",	self.szCategoryHints],
+ 			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
+ 			]
+@@ -469,9 +491,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			graphic = self.categoryGraphics[category[0]]
+ 			# <advc.002b> Prepend graphic only if there is room
+ 			szHeading = category[1]
+-			iThresh = 16 # For English, 16 happens to be OK.
++			# <!-- custom: allow room to fit more characters, if less are used
++			# still displays fine/same, if text is too long to fit the box, up
++			# to the modder to adjust the text rather, 20 should still leave
++			# some margin especially on higher displays while giving the flexibility
++			# to have a bit longer text maybe, was 16-->
++			iThresh = 20 # For English, 16 happens to be OK.
+ 			if gc.getGame().getCurrentLanguage() != 0:
+-				iThresh = 15
++				# <!-- custom: not sure other languages need critically more
++				# space (if i understand it correctly), but giving -1 too
++				# there, was 15 -->
++				iThresh = 19
+ 			if len(szHeading) <= iThresh:
+ 				szHeading = graphic + szHeading # </advc.002b>
+ 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+new file mode 100644
+index 000000000..09b7393cc
+--- /dev/null
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -0,0 +1,447 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Basic Infos -->
++<!-- custom: file imported from:
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml
++then modified to:
++
++My goals doing this are:
++- rename "BtS Concepts" to "Mods Info"
++- rename "Game Concepts" to "BtS Info (Outdated)"
++- move all entries that are in "Mods Info (Outdated)"
++(except BtS rules changes) to "BtS Info (Outdated)"
++
++Purpose:
++- gather all Civ4 old data together (vanilla + BTS)
++- put "(Outdated)" in category name hosting them about this i mean
++anyways, thanks,
++- use a new category containing Bts Rules changes and also other rules
++changes (not balance of +1 -1 stats that can be found elsewhere and
++prone to change and long to update for little gain, but things like
++scouts (or any unit) needing to explore rival cities (or otherwise
++have a map vision of these rival cities) to be able to have a trade
++route with them, even if they are connected by route it would not be,
++alone and on/of(?) itself enough. I don't know if this is an AdvCiv
++or K-Mod change, but i would want to
++
++I had figured out most of it, but could not make it work, about this i
++mean at least etc i mean anyways, thanks, so i asked @f1rpo which gave
++me a very detailed answer that helped me solve this.
++
++Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
++to me (see below for the explanation quoted, that i added here with
+<hidden-email>'s accord but anyways i mean anyways, thanks, ) in thorough detail
++how to achieve that, which helped a lot. I had given to @f1rpo slightly
++different names for the categories than the one i provided here at the
++"rename" bullet points above, but the explanation should be mostly
++(almost entirely in fact) the same (minus these name differences).
++
++Go to the bottom after this quote to see the slight alteration i had to
++make it work for my needs in AdvCiv-SAS.
++
++Beginning of quote:
++"
++Apparently,
++TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
++is the name of the "BtS Concepts" category. So that can be changed to "Mods information" in CIV4GameText_advc_pedia.xml or can be moved to a different game text file and changed there. (The original definition is in CIV4GameText_Objects_BTS.xml.) The "Game Concepts" text key is TXT_KEY_PEDIA_CATEGORY_CONCEPT in CIV4GameTextInfos_Objects.xml (base game); can be re-defined to "BtS Concepts". Regarding the placement of concepts in categories, Sevopedia has these functions:
++Spoiler : 
++Python:
++	def getNewConceptInfo(self, id):
++		info = gc.getNewConceptInfo(id)
++		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
++			return info
++		return None
++
++	def isTraitInfo(self, info):
++		return info.getType().find("_TRAIT_") != -1
++
++	def isShortcutInfo(self, info):
++		return info.getType().find("SHORTCUTS") != -1
++So, if it has "_TRAIT_" or "SHORTCUTS" in its type string, it's not a BtS Concept. Everything else in BasicInfos\Civ4NewConceptInfos.xml is a BtS Concept. The pre-BtS Concepts are taken from CIV4BasicInfos.xml (the BtS version of that file). Those ConceptInfo or NewConceptInfo elements specify one text key each for the heading and for the exposition:
++XML:
++<ConceptInfo>
++	<Type>CONCEPT_ANIMALS</Type>
++	<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
++	<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
++</ConceptInfo>
++So, to move the BtS Concepts into Game Concepts, one could copy Civ4BasicInfos.xml from BtS into the mod, cut-and-paste all the non-trait, non-shortcut NewConceptInfo elements from Civ4NewConceptInfos.xml into CIV4BasicInfos.xml and change them from NewConceptInfo to ConceptInfo. And then create NewConceptInfo elements in Civ4NewConceptInfos.xml for the content you want in there, e.g.
++XML:
++		<NewConceptInfo>
++			<Type>CONCEPT_KMOD_RULES</Type>
++			<Description>TXT_KEY_KMOD_RULES</Description>
++			<Civilopedia>TXT_KEY_KMOD_RULES_PEDIA</Civilopedia>
++		</NewConceptInfo>
++(Could be named anything, I think; just so long as it doesn't say "trait" or "shortcut".) Plus the corresponding text key definitions in a game text file. All just in theory. Might even work if Sevopedia is disabled via the BUG menu. Ignoring that possibility, there are probably more surgical ways to achieve what you want through changes in SevoPediaMain.py. But you'd need to change a bunch of (small) functions there, not just the three I included above.
++"
++End of quote.
++
++Alteration:
++This mostly works, very great, just "Mods Info" now contains the old civ4
++concepts (vanilla + bts (, minus bts rules changes as i wanted), while
++bts rules change "concept" (categorized as such but doesn't seem a concept
++to me like the other ones (concepts) but anyways...) is now in
++"Bts Info (Outdated)".
++This is not exactly what i wanted, but almost.
++
++To solve this, i have done this extra step, which slightly alters
+<hidden-email>'s given explanation, by doing this instead of what is in
+<hidden-email>'s explanation:
++- rename "Game Concepts" to "Mod Info"
++- rename "BtS Game Concepts" to "Bts Info (Outdated)".
++
++Additionally, i also did not need to rename TXT KEY types nor any
++data so that it would include "_TRAIT_" or "SHORTCUTS" in it.
++I don't know if i did all steps correctly, but at least it works
++now.
++
++Unintuitive and not ideal because now old civ4 concepts, that
++are still in BasicInfos.xml in this mod now though, are stored
++under the newconceptinfo txtkey, while having conceptinfo XML
++tags, while bts rules changes and similar new entries i would
++want to create or not etc i mean anyways, thanks, are now
++in NewConceptInfos XML tags as i think is intended, but with
++ConceptInfo TXT Keys (and not NewConceptInfos TXT Keys as i
++would have wanted).
++So not ideal but works, hopefully helps.
++
++-->
++<Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
++	<ConceptInfos>
++		<!--custom: moved these concepts away from:
++		C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4NewConceptInfos.xml
++		Then renamed them from NewConceptInfo to ConceptInfo -->
++		<ConceptInfo>
++		<Type>CONCEPT_ESPIONAGE</Type>
++		<Description>TXT_KEY_ESPIONAGE_CULTURE</Description>
++		<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_COLONIES</Type>
++			<Description>TXT_KEY_CONCEPT_COLONIES</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_COLONIES_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_CORPORATIONS</Type>
++			<Description>TXT_KEY_CONCEPT_CORPORATIONS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_SEA_TRADE</Type>
++			<Description>TXT_KEY_CONCEPT_SEA_TRADE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SEA_TRADE_PEDIA_TR</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_FLANK_ATTACK</Type>
++			<Description>TXT_KEY_CONCEPT_FLANK_ATTACK</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_FLANK_ATTACK_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_GREAT_SPY</Type>
++			<Description>TXT_KEY_CONCEPT_GREAT_SPY</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_GREAT_SPY_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_LATE_START</Type>
++			<Description>TXT_KEY_CONCEPT_LATE_START</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_LATE_START_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_EVENTS</Type>
++			<Description>TXT_KEY_CONCEPT_EVENTS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_EVENTS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_AIR_COMBAT</Type>
++			<Description>TXT_KEY_CONCEPT_AIR_COMBAT</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_AIR_COMBAT_PEDIA_SR</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_AIR_PROMOTIONS</Type>
++			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_BTS_FOREST_PRESERVE</Type>
++			<Description>TXT_KEY_BTS_FOREST_PRESERVE</Description>
++			<Civilopedia>TXT_KEY_BTS_FOREST_PRESERVE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_APOSTOLIC_PALACE</Type>
++			<Description>TXT_KEY_CONCEPT_APOSTOLIC_PALACE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_FORT</Type>
++			<Description>TXT_KEY_CONCEPT_FORT</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_FORT_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_LIBERATION</Type>
++			<Description>TXT_KEY_CONCEPT_LIBERATION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
++		</ConceptInfo>
++
++		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken
++		i mean anyways that they are old vanilla civ4 concepts, thanks, )
++		were already in BasicInfos.XML, and are now (in the Sevopedia) also
++		displayed alongside the BTS concepts (almost all, except BTS rules
++		changes i mean anyways, thanks, ) .
++		I think the game and the BTS expansion is old enough to consider
++		them the same game, so merging these together for a clear view,
++		and to highlight they are outdated in the new TXT KEY of the
++		sevopedia category "BTS Concepts " -->
++		<ConceptInfo>
++			<Type>CONCEPT_ANIMALS</Type>
++			<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_AIR_UNITS</Type>
++			<Description>TXT_KEY_CONCEPT_AIR_UNITS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_AIR_UNITS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_BARBARIANS</Type>
++			<Description>TXT_KEY_CONCEPT_BARBARIANS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_BARBARIANS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_BORDERS</Type>
++			<Description>TXT_KEY_CONCEPT_BORDERS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_BORDERS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_BUILDINGS</Type>
++			<Description>TXT_KEY_CONCEPT_BUILDINGS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_BUILDINGS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_CITIES</Type>
++			<Description>TXT_KEY_CONCEPT_CITIES</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_CITIES_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_CITY_NETWORK</Type>
++			<Description>TXT_KEY_CONCEPT_CITY_NETWORK</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_CITY_NETWORK_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_CIVICS</Type>
++			<Description>TXT_KEY_CONCEPT_CIVICS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_CIVICS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_COMBAT</Type>
++			<Description>TXT_KEY_CONCEPT_COMBAT</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_COMBAT_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_COMMERCE</Type>
++			<Description>TXT_KEY_CONCEPT_COMMERCE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_COMMERCE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_CULTURE</Type>
++			<Description>TXT_KEY_CONCEPT_CULTURE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_CULTURE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_DIPLOMACY</Type>
++			<Description>TXT_KEY_CONCEPT_DIPLOMACY</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_DIPLOMACY_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_DRAFT</Type>
++			<Description>TXT_KEY_CONCEPT_DRAFT</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_DRAFT_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_EXPLORATION</Type>
++			<Description>TXT_KEY_CONCEPT_EXPLORATION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_EXPLORATION_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_FOOD</Type>
++			<Description>TXT_KEY_CONCEPT_FOOD</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_FOOD_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_GOLDEN_AGE</Type>
++			<Description>TXT_KEY_CONCEPT_GOLDEN_AGE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_GOLDEN_AGE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_GREAT_PEOPLE</Type>
++			<Description>TXT_KEY_CONCEPT_GREAT_PEOPLE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_HAPPINESS</Type>
++			<Description>TXT_KEY_CONCEPT_HAPPINESS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_HAPPINESS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_HEALTH</Type>
++			<Description>TXT_KEY_CONCEPT_HEALTH</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_HEALTH_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_HURRY_PRODUCTION</Type>
++			<Description>TXT_KEY_CONCEPT_HURRY_PRODUCTION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_HURRY_PRODUCTION_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_IMPROVEMENTS</Type>
++			<Description>TXT_KEY_CONCEPT_IMPROVEMENTS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_IMPROVEMENTS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_LEADERS</Type>
++			<Description>TXT_KEY_CONCEPT_LEADERS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_LEADERS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_MAINTENANCE</Type>
++			<Description>TXT_KEY_CONCEPT_MAINTENANCE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_MAINTENANCE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_MAPS</Type>
++			<Description>TXT_KEY_CONCEPT_MAPS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_MAPS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_MOVEMENT</Type>
++			<Description>TXT_KEY_CONCEPT_MOVEMENT</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_MOVEMENT_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_NUKES</Type>
++			<Description>TXT_KEY_CONCEPT_NUKES</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_NUKES_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_PRODUCTION</Type>
++			<Description>TXT_KEY_CONCEPT_PRODUCTION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_PRODUCTION_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_PROMOTIONS</Type>
++			<Description>TXT_KEY_CONCEPT_PROMOTIONS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_PROMOTIONS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_RELIGION</Type>
++			<Description>TXT_KEY_CONCEPT_RELIGION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_RESEARCH</Type>
++			<Description>TXT_KEY_CONCEPT_RESEARCH</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_RESEARCH_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_RESISTANCE</Type>
++			<Description>TXT_KEY_CONCEPT_RESISTANCE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_RESISTANCE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_RESOURCES</Type>
++			<Description>TXT_KEY_CONCEPT_RESOURCES</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_RESOURCES_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_REVOLUTION</Type>
++			<Description>TXT_KEY_CONCEPT_REVOLUTION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_REVOLUTION_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_SPACESHIP</Type>
++			<Description>TXT_KEY_CONCEPT_SPACESHIP</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SPACESHIP_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_SPECIALISTS</Type>
++			<Description>TXT_KEY_CONCEPT_SPECIALISTS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SPECIALISTS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_TECHNOLOGY</Type>
++			<Description>TXT_KEY_CONCEPT_TECHNOLOGY</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_TECHNOLOGY_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_TERRAIN</Type>
++			<Description>TXT_KEY_CONCEPT_TERRAIN</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_TERRAIN_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_TRADE</Type>
++			<Description>TXT_KEY_CONCEPT_TRADE</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_TRADE_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_TRANSPORT</Type>
++			<Description>TXT_KEY_CONCEPT_TRANSPORT</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_TRANSPORT_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_TREASURY</Type>
++			<Description>TXT_KEY_CONCEPT_TREASURY</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_TREASURY_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_UNITS</Type>
++			<Description>TXT_KEY_CONCEPT_UNITS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_UNITS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_UNITED_NATIONS</Type>
++			<Description>TXT_KEY_CONCEPT_UNITED_NATIONS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_VICTORY</Type>
++			<Description>TXT_KEY_CONCEPT_VICTORY</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_VICTORY_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_WAR</Type>
++			<Description>TXT_KEY_CONCEPT_WAR</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_WAR_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_WAR_WEARINESS</Type>
++			<Description>TXT_KEY_CONCEPT_WAR_WEARINESS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_WAR_WEARINESS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_WEALTH</Type>
++			<Description>TXT_KEY_CONCEPT_WEALTH</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_WEALTH_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_WONDERS</Type>
++			<Description>TXT_KEY_CONCEPT_WONDERS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_WONDERS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_GREAT_GENERALS</Type>
++			<Description>TXT_KEY_CONCEPT_GREAT_GENERALS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_GREAT_GENERALS_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_VASSAL_STATES</Type>
++			<Description>TXT_KEY_CONCEPT_VASSAL_STATES</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_VASSAL_STATES_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<ConceptInfo>
++			<Type>CONCEPT_IRRIGATION</Type>
++			<Description>TXT_KEY_CONCEPT_IRRIGATION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_IRRIGATION_PEDIA</Civilopedia>
++		</ConceptInfo>
++	</ConceptInfos>
++</Civ4BasicInfos>
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index a63a64a53..1eca40a9c 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -5,86 +5,20 @@
+ <!-- -->
+ <!-- Basic Infos -->
+ <Civ4NewConceptInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
++	<!-- custom: test remove espionnage bts concept to move it to game concepts -->
+ 	<NewConceptInfos>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_ESPIONAGE</Type>
+-			<Description>TXT_KEY_ESPIONAGE_CULTURE</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_COLONIES</Type>
+-			<Description>TXT_KEY_CONCEPT_COLONIES</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_COLONIES_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_CORPORATIONS</Type>
+-			<Description>TXT_KEY_CONCEPT_CORPORATIONS</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_SEA_TRADE</Type>
+-			<Description>TXT_KEY_CONCEPT_SEA_TRADE</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_SEA_TRADE_PEDIA_TR</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_FLANK_ATTACK</Type>
+-			<Description>TXT_KEY_CONCEPT_FLANK_ATTACK</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_FLANK_ATTACK_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_GREAT_SPY</Type>
+-			<Description>TXT_KEY_CONCEPT_GREAT_SPY</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_GREAT_SPY_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_LATE_START</Type>
+-			<Description>TXT_KEY_CONCEPT_LATE_START</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_LATE_START_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_EVENTS</Type>
+-			<Description>TXT_KEY_CONCEPT_EVENTS</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_EVENTS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_AIR_COMBAT</Type>
+-			<Description>TXT_KEY_CONCEPT_AIR_COMBAT</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_AIR_COMBAT_PEDIA_SR</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_AIR_PROMOTIONS</Type>
+-			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<!-- custom: removed links to civ4 assets, no need to maintain them
+-		BTS ca be considered the base game now, plus this information is
+-		avaialble elsewhere, for example in the sevopedia pages specific
++		<!-- custom: removed the entries that are composed of links to civ4
++		bts new content (as opposed to vanilla). No need to maintain these
++		as BTS can be considered the base game now, plus this information is
++		available elsewhere and already part of the game with all other
++		civ4 vanilla+BTS content, for example in the sevopedia pages specific
+ 		to each of these, about this i mean anyways -->
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
+ 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
+ 			<Civilopedia>TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR</Civilopedia>
+ 		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_FOREST_PRESERVE</Type>
+-			<Description>TXT_KEY_BTS_FOREST_PRESERVE</Description>
+-			<Civilopedia>TXT_KEY_BTS_FOREST_PRESERVE_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_APOSTOLIC_PALACE</Type>
+-			<Description>TXT_KEY_CONCEPT_APOSTOLIC_PALACE</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_FORT</Type>
+-			<Description>TXT_KEY_CONCEPT_FORT</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_FORT_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_LIBERATION</Type>
+-			<Description>TXT_KEY_CONCEPT_LIBERATION</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
+-		</NewConceptInfo>
++
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+ 		<NewConceptInfo>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index cfe773b49..b4278a56c 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -5,6 +5,93 @@
+ <!-- -->
+ <!-- Game Text Objects -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
++	<!-- custom: gather all base civ4 (vanilla or BTS alike)
++	content in the same directory, it is old enough that i
++	can and i think it may be considered as the same mod, at
++	least for the purpose of this mod.
++	I hope to gather some useful data in mods info that may	be
++	especially useful/helpful in transitioning to such mods, and
++	that may not be so easy to find in the extensive docs or
++	forums online, about this etc, thanks, was "Game Concepts".
++	I prefer to keep the data as it can be useful/helpful to the
++	players maybe, and not delete it entirely, but clearly indicate
++	(or more clearly indicate) that it is outdate so that players
++	know what they are looking at ideally and hopefully, did not
++	translate as i did not do too in other places for convenience,
++	ideally should do so, hopefully it would be clear enough or
++	not critical enough or bothering enough for them, about this
++	i mean, etc, i mean anyways about this, i mean anyways, thanks,
++	was "Game Concepts"	-->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
++		<English>Mods Info</English>
++		<French>
++			<Text>Mods Info</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Mods Info</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</German>
++		<Italian>
++			<Text>Mods Info</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Mods Info</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- custom: was "BtS Concepts", see code comments in
++	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
++	(or the equivalent of this path in your AdvCiv installation path i
++	mean anyways, thanks, )	of this mod for details, thanks
++	
++	Add the tag/mention "(Outdated)" to signify that this info
++	is not up to date anymore, but may help for general purposes
++	maybe especially ingame. Add this mention may also remove
++	the burden for modders to maintain this page, as i think it
++	is more practical for players to go online (if possible)
++	about this etc to gather the data they want. Hopefully more
++	helpful and clearer this way, would serve my purposes at
++	least, and all good if it does to other, else i do this for
++	me i mean anyways etc i mean anyways, thanks,
++	Also "BtS" is one character shorter than "Game", while also
++	being more significant (if that is a word i can use to mean
++	that it indicates more) of the fact that it relates to base
++	civ4 (vanilla or BTS or similar content), and not to (i.e.
++	as opposed to) mods info (K-Mod, AdvCiv based on K-Mod,
++	AdvCiv-SAS based on AdvCiv, etc. ).
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
++		<English>BtS Info (Outdated)</English>
++		<French>
++			<Text>BtS Info (Outdated)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>BtS Info (Outdated)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>BtS Info (Outdated)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>BtS Info (Outdated)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
+ 	<!-- custom: rename "Ivory" to "Elephants", there are 2 main reasons
+ 	for why i suggest this change i mean anyways: 
+ 	- 1) you need elephants to build war elephants, not ivory, even if you
+@@ -917,4 +1004,5 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 18c050549..b8914053f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -54,30 +54,20 @@ hopefully more readable now at least about this i mean anyways -->
+ 		<Italian>Cambiamenti delle regole di BtS</Italian>
+ 		<Spanish>Cambios en las reglas de "BtS"</Spanish>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+-		<English>BtS Concepts</English>
+-		<French>
+-			<Text>Concepts de BtS</Text>
+-			<Gender>Male</Gender>
+-			<Plural>1</Plural>
+-		</French>
+-		<German>
+-			<Text>BtS-Konzepte</Text>
+-			<Gender>Neuter</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Nozioni di BtS</Text>
+-			<Gender>Female</Gender>
+-			<Plural>1</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Conceptos de "BtS"</Text>
+-			<Gender>Male</Gender>
+-			<Plural>1</Plural>
+-		</Spanish>
+-	</TEXT>
++
++	<!-- custom: as was done in advc.002g, deleting
++	TXT_KEY_PEDIA_CATEGORY_CONCEPT from here as i am replacing
++	it elsewhere in the asset files of this mod, hopefully
++	more likely to be compatible with base AdvCiv this way
++	maybe (?)
++	Or/and my AdvCiv-SAS mod-specific information being more
++	easily "gatherable" or "noticeable" "analyzable" there
++	i mean anyways if these words make sense (in terms of
++	getting the point across) and their meaning makes sense
++	too (in terms of having a meaning that is clear and
++	understood) hopefully etc (if these are not the same
++	thing, hopefully clearer too maybe, anyways etc, i
++	mean anyways, thanks, ) -->
+ 
+ 	<!-- advc.004y: Heading for "changes" box in trait articles -->
+ 	<TEXT>
+
+diff --git a/README.md b/README.md
+index efc88da1f..ca63ddf98 100644
+--- a/README.md
++++ b/README.md
+@@ -6,6 +6,7 @@ Currently, it is still a work in progress so is not playable yet as explained be
+ but these are the (main) goals/purposes/features.
+ 
+ ![img1](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
++
+ ## How to play?
+ 
+ If you are a new player and/or want to play this mod and would like a few instructions on how
+@@ -25,6 +26,41 @@ I may also update it after releasing mods, maybe, but not guaranteed, if there
+ are significant changes i would like to add or mention/talk about there. But
+ i would move them to the bottom so you don't have to reread all ideally.
+ 
++## Quick Context
++
++This AdvCiv-SAS mod is based on these mods:
++- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
++- K-Mod that is based on Civ4 BTS
++- AdvCiv that is based on K-Mod
++- AdvCiv-SAS that is based on AdvCiv
++
++To help you transition between these mods, especially if you are a Civ4 vanilla,
++Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
++of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
++too), that tries/attempts to list a few main rules changes between each of these mods.
++
++Not balance changes that are too much and already taken account in the Sevopedia
++entries automatically of each unit/building (so visit these if needed to know more
++about AdvCiv-SAS in particular) for example the page of the scout unit to know its
++cost or effects.
++
++But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
++when this rule was added todo), you need to have cities revealed with a scout or
++any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
++else even if these cities are connected by land roads or naval road/path, they would
++still not have any trade routes until you have view of these cities.
++
++I hope having a list of such changes may help players, and perhaps me while compliling,
++as in gathering such a list of elements, understand and perhaps enjoy the game better
++maybe, but as for all players maybe rather, hopefully it would help transition to new
++mods and in particular to AdvCivSAS (i will add some rules changes if i make them
++there too.)
++
++These rules changes entries may not be exhaustive or maybe would but hopefully will help,
++and i can gradually complete them as i see fit or learn, or based on feedback, not
++guaranteed though, but if need please refer to it, hope it helps you, or as for me doing
++what i want if i want, i mean.
++
+ ## Project Goals and global view on gameplay changes
+ 
+ The more general gameplay type of changes consist of
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=36250

@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1239
+# Commit: 0473972f3de401e2add2f01d46d17602c034a98b
+# History segment: K-Mod history
+# Parent used for diff: 41717612313a789c81014a748a4d5b5e79f4e4f2
+# Title: Minor tweaks to CvCityAI::AI_yieldValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ff8ed188e..ce10cda32 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7467,6 +7467,7 @@ void CvCityAI::AI_updateBestBuild()
+ 							aiYields[iJ] -= pLoopPlot->getYield((YieldTypes)iJ);
+ 						}
+ 						iValue += AI_yieldValue(aiYields, 0, false, false, true, true, iGrowthValue);
++						// Note: AI_yieldValue wasn't intended to be used with negative yields. But I think it will work; and it doesn't need to be perfectly accurate anyway.
+ 
+ 						// priority increase for chopping when we want to chop
+ 						if (bChop && pLoopPlot->getFeatureType() != NO_FEATURE && GC.getBuildInfo(m_aeBestBuild[iI]).isFeatureRemove(pLoopPlot->getFeatureType()))
+@@ -9158,24 +9159,24 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 		iCommerceTimes100 *= getTotalCommerceRateModifier((CommerceTypes)iI);
+ 		iCommerceTimes100 /= 100;
+ 
+-		FAssert(iCommerceTimes100 >= 0);
++		//FAssert(iCommerceTimes100 >= 0);
+ 
+ 		if (eProcess != NO_PROCESS)
+ 			iCommerceTimes100 += GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iI) * iProductionTimes100 / 100;
+ 
+ 		if (iCommerceTimes100 != 0)
+ 		{
+-			int iCommerceWeight = kOwner.AI_commerceWeight((CommerceTypes)iI, this);
++			int iCommerceWeight = kOwner.AI_commerceWeight((CommerceTypes)iI, this); // (Should we still use this with bWorkerOptimization?)
+ 			if (AI_isEmphasizeCommerce((CommerceTypes)iI))
+ 			{
+ 				iCommerceWeight *= 2;
+ 			}
+-			if (iI == COMMERCE_CULTURE && getCultureLevel() <= (CultureLevelTypes)1)
++			if (!bWorkerOptimization && iI == COMMERCE_CULTURE && getCultureLevel() <= (CultureLevelTypes)1)
+ 			{
+ 				// bring on the artists
+ 				if (getCommerceRateTimes100(COMMERCE_CULTURE) - (bRemove ? iCommerceTimes100 : 0) < 100)
+ 				{
+-					iCommerceValue += 20;
++					iCommerceValue += 20 * (iCommerceTimes100 > 0 ? 1 : -1);
+ 				}
+ 				iCommerceWeight = std::max(iCommerceWeight, 200);
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2008

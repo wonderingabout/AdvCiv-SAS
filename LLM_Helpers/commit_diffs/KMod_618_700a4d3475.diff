@@ -1,0 +1,99 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 618
+# Commit: 700a4d3475a777f4209b01114a0d46cdb80a6bd3
+# History segment: K-Mod history
+# Parent used for diff: d6841f8a1dd8e96665cdf6293d2bc5c78b72375c
+# Title: Tweaked the value of free buildings in AI_buildingValue. Renamed iTargetCities to iCitiesTarget in a few places.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	11	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b1e1afde2..38ecea0d6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1048,11 +1048,11 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 	// also, reduce the value to encourage early expansion until we reach the recommend city target
+ 	{
+-		int iTargetCities = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
+-		if (iNumAreaCitySites > 0 && kPlayer.getNumCities() < iTargetCities)
++		int iCitiesTarget = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++		if (iNumAreaCitySites > 0 && kPlayer.getNumCities() < iCitiesTarget)
+ 		{
+-			iBestBuildingValue *= kPlayer.getNumCities() + iTargetCities;
+-			iBestBuildingValue /= 2*iTargetCities;
++			iBestBuildingValue *= kPlayer.getNumCities() + iCitiesTarget;
++			iBestBuildingValue /= 2*iCitiesTarget;
+ 		}
+ 	}
+ 
+@@ -3661,6 +3661,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	int iTotalPopulation = kOwner.getTotalPopulation();
+ 	int iNumCities = kOwner.getNumCities();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
++	int iCitiesTarget = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities(); // K-Mod
+ 	
+ 	bool bIsHighProductionCity = (findBaseYieldRateRank(YIELD_PRODUCTION) <= std::max(3, (iNumCities / 2)));
+ 	
+@@ -3880,11 +3881,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				/*iValue += (kBuilding.getAreaHappiness() * (iNumCitiesInArea - 1) * 8);
+ 				iValue += (kBuilding.getGlobalHappiness() * iNumCities * 8);*/
+ 				// K-Mod - just a tweak.. nothing fancy.
+-				{
+-					int iTargetCities = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
+-					iValue += kBuilding.getAreaHappiness() * (iNumCitiesInArea + iTargetCities/3) * 8;
+-					iValue += kBuilding.getGlobalHappiness() * (iNumCities + iTargetCities/2) * 8;
+-				}
++				iValue += kBuilding.getAreaHappiness() * (iNumCitiesInArea + iCitiesTarget/3) * 8;
++				iValue += kBuilding.getGlobalHappiness() * (iNumCities + iCitiesTarget/2) * 8;
+ 				// K-Mod end
+ 
+ 				int iWarWearinessPercentAnger = kOwner.getWarWearinessPercentAnger();
+@@ -4586,9 +4584,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						BuildingTypes eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(kBuilding.getFreeBuildingClass());
+ 						if (NO_BUILDING != eFreeBuilding)
+ 						{
+-							// K-Mod note: this is actually a pretty poor approximation, because the value of the free building is likely to be different in the other cities
++							// K-Mod note: this is actually a pretty poor approximation, because the value of the free building is likely to be different in the other cities.
++							// also, if the free building is very powerful, then our other cities will probably build it themselves before they get the freebie! (that's why I reduce the city count below)
+ 							int iFreeBuildingValue = std::min(AI_buildingValue(eFreeBuilding, 0, 0, bConstCache, false), kOwner.getProductionNeeded(eFreeBuilding)/2);
+-							iValue += iFreeBuildingValue * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)kBuilding.getFreeBuildingClass()));
++							iValue += iFreeBuildingValue * (std::max(iCitiesTarget, kOwner.getNumCities()*2/3) - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)kBuilding.getFreeBuildingClass()));
+ 						}
+ 					}
+ 					//
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5e423dcad..5ec9d10a5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14504,10 +14504,10 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 					// maybe getReligionPopulation would be slightly better, but it's a bit slower.
+ 					int iCurrent = GET_PLAYER(eTargetPlayer).getHasReligionCount(eCurrentReligion);
+ 					int iNew = GET_PLAYER(eTargetPlayer).getHasReligionCount(eReligion);
+-					int iTargetCities = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++					int iCitiesTarget = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
+ 					FAssert(iCurrent > 0 && iNew > 0);
+-					iMissionCost *= std::max(iCurrent, iNew) + iTargetCities;
+-					iMissionCost /= iNew + iTargetCities;
++					iMissionCost *= std::max(iCurrent, iNew) + iCitiesTarget;
++					iMissionCost /= iNew + iCitiesTarget;
+ 				}
+ 				// K-Mod end
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4569

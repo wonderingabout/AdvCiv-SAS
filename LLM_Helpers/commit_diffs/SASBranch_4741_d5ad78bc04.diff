@@ -1,0 +1,532 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4741
+# Commit: d5ad78bc0453adf5505049a30f3cd16ef80c1188
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 50e7c8749e505920ff7963c07cb61d5115cdab71
+# Title: revert to using default civ4 art assets for daoism, keeping the renamed xml tags though no need to create further issues as we use default assets anyways, bu...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/Effects/Unit_Missionary_Activation/fx_missionary_activate_daoism.nif
+-	-	Assets/Art/Interface/Buttons/Buildings/cathedral_daoist.dds
+-	-	Assets/Art/Interface/Buttons/Buildings/monastery_daoist.dds
+-	-	Assets/Art/Interface/Buttons/Buildings/shrine_daoist.dds
+-	-	Assets/Art/Interface/Buttons/Buildings/temple_daoist.dds
+-	-	Assets/Art/Interface/Buttons/Religions/daoism.dds
+-	-	Assets/Art/Interface/Buttons/Religions/daoism_d.dds
+-	-	Assets/Art/Interface/Buttons/TechTree/daoism.dds
+-	-	Assets/Art/Interface/Buttons/Units/missionary_daoist.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Dao_Found.nif
+-	-	Assets/Art/Movies/Religion/Daoism/Daoism_DIFF.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Daoism_ENV.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Daoism_ENV_mask.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Daoism_NRML.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Daoism_SPEC.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Scene_Dao_1024.dds
+-	-	Assets/Art/Movies/Religion/Daoism/Shrine_Dao_dwg_512.dds
+-	-	Assets/Art/Shared/fx_religion_daoism.dds
+-	-	Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif
+-	-	Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral_map.dds
+-	-	Assets/Art/Structures/Buildings/Cathedrals/daoistcathedral-shadowmap.dds
+-	-	Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery-map.dds
+-	-	Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery.nif
+-	-	Assets/Art/Structures/Buildings/Monastery/Daoist/daoistmonastery-shadowmap.dds
+-	-	Assets/Art/Structures/Buildings/Shrine/daoist-shrine-map.dds
+-	-	Assets/Art/Structures/Buildings/Shrine/daoist_shrine.nif
+-	-	Assets/Art/Structures/Buildings/Shrine/daoistshrine_shadowmap.dds
+-	-	Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple-map.dds
+-	-	Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple.nif
+-	-	Assets/Art/Structures/Buildings/Temple/Daoist/daoisttemple-shadowmap.dds
+-	-	Assets/Art/Units/Missionary/Daoist/DaoistMissionary.kfm
+-	-	Assets/Art/Units/Missionary/Daoist/DaoistMissionary.nif
+-	-	Assets/Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif
+-	-	Assets/Art/Units/Missionary/Daoist/daoist_128_mips.dds
+-	-	Assets/Art/Units/Missionary/Daoist/daoist_128_mips_gloss.dds
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1000.nif
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1021.nif
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_activate.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fidget.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify_idle.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die_fade.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_run.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadein.kf
+-	-	Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadeout.kf
+8	8	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	1	Assets/XML/Art/CIV4ArtDefines_Movie.xml
+4	4	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+7	7	Assets/XML/Audio/AudioDefines.xml
+4	4	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+ delete mode 100644 Assets/Art/Effects/Unit_Missionary_Activation/fx_missionary_activate_daoism.nif
+ delete mode 100644 Assets/Art/Interface/Buttons/Buildings/cathedral_daoist.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/Buildings/monastery_daoist.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/Buildings/shrine_daoist.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/Buildings/temple_daoist.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/Religions/daoism.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/Religions/daoism_d.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/TechTree/daoism.dds
+ delete mode 100644 Assets/Art/Interface/Buttons/Units/missionary_daoist.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Dao_Found.nif
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Daoism_DIFF.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Daoism_ENV.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Daoism_ENV_mask.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Daoism_NRML.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Daoism_SPEC.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Scene_Dao_1024.dds
+ delete mode 100644 Assets/Art/Movies/Religion/Daoism/Shrine_Dao_dwg_512.dds
+ delete mode 100644 Assets/Art/Shared/fx_religion_daoism.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif
+ delete mode 100644 Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral_map.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Cathedrals/daoistcathedral-shadowmap.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery-map.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery.nif
+ delete mode 100644 Assets/Art/Structures/Buildings/Monastery/Daoist/daoistmonastery-shadowmap.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Shrine/daoist-shrine-map.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Shrine/daoist_shrine.nif
+ delete mode 100644 Assets/Art/Structures/Buildings/Shrine/daoistshrine_shadowmap.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple-map.dds
+ delete mode 100644 Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple.nif
+ delete mode 100644 Assets/Art/Structures/Buildings/Temple/Daoist/daoisttemple-shadowmap.dds
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/DaoistMissionary.kfm
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/DaoistMissionary.nif
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoist_128_mips.dds
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoist_128_mips_gloss.dds
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1000.nif
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1021.nif
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_activate.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fidget.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify_idle.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die_fade.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_run.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadein.kf
+ delete mode 100644 Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadeout.kf
+
+[PATCHES]
+
+diff --git a/Assets/Art/Effects/Unit_Missionary_Activation/fx_missionary_activate_daoism.nif b/Assets/Art/Effects/Unit_Missionary_Activation/fx_missionary_activate_daoism.nif
+deleted file mode 100644
+index 0fe3299b4..000000000
+Binary files a/Assets/Art/Effects/Unit_Missionary_Activation/fx_missionary_activate_daoism.nif and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Buildings/cathedral_daoist.dds b/Assets/Art/Interface/Buttons/Buildings/cathedral_daoist.dds
+deleted file mode 100644
+index 8639b5ede..000000000
+Binary files a/Assets/Art/Interface/Buttons/Buildings/cathedral_daoist.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Buildings/monastery_daoist.dds b/Assets/Art/Interface/Buttons/Buildings/monastery_daoist.dds
+deleted file mode 100644
+index 40e119899..000000000
+Binary files a/Assets/Art/Interface/Buttons/Buildings/monastery_daoist.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Buildings/shrine_daoist.dds b/Assets/Art/Interface/Buttons/Buildings/shrine_daoist.dds
+deleted file mode 100644
+index 39709a029..000000000
+Binary files a/Assets/Art/Interface/Buttons/Buildings/shrine_daoist.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Buildings/temple_daoist.dds b/Assets/Art/Interface/Buttons/Buildings/temple_daoist.dds
+deleted file mode 100644
+index f2982388d..000000000
+Binary files a/Assets/Art/Interface/Buttons/Buildings/temple_daoist.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Religions/daoism.dds b/Assets/Art/Interface/Buttons/Religions/daoism.dds
+deleted file mode 100644
+index 6290b4779..000000000
+Binary files a/Assets/Art/Interface/Buttons/Religions/daoism.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Religions/daoism_d.dds b/Assets/Art/Interface/Buttons/Religions/daoism_d.dds
+deleted file mode 100644
+index d66e82891..000000000
+Binary files a/Assets/Art/Interface/Buttons/Religions/daoism_d.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/TechTree/daoism.dds b/Assets/Art/Interface/Buttons/TechTree/daoism.dds
+deleted file mode 100644
+index 4dcee829e..000000000
+Binary files a/Assets/Art/Interface/Buttons/TechTree/daoism.dds and /dev/null differ
+
+diff --git a/Assets/Art/Interface/Buttons/Units/missionary_daoist.dds b/Assets/Art/Interface/Buttons/Units/missionary_daoist.dds
+deleted file mode 100644
+index 5bd3b121a..000000000
+Binary files a/Assets/Art/Interface/Buttons/Units/missionary_daoist.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Dao_Found.nif b/Assets/Art/Movies/Religion/Daoism/Dao_Found.nif
+deleted file mode 100644
+index de5c5d6fd..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Dao_Found.nif and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Daoism_DIFF.dds b/Assets/Art/Movies/Religion/Daoism/Daoism_DIFF.dds
+deleted file mode 100644
+index 84ea0b0e8..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Daoism_DIFF.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Daoism_ENV.dds b/Assets/Art/Movies/Religion/Daoism/Daoism_ENV.dds
+deleted file mode 100644
+index 5ea3860c0..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Daoism_ENV.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Daoism_ENV_mask.dds b/Assets/Art/Movies/Religion/Daoism/Daoism_ENV_mask.dds
+deleted file mode 100644
+index 5522ac818..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Daoism_ENV_mask.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Daoism_NRML.dds b/Assets/Art/Movies/Religion/Daoism/Daoism_NRML.dds
+deleted file mode 100644
+index e64136c67..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Daoism_NRML.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Daoism_SPEC.dds b/Assets/Art/Movies/Religion/Daoism/Daoism_SPEC.dds
+deleted file mode 100644
+index a30195f4c..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Daoism_SPEC.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Scene_Dao_1024.dds b/Assets/Art/Movies/Religion/Daoism/Scene_Dao_1024.dds
+deleted file mode 100644
+index 1349790ed..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Scene_Dao_1024.dds and /dev/null differ
+
+diff --git a/Assets/Art/Movies/Religion/Daoism/Shrine_Dao_dwg_512.dds b/Assets/Art/Movies/Religion/Daoism/Shrine_Dao_dwg_512.dds
+deleted file mode 100644
+index fcf34ddc5..000000000
+Binary files a/Assets/Art/Movies/Religion/Daoism/Shrine_Dao_dwg_512.dds and /dev/null differ
+
+diff --git a/Assets/Art/Shared/fx_religion_daoism.dds b/Assets/Art/Shared/fx_religion_daoism.dds
+deleted file mode 100644
+index ee602cec5..000000000
+Binary files a/Assets/Art/Shared/fx_religion_daoism.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif b/Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif
+deleted file mode 100644
+index efb347713..000000000
+Binary files a/Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral_map.dds b/Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral_map.dds
+deleted file mode 100644
+index 90ee9dc8a..000000000
+Binary files a/Assets/Art/Structures/Buildings/Cathedrals/daoist_cathedral_map.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Cathedrals/daoistcathedral-shadowmap.dds b/Assets/Art/Structures/Buildings/Cathedrals/daoistcathedral-shadowmap.dds
+deleted file mode 100644
+index 0c3dbd5ca..000000000
+Binary files a/Assets/Art/Structures/Buildings/Cathedrals/daoistcathedral-shadowmap.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery-map.dds b/Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery-map.dds
+deleted file mode 100644
+index c68b5ba74..000000000
+Binary files a/Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery-map.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery.nif b/Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery.nif
+deleted file mode 100644
+index ad4cea22d..000000000
+Binary files a/Assets/Art/Structures/Buildings/Monastery/Daoist/daoist_monastery.nif and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Monastery/Daoist/daoistmonastery-shadowmap.dds b/Assets/Art/Structures/Buildings/Monastery/Daoist/daoistmonastery-shadowmap.dds
+deleted file mode 100644
+index ce19c85bb..000000000
+Binary files a/Assets/Art/Structures/Buildings/Monastery/Daoist/daoistmonastery-shadowmap.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Shrine/daoist-shrine-map.dds b/Assets/Art/Structures/Buildings/Shrine/daoist-shrine-map.dds
+deleted file mode 100644
+index c7ca7875d..000000000
+Binary files a/Assets/Art/Structures/Buildings/Shrine/daoist-shrine-map.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Shrine/daoist_shrine.nif b/Assets/Art/Structures/Buildings/Shrine/daoist_shrine.nif
+deleted file mode 100644
+index d908ae78a..000000000
+Binary files a/Assets/Art/Structures/Buildings/Shrine/daoist_shrine.nif and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Shrine/daoistshrine_shadowmap.dds b/Assets/Art/Structures/Buildings/Shrine/daoistshrine_shadowmap.dds
+deleted file mode 100644
+index abdf27d5e..000000000
+Binary files a/Assets/Art/Structures/Buildings/Shrine/daoistshrine_shadowmap.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple-map.dds b/Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple-map.dds
+deleted file mode 100644
+index 056b74685..000000000
+Binary files a/Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple-map.dds and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple.nif b/Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple.nif
+deleted file mode 100644
+index 8ea2fe865..000000000
+Binary files a/Assets/Art/Structures/Buildings/Temple/Daoist/daoist_temple.nif and /dev/null differ
+
+diff --git a/Assets/Art/Structures/Buildings/Temple/Daoist/daoisttemple-shadowmap.dds b/Assets/Art/Structures/Buildings/Temple/Daoist/daoisttemple-shadowmap.dds
+deleted file mode 100644
+index 80b48c4d7..000000000
+Binary files a/Assets/Art/Structures/Buildings/Temple/Daoist/daoisttemple-shadowmap.dds and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/DaoistMissionary.kfm b/Assets/Art/Units/Missionary/Daoist/DaoistMissionary.kfm
+deleted file mode 100644
+index 4ba1b9d4c..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/DaoistMissionary.kfm and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/DaoistMissionary.nif b/Assets/Art/Units/Missionary/Daoist/DaoistMissionary.nif
+deleted file mode 100644
+index 0cabf5530..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/DaoistMissionary.nif and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif b/Assets/Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif
+deleted file mode 100644
+index 4ba98bb30..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoist_128_mips.dds b/Assets/Art/Units/Missionary/Daoist/daoist_128_mips.dds
+deleted file mode 100644
+index 128df5e5a..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoist_128_mips.dds and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoist_128_mips_gloss.dds b/Assets/Art/Units/Missionary/Daoist/daoist_128_mips_gloss.dds
+deleted file mode 100644
+index 55495301c..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoist_128_mips_gloss.dds and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1000.nif b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1000.nif
+deleted file mode 100644
+index 6deb49b36..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1000.nif and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1021.nif b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1021.nif
+deleted file mode 100644
+index 0b4909b20..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_freeze1021.nif and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_activate.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_activate.kf
+deleted file mode 100644
+index 5425f2bc0..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_activate.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fidget.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fidget.kf
+deleted file mode 100644
+index 798b673e7..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fidget.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify.kf
+deleted file mode 100644
+index e8da90f9f..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify_idle.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify_idle.kf
+deleted file mode 100644
+index 254dd112d..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_fortify_idle.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle.kf
+deleted file mode 100644
+index 90c1a253e..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die.kf
+deleted file mode 100644
+index 39e30f8c4..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die_fade.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die_fade.kf
+deleted file mode 100644
+index cc0d332ac..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_idle_die_fade.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_run.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_run.kf
+deleted file mode 100644
+index 8779de78a..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_run.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadein.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadein.kf
+deleted file mode 100644
+index 50e55ce24..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadein.kf and /dev/null differ
+
+diff --git a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadeout.kf b/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadeout.kf
+deleted file mode 100644
+index 39c0af8dc..000000000
+Binary files a/Assets/Art/Units/Missionary/Daoist/daoistmissionary_md_xfadeout.kf and /dev/null differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index ebc2d19cd..bcbc9e558 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -996,9 +996,9 @@ and then modified for AdvCiv-SAS
+ 			<bAnimated>1</bAnimated>
+ 			<fScale>2.75</fScale>
+ 			<fInterfaceScale>0.76</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Temple/daoist/daoist_temple.nif</NIF>
++			<NIF>Art/Structures/Buildings/Temple/taoist/taoist_temple.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Temple_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,15</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Temple_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,15</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_DAOIST_CATHEDRAL</Type>
+@@ -1006,9 +1006,9 @@ and then modified for AdvCiv-SAS
+ 			<bAnimated>0</bAnimated>
+ 			<fScale>1.71</fScale>
+ 			<fInterfaceScale>0.53</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif</NIF>
++			<NIF>Art/Structures/Buildings/Cathedrals/Taoist_cathedral.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,15</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,15</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_DAOIST_MONASTERY</Type>
+@@ -1016,9 +1016,9 @@ and then modified for AdvCiv-SAS
+ 			<bAnimated>1</bAnimated>
+ 			<fScale>2.63</fScale>
+ 			<fInterfaceScale>0.48</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Monastery/Daoist/Daoist_monastery.nif</NIF>
++			<NIF>Art/Structures/Buildings/Monastery/Taoist/Taoist_monastery.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Monastery_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,15</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Monastery_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,15</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_DAOIST_SHRINE</Type>
+@@ -1026,9 +1026,9 @@ and then modified for AdvCiv-SAS
+ 			<bAnimated>0</bAnimated>
+ 			<fScale>1.26</fScale>
+ 			<fInterfaceScale>0.83</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Shrine/Daoist_shrine.nif</NIF>
++			<NIF>Art/Structures/Buildings/Shrine/Taoist_shrine.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Shrine_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,15</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Shrine_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,15</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_HEROIC_EPIC</Type>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Movie.xml b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+index 63e87c67e..a2b8f6978 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Movie.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+@@ -191,7 +191,7 @@ and then modified for AdvCiv-SAS
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+ 			<Type>ART_DEF_MOVIE_SHRINE_DAOIST</Type>
+-			<Path>Art/Movies/Religion/Daoism/Shrine_Dao_dwg_512.dds</Path>
++			<Path>Art/Movies/Religion/Taoism/Shrine_Tao_dwg_512.dds</Path>
+ 			<KFM>None</KFM>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 8a7655a49..046319b20 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -423,14 +423,14 @@
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_DAOIST_MISSIONARY</Type>
+-			<Button>,Art/Interface/Buttons/Units/Missionary_Daoist.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,3</Button>
++			<Button>,Art/Interface/Buttons/Units/Missionary_Taoist.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,3</Button>
+ 			<fScale>0.46</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Missionary/Daoist/DaoistMissionary.nif</NIF>
+-			<KFM>Art/Units/Missionary/Daoist/DaoistMissionary.kfm</KFM>
+-			<SHADERNIF>Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif</SHADERNIF>
++			<NIF>Art/Units/Missionary/Taoist/TaoistMissionary.nif</NIF>
++			<KFM>Art/Units/Missionary/Taoist/TaoistMissionary.kfm</KFM>
++			<SHADERNIF>Art/Units/Missionary/Taoist/TaoistMissionary_FX.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index e3c59fb36..549a07e53 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -3657,14 +3657,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_DAOIST</SoundID>
+-			<Filename>Sounds/Buildings/DaoistDink</Filename>
++			<Filename>Sounds/Buildings/TaoistDink</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_DAOIST_MOVIE</SoundID>
+-			<Filename>Sounds/Buildings/Daoist</Filename>
++			<Filename>Sounds/Buildings/Taoist</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -4770,7 +4770,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_DAOIST_MISSIONARY</SoundID>
+-			<Filename>Sounds/Units/BuildDaoistMissionary</Filename>
++			<Filename>Sounds/Units/BuildTaoistMissionary</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -5526,7 +5526,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_DAOIST_MISSIONARY_ACTIVATE</SoundID>
+-			<Filename>Sounds/Units/DaoistMissionaryActivate</Filename>
++			<Filename>Sounds/Units/TaoistMissionaryActivate</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -5547,21 +5547,21 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_DAOIST_MISS_DIE_VOX</SoundID>
+-			<Filename>Sounds/Units/DaoistMissDieVox</Filename>
++			<Filename>Sounds/Units/TaoistMissDieVox</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_DAOIST_MISS_FIDGT_VOX</SoundID>
+-			<Filename>Sounds/Units/DaoistMissFidgtVox</Filename>
++			<Filename>Sounds/Units/TaoistMissFidgtVox</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_DAOIST_MISS_FORT_VOX</SoundID>
+-			<Filename>Sounds/Units/DaoistMissFortVox</Filename>
++			<Filename>Sounds/Units/TaoistMissFortVox</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index 816382924..649f7f7eb 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -219,10 +219,10 @@ and then modified for AdvCiv-SAS
+ 				<iStateReligionCommerce>0</iStateReligionCommerce>
+ 				<iStateReligionCommerce>1</iStateReligionCommerce>
+ 			</StateReligionCommerces>
+-			<Button>Art/Interface/Buttons/Religions/Daoism.dds</Button>
+-			<TechButton>Art/Interface/Buttons/TechTree/Daoism.dds</TechButton>
+-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Daoism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,3</GenericTechButton>
+-			<MovieFile>Art/Movies/Religion/Daoism/Dao_Found.nif</MovieFile>
++			<Button>Art/Interface/Buttons/Religions/Taoism.dds</Button>
++			<TechButton>Art/Interface/Buttons/TechTree/Taoism.dds</TechButton>
++			<GenericTechButton>,Art/Interface/Buttons/TechTree/Taoism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,3</GenericTechButton>
++			<MovieFile>Art/Movies/Religion/Taoism/Tao_Found.nif</MovieFile>
+ 			<MovieSound>AS2D_BUILD_DAOIST_MOVIE</MovieSound>
+ 			<Sound>AS2D_BUILD_DAOIST</Sound>
+ 		</ReligionInfo>
+
+[PATCH COVERAGE]
+patchFiles=52 embeddedFiles=52 omittedFiles=0 embeddedPatchBytes=21590

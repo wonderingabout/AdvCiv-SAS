@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4346
+# Commit: 1c79c7c1fb9f407f18c9a2df8e1be6cf68dc0245
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e490c254d061c26f4b4c20f63af3daceaeee12fe
+# Title: Couple of style changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvMap.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c139b565b..9440165f5 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8300,9 +8300,9 @@ void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool
+ 	{
+ 		if (GET_PLAYER(getOwner()).isCityNameValid(szName, false))
+ 		{	// <advc.106k>
+-			if(bInitial)
++			if (bInitial)
+ 				m_szPreviousName.clear();
+-			else if(m_szPreviousName.empty())
++			else if (m_szPreviousName.empty())
+ 				m_szPreviousName = m_szName; // </advc.106k>
+ 			// <advc.005c>
+ 			if (!m_szName.empty())
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 574dd78f8..eacbdc740 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -811,7 +811,7 @@ int CvMap::getMapFractalFlags() const
+ }
+ 
+ // Check plots for wetlands or seaWater. Returns true if found
+-bool CvMap::findWater(CvPlot const* pPlot, int iRange, bool bFreshWater) // advc: const CvPlot*
++bool CvMap::findWater(CvPlot const* pPlot, int iRange, bool bFreshWater)
+ {
+ 	PROFILE_FUNC();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1063

@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2763
+# Commit: e8d531aa4022470b25f549a20e3bfc28ac6b0588
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7d044e6e135bca4cbe0f5c14253bd2864b0b3dc0
+# Title: Show Railroad production in hover text of Mine, Lumbermill
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	0	Assets/XML/Text/CIV4GameText_advc.xml
+12	7	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index d6ce817ed..362e096bc 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6419,6 +6419,20 @@
+ 		<Spanish>Debug tools have been enabled.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004: Based on TXT_KEY_IMPROVEMENT_WITH_TECH
++		 (CIV4GameTextInfos.xml). There isn't really an established color
++		 for routes, so I'm not using one. Other colors, in this context, are
++		 HIGHLIGHT_TEXT for civics and TECH_TEXT for techs. (But there are also
++		 some other uncolored bullets.) -->
++	<TEXT>
++		<Tag>TXT_KEY_IMPROVEMENT_WITH_ROUTE</Tag>
++		<English>[ICON_BULLET]%D1_Change%F2_YieldIcon with %s3_RouteName</English>
++		<French>[ICON_BULLET]%D1_Change%F2_YieldIcon avec : %s3_RouteName</French>
++		<German>[ICON_BULLET]%D1_Change%F2_YieldIcon mit %s3_RouteName</German>
++		<Italian>[ICON_BULLET]%D1_Change%F2_YieldIcon con [NUM3:il:la:gli:le] %s3_RouteName</Italian>
++		<Spanish>[ICON_BULLET]%D1_Change %F2_YieldIcon con [NUM3:el:la:los:las] %s3_RouteName</Spanish>
++	</TEXT>
++
+ 	<!-- advc.004 -->
+ 	<!-- Replacing key in Civ4GameTextInfos.xml.
+ 		 Don't refer to the food store as "growth" b/c that's a bit misleading
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f58643bbb..7bb6d502c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16184,16 +16184,21 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 							GC.getInfo(eLoopTech).getTextKeyWide()));
+ 				}
+ 			}
+-		}
+-
+-		//	Civics
+-		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
++		}  // <advc.004> Based on Python code in Pedia
++		FOR_EACH_ENUM(Route)
+ 		{
+-			for (int iCivic = 0; iCivic < GC.getNumCivicInfos(); iCivic++)
++			FOR_EACH_ENUM(Yield)
+ 			{
+-				int iChange = GC.getInfo((CivicTypes)iCivic).getImprovementYieldChanges(eImprovement, iYield);
+-				if (iChange != 0)
++				int iYieldChange = kImprov.getRouteYieldChanges(eLoopRoute, eLoopYield);
++				if (iYieldChange != 0)
+ 				{
++					szBuffer.append(NEWLINE);
++					szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_WITH_ROUTE",
++							iYieldChange, GC.getInfo(eLoopYield).getChar(),
++							GC.getInfo(eLoopRoute).getTextKeyWide()));		
++				}
++			}
++		} // </advc.004>
+ 		FOR_EACH_ENUM(Civic)
+ 		{
+ 			FOR_EACH_ENUM(Yield)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2395

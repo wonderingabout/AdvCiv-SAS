@@ -1,0 +1,2211 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1284
+# Commit: afdb91d952370e51786e19bbedad353f8b2110af
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d8c283f27e9eab01cfec4a354f1e2315d50bb45e
+# Title: More misc. changes; not really tested yet (v0.91b)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	1	Assets/Python/Contrib/Civ4lerts.py
+2	1	Assets/Python/Contrib/MoreCiv4lerts.py
+10	2	Assets/Python/Screens/CvHallOfFameScreen.py
+10	9	Assets/XML/Interface/CIV4ColorVals.xml
+3	2	Assets/xml/GameInfo/CIV4CivicInfos.xml
+1	1	Assets/xml/GameInfo/CIV4EraInfos.xml
+6	3	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+58	60	Assets/xml/GlobalDefines_advc.xml
+20	0	Assets/xml/Text/CIV4GameText_advc.xml
+7	2	Assets/xml/Units/CIV4UnitInfos.xml
+2	2	CvGameCoreDLL/AI_Defines.h
+3	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+3	3	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CvArtFileMgr.cpp
+13	8	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+82	41	CvGameCoreDLL/CvCityAI.cpp
+10	7	CvGameCoreDLL/CvGame.cpp
+87	37	CvGameCoreDLL/CvPlayer.cpp
+6	2	CvGameCoreDLL/CvPlayer.h
+81	44	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+2	1	CvGameCoreDLL/CvPlot.cpp
+42	27	CvGameCoreDLL/CvTeam.cpp
+9	6	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+4	0	CvGameCoreDLL/CyPlayer.cpp
+4	1	CvGameCoreDLL/CyPlayer.h
+3	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.cpp
+46	7	CvGameCoreDLL/WarAndPeaceAI.cpp
+3	0	CvGameCoreDLL/WarAndPeaceAI.h
+1	1	CvGameCoreDLL/_precompile.cpp
+0	124	PublicMaps/Continents.py
+-	-	manual_v0.91b.pdf
+ delete mode 100644 PublicMaps/Continents.py
+ create mode 100644 manual_v0.91b.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 80a90441d..c0828fd7a 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -152,7 +152,8 @@ def addMessage(iPlayer, szString, szIcon, iFlashX=-1, iFlashY=-1, bOffArrow=Fals
+ 	Culture:  Zoom to City, Ignore
+ 	"""
+ 	# <advc.706>
+-	if gc.getGame().isRFBlockPopups():
++	# advc.127: No alerts during or right after Auto Play
++	if gc.getGame().isRFBlockPopups() or gc.getPlayer(iPlayer).isHumanDisabled() or gc.getPlayer(iPlayer).isAutoPlayJustEnded():
+ 		return # </advc.706>
+ 	# advc.106c: Reduced time from LONG to normal
+ 	eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index e79835b1d..88542720f 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -55,7 +55,8 @@ class AbstractMoreCiv4lertsEvent(object):
+ 	def _addMessage(self, iPlayer, szString, szIcon, iFlashX, iFlashY, bOffArrow, bOnArrow, iColor):
+ 			#Displays an on-screen message.
+ 			# <advc.706>
+-			if gc.getGame().isRFBlockPopups():
++			# advc.127: No alerts during or right after Auto Play
++			if gc.getGame().isRFBlockPopups() or gc.getPlayer(self.iOwner).isHumanDisabled() or gc.getPlayer(self.iOwner).isAutoPlayJustEnded():
+ 				return # </advc.706>
+ 			# advc.106c: Reduced time from LONG to normal
+ 			eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 2ab7a94f8..7dcb9bc6e 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -300,14 +300,22 @@ class CvHallOfFameScreen:
+ 					iValue = replayInfo.getFinalTurn()
+ 				elif self.iSortBy == SORT_BY_GAME_SCORE:
+ 					iValue = -replayInfo.getFinalScore()
+-
++				# <advc.250a> Legacy support for King difficulty
++				handicapDescr = "(invalid)"
++				diffic = replayInfo.getDifficulty()
++				if diffic >= 0 and diffic < gc.getNumHandicapInfos():
++					handicapDescr = gc.getHandicapInfo(diffic).getDescription()
++				# The 10th handicap (ids start at 0) used to be King
++				elif diffic == 9:
++					handicapDescr = "King"
++				# </advc.250a>
+ 				self.infoList[iItem] = (iValue,
+ 						localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (replayInfo.getLeaderName(), replayInfo.getShortCivDescription())),
+ 						replayInfo.getNormalizedScore(),
+ 						replayInfo.getFinalDate(),
+ 						replayInfo.getFinalScore(), 
+ 						szVictory,
+-						gc.getHandicapInfo(replayInfo.getDifficulty()).getDescription(),
++						handicapDescr, # advc.250a
+ 						gc.getWorldInfo(replayInfo.getWorldSize()).getDescription(),
+ #						gc.getClimateInfo(replayInfo.getClimate()).getDescription(),
+ #						gc.getSeaLevelInfo(replayInfo.getSeaLevel()).getDescription(),
+
+diff --git a/Assets/XML/Interface/CIV4ColorVals.xml b/Assets/XML/Interface/CIV4ColorVals.xml
+index c3c35a7f2..33dcfce5b 100644
+--- a/Assets/XML/Interface/CIV4ColorVals.xml
++++ b/Assets/XML/Interface/CIV4ColorVals.xml
+@@ -390,9 +390,9 @@
+ 		</ColorVal>
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_LIGHT_BLUE_TEXT</Type>
+-			<fRed>0.63</fRed>
+-			<fGreen>0.82</fGreen>
+-			<fBlue>1.00</fBlue>
++			<fRed>0.58</fRed>
++			<fGreen>0.74</fGreen>
++			<fBlue>0.99</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<!-- darkened -->
+@@ -410,7 +410,7 @@
+ 			<fBlue>0.15</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+-		<!-- desaturated -->
++		<!-- desaturated, less red -->
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_CYAN</Type>
+ 			<fRed>0.43</fRed>
+@@ -421,8 +421,8 @@
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_CYAN_TEXT</Type>
+ 			<fRed>0.58</fRed>
+-			<fGreen>0.93</fGreen>
+-			<fBlue>0.97</fBlue>
++			<fGreen>0.86</fGreen>
++			<fBlue>0.94</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<!-- darkened, less red -->
+@@ -686,11 +686,12 @@
+ 			<fBlue>0.65</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
++		<!-- a little more red -->
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_LIGHT_BLUE</Type>
+-			<fRed>0.50</fRed>
+-			<fGreen>0.70</fGreen>
+-			<fBlue>1.00</fBlue>
++			<fRed>0.51</fRed>
++			<fGreen>0.65</fGreen>
++			<fBlue>0.98</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<ColorVal>
+
+diff --git a/Assets/xml/GameInfo/CIV4CivicInfos.xml b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+index 8765832d5..8f7dec2cb 100644
+--- a/Assets/xml/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+@@ -857,7 +857,7 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Serfdom.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,2</Button>
+ 			<TechPrereq>TECH_FEUDALISM</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<!-- advc.912: was LOW -->
++			<!-- advc.912a: was LOW -->
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+@@ -1699,7 +1699,8 @@
+ 			<iFreeUnitsPopulationPercent>0</iFreeUnitsPopulationPercent>
+ 			<iFreeMilitaryUnitsPopulationPercent>0</iFreeMilitaryUnitsPopulationPercent>
+ 			<iGoldPerUnit>0</iGoldPerUnit>
+-			<iGoldPerMilitaryUnit>50</iGoldPerMilitaryUnit>
++			<!-- advc.912b: was 50 -->
++			<iGoldPerMilitaryUnit>100</iGoldPerMilitaryUnit>
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+
+diff --git a/Assets/xml/GameInfo/CIV4EraInfos.xml b/Assets/xml/GameInfo/CIV4EraInfos.xml
+index a8e19aadf..a96b01702 100644
+--- a/Assets/xml/GameInfo/CIV4EraInfos.xml
++++ b/Assets/xml/GameInfo/CIV4EraInfos.xml
+@@ -166,7 +166,7 @@
+ 			<iResearchPercent>80</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 4 -->
+ 			<!-- advc.910: was 6 in K-Mod -->
+-			<iTechCostModifier>5</iTechCostModifier>
++			<iTechCostModifier>8</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index c3cdc3be9..23d00aaae 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -740,7 +740,8 @@
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+-			<iAIWorkRateModifier>50</iAIWorkRateModifier>
++			<!-- advc.113: was 50 -->
++			<iAIWorkRateModifier>30</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
+ 			<!-- advc.251: I.e. higher tech costs for the AI -->
+ 			<iAIResearchPercent>103</iAIResearchPercent>
+@@ -866,7 +867,8 @@
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+-			<iAIWorkRateModifier>75</iAIWorkRateModifier>
++			<!-- advc.113: was 75 -->
++			<iAIWorkRateModifier>40</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>85</iAIGrowthPercent>
+ 			<!-- advc.251: I.e. higher tech costs for the AI -->
+ 			<iAIResearchPercent>105</iAIResearchPercent>
+@@ -995,7 +997,8 @@
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+-			<iAIWorkRateModifier>100</iAIWorkRateModifier>
++			<!-- advc.113: was 100 -->
++			<iAIWorkRateModifier>50</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>80</iAIGrowthPercent>
+ 			<!-- advc.251: I.e. higher tech costs for the AI -->
+ 			<iAIResearchPercent>125</iAIResearchPercent>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 139be084d..86f1ad292 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -33,6 +33,15 @@
+         <iDefineIntVal>-50</iDefineIntVal>
+     </Define>
+ 
++	<!-- [advc.104v]
++		 If this is set to 1 and the Debug mode has been enabled (Ctrl+Z), then
++		 messages about AI war preparations are shown during AI Auto Play. If set
++		 to 0 (default), no such messages are shown. -->
++	<Define>
++        <DefineName>UWAI_SPECTATOR_ENABLED</DefineName>
++        <iDefineIntVal>0</iDefineIntVal>
++    </Define>
++	
+ 	<!-- [advc.104]
+ 		If set to 1 or greater, and UWAI is enabled in Game Options
+ 		(i.e. "Aggressive AI" not checked), UWAI runs in the background and
+@@ -80,7 +89,7 @@
+ 		 power values are squared. POWER_CORRECTION = 1 is the BtS behavior;
+ 		 power values then typically equal unit strength, e.g. two Warriors are
+ 		 as good as one Spearman. When squaring, one Spearman is as good as
+-		 four Warriors. (That seems a bit much.)
++		 four Warriors. (That seems too much.)
+          Recommended: 1.7; one Spearman then corresponds to 3.25 Warriors, and
+ 		 one Grenadier (base power 12) to 6.5 Axemen (base power 6) . -->
+     <Define>
+@@ -91,7 +100,7 @@
+     <!-- [advc.100]
+ 		 Only relevant if UWAI disabled (or only in the background).
+ 		 When an AI civ is willing to declare war in exchange for gold or tech,
+-		 the price depends (among many other factors)on the power ratio between
++		 the price depends (among many other factors) on the power ratio between
+ 		 aggressor and defender. This parameter is a percentage by which the
+ 		 power ratio is multiplied in CvTeamAI::AI_declareWarTradeVal.
+ 		 Recommended: 300% to make the AI more reluctant to DoW a more powerful
+@@ -116,7 +125,7 @@
+ 		 owner of the foreign culture is eliminated and there is a "suppressed"
+ 		 religion in the city, i.e. a religion that differs from the city owner's
+ 		 state religion (no suppression if no state religion).
+-		 Recommended: 50 b/c doubling is a bit much. -->
++		 Recommended: 50 because doubling is a bit much. -->
+ 	<Define>
+ 		<DefineName>REVOLT_OFFENSE_STATE_RELIGION_MODIFIER</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+@@ -125,7 +134,7 @@
+ 		 and applies half if the owner has no state religion. Was combined
+ 		 multiplicatively with the OFFENSE_MODIFIER above in such a way
+ 		 that the modifiers canceled out when both applied. Now combined
+-		 additively, meaning that they still cancel out b/c I've reduced the
++		 additively, meaning that they still cancel out because I've reduced the
+ 		 OFFENSE_MODIFIER. The DEFENSE_MODIFIER remains -50. -->
+ 	<Define>
+ 		<DefineName>REVOLT_DEFENSE_STATE_RELIGION_MODIFIER</DefineName>
+@@ -133,11 +142,10 @@
+ 	</Define>
+ 
+ 	<!-- [advc.102]
+-		 If set to 0, the moves of friendly civs' workers are not shown to the 
++		 If set to 0, the moves of friendly Workers are not shown to the 
+ 		 player, even if the "show friendly moves" option is enabled.
+ 		 Exception: Workers outside of their owners' cultural borders are still
+-		 shown moving.
+-		 Recommended: 0; 1 for BtS behavior. -->
++		 shown moving. Recommended: 0; 1 for BtS behavior. -->
+ 	<Define>
+ 		<DefineName>SHOW_FRIENDLY_WORKER_MOVES</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -152,11 +160,10 @@
+ 	</Define>
+ 
+ 	<!-- [advc.102]
+-		 If set to 0, the moves of friendly civs' Missionaries and Executives
++		 If set to 0, the moves of friendly Missionaries and Executives
+ 		 are not shown to the player, even if the "show friendly moves" option
+ 		 is enabled. Exception: You still see foreign Missionaries and Executives
+-		 move within your borders.
+-		 Recommended: 0; 1 for original behavior. -->
++		 move within your borders. Recommended: 0; 1 for original behavior. -->
+ 	<Define>
+ 		<DefineName>SHOW_FRIENDLY_MISSIONARY_MOVES</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -196,19 +203,19 @@
+     </Define>
+ 
+ 	<!-- [advc.108]
+-		 If set to 1 or greater, starting plots are "normalized" as in K-Mod, i.e. highly improved and balanced. 0 or less (recommended)
+-		 means that normalization is toned down considerably, except for multi-
+-		 player games (normalization reduced only a little). -->
++		 If set to 1 or greater, starting plots are improved ("normalized") as
++		 aggressively in BtS. 0 or less (recommended) means that normalization
++		 is toned down (toned down only a little bit in multiplayer). -->
+ 	<Define>
+         <DefineName>NORMALIZE_STARTPLOTS_AGGRESSIVELY</DefineName>
+         <iDefineIntVal>0</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- [advc.108]
+-	     The game ensures that no starting position is far better than any
+-		 other starting position: the "found" value of each starting
+-		 position is raised to at least STARTVAL_LOWER_BOUND-PERCENT of
+-		 the best found value. Recommended: 70%.
++	     The game ensures that no starting position is far better than another
++		 starting position by raising the (city-)found value of each
++		 starting position to at least STARTVAL_LOWER_BOUND-PERCENT of the best
++		 found value. Recommended: 70%.
+ 		 K-Mod uses 80%, and this value is also used if
+ 		 NORMALIZE_STARTPLOTS_AGGRESSIVELY is set. (I.e. this setting only
+ 		 matters if NORMALIZE_STARTPLOTS_AGGRESSIVELY isn't set.) -->
+@@ -249,8 +256,7 @@
+ 		 Terrain with 0 food (Desert, Snow) gets two removal
+          chances, e.g. 94% when REMOVAL_CHANCE_BAD_TERRAIN is 75
+ 		 (recommended). Use 100 for BtS/ K-Mod behavior.
+-		 No effect if NORMALIZE_STARTPLOTS_AGGRESSIVELY is set.
+-		 -->
++		 No effect if NORMALIZE_STARTPLOTS_AGGRESSIVELY is set. -->
+     <Define>
+         <DefineName>REMOVAL_CHANCE_BAD_TERRAIN</DefineName>
+         <iDefineIntVal>75</iDefineIntVal>
+@@ -284,7 +290,7 @@
+ 		 canceled immediately, but probabilistically within some 10 turns.
+ 		 NB: Usually, due to tile culture values, significant territory is only
+ 		 lost once several cities are lost.
+-         Recommended: 65; use 0 or less for original BtS behavior.
++         Recommended: 65; use 0 or less for BtS behavior.
+ 		 -->
+     <Define>
+         <DefineName>VASSAL_DENY_OWN_LOSSES_FACTOR</DefineName>
+@@ -311,9 +317,7 @@
+ 		 city, i.e. only civs who's culture is already present (due to
+ 		 vicinity) can benefit from trade-based culture, and only these
+ 		 civs take up room in the plot text.
+-         Recommended: 0 because I think at this point it adds complexity
+-		 and further clutters the city screen for hardly any gameplay
+-		 value. -->
++         Recommended: 0 (see change 125 in manual) -->
+     <Define>
+         <DefineName>USE_KMOD_TRADE_CULTURE</DefineName>
+         <iDefineIntVal>0</iDefineIntVal>
+@@ -321,7 +325,7 @@
+ 
+ 	<!-- [advc.129]
+ 		 If set to 1 or greater, fewer bonus resources may be placed
+-		 during map generation. The number of resources of that
++		 during map generation: The frequency of resources that
+ 		 would normally occur very frequently is reduced a bit, e.g. seafood
+ 		 on an Archipelago map.
+ 		 0 or less means unmodded resource placement.
+@@ -362,8 +366,9 @@
+ 
+ 	<!-- [advc.004m]
+ 		 Original value es 42.0, recommended: 35.0. The BUG field-of-view
+-		 slider in BUG overwrites this if "Remember Field of View" is checked
+-		 in the BUG menu. -->
++		 slider overwrites this if "Remember Field of View" is checked in the
++		 BUG menu. The value entered here is auto-adjusted to the screen
++		 resolution in CvMainInterface.py. -->
+ 	<Define>
+ 		<DefineName>FIELD_OF_VIEW</DefineName>
+ 		<fDefineFloatVal>35.0</fDefineFloatVal>
+@@ -379,11 +384,11 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.500b]
+-		 If this is set to a value greater than 0 (recommended), anger for
+-		 lack of military units is computed based on defensive strength (see
+-		 manual). Otherwise, the BtS computation is used (i.e. any combat
+-		 unit suffices as protection). (0 for now, until some accompanying
+-		 changes to civil anger are implemented.) -->
++		 If this is set to a value greater than 0, unhappiness for lack of
++		 military protection is computed based on defensive strength (see
++		 manual). Otherwise, the BtS computation is used, i.e. any combat unit
++		 suffices as protection. (0 for now, until some accompanying changes to
++		 unhappiness are implemented.) -->
+ 	<Define>
+ 		<DefineName>DEMAND_BETTER_PROTECTION</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -392,9 +397,8 @@
+ 	<!-- [advc.106b]
+ 		 If more than this many messages are queued at the beginning of a
+ 		 turn, no (staggered) messages are shown, and instead the Event Log
+-		 is opened. Set to a negative value for BtS behavior. When using a
+-		 very high value, the Event Log will still open when there is
+-		 a diplo popup.
++		 is opened. Set to -1 for BtS behavior. When using a very high value,
++		 the Event Log will still open when there is a diplo popup.
+ 		 Recommended: 3. -->
+ 	<Define>
+ 		<DefineName>START_OF_TURN_MESSAGE_LIMIT</DefineName>
+@@ -425,7 +429,7 @@
+ 	
+ 	<!-- [advc.099]
+ 	     Copied from GlobalDefines.xml only for reference; the value
+-		 there is 50, and no change recommended.
++		 there is 50, and no change is recommended.
+ 		 Anger from foreign culture is greater while at war. 
+ 		 Now (additively) cumulative with
+ 		 CLOSED_BORDERS_CULTURE_ANGER_MODIFIER (see above).
+@@ -471,7 +475,7 @@
+ 	     If set to 1 or greater, barbarian culture can cause cities to
+ 		 revolt. 0 or less: barbarian culture cannot cause revolts.
+ 		 In any case, barbarian revolts can never flip a city.
+-		 Not an issue in BtS b/c it's practically impossible for a barbarian
++		 Not an issue in BtS because it's practically impossible for a barbarian
+ 		 city to extend its culture range to more than two tiles.
+ 		 Recommended: 1. -->
+ 	<Define>
+@@ -480,7 +484,7 @@
+ 	</Define>
+ 
+ 		<!-- [advc.099]
+-	     Each round, the culture value of each player (civ and barbarian)
++	     Each round, the tile culture value of each player (civ and barbarian)
+ 		 is decreased by this permillage. 0 to disable decay.
+ 		 Recommended: 10 (1% decay). -->
+ 	<Define>
+@@ -505,7 +509,7 @@
+ 		   Civ4HandicapInfo.xml; and
+ 		 * peak = BARB_PEAK_PERCENT / 100.
+ 		 The idea is to make B maximal when the ratio of owned tiles equals
+-		 the peak percentage. Setting BARB_PEAK_PERCENT results in the BtS
++		 the peak percentage. Setting BARB_PEAK_PERCENT to 0 results in the BtS
+ 		 behavior, with B maximal when barbarians first appear and then
+ 		 decreasing as the civs expand.
+ 		 Recommended: 67. -->
+@@ -537,12 +541,9 @@
+ 		 that barbarians can't appear on tiles visible to a civ, but this
+ 		 hardly matters in BtS, because even from a hill, the viewing
+ 		 distance is only 2 (unless Sentry-promoted).
+-		 AdvCiv adds a restriction that prevents barbarians from appearing
+-		 on tiles with 0 food yield (regardless of this parameter).
+ 		 Recommended: 1.
+-		 "Fogbusting" should still work this way, but will have to make
+-		 use of hills for visibility, and will often not be possible to
+-		 cover every angle. -->
++		 AdvCiv adds a restriction that prevents barbarians from appearing
++		 on tiles with 0 food yield (regardless of this parameter). -->
+ 	<Define>
+ 		<DefineName>MIN_BARBARIAN_STARTING_DISTANCE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -553,11 +554,10 @@
+ 		 strength" against the city divided by the local "defense strength"
+ 		 is more than 150 (recommended) percent.
+ 		 If the threshold is met, there is still a unit-specific evacuation
+-		 test that factors in defense modifiers and Unit AI type.
++		 test that takes into account defense modifiers and Unit AI type.
+ 		 The BtS routine for withdrawal of noncombatants isn't affected by
+ 		 this. Set to 0 or less for BtS behavior: combat units never
+-		 evacuate.
+-		 Recommended: 0. -->
++		 evacuate. -->
+     <Define>
+         <DefineName>AI_EVACUATION_THRESH</DefineName>
+         <iDefineIntVal>150</iDefineIntVal>
+@@ -567,8 +567,7 @@
+ 	     Originally in GlobalDefines.xml; set to 10 there. When
+ 		 considering a trade with a human civ and evaluating the trade items
+ 		 that the human side receives, the AI rounds the result to a
+-		 multiple of DIPLOMACY_VALUE_REMAINDER. This ensures that the AI
+-		 charges round amounts of gold. The AI also assumes that any item
++		 multiple of DIPLOMACY_VALUE_REMAINDER. The AI also assumes that any item
+ 		 received by the human side is worth at least
+ 		 DIPLOMACY_VALUE_REMAINDER. This behavior gets in the way of my
+ 		 change to map trades offered by the AI. I could work around it,
+@@ -609,10 +608,9 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.250c][advc.251]
+-		 If set to 1 or greater, games on Immortal, Deity or King difficulty,
+-		 or any difficulty and Advanced Start, begin with a turn number
+-		 computed from the number of free AI Settlers and Workers or the number
+-		 of assigned start points.
++		 If set to 1 or greater, games on Immortal or Deity difficulty,
++		 or with Advanced Start, start at a turn computed from the number of
++		 free AI Settlers and Workers or the number of assigned start points.
+ 		 If set to 0 or less, the turn number is only determined by the
+ 		 start era (0 in Ancient era) as in BtS.
+ 		 Recommended: 1 -->
+@@ -628,7 +626,7 @@
+ 		 show the randomized distribution (SPAH_SHOW_RANDOMIZED > 0;
+ 		 recommended), or show the distribution before randomization, which
+ 		 hides the exact start point values.
+-		 If there are less than 4 AI civs, points aren't randomized
++		 If there are fewer than 4 AI civs, points aren't randomized
+ 		 regardless of SPAH_RANDOMIZE. -->
+ 	<Define>
+ 		<DefineName>SPAH_RANDOMIZE</DefineName>
+@@ -640,8 +638,7 @@
+     </Define>
+ 	
+ 	<!-- [advc.sha] Set to 1 or greater (recommended) to enable the
+-		 Hidden Attitude Mod. Shows all effects then, including those that
+-		 DaveMcW calls "minor spoilers".
++		 Hidden Attitude Mod.
+ 		 0 for BtS behavior, i.e. some hidden relations modifiers. -->
+ 	<Define>
+ 		<DefineName>SHOW_HIDDEN_ATTITUDE</DefineName>
+@@ -705,8 +702,8 @@
+ 		 MADE_DEMAND_RECENT memory causes the AI to reject demands and pleas,
+ 		 and takes 10 turns on average to decrease by 1. (But it doesn't decrease
+ 		 while there is a peace treaty.)
+-		 0 or less means that MADE_DEMAND_RECENT remains unchanged; won't fully
+-		 restore the BtS behavior.
++		 0 or less means that MADE_DEMAND_RECENT remains unchanged (but won't
++		 fully restore the BtS behavior).
+ 		 Recommended: 8 (for an expected 80 turns of rejection) -->
+ 	<Define>
+ 		<DefineName>WAR_DESPITE_TRIBUTE_MEMORY</DefineName>
+@@ -763,8 +760,9 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.030] Set this to 1 or greater (recommended) to treat plot groups
+-		 that are separated by mountain peaks as separate map areas. 0 or less
+-		 for BtS behavior (only land/water partition the map). -->
++		 that are separated by mountain peaks or shelf ice as separate map
++		 areas. 0 or less for BtS behavior (only land/water partition the map).
++		 -->
+ 	<Define>
+ 		<DefineName>PASSABLE_AREAS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -826,7 +824,7 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.002h] 0 only hides the clouds. The shadows are hidden through
++	<!-- [advc.002h] 0 only hides the clouds. Their shadows are hidden through
+ 		 BML.fpk. Original value: 1. -->
+ 	<Define>
+ 		<DefineName>RENDER_GLOBEVIEW_CLOUDS</DefineName>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index d0b3e0da0..a3fdf7be7 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2579,4 +2579,24 @@
+ 		<Spanish>[COLOR_LIGHT_GREY]----- Mensajes m�s antiguos:[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.104v -->
++	<TEXT>
++		<Tag>TXT_KEY_WAR_PREPARATION_STARTED</Tag>
++		<English>%s1_Ldr has begun war preparations against %s2_Ldr.</English>
++		<French>%s1_Ldr a commenc� les pr�paratifs de guerre contre %s2_Ldr.</French>
++		<German>%s1_Ldr hat Kriegsvorbereitungen gegen %s2_Ldr begonnen.</German>
++		<Italian>%s1_Ldr ha iniziato i preparativi di guerra contro %s2_Ldr.</Italian>
++		<Spanish>%s1_Ldr ha comenzado los preparativos de guerra contra %s2_Ldr.</Spanish>
++	</TEXT>
++	<!-- The Germanic personal pronouns mimic AI_DIPLO_ATTITUDE_PLAYER_PLEASED_6
++		 in CIV4DiplomacyText.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_WAR_PLAN_ABANDONED</Tag>
++		<English>%s1_Ldr has abandoned [NUM1:his:her:x:x] war plans against %s2_Ldr.</English>
++		<French>%s1_Ldr a abandonn� ses plans de guerre contre %s2_Ldr.</French>
++		<German>%s1_Ldr hat [NUM1:seine:ihre:x:x] Kriegspl�ne gegen %s2_Ldr aufgegeben.</German>
++		<Italian>%s1_Ldr ha abbandonato i suoi piani di guerra contro %s2_Ldr.</Italian>
++		<Spanish>%s1_Ldr ha abandonado sus planes de guerra contra %s2_Ldr.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index 06f05a3d2..72f5c74c5 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -23134,9 +23134,12 @@
+ 			<UniqueNames>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_PEBEKKAMEN</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_EPHIALTES</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_JING_KE</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_QIN_WUYANG</UniqueName>
++				<!-- advc.005b: Moved up because he lived a century or so
++					 earlier than Jing Ke -->
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_CALIPPUS</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_JING_KE</UniqueName>
++				<!-- advc.310: Removed TXT_KEY_GREAT_PERSON_QIN_WUYANG because
++					 the Great Wall no longer provides espionage points -->
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_LEONE_ALBERTI</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_JOHN_BARLOW</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_FRANCIS_WALSINGHAM</UniqueName>
+@@ -23164,6 +23167,8 @@
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_CLAUS_VON_STAUFFENBERG</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_SUZANNE_SPAAK</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_WILLIAM_DONOVAN</UniqueName>
++				<!-- advc.005 (comment): These are named after playtesters.
++					 Would be nice to replace them. -->
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_SPEAKER</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_VIKTOR_GRIPH</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_NOLAN</UniqueName>
+
+diff --git a/CvGameCoreDLL/AI_Defines.h b/CvGameCoreDLL/AI_Defines.h
+index b28572e40..440acedcf 100644
+--- a/CvGameCoreDLL/AI_Defines.h
++++ b/CvGameCoreDLL/AI_Defines.h
+@@ -8,7 +8,7 @@
+ /* 																			    */
+ /* 																			    */
+ /********************************************************************************/
+-// Could increase this value now that player closness is fixed
++// Could increase this value now that player closeness is fixed
+ #define DEFAULT_PLAYER_CLOSENESS 7
+ 
+ #define AI_DAGGER_THRESHOLD			100  //higher is a lower chance
+@@ -18,7 +18,7 @@
+ #define AI_STRATEGY_DAGGER              (1 << 1)   // Aggressive early game
+ #define AI_STRATEGY_CRUSH				(1 << 2)   // Convert units to City Attack
+ #define AI_STRATEGY_ALERT1				(1 << 3)   // Likely attack from neighbor
+-#define AI_STRATEGY_ALERT2				(1 << 4)   // Seemingly immenient attack from enemy
++#define AI_STRATEGY_ALERT2				(1 << 4)   // Seemingly imminent attack from enemy
+ #define AI_STRATEGY_TURTLE              (1 << 5)   // Defensive shell
+ #define AI_STRATEGY_LAST_STAND			(1 << 6) 
+ #define AI_STRATEGY_FINAL_WAR			(1 << 7)
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index b963ca071..7b5da9dfb 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -19,7 +19,9 @@ void AdvCiv4lert::init(PlayerTypes ownerId) {
+ 
+ void AdvCiv4lert::msg(CvWString s, LPCSTR icon, int x, int y, int goodOrBad) const {
+ 
+-	if(isSilent)
++	if(isSilent || // <advc.127>
++			GET_PLAYER(ownerId).isHumanDisabled() ||
++			GET_PLAYER(ownerId).isAutoPlayJustEnded()) // </advc.127>
+ 		return;
+ 	CvGame& g = GC.getGame();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().isBlockPopups())
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 384b702d9..9cbebfc4b 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -559,9 +559,9 @@ double ArmamentForecast::productionFromUpgrades() {
+ 	if(!civ.isHuman()) {
+ 		CvHandicapInfo& gameHandicap = GC.getHandicapInfo(GC.getGameINLINE().
+ 				getHandicapType());
+-		double aiUpgradeFactor = gameHandicap.getAIUnitUpgradePercent() +
+-				// NB: The modifier is negative
+-				gameHandicap.getAIPerEraModifier() * civ.getCurrentEra();
++		double aiUpgradeFactor = gameHandicap.getAIUnitUpgradePercent();
++			// advc.250d: The per-era modifier no longer applies to upgrade cost
++			// + gameHandicap.getAIPerEraModifier() * civ.getCurrentEra();
+ 		aiUpgradeFactor /= 100.0;
+ 		/* Shouldn't draw conclusions from AI_getGoldToUpgradeAllUnits when
+ 		   AI upgrades are (modded to be) free or almost free. */
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index f653d00c1..da2f1b6bf 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -45,7 +45,7 @@
+ #endif
+ 
+ //
+-// creates a derived artItem class which automatically registers itself with the ARTFILEMGR upon contruction.
++// creates a derived artItem class which automatically registers itself with the ARTFILEMGR upon construction.
+ // creates a static var of that artItem type which constructs (and registers) at startup.
+ // creates a getFooArtInfo() function that searches the map based on the id provided and returns the artInfo struct or null.
+ //
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5857f40c2..8d4738655 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8626,7 +8626,9 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 					{
+ 						if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 						{
+-							if (isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
++							if (isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false)
++									// advc.127:
++									|| GET_PLAYER((PlayerTypes)iI).isSpectator())
+ 							{
+ 								szBuffer = gDLL->getText("TXT_KEY_MISC_CULTURE_LEVEL", getNameKey(), GC.getCultureLevelInfo(getCultureLevel()).getTextKeyWide());
+ 								gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CULTURELEVEL", MESSAGE_TYPE_MAJOR_EVENT, GC.getCommerceInfo(COMMERCE_CULTURE).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), getX_INLINE(), getY_INLINE(), true, true);
+@@ -9461,7 +9463,7 @@ int CvCity::getBuildingCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eB
+ 			GC.getGameINLINE().getGameTurnYear() - getBuildingOriginalTime(eBuilding) >= kBuilding.getCommerceChangeDoubleTime(eIndex)
+ 			? 2 : 1;
+ 		// there are just two components which get multiplied by the time factor: the standard commerce, and the "safe" commerce.
+-		// the rest of the compontents are bonuses which should not be doubled.
++		// the rest of the components are bonuses which should not be doubled.
+ 
+ 		if (!kBuilding.isCommerceChangeOriginalOwner(eIndex) || getBuildingOriginalOwner(eBuilding) == getOwnerINLINE())
+ 		{
+@@ -10628,7 +10630,7 @@ void CvCity::setName(const wchar* szNewValue, bool bFound)
+ {
+ 	CvWString szName(szNewValue);
+ 	gDLL->stripSpecialCharacters(szName);
+-	// K-Mod. stripSpecialCharacters apparently doesn't count '%' as a special characater
++	// K-Mod. stripSpecialCharacters apparently doesn't count '%' as a special character
+ 	// however, strings with '%' in them will cause the game to crash. So I'm going to strip them out.
+ 	for (CvWString::iterator it = szName.begin(); it != szName.end(); )
+ 	{
+@@ -11799,7 +11801,8 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool b
+ 							bool isRev = isRevealed(msgTarget.getTeam(), false);
+ 							bool isMet = TEAMREF(msgTarget.getID()).isHasMet(
+ 									TEAMID(getOwner()));
+-							if(isRev)
++							if(isRev ||
++									msgTarget.isSpectator()) // advc.127
+ 								szBuffer = gDLL->getText("TXT_KEY_MISC_WONDER_COMPLETED_CITY",
+ 										GET_PLAYER(getOwner()).getNameKey(),
+ 										GC.getBuildingInfo(eIndex).getTextKeyWide(),
+@@ -13312,7 +13315,7 @@ void CvCity::doCulture()
+ }
+ 
+ 
+-// This function has essentially been rewriten for K-Mod. (and it use to not be 'times 100')
++// This function has essentially been rewritten for K-Mod. (and it use to not be 'times 100')
+ // A note about scale: the city plot itself gets roughly 10x culture. The outer edges of the cultural influence get 1x culture (ie. the influence that extends beyond the borders).
+ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture)
+ {
+@@ -15811,9 +15814,11 @@ void CvCity::liberate(bool bConquest)
+ 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_LIBERATED", getNameKey(), GET_PLAYER(eOwner).getNameKey(), GET_PLAYER(ePlayer).getCivilizationAdjectiveKey());
+ 		for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++			if (civ.isAlive())
+ 			{
+-				if (isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
++				if (isRevealed(civ.getTeam(), false)
++						|| civ.isSpectator()) // advc.127
+ 				{
+ 					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_REVOLTEND",
+ 							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
+@@ -16269,7 +16274,7 @@ int CvCity::calculateNumCitiesMaintenanceTimes100(CvPlot* cityPlot,
+ 	iNumVassalCities /= std::max(1, GET_TEAM(TEAMID(owner)).getNumMembers());
+ /*
+ ** K-Mod, 04/sep/10, karadoc
+-** Reduced vassal maintenace and removed maintenace cap
++** Reduced vassal maintenance and removed maintenance cap
+ */
+ 	/* original BTS code
+ 	int iNumCitiesMaintenance = (GET_PLAYER(getOwnerINLINE()).getNumCities() + iNumVassalCities) * iNumCitiesPercent;
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 9f8bb8f07..9f4a17819 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -677,7 +677,7 @@ public:
+ 	bool isProductionAutomated() const;											// Exposed to Python
+ 	void setProductionAutomated(bool bNewValue, bool bClear);					// Exposed to Python 
+ 
+-	/* allows you to programatically specify a cities walls rather than having them be generated automagically */
++	/* allows you to programmatically specify a cities walls rather than having them be generated automagically */
+ 	DllExport bool isWallOverride() const; 
+ 	void setWallOverride(bool bOverride);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index baa9d6e83..82300444a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2098,37 +2098,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 				return;
+ 			}
+-
+-			if (iUnitSpending < (iMaxUnitSpending))
+-			{
+-				int iMissileCarriers = kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);
+-			
+-				if (!bFinancialTrouble && iMissileCarriers > 0 && !bImportantCity)
+-				{
+-					if( (iProductionRank <= ((kPlayer.getNumCities() / 2) + 1)) )
+-					{
+-						UnitTypes eBestMissileCarrierUnit = NO_UNIT;  
+-						kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_CARRIER_SEA, NULL, &eBestMissileCarrierUnit);
+-						if (eBestMissileCarrierUnit != NO_UNIT)
+-						{
+-							FAssert(GC.getUnitInfo(eBestMissileCarrierUnit).getDomainCargo() == DOMAIN_AIR);
+-							
+-							int iMissileCarrierAirNeeded = iMissileCarriers * GC.getUnitInfo(eBestMissileCarrierUnit).getCargoSpace();
+-							
+-							if ((kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded) || 
+-								(bPrimaryArea && (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_CARRIER_SEA) * GC.getUnitInfo(eBestMissileCarrierUnit).getCargoSpace() < kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_AIR))))
+-							{
+-								// Don't always build missiles, more likely if really low
+-								if (AI_chooseUnit(UNITAI_MISSILE_AIR, (kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded/2) ? 50 : 20))
+-								{
+-									if( gCityLogLevel >= 2 ) logBBAI("      City %S uses build missile", getName().GetCString());
+-									return;
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
++			// dlph.15: missile carrier code moved
+ 		}
+ 	}
+ 	
+@@ -2244,7 +2214,37 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 			}
+ 		}
+-	}
++	} // <dlph.15>
++	int iMissileCarriers = kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);		
++	if (!bFinancialTrouble && iMissileCarriers > 0 && !bImportantCity)
++	{
++		if( (iProductionRank <= ((kPlayer.getNumCities() / 2) + 1)) )
++		{
++			UnitTypes eBestMissileCarrierUnit = NO_UNIT;  
++			kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_CARRIER_SEA, NULL, &eBestMissileCarrierUnit);
++			if (eBestMissileCarrierUnit != NO_UNIT)
++			{
++				FAssert(GC.getUnitInfo(eBestMissileCarrierUnit).getDomainCargo() == DOMAIN_AIR);
++							
++				int iMissileCarrierAirNeeded = iMissileCarriers * GC.getUnitInfo(eBestMissileCarrierUnit).getCargoSpace();
++							
++				if ((kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded) || 
++						(bPrimaryArea && (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_CARRIER_SEA) *
++						GC.getUnitInfo(eBestMissileCarrierUnit).getCargoSpace()
++						// Bugfix: was "<" in BtS
++						>
++						kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_AIR))))
++				{
++					// Don't always build missiles, more likely if really low
++					if (AI_chooseUnit(UNITAI_MISSILE_AIR, (kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded/2) ? 50 : 20))
++					{
++						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses build missile", getName().GetCString());
++						return;
++					}
++				}
++			}
++		}
++	} // </dlph.15>
+ 
+ 	/* original code
+ 	if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || (GC.getGame().getSorenRandNum(12, "AI consider Nuke") == 0)))
+@@ -2270,7 +2270,7 @@ void CvCityAI::AI_chooseProduction()
+ 			}
+ 		}
+ 	} */
+-	// K-Mod. Roughly the same conditions for builing a nuke, but with a few adjustments for flavour and strategy
++	// K-Mod. Roughly the same conditions for building a nuke, but with a few adjustments for flavour and strategy
+ 	if (!bAlwaysPeace && !bLandWar && !bUnitExempt && !bFinancialTrouble)
+ 	{
+ 		if ((kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || GC.getGame().getSorenRandNum(1200, "AI consider Nuke") < std::min(400, iNukeWeight))
+@@ -2343,7 +2343,7 @@ void CvCityAI::AI_chooseProduction()
+ 			UnitTypes eCityAttackUnit = NO_UNIT;
+ 			kPlayer.AI_bestCityUnitAIValue(UNITAI_ATTACK_CITY, this, &eCityAttackUnit);
+ 			// </cdtw.8>
+-			// K-Mod - get more seige units for crush
++			// K-Mod - get more siege units for crush
+ 			if (bCrushStrategy && GC.getGameINLINE().getSorenRandNum(100, "City AI extra crush bombard") < iTrainInvaderChance)
+ 			{
+ 				if (eCityAttackUnit != NO_UNIT && GC.getUnitInfo(eCityAttackUnit).getBombardRate() > 0)
+@@ -3183,7 +3183,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 		iValue *= (getProductionExperience(eLoopUnit) + 10);
+ 		iValue /= 10;
+ 
+-		// Take into account free promotions, and avaiable promotions that suit the AI type.
++		// Take into account free promotions, and available promotions that suit the AI type.
+ 		// Note: it might be better if this was in AI_unitValue rather than here, but the
+ 		// advantage of doing it here is that we can check city promotions at the same time.
+         int iPromotionValue = 0;
+@@ -3634,6 +3634,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	PROFILE_FUNC();
+ 
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++	CvTeamAI& kTeam = GET_TEAM(kOwner.getTeam()); // dlph.16
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+ 	BuildingClassTypes eBuildingClass = (BuildingClassTypes) kBuilding.getBuildingClassType();
+ 	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
+@@ -3792,8 +3793,44 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				iValue += iTemp;
+ 			}
+ 
+-			iValue += -kBuilding.getNukeModifier() / (GC.getGameINLINE().isNukesValid() && !GC.getGameINLINE().isNoNukes() ? 4 : 40);
++			//iValue += -kBuilding.getNukeModifier() / (GC.getGameINLINE().isNukesValid() && !GC.getGameINLINE().isNoNukes() ? 4 : 40);
+ 			// K-Mod end
++			// <dlph.16> Replacing the line above.
++			// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
++			int iNukeDefense = -kBuilding.getNukeModifier();
++			if(iNukeDefense > 0) {
++				int iNukeEvasionProbability = 0;
++				int iNukeUnitTypes = 0;
++				for(int i = 0; i < GC.getNumUnitInfos(); i++) {
++					CvUnitInfo const& kLoopUnit = GC.getUnitInfo((UnitTypes)i);
++					if(kLoopUnit.getNukeRange() >= 0) {
++						iNukeEvasionProbability += kLoopUnit.getEvasionProbability();
++						iNukeUnitTypes++;
++					}
++				}
++				iNukeEvasionProbability /= std::max(1, iNukeUnitTypes);
++				/*  DarkLunaPhantom - "cf. iTargetValue in the SDI section of
++					AI_projectValue() (K-Mod)." */
++				int iTargetValue = 10 + (getYieldRate(YIELD_PRODUCTION) * 5 +
++						getYieldRate(YIELD_COMMERCE) * 3)/2;
++				/*  "Lazy attempt to estimate the value of the strongest
++					unit stack this shelter might defend." */
++				int iStackValue = 0;
++				for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++					CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)i);
++					if(kLoopPlayer.getTeam() == kOwner.getTeam())
++						iStackValue += area()->getPower(kLoopPlayer.getID());
++				}
++				iStackValue *= 7;
++				iStackValue /= 20;
++				int iTempValue = iNukeDefense * (iStackValue + iTargetValue);
++				iTempValue /= 100;
++				iTempValue *= 10000 - kTeam.getNukeInterception() *
++						(100 - iNukeEvasionProbability);
++				iTempValue /= 10000;
++				iTempValue /= kOwner.nukeDangerDivisor();
++				iValue += iTempValue;
++			} // </dlph.16>
+ 		}
+ 
+ 		if ((iFocusFlags & BUILDINGFOCUS_ESPIONAGE) || (iPass > 0))
+@@ -5744,7 +5781,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue)
+ 	return eBestProject;
+ }
+ 
+-// This function has been completely rewriten for K-Mod
++// This function has been completely rewritten for K-Mod
+ // The return value is roughly in units of 4 * commerce per turn, to match AI_buildingValue.
+ // However, note that most projects don't actually give commerce per turn - so the evaluation is quite rough.
+ int CvCityAI::AI_projectValue(ProjectTypes eProject)
+@@ -7047,8 +7084,9 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	// Never shrink aggressively
+ 	if(iTargetSize < getPopulation())
+ 		iTargetSize = std::max(iTargetSize, getPopulation() - 2); // </advc.120e>
+-	 // advc.300: Make barbs a little less afraid of angry citizens
+-	if(isBarbarian()) iTargetSize++;
++	// <advc.300> Make barbs a little less afraid of angry citizens
++	if(isBarbarian())
++		iTargetSize++; // </advc.300>
+ 
+ 	// total food and production include yield from buildings, corporations, specialists, and so on.
+ 	int iFoodTotal = getBaseYieldRate(YIELD_FOOD);
+@@ -7098,8 +7136,11 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	} */
+ 
+ 	int iProductionTarget = 1 + std::max(getPopulation(), iTargetSize * 3 / 5);
+-	// advc.300: +25% production target
+-	if(isBarbarian()) { iProductionTarget *= 125; iProductionTarget /= 100; }
++	// <advc.300> +50% production target
++	if(isBarbarian()) {
++		iProductionTarget *= 150;
++		iProductionTarget /= 100;
++	} // </advc.300>
+ 
+ 	if (iProductionTotal < iProductionTarget)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 067fbcc8c..a07f7919f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6210,18 +6210,20 @@ void CvGame::setHolyCity(ReligionTypes eIndex, CvCity* pNewValue, bool bAnnounce
+ 					addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, pHolyCity->getOwnerINLINE(), szBuffer, pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 					for (iI = 0; iI < MAX_PLAYERS; iI++)
+-					{
+-						if (GET_PLAYER((PlayerTypes)iI).isAlive())
++					{	// advc.003:
++						CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI);
++						if (civ.isAlive())
+ 						{
+-							if (pHolyCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
++							if (pHolyCity->isRevealed(civ.getTeam(), false)
++									|| civ.isSpectator()) // advc.127
+ 							{
+ 								szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED", GC.getReligionInfo(eIndex).getTextKeyWide(), pHolyCity->getNameKey());
+-								gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE(), false, true);
++								gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE(), false, true);
+ 							}
+ 							else
+ 							{
+ 								szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN", GC.getReligionInfo(eIndex).getTextKeyWide());
+-								gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++								gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 							}
+ 						}
+ 					}
+@@ -10687,8 +10689,9 @@ void CvGame::doVoteResults()
+ 							pInfo->setText(szBuffer);
+ 							gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+ 						}
+-					}
+-
++					} // <advc.127>
++					if(!bShow)
++						bShow = kPlayer.isSpectator(); // </advc.127>
+ 					if (!bShow)
+ 					{
+ 						if (iI == pVoteTriggered->kVoteOption.ePlayer && GET_PLAYER(pVoteTriggered->kVoteOption.ePlayer).isVotingMember(pVoteTriggered->eVoteSource))
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 4fc57571a..624495e2d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -756,6 +756,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_bDisableHuman = false; // bbai
+ 	m_iChoosingFreeTechCount = 0; // K-Mod
+ 	iNewMessages = 0; // advc.106b
++	autoPlayJustEnded = false; // advc.127
+ 	
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -2212,11 +2213,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++			if (civ.isAlive())
+ 			{
+ 				if (iI != getID())
+ 				{
+-					if (pOldCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
++					if (pOldCity->isRevealed(civ.getTeam(), false)
++							|| civ.isSpectator()) // advc.127
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_CAPTURED_BY", szName.GetCString(), getCivilizationDescriptionKey());
+ 						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CITYCAPTURED",
+@@ -3205,14 +3208,18 @@ bool CvPlayer::hasTrait(TraitTypes eTrait) const
+ void CvPlayer::setHumanDisabled( bool newVal )
+ {
+ 	// <advc.127>
+-	if(newVal && !m_bDisableHuman) gDLL->getInterfaceIFace()->clearQueuedPopups();
++	autoPlayJustEnded = true;
++	if(newVal && !m_bDisableHuman)
++		gDLL->getInterfaceIFace()->clearQueuedPopups();
+ 	if(!newVal && m_bDisableHuman) {
+-		/*  Remove the inter-AI diplo modifiers; would otherwise happen during the
+-			next round of AI turns, i.e. with a 1-turn delay. */
++		/*  Remove the inter-AI diplo modifiers; would otherwise happen during
++			the next round of AI turns, i.e. with a 1-turn delay. */
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 			CvPlayerAI& p = GET_PLAYER((PlayerTypes)i);
+-			if(p.isAlive()) p.AI_updateAttitudeCache();
++			if(p.isAlive())
++				p.AI_updateAttitudeCache();
+ 		}
++		iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
+ 	} // </advc.127>
+ 	m_bDisableHuman = newVal;
+ 	updateHuman();
+@@ -3222,6 +3229,17 @@ bool CvPlayer::isHumanDisabled( )
+ {
+ 	return m_bDisableHuman;
+ }
++
++// <advc.127>
++bool CvPlayer::isSpectator() const {
++
++	return isHumanDisabled() && GC.getGameINLINE().isDebugMode();
++}
++
++bool CvPlayer::isAutoPlayJustEnded() const {
++
++	return autoPlayJustEnded;
++} // </advc.127>
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                            END                                              */
+ /************************************************************************************************/
+@@ -3552,16 +3570,18 @@ void CvPlayer::doTurn()
+ 	}
+ 	if(isHuman())
+ 		iNewMessages = 0;
+-	/* This way, iNewMessages is never reset for non-human. I guess that means the
+-	   Event Log may open when taking over an AI seat or returning from
+-	   Auto Player - shouldn't be a big deal. May also happen when loading a
+-	   multiplayer game b/c iNewMessages isn't serialized. */
++	/*  This way, iNewMessages is never reset for non-humans. It is reset in
++		setHumanDisabled though, i.e. when coming out of AI Auto Play.
++		Fixme(?): The Event Log might open when loading a multiplayer game b/c
++		iNewMessages isn't serialized. */
+ 	if(isHuman())
+ 		gDLL->getInterfaceIFace()->clearEventMessages();
+ 	// </advc.106b>
+ 
+ 	CvEventReporter::getInstance().beginPlayerTurn( GC.getGameINLINE().getGameTurn(),  getID());
+-
++	/*  advc.127: Only needs to be true when Civ4lerts are checked, which is done
++		in response to beginPlayerTurn. */
++	autoPlayJustEnded = false;
+ 	doUpdateCacheOnTurn();
+ 
+ 	GC.getGameINLINE().verifyDeals();
+@@ -5872,11 +5892,13 @@ void CvPlayer::raze(CvCity* pCity)
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++		if (civ.isAlive())
+ 		{
+ 			if (iI != getID())
+ 			{
+-				if (pCity->isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
++				if (pCity->isRevealed(civ.getTeam(), false)
++						|| civ.isSpectator()) // advc.127
+ 				{
+ 					swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
+ 					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CITYRAZED",
+@@ -7734,6 +7756,11 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
+ 	// (iBaseUnitCost is no longer fed back to the caller. Only the modified cost is.)
+ 	iUnitCost = iPaidUnits * getGoldPerUnit() * getUnitCostMultiplier() / 10000;
+ 	iMilitaryCost = iPaidMilitaryUnits * getGoldPerMilitaryUnit() / 100;
++	// <advc.912b>
++	if(!isHuman() && !isBarbarian()) {
++		iMilitaryCost = ::round(iMilitaryCost * 0.01 * GC.getHandicapInfo(
++				GC.getGameINLINE().getHandicapType()).getAIUnitSupplyPercent());
++	} // </advc.912b>
+ 	iExtraCost = getExtraUnitCost() / 100;
+ 
+ 	int iSupport = iUnitCost + iMilitaryCost + iExtraCost;
+@@ -7803,9 +7830,9 @@ int CvPlayer::calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost
+ 	{
+ 		iSupply *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIUnitSupplyPercent();
+ 		iSupply /= 100;
+-
+-		iSupply *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+-		iSupply /= 100;
++		// advc.250d: Commented out
++		/*iSupply *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
++		iSupply /= 100;*/
+ 	}
+ 
+ 	FAssert(iSupply >= 0);
+@@ -9482,9 +9509,11 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
+ 
+ 			for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 			{
+-				if (GET_PLAYER((PlayerTypes)iI).isAlive())
++				CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++				if (civ.isAlive())
+ 				{
+-					if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
++					if (GET_TEAM(getTeam()).isHasMet(civ.getTeam())
++							|| civ.isSpectator()) // advc.127
+ 					{
+ 						if (isGoldenAge())
+ 						{
+@@ -9575,7 +9604,9 @@ void CvPlayer::changeAnarchyTurns(int iChange)
+ 
+ 			if (isAnarchy())
+ 			{
+-				gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++				gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART",
++						MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
++						NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ 			}
+ 			else
+ 			{
+@@ -10059,7 +10090,9 @@ int CvPlayer::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) cons
+ }
+ 
+ int CvPlayer::getGoldPerUnit() const																		
+-{
++{	// <dlph.14>
++	if(isBarbarian())
++		return 0; // </dlph.14>
+ 	return m_iGoldPerUnit;
+ }
+ 
+@@ -10079,7 +10112,9 @@ void CvPlayer::changeGoldPerUnit(int iChange)
+ 
+ 
+ int CvPlayer::getGoldPerMilitaryUnit() const
+-{
++{	// <dlph.14>
++	if(isBarbarian())
++		return 0; // </dlph.14>
+ 	return m_iGoldPerMilitaryUnit;
+ }
+ 
+@@ -12197,9 +12232,11 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 		} // </advc.150a>
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI);
++			if (civ.isAlive())
+ 			{
+-				if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
++				if (GET_TEAM(getTeam()).isHasMet(civ.getTeam())
++						|| civ.isSpectator()) // advc.127
+ 				{
+ 					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_RELIGION_CONVERT", MESSAGE_TYPE_MAJOR_EVENT);
+ 				}
+@@ -13750,13 +13787,13 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 								if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 								{
+ 									gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CIVIC_ADOPT",
+-											MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY); // advc.106b
++											MESSAGE_TYPE_MINOR_EVENT); // advc.106b
+ 								}
+ 							}
+ 						}
+-
+-						szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
+-						GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
++						// advc.106: Don't record civics changes in replays
++						/*szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
++						GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);*/
+ 					}
+ 				}
+ 			}
+@@ -16368,7 +16405,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 			break;
+ 		default:
+ 			// The first action must be to place a city
+-			// so players can lose by spending everything
++			// so players can't lose by spending everything
+ 			return;
+ 		}
+ 	}
+@@ -16534,14 +16571,15 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 					found(iX, iY);
+ 					changeAdvancedStartPoints(-std::min(iCost, getAdvancedStartPoints()));
+ 					GC.getGameINLINE().updateColoredPlots();
+-					CvCity* pCity = pPlot->getPlotCity();
++					// advc.250c: Commented out
++					/*CvCity* pCity = pPlot->getPlotCity();
+ 					if (pCity != NULL)
+ 					{
+ 						if (pCity->getPopulation() > 1)
+ 						{
+ 							pCity->setFood(pCity->growthThreshold() / 2);
+ 						}
+-					}
++					}*/
+ 				}
+ 			}
+ 
+@@ -16596,7 +16634,8 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 				if (bPopChanged)
+ 				{
+ 					pCity->setHighestPopulation(pCity->getPopulation());
+-					if (pCity->getPopulation() == 1)
++					// advc.250c, dlph: Commented out
++					/*if (pCity->getPopulation() == 1)
+ 					{
+ 						pCity->setFood(0);
+ 						pCity->setFoodKept(0);
+@@ -16605,7 +16644,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 					{
+ 						pCity->setFood(pCity->growthThreshold() / 2);
+ 						pCity->setFoodKept((pCity->getFood() * pCity->getMaxFoodKeptPercent()) / 100);
+-					}
++					}*/
+ 				}
+ 			}
+ 		}
+@@ -17129,7 +17168,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot* pPlot) const
+ 			{
+ 				return -1;
+ 			}
+-			//Only allow founding a city at someone elses start point if 
++			//Only allow founding a city at someone else's start point if 
+ 			//We have no cities and they have no cities.
+ 			if ((getID() != eClosestPlayer) && ((getNumCities() > 0) || (GET_PLAYER(eClosestPlayer).getNumCities() > 0)))
+ 			{
+@@ -17151,9 +17190,18 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot* pPlot) const
+ 			iCost *= 100 + GC.getDefineINT("ADVANCED_START_CITY_COST_INCREASE") * iNumCities;
+ 			iCost /= 100;
+ 		}
++	} // <advc.250c>
++	if(getNumCities() > 0) { // <dlph>
++		for(int i = 0; i < GC.getNumUnitInfos(); i++) {
++			UnitTypes ut = (UnitTypes)i;
++			if(GC.getUnitInfo(ut).isFound()) {
++				iCost *= 100;
++				iCost /= std::max(1, 100 + getProductionModifier(ut));
++				break;
++			}
++		} // </dlph>
+ 	}
+-
+-	return adjustAdvStartPtsToSpeed(iCost); // advc.250c
++	return adjustAdvStartPtsToSpeed(iCost); // </advc.250c>
+ }
+ 
+ /////////////////////////////////////////////////////////////////////////////////////////////
+@@ -21910,9 +21958,11 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 		CvWString szMessage = gDLL->getText("TXT_KEY_MISC_EMPIRE_SPLIT", getNameKey(), GC.getCivilizationInfo(eBestCiv).getShortDescriptionKey(), GC.getLeaderHeadInfo(eBestLeader).getTextKeyWide());
+ 		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)i).isAlive())
++			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
++			if (civ.isAlive())
+ 			{
+-				if (i == getID() || i == eNewPlayer || GET_TEAM(GET_PLAYER((PlayerTypes)i).getTeam()).isHasMet(getTeam()))
++				if (i == getID() || i == eNewPlayer || GET_TEAM(getTeam()).isHasMet(civ.getTeam()) ||
++						civ.isSpectator()) // advc.127
+ 				{
+ 					gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)i, false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_REVOLTEND", MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getInterfaceArtInfo("INTERFACE_CITY_BAR_CAPITAL_TEXTURE")->getPath());
+ 				}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 4e5fc5606..b0462ed0b 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -106,8 +106,11 @@ public:
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	void setHumanDisabled( bool newVal );
+-	bool isHumanDisabled( )
+-		const; // advc.127: const and exposed to Python
++	bool isHumanDisabled( ) // <advc.127>
++		const; // const and exposed to Python
++	bool isSpectator() const;
++	// Exposed to Python (and only needed there):
++	bool isAutoPlayJustEnded() const; // </advc.127>
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
+ /************************************************************************************************/
+@@ -1307,6 +1310,7 @@ protected:
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	bool m_bDisableHuman;				// Set to true to disable isHuman() check
++	bool autoPlayJustEnded; // advc.127
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c4b872c6d..8a7e0fbad 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -136,6 +136,43 @@ bool CvPlayerAI::isThreatFromMinorCiv() const {
+ 	return false;
+ } // </advc.109>
+ 
++// <dlph.16> (Though DarkLunaPhantom didn't put this in a separate function)
++int CvPlayerAI::nukeDangerDivisor() const {
++
++	if(GC.getGameINLINE().isNoNukes())
++		return 15;
++	// "we're going to cheat a little bit, by counting nukes that we probably shouldn't know about."
++	bool bDanger = false;
++	bool bRemoteDanger = false;
++	CvLeaderHeadInfo& ourPers = GC.getLeaderHeadInfo(getPersonalityType());
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayerAI const& kLoopPlayer = GET_PLAYER((PlayerTypes)i);
++		// Vassals can't have nukes b/c of change advc.143b
++		if(!kLoopPlayer.isAlive() || kLoopPlayer.isAVassal() ||
++				!GET_TEAM(getTeam()).isHasMet(kLoopPlayer.getTeam()) ||
++				kLoopPlayer.getTeam() == getTeam())
++			continue;
++		/*  advc: Avoid building shelters against friendly
++			nuclear powers. This is mostly role-playing. */
++		CvLeaderHeadInfo& theirPers = GC.getLeaderHeadInfo(
++				kLoopPlayer.getPersonalityType());
++		AttitudeTypes towardThem = AI_getAttitude(kLoopPlayer.getID());
++		if(ourPers.getNoWarAttitudeProb(towardThem) >= 100 &&
++				(kLoopPlayer.isHuman() ?
++				towardThem >= ATTITUDE_FRIENDLY :
++				theirPers.getNoWarAttitudeProb(kLoopPlayer.
++				AI_getAttitude(getID())) >= 100))
++			continue;
++		if(kLoopPlayer.getNumNukeUnits() > 0)
++			return 1; // Greatest danger, smallest divisor.
++		if(kLoopPlayer.getCurrentEra() >= 5)
++			bRemoteDanger = true;
++	}
++	if(bRemoteDanger)
++		return 10;
++	return 20;
++} // </dlph.16>
++
+ // <advc.001> Mostly copy-pasted from the homonymous CvTeamAI function
+ bool CvPlayerAI::AI_hasSharedPrimaryArea(PlayerTypes pId) const {
+ 
+@@ -3748,7 +3785,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	//        Food is always great - unless we already have too much; and food already affects a bunch of other parts of the site evaluation...
+ 	if (kSet.bStartingLoc)
+ 		iResourceValue /= 4; // try not to make the value of strategic resources too overwhelming. (note: I removed a bigger value reduction from the original code higher up.)
+-	// Note: iSpecialFood is whatever food happens to be asscioated with bonuses. Don't value it highly, because it's also counted in a bunch of other ways.
++	// Note: iSpecialFood is whatever food happens to be associated with bonuses. Don't value it highly, because it's also counted in a bunch of other ways.
+ 	// <advc.031>
+ 	// Preserve this for later
+ 	int nonYieldResourceVal = std::max(0, iResourceValue);
+@@ -4796,7 +4833,7 @@ bool CvPlayerAI::AI_isCommercePlot(CvPlot* pPlot) const
+ // K-Mod. The cache also needs to be reset when routes are destroyed, because distance 2 border danger only counts when there is a route.
+ // Actually, the cache doesn't need to be cleared when war is declared; because false negatives have no impact with this cache.
+ // The safe plot cache can be invalid if we kill an enemy unit. Currently this is unaccounted for, and so the cache doesn't always match the true state.
+-// In general, I think this cache is a poorly planned idea. It's prone to subtle bugs if there are rule changes in seemingly independant parts of the games.
++// In general, I think this cache is a poorly planned idea. It's prone to subtle bugs if there are rule changes in seemingly independent parts of the games.
+ //
+ // I've done a bit of speed profiling and found that although the safe plot cache does shortcut around 50% of calls to AI_getAnyPlotDanger,
+ // that only ends up saving a few milliseconds each turn anyway. I don't really think that's worth risking of getting problems from bad cache.
+@@ -5679,7 +5716,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bIgnoreCost,
+ 	if (kTechInfo.isMapVisible())
+ 	{
+ 		iValue += (3*GC.getMapINLINE().getLandPlots() + GC.getMapINLINE().numPlots())/400; // (3 * 1100 + 4400)/400 = 14. ~3 commerce/turn
+-		// Note, the world is usually thoroghly explored by the time of satilites. So this is low value.
++		// Note, the world is usually thoroughly explored by the time of satellites. So this is low value.
+ 		// If we wanted to evaluate this properly, we'd need to calculate at how much of the world is still unexplored.
+ 	}
+ 
+@@ -5994,7 +6031,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bIgnoreCost,
+ 
+ 			/* original code
+ 			iTempValue += (GC.getImprovementInfo((ImprovementTypes)iJ).getTechYieldChanges(eTech, iK) * getImprovementCount((ImprovementTypes)iJ) * 50); */
+-			// Often, an improvment only becomes viable after it gets the tech bonus.
++			// Often, an improvement only becomes viable after it gets the tech bonus.
+ 			// So it's silly to score the bonus proportionally to how many of the improvements we already have.
+ 			iTempValue += GC.getImprovementInfo((ImprovementTypes)iJ).getTechYieldChanges(eTech, iK)
+ 				* std::max(getImprovementCount((ImprovementTypes)iJ), 3*getNumCities()/2) * 4;
+@@ -17631,52 +17668,52 @@ void CvPlayerAI::AI_doCommerce()
+ 					for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+ 					{
+ 						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-						if (kLoopPlayer.getTeam() == iTeam && kLoopPlayer.getNumCities() > 0)
++						// <advc.003>
++						if (kLoopPlayer.getTeam() != iTeam || kLoopPlayer.getNumCities() <= 0)
++							continue; // </advc.003>
++						std::vector<int> cityModifiers;
++						CvCity* pLoopCity;
++						int iLoop;
++						int iTargetCities = 0;
++						for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 						{
+-							std::vector<int> cityModifiers;
+-							CvCity* pLoopCity;
+-							int iLoop;
+-							int iTargetCities = 0;
+-							for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
++							if (pLoopCity->isRevealed(getTeam(), false) && pLoopCity->area() != NULL && AI_isPrimaryArea(pLoopCity->area()))
+ 							{
+-								if (pLoopCity->isRevealed(getTeam(), false) && pLoopCity->area() != NULL && AI_isPrimaryArea(pLoopCity->area()))
+-								{
+-									cityModifiers.push_back(getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot()));
+-								}
++								cityModifiers.push_back(getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot()));
+ 							}
+-							if (cityModifiers.size() > 0)
++						}
++						if (cityModifiers.size() > 0)
++						{
++							// Get the average of the lowest 3 cities.
++							int iSampleSize = std::min(3, (int)cityModifiers.size());
++							std::partial_sort(cityModifiers.begin(), cityModifiers.begin()+iSampleSize, cityModifiers.end());
++							int iModifier = 0;
++							for (std::vector<int>::iterator it = cityModifiers.begin(); it != cityModifiers.begin()+iSampleSize; ++it)
+ 							{
+-								// Get the average of the lowest 3 cities.
+-								int iSampleSize = std::min(3, (int)cityModifiers.size());
+-								std::partial_sort(cityModifiers.begin(), cityModifiers.begin()+iSampleSize, cityModifiers.end());
+-								int iModifier = 0;
+-								for (std::vector<int>::iterator it = cityModifiers.begin(); it != cityModifiers.begin()+iSampleSize; ++it)
+-								{
+-									iModifier += *it;
+-								}
+-								iModifier /= iSampleSize;
++								iModifier += *it;
++							}
++							iModifier /= iSampleSize;
+ 
+-								if (iModifier < iMinModifier ||
+-									(iModifier == iMinModifier && iAttitude < kTeam.AI_getAttitudeVal(eMinModTeam)))
++							if (iModifier < iMinModifier ||
++								(iModifier == iMinModifier && iAttitude < kTeam.AI_getAttitudeVal(eMinModTeam)))
++							{
++								// do they have any techs we can steal?
++								bool bValid = false;
++								for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
+ 								{
+-									// do they have any techs we can steal?
+-									bool bValid = false;
+-									for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
++									if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+ 									{
+-										if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+-										{
+-											bValid = iApproxTechCost > 0; // don't set it true unless there are at least 2 stealable techs.
+-											// get a (very rough) approximation of how much it will cost to steal a tech.
+-											iApproxTechCost = (kTeam.getResearchCost((TechTypes)iT) + iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
+-											break;
+-										}
+-									}
+-									if (bValid)
+-									{
+-										iMinModifier = iModifier;
+-										eMinModTeam = (TeamTypes)iTeam;
++										bValid = iApproxTechCost > 0; // don't set it true unless there are at least 2 stealable techs.
++										// get a (very rough) approximation of how much it will cost to steal a tech.
++										iApproxTechCost = (kTeam.getResearchCost((TechTypes)iT) + iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
++										break;
+ 									}
+ 								}
++								if (bValid)
++								{
++									iMinModifier = iModifier;
++									eMinModTeam = (TeamTypes)iTeam;
++								}
+ 							}
+ 						}
+ 					}
+@@ -20870,7 +20907,7 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(
+ 
+ 	// K-Mod, disabling some stuff.
+ 	// It is still possible to get a cultural victory in advanced start games.
+-	// and moving your captial city certainly does not indicate that you shouldn't go for a cultural victory!
++	// and moving your capital city certainly does not indicate that you shouldn't go for a cultural victory!
+ 	// ... and colonies don't get their capital on turn 1 anyway.
+ 	/* original code
+ 	if (GC.getGame().getStartEra() > 1)
+@@ -21565,7 +21602,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 		return 0;
+ 	}
+ 
+-	// Check for whether we are elligible for election
++	// Check for whether we are eligible for election
+ 	bool bVoteEligible = false;
+ 	for( int iVoteSource = 0; iVoteSource < GC.getNumVoteSourceInfos(); iVoteSource++ )
+ 	{
+@@ -21676,7 +21713,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ ///
+ /// Victory strategies are computed on demand once per turn and stored for the rest
+ /// of the turn.  Each victory strategy type has 4 levels, the first two are
+-/// determined largely from AI tendencies and randomn dice rolls.  The second
++/// determined largely from AI tendencies and random dice rolls.  The second
+ /// two are based on measurables and past actions, so the AI can use them to
+ /// determine what other players (including the human player) are doing.
+ bool CvPlayerAI::AI_isDoVictoryStrategy(int iVictoryStrategy) const
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 93f9a3c51..e56690a83 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -32,6 +32,7 @@ public:
+     bool isLonely() const;
+ 	bool feelsSafe() const;
+ 	bool isThreatFromMinorCiv() const; // </advc.109>
++	int nukeDangerDivisor() const; // dlph.16
+ 	// <advc.104>
+ 	WarAndPeaceAI::Civ& warAndPeaceAI();
+ 	WarAndPeaceAI::Civ const& warAndPeaceAI() const; // </advc.104>
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 61b504fd0..f4a343d62 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5103,7 +5103,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+ 			if(!civ.isAlive() || civ.isMinorCiv() || civ.getID() == getOwnerINLINE() ||
+-					civ.getID() == eNewValue || !isRevealed(civ.getTeam(), false))
++					civ.getID() == eNewValue || (!isRevealed(civ.getTeam(), false) &&
++					!civ.isSpectator())) // advc.127
+ 				continue;
+ 			ColorTypes color = (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
+ 			InterfaceMessageTypes msgType = MESSAGE_TYPE_MAJOR_EVENT;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a5993de26..84b12048f 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -431,14 +431,18 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++		if (civ.isAlive())
+ 		{
+-			if ((GET_PLAYER((PlayerTypes)iI).getTeam() != getID()) && (GET_PLAYER((PlayerTypes)iI).getTeam() != eTeam))
++			if ((civ.getTeam() != getID()) && (civ.getTeam() != eTeam))
+ 			{
+-				if (GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasMet(getID()) && GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasMet(eTeam))
++				if ((isHasMet(civ.getTeam()) && GET_TEAM(eTeam).isHasMet(civ.getTeam()))
++						|| civ.isSpectator()) // advc.127
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_PERMANENT_ALLIANCE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRALLIANCE", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRALLIANCE",
++							MESSAGE_TYPE_MAJOR_EVENT, // advc.106b
++							NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 				}
+ 			}
+ 		}
+@@ -861,7 +865,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 	}
+ }
+ 
+-// K-Mod. I've editted this function quite a lot. (for reasons that have been lost in the sands of time)
++// K-Mod. I've edited this function quite a lot. (for reasons that have been lost in the sands of time)
+ void CvTeam::shareCounters(TeamTypes eTeam)
+ {
+ 	CvTeamAI& kShareTeam = GET_TEAM(eTeam); // K-Mod
+@@ -1653,39 +1657,42 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 				sponsorName = szSponsorName.GetCString();
+ 			} // </advc.100>
+ 			for (iI = 0; iI < MAX_PLAYERS; iI++)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			{	// advc.003
++				CvPlayer const& observer = GET_PLAYER((PlayerTypes)iI);
++				if (observer.isAlive())
+ 				{
+-
+-					if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++					if (observer.getTeam() == getID())
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DECLARED_WAR_ON", GET_TEAM(eTeam).getName().GetCString());
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ 					}
+-					else if (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam)
++					else if (observer.getTeam() == eTeam)
+ 					{	// <advc.100> Inform the target of the DoW about the sponsor
+ 						if(sponsor != NO_PLAYER)
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_HIRED_WAR_ON_YOU", 
+ 									getName().GetCString(), sponsorName);
+ 						else // </advc.100>
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_DECLARED_WAR_ON_YOU", getName().GetCString());
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ 					}
+-					else if (GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasMet(getID()) && GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasMet(eTeam))
++					else if ((isHasMet(observer.getTeam()) && GET_TEAM(eTeam).isHasMet(observer.getTeam()))
++								|| observer.isSpectator()) // advc.127
+ 					{	// <advc.100> Inform third parties about sponsor
+-						if(sponsor != NO_PLAYER && sponsor != (PlayerTypes)iI)
++						if(sponsor != NO_PLAYER && sponsor != (PlayerTypes)iI &&
++								(TEAMREF(sponsor).isHasMet(observer.getTeam()) ||
++								observer.isSpectator())) // advc.127
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_HIRED_WAR",
+ 									getName().GetCString(),
+ 									GET_TEAM(eTeam).getName().GetCString(),
+ 									sponsorName);
+ 						else // </advc.100>
+-						szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_DECLARED_WAR", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
++							szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_DECLARED_WAR", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+ 						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRDECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ 					}
+ 				}
+ 			}
+ 
+-			// <advc.100> Put info on hired wars in the replay log.
++			// <advc.100> Put info on hired wars in the replay log
+ 			if(sponsor != NO_PLAYER) {
+ 				szSponsorName = GET_PLAYER(sponsor).getReplayName();
+ 				sponsorName = szSponsorName.GetCString();
+@@ -1928,19 +1935,21 @@ void CvTeam::makePeaceBulk(TeamTypes eTeam, bool bBumpUnits, TeamTypes broker)
+ 	
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++		if (civ.isAlive())
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++			if (civ.getTeam() == getID())
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH", GET_TEAM(eTeam).getName().GetCString());
+ 				gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 			}
+-			else if (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam)
++			else if (civ.getTeam() == eTeam)
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH", getName().GetCString());
+ 				gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 			}
+-			else if (GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasMet(getID()) && GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasMet(eTeam))
++			else if ((isHasMet(civ.getTeam()) && GET_TEAM(eTeam).isHasMet(civ.getTeam()))
++					|| civ.isSpectator()) // advc.127
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_MADE_PEACE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+ 				gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRMAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+@@ -4432,7 +4441,8 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
+ 				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+ 				if (kPlayer.isAlive())
+ 				{
+-					if (isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
++					if ((isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
++							|| kPlayer.isSpectator()) // advc.127
+ 					{
+ 						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRALLIANCE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 					}
+@@ -4756,7 +4766,8 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+ 				if (kPlayer.isAlive())
+ 				{
+-					if (isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
++					if ((isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
++							|| kPlayer.isSpectator()) // advc.127
+ 					{
+ 						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szReplayMessage, "AS2D_WELOVEKING", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 					}
+@@ -4790,7 +4801,8 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 				if (kPlayer.isAlive())
+ 				{
+ 					CvWString szBuffer;
+-					if (getID() == kPlayer.getTeam() || eIndex == kPlayer.getTeam() || isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
++					if (getID() == kPlayer.getTeam() || eIndex == kPlayer.getTeam() || (isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
++							|| kPlayer.isSpectator()) // advc.127
+ 					{
+ 						szBuffer = szReplayMessage;
+ 					}
+@@ -6139,7 +6151,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 							CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+ 							if(!civ.isAlive() || civ.getTeam() == TEAMID(ePlayer))
+ 								continue;
+-							if(isHasMet(civ.getTeam()))
++							if(isHasMet(civ.getTeam()) ||
++									civ.isSpectator()) // advc.127
+ 								szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH", GET_PLAYER(ePlayer).getNameKey(), GC.getTechInfo(eIndex).getTextKeyWide());
+ 							else szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_FIRST_TO_TECH", GC.getTechInfo(eIndex).getTextKeyWide());
+ 							gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false,
+@@ -6868,13 +6881,15 @@ void CvTeam::testCircumnavigated()
+ 
+ 			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 			{
+-				if (GET_PLAYER((PlayerTypes)iI).isAlive())
++				CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI); // advc.003
++				if (civ.isAlive())
+ 				{
+-					if (getID() == GET_PLAYER((PlayerTypes)iI).getTeam())
++					if (getID() == civ.getTeam())
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CIRC_GLOBE", GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+ 					}
+-					else if (isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
++					else if (isHasMet(civ.getTeam())
++							|| civ.isSpectator()) // advc.127
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE", getName().GetCString());
+ 					}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 2bff098b3..5c716409f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -593,7 +593,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 								GET_PLAYER(ownerId).getCivilizationShortDescription());
+ 						col = (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN");
+ 					}
+-					else {
++					else if(TEAMREF(i).isHasMet(TEAMID(ownerId)) // advc.004u
++							|| GET_PLAYER(i).isSpectator()) { // advc.127
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", getNameKey(),
+ 								GET_PLAYER(ownerId).getCivilizationShortDescription(),
+ 								GET_PLAYER(ePlayer).getCivilizationShortDescription());
+@@ -4486,7 +4487,8 @@ bool CvUnit::nuke(int iX, int iY)
+ 			//if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 			// K-Mod. Only show the message to players who have met the teams involved!
+ 			const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-			if (kLoopPlayer.isAlive() && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(eBestTeam))
++			if (kLoopPlayer.isAlive() && (GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(eBestTeam)
++					|| kLoopPlayer.isSpectator())) // advc.127
+ 			// K-Mod end
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_NUKE_INTERCEPTED", GET_PLAYER(getOwnerINLINE()).getNameKey(), getNameKey(), GET_TEAM(eBestTeam).getName().GetCString());
+@@ -4636,7 +4638,8 @@ bool CvUnit::nuke(int iX, int iY)
+ 		//if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		// K-Mod
+ 		const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-		if (kLoopPlayer.isAlive() && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()))
++		if (kLoopPlayer.isAlive() && (GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam())
++				|| kLoopPlayer.isSpectator())) // advc.127
+ 		// K-Mod end
+ 		{
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_NUKE_LAUNCHED", GET_PLAYER(getOwnerINLINE()).getNameKey(), getNameKey());
+@@ -7652,9 +7655,9 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
+ 	{
+ 		iPrice *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIUnitUpgradePercent();
+ 		iPrice /= 100;
+-
+-		iPrice *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * GET_PLAYER(getOwnerINLINE()).getCurrentEra()) + 100));
+-		iPrice /= 100;
++		// advc.250d: Commented out
++		/*iPrice *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * GET_PLAYER(getOwnerINLINE()).getCurrentEra()) + 100));
++		iPrice /= 100;*/
+ 	}
+ 
+ 	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f86b3f09a..0cfc08e94 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2723,7 +2723,7 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		/* if( !bDanger && !isHuman() && plot()->isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
+ 		{
+-			// If no other desireable actions, wait for pickup
++			// If no other desirable actions, wait for pickup
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+ 		} */ // disabled by K-Mod. We don't need this.
+@@ -3007,7 +3007,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	if( bReadyToAttack )
+ 	{
+ 		// Check that stack has units which can capture cities
+-		// (K-Mod, I've edited this section to distiguish between 'no capture' and 'combat limit < 100')
++		// (K-Mod, I've edited this section to distinguish between 'no capture' and 'combat limit < 100')
+ 		bReadyToAttack = false;
+ 		int iNoCombatLimit = 0;
+ 		int iCityCapture = 0;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 2aba3ef2f..b9c9c6e0d 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -126,6 +126,10 @@ bool CyPlayer::isHumanDisabled()
+ {
+ 	return m_pPlayer ? m_pPlayer->isHumanDisabled() : false;
+ }
++bool CyPlayer::isAutoPlayJustEnded()
++{
++	return m_pPlayer ? m_pPlayer->isAutoPlayJustEnded() : false;
++}
+ // </advc.127>
+ bool CyPlayer::isBarbarian()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 1659d5948..ef0a22fbd 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -51,7 +51,10 @@ public:
+ 	void killUnits();
+ 	bool hasTrait(int /*TraitTypes*/ iIndex);
+ 	bool isHuman();
+-	bool isHumanDisabled(); // advc.127
++	// <advc.127>
++	bool isHumanDisabled();
++	bool isAutoPlayJustEnded();
++	// </advc.127>
+ 	bool isBarbarian();
+ 	std::wstring getName();
+ 	std::wstring getNameForm(int iForm);
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index c19d47f48..6fa0dc1bb 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -49,8 +49,10 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("killUnits", &CyPlayer::killUnits, "void ()")
+ 		.def("hasTrait", &CyPlayer::hasTrait, "bool hasTrait(int /*TraitTypes*/ iIndex) - returns True if player is the Trait Type.")
+ 		.def("isHuman", &CyPlayer::isHuman, "bool ()")
+-		// advc.127:
++		// <advc.127>
+ 		.def("isHumanDisabled", &CyPlayer::isHumanDisabled, "bool ()")
++		.def("isAutoPlayJustEnded", &CyPlayer::isAutoPlayJustEnded, "bool ()")
++		// </advc.127>
+ 		.def("isBarbarian", &CyPlayer::isBarbarian, "bool () - returns True if player is a Barbarian")
+ 		.def("getName", &CyPlayer::getName, "str ()")
+ 		.def("getNameForm", &CyPlayer::getNameForm, "str ()")
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index da4031e2d..fd9d4c7c8 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -122,7 +122,7 @@ bool KmodPathFinder::GeneratePath(int x1, int y1, int x2, int y2)
+ 			Reset();
+ 			FAssert(!GetNode(x1,  y1).m_bOnStack);
+ 		}
+-		// Note: This condition isn't actually enough to catch all signifiant changes.
++		// Note: This condition isn't actually enough to catch all significant changes.
+ 		// We really need to check max moves /and/ moves left /and/ base moves.
+ 		// but I don't feel like doing all that at the moment.
+ 	}
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 1dc91da46..b48a53dec 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -4,6 +4,7 @@
+ #include "WarAndPeaceAI.h"
+ #include "WarEvaluator.h"
+ #include "CvDiploParameters.h"
++#include "CvDLLInterfaceIFaceBase.h"
+ 
+ /*  advc.make: Include this for debugging with Visual Leak Detector
+ 	(if installed). Doesn't matter which file includes it; preferrable a cpp file
+@@ -453,8 +454,10 @@ bool WarAndPeaceAI::Team::reviewPlan(TeamTypes targetId, int u, int prepTime) {
+ 		if(!canSchemeAgainst(targetId, true)) {
+ 			report->log("War plan \"%s\" canceled b/c %s is no longer a legal target",
+ 					report->warPlanName(wp), report->teamName(targetId));
+-			if(!inBackgr)
++			if(!inBackgr) {
+ 				agent.AI_setWarPlan(targetId, NO_WARPLAN);
++				showWarPlanAbandonedMsg(targetId);
++			}
+ 			return false;
+ 		}
+ 		if(wp != WARPLAN_PREPARING_LIMITED && wp != WARPLAN_PREPARING_TOTAL) {
+@@ -465,8 +468,10 @@ bool WarAndPeaceAI::Team::reviewPlan(TeamTypes targetId, int u, int prepTime) {
+ 					(inBackgr && wp == WARPLAN_DOGPILE));
+ 			if(u < 0) {
+ 				report->log("Imminent war canceled; no longer worthwhile");
+-				if(!inBackgr)
++				if(!inBackgr) {
+ 					agent.AI_setWarPlan(targetId, NO_WARPLAN);
++					showWarPlanAbandonedMsg(targetId);
++				}
+ 				return false;
+ 			}
+ 			CvMap const& m = GC.getMapINLINE();
+@@ -485,8 +490,10 @@ bool WarAndPeaceAI::Team::reviewPlan(TeamTypes targetId, int u, int prepTime) {
+ 			if(wpAge > timeout) {
+ 				report->log("Imminent war canceled b/c of timeout (%d turns)",
+ 						timeout);
+-				if(!inBackgr)
++				if(!inBackgr) {
+ 					agent.AI_setWarPlan(targetId, NO_WARPLAN);
++					showWarPlanAbandonedMsg(targetId);
++				}
+ 				return false;
+ 			}
+ 			report->log("War remains imminent (%d turns until timeout)",
+@@ -799,8 +806,10 @@ bool WarAndPeaceAI::Team::considerAbandonPreparations(TeamTypes targetId, int u,
+ 			(WarEvaluator doesn't handle this properly, i.e. would ignore the
+ 			all but one plan). Can only occur here if UWAI was running in the
+ 			background for some time. */
+-		if(!inBackgr)
++		if(!inBackgr) {
+ 			agent.AI_setWarPlan(targetId, NO_WARPLAN);
++			showWarPlanAbandonedMsg(targetId);
++		}
+ 		report->log("More than one war in preparation, canceling the one against %s",
+ 				report->teamName(targetId));
+ 		return false;
+@@ -809,8 +818,10 @@ bool WarAndPeaceAI::Team::considerAbandonPreparations(TeamTypes targetId, int u,
+ 		return true;
+ 	if(timeRemaining <= 0 && u < 0) {
+ 		report->log("Time limit for preparations reached; plan abandoned");
+-		if(!inBackgr)
++		if(!inBackgr) {
+ 			agent.AI_setWarPlan(targetId, NO_WARPLAN);
++			showWarPlanAbandonedMsg(targetId);
++		}
+ 		return false;
+ 	}
+ 	WarPlanTypes wp = agent.AI_getWarPlan(targetId);
+@@ -830,8 +841,10 @@ bool WarAndPeaceAI::Team::considerAbandonPreparations(TeamTypes targetId, int u,
+ 			::round(pr * 100), warRand);
+ 	if(::bernoulliSuccess(pr)) {
+ 		report->log("Preparations abandoned");
+-		if(!inBackgr)
++		if(!inBackgr) {
+ 			agent.AI_setWarPlan(targetId, NO_WARPLAN);
++			showWarPlanAbandonedMsg(targetId);
++		}
+ 		return false;
+ 	}
+ 	else report->log("Preparations not abandoned");
+@@ -876,7 +889,9 @@ bool WarAndPeaceAI::Team::considerSwitchTarget(TeamTypes targetId, int u,
+ 	if(!inBackgr) {
+ 		int wpAge = agent.AI_getWarPlanStateCounter(targetId);
+ 		agent.AI_setWarPlan(targetId, NO_WARPLAN);
++		showWarPlanAbandonedMsg(targetId);
+ 		agent.AI_setWarPlan(bestAltTargetId, wp);
++		showWarPrepStartedMsg(bestAltTargetId);
+ 		agent.AI_setWarPlanStateCounter(bestAltTargetId, timeRemaining);
+ 	}
+ 	return false;
+@@ -1148,8 +1163,10 @@ void WarAndPeaceAI::Team::scheme() {
+ 		report->log("Drive for war preparations against %s: %d percent",
+ 				report->teamName(targetId), ::round(100 * drive));
+ 		if(::bernoulliSuccess(drive)) {
+-			if(!inBackgr)
++			if(!inBackgr) {
+ 				agent.AI_setWarPlan(targetId, wp);
++				showWarPrepStartedMsg(targetId);
++			}
+ 			report->log("War plan initiated (%s)", report->warPlanName(wp));
+ 			break; // Prepare only one war at a time
+ 		}
+@@ -1709,6 +1726,28 @@ bool WarAndPeaceAI::Team::isReportTurn() const {
+ 	return (reportInterval > 0 && turnNumber % reportInterval == 0);
+ }
+ 
++void WarAndPeaceAI::Team::showWarPrepStartedMsg(TeamTypes targetId) {
++
++	showWarPlanMsg(targetId, "TXT_KEY_WAR_PREPARATION_STARTED");
++}
++
++void WarAndPeaceAI::Team::showWarPlanAbandonedMsg(TeamTypes targetId) {
++
++	showWarPlanMsg(targetId, "TXT_KEY_WAR_PLAN_ABANDONED");
++}
++
++void WarAndPeaceAI::Team::showWarPlanMsg(TeamTypes targetId, char const* txtKey) {
++
++	CvPlayer& activePl = GET_PLAYER(GC.getGameINLINE().getActivePlayer());
++	if(!activePl.isSpectator() || GC.getDefineINT("UWAI_SPECTATOR_ENABLED") <= 0)
++		return;
++	CvWString szBuffer = gDLL->getText(txtKey,
++			GET_TEAM(agentId).getName().GetCString(),
++			GET_TEAM(targetId).getName().GetCString());
++	gDLL->getInterfaceIFace()->addHumanMessage(activePl.getID(), false,
++			GC.getEVENT_MESSAGE_TIME(), szBuffer, 0, MESSAGE_TYPE_MAJOR_EVENT);
++}
++
+ double WarAndPeaceAI::Team::confidenceFromWarSuccess(TeamTypes targetId) const {
+ 
+ 	/*  Need to be careful not to overestimate
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index 53a3efb9d..b3b20887f 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -184,6 +184,9 @@ public:
+ 		void startReport();
+ 		void closeReport();
+ 		bool isReportTurn() const;
++		void showWarPrepStartedMsg(TeamTypes targetId);
++		void showWarPlanAbandonedMsg(TeamTypes targetId);
++		void showWarPlanMsg(TeamTypes targetId, char const* txtKey);
+ 		TeamTypes diploVoteCounterCandidate(VoteSourceTypes voteSource) const;
+ 		/*  Not in WarAndPeaceAI::Civ b/c I want these to be private. They're
+ 			only auxiliary functions for their team-level counterparts, and should
+
+diff --git a/CvGameCoreDLL/_precompile.cpp b/CvGameCoreDLL/_precompile.cpp
+index 0b12311e3..a751d3a04 100644
+--- a/CvGameCoreDLL/_precompile.cpp
++++ b/CvGameCoreDLL/_precompile.cpp
+@@ -1,5 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ 
+ //
+-// File responsbile for building project PCH
++// File responsible for building project PCH
+ //
+
+diff --git a/PublicMaps/Continents.py b/PublicMaps/Continents.py
+deleted file mode 100644
+index d5c97ae54..000000000
+--- a/PublicMaps/Continents.py
++++ /dev/null
+@@ -1,124 +0,0 @@
+-# advc.137: Copy from WL, no changes. Just so that this widely used map
+-# shows up higher on the list of maps (mod maps are apparently prioritized).
+-#
+-#	FILE:	 Continents.py
+-#	AUTHOR:  Soren Johnson
+-#	PURPOSE: Global map script - Civ4's default map script
+-#-----------------------------------------------------------------------------
+-#	Copyright (c) 2004, 2005 Firaxis Games, Inc. All rights reserved.
+-#-----------------------------------------------------------------------------
+-#
+-
+-from CvPythonExtensions import *
+-import CvUtil
+-import CvMapGeneratorUtil
+-from CvMapGeneratorUtil import FractalWorld
+-from CvMapGeneratorUtil import TerrainGenerator
+-from CvMapGeneratorUtil import FeatureGenerator
+-from CvMapGeneratorUtil import BonusBalancer
+-
+-balancer = BonusBalancer()
+-
+-def getDescription():
+-	return "TXT_KEY_MAP_SCRIPT_CONTINENTS_DESCR"
+-	
+-def isAdvancedMap():
+-	"This map should show up in simple mode"
+-	return 0
+-
+-def getNumCustomMapOptions():
+-	return 2
+-
+-def getNumHiddenCustomMapOptions():
+-	return 2
+-
+-def getCustomMapOptionName(argsList):
+-	[iOption] = argsList
+-	option_names = {
+-		0:	"TXT_KEY_MAP_WORLD_WRAP",
+-		1:  "TXT_KEY_CONCEPT_RESOURCES"
+-		}
+-	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+-	return translated_text
+-
+-def getNumCustomMapOptionValues(argsList):
+-	[iOption] = argsList
+-	option_values = {
+-		0:	3,
+-		1:	2
+-		}
+-	return option_values[iOption]
+-	
+-def getCustomMapOptionDescAt(argsList):
+-	[iOption, iSelection] = argsList
+-	selection_names = {
+-		0:	{
+-			0: "TXT_KEY_MAP_WRAP_FLAT",
+-			1: "TXT_KEY_MAP_WRAP_CYLINDER",
+-			2: "TXT_KEY_MAP_WRAP_TOROID"
+-			},
+-		1:	{
+-			0: "TXT_KEY_WORLD_STANDARD",
+-			1: "TXT_KEY_MAP_BALANCED"
+-			}
+-		}
+-	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+-	return translated_text
+-	
+-def getCustomMapOptionDefault(argsList):
+-	[iOption] = argsList
+-	option_defaults = {
+-		0:	1,
+-		1:  0
+-		}
+-	return option_defaults[iOption]
+-
+-def isRandomCustomMapOption(argsList):
+-	[iOption] = argsList
+-	option_random = {
+-		0:	false,
+-		1:  false
+-		}
+-	return option_random[iOption]
+-
+-def getWrapX():
+-	map = CyMap()
+-	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
+-	
+-def getWrapY():
+-	map = CyMap()
+-	return (map.getCustomMapOption(0) == 2)
+-
+-def normalizeAddExtras():
+-	if (CyMap().getCustomMapOption(1) == 1):
+-		balancer.normalizeAddExtras()
+-	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
+-
+-def addBonusType(argsList):
+-	[iBonusType] = argsList
+-	gc = CyGlobalContext()
+-	type_string = gc.getBonusInfo(iBonusType).getType()
+-
+-	if (CyMap().getCustomMapOption(1) == 1):
+-		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
+-			return None # don't place any of this bonus randomly
+-		
+-	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
+-
+-def generatePlotTypes():
+-	NiTextOut("Setting Plot Types (Python Continents) ...")
+-	fractal_world = FractalWorld()
+-	fractal_world.initFractal(polar = True)
+-	return fractal_world.generatePlotTypes(water_percent=75)
+-
+-def generateTerrainTypes():
+-	NiTextOut("Generating Terrain (Python Continents) ...")
+-	terraingen = TerrainGenerator()
+-	terrainTypes = terraingen.generateTerrain()
+-	return terrainTypes
+-
+-def addFeatures():
+-	NiTextOut("Adding Features (Python Continents) ...")
+-	featuregen = FeatureGenerator()
+-	featuregen.addFeatures()
+-	return 0
+
+[PATCH OMITTED] file=a/manual_v0.91b.pdf b/manual_v0.91b.pdf reason=binary/generated-file changedLines=0 bytes=152
+
+[PATCH COVERAGE]
+patchFiles=36 embeddedFiles=34 omittedFiles=2 embeddedPatchBytes=99158

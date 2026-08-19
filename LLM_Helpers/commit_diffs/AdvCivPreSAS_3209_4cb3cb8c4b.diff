@@ -1,0 +1,1717 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3209
+# Commit: 4cb3cb8c4be4bfff73b1d89065941aa59a995b8e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 60ca6bb27c0ab13e5dcf00686cafca9c221e211e
+# Title: Simplify synchronized RNG calls
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	8	CvGameCoreDLL/CvCity.cpp
+1	2	CvGameCoreDLL/CvCityAI.cpp
+45	56	CvGameCoreDLL/CvGame.cpp
+29	9	CvGameCoreDLL/CvGame.h
+6	0	CvGameCoreDLL/CvGameCoreDLL.h
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvMap.cpp
+20	24	CvGameCoreDLL/CvMapGenerator.cpp
+5	5	CvGameCoreDLL/CvPlayer.cpp
+47	55	CvGameCoreDLL/CvPlayerAI.cpp
+6	6	CvGameCoreDLL/CvPlot.cpp
+1	32	CvGameCoreDLL/CvRandom.h
+1	1	CvGameCoreDLL/CvTeam.cpp
+3	6	CvGameCoreDLL/CvTeamAI.cpp
+35	33	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/EnumTraits.h
+7	7	CvGameCoreDLL/ScaledNum.h
+1	1	CvGameCoreDLL/ScaledNumTest.cpp
+2	2	CvGameCoreDLL/Shelf.cpp
+3	3	CvGameCoreDLL/StartingPositionIteration.cpp
+17	28	CvGameCoreDLL/UWAIAgent.cpp
+1	2	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index cb7d7e26b..2181a6c17 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -627,7 +627,7 @@ void CvCity::doRevolt()
+ 	// <advc.023>
+ 	{
+ 		scaled rDecrementProb = probabilityOccupationDecrement();
+-		if (rDecrementProb.bernoulliSuccess(GC.getGame().getSRand(), "occupation decrement"))
++		if (SyncRandSuccess(rDecrementProb))
+ 		{
+ 			changeOccupationTimer(-1);
+ 			return;
+@@ -645,7 +645,7 @@ void CvCity::doRevolt()
+ 		compute the revolt probability in a separate function. */
+ 	{
+ 		scaled rRevoltProb = revoltProbability();
+-		if (!rRevoltProb.bernoulliSuccess(GC.getGame().getSRand(), "CvCity::doRevolt"))
++		if (!SyncRandSuccess(rRevoltProb))
+ 			return;
+ 	} // </advc.101>
+ 	damageGarrison(eCulturalOwner); // advc: Code moved into subroutine
+@@ -10804,7 +10804,7 @@ void CvCity::doReligion()
+ 		static scaled const rRELIGION_SPREAD_DIV = std::max(scaled::epsilon(),
+ 				per100(GC.getDefineINT("RELIGION_SPREAD_RAND")));
+ 		rSpreadProb /= rRELIGION_SPREAD_DIV;
+-		if (rSpreadProb.bernoulliSuccess(GC.getGame().getSRand(), "Religion Spread"))
++		if (SyncRandSuccess(rSpreadProb))
+ 		{	// </advc>
+ 			setHasReligion(eLoopReligion, true, true, true);
+ 			if (iWeakestGrip < iLoopGrip)
+@@ -10923,12 +10923,14 @@ void CvCity::doMeltdown()
+ 			continue;
+ 		// advc.opt: Roll the dice before checking for a safe power source.
+ 		int const iOddsDivisor = GC.getInfo(eDangerBuilding).getNukeExplosionRand();
+-		// advc.652: Adjust to game speed
+-		scaled rNukePr = 1 / (iOddsDivisor * GC.getGame().gameSpeedMultiplier());
+-		if (!rNukePr.bernoulliSuccess(GC.getGame().getSRand(), "Meltdown") ||
+-			isMeltdownBuildingSuperseded(eDangerBuilding)) // kekm5
+ 		{
+-			continue;
++			// advc.652: Adjust to game speed
++			scaled rNukeProb = 1 / (iOddsDivisor * GC.getGame().gameSpeedMultiplier());
++			if (!SyncRandSuccess(rNukeProb) ||
++				isMeltdownBuildingSuperseded(eDangerBuilding)) // kekm5
++			{
++				continue;
++			}
+ 		}
+ 		if (getNumRealBuilding(eDangerBuilding) > 0)
+ 			setNumRealBuilding(eDangerBuilding, 0);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 23630d1f8..5d9b6a9dd 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8625,8 +8625,7 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 	if (bWait)
+ 	{
+ 		// Non-critical, only burn population if population is not worth much
+-		// advc.017:
+-		if (per100(AI_buildUnitProb(true)).bernoulliSuccess(GC.getGame().getSRand(), "advc.017") &&
++		if (SyncRandSuccess(per100(AI_buildUnitProb(true))) && // advc.017
+ 			(getConscriptAngerTimer() == 0 || isNoUnhappiness()) && // K-Mod
+ 			(bGoodValue || bTooMuchPop)) // advc.017  (no functional change here)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 21f5c731d..af03e306f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -110,9 +110,9 @@ void CvGame::init(HandicapTypes eHandicap)
+ 		really matter, and actually makes it easier to reproduce maps
+ 		as only one seed has to be read off the screen. */
+ 	getMapRand().init(ic.getMapRandSeed());
+-	getSRand().init(ic.getSyncRandSeed());
++	getSorenRand().init(ic.getSyncRandSeed());
+ 	m_initialRandSeed.uiMap = getMapRand().getSeed();
+-	m_initialRandSeed.uiSync = getSRand().getSeed(); // <advc.027b>
++	m_initialRandSeed.uiSync = getSorenRand().getSeed(); // <advc.027b>
+ 
+ 	// Init non-serialized data ...
+ 
+@@ -1107,7 +1107,7 @@ NormalizationTarget* CvGame::assignStartingPlots()
+ 				continue;
+ 			}
+ 			// advc.027b: was getSorenRandNum
+-			int iRandOffset = getMapRandNum(apStartingPlots.size(), "Starting Plot");
++			int iRandOffset = MapRandNum(apStartingPlots.size());
+ 			itPlayer->setStartingPlot(apStartingPlots[iRandOffset]/*, true*/); // advc.opt
+ 			// remove this plot from the list.
+ 			apStartingPlots[iRandOffset] = apStartingPlots[apStartingPlots.size() - 1];
+@@ -1160,8 +1160,7 @@ NormalizationTarget* CvGame::assignStartingPlots()
+ 			{
+ 				bool bStartFound = false;
+ 				// advc.027b: was getSorenRandNum
+-				int const iRandOffset = getMapRandNum(countCivTeamsAlive(),
+-						"Team Starting Plot");
++				int const iRandOffset = MapRandNum(countCivTeamsAlive());
+ 				gDLL->callUpdater(); // advc
+ 				for (int i = 0; i < MAX_CIV_TEAMS; i++)
+ 				{
+@@ -1318,7 +1317,7 @@ void CvGame::applyStartingLocHandicaps(
+ 		in multiplayer games, and the BtS random assignment of human starts
+ 		didn't really work - had favored player 0 when humans are in slots 0, 1 ... */
+ 	/*else if (isGameMultiPlayer()) {
+-		int iRandOffset = getMapRandNum(PlayerIter<CIV_ALIVE>::count(), "Player Starting Plot");
++		int iRandOffset = MapRandNum(PlayerIter<CIV_ALIVE>::count());
+ 		// ... (deleted on 14 June 2020)
+ 	}
+ 	else
+@@ -1489,7 +1488,7 @@ CvGame::sortByStartingLocHandicap(
+ 	{
+ 		bool bHuman = (iPass == 0);
+ 		int iLoopAgents = (bHuman ? iHumanAgents : iAIAgents);
+-		int iRandOffset = getMapRandNum(iLoopAgents, "sortByStartingLocHandicap");
++		int iRandOffset = MapRandNum(iLoopAgents);
+ 		int iSkipped = 0;
+ 		for (int i = 0; i < iAgents; i++)
+ 		{
+@@ -1759,8 +1758,7 @@ void CvGame::normalizeAddRiver()
+ 					(Will also get a lake when no river possible or a lake already happens
+ 					to be present.) Note that a coastal river normally has only one segment.
+ 					Want to reduce the lake chance and coastal bias a bit. */
+-				(pStartingPlot->isCoastalLand() ? fixp(0.62) : fixp(0.74)).
+-				bernoulliSuccess(GC.getGame().getMapRand(), "normalize add river"))
++				MapRandSuccess(pStartingPlot->isCoastalLand() ? fixp(0.62) : fixp(0.74)))
+ 			{	// </advc.108>
+ 				CvPlot* pRiverPlot = pStartingPlot->getInlandCorner();
+ 				if (pRiverPlot != NULL)
+@@ -1783,8 +1781,8 @@ void CvGame::normalizeAddRiver()
+ 				}
+ 				//if (GC.getInfo(eLoopFeature).getAppearanceProbability() == 10000)
+ 				// <advc.108> Cleaner to do the proper dice roll
+-				if (scaled(GC.getInfo(eLoopFeature).getAppearanceProbability(), 10000).
+-					bernoulliSuccess(getMapRand(), "normalize add river feature"))
++				if (MapRandSuccess(per10000(GC.getInfo(eLoopFeature).
++					getAppearanceProbability())))
+ 				{	// </advc.108>
+ 					if (kPlot.getBonusType() != NO_BONUS)
+ 						kPlot.setBonusType(NO_BONUS);
+@@ -1813,11 +1811,8 @@ void CvGame::normalizeRemovePeaks()
+ 		// advc 027 (note): Range corresponds to AIFoundValue::adjustToLandAreaBoundary
+ 		for (SquareIter itPlot(*pStartingPlot, 3); itPlot.hasNext(); ++itPlot)
+ 		{
+-			if (itPlot->isPeak() &&
+-				rRemovalProb.bernoulliSuccess(getMapRand(), "advc.108")) // advc.108
+-			{
++			if (itPlot->isPeak() && /* advc.108: */ MapRandSuccess(rRemovalProb))
+ 				itPlot->setPlotType(PLOT_HILLS);
+-			}
+ 		}
+ 	}
+ }
+@@ -1926,7 +1921,7 @@ void CvGame::normalizeRemoveBadFeatures()
+ 					// <advc.108>
+ 					if (itPlot.currID() < NUM_INNER_PLOTS ||
+ 						(!isPowerfulStartingBonus(p, itPlayer->getID()) &&
+-						(rRemovalProb.bernoulliSuccess(getMapRand(), "Remove Bad Feature 1") ||
++						(MapRandSuccess(rRemovalProb) ||
+ 						isWeakStartingFoodBonus(p, itPlayer->getID()))))
+ 					{	// </advc.108>
+ 						p.setFeatureType(NO_FEATURE);
+@@ -1948,26 +1943,26 @@ void CvGame::normalizeRemoveBadFeatures()
+ 				{
+ 					if (p.isAdjacentToLand() || (iDistance <= iCityRange + 1 &&
+ 						// advc.027b: was getSorenRandNum
+-						fixp(0.5).bernoulliSuccess(getMapRand(), "Remove Bad Feature 2")))
++						MapRandSuccess(fixp(0.5))))
+ 					{
+ 						p.setFeatureType(NO_FEATURE);
+ 					}
+ 				}
+ 				else if (iDistance <= iCityRange + 1)
+ 				{
+-					scaled prRemoval(1, 2);
++					scaled rRemovalProb(1, 2);
+ 					if (m_eNormalizationLevel > NORMALIZE_MEDIUM) // advc.108
+ 					{	/*	Smaller pr when there is a resource. I wonder if that's
+ 							really what the BtS programmer meant to do. */
+ 						//getSorenRandNum(2 + (p.getBonusType() == NO_BONUS ? 0 : 2),"...") == 0)
+ 						if (p.getBonusType() != NO_BONUS)
+-							prRemoval = scaled(1, 4);
++							rRemovalProb = scaled(1, 4);
+ 					}
+ 					// <advc.108>
+ 					else if (p.getBonusType() == NO_BONUS)
+-						prRemoval = scaled(1, 3); // </advc.108>
++						rRemovalProb = scaled(1, 3); // </advc.108>
+ 					// advc.027b: was getSorenRandNum
+-					if (prRemoval.bernoulliSuccess(getMapRand(), "Remove Bad Feature 3"))
++					if (MapRandSuccess(rRemovalProb))
+ 						p.setFeatureType(NO_FEATURE);
+ 				}
+ 			}
+@@ -1995,8 +1990,8 @@ void CvGame::normalizeRemoveBadTerrain()
+ 			CvPlot& p = *itPlot;
+ 			int iDistance = itPlot.currPlotDist();
+ 			if (!p.isWater() && (iDistance <= iCityRange ||
+-				p.isCoastalLand() || scaled(1, 1 + iDistance - iCityRange).
+-				bernoulliSuccess(getMapRand(), "Map Upgrade Terrain Food 1")))
++				p.isCoastalLand() ||
++				MapRandSuccess(scaled(1, 1 + iDistance - iCityRange))))
+ 			{
+ 				CvTerrainInfo const& kTerrain = GC.getInfo(p.getTerrainType());
+ 				int iPlotFood = kTerrain.getYield(YIELD_FOOD);
+@@ -2014,13 +2009,13 @@ void CvGame::normalizeRemoveBadTerrain()
+ 				{
+ 					continue;
+ 				}
+-				if (rKeepProb.bernoulliSuccess(getMapRand(), "Map Upgrade Terrain Food 2"))
++				if (MapRandSuccess(rKeepProb))
+ 				{
+ 					if (iPlotFood > 0 ||
+ 					/*  advc.129b: Two chances of removal for Snow river
+ 						(BuildModifier=50), but not for Desert river. */
+ 						(p.isRiver() && kTerrain.getBuildModifier() < 30) ||
+-						rKeepProb.bernoulliSuccess(getMapRand(), "Map Upgrade Terrain Food 3"))
++						MapRandSuccess(rKeepProb))
+ 					{
+ 						if (!isWeakStartingFoodBonus(p, itPlayer->getID()))
+ 							continue;
+@@ -2032,7 +2027,7 @@ void CvGame::normalizeRemoveBadTerrain()
+ 					iTargetFood = 1;
+ 				else if (iPlotFood == 1 || iDistance <= iCityRange)
+ 				{	// advc.027b: was getSorenRandNum
+-					iTargetFood = 1 + getMapRandNum(2, "Map Upgrade Terrain Food 4");
++					iTargetFood = 1 + MapRandNum(2);
+ 				}
+ 				else iTargetFood = (p.isCoastalLand() ? 2 : 1);
+ 				FOR_EACH_ENUM(Terrain)
+@@ -2161,7 +2156,7 @@ void CvGame::normalizeAddFoodBonuses(/* advc.027: */ NormalizationTarget const*
+ 				++itPlot)
+ 			{	// <advc.108>
+ 				if (bInnerRingBias && itPlot.currID() >= NUM_INNER_PLOTS &&
+-					fixp(0.63).bernoulliSuccess(getMapRand(), "inner ring bias food"))
++					MapRandSuccess(fixp(0.63)))
+ 				{
+ 					continue;
+ 				} // </advc.108>
+@@ -2426,7 +2421,7 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 				CvPlot& kLoopPlot = *itPlot;
+ 				if (kLoopPlot.getBonusType() != NO_BONUS || kLoopPlot.isFeature())
+ 					continue;
+-				/*if (getSRandNum(iCount + 2, "Setting Feature Type") > 1)
++				/*if (getSorenRandNum(iCount + 2, "Setting Feature Type") > 1)
+ 					continue;*/ // advc.108: Replaced below
+ 				/*	advc.129: Randomize - for mod-mods (for forest, oasis, flood plains
+ 					the order doesn't matter b/c they have mutually exclusive prereqs) */
+@@ -2464,8 +2459,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 					{
+ 						iProductionFeatures++;
+ 						// Replacing a BtS clause higher up
+-						if (!scaled(1, std::max(iProductionFeatures - 2, 1)).
+-							bernoulliSuccess(getSRand(), "Place Production Feature (1)"))
++						if (!SyncRandSuccess(scaled(1,
++							std::max(iProductionFeatures - 2, 1))))
+ 						{
+ 							bProductionFeatureDone = true;
+ 						}
+@@ -2516,18 +2511,20 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 			for (CityPlotRandIter itPlot(*pStartingPlot, getMapRand(), false);
+ 				itPlot.hasNext() &&
+ 				//iLandBonus * 3 +
+-				iLandFood * 4 + (iLandBonus - iLandFood) * 3 + // advc.108
+-				iOceanBonus * 2 + iCoastBonus * 3 < 12; ++itPlot) // advc.108: iCoastBonus multiplier was 2
+-			{	// <advc.108>
++				// <advc.108>
++				iLandFood * 4 + (iLandBonus - iLandFood) * 3 +
++				// aiCoastBonus multiplier was 2
++				iOceanBonus * 2 + iCoastBonus * 3 < 12; ++itPlot)
++			{
+ 				if (bInnerRingBias && itPlot.currID() >= NUM_INNER_PLOTS &&
+-					fixp(0.47).bernoulliSuccess(getMapRand(), "inner ring bias extras"))
++					MapRandSuccess(fixp(0.47)))
+ 				{
+ 					continue;
+ 				} // </advc.108>
+ 				CvPlot& p = *itPlot;
+ 				//if (getSorenRandNum(bLandBias && p.isWater() ? 2 : 1,"...") == 0) {
+ 				// advc.027b: (note that getSorenRandNum(1) is always 0)
+-				if (bLandBias && p.isWater() && fixp(0.5).bernoulliSuccess(getMapRand(), "Placing Bonuses"))
++				if (bLandBias && p.isWater() && MapRandSuccess(fixp(0.5)))
+ 					continue;
+ 				if (pTarget != NULL ? pTarget->isNearlyReached(*pStartingPlot) : // advc.027
+ 					citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
+@@ -2585,8 +2582,7 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 							  getYieldChange(YIELD_PRODUCTION) <= 0 ||
+ 							// Don't clear production features if they're scarce
+ 							iProductionFeatures >= 4) && // </advc.108>
+-							iCoastBonus + iOceanBonus > 2 &&
+-							fixp(0.5).bernoulliSuccess(getMapRand(), "Clear feature to add bonus"))
++							iCoastBonus + iOceanBonus > 2 && MapRandSuccess(fixp(0.5)))
+ 						{
+ 							// advc: Selection, clearing of feature and placement moved into auxiliary function.
+ 							if (placeExtraBonus(kPlayer.getID(), p, iPass == 0,
+@@ -2641,8 +2637,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 				if (bFood)
+ 				{
+ 					iFoodFeatures++;
+-					if (!scaled(1, std::max(iFoodFeatures, 1)).
+-						bernoulliSuccess(getSRand(), "Place Food Feature"))
++					if (!SyncRandSuccess(scaled(1,
++						std::max(iFoodFeatures, 1))))
+ 					{
+ 						bFoodFeatureDone = true;
+ 					}
+@@ -2650,8 +2646,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 				else
+ 				{
+ 					iProductionFeatures++;
+-					if (!scaled(1, std::max(iProductionFeatures - 2, 1)).
+-						bernoulliSuccess(getSRand(), "Place Production Feature (2)"))
++					if (!SyncRandSuccess(scaled(1,
++						std::max(iProductionFeatures - 2, 1))))
+ 					{
+ 						bProductionFeatureDone = true;
+ 					}
+@@ -2802,11 +2798,8 @@ bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot co
+ 			continue;
+ 		// Adjacent duplicates look especially ugly
+ 		int iDist = stepDistance(&*it, &kPlot);
+-		if ((2 * rSkipPr / iDist).bernoulliSuccess(
+-			getMapRand(), "Avoid double extra bonus"))
+-		{
++		if (MapRandSuccess(2 * rSkipPr / iDist))
+ 			return true;
+-		}
+ 	}
+ 	return false;
+ }
+@@ -6801,9 +6794,8 @@ void CvGame::doGlobalWarming()
+ 		CvFeatureInfo const* pProtectedFeature = NULL;
+ 		if (eImprov != NO_IMPROVEMENT && eFeature != NO_FEATURE)
+ 		{
+-			if (per100(GC.getInfo(eImprov).get(
+-				CvImprovementInfo::GWFeatureProtection)).bernoulliSuccess(
+-				getSRand(), "GWFeatureProtection"))
++			if (SyncRandSuccess(per100(GC.getInfo(eImprov).get(
++				CvImprovementInfo::GWFeatureProtection))))
+ 			{
+ 				bProtectFeature = true;
+ 				pProtectedFeature = &GC.getInfo(eFeature);
+@@ -7698,7 +7690,7 @@ void CvGame::createBarbarianUnits()
+ 			continue;
+ 		int iUnits = pCity->getPlot().getNumDefenders(BARBARIAN_PLAYER);
+ 		scaled rKillProb = (iUnits - scaled::max(fixp(1.5) * pCity->getPopulation(), 4)) / 4;
+-		if (rKillProb.bernoulliSuccess(getSRand(), "kill random Barbarian"))
++		if (SyncRandSuccess(rKillProb))
+ 			pCity->getPlot().killRandomUnit(BARBARIAN_PLAYER, DOMAIN_LAND);
+ 	} // </advc.300>
+ }
+@@ -7878,7 +7870,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ 		Probabilistic instead. */
+ 	if (r < 1)
+ 	{
+-		if (r.bernoulliSuccess(getSRand(), "numBarbariansToCreate"))
++		if (SyncRandSuccess(r))
+ 			return 1;
+ 		return 0;
+ 	}
+@@ -7919,11 +7911,8 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShel
+ 					way, i.e. a ship receiving a second passenger while travelling
+ 					to its target through fog of war. (I don't think that happens
+ 					often enough though ...) */
+-				if (pTransport->getCargo() > 1 ||
+-					fixp(0.7).bernoulliSuccess(getSRand(), "Barbarian on transport"))
+-				{
++				if (pTransport->getCargo() > 1 || SyncRandSuccess(fixp(0.7)))
+ 					break;
+-				}
+ 			}
+ 		}
+ 		if (bOnlyCargo)
+@@ -8002,7 +7991,7 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& kArea, Shelf const* pShelf)
+ 		scaled rSkipProb = 1 - scaled(1, 1 + iFewValidThresh - iValid);
+ 		// Especially don't want a constant stream of units from low-weight plots
+ 		rSkipProb *= scaled::max(1, 2 - per100(getBarbarianWeightMap().get(*pRandPlot)));
+-		if (rSkipProb.bernoulliSuccess(getSRand(), "randomBarbarianPlot skip"))
++		if (SyncRandSuccess(rSkipProb))
+ 			pRandPlot = NULL;
+ 	}
+ 	return pRandPlot; // </advc.304>
+@@ -8022,7 +8011,7 @@ bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop,
+ 	// Don't want large Barbarian continents crawling with units
+ 	rDivisor.exponentiate(fixp(0.7));
+ 	rDivisor *= 5;
+-	if ((iUnitsPresent / rDivisor).bernoulliSuccess(getSRand(), "killBarbarian2"))
++	if (SyncRandSuccess(iUnitsPresent / rDivisor))
+ 	{
+ 		if(pShelf != NULL)
+ 			return pShelf->killBarbarian();
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 09549cdcb..2d43de181 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -715,16 +715,7 @@ public:
+ 	CvRandom& getSorenRand()																								// Exposed to Python
+ 	{
+ 		return m_sorenRand;
+-	}  // <advc> Shorter. "S" could also stand for "synchronized" (or "Soren"). (Tbd.: Move to CvGlobals.)
+-	CvRandom& getSRand()																										// Exposed to Python
+-	{
+-		return getSorenRand();
+ 	}
+-	int getSRandNum(int iNum, const char* pszLog,
+-		int iData1 = MIN_INT, int iData2 = MIN_INT)
+-	{
+-		return getSorenRandNum(iNum, pszLog, iData1, iData2);
+-	} // </advc>
+ 	//  Returns a value from the half-closed interval [0,iNum)
+ 	int getSorenRandNum(int iNum, const char* pszLog,
+ 		int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.007
+@@ -1142,4 +1133,33 @@ private: // advc.003u: (See comments in the private section of CvPlayer.h)
+ 	virtual int AI_combatValueExternal(UnitTypes eUnit);
+ };
+ 
++/*	<advc.007b> Some macros to make the RNG functions of the singleton
++	CvGame instance less tedious to use */
++
++// Implementation files can re-define this to use a different CvGame instance
++#define CVGAME_INSTANCE_FOR_RNG GC.getGame()
++
++inline CvRandom& syncRand()
++{
++	return CVGAME_INSTANCE_FOR_RNG.getSorenRand();
++}
++inline CvRandom& mapRand()
++{
++	return CVGAME_INSTANCE_FOR_RNG.getMapRand();
++}
++// These have to be macros to let CALL_LOC_STR expand to the proper code location
++#define SyncRandNum(iNumOutcomes) \
++	CVGAME_INSTANCE_FOR_RNG.getSorenRandNum((iNumOutcomes), CALL_LOC_STR)
++#define MapRandNum(iNumOutcomes) \
++	CVGAME_INSTANCE_FOR_RNG.getMapRandNum((iNumOutcomes), CALL_LOC_STR)
++#define SyncRandFract(ScaledNumType) \
++	ScaledNumType::rand(syncRand(), CALL_LOC_STR)
++#define SyncRandSuccess(rSuccessProb) \
++	(rSuccessProb).randSuccess(syncRand(), CALL_LOC_STR)
++#define MapRandFract(ScaledNumType) \
++	ScaledNumType::rand(mapRand(), CALL_LOC_STR)
++#define MapRandSuccess(rSuccessProb) \
++	(rSuccessProb).randSuccess(mapRand(), CALL_LOC_STR)
++// </advc.007b>
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index be80e8108..4399b6642 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -57,6 +57,12 @@
+ // <advc.003s> For generating variable names. (The layer of indirection is necessary.)
+ #define CONCATVARNAME_IMPL(prefix, suffix) prefix##suffix
+ #define CONCATVARNAME(prefix, suffix) CONCATVARNAME_IMPL(prefix, suffix) // </advc.003s>
++// <advc.007b> For debug output
++#define STRINGIFY_HELPER2(x) #x
++#define STRINGIFY_HELPER1(x) STRINGIFY_HELPER2(x)
++// (__FILE__ prints some path info; that gets too verbose.)
++#define CALL_LOC_STR __FUNCTION__ /*"(" __FILE__ ")"*/ "@L" STRINGIFY_HELPER1(__LINE__)
++// </advc.007b>
+ 
+ /*	advc.enum (note): The order of these inclusions is tricky b/c the type trait
+ 	headers sometimes require other types to be defined, not just declared. */
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 7736f3aff..d333d78e5 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -178,7 +178,7 @@ namespace fmath
+ 	inline float hash(std::vector<int> const& kInputs, PlayerTypes ePlayer = NO_PLAYER)
+ 	{
+ 		/*  Use ASyncRand to avoid the overhead of creating a new object?
+-			Or use stdlib's rand/sRand? I don't think it matters. */
++			Or use stdlib's rand/srand? I don't think it matters. */
+ 		/*CvRandom& rng = GC.getASyncRand();
+ 		rng.reset(hashVal);*/
+ 		CvRandom rng;
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 7b2c23fe6..ad1c359eb 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -545,7 +545,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
+ 			}
+ 		}
+ 		iValid = (int)apValidPlots.size();
+-		return GC.getGame().getSRand().weightedChoice(apValidPlots,
++		return syncRand().weightedChoice(apValidPlots,
+ 				pWeights == NULL ? NULL : &aiWeights);
+ 	}
+ 	FAssert(iTimeout != 0);
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index fab4fc07a..aecae6786 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -189,7 +189,7 @@ void CvMapGenerator::addLakes()
+ 		CvPlot& p = GC.getMap().getPlotByIndex(i);
+ 		if (!p.isWater() && !p.isCoastalLand() && !p.isRiver())
+ 		{
+-			if (GC.getGame().getMapRandNum(iLAKE_PLOT_RAND, "addLakes") == 0)
++			if (MapRandNum(iLAKE_PLOT_RAND) == 0)
+ 				p.setPlotType(PLOT_OCEAN);
+ 		}
+ 	}
+@@ -208,7 +208,7 @@ void CvMapGenerator::addRivers()  // advc: refactored
+ 	int const iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+ 	int const iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
+ 	// advc.129: Randomize the traversal
+-	int* aiShuffledIndices = GC.getGame().getMapRand().shuffle(GC.getMap().numPlots());
++	int* aiShuffledIndices = mapRand().shuffle(GC.getMap().numPlots());
+ 	for (int iPass = 0; iPass < 4; iPass++)
+ 	{
+ 		int iRiverSourceRangeLoop = (iPass <= 1 ? iRiverSourceRange : iRiverSourceRange / 2);
+@@ -228,8 +228,7 @@ void CvMapGenerator::addRivers()  // advc: refactored
+ 				bValid = (p.isHills() || p.isPeak());
+ 				break;
+ 			case 1:
+-				bValid = (!p.isCoastalLand() &&
+-						GC.getGame().getMapRandNum(8, "addRivers") == 0);
++				bValid = (!p.isCoastalLand() && MapRandSuccess(fixp(1/8.)));
+ 				break;
+ 			case 2:
+ 				bValid = ((p.isHills() || p.isPeak()) &&
+@@ -418,11 +417,11 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 	int const iFreshWY = pFreshWaterPlot->getY(); // advc
+ 
+ 	// make two passes, once for each flow direction of the river
+-	int iNWFlowPass = GC.getGame().getMapRandNum(2, "addRiver");
++	int iNWFlowPass = MapRandNum(2);
+ 	for (int iPass = 0; iPass <= 1; iPass++)
+ 	{
+ 		// try placing a river edge in each direction, in random order
+-		FOR_EACH_ENUM_RAND(CardinalDirection, GC.getGame().getMapRand())
++		FOR_EACH_ENUM_RAND(CardinalDirection, mapRand())
+ 		{
+ 			CardinalDirectionTypes eRiverDirection = NO_CARDINALDIRECTION;
+ 			CvPlot *pRiverPlot = NULL;
+@@ -514,8 +513,8 @@ void CvMapGenerator::addFeatures()
+ 		{
+ 			if (kPlot.canHaveFeature(eLoopFeature))
+ 			{
+-				if (GC.getGame().getMapRandNum(10000, "addFeaturesAtPlot") <
+-					GC.getInfo(eLoopFeature).getAppearanceProbability())
++				if (MapRandSuccess(per10000(GC.getInfo(eLoopFeature).
++					getAppearanceProbability())))
+ 				{
+ 					kPlot.setFeatureType(eLoopFeature);
+ 				}
+@@ -577,7 +576,6 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 			kBonus.isTerrain(GC.getWATER_TERRAIN(false)));
+ 	FAssertMsg(kBonus.isOneArea(), "addUniqueBonusType called with non-unique bonus type");
+ 	CvMap& kMap = GC.getMap();
+-	CvGame& kGame = GC.getGame();
+ 
+ 	/*	K-Mod note: the areas tried stuff was originally done using an array.
+ 		I've rewritten it to use std::set, for no good reason. The functionality is unchanged.
+@@ -625,8 +623,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 				int iValue = ((iNumTiles *
+ 						// advc.129: Decrease the impact of iNumTiles when approaching the target resource count
+ 						(iTarget - iAddedTotal)) / iTarget +
+-						kGame.getMapRandNum(3 * NUM_CITY_PLOTS,
+-						"addUniqueBonusType area value (K-Mod)")) / iNumUniqueBonusesOnArea;
++						MapRandNum(3 * NUM_CITY_PLOTS)) / iNumUniqueBonusesOnArea;
+ 				// <advc.129>
+ 				if (iValue <= iBestValue) // To save time
+ 					continue;
+@@ -661,7 +658,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 					pBestArea->getNumTiles() / 25; // </advc.129>
+ 
+ 			// Place the bonuses ...
+-			int* aiShuffledIndices = kGame.getMapRand().shuffle(kMap.numPlots());
++			int* aiShuffledIndices = mapRand().shuffle(kMap.numPlots());
+ 			for (int i = 0; i < kMap.numPlots() &&
+ 				(bIgnoreAreaLimit || iAdded < iAreaLimit) && // advc.129
+ 				kMap.getNumBonuses(eBonus) < iTarget; i++)
+@@ -719,7 +716,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 							CvPlot* pLoopPlot	= plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
+ 							if (pLoopPlot != NULL && (pLoopPlot->area() == pBestArea)) {
+ 								if (canPlaceBonusAt(eBonus, pLoopPlot->getX(), pLoopPlot->getY(), bIgnoreLatitude)) {
+-									if (kGame.getMapRandNum(100, "addUniqueBonusType") < kBonus.getGroupRand())
++									if (MapRandNum(100) < kBonus.getGroupRand())
+ 										pLoopPlot->setBonusType(eBonus);
+ 				} } } } }*/
+ 
+@@ -735,7 +732,7 @@ void CvMapGenerator::addNonUniqueBonusType(BonusTypes eBonus)
+ 	if (iBonusCount == 0)
+ 		return;
+ 
+-	int *aiShuffledIndices = GC.getGame().getMapRand().shuffle(GC.getMap().numPlots());
++	int *aiShuffledIndices = mapRand().shuffle(GC.getMap().numPlots());
+ 	bool const bIgnoreLatitude = GC.getPythonCaller()->isBonusIgnoreLatitude();
+ 	for (int i = 0; i < GC.getMap().numPlots(); i++)
+ 	{
+@@ -753,7 +750,7 @@ void CvMapGenerator::addNonUniqueBonusType(BonusTypes eBonus)
+ 					CvPlot* pLoopPlot	= plotXY(p.getX(), p.getY(), iDX, iDY);
+ 					if (pLoopPlot != NULL) {
+ 						if (canPlaceBonusAt(eBonus, pLoopPlot->getX(), pLoopPlot->getY(), bIgnoreLatitude)) {
+-							if (GC.getGame().getMapRandNum(100, "addNonUniqueBonusType") < kBonus.getGroupRand()) {
++							if (MapRandNum(100) < kBonus.getGroupRand()) {
+ 								pLoopPlot->setBonusType(eBonus);
+ 								iBonusCount--;
+ 		} } } } } }
+@@ -779,7 +776,7 @@ int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
+ 	if (iSize <= 0)
+ 		return 0;
+ 	std::vector<int> aiShuffled(iSize);
+-	GC.getGame().getMapRand().shuffle(aiShuffled);
++	mapRand().shuffle(aiShuffled);
+ 	for (int j = 0; j < iSize &&
+ 		iLimit > 0; j++)
+ 	{
+@@ -789,7 +786,7 @@ int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
+ 		scaled rAddBonusProb = per100(kBonus.getGroupRand());
+ 		// Make large clusters exponentially unlikely
+ 		rAddBonusProb *= fixp(2/3.).pow(iPlaced);
+-		if (rAddBonusProb.bernoulliSuccess(GC.getGame().getMapRand(), "addNonUniqueBonusType"))
++		if (MapRandSuccess(rAddBonusProb))
+ 		{
+ 			kPlot.setBonusType(eBonus);
+ 			iLimit--;
+@@ -814,7 +811,7 @@ void CvMapGenerator::addGoodies()
+ 		return;
+ 
+ 	CvMap const& kMap = GC.getMap();
+-	int* aiShuffledIndices = GC.getGame().getMapRand().shuffle(kMap.numPlots());
++	int* aiShuffledIndices = mapRand().shuffle(kMap.numPlots());
+ 	FOR_EACH_ENUM(Improvement)
+ 	{
+ 		ImprovementTypes const eGoody = eLoopImprovement;
+@@ -1033,15 +1030,14 @@ int CvMapGenerator::getRiverValueAtPlot(CvPlot const& kPlot) const // advc: cons
+ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
+ {
+ 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+-	CvGame& kGame = GC.getGame();
+ 	CvMap const& kMap = GC.getMap();
+ 
+ 	int iBaseCount = kBonus.getConstAppearance();
+ 	{
+-		int iRand1 = kGame.getMapRandNum(kBonus.getRandAppearance1(), "calculateNumBonusesToAdd-1");
+-		int iRand2 = kGame.getMapRandNum(kBonus.getRandAppearance2(), "calculateNumBonusesToAdd-2");
+-		int iRand3 = kGame.getMapRandNum(kBonus.getRandAppearance3(), "calculateNumBonusesToAdd-3");
+-		int iRand4 = kGame.getMapRandNum(kBonus.getRandAppearance4(), "calculateNumBonusesToAdd-4");
++		int iRand1 = MapRandNum(kBonus.getRandAppearance1());
++		int iRand2 = MapRandNum(kBonus.getRandAppearance2());
++		int iRand3 = MapRandNum(kBonus.getRandAppearance3());
++		int iRand4 = MapRandNum(kBonus.getRandAppearance4());
+ 		iBaseCount += iRand1 + iRand2 + iRand3 + iRand4;
+ 	}
+ 	bool const bIgnoreLatitude = GC.getPythonCaller()->isBonusIgnoreLatitude();
+@@ -1082,7 +1078,7 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
+ 			iFromTiles += (iNumPossible / kBonus.getTilesPer());
+ 	}
+ 
+-	scaled rFromPlayers = kGame.countCivPlayersAlive() *
++	scaled rFromPlayers = GC.getGame().countCivPlayersAlive() *
+ 			per100(kBonus.getPercentPerPlayer());
+ 	/*	<advc.129> Same as in BtS for 8 players, a bit less for high player counts,
+ 		a bit more for small player counts. */
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 96cd21866..a933b8075 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4587,13 +4587,13 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 	szBuffer = kGoody.getDescription();
+ 
+ 	// <advc.314>
+-	scaled prUpgrade = (kGoody.isBad() ? 0 : per100(kGoody.getBarbarianUnitProb()));
++	scaled rUpgradeProb = (kGoody.isBad() ? 0 : per100(kGoody.getBarbarianUnitProb()));
+ 	/*  Coefficient chosen such that it's 100% on turn 150. Would be better to
+ 		program that computation and set the 100%-turn in XML ... */
+-	prUpgrade *= (fixp(0.225) * (kGame.goodyHutEffectFactor(false) - 1));
++	rUpgradeProb *= (fixp(0.225) * (kGame.goodyHutEffectFactor(false) - 1));
+ 	/*  Meaning that an upgraded version of kGoody should be used, or, if there
+ 		is none, that an additional outcome should be rolled. */
+-	bool bUpgrade = prUpgrade.bernoulliSuccess(kGame.getSRand(), "advc.314");
++	bool bUpgrade = SyncRandSuccess(rUpgradeProb);
+ 	// </advc.314>
+ 	int iGold = kGoody.getGold() + kGame.getSorenRandNum(kGoody.getGoldRand1(), "Goody Gold 1") +
+ 			kGame.getSorenRandNum(kGoody.getGoldRand2(), "Goody Gold 2");
+@@ -4756,7 +4756,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 				addGoodyMsg(szBuffer, *pPlot, kGoody.getSound());
+ 				szBuffer.clear();
+ 				if(pNewUnit->canAcquirePromotionAny())
+-					promoteFreeUnit(*pNewUnit, prUpgrade);
++					promoteFreeUnit(*pNewUnit, rUpgradeProb);
+ 			}
+ 		}
+ 	}
+@@ -19821,7 +19821,7 @@ void CvPlayer::promoteFreeUnit(CvUnit& u, scaled pr)
+ 	}
+ 	for (int i = 0; i < 2; i++)
+ 	{
+-		if (!pr.bernoulliSuccess(GC.getGame().getSRand(), "advc.314"))
++		if (!SyncRandSuccess(pr))
+ 			break;
+ 		int iBestValue = -1;
+ 		PromotionTypes eBestPromo = NO_PROMOTION;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 139944e8e..47b098415 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4476,7 +4476,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	/*	advc.007b: The RNGs write to separate log files now, so the same log messages
+ 		can be used for both w/o creating confusion. Though I'm not sure if randomness
+ 		should be used at all when recommending tech (bAsync). */
+-	CvRandom& kRand = (bAsync ? GC.getASyncRand() : GC.getGame().getSRand());
++	CvRandom& kRand = (bAsync ? GC.getASyncRand() : syncRand());
+ 	// <k146>
+ 	int iRandomFactor = 0; // Amount of random value in the answer.
+ 	// (These randomness trackers aren't actually used, and may not even be accurate.)
+@@ -8924,8 +8924,8 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 							rCityRatio).round();
+ 					if (AI_isFinancialTrouble())
+ 						iDefyCost *= 2;
+-					scaled prDefy(iWarUtil - iDefyCost, 45);
+-					if (prDefy.bernoulliSuccess(kGame.getSRand(), "advc.104n"))
++					scaled rDefyProb(iWarUtil - iDefyCost, 45);
++					if (SyncRandSuccess(rDefyProb))
+ 						bDefy = true;
+ 				}
+ 			} // </advc.104n>
+@@ -9101,7 +9101,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 					{
+ 						scaled pr(-iWarUtil - 125 +
+ 								5 * kPersonality.getBasePeaceWeight(), 100);
+-						if (pr.bernoulliSuccess(kGame.getSRand(), "advc.104n: defiance roll"))
++						if (SyncRandSuccess(pr))
+ 							bDefy = true;
+ 					}
+ 				}
+@@ -9743,7 +9743,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 		rCancelProb /= per100(iSpeedDivisor);
+ 		/*  (If cancellation were checked more than once per turn,
+ 			::hash would have to be used instead.) */
+-		return !rCancelProb.bernoulliSuccess(kGame.getSRand(), "advc.036 (cancel)");
++		return !SyncRandSuccess(rCancelProb);
+ 		// </advc.133>
+ 	}
+ 	// <advc.136b>
+@@ -18930,7 +18930,7 @@ void CvPlayerAI::AI_doCounter()
+ 					rProb *= rAdoptMultiplier;
+ 			}
+ 			rProb.decreaseTo(fixp(0.5)); // </advc.145>
+-			if (rProb.bernoulliSuccess(kGame.getSRand(), "Memory Decay")) // advc.130j
++			if (SyncRandSuccess(rProb)) // advc.130j
+ 				AI_changeMemoryCount(ePlayer, eMem, -1);
+ 		}
+ 		// <advc.130g>
+@@ -19792,7 +19792,7 @@ void CvPlayerAI::AI_doReligion()
+ 	if (canConvert(eBestReligion))
+ 	{	// <advc.131>
+ 		scaled rConvertProb = 1;
+-		if(iAnarchyLength > 0 && eBestReligion != NO_RELIGION &&
++		if (iAnarchyLength > 0 && eBestReligion != NO_RELIGION &&
+ 			getStateReligion() != NO_RELIGION)
+ 		{
+ 			rConvertProb = 1 - scaled(AI_religionValue(getStateReligion()),
+@@ -19801,8 +19801,7 @@ void CvPlayerAI::AI_doReligion()
+ 		/*  AI_religionValue fluctuates a lot; not sure why.
+ 			Square pr to reduce switching. */
+ 		rConvertProb = SQR(rConvertProb);
+-		if(rConvertProb.bernoulliSuccess(
+-			GC.getGame().getSRand(), "convert roll")) // </advc.131>
++		if (SyncRandSuccess(rConvertProb)) // </advc.131>
+ 		{
+ 			if (gPlayerLogLevel > 0) logBBAI("    %S decides to convert to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getInfo(eBestReligion).getDescription(0), eBestReligion == NO_RELIGION ? 0 : AI_religionValue(eBestReligion), getStateReligion() == NO_RELIGION ? 0 : AI_religionValue(getStateReligion()));
+ 			convert(eBestReligion);
+@@ -19841,8 +19840,7 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
+ 			// <kekm.3> Cancel DP immediately when war no longer shared
+ 			(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+ 			eDenial == DENIAL_JOKING)) || // </kekm.3>
+-			(eDenial == DENIAL_WORST_ENEMY ? 2 : 1 * fixp(0.2)).
+-			bernoulliSuccess(GC.getGame().getSRand(), "deal cancellation")))
++			SyncRandSuccess(eDenial == DENIAL_WORST_ENEMY ? fixp(0.4) : fixp(0.2))))
+ 		{
+ 			if (gDealCancelLogLevel > 1) logBBAICancel(kDeal, getID(), L"dual denial");
+ 			return DO_CANCEL;
+@@ -20111,7 +20109,7 @@ void CvPlayerAI::AI_doDiplo()
+ 	// <advc.024>
+ 	bool abContacted[MAX_TEAMS] = { false };
+ 	int aiContacts[MAX_CIV_PLAYERS];
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		aiContacts[i] = i;
+ 	kGame.getSorenRand().shuffle(aiContacts, MAX_CIV_PLAYERS);
+ 	// </advc.024>
+@@ -20123,7 +20121,7 @@ void CvPlayerAI::AI_doDiplo()
+ 			// advc: Some refactoring in the long body of this loop.
+ 			PlayerTypes ePlayer = (PlayerTypes)aiContacts[iContact]; // advc.024
+ 			CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+-			if(!kPlayer.isAlive() || kPlayer.isHuman() != (iPass == 1) ||
++			if (!kPlayer.isAlive() || kPlayer.isHuman() != (iPass == 1) ||
+ 				ePlayer == getID() ||
+ 				kPlayer.getNumCities() <= 0) // advc.701
+ 			{
+@@ -20131,14 +20129,14 @@ void CvPlayerAI::AI_doDiplo()
+ 			}
+ 			/*  <advc.706> Don't want player to receive diplo msgs on the
+ 				first turn of a chapter. */
+-			if(kPlayer.isHuman() && kGame.isOption(GAMEOPTION_RISE_FALL) &&
++			if (kPlayer.isHuman() && kGame.isOption(GAMEOPTION_RISE_FALL) &&
+ 				kGame.getRiseFall().isBlockPopups())
+ 			{
+ 				continue;
+ 			} // </advc.706>
+ 			//if (GET_PLAYER((PlayerTypes)iI).getTeam() != getTeam()) // disabled by K-Mod
+ 			abContacted[ePlayer] = AI_doDeals(ePlayer); // advc
+-			if(!canContact(ePlayer, true))
++			if (!canContact(ePlayer, true))
+ 				continue;
+ 
+ 			/*	advc.ctr: Moved up and abContacted check restored
+@@ -20156,7 +20154,7 @@ void CvPlayerAI::AI_doDiplo()
+ 					abContacted[kPlayer.getTeam()] = true; // </advc>
+ 			}
+ 
+-			if((kPlayer.getTeam() == getTeam() || GET_TEAM(ePlayer).isVassal(getTeam())) &&
++			if ((kPlayer.getTeam() == getTeam() || GET_TEAM(ePlayer).isVassal(getTeam())) &&
+ 				canPossiblyTradeItem(ePlayer, TRADE_RESOURCES)) // advc.opt
+ 			{
+ 				// XXX will it cancel this deal if it loses its first resource???
+@@ -20225,15 +20223,14 @@ void CvPlayerAI::AI_doDiplo()
+ 						(kPlayer.isHuman() ? 7 : 9); // K-Mod
+ 				scaled rTechScoreRatio(iTheirTechScore, std::max(iOurTechScore, 1));
+ 				scaled rGiftProb = 1 - rTechScoreRatio;
+-				if(GET_TEAM(ePlayer).isCapitulated())
++				if (GET_TEAM(ePlayer).isCapitulated())
+ 					rGiftProb.increaseTo(fixp(1/3.));
+-				else if(isAVassal())
++				else if (isAVassal())
+ 				{
+ 					rGiftProb *= fixp(2/3.) * (AI_getAttitude(ePlayer, false) -
+ 							(GET_TEAM(getTeam()).isCapitulated() ? 1 : 2));
+ 				}
+-				if(rTechScoreRatio <= 1 &&
+-					rGiftProb.bernoulliSuccess(kGame.getSRand(), "gift roll"))
++				if (rTechScoreRatio <= 1 && SyncRandSuccess(rGiftProb))
+ 				{	// </advc.112>
+ 					FOR_EACH_ENUM(Tech)
+ 					{
+@@ -20384,7 +20381,7 @@ void CvPlayerAI::AI_doDiplo()
+ 					if(kOurTeam.getNumWars() > 0)
+ 						rVassalProb *= 4;
+ 				}
+-				if (rVassalProb.bernoulliSuccess(kGame.getSRand(), "rVassalProb"))
++				if (SyncRandSuccess(rVassalProb))
+ 				{	// </advc.112>
+ 					TradeData item(TRADE_VASSAL);
+ 					if (canTradeItem(ePlayer, item, true))
+@@ -20482,16 +20479,16 @@ void CvPlayerAI::AI_doDiplo()
+ 							{
+ 								rDiv = fixp(1.25);
+ 							}
+-							else if(AI_atVictoryStage(AI_VICTORY_DIPLOMACY1))
++							else if (AI_atVictoryStage(AI_VICTORY_DIPLOMACY1))
+ 							{
+ 								rDiv += fixp(0.1);
+-								if(AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
++								if (AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
+ 								{
+ 									rDiv += fixp(0.1);
+-									if(AI_atVictoryStage(AI_VICTORY_DIPLOMACY3))
++									if (AI_atVictoryStage(AI_VICTORY_DIPLOMACY3))
+ 									{
+ 										rDiv += fixp(0.1);
+-										if(AI_atVictoryStage(AI_VICTORY_DIPLOMACY4))
++										if (AI_atVictoryStage(AI_VICTORY_DIPLOMACY4))
+ 											rDiv += fixp(0.1);
+ 									}
+ 								}
+@@ -20526,7 +20523,7 @@ void CvPlayerAI::AI_doDiplo()
+ 								{
+ 									weGive.clear();
+ 									weGive.insertAtEnd(TradeData(TRADE_TECHNOLOGIES, eBestGiveTech));
+-									if(kPlayer.isHuman()) // advc.130z
++									if (kPlayer.isHuman()) // advc.130z
+ 									{
+ 										if (!abContacted[kPlayer.getTeam()])
+ 										{
+@@ -20549,7 +20546,7 @@ void CvPlayerAI::AI_doDiplo()
+ 				}
+ 			} /* advc.130z: Same condition as in BtS, but no longer applied to
+ 				 to the part above. */
+-			if(kPlayer.isHuman() && kOurTeam.getLeaderID() == getID())
++			if (kPlayer.isHuman() && kOurTeam.getLeaderID() == getID())
+ 			{
+ 				if (!abContacted[kPlayer.getTeam()] &&   // advc.130v:
+ 					(!isAVassal() || kOurTeam.getMasterTeam() == kPlayer.getTeam()))
+@@ -20564,7 +20561,7 @@ void CvPlayerAI::AI_doDiplo()
+ 						iRand /= 30;
+ 					} // BETTER_BTS_AI_MOD: END
+ 					// <advc.104m> Reduce pr to 80% b/c UWAI also calls AI_askHelp
+-					if(getUWAI().isEnabled())
++					if (getUWAI().isEnabled())
+ 						iRand = (iRand * 5) / 4; // </advc.104m>
+ 					if (kGame.getSorenRandNum(iRand, "AI Diplo Ask For Help") == 0)
+ 						abContacted[kPlayer.getTeam()] = AI_askHelp(ePlayer);
+@@ -20585,13 +20582,13 @@ void CvPlayerAI::AI_doDiplo()
+ 					{
+ 						if (!abContacted[kPlayer.getTeam()])
+ 						{
+-							if(kGame.getSorenRandNum(GC.getInfo(getPersonalityType()).
++							if (kGame.getSorenRandNum(GC.getInfo(getPersonalityType()).
+ 								getContactRand(CONTACT_DEMAND_TRIBUTE)
+ 								// advc.104m: Probability halved b/c UWAI also calls AI_demandTribute
+ 								* (getUWAI().isEnabled() ? 2 : 1),
+ 								"AI Diplo Demand Tribute") == 0)
+ 							{
+-								FOR_EACH_ENUM_RAND(AIDemand, kGame.getSRand()) // advc.104m
++								FOR_EACH_ENUM_RAND(AIDemand, syncRand()) // advc.104m
+ 								{
+ 									abContacted[kPlayer.getTeam()] = AI_demandTribute(
+ 											ePlayer, eLoopAIDemand);
+@@ -20796,7 +20793,7 @@ void CvPlayerAI::AI_doDiplo()
+ 								// <advc.550b>
+ 								(!kPlayer.isHuman() ||
+ 								2 * iTheyReceive > iWeReceive || // else not likely to lead to an attractive offer
+-								fixp(0.36).bernoulliSuccess(kGame.getSRand(), "advc.550b")))
++								SyncRandSuccess(fixp(0.36))))
+ 								// </advc.550b>
+ 							{	// advc.opt: Pushed this down into CvPlayer::buildTradeTable and CvPlayerAI::AI_counterPropose
+ 								//PROFILE("AI_doDiplo self-counter-propose");
+@@ -20944,10 +20941,10 @@ void CvPlayerAI::AI_doDiplo()
+ 	not human, not a vassal, team leader. */
+ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
+ {
+-	if(AI_getContactTimer(eHuman, CONTACT_JOIN_WAR) > 0)
++	if (AI_getContactTimer(eHuman, CONTACT_JOIN_WAR) > 0)
+ 		return false;
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+-	if(kOurTeam.getNumWars(true, true) <= 0)
++	if (kOurTeam.getNumWars(true, true) <= 0)
+ 		return false;
+ 	CvGame& kGame = GC.getGame();
+ 	// <advc.130m> Replacing this with an attitude check at the end:
+@@ -20978,7 +20975,7 @@ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
+ 		rMeanAtWarTurns = scaled::max(1, rTotalAtWarTurns /
+ 				std::max(1, iWars));
+ 	}
+-	if(kGame.getSorenRandNum((GC.getInfo(getPersonalityType()).
++	if (kGame.getSorenRandNum((GC.getInfo(getPersonalityType()).
+ 		/*  That's one tenth of the BtS probability on turn one of a war,
+ 			the BtS probability after 10 turns, and then grows to twice that. */
+ 		getContactRand(CONTACT_JOIN_WAR) * 10 / rMeanAtWarTurns).round(), // </advc.130m>
+@@ -20992,7 +20989,7 @@ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
+ 	for (TeamIter<FREE_MAJOR_CIV,ENEMY_OF> it(getTeam()); it.hasNext(); ++it)
+ 	{
+ 		TeamTypes const eTarget = it->getID();
+-		if(GET_TEAM(eHuman).isAtWar(eTarget) ||
++		if (GET_TEAM(eHuman).isAtWar(eTarget) ||
+ 			!GET_TEAM(eHuman).isHasMet(eTarget) ||
+ 			!GET_TEAM(eHuman).canDeclareWar(eTarget) ||
+ 			// <advc.130m>
+@@ -21007,7 +21004,7 @@ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
+ 		// Avoid asking if they've recently made peace
+ 		scaled rSkipProb = 1 - (GET_TEAM(eHuman).AI_getAtPeaceCounter(eTarget) -
+ 				GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)) * fixp(0.067);
+-		if(rSkipProb.bernoulliSuccess(kGame.getSRand(), "advc.130m (peace)"))
++		if (SyncRandSuccess(rSkipProb))
+ 			continue; // </advc.130m>
+ 		int iTargetVal = kGame.getSorenRandNum(10000, "AI Joining War");
+ 		// advc.130m:
+@@ -21085,12 +21082,15 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 	if(iMinAtWarCounter == MAX_INT)
+ 		return;
+ 	iDeclareWarTradeRand = iDeclareWarTradeRand / 10 + std::min(10, iMinAtWarCounter);
+-	scaled prOffer = (iDeclareWarTradeRand <= 0 ? 1 : scaled(1, iDeclareWarTradeRand));
+ 	CvGame& kGame = GC.getGame();
+ 	// BtS probability test:
+ 	//if(kGame.getSorenRandNum(iDeclareWarTradeRand, "AI Diplo Declare War Trade") != 0)
+-	if (!prOffer.bernoulliSuccess(GC.getGame().getSRand(), "advc.161"))
+-		return; // </advc.161>
++	{
++		scaled rOfferProb = (iDeclareWarTradeRand <= 0 ? 1 :
++				scaled(1, iDeclareWarTradeRand));
++		if (!SyncRandSuccess(rOfferProb))
++			return;
++	} // </advc.161>
+ 	// <advc.104o>
+ 	int iBestTargetValue = 0;
+ 	int iBestTeamPrice = -1;
+@@ -21140,7 +21140,7 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 			}
+ 		}
+ 		else // </advc.104o>
+-		 if (kTarget.getNumWars() < std::max(2, kGame.countCivTeamsAlive() / 2))
++			if (kTarget.getNumWars() < std::max(2, kGame.countCivTeamsAlive() / 2))
+ 		{
+ 			if (kHireling.canTradeItem(getID(),
+ 				TradeData(TRADE_WAR, kTarget.getID()), true))
+@@ -21418,11 +21418,8 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
+ 					// Estimate of how much kTo would rather keep eLoopBonus
+ 					kTo.AI_bonusVal(eLoopBonus, -1, false, true) * iDealLen *
+ 					(getNumCities() + kTo.getNumCities()) / 5;
+-			if (!scaled(iBias - 15, 90).bernoulliSuccess(
+-				kGame.getSRand(), "resource trade bias 1"))
+-			{
++			if (!SyncRandSuccess(scaled(iBias - 15, 90)))
+ 				continue;
+-			}
+ 			if (kTo.getTradeDenial(getID(), item) == NO_DENIAL)
+ 			{
+ 				// Was completely random before
+@@ -21462,11 +21459,8 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
+ 					(getNumCities() + kTo.getNumCities()) / 5;
+ 			/*	Less likely to skip than above - now that one sensible trade item
+ 				is already locked in. And we don't want to pay cash for it. */
+-			if (!scaled(iBias - 15, 35).bernoulliSuccess(
+-				kGame.getSRand(), "resource trade bias 2"))
+-			{
++			if (!SyncRandSuccess(scaled(iBias - 15, 35)))
+ 				continue;
+-			}
+ 			if (getTradeDenial(eTo, item) == NO_DENIAL)
+ 			{
+ 				int iValue = (kGame.getSorenRandNum(30, "AI Bonus Trading #2")
+@@ -21588,8 +21582,7 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
+ 	// <advc.705>
+ 	CvGame& kGame = GC.getGame();
+ 	if (kGame.isOption(GAMEOPTION_RISE_FALL) && kGame.getRiseFall().
+-		isCooperationRestricted(getID()) &&
+-		fixp(1/3.).bernoulliSuccess(kGame.getSRand(), "advc.705"))
++		isCooperationRestricted(getID()) && SyncRandSuccess(fixp(1/3.)))
+ 	{
+ 		return false;
+ 	} // </advc.705>
+@@ -21621,9 +21614,9 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
+ 	int iCityVal = (pBestCity == NULL ? 0 :
+ 			AI_cityTradeVal(*pBestCity, NO_PLAYER, LIBERATION_WEIGHT_REDUCED));
+ 	TradeData mainItem;
+-	if (pBestCity != NULL && (iTechVal <= 0 ||
+-		(3 * iCityVal < 4 * iTechVal && fixp(2/3.).bernoulliSuccess(
+-		kGame.getSRand(), "advc.ctr: askHelp"))))
++	if (pBestCity != NULL &&
++		(iTechVal <= 0 ||
++		(3 * iCityVal < 4 * iTechVal && SyncRandSuccess(fixp(2/3.)))))
+ 	{
+ 		mainItem.m_eItemType = TRADE_CITIES;
+ 		mainItem.m_iData = pBestCity->getID();
+@@ -21792,8 +21785,7 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
+ 				rValue *= rNonSurplusFactor; // advc.104m: Hardly our problem ...
+ 			}
+ 			// <advc.104m>
+-			rValue *= 1 + scaled::rand(GC.getGame().getSRand(),
+-					"AI resource demand (advc.104m)") / 4;
++			rValue *= 1 + SyncRandFract(scaled) / 4;
+ 			aieBonuses.push_back(std::make_pair(rValue, eLoopBonus));
+ 		}
+ 		std::sort(aieBonuses.begin(), aieBonuses.end(),
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index cc2f7f8df..a40e9c659 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3831,20 +3831,20 @@ CvPlot* CvPlot::getInlandCorner() const
+ {
+ 	CvPlot* pRiverPlot = NULL; // Plot through whose SE corner we want the river to run
+ 	int aiShuffle[4];
+-	GC.getGame().getMapRand().shuffle(aiShuffle, ARRAYSIZE(aiShuffle));
+-	CvMap const& m = GC.getMap();
++	mapRand().shuffle(aiShuffle, ARRAYSIZE(aiShuffle));
++	CvMap const& kMap = GC.getMap();
+ 	for (int i = 0; i < ARRAYSIZE(aiShuffle); i++)
+ 	{
+ 		switch (aiShuffle[i])
+ 		{
+ 		case 0:
+-			pRiverPlot = m.plotSoren(getX(), getY()); break;
++			pRiverPlot = kMap.plotSoren(getX(), getY()); break;
+ 		case 1:
+-			pRiverPlot = m.plotDirection(getX(), getY(), DIRECTION_NORTH); break;
++			pRiverPlot = kMap.plotDirection(getX(), getY(), DIRECTION_NORTH); break;
+ 		case 2:
+-			pRiverPlot = m.plotDirection(getX(), getY(), DIRECTION_NORTHWEST); break;
++			pRiverPlot = kMap.plotDirection(getX(), getY(), DIRECTION_NORTHWEST); break;
+ 		case 3:
+-			pRiverPlot = m.plotDirection(getX(), getY(), DIRECTION_WEST); break;
++			pRiverPlot = kMap.plotDirection(getX(), getY(), DIRECTION_WEST); break;
+ 		}
+ 		if (pRiverPlot != NULL && !pRiverPlot->hasCoastAtSECorner())
+ 			break;
+
+diff --git a/CvGameCoreDLL/CvRandom.h b/CvGameCoreDLL/CvRandom.h
+index 5a3cedaf9..5d1039c6e 100644
+--- a/CvGameCoreDLL/CvRandom.h
++++ b/CvGameCoreDLL/CvRandom.h
+@@ -76,8 +76,7 @@ protected:
+ // advc.003k: Gets instantiated (also) externally; size mustn't change.
+ BOOST_STATIC_ASSERT(sizeof(CvRandom) == 8);
+ 
+-// <advc.007b>
+-/*	Since I can't store a log file name at CvRandom,
++/*	advc.007b: Since I can't store a log file name at CvRandom,
+ 	let's make a class that'll only get instantiated in the DLL. */
+ class CvRandomExtended : public CvRandom
+ {
+@@ -146,34 +145,4 @@ ItemType* CvRandom::weightedChoice(std::vector<ItemType*> const& kItems,
+ 	return NULL;
+ }
+ 
+-// Some macros that should make the logging aspect less tedious ...
+-
+-// May well be useful elsewhere, but let's put it where it gets used for now.
+-#define STRINGIFY_HELPER2(x) #x
+-#define STRINGIFY_HELPER1(x) STRINGIFY_HELPER2(x)
+-#define CALL_LOC_STR __FUNCTION__ "(" __FILE__ "):" STRINGIFY_HELPER1(__LINE__)
+-
+-// ASyncRand gets used so little in the DLL; don't need a macro.
+-/*#define AsyncRandNum(iNumOutcomes) \
+-	GC.getASyncRand().get((iNumOutcomes), CALL_LOC_STR)*/
+-
+-// The rest will require the CvGame header:
+-
+-/*	Implementation files that include the CvRandom header can re-define this
+-	to use a different CvGame instance */
+-#define CVGAME_INSTANCE_FOR_RNG GC.getGame()
+-
+-#define SyncRandNum(iNumOutcomes) \
+-	CVGAME_INSTANCE_FOR_RNG.getSRandNum((iNumOutcomes), CALL_LOC_STR)
+-#define MapRandNum(iNumOutcomes) \
+-	CVGAME_INSTANCE_FOR_RNG.getMapRandNum((iNumOutcomes), CALL_LOC_STR)
+-/*	These take a ScaledNum instance or instantiation as parameter
+-	and will therefore require the ScaledNum header. */
+-#define SyncRandFract(T) \
+-	T::rand(CVGAME_INSTANCE_FOR_RNG.getSRand(), CALL_LOC_STR)
+-#define SyncRandSuccess(rSuccessProbability) \
+-	(rSuccessProbability).bernoulliSuccess( \
+-	CVGAME_INSTANCE_FOR_RNG.getSRand(), CALL_LOC_STR)
+-// </advc.007b>
+-
+ #endif
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 7fe6c65e1..77b97a903 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2359,7 +2359,7 @@ PlayerTypes CvTeam::getRandomMemberAlive(bool bHuman) const
+ 		bHuman = false;
+ 	int iValid = (bHuman ? PlayerIter<HUMAN,MEMBER_OF>::count(getID()) :
+ 			getAliveCount());
+-	int iIndex = GC.getGame().getSRandNum(iValid, "CvTeam::getRandomMemberAlive");
++	int iIndex = SyncRandNum(iValid);
+ 	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
+ 	{
+ 		if ((!bHuman || itMember->isHuman()) && itMember.nextIndex() >= iIndex)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 8d10f0ee5..9b068a9f6 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5624,9 +5624,9 @@ int CvTeamAI::AI_randomCounterChange(int iUpperCap, scaled rProb) const
+ 		iSpeedPercent = (kSpeed.getGrowthPercent() + kSpeed.getGoldenAgePercent()) / 2;
+ 	rProb *= scaled(100, std::max(50, iSpeedPercent));
+ 	int r = 0;
+-	if(rProb.bernoulliSuccess(GC.getGame().getSRand(), "random counter change"))
++	if (SyncRandSuccess(rProb))
+ 		r++;
+-	if(rProb.bernoulliSuccess(GC.getGame().getSRand(), "random counter change"))
++	if (SyncRandSuccess(rProb))
+ 		r++;
+ 	if(iUpperCap < 0)
+ 		return r;
+@@ -5685,11 +5685,8 @@ void CvTeamAI::AI_doCounter()
+ 		if(AI_shareWar(eOther))
+ 			AI_changeShareWarCounter(eOther, AI_randomCounterChange()); // </advc.130k>
+ 		// <advc.130m> Decay by 1 with 10% probability
+-		else if(AI_getShareWarCounter(eOther) > 0 &&
+-			fixp(0.1).bernoulliSuccess(GC.getGame().getSRand(), "share war decay"))
+-		{
++		else if(AI_getShareWarCounter(eOther) > 0 && SyncRandSuccess(fixp(0.1)))
+ 			AI_changeShareWarCounter(eOther, -1);
+-		}
+ 		AI_setSharedWarSuccess(eOther,
+ 				(AI_getSharedWarSuccess(eOther) * rDecayFactor).floor());
+ 		// </advc.130m>  <advc.130p>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 851c4f36b..44ca5807c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1902,7 +1902,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 			return;
+ 		bCanRoute = false; // advc.113: Don't try again
+ 	}
+-	scaled prLoad = 0; // advc.113: Needed for the scrap decision
++	scaled rLoadProb = 0; // advc.113: Needed for the scrap decision
+ 	if (!isHuman() || (isAutomated() && GET_TEAM(getTeam()).getNumWars() <= 0))
+ 	{
+ 		if (!isHuman() || getGameTurnCreated() < GC.getGame().getGameTurn())
+@@ -1918,15 +1918,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 				into transports.) */
+ 			int const iAreaWorkers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
+ 			int const iAreaCities = getArea().getCitiesPerPlayer(getOwner());
+-			prLoad = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
++			rLoadProb = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
+ 			if (pCity != NULL)
+ 			{
+ 				int iLocalMissing = pCity->AI_getWorkersNeeded() - pCity->AI_getWorkersHave();
+ 				if (iLocalMissing > 0)
+-					prLoad /= 1 + iLocalMissing;
++					rLoadProb /= 1 + iLocalMissing;
+ 			}
+-			if (iAreaCities <= 0 || (iMissingWorkersInArea <= 0 && iAreaWorkers > 1 &&
+-				prLoad.bernoulliSuccess(GC.getGame().getSRand(), "advc.113 (load worker)")))
++			if (iAreaCities <= 0 ||
++				(iMissingWorkersInArea <= 0 && iAreaWorkers > 1 &&
++				SyncRandSuccess(rLoadProb)))
+ 			{ // </advc.113>
+ 				/*if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, -1, MOVE_SAFE_TERRITORY))
+ 					return; */
+@@ -1943,7 +1944,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 				{
+ 					return;
+ 				} // BETTER_BTS_AI_MOD: END
+-				prLoad = 0; // advc.113: OK to scrap
++				rLoadProb = 0; // advc.113: OK to scrap
+ 			}
+ 		}
+ 	}
+@@ -1996,17 +1997,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 				if (pCity == NULL || pCity->AI_getWorkersNeeded() < pCity->AI_getWorkersHave() + 1)
+ 				{	/*  Scrap eventually b/c the worker could be stuck in this area,
+ 						but there's no hurry. */
+-					scaled prScrap(iTotalHave, std::max(1, iTotalThresh));
+-					prScrap -= 1;
+-					prScrap *= prScrap;
++					scaled rScrapProb(iTotalHave, std::max(1, iTotalThresh));
++					rScrapProb -= 1;
++					rScrapProb *= rScrapProb;
+ 					// Don't scrap if waiting to load
+-					prScrap *= scaled::max(0, 1 - 3 * prLoad);
+-					if (prScrap > 0) // to save time
++					rScrapProb *= scaled::max(0, 1 - 3 * rLoadProb);
++					if (rScrapProb > 0) // to save time
+ 					{
+ 						int iFinancialTroubleMargin = kOwner.AI_financialTroubleMargin();
+-						prScrap *= per100(100 - std::min(iFinancialTroubleMargin, 85));
++						rScrapProb *= per100(100 - std::min(iFinancialTroubleMargin, 85));
+ 					}
+-					if(prScrap.bernoulliSuccess(GC.getGame().getSRand(), "advc.113 (scrap worker)"))
++					if (SyncRandSuccess(rScrapProb))
+ 					{ // </advc.113>
+ 						scrap();
+ 						return;
+@@ -5933,8 +5934,8 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 		Should also resolve an issue where Barbarian ships are indefinitely stuck
+ 		patrolling an unowned stretch surrounded by borders. (Patrolling Barbarians
+ 		never enter borders.) */
+-	if ((getGroup()->getMissionType(0) == MISSION_MOVE_TO ||
+-		fixp(0.2).bernoulliSuccess(GC.getGame().getSRand(), "Barb ship retreat")))
++	if (getGroup()->getMissionType(0) == MISSION_MOVE_TO ||
++		SyncRandSuccess(fixp(0.2)))
+ 	{
+ 		if (AI_safety())
+ 		{
+@@ -6666,12 +6667,12 @@ void CvUnitAI::AI_exploreSeaMove()
+ 	{	// <advc.017b>
+ 		bool bTransform = false;
+ 		// Don't be too quick to decide that there are too many explorers
+-		if(fixp(0.13).bernoulliSuccess(GC.getGame().getSRand(), "transform explorer"))
++		if (SyncRandSuccess(fixp(0.13)))
+ 		{
+ 			bTransform = kOwner.AI_isExcessSeaExplorers(*pWaterArea);
+ 			bExcessExplorers = bTransform;
+ 		}
+-		if(!bTransform &&
++		if (!bTransform &&
+ 			/*  In the early game, it'll often take a better explorer (Galley
+ 				vs Work Boat) too long to reach an unexplored area; better to
+ 				let the outdated explorer continue. */
+@@ -6681,7 +6682,7 @@ void CvUnitAI::AI_exploreSeaMove()
+ 			bTransform = true;
+ 		}
+ 		// Moved the obsoletion test; now only required for scrapping
+-		if(bTransform) // </advc.017b>
++		if (bTransform) // </advc.017b>
+ 		{
+ 			// <advc> Made this more concise (original code deleted)
+ 			std::vector<UnitAITypes> transformTypes;
+@@ -6703,7 +6704,7 @@ void CvUnitAI::AI_exploreSeaMove()
+ 				transformTypes.push_back(UNITAI_ASSAULT_SEA);
+ 			}
+ 			// <advc.017b> Instead of always trying MISSIONARY_SEA before RESERVE_SEA
+-			if((kOwner.AI_totalUnitAIs(UNITAI_MISSIONARY) > 0 ||
++			if ((kOwner.AI_totalUnitAIs(UNITAI_MISSIONARY) > 0 ||
+ 					kOwner.AI_isDoStrategy(AI_STRATEGY_MISSIONARY)) &&
+ 					kOwner.AI_totalUnitAIs(UNITAI_MISSIONARY_SEA) <= 1)
+ 			{
+@@ -6715,9 +6716,9 @@ void CvUnitAI::AI_exploreSeaMove()
+ 				transformTypes.push_back(UNITAI_RESERVE_SEA);
+ 				transformTypes.push_back(UNITAI_MISSIONARY_SEA);
+ 			} // </advc.017b>
+-			for(size_t i = 0; i < transformTypes.size(); i++)
++			for (size_t i = 0; i < transformTypes.size(); i++)
+ 			{
+-				if(getUnitInfo().getUnitAIType(transformTypes[i]) &&
++				if (getUnitInfo().getUnitAIType(transformTypes[i]) &&
+ 					kOwner.AI_unitValue(getUnitType(), transformTypes[i], pWaterArea) > 0)
+ 				{
+ 					// Before transforming a Work Boat, check if there is sth. to improve.
+@@ -8433,8 +8434,8 @@ void CvUnitAI::AI_defenseAirMove()
+ 		return;
+ 	}
+ 
+-	if (!bTriedAirStrike
+-		&& GC.getGame().getSorenRandNum(3, "AI_defenseAirMove airstrike2") <=
++	if (!bTriedAirStrike &&
++		GC.getGame().getSorenRandNum(3, "AI_defenseAirMove airstrike2") <=
+ 		(bOffensive ? 1 : 0) - (bDefensive ? 1 : 0))
+ 	{
+ 		if (AI_airStrike())
+@@ -8443,13 +8444,13 @@ void CvUnitAI::AI_defenseAirMove()
+ 	}
+ 
+ 	// <advc.650>
+-	if(GET_PLAYER(getOwner()).AI_isDangerFromSubmarines() && getPlot().isCoastalLand(-1) &&
+-		fixp(0.38).bernoulliSuccess(GC.getGame().getSRand(), "search for submarines"))
++	if (GET_PLAYER(getOwner()).AI_isDangerFromSubmarines() && getPlot().isCoastalLand(-1) &&
++		SyncRandSuccess(fixp(0.38)))
+ 	{
+ 		/*	Would be better to check for matching Invisible Types (modded aircraft
+ 			may not be able to see invisible units). Also, isCoastalLand is a bit
+ 			narrow -- can often scout the seas from landlocked cities. */
+-		if(AI_exploreAirRange())
++		if (AI_exploreAirRange())
+ 			return;
+ 	} // </advc.650>
+ 
+@@ -10989,9 +10990,11 @@ bool CvUnitAI::AI_singleUnitHeal(int iMaxTurnsExposed, int iMaxTurnsOutsideCity)
+ 	if (!bHeal && isBarbarian())
+ 	{
+ 		int iHeal = healRate();
+-		scaled rHealPr(2 * iHeal, getDomainType() == DOMAIN_SEA ? 35 : 45);
+-		if (iHeal >= 5 && rHealPr.bernoulliSuccess(GC.getGame().getSRand(), "Barbarian Heal"))
++		if (iHeal >= 5 && SyncRandSuccess(scaled(2 * iHeal,
++			getDomainType() == DOMAIN_SEA ? 35 : 45)))
++		{
+ 			bHeal = true;
++		}
+ 	} // </advc.306>
+ 	if (bHeal)
+ 	{
+@@ -12457,8 +12460,8 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 		if (!isBarbarian() && kAdj.getOwner() == getOwner() &&
+ 			// Make sure not to hamper early exploration (perhaps not an issue)
+ 			kGame.getElapsedGameTurns() >= 25 &&
+-			(kAdj.isUnit() || fixp(0.9).bernoulliSuccess(kGame.getSRand(),
+-			iFirst++ <= 0 ? "advc.102" : NULL))) // advc.007: Don't pollute MPLog
++			(kAdj.isUnit() || fixp(0.9).randSuccess(syncRand(), 
++			iFirst++ <= 0 ? "AI_patrol (first)" : NULL))) // advc.007: Don't pollute MPLog
+ 		{
+ 			continue;
+ 		}
+@@ -14059,7 +14062,7 @@ bool CvUnitAI::AI_evacuateCity()
+ 	}
+ 	/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
+ 		Hopefully sufficient most of the time. */
+-	if (rEvacProb.bernoulliSuccess(GC.getGame().getSRand(), "evac city"))
++	if (SyncRandSuccess(rEvacProb))
+ 		return AI_retreatToCity();
+ 	return false;
+ }
+@@ -17130,8 +17133,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	// <advc.121>
+ 	MissionTypes eMission = MISSION_MOVE_TO;
+ 	if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
+-		scaled(1, stepDistance(plot(), pBestPlot) + 1).bernoulliSuccess(
+-		GC.getGame().getSRand(), "advc.121: route-to"))
++		SyncRandSuccess(scaled(1, stepDistance(plot(), pBestPlot) + 1)))
+ 	{
+ 		eMission = MISSION_ROUTE_TO;
+ 	}
+
+diff --git a/CvGameCoreDLL/EnumTraits.h b/CvGameCoreDLL/EnumTraits.h
+index f0a97bde4..16f6a770f 100644
+--- a/CvGameCoreDLL/EnumTraits.h
++++ b/CvGameCoreDLL/EnumTraits.h
+@@ -229,10 +229,10 @@ namespace enum_traits_detail
+ 			(eLoop##TypeName = (TypeName##Types)CONCATVARNAME(aiLoop##TypeName##Indices_, __LINE__) \
+ 			[CONCATVARNAME(iLoop##TypeName##Counter_, __LINE__)], \
+ 			(CONCATVARNAME(iLoop##TypeName##Counter_, __LINE__)++, true)); )
+-/*	Example. FOR_EACH_ENUM_RAND(CardinalDirection, GC.getGame().getMapRand())
++/*	Example. FOR_EACH_ENUM_RAND(CardinalDirection, mapRand())
+ 	expands to:
+ 	std::vector<int> aiLoopCardinalDirectionIndices_443(getEnumLength((CardinalDirectionTypes)0));
+-	(GC.getGame().getMapRand()).shuffle(aiLoopCardinalDirectionIndices_443);
++	(mapRand()).shuffle(aiLoopCardinalDirectionIndices_443);
+ 	int iLoopCardinalDirectionCounter_443 = 0;
+ 	for ( CardinalDirectionTypes eLoopCardinalDirection;
+ 			iLoopCardinalDirectionCounter_443 <
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index d7f914bcc..0583694b9 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -13,10 +13,10 @@
+  +	intdiv::round, fmath::round  in ArithmeticUtils.h.
+  +	intHash in CvGameCoreUtils.h.
+  +	integer_limits in IntegerTraits.h.
+-	For inclusion in PCH, one may have to define NOMINMAX before including windows.h;
+-	see CvGameCoreDLL.h.
+-	The bernoulliSuccess function assumes that CvRandom can include two integer values
+-	in its log messages; see comment in bernoulliSuccess. */
++	For precompiling this header, one may have to define NOMINMAX
++	before including windows.h; see CvGameCoreDLL.h.
++	The randSuccess function assumes that CvRandom can include two integer values
++	in its log messages; see comment in randSuccess. */
+ 
+ // Defined in BaseTsd.h. Easy to get them mixed up with ScaledNum::INTMAX, INTMIN.
+ #ifdef MAXINT
+@@ -62,7 +62,7 @@ CvString ScaledNumBase<Dummy>::szBuf = "";
+ 	Performance: Generally comparable to floating-point types when the scale factor is
+ 	a power of 2; see ScaledNumTest.cpp.
+ 	Overloads commonly used arithmetic operators and offers some conveniences that the
+-	built-in types don't have, e.g. abs, clamp, approxEquals, bernoulliSuccess (coin flip).
++	built-in types don't have, e.g. abs, clamp, approxEquals, randSuccess (coin flip).
+ 	Compile-time converter from double: macro 'fixp'
+ 	Conversion from percentage: macro 'per100' (also 'per1000', 'per10000')
+ 	'scaled' and 'uscaled' typedefs for default precision.
+@@ -309,7 +309,7 @@ public:
+ 	}
+ 
+ 	// Bernoulli trial (coin flip) with success probability equal to m_i/SCALE
+-	bool bernoulliSuccess(CvRandom& kRand, char const* szLog,
++	bool randSuccess(CvRandom& kRand, char const* szLog,
+ 			int iLogData1 = MIN_INT, int iLogData2 = MIN_INT) const;
+ 
+ 	ScaledNum pow(int iExp) const;
+@@ -869,7 +869,7 @@ int ScaledNum_T::uceil() const
+ 
+ 
+ template<ScaledNum_PARAMS>
+-bool ScaledNum_T::bernoulliSuccess(CvRandom& kRand, char const* szLog,
++bool ScaledNum_T::randSuccess(CvRandom& kRand, char const* szLog,
+ 	int iLogData1, int iLogData2) const
+ {
+ 	// Guards for better performance and to avoid unnecessary log output
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index 2baa6177d..1877eccab 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -38,7 +38,7 @@ void TestScaledNum()
+ 	int iSuccesses = 0;
+ 	CvRandom& kRand = GC.getASyncRand();
+ 	for(int i = 0; i < 1000; i++)
+-		if(fixp(0.4).bernoulliSuccess(kRand, ""))
++		if(fixp(0.4).randSuccess(kRand, ""))
+ 			iSuccesses++;
+ 	FAssertBounds(355, 445, iSuccesses);
+ 	scaled rSum;
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 81de8cdc4..6e7d0911a 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -45,7 +45,7 @@ CvPlot* Shelf::randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
+ 		}
+ 	}
+ 	iValid = apValid.size();
+-	return GC.getGame().getSRand().weightedChoice(apValid,
++	return syncRand().weightedChoice(apValid,
+ 			pWeights == NULL ? NULL : &aiWeights);
+ }
+ 
+@@ -122,7 +122,7 @@ CvUnit* Shelf::randomBarbarianTransport() const
+ 		return NULL;
+ 	int iValid = apValid.size();
+ 	scaled rNoneProb = fixp(0.2) + scaled(iValid, 10);
+-	if (!rNoneProb.bernoulliSuccess(GC.getGame().getSRand(), "no Barbarian transport"))
++	if (!SyncRandSuccess(rNoneProb))
+ 		return NULL;
+ 	return apValid[GC.getGame().getSorenRandNum(iValid, "choose Barbarian transport")];
+ }
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index db66165c5..79b31be8f 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -52,12 +52,12 @@ StartingPositionIteration::StartingPositionIteration() :
+ 		Map scripts might depend on this order. If a map script sets the
+ 		starting sites, then we have to bail anyway, but we don't know that yet. */
+ 	vector<CvPlayer*> apCivPlayers;
+-	for (PlayerRandIter<HUMAN,ANY_AGENT_RELATION> it(GC.getGame().getMapRand());
++	for (PlayerRandIter<HUMAN,ANY_AGENT_RELATION> it(mapRand());
+ 		it.hasNext(); ++it)
+ 	{
+ 		apCivPlayers.push_back(&(*it));
+ 	}
+-	for (PlayerRandIter<CIV_ALIVE,ANY_AGENT_RELATION> it(GC.getGame().getMapRand());
++	for (PlayerRandIter<CIV_ALIVE,ANY_AGENT_RELATION> it(mapRand());
+ 		it.hasNext(); ++it)
+ 	{
+ 		if (!it->isHuman())
+@@ -302,7 +302,7 @@ StartingPositionIteration::PotentialSites::PotentialSites(
+ 			iFoundValue = safeIntCast<short>(
+ 					(iFoundValue + iFoundValue *
+ 					((iFoundValue / rMinFoundVal - 1) * fixp(0.05) *
+-					(scaled::rand(GC.getGame().getMapRand(), NULL) - fixp(0.5)))).
++					(scaled::rand(mapRand(), NULL) - fixp(0.5)))).
+ 					round());
+ 			m_foundValuesPerSite.insert(make_pair(eLoopPlotNum, iFoundValue));
+ 		}
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 626802170..72ac0d26c 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -453,8 +453,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 				scaled rSwitchProb = std::min(fixp(1/3.), iWPAge * fixp(0.04));
+ 				m_pReport->log("pr of considering to switch target: %d",
+ 						rSwitchProb.getPercent());
+-				if (rSwitchProb.bernoulliSuccess(GC.getGame().getSRand(),
+-					"UWAI: switch while war imminent"))
++				if (SyncRandSuccess(rSwitchProb))
+ 				{
+ 					/*  Hack: considerSwitchTarget was written under the assumption
+ 						that no war is imminent. Might be difficult to rectify;
+@@ -635,8 +634,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	{
+ 		m_pReport->log("Probability for peace negotiation: %d percent",
+ 				rPeaceProb.getPercent());
+-		if ((1 - rPeaceProb).bernoulliSuccess(
+-			GC.getGame().getSRand(), "UWAI: peace roll"))
++		if (SyncRandSuccess(1 - rPeaceProb))
+ 		{
+ 			m_pReport->log("Peace negotiation randomly skipped");
+ 			if (!bHuman)
+@@ -789,7 +787,7 @@ bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
+ 		rSkipProb -= fixp(0.1);
+ 	m_pReport->log("%d percent probability to delay capitulation based on master's "
+ 			"reluctance to peace (%d)", rSkipProb.getPercent(), iMasterReluctancePeace);
+-	if (rSkipProb.bernoulliSuccess(GC.getGame().getSRand(), "UWAI: capitulation roll"))
++	if (SyncRandSuccess(rSkipProb))
+ 	{
+ 		m_pReport->log("No capitulation this turn");
+ 		return true;
+@@ -843,8 +841,8 @@ bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
+ bool UWAI::Team::tryFindingMaster(TeamTypes eEnemy)
+ {
+ 	CvPlayerAI& kAgentPlayer = GET_PLAYER(GET_TEAM(m_eAgent).getRandomMemberAlive(false));
+-	for (TeamAIRandIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itMaster(
+-		GC.getGame().getSRand(), m_eAgent); itMaster.hasNext(); ++itMaster)
++	for (TeamAIRandIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itMaster(syncRand(), m_eAgent);
++		itMaster.hasNext(); ++itMaster)
+ 	{
+ 		CvTeamAI& kMaster = *itMaster;
+ 		if (kMaster.isAtWar(m_eAgent) ||
+@@ -983,7 +981,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
+ 	m_pReport->log("Probability of switching: %d percent", rSwitchProb.getPercent());
+ 	if (!rSwitchProb.isPositive())
+ 		return true;
+-	if (rSwitchProb.bernoulliSuccess(GC.getGame().getSRand(), "UWAI: switch WP type roll"))
++	if (SyncRandSuccess(rSwitchProb))
+ 	{
+ 		m_pReport->log("Switching to war plan \"%s\"", m_pReport->warPlanName(eAltWP));
+ 		if (!isInBackground())
+@@ -1043,7 +1041,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
+ 	rAbandonProb.decreaseTo(1);
+ 	m_pReport->log("Abandoning preparations with probability %d percent (warRand=%d)",
+ 			rAbandonProb.getPercent(), iWarRand);
+-	if (rAbandonProb.bernoulliSuccess(GC.getGame().getSRand(), "UWAI: Abandon roll"))
++	if (SyncRandSuccess(rAbandonProb))
+ 	{
+ 		m_pReport->log("Preparations abandoned");
+ 		if (!isInBackground())
+@@ -1103,7 +1101,7 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
+ 		rSwitchProb += fixp(1.8);
+ 	m_pReport->log("Switching target for war preparations to %s (u=%d) with pr=%d percent",
+ 			m_pReport->teamName(eBestAltTarget), iBestUtility, rSwitchProb.getPercent());
+-	if (!rSwitchProb.bernoulliSuccess(GC.getGame().getSRand(), "UWAI: switch target roll"))
++	if (!SyncRandSuccess(rSwitchProb))
+ 	{
+ 		m_pReport->log("Target not switched");
+ 		return true;
+@@ -1159,8 +1157,7 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
+ 		m_pReport->log("Utility of immediate switch to direct war plan: %d", iDirectU);
+ 		if (iDirectU > 0)
+ 		{
+-			scaled rRandWeight = scaled::rand(GC.getGame().getSRand(),
+-					"UWAI: conclude war prep");
++			scaled rRandWeight = SyncRandFract(scaled);
+ 			/*  The more time remains, the longer we'd still have to wait in order
+ 				to achieve utility iU. Therefore use a low threshold
+ 				if iTurnsRemaining is high.
+@@ -1494,7 +1491,7 @@ void UWAI::Team::scheme()
+ 				WARPLAN_PREPARING_LIMITED);
+ 		m_pReport->log("Drive for war preparations against %s: %d percent",
+ 				m_pReport->teamName(eTarget), rDrive.getPercent());
+-		if (rDrive.bernoulliSuccess(GC.getGame().getSRand(), "UWAI: war prep roll"))
++		if (SyncRandSuccess(rDrive))
+ 		{
+ 			if (!isInBackground())
+ 			{
+@@ -2445,9 +2442,7 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
+ 			{
+ 				scaled rContactProb = (fixp(8.5) - rEra) / (2 * iContactRand);
+ 				// Exclude Gandhi (iContactRand=10000 => rAcceptProb<0.0005)
+-				if (rContactProb * 1000 > 1 &&
+-					rContactProb.bernoulliSuccess(
+-					GC.getGame().getSRand(), "UWAI: make demand") &&
++				if (rContactProb * 1000 > 1 && SyncRandSuccess(rContactProb) &&
+ 					GET_PLAYER(m_eAgent).AI_demandTribute(eHuman, eLoopAIDemand))
+ 				{
+ 					return true;
+@@ -2461,8 +2456,7 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
+ 		if (iContactRand > 0)
+ 		{
+ 			scaled rContactProb = (fixp(5.5) - rEra) / (fixp(1.25) * iContactRand);
+-			if (rContactProb.bernoulliSuccess(
+-				GC.getGame().getSRand(), "UWAI: make plea") &&
++			if (SyncRandSuccess(rContactProb) &&
+ 				GET_PLAYER(m_eAgent).AI_askHelp(eHuman))
+ 			{
+ 				return true;
+@@ -2476,8 +2470,7 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
+ 		if (iContactRandReligion > 0)
+ 		{
+ 			scaled rContactProb = (8 - rEra) / iContactRandReligion;
+-			if (rContactProb.bernoulliSuccess(
+-				GC.getGame().getSRand(), "UWAI: religion pressure") &&
++			if (SyncRandSuccess(rContactProb) &&
+ 				GET_PLAYER(m_eAgent).AI_contactReligion(eHuman))
+ 			{
+ 				return true;
+@@ -2490,8 +2483,7 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
+ 		{
+ 			scaled rContactProb = fixp(2.5) / iContactRandCivics;
+ 			// Exclude Saladin (contact rand 10000)
+-			if (rContactProb * 1000 > 1 && rContactProb.bernoulliSuccess(
+-				GC.getGame().getSRand(), "UWAI: civics pressure") &&
++			if (rContactProb * 1000 > 1 && SyncRandSuccess(rContactProb) &&
+ 				GET_PLAYER(m_eAgent).AI_contactCivics(eHuman))
+ 			{
+ 				return true;
+@@ -2500,14 +2492,11 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
+ 	}
+ 	//  Embargo request - too unlikely to succeed I think.
+ 	/*int const iContactRand = kPersonality.getContactRand(CONTACT_STOP_TRADING);
+-	if (iContactRand > 0)
+-	{
++	if (iContactRand > 0) {
+ 		scaled rContactProb = ?;
+-		if (rContactProb.bernoulliSuccess(GC.getGame().getSRand(),
+-			"UWAI: embargo") && GET_PLAYER(m_eAgent).AI_proposeEmbargo(eHuman))
+-		{
++		if (SyncRandSuccess(rContactProb) && GET_PLAYER(m_eAgent).AI_proposeEmbargo(eHuman)) {
+ 			return true;
+-			}
++		}
+ 	}*/
+ 	return false;
+ }
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 6e435a745..4d2eaf0e5 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -908,8 +908,7 @@ void UWAICache::updateCanBeHiredAgainst(TeamTypes eTeam,
+ 	if (!m_abCanBeHiredAgainst.get(eTeam))
+ 		rProb = std::min(fixp(0.58), (iWarUtility - fixp(1.5) * iUtilityThresh) / 100);
+ 	else rProb = scaled(1 - (iUtilityThresh - iWarUtility), 100);
+-	m_abCanBeHiredAgainst.set(eTeam, rProb.bernoulliSuccess(
+-			GC.getGame().getSRand(), "UWAI: can hire roll"));
++	m_abCanBeHiredAgainst.set(eTeam, SyncRandSuccess(rProb));
+ }
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=73050

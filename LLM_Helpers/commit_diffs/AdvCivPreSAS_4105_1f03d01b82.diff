@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4105
+# Commit: 1f03d01b829fc8a31d613249719072cba7958e50
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 10d2e429e8d90145a6cc184cab97c10cc77839d8
+# Title: Amend recent culture spread change
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5464c01d7..32f397feb 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10464,8 +10464,12 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+ 			{
+ 				if (itInnerLoopPlot.currPlotDist() < iDistToOwned)
+ 				{
+-					if (itInnerLoopPlot->getOwner() == getOwner())
++					if (itInnerLoopPlot->getOwner() == getOwner() ||
++						// Needed when the city is just being founded
++						&*itInnerLoopPlot == plot())
++					{
+ 						iDistToOwned = itInnerLoopPlot.currPlotDist();
++					}
+ 				}
+ 				/*	Take advantage of the iterator's spiral pattern to
+ 					cancel the search asap */
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=689

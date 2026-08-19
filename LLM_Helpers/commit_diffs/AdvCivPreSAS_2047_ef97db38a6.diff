@@ -1,0 +1,689 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2047
+# Commit: ef97db38a6449ec3415d45466f3d818867551d90
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3d70862c63c7434e48a892307d81f5ab88b56a71
+# Title: A bit of minor misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+4	10	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+8	12	CvGameCoreDLL/CvDeal.cpp
+12	12	CvGameCoreDLL/CvGlobals.cpp
+1	1	CvGameCoreDLL/CvInfo_Base.h
+6	0	CvGameCoreDLL/CvInfo_City.h
+3	2	CvGameCoreDLL/CvInfo_Civilization.cpp
+1	1	CvGameCoreDLL/CvInfo_Terrain.h
+14	15	CvGameCoreDLL/CvPlayer.cpp
+53	47	CvGameCoreDLL/CvPlayerAI.cpp
+5	1	CvGameCoreDLL/CvTeam.h
+5	5	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0d1b01b3d..f813f16d3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10693,7 +10693,7 @@ void CvCity::doGreatPeople()
+ 		iTotalUnitRate += iUnitRate; // advc.051
+ 	}
+ 	FAssert(iTotalUnitRate == getBaseGreatPeopleRate()); // advc.051
+-	if (getGreatPeopleProgress() >= GET_PLAYER(getOwner()).greatPeopleThreshold(false))
++	if (getGreatPeopleProgress() >= GET_PLAYER(getOwner()).greatPeopleThreshold())
+ 	{
+ 		int iTotalGreatPeopleUnitProgress = 0;
+ 		for (int i = 0; i < kCiv.getNumUnits(); i++)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 9bf4c2c84..198f33279 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11686,15 +11686,9 @@ int CvCityAI::AI_getCityImportance(bool bEconomy, bool bMilitary)
+ 		if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
+ 		{
+ 			iValue += 100;
+-
+-			if ((getCultureLevel() < (GC.getNumCultureLevelInfos() - 1)))
+-			{
++			if (getCultureLevel() < CvCultureLevelInfo::finalCultureLevel())
+ 				iValue += !bMilitary ? 100 : 0;
+-			}
+-			else
+-			{
+-				iValue += bMilitary ? 100 : 0;
+-			}
++			else iValue += bMilitary ? 100 : 0;
+ 		}
+ 	}
+ 	return iValue;
+@@ -12376,9 +12370,9 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent) /* advc: */ const
+ 	if (kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3)) {
+ 		iValue += 5;
+ 		iValue += getCommerceRateModifier(COMMERCE_CULTURE) / 20;
+-		if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 2)) {
++		if (getCultureLevel() >= GC.getNumCultureLevelInfos() - 2) {
+ 			iValue += 20;
+-			if (getCultureLevel() >= (GC.getNumCultureLevelInfos() - 1))
++			if (getCultureLevel() >= GC.getNumCultureLevelInfos() - 1)
+ 				iValue += 30;
+ 		}
+ 	}*/ // BtS
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 4209201f5..b1ebf4dc6 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2744,7 +2744,7 @@ bool CvDLLButtonPopup::launchFreeColonyPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 			m_kUI.popupAddGenericButton(pPopup, szCity, ARTFILEMGR.getInterfaceArtPath("INTERFACE_BUTTONS_CITYSELECTION"), -pLoopCity->getID(), WIDGET_GENERAL);
+ 		}*/ // BtS
+ 		// Avoid potential variable name conflict
+-		PlayerTypes eLibPlayer = pLoopCity->getLiberationPlayer(false);
++		PlayerTypes eLibPlayer = pLoopCity->getLiberationPlayer();
+ 		if (eLibPlayer != NO_PLAYER)
+ 		{
+ 			// Don't offer liberation during war
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 068510dda..26f044dbf 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3739,7 +3739,8 @@ void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStr
+ 	if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE3) || GC.ctrlKey())
+ 	{
+ 		szBuffer.append(CvWString::format(L"\n\nTop %c cities by weight:", GC.getInfo(COMMERCE_CULTURE).getChar()));
+-		int iLegendaryCulture = GC.getGame().getCultureThreshold((CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1));
++		int iLegendaryCulture = GC.getGame().getCultureThreshold(
++				CvCultureLevelInfo::finalCultureLevel());
+ 		std::vector<std::pair<int,int> > city_list; // (weight, city id)
+ 
+ 		FOR_EACH_CITYAI(pLoopCity, kPlayer)
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 155443376..64d30119d 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -306,12 +306,14 @@ bool CvDeal::recordTradeValue(CLinkList<TradeData> const& kFirstList, CLinkList<
+ 	TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
+ {
+ 	if(kFirstList.getLength() <= 0 ||
+-			/*  Given reparations should matter for RivalTrade; given Peace shouldn't.
+-				Brokered peace (TRADE_PEACE) can't be filtered out here b/c other
+-				items could be traded along with TRADE_PEACE. */
+-			(kFirstList.getLength() == 1 && kFirstList.head()->m_data.m_eItemType ==
+-			TRADE_PEACE_TREATY))
++		/*  Given reparations should matter for RivalTrade; given Peace shouldn't.
++			Brokered peace (TRADE_PEACE) can't be filtered out here b/c other
++			items could be traded along with TRADE_PEACE. */
++		(kFirstList.getLength() == 1 &&
++		kFirstList.head()->m_data.m_eItemType == TRADE_PEACE_TREATY))
++	{
+ 		return false;
++	}
+ 	/*  advc.550a: Ignore discounts when it comes to fair-trade diplo bonuses?
+ 		Hard to decide, apply half the discount for now. */
+ 	int iValue = ::round((GET_PLAYER(eSecondPlayer).AI_dealVal(eFirstPlayer,
+@@ -323,7 +325,7 @@ bool CvDeal::recordTradeValue(CLinkList<TradeData> const& kFirstList, CLinkList<
+ 	GET_PLAYER(eSecondPlayer).AI_processPeacetimeValue(eFirstPlayer, iValue,
+ 			kSecondList.getLength() <= 0, bPeace, ePeaceTradeTarget, eWarTradeTarget);
+ 	return true;
+-} // </advc.130p>
++}
+ 
+ 
+ void CvDeal::doTurn()
+@@ -822,20 +824,14 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 		GET_PLAYER(eFromPlayer).changeGold(-trade.m_iData);
+ 		GET_PLAYER(eToPlayer).changeGold(trade.m_iData);
+ 		GET_PLAYER(eFromPlayer).AI_changeGoldTradedTo(eToPlayer, trade.m_iData);
+-
+ 		if (gTeamLogLevel >= 2) logBBAI("    Player %d (%S) trades gold %d due to TRADE_GOLD with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0));
+-
+-		// Python Event
+ 		CvEventReporter::getInstance().playerGoldTrade(eFromPlayer, eToPlayer, trade.m_iData);
+-
+ 		break;
+ 
+ 	case TRADE_GOLD_PER_TURN:
+ 		GET_PLAYER(eFromPlayer).changeGoldPerTurnByPlayer(eToPlayer, -(trade.m_iData));
+ 		GET_PLAYER(eToPlayer).changeGoldPerTurnByPlayer(eFromPlayer, trade.m_iData);
+-
+ 		if (gTeamLogLevel >= 2) logBBAI("    Player %d (%S) trades gold per turn %d due to TRADE_GOLD_PER_TURN with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), trade.m_iData, eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0));
+-
+ 		bSave = true;
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index c35f119f9..7db37d540 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -91,7 +91,7 @@ m_iNumAnimationOperatorTypes(0),
+ m_iNumFlavorTypes(0),
+ m_iNumArtStyleTypes(0),
+ m_iNumFootstepAudioTypes(0),
+-// </advc> <advc.opt>
++// </advc>  <advc.opt>
+ m_iRUINS_IMPROVEMENT(NO_IMPROVEMENT),
+ m_iDEFAULT_SPECIALIST(NO_SPECIALIST)
+ {
+@@ -749,9 +749,9 @@ void CvGlobals::setDEFAULT_SPECIALIST(int iValue)
+ 	m_iDEFAULT_SPECIALIST = iValue;
+ } // </advc.opt>
+ 
+-int CvGlobals::getDefineINT(const char * szName,
+-		// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
+-		const int iDefault) const
++int CvGlobals::getDefineINT(char const* szName,
++	// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
++	int iDefault) const
+ {
+ 	int iReturn = iDefault;
+ 	// BETTER_BTS_AI_MOD: END
+@@ -762,7 +762,7 @@ int CvGlobals::getDefineINT(const char * szName,
+ }
+ 
+ 
+-float CvGlobals::getDefineFLOAT(const char * szName) const
++float CvGlobals::getDefineFLOAT(char const* szName) const
+ {
+ 	float fReturn = 0;
+ 	bool bSuccess = // advc.003c
+@@ -773,32 +773,32 @@ float CvGlobals::getDefineFLOAT(const char * szName) const
+ 	return fReturn;
+ }
+ 
+-const char * CvGlobals::getDefineSTRING(const char * szName) const
++char const* CvGlobals::getDefineSTRING(char const* szName) const
+ {
+-	const char * szReturn = NULL;
++	char const* szReturn = NULL;
+ 	bool bSuccess = // advc.003c
+ 			getDefinesVarSystem()->GetValue(szName, szReturn);
+ 	FAssert(bSuccess); // advc.003c
+ 	return szReturn;
+ }
+ 
+-void CvGlobals::setDefineINT(const char * szName, int iValue, /* advc.opt: */ bool bUpdateCache)
++void CvGlobals::setDefineINT(char const* szName, int iValue, /* advc.opt: */ bool bUpdateCache)
+ {
+ 	getDefinesVarSystem()->SetValue(szName, iValue);
+ 	// <advc.opt>
+-	if(bUpdateCache)
++	if (bUpdateCache)
+ 		cacheGlobalInts(szName, iValue); // Pinpoint update </advc.opt>
+ }
+ 
+-void CvGlobals::setDefineFLOAT(const char * szName, float fValue, /* advc.opt: */ bool bUpdateCache)
++void CvGlobals::setDefineFLOAT(char const* szName, float fValue, /* advc.opt: */ bool bUpdateCache)
+ {
+ 	getDefinesVarSystem()->SetValue(szName, fValue);
+ 	// <advc.opt>
+-	if(bUpdateCache)
++	if (bUpdateCache)
+ 		cacheGlobalFloats(); // </advc.opt>
+ }
+ 
+-void CvGlobals::setDefineSTRING(const char * szName, const char * szValue, /* advc.opt: */ bool bUpdateCache)
++void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc.opt: */ bool bUpdateCache)
+ {
+ 	getDefinesVarSystem()->SetValue(szName, szValue);
+ 	//cacheGlobals();
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index f7476f599..d52df4961 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -68,7 +68,7 @@ public: // All the const functions are exposed to Python
+ 	}
+ 
+ protected:
+-	bool doneReadingXML(CvXMLLoadUtility* pXML);
++	//bool doneReadingXML(CvXMLLoadUtility* pXML); // advc.003j: Never had an implementation
+ 
+ 	bool m_bGraphicalOnly;
+
+diff --git a/CvGameCoreDLL/CvInfo_City.h b/CvGameCoreDLL/CvInfo_City.h
+index e6d253129..ae0693b9e 100644
+--- a/CvGameCoreDLL/CvInfo_City.h
++++ b/CvGameCoreDLL/CvInfo_City.h
+@@ -83,6 +83,12 @@ public:
+ 	int getSpeedThreshold(int i) const; // Exposed to Python
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
++	static CultureLevelTypes finalCultureLevel()
++	{
++		FAssert(GC.getNumCultureLevelInfos() > 0);
++		return (CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1);
++	}
++
+ protected:
+ 	int m_iCityDefenseModifier;
+ 	int* m_paiSpeedThreshold;
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 1c1aa4920..85d35305a 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -327,9 +327,10 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		bool bBuildings = (i == 0);
+ 		if (!gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+-				bBuildings ? "Buildings" : "Units"))
++			bBuildings ? "Buildings" : "Units"))
++		{
+ 			continue;
+-
++		}
+ 		if (pXML->SkipToNextVal())
+ 		{
+ 			int** piUniques;
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 6274fc3d5..42de8e3a9 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -441,7 +441,7 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	int getImprovementBonusDiscoverRand(int i) const;
+ 
+ 	/*	advc.003w: Moved from CvGameCoreUtils; still exposed to Python through CyGameCoreUtils.
+-		Reanmed from "finalImprovementUpgrade".
++		Renamed from "finalImprovementUpgrade".
+ 		Can't turn it into a non-static function b/c a CvImprovementInfo object
+ 		doesn't know its own ImprovementTypes id. */
+ 	static ImprovementTypes finalUpgrade(ImprovementTypes eImprov);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 015c8482e..429355ea2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1662,8 +1662,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		CLinkList<IDInfo> oldUnits; // (I doubt that it's necessary to copy the plot's unit list here)
+ 		{
+ 			for (CLLNode<IDInfo> const* pUnitNode = kCityPlot.headUnitNode(); pUnitNode != NULL;
+-					pUnitNode = kCityPlot.nextUnitNode(pUnitNode))
++				pUnitNode = kCityPlot.nextUnitNode(pUnitNode))
++			{
+ 				oldUnits.insertAtEnd(pUnitNode->m_data);
++			}
+ 		}
+ 		CLLNode<IDInfo>* pUnitNode = oldUnits.head();
+ 		while (pUnitNode != NULL)
+@@ -1931,8 +1933,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		{
+ 			CvTeam const& t = GET_TEAM((TeamTypes)i);
+ 			if(!t.isAlive() || t.isMinorCiv() || t.getID() == TEAMID(eOldOwner) ||
+-					t.getID() == getTeam() || !t.isAtWar(TEAMID(eOldOwner)))
++				t.getID() == getTeam() || !t.isAtWar(TEAMID(eOldOwner)))
++			{
+ 				continue;
++			}
+ 			bool bEverOwned = false;
+ 			for(int j = 0; j < MAX_CIV_PLAYERS; j++)
+ 			{
+@@ -5671,7 +5675,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
+ 	iProductionNeeded = ::roundToMultiple(0.01 * iProductionNeeded *
+ 			GC.getInfo(getHandicapType()).getConstructPercent(),
+ 			isHuman() ? 5 : 1);
+-	if(!isHuman()) // Barbarians too
++	if (!isHuman()) // Barbarians too
+ 	{
+ 		CvHandicapInfo const& h = GC.getInfo(g.getHandicapType());
+ 		int iAIModifier = //h.getAIPerEraModifier() * getCurrentEra()
+@@ -7510,27 +7514,22 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
+ 		iThreshold = ((iGREAT_PEOPLE_THRESHOLD *
+ 				std::max(0, getGreatPeopleThresholdModifier() + 100)) / 100);
+ 	}
+-	CvGame const& g = GC.getGame(); // advc
+-	iThreshold *= GC.getInfo(g.getGameSpeedType()).getGreatPeoplePercent();
++	CvGame const& kGame = GC.getGame(); // advc
++	iThreshold *= GC.getInfo(kGame.getGameSpeedType()).getGreatPeoplePercent();
+ 	if (bMilitary)
+-	{
+-		iThreshold /= std::max(1, GC.getInfo(g.getGameSpeedType()).getTrainPercent());
+-	}
+-	else
+-	{
+-		iThreshold /= 100;
+-	}
++		iThreshold /= std::max(1, GC.getInfo(kGame.getGameSpeedType()).getTrainPercent());
++	else iThreshold /= 100;
+ 
+-	iThreshold *= GC.getInfo(g.getStartEra()).getGreatPeoplePercent();
++	iThreshold *= GC.getInfo(kGame.getStartEra()).getGreatPeoplePercent();
+ 	iThreshold /= 100;
+ 	// <advc.251>
+ 	iThreshold = ::roundToMultiple(0.01 * iThreshold * GC.getInfo(
+ 			getHandicapType()).getGPThresholdPercent(),
+ 			isHuman() ? 5 : 1);
+-	if(!isHuman() && !isBarbarian())
++	if (!isHuman() && !isBarbarian())
+ 	{
+ 		iThreshold = ::round(0.01 * iThreshold * GC.getInfo(
+-				g.getHandicapType()).getAIGPThresholdPercent());
++				kGame.getHandicapType()).getAIGPThresholdPercent());
+ 	} // </advc.251>
+ 
+ 	return std::max(1, iThreshold);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1a3e1c945..1ca935974 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2281,7 +2281,8 @@ void CvPlayerAI::AI_updateCommerceWeights()  // advc: minor style changes
+ 	CvGame const& g = GC.getGame();
+ 
+ 	// City culture weight.
+-	int const iLegendaryCulture = g.getCultureThreshold((CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1));
++	int const iLegendaryCulture = g.getCultureThreshold(
++			CvCultureLevelInfo::finalCultureLevel());
+ 	int const iVictoryCities = g.culturalVictoryNumCultureCities();
+ 
+ 	// Use culture slider to decide whether a human player is going for cultural victory
+@@ -3693,14 +3694,13 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 			{
+ 				techs_to_check.push(techs[i].second);
+ 			}
+-			while (!techs_to_check.empty() && (int)techs_in_path.size()
+-					<= iMaxPathLength)
++			while (!techs_to_check.empty() && (int)techs_in_path.size() <= iMaxPathLength)
+ 			{
+ 				bool bMissingPrereq = false;
+ 
+ 				// AndTech prereqs:
+ 				for (int p = 0; p < GC.getNUM_AND_TECH_PREREQS(techs_to_check.front()) &&
+-						!bMissingPrereq; ++p)
++					!bMissingPrereq; ++p)
+ 				{
+ 					TechTypes ePrereq = (TechTypes)GC.getInfo(
+ 							techs_to_check.front()).getPrereqAndTechs(p);
+@@ -6686,9 +6686,9 @@ void CvPlayerAI::AI_changeCachedAttitude(PlayerTypes ePlayer, int iChange)
+ 	m_aiAttitude[ePlayer] += iChange;
+ } // K-Mod end
+ 
+-/*  <advc.130w> Gained and lost cities may change expansionist hate and perhaps other
+-	modifiers too. This function should be called on the city owner. CvPlot param
+-	b/c the city may have been razed. */
++/*  advc.130w: Gained and lost cities may change expansionist hate and perhaps other
++	modifiers too. This function should be called on both the old and new city owner.
++	CvPlot param b/c the city may have been razed. */
+ void CvPlayerAI::AI_updateCityAttitude(CvPlot const& kCityPlot)
+ {
+ 	if (isBarbarian())
+@@ -6703,7 +6703,7 @@ void CvPlayerAI::AI_updateCityAttitude(CvPlot const& kCityPlot)
+ 			kOtherCiv.AI_updateAttitude(getID());
+ 		}
+ 	}
+-} // </advc.130w>
++}
+ 
+ // K-Mod note: the bulk of this function has been moved into CvPlayerAI::AI_updateAttitude.
+ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
+@@ -8553,7 +8553,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 		if(bHuman)
+ 		{
+ 			for (CLLNode<TradeData> const* pNode = kTheyGive.head(); pNode != NULL;
+-					pNode = kTheyGive.next(pNode))
++				pNode = kTheyGive.next(pNode))
+ 			{
+ 				TradeData tdata = pNode->m_data;
+ 				if(tdata.m_eItemType == TRADE_RESOURCES &&
+@@ -8781,16 +8781,13 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 					return false; // </advc.130v>
+ 				if (!bSameTeam && // advc.155
+ 					!bVassal && // advc.130v
+-					::hash(GC.getGame().getGameTurn(), getID()) <
+-					AI_prDenyHelp())
++					::hash(GC.getGame().getGameTurn(), getID()) < AI_prDenyHelp())
+ 				{
+ 					return false;
+ 				} // </advc.144>
+-			}
+-			// <advc.104m>
++			}  // <advc.104m>
+ 			if (bAccept && bDemand && getUWAI.isEnabled() && /* advc.155: */ !bSameTeam)
+-				bAccept = uwai().considerDemand(ePlayer, iTheyReceive);
+-			// </advc.104m>
++				bAccept = uwai().considerDemand(ePlayer, iTheyReceive); // </advc.104m>
+ 		}
+ 		// advc.130o: Do this only if UWAI hasn't already handled the offer
+ 		if (!bDemand || (!getUWAI.isEnabled() && bAccept))
+@@ -8912,11 +8909,12 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 	if (iWeReceive < 2 * GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) &&
+ 		/*  NB: bVassalTrade is currently only true if ePlayer offers to become
+ 			a vassal, not when this player considers becoming a vassal. (fixme?) */
+-			!bVassalTrade && !kOurTeam.isAtWar(TEAMID(ePlayer)) &&
+-			!AI_goldDeal(kTheyGive) && (kTheyGive.getLength() <= 0 ||
+-			!CvDeal::isDual(kTheyGive.head()->m_data.m_eItemType)))
++		!bVassalTrade && !kOurTeam.isAtWar(TEAMID(ePlayer)) &&
++		!AI_goldDeal(kTheyGive) && (kTheyGive.getLength() <= 0 ||
++		!CvDeal::isDual(kTheyGive.head()->m_data.m_eItemType)))
++	{
+ 		return false;
+-	// </advc.136b>
++	} // </advc.136b>
+ 
+ 	if (iWeReceive >= iTheyReceive)
+ 		return true;
+@@ -9045,8 +9043,10 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	}
+ 	// <advc.132> Don't accept two civics of the same column
+ 	if(!AI_checkCivicReligionConsistency(*pOurList) ||
+-			!AI_checkCivicReligionConsistency(*pTheirList))
+-		return false; // </advc.132>
++		!AI_checkCivicReligionConsistency(*pTheirList))
++	{
++		return false;
++	} // </advc.132>
+ 	// <advc.036>
+ 	if(!AI_checkResourceLimits(*pOurList, *pTheirList, ePlayer, 1))
+ 		return false;
+@@ -9171,7 +9171,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				&& 100*iValueForThem >= GET_PLAYER(ePlayer).AI_tradeAcceptabilityThreshold(getID())*iValueForUs;
+ 
+ 		}
+-	} // <advc.705>
++	}  // <advc.705>
+ 	CvGame const& g = GC.getGame();
+ 	if (g.isOption(GAMEOPTION_RISE_FALL) && GET_PLAYER(ePlayer).isHuman())
+ 	{
+@@ -9261,8 +9261,8 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		int iMaxGold = ((isHuman() && bGenerous) ?
+ 				kPlayer.AI_maxGoldTradeGenerous(getID()) :
+ 				kPlayer.AI_maxGoldTrade(getID()));
+-		if (iMaxGold >= iGoldData) // Replacing: </advc.026>
+-						// if(kPlayer.AI_maxGoldTrade(getID()) >= iGoldData)
++		// if(kPlayer.AI_maxGoldTrade(getID()) >= iGoldData)
++		if (iMaxGold >= iGoldData && iGoldData > 0) // </advc.026>		
+ 		{
+ 			pGoldNode->m_data.m_iData = iGoldData;
+ 			iSmallerVal += (iGoldData * iGoldValuePercent) / 100;
+@@ -9518,11 +9518,13 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		}
+ 	} // <advc.036> Special treatment for one-for-one resource trades
+ 	if (bSingleResource && iGreaterVal - iSmallerVal <= m_iSingleBonusTradeTolerance &&
+-			((pCounter->getLength() <= 0 && iOtherListLength == 1 &&
+-			pGoldPerTurnNode != NULL) ||
+-			(pCounter->getLength() == 1 &&
+-			pCounter->head()->m_data.m_eItemType == TRADE_RESOURCES)))
+-		return true; // </advc.036>
++		((pCounter->getLength() <= 0 && iOtherListLength == 1 &&
++		pGoldPerTurnNode != NULL) ||
++		(pCounter->getLength() == 1 &&
++		pCounter->head()->m_data.m_eItemType == TRADE_RESOURCES)))
++	{
++		return true;
++	} // </advc.036>
+ 	// If their value is still higher, try one more time to make up the difference with gold.
+ 	// If we're counter-proposing an AI deal, just get as close to the right value as we can.
+ 	// But for humans, if they don't have enough gold then ask for one final item, to favour us.
+@@ -9567,9 +9569,11 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		/*  <advc.001> If human asks for gold, then pGoldNode is NULL here,
+ 			and the AI won't ask e.g. for a tech in exchange */
+ 		else if(bGenerous && kPlayer.isHuman() && iGreaterVal > iSmallerVal &&
+-				(pList->getLength() <= 0 ||
+-				!CvDeal::isAnnual(pList->head()->m_data.m_eItemType)))
+-			bAddFinalItem = true; // </advc.001>
++			(pList->getLength() <= 0 ||
++			!CvDeal::isAnnual(pList->head()->m_data.m_eItemType)))
++		{
++			bAddFinalItem = true;
++		} // </advc.001>
+ 	}
+ 	if (iGreaterVal > iSmallerVal)
+ 	{
+@@ -9600,9 +9604,11 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		}
+ 		// <advc.001> See above at if(pGoldNode)...else
+ 		else if (bGenerous && kPlayer.isHuman() && iGreaterVal > iSmallerVal &&
+-				(pList->getLength() <= 0 ||
+-				CvDeal::isAnnual(pList->head()->m_data.m_eItemType)))
++			(pList->getLength() <= 0 ||
++			CvDeal::isAnnual(pList->head()->m_data.m_eItemType)))
++		{
+ 			bAddFinalItem = true;
++		}
+ 	} // When iGoldAvailable is too small but iMaxGPT isn't
+ 	if (iSmallerVal >= iGreaterVal)
+ 		bAddFinalItem = false; // </advc.001>
+@@ -9619,13 +9625,13 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 				if (!bGenerous && iSmallerVal + it->second > iGreaterVal)
+ 					continue;
+ 				if ((bGenerous && it->second > value_gap &&
+-						best_it->second < value_gap) ||
+-						std::abs(it->second - value_gap) <
+-						std::abs(best_it->second - value_gap))
++					best_it->second < value_gap) ||
++					std::abs(it->second - value_gap) < std::abs(best_it->second - value_gap))
++				{
+ 					best_it = it;
++				}
+ 			}
+-			if (best_it->second <= 2 * (iGreaterVal - iSmallerVal) ||
+-					bGenerous)
++			if (best_it->second <= 2 * (iGreaterVal - iSmallerVal) || bGenerous)
+ 			{
+ 				pCounter->insertAtEnd(*best_it->first);
+ 				iSmallerVal += best_it->second;
+@@ -20551,8 +20557,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(  // advc: a few style changes
+ 	// K-Mod
+ 	// some (arbitrary) fraction of the game, after which we get more serious. (cf. old code)
+ 	int iEraThresholdPercent = 80 - (AI_getStrategyRand(1) % 2) * 20;
+-	int iLegendaryCulture = kGame.getCultureThreshold((CultureLevelTypes)
+-			(GC.getNumCultureLevelInfos() - 1));
++	int iLegendaryCulture = kGame.getCultureThreshold(
++			CvCultureLevelInfo::finalCultureLevel());
+ 	int iVictoryCities = kGame.culturalVictoryNumCultureCities();
+ 
+ 	int iHighCultureMark = 300; // turns
+@@ -24733,7 +24739,7 @@ void CvPlayerAI::AI_updateBonusValue(BonusTypes eBonus)
+ {
+ 	FAssert(m_aiBonusValue != NULL);
+ 	/*  <advc.036> Don't just reset; recompute them all, and never update the
+-		cache in AI_baseBonusVal. This should make sure we're not getting OOS. */
++		cache in AI_baseBonusVal. This should make sure we're not going OOS. */
+ 	if(GC.getGame().isNetworkMultiPlayer())
+ 	{
+ 		m_aiBonusValue[eBonus] = AI_baseBonusVal(eBonus, false);
+@@ -25952,22 +25958,22 @@ bool CvPlayerAI::AI_hasSharedPrimaryArea(PlayerTypes eOther) const
+ 	return false;
+ } // <advc>
+ 
+-/*  <advc.127> Tbd.: There may well be other AI data to be updated when
+-	human control is suspended or resumed. */
++/*  advc.127: (Tbd.: There may well be other AI data to be updated when
++	human control is suspended or resumed.) */
+ void CvPlayerAI::AI_setHumanDisabled(bool bDisabled)
+ {
+ 	// Some of the first-impression modifiers don't apply to human players
+ 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		it->AI_updateAttitude();
+-} // </advc.127>
++}
+ 
+-// <advc.031c>
++// advc.031c:
+ void CvPlayerAI::logFoundValue(int iX, int iY, bool bStartingLoc) const
+ {
+ 	CitySiteEvaluator eval(*this, isBarbarian() ?
+ 			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE") : -1, bStartingLoc);
+ 	eval.log(iX, iY);
+-} // </advc.031c>
++}
+ 
+ // BETTER_BTS_AI_MOD, General AI/ Efficiency (plot danger cache), 08/20/09, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 63869a349..76ac119e1 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -307,7 +307,11 @@ public:
+ 	{	// advc.inl: inline, disable K-Mod assertion
+ 		//FAssert(!m_bCapitulated || isAVassal()); // K-Mod
+ 		return m_bCapitulated;
+-	}
++	}  // <advc>
++	bool isCapitulated(TeamTypes eMaster)
++	{
++		return (isCapitulated() && isVassal(eMaster));
++	} // </advc>
+ 	int getRouteChange(RouteTypes eIndex) const																				// Exposed to Python
+ 	{
+ 		return m_aiRouteChange.get(eIndex); // advc.inl
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2e46cb861..86adfc719 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3301,7 +3301,7 @@ int CvTeamAI::AI_makePeaceTradeVal(TeamTypes ePeaceTeam, TeamTypes eTeam) const
+ 	return AI_roundTradeVal(iValue); // advc.104k
+ }
+ 
+-// <advc.104k> Same procedure as in BtS mostly
++// advc.104k: Same procedure as in BtS mostly
+ int CvTeamAI::AI_roundTradeVal(int iVal) const
+ {
+ 	int rem = GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER);
+@@ -3311,9 +3311,9 @@ int CvTeamAI::AI_roundTradeVal(int iVal) const
+ 	if (isHuman()) 
+ 		return std::max(iVal, rem);
+ 	return iVal;
+-} // </advc.104k>
++}
+ 
+-// <advc.104i>
++// advc.104i:
+ void CvTeamAI::AI_makeUnwillingToTalk(TeamTypes eOther)
+ {
+ 	if (!getUWAI.isEnabled())
+@@ -3351,7 +3351,7 @@ void CvTeamAI::AI_makeUnwillingToTalk(TeamTypes eOther)
+ 			}
+ 		}
+ 	}
+-} // </advc.104i>
++}
+ 
+ 
+ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker) const  // advc: eTeam renamed to eBroker
+@@ -3617,7 +3617,7 @@ DenialTypes CvTeamAI::AI_declareWarTrade(TeamTypes eTarget, TeamTypes eSponsor,
+ 		}
+ 	} // <advc.104o>
+ 	if(getUWAI.isEnabled()) // (ignore bConsiderPower)
+-	{	/* Refuse to start wars that we'll probably not engage in b/c we're busy
++	{	/*	Refuse to start wars that we'll probably not engage in b/c we're busy
+ 			fighting a closer enemy. Unless eTeam is already at war with eWarTeam.
+ 			The main goal is to reduce the amount of messages generated by the
+ 			war trade alert (advc.210a). */
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=26531

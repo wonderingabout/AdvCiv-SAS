@@ -1,0 +1,50 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4413
+# Commit: 5fe05819cc245de4c3ad5f2d08c66521b7af8985
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0d81edb6443827986a2d620a5bf7b4faaaaafe46
+# Title: add civ and terrain new data unfinished as i did not add the new civs yet, better save this while i can in this case i mean anyways
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	0.10 - data about civs default.png
+-	-	0.20 - world_map_terrain_empty.png
+-	-	0.21 - world_map_terrain_with_civs.png
+-	-	0.22 - world_map_terrain_with_new_civs.png
+ create mode 100644 0.10 - data about civs default.png
+ create mode 100644 0.20 - world_map_terrain_empty.png
+ create mode 100644 0.21 - world_map_terrain_with_civs.png
+ create mode 100644 0.22 - world_map_terrain_with_new_civs.png
+
+[PATCHES]
+
+diff --git a/0.10 - data about civs default.png b/0.10 - data about civs default.png
+new file mode 100644
+index 000000000..109f704a6
+Binary files /dev/null and b/0.10 - data about civs default.png differ
+
+diff --git a/0.20 - world_map_terrain_empty.png b/0.20 - world_map_terrain_empty.png
+new file mode 100644
+index 000000000..940f93a36
+Binary files /dev/null and b/0.20 - world_map_terrain_empty.png differ
+
+diff --git a/0.21 - world_map_terrain_with_civs.png b/0.21 - world_map_terrain_with_civs.png
+new file mode 100644
+index 000000000..e7761469d
+Binary files /dev/null and b/0.21 - world_map_terrain_with_civs.png differ
+
+diff --git a/0.22 - world_map_terrain_with_new_civs.png b/0.22 - world_map_terrain_with_new_civs.png
+new file mode 100644
+index 000000000..e7761469d
+Binary files /dev/null and b/0.22 - world_map_terrain_with_new_civs.png differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=848

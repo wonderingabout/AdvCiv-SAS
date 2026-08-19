@@ -1,0 +1,407 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2958
+# Commit: 56d83729003a28ee5ad8ed576aba0c8559bb71ec
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 222b7f6f15777ad91ffbc65b8ba99ddcae22be76
+# Title: Some minor performance tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvGameAI.h
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+3	3	CvGameCoreDLL/CvGameTextMgr.cpp
+8	4	CvGameCoreDLL/CvPlayer.cpp
+48	38	CvGameCoreDLL/CvPlayerAI.cpp
+14	4	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/MilitaryBranch.cpp
+2	1	CvGameCoreDLL/Project/Makefile.project
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 5b9474a43..96c1dc5cc 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1889,9 +1889,9 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus,
+ 		if (!bSurplus)
+ 		{
+ 			/*  Important for high-value strategic resources that get revealed
+-				long before they can be traded, especially Oil.
+-				CvPlayerAI::AI_countOwnedBonuses is too expensive I think,
+-				but I'm copying a bit of code from there. */
++				long before they can be traded, especially Oil. Scanning the whole map
++				through CvPlayerAI::AI_countOwnedBonuses is too expensive I think,
++				but I'm copying the city bonus count from there. */
+ 			FOR_EACH_CITYAI(pCity, kPlayer)
+ 			{
+ 				if (pCity->AI_countNumBonuses(eBonus, true, true, -1) > 0)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3b650ada1..585e68f54 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6193,7 +6193,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ 						// resource prereq.
+ 						BonusTypes ePrereqBonus = kLoopUnit.getPrereqAndBonus();
+ 						if (ePrereqBonus != NO_BONUS && !kLoopPlayer.hasBonus(ePrereqBonus) &&
+-							kLoopPlayer.AI_countOwnedBonuses(ePrereqBonus) == 0)
++							!kLoopPlayer.AI_isAnyOwnedBonus(ePrereqBonus))
+ 						{
+ 							iTemp /= 5;
+ 						}
+
+diff --git a/CvGameCoreDLL/CvGameAI.h b/CvGameCoreDLL/CvGameAI.h
+index fb91dfc78..f81382429 100644
+--- a/CvGameCoreDLL/CvGameAI.h
++++ b/CvGameCoreDLL/CvGameAI.h
+@@ -27,7 +27,7 @@ public:
+   int AI_turnsPercent(int iTurns, int iPercent);
+   // <advc.erai>
+   scaled AI_getCurrEraFactor() const;
+-  inline int AI_getCurrEra() const { return AI_getCurrEraFactor().round(); }
++  inline int AI_getCurrEra() const { return AI_getCurrEraFactor().uround(); }
+   EraTypes AI_getVoteSourceEra(VoteSourceTypes eVS = NO_VOTESOURCE) const;
+   // </advc.erai>
+   scaled AI_exclusiveRadiusWeight(int iDist = -1) const; // advc.099b
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 734cf0280..55f53c216 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -63,7 +63,7 @@ namespace stats // Seems too generic, but what else to name it?
+ 	template<typename T>
+ 	T median(std::vector<T>& kSamples, bool bSorted = false)
+ 	{
+-		PROFILE("stats::median");
++		//PROFILE("stats::median"); // OK - Called often, but also quite fast.
+ 		FAssert(!kSamples.empty());
+ 		if (!bSorted)
+ 			std::sort(kSamples.begin(), kSamples.end());
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 245474d86..250b28f83 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -17243,9 +17243,9 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ 				if (!bValid)
+ 					continue;
+ 				szOptionId += "Icon";
+-				if ((bTopIcons || BUGOption::isEnabled(szOptionId.c_str(), false)) &&
+-					pCity->getCommerceRate(eLoopCommerce) >= 10 &&
+-					pCity->findCommerceRateRank(eLoopCommerce) == 1)
++				if (pCity->getCommerceRate(eLoopCommerce) >= 10 &&
++					pCity->findCommerceRateRank(eLoopCommerce) == 1 &&
++					(bTopIcons || BUGOption::isEnabled(szOptionId.c_str(), false)))
+ 				{
+ 					szBuffer.append(CvWString::format(L"%c",
+ 							GC.getInfo(eLoopCommerce).getChar()));
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 80be37b1a..1bd2b45ae 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9152,6 +9152,7 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ 
+ 	EraTypes eOldEra = m_eCurrentEra;
+ 	m_eCurrentEra = eNewValue;
++	AI().AI_updateEraFactor(); // advc.erai
+ 
+ 	if (GC.getGame().getActiveTeam() != NO_TEAM)
+ 	{
+@@ -19222,6 +19223,7 @@ bool CvPlayer::showGoodyOnResourceLayer() const
+ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
+ 	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
++	PROFILE_FUNC(); // advc.test: To be profiled
+ 	aColors.clear();
+ 	aIndicators.clear();
+ 
+@@ -19255,12 +19257,14 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
+ 			}
+ 		} // <advc.004z>
+ 		ImprovementTypes eImpr = NO_IMPROVEMENT;
+-		if(!bOfInterest && eOption == SHOW_ALL_RESOURCES &&
+-			showGoodyOnResourceLayer())
++		if(!bOfInterest && eOption == SHOW_ALL_RESOURCES)
+ 		{
+ 			eImpr = kPlot.getRevealedImprovementType(getTeam());
+-			bOfInterest = (eImpr != NO_IMPROVEMENT && GC.getInfo(eImpr).
+-					isGoody());
++			if (eImpr != NO_IMPROVEMENT && GC.getInfo(eImpr).isGoody() &&
++				showGoodyOnResourceLayer()) // Make the Python call as late as possible
++			{
++				bOfInterest = true;
++			}
+ 		} // </advc.004z>
+ 		if (bOfInterest)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4cf34955c..c3bb996c0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4415,7 +4415,7 @@ void CvPlayerAI::AI_calculateOwnedBonuses(EnumMap<BonusClassTypes,int>& kBonusCl
+ 
+ 		if (getNumAvailableBonuses(eLoopBonus) > 0)
+ 			kBonusClassHave.add(eBonusClass, 1);
+-		else if (AI_countOwnedBonuses(eLoopBonus) > 0)
++		else if (AI_isAnyOwnedBonus(eLoopBonus))
+ 			kBonusClassHave.add(eBonusClass, 1);
+ 	}
+ }
+@@ -5121,7 +5121,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 				else
+ 				{
+ 					if (kTeam.isBonusRevealed(ePrereqBonus) &&
+-						AI_countOwnedBonuses(ePrereqBonus) == 0)
++						!AI_isAnyOwnedBonus(ePrereqBonus))
+ 					{
+ 						bDefinitelyMissing = true;
+ 					}
+@@ -5133,7 +5133,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 			{
+ 				if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+ 					kTeam.isForceRevealedBonus(ePrereqBonus)) &&
+-					AI_countOwnedBonuses(ePrereqBonus) == 0)
++					!AI_isAnyOwnedBonus(ePrereqBonus))
+ 				{
+ 					bDefinitelyMissing = true;
+ 				}
+@@ -5247,7 +5247,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 			(kTeam.isHasTech(kLoopBonus.getTechReveal()) ||
+ 			kTeam.isForceRevealedBonus(eLoopBonus)))
+ 		{
+-			int iOwned = AI_countOwnedBonuses(eLoopBonus);
++			int iOwned = AI_countOwnedBonuses(eLoopBonus, /* advc.opt: */ 2);
+ 			if (iOwned > 0)
+ 			{
+ 				int iEnableValue = 4;
+@@ -6781,7 +6781,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 			{
+ 				if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+ 					kTeam.isForceRevealedBonus(ePrereqBonus)) &&
+-					AI_countOwnedBonuses(ePrereqBonus) == 0)
++					!AI_isAnyOwnedBonus(ePrereqBonus))
+ 				{
+ 					bDefinitelyMissing = true;
+ 				}
+@@ -6800,7 +6800,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 		{
+ 			if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+ 				kTeam.isForceRevealedBonus(ePrereqBonus)) &&
+-				AI_countOwnedBonuses(ePrereqBonus) == 0)
++				!AI_isAnyOwnedBonus(ePrereqBonus))
+ 			{
+ 				bDefinitelyMissing = true;
+ 			}
+@@ -14243,45 +14243,58 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot* pFromPlot
+ }
+ 
+ // advc.042: Cut from CvPlayer.cpp (w/o functional changes) b/c of the AI code at the end
+-int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus) const
++int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus,
++	/* <advc.opt> */ int iMaxCount) const
+ {
++	FAssert(iMaxCount > 0); // </advc.opt>
+ 	PROFILE_FUNC();
+ 
+ 	// K-Mod. Shortcut.
+ 	if (!GET_TEAM(getTeam()).isBonusRevealed(eBonus))
+ 		return 0;
+ 	// K-Mod end
+-
+-	/*	advc (comment from Kek-Mod): "This era seems like nonsense meant to
++	CvMap const& kMap = GC.getMap();
++	int iCount = 0;
++	/*	advc: Treat Adv. Start upfront - and don't double count city bonuses.
++		Comment from Kek-Mod: "This era seems like nonsense meant to
+ 		prevent counting all bonuses when the map is fully revealed."
+ 		(I guess it's mainly relevant for tech evaluation in Advanced Start.) */
+-	bool const bAdvancedStart = (getAdvancedStartPoints() >= 0 &&
+-			getCurrentEra() < 3);
+-
+-	int iCount = 0;
+-
+-	//count bonuses outside city radius
+-	CvMap const& kMap = GC.getMap();
+-	for (int i = 0; i < kMap.numPlots(); i++)
++	if (getAdvancedStartPoints() >= 0 && getCurrentEra() < 3)
+ 	{
+-		CvPlot const& kPlot = kMap.getPlotByIndex(i);
+-		if (kPlot.getOwner() == getID() && !kPlot.isCityRadius())
+-		{
+-			if (kPlot.getBonusType(getTeam()) == eBonus)
+-				iCount++;
+-		}
+-		else if (bAdvancedStart && kPlot.isRevealed(getTeam()))
++		for (int i = 0; i < kMap.numPlots(); i++)
+ 		{
+-			if (kPlot.getBonusType(getTeam()) == eBonus)
++			CvPlot const& kPlot = kMap.getPlotByIndex(i);
++			if (kPlot.isRevealed(getTeam()) && kPlot.getBonusType(getTeam()) == eBonus)
++			{
+ 				iCount++;
++				// <advc.opt>
++				if (iCount >= iMaxCount)
++					return iMaxCount; // </advc.opt>
++			}
+ 		}
++		return iCount;
+ 	}
+-
+ 	//count bonuses inside city radius or easily claimed
+-	FOR_EACH_CITYAI(pLoopCity, *this)
++	FOR_EACH_CITYAI(pCity, *this)
++	{
++		iCount += pCity->AI_countNumBonuses(eBonus, true,
++				pCity->getCommerceRate(COMMERCE_CULTURE) > 0, -1);
++		// <advc.opt>
++		if (iCount >= iMaxCount)
++			return iMaxCount; // </advc.opt>
++	}
++	//count bonuses outside city radius
++	for (int i = 0; i < kMap.numPlots(); i++)
+ 	{
+-		iCount += pLoopCity->AI_countNumBonuses(
+-				eBonus, true, pLoopCity->getCommerceRate(COMMERCE_CULTURE) > 0, -1);
++		CvPlot const& kPlot = kMap.getPlotByIndex(i);
++		if (kPlot.getOwner() == getID() && !kPlot.isCityRadius() &&
++			kPlot.getBonusType(getTeam()) == eBonus)
++		{
++			iCount++;
++			// <advc.opt>
++			if (iCount >= iMaxCount)
++				return iMaxCount; // </advc.opt>
++		}
+ 	}
+ 	return iCount;
+ }
+@@ -21726,6 +21739,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	if (uiFlag >= 6)
+ 		pStream->Read(&m_iCityTargetTimer);
+ 	else AI_setCityTargetTimer(0); // K-Mod end
++	AI_updateEraFactor(); // advc.erai (no need to serialize this)
+ 	// <advc.651>
+ 	if (uiFlag >= 16)
+ 		pStream->Read(&m_bDangerFromSubmarines); // </advc.651>
+@@ -23899,14 +23913,10 @@ bool CvPlayerAI::AI_isDoStrategy(AIStrategy eStrategy, /* advc.007: */ bool bDeb
+ 	return (eStrategy & AI_getStrategyHash());
+ }
+ 
+-/*	advc.erai: (Not inlined b/c I don't want to include CvInfo_GameOption.h in the header.)
+-	Call locations of this function and similar functions at CvTeamAI, CvGameAI
+-	aren't tagged with "advc.erai" comments. Note: Should not replace all uses of
+-	era numbers in AI code with these functions. For example, a mod with only 3 eras
+-	won't necessarily have more techs per era than BtS. */
+-scaled CvPlayerAI::AI_getCurrEraFactor() const
++// advc.erai: Cached for performance
++void CvPlayerAI::AI_updateEraFactor()
+ {
+-	return per100(GC.getEraInfo(getCurrentEra()).get(CvEraInfo::AIEraFactor));
++	m_rCurrEraFactor = per100(GC.getEraInfo(getCurrentEra()).get(CvEraInfo::AIEraFactor));
+ }
+ 
+ // K-Mod. Macros to help log changes in the AI strategy.
+@@ -27872,7 +27882,7 @@ bool CvPlayerAI::AI_haveResourcesToTrain(UnitTypes eUnit) const
+ 	BonusTypes ePrereqAndBonus = kUnit.getPrereqAndBonus();
+ 	if (ePrereqAndBonus != NO_BONUS)
+ 	{
+-		if (!hasBonus(ePrereqAndBonus) && AI_countOwnedBonuses(ePrereqAndBonus) == 0)
++		if (!hasBonus(ePrereqAndBonus) && !AI_isAnyOwnedBonus(ePrereqAndBonus))
+ 			return false;
+ 	}
+ 	// "or" bonuses
+@@ -27880,7 +27890,7 @@ bool CvPlayerAI::AI_haveResourcesToTrain(UnitTypes eUnit) const
+ 	for (int i = 0; i < kUnit.getNumPrereqOrBonuses(); i++)
+ 	{
+ 		BonusTypes ePrereqOrBonus = kUnit.getPrereqOrBonuses(i);
+-		if (hasBonus(ePrereqOrBonus) || AI_countOwnedBonuses(ePrereqOrBonus) > 0)
++		if (hasBonus(ePrereqOrBonus) || AI_isAnyOwnedBonus(ePrereqOrBonus))
+ 		{
+ 			bMissingBonus = false;
+ 			break;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index e131cfe37..b4bee4b04 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -327,8 +327,12 @@ public:
+ 	// </advc.017b>
+ 	// <advc.042> Moved from CvPlayer and iLookAhead param added
+ 	int AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot* pFromPlot = NULL, int iLookAhead = 0) const;														// Exposed to Python
+-	int AI_countOwnedBonuses(BonusTypes eBonus) const;																											// Exposed to Python
+-	// </advc.042>
++	int AI_countOwnedBonuses(BonusTypes eBonus, // </advc.042>											// Exposed to Python
++			/* <advc.opt> */ int iMaxCount = MAX_INT) const;
++	bool AI_isAnyOwnedBonus(BonusTypes eBonus) const
++	{
++		return (AI_countOwnedBonuses(eBonus, 1) > 0);
++	} // </advc.opt>
+ 	int AI_neededWorkers(CvArea const& kArea) const;
+ 	int AI_neededMissionaries(CvArea const& kArea, ReligionTypes eReligion) const;
+ 	int AI_neededExecutives(CvArea const& kArea, CorporationTypes eCorporation) const;
+@@ -548,8 +552,13 @@ public:
+ 	bool isCloseToReligiousVictory() const;
+ 	bool AI_isDoStrategy(AIStrategy eStrategy, /* advc.007: */ bool bDebug = false) const;
+ 	// <advc.erai>
+-	scaled AI_getCurrEraFactor() const;
+-	inline int AI_getCurrEra() const { return AI_getCurrEraFactor().round(); }
++	void AI_updateEraFactor();
++	/*	Call locations of this function and similar functions at CvTeamAI, CvGameAI
++		aren't tagged with "advc.erai" comments. Note: Should not replace all uses of
++		era numbers in AI code with these functions. For example, a mod with only
++		3 eras	won't necessarily have more techs per era than BtS. */
++	inline scaled AI_getCurrEraFactor() const { return m_rCurrEraFactor; }
++	inline int AI_getCurrEra() const { return AI_getCurrEraFactor().uround(); }
+ 	// </advc.erai>
+ 
+ 	void AI_updateGreatPersonWeights(); // K-Mod
+@@ -706,6 +715,7 @@ protected:
+ 	int m_iReligionTimer;
+ 	int m_iExtraGoldTarget;
+ 	int m_iCityTargetTimer; // K-Mod
++	scaled m_rCurrEraFactor; // advc.erai
+ 	bool m_bDangerFromSubmarines; // advc.651
+ 	UWAI::Player* m_pUWAI; // advc.104
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index ebc0d0d41..c2bce04ba 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -189,7 +189,7 @@ scaled MilitaryBranch::getTypicalCost(TeamTypes eObserver) const
+ 		return -1;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
+ 	scaled rCost = kOwner.getProductionNeeded(getTypicalUnit(),
+-			estimateExtraInstances(kOwner.AI_getCurrEraFactor()).round());
++			estimateExtraInstances(kOwner.AI_getCurrEraFactor()).uround());
+ 	if (canKnowTypicalUnit(eObserver))
+ 		return rCost;
+ 	return rCost * fixp(0.85); // Underestimate cost
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index 23fc37003..55447e5c5 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -5,7 +5,8 @@ PROJECT_CFLAGS = /WX /W4
+ PROJECT_Debug_CFLAGS = /Ob1
+ # Should _not_ be set when inspecting disassembly as it will disable __forceinline
+ #PROJECT_DebugOpt_CFLAGS = /DFASSERT_ENABLE /Oy-
+-# Can use global optimizations along with debug symbols; it's just slow to compile.
++# Can use global optimizations along with debug symbols (also for profile builds);
++# it's just slow to compile.
+ #PROJECT_DebugOpt_CFLAGS = /GL
+ # DLL-internal profiler: /DUSE_INTERNAL_PROFILER
+ # Time Stamp Counter profiler: /DUSE_TSC_PROFILER
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=15327

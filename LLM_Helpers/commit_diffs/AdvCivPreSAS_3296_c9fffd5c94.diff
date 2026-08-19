@@ -1,0 +1,230 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3296
+# Commit: c9fffd5c9475439da45f850944c51108dd0b366b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f1029b779103ca5f4b801c091fd90de7a35ef329
+# Title: Fix, cleanup Change Player code in DLL
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+49	53	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+3	10	CvGameCoreDLL/CvGameInterface.cpp
+3	2	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c1ca071ad..4c7904e7a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5473,38 +5473,40 @@ void CvGame::sendPlayerOptions(bool bForce)
+ 
+ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
+ {
+-	PlayerTypes eOldActivePlayer = getActivePlayer();
+-	if (eOldActivePlayer != eNewValue)
+-	{
+-		int iActiveNetId = ((NO_PLAYER != eOldActivePlayer) ? GET_PLAYER(eOldActivePlayer).getNetID() : -1);
+-		GC.getInitCore().setActivePlayer(eNewValue);
+-		if (eNewValue != NO_PLAYER && // K-Mod
+-			GET_PLAYER(eNewValue).isHuman() && (isHotSeat() || isPbem() || bForceHotSeat))
+-		{
+-			gDLL->getPassword(eNewValue);
+-			setHotPbemBetweenTurns(false);
+-			gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
++	PlayerTypes const eOldActivePlayer = getActivePlayer();
++	if (eOldActivePlayer == eNewValue)
++		return;
+ 
+-			if (eOldActivePlayer != NO_PLAYER)
+-			{
+-				int iInactiveNetId = GET_PLAYER(eNewValue).getNetID();
+-				GET_PLAYER(eNewValue).setNetID(iActiveNetId);
+-				GET_PLAYER(eOldActivePlayer).setNetID(iInactiveNetId);
+-			}
++	int const iActiveNetId = (eOldActivePlayer != NO_PLAYER ?
++			GET_PLAYER(eOldActivePlayer).getNetID() : -1);
++	GC.getInitCore().setActivePlayer(eNewValue);
++	if (eNewValue != NO_PLAYER && // K-Mod
++		GET_PLAYER(eNewValue).isHuman() &&
++		(isHotSeat() || isPbem() || bForceHotSeat))
++	{
++		gDLL->getPassword(eNewValue);
++		setHotPbemBetweenTurns(false);
++		gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
+ 
+-			GET_PLAYER(eNewValue).showMissedMessages();
++		if (eOldActivePlayer != NO_PLAYER)
++		{
++			int iInactiveNetId = GET_PLAYER(eNewValue).getNetID();
++			GET_PLAYER(eNewValue).setNetID(iActiveNetId);
++			GET_PLAYER(eOldActivePlayer).setNetID(iInactiveNetId);
++		}
+ 
+-			if (countHumanPlayersAlive() == 1 && isPbem())
+-			{
+-				// Nobody else left alive
+-				GC.getInitCore().setType(GAME_HOTSEAT_NEW);
+-			}
++		GET_PLAYER(eNewValue).showMissedMessages();
+ 
+-			if (isHotSeat() || bForceHotSeat)
+-				sendPlayerOptions(true);
++		if (countHumanPlayersAlive() == 1 && isPbem())
++		{
++			// Nobody else left alive
++			GC.getInitCore().setType(GAME_HOTSEAT_NEW);
+ 		}
+-		updateActiveVisibility(); // advc.706: Moved into subroutine
++
++		if (isHotSeat() || bForceHotSeat)
++			sendPlayerOptions(true);
+ 	}
++	updateActiveVisibility(); // advc.706: Moved into subroutine
+ }
+ 
+ // advc.706: Cut and pasted from CvGame::setActivePlayer
+@@ -9860,24 +9862,12 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
+ 	// BETTER_BTS_AI_MOD: END
+ }
+ 
+-//	BETTER_BTS_AI_MOD, Debug, 8/1/08, jdog5000: START
+-void CvGame::changeHumanPlayer(PlayerTypes eNewHuman)
++/*	BETTER_BTS_AI_MOD, Debug, 8/1/08, jdog5000: START
++	(advc: Merged with code from nextActivePlayer) */
++void CvGame::changeHumanPlayer(PlayerTypes eNewHuman,
++	bool bSetTurnActive) // advc
+ {
+-	PlayerTypes eCurHuman = getActivePlayer();
+-	/*  <advc.127> Rearranged code b/c of a change in CvPlayer::isOption.
+-		Important for advc.706. */
+-	if(eNewHuman == eCurHuman)
+-	{
+-		if(getActivePlayer() != eNewHuman)
+-			setActivePlayer(eNewHuman, false);
+-		GET_PLAYER(eNewHuman).setIsHuman(true);
+-		GET_PLAYER(eNewHuman).updateHuman();
+-		return;
+-	}
+-	GET_PLAYER(eCurHuman).setIsHuman(true);
+-	GET_PLAYER(eNewHuman).setIsHuman(true);
+-	GET_PLAYER(eCurHuman).updateHuman();
+-	GET_PLAYER(eNewHuman).updateHuman();
++	PlayerTypes const eCurHuman = getActivePlayer();
+ 	/*	<advc> Probably not necessary, but seems cleaner to swap the
+ 		player options of the old and new human rather than just copying
+ 		from old to new. */
+@@ -9898,18 +9888,24 @@ void CvGame::changeHumanPlayer(PlayerTypes eNewHuman)
+ 		GET_PLAYER(eCurHuman).setOption(eLoopPlayerOption,
+ 				aeNewHumanOldOptions.get(eLoopPlayerOption));
+ 	} // </advc>
+-	FOR_EACH_ENUM(PlayerOption)
++	GET_PLAYER(eCurHuman).setIsHuman(false, /* advc.127c: */ true);
++	GET_PLAYER(eNewHuman).setIsHuman(true, /* advc.127c: */ true);
++	// <advc> Moved from nextActivePlayer
++	if (bSetTurnActive)
+ 	{
+-		gDLL->sendPlayerOption(eLoopPlayerOption,
+-				GET_PLAYER(eNewHuman).isOption(eLoopPlayerOption));
+-	} // </advc.127>
+-	// <advc.001> Otherwise, the selected unit will affect CvPlot::updateCenterUnit.
++		GET_PLAYER(eCurHuman).setTurnActive(false, false);
++		GET_PLAYER(eNewHuman).setTurnActive(true, false);
++	} // </advc>
++	// <advc.127c> Otherwise, the selected unit will affect CvPlot::updateCenterUnit.
+ 	gDLL->getInterfaceIFace()->clearSelectionList();
+-	gDLL->getInterfaceIFace()->clearSelectedCities(); // </advc.001>
+-	setActivePlayer(eNewHuman, false);
+-
+-	GET_PLAYER(eCurHuman).setIsHuman(false, /* advc.127c: */ true);
+-	GET_PLAYER(eCurHuman).updateHuman(); // advc.127
++	gDLL->getInterfaceIFace()->clearSelectedCities(); 
++	setActivePlayer(eNewHuman, //false
++			/*	This makes sure that net ids are updated. Apparently, inconsistent
++				net ids can cause the diplo screen to refuse putting certain items
++				on the table. */
++			true);
++	// (advc: Send options loop deleted; bForceHotSeat above takes care of that)
++	// </advc.127c>
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index a1b4e1d49..415cfae33 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -756,7 +756,7 @@ public:
+ 
+ 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);	// Exposed to Python
+ 	// BETTER_BTS_AI_MOD, Debug, 8/1/08, jdog5000:
+-	void changeHumanPlayer(PlayerTypes eNewHuman);
++	void changeHumanPlayer(PlayerTypes eNewHuman, /* advc: */ bool bSetTurnActive = false);
+ 
+ 	bool testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScore = NULL) const;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index b8f9e8d0e..179bf6b20 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2353,6 +2353,7 @@ VictoryTypes CvGame::getSpaceVictory() const
+ 	return eVictory;
+ }
+ 
++// advc (note): Alt+Z causes the EXE to call this function
+ void CvGame::nextActivePlayer(bool bForward)
+ {
+ 	int iNewPlayer = getActivePlayer();
+@@ -2366,16 +2367,8 @@ void CvGame::nextActivePlayer(bool bForward)
+ 		PlayerTypes eNewPlayer = (PlayerTypes)iNewPlayer;
+ 		if (GET_PLAYER(eNewPlayer).isAlive() && !GET_PLAYER(eNewPlayer).isBarbarian())
+ 		{
+-			/*GC.getInitCore().setSlotStatus(getActivePlayer(), SS_COMPUTER);
+-			GC.getInitCore().setSlotStatus(eNewPlayer, SS_TAKEN);*/
+-			/*  <advc.210> The CHANGE_PLAYER component added a wrapper for that
+-				(which now also initializes alerts) */
+-			GET_PLAYER(getActivePlayer()).setIsHuman(false, true);
+-			GET_PLAYER(eNewPlayer).setIsHuman(true, true);
+-			// </advc.210>
+-			GET_PLAYER(getActivePlayer()).setTurnActive(false, false);
+-			GET_PLAYER(eNewPlayer).setTurnActive(true, false);
+-			setActivePlayer(eNewPlayer, true);
++			// advc.210: Merged into BBAI function, which also takes care of alerts.
++			changeHumanPlayer(eNewPlayer);
+ 			break;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 471389b4f..07d820cf6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -732,7 +732,7 @@ void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader)
+ void CvPlayer::setIsHuman(bool bNewValue, /* advc.127c: */ bool bUpdateAI)
+ {
+ 	// <advc.706> Make sure that these are consistent
+-	if(!bNewValue)
++	if (!bNewValue)
+ 		m_bDisableHuman = false; // </advc.706>
+ 	if (bNewValue == isHuman())
+ 		return;
+@@ -8496,7 +8496,8 @@ bool CvPlayer::isConnected() const
+ 	return gDLL->isConnected(getNetID());
+ }
+ 
+-
++/*	advc (note): The diplo screen seems to check these IDs also in single-player
++	mode. Should be -1 for all civs that aren't actively controlled by a human. */
+ int CvPlayer::getNetID() const
+ {
+ 	return GC.getInitCore().getNetID(getID());
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7840

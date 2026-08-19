@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1760
+# Commit: e27b522ca6cf7ef4df2718fbec4cb24b17d0109d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7a9c5a2c32e4ffffe508d90e3de43f6eef1d5495
+# Title: Bugfix: free Missionary didn't match chosen religion
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index fdfaff62f..8d8095b05 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7345,7 +7345,8 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
+ 	g.setHolyCity(eReligion, pBestCity, true);
+ 	if (bAward && kSlotReligion.getNumFreeUnits() > 0)
+ 	{
+-		UnitTypes eFreeUnit = getCivilization().getUnit((UnitClassTypes)kSlotReligion.getFreeUnitClass());
++		UnitTypes eFreeUnit = getCivilization().getUnit((UnitClassTypes)
++				GC.getInfo(eReligion).getFreeUnitClass());
+ 		if (eFreeUnit != NO_UNIT)
+ 		{
+ 			for (int i = 0; i < kSlotReligion.getNumFreeUnits(); i++)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=687

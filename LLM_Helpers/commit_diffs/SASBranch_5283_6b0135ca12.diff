@@ -1,0 +1,197 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5283
+# Commit: 6b0135ca12d140d406e2fb336560f5f97017b41d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1f9b99fd955e07d83cd3984be22b61bad3bc4220
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AdvCiv-SAS.ini
+1	0	Assets/XML/Art/CIV4ArtDefines_Misc.xml
+1	0	Resource/Civ4.thm
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	Logs (base) - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/Logs (base) - User Shortcut Example.lnk
+-	-	_AdvCiv-SAS (game) - Steam shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_AdvCiv-SAS (game) - Steam shortcut.lnk
+-	-	_CivilizationIV.ini - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_CivilizationIV.ini - User Shortcut Example.lnk
+-	-	_PythonDbg.log - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_PythonDbg.log - User Shortcut Example.lnk
+-	-	_PythonErr.log - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_PythonErr.log - User Shortcut Example.lnk
+-	-	__Saves folder (base) (single) - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/__Saves folder (base) (single) - User Shortcut Example.lnk
+-	-	__ScreenShots (base) - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/__ScreenShots (base) - User Shortcut Example.lnk
+-	-	___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk
+-	-	_1_AdvCiv-SAS/Windows_shortcuts/___Docs - Steam Shortcut.lnk
+-	-	___Sevopedia python folder - Steam shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/___Sevopedia python folder - Steam shortcut.lnk
+-	-	handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+-	-	___Docs_And_Appendixes - Steam Shortcut.lnk
+ rename Logs (base) - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/Logs (base) - User Shortcut Example.lnk (100%)
+ rename _AdvCiv-SAS (game) - Steam shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_AdvCiv-SAS (game) - Steam shortcut.lnk (100%)
+ rename _CivilizationIV.ini - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_CivilizationIV.ini - User Shortcut Example.lnk (100%)
+ rename _PythonDbg.log - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_PythonDbg.log - User Shortcut Example.lnk (100%)
+ rename _PythonErr.log - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/_PythonErr.log - User Shortcut Example.lnk (100%)
+ rename __Saves folder (base) (single) - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/__Saves folder (base) (single) - User Shortcut Example.lnk (100%)
+ rename __ScreenShots (base) - User Shortcut Example.lnk => _1_AdvCiv-SAS/Windows_shortcuts/__ScreenShots (base) - User Shortcut Example.lnk (100%)
+ rename ___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk (100%)
+ create mode 100644 _1_AdvCiv-SAS/Windows_shortcuts/___Docs - Steam Shortcut.lnk
+ rename ___Sevopedia python folder - Steam shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/___Sevopedia python folder - Steam shortcut.lnk (100%)
+ rename handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk => _1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk (100%)
+ delete mode 100644 ___Docs_And_Appendixes - Steam Shortcut.lnk
+
+[PATCHES]
+
+diff --git a/AdvCiv-SAS.ini b/AdvCiv-SAS.ini
+index 1bdf2c05c..3b9cf0976 100644
+--- a/AdvCiv-SAS.ini
++++ b/AdvCiv-SAS.ini
+@@ -40,5 +40,5 @@ ImageFile = 0
+ ; Name of Mod
+ Name = AdvCiv-SAS
+ 
+-; Description of Mod
++; Description of Mod <!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") if i'm not mistaken that we need to do so. Also note that i am not even sure this file is applied at all, so check if this is the correct way of doing so. -->
+ Description = Generic Mod
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Misc.xml b/Assets/XML/Art/CIV4ArtDefines_Misc.xml
+index c5227dec9..1f469df99 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Misc.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Misc.xml
+@@ -331,6 +331,7 @@
+ 			<KFM></KFM>
+ 		</MiscArtInfo>
+ 		<!-- advc.002b: Set modified theme as default -->
++		<!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") if i'm not mistaken that we need to do so. -->
+ 		<MiscArtInfo>
+ 			<Type>DEFAULT_THEME_NAME</Type>
+ 			<Path>Mods/AdvCiv-SAS/Resource/Civ4.thm</Path>
+
+diff --git a/Resource/Civ4.thm b/Resource/Civ4.thm
+index c873fbe78..a0ed85357 100644
+--- a/Resource/Civ4.thm
++++ b/Resource/Civ4.thm
+@@ -7,4 +7,5 @@
+ resource_path "Mods\AdvCiv-SAS\Resource";
+ /* For some obscure reason, the includes in Civ4Theme.thm can't be moved here
+    - both Civ4.thm and Civ4Theme.thm are necessary. */
++/* <!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") if i'm not mistaken that we need to do so. --> */
+ include "Mods\AdvCiv-SAS\Resource\Civ4Theme.thm";
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 141cdc912..3edb11786 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -248,7 +248,7 @@ git fetch origin
+ # choose names
+ # new tag
+ TAG=5282
+-SHA=cd4e4c28cadf78c054f38d7fe7118cd84a7d1681  # <- the TAG commit
++SHA=1f9b99fd955e07d83cd3984be22b61bad3bc4220  # <- the TAG commit
+ OLDNAME="AdvCiv-SAS 5240"                     # quote because of spaces
+ BASE=b5ecf7a37ae7330c65384a4f880d20d344193230 # <- the OLDNAME commit
+ WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index c388a842a..a218ce629 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -306,7 +306,7 @@ More context of how i implemented the change in the .cpp and such can be found i
+ 
+ I don't know if fastdep compiel was the cause or just some weird corruption unnotified happened (i don't know a lot about these if at all hehe but it was reproducible, and my player name also unusually changed just after this fast compile so i can quite confidently say it is maybe indeed related but anyways etc (for example after checking indeed Civ4ScreenShot3010 in the advciv-sas's mod journey drive (see main README.md for link anyways etc), with last compiled DLL before this Claude AI related .cpp change and recompile, had my windows username as default player name as can be seen in screenshot, but the screenshots of the issue in the drive linked above, that happen between Civ4ScreenShot3095(new game not yet started after the cpp changes and recompile) and Civ4ScreenShot3096 (where issue is solved)); in short if my long sentence still makes sense xd and i didnt get tangled into it if this is a word too but anyways etc anyways etc, default civ4 player game suddenly changed from windows username to steam username (that i didnt want to show in screenshots too as is private to me but anyways etc, and this coincidated if this is a word but anyways etc with this screen being stuck issue))
+ 
+-To solve it, or at least after doing this issue that was reproducible if i am not mistaken is now solved, i deleted (adjust to where your mod path is anyways etc) for example for me this is where the folder temp_files/Release/ is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Release\ , this folder (i deleted it anyways etc), and after recompiling cleanly, now i can play with windows username as usual, even though i had to change back the steam username to the name i wanted (first manually ingame at new game settings screen, then after seeing it works in CivilizationIV.ini (see [CivilizationIV.ini shortcut for example](/_CivilizationIV.ini%20-%20User%20Shortcut%20Example.lnk))), here and for testing at least if not always or not anyways etc or maybe not but for testing or not if i want or not or and other or and not or do or not or etc or etc anyways etc, the windows username is fine with me ("PC" in the screenshots anyways etc anyways etc...)
++To solve it, or at least after doing this issue that was reproducible if i am not mistaken is now solved, i deleted (adjust to where your mod path is anyways etc) for example for me this is where the folder temp_files/Release/ is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Release\ , this folder (i deleted it anyways etc), and after recompiling cleanly, now i can play with windows username as usual, even though i had to change back the steam username to the name i wanted (first manually ingame at new game settings screen, then after seeing it works in CivilizationIV.ini (see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/))), here and for testing at least if not always or not anyways etc or maybe not but for testing or not if i want or not or and other or and not or do or not or etc or etc anyways etc, the windows username is fine with me ("PC" in the screenshots anyways etc anyways etc...)
+ 
+ Not sure what the issue was, would have liked to be notified of the error/corruption cause of it somehow, but program runs fine as usual now, so maybe corrupted unnotified compilation, or fastdep issue perhaps (even though fastdep compiles seemed to work fine in the past as in just yesterday/the day before for the [unitai renaming (commit)](https://github.com/wonderingabout/AdvCiv-SAS/commit/701e2e31279d7ab152f91b431a81c1bae9c22734) but anyways etc as long as is solved is all good maybe even though bit weird but unsettling but whatever it is/was is maybe consistently solved now (not gauranteed, may or not be the case but anyways etc))
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+index 656b75474..df195c18b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+@@ -73,7 +73,7 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
+ 
+ ```"C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe" mod=\AdvCiv-SAS```
+ 
+-For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk). You can just move (cut then paste, it's just a link so is safe) it to the desktop for your convenience.
++For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk: see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/)). You can just move it to the desktop for your convenience.
+ 
+ Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken anyways etc, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index f828f28d5..27ebacc54 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -46,7 +46,7 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
+ - 1st commit: It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: [commit/6c67df16f99479500a820d34dddd4f4fe569bc8e](https://github.com/wonderingabout/AdvCiv-SAS/commit/6c67df16f99479500a820d34dddd4f4fe569bc8e).
+ - 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: [commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17](https://github.com/wonderingabout/AdvCiv-SAS/commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17).
+ - 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks [commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234](https://github.com/wonderingabout/AdvCiv-SAS/commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234).
+-- 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks (see commit notes for details as they are written by chatgpt 5.2 who knows better about these and provided the fix thanks).
++- 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks [commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220](https://github.com/wonderingabout/AdvCiv-SAS/commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220#diff-c8653fbee55dd4a1fa9f17ca80f217b2d5d87a7c49f8d7ac33979c0cf7eb8c2aR2090-R2094) (see commit notes for details as they are written by chatgpt 5.2 thanks who knows better about these and provided the fix).
+ 
+ See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
+
+diff --git a/Logs (base) - User Shortcut Example.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/Logs (base) - User Shortcut Example.lnk
+similarity index 100%
+rename from Logs (base) - User Shortcut Example.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/Logs (base) - User Shortcut Example.lnk
+
+diff --git a/_AdvCiv-SAS (game) - Steam shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/_AdvCiv-SAS (game) - Steam shortcut.lnk
+similarity index 100%
+rename from _AdvCiv-SAS (game) - Steam shortcut.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/_AdvCiv-SAS (game) - Steam shortcut.lnk
+
+diff --git a/_CivilizationIV.ini - User Shortcut Example.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/_CivilizationIV.ini - User Shortcut Example.lnk
+similarity index 100%
+rename from _CivilizationIV.ini - User Shortcut Example.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/_CivilizationIV.ini - User Shortcut Example.lnk
+
+[PATCH OMITTED] file=a/_PythonDbg.log - User Shortcut Example.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/_PythonDbg.log - User Shortcut Example.lnk reason=binary/generated-file changedLines=0 bytes=294
+
+[PATCH OMITTED] file=a/_PythonErr.log - User Shortcut Example.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/_PythonErr.log - User Shortcut Example.lnk reason=binary/generated-file changedLines=0 bytes=294
+
+diff --git a/__Saves folder (base) (single) - User Shortcut Example.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/__Saves folder (base) (single) - User Shortcut Example.lnk
+similarity index 100%
+rename from __Saves folder (base) (single) - User Shortcut Example.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/__Saves folder (base) (single) - User Shortcut Example.lnk
+
+diff --git a/__ScreenShots (base) - User Shortcut Example.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/__ScreenShots (base) - User Shortcut Example.lnk
+similarity index 100%
+rename from __ScreenShots (base) - User Shortcut Example.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/__ScreenShots (base) - User Shortcut Example.lnk
+
+diff --git a/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk
+similarity index 100%
+rename from ___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk
+
+diff --git a/_1_AdvCiv-SAS/Windows_shortcuts/___Docs - Steam Shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/___Docs - Steam Shortcut.lnk
+new file mode 100644
+index 000000000..a143421a4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Windows_shortcuts/___Docs - Steam Shortcut.lnk differ
+
+diff --git a/___Sevopedia python folder - Steam shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/___Sevopedia python folder - Steam shortcut.lnk
+similarity index 100%
+rename from ___Sevopedia python folder - Steam shortcut.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/___Sevopedia python folder - Steam shortcut.lnk
+
+diff --git a/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+similarity index 100%
+rename from handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+
+diff --git a/___Docs_And_Appendixes - Steam Shortcut.lnk b/___Docs_And_Appendixes - Steam Shortcut.lnk
+deleted file mode 100644
+index 60f506d98..000000000
+Binary files a/___Docs_And_Appendixes - Steam Shortcut.lnk and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=17 omittedFiles=2 embeddedPatchBytes=14151

@@ -1,0 +1,413 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5998
+# Commit: 520df2a23aa4f328108e4760b50d4cb42a7065e8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8964e26963b5fc90970d7608ec745c5ff81359c4
+# Title: Fix K-Mod / Base AdvCiv bugs and more BBAI logging - Expanded Great Artist diagnostics: slow base value and path turns, previous mission type/final plot, pre...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	3	Assets/Python/Screens/CvDomesticAdvisor.py
+8	9	Assets/Python/Screens/CvMainInterface.py
+68	21	CvGameCoreDLL/CvUnitAI.cpp
+33	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index c72fb8ff3..e55eb3e61 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -148,7 +148,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		self.X_CATEGORIES = 0
+ 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
+-		# <!-- custom: shorter category column width to have more room in sevopedia; Long_Comments_XML.txt #15. Update: increased for upscaled text (as of now if font size > 2) -->
++		# <!-- custom: shorter category column width to have more room in sevopedia; Long_Comments_XML.txt #15. Update: increased for upscaled text. -->
+ 		# <!-- custom: keep categories narrower at default font, but widen when UI label font is upscaled so text doesn't clip (GPT-5.3-Codex); Long_Comments_XML.txt #16. -->
+ 		iCategoryWidth = 124
+ 		if getSASUIFontLabel() > 3:
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 0376e8808..b1f1ac0ee 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -857,10 +857,9 @@ class CvDomesticAdvisor:
+ 		screen.setTableText( self.TABLE_OVERVIEW1, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# <advc.193>
+-		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update), but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
+-		iCellFontSize = getSASUIFontLabel()
++		# <!-- custom: preserve base AdvCiv per-row font-tag reuse, but use shared LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
+ 		# (Uses of these tags in the code below aren't tagged w/ comments)
+-		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
++		szFontTagOpen = sasFontTagLabel
+ 		szFontTagClose = SAS_FONT_TAG_CLOSE
+ 		# </advc.193>
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 9b27eea87..29dd88f0d 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -4939,13 +4939,13 @@ class CvMainInterface:
+ 		# This means that the city screen uses size 1 only for the BUG yield breakdowns ("Raw Yields").
+ 		if self.bScaleHUD and gRect("Top").height() > 900:
+ 			# <!-- custom: use LABEL (not BODY) for city building/trade tables so label-font upscaling applies consistently when SAS_UI_FONT_LABEL is raised. (GPT-5.4) -->
+-			self.iBldgFontSize = getSASUIFontLabel()
+-			self.iTRFontSize = getSASUIFontLabel()
++			self.bldgFontTag = sasFontTagLabel
++			self.trFontTag = sasFontTagLabel
+ 			# Table rows don't or barely get higher, so the button size shouldn't be increased here.
+ 			iBldgBtnSize = None
+ 		else: # </advc.092>
+-			self.iBldgFontSize = getSASUIFontTiny()
+-			self.iTRFontSize = getSASUIFontTiny()
++			self.bldgFontTag = sasFontTagTiny
++			self.trFontTag = sasFontTagTiny
+ 			iBldgBtnSize = None
+ 		self.addTable("BuildingListTable", 3, "Table_City_Style", iBldgBtnSize)
+ # BUG - Raw Yields - start
+@@ -5149,7 +5149,7 @@ class CvMainInterface:
+ 				else:
+ 					szIcon = gc.getBuildingInfo(iBuilding).getButton() # from BAT mod
+ 				# </advc.097>
+-				szFontStart = "<font="+ str(self.iBldgFontSize) + ">" # advc.092
++				szFontStart = self.bldgFontTag # advc.092
+ 				screen.setTableText("BuildingListTable", 0, iNumBuildings, szFontStart + szLeftBuffer + SAS_FONT_TAG_CLOSE, szIcon, WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				screen.setTableText("BuildingListTable", 1, iNumBuildings, szFontStart + szRightBuffer + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 				iNumBuildings = iNumBuildings + 1
+@@ -5198,7 +5198,7 @@ class CvMainInterface:
+ # K-Mod: Trade culture end
+ 				if not bShowRawYields:
+ 					screen.appendTableRow("TradeRouteTable")
+-					szFontStart = "<font=" + str(self.iTRFontSize) + ">" # advc.092
++					szFontStart = self.trFontTag # advc.092
+ 					screen.setTableText("TradeRouteTable", 0, iNumTradeRoutes, szFontStart + szLeftBuffer + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_TRADE_ROUTE_CITY, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText("TradeRouteTable", 1, iNumTradeRoutes, szFontStart + szRightBuffer + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_TRADE_ROUTE_CITY, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ # BUG - Raw Yields - end
+@@ -5241,10 +5241,9 @@ class CvMainInterface:
+ 		# <advc.092>
+ 		# <!-- custom: The old button fallback used total XML bonus count, which made AdvCiv-SAS fall back to small font icons even when the selected city's actual bonus rows fit. Check the selected city's per-column row counts instead; use the preferred 40px-ish buttons when they fit, shrink in explicit 5px-ish DDS steps only for real selected-city overflow, and keep text glyphs as legacy/debug mode or last-resort overflow fallback. Mode 0 forces at least label-size text so bonus glyphs are not tinier than nearby UI, but does not hardcode font=4 because that also enlarges amount/effect text; testing showed even font=4 text glyphs remain much smaller than image-button rendering, so larger bonus icons need mode 1 or 2. (GPT-5.5) -->
+ 		if (bUseCityBonusButtons or gRect("Top").height() > 900 + max(0, gc.getNumBonusInfos() - 35) * 12) or self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE == 0:
+-			iFontSize = getSASUIFontLabel()
++			szFontStart = sasFontTagLabel
+ 		else:
+-			iFontSize = getSASUIFontTiny() # (2 doesn't really increase the size of icons)
+-		szFontStart = u"<font=" + str(iFontSize) + u">"
++			szFontStart = sasFontTagTiny # (2 doesn't really increase the size of icons)
+ 		# </advc.092>
+ 		iLeftCount = 0
+ 		iCenterCount = 0
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a19db40b3..329878fe9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -65,7 +65,7 @@ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUni
+ 
+ // <!-- custom: Great Person weights can favor Artists because of a valuable corporation-founding building, but the resulting Great Artist separately chooses among construction, settling, discovery, Golden Age, trade, and Great Work.
+ // At culture log level 3, record that actual choice and all competing scores to reveal whether specialist weighting and eventual Great Artist use agree; keep this separate from broad unit logging. (ChatGPT-5.5 + GPT-5.5) -->
+-static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI const& kUnit, int iChoice, int iScoreThreshold, int iSlowValue, int iDiscoverValue, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvCity const* pTargetCity, CvPlot const* pMovePlot, SpecialistTypes eSpecialist, BuildingTypes eBuilding)
++static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI const& kUnit, int iChoice, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot, int iDiscoverValue, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvCity const* pTargetCity, CvPlot const* pMovePlot, SpecialistTypes eSpecialist, BuildingTypes eBuilding)
+ {
+ 	CvGame const& kGame = GC.getGame();
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+@@ -73,8 +73,8 @@ static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI cons
+ 	CorporationTypes const eCorporation = (eBuilding == NO_BUILDING ? NO_CORPORATION : GC.getInfo(eBuilding).getFoundsCorporation());
+ 	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
+ 	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
+-	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d %S unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
+-			szAction, kGame.getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(), kUnit.getY(), iChoice, iScoreThreshold, iSlowValue, iDiscoverValue, iGoldenAgeValue, iTradeValue, iCultureValue,
++	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d %S unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d slowBase=%d slowPathTurns=%d previousMissionAI=%d previousMissionPlot=(%d,%d) discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
++			szAction, kGame.getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(), kUnit.getY(), iChoice, iScoreThreshold, iSlowValue, iSlowBaseValue, (iSlowPathTurns == MAX_INT ? -1 : iSlowPathTurns), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iDiscoverValue, iGoldenAgeValue, iTradeValue, iCultureValue,
+ 			(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pMovePlot == NULL ? -1 : pMovePlot->getX()), (pMovePlot == NULL ? -1 : pMovePlot->getY()),
+ 			(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()), (eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), (eCorporation == NO_CORPORATION ? "NONE" : GC.getInfo(eCorporation).getType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
+ }
+@@ -7682,6 +7682,17 @@ void CvUnitAI::AI_greatPersonMove()
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 	bool const bLogCultureGreatArtistDecision = (gCultureLogLevel >= 3 && AI_getUnitAIType() == UNITAI_GREAT_ARTIST);
+ 	bool const bLogUnitGreatPersonDecision = (gUnitLogLevel > 2);
++	MissionAITypes ePreviousMissionAI = NO_MISSIONAI;
++	CvPlot const* pPreviousMissionPlot = NULL;
++	if (bLogCultureGreatArtistDecision)
++	{
++		CvSelectionGroupAI const* pGroup = AI_getGroup();
++		if (pGroup != NULL)
++		{
++			ePreviousMissionAI = pGroup->AI_getMissionAIType();
++			pPreviousMissionPlot = pGroup->AI_getMissionAIPlot();
++		}
++	}
+ 
+ 	enum
+ 	{
+@@ -7700,8 +7711,12 @@ void CvUnitAI::AI_greatPersonMove()
+ 	CvCityAI const* pBestCity = NULL;
+ 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+ 	BuildingTypes eBestBuilding = NO_BUILDING;
++	MissionAITypes eBestSlowMissionAI = NO_MISSIONAI;
+ 	int iBestValue = 1;
+-	int iBestPathTurns = MAX_INT; // just used as a tie-breaker.
++	// <!-- custom: K-Mod initialized the nearest-path tie-breaker but updated it only for hurry-building candidates, not Join or direct Construct candidates. This could let a later, farther city replace an equally valuable nearer target; preserve the selected path length for every slow action. Great Artist logging also records it and the previous mission state after a map-428 Artist crossed the Walata-Tadmekka corridor for six turns while changing Join/corporation targets. See KI#168. (GPT-5.5) -->
++	int iBestPathTurns = MAX_INT;
++	int iPreviousSlowTargetValue = -1;
++	int iPreviousSlowTargetPathTurns = -1;
+ 	MovementFlags const eMoveFlags = (alwaysInvisible() ?
+ 			NO_MOVEMENT_FLAGS : MOVE_NO_ENEMY_TERRITORY);
+ 	bool bCanHurry = (getUnitInfo().getBaseHurry() > 0 ||
+@@ -7724,13 +7739,20 @@ void CvUnitAI::AI_greatPersonMove()
+ 			{
+ 				// Note, specialistValue is roughly 400x the commerce it provides. So /= 4 to make it 100x.
+ 				int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist)/4;
++				if (bLogCultureGreatArtistDecision && ePreviousMissionAI == MISSIONAI_JOIN_CITY && pPreviousMissionPlot == &pLoopCity->getPlot() && iValue > iPreviousSlowTargetValue)
++				{
++					iPreviousSlowTargetValue = iValue;
++					iPreviousSlowTargetPathTurns = iPathTurns;
++				}
+ 				if (iValue > iBestValue || (iValue == iBestValue && iPathTurns < iBestPathTurns))
+ 				{
+ 					iBestValue = iValue;
++					iBestPathTurns = iPathTurns;
+ 					pBestPlot = &getPathEndTurnPlot();
+-					if (bLogCultureGreatArtistDecision) pBestCity = pLoopCity;
++					pBestCity = pLoopCity;
+ 					eBestSpecialist = eLoopSpecialist;
+ 					eBestBuilding = NO_BUILDING;
++					eBestSlowMissionAI = MISSIONAI_JOIN_CITY;
+ 				}
+ 			}
+ 		}
+@@ -7746,13 +7768,20 @@ void CvUnitAI::AI_greatPersonMove()
+ 				// Note, building value is roughly 4x the value of the commerce it provides.
+ 				// so we * 25 to match the scale of specialist value.
+ 				int iValue = pLoopCity->AI_buildingValue(eBuilding) * 25;
++				if (bLogCultureGreatArtistDecision && ePreviousMissionAI == MISSIONAI_CONSTRUCT && pPreviousMissionPlot == &pLoopCity->getPlot() && iValue > iPreviousSlowTargetValue)
++				{
++					iPreviousSlowTargetValue = iValue;
++					iPreviousSlowTargetPathTurns = iPathTurns;
++				}
+ 				if (iValue > iBestValue || (iValue == iBestValue && iPathTurns < iBestPathTurns))
+ 				{
+ 					iBestValue = iValue;
++					iBestPathTurns = iPathTurns;
+ 					pBestPlot = &getPathEndTurnPlot();
+-					if (bLogCultureGreatArtistDecision) pBestCity = pLoopCity;
++					pBestCity = pLoopCity;
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
++					eBestSlowMissionAI = MISSIONAI_CONSTRUCT;
+ 				}
+ 				continue;
+ 			}
+@@ -7790,15 +7819,21 @@ void CvUnitAI::AI_greatPersonMove()
+ 					iValue /= 12 + std::min(30, pLoopCity->getProductionTurnsLeft(
+ 							iCost, iProgress, iProductionRate, iProductionRate));
+ 				}
++				if (bLogCultureGreatArtistDecision && ePreviousMissionAI == MISSIONAI_HURRY && pPreviousMissionPlot == &pLoopCity->getPlot() && iValue > iPreviousSlowTargetValue)
++				{
++					iPreviousSlowTargetValue = iValue;
++					iPreviousSlowTargetPathTurns = iPathTurns;
++				}
+ 
+ 				if (iValue > iBestValue || (iValue == iBestValue && iPathTurns < iBestPathTurns))
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
+-					if (bLogCultureGreatArtistDecision) pBestCity = pLoopCity;
++					pBestCity = pLoopCity;
+ 					iBestPathTurns = iPathTurns;
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
++					eBestSlowMissionAI = MISSIONAI_HURRY;
+ 				}
+ 			}
+ 		}
+@@ -7919,6 +7954,11 @@ void CvUnitAI::AI_greatPersonMove()
+ 		iSlowValue /= 100;
+ 		missions.push_back(std::pair<int, int>(iSlowValue, GP_SLOW));
+ 	}
++	// <!-- custom: A map-428 Great Artist made a marginal Walata -> Kumbi Saleh -> Walata corporation-target reversal, but slow movement stored no final mission target. Record the previous target's current comparable value/path beside the new best target before adding any switching threshold. Diagnostic only. (GPT-5.5) -->
++	if (bLogCultureGreatArtistDecision)
++		logBBAI("CULTURE_GREAT_ARTIST_SLOW_TARGET turn=%d player=%d unitId=%d previousMissionAI=%d previousMissionPlot=(%d,%d) previousValue=%d previousPathTurns=%d bestValue=%d bestPathTurns=%d bestMissionAI=%d bestCity=%S bestCityId=%d bestCityPlot=(%d,%d) specialist=%s building=%s",
++				kGame.getGameTurn(), getOwner(), getID(), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iPreviousSlowTargetValue, iPreviousSlowTargetPathTurns, iBestValue, (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns),
++				eBestSlowMissionAI, (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (eBestSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eBestSpecialist).getType()), (eBestBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBestBuilding).getType()));
+ 
+ 	// Trade mission
+ 	CvPlot* pBestTradePlot;
+@@ -7970,7 +8010,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 			if (canDiscover(plot()))
+ 			{
+ 				getGroup()->pushMission(MISSION_DISCOVER);
+-				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
++				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
+ 				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(), getName(0).GetCString(), rDiscoverValue.round(), iChoice);
+ 				return;
+ 			}
+@@ -7980,7 +8020,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 			{
+ 				if (AI_doTradeMission(pBestTradePlot))
+ 				{
+-					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
+ 					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iTradeValue, iChoice);
+ 					return;
+ 				}
+@@ -7991,7 +8031,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 			{
+ 				if (AI_doGreatWork(pBestCulturePlot))
+ 				{
+-					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
+ 					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
+ 					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
+ 					return;
+@@ -8002,7 +8042,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 		case GP_GOLDENAGE:
+ 			if (AI_goldenAge())
+ 			{
+-				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
++				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
+ 				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
+ 				return;
+ 			}
+@@ -8053,30 +8093,36 @@ void CvUnitAI::AI_greatPersonMove()
+ 				break;
+ 			if (eBestSpecialist != NO_SPECIALIST)
+ 			{
++				FAssert(eBestSlowMissionAI == MISSIONAI_JOIN_CITY);
++				FAssert(pBestCity != NULL);
+ 				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
+ 				if (at(*pBestPlot))
+ 				{
+ 					getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+-					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("JOIN", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("JOIN", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
+ 					return;
+ 				}
+ 				else
+ 				{
+-					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, MISSIONAI_JOIN_CITY);
+-					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("MOVE_TO_JOIN", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
++					// <!-- custom: Slow Great Person movement stored the mission type but omitted its final city, leaving no target continuity data. Keep the same end-turn movement while recording the intended city through the existing mission-AI target field. See KI#169. (GPT-5.5) -->
++					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, MISSIONAI_JOIN_CITY, &pBestCity->getPlot());
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("MOVE_TO_JOIN", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
+ 					return;
+ 				}
+ 			}
+ 			if (eBestBuilding != NO_BUILDING)
+ 			{
+-				MissionAITypes eMissionAI = canConstruct(pBestPlot, eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
++				FAssert(eBestSlowMissionAI == MISSIONAI_CONSTRUCT || eBestSlowMissionAI == MISSIONAI_HURRY);
++				FAssert(pBestCity != NULL);
++				// <!-- custom: Base AdvCiv inferred Construct versus Hurry from the end-turn movement waypoint instead of the selected final-city action. A direct corporation Construct therefore traveled as MISSIONAI_HURRY, and its persisted target could not be valued as the previous Construct target on the next turn. Retaining the candidate's actual action fixed the mission classification. See KI#170. (GPT-5.5) -->
++				MissionAITypes const eMissionAI = eBestSlowMissionAI;
+ 				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
+ 				if (at(*pBestPlot))
+ 				{
+ 					if (eMissionAI == MISSIONAI_CONSTRUCT)
+ 					{
+ 						getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
+-						if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("CONSTRUCT", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
++						if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("CONSTRUCT", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
+ 					}
+ 					else
+ 					{
+@@ -8087,7 +8133,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 						if (pCity->getProductionBuilding() == eBestBuilding && canHurry(plot()))
+ 						{
+ 							getGroup()->pushMission(MISSION_HURRY);
+-							if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("HURRY", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
++							if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("HURRY", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
+ 						}
+ 						else
+ 						{
+@@ -8099,8 +8145,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 				}
+ 				else
+ 				{
+-					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, eMissionAI);
+-					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision((eMissionAI == MISSIONAI_CONSTRUCT ? "MOVE_TO_CONSTRUCT" : "MOVE_TO_HURRY"), *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
++					// <!-- custom: pBestPlot is the end-turn waypoint; store the final city separately so multi-turn Construct/Hurry movement preserves its intended target. See KI#169. (GPT-5.5) -->
++					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, eMissionAI, &pBestCity->getPlot());
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision((eMissionAI == MISSIONAI_CONSTRUCT ? "MOVE_TO_CONSTRUCT" : "MOVE_TO_HURRY"), *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
+ 					return;
+ 				}
+ 			}
+@@ -8135,11 +8182,11 @@ void CvUnitAI::AI_greatPersonMove()
+ 	{
+ 		if (AI_discover())
+ 		{
+-			if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DANGER_DISCOVER", *this, -1, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
++			if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DANGER_DISCOVER", *this, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
+ 			return;
+ 		}
+ 	}
+-	if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("NO_MISSION_SELECTED", *this, -1, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, eBestBuilding);
++	if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("NO_MISSION_SELECTED", *this, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, eBestBuilding);
+ 	if (bLogUnitGreatPersonDecision)
+ 	{
+ 		// <!-- custom: Great People sometimes logged repeated waits, but the old line lacked turn, unit id, plot, mission state, and the candidate values needed to tell whether the unit was truly stuck or waiting for a better action. Keep this diagnostic gated behind the existing unit log level for reviewing wait decisions. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index cc78728f5..4bc7fd58d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -204,6 +204,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
+ [166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order)  
+ [167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#167---fixed-incorrect-bbai-logging-argument-check-of-missionai_trade-instead-of-missionai_great_work-near-if-ai_dogreatworkpbestcultureplot-and-gate-the-old-eoldmission-behind-a-logging-guard-for-per-opt)  
++[168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#168---fixed-k-mod-bug-great-person-join-and-direct-construct-target-selection-did-not-preserve-the-nearest-path-tie-breaker-bug-found-during-bbai-logging-investigationcode-review)  
++[169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#169---fixed-base-advciv-bug-slow-great-person-movement-omitted-the-intended-final-city-from-mission-ai-target-metadata-mission-stateai-coordination-bug-exposed-by-bbai-logging)  
++[170 - (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#170---fixed-base-advciv-bug-inferred-great-person-construct-versus-hurry-from-the-end-turn-waypoint-instead-of-the-selected-final-city-action-mission-classificationai-coordination-bug-exposed-by-bbai-logging)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6179,3 +6182,33 @@ to:
+ Also gated the old `eOldMission`'s `AI_getGroup()->AI_getMissionAIType()` behind a logging guard so it is not computed needlessly if BBAI logging is disabled.
+ 
+ Done with the help of GPT-5.5 (on codex) and reviewed OK with the help of ChatGPT-5.5 thanks.
++
++## 168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)
++
++K-Mod initialized `iBestPathTurns` for slow Great Person actions, but updated it only when selecting a Hurry candidate. Join and direct Construct candidates left the value at `MAX_INT`, so a later equally valuable candidate could replace the selected target even when farther away. Base AdvCiv inherited this behavior.
++
++This is a real but narrow gameplay-selection bug, not a logging-only issue: the fix updates `iBestPathTurns` whenever Join, direct Construct, or Hurry selects a new best candidate, so equal-value candidates now retain the nearer target. Great Artist diagnostics also record the chosen path length.
++
++The BBAI log prompted the target/path investigation, but did not directly demonstrate this exact equal-value case. The bug was found while reviewing and patching the source, and it was not the cause of the map-428 Walata/Kumbi Saleh reversal because those target values differed.
++
++Fixed with the help of GPT-5.5 (on Codex) thanks.
++
++## 169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)
++
++Base AdvCiv passed the end-turn movement waypoint and mission type for Great Person Join/Construct/Hurry travel, but omitted `pMissionAIPlot`. Multi-turn movement therefore stored no final city, and map-428 logging repeatedly showed `previousMissionPlot=(-1,-1)`.
++
++This was not merely missing log output. It was real mission-state metadata used by AI target-continuity/coordination systems. The fix keeps the end-turn waypoint as the movement destination while passing the intended final city separately as the mission-AI plot; the route itself is unchanged. The next autoplay confirmed that Join and Construct targets persisted across turns and could be valued again.
++
++This issue was directly exposed by the new BBAI diagnostics: `previousMissionPlot` remained `(-1,-1)` on every slow Great Artist movement turn.
++
++Fixed with the help of GPT-5.5 (on Codex) thanks.
++
++## 170 - (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging)
++
++Base AdvCiv chose `MISSIONAI_CONSTRUCT` or `MISSIONAI_HURRY` by calling `canConstruct` on `pBestPlot`, which is only the end-turn waypoint during multi-turn travel. In map 428, a Great Artist selected direct corporation construction in Walata but traveled as `MISSIONAI_HURRY`; the next turn could not compare it as the previous Construct target.
++
++This was a real mission-classification/coordination bug rather than a logging typo. The fix retains the actual mission type when the best Join, Construct, or Hurry candidate is selected and reuses it during movement. The tested route and final corporation construction were unchanged, but AI systems now see the correct travelling intent. The next autoplay correctly logged Walata as `MISSIONAI_CONSTRUCT` and produced real previous-target values.
++
++This issue was directly exposed by the follow-up BBAI log after KI#169: the Artist traveled as Hurry, then performed direct Construct, and the mismatched mission type left `previousValue=-1`.
++
++Fixed with the help of GPT-5.5 (on Codex) thanks.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=35240

@@ -1,0 +1,1539 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5930
+# Commit: 6abed2e00f7ed472364dc9aa99d766b512c4bcd9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 24cf2b885309017c72c8eecf318f17a83a638a06
+# Title: Add GitHub workflows; add files/folders to .gitattributes - For example, this helped spot map scripts that were previously unclassified in SAS map-script hea...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	.gitattributes
+49	0	.github/workflows/README.md
+30	0	.github/workflows/build.yml
+62	0	.github/workflows/build/aip.py
+29	0	.github/workflows/build/bbai_log.py
+59	0	.github/workflows/build/define_int_bounds.py
+138	0	.github/workflows/build/define_tag_refs.py
+26	0	.github/workflows/build/fonts.py
+119	0	.github/workflows/build/launch_guard.py
+164	0	.github/workflows/build/mapscripts.py
+122	0	.github/workflows/build/opening_music.py
+154	0	.github/workflows/build/worldsizes.py
+85	0	.github/workflows/build/xml_comments.py
+143	0	.github/workflows/build/xml_sas_text_english.py
+113	0	.github/workflows/lib/xml_defines.py
+3	1	AGENTS.md
+6	1	Assets/XML/GlobalDefines_advciv_sas.xml
+2	0	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/README.md
+ create mode 100644 .github/workflows/build.yml
+ create mode 100644 .github/workflows/build/aip.py
+ create mode 100644 .github/workflows/build/bbai_log.py
+ create mode 100644 .github/workflows/build/define_int_bounds.py
+ create mode 100644 .github/workflows/build/define_tag_refs.py
+ create mode 100644 .github/workflows/build/fonts.py
+ create mode 100644 .github/workflows/build/launch_guard.py
+ create mode 100644 .github/workflows/build/mapscripts.py
+ create mode 100644 .github/workflows/build/opening_music.py
+ create mode 100644 .github/workflows/build/worldsizes.py
+ create mode 100644 .github/workflows/build/xml_comments.py
+ create mode 100644 .github/workflows/build/xml_sas_text_english.py
+ create mode 100644 .github/workflows/lib/xml_defines.py
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 6f25eb271..62fcec267 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -43,6 +43,11 @@
+ # <!-- custom: LLM helpers are not needed in released archives of the mod -->
+ /LLM_Helpers/         export-ignore
+ 
++# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5) -->
++/.github/             export-ignore
++/.gitattributes       export-ignore
++/.gitignore           export-ignore
++
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                export-ignore
+ /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/  export-ignore
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+new file mode 100644
+index 000000000..20bba3f09
+--- /dev/null
++++ b/.github/workflows/README.md
+@@ -0,0 +1,49 @@
++# GitHub workflow checks
++
++These files are developer/repository automation, not Civ4 runtime files.
++
++- `build.yml` runs checks that should pass for ordinary committed builds.
++- `build/` contains Python 3 build-check scripts used by `build.yml`.
++- `lib/` contains shared Python 3 helpers used by workflow scripts.
++- Future `release.yml` and `release/` checks can be added for release-only checks such as documentation marker cleanup and archive contents.
++
++These scripts run outside Civ4, so they may use modern Python 3. They do not need Civ4 Python 2.4 compatibility.
++
++## Features
++
++According to ChatGPT-5.5:
++
++- GitHub workflow checks live under [`.github/workflows`](/.github/workflows/).
++- Workflow YAML files must stay directly in that folder (e.g. `build.yml`), while Python 3 build-check scripts live under `build/` and shared workflow helpers live under `lib/`.
++- `build.yml` is the authoritative list of build checks
++- The `.github/` workflow folder is development infrastructure and should stay excluded from player release archives through `.gitattributes`.
++
++For example, this helped spot map scripts that were previously unclassified in SAS map-script heaviness defines; they are now listed explicitly for exhaustiveness.
++
++## Current build checks
++
++- `build/launch_guard.py`: verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
++- `build/xml_comments.py`: verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
++- `build/xml_sas_text_english.py`: verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
++- `build/define_tag_refs.py`: verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
++- `build/define_int_bounds.py`: verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except the launch-guard sentinel checked separately by `build/launch_guard.py`.
++- `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
++- `build/bbai_log.py`: verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
++- `build/fonts.py`: verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.
++- `build/aip.py`: verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
++- `build/worldsizes.py`: verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py` match the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order.
++- `build/mapscripts.py`: verifies every playable `PrivateMaps/*.py` script is listed exactly once across the SAS map-script heaviness/coverage defines, and every listed map script exists in `PrivateMaps/`. `SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED` is coverage-only and is not read by the DLL; it documents map scripts intentionally left outside the explicit land-heavy / almost-all-land / naval-heavy override lists.
++
++## Run Locally
++
++Note for LLMs/Users: this script can also be run locally, for example on Git Bash:
++
++```bash
++py "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.github\workflows\build\bbai_log.py"
++```
++
++## Not currently automated
++
++The Python UI markup-escaping rule from `AGENTS.md` is intentionally not checked here yet. Raw dynamic/user text that reaches font-tagged UI renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.) should keep raw text in state and escape only the display string (`&`, `<`, `>`), but broad static scanning would produce too many false positives in normal Python code, comparisons, comments, already-escaped text, and non-user-facing strings.
++
++Only add a build check for this if it can be made targeted to a known risky path, such as a specific Sevopedia search-label rendering function or another function that displays raw user-entered text.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+new file mode 100644
+index 000000000..9eb8a2e9a
+--- /dev/null
++++ b/.github/workflows/build.yml
+@@ -0,0 +1,30 @@
++name: Build checks
++
++on:
++  push:
++  pull_request:
++    # <!-- custom: PR #13 is a long-lived reference compare from tech-rework to 1.12.
++    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
++    branches-ignore:
++      - "1.12"
++  workflow_dispatch:
++
++jobs:
++  build-checks:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/<hidden-email>
++      - uses: actions/<hidden-email>
++        with:
++          python-version: "3.x"
++      - run: python .github/workflows/build/launch_guard.py
++      - run: python .github/workflows/build/xml_comments.py
++      - run: python .github/workflows/build/xml_sas_text_english.py
++      - run: python .github/workflows/build/define_tag_refs.py
++      - run: python .github/workflows/build/define_int_bounds.py
++      - run: python .github/workflows/build/opening_music.py
++      - run: python .github/workflows/build/bbai_log.py
++      - run: python .github/workflows/build/fonts.py
++      - run: python .github/workflows/build/aip.py
++      - run: python .github/workflows/build/worldsizes.py
++      - run: python .github/workflows/build/mapscripts.py
+
+diff --git a/.github/workflows/build/aip.py b/.github/workflows/build/aip.py
+new file mode 100644
+index 000000000..f2301abbb
+--- /dev/null
++++ b/.github/workflows/build/aip.py
+@@ -0,0 +1,62 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: AI Personality Panel cache defaults must stay release-safe.
++
++from pathlib import Path
++import argparse
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_ints, require_int_values
++
++
++EXPECTED_AI_PERSONALITY_DEFINES = {
++	"SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE": 1,
++	"SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED": 1,
++	"SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG": 0,
++}
++
++PREDUMP_RELATIVE_PATH = Path("Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py")
++PREDUMP_MIN_SIZE_BYTES = 10000
++
++
++def check_predump_file(repo_root: Path) -> list[str]:
++	path = repo_root / PREDUMP_RELATIVE_PATH
++	if not path.exists():
++		return [f"{PREDUMP_RELATIVE_PATH}: missing predumped AI personality cache file"]
++
++	if not path.is_file():
++		return [f"{PREDUMP_RELATIVE_PATH}: exists but is not a file"]
++
++	size = path.stat().st_size
++	if size < PREDUMP_MIN_SIZE_BYTES:
++		return [f"{PREDUMP_RELATIVE_PATH}: suspiciously small predump file ({size} bytes, expected at least {PREDUMP_MIN_SIZE_BYTES})"]
++
++	return []
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS AI Personality Panel cache defaults are release-safe.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	defines = read_global_define_ints(args.repo_root)
++	failures = require_int_values(defines, EXPECTED_AI_PERSONALITY_DEFINES)
++	failures.extend(check_predump_file(args.repo_root))
++
++	if failures:
++		print("FAIL AI Personality Panel cache defaults")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS AI Personality Panel cache defaults")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/bbai_log.py b/.github/workflows/build/bbai_log.py
+new file mode 100644
+index 000000000..f57a54bcb
+--- /dev/null
++++ b/.github/workflows/build/bbai_log.py
+@@ -0,0 +1,29 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: BBAI logging must be disabled by default.
++
++from pathlib import Path
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import main_from_expected_values
++
++
++EXPECTED_DISABLED_BBAI_DEFINES = {
++	"SAS_BBAI_LOG_ENABLE": 0,
++	"SAS_BBAI_PLAYER_LOG_LEVEL": 0,
++	"SAS_BBAI_TEAM_LOG_LEVEL": 0,
++	"SAS_BBAI_CITY_LOG_LEVEL": 0,
++	"SAS_BBAI_UNIT_LOG_LEVEL": 0,
++	"SAS_BBAI_MAP_LOG_LEVEL": 0,
++	"SAS_BBAI_FOUND_LOG_LEVEL": 0,
++	"SAS_BBAI_DEAL_CANCEL_LOG_LEVEL": 0,
++}
++
++
++if __name__ == "__main__":
++	main_from_expected_values("BBAI logging disabled by default", EXPECTED_DISABLED_BBAI_DEFINES, "Check that AdvCiv-SAS BBAI logging is disabled by default.")
+
+diff --git a/.github/workflows/build/define_int_bounds.py b/.github/workflows/build/define_int_bounds.py
+new file mode 100644
+index 000000000..6db4aca44
+--- /dev/null
++++ b/.github/workflows/build/define_int_bounds.py
+@@ -0,0 +1,59 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: GlobalDefines integer values should stay within a sane range.
++
++from pathlib import Path
++import argparse
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_ints
++
++
++MIN_ALLOWED_VALUE = -100000
++MAX_ALLOWED_VALUE = 100000
++
++# The launch-guard sentinel is intentionally a distinctive out-of-band value so missing/wrong
++# GlobalDefines are obvious; it is checked separately by launch_guard.py.
++ALLOWED_OUT_OF_RANGE_DEFINES = {
++	"SAS_LAUNCH_GUARD_TEST_INT",
++}
++
++
++def check_define_int_bounds(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	int_defines = read_global_define_ints(repo_root)
++
++	for name, value in sorted(int_defines.items()):
++		if name in ALLOWED_OUT_OF_RANGE_DEFINES:
++			continue
++
++		if value < MIN_ALLOWED_VALUE or value > MAX_ALLOWED_VALUE:
++			failures.append(f"GlobalDefines_advciv_sas.xml: {name} = {value} is outside [{MIN_ALLOWED_VALUE}, {MAX_ALLOWED_VALUE}]")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS GlobalDefines integer values stay within a sane range.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_define_int_bounds(args.repo_root)
++
++	if failures:
++		print("FAIL GlobalDefines integer bounds")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print(f"PASS GlobalDefines integer bounds [{MIN_ALLOWED_VALUE}, {MAX_ALLOWED_VALUE}]")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/define_tag_refs.py b/.github/workflows/build/define_tag_refs.py
+new file mode 100644
+index 000000000..f3fa98360
+--- /dev/null
++++ b/.github/workflows/build/define_tag_refs.py
+@@ -0,0 +1,138 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: SAS DefineTextVal values that look like Civ4 XML Type tags must reference real XML <Type> values.
++
++from pathlib import Path
++import argparse
++import re
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_texts
++
++
++XML_RELATIVE_PATH = Path("Assets/XML")
++IGNORED_XML_RELATIVE_DIRS = {
++	Path("Assets/XML/Text"),
++}
++
++XML_TYPE_TAG_PREFIXES = (
++	"BONUS_",
++	"BUILDING_",
++	"BUILDINGCLASS_",
++	"CIVIC_",
++	"CIVILIZATION_",
++	"CORPORATION_",
++	"ERA_",
++	"FEATURE_",
++	"HANDICAP_",
++	"IMPROVEMENT_",
++	"LEADER_",
++	"PROJECT_",
++	"PROMOTION_",
++	"RELIGION_",
++	"ROUTE_",
++	"SPECIALIST_",
++	"TECH_",
++	"TERRAIN_",
++	"TRAIT_",
++	"UNIT_",
++	"UNITCLASS_",
++	"VICTORY_",
++	"VOTE_",
++	"VOTESOURCE_",
++	"WORLDSIZE_",
++)
++
++XML_TYPE_TOKEN_RE = re.compile(r"\b[A-Z][A-Z0-9_]*_[A-Z0-9_]+\b")
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def read_all_xml_type_values(repo_root: Path) -> set[str]:
++	xml_dir = repo_root / XML_RELATIVE_PATH
++	if not xml_dir.exists():
++		raise RuntimeError(f"missing folder: {xml_dir}")
++
++	type_values: set[str] = set()
++
++	for path in sorted(xml_dir.rglob("*.xml")):
++		relative_path = path.relative_to(repo_root)
++		if any(relative_path == ignored_dir or ignored_dir in relative_path.parents for ignored_dir in IGNORED_XML_RELATIVE_DIRS):
++			continue
++
++		try:
++			tree = ET.parse(path)
++		except ET.ParseError as exc:
++			raise RuntimeError(f"{path}: XML parse error: {exc}") from exc
++
++		for node in tree.getroot().iter():
++			if local_name(node.tag) != "Type":
++				continue
++
++			value = (node.text or "").strip()
++			if value:
++				type_values.add(value)
++
++	return type_values
++
++
++def find_xml_type_like_tokens(value: str) -> list[str]:
++	tokens: list[str] = []
++
++	for match in XML_TYPE_TOKEN_RE.finditer(value):
++		token = match.group(0)
++		if token.startswith(XML_TYPE_TAG_PREFIXES) and token not in tokens:
++			tokens.append(token)
++
++	return tokens
++
++
++def check_define_tag_refs(repo_root: Path, quiet: bool) -> list[str]:
++	failures: list[str] = []
++	xml_type_values = read_all_xml_type_values(repo_root)
++	define_texts = read_global_define_texts(repo_root)
++
++	for define_name in sorted(define_texts):
++		tokens = find_xml_type_like_tokens(define_texts[define_name])
++		if not tokens:
++			continue
++
++		for token in tokens:
++			if token not in xml_type_values:
++				failures.append(f"GlobalDefines_advciv_sas.xml: {define_name} references missing XML Type {token}")
++				continue
++
++			if not quiet:
++				print(f"OK {define_name}: {token}")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS DefineTextVal XML tag references exist.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	parser.add_argument("--quiet", action="store_true", help="only print PASS/FAIL and failures, not every successful define -> XML tag match")
++	args = parser.parse_args()
++
++	failures = check_define_tag_refs(args.repo_root, args.quiet)
++
++	if failures:
++		print("FAIL SAS define XML tag references")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS SAS define XML tag references")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/fonts.py b/.github/workflows/build/fonts.py
+new file mode 100644
+index 000000000..b7ad0a13c
+--- /dev/null
++++ b/.github/workflows/build/fonts.py
+@@ -0,0 +1,26 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: shared UI font defaults must stay release-safe.
++
++from pathlib import Path
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import main_from_expected_values
++
++
++EXPECTED_FONT_DEFINES = {
++	"SAS_UI_FONT_TINY": 1,
++	"SAS_UI_FONT_BODY": 2,
++	"SAS_UI_FONT_LABEL": 3,
++	"SAS_UI_FONT_TITLE": 4,
++	"SAS_UI_FONT_HOVER": 3,
++}
++
++
++if __name__ == "__main__":
++	main_from_expected_values("shared UI font defaults", EXPECTED_FONT_DEFINES, "Check that AdvCiv-SAS shared UI font defaults are release-safe.")
+
+diff --git a/.github/workflows/build/launch_guard.py b/.github/workflows/build/launch_guard.py
+new file mode 100644
+index 000000000..5a8dd5b88
+--- /dev/null
++++ b/.github/workflows/build/launch_guard.py
+@@ -0,0 +1,119 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: SASDefineGuard.py and its GlobalDefines sentinels must exist and stay in sync.
++
++from pathlib import Path
++import argparse
++import ast
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_ints, read_global_define_texts
++
++
++DEFINE_GUARD_RELATIVE_PATH = Path("Assets/Python/SASDefineGuard.py")
++EXPECTED_CONSTANT_NAMES = (
++	"SAS_LAUNCH_GUARD_TEST_INT_DEFINE",
++	"SAS_LAUNCH_GUARD_TEST_STRING_DEFINE",
++	"SAS_LAUNCH_GUARD_EXPECTED_INT",
++	"SAS_LAUNCH_GUARD_EXPECTED_STRING",
++)
++
++
++def read_define_guard_constants(repo_root: Path) -> tuple[dict[str, int | str], list[str]]:
++	path = repo_root / DEFINE_GUARD_RELATIVE_PATH
++	failures: list[str] = []
++
++	if not path.exists():
++		return {}, [f"{DEFINE_GUARD_RELATIVE_PATH}: missing launch guard file"]
++	if not path.is_file():
++		return {}, [f"{DEFINE_GUARD_RELATIVE_PATH}: exists but is not a file"]
++	if path.stat().st_size == 0:
++		return {}, [f"{DEFINE_GUARD_RELATIVE_PATH}: empty launch guard file"]
++
++	tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
++	constants: dict[str, int | str] = {}
++	has_verify_or_raise = False
++
++	for node in tree.body:
++		if isinstance(node, ast.FunctionDef) and node.name == "verify_or_raise":
++			has_verify_or_raise = True
++			continue
++
++		if not isinstance(node, ast.Assign) or len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
++			continue
++
++		name = node.targets[0].id
++		if name not in EXPECTED_CONSTANT_NAMES:
++			continue
++
++		if isinstance(node.value, ast.Constant) and isinstance(node.value.value, (int, str)):
++			constants[name] = node.value.value
++		else:
++			failures.append(f"{DEFINE_GUARD_RELATIVE_PATH}: {name} must be a literal int/string constant")
++
++	if not has_verify_or_raise:
++		failures.append(f"{DEFINE_GUARD_RELATIVE_PATH}: missing verify_or_raise function")
++
++	for name in EXPECTED_CONSTANT_NAMES:
++		if name not in constants:
++			failures.append(f"{DEFINE_GUARD_RELATIVE_PATH}: missing {name}")
++
++	return constants, failures
++
++
++def check_launch_guard(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	constants, guard_failures = read_define_guard_constants(repo_root)
++	failures.extend(guard_failures)
++
++	if guard_failures:
++		return failures
++
++	int_define_name = constants["SAS_LAUNCH_GUARD_TEST_INT_DEFINE"]
++	string_define_name = constants["SAS_LAUNCH_GUARD_TEST_STRING_DEFINE"]
++	expected_int = constants["SAS_LAUNCH_GUARD_EXPECTED_INT"]
++	expected_string = constants["SAS_LAUNCH_GUARD_EXPECTED_STRING"]
++
++	if not isinstance(int_define_name, str) or not isinstance(string_define_name, str) or not isinstance(expected_int, int) or not isinstance(expected_string, str):
++		return failures + [f"{DEFINE_GUARD_RELATIVE_PATH}: launch guard constants have unexpected literal types"]
++
++	int_defines = read_global_define_ints(repo_root)
++	text_defines = read_global_define_texts(repo_root)
++
++	if int_define_name not in int_defines:
++		failures.append(f"GlobalDefines_advciv_sas.xml: missing int sentinel define {int_define_name}")
++	elif int_defines[int_define_name] != expected_int:
++		failures.append(f"GlobalDefines_advciv_sas.xml: {int_define_name} expected {expected_int} from SASDefineGuard.py, found {int_defines[int_define_name]}")
++
++	if string_define_name not in text_defines:
++		failures.append(f"GlobalDefines_advciv_sas.xml: missing string sentinel define {string_define_name}")
++	elif text_defines[string_define_name] != expected_string:
++		failures.append(f"GlobalDefines_advciv_sas.xml: {string_define_name} expected {expected_string!r} from SASDefineGuard.py, found {text_defines[string_define_name]!r}")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS launch guard sentinels exist and match GlobalDefines.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_launch_guard(args.repo_root)
++
++	if failures:
++		print("FAIL launch guard sentinels")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS launch guard sentinels")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/mapscripts.py b/.github/workflows/build/mapscripts.py
+new file mode 100644
+index 000000000..ee747786f
+--- /dev/null
++++ b/.github/workflows/build/mapscripts.py
+@@ -0,0 +1,164 @@
++#!/usr/bin/env python3
++"""Verify AdvCiv-SAS PrivateMaps coverage in map-script SAS defines."""
++
++from __future__ import annotations
++
++import sys
++import xml.etree.ElementTree as ET
++from collections import defaultdict
++from pathlib import Path
++
++REPO_ROOT = Path(__file__).resolve().parents[3]
++GLOBAL_DEFINES_PATH = REPO_ROOT / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml"
++PRIVATE_MAPS_DIR = REPO_ROOT / "PrivateMaps"
++
++# These first three defines are gameplay/DLL map-heaviness override inputs.
++GAMEPLAY_HEAVINESS_DEFINE_NAMES = (
++    "SAS_MAP_SCRIPT_NAMES_LAND_HEAVY",
++    "SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND",
++    "SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY",
++)
++
++# This fourth define is coverage/documentation only; the DLL does not need to read it.
++COVERAGE_ONLY_DEFINE_NAMES = (
++    "SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED",
++)
++
++COVERAGE_DEFINE_NAMES = GAMEPLAY_HEAVINESS_DEFINE_NAMES + COVERAGE_ONLY_DEFINE_NAMES
++
++# Files in PrivateMaps that are not actual selectable/playable map scripts should be added here.
++IGNORED_PRIVATE_MAP_FILES = {
++    "__init__.py",
++}
++
++
++def xml_local_name(tag: str) -> str:
++    if "}" in tag:
++        return tag.rsplit("}", 1)[1]
++    return tag
++
++
++def child_text(element: ET.Element, child_name: str) -> str | None:
++    for child in element:
++        if xml_local_name(child.tag) == child_name:
++            return child.text or ""
++    return None
++
++
++def load_define_text_values(path: Path) -> dict[str, str]:
++    if not path.is_file():
++        raise RuntimeError(f"Missing GlobalDefines file: {path}")
++
++    root = ET.parse(path).getroot()
++    values: dict[str, str] = {}
++    for element in root.iter():
++        if xml_local_name(element.tag) != "Define":
++            continue
++        name = child_text(element, "DefineName")
++        if not name:
++            continue
++        values[name.strip()] = (child_text(element, "DefineTextVal") or "").strip()
++    return values
++
++
++def normalize_map_script_name(value: str) -> str:
++    # SAS XML allows plain script names, .py suffixes, and path-like entries.
++    value = value.strip().strip('"\'')
++    value = value.replace("\\", "/")
++    value = Path(value).name
++    if value.lower().endswith(".py"):
++        value = value[:-3]
++    return value
++
++
++def split_map_define(value: str) -> list[str]:
++    names: list[str] = []
++    for raw_token in value.split(","):
++        name = normalize_map_script_name(raw_token)
++        if name:
++            names.append(name)
++    return names
++
++
++def playable_private_map_names() -> set[str]:
++    if not PRIVATE_MAPS_DIR.is_dir():
++        raise RuntimeError(f"Missing PrivateMaps folder: {PRIVATE_MAPS_DIR}")
++
++    names: set[str] = set()
++    for path in PRIVATE_MAPS_DIR.glob("*.py"):
++        if path.name in IGNORED_PRIVATE_MAP_FILES:
++            continue
++        names.add(path.stem)
++    return names
++
++
++def main() -> int:
++    try:
++        define_values = load_define_text_values(GLOBAL_DEFINES_PATH)
++        playable_names = playable_private_map_names()
++    except Exception as exc:
++        print(f"FAIL map-script SAS define coverage setup: {exc}")
++        return 1
++
++    errors: list[str] = []
++    missing_defines = [name for name in COVERAGE_DEFINE_NAMES if name not in define_values]
++    if missing_defines:
++        errors.append("missing coverage define(s): " + ", ".join(missing_defines))
++
++    listed_by_script: dict[str, list[str]] = defaultdict(list)
++    duplicate_entries_by_define: dict[str, list[str]] = {}
++
++    for define_name in COVERAGE_DEFINE_NAMES:
++        names = split_map_define(define_values.get(define_name, ""))
++        seen: set[str] = set()
++        duplicates: set[str] = set()
++        for script_name in names:
++            if script_name in seen:
++                duplicates.add(script_name)
++            seen.add(script_name)
++            listed_by_script[script_name].append(define_name)
++        if duplicates:
++            duplicate_entries_by_define[define_name] = sorted(duplicates)
++
++    for define_name in sorted(duplicate_entries_by_define):
++        errors.append(
++            f"{define_name}: duplicate entr{'y' if len(duplicate_entries_by_define[define_name]) == 1 else 'ies'} "
++            + ", ".join(duplicate_entries_by_define[define_name])
++        )
++
++    for script_name in sorted(playable_names):
++        define_names = listed_by_script.get(script_name, [])
++        if not define_names:
++            errors.append(
++                f"PrivateMaps/{script_name}.py: missing from SAS map-script heaviness/coverage defines "
++                f"({', '.join(COVERAGE_DEFINE_NAMES)})"
++            )
++        elif len(define_names) > 1:
++            errors.append(
++                f"PrivateMaps/{script_name}.py: listed {len(define_names)} times across SAS map-script heaviness/coverage defines "
++                f"({', '.join(define_names)})"
++            )
++
++    for script_name in sorted(listed_by_script):
++        if script_name not in playable_names:
++            define_names = ", ".join(listed_by_script[script_name])
++            errors.append(
++                f"{script_name}: listed in SAS map-script heaviness/coverage define(s) but missing from PrivateMaps/ "
++                f"({define_names})"
++            )
++
++    if errors:
++        print("FAIL map-script SAS define coverage")
++        for error in errors:
++            print(f"  - {error}")
++        return 1
++
++    print(
++        f"PASS map-script SAS define coverage: {len(playable_names)} playable PrivateMaps scripts "
++        f"listed exactly once across {len(COVERAGE_DEFINE_NAMES)} coverage define(s)."
++    )
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+
+diff --git a/.github/workflows/build/opening_music.py b/.github/workflows/build/opening_music.py
+new file mode 100644
+index 000000000..c8080e668
+--- /dev/null
++++ b/.github/workflows/build/opening_music.py
+@@ -0,0 +1,122 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: main-menu opening music must have a valid configured Audio2DScripts entry.
++
++from pathlib import Path
++import argparse
++import re
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_ints, read_global_define_texts
++
++
++AUDIO_2D_SCRIPTS_RELATIVE_PATH = Path("Assets/XML/Audio/Audio2DScripts.xml")
++
++SHUFFLE_ENABLE_DEFINE = "SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE"
++SHUFFLE_TRIGGER_SCRIPT_DEFINE = "SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT"
++SHUFFLE_SCRIPT_DEFINE_RE = re.compile(r"^SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_(\d+)$")
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def read_audio_2d_script_ids(repo_root: Path) -> set[str]:
++	path = repo_root / AUDIO_2D_SCRIPTS_RELATIVE_PATH
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	tree = ET.parse(path)
++	script_ids: set[str] = set()
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != "ScriptID":
++			continue
++
++		value = (node.text or "").strip()
++		if value:
++			script_ids.add(value)
++
++	return script_ids
++
++
++def read_shuffle_script_defines(define_texts: dict[str, str]) -> list[tuple[str, str]]:
++	items: list[tuple[int, str, str]] = []
++
++	for define_name, value in define_texts.items():
++		match = SHUFFLE_SCRIPT_DEFINE_RE.match(define_name)
++		if not match:
++			continue
++
++		items.append((int(match.group(1)), define_name, value.strip()))
++
++	return [(define_name, value) for _, define_name, value in sorted(items)]
++
++
++def check_opening_music(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++
++	int_defines = read_global_define_ints(repo_root)
++	define_texts = read_global_define_texts(repo_root)
++	audio_script_ids = read_audio_2d_script_ids(repo_root)
++
++	if SHUFFLE_ENABLE_DEFINE not in int_defines:
++		failures.append(f"GlobalDefines_advciv_sas.xml: missing {SHUFFLE_ENABLE_DEFINE}")
++		shuffle_enabled = False
++	else:
++		shuffle_enabled = int_defines[SHUFFLE_ENABLE_DEFINE] > 0
++
++	trigger_script = define_texts.get(SHUFFLE_TRIGGER_SCRIPT_DEFINE, "").strip()
++	if not trigger_script:
++		failures.append(f"GlobalDefines_advciv_sas.xml: missing or empty {SHUFFLE_TRIGGER_SCRIPT_DEFINE}")
++	elif trigger_script not in audio_script_ids:
++		failures.append(f"GlobalDefines_advciv_sas.xml: {SHUFFLE_TRIGGER_SCRIPT_DEFINE} references missing Audio2DScripts ScriptID {trigger_script}")
++
++	shuffle_script_defines = read_shuffle_script_defines(define_texts)
++	if not shuffle_script_defines:
++		failures.append("GlobalDefines_advciv_sas.xml: no SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_* defines found")
++
++	active_shuffle_scripts: list[tuple[str, str]] = []
++	for define_name, script_id in shuffle_script_defines:
++		if not script_id or script_id.upper() == "NONE":
++			continue
++
++		active_shuffle_scripts.append((define_name, script_id))
++
++		if script_id not in audio_script_ids:
++			failures.append(f"GlobalDefines_advciv_sas.xml: {define_name} references missing Audio2DScripts ScriptID {script_id}")
++
++	if shuffle_enabled and not active_shuffle_scripts:
++		failures.append(f"GlobalDefines_advciv_sas.xml: {SHUFFLE_ENABLE_DEFINE} is enabled but no non-NONE shuffle script is configured")
++
++	if not shuffle_enabled and not trigger_script:
++		failures.append(f"GlobalDefines_advciv_sas.xml: shuffle is disabled and no fixed/trigger opening script is configured")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS main-menu opening music has valid Audio2DScripts references.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_opening_music(args.repo_root)
++
++	if failures:
++		print("FAIL main-menu opening music setup")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS main-menu opening music setup")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/worldsizes.py b/.github/workflows/build/worldsizes.py
+new file mode 100644
+index 000000000..27b2ecef0
+--- /dev/null
++++ b/.github/workflows/build/worldsizes.py
+@@ -0,0 +1,154 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: SAS_MAGIC_WORLDSIZE_* constants must match CIV4WorldInfo.xml order.
++
++from pathlib import Path
++import argparse
++import ast
++import re
++import sys
++import xml.etree.ElementTree as ET
++
++
++MAGIC_NUMBERS_RELATIVE_PATH = Path("Assets/Python/SASMagicNumbers.py")
++WORLD_INFO_RELATIVE_PATH = Path("Assets/XML/GameInfo/CIV4WorldInfo.xml")
++WORLDSIZE_PREFIX = "SAS_MAGIC_WORLDSIZE_"
++LARGEST_CONSTANT = "SAS_MAGIC_WORLDSIZE_LARGEST"
++
++
++def get_default_repo_root() -> Path:
++	return Path(__file__).resolve().parents[3]
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def child_text_by_local_name(node: ET.Element, child_name: str) -> str | None:
++	for child in list(node):
++		if local_name(child.tag) == child_name:
++			return (child.text or "").strip()
++	return None
++
++
++def read_worldinfo_types(repo_root: Path) -> list[str]:
++	path = repo_root / WORLD_INFO_RELATIVE_PATH
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	tree = ET.parse(path)
++	world_types: list[str] = []
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != "WorldInfo":
++			continue
++
++		type_text = child_text_by_local_name(node, "Type")
++		if not type_text:
++			world_types.append("<missing Type>")
++			continue
++		world_types.append(type_text)
++
++	return world_types
++
++
++def read_worldsize_magic_constants(repo_root: Path) -> tuple[dict[str, int], dict[str, str]]:
++	path = repo_root / MAGIC_NUMBERS_RELATIVE_PATH
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
++	int_constants: dict[str, int] = {}
++	alias_constants: dict[str, str] = {}
++
++	for node in tree.body:
++		if not isinstance(node, ast.Assign) or len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
++			continue
++
++		name = node.targets[0].id
++		if not name.startswith(WORLDSIZE_PREFIX):
++			continue
++
++		if isinstance(node.value, ast.Constant) and isinstance(node.value.value, int):
++			int_constants[name] = node.value.value
++		elif isinstance(node.value, ast.Name):
++			alias_constants[name] = node.value.id
++		else:
++			raise RuntimeError(f"{MAGIC_NUMBERS_RELATIVE_PATH}: unsupported world-size constant assignment for {name}")
++
++	return int_constants, alias_constants
++
++
++def expected_magic_name(world_type: str) -> str:
++	if not re.fullmatch(r"WORLDSIZE_[A-Z0-9_]+", world_type):
++		return f"<invalid world type: {world_type}>"
++	return "SAS_MAGIC_" + world_type
++
++
++def check_worldsizes(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++
++	world_types = read_worldinfo_types(repo_root)
++	expected_by_name = {expected_magic_name(world_type): index for index, world_type in enumerate(world_types)}
++	int_constants, alias_constants = read_worldsize_magic_constants(repo_root)
++
++	if len(set(world_types)) != len(world_types):
++		seen: set[str] = set()
++		duplicates: list[str] = []
++		for world_type in world_types:
++			if world_type in seen and world_type not in duplicates:
++				duplicates.append(world_type)
++			seen.add(world_type)
++		failures.append(f"{WORLD_INFO_RELATIVE_PATH}: duplicate world-size Type entries: {', '.join(duplicates)}")
++
++	for name in sorted(expected_by_name):
++		expected = expected_by_name[name]
++		if name not in int_constants:
++			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: missing {name} = {expected}")
++			continue
++
++		actual = int_constants[name]
++		if actual != expected:
++			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: {name} expected {expected} from XML order, found {actual}")
++
++	extra_names = sorted(name for name in int_constants if name not in expected_by_name)
++	for name in extra_names:
++		failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: extra numeric world-size constant {name} = {int_constants[name]} not present in {WORLD_INFO_RELATIVE_PATH}")
++
++	if not world_types:
++		failures.append(f"{WORLD_INFO_RELATIVE_PATH}: no WorldInfo entries found")
++	else:
++		expected_largest_target = expected_magic_name(world_types[-1])
++		actual_largest_target = alias_constants.get(LARGEST_CONSTANT)
++		if actual_largest_target != expected_largest_target:
++			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: {LARGEST_CONSTANT} should alias {expected_largest_target}, found {actual_largest_target or '<missing>'}")
++
++	for name in sorted(alias_constants):
++		if name != LARGEST_CONSTANT:
++			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: unexpected world-size alias {name} = {alias_constants[name]}")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS world-size magic constants match CIV4WorldInfo.xml order.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_worldsizes(args.repo_root)
++
++	if failures:
++		print("FAIL world-size magic constants")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS world-size magic constants")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/xml_comments.py b/.github/workflows/build/xml_comments.py
+new file mode 100644
+index 000000000..b048795f8
+--- /dev/null
++++ b/.github/workflows/build/xml_comments.py
+@@ -0,0 +1,85 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: XML comments must not contain double hyphen.
++
++from pathlib import Path
++import argparse
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++XML_SCAN_RELATIVE_PATHS = (
++	Path("Assets/XML"),
++)
++
++
++def line_number(data: bytes, index: int) -> int:
++	return data.count(b"\n", 0, index) + 1
++
++
++def check_xml_comment_bytes(relative_path: Path, data: bytes) -> list[str]:
++	failures: list[str] = []
++	search_from = 0
++
++	while True:
++		start = data.find(b"<!--", search_from)
++		if start < 0:
++			break
++
++		content_start = start + len(b"<!--")
++		end = data.find(b"-->", content_start)
++		if end < 0:
++			failures.append(f"{relative_path}: line {line_number(data, start)}: unclosed XML comment")
++			break
++
++		content = data[content_start:end]
++		double_hyphen = content.find(b"--")
++		if double_hyphen >= 0:
++			failures.append(f"{relative_path}: line {line_number(data, content_start + double_hyphen)}: XML comment contains illegal double hyphen `--`")
++
++		search_from = end + len(b"-->")
++
++	return failures
++
++
++def check_xml_comments(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++
++	for relative_root in XML_SCAN_RELATIVE_PATHS:
++		root = repo_root / relative_root
++		if not root.exists():
++			failures.append(f"{relative_root}: missing XML scan folder")
++			continue
++
++		for path in sorted(root.rglob("*.xml")):
++			relative_path = path.relative_to(repo_root)
++			failures.extend(check_xml_comment_bytes(relative_path, path.read_bytes()))
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS XML comments do not contain illegal double hyphen.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_xml_comments(args.repo_root)
++
++	if failures:
++		print("FAIL XML comment safety")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS XML comment safety")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/xml_sas_text_english.py b/.github/workflows/build/xml_sas_text_english.py
+new file mode 100644
+index 000000000..4a2648af9
+--- /dev/null
++++ b/.github/workflows/build/xml_sas_text_english.py
+@@ -0,0 +1,143 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: AdvCiv-SAS GameText XML should only contain English language text tags.
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++TEXT_XML_RELATIVE_PATH = Path("Assets/XML/Text")
++ADVCIV_SAS_TEXT_FILE_GLOB = "AdvCiv-SAS*.xml"
++ALLOWED_LANGUAGE_TAGS = {
++	"English",
++}
++
++# <!-- custom: Rare inherited/renamed diplomacy text entries kept with old non-English language fields.
++# Keep this list narrow: new AdvCiv-SAS text should normally use <English> only. (ChatGPT-5.5) -->
++ALLOWED_NON_ENGLISH_TEXT_KEYS = {
++	"AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1",
++	"AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1",
++	"AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1",
++	"AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED",
++}
++
++NON_LANGUAGE_TEXT_CHILD_TAGS = {
++	"Tag",
++}
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def line_number(data: bytes, index: int) -> int:
++	return data.count(b"\n", 0, index) + 1
++
++
++def element_start_line(data: bytes, tag_name: str, search_from: int) -> int:
++	token = ("<" + tag_name).encode("utf-8", errors="replace")
++	index = data.find(token, max(0, search_from))
++	if index < 0:
++		return 1
++	return line_number(data, index)
++
++
++def child_text_by_local_name(node: ET.Element, child_name: str) -> str | None:
++	for child in list(node):
++		if local_name(child.tag) == child_name:
++			return (child.text or "").strip()
++	return None
++
++
++def check_text_xml_file(repo_root: Path, path: Path) -> list[str]:
++	failures: list[str] = []
++	data = path.read_bytes()
++	relative_path = path.relative_to(repo_root)
++
++	try:
++		root = ET.fromstring(data)
++	except ET.ParseError as exc:
++		return [f"{relative_path}: XML parse error: {exc}"]
++
++	search_from = 0
++	for text_node in root.iter():
++		if local_name(text_node.tag) != "TEXT":
++			continue
++
++		text_key = child_text_by_local_name(text_node, "Tag") or "<missing Tag>"
++		text_start = data.find(b"<TEXT", search_from)
++		if text_start >= 0:
++			search_from = text_start + len(b"<TEXT")
++		else:
++			text_start = 0
++
++		language_counts: dict[str, int] = {}
++
++		for child in list(text_node):
++			child_name = local_name(child.tag)
++			if child_name in NON_LANGUAGE_TEXT_CHILD_TAGS:
++				continue
++
++			if child_name not in ALLOWED_LANGUAGE_TAGS:
++				if text_key not in ALLOWED_NON_ENGLISH_TEXT_KEYS:
++					failures.append(f"{relative_path}: line {element_start_line(data, child_name, text_start)}: TEXT entry {text_key} has unsupported language tag <{child_name}>")
++				continue
++
++			language_counts[child_name] = language_counts.get(child_name, 0) + 1
++
++		english_count = language_counts.get("English", 0)
++		if english_count == 0:
++			failures.append(f"{relative_path}: line {line_number(data, text_start)}: TEXT entry {text_key} has no <English> tag")
++		elif english_count > 1:
++			failures.append(f"{relative_path}: line {line_number(data, text_start)}: TEXT entry {text_key} has {english_count} <English> tags")
++
++	return failures
++
++
++def check_text_xml_english_only(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	text_dir = repo_root / TEXT_XML_RELATIVE_PATH
++
++	if not text_dir.exists():
++		failures.append(f"{TEXT_XML_RELATIVE_PATH}: missing text XML folder")
++		return failures
++
++	files = sorted(text_dir.glob(ADVCIV_SAS_TEXT_FILE_GLOB))
++	if not files:
++		failures.append(f"{TEXT_XML_RELATIVE_PATH}: no {ADVCIV_SAS_TEXT_FILE_GLOB} files found")
++		return failures
++
++	for path in files:
++		failures.extend(check_text_xml_file(repo_root, path))
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS GameText XML only uses English language tags.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_text_xml_english_only(args.repo_root)
++
++	if failures:
++		print("FAIL AdvCiv-SAS GameText English-only tags")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS AdvCiv-SAS GameText English-only tags")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/lib/xml_defines.py b/.github/workflows/lib/xml_defines.py
+new file mode 100644
+index 000000000..b41b03e99
+--- /dev/null
++++ b/.github/workflows/lib/xml_defines.py
+@@ -0,0 +1,113 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Shared XML define helpers for GitHub workflow checks.
++#
++# This module runs outside Civ4, through GitHub Actions or a local Python 3 command.
++# It does not need Civ4 Python 2.4 compatibility.
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++
++def get_default_repo_root() -> Path:
++	return Path(__file__).resolve().parents[3]
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def child_text_by_local_name(node: ET.Element, child_name: str) -> str | None:
++	for child in list(node):
++		if local_name(child.tag) == child_name:
++			return (child.text or "").strip()
++	return None
++
++
++def read_global_define_ints(repo_root: Path) -> dict[str, int]:
++	path = repo_root / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml"
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	tree = ET.parse(path)
++	defines: dict[str, int] = {}
++
++	for define in tree.getroot().iter():
++		if local_name(define.tag) != "Define":
++			continue
++
++		name = child_text_by_local_name(define, "DefineName")
++		value_text = child_text_by_local_name(define, "iDefineIntVal")
++		if name is None or value_text is None:
++			continue
++
++		try:
++			defines[name] = int(value_text)
++		except ValueError as exc:
++			raise RuntimeError(f"{name} has non-int iDefineIntVal: {value_text!r}") from exc
++
++	return defines
++
++
++def read_global_define_texts(repo_root: Path) -> dict[str, str]:
++	path = repo_root / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml"
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	tree = ET.parse(path)
++	defines: dict[str, str] = {}
++
++	for define in tree.getroot().iter():
++		if local_name(define.tag) != "Define":
++			continue
++
++		name = child_text_by_local_name(define, "DefineName")
++		value_text = child_text_by_local_name(define, "DefineTextVal")
++		if name is None or value_text is None:
++			continue
++
++		defines[name] = value_text
++
++	return defines
++
++
++def require_int_values(defines: dict[str, int], expected_by_name: dict[str, int]) -> list[str]:
++	failures: list[str] = []
++
++	for name, expected in sorted(expected_by_name.items()):
++		if name not in defines:
++			failures.append(f"{name}: missing define")
++			continue
++
++		actual = defines[name]
++		if actual != expected:
++			failures.append(f"{name}: expected {expected}, found {actual}")
++
++	return failures
++
++
++def run_global_define_check(title: str, expected_by_name: dict[str, int], description: str) -> int:
++	parser = argparse.ArgumentParser(description=description)
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	defines = read_global_define_ints(args.repo_root)
++	failures = require_int_values(defines, expected_by_name)
++
++	if failures:
++		print(f"FAIL {title}")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print(f"PASS {title}")
++	return 0
++
++
++def main_from_expected_values(title: str, expected_by_name: dict[str, int], description: str) -> None:
++	sys.exit(run_global_define_check(title, expected_by_name, description))
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 605929846..1b44cc56c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -20,6 +20,8 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
+ 
+ Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed. Example: moving `BUILDING_IRELAND_SCRIPTORIUM` in `CIV4BuildingInfos.xml` from around the Library area to under the last civ-specific University block makes it seem like generic university, university madrassa, university salon were modified, but they were not and are still the same as before. In this case, let the user handle a separate commit for the move/reorder first, then continue with gameplay/stat edits afterward (then user will ammend commit later after second-step modifications are reviewed).
+ 
++Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.github/workflows`](/.github/workflows/). These reduce tedium for us as each pushed commit now tells us if some sanity checks PASS or fail. The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size magic constants, and map-script classification coverage. On your end you generally don't need to update them unless our infrastructure changes, but for details if needed see: [the corresponding README](/.github/workflows/README.md).
++
+ ## Information Fetching from other known helpful mods
+ 
+ If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+@@ -191,7 +193,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only). For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
+ - For Python 2 parser cleanup, start with the easy cases first, such as `print "x"` -> `print("x")` or `raise Error, value` -> `raise Error(value)`. Leave more complicated cases, such as old `except Error, e` syntax, tuple-unpacking `except`, re-raise changes, or compatibility fallbacks, for manual review or a later pass.
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+-- For Civ4 Python UI labels that pass through font-tagged/markup renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.), keep raw text in state and escape only the display string: `szDisplay = szRaw.replace(u"&", u"&amp;").replace(u"<", u"&lt;").replace(u">", u"&gt;")`. This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely. Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text. In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear.
++- For Civ4 Python UI labels that pass through font-tagged/markup renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.), keep raw text in state and escape only the display string: `szDisplay = szRaw.replace(u"&", u"&amp;").replace(u"<", u"&lt;").replace(u">", u"&gt;")`. This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely. Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text. In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear, so they can be considered illegal for our needs too.
+ - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+ - When adding guidance, include at least one simple code example so other agents can copy the pattern.
+ - When caching defines or XML variables, we need to init to `None` and cache explictly later when the variable is used or somewhere at call time. This is because empirically aggressive initialization at init is fragile and can cause crashes. For helper files, we use the `global` and if `None` pattern. Since this new pattern is a recent addition, we are not changing them all right now but rather as we go or implement new stuff. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 338b0b405..79c2404dc 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -672,6 +672,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+ 		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,SAS_Large_Facing_Islands,Tilted_Axis</DefineTextVal>
+ 	</Define>
++	<!-- custom: Map scripts listed here are intentionally not classified by the SAS map-script heaviness override defines above. This define is not read by the DLL and has as of now no gameplay effect; it exists for the GitHub map-script coverage check so every known map script is listed exactly once and intentionally unclassified scripts are not confused with forgotten scripts. This helps make sure we covered/reviewed all mapscripts files once. (ChatGPT-5.5) -->
++	<Define>
++		<DefineName>SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED</DefineName>
++		<DefineTextVal>Big_and_Small,Hub,Medium_and_Small,RandomScriptMap,Shuffle,not_too_Big_or_Small</DefineTextVal>
++	</Define>
+ 
+ 
+ 
+@@ -1134,7 +1139,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+-		<iDefineIntVal>2</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
+ 	<Define>
+
+diff --git a/README.md b/README.md
+index da64e9af5..d115ea49e 100644
+--- a/README.md
++++ b/README.md
+@@ -881,6 +881,8 @@ For modders: i have made several scripts with AI assistance. We don't use them a
+ 
+ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+ 
++GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++
+ ## CuCuGS
+ 
+ Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b7d33e760..49e693604 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -111,6 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
++- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=63237

@@ -1,0 +1,462 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3739
+# Commit: e285df81a5d469271321b806ba65b05a3b7b494e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2f439f05f39db856ca4ea24792b3e36384b04c9e
+# Title: Finer scale for cell grids of map scripts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	16	Assets/XML/GameInfo/CIV4WorldInfo.xml
+34	6	CvGameCoreDLL/CvMap.cpp
+12	0	CvGameCoreDLL/CvPythonCaller.cpp
+1	0	CvGameCoreDLL/CvPythonCaller.h
+10	12	PrivateMaps/Hemispheres.py
+10	12	PrivateMaps/Mixed_Continents.py
+12	16	PrivateMaps/Pangaea.py
+9	10	PrivateMaps/Tectonics.py
+10	12	PrivateMaps/Terra.py
+10	12	PrivateMaps/not_too_Big_or_Small.py
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 56651e875..6bcf49959 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -20,9 +20,9 @@
+ 			<iMaxConscriptModifier>-30</iMaxConscriptModifier>
+ 			<!-- advc.140: was 37 -->
+ 			<iWarWearinessModifier>30</iWarWearinessModifier>
+-			<!-- advc.137: was 10 -->
+-			<iGridWidth>9</iGridWidth>
+-			<iGridHeight>6</iGridHeight>
++			<!-- advc.137: was 10x6 -->
++			<iGridWidth>18</iGridWidth>
++			<iGridHeight>13</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+ 			<!-- advc.910: was 100 -->
+@@ -53,9 +53,9 @@
+ 			<iMaxConscriptModifier>-15</iMaxConscriptModifier>
+ 			<!-- advc.140: was 30 -->
+ 			<iWarWearinessModifier>20</iWarWearinessModifier>
+-			<!-- advc.137: was 13 -->
+-			<iGridWidth>11</iGridWidth>
+-			<iGridHeight>8</iGridHeight>
++			<!-- advc.137: was 13x8 -->
++			<iGridWidth>23</iGridWidth>
++			<iGridHeight>17</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+ 			<!-- advc.910: was 110 -->
+@@ -85,8 +85,8 @@
+ 			<!-- advc.140: was 10 -->
+ 			<iWarWearinessModifier>12</iWarWearinessModifier>
+ 			<!-- advc.137: was 16x10 -->
+-			<iGridWidth>15</iGridWidth>
+-			<iGridHeight>11</iGridHeight>
++			<iGridWidth>30</iGridWidth>
++			<iGridHeight>22</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+ 			<!-- advc.910: was 120 -->
+@@ -122,8 +122,8 @@
+ 			<!-- advc.140: was -10 -->
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+ 			<!-- advc.137: was 21x13 -->
+-			<iGridWidth>19</iGridWidth>
+-			<iGridHeight>14</iGridHeight>
++			<iGridWidth>39</iGridWidth>
++			<iGridHeight>28</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+ 			<!-- advc.910: was 130 -->
+@@ -155,8 +155,8 @@
+ 			<!-- advc.140: was -30 -->
+ 			<iWarWearinessModifier>-13</iWarWearinessModifier>
+ 			<!-- advc.137: was 26x16 -->
+-			<iGridWidth>23</iGridWidth>
+-			<iGridHeight>16</iGridHeight>
++			<iGridWidth>47</iGridWidth>
++			<iGridHeight>34</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+ 			<!-- advc.910: was 140 -->
+@@ -189,8 +189,8 @@
+ 			<!-- advc.140: was -50 -->
+ 			<iWarWearinessModifier>-25</iWarWearinessModifier>
+ 			<!-- advc.137: was 32x20 -->
+-			<iGridWidth>29</iGridWidth>
+-			<iGridHeight>20</iGridHeight>
++			<iGridWidth>60</iGridWidth>
++			<iGridHeight>42</iGridHeight>
+ 			<!-- advc.129: was 1 -->
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<!-- advc.129: was 1 -->
+@@ -220,8 +220,8 @@
+ 			<iBuildingClassPrereqModifier>75</iBuildingClassPrereqModifier>
+ 			<iMaxConscriptModifier>50</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-25</iWarWearinessModifier>
+-			<iGridWidth>34</iGridWidth>
+-			<iGridHeight>25</iGridHeight>
++			<iGridWidth>73</iGridWidth>
++			<iGridHeight>51</iGridHeight>
+ 			<iTerrainGrainChange>3</iTerrainGrainChange>
+ 			<iFeatureGrainChange>3</iFeatureGrainChange>
+ 			<iResearchPercent>164</iResearchPercent>
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 2c7314483..e9a373f62 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -93,6 +93,8 @@ void CvMap::reset(CvMapInitData* pInitInfo)
+ 			GC.getInfo(GC.getInitCore().getWorldSize()).getGridWidth() : 0; //todotw:tcells wide
+ 	m_iGridHeight = (GC.getInitCore().getWorldSize() != NO_WORLDSIZE) ?
+ 			GC.getInfo(GC.getInitCore().getWorldSize()).getGridHeight() : 0;
++	// advc.137: (Ignore CvLandscapeInfos::getPlotsPerCellX/Y)
++	int iPlotsPerCell = 2;
+ 	// allow grid size override
+ 	if (pInitInfo != NULL)
+ 	{
+@@ -104,15 +106,35 @@ void CvMap::reset(CvMapInitData* pInitInfo)
+ 		WorldSizeTypes eWorldSize = GC.getInitCore().getWorldSize();
+ 		if (eWorldSize != NO_WORLDSIZE)
+ 		{
++			CvWorldInfo const& kWorldSz = GC.getInfo(eWorldSize);
++			// <advc.165>
++			int iPlotNumPercent;
++			if (GC.getPythonCaller()->mapPlotsPercent(eWorldSize, iPlotNumPercent))
++			{
++				scaled rTargetAspectRatio(kWorldSz.getGridWidth(),
++						kWorldSz.getGridHeight());
++				// (The number of cells is proportional to the number of plots)
++				scaled rTargetCells = m_iGridWidth * m_iGridHeight
++						* per100(iPlotNumPercent);
++				scaled rTargetHeight = (rTargetCells / rTargetAspectRatio).sqrt();
++				scaled rTargetWidth = rTargetCells / rTargetHeight;
++				m_iGridWidth = rTargetWidth.uround();
++				m_iGridHeight = rTargetHeight.uround();
++			}
++			else // </advc.165>
+ 			// check map script for grid size override
+-			if (!GC.getPythonCaller()->mapGridDimensions(eWorldSize,
+-				m_iGridWidth, m_iGridHeight) &&
+-				// <advc.137> Undo aspect ratio changes for Continents
+-				!GC.getInitCore().getScenario() &&
++			if (GC.getPythonCaller()->mapGridDimensions(eWorldSize,
++				m_iGridWidth, m_iGridHeight))
++			{	// <advc.137>
++				// If a map sets custom dimensions, then we can't change the scale.
++				iPlotsPerCell = 4;
++			}
++			// Undo aspect ratio changes for Continents
++			else if (!GC.getInitCore().getScenario() &&
+ 				GC.getInitCore().getMapScriptName() == CvWString("Continents"))
+ 			{
+-				scaled rModAspectRatio(GC.getInfo(getWorldSize()).getGridWidth(),
+-						GC.getInfo(getWorldSize()).getGridHeight());
++				scaled rModAspectRatio(kWorldSz.getGridWidth(),
++						kWorldSz.getGridHeight());
+ 				scaled rHStretch = fixp(1.6) / rModAspectRatio;
+ 				m_iGridWidth = (m_iGridWidth * rHStretch).uround();
+ 				m_iGridHeight = (m_iGridHeight / rHStretch).uround();
+@@ -120,12 +142,18 @@ void CvMap::reset(CvMapInitData* pInitInfo)
+ 		}
+ 
+ 		// convert to plot dimensions
++	#if 0
+ 		if (GC.getNumLandscapeInfos() > 0)
+ 		{	/*  advc.003x: A bit of code moved into new CvGlobals functions
+ 				in order to remove the dependency of CvMap on CvLandscapeInfos */
+ 			m_iGridWidth *= GC.getLandscapePlotsPerCellX();
+ 			m_iGridHeight *= GC.getLandscapePlotsPerCellY();
+ 		}
++	#endif
++		/*	<advc.137> The landscape-based multipliers (4) are too coarse.
++			I'm not seeing graphical artifacts; seems fine to use 2 instead. */
++		m_iGridWidth *= iPlotsPerCell;
++		m_iGridHeight *= iPlotsPerCell; // </advc.137>
+ 	}
+ 	updateNumPlots(); // advc.opt
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index fc4bc6c76..315152e24 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1270,6 +1270,18 @@ bool CvPythonCaller::mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, i
+ 	return true;
+ }
+ 
++// advc.165:
++bool CvPythonCaller::mapPlotsPercent(WorldSizeTypes eWorldSize, int& iModifier) const
++{
++	long lResult = 100;
++	CyArgsList argsList;
++	argsList.add(eWorldSize);
++	m_bLastCallSuccessful = m_python.callFunction(m_python.getMapScriptModule(),
++			"getNumPlotsPercent", argsList.makeFunctionArgs(), &lResult);
++	iModifier = toInt(lResult);
++	return isOverride();
++}
++
+ void CvPythonCaller::mapLatitudeExtremes(int& iTop, int& iBottom) const
+ {
+ 	int const iNone = MIN_INT;
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.h b/CvGameCoreDLL/CvPythonCaller.h
+index 0d87a2ac9..48e81c168 100644
+--- a/CvGameCoreDLL/CvPythonCaller.h
++++ b/CvGameCoreDLL/CvPythonCaller.h
+@@ -140,6 +140,7 @@ public:
+ 	CvWString customMapOptionDescription(char const* szMapScriptName, int iOption,
+ 			CustomMapOptionTypes eOptionValue) const; // </advc.004>
+ 	bool mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, int& iHeight) const;
++	bool mapPlotsPercent(WorldSizeTypes eWorldSize, int& iModifier) const; // advc.165
+ 	void mapLatitudeExtremes(int& iTop, int& iBottom) const;
+ 	void mapWraps(bool& bWrapX, bool& bWrapY) const;
+ 	bool generateRandomMap() const;
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index da8cf4409..9774f471c 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -15,22 +15,20 @@ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ 
+-# <advc.165>
+-def getGridSize(argsList):
++# advc.165:
++def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+-		return ()
++		return 100
+ 	sizeModifiers = {
+-		WorldSizeTypes.WORLDSIZE_DUEL:		(-1, 0),
+-		WorldSizeTypes.WORLDSIZE_TINY:		(-2,-2),
+-		WorldSizeTypes.WORLDSIZE_SMALL:		(-2,-1),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	(-2,-2),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(-2,-2),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(-3,-2)
++		WorldSizeTypes.WORLDSIZE_DUEL:		95,
++		WorldSizeTypes.WORLDSIZE_TINY:		77,
++		WorldSizeTypes.WORLDSIZE_SMALL:		83,
++		WorldSizeTypes.WORLDSIZE_STANDARD:	76,
++		WorldSizeTypes.WORLDSIZE_LARGE:		74,
++		WorldSizeTypes.WORLDSIZE_HUGE:		72
+ 	}
+-	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+-	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
+-# </advc.165>
++	return sizeModifiers[iWorldSize]
+ 
+ def getDescription():
+ 	#TODO: get my own text string
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index d3c6f620b..81a7dd96a 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -50,22 +50,20 @@ def getDescription():
+ 	# advc.mxc:
+ 	return "Variant of Jam3's \"Continents and Islands\", which, in turn, is based on Sirian's \"Big and Small\". Allows the \"small\" landmasses to be continents as well. Customized for the AdvCiv mod."
+ 
+-# <advc.165>
+-def getGridSize(argsList):
++# advc.165:
++def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+-		return ()
++		return 100
+ 	sizeModifiers = {
+-		WorldSizeTypes.WORLDSIZE_DUEL:		( 0, 0),
+-		WorldSizeTypes.WORLDSIZE_TINY:		( 0, 0),
+-		WorldSizeTypes.WORLDSIZE_SMALL:		(-1, 0),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	( 0,-1),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(-1,-1),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(-2,-1)
++		WorldSizeTypes.WORLDSIZE_DUEL:		100,
++		WorldSizeTypes.WORLDSIZE_TINY:		98,
++		WorldSizeTypes.WORLDSIZE_SMALL:		95,
++		WorldSizeTypes.WORLDSIZE_STANDARD:	92,
++		WorldSizeTypes.WORLDSIZE_LARGE:		88,
++		WorldSizeTypes.WORLDSIZE_HUGE:		84
+ 	}
+-	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+-	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
+-# </advc.165>
++	return sizeModifiers[iWorldSize]
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 6942dd220..79f8d19e9 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -37,27 +37,23 @@ def getGridSize(argsList):
+ 	return grid_sizes[eWorldSize]
+ '''
+ # advc.165: Adjust, don't overwrite the defaults.
+-def getGridSize(argsList):
++def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+-		return ()
++		return 100
+ 	sizeModifiers = {
+-		WorldSizeTypes.WORLDSIZE_DUEL:		(-1, -1),
+-		WorldSizeTypes.WORLDSIZE_TINY:		(-2, -1),
+-		WorldSizeTypes.WORLDSIZE_SMALL:		(-2, -2),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	(-3, -2),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(-4, -2),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(-5, -3)
++		WorldSizeTypes.WORLDSIZE_DUEL:		88,
++		WorldSizeTypes.WORLDSIZE_TINY:		83,
++		WorldSizeTypes.WORLDSIZE_SMALL:		78,
++		WorldSizeTypes.WORLDSIZE_STANDARD:	73,
++		WorldSizeTypes.WORLDSIZE_LARGE:		67,
++		WorldSizeTypes.WORLDSIZE_HUGE:		60
+ 	}
++	r = sizeModifiers[iWorldSize]
+ 	# Low sea level doesn't have as much impact on this map. Adjust the grid size in order to compensate.
+-	seaChange = CyGlobalContext().getSeaLevelInfo(CyMap().getSeaLevel()).getSeaLevelChange()
+-	wMod = sizeModifiers[iWorldSize][0]
+-	hMod = sizeModifiers[iWorldSize][1]
+-	if seaChange < 0:
+-		wMod //= 2
+-		hMod //= 2
+-	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+-	return (wMod + wi.getGridWidth(), hMod + wi.getGridHeight())
++	if CyGlobalContext().getSeaLevelInfo(CyMap().getSeaLevel()).getSeaLevelChange() < 0:
++		r = (r * 6) // 5
++	return r
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_PANGAEA_DESCR"
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index 0739d762e..81705c945 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -79,21 +79,20 @@ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ 
+ # advc.165:
+-def getGridSize(argsList):
++def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+-		return ()
++		return 100
+ 	sizeModifiers = {
+ 		# NB: The smallest two sizes have highly unpredictable land-sea ratios
+-		WorldSizeTypes.WORLDSIZE_DUEL:		(-1,-1),
+-		WorldSizeTypes.WORLDSIZE_TINY:		(-1,-1),
+-		WorldSizeTypes.WORLDSIZE_SMALL:		(-2,-1),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	(-2,-1),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(-2,-1),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(-2,-2)
++		WorldSizeTypes.WORLDSIZE_DUEL:		89,
++		WorldSizeTypes.WORLDSIZE_TINY:		87,
++		WorldSizeTypes.WORLDSIZE_SMALL:		85,
++		WorldSizeTypes.WORLDSIZE_STANDARD:	83,
++		WorldSizeTypes.WORLDSIZE_LARGE:		81,
++		WorldSizeTypes.WORLDSIZE_HUGE:		77
+ 	}
+-	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+-	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
++	return sizeModifiers[iWorldSize]
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_TECTONICS_DESCR"
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+index c0967d7ea..e3b32f542 100644
+--- a/PrivateMaps/Terra.py
++++ b/PrivateMaps/Terra.py
+@@ -56,22 +56,20 @@ turned me loose on it, finally. Once I got going, I just kept on going!
+ #		return []
+ #	[eWorldSize] = argsList
+ #	return grid_sizes[eWorldSize]
+-# <advc.165> The normal grid would be fine, but b/c of advc.137, it's a bit too small.
+-def getGridSize(argsList):
++# advc.165:
++def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+-		return ()
++		return 100
+ 	sizeModifiers = {
+-		WorldSizeTypes.WORLDSIZE_DUEL:		(1, 0),
+-		WorldSizeTypes.WORLDSIZE_TINY:		(1, 0),
+-		WorldSizeTypes.WORLDSIZE_SMALL:		(1, 0),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	(0, 1),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(1, 1),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(1, 1)
++		WorldSizeTypes.WORLDSIZE_DUEL:		96,
++		WorldSizeTypes.WORLDSIZE_TINY:		95,
++		WorldSizeTypes.WORLDSIZE_SMALL:		94,
++		WorldSizeTypes.WORLDSIZE_STANDARD:	92,
++		WorldSizeTypes.WORLDSIZE_LARGE:		90,
++		WorldSizeTypes.WORLDSIZE_HUGE:		87
+ 	}
+-	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+-	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
+-# </advc.165>
++	return sizeModifiers[iWorldSize]
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_TERRA_DESCR"
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 1bbf5e4b6..56b8084a9 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -11,22 +11,20 @@ from CvMapGeneratorUtil import FeatureGenerator
+ def getDescription():
+ 	return "A modified version of Big and Small, designed to scale better for large maps."
+ 
+-# <advc.165>
+-def getGridSize(argsList):
++# advc.165:
++def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+-		return ()
++		return 100
+ 	sizeModifiers = {
+-		WorldSizeTypes.WORLDSIZE_DUEL:		( 0, 0),
+-		WorldSizeTypes.WORLDSIZE_TINY:		( 0, 0),
+-		WorldSizeTypes.WORLDSIZE_SMALL:		( 0,-1),
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	(-1,-1),
+-		WorldSizeTypes.WORLDSIZE_LARGE:		(-2,-1),
+-		WorldSizeTypes.WORLDSIZE_HUGE:		(-1,-2)
++		WorldSizeTypes.WORLDSIZE_DUEL:		100,
++		WorldSizeTypes.WORLDSIZE_TINY:		98,
++		WorldSizeTypes.WORLDSIZE_SMALL:		92,
++		WorldSizeTypes.WORLDSIZE_STANDARD:	87,
++		WorldSizeTypes.WORLDSIZE_LARGE:		83,
++		WorldSizeTypes.WORLDSIZE_HUGE:		79
+ 	}
+-	wi = CyGlobalContext().getWorldInfo(iWorldSize)
+-	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
+-# </advc.165>
++	return sizeModifiers[iWorldSize]
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=16137

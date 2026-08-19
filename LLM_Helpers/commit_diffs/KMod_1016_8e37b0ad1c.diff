@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1016
+# Commit: 8e37b0ad1caaa4b7db1a8e8ec4ac55912be19d02
+# History segment: K-Mod history
+# Parent used for diff: d5c4daafb48980ff3a80904f77aac0d82896b8fd
+# Title: Rescaled and adjusted AI_warDiplomacyCost.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	7	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index bdad458d6..e5393ca1e 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1763,6 +1763,9 @@ int CvTeamAI::AI_warDiplomacyCost(TeamTypes eTarget) const
+ 		return 0;
+ 	}
+ 
++	if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4))
++		return 0;
++
+ 	const CvTeamAI& kTargetTeam = GET_TEAM(eTarget);
+ 
+ 	// first, the cost of upsetting the team we are declaring war on.
+@@ -1804,23 +1807,26 @@ int CvTeamAI::AI_warDiplomacyCost(TeamTypes eTarget) const
+ 			}
+ 		}
+ 
+-		int iDiploWeight = 50;
+-		iDiploWeight += 20 * iPeaceWeight / getAliveCount();
++		int iDiploWeight = 40;
++		iDiploWeight += 10 * iPeaceWeight / getAliveCount();
+ 		// This puts iDiploWeight somewhere around 50 - 250.
+ 		if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
+ 			iDiploWeight /= 2;
+-		if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST3))
+-			iDiploWeight /= 2;
++		if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_DIPLOMACY3))
++			iDiploWeight += 50;
+ 		if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_DIPLOMACY4))
+ 			iDiploWeight += 50;
++		if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST3)) // note: conquest4 ignores diplo completely.
++			iDiploWeight /= 2;
+ 
+ 		iDiploCost *= iDiploWeight;
+ 		iDiploCost /= 100;
+ 	}
+ 
+-	// finally, some strange rescaling so that this diplomacy stuff doesn't get huge on huge maps.
+-	iDiploCost *= getTotalPopulation(false) + kTargetTeam.getTotalPopulation(false);
+-	iDiploCost /= std::max(1, iDiploPopulation);
++	// Finally, reduce the value for large maps;
++	// so that this diplomacy stuff doesn't become huge relative to other parts of the war evaluation.
++	iDiploCost *= 3;
++	iDiploCost /= std::max(5, GC.getWorldInfo((WorldSizeTypes)GC.getMapINLINE().getWorldSize()).getDefaultPlayers());
+ 
+ 	return iDiploCost;
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1852

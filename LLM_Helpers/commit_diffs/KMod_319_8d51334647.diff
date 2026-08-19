@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 319
+# Commit: 8d513346478dc067eee71ee86a90e03445b46c9d
+# History segment: K-Mod history
+# Parent used for diff: 74749d6b4faf721ae8700ed22b7e74d7c410e07b
+# Title: Fixed a major bug in the new AI strength memory: when starting a new game, it would write zeros into the autosave indefinitely.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+11	2	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index e4772c7b2..ec8c1b535 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4661,6 +4661,7 @@ void CvGame::setFinalInitialized(bool bNewValue)
+ 
+ 			for (iI = 0; iI < MAX_TEAMS; iI++)
+ 			{
++				GET_TEAM((TeamTypes)iI).AI_initMemory(); // K-Mod
+ 				if (GET_TEAM((TeamTypes)iI).isAlive())
+ 				{
+ 					GET_TEAM((TeamTypes)iI).AI_updateAreaStragies();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 56501f1b2..fff632a83 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -691,9 +691,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			{
+ 				GET_TEAM((TeamTypes)iI).AI_setWarPlan(getID(), NO_WARPLAN, false);
+ 				GET_TEAM((TeamTypes)iI).AI_setWarPlan(eTeam, NO_WARPLAN, false);
++			}
+ 		}
+ 	}
+-	}
+ 
+ 	AI_updateWorstEnemy();
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 8fe0b2b1f..f7a4ecece 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -96,11 +96,17 @@ void CvTeamAI::AI_init()
+ 	//--------------------------------
+ 	// Init other game data
+ 
+-	// K-Mod
++}
++
++// K-Mod
++void CvTeamAI::AI_initMemory()
++{
++	// Note. this needs to be done after the map is set. unfortunately, AI_init is called before that happens.
++	FAssert(GC.getMapINLINE().numPlotsINLINE() > 0);
+ 	m_aiStrengthMemory.clear();
+ 	m_aiStrengthMemory.resize(GC.getMapINLINE().numPlotsINLINE(), 0);
+-	// K-Mod end
+ }
++// K-Mod end
+ 
+ 
+ void CvTeamAI::AI_uninit()
+@@ -3978,6 +3984,7 @@ void CvTeamAI::read(FDataStreamBase* pStream)
+ 
+ 	// K-Mod
+ 	m_aiStrengthMemory.resize(GC.getMapINLINE().numPlotsINLINE(), 0);
++	FAssert(m_aiStrengthMemory.size() > 0);
+ 	if (uiFlag >= 1)
+ 	{
+ 		pStream->Read(GC.getMapINLINE().numPlotsINLINE(), &m_aiStrengthMemory[0]);
+@@ -4008,6 +4015,8 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eWorstEnemy);
+ 
+ 	// K-Mod
++	FAssert(m_aiStrengthMemory.size() == GC.getMapINLINE().numPlotsINLINE());
++	FAssert(m_aiStrengthMemory.size() > 0);
+ 	pStream->Write(GC.getMapINLINE().numPlotsINLINE(), &m_aiStrengthMemory[0]); // uiFlag >= 1
+ 	// K-Mod end
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index df32a3084..cbff4639b 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -30,6 +30,7 @@ public:
+ 	static void freeStatics();
+ 
+ 	void AI_init();
++	void AI_initMemory(); // K-Mod. (needs game map to be initialized first)
+ 	void AI_uninit();
+ 	void AI_reset(bool bConstructor);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2514

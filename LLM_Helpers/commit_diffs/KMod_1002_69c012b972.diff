@@ -1,0 +1,125 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1002
+# Commit: 69c012b9726a3ea8af1151e95d360fac7903579b
+# History segment: K-Mod history
+# Parent used for diff: edf7e424a0e247cadb1aa167e092417819a3dab1
+# Title: Rewrote sections in AI_techValue for map and defensive pact trading.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+71	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 77423bad4..438703155 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4888,14 +4888,48 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	}
+ 
+ 	// Expand trading options
+-	if (kTechInfo.isMapTrading())
++	//if (kTechInfo.isMapTrading())
++	if (kTechInfo.isMapTrading() && !kTeam.isMapTrading()) // K-Mod
+ 	{
++		/* original bts code
+ 		iValue += 100;
+ 
+ 		if (bCapitalAlone)
+ 		{
+ 			iValue += 400;
++		} */
++		// K-Mod. increase the bonus for each known civ that we can't already tech trade with
++		int iNewTrade = 0;
++		int iExistingTrade = 0;
++		for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i = (TeamTypes)(i+1))
++		{
++			if (i == getTeam() || !kTeam.isHasMet(i))
++				continue;
++			const CvTeamAI& kLoopTeam = GET_TEAM(i);
++			if (!kLoopTeam.isMapTrading())
++			{
++				if (kLoopTeam.AI_mapTrade(getTeam()) == NO_DENIAL && kTeam.AI_mapTrade(i) == NO_DENIAL)
++					iNewTrade += kLoopTeam.getAliveCount();
++			}
++			else
++				iExistingTrade += kLoopTeam.getAliveCount();
++		}
++		// The value could be scaled based on how much map we're missing; but I don't want to waste time calculating that.
++		iValue += 50;
++		if (iNewTrade > 0)
++		{
++			if (bCapitalAlone) // (or rather, have we met anyone from overseas)
++			{
++				iValue += 250; // a stronger chance of getting the map for a different island
++			}
++
++			if (iExistingTrade == 0 && iNewTrade > 1)
++			{
++				iValue += 150; // we have the possibility of being a map broker.
++			}
++			iValue += 75 + 75 * iNewTrade;
+ 		}
++		// K-Mod end
+ 	}
+ 
+ 	//if (kTechInfo.isTechTrading() && !GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_TRADING))
+@@ -4947,10 +4981,46 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 		}
+ 	}
+ 
++	/* original bts code
+ 	if (kTechInfo.isDefensivePactTrading())
+ 	{
+ 		iValue += 400;
++	} */
++
++	// K-Mod. Value pact trading based on how many civs are willing, and on how much we think we need it!
++	if (kTechInfo.isDefensivePactTrading() && !kTeam.isDefensivePactTrading())
++	{
++		int iNewTrade = 0;
++		int iExistingTrade = 0;
++		for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i = (TeamTypes)(i+1))
++		{
++			if (i == getTeam() || !kTeam.isHasMet(i))
++				continue;
++			const CvTeamAI& kLoopTeam = GET_TEAM(i);
++			if (!kLoopTeam.isDefensivePactTrading())
++			{
++				if (kLoopTeam.AI_defensivePactTrade(getTeam()) == NO_DENIAL && kTeam.AI_defensivePactTrade(i) == NO_DENIAL)
++					iNewTrade += kLoopTeam.getAliveCount();
++			}
++			else
++				iExistingTrade += kLoopTeam.getAliveCount();
++		}
++		if (iNewTrade > 0)
++		{
++			int iPactValue = 300;
++			if (AI_isDoStrategy(AI_STRATEGY_ALERT1))
++				iPactValue += 100;
++			if (AI_isDoStrategy(AI_STRATEGY_ALERT2))
++				iPactValue += 100;
++			if (AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY2))
++				iPactValue += 200;
++			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3 | AI_VICTORY_SPACE3 | AI_VICTORY_DIPLOMACY3))
++				iPactValue += 100;
++
++			iValue += iNewTrade * iPactValue;
++		}
+ 	}
++	// K-Mod end
+ 
+ 	if (kTechInfo.isPermanentAllianceTrading() && (GC.getGameINLINE().isOption(GAMEOPTION_PERMANENT_ALLIANCES)))
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3227

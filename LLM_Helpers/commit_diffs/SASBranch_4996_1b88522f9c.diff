@@ -1,0 +1,251 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4996
+# Commit: 1b88522f9c3a7dfd3df304393a2d553891278ebe
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bf56a70088f859b853c9e72df7fcb8350672d364
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	6	README.md
+31	29	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+35	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.950_download-zip-github-example.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.950_download-zip-github-example.png
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index adfd3cb26..359d318b6 100644
+--- a/README.md
++++ b/README.md
+@@ -89,6 +89,8 @@ If you want to see the full very exhaustive code changes between AdvCiv current
+ 
+ Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
+ 
++As for the changelog between releases of AdvCiv-SAS, see the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) that for each release show the list of changes in git history format since the previous release.
++
+ ## Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)
+ 
+ If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
+@@ -273,13 +275,9 @@ Still, in the game where i tried it, it was gradually faster as more and more pl
+ 
+ All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
+ 
+-Note: if you already downloaded AdvCiv-4986 that didn't have that DLL, you can download the DLL from this github rather, go in the [/Assets/](/Assets/) folder and find the "CvGameCoreDLL_48_civs_dll.dll" file, click on it, then click on "download raw file" button on top right as below:
+-
+-(click on the images to view them in full screen or/and bigger size)
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG" alt="0.900_48-civs-dll-github-download-raw-file.PNG" width="250"></img>
++Note: if you already downloaded AdvCiv-4986 that didn't have that 48 civs DLL, you can download [the development version of AdvCiv-SAS](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version) and use the 48 civ DLL that is there (in the /Assets/ folder, file named "CvGameCoreDLL_48_civs_dll.dll") (copy paste it in your mod folder where old DLL is as explained before, or better switch to using the development version as long as it's stable, as it has a few enhancements as said before vs latest stable).
+ 
+-Note 2: it seems that savegames are not compatible when switching DLLs though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
++Note 2: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+ 
+ ## Autoplay test runs
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index e2dc017a0..2f2f04d5e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2467,26 +2467,28 @@ So to dig why this happened i asked chatgpt 5 to look at the event log screensho
+ >awesome set of screenshots — here’s what the event log says happened, in order, and why Hatshepsut went from #1 power at T150 (AD 500) to dead by AD 1350.
+ >
+ >What happened (T150 → T200)
+->AD 470–520: Hatty fights Germany (Bismarck), peaces out.
+->AD 560: Declares on Kublai.
+->AD 780: You declare on Hatty (later peace at AD 920).
+->AD 800: Declares on Bismarck again.
+->AD 860: Berlin captured by Egypt → Germany moves capital to Hamburg. (This puts a permanent target on her back.)
+->AD 880: Rome (Julius Caesar) declares on Hatty.
+->AD 900: Kublai declares on Hatty.
+->AD 960: Khmer (Suryavarman) declares on Hatty.
+->AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
++>
++>- AD 470–520: Hatty fights Germany (Bismarck), peaces out.
++>- AD 560: Declares on Kublai.
++>- AD 780: You declare on Hatty (later peace at AD 920).
++>- AD 800: Declares on Bismarck again.
++>- AD 860: Berlin captured by Egypt → Germany moves capital to Hamburg. (This puts a permanent target on her back.)
++>- AD 880: Rome (Julius Caesar) declares on Hatty.
++>- AD 900: Kublai declares on Hatty.
++>- AD 960: Khmer (Suryavarman) declares on Hatty.
++>- AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
+ >
+ >City losses, multi-front:
+->AD 1000: Alexandria falls to Khmer.
+->AD 1060: Berlin (Egypt) falls to Rome.
+->AD 1100: Heliopolis falls to Mongolia.
+->AD 1140: Elephantine falls to Khmer.
+->AD 1120–1240: Side stuff (Spiral Minaret; Pacal converts), wars continue.
+->AD 1300: Thebes falls to Rome → Memphis becomes capital.
+->AD 1310: Hatty converts to Judaism (late realignment; AP traffic mentions Berlin and Hindu bloc earlier).
+->AD 1330: Peaces Saladin (too late).
+->AD 1350: Memphis captured by Khmer → Hatshepsut defeated.
++>
++>- AD 1000: Alexandria falls to Khmer.
++>- AD 1060: Berlin (Egypt) falls to Rome.
++>- AD 1100: Heliopolis falls to Mongolia.
++>- AD 1140: Elephantine falls to Khmer.
++>- AD 1120–1240: Side stuff (Spiral Minaret; Pacal converts), wars continue.
++>- AD 1300: Thebes falls to Rome → Memphis becomes capital.
++>- AD 1310: Hatty converts to Judaism (late realignment; AP traffic mentions Berlin and Hindu bloc earlier).
++>- AD 1330: Peaces Saladin (too late).
++>- AD 1350: Memphis captured by Khmer → Hatshepsut defeated.
+ >
+ >Why it unraveled
+ >
+@@ -2507,7 +2509,7 @@ So based on this, i thought that at first, before fixing the cause (not switchin
+ 
+ So in `UWAI::Team::considerPeace` in UWAIAgent.cpp i added with the help of chatgpt 5 (check if accurate anyways etc) sanity "emergency peace" pre-checks, so that we make peace urgently no matter what if we have 3+ (see code for details anyways etc) wars at same time, or if we have 2+ wars at same time but the combined power of our ennemies is > 160 % of our power if i'm not mistaken (e.g. 2 ennemies having 0.8 (= 80% if i'm not mistaken anyways etc) (or e.g. 0.9 + 0.7, or 1.0 + 1.6, etc. anyways etc) times our power is enough that combined they would be a threat enough to urgently make peace) then urgently make peace no matter what before they ravage us xd if i may say but anyways etc.
+ 
+-The second check is especially good as even if we have 3 wars, if say ennemies have 0.5 0.4 0.4 in total it would be only 0.5 + 0.4 + 0.4 = 1.3 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong. So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple but anyways etc (also not enough wars would be boring if i may say but anyways etc, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength if i am not mistaken and if i may say but anyways etc).
++The second check is especially good as even if we have 2 wars, if say ennemies have 0.5 0.6 in total it would be only 0.5 + 0.6 = 1.1 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong. So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple but anyways etc (also not enough wars would be boring if i may say but anyways etc, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength if i am not mistaken and if i may say but anyways etc).
+ 
+ Results are extremely good!! As can be seen, starting from same save file at turn 150, in existing screenshots between 290 and 295 (run 1 after the changes) and existing screenshots between 296 and 297 (run 2 after the changes but anyways etc), hatshepsut ai is now still alive and still the strongest, she also made nice military gains, and makes short campaigns by declaring peace not long after war instead of collapsing under too many wars! Her military power shrank a bit relatively to other rivals, but she is still strongest so far and has expanded nicely if i may say but anyways etc. It is the result we wanted, of AI being able to keep a lead and not blunder it due to multi wars.
+ 
+@@ -2517,16 +2519,16 @@ Chatgpt 5 analyzed the event log as such (put run 2 only for concision anyways e
+ >
+ >What happened (T150 → T200)
+ >
+->AD 470 → 540: Hatshepsut DoW Bismarck, then signs quick peace. One-front skirmish, no dogpile.
+->AD 640: DoW Kublai.
+->AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
+->AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
+->AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
+->AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
+->AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
+->AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
+->AD 1320: AP vote about stopping war vs Suleiman (not about her).
+->AD 1330: She DoW Pacal II (sequential, not simultaneous).
++>- AD 470 → 540: Hatshepsut DoW Bismarck, then signs quick peace. One-front skirmish, no dogpile.
++>- AD 640: DoW Kublai.
++>- AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
++>- AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
++>- AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
++>- AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
++>- AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
++>- AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
++>- AD 1320: AP vote about stopping war vs Suleiman (not about her).
++>- AD 1330: She DoW Pacal II (sequential, not simultaneous).
+ >
+ >Why this looks stronger
+ >
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 5b9919823..5ff3976d7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -50,9 +50,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ 
+ ## Full exhaustive very long and exhaustive changes
+ 
+-If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
+-
+-Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather. I tried organizing them in categories if it helps.
++See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes).
+ 
+ ## Sevopedia AdvCiv-SAS Entries
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index f9dc3d02f..ded3b09a6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -10,9 +10,27 @@ If you don't have the game, i recommend buying it from GOG rather than Steam (i
+ 
+ It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide in this case i mean but anyways etc, check if i am not mistaken i mean too or for extra or updated info if any change has been made since maybe.
+ 
+-## Download (or clone / download zip from github if you know how and prefer) this mod AdvCiv-SAS
++## Download (or clone / download zip from github if you prefer) this mod AdvCiv-SAS
+ 
+-Then download it from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
++### Stable Version
++
++You can download the latest stable version from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
++
++Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (with a message showing changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
++
++### Development version
++
++If you want the latest functionnalities even if it might be buggy (generally not, but saying this just in case it might be), consider also testing the development version! It should be further enhanced with possibly a stronger AI or/and other changes if any (if you want to see the list of changes, see the [git commit history, as of now here](https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/)).
++
++To download the development version, go to the [mod's github main page](https://github.com/wonderingabout/AdvCiv-SAS), and click on the green rectangle on the top right, then click "download zip".
++
++(example of how to do it in the screenshot below, click to view it full screen anyways etc)
++
++<img src="../Images_In_General/misc_0.x/0.950_download-zip-github-example.png" alt="0.950_download-zip-github-example.png" width="250"></img>
++
++### Any version
++
++With github you can actually download the mod at any version/commit if i'm not mistaken, but it is a bit less intuitive how to do it if you don't know how, todo write anyways etc.
+ 
+ ## Extract the mod to your civ4 folder
+ 
+@@ -32,7 +50,19 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
+ 
+ For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk). You can just move (cut then paste, it's just a link so is safe) it to the desktop for your convenience.
+ 
+-Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files of one will not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
++Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
++
++## Version number
++
++See [/README.md#version-number](/README.md#version-number)
++
++## Upgrading/Downgrading version of the mod
++
++If you have an older version of AdvCiv-SAS, delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
++
++## If you have trouble downloading/installing/using/upgrading the mod
++
++Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question and reply in case they encounter same issue or/and such, but do as you prefer i mean anyways etc).
+ 
+ ## Where to download more/other mods
+ 
+@@ -64,6 +94,6 @@ Then in BUG Menu options i also use this for example hehe but do as you prefer a
+ 
+ (skip this section if only playing without wanting extra details)
+ 
+-If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most like want to enable debug mode (it allows, after enabled, to be able to reveal all map by toggling ctrl+z ingame, as well as do autoplay runs yourself with ctrl+shift+x for example if i'm not mistaken anyways etc). To enable debug mode, if i'm not mistaken you need to set `cheatcode = chipotle` in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` (note: `PC` is my windows username account, adapt it to your own windows username account or/and wherever your CivilizationIV.ini file or such config file is anyways etc).
++If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most like want to enable debug mode as well as do autoplay runs yourself. See [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc) for details on how to do it and such anyways etc.
+ 
+-Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in same CivilizationIV.ini file (or maybe in ingame settings although i didn't test it but anyways etc)), as this is so much more convenient to do screenshots and browse them, go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
++Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it but anyways etc)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 77b30761e..531efb97a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -48,7 +48,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
+ 
+ ## Full code diff (very long)
+ 
+-For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see the [compare PR](https://github.com/wonderingabout/AdvCiv-SAS/pull/13). It’s big; the guide below is the digest.
++See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes).
+ 
+ ## Sevopedia
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG
+deleted file mode 100644
+index 2c1115986..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.950_download-zip-github-example.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.950_download-zip-github-example.png
+new file mode 100644
+index 000000000..417979153
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.950_download-zip-github-example.png differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=22474

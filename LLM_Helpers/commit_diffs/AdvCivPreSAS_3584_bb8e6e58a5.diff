@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3584
+# Commit: bb8e6e58a5cedb96aa7cfa9d84d84970cf27b6ac
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9e6526af253eae6f65b9e3b5e7fe0de93b2feddd
+# Title: Fix XML for random events not being loaded
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 59d8c4ff5..d5b478f7f 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -840,7 +840,7 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ bool CvXMLLoadUtility::LoadOptionalGlobals()
+ {
+ 	bool bFXmlCreated = false; // Perhaps better not to do this twice
+-	if (!m->bEventsLoaded && GC.getGame().isOption(GAMEOPTION_NO_EVENTS))
++	if (!m->bEventsLoaded && !GC.getGame().isOption(GAMEOPTION_NO_EVENTS))
+ 	{
+ 		if (!CreateFXml())
+ 			return false;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=583

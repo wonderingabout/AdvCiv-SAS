@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3681
+# Commit: 28c6158cb8b6701ebacd56ead87bc4a90d0f911f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b2709079f382d51015aedffae338fba399644174
+# Title: Make update of founding borders more efficient
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	9	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index bab13cd33..e5d7fe438 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1886,7 +1886,6 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ 	if(BUGOption::isEnabled("MainInterface__FoundingYields", false) && iMode == 1)
+ 		return; // BtS behavior
+ 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_FOUNDING_BORDER);
+-	gDLL->UI().setDirty(ColoredPlots_DIRTY_BIT, true);
+ 	if(bForceClear || iMode <= 0 || !isFound())
+ 		return;
+ 	FOR_EACH_UNIT_IN(pUnit, *getGroup())
+@@ -1906,15 +1905,13 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ 	}
+ 	ColorTypes eColor = GC.getInfo(GET_PLAYER(getOwner()).
+ 			getPlayerColor()).getColorTypePrimary();
+-	NiColorA const& color = GC.getInfo(eColor).getColor();
+-	for(int i = 0; i < GC.getMap().numPlots(); i++)
++	NiColorA const& kColor = GC.getInfo(eColor).getColor();
++	for (PlotCircleIter itPlot(*pCenter, iMode == 1 ? 1 : CITY_PLOTS_RADIUS);
++		itPlot.hasNext(); ++itPlot)
++
+ 	{
+-		CvPlot const& kPlot = GC.getMap().getPlotByIndex(i);
+-		if(::plotDistance(pCenter, &kPlot) <= (iMode == 1 ? 1 : CITY_PLOTS_RADIUS))
+-		{
+-			gDLL->getEngineIFace()->fillAreaBorderPlot(kPlot.getX(), kPlot.getY(),
+-					color, AREA_BORDER_LAYER_FOUNDING_BORDER);
+-		}
++		gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
++				kColor, AREA_BORDER_LAYER_FOUNDING_BORDER);
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1449

@@ -1,0 +1,144 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5450
+# Commit: 0dcc98613ca2415ba1f0a7602d979c4658e6cf02
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: eaa9a887f9e437c3c1e95852c63be56481a88714
+# Title: Revert to and document (KI#106) base advciv bug in Simple Game of too many options causing errors currently not fixed
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	11	PrivateMaps/BTG_Lagoon.py
+0	11	PrivateMaps/Boreal.py
+8	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index 82baa5695..e27fe75a0 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -62,9 +62,6 @@ def getCustomMapOptionName(argsList):
+ 		4:	"Start Position",
+ 		5:	"TXT_KEY_MAP_WORLD_WRAP"
+ 		}
+-	# <!-- custom: guard against stale/foreign option indices queried by Civ UI (e.g. 11) to avoid KeyError crashes. (GPT-5.3-Codex) -->
+-	if not option_names.has_key(iOption):
+-		return u""
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -78,8 +75,6 @@ def getNumCustomMapOptionValues(argsList):
+ 		4:	3,
+ 		5:	3
+ 		}
+-	if not option_values.has_key(iOption):
+-		return 1
+ 	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+@@ -113,8 +108,6 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			}			
+ 		}
+-	if not selection_names.has_key(iOption):
+-		return u""
+ 	if not selection_names[iOption].has_key(iSelection):
+ 		return u""
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+@@ -130,8 +123,6 @@ def getCustomMapOptionDefault(argsList):
+ 		4:	1,
+ 		5:	0
+ 		}
+-	if not option_defaults.has_key(iOption):
+-		return 0
+ 	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+@@ -144,8 +135,6 @@ def isRandomCustomMapOption(argsList):
+ 		4:	false,
+ 		5:	false
+ 		}
+-	if not option_random.has_key(iOption):
+-		return false
+ 	return option_random[iOption]
+ 
+ def getWrapX():
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 2da6b84f1..031e70455 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -51,9 +51,6 @@ def getCustomMapOptionName(argsList):
+ 		0: "Deer Percentage",
+ 		1: "TXT_KEY_MAP_WORLD_WRAP"
+ 	}
+-	# <!-- custom: guard against stale/foreign option indices queried by Civ UI (e.g. 5) to avoid KeyError crashes. (GPT-5.3-Codex) -->
+-	if not option_names.has_key(iOption):
+-		return u""
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -63,8 +60,6 @@ def getNumCustomMapOptionValues(argsList):
+ 		0: 6,
+ 		1: 3
+ 	}
+-	if not option_values.has_key(iOption):
+-		return 1
+ 	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+@@ -84,8 +79,6 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 		}
+ 	}
+-	if not selection_names.has_key(iOption):
+-		return u""
+ 	if not selection_names[iOption].has_key(iSelection):
+ 		return u""
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+@@ -97,8 +90,6 @@ def getCustomMapOptionDefault(argsList):
+ 		0: 4, # 75%
+ 		1: 0
+ 	}
+-	if not option_defaults.has_key(iOption):
+-		return 0
+ 	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+@@ -107,8 +98,6 @@ def isRandomCustomMapOption(argsList):
+ 		0: false,
+ 		1: false
+ 	}
+-	if not option_random.has_key(iOption):
+-		return false
+ 	return option_random[iOption]
+ 
+ def getWrapX():
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 103a034c0..bf627987d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -4185,3 +4185,11 @@ The key practical distinction is:
+ After applying this pattern in Boreal, Deer and other food bonuses now appear reliably on first Civ4 launch in tests.
+ 
+ See [commit/accf8702ebf916e999fd07a56211e9aec98af9d7](https://github.com/wonderingabout/AdvCiv-SAS/commit/accf8702ebf916e999fd07a56211e9aec98af9d7).
++
++## 106 - (Currently not Fixed) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13kb0UBefgFoOKjN7qxpJDhqnNYXGCSTf?usp=sharing).
++
++Confirmed in base AdvCiv too by minimally adding BTG_Lagoon map only, so issue is not caused by any of our changes to Highlands or Boreal or such it seems.
++
++Currently not fixed.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4291

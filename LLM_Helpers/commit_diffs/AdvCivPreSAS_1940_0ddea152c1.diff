@@ -1,0 +1,105 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1940
+# Commit: 0ddea152c11e409e18dd28b0444508aefa2b396f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6c82a9aac8ab599d4a11a2063ee892d236de7fdf
+# Title: Amend recent changes to isEnemy functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	9	CvGameCoreDLL/CvUnit.cpp
+9	2	CvGameCoreDLL/CvUnit.h
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a7339bda8..bf371906f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9416,17 +9416,14 @@ PlayerTypes CvUnit::getVisualOwner(TeamTypes eForTeam) const
+ 	return r;
+ }
+ 
+-
+-PlayerTypes CvUnit::getCombatOwner(TeamTypes eForTeam, CvPlot const& kPlot) const
++/*	advc.inl: This part of getCombatOwner is only relevant for alwaysHostile units,
++	i.e. not needed most of the time. I split the function up so that the
++	frequently needed part can be inlined. */
++PlayerTypes CvUnit::getCombatOwner_bulk(TeamTypes eForTeam, CvPlot const& kPlot) const
+ {
+-	//PROFILE_FUNC(); // advc.003o: Called extremely frequently through isEnemy and isPotentialEnemy
+-	/*	advc: I've tried putting this part into a separate inline function, but it didn't help.
+-		Anything with a conditional in it rarely seems to benefit from inlining (with this compiler). */
+-	if (isAlwaysHostile())
+-		return getOwner();
+-
++	//ROFILE_FUNC(); // advc.003o: getCombatOwner is called extremely often; getCombatOwner_bulk isn't.
+ 	PlayerTypes eOwner = getOwner();
+-	// advc.opt: NO_TEAM no longer supported
++	FAssert(eForTeam != NO_TEAM); // advc: No longer supported
+ 	if (/*eForTeam != NO_TEAM && */TEAMID(eOwner) != eForTeam &&
+ 		eForTeam != BARBARIAN_TEAM && isAlwaysHostile(kPlot))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 139529c19..e36115998 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -807,7 +807,12 @@ public:
+ 		return m_eOwner;
+ 	}
+ 	DllExport PlayerTypes getVisualOwner(TeamTypes eForTeam = NO_TEAM) const;								// Exposed to Python
+-	PlayerTypes getCombatOwner(TeamTypes eForTeam, CvPlot const& kPlot) const;								// Exposed to Python
++	inline PlayerTypes getCombatOwner(TeamTypes eForTeam, CvPlot const& kPlot) const						// Exposed to Python
++	{
++		// advc.inl: Split this function up so that part of it can be inlined
++		return (isAlwaysHostile() ? getCombatOwner_bulk(eForTeam, kPlot) : getOwner());
++	}
++
+ 	// advc (for convenience)
+ 	inline PlayerTypes getCombatOwner(TeamTypes eForTeam) const
+ 	{
+@@ -1035,7 +1040,7 @@ protected:
+ 	int m_iAttackPlotY;
+ 	int m_iCombatTimer;
+ 	int m_iCombatFirstStrikes;
+-	int m_iCombatDamage;
++	//int m_iCombatDamage; // advc.003j: unused
+ 	int m_iFortifyTurns;
+ 	int m_iBlitzCount;
+ 	int m_iAmphibCount;
+@@ -1110,6 +1115,8 @@ protected:
+ 	EnumMap<UnitCombatTypes,int> m_aiExtraUnitCombatModifier;
+ 	// </advc.enum>
+ 
++	PlayerTypes getCombatOwner_bulk(TeamTypes eForTeam, CvPlot const& kPlot) const; // advc
++
+ 	bool canAdvance(const CvPlot* pPlot, int iThreshold) const;
+ 	void collateralCombat(const CvPlot* pPlot, CvUnit* pSkipUnit = NULL);
+ 	void flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ff63b0242..6347fbc8e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -976,7 +976,7 @@ bool CvUnitAI::AI_isPotentialEnemyOf(TeamTypes eTeam, CvPlot const& kPlot) const
+ 	/*	This can be the BARBARIAN_TEAM is this unit isAlwaysHostile.
+ 		Normally, it's the unit owner. */
+ 	TeamTypes eCombatTeam = TEAMID(getCombatOwner(eTeam, kPlot));
+-	return GET_TEAM(eCombatTeam).AI_mayAttack(getTeam());
++	return GET_TEAM(eCombatTeam).AI_mayAttack(eTeam);
+ }
+ 
+ /*	advc: Moved from CvPlot::getNumVisiblePotentialEnemyDefenders.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3395

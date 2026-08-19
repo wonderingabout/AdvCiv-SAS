@@ -1,0 +1,125 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5251
+# Commit: e30d02cf8e49c5ec3c3ac0070cb30d7199dfe949
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ee22ac967d547f3d19888bf90dc0e2c414fbb4d6
+# Title: rename “All Units” → “No UnitCombat” in the Military Advisor: was inaccurate - “All Units” → “No UnitCombat” in the Military Advisor: was inaccurate: this do...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/BUG/configobj.py
+8	0	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+0	0	{_0_Common_Docs/BUG_Doc => Long_Comments}/configobj_changelog_py_notes.txt
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG
+ rename {_0_Common_Docs/BUG_Doc => Long_Comments}/configobj_changelog_py_notes.txt (100%)
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 478428773..13579f5fa 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -20,7 +20,7 @@
+ # this module at all.
+ #
+ # <!-- custom: commenting out the test docstrings if i am not mistaken that they are such as per / based on my understanding of chatgpt's explanation anyways etc, causes errors ingame, so only commenting out textual info rather when seems fine to do so (counter example may be expected indents if class is empty or such if i am not mistaken which has a VS Code warning and possibly ingame related error too if i remember correctly but didn't check in detail was quick glance of it in this case but anyways etc, then not commenting out anyways etc) -->
+-# <!-- custom: long changelog notes in partcular giant docstring moved to (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG_Doc\configobj_changelog_py_notes.txt , see there for details or/and the file content anyways etc -->
++# <!-- custom: long changelog notes in particular giant docstring moved to (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\configobj_changelog_py_notes.txt , see there for details or/and the file content anyways etc -->
+ 
+ from __future__ import generators
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index 37155bc6d..ac69a19af 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -221,4 +221,12 @@
+ 		<Tag>TXT_KEY_VOTE_TRADE_BLOC</Tag>
+ 		<English>U.N. Resolution #1190 (Global Civic - Trade Bloc)</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: this only lists units without a unit combat, not military ones like swordsmen or such. Rename "All Units" to a clearer or more accurate name. -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_ALL_UNITS</Tag>
++		<English>No UnitCombat</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_0_Common_Docs/BUG_Doc/configobj_changelog_py_notes.txt b/Long_Comments/configobj_changelog_py_notes.txt
+similarity index 100%
+rename from _0_Common_Docs/BUG_Doc/configobj_changelog_py_notes.txt
+rename to Long_Comments/configobj_changelog_py_notes.txt
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index e4c70fdbb..3d4206c0e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -94,6 +94,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - some convenience and quality of life changes: for example WFYABTA ("We fear you are becoming too advanced" is now renamed as "We fear you are trading more than us", but it is exactly the same effect, just it is not related to tech pace at all (i was 4 techs behind from an AI if i remember correctly but still got this message from it, after some (frustrating) research i found it is not related to tech advancement but how much you trade with all players (trade less and it will/should(?) fade eventually)))
+ - also some other fixes about "the forge has been destroyed" when it was sometimes not destroyed misleading messaged tweaked to something not misleading (for example "The forge has caught fire")
++- (Requires AdvCiv-SAS 5251+) “All Units” → “No UnitCombat” in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
+ - (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this [civfanatics forums nukes and such thread](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/) for details
+ - the civilopedia is renamed the sevopedia, it is the same thing but is the name of the more modern version (made by modders) of it.
+ - Renamed "Ressource" to "Bonus" (so "ressources" would be "bonuses" now anyways etc) for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.
+@@ -400,7 +401,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ 
+ ### Events
+ 
+-- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
++- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+ 
+ ### Culture
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 773248dca..ecfe54164 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -762,7 +762,7 @@ See screenshots linked in this drive for details as well, thanks anyways etc tha
+ 
+ See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
+ 
+-Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG_Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG_Doc/configobj_changelog_py_notes.txt).
++Commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/Long_Comments/configobj_changelog_py_notes.txt](/Long_Comments/configobj_changelog_py_notes.txt).
+ 
+ Exceptions are for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc. Added info if helps here anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 1fc41f884..4befc77ee 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -90,6 +90,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - “WFYABTA” → “We fear you are trading more than us.” Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
+ - Fixed misleading event text such as “The forge has been destroyed” used even when building actually survives (e.g. “The forge has caught fire” instead).
++- (Requires AdvCiv-SAS 5251+) “All Units” → “No UnitCombat” in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
+ - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
+ - “Civilopedia” → “Sevopedia.”
+ - “Ressource(s)” → “Bonus(es).”
+@@ -388,7 +389,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ ### Events
+ 
+-- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
++- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+ 
+ ### Culture
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG
+index f41d82778..bec58d78a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=11769

@@ -1,0 +1,171 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 368
+# Commit: 33602e3e998a48aa7032fb3ed28d8d636f7894a3
+# History segment: K-Mod history
+# Parent used for diff: 74d4234ec18f425b1e429a5bb0b3614cad2b9eb4
+# Title: Added missing iHW initializer to CvPathSettings. (This should have been added when the admissible weights code was changed. oops) MOVE_DECLARE_WAR is now dis...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvSelectionGroup.cpp
+34	6	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CvUnitAI.h
+1	1	CvGameCoreDLL/KmodPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 5dd651bee..52f903e50 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3743,14 +3743,16 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	}
+ 	else
+ 	{
+-		if (!generatePath(plot(), pDestPlot, iFlags))
++		// K-Mod. I've added & ~MOVE_DECLARE_WAR so that if we need to declare war at this point, and haven't yet done so,
++		// the move will fail here rather than splitting the group inside groupMove
++		if (!generatePath(plot(), pDestPlot, iFlags & ~MOVE_DECLARE_WAR))
+ 		{
+ 			return false;
+ 		}
+ 
+ 		pPathPlot = getPathFirstPlot();
+ 
+-		if (groupAmphibMove(pPathPlot, iFlags))
++		if (groupAmphibMove(pPathPlot, iFlags & ~MOVE_DECLARE_WAR))
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2f539eff3..c841bde68 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1236,6 +1236,34 @@ bool CvUnitAI::AI_considerDOW(CvPlot* pPlot)
+ 	}
+ 	return false;
+ }
++
++// AI_considerPathDOW checks each plot on the path until the end of the turn.
++// Sometimes the end plot is in friendly territory, but we need to declare war to actually get there.
++// This situation is very rare, but unfortunately we have to check for it every time
++// - because otherwise, when it happens, the AI will just get stuck.
++bool CvUnitAI::AI_considerPathDOW(CvPlot* pPlot, int iFlags)
++{
++	PROFILE_FUNC();
++
++	if (!generatePath(pPlot, iFlags, true))
++	{
++		FAssertMsg(false, "AI_considerPathDOW didn't find a path.");
++		return false;
++	}
++
++	bool bDOW = false;
++	FAStarNode* pNode = getPathLastNode();
++	while (!bDOW && pNode)
++	{
++		if (pNode->m_iData2 <= 1) // only consider DOW for moves in this turn.
++		{
++			bDOW = AI_considerDOW(GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY));
++		}
++		pNode = pNode->m_pParent;
++	}
++
++	return bDOW;
++}
+ // K-Mod end
+ 
+ void CvUnitAI::AI_animalMove()
+@@ -15269,7 +15297,7 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 			{
+ 				//getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iFlags);
+ 				// K-Mod
+-				if (AI_considerDOW(pEndTurnPlot))
++				if (AI_considerPathDOW(pEndTurnPlot, iFlags))
+ 				{
+ 					// regenerate the path, just incase we want to take a different route after the DOW
+ 					// (but don't bother recalculating the best destination)
+@@ -15279,7 +15307,7 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 						return false;
+ 					pEndTurnPlot = getPathEndTurnPlot();
+ 				}
+-				// I'm going to  use MISSIONAI_ASSAULT signal to our spies and other units that we're attacking this city.
++				// I'm going to use MISSIONAI_ASSAULT signal to our spies and other units that we're attacking this city.
+ 				getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), iFlags, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
+ 				// K-Mod end
+ 				return true;
+@@ -15496,7 +15524,7 @@ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshol
+ 		} */ // disabled by K-Mod. (also see new code at top.)
+ 		// K-Mod
+ 		FAssert(getGroup()->AI_isDeclareWar());
+-		if (AI_considerDOW(pBestPlot))
++		if (AI_considerPathDOW(pBestPlot, iFlags))
+ 		{
+ 			if (!generatePath(pBestPillagePlot, iFlags, true, &iPathTurns))
+ 				return false;
+@@ -15633,7 +15661,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, int iFlags, bool bF
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
+ 		// K-Mod. (Note. we probably don't really want to declare war here, but that's just the way it works currently.)
+-		if (AI_considerDOW(pBestPlot))
++		if (AI_considerPathDOW(pBestPlot, iFlags))
+ 		{
+ 			// after DOW, we might not be able to get to our target this turn... but try anyway.
+ 			if (!generatePath(pBestPlot, iFlags, false))
+@@ -16065,7 +16093,7 @@ bool CvUnitAI::AI_blockade()
+ 		if (atPlot(pBestBlockadePlot) && !isEnemy(pBestBlockadePlot->getTeam(), pBestBlockadePlot))
+ 		{
+ 			//getGroup()->groupDeclareWar(pBestBlockadePlot, true);
+-			AI_considerDOW(pBestBlockadePlot); // K-Mod
++			AI_considerPathDOW(pBestBlockadePlot, 0); // K-Mod
+ 		}
+ 		
+ 		if (atPlot(pBestBlockadePlot))
+@@ -17783,7 +17811,7 @@ bool CvUnitAI::AI_assaultGoTo(CvPlot* pEndTurnPlot, CvPlot* pTargetPlot, int iFl
+ 	}
+ 	else
+ 	{
+-		if (AI_considerDOW(pEndTurnPlot))
++		if (AI_considerPathDOW(pEndTurnPlot, iFlags))
+ 		{
+ 			if (!generatePath(pTargetPlot, iFlags, false))
+ 				return false;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 6a093f14d..82c9435b3 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -67,6 +67,7 @@ protected:
+ 	int m_iAutomatedAbortTurn;
+ 
+ 	bool AI_considerDOW(CvPlot* pPlot); // K-Mod
++	bool AI_considerPathDOW(CvPlot* pPlot, int iFlags); // K-Mod
+ 
+ 	void AI_animalMove();
+ 	void AI_settleMove();
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index a6c043d20..0338fe9ea 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -11,7 +11,7 @@ int KmodPathFinder::admissible_scaled_weight = 1;
+ int KmodPathFinder::admissible_base_weight = 1;
+ 
+ CvPathSettings::CvPathSettings(const CvSelectionGroup* pGroup, int iFlags, int iMaxPath, int iHW)
+-	: pGroup(const_cast<CvSelectionGroup*>(pGroup)), iFlags(iFlags), iMaxPath(iMaxPath)
++	: pGroup(const_cast<CvSelectionGroup*>(pGroup)), iFlags(iFlags), iMaxPath(iMaxPath), iHeuristicWeight(iHW)
+ // I'm really sorry about the const_cast. I can't fix the const-correctness of all the relevant functions,
+ // because some of them are dllexports. The original code essentially does the same thing anyway, with void* casts.
+ {
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5808

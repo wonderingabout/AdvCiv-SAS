@@ -1,0 +1,111 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2674
+# Commit: a8397319a242e99eb7ae1a03a7d344b31ba2a607
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6f1ea67965c91e9d5acbcc17d3ce617e88818021
+# Title: Fix K-Mod check for debug tools in multiplayer
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	7	Assets/Python/BUG/BugEventManager.py
+3	0	Assets/Python/Contrib/AIAutoPlay.py
+5	2	Assets/Python/Contrib/ChangePlayer.py
+3	1	Assets/Python/Contrib/Tester.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index da0a43317..89a776b2a 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -610,6 +610,13 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 				civics.append(gc.getCivicInfo(eNewCivic).getDescription())
+ 		BugUtil.debug("Revolution for %s, %d turns: %s", gc.getPlayer(ePlayer).getName(), iAnarchyTurns, ", ".join(civics))
+ 
++	# advc.001: Moved this check out of the configure method. Now works via callback. configure only gets called once, namely the first time that a game is started or loaded. But multiple games can be started or loaded within the same session, so it's not enough to check isGameMultiPlayer only at one point.
++	def isCheatsEnabled(self):
++		# K-Mod, only enable these features if the cheat mode is enabled.
++		#return getChtLvl()
++		# advc.127: Replacing the above. ChtLvl is always 0 in multiplayer.
++		return (getChtLvl() or (CyGame().isGameMultiPlayer() and gc.getDefineINT("ENABLE_AUTOPLAY_MULTIPLAYER") > 0))
++
+ 
+ EVENT_FUNCTION_MAP = {
+ 	"kbdEvent": BugEventManager._handleConsumableEvent,
+@@ -651,13 +658,9 @@ def configure(logging=None, noLogEvents=None):
+ 	# K-Mod end
+ 
+ 	# --------- Better BTS AI (2/2) (moved by K-Mod) -------------
+-	# K-Mod, only enable these features if the cheat mode is enabled.
+-	#if getChtLvl():
+-	# advc.127: Replacing the above. ChtLvl is always 0 in multiplayer.
+-	if getChtLvl() or (CyGame().isGameMultiPlayer() and gc.getDefineINT("ENABLE_AUTOPLAY_MULTIPLAYER") > 0):
+-		AIAutoPlay.AIAutoPlay(g_eventManager)
+-		ChangePlayer.ChangePlayer(g_eventManager)
+-		Tester.Tester(g_eventManager)
++	AIAutoPlay.AIAutoPlay(g_eventManager)
++	ChangePlayer.ChangePlayer(g_eventManager)
++	Tester.Tester(g_eventManager)
+ 
+ 	# advc.106c: Changed OnLoad handler
+ 	g_eventManager.addEventHandler("kbdEvent", g_eventManager.onKbdEvent)
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 52f0a39f3..8835b633d 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -248,6 +248,9 @@ class AIAutoPlay :
+ 	def onKbdEvent( self, argsList ) :
+ 		'keypress handler'
+ 		eventType,key,mx,my,px,py = argsList
++		# <advc.001>
++		if not self.customEM.isCheatsEnabled():
++			return # </advc.001>
+ 		# Get it?  Shift ... control ... to the AI
+ 		if eventType != 6 or not self.customEM.bShift or not self.customEM.bCtrl:
+ 			return # advc
+
+diff --git a/Assets/Python/Contrib/ChangePlayer.py b/Assets/Python/Contrib/ChangePlayer.py
+index 2a15a4787..ce54d4f45 100644
+--- a/Assets/Python/Contrib/ChangePlayer.py
++++ b/Assets/Python/Contrib/ChangePlayer.py
+@@ -58,8 +58,11 @@ class ChangePlayer :
+ 	def onKbdEvent(self, argsList ):
+ 		'keypress handler'
+ 		eventType,key,mx,my,px,py = argsList
+-		# advc.127c: Check cheat level. Check modifier keys upfront. Alt mustn't be pressed. Tbd.: Would be better to do this through a shortcut element in one of the BUG config files (see e.g. 'BUG Core.xml').
+-		if getChtLvl() > 0 and eventType == 6 and self.customEM.bShift and self.customEM.bCtrl and not self.customEM.bAlt:
++		# <advc.001>
++		if not self.customEM.isCheatsEnabled():
++			return # </advc.001>
++		# advc.127c: Check modifier keys upfront. Alt mustn't be pressed. Tbd.: Would be better to do this through a shortcut element in one of the BUG config files (see e.g. 'BUG Core.xml').
++		if eventType == 6 and self.customEM.bShift and self.customEM.bCtrl and not self.customEM.bAlt:
+ 			theKey=int(key)
+ 			if theKey == int(InputTypes.KB_P):
+ 				changeCivPopup()
+
+diff --git a/Assets/Python/Contrib/Tester.py b/Assets/Python/Contrib/Tester.py
+index 27b0bf435..798c3016d 100644
+--- a/Assets/Python/Contrib/Tester.py
++++ b/Assets/Python/Contrib/Tester.py
+@@ -43,7 +43,9 @@ class Tester :
+ 	def onKbdEvent(self, argsList ):
+ 		'keypress handler'
+ 		eventType,key,mx,my,px,py = argsList
+-
++		# <advc.001>
++		if not self.customEM.isCheatsEnabled():
++			return # </advc.001>
+ 		if ( eventType == 6 ):
+ 			theKey=int(key)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4062

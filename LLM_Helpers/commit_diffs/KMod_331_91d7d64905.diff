@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 331
+# Commit: 91d7d6490543dc9e467be5fea64ddb6a1ea2d506
+# History segment: K-Mod history
+# Parent used for diff: 8a39d556ebe752b2ca3fcb4f46cf38b086318259
+# Title: In the context of plot improvements, I've increased the AI's target for city productivity. - Especially for civs with non-zero FLAVOR_PRODUCTION. Removed the...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	6	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 142ccb422..99f576ce0 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7215,13 +7215,21 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 	{
+ 	    iProductionMultiplier += (80 - 8 * iProductionTotal);
+ 	}
+-	int iProductionTarget = 1 + (std::min(getPopulation(), (iTargetSize * 3) / 5));
++	//int iProductionTarget = 1 + (std::min(getPopulation(), (iTargetSize * 3) / 5));
++	int iProductionTarget = 1 + std::max(getPopulation(), iTargetSize * 3 / 5); // K-Mod
+ 
+ 	if (iProductionTotal < iProductionTarget)
+ 	{
+ 	    iProductionMultiplier += 8 * (iProductionTarget - iProductionTotal);
+ 	}
+ 
++	// K-mod
++	if (kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0)
++	{
++		iProductionMultiplier += 10 + 2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION);
++	}
++	// K-Mod end
++
+ 	if ((iBonusFoodSurplus + iFeatureFoodSurplus > 5) && ((iBonusFoodDeficit + iHillFoodDeficit) > 5))
+ 	{
+ 		if ((iBonusFoodDeficit + iHillFoodDeficit) > 8)
+@@ -7839,10 +7847,10 @@ void CvCityAI::AI_updateBestBuild()
+ 
+ 				//AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodMultiplier, iProductionMultiplier, iCommerceMultiplier, bChop, iHappyAdjust, iHealthAdjust, iDesiredFoodChange);
+ 				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodMultiplier, iProductionMultiplier, iCommerceMultiplier, bChop, 0, 0, iDesiredFoodChange);
+-				int iWorkerCount = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD); // K-Mod, originally this was all workers at the city.
+-				m_aiBestBuildValue[iI] *= 4;
+-				m_aiBestBuildValue[iI] += 4 + iWorkerCount; // was 3 (and 4)
+-				m_aiBestBuildValue[iI] /= (5 + iWorkerCount);
++				//int iWorkerCount = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD); // K-Mod, originally this was all workers at the city.
++				/* m_aiBestBuildValue[iI] *= 4;
++				m_aiBestBuildValue[iI] += 3 + iWorkerCount; // (round up)
++				m_aiBestBuildValue[iI] /= (4 + iWorkerCount); */ // disabled by K-Mod. I don't think this really helps us.
+ 
+ 				if (m_aiBestBuildValue[iI] > 0)
+ 				{
+@@ -7906,7 +7914,7 @@ void CvCityAI::AI_updateBestBuild()
+ 				// K-Mod end
+ 
+ 				// K-Mod
+-				if( iWorkerCount > 0 )
++				//if (iWorkerCount > 0)
+ 				{
+ 					CvUnit* pLoopUnit;
+ 					CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2473

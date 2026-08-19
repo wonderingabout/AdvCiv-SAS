@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 993
+# Commit: 5e6f54636dc6672203a943a0bf2c4e68dd453165
+# History segment: K-Mod history
+# Parent used for diff: 51882ef5cc2b78d0a0abc3733751bb9484acb084
+# Title: Rewrote & renamed CvCityAI::AI_buildingSpecialYieldChangeValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+49	44	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvCityAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5326b7d0e..e8f25272c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4805,7 +4805,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 					if (kBuilding.getSeaPlotYieldChange(iI) > 0)
+ 					{
+-					    iRawYieldValue += kBuilding.getSeaPlotYieldChange(iI) * AI_buildingSpecialYieldChangeValue(eBuilding, (YieldTypes)iI);
++					    //iRawYieldValue += kBuilding.getSeaPlotYieldChange(iI) * AI_buildingSpecialYieldChangeValue(eBuilding, (YieldTypes)iI);
++						iRawYieldValue += kBuilding.getSeaPlotYieldChange(iI) * AI_buildingSeaYieldChangeWeight(eBuilding, iFoodDifference > 0 && iHappinessLevel > 0); // K-Mod
+ 					}
+ 					if (kBuilding.getRiverPlotYieldChange(iI) > 0)
+ 					{
+@@ -4859,7 +4860,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 					if (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 					{
+-					    int iTempValue = kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * AI_buildingSpecialYieldChangeValue(eBuilding, YIELD_FOOD);
++					    //int iTempValue = kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * AI_buildingSpecialYieldChangeValue(eBuilding, YIELD_FOOD);
++						int iTempValue = kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * AI_buildingSeaYieldChangeWeight(eBuilding, iFoodDifference > 0 && iHappinessLevel > 0); // K-Mod
+ 					    if ((iTempValue < 8) && (getPopulation() > 3))
+ 					    {
+ 					        // don't bother
+@@ -11438,60 +11440,63 @@ void CvCityAI::AI_stealPlots()
+ 
+ 
+ 
+-
++// original description (obsolete):
+ // +1/+3/+5 plot based on base food yield (1/2/3)
+ // +4 if being worked.
+ // +4 if a bonus.
+ // Unworked ocean ranks very lowly. Unworked lake ranks at 3. Worked lake at 7.
+ // Worked bonus in ocean ranks at like 11
+-int CvCityAI::AI_buildingSpecialYieldChangeValue(BuildingTypes eBuilding, YieldTypes eYield) const
++//int CvCityAI::AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield) const
++
++// K-Mod. I've rewritten this function to give a lower but more consistent value.
++// The function should return roughly 4x the number of affected plots which are expected to be worked.
++// +4 if either being worked, or would be good after the bonus. (~consumption rate +4 commerce / 2 yield)
++// +2/3 if would be ok after the bonus. (~consumption rate +2 commerce / 1 yield)
++// +1 otherwise
++int CvCityAI::AI_buildingSeaYieldChangeWeight(BuildingTypes eBuilding, bool bGrowing) const
+ {
+-    int iI;
+-    CvPlot* pLoopPlot;
+-    int iValue = 0;
+-    CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+-    int iWorkedCount = 0;
++	int iValue = 0;
++	const CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+ 
+-    int iYieldChange = kBuilding.getSeaPlotYieldChange(eYield);
+-    if (iYieldChange > 0)
+-    {
+-        int iWaterCount = 0;
+-        for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+-        {
+-            if (iI != CITY_HOME_PLOT)
+-            {
+-                pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
+-                if ((pLoopPlot != NULL) && (pLoopPlot->getWorkingCity() == this))
+-                {
+-                    if (pLoopPlot->isWater())
+-                    {
+-                        iWaterCount++;
+-                        int iFood = pLoopPlot->getYield(YIELD_FOOD);
+-                        iFood += (eYield == YIELD_FOOD) ? iYieldChange : 0;
++	// only add the building's bonuses if it isn't already built - otherwise the building will be overvalued for sabortage missions.
++	bool bBonuses = getNumBuilding(eBuilding) < GC.getCITY_MAX_NUM_BUILDINGS();
+ 
+-                        iValue += std::max(0, iFood * 2 - 1);
+-                        if (pLoopPlot->isBeingWorked())
+-                        {
+-                        	iValue += 4;
+-                        	iWorkedCount++;
+-                        }
+-                        iValue += ((pLoopPlot->getBonusType(getTeam()) != NO_BONUS) ? 8 : 0);
+-                    }
+-                }
+-            }
+-        }
+-    }
+-    if (iWorkedCount == 0)
+-    {
+-		SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDefineINT("DEFAULT_SPECIALIST");
+-		if ((getPopulation() > 2) && ((eDefaultSpecialist == NO_SPECIALIST) || (getSpecialistCount(eDefaultSpecialist) == 0)))
++	for (int i = 0; i < NUM_CITY_PLOTS; i++)
++	{
++		CvPlot* pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), i);
++		if (!pLoopPlot || pLoopPlot->getWorkingCity() != this)
++			continue;
++
++		if (!pLoopPlot->isWater())
++			continue;
++
++		if (pLoopPlot->isBeingWorked())
++			iValue += 4;
++		else
+ 		{
+-			iValue /= 2;		
++			const int iCommerceValue = 4;
++			const int iProdValue = 7;
++			const int iFoodValue = 11;
++
++			int iPlotValue =
++				iFoodValue * (pLoopPlot->getYield(YIELD_FOOD) + (bBonuses ? kBuilding.getSeaPlotYieldChange(YIELD_FOOD) : 0)) +
++				iProdValue * (pLoopPlot->getYield(YIELD_PRODUCTION) + (bBonuses ? kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION) : 0)) +
++				iCommerceValue * (pLoopPlot->getYield(YIELD_COMMERCE) + (bBonuses ? kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE) : 0));
++
++			const int iBaseValue = iFoodValue * GC.getFOOD_CONSUMPTION_PER_POPULATION();
++
++			if (iPlotValue > iBaseValue + 3 * iCommerceValue)
++				iValue += 4;
++			else if (iPlotValue >= iBaseValue + 2 * iCommerceValue)
++				iValue += bGrowing ? 3 : 2;
++			else
++				iValue += 1;
+ 		}
+-    }
++	}
+ 
+-    return iValue;
++	return iValue;
+ }
++// K-Mod end
+ 
+ 
+ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield) const
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 4286c5182..e0a6cd2f0 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -239,7 +239,8 @@ protected:
+ 
+ 	void AI_stealPlots();
+ 
+-	int AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield) const;
++	//int AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield) const;
++	int AI_buildingSeaYieldChangeWeight(BuildingTypes eBuilding, bool bGrowing = true) const; // K-Mod
+ 
+ 	void AI_cachePlayerCloseness(int iMaxDistance);
+ 	void AI_updateWorkersNeededHere();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6155

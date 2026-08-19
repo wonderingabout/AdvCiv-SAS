@@ -1,0 +1,328 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5866
+# Commit: 54505f4c7c27af0c15854d47a38a59d5eb49070f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fa6b78670d3a2483c3740ec96b942fa3492fae5a
+# Title: Wrap simple Python 2 raise values for linter parsing note: VS Code/Ruff may still show remaining parser blockers from older except Error, e or True, False =...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+17	18	Assets/Python/BUG/configobj.py
+4	1	Assets/Python/Contrib/Roman.py
+15	15	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 1960ddd55..06180e682 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -183,6 +183,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
+ - Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
+ - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only). For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
++- For Python 2 parser cleanup, start with the easy cases first, such as `print "x"` -> `print("x")` or `raise Error, value` -> `raise Error(value)`. Leave more complicated cases, such as old `except Error, e` syntax, tuple-unpacking `except`, re-raise changes, or compatibility fallbacks, for manual review or a later pass.
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+ - For Civ4 Python UI labels that pass through font-tagged/markup renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.), keep raw text in state and escape only the display string: `szDisplay = szRaw.replace(u"&", u"&amp;").replace(u"<", u"&lt;").replace(u">", u"&gt;")`. This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely. Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text. In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear.
+ - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index b53784f1a..e7b97507c 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -19,6 +19,10 @@
+ # advc: One bugfix (see next advc comment). Unsure if the BUG devs had modified
+ # this module at all.
+ #
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
+ # <!-- custom: commenting out test docstrings causes in-game errors; only remove textual info when safe, and keep docstrings if an empty class would need indentation. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ # <!-- custom: long changelog docstring moved to Long_Comments_py.txt #1 -->
+ 
+@@ -359,7 +363,7 @@ class Section(dict):
+         # ``main.stringify`` is set.
+         #
+         if not isinstance(key, StringTypes):
+-            raise ValueError, 'The key "%s" is not a string.' % key
++            raise ValueError('The key "%s" is not a string.' % key)
+         # add the comment
+         if not self.comments.has_key(key):
+             self.comments[key] = []
+@@ -396,10 +400,9 @@ class Section(dict):
+                 elif isinstance(value, (list, tuple)):
+                     for entry in value:
+                         if not isinstance(entry, StringTypes):
+-                            raise TypeError, (
+-                                'Value is not a string "%s".' % entry)
++                            raise TypeError('Value is not a string "%s".' % entry)
+                 else:
+-                    raise TypeError, 'Value is not a string "%s".' % value
++                    raise TypeError('Value is not a string "%s".' % value)
+             dict.__setitem__(self, key, value)
+ 
+     def __delitem__(self, key):
+@@ -447,7 +450,7 @@ class Section(dict):
+         #
+         sequence = (self.scalars + self.sections)
+         if not sequence:
+-            raise KeyError, ": 'popitem(): dictionary is empty'"
++            raise KeyError(": 'popitem(): dictionary is empty'")
+         key = sequence[0]
+         val =  self[key]
+         del self[key]
+@@ -601,7 +604,7 @@ class Section(dict):
+         elif oldkey in self.sections:
+             the_list = self.sections
+         else:
+-            raise KeyError, 'Key "%s" not found.' % oldkey
++            raise KeyError('Key "%s" not found.' % oldkey)
+         pos = the_list.index(oldkey)
+         #
+         val = self[oldkey]
+@@ -1003,7 +1006,7 @@ class ConfigObj(Section):
+         defaults = OPTION_DEFAULTS.copy()
+         for entry in options.keys():
+             if entry not in defaults.keys():
+-                raise TypeError, 'Unrecognised option "%s".' % entry
++                raise TypeError('Unrecognised option "%s".' % entry)
+         # TODO: check the values too.
+         #
+         # Add any explicit options to the defaults
+@@ -1033,7 +1036,7 @@ class ConfigObj(Section):
+                 infile = open(infile).read() or []
+             elif self.file_error:
+                 # raise an error if the file doesn't exist
+-                raise IOError, 'Config file not found: "%s".' % self.filename
++                raise IOError('Config file not found: "%s".' % self.filename)
+             else:
+                 # file doesn't already exist
+                 if self.create_empty:
+@@ -1065,8 +1068,7 @@ class ConfigObj(Section):
+             # needs splitting into lines - but needs doing *after* decoding
+             # in case it's not an 8 bit encoding
+         else:
+-            raise TypeError, ('infile must be a filename,'
+-                ' file like object, or list of lines.')
++            raise TypeError('infile must be a filename, file like object, or list of lines.')
+         #
+         if infile:
+             # don't do it for the empty ConfigObj
+@@ -1524,7 +1526,7 @@ class ConfigObj(Section):
+             if self.stringify:
+                 value = str(value)
+             else:
+-                raise TypeError, 'Value "%s" is not a string.' % value
++                raise TypeError('Value "%s" is not a string.' % value)
+         squot = "'%s'"
+         dquot = '"%s"'
+         noquot = "%s"
+@@ -1541,16 +1543,14 @@ class ConfigObj(Section):
+             # for normal values either single or double quotes will do
+             elif '\n' in value:
+                 # will only happen if multiline is off - e.g. '\n' in key
+-                raise ConfigObjError, ('Value "%s" cannot be safely quoted.' %
+-                    value)
++                raise ConfigObjError('Value "%s" cannot be safely quoted.' % value)
+             elif ((value[0] not in wspace_plus) and
+                     (value[-1] not in wspace_plus) and
+                     (',' not in value)):
+                 quot = noquot
+             else:
+                 if ("'" in value) and ('"' in value):
+-                    raise ConfigObjError, (
+-                        'Value "%s" cannot be safely quoted.' % value)
++                    raise ConfigObjError('Value "%s" cannot be safely quoted.' % value)
+                 elif '"' in value:
+                     quot = squot
+                 else:
+@@ -1558,8 +1558,7 @@ class ConfigObj(Section):
+         else:
+             # if value has '\n' or "'" *and* '"', it will need triple quotes
+             if (value.find('"""') != -1) and (value.find("'''") != -1):
+-                raise ConfigObjError, (
+-                    'Value "%s" cannot be safely quoted.' % value)
++                raise ConfigObjError('Value "%s" cannot be safely quoted.' % value)
+             if value.find('"""') == -1:
+                 quot = tdquot
+             else:
+@@ -2441,7 +2440,7 @@ class ConfigObj(Section):
+         """
+         if section is None:
+             if self.configspec is None:
+-                raise ValueError, 'No configspec supplied.'
++                raise ValueError('No configspec supplied.')
+             if preserve_errors:
+                 if VdtMissingValue is None:
+                     raise ImportError('Missing validate module.')
+
+diff --git a/Assets/Python/Contrib/Roman.py b/Assets/Python/Contrib/Roman.py
+index ee2866ada..b1808c155 100644
+--- a/Assets/Python/Contrib/Roman.py
++++ b/Assets/Python/Contrib/Roman.py
+@@ -3,6 +3,9 @@
+ # version 0.9
+ # By: Sen2000
+ #
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ from CvPythonExtensions import *
+ 
+@@ -37,7 +40,7 @@ def toRoman(Number):
+     # convert integer to Roman numeral
+     #
+     if not (0 < Number < 10000):
+-        raise OutOfRangeError, "number out of range (must be 1..9999)"
++        raise OutOfRangeError("number out of range (must be 1..9999)")
+     
+     Roman = ""
+     for Romantext, integer in RomanNumberMap:
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 5e1dc4c6c..51af78309 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -1584,7 +1584,7 @@ class ElevationMap2(FloatMap):
+ 		if height % mc.hmMaxGrain != 0:
+ 			ok = False
+ 		if not ok:
+-			raise ValueError, "height map dimesions not divisible by mc.hmMaxGrain. also check wrapping options"
++			raise ValueError("height map dimesions not divisible by mc.hmMaxGrain. also check wrapping options")
+ 
+ 	def isPlotOnMargin(self, x, y):
+ 		marginSize = mc.hmMaxGrain * mc.hmGrainMargin
+@@ -1611,7 +1611,7 @@ class ElevationMap2(FloatMap):
+ 				dimension = x
+ 				middle = mc.hmWidth  / 2
+ 			else:
+-				raise ValueError, "bad hmSeparation type"
++				raise ValueError("bad hmSeparation type")
+ 			if dimension > middle - marginSize and dimension < middle + marginSize:
+ 				return True
+ 		return False
+@@ -1777,7 +1777,7 @@ class ElevationMap2(FloatMap):
+ 			while (True):
+ 				iterations += 1
+ 				if iterations > 10000:
+-					raise ValueError, "endless loop in region seed placement"
++					raise ValueError("endless loop in region seed placement")
+ 				seedX = PRand.randint(0, mc.hmWidth  + 1)
+ 				seedY = PRand.randint(0, mc.hmHeight + 1)
+ 				# <advc>
+@@ -1810,7 +1810,7 @@ class ElevationMap2(FloatMap):
+ 				print("plateGrowthChance=" + str(plateGrowthChanceY))
+ 				print("distanceFilterSize=" + str(distanceFilterSize))
+ 				# </advc>
+-				raise ValueError, "endless loop in plate growth"
++				raise ValueError("endless loop in plate growth")
+ 			plot = growthPlotList[0]
+ 			roomLeft = False
+ 			for direction in range(1, 5):
+@@ -1947,9 +1947,9 @@ class ElevationMap2(FloatMap):
+ 	def AddWaterBands(self):
+ 		#validate water bands. Maps that wrap cannot have one in that direction
+ 		if mc.WrapX and (mc.eastWaterBand  != 0 or mc.westWaterBand  != 0):
+-			raise ValueError,"east/west water bands cannot be used when wrapping in X direction."
++			raise ValueError("east/west water bands cannot be used when wrapping in X direction.")
+ 		if mc.WrapY and (mc.northWaterBand != 0 or mc.southWaterBand != 0):
+-			raise ValueError,"north/south water bands cannot be used when wrapping in Y direction."
++			raise ValueError("north/south water bands cannot be used when wrapping in Y direction.")
+ 		newWidth  = mc.hmWidth  + mc.eastWaterBand  + mc.westWaterBand
+ 		newHeight = mc.hmHeight + mc.northWaterBand + mc.southWaterBand
+ 		newHeightMap = array('d')
+@@ -4362,7 +4362,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
+ 							loopPlot = self.plotXY(x, y, dx, dy)
+ 							if loopPlot != None:
+ 								if loopPlot.getX() == -1:
+-									raise ValueError, "plotXY returns invalid plots plot= %(x)d, %(y)d" % {"x":x, "y":y}
++									raise ValueError("plotXY returns invalid plots plot= %(x)d, %(y)d" % {"x":x, "y":y})
+ 								if self.CanPlaceBonusAt(loopPlot,eBonus,False,False):
+ 									if PRand.randint(0, 99) < bonusInfo.getGroupRand():
+ 										#place bonus
+@@ -4857,7 +4857,7 @@ class StartingPlotFinder:
+ 								if searchArea.idealNumberOfPlayers < float(len(searchArea.plotList)):
+ 									searchArea.idealNumberOfPlayers *= fRatio
+ 						else:
+-							raise ValueError, "Not enough room on the map to place all players!"
++							raise ValueError("Not enough room on the map to place all players!")
+ 							bSpaceAvailable = False
+ 							break
+ 				iterations -= 1
+@@ -4879,7 +4879,7 @@ class StartingPlotFinder:
+ 							if iNum == 0:
+ 								break
+ 					if iNum == iEntry:
+-						raise ValueError, "Not enough room on the map to place all players!"
++						raise ValueError("Not enough room on the map to place all players!")
+ 						break
+ 			elif idealTotal > len(shuffledPlayers):
+ 				iNum = idealTotal - len(shuffledPlayers)
+@@ -4892,7 +4892,7 @@ class StartingPlotFinder:
+ 							if iNum == 0:
+ 								break
+ 					if iNum == iEntry:
+-						raise ValueError, "Not enough room on the map to place all players!"
++						raise ValueError("Not enough room on the map to place all players!")
+ 						break
+ 			#Assign players.
+ 			for startingArea in self.startingAreaList:
+@@ -4901,7 +4901,7 @@ class StartingPlotFinder:
+ 					del shuffledPlayers[0]
+ 				startingArea.FindStartingPlots()
+ 			if len(shuffledPlayers) > 0:
+-				raise ValueError, "Some players not placed in starting plot finder!"
++				raise ValueError("Some players not placed in starting plot finder!")
+ 			#Now set up for normalization
+ 			# # advc: AdvCiv DLL handles normalization
+ 			# self.plotList = list()
+@@ -5362,7 +5362,7 @@ class StartingPlotFinder:
+ 			shuffledBonuses.append(bonusList[n])
+ 			del bonusList[n]
+ 		if len(shuffledBonuses) != numBonuses:
+-			raise ValueError, "Bad bonus shuffle. Learn 2 shuffle."
++			raise ValueError("Bad bonus shuffle. Learn 2 shuffle.")
+ 		bonusCount = 0
+ 		#Do this process in 3 passes for each yield type
+ 		yields = []
+@@ -5630,7 +5630,7 @@ class StartingArea:
+ 					if value > 0:
+ 						startPlot = StartPlot(x, y, value)
+ 						if plot.isWater():
+-							raise ValueError, "potential start plot is water!"
++							raise ValueError("potential start plot is water!")
+ 						self.plotList.append(startPlot)
+ 		# <advc> Want to be able to divide by this length
+ 		if len(self.plotList) <= 0:
+@@ -5834,7 +5834,7 @@ class StartingArea:
+ 			if not self.plotList[m].vacant:
+ 				sPlot = CyMap().plot(self.plotList[m].x, self.plotList[m].y)
+ 				if sPlot.isWater():
+-					raise ValueError, "Start plot is water!"
++					raise ValueError("Start plot is water!")
+ 				#sPlot.setImprovementType(getInfoTypeOrFail("NO_IMPROVEMENT"))
+ 				# advc.001:
+ 				sPlot.setImprovementType(ImprovementTypes.NO_IMPROVEMENT)
+@@ -6564,7 +6564,7 @@ def expandLake(x, y, riversIntoLake, oceanMap):
+ 				#if this neighbor is in water area, then quit
+ 				areaID = oceanMap.data[ii]
+ 				if areaID == 0:
+-					raise ValueError, "areaID = 0 while generating lakes. This is a bug"
++					raise ValueError("areaID = 0 while generating lakes. This is a bug")
+ 				for n in range(len(oceanMap.areaList)):
+ 					if oceanMap.areaList[n].ID == areaID:
+ 						if oceanMap.areaList[n].water:
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15472

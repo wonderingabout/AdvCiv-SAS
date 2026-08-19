@@ -1,0 +1,120 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3538
+# Commit: f6c8b315c7d08eb5b1ab106144a0c75dfb8bccba
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 74cdaf0c63479a7160b4027e736c93d695599589
+# Title: Make BBAI victory strat weights optional in XML
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	9	Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+8	7	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+8	5	CvGameCoreDLL/CvInfo_Civilization.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+index 10fba3130..b5135cbe0 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+@@ -19,13 +19,13 @@
+ 	<ElementType name="iTechTradeKnownPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxGoldTradePercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxGoldPerTurnTradePercent" content="textOnly" dt:type="int"/>
+-	<!-- BBAI Victory Strategy -->
++	<!-- BBAI Victory Strategy: start -->
+ 	<ElementType name="iCultureVictoryWeight" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iSpaceVictoryWeight" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iConquestVictoryWeight" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDominationVictoryWeight" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDiplomacyVictoryWeight" content="textOnly" dt:type="int"/>
+-	<!-- BBAI Victory Strategy -->
++	<!-- BBAI Victory Strategy: end -->
+ 	<ElementType name="iMaxWarRand" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxWarNearbyPowerRatio" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxWarDistantPowerRatio" content="textOnly" dt:type="int"/>
+@@ -215,13 +215,14 @@
+ 		<element type="iTechTradeKnownPercent"/>
+ 		<element type="iMaxGoldTradePercent"/>
+ 		<element type="iMaxGoldPerTurnTradePercent" minOccurs="0"/>
+-		<!-- BBAI Victory Strategy -->
+-		<element type="iCultureVictoryWeight"/>
+-		<element type="iSpaceVictoryWeight"/>
+-		<element type="iConquestVictoryWeight"/>
+-		<element type="iDominationVictoryWeight"/>
+-		<element type="iDiplomacyVictoryWeight"/>
+-		<!-- BBAI Victory Strategy -->
++		<!-- BBAI Victory Strategy: start
++			 advc: Optional, the DLL assigns 30 by default. -->
++		<element type="iCultureVictoryWeight" minOccurs="0"/>
++		<element type="iSpaceVictoryWeight" minOccurs="0"/>
++		<element type="iConquestVictoryWeight" minOccurs="0"/>
++		<element type="iDominationVictoryWeight" minOccurs="0"/>
++		<element type="iDiplomacyVictoryWeight" minOccurs="0"/>
++		<!-- BBAI Victory Strategy: end -->
+ 		<element type="iMaxWarRand"/>
+ 		<element type="iMaxWarNearbyPowerRatio"/>
+ 		<element type="iMaxWarDistantPowerRatio"/>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 20f1c510e..0e80dd591 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -196,13 +196,14 @@
+ 			<iTechTradeKnownPercent>0</iTechTradeKnownPercent>
+ 			<iMaxGoldTradePercent>0</iMaxGoldTradePercent>
+ 			<iMaxGoldPerTurnTradePercent>10</iMaxGoldPerTurnTradePercent>
+-			<!-- BBAI Victory Strategy -->
+-			<iCultureVictoryWeight>0</iCultureVictoryWeight>
+-			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
+-			<iConquestVictoryWeight>0</iConquestVictoryWeight>
+-			<iDominationVictoryWeight>0</iDominationVictoryWeight>
+-			<iDiplomacyVictoryWeight>0</iDiplomacyVictoryWeight>
+-			<!-- BBAI Victory Strategy -->
++			<!-- BBAI Victory Strategy: start -->
++			<!-- advc: Default changed from 0 to 30 -->
++			<iCultureVictoryWeight>30</iCultureVictoryWeight>
++			<iSpaceVictoryWeight>30</iSpaceVictoryWeight>
++			<iConquestVictoryWeight>30</iConquestVictoryWeight>
++			<iDominationVictoryWeight>30</iDominationVictoryWeight>
++			<iDiplomacyVictoryWeight>30</iDiplomacyVictoryWeight>
++			<!-- BBAI Victory Strategy: end -->
+ 			<iMaxWarRand>0</iMaxWarRand>
+ 			<iMaxWarNearbyPowerRatio>0</iMaxWarNearbyPowerRatio>
+ 			<iMaxWarDistantPowerRatio>0</iMaxWarDistantPowerRatio>
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index c8e0e47d3..2a00d26d1 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -943,11 +943,14 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
+ 	GetChildXmlValByName(m_iMaxGoldTradePercent, "iMaxGoldTradePercent");
+ 	GetChildXmlValByName(m_iMaxGoldPerTurnTradePercent, "iMaxGoldPerTurnTradePercent");
+ 	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/21/10, jdog5000: START
+-	GetChildXmlValByName(m_iCultureVictoryWeight, "iCultureVictoryWeight", 0);
+-	GetChildXmlValByName(m_iSpaceVictoryWeight, "iSpaceVictoryWeight", 0);
+-	GetChildXmlValByName(m_iConquestVictoryWeight, "iConquestVictoryWeight", 0);
+-	GetChildXmlValByName(m_iDominationVictoryWeight, "iDominationVictoryWeight", 0);
+-	GetChildXmlValByName(m_iDiplomacyVictoryWeight, "iDiplomacyVictoryWeight", 0);
++	/*	advc: Default value changed from 0 to 30, and XML schema now also
++		optional in XML schema. Also set by advc.default, but I want this
++		to be optional even for mod-mods that don't use advc.default. */
++	GetChildXmlValByName(m_iCultureVictoryWeight, "iCultureVictoryWeight", 30);
++	GetChildXmlValByName(m_iSpaceVictoryWeight, "iSpaceVictoryWeight", 30);
++	GetChildXmlValByName(m_iConquestVictoryWeight, "iConquestVictoryWeight", 30);
++	GetChildXmlValByName(m_iDominationVictoryWeight, "iDominationVictoryWeight", 30);
++	GetChildXmlValByName(m_iDiplomacyVictoryWeight, "iDiplomacyVictoryWeight", 30);
+ 	// BETTER_BTS_AI_MOD: END
+ 	GetChildXmlValByName(m_iMaxWarRand, "iMaxWarRand");
+ 	GetChildXmlValByName(m_iMaxWarNearbyPowerRatio, "iMaxWarNearbyPowerRatio");
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5337

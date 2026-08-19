@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4645
+# Commit: ac4bc48449d2104e20c89480ddb83140b3cdae9a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 99d3aae70e0e2ec55cf61715893224d3c9a7b6c9
+# Title: Add code comment about why we pass self as a parameter in myFunction(self) definition but not as an argument at self.myFunction() call in python chatGPT help...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	0	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 10d36b846..42e5821c4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -38,6 +38,20 @@ class SevoPediaUnitChart:
+ 		self.placeUnitTable()
+ 
+ 
++	# <!-- custom: i did not know about this ChatGPT told me about this or made
++	# me understand it and solve it, so adding this explanation in case it helps
++	# others or/and me:
++	# in python, here for placeUnitTable function, when we call it using
++	# self.placeUnitTable(), self is passed automatically as an argument so no need
++	# to write it (else there would be 2 arguments) at function.
++	# However, in function definition, self is not known, so it needs to be defined
++	# as a parameter. This is why there is an apparent mismatch in the number of
++	# parameters vs arguments in placeUnitTable(self) vs self.placeUnitTable(), but
++	# this is how it should be done else it does not work.
++	# Thanks to ChatGPT for pointing me quite strongly to the right direction until
++	# i could solve it myself after tries and such and understand ChatGPT's
++	# explanation too now, and thanks to me for doing it too, anyways, adding this
++	# here in case it helps me or/and others. -->
+ 	def placeUnitTable(self):
+ 		screen = self.top.getScreen()
+ 		table = self.top.getNextWidgetName()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1431

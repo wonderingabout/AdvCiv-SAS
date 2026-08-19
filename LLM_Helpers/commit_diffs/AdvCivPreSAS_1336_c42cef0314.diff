@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1336
+# Commit: c42cef0314aa7ff2f62df9b540aa976441d11071
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fb302b8082477c5b59b987f5c1b83d5bd5ad1b84
+# Title: Amendment to the previous commit; addresses AI knowledge about geographical isolation more properly. [advc.131]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	16	CvGameCoreDLL/CvPlayerAI.cpp
+3	6	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fa51802fe..4ef7a24de 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4794,6 +4794,10 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 
+ bool CvPlayerAI::AI_isAreaAlone(CvArea* pArea) const
+ {
++	// <advc.131> Don't cheat with visibility early on (hurts more than it helps)
++	if(4 * pArea->getNumRevealedTiles(getTeam()) < 3 * pArea->getNumTiles() &&
++			getCurrentEra() <= GC.getGameINLINE().getStartEra())
++		return (GET_TEAM(getTeam()).getHasMetCivCount() <= 0); // </advc.131>
+ 	return ((pArea->getNumCities() - GET_TEAM(BARBARIAN_TEAM).countNumCitiesByArea(pArea)) == GET_TEAM(getTeam()).countNumCitiesByArea(pArea));
+ }
+ 
+@@ -8077,12 +8081,10 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 			}
+ 		}
+ 	} // </k146>
+-	// advc.131: was > 0
+-	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() >= 30) ?
+-			AI_isCapitalAreaAlone() : false;
+-	int iHasMetCount = kTeam.getHasMetCivCount(true);
+-	int iCoastalCities = countNumCoastalCities();
+-	CvCity* pCapitalCity = getCapitalCity();
++	int const iHasMetCount = kTeam.getHasMetCivCount(true);
++	int const iCoastalCities = countNumCoastalCities();
++	CvCity* const pCapitalCity = getCapitalCity();
++	bool const bCapitalAlone = AI_isCapitalAreaAlone();
+ 
+ 	int iValue = 0;
+ 
+@@ -8329,10 +8331,8 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 						//iTotalUnitValue += (bCapitalAlone ? 18 : 6)*iWeight;
+ 						iUtilityValue = std::max(iUtilityValue,
+ 								(4 + // k146: was 6+
+-								(bCapitalAlone ? 4 : 0) + ((iHasMetCount > 0
+-								// advc.131
+-								|| GC.getGameINLINE().getElapsedGameTurns() < 30)
+-								? 0 : 4))*iWeight); // k146: was 6))...
++								(bCapitalAlone ? 4 : 0) + (iHasMetCount > 0 ? 0 :
++								4))*iWeight); // k146: was 6))...
+ 					}
+ 					break;
+ 
+@@ -8478,10 +8478,10 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 
+ 			if (iNavalValue > 0)
+ 			{
+-				if (getCapitalCity() != NULL)
++				if (pCapitalCity != NULL)
+ 				{
+ 					// BBAI TODO: A little odd ... naval value is 0 if have no colonies.
+-					iNavalValue *= 2 * (getNumCities() - getCapitalCity()->area()->getCitiesPerPlayer(getID()));
++					iNavalValue *= 2 * (getNumCities() - pCapitalCity->area()->getCitiesPerPlayer(getID()));
+ 					iNavalValue /= getNumCities();
+ 
+ 					iTotalUnitValue += iNavalValue;
+@@ -8513,20 +8513,20 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 
+ 			if (kLoopUnit.getUnitAIType(UNITAI_SETTLER_SEA))
+ 			{
+-				if (getCapitalCity() != NULL)
++				if (pCapitalCity != NULL)
+ 				{
+ 					UnitTypes eExistingUnit = NO_UNIT;
+ 					int iBestAreaValue = 0;
+-					AI_getNumAreaCitySites(getCapitalCity()->getArea(), iBestAreaValue);
++					AI_getNumAreaCitySites(pCapitalCity->getArea(), iBestAreaValue);
+ 
+ 					//Early Expansion by sea
+ 					if (AI_bestAreaUnitAIValue(UNITAI_SETTLER_SEA, NULL, &eExistingUnit) == 0)
+ 					{
+-						CvArea* pWaterArea = getCapitalCity()->waterArea();
++						CvArea* pWaterArea = pCapitalCity->waterArea();
+ 						if (pWaterArea != NULL)
+ 						{
+ 							int iBestOtherValue = 0;
+-							AI_getNumAdjacentAreaCitySites(pWaterArea->getID(), getCapitalCity()->getArea(), iBestOtherValue);
++							AI_getNumAdjacentAreaCitySites(pWaterArea->getID(), pCapitalCity->getArea(), iBestOtherValue);
+ 
+ 							if (iBestAreaValue == 0
+ 									// k146: Give us a chance to see our land first.
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 97b6a0752..5aaf25da6 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2554,12 +2554,10 @@ int CvTeam::getChosenWarCount(bool bIgnoreMinors) const
+ 
+ int CvTeam::getHasMetCivCount(bool bIgnoreMinors) const
+ {
+-	int iCount;
+-	int iI;
+-
+-	iCount = 0;
++	PROFILE_FUNC(); // advc.003b: Would be easy enough to cache this
++	int iCount = 0;
+ 
+-	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
++	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+@@ -2569,7 +2567,6 @@ int CvTeam::getHasMetCivCount(bool bIgnoreMinors) const
+ 				{
+ 					if (isHasMet((TeamTypes)iI))
+ 					{
+-						//FAssert(iI != getID()); // advc.006
+ 						iCount++;
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4365

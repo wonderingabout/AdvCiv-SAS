@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1892
+# Commit: 362377a0505b5bd5216b22265d2e9d9c6995cee9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fb95766b0b347cdf660e6037f980def14f880f80
+# Title: Fix 3 erroneous uses of AI strategy bitmasks in K-Mod code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 663a35793..698c217a4 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7399,8 +7399,9 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 	// K-Mod. Get a weighted average of the yields for improvements which upgrade (eg. cottages).
+ 	int iTimeScale = 60;
+ 	iTimeScale += (100*GC.getGame().getElapsedGameTurns()/GC.getGame().getEstimateEndTurn() < 30 ? 10 : 0);
+-	iTimeScale -= (kOwner.AI_isDoVictoryStrategyLevel4() ? 30 : (100*GC.getGame().getElapsedGameTurns()/GC.getGame().getEstimateEndTurn() > 70 ? 10 : 0));
+-	iTimeScale += (kOwner.AI_isDoVictoryStrategy(AI_STRATEGY_ECONOMY_FOCUS) ? 50 : 0);
++	iTimeScale -= (kOwner.AI_atVictoryStage4() ? 30 : (100*GC.getGame().getElapsedGameTurns()/GC.getGame().getEstimateEndTurn() > 70 ? 10 : 0));
++	// advc.001: was AI_isDoVictoryStrategy
++	iTimeScale += (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) ? 50 : 0);
+ 	if (GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) +
+ 			// advc.001: Surely(?) preparations should count here as well
+ 			GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
+@@ -11913,8 +11914,8 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] -= 10;
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] += 20;
+-	}
+-	else if (kPlayer.AI_isDoVictoryStrategy(AI_STRATEGY_GET_BETTER_UNITS)) // doesn't stack with ec focus.
++	}  // advc.001: was AI_idDoVictoryStrategy
++	else if (kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS)) // doesn't stack with ec focus.
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] += 20;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ff143d14a..565fa7ae0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15851,7 +15851,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ 		// K-Mod (I didn't comment that line out, btw.)
+ 		const int iEra = getCurrentEra();
+-		int iCounterValue = 5 + 3*iEra + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3 || AI_VICTORY_SPACE3) ? 20 : 0);
++		// advc.001: was logical '||'
++		int iCounterValue = 5 + 3*iEra + (AI_atVictoryStage(AI_VICTORY_CULTURE3 | AI_VICTORY_SPACE3) ? 20 : 0);
+ 		// this is pretty bogus. I'll try to come up with something better some other time.
+ 		iCounterValue *= 50*iEra*(iEra+1)/2 + GET_TEAM(eTargetTeam).getEspionagePointsAgainstTeam(getTeam());
+ 		iCounterValue /= std::max(1, 50*iEra*(iEra+1) + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam))/2;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2628

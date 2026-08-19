@@ -1,0 +1,3697 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1420
+# Commit: c24d361ed834781e78aaaa1b3ec673526c6b8b9f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ced1a54058755d4cfeecb10fc0c62fea5ae219b4
+# Title: UI conveniences for resource trade
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+41	25	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+4	10	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	2	Assets/Python/Screens/CvDomesticAdvisor.py
+173	121	Assets/Python/Screens/CvExoticForeignAdvisor.py
+16	11	Assets/Python/Screens/IconGrid_BUG.py
+184	0	Assets/xml/Text/CIV4GameText_advc.xml
+4	2	Assets/xml/Text/Civ4GameText_K-Mod.xml
+2	2	CvGameCoreDLL/CvArea.cpp
+37	22	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvCityAI.cpp
+26	10	CvGameCoreDLL/CvDLLWidgetData.cpp
+130	28	CvGameCoreDLL/CvGame.cpp
+26	17	CvGameCoreDLL/CvGame.h
+7	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	0	CvGameCoreDLL/CvGameCoreUtils.h
+440	76	CvGameCoreDLL/CvGameTextMgr.cpp
+6	2	CvGameCoreDLL/CvGameTextMgr.h
+1	1	CvGameCoreDLL/CvMap.cpp
+172	157	CvGameCoreDLL/CvPlayer.cpp
+3	2	CvGameCoreDLL/CvPlayer.h
+88	74	CvGameCoreDLL/CvPlayerAI.cpp
+5	1	CvGameCoreDLL/CvPlayerAI.h
+28	28	CvGameCoreDLL/CvPlot.cpp
+7	8	CvGameCoreDLL/CvTeam.cpp
+3	3	CvGameCoreDLL/CvTeamAI.cpp
+5	0	CvGameCoreDLL/CyCity.cpp
+1	0	CvGameCoreDLL/CyCity.h
+2	0	CvGameCoreDLL/CyCityInterface1.cpp
+4	4	CvGameCoreDLL/CyGame.cpp
+4	1	CvGameCoreDLL/CyInfoInterface1.cpp
+1	1	CvGameCoreDLL/CyPlayer.h
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 2c6105e9c..ce967f2f3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -195,8 +195,23 @@ class SevoPediaBonus:
+ 	def placeBuildings(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
++		# advc.004y: txt key was TXT_KEY_PEDIA_CATEGORY_BUILDING
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
++		# advc.905b: Moved this loop from placeAllows, which only deals with units now.
++		for eLoopBuilding in range(gc.getNumBuildingInfos()):
++			bFound = False
++			if (gc.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == self.iBonus):
++				bFound = True
++			else:
++				j = 0
++				while (not bFound and j < gc.getNUM_BUILDING_PREREQ_OR_BONUSES()):
++					if (gc.getBuildingInfo(eLoopBuilding).getPrereqOrBonuses(j) == self.iBonus):
++						bFound = True
++					j += 1
++			if bFound:
++				screen.attachImageButton( panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
++
+ 		for iBuilding in range(gc.getNumBuildingInfos()):
+ 			info = gc.getBuildingInfo(iBuilding)
+ 			bShow = (info.getFreeBonus() == self.iBonus
+@@ -209,27 +224,40 @@ class SevoPediaBonus:
+ 						bShow = True
+ 						break
+ 			if (bShow):
+-				screen.attachImageButton( panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False )
++				screen.attachImageButton( panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False )
++		# <advc.004y>
++		for iProject in range(gc.getNumProjectInfos()):
++			info = gc.getProjectInfo(iProject)
++			if info.getBonusProductionModifier(self.iBonus) != 0:
++				screen.attachImageButton(panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++		# </advc.004y>
+ 
+ 
+ 
+ 	def placeAllows(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_ALLOWS", ()), "", False, True, self.X_ALLOWS_PANE, self.Y_ALLOWS_PANE, self.W_ALLOWS_PANE, self.H_ALLOWS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		# advc.905b: txt key was TXT_KEY_PEDIA_ALLOWS
++		screen.addPanel( panelName, localText.getText("TXT_KEY_WB_UNITS", ()), "", False, True, self.X_ALLOWS_PANE, self.Y_ALLOWS_PANE, self.W_ALLOWS_PANE, self.H_ALLOWS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+ 		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+ 		for eLoopUnit in range(gc.getNumUnitInfos()):
+ 			bFound = False
+-			if (eLoopUnit >= 0):
+-				if (gc.getUnitInfo(eLoopUnit).getPrereqAndBonus() == self.iBonus):
+-					bFound = True	
+-				else:
+-					j = 0
+-					while (not bFound and j < gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
+-						if (gc.getUnitInfo(eLoopUnit).getPrereqOrBonuses(j) == self.iBonus):
+-							bFound = True
+-						j += 1
++			if (gc.getUnitInfo(eLoopUnit).getPrereqAndBonus() == self.iBonus):
++				bFound = True
++			else:
++				j = 0
++				while (not bFound and j < gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
++					if (gc.getUnitInfo(eLoopUnit).getPrereqOrBonuses(j) == self.iBonus):
++						bFound = True
++					j += 1
++			# <advc.905b>
++			if not bFound:
++				for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
++					if gc.getUnitInfo(eLoopUnit).getSpeedBonuses(j) == self.iBonus:
++						bFound = True
++						break
++			# </advc.905b>
+ 			if bFound:
+ 				szButton = gc.getUnitInfo(eLoopUnit).getButton()
+ 				# <advc.003l>
+@@ -237,19 +265,7 @@ class SevoPediaBonus:
+ 					szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
+ 				# </advc.003l>
+ 				screen.attachImageButton( panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
+-
+-		for eLoopBuilding in range(gc.getNumBuildingInfos()):
+-			bFound = False
+-			if (gc.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == self.iBonus):
+-				bFound = True
+-			else:
+-				j = 0
+-				while (not bFound and j < gc.getNUM_BUILDING_PREREQ_OR_BONUSES()):
+-					if (gc.getBuildingInfo(eLoopBuilding).getPrereqOrBonuses(j) == self.iBonus):
+-						bFound = True
+-					j += 1
+-			if bFound:
+-				screen.attachImageButton( panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
++		# advc.905b: Allowed buildings moved to placeBuildings
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index c6ddf6542..1650dbb55 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -97,7 +97,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		self.X_CATEGORIES = 0
+ 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
+-		self.W_CATEGORIES = 175
++		self.W_CATEGORIES = 182 # advc.002b: was 175
+ 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
+ 
+ 		self.X_ITEMS = self.X_CATEGORIES + self.W_CATEGORIES + 2
+@@ -428,7 +428,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			graphic = self.categoryGraphics[category[0]]
+ 			# <advc.002b> Prepend graphic only if there is room
+ 			szHeading = category[1]
+-			if len(szHeading) <= 15:
++			if len(szHeading) <= 16:
+ 				szHeading = graphic + szHeading # </advc.002b>
+ 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.updateListBox(self.CATEGORY_LIST_ID)
+@@ -707,16 +707,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		i = 0
+ 		for item in self.list:
+-			if (info == gc.getConceptInfo):
++			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+ 				data2 = item[1]
+-			elif (info == self.getNewConceptInfo):
+-				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+-				data2 = item[1]
+-			elif (info == self.getShortcutInfo):
+-				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+-				data2 = item[1]
+-			elif (info == self.getTraitInfo):
++			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc.003
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+ 				data2 = item[1]
+ 			else:
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 0b92ed5da..25fa6b164 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -290,9 +290,11 @@ class CvDomesticAdvisor:
+ 		screen.setTableText( "CityListBackground", 15, i, pLoopCity.getProductionName() + " (" + str(pLoopCity.getGeneralProductionTurnsLeft()) + ")", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Liberation
+-		if pLoopCity.getLiberationPlayer(false) != -1:
++		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
++		bCanSplit = gc.getPlayer(gc.getGame().getActivePlayer()).canSplitArea(pLoopCity.getArea())
++		if bCanSplit or pLoopCity.getLiberationPlayer(false) != -1:
+ 			# UNOFFICIAL_PATCH begin
+-			if not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
++			if bCanSplit or not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
+ 				screen.setTableText( "CityListBackground", 16, i, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + "</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 			# UNOFFICIAL_PATCH end
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index a6c5d5d97..b1a0e6469 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -97,7 +97,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.SHOW_ROW_BORDERS = True
+ 		
+ 		# Minimum space at the top and bottom of the screen.
+-		self.MIN_TOP_BOTTOM_SPACE = 60
++		self.MIN_TOP_BOTTOM_SPACE = 30 # advc.073: was 60
+ 		
+ 		# Minimum space at the left and right end of the screen.
+ 		self.MIN_LEFT_RIGHT_SPACE = 25
+@@ -121,11 +121,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		# If 'True', the amount for each surplus resource is subtracted by one. So it shows how many you
+ 		# can give away without losing the resource yourself. This value isn't affected by any default 
+ 		# layout.
+-		self.RES_SHOW_EXTRA_AMOUNT = True
++		self.RES_SHOW_EXTRA_AMOUNT = False # advc.073: was True
+ 		
+ 		# If 'True', the amount's are shown as an overlay on top of the lower left corner of the resources.
+ 		# If 'False', the amount's are shown below the resources so you'll need to use a higher value for 
+ 		# self.RES_SURPLUS_HEIGHT (see below).
++		# advc.073 (comment): I doubt that False will work correctly with the changes I've made
+ 		self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP = True
+ 		
+ 		# If 'True', the resource columns are grouped as import and export.
+@@ -136,7 +137,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		# Height of the panel showing the surplus resources. If self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP is 'False'
+ 		# you'll need to set a higher value for this variable (110 is recommended).
+-		self.RES_SURPLUS_HEIGHT = 80
++		self.RES_SURPLUS_HEIGHT = 110 # advc.073: was 80
+ 		
+ 		self.RES_GOLD_COL_WIDTH = 25
+ 		
+@@ -380,8 +381,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					
+ 		# Put everything inside a main panel, so we get vertical scrolling
+ 		mainPanelName = self.getNextWidgetName()
+-		# advc.066: The second int param was 100
+-		screen.addPanel(mainPanelName, "", "", True, True, 50, 60, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
++		
++		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
++		# <advc.066> Replacing the above (same as in drawInfoOriginal)
++		leftRightMargin = 25
++		topBottomMargin = 60
++		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
++		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
++		if not gc.getGame().isDebugMode():
++			hasMetCount = gc.getTeam(playerActive.getTeam()).getHasMetCivCount(True)
++			if hasMetCount > 0: # The 300 is a pretty arbitrary value
++				mainPanelHeight = min(mainPanelHeight, 300 * hasMetCount)
++		screen.addPanel(mainPanelName, "", "", True, True, leftRightMargin, topBottomMargin, mainPanelWidth, mainPanelHeight, PanelStyles.PANEL_STYLE_EMPTY)
++		# </advc.066>
+ 
+ 		# loop through all players and sort them by number of active deals
+ 		listPlayers = [(0,0)] * gc.getMAX_PLAYERS()
+@@ -473,8 +485,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					
+ 		# Put everything inside a main panel, so we get vertical scrolling
+ 		mainPanelName = self.getNextWidgetName()
+-		# advc.066: The second int param was 100
+-		screen.addPanel(mainPanelName, "", "", True, True, 50, 60, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
++		
++		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
++		# <advc.066> Replacing the above (same as in drawActive)
++		leftRightMargin = 25
++		topBottomMargin = 60
++		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
++		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
++		if not gc.getGame().isDebugMode():
++			hasMetCount = gc.getTeam(playerActive.getTeam()).getHasMetCivCount(True)
++			if hasMetCount > 0: # 100 was just a guess, but it seems like this is the exact height of a row.
++				mainPanelHeight = min(mainPanelHeight, 100 * hasMetCount)
++		screen.addPanel(mainPanelName, "", "", True, True, leftRightMargin, topBottomMargin, mainPanelWidth, mainPanelHeight, PanelStyles.PANEL_STYLE_EMPTY)
++		# </advc.066>
+ 
+ 		ltCivicOptions = range (gc.getNumCivicOptionInfos())
+ 
+@@ -528,6 +551,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						screen.attachImageButton (infoPanelName, "", objCivicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nFavoriteCivic, 1, False)
+ 						screen.attachTextGFC(infoPanelName, "", "(" + gc.getCivicOptionInfo (objCivicInfo.getCivicOptionType()).getDescription() + ")", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
++
+ 	def drawInfoImproved (self, bInitial):
+ 		screen = self.getScreen()
+ 
+@@ -769,6 +793,14 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 		screen = self.getScreen()
+ 		
++		# <advc.066> Reduce panel height when there are few civs
++		self.mainPanelHeight = self.H_SCREEN - 155
++		if not gc.getGame().isDebugMode():
++			playerActive = gc.getPlayer(self.iActiveLeader)
++			hasMetCount = gc.getTeam(playerActive.getTeam()).getHasMetCivCount(True)
++			self.mainPanelHeight = min(self.mainPanelHeight, 100 * (hasMetCount + 1))
++		# </advc.066>
++
+ 		# Put everything inside a main panel, so we get vertical scrolling
+ 		headerPanelName = self.getNextWidgetName()
+ 		screen.addPanel(headerPanelName, "", "", True, True, 0, 50, self.W_SCREEN, 60, PanelStyles.PANEL_STYLE_TOPBAR)
+@@ -780,8 +812,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.drawGlanceHeader(screen, headerPanelName)
+ 
+ 		mainPanelName = self.getNextWidgetName()
+-		screen.addPanel(mainPanelName, "", "", True, True, 0, 104, self.W_SCREEN, self.H_SCREEN - 155, PanelStyles.PANEL_STYLE_MAIN)
+-
++		# advc.066: The height was self.H_SCREEN - 155, now computed above.
++		screen.addPanel(mainPanelName, "", "", True, True, 0, 104, self.W_SCREEN, self.mainPanelHeight, PanelStyles.PANEL_STYLE_MAIN)
+ 		self.drawGlanceRows (screen, mainPanelName, self.iSelectedLeader != self.iActiveLeader, self.iSelectedLeader)
+ 
+ 	def initializeGlance (self):
+@@ -811,11 +843,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 				# Player panel
+ 				self.nCount += 1
+-
+-		self.X_Spread = (self.W_SCREEN - 20) / self.nCount
+-		if self.X_Spread < 57: self.X_Spread = 57 # advc.004: Lower bound was 58
+-
+-		self.Y_Spread = (self.H_SCREEN - 50) / (self.nCount + 2)
++		# advc.066: Was (self.W_SCREEN - 20) /... I don't think there are margins to account for here.
++		self.X_Spread = self.W_SCREEN / self.nCount
++		if self.X_Spread < 57: self.X_Spread = 57 # advc.066: Lower bound was 58
++		# advc.066: Was (self.H_SCREEN - 50) /...
++		self.Y_Spread = (self.mainPanelHeight + 105) / (self.nCount + 2)
+ 		self.Y_Text_Offset = (self.Y_Spread - 36) / 2
+ 		if self.Y_Text_Offset < 0: self.Y_Text_Offset = 0
+ 
+@@ -907,24 +939,22 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 	def initTradeTable(self):
+ 		screen = self.getScreen()
+-		
++		# advc.073: Moved the first of the two IconGrid_BUG.GRID_TEXT_COLUMN (GPT that the AI will pay) three positions back in both branches
+ 		if (self.RES_SHOW_ACTIVE_TRADE):
+-			columns = ( IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN
+-					  , IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN
+-					  , IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN )
++			columns = ( IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN )
+ 		else:
+-			columns = ( IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN
+-					  , IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN )
++			columns = ( IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN )
+ 		self.NUM_RESOURCE_COLUMNS = len(columns) - 1
+-		
+-		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
+-		gridY = self.MIN_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT + 10
+-		gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
+-		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - self.RES_SURPLUS_HEIGHT - self.RES_PANEL_SPACE - self.TITLE_HEIGHT - 20
+-		
++		# <advc.003> Intermediate values leftSpace and topSpace added
++		leftSpace = self.MIN_LEFT_RIGHT_SPACE + 10
++		topSpace = self.MIN_TOP_BOTTOM_SPACE + 10
++		gridX = leftSpace
++		gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT
++		gridWidth = self.W_SCREEN - gridX - leftSpace 
++		gridHeight = self.H_SCREEN - gridY - topSpace
++		# </advc.003>
+ 		self.resIconGridName = self.getNextWidgetName()
+-		self.resIconGrid = IconGrid_BUG.IconGrid_BUG( self.resIconGridName, screen, gridX, gridY, gridWidth, gridHeight
+-											, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
++		self.resIconGrid = IconGrid_BUG.IconGrid_BUG( self.resIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
+ 
+ 		self.resIconGrid.setGroupBorder(self.GROUP_BORDER)
+ 		self.resIconGrid.setGroupLabelOffset(self.GROUP_LABEL_OFFSET)
+@@ -932,34 +962,59 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.resIconGrid.setMinRowSpace(self.MIN_ROW_SPACE)
+ 		
+ 		self.leaderCol = 0
+-		self.surplusCol = 1
+-		self.usedCol = 2
+-		self.willTradeCol = 3
+-		self.wontTradeCol = 4
+-		self.canPayCol = 5
++		#self.surplusCol = 1
++		#self.usedCol = 2
++		#self.willTradeCol = 3
++		#self.wontTradeCol = 4
++		#self.canPayCol = 5
++		# <advc.073>
++		self.willImportCol = 1
++		self.canPayCol = 2
++		self.willExportCol = 3
++		self.wontExportCol = 4
++		self.noNeedCol = 5
++		# </advc.073>
+ 		self.activeExportCol = 6
+ 		self.activeImportCol = 7
+ 		self.payingCol = 8
+ 		
+ 		self.resIconGrid.setHeader( self.leaderCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ()) )
+-		self.resIconGrid.setHeader( self.surplusCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ()) )
+-		self.resIconGrid.setHeader( self.usedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ()) )
+-		self.resIconGrid.setHeader( self.willTradeCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ()) )
+-		self.resIconGrid.setHeader( self.wontTradeCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ()) )
++		# <advc.073>
++		# txt keys were TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2
++		# was surplusCol
++		self.resIconGrid.setHeader( self.willImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_IMPORT", ()) )
++		# Moved up
+ 		self.resIconGrid.setHeader( self.canPayCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 		self.resIconGrid.setTextColWidth(self.canPayCol, self.RES_GOLD_COL_WIDTH)
++		# Replaced with noNeedCol below
++		#self.resIconGrid.setHeader( self.usedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_IMPORT", ()) )
++		# was willTradeCol
++		self.resIconGrid.setHeader( self.willExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_EXPORT", ()) )
++		# was wontTradeCol
++		self.resIconGrid.setHeader( self.wontExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_EXPORT", ()) )
++		# New column that takes over most of the wontTradeCol resources
++		self.resIconGrid.setHeader( self.noNeedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_NEED", ()) )
++		# </advc.073>
+ 		
+ 		if (self.RES_SHOW_ACTIVE_TRADE):
+-			self.resIconGrid.setHeader( self.activeExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORT", ()) )
+-			self.resIconGrid.setHeader( self.activeImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_IMPORT", ()) )
++			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_EXPORT. Now all the headings take the perspective of the foreign leader (except noNeed)
++			self.resIconGrid.setHeader( self.activeExportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_IMPORTING", ()) )
++			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_IMPORT
++			self.resIconGrid.setHeader( self.activeImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORTING", ()) )
+ 			self.resIconGrid.setHeader( self.payingCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 			self.resIconGrid.setTextColWidth(self.payingCol, self.RES_GOLD_COL_WIDTH)
+ 		if (self.RES_SHOW_IMPORT_EXPORT_HEADER):
+-			self.resIconGrid.createColumnGroup("", 1)
+-			self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORT", ()), 2)
+-			self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_IMPORT", ()), 3)
++			self.resIconGrid.createColumnGroup(" ", 1)
++			#self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORT", ()), 2)
++			# advc.073: Replacing the above. (I want the groups, but not the headings.)
++			self.resIconGrid.createColumnGroup(" ", 2)
++			#self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_IMPORT", ()), 3)
++			# advc.073: Replacing the above
++			self.resIconGrid.createColumnGroup(" ", 3)
+ 			if (self.RES_SHOW_ACTIVE_TRADE):
+-				self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", ()), 3)
++				#self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", ()), 3)
++				# advc.073: Replacing the above
++				self.resIconGrid.createColumnGroup(" ", 3)
+ 		
+ 		gridWidth = self.resIconGrid.getPrefferedWidth()
+ 		gridHeight = self.resIconGrid.getPrefferedHeight()
+@@ -983,7 +1038,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.SURPLUS_ICONS_X = self.SURPLUS_X + 10
+ 		if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
+ 			self.SURPLUS_TABLE_X = self.SURPLUS_ICONS_X + 15
+-			SURPLUS_VERTICAL_SPACING = (self.RES_SURPLUS_HEIGHT - self.RESOURCE_ICON_SIZE - self.TITLE_HEIGHT) / 2
++			# advc.073: Take RESOURCE_ICON_SIZE times 2 (two rows now)
++			SURPLUS_VERTICAL_SPACING = (self.RES_SURPLUS_HEIGHT - 2 * self.RESOURCE_ICON_SIZE - self.TITLE_HEIGHT) / 2
+ 			self.SURPLUS_ICONS_Y = self.SURPLUS_Y + SURPLUS_VERTICAL_SPACING + self.TITLE_HEIGHT
+ 			self.SURPLUS_TABLE_Y = self.SURPLUS_ICONS_Y + (self.RESOURCE_ICON_SIZE - self.TABLE_CONTROL_HEIGHT) / 2 + 8
+ 		else:
+@@ -994,7 +1050,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			self.SURPLUS_TABLE_Y = self.SURPLUS_ICONS_Y + self.RESOURCE_ICON_SIZE
+ 		
+ 		self.SURPLUS_CIRCLE_X_START = self.SURPLUS_TABLE_X + 4
+-		self.SURPLUS_CIRCLE_Y = self.SURPLUS_TABLE_Y + 5
++		# advc.073: Renamed from SURPLUS_CIRCLE_Y
++		self.SURPLUS_CIRCLE_Y_START = self.SURPLUS_TABLE_Y + 5
+ 		
+ 
+ 		
+@@ -1007,54 +1064,54 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		tradeData = TradeData()
+ 		tradeData.ItemType = TradeableItems.TRADE_RESOURCES
+ 		listSurplus = []
++		listNonSurplus = [] # advc.073
+ 		
+ 		for iLoopBonus in range(gc.getNumBonusInfos()):
++			bSurplus = False # advc.073
+ 			tradeData.iData = iLoopBonus
+ 			for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+ 				currentPlayer = gc.getPlayer(iLoopPlayer)
+-				if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian()
+-														  and not currentPlayer.isMinorCiv() 
+-														  and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam())
+-														  and iLoopPlayer != self.iActiveLeader 
+-														  and activePlayer.canTradeItem(iLoopPlayer, tradeData, False)
+-														  and activePlayer.getNumTradeableBonuses(iLoopBonus) > 1 ):
++				if not currentPlayer.isAlive() or currentPlayer.isBarbarian() or currentPlayer.isMinorCiv() or not gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) or iLoopPlayer == self.iActiveLeader or not activePlayer.canTradeItem(iLoopPlayer, tradeData, False):
++					continue # advc.003
++				if activePlayer.getNumTradeableBonuses(iLoopBonus) > 1:
+ 					listSurplus.append(iLoopBonus)
++					bSurplus = True # advc.073
+ 					break
+-		
++			# <advc.073>
++			if not bSurplus and activePlayer.getNumTradeableBonuses(iLoopBonus) > 0:
++				listNonSurplus.append(iLoopBonus)
++			# </advc.073>
+ 		self.calculateSurplusPanelLayout()
+ 		
+ 		# Assemble the surplus panel
+ 		self.mainAvailablePanel = self.getNextWidgetName()
+-		screen.addPanel( self.mainAvailablePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES", ()), ""
+-					   , False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT
+-					   , PanelStyles.PANEL_STYLE_MAIN )
++		screen.addPanel( self.mainAvailablePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES", ()), "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+ 		
+ 		self.availableMultiList = self.getNextWidgetName()
+-		screen.addMultiListControlGFC( self.availableMultiList, ""
+-									 , self.SURPLUS_ICONS_X, self.SURPLUS_ICONS_Y
+-									 , self.RESOURCE_ICON_SIZE * len(listSurplus), self.RESOURCE_ICON_SIZE
+-									 , 1, 32, 32, TableStyles.TABLE_STYLE_EMPTY )
++		# advc.073: I don't know how to make the surplus amounts wrap into another row, so the surplus resources will all have to be placed in the top row, even if there isn't enough space.
++		maxIconsPerRow = max(len(listSurplus), self.SURPLUS_WIDTH // self.RESOURCE_ICON_SIZE)
++		# advc.073: Width based on max of listSurplus and listNonSurplus; height times 2.
++		screen.addMultiListControlGFC( self.availableMultiList, "", self.SURPLUS_ICONS_X, self.SURPLUS_ICONS_Y, self.RESOURCE_ICON_SIZE * min(maxIconsPerRow,len(listSurplus)+len(listNonSurplus)), 2 * self.RESOURCE_ICON_SIZE, 1, 32, 32, TableStyles.TABLE_STYLE_EMPTY )
+ 
+ 		self.availableTable = self.getNextWidgetName()
+ 		# add the circles behind the amounts
+ 		if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
+ 			for iIndex in range(len(listSurplus)):
+-				screen.addDDSGFC( self.availableTable + "Circle" + str(iIndex)
+-								 , ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath()
+-								 , self.SURPLUS_CIRCLE_X_START + iIndex * self.RESOURCE_ICON_SIZE, self.SURPLUS_CIRCLE_Y
+-								 , 16, 16, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				# advc.073: SURPLUS_CIRCLE_Y replaced with SURPLUS_CIRCLE_Y_START plus an offset.
++				circleY = self.SURPLUS_CIRCLE_Y_START
++				# Can't do the same for the amounts, so don't do this after all:
++				#if iIndex > maxIconsPerRow:
++				#	circleY += self.RESOURCE_ICON_SIZE
++				screen.addDDSGFC( self.availableTable + "Circle" + str(iIndex), ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath(), self.SURPLUS_CIRCLE_X_START + iIndex * self.RESOURCE_ICON_SIZE, circleY, 16, 16, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		# add the table showing the amounts
+-		screen.addTableControlGFC( self.availableTable, len(listSurplus)
+-							     , self.SURPLUS_TABLE_X, self.SURPLUS_TABLE_Y
+-							     , len(listSurplus) * self.RESOURCE_ICON_SIZE, self.TABLE_CONTROL_HEIGHT
+-							     , False, False, 16, 16, TableStyles.TABLE_STYLE_EMPTY )
++		screen.addTableControlGFC( self.availableTable, len(listSurplus), self.SURPLUS_TABLE_X, self.SURPLUS_TABLE_Y, len(listSurplus) * self.RESOURCE_ICON_SIZE, self.TABLE_CONTROL_HEIGHT, False, False, 16, 16, TableStyles.TABLE_STYLE_EMPTY )
+ 		
+ 		# Add the bonuses to the surplus panel with their amount
+ 		for iIndex in range(len(listSurplus)):
+ #			screen.addCheckBoxGFCAt (self.mainAvailablePanel, "Foo" + str(iIndex), gc.getBonusInfo (listSurplus[iIndex]).getButton(), ArtFileMgr.getInterfaceArtInfo ("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.RESOURCE_ICON_SIZE * iIndex), 10, 32, 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, listSurplus[iIndex], -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+-			screen.appendMultiListButton( self.availableMultiList, gc.getBonusInfo(listSurplus[iIndex]).getButton(), 0
+-										, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, listSurplus[iIndex], -1, False )
++			# advc.073: Pass the active player to the BULL widget in order to signal that all takers are supposed to be listed
++			screen.appendMultiListButton( self.availableMultiList, gc.getBonusInfo(listSurplus[iIndex]).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, listSurplus[iIndex], self.iActiveLeader, False )
+ 			screen.setTableColumnHeader( self.availableTable, iIndex, u"", self.RESOURCE_ICON_SIZE )
+ 			
+ 			amount = activePlayer.getNumTradeableBonuses(listSurplus[iIndex])
+@@ -1066,8 +1123,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			else:
+ 				amountStr = u"<font=3>" + str(amount) + "</font>"
+ 			screen.setTableText( self.availableTable, iIndex, 0, amountStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
+-		
+-		
++		# <advc.073>
++		for iIndex in range(len(listNonSurplus)):
++			screen.appendMultiListButton(self.availableMultiList, gc.getBonusInfo(listNonSurplus[iIndex]).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, listNonSurplus[iIndex], self.iActiveLeader, False)
++			screen.setTableColumnHeader(self.availableTable, iIndex, u"", self.RESOURCE_ICON_SIZE)
++		# </advc.073>
+ 		
+ # 		# Assemble the panel that shows the trade table
+ 		self.TABLE_PANEL_X = self.RES_LEFT_RIGHT_SPACE
+@@ -1076,9 +1136,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.TABLE_PANEL_HEIGHT = self.H_SCREEN - self.TABLE_PANEL_Y - self.RES_TOP_BOTTOM_SPACE
+ 		
+ 		self.tradePanel = self.getNextWidgetName()
+-		screen.addPanel( self.tradePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE", ()), ""
+-					   , True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT
+-					   , PanelStyles.PANEL_STYLE_MAIN )
++		screen.addPanel( self.tradePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE", ()), "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+ 		
+ 		self.resIconGrid.createGrid()
+ 		
+@@ -1090,9 +1148,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+ 			currentPlayer = gc.getPlayer(iLoopPlayer)
+-			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() 
+-										 and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) 
+-										 and iLoopPlayer != self.iActiveLeader ):
++			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) and iLoopPlayer != self.iActiveLeader ):
+ 				message = ""
+ 				if ( not activePlayer.canTradeNetworkWith(iLoopPlayer) ):
+ 					message = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_CONNECTED", ())
+@@ -1115,16 +1171,29 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						if (activePlayer.canTradeItem(iLoopPlayer, tradeData, (not currentPlayer.isHuman()))): # surplus
+ 							importFromPlayer.append(iLoopBonus) # advc.036
+ 						else: # used
+-							self.resIconGrid.addIcon( currentRow, self.usedCol, gc.getBonusInfo(iLoopBonus).getButton()
+-													, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus )
++							# advc.073: Use the BONUS_TRADE widget from BULL so that the DLL can tell that tile yields shouldn't be shown
++							#self.resIconGrid.addIcon( currentRow, self.usedCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus, iLoopPlayer )
++							pass # Or rather: Disable this column
+ 					if (currentPlayer.canTradeItem(self.iActiveLeader, tradeData, False)):
+-						if (currentPlayer.canTradeItem(self.iActiveLeader, tradeData, (not currentPlayer.isHuman()))): # will trade
+-							self.resIconGrid.addIcon( currentRow, self.willTradeCol, gc.getBonusInfo(iLoopBonus).getButton()
+-													, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus )
+-						else: # won't trade
+-							# advc.073: Changed so that WIDGET_PEDIA_JUMP_TO_BONUS_TRADE works w/o BugDll
+-							self.resIconGrid.addIcon( currentRow, self.wontTradeCol, gc.getBonusInfo(iLoopBonus).getButton()
+-													, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus, iLoopPlayer )
++						#if (currentPlayer.canTradeItem(self.iActiveLeader, tradeData, (not currentPlayer.isHuman()))): # will trade
++						# <advc.073> Replacing the above: separate column now for must-be-joking resources
++						iDenial = currentPlayer.getTradeDenial(self.iActiveLeader, tradeData)
++						# Human isn't going to deny, but I still want to populate the noNeedCol and wontExportCol.
++						if iDenial == -1 and currentPlayer.isHuman():
++							if activePlayer.getNumAvailableBonuses(iLoopBonus) > 0 and activePlayer.AI_corporationBonusVal(iLoopBonus) <= 0:
++								iDenial = DenialTypes.DENIAL_JOKING
++							elif currentPlayer.getNumAvailableBonuses(iLoopBonus) < 2 or currentPlayer.AI_corporationBonusVal(iLoopBonus) > 0:
++								iDenial = DenialTypes.DENIAL_NO_GAIN
++						if iDenial != DenialTypes.DENIAL_JOKING:
++							if iDenial < 0:
++								# Use the BONUS_TRADE widget from BULL everywhere (also needed for advc.036). Was willTradeCol.
++								self.resIconGrid.addIcon( currentRow, self.willExportCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus, iLoopPlayer )
++							else: # won't trade
++								# advc.073: Changed so that WIDGET_PEDIA_JUMP_TO_BONUS_TRADE works w/o BugDll. And was wontTradeCol.
++								self.resIconGrid.addIcon( currentRow, self.wontExportCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus, iLoopPlayer )
++						else: # New column for resources that the active player doesn't need
++							self.resIconGrid.addIcon(currentRow, self.noNeedCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus, iLoopPlayer)
++						# </advc.073>
+ 				# <advc.036> Sorting both listSurplus and importSurplusFromPlayer by the number of copies owned by the active player would be even better, but would take me too long to write in Python.
+ 				importSurplusFromPlayer = []
+ 				rest = []
+@@ -1134,8 +1203,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					else: rest.append(iBonus)
+ 				importSorted = importSurplusFromPlayer + rest
+ 				for iLoopBonus in importSorted:
+-					# Cut and pasted from the "bonuses" loop above
+-					self.resIconGrid.addIcon( currentRow, self.surplusCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus )
++					# Cut and pasted from the "bonuses" loop above, but using the BONUS_TRADE widget from BULL.
++					# advc.073: Was surplusCol; and add 1000 to iLoopBonus in order to signal that we're in the import column (hack).
++					self.resIconGrid.addIcon( currentRow, self.willImportCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus+1000, iLoopPlayer )
+ 				# </advc.036>
+ 				if (self.RES_SHOW_ACTIVE_TRADE):
+ 					amount = 0
+@@ -1149,19 +1219,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_GOLD_PER_TURN):
+ 										amount += tradeData2.iData
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_RESOURCES):
+-										self.resIconGrid.addIcon( currentRow, self.activeImportCol
+-																, gc.getBonusInfo(tradeData2.iData).getButton()
+-																, 64, *BugDll.widgetVersion(4, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem,
+-																							   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, tradeData2.iData, -1) )
++										# advc.073: DEAL_KILL widget enabled
++										self.resIconGrid.addIcon( currentRow, self.activeImportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem)
+ 								for iLoopTradeItem in range(deal.getLengthSecondTrades()):
+ 									tradeData2 = deal.getSecondTrade(iLoopTradeItem)
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_GOLD_PER_TURN):
+ 										amount -= tradeData2.iData
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_RESOURCES):
+-										self.resIconGrid.addIcon( currentRow, self.activeExportCol
+-																, gc.getBonusInfo(tradeData2.iData).getButton()
+-																, 64, *BugDll.widgetVersion(4, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem + deal.getLengthFirstTrades(),
+-																							   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, tradeData2.iData, -1) )
++										# advc.073: DEAL_KILL widget enabled
++										self.resIconGrid.addIcon( currentRow, self.activeExportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem + deal.getLengthFirstTrades())
+ 							
+ 							if ( deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader ):
+ 								for iLoopTradeItem in range(deal.getLengthFirstTrades()):
+@@ -1169,19 +1235,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_GOLD_PER_TURN):
+ 										amount -= tradeData2.iData
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_RESOURCES):
+-										self.resIconGrid.addIcon( currentRow, self.activeExportCol
+-																, gc.getBonusInfo(tradeData2.iData).getButton()
+-																, 64, *BugDll.widgetVersion(4, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem,
+-																							   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, tradeData2.iData, -1) )
++										# advc.073: DEAL_KILL widget enabled
++										self.resIconGrid.addIcon( currentRow, self.activeExportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem)
+ 								for iLoopTradeItem in range(deal.getLengthSecondTrades()):
+ 									tradeData2 = deal.getSecondTrade(iLoopTradeItem)
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_GOLD_PER_TURN):
+ 										amount += tradeData2.iData
+ 									if (tradeData2.ItemType == TradeableItems.TRADE_RESOURCES):
+-										self.resIconGrid.addIcon( currentRow, self.activeImportCol
+-																, gc.getBonusInfo(tradeData2.iData).getButton()
+-																, 64, *BugDll.widgetVersion(4, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem + deal.getLengthFirstTrades(),
+-																							   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, tradeData2.iData, -1) )
++										# advc.073: DEAL_KILL widget enabled
++										self.resIconGrid.addIcon( currentRow, self.activeImportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, iLoopTradeItem + deal.getLengthFirstTrades())
+ # BUG - Kill Deal - end
+ 					if (amount != 0):
+ 						self.resIconGrid.setText(currentRow, self.payingCol, str(amount))
+@@ -1233,9 +1295,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			iLoopTeam = currentPlayer.getTeam()
+ 			currentTeam = gc.getTeam(iLoopTeam)
+ 
+-			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() 
+-										 and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) 
+-										 and iLoopPlayer != self.iActiveLeader ):
++			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) and iLoopPlayer != self.iActiveLeader ):
+ 				message = ""
+ 				# advc.120d: Replacing the line below
+ 				if not activePlayer.canSeeTech(iLoopPlayer):
+@@ -1269,27 +1329,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					
+ 						tradeData.iData = iLoopTech
+ 						if (activePlayer.canTradeItem(iLoopPlayer, tradeData, False) and activePlayer.getTradeDenial(iLoopPlayer, tradeData) == DenialTypes.NO_DENIAL): # wants
+-							self.techIconGrid.addIcon( currentRow, iTechColWants, gc.getTechInfo(iLoopTech).getButton()
+-																				 , 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
++							self.techIconGrid.addIcon( currentRow, iTechColWants, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 						elif (gc.getTeam(activePlayer.getTeam()).isHasTech(iLoopTech) and currentPlayer.canResearch(iLoopTech, False)):
+-							self.techIconGrid.addIcon( currentRow, iTechColCantYou, gc.getTechInfo(iLoopTech).getButton()
+-																					 , 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
++							self.techIconGrid.addIcon( currentRow, iTechColCantYou, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 						elif currentPlayer.canResearch(iLoopTech, False):
+-							self.techIconGrid.addIcon( currentRow, iTechColResearch, gc.getTechInfo(iLoopTech).getButton()
+-																			, 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+-						
++							self.techIconGrid.addIcon( currentRow, iTechColResearch, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 						if (currentPlayer.canTradeItem(self.iActiveLeader, tradeData, False)):
+ 							if (currentPlayer.getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL): # will trade
+-								self.techIconGrid.addIcon( currentRow, iTechColWill, gc.getTechInfo(iLoopTech).getButton()
+-																					 , 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
++								self.techIconGrid.addIcon( currentRow, iTechColWill, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 							else: # won't trade
+ 								# advc.073: Changed so that WIDGET_PEDIA_JUMP_TO_TECH_TRADE works w/o BugDll
+-								self.techIconGrid.addIcon( currentRow, iTechColWont, gc.getTechInfo(iLoopTech).getButton()
+-																					 , 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH_TRADE, iLoopTech, iLoopPlayer )
++								self.techIconGrid.addIcon( currentRow, iTechColWont, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH_TRADE, iLoopTech, iLoopPlayer )
+ 						elif (gc.getTeam(currentPlayer.getTeam()).isHasTech(iLoopTech) and activePlayer.canResearch(iLoopTech, False)):
+-							self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton()
+-																					 , 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+-
++							self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 				currentRow += 1
+ 		self.techIconGrid.refresh()
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index 1521eaad0..9fe046734 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -357,9 +357,7 @@ class IconGrid_BUG:
+ 
+ 						szIcon_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset)
+ 						if bDataFound:
+-							self.screen.setImageButton(szIcon_ID,
+-													   iconData.image, currentX - (iconData.size - 64) / 2, currentY - (iconData.size - 64) / 2, iconData.size, iconData.size, 
+-													   iconData.widgetType, iconData.data1, iconData.data2)
++							self.screen.setImageButton(szIcon_ID, iconData.image, currentX - (iconData.size - 64) / 2, currentY - (iconData.size - 64) / 2, iconData.size, iconData.size, iconData.widgetType, iconData.data1, iconData.data2)
+ 						else:
+ 							self.screen.deleteWidget(szIcon_ID)
+ 						currentX += self.iconColWidth + self.colSpace
+@@ -448,16 +446,13 @@ class IconGrid_BUG:
+ 						bDataFound = False
+ 
+ 					if bDataFound:
+-						self.screen.setImageButton(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), 
+-												   iconData.image, currentX - (iconData.size - 64) / 2, currentY - (iconData.size - 64) / 2, iconData.size, iconData.size, 
+-												   iconData.widgetType, iconData.data1, iconData.data2 )
++						self.screen.setImageButton(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), iconData.image, currentX - (iconData.size - 64) / 2, currentY - (iconData.size - 64) / 2, iconData.size, iconData.size, iconData.widgetType, iconData.data1, iconData.data2 )
+ 					currentX += self.iconColWidth + self.colSpace
+ 
+ 				elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
+ 					self.screen.clearMultiList(self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+ 					for icon in rowData.cells[startIndex + offset].icons:
+-						self.screen.appendMultiListButton( self.rowName + str(rowIndex) + "_" + str(startIndex + offset)
+-														 , icon.image, 0, icon.widgetType, icon.data1, icon.data2, False )
++						self.screen.appendMultiListButton( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), icon.image, 0, icon.widgetType, icon.data1, icon.data2, False )
+ 					currentX += self.multiListColWidth + self.colSpace
+ 
+ 				elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
+@@ -513,8 +508,8 @@ class IconGrid_BUG:
+ 			
+ 			if ( rowData.message == "" ):
+ 				self.screen.attachLabel(self.rowName + str(rowIndex), self.rowName + str(rowIndex) + "NotConnected", "")
+-			else:
+-				text = "<font=%i>                              %s</font>" % (rowData.font, rowData.message)
++			else: # advc.073: Replaced 30 spaces (not sure if these are discarded or just really thin) with 10 tabs so that the message appears after the second column, which may now contain data. (Previously, this was the case for the sixth column.)
++				text = "<font=%i>\t\t\t\t\t\t\t\t\t\t%s</font>" % (rowData.font, rowData.message)
+ 				self.screen.attachLabel(self.rowName + str(rowIndex),
+ 										self.rowName + str(rowIndex) + "NotConnected",
+ 										text)
+@@ -527,10 +522,14 @@ class IconGrid_BUG:
+ 		# width
+ 		availableWidth = self.width - self.scrollArrowSize - self.scrollSpace - self.minColSpace * (len(self.columns) - 1)
+ 		useColGroups = False
++		bBlankLabels = True # advc.004w
+ 		for colGroup in self.columnGroups:
+ 			if (colGroup.label != ""):
+ 				availableWidth -= self.groupBorder * 2
+ 				useColGroups = True
++				# <advc.004w>
++				if colGroup.label != " ":
++					bBlankLabels = False # </advc.004w>
+ 		
+ 		numMultiListCols = 0
+ 		for colIndex in range(len(self.columns)):
+@@ -556,13 +555,19 @@ class IconGrid_BUG:
+ 		if (useColGroups):
+ 			self.colGroupHeight = self.groupTitleHeight + self.headerHeight + 8
+ 			self.headerY = self.yStart + self.groupTitleHeight + 3
++			# <advc.004w> I don't quite know what I'm doing here. I want the "tan" panels, but not the group headings.
++			if bBlankLabels:
++				self.headerY = self.yStart + 3
++				self.yStart = self.yStart - self.groupTitleHeight
++			# </advc.004w>
+ 			self.firstRowY = self.headerY + self.headerHeight + 7
+ 			availableHeight = self.height - self.colGroupHeight - 5
+ 			if (not self.showRowHeader):
+ 				self.firstRowY += 5
+ 				availableHeight -= 5
+ 		else:
+-			self.colCroupHeight = 0
++			# advc.001: "group" was misspelled as "croup"
++			self.colGroupHeight = 0
+ 			self.headerY = self.yStart
+ 			self.firstRowY = self.headerY + self.headerHeight
+ 			availableHeight = self.height - self.headerHeight
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 249481103..f8b499eb3 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4166,6 +4166,32 @@
+ 		<Italian>[BOLD]Storia:[\BOLD][NEWLINE]</Italian>
+ 		<Spanish>[BOLD]Historia:[\BOLD][NEWLINE]</Spanish>
+ 	</TEXT>
++	<!-- Based on TXT_KEY_PEDIA_CATEGORY_BUILDING and _PROJECT in
++		 CIV4GameTextInfos_Objects.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT</Tag>
++		<English>Buildings and Projects</English>
++		<French>
++			<Text>B&#226;timents et Projets</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Geb&#228;ude und Projekte</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</German>
++		<Italian>
++			<Text>Edifici e Progetti</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Edificios y Proyectos</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.106: Based on TXT_KEY_ERA_SPLASH_SCREEN in
+ 		 Civ4GameText_Misc1.xml. -->
+@@ -4686,4 +4712,162 @@
+ 		<Spanish>Tratado de paz</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.036 -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_WILL_PAY</Tag>
++		<English>Will pay</English>
++		<French>Payera</French>
++		<German>Zahlt</German>
++		<Italian>Pagher&#224;</Italian>
++		<Spanish>Pagar&#225;</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_WILL_ASK</Tag>
++		<English>Will ask for</English>
++		<French>Demandera</French>
++		<German>Verlangt</German>
++		<Italian>Chieder&#224;</Italian>
++		<Spanish>Demandar&#225;</Spanish>
++	</TEXT>
++	
++	<!-- advc.004w: Based on TXT_KEY_BONUS_AVAILABLE_PLAYER
++		 (CIV4GameText_BTS.xml).  -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_AVAILABLE_US</Tag>
++		<English>[SPACE](we have %d1_num_bonus)[SPACE]</English>
++		<French>[SPACE](nous avons %d1_num_bonus)[SPACE]</French>
++		<German>[SPACE](wir haben %d1_num_bonus)[SPACE]</German>
++		<Italian>[SPACE](possediamo %d1_num_bonus)[SPACE]</Italian>
++		<Spanish>[SPACE](tenemos %d1_num_bonus)[SPACE]</Spanish>
++	</TEXT>
++	<!-- Using the production icon for building production is a bit irregular,
++		 but nicely compact. If this is still too verbose, one could also
++		 put all buildings in one line through the ::setListHelp function.
++		 Translations for speed:
++		 vitesse de [ICON_PRODUCTION]
++		 [ICON_PRODUCTION]-Geschwindigkeit
++		 velocit&#224; di [ICON_PRODUCTION]
++		 velocidad de [ICON_PRODUCTION] -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_SPEED_FOR</Tag>
++		<English>[ICON_PRODUCTION] for [LINK=literal]%s1_Building[\LINK]</English>
++		<French>[ICON_PRODUCTION] pour [LINK=literal]%s1_Building[\LINK]</French>
++		<German>[ICON_PRODUCTION]: [LINK=literal]%s1_Bonus[\LINK]</German>
++		<Italian>[ICON_PRODUCTION] per [LINK=literal]%s1_Bonus[\LINK]</Italian>
++		<Spanish>[ICON_PRODUCTION] por [LINK=literal]%s1_Bonus[\LINK]</Spanish>
++	</TEXT>
++
++	<!-- advc.073: Akin to TXT_KEY_MORECIV4LERTS_NEW_SALE in
++		 MoreCiv4lerts_CIV4GameText.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_WILL_IMPORT</Tag>
++		<English>Will import</English>
++		<French>Prospects[SPACE]</French>
++		<German>Interessenten</German>
++		<Italian>Importer&#224;</Italian>
++		<Spanish>Importar&#225;</Spanish>
++	</TEXT>
++	<!-- From CIV4GameText_BTS.xml -->
++	<!-- Was "Foreign Trade" and "Au�enhandel" in German; that sounds too much
++		 like trade route profits. -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE</Tag>
++		<English>Resource Trades</English>
++		<French>Commerce ext&#233;rieur</French>
++		<German>Ressourcenhandel</German>
++		<Italian>Commercio estero</Italian>
++		<Spanish>Intercambio extranjero</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2 and _NOT_FOR_TRADE_2
++		 (and replacing those keys on the Resources tab) -->
++	<!-- Translations not the same as TXT_KEY_MISC_WILL_IMPORT above (which has
++		 a quite different use).
++		 German sounds a little infantile now, but it needs to be brief. -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_WILL_IMPORT</Tag>
++		<English>Will Import</English>
++		<French>Importera</French>
++		<German>Will haben</German>
++		<Italian>Importer&#224;</Italian>
++		<Spanish>Importar&#225;</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_IMPORT</Tag>
++		<English>Won't Import</English>
++		<French>N'importera</French>
++		<German>Will nicht</German>
++		<Italian>Non importer&#224;</Italian>
++		<Spanish>No importar&#225;</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_WILL_EXPORT</Tag>
++		<English>Will Export</English>
++		<French>Exportera</French>
++		<German>Will geben</German>
++		<Italian>Esporter&#224;</Italian>
++		<Spanish>Exportar&#225;</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_EXPORT</Tag>
++		<English>Won't Export</English>
++		<French>N'exportera</French>
++		<German>Gibt nicht</German>
++		<Italian>Non esporter&#224;</Italian>
++		<Spanish>No exportar&#225;</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_FOREIGN_ADVISOR_EXPORT and _IMPORT. -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_EXPORTING</Tag>
++		<English>Exporting</English>
++		<French>Exportant</French>
++		<German>Wir erhalten</German>
++		<Italian>Esportando</Italian>
++		<Spanish>Exportando</Spanish>
++	</TEXT>
++	<!-- French translation is probably confusing -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_IMPORTING</Tag>
++		<English>Importing</English>
++		<French>Important</French>
++		<German>Wir liefern</German>
++		<Italian>Importando</Italian>
++		<Spanish>Importando</Spanish>
++	</TEXT>
++	<!-- To replace the group headings, but I've actually disabled these now,
++		 so: unused. -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_EXPORT</Tag>
++		<English>Takers</English>
++		<French>Exporter</French>
++		<German>Interessenten</German>
++		<Italian>Esportazione</Italian>
++		<Spanish>Exportar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_IMPORT</Tag>
++		<English>Suppliers</English>
++		<French>Importer</French>
++		<German>Anbieter</German>
++		<Italian>Importazione</Italian>
++		<Spanish>Importar</Spanish>
++	</TEXT>
++	<!-- New label for the surplus box -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES</Tag>
++		<English>Domestic Resources</English>
++		<French>Ressources domestiques</French>
++		<German>Verf�gbare Ressourcen</German>
++		<Italian>Risorse disponibile</Italian>
++		<Spanish>Recursos disponibles</Spanish>
++	</TEXT>
++	<!-- New heading for a new column -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_NO_NEED</Tag>
++		<English>We Don't Need</English>
++		<French>Nul besoin</French>
++		<German>Kein Bedarf</German>
++		<Italian>Nessun bisogno</Italian>
++		<Spanish>No necesitamos</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 7d0666c75..20c54c17a 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -15,10 +15,12 @@
+ 		<Italian>[COLOR_LIGHT_GREY][SPACE](Obsoleto)[SPACE][COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_LIGHT_GREY][SPACE](Obsoleto)[SPACE][COLOR_REVERT]</Spanish>
+ 	</TEXT>
+-	<!-- tag line for yield changes for bonuses -->
++	<!-- tag line for yield changes for bonuses
++		 advc.004w: English was "on plot" - not the proper game term.
++		 Or perhaps "tile yield" would be best? -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_ON_PLOT</Tag>
+-		<English>[SPACE]on plot</English>
++		<English>[SPACE]on tile</English>
+ 		<French>[SPACE]sur le case</French>
+ 		<German>[SPACE]auf Gel�ndefeld</German>
+ 		<Italian>[SPACE]su casella</Italian>
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 54a410327..a03493739 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -432,7 +432,7 @@ std::pair<int,int> CvArea::countOwnedUnownedHabitableTiles(bool bIgnoreBarb) con
+ 
+ 	std::pair<int,int> r;
+ 	r.first = 0; r.second = 0;
+-	CvMap const& map = GC.getMap();
++	CvMap const& map = GC.getMapINLINE();
+ 	for(int i = 0; i < map.numPlots(); i++) {
+ 		CvPlot* plot = map.plotByIndexINLINE(i);
+ 		if(plot == NULL || plot->area() == NULL || plot->area()->getID() != getID()
+@@ -555,7 +555,7 @@ int CvArea::getCitiesPerPlayer(PlayerTypes eIndex,
+ 		from so many places that I can't check if one of them might have a problem
+ 		with water areas having a positive city count. */
+ 	if(!bCheckAdjacentCoast && isWater())
+-		return false; // </advc.030b>
++		return 0; // </advc.030b>
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be >= 0");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be < MAX_PLAYERS");
+ 	return m_aiCitiesPerPlayer[eIndex];
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a7881cef4..0448a7738 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2024,28 +2024,23 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
+ 		bool bCheckAirUnitCap, // advc.001b
+ 		BonusTypes eAssumeAvailable) const // advc.001u
+ {
+-	if (eUnit == NO_UNIT)
+-	{
++	PROFILE_FUNC(); // advc.003b
++
++	if(eUnit == NO_UNIT)
+ 		return false;
+-	}
+ 
+-	if(GC.getUSE_CAN_TRAIN_CALLBACK())
+-	{
++	if(GC.getUSE_CAN_TRAIN_CALLBACK()) {
+ 		CyCity* pyCity = new CyCity((CvCity*)this);
+ 		CyArgsList argsList;
+-		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));
+ 		argsList.add(eUnit);
+-		argsList.add(bContinue);
+-		argsList.add(bTestVisible);
+-		argsList.add(bIgnoreCost);
+-		argsList.add(bIgnoreUpgrades);
++		argsList.add(bContinue); argsList.add(bTestVisible);
++		argsList.add(bIgnoreCost); argsList.add(bIgnoreUpgrades);
+ 		long lResult=0;
+ 		gDLL->getPythonIFace()->callFunction(PYGameModule, "canTrain", argsList.makeFunctionArgs(), &lResult);
+-		delete pyCity;	// python fxn must not hold on to this pointer 
++		delete pyCity;
+ 		if (lResult == 1)
+-		{
+ 			return true;
+-		}
+ 	}
+ 	/*  <advc.041> Don't allow any ships to be trained at lakes, except
+ 		Work Boat if there are resources in the lake. */
+@@ -2053,10 +2048,9 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
+ 	if(u.getDomainType() == DOMAIN_SEA && !isCoastal() &&
+ 			(!u.isPrereqBonuses() || !isPrereqBonusSea()))
+ 		return false; // </advc.041>
+-	if (!GET_PLAYER(getOwnerINLINE()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost))
+-	{
++
++	if(!GET_PLAYER(getOwnerINLINE()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost))
+ 		return false;
+-	}
+ 
+ 	if(!plot()->canTrain(eUnit, bContinue, bTestVisible,
+ 			bCheckAirUnitCap, // advc.001b
+@@ -2119,7 +2113,6 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
+ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
+ 		bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
+ {
+-	PROFILE_FUNC();//advc.tmp
+ 	if(eBuilding == NO_BUILDING)
+ 		return false;
+ 
+@@ -2141,6 +2134,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
+ 
+ 	if(getNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS())
+ 		return false;
++
+ 	CvBuildingInfo const& bi = GC.getBuildingInfo(eBuilding);
+ 	if( bi.isPrereqReligion())
+ 	{
+@@ -4197,11 +4191,26 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 				changeBaseGreatPeopleRate(b.getGreatPeopleRateChange() * iChange);
+ 			}
+ 		}
+-
+-		GET_TEAM(getTeam()).changeBuildingClassCount((BuildingClassTypes)b.getBuildingClassType(), iChange);
+-		GET_PLAYER(getOwnerINLINE()).changeBuildingClassCount((BuildingClassTypes)b.getBuildingClassType(), iChange);
++		BuildingClassTypes eBuildingClass = (BuildingClassTypes)b.getBuildingClassType();
++		GET_TEAM(getTeam()).changeBuildingClassCount(eBuildingClass, iChange);
++		GET_PLAYER(getOwnerINLINE()).changeBuildingClassCount(eBuildingClass, iChange);
+ 
+ 		GET_PLAYER(getOwnerINLINE()).changeWondersScore(getWonderScore((BuildingClassTypes)(b.getBuildingClassType())) * iChange);
++		// <advc.004w>
++		if(GC.getGameINLINE().isResourceLayer()) {
++			// Update text of resource indicators (CvGameTextMgr::setBonusExtraHelp)
++			PlayerTypes eDirtyPlayer = NO_PLAYER;
++			if(::isNationalWonderClass(eBuildingClass) &&
++					getOwnerINLINE() == GC.getGameINLINE().getActivePlayer())
++				eDirtyPlayer = getOwnerINLINE();
++			else if(::isWorldWonderClass(eBuildingClass))
++				eDirtyPlayer = GC.getGameINLINE().getActivePlayer();
++			if(eDirtyPlayer != NO_PLAYER) {
++				gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++				// advc.003p:
++				GET_PLAYER(getOwnerINLINE()).setBonusHelpDirty();
++			}
++		} // </advc.004w>
+ 	}
+ 
+ 	updateBuildingCommerce();
+@@ -12033,7 +12042,14 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 								pInfo->setData1(eIndex);
+ 								gDLL->getInterfaceIFace()->addPopup(pInfo, getOwnerINLINE());
+ 							}
+-						}
++						} /* <advc.004w> Update text of resource indicators
++							 (CvGameTextMgr::setBonusExtraHelp) */
++						if(getOwnerINLINE() == GC.getGameINLINE().getActivePlayer() &&
++								GC.getGameINLINE().isResourceLayer()) {
++							gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++							// advc.003p:
++							GET_PLAYER(getOwnerINLINE()).setBonusHelpDirty();
++						} // </advc.004w>
+ 					}
+ 				}
+ 			}
+@@ -12891,7 +12907,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+ 			if( gCityLogLevel >= 1 )
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index f90d92f2b..7bf3f129e 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -293,7 +293,7 @@ public:
+ 	CvPlotGroup* plotGroup(PlayerTypes ePlayer) const;
+ 	bool isConnectedTo(CvCity* pCity) const;															// Exposed to Python
+ 	bool isConnectedToCapital(PlayerTypes ePlayer = NO_PLAYER) const;			// Exposed to Python
+-	int getArea() const;
++	int getArea() const;										// advc.003: Exposed to Python
+ 	CvArea* area() const;																						// Exposed to Python
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      01/02/09                                jdog5000      */
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 92e6fddb3..7d268016f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4929,7 +4929,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					double tempValue = ourBuildingCount;
+ 					double rivalFactor = 1.5 * std::sqrt((double)
+ 							g.countCivPlayersAlive());
+-					int iEverAlive = g.countCivPlayersEverAlive();
++					int iEverAlive = g.getCivPlayersEverAlive();
+ 					for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
+ 						CvPlayer const& civ = GET_PLAYER((PlayerTypes)j);
+ 						if(!civ.isAlive() || civ.getID() == kOwner.getID() ||
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index f8b167c11..fefc5a3cd 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5637,9 +5637,20 @@ void CvDLLWidgetData::parseBonusTradeHelp(CvWidgetDataStruct &widgetDataStruct,
+ {
+ 	if (widgetDataStruct.m_iData2 == -1)
+ 		parseBonusHelp(widgetDataStruct, szBuffer);
+-	else {
++	else { /* <advc.073> Hack. Need the bOption field to distinguish between the
++			  import (bOption=true) and export columns, but setImageButton
++			  (in the EXE) has only the two iData parameters. I'm adding 1000
++			  to the bonus id in Python (CvExoticForeignAdvisor: drawResourceDeals)
++			  to signal that the widget is in the import column. Proper solution:
++			  Two separate widget types - probably wouldn't be that much work to
++			  implement either. */
++		if(widgetDataStruct.m_iData1 >= 1000) {
++			widgetDataStruct.m_iData1 -= 1000;
++			widgetDataStruct.m_bOption = true;
++		} // </advc.073>
+ 		GAMETEXT.setBonusTradeHelp(szBuffer, (BonusTypes)widgetDataStruct.m_iData1,
+-			false, (PlayerTypes)widgetDataStruct.m_iData2);
++			false, (PlayerTypes)widgetDataStruct.m_iData2,
++			widgetDataStruct.m_bOption); // advc.073
+ 	}
+ } // BULL - Trade Denial - end
+ 
+@@ -5883,20 +5894,24 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	}
+ }
+ 
+-void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct,
++		CvWStringBuffer &szBuffer)
+ {
+-	CvWString szTemp;
+-	szTemp = szBuffer.getCString();
+-	CvDeal* pDeal = GC.getGameINLINE().getDeal(widgetDataStruct.m_iData1);
++	CvWString szTemp = szBuffer.getCString();
++	CvGame const& g = GC.getGameINLINE();
++	CvDeal* pDeal = g.getDealINLINE(widgetDataStruct.m_iData1);
+ 	if (NULL != pDeal)
+ 	{
+-		if (pDeal->isCancelable(GC.getGameINLINE().getActivePlayer(), &szTemp))
++		PlayerTypes eActivePlayer = g.getActivePlayer();
++		// <advc.073>
++		GAMETEXT.getDealString(szBuffer, *pDeal, eActivePlayer, false);
++		szBuffer.append(NEWLINE); // </advc.073>
++		if (pDeal->isCancelable(eActivePlayer, &szTemp))
+ 		{
+ 			szTemp = gDLL->getText("TXT_KEY_MISC_CLICK_TO_CANCEL");
+ 		}
+ 	}
+-
+-	szBuffer.assign(szTemp);
++	szBuffer.append(szTemp); // advc.073: was assign
+ }
+ 
+ 
+@@ -6135,8 +6150,9 @@ CvWString CvDLLWidgetData::getFoundCostText(CvPlot const& p, PlayerTypes ownerId
+ 	for(CvCity* c = kOwner.firstCity(&foo); c != NULL; c = kOwner.nextCity(&foo)) {
+ 		if(c->isDisorder()) // Can't account for these
+ 			continue;
+-		int iProjected = // Distance maintenance stays the same
++		int iProjected = // Distance and corp. maintenance stay the same
+ 				c->calculateDistanceMaintenanceTimes100() +
++				c->calculateCorporationMaintenanceTimes100() +
+ 				CvCity::calculateNumCitiesMaintenanceTimes100(*c->plot(),
+ 				ownerId, c->getPopulation(), 1) +
+ 				CvCity::calculateColonyMaintenanceTimes100(*c->plot(),
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 461a15e74..84aac92c3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -103,6 +103,7 @@ void CvGame::init(HandicapTypes eHandicap)
+ 	//--------------------------------
+ 	// Init non-saved data
+ 
++	m_bAllGameDataRead = true; // advc.003: Not loading from savegame
+ 	// <advc.108>
+ 	m_iNormalizationLevel = GC.getDefineINT("NORMALIZE_STARTPLOTS_AGGRESSIVELY") > 0 ?
+ 			3 : 1;
+@@ -227,7 +228,7 @@ void CvGame::init(HandicapTypes eHandicap)
+ void CvGame::setInitialItems()
+ {
+ 	PROFILE_FUNC();
+-	int nAI = 0; // advc.250b: Just for disabling SPaH in game w/o any AI civs
++	int iAI = 0; // advc.250b: Just for disabling SPaH in game w/o any AI civs
+ 	// K-Mod: Adjust the game handicap level to be the average of all the human player's handicap.
+ 	// (Note: in the original bts rules, it would always set to Nobel if the humans had different handicaps)
+ 	//if (isGameMultiPlayer()) // advc.250b: Check moved down
+@@ -244,7 +245,7 @@ void CvGame::setInitialItems()
+ 		// <advc.250b>
+ 		else if(GET_PLAYER(i).isAlive() && i != BARBARIAN_PLAYER &&
+ 				!GET_PLAYER(i).isMinorCiv())
+-			nAI++; // </advc.250b>
++			iAI++; // </advc.250b>
+ 	}
+ 	if (isGameMultiPlayer()) {
+ 		if (iHumanPlayers > 0) {
+@@ -284,7 +285,7 @@ void CvGame::setInitialItems()
+ 		m_eAIHandicap = (HandicapTypes)::round(iHandicapSum / (double)iDiv);
+ 	// </advc.127>
+ 	// <advc.250b>
+-	if(!isOption(GAMEOPTION_ADVANCED_START) || nAI == 0)
++	if(!isOption(GAMEOPTION_ADVANCED_START) || iAI == 0)
+ 		setOption(GAMEOPTION_SPAH, false);
+ 	if(isOption(GAMEOPTION_SPAH))
+ 		// Reassigns start plots and start points
+@@ -585,6 +586,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	//--------------------------------
+ 	// Uninit class
+ 	uninit();
++	m_bAllGameDataRead = false; // advc.003;
+ 
+ 	m_iElapsedGameTurns = 0;
+ 	m_iStartTurn = 0;
+@@ -610,7 +612,10 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_iAIAutoPlay = 0;
+ 	m_iGlobalWarmingIndex = 0;// K-Mod
+ 	m_iGwEventTally = -1; // K-Mod (-1 means Gw tally has not been activated yet)
+-
++	// <advc.003b>
++	m_iCivPlayersEverAlive = 0;
++	m_iCivTeamsEverAlive = 0;
++	// </advc.003b>
+ 	m_uiInitialTime = 0;
+ 
+ 	m_bScoreDirty = false;
+@@ -842,13 +847,12 @@ void CvGame::initDiplomacy()
+ 
+ void CvGame::initFreeState()
+ {
+-	int iI, iJ, iK;
+ 	if(GC.getInitCore().isScenario()) {
+ 		setScenario(true); // advc.052
+ 		AI().AI_initScenario(); // advc.104u
+ 	}
+ 	else { // advc.051: (Moved up.) Don't force 0 gold in scenarios.
+-		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 			{
+@@ -856,9 +860,9 @@ void CvGame::initFreeState()
+ 			}
+ 		}
+ 	}
+-	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+-		for (iJ = 0; iJ < MAX_TEAMS; iJ++)
++		for (int iJ = 0; iJ < MAX_TEAMS; iJ++)
+ 		{	// <advc.003>
+ 			if(!GET_TEAM((TeamTypes)iJ).isAlive())
+ 				continue; // </advc.003>
+@@ -875,7 +879,7 @@ void CvGame::initFreeState()
+ 					(GC.getTechInfo((TechTypes)iI).getEra() < getStartEra()))
+ 				bValid = true;
+ 			if (!bValid) {
+-				for (iK = 0; iK < MAX_PLAYERS; iK++)
++				for (int iK = 0; iK < MAX_PLAYERS; iK++)
+ 				{
+ 					CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iK); // K-Mod
+ 					// <advc.003>
+@@ -3198,7 +3202,7 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
+ 
+ 	iPercent = GC.getVictoryInfo(eVictory).getLandPercent();
+ 
+-	iPercent -= (countCivTeamsEverAlive() * 2);
++	iPercent -= (getCivTeamsEverAlive() * 2);
+ 
+ 	return std::max(iPercent, GC.getVictoryInfo(eVictory).getMinLandPercent());
+ }
+@@ -3485,7 +3489,8 @@ int CvGame::countCivPlayersAlive() const
+ 
+ 
+ int CvGame::countCivPlayersEverAlive() const
+-{
++{	// advc.003b:
++	FAssertMsg(!m_bAllGameDataRead, "Should use getCivPlayersEverAlive instead");
+ 	int iCount = 0;
+ 
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+@@ -3521,7 +3526,8 @@ int CvGame::countCivTeamsAlive() const
+ 
+ 
+ int CvGame::countCivTeamsEverAlive() const
+-{
++{	// advc.003b:
++	FAssertMsg(!m_bAllGameDataRead, "Should use getCivTeamsEverAlive instead");
+ 	std::set<int> setTeamsEverAlive;
+ 
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+@@ -4607,17 +4613,47 @@ void CvGame::setAIAutoPlayBulk(int iNewValue, bool changePlayerStatus)
+ }
+ 
+ 
+-void CvGame::changeAIAutoPlay(int iChange
+-		, bool changePlayerStatus) // advc.127
++void CvGame::changeAIAutoPlay(int iChange,
++		bool changePlayerStatus) // advc.127
+ {
+ 	setAIAutoPlayBulk(getAIAutoPlay() + iChange,
+ 			changePlayerStatus); // advc.127
+ }
+ 
+-/*
+-** K-mod, 6/dec/10, karadoc
+-** 18/dec/10 - added Gw calc functions
+-*/
++// <advc.003b>
++int CvGame::getCivPlayersEverAlive() const {
++
++	// Could pose a savegame compatibility problem (uiFlag<4)
++	FAssert(m_bAllGameDataRead);
++	return m_iCivPlayersEverAlive;
++}
++
++void CvGame::changeCivPlayersEverAlive(int iChange) {
++
++	m_iCivPlayersEverAlive += iChange;
++	/*  iChange normally shouldn't be negative, but liberated civs aren't supposed
++		to count, and they're set to 'alive' before getting marked as liberated
++		(CvPlayer::setParent), so they need to be subtracted once setParent is called. */
++	FAssert(m_iCivPlayersEverAlive >= 0);
++	FAssert(m_iCivPlayersEverAlive <= MAX_CIV_PLAYERS);
++}
++
++int CvGame::getCivTeamsEverAlive() const {
++
++	// Could pose a savegame compatibility problem (uiFlag<4)
++	FAssert(m_bAllGameDataRead);
++	return m_iCivTeamsEverAlive;
++}
++
++void CvGame::changeCivTeamsEverAlive(int iChange) {
++
++	m_iCivTeamsEverAlive += iChange;
++	FAssert(m_iCivTeamsEverAlive >= 0);
++	FAssert(m_iCivTeamsEverAlive <= MAX_CIV_PLAYERS);
++} // </advc.003b>
++
++/*  K-mod, 6/dec/10, karadoc
++	18/dec/10 - added Gw calc functions */
+ int CvGame::getGlobalWarmingIndex() const
+ {
+ 	return m_iGlobalWarmingIndex;
+@@ -5462,7 +5498,11 @@ void CvGame::updateActiveVisibility() {
+ 		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+-
++		// <advc.003p>
++		if(getActivePlayer() != NO_PLAYER)
++			GET_PLAYER(getActivePlayer()).setBonusHelpDirty();
++		FAssert(getActivePlayer() != NO_PLAYER);
++		// </advc.003p>
+ 		gDLL->getEngineIFace()->SetDirty(CultureBorders_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(BlockadedPlots_DIRTY_BIT, true);
+ }
+@@ -5842,6 +5882,51 @@ void CvGame::setForceControl(ForceControlTypes eIndex, bool bEnabled)
+ 	GC.getInitCore().setForceControl(eIndex, bEnabled);
+ }
+ 
++// <advc.003> Mostly cut from CvPlayer::canConstruct
++bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const {
++
++	if(!bIgnoreCost && GC.getBuildingInfo(eBuilding).getProductionCost() == -1)
++		return false;
++
++	if(getCivTeamsEverAlive() < GC.getBuildingInfo(eBuilding).getNumTeamsPrereq())
++		return false;
++
++	VictoryTypes ePrereqVict = (VictoryTypes)GC.getBuildingInfo(eBuilding).
++			getVictoryPrereq();
++	if(ePrereqVict != NO_VICTORY && !isVictoryValid(ePrereqVict))
++		return false;
++
++	int iMaxStartEra = GC.getBuildingInfo(eBuilding).getMaxStartEra();
++	if(iMaxStartEra != NO_ERA && getStartEra() > iMaxStartEra)
++		return false;
++
++	if(isBuildingClassMaxedOut((BuildingClassTypes)
++			(GC.getBuildingInfo(eBuilding).getBuildingClassType())))
++		return false;
++
++	if(bTestVisible)
++		return true;
++
++	if(isNoNukes() && GC.getBuildingInfo(eBuilding).isAllowsNukes()) {
++		return false;
++		// What the original code did:
++		/*for(int i = 0; i < GC.getNumUnitInfos(); i++) {
++			if (GC.getUnitInfo((UnitTypes)i).getNukeRange() != -1)
++				return false;
++		}*/
++	}
++
++	SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)GC.getBuildingInfo(eBuilding).
++			getSpecialBuildingType();
++	if(eSpecial != NO_SPECIALBUILDING && !isSpecialBuildingValid(eSpecial))
++		return false;
++
++	if(getNumCities() < GC.getBuildingInfo(eBuilding).getNumCitiesPrereq())
++		return false;
++
++	return true;
++} // </advc.003>
++
+ 
+ int CvGame::getUnitCreatedCount(UnitTypes eIndex) const
+ {
+@@ -6140,7 +6225,7 @@ void CvGame::setVictoryValid(VictoryTypes eIndex, bool bValid)
+ }
+ 
+ 
+-bool CvGame::isSpecialUnitValid(SpecialUnitTypes eIndex)
++bool CvGame::isSpecialUnitValid(SpecialUnitTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < GC.getNumSpecialUnitInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+@@ -6156,7 +6241,7 @@ void CvGame::makeSpecialUnitValid(SpecialUnitTypes eIndex)
+ }
+ 
+ 
+-bool CvGame::isSpecialBuildingValid(SpecialBuildingTypes eIndex)
++bool CvGame::isSpecialBuildingValid(SpecialBuildingTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < GC.getNumSpecialBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+@@ -7631,7 +7716,7 @@ void CvGame::createBarbarianUnits()
+ 		/*  <advc.300> No need to delay barbs if they start slowly.
+ 			However, added a similar check to CvUnitAI::AI_barbAttackMove
+ 			for slow game speed settings. */
+-		double crowdedness = countCivPlayersEverAlive();
++		double crowdedness = getCivPlayersEverAlive();
+ 		crowdedness /= getRecommendedPlayers();
+ 		if(GC.getDefineINT("BARB_PEAK_PERCENT") < 35 || crowdedness > 1.25)
+ 			bAnimals = true; // </advc.300>
+@@ -9005,7 +9090,7 @@ int CvGame::getNumDeals()
+ 	return m_deals.getCount();
+ }
+ 
+-// <advc.003>
++
+  CvDeal* CvGame::getDeal(int iID)																		
+ {
+ 	return m_deals.getAt(iID);
+@@ -9016,7 +9101,7 @@ CvDeal* CvGame::addDeal()
+ {
+ 	return m_deals.add();
+ }
+-// </advc.003>
++
+ 
+  void CvGame::deleteDeal(int iID)
+ {
+@@ -9512,7 +9597,13 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	m_iAIAutoPlay = 0;
+ 	pStream->Read(&m_iGlobalWarmingIndex); // K-Mod
+ 	pStream->Read(&m_iGwEventTally); // K-Mod
+-
++	// <advc.003b>
++	if(uiFlag >= 4) {
++		pStream->Read(&m_iCivPlayersEverAlive);
++		pStream->Read(&m_iCivTeamsEverAlive);
++	} /* The else case is handled in allGameDataRead - need to read the players and
++		 teams first. */
++	// </advc.003b>
+ 	// m_uiInitialTime not saved
+ 
+ 	pStream->Read(&m_bScoreDirty);
+@@ -9725,6 +9816,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	uint uiFlag=1;
+ 	uiFlag = 2; // advc.701: R&F option
+ 	uiFlag = 3; // advc.052
++	uiFlag = 4; // advc.003b: Civs and teams EverAlive tracked
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9751,7 +9843,10 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iAIAutoPlay);
+ 	pStream->Write(m_iGlobalWarmingIndex); // K-Mod
+ 	pStream->Write(m_iGwEventTally); // K-Mod
+-
++	// <advc.003b>
++	pStream->Write(m_iCivPlayersEverAlive);
++	pStream->Write(m_iCivTeamsEverAlive);
++	// </advc.003b>
+ 	// m_uiInitialTime not saved
+ 
+ 	pStream->Write(m_bScoreDirty);
+@@ -9902,8 +9997,15 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+ 	read functions have been called. */
+ void CvGame::allGameDataRead() {
+ 
++	// <advc.003b> Savegame compatibility (uiFlag<4)
++	if(m_iCivPlayersEverAlive == 0)
++		m_iCivPlayersEverAlive = countCivPlayersEverAlive();
++	if(m_iCivTeamsEverAlive == 0)
++		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
++	// </advc.003b>
+ 	getWPAI.update(); // advc.104
+ 	GET_PLAYER(getActivePlayer()).validateDiplomacy(); // advc.134a
++	m_bAllGameDataRead = true;
+ }
+ 
+ // Called once the EXE signals that graphics have been initialized (w/e that means exactly)
+@@ -11335,11 +11437,11 @@ bool CvGame::isResourceLayer() const {
+ 
+ 	return m_bResourceLayer;
+ }
++
+ void CvGame::reportResourceLayerToggled() {
+ 
+ 	m_bResourceLayer = !m_bResourceLayer;
+-}
+-// </advc.004m>
++} // </advc.004m>
+ 
+ // <advc.127b>
+ std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes vs, TeamTypes eObserver,
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index ef0d88d20..eeb41c882 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -255,24 +255,25 @@ public:
+ 	void setAIAutoPlayBulk(int iNewValue, bool changePlayerStatus = true);
+ 	void changeAIAutoPlay(int iChange,
+ 			bool changePlayerStatus = true); // advc.127
+-/*
+-** K-mod, 6/dec/10, karadoc
+-*/
+-	int getGlobalWarmingIndex() const;								// Exposed to Python
++	// <advc.003b>
++	int getCivPlayersEverAlive() const;
++	void changeCivPlayersEverAlive(int iChange);
++	int getCivTeamsEverAlive() const;
++	void changeCivTeamsEverAlive(int iChange);
++	// </advc.003b>
++	// K-mod, 6/dec/10, karadoc
++	int getGlobalWarmingIndex() const;													// Exposed to Python
+ 	void setGlobalWarmingIndex(int iNewValue);
+ 	void changeGlobalWarmingIndex(int iChange);
+-	int getGlobalWarmingChances() const;							// Exposed to Python
+-	int getGwEventTally() const;							// Exposed to Python
++	int getGlobalWarmingChances() const;																// Exposed to Python
++	int getGwEventTally() const;																	// Exposed to Python
+ 	void setGwEventTally(int iNewValue);
+ 	void changeGwEventTally(int iChange);
+-
+ 	int calculateGlobalPollution() const; // Exposed to Python
+-	int calculateGwLandDefence(PlayerTypes ePlayer = NO_PLAYER /* global */) const; // Exposed to Python
+-	int calculateGwSustainabilityThreshold(PlayerTypes ePlayer = NO_PLAYER /* global */) const; // Exposed to Python
++	int calculateGwLandDefence(PlayerTypes ePlayer = NO_PLAYER /* global */) const;							// Exposed to Python
++	int calculateGwSustainabilityThreshold(PlayerTypes ePlayer = NO_PLAYER /* global */) const;			// Exposed to Python
+ 	int calculateGwSeverityRating() const; // Exposed to Python
+-/*
+-** K-mod end
+-*/
++	//K-mod end
+ 
+ 	unsigned int getInitialTime();
+ 	DllExport void setInitialTime(unsigned int uiNewValue);
+@@ -386,6 +387,8 @@ public:
+ 
+ 	bool isForcedControl(ForceControlTypes eIndex) const;												// Exposed to Python
+ 	DllExport void setForceControl(ForceControlTypes eIndex, bool bEnabled);
++	// advc.003:
++	bool canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const;
+ 
+ 	int getUnitCreatedCount(UnitTypes eIndex) const; // Exposed to Python
+ 	void incrementUnitCreatedCount(UnitTypes eIndex);
+@@ -413,11 +416,11 @@ public:
+ 
+ 	bool isVictoryValid(VictoryTypes eIndex) const;															// Exposed to Python
+ 	void setVictoryValid(VictoryTypes eIndex, bool bValid);
+-
+-	bool isSpecialUnitValid(SpecialUnitTypes eIndex);														// Exposed to Python  
++												// advc.003: const
++	bool isSpecialUnitValid(SpecialUnitTypes eIndex) const;														// Exposed to Python  
+ 	void makeSpecialUnitValid(SpecialUnitTypes eIndex);													// Exposed to Python
+-
+-	bool isSpecialBuildingValid(SpecialBuildingTypes eIndex);										// Exposed to Python
++												// advc.003: const
++	bool isSpecialBuildingValid(SpecialBuildingTypes eIndex) const;										// Exposed to Python
+ 	void makeSpecialBuildingValid(SpecialBuildingTypes eIndex, bool bAnnounce = false);									// Exposed to Python
+ 
+ 	bool isNukesValid() const;														// Exposed to Python  
+@@ -464,6 +467,8 @@ public:
+ 	DllExport int getIndexAfterLastDeal();																								// Exposed to Python	
+ 	int getNumDeals();																													// Exposed to Python	
+ 	DllExport CvDeal* getDeal(int iID);																										// Exposed to Python	
++	// advc.003f: Inlined, but mainly I want a const version of the DLLExport above.
++	CvDeal* getDealINLINE(int iID) const { return m_deals.getAt(iID); }
+ 	CvDeal* addDeal();																													
+ 	void deleteDeal(int iID);																										
+ 	// iteration (advc.003: const)																																					
+@@ -682,7 +687,10 @@ protected:
+ 	int m_iGwEventTally;		// K-Mod
+ 	int m_iTurnLoadedFromSave; // advc.044
+ 	int m_iNormalizationLevel; // advc.108
+-
++	// <advc.003b>
++	int m_iCivPlayersEverAlive;
++	int m_iCivTeamsEverAlive;
++	// </advc.003b>
+ 	unsigned int m_uiInitialTime;
+ 
+ 	bool m_bScoreDirty;
+@@ -700,6 +708,7 @@ protected:
+ 	bool m_bResourceLayerSet; // advc.003d
+ 	bool m_bFeignSP; // advc.135c
+ 	bool m_bScenario; // advc.052
++	bool m_bAllGameDataRead; // advc.003
+ 
+ 	HandicapTypes m_eHandicap;
+ 	HandicapTypes m_eAIHandicap; // advc.127
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 72c1a6951..f29fa6fdf 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -240,6 +240,13 @@ bool isArticle(ProjectTypes pt) {
+ 	CvWString txt = gDLL->getText(txtKey + L"_NA");
+ 	return (txt.compare(L".") != 0);
+ } // </advc.008e>
++// <advc.004w> I'm not positive that there isn't already a function like this somewhere
++void applyColorToString(CvWString& s, char const* szColor, bool bLink) {
++
++	if(bLink)
++		s.Format(L"<link=literal>%s</link>", s.GetCString());
++	s.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(szColor), s.GetCString());
++} // </advc.004w>
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 404be40b8..c3a3c6766 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -78,6 +78,8 @@ template<typename T> void removeDuplicates(std::vector<T>& v) {
+ 	std::set<T> aeTmp(v.begin(), v.end());
+ 	v.assign(aeTmp.begin(), aeTmp.end());
+ } // </advc.130h>
++// advc.004w:
++void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
+ 
+ //sign function taken from FirePlace - JW
+ template<class T> __forceinline T getSign( T x ) { return (( x < 0 ) ? T(-1) : x > 0 ? T(1) : T(0)); };
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7ebcdddd5..7fca8ad75 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -13628,20 +13628,25 @@ bool CvGameTextMgr::setResumableValueTimes100ChangeHelp(CvWStringBuffer &szBuffe
+ 
+ void CvGameTextMgr::setBonusHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText)
+ {
+-// BULL - Trade Denial - start
+-	setBonusTradeHelp(szBuffer, eBonus, bCivilopediaText, NO_PLAYER);
++// BULL - Trade Denial - start  (advc.073: bImport param added)
++	setBonusTradeHelp(szBuffer, eBonus, bCivilopediaText, NO_PLAYER, false);
+ }
+ 
+ // This function has been effectly rewritten for K-Mod. (there were a lot of things to change.)
+ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+-		bool bCivilopediaText, PlayerTypes eTradePlayer)
++		bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport)
+ // BULL - Trade Denial - end
+-{
+-	if (NO_BONUS == eBonus)
++{	// <advc.003>
++	if(NO_BONUS == eBonus)
+ 		return;
+-
+-	PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
+-
++	CvGame const& g = GC.getGameINLINE();
++	PlayerTypes eActivePlayer = g.getActivePlayer();
++	CvPlayerAI const* pActivePlayer = (eActivePlayer == NO_PLAYER ? NULL:
++			&GET_PLAYER(eActivePlayer));
++	// gDLL->isMPDiplomacy() does sth. else, apparently.
++	bool bDiplo = (g.isGameMultiPlayer() ? gDLL->isMPDiplomacyScreenUp() :
++			gDLL->isDiplomacy());
++	// </advc.003>
+ 	int iHappiness = GC.getBonusInfo(eBonus).getHappiness();
+ 	int iHealth = GC.getBonusInfo(eBonus).getHealth();
+ 
+@@ -13661,34 +13666,53 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 	else
+ 	{
+ 		szBuffer.append(CvWString::format( SETCOLR L"%s" ENDCOLR , TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GC.getBonusInfo(eBonus).getDescription()));
++		// advc.004w: Don't omit the basic effect in main menu Civilopedia hovers
++		//if (NO_PLAYER != eActivePlayer)
+ 
+-		if (NO_PLAYER != eActivePlayer)
++		// K-Mod. Bonuses now display "(Obsolete)" instead of "(player has 0)" when the bonus is obsolete.
++		if (NO_PLAYER != eActivePlayer && // advc.004w
++				TEAMREF(eActivePlayer).isBonusObsolete(eBonus))
++			szBuffer.append(gDLL->getText("TXT_KEY_BONUS_OBSOLETE"));
++		else
+ 		{
+-			CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+-
+-			// K-Mod. Bonuses now display "(Obsolete)" instead of "(player has 0)" when the bonus is obsolete.
+-			if (GET_TEAM(kActivePlayer.getTeam()).isBonusObsolete(eBonus))
++			// display the basic bonuses next to the name of the bonus
++			if (iHappiness != 0)
+ 			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_BONUS_OBSOLETE"));
++				szBuffer.append(CvWString::format(L", +%d%c", abs(iHappiness),
++						iHappiness > 0 ? gDLL->getSymbolID(HAPPY_CHAR) :
++						gDLL->getSymbolID(UNHAPPY_CHAR)));
+ 			}
+-			else
++			if (iHealth != 0)
+ 			{
+-				// display the basic bonuses next to the name of the bonus
+-				if (iHappiness != 0)
+-				{
+-					szBuffer.append(CvWString::format(L", +%d%c", abs(iHappiness), iHappiness > 0 ? gDLL->getSymbolID(HAPPY_CHAR) : gDLL->getSymbolID(UNHAPPY_CHAR)));
+-				}
+-				if (iHealth != 0)
+-				{
+-					szBuffer.append(CvWString::format(L", +%d%c", abs(iHealth), iHealth > 0 ? gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR)));
+-				}
+-
+-				szBuffer.append(gDLL->getText("TXT_KEY_BONUS_AVAILABLE_PLAYER", kActivePlayer.getNumAvailableBonuses(eBonus), kActivePlayer.getNameKey()));
+-
++				szBuffer.append(CvWString::format(L", +%d%c", abs(iHealth),
++						iHealth > 0 ? gDLL->getSymbolID(HEALTHY_CHAR) :
++						gDLL->getSymbolID(UNHEALTHY_CHAR)));
++			}
++			if(NO_PLAYER != eActivePlayer) { // advc.004w: Moved from above
++				// <advc.004w>
++				int iAvailable = pActivePlayer->getNumAvailableBonuses(eBonus);
++				if(bDiplo || // Trade screen, domestic resources box or import column
++						(eTradePlayer != NO_PLAYER &&
++						(eTradePlayer == eActivePlayer || bImport))) {
++						// </advc.004w>
++					szBuffer.append(gDLL->getText("TXT_KEY_BONUS_AVAILABLE_PLAYER",
++							iAvailable, pActivePlayer->getNameKey()));
++				} // <advc.004w> Show their amount in the export columns
++				else if(eTradePlayer != NO_PLAYER &&
++						eTradePlayer != eActivePlayer && !bImport) {
++					szBuffer.append(gDLL->getText("TXT_KEY_BONUS_AVAILABLE_PLAYER",
++							GET_PLAYER(eTradePlayer).getNumAvailableBonuses(eBonus),
++							GET_PLAYER(eTradePlayer).getNameKey()));
++				}
++				else if(iAvailable != 1) {
++					// When not trading, this should be clear enough:
++					szBuffer.append(gDLL->getText("TXT_KEY_BONUS_AVAILABLE_US",
++							iAvailable));
++				} // </advc.004w>
+ 				for (int iCorp = 0; iCorp < GC.getNumCorporationInfos(); ++iCorp)
+ 				{
+ 					bool bCorpBonus = false;
+-					if (kActivePlayer.getHasCorporationCount((CorporationTypes)iCorp) > 0)
++					if (pActivePlayer->getHasCorporationCount((CorporationTypes)iCorp) > 0)
+ 					{
+ 						for (int i = 0; !bCorpBonus && i < GC.getNUM_CORPORATION_PREREQ_BONUSES(); ++i)
+ 						{
+@@ -13701,66 +13725,79 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 				}
+ 			}
+ 		}
+-		// advc.004w:
+-		if(gDLL->isDiplomacy() && !gDLL->getInterfaceIFace()->isCityScreenUp())
+-			setYieldChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_BONUS_ON_PLOT"), GC.getBonusInfo(eBonus).getYieldChangeArray());
+-
+-		if (GC.getBonusInfo(eBonus).getTechReveal() != NO_TECH)
++		// <advc.004w>
++		if(eActivePlayer == NO_PLAYER || (!bDiplo &&
++				!gDLL->getInterfaceIFace()->isCityScreenUp() &&
++				eTradePlayer == NO_PLAYER)) { // </advc.004w>
++			setYieldChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_BONUS_ON_PLOT"),
++					GC.getBonusInfo(eBonus).getYieldChangeArray());
++		}
++		// <advc.004w> Only show reveal tech if we don't have it yet
++		TechTypes eRevealTech = (TechTypes)GC.getBonusInfo(eBonus).getTechReveal();
++		if (eRevealTech != NO_TECH && (eActivePlayer == NO_PLAYER ||
++				!TEAMREF(eActivePlayer).isHasTech(eRevealTech))) // </advc.004w>
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_BONUS_REVEALED_BY", GC.getTechInfo((TechTypes)GC.getBonusInfo(eBonus).getTechReveal()).getTextKeyWide()));
+ 		}
+ 	}
+ 
+-	// K-Mod. Only display the perks of the bonus if it is not already obsolete
+-	if (bCivilopediaText || GC.getGameINLINE().getActiveTeam() == NO_TEAM ||
+-			!GET_TEAM(GC.getGameINLINE().getActiveTeam()).isBonusObsolete(eBonus))
+-	{
+-		CivilizationTypes eCivilization = GC.getGameINLINE().getActiveCivilizationType();
+-
+-		for (int i = 0; i < GC.getNumBuildingClassInfos(); i++)
+-		{
+-			BuildingTypes eLoopBuilding;
+-			if (eCivilization == NO_CIVILIZATION)
+-			{
+-				eLoopBuilding = ((BuildingTypes)(GC.getBuildingClassInfo((BuildingClassTypes)i).getDefaultBuildingIndex()));
+-			}
+-			else
+-			{
+-				eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(eCivilization).getCivilizationBuildings(i)));
+-			}
+-
+-			if (eLoopBuilding != NO_BUILDING)
+-			{
+-				CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding);
+-				if (kBuilding.getBonusHappinessChanges(eBonus) != 0)
+-				{
+-					szBuffer.append(CvWString::format(L"\n%s", gDLL->getText("TXT_KEY_BUILDING_CIVIC_HEALTH_HAPPINESS_CHANGE", abs(kBuilding.getBonusHappinessChanges(eBonus)),
+-						kBuilding.getBonusHappinessChanges(eBonus) > 0 ? gDLL->getSymbolID(HAPPY_CHAR) : gDLL->getSymbolID(UNHAPPY_CHAR)).c_str()));
+-					szBuffer.append(CvWString::format(L"<link=literal>%s</link>", kBuilding.getDescription()));
+-				}
+-
+-				if (kBuilding.getBonusHealthChanges(eBonus) != 0)
+-				{
+-					szBuffer.append(CvWString::format(L"\n%s", gDLL->getText("TXT_KEY_BUILDING_CIVIC_HEALTH_HAPPINESS_CHANGE", abs(kBuilding.getBonusHealthChanges(eBonus)),
+-						kBuilding.getBonusHealthChanges(eBonus) > 0 ? gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR)).c_str()));
+-					szBuffer.append(CvWString::format(L"<link=literal>%s</link>", kBuilding.getDescription()));
+-				}
+-			}
+-		}
+-
+-		if (!CvWString(GC.getBonusInfo(eBonus).getHelp()).empty())
+-		{
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(GC.getBonusInfo(eBonus).getHelp());
+-		}
++	if(bCivilopediaText || eActivePlayer == NO_PLAYER ||
++			// K-Mod. Only display the perks of the bonus if it is not already obsolete
++			!TEAMREF(eActivePlayer).isBonusObsolete(eBonus)) {
++		// advc.004w: Effects from buildings, projects and units in a subroutine
++		setBonusExtraHelp(szBuffer, eBonus, bCivilopediaText, eTradePlayer, bDiplo);
+ 	}
+ // BULL - Trade Denial - start  (advc.073: refactored; getBugOptionBOOL check removed)
+ 	if (eTradePlayer != NO_PLAYER && eActivePlayer != NO_PLAYER)
+ 	{
++		bool bHuman = GET_PLAYER(eTradePlayer).isHuman(); // advc.073
+ 		TradeData item;
+ 		::setTradeItem(&item, TRADE_RESOURCES, eBonus);
+-		if (GET_PLAYER(eTradePlayer).canTradeItem(eActivePlayer, item, false))
++		// <advc.073>
++		int iGoldChar = GC.getCommerceInfo(COMMERCE_GOLD).getChar(); // advc.036
++		if(eTradePlayer == eActivePlayer) {
++			FAssert(!bImport);
++			/*  This means we're hovering over a surplus resource of the
++				active player and all takers need to be listed. */
++			std::vector<PlayerTypes> aTakers;
++			for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++				if(i == eActivePlayer)
++					continue;
++				CvPlayerAI const& kTaker = GET_PLAYER((PlayerTypes)i);
++				if(!kTaker.isAlive() || kTaker.isHuman() ||
++						!TEAMREF(eActivePlayer).isHasMet(kTaker.getTeam()))
++					continue;
++				if(!pActivePlayer->canTradeItem(kTaker.getID(), item, true))
++					continue;
++				aTakers.push_back(kTaker.getID());
++			}
++			if(aTakers.empty())
++				return;
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_WILL_IMPORT"
++					// Better not to repeat the resource name
++					/*,GC.getBonusInfo(eBonus).getTextKeyWide()*/));
++			szBuffer.append(/*L": "*/L":\n");
++			/*  Should perhaps sort by the gold they're willing to give, but that's
++				tedious to implement, and using player id also has merit as the
++				portraits on the Resources tab are listed by id. */
++			::setTradeItem(&item, TRADE_GOLD_PER_TURN, 1);
++			for(size_t i = 0; i < aTakers.size(); i++) {
++				CvPlayerAI const& kTaker = GET_PLAYER(aTakers[i]);
++				szBuffer.append(kTaker.getName());
++				if(kTaker.canTradeItem(eActivePlayer, item, false)) {
++					int iGold = kTaker.AI_goldForBonus(eBonus, eActivePlayer);
++					if(iGold > 0)
++						szBuffer.append(CvWString::format(L" (%d%c)", iGold, iGoldChar));
++				}
++				if(i < aTakers.size() - 1)
++					szBuffer.append(L", ");
++			}
++			return;
++		}
++		if (!bImport && // </advc.073>
++				GET_PLAYER(eTradePlayer).canTradeItem(eActivePlayer, item, false))
+ 		{
+ 			DenialTypes eDenial = GET_PLAYER(eTradePlayer).getTradeDenial(
+ 					eActivePlayer, item);
+@@ -13773,12 +13810,339 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 						GC.getDenialInfo(eDenial).getDescription());
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(szTempBuffer);
++				// <advc.036>
++				return;
++			} 
++			else if(eDenial == NO_DENIAL && !bHuman) {
++				::setTradeItem(&item, TRADE_GOLD_PER_TURN, 1);
++				if(pActivePlayer->canTradeItem(eTradePlayer, item, false)) {
++					int iGold = pActivePlayer->AI_goldForBonus(eBonus, eTradePlayer);
++					if(iGold > 0) {
++						szBuffer.append(NEWLINE);
++						szBuffer.append(CvWString::format(L"%s %d%c",
++								gDLL->getText("TXT_KEY_MISC_WILL_ASK").GetCString(),
++								iGold, iGoldChar));
++						return;
++					}
++				}
+ 			}
+ 		} 
++		if(bImport && !bHuman && pActivePlayer->canTradeItem(eTradePlayer, item, true)) {
++			::setTradeItem(&item, TRADE_GOLD_PER_TURN, 1);
++			if(GET_PLAYER(eTradePlayer).canTradeItem(eActivePlayer, item, false)) {
++				int iGold = GET_PLAYER(eTradePlayer).AI_goldForBonus(eBonus, eActivePlayer);
++				if(iGold > 0) {
++					szBuffer.append(NEWLINE);
++					szBuffer.append(CvWString::format(L"%s %d%c",
++							gDLL->getText("TXT_KEY_MISC_WILL_PAY").GetCString(),
++							iGold, iGoldChar));
++				}
++			}
++		} // </advc.036>
+ 	}
+ // BULL - Trade Denial - end
+ }
+ 
++// advc.004w: Some code cut from setBonusHelp, but mostly new code.
++void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
++		bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo) {
++
++	PROFILE_FUNC();
++	CvGame const& g = GC.getGameINLINE();
++	CivilizationTypes eCivilization = g.getActiveCivilizationType();
++	PlayerTypes eActivePlayer = g.getActivePlayer();
++	// NULL when in main menu Civilopedia
++	CvPlayerAI const* pActivePlayer = NULL;
++	int iCurrentEra = 0;
++	if(eActivePlayer != NO_PLAYER) {
++		pActivePlayer = &GET_PLAYER(eActivePlayer);
++		iCurrentEra = pActivePlayer->getCurrentEra();
++	}
++	CvCity* pCity = (gDLL->getInterfaceIFace()->isCityScreenUp() ?
++			/*  A city can also be selected without the city screen being up;
++				don't want that here. */
++			gDLL->getInterfaceIFace()->getHeadSelectedCity() : NULL);
++	
++	for(int i = 0; i < GC.getNumBuildingClassInfos(); i++) {
++		BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
++		BuildingTypes eLoopBuilding;
++		if(eCivilization == NO_CIVILIZATION) {
++			eLoopBuilding = (BuildingTypes)(GC.getBuildingClassInfo(eBuildingClass).
++						getDefaultBuildingIndex());
++		}
++		else {
++			eLoopBuilding = (BuildingTypes)(GC.getCivilizationInfo(eCivilization).
++					getCivilizationBuildings(i));
++		}
++		if(eLoopBuilding == NO_BUILDING)
++			continue;
++		// <advc.004w> Don't list impossibilities
++		bool bCanEverConstruct = true;
++		if(eActivePlayer != NO_PLAYER && !g.canConstruct(eLoopBuilding, true, true))
++			bCanEverConstruct = false;
++		// Don't list remote possibilities
++		CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding);
++		int iTechEraDelta = 0;
++		if(bCanEverConstruct && !bCivilopediaText && eActivePlayer != NO_PLAYER) {
++			ReligionTypes eReligion = (ReligionTypes)kBuilding.getPrereqReligion();
++			if(eReligion != NO_RELIGION &&
++					!pActivePlayer->canDoReligion(eReligion))
++				bCanEverConstruct = false;
++			if(bCanEverConstruct) {
++				TechTypes eTech = (TechTypes)kBuilding.getPrereqAndTech();
++				if(eTech == NO_TECH) {
++					SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)kBuilding.getSpecialBuildingType();
++					if(eSpecial != NO_SPECIALBUILDING)
++						eTech = (TechTypes)GC.getSpecialBuildingInfo(eSpecial).getTechPrereq();
++				}
++				if(eTech != NO_TECH)
++					iTechEraDelta = GC.getTechInfo(eTech).getEra() - iCurrentEra;
++				if(iTechEraDelta >= 2 || (iTechEraDelta >= 1 &&
++						// Special treatment for the very early game
++						iCurrentEra <= 0 && pActivePlayer->getNumCities() <= 2))
++					bCanEverConstruct = false;
++			}
++			if(bCanEverConstruct && TEAMREF(eActivePlayer).isObsoleteBuilding(eLoopBuilding))
++				bCanEverConstruct = false;
++			if(bCanEverConstruct) {
++				VictoryTypes eVict = (VictoryTypes)kBuilding.getVictoryPrereq();
++				if(eVict != NO_VICTORY && !g.isVictoryValid(eVict))
++					bCanEverConstruct = false;
++			}
++			if(bCanEverConstruct && (TEAMREF(eActivePlayer).isBuildingClassMaxedOut(eBuildingClass) ||
++					pActivePlayer->isBuildingClassMaxedOut(eBuildingClass)))
++				bCanEverConstruct = false;
++			if(bCanEverConstruct) {
++				// CvCity::canConstruct would be too strict, even with the bIgnore flags.
++				if(pCity != NULL && !pCity->isValidBuildingLocation(eLoopBuilding))
++					bCanEverConstruct = false;
++			}
++		}
++		// Don't skip e.g. active wonders
++		if(!bCanEverConstruct && pActivePlayer->getBuildingClassCount(eBuildingClass) <= 0)
++			continue;
++		// </advc.004w>
++		if(kBuilding.getBonusHappinessChanges(eBonus) != 0) {
++			szBuffer.append(CvWString::format(L"\n%s",
++					gDLL->getText("TXT_KEY_BUILDING_CIVIC_HEALTH_HAPPINESS_CHANGE",
++					abs(kBuilding.getBonusHappinessChanges(eBonus)),
++					kBuilding.getBonusHappinessChanges(eBonus) > 0 ?
++					gDLL->getSymbolID(HAPPY_CHAR) :
++					gDLL->getSymbolID(UNHAPPY_CHAR)).c_str()));
++			//szBuffer.append(szBuildingDescr); // advc.004w: Handled below
++		}
++		if(kBuilding.getBonusHealthChanges(eBonus) != 0) {
++			szBuffer.append(CvWString::format(L"\n%s",
++					gDLL->getText("TXT_KEY_BUILDING_CIVIC_HEALTH_HAPPINESS_CHANGE",
++					abs(kBuilding.getBonusHealthChanges(eBonus)),
++					kBuilding.getBonusHealthChanges(eBonus) > 0 ?
++					gDLL->getSymbolID(HEALTHY_CHAR) :
++					gDLL->getSymbolID(UNHEALTHY_CHAR)).c_str()));
++			//szBuffer.append(szBuildingDescr); // advc.004w: Handled below
++		} // <advc.004w>
++		if(kBuilding.getBonusHealthChanges(eBonus) != 0 ||
++				kBuilding.getBonusHappinessChanges(eBonus) != 0) {
++			CvWString szDescr(kBuilding.getDescription());
++			if(pCity != NULL) {	
++				::applyColorToString(szDescr,
++						pCity->getNumActiveBuilding(eLoopBuilding) > 0 ?
++						"COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT");
++			}
++			szBuffer.append(szDescr);
++		}
++		/*  Not much room in the "Effects" box of Civilopedia. Put only health
++			and happiness effects there. */
++		if(bCivilopediaText)
++			continue;
++		bool bWonder = (::isWorldWonderClass(eBuildingClass) || ::isNationalWonderClass(eBuildingClass));
++		// Similar to setBuildingHelpActual, but that's from the building's pov.
++		if(eActivePlayer != NO_PLAYER && ((pCity == NULL &&
++				// Show yield modifiers of wonders only if we already have them
++				(!bWonder || pActivePlayer->getBuildingClassCount(eBuildingClass) > 0))
++				|| (pCity != NULL && pCity->getNumActiveBuilding(eLoopBuilding) > 0))) {
++			for(int y = 0; y < NUM_YIELD_TYPES; y++) {
++				if(kBuilding.getBonusYieldModifier(eBonus, y) != 0) {
++					CvWString szStart(kBuilding.getDescription());
++					szStart.append(L": ");
++					setYieldChangeHelp(szBuffer, szStart, L"", L"",
++							kBuilding.getBonusYieldModifierArray(eBonus), true);
++					break;
++				}
++			}
++		}
++		// Only construction effects remain
++		if(!bCanEverConstruct)
++			continue;
++		// Stricter check than the one for happiness/health effects above
++		if(pCity != NULL && !pCity->canConstruct(eLoopBuilding, false, true, true))
++			continue;
++
++		// Highlight building name when it's under construction
++		bool bConstructing = false;
++		if(pCity != NULL) {
++			CLLNode<OrderData>* pOrderNode = pCity->headOrderQueueNode();
++			if(pOrderNode != NULL && pOrderNode->m_data.eOrderType == ORDER_CONSTRUCT &&
++					pOrderNode->m_data.iData1 == eLoopBuilding)
++				bConstructing = true;
++		}
++		bool bHighlight = (bConstructing ||
++				(eActivePlayer != NO_PLAYER && pCity == NULL &&
++				/*  I.e. not on the main interface b/c it's too difficult to
++					keep those texts updated */
++				(eTradePlayer != NO_PLAYER || bDiplo) &&
++				pActivePlayer->getBuildingClassMaking(eBuildingClass) > 0));
++
++		// These are unused, but I'd like to use them someday.
++		bool bBonusReq = (kBuilding.getPrereqAndBonus() == eBonus);
++		if(!bBonusReq) {
++			for(int j = 0; j < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); j++) {
++				if(kBuilding.getPrereqOrBonuses(j) == eBonus) {
++					bBonusReq = true;
++					break;
++				}
++			}
++		}
++		if(bBonusReq) {
++			CvWString szDescr(kBuilding.getDescription());
++			if(bHighlight)
++				::applyColorToString(szDescr, "COLOR_HIGHLIGHT_TEXT");
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TECH_CAN_CONSTRUCT"));
++			szBuffer.append(szDescr);
++		}
++		if(eActivePlayer == NO_PLAYER)
++			continue;
++		// Don't show wonder production bonuses for future eras
++		if(!bWonder || iTechEraDelta <= 0) {
++			int iProductionMod = kBuilding.getBonusProductionModifier(eBonus);
++			if(iProductionMod != 0) {
++				szBuffer.append(NEWLINE);
++				CvWString szDescr(kBuilding.getDescription());
++				if(bHighlight)
++					::applyColorToString(szDescr, "COLOR_HIGHLIGHT_TEXT");
++				szBuffer.append(CvWString::format(L"%c%s%d%% %s",
++						gDLL->getSymbolID(BULLET_CHAR),
++						iProductionMod > 0 ? "+" : "", iProductionMod,
++						gDLL->getText("TXT_KEY_BONUS_SPEED_FOR", szDescr.GetCString()).GetCString()));
++			}
++		}
++	}
++	if(bCivilopediaText)
++		return;
++	if(eActivePlayer != NO_PLAYER) {
++		// Based on the loop above
++		for(int i = 0; i < GC.getNumProjectInfos(); i++) {
++			ProjectTypes eLoopProject = (ProjectTypes)i;
++			CvProjectInfo& kProject = GC.getProjectInfo(eLoopProject);
++			int iProductionMod = kProject.getBonusProductionModifier(eBonus);
++			if(iProductionMod == 0)
++				continue;
++			if(pCity == NULL) {
++				TechTypes eTech = (TechTypes)kProject.getTechPrereq();
++				if(eTech != NO_TECH && GC.getTechInfo(eTech).getEra() > iCurrentEra
++						+ (::isWorldProject(eLoopProject) ? 0 : 1))
++					continue;
++				VictoryTypes eVict = (VictoryTypes)kProject.getVictoryPrereq();
++				if(eVict != NO_VICTORY && !g.isVictoryValid(eVict))
++					continue;
++				if(g.isProjectMaxedOut(eLoopProject) && TEAMREF(eActivePlayer).
++						getProjectCount(eLoopProject) <= 0)
++					continue;
++				if(kProject.isSpaceship() && (pActivePlayer->getCapitalCity() == NULL ||
++						!pActivePlayer->getCapitalCity()->canCreate(eLoopProject, false, true)))
++					continue;
++			}
++			else if(!pCity->canCreate(eLoopProject, false, true))
++				continue;
++			// Copy-paste from the building loop
++			szBuffer.append(NEWLINE);
++			szBuffer.append(CvWString::format(L"%c%s%d%% %s",
++					gDLL->getSymbolID(BULLET_CHAR),
++					iProductionMod > 0 ? "+" : "",
++					iProductionMod, gDLL->getText("TXT_KEY_BONUS_SPEED_FOR",
++					kProject.getDescription()).GetCString()));
++		}
++		// To weed out obsolete units
++		CvCity* pTrainCity = pCity;
++		if(pTrainCity == NULL)
++			pTrainCity = pActivePlayer->getCapitalCity();
++		std::vector<CvUnitInfo*> aEnables;
++		for(int i = 0; i < GC.getNumUnitClassInfos(); i++) {
++			UnitClassTypes eUnitClass = (UnitClassTypes)i;
++			UnitTypes eLoopUnit = (UnitTypes)(GC.getCivilizationInfo(
++					eCivilization).getCivilizationUnits(i));
++			if(eLoopUnit == NO_UNIT)
++				continue;
++			CvUnitInfo& kUnit = GC.getUnitInfo(eLoopUnit);
++			// <advc.905b>
++			int iSpeed = 0;
++			for(int j = 0; j < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); j++) {
++				if(kUnit.getSpeedBonuses(j) != eBonus)
++					continue;
++				iSpeed = kUnit.getExtraMoves(j);
++			} // </advc.905b>
++			bool bBonusReq = (kUnit.getPrereqAndBonus() == eBonus);
++			if(!bBonusReq) {
++				for(int j = 0; j < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); j++) {
++					if(kUnit.getPrereqOrBonuses(j) == eBonus) {
++						bBonusReq = true;
++						break;
++					}
++				}
++			}
++			if(!bBonusReq && iSpeed == 0)
++				continue;
++			if(pTrainCity == NULL) {
++				if(!pActivePlayer->canTrain(eLoopUnit, false, true, true))
++					continue;
++			}
++			else if(!pTrainCity->canTrain(eLoopUnit, false, true, true, false, false))
++				continue;
++			if(bBonusReq)
++				aEnables.push_back(&kUnit);
++			if(iSpeed != 0) {
++				szBuffer.append(NEWLINE);
++				szBuffer.append(CvWString::format(L"%c%s%d%c: ",
++						gDLL->getSymbolID(BULLET_CHAR), iSpeed > 0 ? "+" : "",
++						iSpeed, gDLL->getSymbolID(MOVES_CHAR)));
++				szBuffer.append(kUnit.getDescription());
++			}
++		}
++		/*  The capital can be NULL and it's not necessarily going to be coastal.
++			Address these cases through an era threshold (b/c checking upgrade paths
++			without a CvCity object is too complicated). */
++		int iEraThresh = std::max(0, iCurrentEra - 3);
++		int iCount = aEnables.size();
++		while(iCount > 5 && iEraThresh < iCurrentEra) {
++			iCount = aEnables.size();
++			for(size_t i = 0; i < aEnables.size(); i++) {
++				TechTypes eTech = (TechTypes)aEnables[i]->getPrereqAndTech();
++				if(eTech != NO_TECH && GC.getTechInfo(eTech).getEra() <= iEraThresh)
++					iCount--;
++			}
++			iEraThresh++;
++		}
++		if(iCount <= 0) // Show too many units rather than none
++			iEraThresh = 0;
++		for(size_t i = 0; i < aEnables.size(); i++) {
++			TechTypes eTech = (TechTypes)aEnables[i]->getPrereqAndTech();
++			bool bSea = (DOMAIN_SEA == (DomainTypes)aEnables[i]->getDomainType());
++			bool bUseEraThresh = (eTech != NO_TECH && (pTrainCity == NULL ||
++					(bSea != pTrainCity->isCoastal())));
++			if(!bUseEraThresh || GC.getTechInfo(eTech).getEra() >= iEraThresh) {
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_TECH_CAN_TRAIN"));
++				szBuffer.append(aEnables[i]->getDescription());
++			}
++		}
++	} // </advc.004w>
++	if (!CvWString(GC.getBonusInfo(eBonus).getHelp()).empty()) {
++		szBuffer.append(NEWLINE);
++		szBuffer.append(GC.getBonusInfo(eBonus).getHelp());
++	}
++}
++
++
+ void CvGameTextMgr::setReligionHelp(CvWStringBuffer &szBuffer, ReligionTypes eReligion, bool bCivilopedia)
+ {
+ 	UnitTypes eFreeUnit;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 1ce40c1b6..d73746494 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -123,10 +123,14 @@ public:
+ 	bool setResumableValueTimes100ChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iValue, int iSymbol, bool bNewLine = false, bool bStarted = false);
+ // BUG - Resumable Value Change Help - end
+ 	void setBonusHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText = false);
+-// BULL - Trade Denial - start
++// BULL - Trade Denial - start  (advc.073: param bImport added)
+ 	void setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+-			bool bCivilopediaText, PlayerTypes eTradePlayer);
++			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport);
+ // BULL - Trade Denial - end
++	// <advc.004w>
++	void setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
++			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo);
++	// </advc.004w>
+ 	void setReligionHelp(CvWStringBuffer &szBuffer, ReligionTypes eReligion, bool bCivilopedia = false);
+ 	void setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes eReligion, CvCity *pCity, bool bCityScreen = false, bool bForceReligion = false, bool bForceState = false, bool bNoStateReligion = false);
+ 	void setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTypes eCorporation, bool bCivilopedia = false);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index fa41472d1..984566b8d 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -985,7 +985,7 @@ int CvMap::maxPlotDistance() const
+ 	//return std::max(1, plotDistance(0, 0, ((isWrapXINLINE()) ? (getGridWidthINLINE() / 2) : (getGridWidthINLINE() - 1)), ((isWrapYINLINE()) ? (getGridHeightINLINE() / 2) : (getGridHeightINLINE() - 1))));
+ 	CvGame const& g = GC.getGameINLINE();
+ 	CvWorldInfo const& w = GC.getWorldInfo(worldSize());
+-	double civRatio = g.getRecommendedPlayers() / (double)g.countCivPlayersEverAlive();
++	double civRatio = g.getRecommendedPlayers() / (double)g.getCivPlayersEverAlive();
+ 	double seaLvlModifier = (100 - 5 * g.getSeaLevelChange()) / 100.0;
+ 	int wraps = -1; // 0 if cylindrical (1 wrap), -1 flat, +1 toroidical
+ 	if(isWrapXINLINE())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 141b0a27e..4d03bbe3a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -87,6 +87,8 @@ CvPlayer::CvPlayer()
+ 	m_ppaaiSpecialistExtraYield = NULL;
+ 	m_ppaaiImprovementYieldChange = NULL;
+ 
++	m_aszBonusHelp = NULL; // advc.003p
++
+ 	m_bDisableHuman = false; // bbai
+ 	m_iChoosingFreeTechCount = 0; // K-Mod
+ 
+@@ -608,6 +610,12 @@ void CvPlayer::uninit()
+ 		}
+ 		SAFE_DELETE_ARRAY(m_ppaaiImprovementYieldChange);
+ 	}
++	// <advc.003p>
++	if(m_aszBonusHelp != NULL) {
++		for(int i = 0; i < GC.getNumBonusInfos(); i++)
++			SAFE_DELETE(m_aszBonusHelp[i]);
++		SAFE_DELETE_ARRAY(m_aszBonusHelp);
++	} // </advc.003p>
+ 
+ 	m_groupCycle.clear();
+ 
+@@ -757,12 +765,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iNewMessages = 0; // advc.106b
+ 	m_bAutoPlayJustEnded = false; // advc.127
+ 	m_bSavingReplay = false; // advc.106i
+-	eReminderPending = NO_CIVIC; // advc.004x
++	m_eReminderPending = NO_CIVIC; // advc.004x
+ 
+ 	m_eID = eID;
+ 	updateTeamType();
+ 	updateHuman();
+-
+ 	if (m_eID != NO_PLAYER)
+ 	{
+ 		m_ePersonalityType = GC.getInitCore().getLeader(m_eID); //??? Is this repeated data???
+@@ -987,6 +994,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 				m_ppaaiImprovementYieldChange[iI][iJ] = 0;
+ 			}
+ 		}
++		// <advc.003p>
++		FAssert(m_aszBonusHelp == NULL);
++		m_aszBonusHelp = new CvWString*[GC.getNumBonusInfos()];
++		for(int i = 0; i < GC.getNumBonusInfos(); i++)
++			m_aszBonusHelp[i] = NULL;
++		// </advc.003p>
+ 
+ 		m_mapEventsOccured.clear();
+ 		m_mapEventCountdown.clear();
+@@ -1430,6 +1443,9 @@ void CvPlayer::changeCiv( CivilizationTypes eNewCiv )
+ 		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++		// <advc.003p>
++		if(getID() == GC.getGameINLINE().getActivePlayer())
++			setBonusHelpDirty(); // </advc.003p>
+ 		gDLL->getInterfaceIFace()->setDirty(MinimapSection_DIRTY_BIT, true);
+ 		gDLL->getEngineIFace()->SetDirty(MinimapTexture_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+@@ -3632,8 +3648,8 @@ void CvPlayer::doTurn()
+ 
+ 	verifyCivics();
+ 	// <advc.004x>
+-	if(eReminderPending != NO_CIVIC)
+-		doChangeCivicsPopup(eReminderPending); // </advc.004x>
++	if(m_eReminderPending != NO_CIVIC)
++		doChangeCivicsPopup(m_eReminderPending); // </advc.004x>
+ 	//verifyStateReligion(); // dlph.10: disabled for now
+ 	updateTradeRoutes();
+ 
+@@ -6735,26 +6751,20 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 
+ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
+ {
+-	BuildingClassTypes eBuildingClass;
++	/*  <advc.003> Global checks moved into new function. These are all fast
++		(now that CivTeamsEverAlive is cached). */
++	if(!GC.getGameINLINE().canConstruct(eBuilding, bIgnoreCost, bTestVisible))
++		return false; // </advc.003>
++
+ 	int iI;
+ 	CvTeamAI& currentTeam = GET_TEAM(getTeam());
++	BuildingClassTypes eBuildingClass = (BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType());
+ 
+-	eBuildingClass = ((BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType()));
+-
+-	//FAssert(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eBuildingClass) == eBuilding);
+ 	if (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eBuildingClass) != eBuilding)
+ 	{
+ 		return false;
+ 	}
+ 
+-	if (!bIgnoreCost)
+-	{
+-		if (GC.getBuildingInfo(eBuilding).getProductionCost() == -1)
+-		{
+-			return false;
+-		}
+-	}
+-
+ 	if (!bIgnoreTech) // K-Mod
+ 	{
+ 		if (!(currentTeam.isHasTech((TechTypes)(GC.getBuildingInfo(eBuilding).getPrereqAndTech()))))
+@@ -6795,18 +6805,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+ 		}
+ 	}
+ 
+-	if (GC.getGameINLINE().countCivTeamsEverAlive() < GC.getBuildingInfo(eBuilding).getNumTeamsPrereq())
+-	{
+-		return false;
+-	}
+-
+ 	if (GC.getBuildingInfo(eBuilding).getVictoryPrereq() != NO_VICTORY)
+ 	{
+-		if (!(GC.getGameINLINE().isVictoryValid((VictoryTypes)(GC.getBuildingInfo(eBuilding).getVictoryPrereq()))))
+-		{
+-			return false;
+-		}
+-
+ 		if (isMinorCiv())
+ 		{
+ 			return false;
+@@ -6826,18 +6826,6 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+                 return false;
+         }
+     } // </dlph.19>
+-	if (GC.getBuildingInfo(eBuilding).getMaxStartEra() != NO_ERA)
+-	{
+-		if (GC.getGameINLINE().getStartEra() > GC.getBuildingInfo(eBuilding).getMaxStartEra())
+-		{
+-			return false;
+-		}
+-	}
+-
+-	if (GC.getGameINLINE().isBuildingClassMaxedOut(eBuildingClass))
+-	{
+-		return false;
+-	}
+ 
+ 	if (currentTeam.isBuildingClassMaxedOut(eBuildingClass))
+ 	{
+@@ -6864,62 +6852,40 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+ 		}
+ 	}
+ 
+-	if (!bTestVisible)
+-	{
+-		if (GC.getGameINLINE().isBuildingClassMaxedOut(eBuildingClass, (currentTeam.getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
+-		{
+-			return false;
+-		}
+-
+-		if (currentTeam.isBuildingClassMaxedOut(eBuildingClass, (currentTeam.getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
+-		{
+-			return false;
+-		}
++	if(bTestVisible)
++		return true; // advc.003
+ 
+-		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
+-		{
+-			return false;
+-		}
++	if (GC.getGameINLINE().isBuildingClassMaxedOut(eBuildingClass,
++			(currentTeam.getBuildingClassMaking(eBuildingClass) +
++			((bContinue) ? -1 : 0))))
++	{
++		return false;
++	}
+ 
+-		if (GC.getGameINLINE().isNoNukes())
+-		{
+-			if (GC.getBuildingInfo(eBuilding).isAllowsNukes())
+-			{
+-				for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
+-				{
+-					if (GC.getUnitInfo((UnitTypes)iI).getNukeRange() != -1)
+-					{
+-						return false;
+-					}
+-				}
+-			}
+-		}
++	if (currentTeam.isBuildingClassMaxedOut(eBuildingClass,
++			(currentTeam.getBuildingClassMaking(eBuildingClass) +
++			((bContinue) ? -1 : 0))))
++	{
++		return false;
++	}
+ 
+-		if (GC.getBuildingInfo(eBuilding).getSpecialBuildingType() != NO_SPECIALBUILDING)
+-		{
+-			if (!(GC.getGameINLINE().isSpecialBuildingValid((SpecialBuildingTypes)(GC.getBuildingInfo(eBuilding).getSpecialBuildingType()))))
+-			{
+-				return false;
+-			}
+-		}
++	if (isBuildingClassMaxedOut(eBuildingClass,
++			(getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
++	{
++		return false;
++	}
+ 
+-		if (getNumCities() < GC.getBuildingInfo(eBuilding).getNumCitiesPrereq())
+-		{
+-			return false;
+-		}
++	if (getHighestUnitLevel() < GC.getBuildingInfo(eBuilding).getUnitLevelPrereq())
++	{
++		return false;
++	}
+ 
+-		if (getHighestUnitLevel() < GC.getBuildingInfo(eBuilding).getUnitLevelPrereq())
++	for (iI = 0; iI < numBuildingClassInfos; iI++)
++	{
++		if (getBuildingClassCount((BuildingClassTypes)iI) < getBuildingClassPrereqBuilding(eBuilding, ((BuildingClassTypes)iI), ((bContinue) ? 0 : getBuildingClassMaking(eBuildingClass))))
+ 		{
+ 			return false;
+ 		}
+-
+-		for (iI = 0; iI < numBuildingClassInfos; iI++)
+-		{
+-			if (getBuildingClassCount((BuildingClassTypes)iI) < getBuildingClassPrereqBuilding(eBuilding, ((BuildingClassTypes)iI), ((bContinue) ? 0 : getBuildingClassMaking(eBuildingClass))))
+-			{
+-				return false;
+-			}
+-		}
+ 	}
+ 
+ 	return true;
+@@ -6989,13 +6955,14 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
+ 		{
+ 			if (GC.getProjectInfo(eProject).isAllowsNukes())
+ 			{
+-				for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
++				return false; // advc.003b
++				/*for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
+ 				{
+ 					if (GC.getUnitInfo((UnitTypes)iI).getNukeRange() != -1)
+ 					{
+ 						return false;
+ 					}
+-				}
++				}*/
+ 			}
+ 		}
+ 
+@@ -11410,8 +11377,12 @@ void CvPlayer::setAlive(bool bNewValue)
+ 	if(isAlive() == bNewValue)
+ 		return; // </advc.003>
+ 	m_bAlive = bNewValue;
+-	GET_TEAM(getTeam()).updateLeaderID(); // advc.003b
+-	GET_TEAM(getTeam()).changeAliveCount((isAlive()) ? 1 : -1);
++	// <advc.003b>
++	if(isAlive() && getParent() == NO_PLAYER && !isBarbarian())
++		GC.getGameINLINE().changeCivPlayersEverAlive(1);
++	GET_TEAM(getTeam()).updateLeaderID();
++	// </advc.003b>
++	GET_TEAM(getTeam()).changeAliveCount(isAlive() ? 1 : -1);
+ 
+ 	// Report event to Python
+ 	CvEventReporter::getInstance().setPlayerAlive(getID(), bNewValue);
+@@ -11591,7 +11562,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 		return;
+ 
+ 	m_bTurnActive = bNewValue;
+-
++	CvGame& g = GC.getGameINLINE();
+ 	if (isTurnActive())
+ 	{
+ 		// K-Mod
+@@ -11612,7 +11583,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 		FAssertMsg(isAlive(), "isAlive is expected to be true");
+ 
+ 		setEndTurn(false);
+-		GC.getGameINLINE().resetTurnTimer();
++		g.resetTurnTimer();
+ 
+ 		// If we are the Pitboss, send this player an email
+ 		if ( gDLL->IsPitbossHost() )
+@@ -11624,16 +11595,16 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 			}
+ 		}
+ 
+-		if ((GC.getGameINLINE().isHotSeat() || GC.getGameINLINE().isPbem()) && isHuman() && bDoTurn)
++		if ((g.isHotSeat() || g.isPbem()) && isHuman() && bDoTurn)
+ 		{
+ 			gDLL->getInterfaceIFace()->clearEventMessages();
+ 			// advc.135a: Commented out
+ 			//gDLL->getEngineIFace()->setResourceLayer(false);
+ 
+-			GC.getGameINLINE().setActivePlayer(getID());
++			g.setActivePlayer(getID());
+ 		}
+ 
+-		GC.getGameINLINE().changeNumGameTurnActive(1);
++		g.changeNumGameTurnActive(1);
+ 
+ 		if (bDoTurn)
+ 		{
+@@ -11642,11 +11613,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 				AI_doAdvancedStart();
+ 			}
+ 					
+-			if (GC.getGameINLINE().getElapsedGameTurns() > 0)
++			if (g.getElapsedGameTurns() > 0)
+ 			{
+ 				if (isAlive())
+ 				{
+-					if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++					if (g.isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+ 					{
+ 						doTurn();
+ 					}
+@@ -11664,9 +11635,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 				}
+ 			}
+ 
+-			if ((getID() == GC.getGameINLINE().getActivePlayer()) && (GC.getGameINLINE().getElapsedGameTurns() > 0))
++			if (getID() == g.getActivePlayer() && g.getElapsedGameTurns() > 0)
+ 			{
+-				if (GC.getGameINLINE().isNetworkMultiPlayer())
++				if (g.isNetworkMultiPlayer())
+ 				{
+ 					gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_TURN_BEGINS").GetCString(), "AS2D_NEWTURN", MESSAGE_TYPE_DISPLAY_ONLY);
+ 				}
+@@ -11676,24 +11647,22 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 				}
+ 			}
+ 			// <advc.706> Skip warnings and messages if only pausing for civ selection
+-		  if(!GC.getGameINLINE().isOption(GAMEOPTION_RISE_FALL) ||
+-				  !GC.getGameINLINE().getRiseFall().isSelectingCiv()) {
+-				  // </advc.706>
+-			doWarnings();
+-			// <advc.106b>
+-			if(isHuman()) {
+-				validateDiplomacy(); // advc.001e
+-				/*  Make sure that Python events like Civ4lerts are triggered before
+-					processing messages */
+-				CyArgsList pyArgs;
+-				pyArgs.add(GC.getGame().getTurnSlice());
+-				CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+-				postProcessMessages();
+-			}
+-		  } // advc.706
++			if(!g.isOption(GAMEOPTION_RISE_FALL) ||
++					!g.getRiseFall().isSelectingCiv()) { // </advc.706>
++				doWarnings();
++				// <advc.106b>
++				if(isHuman()) {
++					validateDiplomacy(); // advc.001e
++					/*  Make sure that Python events like Civ4lerts are triggered
++						before processing messages */
++					CyArgsList pyArgs;
++					pyArgs.add(g.getTurnSlice());
++					CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
++					postProcessMessages();
++				}
++			} // advc.706
+ 			// <advc.700>
+ 			if(isHuman() || isHumanDisabled()) {
+-				CvGame& g = GC.getGameINLINE();
+ 				if(g.isOption(GAMEOPTION_RISE_FALL))
+ 					g.getRiseFall().atActiveTurnStart();
+ 			} // </advc.700>
+@@ -11704,11 +11673,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 			// </106b>
+ 		}
+ 
+-		if (getID() == GC.getGameINLINE().getActivePlayer())
++		if (getID() == g.getActivePlayer())
+ 		{
+ 			if (gDLL->getInterfaceIFace()->getLengthSelectionList() == 0)
+ 			{
+-				GC.getGameINLINE().cycleSelectionGroups_delayed(1, false);
++				g.cycleSelectionGroups_delayed(1, false);
+ 			}
+ 
+ 			gDLL->getInterfaceIFace()->setDirty(SelectionCamera_DIRTY_BIT, true);
+@@ -11726,7 +11695,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 			}
+ 		}
+ 
+-		if (getID() == GC.getGameINLINE().getActivePlayer())
++		if (getID() == g.getActivePlayer())
+ 		{
+ 			gDLL->getInterfaceIFace()->setForcePopup(false);
+ 			gDLL->getInterfaceIFace()->clearQueuedPopups();
+@@ -11734,28 +11703,29 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 		}
+ 
+ 		// start profiling DLL if desired
+-		if (getID() == GC.getGameINLINE().getActivePlayer())
++		if (getID() == g.getActivePlayer())
+ 		{
+ 			startProfilingDLL(true);
+ 		}
+ 
+-		GC.getGameINLINE().changeNumGameTurnActive(-1);
++		g.changeNumGameTurnActive(-1);
+ 
+ 		if (bDoTurn)
+ 		{
+-			if (!GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++			if (!g.isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+ 			{
+ 				if (isAlive())
+ 				{
+ 					doTurn();
+ 				}
+ 
+-				if ((GC.getGameINLINE().isPbem() || GC.getGameINLINE().isHotSeat()) && isHuman() && GC.getGameINLINE().countHumanPlayersAlive() > 1)
++				if ((g.isPbem() || g.isHotSeat()) && isHuman() &&
++						g.countHumanPlayersAlive() > 1)
+ 				{
+-					GC.getGameINLINE().setHotPbemBetweenTurns(true);
++					g.setHotPbemBetweenTurns(true);
+ 				}
+ 
+-				if (GC.getGameINLINE().isSimultaneousTeamTurns())
++				if (g.isSimultaneousTeamTurns())
+ 				{
+ 					if (!GET_TEAM(getTeam()).isTurnActive())
+ 					{
+@@ -11775,9 +11745,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 					{
+ 						if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 						{
+-							if (GC.getGameINLINE().isPbem() && GET_PLAYER((PlayerTypes)iI).isHuman())
++							if (g.isPbem() && GET_PLAYER((PlayerTypes)iI).isHuman())
+ 							{
+-								if (!GC.getGameINLINE().getPbemTurnSent())
++								if (!g.getPbemTurnSent())
+ 								{
+ 									gDLL->sendPbemTurn((PlayerTypes)iI);
+ 								}
+@@ -12261,8 +12231,23 @@ PlayerTypes CvPlayer::getParent() const
+ }
+ 
+ void CvPlayer::setParent(PlayerTypes eParent)
+-{
++{	// <advc.003b>
++	if(m_eParent == eParent)
++		return; // </advc.003b>
+ 	m_eParent = eParent;
++	// <advc.003b>
++	FAssert(isAlive());
++	/*  Wouldn't be too difficult to support NO_PLAYER, but it's not currently used -
++		once a parent, ever a parent. */
++	FAssert(eParent != NO_PLAYER);
++	if(!isAlive() || eParent == NO_PLAYER)
++		return;
++	GC.getGameINLINE().changeCivPlayersEverAlive(-1);
++	/*  Might later break free and find a permanent ally, but upon creation,
++		the colonial vassal is going to be in a singleton team. */
++	FAssert(GET_TEAM(getTeam()).getNumMembers() == 1);
++	GC.getGameINLINE().changeCivTeamsEverAlive(-1);
++	// </advc.003b>
+ }
+ 
+ // <advc.003> More convenient access to CvTeam::getMasterTeam
+@@ -14937,14 +14922,14 @@ void CvPlayer::clearSpaceShipPopups()
+ void CvPlayer::doChangeCivicsPopup(CivicTypes eCivic) {
+ 
+ 	if(!isHuman()) { // Forget reminder during Auto Play
+-		eReminderPending = NO_CIVIC;
++		m_eReminderPending = NO_CIVIC;
+ 		return;
+ 	}
+ 	if(!canRevolution(NULL)) {
+-		eReminderPending = eCivic;
++		m_eReminderPending = eCivic;
+ 		return;
+ 	}
+-	eReminderPending = NO_CIVIC;
++	m_eReminderPending = NO_CIVIC;
+ 	CivicOptionTypes eCivicOption = (CivicOptionTypes)GC.getCivicInfo(eCivic).
+ 			getCivicOptionType();
+ 	CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CHANGECIVIC);
+@@ -18446,7 +18431,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	if(uiFlag >= 8) {
+ 		int tmp=-1;
+ 		pStream->Read(&tmp);
+-		eReminderPending = (CivicTypes)tmp;
++		m_eReminderPending = (CivicTypes)tmp;
+ 	} // </advc.004x>
+ 	pStream->Read(&m_bAlive);
+ 	pStream->Read(&m_bEverAlive);
+@@ -18960,7 +18945,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iWondersScore);
+ 	pStream->Write(m_iTechScore);
+ 	pStream->Write(m_iCombatExperience);
+-	pStream->Write(eReminderPending); // advc.004x
++	pStream->Write(m_eReminderPending); // advc.004x
+ 
+ 	pStream->Write(m_bAlive);
+ 	pStream->Write(m_bEverAlive);
+@@ -24174,6 +24159,12 @@ int CvPlayer::getMusicScriptId(PlayerTypes eForPlayer) const
+ 
+ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
++	PROFILE_FUNC(); // advc.003b
++	/*  <advc.003> These get cleared by some of the subroutines, but should be
++		empty to begin with. If not, there could be a memory leak. */
++	FAssert(aColors.empty() && aIndicators.empty());
++	FAssert(getID() == GC.getGameINLINE().getActivePlayer());
++	// </advc.003>
+ 	switch (eGlobeLayerType)
+ 	{
+ 	case GLOBE_LAYER_TRADE:
+@@ -24199,7 +24190,8 @@ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
+ 
+ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
+-	aColors.resize(GC.getMapINLINE().numPlotsINLINE(), NiColorA(0, 0, 0, 0));
++	CvMap const& m = GC.getMapINLINE();
++	aColors.resize(m.numPlotsINLINE(), NiColorA(0, 0, 0, 0));
+ 	aIndicators.clear();
+ 	// <advc.004z>
+ 	bool bShowForeign = (GC.getDefineINT("FOREIGN_GROUPS_ON_TRADE_LAYER") > 0);
+@@ -24207,10 +24199,9 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ 	// </advc.004z>
+ 	typedef std::map< int, std::vector<int> > PlotGroupMap;
+ 	PlotGroupMap mapPlotGroups;
+-	std::vector<int> notConn; // advc.004z
+-	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); ++iI)
+-	{
+-		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++	std::vector<int> aNotConn; // advc.004z
++	for(int iI = 0; iI < m.numPlotsINLINE(); iI++) {
++		CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 		PlayerTypes ownerId = pLoopPlot->getOwnerINLINE(); // advc.004z
+ 		CvPlotGroup* pPlotGroup = pLoopPlot->getPlotGroup(getID());
+ 		if (pPlotGroup != NULL && pLoopPlot->isRevealed(getTeam(), true) &&
+@@ -24224,7 +24215,7 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ 			if(bShowCapitalConn && pLoopPlot->isVisible(getTeam(), false) &&
+ 					pLoopPlot->isCity() && !pLoopPlot->getPlotCity()->
+ 					isConnectedToCapital())
+-				notConn.push_back(iI);
++				aNotConn.push_back(iI);
+ 			else // </advc.004z>
+ 				mapPlotGroups[pPlotGroup->getID()].push_back(iI);
+ 		}
+@@ -24266,8 +24257,8 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ 		kRandom.getFloat();
+ 	}
+ 	NiColorA kColor(0, 0, 0, 0.75f);
+-	for(size_t i = 0; i < notConn.size(); i++)
+-		aColors[notConn[i]] = kColor; // </advc.004z>
++	for(size_t i = 0; i < aNotConn.size(); i++)
++		aColors[aNotConn[i]] = kColor; // </advc.004z>
+ }
+ 
+ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+@@ -24276,7 +24267,8 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 	if(eOption == 2) // Somehow, eOption==GLOBE_LAYER_UNIT_DUMMY doesn't work.
+ 		eOption = SHOW_ALL_MILITARY;
+ 	// </advc.004z>
+-	aColors.resize(GC.getMapINLINE().numPlotsINLINE(), NiColorA(0, 0, 0, 0));
++	CvMap const& m = GC.getMapINLINE();
++	aColors.resize(m.numPlotsINLINE(), NiColorA(0, 0, 0, 0));
+ 	aIndicators.clear();
+ 
+ 	std::vector< std::vector<float> > aafPlayerPlotStrength(MAX_PLAYERS);
+@@ -24284,7 +24276,7 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)i).isAlive())
+ 		{
+-			aafPlayerPlotStrength[i].resize(GC.getMapINLINE().numPlotsINLINE());
++			aafPlayerPlotStrength[i].resize(m.numPlotsINLINE());
+ 		}
+ 	}
+ 
+@@ -24301,9 +24293,9 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iPlayer).isAlive())
+ 		{
+-			for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); ++iI)
++			for (int iI = 0; iI < m.numPlotsINLINE(); ++iI)
+ 			{
+-				CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++				CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 				int iNumUnits = pLoopPlot->getNumUnits();
+ 				float fPlotStrength = 0.0f;
+ 
+@@ -24477,9 +24469,9 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 				PlayerColorTypes eCurPlayerColor = GET_PLAYER((PlayerTypes) iPlayer).getPlayerColor();
+ 				const NiColorA& kColor = GC.getColorInfo((ColorTypes) GC.getPlayerColorInfo(eCurPlayerColor).getColorTypePrimary()).getColor();
+ 
+-				for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++				for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 				{
+-					CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++					CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 					if (pLoopPlot->isVisible(getTeam(), true))
+ 					{
+ 						float fPlotStrength = aafPlayerPlotStrength[iPlayer][iI];
+@@ -24505,11 +24497,11 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 	aIndicators.clear();
+ 
+ 	PlayerColorTypes ePlayerColor = getPlayerColor();
+-
+ 	CvWStringBuffer szBuffer;
+-	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	CvMap& m = GC.getMapINLINE();
++	for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 	{
+-		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 		// <advc.003>
+ 		if(!pLoopPlot->isRevealed(getTeam(), true))
+ 			continue; // </advc.003>
+@@ -24554,7 +24546,7 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 
+ 			int x = pLoopPlot->getX();
+ 			int y = pLoopPlot->getY();
+-			kData.m_Target = NiPoint2(GC.getMapINLINE().plotXToPointX(x), GC.getMapINLINE().plotYToPointY(y));
++			kData.m_Target = NiPoint2(m.plotXToPointX(x), m.plotYToPointY(y));
+ 			PlayerTypes eOwner = pLoopPlot->getRevealedOwner(getTeam(), true); 
+ 			if (eOwner == NO_PLAYER)
+ 			{
+@@ -24575,8 +24567,18 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 			// <advc.004z>
+ 			if(eCurType == NO_BONUS)
+ 				GAMETEXT.setImprovementHelp(szBuffer, pLoopPlot->getImprovementType());
+-			else // </advc.004z>
+-				GAMETEXT.setBonusHelp(szBuffer, eCurType, false);
++			else { // </advc.004z>
++				//GAMETEXT.setBonusHelp(szBuffer, eCurType, false);
++				// <advc.003p> Replacing the above
++				if(m_aszBonusHelp[eCurType] != NULL)
++					szBuffer.append(*m_aszBonusHelp[eCurType]);
++				else {
++					CvWStringBuffer szTempBuffer;
++					GAMETEXT.setBonusHelp(szTempBuffer, eCurType, false);
++					m_aszBonusHelp[eCurType] = new CvWString(szTempBuffer.getCString());
++					szBuffer.append(szTempBuffer);
++				}
++			} // </advc.003p>
+ 			kData.m_strHelpText = szBuffer.getCString();
+ 
+ 			aIndicators.push_back(kData);
+@@ -24638,15 +24640,16 @@ void CvPlayer::getReligionLayerColors(ReligionTypes eSelectedReligion, std::vect
+ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
+ 	const int iColorsPerPlot = 4;
+-	aColors.resize(GC.getMapINLINE().numPlotsINLINE() * iColorsPerPlot, NiColorA(0, 0, 0, 0));
++	CvMap const& m = GC.getMapINLINE();
++	aColors.resize(m.numPlotsINLINE() * iColorsPerPlot, NiColorA(0, 0, 0, 0));
+ 	aIndicators.clear();
+ 
+ 	// find maximum total culture
+ 	int iMaxTotalCulture = INT_MIN;
+ 	int iMinTotalCulture = INT_MAX;
+-	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 	{
+-		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 		int iTotalCulture = pLoopPlot->getTotalCulture(); // advc.003b: was countTotalCulture
+ 		if (iTotalCulture > iMaxTotalCulture)
+ 		{
+@@ -24660,9 +24663,9 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 	iMinTotalCulture = 0;
+ 
+ 	// find culture percentages
+-	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 	{
+-		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 		PlayerTypes eOwner = pLoopPlot->getRevealedOwner(getTeam(), true); 
+ 
+ 		// how many people own this plot?
+@@ -24713,6 +24716,18 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 	}
+ }
+ 
++// <advc.003p>
++void CvPlayer::setBonusHelpDirty() {
++
++	if(m_aszBonusHelp == NULL) {
++		FAssert(m_aszBonusHelp != NULL);
++		return;
++	}
++	for(int i = 0; i < GC.getNumBonusInfos(); i++)
++		SAFE_DELETE(m_aszBonusHelp[i])
++} // </advc.003p>
++
++
+ void CvPlayer::cheat(bool bCtrl, bool bAlt, bool bShift)
+ {
+ 	//if (gDLL->getChtLvl() > 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index b0640f6b7..d53dc9e40 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1142,8 +1142,8 @@ public:
+ 	DllExport int getIntroMusicScriptId(PlayerTypes eForPlayer) const;
+ 	DllExport int getMusicScriptId(PlayerTypes eForPlayer) const;
+ 	DllExport void getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
++	void setBonusHelpDirty(); // advc.003p
+ 	DllExport void cheat(bool bCtrl, bool bAlt, bool bShift);
+-
+ 	DllExport const CvArtInfoUnit* getUnitArtInfo(UnitTypes eUnit, int iMeshGroup = 0) const;
+ 	DllExport bool hasSpaceshipArrived() const;
+ 
+@@ -1453,7 +1453,8 @@ protected:
+ 	void postProcessMessages();
+ 	int getStartOfTurnMessageLimit() const;
+ 	// </advc.106b>
+-	CivicTypes eReminderPending; // advc.004x
++	CivicTypes m_eReminderPending; // advc.004x
++	CvWString** m_aszBonusHelp; // advc.003p  (Not serialized)
+ 	CvTurnScoreMap m_mapScoreHistory;
+ 	CvTurnScoreMap m_mapEconomyHistory;
+ 	CvTurnScoreMap m_mapIndustryHistory;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6a162fe6e..20e0b4f01 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6015,8 +6015,8 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 	//FAssert(techs.size() == values.size());
+ 
+ #ifdef USE_OLD_TECH_STUFF
+-	bool bPathways = false && getID() < GC.getGameINLINE().countCivPlayersEverAlive()/2; // testing (temp)
+-	bool bNewWays = true || getID() < GC.getGameINLINE().countCivPlayersEverAlive()/2; // testing (temp)
++	bool bPathways = false && getID() < GC.getGameINLINE().getCivPlayersEverAlive()/2; // testing (temp)
++	bool bNewWays = true || getID() < GC.getGameINLINE().getCivPlayersEverAlive()/2; // testing (temp)
+ 
+ 	if (!bPathways)
+ 	{
+@@ -9261,8 +9261,8 @@ void CvPlayerAI::AI_updateAttitudeCache(PlayerTypes ePlayer,
+ 	// <advc.130c>
+ 	/* Disabling rank bonus for civs in the bottom half of the leaderboard.
+ 	   Caveat in case this code fragment is re-activated: ranks start at 0. */
+-    /*if ((GC.getGameINLINE().getPlayerRank(getID()) >= (GC.getGameINLINE().countCivPlayersEverAlive() / 2)) &&
+-          (GC.getGameINLINE().getPlayerRank(ePlayer) >= (GC.getGameINLINE().countCivPlayersEverAlive() / 2)))
++    /*if ((GC.getGameINLINE().getPlayerRank(getID()) >= (GC.getGameINLINE().getCivPlayersEverAlive() / 2)) &&
++          (GC.getGameINLINE().getPlayerRank(ePlayer) >= (GC.getGameINLINE().getCivPlayersEverAlive() / 2)))
+     {
+         iAttitude++;
+     }*/ // </advc.130c>
+@@ -9758,8 +9758,8 @@ int CvPlayerAI::AI_getRivalVassalAttitude(PlayerTypes ePlayer) const {
+ 	if(GET_PLAYER(ePlayer).getMasterTeam() == getMasterTeam())
+ 		return 0;
+ 	CvGame const& g = GC.getGameINLINE();
+-	int everAlive = g.countCivTeamsEverAlive();
+-	double avgCities = g.getNumCities() / (double)everAlive;
++	int iEverAlive = g.getCivTeamsEverAlive();
++	double avgCities = g.getNumCities() / (double)iEverAlive;
+ 	double capVass = 0;
+ 	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 		CvTeam const& t = GET_TEAM((TeamTypes)i);
+@@ -9769,7 +9769,7 @@ int CvPlayerAI::AI_getRivalVassalAttitude(PlayerTypes ePlayer) const {
+ 	}
+ 	return AI_rivalPactAttitude(ePlayer, true) // advc.130t
+ 			- ::round(AI_expansionistHate(ePlayer) * 5 * capVass /
+-			std::sqrt((double)everAlive));
++			std::sqrt((double)iEverAlive));
+ 	//BtS formula (refactored):
+ 	/*if(TEAMREF(ePlayer).getVassalCount(getTeam()) > 0)
+ 		return (-6 * TEAMREF(ePlayer).getPower(true)) /
+@@ -10120,7 +10120,7 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const {
+ 	/*  This was "+ 1" in BtS, which is arguably a bug.
+ 		Continue using CivPlayersEverAlive although iRankDifference is now based
+ 		only on known civs. */
+-	double maxRankDifference = g.countCivPlayersEverAlive() - 1;
++	double maxRankDifference = g.getCivPlayersEverAlive() - 1;
+ 	int base = 0;
+ 	double multiplier = 0;
+ 	// If we're ranked worse than they are:
+@@ -11979,9 +11979,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		if(iMaxGold >= iGoldData) { // Replacing: </advc.026>
+ 						// if(kPlayer.AI_maxGoldTrade(getID()) >= iGoldData) {
+ 			pGoldNode->m_data.m_iData = iGoldData;
+-			iSmallerVal +=
+-				::round((leniency * // advc.705
+-				(iGoldData * iGoldValuePercent)) / 100);
++			iSmallerVal += (iGoldData * iGoldValuePercent) / 100;
+ 			pCounter->insertAtEnd(pGoldNode->m_data);
+ 			pGoldNode = NULL;
+ 		}
+@@ -11990,25 +11988,17 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		negative income. Based on the "try one more time" code chunk below. */
+ 	if(isHuman() && pGoldPerTurnNode != NULL && iGreaterVal > iSmallerVal &&
+ 			calculateGoldRate() < 0) {
+-		int iGoldData = 0;
+ 		int iGoldAvailable = kPlayer.AI_maxGoldPerTurnTrade(getID());
+-		while(AI_goldPerTurnTradeVal(iGoldData) < iGreaterVal - iSmallerVal &&
+-				iGoldData < iGoldAvailable)
+-			iGoldData++;
+-		int gptTradeVal = AI_goldPerTurnTradeVal(iGoldData);
+-		if(gptTradeVal >= iGreaterVal - iSmallerVal) {
+-			if(!bGenerous && gptTradeVal > iGreaterVal - iSmallerVal) {
+-				iGoldData--;
+-				gptTradeVal = AI_goldPerTurnTradeVal(iGoldData);
+-			}
+-			if(iGoldData > 0) {
+-				pGoldPerTurnNode->m_data.m_iData = iGoldData;
+-				iSmallerVal +=
+-						::round(leniency * // advc.705
+-						gptTradeVal);
+-				pCounter->insertAtEnd(pGoldPerTurnNode->m_data);
+-				pGoldPerTurnNode = NULL;
+-			}
++		// <advc.003> Code moved into new function AI_tradeValToGold
++		bool bEnoughGold = false;
++		int iGoldData = AI_tradeValToGold(iGreaterVal - iSmallerVal, bGenerous,
++				iGoldAvailable, &bEnoughGold);
++		if(bEnoughGold && iGoldData > 0) { // </advc.003>
++			int gptTradeVal = AI_goldPerTurnTradeVal(iGoldData);
++			pGoldPerTurnNode->m_data.m_iData = iGoldData;
++			iSmallerVal += gptTradeVal;
++			pCounter->insertAtEnd(pGoldPerTurnNode->m_data);
++			pGoldPerTurnNode = NULL;
+ 		}
+ 	} // </advc.036>
+ 	std::pair<TradeData*, int> final_item(NULL, 0); // An item we may or may not use to finalise the deal. (See later)
+@@ -12264,31 +12254,26 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 	}
+ 	if(iGreaterVal > iSmallerVal) {
+ 		if(pGoldPerTurnNode != NULL) {
+-			int iGoldData = 0;
+-			while(AI_goldPerTurnTradeVal(iGoldData) < iGreaterVal - iSmallerVal)
+-				iGoldData++;
+-			if(!bGenerous && AI_goldPerTurnTradeVal(iGoldData) >
+-					iGreaterVal - iSmallerVal)
+-				iGoldData--;
+ 			//int iGoldAvailable = kPlayer.AI_maxGoldPerTurnTrade(getID());
+-			// <advc.026> Replacing the above
++			// <advc.026> Replacing the above (and moved up)
+ 			int iMaxGPT = ((isHuman() && bGenerous) ?
+ 					kPlayer.AI_maxGoldPerTurnTradeGenerous(getID()) :
+ 					kPlayer.AI_maxGoldPerTurnTrade(getID()));
+ 			int iGoldAvailable = iMaxGPT; // </advc.026>
+-			if(bGenerous && kPlayer.isHuman() && iGoldData > iGoldAvailable)
++			// <advc.003> Code moved into new function AI_tradeValToGold
++			bool bEnoughGold = false;
++			int iGoldData = AI_tradeValToGold(iGreaterVal - iSmallerVal, bGenerous,
++					iGoldAvailable, &bEnoughGold);
++			if(!bEnoughGold && bGenerous && kPlayer.isHuman())
+ 				bAddFinalItem = true;
+-			else {
+-				iGoldData = std::min(iGoldData, iGoldAvailable);
+-				if(iGoldData > 0) {
+-					pGoldPerTurnNode->m_data.m_iData = iGoldData;
+-					iSmallerVal +=
+-							::round(leniency * // advc.705
+-							AI_goldPerTurnTradeVal(pGoldPerTurnNode->
+-							m_data.m_iData));
+-					pCounter->insertAtEnd(pGoldPerTurnNode->m_data);
+-					pGoldPerTurnNode = NULL;
+-				}
++			else if(iGoldData > 0) { // </advc.003>
++				pGoldPerTurnNode->m_data.m_iData = iGoldData;
++				iSmallerVal +=
++						::round(leniency * // advc.705
++						AI_goldPerTurnTradeVal(pGoldPerTurnNode->
++						m_data.m_iData));
++				pCounter->insertAtEnd(pGoldPerTurnNode->m_data);
++				pGoldPerTurnNode = NULL;
+ 			}
+ 		}
+ 		// <advc.001> See above at if(pGoldNode)...else
+@@ -12334,6 +12319,27 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 	return false; // advc.036
+ }
+ 
++
++int CvPlayerAI::AI_tradeValToGold(int iTradeVal, bool bOverpay, int iMaxGold,
++		bool* bEnough) const {
++
++	PROFILE_FUNC();
++	int r = 0;
++	if(bOverpay) {
++		while(AI_goldPerTurnTradeVal(r) < iTradeVal && r < iMaxGold)
++			r++;
++		if(bEnough != NULL)
++			*bEnough = (AI_goldPerTurnTradeVal(r) >= iTradeVal);
++	}
++	else {
++		while(AI_goldPerTurnTradeVal(r + 1) <= iTradeVal && r < iMaxGold)
++			r++;
++		if(bEnough != NULL)
++			*bEnough = (AI_goldPerTurnTradeVal(r + 1) > iTradeVal);
++	}
++	return r;
++}
++
+ /*  This function is for AI-initiated trades. The caller has placed some items
+ 	in kTheyGive and/or kWeGive - these have to be included -, and this function
+ 	tries to sweeten the deal for whichever side needs it (or both).
+@@ -12874,10 +12880,10 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 	PROFILE("CvPlayerAI::AI_baseBonusVal::recalculate");
+ 	// <advc.036>
+ 	double dValue = 0; // was int
+-	int happy = GC.getBonusInfo(eBonus).getHappiness();
+-	int health = GC.getBonusInfo(eBonus).getHealth();
+-	int buildingHappy = 0;
+-	int buildingHealth = 0;
++	int iHappy = GC.getBonusInfo(eBonus).getHappiness();
++	int iHealth = GC.getBonusInfo(eBonus).getHealth();
++	int iBuildingHappy = 0;
++	int iBuildingHealth = 0;
+ 	for(int i = 0; i < GC.getNumBuildingClassInfos(); i++) {
+ 		BuildingClassTypes bct = (BuildingClassTypes)i;
+ 		int bcc = getBuildingClassCount(bct);
+@@ -12887,16 +12893,16 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 				getCivilizationType()).getCivilizationBuildings(bct);
+ 		if(bt == NO_BUILDING)
+ 			continue;
+-		buildingHappy += bcc * GC.getBuildingInfo(bt).getBonusHappinessChanges(eBonus);
+-		buildingHealth += bcc * GC.getBuildingInfo(bt).getBonusHealthChanges(eBonus);
++		iBuildingHappy += bcc * GC.getBuildingInfo(bt).getBonusHappinessChanges(eBonus);
++		iBuildingHealth += bcc * GC.getBuildingInfo(bt).getBonusHealthChanges(eBonus);
+ 	}
+-	if(buildingHappy > 0.55 * getNumCities())
+-		happy++;
+-	if(buildingHealth > 0.55 * getNumCities())
+-		health++;
++	if(iBuildingHappy > 0.55 * getNumCities())
++		iHappy++;
++	if(iBuildingHealth > 0.55 * getNumCities())
++		iHealth++;
+ 	// What BtS did:
+-	/*iValue += (happy * 100);
+-	iValue += (health * 100);*/
++	/*iValue += (iHappy * 100);
++	iValue += (iHealth * 100);*/
+ 	/*  Weight appears to be 100 when a city needs extra happiness or health
+ 		to grow, a bit more when citizens are already angry or food is being
+ 		lost. Generally lower than 100 because not all cities will need
+@@ -12929,7 +12935,7 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 	if(!bTrade)
+ 		iExtraPop1 = iExtraPop2;
+ 	bool bAvailable = (getNumAvailableBonuses(eBonus) > 0);
+-	if(happy > 0) {
++	if(iHappy > 0) {
+ 		/*  advc.912c: Better ignore getLuxuryModifier; don't want civs with a
+ 			luxury modifier to trade for more luxuries, and don't want them to
+ 			pay more more for luxuries. */
+@@ -12937,21 +12943,21 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 		// Considering to cancel a trade
+ 		if(bTrade && bAvailable) { /* HappinessWeight can't handle iHappy=0;
+ 									  increase extra pop instead */
+-			iExtraPop1 += happy;
+-			iExtraPop2 += happy;
++			iExtraPop1 += iHappy;
++			iExtraPop2 += iHappy;
+ 		}
+ 		dValue += scaleFactor *
+-			((0.7 + 0.5 * civicsMod) * AI_getHappinessWeight(happy, iExtraPop1) +
+-			 (0.3 + 0.5 * civicsMod) * AI_getHappinessWeight(happy, iExtraPop2));
++			((0.7 + 0.5 * civicsMod) * AI_getHappinessWeight(iHappy, iExtraPop1) +
++			 (0.3 + 0.5 * civicsMod) * AI_getHappinessWeight(iHappy, iExtraPop2));
+ 	}
+-	if(health > 0) {
++	if(iHealth > 0) {
+ 		if(bTrade && bAvailable) {
+-			iExtraPop1 += health;
+-			iExtraPop2 += health;
++			iExtraPop1 += iHealth;
++			iExtraPop2 += iHealth;
+ 		}
+ 		// Lower multiplier b/c bad health is not as painful as anger
+-		dValue += (scaleFactor - 0.5) * 0.5 * (AI_getHealthWeight(health, iExtraPop1) +
+-				AI_getHealthWeight(health, iExtraPop2));
++		dValue += (scaleFactor - 0.5) * 0.5 * (AI_getHealthWeight(iHealth, iExtraPop1) +
++				AI_getHealthWeight(iHealth, iExtraPop2));
+ 	}
+ 	dValue *= extraPopFactor;
+ 	// </advc.036>
+@@ -13320,7 +13326,15 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus,
+ 	return ::round(iValue / 1000.0);
+ }
+ 
+-// <advc.036> Rewritten
++// <advc.036>
++int CvPlayerAI::AI_goldForBonus(BonusTypes eBonus, PlayerTypes eBonusOwner) const {
++
++	FAssert(isHuman() != GET_PLAYER(eBonusOwner).isHuman());
++	return AI_tradeValToGold(AI_bonusTradeVal(eBonus, eBonusOwner, 1), isHuman(),
++			isHuman() ? INT_MAX : AI_maxGoldPerTurnTrade(eBonusOwner));
++}
++
++// Rewritten
+ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer, int iChange,
+ 		bool bExtraHappyOrHealth) const {
+ 
+@@ -23932,15 +23946,15 @@ int CvPlayerAI::AI_calculateDominationVictoryStage() const
+ 
+ 	if(!blockedByFriend) { // advc.104c
+ 		// <advc.115>
+-		int civs = GC.getGameINLINE().countCivPlayersEverAlive();
+-		if(iPercentOfDomination > 87 - civs) // was simply 80
++		int iCivs = GC.getGameINLINE().getCivPlayersEverAlive();
++		if(iPercentOfDomination > 87 - iCivs) // was simply 80
+ 		{	// </advc.115>
+ 			return 4;
+ 		}
+ 
+ 		if( iPercentOfDomination >
+ 				// advc.115: was simply 50
+-				62 - civs)
++				62 - iCivs)
+ 		{
+ 			return 3;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 22d330d95..1244f2851 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -276,6 +276,8 @@ public:
+ 	// advc.210e: Exposed to Python
+ 	int AI_corporationBonusVal(BonusTypes eBonus,
+ 			bool bTrade = false) const; // advc.036
++	// advc.036:
++	int AI_goldForBonus(BonusTypes eBonus, PlayerTypes eBonusOwner) const;
+ 
+ 	int AI_cityTradeVal(CvCity* pCity) const;
+ 	DenialTypes AI_cityTrade(CvCity* pCity, PlayerTypes ePlayer) const;
+@@ -735,13 +737,15 @@ protected:
+ 			bool bGenerous,
+ 			// advc.036:
+ 			int iHappyLeft, int iHealthLeft, int iOtherListLength) const;
++	int AI_tradeValToGold(int iTradeVal, bool bOverpay, int iMaxGold = INT_MAX,
++			bool* bEnough = NULL) const;
+ 	int AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip);
+ 	bool AI_doDeals(PlayerTypes otherId);
+ 	// </advc.003>
+ 	bool AI_proposeResourceTrade(PlayerTypes otherId); // advc.133
+-	// <advc.036>
+ 	// advc.132:
+ 	bool AI_checkCivicReligionConsistency(CLinkList<TradeData> const& tradeItems) const;
++	// <advc.036>
+ 	bool AI_checkResourceLimits(CLinkList<TradeData> const& weGive,
+ 			CLinkList<TradeData> const& theyGive, PlayerTypes theyId,
+ 			int iChange) const; // </advc.036>
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index db75fb0c1..61324061b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5952,46 +5952,46 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected
+ 
+ void CvPlot::setBonusType(BonusTypes eNewValue)
+ {
+-	if (getBonusType() != eNewValue)
++	if(getBonusType() == eNewValue)
++		return; // advc.003
++
++	if (getBonusType() != NO_BONUS)
+ 	{
+-		if (getBonusType() != NO_BONUS)
++		if (area())
+ 		{
+-			if (area())
+-			{
+-				area()->changeNumBonuses(getBonusType(), -1);
+-			}
+-			GC.getMapINLINE().changeNumBonuses(getBonusType(), -1);
++			area()->changeNumBonuses(getBonusType(), -1);
++		}
++		GC.getMapINLINE().changeNumBonuses(getBonusType(), -1);
+ 
+-			if (!isWater())
+-			{
+-				GC.getMapINLINE().changeNumBonusesOnLand(getBonusType(), -1);
+-			}
++		if (!isWater())
++		{
++			GC.getMapINLINE().changeNumBonusesOnLand(getBonusType(), -1);
+ 		}
++	}
+ 
+-		updatePlotGroupBonus(false);
+-		m_eBonusType = eNewValue;
+-		updatePlotGroupBonus(true);
++	updatePlotGroupBonus(false);
++	m_eBonusType = eNewValue;
++	updatePlotGroupBonus(true);
+ 
+-		if (getBonusType() != NO_BONUS)
++	if (getBonusType() != NO_BONUS)
++	{
++		if (area())
+ 		{
+-			if (area())
+-			{
+-				area()->changeNumBonuses(getBonusType(), 1);
+-			}
+-			GC.getMapINLINE().changeNumBonuses(getBonusType(), 1);
++			area()->changeNumBonuses(getBonusType(), 1);
++		}
++		GC.getMapINLINE().changeNumBonuses(getBonusType(), 1);
+ 
+-			if (!isWater())
+-			{
+-				GC.getMapINLINE().changeNumBonusesOnLand(getBonusType(), 1);
+-			}
++		if (!isWater())
++		{
++			GC.getMapINLINE().changeNumBonusesOnLand(getBonusType(), 1);
+ 		}
++	}
+ 
+-		updateYield();
++	updateYield();
+ 
+-		setLayoutDirty(true);
++	setLayoutDirty(true);
+ 
+-		gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+-	}
++	gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 2c17956ce..ffc86d4fc 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -127,12 +127,9 @@ void CvTeam::init(TeamTypes eID)
+ 	// Init other game data
+ 	AI_init();
+ 
+-	/*  advc (note): Looks like FinalInitialized is never true here, so the BBAI code
+-		might as well be deleted. Or perhaps it is needed in some obscure game mode? */
+-	FAssert(!GC.getGame().isFinalInitialized());
+ 	// BETTER_BTS_AI_MOD 12/30/08 jdog5000
+-	if(GC.getGame().isFinalInitialized()
+-			&& isAlive()) { // advc.003m: Alive check added
++	if(GC.getGame().isFinalInitialized()) {
++		// advc (note): This is for teams spawned through liberation
+ 		for(int i = 0; i < MAX_TEAMS; i++) {
+ 			CvTeam& kTarget = GET_TEAM((TeamTypes)i);
+ 			if(i == getID() || !kTarget.isAlive()) // advc.003m: Alive check added
+@@ -3823,7 +3820,7 @@ void CvTeam::changeAliveCount(int iChange)
+ 	FAssert(getAliveCount() >= 0);
+ 
+ 	// free vassals
+-	if (0 == m_iAliveCount)
++	if (m_iAliveCount == 0)
+ 	{
+ 		for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+ 		{
+@@ -3841,7 +3838,9 @@ void CvTeam::changeAliveCount(int iChange)
+ 				// </advc.003m>
+ 			}
+ 		}
+-	}
++	} // <advc.003b>
++	if(!isBarbarian() && m_iAliveCount - iChange <= 0 && m_iAliveCount > 0)
++		GC.getGameINLINE().changeCivTeamsEverAlive(1); // </advc.003b>
+ }
+ 
+ 
+@@ -7511,7 +7510,7 @@ void CvTeam::testCircumnavigated()
+ CvCity* CvTeam::getLeaderCapital(TeamTypes eObserver, bool bDebug) const {
+ 
+ 	CvCity* r = GET_PLAYER(getLeaderID()).getCapitalCity();
+-	if(eObserver != NO_TEAM && !r->isRevealed(eObserver, bDebug))
++	if(r != NULL && eObserver != NO_TEAM && !r->isRevealed(eObserver, bDebug))
+ 		r = NULL;
+ 	if(r != NULL)
+ 		return r;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 231303739..0244baed7 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1441,7 +1441,7 @@ int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan) const
+ 
+ 		if (iRankHate > 0)
+ 		{
+-			int iTotalTeams = GC.getGameINLINE().countCivTeamsEverAlive();
++			int iTotalTeams = GC.getGameINLINE().getCivTeamsEverAlive();
+ 			iDenyFactor += (100 - AI_getAttitudeWeight(eTarget)) * (iRankHate * iRankDelta + (iTotalTeams+1)/2) / std::max(1, 8*(iTotalTeams + 1)*getAliveCount());
+ 			// that's a max of around 200 * 3 / 8. ~ 75
+ 		}
+@@ -2320,8 +2320,8 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 
+ 	if (eAttitude < ATTITUDE_FRIENDLY)
+ 	{
+-		if ((GC.getGameINLINE().getTeamRank(getID()) < (GC.getGameINLINE().countCivTeamsEverAlive() / 2)) ||
+-			(GC.getGameINLINE().getTeamRank(eTeam) < (GC.getGameINLINE().countCivTeamsEverAlive() / 2)))
++		if ((GC.getGameINLINE().getTeamRank(getID()) < (GC.getGameINLINE().getCivTeamsEverAlive() / 2)) ||
++			(GC.getGameINLINE().getTeamRank(eTeam) < (GC.getGameINLINE().getCivTeamsEverAlive() / 2)))
+ 		{
+ 			int iNoTechTradeThreshold = AI_noTechTradeThreshold();
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index f5ca2454f..813bf61eb 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -725,6 +725,11 @@ bool CyCity::isConnectedToCapital(int /*PlayerTypes*/ ePlayer)
+ {
+ 	return m_pCity ? m_pCity->isConnectedToCapital((PlayerTypes)ePlayer) : false;
+ }
++// <advc.003>
++int CyCity::getArea()
++{
++	return	m_pCity ? m_pCity->getArea() : -1;
++} // </advc.003>
+ 
+ CyArea* CyCity::area()
+ {
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index 0c59d1e18..2fe769831 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -172,6 +172,7 @@ public:
+ 	CyPlot* plot();
+ 	bool isConnectedTo(CyCity* pCity);
+ 	bool isConnectedToCapital(int /*PlayerTypes*/ ePlayer);
++	int getArea(); // advc.003
+ 	CyArea* area();
+ 	CyArea* waterArea();
+ 	CyPlot* getRallyPlot();
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 569912ccb..802e75f6d 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -165,6 +165,8 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("plot", &CyCity::plot, python::return_value_policy<python::manage_new_object>(), "CyPlot () - returns cities plot instance")
+ 		.def("isConnectedTo", &CyCity::isConnectedTo, "bool (CyCity*) - is city connected to CyCity* via the Trade Network?")
+ 		.def("isConnectedToCapital", &CyCity::isConnectedToCapital, "bool (iOwner) - connected to the capital?")
++		// advc.003:
++		.def("getArea", &CyCity::getArea, "int () - returns area id for location of city")
+ 		.def("area", &CyCity::area, python::return_value_policy<python::manage_new_object>(), "CyArea() () - returns CyArea instance for location of city")
+ 		.def("waterArea", &CyCity::waterArea, python::return_value_policy<python::manage_new_object>(), "CyArea* ()")
+ 		.def("getRallyPlot", &CyCity::getRallyPlot, python::return_value_policy<python::manage_new_object>(), "CyPlot () - returns city's rally plot instance")
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 54e2300b9..b4c6f3aa1 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -158,8 +158,8 @@ int CyGame::countCivPlayersAlive()
+ }
+ 
+ int CyGame::countCivPlayersEverAlive()
+-{
+-	return m_pGame ? m_pGame->countCivPlayersEverAlive() : -1;
++{	// advc.003b: was m_pGame->countCivPlayersEverAlive()
++	return m_pGame ? m_pGame->getCivPlayersEverAlive() : -1;
+ }
+ 
+ int CyGame::countCivTeamsAlive()
+@@ -168,8 +168,8 @@ int CyGame::countCivTeamsAlive()
+ }
+ 
+ int CyGame::countCivTeamsEverAlive()
+-{
+-	return m_pGame ? m_pGame->countCivTeamsEverAlive() : -1;
++{	// advc.003b: was m_pGame->countCivTeamsEverAlive()
++	return m_pGame ? m_pGame->getCivTeamsEverAlive() : -1;
+ }
+ 
+ int CyGame::countHumanPlayersAlive()
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 2cbf1d572..3528cfb24 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -275,7 +275,6 @@ void CyInfoPythonInterface1()
+ 		.def("isNoBadGoodies", &CvUnitInfo::isNoBadGoodies, "bool ()")
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       03/20/10                       Afforess & jdog5000    */
+-/*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+ 		.def("isOnlyDefensive", &CvUnitInfo::isOnlyDefensive, "bool ()")
+@@ -322,6 +321,10 @@ void CyInfoPythonInterface1()
+ 
+ 		.def("getPrereqAndTechs", &CvUnitInfo::getPrereqAndTechs, "int (int i)")
+ 		.def("getPrereqOrBonuses", &CvUnitInfo::getPrereqOrBonuses, "int (int i)")
++		// <advc.905b>
++		.def("getSpeedBonuses", &CvUnitInfo::getSpeedBonuses, "int (int i)")
++		.def("getExtraMoves", &CvUnitInfo::getExtraMoves, "int (int i)")
++		// </advc.905b>
+ 		.def("getProductionTraits", &CvUnitInfo::getProductionTraits, "int (int i)")
+ 		.def("getFlavorValue", &CvUnitInfo::getFlavorValue, "int (int i)")
+ 		.def("getTerrainAttackModifier", &CvUnitInfo::getTerrainAttackModifier, "int (int i)")
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 6c39ed880..c9ae464f4 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -529,7 +529,7 @@ public:
+ 	// advc.038: returns int b/c I'm not sure if double would cause problems
+ 	int estimateYieldRate(YieldTypes yield) const;
+ 	void checkAlert(int alertId, bool silent); // advc.210
+-	int AI_corporationBonusVal(int eBonus) const; // advc.210e
++	int AI_corporationBonusVal(int eBonus) const; // advc.210e, advc.073
+ 
+ private:
+ 	CvPlayer* m_pPlayer;
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=32 omittedFiles=1 embeddedPatchBytes=160372

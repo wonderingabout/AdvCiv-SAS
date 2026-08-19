@@ -1,0 +1,1585 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1417
+# Commit: 1d028c49a410215621d9da2442d5830a305e601d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 72f41f88dca77624eaab3422f829b38b8d997b55
+# Title: Bugfixes (in AdvCiv code); enhanced current deals on the Trade screen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	2	Assets/Config/BUG Advisors.xml
+15	11	Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+7	1	Assets/Python/Screens/CvExoticForeignAdvisor.py
+6	0	Assets/xml/GameInfo/CIV4Hints.xml
+28	8	Assets/xml/Text/BUG Advisors Options.xml
+11	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+11	0	Assets/xml/Text/CIV4GameText_advc.xml
+2	2	Assets/xml/Text/Shortcuts_CIV4GameText.xml
+164	131	CvGameCoreDLL/CvDLLWidgetData.cpp
+68	2	CvGameCoreDLL/CvGame.cpp
+13	6	CvGameCoreDLL/CvGame.h
+22	10	CvGameCoreDLL/CvGameInterface.cpp
+3	19	CvGameCoreDLL/CvGameTextMgr.cpp
+0	2	CvGameCoreDLL/CvGameTextMgr.h
+50	40	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+93	127	CvGameCoreDLL/CvPlayerAI.cpp
+12	1	CvGameCoreDLL/CvStructs.h
+6	6	CvGameCoreDLL/CvTeam.cpp
+10	10	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/WarAndPeaceAI.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index c58753aa4..3a2c6f3fa 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -35,9 +35,20 @@
+ 			<option id="EFAImprovedInfo" key="EFA Improved Info" 
+ 					type="boolean" default="False" 
+ 					get="isUseImprovedEFAInfo"/>
+-			<option id="EFADealTurnsLeft" key="EFA Deal Turns Left" 
++			<!--option id="EFADealTurnsLeft" key="EFA Deal Turns Left" 
+ 					type="boolean" default="True" 
+-					get="isShowDealTurnsLeft"/>
++					get="isShowDealTurnsLeft"/-->
++			<!-- advc.072: Replaced with a list of choices.
++				 The DLL relies on this order of the choices. -->
++			<list   id="DealTurnsLeft" key="Deal Turns Left" 
++					type="int" default="3" listType="string"
++					values="Active Tab|Current Deals|Both|Only Tooltip"
++					get="getShowDealTurns">
++				<choice id="Active"/>
++				<choice id="Current"/>
++				<choice id="Both"/>
++				<choice id="Neither"/>
++			</list>
+ 	
+ 			<!-- BUG Military Advisor (F5) by Ruff_Hi, EmperorFool, Karadoc -->
+ 			<option id="BugMA" key="BugMilitaryAdvisor"
+
+diff --git a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+index d40c9a362..b0e72ef6b 100644
+--- a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+@@ -34,20 +34,24 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
+ 
+ 		self.addLabel(screen, left, "Foreign_Advisor", "Foreign [F4]:")
+ 		
+-		# advc.004: Moved up:
+-		self.addCheckbox(screen, left, "Advisors__EFADealTurnsLeft")
+-		
+-		self.addCheckbox(screen, left, "Advisors__EFAImprovedInfo")
+-		#self.addCheckbox(screen, left, "MiscHover__TechTradeDenial")
+-		#self.addCheckbox(screen, left, "MiscHover__BonusTradeDenial")
++		#self.addCheckbox(screen, left, "Advisors__EFADealTurnsLeft")
++		# <advc.072> Replacing the above
++		leftL, leftR = self.addTwoColumnLayout(screen, left, "Advisors__ForeignAdv")
++		self.addTextDropdown(screen, leftL, leftR, "Advisors__DealTurnsLeft", True)
++		# </advc.072>
++		self.addCheckbox(screen, leftL, "Advisors__EFAImprovedInfo")
++		#self.addCheckbox(screen, leftL, "MiscHover__TechTradeDenial")
++		#self.addCheckbox(screen, leftL, "MiscHover__BonusTradeDenial")
+ 
+ 		# advc.152: Moved down to allow the War Trades option to be placed between the Glance Tab option and the Military Advisor options
+-		comboBox = "Advisors_ComboBoxEFA"
+-		screen.attachHBox(left, comboBox)
+-		self.addCheckbox(screen, comboBox, "Advisors__EFAGlanceTab")
+-		self.addTextDropdown(screen, None, comboBox, "Advisors__EFAGlanceAttitudes")
++		#comboBox = "Advisors_ComboBoxEFA"
++		#screen.attachHBox(left, comboBox)
++		#self.addCheckbox(screen, leftL, "Advisors__EFAGlanceTab")
++		#self.addTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceAttitudes")
++		# advc.072: Align through leftL,leftR instead of ComboBox
++		self.addCheckboxTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceTab", "Advisors__EFAGlanceAttitudes")
+ 		# advc.152:
+-		self.addCheckbox(screen,left, "Advisors__EFAWarTrades")
++		self.addCheckbox(screen,leftL, "Advisors__EFAWarTrades")
+ 		
+ 		# <advc.004> Moved to center column
+ 		self.addLabel(screen, center, "Military_Advisor", "Military [F5]:")
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index e7c81eb56..b00eaed6a 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -425,8 +425,14 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 				if (deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader and not deal.isNone()) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader):
+ 					szDealText = CyGameTextMgr().getDealString(deal, iLoopPlayer)
++					# <advc.072>
++					iShowTurnsMode = AdvisorOpt.getShowDealTurns()
++					bShowTurns = False
++					if iShowTurnsMode == 0 or iShowTurnsMode == 2:
++						bShowTurns = True
++					# </advc.072>
+ 					# advc.007: Now that CvDeal::isCancelable checks if eByPlayer is a party to the deal, turns-to-cancel isn't shown in the widget anymore. To fix this, treat the ShowDealTurnsLeft option as enabled when viewing the screen from the perspective of another civ in Debug mode.
+-					if AdvisorOpt.isShowDealTurnsLeft() or self.iActiveLeader != gc.getGame().getActivePlayer():
++					if bShowTurns or self.iActiveLeader != gc.getGame().getActivePlayer():
+ 						if BugDll.isPresent():
+ 							if not deal.isCancelable(self.iActiveLeader, False):
+ 								if deal.isCancelable(self.iActiveLeader, True):
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index d401e2baa..fbc72b119 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -656,6 +656,9 @@
+ 			<Description>TXT_KEY_ADVC_HINT_32</Description>
+ 		</HintInfo>
+ 		<!-- Skip 33-34; shouldn't be as frequent. -->
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_35</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -753,5 +756,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_34</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_35</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/BUG Advisors Options.xml b/Assets/xml/Text/BUG Advisors Options.xml
+index 26d5fe047..b5051a0ae 100644
+--- a/Assets/xml/Text/BUG Advisors Options.xml	
++++ b/Assets/xml/Text/BUG Advisors Options.xml	
+@@ -49,15 +49,15 @@
+ 		<Italian>Quando � selezionato, visualizza la tabella "Occhiata" nella schermata del Consigliere Estero (utilizzando l'Exotic Foreign Advisor Mod).</Italian>
+ 		<Spanish>Activa la pesta�a 'Mirar' en el consejero de asuntos exteriores.</Spanish>
+ 	</TEXT>
+-	
+-	<TEXT>
++	<!-- advc.072: Now unused -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
+ 		<English>Smilies</English>
+ 		<French>Smileys</French>
+ 		<German>Smilies</German>
+ 		<Italian>Icone</Italian>
+ 		<Spanish>Iconos</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_LIST</Tag>
+ 		<English>Numbers|Smilies|Both</English>
+@@ -97,24 +97,44 @@
+ 		<Spanish>Si se activa, se muestra una versi�n mejorada de la pesta�a 'Info' en el consejero de asuntos exteriores.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: German was "Vertragsk�ndigungen" -->
++	<!-- advc.072: "EFA" prefix removed to avoid a name clash with remnants of
++		 the old EFADEALTURNSLEFT option in the INI files. -->
++	<!-- German was "Vertragsk�ndigungen" -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFADEALTURNSLEFT_TEXT</Tag>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__DEALTURNSLEFT_TEXT</Tag>
+ 		<English>Deal Turns Left</English>
+ 		<French>Deal Turns Left</French>
+ 		<German>Vertragslaufzeiten</German>
+ 		<Italian>Turni di Accordo rimasti</Italian>
+ 		<Spanish>Turnos Restantes</Spanish>
+ 	</TEXT>
+-
+-	<!-- advc.004: Rewritten (English, German) -->
++	<!-- In part based on AI_DIPLO_CURRENT_DEALS_1, USER_DIPLO_CURRENT_DEALS_1
++		 (CIV4DiplomacyText.xml) and TXT_KEY_FOREIGN_ADVISOR_ACTIVE
++		 (CIV4GameTextInfos.xml). -->
+ 	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__DEALTURNSLEFT_LIST</Tag>
++		<English>"Active" Tab|Current Deals|Both|Only Tooltip</English>
++		<French>Tab "Actif"|Accords actuels|Both|Only Tooltip</French>
++		<German>Reiter "Aktiv"|Verhandlungstisch|Beides|Nur in Hilfetext</German>
++		<Italian>Tab "Attivo"|Accordi attuali|Entrambi|Only Tooltip</Italian>
++		<Spanish>Tab "Activo"|Current Deals|Ambos|Only Tooltip</Spanish>
++	</TEXT>
++	<!-- Rewritten (English, German), then replaced with the key below. -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFADEALTURNSLEFT_HOVER</Tag>
+-		<English>When checked, the "Active" tab shows the remaining number of turns until cancelation for deals that cannot currently be canceled. (Regardless of this setting, the turns to cancel are shown when hovering over a deal.)</English>
++		<English>When checked, the "Active" tab shows the remaining number of turns until cancellation for deals that cannot currently be canceled. (Regardless of this setting, the turns to cancel are shown when hovering over a deal.)</English>
+ 		<French>When checked, shows how many turns are left before you can cancel each deal on the 'Active' tab.</French>
+ 		<German>Zeigt im Reiter "Aktiv" an, wann Vereinbarungen gek�ndigt werden k�nnen, die zur Zeit unk�ndbar sind. (Unabh�ngig von dieser Option wird die verbleibende Mindestlaufzeit auch im Hilfetext der Vereinbarung angezeigt.)</German>
+ 		<Italian>Quando � selezionato, mostra quanti turni sono rimasti prima che si possa annullare un accordo.</Italian>
+ 		<Spanish>Permite mostrar cu�ntos turnos quedan antes de que puedas cancelar cada intercambio en la pesta�a 'Activo'.</Spanish>
++	</TEXT-->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__DEALTURNSLEFT_HOVER</Tag>
++		<English>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</English>
++		<French>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</French>
++		<German>Anzeige der verbleibenden Mindestlaufzeit von Vereinbarungen:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Aktiv[COLOR_REVERT]: Auf dem "Aktiv"-Reiter des Auslandsberater-Bildschirms.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Verhandlungstisch[COLOR_REVERT]: Auf dem Verhandlungstisch in der Liste der bisherigen Vereinbarungen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Beides[COLOR_REVERT]: Sowohl im Auslandsberater als auch auf dem Verhandlungstisch.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Nur in Hilfetext[COLOR_REVERT]: Zeige die Mindestlaufzeit nur an, wenn der Mauszeiger �ber eine Vereinbarung bewegt wird (im Auslandsberater oder auf dem Verhandlungstisch).</German>
++		<Italian>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</Italian>
++		<Spanish>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</Spanish>
+ 	</TEXT>
+ 
+ <!-- Military Advisor -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index cd8b48c4d..c796f103a 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -925,4 +925,15 @@
+ 	<Spanish>(AdvCiv) To see the culture percentages of unowned tiles, hold down [Shift] or enable "Always Show Tile Culture" on the "Map" tab of the BUG menu.</Spanish>
+ </TEXT>
+ 
++<!-- The right-click behavior is pretty obscure, and therefore perhaps worth
++	 pointing out. -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_35</Tag>
++	<English>When more than one of your cities is able to work a tile, the game assigns that tile to the closest city. You can override this by opening the screen of another city and left-clicking the tile. Right-click the tile to undo the assignment.</English>
++	<French>When more than one of your cities is able to work a tile, the game assigns that tile to the closest city. You can override this by opening the screen of another city and left-clicking the tile. Right-click the tile to undo the assignment.</French>
++	<German>Wenn mehrere Ihrer St�dte dasselbe Gel�ndefeld bearbeiten k�nnen, wird das Feld automatisch der n�chstgelegenen Stadt zugewiesen. Um das Feld manuell einer anderen Stadt zuzuweisen, �ffnen Sie den Bildschirm dieser Stadt und klicken Sie dort auf das Feld. Mit einem Rechtsklick k�nnen Sie die Zuweisung wieder zur�cknehmen.</German>
++	<Italian>When more than one of your cities is able to work a tile, the game assigns that tile to the closest city. You can override this by opening the screen of another city and left-clicking the tile. Right-click the tile to undo the assignment.</Italian>
++	<Spanish>When more than one of your cities is able to work a tile, the game assigns that tile to the closest city. You can override this by opening the screen of another city and left-clicking the tile. Right-click the tile to undo the assignment.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 43a9c5436..b156840f7 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4687,4 +4687,15 @@
+ 		<Spanish>[COLOR_WARNING_TEXT]No se pueden hacer bombardeos nucleares contra los territorios o unidades amigos[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.072: Based on TXT_KEY_TRADE_PEACE_TREATY_STRING in
++		 CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_TRADE_PEACE_TREATY_STR</Tag>
++		<English>Peace Treaty</English>
++		<French>Trait&#233; de paix</French>
++		<German>Friedensvertrag</German>
++		<Italian>Trattato di pace</Italian>
++		<Spanish>Tratado de paz</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Shortcuts_CIV4GameText.xml b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+index 302f54236..1819e3952 100644
+--- a/Assets/xml/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+@@ -115,10 +115,10 @@
+ 		<Italian>[H1]Unit�[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Bombarda (Artiglieria) o Costruisci una Citt� (Colono)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Centra la visuale sull'Unit� selezionata[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Esplora automaticamente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Fortifica[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Vai ad una data destinazione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Imbarca[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Saccheggia (solo Unit� Militari)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sentinella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sbarca[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Attendi (rimanda l'azione nel turno)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Spazio[COLOR_REVERT][\BOLD][TAB][TAB]Salta il turno per l'Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorre le Unit� attive[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorre i Lavoratori attivi[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT],[COLOR_REVERT] e [COLOR_HIGHLIGHT_TEXT].[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorrono le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Canc[COLOR_REVERT][\BOLD][TAB][TAB]Elimina l'Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+C[COLOR_REVERT][\BOLD][TAB][TAB]Attiva tutte le Unit� dello stesso tipo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+H[COLOR_REVERT][\BOLD][TAB][TAB]Seleziona tutte le unit� ferite nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click[COLOR_REVERT][\BOLD][TAB]Raggruppa tutte le unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB]Assegna le unit� selezionate al gruppo n� (#)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click[COLOR_REVERT][\BOLD][TAB]Raggruppa le unit� dello stesso tipo[NEWLINE][NEWLINE][H1]Unit� aeree[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Bombardamento aereo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Volo di Intercettazione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Volo di Ricognizione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Attacco aereo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB]Ristanziamento (cambio di Base Aerea)[NEWLINE][NEWLINE][H1]Chiatte[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Rete da pesca[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Piattaforma petrolifera[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci una Baleniera[NEWLINE][NEWLINE][H1]Lavoratori[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci automaticamente i miglioramenti[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Pianta una Foresta[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci un Campo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Fattoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Bottega[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Segheria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Miniera[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci automaticamente una rete commerciale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Cava[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Strada o una Ferrovia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Villetta[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB]Disbosca una Foresta o Bonifica una Giungla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci una Strada fino ad una data destinazione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+F[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci una Fortezza[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+C[COLOR_REVERT][\BOLD][TAB]Costruisci automaticamente miglioramenti per la Citt� pi� vicina[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci un Pascolo o una Piantagione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci un Mulino ad acqua (in riva ad un Fiume), un Mulino a vento (in Collina), una Azienda vinicola (sul Vino) o un Pozzo petrolifero (sul Petrolio)[NEWLINE]</Italian>
+ 		<Spanish>[H1]Unidades[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Bombardear[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir ciudad (Colono)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Centrar en unidad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Explorar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Fortificar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Modo Ir a[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Interceptar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Cargar (En barco)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Vigilar (despertar si se acercan enemigos)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Descargar (de un barco)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Esperar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click[COLOR_REVERT][\BOLD][TAB][TAB]Agrupar todas las unidades[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB]Unir las unidades seleccionadas a un n�mero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click[COLOR_REVERT][\BOLD][TAB][TAB]Unir unidades del mismo tipo juntas[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click[COLOR_REVERT][\BOLD][TAB]Men� de unidades[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Saqueo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Espacio[COLOR_REVERT][\BOLD][TAB][TAB]Saltar turno[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Supr[COLOR_REVERT][\BOLD][TAB][TAB]Borrar unidad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Numpad 5[COLOR_REVERT][\BOLD][TAB][TAB]Centrar en unidad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Flechas de Numpad[COLOR_REVERT][\BOLD][TAB]Permite mover unidades[NEWLINE][NEWLINE][H1]Unidades A�reas[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB]Modo bombardeo a�reo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB]Modo reconocimiento[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB]Modo ataque a�reo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB]Cambiar base[NEWLINE][NEWLINE][H1]Barcos de Trabajo[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB]Crear barcos pesqueros[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB]Construir plataforma petrol�fera[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB]Construir barcos balleneros[NEWLINE][NEWLINE][H1]Trabajadores[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Automatizar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir campamento[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir granja (Irrigar)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir taller[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir aserradero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir mina[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir ruta comercial[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir cantera[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir carretera/ferrocarril[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Construir villa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB]Retirar selva/bosque[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB]Modo ir en ruta a[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+F[COLOR_REVERT][\BOLD][TAB][TAB]Construir fuerte[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Ctrl+C[COLOR_REVERT][\BOLD][TAB]Mejorar ciudad cercana[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Construir plantaci�n/pastizal[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Construir Molino de agua (r�o), molino de viento (colina), bodega (vino), pozo (petr�leo)[NEWLINE]</Spanish>
+ 	</TEXT>
+-	<!-- advc.004t: Left-click on minimap added -->
++	<!-- advc.004t: Added click on minimap, citizen automation -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_CITYSCREEN_PEDIA</Tag>
+-		<English>[H1]City Screen[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Middle mouse button[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on minimap[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Produce item indefinitely[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Add item to front of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Add item to back of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Bind production queue to a number key[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM arrows[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle to city (if any) in arrow direction[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse button[COLOR_REVERT][\BOLD][TAB]Cycle through cities[NEWLINE]</English>
++		<English>[H1]City Screen[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Middle mouse button[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on minimap[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on city tile[COLOR_REVERT][\BOLD][TAB][TAB]Enable citizen automation[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Produce item indefinitely[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Add item to front of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Add item to back of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Bind production queue to a number key[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM arrows[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle to city (if any) in arrow direction[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse button[COLOR_REVERT][\BOLD][TAB]Cycle through cities[NEWLINE]</English>
+ 		<French>[H1]City Screen[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+add item to build queue[COLOR_REVERT][\BOLD][TAB]Build item indefinitely[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+add item to build queue[COLOR_REVERT][\BOLD][TAB]Add to beginning of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+add item to build queue[COLOR_REVERT][\BOLD][TAB]Add item to end of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Save a production queue. Load w/same key[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Insert[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Open nearest friendly city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Middle mouse button[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Numpad arrows[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle through cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click Fwd, Back mouse buttons[COLOR_REVERT][\BOLD][TAB]Cycle through cities[NEWLINE]</French>
+ 		<German>[H1]Stadt-Bildschirm[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Eingabe, 3. Maustaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Stadt-Bildschirm verlassen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick auf ein Bauprojekt[COLOR_REVERT][\BOLD][TAB][TAB]Bauprojekt in Endlosschleife produzieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick auf ein Bauprojekt[COLOR_REVERT][\BOLD][TAB][TAB]Bauprojekt an den Anfang der Produktionsliste [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]setzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick auf ein Bauprojekt[COLOR_REVERT][\BOLD][TAB]Bauprojekt ans Ende der Produktionsliste [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]setzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Zifferntaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Produktionsliste speichern[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Zifferntaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Gespeicherte Produktionsliste laden[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Einfg[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Stadt-Bildschirm der n�chsten verb�ndeten [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Stadt �ffnen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Pfeiltaste links/rechts, Mausrad[COLOR_REVERT][\BOLD][TAB]Zur n�chsten Stadt springen[NEWLINE]</German>
+ 		<Italian>[H1]Schermata cittadina[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Invio[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Esci dalla schermata cittadina[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Aggiunta nella coda di costruzione[COLOR_REVERT][\BOLD][TAB]Costruisci all'infinito l'oggetto aggiunto[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Aggiunta nella coda di costruzione[COLOR_REVERT][\BOLD][TAB]Aggiungi l'oggetto all'inizio della coda[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Aggiunta nella coda di costruzione[COLOR_REVERT][\BOLD][TAB]Aggiungi l'oggetto alla fine della coda[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Salva la coda di costruzione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT](#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Carica la coda di costruzione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Frecce del Tastierino numerico[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorrono fra le Citt�[NEWLINE]</Italian>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index b7cef473d..cbf49a097 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4666,167 +4666,201 @@ void CvDLLWidgetData::parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, C
+ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+ 	CvWString szTempBuffer;
+-	TradeData item;
++	szBuffer.clear();
++	CvGame& g = GC.getGameINLINE();
+ 	PlayerTypes eWhoFrom = NO_PLAYER;
+ 	PlayerTypes eWhoTo = NO_PLAYER;
+-	DenialTypes eDenial;
+-	PlayerTypes eWhoDenies;
+-
+-	szBuffer.clear();
+-
+ 	if (widgetDataStruct.m_bOption)
+ 	{
+-		if ( gDLL->isDiplomacy())
++		if (gDLL->isDiplomacy())
+ 		{
+-			eWhoFrom = (PlayerTypes) gDLL->getDiplomacyPlayer();
++			eWhoFrom = (PlayerTypes)gDLL->getDiplomacyPlayer();
+ 		}
+ 		else if (gDLL->isMPDiplomacyScreenUp())
+ 		{
+-			eWhoFrom = (PlayerTypes) gDLL->getMPDiplomacyPlayer();
++			eWhoFrom = (PlayerTypes)gDLL->getMPDiplomacyPlayer();
+ 		}
+-		eWhoTo = GC.getGameINLINE().getActivePlayer();
++		eWhoTo = g.getActivePlayer();
+ 	}
+ 	else
+ 	{
+-		eWhoFrom = GC.getGameINLINE().getActivePlayer();
+-		if ( gDLL->isDiplomacy() )
++		eWhoFrom = g.getActivePlayer();
++		if (gDLL->isDiplomacy())
+ 		{
+-			eWhoTo = (PlayerTypes) gDLL->getDiplomacyPlayer();
++			eWhoTo = (PlayerTypes)gDLL->getDiplomacyPlayer();
+ 		}
+ 		else if (gDLL->isMPDiplomacyScreenUp())
+ 		{
+-			eWhoTo = (PlayerTypes) gDLL->getMPDiplomacyPlayer();
++			eWhoTo = (PlayerTypes)gDLL->getMPDiplomacyPlayer();
+ 		}
+ 	}
+ 
+-	eWhoDenies = eWhoFrom;
++	if (eWhoFrom == NO_PLAYER || eWhoTo == NO_PLAYER)
++		return; // advc.003
+ 
+-	if ((eWhoFrom != NO_PLAYER) && (eWhoTo != NO_PLAYER))
++	PlayerTypes eWhoDenies = eWhoFrom;
++	TradeableItems eItemType = (TradeableItems)widgetDataStruct.m_iData1;
++	switch (eItemType)
+ 	{
+-		//	Data1 is the heading
+-		switch (widgetDataStruct.m_iData1)
++	case TRADE_TECHNOLOGIES:
++		GAMETEXT.setTechHelp(szBuffer, (TechTypes)widgetDataStruct.m_iData2);
++		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
++		break;
++	case TRADE_RESOURCES:
++		GAMETEXT.setBonusHelp(szBuffer, (BonusTypes)widgetDataStruct.m_iData2);
++		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
++		break;
++	case TRADE_CITIES:
++		szBuffer.assign(gDLL->getText("TXT_KEY_TRADE_CITIES"));
++		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
++		break;
++	case TRADE_PEACE:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_PEACE",
++				TEAMREF(eWhoFrom).getName().GetCString(),
++				GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
++		break;
++	case TRADE_WAR:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_WAR",
++				TEAMREF(eWhoFrom).getName().GetCString(),
++				GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
++		break;
++	case TRADE_EMBARGO:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_STOP_TRADING",
++				TEAMREF(eWhoFrom).getName().GetCString(),
++				GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
++		break;
++	case TRADE_CIVIC:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ADOPT_CIVIC",
++				GC.getCivicInfo((CivicTypes)widgetDataStruct.m_iData2).
++				getDescription()));
++		break;
++	case TRADE_RELIGION:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_CONVERT_RELIGION",
++				GC.getReligionInfo((ReligionTypes)widgetDataStruct.m_iData2).
++				getDescription()));
++		break;
++	case TRADE_GOLD:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_GOLD"));
++		break;
++	case TRADE_GOLD_PER_TURN:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_GOLD_PER_TURN"));
++		break;
++	case TRADE_MAPS:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAPS"));
++		break;
++/***************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09           jdog5000      */
++/* Diplomacy                                                               */
++/***************************************************************************/
++	case TRADE_SURRENDER:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_CAPITULATE"));
++		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
++		break;
++	case TRADE_VASSAL:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_VASSAL"));
++		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
++		break;
++/****************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                              */
++/****************************************************************************/
++	case TRADE_OPEN_BORDERS:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_OPEN_BORDERS"));
++		break;
++	case TRADE_DEFENSIVE_PACT:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_DEFENSIVE_PACT"));
++		break;
++	case TRADE_PERMANENT_ALLIANCE:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE"));
++		break;
++	case TRADE_PEACE_TREATY:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY",
++				GC.getPEACE_TREATY_LENGTH()));
++		break;
++		// <advc.034>
++	case TRADE_DISENGAGE:
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_DISENGAGE"));
++		break;
++	}
++	// <advc.072>
++	if(CvDeal::isAnnual(eItemType) || eItemType == TRADE_PEACE_TREATY) {
++		CvDeal* pDeal = g.nextCurrentDeal(eWhoFrom, eWhoTo, eItemType,
++				widgetDataStruct.m_iData2, true);
++		if(pDeal != NULL) {
++			szBuffer.append(NEWLINE);
++			szBuffer.append(NEWLINE);
++			CvWString szReason;
++			if(pDeal->isCancelable(g.getActivePlayer(), &szReason)) {
++				szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
++						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++						gDLL->getText("TXT_KEY_MISC_CLICK_TO_CANCEL").GetCString());
++				szBuffer.append(szTempBuffer);
++			}
++			else szBuffer.append(szReason);
++			szBuffer.append(L":");
++			szBuffer.append(NEWLINE);
++			if(eItemType == TRADE_PEACE_TREATY) // Don't want the duration in parentheses here
++				szBuffer.append(gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY_STR"));
++			else GAMETEXT.getDealString(szBuffer, *pDeal, g.getActivePlayer());
++			return; // No denial info
++		}
++	} // </advc.072>
++	TradeData item;
++	setTradeItem(&item, (TradeableItems)widgetDataStruct.m_iData1,
++			widgetDataStruct.m_iData2);
++	/*  advc.104l: Can't easily move this code elsewhere b/c the cache should
++		only be used when TradeDenial is checked by this class. */
++	WarEvaluator::checkCache = true;
++	DenialTypes eDenial = GET_PLAYER(eWhoFrom).getTradeDenial(eWhoTo, item);
++	WarEvaluator::checkCache = false; // advc.104l
++	if (eDenial == NO_DENIAL)
++		return;
++
++/*****************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/07/09              jdog5000     */
++/* Diplomacy                                                                 */
++/*****************************************************************************/
++	if (eWhoDenies == NO_PLAYER)
++	{
++		switch(eDenial)
+ 		{
+-		case TRADE_TECHNOLOGIES:
+-			GAMETEXT.setTechHelp(szBuffer, ((TechTypes)widgetDataStruct.m_iData2));
+-			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
+-			break;
+-		case TRADE_RESOURCES:
+-			GAMETEXT.setBonusHelp(szBuffer, ((BonusTypes)widgetDataStruct.m_iData2));
+-			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
+-			break;
+-		case TRADE_CITIES:
+-			szBuffer.assign(gDLL->getText("TXT_KEY_TRADE_CITIES"));
+-			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
++		case DENIAL_POWER_US:
++			eDenial = DENIAL_POWER_YOU;
+ 			break;
+-		case TRADE_PEACE:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_PEACE", GET_TEAM(GET_PLAYER(eWhoFrom).getTeam()).getName().GetCString(), GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
++		case DENIAL_POWER_YOU:
++			eDenial = DENIAL_POWER_US;
+ 			break;
+-		case TRADE_WAR:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_WAR", GET_TEAM(GET_PLAYER(eWhoFrom).getTeam()).getName().GetCString(), GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
++		case DENIAL_WAR_NOT_POSSIBLE_US:
++			eDenial = DENIAL_WAR_NOT_POSSIBLE_YOU;
+ 			break;
+-		case TRADE_EMBARGO:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_STOP_TRADING", GET_TEAM(GET_PLAYER(eWhoFrom).getTeam()).getName().GetCString(), GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));
++		case DENIAL_WAR_NOT_POSSIBLE_YOU:
++			eDenial = DENIAL_WAR_NOT_POSSIBLE_US;
+ 			break;
+-		case TRADE_CIVIC:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ADOPT_CIVIC", GC.getCivicInfo((CivicTypes)widgetDataStruct.m_iData2).getDescription()));
++		case DENIAL_PEACE_NOT_POSSIBLE_US:
++			eDenial = DENIAL_PEACE_NOT_POSSIBLE_YOU;
+ 			break;
+-		case TRADE_RELIGION:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_CONVERT_RELIGION", GC.getReligionInfo((ReligionTypes)widgetDataStruct.m_iData2).getDescription()));
++		case DENIAL_PEACE_NOT_POSSIBLE_YOU:
++			eDenial = DENIAL_PEACE_NOT_POSSIBLE_US;
+ 			break;
+-		case TRADE_GOLD:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_GOLD"));
++		default :
+ 			break;
+-		case TRADE_GOLD_PER_TURN:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_GOLD_PER_TURN"));
+-			break;
+-		case TRADE_MAPS:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAPS"));
+-			break;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
+-/*                                                                                              */
+-/* Diplomacy                                                                                    */
+-/************************************************************************************************/
+-		case TRADE_SURRENDER:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_CAPITULATE"));
+-			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
+-			break;
+-		case TRADE_VASSAL:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_VASSAL"));
+-			eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
+-			break;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-		case TRADE_OPEN_BORDERS:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_OPEN_BORDERS"));
+-			break;
+-		case TRADE_DEFENSIVE_PACT:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_DEFENSIVE_PACT"));
+-			break;
+-		case TRADE_PERMANENT_ALLIANCE:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE"));
+-			break;
+-		case TRADE_PEACE_TREATY:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY", GC.getPEACE_TREATY_LENGTH()));
+-			break;
+-			// <advc.034>
+-		case TRADE_DISENGAGE:
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_DISENGAGE"));
+-			break;
+-		}
+-
+-		setTradeItem(&item, ((TradeableItems)(widgetDataStruct.m_iData1)), widgetDataStruct.m_iData2);
+-		/*  advc.104l: Can't easily move this code elsewhere b/c the cache should
+-			only be used when TradeDenial is checked from this class. */
+-		WarEvaluator::checkCache = true;
+-		eDenial = GET_PLAYER(eWhoFrom).getTradeDenial(eWhoTo, item);
+-		WarEvaluator::checkCache = false; // advc.104l
+-		if (eDenial != NO_DENIAL)
+-		{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/07/09                                jdog5000      */
+-/*                                                                                              */
+-/* Diplomacy                                                                                    */
+-/************************************************************************************************/
+-			if( eWhoDenies == NO_PLAYER )
+-			{
+-				switch(eDenial)
+-				{
+-				case DENIAL_POWER_US:
+-					eDenial = DENIAL_POWER_YOU;
+-					break;
+-				case DENIAL_POWER_YOU:
+-					eDenial = DENIAL_POWER_US;
+-					break;
+-				case DENIAL_WAR_NOT_POSSIBLE_US:
+-					eDenial = DENIAL_WAR_NOT_POSSIBLE_YOU;
+-					break;
+-				case DENIAL_WAR_NOT_POSSIBLE_YOU:
+-					eDenial = DENIAL_WAR_NOT_POSSIBLE_US;
+-					break;
+-				case DENIAL_PEACE_NOT_POSSIBLE_US:
+-					eDenial = DENIAL_PEACE_NOT_POSSIBLE_YOU;
+-					break;
+-				case DENIAL_PEACE_NOT_POSSIBLE_YOU:
+-					eDenial = DENIAL_PEACE_NOT_POSSIBLE_US;
+-					break;
+-				default :
+-					break;
+-				}
+-				szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eWhoTo).getName(), TEXT_COLOR("COLOR_WARNING_TEXT"), GC.getDenialInfo(eDenial).getDescription());
+-			}
+-			else
+-			{
+-				szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eWhoDenies).getName(), TEXT_COLOR("COLOR_WARNING_TEXT"), GC.getDenialInfo(eDenial).getDescription());
+-			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(szTempBuffer);
+ 		}
++		szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR,
++				GET_PLAYER(eWhoTo).getName(),
++				TEXT_COLOR("COLOR_WARNING_TEXT"),
++				GC.getDenialInfo(eDenial).getDescription());
+ 	}
++	else
++	{
++		szTempBuffer.Format(L"%s: " SETCOLR L"%s" ENDCOLR,
++				GET_PLAYER(eWhoDenies).getName(),
++				TEXT_COLOR("COLOR_WARNING_TEXT"),
++				GC.getDenialInfo(eDenial).getDescription());
++	}
++/*****************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                               */
++/*****************************************************************************/
++	szBuffer.append(NEWLINE);
++	szBuffer.append(szTempBuffer);
+ }
+ 
+ 
+@@ -5822,7 +5856,6 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-//	szBuffer = "Click to cancel";
+ 	CvWString szTemp;
+ 	szTemp = szBuffer.getCString();
+ 	CvDeal* pDeal = GC.getGameINLINE().getDeal(widgetDataStruct.m_iData1);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4eec22393..461a15e74 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -487,6 +487,10 @@ void CvGame::uninit()
+ 	m_aszGreatPeopleBorn.clear();
+ 
+ 	m_deals.uninit();
++	// <advc.072> This also frees dynamically allocated memory
++	m_currentDeals.clear();
++	m_currentDealsWidget.clear();
++	// </advc.072>
+ 	m_voteSelections.uninit();
+ 	m_votesTriggered.uninit();
+ 
+@@ -618,6 +622,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bHotPbemBetweenTurns = false;
+ 	m_bPlayerOptionsSent = false;
+ 	m_bNukesValid = false;
++	m_bShowingCurrentDeals = false; // advc.072  (not serialized)
+ 	m_iScreenWidth = m_iScreenHeight = 0; // advc.061
+ 
+ 	m_eHandicap = eHandicap;
+@@ -9019,17 +9024,78 @@ CvDeal* CvGame::addDeal()
+ 	gDLL->getInterfaceIFace()->setDirty(Foreign_Screen_DIRTY_BIT, true);
+ }
+ 
+-CvDeal* CvGame::firstDeal(int *pIterIdx, bool bRev)
++CvDeal* CvGame::firstDeal(int *pIterIdx, bool bRev) const
+ {
+ 	return !bRev ? m_deals.beginIter(pIterIdx) : m_deals.endIter(pIterIdx);
+ }
+ 
+ 
+-CvDeal* CvGame::nextDeal(int *pIterIdx, bool bRev)
++CvDeal* CvGame::nextDeal(int *pIterIdx, bool bRev) const
+ {
+ 	return !bRev ? m_deals.nextIter(pIterIdx) : m_deals.prevIter(pIterIdx);
+ }
+ 
++/*  <advc.072> All the FAssert(false) in this function mean that we're somehow
++	out of step with the iteration that happens in the EXE. */
++CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
++		TradeableItems eItemType, int iData, bool bWidget) {
++
++	if(!m_bShowingCurrentDeals) {
++		m_currentDeals.clear(); // Probably not needed, but can't hurt to clear them.
++		m_currentDealsWidget.clear();
++		return NULL;
++	}
++	// Probably not needed:
++	PlayerTypes eDiploPlayer = (PlayerTypes)gDLL->getDiplomacyPlayer();
++	if(!((getActivePlayer() == eGivePlayer && eDiploPlayer == eReceivePlayer) ||
++			(getActivePlayer() == eReceivePlayer && eDiploPlayer == eGivePlayer)))
++		return NULL;
++	CLinkList<DealItemData>& kCurrentDeals = (bWidget ? m_currentDealsWidget :
++			m_currentDeals);
++	if(kCurrentDeals.getLength() <= 0) {
++		bool bFirstFound = false; int foo=-1;
++		for(CvDeal* d = firstDeal(&foo); d != NULL; d = nextDeal(&foo)) {
++			if(!d->isBetween(eGivePlayer, eReceivePlayer))
++				continue;
++			CLinkList<TradeData> const& kGiveList = *(d->getFirstPlayer() == eGivePlayer ?
++					d->getFirstTrades() : d->getSecondTrades());
++			for(CLLNode<TradeData>* pNode = kGiveList.head(); pNode != NULL;
++					pNode = kGiveList.next(pNode)) {
++				if(!CvDeal::isAnnual(pNode->m_data.m_eItemType) &&
++						pNode->m_data.m_eItemType != TRADE_PEACE_TREATY)
++					break;
++				if(!bFirstFound) {
++					if(pNode->m_data.m_eItemType != eItemType ||
++							pNode->m_data.m_iData != iData) {
++						FAssert(false);
++						return NULL;
++					}
++					bFirstFound = true;
++				}
++				DealItemData data(eGivePlayer, eReceivePlayer, pNode->m_data.m_eItemType,
++						pNode->m_data.m_iData, d->getID());
++				kCurrentDeals.insertAtEnd(data);
++			}
++		}
++	}
++	if(kCurrentDeals.getLength() <= 0) {
++		FAssert(false);
++		return NULL;
++	}
++	CLLNode<DealItemData>* pNode = kCurrentDeals.head();
++	DealItemData data = pNode->m_data;
++	if(data.eGivePlayer != eGivePlayer || data.eReceivePlayer != eReceivePlayer ||
++			data.iData != iData || data.eItemType != eItemType) {
++		kCurrentDeals.clear();
++		FAssert(false);
++		return NULL;
++	}
++	CvDeal* r = getDeal(pNode->m_data.iDeal);
++	kCurrentDeals.deleteNode(pNode);
++	FAssert(r != NULL);
++	return r;
++} // </advc.072>
++
+ 
+  CvRandom& CvGame::getMapRand()																					
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index e87315b3c..ef0d88d20 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -466,10 +466,13 @@ public:
+ 	DllExport CvDeal* getDeal(int iID);																										// Exposed to Python	
+ 	CvDeal* addDeal();																													
+ 	void deleteDeal(int iID);																										
+-	// iteration																																					
+-	CvDeal* firstDeal(int *pIterIdx, bool bRev=false);													// Exposed to Python									
+-	CvDeal* nextDeal(int *pIterIdx, bool bRev=false);														// Exposed to Python									
+-
++	// iteration (advc.003: const)																																					
++	CvDeal* firstDeal(int *pIterIdx, bool bRev=false) const;													// Exposed to Python									
++	CvDeal* nextDeal(int *pIterIdx, bool bRev=false) const;														// Exposed to Python									
++	// <advc.072>
++	CvDeal* nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
++			TradeableItems eItemType, int iData = -1, bool bWidget = false);
++	// </advc.072>
+ 	VoteSelectionData* getVoteSelection(int iID) const;
+ 	VoteSelectionData* addVoteSelection(VoteSourceTypes eVoteSource);
+ 	void deleteVoteSelection(int iID);
+@@ -734,13 +737,18 @@ protected:
+ 
+ 	IDInfo* m_paHolyCity;
+ 	IDInfo* m_paHeadquarters;
+-
+ 	int** m_apaiPlayerVote;
+ 
+ 	std::vector<CvWString> m_aszDestroyedCities;
+ 	std::vector<CvWString> m_aszGreatPeopleBorn;
+ 
+ 	FFreeListTrashArray<CvDeal> m_deals;
++	/*  <advc.072> Not serialized. One for use by CvPlayer::getItemTradeString,
++		the other for CvDLLWidgetData::parseTradeItem. */
++	CLinkList<DealItemData> m_currentDeals;
++	CLinkList<DealItemData> m_currentDealsWidget;
++	bool m_bShowingCurrentDeals;
++	// </advc.072>
+ 	FFreeListTrashArray<VoteSelectionData> m_voteSelections;
+ 	FFreeListTrashArray<VoteTriggeredData> m_votesTriggered;
+ 
+@@ -749,7 +757,6 @@ protected:
+ 
+ 	ReplayMessageList m_listReplayMessages; 
+ 	CvReplayInfo* m_pReplayInfo;
+-
+ 	int m_iNumSessions;
+ 
+ 	std::vector<PlotExtraYield> m_aPlotExtraYields;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 0456d6f85..0726081b7 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2990,15 +2990,18 @@ EndTurnButtonStates CvGame::getEndTurnState() const
+ 	return eNewState;
+ }
+ 
+-void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
++void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
++		bool bAlt, bool bShift, bool bCtrl) const
+ {
+ 	FAssert(pPlot != NULL);
+ 	if (pCity != NULL && pPlot != NULL)
+ 	{
+ 		int iIndex = pCity->getCityPlotIndex(pPlot);
+-		if ((pPlot->getOwnerINLINE() == getActivePlayer()) && (pCity->getOwnerINLINE() == getActivePlayer()) && (iIndex != -1))
++		if (pPlot->getOwnerINLINE() == getActivePlayer() &&
++				pCity->getOwnerINLINE() == getActivePlayer() && iIndex != -1)
+ 		{
+-			CvMessageControl::getInstance().sendDoTask(pCity->getID(), TASK_CHANGE_WORKING_PLOT, iIndex, -1, false, bAlt, bShift, bCtrl);
++			CvMessageControl::getInstance().sendDoTask(pCity->getID(),
++					TASK_CHANGE_WORKING_PLOT, iIndex, -1, false, bAlt, bShift, bCtrl);
+ 		}
+ 		else if (GC.getDefineINT("CITY_SCREEN_CLICK_WILL_EXIT"))
+ 		{
+@@ -3008,23 +3011,27 @@ void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt,
+ }
+ 
+ void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
+-{
+-	if (pCity != NULL)
++{	// advc.004t: Commented out
++	/*if (pCity != NULL)
+ 	{
+ 		if (pCity->plot() == pPlot)
+ 		{
+ 			gDLL->getInterfaceIFace()->clearSelectedCities();
+ 		}
+-	}
++	}*/
+ }
+ 
+ void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
+ {
+ 	if (pCity != NULL && pPlot != NULL)
+ 	{
+-		if ((pCity->getOwnerINLINE() == getActivePlayer()) && (pPlot->getOwnerINLINE() == getActivePlayer()) && (pCity->getCityPlotIndex(pPlot) != -1))
++		if (pCity->getOwnerINLINE() == getActivePlayer() &&
++				pPlot->getOwnerINLINE() == getActivePlayer() &&
++				pCity->getCityPlotIndex(pPlot) != -1)
+ 		{
+-			CvMessageControl::getInstance().sendDoTask(pCity->getID(), TASK_CLEAR_WORKING_OVERRIDE, pCity->getCityPlotIndex(pPlot), -1, false, bAlt, bShift, bCtrl);
++			CvMessageControl::getInstance().sendDoTask(pCity->getID(),
++					TASK_CLEAR_WORKING_OVERRIDE, pCity->getCityPlotIndex(pPlot),
++					-1, false, bAlt, bShift, bCtrl);
+ 		}
+ 	}
+ }
+@@ -3033,7 +3040,7 @@ void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt,
+ {
+ 	if (pPlot != NULL)
+ 	{
+-		if ((pCity != NULL) && gDLL->getInterfaceIFace()->isCitySelected(pCity))
++		if (pCity != NULL && gDLL->getInterfaceIFace()->isCitySelected(pCity))
+ 		{
+ 			selectedCitiesGameNetMessage(GAMEMESSAGE_DO_TASK, TASK_CLEAR_RALLY_PLOT);
+ 		}
+@@ -3041,7 +3048,8 @@ void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt,
+ 		{
+ 			if (bShift)
+ 			{
+-				selectedCitiesGameNetMessage(GAMEMESSAGE_DO_TASK, TASK_RALLY_PLOT, pPlot->getX(), pPlot->getY());
++				selectedCitiesGameNetMessage(GAMEMESSAGE_DO_TASK, TASK_RALLY_PLOT,
++						pPlot->getX(), pPlot->getY());
+ 			}
+ 			else
+ 			{
+@@ -3093,4 +3101,8 @@ void CvGame::handleDiplomacySetAIComment(DiploCommentTypes eComment) const
+ 			gDLL->sendImplementDealMessage(eOtherPlayer, &playerList, &loopPlayerList);
+ 		}
+ 	}
++	// <advc.072>
++	const_cast<CvGame* const>(this)->m_bShowingCurrentDeals =
++			(eComment == GC.getInfoTypeForString("AI_DIPLOCOMMENT_CURRENT_DEALS"));
++	// </advc.072>
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b53636b24..5fb34f5a3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15011,8 +15011,8 @@ void CvGameTextMgr::buildDisengageString(CvWString& szString, PlayerTypes active
+ 		PlayerTypes otherId) {
+ 
+ 	int turns = 0;
+-	CvGame& g = GC.getGameINLINE(); int dummy=-1;
+-	for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
++	CvGame& g = GC.getGameINLINE(); int foo=-1;
++	for(CvDeal* d = g.firstDeal(&foo); d != NULL; d = g.nextDeal(&foo)) {
+ 		if(d->isDisengage() && d->isBetween(activeId, otherId)) {
+ 			turns = d->turnsToCancel();
+ 			break;
+@@ -15022,21 +15022,6 @@ void CvGameTextMgr::buildDisengageString(CvWString& szString, PlayerTypes active
+ 	// This is "%s1 (%d2 [NUM2:Turn:Turns])", just what I need.
+ 	szString.append(gDLL->getText("INTERFACE_CITY_PRODUCTION",
+ 			gDLL->getText("TXT_KEY_MISC_OPEN_BORDERS").GetCString(), turns));
+-}
+-
+-void CvGameTextMgr::buildPeaceTreatyString(CvWString& szString,
+-		PlayerTypes activeId, PlayerTypes otherId) {
+-
+-	int turns = 0;
+-	CvGame& g = GC.getGameINLINE(); int dummy=-1;
+-	for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
+-		if(d->isPeaceDeal() && d->isBetween(activeId, otherId)) {
+-			turns = d->turnsToCancel();
+-			break;
+-		}
+-	}
+-	FAssert(turns >= 0);
+-	szString.append(gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY_STRING", turns));
+ } // </advc.034>
+ 
+ 
+@@ -15762,8 +15747,7 @@ void CvGameTextMgr::getTradeString(CvWStringBuffer& szBuffer, const TradeData& t
+ 		break;
+ 	case TRADE_RELIGION:
+ 		szBuffer.assign(CvWString::format(L"%s", GC.getReligionInfo((ReligionTypes)tradeData.m_iData).getDescription()));
+-		break;
+-	// <advc.034>
++		break; // <advc.034>
+ 	case TRADE_DISENGAGE: {
+ 		CvWString szString;
+ 		buildDisengageString(szString, ePlayer1, ePlayer2);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 5f8156a61..dfff10266 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -197,8 +197,6 @@ public:
+ 	void buildTechTreeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bPlayerContext, TechTypes eFromTech);
+ 	// <advc.034>
+ 	void buildDisengageString(CvWString& szString, PlayerTypes activeId,
+-			PlayerTypes otherId);
+-	void buildPeaceTreatyString(CvWString& szString, PlayerTypes activeId,
+ 			PlayerTypes otherId); // </advc.034>
+ 
+ 	void getWarplanString(CvWStringBuffer& szString, WarPlanTypes eWarPlan);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7d67dd7f1..141b0a27e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11682,21 +11682,18 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 			doWarnings();
+ 			// <advc.106b>
+ 			if(isHuman()) {
+-				/* Python events like Civ4lerts don't normally trigger until the
+-				   first call to CvGame::update. At this point, messages triggered
+-				   during AI turns can already be visible on the screen. Also don't
+-				   know how to detect diplo popups once they're open.
+-				   Therefore trigger Python here through a feigned gameUpdate. */
++				validateDiplomacy(); // advc.001e
++				/*  Make sure that Python events like Civ4lerts are triggered before
++					processing messages */
+ 				CyArgsList pyArgs;
+ 				pyArgs.add(GC.getGame().getTurnSlice());
+ 				CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+-				validateDiplomacy(); // advc.001e
+-				postProcessBeginTurnEvents();
++				postProcessMessages();
+ 			}
+ 		  } // advc.706
+ 			// <advc.700>
+ 			if(isHuman() || isHumanDisabled()) {
+-				CvGame& g = GC.getGame();
++				CvGame& g = GC.getGameINLINE();
+ 				if(g.isOption(GAMEOPTION_RISE_FALL))
+ 					g.getRiseFall().atActiveTurnStart();
+ 			} // </advc.700>
+@@ -14563,7 +14560,7 @@ void CvPlayer::addMessage(const CvTalkingHeadMessage& message)
+ }
+ 
+ // <advc.106b>
+-void CvPlayer::postProcessBeginTurnEvents() {
++void CvPlayer::postProcessMessages() {
+ 
+ 	/* Determining how many messages are being displayed:
+ 	   - showMissedMessages doesn't help, seems to be only for Hotseat games.
+@@ -14575,8 +14572,8 @@ void CvPlayer::postProcessBeginTurnEvents() {
+ 	     (m_iNewMessages). */
+ 	/*  Don't show the log at game start (also: the BUG setting for the limit
+ 		isn't available at the start of the 0th turn) */
+-	int limit = GC.getGameINLINE().getElapsedGameTurns() <= 0 ? INT_MAX :
+-			getStartOfTurnMessageLimit();
++	int iLimit = (GC.getGameINLINE().getElapsedGameTurns() <= 0 ? INT_MAX :
++			getStartOfTurnMessageLimit());
+ 	/* Finishing a tech should generate a message, which is rather superfluous
+ 	   b/c of the splash screen. Don't want to suppress it b/c it should go
+ 	   into the log, but don't count it when deciding whether to open the log
+@@ -14610,7 +14607,7 @@ void CvPlayer::postProcessBeginTurnEvents() {
+ 			}
+ 		}
+ 	}
+-	if(!GC.getGame().getAIAutoPlay() && limit >= 0 && (m_iNewMessages > limit ||
++	if(!GC.getGame().getAIAutoPlay() && iLimit >= 0 && (m_iNewMessages > iLimit ||
+ 			(m_iNewMessages > 0 && (bRelevantDiplo ||
+ 			/*  Hotseat seems to show messages only if there hasn't been another
+ 				human turn since the message was triggered (can't check that here;
+@@ -14797,9 +14794,9 @@ void CvPlayer::validateDiplomacy() {
+ 			if(pDiplo->getDiploComment() == GC.getInfoTypeForString("AI_DIPLOCOMMENT_STOP_TRADING") &&
+ 					pDiplo->getData() != TEAMREF(pDiplo->getWhoTalkingTo()).AI_getWorstEnemy()) {
+ 				CvPlayerAI& who = GET_PLAYER(pDiplo->getWhoTalkingTo());
+-				/*  Recipient hasn't been contacted after all. Ideally, this should
+-					also be done for any contact attempts that the EXE cancels, but
+-					it's difficult to identify these here. */
++				/*  Recipient isn't getting contacted after all. Ideally,
++					this should also be done for any contact attempts that the
++					EXE cancels, but it's difficult to identify these here. */
+ 				who.AI_changeContactTimer(getID(), CONTACT_STOP_TRADING,
+ 						-who.AI_getContactTimer(getID(), CONTACT_STOP_TRADING));
+ 				// Have to delete it here b/c the EXE will no longer have a pointer to it
+@@ -22198,7 +22195,7 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 		return false;
+ 	}
+ 
+-	bool bPlayerExists = GET_TEAM(GET_PLAYER(eNewPlayer).getTeam()).isAlive();
++	bool bPlayerExists = TEAMREF(eNewPlayer).isAlive();
+ 	FAssert(!bPlayerExists);
+ 	CvWString szMessage; // advc.127b
+ 	if (!bPlayerExists)
+@@ -23438,18 +23435,13 @@ void CvPlayer::forcePeace(PlayerTypes ePlayer)
+ // <advc.032>
+ bool CvPlayer::resetPeaceTreaty(PlayerTypes otherId) {
+ 
+-	CvGame& g = GC.getGameINLINE(); int dummy=-1;
++	CvGame const& g = GC.getGameINLINE(); int dummy=-1;
+ 	for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
+-		if((d->getFirstPlayer() == getID() &&
+-				d->getSecondPlayer() == otherId) ||
+-				(d->getSecondPlayer() == getID() &&
+-				d->getFirstPlayer() == otherId)) {
+-			if(d->getFirstTrades() == NULL)
+-				continue;
+-			for(CLLNode<TradeData>* item = d->getFirstTrades()->head();
+-					item != NULL; item = d->getFirstTrades()->next(item)) {
+-				if(item->m_data.m_eItemType == TRADE_PEACE_TREATY) {
+-					d->setInitialGameTurn(g.getGameTurn());
++		if(d->isBetween(getID(), otherId) && d->getFirstTrades() != NULL) {
++			for(CLLNode<TradeData>* pNode = d->getFirstTrades()->head();
++					pNode != NULL; pNode = d->getFirstTrades()->next(pNode)) {
++				if(pNode->m_data.m_eItemType == TRADE_PEACE_TREATY) {
++					d->setInitialGameTurn(g.gameTurn());
+ 					return true; // Assume that there is at most 1 peace treaty
+ 				}
+ 			}
+@@ -23840,10 +23832,29 @@ bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eI
+ }
+ 
+ 
+-bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bShowingCurrent, const TradeData& zTradeData, CvWString& szString, CvString& szIcon) const
++bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
++		bool bShowingCurrent, const TradeData& zTradeData,
++		CvWString& szString, CvString& szIcon) const
+ {
+ 	szIcon.clear();
+-
++	// <advc.072>
++	CvDeal* pDeal = NULL;
++	if(bShowingCurrent) {
++		int iTurnsLeftMode = getBugOptionINT("Advisors__DealTurnsLeft", 3);
++		if(iTurnsLeftMode == 2 || iTurnsLeftMode == 1) {
++			TradeableItems eItemType = zTradeData.m_eItemType;
++			if(CvDeal::isAnnual(eItemType) || eItemType == TRADE_PEACE_TREATY) {
++				pDeal = GC.getGameINLINE().nextCurrentDeal(eOtherPlayer, getID(),
++						eItemType, zTradeData.m_iData);
++				/*  Call nextCurrentDeal for all annual deals plus peace treaties
++					in order to stay in-sync with the iteration done by the EXE,
++					but we're only interested in a subset here: */
++				if(!CvDeal::isDual(eItemType) && eItemType != TRADE_RESOURCES &&
++						eItemType != TRADE_GOLD_PER_TURN)
++					pDeal = NULL;
++			}
++		}
++	} // </advc.072>
+ 	switch (zTradeData.m_eItemType)
+ 	{
+ 	case TRADE_GOLD:
+@@ -23885,18 +23896,12 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bS
+ 		szString = gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE_STRING");
+ 		break;
+ 	case TRADE_PEACE_TREATY:
+-		// advc.034: Don't show turns-to-cancel when negotiating peace
+-		if(TEAMREF(eOtherPlayer).isAtWar(getTeam())) {
++		if(TEAMREF(eOtherPlayer).isAtWar(getTeam())) { // advc.072
+ 			szString = gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY_STRING",
+ 					GC.getPEACE_TREATY_LENGTH());
+-		} /* <advc.034> In order to be consistent with the TRADE_DISENGAGE case,
+-			 which also shows the turns-to-cancel. */
+-		else {
+-			// <advc.004w>
+-			szString.clear();
+-			GAMETEXT.buildPeaceTreatyString(szString, getID(), eOtherPlayer);
+-		} // </advc.004w>
+-		break; // </advc.034>
++		} // advc.072:
++		else szString = gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY_STR");
++		break;
+ 	case TRADE_TECHNOLOGIES:
+ 		szString = GC.getTechInfo((TechTypes)zTradeData.m_iData).getDescription();
+ 		szIcon = GC.getTechInfo((TechTypes)zTradeData.m_iData).getButton();
+@@ -24007,7 +24012,12 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bS
+ 		szString.clear();
+ 		return false;
+ 	}
+-
++	// <advc.072>
++	if(pDeal != NULL && pDeal->turnsToCancel() > 0) {
++		szString.append(L" ");
++		szString.append(gDLL->getText("INTERFACE_CITY_TURNS",
++				pDeal->turnsToCancel()).GetCString());
++	} // </advc.072>
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 6b85028b0..b0640f6b7 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1450,7 +1450,7 @@ protected:
+ 	// <advc.106b>
+ 	std::vector<CvTalkingHeadMessage*> m_aMajorMsgs;
+ 	int m_iNewMessages;
+-	void postProcessBeginTurnEvents();
++	void postProcessMessages();
+ 	int getStartOfTurnMessageLimit() const;
+ 	// </advc.106b>
+ 	CivicTypes eReminderPending; // advc.004x
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b7c1b7f3d..6a162fe6e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1124,92 +1124,69 @@ bool CvPlayerAI::AI_willOfferPeace(PlayerTypes toId) const {
+ 	return true;
+ } // </advc.003>
+ 
++// advc.003: Refactored (was getting messy)
++void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc) {
+ 
+-void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+-{
+ 	PROFILE_FUNC();
+ 	// <advc.303>
+ 	if(isBarbarian())
+ 		return;
+ 	// </advc.303>
+ 	int iLoop=-1;
+-	for (CvArea* pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
+-	{
++	for(CvArea* pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
+ 		pLoopArea->setBestFoundValue(getID(), 0);
+-	}
+ 
+-	if (bStartingLoc)
+-	{
+-		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-		{
++	if(bStartingLoc) {
++		for(int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 			GC.getMapINLINE().plotByIndexINLINE(iI)->setFoundValue(getID(), -1);
+-		}
++		return;
+ 	}
+-	else
+-	{
+-		// K-Mod. (I've also changed some of the code style all through this function)
+-		CvFoundSettings kFoundSet(*this, false);
+-		//
+ 
+-		//if (!isBarbarian()) // advc.303: Already ensured
+-		{
+-			//AI_invalidateCitySites(AI_getMinFoundValue());
+-			AI_invalidateCitySites(-1); // K-Mod
+-		} // <advc.108>
+-		int const iCities = getNumCities();
+-		CvPlot const* const pStartPlot = getStartingPlot(); // </advc.108>
+-		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-		{
+-			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-
+-			if (pLoopPlot->isRevealed(getTeam(), false))// || AI_isPrimaryArea(pLoopPlot->area()))
+-			{
+-				long iValue = -1;
+-				if (GC.getUSE_GET_CITY_FOUND_VALUE_CALLBACK())
+-				{
+-					CyArgsList argsList;
+-					argsList.add((int)getID());
+-					argsList.add(pLoopPlot->getX());
+-					argsList.add(pLoopPlot->getY());
+-					gDLL->getPythonIFace()->callFunction(PYGameModule, "getCityFoundValue", argsList.makeFunctionArgs(), &iValue);
+-				}
+-
+-				if (iValue == -1)
+-				{
+-					//iValue = AI_foundValue(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+-					iValue = AI_foundValue_bulk(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), kFoundSet); // K-Mod
+-					// <advc.108> Slight preference for the assigned starting plot
+-					if(iCities <= 0 && pStartPlot != NULL && pLoopPlot == pStartPlot
+-							// Unless it doesn't have fresh water
+-							&& pLoopPlot->isFreshWater())
+-						iValue = ::round(1.05 * iValue); // </advc.108>
+-				}
+-
+-				FAssert(iValue <= MAX_SHORT); // K-Mod. If this assert fails, the foundValue calculation may need to be changed.
+-				iValue = std::min((long)MAX_SHORT, iValue); // K-Mod
+-				pLoopPlot->setFoundValue(getID(), (short)iValue);
+-
+-				if (iValue > pLoopPlot->area()->getBestFoundValue(getID()))
+-				{
+-					pLoopPlot->area()->setBestFoundValue(getID(), iValue);
+-				}
+-			}
+-			// K-Mod. Clear out any junk found values.
+-			// (I've seen legacy AI code which makes use of the found values of unrevealed plots.
+-			//  It shouldn't use those values at all, but if it does use them, I'd prefer them not to be junk!)
+-			else
+-			{
+-				pLoopPlot->setFoundValue(getID(), 0);
+-			}
+-			// K-Mod end
++	CvFoundSettings kFoundSet(*this, false); // K-Mod
++	AI_invalidateCitySites(/*AI_getMinFoundValue()*/-1); // K-Mod
++	// <advc.108>
++	int iCities = getNumCities();
++	CvPlot const* pStartPlot = getStartingPlot(); // </advc.108>
++	for(int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++) {
++		CvPlot& kLoopPlot = *GC.getMapINLINE().plotByIndexINLINE(iI);
++		if(!kLoopPlot.isRevealed(getTeam(), false)) {
++				//&& !AI_isPrimaryArea(kLoopPlot.area()))
++			/*  K-Mod: Clear out any junk found values.
++				(I've seen legacy AI code which makes use of the found values of unrevealed plots.
++				It shouldn't use those values at all, but if it does use them,
++				I'd prefer them not to be junk!) */
++			kLoopPlot.setFoundValue(getID(), 0);
++			continue;
+ 		}
+-		//if (!isBarbarian()) // advc.303
+-		{
+-			//int iMaxCityCount = 4;
+-			int iMaxCityCount = isHuman() ? 6 : 4; // K-Mod - because humans don't always walk towards the AI's top picks..
+-			AI_updateCitySites(AI_getMinFoundValue(), iMaxCityCount);
++		long iValue = -1;
++		if(GC.getUSE_GET_CITY_FOUND_VALUE_CALLBACK()) {
++			CyArgsList argsList;
++			argsList.add((int)getID());
++			argsList.add(kLoopPlot.getX()); argsList.add(kLoopPlot.getY());
++			gDLL->getPythonIFace()->callFunction(PYGameModule, "getCityFoundValue", argsList.makeFunctionArgs(), &iValue);
++		}
++		if(iValue == -1) {
++			// K-Mod:
++			iValue = AI_foundValue_bulk(kLoopPlot.getX_INLINE(), kLoopPlot.getY_INLINE(), kFoundSet);
++			// <advc.108> Slight preference for the assigned starting plot
++			if(iCities <= 0 && pStartPlot != NULL && &kLoopPlot == pStartPlot &&
++					// Unless it doesn't have fresh water
++					kLoopPlot.isFreshWater())
++				iValue = ::round(1.05 * iValue); // </advc.108>
+ 		}
++		// K-Mod.
++		FAssertMsg(iValue <= MAX_SHORT, "If this assert fails, the foundValue calculation may need to be changed.");
++		iValue = std::min((long)MAX_SHORT, iValue);
++		// K-Mod end
++		kLoopPlot.setFoundValue(getID(), (short)iValue);
++		if(iValue > kLoopPlot.area()->getBestFoundValue(getID()))
++			kLoopPlot.area()->setBestFoundValue(getID(), iValue);
+ 	}
++	int iMaxCityCount = 4;
++	// K-Mod - because humans don't always walk towards the AI's top picks..
++	if(isHuman())
++		iMaxCityCount = 6;
++	AI_updateCitySites(AI_getMinFoundValue(), iMaxCityCount);
+ }
+ 
+ 
+@@ -3308,56 +3285,49 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	iBadTile /= 2;
+ // END OF BAD TILE COUNTING
+ // CHECK IF TOO MANY BAD TILES
+-	if (!kSet.bStartingLoc)
+-	{
+-		if ((iBadTile > (NUM_CITY_PLOTS / 2)) || (pArea->getNumTiles() <= 2)
+-			|| (isBarbarian() && iBadTile > 3)) // advc.303
+-		{
+-			bool bHasGoodBonus = false;
+-			int iMediocreBonus = 0; // advc.031
+-			int freshw = (pPlot->isFreshWater() ? 1 : 0); // advc.031
+-			for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+-			{
+-				CvPlot* pLoopPlot = plotCity(iX, iY, iI);
+-				// <advc.303>
+-				if(isBarbarian() && !::isInnerRing(pLoopPlot, pPlot))
+-					continue; // </advc.303>
+-				if (pLoopPlot != NULL && (kSet.bAllSeeing || pLoopPlot->isRevealed(getTeam(), false)))
+-				{
+-					if (!pLoopPlot->isOwned())
+-					{
+-						//BonusTypes eBonus = pLoopPlot->getBonusType(getTeam());
+-						BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam()); // K-Mod
+-						if (eBonus != NO_BONUS)
+-						{
+-							if ((getNumTradeableBonuses(eBonus) == 0 ||
+-								AI_bonusVal(eBonus, 1, true) > 10 ||
+-								GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0) &&
+-								// <advc.031> Moved from above
+-								(pLoopPlot->isWater() || pLoopPlot->area() == pArea ||
+-								pLoopPlot->area()->getCitiesPerPlayer(getID()) > 0))
+-								// </advc.031>
+-							{
+-								bHasGoodBonus = true;
+-								break;
+-							} // <advc.031>
+-							else iMediocreBonus++;
+-						}
+-						if(pLoopPlot->isFreshWater())
+-							freshw++; // </advc.031>
+-					}
+-				}
+-			}
+-
+-			if (!bHasGoodBonus &&
++	if(!kSet.bStartingLoc && ((iBadTile > (NUM_CITY_PLOTS / 2)) ||
++			pArea->getNumTiles() <= 2 ||
++			(isBarbarian() && iBadTile > 3))) { // advc.303
++		bool bHasGoodBonus = false;
++		int iMediocreBonus = 0; // advc.031
++		int freshw = (pPlot->isFreshWater() ? 1 : 0); // advc.031
++		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++) {
++			CvPlot* pLoopPlot = plotCity(iX, iY, iI);
++			// <advc.303>
++			if(isBarbarian() && !::isInnerRing(pLoopPlot, pPlot))
++				continue; // </advc.303>
++			if(pLoopPlot == NULL || (!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam(), false)))
++				continue;
++			if(pLoopPlot->isOwned()
+ 					// <advc.031>
+-					freshw < 3 &&
+-					iMediocreBonus < 2 && // </advc.031>
+-					!bFirstColony) // advc.040
+-			{
+-				return 0;
++					&& (pLoopPlot->getOwnerINLINE() != getID() ||
++					pLoopPlot->getCityRadiusCount() > 0)) // </advc.031>
++				continue;
++			BonusTypes eBonus = pLoopPlot->
++					getNonObsoleteBonusType(getTeam()); // K-Mod
++			if(eBonus != NO_BONUS) {
++				if((getNumTradeableBonuses(eBonus) == 0 ||
++						AI_bonusVal(eBonus, 1, true) > 10 ||
++						GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0) &&
++						// <advc.031> Moved from above
++						(pLoopPlot->isWater() || pLoopPlot->area() == pArea ||
++						pLoopPlot->area()->getCitiesPerPlayer(getID()) > 0)) {
++						// </advc.031>
++					bHasGoodBonus = true;
++					break;
++				} // <advc.031>
++				else iMediocreBonus++;
+ 			}
++			if(pLoopPlot->isFreshWater())
++				freshw++; // </advc.031>
+ 		}
++
++		if(!bHasGoodBonus &&
++				// <advc.031>
++				freshw < 3 &&
++				iMediocreBonus < 2 && // </advc.031>
++				!bFirstColony) // advc.040
++			return 0;
+ 	}
+ // END OF BAD-TILES CHECK
+ // PLOT EVALUATION LOOP
+@@ -9051,7 +9021,8 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 
+ 	/*  <advc.104i> The EXE keeps calling this function when the diplo screen is
+ 		already up, and some of the new code (isPeaceDealPossible) is expensive. */
+-	if(gDLL->isDiplomacy())
++	if(ePlayer == GC.getGameINLINE().getActivePlayer() &&
++			gDLL->getDiplomacyPlayer() == getID())
+ 		return true; // </advc.104i>
+ 
+ 	// <advc.003n> In particular, don't call AI_surrenderTrade on Barbarians.
+@@ -27484,8 +27455,7 @@ int CvPlayerAI::AI_getMinFoundValue() const
+ }
+ 	
+ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+-{
+-	// kmodx: redundant code removed
++{	// kmodx: redundant code removed
+ 	int iI=0;
+ 
+ 	// K-Mod. Always recommend the starting location on the first turn.
+@@ -27493,8 +27463,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 	if (isHuman() &&  /* advc.108: OK for recommendations, but allow AI to evaluate
+ 					     plots and settle elsewhere. */
+ 		getNumCities() == 0 && iMaxSites > 0 && GC.getGameINLINE().getElapsedGameTurns() == 0 &&
+-		m_iStartingX != INVALID_PLOT_COORD && m_iStartingY != INVALID_PLOT_COORD)
+-	{
++		m_iStartingX != INVALID_PLOT_COORD && m_iStartingY != INVALID_PLOT_COORD)  {
+ 		m_aiAICitySites.push_back(GC.getMapINLINE().plotNum(m_iStartingX, m_iStartingY));
+ 		//AI_recalculateFoundValues(m_iStartingX, m_iStartingY, CITY_PLOTS_RADIUS, 2 * CITY_PLOTS_RADIUS);
+ 		return; // don't bother trying to pick a secondary spot
+@@ -27538,10 +27507,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 			m_aiAICitySites.push_back(GC.getMapINLINE().plotNum(pBestFoundPlot->getX_INLINE(), pBestFoundPlot->getY_INLINE()));
+ 			AI_recalculateFoundValues(pBestFoundPlot->getX_INLINE(), pBestFoundPlot->getY_INLINE(), CITY_PLOTS_RADIUS, 2 * CITY_PLOTS_RADIUS);
+ 		}
+-		else
+-		{
+-			break;
+-		}
++		else break;
+ 		iPass++;
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index fd0990c48..99d2bbade 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -502,6 +502,17 @@ struct FirstContactData {
+ 	IDInfo u1, u2;
+ 	int x1, y1, x2, y2;
+ }; // </advc.071>
+-
++// <advc.072>
++struct DealItemData {
++	DealItemData() : eGivePlayer(NO_PLAYER), eReceivePlayer(NO_PLAYER),
++			eItemType(TRADE_ITEM_NONE), iData(-1), iDeal(-1) {}
++	DealItemData(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
++			TradeableItems eItemType, int iData, int iDeal) :
++			eGivePlayer(eGivePlayer), eReceivePlayer(eReceivePlayer),
++			eItemType(eItemType), iData(iData), iDeal(iDeal) {}
++	PlayerTypes eGivePlayer, eReceivePlayer;
++	TradeableItems eItemType;
++	int iData, iDeal;
++}; // </advc.072>
+ 
+ #endif	// CVSTRUCTS_H
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a8f5e4b00..2c17956ce 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5308,13 +5308,13 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 		}// </advc.130y>
+ 		m_bCapitulated = false;
+ 		// <advc.133>
+-		int x; for(CvDeal* d = GC.getGameINLINE().firstDeal(&x); d != NULL;
+-				d = GC.getGameINLINE().nextDeal(&x)) {
+-			if((GET_PLAYER(d->getFirstPlayer()).getTeam() != getID()) &&
+-					(GET_PLAYER(d->getSecondPlayer()).getTeam() != getID()))
++		int foo=-1;
++		for(CvDeal* d = GC.getGameINLINE().firstDeal(&foo); d != NULL;
++				d = GC.getGameINLINE().nextDeal(&foo)) {
++			if(TEAMID(d->getFirstPlayer()) != getID() &&
++					TEAMID(d->getSecondPlayer()) != getID())
+ 				continue;
+-			/*  0 would probably also suffice. Treat deals as very old so that
+-				turnsToCancel returns 0. */
++			// Treat deal as very old so that turnsToCancel returns 0
+ 			d->setInitialGameTurn(-100);
+ 		} // </advc.133>
+ 		// <advc.104j> Stop any war plans that the eIndex may have forced on us
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 53d3851b5..67e926cb7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -8483,10 +8483,10 @@ void CvUnitAI::AI_settlerSeaMove()
+ /*                                                                                              */
+ /* Naval AI                                                                                     */
+ /************************************************************************************************/
+-	if( hasCargo() && (iSettlerCount == 0) && (iWorkerCount == 0))
++	if (hasCargo() && iSettlerCount == 0 && iWorkerCount == 0)
+ 	{
+ 		// Dump troop load at first oppurtunity after pick up
+-		if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() )
++		if (plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE())
+ 		{
+ 			getGroup()->unloadAll();
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -8494,7 +8494,7 @@ void CvUnitAI::AI_settlerSeaMove()
+ 		}
+ 		else
+ 		{
+-			if( !(isFull()) )
++			if (!isFull())
+ 			{
+ 				if(AI_pickupStranded(NO_UNITAI, 1))
+ 				{
+@@ -8615,7 +8615,7 @@ void CvUnitAI::AI_settlerSeaMove()
+ 		return;
+ 	}
+ */
+-	if( !(getGroup()->hasCargo()) )
++	if( !getGroup()->hasCargo() )
+ 	{
+ 		if(AI_pickupStranded(UNITAI_SETTLE))
+ 		{
+@@ -8623,7 +8623,7 @@ void CvUnitAI::AI_settlerSeaMove()
+ 		}
+ 	}
+ 
+-	if( !(getGroup()->isFull()) )
++	if( !getGroup()->isFull() )
+ 	{
+ 		if( kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_SETTLER) > 0 )
+ 		{
+@@ -21731,15 +21731,15 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 	}
+ 
+ 	if (pBestUnit)
+-	{	/*  <advc.046> Previously, the caller ensured that we have space. Now
+-			ensures that we have space or can unload. */
++	{	// <advc.046>
+ 		int iCargo = getGroup()->getCargo();
+ 		if(iCargo > 0) {
+ 			/*  Only unload the current cargo if the stranded units aren't too few
+ 				or too far away. */
+ 			if(iCargo * 150 > iBestValue || atPlot(pEndTurnPlot))
+ 				return false;
+-			FAssert(plot()->isCity(false, getTeam()));
++			if(!plot()->isCity(false, getTeam()))
++				return false;
+ 			getGroup()->unloadAll();
+ 			if(getGroup()->hasCargo())
+ 				return false;
+@@ -25985,14 +25985,14 @@ bool CvUnitAI::AI_allowGroup(const CvUnit* pUnit, UnitAITypes eUnitAI) const
+ // <advc.040>
+ bool CvUnitAI::AI_moveSettlerToCoast(int iMaxPathTurns) {
+ 
+-	CvPlayer const& owner = GET_PLAYER(getOwnerINLINE()); int foo=-1;
++	CvPlayer const& owner = GET_PLAYER(getOwnerINLINE());
+ 	CvCity* currentCity = plot()->getPlotCity();
+ 	if(currentCity == NULL)
+ 		return false;
+ 	int const iGroupSz = getGroupSize();
+ 	CvCity* pBest = NULL;
+ 	CvPlot* pEndPlot = NULL;
+-	int iBest = 0;
++	int iBest = 0; int foo=-1;
+ 	for(CvCity* c = owner.firstCity(&foo); c != NULL; c = owner.nextCity(&foo)) {
+ 		CvPlot& cp = *c->plot();
+ 		if(c == currentCity || c->area() != area() || !c->isCoastal() ||
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index d9665bf37..417ad1d6b 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1528,12 +1528,12 @@ DenialTypes WarAndPeaceAI::Team::declareWarTrade(TeamTypes targetId,
+ 				utilityThresh = std::max(utilityThresh,
+ 						-::round(tradeValToUtility(humanTradeVal) +
+ 						// Add 5 for gold that the human might be able to procure
+-						(GET_TEAM(sponsorId).isGoldTrading() ||
++						((GET_TEAM(sponsorId).isGoldTrading() ||
+ 						GET_TEAM(agentId).isGoldTrading() ||
+ 						// Or they could ask nicely
+ 						(GET_TEAM(sponsorId).isAtWar(targetId) &&
+ 						GET_TEAM(agentId).AI_getAttitude(sponsorId) >=
+-						ATTITUDE_PLEASED)) ? 5 : 0));
++						ATTITUDE_PLEASED)) ? 5 : 0)));
+ 			}
+ 			if(u > utilityThresh)
+ 				return NO_DENIAL;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 08ea6aafb..a2f9bba12 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -460,7 +460,7 @@ double WarUtilityAspect::partnerUtilFromTrade() {
+ 			weReceive = d.getFirstTrades();
+ 			isGift = (d.getLengthSecondTrades() == 0);
+ 		}
+-		if(TEAMID(d.getSecondPlayer()) == TEAMID(theyId)) {
++		else if(TEAMID(d.getSecondPlayer()) == TEAMID(theyId)) {
+ 			weReceive = d.getSecondTrades();
+ 			isGift = (d.getLengthFirstTrades() == 0);
+ 		}
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=22 omittedFiles=1 embeddedPatchBytes=81692

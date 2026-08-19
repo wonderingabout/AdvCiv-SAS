@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 414
+# Commit: 4733a19e22a30fc3eb222efeb7b7f7084d4ab544
+# History segment: K-Mod history
+# Parent used for diff: 7e480777a0bfccb89ac4c32b9f2c019083f3b6d7
+# Title: AI_localDefenceStrength and AI_localAttackStrength now take first strikes into account, with a very rough approximation. Made some further tweaks to the comm...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	21	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 20b73b730..0061ee982 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2414,11 +2414,7 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 		break;
+ 	case COMMERCE_CULTURE:
+ 		// COMMERCE_CULTURE AIWeightPercent is 25% in default xml
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/08/10                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix, Cultural Victory AI    (K-Mod edition)                                               */
+-/************************************************************************************************/
++		// (significantly changed by bbai & K-Mod)
+ 		// Adjustments for human player going for cultural victory (who won't have AI strategy set) 
+ 		// so that governors do smart things
+ 		if (pCity != NULL)
+@@ -2448,11 +2444,11 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 					else
+ 					{
+ 						// culture2
+-						iWeight *= 9 + iCultureRateRank;
+-						iWeight /= 3;
++						iWeight *= 7;
++						iWeight /= 2;
+ 					}
+ 				}
+-				// if one of the 3 close to the top, then still emphasize culture some, *2
++				// if one of the 3 close to the top, then still emphasize culture some
+ 				else if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 3)
+ 				{
+ 					iWeight *= bC3 ? 4 : 3;
+@@ -2484,26 +2480,22 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 		// pCity == NULL
+ 		else
+ 		{
+-			// weight multiplier changed for K-Mod
+-			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) >=90 )
++			// weight multipliers changed for K-Mod
++			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) >= 90)
+ 			{
+ 				iWeight *= 4;
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 70 )
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 70)
+ 			{
+ 				iWeight *= 3;
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 50 )
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 50)
+ 			{
+ 				iWeight *= 2;
+ 			}
+-			// K-Mod
+ 			iWeight *= AI_averageCulturePressure();
+ 			iWeight /= 100;
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		// K-Mod
+ 		if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0)
+ 		{
+@@ -12446,8 +12438,13 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 							if (iDistance > iMoves)
+ 								continue; // can't make it. (maybe?)
+ 						}
+-
+-						iPlotTotal += pLoopUnit->currEffectiveStr(bAtTarget ? pDefencePlot : pLoopPlot, NULL);
++						int iUnitStr = pLoopUnit->currEffectiveStr(bAtTarget ? pDefencePlot : pLoopPlot, NULL);
++						// first strikes are not counted in currEffectiveStr.
++						// actually, the value of first strikes is non-trivial to calculate... but we should so /something/ to take them into account.
++						iUnitStr *= 100 + 4 * pLoopUnit->firstStrikes() + 2 * pLoopUnit->chanceFirstStrikes();
++						iUnitStr /= 100;
++						// note. Most other parts of the code use 5% per first strike, but I figure we should go lower because this unit may get clobbered by collateral damage before fighting.
++						iPlotTotal += iUnitStr;
+ 					}
+ 				}
+ 			}
+@@ -12456,6 +12453,7 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 				// while since we're here, we might as well update our memory.
+ 				// (not for human players, otherwise the pathfinder might put us out of sync)
+ 				GET_TEAM(getTeam()).AI_setStrengthMemory(pLoopPlot, iPlotTotal);
++				FAssert(isTurnActive());
+ 			}
+ 			iTotal += iPlotTotal;
+ 		}
+@@ -12514,8 +12512,11 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 							}
+ 						}
+ 
+-						iTotal += pLoopUnit->currEffectiveStr(bUseTarget ? pTargetPlot : NULL, bUseTarget ? pLoopUnit : NULL);
+-
++						int iUnitStr = pLoopUnit->currEffectiveStr(bUseTarget ? pTargetPlot : NULL, bUseTarget ? pLoopUnit : NULL);
++						// first strikes. (see comments in AI_localDefenceStrength... although, maybe 5% would be better here?)
++						iUnitStr *= 100 + 4 * pLoopUnit->firstStrikes() + 2 * pLoopUnit->chanceFirstStrikes();
++						iUnitStr /= 100;
++						//
+ 						if (pLoopUnit->collateralDamage() > 0)
+ 						{
+ 							int iPossibleTargets = std::min(bUseTarget ? pTargetPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1 : INT_MAX, pLoopUnit->collateralDamageMaxUnits());
+@@ -12523,9 +12524,10 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 							if (iPossibleTargets > 0)
+ 							{
+ 								// collateral damage is not trivial to calculate. This estimate is pretty rough.
+-								iTotal += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 100;
++								iUnitStr += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 100;
+ 							}
+ 						}
++						iTotal += iUnitStr;
+ 					}
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5672

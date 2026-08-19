@@ -1,0 +1,244 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4737
+# Commit: ca48d0b889bf871887e448ab37c9403c8a4b321f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 64a633b346b24802bf40300500fafa1fbbc6d7ee
+# Title: partially add/display the changing among all leaders few (4 to be exact anyways etc) ACLs ideally would have lvoed to do a deeper affeciton resentment as sai...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	12	Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+3	0	README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+index f01046e37..8f3bfaa0d 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+@@ -16,7 +16,7 @@ AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS = "Negative Memories Resentments"
+ AI_HEADER_NO_WAR_AT = "No War At"
+ AI_HEADER_FLAVORS = "Flavors"
+ AI_HEADER_WAR_STRATEGY = "War Strategy"
+-AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Limits +/- Divisors"
++AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Lims +/- Divs"
+ AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
+ AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS = "Offer Refuse Attitude Thresholds"
+ AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS = "Demand Refuse Attitude Thresholds"
+@@ -60,6 +60,8 @@ ATTRIBUTES_TO_INVERT = set([
+ 	"iDogpileWarRand",
+ 	"iMaxWarMinAdjacentLandPercent",
+ 	"iLimitedWarRand",
++	# <!-- custom: ideally would make an aggregated attribute or/and(?) combined (maybe or rather here anyways etc) system, (see iShareWarAttitudeChangeLimit's code comment in this ai_attributes_displayed_config.py file for details) but displaying the info if hopefully helpful and simple enough for me to do this way first at least if not always or maybe not or maybe yes too though, but, in all cases anyways as is etc, hopefully helpful this way or maybe not, anyways etc, here in this simpler implementaiton that is not bad but jsut not ideal anyways etc, a lower score means more intense feelings of aversion/resentment towards a different religion ( - 5 < - 1) so inverting it, and 0 is where AI cares less (would have been so nice with an affection/resentment system but anyways as is mabye or not (but?) anyways etc -->
++	"iDifferentReligionAttitudeChangeLimit",
+ 	"iMakePeaceRand",
+ 	#
+ 	"iNoTechTradeThreshold",
+@@ -197,7 +199,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("Tr Tech", "iAggregatedContactTradeTechProb", "TradeTech"),
+ 		("Tr Bonus", "iAggregatedContactTradeBonusProb", "TradeBonus"),
+         ("Tr Map", "iAggregatedContactTradeMapProb", "TradeMap"),
+-		("GiveWeakHelp", "iAggregatedContactGiveHelpProb", "GiveHelp"),
++		("GiveWkHelp", "iAggregatedContactGiveHelpProb", "GiveHelp"), # <!-- custom: "Give (the) Weak(er player(s)) Help" if i am not mistaken and understood it correctly according to modiki or/and kujira's website description and my understanding of it anyways etc  (is a repetition of understanding twice i (maybe) understand... (3 times now but) anyways etc... -->
+ 		("Defensive Pact", "iAggregatedContactDefensivePactProb", "DefensivePact"),
+ 		("Perm. Alliance", "iAggregatedContactPermanentAllianceProb", "PermanentAlliance"),
+ 	),
+@@ -348,12 +350,14 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("Lim.W PR.", "iLimitedWarPowerRatio", ""),
+ 		("Risky Aggr", "iBaseAttackOddsChange", ""),
+         ("Risky Aggr Rand+", "iAttackOddsChangeRand", ""),
+-        ("W AllianceMaker", "iDeclareWarTradeRand", ""),
+-        ("Dogpile Likely", "iDogpileWarRand", ""),
+-        ("TribRef SneakW%", "iDemandRebukedSneakProb", ""),
+-		("TribRef W%", "iDemandRebukedWarProb", ""),
+-        ("Raz C %", "iRazeCityProb", ""),
++		("Raz C %", "iRazeCityProb", ""),
+         ("Build Unit %", "iBuildUnitProb", ""),
++		("TribRef SneakW%", "iDemandRebukedSneakProb", ""),
++		("TribRef W%", "iDemandRebukedWarProb", ""),
++		("Dogpile Likely", "iDogpileWarRand", ""),
++        ("W AllianceMaker", "iDeclareWarTradeRand", ""),
++		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
++		# <!-- custom: not ideal but putting the iShareWarAttitudeChangeLimit here in war strategy where i found some place, as it is one of the only 4 Attitude Changes +/- Limits +/- Changes that varies/"changes" if i mays ay anyways etc among all leaders in base AdvCiv XML and thus AdvCiv-SAS by extension (and its leaders_data too if i am not mistaken by extension too as it is directly derived from it (i.e. from said/such/the (AdvCiv-SAS's) XML anyways etc), ideally i would want to aggregate them (combining AC + ACL + AD to give a synthetic representation of these either aggregated like the previosu aggregated oens or maybe switch rather to a rela math computation formula (as i didn't know the exact formula and didn't want to make it too complicated as it was hard enough to just make it work xd but now i would love to, but anyways etc, for now most convenient is just to show the info about these 4 critically variying attributes and see later if or not if anyways etc i would aggregate or/and combine them or/and maybe the other aggregated attributes (some or all (of them) anyways etc) in a similar manner or not anyways etc, for now this is fast and hopefully representative enough (even though we don't see all raw vals or fields by doing it in such a way, hopefully better than nothig if i may say maybe or not but in all cases hopefully helpful maybe or not anyways etc ; ideally i would love (too) to represent (it this attitude changes +/- limits ++/- divisors system anyways etc) in an (for example for same religion Aggregated behaviour not yet named anyways etc) in an same religion such aggregated name behaviour affection and same religion such aggregated name behaviour resentment, meaning AI would be able to resent having same religion, or vice versa loving having a different religion, similarly to how the positive/negative memory with affection/resentment system works, this would be ideal and so loveable? lovely? so nice (but?) anyways etc going for most simple for now if not for always or not or/and other or/and not (or other? or not?) (and other? and not?) anyways etc, this information is useful so hopefuly helpful to display it or maybe not or yes or/and(?) other or/and(?) not anyways etc -->
+ 		("ResistCapitulP.M", "iVassalPowerModifier", ""),
+ 		("RefToTalkW Span", "iRefuseToTalkWarThreshold", ""),
+         ("MakePeaceLikely", "iMakePeaceRand", ""),
+@@ -364,7 +368,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("Max Gold Tr%", "iMaxGoldTradePercent", ""),
+ 		("Max GPT Tr%", "iMaxGoldPerTurnTradePercent", ""),
+ 		("NoTechYetRdy%", "iTechTradeKnownPercent", ""),
+-		("NoTechTooAdvTrT", "iNoTechTradeThreshold", ""),
++		("NoTech2AdvTrT", "iNoTechTradeThreshold", ""),
+ 		("Wonder C.R", "iWonderConstructRand", ""),
+ 	),
+     
+@@ -395,16 +399,25 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 	),
+ 
+ 	# 📉 ACs +/- Limits
++	# <!-- custom: see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details -->
+ 	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
++		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
++		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
++		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
++		# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details  -->
+ 		("Same Religion AC", "iSameReligionAttitudeChange", ""),
+ 		("Same Religion AD", "iSameReligionAttitudeDivisor", ""),
+-		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
++		#
++		# ACL missing from this category
++		#
+         ("Diff.Religion AC", "iDifferentReligionAttitudeChange", ""),
+ 		("Diff.Religion AD", "iDifferentReligionAttitudeDivisor", ""),
+-		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
++		# ACL missing from this category
+ 		("Favorite Civic AC", "iFavoriteCivicAttitudeChange", ""),
+ 		("Favorite Civic AD", "iFavoriteCivicAttitudeDivisor", ""),
+-		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
++		#
++		# ACL missing from this category
++		#
+ 		("Lost W AC", "iLostWarAttitudeChange", ""),
+ 		("At W AD", "iAtWarAttitudeDivisor", ""),
+ 		("At W ACL", "iAtWarAttitudeChangeLimit", ""),
+@@ -412,7 +425,9 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("At Peace ACL", "iAtPeaceAttitudeChangeLimit", ""),
+ 		("Share W AC", "iShareWarAttitudeChange", ""),
+ 		("Share W AD", "iShareWarAttitudeDivisor", ""),
+-		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
++		#
++		# ACL missing from this category
++		#
+ 		("Bonus Tr AD", "iBonusTradeAttitudeDivisor", ""),
+ 		("Bonus Tr ACL", "iBonusTradeAttitudeChangeLimit", ""),
+ 		("Open Borders AD", "iOpenBordersAttitudeDivisor", ""),
+
+diff --git a/README.md b/README.md
+index 9e7d0b0d7..d534bed2c 100644
+--- a/README.md
++++ b/README.md
+@@ -65,8 +65,10 @@ Here is an example below of how it looks ingame in the sevopedia leader category
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
+@@ -76,6 +78,7 @@ Here is an example below of how it looks ingame in the sevopedia leader category
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG" width="250"></img>
+ 
+ #### Other sevopedia category examples
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG
+index 6e11e588a..21cb29560 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG
+index ec2b522b7..abc4af536 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG
+index cba736df9..fb6ebf453 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG
+index c1727ad03..7ebde83d2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG
+index 1b31cadd9..764b736e6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG
+index 518e07a89..d059fcd4f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG
+index 2c556bef7..ff76943b9 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG
+index eb3ae2579..5803168a7 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG
+index 727835aee..b188ec82e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG
+new file mode 100644
+index 000000000..7def4e864
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG
+index 2aa27943d..89f43acc5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG
+index 6ec3276ce..239373a87 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG
+index a444a84b8..c6de4a6cd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG
+new file mode 100644
+index 000000000..b676249e1
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG
+index 3448c45e1..c89abd016 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG
+index 3ed9687b7..132d2e48e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG
+new file mode 100644
+index 000000000..a9274e565
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG
+index 0e6003494..7d4b4c69c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=17307

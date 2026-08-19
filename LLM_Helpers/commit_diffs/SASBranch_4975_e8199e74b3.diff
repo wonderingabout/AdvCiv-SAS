@@ -1,0 +1,475 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4975
+# Commit: e8199e74b391efc36a2f156694e2f672a2d6ca5f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7e5feb72ab0884ef1cd1e470308c6f3b74c6fab5
+# Title: rename "_RIFLING" with "_FIREARMS"
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+10	10	Assets/XML/Events/CIV4EventTriggerInfos.xml
+11	11	Assets/XML/Technologies/CIV4TechInfos.xml
+5	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+5	0	Assets/XML/Text/CIV4GameText_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Units/CIV4PromotionInfos.xml
+19	19	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 7307d5b53..e245d0ec4 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -13657,8 +13657,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_RIFLING</ScriptID>
+-		<SoundID>SND_TECH_RIFLING</SoundID>
++		<ScriptID>AS2D_TECH_FIREARMS</ScriptID>
++		<SoundID>SND_TECH_FIREARMS</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15773,8 +15773,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_RIFLING</ScriptID>
+-		<SoundID>SND_TECH_MP_RIFLING</SoundID>
++		<ScriptID>AS2D_TECH_MP_FIREARMS</ScriptID>
++		<SoundID>SND_TECH_MP_FIREARMS</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 020f916c6..b388a4c53 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8893,7 +8893,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_RIFLING</SoundID>
++			<SoundID>SND_TECH_FIREARMS</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Rifling</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9537,7 +9537,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_RIFLING</SoundID>
++			<SoundID>SND_TECH_MP_FIREARMS</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Rifling</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 42c65a4df..8e6a36ac9 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -24747,7 +24747,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+-			<!-- custom: was TECH_RIFLING -->
++			<!-- custom: was TECH_FIREARMS -->
+ 			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			<!-- custom: was TECH_CODE_OF_LAWS -->
+ 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index f54a0ddbf..f0ea21d97 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -6081,7 +6081,7 @@
+ 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -8062,7 +8062,7 @@
+ 			<AndPreReqs/>
+ 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE anyways etc -->
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -8320,7 +8320,7 @@
+ 			<OrPreReqs/>
+ 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute here TECH_CHEMISTRY -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+@@ -11934,7 +11934,7 @@
+ 			<AndPreReqs/>
+ 			<!-- custom: changed to another/account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc -->
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -12022,7 +12022,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -12449,7 +12449,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -14696,7 +14696,7 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -14783,7 +14783,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -14868,7 +14868,7 @@
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -14955,7 +14955,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index c5b875b06..56e9ed046 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1293,7 +1293,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+@@ -1448,7 +1448,7 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_BANKING</PrereqTech>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_LIBERALISM_QUOTE</Quote>
+@@ -5768,19 +5768,19 @@
+ 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MILITARY_SCIENCE</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MILITARY_SCIENCE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Military Tradition.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,5</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_RIFLING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_RIFLING</Type>
+-			<Description>TXT_KEY_TECH_RIFLING</Description>
+-			<Civilopedia>TXT_KEY_TECH_RIFLING_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_FIREARMS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_FIREARMS</Type>
++			<Description>TXT_KEY_TECH_FIREARMS</Description>
++			<Civilopedia>TXT_KEY_TECH_FIREARMS_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_RIFLING_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+@@ -5842,9 +5842,9 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_RIFLING_QUOTE</Quote>
+-			<Sound>AS2D_TECH_RIFLING</Sound>
+-			<SoundMP>AS2D_TECH_MP_RIFLING</SoundMP>
++			<Quote>TXT_KEY_TECH_FIREARMS_QUOTE</Quote>
++			<Sound>AS2D_TECH_FIREARMS</Sound>
++			<SoundMP>AS2D_TECH_MP_FIREARMS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Rifling.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,7</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_STEAM_POWER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index db45ab055..0bdef019e 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -910,4 +910,9 @@
+ 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION</Tag>
+ 		<English>Space Exploration</English>
+ 	</TEXT>
++	<!-- custom: rename "_RIFLING" with "_FIREARMS" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_FIREARMS</Tag>
++		<English>Firearms</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index b766aefd1..ecc7be4e8 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -420,6 +420,11 @@
+ 		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
+ 		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
+ 	</TEXT>
++	<!-- custom: rename "_RIFLING" with "_FIREARMS" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_FIREARMS_QUOTE</Tag>
++		<English>"Political power grows out of the barrel of a gun." - Mao Zedong</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 4258c79ba..10bed3039 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -809,4 +809,12 @@
+ 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_PEDIA</Tag>
+ 		<English>[TAB]Space exploration is the physical investigation of outer space by uncrewed robotic space probes and through human spaceflight.[PARAGRAPH:1]While the observation of objects in space, known as astronomy, predates reliable recorded history, it was the development of large and relatively efficient rockets during the mid-twentieth century that allowed physical space exploration to become a reality. Common rationales for exploring space include advancing scientific research, national prestige, uniting different nations, ensuring the future survival of humanity, and developing military and strategic advantages against other countries.[PARAGRAPH:1]The early era of space exploration was driven by a "Space Race" in which the Soviet Union and the United States vied to demonstrate their technological superiority. Landmarks of this era include the launch of the first human-made object to orbit Earth, the Soviet Union's Sputnik 1, on 4 October 1957, and the first Moon landing by the American Apollo 11 mission on 20 July 1969. The Soviet space program achieved many of the first milestones, including the first living being in orbit in 1957, the first human spaceflight (Yuri Gagarin aboard Vostok 1) in 1961, the first spacewalk (by Alexei Leonov) on 18 March 1965, the first automatic landing on another celestial body in 1966, and the launch of the first space station (Salyut 1) in 1971.[PARAGRAPH:1]In the 1970s, focus shifted from one-off flights to renewable hardware, such as the Space Shuttle program, and from competition to cooperation, the foremost example being the International Space Station (ISS), built between 1998 and 2011.[PARAGRAPH:1]The 2000s brought advancements in the national space-exploration programs of China, the European Union, Japan, and India. The 2010s saw the rise of the private space industry in earnest with the development of private launch vehicles, space capsules, and satellite manufacturing. In the 2020s, the two primary global programs gaining traction are Moon-focused: the Chinese-led International Lunar Research Station and the U.S.-led Artemis Program, with its plan to build the Lunar Gateway and the Artemis Base Camp, each with a set of international partners.[PARAGRAPH:2]The future of space exploration involves both telescopic and physical explorations of space by robotic spacecraft and human spaceflight. Near-term physical exploration missions, focused on obtaining new information about the Solar System, are planned and announced by both national and private organisations.[PARAGRAPH:1]Tentative plans for crewed orbital and landing missions to the Moon and Mars to establish scientific outposts will later enable permanent and self-sufficient settlements. Further exploration will potentially involve expedition and the other planets and settlements on the Moon, as well as establishing mining and fueling outposts, particularly in the asteroid belt. Physical exploration outside the Solar System will be robotic for the foreseeable future.[PARAGRAPH:2]Investment in space exploration has dramatically shifted since the 20th century Space race. Space exploration of the late 20th century was driven by competition between the Soviet Union and the United States to achieve the first spaceflight. Now, the private sector and national governments are again investing in space exploration. However, this time they are motivated by protecting human life from catastrophic events and leveraging the resources of space.[PARAGRAPH:2]It has been argued that space colonization is a means of ensuring the survival of human civilization given a planetary disaster. Colonizing other planets allows for the dispersal of humans and thus increases the likelihood of survival given a planetary disaster. The availability of additional resources that can be mined from space could potentially expand the capabilities of humans and largely benefit society. Leveraging these resources and moving high polluting industries to space could reduce the emissions on Earth and ultimately lead to finding cleaner energy sources. The primary blockers to colonizing space include technological and economic challenges.[PARAGRAPH:1]Many private companies are working to make space travel more efficient in hopes to reduce the overall cost of space travel, and thus space colonization. SpaceX has been a dominant leader in this push for efficient exploration with the release of the Falcon 9, a reusable rocket.[PARAGRAPH:2]The unique attributes of space enable astronauts to conduct research that could not otherwise be done on Earth, and the perspective from space looking at Earth enables scientists to gain more insight on the Earth's natural environment. Research conducted at the International Space Station aims to benefit human civilizations on Earth and extend human knowledge of space and space exploration. Currently, NASA's research at the ISS includes biomedical research, material science, technology advancement, and methods to enable further space exploration.[PARAGRAPH:1]Anti and microgravity enable astronauts to execute medical research that is impossible to perform on Earth. For example, NASA's research on new treatment options for complex diseases, such as Duchenne Muscular Dystrophy, require the use of a microgravity environment to allow the microparticles in the treatment solution to stay robust. NASA has also reported research investment in microbial vaccine development and microencapsulation of drugs for targeted and more efficient treatment delivery.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: rename "_RIFLING" with "_FIREARMS"; also pedia entry from https://en.wikipedia.org/wiki/Firearm#History similarly anyways etc, and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_FIREARMS_PEDIA</Tag>
++		<English>[TAB]The first firearms were invented in 10th century China when the man-portable fire lance (a bamboo or metal tube that could shoot ignited gunpowder) was combined with projectiles such as scrap metal, broken porcelain, or darts/arrows.[PARAGRAPH:1]An early depiction of a firearm is a sculpture from a cave in Sichuan, China. The sculpture dates to the 12th century and represents a figure carrying a vase-shaped bombard, with flames and a cannonball coming out of it. The oldest surviving gun, the Heilongjiang hand cannon, was a hand cannon made of bronze, dating to 1288 because it was discovered at a site in modern-day Acheng District, Heilongjiang, China, where the Yuan Shi records that battles were fought at that time. The firearm had a 17.5 cm (6.9 in) barrel of a 2.5 cm (1 in) diameter, a 6.6 cm (2.6 in) chamber for the gunpowder and a socket for the firearm's handle. It is 34 centimetres (13 in) long and 3.54 kilograms (7.8 lb) without the handle, which would have been made of wood.[PARAGRAPH:1]The Arabs and Mamluks had firearms in the late-13th century. Europeans obtained firearms in the 14th century. The Koreans adopted firearms from the Chinese in the 14th century. The Iranians (first Aq Qoyunlu and Safavids) and Indians (first Mughals) all got them no later than the 15th century, from the Ottoman Turks. The people of the Nusantara archipelago of Southeast Asia used the long arquebus at least by the last quarter of the 15th century.[PARAGRAPH:1]Even though the knowledge of making gunpowder-based weapons in the Nusantara archipelago had been known after the failed Mongol invasion of Java (1293), and the predecessor of firearms, the pole gun (bedil tombak), was recorded as being used by Java in 1413, the knowledge of making "true" firearms came much later, after the middle of 15th century. It was brought by the Islamic nations of West Asia, most probably the Arabs. The precise year of introduction is unknown, but it may be safely concluded to be no earlier than 1460. Before the arrival of the Portuguese in Southeast Asia, the natives already possessed firearms, the Java arquebus.[PARAGRAPH:1]The technology of firearms in Southeast Asia further improved after the Portuguese capture of Malacca (1511). Starting in the 1513, the traditions of German-Bohemian gun-making merged with Turkish gun-making traditions. This resulted in the Indo-Portuguese tradition of matchlocks. Indian craftsmen modified the design by introducing a very short, almost pistol-like buttstock held against the cheek, not the shoulder, when aiming. They also reduced the caliber and made the gun lighter and more balanced. This was a hit with the Portuguese who did a lot of fighting aboard ship and on river craft, and valued a more compact gun. The Malaccan gunfounders, compared as being in the same level with those of Germany, quickly adapted these new firearms, and thus a new type of arquebus, the istinggar, appeared. The Japanese did not acquire firearms until the 16th century, and then from the Portuguese rather than from the Chinese.[PARAGRAPH:1]Developments in firearms accelerated during the 19th and 20th centuries. Breech-loading became more or less a universal standard for the reloading of most hand-held firearms and continues to be so with some notable exceptions (such as mortars). Instead of loading individual rounds into weapons, magazines holding multiple munitions were adopted - these aided rapid reloading. Automatic and semi-automatic firing mechanisms meant that a single soldier could fire many more rounds in a minute than a vintage weapon could fire over the course of a battle. Polymers and alloys in firearm construction made weaponry progressively lighter and thus easier to deploy. Ammunition changed over the centuries from simple metallic ball-shaped projectiles that rattled down the barrel to bullets and cartridges manufactured to high precision. Especially in the past century particular attention has focused on accuracy and sighting to make firearms altogether far more accurate than ever before. More than any single factor though, firearms have proliferated due to the advent of mass production - enabling arms-manufacturers to produce large quantities of weaponry to a consistent standard.[PARAGRAPH:1]Velocities of bullets increased with the use of a "jacket" of metals such as copper or copper alloys that covered a lead core and allowed the bullet to glide down the barrel more easily than exposed lead. Such bullets are known as "full metal jacket" (FMJ). Such FMJ bullets are less likely to fragment on impact and are more likely to traverse through a target while imparting less energy. Hence, FMJ bullets impart less tissue damage than non-jacketed bullets that expand. This led to their adoption for military use by countries adhering to the Hague Convention of 1899.[PARAGRAPH:1]That said, the basic principle behind firearm operation remains unchanged to this day. A musket of several centuries ago is still similar in principle to a modern-day rifle - using the expansion of gases to propel projectiles over long distances - albeit less accurately and rapidly.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 5e8712954..4a4cc1651 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -794,7 +794,7 @@
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
+ 			<!-- custom: was TECH_GUNPOWDER -->
+-			<TechPrereq>TECH_RIFLING</TechPrereq>
++			<TechPrereq>TECH_FIREARMS</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 03dad643c..3610f73ef 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -11385,7 +11385,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_GUNPOWDER -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -11573,7 +11573,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_GUNPOWDER -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -11792,7 +11792,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_GUNPOWDER -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -12010,7 +12010,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_GUNPOWDER -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -12243,10 +12243,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
++			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_FIREARMS with techTypes empty anyways etc -->
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -12451,10 +12451,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
++			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_FIREARMS with techTypes empty anyways etc -->
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -12674,10 +12674,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
++			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_FIREARMS with techTypes empty anyways etc -->
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -12925,7 +12925,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ASSEMBLY_LINE and tech types TECH_RIFLING -->
++			<!-- custom: was TECH_ASSEMBLY_LINE and tech types TECH_FIREARMS -->
+ 			<PrereqTech>TECH_FASCISM</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+@@ -13132,7 +13132,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was tech_industrialism and tech_types tech_rifling -->
++			<!-- custom: was tech_industrialism and tech_types tech_FIREARMS -->
+ 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_FASCISM</PrereqTech>
+@@ -14343,7 +14343,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was the now removed TECH_ROBOTIC_RIGHTS and TECH_RIFLING -->
++			<!-- custom: was the now removed TECH_ROBOTIC_RIGHTS and TECH_FIREARMS -->
+ 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -17620,7 +17620,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -17836,7 +17836,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -18060,7 +18060,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -18286,7 +18286,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
+-			<PrereqTech>TECH_RIFLING</PrereqTech>
++			<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -18506,7 +18506,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -18712,7 +18712,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=31715

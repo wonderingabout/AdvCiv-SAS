@@ -1,0 +1,144 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1976
+# Commit: 39ae51e3d62fb82767b55187be1e203a290e5ac0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 02c4e68dd553f48255a64090c54340d914588022
+# Title: Fix 2 recently introduced bugs in sea unit AI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	21	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9b4155718..6cfe5232b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -4013,11 +4013,14 @@ void CvUnitAI::AI_reserveMove()
+ 
+ 	if (getPlot().getOwner() == getOwner())
+ 	{
+-		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE, -1, -1, 1, -1, MOVE_SAFE_TERRITORY))
++		if (!noDefensiveBonus() && // advc.040: No Catapults
++			AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE,
++			-1, -1, 1, -1, MOVE_SAFE_TERRITORY))
+ 		{
+ 			return;
+ 		}
+-		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_WORKER, -1, -1, 1, -1, MOVE_SAFE_TERRITORY))
++		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_WORKER,
++			-1, -1, 1, -1, MOVE_SAFE_TERRITORY))
+ 		{
+ 			return;
+ 		}
+@@ -9809,18 +9812,21 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath
+ 		if (eUnitAI != NO_UNITAI && eTransportAI != eUnitAI)
+ 			continue; // advc
+ 
+-		int const iCargoSpaceAvailable =
+-				pTransport->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) -
+-				kOwner.AI_unitTargetMissionAIs(pTransport, aeLoadMissionAI,
+-				iLoadMissionAICount, getGroup());
++		int iCargoSpaceAvailable = pTransport->cargoSpaceAvailable(
++				getSpecialUnitType(), getDomainType());
++		// advc.opt: Check for 0 space before counting TargetMissionAIs
+ 		if (iCargoSpaceAvailable <= 0)
+-			continue; // advc
++			continue;
++		iCargoSpaceAvailable -= kOwner.AI_unitTargetMissionAIs(
++				pTransport, aeLoadMissionAI, iLoadMissionAICount, getGroup());
++		if (iCargoSpaceAvailable <= 0)
++			continue;
+ 		if ((ePassengerAI == NO_UNITAI ||
+-			pTransport->getUnitAICargo(eTransportAI) > 0) &&
++			pTransport->getUnitAICargo(ePassengerAI) > 0) &&
+ 			(iMinCargo == -1 || pTransport->getCargo() >= iMinCargo))
+ 		{	// <advc.040> Leave space for Settler and protection
+ 			if(eTransportAI == UNITAI_SETTLER_SEA && eUnitAI == UNITAI_SETTLER_SEA &&
+-				(eTransportAI == UNITAI_WORKER ||
++				(ePassengerAI == UNITAI_WORKER ||
+ 				AI_getUnitAIType() == UNITAI_WORKER) &&
+ 				pTransport->cargoSpace() -
+ 				pTransport->getUnitAICargo(UNITAI_WORKER) <= 2)
+@@ -17330,21 +17336,17 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+ 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
+-		if(kPlot.getOwner() != getOwner() || /*!AI_plotValid(kPlot)*/
+-			!isArea(kPlot.getArea())) // advc.opt: Replacing the above
++		if(kPlot.getOwner() != getOwner() || /*!AI_plotValid(kPlot)*/  // <advc.opt>
++			(getDomainType() == DOMAIN_SEA ? !kPlot.isWater() :
++			!isArea(kPlot.getArea()))) // </advc.opt>
+ 		{
+ 			continue;
+ 		}
+-		// <advc.300> Barbarian workers mustn't improve bonuses around far-away cities
+-		if(isBarbarian() && (kPlot.getWorkingCity() == NULL ||
+-			kPlot.getWorkingCity() != getPlot().getWorkingCity()))
+-		{
+-			continue; // </advc.300>
+-		}
++
+ 		bool bCanImprove = kPlot.isArea(getArea());
+ 		if (!bCanImprove)
+ 		{
+-			if (DOMAIN_SEA == getDomainType() && kPlot.isWater() &&
++			if (getDomainType() == DOMAIN_SEA && kPlot.isWater() &&
+ 				getPlot().isAdjacentToArea(kPlot.getArea()))
+ 			{
+ 				bCanImprove = true;
+@@ -17361,6 +17363,14 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute)
+ 			continue;
+ 
++		// <advc.300> Barbarian workers shouldn't improve bonuses around remote cities
++		if(isBarbarian() && (kPlot.getWorkingCity() == NULL ||
++			kPlot.getWorkingCity() != getPlot().getWorkingCity()))
++		{
++			continue;
++		} // </advc.300>
++
++
+ 		/*ImprovementTypes eImprovement = kPlot.getImprovementType();
+ 		bool bDoImprove = false;
+ 		if (eImprovement == NO_IMPROVEMENT)
+@@ -18309,7 +18319,7 @@ bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,  // advc: style changes
+ 				int iCount = pCity->getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie,
+ 						eUnitAI, -1, getOwner(), NO_TEAM, PUF_isFiniteRange);
+ 
+-				if (bCountProduction && (pCity->getProductionUnitAI() == eUnitAI))
++				if (bCountProduction && pCity->getProductionUnitAI() == eUnitAI)
+ 				{
+ 					if (pCity->getProductionTurnsLeft() < 4)
+ 					{
+@@ -18320,7 +18330,8 @@ bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,  // advc: style changes
+ 						}
+ 					}
+ 				}
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCity->plot(), MISSIONAI_PICKUP, getGroup()) < ((iCount + (cargoSpace() - 1)) / cargoSpace()))
++				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCity->plot(), MISSIONAI_PICKUP, getGroup()) <
++					(iCount + cargoSpace() - 1) / cargoSpace())
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_PICKUP, pCity->plot());
+ 					return true;
+@@ -18370,7 +18381,7 @@ bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,  // advc: style changes
+ 			continue;*/
+ 
+ 		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(),
+-				MISSIONAI_PICKUP, getGroup()) < (iCount + cargoSpace() - 1) / cargoSpace())
++			MISSIONAI_PICKUP, getGroup()) < (iCount + cargoSpace() - 1) / cargoSpace())
+ 		{
+ 			if (!pLoopCity->AI_isDanger())
+ 				continue;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5218

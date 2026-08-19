@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2978
+# Commit: 8cdc15689469eb4779ce39f5c31ccd5346855e32
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f88b0d6bc83d29d70585d6f3b0c97713ae954500
+# Title: Define increment operators only for enum types
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvEnums.h
+32	46	CvGameCoreDLL/CvInfoEnums.h
+1	0	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index cd266bb30..132478adc 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -78,6 +78,7 @@ enum PlotNumTypes
+ {
+ 	NO_PLOT_NUM = -1
+ };
++DEFINE_INCREMENT_OPERATORS(PlotNumTypes)
+ 
+ ENUM_START(GameState, GAMESTATE)
+ 	GAMESTATE_ON,
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index d9b79a505..9efdcff0c 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -6,49 +6,6 @@
+ /*  advc.enum: New header; mostly for macros dealing with CvInfo classes and their
+ 	associated enum types. */
+ 
+-/*  Increment/decrement functions copied from "We the People" (original author: Nightinggale).
+-	For iterating over an enum when FOR_EACH_ENUM isn't applicable. Also used by EnumMap. */
+-template <class T>
+-static inline T& operator++(T& c)
+-{
+-	c = static_cast<T>(c + 1);
+-	return c;
+-}
+-template <class T>
+-static inline T operator++(T& c, int)
+-{
+-	T cache = c;
+-	c = static_cast<T>(c + 1);
+-	return cache;
+-}
+-template <class T>
+-static inline T& operator--(T& c)
+-{
+-	c = static_cast<T>(c - 1);
+-	return c;
+-}
+-template <class T>
+-static inline T operator--(T& c, int)
+-{
+-	T cache = c;
+-	c = static_cast<T>(c - 1);
+-	return cache;
+-}
+-/*	advc: Also get rid of explicit casts when adding two enum values?
+-	I think it matters too rarely to bother. */
+-/*template <class T>
+-static inline T operator+(T leftSummand, T rightSummand)
+-{
+-	int iLeftSummand = leftSummand, iRightSummand = rightSummand;
+-	return static_cast<T>(iLeftSummand + rightSummand);
+-}
+-template <class T>
+-static inline T operator-(T minuend, T subtrahend)
+-{
+-	int iMinuend = minuend, iSubtrahend = subtrahend;
+-	return static_cast<T>(iMinuend - iSubtrahend);
+-}*/
+-
+ #define FOR_EACH_ENUM(TypeName) \
+ 	for (TypeName##Types eLoop##TypeName = (TypeName##Types)0; \
+ 			eLoop##TypeName < getEnumLength(eLoop##TypeName); \
+@@ -276,11 +233,38 @@ static inline T operator-(T minuend, T subtrahend)
+ 		return static_cast<Name##Types>(gGlobals.getNum##Name##Infos()); \
+ 	}
+ 
++/*  Increment/decrement functions based on code in the "We the People" mod.
++	Used by EnumMap, otherwise mostly superseded by FOR_EACH_ENUM. */
++#define DEFINE_INCREMENT_OPERATORS(EnumType) \
++	__forceinline EnumType& operator++(EnumType& e) \
++	{ \
++		e = static_cast<EnumType>(e + 1); \
++		return e; \
++	} \
++	__forceinline EnumType operator++(EnumType& e, int) \
++	{ \
++		EnumType eResult = e; \
++		e = static_cast<EnumType>(e + 1); \
++		return eResult; \
++	} \
++	__forceinline EnumType& operator--(EnumType& e) \
++	{ \
++		e = static_cast<EnumType>(e - 1); \
++		return e; \
++	} \
++	__forceinline EnumType operator--(EnumType& e, int) \
++	{ \
++		EnumType eResult = e; \
++		e = static_cast<EnumType>(e - 1); \
++		return eResult; \
++	}
++
+ #define MAKE_INFO_ENUM(Name, PREFIX) \
+ enum Name##Types \
+ { \
+ 	NO_ENUM_TYPE(PREFIX), \
+-};
++}; \
++DEFINE_INCREMENT_OPERATORS(Name##Types)
+ 
+ /*  No variadic macros in MSVC03, so, without using an external code generator,
+ 	this is all I can do: */
+@@ -292,11 +276,13 @@ enum Name##Types \
+ #define ENUM_END(Name, PREFIX) \
+ 	NUM_ENUM_TYPES(PREFIX) \
+ }; \
+-SET_ENUM_LENGTH_STATIC(Name, PREFIX)
++SET_ENUM_LENGTH_STATIC(Name, PREFIX) \
++DEFINE_INCREMENT_OPERATORS(Name##Types)
+ // For enumerators that are supposed to be excluded from iteration
+ #define ENUM_END_HIDDEN(Name, PREFIX) \
+ }; \
+-SET_ENUM_LENGTH_STATIC(Name, PREFIX)
++SET_ENUM_LENGTH_STATIC(Name, PREFIX) \
++DEFINE_INCREMENT_OPERATORS(Name##Types)
+ // (Let's worry about #ifdef _USRDLL only when the source of the EXE is released, i.e. probably never.)
+ 
+ namespace info_enum_detail
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index edc704d10..0f1feead0 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1290,6 +1290,7 @@ template<> struct EnumMapGetDefault<PlotNumTypes> {
+ // The other getEnumLength functions are generated through macros in CvEnums.h
+ #define SET_NONXML_ENUM_LENGTH(TypeName, eLength) \
+ 	__forceinline TypeName getEnumLength(TypeName) { return eLength; } \
++	DEFINE_INCREMENT_OPERATORS(TypeName) \
+ 	template <> struct EnumMapGetDefault<TypeName> \
+ 	{ \
+ 		enum { \
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4193

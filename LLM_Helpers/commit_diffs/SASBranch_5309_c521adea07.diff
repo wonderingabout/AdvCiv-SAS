@@ -1,0 +1,454 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5309
+# Commit: c521adea073f65408314f1244a432845ce6e687c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8ecf997835948891e8803c01bd110bbe3e7f5ff6
+# Title: Further compact and enhance game speed chart - Omit only m1 (January) because plain 2069 can be treated as 2069m1 in our display convention. - Keep m12 (Dece...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+53	51	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+4	112	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+2	7	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+1	39	Long_Comments/Long_Comments_XML.txt
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index c849261f8..dd229029b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -354,28 +354,27 @@ class SevoPediaGameSpeedChart:
+ 
+ 			iNumInc = info.getNumTurnIncrements()
+ 			cum_months = 0
+-			# Era display (per speed): show "BC" only once (first BC date), and
+-			# show "AD" only once (first AD date). After that, omit the era suffix
+-			# to save horizontal space in the calendar table.
+-			era_seen = {"BC": False, "AD": False}
++			# Era labels are omitted for compactness (BC is implied before the transition, AD after).
++			# To still make the BC->AD boundary obvious, we mark the *first* segment that reaches AD
++			# with an arrow ("->") instead of "=".
++			bReachedAD = (start_year >= 0)
+ 			for iInc in xrange(iNumInc):
+ 				turn_info = info.getGameTurnInfo(iInc)
+ 				iTurns = turn_info.iNumGameTurnsPerIncrement
+ 				iMonthInc = turn_info.iMonthIncrement
+ 
+ 				iSegMonths = iTurns * iMonthInc
+-				iStartTotal = cum_months
++				iStartYear = start_year + (cum_months / 12)
+ 				iEndTotal = cum_months + iSegMonths
+-
+-				iStartYear = start_year + (iStartTotal / 12)
+-				iStartMonth = (iStartTotal % 12) + 1
+ 				iEndYear = start_year + (iEndTotal / 12)
+ 				iEndMonth = (iEndTotal % 12) + 1
+ 
+-				szCell = self._format_calendar_segment(iStartYear, iStartMonth, iEndYear, iEndMonth, iTurns, iMonthInc, era_seen)
+-
++				bEraFlip = (not bReachedAD) and (iStartYear < 0) and (iEndYear >= 0)
++				szCell = self._format_calendar_segment(iEndYear, iEndMonth, iTurns, iMonthInc, bEraFlip)
+ 				parsed_data[speed_type][calendar_fields[iInc]] = szCell
+ 				cum_months = iEndTotal
++				if iEndYear >= 0:
++					bReachedAD = True
+ 
+ 		# Display order:
+ 		# - base rows (row_specs order)
+@@ -436,29 +435,23 @@ class SevoPediaGameSpeedChart:
+ 			return "%dk" % (iAbsYear / 1000)
+ 		return str(iAbsYear)
+ 
+-	def _era_suffix(self, iYear):
+-		# Calendar eras: negative years are BC, year 0+ is AD.
+-		if iYear < 0:
+-			return "BC"
+-		return "AD"
+-
+-	def _format_year_label(self, iYear, bIncludeEra=True):
+-		# Compact year label. If bIncludeEra is False, omit the "BC"/"AD" suffix to save space.
+-		# Examples: "50kBC", "1900AD", "2076"
++	def _format_year_label(self, iYear):
++		# Compact year label without era text.
++		# In the calendar table we omit "BC"/"AD" everywhere:
++		# - Before the BC->AD transition, years are implicitly BC.
++		# - The first segment that reaches AD is marked with "->" in the cell.
++		# - After that, years are implicitly AD.
+ 		if iYear < 0:
+-			szYear = self._format_year_magnitude(-iYear)
+-		else:
+-			szYear = self._format_year_magnitude(iYear)
+-		if bIncludeEra:
+-			return "%s%s" % (szYear, self._era_suffix(iYear))
+-		return szYear
+-
+-	def _format_date_label(self, iYear, iMonth, bIncludeEra):
+-		# Date label for calendar cells.
+-		# - Era suffix is optional (caller enforces: show each era only once per speed).
+-		# - Month is shown only when it adds information: m2..m11 (omit m1 and m12 for concision).
+-		sz = self._format_year_label(iYear, bIncludeEra)
+-		if iMonth == 1 or iMonth == 12:
++			return self._format_year_magnitude(-iYear)
++		return self._format_year_magnitude(iYear)
++
++	def _format_date_label(self, iYear, iMonth):
++		# Date label: <year>[m2..m12]
++		# Month is shown only when it adds information.
++		# We omit m1 (January) for concision, but we KEEP m12 (December)
++		# because <year>m12 is not the same as <year+1>.
++		sz = self._format_year_label(iYear)
++		if iMonth == 1:
+ 			return sz
+ 		return "%sm%d" % (sz, iMonth)
+ 
+@@ -492,25 +485,35 @@ class SevoPediaGameSpeedChart:
+ 		szYears = self._format_years_per_turn(years_per_turn)
+ 		return ("*", "%sm%d" % (szYears, rem_months))
+ 
+-	def _format_calendar_segment(self, start_year, start_month, end_year, end_month, turns, month_inc, era_seen):
+-		# Examples (month suffix is shown only for m2..m11; we omit m1/m12 for concision):
+-		# - "50kBC+2*10k=30k"         (BC shown once per speed; later BC dates omit "BC")
+-		# - "10+3*m6=0AD"             (first AD date shows "AD" once; later AD dates omit "AD")
+-		# - "1900+3*m6=1901m7"        (after AD has appeared, both sides omit "AD"; months can still show)
+-		# Era display rule (per speed): show each era suffix ("BC"/"AD") only on its first appearance.
+-		era_start = self._era_suffix(start_year)
+-		bShowStartEra = (not era_seen.get(era_start, False))
+-		szStart = self._format_date_label(start_year, start_month, bShowStartEra)
+-		era_seen[era_start] = True
+-
+-		era_end = self._era_suffix(end_year)
+-		bShowEndEra = (not era_seen.get(era_end, False))
+-		szEnd = self._format_date_label(end_year, end_month, bShowEndEra)
+-		era_seen[era_end] = True
+-
++	def _format_calendar_segment(self, end_year, end_month, turns, month_inc, bEraFlip):
++		# Calendar cell format is intentionally compact:
++		#   "+<turns>*<rate><sep><endDate>"
++		# We omit the segment start date entirely to save horizontal space.
++		# (The start date is implied by the previous segment; for the first segment,
++		#  players already know START_YEAR / can look it up in XML.)
++		#
++		# Era handling:
++		# - We omit "BC"/"AD" text entirely (BC is implied before the transition, AD after).
++		# - We mark the *first* segment that reaches AD with "->" (instead of "=") so the
++		#   BC->AD boundary is obvious without repeating era text in every cell.
++		#   (This is also where years are shortest, so the marker doesn't bloat the row.)
++		#
++		# Month handling:
++		# - Month suffix is shown for m2..m12 (omit m1 only).
++		#   We keep m12 (December) because it is meaningfully different from <year+1>.
++		#
++		# Examples:
++		# - "+2*10k=30k"              (still BC; era implied)
++		# - "+3*m6->0"                (first segment that reaches AD)
++		# - "+3*m6=1901m7"            (later AD; era implied)
++		# - "+1*m3=2069m12"           (December is shown; it is not the same as 2070)
++		szEnd = self._format_date_label(end_year, end_month)
+ 		(szOp, szRate) = self._format_rate_per_turn(month_inc)
+-		return "%s+%d%s%s=%s" % (szStart, turns, szOp, szRate, szEnd)
+-
++		if bEraFlip:
++			szSep = "->"
++		else:
++			szSep = "="
++		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
+ 
+ 	def _beautify_field_name(self, raw_name):
+ 		# Keep field labels readable; only shorten trailing "Percent" to "%".
+@@ -530,7 +533,6 @@ class SevoPediaGameSpeedChart:
+ 
+ 		return name
+ 
+-
+ 	def _beautify_enum_name(self, raw_name):
+ 		name = raw_name
+ 		for prefix in ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_"):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index a9019c6f6..84362d52e 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -212,124 +212,16 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 	# 		<UnitAIWeightModifiers/>
+ 	# 		<ImprovementWeightModifiers/>
+ 	# 		<DiplomacyIntroMusicPeace>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_ANCIENT</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_CLASSICAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_MEDIEVAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_RENAISSANCE</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_INDUSTRIAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_MODERN</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_FUTURE</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
++	# 			etc.
+ 	# 		</DiplomacyIntroMusicPeace>
+ 	# 		<DiplomacyMusicPeace>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_ANCIENT</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_CLASSICAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_MEDIEVAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_RENAISSANCE</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_INDUSTRIAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_MODERN</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
+-	# 			<DiploMusicPeaceEra>
+-	# 				<EraType>ERA_FUTURE</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicPeaceEra>
++	# 			etc.
+ 	# 		</DiplomacyMusicPeace>
+ 	# 		<DiplomacyIntroMusicWar>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_ANCIENT</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_CLASSICAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_MEDIEVAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_RENAISSANCE</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_INDUSTRIAL</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_MODERN</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_FUTURE</EraType>
+-	# 				<DiploScriptId></DiploScriptId>
+-	# 			</DiploMusicWarEra>
++	# 			etc.
+ 	# 		</DiplomacyIntroMusicWar>
+ 	# 		<DiplomacyMusicWar>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_ANCIENT</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_EARLY</DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_CLASSICAL</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_EARLY</DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_MEDIEVAL</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_MIDDLE</DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_RENAISSANCE</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_MIDDLE</DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_INDUSTRIAL</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_LATE</DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_MODERN</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_LATE</DiploScriptId>
+-	# 			</DiploMusicWarEra>
+-	# 			<DiploMusicWarEra>
+-	# 				<EraType>ERA_FUTURE</EraType>
+-	# 				<DiploScriptId>AS2D_DIPLO_WARDRUMS_LATE</DiploScriptId>
+-	# 			</DiploMusicWarEra>
++	# 			etc.
+ 	# 		</DiplomacyMusicWar>
+ 	#
+ 	# and we have reached end of a leader info's xml, hopefully we parsed all we needed -->
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 59a7d138b..df43c7743 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -397,7 +397,6 @@
+ 
+ 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
+ 			<!-- advc.910: Changed all of the turn counts -->
+-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #19 -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -30,000 (20,000y) -> 4 turns @ 5,000 y/turn (60,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+@@ -456,12 +455,8 @@
+ 				<!-- 2,080 to 2,105 (25y) -> 50 turns @ 0.5 y/turn (6 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- custom: old code from base advciv timeline kept for info -->
+-				<!--<GameTurnInfo>-->
+-				<!--	<iMonthIncrement>60</iMonthIncrement>-->
+-					<!-- Avoid an odd number here - otherwise all the year numbers
+-						 in the next period (2 years per turn) will be odd. -->
+-				<!--	<iTurnsPerIncrement>26</iTurnsPerIncrement>-->
+-				<!--</GameTurnInfo>-->
++				<!-- Avoid an odd number here - otherwise all the year numbers in the next period (2 years per turn) will be odd. -->
++				<!--<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>26</iTurnsPerIncrement></GameTurnInfo>-->
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 402496c04..42b73bfa9 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -183,45 +183,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 
+ ===== .\Assets\XML\GameInfo\CIV4GameSpeedInfo.xml =====
+ ----- Comment #19 -----
+-<!-- custom:
+-
+-			then resumes/starts here now:
+-														- turn 0 [START] -
+-			For from -50 000  to  -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
+-			For from -30 000  to  -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
+-			For from -20 000  to  -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
+-			For from -15 000  to  -12 000	;	Month increment: 12 * 750    years = 9 000   months		;	Turns: 4
+-			For from -12 000  to  -7 500	;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 9
+-			For from  -7 500  to  -4 500	;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 12
+-			For from  -4 500  to  -3 000	;	Month increment: 12 * 125    years = 1 500   months		;	Turns: 12
+-														- end of turn 50 -
+-			For from  -3 000  to  -2 200	;	Month increment: 12 * 50     years = 600     months		;	Turns: 16
+-			For from  -2 200  to  -1 480	;	Month increment: 12 * 40     years = 480     months		;	Turns: 18
+-			For from  -1 480  to  -1 000	;	Month increment: 12 * 30     years = 360     months		;	Turns: 16
+-														- end of turn 100 -
+-			For from  -1 000  to  500		;	Month increment: 12 * 30     years = 360     months		;	Turns: 50
+-														- end of turn 150 -
+-			For from  500     to  1300		;	Month increment: 12 * 20     years = 240     months		;	Turns: 40
+-			For from  1300    to  1400		;	Month increment: 12 * 10     years = 120     months		;	Turns: 10
+-														- end of turn 200 -
+-			For from  1400    to  1600		;	Month increment: 12 * 10     years = 120     months		;	Turns: 20
+-			For from  1600    to  1750		;	Month increment: 12 * 5      years = 60      months		;	Turns: 30
+-														- end of turn 250 -
+-			For from  1750    to  1790		;	Month increment: 12 * 4      years = 48      months		;	Turns: 10
+-			For from  1790    to  1880		;	Month increment: 12 * 3      years = 36      months		;	Turns: 30
+-			For from  1880    to  1900		;	Month increment: 12 * 2      years = 24      months		;	Turns: 10
+-														- end of turn 300 -
+-			For from  1900    to  1980		;	Month increment: 12 * 2      years = 24      months		;	Turns: 40
+-			For from  1980    to  1990		;	Month increment: 12 * 1      years = 12      months		;	Turns: 10
+-														- end of turn 350 -
+-			For from  1990    to  2040		;	Month increment: 12 * 1      years = 12      months		;	Turns: 50
+-														- end of turn 400 -
+-			For from  2040    to  2070		;	Month increment: 12 * 1      years = 12      months		;	Turns: 30									
+-			For from  2070    to  2080		;	Month increment: 12 * 0.5    years = 6       months		;	Turns: 20
+-														- end of turn 450 -
+-			For from  2080    to  2105		;	Month increment: 12 * 0.5    years = 6       months		;	Turns: 50
+-														- end of turn 500 [END] -
+-			-->
++<!-- custom: removed since we as of now now have the sevopedia gamespeedchart -->
+ 
+ ===== .\Assets\XML\GameInfo\CIV4HandicapInfo.xml =====
+ ----- Comment #20 -----
+
+diff --git a/README.md b/README.md
+index 746855285..2ab91fa8c 100644
+--- a/README.md
++++ b/README.md
+@@ -224,7 +224,7 @@ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved
+ 
+ New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart, Game Speed Chart, World Sizes Chart. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
+ 
+-They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m5"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
++They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+index bc5bf90ff..8712dbb5f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+@@ -132,7 +132,7 @@ For sevopedia new content and most reworks, see above the main README.md's [UI (
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m5"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all world size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ - Sevopedia — Techs: add the list of all untradeable techs. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a7a393c00..bbeaa3b4f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -132,7 +132,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m5"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all world size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 7ec3ad6cd..2f71fedf2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -106,7 +106,7 @@ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown
+ 
+ Extending on the Handicap Chart, with the help of GPT-Codex-5.2 and ChatGPT 5.2 (web) i added a Game Speed Chart category in sevopedia to show gamespeed info.
+ 
+-Especially useful to see the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m5"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
++Especially useful to see the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
+ Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG
+index bd5efa266..071782d3a 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=25715

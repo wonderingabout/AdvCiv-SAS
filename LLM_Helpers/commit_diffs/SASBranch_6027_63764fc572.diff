@@ -1,0 +1,463 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6027
+# Commit: 63764fc572061f25bf12793c8ffa1018750be02b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 876158dff2f27852320810189730865c68fd69e7
+# Title: Fix exposed AI Settler founding with guarded city escorts (KI#179), and reassign a city defender to a waiting AI Settler to found faster and safe
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+10	10	Assets/XML/GlobalDefines_advciv_sas.xml
+130	34	CvGameCoreDLL/CvUnitAI.cpp
+2	0	Long_Comments/Long_Comments_XML.txt
+51	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index b9231d4fb..78eeab329 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -94,6 +94,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Preserve important technical specifics verbatim (e.g., "0 / 0 / 0 / 0 / 100", "2 placeholders vs 3 substitutions", "remove the extra X starting position").
+ - Preserve all technical qualifiers - e.g., "debug DLL" not just "DLL", "tech advisor screen height" not just "screen height", etc. These distinctions matter.
+ - Preserve specific scope qualifiers in technical details; avoid vague rewrites that drop precise context (e.g., keep "tech advisor screen height" rather than just "screen height").
++- Avoid unclear wording where one word can mean several Civ4 things. For example, "citizen" can mean a population member assigned to a city plot or a `SPECIALIST_CITIZEN`; "worked" can mean a plot assigned by the city or a tile improvement or build or route or such made by a `UNITCLASS_WORKER` or `UNITCLASS_WORKBOAT` or such unit; "event" can mean a BBAI/game-summary log row/action or an XML `EventInfo`/`EventTrigger`; "reserve" can mean remaining defenders or `UNITAI_RESERVE`. Use the exact meaning instead, e.g. "remaining healthy defenders after giving one to the Settler"; additionally when writing user facing doc like in the `README_Main_Changes_Guide.md`, this helps make it clearer too.
+ - Keep exact technical phrasing; avoid substituting terms like "starting position" -> "start" or dropping modifiers like "vertically".
+ - Preserve exact spacing/formatting in technical details (e.g., "- 30" vs "-30").
+ - Preserve exact counts/quantities when they are mentioned (e.g., "3 strings").
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6494cd6cf..8b559c026 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1191,11 +1191,6 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: Long_Comments_XML.txt #196 -->
+-	<Define>
+-		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+ 	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply. Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
+@@ -1221,16 +1216,21 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
++	<!-- custom: Block exposed post-capital founding by an unescorted Settler group. This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
+-		<iDefineIntVal>75</iDefineIntVal>
++		<DefineName>SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do) -->
++	<!-- custom: When an unescorted Settler is parked in one of its own cities, allow the AI to reassign one healthy local defender as escort before evaluating exposed expansion. This is not a temporary loan: the unit joins the Settler group. Save-file 450 BBAI testing showed this prevents freezing expansion while avoiding lone exposed Settlers. `AI_neededDefenders` can be conservative for this specific choice; the practical rule is the tunable remaining-defenders value below, e.g. at 2, a city with 3 healthy defenders can reassign 1 escort and keep 2. Delaying a guarded Settler can lose contested city sites and early growth snowball. See KI#179. (ChatGPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
++		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Minimum healthy city defenders to keep behind after reassigning one local defender as escort for an unescorted Settler; if `healthy defenders - 1 < this value`, the Settler waits instead. This remaining-defenders value is the practical safety check even when `AI_neededDefenders` says there is no formal spare defender: a city left with e.g. 2 healthy defenders should usually be safe enough, while founding a guarded city sooner is strategically stronger than parking the Settler indefinitely. See KI#179. (ChatGPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 505998529..1460124cd 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -153,7 +153,7 @@ struct SASSettlerCityEscortPool
+ 	int iCityNeededDefenders;
+ 	int iCitySpareDefenders;
+ 	int iEscortCandidates;
+-	CvUnit const* pBestEscort;
++	CvUnit* pBestEscort;
+ 	CvString szUnitList;
+ 	SASSettlerCityEscortPool() : pCity(NULL), iCityUnits(0), iCityDefenders(0), iCityHealthyDefenders(0), iCityWoundedDefenders(0), iCitySettlers(0), iCityWorkers(0), iCityAttackers(0), iCityNeededDefenders(-1), iCitySpareDefenders(-1), iEscortCandidates(0), pBestEscort(NULL) {}
+ };
+@@ -170,7 +170,7 @@ static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettle
+ 	int iLoggedUnits = 0;
+ 	for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pPlot->nextUnitNode(pUnitNode))
+ 	{
+-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		if (pLoopUnit == NULL || pLoopUnit->getOwner() != kSettler.getOwner())
+ 			continue;
+ 		kPool.iCityUnits++;
+@@ -308,6 +308,56 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int
+ 	}
+ }
+ 
++// <!-- custom: Settler escort behavior uses the diagnostic city-unit pool to reassign one local healthy defender as escort before allowing exposed expansion. This is not a temporary loan: the unit joins the Settler group.
++// `AI_neededDefenders` can be conservative for this specific expansion choice; the practical rule is the tunable remaining-defenders value, e.g. at 2, a city with 3 healthy defenders can reassign 1 escort and keep 2. Delaying a guarded Settler can lose contested city sites and early growth snowball.
++// Save-file 450 BBAI testing showed this fixed the Nobamba-style exposed-founding failure without restoring the old reckless lone-Settler override. See KI#179. (ChatGPT-5.5) -->
++static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFoundValue, int iOtherBestFoundValue, bool bDanger, MovementFlags eMoveFlags)
++{
++	CvSelectionGroup* pSettlerGroup = kSettler.getGroup();
++	if (pSettlerGroup == NULL || pSettlerGroup->canDefend())
++		return false;
++	SASSettlerCityEscortPool kPool;
++	SAS_collectSettlerCityEscortPool(kSettler, kPool);
++	static const int iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT = GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT");
++	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT)
++		return false;
++	CvUnit* pEscort = kPool.pBestEscort;
++	int const iOldGroupUnits = pSettlerGroup->getNumUnits();
++	int const iOldEscortGroupId = (pEscort->getGroup() == NULL ? -1 : pEscort->getGroup()->getID());
++	int const iOldEscortGroupUnits = (pEscort->getGroup() == NULL ? 0 : pEscort->getGroup()->getNumUnits());
++	pEscort->joinGroup(pSettlerGroup);
++	if (gSettlerLogLevel >= 2)
++	{
++		logBBAI("    SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d %S city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
++			GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), kPool.pCity->getName().GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(), SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(), pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits, kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders, kPool.iCitySpareDefenders, kPool.iEscortCandidates, iAreaBestFoundValue, iOtherBestFoundValue, bDanger);
++		SAS_logSettlerParking(kSettler, "ATTACHED_CITY_ESCORT", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
++	}
++	return pSettlerGroup->canDefend();
++}
++
++// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site. See KI#179. (ChatGPT-5.5) -->
++static bool SAS_shouldBlockExposedUnescortedSettler(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
++	CvSelectionGroup const* pGroup = kSettler.getGroup();
++	if (kOwner.getNumCities() <= 0 || pGroup == NULL || pGroup->canDefend() || kSettler.getInvisibleType() != NO_INVISIBLE)
++		return false;
++	return kTargetPlot.getOwner() != kSettler.getOwner();
++}
++
++static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& kSettler, CvPlot const* pTargetPlot, CvPlot const* pEndTurnPlot, int iFoundValue, int iPathTurns, char const* szReason)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
++	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
++	int iGroupUnits = 0;
++	int iGroupDefenders = 0;
++	int iGroupHealthyDefenders = 0;
++	int iGroupSettlers = 0;
++	SAS_countSettlerGroupUnits(pGroup, iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
++	logBBAI("    SETTLER_MISSION_DECISION turn=%d player=%d %S action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
++		GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), szAction, szReason, kSettler.getID(), kSettler.getX(), kSettler.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), (pTargetPlot == NULL ? NO_PLAYER : pTargetPlot->getOwner()), iFoundValue, iPathTurns, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), kOwner.AI_getPlotDanger(kSettler.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
++}
++
+ // <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
+ static void logSASEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
+ {
+@@ -3595,9 +3645,21 @@ void CvUnitAI::AI_settleMove()
+ 		{
+ 			if (at(kSite) && canFound(plot()))
+ 			{
+-				if (gSettlerLogLevel >= 2) logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
+-				getGroup()->pushMission(MISSION_FOUND);
+-				return;
++				static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
++				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
++				{
++					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
++				}
++				else
++				{
++					if (gSettlerLogLevel >= 2)
++					{
++						logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
++						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_SETTLE_MOVE_AT_SITE");
++					}
++					getGroup()->pushMission(MISSION_FOUND);
++					return;
++				}
+ 			}
+ 			// K-Mod. If we are already heading to this site, then keep going.
+ 			// (disabled. This is no longer required - I hope.)
+@@ -3689,9 +3751,7 @@ void CvUnitAI::AI_settleMove()
+ 	} */ /* BtS - disabled by K-Mod. Let them risk moving an undefended settler..
+ 			there are other checks in place to help them. */
+ 
+-	if (getPlot().isCity() && getPlot().getOwner() == getOwner() &&
+-		bDanger && GC.getGame().getMaxCityElimination() > 0 &&
+-		getGroup()->getNumUnits() < 3)
++	if (getPlot().isCity() && getPlot().getOwner() == getOwner() && bDanger && GC.getGame().getMaxCityElimination() > 0 && getGroup()->getNumUnits() < 3)
+ 	{
+ 		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_DANGER_MAX_CITY_ELIMINATION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 		getGroup()->pushMission(MISSION_SKIP);
+@@ -3702,6 +3762,33 @@ void CvUnitAI::AI_settleMove()
+ 		if (AI_found(eMoveFlags))
+ 			return;
+ 	}
++	// <!-- custom: Let AI_found make the actual city-site decision first; only park or retreat an unescorted Settler after all currently allowed found missions have been rejected. Save-file 450 follow-up logs showed this keeps guarded city founding moving while cities that cannot keep enough healthy defenders after giving one to the Settler wait instead of sending lone exposed Settlers. See KI#179. (ChatGPT-5.5) -->
++	static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
++	if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && kOwner.getNumCities() > 0 && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
++	{
++		if (getPlot().isCity() && getPlot().getOwner() == getOwner() && iAreaBestFoundValue > 0)
++		{
++			if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
++			getGroup()->pushMission(MISSION_SKIP);
++			return;
++		}
++		if (getPlot().getOwner() != getOwner() || bDanger)
++		{
++			if (AI_retreatToCity())
++			{
++				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
++				return;
++			}
++			if (AI_safety())
++			{
++				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SAFETY_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
++				return;
++			}
++			if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
++			getGroup()->pushMission(MISSION_SKIP);
++			return;
++		}
++	}
+ 	// <advc.040>
+ 	if(bMoveToCoast && AI_moveSettlerToCoast())
+ 		return; // </advc.040>
+@@ -18905,26 +18992,18 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestFoundPlot = NULL;
+ 	int iBestFoundValue = 0;
++	int iBestPathTurns = -1;
+ 	bool const bRandomize = (!isHuman() && kGame.isScenario()); // advc.052
+ 
+-	// <!-- custom: AI has settler parked in capital at turn ~45 (normal speed), still only 1 city at turn 100 in autoplay. Candidate city sites were safe enough; relaxing restrictions. Credit: Claude Sonnet 4.5; ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+-	// Looking at your issue, the AI settler is getting stuck in the capital because the safety check is too strict.
+-	// Solution 1: Time-Based Override (Easiest)
+-	// Add a grace period where safety is ignored early game
+-	// Solution 2: Conditional Safety (Better)
+-	// Only require safety after the first city
+-	bool const bSafe = (getGroup()->canDefend() ||
+-	 		getInvisibleType() != NO_INVISIBLE); // advc.057b
+-	static const bool bSAS_AI_FOUND_OPTIMIZE = GC.getDefineBOOL("SAS_AI_FOUND_OPTIMIZE");
+-	static const int iSAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL = GC.getDefineINT("SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL");
+-	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
+-	const int iEarlyCutoff = (iSAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL * iTrainPct) / 100; // e.g. ~T80 @ Normal
+-	const int iCurrentTurn = kGame.getGameTurn();
+-	const bool bEarly = (iCurrentTurn <= iEarlyCutoff); // Allow risky settling early
+-	static const int iSAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES");
+-	const bool bNotEnoughCities = kOwner.getNumCities() <= iSAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES; // Always allow 2nd city
+-	const bool bSafeOverride = (bSAS_AI_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
+-	const bool bGoSettleAnyway = (bSafe || bSafeOverride);
++	// <!-- custom: Try to form a defended Settler group before evaluating city-site missions. Save-file 450 BBAI testing showed cities with enough remaining healthy defenders can reassign one defender as escort, while cities below that threshold wait rather than send exposed lone Settlers. See KI#179. (ChatGPT-5.5) -->
++	static const bool bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE");
++	if (bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE && kOwner.getNumCities() > 0 && getPlot().isCity() && getPlot().getOwner() == getOwner() && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
++	{
++		SAS_tryAttachCityEscortToSettler(*this, 0, 0, kOwner.AI_isAnyPlotDanger(getPlot()), eFlags);
++	}
++
++	// <!-- custom: Remove the old AdvCiv-SAS empirical early-city bSafe override; exposed expansion now depends on a defended group, an existing guard-city mission, or a local escort attached above. Save-file 450 BBAI testing showed the old override could produce an empty Nobamba razed by Barbarians; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
++	bool const bSafe = (getGroup()->canDefend() || getInvisibleType() != NO_INVISIBLE); // advc.057b
+ 	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+ 	{
+ 		CvPlot& kSite = kOwner.AI_getCitySite(i);
+@@ -18936,16 +19015,14 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 				!kOwner.AI_isAnyPlotTargetMissionAI(
+ 				kSite, MISSIONAI_FOUND, getGroup()))
+ 			{
+-				if (bGoSettleAnyway ||
+-					kOwner.AI_isAnyPlotTargetMissionAI(
+-					kSite, MISSIONAI_GUARD_CITY))
++				if (bSafe || kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_GUARD_CITY))
+ 				{
+ 					int iPathTurns;
+ 					if (generatePath(kSite, eFlags, true, &iPathTurns))
+ 					{
+ 						if (!kSite.isVisible(getTeam()) || // K-Mod
+ 							!kSite.isVisibleEnemyUnit(this) ||
+-							(iPathTurns > 1 && bGoSettleAnyway)) // K-Mod
++							(iPathTurns > 1 && bSafe)) // K-Mod
+ 						{
+ 							int iValue = kSite.getFoundValue(getOwner());
+ 							// <advc.052>
+@@ -18958,12 +19035,13 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 							} // </advc.052>
+ 							iValue *= 1000;
+ 							//iValue /= (iPathTurns + 1);
+-							iValue /= iPathTurns + (bGoSettleAnyway ? 4 : 1); // K-Mod
++							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
+ 							if (iValue > iBestFoundValue)
+ 							{
+ 								iBestFoundValue = iValue;
+ 								pBestPlot = &getPathEndTurnPlot();
+ 								pBestFoundPlot = &kSite;
++								iBestPathTurns = iPathTurns;
+ 							}
+ 						}
+ 					}
+@@ -18975,14 +19053,22 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 		return false;
+ 	if (at(*pBestFoundPlot))
+ 	{
+-		if (gSettlerLogLevel >= 2) logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
++		if (gSettlerLogLevel >= 2)
++		{
++			logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
++			SAS_logSettlerMissionDecision("PUSH_FOUND", *this, pBestFoundPlot, pBestFoundPlot, pBestFoundPlot->getFoundValue(getOwner()), 0, "AI_FOUND_AT_SITE");
++		}
+ 		getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS,
+ 				false, false, MISSIONAI_FOUND, pBestFoundPlot);
+ 		return true;
+ 	}
+ 	else
+ 	{
+-		if (gSettlerLogLevel >= 2) logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
++		if (gSettlerLogLevel >= 2)
++		{
++			logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
++			SAS_logSettlerMissionDecision("PUSH_MOVE_TO_FOUND", *this, pBestFoundPlot, pBestPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, "AI_FOUND_MOVE");
++		}
+ 		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
+ 				MISSIONAI_FOUND, pBestFoundPlot);
+ 		return true;
+@@ -19003,7 +19089,17 @@ bool CvUnitAI::AI_foundFollow()
+ 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
+ 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
+ 	{
+-		if (gSettlerLogLevel >= 2) logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
++		static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
++		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
++		{
++			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
++			return false;
++		}
++		if (gSettlerLogLevel >= 2)
++		{
++			logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
++			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_FOUND_FOLLOW");
++		}
+ 		getGroup()->pushMission(MISSION_FOUND);
+ 		return true;
+ 	}
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 6ac5a42fc..494629152 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -3313,6 +3313,8 @@ Set to 0 if you always want to compute despite it being more costly (for modding
+ 
+ <!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
+ 
++Update: now removed as we're now using BBAI to attempt to fix it in a cleaner and stronger way.
++
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #197 -----
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 5ea7a56c1..47538ebbf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -216,6 +216,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---fixed-base-advciv-bug-barbarian-workers-in-cvunitaiai_workermove-repeatedly-retreated-to-the-safe-owned-city-they-already-occupied)\
+ [176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot)\
+ [177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites)\
++[178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)\
++[179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2861,6 +2863,8 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
+ 
+ For some reason we were very slow to produce our first settler after the change, but after we had our first settler, 2nd spain AI city was founded soon after which is nice and addresses this issue: we now have 3 cities at turn 100, and so do other ais more or less as well, which seems like a nice and quite safe enhancement since cities seem guarded more than enough (2 units per city it seems) but check to be sure as i only glanced through autoplay
+ 
++Update after [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts): the anti-parking goal remains valid, but the old broad early "go settle anyway" safety override was too blunt. Save file 450 later showed it could allow an exposed post-capital city to be founded without an escort and razed shortly afterward. That path has now been replaced by guarded-Settler behavior: reassign a healthy city defender as escort when the donor city can keep enough remaining healthy defenders, otherwise wait/retreat instead of sending a lone exposed Settler.
++
+ ## 69 - (Tremendously Improved) AI going for great general leaders, while military instructors are much better (with added logic to favour top hammer cities, remove military instructor per city limit, favour it further if have or building heroic epic effect building, etc.)
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1k42nIibXMMDUeJOedCEnrwUMGBFWem9J?usp=sharing).
+@@ -6555,3 +6559,50 @@ Player 48 (Barbarians) founds new city Hittite at 13, 35
+ The same run also showed that the new Zulu western city Nobamba at `(9,45)` was a strong enough site on paper, with Maize, Deer, Silver, Copper, lots of Grassland, and four hills, but it was conquered and razed by Barbarians three turns later. That result is a defense/history issue, not evidence that the city-site valuation itself rejected the west.
+ 
+ Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
++
++## 179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1PQJr5edJPJPtby_-FgFU-JSQSb4VUfkh?usp=sharing).
++
++After the Nobamba observation in KI#178, BBAI and SASGameSummary testing from save file 450 exposed a settler-safety failure: an AI could found a valuable but exposed post-capital city without a military defender in the Settler group. The clearest original case was Shaka founding western Nobamba near Barbarians without a defender; Barbarians captured and razed it shortly afterward. The city site itself was strong enough on paper, so this was not a city-site valuation failure.
++
++The risky path came from an earlier AdvCiv-SAS anti-parking / early-expansion override added for the KI#68 problem: AIs could have a Settler parked in the capital around turn 45 at Normal speed and still have only their capital around turn 100 despite safe enough candidate sites. That old override had good intent and did improve one-city stagnation, but it was too blunt: it could treat some early post-capital settling as safe before the normal escort logic had produced a guarded group. KI#179 therefore keeps the anti-parking objective but replaces the unsafe shortcut with explicit guarded-Settler behavior.
++
++This has been fixed/improved by replacing that reckless early-settling path with guarded-Settler behavior:
++
++- post-capital Settlers should not found or continue exposed expansion unless the group can defend or an existing guard-city mission covers the site;
++- a Settler parked in one of its own cities can reassign one healthy local defender as escort before evaluating exposed expansion;
++- the donor city must keep at least the configured remaining healthy defenders after losing the escort;
++- direct found-in-place and found-follow mission paths are guarded too, not only the normal city-site loop;
++- detailed BBAI logging now records Settler parking, city escort pools, escort attachment, blocked founding, and mission-push decisions;
++- SASGameSummary now records per-city unit counts and Settler-group combat rows so autoplay reviews can distinguish "founded empty" from "founded guarded, then later attacked".
++
++The follow-up BBAI log showed the new wait-then-reassign-escort behavior. Carthage initially kept its Settler parked because the city had no spare healthy escort after the remaining-defenders check, then attached a Longbowman once that became safe enough and moved the Settler as a defended group:
++
++```log
++SETTLER_PARKED turn=24 player=10 Carthaginian Empire reason=WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE ... cityHealthyDefenders=2 cityNeededDefenders=3 citySpareDefenders=-1
++SETTLER_ATTACH_CITY_ESCORT turn=29 player=10 Carthaginian Empire city=Carthage ... escortUnit=UNIT_LONGBOWMAN ... oldSettlerGroupUnits=1 newSettlerGroupUnits=2
++SETTLER_MISSION_DECISION turn=29 player=10 Carthaginian Empire action=PUSH_MOVE_TO_FOUND ... groupUnits=2 groupDefenders=1 groupHealthyDefenders=1 groupCanDefend=1
++```
++
++The same save-file family also showed the intended Zulu behavior after the fix. uMgungundlovu was founded with an Archer escort, and the later Nobamba replay did not repeat the old empty-city razing pattern:
++
++```log
++SETTLER_MISSION_DECISION turn=32 player=7 Zulu Empire action=PUSH_MOVE_TO_FOUND ... target=(17,40) ... groupUnits=2 groupDefenders=1 groupHealthyDefenders=1 groupCanDefend=1
++Player 7 (Zulu Empire) founds new city uMgungundlovu at 17, 40
++GAME_SUMMARY_CITY_UNITS turn=59 reason=built player=7 city=Nobamba ... militaryUnits=2 defenders=2 healthyDefenders=2 settlers=1
++GAME_SUMMARY_CITY turn=130 player=7 city=Nobamba ... garrison=2 cityUnits=2 militaryUnits=2 defenders=2 healthyDefenders=2
++```
++
++Validation so far:
++
++- follow-up BBAI logs from save file 450 showed exposed Settlers waiting when no spare escort was available, then moving once a defender was attached;
++- guarded Settler groups were logged with `groupDefenders>=1` and `groupCanDefend=1` before moving to or founding exposed sites;
++- donor cities below the configured remaining-defenders threshold did not give up escorts and instead kept the Settler waiting;
++- the follow-up game-summary log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
++
++Remaining risk:
++
++This intentionally makes some expansion more conservative. Some Settlers can still park for a long time when no valid reachable city site exists, especially under `SCRAP_NO_VALID_CITY_SITE` or similar no-found-action paths. That appears to be a separate city-site / stale-Settler issue rather than the exposed unescorted-founding issue tracked here; the new parking and city-unit logs should make that follow-up easier to diagnose.
++
++Fixed/improved with the help of ChatGPT-5.5 and GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8099933fb..680be9772 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -155,7 +155,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+ - (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, and game state, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+-- **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions and Settler movement, scouting, returns, and founding; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
++- **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+ - **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+ - **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
+ - **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+@@ -328,7 +328,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **First-city roaming**: Since the first city is especially important, unlike later cities that can be more strategic or semi-decent resource grabs, starting settlers can now **roam briefly for a better first-city site when the current site is bad enough**. Settlers can spend the bounded early window to **move to visible good-enough sites**, do **safe adjacent scouting for better information**, or **wait if no safe scouting step exists**. Starting-site checks use a shared **potential-food environment score** (using the same logic described under Low-food environments). Food-surplus plots offset poor plots, productive Grass Hills remain neutral, and no-yield peaks/ice receive an extra citizen-unworkable penalty because they are dead BFC slots. This keeps useful resources/coasts from looking poor while still moving away from bad tundra/plains/peak-heavy starts.
+ - **First-city recheck and efficient return after scouting:** After leaving a very poor spawn location, the AI settler explores nearby unrevealed plots (fog) within a limited scouting window (in turns) instead of founding the first merely good-enough site, trying to find better first-city sites, like a human player would. Only fully revealed BFCs can interrupt scouting; before each further step, the AI settler protects the strongest newly discovered reachable site by full city-site value, with the tunable return-path cost breaking exact ties. If the raw-value winner is instead the poor scout origin it deliberately left, sites are compared after subtracting their return-path cost so a nearby partly revealed candidate can finish being explored instead of needlessly undoing the scouting trip. The turns window includes the trip back, so the AI settler commits before further scouting would make its strongest return too late, then queues movement and founding together instead of restarting scouting on arrival or founding wherever scouting stopped. Once this window has ended, return-path cost can still favor a nearly equal nearby site over lengthy backtracking. Empirically and as BBAI logging also showed, this helped Berlin, Karakorum, Cuzco, and the Aztecs choose strong revealed sites and found promptly in save files 442, 360, and 431. As of now this applies only to the first city, which critically benefits from extra information and founds much stronger first-city sites, while later AI settlers usually know more of the local map and so do not need to use this (so as of now disabled for them). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+ - **Optional naval-heavy-map coastal settling bias:** Naval-heavy maps can now add a tunable first-city or later-city preference for coastal settling in naval-heavy maps. This should be more useful and strategically stronger in such maps, notably for coastal access, work boats, scouting/contact, trade, first galleys, Moai, or other water-focused strategies. However, following the [KI#173](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings) and related AI settler/found scoring changes, BBAI logging showed even a value of `0` correctly selects the strong Cuzco coastal site in save file 420, while Japan no longer favors the old tundra-heavy candidates that motivated this new feature. So use only a fairly small naval settling bias positive value for additional strategic coastal preference. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
+-- **Parking addressed (early game):** Reduced cases of settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` to found sooner when conditions allow. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (settler production varies somehow, but we move much sooner after we have it now). See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found).
++- **Parking addressed (early game):** Reduced cases of Settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` so AIs would found sooner when conditions allowed. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (Settler production varies somehow, but we move much sooner after we have it now). Update: however, (Requires AdvCiv-SAS 6027+) save file 450 BBAI testing showed that this old blind "go settle anyway" safety override solved one-city stagnation too bluntly: it could also allow exposed post-capital cities to be founded without escorts and then razed. Exposed post-capital Settlers now wait, retreat, or require an existing guard-city mission instead of leaving/founding alone. See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found) and [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
++- (Requires AdvCiv-SAS 6027+) **Settler city-escort reassignment:** to avoid merely restoring old Settler parking, an unescorted Settler parked in one of its own cities can reassign one healthy local defender as escort when the donor city keeps enough healthy defenders behind. With the default tunable value of as of now at least 2 remaining healthy defenders after giving one to the Settler, a city with 3 healthy defenders can reassign 1 escort and still keep 2, which is safe enough, so the Settler should not keep waiting; delaying expansion can lose contested city sites and early growth snowball. Save file 450 follow-up logs showed exposed Settlers waiting when no safe escort was available, then moving once guarded, while later Nobamba persisted with defenders instead of repeating the earlier empty-city Barbarian razing pattern. See [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
+ 
+ ##### Workers (AI)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=45373

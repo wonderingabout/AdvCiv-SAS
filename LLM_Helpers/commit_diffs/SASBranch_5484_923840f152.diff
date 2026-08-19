@@ -1,0 +1,215 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5484
+# Commit: 923840f152dc0045b696f0993f8dbf0bc3301308
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e92a36c49dca11cdb4f28526d85887a2c63012f0
+# Title: (Tremendously Improved) Do not buy dominated or equivalent strategic bonuses (era and bonus-aware) - **Do not buy dominated or equivalent strategic bonuses (...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	0	Assets/XML/GlobalDefines_advciv_sas.xml
+61	0	CvGameCoreDLL/CvPlayerAI.cpp
+5	0	Long_Comments/Long_Comments_XML.txt
+16	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+6	5	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 26ecabe31..9a55657cf 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1209,6 +1209,14 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: enable hard "do not buy dominated or equivalent strategic bonus" rules; Long_Comments_XML.txt #362. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: Long_Comments_XML.txt #206 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2c241aa90..65a185f4b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12868,6 +12868,67 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
+ 	} // </advc.036>
+ 	// advc.133:
+ 	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus);
++	// <!-- custom: exclude dominated strategic buys from trade tables entirely (DENIAL_JOKING is filtered there), so they don't appear as meaningless 0-value purchases. (GPT-5.3-Codex) -->
++	static const bool bZeroDominatedStrategicBuys = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS");
++	if (iChange >= 0 && bZeroDominatedStrategicBuys)
++	{
++		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
++		static const BonusTypes B_IRON = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"));
++		static const BonusTypes B_HORSE = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"));
++		static const BonusTypes B_CAMEL = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
++		static const BonusTypes B_ELEPHANTS = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
++
++		const bool bHaveCopper = (B_COPPER != NO_BONUS && kPlayer.getNumAvailableBonuses(B_COPPER) > 0);
++		const bool bHaveIron = (B_IRON != NO_BONUS && kPlayer.getNumAvailableBonuses(B_IRON) > 0);
++		const bool bHaveHorse = (B_HORSE != NO_BONUS && kPlayer.getNumAvailableBonuses(B_HORSE) > 0);
++		const bool bHaveCamel = (B_CAMEL != NO_BONUS && kPlayer.getNumAvailableBonuses(B_CAMEL) > 0);
++		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && kPlayer.getNumAvailableBonuses(B_ELEPHANTS) > 0);
++		const bool bHaveAnyMetal = (bHaveIron || bHaveCopper);
++		const bool bHaveAnyMount = (bHaveHorse || bHaveCamel);
++
++		const EraTypes eCurrentEra = kPlayer.getCurrentEra();
++		static const EraTypes eERA_CLASSICAL = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL");
++		static const EraTypes eERA_MEDIEVAL = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL");
++		static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
++		static const EraTypes eERA_INDUSTRIAL = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL");
++		static const EraTypes eERA_MODERN = (EraTypes)GC.getInfoTypeForString("ERA_MODERN");
++
++		const bool bClassical = (eCurrentEra == eERA_CLASSICAL);
++		const bool bMedieval = (eCurrentEra == eERA_MEDIEVAL);
++		const bool bRenaissance = (eCurrentEra == eERA_RENAISSANCE);
++		const bool bMedievalPlus = (eCurrentEra >= eERA_MEDIEVAL);
++		const bool bIndustrialPlus = (eCurrentEra >= eERA_INDUSTRIAL);
++		const bool bModernPlus = (eCurrentEra >= eERA_MODERN);
++		const bool bClassicalToRenaissance = (bClassical || bMedieval || bRenaissance);
++
++		bool bDominated = false;
++		// <!-- custom: Classical: mounted/elephants substitute for metals, so deny buying Iron/Copper if buyer already has mounted or Elephants. (GPT-5.3-Codex) -->
++		if ((eBonus == B_IRON || eBonus == B_COPPER) && bClassical && (bHaveAnyMount || bHaveElephants))
++			bDominated = true;
++		// <!-- custom: Classical: metals substitute for mounted/elephants, so deny buying Horse/Camel/Elephants if buyer already has Iron/Copper. (GPT-5.3-Codex) -->
++		else if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) && bClassical && bHaveAnyMetal)
++			bDominated = true;
++		// <!-- custom: Classical-Medieval-Renaissance: Camel and Horse are interchangeable, so deny duplicate Horse buy when Camel exists. (GPT-5.3-Codex) -->
++		else if (eBonus == B_HORSE && bClassicalToRenaissance && bHaveCamel)
++			bDominated = true;
++		// <!-- custom: Classical-Medieval-Renaissance: Horse and Camel are interchangeable, so deny duplicate Camel buy when Horse exists. (GPT-5.3-Codex) -->
++		else if (eBonus == B_CAMEL && bClassicalToRenaissance && bHaveHorse)
++			bDominated = true;
++		// <!-- custom: Industrial (pre-Modern): Horse line is stronger (Cavalry), so deny Camel buy when Horse exists. (GPT-5.3-Codex) -->
++		else if (eBonus == B_CAMEL && bIndustrialPlus && !bModernPlus && bHaveHorse)
++			bDominated = true;
++		// <!-- custom: Medieval+: Copper is not worth buying in this heuristic; before that, Iron already dominates Copper when both exist. (GPT-5.3-Codex) -->
++		else if (eBonus == B_COPPER && (bHaveIron || bMedievalPlus))
++			bDominated = true;
++		// <!-- custom: Medieval+: War Elephants are too weak for this buy heuristic, so deny Elephant buy. (GPT-5.3-Codex) -->
++		else if (eBonus == B_ELEPHANTS && bMedievalPlus)
++			bDominated = true;
++		// <!-- custom: Modern+: Horse/Camel are obsolete in this heuristic, so deny buying either. (GPT-5.3-Codex) -->
++		else if ((eBonus == B_HORSE || eBonus == B_CAMEL) && bModernPlus)
++			bDominated = true;
++		if (bDominated)
++			return DENIAL_JOKING;
++	}
+ 	// advc.036: Moved this clause up
+ 	if (iAvailThem + iChange > 1 && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
+ 		return DENIAL_JOKING;
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 7da6b6b35..943255b82 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -4874,3 +4874,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			 (For the non-optional elements, LEADER_DEFAULTS has to set some
+ 			 default as well - 0, NONE or an empty string - but it won't matter
+ 			 because every LeaderHeadInfo has to define those elements.) -->
++
++===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #362 -----
++
++. Examples: Classical metals vs mounts are substitutes (if we have Iron/Copper, don't buy Horse/Camel/Elephants; if we have Horse/Camel/Elephants, don't buy Iron/Copper). Classical-Medieval-Renaissance: if we have Horse, don't buy Camel (and vice versa). Industrial (pre-Modern): if we have Horse, don't buy Camel. Medieval+: don't buy Elephants. Modern+: don't buy Horse/Camel. Set to 0 to disable only these hard blocks while keeping relative multipliers active
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 68b0a92f3..3b39158a1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -142,6 +142,7 @@ hopefully helpful, thanks thanks,
+ [106 - (Worked Around) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#106---worked-around-base-advciv-bug-of-having-an-option-number-error-in-simple-game-eg-in-highlands-boreal-if-we-started-another-simple-game-map-before-that-had-a-lot-of-options-eg-btg_lagoon-and-planet_generator_068-have-around-15-options-but-custom-game-works-fine)  
+ [107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#107---fixed-base-advciv-crash-after-loading-a-save-file-returning-to-main-menu-opening-sevopedia-index-since-first-time-opened-and-typing-a-sequence-like-xsv)  
+ [108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added)  
++[109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4226,3 +4227,18 @@ Result:
+ 
+ - Tribute/Demand and "What do you want in exchange?" now agree for this case.
+ - Player no longer has to do an extra click sequence to get the same no-extra acceptance.
++
++## 109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gwIEOEnKSjQmE7CfvTmoaXyBZby802Ji?usp=sharing).
++
++Observed issues:
++
++- AI could still buy dominated/equivalent strategic resources in some eras (example: buying `BONUS_COPPER` in Medieval even though it is not needed there).
++- AI willing to buy copper when it has iron
++- AI willing to buy horse when it has camel or iron at classical, etc.
++
++Fix:
++
++- Keep era/substitute evaluation rules, but enforce exclusion in `CvPlayerAI::AI_bonusTrade` (file: [CvPlayerAI.cpp](/CvGameCoreDLL/CvPlayerAI.cpp)) by returning `DENIAL_JOKING` for dominated/equivalent strategic buy cases; this is filtered from trade tables by explicit buy-denial rules in `AI_bonusTrade`.
++- Logic and bonus dependent (e.g., `BONUS_CAMEL` is not an equivalent of Horse anymore at Industrial+ Era (no Camel Dragoon))
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8ba46cfc9..3478ef9cb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -132,6 +132,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ - **Strategic bonus "AI Objective" weighting (rework):** Now assign non-zero `iAIObjective` to key bonuses (Copper, Iron, Horse, Camel, Aluminum, Uranium). In base AdvCiv these were `0`, so logic that referenced them did nothing; now they actually tip decisions. We also added code paths that consume these weights: (1) **city-site scoring** (`AIFoundValue::evaluate`) — extra-value candidate sites that have these bonuses in their BFC; (2) **worker build priority** (`CvUnitAI::AI_bestCityBuild`) — e.g., improve/connect Copper before Stone; (3) **which city to improve next** (`CvUnitAI::AI_nextCityToImprove`) — prefer cities with unconnected high-objective bonuses; (4) **trading iAIObjective bonuses** (see [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy-ai)). Display added in Sevopedia Bonus pages; see there or XML for details.
+ - **Elephants bonus `iAIObjective`** in particular: Also set a **low** weight for **Bonus_Elephants** so the AI recognizes the **situational value of early War Elephants** without over-skewing previous mentioned choices for example. Elephants are visible from game start (not critical enough to hide) and don’t unlock new lines past midgame, so their weight stays **below Horse/Camel** (Camels remain higher since they gate multiple medieval/renaissance units and are only revealed at Animal Husbandry). Net effect: the AI can pursue Elephants as a **useful midgame pivot** (e.g., when stuck on Longbows→Muskets), but won’t chase them at the expense of broader strategy.
++- (Requires AdvCiv-SAS 5484+) **Do not buy dominated or equivalent strategic bonuses (era and bonus-aware):** strategic resource buying now uses explicit exclusion rules, so AI skips dominated/equivalent offers instead of considering them as valid buys. Examples: in Classical, Copper is not needed if we have Iron; in Classical metals and mounted lines can substitute each other so redundant buys are skipped; Horse and Camel are treated as equivalent in Classical/Medieval/Renaissance; in Industrial (before Modern), Horse has the edge (no Camel Dragoon), so Camel is skipped if Horse is already available, etc. Change in `CvPlayerAI::AI_bonusTrade`. See [KI#109](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions).
+ 
+ #### Settlers (AI)
+ 
+@@ -182,7 +183,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ #### Civics (AI)
+ 
+ - **Civic "Percent Anger" logic (rework):** Fixed the AI tendency to adopt any civic with `iCivicPercentAnger` (e.g. the former CIVIC_EMANCIPATION) just because rivals have it, regardless of its actual value. Replaced with an **opportunistic per-city check**: only consider such civics when enough of our cities would directly **lose anger** from the switch. Implemented in `CvPlayerAI::AI_civicValue`. In autoplay before/after tests, civic choices appeared **stronger**. See [KI#75](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+-- **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers = Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added "high-need" boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery↔Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
++- **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers = Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added "high-need" boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery<->Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
+ - **Civic-switch damping (anti-oscillation):** Reworked `CvPlayerAI::AI_doCivics` to add a **percent-slack** gate: a new civic must outscore the current one by **~10%** to trigger a switch. Goal: reduce rapid flip-flopping exposed after the broader civic valuation work. *Note:* If the slack is too high, AIs switch **too rarely** and **react more slowly**; if too low, oscillation returns and players with **anarchy-on-switch** waste turns. *Note 2:* in some cases bypassed/ignored by AIs entirely for some reason.
+ - **Civic valuation — specialist commerce accounted for:** Civics that grant **extra commerce per specialist** (e.g., `CIVIC_REPRESENTATION` → beakers/gold/culture) were undervalued and thus rarely chosen. Updated `CvPlayerAI::AI_civicValue` to apply SAS **commerce weights** and stronger **derived multipliers**, so large specialist counts are priced properly. *Observed in autoplay:* more Representation picks in mid/late game, with continued Hereditary Rule/Universal Suffrage variation. Adjust to taste.
+ 
+@@ -218,11 +219,11 @@ Note: Most, if not all, diplomacy AI changes apply both to **AI–AI** and **AI
+ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by improving cooperation between masters and vassals, rather than simply over-boosting one party. The aim is that, in many cases, they also benefit vassals (or at least do not clearly reduce their own chances of winning) while being in the master's interest, since a stronger vassal is more likely to be useful.
+ 
+ - **Multi-war threat management — "emergency peace" pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp)**.
+-- **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but)**.
++- **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI<->AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but)**.
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+-- **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. **Update:** this adjustment no longer applies to trades *within* the same master–vassal(s) locus, since it is generally in their shared interest to strengthen each other.
++- **Era- & inventory-aware relative pricing for key strategic bonuses (Horse<->Camel, Camel<->Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. **Update:** this adjustment no longer applies to trades *within* the same master–vassal(s) locus, since it is generally in their shared interest to strengthen each other.
+ - **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower handicaps). See [KI#83](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
+-- **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier "devalue techs your master/vassal already knows" change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this *seemed* to **reduce tech overlap** and **improve sharing** between vassals (who had many more techs) and their master (who now picks up more of them). Also updated `AI_contactRoll(CONTACT_TRADE_TECH` to pass an explicit probability multiplier (rather than relying on the default of 1), making tech-trade frequency more dynamic and tunable instead of solely personality-driven. See [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate). **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades.
++- **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier "devalue techs your master/vassal already knows" change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this *seemed* to **reduce tech overlap** and **improve sharing** between vassals (who had many more techs) and their master (who now picks up more of them). Also updated `AI_contactRoll(CONTACT_TRADE_TECH` to pass an explicit probability multiplier (rather than relying on the default of 1), making tech-trade frequency more dynamic and tunable instead of solely personality-driven. See [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate). **Update:** Extend the same extra trade bias to **sibling vassal<->vassal** trades.
+ - **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - **Master–vassal(s) locus first for tech trades:** Whenever the AI wants to contact other players for a tech trade in `CvPlayerAI::AI_doDiplo`, it now **first checks** whether the desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+ - **Military priority in tech trades when behind:** When evaluating the value of a tech in trades with players outside the AI’s master–vassal(s) locus in `CvTeamAI::AI_techTradeVal`, the AI values **key military techs** (high `FLAVOR_MILITARY`) more highly if it is **weaker** than its rivals (they matter more for survival than additional economic techs); as of now most such military techs are **untradeable**, which is consistent with autoplay impact being small, but this may matter more if some of them become tradeable.
+@@ -571,7 +572,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
+ - **Upgrade paths** simplified and made more sensible:
+   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+-  - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
++  - Cross-mount upgrades allowed (**Horse <-> Camel** where logical).
+   - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+   - **Dragoons → Tanks** now.
+ - **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=31028

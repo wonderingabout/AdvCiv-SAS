@@ -1,0 +1,413 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1578
+# Commit: 2508e67f15e818e7e13e257e3f0d7b98c10bf063
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d6b084768edca9363dabc6eeada3ad6296aa42eb
+# Title: More bugs in deal cancellation; and amend previous commit.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	47	CvGameCoreDLL/CvDeal.cpp
+31	12	CvGameCoreDLL/CvDeal.h
+27	6	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+27	16	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/WarAndPeaceAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 6c63f88a1..f4c51346f 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -646,65 +646,80 @@ int CvDeal::getAge() const {
+ 	return GC.getGame().getGameTurn() - getInitialGameTurn();
+ } // </advc.133>
+ 
++// <advc.003> Might be important here that getFirstPlayer and getSecondPlayer are inlined
++bool CvDeal::isBetween(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const {
+ 
+-PlayerTypes CvDeal::getFirstPlayer() const
+-{
+-	return m_eFirstPlayer;
++	return (ePlayer == getFirstPlayer() && eOtherPlayer == getSecondPlayer()) ||
++		   (eOtherPlayer == getFirstPlayer() && ePlayer == getSecondPlayer());
+ }
+ 
+ 
+-PlayerTypes CvDeal::getSecondPlayer() const
+-{
+-	return m_eSecondPlayer;
++bool CvDeal::isBetween(TeamTypes eTeam, TeamTypes eOtherTeam) const {
++
++	return (eTeam == TEAMID(getFirstPlayer()) && eOtherTeam == TEAMID(getSecondPlayer())) ||
++		   (eOtherTeam == TEAMID(getFirstPlayer()) && eTeam == TEAMID(getSecondPlayer()));
+ }
+ 
+-// <advc.003>
+-bool CvDeal::isBetween(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const {
+ 
+-	return (ePlayer == m_eFirstPlayer && eOtherPlayer == m_eSecondPlayer) ||
+-		(eOtherPlayer == m_eFirstPlayer && ePlayer == m_eSecondPlayer);
++CLinkList<TradeData> const& CvDeal::getGivesList(PlayerTypes ePlayer) const {
++
++	FAssert(ePlayer == getFirstPlayer() || ePlayer == getSecondPlayer());
++	return *(ePlayer == getFirstPlayer() ? getFirstTrades() : getSecondTrades());
+ }
+ 
+-bool CvDeal::isBetween(TeamTypes eTeam, TeamTypes eOtherTeam) const {
+ 
+-	return (eTeam == TEAMID(m_eFirstPlayer) && eOtherTeam == TEAMID(m_eSecondPlayer)) ||
+-		(eOtherTeam == TEAMID(m_eFirstPlayer) && eTeam == TEAMID(m_eSecondPlayer));
+-}// </advc.003>
++CLinkList<TradeData> const& CvDeal::getReceivesList(PlayerTypes ePlayer) const {
+ 
++	FAssert(ePlayer == getFirstPlayer() || ePlayer == getSecondPlayer());
++	return *(ePlayer == getFirstPlayer() ? getSecondTrades() : getFirstTrades());
++}
+ 
+-void CvDeal::clearFirstTrades()
+-{
+-	m_firstTrades.clear();
++
++CLLNode<TradeData>* CvDeal::headGivesNode(PlayerTypes ePlayer) const {
++
++	FAssert(ePlayer == getFirstPlayer() || ePlayer == getSecondPlayer());
++	return (ePlayer == getFirstPlayer() ? headFirstTradesNode() : headSecondTradesNode());
+ }
+ 
+ 
+-void CvDeal::insertAtEndFirstTrades(TradeData trade)
+-{
+-	m_firstTrades.insertAtEnd(trade);
++CLLNode<TradeData>* CvDeal::headReceivesNode(PlayerTypes ePlayer) const {
++
++	FAssert(ePlayer == getFirstPlayer() || ePlayer == getSecondPlayer());
++	return (ePlayer == getFirstPlayer() ? headSecondTradesNode() : headFirstTradesNode());
+ }
+ 
+ 
+-CLLNode<TradeData>* CvDeal::nextFirstTradesNode(CLLNode<TradeData>* pNode) const
+-{
+-	return m_firstTrades.next(pNode);
++CLLNode<TradeData>* CvDeal::nextGivesNode(CLLNode<TradeData>* pNode, PlayerTypes ePlayer) const {
++
++	FAssert(ePlayer == getFirstPlayer() || ePlayer == getSecondPlayer());
++	return (ePlayer == getFirstPlayer() ? nextFirstTradesNode(pNode) :
++			nextSecondTradesNode(pNode));
+ }
+ 
+ 
+-int CvDeal::getLengthFirstTrades() const
++CLLNode<TradeData>* CvDeal::nextReceivesNode(CLLNode<TradeData>* pNode, PlayerTypes ePlayer) const {
++
++	FAssert(ePlayer == getFirstPlayer() || ePlayer == getSecondPlayer());
++	return (ePlayer == getFirstPlayer() ? nextSecondTradesNode(pNode) :
++			nextFirstTradesNode(pNode));
++}
++// </advc.003>
++
++void CvDeal::clearFirstTrades()
+ {
+-	return m_firstTrades.getLength();
++	m_firstTrades.clear();
+ }
+ 
+ 
+-CLLNode<TradeData>* CvDeal::headFirstTradesNode() const
++void CvDeal::insertAtEndFirstTrades(TradeData trade)
+ {
+-	return m_firstTrades.head();
++	m_firstTrades.insertAtEnd(trade);
+ }
+ 
+ 
+-const CLinkList<TradeData>* CvDeal::getFirstTrades() const
++int CvDeal::getLengthFirstTrades() const
+ {
+-	return &(m_firstTrades);
++	return m_firstTrades.getLength();
+ }
+ 
+ 
+@@ -720,30 +735,12 @@ void CvDeal::insertAtEndSecondTrades(TradeData trade)
+ }
+ 
+ 
+-CLLNode<TradeData>* CvDeal::nextSecondTradesNode(CLLNode<TradeData>* pNode) const
+-{
+-	return m_secondTrades.next(pNode);
+-}
+-
+-
+ int CvDeal::getLengthSecondTrades() const
+ {
+ 	return m_secondTrades.getLength();
+ }
+ 
+ 
+-CLLNode<TradeData>* CvDeal::headSecondTradesNode() const
+-{
+-	return m_secondTrades.head();
+-}
+-
+-
+-const CLinkList<TradeData>* CvDeal::getSecondTrades() const
+-{
+-	return &(m_secondTrades);
+-}
+-
+-
+ void CvDeal::write(FDataStreamBase* pStream)
+ {
+ 	uint uiFlag=0;
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index 221bd43cb..0f01800f4 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -49,31 +49,50 @@ public:
+ 	int getInitialGameTurn() const;
+ 	void setInitialGameTurn(int iNewValue);
+ 	int getAge() const; // advc.133
+-	DllExport PlayerTypes getFirstPlayer() const;
+-	DllExport PlayerTypes getSecondPlayer() const;
+-	// <advc.003>
++	// <advc.003f> inlined
++	DllExport inline PlayerTypes getFirstPlayer() const {
++		return m_eFirstPlayer; }
++	inline CLinkList<TradeData> const* getFirstTrades() const {
++		return &(m_firstTrades); }
++	DllExport inline CLLNode<TradeData>* headFirstTradesNode() const {
++		return m_firstTrades.head(); }
++	DllExport inline CLLNode<TradeData>* nextFirstTradesNode(CLLNode<TradeData>* pNode) const {
++		return m_firstTrades.next(pNode); }
++	DllExport inline PlayerTypes getSecondPlayer() const {
++		return m_eSecondPlayer; }
++	inline CLinkList<TradeData> const* getSecondTrades() const {
++		return &(m_secondTrades); }
++	DllExport inline CLLNode<TradeData>* headSecondTradesNode() const {
++		return m_secondTrades.head(); }
++	DllExport inline CLLNode<TradeData>* nextSecondTradesNode(CLLNode<TradeData>* pNode) const {
++		return m_secondTrades.next(pNode); }
++	// </advc.003f>
++	/*  <advc.003> More convenient interface for iteration. Caller has to ensure
++		that ePlayer is involved in the trade!
++		Tbd.: Replace awkward uses of the old interface throughout the code base */
+ 	bool isBetween(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const;
+ 	bool isBetween(TeamTypes eTeam, TeamTypes eOtherTeam) const;
++	CLinkList<TradeData> const& getGivesList(PlayerTypes ePlayer) const;
++	CLinkList<TradeData> const& getReceivesList(PlayerTypes ePlayer) const;
++	CLLNode<TradeData>* headGivesNode(PlayerTypes ePlayer) const;
++	CLLNode<TradeData>* headReceivesNode(PlayerTypes ePlayer) const;
++	CLLNode<TradeData>* nextGivesNode(CLLNode<TradeData>* pNode, PlayerTypes ePlayer) const;
++	CLLNode<TradeData>* nextReceivesNode(CLLNode<TradeData>* pNode, PlayerTypes ePlayer) const;
+ 	// </advc.003>
++
+ 	void clearFirstTrades(); // advc.003j (comment): unused
+-	void insertAtEndFirstTrades(TradeData trade);
+-	DllExport CLLNode<TradeData>* nextFirstTradesNode(CLLNode<TradeData>* pNode) const;
++	void insertAtEndFirstTrades(TradeData trade); // advc (comment): Currently only used internally
+ 	int getLengthFirstTrades() const;
+-	DllExport CLLNode<TradeData>* headFirstTradesNode() const;
+-	const CLinkList<TradeData>* getFirstTrades() const;
+ 	
+ 	void clearSecondTrades(); // advc.003j (comment): unused
+-	void insertAtEndSecondTrades(TradeData trade);
+-	DllExport CLLNode<TradeData>* nextSecondTradesNode(CLLNode<TradeData>* pNode) const;
++	void insertAtEndSecondTrades(TradeData trade); // advc (comment): Currently only used internally
+ 	int getLengthSecondTrades() const;
+-	DllExport CLLNode<TradeData>* headSecondTradesNode() const;
+-	const CLinkList<TradeData>* getSecondTrades() const;
+ 
+ 	DllExport bool isCancelable(PlayerTypes eByPlayer = NO_PLAYER, CvWString* pszReason = NULL)
+ 	// <advc.003> Need a const version
+ 	{
+ 		CvDeal const& kThis = *this;
+-		return kThis.isCancelable();
++		return kThis.isCancelable(eByPlayer, pszReason);
+ 	} bool isCancelable(PlayerTypes eByPlayer = NO_PLAYER, CvWString* pszReason = NULL) const;
+ 	// </advc.003>
+ 	bool isEverCancelable(PlayerTypes eByPlayer) const; // advc.130f
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 00736c91b..3cdaf6956 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3172,6 +3172,9 @@ void CvPlayer::doTurn()  // advc.003: style changes
+ 				kOurTeam.cancelDisengage(tId);
+ 		}
+ 	} // </advc.034>
++	/*  advc.074: Make sure (if only for performance) that we don't keep expecting
++		a cancel-trade popup that never comes (the importer may have died) */
++	m_cancelingExport.clear();
+ 	int iGameTurn = g.getGameTurn();
+ 	updateEconomyHistory(iGameTurn, calculateTotalCommerce());
+ 	updateIndustryHistory(iGameTurn, calculateTotalYield(YIELD_PRODUCTION));
+@@ -22471,14 +22474,32 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 			for (int j = 0; j < GC.getNumBonusInfos(); j++)
+ 			{
+ 				setTradeItem(&item, TRADE_RESOURCES, j);
+-				if (canTradeItem(eOtherPlayer, item))
+-				{	// <advc.074>
+-					if((!bOtherHuman && !isHuman()) || getTradeDenial(eOtherPlayer, item) !=
+-							DENIAL_JOKING) { // </advc.074>
+-						bFoundItemUs = true;
+-						ourList.insertAtEnd(item);
++				if (!canTradeItem(eOtherPlayer, item))
++					continue;
++				// <advc.074>
++				bool bHuman = (bOtherHuman || isHuman());
++				bool bValid = (!bHuman || getTradeDenial(eOtherPlayer, item) != DENIAL_JOKING);
++				/*  Hack: Check if we're expecting a renegotiate-popup from
++					the EXE. Don't want any resources in the canceled deal to
++					be excluded from the trade table. */
++				if(bHuman) { // Even if already bValid=true, may need to clear j from m_cancelingExport.
++					for(CLLNode<std::pair<PlayerTypes,BonusTypes> >* pNode =
++							m_cancelingExport.head(); pNode != NULL; pNode =
++							m_cancelingExport.next(pNode)) {
++						PlayerTypes eCancelPlayer = pNode->m_data.first;
++						BonusTypes eCancelBonus = pNode->m_data.second;
++						FAssert(eCancelPlayer != getID());
++						if(eCancelPlayer == eOtherPlayer && eCancelBonus == j) {
++							bValid = true;
++							const_cast<CvPlayer*>(this)->m_cancelingExport.deleteNode(pNode);
++							break;
++						}
+ 					}
+ 				}
++				if(bValid) { // </advc.074>
++					bFoundItemUs = true;
++					ourList.insertAtEnd(item);
++				}
+ 			} 
+ 			break;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 587bd4b6d..4458a3bbe 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1399,6 +1399,7 @@ protected:
+ 	// <advc.106b>
+ 	std::vector<CvTalkingHeadMessage*> m_aMajorMsgs;
+ 	int m_iNewMessages; // </advc.106b>
++	CLinkList<std::pair<PlayerTypes,BonusTypes> > m_cancelingExport; // advc.074
+ 
+ 	CivicTypes* m_paeCivics;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7f310823a..95f1b0ada 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12901,7 +12901,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iI=-1, iJ=-1; // advc.003: Other declarations moved
++	int iI=-1, iJ=-1;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer); // advc.003
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 
+@@ -19570,7 +19570,7 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes e
+ 		TradeData data = pNode->m_data;
+ 		if(data.m_eItemType != TRADE_RESOURCES)
+ 			continue;
+-		if(AI_bonusTrade((BonusTypes)data.m_iData, ePlayer, -1) != NO_DENIAL)
++		if(AI_bonusTrade((BonusTypes)data.m_iData, ePlayer, 0) != NO_DENIAL)
+ 			return DO_CANCEL;
+ 	} /* Need to check their DENIAL_JOKING in case they're giving us a resource that
+ 		 we no longer need */
+@@ -19578,7 +19578,7 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes e
+ 		TradeData data = pNode->m_data;
+ 		if(data.m_eItemType != TRADE_RESOURCES)
+ 			continue;
+-		if(GET_PLAYER(ePlayer).AI_bonusTrade((BonusTypes)data.m_iData, getID(), -1) == DENIAL_JOKING) {
++		if(GET_PLAYER(ePlayer).AI_bonusTrade((BonusTypes)data.m_iData, getID(), 0) == DENIAL_JOKING) {
+ 			if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"resource - joking");
+ 			return DO_CANCEL;
+ 		}
+@@ -19593,7 +19593,8 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther) {
+ 	CvGame& g = GC.getGame(); int iLoop=-1;
+ 	for(CvDeal* pLoopDeal = g.firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = g.nextDeal(&iLoop))
+ 	{
+-		if(!pLoopDeal->isCancelable(getID()))
++		if(!pLoopDeal->isBetween(getID(), eOther) || // advc.003: Ensure this upfront
++				!pLoopDeal->isCancelable(getID()))
+ 			continue;
+ 		// if ((g.getGameTurn() - pLoopDeal->getInitialGameTurn()) >= (GC.getPEACE_TREATY_LENGTH() * 2)) // K-Mod disabled
+ 		// (original bts code deleted)
+@@ -19615,18 +19616,28 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther) {
+ 			CLinkList<TradeData> ourList;
+ 			CLinkList<TradeData> theirList;
+ 			bool bVassalDeal = pLoopDeal->isVassalDeal(); // K-Mod
+-			CLLNode<TradeData>* pNode=NULL;
+-			for (pNode = pLoopDeal->headFirstTradesNode(); pNode != NULL; pNode = pLoopDeal->nextFirstTradesNode(pNode))
+-			{
+-				if (pLoopDeal->getFirstPlayer() == getID())
+-					ourList.insertAtEnd(pNode->m_data);
+-				else theirList.insertAtEnd(pNode->m_data);
+-			}
+-			for (pNode = pLoopDeal->headSecondTradesNode(); pNode != NULL; pNode = pLoopDeal->nextSecondTradesNode(pNode))
+-			{
+-				if (pLoopDeal->getSecondPlayer() == getID())
+-					ourList.insertAtEnd(pNode->m_data);
+-				else theirList.insertAtEnd(pNode->m_data);
++			CLLNode<TradeData>* pNode;
++			// advc.003: Use the improved CvDeal interface!
++			for (pNode = pLoopDeal->headGivesNode(getID()); pNode != NULL;
++					pNode = pLoopDeal->nextGivesNode(pNode, getID()))
++			{
++				ourList.insertAtEnd(pNode->m_data);
++				/*  <advc.074> Remember the canceled resources to avoid
++					excluding them in CvPlayer::buildTradeTable */
++				if(pNode->m_data.m_eItemType == TRADE_RESOURCES) {
++					m_cancelingExport.insertAtEnd(std::make_pair(
++							eOther, (BonusTypes)pNode->m_data.m_iData));
++				} // </advc.074>
++			}
++			for (pNode = pLoopDeal->headGivesNode(eOther); pNode != NULL;
++					pNode = pLoopDeal->nextGivesNode(pNode, eOther))
++			{
++				theirList.insertAtEnd(pNode->m_data);
++				// <advc.074>
++				if(pNode->m_data.m_eItemType == TRADE_RESOURCES) {
++					GET_PLAYER(eOther).m_cancelingExport.insertAtEnd(std::make_pair(
++							getID(), (BonusTypes)pNode->m_data.m_iData));
++				} // </advc.074>
+ 			}
+ 			// <advc.062>
+ 			DenialTypes eVassalCancelReason = (!bVassalDeal ? NO_DENIAL :
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.cpp b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+index 3323a8e98..164d17322 100644
+--- a/CvGameCoreDLL/WarAndPeaceAgent.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+@@ -1560,7 +1560,7 @@ int WarAndPeaceAI::Team::endWarVal(TeamTypes enemyId) const {
+ 		return 0;
+ 	// Really just utility given how peaceThreshold is computed for humans
+ 	int humanUtility = human.warAndPeaceAI().reluctanceToPeace(ai.getID(), false);
+-	// Neither side pays if both want peace, and the AI wants it more than the human
++	// Neither side pays if both want peace and the AI wants it more than the human
+ 	if(humanUtility <= 0 && aiReluct <= humanUtility)
+ 		return 0;
+ 	double reparations = 0;
+@@ -1606,7 +1606,7 @@ int WarAndPeaceAI::Team::endWarVal(TeamTypes enemyId) const {
+ 				go a lot higher now than they do in BtS. 5 utility can easily
+ 				correspond to 1000 gold in the midgame. The AI evaluation of human
+ 				utility isn't too reliable (may well assume that the human starts
+-				some costly but futile offensive) and fluctuate a lot from turn
++				some costly but futile offensive) and fluctuates a lot from turn
+ 				to turn, whereas peace terms mustn't fluctuate too much.
+ 				And at least if aiReluct < 0, we do want peace negotiations to
+ 				succeed. */
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=15598

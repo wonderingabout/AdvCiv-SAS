@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1461
+# Commit: 810c41e85f7654baa7b73bb7117dbc1da94c6ea9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5da912b4ee5a8a0b81b964758fa9e06b7d750029
+# Title: Bugfix: Orders cancel automation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvMessageData.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index d04e75280..89ac9e4ab 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -781,8 +781,8 @@ void CvNetPushMission::Execute()
+ 			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
+ 			if (pSelectionGroup != NULL)
+ 			{
+-				pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift,
+-						false, NO_MISSIONAI, NULL, NULL, m_bModified); // advc.011b
++				pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift, true,
++						NO_MISSIONAI, NULL, NULL, m_bModified); // advc.011b
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=659

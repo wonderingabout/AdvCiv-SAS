@@ -1,0 +1,1605 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6121
+# Commit: 24104e1ce96d7d0470df04faff36127d3840a462
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: df8d30b6c671641bbb1b75c415fd50caa8ff0b93
+# Title: Change Portugal from Galleon to Grenadier (Cacador), Maya from Spearman to Worker (Quick Worker), make iWorkRate visible in Sevopedia Unit and Unit button hover
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America_FX.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/worker_meso.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/grenadier.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/Grenadier_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier_fx.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/grenadierpor.dds
+-	-	Assets/CvGameCoreDLL.dll
+51	65	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+4	4	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+12	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+15	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+517	474	Assets/XML/Units/CIV4UnitInfos.xml
+8	0	CvGameCoreDLL/CvGameTextMgr.cpp
+5	6	LLM_Helpers/README.md
+6	5	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America_FX.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/worker_meso.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/grenadier.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/Grenadier_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier_fx.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/grenadierpor.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.dds b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.dds
+new file mode 100644
+index 000000000..4c2e0fb69
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.nif b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.nif
+new file mode 100644
+index 000000000..419a19dfa
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America_FX.nif b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America_FX.nif
+new file mode 100644
+index 000000000..9147e7ed0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America_FX.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/worker_meso.dds b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/worker_meso.dds
+new file mode 100644
+index 000000000..138997e2b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Maya_Quick_Worker/worker_meso.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/grenadier.dds b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/grenadier.dds
+new file mode 100644
+index 000000000..22cd25679
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/grenadier.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/Grenadier_128.dds b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/Grenadier_128.dds
+new file mode 100644
+index 000000000..6aa63c0e4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/Grenadier_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier.nif b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier.nif
+new file mode 100644
+index 000000000..4cc056b5a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier_fx.nif b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier_fx.nif
+new file mode 100644
+index 000000000..ff283b582
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier_fx.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/grenadierpor.dds b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/grenadierpor.dds
+new file mode 100644
+index 000000000..fc56adf18
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/grenadierpor.dds differ
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index db31ed1aa..026f6c96e 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -201,6 +201,32 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art from ri mod's Worker (Mayapan) thanks (kfm is base civ4 one). -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_MAYA_QUICK_WORKER</Type>
++			<Button>Art/AdvCiv_SAS/Units/Maya_Quick_Worker/worker_meso.dds</Button>
++			<!-- custom: changed base advciv's (advc.002j) 0.43 back to 0.44 to match the ri mod value. -->
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America.nif</NIF>
++			<KFM>Art/Units/Worker/Worker.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Maya_Quick_Worker/nif/Worker_South_America_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.9</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SCOUT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Scout.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,1</Button>
+@@ -848,31 +874,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_MAYA_HOLKAN</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,10</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique_Maya_Holkan/Unique_Mayan_Holkan.nif</NIF>
+-			<KFM>Art/Units/Unique_Maya_Holkan/Unique_Mayan_Holkan.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique_Maya_Holkan/Unique_Mayan_Holkan_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<!-- BBAI: was ..._BUILD_UNIT -->
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_GREEK_HOPLITE</Type>
+ 			<Button>Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds</Button>
+@@ -1512,6 +1513,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art from ri mod's Grenadier (Portuguese) thanks (KFM is base civ4 one); note: the grenade was purple as in missing asset: added Grenadier_128.dds with the help of GPT-5.6-Sol (in the SVN (fpk-less as of now) ri mod version). -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_PORTUGAL_CACADOR</Type>
++			<Button>Art/AdvCiv_SAS/Units/Portugal_Cacador/grenadier.dds</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier.nif</NIF>
++			<KFM>Art/Units/Grenadier/Grenadier.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Portugal_Cacador/nif/brazil_grenadier_fx.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.95</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_BAZOOKA</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,11</Button>
+@@ -2578,46 +2604,6 @@
+ 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+ 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_PORTUGAL_CARRACK</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,11</Button>
+-			<fScale>0.24</fScale>
+-			<fInterfaceScale>0.5</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Portugal_Carrack/Portugal_Carrack.nif</NIF>
+-			<KFM>Art/Units/Portugal_Carrack/Portugal_Carrack.kfm</KFM>
+-			<SHADERNIF>Art/Units/Portugal_Carrack/Portugal_Carrack_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/CaravelShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<TrailDefinition>
+-				<Texture>Art/Shared/water_ship_wake.dds</Texture>
+-				<fWidth>1</fWidth>
+-				<fLength>180.0</fLength>
+-				<fTaper>1</fTaper>
+-				<fFadeStartTime>.2</fFadeStartTime>
+-				<fFadeFalloff>0.35</fFadeFalloff>
+-			</TrailDefinition>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bSmoothMove>1</bSmoothMove>
+-			<fAngleInterpRate>720.0</fAngleInterpRate>
+-			<fBankRate>.4</fBankRate>
+-			<fExchangeAngle>25.0</fExchangeAngle>
+-			<bActAsRanged>0</bActAsRanged>
+-			<!-- BBAI: was ..._BUILD_UNIT -->
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop>LOOPSTEP_OCEAN2</AudioRunTypeLoop>
+-				<AudioRunTypeEnd>ENDSTEP_OCEAN2</AudioRunTypeEnd>
+-			</AudioRunSounds>
+-			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+-			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_GALLEON</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Galleon.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,9</Button>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index ab92be5cc..f9bfa2b18 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -2657,8 +2657,8 @@ Created as part of AdvCiv-SAS improvements
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
+-					<UnitType>UNIT_MAYA_HOLKAN</UnitType>
++					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
++					<UnitType>UNIT_MAYA_QUICK_WORKER</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+@@ -3341,8 +3341,8 @@ Created as part of AdvCiv-SAS improvements
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_GALLEON</UnitClassType>
+-					<UnitType>UNIT_PORTUGAL_CARRACK</UnitType>
++					<UnitClassType>UNITCLASS_GRENADIER</UnitClassType>
++					<UnitType>UNIT_PORTUGAL_CACADOR</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 6e6541a89..18ecd1b57 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -278,6 +278,13 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 
+ 
++	<!-- custom: Sources: https://pmc.ncbi.nlm.nih.gov/articles/PMC4284545/ and https://pmc.ncbi.nlm.nih.gov/articles/PMC10589657/ (ChatGPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_MAYA_QUICK_WORKER_PEDIA</Tag>
++		<English>[TAB]Ancient Maya communities intensively reshaped their landscapes through agriculture and public works. At sites such as Tikal, farmers used terraces, irrigation, household gardens, arboriculture, and systems for retaining and redistributing water. Across the Maya lowlands, reservoirs, canals, wetland fields, causeways, and other infrastructure supported large populations in environments with strong seasonal constraints.[PARAGRAPH:1]These systems depended on organized human labor and continued maintenance. Rural farmers could contribute labor to construction projects and public infrastructure, while roads, waterworks, and agricultural landscapes required repeated investment to connect settlements, expand cultivable land, manage water, and sustain urban centers over long periods.</English>
++	</TEXT>
++
++
+ 
+ 	<!-- custom: based on https://en.wikipedia.org/wiki/Patriot_(American_Revolution) -->
+ 	<TEXT>
+@@ -696,6 +703,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_PORTUGAL_PEIXARIA_PEDIA</Tag>
+ 		<English>[TAB]Peixaria is the Portuguese word for an establishment that sells fish, broadly equivalent to a fish shop or fishmonger's. Such businesses form part of the distribution side of a fishing economy: fish and shellfish are landed, preserved or transported, and then sold through markets and shops to consumers who may live far from the coast.[PARAGRAPH:1]Fishing has long been important to communities along the Portuguese coast. At Armacao de Pera in the Algarve, for example, fishermen were historically attracted by abundant tuna and sardines; after being salted, the catch was sold for consumption in southern and central Portugal. Preservation, transport, and retail markets therefore linked coastal fishing communities with consumers across a much wider area.</English>
+ 	</TEXT>
++	<!-- custom: Source: https://www.napoleon-series.org/military-information/battles-and-campaigns/were-the-portuguese-cacadores-armed-with-baker-rifles/ (ChatGPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_PORTUGAL_CACADOR_PEDIA</Tag>
++		<English>[TAB]The Ca�adores were Portuguese light-infantry battalions raised during the Peninsular War. The first battalions were formed in 1808, and twelve were eventually raised as independent units trained for light-infantry duties.[PARAGRAPH:1]The 1st and 3rd Ca�adores became integral parts of the Light Division from 1810. Wearing distinctive brown uniforms, the Ca�adores gained a reputation during the war as effective skirmishers and sharpshooters.</English>
++	</TEXT>
+ 	<!-- custom: Source: https://www.encyclopedia.com/history/encyclopedias-almanacs-transcripts-and-maps/chancellery-system (GPT-5.6 Thinking) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_RUSSIAN_PRIKAZ_PEDIA</Tag>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 1e3798eea..692c91ace 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1978,6 +1978,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS</Tag>
+ 		<English>Build speed modifiers</English>
+ 	</TEXT>
++	<!-- custom: TXT_KEY_UNIT_WORK_RATE displays the builder unit iWorkRate from CIV4UnitInfos.xml directly in shared Sevopedia/unit hover help. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_WORK_RATE</Tag>
++		<English>Work Rate: %d1%%</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -2649,6 +2654,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_PORTUGAL_PEIXARIA</Tag>
+ 		<English>Peixaria</English>
+ 	</TEXT>
++	<!-- custom: Portuguese light-infantry UU replacing the map-dependent Carrack. (ChatGPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_PORTUGAL_CACADOR</Tag>
++		<English>Cacador</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_RUSSIAN_PRIKAZ</Tag>
+ 		<English>Prikaz</English>
+@@ -2766,6 +2776,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_UNIT_NETHERLANDS_SWIFT_WORKER</Tag>
+ 		<English>Swift Worker</English>
+ 	</TEXT>
++	<!-- custom: Mayan Worker UU focused on work speed rather than movement. (ChatGPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_MAYA_QUICK_WORKER</Tag>
++		<English>Quick Worker</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
+ 		<English>Patriot</English>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 38bb7ff3e..0d993ea78 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1694,6 +1694,259 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_MAYA_QUICK_WORKER -->
++			<Class>UNITCLASS_WORKER</Class>
++			<Type>UNIT_MAYA_QUICK_WORKER</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>UNITCLASS_WORKER</Capture>
++			<Combat>NONE</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_WORKER</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_MAYA_QUICK_WORKER</Description>
++			<Civilopedia>TXT_KEY_UNIT_MAYA_QUICK_WORKER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>1</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>0</bMilitaryHappiness>
++			<bMilitarySupport>0</bMilitarySupport>
++			<bMilitaryProduction>0</bMilitaryProduction>
++			<bPillage>0</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades/>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_WORKER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds>
++				<Build>
++					<BuildType>BUILD_ROAD</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_RAILROAD</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_FARM</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_MINE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WORKSHOP</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_LUMBERMILL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WINDMILL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WATERMILL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_PLANTATION</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_QUARRY</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_PASTURE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_CAMP</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_WELL</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_COTTAGE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_FORT</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_REMOVE_JUNGLE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_REMOVE_FOREST</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_SCRUB_FALLOUT</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++				<Build>
++					<BuildType>BUILD_FOREST_PRESERVE</BuildType>
++					<bBuild>1</bBuild>
++				</Build>
++			</Builds>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>NONE</PrereqTech>
++			<TechTypes/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, give a buffed version of the base advciv trait +/- civ4 for worker type of units instead, was TRAIT_EXPANSIVE 25 -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
++					<iProductionTrait>50</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>50</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>2</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<!-- custom: Mayan Quick Worker builds improvements 25% faster than the generic Worker; same cost and movement keep the UU focused on work efficiency rather than overlapping Fast/Swift Worker mobility. (ChatGPT-5.6-Sol) -->
++			<iWorkRate>125</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>0</iCombat>
++			<iCombatLimit>0</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>0</iXPValueAttack>
++			<iXPValueDefense>0</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods/>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>0</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<!-- custom: was 2 -->
++			<iAsset>10</iAsset>
++			<iPower>0</iPower>
++			<!-- custom: only one artdefinetag same as for the indian fast worker and the netherlands_swift_worker as it seems they only have such as of now (no mid or late art change for the netherlands swift worker or the netherlands one) -->
++			<UnitMeshGroups>
++				<iGroupSize>2</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>2</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MAYA_QUICK_WORKER</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<FreePromotions/>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_BARBARIAN_WORKER -->
+ 			<Class>UNITCLASS_WORKER</Class>
+ 			<Type>UNIT_BARBARIAN_WORKER</Type>
+@@ -8675,7 +8928,7 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: stronger hill defense than the generic Spearman while staying within the 20% terrain/hill cap; was 0/0. (ChatGPT-5.6-Sol) -->
++			<!-- custom: keep Hills at the generic Spearman baseline while Plains remains the Impi's defining terrain specialization; its major mobility perk already gives the unit a strong separate identity. (ChatGPT-5.6-Sol) -->
+ 			<iHillsAttack>10</iHillsAttack>
+ 			<iHillsDefense>10</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -8762,20 +9015,21 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_MAYA_HOLKAN -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_GREEK_HOPLITE -->
+ 			<Class>UNITCLASS_SPEARMAN</Class>
+-			<Type>UNIT_MAYA_HOLKAN</Type>
++			<Type>UNIT_GREEK_HOPLITE</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: make it a more versatile unit (quite good at offense, but a bit better at defense), was UNITAI_ATTACK -->
++			<!-- custom: was UNITAI_ATTACK -->
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MAYA_HOLKAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MAYA_HOLKAN_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_GREEK_HOPLITE</Description>
++			<Civilopedia>TXT_KEY_UNIT_GREEK_HOPLITE_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -8798,7 +9052,7 @@
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>1</bFirstStrikeImmune>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -8812,6 +9066,7 @@
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: was UNITCLASS_MACEMAN -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
+@@ -8823,245 +9078,7 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: is a strong defender as well, was reserve, counter, city_counter -->
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_HUNTING -->
+-			<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
+-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+-			<TechTypes/>
+-			<BonusType>NONE</BonusType>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>35</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<iAirRange>0</iAirRange>
+-			<iAirUnitCap>0</iAirUnitCap>
+-			<iDropRange>0</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<!-- custom: was 4 -->
+-			<iCombat>5</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
+-			<iAirCombat>0</iAirCombat>
+-			<iAirCombatLimit>0</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
+-			<!-- custom: was 0 -->
+-			<iWithdrawalProb>15</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<!-- custom: i want them to be a more versatile unit, and they are strong enough already to not need city defense specifically, was 0/25 (as of now in advciv-sas generic spearman) -->
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: was 10/25 (in the base advciv-sas spearman) -->
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>20</iFeatureAttack>
+-				</FeatureAttack>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>10</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>40</iFeatureDefense>
+-				</FeatureDefense>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>10</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MOUNTED 100 (in base advciv) -->
+-			<!-- custom: see code comment at the generic spearman for details or related info-->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+-					<iUnitCombatMod>10</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods/>
+-			<BonusProductionModifiers/>
+-			<iBombRate>0</iBombRate>
+-			<iBombardRate>0</iBombardRate>
+-			<SpecialCargo>NONE</SpecialCargo>
+-			<DomainCargo>NONE</DomainCargo>
+-			<iCargo>0</iCargo>
+-			<iConscription>2</iConscription>
+-			<iCultureGarrison>4</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
+-			<!-- custom: was 4 -->
+-			<iPower>6</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>3</iGroupSize>
+-				<fMaxSpeed>1.75</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>0</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MAYA_HOLKAN</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was empty -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_RETREAT1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_GREEK_HOPLITE -->
+-			<Class>UNITCLASS_SPEARMAN</Class>
+-			<Type>UNIT_GREEK_HOPLITE</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+-			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: was UNITAI_ATTACK -->
+-			<!-- K-Mod: was UNITAI_COUNTER -->
+-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_GREEK_HOPLITE</Description>
+-			<Civilopedia>TXT_KEY_UNIT_GREEK_HOPLITE_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>1</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>1</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+-			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>0</bMechanized>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_MACEMAN -->
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular, but longbows are more versatile against melee units for example (especially axemen which counter spears as of now), so see code comment below and where the below one links tofor details -->
++			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular, but longbows are more versatile against melee units for example (especially axemen which counter spears as of now), so see code comment below and where the below one links tofor details -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -9152,7 +9169,7 @@
+ 			<!-- custom: was 0 in the base advciv-sas spearman; Long_Comments_XML.txt #368 -->
+ 			<iCityDefense>10</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: stronger hill defense than the generic Spearman while staying within the 20% terrain/hill cap. (ChatGPT-5.6-Sol) -->
++			<!-- custom: keep Hills at the generic Spearman baseline while Plains remains the Hoplite's defining terrain specialization; avoid stacking another boosted broad-terrain effect onto its existing combat package. (ChatGPT-5.6-Sol) -->
+ 			<iHillsAttack>10</iHillsAttack>
+ 			<iHillsDefense>10</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -11227,7 +11244,7 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: keep the Yeoman at the 20% hill-specialization tier while the generic Crossbowman is reduced to 10%; civ-specific terrain/hill strengths should be clearly stronger than the generic counterpart without exceeding the terrain/hill cap. (ChatGPT-5.6-Sol) -->
++			<!-- custom: keep Hills at the generic Crossbowman baseline while Forest remains the Yeoman Archer's defining feature specialization. (ChatGPT-5.6-Sol) -->
+ 			<iHillsAttack>10</iHillsAttack>
+ 			<iHillsDefense>10</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -13583,9 +13600,217 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER -->
++			<Class>UNITCLASS_GRENADIER</Class>
++			<Type>UNIT_GRENADIER</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_GUN</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<!-- custom: more suited as a flexible unit -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_GRENADIER</Description>
++			<Civilopedia>TXT_KEY_UNIT_GRENADIER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: was UNITCLASS_INFANTRY and UNITCLASS_MACHINE_GUN -->
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_BAZOOKA</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MACHINE_GUN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<!-- custom: add city_defense -->
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- custom: maybe good against riflemen or such while still being quite useful at offense with collateral damage effect as of now -->
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<TechTypes/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 100 -->
++			<iCost>120</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>12</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<!-- custom: strengthen the versatile hit-and-run role slightly; was 0 in base AdvCiv and 15 in earlier AdvCiv-SAS. (ChatGPT-5.6-Sol) -->
++			<iWithdrawalProb>20</iWithdrawalProb>
++			<!-- custom: add some collateral damage, after all don't they have.. grenades xd, was 0 -->
++			<iCollateralDamage>25</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<!-- K-Mod: was 0 -->
++			<iCityAttack>10</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<!-- custom: was UNITCLASS_RIFLEMAN 50 -->
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<!-- custom: was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>1</iConscription>
++			<iCultureGarrison>7</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>3</iAsset>
++			<!-- custom: was 12 -->
++			<iPower>14</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_GRENADIER</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<FreePromotions/>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
++		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_PORTUGAL_CACADOR -->
+ 			<Class>UNITCLASS_GRENADIER</Class>
+-			<Type>UNIT_GRENADIER</Type>
++			<Type>UNIT_PORTUGAL_CACADOR</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -13595,8 +13820,8 @@
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_GRENADIER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_GRENADIER_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_PORTUGAL_CACADOR</Description>
++			<Civilopedia>TXT_KEY_UNIT_PORTUGAL_CACADOR_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -13725,11 +13950,12 @@
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+ 			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<!-- custom: one small chance-first-strike edge for the Cacador light-infantry/sharpshooter role; kept intrinsic so Combat III is the main perk inherited by later upgrades. (ChatGPT-5.6-Sol) -->
++			<iChanceFirstStrikes>1</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<!-- custom: strengthen the versatile hit-and-run role slightly; was 0 in base AdvCiv and 15 in earlier AdvCiv-SAS. (ChatGPT-5.6-Sol) -->
+-			<iWithdrawalProb>20</iWithdrawalProb>
++			<!-- custom: slightly strengthen the Grenadier baseline withdrawal for the Cacador light-infantry/skirmisher role. (ChatGPT-5.6-Sol) -->
++			<iWithdrawalProb>25</iWithdrawalProb>
+ 			<!-- custom: add some collateral damage, after all don't they have.. grenades xd, was 0 -->
+ 			<iCollateralDamage>25</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -13742,10 +13968,31 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: minor Grass terrain and Forest feature affinities give the Cacador a restrained battlefield identity while Combat III, its chance first strike and withdrawal remain the main UU advantages. (ChatGPT-5.6-Sol) -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>10</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>10</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<!-- custom: was UNITCLASS_RIFLEMAN 50 -->
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+@@ -13769,7 +14016,7 @@
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 12 -->
+-			<iPower>14</iPower>
++			<iPower>15</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -13778,7 +14025,7 @@
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_GRENADIER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_PORTUGAL_CACADOR</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -13787,7 +14034,13 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: Combat III is the Cacador's main enduring UU perk: it is less likely than low Combat ranks to be redundant on veteran upgrades and can remain useful after later upgrades. (ChatGPT-5.6-Sol) -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COMBAT3</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -16889,7 +17142,7 @@
+ 					<iTerrainAttack>20</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+-			<!-- custom: keep the Cataphract terrain profile offensive: Grass uses the strong 20% terrain tier and Plains/Desert the minor 10% tier. Its already high base strength does not need positive explicit terrain defense, especially with bNoDefensiveBonus. (ChatGPT-5.6-Sol) -->
++			<!-- custom: keep the Cataphract terrain profile offensive and focused on Grass; its already high base strength does not need positive explicit terrain defense, especially with bNoDefensiveBonus. (ChatGPT-5.6-Sol) -->
+ 			<TerrainDefenses/>
+ 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details, was empty -->
+ 			<FeatureAttacks>
+@@ -17999,7 +18252,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: keep the Conquistador terrain profile mostly offensive: 20% Plains attack is a strong but capped terrain specialization, while only 10% Plains defense remains; Forest attack can use 20% as a feature specialization without affecting city combat. (ChatGPT-5.6-Sol) -->
++			<!-- custom: keep the Conquistador terrain profile focused on Plains and weighted toward offense, while its mounted-ranged rough-feature weakness remains separate. (ChatGPT-5.6-Sol) -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -21975,216 +22228,6 @@
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<!-- custom: now carrack is based on the galleon -->
+-		<UnitInfo> <!-- custom: class: UNITCLASS_GALLEON, type: UNIT_PORTUGAL_CARRACK -->
+-			<Class>UNITCLASS_GALLEON</Class>
+-			<Type>UNIT_PORTUGAL_CARRACK</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_NAVAL</Combat>
+-			<Domain>DOMAIN_SEA</Domain>
+-			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_PORTUGAL_CARRACK</Description>
+-			<Civilopedia>TXT_KEY_UNIT_PORTUGAL_CARRACK_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<!-- custom: make sure this bRivalTerritory is set to 0 so they cannot nonsensically or not pleasantly enter borders without triggering war if no open borders -->
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>0</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>1</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+-			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>1</bMechanized>
+-			<bRenderBelowWater>1</bRenderBelowWater>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_TRANSPORT</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<!-- custom: add explore_sea to make the galleon more of a sea explorer now that caravels are removed -->
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_SETTLER_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<ObsoleteTech>TECH_COMBUSTION</ObsoleteTech>
+-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+-			<TechTypes/>
+-			<BonusType>NONE</BonusType>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<!-- custom: reduce cost as this is more of a civilan unit anyways, a bit more since it is said to be smaller, and to give portugal a small sailing/naval advantage -->
+-			<iCost>60</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>20</iMinAreaSize>
+-			<!-- custom: make it significantly faster too, was 4 -->
+-			<iMoves>6</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<iAirRange>0</iAirRange>
+-			<iAirUnitCap>0</iAirUnitCap>
+-			<iDropRange>0</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<!-- custom: make it significantly stronger than the galleon it is now based on, was 3 -->
+-			<iCombat>5</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
+-			<iAirCombat>0</iAirCombat>
+-			<iAirCombatLimit>0</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_OCEAN</TerrainType>
+-					<iTerrainAttack>20</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_COAST</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_OCEAN</TerrainType>
+-					<iTerrainDefense>20</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_COAST</TerrainType>
+-					<iTerrainDefense>20</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods/>
+-			<BonusProductionModifiers/>
+-			<iBombRate>0</iBombRate>
+-			<iBombardRate>0</iBombardRate>
+-			<SpecialCargo>NONE</SpecialCargo>
+-			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<!-- K-Mod: was 3 -->
+-			<iCargo>4</iCargo>
+-			<iConscription>0</iConscription>
+-			<iCultureGarrison>0</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<!-- custom: was 3 -->
+-			<iPower>2</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>1</iGroupSize>
+-				<fMaxSpeed>2.25</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>1</iMeleeWaveSize>
+-				<iRangedWaveSize>1</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_PORTUGAL_CARRACK</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_TRANSPORT, type: UNIT_TRANSPORT -->
+ 			<Class>UNITCLASS_TRANSPORT</Class>
+ 			<Type>UNIT_TRANSPORT</Type>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3f77d8ab2..52ceb9ad9 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9363,6 +9363,14 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 			}
+ 		}
+ 	}
++	// <!-- custom: Show a builder unit's base XML iWorkRate (CvUnitInfo::getWorkRate) directly in shared unit help used by both Sevopedia special abilities and unit-definition hover help, so Worker variants are visibly distinguishable without relative-vs-default math. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
++	if (u.getWorkRate() > 0)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(CvWString::format(L"%c%s", gDLL->getSymbolID(BULLET_CHAR),
++				gDLL->getText("TXT_KEY_UNIT_WORK_RATE", u.getWorkRate()).GetCString()));
++	}
++
+ 	if (u.isNuke())
+ 	{
+ 		szBuffer.append(NEWLINE);
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 564d81ed3..854e262d6 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -937,17 +937,16 @@ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Be
+ Example of output (Git Bash):
+ 
+ ```text
+-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond
+- the Sword\Mods\AdvCiv-SAS
++Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+ Mod name:  AdvCiv-SAS
+ Prefix:    AdvCiv-SAS_light_source
+-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260816T230549.zip
++Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260817T110520.zip
+ Files:     1137 selected + 7 generated snapshot-context files
+-Size:      128,998,635 bytes before ZIP container overhead
++Size:      128,981,178 bytes before ZIP container overhead
+ Mode:      ZIP_DEFLATED / compression level 6
+ Wrote:     1144 file(s)
+-ZIP size:  61,387,702 bytes
+-Duration:  2,497 ms
++ZIP size:  61,387,277 bytes
++Duration:  2,498 ms
+ ```
+ 
+ ## Workflow rule for timeline tuning
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 0b93c76df..597da3e4d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -67,7 +67,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | Khmer | Hunting, Mining | **Fishing, Hunting** | Tonle Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+ | Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive "Korea-coded" pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure - without implying an early religion-race start. |
+ | Mali | The Wheel, Mining | **Hunting, Pottery** | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+-| Maya | Mining, Mysticism | **Mysticism, Pottery** | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
++| Maya | Mining, Mysticism | **Mysticism, Pottery** | Classic Maya = obsidian/chert/jade; metals are late/minor. Early Pottery better fits their builder profile, gives the Quick Worker immediate Cottage access, and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
+ | Mongol | The Wheel, Hunting | **Hunting, Mysticism** | Pastoral steppe with early horses: Hunting -> Animal Husbandry -> Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
+ | Native America | Agriculture, Fishing | **Hunting, Mining** | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+ | Netherlands | Agriculture, Fishing | **Fishing, Pottery** | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+@@ -329,7 +329,6 @@ Only civ-specific units with a current terrain/feature/Hills effect are listed h
+ | Japanese Samurai | Forest +20% A/D | Forest alone carries the terrain/feature identity; the minor Tundra bonus is removed so Combat II and the Samurai's other combat strengths are not accompanied by unrelated breadth. |
+ | Scandinavian Viking | Snow/Tundra +10% A/D | Uses two weak cold-terrain affinities for a clear northern identity; the Forest package is removed so the Viking does not specialize across too many environments. |
+ | Zulu Impi | Plains +20% A, +10% D; Hills +10% A/D; Forest/Jungle +10% A/D | Plains is the Impi's added UU specialization. The small Hills and rough-feature effects are the generic Spearman baseline, retained rather than stacking extra Grass/Desert specializations on top of the Impi's major 2-move perk. |
+-| Maya Holkan | Jungle +20% A, +40% D; Forest +10% A/D | Jungle is the defining specialization; Forest is only a minor extension of that rough-terrain identity. |
+ | Greek Hoplite | Plains +20% A, +10% D; Hills +10% A/D; Forest/Jungle +10% A/D | Plains formation fighting is the Hoplite's added UU specialization; Hills and rough-feature values remain at the generic Spearman baseline instead of also being boosted. |
+ | Mali Skirmisher | Plains/Desert +10% A/D; Hills +20% D | Plains and Desert become two weak Sahel/open-country affinities, while the normal Longbowman Hills defense is retained; the unrelated Jungle bonus is removed. |
+ | Babylonian Bowman | Desert +20% A, +10% D; Hills +20% D | Keeps the Longbowman's normal Hills defense and adds one focused Desert field specialization instead of maximum Grass and Desert bonuses on an already stronger 5-strength unit. |
+@@ -352,7 +351,7 @@ Only civ-specific units with a current terrain/feature/Hills effect are listed h
+ | German Hussar | Tundra +10% A; Forest +20% A; Jungle -20% D | Keeps the Hussar's terrain effects offensive and relatively narrow so its 3-move raiding role remains the main gameplay advantage. |
+ | Korean Hwacha | Grass +10% A; Forest +20% A | Generic Cannon has no terrain package; the Hwacha receives a limited civ-specific attack specialization without extra terrain defense. |
+ | Holy Roman Houfnice | Tundra/Plains +10% A; Forest +20% A | Like Hwacha, the Cannon replacement gets a modest attack-only specialty while generic later artillery remains terrain-neutral. |
+-| Portuguese Carrack | Ocean +20% A/D; Coast +10% A, +20% D | Naval terrain is inherently map-dependent; the values are normalized to the same cap, but the Carrack itself remains marked for replacement by a less map-dependent Portuguese land UU. |
++| Portuguese Caçador | Grass +10% A/D; Forest +10% A/D | Uses two minor affinities rather than a strong terrain bonus: Grass supplies a weak general terrain identity while Forest gives a narrower light-infantry/skirmisher feature identity. Combat III, a chance first strike and slightly higher withdrawal remain the broader UU value. |
+ 
+ `FEATURE_FLOOD_PLAINS` can also use this system and provides another strategically distinct feature specialization; the Sumerian Vulture currently uses it for its Mesopotamian river-valley identity. Flood Plains are fertile river floodplains rather than a generic swamp and currently have normal feature movement, so any additional future use should be justified as floodplain/river-valley fighting rather than as movement through marshland.
+ 
+@@ -368,6 +367,8 @@ Note: terrain/feature combat effects are a mostly new, currently optional cross-
+ 
+ Note 2: paired columns are visually merged below (`Before → current SAS`, with both comparison summaries kept in the same linear `Changes` cell) to keep the roster substantially narrower. It can still be [viewed on CFC](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16954876) if useful (refer to GitHub or XML/Sevopedia if that copy is not updated).
+ 
++As of now, playable civilizations intentionally have no naval civ-specific units. Naval replacements can be effectively absent on land-heavy maps and disproportionately important on naval-heavy maps, especially when most other civilizations have no comparable naval replacement; balancing them fairly would otherwise tend to require a broader set of naval counterparts. The Netherlands and Portugal are current examples of this policy: the East Indiaman was replaced by the Swift Worker and the Carrack by the Caçador. Naval warfare itself remains unchanged by this rule; it only keeps civ-specific unit power more consistently relevant across map types.
++
+ | Civ | Before → current SAS | Changes | Summary / rationale |
+ | --- | --- | --- | --- |
+ | America / USA | AMERICAN_NAVY_SEAL (MARINE; GUN) → **USA_PATRIOT** (**RIFLEMAN**; Keep) | Old → SAS: str 24→15, h 160→100; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS; free AMPHIBIOUS->none, MARCH→FIRST_STRIKE1; loses FirstStrikeChance 1, FirstStrikes 1, vsClass ARTILLERY 50, vsClass MACHINE_GUN 50; vs SAS RIFLEMAN: h 120→100; free none→FIRST_STRIKE1 | Earlier Patriot/Rifleman timing is more useful than a late Marine-only UU. Significant cost reduction better represents "No Taxation without Representation" and makes it a more unique perk of it costing same price as previous unit; indirectly buffs upgrades too that are now cheaper as well. Real UU effect without making each individual Patriot unrealistically stronger. |
+@@ -392,12 +393,12 @@ Note 2: paired columns are visually merged below (`Before → current SAS`, with
+ | Khmer | KHMER_BALLISTA_ELEPHANT (WAR_ELEPHANT; MOUNTED) → Keep (Keep; **MOUNTED_RANGED**) | Old → SAS: tech CONSTRUCTION, HORSEBACK_RIDING→MOUNTED_COMBAT, ANIMAL_HUSBANDRY; bonus IVORY→ELEPHANTS; loses vsCombat MOUNTED 50; vs SAS WAR_ELEPHANT: mods; gains FirstStrikes 1 | Ranged War Elephant gives different matchups than base melee War Elephant, especially vs Spearman/Pikeman and broader polearm counters. |
+ | Korea | KOREAN_HWACHA (CATAPULT; SIEGE) → Keep (**CANNON**; Keep) | Old → SAS: str 5→13, h 50→140; tech CONSTRUCTION→CHEMISTRY, MACHINERY; free none→COLLATERAL_DAMAGE1; mods Bombard 8→12, CollateralLimit 50→200, CollateralMaxUnits 6→7; loses vsCombat MELEE 50; vs SAS CANNON: res IRON→none; free none→COLLATERAL_DAMAGE1; mods CollateralMaxUnits 6→7 | Catapult/Trebuchet window is short; Cannon-slot Hwacha stays useful much longer and better fits Korean gunpowder/fire-arrow technology. |
+ | Mali | MALI_SKIRMISHER (ARCHER; ARCHER) → Keep (**LONGBOWMAN**; **ARCHER_BOW_SHORT**) | Old → SAS: str 4→5, h 25→45; tech ARCHERY→CONSTRUCTION, HUNTING; free none→FIRST_STRIKE1; mods CityDef 50→10; gains FirstStrikes 1; vs SAS LONGBOWMAN: str 4→5; free RETREAT1→FIRST_STRIKE1; mods CityDef 25→10, Withdraw 25→50 | Skirmisher becomes an active field defender/harasser instead of an early city garrison. |
+-| Maya | MAYA_HOLKAN (SPEARMAN; MELEE) → Keep (Keep; **MELEE_POLEARM**) | Old → SAS: str 4→5; tech HUNTING, BRONZE_WORKING→BRONZE_WORKING; free none→RETREAT1; loses vsCombat MOUNTED 100; vs SAS SPEARMAN: res COPPER, IRON→none; free none→RETREAT1; gains Withdraw 15, vsCombat MOUNTED_RANGED 50 | Old Holkan was weak; SAS Spearman buffs plus Retreat make it a stronger skirmisher/support unit for field fighting and even city attacks. |
++| Maya | MAYA_HOLKAN (SPEARMAN; MELEE) → **MAYA_QUICK_WORKER** (**WORKER**; **NONE**) | Replace the military UU with a civilian Worker UU; vs SAS WORKER: WorkRate 100→125; cost 50 and movement 2 unchanged | Pacal/Maya have often underperformed or lost early in autoplay. The very weak base Civ4/AdvCiv Holkan, and the later SAS attempt to make it a more useful Spearman/skirmisher, still leave Maya with a narrow early military role and short usefulness window; the culture-oriented Ball Court is also relatively specialized rather than a broad compensating power spike. Moving the UU to an otherwise unused work-rate Worker role is therefore primarily an attempt to strengthen Maya more generally rather than force one military niche. The +25% work rate is compatible with Pacal's usual peaceful development but remains strategically open-ended: faster resources, roads, improvements and chops can support military logistics, expansion, economy or wonder building, making his Financial/Industrious profile more versatile. The theme also fits well: Maya agriculture and infrastructure relied on sustained landscape management and organized labor, while the design remains distinct from India's terrain-cost immunity and the Dutch Swift Worker's extra movement. It additionally gives a loose Civilization-series callback to Civ3's worker-oriented Maya, where the Agricultural/Industrious civilization could generate Workers from Javelin Thrower victories through Enslave. |
+ | Mongolia | MONGOL_KESHIK (HORSE_ARCHER; MOUNTED) → **MONGOL_KHISHIGTEN** (**HORSE_KNIGHT**; **MOUNTED_MELEE**) | Old → SAS: str 6→10, h 50→105; tech HORSEBACK_RIDING, ARCHERY→CHIVALRY, MOUNTED_COMBAT; bonus HORSE→HORSE, IRON; free none→BLITZKRIEG, RETREAT1; mods Withdraw 20→15; loses FirstStrikes 1, vsClass CATAPULT 50; vs SAS HORSE_KNIGHT: h 95→105; free none→BLITZKRIEG, RETREAT1; mods Withdraw 10→15; Ignores Terrain Movement Costs | Keshik window was too short before Knights; Horse Knight slot gives Mongolia a longer medieval cavalry window toward its historical peak. Free terrain movement, retreat, and Blitz emphasize tactical control over Cataphract-style raw strength. |
+ | Native America | NATIVE_AMERICA_DOG_SOLDIER (AXEMAN; MELEE) → Keep (Keep; **MELEE_SHOCK**) | Old → SAS: str 4→5; free none→FIRST_STRIKE1; loses vsCombat MELEE 100; vs SAS AXEMAN: res COPPER, IRON→none; free none→FIRST_STRIKE1 | No-metal anti-sword pressure without locking Dog Soldier into pure defense. |
+ | Ottomans | OTTOMAN_JANISSARY (MUSKETMAN; GUN) → Keep | Old → SAS: str 9→12, h 80→100; tech GUNPOWDER→FIREARMS; free none→COMBAT3; gains CityAtk 10; loses vsCombat ARCHER 25, vsCombat MELEE 25, vsCombat MOUNTED 25; vs SAS MUSKETMAN: free none→COMBAT3; gains CityAtk 10 | Keeps the Janissary as a strong Ottoman Musketman power spike through elite training rather than raw base strength. Free Combat III is less likely than a low Combat promotion to be redundant on experienced upgraded units and modestly accelerates later Combat ranks, while +10% city attack gives an Ottoman assault lean without making the unit a dedicated city attacker. Its small Plains/Desert affinities remain the separate terrain identity. |
+ | Persia | PERSIA_IMMORTAL (CHARIOT; MOUNTED) → Keep (**SWORDSMAN**; **MELEE_POLEARM**) | Old → SAS: str 4→6, h 30→38, mv 2→1; tech THE_WHEEL→IRON_WORKING; bonus HORSE→COPPER, IRON; gains CityAtk 10; loses Withdraw 10, vsClass AXEMAN 100, vsCombat ARCHER 25; vs SAS SWORDSMAN: h 42→38; bonus IRON→COPPER, IRON | Closer to Civ3 sword-based Immortal: Chariot anti-archer rush→later Swordsman/Polearm fighter with bonuses vs melee-shock and mounted-melee; copper/iron access improves buildability. |
+-| Portugal | PORTUGAL_CARRACK (CARAVEL; NAVAL) → Keep (**GALLEON**; Keep) | Old → SAS: str 3→5, mv 4→6; tech OPTICS→ASTRONOMY; mods Cargo 2→4; vs SAS GALLEON: str 4→5, h 70→60, mv 4→6 | Current Carrack is retained only while Portugal's civ-specific unit is being reconsidered. A land replacement is preferred so Portugal's UU power is useful on a wider range of maps instead of swinging heavily with naval geography. |
++| Portugal | PORTUGAL_CARRACK (CARAVEL; NAVAL) → **PORTUGAL_CACADOR** (**GRENADIER**; **GUN**) | Old → SAS: replace the naval Carrack with a land Grenadier UU; vs SAS GRENADIER: free none→COMBAT3; mods Withdraw 20→25, FirstStrikeChance 0→1; gains Grass +10% A/D, Forest +10% A/D | Replaces a strongly map-dependent naval UU with a versatile later land unit. Combat III gives the Caçador a useful elite-training perk that is unlikely to be redundant on veteran upgrades and can remain useful after upgrading again; the chance first strike and small withdrawal increase support a light-infantry/skirmisher role, while the two minor terrain/feature affinities add battlefield identity without dominating combat. Coincidentally, both start with "ca" which is funny (and both units started with a "G" (Galleon in AdvCiv-SAS before removal) but anyway). |
+ | Rome | ROME_PRAETORIAN (SWORDSMAN; MELEE) → **ROMAN_LEGIONARY** (Keep; **MELEE_SHOCK**) | Old → SAS: str 7→6, h 40→42; bonus IRON→COPPER, IRON; free MARCH→COMBAT2; gains CityAtk 10; vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→COMBAT2 | Strength reduced because Praetorian was too strong; broader buildability through copper/iron access; weak March healing swapped for Combat to support Roman classical aggression/solid expansion. COMBAT2 rather than COMBAT1: same reasoning as as of now the Samurai. |
+ | Russia | RUSSIA_COSSACK (CAVALRY; MOUNTED) → Keep (**DRAGOON**; **MOUNTED_RANGED**) | Old → SAS: str 15→16, h 120→150; tech MILITARY_TRADITION, RIFLING, HORSEBACK_RIDING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; loses vsCombat MOUNTED 50 | Moves the Cossack from the old Cavalry slot to the new Dragoon slot, giving Russia its distinctive mobile gunpowder cavalry in the intended midgame mounted-ranged window instead of relying on the old broad +50% anti-mounted Cavalry bonus. |
+ | Spain | SPANISH_CONQUISTADOR (CUIRASSIER; MOUNTED) → Keep (**HORSE_CUIRASSIER**; **MOUNTED_RANGED**) | Old → SAS: str 12→13, h 100→130; tech MILITARY_TRADITION, GUNPOWDER, HORSEBACK_RIDING→FIREARMS, MOUNTED_COMBAT; free none→AMPHIBIOUS; mods Withdraw 15→30; loses vsCombat MELEE 50; vs SAS HORSE_CUIRASSIER: free none→AMPHIBIOUS; mods Withdraw 15→30 | Reworks the Conquistador from the old broad +50% anti-melee counter into a more flexible expeditionary Cuirassier: Amphibious enables coastal/cross-river assaults and doubled withdrawal improves mobile offensive use without hard-countering an entire combat family. |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f21ab7f89..c082890a9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -502,6 +502,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+ - **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6798` approach. See [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page). Note: **hover text** is **preserved** via the `WIDGET_HELP_IMPROVEMENT` hybrid path; this split is intentionally more useful for players (improvement behavior where players expect it in Tech Chooser (i.e. Technology Advisor), and direct Builds-page routing where build details are the main goal in Sevopedia paths). See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia).
++- (Requires AdvCiv-SAS 6121+) **Worker work-rate visibility:** builder units now show their base XML `iWorkRate` from [`CIV4UnitInfos.xml`](/Assets/XML/Units/CIV4UnitInfos.xml) directly as `Work Rate: X%` in the shared unit help used by both **Sevopedia Unit special abilities** and normal **unit hover help** (e.g. `Work Rate: 125%` for the Maya Quick Worker). This makes Worker variants immediately distinguishable at a glance while technology/civic/building build-speed modifiers remain shown separately in Sevopedia. Implemented through `CvGameTextMgr::setBasicUnitHelp` in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) and `TXT_KEY_UNIT_WORK_RATE` in [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml).
+ 
+ ### UI (Sevopedia)
+ 
+@@ -861,7 +862,8 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+   - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+   - **Dragoons → Tanks** now.
+ - **Support costs:** some late/robotic units have **no support cost**; **Privateer** now **has support** (was free).
+-- **Weak/late civ-specific** units **replaced by earlier/impactful ones** (e.g., Netherlands East Indiaman → Netherlands Swift Worker; German Panzer → Hussar; Mongol Keshik → Khishigten — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman Landsknecht → Houfnice — cannon-based aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)). Detailed civ-specific unit documentation now lives in [Assets rebalancing: Civ-specific units rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-units-rework). For updated in-game data, see also Sevopedia Unit.
++- **Weak/late or overly narrow civ-specific** units are often **replaced by earlier, broader or more impactful ones** (e.g., Netherlands East Indiaman → Netherlands Swift Worker; German Panzer → Hussar; Mongol Keshik → Khishigten — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman Landsknecht → Houfnice — cannon-based aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers); (Requires AdvCiv-SAS 6121+) Maya Holkan → Quick Worker, replacing a narrow early Spearman role with a broadly useful +25% work-rate civilian UU). Detailed civ-specific unit documentation now lives in [Assets rebalancing: Civ-specific units rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-units-rework). For updated in-game data, see also Sevopedia Unit.
++- (Requires AdvCiv-SAS 6121+) **No naval civ-specific units as of now**: naval replacements can be effectively useless on land-heavy maps but disproportionately valuable on naval-heavy maps, especially when most other civilizations have no comparable naval replacement. Current examples of moving away from that design include the **Netherlands East Indiaman → Swift Worker** and **Portugal Carrack → Cacador** reworks. This keeps civ-specific unit value relevant across map types without requiring a much larger roster of naval counterparts; ordinary naval units and naval warfare remain available as usual. See [Assets rebalancing: Civ-specific units rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-units-rework) for the fuller rationale.
+ - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
+ - **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
+ - Units more **versatile:** e.g., Swords defend better; Archers can attack more credibly.
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=18 omittedFiles=1 embeddedPatchBytes=84123

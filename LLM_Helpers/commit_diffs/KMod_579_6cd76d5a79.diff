@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 579
+# Commit: 6cd76d5a791e7eaac1acf2a826ded3ba42d95ae3
+# History segment: K-Mod history
+# Parent used for diff: 2d338ae9772c59d00609cc9576df1fad01bb57cd
+# Title: Fixed some problems with the new bonus/improvement code.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	3	CvGameCoreDLL/CvPlot.cpp
+29	12	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index dede81b87..bc59c3742 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5612,12 +5612,21 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected
+ 		// K-Mod
+ 		if (bCheckConnected)
+ 		{
+-			if (!isCity(true, eTeam) && (getImprovementType() == NO_IMPROVEMENT || !GC.getImprovementInfo(getImprovementType()).isImprovementBonusTrade(eBonus)))
++			// note: this checks whether the bonus is connected for the owner of the plot, from the point of view of eTeam.
++			TeamTypes ePlotTeam = getTeam();
++			// note: this function is used inside CvPlot::updatePlotGroupBonuses, which is called during CvPlot::setImprovementType
++			// between when the improvement is changed and the revealed improvement type is updated...
++			// therefore when eTeam == ePlotTeam, we use the real improvement, not the revealed one.
++			ImprovementTypes eImprovement = eTeam == NO_TEAM || eTeam == ePlotTeam ? getImprovementType() : getRevealedImprovementType(eTeam, false);
++
++			FAssert(ePlotTeam != eTeam || eImprovement == getImprovementType());
++
++			if (!isCity(true, ePlotTeam) && (eImprovement == NO_IMPROVEMENT || !GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus)))
+ 			{
+-				FAssert(!GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).doesImprovementConnectBonus(getImprovementType(), eBonus));
++				FAssert(ePlotTeam == NO_TEAM || !GET_PLAYER(GET_TEAM(ePlotTeam).getLeaderID()).doesImprovementConnectBonus(eImprovement, eBonus));
+ 				return NO_BONUS;
+ 			}
+-			FAssert(isCity() || GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).doesImprovementConnectBonus(getImprovementType(), eBonus));
++			FAssert(isCity() || GET_PLAYER(GET_TEAM(ePlotTeam).getLeaderID()).doesImprovementConnectBonus(eImprovement, eBonus));
+ 		}
+ 		// K-Mod end
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 853dbd714..9c4b6b43b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19841,16 +19841,15 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 					bool bIsConnected = pLoopPlot->isConnectedToCapital(getOwnerINLINE());
+ 					if ((pLoopPlot->getWorkingCity() != NULL) || (bIsConnected || bCanRoute))
+ 					{
++						/* original bts code
+ 						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+-
+ 						bool bDoImprove = false;
+ 
+ 						if (eImprovement == NO_IMPROVEMENT)
+ 						{
+ 							bDoImprove = true;
+ 						}
+-						//else if (GC.getImprovementInfo(eImprovement).isActsAsCity() || GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+-						else if (kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus)) // K-Mod
++						else if (GC.getImprovementInfo(eImprovement).isActsAsCity() || GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+ 						{
+ 							bDoImprove = false;
+ 						}
+@@ -19858,22 +19857,40 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 						{
+ 							bDoImprove = true;
+ 						}
+-						/* else if (!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
++						else if (!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
+                         {
+                         	bDoImprove = true;
+-                        } */
+-						// K-Mod. Let "best build" handle improvement replacements near cities.
+-						else if (pLoopPlot->getWorkingCity() == NULL && !kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION))
+-						{
+-							bDoImprove = true;
+-						}
+-						// K-Mod end
++                        }
+ 
+ 						int iBestTempBuildValue = MAX_INT;
++						BuildTypes eBestTempBuild = NO_BUILD; */
++
++						// K-Mod. Simplier, and better.
++						bool bDoImprove = false;
++						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
++						CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+ 						BuildTypes eBestTempBuild = NO_BUILD;
+ 
+-						if (bDoImprove)
++						if (pWorkingCity)
++						{
++							// Let "best build" handle improvement replacements near cities.
++							BuildTypes eBuild = pWorkingCity->AI_getBestBuild(plotCityXY(pWorkingCity, pLoopPlot));
++							if (eBuild != NO_BUILD && kOwner.doesImprovementConnectBonus((ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement(), eNonObsoleteBonus) && canBuild(pLoopPlot, eBuild))
++							{
++								bDoImprove = true;
++								eBestTempBuild = eBuild;
++							}
++						}
++						else if (!kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
++						{
++							bDoImprove = !kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) || eImprovement == NO_IMPROVEMENT || eImprovement == GC.getDefineINT("RUINS_IMPROVEMENT");
++						}
++						// K-Mod end
++
++						//if (bDoImprove)
++						if (bDoImprove && eBestTempBuild == NO_BUILD) // K-Mod
+ 						{
++							int iBestTempBuildValue = MAX_INT; // K-Mod
+ 							for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 							{
+ 								BuildTypes eBuild = ((BuildTypes)iJ);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5043

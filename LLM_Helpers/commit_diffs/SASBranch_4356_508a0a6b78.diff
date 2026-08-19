@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4356
+# Commit: 508a0a6b788fe31804d1ac9c33acd2ce65358342
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5a5a3551da9c510d59f39b6ac80119ac6310ab8f
+# Title: Fix BBAI mixup of AI strategy and victory stage flags
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5167c9fe2..bc24c9710 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25889,7 +25889,8 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 			}
+ 			else if (kVictory.getCityCulture() > 0)
+ 			{
+-				if (m_eStrategyHash & AI_VICTORY_CULTURE1)
++				//if (m_iStrategyHash & AI_VICTORY_CULTURE1) // BBAI
++				if (AI_atVictoryStage(AI_VICTORY_CULTURE1)) // advc.001
+ 					iAchieveVictories++;
+ 			}
+ 			else if (kVictory.getMinLandPercent() > 0 || kVictory.getLandPercent() > 0)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=577

@@ -1,0 +1,97 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2643
+# Commit: 72649975954669c415eb2a3869dcb0da25b8e0a8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d13327da1396c9f09b1e18fdb804cd60cb77e54c
+# Title: Make Barbarian cities harder to flip through culture
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	13	CvGameCoreDLL/CvCity.cpp
+4	0	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5c2cfa672..100f9900f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4191,12 +4191,12 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 
+ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ {
+-	/*  <advc.101> Barbarian garrisons are not supposed to prevent revolts.
+-		BtS enforces this in CvPlot::doCulture (now renamed to CvPlot::doRevolts).
+-		Easier to do it here. */
+-	if(isBarbarian())
+-		return 0;
+-
++	/*  <advc.101> BtS makes Barbarian units ineligible as culture garrison
++		through CvPlot::doCulture (now renamed to CvPlot::doRevolts).
++		Easier to do it here -- but I do want them to be eligible. In fact,
++		I'll give them extra strength below. */
++	/*if(isBarbarian())
++		return 0;*/
+ 	int iGarrison = 0; // was 1  </advc.101>
+ 	for(CLLNode<IDInfo> const* pUnitNode = getPlot().headUnitNode(); pUnitNode != NULL;
+ 		pUnitNode = getPlot().nextUnitNode(pUnitNode))
+@@ -4206,7 +4206,7 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 	}
+ 	/*if (atWar(GET_PLAYER(ePlayer).getTeam(), getTeam()))
+ 		iGarrison *= 2;*/ // advc.023: commented out
+-	return iGarrison / 100; // advc.101: iGarrison now has times-100 precision
++	return ROUND_DIVIDE(iGarrison, 100); // advc.101: iGarrison now has times-100 precision
+ }
+ 
+ // <advc.099c>
+@@ -8000,14 +8000,19 @@ void CvCity::changeNumRevolts(PlayerTypes eIndex, int iChange)
+ }
+ 
+ 
+-double CvCity::getRevoltTestProbability() const // advc.101: Changed return type
++double CvCity::getRevoltTestProbability() const // advc.101: Return type was int; tbd.: change it to scaled.
+ {
+-	int iProtection = getRevoltProtection(); // advc.101: Moved into new function
++	// <advc.101>
++	CvGame const& kGame = GC.getGame();
++	// Was based on getVictoryDelayPercent() in K-Mod
++	scaled rSpeedFactor = per100(GC.getInfo(kGame.getGameSpeedType()).getGoldenAgePercent());
++	// Need to cut cities recently acquired by Barbarians some slack
++	if (isBarbarian() && kGame.getGameTurn() - getGameTurnAcquired() < 8 * rSpeedFactor)
++		return 0; // </advc.101>
+ 	static scaled const rREVOLT_TEST_PROB = per100(GC.getDefineINT("REVOLT_TEST_PROB")); // advc.opt
+-	scaled r = rREVOLT_TEST_PROB * per100(100 - iProtection) /
+-			// <advc.101> was .getVictoryDelayPercent() in K-Mod
+-			per100(GC.getInfo(GC.getGame().getGameSpeedType()).getGoldenAgePercent());
+-	r.decreaseTo(1); // Upper bound used to be handled by the caller </advc.101>
++	scaled r = rREVOLT_TEST_PROB * per100(100 - getRevoltProtection());
++	r /= rSpeedFactor;
++	r.decreaseTo(1); // advc.101: Upper bound used to be handled by the caller
+ 	return r.getDouble();
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4767900b3..895ce55a2 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2442,6 +2442,10 @@ bool CvPlot::isWithinCultureRange(PlayerTypes ePlayer) const
+ 		if (isCultureRangeCity(ePlayer, eLoopCultureLevel))
+ 			return true;
+ 	}
++	/*	<advc.099c> Make sure that all city plots are considered to be
++		within their owner's culture range */
++	if (isCity() && getOwner() == ePlayer)
++		return true; // </advc.099c>
+ 	return false;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3192

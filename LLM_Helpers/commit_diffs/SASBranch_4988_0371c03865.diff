@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4988
+# Commit: 0371c03865c847a5d0183bbc731d4c1d22a5f5e7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 41a7bd8b7fa99a53c45078a4ff7f03e9937a6119
+# Title: add 48 civs DLL with instructions on how to download and use + google drive folder link of screenshots of test run and such anyways etc Addresses https://for...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL_48_civs_dll.dll
+25	0	README.md
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG
+ create mode 100644 Assets/CvGameCoreDLL_48_civs_dll.dll
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_dll.dll b/Assets/CvGameCoreDLL_48_civs_dll.dll reason=binary/generated-file changedLines=0 bytes=209
+
+diff --git a/README.md b/README.md
+index 22cfb3c01..313b3298a 100644
+--- a/README.md
++++ b/README.md
+@@ -35,6 +35,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
+ &emsp;[World map with civs](/README.md#world-map-with-civs)  
+ &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
++[48 Civs DLL](/README.md#48-civs-dll)  
+ [Project Goals and global view on gameplay changes](/README.md#project-goals-and-global-view-on-gameplay-changes)  
+ [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
+ [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
+@@ -253,6 +254,30 @@ Note: sometimes i slightly deviated from strict terrain world map real layout, a
+ 
+ Note 2: as of now i'm using plains as a representative of savanna more or less anyways etc
+ 
++## 48 Civs DLL
++
++A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_48_civs_dll.dll").
++
++To use it, rename old base 18 MAX_CIV_PLAYERS DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
++
++I have run a test run for fun and to test it too, as well as documented this DLL i tried for the first time xd, on a huge map, and to answer [this](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316) CFC forum request.
++
++See [google drive link here](https://drive.google.com/drive/folders/1wTLu7SdP3aeKOWPjtP_ORcDT2Bpdef3b?usp=sharing) for files and screenshots of this run
++
++It was quite fun xd i mean to try and all, although a bit slower which is expected since there are more players i guess (but i suspect even with same player count, may have run slower on the 48 civs dll civ, based on what i understood of base advciv comments or notes and/or such if i am not mistaken but anyways etc).
++
++Still, in the game where i tried it, it was gradually faster as more and more players were defeated which is expected i guess too. It was also a good test to confirm game runs end to end (although i mistakenly ran it in small map size as i didn't notice it, but seems fine as game still runs end to end fine it seems but anyways etc).
++
++All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
++
++Note: if you already downloaded AdvCiv-4986 that didn't have that DLL, you can download the DLL from this github rather, go in the [/Assets/](/Assets/) folder and find the "CvGameCoreDLL_48_civs_dll.dll" file, click on it, then click on "download raw file" button on top right as below:
++
++(click on the images to view them in full screen or/and bigger size)
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG" alt="0.900_48-civs-dll-github-download-raw-file.PNG" width="250"></img>
++
++Note 2: it seems that savegames are not compatible when switching DLLs though based on a code comment in as of now CvEnums.h, so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
++
+ ## Project Goals and global view on gameplay changes
+ 
+ For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d1e2a766c..cd5021971 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -14,6 +14,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#renaming-non-exhaustive)  
+ &emsp;[Sevopedia reworks and other related changes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#sevopedia-reworks-and-other-related-changes)  
+ &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ui--in-game)  
++&emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#48-civs-dll)  
+ &emsp;[AI general behaviour (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ai-general-behaviour-non-exhaustive-see-global-defines-and-ai-variables-and-such-xml-files-for-details)  
+ &emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#bonuses-ai)  
+ &emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#units-in-general-ai)  
+@@ -111,6 +112,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode (ctrl+z and chipotle) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are often times outdated or/and tedious to maintain anyways etc.
+ 
++## 48 Civs DLL
++
++- a 48 Civs DLL is also provided and available for use in AdvCiv-SAS, tested to run fine xd, see the [main README.md's 48 Civs DLL](/README.md#48-civs-dll) section for details anyways etc.
++
+ ### AI general behaviour (non-exhaustive, see global defines and ai variables and such xml files for details)
+ 
+ #### General Changes (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 33701b8f9..0c37eaf2c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -12,6 +12,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#renaming-non-exhaustive)  
+ &emsp;[Sevopedia reworks & related UI](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia-reworks--related-ui)  
+ &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ui--in-game)  
++&emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#48-civs-dll)  
+ &emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
+ &emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-ai)  
+ &emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#bonuses-ai)  
+@@ -100,6 +101,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug (`Ctrl+Z`/chipotle) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ 
++### 48 Civs DLL
++
++- **48 Civs DLL**: also provided and available for use in AdvCiv-SAS, **tested to run**. See the main [README.md → 48 Civs DLL](/README.md#48-civs-dll) for details.
++
+ ### AI — General behaviour (non-exhaustive; see XML/defines for full detail)
+ 
+ #### General changes (AI)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG
+new file mode 100644
+index 000000000..2c1115986
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=10746

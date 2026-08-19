@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2838
+# Commit: 1bfa734150b513b75317be10ad17d06c8413c0de
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 35228e9a1b7459fb33df52e352472f63b84819cf
+# Title: Remove regnal number from Justinian's name
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	0	Assets/XML/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 4ffa55e2e..94a270f9d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3684,6 +3684,31 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- advc.005: Removed regnal number I (all languages) -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_JUSTINIAN</Tag>
++		<English>Justinian</English>
++		<French>
++			<Text>Justinien Ier</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Justinian</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Giustiniano</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Justiniano</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ 	<!-- advc.005: was Asoka -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=923

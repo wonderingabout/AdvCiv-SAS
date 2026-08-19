@@ -1,0 +1,232 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4862
+# Commit: e9b665405044fce0facc2ea976c010bbcef89735
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f96148364549153ba9968e6867330b2bbd704bce
+# Title: add pagan_missionary art based on rfc doc mod's assets anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/button_magi.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/celtic_chariot_rider_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_activate.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_creation.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fidget.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya_idle.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_idle.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_run.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_xfadein.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/skirmisherwithincahat_128.dds
+5	4	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+32	32	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/button_magi.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/celtic_chariot_rider_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_activate.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_creation.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fidget.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya_idle.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_idle.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_run.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_xfadein.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/skirmisherwithincahat_128.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/button_magi.dds b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/button_magi.dds
+new file mode 100644
+index 000000000..6512b7c3f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/button_magi.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/celtic_chariot_rider_128.dds b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/celtic_chariot_rider_128.dds
+new file mode 100644
+index 000000000..f1f96ac2c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/celtic_chariot_rider_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm
+new file mode 100644
+index 000000000..37a8d0925
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif
+new file mode 100644
+index 000000000..d40beb035
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_128.dds b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_128.dds
+new file mode 100644
+index 000000000..db1ae1377
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_activate.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_activate.kf
+new file mode 100644
+index 000000000..088219cdd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_activate.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_creation.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_creation.kf
+new file mode 100644
+index 000000000..08d533fdf
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_creation.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fidget.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fidget.kf
+new file mode 100644
+index 000000000..3b564e194
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fidget.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya.kf
+new file mode 100644
+index 000000000..d4ac3f4b8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya_idle.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya_idle.kf
+new file mode 100644
+index 000000000..746bacb0e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_fortifya_idle.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_idle.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_idle.kf
+new file mode 100644
+index 000000000..58ad35254
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_idle.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_run.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_run.kf
+new file mode 100644
+index 000000000..2fcda4ecf
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_run.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_xfadein.kf b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_xfadein.kf
+new file mode 100644
+index 000000000..33327a185
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet_md_xfadein.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/skirmisherwithincahat_128.dds b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/skirmisherwithincahat_128.dds
+new file mode 100644
+index 000000000..e7ffaec7c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/skirmisherwithincahat_128.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index b4bb21bb8..bd208f23a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -422,16 +422,17 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art import from rfc doc mod's very very nice fpk (unliek in some other mods... see in readme for details xd if i may say but anyways etc... which helped me in other ways but still their of other mods fpk and unliek for example in mods liek rfc doc, so in these other mods than rfc doc mod for exampel anyways etc, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such anyways etc) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_PAGAN_MISSIONARY</Type>
+-			<Button>,Art/Interface/Buttons/Units/Missionary_Confucian.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,3</Button>
++			<Button>Art/AdvCiv_SAS/Units/Pagan_Missionary/Button_Magi.dds</Button>
+ 			<fScale>0.46</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Missionary/Confucian/Confucian_missionary.nif</NIF>
+-			<KFM>Art/Units/Missionary/Confucian/Confucian_missionary.kfm</KFM>
+-			<SHADERNIF>Art/Units/Missionary/Confucian/Confucian_Missionary_FX.nif</SHADERNIF>
++			<NIF>Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif</NIF>
++			<KFM>Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 96c600ab9..86a0f121b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -29,6 +29,38 @@ Here is an example below of how it looks ingame in the sevopedia leader category
+ 
+ More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+ 
++### how to enable/disable emoji buttons in sevopedia leader
++
++You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
++
++To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
++
++Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
++
++<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
++
++Change this line:
++
++```python
++IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
++```
++
++to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
++
++```python
++IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
++```
++
++As in the screenshot below as well similarly anyways etc:
++
++<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
++
++And vice versa to disable it (restart the game to apply changes if game was already running)
++
++Here is how it would look like without emojis for example anyways etc:
++
++<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" width="250"></img>
++
+ ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
+ 
+ note: to understand/find the meaning of abbreviations used in the ai panel, the best way would be (i think) to look directly in the code (use vs code for example in [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)), find lines like these (or ctrl+f an abbreviation you don't understand):
+@@ -71,38 +103,6 @@ that in the label in sevopedia leader ingame "T.W Likely" refers to the field's
+ 
+ Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "broad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+ 
+-### how to enable/disable emoji buttons in sevopedia leader
+-
+-You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
+-
+-To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
+-
+-Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
+-
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
+-
+-Change this line:
+-
+-```python
+-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+-```
+-
+-to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
+-
+-```python
+-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+-```
+-
+-As in the screenshot below as well similarly anyways etc:
+-
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
+-
+-And vice versa to disable it (restart the game to apply changes if game was already running)
+-
+-Here is how it would look like without emojis for example anyways etc:
+-
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" width="250"></img>
+-
+ ### how to show keys or suffixes instead of abbreviated custom labels
+ 
+ Similarly to how was done for emoji images, there is also an `IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD` config flag in sevopedia leader you can set to `True` or `False` depending on whether you want to show only key names or suffix names (shrunk if too long to fit table length, for example `MaxWarRand` (shrunk if too long anyways etc)) instead of abbreviated custom labels such as `T.W. Likely` for example anyways etc ; useful for calibrating or if you'd prefer to display it as such.
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=12478

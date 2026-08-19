@@ -1,0 +1,366 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3158
+# Commit: bf30b6baa0b900770732558a000f4d3c735ba142
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4a553595d52407ba98118f33eb329211055a03e1
+# Title: Separate header for int limits
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.cpp
+2	86	CvGameCoreDLL/CvGameCoreDLL.h
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+104	0	CvGameCoreDLL/IntegerTraits.h
+1	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+3	4	CvGameCoreDLL/ScaledNum.h
+2	2	CvGameCoreDLL/ScaledNumTest.cpp
+1	1	CvGameCoreDLL/StartingPositionIteration.cpp
+ create mode 100644 CvGameCoreDLL/IntegerTraits.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9c51d0bb9..a0fa61707 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8905,7 +8905,7 @@ int CvGame::calculateSyncChecksum()
+ 			aiMultipliers.push_back(iMultiplier);
+ 		}
+ 		if(bFullOOSCheck)
+-			iMultiplier = (scaled::hash(aiMultipliers) * scaled::MAX()).floor();
++			iMultiplier = (scaled::hash(aiMultipliers) * scaled::MAX).floor();
+ 		// </advc.001n>
+ 		if (iMultiplier != 0)
+ 			iValue *= iMultiplier;
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 3a180dc90..4f764be93 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -52,91 +52,6 @@
+ 
+ #define DllExport   __declspec( dllexport )
+ 
+-/*	advc (tbd.): Put all this primitive type stuff into a separate header,
+-	perhaps along with the contents of TypeChoice.h (advc.fract). */
+-typedef unsigned char		byte;
+-// advc (note): A little strange to me, but consistent with WORD in winnt.h.
+-typedef unsigned short		word;
+-typedef unsigned int		uint;
+-typedef unsigned long		dword;
+-typedef unsigned __int64	qword;
+-typedef wchar_t				wchar;
+-
+-/*	advc.001q: Put minus operators into the negative constants, otherwise,
+-	if there's only a literal, it can get treated as an unsigned value. */
+-#define MAX_CHAR							(0x7f)
+-//#define MIN_CHAR							(0x80)
+-#define MIN_CHAR							(-MAX_CHAR - 1)
+-#define MAX_SHORT							(0x7fff)
+-//#define MIN_SHORT							(0x8000)
+-#define MIN_SHORT							(-MAX_SHORT - 1)
+-#define MAX_INT								(0x7fffffff)
+-//#define MIN_INT							(0x80000000)
+-#define MIN_INT								(-MAX_INT - 1)
+-#define MAX_UNSIGNED_CHAR					(0xff)
+-#define MIN_UNSIGNED_CHAR					(0x00)
+-#define MAX_UNSIGNED_SHORT					(0xffff)
+-#define MIN_UNSIGNED_SHORT					(0x0000)
+-#define MAX_UNSIGNED_INT					(0xffffffff)
+-#define MIN_UNSIGNED_INT					(0x00000000)
+-/*	advc: These are unused. FLT_MAX and FLT_MIN are used in a few places,
+-	so let's keep using those exclusively. */
+-/*inline DWORD FtoDW( float f ) { return *(DWORD*)&f; }
+-inline float DWtoF( dword n ) { return *(float*)&n; }
+-inline float MaxFloat() { return DWtoF(0x7f7fffff); }*/
+-
+-/*	advc: Get the limits of an integer type of at most 4 bytes length
+-	(bool doesn't count either) -- since we don't have SIZE_MIN/MAX (cstdint),
+-	nor boost::integer_traits<T>::const_max.
+-	We do have std::numeric_limits<T>::min and max, but those are functions,
+-	so they can't e.g. be used in static assertions. std::numeric_limits<T>::is_signed
+-	is a constant, but let's nevertheless take care of that here too, so that
+-	integer_limits and numeric_limits won't have to be used side by side. */
+-template<typename T>
+-struct integer_limits;
+-template<>
+-struct integer_limits<char>
+-{
+-	static char const min = MIN_CHAR;
+-	static char const max = MAX_CHAR;
+-	static bool const is_signed = true;
+-};
+-template<>
+-struct integer_limits<byte>
+-{
+-	static byte const min = MIN_UNSIGNED_CHAR;
+-	static byte const max = MAX_UNSIGNED_CHAR;
+-	static bool const is_signed = false;
+-};
+-template<>
+-struct integer_limits<short>
+-{
+-	static short const min = MIN_SHORT;
+-	static short const max = MAX_SHORT;
+-	static bool const is_signed = true;
+-};
+-template<>
+-struct integer_limits<word>
+-{
+-	static word const min = MIN_UNSIGNED_SHORT;
+-	static word const max = MAX_UNSIGNED_SHORT;
+-	static bool const is_signed = false;
+-};
+-template<>
+-struct integer_limits<int>
+-{
+-	static int const min = MIN_INT;
+-	static int const max = MAX_INT;
+-	static bool const is_signed = true;
+-};
+-template<>
+-struct integer_limits<uint>
+-{
+-	static uint const min = MIN_UNSIGNED_INT;
+-	static uint const max = MAX_UNSIGNED_INT;
+-	static bool const is_signed = false;
+-};
+-
+ // (advc.make: Some macros moved into new header Trigonometry.h)
+ 
+ // <advc.003s> For generating variable names. (The layer of indirection is necessary.)
+@@ -146,8 +61,9 @@ struct integer_limits<uint>
+ // <advc> Stuff moved into separate headers
+ #include "GameBryo.h"
+ #include "CvMemoryManager.h"
+-#include "BoostPythonPCH.h" // </advc>
++#include "BoostPythonPCH.h"
+ #pragma warning(pop) // advc.make: Restore project warning level
++#include "IntegerTraits.h" // </advc>
+ #include "FAssert.h"
+ #include "CvGameCoreDLLDefNew.h"
+ #include "FDataStreamBase.h"
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 820ef660c..06dd8dad9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14902,10 +14902,10 @@ int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
+ 	at a later point.) */
+ scaled CvPlayerAI::AI_nukeChanceToKillUnit(int iHP, int iNukeModifier) const
+ {
+-	static scaled rLastResult = scaled::MIN();
++	static scaled rLastResult = scaled::MIN;
+ 	static short iLastHP;
+ 	static short iLastModifier;
+-	if (rLastResult > scaled::MIN() && iHP == iLastHP && iNukeModifier == iLastModifier)
++	if (rLastResult > scaled::MIN && iHP == iLastHP && iNukeModifier == iLastModifier)
+ 		return rLastResult;
+ 	iLastHP = toShort(iHP);
+ 	iLastModifier = toShort(iNukeModifier);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 8fe7362eb..7143c6342 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -690,7 +690,7 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
+ 		}
+ 	}
+ 	CvUnit* pBestUnit = NULL;
+-	scaled rMaxPriority = scaled::MIN();
++	scaled rMaxPriority = scaled::MIN;
+ 	FOR_EACH_UNITAI_VAR_IN(pUnit, *this)
+ 	{
+ 		if (!pUnit->canMove())
+
+diff --git a/CvGameCoreDLL/IntegerTraits.h b/CvGameCoreDLL/IntegerTraits.h
+new file mode 100644
+index 000000000..055d070bd
+--- /dev/null
++++ b/CvGameCoreDLL/IntegerTraits.h
+@@ -0,0 +1,104 @@
++#pragma once
++
++#ifndef INTEGER_TRAITS_H
++#define INTEGER_TRAITS_H
++
++/*	advc: Integer definitions cut from CvGameCoreDll.h.
++	typedefs and defines may have been compiled into the EXE. */
++
++typedef unsigned char		byte;
++// advc (note): A little strange to me, but consistent with WORD in winnt.h.
++typedef unsigned short		word;
++typedef unsigned int		uint;
++typedef unsigned long		dword;
++typedef unsigned __int64	qword;
++typedef wchar_t				wchar;
++
++/*	advc.001q: Put minus operators into the negative constants, otherwise,
++	if there's only a literal, it can get treated as an unsigned value. */
++#define MAX_CHAR							(0x7f)
++//#define MIN_CHAR							(0x80)
++#define MIN_CHAR							(-MAX_CHAR - 1)
++#define MAX_SHORT							(0x7fff)
++//#define MIN_SHORT							(0x8000)
++#define MIN_SHORT							(-MAX_SHORT - 1)
++#define MAX_INT								(0x7fffffff)
++//#define MIN_INT							(0x80000000)
++#define MIN_INT								(-MAX_INT - 1)
++#define MAX_UNSIGNED_CHAR					(0xff)
++#define MIN_UNSIGNED_CHAR					(0x00)
++#define MAX_UNSIGNED_SHORT					(0xffff)
++#define MIN_UNSIGNED_SHORT					(0x0000)
++#define MAX_UNSIGNED_INT					(0xffffffff)
++#define MIN_UNSIGNED_INT					(0x00000000)
++/*	advc: These are unused. FLT_MAX and FLT_MIN are used in a few places,
++	so let's keep using those exclusively. */
++/*inline DWORD FtoDW( float f ) { return *(DWORD*)&f; }
++inline float DWtoF( dword n ) { return *(float*)&n; }
++inline float MaxFloat() { return DWtoF(0x7f7fffff); }*/
++
++/*	advc: Structs that get the limits of an integer type (bool is integral -
++	but not integer). Replacing boost/integer_traits, so that the
++	constants above are used and not e.g. INT_MAX. (I don't see why we have
++	those custom constants, but, since I'm not sure and since some of them
++	are widely used now, I'm not going to throw them out.) */
++template<typename T>
++struct integer_limits;
++template<>
++struct integer_limits<char>
++{
++	static char const min = MIN_CHAR;
++	static char const max = MAX_CHAR;
++	static bool const is_signed = true;
++};
++template<>
++struct integer_limits<byte>
++{
++	static byte const min = MIN_UNSIGNED_CHAR;
++	static byte const max = MAX_UNSIGNED_CHAR;
++	static bool const is_signed = false;
++};
++template<>
++struct integer_limits<short>
++{
++	static short const min = MIN_SHORT;
++	static short const max = MAX_SHORT;
++	static bool const is_signed = true;
++};
++template<>
++struct integer_limits<word>
++{
++	static word const min = MIN_UNSIGNED_SHORT;
++	static word const max = MAX_UNSIGNED_SHORT;
++	static bool const is_signed = false;
++};
++template<>
++struct integer_limits<int>
++{
++	static int const min = MIN_INT;
++	static int const max = MAX_INT;
++	static bool const is_signed = true;
++};
++template<>
++struct integer_limits<uint>
++{
++	static uint const min = MIN_UNSIGNED_INT;
++	static uint const max = MAX_UNSIGNED_INT;
++	static bool const is_signed = false;
++};
++template<>
++struct integer_limits<long long>
++{
++	static long long const min = LLONG_MIN;
++	static long long const max = LLONG_MAX;
++	static bool const is_signed = true;
++};
++template<>
++struct integer_limits<unsigned long long>
++{
++	static unsigned long long const min = 0;
++	static unsigned long long const max = ULLONG_MAX;
++	static bool const is_signed = false;
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 4a054513a..cc0b0b833 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -323,6 +323,7 @@
+     <ClInclude Include="..\FAStarNode.h" />
+     <ClInclude Include="..\GameBryo.h" />
+     <ClInclude Include="..\GroupPathFinder.h" />
++    <ClInclude Include="..\IntegerTraits.h" />
+     <ClInclude Include="..\KmodPathFinder.h" />
+     <ClInclude Include="..\KmodPathFinderLegacy.h" />
+     <ClInclude Include="..\LinkedListTraversal.h" />
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 5ca413190..d51161048 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -8,8 +8,7 @@
+ #include "TypeChoice.h"
+ #include "FixedPointPowTables.h"
+ /*	Other non-BtS dependencies: intdiv::round, fmath::round, intHash, all in CvGameCoreUtils.h
+-	(tbd.: move those functions here?), and integer_limits in CvGameCoreDLL.h
+-	(tbd. move into TypeChoice.h and rename that header to "TypeTraits.h"?).
++	(tbd.: move those functions here?), and integer_limits in IntegerTraits.h.
+ 	For inclusion in PCH, one may have to define NOMINMAX before including windows.h;
+ 	see CvGameCoreDLL.h.
+ 	The bernoulliSuccess function assumes that CvRandom can include two integer values
+@@ -135,8 +134,8 @@ class ScaledNum : ScaledNumBase<void> // Not named "ScaledInt" b/c what's being
+ 	static IntType const INTMAX = integer_limits<IntType>::max;
+ 
+ public:
+-	static IntType MAX() { return INTMAX / SCALE; }
+-	static IntType MIN() { return INTMIN / SCALE; }
++	static IntType const MAX = INTMAX / SCALE;
++	static IntType const MIN = INTMIN / SCALE;
+ 
+ 	/*	Factory function for creating fractions (with wrapper macro 'fixp').
+ 		Numerator and denominator as template parameters ensure
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index fd1243c30..a210cdbd7 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -137,9 +137,9 @@ void TestScaledNum()
+ 	uscaled rAlmostSqrtOfTwo = scaled(2).sqrt() - scaled::epsilon();
+ 	ScaledNum<MAX_INT,uint> r1 = rAlmostSqrtOfTwo;
+ 	ScaledNum<MAX_INT - 1,uint> r2 = rAlmostSqrtOfTwo;
+-	FAssert(r2.MAX() == 2);
++	FAssert(r2.MAX == 2);
+ 	r2 *= r1;
+-	// (But an approxEquals check isn't possible so close to r2.MAX())
++	// (But an approxEquals check isn't possible so close to r2.MAX)
+ 	FAssert(r2 > fixp(1.99));
+ 	FAssert(r2 < 2);
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 8b9ce4df6..29f449310 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -323,7 +323,7 @@ StartingPositionIteration::PotentialSites::PotentialSites(
+ 		if (fewestPotentialSites() < 2 && numSites() < iPlayers * 15u)
+ 			break;
+ 		map<PlotNumTypes,short>::iterator minPos;
+-		scaled rMinVal = scaled::MAX();
++		scaled rMinVal = scaled::MAX;
+ 		for (map<PlotNumTypes,short>::iterator it = m_foundValuesPerSite.begin();
+ 			it != m_foundValuesPerSite.end(); ++it)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=12058

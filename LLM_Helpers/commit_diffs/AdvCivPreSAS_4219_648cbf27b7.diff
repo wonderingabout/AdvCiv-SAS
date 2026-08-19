@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4219
+# Commit: 648cbf27b7a8b6d06afcce8b9c05453173f1f071
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56c5958590f596b3db3ed000e8d6e72794a789ef
+# Title: Tiny text correction, couple of comment changes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Text/CIV4GameText_advc.xml
+0	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	2	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 7a64a23be..ba0176515 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1331,7 +1331,7 @@
+ 		 awful. Originally in CIV4GameText_Misc1.xml. -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP</Tag>
+-		<English>A new random seed is generated every time a savegame is loaded - which, for example, will lead to different combat results</English>
++		<English>A new random seed is generated every time a savegame is loaded - which, for example, will lead to different combat results.</English>
+ 		<French>Un nouveau classement al&#233;atoire est g&#233;n&#233;r&#233; chaque fois que le jeu est recharg&#233;, ce qui peut entra&#238;ner diff&#233;rents r&#233;sultats de combat, par exemple.</French>
+ 		<German>Beim Laden eines Spielstandes wird ein neuer Startwert f�r den Zufallszahlen-Generator erzeugt, was zum Beispiel zu unterschiedlichen Kampfausg&#228;ngen f&#252;hren kann.</German>
+ 		<Italian>Ogni volta che ricaricherai il gioco verr&#224; generata una nuova estrazione casuale, portando, per esempio, a diversi risultati di combattimento.</Italian>
+@@ -1408,7 +1408,7 @@
+ 		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
+ 		<English>Very hard. Apart from receiving high ongoing bonuses, the AI players start the game with a Worker, a Scout, two Archers and, in total, up to four technologies. The game starts on turn 10 in order to match this big head start.</English>
+ 		<French>Peu nombreux sont ceux qui peuvent revendiquer une place parmi les Immortels. C'est l&#224; un d&#233;fi que seuls les plus exp&#233;riment&#233;s sauront relever.</French>
+-		<German>Sehr schwierig. Zus�tzlich zu hohen andauernden Boni erhalten die KI-Spieler zu Spielbeginn einen Bautrupp, einen Kundschafter, zwei Bogesnch�tzen und, insgesamt, bis zu f�nf Technologien.</German>
++		<German>Sehr schwierig. Zus�tzlich zu hohen andauernden Boni erhalten die KI-Spieler zu Spielbeginn einen Bautrupp, einen Kundschafter, zwei Bogensch�tzen und - insgesamt - bis zu vier Technologien.</German>
+ 		<Italian>Solo in pochi possono appartenere alla schiera degli Immortali. Una prova molto impegnativa, anche per i pi&#249; esperti.</Italian>
+ 		<Spanish>Solo unos cuantos pueden contarse entre las filas de los inmortales.  Esto resulta una prueba demoledora para todos, excepto para los m&#225;s experimentados.</Spanish>
+ 	</TEXT>
+@@ -1416,7 +1416,7 @@
+ 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
+ 		<English>Extremely hard. The human penalties (30%) and progressive AI bonuses make it so that the AI players get e.g. units at half the human cost toward the end of the game. With the AdvCiv mod, hopefully Immortal is hard enough for nearly everyone. Note, however, that AdvCiv removes the second free Settler that the Deity AI players receive in the original game.</English>
+ 		<French>L'ultime &#233;preuve, r&#233;serv&#233;e aux meilleurs joueurs. Serez-vous &#224; la hauteur ?</French>
+-		<German>Extrem schwierig. Die Mali f�r menschliche Spieler (30%) und die fortschreitenden Boni der KI f�hren dazu, dass die KI-Spieler gegen Ende des Spiels z.B. nur noch halb so viel Produktion f�r eine Einheit aufwenden m�ssen wie die Menschen. Mit dem AdvCiv-Mod sollte "Unsterblicher" f�r fast jeden schwierig genug sein. Allerdings ist, im Gegensatz zum Originalspiel, kein zweiter Siedler mehr unter den Starteinheiten der KI.</German>
++		<German>Extrem schwierig. Die Mali f�r menschliche Spieler (30%) und die fortschreitenden Boni der KI f�hren dazu, dass die KI-Spieler gegen Ende des Spiels z.B. nur noch halb so viel Produktion f�r eine Einheit aufwenden m�ssen wie die Menschen. Mit der AdvCiv-Mod sollte "Unsterblicher" f�r fast jeden schwierig genug sein. Allerdings ist, im Gegensatz zum Originalspiel, kein zweiter Siedler mehr unter den Starteinheiten der KI.</German>
+ 		<Italian>La prova definitiva per i migliori giocatori di Civilization. Ce la farai?</Italian>
+ 		<Spanish>La prueba definitiva, solo para los mejores jugadores del Civi. &#191;Podr&#225; superarla alguien?</Spanish>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9afc7b888..4f30320c1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8312,7 +8312,6 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 			// This divisor seems to produce roughly the result I have in mind
+ 			(fixp(3.1) * GC.getWAR_SUCCESS_CITY_CAPTURING() * iDiv)).round(), 0, iLimit);
+ 	return iR;
+-	// </advc.130m>
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2db6f401b..4ad2e7674 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4430,8 +4430,7 @@ void CvTeamAI::AI_changeWarSuccess(TeamTypes eTeam, scaled rChange)
+ 			apAffectedTeams.push_back(&kWarAlly);
+ 		}
+ 	}
+-	/*	Attitude cache update - relevant for WarAttitude (advc.sha) and
+-		ShareWarAttitude (advc.130m). */
++	// Attitude cache update; also relevant for WarAttitude (advc.sha).
+ 	/*	To save time. Not crucial to keep AI attitude up to date during AI turns.
+ 		Note that network games are treated as never being in between turns. */
+ 	if (!GC.getGame().isInBetweenTurns() &&
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5325

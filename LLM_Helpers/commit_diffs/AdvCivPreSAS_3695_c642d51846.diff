@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3695
+# Commit: c642d51846dcb720cedb8648288bb77dcb8eb426
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 648687093b18ae4f541f943f731016f6efd87225
+# Title: Revert name change to "Exit to Main Menu" button
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	44	Assets/XML/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index c95aba23a..395aece8a 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -4092,50 +4092,6 @@
+ 		<Italian>[COLOR_PLAYER_GRAY]Contenuti di BtS[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_PLAYER_GRAY]Contenido de BtS[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+-	<!-- From CIV4GameTextInfos.xml. Call that the "opening menu",
+-		 like in TXT_KEY_OPENING_MENU. -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_POPUP_EXIT_TO_MAIN_MENU</Tag>
+-		<English>Exit to Opening Menu</English>
+-		<French>Retour au menu de lancement</French>
+-		<German>Zur&#252;ck zum Anfangsmen&#252;</German>
+-		<Italian>Vai al menu d'apertura</Italian>
+-		<Spanish>Salir al men&#250; inicial</Spanish>
+-	</TEXT>
+-	<!-- From CIV4GameText_Misc1.xml -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_EXTENDED_GAME_NO_MENU</Tag>
+-		<English>(Exit to Opening Menu)</English>
+-		<French>(Retour au menu de lancement)</French>
+-		<German>(Zur&#252;ck zum Anfangsmen&#252;)</German>
+-		<Italian>(Vai al menu d'apertura)</Italian>
+-		<Spanish>(Salir al men&#250; inicial)</Spanish>
+-	</TEXT>
+-	<!-- From CIV4GameText_Misc1.xml (x3) -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_MAIN_MENU_FORCED_DISCONNECT_INGAME</Tag>
+-		<English>Someone else has logged in using this account.  Exiting to opening menu...</English>
+-		<French>Quelqu'un s'est connect&#233; en utilisant votre compte. Retour au menu de lancement...</French>
+-		<German>Es ist bereits jemand auf diesem Account eingeloggt. Zur&#252;ck zum Anfangsmen&#252; ...</German>
+-		<Italian>Qualcun altro ha effettuato il login usando questo account. Ritorno al menu d'apertura...</Italian>
+-		<Spanish>Otra persona ha iniciado sesi&#243;n con esta cuenta.  Saliendo al men&#250; inicial...</Spanish>
+-	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_PITBOSS_DISCONNECT</Tag>
+-		<English>We have lost our connection to the PitBoss!  Exiting to opening menu...</English>
+-		<French>Nous avons perdu notre connexion au PitBoss ! D&#233;connexion du menu de lancement...</French>
+-		<German>Wir haben die Verbindung zum PitBoss verloren. Zur&#252;ck zum Anfangsmen&#252; ...</German>
+-		<Italian>Abbiamo perso la connessione a PitBoss!  Ritorno al menu d'apertura...</Italian>
+-		<Spanish>Se ha perdido la conexi&#243;n con el Pitboss.  Saliendo al men&#250; inicial...</Spanish>
+-	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_POPUP_KICKED</Tag>
+-		<English>We are being kicked from the game!  Exiting to opening menu...</English>
+-		<French>Nous sommes exclus de la partie ! D&#233;connexion du menu de lancement...</French>
+-		<German>Wir werden aus dem Spiel geworfen! Zur&#252;ck zum Anfangsmen&#252; ...</German>
+-		<Italian>Siamo stati cacciati dal gioco! Ritorno al menu d'apertura...</Italian>
+-		<Spanish>Te est&#225;n expulsando de la partida.  Saliendo al men&#250; inicial...</Spanish>
+-	</TEXT>
+ 	<!-- From CIV4GameTextInfos.xml -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_MAIN_MENU_MULTIPLAYER_INTERNET_GAMES</Tag>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3083

@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 697
+# Commit: d7787cc92bb64a4241dd1046ffb7b0a8de25e260
+# History segment: K-Mod history
+# Parent used for diff: f5c0ae2cc4a2b5bcef12535ac071e3dbf24a45e0
+# Title: Barbarians will no longer consider the trade value of techs. Fixed a problem which would sometimes cause the AI to alternate between building a farm and buil...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	4	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+7	2	CvGameCoreDLL/CvUnitAI.cpp
+44	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index be3546a66..c4f94f3c9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -17336,10 +17336,6 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiCapitalCommerceRateModifier);
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiStateReligionBuildingCommerce);
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiSpecialistExtraCommerce);
+-	// Temporary K-Mod hack, to move from version v1.25 to v1.26. (this will be deleted in the next version)
+-	if (m_aiSpecialistExtraCommerce[COMMERCE_RESEARCH] == 2 && GC.getNumCivicInfos() > 2 && GC.getCivicInfo((CivicTypes)2).getSpecialistExtraCommerce(COMMERCE_RESEARCH) == 3)
+-		m_aiSpecialistExtraCommerce[COMMERCE_RESEARCH] = 3;
+-	//
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiCommerceFlexibleCount);
+ 	pStream->Read(MAX_PLAYERS, m_aiGoldPerTurnByPlayer);
+ 	pStream->Read(MAX_TEAMS, m_aiEspionageSpendingWeightAgainstTeam);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f9aff5359..cba583a0c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6028,7 +6028,8 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	}
+ 	
+ 	//Tech Whore								
+-	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_TRADING))
++	//if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_TRADING))
++	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_TRADING) && !isBarbarian()) // K-Mod
+ 	{
+ 		if (kTechInfo.isTechTrading() || kTeam.isTechTrading())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 65ec79c8e..2868891c0 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19734,7 +19734,13 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 						CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+ 						BuildTypes eBestTempBuild = NO_BUILD;
+ 
+-						if (pWorkingCity)
++						if (eImprovement != NO_IMPROVEMENT &&
++							((kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) && eImprovement != GC.getDefineINT("RUINS_IMPROVEMENT")) ||
++							kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus)))
++						{
++							bDoImprove = false;
++						}
++						else if (pWorkingCity)
+ 						{
+ 							// Let "best build" handle improvement replacements near cities.
+ 							BuildTypes eBuild = pWorkingCity->AI_getBestBuild(plotCityXY(pWorkingCity, pLoopPlot));
+@@ -19746,7 +19752,6 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 							else
+ 								bDoImprove = false;
+ 						}
+-						bDoImprove = bDoImprove && (!kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) || eImprovement == NO_IMPROVEMENT || eImprovement == GC.getDefineINT("RUINS_IMPROVEMENT"));
+ 						// K-Mod end
+ 
+ 						//if (bDoImprove)
+
+diff --git a/changelog.txt b/changelog.txt
+index be6bbaaf7..4d2cef46c 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,6 +1,49 @@
+-This is K-Mod version 1.26b.
++This is K-Mod version 1.27.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
++v1.27 changelist
++
++UI
++
+++ Implemented new controls for the city build queue: ctrl+click moves the item up the list, shift+click moves it down, alt+click toggles 'repeat' for units.
+++ Changed the functionality of double-clicking a stack of units. Double-click will now wake all of the units without changing their current groups.
+++ Added new loading hints to describe the new double-click functionality and the new build queue commands.
+++ Rapid-unit-cycling will now be even more rapid. (It will now cycle without waiting for the group to stop being busy.)
+++ Previously, "automated workers leave old improvements" was implemented with inconsistent rules. It is now enforced so that automated workers will not replace existing improvements for any reason. (City ruins not included.)
+++ Improved the spacing of the labels in the Foreign Advisor screen and the Info Screen. The spacing on these two screens will now automatically adjust if the game language is changed.
+++ Fixed several bugs and style inconsistencies in the info screen. (Mostly problems caused by the BUG mod.)
+++ Added some missing mouse-over information in the foreign advisor screen.
+++ Changed the format of the war weariness mouse-over information.
+++ Disabled a condition in the original BtS code which prevented city governors from considering units for any role other than their default AI type. (This only affects human players.)
+++ Added all of the missing text tags for the environmental advisor screen. (The text is still only in english, but at least it is now in the right format to be translated.)
+++ Corrected the colour of non-english versions of TXT_KEY_BONUS_OBSOLETE.
+++ Plots with a best-replacement-improvement value of <= 1 will no longer be highlighted as recommended upgrade plots for workers. (But the best improvement will still be highlighted for workers standing on the plot.)
+++ Fixed an original BtS bug which allowed players to wake or fortify units which they do not own by using the flyout menu.
++
++Game
++
+++ Anarchy duration modifiers and golden age modifiers will now apply their respective adjustments to the existing anarchy / golden age at the time the modifier is applied. (eg. When the Mausoleum of Maussollos is built, it will now increase the remaining length of the current golden age by 50%.)
+++ Changed the way culture processes are ended when a city's cultural borders expand. (The previous implementation, from the Unofficial Patch, could cause OOS in particular situations.)
+++ Rewrote CvUnit::collateralCombat to remove a rare OOS bug, and to improve performance and readability. (I estimate that there was roughly a 1/10000 chance of getting OOS with collateral damage attack using the original code.)
+++ Increased the barbarian's base tech rate from 3% per turn, to 4% per turn, but blocked this research completely for the first half of their pre-spawn turns. (This is a follow-up adjustment to the change in the previous version.)
+++ Fixed a problem which prevented units from being created on a transport on the first turn of special scenarios.
+++ Units on transports will now stay in their group when they are upgraded (so that the behaviour is consistent with units not on transports).
+++ Added two new functions: CvPlayer::canSeeResearch and CvPlayer::canSeeDemographics. These functions are the definitive answers to the questions posed by their names. The functions consider game rules, diplomatic relationships, and espionage. They are exposed to python, and should be used instead of the current ad-hoc combinations of conditions that were used in the past.
++
++AI
++
+++ When evaluating tech which enable new units, the AI will now consider the value of the unit in all the roles it is suited to, rather than only the default role.
+++ Added new AI to evaluate and consider using a 'process' (eg. build wealth) instead of constructing a building. (This may need some future adjustments in the near future.)
+++ Rewrote the section of AI_techValue which evaluates how much trade value the tech has. The new code should produce smarter and less erratic behaviour, and be more affected by leader personality and game situation. (There is still room for improvement...)
+++ Fixed a couple of problems with the evaluation of isNoNonStateReligionSpread in AI_civicValue.
+++ Reduced the effect of "aggressive AI" on the AI's decision to use the crush strategy.
+++ Fixed a problem which would sometimes cause the AI to alternate between building a farm and building a fort on grain resources outside of city radii.
+++ In AI_civicValue, increased the value of experience points for non-warmonger AI's who happen to be at war.
+++ Fixed a minor bug which caused the city governor to mis-evaluate productivity when constructing particular buildings.
+++ Slightly tightened the conditions on the AI starting multiple warplans.
+++ Slightly increased how much the AI likes health from features (ie. forests).
++
++--
+ v1.26 changelist
+ 
+ Game
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=8130

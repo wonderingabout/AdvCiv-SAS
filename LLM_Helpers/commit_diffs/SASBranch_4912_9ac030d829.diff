@@ -1,0 +1,1176 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4912
+# Commit: 9ac030d829b21dd2e0bbb128bb4ebf8bb6c4a144
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 92fc29e26e9bfe40311c02af385f58383e09c157
+# Title: add the robotic_recon_drone (import from c2c mod), with chatgpt's assistance thanks as well anyways etc and other minor or not changes anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/environment_fx_greymetal.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_damage.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_gloss.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody1.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody2.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody3.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody4.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture1.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture2.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture3.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture4.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture1.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture2.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture3.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture4.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_heal.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_hurta.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_idle.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_ranged_idle.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie_fade.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedfortify.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedstrike.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_run.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadein.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadeout.kf
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+6	6	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+30	0	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+29	23	Assets/XML/Technologies/CIV4TechInfos.xml
+1	11	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+7	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+1	1	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+11	3	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	3	Assets/XML/Units/CIV4PromotionInfos.xml
+9	0	Assets/XML/Units/CIV4UnitClassInfos.xml
+1	1	Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+250	5	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/environment_fx_greymetal.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_damage.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_gloss.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody1.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody2.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody3.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody4.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture1.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture2.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture3.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture4.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture1.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture2.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture3.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture4.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_heal.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_hurta.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_idle.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_ranged_idle.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie_fade.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedfortify.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedstrike.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_run.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadein.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadeout.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/environment_fx_greymetal.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/environment_fx_greymetal.dds
+new file mode 100644
+index 000000000..e6b3f9188
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/environment_fx_greymetal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.dds
+new file mode 100644
+index 000000000..45b663c40
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.nif b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.nif
+new file mode 100644
+index 000000000..d6f6f39cf
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_damage.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_damage.dds
+new file mode 100644
+index 000000000..69d84203f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_damage.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_gloss.dds
+new file mode 100644
+index 000000000..1a29801bb
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/predator_gloss.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm
+new file mode 100644
+index 000000000..d3e6d054d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.nif b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.nif
+new file mode 100644
+index 000000000..d40997bf2
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody1.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody1.kf
+new file mode 100644
+index 000000000..5a15ecc95
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody1.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody2.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody2.kf
+new file mode 100644
+index 000000000..60fa2e176
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody2.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody3.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody3.kf
+new file mode 100644
+index 000000000..b47cb64ed
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody3.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody4.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody4.kf
+new file mode 100644
+index 000000000..68b6da966
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_bodygeometry_dambody4.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture1.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture1.kf
+new file mode 100644
+index 000000000..76ebccceb
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture1.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture2.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture2.kf
+new file mode 100644
+index 000000000..9d49ba868
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture2.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture3.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture3.kf
+new file mode 100644
+index 000000000..aae51ca48
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture3.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture4.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture4.kf
+new file mode 100644
+index 000000000..720cfc369
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_gunshiptexture_damtexture4.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture1.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture1.kf
+new file mode 100644
+index 000000000..3429efb69
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture1.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture2.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture2.kf
+new file mode 100644
+index 000000000..3c5dc4e72
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture2.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture3.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture3.kf
+new file mode 100644
+index 000000000..cc0b2ee2b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture3.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture4.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture4.kf
+new file mode 100644
+index 000000000..54b099c5b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_damage_tanktexture_damtexture4.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_heal.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_heal.kf
+new file mode 100644
+index 000000000..06dce35c6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_heal.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_hurta.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_hurta.kf
+new file mode 100644
+index 000000000..03d45b5bc
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_hurta.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_idle.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_idle.kf
+new file mode 100644
+index 000000000..daadff16d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_idle.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_ranged_idle.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_ranged_idle.kf
+new file mode 100644
+index 000000000..9b148b930
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_ranged_idle.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie.kf
+new file mode 100644
+index 000000000..51e55859d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie_fade.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie_fade.kf
+new file mode 100644
+index 000000000..20d114876
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangeddie_fade.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedfortify.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedfortify.kf
+new file mode 100644
+index 000000000..9aadc66aa
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedfortify.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedstrike.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedstrike.kf
+new file mode 100644
+index 000000000..65c6b1023
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_rangedstrike.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_run.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_run.kf
+new file mode 100644
+index 000000000..be353ff9e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_run.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadein.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadein.kf
+new file mode 100644
+index 000000000..0057a38d6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadein.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadeout.kf b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadeout.kf
+new file mode 100644
+index 000000000..c21cbbe3e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger_md_xfadeout.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds
+new file mode 100644
+index 000000000..61b6e1dde
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 267753928..4205a4fa8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -655,7 +655,7 @@ class SevoPediaBuilding:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		for iPrereqTech in xrange(gc.getNumTechInfos()):
+@@ -868,7 +868,7 @@ class SevoPediaBuilding:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 		
+ 		# Get the building class of our current building
+@@ -1006,7 +1006,7 @@ class SevoPediaBuilding:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# Get the building info
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 6a21771ec..f499d3756 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -291,7 +291,7 @@ class SevoPediaFeature:
+ 		#isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable anyways etc -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index 8191e6127..6a44e7933 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -191,7 +191,7 @@ class SevoPediaIndex:
+ 					iRow += 1
+ 					iColumn = 0
+ 			
+-			# <!-- custom: refactor, since sText was defined in existing code, reuse it instead of hardcoding it again at each call if i may say and am not mistaken, this also fixes ruff warning and according to chatgpt this is unused as well and safe to remove as well so adding it again in this case i mean anyways etc ; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` also using them as variables similarly instead of hardcoding them each time if i am not mistaken anyways etc  -->
++			# <!-- custom: refactor, since sText was defined in existing code, reuse it instead of hardcoding it again at each call if i may say and am not mistaken, this also fixes ruff warning and according to chatgpt this is unused as well and safe to remove as well so adding it again in this case i mean anyways etc ; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` also using them as variables similarly instead of hardcoding them each time if i am not mistaken anyways etc -->
+ 			sText = u"<font=3>" + item[0] + u"</font>"
+ 			iData1 = item[1]
+ 			iData2 = 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index be8917792..95eec8b05 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -64,7 +64,7 @@ IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+ # <!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc ; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc -->
+ IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD = False
+ 
+-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too-->
++# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
+ IS_DEBUG_LEADER = False
+ 
+ # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding anyways etc -->
+@@ -190,7 +190,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
+ 				continue
+ 
+-			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc  -->
++			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc -->
+ 			leaders_temp_aggregated_contact_probs[iLeader] = {}
+ 
+ 			# <!-- custom: note: we get very weird bugs if misnaming variables, as python sadly or angrily for me xd stupidly anyways etc reuses variables from other loops even though they should not exist in another indepent scope other loop, so naming them with _0 _1 _2 _3 _4 for each pass to make sure python doesn't reuse them anwyays etc and we successfully get an error as intended if variable doesn't exist anyways etc -->
+@@ -272,7 +272,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				adjusted_value_3_delay_norm_score = normalize_to_100(adjusted_value_3_delay, adjusted_value_3_delay_min, adjusted_value_3_delay_max, B_WARN, b_invert_contact_delays, parsed_name_3_adjusted_delay)
+ 				aggregated_raw_contact_score_from_adjusted_values = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_3_rand_norm_score, adjusted_value_3_delay_norm_score, force_zero_adjusted_values)
+ 				
+-				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay anyways etc) value that we then normalize and until after then store as part of the real leader info displayed later in the code (and then even more late(r? But anyways etc anyways etc...) in code anyways etc that we display at UI level anyways etc anyways etc anyways etc), this is a temporary value not the final one anyways etc anyways etc anyways etc... --->
++				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay anyways etc) value that we then normalize and until after then store as part of the real leader info displayed later in the code (and then even more late(r? But anyways etc anyways etc...) in code anyways etc that we display at UI level anyways etc anyways etc anyways etc), this is a temporary value not the final one anyways etc anyways etc anyways etc... -->
+ 				parsed_name_3_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix_3 # → iAggregatedRawContactProbJoinWar
+ 				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_3_aggregated_raw_contact_prob] = aggregated_raw_contact_score_from_adjusted_values
+ 
+@@ -326,7 +326,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
+ 				continue
+ 
+-			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc  -->
++			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc -->
+ 			leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
+ 
+ 			# <!-- custom: note: we get very weird bugs if misnaming variables, as python sadly or angrily for me xd stupidly anyways etc reuses variables from other loops even though they should not exist in another indepent scope other loop, so naming them with _0 _1 _2 _3 _4 for each pass to make sure python doesn't reuse them anwyays etc and we successfully get an error as intended if variable doesn't exist anyways etc -->
+@@ -413,7 +413,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				adjusted_value_3_decay_affection_or_resentment_norm_score = normalize_to_100(adjusted_value_3_decay_affection_or_resentment, adjusted_value_3_decay_affection_or_resentment_min, adjusted_value_3_decay_affection_or_resentment_max, B_WARN, b_invert_decay, parsed_name_3_adjusted_decay)
+ 				aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_value_3_attitude_percent_affection_or_resentment_norm_score, adjusted_value_3_decay_affection_or_resentment_norm_score, force_zero_adjusted_affection_or_resentment)
+ 				
+-				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay anyways etc) value that we then normalize and until after then store as part of the real leader info displayed later in the code (and then even more late(r? But anyways etc anyways etc...) in code anyways etc that we display at UI level anyways etc anyways etc anyways etc), this is a temporary value not the final one anyways etc anyways etc anyways etc... --->
++				# <!-- custom: note: this is the the raw aggregated (i.e. the aggregated value before it is a normalized aggregated value, to not confound with raw values like raw attitude_percent and raw decay anyways etc) value that we then normalize and until after then store as part of the real leader info displayed later in the code (and then even more late(r? But anyways etc anyways etc...) in code anyways etc that we display at UI level anyways etc anyways etc anyways etc), this is a temporary value not the final one anyways etc anyways etc anyways etc... -->
+ 				parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix_3, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
+ 				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment] = aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values
+ 
+@@ -1407,7 +1407,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 		# 📉 Attitude Changes +/- Limits +/- Divisors
+ 		# <!-- custom: see the code comment at getShareWarAttitudeChangeLimit in this file for details -->
+ 		ai_category_key_order_attitude_changes_plusminus_limits_plusminus_divisors = (
+-			# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this file for details  -->
++			# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this file for details -->
+ 			"getSameReligionAttitudeChange",
+ 			"getSameReligionAttitudeDivisor",
+ 			#
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 22fee31bf..2038fbd30 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -355,7 +355,7 @@ class SevoPediaTerrain:
+ 		#isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 99fce5a04..e23394187 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -452,7 +452,7 @@ class SevoPediaUnit:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# Get the unit info
+@@ -544,7 +544,7 @@ class SevoPediaUnit:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# Get the unit info for the current unit
+@@ -633,7 +633,7 @@ class SevoPediaUnit:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 		
+ 		# Get the unit info
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index 5f303a97f..9bbbe8f44 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -24,7 +24,7 @@ def get_positive_memory_indexes_to_types():
+ 
+ 
+ def get_negative_memory_indexes_to_types():
+-	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such hopefully helpful or not or yes or and other or and not anyways etc): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any-->
++	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such hopefully helpful or not or yes or and other or and not anyways etc): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any -->
+ 	#
+ 	# "You have rejected another civilization's technology."
+ 	# occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index b3f746201..5d99260e2 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -289,6 +289,36 @@
+ 			<SelectionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</SelectionSound>
+ 			<ActionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</ActionSound>
+ 		</UnitArtInfo>
++		<!-- custom: new unit based on a c2c mod ("recon_drone" anyways etc) not base civ4 art so ideally no need to overtweak the design so it fits quite realistically domain_land anyways etc ; also adjusted or not for advciv-sas anyways etc, tried to do it based on a mix of advciv-sas's airship (as it is already tuned to domain_land as we want anyways etc for free control of the unit on map tiles if i am not mistaken and or other advantages maybe but anyways etc) and the gunship as it seems this c2c mod's unit is based on the gunship i assume based on its artdefine in c2c mod if i am not mistaken so trying to replicate c2c mod's or maybe rather if i may say but anyways etc our art defines equivalents of the advciv-sas gunship (which as of now is same as base_advciv in art defines i mean at least if i am not mistaken too but anyways etc) anyways etc, but also not too absed on the gunship as this recon_drone in our mod is mostly if not only a civilian unit, so things liek fortify or such are not intended for this unit in our mod at least as of now anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_ROBOTIC_RECON_DRONE</Type>
++			<Button>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds</Button>
++			<fScale>0.2</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/Predator.nif</NIF>
++			<KFM>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/Predator.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/GunshipShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.75</fShadowScale>
++			</ShadowDef>
++			<iDamageStates>4</iDamageStates>
++			<fBattleDistance>0.5</fBattleDistance>
++			<fRangedDeathTime>0.12</fRangedDeathTime>
++			<bSmoothMove>1</bSmoothMove>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop> </AudioRunTypeLoop>
++				<AudioRunTypeEnd> </AudioRunTypeEnd>
++			</AudioRunSounds>
++			<PatrolSound>AS3D_UN_AIRSHIP_PATROL</PatrolSound>
++			<SelectionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</SelectionSound>
++			<ActionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</ActionSound>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_ANCIENT_SPY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Spy.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,14</Button>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index a081e4caa..b691881e3 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -4831,7 +4831,7 @@
+ 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info anyways etc  -->
++			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info anyways etc -->
+ 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -12613,7 +12613,7 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: adjust flavors-->
++			<!-- custom: adjust flavors -->
+ 			<!-- advc.020: was 10 Gold, but also helpful for Growth -->
+ 			<Flavors>
+ 				<Flavor>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 1b2dff3cc..b57489d5c 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -4454,7 +4454,8 @@
+ 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
+ 			<iVassalPowerModifier>50</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
+-			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion> <!-- custom: not strictly daoist, but closest and seems accurate, see notes for details-->
++			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or/and mod's google drive if there as well for details anyways etc -->
++			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 95d510a82..be2a38293 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -2614,7 +2614,7 @@
+ 			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_NATURALISM</Sound>
+ 			<SoundMP>AS2D_TECH_MP_NATURALISM</SoundMP>
+-			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
++			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc -->
+ 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -4051,8 +4051,8 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>-5</iHealth>
+-			<iHappiness>-5</iHappiness>
++			<iHealth>-6</iHealth>
++			<iHappiness>-6</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+@@ -4196,7 +4196,7 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>2</iHealth>
++			<iHealth>3</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+@@ -4225,6 +4225,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: do not put flavor growth too high although the health bonus is nice, to not lead growth leaders astray, in case they need locally in this game i mean more military or culture perhaps anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+@@ -4371,14 +4372,19 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: tech is very important for future military units although it itself (if this how to say it in english but anyways etc...) doesn't have strong military / offensive or defensive units anyways etc, but still put high military flavor so AI leaders search this tech strongly if they want later units anyways etc ; it is similarly a key tech to access later future techs so make sure AI leaders research it if they have the science flavor as well by having a high enough flavor_science as well if i may say but anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>12</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>12</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+@@ -4443,16 +4449,7 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>22</iGridX>
+ 			<iGridY>5</iGridY>
+-			<DomainExtraMoves>
+-				<DomainExtraMove>
+-					<DomainType>DOMAIN_LAND</DomainType>
+-					<iExtraMoves>1</iExtraMoves>
+-				</DomainExtraMove>
+-				<DomainExtraMove>
+-					<DomainType>DOMAIN_SEA</DomainType>
+-					<iExtraMoves>1</iExtraMoves>
+-				</DomainExtraMove>
+-			</DomainExtraMoves>
++			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+@@ -6112,8 +6109,8 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
+-			<iFeatureProductionModifier>50</iFeatureProductionModifier>
+-			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
++			<iFeatureProductionModifier>0</iFeatureProductionModifier>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+@@ -6140,14 +6137,23 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+ 			<iGridY>5</iGridY>
+-			<DomainExtraMoves/>
++			<DomainExtraMoves>
++				<DomainExtraMove>
++					<DomainType>DOMAIN_LAND</DomainType>
++					<iExtraMoves>1</iExtraMoves>
++				</DomainExtraMove>
++				<DomainExtraMove>
++					<DomainType>DOMAIN_SEA</DomainType>
++					<iExtraMoves>1</iExtraMoves>
++				</DomainExtraMove>
++			</DomainExtraMoves>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+@@ -6841,7 +6847,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>1</iHappiness>
++			<iHappiness>2</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+@@ -6876,7 +6882,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index 9e7f29afa..7e6937fa7 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -101,10 +101,7 @@
+ 		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
+ 	</TEXT>
+ 
+-    <!-- custom: rename Civilopedia to Sevopedia 
+-    imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
+-    and then modified for AdvCiv-SAS
+-    -->
++    <!-- custom: rename Civilopedia to Sevopedia -->
+     <TEXT>
+ 		<Tag>TXT_KEY_MAIN_MENU_CIVILOPEDIA</Tag>
+ 		<English>Sevopedia</English>
+@@ -117,13 +114,6 @@
+ 		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
+ 		<English>Top</English>
+ 	</TEXT>
+-    <!-- custom: moved from:
+-    C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Text\CIV4GameText_advc.xml
+-    Better centralize all data in same place, especially if they come from same
+-    file originally
+-    -->
+-	<!-- advc.004y: Like TXT_KEY_MAIN_MENU_CIVILOPEDIA (CIV4GameTextInfos.xml),
+-		 but all capitalized. -->
+ 	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index b73e457e5..cc66b1d77 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -464,6 +464,13 @@
+ 		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Tag>
+ 		<English>Self-Propelled Artillery</English>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Tag>
++		<English>Robotic Recon Drone</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Tag>
+ 		<English>Robotic Infantry</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 43cb456ca..1ab0d1d5b 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -106,7 +106,7 @@
+ 	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT to something clearer at the same time, maybe helps.
+ 	Create a new TXT KEY specifically for the improvements info of the ressources (bonus) category (before creating	this new txt key, the previous one was shared between category title "Improvements", and	Ressources/"Improvements", not possible to modify one without affecting the other which is not optimal, so creating this new text key, and updating the python files too to support it)
+ 	-->
+-	<!-- custom: be careful, this applies to the ressources category not the improvement category unlike what the tile may (mis)lead to think, clarified that this is the total (base + extra) bonus  -->
++	<!-- custom: be careful, this applies to the ressources category not the improvement category unlike what the tile may (mis)lead to think, clarified that this is the total (base + extra) bonus -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES</Tag>
+ 		<English>Total (Base + extra) Improvement(s) Yield Change(s)</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index a839dd1ec..54d02dcf1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -301,6 +301,14 @@
+ 
+ 
+ 
++	<!-- custom: pedia entry based on https://en.wikipedia.org/wiki/Unmanned_surveillance_and_reconnaissance_aerial_vehicle as advised/linked by chatgpt if i may say but anyways etc as i couldn't find any source, thanks a lot ; and then also based on the , and then adjusted or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE_PEDIA</Tag>
++		<English>[TAB]An unmanned surveillance and reconnaissance aerial vehicle, is an unarmed military UAV that is used for intelligence, surveillance, target acquisition, and reconnaissance (ISTAR). Unlike unmanned combat aerial vehicle (UCAV), this type of system is not designed to carry aircraft ordnance such as missiles, ATGMs, or bombs for drone strikes. The main purpose is to provide battlefield intelligence. Small sized short-range man-portable unmanned aerial vehicles are called miniature UAV also used for battlefield intelligence.[PARAGRAPH:2]Military robots are autonomous robots or remote-controlled mobile robots designed for military applications, from transport to search and rescue and attack.[PARAGRAPH:1]Some such systems are currently in use, and many are under development. The difference between military robots and military drones is unclear as of 2025: some say that lethal autonomous weapons are robots whereas others describe "fully autonomous military drones".[PARAGRAPH:2]Autonomous robotics would save and preserve soldiers' lives by removing serving soldiers, who might otherwise be killed, from the battlefield. Lt. Gen. Richard Lynch of the United States Army Installation Management Command and assistant Army chief of staff for installation stated at a 2011 conference:[PARAGRAPH:1]"As I think about what's happening on the battlefield today ... I contend there are things we could do to improve the survivability of our service members. And you all know that's true."[PARAGRAPH:1]Major Kenneth Rose of the US Army's Training and Doctrine Command outlined some of the advantages of robotic technology in warfare:[PARAGRAPH:1]"Machines don't get tired. They don't close their eyes. They don't hide under trees when it rains and they don't talk to their friends ... A human's attention to detail on guard duty drops dramatically in the first 30 minutes ... Machines know no fear."[PARAGRAPH:1]Increasing attention is also paid to how to make the robots more autonomous, with a view of eventually allowing them to operate on their own for extended periods of time, possibly behind enemy lines. For such functions, systems like the Energetically Autonomous Tactical Robot are being tried, which is intended to gain its own energy by foraging for plant matter. The majority of military robots are tele-operated and not equipped with weapons; they are used for reconnaissance, surveillance, sniper detection, neutralizing explosive devices, etc. Current robots that are equipped with weapons are tele-operated so they are not capable of taking lives autonomously. Advantages regarding the lack of emotion and passion in robotic combat is also taken into consideration as a beneficial factor in significantly reducing instances of unethical behavior in wartime. Autonomous machines are created not to be "truly 'ethical' robots", yet ones that comply with the laws of war (LOW) and rules of engagement (ROE). Hence the fatigue, stress, emotion, adrenaline, etc. that affect a human soldier's rash decisions are removed; there will be no effect on the battlefield caused by the decisions made by the individual.[PARAGRAPH:2]Human rights groups and NGOs such as Human Rights Watch and the Campaign to Stop Killer Robots have started urging governments and the United Nations to issue policy to outlaw the development of so-called "lethal autonomous weapons systems" (LAWS). The United Kingdom opposed such campaigns, with the Foreign Office declaring that "international humanitarian law already provides sufficient regulation for this area".[PARAGRAPH:1]In July 2015, over 1,000 experts in artificial intelligence signed a letter calling for a ban on autonomous weapons. The letter was presented in Buenos Aires at the 24th International Joint Conference on Artificial Intelligence (IJCAI-15) and was co-signed by Stephen Hawking, Elon Musk, Steve Wozniak, Noam Chomsky, Skype co-founder Jaan Tallinn and Google DeepMind co-founder Demis Hassabis, among others.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: pedia entry based on https://en.wikipedia.org/wiki/Military_robot anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY_PEDIA</Tag>
+@@ -309,7 +317,7 @@
+ 
+ 
+ 
+-	<!-- custom: pedia entry based on a part of https://en.wikipedia.org/wiki/Tank#Research_and_development and on the robotic_infantry's entry  and adjusted or not for advciv-sas anyways etc -->
++	<!-- custom: pedia entry based on a part of https://en.wikipedia.org/wiki/Tank#Research_and_development and on the robotic_infantry's entry and adjusted or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_TANK_PEDIA</Tag>
+ 		<English>[TAB]Mobility may be enhanced in future tanks by the use of diesel-electric or turbine-electric series hybrid drives - first used in a primitive, gasoline-engined form with Porsche's Elefant German tank destroyer of 1943 - improving fuel efficiency while reducing the size and weight of the power plant. Furthermore, advances in gas turbine technology, including the use of advanced recuperators, have allowed for reduction in engine volume and mass to less than 1 m3 and 1 metric ton, respectively, while maintaining fuel efficiency similar to that of a diesel engine. In line with the new doctrine of network-centric warfare, the 2010s-era modern battle tank shows increasing sophistication in its electronics and communication systems. The future of tanks has been challenged by the proliferation of relatively inexpensive anti tank guided missiles and rockets during the Russo-Ukrainian War.[PARAGRAPH:2]Military robots are autonomous robots or remote-controlled mobile robots designed for military applications, from transport to search and rescue and attack.[PARAGRAPH:1]Some such systems are currently in use, and many are under development. The difference between military robots and military drones is unclear as of 2025: some say that lethal autonomous weapons are robots whereas others describe "fully autonomous military drones".[PARAGRAPH:2]Autonomous robotics would save and preserve soldiers' lives by removing serving soldiers, who might otherwise be killed, from the battlefield. Lt. Gen. Richard Lynch of the United States Army Installation Management Command and assistant Army chief of staff for installation stated at a 2011 conference:[PARAGRAPH:1]"As I think about what's happening on the battlefield today ... I contend there are things we could do to improve the survivability of our service members. And you all know that's true."[PARAGRAPH:1]Major Kenneth Rose of the US Army's Training and Doctrine Command outlined some of the advantages of robotic technology in warfare:[PARAGRAPH:1]"Machines don't get tired. They don't close their eyes. They don't hide under trees when it rains and they don't talk to their friends ... A human's attention to detail on guard duty drops dramatically in the first 30 minutes ... Machines know no fear."[PARAGRAPH:1]Increasing attention is also paid to how to make the robots more autonomous, with a view of eventually allowing them to operate on their own for extended periods of time, possibly behind enemy lines. For such functions, systems like the Energetically Autonomous Tactical Robot are being tried, which is intended to gain its own energy by foraging for plant matter. The majority of military robots are tele-operated and not equipped with weapons; they are used for reconnaissance, surveillance, sniper detection, neutralizing explosive devices, etc. Current robots that are equipped with weapons are tele-operated so they are not capable of taking lives autonomously. Advantages regarding the lack of emotion and passion in robotic combat is also taken into consideration as a beneficial factor in significantly reducing instances of unethical behavior in wartime. Autonomous machines are created not to be "truly 'ethical' robots", yet ones that comply with the laws of war (LOW) and rules of engagement (ROE). Hence the fatigue, stress, emotion, adrenaline, etc. that affect a human soldier's rash decisions are removed; there will be no effect on the battlefield caused by the decisions made by the individual.[PARAGRAPH:2]Human rights groups and NGOs such as Human Rights Watch and the Campaign to Stop Killer Robots have started urging governments and the United Nations to issue policy to outlaw the development of so-called "lethal autonomous weapons systems" (LAWS). The United Kingdom opposed such campaigns, with the Foreign Office declaring that "international humanitarian law already provides sufficient regulation for this area".[PARAGRAPH:1]In July 2015, over 1,000 experts in artificial intelligence signed a letter calling for a ban on autonomous weapons. The letter was presented in Buenos Aires at the 24th International Joint Conference on Artificial Intelligence (IJCAI-15) and was co-signed by Stephen Hawking, Elon Musk, Steve Wozniak, Noam Chomsky, Skype co-founder Jaan Tallinn and Google DeepMind co-founder Demis Hassabis, among others.</English>
+@@ -317,7 +325,7 @@
+ 
+ 
+ 
+-	<!-- custom: pedia entry based on a part of https://en.wikipedia.org/wiki/Levitation_(physics)# and on the robotic_infantry's entry  and adjusted or not for advciv-sas anyways etc -->
++	<!-- custom: pedia entry based on a part of https://en.wikipedia.org/wiki/Levitation_(physics)# and on the robotic_infantry's entry and adjusted or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_LEVITATION_ARTILLERY_PEDIA</Tag>
+ 		<English>[TAB]Levitation (from Latin levitas, lit. 'lightness') is the process by which an object is held aloft in a stable position, without mechanical support via any physical contact.[PARAGRAPH:1]Levitation is accomplished by providing an upward force that counteracts the pull of gravity (in relation to gravity on earth), plus a smaller stabilizing force that pushes the object toward a home position whenever it is a small distance away from that home position. The force can be a fundamental force such as magnetic or electrostatic, or it can be a reactive force such as optical, buoyant, aerodynamic, or hydrodynamic. Levitation excludes floating at the surface of a liquid because the liquid provides direct mechanical support. Levitation excludes hovering flight by insects, hummingbirds, helicopters, rockets, and balloons because the object provides its own counter-gravity force.[PARAGRAPH:2]Military robots are autonomous robots or remote-controlled mobile robots designed for military applications, from transport to search and rescue and attack.[PARAGRAPH:1]Some such systems are currently in use, and many are under development. The difference between military robots and military drones is unclear as of 2025: some say that lethal autonomous weapons are robots whereas others describe "fully autonomous military drones".[PARAGRAPH:2]Autonomous robotics would save and preserve soldiers' lives by removing serving soldiers, who might otherwise be killed, from the battlefield. Lt. Gen. Richard Lynch of the United States Army Installation Management Command and assistant Army chief of staff for installation stated at a 2011 conference:[PARAGRAPH:1]"As I think about what's happening on the battlefield today ... I contend there are things we could do to improve the survivability of our service members. And you all know that's true."[PARAGRAPH:1]Major Kenneth Rose of the US Army's Training and Doctrine Command outlined some of the advantages of robotic technology in warfare:[PARAGRAPH:1]"Machines don't get tired. They don't close their eyes. They don't hide under trees when it rains and they don't talk to their friends ... A human's attention to detail on guard duty drops dramatically in the first 30 minutes ... Machines know no fear."[PARAGRAPH:1]Increasing attention is also paid to how to make the robots more autonomous, with a view of eventually allowing them to operate on their own for extended periods of time, possibly behind enemy lines. For such functions, systems like the Energetically Autonomous Tactical Robot are being tried, which is intended to gain its own energy by foraging for plant matter. The majority of military robots are tele-operated and not equipped with weapons; they are used for reconnaissance, surveillance, sniper detection, neutralizing explosive devices, etc. Current robots that are equipped with weapons are tele-operated so they are not capable of taking lives autonomously. Advantages regarding the lack of emotion and passion in robotic combat is also taken into consideration as a beneficial factor in significantly reducing instances of unethical behavior in wartime. Autonomous machines are created not to be "truly 'ethical' robots", yet ones that comply with the laws of war (LOW) and rules of engagement (ROE). Hence the fatigue, stress, emotion, adrenaline, etc. that affect a human soldier's rash decisions are removed; there will be no effect on the battlefield caused by the decisions made by the individual.[PARAGRAPH:2]Human rights groups and NGOs such as Human Rights Watch and the Campaign to Stop Killer Robots have started urging governments and the United Nations to issue policy to outlaw the development of so-called "lethal autonomous weapons systems" (LAWS). The United Kingdom opposed such campaigns, with the Foreign Office declaring that "international humanitarian law already provides sufficient regulation for this area".[PARAGRAPH:1]In July 2015, over 1,000 experts in artificial intelligence signed a letter calling for a ban on autonomous weapons. The letter was presented in Buenos Aires at the 24th International Joint Conference on Artificial Intelligence (IJCAI-15) and was co-signed by Stephen Hawking, Elon Musk, Steve Wozniak, Noam Chomsky, Skype co-founder Jaan Tallinn and Google DeepMind co-founder Demis Hassabis, among others.</English>
+@@ -517,7 +525,7 @@
+ 
+ 
+ 
+-	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc ; entry from wikipedia anyways etc https://en.wikipedia.org/wiki/Scandinavia hopefully more accurate or not or yes or other or etc anyways etc anyways etc and adjusted for advciv-sas  -->
++	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc ; entry from wikipedia anyways etc https://en.wikipedia.org/wiki/Scandinavia hopefully more accurate or not or yes or other or etc anyways etc anyways etc and adjusted for advciv-sas -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Tag>
+ 		<English>[TAB]Scandinavia is a subregion of northern Europe, with strong historical, cultural, and linguistic ties between its constituent peoples. Scandinavia most commonly refers to Denmark, Norway, and Sweden. It can sometimes also refer to the Scandinavian Peninsula (which excludes Denmark but includes a part of northern Finland). In English usage, Scandinavia is sometimes used as a synonym for Nordic countries. Iceland and the Faroe Islands are sometimes included in Scandinavia for their ethnolinguistic relations with Sweden, Norway and Denmark. While Finland differs from other Nordic countries in this respect, some authors call it Scandinavian due to its economic and cultural similarities.[PARAGRAPH:1]The geography of the region is varied, from the Norwegian fjords in the west and Scandinavian mountains covering parts of Norway and Sweden, to the low and flat areas of Denmark in the south, as well as archipelagos and lakes in the east. Most of the population in the region live in the more temperate southern regions, with the northern parts having long, cold winters.[PARAGRAPH:1]During the Viking Age Scandinavian peoples participated in large-scale raiding, conquest, colonization and trading mostly throughout Europe. They also used their longships for exploration, becoming the first Europeans to reach North America. These exploits saw the establishment of the North Sea Empire which comprised large parts of Scandinavia and Great Britain, though it was relatively short-lived. Scandinavia was eventually Christianized, and the coming centuries saw various unions of Scandinavian nations, most notably the Kalmar Union of Denmark, Norway and Sweden, which lasted for over 100 years until the Swedish king Gustav I led Sweden out of the union. Denmark and Norway, as well as Schleswig-Holstein, were then united until 1814 as Denmark-Norway. Numerous wars between the nations followed, which shaped the modern borders and led to the establishment of the Swedish Empire in the 17th and early 18th centuries. The most recent Scandinavian union was the union between Sweden and Norway, which ended in 1905.[PARAGRAPH:1]In modern times the region has prospered, with the economies of the countries being amongst the strongest in Europe. Sweden, Denmark, Norway, Iceland, and Finland all maintain welfare systems considered to be generous, with the economic and social policies of the countries being dubbed the "Nordic model".[PARAGRAPH:2]A key ancient description of Scandinavia was provided by Pliny the Elder, though his mentions of Scatinavia and surrounding areas are not always easy to decipher. Writing in the capacity of a Roman admiral, he introduces the northern region by declaring to his Roman readers that there are 23 islands "Romanis armis cognitae" ("known to Roman arms") in this area. According to Pliny, the "clarissima" ("most famous") of the region's islands is Scatinavia, of unknown size. There live the Hilleviones. The belief that Scandinavia was an island became widespread among classical authors during the 1st century and dominated descriptions of Scandinavia in classical texts during the centuries that followed.[PARAGRAPH:1]Pliny begins his description of the route to Scatinavia by referring to the mountain of Saevo (mons Saevo ibi), the Codanus Bay ("Codanus sinus") and the Cimbrian promontory. The geographical features have been identified in various ways. By some scholars, Saevo is thought to be the mountainous Norwegian coast at the entrance to Skagerrak and the Cimbrian peninsula is thought to be Skagen, the north tip of Jutland, Denmark. As described, Saevo and Scatinavia can also be the same place.[PARAGRAPH:1]Pliny mentions Scandinavia one more time: in Book VIII he says that the animal called achlis (given in the accusative, achlin, which is not Latin) was born on the island of Scandinavia. The animal grazes, has a big upper lip and some mythical attributes.[PARAGRAPH:1]The name Scandia, later used as a synonym for Scandinavia, also appears in Pliny's Naturalis Historia (Natural History), but is used for a group of Northern European islands which he locates north of Britannia. Scandia thus does not appear to be denoting the island Scadinavia in Pliny's text. The idea that Scadinavia may have been one of the Scandiae islands was instead introduced by Ptolemy (c. 90 - c. 168 AD), a mathematician, geographer and astrologer of Roman Egypt. He used the name Skandia for the biggest, most easterly of the three Scandiai islands, which according to him were all located east of Jutland.[PARAGRAPH:2]The Viking age in Scandinavia lasted from approximately 793-1066 AD and saw Scandinavians participate in large scale raiding, colonization, conquest and trading throughout Europe and beyond. The period saw a big expansion of Scandinavian-conquered territory and of exploration. Utilizing their advanced longships, they reached as far as North America, being the first Europeans to do so. During this time Scandinavians were drawn to wealthy towns, monasteries and petty kingdoms overseas in places such as the British Isles, Ireland, the Baltic coast and Normandy, all of which made profitable targets for raids. Scandinavians, primarily from modern day Sweden, known as Varangians also ventured east into what is now Russia raiding along river trade routes. During this period unification also took place between different Scandinavian kingdoms culminating in the peak of the North Sea Empire which included large parts of Scandinavia and Great Britain.[PARAGRAPH:1]This expansion and conquest led to the formation of several kingdoms, earldoms and settlements throughout Europe such as the Kingdom of the Isles, Earldom of Orkney, Scandinavian York, Danelaw, Kingdom of Dublin, the Duchy of Normandy and the Kievan Rus'. The Faroe Islands, Iceland and Greenland were also settled by the Scandinavians during this time. The Normans, Rus' people, Faroe Islanders, Icelanders and Norse-Gaels all emerged from these Scandinavian expansions.[PARAGRAPH:2]During a period of Christianization and state formation in the 10th-13th centuries, numerous Germanic petty kingdoms and chiefdoms were unified into three kingdoms:[PARAGRAPH:1]- Denmark, forged from the lands of Denmark (including Jutland, Zealand and Scania (Sk�neland) on the Scandinavian Peninsula)[PARAGRAPH:1]- Sweden, forged from the lands of Sweden on the Scandinavian Peninsula (including most of modern Finland, but excluding the provinces Bohusl�n, H�rjedalen, J�mtland and Idre and S�rna, Halland, Blekinge and Scania of modern-day Sweden)[PARAGRAPH:1]- Norway (including Bohusl�n, H�rjedalen, J�mtland and Idre and S�rna on the Scandinavian Peninsula and its island colonies Iceland, Greenland, Faroe Islands, Shetland, Orkney, Isle of Man and the Hebrides)[PARAGRAPH:1]According to historian Sverre Bagge, the division into three Scandinavian kingdoms (Denmark, Sweden, Norway) makes sense geographically, as forests, mountains, and uninhabited land divided them from one another. Control of Norway was enabled through seapower, whereas control of the great lakes in Sweden enabled control of the kingdom, and control of Jutland was sufficient to control Denmark. The most contested area was the coastline from Oslo to �resund, where the three kingdoms met.[PARAGRAPH:1]The three Scandinavian kingdoms joined in 1397 in the Kalmar Union under Queen Margaret I of Denmark. Sweden left the union in 1523 under King Gustav I of Sweden. In the aftermath of Sweden's secession from the Kalmar Union, civil war broke out in Denmark and Norway - the Protestant Reformation followed. When things had settled, the Norwegian privy council was abolished - it assembled for the last time in 1537. A personal union, entered into by the kingdoms of Denmark and Norway in 1536, lasted until 1814. Three sovereign successor states have subsequently emerged from this unequal union: Denmark, Norway and Iceland.[PARAGRAPH:1]The borders between Denmark, Norway and Sweden acquired their present shape in the middle of the 17th century: In the 1645 Treaty of Br�msebro, Denmark-Norway ceded the Norwegian provinces of J�mtland, H�rjedalen and Idre and S�rna, as well as the Baltic Sea islands of Gotland and �sel (in Estonia) to Sweden. The Treaty of Roskilde, signed in 1658, forced Denmark-Norway to cede the Danish provinces Scania, Blekinge, Halland, Bornholm and the Norwegian provinces of B�huslen and Tr�ndelag to Sweden. The 1660 Treaty of Copenhagen forced Sweden to return Bornholm and Tr�ndelag to Denmark-Norway, and to give up its recent claims to the island Funen.[PARAGRAPH:1]In the east, Finland was a fully incorporated part of Sweden from medieval times until the Napoleonic wars, when it was ceded to Russia. Despite many wars over the years since the formation of the three kingdoms, Scandinavia has been politically and culturally close.[PARAGRAPH:2]Denmark-Norway as a historiographical name refers to the former political union consisting of the kingdoms of Denmark and Norway, including the Norwegian dependencies of Iceland, Greenland and the Faroe Islands. The corresponding adjective and demonym is Dano-Norwegian. During Danish rule, Norway kept its separate laws, coinage and army as well as some institutions such as a royal chancellor. Norway's old royal line had died out with the death of Olav IV in 1387, but Norway's remaining a hereditary kingdom became an important factor for the Oldenburg dynasty of Denmark-Norway in its struggles to win elections as kings of Denmark.[PARAGRAPH:1]The Treaty of Kiel (14 January 1814) formally dissolved the Dano-Norwegian union and ceded the territory of Norway proper to the King of Sweden, but Denmark retained Norway's overseas possessions. However, widespread Norwegian resistance to the prospect of a union with Sweden induced the governor of Norway, crown prince Christian Frederick (later Christian VIII of Denmark), to call a constituent assembly at Eidsvoll in April 1814. The assembly drew up a liberal constitution and elected Christian Frederick to the throne of Norway. Following a Swedish invasion during the summer, the peace conditions of the Convention of Moss (14 August 1814) specified that king Christian Frederik had to resign, but Norway would keep its independence and its constitution within a personal union with Sweden. Christian Frederik formally abdicated on 10 August 1814 and returned to Denmark. The Norwegian parliament Storting elected king Charles XIII of Sweden as king of Norway on 4 November.[PARAGRAPH:1]The Storting dissolved the union between Sweden and Norway in 1905, after which the Norwegians elected Prince Charles of Denmark as king of Norway: he reigned as Haakon VII.[PARAGRAPH:2]Measured in per capita GDP, the Nordic countries are among the richest in the world. There is a generous welfare system in Denmark, Finland, Iceland, Norway and Sweden. These economies have been marked by large public sectors, extensive and generous welfare systems, a high level of taxation and considerable state involvement.</English>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index ce1a10d64..bfaf05a0a 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -4521,9 +4521,7 @@
+ 			<!-- advc.200: was PROMOTION_FIRST_STRIKE4 in K-Mod; reverted -->
+ 			<!-- custom: extend eligible prerequired promotions, was NONE -->
+ 			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
+-			<!-- custom: no reason to go so far in tech tree to require it,
+-			make it to the wheel for example, where roads are discovered,
+-			may make more sense, was TECH_MILITARY_SCIENCE-->
++			<!-- custom: no reason to go so far in tech tree to require it, make it to the wheel for example, where roads are discovered, may make more sense, was TECH_MILITARY_SCIENCE -->
+ 			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index ac1743ef6..3435601fb 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -87,6 +87,15 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_AIRSHIP</DefaultUnit>
+ 		</UnitClassInfo>
++		<UnitClassInfo>
++			<Type>UNITCLASS_ROBOTIC_RECON_DRONE</Type>
++			<Description>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Description>
++			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
++			<iMaxTeamInstances>-1</iMaxTeamInstances>
++			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<iInstanceCostModifier>0</iInstanceCostModifier>
++			<DefaultUnit>UNIT_ROBOTIC_RECON_DRONE</DefaultUnit>
++		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_SPY</Type>
+ 			<Description>TXT_KEY_UNIT_SPY</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt b/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+index 058f09223..41a41de03 100644
+--- a/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
++++ b/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+@@ -18,7 +18,7 @@ for example for the ancient maceman:
+ 10 stregth = iAsset value of 10
+ for example for the archer
+ 6 strength = iAsset value of 6
+---->
++-->
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 7fc693670..86db47da8 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2482,7 +2482,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_RECON_DRONE</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -2662,7 +2667,245 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: use a spy dedicated txt key entry to remove much of the unclear or potentially mistaken information. We only want the relevant info about the spy as a unit, not the whole espionnage concept. Also solves some display issues in the sevopedia history panel of this unit. -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_RECON_DRONE, type: UNIT_ROBOTIC_RECON_DRONE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_ROBOTIC_RECON_DRONE</Class>
++			<Type>UNIT_ROBOTIC_RECON_DRONE</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<!-- custom: was UNITCOMBAT_AIR -->
++			<Combat>UNITCOMBAT_RECON</Combat>
++			<!-- custom: make the unit walk, and on all terrains, hack it to be this way by giving it (solution to do this advised by ChatGPT), new combat type and domain, was DOMAIN_AIR -->
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or/and relevant this way anyways etc, was INVISIBLE_SUBMARINE -->
++			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Description>
++			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<!-- custom: defensive unit, not an attack drone -->
++			<bOnlyDefensive>1</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>0</bMilitaryHappiness>
++			<!-- custom: like other/most if not all anyways etc robotic units anyways etc -->
++			<bMilitarySupport>0</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>0</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<!-- custom: make this unit invisible so it is a great late game scouting unit anyways etc -->
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<!-- custom: was 0 -->
++			<bCanMoveImpassable>1</bCanMoveImpassable>
++			<!-- custom: was 0 -->
++			<bCanMoveAllTerrain>1</bCanMoveAllTerrain>
++			<bFlatMovementCost>1</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades/>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<!-- custom: replace with the unit_explorer's unitais now that this unit is a recon unit anyways etc -->
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<PrereqTech>TECH_AI</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<!-- custom: like other/most if not all anyways etc robotic units anyways etc -->
++			<BonusType>BONUS_ALUMINUM</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>120</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>2</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<!-- custom: now the airship is a domain_land unit, so disabling it now for this unit, based on / done in accordance with if i may say too but anyways etc chatgpt's explanation anyways etc, was 8 -->
++			<iAirRange>0</iAirRange>
++			<!-- custom: was 1 -->
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<!-- custom: do not make it weaker than unit_explorer it is an upgrade of, also simulate some sort of modest defense if someone has a gun or something on the unit, as for iaircombat and iaircombatlimit fields, disabling them as per chatgpt's recommendation after asking it anyways etc, was 0 0 4 20 ; also give it just enough attack so it can manage against land units a bit, but do not make it an offensive unit in any way anyways etc -->
++			<iCombat>10</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>4</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>40</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods/>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>0</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>3</iAsset>
++			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think soemone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
++			<iPower>5</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>1</iGroupSize>
++				<fMaxSpeed>0.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>1</iMeleeWaveSize>
++				<iRangedWaveSize>1</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ROBOTIC_RECON_DRONE</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_SENTRY</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT2</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_SPY, type: UNIT_SPY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_SPY</Class>
+ 			<Type>UNIT_SPY</Type>
+@@ -2675,6 +2918,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_SPY</Description>
++			<!-- custom: use a spy dedicated txt key entry to remove much of the unclear or potentially mistaken information. We only want the relevant info about the spy as a unit, not the whole espionnage concept. Also solves some display issues in the sevopedia history panel of this unit. -->
+ 			<Civilopedia>TXT_KEY_SPY_UNIT_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_UNIT_SPY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+@@ -5254,7 +5498,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+-				<!-- custom: warriors are valuable as city defenders too-->
++				<!-- custom: warriors are valuable as city defenders too -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -9486,7 +9730,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: should not be needed but just in case-->
++				<!-- custom: should not be needed but just in case -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_SPY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -13142,7 +13386,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>NONE</BonusType>
++			<!-- custom: make most robotic units require aluminium, is a quite nice way to limit them and stimulate competition over bonuses at later stages of the game at least in this case anyways etc -->
++			<BonusType>BONUS_ALUMINUM</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 799409459..4574927f0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -198,7 +198,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer, (now also added the airship, see below anyways etc)), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
+ - some units are now in another combat type, for example as of now the mechanized_infantry is now in armored units, not in gun units anymore.
+-- This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken. Also for example the anti tank infantry and the gunship would now be strong against mechanized infantry if i am not mistaken for example too as of now at least it would be so if i am not mistaken anyways etc. The airship is now a recon unit, not an air unit anymore, meant to be a defensive more effective recon unit than the explorer, see sevopedia unit for updated values anyways etc.
++- This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken. Also for example the anti tank infantry and the gunship would now be strong against mechanized infantry if i am not mistaken for example too as of now at least it would be so if i am not mistaken anyways etc. The airship is now a recon unit, not an air unit anymore, meant to be a defensive more effective recon unit than the explorer (also note: the airship as of now cannot see submarines anymore unlike later recon unit(s), see sevopedia unit chart and sevopedia unit of the corresponding units for details), see sevopedia unit for updated values anyways etc.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
+ - fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions but anyways etc, but we (i.e. me but anyways etc xd if i may say but anyways etc...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still ; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well if i am not mistaken but anyways etc) ; also as a result and in line/following this change but anyways etc, as of now collateral damage 1 and 2 promotions are available to all eligible units (which should be all or almost all, see sevopedia promotion or sevopedia unit for details) ; hopefully i am not mistaken in doing so or/and it is helpful or not or yes or etc but anyways etc)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 89b1057b4..1011cdfda 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 1d3414e2b..de19b037f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index b12c927c0..f11d164e9 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index fb923a788..76df71588 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+index ad47db941..fa48bdcf9 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG
+index 3a5f03665..3cb8c87fd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index 58d0d512a..1d5bbe200 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index 70d3d6e36..6159debd3 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+index c3d592cb7..e127f8e58 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=60 embeddedFiles=60 omittedFiles=0 embeddedPatchBytes=96121

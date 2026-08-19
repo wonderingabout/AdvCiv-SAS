@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5100
+# Commit: e00669db510e8baa9c26d9a466b22f3da0e6c9dd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c54bce20216cae4dce88d25f3f2b54467949bcd3
+# Title: bugfix tech_astronomy requiring itself so can never complete + minor balance fix/tweak tech_banking anyways etc - also move tech_banking one column later as...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	Assets/XML/Technologies/CIV4TechInfos.xml
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index f58dbd4a7..fe2ee17e7 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -2908,7 +2908,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<iCost>1200</iCost>
++			<iCost>1500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -2939,7 +2939,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>10</iGridX>
++			<iGridX>11</iGridX>
+ 			<iGridY>14</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3048,7 +3048,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1600</iCost>
++			<iCost>1500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3200,7 +3200,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1600</iCost>
++			<iCost>1500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3262,7 +3262,7 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+-				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
++				<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ASTRONOMY</Sound>
+@@ -5562,7 +5562,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1600</iCost>
++			<iCost>1500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 0901aa301..81f478c37 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2454

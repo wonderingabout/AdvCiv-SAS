@@ -1,0 +1,305 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 259
+# Commit: aafd8b8e991fba5d03ec0dc0d1c865c7de08efd9
+# History segment: K-Mod history
+# Parent used for diff: 7db0a49e9b5fb125b510dcda2acdc5dca7cfa286
+# Title: Made some technical changes for compatibility / consistency.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+39	17	CvGameCoreDLL/CvArtFileMgr.cpp
+4	2	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGameCoreDLL.cpp
+1	8	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+6	6	CvGameCoreDLL/CvPlayerAI.cpp
+7	0	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index 7e1682381..f653d00c1 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -58,7 +58,7 @@ class Cv##name##ArtInfoItem : public CvArtFileMgr::ArtInfoItem \
+ 	void buildMap() { BUILD_INFO_MAP(*ARTFILEMGR.m_map##name##ArtInfos, ARTFILEMGR.get##name##ArtInfo, ARTFILEMGR.getNum##name##ArtInfos()); } \
+ }; \
+ \
+-static Cv##name##ArtInfoItem g##name##ArtInfoItem; \
++static Cv##name##ArtInfoItem* g##name##ArtInfoItem; \
+ \
+ CvArtInfo##name##* CvArtFileMgr::get##name##ArtInfo( const char *szArtDefineTag ) const \
+ { \
+@@ -91,6 +91,23 @@ void Cv##name##ArtInfoItem::deInit() \
+ } \
+ CvArtInfo##name##& CvArtFileMgr::get##name##ArtInfo(int i) { return *(m_pa##name##ArtInfo[i]); }
+ 
++#define ART_INFO_INST(name) g##name##ArtInfoItem = new  Cv##name##ArtInfoItem();
++
++
++// Macros the declaration of the art file info maps
++ART_INFO_DEFN(Asset);
++ART_INFO_DEFN(Misc);
++ART_INFO_DEFN(Unit);
++ART_INFO_DEFN(Building);
++ART_INFO_DEFN(Civilization);
++ART_INFO_DEFN(Leaderhead);
++ART_INFO_DEFN(Bonus);
++ART_INFO_DEFN(Improvement);
++ART_INFO_DEFN(Terrain);
++ART_INFO_DEFN(Feature);
++ART_INFO_DEFN(Movie);
++ART_INFO_DEFN(Interface);
++
+ //----------------------------------------------------------------------------
+ //
+ //	FUNCTION:	GetInstance()
+@@ -98,10 +115,29 @@ CvArtInfo##name##& CvArtFileMgr::get##name##ArtInfo(int i) { return *(m_pa##name
+ //	PURPOSE:	Get the instance of this class.
+ //
+ //----------------------------------------------------------------------------
++static CvArtFileMgr* gs_ArtFileMgr = NULL;
++
+ CvArtFileMgr& CvArtFileMgr::GetInstance()
+ {
+-	static CvArtFileMgr gs_ArtFileMgr;
+-	return gs_ArtFileMgr;
++	if ( gs_ArtFileMgr == NULL )
++	{
++		gs_ArtFileMgr = new CvArtFileMgr();
++
++		ART_INFO_INST(Asset);
++		ART_INFO_INST(Misc);
++		ART_INFO_INST(Unit);
++		ART_INFO_INST(Building);
++		ART_INFO_INST(Civilization);
++		ART_INFO_INST(Leaderhead);
++		ART_INFO_INST(Bonus);
++		ART_INFO_INST(Improvement);
++		ART_INFO_INST(Terrain);
++		ART_INFO_INST(Feature);
++		ART_INFO_INST(Movie);
++		ART_INFO_INST(Interface);
++	}
++
++	return *gs_ArtFileMgr;
+ }
+ 
+ //----------------------------------------------------------------------------
+@@ -167,17 +203,3 @@ void CvArtFileMgr::buildArtFileInfoMaps()
+ 		m_artInfoItems[i]->buildMap();
+ 	}
+ }
+-
+-// Macros the creation of the art file info maps
+-ART_INFO_DEFN(Asset);
+-ART_INFO_DEFN(Misc);
+-ART_INFO_DEFN(Unit);
+-ART_INFO_DEFN(Building);
+-ART_INFO_DEFN(Civilization);
+-ART_INFO_DEFN(Leaderhead);
+-ART_INFO_DEFN(Bonus);
+-ART_INFO_DEFN(Improvement);
+-ART_INFO_DEFN(Terrain);
+-ART_INFO_DEFN(Feature);
+-ART_INFO_DEFN(Movie);
+-ART_INFO_DEFN(Interface);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1892d6da2..f83f83c50 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -421,7 +421,7 @@ void CvCityAI::AI_updateAssignWork()
+ 
+ bool CvCityAI::AI_avoidGrowth()
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	if (AI_isEmphasizeAvoidGrowth())
+ 	{
+@@ -9648,6 +9648,7 @@ void CvCityAI::AI_juggleCitizens()
+ 				// ... that suggests we should break now to avoid getting into an endless loop.
+ 
+ 				//FAssertMsg(false, "circuit break"); // (for testing)
++				PROFILE("juggle citizen circuit break"); // testing... (I want to know how often this happens)
+ 
+ 				// Note: what tends to happen is that when the city evaluates stopping work on a food tile,
+ 				// it assumes that the citizen will go on to work some other 2-food plot.
+@@ -9707,7 +9708,8 @@ void CvCityAI::AI_juggleCitizens()
+ 		if (iCycles > getPopulation() + iTotalFreeSpecialists)
+ 		{
+ 			// This isn't a serious problem. I just want to know how offen it happens.
+-			FAssertMsg(false, "juggle citizens failed to find a stable solution.");
++			//FAssertMsg(false, "juggle citizens failed to find a stable solution.");
++			PROFILE("juggle citizen failure");
+ 			break;
+ 		}
+ 		iCycles++;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b70f43504..1036b76cc 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6178,6 +6178,7 @@ void CvGame::doGlobalWarming()
+ */
+ void CvGame::doGlobalWarming()
+ {
++	PROFILE_FUNC();
+ 	/*
+ 	** Calculate change in GW index
+ 	*/
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 43fdd5063..2cc2c89cc 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -35,8 +35,7 @@ void DumpMemUsage(const char* fn, int line)
+ #define	PROFILE_TRACK_DEALLOC(x)
+ #endif
+ 
+-static allocCount = 0;
+-
++#ifdef USE_MEMMANAGER // K-Mod. There is a similar #ifdef in the header file, so I assume it's meant to be here as well...
+ //
+ // operator global new and delete override for gamecore DLL 
+ //
+@@ -145,6 +144,7 @@ unsigned int memSize(void* a)
+ {
+ 	return gDLL->memSize(a);
+ }
++#endif // K-Mod
+ 
+ BOOL APIENTRY DllMain(HANDLE hModule, 
+ 					  DWORD  ul_reason_for_call,
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 168733a52..f2112ac94 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1516,14 +1516,6 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		}
+ 	}
+ 
+-	// lets try this without cheating, shall we?
+-	if (!pToPlot->isRevealed(eTeam, false))
+-	{
+-		//return PATH_MOVEMENT_WEIGHT * iWorstMaxMoves;
+-		// just a couple of minor adjustments...
+-		iWorstCost = PATH_MOVEMENT_WEIGHT * iWorstMaxMoves;
+-	}
+-
+ 	iWorstCost += PATH_STEP_WEIGHT;
+ 
+ 	// K-Mod note: it's actually marginally better strategy to move diagonally - for mapping reasons.
+@@ -1541,6 +1533,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 			iWorstCost += PATH_STRAIGHT_WEIGHT;
+ 	}
+ 
++	// lets try this without cheating, shall we?
+ 	if (!pToPlot->isRevealed(eTeam, false))
+ 		return iWorstCost;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8b1cb217c..ea92cc79b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3861,7 +3861,7 @@ bool CvPlayer::hasAutoUnit() const
+ 
+ bool CvPlayer::hasBusyUnit() const
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC();
+ 
+ 	CvSelectionGroup* pLoopSelectionGroup;
+ 	int iLoop;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f06f05019..44f711385 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20142,11 +20142,11 @@ void CvPlayerAI::AI_calculateAverages()
+ 		int iPopulation = std::max(pLoopCity->getPopulation(), NUM_CITY_PLOTS);
+ 		iTotalPopulation += iPopulation;
+ 			
+-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 		{
+ 			m_aiAverageYieldMultiplier[iI] += iPopulation * pLoopCity->AI_yieldMultiplier((YieldTypes)iI);
+ 		}
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+ 			m_aiAverageCommerceMultiplier[iI] += iPopulation * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI);
+ 		}
+@@ -20185,7 +20185,7 @@ void CvPlayerAI::AI_calculateAverages()
+ 
+ 	//Calculate Exchange Rate
+ 
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		m_aiAverageCommerceExchange[iI] = 0;		
+ 	}
+@@ -20199,20 +20199,20 @@ void CvPlayerAI::AI_calculateAverages()
+ 		iTotalCommerce += iCommerce;
+ 		
+ 		int iExtraCommerce = 0;
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+ 			iExtraCommerce +=((pLoopCity->getSpecialistPopulation() + pLoopCity->getNumGreatPeople()) * getSpecialistExtraCommerce((CommerceTypes)iI));
+ 			iExtraCommerce += (pLoopCity->getBuildingCommerce((CommerceTypes)iI) + pLoopCity->getSpecialistCommerce((CommerceTypes)iI) + pLoopCity->getReligionCommerce((CommerceTypes)iI) + getFreeCityCommerce((CommerceTypes)iI));
+ 		}
+ 		iTotalCommerce += iExtraCommerce;
+ 		
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+ 			m_aiAverageCommerceExchange[iI] += ((iCommerce + iExtraCommerce) * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI)) / 100;		
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		if (m_aiAverageCommerceExchange[iI] > 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 12c49c0cc..db8d2a439 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2816,13 +2816,20 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
+ 		return GC.getMOVE_DENOMINATOR();
+ 	}
+ 
++	/* original bts code
+ 	if (pUnit->isHuman())
+ 	{
+ 		if (!isRevealed(pUnit->getTeam(), false))
+ 		{
+ 			return pUnit->maxMoves();
+ 		}
++	} */
++	// K-Mod. Why let the AI cheat this?
++	if (!isRevealed(pUnit->getTeam(), false))
++	{
++		return pUnit->maxMoves();
+ 	}
++	// K-Mod end
+ 
+ 	if (!pFromPlot->isValidDomainForLocation(*pUnit))
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=8985

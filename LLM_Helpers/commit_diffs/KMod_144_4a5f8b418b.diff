@@ -1,0 +1,203 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 144
+# Commit: 4a5f8b418b2ea9da2d64d5da1e3460dba02f9b0d
+# History segment: K-Mod history
+# Parent used for diff: abdfb7a8480b2a5248ee3d6d1644480ec4c3c8cf
+# Title: Fixed an original BtS bug which caused AI civs to be more much likely to split their empire when they run high culture or high espionage. Redesigned some of...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	0	CvGameCoreDLL/CvCityAI.cpp
+5	0	CvGameCoreDLL/CvPlayer.cpp
+40	14	CvGameCoreDLL/CvPlayerAI.cpp
+10	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 0e22a3d09..68c65950f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10576,9 +10576,20 @@ int CvCityAI::AI_cityValue() const
+     
+ 	int iValue = 0;
+ 	
++	/* original bts code
+ 	iValue += getCommerceRateTimes100(COMMERCE_GOLD);
+ 	iValue += getCommerceRateTimes100(COMMERCE_RESEARCH);
++	iValue += 100 * getYieldRate(YIELD_PRODUCTION); */
++	// K-Mod. The original code fails completely for civs using high espionage or high culture.
++	// I'm going to use a similar technique for what I did with the fincial trouble code.
++	const CvPlayer& kOwner = GET_PLAYER(getOwner());
++	if (kOwner.getCommercePercent(COMMERCE_GOLD) == 0)
++		return 0; // I assume, based on the code above, that "zero" means the city is good enough to keep.
++	iValue += 100 * getCommerceRateTimes100(COMMERCE_GOLD) / kOwner.getCommercePercent(COMMERCE_GOLD);
+ 	iValue += 100 * getYieldRate(YIELD_PRODUCTION);
++	//iValue -= 3 * calculateColonyMaintenanceTimes100(); // original bts code
++	iValue -= 2 * calculateColonyMaintenanceTimes100();
++	// K-Mod end
+ 
+ /*
+ ** K-Mod, 30/oct/10, Karadoc
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c0e8470a9..2e63b0ef2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14304,6 +14304,11 @@ bool CvPlayer::canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes
+ 		return false;
+ 	}
+ 
++	// K-Mod. Bugfix
++	if (pUnit && pPlot && !pUnit->canEspionage(pPlot, false))
++		return false;
++	// K-Mod end
++
+ 	CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
+ 
+ 	// Need Tech Prereq, if applicable
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f8ffb4d98..aa6c57de9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1,5 +1,7 @@
+ // playerAI.cpp
+ 
++#include <set> // K-Mod
++
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayerAI.h"
+ #include "CvRandom.h"
+@@ -17224,7 +17226,7 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 	// In the future, I might decide to adjust the high culture based on era and such.
+ 	int iLegendaryCulture = GC.getGame().getCultureThreshold((CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1));
+ 	int iHighCultureMark = iLegendaryCulture / std::max(1, 2 * GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent());
+-	int iLowestCountdown = INT_MAX;
++	std::multiset<int> countdownList;
+ 	int iVictoryCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+ 	// K-Mod end
+ 
+@@ -17239,8 +17241,7 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 			int iEstimatedRate = pLoopCity->getCommerceRate(COMMERCE_CULTURE);
+ 			iEstimatedRate -= getCommercePercent(COMMERCE_CULTURE) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+ 			iEstimatedRate += (100 - getCommercePercent(COMMERCE_GOLD)) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+-			int iCountdown = (iLegendaryCulture - pLoopCity->getCulture(getID())) / std::max(1, iEstimatedRate);
+-			iLowestCountdown = std::min(iCountdown, iLowestCountdown);
++			countdownList.insert((iLegendaryCulture - pLoopCity->getCulture(getID())) / std::max(1, iEstimatedRate));
+ 			if (iEstimatedRate > iHighCultureMark)
+ 			{
+ 				iHighCultureCount++;
+@@ -17312,8 +17313,8 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 	iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
+ 	
+ 	// K-Mod
+-	iValue += 30 * std::min(iCloseToLegendaryCount, iVictoryCities*2);
+-	iValue += 10 * std::min(iHighCultureCount, iVictoryCities*2);
++	iValue += 30 * std::min(iCloseToLegendaryCount, iVictoryCities + 1);
++	iValue += 10 * std::min(iHighCultureCount, iVictoryCities + 1);
+ 	// K-Mod end
+ 	if( iValue > 20 && getNumCities() >= iVictoryCities )
+ 	{
+@@ -17358,6 +17359,14 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 		return 0;
+ 	}
+ 
++	int iWinningCountdown = INT_MAX;
++	if ((int)countdownList.size() >= iVictoryCities)
++	{
++		std::multiset<int>::iterator it = countdownList.begin();
++		for (int i = 0; i < iVictoryCities-1; ++i, ++it)
++			;
++		iWinningCountdown = *it;
++	}
+     if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2)))
+     {
+ 		bool bAt3 = false;
+@@ -17380,20 +17389,37 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 
+ 		if( bAt3 )
+ 		{
+-			//if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
++			/* original code
++			if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
++			{
++				return 4;
++			}*/
+ 			// K-Mod
+-			int iCountdownTarget = 200;
+-			iCountdownTarget -=  50 * AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3);
+-			iCountdownTarget -=  50 * AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3);
+-			iCountdownTarget -=  80 * AI_isDoVictoryStrategy(AI_VICTORY_SPACE3);
+-			iCountdownTarget *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
+-			iCountdownTarget /= 100;
++			int iCountdownTarget = 180;
++			{
++				int iDemoninator = 100;
++				iDemoninator += 50 * AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST2);
++				iDemoninator += 50 * AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3);
++				iDemoninator += 80 * AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3);
++				iDemoninator += 70 * AI_isDoVictoryStrategy(AI_VICTORY_SPACE2);
++				iDemoninator += 70 * AI_isDoVictoryStrategy(AI_VICTORY_SPACE3);
++				iDemoninator += AI_cultureVictoryTechValue(getCurrentResearch()) > 100 ? 80 : 0;
++				iDemoninator += AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS)? 80 : 0;
++				iDemoninator += GET_TEAM(getTeam()).getAnyWarPlanCount(true)>0 ? 30 : 0;
++				int iWarRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
++				iDemoninator += iWarRatio < 0 ? -2*iWarRatio : 0;
++				// and a little bit of personal variation.
++				iDemoninator += 50 - GC.getLeaderHeadInfo(getPersonalityType()).getCultureVictoryWeight();
++
++				iCountdownTarget *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
++				iCountdownTarget /= iDemoninator;
++			}
+ 			// Note: culture 4 is blocked completely by 4 in any of those other strategies.
+-			if (iLowestCountdown < iCountdownTarget
+-				&& AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
++			if (iWinningCountdown < iCountdownTarget)
+ 			{
+ 				return 4;
+ 			}
++			// K-Mod end
+ 
+ 			return 3;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3e4ce7796..e50b6cfdf 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5490,6 +5490,11 @@ void CvUnitAI::AI_spyMove()
+ 					if (atPlot(pMissionPlot))
+ 					{
+ 						// stay here for a few turns.
++						if (hasMoved())
++						{
++							getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_SPY, pMissionPlot);
++							return;
++						}
+ 						if (GC.getGame().getSorenRandNum(6, "AI Spy continue guarding") > 0)
+ 						{
+ 							getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_SPY, pMissionPlot);
+@@ -5521,6 +5526,11 @@ void CvUnitAI::AI_spyMove()
+ 							return;
+ 						}
+ 					}
++					else if (hasMoved())
++					{
++						getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
++						return;
++					}
+ 				}
+ 				break;
+ 			case MISSIONAI_EXPLORE:
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7389

@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 256
+# Commit: 1a796ac808a96befbff07b6cc446f2f7b4d6bc79
+# History segment: K-Mod history
+# Parent used for diff: ff0cd94e93a2672050f0dd3cafa376599a20496e
+# Title: Fixed a bug in the new air strike AI which could sometimes cause the game to crash. This is version 1.04b.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	5	CvGameCoreDLL/CvCityAI.cpp
+7	0	CvGameCoreDLL/CvGame.cpp
+7	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+5	2	CvGameCoreDLL/CvUnitAI.cpp
+2	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index fc78371a9..7449ff425 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -632,11 +632,9 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 			int iCityRate = getGreatPeopleRate();
+ 			int iHighestRate = 0;
+ 			int iLoop;
+-			for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
++			for (CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+ 			{
+-				int x = pLoopCity->getGreatPeopleRate();
+-				if (x > iHighestRate)
+-					iHighestRate = x;
++				iHighestRate = std::max(iHighestRate, pLoopCity->getGreatPeopleRate());
+ 			}
+ 			if (iHighestRate > iCityRate)
+ 			{
+@@ -5466,7 +5464,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 							// (I'm trying to boost the chance that the AI will put wallstreet with its corp HQs.)
+ 							if (iHqValue > 0)
+ 							{
+-								iHqValue *= 3*iNumCities - findCommerceRateRank((CommerceTypes)iI) - getNumNationalWonders();
++								iHqValue *= 3*iNumCities - findCommerceRateRank((CommerceTypes)iI) - getNumNationalWonders()/2;
+ 								iHqValue /= 2*iNumCities;
+ 							}
+ 							iCorpValue += iHqValue;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9a3c7c861..935ad6817 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5963,6 +5963,13 @@ void CvGame::doTurn()
+ 	{
+ 		changeAIAutoPlay(-1);
+ 
++		// K-Mod
++		if (gDLL->getChtLvl() > 0 && gDLL->altKey() && gDLL->shiftKey() && gDLL->ctrlKey())
++		{
++			setAIAutoPlay(0);
++		}
++		// K-Mod end
++
+ 		if (getAIAutoPlay() == 0)
+ 		{
+ 			reviveActivePlayer();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7b6475c42..089afc36b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2567,7 +2567,7 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 			}
+ 			iWeight *= 2*(iEspBehindWeight+iEspAttackWeight) + 3*iTeamCount/4 + 1;
+ 
+-			iWeight *= AI_getEspionageWeight();
++			iWeight *= isHuman() ? 100 : AI_getEspionageWeight();
+ 			iWeight /= (iLocalTeamCount + iTeamCount)/2 + 1;
+ 			iWeight /= 100;
+ 
+@@ -13139,7 +13139,7 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
+ 	CvCity* pHolyCity = GC.getGameINLINE().getHolyCity(eReligion);
+ 	if (pHolyCity != NULL && pHolyCity->getTeam() == getTeam())
+ 	{
+-		iValue *= 100 + 6 * iReligionFlavor + GC.getGameINLINE().calculateReligionPercent(eReligion);
++		iValue *= 110 + 5 * iReligionFlavor + (10+iReligionFlavor)*GC.getGameINLINE().calculateReligionPercent(eReligion)/10;
+ 		iValue /= 100;
+ 	}
+ 
+@@ -14854,6 +14854,11 @@ void CvPlayerAI::AI_doReligion()
+ 
+ 	if (canConvert(eBestReligion))
+ 	{
++		if (gPlayerLogLevel > 0)
++		{
++			logBBAI("    %S decides to convert to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getReligionInfo(eBestReligion).getDescription(0),
++				eBestReligion == NO_RELIGION ? 0 : AI_religionValue(eBestReligion), getStateReligion() == NO_RELIGION ? 0 : AI_religionValue(getStateReligion()));
++		}
+ 		convert(eBestReligion);
+ 		AI_setReligionTimer((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_CONVERSION_TURNS") * 2) : RELIGION_CHANGE_DELAY);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 9dd2c3911..5b3c74929 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -505,6 +505,7 @@ protected:
+ 	int* m_aiBonusValue;
+ 	int* m_aiUnitClassWeights;
+ 	int* m_aiUnitCombatWeights;
++	//std::vector<int> m_aiGreatPersonWeights; // K-Mod... todo.
+ 
+ 	mutable int* m_aiCloseBordersAttitudeCache;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3fec198d2..222d816dd 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21471,8 +21471,11 @@ bool CvUnitAI::AI_airStrike()
+ 					else
+ 					{
+ 						BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam(), true);
+-						if (eBonus != NO_BONUS && canAirBombAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
+-							iBombValue = GET_PLAYER(pLoopPlot->getOwner()).AI_bonusVal(eBonus, -1) * 2;
++						if (eBonus != NO_BONUS && pLoopPlot->isOwned() && canAirBombAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
++						{
++							iBombValue = GET_PLAYER(pLoopPlot->getOwner()).AI_bonusVal(eBonus, -1);
++							iBombValue += GET_PLAYER(pLoopPlot->getOwner()).AI_bonusVal(eBonus);
++						}
+ 					}
+ 				}
+ 				// factor in air defenses but try to avoid using bestInterceptor, because that's a slow function.
+
+diff --git a/changelog.txt b/changelog.txt
+index 8801944c2..94dbb3249 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 1.04.
++This is K-Mod version 1.04b.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+@@ -11,6 +11,7 @@ v1.04 changelist
+ 
+ + Adjusted the diplomatic behaviour of AI players who are allied with human players. In particular, the AI will no longer refuse to talk to other humans.
+ + Made some more changes ("improvements") to the automatic city citizen allocation system - particularly for the AI.
+++ Rewrote the decision making process for the AI's choice of state religion. It should be a bit less rigid now.
+ + Restructured and simplified the air unit AI, so that now it will be faster - and probably a bit smarter too. (untested)
+ + Fixed and reactivated the attack sections of AI_follow - the main benefit of this is that AI attack stacks will now be able to make better use of the blitz ability of tanks.
+ + Corrected the code which was meant to stop AIs from making peace when aiming for conquest victory. (The first attempt was wrong - it basically did nothing.)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5986

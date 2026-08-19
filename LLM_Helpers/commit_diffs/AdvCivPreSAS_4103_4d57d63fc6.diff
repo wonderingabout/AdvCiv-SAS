@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4103
+# Commit: 4d57d63fc61b0f6749988154f829f9a93b27d247
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2f48e98abb49c52726e5ab8e4d873b18ceeb64b5
+# Title: Capitalization in defensive combat messages
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	4	Assets/XML/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 09edd91da..ef28d8489 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -157,7 +157,7 @@
+ 		 TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW (CIV4GameText_BTS.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT_ODDS</Tag>
+-		<English>While defending, your %s1_UnitName%s4_Strength has killed a %s3_owner_adjective %s2_EnUName (attacker's odds: %s5_Odds%%).</English>
++		<English>While defending, your %s1_UnitName%s4_Strength has killed a %s3_owner_adjective %s2_EnUName (Attacker's Odds: %s5_Odds%%).</English>
+ 		<French>En se d&#233;fendant, votre %s1_UnitName%s4_Strength a &#233;limin&#233; [NUM2:un:une:des:des] %s2_EnUName (%s3_owner_adjective); chances de l'attaquant: %s5_Odds%%.</French>
+ 		<German>Eure Einheit %s1_UnitName%s4_Strength hat w&#228;hrend eines Verteidigungsman&#246;vers eine Einheit %s2_EnUName (%s3_owner_adjective) vernichtet (Chance des Angreifers: %s5_Odds%%).</German>
+ 		<Italian>Difendendo, la tua unit&#224; %s1_UnitName%s4_Strength ha ucciso l'unit&#224; nemica %s2_EnUName (%s3_owner_adjective); prob. dell'attaccante: %s5_Odds%%.</Italian>
+@@ -165,7 +165,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ODDS</Tag>
+-		<English>While defending, your %s1_UnitName%s4_Strength was destroyed by a %s3_owner_adjective %s2_EnUName (attacker's odds: %s5_Odds%%).</English>
++		<English>While defending, your %s1_UnitName%s4_Strength was destroyed by a %s3_owner_adjective %s2_EnUName (Attacker's Odds: %s5_Odds%%).</English>
+ 		<French>En se d&#233;fendant, votre unit&#233; "%s1_UnitName"%s4_Strength a &#233;t&#233; d&#233;truite par [NUM2:un:une:des:des] %s2_EnUName (%s3_owner_adjective); chances de l'attaquant: %s5_Odds%%.</French>
+ 		<German>Eure Einheit %s1_UnitName%s4_Strength wurde w&#228;hrend eines Verteidigungsman&#246;vers von einer Einheit %s2_EnUName (%s3_owner_adjective) vernichtet (Chance des Angreifers: %s5_Odds%%).</German>
+ 		<Italian>Difendendo, la tua unit&#224; %s1_UnitName%s4_Strength &#232; stata distrutta dall'unit&#224; nemica %s2_EnUName (%s3_owner_adjective); prob. dell'attaccante: %s5_Odds%%.</Italian>
+@@ -173,7 +173,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW_ODDS</Tag>
+-		<English>A %s1_EnUName has withdrawn (odds: %s4_Odds%%) from combat with your %s2_UnitName%s3_Strength.</English>
++		<English>A %s1_EnUName has withdrawn (Odds: %s4_Odds%%) from combat with your %s2_UnitName%s3_Strength.</English>
+ 		<French>L'unit&#233; de combat ennemie (%s1_EnUName) a fui le combat face &#224; votre %s2_UnitName%s3_Strength; chances de survie �taient: %s4_Odds%%.</French>
+ 		<German>Eine Einheit %s1_EnUName hat im Kampf gegen Eure Einheit %s2_UnitName%s3_Strength den R&#252;ckzug angetreten (�berlebenschance betrug %s4_Odds%%).</German>
+ 		<Italian>L'unit&#224; nemica %s1_EnUName si &#232; ritirata  (prob. di sopravvivenza: %s4_Odds%%) dal combattimento contro la tua unit&#224; %s2_UnitName%s3_Strength.</Italian>
+@@ -182,7 +182,7 @@
+ 	<!-- Based on TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN (CIV4GameText_BTS.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN_ODDS</Tag>
+-		<English>While defending, your %s1_UnitName%s3_Strength was destroyed by a %s2_EnUName (attacker's odds: %s4_Odds%%).</English>
++		<English>While defending, your %s1_UnitName%s3_Strength was destroyed by a %s2_EnUName (Attacker's Odds: %s4_Odds%%).</English>
+ 		<French>En se d&#233;fendant, votre unit&#233; "%s1_UnitName"%s3_Strength a &#233;t&#233; d&#233;truite par l'unit&#233; ennemie : %s2_EnUName (chances de l'attaquant: %s4_Odds%%).</French>
+ 		<German>Eure Einheit %s1_UnitName%s3_Strength wurde w&#228;hrend eines Verteidigungsman&#246;vers von einer Einheit %s2_EnUName vernichtet (Chance des Angreifers: %s5_Odds%%).</German>
+ 		<Italian>Difendendo, la tua unit&#224; %s1_UnitName%s3_Strength &#232; stata distrutta dall'unit&#224; nemica %s2_EnUName (prob. dell'attaccante: %s5_Odds%%).</Italian>
+@@ -7048,4 +7048,6 @@
+ 		<Spanish>&#161;%[s2_UnitName] de %[s1_CivName] ha vencido a %[s4_UnitName] de %[s3_CivName]!</Spanish>
+ 	</TEXT>
+ 
++	
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4224

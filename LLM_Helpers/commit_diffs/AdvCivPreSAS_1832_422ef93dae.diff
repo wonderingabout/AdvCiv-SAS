@@ -1,0 +1,1036 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1832
+# Commit: 422ef93dae8de725d9db9e6d394d77c9b829c1a2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cb71ee53fb9b568570dfc45c96293fc47f9e9a86
+# Title: 48-civ DLL can read scenarios created by an 18-civ DLL
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	151	Assets/Python/EntryPoints/CvWBInterface.py
+50	20	Assets/Python/pyWB/CvWBDesc.py
+1	1	CvGameCoreDLL/AgentIterator.cpp
+4	1	CvGameCoreDLL/CvDefines.h
+2	2	CvGameCoreDLL/CvGame.cpp
+4	6	CvGameCoreDLL/CvInitCore.cpp
+12	15	CvGameCoreDLL/CvPlayer.cpp
+2	4	CvGameCoreDLL/CvPlayerAI.cpp
+5	1	CvGameCoreDLL/CvTeam.cpp
+2	0	CvGameCoreDLL/CvTeam.h
+159	13	CvGameCoreDLL/CvTeamAI.cpp
+4	2	CvGameCoreDLL/CvTeamAI.h
+5	133	CvGameCoreDLL/WarAndPeaceAgent.cpp
+1	5	CvGameCoreDLL/WarAndPeaceAgent.h
+5	0	CvGameCoreDLL/WarAndPeaceCache.cpp
+1	0	CvGameCoreDLL/WarAndPeaceCache.h
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+ delete mode 100644 Assets/Python/EntryPoints/CvWBInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvWBInterface.py b/Assets/Python/EntryPoints/CvWBInterface.py
+deleted file mode 100644
+index 4456dd139..000000000
+--- a/Assets/Python/EntryPoints/CvWBInterface.py
++++ /dev/null
+@@ -1,151 +0,0 @@
+-## Sid Meier's Civilization 4
+-## Copyright Firaxis Games 2005
+-from CvPythonExtensions import *
+-import CvWBPopups
+-import CvUtil
+-import CvWBDesc
+-
+-# globals
+-WBDesc = CvWBDesc.CvWBDesc()
+-lastFileRead = None
+-gc = CyGlobalContext()
+-
+-def writeDesc(argsList):
+-	"Save out a high-level desc of the world, for WorldBuilder"
+-	fileName = argsList[0]
+-	global lastFileRead
+-	lastFileRead=None
+-	return WBDesc.write(fileName)
+-
+-def readAndApplyDesc(argsList):
+-	"Read in and apply a high-level desc of the world.  In-game load only"
+-	fileName = argsList[0]
+-	if WBDesc.read(fileName) < 0:
+-		return -1
+-	if (WBDesc.applyMap() < 0):
+-		return -1
+-	return WBDesc.applyInitialItems()
+-
+-def readDesc(argsList):
+-	"Read in a high-level desc of the world, for WorldBuilder.  Must call applyMap and applyInitialItems to finish the process"
+-	global lastFileRead
+-	fileName = argsList[0]
+-	if (fileName!=lastFileRead):
+-		ret=WBDesc.read(fileName)
+-		if (ret==0):
+-			lastFileRead=fileName
+-	else:
+-		ret=0
+-	return ret
+-
+-def applyMapDesc():
+-	"After reading, applies the map loaded data"
+-	return WBDesc.applyMap()
+-
+-def applyInitialItems():
+-	"After reading, applies player units, cities, and techs"
+-	return WBDesc.applyInitialItems()
+-
+-def getAssignedStartingPlots():
+-	"Reads in starting plots for random players"
+-	return WBDesc.getAssignedStartingPlots()
+-
+-def initWBEditor(argsList):
+-	"Called from the Worldbuilder app - sends to CvWBPopups for handling"
+-	return CvWBPopups.CvWBPopups().initWB(argsList)
+-
+-def getGameData():
+-	"after reading a save file, return game/player data as a tuple"
+-	t=()
+-	gameTurn = WBDesc.gameDesc.gameTurn
+-	maxTurns = WBDesc.gameDesc.maxTurns
+-	maxCityElimination = WBDesc.gameDesc.maxCityElimination
+-	numAdvancedStartPoints = WBDesc.gameDesc.numAdvancedStartPoints
+-	targetScore = WBDesc.gameDesc.targetScore
+-	worldSizeType = CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), WBDesc.mapDesc.worldSize)
+-	climateType = CvUtil.findInfoTypeNum(gc.getClimateInfo, gc.getNumClimateInfos(), WBDesc.mapDesc.climate)
+-	seaLevelType = CvUtil.findInfoTypeNum(gc.getSeaLevelInfo, gc.getNumSeaLevelInfos(), WBDesc.mapDesc.seaLevel)
+-	eraType = CvUtil.findInfoTypeNum(gc.getEraInfo, gc.getNumEraInfos(), WBDesc.gameDesc.eraType)
+-	gameSpeedType = CvUtil.findInfoTypeNum(gc.getGameSpeedInfo, gc.getNumGameSpeedInfos(), WBDesc.gameDesc.speedType)
+-	calendarType = CvUtil.findInfoTypeNum(gc.getCalendarInfo, gc.getNumCalendarInfos(), WBDesc.gameDesc.calendarType)
+-
+-	t=t+(worldSizeType,)
+-	t=t+(climateType,)
+-	t=t+(seaLevelType,)
+-	t=t+(eraType,)
+-	t=t+(gameSpeedType,)
+-	t=t+(calendarType,)
+-
+-	t=t+(len(WBDesc.gameDesc.options),)
+-	for i in range(len(WBDesc.gameDesc.options)):
+-		option = CvUtil.findInfoTypeNum(gc.getGameOptionInfo, gc.getNumGameOptionInfos(), WBDesc.gameDesc.options[i])
+-		t=t+(option,)
+-
+-	t=t+(len(WBDesc.gameDesc.mpOptions),)
+-	for i in range(len(WBDesc.gameDesc.mpOptions)):
+-		mpOption = CvUtil.findInfoTypeNum(gc.getMPOptionInfo, gc.getNumMPOptionInfos(), WBDesc.gameDesc.mpOptions[i])
+-		t=t+(mpOption,)
+-
+-	t=t+(len(WBDesc.gameDesc.forceControls),)
+-	for i in range(len(WBDesc.gameDesc.forceControls)):
+-		forceControl = CvUtil.findInfoTypeNum(gc.getForceControlInfo, gc.getNumForceControlInfos(), WBDesc.gameDesc.forceControls[i])
+-		t=t+(forceControl,)
+-
+-	t=t+(len(WBDesc.gameDesc.victories),)
+-	for i in range(len(WBDesc.gameDesc.victories)):
+-		victory = CvUtil.findInfoTypeNum(gc.getVictoryInfo, gc.getNumVictoryInfos(), WBDesc.gameDesc.victories[i])
+-		t=t+(victory,)
+-
+-	t=t+(gameTurn,)
+-	t=t+(maxTurns,)
+-	t=t+(maxCityElimination,)
+-	t=t+(numAdvancedStartPoints,)
+-	t=t+(targetScore,)
+-
+-	return t
+-
+-def getModPath():
+-	"Returns the path for the Mod that this scenario should load (if applicable)"
+-	return (WBDesc.gameDesc.szModPath)
+-
+-def getMapDescriptionKey():
+-	"Returns the TXT_KEY Description of the map to be displayed in the map/mod selection screen"
+-	return (WBDesc.gameDesc.szDescription)
+-
+-def isRandomMap():
+-	"If true, this is really a mod, not a scenario"
+-	return (WBDesc.gameDesc.iRandom)
+-
+-def getPlayerData():
+-	"after reading a save file, return player data as a tuple, terminated by -1"
+-	t=()
+-	for i in range(gc.getMAX_CIV_PLAYERS()):
+-		leaderType = CvUtil.findInfoTypeNum(gc.getLeaderHeadInfo, gc.getNumLeaderHeadInfos(), WBDesc.playersDesc[i].leaderType)
+-		civType = CvUtil.findInfoTypeNum(gc.getCivilizationInfo, gc.getNumCivilizationInfos(), WBDesc.playersDesc[i].civType)
+-		handicapType = CvUtil.findInfoTypeNum(gc.getHandicapInfo, gc.getNumHandicapInfos(), WBDesc.playersDesc[i].handicap)
+-		color = CvUtil.findInfoTypeNum(gc.getPlayerColorInfo, gc.getNumPlayerColorInfos(), WBDesc.playersDesc[i].color)
+-		artStyle = gc.getTypesEnum(WBDesc.playersDesc[i].artStyle)
+-
+-		t=t+(civType,)
+-		t=t+(WBDesc.playersDesc[i].isPlayableCiv,)
+-		t=t+(leaderType,)
+-		t=t+(handicapType,)
+-		t=t+(WBDesc.playersDesc[i].team,)
+-		t=t+(color,)
+-		t=t+(artStyle,)
+-		t=t+(WBDesc.playersDesc[i].isMinorNationCiv,)
+-		t=t+(WBDesc.playersDesc[i].isWhiteFlag,)
+-
+-	return t
+-
+-def getPlayerDesc():
+-	"after reading a save file, return player description data (wide strings) as a tuple"
+-	t=()
+-	for i in range(gc.getMAX_CIV_PLAYERS()):
+-		t=t+(WBDesc.playersDesc[i].szCivDesc,)
+-		t=t+(WBDesc.playersDesc[i].szCivShortDesc,)
+-		t=t+(WBDesc.playersDesc[i].szLeaderName,)
+-		t=t+(WBDesc.playersDesc[i].szCivAdjective,)
+-		t=t+(WBDesc.playersDesc[i].szFlagDecal,)
+-
+-	return t
+
+diff --git a/Assets/Python/pyWB/CvWBDesc.py b/Assets/Python/pyWB/CvWBDesc.py
+index b9b716e96..03c871d7c 100644
+--- a/Assets/Python/pyWB/CvWBDesc.py
++++ b/Assets/Python/pyWB/CvWBDesc.py
+@@ -21,9 +21,14 @@ fileencoding = "latin_1"	# aka "iso-8859-1"
+ #############
+ def getPlayer(idx):
+ 	"helper function which wraps get player in case of bad index"
+-	if (gc.getPlayer(idx).isAlive()):
++	#if (gc.getPlayer(idx).isAlive()):
++	#	return gc.getPlayer(idx)
++	#return None
++	# <advc.056> Treat invalid civ ids as the Barbarians
++	if idx < gc.getMAX_CIV_TEAMS() and gc.getPlayer(idx).isAlive():
+ 		return gc.getPlayer(idx)
+-	return None
++	return gc.getPlayer(gc.getBARBARIAN_PLAYER())
++	# </advc.056>
+ 
+ #############
+ class CvWBParser:
+@@ -434,6 +439,7 @@ class CvPlayerDesc:
+ 		self.stateReligion = ""
+ 		self.szStartingEra = ""
+ 		self.bRandomStartLocation = "false"
++		self.bNeverAlive = False # advc.056
+ 
+ 		self.aaiCivics = []
+ 		self.aaiAttitudeExtras = []
+@@ -646,7 +652,10 @@ class CvPlayerDesc:
+ 					#print self.aaiCivics
+ 					#print("Attitudes:")
+ 					#print self.aaiAttitudeExtras
+-					break
++					#break
++					# <advc.056> Same as in CvTeamDesc.read
++					return True
++		return False # </advc.056>
+ 
+ #############
+ class CvUnitDesc:
+@@ -858,8 +867,12 @@ class CvCityDesc:
+ 	def apply(self):
+ 		"after reading, this will actually apply the data"
+ 		player = getPlayer(self.owner)
+-		if (player):
+-			self.city = player.initCity(self.plotX, self.plotY)
++		# <advc.056>
++		if player is None:
++			CvUtil.pyPrint("Error: City owner %d not alive" %(self.owner))
++			return # </advc.056>
++
++		self.city = player.initCity(self.plotX, self.plotY)
+ 
+ 		if (self.name != None):
+ 			self.city.setName(self.name, False)
+@@ -895,9 +908,10 @@ class CvCityDesc:
+ 			self.city.changeFreeSpecialistCount(specialistTypeNum, 1)
+ 
+ 		for iPlayerLoop in range(gc.getMAX_CIV_PLAYERS()):
+-			iPlayerCulture = self.aiPlayerCulture[iPlayerLoop]
+-			if (iPlayerCulture > 0):
+-				self.city.setCulture(iPlayerLoop, iPlayerCulture, true)
++			if gc.getPlayer(iPlayerLoop).isEverAlive(): # advc.056
++				iPlayerCulture = self.aiPlayerCulture[iPlayerLoop]
++				if (iPlayerCulture > 0):
++					self.city.setCulture(iPlayerLoop, iPlayerCulture, true)
+ 
+ 		unitTypeNum = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), self.productionUnit)
+ 		buildingTypeNum = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), self.productionBuilding)
+@@ -1601,7 +1615,9 @@ class CvWBDesc:
+ 
+ 			pPlayer = gc.getPlayer(iPlayerLoop)
+ 			pWBPlayer = self.playersDesc[iPlayerLoop]
+-
++			# <advc.056>
++			if pWBPlayer.bNeverAlive:
++				continue # </advc.056>
+ 			# Random Start Location
+ 			if (pPlayer.getLeaderType() != -1 and pWBPlayer.bRandomStartLocation != "false"):
+ 				pPlayer.setStartingPlot(pPlayer.findStartingPlot(true), True)
+@@ -1697,7 +1713,7 @@ class CvWBDesc:
+ 					# Random Start Location
+ 					if (pWBPlayer.bRandomStartLocation != "false"):
+ 						pPlayer.setStartingPlot(pPlayer.findStartingPlot(true), True)
+-						print("Setting player %d starting location to (%d,%d)", pPlayer.getID(), pPlayer.getStartingPlot().getX(), pPlayer.getStartingPlot().getY())
++						print("Setting player %d starting location to (%d,%d)" % (pPlayer.getID(), pPlayer.getStartingPlot().getX(), pPlayer.getStartingPlot().getY()))
+ 
+ 					# Civics
+ 					for iCivicLoop in range(len(pWBPlayer.aaiCivics)):
+@@ -1754,15 +1770,15 @@ class CvWBDesc:
+ 			# Reveal Fog of War for teams
+ 			for iTeamLoop in range(gc.getMAX_CIV_TEAMS()):
+ 				pTeam = gc.getTeam(iTeamLoop)
+-				if (pWBPlot.abTeamPlotRevealed[iTeamLoop] == 1):
+-
+-					pPlot = CyMap().plot(pWBPlot.iX, pWBPlot.iY)
+-					pPlot.setRevealed(pTeam.getID(), True, False, TeamTypes.NO_TEAM)
++				if pTeam.isEverAlive(): # advc.056
++					if (pWBPlot.abTeamPlotRevealed[iTeamLoop] == 1):
++						pPlot = CyMap().plot(pWBPlot.iX, pWBPlot.iY)
++						pPlot.setRevealed(pTeam.getID(), True, False, TeamTypes.NO_TEAM)
+ 
+ 		# units
+ 		for pDesc in self.plotDesc:
+ 			pDesc.applyUnits()
+-
++		CvUtil.pyPrint("applyInitialItems: done") # advc.056
+ 		return 0	# ok
+ 
+ 	def read(self, fileName):
+@@ -1787,25 +1803,39 @@ class CvWBDesc:
+ 
+ 		print "Reading game desc"
+ 		self.gameDesc.read(f)	# read game info
+-
+ 		print "Reading teams desc"
+ 		filePos = f.tell()
+ 		self.teamsDesc = []
+ 		for i in range(gc.getMAX_CIV_TEAMS()):
+ 			print ("reading team %d" %(i))
+ 			teamsDesc = CvTeamDesc()
+-			if (teamsDesc.read(f)==false):					# read team info
+-				f.seek(filePos)								# abort and backup
++			if teamsDesc.read(f)==False:
++				f.seek(filePos)	# abort and backup
+ 				break
+ 			self.teamsDesc.append(teamsDesc)
++		# <advc.056>
++		for i in range(len(self.teamsDesc), gc.getMAX_CIV_TEAMS()):
++			self.teamsDesc.append(CvTeamDesc()) # </advc.056>
+ 
+ 		print "Reading players desc"
++		filePos = f.tell() # advc.056
+ 		self.playersDesc = []
+ 		for i in range(gc.getMAX_CIV_PLAYERS()):
+ 			playerDesc = CvPlayerDesc()
+-			playerDesc.read(f)				# read player info
++			# <advc.056> Same as for teamsDesc above
++			if playerDesc.read(f)==False:
++				f.seek(filePos)
++				break # </advc.056>
+ 			self.playersDesc.append(playerDesc)
+-
++		# <advc.056>
++		for i in range(len(self.playersDesc), gc.getMAX_CIV_PLAYERS()):
++			deadPlayer = CvPlayerDesc()
++			# (Not sure if it's necessary to assign a team)
++			deadPlayer.team = len(self.playersDesc)
++			deadPlayer.isPlayableCiv = 0
++			deadPlayer.neverAlive = True
++			self.playersDesc.append(deadPlayer)
++		# </advc.056>
+ 		print "Reading map desc"
+ 		self.mapDesc.read(f)	# read map info
+
+diff --git a/CvGameCoreDLL/AgentIterator.cpp b/CvGameCoreDLL/AgentIterator.cpp
+index ef1b8f228..a67e1cef7 100644
+--- a/CvGameCoreDLL/AgentIterator.cpp
++++ b/CvGameCoreDLL/AgentIterator.cpp
+@@ -88,7 +88,7 @@ bool ExplicitAgentIterator<AgentType,eSTATUS,eRELATION>::passFilters(AgentType c
+ 			return false;
+ 		break;
+ 	case MAJOR_CIV:
+-		if (isMinorCiv<args>(kAgent) || !isAlive<args>(kAgent))
++		if (isMinorCiv<args>(kAgent) || !isAlive<args>(kAgent) || isBarbarian<args>(kAgent))
+ 			return false;
+ 		break;
+ 	/*case VASSAL:
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 927f21e01..f9e79ece7 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -47,7 +47,10 @@
+ #define RANDPLOT_WATERSOURCE (0x00000100) // </advc.300>
+ 
+ #ifdef _USRDLL
+-#define MAX_CIV_PLAYERS												(18) // note: default is 18, some people like 48. They are not compatible
++// K-Mod (note): default is 18, some people like 48. They are not compatible.
++/*  advc.056: Scenario (WB) files are now compatible so long as the player ids in the WB file
++	don't exceed MAX_CIV_PLAYERS in the DLL. Savegames are still incompatible. */
++#define MAX_CIV_PLAYERS												(18)
+ #else
+ #define MAX_CIV_PLAYERS												(CvGlobals::getInstance().getMaxCivPlayers())
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 440640411..5115d2289 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -984,8 +984,8 @@ void CvGame::initFreeUnits()
+ 	bool bValid = false;
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 	{
+-		CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+-		if(civ.isAlive() && civ.getAdvancedStartPoints() > 0)
++		CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)i);
++		if(kPlayer.isAlive() && kPlayer.getAdvancedStartPoints() > 0)
+ 		{
+ 			bValid = true;
+ 			break;
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index f4a28a669..5594aa999 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -728,13 +728,11 @@ void CvInitCore::resetPlayer(PlayerTypes eID, CvInitCore * pSource, bool bClear,
+ 
+ CvWString CvInitCore::getMapScriptName() const
+ {
+-	if (gDLL->getTransferredMap())
++	if (!getWBMapScript() && // advc: Order switched; not sure what getTransferredMap does.
++		gDLL->getTransferredMap())
+ 	{
+-		if (!getWBMapScript())
+-		{
+-			// If it's a transferred Python file, we have to hack in the transferred extension
+-			return (m_szMapScriptName + CvWString(MAP_TRANSFER_EXT));
+-		}
++		// If it's a transferred Python file, we have to hack in the transferred extension
++		return (m_szMapScriptName + CvWString(MAP_TRANSFER_EXT));
+ 	}
+ 	return m_szMapScriptName;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6027c9f70..4363c6848 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9727,24 +9727,16 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 		if (!isEverAlive())
+ 		{
+ 			m_bEverAlive = true;
+-
+ 			GET_TEAM(getTeam()).changeEverAliveCount(1);
+ 		}
+-
+-		if (getNumCities() == 0)
+-		{
++		if (getNumCities() <= 0)
+ 			setFoundedFirstCity(false);
+-		}
+-
+ 		updatePlotGroups();
+-
+ 		if (g.isMPOption(MPOPTION_SIMULTANEOUS_TURNS) ||
+ 				g.getNumGameTurnActive() == 0 ||
+ 				(g.isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive()))
+ 			setTurnActive(true);
+-
+ 		gDLL->openSlot(getID());
+-
+ 		if(!isBarbarian()) // advc.003n
+ 		{	// K-Mod. Attitude cache
+ 			for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+@@ -9780,9 +9772,7 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 		gDLL->endDiplomacy();
+ 
+ 		if (!isHuman())
+-		{
+ 			gDLL->closeSlot(getID());
+-		}
+ 
+ 		if (g.getElapsedGameTurns() > 0)
+ 		{
+@@ -9796,11 +9786,17 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 				{
+ 					if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 					{
+-						gDLL->getInterfaceIFace()->addMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CIVDESTROYED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						gDLL->getInterfaceIFace()->addMessage(((PlayerTypes)iI), false,
++								GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CIVDESTROYED",
++								MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)
++								GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ 					}
+ 				}
+-
+-				g.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++				g.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer, -1, -1,
++						(ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++				// <advc.104>
++				if ((getWPAI.isEnabled() || getWPAI.isEnabled(true)) && !isMinorCiv())
++					AI().warAndPeaceAI().uninit(); // </advc.104>
+ 			}
+ 		}
+ 	}
+@@ -10279,7 +10275,8 @@ void CvPlayer::setFoundedFirstCity(bool bNewValue)
+ 	}
+ 	/*  <advc.104> So that rivals (with higher ids) can immediately evaluate
+ 		war plans against this player  */
+-	if(!isBarbarian() && getParent() == NO_PLAYER && getWPAI.isEnabled())
++	if(!isBarbarian() && getParent() == NO_PLAYER && getWPAI.isEnabled() &&
++			GC.getGame().isFinalInitialized()) // No update while setting up a scenario
+ 		AI().warAndPeaceAI().getCache().update(); // </advc.104>
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 293be85c8..c23305ef9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23476,8 +23476,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 	else iValue += GC.getInfo(getPersonalityType()).getDiplomacyVictoryWeight();
+ 	iValue = ::round(iValue * 0.67); // Victory weight too high
+ 	double voteTarget = -2;
+-	double votesToGo = GET_TEAM(getTeam()).warAndPeaceAI().
+-			computeVotesToGoForVictory(&voteTarget);
++	double votesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&voteTarget);
+ 	if(voteTarget == -1)
+ 		return 0;
+ 	FAssert(voteTarget > 0);
+@@ -23497,8 +23496,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 			looks infeasible. */
+ 		if(progressRatio < 0.66 && getCurrentEra() >= 4 && bAP)
+ 		{
+-			votesToGo = GET_TEAM(getTeam()).warAndPeaceAI().
+-					computeVotesToGoForVictory(&voteTarget, /*forceUN=*/true);
++			votesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&voteTarget, /*forceUN=*/true);
+ 			progressRatio = ::dRange((voteTarget - votesToGo) / voteTarget, 0.0, 1.0);
+ 			bVoteEligible = false;
+ 			membersProgress = 1; // not a concern for UN
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index b60b919f1..fba449a59 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2751,8 +2751,12 @@ void CvTeam::changeAliveCount(int iChange)
+ 			}
+ 		}
+ 	} // <advc.opt>
+-	if(!isBarbarian() && m_iAliveCount - iChange <= 0 && m_iAliveCount > 0)
++	if (!isBarbarian() && m_iAliveCount - iChange <= 0 && m_iAliveCount > 0)
+ 		GC.getGame().changeCivTeamsEverAlive(1); // </advc.opt>
++	// <advc.104> Can't do this in AI_init because alive status isn't yet set at that point
++	if (m_iAliveCount == 1 && m_iAliveCount - iChange <= 0 && isMajorCiv() &&
++			(getWPAI.isEnabled() || getWPAI.isEnabled(true)))
++		AI().warAndPeaceAI().init(getID()); // </advc.104>
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index aebe5d181..c582e3586 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -132,6 +132,8 @@ public:
+ 	bool canSeeReqBonuses(UnitTypes eUnit); // advc.301
+ 
+ 	bool isHuman() const;																																// Exposed to Python
++	// advc: (The Barbarians aren't a proper civ)
++	inline bool isMajorCiv() const { return (!isBarbarian() && !isMinorCiv()); }
+ 	// advc.inl
+ 	inline bool isBarbarian() const { return (m_eID == BARBARIAN_TEAM); }																				// Exposed to Python
+ 	// <advc.003m> cached
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f8d6b3f2a..35adb86a3 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -69,9 +69,6 @@ void CvTeamAI::AI_init()
+ // K-Mod
+ void CvTeamAI::AI_initMemory()
+ {
+-	// <advc.104>
+-	if(isEverAlive() && !isBarbarian() && !isMinorCiv())
+-		m_pWpai->init(getID()); // </advc.104>
+ 	// Note. this needs to be done after the map is set. unfortunately, AI_init is called before that happens.
+ 	FAssert(GC.getMap().numPlots() > 0);
+ 	m_aiStrengthMemory.clear();
+@@ -137,15 +134,11 @@ void CvTeamAI::AI_doTurnPre()
+ {
+ 	AI_doCounter();
+ 
+-	/*if(isHuman()) // advc: Caller handles these
+-		return;
+-	if(isBarbarian())
+-		return;
+-	if(isMinorCiv())
++	/*if(isHuman() || isBarbarian() || isMinorCiv()) // advc: Caller handles these
+ 		return;*/
+ 	// <advc.104>
+ 	if((getWPAI.isEnabled() || getWPAI.isEnabled(true)) && !isBarbarian() &&
+-			!isMinorCiv() && isAlive())
++		!isMinorCiv() && isAlive())
+ 	{
+ 		/*  Calls turnPre on the team members, i.e. WarAndPeaceAI::Civ::turnPre
+ 			happens before CvPlayerAI::AI_turnPre. Needs to be this way b/c
+@@ -872,12 +865,11 @@ bool CvTeamAI::AI_isLandTarget(TeamTypes eTeam) const
+ {
+ 	PROFILE_FUNC();
+ 
++	CvTeamAI const& kOtherTeam = GET_TEAM(eTeam);
+ 	// <advc.104s>
+-	if(getWPAI.isEnabled())
++	if(getWPAI.isEnabled() && isMajorCiv() && kOtherTeam.isMajorCiv())
+ 		return warAndPeaceAI().isLandTarget(eTeam);
+ 	// </advc.104s>
+-
+-	const CvTeamAI& kOtherTeam = GET_TEAM(eTeam);
+ 	FOR_EACH_AREA_VAR(pLoopArea)
+ 	{
+ 		if (AI_isPrimaryArea(pLoopArea) && kOtherTeam.AI_isPrimaryArea(pLoopArea))
+@@ -5095,7 +5087,9 @@ int CvTeamAI::AI_teamCloseness(TeamTypes eIndex, int iMaxDistance,
+ void CvTeamAI::read(FDataStreamBase* pStream)
+ {
+ 	CvTeam::read(pStream);
+-
++	// <advc.104>
++	if ((getWPAI.isEnabled() || getWPAI.isEnabled(true)) && isAlive() && isMajorCiv())
++		warAndPeaceAI().init(getID()); // </advc.104>
+ 	uint uiFlag=0;
+ 	pStream->Read(&uiFlag);
+ 
+@@ -5320,8 +5314,160 @@ VoteSourceTypes CvTeamAI::AI_getLatestVictoryVoteSource() const
+ 		}
+ 	}
+ 	return r;
++}
++
++// pVoteTarget - Additional (optional) return value: vote target for diplo vict.
++double CvTeamAI::AI_votesToGoForVictory(double* pVoteTarget, bool bForceUN) const
++{
++	CvGame& kGame = GC.getGame();
++	VoteSourceTypes eVS = AI_getLatestVictoryVoteSource();
++	bool bUN = false;
++	if (eVS == NO_VOTESOURCE)
++		bUN = true;
++	else bUN = (GC.getInfo(eVS).getVoteInterval() < 7);
++	ReligionTypes eAPReligion = kGame.getVoteSourceReligion(eVS);
++	FAssert((eAPReligion == NO_RELIGION) == bUN);
++	if (bForceUN)
++		bUN = true;
++	if (bUN && getCurrentEra() <= 3)
++	{
++		if(pVoteTarget != NULL)
++			*pVoteTarget = -1;
++		return -1;
++	}
++	int iPopThresh = -1;
++	VoteTypes eVictoryVote = NO_VOTE;
++	FOR_EACH_ENUM(Vote)
++	{
++		CvVoteInfo& kVote = GC.getInfo(eLoopVote);
++		if((kVote.getStateReligionVotePercent() == 0) == bUN && kVote.isVictory())
++		{
++			iPopThresh = kVote.getPopulationThreshold();
++			eVictoryVote = eLoopVote;
++			break;
++		}
++	}
++	if (iPopThresh < 0)
++	{
++		// OK if a mod removes the UN victory vote
++		FOR_EACH_ENUM(Vote)
++		{
++			CvVoteInfo& vote = GC.getInfo(eLoopVote);
++			if(vote.getStateReligionVotePercent() == 0 && vote.isVictory())
++			{
++				FAssertMsg(false, "Could not determine vote threshold");
++				break;
++			}
++		}
++		if(pVoteTarget != NULL)
++			*pVoteTarget = -1;
++		return -1;
++	}
++	double totalPop = kGame.getTotalPopulation();
++	if(!bUN)
++		totalPop = totalPop * kGame.calculateReligionPercent(eAPReligion, true) / 100.0;
++	double targetPop = iPopThresh * totalPop / 100.0;
++	if(pVoteTarget != NULL)
++		*pVoteTarget = targetPop;
++	/*  targetPop assumes 1 vote per pop, but member cities actually
++		cast 2 votes per pop. */
++	double APVoteNormalizer = 1;
++	if(!bUN)
++	{
++		APVoteNormalizer = 100.0 /
++				(100 + GC.getInfo(eVictoryVote).getStateReligionVotePercent());
++	}
++	double r = targetPop;
++	double ourVotes = getTotalPopulation();
++	if(eVS != NO_VOTESOURCE && !bForceUN)
++		ourVotes = getVotes(eVictoryVote, eVS) * APVoteNormalizer;
++	r -= ourVotes;
++	double votesFromOthers = 0;
++	/*  Will only work in obvious cases, otherwise we'll work with unknown
++		candidates (NO_TEAM). */
++	TeamTypes counterCandidate = (bUN ? AI_diploVoteCounterCandidate(eVS) : NO_TEAM);
++	// This team: already covered above
++	for(TeamIter<FREE_MAJOR_CIV,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
++	{
++		CvTeamAI const& kTeam = *it;
++		// No votes from human non-vassals
++		if((kTeam.isHuman() && !kTeam.isVassal(getID())) ||
++				kTeam.getMasterTeam() == counterCandidate)
++			continue;
++		double pop = kTeam.getTotalPopulation();
++		if(eVS != NO_VOTESOURCE && !bForceUN)
++			pop = kTeam.getVotes(eVictoryVote, eVS) * APVoteNormalizer;
++		// Count vassals as fully supportive
++		if(kTeam.isVassal(getID()))
++		{
++			r -= pop;
++			continue;
++		}
++		/*  Count Friendly rivals as 80% supportive b/c relations may soon sour,
++			and b/c the rival may like the counter candidate even better. */
++		if(!kTeam.isHuman() && kTeam.AI_getAttitude(getID()) >= ATTITUDE_FRIENDLY)
++		{
++			votesFromOthers += (4 * pop) / 5.0;
++			continue;
++		}
++	}
++	/*  To account for an unknown counter-candidate. This will usually neutralize
++		our votes from friends, leaving only our own (and vassals') votes. */
++	if(counterCandidate == NO_TEAM)
++		votesFromOthers -= 1.3 * totalPop / TeamIter<MAJOR_CIV>::count();
++	if(votesFromOthers > 0)
++		r -= votesFromOthers;
++	return std::max(0.0, r);
++}
++
++
++TeamTypes CvTeamAI::AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const
++{
++	/*  Only cover this obvious case: we're among the two teams with the
++		most votes (clearly ahead of the third). Otherwise, don't hazard a guess. */
++	TeamTypes r = NO_TEAM;
++	int iFirstMostVotes = -1, iSecondMostVotes = -1, iThirdMostVotes = -1;
++	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	{
++		CvTeam const& kTeam = *it;
++		// Someone else already controls the UN. This gets too complicated.
++		if (kTeam.getID() != getID() && eVS != NO_VOTESOURCE &&
++				kTeam.isForceTeamVoteEligible(eVS))
++			return NO_TEAM;
++		if (kTeam.isAVassal())
++			continue;
++		int iVotes = kTeam.getTotalPopulation();
++		if (iVotes > iThirdMostVotes)
++		{
++			if (iVotes > iSecondMostVotes)
++			{
++				if (iVotes > iFirstMostVotes)
++				{
++					iThirdMostVotes = iSecondMostVotes;
++					iSecondMostVotes = iFirstMostVotes;
++					iFirstMostVotes = iVotes;
++					if (kTeam.getID() != getID())
++						r = kTeam.getID();
++				}
++				else
++				{
++					iThirdMostVotes = iSecondMostVotes;
++					iSecondMostVotes = iVotes;
++					if (iFirstMostVotes == getID())
++						r = kTeam.getID();
++				}
++			}
++			else iThirdMostVotes = iVotes;
++		}
++	}
++	// Too close to hazard a guess
++	if(iThirdMostVotes * 5 >= iSecondMostVotes * 4 ||
++			getTotalPopulation() < iSecondMostVotes)
++		return NO_TEAM;
++	return r;
+ } // </advc.104>
+ 
++
+ bool CvTeamAI::AI_isAnyCloseToReligiousVictory() const
+ {
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 151e475a5..b43b936f6 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -132,7 +132,9 @@ public:
+ 		advc.104: NO_VOTESOURCE if none built yet, AP if AP built but not UN;
+ 		otherwise UN */
+ 	VoteSourceTypes AI_getLatestVictoryVoteSource() const;
+-	bool AI_isAnyCloseToReligiousVictory() const; // </advc.115b>
++	bool AI_isAnyCloseToReligiousVictory() const;
++	double AI_votesToGoForVictory(double* pVoteTarget = NULL, bool bForceUN = false) const;
++	// </advc.115b>
+ 
+ 	int AI_makePeaceTradeVal(TeamTypes ePeaceTeam, TeamTypes eTeam) const;
+ 	DenialTypes AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker) const;
+@@ -281,7 +283,6 @@ public:
+ 	void AI_setStrengthMemory(const CvPlot* pPlot, int value); // </advc.make>
+ 
+ protected:
+-
+ 	std::vector<int> m_aiStrengthMemory;
+ 	// exponentially dimishes memory, and clears obviously obsolete memory.
+ 	void AI_updateStrengthMemory();
+@@ -332,6 +333,7 @@ protected:
+ 	int AI_getOpenBordersAttitudeDivisor() const; // advc.130i
+ 	double AI_OpenBordersCounterIncrement(TeamTypes eOther) const; // advc.130z
+ 	bool AI_isPursuingCircumnavigation() const; // advc.136a
++	TeamTypes AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const; // advc.115b
+ 
+ 	friend class CvTeam; // advc.003u: So that protected functions can be called through CvTeam::AI
+ 	// added so under cheat mode we can call protected functions for testing
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.cpp b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+index c38ef765e..dfede6f58 100644
+--- a/CvGameCoreDLL/WarAndPeaceAgent.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+@@ -1991,139 +1991,6 @@ bool WarAndPeaceAI::Team::isFastRoads() const {
+ 	return (GET_TEAM(agentId).getRouteChange((RouteTypes)0) <= -10);
+ }
+ 
+-double WarAndPeaceAI::Team::computeVotesToGoForVictory(double* voteTarget, bool forceUN) const {
+-
+-	CvGame& g = GC.getGame();
+-	VoteSourceTypes voteSource = GET_TEAM(agentId).AI_getLatestVictoryVoteSource();
+-	bool isUN = false;
+-	if(voteSource == NO_VOTESOURCE)
+-		isUN = true;
+-	else isUN = (GC.getInfo(voteSource).getVoteInterval() < 7);
+-	ReligionTypes apRel = g.getVoteSourceReligion(voteSource);
+-	FAssert((apRel == NO_RELIGION) == isUN);
+-	if(forceUN)
+-		isUN = forceUN;
+-	if (isUN && GET_TEAM(agentId).getCurrentEra() <= 3) {
+-		if(voteTarget != NULL)
+-			*voteTarget = -1;
+-		return -1;
+-	}
+-	int popThresh = -1;
+-	VoteTypes victVote = NO_VOTE;
+-	FOR_EACH_ENUM(Vote) {
+-		CvVoteInfo& vote = GC.getInfo(eLoopVote);
+-		if((vote.getStateReligionVotePercent() == 0) == isUN && vote.isVictory()) {
+-			popThresh = vote.getPopulationThreshold();
+-			victVote = eLoopVote;
+-			break;
+-		}
+-	}
+-	if(popThresh < 0) {
+-		// OK if a mod removes the UN victory vote
+-		FOR_EACH_ENUM(Vote) {
+-			CvVoteInfo& vote = GC.getInfo(eLoopVote);
+-			if(vote.getStateReligionVotePercent() == 0 && vote.isVictory()) {
+-				FAssertMsg(false, "Could not determine vote threshold");
+-				break;
+-			}
+-		}
+-		if(voteTarget != NULL)
+-			*voteTarget = -1;
+-		return -1;
+-	}
+-	double totalPop = g.getTotalPopulation();
+-	if(!isUN)
+-		totalPop = totalPop * g.calculateReligionPercent(apRel, true) / 100.0;
+-	double targetPop = popThresh * totalPop / 100.0;
+-	if(voteTarget != NULL)
+-		*voteTarget = targetPop;
+-	/*  targetPop assumes 1 vote per pop, but member cities actually
+-		cast 2 votes per pop. */
+-	double relVoteNormalizer = 1;
+-	if(!isUN)
+-		relVoteNormalizer = 100.0 /
+-			(100 + GC.getInfo(victVote).getStateReligionVotePercent());
+-	CvTeam const& agent = GET_TEAM(agentId);
+-	double r = targetPop;
+-	double ourVotes = agent.getTotalPopulation();
+-	if(voteSource != NO_VOTESOURCE && !forceUN)
+-		ourVotes = agent.getVotes(victVote, voteSource) * relVoteNormalizer;
+-	r -= ourVotes;
+-	double votesFromOthers = 0;
+-	/*  Will only work in obvious cases, otherwise we'll work with unknown
+-		candidates (NO_TEAM). */
+-	TeamTypes counterCandidate = (isUN ? diploVoteCounterCandidate(voteSource) :
+-			NO_TEAM);
+-	// This agent: already covered above
+-	for(TeamIter<FREE_MAJOR_CIV,NOT_SAME_TEAM_AS> it(agentId); it.hasNext(); ++it) {
+-		CvTeamAI const& t = *it;
+-		// No votes from human non-vassals
+-		if((t.isHuman() && !t.isVassal(agentId)) || t.getMasterTeam() == counterCandidate)
+-			continue;
+-		double pop = t.getTotalPopulation();
+-		if(voteSource != NO_VOTESOURCE && !forceUN)
+-			pop = t.getVotes(victVote, voteSource) * relVoteNormalizer;
+-		// Count vassals as fully supportive
+-		if(t.isVassal(agentId)) {
+-			r -= pop;
+-			continue;
+-		}
+-		/*  Count Friendly rivals as 80% supportive b/c relations may soon sour,
+-			and b/c the rival may like the counter candidate even better. */
+-		if(!t.isHuman() && t.AI_getAttitude(agentId) >= ATTITUDE_FRIENDLY) {
+-			votesFromOthers += (4 * pop) / 5.0;
+-			continue;
+-		}
+-	}
+-	/*  To account for an unknown counter-candidate. This will usually neutralize
+-		our votes from friends, leaving only our own (and vassals') votes. */
+-	if(counterCandidate == NO_TEAM)
+-		votesFromOthers -= 1.3 * totalPop / TeamIter<MAJOR_CIV>::count();
+-	if(votesFromOthers > 0)
+-		r -= votesFromOthers;
+-	return std::max(0.0, r);
+-}
+-
+-TeamTypes WarAndPeaceAI::Team::diploVoteCounterCandidate(VoteSourceTypes voteSource) const {
+-
+-	/*  Only cover this obvious case: we're among the two teams with the
+-		most votes (clearly ahead of the third). Otherwise, don't hazard a guess. */
+-	TeamTypes r = NO_TEAM;
+-	int firstMostVotes = -1, secondMostVotes = -1, thirdMostVotes = -1;
+-	for(TeamIter<MAJOR_CIV> it; it.hasNext(); ++it) {
+-		CvTeam const& t = *it;
+-		// Someone else already controls the UN. This gets too complicated.
+-		if(t.getID() != agentId && voteSource != NO_VOTESOURCE &&
+-				t.isForceTeamVoteEligible(voteSource))
+-			return NO_TEAM;
+-		if(t.isAVassal()) continue;
+-		int v = t.getTotalPopulation();
+-		if(v > thirdMostVotes) {
+-			if(v > secondMostVotes) {
+-				if(v > firstMostVotes) {
+-					thirdMostVotes = secondMostVotes;
+-					secondMostVotes = firstMostVotes;
+-					firstMostVotes = v;
+-					if(t.getID() != agentId)
+-						r = t.getID();
+-				}
+-				else {
+-					thirdMostVotes = secondMostVotes;
+-					secondMostVotes = v;
+-					if(firstMostVotes == agentId)
+-						r = t.getID();
+-				}
+-			}
+-			else thirdMostVotes = v;
+-		}
+-	}
+-	// Too close to hazard a guess
+-	if(thirdMostVotes * 5 >= secondMostVotes * 4 ||
+-			GET_TEAM(agentId).getTotalPopulation() < secondMostVotes)
+-		return NO_TEAM;
+-	return r;
+-}
+-
+ WarAndPeaceAI::Civ::Civ() {
+ 
+ 	weId = NO_PLAYER;
+@@ -2135,6 +2002,11 @@ void WarAndPeaceAI::Civ::init(PlayerTypes weId) {
+ 	cache.init(weId);
+ }
+ 
++void WarAndPeaceAI::Civ::uninit() {
++
++	cache.uninit();
++}
++
+ void WarAndPeaceAI::Civ::turnPre() {
+ 
+ 	cache.update();
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.h b/CvGameCoreDLL/WarAndPeaceAgent.h
+index 6f4659b57..03047a1f7 100644
+--- a/CvGameCoreDLL/WarAndPeaceAgent.h
++++ b/CvGameCoreDLL/WarAndPeaceAgent.h
+@@ -87,10 +87,6 @@ public:
+ 	double confidenceFromWarSuccess(TeamTypes targetId) const;
+ 	void reportWarEnding(TeamTypes enemyId, CLinkList<TradeData> const* weReceive = NULL,
+ 			CLinkList<TradeData> const* wePay = NULL);
+-	/*  voteTarget - Additional (optional) return value: vote target for
+-		diplo vict. */
+-	double computeVotesToGoForVictory(double* voteTarget = NULL,
+-			bool forceUN = false) const;
+ 	int countNonMembers(VoteSourceTypes voteSource) const;
+ 	// Like canSchemeAgainst, but also true if currently at war (unless vassal).
+ 	bool isPotentialWarEnemy(TeamTypes tId) const;
+@@ -142,7 +138,6 @@ private:
+ 	void showWarPlanMsg(TeamTypes targetId, char const* txtKey);
+ 	WarAndPeaceCache& leaderCache();
+ 	WarAndPeaceCache const& leaderCache() const;
+-	TeamTypes diploVoteCounterCandidate(VoteSourceTypes voteSource) const;
+ 	/*  Not in WarAndPeaceAI::Civ b/c I want these to be private. They're
+ 		only auxiliary functions for their team-level counterparts, and should
+ 		not be used for any other computations.
+@@ -164,6 +159,7 @@ public:
+ 	Civ();
+ 	// See WarAndPeaceCache.h about when init is called.
+ 	void init(PlayerTypes we);
++	void uninit();
+ 	void turnPre();
+ 	// 'cache' handles all the persistent data, these two only relay the calls.
+ 	 void write(FDataStreamBase* stream);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 91e161c36..32de8d051 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -42,6 +42,11 @@ void WarAndPeaceCache::init(PlayerTypes ownerId) {
+ 	militaryPower.push_back(new MilitaryBranch::NuclearArsenal(ownerId));
+ }
+ 
++void WarAndPeaceCache::uninit() {
++
++	clear();
++}
++
+ void WarAndPeaceCache::clear(bool beforeUpdate) {
+ 
+ 	for(size_t i = 0; i < v.size(); i++)
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index 32ca32b2f..4f10e82d4 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -41,6 +41,7 @@ public:
+ 		 other occasions, but, on exit, it's guaranteeed.
+ 	   + When saving a game, write is called. */
+ 	void init(PlayerTypes ownerId);
++	void uninit(); // Called when the owner is defeated (to free memory)
+ 	void update();
+ 	void write(FDataStreamBase* stream);
+ 	void read(FDataStreamBase* stream);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 1298b91cf..ea80ee8ec 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1186,7 +1186,7 @@ void MilitaryVictory::evaluate() {
+ 
+ int MilitaryVictory::preEvaluate() {
+ 
+-	votesToGo = agentAI.computeVotesToGoForVictory();
++	votesToGo = agent.AI_votesToGoForVictory();
+ 	// Rather try to get the last few votes through growth
+ 	enoughVotes = (votesToGo < 8);
+ 	return 0;
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=35872

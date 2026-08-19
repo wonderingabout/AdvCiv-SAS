@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2293
+# Commit: 786861d30efedc81fb9f85fcf72648a367f8058b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d581b56e878f0e894915df0beddaf99561ff7cf9
+# Title: Fix AdvCiv bug with GP birth probabilities
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0c175220b..dc66635d2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10831,10 +10831,10 @@ void CvCity::doGreatPeople()
+ 	{
+ 		UnitTypes eUnit = kCiv.unitAt(i);
+ 		int iUnitRate = getGreatPeopleUnitRate(eUnit); // advc
+-		changeGreatPeopleUnitProgress(eUnit, iUnitRate *
++		changeGreatPeopleUnitProgress(eUnit, (iUnitRate *
+ 				/*	advc.001c: Seems like an oversight - per-unit progress
+ 					should include modifiers. */
+-				iTotalGreatPeopleRateModifier);
++				iTotalGreatPeopleRateModifier) / 100);
+ 		// <advc>
+ 		#ifdef FASSERT_ENABLE
+ 			iTotalUnitRate += iUnitRate;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=669

@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1992
+# Commit: 13abd21f1bb07598ba08b21b1b82ab402b264b72
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3cb7780c3e06269bff731d67fa6623e4d36d6917
+# Title: Couple of comment, var name changes in Python
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/Python/BUG/BugInit.py
+4	4	Assets/Python/BUG/BugPath.py
+2	2	Assets/Python/Contrib/Civ4lerts.py
+2	2	Assets/Python/Contrib/MoreCiv4lerts.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugInit.py b/Assets/Python/BUG/BugInit.py
+index 7380e428b..72ae4359e 100644
+--- a/Assets/Python/BUG/BugInit.py
++++ b/Assets/Python/BUG/BugInit.py
+@@ -71,8 +71,7 @@ def loadMod(name):
+ 		except Exception, e:
+ 			BugUtil.error("BugInit - failed to parse module %s", name)
+ 			timer.log(name)
+-			raise e
+-		#finally: # </advc.009b>
++			raise e # </advc.009b>
+ 		timer.log(name)
+ 	else:
+ 		BugUtil.error("BugInit - cannot find XML file for module %s", name)
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index e099e37cd..fd7e203b1 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -145,18 +145,18 @@ def getModFolder():
+ def getUserDir():
+ 	"""
+ 	Returns the full path of the user's Documents/My Games directory.
+-	
+-	See the file "Info/CvAltRoot.py" for more information.
+ 	"""
++	#See the file "Info/CvAltRoot.py" for more information. # advc: That doesn't exist
++
+ 	initRootFolder()
+ 	return _userDir
+ 
+ def getRootDir():
+ 	"""
+ 	Returns the full path of the directory containing the file "CivilizationIV.ini".
+-	
+-	See the file "Info/CvAltRoot.py" for more information.
+ 	"""
++	#See the file "Info/CvAltRoot.py" for more information. # advc
++
+ 	initRootFolder()
+ 	return _rootDir
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index d59d8dd77..0541a45e3 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -164,8 +164,8 @@ def addMessage(iPlayer, szString, szIcon, iFlashX=-1, iFlashY=-1, bOffArrow=Fals
+ 		return # </advc.127>
+ 	# advc.106c: Reduced time from LONG to normal
+ 	# advc.106: Set bForce to False
+-	eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+-	CyInterface().addMessage(iPlayer, False, eventMessageTimeLong,
++	eventMessageTime = gc.getDefineINT("EVENT_MESSAGE_TIME")
++	CyInterface().addMessage(iPlayer, False, eventMessageTime,
+ 							 szString, None, InterfaceMessageTypes.MESSAGE_TYPE_INFO, 
+ 							 szIcon, ColorTypes(-1),
+ 							 iFlashX, iFlashY, bOffArrow, bOnArrow)
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 5253eedfa..4969c9c9b 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -59,13 +59,13 @@ class AbstractMoreCiv4lertsEvent(object):
+ 			if gc.getGame().isRFBlockPopups() or gc.getPlayer(self.iOwner).isHumanDisabled() or gc.getPlayer(self.iOwner).isAutoPlayJustEnded():
+ 				return # </advc.706>
+ 			# advc.106c: Reduced time from LONG to normal
+-			eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
++			eventMessageTime = gc.getDefineINT("EVENT_MESSAGE_TIME")
+ 			# advc.135b: Ignore iPlayer. Shouldn't be necessary b/c
+ 			# the iActivePlayer (on the caller side) should always
+ 			# be iOwner. Tbd.: Remove the iPlayer attribute from all
+ 			# _addMessage... functions.
+ 			# advc.106: Set bForce to False
+-			CyInterface().addMessage(self.iOwner, False, eventMessageTimeLong, szString, None, 0, szIcon, ColorTypes(iColor), iFlashX, iFlashY, bOffArrow, bOnArrow)
++			CyInterface().addMessage(self.iOwner, False, eventMessageTime, szString, None, 0, szIcon, ColorTypes(iColor), iFlashX, iFlashY, bOffArrow, bOnArrow)
+ 
+ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3302

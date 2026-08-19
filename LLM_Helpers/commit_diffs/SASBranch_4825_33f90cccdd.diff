@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4825
+# Commit: 33f90cccdd02591c1765f46ee031995b8ce6be91
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c9756e0b33dd10d983724abf81661d1a51f8d697
+# Title: minor fixes or and tweaks anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG
+5	11	flatten_handicap_info_to_csv_and_md.py
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG
+index 516789887..62ea2ddc6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG and b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG differ
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index d25e4a5df..3e575b9d5 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -13,7 +13,7 @@
+ #
+ # 1. <Goodies>:
+ #    - All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
+-#    - Output field names use their original enum name (e.g. "GOODY_LOW_GOLD").
++#    - Output field names preserve their original enum prefix and name (e.g. "GOODY_LOW_GOLD").
+ #    - In the CSV, each goody field is labeled with "(*)" and followed by a footnote explaining the x-in-20 hut chance system.
+ #
+ # 2. <FreeTechs> and <AIFreeTechs>:
+@@ -25,7 +25,8 @@
+ # - Legends shifted one column to the right for better spreadsheet readability
+ # - Enum beautification for difficulty names (e.g. HANDICAP_IMMORTAL → Immortal)
+ # - Consistent sorting and field placement, including manual repositioning of goodies and nested fields
+-# - Final footnote explaining hut behavior for goodies, placed after the [LEGEND] block
++# - A final explanatory footnote on hut behavior is added as a fully right-shifted row after the [LEGEND] block,
++#   consistent with spreadsheet alignment.
+ #
+ # Markdown export is present but disabled by default.
+ 
+@@ -127,7 +128,7 @@ for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
+ 				if goody in goody_counts:
+ 					goody_counts[goody] += 1
+ 
+-			# Flatten into individual fields like iGoodyLowGold
++			# Flatten into individual fields
+ 			for gt in ALL_GOODY_TYPES:
+ 				field_name = gt  # Just use the original full enum name
+ 				handicap_dict[field_name] = str(goody_counts[gt])
+@@ -170,21 +171,14 @@ ANCHOR_FIELD = "iUnownedWaterTilesPerBarbarianUnit"
+ before = []
+ goody_rows = []
+ nested = []
+-after_anchor = False
+ 
+ for row in rows:
+ 	if row["Field"] in GOODY_FIELDS:
+ 		goody_rows.append(row)
+ 	elif row["Field"] in NESTED_FIELDS:
+ 		nested.append(row)
+-	elif row["Field"] == ANCHOR_FIELD:
+-		before.append(row)
+-		after_anchor = True
+ 	else:
+-		if after_anchor:
+-			before.append(row)
+-		else:
+-			before.append(row)
++		before.append(row)
+ 
+ # Reinsert in proper order
+ new_rows = []
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2596

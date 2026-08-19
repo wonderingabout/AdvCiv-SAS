@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5040
+# Commit: a308df2945232ca7c5697d0baac855109d4f2b10
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 37be7be033520f7ec9214e46a1ba8fa736e9bf7d
+# Title: pikemen units upgrade to musketman as well anyways etc - pikemen units upgrade to musketman as well anyways etc: "<!-- custom: if a pikeman was standing and...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	2	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 6460aef5b..f43496a3a 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -9266,8 +9266,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
++			<!-- custom: if a pikeman was standing and a cuirassier like unit or even a foot unit with a gun i mean if i may say but anyways etc, and they had a gun nearby to defend themselves they could use, surely they wouldn't just sit around as sitting ducks i mean if i may say but anyways etc but use the gun right (especially since in our mod as of now pikemen are useless / very ineffective against mounted_ranged that the cuirassier units are, so allow musket. May hopefully also help reduce / tone down a bit the AI spam quite late game of pikemen (sometimes even at turn 300 when much better options like cannons or musketmen are available it seems in autoplay at a quick glance in this case i mean if i'm not mistaken if i may say but anyways etc; result ingame: drastically reduced the AI mid late spam of pikemen when very inefficient at least in this short autoplay sample in this case i mean but anyways etc: all the more reason to leave as such if i may say but anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+ 			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+@@ -9493,8 +9497,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
++			<!-- custom: see code comment at the generic pikeman for details anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+ 			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 2d9fc0467..e7df476c6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -412,9 +412,9 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+-- for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, cavalry units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
++- for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, and pikemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, cavalry units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
+ - similarly, also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc
+-- relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
++- relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires iron as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
+ - in [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml), disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire, and them merging with the empire, becoming its citizens, something to pay attention to maybe in particular if you don't want it to happen to other rivals anyways etc anyways etc
+ - move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non- military techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index ba68721e4..1b5d6a148 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -398,10 +398,10 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **Upgrade paths** simplified and made more sensible:
+   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+   - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
+-  - **Longbows/Crossbows/Macemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
++  - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+   - **Cavalry → Tanks** now.
+ - **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
+-- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as **Iron**; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized). The **generic Swordsman** remains **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
++- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized). The **generic Swordsman** remains **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
+ - `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
+ - **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
+ - **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+index c3f8cc150..0fbbdee31 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=16835

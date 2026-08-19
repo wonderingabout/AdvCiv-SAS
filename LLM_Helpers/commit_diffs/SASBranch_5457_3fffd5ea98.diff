@@ -1,0 +1,209 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5457
+# Commit: 3fffd5ea98c6ba9287173e65d7733feb32ee5098
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 15aa086e93d382d53198ecec7a592856d0557b21
+# Title: minor - also make Mixed_Continents.py land_heavy, and remove it from Simple Game
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	PrivateMaps/Mixed_Continents.py
+0	1	PrivateMaps/SAS_Longworld.py
+0	1	PrivateMaps/SAS_Spiky_Avenues.py
+41	41	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 45c55655f..412ea48fc 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -298,24 +298,25 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>Fractal,Hemispheres,Pangaea,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,SAS_Longworld,SAS_Spiky_Avenues,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Grid,BTG_Lagoon,Planet_Generator_0_68,Peirce</DefineTextVal>
++		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Wheel</DefineTextVal>
+ 	</Define>
++	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
+-		<DefineTextVal>Great_Plains,Highlands,Lakes,Fantasy_Realm,SAS_WorldSizes,Mirror,Oasis,Team_Battleground,Boreal,Rainforest</DefineTextVal>
++		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_WorldSizes,Team_Battleground</DefineTextVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+-		<DefineTextVal>Archipelago,Islands,PerfectMongoose,Tilted_Axis,Equal_Islands_V2_beta</DefineTextVal>
++		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,Tilted_Axis</DefineTextVal>
+ 	</Define>
+ 
+ 
+ 
++
+ 	<!-- custom: starting area thresholds based on starting-plot landmasses; higher means stricter. (GPT-5.2-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT</DefineName>
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index 687fa0827..5b1a72756 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -70,7 +70,7 @@ def getNumPlotsPercent(argsList):
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+-	return 0
++	return 1
+ 
+ def getNumCustomMapOptions():
+ 	return 5 # advc.mxc
+
+diff --git a/PrivateMaps/SAS_Longworld.py b/PrivateMaps/SAS_Longworld.py
+index 56416ea68..c9a5eb838 100644
+--- a/PrivateMaps/SAS_Longworld.py
++++ b/PrivateMaps/SAS_Longworld.py
+@@ -10,7 +10,6 @@
+ 
+ 
+ from CvPythonExtensions import *
+-import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/SAS_Spiky_Avenues.py b/PrivateMaps/SAS_Spiky_Avenues.py
+index 9f50c9aea..d940a83c1 100644
+--- a/PrivateMaps/SAS_Spiky_Avenues.py
++++ b/PrivateMaps/SAS_Spiky_Avenues.py
+@@ -132,7 +132,6 @@ def _build_layout():
+ 	if "sas_spiky_layout" in globals() and sas_spiky_layout is not None:
+ 		return sas_spiky_layout
+ 
+-	gc = CyGlobalContext()
+ 	map_obj = CyMap()
+ 	iW = map_obj.getGridWidth()
+ 	iH = map_obj.getGridHeight()
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 853b1e47c..52d5a7f29 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -397,47 +397,47 @@ Adjust to your mod path:
+ 
+ Done with the help of GPT-5.2 Thinking thanks:
+ 
+-| Map script name        | Description                                                                                                                                       | Map Type                                 |
+-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+-| `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                 | Land                                     |
+-| `Hemispheres`          | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                              | Land                                     |
+-| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents” nor purely islands.                                                   | Other (hybrid land + islands)            |
+-| `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                   | Other (hybrid land + islands)            |
+-| `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                               | Land                                     |
+-| `SAS_WorldSizes`       | SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.                                                                  | Land                                     |
+-| `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). `<!-- custom: empirically looks navalHeavy -->` | Land `<!-- custom: empirically looks Water -->` |
+-| `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     |
+-| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
+-| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->` | Other (debug/test map); `<!-- custom: Land, see description -->` |
+-| `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    |
+-| `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     |
+-| `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     |
+-| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                  | Land                                     |
+-| `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->` | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->` |
+-| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                              | Land                                     |
+-| `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                          | Land                                     |
+-| `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                              | Other (structured hub geometry)          |
+-| `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                    | Land                                     |
+-| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` |
+-| `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                              | Water                                    |
+-| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     |
+-| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` |
+-| `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                  | Other (hybrid land + islands)            |
+-| `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                     | Other (symmetry-based layout)            |
+-| `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                | Land                                     |
+-| `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                  | Other (ring geometry); `<!-- custom: Land, see description -->` |
+-| `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                       | Random                                   |
+-| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` |
+-| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south; `<!-- custom: empirically looks navalHeavy -->`                        | Land; `<!-- custom: empirically looks Water -->` |
+-| `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->` |
+-| `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                          | Land                                     |
+-| `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                | Other (hybrid land + islands)            |
+-| `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                  | Land                                     |
+-| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->` |
+-| `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     |
+-| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     |
+-| `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     |
+-| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   |
++| Map script name        | Description                                                                                                                                                                                       | Map Type                                                                           |
++| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
++| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->`                  | Other (debug/test map); `<!-- custom: Land, see description -->`                   |
++| `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                                                                          | Land                                                                               |
++| `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                                                                   | Water                                                                              |
++| `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                                                                   | Land                                                                               |
++| `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                                                                | Other (hybrid land + islands)                                                      |
++| `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                                                                  | Land                                                                               |
++| `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                                                                 | Land                                                                               |
++| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                                                                  | Land                                                                               |
++| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                                                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->`              |
++| `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                                                                             | Land                                                                               |
++| `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->`                                                 | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->`  |
++| `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                                                                 | Land                                                                               |
++| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                                                                             | Land                                                                               |
++| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                                                                              | Land                                                                               |
++| `Hemispheres`          | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                                                                              | Land                                                                               |
++| `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                                                                          | Land                                                                               |
++| `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                                                                              | Other (structured hub geometry)                                                    |
++| `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                                                                    | Land                                                                               |
++| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`                                                         | Other (central inland sea layout); `<!-- custom: Land, see description -->`        |
++| `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                                                                              | Water                                                                              |
++| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                                                                        | Land                                                                               |
++| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->`                                                                            | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->`         |
++| `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                                                                  | Other (hybrid land + islands)                                                      |
++| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents” nor purely islands. `<!-- custom: empirically looks navalHeavy -->`                                                   | Other (hybrid land + islands) `<!-- custom: Land, see description -->`             |
++| `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                                                                     | Other (symmetry-based layout)                                                      |
++| `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                                                                   | Other (hybrid land + islands)                                                      |
++| `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                                                                | Land                                                                               |
++| `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                                                                               | Land                                                                               |
++| `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). `<!-- custom: empirically looks navalHeavy -->` | Land `<!-- custom: empirically looks Water -->`                                    |
++| `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                                                                | Land                                                                               |
++| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                                                                       | Random                                                                             |
++| `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                                                                  | Other (ring geometry); `<!-- custom: Land, see description -->`                    |
++| `SAS_WorldSizes`       | SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.                                                                                                                  | Land                                                                               |
++| `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                                                                       | Random                                                                             |
++| `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                                                                            | Land                                                                               |
++| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                                                                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->`             |
++| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->`                                             | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
++| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south; `<!-- custom: empirically looks navalHeavy -->`                                                                        | Land; `<!-- custom: empirically looks Water -->`                                   |
++| `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                                                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->`            |
+ 
+ Sources (GPT-5.2 Thinking):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 084470dd9..cc7805222 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -354,7 +354,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5433+) **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - (Requires AdvCiv-SAS 5444+) Add **Deer percentage map option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also See [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+-- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
++- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Mixed_Continents.py](/PrivateMaps/Mixed_Continents.py), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+ - (Requires AdvCiv-SAS 5455+) **Add** a new AdvCiv-SAS original map: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified. Similarly also **add** [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues).
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=30687

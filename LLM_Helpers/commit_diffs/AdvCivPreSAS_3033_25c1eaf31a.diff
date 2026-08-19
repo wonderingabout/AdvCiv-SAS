@@ -1,0 +1,287 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3033
+# Commit: 25c1eaf31a4b83ef6d5b5973b2bfef60d903dcb0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a374ad7fdf01c4d8e26a1e378eed3a9186b4e311
+# Title: A bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvDllTranslator.cpp
+2	2	CvGameCoreDLL/CvGame.cpp
+3	6	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvInitCore.cpp
+15	15	CvGameCoreDLL/CvPythonCaller.cpp
+6	6	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9740956c1..95a1d144f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5228,7 +5228,7 @@ void CvCity::GPProjection(std::vector<std::pair<UnitTypes,int> >& r) const
+ 		int iTotalError = 100 - iRoundedPercentages;
+ 		if (iTotalError >= 2)
+ 		{
+-			FAssert(abs(iTotalError) == 2);
++			FAssert(iTotalError == 2);
+ 			/*	I'm too lazy to handle that error properly. Adding up to 99% is OK.
+ 				Otherwise add 1 to the GP with the highest share. */
+ 			size_t iArgmax = 0;
+
+diff --git a/CvGameCoreDLL/CvDllTranslator.cpp b/CvGameCoreDLL/CvDllTranslator.cpp
+index c7f678998..cc25f4625 100644
+--- a/CvGameCoreDLL/CvDllTranslator.cpp
++++ b/CvGameCoreDLL/CvDllTranslator.cpp
+@@ -49,8 +49,8 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
+ 	// advc.064:
+ 	aIconMap[L"[ICON_CITIZEN]"] = std::wstring(1, (wchar)gDLL->getSymbolID(CITIZEN_CHAR));
+ 	// <advc.002f>
+-	aIconMap[L"[ICON_AIRPORT]"] = std::wstring(1, (wchar)gDLL->getSymbolID(AIRPORT_CHAR));
+ 	aIconMap[L"[ICON_GREATGENERAL]"] = std::wstring(1, (wchar)gDLL->getSymbolID(GREAT_GENERAL_CHAR));
++	aIconMap[L"[ICON_AIRPORT]"] = std::wstring(1, (wchar)gDLL->getSymbolID(AIRPORT_CHAR));
+ 	// </advc.002f>
+ 	//create color map
+ 	aColorMap[L"[COLOR_REVERT]"] = CvWString(L"</color>");
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3a9d60474..b79a9089b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9115,7 +9115,7 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
+ 			GC.getColorType("WARNING_TEXT"));
+ } // </advc.003g
+ 
+-// <advc.003r>
++// advc.003r:
+ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ {
+ 	if(m_aiUpdateTimers[eTimerType] < 0)
+@@ -9150,7 +9150,7 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 		}
+ 	}
+ 	m_aiUpdateTimers[eTimerType]--;
+-} // </advc.003r>
++}
+ 
+ 
+ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 8bcbec62e..084fc1c13 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -18,12 +18,9 @@
+ #include "CvBugOptions.h"
+ #include <fstream> // advc.003d
+ 
+-/*  advc: This file was, reportedly, added by patch 3.17:
+-	forums.civfanatics.com/threads/sdk-using-microsoft-visual-c-2005-express-edition.196283/page-7#post-6942578
+-	The near name clash with CyGameInterface.cpp is coincidental.
+-	Functions previously implemented in CvGame.cpp were moved here.
+-	I guess the idea is to separate the UI code from the game rules, and simply to
+-	make the translation units smaller. */
++/*  advc: This file was added by patch 3.17, moving some UI functionality
++	out of the EXE and thus exposing it to mods.
++	The near name clash with CyGameInterface.cpp is coincidental. */
+ 
+ /*	<advc.007b> The functions in this header arguably shouldn't use any of the
+ 	synchronized RNGs that are part of CvGame. */
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index d97c1dcf8..ad6073bcb 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1008,7 +1008,7 @@ void CvInitCore::setActivePlayer(PlayerTypes eActivePlayer)
+ void CvInitCore::setType(GameType eType)
+ {
+ 	if (getType() == eType)
+-		return; // advc
++		return;
+ 
+ 	m_eType = eType;
+ 	// <advc.054>
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index 3c6c62b03..9ae09ca20 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -379,7 +379,7 @@ bool CvPythonCaller::canPickRevealedPlot(CvPlot const& kPlot) const
+ }
+ 
+ bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot,
+-		bool bAlt, bool bShift, bool bCtrl) const
++	bool bAlt, bool bShift, bool bCtrl) const
+ {
+ 	ARGSLIST(false);
+ 	CyPlot* pyPlot = new CyPlot(kPlot);
+@@ -393,7 +393,7 @@ bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot,
+ }
+ 
+ bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage,
+-		int aiData[3], int iFlags, bool bAlt, bool bShift) const
++	int aiData[3], int iFlags, bool bAlt, bool bShift) const
+ {
+ 	ARGSLIST(false);
+ 	argsList.add(eMessage);
+@@ -407,7 +407,7 @@ bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage,
+ }
+ 
+ bool CvPythonCaller::cannotHandleActionOverride(CvPlot* pPlot, int iAction,
+-		bool bTestVisible) const
++	bool bTestVisible) const
+ {
+ 	if (!isUse(CANNOT_HANDLE_ACTION))
+ 		return false;
+@@ -586,7 +586,7 @@ bool CvPythonCaller::isCitiesDestroyFeatures(int iX, int iY) const
+ }
+ 
+ bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit,
+-		bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
++	bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
+ {
+ 	if (!isUse(CAN_TRAIN))
+ 		return false;
+@@ -606,7 +606,7 @@ bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit,
+ 	with a bool& parameter, but then a Python modder who just needs either function
+ 	would have to "pay" for two DLL-to-Python calls instead of one. */
+ bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit,
+-		bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
++	bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
+ {
+ 	if (!isUse(CANNOT_TRAIN))
+ 		return false;
+@@ -624,7 +624,7 @@ bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit,
+ }
+ 
+ bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding,
+-		bool bContinue, bool bTestVisible, bool bIgnoreCost) const
++	bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+ {
+ 	if (!isUse(CAN_CONSTRUCT))
+ 		return false;
+@@ -641,7 +641,7 @@ bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBu
+ }
+ 
+ bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding,
+-		bool bContinue, bool bTestVisible, bool bIgnoreCost) const
++	bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+ {
+ 	if (!isUse(CANNOT_CONSTRUCT))
+ 		return false;
+@@ -658,7 +658,7 @@ bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes
+ }
+ 
+ bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProject,
+-		bool bContinue, bool bTestVisible) const
++	bool bContinue, bool bTestVisible) const
+ {
+ 	if (!isUse(CAN_CREATE))
+ 		return false;
+@@ -674,7 +674,7 @@ bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProjec
+ }
+ 
+ bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject,
+-		bool bContinue, bool bTestVisible) const
++	bool bContinue, bool bTestVisible) const
+ {
+ 	if (!isUse(CANNOT_CREATE))
+ 		return false;
+@@ -690,7 +690,7 @@ bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes ePro
+ }
+ 
+ bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProcess,
+-		bool bContinue) const
++	bool bContinue) const
+ {
+ 	if (!isUse(CAN_MAINTAIN))
+ 		return false;
+@@ -705,7 +705,7 @@ bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProc
+ }
+ 
+ bool CvPythonCaller::cannotMaintainOverride(CvCity const& kCity, ProcessTypes eProcess,
+-		bool bContinue) const
++	bool bContinue) const
+ {
+ 	if (!isUse(CANNOT_MAINTAIN))
+ 		return false;
+@@ -766,7 +766,7 @@ bool CvPythonCaller::doCulture(CvCity const& kCity) const
+ }
+ 
+ bool CvPythonCaller::doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer,
+-		bool bUpdate,int iCultureRateTimes100) const
++	bool bUpdate,int iCultureRateTimes100) const
+ {
+ 	if (!isUse(DO_PLOT_CULTURE))
+ 		return false;
+@@ -875,7 +875,7 @@ bool CvPythonCaller::canRaze(CvCity const& kCity, PlayerTypes eNewOwner) const
+ }
+ 
+ bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerTypes ePlayer,
+-		bool& bOverride) const
++	bool& bOverride) const
+ {
+ 	bOverride = false;
+ 	if (!isUse(CAN_BUILD))
+@@ -1077,7 +1077,7 @@ bool CvPythonCaller::AI_doWar(TeamTypes eTeam) const
+ }
+ 
+ bool CvPythonCaller::doOrganizationTech(TeamTypes eTechTeam, PlayerTypes eTechPlayer,
+-		TechTypes eTech) const
++	TechTypes eTech) const
+ {
+ 	if (!isUse(DO_HOLY_CITY_TECH))
+ 		return false;
+@@ -1448,7 +1448,7 @@ bool CvPythonCaller::addRivers() const
+ }
+ 
+ void CvPythonCaller::riverStartCardinalDirection(CvPlot const& kPlot,
+-		CardinalDirectionTypes& r) const
++	CardinalDirectionTypes& r) const
+ {
+ 	ARGSLIST(NO_CARDINALDIRECTION);
+ 	CyPlot* pyPlot = new CyPlot(kPlot);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d17d1b8af..3fe148c05 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -876,11 +876,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ bool CvUnitAI::AI_isCityAIType() const
+ {	// advc.104 (note): There's a similar list in MilitaryBranch::HomeGuard::initUnitsTrained
+ 	return (AI_getUnitAIType() == UNITAI_CITY_DEFENSE ||
+-		AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
+-		AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
+-		AI_getUnitAIType() == UNITAI_RESERVE ||
+-		//advc.rom (Afforess): count units on guard mission as city defenders
+-		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY);
++			AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
++			AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
++			AI_getUnitAIType() == UNITAI_RESERVE ||
++			//advc.rom (Afforess): count units on guard mission as city defenders
++			AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY);
+ }
+ 
+ /*	advc: Renamed from AI_potentialEnemy. Says whether this unit is allowed to
+@@ -10135,7 +10135,7 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
+ 			int iDefendersNeeded = pLoopCity->AI_neededDefenders(true);
+ 			int iDefendersHave = pLoopCity->getPlot().plotCount(
+ 					PUF_canDefendGroupHead, -1, -1, getOwner(),
+-					NO_TEAM, AI_isCityAIType() ? PUF_isCityAIType : 0);
++					NO_TEAM, AI_isCityAIType() ? PUF_isCityAIType : NULL);
+ 			if (pCity == pLoopCity)
+ 				iDefendersHave -= getGroup()->getNumUnits();
+ 			// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=10225

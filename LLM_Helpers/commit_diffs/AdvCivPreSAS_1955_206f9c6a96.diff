@@ -1,0 +1,5123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1955
+# Commit: 206f9c6a96fdafc1985b34e304438327304082be
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c9091ad668097a0f4d2d80f8e7ee837768a93de9
+# Title: Merge FLTA class with its base; resolve type cast problems.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+1	0	CvGameCoreDLL/ArmamentForecast.cpp
+2	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+3	4	CvGameCoreDLL/CvArea.cpp
+1	1	CvGameCoreDLL/CvArea.h
+0	28	CvGameCoreDLL/CvAreaList.h
+28	5	CvGameCoreDLL/CvCity.cpp
+5	3	CvGameCoreDLL/CvCity.h
+2	0	CvGameCoreDLL/CvCityAI.cpp
+0	27	CvGameCoreDLL/CvCityList.h
+5	2	CvGameCoreDLL/CvDLLButtonPopup.cpp
+1	2	CvGameCoreDLL/CvDLLLogger.cpp
+3	0	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvDeal.cpp
+0	24	CvGameCoreDLL/CvDealList.h
+216	393	CvGameCoreDLL/CvGame.cpp
+76	25	CvGameCoreDLL/CvGame.h
+1	0	CvGameCoreDLL/CvGameAI.cpp
+5	3	CvGameCoreDLL/CvGameCoreDLL.h
+2	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	0	CvGameCoreDLL/CvGameInterface.cpp
+10	5	CvGameCoreDLL/CvGameTextMgr.cpp
+41	56	CvGameCoreDLL/CvMap.cpp
+25	12	CvGameCoreDLL/CvMap.h
+1	1	CvGameCoreDLL/CvMapGenerator.cpp
+1	1	CvGameCoreDLL/CvMessageData.cpp
+51	147	CvGameCoreDLL/CvPlayer.cpp
+63	28	CvGameCoreDLL/CvPlayer.h
+10	7	CvGameCoreDLL/CvPlayerAI.cpp
+12	19	CvGameCoreDLL/CvPlayerAI.h
+52	69	CvGameCoreDLL/CvPlot.cpp
+4	1	CvGameCoreDLL/CvSelectionGroup.cpp
+1	0	CvGameCoreDLL/CvSelectionGroupAI.cpp
+0	28	CvGameCoreDLL/CvSelectionGroupList.h
+6	3	CvGameCoreDLL/CvTeam.cpp
+8	7	CvGameCoreDLL/CvTeamAI.cpp
+3	0	CvGameCoreDLL/CvUnit.cpp
+4	3	CvGameCoreDLL/CvUnit.h
+2	0	CvGameCoreDLL/CvUnitAI.cpp
+0	40	CvGameCoreDLL/CvUnitList.h
+1	0	CvGameCoreDLL/CvVirtualWrappers.cpp
+0	469	CvGameCoreDLL/FFreeListArray.h
+0	147	CvGameCoreDLL/FFreeListArrayBase.h
+378	0	CvGameCoreDLL/FFreeListTrashArray.cpp
+121	362	CvGameCoreDLL/FFreeListTrashArray.h
+0	13	CvGameCoreDLL/FLTALoopCounter.h
+83	0	CvGameCoreDLL/FreeListTraversal.h
+1	0	CvGameCoreDLL/InvasionGraph.cpp
+1	0	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	0	CvGameCoreDLL/MilitaryBranch.cpp
+3	9	CvGameCoreDLL/Project/AdvCiv.vcxproj
+2	0	CvGameCoreDLL/RiseFall.cpp
+1	0	CvGameCoreDLL/UWAIAgent.cpp
+1	0	CvGameCoreDLL/UWAICache.cpp
+6	3	CvGameCoreDLL/WarUtilityAspect.cpp
+ delete mode 100644 CvGameCoreDLL/CvAreaList.h
+ delete mode 100644 CvGameCoreDLL/CvCityList.h
+ delete mode 100644 CvGameCoreDLL/CvDealList.h
+ delete mode 100644 CvGameCoreDLL/CvSelectionGroupList.h
+ delete mode 100644 CvGameCoreDLL/CvUnitList.h
+ delete mode 100644 CvGameCoreDLL/FFreeListArray.h
+ delete mode 100644 CvGameCoreDLL/FFreeListArrayBase.h
+ create mode 100644 CvGameCoreDLL/FFreeListTrashArray.cpp
+ delete mode 100644 CvGameCoreDLL/FLTALoopCounter.h
+ create mode 100644 CvGameCoreDLL/FreeListTraversal.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index deeb8dc49..748193ccf 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -5,7 +5,8 @@
+ #include "CvInfo_Unit.h"
+ #include "CvInfo_Terrain.h"
+ #include "CoreAI.h"
+-#include "CvDealList.h" // advc.003s
++#include "CvDeal.h"
++#include "CvCity.h"
+ #include "RiseFall.h" // advc.706
+ #include "UWAIAgent.h" // advc.ctr
+ #include <iterator>
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 41e5a888d..a5346c75e 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -7,6 +7,7 @@
+ #include "WarEvalParameters.h"
+ #include "UWAIReport.h"
+ #include "CoreAI.h"
++#include "CvCity.h"
+ #include "CvMap.h"
+ #include "CvArea.h"
+ #include "CvInfo_GameOption.h"
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 680a8f558..8ba5f0d18 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1,6 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CitySiteEvaluator.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "CvCivilization.h"
+ #include "PlotRange.h"
+ #include "CvArea.h"
+@@ -2546,7 +2547,7 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
+ 		int iDistPenalty = 5100 - std::min<int>(4, eEra) * 775; // (was 8000 flat)
+ 		// </advc.031> (no functional change below)
+ 		iDistPenalty *= iDistance;
+-		iDistPenalty /= GC.getMap().maxPlotDistance();
++		iDistPenalty /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+ 		iDistPenalty = std::min(500 * iDistance, iDistPenalty);
+ 		iValue -= iDistPenalty;
+ 		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistance, cityName(*pOurNearestCity));
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 9e1c26af5..586dfb3c5 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -2,11 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvArea.h"
+-#include "CvAreaList.h" // advc.003s
+-#include "CvCityList.h"
+-#include "CvUnitList.h"
+ #include "CvMap.h"
+ #include "CvGamePlay.h"
++#include "CvCity.h"
++#include "CvUnit.h"
+ #include "CvPlayerAI.h"
+ #include "CvInfo_Terrain.h"
+ 
+@@ -612,7 +611,7 @@ CvCityAI* CvArea::AI_getTargetCity(PlayerTypes eIndex) const
+ }
+ 
+ 
+-void CvArea::AI_setTargetCity(PlayerTypes eIndex, CvCityAI* pNewValue) // advc.003u: CvCityAI param only for consistency with getTargetCity
++void CvArea::AI_setTargetCity(PlayerTypes eIndex, CvCity* pNewValue)
+ {
+ 	FAssertBounds(0, MAX_PLAYERS, eIndex);
+ 	if (pNewValue != NULL)
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 86bf69a78..3a339caa2 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -103,7 +103,7 @@ public:
+ 	void setAreaAIType(TeamTypes eIndex, AreaAITypes eNewValue);
+ 	// advc.003u: Renamed these two from get/setTargetCity and changed types to CvCityAI. Target cities are an AI thing.
+ 	CvCityAI* AI_getTargetCity(PlayerTypes eIndex) const;													// Exposed to Python
+-	void AI_setTargetCity(PlayerTypes eIndex, CvCityAI* pNewValue);
++	void AI_setTargetCity(PlayerTypes eIndex, CvCity* pNewValue);
+ 
+ 	int getYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2) const;	// Exposed to Python
+ 	void changeYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+diff --git a/CvGameCoreDLL/CvAreaList.h b/CvGameCoreDLL/CvAreaList.h
+deleted file mode 100644
+index 3c7555e7a..000000000
+--- a/CvGameCoreDLL/CvAreaList.h
++++ /dev/null
+@@ -1,28 +0,0 @@
+-#pragma once
+-
+-#ifndef CIV4_AREA_LIST_H
+-#define CIV4_AREA_LIST_H
+-
+-#include "FFreeListTrashArray.h"
+-#include "CvArea.h"
+-
+-// advc.003u: Wrapper for FLTA
+-class CvAreaList : public FFreeListTrashArray<CvArea> {};
+-
+-// advc.003s: See also CvUnitList.h about the FOR_EACH macros
+-
+-/*  To avoid calling GC.getMap() in every iteration; probably makes no difference,
+-	but don't want to trust inlining more than I have to. */
+-#define MAPVARNAME CONCATVARNAME(kMap_, __LINE__)
+-
+-/*  Const-correctness for CvArea isn't normally achievable b/c functions always
+-	take CvArea* as a variable parameter, but I want to be consistent with the
+-	other FOR_EACH_... macros, so FOR_EACH_AREA uses a const CvArea*. */
+-#define FOR_EACH_AREA(pArea) \
+-	int LOOPCOUNTERNAME; CvMap const& MAPVARNAME = GC.getMap(); \
+-	for(CvArea const* pArea = MAPVARNAME.firstArea(&LOOPCOUNTERNAME); pArea != NULL; pArea = MAPVARNAME.nextArea(&LOOPCOUNTERNAME))
+-#define FOR_EACH_AREA_VAR(pArea) \
+-	int LOOPCOUNTERNAME; CvMap const& MAPVARNAME = GC.getMap(); \
+-	for(CvArea* pArea = MAPVARNAME.firstArea(&LOOPCOUNTERNAME); pArea != NULL; pArea = MAPVARNAME.nextArea(&LOOPCOUNTERNAME))
+-
+-#endif
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9dae29ef5..b826682d6 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2,8 +2,11 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvCity.h"
++#include "CvCityAI.h"
+ #include "CityPlotIterator.h"
+ #include "CoreAI.h"
++#include "CvUnit.h"
++#include "CvSelectionGroup.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+@@ -7982,6 +7985,25 @@ int CvCity::getRevoltProtection() const
+ 	return range(iBestModifier, 0, 100);
+ }
+ 
++// advc: Cut from CvPlot::setOwner
++void CvCity::addRevoltFreeUnits()
++{
++	UnitTypes eBestUnit = AI().AI_bestUnitAI(UNITAI_CITY_DEFENSE);
++	if (eBestUnit == NO_UNIT)
++		eBestUnit = AI().AI_bestUnitAI(UNITAI_ATTACK);
++
++	if (eBestUnit != NO_UNIT)
++	{
++		int iFreeUnits = (GC.getDefineINT("BASE_REVOLT_FREE_UNITS") +
++				(getHighestPopulation() * GC.getDefineINT("REVOLT_FREE_UNITS_PERCENT")) / 100);
++		for (int i = 0; i < iFreeUnits; i++)
++		{
++			GET_PLAYER(getOwner()).initUnit(eBestUnit, getX(), getY(), UNITAI_CITY_DEFENSE);
++		}
++	}
++}
++
++
+ void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
+ {
+ 	m_abEverOwned.set(eIndex, bNewValue);
+@@ -9145,8 +9167,9 @@ int CvCity::getReligionGrip(ReligionTypes eReligion) const
+ 
+ 		int iDistance = plotDistance(getX(), getY(), pHolyCity->getX(), pHolyCity->getY());
+ 		iScore += iRELIGION_INFLUENCE_DISTANCE_WEIGHT *
+-				(GC.getMap().maxPlotDistance() - iDistance) /
+-				GC.getMap().maxPlotDistance();
++				// <advc.140> was maxPlotDistance
++				(GC.getMap().maxTypicalDistance() - iDistance) /
++				GC.getMap().maxTypicalDistance(); // </advc.140>
+ 	}
+ 
+ 	int iCurrentTurn = GC.getGame().getGameTurn();
+@@ -10613,7 +10636,7 @@ void CvCity::doReligion()
+ 					int iDivisor = std::max(1, iDivisorBase);
+ 					iDivisor *= 100 + 100 * iDistanceFactor *
+ 							plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY()) /
+-							GC.getMap().maxPlotDistance();
++							GC.getMap().maxTypicalDistance();  // advc.140: was maxPlotDistance
+ 					iDivisor /= 100;
+ 
+ 					// now iDivisor is in the range [1, 1+iDistanceFactor] * iDivisorBase
+@@ -12734,7 +12757,7 @@ int CvCity::calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
+ 		iTempMaintenance *= GC.getInfo(GET_PLAYER(eOwner).getHandicapType()).getDistanceMaintenancePercent();
+ 		iTempMaintenance /= 100;
+ 
+-		iTempMaintenance /= GC.getMap().maxPlotDistance();
++		iTempMaintenance /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+ 	}
+ 	/*iWorstCityMaintenance = std::max(iWorstCityMaintenance, iTempMaintenance);
+ 		if (pLoopCity->isGovernmentCenter())
+@@ -12859,7 +12882,7 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
+ 	iMaintenanceCap *= GC.getInfo(eOwnerHandicap).getDistanceMaintenancePercent();
+ 	iMaintenanceCap /= 100;
+ 
+-	iMaintenanceCap /= GC.getMap().maxPlotDistance();
++	iMaintenanceCap /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+ 
+ 	iMaintenanceCap *= GC.getInfo(eOwnerHandicap).getMaxColonyMaintenance();
+ 	iMaintenanceCap /= 100;
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 051af390e..df419f801 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -19,6 +19,7 @@ class CvCivilization; // advc.003w
+ class CvCity : public CvDLLEntity
+ {
+ public:
++	virtual ~CvCity();
+ 
+ 	void setupGraphical();
+ 	void kill(bool bUpdatePlotGroups);																			// Exposed to Python
+@@ -873,6 +874,7 @@ public:
+ 	void changeNumRevolts(PlayerTypes eIndex, int iChange);
+ 	double getRevoltTestProbability() const; // advc.101: Now between 0 and 1
+ 	int getRevoltProtection() const; // advc.101
++	void addRevoltFreeUnits(); // advc
+ 
+ 	bool isTradeRoute(PlayerTypes eIndex) const																		// Exposed to Python
+ 	{
+@@ -1225,9 +1227,10 @@ public:
+ 	void invalidateCommerceRankCache(CommerceTypes eCommerce = NO_COMMERCE);
+ 	//int getBestYieldAvailable(YieldTypes eYield) const; // advc.003j: obsolete
+ 
+-	void read(FDataStreamBase* pStream);
+-	void write(FDataStreamBase* pStream);
+ 	// <advc.003u>
++	// virtual for FFreeListTrashArray
++	virtual void read(FDataStreamBase* pStream); 
++	virtual void write(FDataStreamBase* pStream);
+ 	__forceinline CvCityAI& AI()
+ 	{	//return *static_cast<CvCityAI*>(const_cast<CvCity*>(this));
+ 		/*  The above won't work in an inline function b/c the compiler doesn't know
+@@ -1245,7 +1248,6 @@ public:
+ protected:
+ 	// <advc.003u>
+ 	CvCity();
+-	virtual ~CvCity();
+ 	/*  Subclasses need to call this; not called by base.
+ 		May also want to override it. </advc.003u> */
+ 	virtual void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 50785808e..9264e2fe1 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3,8 +3,10 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvCityAI.h"
+ #include "CoreAI.h"
++#include "CvSelectionGroupAI.h"
+ #include "UWAIAgent.h" // advc.031b (for trait checks)
+ #include "CityPlotIterator.h"
++#include "CvUnit.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+
+diff --git a/CvGameCoreDLL/CvCityList.h b/CvGameCoreDLL/CvCityList.h
+deleted file mode 100644
+index efc7e5174..000000000
+--- a/CvGameCoreDLL/CvCityList.h
++++ /dev/null
+@@ -1,27 +0,0 @@
+-#pragma once
+-
+-#ifndef CIV4_CITY_LIST_H
+-#define CIV4_CITY_LIST_H
+-
+-#include "FFreeListTrashArray.h"
+-#include "CvCityAI.h"
+-
+-// advc.003u: Wrapper for FLTA
+-class CvCityList : public FFreeListTrashArray<CvCityAI> {};
+-
+-// <advc.003s> See CvUnitList.h about these macros
+-#define FOR_EACH_CITY(pCity, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvCity const* pCity = (kOwner).firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).nextCity(&LOOPCOUNTERNAME))
+-#define FOR_EACH_CITY_VAR(pCity, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvCity* pCity = (kOwner).firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).nextCity(&LOOPCOUNTERNAME))
+-// advc.003u: AI versions
+-#define FOR_EACH_CITYAI_VAR(pCity, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvCityAI* pCity = (kOwner).AI_firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).AI_nextCity(&LOOPCOUNTERNAME))
+-#define FOR_EACH_CITYAI(pCity, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvCityAI const* pCity = (kOwner).AI_firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).AI_nextCity(&LOOPCOUNTERNAME))
+-// </advc.003s>
+-#endif
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 9d163cebc..05b4d6158 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -4,9 +4,12 @@
+ #include "CvDLLButtonPopup.h"
+ #include "CvPopupInfo.h"
+ #include "CoreAI.h"
+-#include "RiseFall.h" // advc.706
++#include "CvCityAI.h"
++#include "CvUnit.h"
++#include "CvSelectionGroup.h"
+ #include "CvMap.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h"
++#include "RiseFall.h" // advc.706
+ #include "CvPopupReturn.h"
+ #include "CvInfo_All.h"
+ #include "CvGameTextMgr.h"
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 6f0e4682c..3687108fc 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -7,8 +7,7 @@
+ #include "CvUnit.h"
+ // <advc.mapstat>
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvAreaList.h"
++#include "CvArea.h"
+ #include "CvInfo_Terrain.h"
+ #include <sstream>
+ // </advc.mapstat>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index b9ac5584e..32040afff 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1,6 +1,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLWidgetData.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
++#include "CvUnit.h"
++#include "CvSelectionGroup.h"
+ #include "CvDeal.h"
+ #include "PlotRange.h"
+ #include "CvGameTextMgr.h"
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index b24451ed3..3a2e59110 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -2,9 +2,9 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvDeal.h"
+-#include "CvDealList.h" // advc.003s
+ #include "CoreAI.h"
+ #include "UWAIAgent.h" // advc.104
++#include "CvCity.h"
+ #include "CvMap.h"
+ #include "CvGameTextMgr.h"
+ #include "CvInfo_Civics.h"
+
+diff --git a/CvGameCoreDLL/CvDealList.h b/CvGameCoreDLL/CvDealList.h
+deleted file mode 100644
+index 53a91aa01..000000000
+--- a/CvGameCoreDLL/CvDealList.h
++++ /dev/null
+@@ -1,24 +0,0 @@
+-#pragma once
+-
+-#ifndef CIV4_DEAL_LIST_H
+-#define CIV4_DEAL_LIST_H
+-
+-#include "FFreeListTrashArray.h"
+-#include "CvDeal.h"
+-
+-// advc.003u: Wrapper for FLTA
+-class CvDealList : public FFreeListTrashArray<CvDeal> {};
+-
+-// advc.003s: See also CvUnitList.h about the FOR_EACH macros
+-
+-// See FreeListTraversal_Map.h about this
+-#define GAMEVARNAME CONCATVARNAME(kGame_, __LINE__)
+-
+-#define FOR_EACH_DEAL(pDeal) \
+-	int LOOPCOUNTERNAME; CvGame const& GAMEVARNAME = GC.getGame(); \
+-	for(CvDeal const* pDeal = GAMEVARNAME.firstDeal(&LOOPCOUNTERNAME); pDeal != NULL; pDeal = GAMEVARNAME.nextDeal(&LOOPCOUNTERNAME))
+-#define FOR_EACH_DEAL_VAR(pDeal) \
+-	int LOOPCOUNTERNAME; CvGame const& GAMEVARNAME = GC.getGame(); \
+-	for(CvDeal* pDeal = GAMEVARNAME.firstDeal(&LOOPCOUNTERNAME); pDeal != NULL; pDeal = GAMEVARNAME.nextDeal(&LOOPCOUNTERNAME))
+-
+-#endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 8ddde3859..91af5faa8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2,12 +2,15 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
+-#include "CvDealList.h" // advc.003u
++#include "CvDeal.h"
+ #include "CvAgents.h" // advc.agent
+ #include "CoreAI.h"
++#include "CvCityAI.h"
++#include "CvUnit.h"
++#include "CvSelectionGroupAI.h"
+ #include "CitySiteEvaluator.h"
+ #include "CityPlotIterator.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h"
+ #include "CvMapGenerator.h"
+ #include "CvDiploParameters.h"
+ #include "CvReplayMessage.h"
+@@ -26,7 +29,7 @@
+ #include "CvBugOptions.h" // K-Mod
+ 
+ 
+-CvGame::CvGame() /* advc.003u: */ : m_deals(new CvDealList()),
++CvGame::CvGame() :
+ 	m_pRiseFall(new RiseFall()), // advc.700
+ 	m_pSpah(new StartPointsAsHandicap()) // advc.250b
+ {
+@@ -79,7 +82,6 @@ CvGame::~CvGame()
+ 
+ 	SAFE_DELETE(m_pSpah); // advc.250b
+ 	SAFE_DELETE(m_pRiseFall); // advc.700
+-	SAFE_DELETE(m_deals); // advc.003u
+ }
+ 
+ void CvGame::init(HandicapTypes eHandicap)
+@@ -91,7 +93,6 @@ void CvGame::init(HandicapTypes eHandicap)
+ 
+ 	//--------------------------------
+ 	// Init containers
+-	m_deals->init();
+ 	m_voteSelections.init();
+ 	m_votesTriggered.init();
+ 
+@@ -416,7 +417,7 @@ void CvGame::uninit()
+ 	m_aszDestroyedCities.clear();
+ 	m_aszGreatPeopleBorn.clear();
+ 
+-	m_deals->uninit();
++	m_deals.uninit();
+ 	// <advc.072> This also frees dynamically allocated memory
+ 	m_currentDeals.clear();
+ 	m_currentDealsWidget.clear();
+@@ -684,7 +685,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 		}
+ 	}
+ 
+-	m_deals->removeAll();
++	m_deals.removeAll();
+ 	m_voteSelections.removeAll();
+ 	m_votesTriggered.removeAll();
+ 
+@@ -3707,17 +3708,13 @@ bool CvGame::isModem() /* advc: */ const
+ {
+ 	return gDLL->IsModem();
+ }
++
++
+ void CvGame::setModem(bool bModem)
+ {
+ 	if (bModem)
+-	{
+ 		gDLL->ChangeINIKeyValue("CONFIG", "Bandwidth", "modem");
+-	}
+-	else
+-	{
+-		gDLL->ChangeINIKeyValue("CONFIG", "Bandwidth", "broadband");
+-	}
+-
++	else gDLL->ChangeINIKeyValue("CONFIG", "Bandwidth", "broadband");
+ 	gDLL->SetModem(bModem);
+ }
+ 
+@@ -3784,12 +3781,6 @@ int CvGame::getGameTurnYear() const // advc: const
+ }
+ 
+ 
+-int CvGame::getElapsedGameTurns() const
+-{
+-	return m_iElapsedGameTurns;
+-}
+-
+-
+ void CvGame::incrementElapsedGameTurns()
+ {
+ 	m_iElapsedGameTurns++;
+@@ -3855,11 +3846,6 @@ void CvGame::setNumAdvancedStartPoints(int iNewValue)
+ 	FAssert(getNumAdvancedStartPoints() >= 0);
+ }
+ 
+-int CvGame::getStartTurn() const
+-{
+-	return m_iStartTurn;
+-}
+-
+ 
+ void CvGame::setStartTurn(int iNewValue)
+ {
+@@ -4059,12 +4045,6 @@ void CvGame::changeNumGameTurnActive(int iChange)
+ }
+ 
+ 
+-int CvGame::getNumCities() const
+-{
+-	return m_iNumCities;
+-}
+-
+-
+ int CvGame::getNumCivCities() const
+ {
+ 	return (getNumCities() - GET_PLAYER(BARBARIAN_PLAYER).getNumCities());
+@@ -4078,12 +4058,6 @@ void CvGame::changeNumCities(int iChange)
+ }
+ 
+ 
+-int CvGame::getTotalPopulation() const
+-{
+-	return m_iTotalPopulation;
+-}
+-
+-
+ void CvGame::changeTotalPopulation(int iChange)
+ {
+ 	m_iTotalPopulation = (m_iTotalPopulation + iChange);
+@@ -4334,12 +4308,6 @@ void CvGame::initScoreCalculation()
+ }
+ 
+ 
+-int CvGame::getAIAutoPlay() /* advc: */ const
+-{
+-	return m_iAIAutoPlay;
+-}
+-
+-
+ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus)
+ {
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
+@@ -4932,12 +4900,6 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ }
+ 
+ 
+-bool CvGame::isDebugMode() const
+-{
+-	return m_bDebugModeCache;
+-}
+-
+-
+ void CvGame::toggleDebugMode()
+ {	// <advc.135c>
+ 	if(!m_bDebugMode && !isDebugToolsAllowed(false))
+@@ -5046,12 +5008,6 @@ bool CvGame::isSimultaneousTeamTurns() const
+ }
+ 
+ 
+-bool CvGame::isFinalInitialized() const
+-{
+-	return m_bFinalInitialized;
+-}
+-
+-
+ void CvGame::setFinalInitialized(bool bNewValue)
+ {
+ 	PROFILE_FUNC();
+@@ -5297,10 +5253,7 @@ UnitTypes CvGame::getBestLandUnit() const
+ int CvGame::getBestLandUnitCombat() const
+ {
+ 	if (getBestLandUnit() == NO_UNIT)
+-	{
+ 		return 1;
+-	}
+-
+ 	return std::max(1, GC.getInfo(getBestLandUnit()).getCombat());
+ }
+ 
+@@ -5316,18 +5269,6 @@ void CvGame::setBestLandUnit(UnitTypes eNewValue)
+ }
+ 
+ 
+-TeamTypes CvGame::getWinner() const
+-{
+-	return m_eWinner;
+-}
+-
+-
+-VictoryTypes CvGame::getVictory() const
+-{
+-	return m_eVictory;
+-}
+-
+-
+ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
+ {
+ 	CvWString szBuffer;
+@@ -5369,12 +5310,6 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
+ }
+ 
+ 
+-GameStateTypes CvGame::getGameState() const
+-{
+-	return m_eGameState;
+-}
+-
+-
+ void CvGame::setGameState(GameStateTypes eNewValue)
+ {
+ 	if (getGameState() == eNewValue)
+@@ -7270,8 +7205,10 @@ void CvGame::createBarbarianUnits()
+ 		{
+ 			int iShips = shelves[i]->countBarbarians();
+ 			if (killBarbarian(iShips, shelves[i]->size(), a.getPopulationPerPlayer(BARBARIAN_PLAYER),
+-					a, shelves[i]))
++				a, shelves[i]))
++			{
+ 				iShips--;
++			}
+ 			if (!bCreateBarbarians)
+ 				continue;
+ 			int iNeededSea = numBarbariansToCreate(iBaseTilesPerSeaUnit,
+@@ -8292,45 +8229,28 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ 
+ int CvGame::getIndexAfterLastDeal()
+ {
+-	return m_deals->getIndexAfterLast();
++	return m_deals.getIndexAfterLast();
+ }
+ 
+ 
+ int CvGame::getNumDeals()
+ {
+-	return m_deals->getCount();
+-}
+-
+-
+-CvDeal const* CvGame::getDeal(int iID) const // advc.003u: 2x const
+-{
+-	return m_deals->getAt(iID);
++	return m_deals.getCount();
+ }
+ 
+ 
+ CvDeal* CvGame::addDeal()
+ {
+-	return m_deals->add();
++	return m_deals.add();
+ }
+ 
+ 
+  void CvGame::deleteDeal(int iID)
+ {
+-	m_deals->removeAt(iID);
++	m_deals.removeAt(iID);
+ 	gDLL->getInterfaceIFace()->setDirty(Foreign_Screen_DIRTY_BIT, true);
+ }
+ 
+-CvDeal* CvGame::firstDeal(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_deals->beginIter(pIterIdx) : m_deals->endIter(pIterIdx);
+-}
+-
+-
+-CvDeal* CvGame::nextDeal(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_deals->nextIter(pIterIdx) : m_deals->prevIter(pIterIdx);
+-}
+-
+ /*  <advc.072> All the FAssert(false) in this function mean that we're somehow
+ 	out of step with the iteration that happens in the EXE. */
+ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
+@@ -8345,14 +8265,17 @@ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePla
+ 	// Probably not needed:
+ 	PlayerTypes eDiploPlayer = (PlayerTypes)gDLL->getDiplomacyPlayer();
+ 	if(!((getActivePlayer() == eGivePlayer && eDiploPlayer == eReceivePlayer) ||
+-			(getActivePlayer() == eReceivePlayer && eDiploPlayer == eGivePlayer)))
++		(getActivePlayer() == eReceivePlayer && eDiploPlayer == eGivePlayer)))
++	{
+ 		return NULL;
++	}
+ 	CLinkList<DealItemData>& kCurrentDeals = (bWidget ? m_currentDealsWidget :
+ 			m_currentDeals);
+ 	if(kCurrentDeals.getLength() <= 0)
+ 	{
+ 		bool bFirstFound = false;
+-		FOR_EACH_DEAL(d) {
++		FOR_EACH_DEAL(d)
++		{
+ 			if(!d->isBetween(eGivePlayer, eReceivePlayer))
+ 				continue;
+ 			CLinkList<TradeData> const& kGiveList = *(d->getFirstPlayer() == eGivePlayer ?
+@@ -8361,12 +8284,14 @@ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePla
+ 				pNode = kGiveList.next(pNode))
+ 			{
+ 				if(!CvDeal::isAnnual(pNode->m_data.m_eItemType) &&
+-						pNode->m_data.m_eItemType != TRADE_PEACE_TREATY)
++					pNode->m_data.m_eItemType != TRADE_PEACE_TREATY)
++				{
+ 					break;
++				}
+ 				if(!bFirstFound)
+ 				{
+ 					if(pNode->m_data.m_eItemType != eItemType ||
+-							pNode->m_data.m_iData != iData)
++						pNode->m_data.m_iData != iData)
+ 					{
+ 						FAssert(false);
+ 						return NULL;
+@@ -8387,7 +8312,7 @@ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePla
+ 	CLLNode<DealItemData>* pNode = kCurrentDeals.head();
+ 	DealItemData data = pNode->m_data;
+ 	if(data.eGivePlayer != eGivePlayer || data.eReceivePlayer != eReceivePlayer ||
+-			data.iData != iData || data.eItemType != eItemType)
++		data.iData != iData || data.eItemType != eItemType)
+ 	{
+ 		kCurrentDeals.clear();
+ 		FAssert(false);
+@@ -8400,30 +8325,6 @@ CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePla
+ } // </advc.072>
+ 
+ 
+- CvRandom& CvGame::getMapRand()
+-{
+-	return m_mapRand;
+-}
+-
+-
+-int CvGame::getMapRandNum(int iNum, const char* pszLog)
+-{
+-	return m_mapRand.get(iNum, pszLog);
+-}
+-
+-
+-CvRandom& CvGame::getSorenRand()
+-{
+-	return m_sorenRand;
+-}
+-
+-
+-int CvGame::getSorenRandNum(int iNum, const char* pszLog, /* advc.007: */ int iData1, int iData2)
+-{
+-	return m_sorenRand.getInt(iNum, pszLog, /* advc.007: */ iData1, iData2);
+-}
+-
+-
+ int CvGame::calculateSyncChecksum()
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+@@ -8706,133 +8607,81 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ } // </advc.003r>
+ 
+ 
+-void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString pszText, int iPlotX, int iPlotY, ColorTypes eColor)
++void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
++	CvWString pszText, int iPlotX, int iPlotY, ColorTypes eColor)
+ {
+ 	int iGameTurn = getGameTurn();
+ 	CvReplayMessage* pMessage = new CvReplayMessage(iGameTurn, eType, ePlayer);
+-	if (NULL != pMessage)
+-	{
+-		pMessage->setPlot(iPlotX, iPlotY);
+-		pMessage->setText(pszText);
+-		if (NO_COLOR == eColor)
+-			eColor = (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
+-		pMessage->setColor(eColor);
+-		m_listReplayMessages.push_back(pMessage);
+-	}
++	pMessage->setPlot(iPlotX, iPlotY);
++	pMessage->setText(pszText);
++	if (NO_COLOR == eColor)
++		eColor = (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
++	pMessage->setColor(eColor);
++	m_listReplayMessages.push_back(pMessage);
+ }
+ 
+ 
+ void CvGame::clearReplayMessageMap()
+ {
+-	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); itList++)
++	for (ReplayMessageList::iterator itList = m_listReplayMessages.begin();
++		itList != m_listReplayMessages.end(); itList++)
+ 	{
+-		const CvReplayMessage* pMessage = *itList;
+-		SAFE_DELETE(pMessage);
++		SAFE_DELETE(*itList);
+ 	}
+ 	m_listReplayMessages.clear();
+ }
+ 
+-int CvGame::getReplayMessageTurn(uint i) const
++
++// advc: To get rid of some duplicate code
++bool CvGame::isValidReplayIndex(uint i) const
+ {
+ 	if (i >= m_listReplayMessages.size())
+-	{
+-		return (-1);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (-1);
+-	}
+-	return pMessage->getTurn();
++		return false;
++	CvReplayMessage const* pMessage = m_listReplayMessages[i];
++	if (pMessage == NULL)
++		return false;
++	return true;
++}
++
++
++int CvGame::getReplayMessageTurn(uint i) const
++{
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getTurn() : -1);
+ }
+ 
+ 
+ ReplayMessageTypes CvGame::getReplayMessageType(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NO_REPLAY_MESSAGE);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NO_REPLAY_MESSAGE);
+-	}
+-	return pMessage->getType();
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getType() : NO_REPLAY_MESSAGE);
+ }
+ 
+ int CvGame::getReplayMessagePlotX(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (-1);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (-1);
+-	}
+-	return pMessage->getPlotX();
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getPlotX() : INVALID_PLOT_COORD);
+ }
+ 
+ 
+ int CvGame::getReplayMessagePlotY(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (-1);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (-1);
+-	}
+-	return pMessage->getPlotY();
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getPlotY() : INVALID_PLOT_COORD);
+ }
+ 
+ 
+ PlayerTypes CvGame::getReplayMessagePlayer(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NO_PLAYER);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NO_PLAYER);
+-	}
+-	return pMessage->getPlayer();
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getPlayer() : NO_PLAYER);
+ }
+ 
+ 
+ LPCWSTR CvGame::getReplayMessageText(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NULL);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NULL);
+-	}
+-	return pMessage->getText().GetCString();
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getText().GetCString() : NULL);
+ }
+ 
+ 
+ ColorTypes CvGame::getReplayMessageColor(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NO_COLOR);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NO_COLOR);
+-	}
+-	return pMessage->getColor();
++	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getColor() : NO_COLOR);
+ }
+ 
+ 
+@@ -8978,7 +8827,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		}
+ 	}
+ 
+-	ReadStreamableFFreeListTrashArray(*m_deals, pStream);
++	ReadStreamableFFreeListTrashArray(m_deals, pStream);
+ 	ReadStreamableFFreeListTrashArray(m_voteSelections, pStream);
+ 	ReadStreamableFFreeListTrashArray(m_votesTriggered, pStream);
+ 
+@@ -9215,7 +9064,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 		}
+ 	}
+ 
+-	WriteStreamableFFreeListTrashArray(*m_deals, pStream);
++	WriteStreamableFFreeListTrashArray(m_deals, pStream);
+ 	WriteStreamableFFreeListTrashArray(m_voteSelections, pStream);
+ 	WriteStreamableFFreeListTrashArray(m_votesTriggered, pStream);
+ 
+@@ -9929,145 +9778,137 @@ VoteSelectionData* CvGame::getVoteSelection(int iID) const
+ 
+ VoteSelectionData* CvGame::addVoteSelection(VoteSourceTypes eVoteSource)
+ {
+-	VoteSelectionData* pData = ((VoteSelectionData*)(m_voteSelections.add()));
+-
+-	if  (NULL != pData)
++	VoteSelectionData* pData = (VoteSelectionData*)(m_voteSelections.add());
++	if (pData == NULL)
+ 	{
+-		pData->eVoteSource = eVoteSource;
+-
+-		for (int iI = 0; iI < GC.getNumVoteInfos(); iI++)
++		FAssert(pData != NULL); // advc.test
++		return NULL;
++	}
++	pData->eVoteSource = eVoteSource;
++	FOR_EACH_ENUM(Vote)  // advc.003n: Minor civs excluded from all loops
++	{
++		if (!GC.getInfo(eLoopVote).isVoteSourceType(eVoteSource) ||
++			!isChooseElection(eLoopVote))
++		{
++			continue; // advc
++		}
++		VoteSelectionSubData kData;
++		kData.eVote = eLoopVote;
++		kData.iCityId = -1;
++		kData.ePlayer = NO_PLAYER;
++		kData.eOtherPlayer = NO_PLAYER;
++		if (GC.getInfo(kData.eVote).isOpenBorders())
++		{
++			if (isValidVoteSelection(eVoteSource, kData))
++			{
++				kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_OPEN_BORDERS",
++						getVoteRequired(kData.eVote, eVoteSource),
++						countPossibleVote(kData.eVote, eVoteSource));
++				pData->aVoteOptions.push_back(kData);
++			}
++		}
++		else if (GC.getInfo(kData.eVote).isDefensivePact())
++		{
++			if (isValidVoteSelection(eVoteSource, kData))
++			{
++				kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_DEFENSIVE_PACT",
++						getVoteRequired(kData.eVote, eVoteSource),
++						countPossibleVote(kData.eVote, eVoteSource));
++				pData->aVoteOptions.push_back(kData);
++			}
++		}
++		else if (GC.getInfo(kData.eVote).isForcePeace())
+ 		{
+-			if (GC.getInfo((VoteTypes)iI).isVoteSourceType(eVoteSource))
++			for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 			{
+-				if (isChooseElection((VoteTypes)iI))
++				kData.ePlayer = it->getLeaderID();
++				if (isValidVoteSelection(eVoteSource, kData))
+ 				{
+-					VoteSelectionSubData kData;
+-					kData.eVote = (VoteTypes)iI;
+-					kData.iCityId = -1;
+-					kData.ePlayer = NO_PLAYER;
+-					kData.eOtherPlayer = NO_PLAYER;
+-
+-					if (GC.getInfo(kData.eVote).isOpenBorders())
+-					{
+-						if (isValidVoteSelection(eVoteSource, kData))
+-						{
+-							kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_OPEN_BORDERS", getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-							pData->aVoteOptions.push_back(kData);
+-						}
+-					}
+-					else if (GC.getInfo(kData.eVote).isDefensivePact())
++					kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_PEACE",
++							it->getName().GetCString(),
++							getVoteRequired(kData.eVote, eVoteSource),
++							countPossibleVote(kData.eVote, eVoteSource));
++					pData->aVoteOptions.push_back(kData);
++				}
++			}
++		}
++		else if (GC.getInfo(kData.eVote).isForceNoTrade())
++		{
++			for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
++			{
++				kData.ePlayer = it->getLeaderID();
++				if (isValidVoteSelection(eVoteSource, kData))
++				{
++					kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_NO_TRADE",
++							it->getName().GetCString(),
++							getVoteRequired(kData.eVote, eVoteSource),
++							countPossibleVote(kData.eVote, eVoteSource));
++					pData->aVoteOptions.push_back(kData);
++				}
++			}
++		}
++		else if (GC.getInfo(kData.eVote).isForceWar())
++		{
++			for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
++			{
++				kData.ePlayer = it->getLeaderID();
++				if (isValidVoteSelection(eVoteSource, kData))
++				{
++					kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_WAR",
++							it->getName().GetCString(),
++							getVoteRequired(kData.eVote, eVoteSource),
++							countPossibleVote(kData.eVote, eVoteSource));
++					pData->aVoteOptions.push_back(kData);
++				}
++			}
++		}
++		else if (GC.getInfo(kData.eVote).isAssignCity())
++		{
++			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++			{
++				FOR_EACH_CITY(pLoopCity, *it)
++				{
++					PlayerTypes eNewOwner = pLoopCity->getPlot().findHighestCulturePlayer();
++					if (eNewOwner != NO_PLAYER &&
++					/*  advc.099: No longer implied by findHighestCulturePlayer;
++						mustn't return cities to dead civs. */
++						GET_PLAYER(eNewOwner).isAlive())
+ 					{
++						kData.ePlayer = it->getID();
++						kData.iCityId =	pLoopCity->getID();
++						kData.eOtherPlayer = eNewOwner;
+ 						if (isValidVoteSelection(eVoteSource, kData))
+ 						{
+-							kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_DEFENSIVE_PACT", getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-							pData->aVoteOptions.push_back(kData);
+-						}
+-					}
+-					else if (GC.getInfo(kData.eVote).isForcePeace())
+-					{
+-						for (int iTeam1 = 0; iTeam1 < MAX_CIV_TEAMS; ++iTeam1)
+-						{
+-							CvTeam& kTeam1 = GET_TEAM((TeamTypes)iTeam1);
+-
+-							if (kTeam1.isAlive())
+-							{
+-								kData.ePlayer = kTeam1.getLeaderID();
+-
+-								if (isValidVoteSelection(eVoteSource, kData))
+-								{
+-									kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_PEACE", kTeam1.getName().GetCString(), getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-									pData->aVoteOptions.push_back(kData);
+-								}
+-							}
+-						}
+-					}
+-					else if (GC.getInfo(kData.eVote).isForceNoTrade())
+-					{
+-						for (int iTeam1 = 0; iTeam1 < MAX_CIV_TEAMS; ++iTeam1)
+-						{
+-							CvTeam& kTeam1 = GET_TEAM((TeamTypes)iTeam1);
+-
+-							if (kTeam1.isAlive())
+-							{
+-								kData.ePlayer = kTeam1.getLeaderID();
+-
+-								if (isValidVoteSelection(eVoteSource, kData))
+-								{
+-									kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_NO_TRADE", kTeam1.getName().GetCString(), getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-									pData->aVoteOptions.push_back(kData);
+-								}
+-							}
+-						}
+-					}
+-					else if (GC.getInfo(kData.eVote).isForceWar())
+-					{
+-						for (int iTeam1 = 0; iTeam1 < MAX_CIV_TEAMS; ++iTeam1)
+-						{
+-							CvTeam& kTeam1 = GET_TEAM((TeamTypes)iTeam1);
+-
+-							if (kTeam1.isAlive())
+-							{
+-								kData.ePlayer = kTeam1.getLeaderID();
+-
+-								if (isValidVoteSelection(eVoteSource, kData))
+-								{
+-									kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_WAR", kTeam1.getName().GetCString(), getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-									pData->aVoteOptions.push_back(kData);
+-								}
+-							}
+-						}
+-					}
+-					else if (GC.getInfo(kData.eVote).isAssignCity())
+-					{
+-						for (int iPlayer1 = 0; iPlayer1 < MAX_CIV_PLAYERS; ++iPlayer1)
+-						{
+-							CvPlayer& kPlayer1 = GET_PLAYER((PlayerTypes)iPlayer1);
+-							FOR_EACH_CITY(pLoopCity, kPlayer1)
+-							{
+-								PlayerTypes eNewOwner = pLoopCity->getPlot().findHighestCulturePlayer();
+-								if (eNewOwner != NO_PLAYER
+-								/*  advc.099: No longer implied by findHighestCulturePlayer;
+-									mustn't return cities to dead civs. */
+-									&& GET_PLAYER(eNewOwner).isAlive())
+-								{
+-									kData.ePlayer = (PlayerTypes)iPlayer1;
+-									kData.iCityId =	pLoopCity->getID();
+-									kData.eOtherPlayer = eNewOwner;
+-
+-									if (isValidVoteSelection(eVoteSource, kData))
+-									{
+-										kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_ASSIGN_CITY", kPlayer1.getCivilizationAdjectiveKey(), pLoopCity->getNameKey(), GET_PLAYER(eNewOwner).getNameKey(), getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-										pData->aVoteOptions.push_back(kData);
+-									}
+-								}
+-							}
+-						}
+-					}
+-					else
+-					{
+-						kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_OPTION", GC.getInfo(kData.eVote).getTextKeyWide(), getVoteRequired(kData.eVote, eVoteSource), countPossibleVote(kData.eVote, eVoteSource));
+-						if (isVotePassed(kData.eVote))
+-						{
+-							kData.szText += gDLL->getText("TXT_KEY_POPUP_PASSED");
+-						}
+-
+-						//if (canDoResolution(eVoteSource, kData))
+-						if (isValidVoteSelection(eVoteSource, kData)) // K-Mod (zomg!)
+-						{
++							kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_ASSIGN_CITY",
++									it->getCivilizationAdjectiveKey(), pLoopCity->getNameKey(),
++									GET_PLAYER(eNewOwner).getNameKey(),
++									getVoteRequired(kData.eVote, eVoteSource),
++									countPossibleVote(kData.eVote, eVoteSource));
+ 							pData->aVoteOptions.push_back(kData);
+ 						}
+ 					}
+ 				}
+ 			}
+ 		}
+-
+-		if (pData->aVoteOptions.size() == 0)
++		else
+ 		{
+-			deleteVoteSelection(pData->getID());
+-			pData = NULL;
++			kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_OPTION",
++					GC.getInfo(kData.eVote).getTextKeyWide(),
++					getVoteRequired(kData.eVote, eVoteSource),
++					countPossibleVote(kData.eVote, eVoteSource));
++			if (isVotePassed(kData.eVote))
++				kData.szText += gDLL->getText("TXT_KEY_POPUP_PASSED");
++			//if (canDoResolution(eVoteSource, kData))
++			if (isValidVoteSelection(eVoteSource, kData)) // K-Mod (zomg!)
++				pData->aVoteOptions.push_back(kData);
+ 		}
+ 	}
+ 
++	if (pData->aVoteOptions.size() == 0)
++	{
++		deleteVoteSelection(pData->getID());
++		pData = NULL;
++	}
+ 	return pData;
+ }
+ 
+@@ -10078,78 +9919,56 @@ void CvGame::deleteVoteSelection(int iID)
+ 
+ VoteTriggeredData* CvGame::getVoteTriggered(int iID) const
+ {
+-	return ((VoteTriggeredData*)(m_votesTriggered.getAt(iID)));
++	return (VoteTriggeredData*)m_votesTriggered.getAt(iID);
+ }
+ 
+ VoteTriggeredData* CvGame::addVoteTriggered(const VoteSelectionData& kData, int iChoice)
+ {
+-	if (-1 == iChoice || iChoice >= (int)kData.aVoteOptions.size())
+-	{
++	if (iChoice == -1 || iChoice >= (int)kData.aVoteOptions.size())
+ 		return NULL;
+-	}
+-
+ 	return addVoteTriggered(kData.eVoteSource, kData.aVoteOptions[iChoice]);
+ }
+ 
+ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kOptionData)
+ {
+-	VoteTriggeredData* pData = ((VoteTriggeredData*)(m_votesTriggered.add()));
+-
+-	if (NULL != pData)
++	VoteTriggeredData* pData = (VoteTriggeredData*)m_votesTriggered.add();
++	if (pData == NULL)
++	{
++		FAssert(pData != NULL); // advc.test
++		return NULL;
++	}
++	pData->eVoteSource = eVoteSource;
++	pData->kVoteOption = kOptionData;
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 	{
+-		pData->eVoteSource = eVoteSource;
+-		pData->kVoteOption = kOptionData;
++		CvPlayerAI& kVoter = *it;
++		if (!kVoter.isVotingMember(eVoteSource))
++			continue; // advc
+ 
+-		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++		if (!kVoter.isHuman())
+ 		{
+-			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+-			if (kPlayer.isVotingMember(eVoteSource))
++			castVote(kVoter.getID(), pData->getID(),
++					kVoter.AI_diploVote(kOptionData, eVoteSource, false));
++			continue; // advc
++		}
++		// <dlph.25> (advc: simplified)
++		if (isTeamVote(kOptionData.eVote))
++		{
++			TeamTypes const eVoterMaster = kVoter.getMasterTeam();
++			if (eVoterMaster != kVoter.getTeam() &&
++				GET_TEAM(kVoter.getTeam()).isCapitulated() && // advc
++				isTeamVoteEligible(eVoterMaster, eVoteSource) &&
++				!isTeamVoteEligible(kVoter.getTeam(), eVoteSource))
+ 			{
+-				if (kPlayer.isHuman())
+-				{	// <dlph.25>
+-					bool bForced = false;
+-					if (isTeamVote(kOptionData.eVote))
+-					{
+-						for (int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+-						{
+-							if(!GET_TEAM((TeamTypes)iJ).isAlive())
+-								continue;
+-							if (isTeamVoteEligible((TeamTypes)iJ, eVoteSource))
+-							{
+-								if (GET_TEAM(kPlayer.getTeam()).isVassal((TeamTypes)iJ)
+-									// advc:
+-									&& GET_TEAM(kPlayer.getTeam()).isCapitulated())
+-								{
+-									if (!isTeamVoteEligible(kPlayer.getTeam(), eVoteSource))
+-									{
+-										castVote((PlayerTypes)iI, pData->getID(),
+-												GET_PLAYER((PlayerTypes)iI).
+-												AI_diploVote(kOptionData, eVoteSource, false));
+-										bForced = true;
+-										break;
+-									}
+-								}
+-							}
+-						}
+-					}
+-					if (!bForced) // </dlph.25>
+- 					{
+-						CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DIPLOVOTE);
+-						if (NULL != pInfo)
+-						{
+-							pInfo->setData1(pData->getID());
+-							gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+-						}
+- 					}
+- 				}
+-				else
+-				{
+-					castVote(((PlayerTypes)iI), pData->getID(), GET_PLAYER((PlayerTypes)iI).AI_diploVote(kOptionData, eVoteSource, false));
+-				}
++				castVote(kVoter.getID(), pData->getID(),
++						kVoter.AI_diploVote(kOptionData, eVoteSource, false));
++				continue;
+ 			}
+-		}
++		} // </dlph.25>
++		CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DIPLOVOTE);
++		pInfo->setData1(pData->getID());
++		gDLL->getInterfaceIFace()->addPopup(pInfo, kVoter.getID());
+ 	}
+-
+ 	return pData;
+ }
+ 
+@@ -10163,7 +9982,8 @@ void CvGame::doVoteResults()
+ 	// advc.150b: To make sure it doesn't go out of scope
+ 	static CvWString szTargetCityName;
+ 	int iLoop=-1;
+-	for (VoteTriggeredData* pVoteTriggered = m_votesTriggered.beginIter(&iLoop); NULL != pVoteTriggered; pVoteTriggered = m_votesTriggered.nextIter(&iLoop))
++	for (VoteTriggeredData* pVoteTriggered = m_votesTriggered.beginIter(&iLoop);
++		NULL != pVoteTriggered; pVoteTriggered = m_votesTriggered.nextIter(&iLoop))
+ 	{
+ 		CvWString szBuffer;
+ 		CvWString szMessage;
+@@ -10180,7 +10000,8 @@ void CvGame::doVoteResults()
+ 				if (kPlayer.isVotingMember(eVoteSource))
+ 				{
+ 					szMessage.clear();
+-					szMessage.Format(L"%s: %s", gDLL->getText("TXT_KEY_ELECTION_CANCELLED").GetCString(), GC.getInfo(eVote).getDescription());
++					szMessage.Format(L"%s: %s", gDLL->getText("TXT_KEY_ELECTION_CANCELLED").GetCString(),
++							GC.getInfo(eVote).getDescription());
+ 					// advc.127b:
+ 					std::pair<int,int> xy = getVoteSourceXY(eVoteSource, kPlayer.getTeam());
+ 					gDLL->getInterfaceIFace()->addMessage(kPlayer.getID(),
+@@ -10588,7 +10409,9 @@ void CvGame::initEvents()
+ {
+ 	for (int iTrigger = 0; iTrigger < GC.getNumEventTriggerInfos(); ++iTrigger)
+ 	{
+-		if (isOption(GAMEOPTION_NO_EVENTS) || getSorenRandNum(100, "Event Active?") >= GC.getInfo((EventTriggerTypes)iTrigger).getPercentGamesActive())
++		if (isOption(GAMEOPTION_NO_EVENTS) ||
++			getSorenRandNum(100, "Event Active?") >=
++			GC.getInfo((EventTriggerTypes)iTrigger).getPercentGamesActive())
+ 		{
+ 			m_aeInactiveTriggers.push_back((EventTriggerTypes)iTrigger);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index efe160c75..7ab8f96c5 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -12,10 +12,8 @@ class CvReplayInfo;
+ class CvArtInfoBuilding;
+ class CvArea;
+ class CvHallOfFameInfo; // advc.106i
+-// <advc.003u>
+ class CvGameAI;
+-class CvDealList;
+-class CvDeal; // </advc.003u>
++class CvDeal;
+ class CvCivilization; // advc.003w
+ class Shelf; // advc.300
+ class StartPointsAsHandicap; // advc.250b
+@@ -199,7 +197,10 @@ public:
+ 	// <advc> const
+ 	int getTurnYear(int iGameTurn) const;																// Exposed to Python
+ 	int getGameTurnYear() const; // </advc>																	// Exposed to Python
+-	int getElapsedGameTurns() const;																		// Exposed to Python
++	int getElapsedGameTurns() const																		// Exposed to Python
++	{
++		return m_iElapsedGameTurns; // advc.inl
++	}
+ 	void incrementElapsedGameTurns();
+ 	int AIHandicapAdjustment() const; // advc.251
+ 
+@@ -213,7 +214,10 @@ public:
+ 	int getNumAdvancedStartPoints() const;														// Exposed to Python
+ 	void setNumAdvancedStartPoints(int iNewValue);										// Exposed to Python
+ 
+-	int getStartTurn() const;																			// Exposed to Python
++	int getStartTurn() const																			// Exposed to Python
++	{
++		return m_iStartTurn; // advc.inl
++	}
+ 	void setStartTurn(int iNewValue);
+ 
+ 	int getStartYear() const;																			// Exposed to Python
+@@ -248,11 +252,17 @@ public:
+ 	DllExport int countNumHumanGameTurnActive() const;														// Exposed to Python
+ 	void changeNumGameTurnActive(int iChange);
+ 
+-	int getNumCities() const;																						// Exposed to Python
++	int getNumCities() const																						// Exposed to Python
++	{
++		return m_iNumCities; // advc.inl
++	}
+ 	int getNumCivCities() const;																				// Exposed to Python
+ 	void changeNumCities(int iChange);
+ 
+-	int getTotalPopulation() const;																// Exposed to Python
++	int getTotalPopulation() const																// Exposed to Python
++	{
++		return m_iTotalPopulation; // advc.inl
++	}
+ 	void changeTotalPopulation(int iChange);
+ 
+ 	int getTradeRoutes() const;																		// Exposed to Python
+@@ -314,7 +324,10 @@ public:
+ 	int getWonderScore(BuildingClassTypes eWonderClass) const; // </advc>
+ 	DllExport void initScoreCalculation();
+ 
+-	int getAIAutoPlay() const; // advc: const																// Exposed to Python
++	int getAIAutoPlay() const // advc: const											// Exposed to Python
++	{
++		return m_iAIAutoPlay; // advc.inl
++	}
+ 	DllExport void setAIAutoPlay(int iNewValue) {										// Exposed to Python
+ 		// <advc.127>
+ 		setAIAutoPlay(iNewValue, true);
+@@ -375,7 +388,10 @@ public:
+ 	bool canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kData) const;
+ 	bool isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kData) const;
+ 
+-	DllExport bool isDebugMode() const;																			// Exposed to Python
++	DllExport bool isDebugMode() const																			// Exposed to Python
++	{
++		return m_bDebugModeCache; // advc.inl
++	}
+ 	DllExport void toggleDebugMode();																				// Exposed to Python
+ 	DllExport void updateDebugModeCache();
+ 	bool isDebugToolsAllowed(bool bWB) const; // advc.135c
+@@ -387,7 +403,10 @@ public:
+ 	DllExport bool isPitboss() const;																							// Exposed to Python
+ 	bool isSimultaneousTeamTurns() const; // Exposed to Python
+ 
+-	DllExport bool isFinalInitialized() const;																		// Exposed to Python
++	DllExport bool isFinalInitialized() const																		// Exposed to Python
++	{
++		return m_bFinalInitialized; // advc.inl
++	}
+ 	DllExport void setFinalInitialized(bool bNewValue);
+ 	// <advc.004x>
+ 	void setDawnOfManShown(bool b);
+@@ -429,11 +448,20 @@ public:
+ 	int getBestLandUnitCombat() const;																			// Exposed to Python
+ 	void setBestLandUnit(UnitTypes eNewValue);
+ 
+-	TeamTypes getWinner() const;																			// Exposed to Python
+-	VictoryTypes getVictory() const;																	// Exposed to Python
++	TeamTypes getWinner() const																			// Exposed to Python
++	{
++		return m_eWinner; // advc.inl
++	}
++	VictoryTypes getVictory() const																		// Exposed to Python
++	{
++		return m_eVictory; // advc.inl
++	}
+ 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);		// Exposed to Python
+ 
+-	DllExport GameStateTypes getGameState() const;																		// Exposed to Python
++	DllExport GameStateTypes getGameState() const																		// Exposed to Python
++	{
++		return m_eGameState; // advc.inl
++	}
+ 	DllExport void setGameState(GameStateTypes eNewValue);
+ 
+ 	PlayerTypes getInitialActivePlayer() const; // advc.106h
+@@ -551,17 +579,28 @@ public:
+ 	DllExport int getIndexAfterLastDeal();																								// Exposed to Python
+ 	int getNumDeals();																													// Exposed to Python
+ 
+-	DllExport CvDeal* getDeal(int iID)																			// Exposed to Python
+-	// <advc> Need a const version
++	// advc.inl: const version, inline
++	DllExport inline CvDeal* getDeal(int iID)																	// Exposed to Python
+ 	{	CvGame const& kThis = *this;
+ 		return const_cast<CvDeal*>(kThis.getDeal(iID));
+-	} CvDeal const* getDeal(int iID) const; // </advc>
++	}
++	CvDeal const* getDeal(int iID) const
++	{
++		return m_deals.getAt(iID);
++	}
+ 
+ 	CvDeal* addDeal();
+ 	void deleteDeal(int iID);
+ 	// iteration (advc: const)
+-	CvDeal* firstDeal(int *pIterIdx, bool bRev=false) const;													// Exposed to Python
+-	CvDeal* nextDeal(int *pIterIdx, bool bRev=false) const;														// Exposed to Python
++	CvDeal* firstDeal(int *pIterIdx, bool bRev=false) const														// Exposed to Python
++	{	//return (!bRev ? m_deals.beginIter(pIterIdx) : m_deals.endIter(pIterIdx));
++		FAssert(!bRev);
++		return m_deals.beginIter(pIterIdx); // advc.opt
++	}
++	CvDeal* nextDeal(int *pIterIdx, bool bRev=false) const														// Exposed to Python
++	{	//return (!bRev ? m_deals.nextIter(pIterIdx) : m_deals.prevIter(pIterIdx));
++		return m_deals.nextIter(pIterIdx); // advc.opt
++	}
+ 	// <advc.072>
+ 	CvDeal* nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
+ 			TradeableItems eItemType, int iData = -1, bool bWidget = false);
+@@ -575,13 +614,25 @@ public:
+ 	VoteTriggeredData* addVoteTriggered(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kOptionData);
+ 	void deleteVoteTriggered(int iID);
+ 
+-	CvRandom& getMapRand();																											// Exposed to Python
+-	int getMapRandNum(int iNum, const char* pszLog);
+-
+-	CvRandom& getSorenRand();																										// Exposed to Python
++	// advc.inl: PRNG functions inlined
++	CvRandom& getMapRand()																											// Exposed to Python
++	{
++		return m_mapRand;
++	}
++	int getMapRandNum(int iNum, const char* pszLog)
++	{
++		return m_mapRand.get(iNum, pszLog);
++	}
++	CvRandom& getSorenRand()																										// Exposed to Python
++	{
++		return m_sorenRand;
++	}
+ 	//  Returns a value from the half-closed interval [0,iNum)
+ 	int getSorenRandNum(int iNum, const char* pszLog,
+-			int iData1 = MIN_INT, int iData2 = MIN_INT); // advc.007
++		int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.007
++	{
++		return m_sorenRand.getInt(iNum, pszLog, /* advc.007: */ iData1, iData2);
++	}
+ 
+ 	DllExport int calculateSyncChecksum();																								// Exposed to Python
+ 	DllExport int calculateOptionsChecksum();																							// Exposed to Python
+@@ -831,8 +882,7 @@ protected:
+ 
+ 	FFreeListTrashArray<VoteSelectionData> m_voteSelections;
+ 	FFreeListTrashArray<VoteTriggeredData> m_votesTriggered;
+-	//FFreeListTrashArray<CvDeal> m_deals;
+-	CvDealList* m_deals; // advc.003u
++	FFreeListTrashArray<CvDeal> m_deals;
+ 	/*  <advc.072> Not serialized. One for use by CvPlayer::getItemTradeString,
+ 		the other for CvDLLWidgetData::parseTradeItem. */
+ 	CLinkList<DealItemData> m_currentDeals;
+@@ -919,6 +969,7 @@ protected:
+ 	void showEndGameSequence();
+ 	int FPChecksum() const; // advc.003g
+ 	void handleUpdateTimer(UpdateTimerTypes eTimerType); // advc.003r
++	bool isValidReplayIndex(uint i) const; // advc
+ 
+ 	void processVote(const VoteTriggeredData& kData, int iChange);
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 45866af45..b45af6001 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -3,6 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameAI.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "UWAIAgent.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index fd7c89504..4d92ecc00 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -157,6 +157,10 @@ __forceinline DWORD FtoDW( float f ) { return *(DWORD*)&f; }
+ __forceinline float DWtoF( dword n ) { return *(float*)&n; }
+ __forceinline float MaxFloat() { return DWtoF(0x7f7fffff); }
+ 
++// <advc.003s> For generating variable names. (The layer of indirection is necessary.)
++#define CONCATVARNAME_IMPL(prefix, lineNum) prefix##lineNum
++#define CONCATVARNAME(prefix, suffix) CONCATVARNAME_IMPL(prefix, suffix) // </advc.003s>
++
+ void startProfilingDLL(bool longLived);
+ void stopProfilingDLL(bool longLived);
+ 
+@@ -252,9 +256,7 @@ namespace python = boost::python;
+ #include "FAssert.h"
+ #include "CvGameCoreDLLDefNew.h"
+ #include "FDataStreamBase.h"
+-#include "FFreeListArrayBase.h"
+-#include "FFreeListTrashArray.h"
+-#include "FFreeListArray.h"
++#include "FFreeListTrashArray.h" // advc.003s: includes FreeListTraversal.h
+ #include "CvString.h"
+ #include "CvEnums.h" // includes CvDefines.h, CvInfoEnum.h
+ /*  advc: Smaller numbers may already crash the EXE; the DLL assumes in some places
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index ff0ef467c..e8496c234 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1,6 +1,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameCoreUtils.h"
+ #include "CoreAI.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
+ #include "CityPlotIterator.h"
+ #include "FAStarNode.h"
+ #include "BBAILog.h" // advc.007
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2d0d4ef00..2e292a8eb 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1,6 +1,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroup.h"
+ #include "PlotRange.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Command.h"
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f4ae1da5e..d40083388 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1,10 +1,13 @@
+ //  CvGameTextMgr.cpp
+ 
+ #include "CvGameCoreDLL.h"
++#include "CvGameTextMgr.h"
+ #include "CoreAI.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
++#include "CvCityAI.h"
+ #include "CitySiteEvaluator.h"
+-#include "CvDealList.h" // advc.003s
+-#include "CvGameTextMgr.h"
++#include "CvDeal.h"
+ #include "CvInfo_All.h"
+ #include "CvXMLLoadUtility.h"
+ #include "CityPlotIterator.h"
+@@ -19818,7 +19821,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 			// K-Mod end
+ 
+ 			// Distance mod
+-			int iDistance = GC.getMap().maxPlotDistance();
++			int iDistance = GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+ 
+ 			CvCity* pOurCapital = kPlayer.getCapitalCity();
+ 			if (NULL != pOurCapital)
+@@ -19836,8 +19839,10 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 					}
+ 				}
+ 			}
+-
+-			iTempModifier = (iDistance + GC.getMap().maxPlotDistance()) * GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD") / GC.getMap().maxPlotDistance() - 100;
++			// <advc.140> (was maxPlotDistance)
++			iTempModifier = (iDistance + GC.getMap().maxTypicalDistance()) *
++					GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD") /
++					GC.getMap().maxTypicalDistance() - 100; // </advc.140>
+ 			if (iTempModifier != 0)
+ 			{
+ 				szBuffer.append(NEWLINE);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 47bf19d4e..8aef985c8 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -9,12 +9,12 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvMap.h"
+ #include "PlotRange.h"
+-#include "CvAreaList.h"
+-#include "CvCityList.h"
+-#include "CvSelectionGroupList.h"
++#include "CvArea.h"
+ #include "CvGame.h"
+ #include "CvPlayer.h"
++#include "CvCity.h"
+ #include "CvUnit.h"
++#include "CvSelectionGroup.h"
+ #include "CvPlotGroup.h"
+ #include "CvFractal.h"
+ #include "CvMapGenerator.h"
+@@ -25,7 +25,7 @@
+ #include <stack> // advc.030
+ 
+ 
+-CvMap::CvMap() /* advc.003u: */ : m_areas(new CvAreaList())
++CvMap::CvMap()
+ {
+ 	CvMapInitData defaultMapData;
+ 	m_pMapPlots = NULL;
+@@ -36,7 +36,6 @@ CvMap::CvMap() /* advc.003u: */ : m_areas(new CvAreaList())
+ CvMap::~CvMap()
+ {
+ 	uninit();
+-	SAFE_DELETE(m_areas); // advc.003u
+ }
+ 
+ // Initializes the map
+@@ -53,7 +52,7 @@ void CvMap::init(CvMapInitData* pInitInfo)
+ 	GC.getPythonCaller()->callMapFunction("beforeInit");
+ 
+ 	reset(pInitInfo); // Init serialized data
+-	m_areas->init(); // Init containers
++	m_areas.init(); // Init containers
+ 	setup();
+ 	gDLL->logMemState("CvMap before init plots");
+ 	m_pMapPlots = new CvPlot[numPlots()];
+@@ -74,7 +73,7 @@ void CvMap::uninit()
+ {
+ 	SAFE_DELETE_ARRAY(m_pMapPlots);
+ 	m_replayTexture.clear(); // advc.106n
+-	m_areas->uninit();
++	m_areas.uninit();
+ }
+ 
+ // Initializes data members that are serialized.
+@@ -151,7 +150,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
+ 	m_aiNumBonus.reset();
+ 	m_aiNumBonusOnLand.reset();
+ 
+-	m_areas->removeAll();
++	m_areas.removeAll();
+ }
+ 
+ // Initializes all data that is not serialized but needs to be initialized after loading.
+@@ -757,12 +756,34 @@ float CvMap::getHeightCoords() const
+ 
+ int CvMap::maxPlotDistance() const
+ {
+-	//return std::max(1, plotDistance(0, 0, ((isWrapX()) ? (getGridWidth() / 2) : (getGridWidth() - 1)), ((isWrapY()) ? (getGridHeight() / 2) : (getGridHeight() - 1))));
+-	// <advc.140> Replacing the above
+-	CvGame const& g = GC.getGame();
+-	double civRatio = g.getRecommendedPlayers() / (double)g.getCivPlayersEverAlive();
++	return std::max(1, plotDistance(0, 0,
++			isWrapX() ? getGridWidth() / 2 : getGridWidth() - 1,
++			isWrapY() ? getGridHeight() / 2 : getGridHeight() - 1));
++}
++
++
++int CvMap::maxStepDistance() const
++{
++	return std::max(1, stepDistance(0, 0,
++			isWrapX() ? getGridWidth() / 2 : getGridWidth() - 1,
++			isWrapY() ? getGridHeight() / 2 : getGridHeight() - 1));
++}
++
++// advc.140:
++int CvMap::maxMaintenanceDistance() const
++{
++	return ::round(1 + maxTypicalDistance() * (10.0 /
++			GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE)));
++}
++
++/*	advc.140: Not sure what distance this measures exactly; I'm using it as a
++	replacement (everyhwere) for maxPlotDistance with reduced impact of world wraps. */
++int CvMap::maxTypicalDistance() const
++{
++	CvGame const& kGame = GC.getGame();
++	double civRatio = kGame.getRecommendedPlayers() / (double)kGame.getCivPlayersEverAlive();
+ 	// Already factored into getRecommendedPlayers, but I want to give it a little extra weight.
+-	double seaLvlModifier = (100 - 2.5 * g.getSeaLevelChange()) / 100.0;
++	double seaLvlModifier = (100 - 2.5 * kGame.getSeaLevelChange()) / 100.0;
+ 	int iWraps = -1; // 0 if cylindrical (1 wrap), -1 flat, +1 toroidical
+ 	if(isWrapX())
+ 		iWraps++;
+@@ -771,22 +792,10 @@ int CvMap::maxPlotDistance() const
+ 	CvWorldInfo const& kWorld = GC.getInfo(getWorldSize());
+ 	double r = std::sqrt(kWorld.getGridWidth() * kWorld.getGridHeight() * civRatio *
+ 			seaLvlModifier) * 3.5 - 5 * iWraps;
+-	return std::max(1, ::round(r)); // </advc.140>
++	return std::max(1, ::round(r));
+ }
+ 
+ 
+-int CvMap::maxStepDistance() const
+-{
+-	return std::max(1, stepDistance(0, 0, ((isWrapX()) ? (getGridWidth() / 2) : (getGridWidth() - 1)), ((isWrapY()) ? (getGridHeight() / 2) : (getGridHeight() - 1))));
+-}
+-
+-// <advc.140>
+-int CvMap::maxMaintenanceDistance() const
+-{
+-	return ::round(1 + maxPlotDistance() * (10.0 /
+-			GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE)));
+-} // </advc.140>
+-
+ int CvMap::getGridWidthExternal() const // advc.inl
+ {
+ 	return getGridWidth();
+@@ -955,13 +964,7 @@ CvPlot* CvMap::pointToPlot(float fX, float fY)
+ 
+ int CvMap::getIndexAfterLastArea() const
+ {
+-	return m_areas->getIndexAfterLast();
+-}
+-
+-
+-int CvMap::getNumAreas() const
+-{
+-	return m_areas->getCount();
++	return m_areas.getIndexAfterLast();
+ }
+ 
+ 
+@@ -977,33 +980,15 @@ int CvMap::getNumLandAreas() const  // advc: style changes
+ }
+ 
+ 
+-CvArea* CvMap::getArea(int iID) const
+-{
+-	return m_areas->getAt(iID);
+-}
+-
+-
+ CvArea* CvMap::addArea()
+ {
+-	return m_areas->add();
++	return m_areas.add();
+ }
+ 
+ 
+ void CvMap::deleteArea(int iID)
+ {
+-	m_areas->removeAt(iID);
+-}
+-
+-
+-CvArea* CvMap::firstArea(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_areas->beginIter(pIterIdx) : m_areas->endIter(pIterIdx);
+-}
+-
+-
+-CvArea* CvMap::nextArea(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_areas->nextIter(pIterIdx) : m_areas->prevIter(pIterIdx);
++	m_areas.removeAt(iID);
+ }
+ 
+ 
+@@ -1013,7 +998,7 @@ void CvMap::recalculateAreas()
+ 
+ 	for (int iI = 0; iI < numPlots(); iI++)
+ 		getPlotByIndex(iI).setArea(NULL);
+-	m_areas->removeAll();
++	m_areas.removeAll();
+ 	calculateAreas();
+ }
+ 
+@@ -1093,7 +1078,7 @@ void CvMap::read(FDataStreamBase* pStream)
+ 	}
+ 
+ 	// call the read of the free list CvArea class allocations
+-	ReadStreamableFFreeListTrashArray(*m_areas, pStream);
++	ReadStreamableFFreeListTrashArray(m_areas, pStream);
+ 	// <advc> Let the plots know that the areas have been loaded
+ 	for (int i = 0; i < numPlots(); i++)
+ 	{
+@@ -1146,7 +1131,7 @@ void CvMap::write(FDataStreamBase* pStream)
+ 		m_pMapPlots[iI].write(pStream);
+ 
+ 	// call the read of the free list CvArea class allocations
+-	WriteStreamableFFreeListTrashArray(*m_areas, pStream);
++	WriteStreamableFFreeListTrashArray(m_areas, pStream);
+ 	// <advc.106n>
+ 	pStream->Write(m_replayTexture.size());
+ 	pStream->Write(m_replayTexture.size(), &m_replayTexture[0]);
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 5f52a28b9..01be6d62e 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -13,7 +13,7 @@
+ //
+ 
+ #include "CvPlot.h"
+-class CvAreaList; // advc.003u
++class CvArea;
+ // <advc.300>
+ #include "Shelf.h"
+ #include <map> // </advc.300>
+@@ -325,6 +325,7 @@ public: // advc: made several functions const
+ 	int maxPlotDistance() const;																								// Exposed to Python
+ 	int maxStepDistance() const;																								// Exposed to Python
+ 	int maxMaintenanceDistance() const; // advc.140
++	int maxTypicalDistance() const; // advc.140
+ 
+ 	int getGridWidthExternal() const; // advc.inl: Exported through .def file							// Exposed to Python
+ 	inline int getGridWidth() const // advc.inl: Renamed from getGridWidthINLINE
+@@ -420,17 +421,30 @@ public: // advc: made several functions const
+ 		return (isPlot(iMapX, iMapY) ? &m_pMapPlots[plotNum(iMapX, iMapY)] : NULL);
+ 	}
+ 
+-	DllExport CvPlot* pointToPlot(float fX, float fY);										// Exposed to Python
++	DllExport CvPlot* pointToPlot(float fX, float fY);												// Exposed to Python
+ 
+-	int getIndexAfterLastArea() const;														// Exposed to Python
+-	int getNumAreas() const;																	// Exposed to Python
++	int getIndexAfterLastArea() const;																// Exposed to Python
++	int getNumAreas() const																			// Exposed to Python
++	{
++		return m_areas.getCount();
++	}
+ 	int getNumLandAreas() const;
+-	CvArea* getArea(int iID) const;																// Exposed to Python
++	CvArea* getArea(int iID) const																	// Exposed to Python
++	{
++		return m_areas.getAt(iID);
++	}
+ 	CvArea* addArea();
+ 	void deleteArea(int iID);
+ 	// iteration
+-	CvArea* firstArea(int *pIterIdx, bool bRev=false) const;									// Exposed to Python
+-	CvArea* nextArea(int *pIterIdx, bool bRev=false) const;									// Exposed to Python
++	CvArea* firstArea(int *pIterIdx, bool bRev=false) const											// Exposed to Python
++	{	//return (!bRev ? m_areas.beginIter(pIterIdx) : m_areas.endIter(pIterIdx));
++		FAssert(!bRev);
++		return m_areas.beginIter(pIterIdx); // advc.opt
++	}
++	CvArea* nextArea(int *pIterIdx, bool bRev=false) const											// Exposed to Python
++	{	//return (!bRev ? m_areas.nextIter(pIterIdx) : m_areas.prevIter(pIterIdx));
++		return m_areas.nextIter(pIterIdx); // advc.opt
++	}
+ 
+ 	void recalculateAreas();																		// Exposed to Python
+ 	// <advc.300>
+@@ -450,8 +464,9 @@ public: // advc: made several functions const
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 
+-	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude,	bool bWrapX, bool bWrapY, 			// Exposed to Python
+-			WorldSizeTypes eWorldSize, ClimateTypes eClimate, SeaLevelTypes eSeaLevel,
++	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude,			 			// Exposed to Python
++			bool bWrapX, bool bWrapY, WorldSizeTypes eWorldSize,
++			ClimateTypes eClimate, SeaLevelTypes eSeaLevel,
+ 			int iNumCustomMapOptions, CustomMapOptionTypes* eCustomMapOptions);
+ 	void updateReplayTexture(); // advc.106n
+ 	byte const* getReplayTexture() const; // advc.106n
+@@ -474,9 +489,7 @@ protected:
+ 	// </advc.enum>
+ 	CvPlot* m_pMapPlots;
+ 	std::map<Shelf::Id,Shelf*> shelves; // advc.300
+-
+-	//FFreeListTrashArray<CvArea> m_areas;
+-	CvAreaList* m_areas; // advc.003u
++	FFreeListTrashArray<CvArea> m_areas;
+ 	std::vector<byte> m_replayTexture; // advc.106n
+ 
+ 	void calculateAreas();
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 1e39787b1..a1d53856c 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -2,7 +2,7 @@
+ #include "CvMapGenerator.h"
+ #include "CvGame.h"
+ #include "PlotRange.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h" // advc.003s
+ #include "CvFractal.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index fda2e0eaf..964ee2b87 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -3,7 +3,7 @@
+ #include "CvInfo_Command.h"
+ #include "CvGamePlay.h"
+ #include "CvCity.h"
+-#include "CvUnitList.h"
++#include "CvUnit.h"
+ #include "CvSelectionGroup.h"
+ #include "FDataStreamBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 46e6f510d..e4268e84b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4,11 +4,14 @@
+ #include "CvPlayer.h"
+ #include "CvAgents.h" // advc.agent
+ #include "CoreAI.h"
+-#include "CvDealList.h" // advc.003s
++#include "CvCityAI.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
++#include "CvDeal.h"
+ #include "CvTalkingHeadMessage.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "PlotRange.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h"
+ #include "CvInfo_All.h"
+ #include "CvDiploParameters.h"
+ #include "CvPopupInfo.h"
+@@ -39,9 +42,7 @@ void CvPlayer::freeStatics()
+ }
+ 
+ 
+-CvPlayer::CvPlayer(/* <advc.003u> */ PlayerTypes eID) :
+-	m_cities(new CvCityList()), m_units(new CvUnitList()),
+-	m_selectionGroups(new CvSelectionGroupList()), // </advc.003u>
++CvPlayer::CvPlayer(/* advc.003u: */ PlayerTypes eID) :
+ 	m_pCivilization(NULL) // advc.003w
+ {
+ 	m_aiSeaPlotYield = new int[NUM_YIELD_TYPES];
+@@ -121,10 +122,6 @@ CvPlayer::~CvPlayer()
+ 	SAFE_DELETE_ARRAY(m_aiEspionageSpendingWeightAgainstTeam);
+ 	SAFE_DELETE_ARRAY(m_abFeatAccomplished);
+ 	SAFE_DELETE_ARRAY(m_abOptions);
+-	// <advc.003u>
+-	SAFE_DELETE(m_cities);
+-	SAFE_DELETE(m_units);
+-	SAFE_DELETE(m_selectionGroups); // </advc.003u>
+ 	SAFE_DELETE(m_pCivilization); // advc.003w
+ }
+ 
+@@ -159,9 +156,9 @@ void CvPlayer::init(PlayerTypes eID)
+ void CvPlayer::initContainers() {
+ 
+ 	m_plotGroups.init();
+-	m_cities->init();
+-	m_units->init();
+-	m_selectionGroups->init();
++	m_cities.init();
++	m_units.init();
++	m_selectionGroups.init();
+ 	m_eventsTriggered.init();
+ }
+ 
+@@ -323,11 +320,8 @@ void CvPlayer::initInGame(PlayerTypes eID)
+ // <advc.210>
+ void CvPlayer::initAlerts(bool bSilentCheck)
+ {
+-	if (GC.getGame().isHotSeat() ? !isHuman() :
+-		getID() != GC.getGame().getActivePlayer())
+-	{
++	if (!isHuman()) // advc.test: Hopefully OK this way in networked multiplayer
+ 		return;
+-	}
+ 	if (!m_paAlerts.empty())
+ 	{
+ 		// OK if this happens when the active player is defeated during Auto Play
+@@ -437,9 +431,9 @@ void CvPlayer::uninit()
+ 	m_cityNames.clear();
+ 
+ 	m_plotGroups.uninit();
+-	m_cities->uninit();
+-	m_units->uninit();
+-	m_selectionGroups->uninit();
++	m_cities.uninit();
++	m_units.uninit();
++	m_selectionGroups.uninit();
+ 	m_eventsTriggered.uninit();
+ 
+ 	clearMessages();
+@@ -816,9 +810,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	}
+ 
+ 	m_plotGroups.removeAll();
+-	m_cities->removeAll();
+-	m_units->removeAll();
+-	m_selectionGroups->removeAll();
++	m_cities.removeAll();
++	m_units.removeAll();
++	m_selectionGroups.removeAll();
+ 	m_eventsTriggered.removeAll();
+ 
+ 	if (!bConstructorCall)
+@@ -1162,11 +1156,11 @@ void CvPlayer::setupGraphical() // graphical only setup
+ 	if (!GC.IsGraphicsInitialized())
+ 		return;
+ 
+-	// Setup m_cities
++	// Set up m_cities
+ 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+ 		pLoopCity->setupGraphical();
+ 
+-	// Setup m_units
++	// Set up m_units
+ 	FOR_EACH_UNIT_VAR(pLoopUnit, *this)
+ 		pLoopUnit->setupGraphical();
+ }
+@@ -1659,7 +1653,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGrou
+ 	int iOccupationTimer) // advc.ctr
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+-	CvCityAI* pCity = m_cities->add(); // advc.003u: was = addCity()
++	CvCityAI* pCity = m_cities.AI_add(); // advc.003u: was = addCity()
+ 	if (pCity == NULL)
+ 	{
+ 		FAssertMsg(pCity != NULL, "FLTA failed to allocate storage");
+@@ -2359,7 +2353,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+ 
+-	CvUnitAI* pUnit = m_units->add(); // advc.003u: was = addUnit()
++	CvUnitAI* pUnit = m_units.AI_add(); // advc.003u: was = addUnit()
+ 	if (pUnit == NULL)
+ 	{
+ 		FAssertMsg(pUnit != NULL, "FLTA failed to allocate storage");
+@@ -12426,115 +12420,32 @@ CvPlotGroup* CvPlayer::addPlotGroup()
+ }
+ 
+ 
+-CvCity* CvPlayer::firstCity(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_cities->beginIter(pIterIdx) : m_cities->endIter(pIterIdx);
+-}
+-
+-
+-CvCity* CvPlayer::nextCity(int *pIterIdx, bool bRev) const
+-{
+-	return (!bRev ? m_cities->nextIter(pIterIdx) : m_cities->prevIter(pIterIdx));
+-}
+-
+-
+-int CvPlayer::getNumCities() const
+-{
+-	return m_cities->getCount();
+-}
+-
+-
+-CvCity* CvPlayer::getCity(int iID) const
+-{
+-	return m_cities->getAt(iID);
+-}
+-
+-/*  advc.003u: Not really needed (and need pointers to AI classes in the return type,
+-	but don't want those to show up in CvPlayer.h). */
+-/*CvCity* CvPlayer::addCity() {
+-	return m_cities.add();
+-}
+-CvUnit* CvPlayer::addUnit() {
+-	return m_units->add();
+-}*/
+-
+-
+ void CvPlayer::deleteCity(int iID)
+ {
+-	m_cities->removeAt(iID);
+-}
+-
+-
+-CvUnit* CvPlayer::firstUnit(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_units->beginIter(pIterIdx) : m_units->endIter(pIterIdx);
+-}
+-
+-
+-CvUnit* CvPlayer::nextUnit(int *pIterIdx, bool bRev) const
+-{
+-	return !bRev ? m_units->nextIter(pIterIdx) : m_units->prevIter(pIterIdx);
+-}
+-
+-
+-int CvPlayer::getNumUnits() const
+-{
+-	return m_units->getCount();
+-}
+-
+-
+-CvUnit* CvPlayer::getUnit(int iID) const
+-{
+-	return m_units->getAt(iID);
++	m_cities.removeAt(iID);
+ }
+ 
+ 
+ void CvPlayer::deleteUnit(int iID)
+ {
+-	m_units->removeAt(iID);
+-}
+-
+-
+-CvSelectionGroup* CvPlayer::firstSelectionGroup(int *pIterIdx, bool bRev) const
+-{
+-	return (!bRev ? m_selectionGroups->beginIter(pIterIdx) : m_selectionGroups->endIter(pIterIdx));
+-}
+-
+-
+-CvSelectionGroup* CvPlayer::nextSelectionGroup(int *pIterIdx, bool bRev) const
+-{
+-	return (!bRev ? m_selectionGroups->nextIter(pIterIdx) : m_selectionGroups->prevIter(pIterIdx));
+-}
+-
+-
+-int CvPlayer::getNumSelectionGroups() const
+-{
+-	return m_selectionGroups->getCount();
+-}
+-
+-
+-CvSelectionGroup* CvPlayer::getSelectionGroup(int iID) const
+-{
+-	return m_selectionGroups->getAt(iID);
++	m_units.removeAt(iID);
+ }
+ 
+ 
+ CvSelectionGroup* CvPlayer::addSelectionGroup()
+ {
+-	//return m_selectionGroups.add();
+-	// K-Mod. Make sure that every time we add a group, it also gets added to the group cycle list.
+-	// (we can update the specific position in the cycle list later; but it's important it gets into the list.)
+-	CvSelectionGroupAI* pGroup = m_selectionGroups->add();
+-	if (pGroup != NULL)
+-		m_groupCycle.insertAtEnd(pGroup->getID());
++	CvSelectionGroupAI* pGroup = m_selectionGroups.AI_add();
++	/*	K-Mod. Make sure that group gets added to the group cycle list.
++		(we can update the specific position in the cycle list later;
++		but it's important to get it into the list.) */
++	m_groupCycle.insertAtEnd(pGroup->getID());
+ 	return pGroup;
+-	// K-Mod end
+ }
+ 
+ 
+ void CvPlayer::deleteSelectionGroup(int iID)
+ {
+-	bool bRemoved = m_selectionGroups->removeAt(iID);
++	bool bRemoved = m_selectionGroups.removeAt(iID);
+ 
+ 	FAssertMsg(bRemoved, "could not find group, delete failed");
+ }
+@@ -12575,9 +12486,10 @@ void CvPlayer::addMessage(const CvTalkingHeadMessage& message)
+ 	// <advc.706> Remove messages arriving during interlude from display immediately
+ 	CvGame const& g = GC.getGame();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getActivePlayer() == getID() &&
+-			g.getRiseFall().getInterludeCountdown() >= 0)
++		g.getRiseFall().getInterludeCountdown() >= 0)
++	{
+ 		gDLL->getInterfaceIFace()->clearEventMessages();
+-	// </advc.706>
++	} // </advc.706>
+ 	m_listGameMessages.push_back(message);
+ 	// <advc.106b>
+ 	// Special treatment only for events in other civs' turns.
+@@ -12589,8 +12501,10 @@ void CvPlayer::addMessage(const CvTalkingHeadMessage& message)
+ 	   verified - tbd.) */
+ 	InterfaceMessageTypes eMessage = message.getMessageType();
+ 	if(eMessage == MESSAGE_TYPE_INFO || eMessage == MESSAGE_TYPE_MINOR_EVENT ||
+-			eMessage == MESSAGE_TYPE_MAJOR_EVENT || eMessage == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY)
++		eMessage == MESSAGE_TYPE_MAJOR_EVENT || eMessage == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY)
++	{
+ 		m_iNewMessages++; // See comment in postProcessBeginTurnEvents
++	}
+ 	if(eMessage == MESSAGE_TYPE_MAJOR_EVENT)
+ 	{
+ 		/*  Need to make a copy b/c, apparently, the EXE deletes the original
+@@ -12691,8 +12605,10 @@ int CvPlayer::getStartOfTurnMessageLimit() const
+ 		return -1;
+ 	int r = BUGOption::getValue("MainInterface__MessageLimit", 3);
+ 	if(!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
+-			GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
++		GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
++	{
+ 		return -1;
++	}
+ 	return r;
+ } // </advc.106b>
+ 
+@@ -12705,7 +12621,7 @@ void CvPlayer::clearMessages()
+ 
+ const CvMessageQueue& CvPlayer::getGameMessages() const
+ {
+-	return (m_listGameMessages);
++	return m_listGameMessages;
+ }
+ 
+ 
+@@ -12765,11 +12681,7 @@ void CvPlayer::clearPopups()
+ 	CvPopupQueue::iterator it;
+ 	for (it = m_listPopups.begin(); it != m_listPopups.end(); ++it)
+ 	{
+-		CvPopupInfo* pInfo = *it;
+-		if (NULL != pInfo)
+-		{
+-			delete pInfo;
+-		}
++		SAFE_DELETE(*it);
+ 	}
+ 	m_listPopups.clear();
+ }
+@@ -12789,16 +12701,15 @@ CvPopupInfo* CvPlayer::popFrontPopup()
+ 
+ const CvPopupQueue& CvPlayer::getPopups() const
+ {
+-	return (m_listPopups);
++	return m_listPopups;
+ }
+ 
+ 
+ void CvPlayer::addDiplomacy(CvDiploParameters* pDiplo)
+ {
+-	if (NULL != pDiplo)
+-	{
++	if (pDiplo != NULL)
+ 		m_listDiplomacy.push_back(pDiplo);
+-	}
++	else FAssert(pDiplo != NULL); // advc.test
+ }
+ 
+ 
+@@ -12807,11 +12718,7 @@ void CvPlayer::clearDiplomacy()
+ 	CvDiploQueue::iterator it;
+ 	for (it = m_listDiplomacy.begin(); it != m_listDiplomacy.end(); ++it)
+ 	{
+-		CvDiploParameters* pDiplo = *it;
+-		if (NULL != pDiplo)
+-		{
+-			delete pDiplo;
+-		}
++		SAFE_DELETE(*it);
+ 	}
+ 	m_listDiplomacy.clear();
+ }
+@@ -12819,7 +12726,7 @@ void CvPlayer::clearDiplomacy()
+ 
+ const CvDiploQueue& CvPlayer::getDiplomacy() const
+ {
+-	return (m_listDiplomacy);
++	return m_listDiplomacy;
+ }
+ 
+ 
+@@ -12831,7 +12738,6 @@ CvDiploParameters* CvPlayer::popFrontDiplomacy()
+ 		pDiplo = m_listDiplomacy.front();
+ 		m_listDiplomacy.pop_front();
+ 	}
+-
+ 	return pDiplo;
+ }
+ 
+@@ -13048,9 +12954,7 @@ int CvPlayer::getEconomyHistory(int iTurn) const
+ {
+ 	CvTurnScoreMap::const_iterator it = m_mapEconomyHistory.find(iTurn);
+ 	if (it != m_mapEconomyHistory.end())
+-	{
+ 		return it->second;
+-	}
+ 	return 0;
+ }
+ 
+@@ -13962,7 +13866,7 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
+ 		// K-Mod end
+ 
+ 		// Distance mod
+-		int const iMaxPlotDistance = GC.getMap().maxPlotDistance();
++		int const iMaxPlotDistance = GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+ 		int iDistance = iMaxPlotDistance;
+ 
+ 		CvCity* pOurCapital = getCapitalCity();
+@@ -16252,9 +16156,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	}
+ 
+ 	ReadStreamableFFreeListTrashArray(m_plotGroups, pStream);
+-	ReadStreamableFFreeListTrashArray(*m_cities, pStream);
+-	ReadStreamableFFreeListTrashArray(*m_units, pStream);
+-	ReadStreamableFFreeListTrashArray(*m_selectionGroups, pStream);
++	ReadStreamableFFreeListTrashArray(m_cities, pStream);
++	ReadStreamableFFreeListTrashArray(m_units, pStream);
++	ReadStreamableFFreeListTrashArray(m_selectionGroups, pStream);
+ 	ReadStreamableFFreeListTrashArray(m_eventsTriggered, pStream);
+ 
+ 	{
+@@ -16770,9 +16674,9 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	}
+ 
+ 	WriteStreamableFFreeListTrashArray(m_plotGroups, pStream);
+-	WriteStreamableFFreeListTrashArray(*m_cities, pStream);
+-	WriteStreamableFFreeListTrashArray(*m_units, pStream);
+-	WriteStreamableFFreeListTrashArray(*m_selectionGroups, pStream);
++	WriteStreamableFFreeListTrashArray(m_cities, pStream);
++	WriteStreamableFFreeListTrashArray(m_units, pStream);
++	WriteStreamableFFreeListTrashArray(m_selectionGroups, pStream);
+ 	WriteStreamableFFreeListTrashArray(m_eventsTriggered, pStream);
+ 
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 141f84043..e679a3f51 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -14,13 +14,13 @@ class CvEventTriggerInfo;
+ class CvPlayerRecord; // K-Mod
+ class AdvCiv4lert; // advc.210
+ class CvArea;
+-// <advc.003u>
+ class CvPlayerAI;
+-class CvCityList;
+-class CvUnitList;
+-class CvSelectionGroupList;
+-class CvCivilization;
++// <advc.003u> For FFreeListTrashArrays
++class CvCity; class CvCityAI;
++class CvUnit; class CvUnitAI;
++class CvSelectionGroup; class CvSelectionGroupAI;
+ // </advc.003u>
++class CvCivilization; // advc.003w
+ typedef std::list<CvTalkingHeadMessage> CvMessageQueue;
+ typedef std::list<CvPopupInfo*> CvPopupQueue;
+ typedef std::list<CvDiploParameters*> CvDiploQueue;
+@@ -1022,27 +1022,66 @@ public:
+ 		m_plotGroups.removeAt(iID);
+ 	}
+ 
+-	// city iteration
+-	DllExport CvCity* firstCity(int *pIterIdx, bool bRev=false) const;																// Exposed to Python
+-	DllExport CvCity* nextCity(int *pIterIdx, bool bRev=false) const;																	// Exposed to Python
+-	DllExport int getNumCities() const;																													// Exposed to Python
+-	DllExport CvCity* getCity(int iID) const;																													// Exposed to Python
++	// city iteration (advc.inl: inlined)
++	DllExport inline CvCity* firstCity(int *pIterIdx, bool bRev=false) const										// Exposed to Python
++	{	//return (!bRev ? m_cities.beginIter(pIterIdx) : m_cities.endIter(pIterIdx));
++		FAssert(!bRev);
++		return m_cities.beginIter(pIterIdx); // advc.opt
++	}
++	DllExport inline CvCity* nextCity(int *pIterIdx, bool bRev=false) const											// Exposed to Python
++	{	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
++		return m_cities.nextIter(pIterIdx); // advc.opt
++	}
++	DllExport int getNumCities() const																				// Exposed to Python
++	{
++		return m_cities.getCount();
++	}
++	DllExport inline CvCity* getCity(int iID) const																	// Exposed to Python
++	{
++		return m_cities.getAt(iID);
++	}
+ 	//CvCity* addCity(); // advc.003u: removed
+ 	void deleteCity(int iID);
+ 
+-	// unit iteration 
+-	DllExport CvUnit* firstUnit(int *pIterIdx, bool bRev=false) const;																// Exposed to Python
+-	DllExport CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const;																	// Exposed to Python
+-	DllExport int getNumUnits() const;																													// Exposed to Python
+-	CvUnit* getUnit(int iID) const;																													// Exposed to Python
++	// unit iteration (advc.inl: inlined)
++	DllExport inline CvUnit* firstUnit(int *pIterIdx, bool bRev=false) const										// Exposed to Python
++	{	//return (!bRev ? m_units.beginIter(pIterIdx) : m_units.endIter(pIterIdx));
++		FAssert(!bRev);
++		return m_units.beginIter(pIterIdx); // advc.opt
++	}
++	DllExport inline CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const											// Exposed to Python
++	{	//return (!bRev ? m_units.nextIter(pIterIdx) : m_units.prevIter(pIterIdx));
++		return m_units.nextIter(pIterIdx);
++	}
++	DllExport int getNumUnits() const																				// Exposed to Python
++	{
++		return m_units.getCount();
++	}
++	inline CvUnit* getUnit(int iID) const																			// Exposed to Python
++	{
++		return m_units.getAt(iID);
++	}
+ 	//CvUnit* addUnit(); // advc.003u: removed
+ 	void deleteUnit(int iID);
+ 
+-	// selection groups iteration
+-	CvSelectionGroup* firstSelectionGroup(int *pIterIdx, bool bRev=false) const;						// Exposed to Python
+-	CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const;							// Exposed to Python
+-	int getNumSelectionGroups() const;																																// Exposed to Python
+-	CvSelectionGroup* getSelectionGroup(int iID) const;																								// Exposed to Python
++	// selection groups iteration (advc.inl: inlined)
++	inline CvSelectionGroup* firstSelectionGroup(int *pIterIdx, bool bRev=false) const								// Exposed to Python
++	{	//return (!bRev ? m_selectionGroups.beginIter(pIterIdx) : m_selectionGroups.endIter(pIterIdx));
++		FAssert(!bRev);
++		return m_selectionGroups.beginIter(pIterIdx);
++	}
++	inline CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const								// Exposed to Python
++	{	//return (!bRev ? m_selectionGroups.nextIter(pIterIdx) : m_selectionGroups.prevIter(pIterIdx));
++		return m_selectionGroups.nextIter(pIterIdx);
++	}
++	int getNumSelectionGroups() const																				// Exposed to Python
++	{
++		return m_selectionGroups.getCount();
++	}
++	inline CvSelectionGroup* getSelectionGroup(int iID) const														// Exposed to Python
++	{
++		return m_selectionGroups.getAt(iID);
++	}
+ 	CvSelectionGroup* addSelectionGroup();
+ 	void deleteSelectionGroup(int iID);
+ 
+@@ -1408,13 +1447,9 @@ protected:  // <advc.210>
+ 	CLinkList<CvWString> m_cityNames;
+ 
+ 	FFreeListTrashArray<CvPlotGroup> m_plotGroups;
+-	//FFreeListTrashArray<CvCityAI> m_cities;
+-	//FFreeListTrashArray<CvUnitAI> m_units;
+-	//FFreeListTrashArray<CvSelectionGroupAI> m_selectionGroups;
+-	// <advc.003u> Replacing the above
+-	CvCityList* m_cities;
+-	CvUnitList* m_units;
+-	CvSelectionGroupList* m_selectionGroups; // </advc.003u>
++	FFreeListTrashArray<CvCity,CvCityAI> m_cities;
++	FFreeListTrashArray<CvUnit,CvUnitAI> m_units;
++	FFreeListTrashArray<CvSelectionGroup,CvSelectionGroupAI> m_selectionGroups;
+ 	FFreeListTrashArray<EventTriggeredData> m_eventsTriggered;
+ 
+ 	CvEventMap m_mapEventsOccured;
+@@ -1574,7 +1609,7 @@ private:
+ 	virtual void writeExternal(FDataStreamBase* pStream);
+ };
+ 
+-/*	<advc.opt> Moved from CvGameCoreUtils fo inlining.
++/*	<advc.opt> Moved from CvGameCoreUtils for inlining.
+ 	NO_PLAYER checks removed (cf. IDInfo constructor). */
+ DllExport inline CvCity* getCity(IDInfo city)												// Exposed to Python
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d6fa87131..ee50f0097 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4,11 +4,14 @@
+ #include "CvPlayerAI.h"
+ #include "CitySiteEvaluator.h"
+ #include "CoreAI.h"
+-#include "CvDealList.h" // advc.003s
++#include "CvCityAI.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
++#include "CvDeal.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h"
+ #include "CvDiploParameters.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+@@ -1192,7 +1195,7 @@ void CvPlayerAI::AI_unitUpdate()
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssert(m_groupCycle.getLength() == m_selectionGroups->getCount());
++	FAssert(m_groupCycle.getLength() == m_selectionGroups.getCount());
+ 
+ 	if (!hasBusyUnit())
+ 	{
+@@ -1760,7 +1763,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 					iDistance -= DEFAULT_PLAYER_CLOSENESS + 2;
+ 					// <advc.116> World size adjustment, upper cap
+ 					iDistance *= 60;
+-					iDistance /= GC.getMap().maxPlotDistance();
++					iDistance /= GC.getMap().maxTypicalDistance();
+ 					iDistance = std::min(20, iDistance); // </advc.116>
+ 					if (iDistance > 0)
+ 						iRazeValue += iDistance * (bBarbCity ? 3 : 2); // advc.116: Was 8 : 5
+@@ -5512,7 +5515,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 	bool bLandWar = false;
+ 	bool bAnyAssault = false;
+ 	{
+-		FOR_EACH_AREA_VAR(pLoopArea)
++		FOR_EACH_AREA(pLoopArea)
+ 		{
+ 			if (AI_isPrimaryArea(*pLoopArea))
+ 			{
+@@ -22884,7 +22887,7 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 	std::vector<std::pair<int, int> > unit_list; // { score, unitID }.
+ 	// note unitID is used rather than CvUnit* to ensure that the list gives the same order for players on different computers.
+ 
+-	FOR_EACH_AREA_VAR(pLoopArea)
++	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		// Keep 1/2 of recommended floating defenders.
+ 		if (pLoopArea == NULL || pLoopArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT ||
+@@ -25783,7 +25786,7 @@ bool CvPlayerAI::AI_hasSharedPrimaryArea(PlayerTypes eOther) const
+ {
+ 	FAssert(eOther != getID());
+ 	CvPlayerAI const& kOther = GET_PLAYER(eOther);
+-	FOR_EACH_AREA_VAR(a)
++	FOR_EACH_AREA(a)
+ 	{
+ 		if (AI_isPrimaryArea(*a) && kOther.AI_isPrimaryArea(*a))
+ 			return true;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 350cf3db8..1e7031b0b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -4,14 +4,13 @@
+ #define CIV4_PLAYER_AI_H
+ 
+ #include "CvPlayer.h"
+-// <advc.003u>
+-#include "CvCityList.h"
+-#include "CvUnitList.h"
+-#include "CvSelectionGroupList.h" // </advc.003u>
+ #include "UWAI.h" // advc.104
+ #include "AIStrategies.h" // advc.enum
+ 
+ class CvDeal;
++class CvCityAI;
++class CvUnitAI;
++class CvSelectionGroupAI;
+ 
+ /*	<advc.003u> Overwrite definition in CvPlayer.h (should perhaps instead define a
+ 	new macro "PLAYERAI" - a lot of call locations to change though ...) */
+@@ -44,37 +43,31 @@ public:
+ 		return AI_getCity(m_iCapitalCityID);
+ 	}
+ 	inline CvCityAI* AI_firstCity(int *pIterIdx) const {
+-		return m_cities->beginIter(pIterIdx);
++		return m_cities.AI_beginIter(pIterIdx);
+ 	}
+ 	inline CvCityAI* AI_nextCity(int *pIterIdx) const {
+-		return m_cities->nextIter(pIterIdx);
++		return m_cities.AI_nextIter(pIterIdx);
+ 	}
+ 	inline CvCityAI* AI_getCity(int iID) const {
+-		return m_cities->getAt(iID);
+-	}
+-	inline CvCityAI* AI_addCity() {
+-		return m_cities->add();
++		return m_cities.AI_getAt(iID);
+ 	}
+ 	inline CvUnitAI* AI_firstUnit(int *pIterIdx) const {
+-		return m_units->beginIter(pIterIdx);
++		return m_units.AI_beginIter(pIterIdx);
+ 	}
+ 	inline CvUnitAI* AI_nextUnit(int *pIterIdx) const {
+-		return m_units->nextIter(pIterIdx);
++		return m_units.AI_nextIter(pIterIdx);
+ 	}
+ 	inline CvUnitAI* AI_getUnit(int iID) const {
+-		return m_units->getAt(iID);
+-	}
+-	inline CvUnitAI* AI_addUnit() {
+-		return m_units->add();
++		return m_units.AI_getAt(iID);
+ 	}
+ 	inline CvSelectionGroupAI* AI_firstSelectionGroup(int *pIterIdx) const {
+-		return m_selectionGroups->beginIter(pIterIdx);
++		return m_selectionGroups.AI_beginIter(pIterIdx);
+ 	}
+ 	inline CvSelectionGroupAI* AI_nextSelectionGroup(int *pIterIdx) const {
+-		return m_selectionGroups->nextIter(pIterIdx);
++		return m_selectionGroups.AI_nextIter(pIterIdx);
+ 	}
+ 	inline CvSelectionGroupAI* AI_getSelectionGroup(int iID) const {
+-		return m_selectionGroups->getAt(iID);
++		return m_selectionGroups.AI_getAt(iID);
+ 	}
+ 	// </advc.003u>
+ 	int AI_getFlavorValue(FlavorTypes eFlavor) const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 5fae36aab..3ce47acdb 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4,8 +4,11 @@
+ #include "CvPlot.h"
+ #include "PlotRange.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "CitySiteEvaluator.h"
+ #include "CvArea.h"
++#include "CvUnit.h"
++#include "CvSelectionGroup.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+@@ -2136,7 +2139,7 @@ CvUnit* CvPlot::getSelectedUnit() const
+ 	for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+ 		pUnitNode = nextUnitNode(pUnitNode))
+ 	{
+-		CvUnit* pLoopUnit = ::AI_getUnit(pUnitNode->m_data);
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		if (pLoopUnit->IsSelected())
+ 			return pLoopUnit;
+ 	}
+@@ -3973,31 +3976,33 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, (char*)NULL, getX(), getY());
+ 
+ 	CvCity* pOldCity = getPlotCity();
+-
+-	if (pOldCity != NULL)
+-	{	// <advc>
+-		if(eNewValue == NO_PLAYER)
+-		{
+-			FAssert(eNewValue != NO_PLAYER);
+-			return;
+-		} // </advc>
++	if (pOldCity != NULL)  // advc: Removed some assertions and NULL/NO_... checks in this block
++	{
+ 		/*  advc.101: Include pre-revolt owner in messages (sometimes not easy
+ 			to tell once the city has flipped, and in replays). */
+-		const wchar* szOldOwnerDescr = GET_PLAYER(pOldCity->getOwner()).getCivilizationDescriptionKey();
+-		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_CITY_REVOLTED_JOINED", pOldCity->getNameKey(), GET_PLAYER(eNewValue).getCivilizationDescriptionKey(),
++		wchar const* szOldOwnerDescr = GET_PLAYER(pOldCity->getOwner()).
++				getCivilizationDescriptionKey();
++		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_CITY_REVOLTED_JOINED",
++				pOldCity->getNameKey(), GET_PLAYER(eNewValue).getCivilizationDescriptionKey(),
+ 				szOldOwnerDescr)); // advc.101
+-		gDLL->getInterfaceIFace()->addMessage(getOwner(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CULTUREFLIP", MESSAGE_TYPE_MAJOR_EVENT,  ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), getX(), getY(), true, true);
+-		gDLL->getInterfaceIFace()->addMessage(eNewValue, false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CULTUREFLIP",
++		gDLL->getInterfaceIFace()->addMessage(getOwner(), false, GC.getEVENT_MESSAGE_TIME(),
++				szBuffer, "AS2D_CULTUREFLIP", MESSAGE_TYPE_MAJOR_EVENT, 
++				ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)
++				GC.getInfoTypeForString("COLOR_RED"), getX(), getY(), true, true);
++		gDLL->getInterfaceIFace()->addMessage(eNewValue, false, GC.getEVENT_MESSAGE_TIME(),
++				szBuffer, "AS2D_CULTUREFLIP",
+ 				MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
+-				ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), getX(), getY(), true, true);
++				ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)
++				GC.getInfoTypeForString("COLOR_GREEN"), getX(), getY(), true, true);
+ 		// <advc.101> Tell other civs about it (akin to code in CvCity::doRevolt)
+-		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+-			CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
+-			if(!kObs.isAlive() || kObs.isMinorCiv() || kObs.getID() == getOwner() ||
+-					kObs.getID() == eNewValue || (!isRevealed(kObs.getTeam()) &&
+-					!kObs.isSpectator())) // advc.127
++			CvPlayer const& kObs = *it;
++			if (kObs.getID() == getOwner() || kObs.getID() == eNewValue ||
++				(!isRevealed(kObs.getTeam()) && /* advc.127: */ !kObs.isSpectator())) 
++			{
+ 				continue;
++			}
+ 			ColorTypes eColor = (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
+ 			InterfaceMessageTypes eMsgType = MESSAGE_TYPE_MAJOR_EVENT;
+ 			if(GET_TEAM(eNewValue).isVassal(kObs.getTeam()))
+@@ -4017,52 +4022,34 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 				szBuffer, getX(), getY());
+ 				// advc.106: Use ALT_HIGHLIGHT for research-related stuff now
+ 				//,(ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+-		FAssertMsg(pOldCity->getOwner() != eNewValue, "pOldCity->getOwner() is not expected to be equal with eNewValue");
++		FAssert(pOldCity->getOwner() != eNewValue);
+ 		GET_PLAYER(eNewValue).acquireCity(pOldCity, false, false, bUpdatePlotGroup); // will delete the pointer
+ 		pOldCity = NULL;
+ 		CvCity* pNewCity = getPlotCity();
+-		FAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
+-
+-		if (pNewCity != NULL)
++		CLinkList<IDInfo> oldUnits;
+ 		{
+-			CLinkList<IDInfo> oldUnits;
+-			{
+-				for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+-						pUnitNode = nextUnitNode(pUnitNode))
+-					oldUnits.insertAtEnd(pUnitNode->m_data);
+-			}
+-			CLLNode<IDInfo>* pUnitNode = oldUnits.head();
+-			while (pUnitNode != NULL)
++			for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
++				pUnitNode = nextUnitNode(pUnitNode))
+ 			{
+-				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-				pUnitNode = oldUnits.next(pUnitNode);
+-				if (pLoopUnit != NULL)
+-				{
+-					if (pLoopUnit->isEnemy(TEAMID(eNewValue), *this))
+-					{
+-						FAssert(pLoopUnit->getTeam() != TEAMID(eNewValue));
+-						//pLoopUnit->kill(false, eNewValue);
+-						pLoopUnit->jumpToNearestValidPlot(); // advc.101: don't kill
+-					}
+-				}
++				oldUnits.insertAtEnd(pUnitNode->m_data);
+ 			}
+-
+-			UnitTypes eBestUnit = pNewCity->AI().AI_bestUnitAI(UNITAI_CITY_DEFENSE);
+-			if (eBestUnit == NO_UNIT)
+-				eBestUnit = pNewCity->AI().AI_bestUnitAI(UNITAI_ATTACK);
+-
+-			if (eBestUnit != NO_UNIT)
++		}
++		CLLNode<IDInfo>* pUnitNode = oldUnits.head();
++		while (pUnitNode != NULL)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = oldUnits.next(pUnitNode);
++			if (pLoopUnit != NULL)
+ 			{
+-				int iFreeUnits = (GC.getDefineINT("BASE_REVOLT_FREE_UNITS") +
+-						(pNewCity->getHighestPopulation() *
+-						GC.getDefineINT("REVOLT_FREE_UNITS_PERCENT")) / 100);
+-
+-				for (int iI = 0; iI < iFreeUnits; ++iI)
++				if (pLoopUnit->isEnemy(pNewCity->getTeam(), *this))
+ 				{
+-					GET_PLAYER(eNewValue).initUnit(eBestUnit, getX(), getY(), UNITAI_CITY_DEFENSE);
++					FAssert(pLoopUnit->getTeam() != pNewCity->getTeam());
++					//pLoopUnit->kill(false, pNewCity->getTeam());
++					pLoopUnit->jumpToNearestValidPlot(); // advc.101: don't kill
+ 				}
+ 			}
+ 		}
++		pNewCity->addRevoltFreeUnits(); // advc: Moved into new function
+ 	}
+ 	else
+ 	{
+@@ -4120,8 +4107,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 
+ 		if (isOwned())
+ 		{
+-			changeAdjacentSight(getTeam(), GC.getDefineINT(CvGlobals::PLOT_VISIBILITY_RANGE), true, NULL, bUpdatePlotGroup);
+-
++			changeAdjacentSight(getTeam(), GC.getDefineINT(CvGlobals::PLOT_VISIBILITY_RANGE),
++					true, NULL, bUpdatePlotGroup);
+ 			if (area() != NULL)
+ 				getArea().changeNumOwnedTiles(1);
+ 			else FAssert(area() != NULL); // advc.test
+@@ -4153,10 +4140,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			}
+ 		}
+ 
+-		for (int iI = 0; iI < MAX_TEAMS; ++iI)
++		for (TeamIter<ALIVE> it; it.hasNext(); ++it)
+ 		{
+-			if (GET_TEAM((TeamTypes)iI).isAlive())
+-				updateRevealedOwner((TeamTypes)iI);
++			updateRevealedOwner(it->getID());
+ 		}
+ 
+ 		updateIrrigated();
+@@ -4173,16 +4159,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			if (isGoody())
+ 				GET_PLAYER(getOwner()).doGoody(this, NULL);
+ 
+-			for (int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
++			for (TeamIter<CIV_ALIVE> it; it.hasNext();++it)
+ 			{
+-				CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
+-				if (kLoopTeam.isAlive())
++				CvTeam& kLoopTeam = *it;
++				if (isVisible(kLoopTeam.getID()))
+ 				{
+-					if (isVisible(kLoopTeam.getID()))
+-					{
+-						FirstContactData fcData(this); // advc.071
+-						kLoopTeam.meet(getTeam(), true, /* advc.071: */ &fcData);
+-					}
++					FirstContactData fcData(this); // advc.071
++					kLoopTeam.meet(getTeam(), true, /* advc.071: */ &fcData);
+ 				}
+ 			}
+ 		}
+@@ -4904,13 +4887,13 @@ const wchar* CvPlot::getRuinsName() const
+ } // </advc.005c>
+ 
+ 
+-CvCity* CvPlot::getWorkingCity() const																																				// Exposed to Python
++CvCity* CvPlot::getWorkingCity() const
+ {
+ 	return ::getCity(m_workingCity);
+ }
+ 
+ 
+-CvCity* CvPlot::getWorkingCityOverride() const																															// Exposed to Python
++CvCity* CvPlot::getWorkingCityOverride() const
+ {
+ 	return ::getCity(m_workingCityOverride);
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 1ec5bb7e2..9f2f99689 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2,8 +2,11 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvSelectionGroup.h"
+-#include "CvGamePlay.h"
++#include "CvSelectionGroupAI.h"
++#include "CvUnitAI.h"
+ #include "CvPlayerAI.h"
++#include "CvGamePlay.h"
++#include "CvCity.h"
+ #include "CvMap.h"
+ #include "BBAILog.h"
+ #include "FAStarNode.h"
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index a1281eee3..d7cd462e2 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvSelectionGroupAI.h"
++#include "CvUnitAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "AgentIterator.h"
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupList.h b/CvGameCoreDLL/CvSelectionGroupList.h
+deleted file mode 100644
+index 0cfba4ce1..000000000
+--- a/CvGameCoreDLL/CvSelectionGroupList.h
++++ /dev/null
+@@ -1,28 +0,0 @@
+-#pragma once
+-
+-#ifndef CIV4_SELECTIONGROUP_LIST_H
+-#define CIV4_SELECTIONGROUP_LIST_H
+-
+-#include "FFreeListTrashArray.h"
+-#include "CvSelectionGroupAI.h"
+-
+-// advc.003u: Wrapper for FLTA
+-class CvSelectionGroupList : public FFreeListTrashArray<CvSelectionGroupAI> {};
+-
+-// <advc.003s> See CvUnitList.h about these macros
+-#define FOR_EACH_GROUP(pGroup, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvSelectionGroup const* pGroup = (kOwner).firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).nextSelectionGroup(&LOOPCOUNTERNAME))
+-#define FOR_EACH_GROUP_VAR(pGroup, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvSelectionGroup* pGroup = (kOwner).firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).nextSelectionGroup(&LOOPCOUNTERNAME))
+-// advc.003u: AI versions
+-#define FOR_EACH_GROUPAI(pGroup, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvSelectionGroupAI const* pGroup = (kOwner).AI_firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).AI_nextSelectionGroup(&LOOPCOUNTERNAME))
+-#define FOR_EACH_GROUPAI_VAR(pGroup, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvSelectionGroupAI* pGroup = (kOwner).AI_firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).AI_nextSelectionGroup(&LOOPCOUNTERNAME))
+-// </advc.003s>
+-
+-#endif
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5cad36205..e06094ef1 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4,10 +4,13 @@
+ #include "CvTeam.h"
+ #include "CvAgents.h" // advc.agent
+ #include "CoreAI.h"
+-#include "CvDealList.h" // advc.003s
+ #include "UWAIAgent.h" // advc.104t
++#include "CvCity.h"
++#include "CvUnit.h"
++#include "CvSelectionGroup.h"
++#include "CvDeal.h"
+ #include "CvMap.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+@@ -1959,7 +1962,7 @@ bool CvTeam::isInContactWithBarbarians() const
+ 	int iUnitThresh = g.getCurrentEra();
+ 	CvTeam const& kBarbarianTeam = GET_TEAM(BARBARIAN_TEAM);
+ 	CvMap const& m = GC.getMap();
+-	FOR_EACH_AREA_VAR(pArea)
++	FOR_EACH_AREA(pArea)
+ 	{
+ 		if(bCheckCity && countNumCitiesByArea(*pArea) == 0)
+ 			continue;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 36be12afe..d9f84fb40 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3,8 +3,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvTeamAI.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "CityPlotIterator.h"
+-#include "CvAreaList.h" // advc.003s
++#include "CvArea.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+@@ -317,7 +318,7 @@ bool CvTeamAI::AI_isPrimaryArea(CvArea const& kArea) const
+ bool CvTeamAI::AI_hasCitiesInPrimaryArea(TeamTypes eTeam) const
+ {
+ 	FAssert(eTeam != getID());
+-	FOR_EACH_AREA_VAR(pLoopArea)
++	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		if (AI_isPrimaryArea(*pLoopArea))
+ 		{
+@@ -334,7 +335,7 @@ bool CvTeamAI::AI_hasSharedPrimaryArea(TeamTypes eTeam) const
+ 	FAssert(eTeam != getID());
+ 
+ 	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+-	FOR_EACH_AREA_VAR(pLoopArea)
++	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		if (AI_isPrimaryArea(*pLoopArea) && kTeam.AI_isPrimaryArea(*pLoopArea))
+ 			return true;
+@@ -638,7 +639,7 @@ bool CvTeamAI::AI_isLandTarget(TeamTypes eTarget,
+ 	if(getUWAI.isEnabled() && isMajorCiv() && kTarget.isMajorCiv())
+ 		return uwai().isLandTarget(eTarget);
+ 	// </advc.104s>
+-	FOR_EACH_AREA_VAR(pLoopArea)
++	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		if (AI_isPrimaryArea(*pLoopArea) && kTarget.AI_isPrimaryArea(*pLoopArea))
+ 			return true;
+@@ -1772,7 +1773,7 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const // XXX this should consider ar
+ 		iOurAttackers += it->AI_enemyTargetMissions(eTeam);
+ 	int iTheirAttackers = 0;
+ 	CvArea* pLoopArea = NULL;
+-	FOR_EACH_AREA_VAR(pLoopArea)
++	FOR_EACH_AREA(pLoopArea)
+ 		iTheirAttackers += countEnemyDangerByArea(*pLoopArea, eTeam);
+ 
+ 	int iAttackerRatio = (100 * iOurAttackers) / std::max(1 + GC.getGame().getCurrentEra(), iTheirAttackers);
+@@ -2427,7 +2428,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			int iSafePopulation = 0;
+ 			// Based on code in AI_endWarVal:
+ 			int iTheirAttackers = 0;
+-			FOR_EACH_AREA_VAR(pLoopArea)
++			FOR_EACH_AREA(pLoopArea)
+ 			{
+ 				int iAreaCities = countNumCitiesByArea(*pLoopArea);
+ 				if(iAreaCities <= 0)
+@@ -5473,7 +5474,7 @@ void CvTeamAI::AI_doWar()
+ 				bool bAreaValid = false;
+ 				bool bShareValid = false;
+ 
+-				FOR_EACH_AREA_VAR(pLoopArea)
++				FOR_EACH_AREA(pLoopArea)
+ 				{
+ 					if (AI_isPrimaryArea(*pLoopArea))
+ 					{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 61826f528..c3ab98211 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2,7 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvUnit.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 3e66fdff1..d326d717c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -25,6 +25,7 @@ struct CombatDetails;
+ class CvUnit : public CvDLLEntity
+ {
+ public:
++	virtual ~CvUnit();
+ 
+ 	void setupGraphical();
+ 	void reloadEntity();
+@@ -989,9 +990,10 @@ public:
+ 	int LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const;
+ 	// Lead From Behind: END
+ 
+-	void read(FDataStreamBase* pStream);
+-	void write(FDataStreamBase* pStream);
+ 	// <advc.003u>
++	// virtual for FFreeListTrashArray
++	virtual void read(FDataStreamBase* pStream);
++	virtual void write(FDataStreamBase* pStream);
+ 	__forceinline CvUnitAI& AI()
+ 	{	//return *static_cast<CvUnitAI*>(const_cast<CvUnit*>(this));
+ 		/*  The above won't work in an inline function b/c the compiler doesn't know
+@@ -1009,7 +1011,6 @@ public:
+ protected:
+ 	// <advc.003u>
+ 	CvUnit();
+-	virtual ~CvUnit();
+ 	/*  Subclasses need to call these two init functions; not called by base.
+ 		May also want to override them. */
+ 	virtual void init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY,
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ef89bb3f9..f46357223 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2,7 +2,9 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "PlotRange.h"
+ #include "CvArea.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/CvUnitList.h b/CvGameCoreDLL/CvUnitList.h
+deleted file mode 100644
+index 6e032b0f5..000000000
+--- a/CvGameCoreDLL/CvUnitList.h
++++ /dev/null
+@@ -1,40 +0,0 @@
+-#pragma once
+-
+-#ifndef CIV4_UNIT_LIST_H
+-#define CIV4_UNIT_LIST_H
+-
+-#include "FFreeListTrashArray.h"
+-#include "CvUnitAI.h"
+-
+-// advc.003u: Wrapper for FLTA
+-class CvUnitList : public FFreeListTrashArray<CvUnitAI> {};
+-
+-// <advc.003s> 
+-
+-/*  All FOR_EACH macros need to be listed in cpp.hint so that Visual Studio can
+-	parse them properly! Otherwise, the navigation bar will show "Global Scope"
+-	for any functions that use the macros. */
+-
+-/*  pointerType argument to allow the caller to choose AI or non-AI type and
+-	const or non-const. -- Not intuitive enough; create a separate macro for every
+-	combination instead. */
+-/*#define FOR_EACH_UNIT(pointerType, pUnit, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(pointerType* pUnit = (kOwner).AI_firstUnit(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).AI_nextUnit(&LOOPCOUNTERNAME))*/
+-
+-// Make const the default (shortest macro name)
+-#define FOR_EACH_UNIT(pUnit, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvUnit const* pUnit = (kOwner).firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).nextUnit(&LOOPCOUNTERNAME))
+-#define FOR_EACH_UNIT_VAR(pUnit, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvUnit* pUnit = (kOwner).firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).nextUnit(&LOOPCOUNTERNAME))
+-// advc.003u: AI versions
+-#define FOR_EACH_UNITAI(pUnit, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvUnitAI const* pUnit = (kOwner).AI_firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).AI_nextUnit(&LOOPCOUNTERNAME))
+-#define FOR_EACH_UNITAI_VAR(pUnit, kOwner) \
+-	int LOOPCOUNTERNAME; \
+-	for(CvUnitAI* pUnit = (kOwner).AI_firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).AI_nextUnit(&LOOPCOUNTERNAME))
+-// </advc.003s>
+-#endif
+
+diff --git a/CvGameCoreDLL/CvVirtualWrappers.cpp b/CvGameCoreDLL/CvVirtualWrappers.cpp
+index 93c46350c..f65bd96e1 100644
+--- a/CvGameCoreDLL/CvVirtualWrappers.cpp
++++ b/CvGameCoreDLL/CvVirtualWrappers.cpp
+@@ -2,6 +2,7 @@
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvGameAI.h"
++#include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+ 
+ /*  advc.003u: New file for dummy/ adapter implementations of AI_... functions
+
+diff --git a/CvGameCoreDLL/FFreeListArray.h b/CvGameCoreDLL/FFreeListArray.h
+deleted file mode 100644
+index dfc47e1fa..000000000
+--- a/CvGameCoreDLL/FFreeListArray.h
++++ /dev/null
+@@ -1,469 +0,0 @@
+-#pragma once
+-
+-//	$Revision: #2 $		$Author: mbreitkreutz $ 	$DateTime: 2005/06/13 13:35:55 $
+-//------------------------------------------------------------------------------------------------
+-//
+-//  *****************   FIRAXIS GAME ENGINE   ********************
+-//
+-//  FILE:    FFreeListArray.h
+-//
+-//  AUTHOR:  Soren Johnson
+-//
+-//  PURPOSE: A dynamic array with a free list...
+-//
+-//------------------------------------------------------------------------------------------------
+-//  Copyright (c) 2004 Firaxis Games, Inc. All rights reserved.
+-//------------------------------------------------------------------------------------------------
+-
+-#ifndef		FFREELISTARRAY_H
+-#define		FFREELISTARRAY_H
+-#pragma		once
+-
+-#include	"FFreeListArrayBase.h"
+-#include	"FDataStreamBase.h"
+-
+-template <class T>
+-class FFreeListArray : public FFreeListArrayBase<T>
+-{
+-public:
+-
+-	FFreeListArray();
+-	virtual ~FFreeListArray();
+-
+-	virtual void init(int iNumSlots = 8);
+-	virtual void uninit();
+-	virtual T* getAt(int iIndex);
+-
+-	void insert(T data);
+-	void insertAt(T data, int iIndex);
+-	void insertFirst(T data);
+-
+-	int getIndex(T data);
+-
+-	bool remove(T data);
+-	bool removeAt(int iIndex);
+-	virtual void removeAll();
+-
+-	void Read( FDataStreamBase* pStream );
+-	void Write( FDataStreamBase* pStream );
+-
+-
+-protected:
+-
+-	struct DArrayNode
+-	{
+-		int iNextFreeIndex;
+-		T		data;
+-	};
+-
+-	DArrayNode* m_pArray;
+-
+-	virtual void growArray();
+-};
+-
+-
+-
+-// Public Functions...
+-
+-template <class T>
+-FFreeListArray<T>::FFreeListArray()
+-{
+-	m_iFreeListHead = FFreeList::FLA_FREE_LIST_INDEX;
+-	m_iFreeListCount = 0;
+-	m_iLastIndex = FFreeList::INVALID_INDEX;
+-	m_iNumSlots = 0;
+-
+-	m_pArray = NULL;
+-}
+-
+-
+-template <class T>
+-FFreeListArray<T>::~FFreeListArray()
+-{
+-	uninit();
+-}
+-
+-
+-template <class T>
+-void FFreeListArray<T>::init(int iNumSlots)
+-{
+-	int iI;
+-
+-	uninit();
+-
+-	m_iFreeListHead = FLA_FREE_LIST_INDEX;
+-	m_iFreeListCount = 0;
+-	m_iLastIndex = FFreeList::INVALID_INDEX;
+-	m_iNumSlots = iNumSlots;
+-
+-	if (m_iNumSlots > 0)
+-	{
+-		m_pArray = new DArrayNode[m_iNumSlots];
+-
+-		for (iI = 0; iI < m_iNumSlots; iI++)
+-		{
+-			m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-		}
+-	}
+-}
+-
+-
+-template <class T>
+-void FFreeListArray<T>::uninit()
+-{
+-	if (m_pArray != NULL)
+-	{
+-		removeAll();
+-
+-		SAFE_DELETE_ARRAY(m_pArray);
+-	}
+-}
+-
+-
+-template <class T>
+-void FFreeListArray<T>::insert(T data)
+-{
+-	int iIndex;
+-
+-	if (m_pArray == NULL)
+-	{
+-		init();
+-	}
+-
+-	if ((m_iLastIndex == m_iNumSlots - 1) &&
+-		(m_iFreeListCount == 0))
+-	{
+-		growArray();
+-	}
+-
+-	if (m_iFreeListCount > 0)
+-	{
+-		iIndex = m_iFreeListHead;
+-		m_iFreeListHead = m_pArray[m_iFreeListHead].iNextFreeIndex;
+-		m_iFreeListCount--;
+-	}
+-	else
+-	{
+-		m_iLastIndex++;
+-		iIndex = m_iLastIndex;
+-	}
+-
+-	m_pArray[iIndex].data = data;
+-	m_pArray[iIndex].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-}
+-
+-
+-template <class T>
+-void FFreeListArray<T>::insertAt(T data, int iIndex)
+-{
+-	int iTempIndex;
+-
+-	if (m_pArray == NULL)
+-	{
+-		init();
+-	}
+-
+-	if (iIndex <= m_iLastIndex)
+-	{
+-		if (m_pArray[iIndex].iNextFreeIndex == FFreeList::INVALID_INDEX)
+-		{
+-			m_pArray[iIndex].data = data;
+-			return;
+-		}
+-	}
+-
+-	while (iIndex > m_iNumSlots - 1)
+-	{
+-		growArray();
+-	}
+-
+-	if (iIndex > m_iLastIndex)
+-	{
+-		while (iIndex != m_iLastIndex + 1)
+-		{
+-			m_iLastIndex++;
+-			m_pArray[m_iLastIndex].iNextFreeIndex = m_iFreeListHead;
+-			m_iFreeListHead = m_iLastIndex;
+-			m_iFreeListCount++;
+-		}
+-
+-		m_iLastIndex++;
+-	}
+-
+-	m_pArray[iIndex].data = data;
+-
+-	if (m_iFreeListHead != FLA_FREE_LIST_INDEX)
+-	{
+-		if (iIndex == m_iFreeListHead)
+-		{
+-			m_iFreeListHead = m_pArray[iIndex].iNextFreeIndex;
+-			m_iFreeListCount--;
+-		}
+-		else
+-		{
+-			iTempIndex = m_iFreeListHead;
+-			while (iTempIndex != FLA_FREE_LIST_INDEX)
+-			{
+-				assert(iTempIndex != FFreeList::INVALID_INDEX);
+-				if (m_pArray[iTempIndex].iNextFreeIndex == iIndex)
+-				{
+-					m_pArray[iTempIndex].iNextFreeIndex = m_pArray[iIndex].iNextFreeIndex;
+-					m_iFreeListCount--;
+-					break;
+-				}
+-				iTempIndex = m_pArray[iTempIndex].iNextFreeIndex;
+-			}
+-		}
+-	}
+-
+-	m_pArray[iIndex].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-}
+-
+-
+-template <class T>
+-void FFreeListArray<T>::insertFirst(T data)
+-{
+-	int iI;
+-
+-	if (m_pArray == NULL)
+-	{
+-		init();
+-	}
+-
+-	if ((m_iLastIndex == m_iNumSlots - 1) &&
+-		(m_iFreeListCount == 0))
+-	{
+-		growArray();
+-	}
+-
+-	for (iI = 0; iI <= m_iLastIndex; iI++)
+-	{
+-		if (m_pArray[iI].iNextFreeIndex != FFreeList::INVALID_INDEX)
+-		{
+-			insertAt(data, iI);
+-			return;
+-		}
+-	}
+-
+-	insert(data);
+-}
+-
+-
+-template <class T>
+-T* FFreeListArray<T>::getAt(int iIndex)
+-{
+-	if ((m_pArray == NULL) || (iIndex == FFreeList::INVALID_INDEX))
+-	{
+-		return NULL;
+-	}
+-
+-	if ((iIndex >= 0) && (iIndex <= m_iLastIndex))
+-	{
+-		if (m_pArray[iIndex].iNextFreeIndex == FFreeList::INVALID_INDEX)
+-		{
+-			return &(m_pArray[iIndex].data);
+-		}
+-	}
+-
+-	return NULL;
+-}
+-
+-
+-template <class T>
+-int FFreeListArray<T>::getIndex(T data)
+-{
+-	int iI;
+-
+-	if (m_pArray == NULL)
+-	{
+-		return FFreeList::INVALID_INDEX;
+-	}
+-
+-	for (iI = 0; iI <= m_iLastIndex; iI++)
+-	{
+-		if (m_pArray[iI].iNextFreeIndex == FFreeList::INVALID_INDEX)
+-		{
+-			if (m_pArray[iI].data == data)
+-			{
+-				return iI;
+-			}
+-		}
+-	}
+-
+-	return FFreeList::INVALID_INDEX;
+-}
+-
+-
+-template <class T>
+-bool FFreeListArray<T>::remove(T data)
+-{
+-	int iI;
+-
+-	assert(m_pArray != NULL);
+-
+-	for (iI = 0; iI <= m_iLastIndex; iI++)
+-	{
+-		if (m_pArray[iI].iNextFreeIndex == FFreeList::INVALID_INDEX)
+-		{
+-			if (m_pArray[iI].data == data)
+-			{
+-				return removeAt(iI);
+-			}
+-		}
+-	}
+-
+-	return false;
+-}
+-
+-
+-template <class T>
+-bool FFreeListArray<T>::removeAt(int iIndex)
+-{
+-	assert(m_pArray != NULL);
+-
+-	if ((iIndex >= 0) && (iIndex <= m_iLastIndex))
+-	{
+-		if (m_pArray[iIndex].iNextFreeIndex == FFreeList::INVALID_INDEX)
+-		{
+-			m_pArray[iIndex].iNextFreeIndex = m_iFreeListHead;
+-			m_iFreeListHead = iIndex;
+-			m_iFreeListCount++;
+-
+-			return true;
+-		}
+-	}
+-
+-	return false;
+-}
+-
+-
+-template <class T>
+-void FFreeListArray<T>::removeAll()
+-{
+-	int iI;
+-
+-	if (m_pArray == NULL)
+-	{
+-		return;
+-	}
+-
+-	m_iFreeListHead = FLA_FREE_LIST_INDEX;
+-	m_iFreeListCount = 0;
+-	m_iLastIndex = FFreeList::INVALID_INDEX;
+-
+-	for (iI = 0; iI < m_iNumSlots; iI++)
+-	{
+-		m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-	}
+-}
+-
+-// Protected functions...
+-
+-template <class T>
+-void FFreeListArray<T>::growArray()
+-{
+-	DArrayNode* pOldArray;
+-	int iOldNumSlots;
+-	int iI;
+-
+-	pOldArray = m_pArray;
+-	iOldNumSlots = m_iNumSlots;
+-
+-	m_iNumSlots *= 2;
+-	m_pArray = new DArrayNode[m_iNumSlots];
+-
+-	for (iI = 0; iI < m_iNumSlots; iI++)
+-	{
+-		if (iI < iOldNumSlots)
+-		{
+-			m_pArray[iI] = pOldArray[iI];
+-		}
+-		else
+-		{
+-			m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-		}
+-	}
+-
+-	delete [] pOldArray;
+-}
+-
+-//
+-// use when list contains non-streamable types
+-//
+-template < class T >
+-inline void FFreeListArray< T >::Read( FDataStreamBase* pStream )
+-{
+-	int iCount = 0;
+-	pStream->Read( &iCount );
+-	init( iCount );
+-
+-	if ( iCount )
+-	{
+-		for ( int i = 0; i < iCount; i++ )
+-		{
+-			T* pData = new T;
+-			pStream->Read( sizeof ( T ), ( byte* )pData );
+-			insert( pData );
+-		}
+-	}
+-}
+-
+-template < class T >
+-inline void FFreeListArray< T >::Write( FDataStreamBase* pStream )
+-{
+-	int iCount = getCount();
+-	pStream->Write( iCount );
+-
+-	for ( int i = 0; i < getIndexAfterLast(); i++ )
+-	{
+-		if ( getAt( i ) )
+-		{
+-			pStream->Write( sizeof ( T ), ( byte* )getAt( i ) );
+-		}
+-	}
+-}
+-
+-//-------------------------------
+-// Serialization helper templates:
+-//-------------------------------
+-
+-//
+-// use when list contains streamable types
+-//
+-template < class T >
+-inline void ReadStreamableFFreeListArray( FFreeListArray< T >& flist, FDataStreamBase* pStream )
+-{
+-	int iCount = 0;
+-	pStream->Read( &iCount );
+-	flist.init( iCount );
+-
+-	if ( iCount )
+-	{
+-		for ( int i = 0; i < iCount; i++ )
+-		{
+-			T* pData = new T;
+-			pData->read( pStream );
+-			flist.insert( pData );
+-		}
+-	}
+-}
+-
+-//
+-// use when list contains streamable types
+-//
+-template < class T >
+-inline void WriteStreamableFFreeListArray( FFreeListArray< T >& flist, FDataStreamBase* pStream )
+-{
+-	int iCount = flist.getCount();
+-	pStream->Write( iCount );
+-
+-	for ( int i = 0; i < flist.getIndexAfterLast(); i++ )
+-	{
+-		if ( flist[ i ] )
+-		{
+-			flist[ i ]->write( pStream );
+-		}
+-	}
+-}
+-
+-#endif	//FFREELISTARRAY_H
+
+diff --git a/CvGameCoreDLL/FFreeListArrayBase.h b/CvGameCoreDLL/FFreeListArrayBase.h
+deleted file mode 100644
+index 056719bc4..000000000
+--- a/CvGameCoreDLL/FFreeListArrayBase.h
++++ /dev/null
+@@ -1,147 +0,0 @@
+-#pragma once
+-
+-//	$Revision: #2 $		$Author: mbreitkreutz $ 	$DateTime: 2005/06/13 13:35:55 $
+-//------------------------------------------------------------------------------------------------
+-//
+-//  *****************   FIRAXIS GAME ENGINE   ********************
+-//
+-//  FILE:    FFreeListArrayBase.h
+-//
+-//  AUTHOR:  Mustafa Thamer
+-//
+-//  PURPOSE: abstract base class for FFreeListArray and FFreeListTrashArray
+-/*  advc.opt (note): This class isn't currently used polymorphically, so one could
+-	remove the pure virtual declarations (or, say, all but one) to allow the
+-	implementations in derived classes to be inlined. However, those implementations
+-	are probably too complex to be inlined anyway, so I'm leaving the base class as it is. */
+-//
+-//------------------------------------------------------------------------------------------------
+-//  Copyright (c) 2004 Firaxis Games, Inc. All rights reserved.
+-//------------------------------------------------------------------------------------------------
+-
+-#ifndef		FFREELISTARRAYBASE_H
+-#define		FFREELISTARRAYBASE_H
+-#pragma		once
+-
+-namespace FFreeList
+-{
+-	enum
+-	{
+-		INVALID_INDEX	= -1,
+-		FREE_LIST_INDEX	= -2
+-	};
+-};
+-
+-template <class T>
+-class FFreeListArrayBase
+-{
+-public:
+-
+-	FFreeListArrayBase();
+-	virtual ~FFreeListArrayBase() {}
+-	virtual void init(int iNumSlots = 8) = 0;
+-	virtual void uninit() = 0;
+-	virtual T* getAt(int iIndex) const = 0;
+-	T* operator[](int iIndex) const;
+-
+-	// start at the beginning of the list and return the first item or NULL when done
+-	T* beginIter(int* pIterIdx) const;
+-
+-	// iterate from the current position and return the next item found or NULL when done
+-	T* nextIter(int* pIterIdx) const;
+-
+-	// start at the end of the list and return the last item or NULL when done
+-	T* endIter(int* pIterIdx) const;
+-
+-	// iterate from the current position and return the prev item found or NULL when done
+-	T* prevIter(int* pIterIdx) const;
+-
+-	// Returns the iIndex after the last iIndex in the array containing an element
+-	int getIndexAfterLast() const	{	return m_iLastIndex + 1;	}
+-
+-	// Returns the number of elements in the array (NOTE: this is a non-packed array, so this value is NOT the last iIndex in the array...)
+-	int getCount()	const {	return m_iLastIndex - m_iFreeListCount + 1;	}
+-
+-	virtual void removeAll() = 0;
+-protected:
+-	int m_iFreeListHead;
+-	int m_iFreeListCount;
+-	int m_iLastIndex;
+-	int m_iNumSlots;
+-
+-	virtual void growArray() = 0;
+-};
+-
+-template <class T>
+-FFreeListArrayBase<T>::FFreeListArrayBase()
+-{
+-	m_iFreeListHead = FFreeList::FREE_LIST_INDEX;
+-	m_iFreeListCount = 0;
+-	m_iLastIndex = FFreeList::INVALID_INDEX;
+-	m_iNumSlots = 0;
+-}
+-
+-
+-//
+-// operators
+-//
+-
+-template < class T >
+-inline T* FFreeListArrayBase< T >::operator[](int iIndex) const
+-{
+-	return getAt(iIndex);
+-}
+-
+-//
+-// iteration functions
+-//
+-
+-// start at the beginning of the list and return the first item or NULL when done
+-template <class T>
+-T* FFreeListArrayBase<T>::beginIter(int* pIterIdx) const
+-{
+-	*pIterIdx = 0;
+-	return nextIter(pIterIdx);
+-}
+-
+-// iterate from the current position and return the next item found or NULL when done
+-template <class T>
+-T* FFreeListArrayBase<T>::nextIter(int* pIterIdx) const
+-{
+-	for( ; (*pIterIdx)<getIndexAfterLast(); (*pIterIdx)++)
+-	{
+-		T* pObj = getAt((*pIterIdx));
+-		if (pObj)
+-		{
+-			(*pIterIdx)++;	// prime for next call
+-			return pObj;
+-		}
+-	}
+-	return NULL;
+-}
+-
+-// start at the end of the list and return the last item or NULL when done
+-template <class T>
+-T* FFreeListArrayBase<T>::endIter(int* pIterIdx) const
+-{
+-	*pIterIdx = getIndexAfterLast()-1;
+-	return prevIter(pIterIdx);
+-}
+-
+-// iterate from the current position and return the prev item found or NULL when done
+-template <class T>
+-T* FFreeListArrayBase<T>::prevIter(int* pIterIdx) const
+-{
+-	for( ; (*pIterIdx)>=0; (*pIterIdx)--)
+-	{
+-		T* pObj = getAt((*pIterIdx));
+-		if (pObj)
+-		{
+-			(*pIterIdx)--;	// prime for next call
+-			return pObj;
+-		}
+-	}
+-	return NULL;
+-}
+-
+-#endif	//FFREELISTARRAYBASE_H
+
+diff --git a/CvGameCoreDLL/FFreeListTrashArray.cpp b/CvGameCoreDLL/FFreeListTrashArray.cpp
+new file mode 100644
+index 000000000..46624e111
+--- /dev/null
++++ b/CvGameCoreDLL/FFreeListTrashArray.cpp
+@@ -0,0 +1,378 @@
++#include "CvGameCoreDLL.h"
++#include "FFreeListTrashArray.h"
++#include "FDataStreamBase.h"
++#include "CvUnitAI.h"
++#include "CvCityAI.h"
++#include "CvSelectionGroupAI.h"
++#include "CvPlotGroup.h"
++#include "CvArea.h"
++#include "CvDeal.h"
++
++/*	advc.003u: Implementation file for FLTA functions that are clearly too large
++	to be inlined or that need to access member functions of T or AIType. */
++
++
++/*	(advc: Could replace the 'new' calls with this in order to instantiate
++	T and AIType with pointers instead of classes and structs.) */
++/*namespace
++{
++	template<class ConcreteType>
++	// Note: The parameter is only for type inference
++	inline ConcreteType* createElement(ConcreteType*)
++	{
++		return new ConcreteType();
++	}
++}*/
++
++
++template<class T,class AIType>
++FFreeListTrashArray<T,AIType>::FFreeListTrashArray()
++{
++	// <advc> From FFreeListArrayBase constructor
++	m_iFreeListHead = FFreeList::FREE_LIST_INDEX;
++	m_iFreeListCount = 0;
++	m_iLastIndex = FFreeList::INVALID_INDEX;
++	m_iNumSlots = 0; // </advc>
++	m_iCurrentID = FLTA_MAX_BUCKETS;
++	m_pArray = NULL;
++}
++
++
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::init(int iNumSlots)
++{
++	FAssert(iNumSlots >= 0);
++
++	// make sure it's binary...
++	if (iNumSlots > 0 && ((iNumSlots - 1) & iNumSlots) != 0)
++	{
++		// find high bit
++		int iCount = 0;
++		while (iNumSlots != 1)
++		{
++			iNumSlots >>= 1;
++			iCount++;
++		}
++		iNumSlots = (1 << (iCount + 1));
++	}
++
++	FAssert(((iNumSlots - 1) & iNumSlots) == 0);
++	FAssertMsg(m_iNumSlots <= FLTA_MAX_BUCKETS, "FFreeListTrashArray::init() size too large");
++
++	uninit();
++
++	m_iNumSlots = iNumSlots;
++	m_iLastIndex = FFreeList::INVALID_INDEX;
++	m_iFreeListHead = FFreeList::INVALID_INDEX;
++	m_iFreeListCount = 0;
++	m_iCurrentID = FLTA_MAX_BUCKETS;
++
++	if (m_iNumSlots > 0)
++	{
++		m_pArray = new FFreeListTrashArrayNode[m_iNumSlots];
++		for (int iI = 0; iI < m_iNumSlots; iI++)
++		{
++			m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
++			m_pArray[iI].pData = NULL;
++		}
++	}
++}
++
++
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::uninit()
++{
++	if (m_pArray != NULL)
++	{
++		removeAll();
++		SAFE_DELETE_ARRAY(m_pArray);
++	}
++}
++
++
++template<class T,class AIType>
++T* FFreeListTrashArray<T,AIType>::add()
++{
++	if (m_pArray == NULL)
++		init();
++
++	if (m_iLastIndex == m_iNumSlots - 1 && m_iFreeListCount == 0)
++	{
++		if (m_iNumSlots * FLTA_GROWTH_FACTOR > FLTA_MAX_BUCKETS)
++			return NULL;
++		growArray();
++	}
++
++	int iIndex = m_iFreeListHead;
++	if (m_iFreeListCount > 0)
++	{
++		m_iFreeListHead = m_pArray[m_iFreeListHead].iNextFreeIndex;
++		m_iFreeListCount--;
++	}
++	else
++	{
++		m_iLastIndex++;
++		iIndex = m_iLastIndex;
++	}
++	m_pArray[iIndex].pData = new AIType;
++	m_pArray[iIndex].iNextFreeIndex = FFreeList::INVALID_INDEX;
++
++	m_pArray[iIndex].pData->setID(m_iCurrentID + iIndex);
++	m_iCurrentID += FLTA_MAX_BUCKETS;
++
++	return m_pArray[iIndex].pData;
++}
++
++
++template<class T,class AIType>
++T* FFreeListTrashArray<T,AIType>::getAt(int iID) const
++{
++	if (iID == FFreeList::INVALID_INDEX) //|| m_pArray == NULL // advc.opt
++		return NULL;
++
++	int iIndex = (iID & FLTA_INDEX_MASK);
++	FAssert(iIndex >= 0);
++	if (iIndex <= m_iLastIndex && m_pArray[iIndex].pData != NULL)
++	{
++		if ((iID & FLTA_ID_MASK) == 0 || m_pArray[iIndex].pData->getID() == iID)
++			return m_pArray[iIndex].pData;
++	}
++	return NULL;
++}
++
++
++template<class T,class AIType>
++bool FFreeListTrashArray<T,AIType>::remove(T* pData)
++{
++	FAssert(m_pArray != NULL);
++	if (pData != NULL)
++	{
++		for (int i = 0; i <= m_iLastIndex; i++)
++		{
++			if (m_pArray[i].pData == pData)
++				return removeAt(i);
++		}
++	}
++	return false;
++}
++
++
++template<class T,class AIType>
++bool FFreeListTrashArray<T,AIType>::removeAt(int iID)
++{
++	if (iID == FFreeList::INVALID_INDEX || m_pArray == NULL)
++		return false;
++
++	int iIndex = (iID & FLTA_INDEX_MASK);
++	FAssert(iIndex >= 0);
++	if (iIndex <= m_iLastIndex && m_pArray[iIndex].pData != NULL)
++	{
++		if ((iID & FLTA_ID_MASK) == 0 || m_pArray[iIndex].pData->getID() == iID)
++		{
++			SAFE_DELETE(m_pArray[iIndex].pData);
++			m_pArray[iIndex].iNextFreeIndex = m_iFreeListHead;
++			m_iFreeListHead = iIndex;
++			m_iFreeListCount++;
++			return true;
++		}
++		FAssert(false);
++	}
++	return false;
++}
++
++
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::removeAll()
++{
++	if (m_pArray == NULL)
++		return;
++
++	m_iLastIndex = FFreeList::INVALID_INDEX;
++	m_iFreeListHead = FFreeList::INVALID_INDEX;
++	m_iFreeListCount = 0;
++
++	for (int i = 0; i < m_iNumSlots; i++)
++	{
++		m_pArray[i].iNextFreeIndex = FFreeList::INVALID_INDEX;
++		if (m_pArray[i].pData != NULL)
++			delete m_pArray[i].pData;
++		m_pArray[i].pData = NULL;
++	}
++}
++
++
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::load(T* pData)
++{
++	FAssert(pData != NULL);
++	FAssert((pData->getID() & FLTA_ID_MASK) < m_iCurrentID);
++	FAssert(m_pArray != NULL);
++
++	int iIndex = (pData->getID() & FLTA_INDEX_MASK);
++
++	FAssert(iIndex < FLTA_MAX_BUCKETS);
++	FAssert(iIndex <= m_iLastIndex);
++	FAssert(m_pArray[iIndex].pData == NULL);
++	FAssert(m_pArray[iIndex].iNextFreeIndex == FFreeList::INVALID_INDEX);
++
++	m_pArray[iIndex].pData = pData;
++}
++
++
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::growArray()
++{
++	FAssert(m_pArray != NULL);
++	FFreeListTrashArrayNode* pOldArray = m_pArray;
++	int const iOldNumSlots = m_iNumSlots;
++
++	m_iNumSlots *= FLTA_GROWTH_FACTOR;
++	FAssertMsg(m_iNumSlots <= FLTA_MAX_BUCKETS, "FFreeListTrashArray::growArray() size too large");
++	m_pArray = new FFreeListTrashArrayNode[m_iNumSlots];
++
++	for (int i = 0; i < m_iNumSlots; i++)
++	{
++		if (i < iOldNumSlots)
++			m_pArray[i] = pOldArray[i];
++		else
++		{
++			m_pArray[i].iNextFreeIndex = FFreeList::INVALID_INDEX;
++			m_pArray[i].pData = NULL;
++		}
++	}
++
++	delete[] pOldArray;
++}
++
++//
++// use when list contains non-streamable types
++//
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::Read(FDataStreamBase* pStream)
++{
++	int iTemp;
++	pStream->Read( &iTemp );
++	init(iTemp);
++	pStream->Read(&iTemp);
++	setLastIndex(iTemp);
++	pStream->Read(&iTemp);
++	setFreeListHead(iTemp);
++	pStream->Read(&iTemp);
++	setFreeListCount(iTemp);
++	pStream->Read(&iTemp);
++	setCurrentID(iTemp);
++
++	for (int i = 0; i < getNumSlots(); i++)
++	{
++		pStream->Read(&iTemp);
++		setNextFreeIndex(i, iTemp);
++	}
++
++	int iCount;
++	pStream->Read(&iCount);
++	for (int i = 0; i < iCount; i++)
++	{
++		AIType* pData = new AIType;
++		pStream->Read(sizeof(*pData), (byte*)pData);
++		load(pData);
++	}
++}
++
++template<class T,class AIType>
++void FFreeListTrashArray<T,AIType>::Write(FDataStreamBase* pStream)
++{
++	pStream->Write(getNumSlots());
++	pStream->Write(getLastIndex());
++	pStream->Write(getFreeListHead());
++	pStream->Write(getFreeListCount());
++	pStream->Write(getCurrentID());
++
++	for (int i = 0; i < getNumSlots(); i++)
++	{
++		pStream->Write(getNextFreeIndex(i));
++	}
++
++	pStream->Write(getCount());
++	for (int i = 0; i < getIndexAfterLast(); i++)
++	{
++		AIType* pData = AI_getAt(i);
++		if (pData != NULL)
++			pStream->Write(sizeof(*pData), (byte*)pData);
++	}
++}
++
++
++template<class T,class AIType>
++void ReadStreamableFFreeListTrashArray(
++	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream)
++{
++	int iTemp;
++	pStream->Read(&iTemp);
++	flist.init(iTemp);
++	pStream->Read(&iTemp);
++	flist.setLastIndex(iTemp);
++	pStream->Read(&iTemp);
++	flist.setFreeListHead(iTemp);
++	pStream->Read(&iTemp);
++	flist.setFreeListCount(iTemp);
++	pStream->Read(&iTemp);
++	flist.setCurrentID(iTemp);
++
++	for (int i = 0; i < flist.getNumSlots(); i++)
++	{
++		pStream->Read(&iTemp);
++		flist.setNextFreeIndex(i, iTemp);
++	}
++
++	int iCount;
++	pStream->Read(&iCount);
++	for (int i = 0; i < iCount; i++)
++	{
++		AIType* pData = new AIType;
++		pData->read(pStream);
++		flist.load(pData);
++	}
++}
++
++template<class T,class AIType>
++void WriteStreamableFFreeListTrashArray(
++	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream)
++{
++	pStream->Write(flist.getNumSlots());
++	pStream->Write(flist.getLastIndex());
++	pStream->Write(flist.getFreeListHead());
++	pStream->Write(flist.getFreeListCount());
++	pStream->Write(flist.getCurrentID());
++
++	for (int i = 0; i < flist.getNumSlots(); i++)
++	{
++		pStream->Write(flist.getNextFreeIndex(i));
++	}
++
++	pStream->Write(flist.getCount());
++	for (i = 0; i < flist.getIndexAfterLast(); i++)
++	{
++		if (flist[i] != NULL)
++			flist[i]->write(pStream);
++	}
++}
++
++// advc.003u: Explicit instantiations (for linker)
++
++#define DO_FOR_EACH_FLTA_TYPE(DO) \
++	DO(CvUnit,CvUnitAI) \
++	DO(CvCity,CvCityAI) \
++	DO(CvSelectionGroup,CvSelectionGroupAI) \
++	DO(CvPlotGroup,CvPlotGroup) \
++	DO(CvArea,CvArea) \
++	DO(CvDeal,CvDeal) \
++	DO(VoteSelectionData,VoteSelectionData) \
++	DO(VoteTriggeredData,VoteTriggeredData) \
++	DO(EventTriggeredData,EventTriggeredData)
++
++#define INSTANTIATE_FLTA(T, AIType) \
++	template class FFreeListTrashArray<T,AIType>; \
++	template void ReadStreamableFFreeListTrashArray(FFreeListTrashArray<T,AIType>&, FDataStreamBase*); \
++	template void WriteStreamableFFreeListTrashArray(FFreeListTrashArray<T,AIType>&, FDataStreamBase*);
++
++DO_FOR_EACH_FLTA_TYPE(INSTANTIATE_FLTA);
+
+diff --git a/CvGameCoreDLL/FFreeListTrashArray.h b/CvGameCoreDLL/FFreeListTrashArray.h
+index ff62dbbac..a5911e0b7 100644
+--- a/CvGameCoreDLL/FFreeListTrashArray.h
++++ b/CvGameCoreDLL/FFreeListTrashArray.h
+@@ -1,23 +1,32 @@
+-#pragma once
+-
+ //	$Revision: #2 $		$Author: mbreitkreutz $ 	$DateTime: 2005/06/13 13:35:55 $
+-//------------------------------------------------------------------------------------------------
+-//
++//-------------------------------------------------------------------------------------
+ //  *****************   FIRAXIS GAME ENGINE   ********************
+-//
+ //  FILE:    FFreeListTrashArray.h
+ //  AUTHOR:  Soren Johnson
+ //  PURPOSE: A dynamic array with a free list that keeps track of its own memory...
+-//------------------------------------------------------------------------------------------------
++//-------------------------------------------------------------------------------------
+ //  Copyright (c) 2004 Firaxis Games, Inc. All rights reserved.
++/*	advc: Merged with the base class FreeListArrayBase and removed the unused sibling
++	FreeListArray from the code base. And other changes; see comments below. */
++/*	advc.003u: Part of the implementation moved to FFreeListTrashArray.cpp.
++	Caveat: All instantiations have to be made explicit at the end of that cpp file. */
++
++#ifndef FFREELISTTRASHARRAY_H
++#define FFREELISTTRASHARRAY_H
++#pragma once
+ 
+-#ifndef		FFREELISTTRASHARRAY_H
+-#define		FFREELISTTRASHARRAY_H
+-#pragma		once
++#include "FreeListTraversal.h" // advc.003s
++
++namespace FFreeList
++{
++	enum
++	{
++		INVALID_INDEX	= -1,
++		FREE_LIST_INDEX	= -2
++	};
++};
+ 
+-#include	"FFreeListArrayBase.h"
+-#include	"FDataStreamBase.h"
+-#include	"FLTALoopCounter.h" // advc.003s
++class FDataStreamBase;
+ 
+ #define FLTA_ID_SHIFT				(13)
+ #define FLTA_MAX_BUCKETS			(1 << FLTA_ID_SHIFT)
+@@ -25,75 +34,78 @@
+ #define FLTA_ID_MASK				(~(FLTA_INDEX_MASK))
+ #define FLTA_GROWTH_FACTOR			(2)
+ 
+-/*	advc (note): T is required to be a concrete class with
+-	getID, setID, read and write functions */
+-template <class T>
+-class FFreeListTrashArray : public FFreeListArrayBase<T>
++/*	advc.003u: AIType has to be a concrete class or struct with a default constructor
++	and functions getID, setID, read and write. If only T is given, then T has to satisfy
++	these requirements (same as in BtS). If AIType!=T, then AIType needs to be derived from T,
++	and all elements will have the type AIType. (The only point of this additional parameter
++	is to avoid problems with type casts in client code.) */
++template <class T, class AIType = T>
++class FFreeListTrashArray
+ {
+ public:
+ 
+ 	FFreeListTrashArray();
+-	virtual ~FFreeListTrashArray();
++	~FFreeListTrashArray() { uninit(); }
+ 
+-	virtual void init(int iNumSlots = 8);
+-	virtual void uninit();
+-	virtual T* getAt(int iID) const;
++	void init(int iNumSlots = 8);
++	void uninit();
++	T* getAt(int iID) const;
++	__forceinline AIType* AI_getAt(int iID) const
++	{
++		return AI(getAt(iID));
++	}
+ 
+ 	T* add();
++	AIType* AI_add() { return AI(add()); }
+ 	bool remove(T* pData);
+ 	bool removeAt(int iID);
+-	virtual void removeAll();
++	void removeAll();
+ 
+ 	void load(T* pData);
+ 
+-	int getNumSlots() const
++	inline int getNumSlots() const
+ 	{
+ 		return m_iNumSlots;
+ 	}
+-
+-	int getLastIndex() const
++	inline int getLastIndex() const
+ 	{
+ 		return m_iLastIndex;
+ 	}
+-	void setLastIndex(int iNewValue)
++	inline void setLastIndex(int iNewValue)
+ 	{
+ 		m_iLastIndex = iNewValue;
+ 	}
+-
+-	int getFreeListHead() const
++	inline int getFreeListHead() const
+ 	{
+ 		return m_iFreeListHead;
+ 	}
+-	void setFreeListHead(int iNewValue)
++	inline void setFreeListHead(int iNewValue)
+ 	{
+ 		m_iFreeListHead = iNewValue;
+ 	}
+-
+-	int getFreeListCount() const
++	inline int getFreeListCount() const
+ 	{
+ 		return m_iFreeListCount;
+ 	}
+-	void setFreeListCount(int iNewValue)
++	inline void setFreeListCount(int iNewValue)
+ 	{
+ 		m_iFreeListCount = iNewValue;
+ 	}
+-
+-	int getCurrentID()
++	inline int getCurrentID()
+ 	{
+ 		return m_iCurrentID;
+ 	}
+ 	void setCurrentID(int iNewValue)
+ 	{
+-		assert((iNewValue & FLTA_INDEX_MASK) == 0);
+-		assert((iNewValue & FLTA_ID_MASK) != 0);
++		FAssert((iNewValue & FLTA_INDEX_MASK) == 0);
++		FAssert((iNewValue & FLTA_ID_MASK) != 0);
+ 		m_iCurrentID = iNewValue;
+ 	}
+-
+ 	int getNextFreeIndex(int iIndex)
+ 	{
+ 		if (iIndex >= getNumSlots() || m_pArray == NULL)
+ 		{
+-			assert(false);
++			FAssert(false);
+ 			return FFreeList::INVALID_INDEX;
+ 		}
+ 		return m_pArray[iIndex].iNextFreeIndex;
+@@ -111,364 +123,111 @@ public:
+ 	void Read(FDataStreamBase* pStream);
+ 	void Write(FDataStreamBase* pStream);
+ 
+-protected:
+-
+-	struct FFreeListTrashArrayNode
+-	{
+-		int iNextFreeIndex;
+-		T* pData;
+-	};
+-
+-	int m_iCurrentID;
+-	FFreeListTrashArrayNode* m_pArray;
+-
+-	virtual void growArray();
+-};
+-
+-
+-
+-// Public functions...
++	// advc: The rest of the public functions are from FFreeListArrayBase ...
+ 
+-template <class T>
+-FFreeListTrashArray<T>::FFreeListTrashArray()
+-{
+-	m_iCurrentID = FLTA_MAX_BUCKETS;
+-	m_pArray = NULL;
+-}
+-
+-
+-template <class T>
+-FFreeListTrashArray<T>::~FFreeListTrashArray()
+-{
+-	uninit();
+-}
+-
+-
+-template <class T>
+-void FFreeListTrashArray<T>::init(int iNumSlots)
+-{
+-	FAssert(iNumSlots >= 0);
+-
+-	// make sure it's binary...
+-	if (iNumSlots > 0 && ((iNumSlots - 1) & iNumSlots) != 0)
+-	{
+-		// find high bit
+-		int iCount = 0;
+-		while (iNumSlots != 1)
+-		{
+-			iNumSlots >>= 1;
+-			iCount++;
+-		}
+-		iNumSlots = (1 << (iCount + 1));
+-	}
+-
+-	FAssert(((iNumSlots - 1) & iNumSlots) == 0);
+-	FAssertMsg(m_iNumSlots <= FLTA_MAX_BUCKETS, "FFreeListTrashArray<T>::init() size too large");
+-
+-	uninit();
+-
+-	m_iNumSlots = iNumSlots;
+-	m_iLastIndex = FFreeList::INVALID_INDEX;
+-	m_iFreeListHead = FFreeList::INVALID_INDEX;
+-	m_iFreeListCount = 0;
+-	m_iCurrentID = FLTA_MAX_BUCKETS;
+-
+-	if (m_iNumSlots > 0)
++	inline T* operator[](int iIndex) const
+ 	{
+-		m_pArray = new FFreeListTrashArrayNode[m_iNumSlots];
+-		for (int iI = 0; iI < m_iNumSlots; iI++)
+-		{
+-			m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-			m_pArray[iI].pData = NULL;
+-		}
++		return getAt(iIndex);
+ 	}
+-}
+ 
+-
+-template <class T>
+-void FFreeListTrashArray<T>::uninit()
+-{
+-	if (m_pArray != NULL)
++	// start at the beginning of the list and return the first item or NULL when done
++	inline T* beginIter(int* pIterIdx) const
+ 	{
+-		removeAll();
+-		SAFE_DELETE_ARRAY(m_pArray);
++		*pIterIdx = 0;
++		return nextIter(pIterIdx);
+ 	}
+-}
+-
+-
+-template <class T>
+-T* FFreeListTrashArray<T>::add()
+-{
+-	if (m_pArray == NULL)
+-		init();
+-
+-	if (m_iLastIndex == m_iNumSlots - 1 && m_iFreeListCount == 0)
++	__forceinline AIType* AI_beginIter(int* pIterIdx) const
+ 	{
+-		if (m_iNumSlots * FLTA_GROWTH_FACTOR > FLTA_MAX_BUCKETS)
+-			return NULL;
+-		growArray();
++		return AI(beginIter(pIterIdx));
+ 	}
+ 
+-	int iIndex = m_iFreeListHead;
+-	if (m_iFreeListCount > 0)
++	// iterate from the current position and return the next item found or NULL when done
++	T* nextIter(int* pIterIdx) const
+ 	{
+-		m_iFreeListHead = m_pArray[m_iFreeListHead].iNextFreeIndex;
+-		m_iFreeListCount--;
+-	}
+-	else
+-	{
+-		m_iLastIndex++;
+-		iIndex = m_iLastIndex;
+-	}
+-
+-	m_pArray[iIndex].pData = new T;
+-	m_pArray[iIndex].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-
+-	m_pArray[iIndex].pData->setID(m_iCurrentID + iIndex);
+-	m_iCurrentID += FLTA_MAX_BUCKETS;
+-
+-	return m_pArray[iIndex].pData;
+-}
+-
+-
+-template <class T>
+-T* FFreeListTrashArray<T>::getAt(int iID) const
+-{
+-	if (iID == FFreeList::INVALID_INDEX /*|| m_pArray == NULL*/) // advc.opt
++		for(; (*pIterIdx) < getIndexAfterLast(); (*pIterIdx)++)
++		{
++			T* pObj = getAt(*pIterIdx);
++			if (pObj != NULL)
++			{
++				(*pIterIdx)++; // prime for next call
++				return pObj;
++			}
++		}
+ 		return NULL;
+-
+-	int iIndex = (iID & FLTA_INDEX_MASK);
+-	FAssert(iIndex >= 0);
+-	// advc (note): These checks seem to be necessary (only?) b/c nextIter calls getAt.
+-	if (iIndex <= m_iLastIndex && m_pArray[iIndex].pData != NULL)
+-	{
+-		if ((iID & FLTA_ID_MASK) == 0 || m_pArray[iIndex].pData->getID() == iID)
+-			return m_pArray[iIndex].pData;
+ 	}
+-	return NULL;
+-}
+-
+-
+-template <class T>
+-bool FFreeListTrashArray<T>::remove(T* pData)
+-{
+-	FAssert(m_pArray != NULL);
+-	if (pData != NULL)
++	__forceinline AIType* AI_nextIter(int* pIterIdx) const
+ 	{
+-		for (int iI = 0; iI <= m_iLastIndex; iI++)
+-		{
+-			if (m_pArray[iI].pData == pData)
+-				return removeAt(iI);
+-		}
++		return AI(nextIter(pIterIdx));
+ 	}
+-	return false;
+-}
+-
+-
+-template <class T>
+-bool FFreeListTrashArray<T>::removeAt(int iID)
+-{
+-	if (iID == FFreeList::INVALID_INDEX || m_pArray == NULL)
+-		return false;
+ 
+-	int iIndex = (iID & FLTA_INDEX_MASK);
+-	FAssert(iIndex >= 0);
+-	if (iIndex <= m_iLastIndex && m_pArray[iIndex].pData != NULL)
++	// start at the end of the list and return the last item or NULL when done
++	inline T* endIter(int* pIterIdx) const
+ 	{
+-		if ((iID & FLTA_ID_MASK) == 0 || m_pArray[iIndex].pData->getID() == iID)
+-		{
+-			SAFE_DELETE(m_pArray[iIndex].pData);
+-			m_pArray[iIndex].iNextFreeIndex = m_iFreeListHead;
+-			m_iFreeListHead = iIndex;
+-			m_iFreeListCount++;
+-			return true;
+-		}
+-		FAssert(false);
++		*pIterIdx = getIndexAfterLast()-1;
++		return prevIter(pIterIdx);
+ 	}
+-	return false;
+-}
+-
+-
+-template <class T>
+-void FFreeListTrashArray<T>::removeAll()
+-{
+-	if (m_pArray == NULL)
+-		return;
+-
+-	m_iLastIndex = FFreeList::INVALID_INDEX;
+-	m_iFreeListHead = FFreeList::INVALID_INDEX;
+-	m_iFreeListCount = 0;
+-
+-	for (int iI = 0; iI < m_iNumSlots; iI++)
++	__forceinline AIType* AI_endIter(int* pIterIdx) const
+ 	{
+-		m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-		if (m_pArray[iI].pData != NULL)
+-			delete m_pArray[iI].pData;
+-		m_pArray[iI].pData = NULL;
++		return AI(endIter(pIterIdx));
+ 	}
+-}
+-
+-
+-template <class T>
+-void FFreeListTrashArray<T>::load(T* pData)
+-{
+-	FAssert(pData != NULL);
+-	FAssert((pData->getID() & FLTA_ID_MASK) < m_iCurrentID);
+-	FAssert(m_pArray != NULL);
+-
+-	int iIndex = (pData->getID() & FLTA_INDEX_MASK);
+ 
+-	FAssert(iIndex < FLTA_MAX_BUCKETS);
+-	FAssert(iIndex <= m_iLastIndex);
+-	FAssert(m_pArray[iIndex].pData == NULL);
+-	FAssert(m_pArray[iIndex].iNextFreeIndex == FFreeList::INVALID_INDEX);
+-
+-	m_pArray[iIndex].pData = pData;
+-}
+-
+-// Protected functions...
+-
+-template <class T>
+-void FFreeListTrashArray<T>::growArray()
+-{
+-	FAssert(m_pArray != NULL);
+-	FFreeListTrashArrayNode* pOldArray = m_pArray;
+-	int const iOldNumSlots = m_iNumSlots;
+-
+-	m_iNumSlots *= FLTA_GROWTH_FACTOR;
+-	FAssertMsg(m_iNumSlots <= FLTA_MAX_BUCKETS, "FFreeListTrashArray<T>::growArray() size too large");
+-	m_pArray = new FFreeListTrashArrayNode[m_iNumSlots];
+-
+-	for (int iI = 0; iI < m_iNumSlots; iI++)
++	// iterate from the current position and return the prev item found or NULL when done
++	T* prevIter(int* pIterIdx) const
+ 	{
+-		if (iI < iOldNumSlots)
+-			m_pArray[iI] = pOldArray[iI];
+-		else
++		for(; (*pIterIdx) >= 0; (*pIterIdx)--)
+ 		{
+-			m_pArray[iI].iNextFreeIndex = FFreeList::INVALID_INDEX;
+-			m_pArray[iI].pData = NULL;
++			T* pObj = getAt(*pIterIdx);
++			if (pObj != NULL)
++			{
++				(*pIterIdx)--; // prime for next call
++				return pObj;
++			}
+ 		}
++		return NULL;
+ 	}
+-
+-	delete [] pOldArray;
+-}
+-
+-//
+-// use when list contains non-streamable types
+-//
+-template<class T>
+-inline void FFreeListTrashArray< T >::Read(FDataStreamBase* pStream)
+-{
+-	int iTemp;
+-	pStream->Read( &iTemp );
+-	init(iTemp);
+-	pStream->Read(&iTemp);
+-	setLastIndex(iTemp);
+-	pStream->Read(&iTemp);
+-	setFreeListHead(iTemp);
+-	pStream->Read(&iTemp);
+-	setFreeListCount(iTemp);
+-	pStream->Read(&iTemp);
+-	setCurrentID(iTemp);
+-
+-	for (int i = 0; i < getNumSlots(); i++)
+-	{
+-		pStream->Read(&iTemp);
+-		setNextFreeIndex(i, iTemp);
+-	}
+-
+-	int iCount;
+-	pStream->Read(&iCount);
+-
+-	for (int i = 0; i < iCount; i++)
+-	{
+-		T* pData = new T;
+-		pStream->Read(sizeof(T), (byte*)pData);
+-		load(pData);
+-	}
+-}
+-
+-template<class T>
+-inline void FFreeListTrashArray<T>::Write(FDataStreamBase* pStream)
+-{
+-	pStream->Write(getNumSlots());
+-	pStream->Write(getLastIndex());
+-	pStream->Write(getFreeListHead());
+-	pStream->Write(getFreeListCount());
+-	pStream->Write(getCurrentID());
+-
+-	for (int i = 0; i < getNumSlots(); i++)
++	__forceinline AIType* AI_prevIter(int* pIterIdx) const
+ 	{
+-		pStream->Write(getNextFreeIndex(i));
++		return AI(prevIter(pIterIdx));
+ 	}
+ 
+-	pStream->Write(getCount());
+-	for (int i = 0; i < getIndexAfterLast(); i++)
+-	{
+-		if (getAt(i))
+-		{
+-			pStream->Write(sizeof(T), (byte*)getAt(i));
+-		}
+-	}
+-}
++	// Returns the iIndex after the last iIndex in the array containing an element
++	inline int getIndexAfterLast() const { return m_iLastIndex + 1; }
+ 
+-//-------------------------------
+-// Serialization helper templates:
+-//-------------------------------
+-//
+-// use when list contains streamable types
+-//
+-template<class T>
+-inline void ReadStreamableFFreeListTrashArray(FFreeListTrashArray<T>& flist, FDataStreamBase* pStream)
+-{
+-	int iTemp;
+-	pStream->Read(&iTemp);
+-	flist.init(iTemp);
+-	pStream->Read(&iTemp);
+-	flist.setLastIndex(iTemp);
+-	pStream->Read(&iTemp);
+-	flist.setFreeListHead(iTemp);
+-	pStream->Read(&iTemp);
+-	flist.setFreeListCount(iTemp);
+-	pStream->Read(&iTemp);
+-	flist.setCurrentID(iTemp);
++	/*	Returns the number of elements in the array (NOTE: this is a non-packed array, so
++		this value is NOT the last iIndex in the array...) */
++	inline int getCount() const { return m_iLastIndex - m_iFreeListCount + 1; }
+ 
+-	for (int i = 0; i < flist.getNumSlots(); i++)
++protected:
++	// <advc> (from FFreeListArrayBase)
++	int m_iFreeListHead;
++	int m_iFreeListCount;
++	int m_iLastIndex;
++	int m_iNumSlots;
++	// </advc>
++	struct FFreeListTrashArrayNode
+ 	{
+-		pStream->Read(&iTemp);
+-		flist.setNextFreeIndex(i, iTemp);
+-	}
++		int iNextFreeIndex;
++		T* pData;
++	};
++	int m_iCurrentID;
++	FFreeListTrashArrayNode* m_pArray;
+ 
+-	int iCount;
+-	pStream->Read(&iCount);
+-	for (int i = 0; i < iCount; i++)
++	void growArray();
++	/*	advc.003u: This cast is safe b/c the add function only creates AIType objects.
++		Cf. other cast wrapper functions, e.g. CvPlayer::AI. */
++	__forceinline AIType* AI(T* pData) const
+ 	{
+-		T* pData = new T;
+-		pData->read(pStream);
+-		flist.load(pData);
++		return reinterpret_cast<AIType*>(pData);
+ 	}
+-}
+-
+-template < class T >
+-inline void WriteStreamableFFreeListTrashArray(FFreeListTrashArray<T>& flist, FDataStreamBase* pStream )
+-{
+-	pStream->Write(flist.getNumSlots());
+-	pStream->Write(flist.getLastIndex());
+-	pStream->Write(flist.getFreeListHead());
+-	pStream->Write(flist.getFreeListCount());
+-	pStream->Write(flist.getCurrentID());
++};
+ 
+-	for (int i = 0; i < flist.getNumSlots(); i++)
+-	{
+-		pStream->Write(flist.getNextFreeIndex(i));
+-	}
++// Serialization helper templates - use when list contains streamable types
++template<class T, class AIType>
++void ReadStreamableFFreeListTrashArray(
++	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream);
+ 
+-	pStream->Write(flist.getCount());
+-	for (i = 0; i < flist.getIndexAfterLast(); i++)
+-	{
+-		if (flist[i])
+-			flist[i]->write(pStream);
+-	}
+-}
++template<class T, class AIType>
++void WriteStreamableFFreeListTrashArray(
++	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream);
+ 
+-#endif	//FFREELISTTRASHARRAY_H
++#endif
+
+diff --git a/CvGameCoreDLL/FLTALoopCounter.h b/CvGameCoreDLL/FLTALoopCounter.h
+deleted file mode 100644
+index 259182fec..000000000
+--- a/CvGameCoreDLL/FLTALoopCounter.h
++++ /dev/null
+@@ -1,13 +0,0 @@
+-#pragma once
+-
+-#ifndef CIV4_FLTA_LOOP_COUNTER_H
+-#define CIV4_FLTA_LOOP_COUNTER_H
+-
+-// advc.003s: Helper macros (primarily) for iterating over FFreeListTrashArray
+-#define CONCATVARNAME_IMPL(prefix, lineNum) prefix##lineNum
+-// This second layer of indirection is necessary
+-#define CONCATVARNAME(prefix, lineNum) CONCATVARNAME_IMPL(prefix, lineNum)
+-// ('iLoopCounter_##__LINE__' won't work)
+-#define LOOPCOUNTERNAME CONCATVARNAME(iLoopCounter_, __LINE__)
+-
+-#endif
+
+diff --git a/CvGameCoreDLL/FreeListTraversal.h b/CvGameCoreDLL/FreeListTraversal.h
+new file mode 100644
+index 000000000..cd49ff963
+--- /dev/null
++++ b/CvGameCoreDLL/FreeListTraversal.h
+@@ -0,0 +1,83 @@
++#pragma once
++
++#ifndef FREE_LIST_TRAVERSAL_H
++#define FREE_LIST_TRAVERSAL_H
++
++// advc.003s: Macros for traversing  FFreeListTrashArray
++// advc.003u: Added variants that provide a pointer to an AI object (e.g. FOR_EACH_UNITAI).
++
++/*  All FOR_EACH macros need to be listed in cpp.hint so that Visual Studio can
++	parse them properly! Otherwise, the navigation bar will show "Global Scope"
++	for any functions that use the macros. */
++
++// ('iLoopCounter_##__LINE__' won't work)
++#define LOOPCOUNTERNAME CONCATVARNAME(iLoopCounter_, __LINE__)
++
++/*  pointerType argument to allow the caller to choose AI or non-AI type and
++	const or non-const. -- Not intuitive enough; create a separate macro for every
++	combination instead. */
++/*#define FOR_EACH_UNIT(pointerType, pUnit, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(pointerType* pUnit = (kOwner).AI_firstUnit(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).AI_nextUnit(&LOOPCOUNTERNAME))*/
++
++// Make const the default (shortest macro name)
++#define FOR_EACH_UNIT(pUnit, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvUnit const* pUnit = (kOwner).firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).nextUnit(&LOOPCOUNTERNAME))
++#define FOR_EACH_UNIT_VAR(pUnit, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvUnit* pUnit = (kOwner).firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).nextUnit(&LOOPCOUNTERNAME))
++#define FOR_EACH_UNITAI(pUnit, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvUnitAI const* pUnit = (kOwner).AI_firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).AI_nextUnit(&LOOPCOUNTERNAME))
++#define FOR_EACH_UNITAI_VAR(pUnit, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvUnitAI* pUnit = (kOwner).AI_firstUnit(&LOOPCOUNTERNAME); pUnit != NULL; pUnit = (kOwner).AI_nextUnit(&LOOPCOUNTERNAME))
++
++#define FOR_EACH_CITY(pCity, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvCity const* pCity = (kOwner).firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).nextCity(&LOOPCOUNTERNAME))
++#define FOR_EACH_CITY_VAR(pCity, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvCity* pCity = (kOwner).firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).nextCity(&LOOPCOUNTERNAME))
++#define FOR_EACH_CITYAI_VAR(pCity, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvCityAI* pCity = (kOwner).AI_firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).AI_nextCity(&LOOPCOUNTERNAME))
++#define FOR_EACH_CITYAI(pCity, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvCityAI const* pCity = (kOwner).AI_firstCity(&LOOPCOUNTERNAME); pCity != NULL; pCity = (kOwner).AI_nextCity(&LOOPCOUNTERNAME))
++
++#define FOR_EACH_GROUP(pGroup, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvSelectionGroup const* pGroup = (kOwner).firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).nextSelectionGroup(&LOOPCOUNTERNAME))
++#define FOR_EACH_GROUP_VAR(pGroup, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvSelectionGroup* pGroup = (kOwner).firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).nextSelectionGroup(&LOOPCOUNTERNAME))
++#define FOR_EACH_GROUPAI(pGroup, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvSelectionGroupAI const* pGroup = (kOwner).AI_firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).AI_nextSelectionGroup(&LOOPCOUNTERNAME))
++#define FOR_EACH_GROUPAI_VAR(pGroup, kOwner) \
++	int LOOPCOUNTERNAME; \
++	for(CvSelectionGroupAI* pGroup = (kOwner).AI_firstSelectionGroup(&LOOPCOUNTERNAME); pGroup != NULL; pGroup = (kOwner).AI_nextSelectionGroup(&LOOPCOUNTERNAME))
++
++/*  To avoid calling GC.getMap() in every iteration; probably makes no difference,
++	but don't want to rely on inlining too much. */
++#define MAPVARNAME CONCATVARNAME(kMap_, __LINE__)
++
++#define FOR_EACH_AREA(pArea) \
++	int LOOPCOUNTERNAME; CvMap const& MAPVARNAME = GC.getMap(); \
++	for(CvArea const* pArea = MAPVARNAME.firstArea(&LOOPCOUNTERNAME); pArea != NULL; pArea = MAPVARNAME.nextArea(&LOOPCOUNTERNAME))
++#define FOR_EACH_AREA_VAR(pArea) \
++	int LOOPCOUNTERNAME; CvMap const& MAPVARNAME = GC.getMap(); \
++	for(CvArea* pArea = MAPVARNAME.firstArea(&LOOPCOUNTERNAME); pArea != NULL; pArea = MAPVARNAME.nextArea(&LOOPCOUNTERNAME))
++
++#define GAMEVARNAME CONCATVARNAME(kGame_, __LINE__)
++
++#define FOR_EACH_DEAL(pDeal) \
++	int LOOPCOUNTERNAME; CvGame const& GAMEVARNAME = GC.getGame(); \
++	for(CvDeal const* pDeal = GAMEVARNAME.firstDeal(&LOOPCOUNTERNAME); pDeal != NULL; pDeal = GAMEVARNAME.nextDeal(&LOOPCOUNTERNAME))
++#define FOR_EACH_DEAL_VAR(pDeal) \
++	int LOOPCOUNTERNAME; CvGame const& GAMEVARNAME = GC.getGame(); \
++	for(CvDeal* pDeal = GAMEVARNAME.firstDeal(&LOOPCOUNTERNAME); pDeal != NULL; pDeal = GAMEVARNAME.nextDeal(&LOOPCOUNTERNAME))
++
++#endif
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 2e6e2ff83..459e3530d 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -7,6 +7,7 @@
+ #include "MilitaryAnalyst.h"
+ #include "WarEvalParameters.h"
+ #include "CoreAI.h"
++#include "CvCity.h"
+ #include "CvPlot.h"
+ #include "CvArea.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 82da1f4ab..e1a71bc42 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -6,6 +6,7 @@
+ #include "UWAIAgent.h"
+ #include "InvasionGraph.h"
+ #include "CoreAI.h"
++#include "CvCity.h"
+ #include "CvInfo_GameOption.h"
+ #include <iterator>
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 5503c598d..c83c30733 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -5,6 +5,7 @@
+ #include "UWAIAgent.h"
+ #include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvCity.h"
+ #include "CvCivilization.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 77d6d8741..b6dcbb881 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -163,6 +163,7 @@
+     <ClCompile Include="..\CyUnitInterface1.cpp" />
+     <ClCompile Include="..\EnumMapTest.cpp" />
+     <ClCompile Include="..\FDialogTemplate.cpp" />
++    <ClCompile Include="..\FFreeListTrashArray.cpp" />
+     <ClCompile Include="..\FProfiler.cpp" />
+     <ClCompile Include="..\InvasionGraph.cpp" />
+     <ClCompile Include="..\KmodPathFinder.cpp" />
+@@ -196,18 +197,15 @@
+     <ClInclude Include="..\BitUtil.h" />
+     <ClInclude Include="..\CityPlotIterator.h" />
+     <ClInclude Include="..\CitySiteEvaluator.h" />
++    <ClInclude Include="..\CoreAI.h" />
+     <ClInclude Include="..\CvAgents.h" />
+-    <ClInclude Include="..\CvAI.h" />
+     <ClInclude Include="..\CvArea.h" />
+-    <ClInclude Include="..\CvAreaList.h" />
+     <ClInclude Include="..\CvArtFileMgr.h" />
+     <ClInclude Include="..\CvBugOptions.h" />
+     <ClInclude Include="..\CvCity.h" />
+     <ClInclude Include="..\CvCityAI.h" />
+-    <ClInclude Include="..\CvCityList.h" />
+     <ClInclude Include="..\CvCivilization.h" />
+     <ClInclude Include="..\CvDeal.h" />
+-    <ClInclude Include="..\CvDealList.h" />
+     <ClInclude Include="..\CvDefines.h" />
+     <ClInclude Include="..\CvDiploParameters.h" />
+     <ClInclude Include="..\CvDLLButtonPopup.h" />
+@@ -277,7 +275,6 @@
+     <ClInclude Include="..\CvReplayMessage.h" />
+     <ClInclude Include="..\CvSelectionGroup.h" />
+     <ClInclude Include="..\CvSelectionGroupAI.h" />
+-    <ClInclude Include="..\CvSelectionGroupList.h" />
+     <ClInclude Include="..\CvStatistics.h" />
+     <ClInclude Include="..\CvString.h" />
+     <ClInclude Include="..\CvStructs.h" />
+@@ -286,7 +283,6 @@
+     <ClInclude Include="..\CvTeamAI.h" />
+     <ClInclude Include="..\CvUnit.h" />
+     <ClInclude Include="..\CvUnitAI.h" />
+-    <ClInclude Include="..\CvUnitList.h" />
+     <ClInclude Include="..\CvXMLLoadUtility.h" />
+     <ClInclude Include="..\CyArea.h" />
+     <ClInclude Include="..\CyArgsList.h" />
+@@ -314,12 +310,10 @@
+     <ClInclude Include="..\FAStarNode.h" />
+     <ClInclude Include="..\FDataStreamBase.h" />
+     <ClInclude Include="..\FDialogTemplate.h" />
+-    <ClInclude Include="..\FFreeListArray.h" />
+-    <ClInclude Include="..\FFreeListArrayBase.h" />
+     <ClInclude Include="..\FFreeListTrashArray.h" />
+     <ClInclude Include="..\FInputDevice.h" />
+     <ClInclude Include="..\FProfiler.h" />
+-    <ClInclude Include="..\FLTALoopCounter.h" />
++    <ClInclude Include="..\FreeListTraversal.h" />
+     <ClInclude Include="..\FVariableSystem.h" />
+     <ClInclude Include="..\InvasionGraph.h" />
+     <ClInclude Include="..\KmodPathFinder.h" />
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index a37c8a960..f9c52575c 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -4,6 +4,8 @@
+ #include "RiseFall.h"
+ #include "CvInfo_GameOption.h"
+ #include "CoreAI.h"
++#include "CvCityAI.h"
++#include "CvSelectionGroup.h"
+ #include "CvDeal.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "CvTalkingHeadMessage.h"
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 2f8b34c1a..265b2fb31 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -9,6 +9,7 @@
+ #include "CvInfo_Building.h" // Just for vote-related info
+ #include "CvInfo_Unit.h" // for UWAI::Civ::militaryPower
+ #include "CoreAI.h"
++#include "CvCityAI.h"
+ #include "CvDiploParameters.h"
+ #include "CvMap.h"
+ #include "CvArea.h"
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 540bbbe67..c22299e3a 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -8,6 +8,7 @@
+ #include "WarEvalParameters.h"
+ #include "WarEvaluator.h"
+ #include "CoreAI.h"
++#include "CvSelectionGroupAI.h"
+ #include "CityPlotIterator.h"
+ #include "CvArea.h"
+ #include "CvInfo_Building.h"
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index be436af8a..a60d58480 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -8,9 +8,12 @@
+ #include "UWAIAgent.h"
+ #include "MilitaryAnalyst.h"
+ #include "CoreAI.h"
+-#include "CvDealList.h"
++#include "CvCityAI.h"
++#include "CvUnitAI.h"
++#include "CvSelectionGroupAI.h"
++#include "CvDeal.h"
+ #include "CvMap.h"
+-#include "CvAreaList.h"
++#include "CvArea.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Unit.h"
+ #include "CvInfo_Building.h" // Just for vote-related info
+@@ -3106,7 +3109,7 @@ void Revolts::evaluate() {
+ 		in the primary areas of theyId */
+ 	double revoltLoss = 0;
+ 	int totalAssets = 0;
+-	FOR_EACH_AREA_VAR(a) {
++	FOR_EACH_AREA(a) {
+ 		if(!they->AI_isPrimaryArea(*a) || (we->AI_isPrimaryArea(*a) &&
+ 				a->getCitiesPerPlayer(theyId) <= 2)) // Almost done here
+ 			continue;
+
+[PATCH COVERAGE]
+patchFiles=55 embeddedFiles=55 omittedFiles=0 embeddedPatchBytes=154394

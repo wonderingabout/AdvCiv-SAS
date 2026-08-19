@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4061
+# Commit: 0c85ecea873525410a4bc356f1fe16c172f9f06a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9574b461e4fb5ac9dfc17217648c71fc3e8b5431
+# Title: Swap "pending" Civ4lert boxes to the right column (BUG menu)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	6	Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py b/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+index 06c6cda0f..ab956db9e 100644
+--- a/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+@@ -26,12 +26,13 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# City management
+ 		self.addLabel(screen, left, "Alerts_City", "Cities:")
+ 		leftL, leftR = self.addTwoColumnLayout(screen, left, "Civ4lerts_TableGrowth")
+-		self.addCheckbox(screen, leftL, "Civ4lerts__CityPendingGrowth")
+-		self.addCheckbox(screen, leftR, "Civ4lerts__CityGrowth")		
+-		self.addCheckbox(screen, leftL, "Civ4lerts__CityPendingHealthiness")
+-		self.addCheckbox(screen, leftR, "Civ4lerts__CityHealthiness")		
+-		self.addCheckbox(screen, leftL, "Civ4lerts__CityPendingHappiness")
+-		self.addCheckbox(screen, leftR, "Civ4lerts__CityHappiness")
++		# advc.004: Swapped the "pending" boxes to the right column ...
++		self.addCheckbox(screen, leftR, "Civ4lerts__CityPendingGrowth")
++		self.addCheckbox(screen, leftL, "Civ4lerts__CityGrowth")		
++		self.addCheckbox(screen, leftR, "Civ4lerts__CityPendingHealthiness")
++		self.addCheckbox(screen, leftL, "Civ4lerts__CityHealthiness")		
++		self.addCheckbox(screen, leftR, "Civ4lerts__CityPendingHappiness")
++		self.addCheckbox(screen, leftL, "Civ4lerts__CityHappiness")
+ 		# advc.106d:
+ 		self.addCheckbox(screen, left, "Civ4lerts__CityPendingPositive")
+ 		# <advc.210b> Replacing these two left/right boxes with a single one
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1504

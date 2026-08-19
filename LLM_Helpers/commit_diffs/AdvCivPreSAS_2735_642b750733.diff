@@ -1,0 +1,124 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2735
+# Commit: 642b75073309780ec75a9d34907b7f3222726645
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9e6a0efed75190bde58683249ed6212e2cdc9c8f
+# Title: NMake: jom startup no longer written to console
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	12	CvGameCoreDLL/Project/AdvCiv.vcxproj
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index d02253f29..37d2d021d 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -467,13 +467,13 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeBuildCommandLine>
++bin\jom build /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Debug-opt
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeReBuildCommandLine>
++bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Debug-opt
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE /D_CODE_EDITOR</AdditionalOptions>
+@@ -499,13 +499,13 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeBuildCommandLine>
++bin\jom build /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Assert
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeReBuildCommandLine>
++bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Assert
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
+@@ -516,13 +516,13 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeBuildCommandLine>
++bin\jom build /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Profile
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeReBuildCommandLine>
++bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Profile
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /D_CODE_EDITOR /DUSE_TSC_PROFILER /DUSE_INTERNAL_PROFILER</AdditionalOptions>
+@@ -533,13 +533,13 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeBuildCommandLine>
++bin\jom build /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Debug
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeReBuildCommandLine>
++bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Debug
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
+@@ -550,13 +550,13 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeBuildCommandLine>
++bin\jom build /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Release
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeReBuildCommandLine>
++bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
+@@ -567,13 +567,13 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeBuildCommandLine>
++bin\jom build /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Final_Release
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake precompile /NOLOGO
+-bin\jom build</NMakeReBuildCommandLine>
++bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Final_Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4383

@@ -1,0 +1,66 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3256
+# Commit: 9385b62fa925e9fbfd1a91ddd802e5ec7a6fdd6a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 81dfd12d73d3bf8d73208cbbcb1e203f37317253
+# Title: Define a test flag as 0 rather than commenting it out
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/UWAIAgent.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5d01a6829..3057f71b0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3948,7 +3948,7 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 		return (!kOurTeam.isAVassal() && !kToTeam.isAVassal() &&
+ 				getTeam() != kToTeam.getID() && //!kToTeam.isVassal(getTeam()) // advc: redundant
+ 				!kOurTeam.isAtWar(kToTeam.getID()) &&
+-				#ifndef TEST_PERMANENT_ALLIANCES // advc.test
++				#if TEST_PERMANENT_ALLIANCES == 0 // advc.test
+ 				(kOurTeam.isPermanentAllianceTrading() || kToTeam.isPermanentAllianceTrading()) &&
+ 				#endif
+ 				kOurTeam.getNumMembers() == 1 && kToTeam.getNumMembers() == 1);
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0d2180054..af89be7e9 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4121,7 +4121,7 @@ DenialTypes CvTeamAI::AI_permanentAllianceTrade(TeamTypes eWithTeam) const
+ 			return DENIAL_POWER_US;
+ 		return DENIAL_POWER_YOU;
+ 	} // <advc.test>
+-	#ifdef TEST_PERMANENT_ALLIANCES
++	#if TEST_PERMANENT_ALLIANCES
+ 	if (AI_getAttitude(eWithTeam) >= ATTITUDE_CAUTIOUS)
+ 		return NO_DENIAL;
+ 	#endif // </advc.test>
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index e3925b1db..3a0904264 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -238,6 +238,6 @@ private:
+ 	refusal based on attitude only if worse than Cautious.
+ 	(Could define this in any header included by both CvTeamAI.cpp and CvPlayer.cpp.
+ 	This one isn't included very frequently elsewhere, i.e. not too slow to recompile.) */
+-//#define TEST_PERMANENT_ALLIANCES
++#define TEST_PERMANENT_ALLIANCES 0
+ 
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1742

@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2239
+# Commit: 23c40cee784709cfa098b5421d97f0685ce15b22
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b98fe2f3c8848839a7f0fab94ab080a04920bea3
+# Title: R&F: Fix player defeat popup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+7	4	CvGameCoreDLL/RiseFall.cpp
+1	1	CvGameCoreDLL/RiseFall.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index fb6351ded..92e7e574e 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -707,7 +707,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 		g.getRiseFall().afterCivSelection(pPopupReturn->getButtonClicked());
+ 		break;
+ 	case BUTTONPOPUP_RF_DEFEAT:
+-		g.getRiseFall().handleDefeatPopup(pPopupReturn->getButtonClicked());
++		g.getRiseFall().handleDefeatPopup(pPopupReturn->getButtonClicked(), info.getData1());
+ 		break;
+ 	case BUTTONPOPUP_RF_RETIRE:
+ 		g.getRiseFall().handleRetirePopup(pPopupReturn->getButtonClicked());
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 0e64972c4..7a04fdd03 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3817,7 +3817,7 @@ CvPlot* CvSelectionGroup::getPathEndTurnPlot() const
+ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns, int iMaxPath) const
+ {
+ 	// K-Mod - if I can stop the UI from messing with this pathfinder, I might be able to reduce OOS bugs.
+-	FAssert(AI_isControlled());
++	FAssert(AI_isControlled()); // advc.706 (note): Can trigger after defeat of active player in R&F game
+ 
+ 	PROFILE("CvSelectionGroup::generatePath()");
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index debc51891..f6170216a 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -223,12 +223,14 @@ void RiseFall::reportElimination(PlayerTypes civId) {
+ 	if(chapters[pos]->getCiv() == civId) {
+ 		chapters[pos]->score();
+ 		setPlayerControl(civId, false);
+-		CvPlayer& nextAlive = GET_PLAYER(nextCivAlive(civId));
++		CvPlayer& nextAlive = GET_PLAYER(nextCivAlive(BARBARIAN_PLAYER));
+ 		if(pos < (int)(chapters.size() - 1)) {
+ 			GC.getGame().setActivePlayer(nextAlive.getID());
+ 			nextAlive.setIsHuman(true);
+ 			nextAlive.updateHuman();
+ 			CvPopupInfo* popup = new CvPopupInfo(BUTTONPOPUP_RF_DEFEAT);
++			// So that launchDefeatPopup knows which chapter we've just scored (ended)
++			popup->setData1(pos);
+ 			nextAlive.addPopup(popup, true);
+ 		}
+ 		else {
+@@ -927,7 +929,7 @@ int RiseFall::getNormalizedFinalScore() const {
+ bool RiseFall::launchDefeatPopup(CvPopup* popup, CvPopupInfo& info) {
+ 
+ 	int startTurn = 0;
+-	int pos = getCurrentChapter();
++	int pos = info.getData1();
+ 	if(pos >= 0 && pos < (int)(chapters.size() - 1))
+ 		startTurn = chapters[pos + 1]->getStartTurn();
+ 	else FAssert(false);
+@@ -942,13 +944,14 @@ bool RiseFall::launchDefeatPopup(CvPopup* popup, CvPopupInfo& info) {
+ 	return true;
+ }
+ 
+-void RiseFall::handleDefeatPopup(int buttonClicked) {
++void RiseFall::handleDefeatPopup(int buttonClicked, int pos) {
+ 
+ 	if(buttonClicked == 1) {
++		setUIHidden(false);
++		CvPlot::setAllFog(false);
+ 		gDLL->UI().exitingToMainMenu();
+ 		return;
+ 	}
+-	int pos = getCurrentChapter();
+ 	if(pos < 0 || pos >= (int)(chapters.size() - 1)) {
+ 		FAssert(false);
+ 		pos = -1;
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index 80b037396..7d344e53a 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -36,7 +36,7 @@ public:
+ 	static int victoryStage(PlayerTypes civId);
+ 	// Callbacks for CvDLLButtonPopup
+ 	  bool launchDefeatPopup(CvPopup* popup, CvPopupInfo& info);
+-	  void handleDefeatPopup(int buttonClicked);
++	  void handleDefeatPopup(int buttonClicked, int pos);
+ 	  bool launchCivSelectionPopup(CvPopup* popup, CvPopupInfo& info);
+ 	  void handleCivSelection(PlayerTypes selectedCiv);
+ 	  void afterCivSelection(int buttonClicked);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3685

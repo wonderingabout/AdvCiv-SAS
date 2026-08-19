@@ -1,0 +1,1047 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1271
+# Commit: cf4fe6e63de3b555d7b033a37a274e751962b42f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: beb230a3bafeecd05c7efba87b45b6bd1615e121
+# Title: v0.89: * Rise & Fall: ** Scoring delay further reduced. 50% into the second chapter (no change), but with each chapter, the delay decreases a little. The pen...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/BULL Core.xml
+-	-	Assets/CvGameCoreDLL.dll
+5	1	Assets/Python/Screens/CvVictoryScreen.py
+3	0	Assets/xml/GameInfo/CIV4Hints.xml
+15	5	Assets/xml/GlobalDefines_advc.xml
+20	8	Assets/xml/Text/CIV4GameText_advc.008d.xml
+18	0	Assets/xml/Text/CIV4GameText_advc.xml
+15	6	CvGameCoreDLL/CvDLLWidgetData.cpp
+22	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+5	0	CvGameCoreDLL/CvGameCoreUtils.h
+21	17	CvGameCoreDLL/CvGameInterface.cpp
+12	9	CvGameCoreDLL/CvGameTextMgr.cpp
+62	28	CvGameCoreDLL/CvPlayerAI.cpp
+6	3	CvGameCoreDLL/CvPlayerAI.h
+3	3	CvGameCoreDLL/CvTeam.cpp
+6	2	CvGameCoreDLL/CvTeamAI.cpp
+5	0	CvGameCoreDLL/RFChapter.cpp
+1	0	CvGameCoreDLL/RFChapter.h
+13	9	CvGameCoreDLL/RFChapterScore.cpp
+1	1	CvGameCoreDLL/RFChapterScore.h
+5	3	CvGameCoreDLL/RFTotalScore.cpp
+24	5	CvGameCoreDLL/RiseFall.cpp
+1	1	CvGameCoreDLL/WarAndPeaceAI.cpp
+15	25	CvGameCoreDLL/WarAndPeaceCache.cpp
+3	6	CvGameCoreDLL/WarAndPeaceCache.h
+11	8	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual.pdf
+
+[PATCHES]
+
+diff --git a/Assets/Config/BULL Core.xml b/Assets/Config/BULL Core.xml
+index cb6f1c607..502b4c78a 100644
+--- a/Assets/Config/BULL Core.xml	
++++ b/Assets/Config/BULL Core.xml	
+@@ -7,7 +7,7 @@
+ 
+ 	Copyright (c) 2010 The BUG Mod.
+ -->
+-<!-- advc.003d: getUserDir added -->
++<!-- advc.003d: getUserDirStr added -->
+ <mod id="BULL" 
+ 	 name="BULL Core" 
+ 	 module="BugDll"
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 591eca78d..bf3f4437f 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -774,6 +774,8 @@ class CvVictoryScreen:
+ 				s = localText.getText("TXT_KEY_RF_TURN", (startTurn,))
+ 			if ongoing and not extChapter:
+ 				s = self.highlight(s)
++			if endTurn >= 0: # Don't highlight this part
++				s += " (" + BugUtil.getDisplayYear(gc.getGame().getTurnYear(endTurn)) + ")"
+ 			screen.setTableText(szTable, 2, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# [3] Points
+ 			chapterScore = gc.getGame().getChapterScore(i)
+@@ -797,6 +799,8 @@ class CvVictoryScreen:
+ 				s += " (" + localText.getText("TXT_KEY_RF_CHAPTER_LAST_KNOWN", (endTurn,)) + ")"
+ 			if currentTurn < startTurn:
+ 				s = "?"
++			elif extChapter:
++				s = "-"
+ 			else:
+ 				partialScore += chapterScore
+ 			screen.setTableText(szTable, 3, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -804,7 +808,7 @@ class CvVictoryScreen:
+ 			s = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_TURN", (scoreTurn,))
+ 			if i == maxChapters - 1 and scoreTurn < 0:
+ 				s = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_END", ())
+-			if currentTurn >= scoreTurn:
++			elif currentTurn >= scoreTurn:
+ 				s = self.highlight(s)
+ 			if not extGame or currentTurn >= scoreTurn:
+ 				screen.setTableText(szTable, 4, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 2828a0880..2d0af89fa 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -532,6 +532,9 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_HINT_INTERFACE_6</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_45</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_HINT_14</Description>
+ 		</HintInfo>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index f9a8e52d4..d4e1f2d7b 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -782,13 +782,23 @@
+ 		<DefineName>RF_CHAPTER_LENGTH_SHIFT_PERCENT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- Determines when scoring happens. Has to be during the chapter following
+-		 the one being scored and at least 5 turns away from the chapter start
+-		 and end. 50 (recommended) puts it in the middle of the chapter. -->
+-	<Define>
+-		<DefineName>RF_SCORING_DELAY_MULTIPLIER_PERCENT</DefineName>
++	<!-- These two settings determine when scoring happens. The first one is
++		 for the first chapter and second one for the penultimate chapter. (The
++		 final chapter is only scored if the AI wins, and then it's scored
++		 immediately.) The other chapters are interpolated.
++		 For all chapters (except the final one), scoring has to happen during
++		 the subsequent chapter and at least 5 turns away from the start and
++		 end of that chapter. 50 and 25 (recommended) means that the first
++		 chapter is scored in the middle of the second chapter, and the
++		 penultimate chapter one quarter into the final chapter. -->
++	<Define>
++		<DefineName>RF_SCORING_DELAY_FIRST</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>RF_SCORING_DELAY_PENULTIMATE</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
+ 	<!-- Set to 1 (recommended, I guess) to enable a popup reminder at the
+ 		 start of the final turn of each chapter. Set to 0 to disable the popup.
+ 		 -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 5f8ef48c7..6f00bc127 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -120,6 +120,18 @@
+ 	<Spanish>Use [Alt + M] to set a reminder for yourself.</Spanish>
+ </TEXT>
+ 
++<!-- "Press the forward and back buttons on your mouse to cycle through units
++	 on the same plot" Few people have these, and it doesn't sound very
++	 convenient either. -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_INTERFACE_45</Tag>
++	<English>When the screen says "Initializing" for several seconds while loading a saved game, it might help to briefly minimize the game by pressing [ALT + TAB] twice.</English>
++	<French>When the screen says "Initializing" for several seconds while loading a saved game, it might help to briefly minimize the game by pressing [ALT + TAB] twice.</French>
++	<German>Wenn beim Laden eines Spielstands f�r l�ngere Zeit "Wird initialisiert" angezeigt wird, kann es helfen, das Spiel per [ALT + TAB] f�r einen Augenblick zu minimieren.</German>
++	<Italian>When the screen says "Initializing" for several seconds while loading a saved game, it might help to briefly minimize the game by pressing [ALT + TAB] twice.</Italian>
++	<Spanish>When the screen says "Initializing" for several seconds while loading a saved game, it might help to briefly minimize the game by pressing [ALT + TAB] twice.</Spanish>
++</TEXT>
++
+ <!-- "Go-To (All Units) by pressing ALT+G" - has anyone ever used this? -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_53</Tag>
+@@ -185,11 +197,11 @@
+ <!-- advc.130m -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_5</Tag>
+-	<English>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</English>
+-	<French>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the relations bonus fades over time.</French>
++	<English>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it is not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</English>
++	<French>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it is not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the relations bonus fades over time.</French>
+ 	<German>(AdvCiv) F�r einen andauernden Diplomatiebonus durch gemeinsame milit�rische Aktivit�ten reicht es nicht, formal gemeinsam im Krieg zu sein. Sie m�ssen auch wirklich Einheiten in den Kampf schicken, und selbst dann schwindet der Diplomatiebonus im Laufe der Zeit.</German>
+-	<Italian>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Italian>
+-	<Spanish>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Spanish>
++	<Italian>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it is not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Italian>
++	<Spanish>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it is not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.sha -->
+@@ -225,11 +237,11 @@
+ <!-- advc.130w -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_9</Tag>
+-	<English>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</English>
+-	<French>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</French>
++	<English>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world and have the world thank you for it.</English>
++	<French>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world and have the world thank you for it.</French>
+ 	<German>(AdvCiv) Wenn sich Gegner �ber Ihren Expansionsdrang beklagen, kann es helfen, einige Ihrer St�dte als Kolonie zu befreien; allerdings kann auch diese als Vasallenstaat Ihrer Beliebtheit schaden. Letztlich ist es zu viel verlangt, von der Welt geliebt zu werden, w�hrend Sie die Welt erobern.</German>
+-	<Italian>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</Italian>
+-	<Spanish>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world, and have the world thank you for it.</Spanish>
++	<Italian>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world and have the world thank you for it.</Italian>
++	<Spanish>(AdvCiv) If your rivals voice opposition to your territorial expansion, it can help to grant some of your cities independence. That said, the resulting vassal state may raise objections as well. You can't expect to conquer the world and have the world thank you for it.</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index b9f72052a..f17364a16 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1790,6 +1790,24 @@
+ 		<Spanish>&#161;%s1_warlord (%s2_Civ) ha muerto en combate en contra de nosotros!</Spanish>
+ 	</TEXT>
+ 	
++	<!-- [advc.004v] Originally in CIV4GameTextInfos.xml. Shortened. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CTRL_TRADE</Tag>
++		<English>[CTRL] for trade table</English>
++		<French>[CTRL]: n&#233;gociations</French>
++		<German>[STRG]: Verhandlungstisch</German>
++		<Italian>[CTRL] per negoziazione</Italian>
++		<Spanish>[CTRL] para intercambios</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_ALT_DECLARE_WAR</Tag>
++		<English>[ALT] to declare war</English>
++		<French>[ALT]: d&#233;clare la guerre</French>
++		<German>[ALT]: Kriegserkl&#228;rung</German>
++		<Italian>[ALT] per dichiarare guerra</Italian>
++		<Spanish>[ALT] para declarar la guerra</Spanish>
++	</TEXT>
++	
+ 	<!-- [advc.700] -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_REPLAY_NEXT_CHAPTER</Tag>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index aacd7562a..5237541d2 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3454,12 +3454,12 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		{
+ 			GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
+ 			GAMETEXT.getWarWearinessString(szBuffer, ePlayer, eActivePlayer); // K-Mod
+-
+-			if (!kPlayer.isHuman() && willTalk)
++			// <advc.104v> Now done later
++			/*if (!kPlayer.isHuman() && willTalk)
+ 			{
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
+-			}
++			}*/
+ 		}
+ 		// K-Mod end
+ 
+@@ -3504,12 +3504,21 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
+ 			}
+-
++			// <advc.004v> Moved here from above
++			bool showCtrlTrade = !((GC.altKey() || GC.ctrlKey()) && gDLL->getChtLvl() > 0) &&
++					!kPlayer.isHuman() && willTalk;
++			if (showCtrlTrade) {
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
++			} // </advc.004>
+ 			if( !(kActiveTeam.isAtWar(eTeam)))
+ 			{
+ 				if (kActiveTeam.canDeclareWar(eTeam))
+-				{
+-					szBuffer.append(NEWLINE);
++				{	// <advc.104v>
++					if(showCtrlTrade)
++						szBuffer.append(L", "); // Put them on one line
++					else // </advc.104v>
++						szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_MISC_ALT_DECLARE_WAR"));
+ 				}
+ 				else
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index fb66e4141..d89eb72c6 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -149,7 +149,28 @@ float hash(long x, PlayerTypes civId) {
+ 	v.push_back(x);
+ 	return hash(v, civId);
+ }
+-// </advc.003>
++
++void fatCross(CvPlot const& p, vector<CvPlot const*>& r) {
++
++	FAssert(r.empty());
++	r.reserve(21);
++	for(int i = 0; i < 21; i++)
++		r.push_back(NULL);
++	r[0] = &p;
++	int pos = 1;
++	CvMap& map = GC.getMap();
++	for(int dx = -CITY_PLOTS_RADIUS; dx <= CITY_PLOTS_RADIUS; dx++) {
++		for(int dy = -CITY_PLOTS_RADIUS; dy <= CITY_PLOTS_RADIUS; dy++) {
++			// Skip corners and center
++			if(std::abs(dx) + std::abs(dy) == 4 || (dx == 0 && dy == 0))
++				continue;
++			// that's NULL if off the map
++			r[pos] = map.plot(r[0]->getX_INLINE() + dx, r[0]->getY_INLINE() + dy);
++			pos++;
++		}
++	}
++	FAssert(pos == 21);
++} // </advc.003>
+ 
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 597ef8068..5d7b3e887 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -62,6 +62,11 @@ double percentileRank(std::vector<double>& distribution, double score,
+ float hash(std::vector<long> const& x, PlayerTypes civId = NO_PLAYER);
+ // For hashing just a single input
+ float hash(long x, PlayerTypes civId = NO_PLAYER);
++/*  'r' is an empty vector in which the 21 CvPlot* in the fat cross around p
++	will be placed. &p itself gets placed in r[0]; the others in no particular
++	order. If the fat cross has fewer than 21 plots (edge of the map),
++	NULL entries will be included. */
++void fatCross(CvPlot const& p, std::vector<CvPlot const*>& r);
+ // </advc.003>
+ 
+ //sign function taken from FirePlace - JW
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index e90672cc5..4dc4414b1 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1165,24 +1165,26 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
+ 						while (pSelectedUnitNode != NULL)
+ 						{
+ 							pSelectedUnit = ::getUnit(pSelectedUnitNode->m_data);
+-
+-							TeamTypes eRivalTeam = pSelectedUnit->getDeclareWarMove(pPlot);
+-
+-							if (eRivalTeam != NO_TEAM)
+-							{
+-								CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DECLAREWARMOVE);
+-								if (NULL != pInfo)
++							/*  advc.001 Player apparently wants to attack the
++								enemy unit if there is one (rather than declare war
++								against a third party): */
++							if(!pPlot->isVisibleEnemyUnit(pSelectedUnit)) {
++								TeamTypes eRivalTeam = pSelectedUnit->getDeclareWarMove(pPlot);
++								if (eRivalTeam != NO_TEAM)
+ 								{
+-									pInfo->setData1(eRivalTeam);
+-									pInfo->setData2(pPlot->getX());
+-									pInfo->setData3(pPlot->getY());
+-									pInfo->setOption1(bShift);
+-									pInfo->setOption2(pPlot->getTeam() != eRivalTeam);
+-									gDLL->getInterfaceIFace()->addPopup(pInfo);
++									CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DECLAREWARMOVE);
++									if (NULL != pInfo)
++									{
++										pInfo->setData1(eRivalTeam);
++										pInfo->setData2(pPlot->getX());
++										pInfo->setData3(pPlot->getY());
++										pInfo->setOption1(bShift);
++										pInfo->setOption2(pPlot->getTeam() != eRivalTeam);
++										gDLL->getInterfaceIFace()->addPopup(pInfo);
++									}
++									return;
+ 								}
+-								return;
+-							}
+-
++							} // advc.001
+ 							pSelectedUnitNode = gDLL->getInterfaceIFace()->nextSelectionListNode(pSelectedUnitNode);
+ 						}
+ 					}
+@@ -1887,7 +1889,9 @@ void CvGame::doControl(ControlTypes eControl)
+ 				(Fullscreen pretty much rules out that a debugger is attached.) */
+ 			if(gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN)) {
+ 				// Based on code in CvBugOptions.cpp
+-				CvString quickSavePath; //="C:\\Users\\Administrator\\Documents\\My Games\\Beyond the Sword\\Saves\\single\\quick\\QuickSave.CivBeyondSwordSave";
++				/*  On my system, it's "C:\\Users\\Administrator\\Documents\\My Games\\Beyond the Sword\\Saves\\single\\quick\\QuickSave.CivBeyondSwordSave";
++					the user directory can vary. */
++				CvString quickSavePath;
+ 				gDLL->getPythonIFace()->callFunction(PYBugOptionsModule, "getUserDirStr", NULL, &quickSavePath);
+ 				if(!quickSavePath.empty()) {
+ 					quickSavePath += "\\Beyond the Sword\\Saves\\single\\quick\\QuickSave.CivBeyondSwordSave";
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ecaf51143..64b990aeb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4380,7 +4380,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				szString.append(CvWString::format(L"\n %s = %d", GC.getCivicInfo((CivicTypes)iI).getDescription(), GET_PLAYER(pPlot->getOwner()).AI_civicValue((CivicTypes)iI)));			
+ 			}
+ */
+-			if( bShift && !bAlt)
++			if(false && // advc.007: Disabled
++					bShift && !bAlt)
+ 			{
+ 				const CvPlayerAI& kPlayer = GET_PLAYER(pPlot->getOwnerINLINE());
+ 				std::vector<int> viBonusClassRevealed(GC.getNumBonusClassInfos(), 0);
+@@ -4469,7 +4470,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					szString.append(CvWString::format(L"\n %s = %d", GC.getCivicInfo((CivicTypes)iI).getDescription(), GET_PLAYER(pPlot->getOwner()).AI_civicValue((CivicTypes)iI)));
+ 				}
+ 			}
+-			else if( pPlot->headUnitNode() == NULL )
++			else if( false && // advc.007: Disabled
++					pPlot->headUnitNode() == NULL )
+ 			{
+ 				std::vector<UnitAITypes> vecUnitAIs;
+ 
+@@ -4523,7 +4525,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		szString.append(GC.getTerrainInfo(pPlot->getTerrainType()).getDescription());
+ 
+ 		FAssert((0 < GC.getNumBonusInfos()) && "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvInterface::updateHelpStrings");
+-		for (iI = 0; iI < GC.getNumBonusInfos(); ++iI)
++		// advc.007: Commented out
++		/*for (iI = 0; iI < GC.getNumBonusInfos(); ++iI)
+ 		{
+ 			if (pPlot->isPlotGroupConnectedBonus(GC.getGameINLINE().getActivePlayer(), ((BonusTypes)iI)))
+ 			{
+@@ -4531,7 +4534,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				szString.append(GC.getBonusInfo((BonusTypes)iI).getDescription());
+ 				szString.append(CvWString::format(L" (%d)", GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_bonusVal((BonusTypes)iI, 0, true)));
+ 			}
+-		}
++		}*/
+ 
+ 		if (pPlot->getPlotGroup(GC.getGameINLINE().getActivePlayer()) != NULL)
+ 		{
+@@ -4701,13 +4704,13 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_AIR, true, false, false));
+ 			szString.append(szTempBuffer);
+ 		}*/
+-
+-		if (pPlot->getPlotCity() != NULL)
++		if (false && // advc.007: Takes up too much room
++			pPlot->getPlotCity() != NULL)
+ 		{
+ 			PlayerTypes ePlayer = pPlot->getOwnerINLINE();
+ 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+-			// advc.007: Takes up too much room
+-			/*szString.append(CvWString::format(L"\n\nAI unit class weights ..."));
++			
++			szString.append(CvWString::format(L"\n\nAI unit class weights ..."));
+ 			for (iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
+ 			{
+ 				if (kPlayer.AI_getUnitClassWeight((UnitClassTypes)iI) != 0)
+@@ -4722,7 +4725,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				{
+ 					szString.append(CvWString::format(L"\n%s = % d", GC.getUnitCombatInfo((UnitCombatTypes)iI).getDescription(), kPlayer.AI_getUnitCombatWeight((UnitCombatTypes)iI)));
+ 				}
+-			}*/			
++			}
+ 		}
+ 	}
+ 	else if (!bShift && bAlt && (gDLL->getChtLvl() > 0))
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7b2564898..8e10d93b5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8012,19 +8012,35 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
+ 
+ int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer) const
+ {
+-	PROFILE_FUNC();
+-
+-	CvPlot* pLoopPlot;
+-	int iCount;
+-	int iI;
+-
++	PROFILE_FUNC(); // <advc.003> Refactored
+ 	FAssert(ePlayer != getID());
+-
+-	iCount = 0;
+-
+-	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	int iCount = 0; // </advc.003>
++	// <advc.147> Replacing the code below
++	/*  Note that this function is only called once per turn. And I'm not even
++		sure that the new code is slower. */
++	int dummy=-1;
++	for(CvCity* cp = firstCity(&dummy); cp != NULL; cp = nextCity(&dummy)) {
++		CvCity const& c = *cp;
++		std::vector<CvPlot const*> radius;
++		::fatCross(*c.plot(), radius);
++		int perCityCount = 0;
++		int upperBound = std::max(6, c.getPopulation());
++		for(size_t i = 1; i < radius.size(); i++) {
++			CvPlot const* pp = radius[i];
++			if(pp == NULL)
++				continue;
++			CvPlot const& p = *pp;
++			if(p.getOwnerINLINE() == ePlayer) {
++				perCityCount++;
++				if(perCityCount >= upperBound)
++					break;
++			}
++		}
++		iCount += perCityCount;
++	} // </advc.147>
++	/*for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+-		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+ 		if (pLoopPlot->getOwnerINLINE() == ePlayer)
+ 		{
+@@ -8033,8 +8049,7 @@ int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer) const
+ 				iCount++;
+ 			}
+ 		}
+-	}
+-
++	}*/
+ 	return iCount;
+ }
+ 
+@@ -11647,6 +11662,9 @@ int CvPlayerAI::AI_cityTradeVal(CvCity* pCity) const
+ 	/*  advc.104d: Moved the K-Mod code here into a new function
+ 		cityWonderVal (with some tweaks). */
+ 	iValue += cityWonderVal(pCity) * 10;
++	// <advc.139>
++	if(pCity->isEvacuating())
++		iValue = ::round(0.5 * iValue); // </advc.139>
+ 	return GET_TEAM(getTeam()).roundTradeVal(iValue); // advc.104k
+ }
+ 
+@@ -20374,7 +20392,8 @@ void CvPlayerAI::AI_doCheckFinancialTrouble()
+ 
+ 
+ // heavily edited by K-Mod and bbai
+-int CvPlayerAI::AI_calculateCultureVictoryStage() const
++int CvPlayerAI::AI_calculateCultureVictoryStage(
++		int countdownThresh) const // advc.115
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -20429,9 +20448,12 @@ int CvPlayerAI::AI_calculateCultureVictoryStage() const
+ 				iHighCultureCount++;
+ 			}
+ 
+-			// advc.115: Threshold was 50%, now 67%
+-			if( pLoopCity->getCulture(getID()) > ::round(0.67 * pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel())) )
+-			{
++			// <advc.115> Threshold was 50%, now 67%, still 60% for human.
++			double thresh = 0.67;
++			if(isHuman())
++				thresh = 0.6;
++			if( pLoopCity->getCulture(getID()) > ::round(thresh * pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel())) )
++			{// </ advc.115>
+ 				iCloseToLegendaryCount++;
+ 			}
+ 
+@@ -20538,10 +20560,9 @@ int CvPlayerAI::AI_calculateCultureVictoryStage() const
+ 			}
+ 		}
+ 		*/
+-
+-		// advc.109:
+-		if(isLonely()) iValue -= 30;
+-
++		// <advc.109>
++		if(isLonely())
++			iValue -= 30; // </advc.109>
+ 		//int iNonsense = AI_getStrategyRand() + 10;
+ 		iValue += (AI_getStrategyRand(0) % 70); // advc.115: was 100
+ 
+@@ -20586,7 +20607,11 @@ int CvPlayerAI::AI_calculateCultureVictoryStage() const
+ 				return 4;
+ 			}*/
+ 			// K-Mod. Do full culture if our winning countdown is below the countdown target.
+-			int iCountdownTarget = 180;
++			/*  <advc.115> Was 180. Now set to the countdownThresh param if
++				it is provided, otherwise 100. */
++			int iCountdownTarget = 100;
++			if(countdownThresh >= 0)
++				iCountdownTarget = countdownThresh; // </advc.115>
+ 			{
+ 				// The countdown target depends on what other victory strategies we have in mind. The target is 180 turns * 100 / iDenominator.
+ 				// For example, if we're already at war, and going for conquest 4, the target countdown is then ~ 180 * 100 / 470 == 38 turns.
+@@ -21082,12 +21107,16 @@ int CvPlayerAI::AI_calculateDominationVictoryStage() const
+ 			landObjective ); // advc.104c
+ 
+ 	if(!blockedByFriend) { // advc.104c
+-		if( iPercentOfDomination > 80 )
+-		{
++		// <advc.115>
++		int civs = GC.getGameINLINE().countCivPlayersEverAlive();
++		if( iPercentOfDomination > 87 - civs ) // was simply 80
++		{ // </advc.115>
+ 			return 4;
+ 		}
+ 
+-		if( iPercentOfDomination > 55 ) // advc.115: was 50
++		if( iPercentOfDomination >
++				// advc.115: was simply 50
++				62 - civs )
+ 		{
+ 			return 3;
+ 		}
+@@ -25847,15 +25876,20 @@ void CvPlayerAI::AI_ClearConstructionValueCache()
+ // K-Mod end
+ 
+ // <advc.130r><advc.130h>
+-bool CvPlayerAI::atWarWithPartner(TeamTypes theyId) const {
++bool CvPlayerAI::atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked) const {
+ 
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 		CvPlayer const& partner = GET_PLAYER((PlayerTypes)i);
+ 		if(partner.isAlive() && partner.getTeam() != getTeam() &&
+ 				!partner.isMinorCiv() && GET_TEAM(theyId).isAtWar(
+ 				partner.getTeam()) && AI_getAttitude(partner.getID()) >=
+-				ATTITUDE_PLEASED)
+-			return true;
++				ATTITUDE_PLEASED) {
++			if(!checkPartnerAttacked)
++				return true;
++			WarPlanTypes wp = GET_TEAM(partner.getTeam()).AI_getWarPlan(theyId);
++			if(wp == WARPLAN_ATTACKED || wp == WARPLAN_ATTACKED_RECENT)
++				return true;
++		}
+ 	}
+ 	return false;
+ } // </advc.130h></advc.130r>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index ea148ccd6..9563fca49 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -418,7 +418,8 @@ public:
+ 	EventTypes AI_chooseEvent(int iTriggeredId) const;
+ 	virtual void AI_launch(VictoryTypes eVictory);
+ 
+-	int AI_calculateCultureVictoryStage() const;
++	int AI_calculateCultureVictoryStage(
++			int countdownThresh = -1) const; // advc.115
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      03/17/10                                jdog5000      */
+ /*                                                                                              */
+@@ -534,8 +535,10 @@ public:
+ 	bool AI_isFirstTech(TechTypes eTech) const;
+ 
+ 	void AI_ClearConstructionValueCache(); // K-Mod
+-	// advc.130r, advc.130h: Are they at war with a partner of ours?
+-	bool atWarWithPartner(TeamTypes theyId) const;
++	// advc.130r: Are they at war with a partner of ours?
++	/*  advc.130h: If checkPartnerAttacked==true, then only partners w/ war plan
++		"attacked" or "attacked recent" count. */
++	bool atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked = false) const;
+ 	// advc.001: needed for bNeighbouringReligion in AI_techValue
+ 	bool AI_hasSharedPrimaryArea(PlayerTypes pId) const;
+ 	// <advc.003><advc.104m>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 8eac22abd..953de5e7f 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1462,7 +1462,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 							/*  Not if eTeam is also fighting a partner and
+ 								(appears to have) started it. */
+ 							((kTeam_j.AI_getMemoryCount(eTeam, MEMORY_DECLARED_WAR_ON_FRIEND) <= 0) ||
+-							!kPlayer_j.atWarWithPartner(eTeam)))
++							!kPlayer_j.atWarWithPartner(eTeam, true)))
+ 							// </advc.130h>
+ 					{   // advc.130j:
+ 						kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR_ON_FRIEND);
+@@ -7147,8 +7147,8 @@ void CvTeam::makeUnwillingToTalk(TeamTypes otherId) {
+ 			}
+ 			/*  STOPPED_TRADING memory has no effect on humans. Make the
+ 				other side unwilling to talk then. Could simply always make both
+-				sides unwilling, but then, the expected duration until peace can
+-				be negotiated would get longer. */
++				sides unwilling, but then, the expected RTT duration would
++				become longer. */
+ 			else if(ourMember.isHuman() && theirMember.AI_getMemoryCount(
+ 					ourMember.getID(), MEMORY_STOPPED_TRADING_RECENT) <= 0) {
+ 				theirMember.AI_changeMemoryCount(ourMember.getID(),
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 6f940aa7d..06aca0985 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2795,7 +2795,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier,
+ 			}
+ 		}	
+ 	}
+-	// <advc.112> Don't vassal while we still have plans to expand
++	// <advc.112>
++	// Don't vassal while we still have plans to expand
+ 	if(!isAVassal() && (getWarPlanCount(WARPLAN_PREPARING_LIMITED) > 0 ||
+ 			getWarPlanCount(WARPLAN_PREPARING_TOTAL) > 0))
+ 		return DENIAL_POWER_US;
+@@ -2803,7 +2804,10 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier,
+ 	// !isParent check removed
+ 	// Computation of iPersonalityModifier moved down
+ 	// Commented-out BBAI code (06/03/09, jdog) deleted
+-	// </advc.112>
++	if(getAtWarCount() <= 0 && getDefensivePactCount() > 0) {
++		// "We" (= this team and its partners) "are doing fine on our own"
++		return DENIAL_POWER_US;
++	} // </advc.112>
+ 	// <advc.143b>
+ 	if(!isAtWar(eTeam) && getNumNukeUnits() > 0 &&
+ 			getNukeInterception() >= kMasterTeam.getNukeInterception())
+
+diff --git a/CvGameCoreDLL/RFChapter.cpp b/CvGameCoreDLL/RFChapter.cpp
+index effb8dcc7..5d475d9ca 100644
+--- a/CvGameCoreDLL/RFChapter.cpp
++++ b/CvGameCoreDLL/RFChapter.cpp
+@@ -122,6 +122,11 @@ void RFChapter::score() {
+ 	scoreTimestamp = GC.getGame().getGameTurn();
+ }
+ 
++void RFChapter::setScored(int turn) {
++
++	scoreTimestamp = turn;
++}
++
+ void RFChapter::setRetireTurn(int t) {
+ 
+ 	retireTurn = t;
+
+diff --git a/CvGameCoreDLL/RFChapter.h b/CvGameCoreDLL/RFChapter.h
+index 4103e2382..83023a74c 100644
+--- a/CvGameCoreDLL/RFChapter.h
++++ b/CvGameCoreDLL/RFChapter.h
+@@ -24,6 +24,7 @@ public:
+ 	void start();
+ 	void setScoreAtEnd(int sc);
+ 	void score();
++	void setScored(int turn);
+ 	void setRetireWasRecommended(bool b);
+ 	bool wasRetireRecommended() const;
+ 	void setRetireTurn(int t);
+
+diff --git a/CvGameCoreDLL/RFChapterScore.cpp b/CvGameCoreDLL/RFChapterScore.cpp
+index 95caed860..e6bffd330 100644
+--- a/CvGameCoreDLL/RFChapterScore.cpp
++++ b/CvGameCoreDLL/RFChapterScore.cpp
+@@ -83,7 +83,8 @@ void RFChapterScore::atChapterStart(RFChapter const& rfc) {
+ 	initialRivals = rank_rivals.second;
+ }
+ 
+-std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores) {
++std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores,
++		bool ignoreVictStage) {
+ 
+ 	if(chapter == NULL) {
+ 		FAssert(chapter != NULL);
+@@ -111,13 +112,15 @@ std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores) {
+ 				they.getID() == g.getActivePlayer())
+ 			continue;
+ 		ourRivals++;
+-		int theirVictStage = g.getRiseFall().victoryStage(they.getID());
+-		if(theirVictStage > ourVictStage) {
+-			ourRank++;
+-			continue;
++		if(!ignoreVictStage) {
++			int theirVictStage = g.getRiseFall().victoryStage(they.getID());
++			if(theirVictStage > ourVictStage) {
++				ourRank++;
++				continue;
++			}
++			if(ourVictStage > theirVictStage)
++				continue;
+ 		}
+-		if(ourVictStage > theirVictStage)
+-			continue;
+ 		int theirScore = modifiedCivScore(they.getID());
+ 		if(theirScore > ourScore)
+ 			ourRank++;
+@@ -152,8 +155,9 @@ void RFChapterScore::update() {
+ 		updateString();
+ 		return;
+ 	}
+-	// Necessary when update triggered by elimination
+-	GC.getGame().updateScore();
++	GC.getGame().updateScore(); // Necessary when update triggered by elimination
++	/*  Could apply victory stages only to initial ranks by calling
++		computeRank with ignoreVictStage=true here. */
+ 	rank = computeRank(false).first;
+ 	PlayerTypes chCiv = chapter->getCiv();
+ 	int civScore = modifiedCivScore(chCiv);
+
+diff --git a/CvGameCoreDLL/RFChapterScore.h b/CvGameCoreDLL/RFChapterScore.h
+index 19d6fd39f..df81da719 100644
+--- a/CvGameCoreDLL/RFChapterScore.h
++++ b/CvGameCoreDLL/RFChapterScore.h
+@@ -26,7 +26,7 @@ public:
+ 
+ private:
+ 	void updateString();
+-	std::pair<int,int> computeRank(bool storeCivScores);
++	std::pair<int,int> computeRank(bool storeCivScores, bool ignoreVictStage = false);
+ 	int modifiedCivScore(PlayerTypes civId) const;
+ 
+ 	std::wstring* breakdownString;
+
+diff --git a/CvGameCoreDLL/RFTotalScore.cpp b/CvGameCoreDLL/RFTotalScore.cpp
+index 4c32cd686..32fe8a2fc 100644
+--- a/CvGameCoreDLL/RFTotalScore.cpp
++++ b/CvGameCoreDLL/RFTotalScore.cpp
+@@ -101,15 +101,17 @@ void RFTotalScore::update(std::vector<RFChapter*> const& chapters) {
+ 		}
+ 	}
+ 	int compensation = victoryBase * unstarted; // For missed chapters
+-	fromVictory = victoryBase * 2 + compensation;
++	fromVictory = victoryBase + compensation;
+ 	// Victory premium awarded when starting from rank 1
+ 	int fromVictoryMin = (victoryBase / 3) * (1 + unstarted);
+ 	fromInitialRank = ::round((-(fromVictory - fromVictoryMin) *
+ 			(initialRivals - initialRank + 1.0)) /
+ 			std::max(1, initialRivals));
+ 	total = fromVictory + fromInitialRank;
+-	fromRemainingTime = ::round(victoryBase * (remainingTimePercent / 100.0));
++	fromRemainingTime = remainingTimePercent;
+ 	// Earlier formula:
++	//fromRemainingTime = ::round(victoryBase * (remainingTimePercent / 100.0));
++	// Even earlier:
+ 	/*fromRemainingTime = std::max(0, ::round((total - compensation) *
+ 			(remainingTimePercent / 200.0)));*/
+ 	total += fromRemainingTime + fromScored + fromFinishedUnscored;
+@@ -156,7 +158,7 @@ int RFTotalScore::getScore() const {
+ int RFTotalScore::getNormalizedScore() const {
+ 
+ 	// To match the adjusted (see advc.043) scale of the Dan Quayle screen
+-	return ::round(std::pow((getScore() + 200) / 14.0, 2.5));
++	return ::round(std::pow((getScore() + 250) / 12.5, 2.5));
+ }
+ 
+ void RFTotalScore::freezeTotal(std::vector<RFChapter*> const& chapters) {
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 4236297a0..036e037f0 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -112,19 +112,26 @@ void RiseFall::init() {
+ 			return;
+ 		}
+ 	}
+-	double delayMultiplier = GC.getDefineINT("RF_SCORING_DELAY_MULTIPLIER_PERCENT")
+-			/ 100.0;
++	double delayFirst = GC.getDefineINT("RF_SCORING_DELAY_FIRST") / 100.0;
++	double delayPenult = GC.getDefineINT("RF_SCORING_DELAY_PENULTIMATE") / 100.0;
+ 	int chapterStart = startTurn;
+ 	for(size_t i = 0; i < chapters.size(); i++) {
+ 		int nextChapterLength = (i >= chapters.size() - 1 ? 0 :
+ 				chapters[i + 1]->getLength());
+ 		if(nextChapterLength <= 0)
+-			chapters[i]->setDelay(0);
+-		else chapters[i]->setDelay(interludeLength + ::range(::roundToMultiple(
++			chapters[i]->setDelay(-10000); // For a negative scoreTurn
++		else { 
++			double delayMultiplier = delayPenult;
++			if(maxChapters != 2) {
++				delayMultiplier = delayFirst + i *
++						(delayPenult - delayFirst) / (maxChapters - 2);
++			}
++			chapters[i]->setDelay(interludeLength + ::range((int)( // Round down
+ 				// Avoid very long delays when chapters are long
+ 				std::min(speed.getGoldenAgePercent(), nextChapterLength) *
+-				delayMultiplier, 5) + 1,
++				delayMultiplier) + 1,
+ 				5, nextChapterLength - 5));
++		}
+ 		chapters[i]->setStartTurn(chapterStart);
+ 		chapterStart += chapters[i]->getLength() + interludeLength;
+ 	}
+@@ -850,6 +857,9 @@ void RiseFall::prepareForExtendedGame() {
+ 			chapters[pos]->score();
+ 		riseScore.freezeTotal(chapters);
+ 		chapters[pos]->setEndless(true);
++		/*  So that the game end turn gets shown as the score turn. The popup
++			that switches to extended game appears one turn after victory. */
++		chapters[pos]->setScored(GC.getGame().getGameTurn() - 1);
+ 		if(g.getAIAutoPlay()) {
+ 			abandonPlans(chapters[pos]->getCiv());
+ 			g.setAIAutoPlay(0);
+@@ -1123,6 +1133,15 @@ int RiseFall::victoryStage(PlayerTypes civId) {
+ 		r = 3;
+ 	if(civ.AI_isDoVictoryStrategyLevel4())
+ 		r = 4;
++	/*  Culture4 is normally quite a bit farther away from victory than
++		the other stage-4 strategies. Need to recompute the culture
++		victory stage with a lowered countdownThresh. */
++	if(r == 4 && civ.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) &&
++			!civ.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY4) &&
++			!civ.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4) &&
++			!civ.AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4) &&
++			!civ.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4))
++		r = std::max(3, civ.AI_calculateCultureVictoryStage(55));
+ 	return r;
+ }
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index fee96a64d..c8bb8b1ef 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2069,7 +2069,7 @@ bool WarAndPeaceAI::Civ::isPeaceDealPossible(PlayerTypes humanId) const {
+ 
+ 	/*  Could simply call CvPlayerAI::AI_counterPropose, but I think there are rare
+ 		situations when a deal is possible but AI_counterPropose doesn't find it.
+-		It's also slower. */
++		It would also be slower. */
+ 	// <advc.705>
+ 	CvGame const& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) &&
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 043201f2d..0b8299226 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -1328,9 +1328,8 @@ void WarAndPeaceCache::City::updateDistance(CvCity* targetCity) {
+ 			continue;
+ 		CvPlot* p = c->plot();
+ 		int pwd = -1; // pairwise (travel) duration
+-		int d; // set by measureDistance
++		int d = -1; // set by measureDistance
+ 		if(measureDistance(DOMAIN_LAND, p, targetCity->plot(), &d)) {
+-			FAssert(d >= 0);
+ 			double speed = 1;
+ 			if(era >= 6) // Future era; to account for very high mobility in endgame
+ 				speed++;
+@@ -1440,28 +1439,16 @@ bool WarAndPeaceCache::City::measureDistance(DomainTypes dom, CvPlot* start,
+ 	return (*r >= 0);
+ } // </advc.104b>
+ 
+-void WarAndPeaceCache::City::fatCross(vector<CvPlot*>& r) {
++void WarAndPeaceCache::City::fatCross(vector<CvPlot const*>& r) {
+ 
+-	FAssert(r.empty());
+-	r.reserve(21);
+-	for(int i = 0; i < 21; i++)
+-		r.push_back(NULL);
+-	if(city() == NULL)
++	if(city() == NULL) {
++		FAssert(r.empty());
++		r.reserve(21);
++		for(int i = 0; i < 21; i++)
++			r.push_back(NULL);
+ 		return;
+-	r[0] = city()->plot();
+-	int pos = 1;
+-	CvMap& map = GC.getMap();
+-	for(int dx = -CITY_PLOTS_RADIUS; dx <= CITY_PLOTS_RADIUS; dx++) {
+-		for(int dy = -CITY_PLOTS_RADIUS; dy <= CITY_PLOTS_RADIUS; dy++) {
+-			// Skip corners and center
+-			if(std::abs(dx) + std::abs(dy) == 4 || (dx == 0 && dy == 0))
+-				continue;
+-			// that's NULL if off the map
+-			r[pos] = map.plot(r[0]->getX_INLINE() + dx, r[0]->getY_INLINE() + dy);
+-			pos++;
+-		}
+ 	}
+-	FAssert(pos == 21);
++	return ::fatCross(*city()->plot(), r);
+ }
+ 
+ void WarAndPeaceCache::City::updateAssetScore() {
+@@ -1500,15 +1487,18 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 		r += c.getPopulation() / 2.0;
+ 	// Plot deduced but unrevealed; use an estimate:
+ 	else r += 3 * GET_PLAYER(cityOwnerId).getCurrentEra() / 2;
+-	vector<CvPlot*> fc; fatCross(fc);
++	vector<CvPlot const*> fc;
++	fatCross(fc);
+ 	for(int i = 0; i < 21; i++) {
+-		CvPlot* pp = fc[i];
+-		if(pp == NULL) continue; CvPlot const& p = *pp;
++		CvPlot const* pp = fc[i];
++		if(pp == NULL)
++			continue;
++		CvPlot const& p = *pp;
+ 		// If no working city, we should be able to get the tile by popping borders
+ 		if(p.getWorkingCity() != city() && p.getWorkingCity() != NULL && i != 0)
+ 			continue;
+ 		// Fall back on city tile for cultureModifier if p unrevealed
+-		CvPlot* cultureTestPlot = fc[0];
++		CvPlot const* cultureTestPlot = fc[0];
+ 		double baseTileScore = 1.0 / 3; // i.e. 1/6 of a resource tile
+ 		if(p.isRevealed(t.getID(), false)) {
+ 			// getBonusType ensures that we can see the resource
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index bb3ba0b3c..aa4c85d65 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -198,12 +198,9 @@ public:
+ 		int id() const;
+ 		// NULL if the city no longer exists at the time of retrieval
+ 		CvCity* city() const;
+-		/*  'r' is an empty vector in which the 21 CvPlot* will be placed. r[0]
+-			is the city tile itself; the others in no particular order. If a
+-			city's fat cross has fewer plots (edge of the map), some NULL entries
+-			will be included. If the underlying CvCity no longer exists,
+-			all entries are NULL. */
+-		void fatCross(std::vector<CvPlot*>& r);
++		/*  See ::fatCross in CvGameCoreUtils. If the underlying CvCity
++			no longer exists, all entries are NULL. */
++		void fatCross(std::vector<CvPlot const*>& r);
+ 		void write(FDataStreamBase* stream);
+ 		void read(FDataStreamBase* stream);
+ 	    static CvCity* cityById(int id);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index a3fc83e7a..224139684 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1948,20 +1948,23 @@ int KingMaking::preEvaluate() {
+ 	/*  Three classes of civs; all in the best non-empty category are likely
+ 		winners in our book. */
+ 	// I: Civs at victory stage 4
+-	for(size_t i = 0; i < civs.size(); i++)
+-		if(GET_PLAYER(properCivs[i]).AI_isDoVictoryStrategyLevel4())
+-			winning.insert(properCivs[i]);
++	for(size_t i = 0; i < civs.size(); i++) {
++		CvPlayerAI const& civ = GET_PLAYER(properCivs[i]);
++		// Tbd.: Merge with code in RiseFall::victoryStage
++		if(civ.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4 |
++				 AI_VICTORY_DIPLOMACY4 | AI_VICTORY_SPACE4) ||
++				 /*  Check isDoStrategy first in order to avoid the costlier
++					calculate... call */
++				 (civ.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) &&
++				  civ.AI_calculateCultureVictoryStage(55) >= 4))
++			winning.insert(civ.getID());
++	}
+ 	if(!winning.empty())
+ 		return 0;
+ 	//  II: Civs at victory stage 3 or game score near the top
+ 	for(size_t i = 0; i < civs.size(); i++)
+ 		if(GET_PLAYER(properCivs[i]).AI_isDoVictoryStrategyLevel3())
+ 			winning.insert(properCivs[i]);
+-	// Actually, merge II and II entirely
+-	/*if(!r.empty()) { // Use class III if no one at victory stage 3
+-		addLeadingCivs(r, civs, 0.1);
+-		return;
+-	} */
+ 	// III: Civs with a competitive game score
+ 	/*  Important to use scores predicted based on military analysis because the
+ 		AI needs to be able to respond quickly when a civ starts running away with
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=27 embeddedFiles=25 omittedFiles=2 embeddedPatchBytes=43647

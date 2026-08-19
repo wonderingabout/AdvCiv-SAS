@@ -1,0 +1,147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1794
+# Commit: 7aa0f092c0a7461d06d7db54dba56026676e26de
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8176775d114c07bf1472adae034056b59b117599
+# Title: Merge CvEnumMap::getTotal from WtP
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	4	CvGameCoreDLL/CvArea.cpp
+1	0	CvGameCoreDLL/CvArea.h
+1	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+24	1	CvGameCoreDLL/EnumMap.h
+1	1	CvGameCoreDLL/EnumMapTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 38afa698c..139151694 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -681,10 +681,7 @@ int CvArea::getNumBonuses(BonusTypes eBonus) const
+ 
+ int CvArea::getNumTotalBonuses() const
+ {
+-	int iTotal = 0;
+-	FOR_EACH_ENUM(Bonus)
+-		iTotal += m_aiBonuses.get(eLoopBonus);
+-	return iTotal;
++	return m_aiBonuses.getTotal();
+ }
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index aa01106aa..c43719e03 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -116,6 +116,7 @@ public:
+ 
+ 	int getNumBonuses(BonusTypes eBonus) const;																// Exposed to Python
+ 	int getNumTotalBonuses() const;																						// Exposed to Python
++	bool isAnyBonus() const { return m_aiBonuses.hasContent(); } // advc.opt
+ 	void changeNumBonuses(BonusTypes eBonus, int iChange);
+ 
+ 	int getNumImprovements(ImprovementTypes eImprovement) const;							// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f531da818..37c553ca2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3775,7 +3775,7 @@ bool CvCity::isPrereqBonusSea() const
+ 	for(int i = 0; i < NUM_DIRECTION_TYPES; i++)
+ 	{
+ 		CvPlot* p = plotDirection(getX(), getY(), (DirectionTypes)i);
+-		if(p != NULL && p->isWater() && p->area()->getNumTotalBonuses() > 0)
++		if(p != NULL && p->isWater() && p->area()->isAnyBonus())
+ 			return true;
+ 	}
+ 	return false;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 0b6267d07..aeda87e79 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3080,7 +3080,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 			}
+ 			/*  This was '> 0' in CvPlot::canTrain, which is apparently a bug,
+ 				but doesn't really matter b/c no land unit has this prereq. */
+-			else if(area()->getNumTotalBonuses() <= 0)
++			else if(!area()->isAnyBonus())
+ 				continue;
+ 		}
+ 		int iMinAreaSz = kUnit.getMinAreaSize();
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index bc37e3a53..e3cecbb96 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1,5 +1,5 @@
+ /*  advc.enum: From the "We the People" (WtP) mod for Civ4Col, original author: Nightinggale,
+-	who is still working on the EnumMap classes. This version is from 24 Oct 2019.
++	who is still working on the EnumMap classes. This version is from 3 Nov 2019.
+ 	I have -for now- omitted the WtP serialization functions, and uncoupled the
+ 	code from the Perl-generated enums that WtP uses. Instead of defining
+ 	ArrayLength functions, the getEnumLength functions that AdvCiv defines in
+@@ -91,6 +91,9 @@ public:
+ 	// add a number to all indexes
+ 	void addAll(T eValue);
+ 
++	// get the sum of all elements
++	int getTotal() const;
++	
+ 	// Check if there is non-default contents.
+ 	// isAllocated() test for a null pointer while hasContent() will loop the array to test each index for default value.
+ 	// Useful to avoid looping all 0 arrays and when creating savegames.
+@@ -629,6 +632,26 @@ void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ 	}
+ }
+ 
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: was inline
++int EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::getTotal() const
++{
++	// bINLINE is set at compile time and if true, isAllocated will always be true
++	// used here to tell the compiler that the true statement (not allocated) can be declared unreachable at compile time
++	if (!bINLINE && !isAllocated())
++	{
++		// no need to loop through unallocated memory
++		return DEFAULT * getLength();
++	}
++	int iReturnVal = 0;
++	const int iLength = getLength();
++	for (IndexType eIndex = First(); eIndex < iLength; ++eIndex)
++	{
++		iReturnVal += get(eIndex);
++	}
++	return iReturnVal;
++}
++
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
+ inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::isAllocated() const
+
+diff --git a/CvGameCoreDLL/EnumMapTest.cpp b/CvGameCoreDLL/EnumMapTest.cpp
+index f6b0b2ec6..1a758d0de 100644
+--- a/CvGameCoreDLL/EnumMapTest.cpp
++++ b/CvGameCoreDLL/EnumMapTest.cpp
+@@ -7,7 +7,7 @@
+ void TestEnumMap()
+ {
+ 	// advc: Moved into the function body
+-	#if defined(_DEBUG) && defined(_TEST_ENUM_MAP)
++	#if /*defined(_DEBUG) &&*/ defined(_TEST_ENUM_MAP)
+ 	{
+ 		EnumMap<RouteTypes, int> test;
+ 		RouteTypes var = static_cast<RouteTypes>(0);
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=4491

@@ -1,0 +1,854 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2562
+# Commit: 33606cd11857f942b46a32407a07594103b88054
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a0cbcee00a5c2148440dbe24e043a8d856a4032c
+# Title: Misc. refactoring, cleanup, comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/BoostPythonPCH.h
+1	1	CvGameCoreDLL/CvCityAI.h
+1	1	CvGameCoreDLL/CvDLLEntityIFaceBase.h
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	0	CvGameCoreDLL/CvDeal.cpp
+12	4	CvGameCoreDLL/CvEnums.h
+15	15	CvGameCoreDLL/CvGame.cpp
+4	4	CvGameCoreDLL/CvGlobals.h
+7	2	CvGameCoreDLL/CvInfoEnums.h
+1	1	CvGameCoreDLL/CvInfo_Misc.h
+5	7	CvGameCoreDLL/CvInitCore.cpp
+3	3	CvGameCoreDLL/CvMap.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayer.h
+3	5	CvGameCoreDLL/CvPlayerAI.cpp
+56	41	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+3	3	CvGameCoreDLL/CvTeam.cpp
+2	2	CvGameCoreDLL/CvTeam.h
+3	0	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CyPlayer.cpp
+2	1	CvGameCoreDLL/CyPlayerInterface2.cpp
+2	2	CvGameCoreDLL/PragmaWarnings.h
+3	1	CvGameCoreDLL/StartingPositionIteration.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BoostPythonPCH.h b/CvGameCoreDLL/BoostPythonPCH.h
+index 57e1b14e5..a1dee105b 100644
+--- a/CvGameCoreDLL/BoostPythonPCH.h
++++ b/CvGameCoreDLL/BoostPythonPCH.h
+@@ -19,6 +19,7 @@ namespace boost
+ 	}
+ 	class noncopyable {}; // advc.003e
+ }
++void BOOST_STATIC_ASSERT(bool);
+ class PyObject;
+ #else // </advc.make>
+ # include <boost/python/list.hpp>
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 303f27c04..937e072ef 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -156,7 +156,7 @@ public:
+ 	// advc.003j: Both unused
+ 	/*bool AI_isFrontlineCity() const; // K-Mod
+ 	int AI_calculateMilitaryOutput() const;*/ // K-Mod
+-	int AI_cityThreat(/*bool bDangerPercent = false*/) const; // advc: param was (always) unused
++	int AI_cityThreat(/*bool bDangerPercent = false*/) const; // advc: param was (and has always been) unused
+ 
+ 	int AI_getWorkersHave() const;
+ 	int AI_getWorkersNeeded() const;
+
+diff --git a/CvGameCoreDLL/CvDLLEntityIFaceBase.h b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+index d873bda49..9ef9fca8e 100644
+--- a/CvGameCoreDLL/CvDLLEntityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+@@ -3,7 +3,7 @@
+ #ifndef CvDLLEntityIFaceBase_h
+ #define CvDLLEntityIFaceBase_h
+ 
+-//#pragma warning(disable:100) // advc.make: Moved to PCH
++//#pragma warning(disable:100) // advc.make: Moved to PragmaWarnings.h
+ 
+ //
+ // abstract class containing entity-related functions that the DLL needs
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index d38dc192b..46e03cd1c 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5995,7 +5995,7 @@ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataSt
+ 
+ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-	CvPlayer::PollutionTypes eFlags = (CvPlayer::PollutionTypes)widgetDataStruct.m_iData1;
++	CvPlayer::PollutionFlags eFlags = (CvPlayer::PollutionFlags)widgetDataStruct.m_iData1;
+ 
+ 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION")+":");
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 9a8084a05..5c2e91f6e 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -429,11 +429,13 @@ bool CvDeal::isPeaceDeal() const  // advc: simplified
+ 	return false;
+ }
+ 
++
+ bool CvDeal::isVassalDeal() const
+ {
+ 	return (isVassalTrade(m_firstTrades) || isVassalTrade(m_secondTrades));
+ }
+ 
++
+ bool CvDeal::isVassalTrade(CLinkList<TradeData> const& kList)
+ {
+ 	for (CLLNode<TradeData> const* pNode = kList.head(); pNode != NULL;
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 3c14c2d3a..db394ad98 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -8,7 +8,7 @@
+ // <advc.enum>
+ #include "CvInfoEnums.h"
+ 
+-/*	Player limits: Moved from CvDefines into the Enum types.
++/*	Player limits: Moved from CvDefines into the enum types.
+ 	(Can always turn MAX_CIV_PLAYERS back into a preprocessor define
+ 	if that helps in making the player limits more flexible.) */
+ //#ifdef _USRDLL
+@@ -25,7 +25,7 @@ enum PlayerTypes
+ 		Savegames are still incompatible. */
+ 	MAX_CIV_PLAYERS = 18,
+ 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
+-	MAX_PLAYERS = MAX_CIV_PLAYERS + 1
++	MAX_PLAYERS
+ };
+ enum TeamTypes
+ {
+@@ -2265,7 +2265,11 @@ enum UnitSubEntityTypes
+ };
+ 
+ // <advc.enum>
+-// CityPlotTypes enum - idea from "We the People"
++/*	CityPlotTypes enum - idea from "We the People".
++	Replacing preprocessor defines in CvDefines. Note that those defines have
++	been compiled into the EXE, so, to avoid inconsistencies, the values of
++	NUM_CITY_PLOTS, CITY_HOME_PLOT, CITY_PLOTS_RADIUS and CITY_PLOTS_DIAMETER
++	should never be changed. */
+ ENUM_START(CityPlot, CITYPLOT)
+ 	CITY_HOME_PLOT = 0,
+ 	FIRST_ADJACENT_PLOT = 1,
+@@ -2316,7 +2320,7 @@ ENUM_END(CityPlot, CITYPLOT)
+ /*  ^No definition - so that these comparisons result in a linker error.
+ 	The linker error will say in which function the offending call occurs.
+ 	A compiler error would also provide a line number, but the compiler
+-	can't tell if a global function has any call locations. */
++	couldn't tell if a global function has any call locations. */
+ 
+ #define FORBID_ENUM_COMPARISON_OPERATORS(EnumPrefix1, EnumPrefix2) \
+ 	FORBID_COMPARISON_OPERATORS(EnumPrefix1##Types, EnumPrefix2##Types) \
+@@ -2328,6 +2332,10 @@ DO_FOR_EACH_FALSE_FRIEND(FORBID_ENUM_COMPARISON_OPERATORS);
+ 	enum-int comparisons isn't currently feasible. Perhaps if and when
+ 	the return types of functions like CvUnitInfo::getPrereqAndBonus
+ 	are changed to enum types. */
++/*	This doesn't work either:
++	#undef NULL
++	enum null_t { NULL };
++	Couldn't assign that to pointers. */
+ /*#define FORBID_INT_EQUALITY_TEST(EnumPrefix, Dummy) \
+ 	bool operator==(EnumPrefix##Types, int); \
+ 	bool operator==(int, EnumPrefix##Types); \
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c5e330413..13b95e5cc 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2867,9 +2867,9 @@ void CvGame::updateScore(bool bForce)
+ 		setTeamScore(eBestTeam, iBestScore);
+ 	}
+ }
+-// <advc.003y> Ported from CvUtil.py
++// advc.003y: Ported from CvUtil.py
+ int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
+-		int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
++	int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
+ {
+ 	if (getEstimateEndTurn() <= 0)
+ 		return 0;
+@@ -2882,10 +2882,10 @@ int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
+ 	double dMax = iMax;
+ 	if (bFinal && bVictory) // Not synchronized; floating point math is fine here.
+ 	{
+-		double turnRatio = getGameTurn() / (double)getEstimateEndTurn();
++		double dTurnRatio = getGameTurn() / (double)getEstimateEndTurn();
+ 		if (bExponential && iInitial > 0)
+-			dMax = iInitial * std::pow(dMax / iInitial, turnRatio);
+-		else dMax = iInitial + turnRatio * (dMax - iInitial);
++			dMax = iInitial * std::pow(dMax / iInitial, dTurnRatio);
++		else dMax = iInitial + dTurnRatio * (dMax - iInitial);
+ 	}
+ 	int iMaxTimes100 = static_cast<int>(100 * dMax);
+ 	int iFreeScoreTimes100 = (iSCORE_FREE_PERCENT * iMaxTimes100) / 100;
+@@ -2895,17 +2895,17 @@ int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
+ 		iScore= (iMultiplier * (100 * iRawScore + iFreeScoreTimes100)) / iDiv;
+ 	if (!bVictory && !bFinal)
+ 		return iScore;
+-	double score = iScore;
++	double dScore = iScore;
+ 	if (bVictory)
+-		score = ((100 + iSCORE_VICTORY_PERCENT) * score) / 100.0;
++		dScore = ((100 + iSCORE_VICTORY_PERCENT) * dScore) / 100.0;
+ 	if (bFinal)
+ 	{	// <advc.250a>
+-		score = ((1000 + 10 * iSCORE_HANDICAP_PERCENT_OFFSET + // Raise the fraction to per-mill
+-				getDifficultyForEndScore() * iSCORE_HANDICAP_PERCENT_PER) * score) /
++		dScore = ((1000 + 10 * iSCORE_HANDICAP_PERCENT_OFFSET + // Raise the fraction to per-mill
++				getDifficultyForEndScore() * iSCORE_HANDICAP_PERCENT_PER) * dScore) /
+ 				1000.0; // </advc.250a>
+ 	}
+-	return ::round(score);
+-} // </advc.003y>
++	return ::round(dScore);
++}
+ 
+ void CvGame::updatePlotGroups()
+ {
+@@ -3405,8 +3405,8 @@ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
+ 		}
+ 	}
+ 
+-	return std::min(100, (((iNextBestPopulation * 100) / getTotalPopulation()) +
+-			GC.getInfo(eVictory).getPopulationPercentLead()));
++	return std::min(100, ((iNextBestPopulation * 100) / getTotalPopulation()) +
++			GC.getInfo(eVictory).getPopulationPercentLead());
+ }
+ 
+ 
+@@ -3429,7 +3429,7 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
+ 	return std::max(iPercent, GC.getInfo(eVictory).getMinLandPercent());
+ }
+ 
+-// <advc.178> Mostly cut and pasted from CvPlayerAI::AI_calculateDiplomacyVictoryStage
++// advc.178: Mostly cut and pasted from CvPlayerAI::AI_calculateDiplomacyVictoryStage
+ bool CvGame::isDiploVictoryValid() const
+ {
+ 	for (int iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+@@ -3442,7 +3442,7 @@ bool CvGame::isDiploVictoryValid() const
+ 		}
+ 	}
+ 	return false;
+-} // </advc.178>
++}
+ 
+ 
+ bool CvGame::isTeamVote(VoteTypes eVote) const
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index e4b0962a2..f83a0a4b4 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -449,6 +449,10 @@ public:
+ 		DO(AI_GROUNDBREAKING_PENALTY_ENABLE) \
+ 		DO(HUMAN_GROUNDBREAKING_PENALTY_ENABLE) \
+ 		/* </advc.groundbr> */ \
++		DO(ENABLE_162) /* advc.162 */ \
++		/* <advc.ctr> */ \
++		DO(CITY_TRADE_CULTURE_THRESH) \
++		DO(NATIVE_CITY_CULTURE_THRESH) /* </advc.ctr> */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+@@ -469,10 +473,6 @@ public:
+ 		DO(CITY_AIR_UNIT_CAPACITY) \
+ 		DO(COLLATERAL_COMBAT_DAMAGE) \
+ 		DO(TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) \
+-		/* <advc.ctr> */ \
+-		DO(CITY_TRADE_CULTURE_THRESH) \
+-		DO(NATIVE_CITY_CULTURE_THRESH) \
+-		/* </advc.ctr> */ \
+ 		DO(AI_OFFER_EXTRA_GOLD_PERCENT) \
+ 		DO(RECON_VISIBILITY_RANGE) \
+ 		DO(UNIT_VISIBILITY_RANGE) \
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index 53c1d6a45..6a4da63f2 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -86,8 +86,13 @@ static inline T operator-(T minuend, T subtrahend)
+ 	for (TypeName##Types eLoop##TypeName = (TypeName##Types)(getEnumLength(((TypeName##Types)0)) - 1); \
+ 			eLoop##TypeName >= 0; \
+ 			eLoop##TypeName = (TypeName##Types)(eLoop##TypeName - 1))
+-// For accessing an info object in a loop over an info enum (tentative and unused)
+-#define _kLoop_(TypeName) \
++/*	For accessing an info object in a loop over an info enum. Tentative and unused.
++	Will make more sense if I add getInfoUnsafe functions that don't assert array bounds
++	to the MAKE_INFO_ACCESSORS... macros (tbd.?). Then SET_LOOP_INFO could avoid the
++	bounds checks (which are unnecessary in a FOR_EACH_ENUM loop) and getInfoUnsafe
++	would probably get inlined in Ob1-debug builds, meaning that one could
++	no longer accidentally step into the getter while debugging. */
++#define SET_LOOP_INFO(TypeName) \
+ 	Cv##TypeName##Info const& kLoop##TypeName = GC.getInfo(eLoop##TypeName)
+ 
+ // Type lists ...
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.h b/CvGameCoreDLL/CvInfo_Misc.h
+index 9868825db..9fd053f19 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.h
++++ b/CvGameCoreDLL/CvInfo_Misc.h
+@@ -15,7 +15,7 @@
+ #include "CvInfo_Water.h"
+ 
+ /*#pragma warning(disable: 251)
+-#pragma warning(disable: 127)*/ // advc.make: Handled by PCH
++#pragma warning(disable: 127)*/ // advc.make: Handled by PragmaWarnings.h
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ // class	: CvUnitFormationInfo
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 6aeec620f..919f3d2f1 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1486,18 +1486,11 @@ void CvInitCore::externalRNGCall(int iUpper, CvRandom const* pRandom)
+ 
+ 	if (iUpper != 10000)
+ 		return;
+-
+-	/*	When a player i is set to "Random", m_aeCiv[i], m_aeLeader[i]
+-		remain at -1 (NO_...) until the dice have been rolled.
+-		So, there's no need to count the RNG calls; we just need to
+-		find the first player who doesn't already have a civ, and,
+-		if all have a civ, then the first player without a leader. */
+ 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)i).isEverAlive())
+ 			return; // We're already past the civ and leader assignment at game start
+ 	}
+-
+ 	std::vector<PlayerTypes> aeSlotPlayer;
+ 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 	{
+@@ -1509,6 +1502,11 @@ void CvInitCore::externalRNGCall(int iUpper, CvRandom const* pRandom)
+ 			aeSlotPlayer.push_back(ePlayer);
+ 		}
+ 	}
++	/*	When a player i is set to "Random", m_aeCiv[i], m_aeLeader[i]
++		remain at -1 (NO_...) until the dice have been rolled.
++		So, there's no need to count the RNG calls; we just need to
++		find the first player who doesn't already have a civ, and,
++		if all have a civ, then the first player without a leader. */
+ 	for (size_t i = 0; i < aeSlotPlayer.size(); i++)
+ 	{
+ 		if (getCiv(aeSlotPlayer[i]) == NO_CIVILIZATION)
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 53ad44cdb..f3f685e74 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -109,7 +109,7 @@ public:
+ 		if(eDirection == NO_DIRECTION)
+ 			return plotValidXY(iX, iY);
+ 		// advc.opt: Don't check for INVALID_PLOT_COORD
+-		else return plotValidXY(
++		return plotValidXY(
+ 				iX + GC.getPlotDirectionX()[eDirection],
+ 				iY + GC.getPlotDirectionY()[eDirection]);
+ 	}
+@@ -223,7 +223,7 @@ private: // Auxiliary functions
+ 			return iDiff;
+ 		if (iDiff > iRange / 2)
+ 			return iDiff - iRange;
+-		else if (iDiff < -(iRange / 2))
++		if (iDiff < -(iRange / 2))
+ 			return iDiff + iRange;
+ 		return iDiff;
+ 	}
+@@ -234,7 +234,7 @@ private: // Auxiliary functions
+ 			return iCoord;
+ 		if (iCoord < 0)
+ 			return (iRange + (iCoord % iRange));
+-		else if (iCoord >= iRange)
++		if (iCoord >= iRange)
+ 			return (iCoord % iRange);
+ 		return iCoord;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index df9fd5c84..14b43a0f4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5828,7 +5828,7 @@ int CvPlayer::calculateTotalCityUnhealthiness() const
+ }
+ 
+ // K-Mod: calculate the pollution output of a civ
+-int CvPlayer::calculatePollution(PollutionTypes ePollution) const
++int CvPlayer::calculatePollution(PollutionFlags ePollution) const
+ {
+ 	int iTotal = 0;
+ 	int iBuildingWeight = 0, iBonusWeight = 0, iPowerWeight = 0, iPopWeight = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index c1f6e6e2d..359c5ff1f 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -305,13 +305,13 @@ public:
+ 	/*	K-Mod, 18/dec/10: global warming pollution flags
+ 		advc.enum: Moved from CvDefines, turned into an enum.
+ 		(Overloaded bitwise operators at end of file) */
+-	enum PollutionTypes // Exposed to Python
++	enum PollutionFlags // Exposed to Python
+ 	{
+ 		POLLUTION_POPULATION = (1 << 0), POLLUTION_BUILDINGS = (1 << 1),
+ 		POLLUTION_BONUSES = (1 << 2), POLLUTION_POWER = (1 << 3),
+ 		POLLUTION_ALL = (1 << 4) - 1
+ 	};
+-	int calculatePollution(PollutionTypes ePollution = POLLUTION_ALL) const; // K-Mod, Exposed to Python
++	int calculatePollution(PollutionFlags ePollution = POLLUTION_ALL) const; // K-Mod, Exposed to Python
+ 	int getGwPercentAnger() const { return m_iGwPercentAnger; } // K-Mod, Exposed to Python
+ 	void setGwPercentAnger(int iNewValue); // K-Mod
+ 
+@@ -1793,6 +1793,6 @@ CvUnit* getUnitExternal(IDInfo unit); // exported through .def file
+ // </advc.opt>
+ 
+ // advc.enum: For calculatePollution. (Needs to be outside the class definition.)
+-OVERLOAD_BITWISE_OPERATORS(CvPlayer::PollutionTypes)
++OVERLOAD_BITWISE_OPERATORS(CvPlayer::PollutionFlags)
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 315be628d..9c3f7484e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8790,11 +8790,9 @@ bool CvPlayerAI::isAnnualDeal(CLinkList<TradeData> const& itemList)
+ 	return true;
+ }
+ 
+-/// \brief AI decision making on a proposal it is given
+-///
+-/// In this function the AI considers whether or not to accept another player's proposal.
+-/// This is used when considering proposals from the human player made in the
+-/// diplomacy window as well as a couple other places.
++///*	In this function the AI considers whether or not to accept another player's proposal.
++	This is used when considering proposals from the human player made in the
++	diplomacy window as well as a couple of other places. */
+ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 	// advc: Renamed, turned into references (b/c caller ensures non-NULL). Also some other style changes in the body.
+ 	CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive,
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7c98c3f31..6150eabbb 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1021,22 +1021,21 @@ bool CvPlot::isAdjacentToLand() const
+ 
+ bool CvPlot::isCoastalLand(int iMinWaterSize) const
+ {
+-	//PROFILE_FUNC(); // advc.003o: Called very frequently, probably mainly from CvUnitAI::AI_plotValid and teamStepValid_advc (CvGameCoreUtils).
++	//PROFILE_FUNC(); // advc.003o: Called very frequently, probably mainly from path finding code.
+ 
+ 	if (isWater())
+ 		return false;
+ 	// <advc.003t>
+-	if (iMinWaterSize < 0)
++	if (iMinWaterSize < 0) // Tbd.: Cache the result for iMinWaterSize<0
+ 		iMinWaterSize = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+ 	// </advc.003t>
+-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+-		if (pAdjacentPlot == NULL)
++		CvPlot* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if (pAdj == NULL)
+ 			continue;
+-
+-		if (pAdjacentPlot->isWater() /* advc.030: */ && !pAdjacentPlot->isImpassable() &&
+-			pAdjacentPlot->getArea().getNumTiles() >= iMinWaterSize)
++		if (pAdj->isWater() /* advc.030: */ && !pAdj->isImpassable() &&
++			pAdj->getArea().getNumTiles() >= iMinWaterSize)
+ 		{
+ 			return true;
+ 		}
+@@ -1358,62 +1357,69 @@ int CvPlot::seeThroughLevel() const
+ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
+ 	CvUnit const* pUnit, bool bUpdatePlotGroups) // advc: const CvUnit*
+ {
+-	bool bAerial = (pUnit != NULL && pUnit->getDomainType() == DOMAIN_AIR);
++	PROFILE_FUNC(); // advc.test: See comment in canSeeDisplacementPlot
++
++	bool const bAerial = (pUnit != NULL && pUnit->getDomainType() == DOMAIN_AIR);
+ 
+ 	DirectionTypes eFacingDirection = NO_DIRECTION;
+ 	if (!bAerial && NULL != pUnit)
+ 		eFacingDirection = pUnit->getFacingDirection(true);
+ 
+ 	//fill invisible types
+-	std::vector<InvisibleTypes> aSeeInvisibleTypes;
++	std::vector<InvisibleTypes> aeSeeInvisibleTypes;
+ 	if (pUnit != NULL)
+ 	{
+ 		for(int i=0;i<pUnit->getNumSeeInvisibleTypes();i++)
+-			aSeeInvisibleTypes.push_back(pUnit->getSeeInvisibleType(i));
++			aeSeeInvisibleTypes.push_back(pUnit->getSeeInvisibleType(i));
+ 	}
+ 
+-	if(aSeeInvisibleTypes.size() == 0)
+-		aSeeInvisibleTypes.push_back(NO_INVISIBLE);
++	if(aeSeeInvisibleTypes.size() == 0)
++		aeSeeInvisibleTypes.push_back(NO_INVISIBLE);
+ 
+ 	//check one extra outer ring
+ 	if (!bAerial)
+ 		iRange++;
+ 
+-	for(size_t i = 0; i < aSeeInvisibleTypes.size(); i++)
++	for(size_t i = 0; i < aeSeeInvisibleTypes.size(); i++)
+ 	{
+ 		for (int dx = -iRange; dx <= iRange; dx++)
+ 		{
+ 			for (int dy = -iRange; dy <= iRange; dy++)
+ 			{
+ 				//check if in facing direction
+-				if (bAerial || shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
++				if (bAerial ||
++					shouldProcessDisplacementPlot(dx, dy, /*iRange - 1,*/ eFacingDirection))
+ 				{
+ 					bool outerRing = false;
+ 					if (abs(dx) == iRange || abs(dy) == iRange)
+ 						outerRing = true;
+ 
+ 					//check if anything blocking the plot
+-					if (bAerial || canSeeDisplacementPlot(eTeam, dx, dy, dx, dy, true, outerRing))
++					if (bAerial ||
++						canSeeDisplacementPlot(eTeam, dx, dy, dx, dy, true, outerRing))
+ 					{
+ 						CvPlot* pPlot = plotXY(getX(), getY(), dx, dy);
+-						if (NULL != pPlot)
++						if (pPlot != NULL)
+ 						{
+-							pPlot->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), aSeeInvisibleTypes[i], bUpdatePlotGroups,
++							pPlot->changeVisibilityCount(eTeam, bIncrement ? 1 : -1,
++									aeSeeInvisibleTypes[i], bUpdatePlotGroups,
+ 									pUnit); // advc.071
+ 						}
+ 					}
+ 				}
+ 
+ 				if (eFacingDirection != NO_DIRECTION)
+-				{
+-					if(abs(dx) <= 1 && abs(dy) <= 1) //always reveal adjacent plots when using line of sight
++				{	//always reveal adjacent plots when using line of sight
++					if(abs(dx) <= 1 && abs(dy) <= 1)
+ 					{
+ 						CvPlot* pPlot = plotXY(getX(), getY(), dx, dy);
+ 						if (NULL != pPlot)
+ 						{
+-							pPlot->changeVisibilityCount(eTeam, 1, aSeeInvisibleTypes[i], bUpdatePlotGroups,
++							pPlot->changeVisibilityCount(
++									eTeam, 1, aeSeeInvisibleTypes[i], bUpdatePlotGroups,
+ 									pUnit); // advc.071
+-							pPlot->changeVisibilityCount(eTeam, -1, aSeeInvisibleTypes[i], bUpdatePlotGroups,
++							pPlot->changeVisibilityCount(
++									eTeam, -1, aeSeeInvisibleTypes[i], bUpdatePlotGroups,
+ 									pUnit); // advc.071
+ 						}
+ 					}
+@@ -1427,6 +1433,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
+ bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange, // advc: const CvPlot*
+ 	DirectionTypes eFacingDirection) const
+ {
++	PROFILE_FUNC(); // advc.test: See comment in canSeeDisplacementPlot
+ 	if (pPlot == NULL)
+ 		return false;
+ 
+@@ -1435,12 +1442,12 @@ bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange, // adv
+ 	//find displacement
+ 	int dx = pPlot->getX() - getX();
+ 	int dy = pPlot->getY() - getY();
+-	CvMap const& m = GC.getMap();
+-	dx = m.dxWrap(dx); //world wrap
+-	dy = m.dyWrap(dy);
++	CvMap const& kMap = GC.getMap();
++	dx = kMap.dxWrap(dx); //world wrap
++	dy = kMap.dyWrap(dy);
+ 
+ 	//check if in facing direction
+-	if (shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
++	if (shouldProcessDisplacementPlot(dx, dy,/* iRange - 1,*/ eFacingDirection))
+ 	{
+ 		bool outerRing = false;
+ 		if (abs(dx) == iRange || abs(dy) == iRange)
+@@ -1462,9 +1469,14 @@ namespace
+ 	// advc: Moved from CvGameCoreUtils.h b/c it was only used here. Then replaced with:
+ 	inline int getSign(int x) { return (x > 0) - (x < 0); }
+ }
+-bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy,		// advc: some style changes
++bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy,
+ 	int originalDX, int originalDY, bool firstPlot, bool outerRing) const
+ {
++	/*	advc.test: Could adopt some optimizations from "We the People":
++		cache seeThroughLevel; remove support for direction of sight
++		-- but is that worthwhile at all in a non-Colonization mod? */
++	PROFILE_FUNC();
++
+ 	CvPlot const* pPlot = ::plotXY(getX(), getY(), dx, dy);
+ 	if (pPlot == NULL)
+ 		return false;
+@@ -1533,12 +1545,13 @@ bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy,		// advc: s
+ }
+ 
+ 
+-bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const  // advc: some style changes
++bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, //int iRange, // advc: unused
++	DirectionTypes eFacingDirection) const
+ {
+ 	if(eFacingDirection == NO_DIRECTION)
+ 		return true;
+ 
+-	if((dx == 0) && (dy == 0)) //always process this plot
++	if(dx == 0 && dy == 0) //always process this plot
+ 		return true;
+ 
+ 	//							N		NE		E		SE			S		SW		W			NW
+@@ -2254,7 +2267,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	if(pUnit->isInvasionMove(*pFromPlot, *this))
+ 		return pUnit->movesLeft(); // </advc.162>
+ 
+-	if (pUnit->flatMovementCost() || (pUnit->getDomainType() == DOMAIN_AIR))
++	if (pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
+ 		return GC.getMOVE_DENOMINATOR();
+ 
+ 	/*if (pUnit->isHuman()) {
+@@ -2454,7 +2467,7 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
+ 		return NO_PLAYER;
+ 
+ 	// <advc.035>
+-	bool abCityRadius[MAX_PLAYERS] = { false };
++	EnumMap<PlayerTypes,bool> abCityRadius;
+ 	bool bAnyCityRadius = false;
+ 	if(bOwnExclusiveRadius)
+ 	{
+@@ -2466,7 +2479,7 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
+ 			PlayerTypes eCityOwner = p.getPlotCity()->getOwner();
+ 			if(isWithinCultureRange(eCityOwner))
+ 			{
+-				abCityRadius[eCityOwner] = true;
++				abCityRadius.set(eCityOwner, true);
+ 				bAnyCityRadius = true;
+ 			}
+ 		}
+@@ -2511,8 +2524,10 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
+ 			if(pLoopCity == NULL)
+ 				continue;
+ 			if(pLoopCity->getTeam() != TEAMID(eBestPlayer) &&
+-					!GET_TEAM(eBestPlayer).isVassal(pLoopCity->getTeam()))
++				!GET_TEAM(eBestPlayer).isVassal(pLoopCity->getTeam()))
++			{
+ 				continue;
++			}
+ 			if(getCulture(pLoopCity->getOwner()) <= 0)
+ 				continue;
+ 			/*	advc.099c: 099c cares only about city tile culture, but for consistency,
+@@ -2541,9 +2556,9 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
+ 		return eBestPlayer; // advc
+ 
+ 	bool bValid = true;
+-	for (int iI = 0; iI < NUM_CARDINALDIRECTION_TYPES; ++iI)
++	FOR_EACH_ENUM(CardinalDirection)
+ 	{
+-		CvPlot* pLoopPlot = plotCardinalDirection(getX(), getY(), ((CardinalDirectionTypes)iI));
++		CvPlot* pLoopPlot = plotCardinalDirection(getX(), getY(), eLoopCardinalDirection);
+ 		if (pLoopPlot == NULL)
+ 			continue;
+ 		if (pLoopPlot->isOwned())
+@@ -2820,8 +2835,8 @@ void CvPlot::removeGoody()
+ bool CvPlot::isCity(bool bCheckImprovement, TeamTypes eForTeam) const
+ {
+ 	//PROFILE_FUNC();
+-	/*	advc.003o: Called from teamStepValid_advc (CvGameCoreUtils),
+-		CvPlot::isTradeNetworkConnected, CvUnit::isAlwaysHostile and many UnitAI routines. */
++	/*	advc.003o: Called from path finding code, CvPlot::isTradeNetworkConnected,
++		CvUnit::isAlwaysHostile and many UnitAI routines. */
+ 	if(bCheckImprovement && isImproved() &&
+ 		GC.getInfo(getImprovementType()).isActsAsCity())
+ 	{
+@@ -3731,10 +3746,10 @@ bool CvPlot::isPotentialCityWorkForArea(CvArea const& kArea) const
+ 
+ 	for (CityPlotIter it(*this); it.hasNext(); ++it)
+ 	{
+-		if (bWATER_POTENTIAL_CITY_WORK_FOR_AREA || !it->isWater())
++		if (it->isArea(kArea) && // advc.opt: rearranged
++			(!it->isWater() || bWATER_POTENTIAL_CITY_WORK_FOR_AREA))
+ 		{
+-			if (it->isArea(kArea))
+-				return true;
++			return true;
+ 		}
+ 	}
+ 	return false;
+@@ -5310,7 +5325,7 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ void CvPlot::changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate)
+ {
+ 	if(iChange != 0)
+-		setCulture(eIndex, (getCulture(eIndex) + iChange), bUpdate, true);
++		setCulture(eIndex, getCulture(eIndex) + iChange, bUpdate, true);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 69d8735a2..e28329c7d 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -106,7 +106,8 @@ public:
+ 	bool canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
+ 	bool canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy,
+ 			int originalDX, int originalDY, bool firstPlot, bool outerRing) const;
+-	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
++	bool shouldProcessDisplacementPlot(int dx, int dy,// int range, // advc: unused
++			DirectionTypes eFacingDirection) const;
+ 	void updateSight(bool bIncrement, bool bUpdatePlotGroups);
+ 	void updateSeeFromSight(bool bIncrement, bool bUpdatePlotGroups);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index c9adba2f3..001b360ba 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1083,7 +1083,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 	setAtWar(eTarget, true);
+ 	kTarget.setAtWar(getID(), true);
+ 	// <advc.162>
+-	if(GC.getDefineINT("ENABLE_162") > 0)
++	if(GC.getDefineBOOL(CvGlobals::ENABLE_162))
+ 		m_abJustDeclaredWar.set(eTarget, true); // </advc.162>
+ 
+ 	// Plot danger cache (bbai)
+@@ -2971,12 +2971,12 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
+ 	// </advc.035>
+ }
+ 
+-/*  <advc.162> "Just" meaning on the current turn. Don't want to rely on
++/*  advc.162: "Just" meaning on the current turn. Don't want to rely on
+ 	AI code (AI_getWarPlanStateCounter) for this. */
+ bool CvTeam::hasJustDeclaredWar(TeamTypes eIndex) const
+ {
+ 	return m_abJustDeclaredWar.get(eIndex);
+-} // </advc.162>
++}
+ 
+ 
+ void CvTeam::setPermanentWarPeace(TeamTypes eIndex, bool bNewValue)
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 52ec686bd..1851ed631 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -423,11 +423,11 @@ public:
+ 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);		// Exposed to Python
+ 
+ 	bool doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const; // K-Mod
+-	// <advc>
++	// advc:
+ 	bool canPeacefullyEnter(TeamTypes eTerritoryOwner) const
+ 	{
+ 		return (isOpenBorders(eTerritoryOwner) || isFriendlyTerritory(eTerritoryOwner));
+-	} // </advc>
++	}
+ 	bool isFriendlyTerritory(TeamTypes eTerritoryOwner) const; // advc: param renamed
+ 	bool canAccessHappyHealth(CvPlot const& kPlot, int iHealthOrHappy) const; // advc.901
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 69c415ef3..797ddc453 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2590,6 +2590,9 @@ bool CvUnit::canEnterArea(CvArea const& kArea) const
+ // advc.162:
+ bool CvUnit::isInvasionMove(CvPlot const& kFrom, CvPlot const& kTo) const
+ {
++	// Redundant; only to save time when it's disabled.
++	if (!GC.getDefineBOOL(CvGlobals::ENABLE_162))
++		return false;
+ 	TeamTypes eToTeam = kTo.getTeam();
+ 	if(eToTeam == NO_TEAM || eToTeam == kFrom.getTeam() || isRivalTerritory())
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 50885032d..ad3d7fc57 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -561,7 +561,7 @@ int CyPlayer::calculateResearchModifier(int /*TechTypes*/ eTech)
+ int CyPlayer::calculatePollution(int iPollution) const
+ {
+ 	return m_pPlayer ? m_pPlayer->calculatePollution(
+-			(CvPlayer::PollutionTypes)iPollution) : -1; // advc.enum
++			(CvPlayer::PollutionFlags)iPollution) : -1; // advc.enum
+ }
+ 
+ int CyPlayer::getGwPercentAnger() const
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index f880fe64c..08fc64015 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyPlayer.h"
+-#include "CvPlayer.h" // advc.enum: for PollutionTypes
++#include "CvPlayer.h" // advc.enum: for PollutionFlags
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+ 
+@@ -73,6 +73,7 @@ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x)
+ 
+ 	/*	K-Mod, 5/jan/11: pollution flags (advc.enum: Moved from CyEnumsInterface
+ 		b/c it's no longer a global type within the DLL) */
++	// (advc.enum: Keep the name "Types" in Python although it's now "Flags" in the DLL)
+ 	python::enum_<int>("PollutionTypes")
+ 		.value("POLLUTION_POPULATION", CvPlayer::POLLUTION_POPULATION)
+ 		.value("POLLUTION_BUILDINGS", CvPlayer::POLLUTION_BUILDINGS)
+
+diff --git a/CvGameCoreDLL/PragmaWarnings.h b/CvGameCoreDLL/PragmaWarnings.h
+index 52162636d..35bb8b52e 100644
+--- a/CvGameCoreDLL/PragmaWarnings.h
++++ b/CvGameCoreDLL/PragmaWarnings.h
+@@ -57,8 +57,8 @@
+ #pragma warning(disable: 800)
+ 
+ /*	"assignment operator could not be generated"
+-	Don't want to have to write private assignment operators for every class
+-	with reference members. */
++	Don't want to be forced to make every class with reference members
++	explicitly noncopyable. */
+ #pragma warning(disable: 512)
+ 
+ /*	"copy constructor could not be generated"
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index fab33037e..afda59117 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -28,7 +28,9 @@ bool StartingPositionIteration::isDebug()
+ 
+ 
+ StartingPositionIteration::StartingPositionIteration() :
+-	m_bRestrictedAreas(false), m_bNormalizationTargetReady(false)
++	m_bRestrictedAreas(false), m_bNormalizationTargetReady(false),
++	m_pEval(NULL), m_pYieldValues(NULL), m_pYieldsPerArea(NULL),
++	m_pPathDists(NULL), m_pPotentialSites(NULL)
+ {
+ 	if (!GC.getDefineBOOL("ENABLE_STARTING_POSITION_ITERATION"))
+ 		return;
+
+[PATCH COVERAGE]
+patchFiles=24 embeddedFiles=24 omittedFiles=0 embeddedPatchBytes=31841

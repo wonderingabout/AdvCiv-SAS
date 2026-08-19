@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 313
+# Commit: 43dc2a823905dc28409cd8785ae9f4c084f586ae
+# History segment: K-Mod history
+# Parent used for diff: 6c073eb450ad7cec45bb3c30cf7d39b5b71e9eb8
+# Title: Reverted an efficiency change from many versions ago. It doesn't seem to have a noticeable speed effect, and it could give rise to problems in the future whe...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	18	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 10aef7df9..260877663 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6648,7 +6648,7 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ {
+ 	PROFILE_FUNC();
+ 
+-	//CvCity* pCity;
++	CvCity* pCity;
+ 
+ 	FAssertMsg(eIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
+@@ -6664,9 +6664,6 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ 			}
+ 		}
+ 
+-		CvCity* pCity = getPlotCity(); //
+-		int iOldAnger = (pCity ? pCity->getCulturePercentAnger() : 0); // K-Mod
+-
+ 		m_aiCulture[eIndex] = iNewValue;
+ 		FAssert(getCulture(eIndex) >= 0);
+ 
+@@ -6675,23 +6672,11 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ 			updateCulture(true, bUpdatePlotGroups);
+ 		}
+ 
+-		// pCity = getPlotCity(); // moved up
++		pCity = getPlotCity();
+ 
+ 		if (pCity != NULL)
+ 		{
+-			/* original bts code
+-			pCity->AI_setAssignWorkDirty(true); */
+-			// K-Mod. As far as I can tell, the reason AI_setAssignWorkDirty is called here is
+-			// that changing the culture might change cultural anger in the city.
+-			// So I've changed the code to only set assign dirty if the that anger really has changed.
+-			if (iOldAnger != pCity->getCulturePercentAnger())
+-			{
+-				pCity->AI_setAssignWorkDirty(true);
+-			}
+-			// Really, this whole anger / assign working plots system is a mess.
+-			// This function shouldn't have to worry about what will / won't affect the number of angry citizens.
+-			// It's a design flaw.
+-			// K-Mod end
++			pCity->AI_setAssignWorkDirty(true);
+ 		}
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1773

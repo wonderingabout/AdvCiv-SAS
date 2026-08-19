@@ -1,0 +1,636 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5895
+# Commit: b5bb7ef9ea8770ab46de8a8e6154801a3563ea25
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2e6aec7c6616f7c517a743a7fe91d3433bac52c4
+# Title: rebalance and buff the UNIT_ENGLISH_YEOMAN_ARCHER - as compared to previous AdvCiv-SAS 5860: city defense 10 ->0, free promotions SENTRY->None, melee_shock m...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/BUG/BugHelp.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+1	1	Assets/Python/Screens/CvForeignAdvisor.py
+2	2	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Buildings/CIV4PlotLSystem.xml
+2	2	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+1	1	Assets/XML/Civilizations/CIV4TraitInfos.xml
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	Assets/XML/Text/BUG_Advisors_Options.xml
+2	2	Assets/XML/Text/BUG_CIV4GameText.xml
+2	2	Assets/XML/Text/BUG_CustDomAdv.xml
+1	1	Assets/XML/Text/BUG_Unit_Naming.xml
+2	2	Assets/XML/Text/BULL_CIV4GameText.xml
+1	1	Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+1	1	Assets/XML/Text/CIV4GameText_EventSigns.xml
+2	2	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml
+8	15	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvUnitAI.cpp
+1	1	Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+4	4	Long_Comments/BBAI_Game_Options_GlobalDefines_for_comments.xml
+1	1	Long_Comments/CIV4DetailManager_for_comments.xml
+2	2	Long_Comments/GlobalDefines_advc_for_comments.xml
+1	1	Long_Comments/Long_Comments_XML.txt
+1	1	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+3	3	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugHelp.py b/Assets/Python/BUG/BugHelp.py
+index a7a335a39..2d54893e4 100644
+--- a/Assets/Python/BUG/BugHelp.py
++++ b/Assets/Python/BUG/BugHelp.py
+@@ -89,7 +89,7 @@ def _SAS_findBugDocFile(name):
+ 			# <!-- custom: based on testing, the below path fetching (as of now files are in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\BUG Doc\) works successfully ingame. -->
+ 			# <!-- custom: note 2: our mod AdvCiv-SAS's name is as of now hardcoded but it works, if you change the mod's name, you'd need to change it here too unless this name is dynamically fetched instead of as of now being hardcoded. -->
+ 			#addTry(os.path.join(cwd, "Mods", "AdvCiv-SAS", "BUG Doc", name))
+-			# <!-- custom: since i want to centralize some docs in our AdvCiv-SAS Mod, moving it to another folder where our other folders as of now are. Note: added a "_" for consistency with other non-space separated folder names and file names. Works successfully ingame (as of now after the path now in: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG_Doc\).  -->
++			# <!-- custom: since i want to centralize some docs in our AdvCiv-SAS Mod, moving it to another folder where our other folders as of now are. Note: added a "_" for consistency with other non-space separated folder names and file names. Works successfully ingame (as of now after the path now in: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG_Doc\). -->
+ 			addTry(os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name))
+ 		except:
+ 			pass
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 9bff7060b..f97b6205d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -246,7 +246,7 @@ class SevoPediaImprovement:
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
++		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely -->
+ 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_INFO", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+ 
+@@ -260,7 +260,7 @@ class SevoPediaImprovement:
+ 	def placeBonusYields(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
++		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely -->
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SAS_BONUSS_YIELDS", ()), "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		info = gc.getImprovementInfo(self.iImprovement)
+ 		for j in range(gc.getNumBonusInfos()):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index 6e627c346..046215904 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -200,7 +200,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
+ 	# <!-- custom: stop at 4 because there are only 5 attitudes (0 furious to 4 friendly is a total of 5 values), and trying to access the 6th non-existent in this case value returns this error:
+ 	# AttributeError: 'NoneType' object has no attribute 'getDescription'
+ 	# ERR: Python function pediaJumpToLeader failed, module CvScreensInterface
+-	# , so stop at last value value/one  -->
++	# , so stop at last value value/one -->
+ 	NUM_ATTITUDE_TYPES_ASSESSED = 5
+ 	for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
+ 		name = gc.getAttitudeInfo(i).getDescription()
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 9de740dc6..43d8d22de 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -109,7 +109,7 @@ class CvForeignAdvisor:
+ 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
+ 		self.X_LINK = 0
+ 
+-		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks.  -->
++		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks. -->
+ 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
+ 		# self.Y_GLANCE_OFFSET = 3
+ 		self.X_GLANCE_OFFSET = 0
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 9eee163eb..4c089f601 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1620,7 +1620,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ <!-- BUG - Sevopedia - end -->
+ 
+-<!-- BUG - specialists  - start  -->
++<!-- BUG - specialists  - start -->
+ 
+ 		<InterfaceArtInfo>
+ 			<Type>OVERLAY_CHEVRON5</Type>
+@@ -1635,7 +1635,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<Path>Art/Interface/screens/medallion_Chevron20.dds</Path>
+ 		</InterfaceArtInfo>	
+ 
+-<!-- BUG - specialists  - end  -->
++<!-- BUG - specialists  - end -->
+ 
+ <!-- BUG - Raw Yields - start -->
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index e2254fc30..4f659e4c7 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -28745,7 +28745,7 @@
+ 			<BuildingHappinessChanges/>
+ 			<!-- advc.310: i...Needed refers to Duel map size. Note that
+ 				 advc.054 changes the map-size adjustment so that 2 Walls are
+-				 required on all map sizes above Tiny.  -->
++				 required on all map sizes above Tiny. -->
+ 			<PrereqBuildingClasses>
+ 				<PrereqBuildingClass>
+ 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+
+diff --git a/Assets/XML/Buildings/CIV4PlotLSystem.xml b/Assets/XML/Buildings/CIV4PlotLSystem.xml
+index e1251c44c..5ce0c007b 100644
+--- a/Assets/XML/Buildings/CIV4PlotLSystem.xml
++++ b/Assets/XML/Buildings/CIV4PlotLSystem.xml
+@@ -19,7 +19,7 @@
+ 	<Attribute Class="Scalar">szProductionBreakpoint:</Attribute>
+ 	<!-- when a production of this name is expanded, break -->
+ 	<Attribute Class="Scalar">szNodeBreakpoint:</Attribute>
+-	<!-- when a node of this name is instantiated, break   -->
++	<!-- when a node of this name is instantiated, break  -->
+ 	<LNode Name="Node_6x6">
+ 		<Width>6</Width>
+ 		<Height>6</Height>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index e7ea84628..facec35f5 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -9,7 +9,7 @@ Created as part of AdvCiv-SAS improvements
+ (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ -->
+ <!-- Leader Infos and AI Settings -->
+-<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown  -->
++<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown -->
+ <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+ 	<LeaderHeadInfos>
+ 		<LeaderHeadInfo> <!-- custom: Barbarian (useful for VS Code upper tree view while scrolling) -->
+@@ -2425,7 +2425,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+ 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+-			<!-- advc.148: was  -->
++			<!-- advc.148: was -->
+ 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
+ 			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
+ 			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 1c395bc09..53db9ae23 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -181,7 +181,7 @@
+ 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
+ 			<!-- advc.908a: Replace the original extra commerce threshold of 2
+ 				 with a "natural" (see comment in schema file or see manual
+-				 or game text) commerce threshold of 3.  -->
++				 or game text) commerce threshold of 3. -->
+ 			<ExtraYieldThresholds/>
+ 			<ExtraYieldNaturalThresholds>
+ 				<iExtraYieldNaturalThreshold>0</iExtraYieldNaturalThreshold>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index d696cce10..8131548a9 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -311,7 +311,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #132 -->
+ 	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
+-	Set to 0 to compute at runtime  -->
++	Set to 0 to compute at runtime -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1497,7 +1497,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade; Long_Comments_XML.txt #178  -->
++	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade; Long_Comments_XML.txt #178 -->
+ 	<Define>
+ 		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 41941c874..2773925bd 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -2907,7 +2907,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: good tech to have for growth type of leaders (also considering following techs in our reworked tech tree) and gold ones to a lesser extent; on top of being very good for science leaders even though deviates from main military tech tree path but should be very worth or quite worth, so put flavor science very or quite very high  -->
++			<!-- custom: good tech to have for growth type of leaders (also considering following techs in our reworked tech tree) and gold ones to a lesser extent; on top of being very good for science leaders even though deviates from main military tech tree path but should be very worth or quite worth, so put flavor science very or quite very high -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 619aada3c..6932527f4 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1340,7 +1340,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
+ 		<English>[ICON_BULLET]%D1_Change%% from Handicap</English>
+ 	</TEXT>
+-	<!-- custom: add year info in header so we don't need to copy it in headers or maintain it there, was "GAME SPEED"  -->
++	<!-- custom: add year info in header so we don't need to copy it in headers or maintain it there, was "GAME SPEED" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MAIN_MENU_SELECT_GAME_SPEED_TITLE</Tag>
+ 		<English>GAME SPEED (50 000 BC - 2105 AD)</English>
+
+diff --git a/Assets/XML/Text/BUG_Advisors_Options.xml b/Assets/XML/Text/BUG_Advisors_Options.xml
+index 07615068e..ff8b58a5f 100644
+--- a/Assets/XML/Text/BUG_Advisors_Options.xml
++++ b/Assets/XML/Text/BUG_Advisors_Options.xml
+@@ -272,7 +272,7 @@
+ 		<Spanish>Si se activa, las gr�ficas son mostradas en el formato BUG.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: was just "Wonders Tab"  -->
++	<!-- advc.004: was just "Wonders Tab" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERS_TEXT</Tag>
+ 		<English>BUG Wonders Tab</English>
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+index bc20ac109..2bdba6a12 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -3,7 +3,7 @@
+ 	Various Interface Label Translations
+ 
+ 	Copyright (c) 2007 The BUG Mod.
+-  -->
++ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ 	<!-- General -->
+@@ -1242,7 +1242,7 @@
+ 		 Info Screen to be sure it looks okay. The CIVICOPTION
+ 		 abbreviations should be similar to the full words used in 
+ 		 the CIVICOPTION keys in CIV4GameTextInfos_Objects.xml 
+-	  -->
++	 -->
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER</Tag>
+
+diff --git a/Assets/XML/Text/BUG_CustDomAdv.xml b/Assets/XML/Text/BUG_CustDomAdv.xml
+index e61f493dd..501caa8da 100644
+--- a/Assets/XML/Text/BUG_CustDomAdv.xml
++++ b/Assets/XML/Text/BUG_CustDomAdv.xml
+@@ -3,14 +3,14 @@
+ 	Various Interface Label Translations
+ 
+ 	Copyright (c) 2007 The BUG Mod.
+-  -->
++ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ 	<TEXT>
+ 		<!-- These are modified copies of TXT_KEY_RELIGION_FREE_XP 
+ 			 which remove the plus in front of the number and add
+ 			 parentheses around everything.
+-		  -->
++		 -->
+ 		<Tag>TXT_KEY_CDA_BASE_XP</Tag>
+ 		<English>(%d1 XP)</English>
+ 		<French>(%d1 EXP)</French>
+
+diff --git a/Assets/XML/Text/BUG_Unit_Naming.xml b/Assets/XML/Text/BUG_Unit_Naming.xml
+index fa0bc456e..78b22b47d 100644
+--- a/Assets/XML/Text/BUG_Unit_Naming.xml
++++ b/Assets/XML/Text/BUG_Unit_Naming.xml
+@@ -3,7 +3,7 @@
+ 	Unit Naming Translations
+ 
+ 	Copyright (c) 2010 The BUG Mod.
+-  -->
++ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ 	<!-- Domain Descriptions -->
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index 469ac9eb8..51a3d6a2b 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -3,7 +3,7 @@
+ 	Text strings for the BUG DLL
+ 
+ 	Copyright (c) 2009 The BUG Mod.
+-  -->
++ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ <!-- City Bar Hover -->
+@@ -195,7 +195,7 @@
+ <!-- BULL - Leaderhead Relations - end -->
+ 
+ <!-- Tech Hover -->
+-<!-- advc.910: Handled by Civ4GameText_advc.xml  -->
++<!-- advc.910: Handled by Civ4GameText_advc.xml -->
+ 
+ <!-- Actual Effects -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/BULL_Misc_Hovers_Options.xml b/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+index df90ce4b7..f5198cd7f 100644
+--- a/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
++++ b/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+@@ -242,7 +242,7 @@
+ 		<Spanish>Muestra los edificios que afectan a la cantidad de [ICON_HAPPY] y [ICON_UNHAPPY].</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: German abbreviated; it's in the widest row.  -->
++	<!-- advc.004: German abbreviated; it's in the widest row. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGADDITIONALGREATPEOPLE_TEXT</Tag>
+ 		<English>Great People</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_EventSigns.xml b/Assets/XML/Text/CIV4GameText_EventSigns.xml
+index 3a9008d84..3f330b6ac 100644
+--- a/Assets/XML/Text/CIV4GameText_EventSigns.xml
++++ b/Assets/XML/Text/CIV4GameText_EventSigns.xml
+@@ -5,7 +5,7 @@
+   - Example: The caption corresponding to the event with <type>EVENT_SALTPETER_1</type>
+   -  in that file will be the entry here with tag TXT_KEY_SIGN_EVENT_SALTPETER_1
+   - Non-English ranslations may be inaccurate as they came from guesses and babelfish.
+-  -->
++ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 435b5ef8b..201482d1b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3740,7 +3740,7 @@
+ 
+ 	<!-- Alternatives: e.c. in Italian
+ 		 n.u.Z. or n.d.Z. in German (or even the English CE instead, as secular
+-		 dates aren't commonly used in German)  -->
++		 dates aren't commonly used in German) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TIME_CE</Tag>
+ 		<English>%d1_Date CE</English>
+@@ -4476,7 +4476,7 @@
+ 	</TEXT>
+ 
+ 	<!-- advc.004w: Based on TXT_KEY_BONUS_AVAILABLE_PLAYER
+-		 (CIV4GameText_BTS.xml).  -->
++		 (CIV4GameText_BTS.xml). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_AVAILABLE_US</Tag>
+ 		<English>[SPACE](we have %d1_num_bonus)[SPACE]</English>
+
+diff --git a/Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml b/Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml
+index 4633706f3..c7b590fa3 100644
+--- a/Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml
++++ b/Assets/XML/Text/HiddenAttitudes_CIV4GameText.xml
+@@ -4,7 +4,7 @@
+ 
+ 	Author: DaveMcW
+ 	Forum: http://forums.civfanatics.com/showthread.php?t=335966
+-  -->
++ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 01ca05e56..62248280a 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -11290,7 +11290,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 65 in the advciv-sas generic crossbowman, as they were cheaper units and historically longbows were cheaper to produce or such  -->
++			<!-- custom: was 65 in the advciv-sas generic crossbowman, as they were cheaper units and historically longbows were cheaper to produce or such -->
+ 			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -11332,12 +11332,11 @@
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<!-- custom: was 0 in the advciv-sas generic crossbowman -->
+-			<iCityDefense>10</iCityDefense>
++			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: was 25/25 in the advciv-sas generic crossbowman -->
+-			<iHillsAttack>15</iHillsAttack>
+-			<iHillsDefense>15</iHillsDefense>
++			<!-- custom: 7 * 1.20 = 8.4 > 6 * 1.25 = 7.5, but on melee shock + hill 7 * (1 + 0.30 + 0.20) = 10.5 == 6 * (1 + 0.50 + 0.25) = 10.5 so seems more balanced as such as compared to the as of now sas generic crossbowman. Its as of now other perks (no iron (not that rare)) and cost reduction (5 hammer is not big in medieval) are not that strong to not buff it as such. -->
++			<iHillsAttack>20</iHillsAttack>
++			<iHillsDefense>20</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+@@ -11357,11 +11356,11 @@
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: see related comment at the babylon longbow, which as of now essential is more or less an ancient crossbow in terms of stats -->
+-			<!-- custom: was UNITCOMBAT_MELEE_SHOCK 50 in the advciv-sas generic crossbowman -->
++			<!-- custom: with its as of now base str of 7, 7 * 1.30 = 9.1 > 6 * 1.50 = 9.0 so not weaker than sas generic crossbowman against melee (as per GPT-5.5-Thinking's explanation; see also docs) -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
++					<iUnitCombatMod>30</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -11395,13 +11394,7 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was empty in the advciv-sas generic crossbowman -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_SENTRY</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index aa25b5d2e..7d908f6ba 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3744,7 +3744,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				aiUnitAIVal[UNITAI_ESCORT_SEA] = (aiUnitAIVal[UNITAI_ESCORT_SEA] * 2) / 10;
+ 				aiUnitAIVal[UNITAI_EXPLORE_SEA] = (aiUnitAIVal[UNITAI_EXPLORE_SEA] * 6) / 10;
+ 
+-				// // <!-- custom: think map is mostly land maybe, unlikely to be too useful statistically, make AI more efficient as much as possible with most likely to be useful unitais  -->
++				// // <!-- custom: think map is mostly land maybe, unlikely to be too useful statistically, make AI more efficient as much as possible with most likely to be useful unitais -->
+ 				// aiUnitAIVal[UNITAI_PIRATE_SEA] = (aiUnitAIVal[UNITAI_PIRATE_SEA] * 2) / 10;
+ 
+ 				// <!-- custom: assume our enemy is on land, don't focus on time / no time for this too much, but map could be more water focused, just reduce the probability for it to be best instead -->
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index edf17be22..1c2f9c08f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1293,7 +1293,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 		else
+ 		{
+ 			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones. Helps avoid oscillation (workers changing their mind and overwriting a tile repeatedly based on fleeting conditions, which is very inefficient). Helps AI focus on one improvement and stick to it. (Claude code Sonnet 4.5 (summarized))
+-			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect  -->
++			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect -->
+ 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+ 			// <!-- custom: first the absolutely holy improvements to never improve -->
+ 			if (ePlotCurrentImprovement == eImprovementHamlet ||
+@@ -1718,7 +1718,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						{
+ 							eBestSupposedBuild = eBuildCottage;
+ 
+-							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location)  -->
++							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->
+ 							iValue += 150;
+ 						}
+ 						else
+@@ -3548,7 +3548,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	if (AI_safety())
+ 		return;
+ 
+-	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then  -->
++	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then -->
+ 	// Bottom-of-function failsafe (“do something, anything")
+ 	// At the very end of AI_workerMove (just before returning with no action), add:
+ 	const bool bWorkerSleeping2 = (
+
+diff --git a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+index d8b94bb3c..3f1a1c20a 100644
+--- a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
++++ b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+@@ -20,7 +20,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- By eliminating a civ early in the game, some of the unsettled land near it can be settled and exploited. Lebensraum if you will (and in Civ, it actually works).  -->
++		<!-- By eliminating a civ early in the game, some of the unsettled land near it can be settled and exploited. Lebensraum if you will (and in Civ, it actually works). -->
+ 		<DefineName>UWAI_WEIGHT_GREED_FOR_SPACE</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Long_Comments/BBAI_Game_Options_GlobalDefines_for_comments.xml b/Long_Comments/BBAI_Game_Options_GlobalDefines_for_comments.xml
+index fc4660444..9c057073e 100644
+--- a/Long_Comments/BBAI_Game_Options_GlobalDefines_for_comments.xml
++++ b/Long_Comments/BBAI_Game_Options_GlobalDefines_for_comments.xml
+@@ -19,22 +19,22 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Better BTS AI: Allow AI to use Conquest victory strategy logic if conquest victory is enabled  -->
++		<!-- Better BTS AI: Allow AI to use Conquest victory strategy logic if conquest victory is enabled -->
+ 		<DefineName>BBAI_VICTORY_STRATEGY_CONQUEST</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Better BTS AI: Allow AI to use Domination victory strategy logic if domination victory is enabled  -->
++		<!-- Better BTS AI: Allow AI to use Domination victory strategy logic if domination victory is enabled -->
+ 		<DefineName>BBAI_VICTORY_STRATEGY_DOMINATION</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Better BTS AI: Allow AI to use Culture victory strategy logic if culture victory is enabled  -->
++		<!-- Better BTS AI: Allow AI to use Culture victory strategy logic if culture victory is enabled -->
+ 		<DefineName>BBAI_VICTORY_STRATEGY_CULTURE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Better BTS AI: Allow AI to use Diplomacy victory strategy logic if diplomacy victory is enabled  -->
++		<!-- Better BTS AI: Allow AI to use Diplomacy victory strategy logic if diplomacy victory is enabled -->
+ 		<DefineName>BBAI_VICTORY_STRATEGY_DIPLOMACY</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Long_Comments/CIV4DetailManager_for_comments.xml b/Long_Comments/CIV4DetailManager_for_comments.xml
+index befc39c31..0a25e7871 100644
+--- a/Long_Comments/CIV4DetailManager_for_comments.xml
++++ b/Long_Comments/CIV4DetailManager_for_comments.xml
+@@ -306,7 +306,7 @@
+ 	     X values are the "world size" and the Y values are the resulting value for that world size.
+ 	     Generally speaking, common values for world sizes are 7000 in the case of small maps to 15000 for large maps.
+ 	     The general rule, however, is hand-tuning: just tweak these numbers for different keyings to get the effect you want
+-	     -->
++	    -->
+ 	<Fader>
+ 		<!-- maps from current globe radius to lighting angle -->
+ 		<Name>GLOBE_SPOTLIGHT_ANGLE</Name>
+
+diff --git a/Long_Comments/GlobalDefines_advc_for_comments.xml b/Long_Comments/GlobalDefines_advc_for_comments.xml
+index afbb1d8fc..e1f0d8cbb 100644
+--- a/Long_Comments/GlobalDefines_advc_for_comments.xml
++++ b/Long_Comments/GlobalDefines_advc_for_comments.xml
+@@ -247,7 +247,7 @@ Created as part of AdvCiv-SAS improvements
+ 		 'BUG Core.xml') toggles the "show friendly moves" option.
+ 		 Recommended: 0; frequent toggling shouldn't be necessary anymore.
+ 		 (Also, the toggling isn't reflected by the player options screen and
+-		 not stored in the user profile.)  -->
++		 not stored in the user profile.) -->
+ 	<Define>
+ 		<DefineName>ENABLE_HOTKEY_SHOW_FRIENDLY_MOVES</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -1138,7 +1138,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 
+ 	<!-- [advc.700] Rise & Fall parameters. The first four are applied at game
+-		 start; changing them in an ongoing game has no effect.  -->
++		 start; changing them in an ongoing game has no effect. -->
+ 	<!-- Base value for the number of chapters; recommended: 7. Has to be
+ 		 positive. The game adjusts the value based on game speed and start
+ 		 date. -->
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 240a491e3..781ce64c7 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -3492,7 +3492,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
+ ----- Comment #223 -----
+ 
+ <!-- custom: more recent change with the help of chatgpt thanks: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
+-	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
++	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits. -->
+ 
+ ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+ ----- Comment #224 -----
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 46d05e67b..d0662f4dc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -276,7 +276,7 @@ Note: some units like Worker-type units are civilian as of now, so their terrain
+ | China | CHINA_CHOKONU (CROSSBOWMAN; ARCHER) | **CHINA_ZHUGE_NU** (Keep; **ARCHER_CROSSBOW**) | h 60→65; tech MACHINERY, ARCHERY→CIVIL_SERVICE, HUNTING; res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 50→15, CollateralLimit 60→200; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, HillsAtk 25, HillsDef 25, +4 more; loses vsCombat MELEE 50 | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods FirstStrikes 1→2; gains Collateral 15, CollateralLimit 200, CollateralMaxUnits 5, FeatureAtk FOREST 25, +3 more. | Slightly reduces old collateral burst and anti-melee focus, but adds first-strike utility and broader buildability through copper/iron access. |
+ | Netherlands / Dutch | NETHERLANDS_OOSTINDIEVAARDER (FRIGATE; NAVAL) | **DUTCH_SWIFT_WORKER** (**WORKER**; **NONE**) | str 8→0, h 90→50, mv 5→3; tech CHEMISTRY, ASTRONOMY→none; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, WorkRate 100; loses Bombard 12, Cargo 3 | vs SAS WORKER: mv 2→3; gains FeatureAtk FOREST 50, FeatureDef FOREST 50. | Late naval UU was too weak/situational; early Worker is useful on every map, better fits Dutch economy/growth, restores old BTS Fast Worker effect, and gives India real worker-UU company. And unlike India, the fairly late and situational Dutch civ-specific building counterbalances this civ-specific unit being quite strong. |
+ | Egypt | EGYPT_WARCHARIOT (CHARIOT; MOUNTED) | **EGYPTIAN_WAR_CHARIOT** (Keep; **MOUNTED_MELEE**) | mods vsClass AXEMAN 100→75; gains FeatureAtk FOREST -50, FeatureAtk JUNGLE -50, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +5 more | vs SAS CHARIOT: str 4→5; gains TerrainAtk DESERT 35, TerrainAtk GRASS 10, TerrainDef DESERT 35, TerrainDef GRASS 10. | — |
+-| England | ENGLISH_REDCOAT (RIFLEMAN; GUN) | **ENGLISH_YEOMAN_ARCHER** (**CROSSBOWMAN**; **ARCHER_BOW_LONG**) | str 14→7, h 110→60; tech RIFLING→CIVIL_SERVICE, HUNTING; free none→SENTRY; gains CityDef 10, FeatureAtk FOREST 25, FeatureDef FOREST 50, FirstStrikes 1, +4 more; loses vsCombat GUN 25, vsCombat MOUNTED 25 | vs SAS CROSSBOWMAN: str 6→7, h 65→60; res IRON→none; free none→SENTRY; mods HillsAtk 25→15, HillsDef 25→15, vsCombat MELEE_SHOCK 50→25; gains CityDef 10, FeatureAtk FOREST 25, FeatureDef FOREST 50. | Earlier no-iron Yeoman gives England defensive/versatile power before late Redcoat timing; slightly less anti-melee focused than SAS Crossbow, but overall stronger, easier to build, and better fits England's defensive/economy/growth profile. |
++| England | ENGLISH_REDCOAT (RIFLEMAN; GUN) | **ENGLISH_YEOMAN_ARCHER** (**CROSSBOWMAN**; **ARCHER_BOW_LONG**) | str 14→7, h 110→60; tech RIFLING→CIVIL_SERVICE, HUNTING; mods Withdraw 0→25; gains FeatureAtk FOREST 25, FeatureDef FOREST 50, FirstStrikes 1, vsCombat MELEE_SHOCK 30, +2 more; loses vsCombat GUN 25, vsCombat MOUNTED 25 | vs SAS CROSSBOWMAN: str 6→7, h 65→60; res IRON→none; mods HillsAtk 25→20, HillsDef 25→20, vsCombat MELEE_SHOCK 50→30; gains FeatureAtk FOREST 25, FeatureDef FOREST 50. | Moves England's civ-specific unit from late Rifleman timing to the Crossbowman slot. As of now, 7 strength and +30% vs shock melee gives nearly the same anti-shock-melee value as the generic Crossbowman: 7 x 1.30 = 9.1 > 6 x 1.50 = 9.0. Hills modifiers are lower than the generic Crossbowman's, but the higher base strength still makes 7 x 1.20 = 8.4 stronger than 6 x 1.25 = 7.5 on hills, while the stacked hill + shock-melee value stays equal: 7 x 1.50 = 10.5 == 6 x 1.75 = 10.5 (so not weaker than generic sas crossbowman in these). No Iron, higher base strength, and lower cost make the Yeoman more versatile than the generic Crossbowman; the lower cost also fits the longbow/yeoman historical flavor. This fits England's more defensive/economic early profile while still allowing aggressive use for thematic and strategic variety. |
+ | Ethiopia | ETHIOPIAN_OROMO_WARRIOR (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100; tech GUNPOWDER→FIREARMS; free DRILL1, DRILL2→FIRST_STRIKE1; gains TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, TerrainDef DESERT 10, +2 more | vs SAS MUSKETMAN: free none→FIRST_STRIKE1; gains FirstStrikes 1, TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, +3 more. | — |
+ | France | FRENCH_MUSKETEER (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100, mv 2→1; tech GUNPOWDER→FIREARMS; free none→COUNTER_MOUNTED, COLLATERAL_DAMAGE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more | vs SAS MUSKETMAN: free none→COUNTER_MOUNTED, COLLATERAL_DAMAGE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more. | Buffs weak move-speed-only effect: movement helps positioning, not combat; anti-mounted/collateral gives actual fighting value against strong Renaissance/Industrial mounted units. |
+ | Germany | GERMAN_PANZER (TANK; ARMOR) | **GERMAN_HUSSAR** (**DRAGOON**; **MOUNTED_RANGED**) | str 28→16, h 180→140; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; res OIL→HORSE; free BLITZ→RETREAT1; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10, +2 more; loses FirstStrikes 2, vsCombat ARMOR 50 | vs SAS DRAGOON: h 150→140; free none→RETREAT1; gains FeatureAtk FOREST 25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10; loses FeatureDef FOREST -25. | Earlier than usually-too-late Panzer; later UU timing helps counterbalance Germany's strong early UB. |
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=6 bytes=9561
+
+[PATCH COVERAGE]
+patchFiles=31 embeddedFiles=30 omittedFiles=1 embeddedPatchBytes=36792

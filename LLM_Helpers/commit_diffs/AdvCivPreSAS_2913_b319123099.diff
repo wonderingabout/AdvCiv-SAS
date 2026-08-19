@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2913
+# Commit: b319123099920e971f1537d11c585fdf78c1d6ed
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 79bfd612bdfccf8c05a7731d4375b834f0cf2c5e
+# Title: Fix an AdvCiv issue with EnumMaps as bitfields
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	8	CvGameCoreDLL/CvEnums.h
+2	3	CvGameCoreDLL/CvInfoEnums.h
+1	1	CvGameCoreDLL/CvMap.h
+6	12	CvGameCoreDLL/EnumMap.h
+1	1	CvGameCoreDLL/EnumMap2D.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index d3d782cc3..cd266bb30 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -27,10 +27,7 @@ enum PlayerTypes
+ 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
+ 	MAX_PLAYERS
+ };
+-__forceinline PlayerTypes getEnumLength(PlayerTypes, bool bAllowFOR_EACH = true)
+-{
+-	return MAX_PLAYERS;
+-}
++
+ enum TeamTypes
+ {
+ 	NO_TEAM = -1,
+@@ -38,10 +35,6 @@ enum TeamTypes
+ 	MAX_CIV_TEAMS = BARBARIAN_TEAM,
+ 	MAX_TEAMS
+ };
+-__forceinline TeamTypes getEnumLength(TeamTypes, bool bAllowFOR_EACH = true)
+-{
+-	return MAX_TEAMS;
+-}
+ 
+ // This generates most of the enums with associated XML data
+ DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index 8ccd1b52d..d9b79a505 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -263,16 +263,15 @@ static inline T operator-(T minuend, T subtrahend)
+ #define NUM_ENUM_TYPES(INFIX) NUM_##INFIX##_TYPES
+ #define NO_ENUM_TYPE(SUFFIX) NO_##SUFFIX = -1
+ 
+-// (See SET_NONXML_ENUM_LENGTH in EnumMap.h about the bAllowFOR_EACH parameter)
+ #define SET_ENUM_LENGTH_STATIC(Name, INFIX) \
+-	__forceinline Name##Types getEnumLength(Name##Types, bool bAllowFOR_EACH = true) \
++	__forceinline Name##Types getEnumLength(Name##Types) \
+ 	{ \
+ 		return NUM_ENUM_TYPES(INFIX); \
+ 	}
+ /*  This gets used in CvGlobals.h. (I wanted to do it in MAKE_INFO_ENUM, which is
+ 	used in CvEnums.h, but that lead to a circular dependency.) */
+ #define SET_ENUM_LENGTH(Name, PREFIX) \
+-	__forceinline Name##Types getEnumLength(Name##Types, bool bAllowFOR_EACH = true) \
++	__forceinline Name##Types getEnumLength(Name##Types) \
+ 	{ \
+ 		return static_cast<Name##Types>(gGlobals.getNum##Name##Infos()); \
+ 	}
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index aac47f56f..31771b461 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -575,7 +575,7 @@ protected:
+ };
+ 
+ // advc.enum: (for EnumMap)
+-__forceinline PlotNumTypes getEnumLength(PlotNumTypes, bool bAllowForEach = true)
++__forceinline PlotNumTypes getEnumLength(PlotNumTypes)
+ {
+ 	return GC.getMap().numPlots();
+ }
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 0691cacef..075c68cd1 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -526,7 +526,7 @@ inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ 	// bools can only default to 0 or 1
+ 	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL || DEFAULT == 0 || DEFAULT == 1);
+ 	FAssertMsg(bINLINE_BOOL || sizeof(*this) == 4, "EnumMap is supposed to only contain a pointer");
+-	FAssertMsg(getLength() >= 0 && getLength() <= getEnumLength((LengthType)0, false), "Custom length out of range");
++	FAssertMsg(getLength() >= 0 && getLength() <= getEnumLength((LengthType)0), "Custom length out of range");
+ 	FAssertMsg(First() >= 0 && First() <= getLength(), "Custom length out of range");
+ 
+ 	if (bINLINE)
+@@ -562,7 +562,7 @@ __forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::getLength() const
+ {
+ 	// advc: getEnumLength(T_SUBSET) returns a T_SUBSET value, so a cast is needed.
+-	return (IndexType)getEnumLength((T_SUBSET)0, false);
++	return (IndexType)getEnumLength((T_SUBSET)0);
+ }
+ 
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
+@@ -1184,8 +1184,6 @@ SET_XML_ENUM_SIZE(AreaAI, AREAAI)
+ 	};
+ DO_FOR_EACH_SMALL_DYN_INFO_TYPE(SET_XML_ENUM_SIZE1)
+ // Not included in the list above:
+-SET_XML_ENUM_SIZE1(Player, Dummy)
+-SET_XML_ENUM_SIZE1(Team, Dummy)
+ SET_XML_ENUM_SIZE1(WorldSize, Dummy)
+ SET_XML_ENUM_SIZE1(Flavor, Dummy)
+ SET_XML_ENUM_SIZE1(Direction, Dummy)
+@@ -1222,15 +1220,9 @@ template<> struct EnumMapGetDefault<PlotNumTypes> {
+ };
+ #endif
+ 
+-/*  The other getEnumLength functions are generated through macros in CvEnums.h.
+-	For players and teams, I don't want the FOR_EACH_ENUM macro to be used, so
+-	I'm going to make those getEnumLength function inaccessible to that macro
+-	by adding a dummy call parameter. The getEnumLength functions in CvEnums.h
+-	also have that parameter - but, there, it's optional.
+-	Upd.: Actually, I do want to have getEnumLength for players and teams,
+-	so I guess the bool param is obsolete. */
++// The other getEnumLength functions are generated through macros in CvEnums.h
+ #define SET_NONXML_ENUM_LENGTH(TypeName, eLength) \
+-	__forceinline TypeName getEnumLength(TypeName, bool bAllowFOR_EACH) { return eLength; } \
++	__forceinline TypeName getEnumLength(TypeName) { return eLength; } \
+ 	template <> struct EnumMapGetDefault<TypeName> \
+ 	{ \
+ 		enum { \
+@@ -1241,6 +1233,8 @@ template<> struct EnumMapGetDefault<PlotNumTypes> {
+ 		}; \
+ 	};
+ 
++SET_NONXML_ENUM_LENGTH(PlayerTypes, MAX_PLAYERS)
++SET_NONXML_ENUM_LENGTH(TeamTypes, MAX_TEAMS)
+ // For enum maps that exclude the Barbarians
+ enum CivPlayerTypes {
+ 	NUM_CIV_PLAYER_TYPES = MAX_CIV_PLAYERS
+
+diff --git a/CvGameCoreDLL/EnumMap2D.h b/CvGameCoreDLL/EnumMap2D.h
+index f7880649f..d76a92534 100644
+--- a/CvGameCoreDLL/EnumMap2D.h
++++ b/CvGameCoreDLL/EnumMap2D.h
+@@ -80,7 +80,7 @@ template<class OuterArrayType, class InnerArrayType, class T, int DEFAULT>
+ __forceinline OuterArrayType EnumMap2DDefault<OuterArrayType, InnerArrayType, T, DEFAULT>
+ ::Length() const
+ {
+-	return getEnumLength((OuterArrayType)0, false); // advc.enum: was ArrayLength
++	return getEnumLength((OuterArrayType)0); // advc.enum: was ArrayLength
+ }
+ 
+ template<class OuterArrayType, class InnerArrayType, class T, int DEFAULT>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5502

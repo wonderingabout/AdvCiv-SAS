@@ -1,0 +1,268 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2633
+# Commit: 6226d26e95e129d93f822bb2bf3293ee5e3f8530
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e2544ab7e1e7a88876830e69c98a8db03bedb28e
+# Title: Fix AdvCiv AI issue with vote calculation for diplo victory
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	14	CvGameCoreDLL/CvPlayerAI.cpp
+38	36	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.h
+2	2	CvGameCoreDLL/WarUtilityAspect.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ea0e5edd1..1321ea6ac 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22911,13 +22911,14 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 		iValue += 100;
+ 	else iValue += GC.getInfo(getPersonalityType()).getDiplomacyVictoryWeight();
+ 	iValue = ::round(iValue * 0.67); // Victory weight too high
+-	double voteTarget = -2;
+-	double votesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&voteTarget);
+-	if(voteTarget == -1)
++	int iVoteTarget=MIN_INT;
++	int iVotesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&iVoteTarget);
++	if(iVoteTarget == -1)
+ 		return 0;
+-	FAssert(voteTarget > 0);
+-	double progressRatio = ::dRange((voteTarget - votesToGo) / voteTarget, 0.0, 1.0);
+-	double membersProgress = 1;
++	FAssert(iVoteTarget > 0);
++	scaled rProgressRatio(iVoteTarget - iVotesToGo, iVoteTarget);
++	rProgressRatio.clamp(0, 1);
++	scaled rMembersProgress = 1;
+ 	VoteSourceTypes eVS = GET_TEAM(getTeam()).AI_getLatestVictoryVoteSource();
+ 	if (eVS != NO_VOTESOURCE)
+ 	{
+@@ -22925,17 +22926,19 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 		// If AP religion hasn't spread far, our high voter portion doesn't help
+ 		int iNonMembers = GET_TEAM(getTeam()).uwai().countNonMembers(eVS);
+ 		int iTargetMembers = kGame.countCivPlayersAlive();
+-		membersProgress = (iTargetMembers - iNonMembers) / ((double)iTargetMembers);
+-		progressRatio = std::min(membersProgress, progressRatio);
++		rMembersProgress = scaled(iTargetMembers - iNonMembers, iTargetMembers);
++		rProgressRatio.decreaseTo(rMembersProgress);
+ 		/*  UWAI uses the UN vote target if neither vote source is
+ 			active yet. Also should look at UN votes in Industrial era if AP victory
+ 			looks infeasible. */
+-		if (progressRatio < 0.66 && getCurrentEra() >= 4 && bAP)
++		if (rProgressRatio < fixp(2/3.) && getCurrentEra() >= 4 && bAP)
+ 		{
+-			votesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&voteTarget, /*forceUN=*/true);
+-			progressRatio = ::dRange((voteTarget - votesToGo) / voteTarget, 0.0, 1.0);
++			iVotesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&iVoteTarget,
++					true); // force UN
++			rProgressRatio = scaled(iVoteTarget - iVotesToGo, iVoteTarget);
++			rProgressRatio.clamp(0, 1);
+ 			bVoteEligible = false;
+-			membersProgress = 1; // not a concern for UN
++			rMembersProgress = 1; // not a concern for UN
+ 		}
+ 	}
+ 	/*  LeaderHead weight is between 0 and 70. We're adding a hash between
+@@ -22943,7 +22946,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 		This here is the intelligent part; put it between 0 and 180.
+ 		Square b/c having e.g. 50% of the necessary votes isn't nearly enough;
+ 		need to get close to the vote target. */
+-	iValue += ::round(200 * progressRatio * progressRatio * membersProgress * membersProgress);
++	iValue += (200 * SQR(rProgressRatio * rMembersProgress)).round();
+ 	// </advc.115b>
+ 
+ 	// advc.115b: commented out
+@@ -22964,7 +22967,7 @@ int CvPlayerAI::AI_calculateDiplomacyVictoryStage() const
+ 	{
+ 		// BBAI TODO: Level 4 - close to enough to win a vote?
+ 		// <advc.115b>
+-		if (iValue > 185 && membersProgress >= 1)
++		if (iValue > 185 && rMembersProgress >= 1)
+ 			return 4; // </advc.115b>
+ 		return 3;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index e0387596f..5b580b3e8 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4882,10 +4882,10 @@ VoteSourceTypes CvTeamAI::AI_getLatestVictoryVoteSource() const
+ 	return r;
+ }
+ 
+-// pVoteTarget - Additional (optional) return value: vote target for diplo vict.
+-double CvTeamAI::AI_votesToGoForVictory(double* pVoteTarget, bool bForceUN) const
++// pVoteTarget (out param): Vote target for diplo victory; -1 if there is none.
++int CvTeamAI::AI_votesToGoForVictory(int* piVoteTarget, bool bForceUN) const
+ {
+-	CvGame& kGame = GC.getGame();
++	CvGame const& kGame = GC.getGame();
+ 	VoteSourceTypes eVS = AI_getLatestVictoryVoteSource();
+ 	bool bUN = false;
+ 	if (eVS == NO_VOTESOURCE)
+@@ -4897,8 +4897,8 @@ double CvTeamAI::AI_votesToGoForVictory(double* pVoteTarget, bool bForceUN) cons
+ 		bUN = true;
+ 	if (bUN && getCurrentEra() <= 3)
+ 	{
+-		if(pVoteTarget != NULL)
+-			*pVoteTarget = -1;
++		if(piVoteTarget != NULL)
++			*piVoteTarget = -1;
+ 		return -1;
+ 	}
+ 	int iPopThresh = -1;
+@@ -4925,65 +4925,67 @@ double CvTeamAI::AI_votesToGoForVictory(double* pVoteTarget, bool bForceUN) cons
+ 				break;
+ 			}
+ 		}
+-		if(pVoteTarget != NULL)
+-			*pVoteTarget = -1;
++		if(piVoteTarget != NULL)
++			*piVoteTarget = -1;
+ 		return -1;
+ 	}
+-	double totalPop = kGame.getTotalPopulation();
++	scaled rTotalPop = kGame.getTotalPopulation();
+ 	if(!bUN)
+-		totalPop = totalPop * kGame.calculateReligionPercent(eAPReligion, true) / 100.0;
+-	double targetPop = iPopThresh * totalPop / 100.0;
+-	if(pVoteTarget != NULL)
+-		*pVoteTarget = targetPop;
+-	/*  targetPop assumes 1 vote per pop, but member cities actually
++		rTotalPop = rTotalPop * per100(kGame.calculateReligionPercent(eAPReligion, true));
++	scaled rTargetPop = per100(iPopThresh) * rTotalPop;
++	if(piVoteTarget != NULL)
++		*piVoteTarget = rTargetPop.ceil();
++	/*  rTargetPop assumes 1 vote per pop, but member cities actually
+ 		cast 2 votes per pop. */
+-	double APVoteNormalizer = 1;
++	scaled rAPVoteNormalizer = 1;
+ 	if(!bUN)
+ 	{
+-		APVoteNormalizer = 100.0 /
+-				(100 + GC.getInfo(eVictoryVote).getStateReligionVotePercent());
++		rAPVoteNormalizer = scaled(100,
++				100 + GC.getInfo(eVictoryVote).getStateReligionVotePercent());
+ 	}
+-	double r = targetPop;
+-	double ourVotes = getTotalPopulation();
++	scaled rVotesToGo = rTargetPop;
++	scaled rOurVotes = getTotalPopulation();
+ 	if(eVS != NO_VOTESOURCE && !bForceUN)
+-		ourVotes = getVotes(eVictoryVote, eVS) * APVoteNormalizer;
+-	r -= ourVotes;
+-	double votesFromOthers = 0;
++		rOurVotes = getVotes(eVictoryVote, eVS) * rAPVoteNormalizer;
++	rVotesToGo -= rOurVotes;
++	scaled rVotesFromOthers = 0;
+ 	/*  Will only work in obvious cases, otherwise we'll work with unknown
+ 		candidates (NO_TEAM). */
+-	TeamTypes counterCandidate = (bUN ? AI_diploVoteCounterCandidate(eVS) : NO_TEAM);
++	TeamTypes eCounterCandidate = (bUN ? AI_diploVoteCounterCandidate(eVS) : NO_TEAM);
+ 	// This team: already covered above
+-	for(TeamIter<FREE_MAJOR_CIV,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
++	for(TeamIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
+ 	{
+ 		CvTeamAI const& kTeam = *it;
+ 		// No votes from human non-vassals
+ 		if((kTeam.isHuman() && !kTeam.isVassal(getID())) ||
+-				kTeam.getMasterTeam() == counterCandidate)
++			kTeam.getMasterTeam() == eCounterCandidate)
++		{
+ 			continue;
+-		double pop = kTeam.getTotalPopulation();
++		}
++		scaled rPop = kTeam.getTotalPopulation();
+ 		if(eVS != NO_VOTESOURCE && !bForceUN)
+-			pop = kTeam.getVotes(eVictoryVote, eVS) * APVoteNormalizer;
+-		// Count vassals as fully supportive
++			rPop = kTeam.getVotes(eVictoryVote, eVS) * rAPVoteNormalizer;
++		// Count our vassals as fully supportive
+ 		if(kTeam.isVassal(getID()))
+ 		{
+-			r -= pop;
++			rVotesToGo -= rPop;
+ 			continue;
+ 		}
+-		/*  Count Friendly rivals as 80% supportive b/c relations may soon sour,
+-			and b/c the rival may like the counter candidate even better. */
++		/*  Count Friendly rivals as only partially supportive b/c relations may
++			soon sour, and b/c the rival may like the counter candidate even better. */
+ 		if(!kTeam.isHuman() && kTeam.AI_getAttitude(getID()) >= ATTITUDE_FRIENDLY)
+ 		{
+-			votesFromOthers += (4 * pop) / 5.0;
++			rVotesFromOthers += rPop * fixp(0.8);
+ 			continue;
+ 		}
+ 	}
+ 	/*  To account for an unknown counter-candidate. This will usually neutralize
+ 		our votes from friends, leaving only our own (and vassals') votes. */
+-	if(counterCandidate == NO_TEAM)
+-		votesFromOthers -= 1.3 * totalPop / TeamIter<MAJOR_CIV>::count();
+-	if(votesFromOthers > 0)
+-		r -= votesFromOthers;
+-	return std::max(0.0, r);
++	if(eCounterCandidate == NO_TEAM)
++		rVotesFromOthers -= fixp(1.3) * rTotalPop / TeamIter<MAJOR_CIV>::count();
++	if(rVotesFromOthers > 0)
++		rVotesToGo -= rVotesFromOthers;
++	return std::max(0, rVotesToGo.round());
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 0dfc74245..59bcc4fd9 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -146,7 +146,7 @@ public:
+ 		otherwise UN */
+ 	VoteSourceTypes AI_getLatestVictoryVoteSource() const;
+ 	bool AI_isAnyCloseToReligiousVictory() const;
+-	double AI_votesToGoForVictory(double* pVoteTarget = NULL, bool bForceUN = false) const;
++	int AI_votesToGoForVictory(int* piVoteTarget = NULL, bool bForceUN = false) const;
+ 	// </advc.115b>
+ 
+ 	int AI_makePeaceTradeVal(TeamTypes ePeaceTeam, TeamTypes eTeam) const;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index ad3f17ff1..ebc909e04 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1407,9 +1407,9 @@ double MilitaryVictory::progressRatingDiplomacy() {
+ 	}
+ 	if(popGained > 0.5)
+ 		log("Total expected votes: %d, current votes-to-go: %d",
+-				::round(popGained), ::round(votesToGo));
++				::round(popGained), votesToGo);
+ 	FAssert(votesToGo > 0);
+-	popGained = std::min(popGained, votesToGo);
++	popGained = std::min<double>(popGained, votesToGo);
+ 	double r = popGained / votesToGo;
+ 	if(apObstacles < 1)
+ 		return r;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 03906fb1a..ddc1b3dad 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -212,7 +212,7 @@ private:
+ 	double progressRatingDiplomacy();
+ 	void addConquestsByPartner(std::map<int,double>& r, AttitudeTypes attThresh,
+ 			double weight);
+-	double votesToGo;
++	int votesToGo;
+ 	bool enoughVotes;
+ };
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9806

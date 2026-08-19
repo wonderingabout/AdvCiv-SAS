@@ -1,0 +1,101 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5050
+# Commit: 31fc38bd867410ec07e0acaebcb3d61b40305344
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6efb7c12cd95125024f7a589fdb0f4a9df4e14aa
+# Title: performance optimizations anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+19	6	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvGlobals.cpp
+4	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d78566a0e..2702cf297 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12213,19 +12213,32 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
+ 	// how big is this city, in terms of buildings?
+ 	// general rule: no more than fPercentUnique percent of a city can be uniques
+ 	int iTotalVisibleBuildings;
+-	if (::stricmp(GC.getDefineSTRING("GAME_CITY_SIZE_METHOD"), "METHOD_EXPONENTIAL") == 0)
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bGAME_CITY_SIZE_METHOD_With_METHOD_EXPONENTIAL_Equal_To_Zero = (::stricmp(GC.getDefineSTRING("GAME_CITY_SIZE_METHOD"), "METHOD_EXPONENTIAL") == 0);
++
++	if (bGAME_CITY_SIZE_METHOD_With_METHOD_EXPONENTIAL_Equal_To_Zero)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const float fGAME_CITY_SIZE_EXP_MODIFIER = GC.getDefineFLOAT("GAME_CITY_SIZE_EXP_MODIFIER");
++
+ 		int iCityScaleMod = (int)(std::pow((float)getPopulation(),
+-				GC.getDefineFLOAT("GAME_CITY_SIZE_EXP_MODIFIER")) * 2);
++				fGAME_CITY_SIZE_EXP_MODIFIER) * 2);
+ 		iTotalVisibleBuildings = 10 + iCityScaleMod;
+ 	}
+ 	else
+ 	{
+-		float fLo = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_0");
+-		float fHi = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50");
+-		iTotalVisibleBuildings = (int)(((fHi - fLo) / 50.0f) * getPopulation() + fLo);
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const float fLo = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_0");
++		//static const float fHi = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50");
++		static const float fHiFLo = ((GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50") - fLo) / 50.0f);
++
++		iTotalVisibleBuildings = (int)(fHiFLo * getPopulation() + fLo);
+ 	}
+-	float fMaxUniquePercent = GC.getDefineFLOAT("GAME_CITY_SIZE_MAX_PERCENT_UNIQUE");
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const float fMaxUniquePercent = GC.getDefineFLOAT("GAME_CITY_SIZE_MAX_PERCENT_UNIQUE");
++
+ 	int iMaxNumUniques = (int)(fMaxUniquePercent * iTotalVisibleBuildings);
+ 
+ 	// compute how many buildings are generics vs. unique Civ buildings?
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 1262ec9a6..06173d511 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -903,6 +903,7 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
+ // <advc.004m>
+ void CvGlobals::updateCameraStartDistance(bool bReset)
+ {
++	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate anyways etc) anyways etc), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case i mean if i may say but anyways etc) if i may say i mean but anyways etc. -->
+ 	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
+ 			GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
+ 	float fNewValue = m_fCAMERA_START_DISTANCE_Override;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 725082445..1dfe5aa1c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12279,7 +12279,10 @@ void CvUnit::cheat(bool bCtrl, bool bAlt, bool bShift)
+ 
+ float CvUnit::getHealthBarModifier() const
+ {
+-	return (GC.getDefineFLOAT("HEALTH_BAR_WIDTH") /
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const float fHEALTH_BAR_WIDTH = GC.getDefineFLOAT("HEALTH_BAR_WIDTH");
++
++	return (fHEALTH_BAR_WIDTH /
+ 			(GC.getGame().getBestLandUnitCombat() * 2));
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=4331

@@ -1,0 +1,217 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5706
+# Commit: f8d1cda84bbfed1b78c69b69682ef483f6356a51
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 964cd251f729eccec421038884932b2481cd587e
+# Title: rename un.list and combat to units and unit chart
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+4	5	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+6	8	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/{0.630_sevopedia_units_chart (1).JPG => 0.630_sevopedia_unit_chart (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia/{0.630_sevopedia_units_chart (2).JPG => 0.630_sevopedia_unit_chart (2).JPG}
+2	2	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+ rename _1_AdvCiv-SAS/Images/sevopedia/{0.630_sevopedia_units_chart (1).JPG => 0.630_sevopedia_unit_chart (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia/{0.630_sevopedia_units_chart (2).JPG => 0.630_sevopedia_unit_chart (2).JPG} (100%)
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 8039cb5e8..7c758ce19 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -347,9 +347,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconMap, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
+ 			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconYieldFood, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
+ 			(SevoScreenEnums.PEDIA_BUILDS, "TXT_KEY_PEDIA_CATEGORY_BUILD", iconYieldFood, "placeBuilds", SevoPediaBuild.SevoPediaBuild, None),
+-			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNIT", iconStrength, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
++			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNITS", iconStrength, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
+ 			(SevoScreenEnums.PEDIA_UNIT_UPGRADES, "TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", iconStrength, "placeUnitUpgrades", None, None),
+-			(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, "TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT", iconSilverStar, "placeUnitCategories", SevoPediaUnitChart.SevoPediaUnitChart, "PEDIA_MAIN_UNIT_GROUP"),
++			(SevoScreenEnums.PEDIA_UNIT_CATEGORIES, "TXT_KEY_PEDIA_CATEGORY_UNIT_CHART", iconSilverStar, "placeUnitCategories", SevoPediaUnitChart.SevoPediaUnitChart, "PEDIA_MAIN_UNIT_GROUP"),
+ 			(SevoScreenEnums.PEDIA_PROMOTIONS, "TXT_KEY_PEDIA_CATEGORY_PROMOTION", iconGreatGeneral, "placePromotions", SevoPediaPromotion.SevoPediaPromotion, "PEDIA_MAIN_PROMOTION"),
+ 			(SevoScreenEnums.PEDIA_PROMOTION_TREE, "TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE", iconGreatGeneral, "placePromotionTree", None, None),
+ 			(SevoScreenEnums.PEDIA_SPECIALISTS, "TXT_KEY_PEDIA_CATEGORY_SPECIALIST", iconGreatPeople, "placeSpecialists", SevoPediaSpecialist.SevoPediaSpecialist, "PEDIA_MAIN_SPECIALIST"),
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 985d6ebd2..c404a84aa 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -158,7 +158,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND_PEDIA</Tag>
+-		<English>[H1]Sevopedia Categories Legend[\H1][PARAGRAPH:2]This page explains shortened category labels used in the left Sevopedia category list.[PARAGRAPH:2]- Corporat.: Corporations.[PARAGRAPH:2]- Event Tri.: Event Triggers.[PARAGRAPH:2]- Improv.: Improvements.[PARAGRAPH:2]- Mods Info: custom AdvCiv-SAS concept pages and legends.[PARAGRAPH:2]- N. Wond.: National Wonders.[PARAGRAPH:2]- Outdated: legacy/reference pages kept for compatibility/history.[PARAGRAPH:2]- Pr. List: Promotion List.[PARAGRAPH:2]- Pr. Tree: Promotion Tree.[PARAGRAPH:2]- Un. List: Unit List.[PARAGRAPH:2]- Un. Tree: Unit Upgrade Tree.[PARAGRAPH:2]- W. Sizes: World Sizes.[PARAGRAPH:2]- W. Wond.: World Wonders.[PARAGRAPH:2]Labels are shortened mainly to fit sidebar width cleanly at different resolutions and UI scales.</English>
++		<English>[H1]Sevopedia Categories Legend[\H1][PARAGRAPH:2]This page explains shortened category labels used in the left Sevopedia category list.[PARAGRAPH:2]- Corporat.: Corporations.[PARAGRAPH:2]- Event Tri.: Event Triggers.[PARAGRAPH:2]- Improv.: Improvements.[PARAGRAPH:2]- Mods Info: custom AdvCiv-SAS concept pages and legends.[PARAGRAPH:2]- N. Wond.: National Wonders.[PARAGRAPH:2]- Outdated: legacy/reference pages kept for compatibility/history.[PARAGRAPH:2]- Pr. List: Promotion List.[PARAGRAPH:2]- Pr. Tree: Promotion Tree.[PARAGRAPH:2]- Un. Chart: Unit Chart[PARAGRAPH:2]- Un. Tree: Unit Upgrade Tree.[PARAGRAPH:2]- W. Sizes: World Sizes.[PARAGRAPH:2]- W. Wond.: World Wonders.[PARAGRAPH:2]Labels are shortened mainly to fit sidebar width cleanly at different resolutions and UI scales.</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND</Tag>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index aba97c8b7..74af2c6b8 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -645,8 +645,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Techs</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT</Tag>
+-		<English>Un. List</English>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_UNITS</Tag>
++		<English>Units</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
+@@ -664,10 +664,9 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION</Tag>
+ 		<English>Pr. List</English>
+ 	</TEXT>
+-    <!-- custom: use civ4 dev language unless we have a reason not, harmonizes terminlogy hopefully while being clearer for players. -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
+-		<English>Combat</English>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_CHART</Tag>
++		<English>Un. Chart</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILD</Tag>
+
+diff --git a/README.md b/README.md
+index b2fda709a..024b306b1 100644
+--- a/README.md
++++ b/README.md
+@@ -430,7 +430,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (1).JPG" alt="0.630_sevopedia_units_chart (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG" alt="0.630_sevopedia_unit_chart (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG" alt="0.700_sevopedia_terrains (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index eb3bf6f5c..ffe6b70c6 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -888,7 +888,7 @@ And finally implement it (the .dds) in XML, looks very very good, at least for m
+ 
+ ## .dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)
+ 
+-Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
++Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after the [sevopedia units rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) i first tried to assess the size at which they display optimally.
+ 
+ Lower size may result in smaller file size, perhaps even performance increase (but not sure i don't know), but may reduce image quality if too low.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 6622330c1..94fdf0868 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -332,7 +332,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
+ 
+ ## 5 - (seemingly worked around now) player name same as windows (10's for example) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
+ 
+-A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeCivilizations new Sevopedia feature (see the [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
++A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeCivilizations new Sevopedia feature (see the [README_Sevopedia_Reworks.md (example 7: units category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) for details)
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19T9I75vGCk58pFSR60y2Tmj69-NoFFtk?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 9851df3e9..5dfa60acc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -316,7 +316,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, (Requires AdvCiv-SAS 5511+) **Corporations**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+-- (Requires AdvCiv-SAS 5674+) New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units ("Un.List"), Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
++- (Requires AdvCiv-SAS 5674+) New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units, Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5677+) New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude**, **action**, and (if set) **leaderhead art era buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+@@ -333,7 +333,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5705+) New **Event Triggers category** featuring **exhaustive XML info** about `CvEventTriggerInfo` (e.g., "Careless Apprentice") and `CvEventInfo` (e.g., event 1: "Organize a rebuilding effort; event 2: "Investigate the cause of the fire"; event 3: "We are too pressed to spare any attention to a small fire") and their detailed effects, with a **"Legend"** similarly. The implementation notably has repeated text prevention (e.g., use "x2", "x3" when bullets are the same), sevopedia links to other assets' pages (like traits in sevopedia leader), and **direct and indirect era groupings** (depending on whether the eventtrigger depends on tech's and/or prereqs directly or on related assets' related own conditions; see sevopedia legend).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+-- Sevopedia — Units: (Requires AdvCiv-SAS 5672+) Notably prepend **unique names** before the **pedia text** in the History (i.e. the "Background") panel; e.g., "Albert Einstein", "Plato" for the Great Scientist unit; "Sargon", "Sun Tzu" for the Great General unit. See also [Sevopedia reworks (Unit List)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category).
++- Sevopedia — Units: (Requires AdvCiv-SAS 5672+) Notably prepend **unique names** before the **pedia text** in the History (i.e. the "Background") panel; e.g., "Albert Einstein", "Plato" for the Great Scientist unit; "Sargon", "Sun Tzu" for the Great General unit. See also [Sevopedia reworks (Units)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category).
+ - Sevopedia — Shortcuts: (Requires AdvCiv-SAS 5679+) Add **Cheats** item (from the [CFC thread: All Keyboard Cheats for Civ 4](https://forums.civfanatics.com/threads/all-keyboard-cheats-for-civ-4.664273/)). **Beautify: Equalize tab identation** (was seemingly aligned for font 2 instead of **label 3** following upscaling changes (note: other font sizes may be misaligned), and fixed a few misaligned rows). Generalize **shortcut spacing** (e.g., `Alt+F4` -> `Alt + F4` as in Cheats item). Order **alphabetically** shortcut items. Added an entry for the existing `Alt+S` shortcut (in **Map Layers** item) — opens the tile-label dialog (**"Enter caption"**) to add/remove text on the selected tile.
+ 
+ ### UI (In-game)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index d1b8d80a3..1d8f8d6c7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -41,7 +41,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 4: bonuses category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category)  
+ &emsp;[example 5: religion category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-5-religion-category)  
+ &emsp;[example 6: civilization category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-6-civilization-category)  
+-&emsp;[example 7: unit list category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category)  
++&emsp;[example 7: units category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category)  
+ &emsp;[example 8: buildings category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category)  
+ &emsp;[example 9: terrains category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category)  
+ &emsp;[example 10: specialists category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-specialists-category)  
+@@ -379,8 +379,8 @@ Also added an Untradeable panel with an emoji to visually clearly and quickly in
+ 
+ (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
+ 
+-<img src="../Images/sevopedia/0.630_sevopedia_units_chart (1).JPG" alt="0.630_sevopedia_units_chart (1).JPG" width="250"></img>
+-<img src="../Images/sevopedia/0.630_sevopedia_units_chart (2).JPG" alt="0.630_sevopedia_units_chart (2).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG" alt="0.630_sevopedia_unit_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.630_sevopedia_unit_chart (2).JPG" alt="0.630_sevopedia_unit_chart (2).JPG" width="250"></img>
+ 
+ ### example 3: features category
+ 
+@@ -432,9 +432,7 @@ Done with the help of GPT-5.2-Codex thanks a lot!
+ 
+ ### example 4: bonuses category
+ 
+-Mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or other pages or not, may tweak it further or not as i see fit, anyways
+-
+-After having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-buildings-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech). Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal, it does seem to work well for a small number of improvements (didn't test for more how it would display).
++A more extensive rewrite/refactor was done based on [example 7: units category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) and [example-8-buildings-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech). Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal, it does seem to work well for a small number of improvements (didn't test for more how it would display).
+ 
+ More recently, also added with chatgpt's help thanks the terrainbooleans, featurebooleans, and featureterrainbooleans info, see Sevopedia feature screenshots or ingame for what these mean in their respective panel headers (for example featureterrainbooleans is as of now "Terrains only if with this bonus's features" or something similar to this abbreviated if needed for example or if updated since then and not shown in screenshot sample or also updated as well) section information or Main Changes Guide or code comments.
+ 
+@@ -468,9 +466,9 @@ More recently, added optional grouping by Artstyle (e.g. European, Asian) with t
+ <img src="../Images/sevopedia/0.670_sevopedia_civilizations (2).JPG" alt="0.670_sevopedia_civilizations (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.670_sevopedia_civilizations (3).JPG" alt="0.670_sevopedia_civilizations (3).JPG" width="250"></img>
+ 
+-### example 7: unit list category
++### example 7: units category
+ 
+-Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
++Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should adjust to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
+ 
+ Finally and most importantly, new placeReplace (Replaced By / Replaces) addition from (for the replaced by part and idea) RFC DOC, as well as new placeCivilizations (renamed from the original name Claude AI gave to it placeExclusiveCivs) with the help of Claude AI thanks and small adjustments of already working code (tweaked coordinates) and adjusted.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (1).JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_unit_chart (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (2).JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_unit_chart (2).JPG
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=4 bytes=4010
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=26092

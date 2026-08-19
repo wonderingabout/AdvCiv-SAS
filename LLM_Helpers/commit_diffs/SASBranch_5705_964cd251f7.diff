@@ -1,0 +1,302 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5705
+# Commit: 964cd251f729eccec421038884932b2481cd587e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f592e66e537ff63d31b52841c5208bbfd2eaff5e
+# Title: ui polish and adjustments for SevoPediaEventTrigger
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	19	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+1	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+6	6	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	0	README.md
+11	6	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+11	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index a41535d9a..a9babceb2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -40,14 +40,26 @@ class SevoPediaEventTrigger:
+ 
+ 		self.X_NAME = self.top.X_PEDIA_PAGE
+ 		self.Y_NAME = self.top.Y_PEDIA_PAGE
+-		self.W_NAME = self.top.R_PEDIA_PAGE - self.X_NAME
+-		self.H_NAME = 75
++		self.W_PAGE = self.top.R_PEDIA_PAGE - self.X_NAME
++		self.H_NAME = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		# Trigger info row: Requires (Text) | Summary.
+ 		iColGap = MEDIUM_MARGIN
++		# <!-- custom: Obsolete-with shares the top row with Name and stays sized for 8
++		# buttons because War Chariots is the longest current event trigger obsolete list,
++		# with enough room for "or" connector numTxt. Requires Buttons gets the full row
++		# below because it usually has more elements and is more likely to scroll. (GPT-5.5) -->
++		iObsoleteButtonW = get_multilist_panel_width_for_buttons(8, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
++		self.W_NAME = self.W_PAGE - iColGap - iObsoleteButtonW
++
++		self.X_OBSOLETE_BUTTONS = self.X_NAME + self.W_NAME + iColGap
++		self.Y_OBSOLETE_BUTTONS = self.Y_NAME
++		self.W_OBSOLETE_BUTTONS = iObsoleteButtonW
++		self.H_OBSOLETE_BUTTONS = self.H_NAME
++
++		# Trigger info row: Requires (Text) | Summary.
+ 		iRowTop = self.Y_NAME + self.H_NAME + SMALL_MARGIN
+-		iRowH = 173
+-		iColW = (self.W_NAME - iColGap) / 2
++		iRowH = 213
++		iColW = (self.W_PAGE - iColGap) / 2
+ 
+ 		self.X_REQUIRES_TEXT = self.X_NAME
+ 		self.Y_REQUIRES_TEXT = iRowTop
+@@ -63,18 +75,13 @@ class SevoPediaEventTrigger:
+ 		iBtnRowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.X_REQUIRES_BUTTONS = self.X_NAME
+ 		self.Y_REQUIRES_BUTTONS = iBtnRowTop
+-		self.W_REQUIRES_BUTTONS = iColW
++		self.W_REQUIRES_BUTTONS = self.W_PAGE
+ 		self.H_REQUIRES_BUTTONS = iBtnRowH
+ 
+-		self.X_OBSOLETE_BUTTONS = self.X_REQUIRES_BUTTONS + self.W_REQUIRES_BUTTONS + iColGap
+-		self.Y_OBSOLETE_BUTTONS = iBtnRowTop
+-		self.W_OBSOLETE_BUTTONS = iColW
+-		self.H_OBSOLETE_BUTTONS = iBtnRowH
+-
+ 		self.X_TEXTS = self.X_NAME
+ 		self.Y_TEXTS = iBtnRowTop + iBtnRowH + SMALL_MARGIN
+-		self.W_TEXTS = self.W_NAME
+-		self.H_TEXTS = 170
++		self.W_TEXTS = self.W_PAGE
++		self.H_TEXTS = 130
+ 
+ 		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set
+ 		# <Civilopedia> in XML, so the bottom panel would nearly always show "None" and
+@@ -83,7 +90,7 @@ class SevoPediaEventTrigger:
+ 		# (Claude code Opus 4.7) -->
+ 		self.X_EVENTS = self.X_NAME
+ 		self.Y_EVENTS = self.Y_TEXTS + self.H_TEXTS + SMALL_MARGIN
+-		self.W_EVENTS = self.W_NAME
++		self.W_EVENTS = self.W_PAGE
+ 		self.H_EVENTS = self.top.B_PEDIA_PAGE - self.Y_EVENTS
+ 
+ 		self.EVENT_CARD_PANEL_HEADER_H = 28
+@@ -166,9 +173,8 @@ class SevoPediaEventTrigger:
+ 		info = self._getTriggerInfo()
+ 		lines = []
+ 		if info:
+-			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY", ()) + u": %d" % info.getProbability())
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT", ()) + u": %d" % info.getProbability())
+ 			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES", ()) + u": %d%%" % info.getPercentGamesActive())
+-			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT", ()) + u": %d" % info.getNumEvents())
+ 			listFlags = []
+ 			if info.isRecurring():
+ 				listFlags.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_RECURRING", ()))
+@@ -276,9 +282,9 @@ class SevoPediaEventTrigger:
+ 			if info.isUnitsOnPlot():
+ 				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT")
+ 			if info.isProbabilityUnitMultiply():
+-				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY")
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_UNIT_MULTIPLY")
+ 			if info.isProbabilityBuildingMultiply():
+-				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY")
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_BUILDING_MULTIPLY")
+ 			for szKey in listFlagKeys:
+ 				lines.append(self.BULLET_PREFIX + localText.getText(szKey, ()))
+ 			if info.getOtherPlayerShareBorders() > 0:
+@@ -412,6 +418,11 @@ class SevoPediaEventTrigger:
+ 			iFlavorValue = eventInfo.getTechFlavorValue(iFlavor)
+ 			if iFlavorValue != 0:
+ 				szFlavor = gc.getFlavorTypes(iFlavor)
++				# <!-- custom: trim the repeated "FLAVOR_" prefix because tech flavor lists
++				# can contain many entries; saving horizontal space reduces wrapping/scrolling
++				# and makes the event-effect bullet easier to scan. (GPT-5.5) -->
++				if szFlavor.startswith("FLAVOR_"):
++					szFlavor = szFlavor[len("FLAVOR_"):]
+ 				listTechFlavors.append(szFlavor + u" %+d" % iFlavorValue)
+ 		if listTechFlavors:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_FLAVORS", ()) + u": " + u", ".join(listTechFlavors))
+@@ -818,7 +829,7 @@ class SevoPediaEventTrigger:
+ 		# Summary panel needs enough room for a few bullet lines of effects — ~60 px
+ 		# floor keeps it readable when the event name is long and pushes the split down.
+ 		minSummaryPanelH = 60
+-		namePanelH = 160
++		namePanelH = 120
+ 		maxNamePanelH = availableInnerH - minSummaryPanelH
+ 		if namePanelH > maxNamePanelH:
+ 			namePanelH = maxNamePanelH
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index d98825678..985d6ebd2 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -182,7 +182,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND_PEDIA</Tag>
+-		<English>[H1]Sevopedia Event Triggers Legend[\H1][PARAGRAPH:2]This page explains the era groupings and abbreviations used in Sevopedia Event Triggers.[PARAGRAPH:2]Era grouping:[PARAGRAPH:2]- Any era (no tech requirement): triggers that can fire from turn 1 because they declare no tech prerequisite of any kind.[PARAGRAPH:2]- Ancient / Classical / Medieval / ... : triggers whose earliest tech prerequisite is visible directly on the trigger XML, i.e. in its OrPreReqs or AndPreReqs tech list. These are "direct" era classifications - the gate is explicit on the trigger itself.[PARAGRAPH:2]- Ancient (indirect) / Classical (indirect) / ... : triggers whose era was inferred via chain lookup because the trigger XML does not list a direct tech prereq. The era comes from one of: OtherPlayerHasTech (another player must have a tech), a prerequisite event trigger's inferred era, the required Civic's prereq tech, a required Building/Unit class's default building/unit prereq tech, a required Religion's prereq tech, or a required Corporation's prereq tech. These are "indirect" - the trigger never reads "requires Flight" directly, but it requires something that implies Flight.[PARAGRAPH:2]Requirements display:[PARAGRAPH:2]- Requires (Buttons) shows linkable requirements such as techs, civics, buildings, units, religions, corporations, terrains, features, improvements, bonuses, and prerequisite event triggers.[PARAGRAPH:2]- Requires (Text) shows numeric, flag, route, target-selection, and Python-gate constraints that have no clear pedia button target.[PARAGRAPH:2]Numbered labels (numTxt) under buttons:[PARAGRAPH:2]- Oth.P. : other player has this tech. Pairs with the OtherPlayerHasTech field. This tech does not need to be researched by the trigger's player - someone else in the game must have it. The label appears because the icon art is identical to a self-prereq tech icon and would otherwise be ambiguous.[PARAGRAPH:2]- OR : appears between adjacent buttons in a Requires OR-prereq group of two or more techs, between same-field plot alternatives such as terrain/feature/improvement/bonus options, or between adjacent Obsolete with techs when multiple techs can obsolete the trigger. Means any single one satisfies that group; for Obsolete with, any single one blocks the trigger.[PARAGRAPH:2]- No connector between adjacent buttons means AND: all shown requirements apply. AND is left implicit because writing "and" between every required icon makes dense panels harder to scan.</English>
++		<English>[H1]Sevopedia Event Triggers Legend[\H1][PARAGRAPH:2]This page explains the era groupings and abbreviations used in Sevopedia Event Triggers.[PARAGRAPH:2]Era grouping:[PARAGRAPH:2]- Any era (no tech requirement): triggers that can fire from turn 1 because they declare no tech prerequisite of any kind.[PARAGRAPH:2]- Ancient / Classical / Medieval / ... : triggers whose earliest tech prerequisite is visible directly on the trigger XML, i.e. in its OrPreReqs or AndPreReqs tech list. These are "direct" era classifications - the gate is explicit on the trigger itself.[PARAGRAPH:2]- Ancient (indirect) / Classical (indirect) / ... : triggers whose era was inferred via chain lookup because the trigger XML does not list a direct tech prereq. The era comes from one of: OtherPlayerHasTech (another player must have a tech), a prerequisite event trigger's inferred era, the required Civic's prereq tech, a required Building/Unit class's default building/unit prereq tech, a required Religion's prereq tech, or a required Corporation's prereq tech. These are "indirect" - the trigger never reads "requires Flight" directly, but it requires something that implies Flight.[PARAGRAPH:2]Random event selection:[PARAGRAPH:2]- iWeight and Active in Games affect the normal automatic random-event lottery. Manual or scripted triggering can still force an event trigger outside that lottery, so iWeight 0 or Active in Games 0% does not necessarily mean the XML entry is unused.[PARAGRAPH:2]Requirements display:[PARAGRAPH:2]- Requires (Buttons) shows linkable requirements such as techs, civics, buildings, units, religions, corporations, terrains, features, improvements, bonuses, and prerequisite event triggers.[PARAGRAPH:2]- Requires (Text) shows numeric, flag, route, target-selection, and Python-gate constraints that have no clear pedia button target.[PARAGRAPH:2]Numbered labels (numTxt) under buttons:[PARAGRAPH:2]- Oth.P. : other player has this tech. Pairs with the OtherPlayerHasTech field. This tech does not need to be researched by the trigger's player - someone else in the game must have it. The label appears because the icon art is identical to a self-prereq tech icon and would otherwise be ambiguous.[PARAGRAPH:2]- OR : appears between adjacent buttons in a Requires OR-prereq group of two or more techs, between same-field plot alternatives such as terrain/feature/improvement/bonus options, or between adjacent Obsolete with techs when multiple techs can obsolete the trigger. Means any single one satisfies that group; for Obsolete with, any single one blocks the trigger.[PARAGRAPH:2]- No connector between adjacent buttons means AND: all shown requirements apply. AND is left implicit because writing "and" between every required icon makes dense panels harder to scan.</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 2b5dcf699..aba97c8b7 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3787,8 +3787,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Summary</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY</Tag>
+-		<English>Probability</English>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT</Tag>
++		<English>iWeight</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES</Tag>
+@@ -3971,12 +3971,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Requires units on plot</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY</Tag>
+-		<English>Probability multiplied by unit count</English>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_UNIT_MULTIPLY</Tag>
++		<English>iWeight multiplied by unit count</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY</Tag>
+-		<English>Probability multiplied by building count</English>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_BUILDING_MULTIPLY</Tag>
++		<English>iWeight multiplied by building count</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS</Tag>
+
+diff --git a/README.md b/README.md
+index 7ccf54959..b2fda709a 100644
+--- a/README.md
++++ b/README.md
+@@ -447,6 +447,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.850_sevopedia_shortcuts (1).JPG" alt="0.850_sevopedia_shortcuts (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG" alt="0.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
+ 
+ #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3a7fea9fc..9851df3e9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -52,11 +52,12 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
+ &emsp;[Civics](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civics)  
+ &emsp;[Technologies](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#eras)  
+-&emsp;[Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#events)  
+ &emsp;[Culture](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#culture)  
+ &emsp;[Religions](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#religions)  
+ &emsp;[Corporations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#corporations)  
+ &emsp;[Votes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)  
++&emsp;[Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#events)  
++&emsp;[Event Triggers and Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)  
+ &emsp;[Civilizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilizations)  
+ &emsp;[Leaders](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders)  
+ &emsp;[Barbarians](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians)  
+@@ -328,7 +329,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5510+) Sevopedia — Corporations: **reworked** and **beautified** the page layout, with **new Competes With, Bonuses Consumed, Bonuses Generated, and Movie** panels. Exposed `getBonusProduced` to Python in [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), and [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp) so the new generated-bonus panel is cleanly supported. See [Sevopedia reworks (Corporations)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category).
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context.
+ - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. See [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+-- (Requires AdvCiv-SAS 5692+) Added a new **Votes category** featuring **exhaustive XML info** about `VoteSourceInfos` (e.g., Apostolic Palace, UN) and `VoteInfo` (e.g., a resolution/vote). Votes are **grouped by vote source**, **abriged** in item bar when necessary. Example of panels include notably Source Civic, Source Free Specialist, Vote's Requirements, Effects, Force Civics. Also added if relevant corresponding Vote Source and Vote panels or blurbs in Sevopedia Civics and Specialists. Moved Vote XML **read time** from to `CvXMLLoadUtility::LoadPostMenuGlobals` to `CvXMLLoadUtility::LoadPreMenuGlobals` (else sevopedia votes would be empty until a game is started). Added **"Legend"** text similarly. See also [KI#121](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array) and [Sevopedia reworks (Votes category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos).
++- (Requires AdvCiv-SAS 5692+) New **Votes category** featuring **exhaustive XML info** about `VoteSourceInfos` (e.g., Apostolic Palace, UN) and `VoteInfo` (e.g., a resolution/vote). Votes are **grouped by vote source**, **abriged** in item bar when necessary. Example of panels include notably Source Civic, Source Free Specialist, Vote's Requirements, Effects, Force Civics. Also added if relevant corresponding Vote Source and Vote panels or blurbs in Sevopedia Civics and Specialists. Added **"Legend"** text similarly. See also [KI#121](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array) and [Sevopedia reworks (Votes category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos).
++- (Requires AdvCiv-SAS 5705+) New **Event Triggers category** featuring **exhaustive XML info** about `CvEventTriggerInfo` (e.g., "Careless Apprentice") and `CvEventInfo` (e.g., event 1: "Organize a rebuilding effort; event 2: "Investigate the cause of the fire"; event 3: "We are too pressed to spare any attention to a small fire") and their detailed effects, with a **"Legend"** similarly. The implementation notably has repeated text prevention (e.g., use "x2", "x3" when bullets are the same), sevopedia links to other assets' pages (like traits in sevopedia leader), and **direct and indirect era groupings** (depending on whether the eventtrigger depends on tech's and/or prereqs directly or on related assets' related own conditions; see sevopedia legend).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Units: (Requires AdvCiv-SAS 5672+) Notably prepend **unique names** before the **pedia text** in the History (i.e. the "Background") panel; e.g., "Albert Einstein", "Plato" for the Great Scientist unit; "Sargon", "Sun Tzu" for the Great General unit. See also [Sevopedia reworks (Unit List)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category).
+@@ -506,10 +508,6 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Eras — culture scaling flattened**: set `iCulturePercent` from **100/100/80/70/60/50/50 → 100** at **all eras**. Removes late-era culture acceleration so culture growth stays **consistent** and driven by **commerce/buildings**, not hidden era multipliers. In **AdvCiv-SAS**, if we ever want modern (or ancient) culture to weigh differently, we prefer adjusting the **explicit culture values on buildings/units** rather than reintroducing era-wide modifiers.
+ - Add **new XML field** `<Button>` for eras, to cleanly display them in Sevopedia and ingame without having to hardcode the path. Change in [CIV4GameInfoSchema.xml](/Assets/XML/GameInfo/CIV4GameInfoSchema.xml), [CIV4EraInfos.xml](/Assets/XML/GameInfo/CIV4EraInfos.xml), [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py). See [README: Button for eras](/README.md#button-for-eras).
+ 
+-## Events
+-
+-- The standard new game mode (**Simple Game**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+-
+ ## Culture
+ 
+ - **Great Artist rebalance:** culture bomb strength reduced (**700 → 500 per era**), but long-term culture output increased (**12 → 18 culture/turn**). This strengthens long-term culture play while toning down early spikes.
+@@ -530,6 +528,13 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ## Votes
+ 
+ - (Requires AdvCiv-SAS 5695+) Add `<Civilopedia>` field to the [CIV4GameInfoSchema.xml](/Assets/XML/GameInfo/CIV4GameInfoSchema.xml) and populate them in [CIV4VoteInfo.xml](/Assets/XML/GameInfo/CIV4VoteInfo.xml) so votes show **text** in the new **Sevopedia Votes** (from existing Civ4 text in the "Outdated" sevopedia category (`ConceptInfos`)).
++- (Requires AdvCiv-SAS 5692+) Moved Vote XML **read time** from to `CvXMLLoadUtility::LoadPostMenuGlobals` to `CvXMLLoadUtility::LoadPreMenuGlobals` (else sevopedia votes would be empty until a game is started).
++
++## Event Triggers and Events
++
++- The standard new game mode (**Simple Game**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a strong gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
++- (Requires AdvCiv-SAS 5705+) Expose `CvEventTriggerInfo` and `CvEventInfo` **python getters** (done so SevoPedia Event Triggers can show them), and fix 3 incorrect ones (see [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)).
++- (Requires AdvCiv-SAS 5705+) Moved Vote XML **read time** from to `CvXMLLoadUtility::LoadOptionalGlobals` to `CvXMLLoadUtility::LoadPreMenuGlobals` (similarly to votes else SevoPedia Event Triggers cannot would be empty).
+ 
+ ## Civilizations
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index c44c6811f..d1b8d80a3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -19,6 +19,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
+ &emsp;&emsp;[example 0.41 Votes category (VoteInfo and VoteSourceInfos)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos)  
++&emsp;&emsp;[example 0.42 EventTriggers category (EventTriggerInfo and EventInfo cards)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-042-eventtriggers-category-eventtriggerinfo-and-eventinfo-cards)  
+ &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+ &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
+@@ -154,6 +155,16 @@ It features both VoteInfo and VoteSourceInfos. See [Main Changes Guide](/README.
+ <img src="../Images/sevopedia/0.860_sevopedia_votes (2).JPG" alt="0.860_sevopedia_votes (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
+ 
++#### example 0.42 EventTriggers category (EventTriggerInfo and EventInfo cards)
++
++We also added a new EventTriggers category showing Event triggers and their event cards with the very nice help of Claude code Opus 4.7, "GPT-5.4?" (hard to use but was a bit helpful after some careful and long steering), and GPT-5.5 thanks a lot.
++
++See main implementation points at the [Main Changes Guide](/README.md#main-changes-guide).
++
++<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG" alt="0.870_sevopedia_eventtriggers (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG" alt="0.870_sevopedia_eventtriggers (2).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG" alt="0.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
++
+ #### example 0.5: Handicap Chart category
+ 
+ New Sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG
+new file mode 100644
+index 000000000..52e700e1d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG
+new file mode 100644
+index 000000000..61f0875d2
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG
+new file mode 100644
+index 000000000..a90bedf91
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=27914

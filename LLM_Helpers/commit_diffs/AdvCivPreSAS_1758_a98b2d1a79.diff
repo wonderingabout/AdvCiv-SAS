@@ -1,0 +1,175 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1758
+# Commit: a98b2d1a798a034b03a0b366aecf4b86353173db
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 624423f46fca9b0e316d2bbfe5822414a1fde000
+# Title: Manual updated (still not fully up to date)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+1	1	CvGameCoreDLL/CvPlot.cpp
+2	2	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/CvPlotGroup.h
+2	2	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/EnumMap.h
+4	4	CvGameCoreDLL/LinkedList.h
+-	-	manual.odt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+index cda5976e3..e546d358e 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+@@ -62,11 +62,11 @@ public:
+ 	virtual int getSymbolID(int iSymbol) = 0;
+ 	virtual CLLNode<IDInfo>* deleteSelectionListNode(CLLNode<IDInfo>* pNode) = 0;
+ 	virtual CLLNode<IDInfo>* nextSelectionListNode(CLLNode<IDInfo>* pNode) = 0;
+-	// <advc> Work around for missing const qualifiers
++	// <advc.003s> Work around for missing const qualifiers
+ 	inline CLLNode<IDInfo> const* nextSelectionListNode(CLLNode<IDInfo> const* pNode) const
+ 	{
+ 		return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectionListNode(const_cast<CLLNode<IDInfo>*>(pNode));
+-	} // </advc>
++	} // </advc.003s>
+ 	virtual int getLengthSelectionList() = 0;
+ 	virtual CLLNode<IDInfo>* headSelectionListNode() = 0;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index caf685e46..4ee1da427 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7215,7 +7215,7 @@ void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
+ 			m_units.deleteNode(pUnitNode);
+ 			break;
+ 		}
+-		else pUnitNode = nextUnitNode(pUnitNode);
++		pUnitNode = nextUnitNode(pUnitNode);
+ 	}
+ 
+ 	if (bUpdate)
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index ce0e477ba..3e03af2ea 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -553,7 +553,7 @@ public:
+ 	{
+ 		return m_units.prev(pNode);
+ 	}
+-	// <advc> Safer in 'for' loops
++	// <advc.003s> Safer in 'for' loops
+ 	inline CLLNode<IDInfo> const* nextUnitNode(CLLNode<IDInfo> const* pNode) const
+ 	{
+ 		return m_units.next(pNode);
+@@ -561,7 +561,7 @@ public:
+ 	inline CLLNode<IDInfo> const* prevUnitNode(CLLNode<IDInfo> const* pNode) const
+ 	{
+ 		return m_units.prev(pNode);
+-	} // </advc>
++	} // </advc.003s>
+ 	DllExport CLLNode<IDInfo>* headUnitNode() const;
+ 	CLLNode<IDInfo>* tailUnitNode() const;
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.h b/CvGameCoreDLL/CvPlotGroup.h
+index 63c6d30b0..738ee05ab 100644
+--- a/CvGameCoreDLL/CvPlotGroup.h
++++ b/CvGameCoreDLL/CvPlotGroup.h
+@@ -43,11 +43,11 @@ public:
+ 	inline CLLNode<XYCoords>* nextPlotsNode(CLLNode<XYCoords>* pNode)
+ 	{
+ 		return m_plots.next(pNode);
+-	} // <advc> Safer in 'for' loops
++	} // <advc.003s> Safer in 'for' loops
+ 	inline CLLNode<XYCoords> const* nextPlotsNode(CLLNode<XYCoords> const* pNode)
+ 	{
+ 		return m_plots.next(pNode);
+-	} // </advc>
++	} // </advc.003s>
+ 	int getLengthPlots();
+ 	CLLNode<XYCoords>* headPlotsNode();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index f07157f9a..5ec60cabe 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -196,11 +196,11 @@ public:
+ 	DllExport inline CLLNode<IDInfo>* nextUnitNode(CLLNode<IDInfo>* pNode) const
+ 	{
+ 		return m_units.next(pNode); // advc.003f: inline
+-	} // <advc> Safer in 'for' loops
++	} // <advc.003s> Safer in 'for' loops
+ 	inline CLLNode<IDInfo> const* nextUnitNode(CLLNode<IDInfo> const* pNode) const
+ 	{
+ 		return m_units.next(pNode);
+-	} // </advc>
++	} // </advc.003s>
+ 	DllExport int getNumUnits() const;																												// Exposed to Python
+ 	DllExport int getUnitIndex(CvUnit* pUnit, int maxIndex = -1) const;
+ 	DllExport inline CLLNode<IDInfo>* headUnitNode() const { return m_units.head(); } // advc.003f: inline
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 7c1700dcb..564d47bf2 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -643,7 +643,7 @@ SET_XML_ENUM_SIZE(AreaAI, AREAAI)
+ 
+ /*  2 being the default apparently does not mean that these can be omitted
+ 	(Tbd.: There should be some way to get rid of SET_XML_ENUM_SIZE2.) */
+-#define SET_XML_ENUM_SIZE2(Name, DUmmy) \
++#define SET_XML_ENUM_SIZE2(Name, Dummy) \
+ 	template <> struct EnumMapGetDefault<Name##Types> \
+ 	{ \
+ 		enum { value = -1, SIZE = 2, SIZE_OF_T = SIZE }; \
+
+diff --git a/CvGameCoreDLL/LinkedList.h b/CvGameCoreDLL/LinkedList.h
+index 3e9249091..1f8dd161d 100644
+--- a/CvGameCoreDLL/LinkedList.h
++++ b/CvGameCoreDLL/LinkedList.h
+@@ -8,12 +8,12 @@
+ #define		LINKEDLIST_H
+ #pragma		once
+ 
+-/*  <advc> Only use this when it's obvious that the body of the loop won't delete
++/*  <advc.003s> Only use this when it's obvious that the body of the loop won't delete
+ 	a node through some side-effect. */
+ // Not yet sure about this. The list objects are often wrapped and thus inaccessible.
+ /*#define FOR_EACH_NODE(Type, list, pName) \
+ 	for (CLLNode<Type> const* pName = list.head(); pName != NULL; pName = list.next(pName))*/
+-// </advc>
++// </advc.003s>
+ 
+ template <class tVARTYPE> class CLinkList;
+ 
+@@ -385,7 +385,7 @@ inline CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::prev(CLLNode<tVARTYPE>* pNode) co
+ 	return pNode->m_pPrev;
+ }
+ 
+-// <advc>
++// <advc.003s>
+ // Safer in 'for' loops (those mustn't remove nodes)
+ template <class tVARTYPE>
+ inline CLLNode<tVARTYPE> const* CLinkList<tVARTYPE>::next(CLLNode<tVARTYPE> const* pNode) const
+@@ -413,7 +413,7 @@ inline CLLNode<tVARTYPE> const* CLinkList<tVARTYPE>::static_next(CLLNode<tVARTYP
+ {
+ 	return pNode->m_pNext;
+ }
+-// </advc>
++// </advc.003s>
+ 
+ template <class tVARTYPE>
+ inline CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::nodeNum(int iNum) const
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=5301

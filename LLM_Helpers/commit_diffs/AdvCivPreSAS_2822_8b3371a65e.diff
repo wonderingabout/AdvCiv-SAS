@@ -1,0 +1,210 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2822
+# Commit: 8b3371a65e89457a745d66e7bc1e226e1759ebbe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 759a01fbe87394875dbfcd7969f1534de5ce74cb
+# Title: Stricter conditions for AI opening borders for naval trade
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+33	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+54	7	CvGameCoreDLL/CvTeamAI.cpp
+2	1	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 31ee4c248..d3dc6376d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -27700,7 +27700,7 @@ UnitTypes CvPlayerAI::AI_getBestAttackUnit() const
+ 	return eBestUnit;
+ }
+ 
+-// <advc.033> Are we willing to attack/pillage them with hidden-nationality units
++// advc.033: Are we willing to attack/pillage them with hidden-nationality units
+ bool CvPlayerAI::AI_isPiracyTarget(PlayerTypes eTarget) const
+ {
+ 	if(eTarget == NO_PLAYER)
+@@ -27725,7 +27725,38 @@ bool CvPlayerAI::AI_isPiracyTarget(PlayerTypes eTarget) const
+ 	}
+ 	return (AI_getAttitude(eTarget) <= GC.getInfo(getPersonalityType()).
+ 			getDeclareWarThemRefuseAttitudeThreshold());
+-} // </advc.033>
++}
++
++// advc.124:
++bool CvPlayerAI::AI_isUnitNeedingOpenBorders(TeamTypes eTarget) const
++{
++	PROFILE_FUNC(); // advc.test: To be profiled
++	FOR_EACH_GROUP(pGroup, *this)
++	{
++		CvPlot const* pPlot = pGroup->plot();
++		if (pPlot == NULL || !pPlot->isRevealed(getTeam()))
++			continue;
++		/*	Unlikely to be adjacent to foreign border, or at least
++			unlikely to be of interest to caller. Save time. */
++		if (pPlot->isCity() && pPlot->getOwner() == getID())
++			continue;
++		FOR_EACH_ADJ_PLOT(*pPlot)
++		{
++			if (pAdj->getTeam() == eTarget &&
++				/*	Even if a ship doesn't currently have cargo, assume that it'll
++					be able to unload onto foreign land eventually. */
++				(!pAdj->isWater() || pGroup->getHeadUnit()->getDomainType() == DOMAIN_SEA))
++			{
++				FOR_EACH_UNIT_IN(pUnit, *pGroup)
++				{
++					if (!pUnit->isRivalTerritory() && !pUnit->isAlwaysHostile())
++						return true;
++				}
++			}
++		}
++	}
++	return false;
++}
+ 
+ // <advc.130h> <advc.130r>
+ bool CvPlayerAI::AI_atWarWithPartner(TeamTypes eOtherTeam, bool bCheckPartnerAttacked) const
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 26deaa582..8995d72a3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -668,6 +668,7 @@ public:
+ 	bool AI_disapprovesOfDoW(TeamTypes eAggressor, TeamTypes eVictim) const;
+ 	bool AI_isDangerFromSubmarines() const; // advc.651
+ 	bool AI_isPiracyTarget(PlayerTypes eTarget) const; // advc.033
++	bool AI_isUnitNeedingOpenBorders(TeamTypes eTarget) const; // advc.124
+ 	/* Are there cities with sufficient production to
+ 	   train a significant number of units of type eUnit? */
+ 	bool AI_canBeExpectedToTrain(UnitTypes eUnit) const; // advc.104, advc.651
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0e571cb12..e80cdd276 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1,5 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvTeamAI.h"
++#include "CvPlayerAI.h"
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "TeamPathFinder.h"
+@@ -3893,14 +3894,19 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eWithTeam) const
+ 			return DENIAL_ATTITUDE;
+ 		if (iOurAttitude > iAttitudeThresh + 1)
+ 			continue;
+-		{
++		{	/*	Attitude not where it needs to be, and no shared war
++				(with accessible territory) either to make up for it. */
+ 			if (iOurAttitude == iAttitudeThresh &&
+-				(!AI_shareWar(eWithTeam) || !isAnyLandRevealed(eWithTeam)))
++				(!AI_shareWar(eWithTeam) || !AI_isTerritoryAccessible(eWithTeam)))
+ 			{
+ 				return DENIAL_ATTITUDE;
+ 			}
+-			if (iOurAttitude == iAttitudeThresh + 1 && !isAnyLandRevealed(eWithTeam))
++			// Attitude just where it needs to be, but no territorial access.
++			if (iOurAttitude == iAttitudeThresh + 1 &&
++				!AI_isTerritoryAccessible(eWithTeam))
++			{
+ 				return DENIAL_NO_GAIN;
++			}
+ 		} // </advc.124>
+ 	}
+ 
+@@ -3908,22 +3914,63 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eWithTeam) const
+ }
+ 
+ // advc.124:
+-bool CvTeamAI::isAnyLandRevealed(TeamTypes eOwner) const
++bool CvTeamAI::AI_isTerritoryAccessible(TeamTypes eOwner) const
+ {
++	PROFILE_FUNC(); // advc.test: To be profiled
++	bool bLandFound = false;
+ 	// Check cities first in order to save time
+-	for (MemberIter it(eOwner); it.hasNext(); ++it)
++	for (MemberIter itOwnerMember(eOwner); itOwnerMember.hasNext(); ++itOwnerMember)
+ 	{
+-		FOR_EACH_CITY(pCity, *it)
++		FOR_EACH_CITY(pCity, *itOwnerMember)
+ 		{
+ 			if (pCity->isRevealed(getID()))
+-				return true;
++			{
++				bLandFound = true;
++				if (AI_isTerritoryAccessible(pCity->getPlot()))
++					return true;
++			}
+ 		}
+ 	}
+ 	for (int i = 0; i < GC.getMap().numPlots(); i++)
+ 	{
+ 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(i);
+ 		if (kPlot.getTeam() == eOwner && kPlot.isRevealed(getID()) && !kPlot.isWater())
++		{
++			bLandFound = true;
++			if (AI_isTerritoryAccessible(kPlot))
++				return true;
++		}
++	}
++	if (bLandFound)
++	{
++		/*	No trade connection. With the BtS unit roster, that already implies that
++			units can't reach foreign shores, but let's not rely on that. */
++		for (MemberIter itOurMember(getID()); itOurMember.hasNext(); ++itOurMember)
++		{
++			if (itOurMember->AI_isUnitNeedingOpenBorders(eOwner))
++				return true;
++		}
++	}
++	return false;
++}
++
++// advc.124: Helper function for the above
++bool CvTeamAI::AI_isTerritoryAccessible(CvPlot const& kPlot) const
++{
++	FAssert(kPlot.isOwned() && kPlot.getTeam() != getID());
++	/*	If it's in another area, then we need to be able
++		to trade across water. */
++	for (MemberIter itOurMember(getID()); itOurMember.hasNext(); ++itOurMember)
++	{
++		PlayerTypes const eOurMember = itOurMember->getID();
++		if (kPlot.getArea().getCitiesPerPlayer(eOurMember) > 0)
+ 			return true;
++		if (itOurMember->getCapital() != NULL &&
++			kPlot.getPlotGroup(eOurMember) ==
++			itOurMember->getCapital()->getPlot().getPlotGroup(eOurMember))
++		{
++			return true;
++		}
+ 	}
+ 	return false;
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 4844fc547..1ecf7593c 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -354,7 +354,8 @@ protected:
+ 	int AI_declareWarTradeValLegacy(TeamTypes eWarTeam, TeamTypes eTeam) const;
+ 	int AI_getOpenBordersAttitudeDivisor() const; // advc.130i
+ 	scaled AI_getOpenBordersCounterIncrement(TeamTypes eOther) const; // advc.130z
+-	bool isAnyLandRevealed(TeamTypes eOwner) const; // advc.124
++	bool AI_isTerritoryAccessible(TeamTypes eOwner) const; // advc.124
++	bool AI_isTerritoryAccessible(CvPlot const& kPlot) const; // advc.124
+ 	bool AI_isPursuingCircumnavigation() const; // advc.136a
+ 	TeamTypes AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const; // advc.115b
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6449

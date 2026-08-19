@@ -1,0 +1,241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2593
+# Commit: 39632d489d14952b1d8423ff0a106322a3858c30
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 75f37df86dfd56d498d2bfab1df3b64af9a554f4
+# Title: Misc. cleanup, comments
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvMap.h
+20	27	CvGameCoreDLL/CvPlot.cpp
+4	1	CvGameCoreDLL/CvUnit.cpp
+5	0	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/GroupPathFinder.cpp
+14	9	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 8604c4d3e..66505093e 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -18,8 +18,8 @@ class CvSelectionGroup;
+ 
+ struct CvMapInitData // holds initialization info
+ {
+-	int m_iGridW; // in game plots
+-	int m_iGridH; // in game plots
++	int m_iGridW; // in-game plots
++	int m_iGridH; // in-game plots
+ 	int m_iTopLatitude;
+ 	int m_iBottomLatitude;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e7d60195d..4c5684bf2 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2259,7 +2259,8 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 	return iModifier;
+ }
+ 
+-
++/*	advc (note): The calculations performed by this function need to be
++	consistent with KmodPathFinder and other pathfinding code. */
+ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	bool bAssumeRevealed) const // advc.001i
+ {
+@@ -2369,14 +2370,11 @@ void CvPlot::changeExtraMovePathCost(int iChange)
+ 
+ bool CvPlot::isAdjacentOwned() const
+ {
+-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
++	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+-		if (pAdjacentPlot != NULL)
+-		{
+-			if (pAdjacentPlot->isOwned())
+-				return true;
+-		}
++		CvPlot const* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if (pAdj != NULL && pAdj->isOwned())
++			return true;
+ 	}
+ 	return false;
+ }
+@@ -2384,38 +2382,34 @@ bool CvPlot::isAdjacentOwned() const
+ 
+ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
+ {
+-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
++	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+-		if (pAdjacentPlot != NULL)
++		CvPlot const* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if (pAdj == NULL)
++			continue;
++		if (pAdj->getOwner() == ePlayer)
+ 		{
+-			if (pAdjacentPlot->getOwner() == ePlayer)
+-			{
+-				if (!bLandOnly || !(pAdjacentPlot->isWater()))
+-					return true;
+-			}
++			if (!bLandOnly || !(pAdj->isWater()))
++				return true;
+ 		}
+ 	}
+-
+ 	return false;
+ }
+ 
+ 
+ bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
+ {
+-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
++	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+-		if (pAdjacentPlot != NULL)
++		CvPlot const* pAdj = plotDirection(getX(), getY(), eLoopDirection);
++		if (pAdj == NULL)
++			continue;
++		if (pAdj->getTeam() == eTeam)
+ 		{
+-			if (pAdjacentPlot->getTeam() == eTeam)
+-			{
+-				if (!bLandOnly || !(pAdjacentPlot->isWater()))
+-					return true;
+-			}
++			if (!bLandOnly || !pAdj->isWater())
++				return true;
+ 		}
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -2427,7 +2421,6 @@ bool CvPlot::isWithinCultureRange(PlayerTypes ePlayer) const
+ 		if (isCultureRangeCity(ePlayer, eLoopCultureLevel))
+ 			return true;
+ 	}
+-
+ 	return false;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d9d1d307b..888576445 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2282,7 +2282,10 @@ bool CvUnit::willRevealAnyPlotFrom(CvPlot const& kFrom) const
+ /*  K-Mod. I've rearranged a few things to make the function slightly faster,
+ 	and added "bAssumeVisible" which signals that we should check for units on
+ 	the plot regardless of whether we can actually see. */
+-bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible, // advc: 1st param was a pointer
++/*	advc (note): The rules applied by this function need to be consistent with
++	KmodPathFinder and other pathfinding code. */
++bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar,
++	bool bIgnoreLoad, bool bAssumeVisible,
+ 	bool bDangerCheck) const // advc.001k
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index addc7e853..eea7d5248 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15618,6 +15618,11 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 								}
+ 							}
+ 						}
++						/*	advc.test: This is the only result of the loop above.
++							BtS had disregarded pLoopPlot if !bCanCargoAllUnload.
++							This has gotten lost in BBAI, perhaps for the better.
++							But perhaps we should reduce iValue? */
++						FAssert(bCanCargoAllUnload);
+ 
+ 						int iValue = (iAssaultsHere * 5);
+ 						iValue += iTargetCities * 10;
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index eca40d38f..7285e8d4c 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -723,7 +723,7 @@ bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
+ 	}
+ 	return false;
+ }
+-class FAStarNode; // explicit instantiation
++// explicit instantiation:
+ template bool GroupStepMetric::updatePathData<FAStarNode>(FAStarNode&, FAStarNode const&,
+ 		CvSelectionGroup const&, MovementFlags);
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 2bc9d96cb..fb527eec8 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -98,7 +98,8 @@ public:
+ 		It's up to updatePathData to compute the length and to store it
+ 		at the given node. */
+ 	inline int getMaxPath() const { return m_iMaxPath; }
+-	// Derived classes should probably not change this
++	/*	If this function is replaced, then initializePathData should be replaced
++		as well. */
+ 	inline int initialPathLength() const { return 1; }
+ protected:
+ 	/*	Derived classes have to have a 0-argument constructor that will get called
+@@ -182,8 +183,9 @@ public:
+ 		return true;
+ 	}
+ 	/*	Called on the start node before generating a path.
+-		Derived classes that shadow this function should still call this function;
+-		i.e. they should leave the initialization of path length to this class. */
++		Note that the initialPathLength call is not polymorphic,
++		so derived classes that wish to change the initial path length will
++		have to replace both initialPathLength and initializePathData. */
+ 	inline void initializePathData(Node& kNode) const
+ 	{
+ 		kNode.setPathLength(initialPathLength());
+@@ -320,13 +322,8 @@ public:
+ 	void resetNodes();
+ 	bool generatePath(CvPlot const& kStart, CvPlot const& kDest);
+ 	bool isPathComplete() const { return (m_pEndNode != NULL); }
+-	int getPathLength() const // advc: Was "getPathTurns"; too specific.
++	inline int getPathLength() const // advc: Was "getPathTurns"; too specific.
+ 	{
+-		if (m_pEndNode == NULL)
+-		{
+-			FAssert(m_pEndNode != NULL);
+-			return 0;
+-		}
+ 		return m_pEndNode->getPathLength();
+ 	}
+ 	CvPlot& getPathFirstPlot() const;
+@@ -475,6 +472,14 @@ bool KmodPathFinder<StepMetric,Node>::generatePath(
+ template<class StepMetric, class Node>
+ void KmodPathFinder<StepMetric,Node>::resetNodes()
+ {
++	/*	advc (note): The node data isn't stored in savegames. Save & reload
++		will thus cause the nodes to be reset. Therefore, it's desirable to
++		ensure that the node data kept (cached) after a generatePath call
++		does not affect the result of subsequent generatePath calls.
++		I don't know if this is currently ensured, or if, instead, it's
++		ensured that saving is not possible in between subsequent
++		non-resetting generatePath calls. */
++
+ 	//memset(&node_data[0] 0, sizeof(*node_data) * map_width * map_height); // K-Mod
+ 	if (m_pNodeMap != NULL)
+ 		m_pNodeMap->reset();
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7516

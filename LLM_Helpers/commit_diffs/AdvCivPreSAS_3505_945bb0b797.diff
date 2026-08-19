@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3505
+# Commit: 945bb0b7974a1ac1d305726e35b77bbf12f18489
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f2d00adb5d8cba3d2d5bf6b38f25712deec3d392
+# Title: A couple of minor tweaks to food priority in AI cities
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	5	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2b8f7b594..db9d02d1a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10226,10 +10226,19 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 				/*	don't worry about minimum production if there is any hurry type
+ 					available for us. If we need the productivity, we can just buy it. */
+ 				bool bAnyHurry = false;
+-				for (HurryTypes i = (HurryTypes)0; !bAnyHurry && i < GC.getNumHurryInfos(); i=(HurryTypes)(i+1))
+-					bAnyHurry = kOwner.canHurry(i);
+-
+-				if (!bAnyHurry && foodDifference(false)-(bRemove ? iFoodYield : 0) >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
++				/*	advc.121: I don't think a human will want to hurry production
++					when setting a city to "emphasize production" */
++				if (!isHuman())
++				{
++					for (HurryTypes i = (HurryTypes)0;
++						!bAnyHurry && i < GC.getNumHurryInfos(); i=(HurryTypes)(i+1))
++					{
++						bAnyHurry = kOwner.canHurry(i);
++					}
++				}
++				if (!bAnyHurry &&
++					foodDifference(false) - (bRemove ? iFoodYield : 0) >=
++					GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 				{
+ 					/*if (getYieldRate(YIELD_PRODUCTION) - (bRemove ? iProductionTimes100/100 : 0)  < 1 + getPopulation()/3)
+ 						iValue += 60 + iBaseProductionValue * iProductionTimes100 / 100;*/
+@@ -11180,7 +11189,9 @@ int CvCityAI::AI_growthValuePerFood() const
+ 	std::partial_sort(unworked_jobs.begin(), unworked_jobs.begin() + 3,
+ 			unworked_jobs.end(), std::greater<int>());
+ 	return (unworked_jobs[0]*4 + unworked_jobs[1]*2 + unworked_jobs[2]*1) /
+-			(700 * iConsumtionPerPop);
++			/*	advc.121: Coefficient was 700. I think that prioritized growth
++				too much. */
++			(800 * iConsumtionPerPop);
+ 	// </k146>
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1781

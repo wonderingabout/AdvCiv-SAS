@@ -1,0 +1,1567 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4878
+# Commit: 632293eb54bf832cf683c84e973186b3c837fe6e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 67a01372c8d090ceadac390454f052211cd569aa
+# Title: rename asset names, import new art (mostly buttons but some nif) from ri mod (in particular the now renamed scandinavia_viking unit with epic pedia entry i f...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageshield1andsword.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageswordsman.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal1.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal2.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_1.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_2.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_1.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_2.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_3.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds
+1	1	Assets/Python/Contrib/RandomNameUtils.py
+1	1	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	1	Assets/XML/Art/CIV4ArtDefines_Civilization.xml
+116	110	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+4	4	Assets/XML/Audio/Audio3DScripts.xml
+7	7	Assets/XML/Audio/AudioDefines.xml
+1	1	Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+6	6	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Buildings/CIV4CityLSystem.xml
+18	12	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/GameInfo/CIV4EraInfos.xml
+45	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+0	27	Assets/XML/Text/CIV4GameText_advc.xml
+5	29	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+41	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+3	3	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+2	2	Assets/XML/TrueStarts/CIV4TruCivInfos.xml
+53	53	Assets/XML/Units/CIV4UnitInfos.xml
+1	0	README.md
+1	1	Settings/CustomDomAdv/CustomDomAdv.txt
+1	1	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+1	1	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+1	1	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+10	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageshield1andsword.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageswordsman.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal1.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal2.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_1.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_2.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_1.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_2.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_3.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds b/Assets/Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds
+new file mode 100644
+index 000000000..f8861e1ae
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds b/Assets/Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds
+new file mode 100644
+index 000000000..c7730bd78
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds b/Assets/Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds
+new file mode 100644
+index 000000000..b25c63a76
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds b/Assets/Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds
+new file mode 100644
+index 000000000..e7a08b26c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageshield1andsword.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageshield1andsword.dds
+new file mode 100644
+index 000000000..f3901573c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageshield1andsword.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageswordsman.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageswordsman.dds
+new file mode 100644
+index 000000000..32b198dd1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/newglossforvikingageswordsman.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal.nif b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal.nif
+new file mode 100644
+index 000000000..5a2685908
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal1.nif b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal1.nif
+new file mode 100644
+index 000000000..6ebefb067
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal1.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal2.nif b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal2.nif
+new file mode 100644
+index 000000000..99c1f7fed
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingageswordsmanfinal2.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1.dds
+new file mode 100644
+index 000000000..3a6bc3da3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_1.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_1.dds
+new file mode 100644
+index 000000000..9567dbd0e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_1.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_2.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_2.dds
+new file mode 100644
+index 000000000..c650ec00e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingshield1_2.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128.dds
+new file mode 100644
+index 000000000..5f141bdf3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_1.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_1.dds
+new file mode 100644
+index 000000000..1e49dc6f1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_1.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_2.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_2.dds
+new file mode 100644
+index 000000000..adf72c275
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_2.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_3.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_3.dds
+new file mode 100644
+index 000000000..5f141bdf3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/vikingswordsman_128_3.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds
+new file mode 100644
+index 000000000..8d0a1f697
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds b/Assets/Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds
+new file mode 100644
+index 000000000..e1dc6e691
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds differ
+
+diff --git a/Assets/Python/Contrib/RandomNameUtils.py b/Assets/Python/Contrib/RandomNameUtils.py
+index 90c135cc7..9d355a2de 100644
+--- a/Assets/Python/Contrib/RandomNameUtils.py
++++ b/Assets/Python/Contrib/RandomNameUtils.py
+@@ -159,7 +159,7 @@ civilizationNameHash =	{
+ 								"MID" : (),
+ 								"END" : ()
+ 							},
+-							"CIVILIZATION_VIKING" :
++							"CIVILIZATION_SCANDINAVIA" :
+ 							{
+ 								"PRE" : ("A","Ab","c","Ad","Af","Agr","st","As","Al","Adw","Adr","Ar","r","h","ad","D","r","w","d","th","Et","Er","El","ow","F","r","r","w","wyd","l","l","a","b","er","ed","th","r","eg","r","d","l","c","n","r","h","ev","k","a","r","h","h","b","ic"),
+ 								"MID" : ("a","e","u","o","re","ale","li","ay","rdo","e","i","i","ra","la","li","nda","erra","i","e","ra","la","li","o","ra","go","i","e","re","y"),
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 40c62f4a8..7bd8fbae1 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -243,7 +243,7 @@
+ 			<Button>,Art/Interface/Buttons/Buildings/Lighthouse.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,4</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_VIKING_TRADING_POST</Type>
++			<Type>ART_DEF_BUILDING_SCANDINAVIA_TRADING_POST</Type>
+ 			<LSystem>LSYSTEM_COAST</LSystem>
+ 			<bAnimated>0</bAnimated>
+ 			<fScale>2.38</fScale>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Civilization.xml b/Assets/XML/Art/CIV4ArtDefines_Civilization.xml
+index 0bccc1d4d..15c57ce7a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Civilization.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Civilization.xml
+@@ -200,7 +200,7 @@
+ 			<bWhiteFlag>0</bWhiteFlag>
+ 		</CivilizationArtInfo>
+ 		<CivilizationArtInfo>
+-			<Type>ART_DEF_CIVILIZATION_VIKINGS</Type>
++			<Type>ART_DEF_CIVILIZATION_SCANDINAVIA</Type>
+ 			<Button>,Art/Interface/Buttons/Civilizations/Spain.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,1,1</Button>
+ 			<Path>Art/Interface/TeamColor/FlagDECAL_Viking.dds</Path>
+ 			<bWhiteFlag>0</bWhiteFlag>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index e367a5b1c..657aacb0f 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -667,9 +667,10 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc -->
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_ROME_PRAETORIAN</Type>
+-			<Button>,Art/Interface/Buttons/Units/Praetorian.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,6</Button>
++			<Type>ART_DEF_UNIT_ROMAN_LEGIONARY</Type>
++			<Button>Art/AdvCiv_SAS/Units/Roman_Legionary/swordsman_rome.dds</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+@@ -739,9 +740,10 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc -->
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_GREEK_PHALANX</Type>
+-			<Button>,Art/Interface/Buttons/Units/Spearman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,5</Button>
++			<Type>ART_DEF_UNIT_GREEK_HOPLITE</Type>
++			<Button>Art/AdvCiv_SAS/Units/Greek_Phalanx/nu_greece_spartan.dds</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+@@ -1055,6 +1057,30 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_OTTOMAN_JANISSARY</Type>
++			<Button>,Art/Interface/Buttons/Units/Musketman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,10</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Janissary/Janissary.nif</NIF>
++			<KFM>Art/Units/Janissary/Janissary.kfm</KFM>
++			<SHADERNIF>Art/Units/Janissary/Janissary_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.05</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_FRENCH_MUSKETEER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Musketeer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,2</Button>
+@@ -1524,6 +1550,30 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_CARTHAGE_NUMIDIAN_CAVALRY</Type>
++			<Button>,Art/Interface/Buttons/Units/HorseArcher.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,8</Button>
++			<fScale>0.42</fScale>
++			<fInterfaceScale>0.9</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Numidian_Cavalry/Numidian_Cavalry.nif</NIF>
++			<KFM>Art/Units/Numidian_Cavalry/Numidian_Cavalry.kfm</KFM>
++			<SHADERNIF>Art/Units/Numidian_Cavalry/Numidian_Cavalry_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
++				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MONGOL_KESHIK</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Keshik.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,2</Button>
+@@ -1573,6 +1623,56 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_WAR_ELEPHANT</Type>
++			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
++			<fInterfaceScale>0.6</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/WarElephant/WarElephant.nif</NIF>
++			<KFM>Art/Units/WarElephant/WarElephant.kfm</KFM>
++			<SHADERNIF>Art/Units/WarElephant/WarElephant_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/WarElephantShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.45</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_KHMER_BALLISTA_ELEPHANT</Type>
++			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,10</Button>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
++			<fInterfaceScale>0.6</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Unique_Khmer_ElephantBallista/Khmer_ElephantBallista.nif</NIF>
++			<KFM>Art/Units/Unique_Khmer_ElephantBallista/Khmer_ElephantBallista.kfm</KFM>
++			<SHADERNIF>Art/Units/Unique_Khmer_ElephantBallista/Khmer_ElephantBallista_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/WarElephantShadow.nif</ShadowNIF>
++				<ShadowAttachNode>ElephantBip Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.45</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_HORSE_KNIGHT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Knight.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,1</Button>
+@@ -1698,9 +1798,10 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc, as was in base advciv +/- civ4 anyways etc way too close to the unit_explorer's button, hoopefully much clearer now anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SPANISH_CONQUISTADOR</Type>
+-			<Button>,Art/Interface/Buttons/Units/Conquistador.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,6</Button>
++			<Button>Art/AdvCiv_SAS/Units/Spanish_Conquistador/nu_spain_conquistador.dds</Button>
+ 			<fScale>0.42</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+@@ -1822,56 +1923,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_WAR_ELEPHANT</Type>
+-			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<!-- advc.002j: was 0.32 -->
+-			<fScale>0.31</fScale>
+-			<fInterfaceScale>0.6</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/WarElephant/WarElephant.nif</NIF>
+-			<KFM>Art/Units/WarElephant/WarElephant.kfm</KFM>
+-			<SHADERNIF>Art/Units/WarElephant/WarElephant_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/WarElephantShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.45</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_KHMER_BALLISTA_ELEPHANT</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,10</Button>
+-			<!-- advc.002j: was 0.32 -->
+-			<fScale>0.31</fScale>
+-			<fInterfaceScale>0.6</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique_Khmer_ElephantBallista/Khmer_ElephantBallista.nif</NIF>
+-			<KFM>Art/Units/Unique_Khmer_ElephantBallista/Khmer_ElephantBallista.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique_Khmer_ElephantBallista/Khmer_ElephantBallista_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/WarElephantShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>ElephantBip Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.45</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_TANK</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Tank.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,11</Button>
+@@ -2363,9 +2414,10 @@
+ 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+ 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_PRIVATEER</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,11</Button>
++			<Button>Art/AdvCiv_SAS/Units/Privateer/privateer_light.dds</Button>
+ 			<!-- advc.002j: was 0.2 -->
+ 			<fScale>0.24</fScale>
+ 			<fInterfaceScale>0.5</fInterfaceScale>
+@@ -2640,9 +2692,10 @@
+ 			<SelectionSound>AS3D_UN_DESTROYER_FORT</SelectionSound>
+ 			<ActionSound>AS3D_UN_DESTROYER_FORT</ActionSound>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SUBMARINE</Type>
+-			<Button>,Art/Interface/Buttons/Units/Submarine.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,9</Button>
++			<Button>Art/AdvCiv_SAS/Units/Attack_Submarine/submarine.dds</Button>
+ 			<!-- advc.002j: was 0.55 -->
+ 			<fScale>0.62</fScale>
+ 			<fInterfaceScale>1.3</fInterfaceScale>
+@@ -3608,16 +3661,17 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: rename rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" ; and rename "_BESERKER" to "_VIKING ; art import of the button and nif from ri mod's anyways etc ART_DEF_UNIT_VIKING_BESERKER and ART_DEF_UNIT_LATE_SWORDSMAN_VIKING respectively if i may say but anyways etc anyways etc anyways etc, and adjusted or not for advciv-sas anyways etc -->
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_VIKING_BESERKER</Type>
+-			<Button>,Art/Interface/Buttons/Units/Maceman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,3,10</Button>
++			<Type>ART_DEF_UNIT_SCANDINAVIA_VIKING</Type>
++			<Button>Art/AdvCiv_SAS/Units/Scandinavia_Viking/nu_viking_berserker.dds</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Viking_Berserker/Berserker.nif</NIF>
+-			<KFM>Art/Units/Viking_Berserker/Berserker.kfm</KFM>
+-			<SHADERNIF>Art/Units/Viking_Berserker/Berserker_FX.nif</SHADERNIF>
++			<NIF>Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/VikingAgeSwordsmanfinal.nif</NIF>
++			<KFM>Art/Units/Unique_Sumeria_Vulture/Unique_Sumerian_Vulture.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Scandinavia_Viking/nif/VikingAgeSwordsmanfinal.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+@@ -3632,54 +3686,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_CARTHAGE_NUMIDIAN_CAVALRY</Type>
+-			<Button>,Art/Interface/Buttons/Units/HorseArcher.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,8</Button>
+-			<fScale>0.42</fScale>
+-			<fInterfaceScale>0.9</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Numidian_Cavalry/Numidian_Cavalry.nif</NIF>
+-			<KFM>Art/Units/Numidian_Cavalry/Numidian_Cavalry.kfm</KFM>
+-			<SHADERNIF>Art/Units/Numidian_Cavalry/Numidian_Cavalry_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_OTTOMAN_JANISSARY</Type>
+-			<Button>,Art/Interface/Buttons/Units/Musketman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,10</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Janissary/Janissary.nif</NIF>
+-			<KFM>Art/Units/Janissary/Janissary.kfm</KFM>
+-			<SHADERNIF>Art/Units/Janissary/Janissary_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.05</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_TRIREME</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Galley.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,8</Button>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index fd894d4bc..b9f600521 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -294,8 +294,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_SONG_VIKING</ScriptID>
+-		<SoundID>SONG_VIKING</SoundID>
++		<ScriptID>AS2D_SONG_SCANDINAVIA</ScriptID>
++		<SoundID>SONG_SCANDINAVIA</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>70</iMinVolume>
+ 		<iMaxVolume>70</iMaxVolume>
+@@ -16440,8 +16440,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_UNIT_BUILD_GREEK_PHALANX</ScriptID>
+-		<SoundID>SND_BUILD_GREEK_PHALANX</SoundID>
++		<ScriptID>AS2D_UNIT_BUILD_GREEK_HOPLITE</ScriptID>
++		<SoundID>SND_BUILD_GREEK_HOPLITE</SoundID>
+ 		<SoundType>GAME_SFX</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/Audio3DScripts.xml b/Assets/XML/Audio/Audio3DScripts.xml
+index 6ab94cdfd..6a0767967 100644
+--- a/Assets/XML/Audio/Audio3DScripts.xml
++++ b/Assets/XML/Audio/Audio3DScripts.xml
+@@ -22106,8 +22106,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script3DSound>
+ 	<Script3DSound>
+-		<ScriptID>AS3D_VIKING_SELECT</ScriptID>
+-		<SoundID>SND_VIKING_SELECT</SoundID>
++		<ScriptID>AS3D_SCANDINAVIA_SELECT</ScriptID>
++		<SoundID>SND_SCANDINAVIA_SELECT</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -22135,8 +22135,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script3DSound>
+ 	<Script3DSound>
+-		<ScriptID>AS3D_VIKING_ORDER</ScriptID>
+-		<SoundID>SND_VIKING_ORDER</SoundID>
++		<ScriptID>AS3D_SCANDINAVIA_ORDER</ScriptID>
++		<SoundID>SND_SCANDINAVIA_ORDER</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 5c17f94a8..149b0ea22 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -79,7 +79,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_VIKING</SoundID>
++			<SoundID>SONG_SCANDINAVIA</SoundID>
+ 			<Filename>Sounds/Soundtrack/Viking</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -1052,21 +1052,21 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_VIKINGS_SCENARIO</SoundID>
++			<SoundID>SONG_SCANDINAVIA_SCENARIO</SoundID>
+ 			<Filename>Sounds/Soundtrack/Scenarios/Viking</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_VIKINGS_SCENARIO_WIN</SoundID>
++			<SoundID>SONG_SCANDINAVIA_SCENARIO_WIN</SoundID>
+ 			<Filename>Sounds/Soundtrack/Scenarios/VikingVictory</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_VIKINGS_SCENARIO_LOSE</SoundID>
++			<SoundID>SONG_SCANDINAVIA_SCENARIO_LOSE</SoundID>
+ 			<Filename>Sounds/Soundtrack/Scenarios/VikingLoss</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -4580,7 +4580,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_BUILD_GREEK_PHALANX</SoundID>
++			<SoundID>SND_BUILD_GREEK_HOPLITE</SoundID>
+ 			<Filename>Sounds/Units/BuildGreekPhalanx</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8094,14 +8094,14 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_VIKING_SELECT</SoundID>
++			<SoundID>SND_SCANDINAVIA_SELECT</SoundID>
+ 			<Filename>Sounds/Units/VikingSelect</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_VIKING_ORDER</SoundID>
++			<SoundID>SND_SCANDINAVIA_ORDER</SoundID>
+ 			<Filename>Sounds/Units/VikingOrder</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml b/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+index 2e86552dd..6a6fafb57 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+@@ -78,7 +78,7 @@
+ 		Another particular case is the great general, there are great general specialists (when they join a city if i am not mistaken anyways etc), scientist(s) specialists, and great scientist specialists (when they join a city too if i am not mistaken, but anyways etc), but another exception or particular case is that when a great prophet joins the city it (update: now) becomes a great priest which is (update: not) so weird and inconsistent, but makes sense in terms of gameplay maybe as a prophet can't live thousands of turns (update: yes i think so especially now but anyways etc), but a great priest could be repolaced as in renewed by/in succession/successor, so maybe leaving as is even though a bit weird but anyways etc but maybe makes sense though anyways etc (but: no changing it actually, the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist anyways etc)...
+ 		
+ 		(note:
+-		even kmod code comment (or(/and anyways etc) a code comment mentionning kmod anyways etc) (seemingly) made the confusion (too)twice (if i am not mistaken maybe indeed or yes or not or yes or and other or and not anyways etc), but unitai_great_merchant seemingly did not exist before my/this/my anyways etc anyways etc change and was only (errouneously as in inaccurately and misleadingly but anyways etc anyways etc anyways etc) UNITAI_MERCHANT while designating the great merchant not the merchant, hopefully clearer now, anyways etc..
++		even kmod code comment (or(/and anyways etc) a code comment mentioning kmod anyways etc) (seemingly) made the confusion (too)twice (if i am not mistaken maybe indeed or yes or not or yes or and other or and not anyways etc), but unitai_great_merchant seemingly did not exist before my/this/my anyways etc anyways etc change and was only (errouneously as in inaccurately and misleadingly but anyways etc anyways etc anyways etc) UNITAI_MERCHANT while designating the great merchant not the merchant, hopefully clearer now, anyways etc..
+ 			
+ 		in (edited the comment chars/format/syntax anyways etc from/in the quoted below code comment anyways etc to not break our comment out syntax anyways etc):
+ 			<Capture>NONE</Capture>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 25abfce00..d0b6c1131 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6129,15 +6129,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_VIKING_TRADING_POST (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_SCANDINAVIA_TRADING_POST (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
+-			<Type>BUILDING_VIKING_TRADING_POST</Type>
++			<Type>BUILDING_SCANDINAVIA_TRADING_POST</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_VIKING_TRADING_POST</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_VIKING_TRADING_POST_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_VIKING_TRADING_POST_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Description>
++			<Civilopedia>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_VIKING_TRADING_POST</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_SCANDINAVIA_TRADING_POST</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index 189a4fada..eb573f4f8 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -1454,7 +1454,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Rotate>-60</Rotate>
+ 			<Scale>1.1</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_VIKING_TRADING_POST">
++		<ArtRef Name="building:BUILDING_SCANDINAVIA_TRADING_POST">
+ 			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
+ 			<!-- this bypasses water testing -->
+ 			<Attribute Class="Scalar">szSpecialLayout:Coast</Attribute>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 280aa416e..280e80072 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1669,7 +1669,7 @@
+ 			<Units>
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
+-					<UnitType>UNIT_GREEK_PHALANX</UnitType>
++					<UnitType>UNIT_GREEK_HOPLITE</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+@@ -3370,7 +3370,7 @@
+ 			<Units>
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
+-					<UnitType>UNIT_ROME_PRAETORIAN</UnitType>
++					<UnitType>UNIT_ROMAN_LEGIONARY</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+@@ -3739,14 +3739,15 @@
+ 			<CivilizationSelectionSound>AS3D_SUMERIA_SELECT</CivilizationSelectionSound>
+ 			<CivilizationActionSound>AS3D_SUMERIA_ORDER</CivilizationActionSound>
+ 		</CivilizationInfo>
++		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc ; also also remove "_CHANGED" in txt key / asset name of these units anyways etc -->
+ 		<CivilizationInfo>
+-			<Type>CIVILIZATION_VIKING</Type>
+-			<Description>TXT_KEY_CIV_VIKING_DESC</Description>
+-			<ShortDescription>TXT_KEY_CIV_VIKING_SHORT_DESC</ShortDescription>
+-			<Adjective>TXT_KEY_CIV_VIKING_ADJECTIVE</Adjective>
+-			<Civilopedia>TXT_KEY_CHANGED_CIV_VIKING_PEDIA</Civilopedia>
++			<Type>CIVILIZATION_SCANDINAVIA</Type>
++			<Description>TXT_KEY_CIV_SCANDINAVIA_DESC</Description>
++			<ShortDescription>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</ShortDescription>
++			<Adjective>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Adjective>
++			<Civilopedia>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Civilopedia>
+ 			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
+-			<ArtDefineTag>ART_DEF_CIVILIZATION_VIKINGS</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_CIVILIZATION_SCANDINAVIA</ArtDefineTag>
+ 			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
+ 			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
+ 			<bPlayable>1</bPlayable>
+@@ -3795,13 +3796,13 @@
+ 			<Buildings>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
+-					<BuildingType>BUILDING_VIKING_TRADING_POST</BuildingType>
++					<BuildingType>BUILDING_SCANDINAVIA_TRADING_POST</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
+-					<UnitType>UNIT_VIKING_BESERKER</UnitType>
++					<UnitType>UNIT_SCANDINAVIA_VIKING</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+@@ -3841,8 +3842,8 @@
+ 				</Leader>
+ 			</Leaders>
+ 			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
+-			<CivilizationSelectionSound>AS3D_VIKING_SELECT</CivilizationSelectionSound>
+-			<CivilizationActionSound>AS3D_VIKING_ORDER</CivilizationActionSound>
++			<CivilizationSelectionSound>AS3D_SCANDINAVIA_SELECT</CivilizationSelectionSound>
++			<CivilizationActionSound>AS3D_SCANDINAVIA_ORDER</CivilizationActionSound>
+ 		</CivilizationInfo>
+ 		<CivilizationInfo>
+ 			<Type>CIVILIZATION_ZULU</Type>
+@@ -4193,6 +4194,11 @@
+ 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+ 					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
+ 				</Building>
++				<!-- custom: probably doesn't work-function anyways etc as has been tested not to, but in case it maybe does, adding the great_wall to explicitly prevent barbarians from building it, which they seem to often do for some reason anyways etc especially more now with the recent changes to military produciton modifier to balance barbarians for some reason anyways etc -->
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
++					<BuildingType>NONE</BuildingType>
++				</Building>
+ 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
+ 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
+ 				Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe or not or yes or and other or and not but in all cases anyways etc -->
+
+diff --git a/Assets/XML/GameInfo/CIV4EraInfos.xml b/Assets/XML/GameInfo/CIV4EraInfos.xml
+index 31a34d7c4..f118741be 100644
+--- a/Assets/XML/GameInfo/CIV4EraInfos.xml
++++ b/Assets/XML/GameInfo/CIV4EraInfos.xml
+@@ -114,7 +114,7 @@
+ 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
+ 			<EraInfoSoundtracks>
+ 				<EraInfoSoundtrack>AS2D_SONG_ALEXANDER</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_SONG_VIKING</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_SONG_SCANDINAVIA</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_SONG_ROME</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_SONG_PELOPONNESIAN</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_SONG_CIV_III_MID_ROME</EraInfoSoundtrack>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 2777d426f..93458efff 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -399,6 +399,24 @@
+ 
+ 
+ 
++	<!-- custom: rename "GREEK_PHALANX" to "GREEK_HOPLITE" -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GREEK_HOPLITE</Tag>
++		<English>Hoplite</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details anyways etc -->
++	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
++		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_UNIT_ROMAN_LEGIONARY</Tag>
++		<English>Legionary</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
+ 		<English>Swift Worker</English>
+@@ -421,6 +439,33 @@
+ 
+ 
+ 
++	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_SCANDINAVIA_DESC</Tag>
++		<English>Scandinavian Empire</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</Tag>
++		<English>Scandinavia</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Tag>
++		<English>Scandinavian</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Tag>
++		<English>Trading Post</English>
++	</TEXT>
++	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details anyways etc -->
++	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
++		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Tag>
++		<English>Viking</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: clearer renaming to some promotions, accuracy is so misleading as a name for example, hopefully clearer now -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 6c0d65e3d..515849bdd 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2975,33 +2975,6 @@
+ 		<Spanish>%D1: "Nos oponemos a vuestro expansionismo agresivo."</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
+-		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_UNIT_ROME_PRAETORIAN</Tag>
+-		<English>Legionary</English>
+-		<French>
+-			<Text>Pr&#233;torien</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</French>
+-		<German>
+-			<Text>Pr&#228;torianer</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Pretoriano:Pretoriani</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0:1</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Pretoriano:Pretorianos</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0:1</Plural>
+-		</Spanish>
+-	</TEXT>
+-	
+ 	<!-- advc.908a: Based on TXT_KEY_TRAIT_EXTRA_YIELD_THRESHOLDS
+ 		 (CIV4GameTextInfos.xml) -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+index e217ea6ed..5bf34bf0e 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+@@ -28,19 +28,6 @@ as a part of AdvCiv-SAS (for example a new civ, a new leader, etc) that are leng
+ 
+ 
+ 
+-	<!-- Simply deleted the paragraph that talks about Praetorians. Conveniently,
+-		 the first paragraph was already about legions; no change needed. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_ROME_PRAETORIAN_PEDIA</Tag>
+-		<English>[TAB]The Roman Legions, created during the early wars of the Republic and tested during the three Punic Wars against Carthage, were the fighting force that conquered and held the Roman Empire together for five centuries. Each legion was composed of 6000 men, divided into 60 smaller groups known as centuries. Nearly unstoppable on the attack, the legion was relatively weak on defense. The legion's demise as a military unit was accelerated by the destruction of Emperor Valens' army by gothic knights in the fourth century.</English>
+-		<French>[TAB]Les l&#233;gions romaines, cr&#233;&#233;es lors des guerres de la R&#233;publique et mises &#224; l'&#233;preuve au cours des trois guerres puniques contre Carthage, sont la force militaire qui a permis &#224; Rome de conqu&#233;rir, puis de pr&#233;server son Empire pendant cinq si&#232;cles. Chaque l&#233;gion se composait de 6 000 hommes, r&#233;partis en 60 unit&#233;s appel&#233;es centuries. Quasiment invincible en attaque, la l&#233;gion &#233;tait relativement faible en d&#233;fense. La disparition de la l&#233;gion a &#233;t&#233; acc&#233;l&#233;r&#233;e au IVe si&#232;cle par la d&#233;faite de l'arm&#233;e de l'Empereur Valens contre la cavalerie des Goths. [PARAGRAPH:1]Le terme "Pr&#233;torien" vient du mot "praetorium" qui d&#233;signait la tente de campagne du g&#233;n&#233;ral de l&#233;gion. De nombreux g&#233;n&#233;raux romains avaient pour habitude de choisir des soldats charg&#233;s de prot&#233;ger leur tente et leur personne. Cette force d'&#233;lite comprenait des soldats de l'infanterie et de la cavalerie. Plus tard, cette cohorte prit le nom de cohors praetoria. De nombreuses grandes figures en ont poss&#233;d&#233; une, dont Jules C&#233;sar, Marc-Antoine ou Auguste C&#233;sar (Octave). Comme Jules C&#233;sar le d&#233;montra avec la Legio X Equestris, une unit&#233; puissante et plus dangereuse que les l&#233;gions traditionnelles &#233;tait tr&#232;s utile sur le champ de bataille. Quand Auguste devint le premier empereur romain en 27 av. J.-C., il estima qu'une telle unit&#233; &#233;tait utile, non seulement au combat, mais aussi en politique. Il forma alors la Garde Pr&#233;torienne.</French>
+-		<German>[TAB]Die r&#246;mischen Legionen wurden w&#228;hrend der fr&#252;hen Kriege der Republik Rom ins Leben gerufen und stellten ihr K&#246;nnen zuerst in den drei Punischen Kriegen gegen Karthago unter Beweis. Im Gro&#223;en und Ganzen ist es letztlich ihnen zu verdanken, dass das R&#246;mische Reich ein derartig gro&#223;es Territorium erobern und mehr als f&#252;nfhundert Jahre lang auch zusammenhalten konnte. Jede Legion bestand aus insgesamt 6.000 Mann, die sich in 60 kleinere Truppenverb&#228;nde, die so genannten Zenturien, gliederten. Die Offensivkraft einer Legion war nahezu un&#252;bertroffen, allerdings wies ihre Verteidigung relativ gro&#223;e Schw&#228;chen auf. Ausschlaggebend f&#252;r die endg&#252;ltige Abschaffung der Legionen als Milit&#228;reinheiten war die Vernichtung der Armee des r&#246;mischen Kaisers Valens durch die gotischen Ritter im 4. Jahrhundert.[PARAGRAPH:1]Der Begriff "Pr&#228;torianer" hat seinen Ursprung im Zelt des Legatus einer Legion auf dem Feld - dem Pr&#228;torium. Viele r&#246;mische Gener&#228;le stellten sich aus ihren untergebenen Soldaten eine private Streitmacht zusammen, die das Zelt oder die Person zu bewachen hatten. Diese Elitesoldaten kamen sowohl aus der Infantrie als auch aus der Kavallerie. Mit der Zeit nannte man diese Kohorte "cohors praetoria"; viele ber&#252;hmte Personen besa&#223;en eine, darunter Julius C&#228;sar, Marcus Antonius und Augustus C&#228;sar (Octavianus). Wie Julius C&#228;sar mit seiner Legio X Equestris herausfand, war eine m&#228;chtige Einheit, die st&#228;rker war als alle anderen, auf dem Schlachtfeld von Vorteil. Als Augustus 27 vor Christus zum obersten Herrscher Roms wurde, entschied er, dass eine solche Formation nicht nur im Krieg, sondern auch in der Politik von Vorteil w&#228;re. So rekrutierte er die Pr&#228;torianergarde aus den Legionen aller Provinzen.</German>
+-		<Italian>[TAB]Le Legioni Romane, create durante i primi anni della Repubblica e messe alla prova durante le tre Guerre Puniche contro Cartagine, rappresentavano la forza militare dell'Impero Romano, che dur&#242; la bellezza di cinque secoli. Ciascuna legione era composta da 6.000 uomini, divisi in 60 gruppi pi&#249; piccoli, denominati centurie. La Legione era inarrestabile in attacco, ma debole quando si trattava di difendere. La fine di questa unit&#224; militare venne dichiarata con la distruzione dell'esercito dell'Imperatore Valente per mano dei cavalieri barbari, durante il quarto secolo. [PARAGRAPH:1]Il termine "Pretoriano" derivava dal nome della tenda da campo (praetorium) che ospitava il generale. Era abitudine dei generali Romani scegliere dei soldati da adibire a guardie del corpo davanti alla tenda. Queste truppe d'&#233;lite erano composte da fanteria e cavalleria e con il tempo vennero chiamate cohors praetoria; molti personaggi importanti ne avevano una, da Giulio Cesare, a Marcantonio a Cesare Augusto (Ottavio). Giulio Cesare scopr&#236; che la Legio X Equestris era decisamente la pi&#249; pericolosa e potente delle Legioni. Quando Augusto divenne il primo dominatore dell'Impero Romano nel 27 a. C., decise di adottare questa formazione anche in politica. Cos&#236; facendo, Augusto reclut&#242; da tutte le Legioni delle province alcuni soldati che sarebbero diventate Guardie Pretoriane.</Italian>
+-		<Spanish>[TAB]Las legiones romanas, creadas durante las primeras guerras de la Rep&#250;blica y puestas a prueba durante las tres Guerras P&#250;nicas contra Cartago, eran las fuerzas b&#233;licas que conquistaron y mantuvieron unido el Imperio Romano durante cinco siglos. Cada legi&#243;n se compon&#237;a de seis mil hombres, divididos en sesenta grupos m&#225;s peque&#241;os llamados centurias. Casi imparable cuando atacaba, la legi&#243;n era relativamente d&#233;bil en cuanto a defensa. El fin de la legi&#243;n como unidad militar se aceler&#243; por la destrucci&#243;n del ej&#233;rcito del emperador Valentiniano por los caballeros godos en el siglo IV.[PARAGRAPH:1]El t&#233;rmino "pretoriano" viene de la tienda del legatus de una legi&#243;n en el campo: el pretorio. Muchos generales romanos ten&#237;an la costumbre de escoger entre las filas una fuerza privada de soldados que actuasen como guardaespaldas de la tienda o de la persona. Estas tropas de &#233;lite se compon&#237;an de infanter&#237;a y caballer&#237;a. Con el tiempo, esta cohorte fue bautizada como la cohors praetoria; varios personajes notables tuvieron una, como Julio C&#233;sar, Marco Antonio y C&#233;sar Augusto (Octavio). Tal y como Julio C&#233;sar descubri&#243; con la Legio X Equestris, era deseable tener en el campo de batalla una unidad potente y m&#225;s peligrosa que las otras legiones.  Cuando Augusto se convirti&#243; en el primer emperador romano en el a&#241;o 27 a. C., decidi&#243; que tal formaci&#243;n no solo ser&#237;a &#250;til en la guerra, sino tambi&#233;n en la pol&#237;tica. Por tanto, reclut&#243; la guardia pretoriana a partir de las legiones de todas las provincias.</Spanish>
+-	</TEXT>
+-
+-
+-
+ 	<!-- advc.005: "Asoka" renamed to "Ashoka" (English, Italian, Spanish) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_BUDDHIST_CATHEDRAL_PEDIA</Tag>
+@@ -167,7 +154,7 @@ as a part of AdvCiv-SAS (for example a new civ, a new leader, etc) that are leng
+ 	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_CARTHAGE_PEDIA</Tag>
+-		<English>[TAB]Carthage was an ancient city-state in North Africa located somewhere near the site of modern Tunis. It was settled by Phoenician colonists from the city of Tyre sometime around 814 BC. According to tradition, the first ruler was a queen named Dido, who is mentioned in a number of surviving Greek and Roman legends. Carthage had an excellent harbor, and the city was well situated to form a maritime empire based on Mediterranean trade. As time passed and Carthage expanded, it gained control over the other Phoenician colonies on the northern coast of Africa. Carthaginian merchants dominated trade in the western Mediterranean, and navigators may have sailed as far as Britain and Nigeria. The rise of Carthage in power and influence would bring it into conflict with first the Greek city-states of Sicily, and later the Roman Republic. [PARAGRAPH:2:1]Carthage's government was an oligarchy not unlike that in republican Rome. One or two "Sofetim" (which best translates as "judges") were elected annually from among the wealthy and influential families of Carthage to hold positions of executive and judicial power. These aristocratic families were also represented in a deliberative body that appears to have been similar to the Roman Senate. Although Carthage was primarily controlled by these oligarchs, there were also a few limited elections for minor positions of authority within the government. [PARAGRAPH:2:1]Carthage's economic prosperity was based largely upon its lucrative trade with the silver and tin mines of Spain, and those trade routes were jealously guarded by Carthaginian merchants. Culturally, the Carthaginians practiced the polytheistic religion of the Phoenicians, based upon worship of the divine couple Tanit and Ba'al. The Carthaginians also appear to have participated in the unsavory practice of child sacrifice as part of their religion, although some historians have disputed this. [PARAGRAPH:2:1]Carthage first came into military conflict with the Greeks over control of the island of Sicily, whose strategic location would allow the Carthaginians to control access to the western Mediterranean. Carthage fought three separate wars against the Greek colonies on Sicily, all of which largely ended in inconclusive stalemates. [PARAGRAPH:2:1]Eventually Rome occupied the Greek colonies in the south of mainland Italy, allowing Carthage an opportunity to conquer most of Sicily. Tension between the two states soon boiled over into the First Punic War (264 - 241 BC) during which the Romans recovered from initial setbacks and built a navy for the first time, with which they defeated the Carthaginians at the Battle of the Aegates Islands. This victory won Sicily for Rome, and the two sides entered into an uneasy peace. [PARAGRAPH:2:1]After losing Sicily to the Romans, the Carthaginians expanded their holdings in Spain to compensate. They also began to prepare for a second conflict with Rome. The war faction was led by the members of the Barca family, and in particular the soon-to-be-famous Hannibal. When a border dispute in Spain provoked an incident between the two states, the Carthaginian senate declared war, initiating the Second Punic War (218 - 202 BC). [PARAGRAPH:2:1]During this conflict Hannibal was authorized to lead a campaign into Italy. He led his large force - which included war elephants - across the Alps, taking the Romans completely by surprise (and creating one of the most enduring war stories of all time). Hannibal met and soundly defeated the main Roman army at Lake Trasimene (217). Despite this disaster the Romans mustered up an even larger army the following year. The two forces met at Cannae, and employing a series of brilliant tactical maneuvers, Hannibal once again utterly destroyed the Romans. [PARAGRAPH:2:1]Following this grisly slaughter, the Romans adopted a Fabian strategy of retreat, refusing to give battle against Hannibal. Hannibal continued to devastate the Italian countryside for the next decade, but he was unable to knock Rome out of the war. Meanwhile, the Roman general Scipio attacked Carthage's holdings in Spain, gaining complete control of the region by 206. Scipio then led an expedition to Africa itself, and Hannibal was recalled from Italy to defend the city of Carthage. The two sides met at the Battle of Zama in 202 BC and Hannibal was defeated, Scipio taking the name "Africanus" to celebrate his victory. Carthage was forced to sue for peace, and Rome imposed very harsh terms on the city. [PARAGRAPH:2:1]Despite the destruction of the Second Punic War and the harsh peace terms, Carthage soon recovered her strength and began once more to exert control over trade in the Western Mediterranean. This caused great fear among the Romans, who had never forgotten the damage that Hannibal had done to Italy in the earlier war. In 149 BC Rome declared war on Carthage again on spurious pretexts, initiating the Third Punic War. The Carthaginians attempted to negotiate a settlement, but the Romans would be satisfied with nothing less than the city's total destruction. After a long siege, the city fell and its people were killed or sold into slavery. Carthage itself was pulled apart brick by brick and completely destroyed. The city would be rebuilt by the Romans, but the former Phoenician state would never rise again. [PARAGRAPH:2:1]</English>
++		<English>[TAB]Carthage was an ancient city-state in North Africa located somewhere near the site of modern Tunis. It was settled by Phoenician colonists from the city of Tyre sometime around 814 BC. According to tradition, the first ruler was a queen named Dido, who is mentioned in a number of surviving Greek and Roman legends. Carthage had an excellent harbor, and the city was well situated to form a maritime empire based on Mediterranean trade. As time passed and Carthage expanded, it gained control over the other Phoenician colonies on the northern coast of Africa. Carthaginian merchants dominated trade in the western Mediterranean, and navigators may have sailed as far as Britain and Nigeria. The rise of Carthage in power and influence would bring it into conflict with first the Greek city-states of Sicily, and later the Roman Republic. [PARAGRAPH:2]Carthage's government was an oligarchy not unlike that in republican Rome. One or two "Sofetim" (which best translates as "judges") were elected annually from among the wealthy and influential families of Carthage to hold positions of executive and judicial power. These aristocratic families were also represented in a deliberative body that appears to have been similar to the Roman Senate. Although Carthage was primarily controlled by these oligarchs, there were also a few limited elections for minor positions of authority within the government. [PARAGRAPH:2]Carthage's economic prosperity was based largely upon its lucrative trade with the silver and tin mines of Spain, and those trade routes were jealously guarded by Carthaginian merchants. Culturally, the Carthaginians practiced the polytheistic religion of the Phoenicians, based upon worship of the divine couple Tanit and Ba'al. The Carthaginians also appear to have participated in the unsavory practice of child sacrifice as part of their religion, although some historians have disputed this. [PARAGRAPH:2]Carthage first came into military conflict with the Greeks over control of the island of Sicily, whose strategic location would allow the Carthaginians to control access to the western Mediterranean. Carthage fought three separate wars against the Greek colonies on Sicily, all of which largely ended in inconclusive stalemates. [PARAGRAPH:2]Eventually Rome occupied the Greek colonies in the south of mainland Italy, allowing Carthage an opportunity to conquer most of Sicily. Tension between the two states soon boiled over into the First Punic War (264 - 241 BC) during which the Romans recovered from initial setbacks and built a navy for the first time, with which they defeated the Carthaginians at the Battle of the Aegates Islands. This victory won Sicily for Rome, and the two sides entered into an uneasy peace. [PARAGRAPH:2]After losing Sicily to the Romans, the Carthaginians expanded their holdings in Spain to compensate. They also began to prepare for a second conflict with Rome. The war faction was led by the members of the Barca family, and in particular the soon-to-be-famous Hannibal. When a border dispute in Spain provoked an incident between the two states, the Carthaginian senate declared war, initiating the Second Punic War (218 - 202 BC). [PARAGRAPH:2]During this conflict Hannibal was authorized to lead a campaign into Italy. He led his large force - which included war elephants - across the Alps, taking the Romans completely by surprise (and creating one of the most enduring war stories of all time). Hannibal met and soundly defeated the main Roman army at Lake Trasimene (217). Despite this disaster the Romans mustered up an even larger army the following year. The two forces met at Cannae, and employing a series of brilliant tactical maneuvers, Hannibal once again utterly destroyed the Romans. [PARAGRAPH:2]Following this grisly slaughter, the Romans adopted a Fabian strategy of retreat, refusing to give battle against Hannibal. Hannibal continued to devastate the Italian countryside for the next decade, but he was unable to knock Rome out of the war. Meanwhile, the Roman general Scipio attacked Carthage's holdings in Spain, gaining complete control of the region by 206. Scipio then led an expedition to Africa itself, and Hannibal was recalled from Italy to defend the city of Carthage. The two sides met at the Battle of Zama in 202 BC and Hannibal was defeated, Scipio taking the name "Africanus" to celebrate his victory. Carthage was forced to sue for peace, and Rome imposed very harsh terms on the city. [PARAGRAPH:2]Despite the destruction of the Second Punic War and the harsh peace terms, Carthage soon recovered her strength and began once more to exert control over trade in the Western Mediterranean. This caused great fear among the Romans, who had never forgotten the damage that Hannibal had done to Italy in the earlier war. In 149 BC Rome declared war on Carthage again on spurious pretexts, initiating the Third Punic War. The Carthaginians attempted to negotiate a settlement, but the Romans would be satisfied with nothing less than the city's total destruction. After a long siege, the city fell and its people were killed or sold into slavery. Carthage itself was pulled apart brick by brick and completely destroyed. The city would be rebuilt by the Romans, but the former Phoenician state would never rise again.</English>
+ 	</TEXT>
+ 
+ 
+@@ -175,7 +162,7 @@ as a part of AdvCiv-SAS (for example a new civ, a new leader, etc) that are leng
+ 	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_CELT_PEDIA</Tag>
+-		<English>[TAB]The Celts were a group of Indo-Europeans who inhabited much of Central and Western Europe in the period between 1000 and 500 BC. While Celtic culture today is associated with Ireland, Scotland and Wales, the ancient Celts were spread out over a much larger distance. In addition to those locations, different groups of Celts were also present in Spain, France (Gaul), Hungary, and Bulgaria (Thrace). Although the Greeks and Romans considered the Celts to be barbarians, they possessed a sophisticated and unique culture. [PARAGRAPH:2:1]The ancient Celts of Gaul and Britain (who we know the most about) were divided into many tribes loosely based on kinship ties. Social structure was determined by a mixture of class standing within the tribe and one's place within the Celtic religion. Kings were elected to lead the tribes, and society was divided into the three groups: warriors, an intellectual class of druids and bards, and everyone else. Society was based around warfare, but to the Celts it was more of a sport than a battle to the death: raids were the norm, and pitched battles were rare. [PARAGRAPH:2:1]The Celts do not appear to have had any large cities, although there were many small towns and fortresses across the regions they controlled. Trade was rather primitive and mostly consisted of a barter economy, although in some coastal regions it was more developed. The Celts shared a common religion emphasizing sacred groves, the role of druids as priests and scholars, and the use of periodic sacrifices (which were occasionally human sacrifices). Celtic gods were named after natural phenomenon and they were quite numerous. Other Celtic practices included the removal of body hair (done to ensure cleanliness) and the taking of enemy heads as trophies in battle. [PARAGRAPH:2:1]The most notable event in the early history of the Celts was the sacking of the city of Rome in 390 BC under the great King Brennus. Although the victory was a military triumph and provided a large immediate gain to the Celts, the Romans would prove to have a very long memory, and over the years they would make their enemies pay dearly for it by methodically conquering all Celtic territory their mighty legions could reach. [PARAGRAPH:2:1]By 192 BC, the Romans had subjugated the last of the Celtic tribes in Italy, and they then began a program of colonization of southern Gaul on the Mediterranean coast. Under the great general Julius Caesar, the Romans conquered the entirety of Gaul and defeated a large revolt headed by Vercingetorix between 58 - 51 BC, removing the Celtic threat to the Imperial City once and for all. Under the Emperor Claudius, the Romans went on to invade and occupy Celtic Britain as well. [PARAGRAPH:2:1]The Celts remained under Roman rule for the next four centuries until the Germanic invasions of the fifth century AD destroyed the Roman Empire in the west. Although Celtic culture disappeared in many parts of Europe during those years of foreign occupation, it was preserved in Ireland and the western fringe of Britain. Over time the pagan Celtic culture would combine with Christianity to give rise to beautiful new forms of artwork and literature. Despite many attempts over the centuries to destroy it, the Celtic culture survives. In fact, today it enjoys a great deal of popularity and is even experiencing something of a revival. [PARAGRAPH:2:1]</English>
++		<English>[TAB]The Celts were a group of Indo-Europeans who inhabited much of Central and Western Europe in the period between 1000 and 500 BC. While Celtic culture today is associated with Ireland, Scotland and Wales, the ancient Celts were spread out over a much larger distance. In addition to those locations, different groups of Celts were also present in Spain, France (Gaul), Hungary, and Bulgaria (Thrace). Although the Greeks and Romans considered the Celts to be barbarians, they possessed a sophisticated and unique culture. [PARAGRAPH:2]The ancient Celts of Gaul and Britain (who we know the most about) were divided into many tribes loosely based on kinship ties. Social structure was determined by a mixture of class standing within the tribe and one's place within the Celtic religion. Kings were elected to lead the tribes, and society was divided into the three groups: warriors, an intellectual class of druids and bards, and everyone else. Society was based around warfare, but to the Celts it was more of a sport than a battle to the death: raids were the norm, and pitched battles were rare. [PARAGRAPH:2]The Celts do not appear to have had any large cities, although there were many small towns and fortresses across the regions they controlled. Trade was rather primitive and mostly consisted of a barter economy, although in some coastal regions it was more developed. The Celts shared a common religion emphasizing sacred groves, the role of druids as priests and scholars, and the use of periodic sacrifices (which were occasionally human sacrifices). Celtic gods were named after natural phenomenon and they were quite numerous. Other Celtic practices included the removal of body hair (done to ensure cleanliness) and the taking of enemy heads as trophies in battle. [PARAGRAPH:2]The most notable event in the early history of the Celts was the sacking of the city of Rome in 390 BC under the great King Brennus. Although the victory was a military triumph and provided a large immediate gain to the Celts, the Romans would prove to have a very long memory, and over the years they would make their enemies pay dearly for it by methodically conquering all Celtic territory their mighty legions could reach. [PARAGRAPH:2]By 192 BC, the Romans had subjugated the last of the Celtic tribes in Italy, and they then began a program of colonization of southern Gaul on the Mediterranean coast. Under the great general Julius Caesar, the Romans conquered the entirety of Gaul and defeated a large revolt headed by Vercingetorix between 58 - 51 BC, removing the Celtic threat to the Imperial City once and for all. Under the Emperor Claudius, the Romans went on to invade and occupy Celtic Britain as well. [PARAGRAPH:2]The Celts remained under Roman rule for the next four centuries until the Germanic invasions of the fifth century AD destroyed the Roman Empire in the west. Although Celtic culture disappeared in many parts of Europe during those years of foreign occupation, it was preserved in Ireland and the western fringe of Britain. Over time the pagan Celtic culture would combine with Christianity to give rise to beautiful new forms of artwork and literature. Despite many attempts over the centuries to destroy it, the Celtic culture survives. In fact, today it enjoys a great deal of popularity and is even experiencing something of a revival.</English>
+ 	</TEXT>
+ 
+ 
+@@ -183,27 +170,16 @@ as a part of AdvCiv-SAS (for example a new civ, a new leader, etc) that are leng
+ 	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KOREA_PEDIA</Tag>
+-		<English>[TAB]Archaeological evidence indicates that humans have been living on the Korean peninsula for the last 700,000 years. The earliest discovered settlements date back to at least 3000 BC. According to legend, Korean history began in 2333 BC when King Dangun founded the kingdom of Gojoseon. Dangun was said to have been born of the son of Heaven and a woman from a bear-totem tribe; ancient Korea was characterized by clan communities which combined to form small city-states. The Bronze Age began around 1000 BC in Korea, and many weapons from this period have been found, as well as archaeological evidence of walled settlements. This suggests that the Korean city-states did not always enjoy peaceful relations with one another, despite their nominal unity under the Kingdom of Gojoseon. The kingdom of Gojoseon came to an end in 109 BC when the Chinese launched a massive invasion near the Liao River. The Chinese established four provinces in northern Korea and Manchuria, but were unable to hold these for any length of time. [PARAGRAPH:2:1]After the fall of the Gojoseon kingdom, three new states emerged in Korea (these are collectively known as the "Three Kingdoms"). Baekje was founded in 18 BC on the southwest of the Korean Peninsula; it was based around the city of Seoul and played an important role in transporting Chinese culture (such as Buddhism, iron making, the Chinese alphabet, etc.) across the sea to Japan. Goguryeo was founded in 37 BC; it usually was the largest of the three kingdoms. In addition to its Korean citizens, it also included Chinese and Tugusic tribesman from Manchuria. Finally, the third kingdom of Silla (founded 57 BC) was culturally distinct from the other two because of the cultural influence of northern nomads from the steppes - Baekje and Goguryeo were mostly dominated by Chinese culture. The three kingdoms coexisted on the peninsula for over six centuries, until King Munmu of Silla ordered an attack on Baekje in 660 AD. With the help of forces from Tang China, the Sillans conquered first Baekje and then Goguryeo (in 668 AD). The Sillans then drove out the Chinese and ruled over a united Korean state. [PARAGRAPH:2:1]Unified Silla remained peaceful and prosperous for the next two centuries, until it was overthrown in 935 AD by a new dynasty, the kingdom of Goryeo, which would last for over four hundred years. During this period laws were codified, a civil service system was introduced, and Buddhism spread throughout the Korean peninsula. In 1231 the Mongols invaded Korea, and the king of Goryeo was forced to surrender a short time later. Under the treaty of capitulation the Korean kings continued to rule as a figurehead, while the Mongols held all of the real power. As time passed the Mongol power began to decline, and in the 1340s King Kongmin was able to throw them out. Upon regaining power the Goryeo dynasty enacted important reforms to the government. It remained in power some fifty years, until overthrown by the turncoat Korean general Yi Seonggye in 1392. [PARAGRAPH:2:1]Yi Seonggye had been sent to China to fight against the Ming Chinese, but once there he switched sides and returned to Korea backed by Chinese power. He then overthrew the Goryeo Dynasty and founded his own. This new Joseon Dynasty moved the capital to Seoul and adopted Confucianism as the state religion, causing great loss of power and wealth by Korea's Buddhists. The Joseon state successfully fought off a series of invasions from Japan between 1592 and 1598, but succumbed to an attack by the Qing Dynasty of China in 1636. For the next two centuries Korea remained nominally independent, but in actuality was a province of the Chinese Qing Empire. [PARAGRAPH:2:1]At the end of the nineteenth century Korea was invaded and occupied by Japan after its victories over China in the Sino-Japanese War (1894-95) and Russia in the Russo-Japanese War (1904-05). The Japanese ruthlessly exploited the Korean population and attempted to destroy the Korean culture in order to replace it with their own. After Japan's defeat in World War II (1945), Korea was divided at the thirty-eighth parallel into north and south regions, a division which the Korean War of 1950-53 made permanent. South Korea has since become a prosperous economic powerhouse, while North Korea remains stifled by an oppressive communist regime. [PARAGRAPH:2:1]</English>
++		<English>[TAB]Archaeological evidence indicates that humans have been living on the Korean peninsula for the last 700,000 years. The earliest discovered settlements date back to at least 3000 BC. According to legend, Korean history began in 2333 BC when King Dangun founded the kingdom of Gojoseon. Dangun was said to have been born of the son of Heaven and a woman from a bear-totem tribe; ancient Korea was characterized by clan communities which combined to form small city-states. The Bronze Age began around 1000 BC in Korea, and many weapons from this period have been found, as well as archaeological evidence of walled settlements. This suggests that the Korean city-states did not always enjoy peaceful relations with one another, despite their nominal unity under the Kingdom of Gojoseon. The kingdom of Gojoseon came to an end in 109 BC when the Chinese launched a massive invasion near the Liao River. The Chinese established four provinces in northern Korea and Manchuria, but were unable to hold these for any length of time. [PARAGRAPH:2]After the fall of the Gojoseon kingdom, three new states emerged in Korea (these are collectively known as the "Three Kingdoms"). Baekje was founded in 18 BC on the southwest of the Korean Peninsula; it was based around the city of Seoul and played an important role in transporting Chinese culture (such as Buddhism, iron making, the Chinese alphabet, etc.) across the sea to Japan. Goguryeo was founded in 37 BC; it usually was the largest of the three kingdoms. In addition to its Korean citizens, it also included Chinese and Tugusic tribesman from Manchuria. Finally, the third kingdom of Silla (founded 57 BC) was culturally distinct from the other two because of the cultural influence of northern nomads from the steppes - Baekje and Goguryeo were mostly dominated by Chinese culture. The three kingdoms coexisted on the peninsula for over six centuries, until King Munmu of Silla ordered an attack on Baekje in 660 AD. With the help of forces from Tang China, the Sillans conquered first Baekje and then Goguryeo (in 668 AD). The Sillans then drove out the Chinese and ruled over a united Korean state. [PARAGRAPH:2]Unified Silla remained peaceful and prosperous for the next two centuries, until it was overthrown in 935 AD by a new dynasty, the kingdom of Goryeo, which would last for over four hundred years. During this period laws were codified, a civil service system was introduced, and Buddhism spread throughout the Korean peninsula. In 1231 the Mongols invaded Korea, and the king of Goryeo was forced to surrender a short time later. Under the treaty of capitulation the Korean kings continued to rule as a figurehead, while the Mongols held all of the real power. As time passed the Mongol power began to decline, and in the 1340s King Kongmin was able to throw them out. Upon regaining power the Goryeo dynasty enacted important reforms to the government. It remained in power some fifty years, until overthrown by the turncoat Korean general Yi Seonggye in 1392. [PARAGRAPH:2]Yi Seonggye had been sent to China to fight against the Ming Chinese, but once there he switched sides and returned to Korea backed by Chinese power. He then overthrew the Goryeo Dynasty and founded his own. This new Joseon Dynasty moved the capital to Seoul and adopted Confucianism as the state religion, causing great loss of power and wealth by Korea's Buddhists. The Joseon state successfully fought off a series of invasions from Japan between 1592 and 1598, but succumbed to an attack by the Qing Dynasty of China in 1636. For the next two centuries Korea remained nominally independent, but in actuality was a province of the Chinese Qing Empire. [PARAGRAPH:2]At the end of the nineteenth century Korea was invaded and occupied by Japan after its victories over China in the Sino-Japanese War (1894-95) and Russia in the Russo-Japanese War (1904-05). The Japanese ruthlessly exploited the Korean population and attempted to destroy the Korean culture in order to replace it with their own. After Japan's defeat in World War II (1945), Korea was divided at the thirty-eighth parallel into north and south regions, a division which the Korean War of 1950-53 made permanent. South Korea has since become a prosperous economic powerhouse, while North Korea remains stifled by an oppressive communist regime.</English>
+ 	</TEXT>
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe
+-	less distracting
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting
+ 	note: for some civs such as the ottoman empire, i took the asset from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords_Changed.xml rather, because	it was also in this file and not only in CIV4GameText_Warlords.xml like for most similar assets, so taking the version that says "Changed" just because maybe it would/could have fixed something that i don't know of potentially -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CHANGED_CIV_OTTOMAN_PEDIA</Tag>
+-		<English>[TAB]The Ottoman Empire was a Turkish state situated upon the eastern Mediterranean that lasted for some 630 years, from 1299 - 1922 AD. At the height of its power, in the sixteenth and seventeenth centuries, the Ottoman domains stretched across vast regions in Anatolia, the Balkans, the Near East and northern Africa. For several centuries it was one of the foremost military powers in the world (until it began to stagnate technologically and fell far behind its competitors).[PARAGRAPH:2]The Ottoman state began as a vassal of the earlier Seljuk Turks, who had formed a large empire in the Near East in the eleventh century. When the Seljuk state of Rum in Anatolia collapsed, the Ottomans took advantage of the ensuing power vacuum and rose in power. According to tradition, Osman I became the bey, or chief, of the state of S&#246;g&#252;t in 1281. When Osman captured the Byzantine city of Bilecik in 1299, he declared his state's independence from the Seljuks. This is the traditional date given as the foundation of the Ottoman Empire - which was named after its first leader, Osman. [PARAGRAPH:2]The Ottomans expanded rapidly in Anatolia throughout the fourteenth century. A series of capable military leaders made many gains against the tottering Byzantine state. The important cities of Nicaea and Nicomedia fell in 1331 and 1337, and by the 1360s the Ottomans had crossed over into Europe and began capturing territory in Thrace. As a sign of this growing power, Murad I declared himself a sultan (or king) in 1383. Around the year 1400, Timur invaded Anatolia. This caused a great deal of disruption, but the Ottomans bounced back and continued to make territorial gains. Under the rule of Mehmed II, the Ottomans attacked and captured Constantinople, whose mighty walls finally fell to the cannon of the Ottomans. This destroyed the Byzantine Empire, and the Ottomans made Constantinople their capital. Mehmed II became known as "Mehmed the Conqueror." Suleiman I, also known as Suleiman the Magnificent, continued to expand and consolidate the Empire; the Ottomans were at the height of their power and influence during his reign[PARAGRAPH:2]After the capture of Constantinople the Ottoman state virtually adopted the Byzantine civil service to run the empire, and its administration was generally sound (until the nineteenth century, when it began to fossilize and became outdated). The Ottoman Empire was very much a pre-modern dynastic state, made up of many different nationalities - in fact, Greeks largely ran its bureaucracy and were vital to its continued success. Militarily, the Ottomans were very strong largely because of their early adoption of gunpowder and their powerful cavalry forces. The military also employed elite slave soldiers known as "janissaries" who won victory after victory for the expanding Ottoman state. The military remained powerful until the late eighteenth century, when they fell fatally behind Western Europe in military technology. [PARAGRAPH:2]The Ottomans were known for their religious tolerance. The Empire was an Islamic state, and Islamic law dominated its legal system, but non-Muslims were generally well treated and enjoyed the freedom to worship their own religion. The Ottoman Empire was long seen as a refuge for Jews across Europe. Economically, the Ottoman Empire was somewhat of a failure. Most of the region's commerce was carried on by Greek or Italian merchants, which slowed the development of Turkish industry. Once the European voyages of exploration found new routes to India and China which did not involve passing through the Near East, the Ottoman Empire began a slow commercial decline. [PARAGRAPH:2]By the start of the nineteenth century, the Ottoman Empire still held enormous amounts of land, but the empire was stagnant and corrupt, and was widely viewed as the "sick man of Europe." The western powers, their commercial and military strength exploding under the influence of the Industrial Revolution, began to snap up vulnerable Ottoman territories. Britain and France forced humiliating commercial treaties on the Ottomans, and the Ottoman state was forced to take out massive loans to cover its debts - the start of a vicious cycle which only incurred more debt for the empire. [PARAGRAPH:2]While some positive reforms were carried out in terms of modernizing the Ottoman state, custom and tradition prevented the reformers from moving fast enough. Furthermore, the rising tide of nationalism began to tear the empire apart, as Serbians, Bulgarians, Romanians, and Greeks all declared their independence and set up their own nations. By the outbreak of World War I, the Ottomans had lost virtually all of their holdings in Europe. Desperate to preserve what was left, the Ottomans threw in their lot with the Central Powers (Germany and Austria), only to be defeated by a British-led Arab revolt in the Near East. When the war ended the victors partitioned and dissolved the Ottoman Empire at the Paris Peace Conference. However, the Turkish Revolution prevented the planned division of Anatolia from taking place. With the creation of the nation of Turkey in 1922, and the deposition of the final sultan Mehmed VI, the Ottoman Empire came to a close. [PARAGRAPH:2]</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe
+-	less distracting
+-	note: for some civs such as the ottoman empire, i took the asset from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords_Changed.xml rather, because it was also in this file and not only in CIV4GameText_Warlords.xml like for most similar assets, so taking the version that says "Changed" just because maybe it would/could have fixed something that i don't know of potentially -->
+-	<TEXT>
+-		<Tag>TXT_KEY_CHANGED_CIV_VIKING_PEDIA</Tag>
+-		<English>[TAB]More properly known as Scandinavians or Norsemen, the Vikings were a group of people from northern Europe who became famous for carrying out a series of raids across the continent between roughly 800 - 1050 AD. The period is sometimes known as the "Viking Age," and it was an era of chaos and disruption for large parts of Europe. The Vikings can be classified into three main groups: the Danes largely attacked England; the Norwegians visited Scotland, Ireland, and points further west; while the Swedes invaded the river systems of what is now Russia. Although the Vikings usually employed hit and run tactics, many of them settled in new communities in the areas they had subjugated, eventually mixing with the local population. And while the Vikings are thought today to be bloodthirsty brigands, they probably acted more often as commercial traders than as warriors.[PARAGRAPH:2:1]Historians debate the reason why the Vikings suddenly emerged from Scandinavia at the end of the eighth century AD and began preying upon other parts of Europe. Theories include: the Vikings were suffering overpopulation caused by better agricultural tools; that the unification of Norway led to an excess of idle warriors; the Vikings were reacting to attempts by the Franks to muscle them out of trade with the east; or that the men went off to raid and pillage out of simple boredom. One particularly interesting theory is that the climate of Europe was warmer during the early Middle Ages, leading to an excess population in Scandinavia and the subsequent Viking colonization of places such as Iceland and Greenland. [PARAGRAPH:2:1]Whatever the actual reason for their expansion, the Viking drive outward began with the sacking of the important island monastery of Lindisfarne, located off the coast of Britain, in 793 AD. England was regularly raided by the Danes in the following decade, and in 865 a major invasion landed in East Anglia. This force was led by several landless Viking kings; in the battles that followed most of the English kingdoms were defeated, but the state of Wessex under Alfred the Great managed to hold the invaders off. The Vikings settled in Northumbria, and their territory became known as the "Danela" (most of these Vikings were Danes). [PARAGRAPH:2:1]Another wave of Vikings landed in England in 947 under the command of Erik Bloodaxe, who managed to capture the city of York. Vikings would largely remain in control of England until the Norman invasion of 1066 - and the Normans were themselves the French descendents of Vikings. Scotland and Ireland also experienced a heavy Norwegian Viking presence at this time; a number of important cities were founded by them - including Dublin. Eventually the Vikings settled down and intermarried with the native Irish. [PARAGRAPH:2:1]The main target for Viking aggression, however, was France. All throughout the ninth century the Vikings sailed up and down the Seine River with impunity, sacking French towns and monasteries at their leisure. Finally the French king Charles the Simple made an agreement with the Viking leader Hrolf Ganger in 911, in which Hrolf was granted control over territory in northern France. In exchange, Hrolf and his men agreed to convert to Christianity and become vassals of the French king. Hrolf's name was changed to Rollo and he became duke of the province of Normandy (named for the Norsemen who settled in it). The Normans retained their martial edge even after conversion to Christianity, and would go on to make a number of important conquests in England, the Mediterranean, and during the Crusades. [PARAGRAPH:2:1]The exploits of the Viking sailors were the stuff of legend. Viking mariners found their way to Iceland, Greenland, and even Newfoundland in North America, setting up colonies in all of these locations. Viking longboats were both fast and seaworthy, and their shallow drafts allowed them to sail far up the river systems of Europe. The Vikings could strike from the sea and be gone again before the military forces of a kingdom could be marshaled to meet them. In the east, the Swedes traveled down the rivers of modern Russia and founded the state of Kievan Rus', which grew rich off the river trade between the Baltic and the Byzantine Empire. These Vikings also found employment as mercenaries within the Byzantine domains, and their most elite warriors found employment in the Byzantine Varangian Guard. The Viking Age finally came to a close around 1050AD, as the Vikings were incorporated into Christian Europe and settled down to the less exciting but more stable pursuits of agriculture and fishing; their reputation as fierce invaders from the sea has endured to this day. [PARAGRAPH:2:1]</English>
++		<English>[TAB]The Ottoman Empire was a Turkish state situated upon the eastern Mediterranean that lasted for some 630 years, from 1299 - 1922 AD. At the height of its power, in the sixteenth and seventeenth centuries, the Ottoman domains stretched across vast regions in Anatolia, the Balkans, the Near East and northern Africa. For several centuries it was one of the foremost military powers in the world (until it began to stagnate technologically and fell far behind its competitors).[PARAGRAPH:2]The Ottoman state began as a vassal of the earlier Seljuk Turks, who had formed a large empire in the Near East in the eleventh century. When the Seljuk state of Rum in Anatolia collapsed, the Ottomans took advantage of the ensuing power vacuum and rose in power. According to tradition, Osman I became the bey, or chief, of the state of S&#246;g&#252;t in 1281. When Osman captured the Byzantine city of Bilecik in 1299, he declared his state's independence from the Seljuks. This is the traditional date given as the foundation of the Ottoman Empire - which was named after its first leader, Osman. [PARAGRAPH:2]The Ottomans expanded rapidly in Anatolia throughout the fourteenth century. A series of capable military leaders made many gains against the tottering Byzantine state. The important cities of Nicaea and Nicomedia fell in 1331 and 1337, and by the 1360s the Ottomans had crossed over into Europe and began capturing territory in Thrace. As a sign of this growing power, Murad I declared himself a sultan (or king) in 1383. Around the year 1400, Timur invaded Anatolia. This caused a great deal of disruption, but the Ottomans bounced back and continued to make territorial gains. Under the rule of Mehmed II, the Ottomans attacked and captured Constantinople, whose mighty walls finally fell to the cannon of the Ottomans. This destroyed the Byzantine Empire, and the Ottomans made Constantinople their capital. Mehmed II became known as "Mehmed the Conqueror." Suleiman I, also known as Suleiman the Magnificent, continued to expand and consolidate the Empire; the Ottomans were at the height of their power and influence during his reign[PARAGRAPH:2]After the capture of Constantinople the Ottoman state virtually adopted the Byzantine civil service to run the empire, and its administration was generally sound (until the nineteenth century, when it began to fossilize and became outdated). The Ottoman Empire was very much a pre-modern dynastic state, made up of many different nationalities - in fact, Greeks largely ran its bureaucracy and were vital to its continued success. Militarily, the Ottomans were very strong largely because of their early adoption of gunpowder and their powerful cavalry forces. The military also employed elite slave soldiers known as "janissaries" who won victory after victory for the expanding Ottoman state. The military remained powerful until the late eighteenth century, when they fell fatally behind Western Europe in military technology. [PARAGRAPH:2]The Ottomans were known for their religious tolerance. The Empire was an Islamic state, and Islamic law dominated its legal system, but non-Muslims were generally well treated and enjoyed the freedom to worship their own religion. The Ottoman Empire was long seen as a refuge for Jews across Europe. Economically, the Ottoman Empire was somewhat of a failure. Most of the region's commerce was carried on by Greek or Italian merchants, which slowed the development of Turkish industry. Once the European voyages of exploration found new routes to India and China which did not involve passing through the Near East, the Ottoman Empire began a slow commercial decline. [PARAGRAPH:2]By the start of the nineteenth century, the Ottoman Empire still held enormous amounts of land, but the empire was stagnant and corrupt, and was widely viewed as the "sick man of Europe." The western powers, their commercial and military strength exploding under the influence of the Industrial Revolution, began to snap up vulnerable Ottoman territories. Britain and France forced humiliating commercial treaties on the Ottomans, and the Ottoman state was forced to take out massive loans to cover its debts - the start of a vicious cycle which only incurred more debt for the empire. [PARAGRAPH:2]While some positive reforms were carried out in terms of modernizing the Ottoman state, custom and tradition prevented the reformers from moving fast enough. Furthermore, the rising tide of nationalism began to tear the empire apart, as Serbians, Bulgarians, Romanians, and Greeks all declared their independence and set up their own nations. By the outbreak of World War I, the Ottomans had lost virtually all of their holdings in Europe. Desperate to preserve what was left, the Ottomans threw in their lot with the Central Powers (Germany and Austria), only to be defeated by a British-led Arab revolt in the Near East. When the war ended the victors partitioned and dissolved the Ottoman Empire at the Paris Peace Conference. However, the Turkish Revolution prevented the planned division of Anatolia from taking place. With the creation of the nation of Turkey in 1922, and the deposition of the final sultan Mehmed VI, the Ottoman Empire came to a close.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index fb0dc1e9f..41db4edf5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -235,6 +235,24 @@
+ 
+ 
+ 
++	<!-- custom: rename "GREEK_PHALANX" to "GREEK_HOPLITE", entry from https://en.wikipedia.org/wiki/Hoplite and adjusted or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GREEK_HOPLITE_PEDIA</Tag>
++		<English>[TAB]Hoplites were citizen-soldiers of Ancient Greek city-states who were primarily armed with spears and shields. Hoplite soldiers used the phalanx formation to be effective in war with fewer soldiers. The formation discouraged the soldiers from acting alone, for this would compromise the formation and minimize its strengths. The hoplites were primarily represented by free citizens - propertied farmers and artisans - who were able to afford a linen or bronze armour suit and weapons (estimated at a third to a half of its able-bodied adult male population). Some states maintained a small elite professional unit, known as the epilektoi or logades ('the chosen') because they were picked from the regular citizen infantry. These existed at times in Athens, Sparta, Argos, Thebes, and Syracuse, among other places. Hoplite soldiers made up the bulk of ancient Greek armies.[PARAGRAPH:1]In the 8th century BC, Greek armies started to adopted the phalanx formation. The formation proved successful in defeating the Persians when employed by the Athenians at the Battle of Marathon in 490 BC during the First Greco-Persian War. The Persian archers and light troops who fought in the Battle of Marathon failed because their bows were too weak for their arrows to penetrate the wall of Greek shields of the phalanx formation. The phalanx was also employed by the Greeks at the Battle of Thermopylae in 480 BC and at the Battle of Plataea in 479 BC during the Second Greco-Persian War.[PARAGRAPH:1]The word hoplite derives from hoplon, referring to the hoplite's equipment. In the modern Hellenic Army, the word hoplite is used to refer to an infantryman.</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", deleted everything else (i.e. not in advciv-sas supported languages anyways etc) (also xd.. But anyways etc...) but anyways etc... -->
++	<!-- Simply deleted the paragraph that talks about Praetorians. Conveniently,
++		 the first paragraph was already about legions; no change needed. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ROMAN_LEGIONARY_PEDIA</Tag>
++		<English>[TAB]The Roman Legions, created during the early wars of the Republic and tested during the three Punic Wars against Carthage, were the fighting force that conquered and held the Roman Empire together for five centuries. Each legion was composed of 6000 men, divided into 60 smaller groups known as centuries. Nearly unstoppable on the attack, the legion was relatively weak on defense. The legion's demise as a military unit was accelerated by the destruction of Emperor Valens' army by gothic knights in the fourth century.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: based on removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources, see xml code comment at unit info for details, anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER_PEDIA</Tag>
+@@ -449,6 +467,29 @@
+ 
+ 
+ 
++	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc ; entry from wikipedia anyways etc https://en.wikipedia.org/wiki/Scandinavia hopefully more accurate or not or yes or other or etc anyways etc anyways etc and adjusted for advciv-sas  -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Tag>
++		<English>[TAB]Scandinavia is a subregion of northern Europe, with strong historical, cultural, and linguistic ties between its constituent peoples. Scandinavia most commonly refers to Denmark, Norway, and Sweden. It can sometimes also refer to the Scandinavian Peninsula (which excludes Denmark but includes a part of northern Finland). In English usage, Scandinavia is sometimes used as a synonym for Nordic countries. Iceland and the Faroe Islands are sometimes included in Scandinavia for their ethnolinguistic relations with Sweden, Norway and Denmark. While Finland differs from other Nordic countries in this respect, some authors call it Scandinavian due to its economic and cultural similarities.[PARAGRAPH:1]The geography of the region is varied, from the Norwegian fjords in the west and Scandinavian mountains covering parts of Norway and Sweden, to the low and flat areas of Denmark in the south, as well as archipelagos and lakes in the east. Most of the population in the region live in the more temperate southern regions, with the northern parts having long, cold winters.[PARAGRAPH:1]During the Viking Age Scandinavian peoples participated in large-scale raiding, conquest, colonization and trading mostly throughout Europe. They also used their longships for exploration, becoming the first Europeans to reach North America. These exploits saw the establishment of the North Sea Empire which comprised large parts of Scandinavia and Great Britain, though it was relatively short-lived. Scandinavia was eventually Christianized, and the coming centuries saw various unions of Scandinavian nations, most notably the Kalmar Union of Denmark, Norway and Sweden, which lasted for over 100 years until the Swedish king Gustav I led Sweden out of the union. Denmark and Norway, as well as Schleswig-Holstein, were then united until 1814 as Denmark-Norway. Numerous wars between the nations followed, which shaped the modern borders and led to the establishment of the Swedish Empire in the 17th and early 18th centuries. The most recent Scandinavian union was the union between Sweden and Norway, which ended in 1905.[PARAGRAPH:1]In modern times the region has prospered, with the economies of the countries being amongst the strongest in Europe. Sweden, Denmark, Norway, Iceland, and Finland all maintain welfare systems considered to be generous, with the economic and social policies of the countries being dubbed the "Nordic model".[PARAGRAPH:2]A key ancient description of Scandinavia was provided by Pliny the Elder, though his mentions of Scatinavia and surrounding areas are not always easy to decipher. Writing in the capacity of a Roman admiral, he introduces the northern region by declaring to his Roman readers that there are 23 islands "Romanis armis cognitae" ("known to Roman arms") in this area. According to Pliny, the "clarissima" ("most famous") of the region's islands is Scatinavia, of unknown size. There live the Hilleviones. The belief that Scandinavia was an island became widespread among classical authors during the 1st century and dominated descriptions of Scandinavia in classical texts during the centuries that followed.[PARAGRAPH:1]Pliny begins his description of the route to Scatinavia by referring to the mountain of Saevo (mons Saevo ibi), the Codanus Bay ("Codanus sinus") and the Cimbrian promontory. The geographical features have been identified in various ways. By some scholars, Saevo is thought to be the mountainous Norwegian coast at the entrance to Skagerrak and the Cimbrian peninsula is thought to be Skagen, the north tip of Jutland, Denmark. As described, Saevo and Scatinavia can also be the same place.[PARAGRAPH:1]Pliny mentions Scandinavia one more time: in Book VIII he says that the animal called achlis (given in the accusative, achlin, which is not Latin) was born on the island of Scandinavia. The animal grazes, has a big upper lip and some mythical attributes.[PARAGRAPH:1]The name Scandia, later used as a synonym for Scandinavia, also appears in Pliny's Naturalis Historia (Natural History), but is used for a group of Northern European islands which he locates north of Britannia. Scandia thus does not appear to be denoting the island Scadinavia in Pliny's text. The idea that Scadinavia may have been one of the Scandiae islands was instead introduced by Ptolemy (c. 90 - c. 168 AD), a mathematician, geographer and astrologer of Roman Egypt. He used the name Skandia for the biggest, most easterly of the three Scandiai islands, which according to him were all located east of Jutland.[PARAGRAPH:2]The Viking age in Scandinavia lasted from approximately 793-1066 AD and saw Scandinavians participate in large scale raiding, colonization, conquest and trading throughout Europe and beyond. The period saw a big expansion of Scandinavian-conquered territory and of exploration. Utilizing their advanced longships, they reached as far as North America, being the first Europeans to do so. During this time Scandinavians were drawn to wealthy towns, monasteries and petty kingdoms overseas in places such as the British Isles, Ireland, the Baltic coast and Normandy, all of which made profitable targets for raids. Scandinavians, primarily from modern day Sweden, known as Varangians also ventured east into what is now Russia raiding along river trade routes. During this period unification also took place between different Scandinavian kingdoms culminating in the peak of the North Sea Empire which included large parts of Scandinavia and Great Britain.[PARAGRAPH:1]This expansion and conquest led to the formation of several kingdoms, earldoms and settlements throughout Europe such as the Kingdom of the Isles, Earldom of Orkney, Scandinavian York, Danelaw, Kingdom of Dublin, the Duchy of Normandy and the Kievan Rus'. The Faroe Islands, Iceland and Greenland were also settled by the Scandinavians during this time. The Normans, Rus' people, Faroe Islanders, Icelanders and Norse-Gaels all emerged from these Scandinavian expansions.[PARAGRAPH:2]During a period of Christianization and state formation in the 10th-13th centuries, numerous Germanic petty kingdoms and chiefdoms were unified into three kingdoms:[PARAGRAPH:1]- Denmark, forged from the lands of Denmark (including Jutland, Zealand and Scania (Sk�neland) on the Scandinavian Peninsula)[PARAGRAPH:1]- Sweden, forged from the lands of Sweden on the Scandinavian Peninsula (including most of modern Finland, but excluding the provinces Bohusl�n, H�rjedalen, J�mtland and Idre and S�rna, Halland, Blekinge and Scania of modern-day Sweden)[PARAGRAPH:1]- Norway (including Bohusl�n, H�rjedalen, J�mtland and Idre and S�rna on the Scandinavian Peninsula and its island colonies Iceland, Greenland, Faroe Islands, Shetland, Orkney, Isle of Man and the Hebrides)[PARAGRAPH:1]According to historian Sverre Bagge, the division into three Scandinavian kingdoms (Denmark, Sweden, Norway) makes sense geographically, as forests, mountains, and uninhabited land divided them from one another. Control of Norway was enabled through seapower, whereas control of the great lakes in Sweden enabled control of the kingdom, and control of Jutland was sufficient to control Denmark. The most contested area was the coastline from Oslo to �resund, where the three kingdoms met.[PARAGRAPH:1]The three Scandinavian kingdoms joined in 1397 in the Kalmar Union under Queen Margaret I of Denmark. Sweden left the union in 1523 under King Gustav I of Sweden. In the aftermath of Sweden's secession from the Kalmar Union, civil war broke out in Denmark and Norway�the Protestant Reformation followed. When things had settled, the Norwegian privy council was abolished�it assembled for the last time in 1537. A personal union, entered into by the kingdoms of Denmark and Norway in 1536, lasted until 1814. Three sovereign successor states have subsequently emerged from this unequal union: Denmark, Norway and Iceland.[PARAGRAPH:1]The borders between Denmark, Norway and Sweden acquired their present shape in the middle of the 17th century: In the 1645 Treaty of Br�msebro, Denmark-Norway ceded the Norwegian provinces of J�mtland, H�rjedalen and Idre and S�rna, as well as the Baltic Sea islands of Gotland and �sel (in Estonia) to Sweden. The Treaty of Roskilde, signed in 1658, forced Denmark-Norway to cede the Danish provinces Scania, Blekinge, Halland, Bornholm and the Norwegian provinces of B�huslen and Tr�ndelag to Sweden. The 1660 Treaty of Copenhagen forced Sweden to return Bornholm and Tr�ndelag to Denmark-Norway, and to give up its recent claims to the island Funen.[PARAGRAPH:1]In the east, Finland was a fully incorporated part of Sweden from medieval times until the Napoleonic wars, when it was ceded to Russia. Despite many wars over the years since the formation of the three kingdoms, Scandinavia has been politically and culturally close.[PARAGRAPH:2]Denmark-Norway as a historiographical name refers to the former political union consisting of the kingdoms of Denmark and Norway, including the Norwegian dependencies of Iceland, Greenland and the Faroe Islands. The corresponding adjective and demonym is Dano-Norwegian. During Danish rule, Norway kept its separate laws, coinage and army as well as some institutions such as a royal chancellor. Norway's old royal line had died out with the death of Olav IV in 1387, but Norway's remaining a hereditary kingdom became an important factor for the Oldenburg dynasty of Denmark-Norway in its struggles to win elections as kings of Denmark.[PARAGRAPH:1]The Treaty of Kiel (14 January 1814) formally dissolved the Dano-Norwegian union and ceded the territory of Norway proper to the King of Sweden, but Denmark retained Norway's overseas possessions. However, widespread Norwegian resistance to the prospect of a union with Sweden induced the governor of Norway, crown prince Christian Frederick (later Christian VIII of Denmark), to call a constituent assembly at Eidsvoll in April 1814. The assembly drew up a liberal constitution and elected Christian Frederick to the throne of Norway. Following a Swedish invasion during the summer, the peace conditions of the Convention of Moss (14 August 1814) specified that king Christian Frederik had to resign, but Norway would keep its independence and its constitution within a personal union with Sweden. Christian Frederik formally abdicated on 10 August 1814 and returned to Denmark. The Norwegian parliament Storting elected king Charles XIII of Sweden as king of Norway on 4 November.[PARAGRAPH:1]The Storting dissolved the union between Sweden and Norway in 1905, after which the Norwegians elected Prince Charles of Denmark as king of Norway: he reigned as Haakon VII.[PARAGRAPH:2]Measured in per capita GDP, the Nordic countries are among the richest in the world. There is a generous welfare system in Denmark, Finland, Iceland, Norway and Sweden. These economies have been marked by large public sectors, extensive and generous welfare systems, a high level of taxation and considerable state involvement.</English>
++	</TEXT>
++
++
++
++	<!-- custom: import from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST_PEDIA</Tag>
++		<English>Although they did seek to extend their empire through piracy and invasion, for much of the time the Vikings were merchants, with a trading network that extended from Greenland, Iceland, and Finland into the British Isles, Western Europe, and the Mediterranean. Viking merchants are known to have traded Russian slaves at Constantinople for silks and spices, and they brought furs and ivory from far-away Greenland to ports throughout Europe, North Africa and the Middle East.[NEWLINE][NEWLINE]The earliest Viking trading posts were quite primitive settlements, consisting of simple dwellings and warehouses constructed of whatever local material was readily available. Over time many of the posts flourished, becoming important cities in their own rights. For example the Irish capitol of Dublin began its existence as a Viking trading post; and after being captured by the Vikings, the English city of York became a thriving trading center, second in importance only to London.</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename "_BESERKER" to "_VIKING" ; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case if i am not mistaken anyways etc ; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was anyways etc, the word danes too, and it mentions vinland saga :o:o:o if i am not mistaken too but anyways etc...) anyways etc and adjusted or/and formatted +/- corrected formatting if any or not or yes or etc but anyways etc for advciv-sas or not anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING_PEDIA</Tag>
++		<English>[TAB]Who were the Norsemen?[PARAGRAPH:1]While all Vikings were considered Norsemen, not all Norsemen were Vikings[PARAGRAPH:1]This simple question requires a slightly complex explanation.[PARAGRAPH:1]A simple answer can be summed up in this way: The term 'Norsemen' indicates people who came from the Scandinavian countries, (modern-day Norway, Sweden, and Denmark). However, the Old Norse word 'Viking' is not so much a name of a people, but a verb, meaning to pirate, (to plunder, steal, rob via sea routes).[PARAGRAPH:1]While all Vikings were considered Norsemen, not all Norsemen were Vikings. However, the Vikings were a significant and influential subset of the Norsemen, who left a lasting impact on history through their exploration, trade, and conquests.[PARAGRAPH:1]The Norsemen were a North Germanic ethnolinguistic group of the Early Middle Ages, during which time they spoke the Old Norse language. During the late eighth century, many Scandinavians embarked on a large-scale expansion in all directions, giving rise to what is known as the 'Viking Age'. Norsemen set sail, (to go Viking).[PARAGRAPH:1]The word 'Viking' comes from the Scandinavian term 'vikingr' meaning 'pirate'. Contrary to a popular belief, the Norsemen did not constitute one unified nation back at that time. They were initially organised in small earldoms, each ruled by a local earl, (or jarl). The term 'Viking' does not, therefore, denote a population, or a particular race of people for that matter, but rather a profession; seafaring pirates.[PARAGRAPH:2]5 Things you might not know about the Norsemen[PARAGRAPH:1]1 - Skeletons from famous Viking burial sites in Scotland were actually local people who could have taken on Viking identities and were buried as Vikings. In a scientific paper published in Nature, (2020) scientists analysed more than 400 genomes from Viking burial sites. After DNA sequencing of more than 400 Viking skeletons, from archaeological sites scattered across Europe and Greenland, they found evidence for a major influx of Danish ancestry into England; a Swedish influx into the Baltic; and a Norwegian influx into Ireland, Iceland, and Greenland.[PARAGRAPH:1]2- Many Norsemen actually had brown hair, not blonde hair.[PARAGRAPH:1]3 - Norsemen identity was not limited to people with Scandinavian genetic ancestry. The study shows the genetic history of Scandinavia was influenced by foreign genes from Asia and Southern Europe before the Viking Age.[PARAGRAPH:1]4- Who is the most famous Norseman? The name most associated with the Viking attacks and raids on the British Isles is that of Ragnar Lothbrok, (sometimes also written as 'Lodbrok'), who has gone down in history as a fearless leader and unstoppable warrior.[PARAGRAPH:1]5- The genetic legacy of the Viking Age lives on today, with 6% of people in the UK population predicted to have Viking DNA in their genes, compared to 10% in Sweden.[PARAGRAPH:2]'To go a Viking'[PARAGRAPH:1]To go a Viking meant that a Norseman would set sail on a body of water, (from open seas and oceans, to rivers and even lakes) in search of new, fertile lands to farm and subsequently permanently settle on, as well as trade with the neighbouring civilisations and cultures, ensuring social, political and economic links overseas.[PARAGRAPH:1]The term 'Norse' generally refers to Norsemen, from the north of Scandinavia. They were full-time traders and accomplished seafarers. Norsemen settled in the islands north and northwest of Britain, Ireland, and western Britain, whereas the Danish 'Vikings', principally invaded and occupied eastern Britain. These Danes were not actually farmers but were part-time warriors, led by people of noble birth. They had a reputation for being more violent and ruthless than the Norsemen, (or Northmen) from the far north.[PARAGRAPH:1]The majority of Norsemen were farmers, craftsmen, and traders who did not engage in seafaring raids. They were more interested in peaceful trade with other nations.[PARAGRAPH:1]Modern descendants of Norsemen are the Icelanders, Faroe Islanders, Norwegians, and Swedes, who are now generally referred to as 'Scandinavians' rather than Norsemen.[PARAGRAPH:2]The Vikings[PARAGRAPH:1]The Viking Age generally refers to the period from A.D. 800, a few years after the earliest recorded raid, until the 1050s, a few years before the Norman Conquest of England in 1066. The Vikings changed the political and genetic course of Europe and beyond. Cnut the Great became the King of England. Leif Eriksson is believed to have been the first European to reach North America, 500 years before Christopher Columbus.[PARAGRAPH:1]However, the British conception of the 'Vikings' origins was inaccurate. Those who plundered much of Britain actually sailed from the land which is known as Denmark today. The border between the northern Norse regions and the more southerly Germanic tribes, the Danevirke, is located around the current border between Denmark and Germany.[PARAGRAPH:1]Most of the earliest Viking settlers in Ireland were Norsemen, but circa 850 AD, a large Danish contingent arrived. In 875 AD, Danes and Norsemen were competing for control of Scotland. Antagonism between Danes and Norsemen reached a peak in the mid-tenth century, as they battled over control of York.[PARAGRAPH:2]Norse mythology[PARAGRAPH:1]Norse mythology consists of tales of various deities, beings, and heroes derived from numerous sources, (from both before and after the pagan period). The source texts mention numerous gods such as the thunder-god Thor, the raven-flanked god Odin, the goddess Freyja, and numerous other deities. The cosmos in Norse mythology consists of Nine Worlds that flank a central sacred tree, Yggdrasil.[PARAGRAPH:1]The afterlife is a complex matter in Norse mythology. The dead may go to the murky realm of 'Hel', a realm ruled over by a female being of the same name, or they may be ferried away by valkyries to Odin's martial hall 'Valhalla', or they may be chosen by the goddess Freyja, to dwell in her field 'F�lkvangr' forevermore. The goddess R�n may claim those that die at sea.[PARAGRAPH:2]Source: https://rideandseek.com/who-were-the-norsemen/</English>
++	</TEXT>
++
++
+ 	<!-- custom: add Ewuare, leader of the Kingdom Of Benin, based on civ4 base leader pedia template such as Moctezuma II's one or any other one i used at that time anyways etc, then modified based on https://en.wikipedia.org/wiki/Ewuare and adjusted or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_EWUARE_PEDIA</Tag>
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index 6b917f513..339dd38fc 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -142,7 +142,7 @@
+ 					<UntilEra>NONE</UntilEra>
+ 				</EncouragedCiv>
+ 				<EncouragedCiv>
+-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
++					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+ 					<UntilEra>ERA_FUTURE</UntilEra>
+ 				</EncouragedCiv>
+ 				<EncouragedCiv>
+@@ -467,7 +467,7 @@
+ 					<UntilEra>NONE</UntilEra>
+ 				</EncouragedCiv>
+ 				<EncouragedCiv>
+-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
++					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+ 					<UntilEra>NONE</UntilEra>
+ 				</EncouragedCiv>
+ 				<EncouragedCiv>
+@@ -752,7 +752,7 @@
+ 					<UntilEra>NONE</UntilEra>
+ 				</DiscouragedCiv>
+ 				<DiscouragedCiv>
+-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
++					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+ 					<UntilEra>NONE</UntilEra>
+ 				</DiscouragedCiv>
+ 				<DiscouragedCiv>
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruCivInfos.xml b/Assets/XML/TrueStarts/CIV4TruCivInfos.xml
+index fc783fa2e..cc9763cd9 100644
+--- a/Assets/XML/TrueStarts/CIV4TruCivInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruCivInfos.xml
+@@ -597,8 +597,8 @@
+ 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
+ 		</TruCivInfo>
+ 		<TruCivInfo>
+-			<Type>TRU_VIKING</Type>
+-			<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
++			<Type>TRU_SCANDINAVIA</Type>
++			<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+ 			<!-- Moved south by 3 degrees to account for the Gulf stream -->
+ 			<iLatitudeTimes10>604</iLatitudeTimes10>
+ 			<iLongitudeTimes10>104</iLongitudeTimes10>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 913181331..c2fd011d4 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5311,9 +5311,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_GREEK_PHALANX (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_GREEK_HOPLITE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_AXEMAN</Class>
+-			<Type>UNIT_GREEK_PHALANX</Type>
++			<Type>UNIT_GREEK_HOPLITE</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -5323,9 +5323,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_GREEK_PHALANX</Description>
+-			<Civilopedia>TXT_KEY_UNIT_GREEK_PHALANX_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_GREEK_PHALANX_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_GREEK_HOPLITE</Description>
++			<Civilopedia>TXT_KEY_UNIT_GREEK_HOPLITE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -5464,17 +5464,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods>
+-				<UnitClassDefenseMod>
+-					<UnitClassType>UNITCLASS_CHARIOT</UnitClassType>
+-					<iUnitClassMod>100</iUnitClassMod>
+-				</UnitClassDefenseMod>
+-			</UnitClassDefenseMods>
++			<!-- custom: was UNITCLASS_CHARIOT 100 -->
++			<UnitClassDefenseMods/>
++			<!-- custom: since they have a spear, make them stronger overall against mounted melee anyways etc rather than just chariots anyways etc, also fits the theme in civ3 of it being a strong defensive unit, i don't know if accurate but since they have a spear and shield may not be too strange that they'd be so, but now in civ4 they also have nice combat offensive potential as well (except vs maybe archers or such but anyways etc), was UNITCOMBAT_MELEE 50 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -5497,7 +5498,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_GREEK_PHALANX</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_GREEK_HOPLITE</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -5637,7 +5638,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>6</iCombat>
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -5668,7 +5669,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
++					<iUnitCombatMod>75</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -5683,8 +5684,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<!-- custom: was 6 -->
+-			<iPower>7</iPower>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -6516,9 +6516,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_ROME_PRAETORIAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_ROMAN_LEGIONARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_SWORDSMAN</Class>
+-			<Type>UNIT_ROME_PRAETORIAN</Type>
++			<Type>UNIT_ROMAN_LEGIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -6529,9 +6529,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<!-- advc.907a: Renamed to Legionary in game text XML -->
+-			<Description>TXT_KEY_UNIT_ROME_PRAETORIAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_ROME_PRAETORIAN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_ROME_PRAETORIAN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_ROMAN_LEGIONARY</Description>
++			<Civilopedia>TXT_KEY_UNIT_ROMAN_LEGIONARY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -6692,7 +6692,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ROME_PRAETORIAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ROMAN_LEGIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -7344,9 +7344,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_VIKING_BESERKER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_SCANDINAVIA_VIKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MACEMAN</Class>
+-			<Type>UNIT_VIKING_BESERKER</Type>
++			<Type>UNIT_SCANDINAVIA_VIKING</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -7356,9 +7356,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_VIKING_BESERKER</Description>
+-			<Civilopedia>TXT_KEY_CHANGED_UNIT_VIKING_BESERKER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_VIKING_BESERKER_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Description>
++			<Civilopedia>TXT_KEY_UNIT_SCANDINAVIA_VIKING_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -7563,7 +7563,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_VIKING_BESERKER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_SCANDINAVIA_VIKING</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -10720,9 +10720,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_FRENCH_MUSKETEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_OTTOMAN_JANISSARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MUSKETMAN</Class>
+-			<Type>UNIT_FRENCH_MUSKETEER</Type>
++			<Type>UNIT_OTTOMAN_JANISSARY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -10731,9 +10731,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_FRENCH_MUSKETEER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_FRENCH_MUSKETEER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_OTTOMAN_JANISSARY</Description>
++			<Civilopedia>TXT_KEY_UNIT_OTTOMAN_JANISSARY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -10785,10 +10785,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -10818,12 +10814,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>90</iCost>
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
++			<iMoves>1</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -10843,7 +10839,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 9 -->
+-			<iCombat>10</iCombat>
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10853,7 +10849,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<!-- advc.200: was 15 in K-Mod -->
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -10885,7 +10880,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>10</iPower>
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10894,7 +10889,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_FRENCH_MUSKETEER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_OTTOMAN_JANISSARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -10907,9 +10902,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_OTTOMAN_JANISSARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_MUSKETMAN, type: UNIT_FRENCH_MUSKETEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MUSKETMAN</Class>
+-			<Type>UNIT_OTTOMAN_JANISSARY</Type>
++			<Type>UNIT_FRENCH_MUSKETEER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -10918,9 +10913,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_OTTOMAN_JANISSARY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_OTTOMAN_JANISSARY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_FRENCH_MUSKETEER</Description>
++			<Civilopedia>TXT_KEY_UNIT_FRENCH_MUSKETEER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -10972,6 +10967,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -11001,12 +11000,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>100</iCost>
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
++			<iMoves>2</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -11026,7 +11025,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 9 -->
+-			<iCombat>12</iCombat>
++			<iCombat>10</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -11036,6 +11035,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
++			<!-- advc.200: was 15 in K-Mod -->
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -11067,7 +11067,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>12</iPower>
++			<iPower>10</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11076,7 +11076,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_OTTOMAN_JANISSARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_FRENCH_MUSKETEER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+
+diff --git a/README.md b/README.md
+index 291b080ed..a47fe26f9 100644
+--- a/README.md
++++ b/README.md
+@@ -239,6 +239,7 @@ Non-exhaustive, see docs for details, which includes but not only [README_Known_
+ - using ruff linter (vs code extension) and chatgpt to fix or/and sanitize a lot of ruff warnings or errors in our/the python code anyways etc (see notes at some useful tools in readme as well about rust for details anyways etc and also see google drive link there for examples anyways etc, as well as additional info from (what is written anyways etc) here maybe too anyways etc), while minding to be python 2.4 comaptible for civ4 if i am not mistaken this is the version civ4 uses anyways etc, examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similar if i am not mistaken anyways etc from what i understand of chatgpt's explanation and rephrasing it while understanding it in my own way too from my past knowlege too but anyways etc, inconsitent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well but in all cases or not or yes or etc anyways etc thanks anyways etc anyways etc anyways etc, also a lot of cleaning up of poor code formatting that i annoted if i may say as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt's help and my prompts too anyways etc, as well also as real fixes like mismatch in placeholder count in string format anyways etc
+ - Fixed obsolete bonuses (such as BONUS_ELEPHANTS, BONUS_DRAMA, etc anyways etc) in tech advisor (i.e. tech tree view anyways etc) failing to redirect to their corresponding sevopedia bonus page, with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc. The issue/bug/error anyways etc was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again but anyways etc) and not `widgetDataStruct.m_iData2`, which fixed it now if i am not mistaken anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc) for details anyways etc
+ - fixed some seemingly mistaken flavors in forbidden palace (asset renamed in advciv-sas to forbidden_palace anyways etc) in base advciv: military 5??? Now changed to a growth and gold based formula, see xml for updated values anyways etc
++- also fixed/replaced the strange the strange [PARAGRAPH:2:1] with the much more commonly used [PARAGRAPH:2] in our advciv-sas assets, i don't know what this strange format/thing is, but if the base `:2` can do it no need for a `:2:1` anyways etc, and strange trailing `[PARAGRAPH:2]</English>` and or such as well that also seem uneeded anyways etc
+ 
+ ## Not supported in AdvCiv-SAS
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index 3f75f986c..c3373a4b3 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -570,7 +570,7 @@ p239
+ I22
+ g215
+ tp240
+-a(S'BLDGCIV_BUILDING_VIKING_TRADING_POST'
++a(S'BLDGCIV_BUILDING_SCANDINAVIA_TRADING_POST'
+ p241
+ I22
+ g235
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 1b52fbbf4..e6bd06daa 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -570,7 +570,7 @@ p239
+ I22
+ g215
+ tp240
+-a(S'BLDGCIV_BUILDING_VIKING_TRADING_POST'
++a(S'BLDGCIV_BUILDING_SCANDINAVIA_TRADING_POST'
+ p241
+ I22
+ g235
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index f8f10b052..b4e13b3ad 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -484,7 +484,7 @@ I22
+ S'bldg'
+ p204
+ tp205
+-a(S'BLDGCIV_BUILDING_VIKING_TRADING_POST'
++a(S'BLDGCIV_BUILDING_SCANDINAVIA_TRADING_POST'
+ p206
+ I22
+ g204
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index 7e39fef13..95cfed774 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -504,7 +504,7 @@ I22
+ S'bldg'
+ p212
+ tp213
+-a(S'BLDGCIV_BUILDING_VIKING_TRADING_POST'
++a(S'BLDGCIV_BUILDING_SCANDINAVIA_TRADING_POST'
+ p214
+ I22
+ g212
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b5673977b..7750fb20f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -64,7 +64,7 @@ Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented
+ 
+ Leaving as is otherwise (except from hiding most or/and commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not anyways etc.
+ 
+-We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are way too often shared between leaders, not just the common to all leaders, may be a good opportunity perhaps, but not sure or guarnateed, for now only mentionning the issue.
++We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are way too often shared between leaders, not just the common to all leaders, may be a good opportunity perhaps, but not sure or guarnateed, for now only mentioning the issue.
+ 
+ ## 2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)
+ 
+@@ -397,13 +397,19 @@ Adjust this advice/feedback as you see fit or not fit or not see or not adjust o
+ 
+ ## 11 - In Debug mode, in map view, unexplored tile by the active player (if i am not mistaken see below anyways etc) if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely if i am not mistaken anyways etc ; and other weird debug mode display issue(s)
+ 
+-This is a small bug so just mentionning it, and perhaps it is even intended to be this way, but ideally in debug mode (ctrl+z and "chipotle" anyways etc), an unexplored tile by the tile active player (if i am not mistaken about what an active player is or seems to be (the current player, at least our autoplayed on player anyways etc)), even if unexplored but anyways etc, if improved, should should its improvement requirement as white not red or simply remove the improvement (or road too if i am not mistaken? Anyways etc) line entirely (i assume DLL handles this like in sevopedia? Anyways etc)
++This is a small bug so just mentioning it, and perhaps it is even intended to be this way, but ideally in debug mode (ctrl+z and "chipotle" anyways etc), an unexplored tile by the tile active player (if i am not mistaken about what an active player is or seems to be (the current player, at least our autoplayed on player anyways etc)), even if unexplored but anyways etc, if improved, should should its improvement requirement as white not red or simply remove the improvement (or road too if i am not mistaken? Anyways etc) line entirely (i assume DLL handles this like in sevopedia? Anyways etc)
+ 
+-As this is debug-only, and to not cause further issues, only mentionning it for now and not fixing it, screenshots about this issue, may be useful someday or not but anyways etc
++As this is debug-only, and to not cause further issues, only mentioning it for now and not fixing it, screenshots about this issue, may be useful someday or not but anyways etc
+ 
+ A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
+ 
+-Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above anyways etc, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep if i am not mistaken so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode anyways etc) vs 2 food accurately seemingly, without map reveal. I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentionning it here, may be helpful or not or yes or and other or and not, hopefully exhaustive too or not or yes or and other or and not as i wanted or not wanted or yes wanted or other or and not, but anyways etc anyways etc anyways etc...
++Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above anyways etc, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep if i am not mistaken so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode anyways etc) vs 2 food accurately seemingly, without map reveal. I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentioning it here, may be helpful or not or yes or and other or and not, hopefully exhaustive too or not or yes or and other or and not as i wanted or not wanted or yes wanted or other or and not, but anyways etc anyways etc anyways etc...
++
++## 11.2 - In debug mode, another weird bug is at wonder list while world wonder has not been built in said civs at least not all anyways etc
++
++A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1dtHQbjW9Z55O_KryENWcJsrlMhUVqyTH?usp=sharing)
++
++Similarly to [known issue number 11](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#11---in-debug-mode-in-map-view-unexplored-tile-by-the-active-player-if-i-am-not-mistaken-see-below-anyways-etc-if-improved-shows-as-red-for-example-with-road-or-with-pasture-even-though-a-road-is-already-there-and-text-should-be-white-instead-or-removed-entirely-if-i-am-not-mistaken-anyways-etc--and-other-weird-debug-mode-display-issues), this seems to be a debug mode only bug, as when toggling off debug mode while still in same game (ctrl+z if i am not mistaken as of now if not always or not but anyways etc), a wonder is shown to have been built by many civs, with the date showing hammer icon instead of a data number year or such, and looking inside said cities, no world wonder exists, so this seems to be a visual bug specific to debug mode if i am not mistaken, i didn't check all cities, but a few said to have the world wonder didn't have it, and since it is supposed to be "unique" i.e. only 1 in entire world (not civ-specific as civ4 says about "unique" in another way but anyways etc) i forgot my sentence but anyways etc i assume this is not too important to fix, but mentioning it for exhaustiveness and in case it helps but or not but or yes but but anyways etc
+ 
+ ## 12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather anyways etc) the hindu specific anyways etc monastery button instead of a generic button like the (abstract? Anyways etc / generic) generic temple and generic cathedral were
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design.txt
+index c565c7279..57db4d557 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design.txt
+@@ -118,7 +118,7 @@ teaches me tons and helps a lot, for game and personal knowledge, but no need to
+ 
+ - not commenting on every addition i make to the docs, added some doc(s) for example
+ a map about the battle of hastings (relates to alfred the great), may not and most likely will not do so, but if i find
+-a cool or rather (/and?) doc i want to add, maybe i would, not necessarily mentionning it here, may or not, but anyways (add in
++a cool or rather (/and?) doc i want to add, maybe i would, not necessarily mentioning it here, may or not, but anyways (add in
+ the docs folder in appendixes or somewhere maybe anyways), but not guaranteed, maybe i would do or not, anyways
+ 
+ - Richard the Lionheart was a great warrior but a poor king (as in not effective), so not adding him: https://www.google.com/search?q=Richard+the+Lionheart+was+he+good , in particuular very gold hungry (for war) regardless of consequences on the
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index 112cc905e..546176e78 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index 54dce1feb..d49de142d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+index 9d1fc70cd..7ba55c518 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 62b27aa96..24faf51be 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 43638a029..62b27aa96 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=49 embeddedFiles=49 omittedFiles=0 embeddedPatchBytes=148879

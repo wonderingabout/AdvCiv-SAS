@@ -1,0 +1,94 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3436
+# Commit: de496ab0185f84942375d4407154777bba950c20
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 65d76af87f1362ecdf235c1b4554b104bbb21a11
+# Title: Mercantilism allows trade routes between sibling vassals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	0	Assets/XML/Text/CIV4GameText_advc.xml
+5	3	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 1325a3a1c..326b2c213 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7116,4 +7116,25 @@
+ 		<Spanish>Obliga a los miembros de pleno derecho a declararos la guerra(!!) (Requiere %d1_ReqNum de %d2_TotNum votos totales)</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.124: Originally in CIV4GameTextInfos.xml. Said "no foreign
++		 trade routes", but vassals and master are exempt (despite being
++		 "foreign"). Now vassals of the same master are also exempt. -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_NO_FOREIGN_TRADE</Tag>
++		<English>[ICON_BULLET]No Trade Routes ([ICON_TRADE]) with Rivals</English>
++		<French>[ICON_BULLET]Aucune route commerciale &#233;trang&#232;re</French>
++		<German>[ICON_BULLET]Keine Handelswege ([ICON_TRADE]) mit Gegnern</German>
++		<Italian>[ICON_BULLET]Nessuna rotta commerciale estera ([ICON_TRADE])</Italian>
++		<Spanish>[ICON_BULLET]Sin rutas comerciales extranjeras ([ICON_TRADE])</Spanish>
++	</TEXT>
++	<!-- Originally in CIV4GameText_Strategy.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_MERCANTILISM_STRATEGY</Tag>
++		<English>Free specialist in each city but no trade routes with rivals</English>
++		<French>Un sp&#233;cialiste gratuit dans chaque ville, mais aucune route commerciale.</French>
++		<German>Bonus-Spezialist in allen St&#228;dten, aber keine Handelswege mit Gegnern.</German>
++		<Italian>Specialisti extra in ogni citt&#224;, ma nessuna rotta commerciale straniera</Italian>
++		<Spanish>Un especialista gratis en cada ciudad, pero no hay rutas comerciales con el extranjero.</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5f03138e9..1fe71c650 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -17909,11 +17909,13 @@ bool CvPlayer::canHaveTradeRoutesWith(PlayerTypes ePlayer) const
+ 	if (!GET_TEAM(getTeam()).isFreeTrade(kOtherPlayer.getTeam()))
+ 		return false;
+ 
+-	if (GET_TEAM(getTeam()).isVassal(kOtherPlayer.getTeam()))
++	/*if (GET_TEAM(getTeam()).isVassal(kOtherPlayer.getTeam()))
+ 		return true;
+-
+ 	if (GET_TEAM(kOtherPlayer.getTeam()).isVassal(getTeam()))
+-		return true;
++		return true;*/
++	// <advc.124> Also cover vassals of the same master
++	if (getMasterTeam() == kOtherPlayer.getMasterTeam())
++		return true; // </advc.124>
+ 
+ 	if (!isNoForeignTrade() && !kOtherPlayer.isNoForeignTrade())
+ 		return true;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1ef8cef8e..46e81b510 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -27407,8 +27407,8 @@ int CvPlayerAI::AI_countPotentialForeignTradeCities(bool bCheckConnected,
+ 		if (!kTeam.isFreeTrade(kOther.getTeam()))
+ 			continue;
+ 		if (bCheckForeignTradePolicy && kOther.isNoForeignTrade() &&
+-			!kTeam.isVassal(kOther.getTeam()) &&
+-			!GET_TEAM(kOther.getTeam()).isVassal(getTeam()))
++			// advc.124: Vassals of the same master now also exempt
++			kTeam.getMasterTeam() != kOther.getMasterTeam())
+ 		{
+ 			continue;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3107

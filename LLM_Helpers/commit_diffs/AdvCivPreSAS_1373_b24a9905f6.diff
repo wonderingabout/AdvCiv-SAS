@@ -1,0 +1,254 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1373
+# Commit: b24a9905f62c056acc595ff9577a76569c36e3e8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cd20f1d77cd3f23c6206ecc7957543a631b8aa0f
+# Title: AI starting units placed separately; cosmetic changes from Unofficial Patch (no DLL/ manual committed)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/Text/CIV4GameText_advc.xml
+12	1	Assets/xml/Text/K-Mod hints.xml
+1	1	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.h
+12	11	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyTeam.h
+1	1	CvGameCoreDLL/CyTeamInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 826528e9d..4556e252c 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -129,7 +129,7 @@
+ 		 CIV4GameText_Misc1.xml. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_AGGRESSIVE_AI_HELP</Tag>
+-		<English>Use the older K-Mod AI for decisions on war and peace instead of the newer and less aggressive AdvCiv AI. </English>
++		<English>Use the older K-Mod AI for decisions on war and peace instead of the newer (and less aggressive) AdvCiv AI. </English>
+ 		<French>Emploie l'IA agressive de K-Mod pour les d&#233;cisions de guerre et paix.</French>
+ 		<German>Verwende die K-Mod-KI f&#252;r Entscheidungen &#252;ber Krieg und Frieden (anstatt der neueren und weniger aggressiven AdvCiv-KI).</German>
+ 		<Italian>Usa l'IA aggressiva di K-Mod per le decisioni di guerra e pace.</Italian>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 6b8ee2f4c..64c2f9cb5 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -9,7 +9,7 @@
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ <!-- advc.008c: Added "(K-Mod)" to hints that describe K-Mod changes
+-	(even those that are just included in K-Mod because players may not know
++	(even those that are just included in K-Mod - because players may not know
+ 	that e.g. "BUG" is the name of a mod).
+ 	I'm also putting any corrections of BtS hints into K-Mod hints.xml, so that
+ 	CIV4GameText_advc.008d.xml only contains hints about AdvCiv changes. -->
+@@ -401,4 +401,15 @@
+ 	<Spanish>Tus cazas pueden interceptar varios aviones por turno, pero se vuelven menos eficaces a medida que sufren da&#241;os, por lo que debes preocuparte de reparar tus aviones defensivos.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: Changed "may not be" to "aren't". Rewrote the German
++	 translation. -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_20</Tag>
++	<English>Don't be afraid to attack with ranged units - archers and longbows aren't the best offensive units, but properly promoted, they can do a respectable job.</English>
++	<French>N'h&#233;sitez pas &#224; attaquer &#224; distance. Les archers et archers (arcs longs) ne sont pas les meilleures unit&#233;s de d&#233;fense, mais ils obtiennent des r&#233;sultats tout &#224; fait honorables avec une bonne promotion.</French>
++	<German>Bogen- und Armbrustsch�tzen sind zwar keine perfekten Offensiveinheiten, aber mit den richtigen Bef�rderungen k�nnen sie auch im Angriff Beachtliches leisten.</German>
++	<Italian>Non avere paura di attaccare con unit&#224; che colpiscono da lontano: arcieri e archi lunghi possono non essere le armi migliori per lanciare l'offensiva, ma con qualche promozione sono in grado di farsi rispettare.</Italian>
++	<Spanish>No tem&#225;is atacar con unidades de combate a distancia. Puede que los arqueros y saeteros no sean las mejores unidades de ataque, pero cumplen bien cuando se las asciende adecuadamente.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 4dacb6d0a..6bf79d253 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -588,7 +588,7 @@ double ArmamentForecast::productionFromUpgrades() {
+ 		/* Shouldn't draw conclusions from AI_getGoldToUpgradeAllUnits when
+ 		   AI upgrades are (modded to be) free or almost free. */
+ 		if(aiUpgradeFactor > 0.1)
+-			r /= aiUpgradeFactor;;
++			r /= aiUpgradeFactor;
+ 	}
+ 	return std::max(0.0, r);
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 83854972f..6c7d9c450 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -168,7 +168,7 @@ public:
+ 	DllExport void buildTerrainTradeString( CvWStringBuffer& szBuffer, TechTypes eTech, int iTerrainType, bool bList = false, bool bPlayerContext = false );
+ 	DllExport void buildRiverTradeString( CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false );
+ 	DllExport void buildSpecialBuildingString( CvWStringBuffer& szBuffer, TechTypes eTech, int iBuildingType, bool bList = false, bool bPlayerContext = false );
+-	DllExport void buildYieldChangeString( CvWStringBuffer& szBuffer, TechTypes eTech, int iTieldType, bool bList = false, bool bPlayerContext = false );
++	DllExport void buildYieldChangeString( CvWStringBuffer& szBuffer, TechTypes eTech, int iYieldType, bool bList = false, bool bPlayerContext = false );
+ 	DllExport bool buildBonusRevealString( CvWStringBuffer& szBuffer, TechTypes eTech, int iBonusType, bool bFirst, bool bList = false, bool bPlayerContext = false );
+ 	DllExport bool buildCivicRevealString( CvWStringBuffer& szBuffer, TechTypes eTech, int iCivicType, bool bFirst, bool bList = false, bool bPlayerContext = false );
+ 	DllExport bool buildProcessInfoString( CvWStringBuffer& szBuffer, TechTypes eTech, int iProcessType, bool bFirst, bool bList = false, bool bPlayerContext = false );
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9feb35dbe..94aa67002 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -929,7 +929,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 			m_paiHasReligionCount[iI] = 0;
+ 		}
+ 	
+-		FAssertMsg(m_paiHasCorporationCount==NULL, "about to leak memory, CvPlayer::m_paiHasReligionCount");
++		FAssertMsg(m_paiHasCorporationCount==NULL, "about to leak memory, CvPlayer::m_paiHasCorporationCount");
+ 		m_paiHasCorporationCount = new int[GC.getNumCorporationInfos()];
+ 		for (iI = 0;iI < GC.getNumCorporationInfos();iI++)
+ 		{
+@@ -1712,12 +1712,12 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 	int iI;
+ 
+ 	// advc.108: Right-hand side cut-and-pasted from below
+-	bool isSettler = (eUnitAI == UNITAI_SETTLE) ||
++	bool bFound = (eUnitAI == UNITAI_SETTLE) ||
+ 			(GC.getUnitInfo(eUnit).getDefaultUnitAIType() == UNITAI_SETTLE);
+ 
+ 	if (GC.getGameINLINE().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+ 	{
+-		if (isSettler) // advc.108: No functional change
++		if (bFound) // advc.108: No functional change
+ 		{
+ 			if (AI_getNumAIUnits(UNITAI_SETTLE) >= 1)
+ 			{
+@@ -1732,13 +1732,14 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 		return;
+ 	pBestPlot = NULL;
+ 
+-	if (isHuman())
++	//if (isHuman())
++	if(eUnitAI == UNITAI_EXPLORE) // advc.108
+ 	{
+ 		long lResult=0;
+ 		gDLL->getPythonIFace()->callFunction(gDLL->getPythonIFace()->getMapScriptModule(), "startHumansOnSameTile", NULL, &lResult);
+ 		if (lResult == 0)
+ 		{
+-			if (!(GC.getUnitInfo(eUnit).isFound()))
++			if (!GC.getUnitInfo(eUnit).isFound())
+ 			{
+ 				iRandOffset = GC.getGameINLINE().getSorenRandNum(NUM_CITY_PLOTS, "Place Units (Player)");
+ 
+@@ -1750,11 +1751,11 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					{
+ 						if (pLoopPlot->getArea() == pStartingPlot->getArea())
+ 						{
+-							if (!(pLoopPlot->isImpassable()))
++							if (!pLoopPlot->isImpassable())
+ 							{
+-								if (!(pLoopPlot->isUnit()))
++								if (!pLoopPlot->isUnit())
+ 								{
+-									if (!(pLoopPlot->isGoody()))
++									if (!pLoopPlot->isGoody())
+ 									{
+ 										pBestPlot = pLoopPlot;
+ 										break;
+@@ -1773,8 +1774,8 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 		pBestPlot = pStartingPlot;
+ 	}
+ 
+-	// <advc.108> Centered on the Settler, not on the starting plot
+-	if(isSettler)
++	// <advc.108> Centered on the Settler, not on the starting plot.
++	if(bFound)
+ 		TEAMREF(getID()).revealSurroundingPlots(*pBestPlot,
+ 				GC.getDefineINT("START_SIGHT_RANGE"));
+ 	// </advc.108>
+@@ -12303,7 +12304,7 @@ HandicapTypes CvPlayer::getHandicapType() const
+ {
+ 	// <advc.127>
+ 	if(isHumanDisabled() && // <advc.706>
+-			// Even with R&F, Ctrl+Shift+X still leads to Auto Play with AI handicap
++			// With R&F, Ctrl+Shift+X still leads to Auto Play with AI handicap.
+ 			(!GC.getGameINLINE().isOption(GAMEOPTION_RISE_FALL) ||
+ 			!GC.getGameINLINE().getRiseFall().hasRetired()))
+ 			// </advc.706>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 82a458c07..ab3f55f51 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -24797,8 +24797,8 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 			double multiplier = 2;
+ 			/*  I don't think closeness is intended to be a percentage, but based on
+ 				some sample values (Ctrl key on the capital in debug mode; closeness
+-				is shown in square brackets), it tends to between 0 and 100. */
+-			multiplier *= ::dRange(iCloseness / 100.0, 0.0, 1.0) + 0.3;;
++				is shown in square brackets), it tends to be between 0 and 100. */
++			multiplier *= ::dRange(iCloseness / 100.0, 0.0, 1.0) + 0.3;
+ 			// <advc.022> Reduced paranoia if resistance futile
+ 			double powRatio = iTheirPower / (double)iOurDefensivePower;
+ 			/*  No change if ratio is 165% or less; 215% -> 50% reduced paranoia;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d8c243656..3ea1d3235 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9504,7 +9504,7 @@ int CvUnit::experienceNeeded() const
+ int CvUnit::attackXPValue() const
+ {
+ 	return m_pUnitInfo->getXPValueAttack()
+-			- (isBarbarian() ? 1 : 0); // advc.312;;
++			- (isBarbarian() ? 1 : 0); // advc.312
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 64ebd655e..a60d5506d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14815,7 +14815,7 @@ bool CvUnitAI::AI_patrol()
+ 									u.getFeatureNative(p.getFeatureType()) :
+ 									u.getTerrainNative(p.getTerrainType()))
+ 								iValue += GC.getGameINLINE().getSorenRandNum(
+-										10000, "advc.309");;
++										10000, "advc.309");
+ 						} else { // Animals shouldn't follow a consistent direction
+ 						// </advc.309>
+ 							/*  <advc.102> Prefer facedPlot or a plot that's
+
+diff --git a/CvGameCoreDLL/CyTeam.h b/CvGameCoreDLL/CyTeam.h
+index ab2709e39..3fd01bdeb 100644
+--- a/CvGameCoreDLL/CyTeam.h
++++ b/CvGameCoreDLL/CyTeam.h
+@@ -52,7 +52,7 @@ public:
+ 	int getUnitClassMaking(int /*UnitClassTypes*/ eUnitClass);
+ 	int getUnitClassCountPlusMaking(int /*UnitClassTypes*/ eUnitClass);
+ 	int getBuildingClassMaking(int /*BuildingClassTypes*/ eBuildingClass);
+-	int getBuildingClassCountPlusMaking(int /*BuildingClassTypes*/ eUnitClass);
++	int getBuildingClassCountPlusMaking(int /*BuildingClassTypes*/ eBuildingClass);
+ 	int getHasReligionCount(int /*ReligionTypes*/ eReligion);
+ 	int getHasCorporationCount(int /*CorporationTypes*/ eCorporation);
+
+diff --git a/CvGameCoreDLL/CyTeamInterface.cpp b/CvGameCoreDLL/CyTeamInterface.cpp
+index 7e6893460..168600318 100644
+--- a/CvGameCoreDLL/CyTeamInterface.cpp
++++ b/CvGameCoreDLL/CyTeamInterface.cpp
+@@ -181,7 +181,7 @@ void CyTeamPythonInterface()
+ 		.def("getProjectMaking", &CyTeam::getProjectMaking, "bool (int /*ProjectTypes*/ eIndex)")
+ 		.def("getUnitClassCount", &CyTeam::getUnitClassCount, "int (int (UnitClassTypes) eIndex)")
+ 		.def("isUnitClassMaxedOut", &CyTeam::isUnitClassMaxedOut, "bool (int (UnitClassTypes) eIndex, int iExtra)")
+-		.def("getBuildingClassCount", &CyTeam::getBuildingClassCount, "bool (int /*BuildingClassTypes*/ eIndex)")
++		.def("getBuildingClassCount", &CyTeam::getBuildingClassCount, "int (int /*BuildingClassTypes*/ eIndex)")
+ 		.def("isBuildingClassMaxedOut", &CyTeam::isBuildingClassMaxedOut, "bool (BuildingClassTypes, iExtra)")
+ 		.def("getObsoleteBuildingCount", &CyTeam::getObsoleteBuildingCount)
+ 		.def("isObsoleteBuilding", &CyTeam::isObsoleteBuilding, "bool (BuildingID - is BuildingID obsolete?")
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=11650

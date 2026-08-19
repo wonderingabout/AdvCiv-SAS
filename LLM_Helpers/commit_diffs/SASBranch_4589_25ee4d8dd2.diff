@@ -1,0 +1,293 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4589
+# Commit: 25ee4d8dd2c1f86fe378030b49ce2813b7948a36
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b490304d742b5d4b4ae43af3c8a640f3fc29e054
+# Title: Rename "Unit Categories" to "Unit Classes", and "Unique Units" to "Civilization Units", and update docs see commit changes for details, hopefully clearer thi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+81	0	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+7	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+8	8	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+54	39	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index acd05f88c..18c050549 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -126,4 +126,85 @@ hopefully more readable now at least about this i mean anyways -->
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++
++	<!-- custom: clearer or/and more specific or/and
++	consistent with the "language"/terminology i mean
++	anyways if i may say etc i mean anyways, thanks,
++	used in Civ4/base AdvCiv (by extension etc i mean
++	anyways, thanks, ), no reason not to use it, about
++	this etc i mean anyways, thanks, -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
++		<English>Unit Classes</English>
++		<French>
++			<Text>Unit Classes</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Unit Classes</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Unit Classes</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Unit Classes</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
++	<!-- custom: "Unique Units" are/were etc about this i mean
++	anyways, thanks, not unique (could be built many times, just
++	by one civ if i am not mistaken), just restricted to one civ
++	if i am not mistaken i mean anyways and about this etc i mean
++	anyways, thanks, so renaming it to "Civ-specific Units".
++	After futher consideration, about this etc, there are no
++	Multi Civ-specific units (units that can be built only
++	be a few civs in common) in AdvCiv-SAS if i am not mistaken,
++	and about this etc, and the name is quite tedious/complicated
++	to remember/use, so renaming it rather to "Civilization Units",
++	which may be shortened to "Civ Units" by players if they so
++	desire or prefer maybe, about this etc i mean anyways, thanks,
++	hopefully clearer. -->
++	<TEXT>
++		<Tag>TXT_KEY_FREE_UNITS</Tag>
++		<English>Civilization Units</English>
++		<French>Civilization Units</French>
++		<German>Civilization Units</German>
++		<Italian>Civilization Units</Italian>
++		<Spanish>Civilization Units</Spanish>
++	</TEXT>
++		<TEXT>
++		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
++		<English>No Civilization Unit</English>
++		<French>No Civilization Unit</French>
++		<German>No Civilization Unit</German>
++		<Italian>No Civilization Unit</Italian>
++		<Spanish>No Civilization Unit</Spanish>
++	</TEXT>
++	<!-- custom: "Civilization Unit for Russian Empire"
++	-> "Civilization Unit For the Russian Empire";
++	Adding a "the" too, hopefully clearer this way,	also i was
++	not sure if "of" is more correct than "for" but seems more
++	intuitive to me but may be grammatically incorrect or less
++	accurate, leaving as is but adding a mention of it here
++	etc, thanks,
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
++		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
++		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
++		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
++		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
++		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
++	</TEXT>
++	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
++	as it is an outdated doc anyways i mean etc i mean anyways,
++	indicating it as such too etc i mean anyways and about this
++	etc at least i mean etc i mean anyways, thanks, -->
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 370568a04..50db61f26 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -871,3 +871,10 @@ delete this later etc quite well, about this etc i mean anyways, thanks,
+ - about the snipers wanted to choose the units with a quite big backpack and that look quite thin too, remins me of my
+ empire earth (1 (i also played (empire earth (2) but bit less and unrelated (to this point) etc i mean anyways, thanks, ))) souvenirs / memories of the sniper unit, is about this and first part of the sentence too at least was when
+ writing this todo delete this later before merging this pr etc i mean anyways, thanks,
++
++- noticing this later about this etc, but it's also convenient the upgrade design path is (fairly/quite) straightforward
++(all archer upgrades into guns, all mounted into tanks, etc) as this way, it also allows units tree to be more compact and
++hopefully maybe clearer too, pleasant side effect, did not intend it to be this way but nice that it is (ended up) being
++this way now, but is about this i mean, and meant when writing todo delete this (part of the and is about this etc at least
++when writing etc todo delete later before merging (this pr etc i mean anyways, thanks) etc i mean anyways, thanks, )
++note before merging etc i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 5b139e473..48c9e5f99 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -1,13 +1,13 @@
+ eras:
+-1 = starter / stone age(?)
++1 = stone age
+ 2 = bronze age
+ 3 = iron age
+-4 = medieval
++4 = medieval era
+ 5 = renaissance
+-6 = industrial
+-7 = atomic
+-8 = modern
+-9 = robotic
++6 = industrial era
++7 = atomic era
++8 = modern era
++9 = robotic era
+ 
+ _________________________________________________________________________
+ base units removed:
+@@ -414,7 +414,7 @@ camel archer 4: late horse archer realism invictus
+ camel lancers
+ -
+ -
+-camel lancer 3: bactrian cataphract c2c
++camel lancer 3: bactrian cataphract c2c todo remove flag icon etc about this etcs
+ camel lancer 4: camel knight c2c
+ 
+ 
+@@ -449,7 +449,7 @@ camel gun defense:
+ -
+ -
+ camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself but not guaranteed result etc
+-camel gun defense 6: meharist _ camel rifle guard c2c
++camel gun defense 6: meharist _ camel rifle guard c2c todo remove flag of in the icon about this etc
+ -
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index a62b93365..f1ce50920 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -37,6 +37,59 @@ to win against a tank, and also much less likely for a swordsman to every match
+ musketman, for example, which should also make more sense historically hopefully.
+ Defenders may have a chance to prevail while being behind in tech but it will be
+ (much) harder.
++- the civilopedia is renamed the sevopedia, it is the same thing but is the name
++of the more modern version (made by modders) of it.
++- on that note, unit classes todo refers to unit categories/types, for example
++in Civ4 BTS/base AdvCiv these were for example archers, explore units, etc.
++- there are many new unit classes todo, see the sevopedia entry "Unit classes"
++for details. This allows to give specific bonuses to specific classes. For example,
++there are now new classes classes of units (and modified existing ones too), for
++example for there is no more "melee" class that the spearman was part of in civ4
++BTS/base advciv. Instead of these old classes and units, for example about the
++former spearman, there are now lancers (new type of units) that are subdivided into
++3 new classes: melee_lancer_light, melee_lancer_medium (includes the former spearman
++that is now a lancer medium at the bronze age era, for example), melee_lancer_heavy.
++See the "Unit classes" category of the sevopedia (ingame) for details.
++- each of these classes have different units with different strengths and weaknesses,
++but to give a general idea, generally the faster ones will have less damage/strength
++but better at defense/avoiding/harassing other units quite freely, while the slower
++ones have high strength, can defend and attack well, but no such bonuses, and may
++cost a bit more too, see the
++[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
++, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
++too btw) in/at "Units Tree".
++- A consequence of this is also that now there will be hopefully no more weirdness of
++the axeman being good against lancer, now the relationships between types will be more
++complicated or rather defined (may make more sense at same time too), for example an
++axeman may be good against swordsmen (for example todo), but not against heavy lances.
++Light lances may have strong bonuses against all/most melee types, except fast ones,
++and light swords strong bonuses against all/most melee types too except fast ones
++(their strength would be lower though). Strategy should be much more important while
++not being too tedious ideally.
++- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
++than a medieval light swordsman, but the medieval light swordsman will have (much more)
++bonuses that should make him (or her but most often him i mean anyways) more valuable
++as a military unit. This is also realistic too, no reason why an ancient maceman could
++not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
++too extremely the case i think, in base advciv/bts, even accounting for armor and such,
++i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
++to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
++and not tedious experience too i mean anyways.
++- unique units are now renamed civilization units: they are not unique and can be built
++many times, just by only one civ in AdvCiv-SAS (and in base civ4 BTS/AdvCiv too if i
++am not mistaken) if i am not mistaken at least. Could be shortened to civ units maybe
++too as i may or not or not always do further in this doc or/and other docs, hopefully
++the meaning of this expression would be clear enough (fast worker for india for example)
++- The tech tree is fairly straightforward, with max one (minus the civ units)
++unit type per era, for example, which should hopefully help make sense of that and getting
++immersed into it, while not neglecting on strategy, hopefully, at least was my/one of my
++goal(s) making (and became as i was making too) this AdvCiv-SAS mod. Note also that this
++is not the case for all units and eras, only the ones i found most relevant ones and to
++not be tedious enough (there is no work boat 1 work boat 2 workboat 3 etc for example,
++only one for all eras, but there are a few workers every few eras, but there are military
++units for each new era, at max one unit per class type (for example "sword light", "lance
++heavy", are each one type), and not for all types, also lesser in later stages of the game
++to simplify/rush/reach sooner the endgame)
+ - explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack,
+ maybe even workers too
+@@ -57,44 +110,6 @@ to better accomodate its history and stats, can be built starting from a differe
+ tech, in particular the settler is now not freely available but requires agriculture
+ (is historical too, but for convenience first settler at starting game is provided
+ for free as it was in Civ4 BTS and AdvCiv)
+-- another example is that there are some subclasses of units, for example for
+-"spearmen", there are now "lance light" units, "lance medium" units, and "lance
+-heavy" units. Each have different strengths and weaknesses, with generally the
+-faster ones having less damage/strength but better at defense/avoiding/harassing
+-other units quite freely, while the slower ones have high strength, can defend
+-and attack well, but no such bonuses, and may cost a bit more too, see the
+-[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
+-, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
+-too btw) in/at "Units Tree".
+-- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
+-than a medieval light swordsman, but the medieval light swordsman will have (much more)
+-bonuses that should make him (or her but most often him i mean anyways) more valuable
+-as a military unit. This is also realistic too, no reason why an ancient maceman could
+-not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
+-too extremely the case i think, in base advciv/bts, even accounting for armor and such,
+-i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
+-to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
+-and not tedious experience too i mean anyways. The tech tree is fairly straightforward,
+-with max one unit type per era, for example, which should hopefully help make sense
+-of that and getting immersed into it, while not neglecting on strategy, hopefully,
+-at least was my/one of my goal(s) making (and became as i was making too) this
+-AdvCiv-SAS mod. Note also that this is not the case for all units and eras, only the
+-ones i found most relevant ones and to not be tedious enough (there is no work boat
+-1 work boat 2 workboat 3 etc for example, only one for all eras, but there are a few
+-workers every few eras, but there are military units for each new era, at max one unit
+-per class type (for example "sword light", "lance heavy", are each one type), and not
+-for all types, also lesser in later stages of the game to simplify/rush/reach sooner
+-the endgame)
+-- about that too, there are new - specific - unit combat types, for example axemen
+-are melee_axe type, light swordsmen melee_swords_light, heavy lance units are
+-melee_lance_heavy. So no more weirdness of axeman being good against lancer,
+-now the relationships between types will be more complicated or rather defined
+-(may make more sense at same time too), for example an axeman may be good against
+-swordsmen (for example todo), but not against heavy lances. Light lances may have
+-strong bonuses against all/most melee types, except fast ones, and light swords strong
+-bonuses against all/most melee types too except fast ones (their strength would be
+-lower though). Strategy should be much more important while not being too tedious
+-ideally.
+ - some units can only be built under specific conditions, for example each religion
+ has one unit (same for neo religions at later eras. See religion changes below for
+ details), for example Buddhism is required to build monks (melee fist fighters)
+@@ -106,7 +121,7 @@ point) page of the sevopedia?
+ slightly (for example: todo), some weaker ones buffed quite a lot (for example
+ the jaguar warrior)
+ - some units automatically upgrade, for example the workers, scout, and similar
+-units. They get a new design grahically at a new era, but also more bonuses, for
++units. They get a new design graphically at a new era, but also more bonuses, for
+ example every few eras workers may become more and more productive (faster
+ improvement build time, or/and move speed/ or and other things for example).
+ This is to remove the tediousness or a part of it from the game
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15668

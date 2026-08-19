@@ -1,0 +1,97 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5944
+# Commit: 9f5bc5b34046f911396ce598dcee93615c201230
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2a5c7ba163286d1b9661b4de4be9f41d0bc470e2
+# Title: Allow AI workers to improve reachable city tiles when preferred unimproved tiles are unreachable - Before: if any unimproved BFC improvement candidate existe...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+28	2	CvGameCoreDLL/CvUnitAI.cpp
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index cce0a88a8..22caca94d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2407,6 +2407,33 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	CvPlot* pBestPlot = NULL;
+ 	BuildTypes eBestBuild = NO_BUILD;
+ 	bool bFound = false;
++	int const iRange = 0;
++	// <!-- custom: pathable/reservable blank-BFC work should be tried before ordinary replacement churn, but raw blank candidates alone are not enough.
++	// Logs showed Ankara skipping a Mine->Windmill replacement because a blank BFC farm candidate existed, then finding no pathable city-build candidate anyway.
++	// Only suppress replacements when this worker has at least one reachable and unreserved unimproved BFC improvement candidate.
++	// In a full-game log test, replacement-skip lines dropped from 1130 to 121 and accepted city-build scans rose from 24.9% to 41.5%, while overwrite churn only changed from 347 to 360. (ChatGPT-5.5 + GPT-5.5) -->
++	bool bHasPathableUnimprovedBFCImprovementCandidate = false;
++	if (bHasUnimprovedBFCImprovementCandidate)
++	{
++		for (size_t i = 0; i < candidatePlots.size(); ++i)
++		{
++			CvPlot* pCandidatePlot = candidatePlots[i].pPlot;
++			BuildTypes eCandidateBuild = candidatePlots[i].eBuild;
++			if (pCandidatePlot == NULL || eCandidateBuild == NO_BUILD || candidatePlots[i].ePlot == NO_CITYPLOT)
++				continue;
++			if (pCandidatePlot->getImprovementType() != NO_IMPROVEMENT || GC.getInfo(eCandidateBuild).getImprovement() == NO_IMPROVEMENT)
++				continue;
++			if (pCandidatePlot->isVisibleEnemyUnit(this) || !pathFinder.generatePath(*pCandidatePlot))
++				continue;
++			int const iMaxWorkers = 1;
++			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pCandidatePlot, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
++			if (iReservedPlot < iMaxWorkers)
++			{
++				bHasPathableUnimprovedBFCImprovementCandidate = true;
++				break;
++			}
++		}
++	}
+ 
+ 	// Loop through all candidate <!-- custom: plots -->
+ 	for (size_t i = 0; i < candidatePlots.size(); ++i)
+@@ -2428,7 +2455,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 		}
+ 		// <!-- custom: and of the additions to fix crash at turn 77 -->
+ 
+-		if (bHasUnimprovedBFCImprovementCandidate)
++		if (bHasPathableUnimprovedBFCImprovementCandidate)
+ 		{
+ 			ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
+ 			ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
+@@ -2490,7 +2517,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
+ 			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+ 			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+-			int const iRange = 0;
+ 			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+ 			int const iMaxWorkers = 1;
+ 			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pB, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 30b4edeea..622a0748b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -196,7 +196,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, **more aggressive early slaving**, or **specialist economies**; (Requires AdvCiv-SAS 5914+) concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield ((Requires AdvCiv-SAS 5926+) **Reserve** likely irrigation/farm connector plots **from non-farm builds** to reduce AI worker farm/non-farm oscillation).
+ - **Feature-removal health handling in `CvUnitAI::AI_bestCityBuild`:** forests provide city health, so non-bonus forest chops are **weighted by city population and health surplus**; **small cities** can still chop, but when health is tight the AI usually **prefers other useful improvements** because removing forest health can make the city unhealthy or more unhealthy. **Jungle is different** because it **adds unhealth** and is **generally targeted** for removal/improvement. (Requires AdvCiv-SAS 5941+) For **medium/large cities**, non-bonus forested BFC plots have a **softer health penalty**. This is because later in the game we usually have many health sources (trade, owned bonuses, buildings, techs, etc.), **higher population** can use or needs more improved BFC plots, and **improved yields are stronger**, so leaving useful forested tiles unimproved forever can be worse than accepting the forest-health loss.
+ - **Mobility:** workers leave "over-improved" cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but).
+-- Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals. (Requires AdvCiv-SAS 5938+) Update 2: **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn, such as **Mine ↔ Windmill** or **Cottage ↔ Farm**, while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain farms. (Requires AdvCiv-SAS 5942+) Update 3: the small-city rotation shortcut no longer makes a worker leave **if it is already standing on this same city's owned/workable non-home BFC plot** and `AI_bestCityBuild` selects that plot as the current best local build. This fixed or reduced cases like workers roading a useful forested or otherwise improvable plot and then walking away instead of finishing the chop/improvement, then leaving it unimproved late in the game.
++- Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals. (Requires AdvCiv-SAS 5938+) Update 2: **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn (e.g., **Mine ↔ Windmill**, **Cottage ↔ Farm**) ((Requires AdvCiv-SAS 5944+) unless there is no other pathable and unreserved unimproved BFC improvement candidate for this worker), while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain farms. (Requires AdvCiv-SAS 5942+) Update 3: the small-city rotation shortcut no longer makes a worker leave **if it is already standing on this same city's owned/workable non-home BFC plot** and `AI_bestCityBuild` selects that plot as the current best local build. This fixed or reduced cases like workers roading a useful forested or otherwise improvable plot and then walking away instead of finishing the chop/improvement, then leaving it unimproved late in the game.
+ - **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
+ 
+ - (Requires AdvCiv-SAS 5918+) **Worker irrigation-chain hunting:** updated SAS AI worker logic so it now **starts from actual dry-farm / low-food BFC targets** and **hunt short owned irrigation-chain steps**, including first links **outside the city BFC**. This fixed Chaco Canyon and Harappan-style cases where a nearby (2-3 plots away from BFC) water source existed but BFC-only worker logic missed the first link, though workers currently may still not always immediately finish every remaining chain link.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=10774

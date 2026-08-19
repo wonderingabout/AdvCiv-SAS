@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4417
+# Commit: 39eab367845417860483f5c34d2b81d9fcd227aa
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 153bab2691c3a88edefa75a941776ecb1579ef8c
+# Title: Tweak AI target for floating defenders when unit spending high
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	5	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 9daf70174..384bff22c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2521,11 +2521,16 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	if (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders &&
+ 		(!bFinancialTrouble || bLandWar))
+-	{
+-		if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
+-		{
+-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose floating defender 2", getName().GetCString());
+-			return;
++	{	// <advc.107> Respect spending cap unless low on defenders (based on SAS)
++		bool bFloatingDefendersLow = (iTotalFloatingDefenders * 100 <
++				iNeededFloatingDefenders * 72);
++		if (bLandWar || bFloatingDefendersLow || iUnitSpending < iMaxUnitSpending + 15)
++		{	// </advc.107>
++			if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
++			{
++				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose floating defender 2", getName().GetCString());
++				return;
++			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=1036

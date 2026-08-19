@@ -1,0 +1,353 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5964
+# Commit: 0759bd4dba4d2cbf652e8cb905e5f9b7bb787e7d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7c468992643c5f19ef1125e87f1c1c39635d0185
+# Title: Add python-ruff.yml (with some rules ignored); Fix Civ4 shadowed helpers and Base AdvCiv bug of using undefined Point instead of PointLayout (See KI#164 and...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	.github/workflows/README.md
+1	1	.github/workflows/build/opening_music.py
+46	0	.github/workflows/python-ruff.yml
+5	5	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+4	2	Assets/Python/Screens/RectLayout.py
+16	15	PrivateMaps/Oasis.py
+2	0	README.md
+40	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+6	4	ruff.toml
+ create mode 100644 .github/workflows/python-ruff.yml
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index ebf2c589d..bc0b55495 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -2,6 +2,7 @@
+ 
+ These files are developer/repository automation, not Civ4 runtime files.
+ 
++- `python-ruff.yml` shows full Ruff output and runs critical Ruff Python sanity checks.
+ - `build.yml` runs checks that should pass for ordinary committed builds.
+ - `build/` contains Python 3 build-check scripts used by `build.yml`.
+ - `lib/` contains shared Python 3 helpers used by workflow scripts.
+@@ -20,6 +21,14 @@ According to ChatGPT-5.5:
+ 
+ For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness. This also helped spot and fix duplicate parent XML keys [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See if needed [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)).
+ 
++## Python Ruff workflow
++
++[`python-ruff.yml`](/.github/workflows/python-ruff.yml) runs latest Ruff through `astral-sh/ruff-action` as a separate Python sanity workflow. It intentionally runs isolated from [`ruff.toml`](/ruff.toml), because `ruff.toml` is for the user's VS Code Ruff extension and local editing signal/noise, not for CI strictness. The local config keeps legacy Civ4/Python 2.4 false-positive noise manageable in the user's IDE, while GitHub should show the broader repository picture.
++
++The workflow first prints the full `ruff check . --isolated --select ALL` grouped report so all findings are visible, then fails on a practical critical gate (ignoring only those deemed non-critical and too noisy after empirical review) for syntax/parse errors and Pyflakes bug checks. The first GitHub run showed that only a few rules were clearly too noisy, so this is the first cautious narrowing step; narrow further only from actual failure output. For example, this helped spot shadowed duplicate Python callbacks in the base Civ4 `Oasis.py` map script (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)) and a dormant undefined `Point` (instead of `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)).
++
++Note: Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now.
++
+ ## Current build checks
+ 
+ - [`build/temp_files.py`](#buildtemp_filespy)
+
+diff --git a/.github/workflows/build/opening_music.py b/.github/workflows/build/opening_music.py
+index c8080e668..01a758f24 100644
+--- a/.github/workflows/build/opening_music.py
++++ b/.github/workflows/build/opening_music.py
+@@ -96,7 +96,7 @@ def check_opening_music(repo_root: Path) -> list[str]:
+ 		failures.append(f"GlobalDefines_advciv_sas.xml: {SHUFFLE_ENABLE_DEFINE} is enabled but no non-NONE shuffle script is configured")
+ 
+ 	if not shuffle_enabled and not trigger_script:
+-		failures.append(f"GlobalDefines_advciv_sas.xml: shuffle is disabled and no fixed/trigger opening script is configured")
++		failures.append("GlobalDefines_advciv_sas.xml: shuffle is disabled and no fixed/trigger opening script is configured")
+ 
+ 	return failures
+
+diff --git a/.github/workflows/python-ruff.yml b/.github/workflows/python-ruff.yml
+new file mode 100644
+index 000000000..dab897041
+--- /dev/null
++++ b/.github/workflows/python-ruff.yml
+@@ -0,0 +1,46 @@
++name: Python Ruff
++
++on:
++  push:
++    paths:
++      - "**.py"
++      - ".github/workflows/python-ruff.yml"
++      - "ruff.toml"
++  pull_request:
++    # <!-- custom: PR #13 is a long-lived reference compare from tech-rework to 1.12.
++    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5 + GPT-5.5) -->
++    branches-ignore:
++      - "1.12"
++    paths:
++      - "**.py"
++      - ".github/workflows/python-ruff.yml"
++      - "ruff.toml"
++  workflow_dispatch:
++
++jobs:
++  python-ruff:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/<hidden-email>
++      - name: Install Ruff
++        uses: astral-sh/<hidden-email>
++        with:
++          version: "latest"
++          args: "--version"
++      - name: Full Ruff report
++        shell: bash
++        run: |
++          # <!-- custom: Show the full latest Ruff report in GitHub Actions logs so all findings are visible/downloadable when needed, but do not fail here because broad style/design rules are too noisy for legacy Civ4/Python 2.4 code. Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now. (ChatGPT-5.5 + GPT-5.5) -->
++          # <!-- custom: Some legacy Civ4 Python 2 names are built-ins at runtime but undefined to modern Ruff; list reviewed cases through Ruff config, not a nonexistent --builtins CLI flag. (GPT-5.5) -->
++          ruff check . --isolated --config "builtins = ['unicode']" --select ALL --output-format=grouped --exit-zero
++      - name: Ruff critical gate
++        shell: bash
++        run: |
++          # <!-- custom: Fail CI on Ruff syntax/parse errors plus Pyflakes bug checks. The full report above shows every Ruff finding; after the first GitHub run, only a few rules were clearly too noisy, so keep the rest of F failing until actual output proves more narrowing is needed. (ChatGPT-5.5 + GPT-5.5) -->
++          # Assets/Python/Screens/CvForeignAdvisor.py:17:8: F401 `ScreenInput` imported but unused
++          # Assets/Python/BUG/SpyUtil.py:9:1: F403 `from CvPythonExtensions import *` used; unable to detect undefined names
++          # Assets/Python/BUG/SpyUtil.py:14:6: F405 `CyGlobalContext` may be undefined, or defined from star imports
++          # <!-- custom: Note: extra caution about F841, sometimes declared variables run instructions, for example disabling an unused variable to fix a ruff warning caused Sevopedia Promotions to miss many promotions (see Sevopedia Promotions). So fix them with caution. -->
++          # Assets/Python/EntryPoints/CvScreensInterface.py:1091:2: F841 Local variable `bOption1` is assigned to but never used
++          # <!-- custom: See full-report command above for why reviewed legacy Python 2 built-ins are passed through Ruff config here. (GPT-5.5) -->
++          ruff check . --isolated --config "builtins = ['unicode']" --select E9,F --ignore F401,F403,F405,F841 --output-format=github
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 847be547d..b67cbc7d4 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -725,12 +725,12 @@ def add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButton
+ 
+ def chart_font2(szText):
+ 	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
+-	return sasFontTagLabel + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
++	return sasFontTagLabel + unicode(szText) + SAS_FONT_TAG_CLOSE
+ 
+ def chart_encode_base5(iValue, iDigits):
+ 	# Encode an integer as a base-5 string using invisible Unicode chars.
+ 	out = []
+-	for _ in xrange(iDigits):  # noqa: F821
++	for _ in xrange(iDigits):
+ 		out.append(CHART_SORT_DIGITS[iValue % 5])
+ 		iValue //= 5
+ 	out.reverse()
+@@ -864,7 +864,7 @@ def _chart_clean_cell_text(cell):
+ 		text = cell
+ 	if text is None:
+ 		text = u""
+-	text = unicode(text)  # noqa: F821
++	text = unicode(text)
+ 	text = re.sub(r"</?font[^>]*>", u"", text)
+ 	text = re.sub(r"</?color[^>]*>", u"", text)
+ 	for digit in CHART_SORT_DIGITS:
+@@ -923,7 +923,7 @@ def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWid
+ 	# startCol: column index to start at
+ 	# numCols: number of icon columns to add
+ 	# colWidth: width for each column
+-	for iCol in xrange(numCols):  # noqa: F821
++	for iCol in xrange(numCols):
+ 		screen.setTableColumnHeader(tableName, startCol + iCol, "", colWidth)
+ 
+ def inchart_calc_ranking_bar(value, minVal, maxVal, maxPlus=5):
+@@ -968,7 +968,7 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount,
+ 	# For civs/techs: extraData is not required
+ 
+ 	# <!-- custom: In-category chart icon cells are standalone image columns, so give them the same invisible text sort key as full chart-category icon cells. (GPT-5.5) -->
+-	for iCol in xrange(colCount):  # noqa: F821
++	for iCol in xrange(colCount):
+ 		if iCol >= len(itemIds):
+ 			# Empty cell
+ 			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(0, row), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 95cb461bc..88fc6de39 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -20,7 +20,8 @@ class PointLayout:
+ 		self.fX += dX
+ 		self.fY += dY
+ 	def __str__(self):
+-		return ( "Point(" + str(self.fX) + ", " + str(self.fY) + ")" )
++		# <!-- custom: Keep the debug/display string aligned with the actual PointLayout class name after fixing the undefined Point helper; see KI#165. (GPT-5.5) -->
++		return ( "PointLayout(" + str(self.fX) + ", " + str(self.fY) + ")" )
+ 
+ # Layout data of a rectangular widget or group of widgets:
+ # a pair of coordinates and a pair of side lengths.
+@@ -135,7 +136,8 @@ class RectLayout(object):
+ 	def y(self):
+ 		return int(round(self.fY))
+ 	def upperLeft(self):
+-		return Point(self.fX, self.fY)
++		# <!-- custom: GitHub Actions Workflow Ruff F821 caught this returning undefined Point; use the local PointLayout class, matching offsetPoint; see KI#165. (GPT-5.5) -->
++		return PointLayout(self.fX, self.fY)
+ 	# Screen coordinates of lower right corner
+ 	def xRight(self):
+ 		return self.x() + self.width()
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 9a56980c2..3aa64de5e 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -99,21 +99,22 @@ def getWrapY():
+ 	map = CyMap()
+ 	return (map.getCustomMapOption(0) == 2)
+ 
+-def normalizeAddExtras():
+-	if (CyMap().getCustomMapOption(1) == 1):
+-		balancer.normalizeAddExtras()
+-	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
+-
+-def addBonusType(argsList):
+-	[iBonusType] = argsList
+-	gc = CyGlobalContext()
+-	type_string = gc.getBonusInfo(iBonusType).getType()
+-
+-	if (CyMap().getCustomMapOption(1) == 1):
+-		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
+-			return None # don't place any of this bonus randomly
+-
+-	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++# <!-- custom: These balanced-resource callbacks were shadowed by later Oasis callbacks with the same names, so they never ran. Comment them out instead of merging behavior, fixing Ruff F811 while preserving current Oasis behavior exactly; see KI#164. (GPT-5.5) -->
++# def normalizeAddExtras():
++# 	if (CyMap().getCustomMapOption(1) == 1):
++# 		balancer.normalizeAddExtras()
++# 	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++#
++# def addBonusType(argsList):
++# 	[iBonusType] = argsList
++# 	gc = CyGlobalContext()
++# 	type_string = gc.getBonusInfo(iBonusType).getType()
++#
++# 	if (CyMap().getCustomMapOption(1) == 1):
++# 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++# 			return None # don't place any of this bonus randomly
++#
++# 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
+ 
+ def isClimateMap():
+ 	return 0
+
+diff --git a/README.md b/README.md
+index 3996566dd..f0bf4c8ac 100644
+--- a/README.md
++++ b/README.md
+@@ -885,6 +885,8 @@ Or notably also [`make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.
+ 
+ GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ 
++The separate GitHub Actions [`python-ruff.yml`](/.github/workflows/python-ruff.yml) workflow shows a full Ruff report and fails on practical critical Python issues. It helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-workflow)) and a dormant undefined `Point` helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-dormant-rectlayout-upperleft-helper-returned-undefined-point-found-by-python-ruff)).
++
+ This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)). This also helped spot and fix [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)).
+ 
+ Also added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index c6cc693f4..41815dbe8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -199,6 +199,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
+ [162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
+ [163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
++[164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
++[165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6066,3 +6068,41 @@ The defensive change is therefore deliberately narrow:
+ This should preserve normal behavior for ordinary unit removal while avoiding repeated mission/activity/plot/UI side effects during full group clearing. It is still only a tentative hardening because the crash was rare and non-reproducible, and the exact source line is not known without matching symbols.
+ 
+ Tentatively addressed with the very nice help of ChatGPT-5.5 and GPT-5.5 thanks.
++
++## 164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1XlRugVrvBfdTAW7HPw5nuOW4pTf3daCh?usp=sharing).
++
++The new [GitHub Actions Python Ruff workflow](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27878643336/job/82502279369) (`python-ruff.yml`) flagged two `F811` duplicate-definition findings in `PrivateMaps/Oasis.py`: `normalizeAddExtras` and `addBonusType` were each defined near the top of the file and then defined again later.
++
++```log
++Error: PrivateMaps/Oasis.py:173:5: F811 Redefinition of unused `normalizeAddExtras` from line 102: `normalizeAddExtras` redefined here
++  PrivateMaps/Oasis.py:102:5: previous definition of `normalizeAddExtras` here
++  help: Remove definition: `normalizeAddExtras`
++Error: PrivateMaps/Oasis.py:636:5: F811 Redefinition of unused `addBonusType` from line 107: `addBonusType` redefined here
++  PrivateMaps/Oasis.py:107:5: previous definition of `addBonusType` here
++  help: Remove definition: `addBonusType`
++Error: Process completed with exit code 1.
++```
++
++This was useful because Python keeps only the later function definition. The early balanced-resource callbacks therefore were not active at runtime; they were shadowed by the later Oasis-specific callbacks.
++
++For this first Ruff cleanup, the fix deliberately preserved current gameplay/map-generation behavior instead of merging the old balanced-resource callback logic into the active Oasis callbacks. The shadowed early callback block was commented out and documented in-place. That removes the duplicate Python definitions and keeps the currently active Oasis behavior exactly as before.
++
++Found thanks to the GitHub Actions Python Ruff workflow and fixed with the help of GPT-5.5 (on Codex) thanks.
++
++## 165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CQjC926rZvmWJGwYBzOlXUAFOnqlpa8w?usp=sharing).
++
++Python Ruff flagged `F821 Undefined name Point` in `Assets/Python/Screens/RectLayout.py`, where `RectLayout.upperLeft()` returned `Point(self.fX, self.fY)`.
++
++```log
++Error: Assets/Python/Screens/RectLayout.py:138:10: F821 Undefined name `Point`
++```
++
++The game ran fine because Python resolves names inside a function only when that function is executed, and repository search found no active caller of `upperLeft()`. This made the issue dormant rather than visible in ordinary UI use. The nearby `__str__` returning text like `"Point(...)"` is different: that is only a display string, not a Python name lookup.
++
++The fix changed `upperLeft()` to return the local `PointLayout` class, matching `RectLayout.offsetPoint()` and the rest of the active layout code.
++
++Found thanks to Python Ruff and fixed with the help of GPT-5.5 (on Codex) and ChatGPT-5.5 (who also helped implement/draft this workflow) thanks (Although tbh another LLM or maybe it was GPT-5.5 too had mentioned it but i had overlooked/omitted it or forgot to look into it; now fixed it seems).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d9bbd72f6..e1d1656a1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -117,6 +117,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5961+) **C++ inline-return cleanup:** collapsed simple inline DLL header functions whose bodies were exactly one `return` statement to one physical line, making trivial getters/wrappers easier to grep and compare. Done with the help of [`collapse_cpp_inline_returns.py`](/LLM_Helpers/README.md#collapse_cpp_inline_returnspy), a conservative mechanical helper that skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and overlong results. For example, `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`, instead of its old four-line equivalent.
+ - (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ - Other examples: (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
++- (Requires AdvCiv-SAS 5964+) **Python Ruff GitHub workflow:** added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks. This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-workflow)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-dormant-rectlayout-upperleft-helper-returned-undefined-point-found-by-python-ruff)).
+ - (Requires AdvCiv-SAS 5962+) **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped no-compression AdvCiv-SAS source/data/docs archive under `LLM_Helpers/outputs` or a chosen output folder. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder), when sharing compact mod context with local tools or LLMs.
+ - (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+
+diff --git a/ruff.toml b/ruff.toml
+index fc3fb4898..b43c6a1e1 100644
+--- a/ruff.toml
++++ b/ruff.toml
+@@ -1,16 +1,18 @@
+ # AI, UI, or other modifications
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt's recommendation; very very useful, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example) for example, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using, adjust as you see fit. -->
++# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt's recommendation; very very useful, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example) for example. -->
+ 
+-# Enable Ruff linting (blazing fast)
++# <!-- custom: This file is for the user's VS Code Ruff extension and local editing signal/noise. Keep these ignores limited to noise that does not hide information we want to sanity check; python-ruff.yml currently runs isolated from this file and narrows CI separately from actual GitHub output. (ChatGPT-5.5 + GPT-5.5) -->
++# Enable Ruff linting for VS Code/local focused review (blazing fast).
+ # Run errors (E) and pyflakes warnings (F)
+ select = ["E", "F"]
++# <!-- custom: Civ4 runs Python 2.4, where `unicode` is a built-in; modern Ruff needs it listed explicitly. (GPT-5.5) -->
++builtins = ["unicode"]
+ 
+ # Ignore specific false-positive or mod-specific rules:
+ # <!-- custom: note some rules are false positives it seems as ruff seems to not support python 2.4 specifically or at all which is python we use in civ4, so ignoring some rules even though they are not always put in the ignore list here at least as of now, in case they are validly flagged in some other files, could do per line whitelist to the rules but is bit tedious, ideally would but leaving as is especially since it seems funcitonnal, focusing first on files we use most like sevopedia or such for example -->
+ # F403: 'from module import *' used; can't track undefined names
+ # F405: Name may be undefined, or defined from star imports
+ # E501: Line too long (we allow longer lines in Civ4 UI scripts)
+-# E722: Do not use bare `except` (<!-- custom: for python 2.4 compatibility as per claude opus 4.5's explanation thanks: "Python 2.4 compatibility note: Your bare except: clause is fine for Python 2.4. If you ever want to catch specific exceptions with the error message, use the old syntax: except ImportError, e: instead of except ImportError as e:." -->)
+-ignore = ["F403", "F405", "E501", "E722"]  # Allow star imports, undefined names, long lines, bare except
++ignore = ["F403", "F405", "E501"]
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=32210

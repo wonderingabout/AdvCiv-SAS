@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4482
+# Commit: 03f437b9044bf994a84a1e2fb2bf406bbc00915c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 94bb0637cf199a78b429f67028eaeec01495909d
+# Title: modify project files to match the new project name (AdvCiv-SAS) tested to work, updated the instructions as such, at least about this i mean anyways, thanks,...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AdvCiv.ini => AdvCiv-SAS.ini
+1	1	Assets/XML/Art/CIV4ArtDefines_Misc.xml
+2	2	Resource/Civ4.thm
+1	5	_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md
+ rename AdvCiv.ini => AdvCiv-SAS.ini (85%)
+
+[PATCHES]
+
+diff --git a/AdvCiv.ini b/AdvCiv-SAS.ini
+similarity index 85%
+rename from AdvCiv.ini
+rename to AdvCiv-SAS.ini
+index 83af0ddca..1bdf2c05c 100644
+--- a/AdvCiv.ini
++++ b/AdvCiv-SAS.ini
+@@ -41,4 +41,4 @@ ImageFile = 0
+ Name = AdvCiv-SAS
+ 
+ ; Description of Mod
+-Description = AdvCiv-SAS (Simple Advanced Strategy), a mod for AdvCiv (which is a mod for Civilization 4 Beyond the Sword)
++Description = Generic Mod
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Misc.xml b/Assets/XML/Art/CIV4ArtDefines_Misc.xml
+index cf19c21e4..c5227dec9 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Misc.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Misc.xml
+@@ -333,7 +333,7 @@
+ 		<!-- advc.002b: Set modified theme as default -->
+ 		<MiscArtInfo>
+ 			<Type>DEFAULT_THEME_NAME</Type>
+-			<Path>Mods/AdvCiv/Resource/Civ4.thm</Path>
++			<Path>Mods/AdvCiv-SAS/Resource/Civ4.thm</Path>
+ 			<fScale>0.0</fScale>
+ 			<NIF>None</NIF>
+ 			<KFM>None</KFM>
+
+diff --git a/Resource/Civ4.thm b/Resource/Civ4.thm
+index 186763721..c873fbe78 100644
+--- a/Resource/Civ4.thm
++++ b/Resource/Civ4.thm
+@@ -4,7 +4,7 @@
+    other mods also copy all those files. At least I've gotten rid of the
+    copied tga files. */
+ 
+-resource_path "Mods\AdvCiv\Resource";
++resource_path "Mods\AdvCiv-SAS\Resource";
+ /* For some obscure reason, the includes in Civ4Theme.thm can't be moved here
+    - both Civ4.thm and Civ4Theme.thm are necessary. */
+-include "Mods\AdvCiv\Resource\Civ4Theme.thm";
+\ No newline at end of file
++include "Mods\AdvCiv-SAS\Resource\Civ4Theme.thm";
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md
+index da418d663..1e61ecb15 100644
+--- a/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md
+@@ -48,8 +48,4 @@ Recommended, change your config as you prefer, see this page for details todo
+ 
+ There is one annoying option about system not compatible, i may provide an example file for convenience later maybe or/and complete these instructions maybe ideally i mean anyways but not sure, is about this i mean anyways, thanks,
+ 
+-todo test if changing AdvCiv to AdvCiv-SAS work, may be safer to rename mod folder (and update link with same mod fodler name too) if it doesn not work or until i test it, but still impelmented initial changes of it and maybe it will work
+-
+-# todo
+-
+-todo later rename full github/git project too to AdvCiv-SAS after i do some testing on it i mean anyways abou this at least i mean anyways
+\ No newline at end of file
++For resolution, i use 1920 x 1080 even though i ahve a larger resolution (4K but anyways), it simply runs betetr i think at that resolution, will add hopefully some other time when i want about this i mean anyways some more options i would think are good or worth considering about this i mean anyways at least i mean anyways, thanks,
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2853

@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2638
+# Commit: 85224c7e92004f824cea178c56afe1f57cea978d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9661bf97df10247b2903d767ba3d4e0f8791b943
+# Title: Minor tweak to AI voting behavior on forced civics
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1321ea6ac..6afce210e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7993,22 +7993,22 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 
+ 		int iBestCivicValue = AI_civicValue(eBestCivic);
+ 		int iNewCivicValue = AI_civicValue(eLoopCivic);
+-
+ 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+-		/*if (iBestCivicValue > ((iNewCivicValue * 120) / 100)) {
+-			bValid = false;
+-		if (iBestCivicValue > ((iNewCivicValue * (140 +
+-				(GC.getGame().getSorenRandNum(120,
+-				"AI Erratic Defiance (Force Civic)"))) / 100)))*/ // BtS
+ 		// Increase threshold of voting for friend's proposal
+ 		if (bFriendlyToSecretary)
+ 		{
+ 			iNewCivicValue *= 6;
+ 			iNewCivicValue /= 5;
+-		}
+-		if (iBestCivicValue > (iNewCivicValue * 120) / 100)
++		} // BETTER_BTS_AI_MOD: END
++		/*	advc.131: Was 100/120. Don't be quite so willing to adopt a bad civic
++			only to (supposedly) hurt other civs. */
++		if (iBestCivicValue * 100 > iNewCivicValue * 115)
+ 		{
+ 			bValid = false;
++			/*if (iBestCivicValue > ((iNewCivicValue * (140 +
++				(GC.getGame().getSorenRandNum(120,
++				"AI Erratic Defiance (Force Civic)"))) / 100)))*/ // BtS
++			// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 			// Increase odds of defiance, particularly on AggressiveAI
+ 			if (iBestCivicValue > iNewCivicValue * (140 +
+ 				kGame.getSorenRandNum(kGame.isOption(GAMEOPTION_AGGRESSIVE_AI) ?
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1522

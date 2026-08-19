@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3668
+# Commit: a221c7efc5e89f97d3ab18286efe9ab646fb5907
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b074d5985136b2be59092f6ac819f61b8393ad29
+# Title: Fix AdvCiv bug in AI eval of tech paths
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2e2c1ab63..4aa142b96 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3823,6 +3823,8 @@ struct PairSecondEq : public std::binary_function<std::pair<A, B>,std::pair<A, B
+ private:
+ 	B _target;
+ };
++// advc.550g: No longer used
++#ifdef USE_OLD_TECH_STUFF
+ template <typename A, typename B>
+ struct PairFirstLess : public std::binary_function<std::pair<A, B>,std::pair<A, B>,bool>
+ {
+@@ -3831,6 +3833,16 @@ struct PairFirstLess : public std::binary_function<std::pair<A, B>,std::pair<A,
+ 		return o1.first < o2.first;
+ 	}
+ }; // </k146>
++#endif
++// advc.550g:
++template <typename A, typename B>
++struct PairFirstGreater : public std::binary_function<std::pair<A, B>,std::pair<A, B>,bool>
++{
++	bool operator()(const std::pair<A, B>& o1, const std::pair<A, B>& o2)
++	{
++		return o1.first > o2.first;
++	}
++};
+ 
+ // edited by K-Mod and BBAI (05/14/10, jdog5000)
+ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsync, TechTypes eIgnoreTech, AdvisorTypes eIgnoreAdvisor,
+@@ -4346,7 +4358,7 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 			std::max_element(tech_paths.begin(), tech_paths.end(), PairFirstLess<int,std::vector<int> >());
+ 	if (best_path_it == tech_paths.end())*/
+ 	// <advc.550g> Need the whole thing sorted
+-	std::sort(tech_paths.begin(), tech_paths.end(), PairFirstLess<int,std::vector<int> >());
++	std::sort(tech_paths.begin(), tech_paths.end(), PairFirstGreater<int,std::vector<int> >());
+ 	if (tech_paths.empty()) // </advc.550g>
+ 	{
+ 		FErrorMsg("Failed to create a tech path");
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1668

@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3223
+# Commit: a0f3a3bcedf1ec04863513c0c0b2fd83efa70673
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5a961f6e84ddc5c07dddf3eef2c55760a2bc7312
+# Title: Fix Legacy (Aggressive) AI option in scenarios
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvGameAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 97326ca4a..c010514fa 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -52,8 +52,11 @@ void CvGameAI::AI_initScenario()
+ 			c->AI_assignWorkingPlots();
+ 		}
+ 	}
+-	for (TeamAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-		it->uwai().turnPre();
++	if (getUWAI().isEnabled() || getUWAI().isEnabled(true))
++	{
++		for (TeamAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
++			it->uwai().turnPre();
++	}
+ } // </advc.104u>
+ 
+ /*  advc.104: I'm repurposing the Aggressive AI option so that it disables UWAI
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=587

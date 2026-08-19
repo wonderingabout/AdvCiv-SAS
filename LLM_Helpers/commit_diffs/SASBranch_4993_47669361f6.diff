@@ -1,0 +1,292 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4993
+# Commit: 47669361f65810acdd8126becd028e456c68771c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c5b10be19aa0459d7d3334c2ad38b2bb3809f7b4
+# Title: tweaked and enhanced old razing logic so that AIs raze cities early if they are far from us, which should make AI much stronger anyways etc - tweaked and enh...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+67	21	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+35	7	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7e0282e15..35f327cc3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1676,6 +1676,7 @@ void CvPlayerAI::AI_makeProductionDirty()
+ 		pLoopCity->setChooseProductionDirty(true);
+ }
+ 
++// <!-- custom: added smarter more aggressive razing which now gives very good results ingame (see below and known issue as of now 64 for details anyways etc), refactored a bit the relevant parts although otherwise and in general mostly the same if i'm not mistaken but anyways etc -->
+ // BETTER_BTS_AI_MOD, War tactics AI, 05/16/10, jdog5000:
+ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity*
+ 	bool bEverOwned) // advc.ctr: We already own it; but had we ever previously owned it?
+@@ -1690,6 +1691,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 	CvTeam const& kPreviousTeam = GET_TEAM(kCity.getPreviousOwner());
+ 	CvGame const& kGame = GC.getGame();
+ 
++	// <!-- custom: new logic later, see below for details anyways etc -->
++	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
+ 	bool bCultureVictory = false; // advc.116
+ 	bool bRaze = false;
+ 	// Reasons to always raze
+@@ -1726,38 +1729,84 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 			}
+ 		} // </advc.116>
+ 	}  // <advc.ctr>
+-	if (!isBarbarian() && !kCity.isHolyCity() && !bEverOwned &&
++	// <!-- custom: store it once to avoid reuse anyways etc -->
++	const bool bBarbarian = isBarbarian();
++	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned &&
+ 		!kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity, true))
+ 	{
+ 		bRaze = true;
+ 	} // </advc.ctr>
++	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details anyways etc; also code provided by chatgpt 5, check if accurate anyways etc -->
++	bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
++	bool const bBarbCity = (bPrevOwnerBarb && (kCity.getOriginalOwner() == BARBARIAN_PLAYER));
++
++	// "Early" window (scaled by speed).
++	const int iEarlyTurnsBase = 120; // ~Classical on Normal. Tune if you like.
++	const int iEarlyTurns =	iEarlyTurnsBase * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100;
++	const bool bEarlyPhase = (GC.getGame().getGameTurn() < iEarlyTurns);
++
++	int const iCloseness = kCity.AI_playerCloseness(getID());
++    const bool bIsolated = (iCloseness == 0) || (GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()) == 0);
++
++	// <!-- custom: other reasons to always and absolutely raze no matter what: -->
++	// --- 2) SAS early far-barb rule (minimal) ---
++    if (!bBarbarian && !bEverOwned && bBarbCity /* <!-- custom: no need to care about these, raze regardless if not in our interest to keep the city anyways etc --> !kCity.isHolyCity() && !kCity.hasActiveWorldWonder() */)
++    {
++		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too if i'm not mistaken as chatgpt 5 added here (but check if accurate) but anyways etc -->
++        if (bIsolated && bEarlyPhase)
++		{
++            bRaze = true;
++		}
++    }
++	// <!-- custom: even for non barbarian cities, if they are too far and we are in the early game, do not risk crumbling or splitting our forces at a critical early time when economy and military is weaker and we can't spread too much in this case i mean but anyways etc; so raze the city rather, anyways etc -->
++	// Optional non-barb outpost rule (stricter)
++	if (!bBarbarian && bEarlyPhase && iCloseness == 0)
++	{
++        bRaze = true;
++	}
+ 
+ 	if (!bRaze)
+ 	{
+-		int const iCloseness = kCity.AI_playerCloseness(getID());
+ 		// Reasons to not raze
+-		if (!bCultureVictory) // advc.116
++		// <!-- custom: As for this part of the code, refactor this as the intent logged vs condition we check seem unclear and harder to tweak anyways etc; while doing so, also remove the old !bCultureVictory since we check it before anyway to always raze if true, and removing it here makes us avoid being unable to raze later due to it being here as well as recommended by chatgpt 5, check if accurate anyways etc -->
++		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities,” but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
++		//
++		// if (!bCultureVictory) // advc.116
++		// {
++		// 	if (getNumCities() <= 1 || (getNumCities() < 5 && iCloseness > 0))
++		// 	{
++		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
++		// 	}
++		// 	else if (AI_atVictoryStage(AI_VICTORY_DOMINATION3) &&
++		// 			GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()))
++		// 	{
++		// 		// Do not raze, going for domination
++		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
++		// 	}  // <advc>
++		// 	keepCity(kCity);
++		// 	return;
++		// }
++		//
++		// <!-- custom: note: actually even if we have too few cities, it's not a reason to make a bad deal (i.e. capturing and not razing a too far away city); our weak economy would make it even worse due to city distance in fact but anyways etc, so this looks like a bad reason not to raze, so removed anyways etc -->
++		const bool bGoingForDomination = (AI_atVictoryStage(AI_VICTORY_DOMINATION3) && GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()));
++		if (bGoingForDomination)
+ 		{
+-			if (getNumCities() <= 1 || (getNumCities() < 5 && iCloseness > 0))
+-			{
+-				if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+-			}
+-			else if (AI_atVictoryStage(AI_VICTORY_DOMINATION3) &&
+-					GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()))
+-			{
+-				// Do not raze, going for domination
+-				if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+-			}  // <advc>
++			// Do not raze, going for domination
++			if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+ 			keepCity(kCity);
+ 			return;
+ 		}
++		// }
++
+ 		//else // </advc>
+ 		int iRazeValue = 0;
+-		if (isBarbarian())
++		if (bBarbarian)
+ 		{
+-			if (!kCity.isHolyCity() && !kCity.hasActiveWorldWonder() &&
+-				kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
+-				kCity.getOriginalOwner() != BARBARIAN_PLAYER)
++			// <!-- custom: refactor this a bit anyways etc and change intent a tiny/slight bit in this case i mean but anyways etc to simplify anyways etc -->
++			// if (!kCity.isHolyCity() && !kCity.hasActiveWorldWonder() &&
++			// 	kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
++			// 	kCity.getOriginalOwner() != BARBARIAN_PLAYER)
++			if (!kCity.isHolyCity() && !kCity.hasActiveWorldWonder() && !bBarbCity)
+ 			{
+ 				iRazeValue += GC.getInfo(getPersonalityType()).getRazeCityProb();
+ 				//iRazeValue -= iCloseness;
+@@ -1774,9 +1823,6 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 		else
+ 		{
+ 			bool const bFinancialTrouble = AI_isFinancialTrouble();
+-			bool const bBarbCity = (kCity.getPreviousOwner() == BARBARIAN_PLAYER &&
+-					kCity.getOriginalOwner() == BARBARIAN_PLAYER);
+-			bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
+ 			bool const bTotalWar = (kPreviousTeam.getNumCities() > 0 && // advc.116
+ 					// K-Mod
+ 					GET_TEAM(getTeam()).AI_getWarPlan(kPreviousTeam.getID()) == WARPLAN_TOTAL);
+@@ -1835,7 +1881,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 				if (pNearestTeamAreaCity == NULL &&
+ 					/*  <advc.300> The +15 is bad enough if we don't have to
+ 						worry about attacks against the city */
+-					kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
++					!bPrevOwnerBarb &&
+ 					kCity.getArea().getNumCivCities() > 1) // </advc.300>
+ 				{
+ 					if (bTotalWar &&
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 5f9983c29..2c7747635 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -1019,7 +1019,7 @@ I don't know if autoplay is a feature of base civ4 or bts or some mods that then
+ 
+ See also [/README.md#autoplay-test-runs](/README.md#autoplay-test-runs).
+ 
+-Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 autoplay runs ON A ROW (sorry for caps but it's to insist anyways etc), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% retreat regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-retreat-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back if i may say but anyways etc and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns if i am not mistaken but anyways etc.
++Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 autoplay runs ON A ROW (sorry for caps but it's to insist anyways etc), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back if i may say but anyways etc and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns if i am not mistaken but anyways etc.
+ 
+ ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 2b14148ba..770592181 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -87,8 +87,9 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ <br>
+ 
+ [61 - (Seemingly Tremendously Improved) AIs getting baited to attack faraway rivals, leaving their core cities mostly defenseless but anyways etc, and oftentimes dying shortly after to an opportunistic rivals. Changed by adding a pre-filter reject in war risk assessment based on distance to us in Risk::preEvaluate in WarUtilityAspect.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-anyways-etc-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)  
+-[62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% retreat regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-retreat-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity)  
++[62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity)  
+ [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc)  
++[64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2366,21 +2367,21 @@ As for us, what matters is AIs don't get baited as much if at all now at least o
+ 
+ As results seem very good, i added this change now. As for the don't invade small islands in one landmass-like maps, i'll try to implement it in next knwon issues (not guaranteed, i may or may not do so) but anyways etc.
+ 
+-## 62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% retreat regardless of land unit type, in CvUnitAI::AI_evacuateCity
++## 62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/11XgIjY6H8xp3nOHU7Qrn_bQxixzVaKVZ?usp=sharing)
+ 
+-This is an insane as in amazing improvement of AI capability to handle bad odds at war. This is from the save file i gave up on in this case i mean but anyways etc, from [the first map of advciv-sas i had attempted myself xd (cfc forum link xd)](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/); julius caesar ai came with a 22 stack which totally caught me offguard as i had only 11 stack defenders at turn +/- 125 which i thought was good but not enough, and since other ais were strong i gave up there, but if i wanted to continue, the correct and best move was to give up the city and focus on myself in this case i mean if i may say but anyways etc and wait for better odds in this case too i mean but anyways etc.
++This is an insane as in amazing improvement of AI capability to handle bad odds at war. This is from the save file i gave up on in this case i mean but anyways etc, from [the first map of advciv-sas i had attempted myself xd (cfc forum link xd)](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16862444); julius caesar ai came with a 22 stack which totally caught me offguard as i had only 11 stack defenders at turn +/- 125 which i thought was good but not enough, and since other ais were strong i gave up there, but if i wanted to continue, the correct and best move was to give up the city and focus on myself in this case i mean if i may say but anyways etc and wait for better odds in this case too i mean but anyways etc.
+ 
+-But in autoplay 2 turns on a row in one go (see important note at [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc) for details about why 2 and not 1 turn and why in one go too if i am not mistaken but anyways etc) before this, AI still stays in the city and dies (see existing screenshots between 202 and 211), evacuating only 2 swordsmen out of the 11 stack unit. I thought it's really a waste, and i remembered in base advciv vassals abandonning me and their cities so i died due to this, so evacuating code must have been there. Thanks to the amazing help of chatgpt 5 but anyways etc and me too in this case i mean but anyways etc, i found the place where to make such changes, which is in `CvUnitAI::AI_evacuateCity`.
++But in autoplay 2 turns on a row in one go (see important note at [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc) for details about why 2 and not 1 turn and why in one go too if i am not mistaken but anyways etc) before this, AI still stays in the city and dies (see existing screenshots between 202 and 211), evacuating only 2 swordsmen out of the 11 stack unit. I thought it's really a waste, and i remembered in base advciv vassals abandonning me and their cities which would then cause me to i die defending alone the city due to this but anyways etc, so evacuating code must have been there. Thanks to the amazing help of chatgpt 5 but anyways etc and me too in this case i mean but anyways etc, i found the place where to make such changes, which is in `CvUnitAI::AI_evacuateCity`.
+ 
+-I basically commented-out entirely the "chance of evacuating code" and any "this unit type/unitai should evacuate but not this one" (paraphrased xd but anyways etc), which means that now if city is doomed, we always evacuate ALL land units, which is the best move since city is doomed anyway, why split our troops instead of rather regrouping to core cities and possibly coming back later in the game in this game i mean but anyways etc.
++I basically commented-out entirely the "chance of evacuating code" and any "this unit type/unitai should evacuate but not this one" (paraphrased xd but anyways etc), which means that now if city is doomed, we always evacuate ALL land units, which is the best move since city is doomed anyway, why split our troops instead of rather regrouping to core cities and possibly coming back later in the game in this case i mean but anyways etc.
+ 
+-Results are seemingly extremely good!!! Now (see existing screenshots between 213 and 217 anyways etc) our 11 unit stack successfully evacuates the city, and julius caesar ai captures it without blood xd (i think he lost 1 unit before that, still very bad trade to fight it there for us i mean in this case i mean but anyways etc). From there, i continued to autoplay it, and our AI makes a comeback in the game, eventually taking back the city with a strong position. Our AI could do it even after losing the stack (i assume due to julius caesar AI becoming weaker i guess although i didn't check lot), but now that it kept its stack, it seems like the comeback is very strong later in the game (turns 150-160 more or less although i didn't show here the screenshots so you have to believe me or see link of the forum possibly if i post it there rather but anyways etc), and game was actually winnable. I mean i had a great position overall and handling if not for this war carelessness, but it's impressive our AI could do it which i am very happy of it i may say but anyways etc.
++Results are seemingly extremely good!!! Now (see existing screenshots between 213 and 217 anyways etc) our 11 unit stack successfully evacuates the city, and julius caesar ai captures it without blood xd (i think he had lost 1 unit before the change vs our 11 defending units then, still very bad trade to fight it there for us i mean in this case i mean but anyways etc). From there, i continued to autoplay it, and our AI makes a comeback in the game, eventually taking back the city with a strong position. Our AI could do it even after losing the stack (i assume due to julius caesar AI becoming weaker i guess although i didn't check lot), but now that it kept its stack, it seems like the comeback is very strong and earlier than if stack is lost (turns +/- 160 for memory if i'm not mistaken (with macemen so maybe later actually but anyways etc) more or less although i didn't show here the screenshots so you'd have to believe xd me but anyways etc), and game was actually winnable. I mean i had a great position overall and handling if not for this war carelessness, but it's impressive our AI could do it which i am very happy of i may say but anyways etc.
+ 
+ As a side effect, this change might drag games a bit longer (although i didn't test it to know for sure) and i didn't test it too much beyond this sample case where it makes a huge difference, but i think having a more competitive and not stupid but strategic in this case i mean but anyways etc ai is much better but anyways etc.
+ 
+-Issues to fix moving forward would be the weird back and forth of the stack, that attempts to attack again after evacuating, but then withdraws again seemingly without attacking but losing 1-2 unit needlessly as a result, very inefficient and needless and ideally i would fix as well but not promised nor guaranteed, i may or may not but anyways etc.
++Issues to fix moving forward would be the weird back and forth of the stack, that attempts to attack again after evacuating, but then withdraws seemingly when it sees target city is too strong, seemingly without attacking but losing 1-2 unit needlessly as a result, very inefficient and needless and ideally i would fix as well but not promised nor guaranteed, i may or may not but anyways etc.
+ 
+ Also, i could tweak this nice evacuating logic because it was already there so thanks to whoever wrote or tweaked it if not base advciv dev(s? But anyways etc) but anyways etc and(/but?) i hope it is nicer as such though if i may say in this case i mean but anyways etc.
+ 
+@@ -2395,3 +2396,30 @@ As in known issue as of now 62 however though, the behaviour does not happen if
+ Since i couldn't test issue here, i don't know if it is solved, but maybe it helps. The issue existed in base advciv too but tedious to especially test it and all, so as it seems harmless, kept as such if helps, anyways etc.
+ 
+ Next related issue would be to prevent julius caesar to declare war on us (15 turns earlier), only to retreat without attacking city, which made him lose the surprise attack effect, have war weariness, and other possible negative side effects if i may say but anyways etc, so that we would want to ideally fix if possible (not guaranteed, i may or may not fix it but anyways etc), hopefully helpful but anyways etc.
++
++## 64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/18aJH1ncPVVuHTRiqzjPfcSOhCyDVCYeV?usp=sharing).
++
++This is another nice enhancement to AI military/overall behaviour, as of now in `CvPlayerAI::AI_conquerCity`. Now if we capture faraway cities in the early game (as of now first 120 turns adjusted to game speed but anyways etc), even non-barbarian cities, we (i.e. AI players but anyways etc) will raze them unless they are close to us in the early game.
++
++This is because capturing such cities has high cost and low gains especially early:
++
++- we split our military
++- higher city maintenance cost across all cities not just this new one (that may cost more if far away) (also regardless of razing we get the gold on capture so not much to do here anymore)
++- low yields due to generally low pop or/and not enough improvements
++- even if we have such high pop and improvements, AIs are not too good at spreading forces, often it meant having a big stack stuck in this low pop city and core cities left defenseless. We have added changes in known issue as of now 61 so we dont attack such faraway cities ideally, but if we somehow do in the early game, then raze them rather and favour empire contiguity
++- other positive side effects, due to the city being destroyed, the place is not fog busted anymore (although i don't know if barbarian cities count as fog busting xd and prevent random barbarian spawn or not but anyways etc), so if it is far from us, it would or may mean more barbarians for our rivals (which (barbarians but anyways etc) are very strong as of now in advciv-sas (at least quite strong xd but anyways etc)) so this should help us focus our forces and energy defensively and offensively and hopefully lead to better outcomes
++- possibly other reasons/advantages if any but anyways etc.
++
++As a result of this, AI should be much stronger due to these saner and more efficient decisions. (note: we don't care if there are wonders or it's a holy city (the barbarian player itself cares to not raze these it seems in code if i'm not mistaken (but check to be sure)), but all other players have no reason to care if not profitable to us so they raze cities regardless purely on aforementionned criteria (far enough city and early game as of now for most if i'm not mistaken but anyways etc)).
++
++For example, before our changes, in existing screenshots between 255 and 259, arabia AI captures a faraway (at least more than far enough to be profitable so early i would say but anyways etc) (olmec but anyways etc) city instead of razing it, which is very bad i think, as city won't be profitable until much later, but it weakens economy and military significantly (taking the gold on capture would have been a gain and enough and then razing would have been perfect). Screenshot 259 in particular shows the spots arabia AI is considering at this point of the game around it, and the olmec city was way too far to mesh well with their empire. Destroying it would also (if barbarian cities count as fog busting as i don't know but anyways etc) increase barbarian presence indirectly so would have been nice but anyways etc. So capturing it and committing to it is very bad so early i think if i may say but anyways etc in this case at least i mean but anyways etc.
++
++After our changes (existing screenshots between 260 and 261), arabia AI now instead chooses to raze the (olmec but anyways etc) city, which i think is very good and would help it have a much better middle game. Settlers are not so expensive, it's not worth the cost to commit there and so far especially for AIs who would handle it poorly and even if not not worth as is far from them in this case i mean at least but anyways etc.
++
++I continued the game to see what happens a bit (existing screenshots between 262 and 263 anyways etc) (and to see if we still capture some barbarian cities (but also cities of all other players since our code is not restricted to barbarian cities (but the barbarian player doesn't follow such rules of razing if far or not as not relevant to it if i'm not mistaken but anyways etc) only if i'm not mistaken but anyways etc) or destroy them all which would be a bit overkill), and the numidian barbarian city is also razed by Khmer AI, which i think is also good if i may say but anyways etc as it is far from him, same as for Arabia AI.
++
++But then a new barbarian city (Phoenician but anyways etc) spawns nearby (of the old numidian city if i may say but anyways etc) and this time, still before the early window ends as it's still turn 115 (so before turn as of now 120 we defined as early phase for smart razing but anyways etc), german AI who is close enough to it captures it and does not raze it, which is good as it is close to him so he is likely to benefit from it. Also, it shows our code is not paranoid and still allows close enough cities to be captured, which is good and nice to know! (if i may say but anyways etc). So all in all this seems like a very nice code and enhancement of the AI razing behaviour, which should make AI quite a lot stronger and influence the early game quite heavily but anyways etc :)
++
++Note: some of the changes tweak the old logic to make it less restrictive and raze more often, and some of our additions may also include razing isolated cities like i assume islandic or such in the early game which should be fine considering the high cost to go and maintain presence there, although it might be less optimal for non pangea-like maps but maybe fine as such since is in the early game and we want focus forces if i'm not mistaken, check if accurate too and if i am not mistaken and chatgpt 5 helped me lot do all this although i adjusted it too but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d2eb4ac54..18ca7a799 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -202,8 +202,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - musketmen now have the unitai_attack_city as well so AIs should use them offensively or more so now if i'm not mistaken, with also other changes or not depending on civ-specific variations or such but anyways etc
+ - added unitai_city_defense to grenadier and bazooka units so AIs may use them more as defensive (here in particular in cities) units if i'm not mistaken but anyways etc
+ - seemingly tremendously improved issue of AIs getting baited to attack faraway rivals, that would leave their core cities mostly defenseless but anyways etc, and oftentimes dying shortly after to an opportunistic rivals. Changed by adding a pre-filter reject in war risk assessment based on distance to us in `Risk::preEvaluate` in WarUtilityAspect.cpp, so that we don't attack too far away rivals (i assume by extremely increasing risk assessment for said rivals), resulting in better AI outcomes and more focused unit troops on the map (no half of the units in a faraway city anymore it seems for the most part) on land attacks if i am not mistaken i mean but anyways etc, see [61 - (Seemingly Tremendously Improved) AIs getting baited to attack faraway rivals, leaving their core cities mostly defenseless but anyways etc, and oftentimes dying shortly after to an opportunistic rivals. Changed by adding a pre-filter reject in war risk assessment based on distance to us in Risk::preEvaluate in WarUtilityAspect.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-anyways-etc-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) for details anyways etc.
+-- (Extremely better/stronger) AI now always evacuates all its as of now land units from a doomed city rather than a small part of them or/and sometimes (before the change AI was almost not evacuating at all doomed cities (2 swordsmen only would be evacuated for example in an 11 unit defending stack vs a 22+ attacking unit stack), see an example of this with details and screenshots or/and such but anyways etc in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% retreat regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-retreat-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity) anyways etc), fixed by always and 100% retreat regardless of land unit type, in `CvUnitAI::AI_evacuateCity`. As a side effect, it might drag games a bit longer (although i didn't test it to know for sure) and i didn't test it too much beyond this sample case where it makes a huge difference, but i think having a more competitive and not stupid but strategic in this case i mean but anyways etc ai is much better but anyways etc.
++- (Extremely better/stronger) AI now always evacuates all its as of now land units from a doomed city rather than a small part of them or/and sometimes (before the change AI was almost not evacuating at all doomed cities (2 swordsmen only would be evacuated for example in an 11 unit defending stack vs a 22+ attacking unit stack), see an example of this with details and screenshots or/and such but anyways etc in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity) anyways etc), fixed by always and 100% retreat regardless of land unit type, in `CvUnitAI::AI_evacuateCity`. As a side effect, it might drag games a bit longer (although i didn't test it to know for sure) and i didn't test it too much beyond this sample case where it makes a huge difference, but i think having a more competitive and not stupid but strategic in this case i mean but anyways etc ai is much better but anyways etc.
+ - Possibly prevented and possibly fixed the weird and very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong, which was also very risky if our stack couldn't retreat in time (to defend cities or avoid ambush/attack or other purposes maybe anyways etc). I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe the additional sanity check of not (going to? But anyways etc) attacking(attack) city if target is too strong, in `CvUnitAI::AI_attackCityMove`, helps a lot but (although would need to test to be sure but seems like a very nice sanity check if not redundant with some other checks maybe but anyways etc) anyways etc. See for details [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
++- tweaked and enhanced old razing logic so we that we (i.e. AI (excluding the barbarian player itself, but as for cities applies more or less to all cities even non-barbarian ones if i'm not mistaken anyways et) players but anyways etc) now raze cities in the early (as of now first 120 turns adjusted to game speed anyways etc) game if they are not close enough to make it worth the early investment. This helps not spread our military forces (which was a major issue in base advciv when it happened, often with most troops being in the new captured faraway city while core ones would be less defended, hopefully much saner and stronger razing now if i'm not mistaken but anyways etc) and scrace economy ressources (city maintenance would be increased per city, pop is generally low in these cities plus the time to build improvements or/and culture or such there, plus the city maintenance in the city itself, etc) so that they stay focused. Indirectly, it may often lead to less fog busting so more barbarians, which is good since it's far from us so will weaken our rivals if i'm not mistaken but anyways etc. As a result of this, AI should be much stronger in the early game, and hopefully no longer split in two making it much easier to defeat (especially if most forces are in the new city). See [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc) for details anyways etc.
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 8d2d4737c..ab105df66 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -187,9 +187,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Musketmen — AI role**: now also flagged with `UNITAI_ATTACK_CITY`, so the AI uses Musketmen more often in **offensive city-assault** roles. Civ-specific Musketman variants may also include additional changes.
+ - **Grenadiers & Bazookas — AI role**: now also flagged with `UNITAI_CITY_DEFENSE`, so the AI may use them more for **city defense**.
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs “bait” wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-anyways-etc-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+-- **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now **evacuates 100% of its land units** from a **doomed city**. Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length (although it is not tested beyond the sample case to know for sure if it would be so), but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-retreat-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
++- **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now **evacuates 100% of its land units** from a **doomed city**. Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length (although it is not tested beyond the sample case to know for sure if it would be so), but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **City attack oscillation — pre-check vs strong targets (needs more testing)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Intended to prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught unable to retreat in time. Note: this oscillation sometimes resolved after ~2+ autoplay turns even without the change, so treat this as a **possible fix/mitigation** pending further testing.
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
++- **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer “split in two” empires). See [KI#64](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc).
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=46711

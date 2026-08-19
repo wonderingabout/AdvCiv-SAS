@@ -1,0 +1,3103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5267
+# Commit: edfcef1f0dcce971e7cbcba85361dd66a12b820c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 46c09243a56b03493463f9f69fb01f6faaffb13a
+# Title: add a multilist and otherwise beautify the top cities (info screen) - update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+74	22	Assets/Python/Screens/CvInfoScreen.py
+1424	0	Assets/XML/Text/BUG_CIV4GameText.xml
+6	1419	Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG
+ create mode 100644 Assets/XML/Text/BUG_CIV4GameText.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index dc305cb71..56c452cb5 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -314,16 +314,18 @@ class CvInfoScreen:
+ 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
+ 		self.W_WONDERS_RIGHT_PANE = 640
+ 		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
+-		self.W_WONDERS_INTER_PANE_GAP = self.SMALL_MARGIN
++		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
++
++		# <!-- custom: commented-out as they seem unused if i'm not mistaken. -->
++		# <!-- custom: note: deleted self.W_TC_TEXT variables and such and self.X_ROTATION_CITY_ANIMATION variables and such, and self.W_CITIES_WONDER and self.H_CITIES_WONDER as they seem unused if i'm not mistaken. -->
++		# <!-- custom: note 2: use multilist for wonder icons to allow multiple rows (same as in _sevopedia_helpers.py, and following AdvCiv-SAS's approach in SevoPediaReligion.py); added with claude opus 4.5's help thanks. -->
+ 
+ 		# <!-- custom: in many of these variable names, add or rename to "_TOP_CITIES_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
+-		self.X_TOP_CITIES_LEFT_PANE = self.X_MARGIN
++		self.X_TOP_CITIES_LEFT_PANE = self.W_WONDERS_INTER_PANE_GAP
+ 		self.Y_TOP_CITIES_LEFT_PANE = self.Y_MARGIN
+ 		self.W_TOP_CITIES_LEFT_PANE = self.W_SCREEN - (2 * self.X_TOP_CITIES_LEFT_PANE) - self.W_WONDERS_INTER_PANE_GAP - self.W_WONDERS_RIGHT_PANE
+-		self.H_TOP_CITIES_LEFT_PANE = 620
+-
+-		# <!-- custom: commented-out as they seem unused if i'm not mistaken. -->
+-		# <!-- custom: note: deleted self.W_TC_TEXT variables and such and self.X_ROTATION_CITY_ANIMATION variables and such, and self.W_CITIES_WONDER and self.H_CITIES_WONDER as they seem unused if i'm not mistaken. -->
++		# <!-- custom: mirror wonders panel height (H_SCREEN - 2 * Y_MARGIN), added with claude opus 4.5's help thanks. -->
++		self.H_TOP_CITIES_LEFT_PANE = self.H_SCREEN - 2 * self.Y_MARGIN
+ 
+ 		# Animated City thingies
+ 		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
+@@ -332,26 +334,51 @@ class CvInfoScreen:
+ 		self.H_CITY_ANIMATION = 110
+ 		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2
+ 
++		# <!-- custom: header height for "Top 5 Cities in the World" title, added with claude opus 4.5's help thanks. -->
++		self.iTopCitiesHeaderHeight = 35
++
++		# <!-- custom: city name/founded panel dimensions, added with claude opus 4.5's help thanks. -->
++		self.H_CITIES_DESC = 58  # increased a tiny bit
++		# <!-- custom: Y offset adjustment to align city desc panel with city animation, added with claude opus 4.5's help thanks. -->
++		self.Y_CITIES_DESC_BUFFER = -8  # was -4, move panel up a few pixels
++
++		# <!-- custom: multilist panel constants for top cities wonders, added with claude opus 4.5's help thanks. -->
++		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
++		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
++		self.iTopCitiesWonderButtonSize = 46
++		self.iTopCitiesWonderNumRows = 2
++		self.iTopCitiesWonderPanelMargin = 8
++		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
++		iTopCitiesWonderPanelHeightAdjust = -3
++		# <!-- custom: calculate wonder panel height based on rows, added with claude opus 4.5's help thanks. -->
++		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + iTopCitiesWonderPanelHeightAdjust
++
++		# <!-- custom: gap between city desc panel and wonder panel, added with claude opus 4.5's help thanks. -->
++		self.iTopCitiesDescWonderGap = -2  # was 2, negative to bring wonder panel closer to city desc
++		# <!-- custom: margin between city components (bottom of one city to top of next), added with claude opus 4.5's help thanks. -->
++		self.iTopCitiesInterCityMargin = 6
++
++		# <!-- custom: dynamically compute Y_CITIES_BUFFER based on component heights, added with claude opus 4.5's help thanks. -->
++		# Total height per city = city desc panel + gap + wonder panel + inter-city margin
++		self.Y_CITIES_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL + self.iTopCitiesInterCityMargin
++
+ 		# Placement of Cities
+ 		self.X_COL_1_CITIES = self.X_TOP_CITIES_LEFT_PANE + 20
+-		self.Y_CITIES_BUFFER = 118
+ 
+ 		self.Y_ROWS_CITIES = []
+-		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20)
+-		for i in range(1,5):
++		# <!-- custom: add header height offset so cities start below the header, added with claude opus 4.5's help thanks. -->
++		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20 + self.iTopCitiesHeaderHeight)
++		for i in range(1, 5):
+ 			self.Y_ROWS_CITIES.append(self.Y_ROWS_CITIES[i-1] + self.Y_CITIES_BUFFER)
+ 
+ 		# <!-- custom: right part of the top cities panel if i'm not mistaken. -->
+-		# <!-- custom: not sure why but the inter-spacing between the left and right part of the top cities panel is shorter than the side margins inside the top cities panel, so manually adjusting it if i'm not mistaken. -->
+ 		topCitiesInterLeftRightPartsGapAdjust = 2
+ 		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + topCitiesInterLeftRightPartsGapAdjust
+-		self.Y_CITIES_DESC_BUFFER = -4
+-		# <!-- custom: not sure why but -30 -20 was too long and -30 -10 was too short, so manually adjusting if i'm not mistaken and understood correctly gemini 3 pro's overall explanation. -->
+ 		topcitiesRightPartWAdjust = -16
+ 		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + topcitiesRightPartWAdjust - topCitiesInterLeftRightPartsGapAdjust
+-		self.H_CITIES_DESC = 60
+ 
+-		self.Y_CITIES_WONDER_BUFFER = 57
++		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
++		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
+ 
+ ############################################### WONDERS ###############################################
+ 
+@@ -2187,6 +2214,13 @@ class CvInfoScreen:
+ 		screen.addPanel( self.szLeftPaneWidget, "", "", true, true,
+ 			self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+ 
++		# <!-- custom: add "Top 5 Cities in the World" header (Civ3 vibe!), removed bold, added with claude opus 4.5's help thanks. -->
++		szHeaderText = u"<font=4>" + localText.getText("TXT_KEY_TOP_5_CITIES_IN_THE_WORLD", ()) + u"</font>"
++		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY,
++			self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, 
++			self.Y_TOP_CITIES_LEFT_PANE + 12, 
++			0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
+ 		self.drawTopCities()
+ 		self.drawWondersTab()
+ 
+@@ -2270,24 +2304,42 @@ class CvInfoScreen:
+ 
+ 				aaiTopCitiesWonders[iCityLoop] = aiTempWondersList
+ 
++		# <!-- custom: use multilist for wonder icons to allow multiple rows, added with claude opus 4.5's help thanks. -->
+ 		# Create Scrollable areas under each city
+ 		self.szCityWonderScrollArea = []
+-		for iCityLoop in range (self.iNumCities):
++		for iCityLoop in range(self.iNumCities):
+ 
+ 			self.szCityWonderScrollArea.append(self.getNextWidgetName())
+ 
+-			#iScollAreaY = (self.Y_CITIES_BUFFER * iCityLoop) + 90 + self.Y_CITIES_WONDER_BUFFER
+-
+ 			szIconPanel = self.szCityWonderScrollArea[iCityLoop]
+-			screen.addPanel( szIconPanel, "", "", false, true,
+-				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iCityLoop] + self.Y_CITIES_WONDER_BUFFER + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
++			
++			iMultiListX = self.X_COL_1_CITIES_DESC
++			iMultiListY = self.Y_ROWS_CITIES[iCityLoop] + self.Y_CITIES_WONDER_BUFFER + self.Y_CITIES_DESC_BUFFER
++			iMultiListW = self.W_CITIES_DESC
++			iMultiListH = self.H_CITIES_WONDER_PANEL
++			
++			# Create panel first
++			screen.addPanel(szIconPanel, "", "", False, True,
++				iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
++			
++			# <!-- custom: use no-header offsets since wonder panel has no title text, added with claude opus 4.5's help thanks. -->
++			# Create multilist control for multiple rows of wonder buttons
++			szMultiListName = self.getNextWidgetName()
++			screen.addMultiListControlGFC(szMultiListName, "",
++				iMultiListX + self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER,
++				iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER,
++				iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER),
++				iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER),
++				1,  # numLists (1 for auto-calculate buttons per row)
++				self.iTopCitiesWonderButtonSize,
++				self.iTopCitiesWonderButtonSize,
++				TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 			# Now place the wonder buttons
+ 			for iWonderLoop in range(aiTopCitiesNumWonders[iCityLoop]):
+-
+ 				iBuildingID = aaiTopCitiesWonders[iCityLoop][iWonderLoop]
+-				screen.attachImageButton( szIconPanel, "", gc.getBuildingInfo(iBuildingID).getButton(),
+-					GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False )
++				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(),
++					0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
+ 
+ 	def calculateTopCities(self):
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+new file mode 100644
+index 000000000..bd82df779
+--- /dev/null
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -0,0 +1,1424 @@
++<?xml version="1.0" encoding="ISO-8859-1" ?>
++<!--
++	Various Interface Label Translations
++
++	Copyright (c) 2007 The BUG Mod.
++  -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++
++	<!-- General -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTIONS_KEY_REMINDER</Tag>
++		<English>Press [BOLD]ALT + CTRL + O[\BOLD] to customize %s1</English>
++		<French>Poussez sur [BOLD]ALT + CTRL + O[\BOLD] pour configurer %s1</French>
++		<German>[BOLD]&lt;STRG + ALT + O&gt;[\BOLD] dr�cken, um %s1 anzupassen...</German>
++		<Italian>Premi [BOLD]CTRL+ALT+O[\BOLD] per personalizzare %s1</Italian>
++		<Spanish>Press [BOLD]ALT + CTRL + O[\BOLD] to customize %s1</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC</Tag>
++		<English>Press [BOLD]ALT + CMD + O[\BOLD] to customize %s1</English>
++		<French>Poussez sur [BOLD]ALT + CMD + O[\BOLD] pour configurer %s1</French>
++		<German>[BOLD]&lt;CMD + ALT + O&gt;[\BOLD] dr�cken, um %s1 anzupassen...</German>
++		<Italian>Premi [BOLD]CMD+ALT+O[\BOLD] per personalizzare %s1</Italian>
++		<Spanish>Pulsa [BOLD]ALT + CMD + O[\BOLD] para personalizar %s1</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
++		<English>Created by The BUG Mod.</English>>
++		<German>Erstellt durch die BUG Mod.</German>
++		<Italian>Creato dal BUG Mod.</Italian>
++		<Spanish>Creado por el BUG Mod.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_DEFAULT</Tag>
++		<English>Default</English>
++		<German>Standard</German>
++		<Italian>Predefinito</Italian>
++		<Spanish>Predefinido</Spanish>
++	</TEXT>
++	
++	<!-- Help -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_HELP_OPENING</Tag>
++		<English>Opening the BUG Mod help file...</English>
++		<French>Ouverture du fichier d'aide du BUG Mod...</French>
++		<German>�ffnen der Hilfe-Datei der BUG Mod...</German>
++		<Italian>Apertura della Guida del BUG Mod in corso...</Italian>
++		<Spanish>Abriendo el fichero de ayuda de BUG...</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_HELP_LANGUAGE</Tag>
++		<English>BUG Mod Help - ENG.chm</English>
++		<French>BUG Mod Help - FRA.chm</French>
++		<German>BUG Mod Help - DEU.chm</German>
++		<Italian>BUG Mod Help - ITA.chm</Italian>
++		<Spanish>BUG Mod Help - ESP.chm</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_HELP_MISSING_TITLE</Tag>
++		<English>Help File Not Found</English>
++		<French>Fichier d'Aide Non Trouv&#233;</French>
++		<German>Hilfe-Datei nicht gefunden</German>
++		<Italian>Guida del BUG Mod non trovata</Italian>
++		<Spanish>Fichero de ayuda no encontrado</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_HELP_MISSING_BODY</Tag>
++		<English>Could not find the file "%s1" in the search paths. See the System tab on the BUG Options screen [ALT + CTRL + O] for details.</English>
++		<French>Impossible de trouver le fichier "%s1" dans les chemins recherch�s. Voir l'onglet System dans l'�cran d'options du BUG Mod [ALT + CTRL + O] pour les d�tails.</French>
++		<German>Die Datei "%s1" konnte innerhalb der erkannten Pfade nicht gefunden werden. Details finden Sie im Reiter "System" im Optionsbildschirm der BuG Mod (Tastenkombination [STRG + ALT + O]).</German>
++		<Italian>Impossibile trovare il file "%s1" nei percorsi di ricerca. Vedi la tabella 'System' nella Schermata di Opzioni del BUG Mod [ALT + CTRL + O] per maggiori dettagli.</Italian>
++		<Spanish>No se pudo encontrar el fichero "%s1" en las rutas de b�squeda. Compruebe la pesta�a 'Sistema' en las opciones de BUG [ALT + CTRL + O] para m�s informaci�n.</Spanish>
++	</TEXT>
++	
++	<!-- Missing Civ4 Entries -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_CIV_MINOR_PEDIA</Tag>
++		<English>No description provided.</English>
++		<French>Description non fournie.</French>
++		<German>Keine Informationen verf�gbar.</German>
++		<Italian>Nessuna descrizione fornita.</Italian>
++		<Spanish>Sin descripci�n.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_BARBARIAN_PEDIA</Tag>
++		<English>No description provided.</English>
++		<French>Description non fournie.</French>
++		<German>Keine Informationen verf�gbar.</German>
++		<Italian>Nessuna descrizione fornita.</Italian>
++		<Spanish>Sin descripci�n.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_RELIGIOUS_CITY</Tag>
++		<English>Cities</English>
++		<French>Villes</French>
++		<German>St�dte</German>
++		<Italian>Citt&#224;</Italian>
++		<Spanish>Ciudades</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_RELIGIOUS_TEMPLE</Tag>
++		<English>Temples:</English>
++		<French>Temples:</French>
++		<German>Tempel:</German>
++		<Italian>Templi:</Italian>
++		<Spanish>Templos:</Spanish>
++	</TEXT>
++	<!-- advc.004g: was misspelled -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_RELIGIOUS_MONASTARY</Tag>
++		<English>Monasteries:</English>
++		<French>Monasteries:</French>
++		<German>Kl�ster:</German>
++		<Italian>Monasteri:</Italian>
++		<Spanish>Monasterios:</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_RELIGIOUS_MISSIONARY</Tag>
++		<English>Missionaries:</English>
++		<French>Missionaries:</French>
++		<German>Missionare:</German>
++		<Italian>Missionari:</Italian>
++		<Spanish>Misioneros:</Spanish>
++	</TEXT>
++	
++	<!-- Gold Rate Warning -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_MISC_POS_GOLD</Tag>
++		<English>[ICON_GOLD]: %d1_Gold</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NEG_GOLD</Tag>
++		<English>[ICON_GOLD]: [COLOR_NEGATIVE_TEXT]%d1_Gold[COLOR_REVERT]</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NEG_WARNING_GOLD_PER_TURN</Tag>
++		<English>[SPACE][COLOR_YELLOW](%D1_Change/Turn)[COLOR_REVERT]</English>
++		<French>[SPACE][COLOR_YELLOW](%D1_Change/tour)[COLOR_REVERT]</French>
++		<German>[SPACE][COLOR_YELLOW](%D1_Change/Runde)[COLOR_REVERT]</German>
++		<Italian>[SPACE][COLOR_YELLOW](%D1_Change/Turno)[COLOR_REVERT]</Italian>
++		<Spanish>[SPACE][COLOR_YELLOW](%D1_Change/turno)[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_POS_WARNING_GOLD_PER_TURN</Tag>
++		<English>[SPACE][COLOR_YELLOW](%D1_Change/Turn)[COLOR_REVERT]</English>
++		<French>[SPACE][COLOR_YELLOW](%D1_Change/tour)[COLOR_REVERT]</French>
++		<German>[SPACE][COLOR_YELLOW](%D1_Change/Runde)[COLOR_REVERT]</German>
++		<Italian>[SPACE][COLOR_YELLOW](%D1_Change/Turno)[COLOR_REVERT]</Italian>
++		<Spanish>[SPACE][COLOR_YELLOW](%D1_Change/turno)[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- advc.070: Will have to piece this together -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_PER_TURN</Tag>
++		<English>%D1_Change/Turn</English>
++		<French>%D1_Change/tour</French>
++		<German>%D1_Change/Runde</German>
++		<Italian>%D1_Change/Turno</Italian>
++		<Spanish>%D1_Change/turno</Spanish>
++	</TEXT>
++	
++	<!-- Not Just Another Game Clock -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_ERA</Tag>
++		<English>%s1 Era</English>
++		<French>%s1 Era</French>
++		<German>%s1</German>
++		<Italian>Era %s1</Italian>
++		<Spanish>%s1</Spanish>
++	</TEXT>
++	
++	<!-- Great Person / General Bars -->
++	
++	<TEXT>
++		<Tag>INTERFACE_GREAT_PERSON_NONE</Tag>
++		<English>%s1: None</English>
++		<French>%s1: Aucun</French>
++		<German>%s1: Keine</German>
++		<Italian>%s1: Nessuno</Italian>
++		<Spanish>%s1: Ninguno</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>INTERFACE_GREAT_PERSON_CITY</Tag>
++		<English>%s1: %s2</English>
++		<French>%s1: %s2</French>
++		<German>%s1: %s2</German>
++		<Italian>%s1: %s2</Italian>
++		<Spanish>%s1: %s2</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>INTERFACE_GREAT_PERSON_TURNS</Tag>
++		<English>%s1: (%d2)</English>
++		<French>%s1: (%d2)</French>
++		<German>%s1: (%d2)</German>
++		<Italian>%s1: (%d2)</Italian>
++		<Spanish>%s1: (%d2)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>INTERFACE_GREAT_PERSON_CITY_TURNS</Tag>
++		<English>%s1: %s2 (%d3)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>INTERFACE_NEXT_GREAT_GENERAL_XP</Tag>
++		<English>%s1 (%d2)</English>
++	</TEXT>
++	
++	<!-- Dead Civs Scoreboard -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_DEAD_CIV</Tag>
++		<English>DEAD</English>
++		<French>MORT</French>
++		<German>TOT</German>
++		<Italian>SCOMPARSA</Italian>
++		<Spanish>ELIMINADO</Spanish>
++	</TEXT>
++	
++	<!-- Raw Yields -->
++	
++	<!--TEXT>
++		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
++		<English>Worked Tiles (%d1)</English>
++		<French>Cases Travaill�es (%d1)</French>
++		<German>Gel�ndefelder: %d1</German>
++		<Italian>Caselle lavorate (%d1)</Italian>
++		<Spanish>Casillas Trabajadas (%d1)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
++		<English>City's Tiles (%d1)</English>
++		<German>Gel�ndefelder: %d1</German>
++		<Italian>Caselle della Citt� (%d1)</Italian>
++		<Spanish>Casillas de la Ciudad (%d1)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
++		<English>Owned Tiles (%d1)</English>
++		<German>Gel�ndefelder: %d1</German>
++		<Italian>Caselle possedute (%d1)</Italian>
++		<Spanish>Casillas pose�das (%d1)</Spanish>
++	</TEXT-->
++	<!-- advc.002b: The translations above are too long with the current
++		 font size, at least at screen width 1024.
++		 Alternatively, one could put the number first, e.g.
++		 "%d1 caselle lavorate". As suggested here by EmperorFool, one of the
++		 original authors:
++		 https://forums.civfanatics.com/threads/raw-yields.281724/#post-7005748
++		 -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
++		<English>Worked Tiles (%d1)</English>
++		<French>Cases (%d1)</French>
++		<German>Gel�ndefelder (%d1)</German>
++		<Italian>Caselle (%d1)</Italian>
++		<Spanish>Casillas (%d1)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
++		<English>City's Tiles (%d1)</English>
++		<French>Cases (%d1)</French>
++		<German>Gel�ndefelder (%d1)</German>
++		<Italian>Caselle (%d1)</Italian>
++		<Spanish>Casillas (%d1)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
++		<English>Owned Tiles (%d1)</English>
++		<French>Cases (%d1)</French>
++		<German>Gel�ndefelder (%d1)</German>
++		<Italian>Caselle (%d1)</Italian>
++		<Spanish>Casillas (%d1)</Spanish>
++	</TEXT>
++	<!-- advc.004: Unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_CONCEPT_ALL_TILES</Tag>
++		<English>All Tiles (%d1)</English>
++		<French>All Tiles (%d1)</French>
++		<German>Gel�ndefelder: %d1</German>
++		<Italian>Tutte le caselle (%d1)</Italian>
++		<Spanish>Todas las casillas (%d1)</Spanish>
++	</TEXT-->
++	
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_BASE_MODIFIER</Tag>
++		<!-- Bureaucracy, Forge, Factory, Power, Ironworks -->
++		<English>Modifiers (%D1%%)</English>
++		<German>Modifikatoren: %D1%%</German>
++		<Italian>Modificatori (%D1%%)</Italian>
++		<Spanish>Modificadores (%D1%%)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_PRODUCTION_MODIFIER</Tag>
++		<!-- Heroic Epic, Military Academy, Drydock, Police State, Organized Religion, Traits, Resources -->
++		<English>%s1 (%D2%%)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SUBTOTAL</Tag>
++		<English>Subtotal</English>
++		<French>Total Partiel</French>
++		<German>Zwischensumme</German>
++		<Italian>Totale Parziale</Italian>
++		<Spanish>Subtotal</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_TOTAL</Tag>
++		<English>Total</English>
++		<French>Total</French>
++		<German>Summe</German>
++		<Italian>Totale</Italian>
++		<Spanish>Total</Spanish>
++	</TEXT>
++	
++	<!-- advc.004: Minor changes to the next seven keys -->
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_VIEW_TRADE</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Trade Routes[COLOR_REVERT][NEWLINE]Show the Trade Routes of this city.</English>
++		<German>[COLOR_HIGHLIGHT_TEXT]Handelswege[COLOR_REVERT][NEWLINE]Zeige die Handelswege dieser Stadt an</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Rotte Commericali[COLOR_REVERT][NEWLINE]Visualizza le Rotte Commericali pr questa Citt�.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Rutas Comerciales[COLOR_REVERT][NEWLINE]Muestra las Rutas Comerciales de esta Ciudad.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_VIEW_FOOD</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Food breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_FOOD] sources.</English>
++		<German>[COLOR_HIGHLIGHT_TEXT] Nahrungsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_FOOD]-Ertr�ge der Stadt</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Cibo[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_FOOD].</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Comida en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes de [ICON_FOOD].</Spanish>
++	</TEXT>
++	<!-- The modifiers specific to the current order can be highly confusing
++		 for first-time users of the Raw Yields feature; e.g. when producing a
++		 Forge while in Organized Religion, the final line will say "Forge
++		 +25%," which sounds as if the Forge is already in use.
++		 Given the limited space, however, it seems that the best I can do is
++		 place a hint in the hover text of the Production View. -->
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_VIEW_PRODUCTION</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT] Production breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_PRODUCTION] sources and modifiers (generic ones and modifiers specific to what the city is currently producing).</English>
++		<German>[COLOR_HIGHLIGHT_TEXT]Produktionsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_PRODUCTION]-Ertr�ge und [ICON_PRODUCTION]-Modifikatoren (generische Modifikatoren und solche, die vom derzeitigen Produktionsauftrag abh�ngen k�nnen)</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Produzione[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_PRODUCTION] ed i modificatori relativi.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Producci�n en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes y modificadores de [ICON_PRODUCTION].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_VIEW_COMMERCE</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Raw Commerce breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_COMMERCE] sources and modifiers.</English>
++		<German>[COLOR_HIGHLIGHT_TEXT]Handelsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_COMMERCE]-Ertr�ge und [ICON_COMMERCE]-Modifikatoren</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Commercio[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_COMMERCE] ed i modificatori relativi.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Comercio en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes y modificadores de [ICON_COMMERCE].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_TILES_WORKED</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Worked Tiles[COLOR_REVERT][NEWLINE]Count only yields from tiles that the city is working.</English>
++		<German>[COLOR_HIGHLIGHT_TEXT]Nur bearbeitete Felder[COLOR_REVERT][NEWLINE]Zur Berechnung der Ertr�ge werden nur Gel�ndefelder, die von der Stadt derzeit bearbeitet werden, herangezogen.</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Caselle lavorate[COLOR_REVERT][NEWLINE]Considera solo le caselle della Citt� attualmente lavorate.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas Trabajadas[COLOR_REVERT][NEWLINE]Cuenta las casillas que est�n siendo actualmente trabajadas por la ciudad.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_TILES_CITY</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]City Tiles[COLOR_REVERT][NEWLINE]Count yields from all tiles controlled by the city.</English>
++		<German>[COLOR_HIGHLIGHT_TEXT]Stadtfelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Ertr�ge werden alle Gel�ndefelder, die von der Stadt kontrolliert werden, herangezogen.</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Caselle della Citt�[COLOR_REVERT][NEWLINE]Considera le caselle attualmente controllate dalla Citt�.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas de la Ciudad[COLOR_REVERT][NEWLINE]Cuenta las casillas controladas por la ciudad.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_TILES_OWNED</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Owned Tiles[COLOR_REVERT][NEWLINE]Count yields from all tiles in the city radius owned by your civilization.</English>
++		<German>[COLOR_HIGHLIGHT_TEXT]Felder in Besitz[COLOR_REVERT][NEWLINE]Zur Berechnung der Ertr�ge werden alle Gel�ndefelder im Stadtradius herangezogen, die Ihrer Zivilisation geh�ren.</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Caselle possedute[COLOR_REVERT][NEWLINE]Considera le caselle nel raggio cittadino attualmente possedute dalla Civilt�.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas Pose�das[COLOR_REVERT][NEWLINE]Cuenta las casillas en el radio de tu ciudad que pertenezcan a tu civilizaci�n.</Spanish>
++	</TEXT>
++	<!-- unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_RAW_YIELD_TILES_ALL</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Alle Gel�ndefelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Rohertr�ge werden alle Gel�ndefelder, die sich im Einzugsgebiet der Stadt befinden, unabh�ngig davon, welcher Zivilisation sie geh�ren, herangezogen</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Tutte le caselle[COLOR_REVERT][NEWLINE]Considera tutte le caselle nel raggio cittadino indipendentemente dal proprietario.</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
++	</TEXT-->
++	
++	<!-- Food Assist -->
++	
++	<TEXT>
++		<Tag>INTERFACE_CITY_GROWTH</Tag>
++		<English>Growth!</English>
++		<French>Croissance!</French>
++		<German>Wachstum!</German>
++		<Italian>Crescita!</Italian>
++		<Spanish>�Crecimiento!</Spanish>
++	</TEXT>
++	
++	<!-- advc.004: The whole string was colored yellow, which draws too much
++		 attention (as yellow isn't normally used in this way by the game).
++		 The red coloring is also not great, but the best I can come up with.
++		 German was "Schrumpfen". -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_SHRINKING</Tag>
++		<English>[COLOR_WARNING_TEXT]Shrinking (%d1 [NUM1:Turn:Turns])[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]R�tr�cissement (%d1 [NUM1:tour:tours][COLOR_REVERT])</French>
++		<German>[COLOR_WARNING_TEXT]R�ckgang (%d1 [NUM1:Runde:Runden])[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Riduzione (%d1 [NUM1:Turno:Turni])[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]Reducci�n (%d1 [NUM1:turno:turnos])[COLOR_REVERT]</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>INTERFACE_CITY_FOOD_GROW</Tag>
++		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = +%d3[ICON_FOOD]</English>
++	</TEXT>
++	
++	<!-- advc.004: Was [ICON_BAD_FOOD] -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_FOOD_SHRINK</Tag>
++		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = [COLOR_WARNING_TEXT]%d3[COLOR_REVERT][ICON_FOOD]</English>
++	</TEXT>
++	<TEXT>
++		<Tag>INTERFACE_CITY_FOOD_STAGNATE</Tag>
++		<English>%d1[ICON_FOOD] = %d2[ICON_EATENFOOD]</English>
++	</TEXT>
++	
++	<!-- Whip Assist -->
++	
++	<TEXT>
++		<Tag>INTERFACE_CITY_PRODUCTION_WHIP</Tag>
++		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION]</English>
++	</TEXT>
++	<!-- advc.004x: Without production turns in parentheses -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP</Tag>
++		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</English>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD</Tag>
++		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</English>
++	</TEXT>
++	<!-- advc.004x -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP_PLUS_GOLD</Tag>
++		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</English>
++	</TEXT>
++
++	<TEXT>
++		<Tag>INTERFACE_CITY_PRODUCTION_BUY</Tag>
++		<English>%s1 (%d2)   -%d3[ICON_GOLD]</English>
++	</TEXT>
++	<!-- advc.004x -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_NO_PRODUCTION_BUY</Tag>
++		<English>%s1   -%d2[ICON_GOLD]</English>
++	</TEXT>
++	
++	<!-- Production Decay -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_WARNING</Tag>
++		<English>[COLOR_YELLOW][BOLD]![\BOLD][COLOR_REVERT] %s1</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_THIS_TURN</Tag>
++		<English>[COLOR_WARNING_TEXT][BOLD]!![\BOLD][COLOR_REVERT] %s1</English>
++	</TEXT>
++	
++	<!-- Military Advisor -->
++	
++	<!-- Unit Groupings -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_TYPE_GROUPING</Tag>
++		<English>Unit Type</English>
++		<German>Einheitentyp</German>
++		<Italian>Tipo Unit&#224;</Italian>
++		<Spanish>Tipo de Unidad</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_COMBAT_GROUPING</Tag>
++		<English>Combat Type</English>
++		<German>Einheitenklasse</German>
++		<Italian>Tipo Combattimento</Italian>
++		<Spanish>Tipo de Combate</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_COMBAT_GROUP_NONE</Tag>
++		<English>None</English>
++		<French>Rien</French>
++		<German>Keine</German>
++		<Italian>Nessuno</Italian>
++		<Spanish>Ninguno</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LEVEL_GROUPING</Tag>
++		<English>Level</English>
++		<French>Niveau</French>
++		<German>Stufe</German>
++		<Italian>Livello</Italian>
++		<Spanish>Nivel</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LEVEL_GROUP</Tag>
++		<English>Level %s1</English>
++		<French>Niveau %s1</French>
++		<German>Stufe %s1</German>
++		<Italian>Livello %s1</Italian>
++		<Spanish>Nivel %s1</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_PROMOTION_GROUPING</Tag>
++		<English>Promotions</English>
++		<French>Promotions</French>
++		<German>Bef�rderungen</German>
++		<Italian>Promozioni</Italian>
++		<Spanish>Promociones</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_PROMOTION_GROUP_NONE</Tag>
++		<English>None</English>
++		<French>Rien</French>
++		<German>Keine</German>
++		<Italian>Nessuno</Italian>
++		<Spanish>Ninguno</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING</Tag>
++		<English>Location</English>
++		<German>Standort</German>
++		<Italian>Luogo</Italian>
++		<Spanish>Localizaci�n</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_CITY</Tag>
++		<English>Domestic City</English>
++		<German>Eigene Stadt</German>
++		<Italian>Citt� propria</Italian>
++		<Spanish>Ciudad Propia</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_TERRITORY</Tag>
++		<English>Domestic Territory</English>
++		<German>Eigenes Gebiet</German>
++		<Italian>Territorio proprio</Italian>
++		<Spanish>Territorio Propio</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_TEAM_CITY</Tag>
++		<English>Team City</English>
++		<German>Verb�ndete Stadt</German>
++		<Italian>Citt� alleata</Italian>
++		<Spanish>Ciudad del Equipo</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_TEAM_TERRITORY</Tag>
++		<English>Team Territory</English>
++		<German>Verb�ndetes Gebiet</German>
++		<Italian>Territorio alleato</Italian>
++		<Spanish>Territorio del Equipo</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_FRIENDLY_CITY</Tag>
++		<English>Friendly City</English>
++		<German>Befreundete Stadt</German>
++		<Italian>Citt� amica</Italian>
++		<Spanish>Ciudad Amiga</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_FRIENDLY_TERRITORY</Tag>
++		<English>Friendly Territory</English>
++		<German>Befreundetes Gebiet</German>
++		<Italian>Territorio amico</Italian>
++		<Spanish>Territorio Amigo</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_NEUTRAL_TERRITORY</Tag>
++		<English>Neutral Territory</English>
++		<German>Neutrales Gebiet</German>
++		<Italian>Territorio neutrale</Italian>
++		<Spanish>Territorio Neutral</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_ENEMY_TERRITORY</Tag>
++		<English>Enemy Territory</English>
++		<German>Feindliches Gebiet</German>
++		<Italian>Territorio nemico</Italian>
++		<Spanish>Territorio Enemigo</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_BARBARIAN_TERRITORY</Tag>
++		<English>Barbarian Territory</English>
++		<German>Barbarisches Gebiet</German>
++		<Italian>Territorio barbaro</Italian>
++		<Spanish>Territorio B�rbaro</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUPING</Tag>
++		<English>Orders</English>
++		<German>Befehle</German>
++		<Italian>Ordini</Italian>
++		<Spanish>�rdenes</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_NONE</Tag>
++		<English>None</English>
++		<German>Keine</German>
++		<Italian>Nessuno</Italian>
++		<Spanish>Ninguna</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SKIP</Tag>
++		<English>Skip</English>
++		<German>Runde �berspringen</German>
++		<Italian>Passa</Italian>
++		<Spanish>Pasar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SLEEP</Tag>
++		<English>Sleep</English>
++		<German>Ausruhen</German>
++		<Italian>A riposo</Italian>
++		<Spanish>Dormir</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_FORTIFY</Tag>
++		<English>Fortify</English>
++		<German>Verschanzen</German>
++		<Italian>Fortificarsi</Italian>
++		<Spanish>Fortificarse</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_HEAL</Tag>
++		<English>Heal</English>
++		<German>Heilen</German>
++		<Italian>Curarsi</Italian>
++		<Spanish>Curarse</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SENTRY</Tag>
++		<English>Sentry</English>
++		<German>Wache</German>
++		<Italian>Sentinella</Italian>
++		<Spanish>Vigilar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_PATROL</Tag>
++		<English>Patrol</English>
++		<German>Patrouille</German>
++		<Italian>Pattugliare</Italian>
++		<Spanish>Patrullar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_PLUNDER</Tag>
++		<English>Blockade</English>
++		<German>Blockade</German>
++		<Italian>Embargo</Italian>
++		<Spanish>Bloquear</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_BUILD</Tag>
++		<English>Build Improvement</English>
++		<German>Modernisierung errichten</German>
++		<Italian>Costruire miglioramenti</Italian>
++		<Spanish>Construir Mejora</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_CONSTRUCT</Tag>
++		<English>Construct Building</English>
++		<German>Geb�ude errichten</German>
++		<Italian>Edificare</Italian>
++		<Spanish>Construir Edificio</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_GOTO</Tag>
++		<English>Go To</English>
++		<German>Gehe zu</German>
++		<Italian>Andare</Italian>
++		<Spanish>Ir A</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_EXPLORE</Tag>
++		<English>Explore</English>
++		<German>Erkunden</German>
++		<Italian>Esplorare</Italian>
++		<Spanish>Explorar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_BUILD</Tag>
++		<English>Auto Build Improvements</English>
++		<German>Modernisierungen errichten (automatisch)</German>
++		<Italian>Miglioramenti automatici</Italian>
++		<Spanish>Auto Construir Mejoras</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_NETWORK</Tag>
++		<English>Auto Trade Network</English>
++		<German>Handelsnetz errichten (automatisch)</German>
++		<Italian>Rete stradale automatica</Italian>
++		<Spanish>Auto Construir Red</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_CITY</Tag>
++		<English>Auto Improve City</English>
++		<German>N�chste Stadt modernisieren (automatisch)</German>
++		<Italian>Miglioramenti cittadini automatici</Italian>
++		<Spanish>Auto Mejorar Ciudad</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_RELIGION</Tag>
++		<English>Spread Religion/Corporation</English>
++		<German>Religion/Kapitalgesellschaft verbreiten</German>
++		<Italian>Diffondere religioni/corporazioni</Italian>
++		<Spanish>Expandir Religi�n/Corporaci�n</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_OTHER</Tag>
++		<English>Other</English>
++		<German>Andere</German>
++		<Italian>Altri</Italian>
++		<Spanish>Otro</Spanish>
++	</TEXT>
++	
++	<!-- General Screen -->
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_UNIT_LOCATION</Tag>
++		<English>Deployment</English>
++		<French>Deploiement</French>
++		<German>Aufstellung</German>
++		<Italian>Dispiegamento</Italian>
++		<Spanish>Despliegue</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITUATION_REPORT</Tag>
++		<English>Sit-Rep</English>
++		<French>Rapport</French>
++		<German>Lagebericht</German>
++		<Italian>Rapporti</Italian>
++		<Spanish>Reporte</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES</Tag>
++		<English>Strategic Advantages</English>
++		<German>Strategische Vorteile</German>
++		<Italian>Vantaggi Strategici</Italian>
++		<Spanish>Ventajas Estrat�gicas</Spanish>
++	</TEXT>
++	
++	<!-- Situation Report Tab -->
++	<!-- advc.002b: Changed German to "Erz-" (was empty) -->
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_WORST</Tag>
++		<English>Worst</English>
++		<French>Worst</French>
++		<German>Erz-</German>
++		<Italian>Peggior</Italian>
++		<Spanish>Peor</Spanish>
++	</TEXT>
++	<!-- advc.002b: German "Erzfeind" was too long -->
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_ENEMY</Tag>
++		<English>Enemy</English>
++		<German>Feind</German>
++		<Italian>Nemico</Italian>
++		<Spanish>Enemigo</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_THREAT_INDEX</Tag>
++		<English>Threat Index</English>
++		<French>Index de Menace</French>
++		<German>Bedrohungslage</German>
++		<Italian>Rischio</Italian>
++		<Spanish>Threat Index</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_WARS</Tag>
++		<English>Wars</English>
++		<French>Guerres</French>
++		<German>Kriege</German>
++		<Italian>Guerre</Italian>
++		<Spanish>Guerras</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_WARS_ACTIVE</Tag>
++		<English>Active</English>
++		<French>Actives</French>
++		<German>Im Gange</German>
++		<Italian>In corso</Italian>
++		<Spanish>En Curso</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_WARS_OPTIONAL</Tag>
++		<English>Willing</English>
++		<French>Possible</French>
++		<German>M�glich</German>
++		<Italian>Potenziali</Italian>
++		<Spanish>Dispuesto</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_POSSIBLE_EMBARGOS_1</Tag>
++		<English>Possible</English>
++		<French>Possible</French>
++		<German>M�gliche</German>
++		<Italian>Potenziali</Italian>
++		<Spanish>Posibles</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_POSSIBLE_EMBARGOS_2</Tag>
++		<English>Embargos</English>
++		<French>Embargos</French>
++		<German>Embargos</German>
++		<Italian>Embarghi</Italian>
++		<Spanish>Embargos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_VASSALS</Tag>
++		<English>Vassals</English>
++		<French>Vassaux</French>
++		<German>Vasallen</German>
++		<Italian>Vassalli</Italian>
++		<Spanish>Vasallos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_VASSAL</Tag>
++		<English>Vassal</English>
++		<French>Vassal</French>
++		<German>Vasall</German>
++		<Italian>Vassallo</Italian>
++		<Spanish>Vasallo</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_SITREP_DEFPACTS</Tag>
++		<English>Def Pacts</English>
++		<French>Pactes D�fensifs</French>
++		<German>Vert.b�nd.</German>
++		<Italian>Patti Difensivi</Italian>
++		<Spanish>Pactos Defensivos</Spanish>
++	</TEXT>
++	<!-- advc.004g: German was "Gering"; use that for MINOR -->
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_LOW</Tag>
++		<English>Low</English>
++		<French>Bas</French>
++		<German>Keine Bedrohung</German>
++		<Italian>Rischio Basso</Italian>
++		<Spanish>Bajo</Spanish>
++	</TEXT>
++	<!-- advc.004g: German was "Moll" (LOL) -->
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_MINOR</Tag>
++		<English>Minor</English>
++		<French>Mineure</French>
++		<German>Gering</German>
++		<Italian>Minore</Italian>
++		<Spanish>Menor</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_ELEVATED</Tag>
++		<English>Elevated</English>
++		<French>Elev&#233;</French>
++		<German>Angespannt</German>
++		<Italian>Rischio Notevole</Italian>
++		<Spanish>Elevado</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_HIGH</Tag>
++		<English>High</English>
++		<French>Haut</French>
++		<German>Alarmierend</German>
++		<Italian>Allarme</Italian>
++		<Spanish>Alto</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_SEVERE</Tag>
++		<English>Severe</English>
++		<French>S�v�re</French>
++		<German>Akut</German>
++		<Italian>Grave allarme</Italian>
++		<Spanish>Severo</Spanish>
++	</TEXT>
++
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATADV_OURS</Tag>
++		<English>Ours</English>
++		<French>Nous</French>
++		<German>Eigene</German>
++		<Italian>Propri</Italian>
++		<Spanish>Propios</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATADV_THEIRS</Tag>
++		<English>Theirs</English>
++		<French>Eux</French>
++		<German>Gegnerische</German>
++		<Italian>Altrui</Italian>
++		<Spanish>Ajenos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATADV_OUR_UNITS</Tag>
++		<English>Our Units</English>
++		<French>Our Units</French>
++		<German>Eigene Einheiten</German>
++		<Italian>Nostre Unit&#224;</Italian>
++		<Spanish>Nuestras Unidades</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATADV_THEIR_UNITS</Tag>
++		<English>Their Units</English>
++		<German>Gegnerische Einheiten</German>
++		<Italian>Unit� Altrui</Italian>
++		<Spanish>Unidades Ajenas</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATADV_KNOWN</Tag>
++		<English>Known</English>
++		<German>Bekannt</German>
++		<Italian>Noti</Italian>
++		<Spanish>Conocidas</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MILITARY_STRATADV_POSSIBLE</Tag>
++		<English>Possible</English>
++		<French>Possible</French>
++		<German>M�glich</German>
++		<Italian>Possibili</Italian>
++		<Spanish>Posibles</Spanish>
++	</TEXT>
++	
++	<!-- Reminders -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_REMINDER_HEADER</Tag>
++		<English>Create Reminder</English>
++		<French>Cr�ez un Rappel</French>
++		<German>Erinnerung schreiben</German>
++		<Italian>Crea un Promemoria</Italian>
++		<Spanish>Crear Recordatorio</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REMINDER_PROMPT</Tag>
++		<English>Enter the number of turns until the reminder goes off and the message to display.</English>
++		<French>Entrez le nombre de tours jusqu'� l'apparition du rappel et le message � montrer.</French>
++		<German>Geben Sie die Anzahl der Runden an, bis die Erinnerung angezeigt werden soll.</German>
++		<Italian>Inserisci il numero di turni che devono passare prima che il promemoria scada ed il messaggio venga visualizzato.</Italian>
++		<Spanish>N�mero de turnos hasta que el recordatorio se activa y muestra el mensaje.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REMIND_END_TURN_PROMPT</Tag>
++		<English>Show reminder again at the end of this turn?</English>
++		<French>Remontrer le rappel � la fin de ce tour?</French>
++		<German>Erinnerung am Ende dieser Runde erneut anzeigen?</German>
++		<Italian>Mostrare nuovamente il promemoria alla fine del turno?</Italian>
++		<Spanish>�Desea mostrar el recordatorio nuevamente al final del turno?</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REMIND_NEXT_TURN_PROMPT</Tag>
++		<English>Show reminder again next turn?</English>
++		<French>Remontrer le rappel au prochain tour?</French>
++		<German>Erinnerung n&#228;chste Runde erneut anzeigen?</German>
++		<Italian>Mostrare nuovamente il promemoria il prossimo turno?</Italian>
++		<Spanish>�Desea mostrar el recordatorio nuevamente el pr�ximo turno?</Spanish>
++	</TEXT>
++	
++	<!-- Tech Prefs -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_TECH_PREFS_ALL</Tag>
++		<English>Research Preference Order</English>
++		<German>Forschungspriorit�ten</German>
++		<Italian>Research Preference Order</Italian>
++		<Spanish>Orden de Investigaci�n Preferido</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_TECH_PREFS_CURRENT</Tag>
++		<English>Current Technologies</English>
++		<German>Derzeitige Technologien</German>
++		<Italian>Current Technologies</Italian>
++		<Spanish>Tecnolog�as Actuales</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_TECH_PREFS_FUTURE</Tag>
++		<English>Future Technologies</English>
++		<German>Zuk�nftige Technologien</German>
++		<Italian>Future Technologies</Italian>
++		<Spanish>Tecnolog�as Futuras</Spanish>
++	</TEXT>
++	
++	<!-- Fix for Overlap in Foreign Advisor Tab in Italian Translation -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_INFO</Tag>
++		<English>Info</English>
++		<French>Infos</French>
++		<German>Info</German>
++		<Italian>Info</Italian>
++		<Spanish>Info.</Spanish>
++	</TEXT>
++	
++	<!-- Fix for wrong translation of "Power" in German, Italian and Spanish language -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_POWER</Tag>
++		<English>Power</English>
++		<French>Puissance</French>
++		<German>Macht</German>
++		<Italian>Energia</Italian>
++		<Spanish>Energ&#237;a</Spanish>
++	</TEXT>
++	
++	<!-- Graph Screen -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_SHOW_ALL</Tag>
++		<English>Show All</English>
++		<German>Alle anzeigen</German>
++		<Italian>Mostra tutti</Italian>
++		<Spanish>Mostrar Todos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SHOW_NONE</Tag>
++		<English>Show None</English>
++		<German>Keine anzeigen</German>
++		<Italian>Cancella tutti</Italian>
++		<Spanish>No Mostrar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_LOGSCALE</Tag>
++		<English>Log Scale</English>
++		<German>Log-Skala</German>
++		<Italian>Scala logaritmica</Italian>
++		<Spanish>Escala Logar�tmica</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_CHART_HELP</Tag>
++		<English>Zoom in and out by clicking on the body of the chart</English>
++		<German>Mit einem Mausklick auf ein Diagramm kann zwischen der verkleinerten Ansicht und der Gro�ansicht umgeschalten werden</German>
++		<Italian>Alterna i livelli di zoom cliccando sul grafico</Italian>
++		<Spanish>Activa/desactiva zoom haciendo click en la gr�fica.</Spanish>
++	</TEXT>
++
++	<!-- Wonders Screen -->
++
++	<TEXT>
++		<Tag>TXT_KEY_WONDER_NAME</Tag>
++		<English>Name</English>
++		<French>Nom</French>
++		<German>Name</German>
++		<Italian>Nome</Italian>
++		<Spanish>Nombre</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WONDER_DATE</Tag>
++		<English>Date</English>
++		<German>Errichtet</German>
++		<Italian>Data</Italian>
++		<Spanish>Fecha</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WONDER_OWNER</Tag>
++		<English>Owner</English>
++		<German>Besitzer</German>
++		<Italian>Proprietario</Italian>
++		<Spanish>Propietario</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WONDER_CITY</Tag>
++		<English>City</English>
++		<German>Stadt</German>
++		<Italian>Citt&#224;</Italian>
++		<Spanish>Ciudad</Spanish>
++	</TEXT>
++
++	<!-- Victory Screen -->
++	<!-- advc.008e: Articles before wonders are now handled by
++		 CIV4GameText_advc_wonders.xml -->
++	<!--TEXT>
++		<Tag>TXT_KEY_PROJECT_APOLLO_PROGRAM</Tag>
++		<English>Apollo Program</English>
++		<French>
++			<Text>Programme Apollo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Apollo-Programm</Text>
++			<Gender>Neuter</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Programma Apollo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Programa Apollo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT-->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE</Tag>
++		<English>Turns until next Vote: %d1</English>
++		<German>N�chste Abstimmung in %d1 [NUM1:Runde:Runden]</German>
++		<Italian>Turni alla prossima Votazione: %d1</Italian>
++		<Spanish>Turnos hasta pr�xima votaci�n: %d1</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION</Tag>
++		<English>Votes until next Election: %d1</English>
++		<German>N�chsten Wahl in %d1 [NUM1:Runde:Runden]</German>
++		<Italian>Voti alla prossima Elezione: %d1</Italian>
++		<Spanish>Turnos hasta pr�xima elecci�n: %d1</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_VOTESOURCE_NON_VOTING_MEMBER</Tag>
++		<English>Non Member</English>
++		<French>Non Membres</French>
++		<German>Nichtmitglied</German>
++		<Italian>Non Membri</Italian>
++		<Spanish>No Miembro</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_TOGGLE_VOTES</Tag>
++		<English>Toggle Votes</English>
++		<French>Alterner Voix</French>
++		<German>Wahlen umschalten</German>
++		<Italian>Alterna Voti</Italian>
++		<Spanish>Alternar Votos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_VASSALED</Tag>
++		<English>%d1 vassaled</English>
++		<French>%d1 vassaled</French>
++		<German>Vasallen: %d1</German>
++		<Italian>%d1 vassallo</Italian>
++		<Spanish>%d1 [NUM1:vasallo:vasallos]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_UNKNOWN</Tag>
++		<English>%d1 unknown</English>
++		<German>unbekannt: %d1</German>
++		<Italian>%d1 sconosciuto</Italian>
++		<Spanish>%d1 [NUM1:desconocido:desconocidos]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_DIPLOMATIC</Tag>
++		<English>Diplomatic Victory</English>
++		<French>Victoire diplomatique</French>
++		<German>Diplomatischer Sieg</German>
++		<Italian>Vittoria Diplomatica</Italian>
++		<Spanish>Victoria Diplom�tica</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_VOTES_TOTAL</Tag>
++		<English>Total</English>
++		<French>Total</French>
++		<German>Summe</German>
++		<Italian>Totale</Italian>
++		<Spanish>Total</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_VOTES_REQUIRED</Tag>
++		<English>[SPACE](%s1 votes required)</English>
++		<German>[SPACE](%s1 Stimmen ben�tigt)</German>
++		<Italian>[SPACE](%s1 voti richiesti)</Italian>
++		<Spanish>[SPACE](%s1 votos requeridos)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_BUG_POLL_RESULT</Tag>
++		<English>%s1 (%s2) leads by %s3.</English>
++		<French>%s1 (%s2) conduit par %s3.</French>
++		<German>%s1 (%s2) f�hrt mit %s3 Vorsprung.</German>
++		<Italian>%s1 (%s2) in testa di %s3.</Italian>
++		<Spanish>%s1 (%s2) lidera con %s3.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_VICTORY_BUG_POLL_ERROR</Tag>
++		<English>Source: Recent BUG Poll, statistical margin of error %s1.</English>
++		<French>Source: Sondage BUG r�cents, marge d'erreur %s1.</French>
++		<German>Quelle: Neueste BUG-Umfrage (statistische Fehlerquote: %s1)</German>
++		<Italian>Fonte: recente sondaggio BUG, margine di errore statistico %s1.</Italian>
++		<Spanish>Fuente: Encuesta BUG reciente, margen estad�stico de error %s1.</Spanish>
++	</TEXT>
++	
++	<TEXT>
++		<Tag>TXT_KEY_GRAPH_SMOOTHING</Tag>
++		<English>Smooth Factor %d1_Num</English>
++		<German>Gl�ttungsstufe %d1_Num</German>
++		<Italian>Fattore di smoothing %d1_Num</Italian>
++		<Spanish>Factor de Suavizado %d1_Num</Spanish>
++	</TEXT>
++
++	<!-- Maze Map Stuff -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_MAP_SCRIPT_MAZE_LAND_PLUS1</Tag>
++		<English>Extra Land Strip</English>
++		<German>Zus�tzlicher Landstrich</German>
++		<Italian>Terreno aggiuntivo</Italian>
++		<Spanish>Franja de Terreno Extra</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRUE</Tag>
++		<English>True</English>
++		<German>Ja</German>
++		<Italian>Vero</Italian>
++		<Spanish>Verdadero</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FALSE</Tag>
++		<English>False</English>
++		<German>Nein</German>
++		<Italian>Falso</Italian>
++		<Spanish>Falso</Spanish>
++	</TEXT>
++
++	<!-- Hall of Fame Screen: Win/Loss Result -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_HOF_WINLOSS_WIN</Tag>
++		<English>W-</English>
++		<French>W-</French>
++		<German>S-</German>
++		<Italian>W-</Italian>
++		<Spanish>V-</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_HOF_WINLOSS_LOSS</Tag>
++		<English>L-</English>
++		<French>L-</French>
++		<German>N-</German>
++		<Italian>L-</Italian>
++		<Spanish>D-</Spanish>
++	</TEXT>
++	
++	<!-- Espionage Advisor -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_MISSIONS_TAB</Tag>
++		<English>Missions</English>
++		<French>Missions</French>
++		<German>Missionen</German>
++		<Italian>Missions</Italian>
++		<Spanish>Misiones</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_SPYVSPY_TAB</Tag>
++		<English>Spy v Spy</English>
++		<German>Gegenspionage</German>
++		<Italian>Spy v Spy</Italian>
++		<Spanish>Esp�a contra Esp�a</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_AI_SPENDING_TOGGLE</Tag>
++		<English>Show AI Espionage</English>
++		<German>KI-Spionage</German>
++		<Italian>Show AI Espionage</Italian>
++		<Spanish>Mostrar Espionaje de la IA</Spanish>
++	</TEXT>
++
++	<!-- BUG Finance Advisor -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_DOMESTIC_TRADE</Tag>
++		<English>Domestic Trade</English>
++		<French>Commerce Domestique</French>
++		<German>Binnenhandel</German>
++		<Italian>Commercio Interno</Italian>
++		<Spanish>Comercio Dom�stico</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_FOREIGN_TRADE</Tag>
++		<English>Foreign Trade</English>
++		<French>Commerce Ext�rieur</French>
++		<German>Au�enhandel</German>
++		<Italian>Commercio Estero</Italian>
++		<Spanish>Comercio Exterior</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_FOREIGN_OVERSEAS_TRADE</Tag>
++		<English>Overseas Trade</English>
++		<French>Commerce d'outre-mer</French>
++		<German>�berseehandel</German>
++		<Italian>Commercio d'oltreoceano</Italian>
++		<Spanish>Comercio de Ultramar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_RELIGIOUS_SHRINES</Tag>
++		<English>Religious Shrines</English>
++		<French>Lieux Saints</French>
++		<German>Schreine</German>
++		<Italian>Santuari</Italian>
++		<Spanish>Santuarios</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_COMMERCE</Tag>
++		<English>Total Commerce</English>
++		<French>Commerce total</French>
++		<German>Handel insgesamt</German>
++		<Italian>Commercio totale</Italian>
++		<Spanish>Comercio total</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_BUILDING_COUNT_AVERAGE</Tag>
++		<English>(%d1 &#215; %s2[ICON_GOLD])</English>
++	</TEXT>
++
++	<!-- Foreign Advisor Info Screen Header Text
++	
++		 All the entries except POSSIBLE_FAV_CIVICS must be kept 
++		 short so that everything lines up properly. 4-6 letters 
++		 is usually best; some can probably fit 8-9 if the letters 
++		 used are narrow (e.g. i,l,t) When in doubt, check the FA 
++		 Info Screen to be sure it looks okay. The CIVICOPTION
++		 abbreviations should be similar to the full words used in 
++		 the CIVICOPTION keys in CIV4GameTextInfos_Objects.xml 
++	  -->
++
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER</Tag>
++		<English>Leader</English>
++		<French>Chef</French>
++		<German>Oberhaupt</German>
++		<Italian>Leader</Italian>
++		<Spanish>L&#237;der</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE</Tag>
++		<English>Attitude</English>
++		<French>Attitude</French>
++		<German>Einstellung</German>
++		<Italian>Attitudine</Italian>
++		<Spanish>Actitud</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_POSSIBLE_FAV_CIVICS</Tag>
++		<English>Possible Favorite Civics</English>
++		<German>M�gliche Vorlieben</German>
++		<Italian>Possibili Forme di Governo Favorite</Italian>
++		<Spanish>Posibles Principios Favoritos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT</Tag>
++		<English>Govt</English>
++		<French>Govt</French>
++		<German>Regierung</German>
++		<Italian>Governo</Italian>
++		<Spanish>Gobierno</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVICOPTION_ABBR_LEGAL</Tag>
++		<English>Legal</English>
++		<French>Justice</French>
++		<German>Recht</German>
++		<Italian>S. Legale</Italian>
++		<Spanish>Legal</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVICOPTION_ABBR_LABOR</Tag>
++		<English>Labor</English>
++		<French>Travail</French>
++		<German>Arbeit</German>
++		<Italian>Lavoro</Italian>
++		<Spanish>C. Laborales</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVICOPTION_ABBR_ECONOMY</Tag>
++		<English>Econ</English>
++		<French>Econ</French>
++		<German>�konomie</German>
++		<Italian>Economia</Italian>
++		<Spanish>Econom�a</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVICOPTION_ABBR_RELIGION</Tag>
++		<English>Religion</English>
++		<French>Religion</French>
++		<German>Religion</German>
++		<Italian>Religione</Italian>
++		<Spanish>Religi&#243;n</Spanish>
++	</TEXT>
++	
++	<!-- Customizable Domestic Advisor -->
++	
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SETTLED_SPECIALISTS</Tag>
++		<English>Settled Specialists</English>
++		<French>
++			<Text>Sp&#233;cialistes</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Spezialisten</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Specialisti</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Especialistas</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Spanish>
++	</TEXT>
++
++	<!-- advc.007d (from BUG 4.5): Trigger Event -->
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_SELECT_EVENT</Tag>
++		<English>Choose an event which should be triggered.</English>
++		<French>Choose an event which should be triggered.</French>
++		<German>Event aussuchen, das gestartet werden soll.</German>
++		<Italian>Choose an event which should be triggered.</Italian>
++		<Spanish>Choose an event which should be triggered.</Spanish>
++	</TEXT>
++	
++	<!-- BULL -->
++	<!-- advc: Commented out -->
++	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #38 -->
++</Civ4GameText>
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText_Custom.xml b/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+index 02888533f..4c9251488 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+@@ -1,1440 +1,27 @@
+ <?xml version="1.0" encoding="ISO-8859-1" ?>
+-<!--
+-	Various Interface Label Translations
+-
+-	Copyright (c) 2007 The BUG Mod.
+-  -->
++<!-- custom: includes some of the changes for AdvCiv-SAS. -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-
+-	<!-- General -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTIONS_KEY_REMINDER</Tag>
+-		<English>Press [BOLD]ALT + CTRL + O[\BOLD] to customize %s1</English>
+-		<French>Poussez sur [BOLD]ALT + CTRL + O[\BOLD] pour configurer %s1</French>
+-		<German>[BOLD]&lt;STRG + ALT + O&gt;[\BOLD] dr�cken, um %s1 anzupassen...</German>
+-		<Italian>Premi [BOLD]CTRL+ALT+O[\BOLD] per personalizzare %s1</Italian>
+-		<Spanish>Press [BOLD]ALT + CTRL + O[\BOLD] to customize %s1</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC</Tag>
+-		<English>Press [BOLD]ALT + CMD + O[\BOLD] to customize %s1</English>
+-		<French>Poussez sur [BOLD]ALT + CMD + O[\BOLD] pour configurer %s1</French>
+-		<German>[BOLD]&lt;CMD + ALT + O&gt;[\BOLD] dr�cken, um %s1 anzupassen...</German>
+-		<Italian>Premi [BOLD]CMD+ALT+O[\BOLD] per personalizzare %s1</Italian>
+-		<Spanish>Pulsa [BOLD]ALT + CMD + O[\BOLD] para personalizar %s1</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
+-		<English>Created by The BUG Mod.</English>>
+-		<German>Erstellt durch die BUG Mod.</German>
+-		<Italian>Creato dal BUG Mod.</Italian>
+-		<Spanish>Creado por el BUG Mod.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_DEFAULT</Tag>
+-		<English>Default</English>
+-		<German>Standard</German>
+-		<Italian>Predefinito</Italian>
+-		<Spanish>Predefinido</Spanish>
+-	</TEXT>
+-	
+-	<!-- Help -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_HELP_OPENING</Tag>
+-		<English>Opening the BUG Mod help file...</English>
+-		<French>Ouverture du fichier d'aide du BUG Mod...</French>
+-		<German>�ffnen der Hilfe-Datei der BUG Mod...</German>
+-		<Italian>Apertura della Guida del BUG Mod in corso...</Italian>
+-		<Spanish>Abriendo el fichero de ayuda de BUG...</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_HELP_LANGUAGE</Tag>
+-		<English>BUG Mod Help - ENG.chm</English>
+-		<French>BUG Mod Help - FRA.chm</French>
+-		<German>BUG Mod Help - DEU.chm</German>
+-		<Italian>BUG Mod Help - ITA.chm</Italian>
+-		<Spanish>BUG Mod Help - ESP.chm</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_HELP_MISSING_TITLE</Tag>
+-		<English>Help File Not Found</English>
+-		<French>Fichier d'Aide Non Trouv&#233;</French>
+-		<German>Hilfe-Datei nicht gefunden</German>
+-		<Italian>Guida del BUG Mod non trovata</Italian>
+-		<Spanish>Fichero de ayuda no encontrado</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_HELP_MISSING_BODY</Tag>
+-		<English>Could not find the file "%s1" in the search paths. See the System tab on the BUG Options screen [ALT + CTRL + O] for details.</English>
+-		<French>Impossible de trouver le fichier "%s1" dans les chemins recherch�s. Voir l'onglet System dans l'�cran d'options du BUG Mod [ALT + CTRL + O] pour les d�tails.</French>
+-		<German>Die Datei "%s1" konnte innerhalb der erkannten Pfade nicht gefunden werden. Details finden Sie im Reiter "System" im Optionsbildschirm der BuG Mod (Tastenkombination [STRG + ALT + O]).</German>
+-		<Italian>Impossibile trovare il file "%s1" nei percorsi di ricerca. Vedi la tabella 'System' nella Schermata di Opzioni del BUG Mod [ALT + CTRL + O] per maggiori dettagli.</Italian>
+-		<Spanish>No se pudo encontrar el fichero "%s1" en las rutas de b�squeda. Compruebe la pesta�a 'Sistema' en las opciones de BUG [ALT + CTRL + O] para m�s informaci�n.</Spanish>
+-	</TEXT>
+-	
+-	<!-- Missing Civ4 Entries -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_CIV_MINOR_PEDIA</Tag>
+-		<English>No description provided.</English>
+-		<French>Description non fournie.</French>
+-		<German>Keine Informationen verf�gbar.</German>
+-		<Italian>Nessuna descrizione fornita.</Italian>
+-		<Spanish>Sin descripci�n.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_LEADER_BARBARIAN_PEDIA</Tag>
+-		<English>No description provided.</English>
+-		<French>Description non fournie.</French>
+-		<German>Keine Informationen verf�gbar.</German>
+-		<Italian>Nessuna descrizione fornita.</Italian>
+-		<Spanish>Sin descripci�n.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_RELIGIOUS_CITY</Tag>
+-		<English>Cities</English>
+-		<French>Villes</French>
+-		<German>St�dte</German>
+-		<Italian>Citt&#224;</Italian>
+-		<Spanish>Ciudades</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_RELIGIOUS_TEMPLE</Tag>
+-		<English>Temples:</English>
+-		<French>Temples:</French>
+-		<German>Tempel:</German>
+-		<Italian>Templi:</Italian>
+-		<Spanish>Templos:</Spanish>
+-	</TEXT>
+-	<!-- advc.004g: was misspelled -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_RELIGIOUS_MONASTARY</Tag>
+-		<English>Monasteries:</English>
+-		<French>Monasteries:</French>
+-		<German>Kl�ster:</German>
+-		<Italian>Monasteri:</Italian>
+-		<Spanish>Monasterios:</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_RELIGIOUS_MISSIONARY</Tag>
+-		<English>Missionaries:</English>
+-		<French>Missionaries:</French>
+-		<German>Missionare:</German>
+-		<Italian>Missionari:</Italian>
+-		<Spanish>Misioneros:</Spanish>
+-	</TEXT>
+-	
+-	<!-- Gold Rate Warning -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_POS_GOLD</Tag>
+-		<English>[ICON_GOLD]: %d1_Gold</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_NEG_GOLD</Tag>
+-		<English>[ICON_GOLD]: [COLOR_NEGATIVE_TEXT]%d1_Gold[COLOR_REVERT]</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_NEG_WARNING_GOLD_PER_TURN</Tag>
+-		<English>[SPACE][COLOR_YELLOW](%D1_Change/Turn)[COLOR_REVERT]</English>
+-		<French>[SPACE][COLOR_YELLOW](%D1_Change/tour)[COLOR_REVERT]</French>
+-		<German>[SPACE][COLOR_YELLOW](%D1_Change/Runde)[COLOR_REVERT]</German>
+-		<Italian>[SPACE][COLOR_YELLOW](%D1_Change/Turno)[COLOR_REVERT]</Italian>
+-		<Spanish>[SPACE][COLOR_YELLOW](%D1_Change/turno)[COLOR_REVERT]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_POS_WARNING_GOLD_PER_TURN</Tag>
+-		<English>[SPACE][COLOR_YELLOW](%D1_Change/Turn)[COLOR_REVERT]</English>
+-		<French>[SPACE][COLOR_YELLOW](%D1_Change/tour)[COLOR_REVERT]</French>
+-		<German>[SPACE][COLOR_YELLOW](%D1_Change/Runde)[COLOR_REVERT]</German>
+-		<Italian>[SPACE][COLOR_YELLOW](%D1_Change/Turno)[COLOR_REVERT]</Italian>
+-		<Spanish>[SPACE][COLOR_YELLOW](%D1_Change/turno)[COLOR_REVERT]</Spanish>
+-	</TEXT>
+-	<!-- advc.070: Will have to piece this together -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_PER_TURN</Tag>
+-		<English>%D1_Change/Turn</English>
+-		<French>%D1_Change/tour</French>
+-		<German>%D1_Change/Runde</German>
+-		<Italian>%D1_Change/Turno</Italian>
+-		<Spanish>%D1_Change/turno</Spanish>
+-	</TEXT>
+-	
+-	<!-- Not Just Another Game Clock -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_ERA</Tag>
+-		<English>%s1 Era</English>
+-		<French>%s1 Era</French>
+-		<German>%s1</German>
+-		<Italian>Era %s1</Italian>
+-		<Spanish>%s1</Spanish>
+-	</TEXT>
+-	
+-	<!-- Great Person / General Bars -->
+-	
+-	<TEXT>
+-		<Tag>INTERFACE_GREAT_PERSON_NONE</Tag>
+-		<English>%s1: None</English>
+-		<French>%s1: Aucun</French>
+-		<German>%s1: Keine</German>
+-		<Italian>%s1: Nessuno</Italian>
+-		<Spanish>%s1: Ninguno</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>INTERFACE_GREAT_PERSON_CITY</Tag>
+-		<English>%s1: %s2</English>
+-		<French>%s1: %s2</French>
+-		<German>%s1: %s2</German>
+-		<Italian>%s1: %s2</Italian>
+-		<Spanish>%s1: %s2</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>INTERFACE_GREAT_PERSON_TURNS</Tag>
+-		<English>%s1: (%d2)</English>
+-		<French>%s1: (%d2)</French>
+-		<German>%s1: (%d2)</German>
+-		<Italian>%s1: (%d2)</Italian>
+-		<Spanish>%s1: (%d2)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>INTERFACE_GREAT_PERSON_CITY_TURNS</Tag>
+-		<English>%s1: %s2 (%d3)</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>INTERFACE_NEXT_GREAT_GENERAL_XP</Tag>
+-		<English>%s1 (%d2)</English>
+-	</TEXT>
+-	
+-	<!-- Dead Civs Scoreboard -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_DEAD_CIV</Tag>
+-		<English>DEAD</English>
+-		<French>MORT</French>
+-		<German>TOT</German>
+-		<Italian>SCOMPARSA</Italian>
+-		<Spanish>ELIMINADO</Spanish>
+-	</TEXT>
+-	
+-	<!-- Raw Yields -->
+-	
+-	<!--TEXT>
+-		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
+-		<English>Worked Tiles (%d1)</English>
+-		<French>Cases Travaill�es (%d1)</French>
+-		<German>Gel�ndefelder: %d1</German>
+-		<Italian>Caselle lavorate (%d1)</Italian>
+-		<Spanish>Casillas Trabajadas (%d1)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
+-		<English>City's Tiles (%d1)</English>
+-		<German>Gel�ndefelder: %d1</German>
+-		<Italian>Caselle della Citt� (%d1)</Italian>
+-		<Spanish>Casillas de la Ciudad (%d1)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
+-		<English>Owned Tiles (%d1)</English>
+-		<German>Gel�ndefelder: %d1</German>
+-		<Italian>Caselle possedute (%d1)</Italian>
+-		<Spanish>Casillas pose�das (%d1)</Spanish>
+-	</TEXT-->
+-	<!-- advc.002b: The translations above are too long with the current
+-		 font size, at least at screen width 1024.
+-		 Alternatively, one could put the number first, e.g.
+-		 "%d1 caselle lavorate". As suggested here by EmperorFool, one of the
+-		 original authors:
+-		 https://forums.civfanatics.com/threads/raw-yields.281724/#post-7005748
+-		 -->
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
+-		<English>Worked Tiles (%d1)</English>
+-		<French>Cases (%d1)</French>
+-		<German>Gel�ndefelder (%d1)</German>
+-		<Italian>Caselle (%d1)</Italian>
+-		<Spanish>Casillas (%d1)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
+-		<English>City's Tiles (%d1)</English>
+-		<French>Cases (%d1)</French>
+-		<German>Gel�ndefelder (%d1)</German>
+-		<Italian>Caselle (%d1)</Italian>
+-		<Spanish>Casillas (%d1)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
+-		<English>Owned Tiles (%d1)</English>
+-		<French>Cases (%d1)</French>
+-		<German>Gel�ndefelder (%d1)</German>
+-		<Italian>Caselle (%d1)</Italian>
+-		<Spanish>Casillas (%d1)</Spanish>
+-	</TEXT>
+-	<!-- advc.004: Unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ALL_TILES</Tag>
+-		<English>All Tiles (%d1)</English>
+-		<French>All Tiles (%d1)</French>
+-		<German>Gel�ndefelder: %d1</German>
+-		<Italian>Tutte le caselle (%d1)</Italian>
+-		<Spanish>Todas las casillas (%d1)</Spanish>
+-	</TEXT-->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_BASE_MODIFIER</Tag>
+-		<!-- Bureaucracy, Forge, Factory, Power, Ironworks -->
+-		<English>Modifiers (%D1%%)</English>
+-		<German>Modifikatoren: %D1%%</German>
+-		<Italian>Modificatori (%D1%%)</Italian>
+-		<Spanish>Modificadores (%D1%%)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_PRODUCTION_MODIFIER</Tag>
+-		<!-- Heroic Epic, Military Academy, Drydock, Police State, Organized Religion, Traits, Resources -->
+-		<English>%s1 (%D2%%)</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SUBTOTAL</Tag>
+-		<English>Subtotal</English>
+-		<French>Total Partiel</French>
+-		<German>Zwischensumme</German>
+-		<Italian>Totale Parziale</Italian>
+-		<Spanish>Subtotal</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_TOTAL</Tag>
+-		<English>Total</English>
+-		<French>Total</French>
+-		<German>Summe</German>
+-		<Italian>Totale</Italian>
+-		<Spanish>Total</Spanish>
+-	</TEXT>
+-	
+-	<!-- advc.004: Minor changes to the next seven keys -->
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_VIEW_TRADE</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Trade Routes[COLOR_REVERT][NEWLINE]Show the Trade Routes of this city.</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Handelswege[COLOR_REVERT][NEWLINE]Zeige die Handelswege dieser Stadt an</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Rotte Commericali[COLOR_REVERT][NEWLINE]Visualizza le Rotte Commericali pr questa Citt�.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Rutas Comerciales[COLOR_REVERT][NEWLINE]Muestra las Rutas Comerciales de esta Ciudad.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_VIEW_FOOD</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Food breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_FOOD] sources.</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT] Nahrungsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_FOOD]-Ertr�ge der Stadt</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Cibo[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_FOOD].</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Comida en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes de [ICON_FOOD].</Spanish>
+-	</TEXT>
+-	<!-- The modifiers specific to the current order can be highly confusing
+-		 for first-time users of the Raw Yields feature; e.g. when producing a
+-		 Forge while in Organized Religion, the final line will say "Forge
+-		 +25%," which sounds as if the Forge is already in use.
+-		 Given the limited space, however, it seems that the best I can do is
+-		 place a hint in the hover text of the Production View. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_VIEW_PRODUCTION</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT] Production breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_PRODUCTION] sources and modifiers (generic ones and modifiers specific to what the city is currently producing).</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Produktionsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_PRODUCTION]-Ertr�ge und [ICON_PRODUCTION]-Modifikatoren (generische Modifikatoren und solche, die vom derzeitigen Produktionsauftrag abh�ngen k�nnen)</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Produzione[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_PRODUCTION] ed i modificatori relativi.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Producci�n en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes y modificadores de [ICON_PRODUCTION].</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_VIEW_COMMERCE</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Raw Commerce breakdown[COLOR_REVERT][NEWLINE]Show a breakdown of the city's [ICON_COMMERCE] sources and modifiers.</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Handelsertr�ge[COLOR_REVERT][NEWLINE]Aufschl�sselung aller [ICON_COMMERCE]-Ertr�ge und [ICON_COMMERCE]-Modifikatoren</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Fonti di Commercio[COLOR_REVERT][NEWLINE]Visualizza un riassunto di tutte le fonti di [ICON_COMMERCE] ed i modificatori relativi.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mostrar Comercio en Bruto[COLOR_REVERT][NEWLINE]Muestra una lista de todas las fuentes y modificadores de [ICON_COMMERCE].</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_TILES_WORKED</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Worked Tiles[COLOR_REVERT][NEWLINE]Count only yields from tiles that the city is working.</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Nur bearbeitete Felder[COLOR_REVERT][NEWLINE]Zur Berechnung der Ertr�ge werden nur Gel�ndefelder, die von der Stadt derzeit bearbeitet werden, herangezogen.</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Caselle lavorate[COLOR_REVERT][NEWLINE]Considera solo le caselle della Citt� attualmente lavorate.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas Trabajadas[COLOR_REVERT][NEWLINE]Cuenta las casillas que est�n siendo actualmente trabajadas por la ciudad.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_TILES_CITY</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]City Tiles[COLOR_REVERT][NEWLINE]Count yields from all tiles controlled by the city.</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Stadtfelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Ertr�ge werden alle Gel�ndefelder, die von der Stadt kontrolliert werden, herangezogen.</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Caselle della Citt�[COLOR_REVERT][NEWLINE]Considera le caselle attualmente controllate dalla Citt�.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas de la Ciudad[COLOR_REVERT][NEWLINE]Cuenta las casillas controladas por la ciudad.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_TILES_OWNED</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Owned Tiles[COLOR_REVERT][NEWLINE]Count yields from all tiles in the city radius owned by your civilization.</English>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Felder in Besitz[COLOR_REVERT][NEWLINE]Zur Berechnung der Ertr�ge werden alle Gel�ndefelder im Stadtradius herangezogen, die Ihrer Zivilisation geh�ren.</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Caselle possedute[COLOR_REVERT][NEWLINE]Considera le caselle nel raggio cittadino attualmente possedute dalla Civilt�.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas Pose�das[COLOR_REVERT][NEWLINE]Cuenta las casillas en el radio de tu ciudad que pertenezcan a tu civilizaci�n.</Spanish>
+-	</TEXT>
+-	<!-- unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_RAW_YIELD_TILES_ALL</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</English>
+-		<French>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</French>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Alle Gel�ndefelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Rohertr�ge werden alle Gel�ndefelder, die sich im Einzugsgebiet der Stadt befinden, unabh�ngig davon, welcher Zivilisation sie geh�ren, herangezogen</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Tutte le caselle[COLOR_REVERT][NEWLINE]Considera tutte le caselle nel raggio cittadino indipendentemente dal proprietario.</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
+-	</TEXT-->
+-	
+-	<!-- Food Assist -->
+-	
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_GROWTH</Tag>
+-		<English>Growth!</English>
+-		<French>Croissance!</French>
+-		<German>Wachstum!</German>
+-		<Italian>Crescita!</Italian>
+-		<Spanish>�Crecimiento!</Spanish>
+-	</TEXT>
+-	
+-	<!-- advc.004: The whole string was colored yellow, which draws too much
+-		 attention (as yellow isn't normally used in this way by the game).
+-		 The red coloring is also not great, but the best I can come up with.
+-		 German was "Schrumpfen". -->
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_SHRINKING</Tag>
+-		<English>[COLOR_WARNING_TEXT]Shrinking (%d1 [NUM1:Turn:Turns])[COLOR_REVERT]</English>
+-		<French>[COLOR_WARNING_TEXT]R�tr�cissement (%d1 [NUM1:tour:tours][COLOR_REVERT])</French>
+-		<German>[COLOR_WARNING_TEXT]R�ckgang (%d1 [NUM1:Runde:Runden])[COLOR_REVERT]</German>
+-		<Italian>[COLOR_WARNING_TEXT]Riduzione (%d1 [NUM1:Turno:Turni])[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_WARNING_TEXT]Reducci�n (%d1 [NUM1:turno:turnos])[COLOR_REVERT]</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_FOOD_GROW</Tag>
+-		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = +%d3[ICON_FOOD]</English>
+-	</TEXT>
+-	
+-	<!-- advc.004: Was [ICON_BAD_FOOD] -->
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_FOOD_SHRINK</Tag>
+-		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = [COLOR_WARNING_TEXT]%d3[COLOR_REVERT][ICON_FOOD]</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_FOOD_STAGNATE</Tag>
+-		<English>%d1[ICON_FOOD] = %d2[ICON_EATENFOOD]</English>
+-	</TEXT>
+-	
+-	<!-- Whip Assist -->
+-	
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_PRODUCTION_WHIP</Tag>
+-		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION]</English>
+-	</TEXT>
+-	<!-- advc.004x: Without production turns in parentheses -->
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP</Tag>
+-		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</English>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD</Tag>
+-		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</English>
+-	</TEXT>
+-	<!-- advc.004x -->
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP_PLUS_GOLD</Tag>
+-		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</English>
+-	</TEXT>
+-
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_PRODUCTION_BUY</Tag>
+-		<English>%s1 (%d2)   -%d3[ICON_GOLD]</English>
+-	</TEXT>
+-	<!-- advc.004x -->
+-	<TEXT>
+-		<Tag>INTERFACE_CITY_NO_PRODUCTION_BUY</Tag>
+-		<English>%s1   -%d2[ICON_GOLD]</English>
+-	</TEXT>
+-	
+-	<!-- Production Decay -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_WARNING</Tag>
+-		<English>[COLOR_YELLOW][BOLD]![\BOLD][COLOR_REVERT] %s1</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_THIS_TURN</Tag>
+-		<English>[COLOR_WARNING_TEXT][BOLD]!![\BOLD][COLOR_REVERT] %s1</English>
+-	</TEXT>
+-	
+-	<!-- Military Advisor -->
+-	
+-	<!-- Unit Groupings -->
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_TYPE_GROUPING</Tag>
+-		<English>Unit Type</English>
+-		<German>Einheitentyp</German>
+-		<Italian>Tipo Unit&#224;</Italian>
+-		<Spanish>Tipo de Unidad</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_COMBAT_GROUPING</Tag>
+-		<English>Combat Type</English>
+-		<German>Einheitenklasse</German>
+-		<Italian>Tipo Combattimento</Italian>
+-		<Spanish>Tipo de Combate</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_COMBAT_GROUP_NONE</Tag>
+-		<English>None</English>
+-		<French>Rien</French>
+-		<German>Keine</German>
+-		<Italian>Nessuno</Italian>
+-		<Spanish>Ninguno</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LEVEL_GROUPING</Tag>
+-		<English>Level</English>
+-		<French>Niveau</French>
+-		<German>Stufe</German>
+-		<Italian>Livello</Italian>
+-		<Spanish>Nivel</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LEVEL_GROUP</Tag>
+-		<English>Level %s1</English>
+-		<French>Niveau %s1</French>
+-		<German>Stufe %s1</German>
+-		<Italian>Livello %s1</Italian>
+-		<Spanish>Nivel %s1</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_PROMOTION_GROUPING</Tag>
+-		<English>Promotions</English>
+-		<French>Promotions</French>
+-		<German>Bef�rderungen</German>
+-		<Italian>Promozioni</Italian>
+-		<Spanish>Promociones</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_PROMOTION_GROUP_NONE</Tag>
+-		<English>None</English>
+-		<French>Rien</French>
+-		<German>Keine</German>
+-		<Italian>Nessuno</Italian>
+-		<Spanish>Ninguno</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING</Tag>
+-		<English>Location</English>
+-		<German>Standort</German>
+-		<Italian>Luogo</Italian>
+-		<Spanish>Localizaci�n</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_CITY</Tag>
+-		<English>Domestic City</English>
+-		<German>Eigene Stadt</German>
+-		<Italian>Citt� propria</Italian>
+-		<Spanish>Ciudad Propia</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_TERRITORY</Tag>
+-		<English>Domestic Territory</English>
+-		<German>Eigenes Gebiet</German>
+-		<Italian>Territorio proprio</Italian>
+-		<Spanish>Territorio Propio</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_TEAM_CITY</Tag>
+-		<English>Team City</English>
+-		<German>Verb�ndete Stadt</German>
+-		<Italian>Citt� alleata</Italian>
+-		<Spanish>Ciudad del Equipo</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_TEAM_TERRITORY</Tag>
+-		<English>Team Territory</English>
+-		<German>Verb�ndetes Gebiet</German>
+-		<Italian>Territorio alleato</Italian>
+-		<Spanish>Territorio del Equipo</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_FRIENDLY_CITY</Tag>
+-		<English>Friendly City</English>
+-		<German>Befreundete Stadt</German>
+-		<Italian>Citt� amica</Italian>
+-		<Spanish>Ciudad Amiga</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_FRIENDLY_TERRITORY</Tag>
+-		<English>Friendly Territory</English>
+-		<German>Befreundetes Gebiet</German>
+-		<Italian>Territorio amico</Italian>
+-		<Spanish>Territorio Amigo</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_NEUTRAL_TERRITORY</Tag>
+-		<English>Neutral Territory</English>
+-		<German>Neutrales Gebiet</German>
+-		<Italian>Territorio neutrale</Italian>
+-		<Spanish>Territorio Neutral</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_ENEMY_TERRITORY</Tag>
+-		<English>Enemy Territory</English>
+-		<German>Feindliches Gebiet</German>
+-		<Italian>Territorio nemico</Italian>
+-		<Spanish>Territorio Enemigo</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_BARBARIAN_TERRITORY</Tag>
+-		<English>Barbarian Territory</English>
+-		<German>Barbarisches Gebiet</German>
+-		<Italian>Territorio barbaro</Italian>
+-		<Spanish>Territorio B�rbaro</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUPING</Tag>
+-		<English>Orders</English>
+-		<German>Befehle</German>
+-		<Italian>Ordini</Italian>
+-		<Spanish>�rdenes</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_NONE</Tag>
+-		<English>None</English>
+-		<German>Keine</German>
+-		<Italian>Nessuno</Italian>
+-		<Spanish>Ninguna</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SKIP</Tag>
+-		<English>Skip</English>
+-		<German>Runde �berspringen</German>
+-		<Italian>Passa</Italian>
+-		<Spanish>Pasar</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SLEEP</Tag>
+-		<English>Sleep</English>
+-		<German>Ausruhen</German>
+-		<Italian>A riposo</Italian>
+-		<Spanish>Dormir</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_FORTIFY</Tag>
+-		<English>Fortify</English>
+-		<German>Verschanzen</German>
+-		<Italian>Fortificarsi</Italian>
+-		<Spanish>Fortificarse</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_HEAL</Tag>
+-		<English>Heal</English>
+-		<German>Heilen</German>
+-		<Italian>Curarsi</Italian>
+-		<Spanish>Curarse</Spanish>
+-	</TEXT>
++	<!-- custom: rename from "Ressources" anyways etc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SENTRY</Tag>
+-		<English>Sentry</English>
+-		<German>Wache</German>
+-		<Italian>Sentinella</Italian>
+-		<Spanish>Vigilar</Spanish>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
++		<English>Bonuses</English>
+ 	</TEXT>
+ 	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
+ 		<English>Air Intercept</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_PATROL</Tag>
+-		<English>Patrol</English>
+-		<German>Patrouille</German>
+-		<Italian>Pattugliare</Italian>
+-		<Spanish>Patrullar</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_PLUNDER</Tag>
+-		<English>Blockade</English>
+-		<German>Blockade</German>
+-		<Italian>Embargo</Italian>
+-		<Spanish>Bloquear</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_BUILD</Tag>
+-		<English>Build Improvement</English>
+-		<German>Modernisierung errichten</German>
+-		<Italian>Costruire miglioramenti</Italian>
+-		<Spanish>Construir Mejora</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_CONSTRUCT</Tag>
+-		<English>Construct Building</English>
+-		<German>Geb�ude errichten</German>
+-		<Italian>Edificare</Italian>
+-		<Spanish>Construir Edificio</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_GOTO</Tag>
+-		<English>Go To</English>
+-		<German>Gehe zu</German>
+-		<Italian>Andare</Italian>
+-		<Spanish>Ir A</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_EXPLORE</Tag>
+-		<English>Explore</English>
+-		<German>Erkunden</German>
+-		<Italian>Esplorare</Italian>
+-		<Spanish>Explorar</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_BUILD</Tag>
+-		<English>Auto Build Improvements</English>
+-		<German>Modernisierungen errichten (automatisch)</German>
+-		<Italian>Miglioramenti automatici</Italian>
+-		<Spanish>Auto Construir Mejoras</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_NETWORK</Tag>
+-		<English>Auto Trade Network</English>
+-		<German>Handelsnetz errichten (automatisch)</German>
+-		<Italian>Rete stradale automatica</Italian>
+-		<Spanish>Auto Construir Red</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_CITY</Tag>
+-		<English>Auto Improve City</English>
+-		<German>N�chste Stadt modernisieren (automatisch)</German>
+-		<Italian>Miglioramenti cittadini automatici</Italian>
+-		<Spanish>Auto Mejorar Ciudad</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_AUTO_RELIGION</Tag>
+-		<English>Spread Religion/Corporation</English>
+-		<German>Religion/Kapitalgesellschaft verbreiten</German>
+-		<Italian>Diffondere religioni/corporazioni</Italian>
+-		<Spanish>Expandir Religi�n/Corporaci�n</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_OTHER</Tag>
+-		<English>Other</English>
+-		<German>Andere</German>
+-		<Italian>Altri</Italian>
+-		<Spanish>Otro</Spanish>
+-	</TEXT>
+-	
+-	<!-- General Screen -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_UNIT_LOCATION</Tag>
+-		<English>Deployment</English>
+-		<French>Deploiement</French>
+-		<German>Aufstellung</German>
+-		<Italian>Dispiegamento</Italian>
+-		<Spanish>Despliegue</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITUATION_REPORT</Tag>
+-		<English>Sit-Rep</English>
+-		<French>Rapport</French>
+-		<German>Lagebericht</German>
+-		<Italian>Rapporti</Italian>
+-		<Spanish>Reporte</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES</Tag>
+-		<English>Strategic Advantages</English>
+-		<German>Strategische Vorteile</German>
+-		<Italian>Vantaggi Strategici</Italian>
+-		<Spanish>Ventajas Estrat�gicas</Spanish>
+-	</TEXT>
+-	
+-	<!-- Situation Report Tab -->
+-	<!-- advc.002b: Changed German to "Erz-" (was empty) -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_WORST</Tag>
+-		<English>Worst</English>
+-		<French>Worst</French>
+-		<German>Erz-</German>
+-		<Italian>Peggior</Italian>
+-		<Spanish>Peor</Spanish>
+-	</TEXT>
+-	<!-- advc.002b: German "Erzfeind" was too long -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_ENEMY</Tag>
+-		<English>Enemy</English>
+-		<German>Feind</German>
+-		<Italian>Nemico</Italian>
+-		<Spanish>Enemigo</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_THREAT_INDEX</Tag>
+-		<English>Threat Index</English>
+-		<French>Index de Menace</French>
+-		<German>Bedrohungslage</German>
+-		<Italian>Rischio</Italian>
+-		<Spanish>Threat Index</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_WARS</Tag>
+-		<English>Wars</English>
+-		<French>Guerres</French>
+-		<German>Kriege</German>
+-		<Italian>Guerre</Italian>
+-		<Spanish>Guerras</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_WARS_ACTIVE</Tag>
+-		<English>Active</English>
+-		<French>Actives</French>
+-		<German>Im Gange</German>
+-		<Italian>In corso</Italian>
+-		<Spanish>En Curso</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_WARS_OPTIONAL</Tag>
+-		<English>Willing</English>
+-		<French>Possible</French>
+-		<German>M�glich</German>
+-		<Italian>Potenziali</Italian>
+-		<Spanish>Dispuesto</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_POSSIBLE_EMBARGOS_1</Tag>
+-		<English>Possible</English>
+-		<French>Possible</French>
+-		<German>M�gliche</German>
+-		<Italian>Potenziali</Italian>
+-		<Spanish>Posibles</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_POSSIBLE_EMBARGOS_2</Tag>
+-		<English>Embargos</English>
+-		<French>Embargos</French>
+-		<German>Embargos</German>
+-		<Italian>Embarghi</Italian>
+-		<Spanish>Embargos</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_VASSALS</Tag>
+-		<English>Vassals</English>
+-		<French>Vassaux</French>
+-		<German>Vasallen</German>
+-		<Italian>Vassalli</Italian>
+-		<Spanish>Vasallos</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_VASSAL</Tag>
+-		<English>Vassal</English>
+-		<French>Vassal</French>
+-		<German>Vasall</German>
+-		<Italian>Vassallo</Italian>
+-		<Spanish>Vasallo</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_SITREP_DEFPACTS</Tag>
+-		<English>Def Pacts</English>
+-		<French>Pactes D�fensifs</French>
+-		<German>Vert.b�nd.</German>
+-		<Italian>Patti Difensivi</Italian>
+-		<Spanish>Pactos Defensivos</Spanish>
+-	</TEXT>
+-	<!-- advc.004g: German was "Gering"; use that for MINOR -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_LOW</Tag>
+-		<English>Low</English>
+-		<French>Bas</French>
+-		<German>Keine Bedrohung</German>
+-		<Italian>Rischio Basso</Italian>
+-		<Spanish>Bajo</Spanish>
+-	</TEXT>
+-	<!-- advc.004g: German was "Moll" (LOL) -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_MINOR</Tag>
+-		<English>Minor</English>
+-		<French>Mineure</French>
+-		<German>Gering</German>
+-		<Italian>Minore</Italian>
+-		<Spanish>Menor</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_ELEVATED</Tag>
+-		<English>Elevated</English>
+-		<French>Elev&#233;</French>
+-		<German>Angespannt</German>
+-		<Italian>Rischio Notevole</Italian>
+-		<Spanish>Elevado</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_HIGH</Tag>
+-		<English>High</English>
+-		<French>Haut</French>
+-		<German>Alarmierend</German>
+-		<Italian>Allarme</Italian>
+-		<Spanish>Alto</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_SEVERE</Tag>
+-		<English>Severe</English>
+-		<French>S�v�re</French>
+-		<German>Akut</German>
+-		<Italian>Grave allarme</Italian>
+-		<Spanish>Severo</Spanish>
+-	</TEXT>
+-	
+ 	<!-- custom: was Ressources -->
+ 	<!-- Strategic Advantages Tab -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
+ 		<English>Bonuses</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATADV_OURS</Tag>
+-		<English>Ours</English>
+-		<French>Nous</French>
+-		<German>Eigene</German>
+-		<Italian>Propri</Italian>
+-		<Spanish>Propios</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATADV_THEIRS</Tag>
+-		<English>Theirs</English>
+-		<French>Eux</French>
+-		<German>Gegnerische</German>
+-		<Italian>Altrui</Italian>
+-		<Spanish>Ajenos</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATADV_OUR_UNITS</Tag>
+-		<English>Our Units</English>
+-		<French>Our Units</French>
+-		<German>Eigene Einheiten</German>
+-		<Italian>Nostre Unit&#224;</Italian>
+-		<Spanish>Nuestras Unidades</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATADV_THEIR_UNITS</Tag>
+-		<English>Their Units</English>
+-		<German>Gegnerische Einheiten</German>
+-		<Italian>Unit� Altrui</Italian>
+-		<Spanish>Unidades Ajenas</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATADV_KNOWN</Tag>
+-		<English>Known</English>
+-		<German>Bekannt</German>
+-		<Italian>Noti</Italian>
+-		<Spanish>Conocidas</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MILITARY_STRATADV_POSSIBLE</Tag>
+-		<English>Possible</English>
+-		<French>Possible</French>
+-		<German>M�glich</German>
+-		<Italian>Possibili</Italian>
+-		<Spanish>Posibles</Spanish>
+-	</TEXT>
+ 
+-	<!-- Reminders -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_REMINDER_HEADER</Tag>
+-		<English>Create Reminder</English>
+-		<French>Cr�ez un Rappel</French>
+-		<German>Erinnerung schreiben</German>
+-		<Italian>Crea un Promemoria</Italian>
+-		<Spanish>Crear Recordatorio</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_REMINDER_PROMPT</Tag>
+-		<English>Enter the number of turns until the reminder goes off and the message to display.</English>
+-		<French>Entrez le nombre de tours jusqu'� l'apparition du rappel et le message � montrer.</French>
+-		<German>Geben Sie die Anzahl der Runden an, bis die Erinnerung angezeigt werden soll.</German>
+-		<Italian>Inserisci il numero di turni che devono passare prima che il promemoria scada ed il messaggio venga visualizzato.</Italian>
+-		<Spanish>N�mero de turnos hasta que el recordatorio se activa y muestra el mensaje.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_REMIND_END_TURN_PROMPT</Tag>
+-		<English>Show reminder again at the end of this turn?</English>
+-		<French>Remontrer le rappel � la fin de ce tour?</French>
+-		<German>Erinnerung am Ende dieser Runde erneut anzeigen?</German>
+-		<Italian>Mostrare nuovamente il promemoria alla fine del turno?</Italian>
+-		<Spanish>�Desea mostrar el recordatorio nuevamente al final del turno?</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_REMIND_NEXT_TURN_PROMPT</Tag>
+-		<English>Show reminder again next turn?</English>
+-		<French>Remontrer le rappel au prochain tour?</French>
+-		<German>Erinnerung n&#228;chste Runde erneut anzeigen?</German>
+-		<Italian>Mostrare nuovamente il promemoria il prossimo turno?</Italian>
+-		<Spanish>�Desea mostrar el recordatorio nuevamente el pr�ximo turno?</Spanish>
+-	</TEXT>
+ 
+-	<!-- Tech Prefs -->
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_TECH_PREFS_ALL</Tag>
+-		<English>Research Preference Order</English>
+-		<German>Forschungspriorit�ten</German>
+-		<Italian>Research Preference Order</Italian>
+-		<Spanish>Orden de Investigaci�n Preferido</Spanish>
++		<Tag>TXT_KEY_TOP_5_CITIES_IN_THE_WORLD</Tag>
++		<English>Top 5 Cities in the World</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_TECH_PREFS_CURRENT</Tag>
+-		<English>Current Technologies</English>
+-		<German>Derzeitige Technologien</German>
+-		<Italian>Current Technologies</Italian>
+-		<Spanish>Tecnolog�as Actuales</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_TECH_PREFS_FUTURE</Tag>
+-		<English>Future Technologies</English>
+-		<German>Zuk�nftige Technologien</German>
+-		<Italian>Future Technologies</Italian>
+-		<Spanish>Tecnolog�as Futuras</Spanish>
+-	</TEXT>
+-	
+-	<!-- Fix for Overlap in Foreign Advisor Tab in Italian Translation -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_FOREIGN_ADVISOR_INFO</Tag>
+-		<English>Info</English>
+-		<French>Infos</French>
+-		<German>Info</German>
+-		<Italian>Info</Italian>
+-		<Spanish>Info.</Spanish>
+-	</TEXT>
+-	
+-	<!-- Fix for wrong translation of "Power" in German, Italian and Spanish language -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_POWER</Tag>
+-		<English>Power</English>
+-		<French>Puissance</French>
+-		<German>Macht</German>
+-		<Italian>Energia</Italian>
+-		<Spanish>Energ&#237;a</Spanish>
+-	</TEXT>
+-	
+-	<!-- Graph Screen -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_SHOW_ALL</Tag>
+-		<English>Show All</English>
+-		<German>Alle anzeigen</German>
+-		<Italian>Mostra tutti</Italian>
+-		<Spanish>Mostrar Todos</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_SHOW_NONE</Tag>
+-		<English>Show None</English>
+-		<German>Keine anzeigen</German>
+-		<Italian>Cancella tutti</Italian>
+-		<Spanish>No Mostrar</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_LOGSCALE</Tag>
+-		<English>Log Scale</English>
+-		<German>Log-Skala</German>
+-		<Italian>Scala logaritmica</Italian>
+-		<Spanish>Escala Logar�tmica</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_CHART_HELP</Tag>
+-		<English>Zoom in and out by clicking on the body of the chart</English>
+-		<German>Mit einem Mausklick auf ein Diagramm kann zwischen der verkleinerten Ansicht und der Gro�ansicht umgeschalten werden</German>
+-		<Italian>Alterna i livelli di zoom cliccando sul grafico</Italian>
+-		<Spanish>Activa/desactiva zoom haciendo click en la gr�fica.</Spanish>
+-	</TEXT>
+-
+-	<!-- Wonders Screen -->
+-
+-	<TEXT>
+-		<Tag>TXT_KEY_WONDER_NAME</Tag>
+-		<English>Name</English>
+-		<French>Nom</French>
+-		<German>Name</German>
+-		<Italian>Nome</Italian>
+-		<Spanish>Nombre</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_WONDER_DATE</Tag>
+-		<English>Date</English>
+-		<German>Errichtet</German>
+-		<Italian>Data</Italian>
+-		<Spanish>Fecha</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_WONDER_OWNER</Tag>
+-		<English>Owner</English>
+-		<German>Besitzer</German>
+-		<Italian>Proprietario</Italian>
+-		<Spanish>Propietario</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_WONDER_CITY</Tag>
+-		<English>City</English>
+-		<German>Stadt</German>
+-		<Italian>Citt&#224;</Italian>
+-		<Spanish>Ciudad</Spanish>
+-	</TEXT>
+-
+-	<!-- Victory Screen -->
+-	<!-- advc.008e: Articles before wonders are now handled by
+-		 CIV4GameText_advc_wonders.xml -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_PROJECT_APOLLO_PROGRAM</Tag>
+-		<English>Apollo Program</English>
+-		<French>
+-			<Text>Programme Apollo</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</French>
+-		<German>
+-			<Text>Apollo-Programm</Text>
+-			<Gender>Neuter</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Programma Apollo</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Programa Apollo</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</Spanish>
+-	</TEXT-->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE</Tag>
+-		<English>Turns until next Vote: %d1</English>
+-		<German>N�chste Abstimmung in %d1 [NUM1:Runde:Runden]</German>
+-		<Italian>Turni alla prossima Votazione: %d1</Italian>
+-		<Spanish>Turnos hasta pr�xima votaci�n: %d1</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION</Tag>
+-		<English>Votes until next Election: %d1</English>
+-		<German>N�chsten Wahl in %d1 [NUM1:Runde:Runden]</German>
+-		<Italian>Voti alla prossima Elezione: %d1</Italian>
+-		<Spanish>Turnos hasta pr�xima elecci�n: %d1</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_VOTESOURCE_NON_VOTING_MEMBER</Tag>
+-		<English>Non Member</English>
+-		<French>Non Membres</French>
+-		<German>Nichtmitglied</German>
+-		<Italian>Non Membri</Italian>
+-		<Spanish>No Miembro</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_TOGGLE_VOTES</Tag>
+-		<English>Toggle Votes</English>
+-		<French>Alterner Voix</French>
+-		<German>Wahlen umschalten</German>
+-		<Italian>Alterna Voti</Italian>
+-		<Spanish>Alternar Votos</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_VASSALED</Tag>
+-		<English>%d1 vassaled</English>
+-		<French>%d1 vassaled</French>
+-		<German>Vasallen: %d1</German>
+-		<Italian>%d1 vassallo</Italian>
+-		<Spanish>%d1 [NUM1:vasallo:vasallos]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_UNKNOWN</Tag>
+-		<English>%d1 unknown</English>
+-		<German>unbekannt: %d1</German>
+-		<Italian>%d1 sconosciuto</Italian>
+-		<Spanish>%d1 [NUM1:desconocido:desconocidos]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_DIPLOMATIC</Tag>
+-		<English>Diplomatic Victory</English>
+-		<French>Victoire diplomatique</French>
+-		<German>Diplomatischer Sieg</German>
+-		<Italian>Vittoria Diplomatica</Italian>
+-		<Spanish>Victoria Diplom�tica</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_VOTES_TOTAL</Tag>
+-		<English>Total</English>
+-		<French>Total</French>
+-		<German>Summe</German>
+-		<Italian>Totale</Italian>
+-		<Spanish>Total</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_VOTES_REQUIRED</Tag>
+-		<English>[SPACE](%s1 votes required)</English>
+-		<German>[SPACE](%s1 Stimmen ben�tigt)</German>
+-		<Italian>[SPACE](%s1 voti richiesti)</Italian>
+-		<Spanish>[SPACE](%s1 votos requeridos)</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_BUG_POLL_RESULT</Tag>
+-		<English>%s1 (%s2) leads by %s3.</English>
+-		<French>%s1 (%s2) conduit par %s3.</French>
+-		<German>%s1 (%s2) f�hrt mit %s3 Vorsprung.</German>
+-		<Italian>%s1 (%s2) in testa di %s3.</Italian>
+-		<Spanish>%s1 (%s2) lidera con %s3.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_VICTORY_BUG_POLL_ERROR</Tag>
+-		<English>Source: Recent BUG Poll, statistical margin of error %s1.</English>
+-		<French>Source: Sondage BUG r�cents, marge d'erreur %s1.</French>
+-		<German>Quelle: Neueste BUG-Umfrage (statistische Fehlerquote: %s1)</German>
+-		<Italian>Fonte: recente sondaggio BUG, margine di errore statistico %s1.</Italian>
+-		<Spanish>Fuente: Encuesta BUG reciente, margen estad�stico de error %s1.</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_GRAPH_SMOOTHING</Tag>
+-		<English>Smooth Factor %d1_Num</English>
+-		<German>Gl�ttungsstufe %d1_Num</German>
+-		<Italian>Fattore di smoothing %d1_Num</Italian>
+-		<Spanish>Factor de Suavizado %d1_Num</Spanish>
+-	</TEXT>
+-
+-	<!-- Maze Map Stuff -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_MAP_SCRIPT_MAZE_LAND_PLUS1</Tag>
+-		<English>Extra Land Strip</English>
+-		<German>Zus�tzlicher Landstrich</German>
+-		<Italian>Terreno aggiuntivo</Italian>
+-		<Spanish>Franja de Terreno Extra</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRUE</Tag>
+-		<English>True</English>
+-		<German>Ja</German>
+-		<Italian>Vero</Italian>
+-		<Spanish>Verdadero</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_FALSE</Tag>
+-		<English>False</English>
+-		<German>Nein</German>
+-		<Italian>Falso</Italian>
+-		<Spanish>Falso</Spanish>
+-	</TEXT>
+-
+-	<!-- Hall of Fame Screen: Win/Loss Result -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_HOF_WINLOSS_WIN</Tag>
+-		<English>W-</English>
+-		<French>W-</French>
+-		<German>S-</German>
+-		<Italian>W-</Italian>
+-		<Spanish>V-</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_HOF_WINLOSS_LOSS</Tag>
+-		<English>L-</English>
+-		<French>L-</French>
+-		<German>N-</German>
+-		<Italian>L-</Italian>
+-		<Spanish>D-</Spanish>
+-	</TEXT>
+-	
+-	<!-- Espionage Advisor -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_ESPIONAGE_MISSIONS_TAB</Tag>
+-		<English>Missions</English>
+-		<French>Missions</French>
+-		<German>Missionen</German>
+-		<Italian>Missions</Italian>
+-		<Spanish>Misiones</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_ESPIONAGE_SPYVSPY_TAB</Tag>
+-		<English>Spy v Spy</English>
+-		<German>Gegenspionage</German>
+-		<Italian>Spy v Spy</Italian>
+-		<Spanish>Esp�a contra Esp�a</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_ESPIONAGE_AI_SPENDING_TOGGLE</Tag>
+-		<English>Show AI Espionage</English>
+-		<German>KI-Spionage</German>
+-		<Italian>Show AI Espionage</Italian>
+-		<Spanish>Mostrar Espionaje de la IA</Spanish>
+-	</TEXT>
+-
+-	<!-- BUG Finance Advisor -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_DOMESTIC_TRADE</Tag>
+-		<English>Domestic Trade</English>
+-		<French>Commerce Domestique</French>
+-		<German>Binnenhandel</German>
+-		<Italian>Commercio Interno</Italian>
+-		<Spanish>Comercio Dom�stico</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_FOREIGN_TRADE</Tag>
+-		<English>Foreign Trade</English>
+-		<French>Commerce Ext�rieur</French>
+-		<German>Au�enhandel</German>
+-		<Italian>Commercio Estero</Italian>
+-		<Spanish>Comercio Exterior</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_FOREIGN_OVERSEAS_TRADE</Tag>
+-		<English>Overseas Trade</English>
+-		<French>Commerce d'outre-mer</French>
+-		<German>�berseehandel</German>
+-		<Italian>Commercio d'oltreoceano</Italian>
+-		<Spanish>Comercio de Ultramar</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_RELIGIOUS_SHRINES</Tag>
+-		<English>Religious Shrines</English>
+-		<French>Lieux Saints</French>
+-		<German>Schreine</German>
+-		<Italian>Santuari</Italian>
+-		<Spanish>Santuarios</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_COMMERCE</Tag>
+-		<English>Total Commerce</English>
+-		<French>Commerce total</French>
+-		<German>Handel insgesamt</German>
+-		<Italian>Commercio totale</Italian>
+-		<Spanish>Comercio total</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_BUILDING_COUNT_AVERAGE</Tag>
+-		<English>(%d1 &#215; %s2[ICON_GOLD])</English>
+-	</TEXT>
+-
+-	<!-- Foreign Advisor Info Screen Header Text
+-	
+-		 All the entries except POSSIBLE_FAV_CIVICS must be kept 
+-		 short so that everything lines up properly. 4-6 letters 
+-		 is usually best; some can probably fit 8-9 if the letters 
+-		 used are narrow (e.g. i,l,t) When in doubt, check the FA 
+-		 Info Screen to be sure it looks okay. The CIVICOPTION
+-		 abbreviations should be similar to the full words used in 
+-		 the CIVICOPTION keys in CIV4GameTextInfos_Objects.xml 
+-	  -->
+-
+-	<TEXT>
+-		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER</Tag>
+-		<English>Leader</English>
+-		<French>Chef</French>
+-		<German>Oberhaupt</German>
+-		<Italian>Leader</Italian>
+-		<Spanish>L&#237;der</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE</Tag>
+-		<English>Attitude</English>
+-		<French>Attitude</French>
+-		<German>Einstellung</German>
+-		<Italian>Attitudine</Italian>
+-		<Spanish>Actitud</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_FOREIGN_ADVISOR_POSSIBLE_FAV_CIVICS</Tag>
+-		<English>Possible Favorite Civics</English>
+-		<German>M�gliche Vorlieben</German>
+-		<Italian>Possibili Forme di Governo Favorite</Italian>
+-		<Spanish>Posibles Principios Favoritos</Spanish>
+-	</TEXT>
+-	<!-- custom: rename from "Ressources" anyways etc -->
+-	<TEXT>
+-		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
+-		<English>Bonuses</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT</Tag>
+-		<English>Govt</English>
+-		<French>Govt</French>
+-		<German>Regierung</German>
+-		<Italian>Governo</Italian>
+-		<Spanish>Gobierno</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIVICOPTION_ABBR_LEGAL</Tag>
+-		<English>Legal</English>
+-		<French>Justice</French>
+-		<German>Recht</German>
+-		<Italian>S. Legale</Italian>
+-		<Spanish>Legal</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIVICOPTION_ABBR_LABOR</Tag>
+-		<English>Labor</English>
+-		<French>Travail</French>
+-		<German>Arbeit</German>
+-		<Italian>Lavoro</Italian>
+-		<Spanish>C. Laborales</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIVICOPTION_ABBR_ECONOMY</Tag>
+-		<English>Econ</English>
+-		<French>Econ</French>
+-		<German>�konomie</German>
+-		<Italian>Economia</Italian>
+-		<Spanish>Econom�a</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIVICOPTION_ABBR_RELIGION</Tag>
+-		<English>Religion</English>
+-		<French>Religion</French>
+-		<German>Religion</German>
+-		<Italian>Religione</Italian>
+-		<Spanish>Religi&#243;n</Spanish>
+-	</TEXT>
+-	
+-	<!-- Customizable Domestic Advisor -->
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SETTLED_SPECIALISTS</Tag>
+-		<English>Settled Specialists</English>
+-		<French>
+-			<Text>Sp&#233;cialistes</Text>
+-			<Gender>Male</Gender>
+-			<Plural>1</Plural>
+-		</French>
+-		<German>
+-			<Text>Spezialisten</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Specialisti</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0:1</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Especialistas</Text>
+-			<Gender>Male</Gender>
+-			<Plural>1</Plural>
+-		</Spanish>
+-	</TEXT>
+-
+-	<!-- advc.007d (from BUG 4.5): Trigger Event -->
+-	<TEXT>
+-		<Tag>TXT_KEY_POPUP_SELECT_EVENT</Tag>
+-		<English>Choose an event which should be triggered.</English>
+-		<French>Choose an event which should be triggered.</French>
+-		<German>Event aussuchen, das gestartet werden soll.</German>
+-		<Italian>Choose an event which should be triggered.</Italian>
+-		<Spanish>Choose an event which should be triggered.</Spanish>
+-	</TEXT>
+-	
+-	<!-- BULL -->
+-	<!-- advc: Commented out -->
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #38 -->
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 99d89f126..d48415a54 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -121,7 +121,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in the **Top 5 Cities / Wonders** tab, we now **show the Wonders' Buttons** (i.e. icons) in the first column, and the **click to move to city** mechanic is now in City column instead; the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
++- (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index f9e834ce7..9211a3a4d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -117,7 +117,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in the **Top 5 Cities / Wonders** tab, we now **show the Wonders' Buttons** (i.e. icons) in the first column, and the **click to move to city** mechanic is now in City column instead; the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
++- (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG
+index 31ddd2cbc..988183cf8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG
+index e29e5398e..f3729df63 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=123795

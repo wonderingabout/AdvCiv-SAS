@@ -1,0 +1,225 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2705
+# Commit: caa5a57f63b59e499163a7527bdd8013b262000d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f759cab9c6957e8adbb8a1493b4324f63f83a157
+# Title: Some refactoring dealing with diplo vote outcomes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvEnums.h
+16	42	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGame.h
+2	2	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index fcc24ad9a..bcea9a01d 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2303,6 +2303,8 @@ ENUM_END(CityPlot, CITYPLOT)
+ 	DO(Yield,Commerce) \
+ 	DO(Direction,CardinalDirection) \
+ 	DO(Vote,VoteSource) \
++	DO(Vote,PlayerVote) \
++	DO(VoteSource,PlayerVote) \
+ 	DO(Religion,Corporation) \
+ 	DO(Civic,CivicOption) \
+ 	DO(Color,PlayerColor) \
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index abdf98111..c10e3c326 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -49,7 +49,6 @@ CvGame::CvGame() :
+ 	m_paiBuildingClassCreatedCount = NULL;
+ 	m_paiProjectCreatedCount = NULL;
+ 	m_paiForceCivicCount = NULL;
+-	m_paiVoteOutcome = NULL;
+ 	m_paiReligionGameTurnFounded = NULL;
+ 	m_paiCorporationGameTurnFounded = NULL;
+ 	m_aiSecretaryGeneralTimer = NULL;
+@@ -404,7 +403,6 @@ void CvGame::uninit()
+ 	SAFE_DELETE_ARRAY(m_paiBuildingClassCreatedCount);
+ 	SAFE_DELETE_ARRAY(m_paiProjectCreatedCount);
+ 	SAFE_DELETE_ARRAY(m_paiForceCivicCount);
+-	SAFE_DELETE_ARRAY(m_paiVoteOutcome);
+ 	SAFE_DELETE_ARRAY(m_paiReligionGameTurnFounded);
+ 	SAFE_DELETE_ARRAY(m_paiCorporationGameTurnFounded);
+ 	SAFE_DELETE_ARRAY(m_aiSecretaryGeneralTimer);
+@@ -615,13 +613,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 			m_paiForceCivicCount[iI] = 0;
+ 		}
+ 
+-		FAssertMsg(0 < GC.getNumVoteInfos(), "GC.getNumVoteInfos() is not greater than zero in CvGame::reset");
+-		FAssertMsg(m_paiVoteOutcome==NULL, "about to leak memory, CvGame::m_paiVoteOutcome");
+-		m_paiVoteOutcome = new PlayerVoteTypes[GC.getNumVoteInfos()];
+-		for (iI = 0; iI < GC.getNumVoteInfos(); iI++)
+-		{
+-			m_paiVoteOutcome[iI] = NO_PLAYER_VOTE;
+-		}
++		m_aiVoteOutcome.reset();
+ 
+ 		FAssertMsg(0 < GC.getNumVoteSourceInfos(), "GC.getNumVoteSourceInfos() is not greater than zero in CvGame::reset");
+ 		FAssertMsg(m_aiDiploVote==NULL, "about to leak memory, CvGame::m_aiDiploVote");
+@@ -5954,9 +5946,7 @@ void CvGame::changeForceCivicCount(CivicTypes eIndex, int iChange)
+ 
+ PlayerVoteTypes CvGame::getVoteOutcome(VoteTypes eIndex) const
+ {
+-	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+-	FAssertMsg(eIndex < GC.getNumVoteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+-	return m_paiVoteOutcome[eIndex];
++	return m_aiVoteOutcome.get(eIndex);
+ }
+ 
+ 
+@@ -5965,41 +5955,25 @@ bool CvGame::isVotePassed(VoteTypes eIndex) const
+ 	PlayerVoteTypes ePlayerVote = getVoteOutcome(eIndex);
+ 
+ 	if (isTeamVote(eIndex))
+-	{
+ 		return (ePlayerVote >= 0 && ePlayerVote < MAX_CIV_TEAMS);
+-	}
+-	else
+-	{
+-		return (ePlayerVote == PLAYER_VOTE_YES);
+-	}
++	return (ePlayerVote == PLAYER_VOTE_YES);
+ }
+ 
+ 
+-void CvGame::setVoteOutcome(const VoteTriggeredData& kData, PlayerVoteTypes eNewValue)
++void CvGame::setVoteOutcome(VoteTriggeredData const& kData, PlayerVoteTypes eNewValue)
+ {
+-	VoteTypes eIndex = kData.kVoteOption.eVote;
+-	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+-	FAssertMsg(eIndex < GC.getNumVoteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+-
+-	if (getVoteOutcome(eIndex) != eNewValue)
++	VoteTypes eVote = kData.kVoteOption.eVote;
++	FAssertEnumBounds(eVote);
++	if (getVoteOutcome(eVote) != eNewValue)
+ 	{
+-		bool bOldPassed = isVotePassed(eIndex);
+-
+-		m_paiVoteOutcome[eIndex] = eNewValue;
+-
+-		if (bOldPassed != isVotePassed(eIndex))
+-		{
+-			processVote(kData, ((isVotePassed(eIndex)) ? 1 : -1));
+-		}
++		bool bOldPassed = isVotePassed(eVote);
++		m_aiVoteOutcome.set(eVote, eNewValue);
++		if (bOldPassed != isVotePassed(eVote))
++			processVote(kData, isVotePassed(eVote) ? 1 : -1);
+ 	}
+-
+-	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-		if (kPlayer.isAlive())
+-		{
+-			kPlayer.setVote(kData.getID(), NO_PLAYER_VOTE);
+-		}
++		itPlayer->setVote(kData.getID(), NO_PLAYER_VOTE);
+ 	}
+ }
+ 
+@@ -8994,7 +8968,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumBuildingClassInfos(), m_paiBuildingClassCreatedCount);
+ 	pStream->Read(GC.getNumProjectInfos(), m_paiProjectCreatedCount);
+ 	pStream->Read(GC.getNumCivicInfos(), m_paiForceCivicCount);
+-	pStream->Read(GC.getNumVoteInfos(), (int*)m_paiVoteOutcome);
++	m_aiVoteOutcome.Read(pStream);
+ 	pStream->Read(GC.getNumReligionInfos(), m_paiReligionGameTurnFounded);
+ 	pStream->Read(GC.getNumCorporationInfos(), m_paiCorporationGameTurnFounded);
+ 	pStream->Read(GC.getNumVoteSourceInfos(), m_aiSecretaryGeneralTimer);
+@@ -9249,7 +9223,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	pStream->Write(GC.getNumBuildingClassInfos(), m_paiBuildingClassCreatedCount);
+ 	pStream->Write(GC.getNumProjectInfos(), m_paiProjectCreatedCount);
+ 	pStream->Write(GC.getNumCivicInfos(), m_paiForceCivicCount);
+-	pStream->Write(GC.getNumVoteInfos(), (int*)m_paiVoteOutcome);
++	m_aiVoteOutcome.Write(pStream);
+ 	pStream->Write(GC.getNumReligionInfos(), m_paiReligionGameTurnFounded);
+ 	pStream->Write(GC.getNumCorporationInfos(), m_paiCorporationGameTurnFounded);
+ 	pStream->Write(GC.getNumVoteSourceInfos(), m_aiSecretaryGeneralTimer);
+@@ -10878,4 +10852,4 @@ void CvGame::setHallOfFame(CvHallOfFameInfo* pHallOfFame)
+ std::set<int>& CvGame::getActivePlayerCycledGroups()
+ {
+ 	return m_ActivePlayerCycledGroups; // Was public; now protected.
+-} // </advc>
++}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 29532d449..b89aeb115 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -584,7 +584,7 @@ public:
+ 
+ 	PlayerVoteTypes getVoteOutcome(VoteTypes eIndex) const;																	// Exposed to Python
+ 	bool isVotePassed(VoteTypes eIndex) const;																	// Exposed to Python
+-	void setVoteOutcome(const VoteTriggeredData& kData, PlayerVoteTypes eNewValue);
++	void setVoteOutcome(VoteTriggeredData const& kData, PlayerVoteTypes eNewValue);
+ 
+ 	bool isVictoryValid(VictoryTypes eIndex) const															// Exposed to Python
+ 	{
+@@ -935,7 +935,8 @@ protected:
+ 	int* m_paiBuildingClassCreatedCount;
+ 	int* m_paiProjectCreatedCount;
+ 	int* m_paiForceCivicCount;
+-	PlayerVoteTypes* m_paiVoteOutcome;
++	// advc.enum:  (Tbd.: The other arrays should also be turned into EnumMaps)
++	EnumMap<VoteTypes,PlayerVoteTypes> m_aiVoteOutcome;
+ 	int* m_paiReligionGameTurnFounded;
+ 	int* m_paiCorporationGameTurnFounded;
+ 	int* m_aiSecretaryGeneralTimer;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 7d986d676..7c6f60c8b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -839,7 +839,7 @@ int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) con
+ 
+ 	int iBestVote = -1;
+ 	int iBestValue = 0;
+-	for (int i = 0; i < (int)kVoteSelectionData.aVoteOptions.size(); i++)
++	for (size_t i = 0; i < kVoteSelectionData.aVoteOptions.size(); i++)
+ 	{
+ 		VoteSelectionSubData const& kVoteData = kVoteSelectionData.aVoteOptions[i];
+ 		VoteTypes const eVote = kVoteData.eVote;
+@@ -855,7 +855,7 @@ int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) con
+ 						it->AI_diploVote(kVoteData, eVoteSource, true);
+ 				//if (eVote != PLAYER_VOTE_YES || eVote == GC.getGame().getVoteOutcome((VoteTypes)iI))
+ 				/*  <kekm.25> "AI can choose to repeal an already passed resolution
+-					if all team members agree" */
++					if all team members agree" (Tagging advc.001 b/c the BtS check was incorrect) */
+ 				bool bVoteYes = (ePlayerVote == PLAYER_VOTE_YES);
+ 				bool bAlreadyPassed = (GC.getGame().getVoteOutcome(eVote) == PLAYER_VOTE_YES);
+ 				if((bVoteYes && bAlreadyPassed) || (!bVoteYes && !bAlreadyPassed)) // </kekm.25>
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 4746e81a0..40c2cdadb 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1191,6 +1191,7 @@ SET_XML_ENUM_SIZE1(WarPlan, Dummy)
+ SET_XML_ENUM_SIZE1(CityPlot, Dummy)
+ SET_XML_ENUM_SIZE1(ArtStyle, Dummy)
+ SET_XML_ENUM_SIZE1(Feat, Dummy)
++SET_XML_ENUM_SIZE1(PlayerVote, Dummy)
+ 
+ /*  2 being the default apparently does not mean that these can be omitted
+ 	(Tbd.: There should be some way to get rid of SET_XML_ENUM_SIZE2.) */
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8268

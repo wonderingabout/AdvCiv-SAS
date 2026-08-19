@@ -1,0 +1,247 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 83
+# Commit: a5aa1c550b6825a03aca0422805322e99e844b6e
+# History segment: K-Mod history
+# Parent used for diff: 4e1912bd06ff7b38e914238308f7d4ac13cac464
+# Title: Added new attack conditions for collateral unit AI. Adjusted unit build probabilities (more air units, and more city attack units with crush strategy). Adjus...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	1	CvGameCoreDLL/CvCityAI.cpp
+19	12	CvGameCoreDLL/CvPlayerAI.cpp
+29	23	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d688b77d0..e7c1f6e44 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2961,7 +2961,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				aiUnitAIVal[UNITAI_COUNTER] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 9 : 16)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_PARADROP] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 4 : 8)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 
+-				aiUnitAIVal[UNITAI_ATTACK_AIR] += (GET_PLAYER(getOwnerINLINE()).getNumCities() + 1);
++				//aiUnitAIVal[UNITAI_ATTACK_AIR] += (GET_PLAYER(getOwnerINLINE()).getNumCities() + 1);
++				// K-Mod (extra air attack and defence). Note: iMilitaryWeight is (pArea->getPopulationPerPlayer(getID()) + pArea->getCitiesPerPlayer(getID())
++				aiUnitAIVal[UNITAI_ATTACK_AIR] += (bLandWar ? 2 : 1) * GET_PLAYER(getOwnerINLINE()).getNumCities() + 1;
++				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) * GET_PLAYER(getOwnerINLINE()).getNumCities() + 1; // it would be nice if this was based on enemy air power...
+ 
+ 				if (pWaterArea != NULL)
+ 				{
+@@ -3026,6 +3029,14 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	aiUnitAIVal[UNITAI_CARRIER_AIR] *= 15;
+ 	aiUnitAIVal[UNITAI_MISSILE_AIR] *= 15;
+ 
++	// K-Mod
++	if (GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
++	{
++		aiUnitAIVal[UNITAI_ATTACK_CITY] *= 3;
++		aiUnitAIVal[UNITAI_ATTACK_AIR] *= 3;
++	}
++	// K-Mod end
++
+ 	for (iI = 0; iI < NUM_UNITAI_TYPES; iI++)
+ 	{
+ 		aiUnitAIVal[iI] *= std::max(0, (GC.getLeaderHeadInfo(getPersonalityType()).getUnitAIWeightModifier(iI) + 100));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ba47af543..4f80ed8e4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10653,7 +10653,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		iFastMoverMultiplier = AI_isDoStrategy(AI_STRATEGY_FASTMOVERS) ? 3 : 1;
+ 		
+ 		iValue += iCombatValue;
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves() * iFastMoverMultiplier) / 3);
++		iValue += ((iCombatValue * (GC.getUnitInfo(eUnit).getMoves()-1) * iFastMoverMultiplier) / 3); // K-Mod put in -1 !
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -10678,11 +10678,13 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		iValue += iTempValue;
+ 		if (GC.getUnitInfo(eUnit).isNoDefensiveBonus())
+ 		{
+-			iValue -= iTempValue / 2;
++			//iValue -= iTempValue / 2;
++			iValue -= iTempValue / 4; // K-Mod. (I'd say knights, tanks, etc. are very good for city attack...)
+ 		}
+ 		if (GC.getUnitInfo(eUnit).getDropRange() > 0)
+ 		{
+-			iValue -= iTempValue / 2;
++			//iValue -= iTempValue / 2;
++			// K-Mod (how is drop range a disadvantage?)
+ 		}
+ 		if (GC.getUnitInfo(eUnit).isFirstStrikeImmune())
+ 		{
+@@ -10690,7 +10692,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		}		
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 75);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 200);
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves() * iFastMoverMultiplier) / 4);
++		iValue += ((iCombatValue * (GC.getUnitInfo(eUnit).getMoves()-1) * iFastMoverMultiplier) / 4); // K-Mod put in -1 !
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 100);
+ 
+ 		if (!AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
+@@ -10714,8 +10716,8 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 				{
+ 					/*iBombardValue *= iGoalTotalBombardRate;
+ 					iBombardValue /= std::min(4*iGoalTotalBombardRate, 2*iTotalBombardRate - iGoalTotalBombardRate);*/
+-					iBombardValue *= 2*iGoalTotalBombardRate;
+-					iBombardValue /= std::min(4*iGoalTotalBombardRate, 3*iTotalBombardRate - 2*iGoalTotalBombardRate);
++					iBombardValue *= 3*iGoalTotalBombardRate+iTotalBombardRate;
++					iBombardValue /= 4*iTotalBombardRate;
+ 				}
+ 
+ 				iValue += iBombardValue;
+@@ -20096,8 +20098,9 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 	CvArea *pLoopArea = NULL;
+ 	for (pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
+ 	{
++		// Keep 1/2 of recommended floating defenders.
+ 		if (pLoopArea)
+-			spare_units[pLoopArea->getID()] = 2 * AI_getTotalFloatingDefenders(pLoopArea) - AI_getTotalFloatingDefendersNeeded(pLoopArea);
++			spare_units[pLoopArea->getID()] = (2 * AI_getTotalFloatingDefenders(pLoopArea) - AI_getTotalFloatingDefendersNeeded(pLoopArea))/2;
+ 		else
+ 			spare_units[pLoopArea->getID()] = 0;
+ 	}
+@@ -20106,8 +20109,9 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+ 	{
+ 		bool bValid = false;
+-		if ((pLoopUnit->AI_getUnitAIType() == UNITAI_RESERVE)
+-			|| (pLoopUnit->AI_isCityAIType() && (pLoopUnit->getExtraCityDefensePercent() <= 0)))
++		// K-Mod, added collateral as valid
++		if (pLoopUnit->AI_getUnitAIType() == UNITAI_RESERVE || pLoopUnit->AI_getUnitAIType() == UNITAI_COLLATERAL
++			|| pLoopUnit->AI_isCityAIType() && (pLoopUnit->getExtraCityDefensePercent() <= 0))
+ 		{
+ 			bValid = true;
+ 		}
+@@ -20142,9 +20146,12 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 		
+ 		if (bValid)
+ 		{
+-			pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK_CITY);			
+-			// K-Mod
+-			spare_units[pLoopUnit->area()->getID()]--;
++			// K-Mod, I've added a rand check so that we don't always just get the first valid units in the list
++			if (GC.getGameINLINE().getSorenRandNum(100, "AI Convert unit for crush") > 60)
++			{
++				pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK_CITY);			
++				spare_units[pLoopUnit->area()->getID()]--;
++			}
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2e37e7db2..2de4d871e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3342,43 +3342,45 @@ void CvUnitAI::AI_collateralMove()
+ 		return;
+ 	}
+ 
++	/* original bts code
+ 	if (AI_anyAttack(1, 20, 5))
+ 	{
+ 		return;
+-	}
++	} */
+ 
+-	// K-Mod: experimental defensive stack hunting.
+-//#define EXPERIMENTAL_S
+-#ifdef EXPERIMENTAL_S
+-	if (getGroup()->getNumUnits() > 1)
++	// K-Mod
+ 	{
+-		// count collateral damage units.
++		// count our collateral damage units on this plot
+ 		int iTally = 0;
+-		CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
++		CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode();
+ 		while (pUnitNode != NULL)
+ 		{
+ 			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 
+-			iTally += ((pLoopUnit->collateralDamage() > 0) ?1 : 0);
++			if (DOMAIN_LAND == pLoopUnit->getDomainType() && pLoopUnit->getOwner() == getOwner() && pLoopUnit->collateralDamage() > 0)
++			{
++				iTally++;
++			}
+ 
+-			pUnitNode = getGroup()->nextUnitNode(pUnitNode);
++			pUnitNode = plot()->nextUnitNode(pUnitNode);
+ 		}
+ 
+-		// tell me what's going on, for testing.
+-		if (iTally >= 2/* && (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 3))*/)
++		if (AI_anyAttack(1, 80 / (3 + iTally), 3 + 2*iTally))
+ 		{
+-			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).isHuman())
+-				{
+-					gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iI, false, GC.getEVENT_MESSAGE_TIME(), "K-Mod test", "AS2D_SQUISH", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), plot()->getX_INLINE(), plot()->getY_INLINE(), true, true);
+-				}
+-			}
++			// tell me what's going on, for testing.
++			//if (iTally >= 2/* && (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 3))*/)
++			//{
++			//	for (int iI = 0; iI < MAX_PLAYERS; iI++)
++			//	{
++			//		if (GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).isHuman())
++			//		{
++			//			gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iI, false, GC.getEVENT_MESSAGE_TIME(), "K-Mod test", "AS2D_SQUISH", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), plot()->getX_INLINE(), plot()->getY_INLINE(), true, true);
++			//		}
++			//	}
++			//}
++			return;
+ 		}
+-
+-		return;
+ 	}
+-#endif
+ 	// K-Mod end
+ 
+ 	if (AI_heal())
+@@ -3399,15 +3401,17 @@ void CvUnitAI::AI_collateralMove()
+ 		return;
+ 	}
+ 
++	/* original bts code. (I don't think we need to get this enthusiastic about 50% odds.)
+ 	if (AI_cityAttack(2, 50))
+ 	{
+ 		return;
+-	}
++	} */
+ 
++	/* original bts code. (check again with a stricter threshold -> a waste of time)
+ 	if (AI_anyAttack(2, 60))
+ 	{
+ 		return;
+-	}
++	}*/
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
+ /*                                                                                              */
+@@ -3422,6 +3426,8 @@ void CvUnitAI::AI_collateralMove()
+ 		return;
+ 	}
+ 
++	// K-Mod todo: at this point we should check whether city attack needs more bombard power.
++
+ 	if (AI_guardCity(false, true, 3))
+ 	{
+ 		return;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9421

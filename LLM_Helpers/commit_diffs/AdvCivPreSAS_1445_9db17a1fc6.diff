@@ -1,0 +1,892 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1445
+# Commit: 9db17a1fc6c34841711187b3f2c17961951dd1ca
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ce787213a11df1ade03a520e3835e12f6ac79dda
+# Title: Alt key for finding attacker with best odds; and a few tweaks.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	5	Assets/Python/Screens/CvMainInterface.py
+9	0	Assets/xml/GlobalDefines_advc.xml
+4	2	Assets/xml/Text/Advanced Combat Odds Options.xml
+16	6	Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+9	0	Assets/xml/Text/CIV4GameText_advc.xml
+4	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+9	3	CvGameCoreDLL/CvCity.cpp
+9	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+54	22	CvGameCoreDLL/CvGameTextMgr.cpp
+4	4	CvGameCoreDLL/CvPlayerAI.cpp
+92	131	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+66	63	CvGameCoreDLL/CvSelectionGroupAI.cpp
+8	1	CvGameCoreDLL/CvSelectionGroupAI.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index cc61e8751..578fda16c 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3203,18 +3203,32 @@ class CvMainInterface:
+ 			researchProgress = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchProgress(gc.getPlayer(ePlayer).getCurrentResearch())
+ 			overflowResearch = (gc.getPlayer(ePlayer).getOverflowResearch() * gc.getPlayer(ePlayer).calculateResearchModifier(gc.getPlayer(ePlayer).getCurrentResearch()))/100
+ 			researchCost = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchCost(gc.getPlayer(ePlayer).getCurrentResearch())
++			bTickMarks = MainOpt.isShowBarTickMarks() # advc.078
+ 			researchRate = gc.getPlayer(ePlayer).calculateResearchRate(-1)
+-					
+-			screen.setBarPercentage( szResearchBar, InfoBarTypes.INFOBAR_STORED, float(researchProgress + overflowResearch) / researchCost )
+-			if ( researchCost >  researchProgress + overflowResearch):
+-				screen.setBarPercentage( szResearchBar, InfoBarTypes.INFOBAR_RATE, float(researchRate) / (researchCost - researchProgress - overflowResearch))
++			# <advc.078>
++			# Meaning that overflow is shown as part of the current progress
++			overflowProgress = overflowResearch
++			overflowRate = 0
++			if bTickMarks:
++			# Meaning overflow is shown as part of the next turn's research rate
++				overflowRate = overflowResearch
++				overflowProgress = 0
++			# Mostly BtS code from here
++			progressPortion = float(researchProgress + overflowProgress) / researchCost
++			screen.setBarPercentage( szResearchBar, InfoBarTypes.INFOBAR_STORED, progressPortion )
++			if ( researchCost > researchProgress + overflowProgress):
++				ratePortion = float(researchRate + overflowRate) / researchCost
++				# I don't understand why, but setBarPercentage seems to multiply its argument by the the remaining portion of the bar. Cancel that out:
++				ratePortion /= (1 - progressPortion)
++				screen.setBarPercentage( szResearchBar, InfoBarTypes.INFOBAR_RATE, ratePortion)
++			# </advc.078>
+ 			else:
+ 				screen.setBarPercentage( szResearchBar, InfoBarTypes.INFOBAR_RATE, 0.0 )
+ 
+ 			screen.show(szResearchBar)
+ # BUG - Progress Bar - Tick Marks - start
+ 			# advc.004x: researchRate condition added
+-			if MainOpt.isShowBarTickMarks() and researchRate > 0:
++			if bTickMarks and researchRate > 0:
+ 				if szResearchBar == "ResearchBar":
+ 					self.pBarResearchBar_n.drawTickMarks(screen, researchProgress + overflowResearch, researchCost, researchRate, researchRate, False)
+ 				else:
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index a58b9218b..7e63a0a9e 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -981,4 +981,13 @@
+ 		<iDefineIntVal>-10</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- advc.082: If set to 1, hover text when about to attack says to
++		 hold down the Alt key to get the attacker with the highest odds (if that
++		 unit isn't identical to the unit that is about to attack).
++		 0 disables that hint (but won't change the behavior of the Alt key). -->
++	<Define>
++		<DefineName>GROUP_ATTACK_BEST_ODDS_HELP</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Text/Advanced Combat Odds Options.xml b/Assets/xml/Text/Advanced Combat Odds Options.xml
+index e5a9368dc..bb390c3fd 100644
+--- a/Assets/xml/Text/Advanced Combat Odds Options.xml	
++++ b/Assets/xml/Text/Advanced Combat Odds Options.xml	
+@@ -389,10 +389,12 @@
+ 	</TEXT>
+ 	
+ 	<!-- advc.048: Rewritten (English, German); another chance to explain the
+-		 two views. -->
++		 two views.
++		 I'm not mentioning the [ALT] info here; too complicated to
++		 explain. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWSHIFTINSTRUCTIONS_HOVER</Tag>
+-		<English>Select when to show the line that explains how to show the alternate info ("Press SHIFT for more detail").</English>
++		<English>Select when to show the line that explains how to show the alternate info ("SHIFT for more detail").</English>
+ 		<French>Select when to show the instructions for pressing [SHIFT] to see the alternate view.</French>
+ 		<German>Bestimmt, wann der Hinweis angezeigt wird, der erkl�rt, dass per Umschalttaste Zusatzinformationen angezeigt werden k�nnen.</German>
+ 		<Italian>Seleziona per mostrare le istruzioni per premere [SHIFT] per vedere la visuale alternativa.</Italian>
+
+diff --git a/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml b/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+index 0efd38089..48b26e09d 100644
+--- a/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
++++ b/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+@@ -23,14 +23,24 @@
+ 	</TEXT>
+ 	<!-- advc.048: Minor changes in German to match 
+ 		 TXT_KEY_BUG_OPT_ACO__SHOWBASICINFO_LIST in
+-		 Advanced Combat Odds Options.xml -->
++		 Advanced Combat Odds Options.xml.
++		 "Press" removed for lack of space. -->
+ 	<TEXT>
+ 		<Tag>TXT_ACO_PressSHIFT</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Press SHIFT for more detail[COLOR_REVERT]</English>
+-		<French>[COLOR_HIGHLIGHT_TEXT]Pesez sur  MAJ pour plus de d�tails[COLOR_REVERT]</French>
+-		<German>[COLOR_HIGHLIGHT_TEXT]&lt;Umschalt&gt; dr�cken f�r zus. Details[COLOR_REVERT]</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Tieni premuto SHIFT per maggiori dettagli[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Pulse SHIFT para m�s detalles[COLOR_REVERT]</Spanish>
++		<English>[COLOR_HIGHLIGHT_TEXT]SHIFT for more detail[COLOR_REVERT]</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]MAJ pour plus de d�tails[COLOR_REVERT]</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]&lt;Umschalt&gt; f�r zus. Details[COLOR_REVERT]</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]SHIFT per maggiori dettagli[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]SHIFT para m�s detalles[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- advc.048: New -->
++	<TEXT>
++		<Tag>TXT_ACO_PressALT</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]ALT for best odds[COLOR_REVERT]</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]ALT pour la meilleure probabilit�[COLOR_REVERT]</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]&lt;Alt&gt; f�r beste Chancen[COLOR_REVERT]</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]ALT per le migliori probabilit�[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]ALT por las mejores probabilidades[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_ACO_SurvivalOdds</Tag>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 20bc1726e..b431b767a 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4639,6 +4639,15 @@
+ 		<Italian>contro</Italian>
+ 		<Spanish>contra</Spanish>
+ 	</TEXT>
++	<!-- Akin to TXT_ACO_PressALT in AdvancedCombatOdds_CIV4GameText.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_GROUP_ATTACK_BEST_ODDS_HELP</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Recommended attack (ALT for best odds)[COLOR_REVERT]:</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]Attaque recommand�e (ALT pour meilleure probabilit�)[COLOR_REVERT]:</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Empfohl. Angriff (ALT f�r beste Chancen)[COLOR_REVERT]:</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Attacco raccomandato (ALT per migliori probabilit�)[COLOR_REVERT]:</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Ataque recomendado (ALT para mejores probabilidades)[COLOR_REVERT]:</Spanish>
++	</TEXT>
+ 	<!-- advc.048b: Overwrites CIV4GameText_Warlords.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_COMBAT_PLOT_ODDS_RETREAT</Tag>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index d15c54816..e30952028 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -133,7 +133,10 @@ void WarTradeAlert::msg(TeamTypes warTeamId, std::vector<TeamTypes> victims,
+ 	CvTeam const& warTeam = GET_TEAM(warTeamId);
+ 	CvWString text = gDLL->getText((bTrade ? "TXT_KEY_CIV4LERTS_TRADE_WAR" :
+ 			"TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR"),
+-			warTeam.getName().GetCString()) + L" ";
++			warTeam.getName().GetCString());
++	if(victims.size() > 1)
++		text += L":";
++	text += L" ";
+ 	for(size_t i = 0; i < victims.size(); i++) {
+ 		text += GET_TEAM(victims[i]).getName();
+ 		if(i != victims.size() - 1)
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 73d3148b8..9c5824c99 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10426,9 +10426,9 @@ double CvCity::revoltProbability(bool bIgnoreWar,
+ 	double r = std::max(0.0, (1.0 - (iGarrison / (double)iCityStrength))) *
+ 			getRevoltTestProbability() * occupationFactor;
+ 	// Don't use probabilities that are too small to be displayed
+-	if(r < 0.0001)
++	if(r < 0.001)
+ 		return 0;
+-	if(r > 0.9999)
++	if(r > 0.999)
+ 		return 1;
+ 	return r;
+ } // </advc.101>
+@@ -10438,8 +10438,14 @@ double CvCity::probabilityOccupationDecrement() const {
+ 
+ 	if(!isOccupation() || getMilitaryHappinessUnits() <= 0)
+ 		return 0;
+-	return std::pow(1 - revoltProbability(true, false, true),
++	double r = std::pow(1 - revoltProbability(true, false, true),
+ 			GC.getDefineINT("OCCUPATION_COUNTDOWN_EXPONENT"));
++	// Don't use probabilities that are too small to be displayed
++	if(r < 0.001)
++		return 0;
++	if(r > 0.999)
++		return 1;
++	return r;
+ } // </advc.023>
+ 
+ // K-Mod. The following function defines whether or not the city is allowed to flip to the given player
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5a09eeeb2..d272599d9 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2213,9 +2213,17 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				pSelectedUnitNode = gDLL->getInterfaceIFace()->headSelectionListNode();
+ 				while(pSelectedUnitNode != NULL) {
+ 					CvUnit const& u = *::getUnit(pSelectedUnitNode->m_data);
++					pSelectedUnitNode = gDLL->getInterfaceIFace()->nextSelectionListNode(pSelectedUnitNode);
+ 					iExtraCost += u.getUnitInfo().getExtraCost();
+ 					iUnits--;
+-					pSelectedUnitNode = gDLL->getInterfaceIFace()->nextSelectionListNode(pSelectedUnitNode);
++					/*  No danger of double counting b/c it's not possible to select
++						a transport and its cargo at the same time */
++					std::vector<CvUnit*> apCargo;
++					u.getCargoUnits(apCargo);
++					for(size_t i = 0; i < apCargo.size(); i++) {
++						iExtraCost += apCargo[i]->getUnitInfo().getExtraCost();
++						iUnits--;
++					}
+ 				}
+ 				int iProjectedSupply = 0;
+ 				bool bSupply = (pHeadSelectedUnit->plot()->getTeam() != kActivePl.getTeam());
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e97e77229..396d3e202 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2729,13 +2729,11 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	// advc.048:
+ 	int iLengthSelectionList = gDLL->getInterfaceIFace()->getLengthSelectionList();
+ 	if (iLengthSelectionList == 0)
+-	{
+ 		return false;
+-	}
+-
++	// advc.048:
++	CvSelectionGroupAI const& kSelectionList = *static_cast<CvSelectionGroupAI*>(gDLL->getInterfaceIFace()->getSelectionList());
+ 	bool bValid = false;
+-
+-	switch (gDLL->getInterfaceIFace()->getSelectionList()->getDomainType())
++	switch (kSelectionList.getDomainType())
+ 	{
+ 	case DOMAIN_SEA:
+ 		bValid = pPlot->isWater();
+@@ -2756,18 +2754,18 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		FAssert(false);
+ 		break;
+ 	}
+-
+ 	if (!bValid)
+-	{
+ 		return false;
+-	}
+ 
++	bool bMaxSurvival = GC.altKey(); // advc.048
+ 	int iOdds;
+-	CvUnit* pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, iOdds);
+-
+-	if (pAttacker == NULL)
+-		pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, iOdds, true); // bypass checks for moves and war etc.
+-
++	CvUnit* pAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOdds,
++			false, false, !bMaxSurvival, bMaxSurvival); // advc.048
++	if (pAttacker == NULL) {
++		pAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOdds,
++				true, // bypass checks for moves and war etc.
++				false, !bMaxSurvival, bMaxSurvival); // advc.048
++	}
+ 	if (pAttacker == NULL)
+ 		return false;
+ 
+@@ -2775,6 +2773,23 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	if (pDefender == NULL || !pDefender->canDefend(pPlot) || !pAttacker->canAttack(*pDefender))
+ 		return false;
+ 
++	// <advc.048>
++	bool bBestOddsHelp = false;
++	if(!bMaxSurvival && GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0) {
++		CvUnit* pBestOddsAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOdds,
++				false, false, false, true);
++		if(pBestOddsAttacker == NULL) {
++			pBestOddsAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOdds,
++					true, false, false, true);
++		}
++		if(pBestOddsAttacker != pAttacker)
++			bBestOddsHelp = true;
++	} 
++	if(!ACO_enabled && bBestOddsHelp) {
++		szString.append(gDLL->getText("TXT_KEY_GROUP_ATTACK_BEST_ODDS_HELP"));
++		szString.append(NEWLINE);
++	} // </advc.048>
++
+ 	// K-Mod. If the plot's center unit isn't one of our own units, then use this defender as the plot's center unit.
+ 	// With this, the map will accurately show who we're up against.
+ 	if (gDLL->getInterfaceIFace()->getSelectionPlot() != pPlot)
+@@ -4003,7 +4018,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 				if (iView & getBugOptionINT("ACO__ShowBasicInfo", 2))
+ 				{	// advc.048: Semicolon instead of period
+ 					szTempBuffer.Format(L"; R=" SETCOLR L"%.2f" ENDCOLR,
+-						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),CombatRatio);
++							TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),CombatRatio);
+ 					szString.append(szTempBuffer.GetCString());
+ 				}
+ 			}
+@@ -4011,8 +4026,22 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			szString.append(NEWLINE);
+ 
+ 			if (iView & getBugOptionINT("ACO__ShowShiftInstructions", 1))
+-			{
+-				szString.append(gDLL->getText("TXT_ACO_PressSHIFT"));
++			{	// <advc.048>
++				CvWString szShiftHelp(gDLL->getText("TXT_ACO_PressSHIFT"));
++				szString.append(szShiftHelp);
++				if(bBestOddsHelp) {
++					CvWString szAltHelp(gDLL->getText("TXT_ACO_PressALT"));
++					/*  The translations don't fit in one line. 60 for the color tags,
++						which don't take up space. */
++					if(szShiftHelp.length() + szAltHelp.length() >= 50 + 60)
++						szString.append(NEWLINE);
++					else { // Separator
++						szTempBuffer.Format(SETCOLR L", " ENDCOLR,
++								TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"));
++						szString.append(szTempBuffer.GetCString());
++					}
++					szString.append(szAltHelp);
++				} // </advc.048>
+ 				szString.append(NEWLINE);
+ 			}
+ 
+@@ -4321,14 +4350,12 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	if (GC.getGameINLINE().isDebugMode() // BBAI: Only display this info in debug mode so game can be played with cheat code entered
+ 			&& bShift) // advc.007
+ 	{
+-		szTempBuffer.Format(L"\nStack Compare Value = %d",
+-			gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot));
++		szTempBuffer.Format(L"\nStack Compare Value = %d", kSelectionList.AI_compareStacks(pPlot));
+ 		szString.append(szTempBuffer);
+ 
+ 		if( pPlot->getPlotCity() != NULL )
+ 		{
+-			szTempBuffer.Format(L"\nBombard turns = %d",
+-				gDLL->getInterfaceIFace()->getSelectionList()->getBombardTurns(pPlot->getPlotCity()));
++			szTempBuffer.Format(L"\nBombard turns = %d", kSelectionList.getBombardTurns(pPlot->getPlotCity()));
+ 			szString.append(szTempBuffer);
+ 		}
+ 
+@@ -4408,6 +4435,12 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				double prDecrement = c.probabilityOccupationDecrement();
+ 				prRevolt *= 1 - prDecrement; // </advc.023>
+ 				if(prRevolt > 0) {
++					/*  CvCity::revoltProbability rounds probabilities that are too
++						small to display to 0, but that doesn't take into account
++						prDecrement, so prRevolt here can still be less than
++						1 permille -- though not much less, so this isn't going to
++						overstate the probability much: */
++					prRevolt = std::max(0.001, prRevolt);
+ 					wchar floatBuffer[1024];
+ 					swprintf(floatBuffer, L"%.1f", (float)(100 * prRevolt));
+ 					szString.append(gDLL->getText("TXT_KEY_MISC_CHANCE_OF_REVOLT",
+@@ -4561,8 +4594,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					GC.getDefineINT("FRESH_WATER_HEALTH_CHANGE"),
+ 					gDLL->getSymbolID(HEALTHY_CHAR));
+ 			szString.append(szTempBuffer);
+-		}
+-		// </advc.004b>
++		} // </advc.004b>
+ 	}
+ 
+ 	if (pPlot->isLake())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1daa3b7b5..b9dada322 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22043,14 +22043,14 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes humanId) {
+ 		return false; // </advc.104m>
+ 	/*  <advc.144> Don't ask for help during a peace treaty unless human has been
+ 		given help (which may well be the reason for the peace treaty) */
+-	if(GET_TEAM(getTeam()).isForcePeace(TEAMID(humanId)) && GET_PLAYER(humanId).
+-			AI_getMemoryCount(getID(), MEMORY_GIVE_HELP) <= 0)
++	if(GET_TEAM(getTeam()).turnsOfForcedPeaceRemaining(TEAMID(humanId)) > 3 &&
++			GET_PLAYER(humanId).AI_getMemoryCount(getID(), MEMORY_GIVE_HELP) <= 0)
+ 		return false; // </advc.144>
+ 	// <advc.705>
+ 	CvGame const& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().
+ 			isCooperationRestricted(getID()) &&
+-			::bernoulliSuccess(0.5, "advc.705"))
++			::bernoulliSuccess(0.33, "advc.705"))
+ 		return false; // </advc.705>
+ 	if(AI_getContactTimer(humanId, CONTACT_ASK_FOR_HELP) > 0 ||
+ 			TEAMREF(humanId).getAssets() <=
+@@ -22097,7 +22097,7 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes humanId, int tributeType) {
+ 		return false;
+ 	} // </advc.104m>
+ 	// <advc.144> Not during a peace treaty
+-	if(!GET_TEAM(getTeam()).canDeclareWar(TEAMID(humanId)))
++	if(GET_TEAM(getTeam()).turnsOfForcedPeaceRemaining(TEAMID(humanId)) > 1)
+ 		return false; // </advc.144>
+ 	if(AI_getContactTimer(humanId, CONTACT_DEMAND_TRIBUTE) > 0 ||
+ 			AI_getAttitude(humanId) > GC.getLeaderHeadInfo(getPersonalityType()).
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index f8b3b1cfd..ae2026614 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2668,7 +2668,7 @@ bool CvSelectionGroup::visibilityRange()
+ //
+ // Approximate how many turns this group would take to reduce pCity's defense modifier to zero
+ //
+-int CvSelectionGroup::getBombardTurns(CvCity* pCity)
++int CvSelectionGroup::getBombardTurns(CvCity* pCity) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3094,14 +3094,10 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 	// K-Mod. Rather than clearing the existing path data; use a temporary pathfinder.
+ 	KmodPathFinder final_path;
+ 	final_path.SetSettings(this, iFlags & ~MOVE_DECLARE_WAR);
+-
+ 	/* original bts code
+-	if (iFlags & MOVE_THROUGH_ENEMY)
+-	{
++	if (iFlags & MOVE_THROUGH_ENEMY) {
+ 		if (generatePath(plot(), pDestPlot, iFlags))
+-		{
+ 			pDestPlot = getPathFirstPlot();
+-		}
+ 	} */
+ 	// K-Mod
+ 	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK) && !(iFlags & MOVE_DIRECT_ATTACK))
+@@ -3110,145 +3106,110 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 		{
+ 			pDestPlot = final_path.GetPathFirstPlot();
+ 		}
+-	}
+-	// K-Mod end
+-
++	} // K-Mod end
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+-	bool bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+-    
+-	bool bAttack = false;
+-	bFailedAlreadyFighting = false;
+-
+-	if (getNumUnits() > 0)
+-	{
+-		if ((getDomainType() == DOMAIN_AIR) || (stepDistance(getX(), getY(), pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) == 1))
+-		{
+-			//if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+-			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (final_path.GeneratePath(pDestPlot) && final_path.GetPathFirstPlot() == pDestPlot)) // K-Mod
+-			{
+-				int iAttackOdds;
+-				CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+-
+-				if (pBestAttackUnit)
+-				{
+-					// K-Mod, bugfix. This needs to happen before hadDefender, since hasDefender tests for war..
+-					// (note: this check is no longer going to be important at all once my new AI DOW code is complete.)
+-					/*if (groupDeclareWar(pDestPlot))
+-					{
+-						return true;
+-					}*/
+-					// K-Mod end
+-
+-					// if there are no defenders, do not attack
+-					/* original
+-					CvUnit* pBestDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true);
+-					if (NULL == pBestDefender)
+-					{
+-						return false;
+-					} */
+-					// Lead From Behind by UncutDragon
+-					if (!pDestPlot->hasDefender(false, NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true))
+-						return false;
+-					//
+-
+-					//bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
+-					/*  advc.164: This looks OK - exclude units that have made
+-						at least 1 attack. Just for clarity: */
+-					bool bBlitz = (pBestAttackUnit->isBlitz() && pBestAttackUnit->isMadeAttack());
++	if (getNumUnits() <= 0)
++		return false; // advc.003
+ 
+-					/*if (groupDeclareWar(pDestPlot))
+-					{
+-						return true;
+-					}*/ // K-Mod, moved up.
++	if(getDomainType() != DOMAIN_AIR && stepDistance(getX(), getY(),
++			pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) != 1)
++		return false; // advc.003
+ 	
+-					while (true)
+-					{
+-						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, iAttackOdds, false,
+-								!bBlitz); // advc.164
+-						if (pBestAttackUnit == NULL)
+-						{
+-							break;
+-						}
++	bool bAttack = false;
++	//if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
++	// K-Mod.
++	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) ||
++			getDomainType() == DOMAIN_AIR || (final_path.GeneratePath(pDestPlot) &&
++			final_path.GetPathFirstPlot() == pDestPlot)) // K-Mod end
++	{
++		int iAttackOdds;
++		CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
++		if (pBestAttackUnit == NULL)
++			return false; // advc.003
++		// K-Mod, bugfix. This needs to happen before hadDefender, since hasDefender tests for war..
++		// (note: this check is no longer going to be important at all once my new AI DOW code is complete.)
++		/*if (groupDeclareWar(pDestPlot))
++			return true;*/
++		// K-Mod end
+ 
+-						if (iAttackOdds < 68)
+-						{
+-						    CvUnit * pBestSacrifice = AI_getBestGroupSacrifice(pDestPlot, false, false,
+-									!bBlitz); // advc.164
+-						    if (pBestSacrifice != NULL)
+-						    {
+-                                pBestAttackUnit = pBestSacrifice;
+-						    }
+-						}
++		// if there are no defenders, do not attack
++		/* original
++		CvUnit* pBestDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true);
++		if (NULL == pBestDefender)
++			return false;*/
++		// Lead From Behind by UncutDragon
++		if (!pDestPlot->hasDefender(false, NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true))
++			return false;
+ 
+-						bAttack = true;
++		//bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
++		/*  advc.164: This looks OK - exclude units that have made
++			at least 1 attack. Just for clarity: */
++		bool bBlitz = (pBestAttackUnit->isBlitz() && pBestAttackUnit->isMadeAttack());
++		/*if (groupDeclareWar(pDestPlot))
++			return true; */ // K-Mod, moved up.
++		while (true)
++		{	// <advc.048>
++			bool bMaxSurvival = (isHuman() && GC.altKey());
++			// (Don't want to add another pure virtual function to the messed up CvSelectionGroup class)
++			pBestAttackUnit = static_cast<CvSelectionGroupAI*>(this)-> // </advc.048>
++					AI_getBestGroupAttacker(pDestPlot, false, iAttackOdds,
++					false, /* advc.164: */ !bBlitz,
++					!bMaxSurvival, bMaxSurvival); // advc.048
++			if (pBestAttackUnit == NULL)
++				break;
+ 
+-						if (GC.getUSE_DO_COMBAT_CALLBACK()) // K-Mod. block unused python callbacks
+-						{
+-							CySelectionGroup* pyGroup = new CySelectionGroup(this);
+-							CyPlot* pyPlot = new CyPlot(pDestPlot);
+-							CyArgsList argsList;
+-							argsList.add(gDLL->getPythonIFace()->makePythonObject(pyGroup));	// pass in Selection Group class
+-							argsList.add(gDLL->getPythonIFace()->makePythonObject(pyPlot));	// pass in Plot class
+-							long lResult=0;
+-							gDLL->getPythonIFace()->callFunction(PYGameModule, "doCombat", argsList.makeFunctionArgs(), &lResult);
+-							delete pyGroup;	// python fxn must not hold on to this pointer 
+-							delete pyPlot;	// python fxn must not hold on to this pointer 
+-							if (lResult == 1)
+-							{
+-								break;
+-							}
+-						}
++			// advc.048: AI_getBestGroupSacrifice moved into AI_getBestGroupAttacker
+ 
+-						if (getNumUnits() > 1)
+-						{
+-							/* original bts code
+-							if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
+-							{
+-								bFailedAlreadyFighting = true;
+-							}
+-							else
+-							{
+-								pBestAttackUnit->attack(pDestPlot, bStack);
+-							} */
+-							// K-Mod
+-							if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
+-							{
+-								bFailedAlreadyFighting = true;
+-							}
+-							//if (!pBestAttackUnit->isCombat())
+-							FAssert(!pBestAttackUnit->isCombat());
+-							{
+-								// we need to issue the attack order to start the attack
+-								pBestAttackUnit->attack(pDestPlot, bStack);
+-							}
+-							// K-Mod end
+-						}
+-						else
+-						{
+-							// K-Mod note. We should do this even if the fight can't happen right away.
+-							pBestAttackUnit->attack(pDestPlot, false);
+-							break;
+-						}
++			bAttack = true;
+ 
+-						if (bFailedAlreadyFighting || !bStack)
+-						{
+-							// if this is AI stack, follow through with the attack to the end
+-							//if (!isHuman() && getNumUnits() > 1)
+-							if (!isHuman() && getNumUnits() > 1 && !(iFlags & MOVE_SINGLE_ATTACK)) // K-Mod
+-							{
+-								//AI_queueGroupAttack(iX, iY);
+-								AI_queueGroupAttack(pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()); // K-Mod
+-							}
++			if (GC.getUSE_DO_COMBAT_CALLBACK()) { // K-Mod. block unused python callbacks
++				CySelectionGroup* pyGroup = new CySelectionGroup(this);
++				CyPlot* pyPlot = new CyPlot(pDestPlot);
++				CyArgsList argsList;
++				argsList.add(gDLL->getPythonIFace()->makePythonObject(pyGroup));
++				argsList.add(gDLL->getPythonIFace()->makePythonObject(pyPlot));
++				long lResult=0;
++				gDLL->getPythonIFace()->callFunction(PYGameModule, "doCombat", argsList.makeFunctionArgs(), &lResult);
++				delete pyGroup; delete pyPlot;
++				if (lResult == 1)
++					break;
++			}
+ 
+-							break;
+-						}
+-					}
++			bool bStack = (isHuman() && (getDomainType() == DOMAIN_AIR ||
++					GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
++			bFailedAlreadyFighting = false;
++			if (getNumUnits() > 1)
++			{	/* original bts code
++				if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
++					bFailedAlreadyFighting = true;
++				else pBestAttackUnit->attack(pDestPlot, bStack);*/
++				// K-Mod
++				if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
++					bFailedAlreadyFighting = true;
++				//if (!pBestAttackUnit->isCombat())
++				FAssert(!pBestAttackUnit->isCombat());
++				// we need to issue the attack order to start the attack
++				pBestAttackUnit->attack(pDestPlot, bStack);
++				// K-Mod end
++			}
++			else
++			{	// K-Mod note. We should do this even if the fight can't happen right away.
++				pBestAttackUnit->attack(pDestPlot, false);
++				break;
++			}
++			if (bFailedAlreadyFighting || !bStack)
++			{
++				if (!isHuman() && getNumUnits() > 1 &&
++						// K-Mod: if this is AI stack, follow through with the attack to the end
++						!(iFlags & MOVE_SINGLE_ATTACK))
++				{	//AI_queueGroupAttack(iX, iY);
++					AI_queueGroupAttack(pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()); // K-Mod
+ 				}
++				break;
+ 			}
+ 		}
+ 	}
+-
+ 	return bAttack;
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 1a3c008a5..b4a44781c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -95,7 +95,7 @@ public:
+ /*                                                                                              */
+ /* General AI                                                                                   */
+ /************************************************************************************************/
+-	int getBombardTurns( CvCity* pCity );
++	int getBombardTurns( CvCity* pCity ) /* advc.003: */ const;
+ 	bool isHasPathToAreaPlayerCity( PlayerTypes ePlayer, int iFlags = 0, int iMaxPathTurns = -1 );
+ 	bool isHasPathToAreaEnemyCity( bool bIgnoreMinors = true, int iFlags = 0, int iMaxPathTurns = -1 );
+ 	bool isStranded() const; // Note: K-Mod no longer uses the stranded cache. I have a new system.
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index fbba8433f..e4ea18d4c 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -351,8 +351,10 @@ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy)
+ 
+ 
+ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+-		bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz) const
++		bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz,
++		bool bSacrifice, bool bMaxSurvival) const // advc.048
+ {
++	FAssert(!bMaxSurvival || !bSacrifice); // advc.048
+ 	PROFILE_FUNC();
+ 
+ 	int iBestValue = 0;
+@@ -360,84 +362,85 @@ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 	CvUnit* pBestUnit = NULL;
+ 
+ 	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+-
+-	bool bHuman = (pUnitNode != NULL) ? GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwnerINLINE()).isHuman() : true;
+-
++	bool bHuman = (pUnitNode == NULL ? true :
++			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwnerINLINE()).isHuman());
++	FAssert(!bMaxSurvival || bHuman); // advc.048
+ 	while (pUnitNode != NULL)
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = nextUnitNode(pUnitNode);
+ 
+-		if (!pLoopUnit->isDead())
++		if (pLoopUnit->isDead())
++			continue; // advc.003
++
++		bool bCanAttack = false;
++		if (pLoopUnit->getDomainType() == DOMAIN_AIR)
++			bCanAttack = pLoopUnit->canAirAttack();
++		else
+ 		{
+-			bool bCanAttack = false;
+-			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+-			{
+-				bCanAttack = pLoopUnit->canAirAttack();
+-			}
+-			else
+-			{
+-				bCanAttack = pLoopUnit->canAttack();
++			bCanAttack = pLoopUnit->canAttack();
++			if (bCanAttack && bNoBlitz && pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
++				bCanAttack = false;
++		}
++		if (!bCanAttack || (!bForce && !pLoopUnit->canMove()))
++			continue;
+ 
+-				if (bCanAttack && bNoBlitz && pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
++		if (!bForce && !pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true, /*bDeclareWar*/ bPotentialEnemy))
++			continue;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
++/* Lead From Behind (UncutDragon)                                                               */
++/************************************************************************************************/
++		if (GC.getLFBEnable() && GC.getLFBUseCombatOdds() && /* advc.048: */ !bMaxSurvival)
++		{
++			pLoopUnit->LFBgetBetterAttacker(&pBestUnit, pPlot, bPotentialEnemy, iBestOdds,
++					iBestValue); // K-Mod.
++		} 
++		else 
++		{
++			int iOdds = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
++			int iValue = iOdds;
++			FAssert(iValue > 0);
++
++			if (pLoopUnit->collateralDamage() > 0 && /* advc.048: */ !bMaxSurvival)
++			{
++				int iPossibleTargets = std::min(
++						pPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1,
++						pLoopUnit->collateralDamageMaxUnits());
++				if (iPossibleTargets > 0)
+ 				{
+-					bCanAttack = false;
++					iValue *= (100 + (pLoopUnit->collateralDamage() * iPossibleTargets) / 5);
++					iValue /= 100;
+ 				}
+ 			}
+-
+-			if (bCanAttack)
++			/*  if non-human, prefer the last unit that has the best value
++				(so as to avoid splitting the group) */
++			if (iValue > iBestValue || (!bHuman && iValue > 0 && iValue == iBestValue))
+ 			{
+-				if (bForce || pLoopUnit->canMove())
+-				{
+-					if (bForce || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true, /*bDeclareWar*/ bPotentialEnemy))
+-					{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Lead From Behind                                                                             */
+-/************************************************************************************************/
+-						// From Lead From Behind by UncutDragon
+-						if (GC.getLFBEnable() && GC.getLFBUseCombatOdds())
+-						{
+-							//pLoopUnit->LFBgetBetterAttacker(&pBestUnit, pPlot, bPotentialEnemy, iBestOdds, iValue);
+-							pLoopUnit->LFBgetBetterAttacker(&pBestUnit, pPlot, bPotentialEnemy, iBestOdds, iBestValue); // K-Mod.
+-						} 
+-						else 
+-						{
+-							int iOdds = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
+-
+-							int iValue = iOdds;
+-							FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+-
+-							if (pLoopUnit->collateralDamage() > 0)
+-							{
+-								int iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1), pLoopUnit->collateralDamageMaxUnits());
+-
+-								if (iPossibleTargets > 0)
+-								{
+-									iValue *= (100 + ((pLoopUnit->collateralDamage() * iPossibleTargets) / 5));
+-									iValue /= 100;
+-								}
+-							}
+-
+-							// if non-human, prefer the last unit that has the best value (so as to avoid splitting the group)
+-							if (iValue > iBestValue || (!bHuman && iValue > 0 && iValue == iBestValue))
+-							{
+-								iBestValue = iValue;
+-								iBestOdds = iOdds;
+-								pBestUnit = pLoopUnit;
+-							}
+-						}
++				iBestValue = iValue;
++				iBestOdds = iOdds;
++				pBestUnit = pLoopUnit;
++			}
++		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-					}
+-				}
+-			}
+-		}
+ 	}
+-
+ 	iUnitOdds = iBestOdds;
++	// <advc.048> Cut from CvSelectionGroup::groupAttack
++	if(bSacrifice) {
++		int const iOddsThresh = 68; // Should this be lower if bHuman?
++		if(iUnitOdds < iOddsThresh) {
++			CvUnit* pBestSacrifice = AI_getBestGroupSacrifice(pPlot,
++					bPotentialEnemy, bForce, /* advc.164: */ bNoBlitz);
++			if(pBestSacrifice != NULL) {
++				pBestUnit = pBestSacrifice;
++				/*  I.e. caller mustn't use these odds. Don't want to compute them here
++					if the caller doesn't need them. */
++				iUnitOdds = -1;
++			}
++		}
++	} // </advc.048>
+ 	return pBestUnit;
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index aff1518c4..902c130d0 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -37,7 +37,14 @@ public:
+ 	bool AI_update();
+ 
+ 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+-	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const;
++	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const {
++		// <advc.048> Pure virtual in CvSelectionGroup, so preserve the signature to be on the safe side.
++		return AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iUnitOdds, bForce, bNoBlitz,
++				false, false);
++	}
++	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds,
++			bool bForce, bool bNoBlitz, bool bSacrifice, bool bMaxSurvival = false) const;
++	// </advc.048>
+ 	CvUnit* AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const;
+ 	//int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
+ 	//int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=37303

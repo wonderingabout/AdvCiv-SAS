@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1576
+# Commit: 868f118f48680385034c2ccdd29d3fc90ec53fea
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4b9375a12074819fb4e57742472f3e3985fe0991
+# Title: Renamed BetterBTSAI.h/cpp to BBAILog.h/cpp
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	0	CvGameCoreDLL/{BetterBTSAI.cpp => BBAILog.cpp}
+0	0	CvGameCoreDLL/{BetterBTSAI.h => BBAILog.h}
+2	2	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ rename CvGameCoreDLL/{BetterBTSAI.cpp => BBAILog.cpp} (100%)
+ rename CvGameCoreDLL/{BetterBTSAI.h => BBAILog.h} (100%)
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BetterBTSAI.cpp b/CvGameCoreDLL/BBAILog.cpp
+similarity index 100%
+rename from CvGameCoreDLL/BetterBTSAI.cpp
+rename to CvGameCoreDLL/BBAILog.cpp
+
+diff --git a/CvGameCoreDLL/BetterBTSAI.h b/CvGameCoreDLL/BBAILog.h
+similarity index 100%
+rename from CvGameCoreDLL/BetterBTSAI.h
+rename to CvGameCoreDLL/BBAILog.h
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 522444c6f..e09a0de5f 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -37,7 +37,7 @@
+   <ItemGroup>
+     <ClCompile Include="..\AdvCiv4lerts.cpp" />
+     <ClCompile Include="..\ArmamentForecast.cpp" />
+-    <ClCompile Include="..\BetterBTSAI.cpp" />
++    <ClCompile Include="..\BBAILog.cpp" />
+     <ClCompile Include="..\CvArea.cpp" />
+     <ClCompile Include="..\CvArtFileMgr.cpp" />
+     <ClCompile Include="..\CvBugOptions.cpp" />
+@@ -162,7 +162,7 @@
+     <ClInclude Include="..\AdvCiv4lerts.h" />
+     <ClInclude Include="..\AI_Defines.h" />
+     <ClInclude Include="..\ArmamentForecast.h" />
+-    <ClInclude Include="..\BetterBTSAI.h" />
++    <ClInclude Include="..\BBAILog.h" />
+     <ClInclude Include="..\CvArea.h" />
+     <ClInclude Include="..\CvArtFileMgr.h" />
+     <ClInclude Include="..\CvBugOptions.h" />
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1294

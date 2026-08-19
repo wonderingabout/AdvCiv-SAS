@@ -1,0 +1,116 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3971
+# Commit: bca6c7aec5e002df3efd6c49492d89039526d7e3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5559fcb2f10d53270605e1201b99de3508cee714
+# Title: Revert part of parent commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	28	CvGameCoreDLL/CvCity.cpp
+0	1	CvGameCoreDLL/CvCity.h
+0	3	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3f8636fde..7134b4d62 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4210,20 +4210,6 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 	return intdiv::uround(iGarrison, 100);
+ }
+ 
+-// advc.023:
+-bool CvCity::isAnyCultureGarrison() const
+-{
+-	FOR_EACH_UNIT_IN(pUnit, getPlot())
+-	{
+-		if (pUnit->getTeam() == getTeam() &&
+-			pUnit->garrisonStrength() > 0)
+-		{
+-			return true;
+-		}
+-	}
+-	return false;
+-}
+-
+ // advc.099c:
+ PlayerTypes CvCity::calculateCulturalOwner() const
+ {
+@@ -7920,20 +7906,10 @@ bool CvCity::canCultureFlip(PlayerTypes eToPlayer,
+ 	/*if (isBarbarian())
+ 		return true;*/ // advc.101: Commented out
+ 	// <advc.099c>
+-	bool bPotentiallyOutsideCultureRange = true; // just to save time
+ 	if (eToPlayer == NO_PLAYER)
+-	{
+ 		eToPlayer = getPlot().calculateCulturalOwner();
+-		bPotentiallyOutsideCultureRange = false;
+-	}
+-	bool const bEasyFlip = (!isAnyCultureGarrison() && isOccupation() &&
+-			isMartialLaw(eToPlayer)); // advc.023
+-	if (bPotentiallyOutsideCultureRange &&
+-		!bEasyFlip && // advc.023
+-		!getPlot().isWithinCultureRange(eToPlayer))
+-	{
++	else if (!getPlot().isWithinCultureRange(eToPlayer))
+ 		return false;
+-	}
+ 	if(eToPlayer == NO_PLAYER || eToPlayer == getOwner() ||
+ 		!GET_PLAYER(eToPlayer).isAlive() || eToPlayer == BARBARIAN_PLAYER ||
+ 		GET_TEAM(eToPlayer).isVassal(getTeam()))
+@@ -7946,13 +7922,11 @@ bool CvCity::canCultureFlip(PlayerTypes eToPlayer,
+ 			getPreviousOwner() == NO_PLAYER ||
+ 			TEAMID(getPreviousOwner()) != TEAMID(eToPlayer)) && // advc
+ 			(!bCheckPriorRevolts || // advc.101
+-			bEasyFlip || // advc.023
+ 			getNumRevolts(eToPlayer) >= GC.getDefineINT(CvGlobals::NUM_WARNING_REVOLTS)
+ 			- (isBarbarian() ? 1 : 0))); // advc.101
+ }
+ 
+-/*	advc.023: Easier suppression - but also easier flipping -
+-	to major-civ while at war. */
++// advc.023: Conditions for easier suppression while at war
+ bool CvCity::isMartialLaw(PlayerTypes eRevoltPlayer) const
+ {
+ 	CvPlayer const& kRevoltPlayer = GET_PLAYER(eRevoltPlayer);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 5041cd0c7..5b0d0b502 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -303,7 +303,6 @@ public:
+ 			bool bIgnoreWar = false, bool bIgnoreOccupation = false, // advc.023
+ 			std::vector<GrievanceTypes>* paGrievances = NULL) const; // advc.101
+ 	int cultureGarrison(PlayerTypes ePlayer) const;																// Exposed to Python
+-	bool isAnyCultureGarrison() const; // advc.023
+ 	PlayerTypes calculateCulturalOwner() const; // advc.099c
+ 
+ 	int getNumBuilding(BuildingTypes eBuilding) const;															// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 87119799e..e6cd6acf7 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2864,9 +2864,6 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
+ 			if (iCulture <= iBestCulture) // </advc.035>
+ 				continue;
+ 			if (bIgnoreCultureRange || // advc.099c
+-				// <advc.023>
+-				(isCity() && getPlotCity()->isOccupation() &&
+-				getPlotCity()->isMartialLaw(itPlayer->getID())) || // </advc.023>
+ 				isWithinCultureRange(ePlayer))
+ 			{
+ 				if (iCulture > iBestCulture ||
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3283

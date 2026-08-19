@@ -1,0 +1,214 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5869
+# Commit: 2933726ba00bbb39cc356a787a260bd31158a8fa
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ea84ad64200432ec6a86af75d4ae71f7218d4798
+# Title: fix ruff E701 (else: pass -> else: new line tabbed pass) - pass 1
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	PrivateMaps/Archipelago.py
+4	2	PrivateMaps/BTG_Cross.py
+4	2	PrivateMaps/BTG_Grid.py
+2	1	PrivateMaps/Equal_Islands_V2_beta.py
+4	2	PrivateMaps/Hub.py
+2	1	PrivateMaps/Islands.py
+2	1	PrivateMaps/Oasis.py
+4	2	PrivateMaps/Ring.py
+4	2	PrivateMaps/Wheel.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Archipelago.py b/PrivateMaps/Archipelago.py
+index 6633fb5ee..4e1f4b983 100644
+--- a/PrivateMaps/Archipelago.py
++++ b/PrivateMaps/Archipelago.py
+@@ -552,7 +552,8 @@ def assignStartingPlots():
+ 					#print "Plot Index", sPlot
+ 					#print "- - - - -"
+ 					break # Valid start found, stop checking areas and plots.
+-				else: pass # This area too close to somebody, try the next area.
++				else:
++					pass # This area too close to somebody, try the next area.
+ 			
+ 			# Check to see if a valid start was found in ANY areaID.
+ 			if pBestPlot is None:
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index a11ef82b9..bed0b83f5 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -982,7 +982,8 @@ def assignStartingPlots():
+ 							plrID = gc.getPlayer(playerID)
+ 							plrID.setStartingPlot(sPlot, true)
+ 							break # Valid start found, stop checking areas and plots.
+-						else: pass # This area too close to somebody, try the next area.
++						else:
++							pass # This area too close to somebody, try the next area.
+ 					
+ 					# Check to see if a valid start was found in ANY areaID.
+ 					if pBestPlot is None:
+@@ -1128,7 +1129,8 @@ def assignStartingPlots():
+ 							dX = pBestPlot.getX() - wX
+ 							dY = pBestPlot.getY() - sY
+ 							break # Valid start found, stop checking areas and plots.
+-						else: pass # This area too close to somebody, try the next area.
++						else:
++							pass # This area too close to somebody, try the next area.
+ 					
+ 					# Check to see if a valid start was found in ANY areaID.
+ 					if pBestPlot is None:
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index ef4e5937d..74e0fdf24 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -1152,7 +1152,8 @@ def assignStartingPlots():
+ 						plrID = gc.getPlayer(playerID)
+ 						plrID.setStartingPlot(sPlot, true)
+ 						break # Valid start found, stop checking areas and plots.
+-					else: pass # This area too close to somebody, try the next area.
++					else:
++						pass # This area too close to somebody, try the next area.
+ 				
+ 				# Check to see if a valid start was found in ANY areaID.
+ 				if pBestPlot is None:
+@@ -1282,7 +1283,8 @@ def assignStartingPlots():
+ 							dX = pBestPlot.getX() - wX
+ 							dY = pBestPlot.getY() - sY
+ 							break # Valid start found, stop checking areas and plots.
+-						else: pass # This area too close to somebody, try the next area.
++						else:
++							pass # This area too close to somebody, try the next area.
+ 					
+ 					# Check to see if a valid start was found in ANY areaID.
+ 					if pBestPlot is None:
+
+diff --git a/PrivateMaps/Equal_Islands_V2_beta.py b/PrivateMaps/Equal_Islands_V2_beta.py
+index 676b0e695..d59178595 100644
+--- a/PrivateMaps/Equal_Islands_V2_beta.py
++++ b/PrivateMaps/Equal_Islands_V2_beta.py
+@@ -663,7 +663,8 @@ def assignStartingPlots():
+ 						plrID = gc.getPlayer(playerID)
+ 						plrID.setStartingPlot(sPlot, true)
+ 						break # Valid start found, stop checking areas and plots.
+-					else: pass # This area too close to somebody, try the next area.
++					else:
++						pass # This area too close to somebody, try the next area.
+ 				if pBestPlot is not None:
+ 					break
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index 49ec98fc3..403316c09 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -615,7 +615,8 @@ def beforeGeneration():
+ 			iSouthY = int((iH - 1) * fSouthLat)
+ 			iNorthY = int((iH - 1) * fNorthLat) -1
+ 			buffer_data.append([iWestX, iEastX, iSouthY, iNorthY])
+-	else: pass
++	else:
++		pass
+ 
+ 	# center_data: [WestX, EastX, SouthY, NorthY]
+ 	global center_data
+@@ -756,7 +757,8 @@ class HubMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 				                           -1, False,
+ 				                           False
+ 				                           )
+-		else: pass
++		else:
++			pass
+ 
+ 		# Add players' regions (two fractals each to ensure cohesion).
+ 		for region_loop in range(iPlayers):
+
+diff --git a/PrivateMaps/Islands.py b/PrivateMaps/Islands.py
+index feee88797..872e0faf3 100644
+--- a/PrivateMaps/Islands.py
++++ b/PrivateMaps/Islands.py
+@@ -662,7 +662,8 @@ def assignStartingPlots():
+ 					plrID = gc.getPlayer(playerID)
+ 					plrID.setStartingPlot(sPlot, true)
+ 					break # Valid start found, stop checking areas and plots.
+-				else: pass # This area too close to somebody, try the next area.
++				else:
++					pass # This area too close to somebody, try the next area.
+ 			
+ 			# Check to see if a valid start was found in ANY areaID.
+ 			if pBestPlot is None:
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 44f6df811..361399dd5 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -346,7 +346,8 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_PEAK
+         					else:
+         						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_HILLS
+-        				else: pass
++        				else:
++        					pass
+ 
+ 		return self.wholeworldPlotTypes
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index 5bcf7467a..a3fd7af35 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -573,7 +573,8 @@ def beforeGeneration():
+ 			iSouthY = int((iH - 1) * fSouthLat)
+ 			iNorthY = int((iH - 1) * fNorthLat) -1
+ 			buffer_data.append([iWestX, iEastX, iSouthY, iNorthY])
+-	else: pass
++	else:
++		pass
+ 
+ 	# center_data: [WestX, EastX, SouthY, NorthY]
+ 	global center_data
+@@ -724,7 +725,8 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 				                           -1, False,
+ 				                           False
+ 				                           )
+-		else: pass
++		else:
++			pass
+ 
+ 		# Add players' regions (two fractals each to ensure cohesion).
+ 		for region_loop in range(iPlayers):
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index f8fc6e9e5..225d85002 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -653,7 +653,8 @@ def beforeGeneration():
+ 			iSouthY = int((iH - 1) * fSouthLat)
+ 			iNorthY = int((iH - 1) * fNorthLat) -1
+ 			buffer_data.append([iWestX, iEastX, iSouthY, iNorthY])
+-	else: pass
++	else:
++		pass
+ 
+ 	# center_data: [WestX, EastX, SouthY, NorthY]
+ 	global center_data
+@@ -876,7 +877,8 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 				                           -1, False,
+ 				                           False
+ 				                           )
+-		else: pass
++		else:
++			pass
+ 
+ 		# Add players' regions (two fractals each to ensure cohesion).
+ 		for region_loop in range(iPlayers):
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=6614

@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4111
+# Commit: ad3abb373a7d832c919d91c4216d2c625b291b8f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 451810dda6a20c6765209ba2d533dab4836eada5
+# Title: Fix unused checkEnumBounds function template
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/EnumTraits.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/EnumTraits.h b/CvGameCoreDLL/EnumTraits.h
+index 16f6a770f..712b0c320 100644
+--- a/CvGameCoreDLL/EnumTraits.h
++++ b/CvGameCoreDLL/EnumTraits.h
+@@ -183,7 +183,7 @@ __inline typename enum_traits<E>::compact_t compactEnum(E e)
+ template<typename E>
+ bool checkEnumBounds(E eIndex)
+ {
+-	return (eIndex >= 0 && eIndex < getEnumLength());
++	return (eIndex >= 0 && eIndex < enum_traits<E>::length());
+ }
+ namespace enum_traits_detail
+ {
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=455

@@ -1,0 +1,233 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5227
+# Commit: 1fd378ad9704a2168b846d0179cfa1fd4456173c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4a67cd2480b83250ce710bdb4eb22f3d98065c38
+# Title: add Land subgroups: Growth, Bonus-capable, Other, in seveopedia improvements, with the veyr nice help of chatgpt 5.2 and our combined effort xd thanks a lot...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+102	8	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 9d7594040..b5abcb105 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1176,28 +1176,122 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.SAS_cacheBonusesTuple
+ 
+ 
+-	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks; implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
++	def SAS_isBonusCapableImprovement(self, iImprovement):
++		info = gc.getImprovementInfo(iImprovement)
++		if not info or info.isGraphicalOnly():
++			return False
++
++		# If it connects/trades any bonus, it's bonus-capable.
++		for iBonus in range(gc.getNumBonusInfos()):
++			bInfo = gc.getBonusInfo(iBonus)
++			if bInfo and bInfo.isGraphicalOnly():
++				continue
++
++			if hasattr(info, "isBonusTrade"):
++				if info.isBonusTrade(iBonus):
++					return True
++			else:
++				if info.isImprovementBonusTrade(iBonus):
++					return True
++
++		# Some mods may give bonus yields even if trade flags are odd.
++		for iBonus in range(gc.getNumBonusInfos()):
++			bInfo = gc.getBonusInfo(iBonus)
++			if bInfo and bInfo.isGraphicalOnly():
++				continue
++			for iYield in range(YieldTypes.NUM_YIELD_TYPES):
++				if info.getImprovementBonusYield(iBonus, iYield) != 0:
++					return True
++
++		return False
++
++	# <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
++	# Group improvements as:
++	# - Land (Growth): land improvements in an upgrade chain (e.g. Cottage -> Hamlet -> Village -> Town)
++	# - Land (Bonus-capable): land improvements that can interact with bonuses (trade/connect or bonus yields)
++	# - Land (Other): remaining land improvements
++	# - Water
+ 	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
+ 		r = []
+-		land = []
++		landGrowth = []
++		landBonusCapable = []
++		landOther = []
+ 		water = []
++
++		# Build set of improvements that are upgraded *to* by something (to detect chain membership, incl. final node).
++		dUpgradeTargets = {}
++		for (szName, iImprovement) in baseList:
++			info = gc.getImprovementInfo(iImprovement)
++			if info and hasattr(info, "getImprovementUpgrade"):
++				iUp = info.getImprovementUpgrade()
++				if iUp != -1:
++					dUpgradeTargets[iUp] = 1
++
++		# Cache bonus-capability per improvement to avoid re-scanning bonuses repeatedly.
++		dBonusCapable = {}
++
+ 		for (szName, iImprovement) in baseList:
+ 			info = gc.getImprovementInfo(iImprovement)
++
+ 			if info and info.isWater():
+ 				water.append((szName, iImprovement))
++				continue
++
++			# Land
++			bGrowth = False
++			if info and hasattr(info, "getImprovementUpgrade"):
++				iUp = info.getImprovementUpgrade()
++				if iUp != -1 or dUpgradeTargets.has_key(iImprovement):
++					bGrowth = True
++
++			if bGrowth:
++				landGrowth.append((szName, iImprovement))
+ 			else:
+-				land.append((szName, iImprovement))
++				if dBonusCapable.has_key(iImprovement):
++					bBonusCapable = dBonusCapable[iImprovement]
++				else:
++					bBonusCapable = self.SAS_isBonusCapableImprovement(iImprovement)
++					dBonusCapable[iImprovement] = bBonusCapable
++
++				if bBonusCapable:
++					landBonusCapable.append((szName, iImprovement))
++				else:
++					landOther.append((szName, iImprovement))
++
++		# Optional sorting if BUG Sort Lists is on
++		if self.isSortLists():
++			landGrowth.sort()
++			landBonusCapable.sort()
++			landOther.sort()
++			water.sort()
++
++		# Emit headers + items (same header/spacer style you already use)
++		if landGrowth:
++			r.append(("Land (Growth)", -1))
++			for x in landGrowth:
++				r.append(x)
++
++		if landGrowth and (landBonusCapable or landOther or water):
++			r.append(("", -1))
++
++		if landBonusCapable:
++			r.append(("Land (Bonus-capable)", -1))
++			for x in landBonusCapable:
++				r.append(x)
++
++		if landBonusCapable and (landOther or water):
++			r.append(("", -1))
+ 
+-		if land:
+-			r.append(("Land Improvements", -1))
+-			for x in land:
++		if landOther:
++			r.append(("Land (Other)", -1))
++			for x in landOther:
+ 				r.append(x)
+ 
+-		if land and water:
++		if (landGrowth or landBonusCapable or landOther) and water:
+ 			r.append(("", -1))
+ 
+ 		if water:
+-			r.append(("Water Improvements", -1))
++			r.append(("Water", -1))
+ 			for x in water:
+ 				r.append(x)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 471b1fdee..011998086 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -83,7 +83,7 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks; implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
++	<!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw  thanks; plus other subgroups we added in advciv-sas. Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 0c5da15e7..55580155b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -124,7 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+-- (Requires AdvCiv-SAS 5212+ to 5226+) **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform). Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5226+) **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 82914c510..37342fbe3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
+-- (Requires AdvCiv-SAS 5212+ to 5226+) **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform). Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5226+) **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index ccf154aa6..da1a7e38a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -74,7 +74,7 @@ Also refactored and beautified it (for example moved base yields on top in the i
+ 
+ Note: you can hover and click on the buttons in placeMostYields, as shown in one of the screenshots below when hovering on the steam power tech button, we can see which button/image it is, so no need to memorize them all, it also tells unknown effects of the tech or civic or other type of asset etc, as well as redirects on click.
+ 
+-More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) <!-- custom: in sevopedia improvement list, group improvements by whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks; implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc. -->
++More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) depending on whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks. Plus subdiving them based on growth or/and such (e.g. Cottages, hamlet, etc.) as i had the idea too xd as was bit too concentrated in land and we have the booleans i mean as chatgpt 5.2 mentionned that we have (booleans) more generally but anyways etc, and then chatgpt 5.2 found the other "Bonus-capable" idea of a subgroup we could use as well thanks a lot but anyways etc. Now they are nicely ordered i mean if i may say but anyways etc.! Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot but anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+index a3cfd691c..00b07a275 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+index 0e9085d04..11ceabd36 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+index d5adac066..9ae2c0d8d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=17447

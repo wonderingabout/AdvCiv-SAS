@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4788
+# Commit: 1a108fde24838aaded799b9b720293fdc2e11709
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ac23e409309c997475b2af9c841aee45f9a13e67
+# Title: use a .dds button for project_the_internet rather than the whole atlas (still RFC DOC mod ('s) import (from) (anyways etc))
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds
+-	-	Assets/Art/AdvCiv_SAS/Projects/The_Internet/internet.dds
+2	2	Assets/XML/GameInfo/CIV4ProjectInfo.xml
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Projects/The_Internet/internet.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds b/Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds
+deleted file mode 100644
+index 95cefbf0a..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Projects/The_Internet/internet.dds b/Assets/Art/AdvCiv_SAS/Projects/The_Internet/internet.dds
+new file mode 100644
+index 000000000..1fe4a842e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Projects/The_Internet/internet.dds differ
+
+diff --git a/Assets/XML/GameInfo/CIV4ProjectInfo.xml b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+index 1c05b0b47..9157128f8 100644
+--- a/Assets/XML/GameInfo/CIV4ProjectInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+@@ -39,7 +39,7 @@
+ 			<CreateSound/>
+ 			<MovieDefineTag>ART_DEF_MOVIE_MANHATTAN_PROJECT</MovieDefineTag>
+ 		</ProjectInfo>
+-		<!-- custom: button import from RFC DOC mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
++		<!-- custom: button import from RFC DOC mod (c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Art\Interface\Buttons\Buildings\internet.dds), as for button in our xml anyways etc, was:
+ 		<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
+ 		anyways etc...
+ 		-->
+@@ -60,7 +60,7 @@
+ 			<EveryoneSpecialBuilding>NONE</EveryoneSpecialBuilding>
+ 			<bSpaceship>0</bSpaceship>
+ 			<bAllowsNukes>0</bAllowsNukes>
+-			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds,1,4</Button>
++			<Button>Art/AdvCiv_SAS/Projects/The_Internet/internet.dds</Button>
+ 			<PrereqProjects/>
+ 			<VictoryThresholds/>
+ 			<VictoryMinThresholds/>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1947

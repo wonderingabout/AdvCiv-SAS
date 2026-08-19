@@ -1,0 +1,255 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2275
+# Commit: 2a15829d174d621f75f3de2ea904e303fe0cb782
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b9646b64afc05424d404dd609eac1441eee93b0e
+# Title: Add enum type for plot ids
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/CvEnums.h
+11	9	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvMap.cpp
+14	5	CvGameCoreDLL/CvMap.h
+0	6	CvGameCoreDLL/CvPlot.cpp
+0	1	CvGameCoreDLL/CvPlot.h
+19	5	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 773a566bd..7408b10d4 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -46,6 +46,11 @@ enum FlavorTypes
+ 		means that it was impossible to base AI code on FLAVOR_ESPIONAGE. */
+ 	FLAVOR_ESPIONAGE,
+ };
++// advc.enum (cf. CvMap::plotNum)
++enum PlotNumTypes
++{
++	NO_PLOT_NUM = -1
++};
+ 
+ ENUM_START(GameState, GAMESTATE)
+ 	GAMESTATE_ON,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 092cfef33..6814aa8c5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -999,14 +999,15 @@ void CvGame::assignStartingPlots()
+ 	PROFILE_FUNC();
+ 
+ 	// (original bts code deleted) // advc
++	CvMap const& kMap = GC.getMap();
+ 	// K-Mod. Same functionality, but much faster and easier to read.
+ 	//
+ 	// First, make a list of all the pre-marked starting plots on the map.
+ 	std::vector<CvPlot*> starting_plots;
+-	for (int i = 0; i < GC.getMap().numPlots(); i++)
++	for (int i = 0; i < kMap.numPlots(); i++)
+ 	{	// advc.opt: Shouldn't be necessary; the loop body is very fast.
+ 		//gDLL->callUpdater(); // allow window updates during launch
+-		CvPlot* pLoopPlot = GC.getMap().plotByIndex(i);
++		CvPlot* pLoopPlot = kMap.plotByIndex(i);
+ 		if (pLoopPlot->isStartingPlot())
+ 			starting_plots.push_back(pLoopPlot);
+ 	}
+@@ -1142,7 +1143,9 @@ void CvGame::assignStartingPlots()
+ 		GET_PLAYER((PlayerTypes)(*playerOrderIter)).setStartingPlot(GET_PLAYER((PlayerTypes)(*playerOrderIter)).findStartingPlot(), true);*/
+ 	// <advc.108b>
+ 	else
+-	{
++	{	/*	advc.027: If the map script allows it, StartingPositionIteration will
++			set starting locations that the code below may then shuffle around. */
++		StartingPositionIteration();
+ 		int const iAlive = countCivPlayersAlive();
+ 		FAssert(playerOrder.empty());
+ 		playerOrder.resize(iAlive, NO_PLAYER); // advc (replacing loop)
+@@ -1178,7 +1181,7 @@ void CvGame::assignStartingPlots()
+ 					continue;
+ 				FAssert(!newPlotFound[kPlayer.getID()]);
+ 				gDLL->callUpdater();
+-				// If the map script hasn't set a plot, find one.
++				// If map script [advc.027: or StartingPositionIteration] haven't set a plot ...
+ 				if(kPlayer.getStartingPlot() == NULL)
+ 					kPlayer.setStartingPlot(kPlayer.findStartingPlot(), true);
+ 				if(kPlayer.getStartingPlot() == NULL)
+@@ -1212,9 +1215,7 @@ void CvGame::assignStartingPlots()
+ 			}
+ 		}
+ 	}
+-	/*  The second component is the starting plot - but don't want std::sort to use
+-		an address as a tiebreaker, hence not <int,CvPlot*>. */
+-	std::vector<std::pair<int,int> > startPlots;
++	std::vector<std::pair<int,PlotNumTypes> > startPlots;
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 	{
+ 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+@@ -1234,7 +1235,7 @@ void CvGame::assignStartingPlots()
+ 		int iValue = kPlayer.AI_foundValue(p->getX(), p->getY(), -1, true);
+ 		FAssertMsg(iValue > 0, "Bad starting position");
+ 		// minus iValue for descending order
+-		startPlots.push_back(std::make_pair(-iValue, p->getMapIndex()));
++		startPlots.push_back(std::make_pair(-iValue, kMap.plotNum(*p)));
+ 	}
+ 	FAssert(startPlots.size() == playerOrder.size());
+ 	std::sort(startPlots.begin(), startPlots.end());
+@@ -1245,7 +1246,8 @@ void CvGame::assignStartingPlots()
+ 			FAssert(playerOrder[i] != NO_PLAYER);
+ 			continue;
+ 		}
+-		GET_PLAYER(playerOrder[i]).setStartingPlot(GC.getMap().plotByIndex(startPlots[i].second), true);
++		GET_PLAYER(playerOrder[i]).setStartingPlot(
++				kMap.plotByIndex(startPlots[i].second), true);
+ 	} // </advc.108b>
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index dbeb4e701..0407fe807 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -55,6 +55,7 @@ void CvMap::init(CvMapInitData* pInitInfo)
+ 	m_areas.init(); // Init containers
+ 	setup();
+ 	gDLL->logMemState("CvMap before init plots");
++	FAssert(numPlots() <= (EnumMap<PlotNumTypes,scaled>::MAX_LENGTH)); // advc.enum
+ 	m_pMapPlots = new CvPlot[numPlots()];
+ 	for (int iX = 0; iX < getGridWidth(); iX++)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 536f3fc24..198f9debb 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -309,14 +309,16 @@ public: // advc: made several functions const
+ 	{
+ 		return getGridWidth() * getGridHeight();
+ 	}
+-	inline int plotNum(int iX, int iY) const // advc.inl: Merged with plotNumINLINE (plotNum wasn't called externally)			// Exposed to Python
++	/*	advc.inl: Merged with plotNumINLINE (plotNum wasn't called externally).
++		advc.enum: return type changed from int. */
++	inline PlotNumTypes plotNum(int iX, int iY) const 												// Exposed to Python
+ 	{
+-		return ((iY * getGridWidth()) + iX);
+-	}  // <advc> wrapper
+-	__forceinline int plotNum(CvPlot const& kPlot) const
++		return (PlotNumTypes)(iY * getGridWidth() + iX);
++	}  // advc: wrapper
++	__forceinline PlotNumTypes plotNum(CvPlot const& kPlot) const
+ 	{
+ 		return plotNum(kPlot.getX(), kPlot.getY());
+-	} // </advc>
++	}
+ 	int plotX(int iIndex) const;																										// Exposed to Python
+ 	int plotY(int iIndex) const;																										// Exposed to Python
+ 
+@@ -386,6 +388,7 @@ public: // advc: made several functions const
+ 	void changeNumBonusesOnLand(BonusTypes eIndex, int iChange);
+ 
+ 	CvPlot* plotByIndexExternal(int iIndex) const; // advc.inl: Exported through .def file							// Exposed to Python
++	// advc.enum (tbd.): Change param to PlotNumTypes
+ 	inline CvPlot* plotByIndex(int iIndex) const // advc.inl: Renamed from plotByIndexINLINE
+ 	{
+ 		return ((iIndex >= 0 && iIndex < numPlots()) ? &(m_pMapPlots[iIndex]) : NULL);
+@@ -510,6 +513,12 @@ protected:
+ 	// </advc.030>
+ };
+ 
++// advc.enum: (for EnumMap)
++__forceinline PlotNumTypes getEnumLength(PlotNumTypes, bool bAllowForEach = true)
++{
++	return (PlotNumTypes)GC.getMap().numPlots();
++}
++
+ /* <advc.make> Global wrappers for distance functions. The int versions are
+ 	exposed to Python */
+ inline int plotDistance(int iX1, int iY1, int iX2, int iY2) {
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 0ea38178e..321925ec4 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3393,12 +3393,6 @@ void CvPlot::setLatitude(int iLatitude)
+ 	m_iLatitude = iLatitude;
+ } // </advc.tsl>
+ 
+-// advc: (But normally better to call CvMap::plotNum directly b/c of inlining)
+-int CvPlot::getMapIndex() const
+-{
+-	return GC.getMap().plotNum(*this);
+-}
+-
+ 
+ int CvPlot::getLatitude() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index fe4320573..19e2b99d7 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -285,7 +285,6 @@ public:
+ 	int getYExternal() const; // advc.inl: Exported through .def file																					// Exposed to Python
+ 	inline int getY() const { return m_iY; } // advc.inl: Renamed from getY_INLINE
+ 	bool at(int iX, int iY) const {  return (getX() == iX && getY() == iY); } // advc.inl								// Exposed to Python
+-	int getMapIndex() const; // advc
+ 	int getLatitude() const;																																					// Exposed to Python
+ 	void setLatitude(int iLatitude); // advc.tsl	(exposed to Python)
+ 	int getFOWIndex() const;
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 81c7b6c00..6c83864eb 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -128,12 +128,12 @@ public:
+ 	//// End of functions
+ 	//// There is no need to keep reading this class declaration unless you are interested in the internal implementation
+ 	////
+-private: // Compile-time constants (advc: private)
+-	static const int SIZE = EnumMapGetDefault<T>::SIZE;
+-	static const int SIZE_OF_T = EnumMapGetDefault<T>::SIZE_OF_T;
++// Compile-time constants
+ 	// advc: Renamed from "LENGTH"; can't guarantee a length for types loaded from XML.
+ 	static const int MAX_LENGTH = EnumMapGetDefault<LengthType>::MAX_LENGTH;
+-
++private: // advc (Maybe some of these should indeed be public, but probably not all.)
++	static const int SIZE = EnumMapGetDefault<T>::SIZE;
++	static const int SIZE_OF_T = EnumMapGetDefault<T>::SIZE_OF_T;
+ 	static const bool bINLINE_NATIVE = (SIZE == ENUMMAP_SIZE_NATIVE && (MAX_LENGTH * SIZE_OF_T) <= ENUMMAP_MAX_BYTES);
+ 	static const int NUM_NATIVE_BLOCKS = (bINLINE_NATIVE ? MAX_LENGTH : 1);
+ 
+@@ -1192,7 +1192,21 @@ SET_XML_ENUM_SIZE(AreaAI, AREAAI)
+ 			MAX_LENGTH = MAX_SHORT \
+ 		}; \
+ 	};
+-	DO_FOR_EACH_BIG_DYN_INFO_TYPE(SET_XML_ENUM_SIZE2)
++DO_FOR_EACH_BIG_DYN_INFO_TYPE(SET_XML_ENUM_SIZE2)
++/*	The corresponding getEnumLength function is inlined in CvMap.h.
++	2 byte allows for at most 256*128 tiles (or 181*181).
++	Larger maps really aren't playable, but let's allow them when
++	the player limit has been increased. */
++#if MAX_CIV_PLAYERS <= 18
++SET_XML_ENUM_SIZE2(PlotNum, Dummy)
++#else
++template<> struct EnumMapGetDefault<PlotNumTypes> {
++	enum {
++		DEFAULT_VALUE = -1, SIZE = ENUMMAP_SIZE_NATIVE, SIZE_OF_T = SIZE,
++		MAX_LENGTH = MAX_SHORT
++	};
++};
++#endif
+ 
+ /*  The other getEnumLength functions are generated through macros in CvEnums.h.
+ 	For players and teams, I don't want the FOR_EACH_ENUM macro to be used, so
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=9075

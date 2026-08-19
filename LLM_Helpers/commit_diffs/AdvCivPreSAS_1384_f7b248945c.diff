@@ -1,0 +1,888 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1384
+# Commit: f7b248945cb4c6748cdb5818ae65f9ef26b642bc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d4fd8b627725487982f600b0f7f9327fa3756119
+# Title: Minor bugfixes and UI tweaks (Finished one full test game now. Will have to play another one before releasing v0.94.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/Config/TechWindow.xml
+-	-	Assets/CvGameCoreDLL.dll
+1	0	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+11	1	Assets/xml/Text/BUG Options Screen.xml
+16	7	Assets/xml/Text/CIV4GameText_advc.xml
+6	5	Assets/xml/Text/Civ4GameText_K-Mod.xml
+28	1	Assets/xml/Text/TechWindow Options.xml
+4	1	CvGameCoreDLL/CvCity.cpp
+9	13	CvGameCoreDLL/CvDLLButtonPopup.cpp
+1	0	CvGameCoreDLL/CvDefines.h
+5	3	CvGameCoreDLL/CvGame.cpp
+8	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+67	55	CvGameCoreDLL/CvPlayerAI.cpp
+5	1	CvGameCoreDLL/CvSelectionGroup.cpp
+2	0	CvGameCoreDLL/CvTeam.cpp
+55	12	CvGameCoreDLL/CvUnitAI.cpp
+-	-	manual_0.94.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/TechWindow.xml b/Assets/Config/TechWindow.xml
+index e6d87c8d4..5544aefb8 100644
+--- a/Assets/Config/TechWindow.xml
++++ b/Assets/Config/TechWindow.xml
+@@ -26,6 +26,9 @@
+ 			<option id="CivilopediaText" key="Civilopedia Text" 
+ 					type="boolean" default="False"
+ 					get="isShowCivilopediaText"/>
++			<!-- advc.060 -->
++			<option id="ShowSSScreen" key="Show SS Screen" 
++					type="boolean" default="False"/>
+ 		</section>
+ 	</options>
+ </mod>
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index 11d194d60..32275f02f 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -70,6 +70,7 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addLabel(screen, panel, "TechWindow", "Tech Splash Screen:")
+ 		self.addTextDropdown(screen, panel, panel, "TechWindow__ViewType", True)
+ 		self.addCheckbox(screen, panel, "TechWindow__CivilopediaText")
++		self.addCheckbox(screen, panel, "TechWindow__ShowSSScreen") # advc.060
+ 
+ #	def createBuffyPanel(self, screen, panel):
+ #		self.addLabel(screen, panel, "BUFFY", "BUFFY:")
+
+diff --git a/Assets/xml/Text/BUG Options Screen.xml b/Assets/xml/Text/BUG Options Screen.xml
+index e8898f966..c6ba56e08 100644
+--- a/Assets/xml/Text/BUG Options Screen.xml	
++++ b/Assets/xml/Text/BUG Options Screen.xml	
+@@ -96,13 +96,23 @@
+ 		<Italian>Azioni:</Italian>
+ 		<Spanish>Acciones:</Spanish>
+ 	</TEXT>
+-	<TEXT>
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
+ 		<English>Tech Splash Screen:</English>
+ 		<French>Tech Splash Screen:</French>
+ 		<German>Technologie-Popup:</German>
+ 		<Italian>Scheda della scoperta tecnologica:</Italian>
+ 		<Spanish>Tecnolog�as:</Spanish>
++	</TEXT-->
++	<!-- advc.060: Replacing the above b/c I want to list the SS screen as a
++		 kind of splash screen (though it really isn't) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
++		<English>Splash Screens:</English>
++		<French>Splash Screens:</French>
++		<German>Splash-Screens:</German>
++		<Italian>Splash Screens:</Italian>
++		<Spanish>Splash Screens:</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_BUFFY</Tag>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index db59a154a..4caa49277 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- advc: This file contains only in-game text added by the mod. -->
++<!-- advc: This file contains only in-game text added by the mod.
++	 A few of the Romance-language translations are based on www.deepl.com. -->
+ <Civ4GameText>
+ 
+ 	<!-- advc.100: In-game text for displaying and logging messages about
+@@ -492,7 +493,7 @@
+ 		<Spanish>(victoria) desactivada</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.106k: Romance languages: deepl.com -->
++	<!-- advc.106k -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CITY_RENAMED</Tag>
+ 		<English>%s1_CityName has been renamed to %s2_CityName.</English>
+@@ -1398,7 +1399,6 @@
+ 		<Italian>No schiavismo</Italian>
+ 		<Spanish>Sin esclavitud</Spanish>
+ 	</TEXT>
+-	<!-- Romance languages: based on deepl.com -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_NO_SLAVERY_HELP</Tag>
+ 		<English>Human players cannot change their civics to Slavery. Only the Aztec Sacrificial Altar allows humans to sacrifice population.</English>
+@@ -2598,8 +2598,7 @@
+ 		<Italian>Volont� di guerra</Italian>
+ 		<Spanish>Guerras patrocinadas</Spanish>
+ 	</TEXT>
+-	<!-- Translations based on deepl.com and 
+-		 TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
++	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
+ 		 BUG Advisors Options.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
+@@ -2620,7 +2619,7 @@
+ 	
+ 	<!-- advc.120c: Translations based on TXT_KEY_TECH_DRAMA_STRATEGY in
+ 		 CIV4GameText_Strategy.xml ("slider"), TXT_KEY_CONCEPT_DIPLOMACY_PEDIA
+-		 in CIV4GameText_Civilopedia_Concepts.xml ("screen") and deepl.com. -->
++		 in CIV4GameText_Civilopedia_Concepts.xml ("screen"). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__HIDE_ESPSLIDER_TEXT</Tag>
+ 		<English>Hide Espionage Slider when 0</English>
+@@ -4079,7 +4078,7 @@
+ 		<Spanish>Fin de AI Auto Play</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.130h: Romance-language translations via deepl.com -->
++	<!-- advc.130h -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POPUP_DOW_PENALTIES</Tag>
+ 		<English>These third parties will disapprove:</English>
+@@ -4120,4 +4119,14 @@
+ 		<Spanish>Probabilidades de retirada: %s1%%</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.178: Based on TXT_KEY_NONE in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_EARLY_ELECTION</Tag>
++		<English>None (causes an early election)</English>
++		<French>Rien (entra�ne des �lections anticip�es)</French>
++		<German>Keine (f�hrt zu vorgezogener Wahl)</German>
++		<Italian>Nessuno (causa un'elezione anticipata)</Italian>
++		<Spanish>Ninguno (provoca una elecci�n anticipada)</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 3d0d458ac..7d0666c75 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -282,13 +282,14 @@
+ 		<Italian>Il limite di sostenibilit&#224;</Italian>
+ 		<Spanish>L�mite de sostenibilidad</Spanish>
+ 	</TEXT>
++	<!-- advc.002b: Abbreviated b/c it was bit too long for a 5:4 display -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ENVIRONMENT_LOCAL_THRESHOLD</Tag>
+-		<English>Local Sustainability Threshold</English>
+-		<French>Local Sustainability Threshold</French>
+-		<German>Lokaler Nachhaltigkeitsgrenzwert</German>
+-		<Italian>Local Sustainability Threshold</Italian>
+-		<Spanish>L�mite de sostenibilidad local</Spanish>
++		<English>Local Sustainability Thresh.</English>
++		<French>Local Sustainability Thresh.</French>
++		<German>Lokale Nachhaltigkeitsgrenze</German>
++		<Italian>Local Sustainability Thresh.</Italian>
++		<Spanish>L�m. de sostenibilidad local</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ENVIRONMENT_TOTAL_POLLUTION</Tag>
+
+diff --git a/Assets/xml/Text/TechWindow Options.xml b/Assets/xml/Text/TechWindow Options.xml
+index ac2fc6e9b..e774e22a6 100644
+--- a/Assets/xml/Text/TechWindow Options.xml	
++++ b/Assets/xml/Text/TechWindow Options.xml	
+@@ -6,13 +6,22 @@
+ 	Copyright (c) 2009 The BUG Mod.
+ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-	<TEXT>
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
+ 		<English>View</English>
+ 		<French>View</French>
+ 		<German>Ansicht</German>
+ 		<Italian>Visualizzazione</Italian>
+ 		<Spanish>Vista</Spanish>
++	</TEXT-->
++	<!-- advc.060: Replacing the above b/c the heading no longer says "Tech" -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
++		<English>Tech</English>
++		<French>Tech</French>
++		<German>Tech</German>
++		<Italian>Tech</Italian>
++		<Spanish>Tech</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_HOVER</Tag>
+@@ -46,4 +55,22 @@
+ 		<Italian>Quando � selezionato, include il testo della Civilopedia dopo la citazione per la tecnologia scoperta.</Italian>
+ 		<Spanish>Si se activa, se muestra el texto de Civilopedia despu�s de la cita para la tecnolog�a descubierta.</Spanish>
+ 	</TEXT>
++		<!-- advc.060 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__SHOWSSSCREEN_TEXT</Tag>
++		<English>Always Show Spaceship</English>
++		<French>Afficher vaisseau spatial</French>
++		<German>Raumschiff immer anzeigen</German>
++		<Italian>Mostra schermata astronave</Italian>
++		<Spanish>Mostrar nave espacial</Spanish>
++	</TEXT>
++	<!-- Romance languages through deepl.com -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__SHOWSSSCREEN_HOVER</Tag>
++		<English>Shows the Spaceship screen after every completed part (as in BtS). If unchecked, the Spaceship screen is only shown when ready to launch.</English>
++		<French>Affiche l'�cran du vaisseau spatial apr�s chaque pi�ce termin�e (comme dans BtS). Si cette case n'est pas coch�e, l'�cran du vaisseau spatial ne s'affiche que lorsqu'il est pr�t au lancement.</French>
++		<German>Zeigt den Raumschiff-Bildschirm nach jedem fertiggstellten Teil (wie in BtS). Falls deaktiviert, wird der Raumschiff-Bildschirm nur dann angezeigt, wenn das Raumschiff startbereit ist.</German>
++		<Italian>Mostra la schermata astronave dopo ogni parte completata (come in BtS). Se non spuntata, la schermata astronave viene mostrata solo se pronta per il lancio.</Italian>
++		<Spanish>Muestra la pantalla de la nave espacial despu�s de cada pieza terminada (como en BtS). Si no est� seleccionada, la pantalla de la nave espacial s�lo se muestra cuando lista para iniciarse.</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c9efc349a..22ffdd29f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -19,6 +19,7 @@
+ #include "CyArgsList.h"
+ #include "FProfiler.h"
+ #include "CvGameTextMgr.h"
++#include "CvBugOptions.h" // advc.060
+ 
+ // interfaces used
+ #include "CvDLLEngineIFaceBase.h"
+@@ -13071,7 +13072,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 				else
+ 				{
+ 					//show the spaceship progress
+-					if(isHuman())
++					if(isHuman() &&
++							// advc.060:
++							getBugOptionBOOL("TechWindow__ShowSSScreen", false, "TechWindow_SHOW_SS_SCREEN"))
+ 					{
+ 						if(!GC.getGameINLINE().isNetworkMultiPlayer())
+ 						{
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 54fb56b51..a84f57733 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1370,24 +1370,20 @@ bool CvDLLButtonPopup::launchChangeReligionPopup(CvPopup* pPopup, CvPopupInfo &i
+ 
+ bool CvDLLButtonPopup::launchChooseElectionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
+-	VoteSelectionData* pVoteSelectionData = GC.getGameINLINE().getVoteSelection(info.getData1());
+-	if (NULL == pVoteSelectionData)
+-	{
++	VoteSelectionData* pVoteSelectionData = GC.getGame().getVoteSelection(info.getData1());
++	if(NULL == pVoteSelectionData)
+ 		return false;
+-	}
+-
+ 	VoteSourceTypes eVoteSource = pVoteSelectionData->eVoteSource;
+-
+ 	gDLL->getInterfaceIFace()->popupSetBodyString(pPopup, GC.getVoteSourceInfo(eVoteSource).getPopupText());
+-
+-	for (int iI = 0; iI < (int)pVoteSelectionData->aVoteOptions.size(); ++iI)
+-	{
++	for(int iI = 0; iI < (int)pVoteSelectionData->aVoteOptions.size(); iI++)
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, pVoteSelectionData->aVoteOptions[iI].szText, NULL, iI, WIDGET_GENERAL);
+-	}
+-
+-	gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_NONE").c_str(), NULL, GC.getNumVoteInfos(), WIDGET_GENERAL);
++	// advc.178:
++	bool bEarlyElection = (GC.getGame().getSecretaryGeneralTimer(eVoteSource) > 0);
++	gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText(
++			bEarlyElection ? "TXT_KEY_EARLY_ELECTION" : // advc.178
++			"TXT_KEY_NONE").c_str(), NULL, GC.getNumVoteInfos(), WIDGET_GENERAL);
+ 	gDLL->getInterfaceIFace()->popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);
+-	return (true);
++	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index ad8810826..4f7ce1eb9 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -35,6 +35,7 @@
+ #define MOVE_NO_ATTACK										(0x00000800) // K-Mod. used to prevent humans from accidentally attacking unseen units
+ #define MOVE_HAS_STEPPED									(0x00001000) // K-Mod. used to signal that at least one step has been taken for this move command
+ #define MOVE_ASSUME_VISIBLE									(0x00002000) // K-Mod. With this flag, the pathfinder will plan around enemy units even if they are not visible. (Note: AI units do this regardless of the flag.)
++#define MOVE_ROUTE_TO										(0x00004000) // advc.049
+ 
+ /*
+ ** K-Mod, 18/dec/10, karadoc
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 0b56d8183..f1e7ecef2 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4991,13 +4991,15 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		bool bPactWithEveryone = true;
+ 		for (int iTeam1 = 0; iTeam1 < MAX_CIV_TEAMS; ++iTeam1)
+ 		{
+-			if (GET_TEAM((TeamTypes)iTeam1).isFullMember(eVoteSource))
++			CvTeam& kTeam1 = GET_TEAM((TeamTypes)iTeam1);
++			if (kTeam1.isFullMember(eVoteSource)
++					&& !kTeam1.isAVassal()) // advc.001
+ 			{
+ 				for (int iTeam2 = iTeam1 + 1; iTeam2 < MAX_CIV_TEAMS; ++iTeam2)
+ 				{
+ 					CvTeam& kTeam2 = GET_TEAM((TeamTypes)iTeam2);
+-
+-					if (kTeam2.isFullMember(eVoteSource))
++					if (kTeam2.isFullMember(eVoteSource)
++							&& !kTeam2.isAVassal()) // advc.001
+ 					{
+ 						if (!kTeam2.isDefensivePact((TeamTypes)iTeam1))
+ 						{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 97d3be0dc..4787c6c2c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2225,6 +2225,14 @@ int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int
+ 			return FALSE;
+ 		}
+ 	}
++	// <advc.049> No new AI routes in human territory (but upgrade to railroad OK)
++	if(iFlags & MOVE_ROUTE_TO) {
++		if(!pFromPlot->isRoute() && !pSelectionGroup->isHuman()) {
++			PlayerTypes eOwner = pFromPlot->getOwnerINLINE();
++			if(eOwner != NO_PLAYER && GET_PLAYER(eOwner).isHuman())
++				return FALSE;
++		}
++	} // </advc.049>
+ 
+ 	if (iFlags & MOVE_NO_ENEMY_TERRITORY)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d3dc3962f..b0590333a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5459,7 +5459,8 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 		break;
+ 
+ 	case TRADE_RESOURCES:
+-		return AI_bonusTrade(((BonusTypes)(item.m_iData)), eWhoTo);
++		return AI_bonusTrade(((BonusTypes)(item.m_iData)), eWhoTo,
++				1); // advc.036
+ 		break;
+ 
+ 	case TRADE_CITIES:
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 00b0e4289..31fc6d538 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11758,7 +11758,9 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 	// <advc.136b>
+ 	else {
+ 		if(iTheirValue < 2 * GC.getDIPLOMACY_VALUE_REMAINDER() &&
+-				!bVassalTrade &&
++			/*  NB: bVassalTrade is currently only true if ePlayer offers to become
++				a vassal, not when this player considers becoming a vassal. (fixme?) */
++				!bVassalTrade && !kOurTeam.isAtWar(TEAMID(ePlayer)) &&
+ 				!AI_goldDeal(pTheirList) && (pTheirList->getLength() <= 0 ||
+ 				!CvDeal::isDual(pTheirList->head()->m_data.m_eItemType)))
+ 			return false;
+@@ -12207,7 +12209,7 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 					vbBonusDeal[data.m_iData] = true;
+ 					bNonsurplus = true;
+ 					if((kPlayer.getNumTradeableBonuses(eBonus) > 1 && 
+-							kPlayer.AI_corporationBonusVal(eBonus) == 0)
++							kPlayer.AI_corporationBonusVal(eBonus, true) == 0)
+ 							/*  Prefer to give non-surplus resources
+ 								over gpt in AI-AI trades (i.e. no special
+ 								treatment of nonsurplus resources needed).
+@@ -12892,26 +12894,27 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 	int iValue = 0;
+ 	int iBonusCount = getNumAvailableBonuses(eBonus);
+ 	// <advc.036>
+-	int tradeVal = 0;
++	int iTradeVal = 0;
+ 	// More valuable if we have few resources for trade
+-	int surplus = 0;
++	int iSurplus = 0;
+ 	if(!bTrade) { /* Importing resources is not going to give us more resources
+ 					to trade with b/c we can't wheel and deal */
+ 		for(int i = 0; i < GC.getNumBonusInfos(); i++)
+-			surplus += std::max(0, getNumTradeableBonuses((BonusTypes)i) - 1);
++			iSurplus += std::max(0, getNumTradeableBonuses((BonusTypes)i) - 1);
+ 	}
+-	tradeVal = ::round(4 / std::sqrt((double)std::max(1, std::max(surplus,
++	iTradeVal = ::round(4 / std::sqrt((double)std::max(1, std::max(iSurplus,
+ 			2 * (iBonusCount + iChange))))); // </advc.036>
+-	if ((iChange == 0) || ((iChange == 1) && (iBonusCount == 0)) || ((iChange == -1) && (iBonusCount == 1))
++	if (iChange == 0 || (iChange == 1 && iBonusCount == 0) || (iChange == -1 && iBonusCount == 1)
+ 			// advc.036: Cover all strange cases here
+ 			|| iChange + iBonusCount < 1)
+ 	{
+ 		//This is assuming the none-to-one or one-to-none case.
+ 		iValue += AI_baseBonusVal(eBonus,
+ 				bTrade); // advc.036
+-		iValue += AI_corporationBonusVal(eBonus);
++		iValue += AI_corporationBonusVal(eBonus,
++				bTrade); // advc.036
+ 		if(!bTrade)
+-			iValue = std::max(iValue, tradeVal); // advc.036
++			iValue = std::max(iValue, iTradeVal); // advc.036
+ 		// K-Mod.
+ 		if (!bAssumeEnabled)
+ 		{
+@@ -12928,12 +12931,13 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 	}
+ 	else
+ 	{
+-		iValue += AI_corporationBonusVal(eBonus);
++		iValue += AI_corporationBonusVal(eBonus,
++				true); // advc.036
+ 		//This is basically the marginal value of an additional instance of a bonus.
+ 		//iValue += AI_baseBonusVal(eBonus) / 5;
+ 		/*  advc.036: The potential for trades isn't that marginal, and the
+ 			base value (for the first copy of a resource) is unhelpful. */
+-		iValue = std::max(iValue, tradeVal);
++		iValue = std::max(iValue, iTradeVal);
+ 	}
+ 	return iValue;
+ }
+@@ -13430,7 +13434,8 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 	return iValue; // </advc.036>
+ }
+ 
+-int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus) const
++int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus,
++		bool bTrade) const // advc.036
+ {
+ 	int iValue = 0;
+ 	int iCityCount = getNumCities();
+@@ -13440,7 +13445,12 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus) const
+ 	{
+ 		int iCorpCount = getHasCorporationCount((CorporationTypes)iCorporation);
+ 		if (iCorpCount > 0)
+-		{
++		{	/*  <advc.036> Human could spread the corp rapidly. I also want to push
++				the price for humans a bit in order to stop the AI from offering 1-ofs
++				as soon as a player founds a corporation. */
++			if(bTrade && isHuman())
++				iCorpCount = std::min(getNumCities(), ::round(1 + (iCorpCount * 4/3.0)));
++			// </advc.036>
+ 			int iNumCorpBonuses = 0;
+ 			iCorpCount += getNumCities() / 6 + 1;
+ 			CvCorporationInfo& kCorp = GC.getCorporationInfo((CorporationTypes)iCorporation);
+@@ -13460,7 +13470,7 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus) const
+ 					iValue += (20 * kCorp.getCommerceProduced(COMMERCE_ESPIONAGE) * iCorpCount) / iCityCount;
+ 					
+ 					//Disabled since you can't found/spread a corp unless there is already a bonus,
+-					//and that bonus will provide the entirity of the bonusProduced benefit.
++					//and that bonus will provide the entirety of the bonusProduced benefit.
+ 
+ 					/*if (NO_BONUS != kCorp.getBonusProduced())
+ 					{
+@@ -13474,10 +13484,11 @@ int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus) const
+ 		}
+ 	}
+ 
+-	iValue /= 100;	//percent
++	/*iValue /= 100;	//percent
+ 	iValue /= 10;	//match AI_baseBonusVal
+-
+-	return iValue;
++	return iValue;*/
++	// advc.036: To increase accuracy
++	return ::round(iValue / 1000.0);
+ }
+ 
+ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer, int iChange) const {
+@@ -13602,7 +13613,7 @@ int CvPlayerAI::AI_bonusTradeValBulk(BonusTypes eBonus, PlayerTypes ePlayer, int
+ 		resources instead for a slightly higher price. */
+ 	if(!kPlayer.isHuman() && (iAvail - iChange == 0 ||
+ 			iAvail == 0 || // when considering cancelation
+-			kPlayer.AI_corporationBonusVal(eBonus) > 0))
++			kPlayer.AI_corporationBonusVal(eBonus, true) > 0))
+ 		r++;
+ 	if(!isHuman()) // Never pay more than it's worth to us
+ 		r = std::min(r, ourVal);
+@@ -13624,9 +13635,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ {
+ 	PROFILE_FUNC();
+ 
+-	AttitudeTypes eAttitude;
+-	//bool bStrategic;
+-	int iI, iJ;
++	int iI=-1, iJ=-1; // advc.003: Other declarations moved
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer); // advc.003
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 
+@@ -13642,9 +13651,9 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 		return DENIAL_JOKING;
+ 	} // </advc.036>
+ 	// advc.133:
+-	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus) + iChange;
++	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus);
+ 	// advc.036: Moved this clause up
+-	if (iAvailThem > 0 && kPlayer.AI_corporationBonusVal(eBonus) <= 0)
++	if (iAvailThem + iChange > 1 && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
+ 	{
+ 		return DENIAL_JOKING;
+ 	} // <advc.037> This used to apply to all vassals
+@@ -13671,16 +13680,17 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 		return NO_DENIAL;*/
+ 	// K-Mod end
+ 	// <advc.036>
+-	int const tradeValThresh = 3;
+-	int valueForThem = -1;
++	int const iTradeValThresh = 3;
++	int iValueForThem = -1;
+ 	/*  advc.133: Don't bother checking the value-based clauses when considering
+ 		cancelation. AI_considerOffer handles that. */
+ 	if(iChange >= 0) {
+-		valueForThem = kPlayer.AI_bonusVal(eBonus, 0, false, true); // </advc.036>
++		iValueForThem = kPlayer.AI_bonusVal(eBonus, iChange, false, true);
++	// </advc.036>
+ 		if (isHuman()
+ 				/*  advc.036: No deal if they (AI) don't need the resource, but
+ 					check attitude before giving the human that info. */
+-				&& valueForThem >= tradeValThresh)
++				&& iValueForThem >= iTradeValThresh)
+ 		{
+ 			return NO_DENIAL;
+ 		}
+@@ -13696,7 +13706,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 	}*/
+ 
+ 	bool bStrategic = false;
+-	bool crucialStrategic = false; // advc.036
++	bool bCrucialStrategic = false; // advc.036
+ 
+ 	CvCity* pCapitalCity = getCapitalCity();
+ 	for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
+@@ -13704,7 +13714,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 		if (GC.getUnitInfo((UnitTypes) iI).getPrereqAndBonus() == eBonus)
+ 		{
+ 			bStrategic = true;
+-			crucialStrategic = true; // advc.036
++			bCrucialStrategic = true; // advc.036
+ 		}
+ 		for (iJ = 0; iJ < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iJ++)
+ 		{
+@@ -13715,7 +13725,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 					(getCapitalCity()->hasBonus(...), but then a human could
+ 					try to trade for both OR-prereqs at once (e.g. Bronze and
+ 					Iron, leaving us unable to train Axemen). */
+-				crucialStrategic = true;
++				bCrucialStrategic = true;
+ 			}
+ 		}
+ 		// <advc.001>
+@@ -13756,7 +13766,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 					break; // </advc.003b>
+ 			} // XXX marble and stone??? // advc (comment): Handled above, no?
+ 		}
+-		eAttitude = AI_getAttitude(ePlayer);
++		AttitudeTypes eAttitude = AI_getAttitude(ePlayer);
+ 		if (bStrategic)
+ 		{	// <advc.036>
+ 			int iRefusalThresh = GC.getLeaderHeadInfo(getPersonalityType()).
+@@ -13770,7 +13780,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 		}
+ 		if (GC.getBonusInfo(eBonus).getHappiness() > 0)
+ 		{	// advc.036: Treat Ivory as non-crucial
+-			crucialStrategic = false;
++			bCrucialStrategic = false;
+ 			if (eAttitude <= GC.getLeaderHeadInfo(getPersonalityType()).getHappinessBonusRefuseAttitudeThreshold())
+ 			{
+ 				return DENIAL_ATTITUDE;
+@@ -13779,21 +13789,21 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 
+ 		if (GC.getBonusInfo(eBonus).getHealth() > 0)
+ 		{
+-			crucialStrategic = false; // advc.036
++			bCrucialStrategic = false; // advc.036
+ 			if (eAttitude <= GC.getLeaderHeadInfo(getPersonalityType()).getHealthBonusRefuseAttitudeThreshold())
+ 			{
+ 				return DENIAL_ATTITUDE;
+ 			}
+ 		}
+ 	} // <advc.036>
+-	int iAvailUs = getNumAvailableBonuses(eBonus) - iChange;
+-	/*  Doesn't seem necessary after all; the valueForUs clauses rule out such
++	int iAvailUs = getNumAvailableBonuses(eBonus);
++	/*  Doesn't seem necessary after all; the iValueForUs clauses rule out such
+ 		trades anyway. By returning DENIAL_JOKING, crucial strategic resources
+ 		could be excluded from the trade table (see changes in buildTradeTable),
+ 		but it's perhaps confusing to show some non-surplus resources on the
+ 		trade table and not others. */
+-	/*if(!isHuman() && crucialStrategic && iAvailUs <= 1 && (!bVassal ||
+-			iAvailThem > 0))
++	/*if(!isHuman() && bCrucialStrategic && iAvailUs - iChange <= 1 && (!bVassal ||
++			iAvailThem + iChange > 1))
+ 		return DENIAL_JOKING;
+ 	*/// </advc.036>
+ 	// <advc.133> See the previous 133-comment
+@@ -13803,35 +13813,37 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 	if(!kPlayer.isHuman()) {
+ 		/*  Allow human to import resources that they probably don't need,
+ 			but make sure that the AI doesn't. */
+-		if(valueForThem < tradeValThresh)
++		if(iValueForThem < iTradeValThresh)
+ 			return DENIAL_NO_GAIN;
+ 		if(isHuman())
+ 			return NO_DENIAL;
+ 	}
+-	int valueForUs = AI_corporationBonusVal(eBonus);
+-	if(iAvailUs - getBonusImport(eBonus) == 1)
+-		valueForUs = AI_bonusVal(eBonus, 0, false, true);
++	int iValueForUs = AI_corporationBonusVal(eBonus, true);
++	/*  This guard ensures that iTradeVal isn't added in AI_bonusVal (is that really
++		important?). The max isn't actually necessary; we know that iChange>=0. */
++	if(iAvailUs - getBonusImport(eBonus) - std::max(0, iChange) <= 0)
++		iValueForUs = AI_bonusVal(eBonus, 0, false, true);
+ 	/*  Don't want city counts to matter much b/c large civs are supposed to
+ 		export to small (tall) ones. But selling to tiny civs often doesn't make
+ 		sense; could get a much better deal from some larger buyer. */
+-	valueForUs += std::min(2 * valueForUs,
++	iValueForUs += std::min(2 * iValueForUs,
+ 			getNumCities() / std::max(1, kPlayer.getNumCities()));
+ 	// <advc.037>
+ 	if(bVassal) {
+-		if(valueForUs >= 2 * (kPlayer.isHuman() ? tradeValThresh : valueForThem))
++		if(iValueForUs >= 2 * (kPlayer.isHuman() ? iTradeValThresh : iValueForThem))
+ 			return DENIAL_NO_GAIN;
+ 		else return NO_DENIAL;
+ 	} // </advc.037>
+ 	// Replacing the JOKING clause further up
+-	if((kPlayer.isHuman()) ?
+-			// Don't presume value for human
+-			(valueForUs >= tradeValThresh +
++	if(kPlayer.isHuman() && iAvailThem <= 0 ? /*  Don't presume value
++			for human unless human only needs the resource for a corp */
++			(iValueForUs >= iTradeValThresh +
+ 			/*  bonusVal gives every city equal weight, but early on,
+ 				it's mostly about the capital, which can grow fast. */
+ 			std::min(2, (getNumCities() - 1) / 2)) :
+-			(3 * valueForUs >= 2 * valueForThem ||
+-			valueForThem - valueForUs < tradeValThresh ||
+-			valueForUs > tradeValThresh + 2))
++			(3 * iValueForUs >= 2 * iValueForThem ||
++			iValueForThem - iValueForUs < iTradeValThresh ||
++			iValueForUs > iTradeValThresh + 2))
+ 		return DENIAL_NO_GAIN;
+ 	// </advc.036>
+ 	return NO_DENIAL;
+@@ -20316,13 +20328,13 @@ int CvPlayerAI::checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip) {
+ 	if(!AI_considerOfferBulk(otherId, trades2, trades1, -1, // <advc.133>
+ 			d.getAge()))
+ 		return 0;
++	if(trades1 == NULL)
++		return -1;
+ 	/*  @"not equipped"-comment above: Resource trades do need special treatment.
+ 		For duals (Open Borders, Def. Pact, Perm. Alliance), getTradeDenial
+ 		is all right. AI_considerOffer will not cancel these b/c the trade values
+ 		of dual trades are always considered fair.
+ 		Worst enmity is treated separately elsewhere. */
+-	if(trades1 == NULL)
+-		return -1;
+ 	CLLNode<TradeData>* tdn = trades1->head();
+ 	if(tdn != NULL && CvDeal::isDual(tdn->m_data.m_eItemType, true)) {
+ 		DenialTypes tden = getTradeDenial(otherId, tdn->m_data);
+@@ -20334,10 +20346,10 @@ int CvPlayerAI::checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip) {
+ 			return 1;
+ 		else return -1;
+ 	}
+-	/*  getTradeDenial will always return DENIAL_JOKING. Instead, call
+-		AI_bonusTrade explicitly and tell it that this is about cancelation. */
+ 	if(trades2 == NULL)
+ 		return -1;
++	/*  getTradeDenial will always return DENIAL_JOKING. Instead, call
++		AI_bonusTrade explicitly and tell it that this is about cancelation. */
+ 	for(CLLNode<TradeData>* tdn = trades1->head(); tdn != NULL;
+ 			tdn = trades1->next(tdn)) {
+ 		TradeData tdata = tdn->m_data;
+@@ -21849,7 +21861,7 @@ bool CvPlayerAI::proposeResourceTrade(PlayerTypes civId) {
+ 		/*  <advc.036> For AI-AI trades the conditions below are better handled
+ 			by AI_getTradeDenial. */
+ 		if(civ.isHuman() && (civ.getNumTradeableBonuses(eBonus) <= 1 ||
+-				civ.AI_corporationBonusVal(eBonus) != 0))
++				civ.AI_corporationBonusVal(eBonus, true) != 0))
+ 				// || AI_bonusTradeVal(eBonus, civId, 1) <= 0)
+ 			continue;
+ 		/*  Probably cheaper to check canTradeItem before calling AI_bonusTradeVal;
+@@ -27923,7 +27935,7 @@ void CvPlayerAI::AI_updateBonusValue(BonusTypes eBonus)
+ 	/*  <advc.036> Don't just reset; recompute them all, and never update the
+ 		cache in AI_baseBonusVal. This should make sure we're not getting OOS. */
+ 	if(GC.getGameINLINE().isNetworkMultiPlayer()) {
+-		m_aiBonusValue[eBonus] = AI_baseBonusVal(eBonus);
++		m_aiBonusValue[eBonus] = AI_baseBonusVal(eBonus, false);
+ 		m_aiBonusValueTrade[eBonus] = AI_baseBonusVal(eBonus, true);
+ 	} else { // Reset and update on demand is faster
+ 	/*  Tbd.: Could lead to undesirable side-effects in singleplayer, and
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4f013f0e2..de5a8cb63 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3557,7 +3557,11 @@ bool CvSelectionGroup::groupRoadTo(int iX, int iY, int iFlags)
+ 		}
+ 	}
+ 
+-	return groupPathTo(iX, iY, iFlags);
++	return groupPathTo(iX, iY, iFlags
++			/*  advc.049: In the debugger, I'm seeing this function get called via
++				continueMission without any flags set, and these calls cause
++				the AI to build roads through foreign territory. */
++			| MOVE_ROUTE_TO | MOVE_SAFE_TERRITORY);
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 4044ed83b..f20042ebd 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1561,6 +1561,8 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 	{
+ 		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
++		// advc.001: Can now enter each other's territory
++		gDLL->getInterfaceIFace()->setDirty(Waypoints_DIRTY_BIT, true);
+ 	}
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index df22ed2cc..0df98753d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19492,7 +19492,9 @@ bool CvUnitAI::AI_connectPlot(CvPlot* pPlot, int iRange)
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pPlot, MISSIONAI_BUILD, getGroup(), iRange) == 0)
+ 		{
+-			if (generatePath(pPlot, MOVE_SAFE_TERRITORY, true))
++			if (generatePath(pPlot, MOVE_SAFE_TERRITORY
++					| MOVE_ROUTE_TO, // advc.049
++					true))
+ 			{
+ 				/* <advc.300> Barb behavior should just be to put roads on the
+ 				   bonuses adjacent to their cities. */
+@@ -19514,7 +19516,12 @@ bool CvUnitAI::AI_connectPlot(CvPlot* pPlot, int iRange)
+ 
+ 						if (plot()->getPlotGroup(getOwnerINLINE()) == pLoopCity->plot()->getPlotGroup(getOwnerINLINE()))
+ 						{
+-							getGroup()->pushMission(MISSION_ROUTE_TO, pPlot->getX_INLINE(), pPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pPlot);
++							getGroup()->pushMission(MISSION_ROUTE_TO,
++									pPlot->getX_INLINE(),
++									pPlot->getY_INLINE(),
++									MOVE_SAFE_TERRITORY
++									| MOVE_ROUTE_TO, // advc.049
++									false, false, MISSIONAI_BUILD, pPlot);
+ 							return true;
+ 						}
+ 					}
+@@ -19542,17 +19549,34 @@ bool CvUnitAI::AI_connectPlot(CvPlot* pPlot, int iRange)
+ 
+ 						if (!(pLoopCity->plot()->isVisibleEnemyUnit(this)))
+ 						{
+-							if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY, true))
++							if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY
++									| MOVE_ROUTE_TO, // advc.049
++									true))
+ 							{
+ 								if (atPlot(pPlot)) // need to test before moving...
+ 								{
+-									getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pPlot);
++									getGroup()->pushMission(MISSION_ROUTE_TO,
++											pLoopCity->getX_INLINE(),
++											pLoopCity->getY_INLINE(),
++											MOVE_SAFE_TERRITORY
++											| MOVE_ROUTE_TO, // advc.049
++											false, false, MISSIONAI_BUILD, pPlot);
+ 								}
+ 								else
+ 								{
+-									getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pPlot);
++									getGroup()->pushMission(MISSION_ROUTE_TO,
++											pLoopCity->getX_INLINE(),
++											pLoopCity->getY_INLINE(),
++											MOVE_SAFE_TERRITORY
++											| MOVE_ROUTE_TO, // advc.049
++											false, false, MISSIONAI_BUILD, pPlot);
+ 									//getGroup()->pushMission(MISSION_ROUTE_TO, pPlot->getX_INLINE(), pPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
+-									getGroup()->pushMission(MISSION_ROUTE_TO, pPlot->getX_INLINE(), pPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, true, false, MISSIONAI_BUILD, pPlot); // K-Mod
++									getGroup()->pushMission(MISSION_ROUTE_TO,
++											pPlot->getX_INLINE(),
++											pPlot->getY_INLINE(),
++											MOVE_SAFE_TERRITORY
++											| MOVE_ROUTE_TO, // advc.049
++											true, false, MISSIONAI_BUILD, pPlot); // K-Mod
+ 								}
+ 
+ 								return true;
+@@ -20973,16 +20997,30 @@ bool CvUnitAI::AI_routeCity()
+ 					{
+ 						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pRouteToCity->plot(), MISSIONAI_BUILD, getGroup()) == 0)
+ 						{
+-							if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY, true))
++							if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY
++									| MOVE_ROUTE_TO, // advc.049
++									true))
+ 							{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-								if (generatePath(pRouteToCity->plot(), MOVE_SAFE_TERRITORY, true))
++								if (generatePath(pRouteToCity->plot(), MOVE_SAFE_TERRITORY
++										| MOVE_ROUTE_TO, // advc.049
++										true))
+ 								{
+-									getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pRouteToCity->plot());
++									getGroup()->pushMission(MISSION_ROUTE_TO,
++											pLoopCity->getX_INLINE(),
++											pLoopCity->getY_INLINE(),
++											MOVE_SAFE_TERRITORY
++											| MOVE_ROUTE_TO, // advc.049
++											false, false, MISSIONAI_BUILD, pRouteToCity->plot());
+ 									//getGroup()->pushMission(MISSION_ROUTE_TO, pRouteToCity->getX_INLINE(), pRouteToCity->getY_INLINE(), MOVE_SAFE_TERRITORY, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pRouteToCity->plot());
+-									getGroup()->pushMission(MISSION_ROUTE_TO, pRouteToCity->getX_INLINE(), pRouteToCity->getY_INLINE(), MOVE_SAFE_TERRITORY, true, false, MISSIONAI_BUILD, pRouteToCity->plot()); // K-Mod
++									getGroup()->pushMission(MISSION_ROUTE_TO,
++											pRouteToCity->getX_INLINE(),
++											pRouteToCity->getY_INLINE(),
++											MOVE_SAFE_TERRITORY
++											| MOVE_ROUTE_TO, // advc.049
++											true, false, MISSIONAI_BUILD, pRouteToCity->plot()); // K-Mod
+ 
+ 									return true;
+ 								}
+@@ -21063,7 +21101,9 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
+ 							{
+ 								if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup(), 1) == 0)
+ 								{
+-									if (generatePath(pLoopPlot, MOVE_SAFE_TERRITORY, true, &iPathTurns))
++									if (generatePath(pLoopPlot, MOVE_SAFE_TERRITORY
++											| MOVE_ROUTE_TO, // advc.049
++											true, &iPathTurns))
+ 									{
+ 										iValue = 10000;
+ 
+@@ -21086,7 +21126,10 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+-		getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pBestPlot);
++		getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX_INLINE(),
++				pBestPlot->getY_INLINE(), MOVE_SAFE_TERRITORY
++				| MOVE_ROUTE_TO, // advc.049
++				false, false, MISSIONAI_BUILD, pBestPlot);
+ 		return true;
+ 	}
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=16 omittedFiles=2 embeddedPatchBytes=36819

@@ -1,0 +1,486 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6103
+# Commit: e990260efc0d4f22d0718a443d18e66b522e0e79
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fd869b094ef88b16a9c7bc4952462e9fba0d6106
+# Title: Add synthetic whole-war outcome summaries to SASGameRecord
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	2	CvGameCoreDLL/CvEventReporter.cpp
+2	0	CvGameCoreDLL/CvTeam.cpp
+260	5	CvGameCoreDLL/SASGameRecordLog.cpp
+2	1	CvGameCoreDLL/SASGameRecordLog.h
+1	1	README.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 599a93ed4..eb4c57f08 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -490,8 +490,7 @@ void CvEventReporter::endGoldenAge(PlayerTypes ePlayer)
+ 
+ void CvEventReporter::changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
+ {
+-	// <!-- custom: War starts are logged earlier by CvTeam::declareWar while their origin is still available. This callback retains the end row after peace has updated both teams' war counts. (GPT-5.6-Sol) -->
+-	if (!bWar && gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(eTeam, eOtherTeam);
++	// <!-- custom: Completed-war summaries are logged in CvTeam::makePeace because this later callback runs after AI_postMakePeace has erased both teams' final war-success values. (GPT-5.6-Sol) -->
+ 	m_kPythonEventMgr.reportChangeWar(bWar, eTeam, eOtherTeam);
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 75d6323c2..83fbec38e 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1301,6 +1301,8 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bo
+ 		kMembers[i]->updatePlotGroups();
+ 	for (size_t i = 0; i < kMembers.size(); i++)
+ 		kMembers[i]->updateTradeRoutes();
++	// <!-- custom: Base AdvCiv's AI_postMakePeace clears both teams' war-success values. Record the completed war and peace context after the war counts change but before that reset, so SASGameRecord can emit an accurate synthetic summary. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(getID(), eTarget, AI().AI_getWarSuccess(eTarget).round(), kTarget.AI().AI_getWarSuccess(getID()).round(), bCapitulate, eBroker, bRandomEvent, pReparations != NULL);
+ 	// advc: AI code moved down a bit and then into a new function
+ 	AI().AI_postMakePeace(eTarget);
+ 	// advc.106o: Vassals now mentioned along with their master
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 97f32bc96..8557617e6 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -284,6 +284,7 @@ static void logSASGameRecordLogSettings()
+ 
+ static void resetSASGameRecordState();
+ static void logSASGameRecordInitialContext();
++static void initializeSASGameRecordWarsFromLoadedSave();
+ 
+ void startSASGameRecordLogForNewGame()
+ {
+@@ -303,6 +304,8 @@ void startSASGameRecordLogForLoadedSave()
+ {
+ 	rollSASGameRecordLog("load");
+ 	resetSASGameRecordState();
++	// <!-- custom: The save contains no recorder-local war history. Begin partial observations for wars already in progress, with the loaded turn and current war success recorded explicitly as their observable baseline. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2) initializeSASGameRecordWarsFromLoadedSave();
+ 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
+ 	logSASGameRecordLogSettings();
+ 	logSASGameRecordInitialContext();
+@@ -622,6 +625,169 @@ static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
+ static SASGameRecordTeamPrevious g_akSASGameRecordTeamPrevious[MAX_TEAMS];
+ static SASGameRecordGlobalPrevious g_kSASGameRecordGlobalPrevious;
+ 
++// <!-- custom: A team-pair war is a natural historical unit that action rows otherwise force external tools to reconstruct across many turns.
++// Keep this transient and recorder-local: loaded saves start an explicitly partial observation, while declarations in the current log retain their exact start/cause.
++// Battles and conquered cities are attributed only to the two teams directly involved, so simultaneous wars do not contaminate one another. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
++struct SASGameRecordWarSummary
++{
++	TeamTypes eTeamA;
++	TeamTypes eTeamB;
++	TeamTypes eDeclarer;
++	TeamTypes eTarget;
++	WarPlanTypes eInitialWarPlan;
++	CvString szStartCause;
++	bool bStartKnown;
++	bool bPrimary;
++	int iStartTurn;
++	int iObservedStartTurn;
++	int iWarSuccessStartA;
++	int iWarSuccessStartB;
++	int iWarSuccessA;
++	int iWarSuccessB;
++	int iUnitsDestroyedByA;
++	int iUnitsDestroyedByB;
++	int iProductionDestroyedByA;
++	int iProductionDestroyedByB;
++	int iCityPlotWinsA;
++	int iCityPlotWinsB;
++	int iCitiesCapturedByA;
++	int iCitiesCapturedByB;
++	int iPopulationCapturedByA;
++	int iPopulationCapturedByB;
++	int iLastOngoingSummaryTurn;
++
++	SASGameRecordWarSummary() : eTeamA(NO_TEAM), eTeamB(NO_TEAM), eDeclarer(NO_TEAM), eTarget(NO_TEAM), eInitialWarPlan(NO_WARPLAN), bStartKnown(false), bPrimary(false),
++			iStartTurn(-1), iObservedStartTurn(-1), iWarSuccessStartA(0), iWarSuccessStartB(0), iWarSuccessA(0), iWarSuccessB(0),
++			iUnitsDestroyedByA(0), iUnitsDestroyedByB(0), iProductionDestroyedByA(0), iProductionDestroyedByB(0), iCityPlotWinsA(0), iCityPlotWinsB(0),
++			iCitiesCapturedByA(0), iCitiesCapturedByB(0), iPopulationCapturedByA(0), iPopulationCapturedByB(0), iLastOngoingSummaryTurn(-1) {}
++};
++
++static std::vector<SASGameRecordWarSummary> g_aSASGameRecordWars;
++
++static bool getSASGameRecordWarPair(TeamTypes eFirst, TeamTypes eSecond, TeamTypes& eTeamA, TeamTypes& eTeamB)
++{
++	if (eFirst < 0 || eFirst >= MAX_CIV_TEAMS || eSecond < 0 || eSecond >= MAX_CIV_TEAMS || eFirst == eSecond)
++		return false;
++	eTeamA = (eFirst < eSecond ? eFirst : eSecond);
++	eTeamB = (eFirst < eSecond ? eSecond : eFirst);
++	return true;
++}
++
++static SASGameRecordWarSummary* findSASGameRecordWar(TeamTypes eFirst, TeamTypes eSecond)
++{
++	TeamTypes eTeamA;
++	TeamTypes eTeamB;
++	if (!getSASGameRecordWarPair(eFirst, eSecond, eTeamA, eTeamB))
++		return NULL;
++	for (size_t iI = 0; iI < g_aSASGameRecordWars.size(); iI++)
++	{
++		SASGameRecordWarSummary& kWar = g_aSASGameRecordWars[iI];
++		if (kWar.eTeamA == eTeamA && kWar.eTeamB == eTeamB)
++			return &kWar;
++	}
++	return NULL;
++}
++
++static void refreshSASGameRecordWarSuccess(SASGameRecordWarSummary& kWar)
++{
++	if (kWar.eTeamA < 0 || kWar.eTeamB < 0)
++		return;
++	kWar.iWarSuccessA = GET_TEAM(kWar.eTeamA).AI_getWarSuccess(kWar.eTeamB).round();
++	kWar.iWarSuccessB = GET_TEAM(kWar.eTeamB).AI_getWarSuccess(kWar.eTeamA).round();
++}
++
++// <!-- custom: Release builds remove FAssert expressions entirely. Calling getSASGameRecordWarPair only from an assertion left both normalized teams at NO_TEAM and reproducibly crashed turn-110 reconciliation; validate in executed code and return NULL instead. (GPT-5.6-Sol) -->
++static SASGameRecordWarSummary* addSASGameRecordWar(TeamTypes eFirst, TeamTypes eSecond, bool bStartKnown, TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, char const* szStartCause, bool bPrimary)
++{
++	TeamTypes eTeamA;
++	TeamTypes eTeamB;
++	if (!getSASGameRecordWarPair(eFirst, eSecond, eTeamA, eTeamB))
++		return NULL;
++	SASGameRecordWarSummary* pExisting = findSASGameRecordWar(eTeamA, eTeamB);
++	if (pExisting != NULL)
++		return pExisting;
++	g_aSASGameRecordWars.push_back(SASGameRecordWarSummary());
++	SASGameRecordWarSummary& kWar = g_aSASGameRecordWars.back();
++	kWar.eTeamA = eTeamA;
++	kWar.eTeamB = eTeamB;
++	kWar.eDeclarer = eDeclarer;
++	kWar.eTarget = eTarget;
++	kWar.eInitialWarPlan = eWarPlan;
++	kWar.szStartCause = szStartCause;
++	kWar.bStartKnown = bStartKnown;
++	kWar.bPrimary = bPrimary;
++	kWar.iStartTurn = (bStartKnown ? GC.getGame().getGameTurn() : -1);
++	kWar.iObservedStartTurn = GC.getGame().getGameTurn();
++	refreshSASGameRecordWarSuccess(kWar);
++	kWar.iWarSuccessStartA = kWar.iWarSuccessA;
++	kWar.iWarSuccessStartB = kWar.iWarSuccessB;
++	return &kWar;
++}
++
++static void initializeSASGameRecordWarsFromLoadedSave()
++{
++	for (int iA = 0; iA < MAX_CIV_TEAMS; iA++)
++	{
++		TeamTypes const eTeamA = (TeamTypes)iA;
++		if (!GET_TEAM(eTeamA).isAlive())
++			continue;
++		for (int iB = iA + 1; iB < MAX_CIV_TEAMS; iB++)
++		{
++			TeamTypes const eTeamB = (TeamTypes)iB;
++			if (GET_TEAM(eTeamB).isAlive() && GET_TEAM(eTeamA).isAtWar(eTeamB))
++				addSASGameRecordWar(eTeamA, eTeamB, false, NO_TEAM, NO_TEAM, NO_WARPLAN, "PREEXISTING_ON_LOAD", false);
++		}
++	}
++}
++
++static void logSASGameRecordWarSummary(SASGameRecordWarSummary& kWar, char const* szStatus, char const* szTrigger, int iSummaryTurn, int iWarSuccessA, int iWarSuccessB, bool bCapitulate, TeamTypes eBroker, bool bRandomEvent, bool bReparations)
++{
++	kWar.iWarSuccessA = iWarSuccessA;
++	kWar.iWarSuccessB = iWarSuccessB;
++	bool const bEnded = (strcmp(szStatus, "ENDED") == 0);
++	bool const bStateReconciliation = (strcmp(szTrigger, "STATE_RECONCILIATION") == 0);
++	char const* szEndCause = (!bEnded ? "-" : (bStateReconciliation ? "STATE_CHANGE" : (bCapitulate ? "CAPITULATION" : (bRandomEvent ? "RANDOM_EVENT" : (eBroker != NO_TEAM ? "BROKERED_PEACE" : "PEACE")))));
++	int const iElapsedTurns = (kWar.bStartKnown ? iSummaryTurn - kWar.iStartTurn : -1);
++	int const iObservedTurns = iSummaryTurn - kWar.iObservedStartTurn;
++	logSASGameRecord("GAME_RECORD_WAR_SUMMARY turn=%d status=%s trigger=%s teamA=%d teamB=%d startKnown=%d startTurn=%d observedStartTurn=%d endTurn=%d elapsedTurns=%d observedTurns=%d declarerTeam=%d targetTeam=%d startCause=%s initialWarPlan=%s primary=%d endCause=%s brokerTeam=%d reparations=%d warSuccessObservedStartA=%d warSuccessObservedStartB=%d warSuccessEndA=%d warSuccessEndB=%d warSuccessObservedGainA=%+d warSuccessObservedGainB=%+d unitsDestroyedByA=%d unitsDestroyedByB=%d unitProductionCostDestroyedByA=%d unitProductionCostDestroyedByB=%d cityPlotWinsA=%d cityPlotWinsB=%d citiesCapturedByA=%d citiesCapturedByB=%d populationCapturedByA=%d populationCapturedByB=%d",
++			iSummaryTurn, szStatus, szTrigger, kWar.eTeamA, kWar.eTeamB,
++			kWar.bStartKnown, kWar.iStartTurn, kWar.iObservedStartTurn, bEnded ? iSummaryTurn : -1, iElapsedTurns, iObservedTurns,
++			kWar.eDeclarer, kWar.eTarget, kWar.szStartCause.GetCString(), getSASWarPlanType(kWar.eInitialWarPlan), kWar.bPrimary,
++			szEndCause, eBroker, bReparations, kWar.iWarSuccessStartA, kWar.iWarSuccessStartB, kWar.iWarSuccessA, kWar.iWarSuccessB, kWar.iWarSuccessA - kWar.iWarSuccessStartA, kWar.iWarSuccessB - kWar.iWarSuccessStartB,
++			kWar.iUnitsDestroyedByA, kWar.iUnitsDestroyedByB, kWar.iProductionDestroyedByA, kWar.iProductionDestroyedByB, kWar.iCityPlotWinsA, kWar.iCityPlotWinsB,
++			kWar.iCitiesCapturedByA, kWar.iCitiesCapturedByB, kWar.iPopulationCapturedByA, kWar.iPopulationCapturedByB);
++}
++
++static void logSASGameRecordOngoingWarSummaries(char const* szReason)
++{
++	int const iGameTurn = GC.getGame().getGameTurn();
++	for (size_t iI = 0; iI < g_aSASGameRecordWars.size(); iI++)
++	{
++		SASGameRecordWarSummary& kWar = g_aSASGameRecordWars[iI];
++		if (kWar.iLastOngoingSummaryTurn == iGameTurn)
++			continue;
++		refreshSASGameRecordWarSuccess(kWar);
++		logSASGameRecordWarSummary(kWar, "ONGOING", szReason, iGameTurn, kWar.iWarSuccessA, kWar.iWarSuccessB, false, NO_TEAM, false, false);
++		kWar.iLastOngoingSummaryTurn = iGameTurn;
++	}
++}
++
++static void reconcileSASGameRecordWars()
++{
++	for (size_t iI = 0; iI < g_aSASGameRecordWars.size();)
++	{
++		SASGameRecordWarSummary& kWar = g_aSASGameRecordWars[iI];
++		if (GET_TEAM(kWar.eTeamA).isAtWar(kWar.eTeamB))
++		{
++			iI++;
++			continue;
++		}
++		refreshSASGameRecordWarSuccess(kWar);
++		logSASGameRecordWarSummary(kWar, "ENDED", "STATE_RECONCILIATION", GC.getGame().getGameTurn(), kWar.iWarSuccessA, kWar.iWarSuccessB, false, NO_TEAM, false, false);
++		g_aSASGameRecordWars.erase(g_aSASGameRecordWars.begin() + iI);
++	}
++}
++
+ static int getSASGameRecordDelta(bool bValid, int iCurrent, int iPrevious)
+ {
+ 	return bValid ? iCurrent - iPrevious : 0;
+@@ -656,6 +822,7 @@ static void resetSASGameRecordState()
+ 		g_akSASGameRecordTeamPrevious[iI].bContactsValid = false;
+ 	}
+ 	g_kSASGameRecordGlobalPrevious.bValid = false;
++	g_aSASGameRecordWars.clear();
+ 	g_iSASGameRecordLastFullSnapshotTurn = -1;
+ 	g_iSASGameRecordFlowStartTurn = GC.getGame().getGameTurn();
+ 	g_iSASGameRecordPendingPlotTurn = -1;
+@@ -965,7 +1132,15 @@ void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState c
+ 	if (bDetailed)
+ 	{
+ 		logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
+-				GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(), getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()), getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()), getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()), getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()), getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()), kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD), kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION), kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
++				GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
++				getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
++				getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
++				getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
++				getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
++				getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
++				kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
++				kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
++				kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
+ 	}
+ }
+ 
+@@ -4139,6 +4314,8 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
+ {
+ 	CvGame const& kGame = GC.getGame();
++	// <!-- custom: Team death and other state transitions can terminate a war without CvTeam::makePeace. Reconcile before snapshots so such wars still receive one final synthetic summary. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
+ 	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
+ 			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
+ 	logSASGameRecordRunStatus(szReason);
+@@ -4373,6 +4550,27 @@ void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner,
+ 		if (bTrade)
+ 			g_aiSASGameRecordCitiesTradedOut[eOldOwner]++;
+ 	}
++	// <!-- custom: Attribute a conquest to its active team-pair war so the final summary distinguishes territorial results from battle losses and abstract war success. (GPT-5.6-Sol) -->
++	if (bConquest && eOldOwner >= 0 && eOldOwner < MAX_PLAYERS && eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
++	{
++		TeamTypes const eOldTeam = GET_PLAYER(eOldOwner).getTeam();
++		TeamTypes const eNewTeam = GET_PLAYER(eNewOwner).getTeam();
++		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eOldTeam, eNewTeam);
++		if (pWar != NULL)
++		{
++			if (eNewTeam == pWar->eTeamA)
++			{
++				pWar->iCitiesCapturedByA++;
++				pWar->iPopulationCapturedByA += pCity->getPopulation();
++			}
++			else
++			{
++				pWar->iCitiesCapturedByB++;
++				pWar->iPopulationCapturedByB += pCity->getPopulation();
++			}
++			refreshSASGameRecordWarSuccess(*pWar);
++		}
++	}
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
+ 			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
+ 	if (gGameRecordLogLevel >= 2)
+@@ -4388,6 +4586,7 @@ void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanT
+ 	CvTeam const& kTarget = GET_TEAM(eTarget);
+ 	CvTeamAI const& kTargetAI = GET_TEAM(eTarget);
+ 	char const* szCause = (bRandomEvent ? "RANDOM_EVENT" : (eSponsor != NO_PLAYER ? "SPONSORED_WAR" : getSASWarDeclarationCause(eCause)));
++	addSASGameRecordWar(eDeclarer, eTarget, true, eDeclarer, eTarget, eWarPlan, szCause, bPrimaryDoW);
+ 	// <!-- custom: `cause=DIRECT` identifies how war began, not why the AI selected that rival.
+ 	// Preserve the target's exact victory state at declaration time so archived records show whether victory denial was relevant without falsely claiming it was the sole strategic motive. (GPT-5.6-Sol) -->
+ 	int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
+@@ -4404,9 +4603,27 @@ void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanT
+ 			bVictoryDenialContext, iTargetMaxVictoryStage, iTargetSpaceVictoryStage, iTargetSpaceshipParts, iTargetSpaceshipPartsPercent, iTargetVictoryCountdown);
+ }
+ 
+-void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam)
++// <!-- custom: Added final war-success and peace-context parameters because those details are no longer recoverable after CvTeam::makePeace finishes. (GPT-5.6-Sol) -->
++void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAWarSuccess, int iTeamBWarSuccess, bool bCapitulate, TeamTypes eBroker, bool bRandomEvent, bool bReparations)
+ {
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_ENDED teamA=%d teamB=%d teamAWarsAfter=%d teamBWarsAfter=%d", GC.getGame().getGameTurn(), eTeam, eOtherTeam, GET_TEAM(eTeam).getNumWars(false), GET_TEAM(eOtherTeam).getNumWars(false));
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_ENDED teamA=%d teamB=%d teamAWarsAfter=%d teamBWarsAfter=%d capitulation=%d brokerTeam=%d randomEvent=%d reparations=%d teamAWarSuccess=%d teamBWarSuccess=%d",
++			GC.getGame().getGameTurn(), eTeam, eOtherTeam, GET_TEAM(eTeam).getNumWars(false), GET_TEAM(eOtherTeam).getNumWars(false), bCapitulate, eBroker, bRandomEvent, bReparations, iTeamAWarSuccess, iTeamBWarSuccess);
++	SASGameRecordWarSummary* pWar = findSASGameRecordWar(eTeam, eOtherTeam);
++	if (pWar == NULL)
++		pWar = addSASGameRecordWar(eTeam, eOtherTeam, false, NO_TEAM, NO_TEAM, NO_WARPLAN, "UNOBSERVED_START", false);
++	if (pWar == NULL)
++		return;
++	int const iWarSuccessA = (eTeam == pWar->eTeamA ? iTeamAWarSuccess : iTeamBWarSuccess);
++	int const iWarSuccessB = (eTeam == pWar->eTeamA ? iTeamBWarSuccess : iTeamAWarSuccess);
++	logSASGameRecordWarSummary(*pWar, "ENDED", "MAKE_PEACE", GC.getGame().getGameTurn(), iWarSuccessA, iWarSuccessB, bCapitulate, eBroker, bRandomEvent, bReparations);
++	for (size_t iI = 0; iI < g_aSASGameRecordWars.size(); iI++)
++	{
++		if (&g_aSASGameRecordWars[iI] == pWar)
++		{
++			g_aSASGameRecordWars.erase(g_aSASGameRecordWars.begin() + iI);
++			break;
++		}
++	}
+ }
+ 
+ void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, bool bWar, int iOldStateCounter)
+@@ -4608,6 +4825,12 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
+ 	// <!-- custom: Victory can be reported before the ordinary end-turn hook. Flush this turn's buffered map history first so the final snapshot does not precede its last plot changes or map revelation. (GPT-5.6-Sol) -->
+ 	if (gGameRecordLogLevel >= 2) flushSASGameRecordTurnChanges(GC.getGame().getGameTurn());
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s", GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
++	// <!-- custom: A victory can end the run with wars still active; preserve their observed results without falsely marking them as completed wars. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2)
++	{
++		reconcileSASGameRecordWars();
++		logSASGameRecordOngoingWarSummaries("VICTORY");
++	}
+ 	// <!-- custom: Periodic snapshots could stop several turns before victory, leaving every civilization's exact final state unknown. Force one complete marked snapshot now; the ordinary end-turn hook suppresses a duplicate on the same turn. (GPT-5.6-Sol) -->
+ 	logSASGameRecordSnapshot(GC.getGame().getGameTurn(), "victory");
+ }
+@@ -4619,6 +4842,8 @@ void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer)
+ 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PLAYER_ELIMINATED player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d eliminatedPlayers=%s",
+ 			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(), kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), getSASGameRecordEliminatedPlayers().GetCString());
++	// <!-- custom: If this eliminated the team's last player, close its active war summaries on the exact elimination turn instead of waiting for the next periodic snapshot. (GPT-5.6-Sol) -->
++	reconcileSASGameRecordWars();
+ 	logSASGameRecordRunStatus("playerEliminated");
+ }
+ 
+@@ -4641,6 +4866,12 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
+ 	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d",
+ 			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus);
++	// <!-- custom: Manual or scheduled autoplay completion is also a useful record boundary even when the game and its wars continue. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2 && iOldValue > 0 && iNewValue <= 0)
++	{
++		reconcileSASGameRecordWars();
++		logSASGameRecordOngoingWarSummaries("AUTOPLAY_ENDED");
++	}
+ 	logSASGameRecordRunStatus(szAction);
+ }
+ 
+@@ -4911,6 +5142,7 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 	PlayerTypes eLoser = pLoser->getOwner();
+ 	CvPlot const* pPlot = pLoser->plot();
+ 	const bool bCityPlot = (pPlot != NULL && pPlot->isCity());
++	int const iLoserProductionNeeded = (eLoser >= 0 && eLoser < MAX_PLAYERS ? GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType()) : 0);
+ 	if (eWinner >= 0 && eWinner < MAX_PLAYERS)
+ 	{
+ 		g_aiSASGameRecordBattleWins[eWinner]++;
+@@ -4918,7 +5150,7 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 		SASGameRecordPlayerFlow& kWinnerFlow = g_akSASGameRecordPlayerFlow[eWinner];
+ 		kWinnerFlow.iCombatWins++;
+ 		if (eLoser >= 0 && eLoser < MAX_PLAYERS)
+-			kWinnerFlow.iEnemyProductionNeededDestroyed += GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType());
++			kWinnerFlow.iEnemyProductionNeededDestroyed += iLoserProductionNeeded;
+ 		if (bCityPlot)
+ 		{
+ 			g_aiSASGameRecordCityBattleWins[eWinner]++;
+@@ -4932,7 +5164,7 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 		g_aiSASGameRecordTotalBattleLosses[eLoser]++;
+ 		SASGameRecordPlayerFlow& kLoserFlow = g_akSASGameRecordPlayerFlow[eLoser];
+ 		kLoserFlow.iCombatLosses++;
+-		kLoserFlow.iOwnProductionNeededLost += GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType());
++		kLoserFlow.iOwnProductionNeededLost += iLoserProductionNeeded;
+ 		if (bCityPlot)
+ 		{
+ 			g_aiSASGameRecordCityBattleLosses[eLoser]++;
+@@ -4940,6 +5172,29 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 			kLoserFlow.iCityPlotLosses++;
+ 		}
+ 	}
++	// <!-- custom: Keep battle aggregates scoped to the active war between the combatants' teams; this avoids charging third-party or Barbarian losses to another simultaneous war. (GPT-5.6-Sol) -->
++	if (eWinner >= 0 && eWinner < MAX_PLAYERS && eLoser >= 0 && eLoser < MAX_PLAYERS)
++	{
++		TeamTypes const eWinnerTeam = GET_PLAYER(eWinner).getTeam();
++		TeamTypes const eLoserTeam = GET_PLAYER(eLoser).getTeam();
++		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eWinnerTeam, eLoserTeam);
++		if (pWar != NULL)
++		{
++			if (eWinnerTeam == pWar->eTeamA)
++			{
++				pWar->iUnitsDestroyedByA++;
++				pWar->iProductionDestroyedByA += iLoserProductionNeeded;
++				if (bCityPlot) pWar->iCityPlotWinsA++;
++			}
++			else
++			{
++				pWar->iUnitsDestroyedByB++;
++				pWar->iProductionDestroyedByB += iLoserProductionNeeded;
++				if (bCityPlot) pWar->iCityPlotWinsB++;
++			}
++			refreshSASGameRecordWarSuccess(*pWar);
++		}
++	}
+ 	if (pLoser->getLeaderUnitType() != NO_UNIT)
+ 	{
+ 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.h b/CvGameCoreDLL/SASGameRecordLog.h
+index 2e09ecbaf..61a5a3105 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.h
++++ b/CvGameCoreDLL/SASGameRecordLog.h
+@@ -44,7 +44,8 @@ void logSASGameRecordCityBuilt(CvCity const* pCity);
+ void logSASGameRecordCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
+ void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade);
+ void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, bool bNewDiplo, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause);
+-void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam);
++// <!-- custom: Added the pre-reset war-success and peace-context parameters so synthetic war summaries retain the final result before Base AdvCiv's AI_postMakePeace clears it. (GPT-5.6-Sol) -->
++void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAWarSuccess, int iTeamBWarSuccess, bool bCapitulate, TeamTypes eBroker, bool bRandomEvent, bool bReparations);
+ void logSASGameRecordTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot);
+ void logSASGameRecordPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
+ void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
+
+diff --git a/README.md b/README.md
+index 63b86d03f..38158b361 100644
+--- a/README.md
++++ b/README.md
+@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SAS game record log
+ 
+-`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b73de79e5..e06f6e58e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -163,7 +163,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+-- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won. (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use. (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options.
++- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won.
++- (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
++- (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options. (Requires AdvCiv-SAS 6103+) It also synthesizes one summary for every war between civilization teams, including declaration and peace context, elapsed turns, war-success changes, units destroyed and their total production cost, city-plot battle wins, and cities/population captured. Wars already active when a save is loaded are explicitly partial, while wars still active at victory or autoplay end remain marked ongoing rather than being misreported as peace. A full turn-474 test matched all 115 declarations to exactly 91 ordinary-peace summaries, 4 capitulations, 13 state-change/elimination summaries, and 7 wars still ongoing at victory.
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=40383

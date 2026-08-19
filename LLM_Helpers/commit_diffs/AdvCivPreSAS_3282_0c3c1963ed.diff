@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3282
+# Commit: 0c3c1963edf00b70d16e7ea9fd7385c3e73f4967
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b1128b818abf4d3763ae8c297a313f70da8f22f4
+# Title: Fewer free wins against Barbarians
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	5	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+1	6	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 5f546b055..d1c38f668 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -12,7 +12,8 @@
+ 			<Type>HANDICAP_SETTLER</Type>
+ 			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
+ 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
+-			<iFreeWinsVsBarbs>5</iFreeWinsVsBarbs>
++			<!-- advc.251: was 5 -->
++			<iFreeWinsVsBarbs>4</iFreeWinsVsBarbs>
+ 			<iAnimalAttackProb>25</iAnimalAttackProb>
+ 			<iStartingLocPercent>10</iStartingLocPercent>
+ 			<!-- advc.250c: was 150 -->
+@@ -190,7 +191,8 @@
+ 			<Type>HANDICAP_CHIEFTAIN</Type>
+ 			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
+ 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
+-			<iFreeWinsVsBarbs>4</iFreeWinsVsBarbs>
++			<!-- advc.251: was 4 -->
++			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
+ 			<iAnimalAttackProb>50</iAnimalAttackProb>
+ 			<iStartingLocPercent>20</iStartingLocPercent>
+ 			<!-- advc.250c: was 130 -->
+@@ -341,7 +343,8 @@
+ 			<Type>HANDICAP_WARLORD</Type>
+ 			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
+ 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
+-			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
++			<!-- advc.251: was 3 -->
++			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
+ 			<iAnimalAttackProb>75</iAnimalAttackProb>
+ 			<!-- advc.108b: was 30 -->
+ 			<iStartingLocPercent>35</iStartingLocPercent>
+@@ -466,7 +469,8 @@
+ 			<Type>HANDICAP_NOBLE</Type>
+ 			<Description>TXT_KEY_HANDICAP_NOBLE</Description>
+ 			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
+-			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
++			<!-- advc.251: was 2 -->
++			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
+ 			<iAnimalAttackProb>85</iAnimalAttackProb>
+ 			<!-- advc.108b: was 40 -->
+ 			<iStartingLocPercent>49</iStartingLocPercent>
+@@ -587,7 +591,8 @@
+ 			<Type>HANDICAP_PRINCE</Type>
+ 			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
+ 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
+-			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
++			<!-- advc.251: was 1 -->
++			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+ 			<iAnimalAttackProb>90</iAnimalAttackProb>
+ 			<!-- advc.108b: was 50 -->
+ 			<iStartingLocPercent>55</iStartingLocPercent>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 58f09f6af..901b21470 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8319,14 +8319,9 @@ void CvPlayer::changeCitiesLost(int iChange)
+ 	m_iCitiesLost = (m_iCitiesLost + iChange);
+ }
+ 
+-// advc:
++// advc: Wrapper to allow game options to disable the free wins
+ int CvPlayer::getFreeWinsVsBarbs() const
+ {
+-	if (GC.getGame().isOption(GAMEOPTION_SPAH) || // advc.250b
+-		GC.getGame().isOption(GAMEOPTION_RISE_FALL)) // advc.700
+-	{
+-		return 0;
+-	}
+ 	// Cut from CvUnit::getDefenderCombatValues
+ 	return GC.getInfo(getHandicapType()).getFreeWinsVsBarbs();
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2874

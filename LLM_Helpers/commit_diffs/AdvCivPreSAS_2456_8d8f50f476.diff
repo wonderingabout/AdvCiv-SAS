@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2456
+# Commit: 8d8f50f476284111ab882d9b1b9db8b007a96d1b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5726d6177dcbda9ec439a7d82fed5423925cbcf3
+# Title: Minor refactoring, comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CityPlotIterator.h
+1	1	CvGameCoreDLL/CvEnums.h
+12	9	CvGameCoreDLL/CvInfoEnums.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlot.cpp
+4	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CityPlotIterator.h b/CvGameCoreDLL/CityPlotIterator.h
+index 52fe2d3bb..cee6d7dc2 100644
+--- a/CvGameCoreDLL/CityPlotIterator.h
++++ b/CvGameCoreDLL/CityPlotIterator.h
+@@ -8,7 +8,7 @@
+ #include "CvMap.h"
+ #include "CvCity.h"
+ 
+-/*  Iterator over the CvPlot objects in the city radius around a city plot in the center.
++/*  Iterator over the CvPlot objects in the city radius around a plot in the center.
+ 	NULL plots - plots whose coordinates are past the edges of the map - are skipped.
+ 	Dereferencing the iterator yields a CvPlot reference. For accessing the city plot id
+ 	(see aaiXYCityPlot in CvGlobals::init), use the currID function.
+@@ -20,7 +20,7 @@
+ 	- Only include plots that the center city can work (CvPlot::getWorkingCity).
+ 	- Only include plots that the center city is currently working (CvCity::isWorkingPlot).
+ 	- Randomize the order of the plot and plot id (currID) sequence through a
+-	  CvRandom object. Otherwise, the plot sequence is ordered by ascending plot id. */
++	  CvRandom object. Otherwise, the sequence is ordered by ascending plot id. */
+ enum WorkingPlotTypes
+ {
+ 	ANY_CITY_PLOT,
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 7408b10d4..b2f0e1ebd 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2254,7 +2254,7 @@ ENUM_START(CityPlot, CITYPLOT)
+ 	NUM_INNER_PLOTS = 9,
+ 	LAST_CITY_PLOT = 20,
+ ENUM_END(CityPlot, CITYPLOT)
+-#define NUM_CITY_PLOTS (int)NUM_CITYPLOT_TYPES
++#define NUM_CITY_PLOTS ((int)NUM_CITYPLOT_TYPES)
+ 
+ #define DO_FOR_EACH_FALSE_FRIEND(DO) \
+ 	DO(Player,Team) \
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index e0cfc0a2c..53c1d6a45 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -131,7 +131,7 @@ static inline T operator-(T minuend, T subtrahend)
+ 	DO(CultureLevel, CULTURELEVEL) \
+ 	DO(CivicOption, CIVICOPTION)
+ 
+-// Number of instances not known at compile time; might be greater than MAX_CHAR.
++// Number of instances not known at compile time; can be greater than MAX_CHAR.
+ #define DO_FOR_EACH_BIG_DYN_INFO_TYPE(DO) \
+ 	/* getInfo function exported */ \
+ 	DO(Color, COLOR) \
+@@ -256,16 +256,16 @@ static inline T operator-(T minuend, T subtrahend)
+ #define NUM_ENUM_TYPES(INFIX) NUM_##INFIX##_TYPES
+ #define NO_ENUM_TYPE(SUFFIX) NO_##SUFFIX = -1
+ 
+-// (See SET_NONXML_ENUM_LENGTH in EnumMap.h about the bAllowForEach parameter)
++// (See SET_NONXML_ENUM_LENGTH in EnumMap.h about the bAllowFOR_EACH parameter)
+ #define SET_ENUM_LENGTH_STATIC(Name, INFIX) \
+-	__forceinline Name##Types getEnumLength(Name##Types, bool bAllowForEach = true) \
++	__forceinline Name##Types getEnumLength(Name##Types, bool bAllowFOR_EACH = true) \
+ 	{ \
+ 		return NUM_ENUM_TYPES(INFIX); \
+ 	}
+ /*  This gets used in CvGlobals.h. (I wanted to do it in MAKE_INFO_ENUM, which is
+ 	used in CvEnums.h, but that lead to a circular dependency.) */
+ #define SET_ENUM_LENGTH(Name, PREFIX) \
+-	__forceinline Name##Types getEnumLength(Name##Types, bool bAllowForEach = true) \
++	__forceinline Name##Types getEnumLength(Name##Types, bool bAllowFOR_EACH = true) \
+ 	{ \
+ 		return static_cast<Name##Types>(gGlobals.getNum##Name##Infos()); \
+ 	}
+@@ -293,13 +293,16 @@ SET_ENUM_LENGTH_STATIC(Name, PREFIX)
+ SET_ENUM_LENGTH_STATIC(Name, PREFIX)
+ // (Let's worry about #ifdef _USRDLL only when the source of the EXE is released, i.e. probably never.)
+ 
+-template<typename E>
+-inline void assertEnumBounds(E eIndex)
++namespace info_enum_detail
+ {
+-	FAssertBounds(0, getEnumLength(eIndex), eIndex);
+-}
++	template<typename E>
++	inline void assertEnumBounds(E eIndex)
++	{
++		FAssertBounds(0, getEnumLength(eIndex), eIndex);
++	}
++};
+ #ifdef FASSERT_ENABLE
+-#define FAssertEnumBounds(eIndex) assertEnumBounds(eIndex)
++#define FAssertEnumBounds(eIndex) info_enum_detail::assertEnumBounds(eIndex)
+ #else
+ #define FAssertEnumBounds(eIndex) (void)0
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ad3082646..93c0209bc 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6038,7 +6038,7 @@ int CvPlayer::calculateInflatedCosts() const
+ 	PROFILE_FUNC();
+ 
+ 	int iCosts = calculatePreInflatedCosts();
+-	iCosts *= std::max(0, (calculateInflationRate() + 100));
++	iCosts *= std::max(0, calculateInflationRate() + 100);
+ 	iCosts /= 100;
+ 	return iCosts;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d99881b3a..fdc199125 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -706,9 +706,9 @@ void CvPlot::forceBumpUnits()
+ 	}
+ } // K-Mod end
+ 
+-// K-Mod. Added bBomb argument.
+-// bBomb signals that the explosion should damage units, buildings, and city population.
+-// (I've also tidied up the code a little bit)
++/*	K-Mod. Added bBomb argument.
++	bBomb signals that the explosion should damage units, buildings, and city population.
++	(I've also tidied up the code a little bit) */
+ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ {
+ 	// <advc.opt>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8d1d903eb..79841a6d2 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5748,8 +5748,10 @@ int CvUnit::getSpyInterceptPercent(TeamTypes eTargetTeam, bool bMission) const
+ 		const CvTeam& kTargetTeam = GET_TEAM(eTargetTeam);
+ 
+ 		int iPopScale = 5 * GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities();
+-		int iTargetPoints = 10 * kTargetTeam.getEspionagePointsEver() / std::max(1, iPopScale + kTargetTeam.getTotalPopulation(false));
+-		int iOurPoints = 10 * kTeam.getEspionagePointsEver() / std::max(1, iPopScale + kTeam.getTotalPopulation(false));
++		int iTargetPoints = 10 * kTargetTeam.getEspionagePointsEver() /
++				std::max(1, iPopScale + kTargetTeam.getTotalPopulation(false));
++		int iOurPoints = 10 * kTeam.getEspionagePointsEver() /
++				std::max(1, iPopScale + kTeam.getTotalPopulation(false));
+ 		iSuccess += iESPIONAGE_INTERCEPT_SPENDING_MAX * iTargetPoints / std::max(1, iTargetPoints + iOurPoints);
+ 	}
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 96ede7118..c1dde2648 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1228,7 +1228,7 @@ template<> struct EnumMapGetDefault<PlotNumTypes> {
+ 	by adding a dummy call parameter. The getEnumLength functions in CvEnums.h
+ 	also have that parameter - but, there, it's optional. */
+ #define SET_NONXML_ENUM_LENGTH(TypeName, eLength) \
+-	__forceinline TypeName getEnumLength(TypeName, bool bAllowForEach) { return eLength; } \
++	__forceinline TypeName getEnumLength(TypeName, bool bAllowFOR_EACH) { return eLength; } \
+ 	template <> struct EnumMapGetDefault<TypeName> \
+ 	{ \
+ 		enum { \
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=6711

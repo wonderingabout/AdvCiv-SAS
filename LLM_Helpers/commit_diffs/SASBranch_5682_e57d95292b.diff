@@ -1,0 +1,140 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5682
+# Commit: e57d95292b28ef9270e8068c69e6e5b68725c690
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e9d0f2aab222d6febc61955c69c737b807786b28
+# Title: expand most sevopedia chart categories - (to better support upscaled text, and except for speeds category that is tight and has its own logic) - upscale "Wai...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+3	6	Assets/Python/Screens/CvMainInterface.py
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+0	1	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index a576185ab..e1e75d13d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -27,7 +27,7 @@ class SevoPediaEraChart:
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+ 		self.W_ICON = CHART_TABLE_W_ICON
+-		self.W_FIELD = 210
++		self.W_FIELD = 290
+ 		self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
+ 		if self.TABLE_FILL_PERCENT <= 0:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index 77f730792..ff288550c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -29,7 +29,7 @@ class SevoPediaHandicapChart:
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+ 		self.W_ICON = CHART_TABLE_W_ICON
+-		self.W_FIELD = 290
++		self.W_FIELD = 380
+ 		self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
+ 		if self.TABLE_FILL_PERCENT <= 0:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index 71f2fabee..31c2c9593 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -26,7 +26,7 @@ class SevoPediaWorldSizeChart:
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+ 		self.W_ICON = CHART_TABLE_W_ICON
+-		self.W_FIELD = 210
++		self.W_FIELD = 280
+ 		self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT")
+ 		if self.TABLE_FILL_PERCENT <= 0:
+@@ -332,7 +332,7 @@ class SevoPediaWorldSizeChart:
+ 			if iDefaultPlayers > 18:
+ 				parsed_data[world_type]["RecommendedDLL"] = "48 civs"
+ 			else:
+-				parsed_data[world_type]["RecommendedDLL"] = "Base"
++				parsed_data[world_type]["RecommendedDLL"] = "18 civs"
+ 
+ 		header = []
+ 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index f4591da82..66f647e31 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -764,19 +764,16 @@ class CvMainInterface:
+ 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
+ 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+-		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+-		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+ 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+ 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
+ 		self.szBuildFilterTooltipNational = "TXT_KEY_BUILDING_FILTER_NATIONAL"
+ 		self.szBuildFilterTooltipWorld = "TXT_KEY_BUILDING_FILTER_WORLD"
+ 		#
+-		self.szTextWaiting = localText.getText("SYSTEM_WAITING", ())
++		# <!-- custom: use LABEL for waiting states so "Waiting for other civilizations..." follows main-interface text upscaling/readability. (GPT-5.3-Codex) -->
++		self.szTextWaiting = SAS_FONT_TAG_LABEL + localText.getText("SYSTEM_WAITING", ()) + SAS_FONT_TAG_CLOSE
+ 		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
+-		self.szTextWaitingForYou = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
+-		#
+-		self.szTextDraftText = SAS_FONT_TAG_TINY + localText.getText("TXT_KEY_DRAFT", ()) + SAS_FONT_TAG_CLOSE
++		self.szTextWaitingForYou = SAS_FONT_TAG_LABEL + localText.getText("SYSTEM_WAITING_FOR_YOU", ()) + SAS_FONT_TAG_CLOSE
+ 
+ 		# <advc.092>
+ 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 599717b05..783d0ab3a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -396,7 +396,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accomodate font size 4 (was 65). -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
+-		<iDefineIntVal>71</iDefineIntVal>
++		<iDefineIntVal>80</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
+ 	<Define>
+@@ -415,7 +415,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: set the world size chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT</DefineName>
+-		<iDefineIntVal>76</iDefineIntVal>
++		<iDefineIntVal>85</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS</DefineName>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 9987675c9..2f8cc9091 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1501,4 +1501,3 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>[H1]Cheats (Debug / "chipotle")[\H1][NEWLINE]Source: https://forums.civfanatics.com/threads/all-keyboard-cheats-for-civ-4.664273/[NEWLINE]How to enable cheats: https://forums.civfanatics.com/threads/cheat-code-help-with-the-world-builder.134287/[NEWLINE]To open the Python Console, press ~.[NEWLINE]Source note: none of these cheats work in multiplayer.[NEWLINE]As per source: use with caution.[NEWLINE][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + +[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Free Promotion (selected unit) / Free Culture (+10, selected city)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift + T[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Award Techs and Gold popup[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + Z[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Seeing Everything (debug visibility; also via WorldBuilder)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + Alt + Z[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Switch to the next player[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + Shift + W[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Wonder movie chooser[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + D[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Graphics/debug options popup (includes many actions)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + U[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Debug menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + Shift + F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Hide debug overlay text (after opening Debug Menu)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift + 4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Increase gold by +1000[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift + +[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Add +1 population to selected city[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + Shift + Left Click[COLOR_REVERT][\BOLD][TAB]Insert popup (place unit/city on clicked plot)[NEWLINE]</English>
+ 	</TEXT>
+ </Civ4GameText>
+-
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=8027

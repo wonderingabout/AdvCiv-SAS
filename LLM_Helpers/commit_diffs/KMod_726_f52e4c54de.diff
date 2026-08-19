@@ -1,0 +1,93 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 726
+# Commit: f52e4c54ded25a4e8f9f738eb013791fa7b6f269
+# History segment: K-Mod history
+# Parent used for diff: 0c376d66480530746c0f785629c2b964e3e71c38
+# Title: Made some changes to CvCity::doPlotCultureTimes100 and CvCity::setCultureTimes100 so that it these functions can apply negative culture changes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	4	CvGameCoreDLL/CvCity.cpp
+2	4	CvGameCoreDLL/CvCity.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 76c9b99a4..8ad00a8d7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -937,7 +937,7 @@ void CvCity::doTurn()
+ 	doCulture();
+ 
+ 	//doPlotCulture(false, getOwnerINLINE(), getCommerceRate(COMMERCE_CULTURE));
+-	doPlotCultureTimes100(false, getOwnerINLINE(), getCommerceRateTimes100(COMMERCE_CULTURE)); // K-Mod
++	doPlotCultureTimes100(false, getOwnerINLINE(), getCommerceRateTimes100(COMMERCE_CULTURE), true); // K-Mod
+ 
+ 	doProduction(bAllowNoProduction);
+ 
+@@ -9993,7 +9993,7 @@ void CvCity::setCultureTimes100(PlayerTypes eIndex, int iNewValue, bool bPlots,
+ 	*/
+ 	int iOldValue = getCultureTimes100(eIndex);
+ 
+-	if (iNewValue > iOldValue)
++	if (iNewValue != iOldValue)
+ 	{
+ 		m_aiCulture[eIndex] = iNewValue;
+ 		FAssert(getCultureTimes100(eIndex) >= 0);
+@@ -10008,6 +10008,8 @@ void CvCity::setCultureTimes100(PlayerTypes eIndex, int iNewValue, bool bPlots,
+ 			//doPlotCulture(true, eIndex, (iNewValue-iOldValue)/100);
+ 			doPlotCultureTimes100(true, eIndex, (iNewValue-iOldValue), false);
+ 			// note: this function no longer applies free city culture.
++			// also, note that if a city's culture is decreased to zero, there will probably still be some residual plot culture around the city
++			// this is because the culture level on the way up will be higher than it is on the way down.
+ 		}
+ 	}
+ /*
+@@ -12842,10 +12844,10 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultu
+ 	//const double iB = log((double)iOuterRatio)/iCultureRange;
+ 
+ 	// free culture bonus for cities
+-	iCultureRateTimes100+=(bCityCulture)?600 :0;
++	iCultureRateTimes100+=(bCityCulture && iCultureRateTimes100 > 0)?600 :0;
+ 
+ 	// note, original code had "if (getCultureTimes100(ePlayer) > 0)". I took that part out.
+-	if (eCultureLevel != NO_CULTURELEVEL &&	(iCultureRateTimes100*iScale >= 100 || bCityCulture))
++	if (eCultureLevel != NO_CULTURELEVEL &&	(std::abs(iCultureRateTimes100*iScale) >= 100 || bCityCulture))
+ 	{
+ 		for (int iDX = -iCultureRange; iDX <= iCultureRange; iDX++)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index fdf80d003..dd56a729c 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1266,16 +1266,14 @@ protected:
+ 
+ 	void doGrowth();
+ 	void doCulture();
+-	/* K-Mod, 26/sep/10, Karadoc - added bCityCulture parameter for use with trade route culture */
+-	/* K-Mod, 31/oct/10, Karadoc - replaced doPlotCulture with doPlotCultureTimes100 */
+ 	//void doPlotCulture(bool bUpdate, PlayerTypes ePlayer, int iCultureRate, bool bCityCulture = true);
+-	void doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture = true);
++	void doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture); // K-Mod
++	bool doCheckProduction();
+ 	void doProduction(bool bAllowNoProduction);
+ 	void doDecay();
+ 	void doReligion();
+ 	void doGreatPeople();
+ 	void doMeltdown();
+-	bool doCheckProduction();
+ 
+ 	int getExtraProductionDifference(int iExtra, UnitTypes eUnit) const;
+ 	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3180

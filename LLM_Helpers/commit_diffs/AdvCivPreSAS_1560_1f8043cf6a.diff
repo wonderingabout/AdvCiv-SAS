@@ -1,0 +1,538 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1560
+# Commit: 1f8043cf6afc643f3c96c21d1070123d9369d0d9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 828445bf1df00714cd7db70518c6effbabc49929
+# Title: Minor style/ refactoring changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	21	CvGameCoreDLL/CvPlayerAI.cpp
+59	55	CvGameCoreDLL/CvUnitAI.cpp
+20	21	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0ada6d589..e56392ff8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13210,7 +13210,8 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCity* pCity, PlayerTypes ePlayer) const {
+ 	if(kCityPlot.getCulture(getID()) > kCityPlot.getCulture(ePlayer))
+ 		return DENIAL_NEVER; // Tbd.: This condition is too coarse
+ // <advc.tmp>
+-if(kPlayer.getTeam() == getTeam()||bLib) return NO_DENIAL;
++if(kPlayer.getTeam() == getTeam() || bLib)
++	return NO_DENIAL;
+ return DENIAL_NEVER;
+ // </advc.tmp>
+ 	/*  TOO_MUCH would be nicer than NEVER if on the same team, but these cities
+@@ -13234,7 +13235,7 @@ return DENIAL_NEVER;
+ 	// </advc.122>
+ }
+ 
+-/*  advc.003 (comment): This player pays for the embargo and ePlayer stops trading
++/*  advc (comment): This player pays for the embargo and ePlayer stops trading
+ 	with eTradeTeam. */
+ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer,
+ 		bool bWarTrade) const // advc.104o  // advc.003: style changes
+@@ -26457,29 +26458,25 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 	{
+ 		//Add a city to the list.
+ 		int iBestFoundValue = 0;
+-		CvPlot* pBestFoundPlot = NULL;
++		CvPlot const* pBestFoundPlot = NULL;
+ 
+-		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)  // advc.003: some style changes
+ 		{
+-			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-			if (pLoopPlot->isRevealed(getTeam(), false))
++			CvPlot const& kPlot = *GC.getMapINLINE().plotByIndexINLINE(iI);
++			if (!kPlot.isRevealed(getTeam(), false))
++				continue;
++
++			int iValue = kPlot.getFoundValue(getID(), /* advc.052: */ true);
++			if (iValue > iMinFoundValueThreshold && !AI_isPlotCitySite(kPlot))
+ 			{
+-				int iValue = pLoopPlot->getFoundValue(getID(), /* advc.052: */ true);
+-				if (iValue > iMinFoundValueThreshold)
++				iValue *= std::min(NUM_CITY_PLOTS * 2, kPlot.area()->getNumUnownedTiles()
++						+ 1); /* advc.031: Just b/c all tiles in the area are
++								 owned doesn't mean we can't ever settle there.
++								 Probably an oversight; tagging advc.001. */
++				if (iValue > iBestFoundValue)
+ 				{
+-					if (!AI_isPlotCitySite(*pLoopPlot))
+-					{
+-						iValue *= std::min(NUM_CITY_PLOTS * 2,
+-								pLoopPlot->area()->getNumUnownedTiles()
+-								+ 1); /*  advc.031: Just b/c all tiles in the area
+-								are owned doesn't mean we can't ever settle there.
+-								Probably an oversight; tagging advc.001. */
+-						if (iValue > iBestFoundValue)
+-						{
+-							iBestFoundValue = iValue;
+-							pBestFoundPlot = pLoopPlot;
+-						}
+-					}
++					iBestFoundValue = iValue;
++					pBestFoundPlot = &kPlot;
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 33a8b937c..2c60beae1 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -7060,7 +7060,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+ 		// K-Mod end
+ 
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
++		if (getDamage() > 0)	// extra risk to leaving when wounded
+ 		{
+ 			iOurDefense *= 2;
+ 		}
+@@ -7069,7 +7069,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		{
+ 			if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
+ 			{
+-				if( !bEmpty )
++				if (!bEmpty)
+ 				{
+ 					getGroup()->unloadAll();
+ 				}
+@@ -7151,10 +7151,10 @@ void CvUnitAI::AI_assaultSeaMove()
+ 
+ 	// Plot danger case handled above
+ 
+-	if( hasCargo() && (getUnitAICargo(UNITAI_SETTLE) > 0 || getUnitAICargo(UNITAI_WORKER) > 0) )
++	if (hasCargo() && (getUnitAICargo(UNITAI_SETTLE) > 0 || getUnitAICargo(UNITAI_WORKER) > 0))
+ 	{
+ 		// Dump inappropriate load at first oppurtunity after pick up
+-		if( bCity && (plot()->getOwnerINLINE() == getOwnerINLINE()) )
++		if (bCity && (plot()->getOwnerINLINE() == getOwnerINLINE()))
+ 		{
+ 			getGroup()->unloadAll();
+ 			/* original code
+@@ -7164,7 +7164,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		}
+ 		else
+ 		{
+-			if( !isFull() )
++			if (!isFull())
+ 			{
+ 				if(AI_pickupStranded(NO_UNITAI, 1))
+ 				{
+@@ -7188,10 +7188,10 @@ void CvUnitAI::AI_assaultSeaMove()
+ 	{
+ 		CvCity* pCity = plot()->getPlotCity();
+ 
+-		if( pCity != NULL && (plot()->getOwnerINLINE() == getOwnerINLINE()) ) 
++		if (pCity != NULL && (plot()->getOwnerINLINE() == getOwnerINLINE()) ) 
+ 		{
+ 			// split out galleys from stack of ocean capable ships
+-			if( kOwner.AI_unitImpassableCount(getUnitType()) == 0 && getGroup()->getNumUnits() > 1 )
++			if (kOwner.AI_unitImpassableCount(getUnitType()) == 0 && getGroup()->getNumUnits() > 1)
+ 			{
+ 				//getGroup()->AI_separateImpassable();
+ 				// K-Mod
+@@ -7207,10 +7207,10 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 
+ 			// galleys with upgrade available should get that ASAP
+-			if( kOwner.AI_unitImpassableCount(getUnitType()) > 0 )
++			if (kOwner.AI_unitImpassableCount(getUnitType()) > 0)
+ 			{
+ 				CvCity* pUpgradeCity = getUpgradeCity(false);
+-				if( pUpgradeCity != NULL && pUpgradeCity == pCity )
++				if (pUpgradeCity != NULL && pUpgradeCity == pCity)
+ 				{
+ 					// Wait for upgrade, this unit is top upgrade priority
+ 					getGroup()->pushMission(MISSION_SKIP);
+@@ -7219,22 +7219,22 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 		}
+ 
+-		if( (iCargo > 0) )
++		if (iCargo > 0)
+ 		{
+-			if( pCity != NULL )
++			if (pCity != NULL)
+ 			{
+-				if( (GC.getGameINLINE().getGameTurn() - pCity->getGameTurnAcquired()) <= 1 )
++				if (GC.getGameINLINE().getGameTurn() - pCity->getGameTurnAcquired() <= 1)
+ 				{
+-					if( pCity->getPreviousOwner() != NO_PLAYER )
++					if (pCity->getPreviousOwner() != NO_PLAYER)
+ 					{
+ 						// Just captured city, probably from naval invasion.  If area targets, drop cargo and leave so as to not to be lost in quick counter attack
+-						if( GET_TEAM(getTeam()).countEnemyPowerByArea(plot()->area()) > 0 )
++						if (GET_TEAM(getTeam()).countEnemyPowerByArea(plot()->area()) > 0)
+ 						{
+ 							getGroup()->unloadAll();
+ 
+-							if( iEscorts > 2 )
++							if (iEscorts > 2)
+ 							{
+-								if( getGroup()->countNumUnitAIType(UNITAI_ESCORT_SEA) > 1 && getGroup()->countNumUnitAIType(UNITAI_ATTACK_SEA) > 0 )
++								if (getGroup()->countNumUnitAIType(UNITAI_ESCORT_SEA) > 1 && getGroup()->countNumUnitAIType(UNITAI_ATTACK_SEA) > 0)
+ 								{
+ 									getGroup()->AI_separateAI(UNITAI_ATTACK_SEA);
+ 									getGroup()->AI_separateAI(UNITAI_RESERVE_SEA);
+@@ -7249,14 +7249,14 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 		}
+ 
+-		if( (iCargo > 0) && (iEscorts == 0) )
++		if (iCargo > 0 && iEscorts == 0)
+ 		{
+ 			if (AI_group(UNITAI_ASSAULT_SEA,-1,-1,-1,/*bIgnoreFaster*/true,false,false,/*iMaxPath*/1,false,/*bCargoOnly*/true,false,MISSIONAI_ASSAULT))
+ 			{
+ 				return;
+ 			}
+ 
+-			if( plot()->plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwnerINLINE(), NO_TEAM, PUF_isGroupHead, -1, -1) > 0 )
++			if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwnerINLINE(), NO_TEAM, PUF_isGroupHead, -1, -1) > 0)
+ 			{
+ 				// Loaded but with no escort, wait for escorts in plot to join us
+ 				getGroup()->pushMission(MISSION_SKIP);
+@@ -7264,7 +7264,8 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			if( (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 3) > 0) || (kOwner.AI_getWaterDanger(plot(), 4, false) > 0) )
++			if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 3) > 0 ||
++					kOwner.AI_getWaterDanger(plot(), 4, false) > 0)
+ 			{
+ 				// Loaded but with no escort, wait for others joining us soon or avoid dangerous waters
+ 				getGroup()->pushMission(MISSION_SKIP);
+@@ -7274,9 +7275,9 @@ void CvUnitAI::AI_assaultSeaMove()
+ 
+ 		if (bLandWar)
+ 		{
+-			if ( iCargo > 0 )
++			if (iCargo > 0)
+ 			{
+-				if( (eAreaAIType == AREAAI_DEFENSIVE) || (pCity != NULL && pCity->AI_isDanger()))
++				if (eAreaAIType == AREAAI_DEFENSIVE || (pCity != NULL && pCity->AI_isDanger()))
+ 				{
+ 					// Unload cargo when on defense or if small load of troops and can reach enemy city over land (generally less risky)
+ 					getGroup()->unloadAll();
+@@ -7289,7 +7290,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			{
+ 				getGroup()->AI_separateEmptyTransports();
+ 
+-				if( !(getGroup()->hasCargo()) )
++				if (!getGroup()->hasCargo())
+ 				{
+ 					// this unit was empty group leader
+ 					//getGroup()->pushMission(MISSION_SKIP);
+@@ -7320,17 +7321,17 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		}
+ 		else
+ 		{
+-			if ( (eAreaAIType == AREAAI_ASSAULT) )
++			if (eAreaAIType == AREAAI_ASSAULT)
+ 			{
+-				if( iCargo >= iTargetInvasionSize )
++				if (iCargo >= iTargetInvasionSize)
+ 				{
+ 					bAttack = true;
+ 				}
+ 			}
+ 
+-			if( (eAreaAIType == AREAAI_ASSAULT) || (eAreaAIType == AREAAI_ASSAULT_ASSIST) )
++			if (eAreaAIType == AREAAI_ASSAULT || eAreaAIType == AREAAI_ASSAULT_ASSIST)
+ 			{
+-				if( (bFull && iCargo > cargoSpace()) || (iCargo >= iTargetReinforcementSize) )
++				if ((bFull && iCargo > cargoSpace()) || iCargo >= iTargetReinforcementSize)
+ 				{
+ 					bReinforce = true;
+ 				}
+@@ -7386,19 +7387,19 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			return;
+ 		}
+ 
+-		if( !bFull )
++		if (!bFull)
+ 		{
+-			if( bAttack )
++			if (bAttack)
+ 			{
+ 				eMissionAIType = MISSIONAI_LOAD_ASSAULT;
+-				if( kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0 )
++				if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0)
+ 				{
+ 					// Wait for cargo which will load this turn
+ 					getGroup()->pushMission(MISSION_SKIP);
+ 					return;
+ 				}
+ 			}
+-			else if( kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_ASSAULT) > 0 )
++			else if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_ASSAULT) > 0)
+ 			{
+ 				// Wait for cargo which is on the way
+ 				getGroup()->pushMission(MISSION_SKIP);
+@@ -7406,9 +7407,9 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 		}
+ 
+-		if( !bAttack && !bReinforce )
++		if (!bAttack && !bReinforce)
+ 		{
+-			if ( iCargo > 0 )
++			if (iCargo > 0)
+ 			{
+ 				if (AI_group(UNITAI_ASSAULT_SEA,-1,-1,-1,/*bIgnoreFaster*/true,false,false,/*iMaxPath*/5,false,/*bCargoOnly*/true,false,MISSIONAI_ASSAULT))
+ 				{
+@@ -7430,12 +7431,12 @@ void CvUnitAI::AI_assaultSeaMove()
+ 
+ 	if (!bCity)
+ 	{
+-		if( iCargo >= iTargetInvasionSize )
++		if (iCargo >= iTargetInvasionSize)
+ 		{
+ 			bAttack = true;
+ 		}
+ 
+-		if ((iCargo >= iTargetReinforcementSize) || (bFull && iCargo > cargoSpace()))
++		if (iCargo >= iTargetReinforcementSize || (bFull && iCargo > cargoSpace()))
+ 		{
+ 			bReinforce = true;
+ 		}
+@@ -7443,15 +7444,17 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		CvPlot* pAdjacentPlot = NULL;
+ 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 		{
+-			pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), ((DirectionTypes)iI));
+-			if( pAdjacentPlot != NULL )
++			pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)iI);
++			if (pAdjacentPlot != NULL)
+ 			{
+-				if( iCargo > 0 )
++				if (iCargo > 0)
+ 				{
+ 					CvCity* pAdjacentCity = pAdjacentPlot->getPlotCity();
+-					if( pAdjacentCity != NULL && pAdjacentCity->getOwnerINLINE() == getOwnerINLINE() && pAdjacentCity->getPreviousOwner() != NO_PLAYER )
++					if (pAdjacentCity != NULL && pAdjacentCity->getOwnerINLINE() == getOwnerINLINE() &&
++							pAdjacentCity->getPreviousOwner() != NO_PLAYER)
+ 					{
+-						if( (GC.getGameINLINE().getGameTurn() - pAdjacentCity->getGameTurnAcquired()) < 5 )
++						if (GC.getGameINLINE().getGameTurn() -
++							pAdjacentCity->getGameTurnAcquired() < 5)
+ 						{
+ 							// If just captured city and we have some cargo, dump units in city
+ 							getGroup()->pushMission(MISSION_MOVE_TO, pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE(), 0, false, false, NO_MISSIONAI, pAdjacentPlot);
+@@ -7464,10 +7467,10 @@ void CvUnitAI::AI_assaultSeaMove()
+ 				{
+ 					if (pAdjacentPlot->isOwned() && isEnemy(pAdjacentPlot->getTeam()))
+ 					{
+-						if( pAdjacentPlot->getNumDefenders(getOwnerINLINE()) > 2 )
++						if (pAdjacentPlot->getNumDefenders(getOwnerINLINE()) > 2)
+ 						{
+ 							// if we just made a dropoff in enemy territory, release sea bombard units to support invaders
+-							if ((getGroup()->countNumUnitAIType(UNITAI_ATTACK_SEA) + getGroup()->countNumUnitAIType(UNITAI_RESERVE_SEA)) > 0)
++							if (getGroup()->countNumUnitAIType(UNITAI_ATTACK_SEA) + getGroup()->countNumUnitAIType(UNITAI_RESERVE_SEA) > 0)
+ 							{
+ 								bool bMissionPushed = false;
+ 
+@@ -7486,7 +7489,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 								if (pOldGroup == getGroup() && AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
+ 								{
+ 									// Need to be sure all units can move
+-									if( getGroup()->canAllMove() )
++									if (getGroup()->canAllMove())
+ 									{
+ 										if (AI_retreatToCity(true))
+ 										{
+@@ -7509,9 +7512,9 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		if(iCargo > 0)
+ 		{
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			if( kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0 )
++			if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0)
+ 			{
+-				if( iEscorts < kOwner.AI_getWaterDanger(plot(), 2, false) )
++				if (iEscorts < kOwner.AI_getWaterDanger(plot(), 2, false))
+ 				{
+ 					// Wait for units which are joining our group this turn (hopefully escorts)
+ 					getGroup()->pushMission(MISSION_SKIP);
+@@ -7547,13 +7550,13 @@ void CvUnitAI::AI_assaultSeaMove()
+ 				return;
+ 			}
+ 
+-			if( !(getGroup()->getCargo()) )
++			if (!getGroup()->getCargo())
+ 			{
+ 				AI_barbAttackSeaMove();
+ 				return;
+ 			}
+ 
+-			if( AI_safety() )
++			if (AI_safety())
+ 			{
+ 				return;
+ 			}
+@@ -7571,7 +7574,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 				getGroup()->AI_separateEmptyTransports();
+ 			}
+ 
+-			if( !(getGroup()->hasCargo()) )
++			if (!getGroup()->hasCargo())
+ 			{
+ 				// this unit was empty group leader
+ 				//getGroup()->pushMission(MISSION_SKIP);
+@@ -7604,7 +7607,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 
+ 			// If not enough troops for own invasion, 
+-			if( bReinforce )
++			if (bReinforce)
+ 			{
+ 				if (AI_assaultSeaReinforce())
+ 				{
+@@ -7613,13 +7616,13 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 		}
+ 
+-		if( bNoWarPlans && (iCargo >= iTargetReinforcementSize) )
++		if (bNoWarPlans && iCargo >= iTargetReinforcementSize)
+ 		{
+ 			bAttackBarbarian = true;
+ 
+ 			getGroup()->AI_separateEmptyTransports();
+ 
+-			if( !(getGroup()->hasCargo()) )
++			if (!getGroup()->hasCargo())
+ 			{
+ 				// this unit was empty group leader
+ 				getGroup()->pushMission(MISSION_SKIP);
+@@ -7662,7 +7665,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			return;
+ 		}
+ 	}
+-	else if( !bFull )
++	else if (!bFull)
+ 	{
+ 		bool bHasOneLoad = (getGroup()->getCargo() >= cargoSpace());
+ 
+@@ -7686,7 +7689,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			return;
+ 		}
+ 
+-		if( !bHasCargo )
++		if (!bHasCargo)
+ 		{
+ 			if(AI_pickupStranded(UNITAI_ATTACK_CITY))
+ 			{
+@@ -7703,7 +7706,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 				return;
+ 			}
+ 
+-			if( (getGroup()->countNumUnitAIType(AI_getUnitAIType()) == 1) )
++			if (getGroup()->countNumUnitAIType(AI_getUnitAIType()) == 1)
+ 			{
+ 				// Try picking up any thing
+ 				if(AI_pickupStranded())
+@@ -22722,8 +22725,9 @@ int CvUnitAI::AI_stackOfDoomExtra() const
+ 		mult += 0.225;
+ 	if(kOurTeam.getWarPlanCount(WARPLAN_TOTAL) <= 0)
+ 		mult *= 0.85;
+-	r = ::round(mult * r); // </advc.104p>
+-	return r;
++	r = ::round(mult * r);
++	FAssert(r > 0);
++	return std::max(1, r); // </advc.104p>
+ }
+ 
+ // This function has been significantly modified for K-Mod
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 26f6c1664..a570c1157 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3422,10 +3422,11 @@ void FairPlay::evaluate() {
+ 	if(!they->isHuman() || we->isHuman() ||
+ 			we->AI_getMemoryAttitude(theyId, MEMORY_DECLARED_WAR_ON_FRIEND) < 0)
+ 		return;
+-	CvHandicapInfo& h = GC.getHandicapInfo(g.getHandicapType());
++
+ 	/*  Mostly care about Archery, which has power 6. The Wheel isn't unfair
+ 		(power 4). BW and IW have power 8 and 10. */
+-	/*bool powerTechFound = false;
++	/*CvHandicapInfo& h = GC.getHandicapInfo(g.getHandicapType());
++	bool powerTechFound = false;
+ 	for(int i = 0; i < GC.getNumTechInfos(); i++) {
+ 		if(h.isAIFreeTechs(i) && GC.getTechInfo((TechTypes)i).
+ 				getPowerValue() >= 5) {
+@@ -3444,23 +3445,21 @@ void FairPlay::evaluate() {
+ 		FAssert(trainMod > 0);
+ 		return;
+ 	}
+-	int t = ::round(g.getElapsedGameTurns() / (trainMod / 10000.0));
+ 	double uMinus = 0;
+-	/*  All bets off by turn 100, but, already by turn 50, the cost may
+-		no longer be prohibitive. */
+-	int iTargetTurn = 100;
+-	// Allow earlier aggression on crowded maps
+-	iTargetTurn = ::round(iTargetTurn *
+-			((1 + 1.5 * (g.getRecommendedPlayers() /
+-			(double)g.getCivPlayersEverAlive())) / 2.5));
+-	int iTurnsRemaining = iTargetTurn - t - GC.getEraInfo(startEra).getStartPercent();
+-	if(iTurnsRemaining > 0) {
+-		uMinus = std::pow(iTurnsRemaining / 2.0, 1.28);
+-		if(gameEra != startEra) // The above only matters in the start era
+-			uMinus = 0;
+-	}
+-	// ... but dogpiling remains an issue in the Classical era
+-	if(gameEra > 1)
++	if(gameEra == startEra) {
++		/*  All bets off by turn 100, but, already by turn 50, the cost may
++			no longer be prohibitive. */
++		int iTargetTurn = 100;
++		// Allow earlier aggression on crowded maps
++		iTargetTurn = ::round(iTargetTurn *
++				((1 + 1.5 * (g.getRecommendedPlayers() /
++				(double)g.getCivPlayersEverAlive())) / 2.5));
++		int iElapsed = ::round(g.getElapsedGameTurns() / (trainMod / 10000.0));
++		int iTurnsRemaining = iTargetTurn - iElapsed - GC.getEraInfo(startEra).getStartPercent();
++		if(iTurnsRemaining > 0)
++			uMinus = std::pow(iTurnsRemaining / 2.0, 1.28);
++	}
++	if(gameEra > 1) // Dogpiling remains an issue in the Classical era
+ 		return;
+ 	// Don't dogpile when human has lost cities in the early game
+ 	int citiesBuilt = they->getPlayerRecord()->getNumCitiesBuilt();
+@@ -3487,15 +3486,15 @@ void FairPlay::evaluate() {
+ 	u -= std::max(0, ::round(uMinus));
+ }
+ 
+-int FairPlay::initialMilitaryUnits(PlayerTypes civId) {
++// (no longer used)
++/*int FairPlay::initialMilitaryUnits(PlayerTypes civId) {
+ 
+-	// (this function isn't currently used)
+ 	CvPlayer const& civ = GET_PLAYER(civId);
+ 	CvHandicapInfo& h = GC.getHandicapInfo(civ.getHandicapType());
+ 	// DefenseUnits aren't all that defensive
+ 	return h.getStartingDefenseUnits() +
+ 			(civ.isHuman() ? 0 : h.getAIStartingDefenseUnits());
+-}
++}*/
+ 
+ char const* FairPlay::aspectName() const { return "Fair play"; }
+ int FairPlay::xmlId() const { return 23; }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=18746

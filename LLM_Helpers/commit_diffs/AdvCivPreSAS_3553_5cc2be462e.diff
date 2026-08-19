@@ -1,0 +1,187 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3553
+# Commit: 5cc2be462e1861d6f0f1da0434e71aa82c254a27
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dd7735fc97d36d4ba7b496c6f782300431076ad5
+# Title: Help text for unused trade yield modifier effect
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	0	Assets/XML/Text/CIV4GameText_advc.xml
+11	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	0	CvGameCoreDLL/CvGameCoreUtils.h
+66	0	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvReplayInfo.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index ed4c4c574..b641eb969 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7223,4 +7223,24 @@
+ 		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]%D1%%%F2_yield por [ICON_TRADE]</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004: For including the effect above in the trade route profit
++		 breakdown. Like TXT_KEY_MISC_HELP_YIELD_CIVICS
++		 (Civ4GameTextInfos.xml), just without the bullet and yield icons. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_YIELD_MODIFIER_CIVICS</Tag>
++		<English>%D1%% from Civics</English>
++		<French>%D1%% (doctrine)</French>
++		<German>%D1%% durch Staatsformen</German>
++		<Italian>%D1%% dalle forme di governo</Italian>
++		<Spanish>%D1%% por principios</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_FROM</Tag>
++		<English>from</English>
++		<French>par</French>
++		<German>durch</German>
++		<Italian>da</Italian>
++		<Spanish>por</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 7e0a4e608..71cfd48e9 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -422,6 +422,17 @@ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* s
+ 	iLastListID = iListID; // advc: And deleted this line from every call location
+ } // </advc>
+ 
++// advc:
++CvWString getModName()
++{
++	CvWString szModName(gDLL->getModName(false));
++	size_t posMods = szModName.find(L"Mods");
++	if (posMods == CvWString::npos)
++		return szModName;
++	// Skip over "Mods" plus the path separator. And chop off the separator at the end.
++	return szModName.substr(posMods + 5, szModName.length() - posMods - 6);
++}
++
+ 
+ bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1, int iDummy2)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index d333d78e5..59a1a7f89 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -114,6 +114,9 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
+ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
+ 		wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
+ 
++// advc: Just the folder name, no /Mods/. And as a wide string.
++CvWString getModName();
++
+ // PlotUnitFunc's...  (advc: Parameters iData1, iData2 renamed)
+ bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1 = -1, int iDummy2 = -1);
+ bool PUF_isPlayer(CvUnit const* pUnit, int iOwner, int iForTeam = NO_TEAM);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d76801eab..8cb628545 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -19082,6 +19082,72 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
+ 	iProfit /= 10000;
+ 	FAssert(iProfit == pCity->calculateTradeProfit(pOtherCity));
+ 	szBuffer.append(SEPARATOR);
++	/*	<advc.004> Not part of CvCity::totalTradeModifier, showing it under the
++		separator hopefully makes that clear enough. Want to show this modifier
++		somewhere (although it is unused in BtS and AdvCiv). But only for commerce;
++		I don't think profit of other yield types has any UI support. */
++	CvPlayer const& kOwner = GET_PLAYER(pCity->getOwner());
++	int const iTradeYieldModifier = kOwner.getTradeYieldModifier(YIELD_COMMERCE);
++	if (iTradeYieldModifier != 100)
++	{
++		int iTotalModifier = 0;
++		{
++			int iModifier = GC.getInfo(YIELD_COMMERCE).getTradeModifier();
++			iTotalModifier += iModifier;
++			iModifier -= 100; // 100 is normal
++			if (iModifier != 0)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(CvWString::format(L"%s%d%% ",
++						iModifier > 0 ? L"+" : L"", iModifier));
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_FROM"));
++				szBuffer.append(L" ");
++				// Well, it's sth. a mod might change, for balance reasons or so.
++				CvWString szModName(::getModName());
++				szBuffer.append(szModName);
++			}
++		}
++		{
++			int iModifier = 0;
++			FOR_EACH_ENUM(Trait)
++			{
++				if (kOwner.hasTrait(eLoopTrait))
++				{
++					iModifier += GC.getInfo(eLoopTrait).
++							getTradeYieldModifier(YIELD_COMMERCE);
++				}
++			}
++			if (iModifier != 0)
++			{
++				iTotalModifier += iModifier;
++				szBuffer.append(NEWLINE);
++				szBuffer.append(CvWString::format(L"%s%d%% ",
++						iModifier > 0 ? L"+" : L"", iModifier));
++				szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT"));
++			}
++		}
++		{
++			int iModifier = 0;
++			FOR_EACH_ENUM(Civic)
++			{
++				if (kOwner.isCivic(eLoopCivic))
++				{
++					iModifier += GC.getInfo(eLoopCivic).
++							getTradeYieldModifier(YIELD_COMMERCE);
++				}
++			}
++			if (iModifier != 0)
++			{
++				iTotalModifier += iModifier;
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_YIELD_MODIFIER_CIVICS",
++						iModifier));
++			}
++		}
++		FAssert(iTotalModifier == iTradeYieldModifier);
++		iProfit *= iTradeYieldModifier;
++		iProfit /= 100;
++	} // </advc.004>
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_TOTAL", iProfit));
+ }
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 77a65bbf8..f03ef9e1a 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -361,7 +361,7 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 	}
+ 	if(iOptions > 0)
+ 		szSettings = szSettings.substr(0, szSettings.length() - 2) + L"\n";
+-	// CvWString szModName(gDLL->getModName(false)) // I'd like the prefix to be optional
++	// CvWString szModName(::getModName()) // I'd like the prefix to be optional
+ 	CvWString const szKey = "TXT_KEY_REPLAY_PREFIX";
+ 	CvWString szModName = gDLL->getText(szKey);
+ 	// Don't list mod name if the tag isn't present
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5873

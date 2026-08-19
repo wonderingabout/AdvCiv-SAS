@@ -1,0 +1,218 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 422
+# Commit: 53d9ec14c611d1a9e4d588a8965654406c1df874
+# History segment: K-Mod history
+# Parent used for diff: 39032a45b6f01b76e900c42dafface4e25c47085
+# Title: Changed the way commerce multipliers are evaluated in AI_buildingValue. (Previously they were worth 6.6 points per commerce. They are now worth 5 points per...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+47	40	CvGameCoreDLL/CvCityAI.cpp
+9	7	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6fddbd0da..87c43bc82 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5239,6 +5239,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					iTempValue *= getTotalCommerceRateModifier((CommerceTypes)iI) + kBuilding.getCommerceModifier(iI); // K-Mod. Note that getTotalCommerceRateModifier() includes the +100.
+ 					iTempValue /= 100;
+ 
++					if (kBuilding.getCommerceChangeDoubleTime(iI) > 0)
++					{
++						if ((kBuilding.getCommerceChange(iI) > 0) || (kBuilding.getObsoleteSafeCommerceChange(iI) > 0))
++						{
++							//iTempValue += (1000 / kBuilding.getCommerceChangeDoubleTime(iI));
++							iTempValue += iTempValue * 250 / kBuilding.getCommerceChangeDoubleTime(iI); // K-Mod (still very rough...)
++						}
++					}
++
+ 					if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 					{
+ 					    if (bCulturalVictory1)
+@@ -5256,56 +5265,40 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						// K-Mod end
+ 					}
+ 
+-					// K-Mod. help get the ball rolling on espionage.
+-					if (iI == COMMERCE_ESPIONAGE && iTempValue > 0 && !GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
+-					{
+-						// priority += 1% per 1% increase in total espionage, more for big espionage strategy
+-						iPriorityFactor += std::min(100, (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)?150 : 100) * iTempValue/std::max(1, 4*kOwner.getCommerceRate(COMMERCE_ESPIONAGE)));
+-					}
+-					// K-Mod end
+-
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/25/10                              jdog5000        */
+-/*                                                                                              */
+-/* Victory Strategy AI                                                                          */
+-/************************************************************************************************/
+-					if ((CommerceTypes)iI == COMMERCE_RESEARCH)
+-					{
+-					    if (bSpaceVictory1)
+-					    {
+-							iTempValue *= 3;
+-							iTempValue /= 2;
+-					    }
+-					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++					// K-mod. the getCommerceChangeDoubleTime bit use to be here. I moved it up to be before the culture value boost.
+ 
+-					if (kBuilding.getCommerceChangeDoubleTime(iI) > 0)
++					// add value for a commerce modifier
++					int iCommerceModifier = kBuilding.getCommerceModifier(iI);
++					int iBaseCommerceRate = getBaseCommerceRate((CommerceTypes) iI);
++					// K-Mod. inflate the base commerce rate, to account for the fact that commerce multipliers give us flexibility.
+ 					{
+-						if ((kBuilding.getCommerceChange(iI) > 0) || (kBuilding.getObsoleteSafeCommerceChange(iI) > 0))
++						int x = std::max(5, kOwner.getCommercePercent((CommerceTypes)iI));
++						if (iI == COMMERCE_CULTURE)
+ 						{
+-							iTempValue += (1000 / kBuilding.getCommerceChangeDoubleTime(iI));
++							x += x <= 45 && bCulturalVictory1 ? 10 : 0;
++							x += x <= 45 && bCulturalVictory2 ? 10 : 0;
++							x += x <= 45 && bCulturalVictory3 ? 10 : 0;
+ 						}
++						iBaseCommerceRate += getYieldRate(YIELD_COMMERCE) * x * (100 - x) / 10000;
+ 					}
+-					
+-					// add value for a commerce modifier
+-					int iCommerceModifier = kBuilding.getCommerceModifier(iI);
+-					int iBaseCommerceRate = getBaseCommerceRate((CommerceTypes) iI);
++					// K-Mod end
+ 					int iCommerceMultiplierValue = iCommerceModifier * iBaseCommerceRate;
+-					if (((CommerceTypes) iI) == COMMERCE_CULTURE && iCommerceModifier != 0)
++					if (iI == COMMERCE_CULTURE && iCommerceModifier != 0)
+ 					{
+ 						// K-Mod: bug fix, and improvement. (the old code was missing /= 100, and it was too conditional)
+-						iCommerceMultiplierValue *= culturePressureFactor() + 100;
+-						iCommerceMultiplierValue /= 200;
++						// (disabled indefinitely. culture pressure is counted in other ways; so I want to test without this boost.)
++						//iCommerceMultiplierValue *= culturePressureFactor() + 100;
++						//iCommerceMultiplierValue /= 200;
++						// K-Mod end
+ 
++						// K-Mod. the value of culture is now boosted primarily inside AI_commerceWeight
++						// so I've decreased the value boost in the following block.
+ 						if (bCulturalVictory1)
+ 						{
+ 							// if this is one of our top culture cities, then we want to build this here first!
+ 							if (iCultureRank <= iCulturalVictoryNumCultureCities)
+ 							{
+-								iCommerceMultiplierValue /= 8;					        
++								iCommerceMultiplierValue /= 12; // was 8
+ 
+ 								// if we at culture level 3, then these need to get built asap
+ 								if (bCulturalVictory3)
+@@ -5319,7 +5312,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 									FAssert(iHighestRate >= getCommerceRate(COMMERCE_CULTURE));
+ 
+ 									// its most important to build in the lowest rate city, but important everywhere
+-									iCommerceMultiplierValue += (iHighestRate - getCommerceRate(COMMERCE_CULTURE)) * iCommerceModifier / 8;
++									iCommerceMultiplierValue += (iHighestRate - getCommerceRate(COMMERCE_CULTURE)) * iCommerceModifier / 12; // was 8
+ 								}
+ 							}
+ 							else
+@@ -5359,7 +5352,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 								// if we have enough and our rank is close to the top, then possibly build here too
+ 								if (bHaveEnough && (iCultureRank - iCulturalVictoryNumCultureCities) <= 3)
+ 								{
+-									iCommerceMultiplierValue /= 12;
++									iCommerceMultiplierValue /= 16; // was 12
+ 								}
+ 								// otherwise, we really do not want to build this here
+ 								else
+@@ -5370,7 +5363,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						}
+ 						else
+ 						{
+-							iCommerceMultiplierValue /= 15;
++							iCommerceMultiplierValue /= 20; // was 15
+ 
+ 							// increase priority if we need culture oppressed city
+ 							// K-Mod: moved this to outside of the current "if".
+@@ -5380,10 +5373,24 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					}
+ 					else
+ 					{
+- 						iCommerceMultiplierValue /= 15;
++						iCommerceMultiplierValue /= 20; // was 15
+ 					}
+ 					iTempValue += iCommerceMultiplierValue;
+ 
++					// K-Mod. help get the ball rolling on espionage.
++					if (iI == COMMERCE_ESPIONAGE && iTempValue > 0 && !GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++					{
++						// priority += 1% per 1% increase in total espionage, more for big espionage strategy
++						iPriorityFactor += std::min(100, (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)?150 : 100) * iTempValue/std::max(1, 4*kOwner.getCommerceRate(COMMERCE_ESPIONAGE)));
++					}
++
++					// ... and increase the priority of research buildings if aiming for a space victory.
++					if ((CommerceTypes)iI == COMMERCE_RESEARCH && bSpaceVictory1)
++					{
++						iPriorityFactor += std::min(25, iTempValue/2);
++					}
++					// K-Mod end
++
+ 					iTempValue += ((kBuilding.getGlobalCommerceModifier(iI) * iNumCities) / 4);
+ 					// iTempValue += ((kBuilding.getSpecialistExtraCommerce(iI) * kOwner.getTotalPopulation()) / 3); // moved up (K-Mod)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ef26d5e6b..6d0dab773 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5041,7 +5041,7 @@ void CvUnitAI::AI_artistMove()
+ 	PROFILE_FUNC();
+ 
+ 	// K-Mod (this is less than ideal. I'm sorry.)
+-	if (AI_construct(100))
++	if (AI_construct(MAX_INT, MAX_INT, 100))
+ 	{
+ 		return;
+ 	}
+@@ -5696,11 +5696,13 @@ bool CvUnitAI::AI_greatPersonMove()
+ 							int iHurryProduction = getMaxHurryProduction(pLoopCity);
+ 							int iProgress = pLoopCity->getBuildingProduction(eBuilding);
+ 
++							int iProductionRate = iCost > iHurryProduction + iProgress ? pLoopCity->getProductionDifference(iCost, iProgress, pLoopCity->getProductionModifier(eBuilding), false, 0) : 0;
++							// note: currently, it is impossible for a building to be "food production".
++							// also note that iProductionRate will return 0 if the city is in disorder. This may mess up our great person's decision - but it's a non-trivial problem to fix.
++
+ 							if (pLoopCity->getProductionBuilding() == eBuilding)
+ 							{
+-								int iProductionModifier = pLoopCity->getProductionModifier(eBuilding);
+-								// (note: currently, it is impossible for a building to be "food production")
+-								iProgress += pLoopCity->getProductionDifference(iCost, iProgress, iProductionModifier, false, 0) * iPathTurns;
++								iProgress += iProductionRate * iPathTurns;
+ 							}
+ 
+ 							FAssert(iHurryProduction > 0);
+@@ -5720,9 +5722,9 @@ bool CvUnitAI::AI_greatPersonMove()
+ 								else
+ 								{
+ 									// decrease the value, because we might still miss out!
+-									// (todo: teach the AI to wait until the hurry will almost complete the wonder.)
+-									iValue *= 3;
+-									iValue /= 4;
++									FAssert(iProductionRate > 0 || pLoopCity->isDisorder());
++									iValue *= 12;
++									iValue /= 10 + std::min(30, pLoopCity->getProductionTurnsLeft(iCost, iProgress, iProductionRate, iProductionRate));
+ 								}
+ 
+ 								if (iValue > iBestValue)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=9589

@@ -1,0 +1,432 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1190
+# Commit: c6fb8b8bc960d4c3fcd290faa556dbc00e20ca1d
+# History segment: K-Mod history
+# Parent used for diff: 85f2184ea2ae923e9e01402a3dc1284cb402472c
+# Title: Implemented "SpecialistExtraCommerce" xml field for technologies.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	4	Assets/Python/Screens/CvTechChooser.py
+5	0	Assets/xml/Technologies/CIV4TechnologiesSchema.xml
+7	7	CvGameCoreDLL/CvDLLWidgetData.cpp
+5	7	CvGameCoreDLL/CvEnums.h
+3	0	CvGameCoreDLL/CvGameTextMgr.cpp
+39	1	CvGameCoreDLL/CvInfos.cpp
+3	0	CvGameCoreDLL/CvInfos.h
+30	0	CvGameCoreDLL/CvPlayerAI.cpp
+16	9	CvGameCoreDLL/CvTeam.cpp
+6	7	CvGameCoreDLL/CyEnumsInterface.cpp
+1	0	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index cc09d1f9e..6c0916267 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -97,7 +97,7 @@ class CvTechChooser:
+ # BUG - GP Tech Prefs - end
+ 
+ 		self.PIXEL_INCREMENT = 7
+-		self.BOX_INCREMENT_WIDTH = 27 # Used to be 33 #Should be a multiple of 3...
++		self.BOX_INCREMENT_WIDTH = 30 # Used to be 33 #Should be a multiple of 3...
+ 		self.BOX_INCREMENT_HEIGHT = 9 #Should be a multiple of 3...
+ 		self.BOX_INCREMENT_Y_SPACING = 6 #Should be a multiple of 3...
+ 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
+@@ -240,12 +240,12 @@ class CvTechChooser:
+ 
+ 		screen = self.getScreen()
+ 
+-		self.BOX_INCREMENT_WIDTH = 27 # Used to be 33 #Should be a multiple of 3...
++		self.BOX_INCREMENT_WIDTH = 30 # Used to be 33 #Should be a multiple of 3...
+ 		self.DrawTechChooser(screen, self.TabPanels[0], True, True, True, True, True, True)
+ 
+ 		self.BOX_INCREMENT_WIDTH = 12 # Used to be 33 #Should be a multiple of 3...
+ 		self.DrawTechChooser(screen, self.TabPanels[1], True, False, True, False, False, True)
+-		self.BOX_INCREMENT_WIDTH = 27 # Used to be 33 #Should be a multiple of 3...
++		self.BOX_INCREMENT_WIDTH = 30 # Used to be 33 #Should be a multiple of 3...
+ 
+ 	def ShowTab(self):
+ #		BugUtil.debug("cvTechChooser: ShowTab")
+@@ -702,6 +702,20 @@ class CvTechChooser:
+ 		j = 0
+ 		k = 0
+ 
++		# K-Mod. Extra specialist commerce
++		for j in range(CommerceTypes.NUM_COMMERCE_TYPES):
++			if (gc.getTechInfo(i).getSpecialistExtraCommerce(j) > 0):
++				if (gc.getDefineINT("DEFAULT_SPECIALIST") != SpecialistTypes.NO_SPECIALIST):
++					szSpecialistCommerceButtonButton = self.getNextWidgetName("SpecialistCommerceButton")
++					screen.addDDSGFCAt( szSpecialistCommerceButtonButton, szTechRecord, gc.getSpecialistInfo(gc.getDefineINT("DEFAULT_SPECIALIST")).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE, i, j, False )
++					fX += X_INCREMENT
++				break
++
++		j = 0
++		k = 0
++
++		# K-Mod end.
++
+ 		# Adjustments
+ 		for j in range( CommerceTypes.NUM_COMMERCE_TYPES ):
+ 			if (gc.getTechInfo(i).isCommerceFlexible(j) and not (gc.getTeam(gc.getPlayer(self.iCivSelected).getTeam()).isCommerceFlexible(j))):
+@@ -826,7 +840,7 @@ class CvTechChooser:
+ 		if (self.sTechTabID == self.sTechSelectTab):
+ 			bTechName = True
+ 			sPanel = self.TabPanels[0]
+-			self.BOX_INCREMENT_WIDTH = 27 # Used to be 33 #Should be a multiple of 3...
++			self.BOX_INCREMENT_WIDTH = 30 # Used to be 33 #Should be a multiple of 3...
+ 		else:
+ 			bTechName = False
+ 			sPanel = self.TabPanels[1]
+
+diff --git a/Assets/xml/Technologies/CIV4TechnologiesSchema.xml b/Assets/xml/Technologies/CIV4TechnologiesSchema.xml
+index 4f3aa252d..6aa4f1477 100644
+--- a/Assets/xml/Technologies/CIV4TechnologiesSchema.xml
++++ b/Assets/xml/Technologies/CIV4TechnologiesSchema.xml
+@@ -54,6 +54,10 @@
+ 	<ElementType name="DomainExtraMoves" content="eltOnly">
+ 		<element type="DomainExtraMove" minOccurs="0" maxOccurs="*"/>
+ 	</ElementType>
++	<ElementType name="iCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="SpecialistExtraCommerces" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
+ 	<ElementType name="bFlexible" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="CommerceFlexible" content="eltOnly">
+ 		<element type="bFlexible" minOccurs="0" maxOccurs="*"/>
+@@ -137,6 +141,7 @@
+ 		<element type="iGridX"/>
+ 		<element type="iGridY"/>
+ 		<element type="DomainExtraMoves"/>
++		<element type="SpecialistExtraCommerces" minOccurs="0"/>
+ 		<element type="CommerceFlexible"/>
+ 		<element type="TerrainTrades"/>
+ 		<element type="bRiverTrade"/>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 67565566c..a62d218fb 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -574,10 +574,8 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_COMMERCE_MOD_HELP:
+ 		parseCommerceModHelp(widgetDataStruct, szBuffer);
+ 		break;
+-/*
+-** K-Mod, 5/jan/11, karadoc
+-** environmental advisor widgets
+-*/
++
++	// K-Mod. Environmental advisor widgets.
+ 	case WIDGET_HELP_POLLUTION_OFFSETS:
+ 		parsePollutionOffsetsHelp(widgetDataStruct, szBuffer);
+ 		break;
+@@ -596,9 +594,11 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_HELP_GW_UNHAPPY:
+ 		szBuffer.assign(gDLL->getText("TXT_KEY_GW_UNHAPPY_HELP"));
+ 		break;
+-/*
+-** K-Mod end
+-*/
++	// K-Mod. Extra specialist commerce
++	case WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE:
++		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_PER_SPECIALIST").GetCString(), GC.getTechInfo((TechTypes)(widgetDataStruct.m_iData1)).getSpecialistExtraCommerceArray(), false, false);
++		break;
++	//K-Mod end
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 2f44b672c..bcf855036 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -540,19 +540,17 @@ enum WidgetTypes					// Exposed to Python
+ 	WIDGET_GLOBELAYER,
+ 	WIDGET_GLOBELAYER_OPTION,
+ 	WIDGET_GLOBELAYER_TOGGLE,
+-/*
+-** K-Mod, 5/jan/11, karadoc
+-** environmental advisor widgets. Note: this apparently breaks WIDGET_CLOSE_SCREEN if it is defined out of order. =\
+-*/
++	// K-Mod. Environmental advisor widgets.
++	// Note: this apparently breaks WIDGET_CLOSE_SCREEN if it is defined out of order.
+ 	WIDGET_HELP_POLLUTION_OFFSETS,
+ 	WIDGET_HELP_POLLUTION_SOURCE,
+ 	WIDGET_HELP_SUSTAINABILITY_THRESHOLD,
+ 	WIDGET_HELP_GW_RELATIVE_CONTRIBUTION,
+ 	WIDGET_HELP_GW_INDEX,
+ 	WIDGET_HELP_GW_UNHAPPY,
+-/*
+-** K-Mod end
+-*/
++
++	WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE,
++	// K-Mod end
+ 
+ #ifdef _USRDLL
+ 	NUM_WIDGET_TYPES
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c4ba648d5..30fd9a53f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7758,6 +7758,9 @@ void CvGameTextMgr::setTechHelp(CvWStringBuffer &szBuffer, TechTypes eTech, bool
+ 		buildDomainExtraMovesString(szBuffer, eTech, iI, true, bPlayerContext);
+ 	}
+ 
++	//	K-Mod. Extra specialist commerce
++	setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_PER_SPECIALIST").GetCString(), GC.getTechInfo(eTech).getSpecialistExtraCommerceArray());
++
+ 	//	Adjusting culture, science, etc
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 988b9ba2e..89c404eec 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -1011,6 +1011,7 @@ m_piDomainExtraMoves(NULL),
+ m_piFlavorValue(NULL), 
+ m_piPrereqOrTechs(NULL),
+ m_piPrereqAndTechs(NULL),
++m_piSpecialistExtraCommerce(NULL), // K-Mod
+ m_pbCommerceFlexible(NULL),
+ m_pbTerrainTrade(NULL)
+ {
+@@ -1029,6 +1030,7 @@ CvTechInfo::~CvTechInfo()
+ 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+ 	SAFE_DELETE_ARRAY(m_piPrereqOrTechs);
+ 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
++	SAFE_DELETE_ARRAY(m_piSpecialistExtraCommerce); // K-Mod
+ 	SAFE_DELETE_ARRAY(m_pbCommerceFlexible);
+ 	SAFE_DELETE_ARRAY(m_pbTerrainTrade);
+ }
+@@ -1272,6 +1274,20 @@ int CvTechInfo::getPrereqAndTechs(int i) const
+ 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
+ }
+ 
++// K-Mod
++int CvTechInfo::getSpecialistExtraCommerce(int i) const
++{
++	FAssertMsg(m_piSpecialistExtraCommerce, "Tech info not initialised");
++	FASSERT_BOUNDS(0, NUM_COMMERCE_TYPES, i, "CvTechInfo::getSpecialistExtraCommerce");
++	return m_piSpecialistExtraCommerce ? m_piSpecialistExtraCommerce[i] : 0;
++}
++
++int* CvTechInfo::getSpecialistExtraCommerceArray() const
++{
++	return m_piSpecialistExtraCommerce;
++}
++// K-Mod end
++
+ bool CvTechInfo::isCommerceFlexible(int i) const
+ {
+ 	FAssertMsg(i < NUM_COMMERCE_TYPES, "Index out of bounds");
+@@ -1345,6 +1361,15 @@ void CvTechInfo::read(FDataStreamBase* stream)
+ 	m_piPrereqAndTechs = new int[GC.getNUM_AND_TECH_PREREQS()];
+ 	stream->Read(GC.getNUM_AND_TECH_PREREQS(), m_piPrereqAndTechs);
+ 
++	// K-Mod
++	if (uiFlag >= 1)
++	{
++		SAFE_DELETE_ARRAY(m_piSpecialistExtraCommerce)
++		m_piSpecialistExtraCommerce = new int[NUM_COMMERCE_TYPES];
++		stream->Read(NUM_COMMERCE_TYPES, m_piSpecialistExtraCommerce);
++	}
++	// K-Mod end
++
+ 	SAFE_DELETE_ARRAY(m_pbCommerceFlexible);
+ 	m_pbCommerceFlexible = new bool[NUM_COMMERCE_TYPES];
+ 	stream->Read(NUM_COMMERCE_TYPES, m_pbCommerceFlexible);
+@@ -1362,7 +1387,7 @@ void CvTechInfo::write(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::write(stream);
+ 
+-	uint uiFlag=0;
++	uint uiFlag=1;
+ 	stream->Write(uiFlag);		// flag for expansion
+ 
+ 	stream->Write(m_iAdvisorType);
+@@ -1407,6 +1432,7 @@ void CvTechInfo::write(FDataStreamBase* stream)
+ 	stream->Write(GC.getNumFlavorTypes(), m_piFlavorValue);
+ 	stream->Write(GC.getNUM_OR_TECH_PREREQS(), m_piPrereqOrTechs);
+ 	stream->Write(GC.getNUM_AND_TECH_PREREQS(), m_piPrereqAndTechs);
++	stream->Write(NUM_COMMERCE_TYPES, m_piSpecialistExtraCommerce); // K-Mod. uiFlag >= 1
+ 	stream->Write(NUM_COMMERCE_TYPES, m_pbCommerceFlexible);
+ 	stream->Write(GC.getNumTerrainInfos(), m_pbTerrainTrade);
+ 
+@@ -1468,6 +1494,18 @@ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iGridX, "iGridX");
+ 	pXML->GetChildXmlValByName(&m_iGridY, "iGridY");
+ 
++	// K-Mod
++	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"SpecialistExtraCommerces"))
++	{
++		pXML->SetCommerce(&m_piSpecialistExtraCommerce);
++		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
++	}
++	else
++	{
++		pXML->InitList(&m_piSpecialistExtraCommerce, NUM_COMMERCE_TYPES);
++	}
++	// K-Mod end
++
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"CommerceFlexible"))
+ 	{
+ 		pXML->SetCommerce(&m_pbCommerceFlexible);
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index ccdd2c197..babfb449b 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -356,6 +356,8 @@ public:
+ 	int getPrereqOrTechs(int i) const;		// Exposed to Python
+ 	int getPrereqAndTechs(int i) const;		// Exposed to Python
+ 
++	int getSpecialistExtraCommerce(int i) const; // K-Mod, Exposed to Python
++	int* getSpecialistExtraCommerceArray() const; // K-Mod
+ 	bool isCommerceFlexible(int i) const;	// Exposed to Python
+ 	bool isTerrainTrade(int i) const;			// Exposed to Python
+ 
+@@ -421,6 +423,7 @@ protected:
+ 	int* m_piPrereqOrTechs;
+ 	int* m_piPrereqAndTechs;
+ 
++	int* m_piSpecialistExtraCommerce; // K-Mod
+ 	bool* m_pbCommerceFlexible;
+ 	bool* m_pbTerrainTrade;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f4c46d81c..32352d5d1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5288,6 +5288,36 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 		iValue += kTechInfo.getDomainExtraMoves(iJ) * (iJ == DOMAIN_LAND ? 16 : 6) * iCityCount;
+ 	}
+ 
++	// K-Mod. Extra specialist commerce. (Based on my civic evaluation code)
++	bool bSpecialistCommerce = false;
++	for (CommerceTypes i = (CommerceTypes)0; i < NUM_COMMERCE_TYPES; i=(CommerceTypes)(i+1))
++	{
++		bSpecialistCommerce = kTechInfo.getSpecialistExtraCommerce(i) != 0;
++	}
++
++	if (bSpecialistCommerce)
++	{
++		int iTotalBonusSpecialists = 0;
++		int iTotalCurrentSpecialists = 0;
++
++		int iLoop;
++		CvCity* pLoopCity;
++		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			iTotalBonusSpecialists += pLoopCity->getNumGreatPeople();
++			iTotalBonusSpecialists += pLoopCity->totalFreeSpecialists();
++
++			iTotalCurrentSpecialists += pLoopCity->getNumGreatPeople();
++			iTotalCurrentSpecialists += pLoopCity->getSpecialistPopulation();
++		}
++
++		for (CommerceTypes i = (CommerceTypes)0; i < NUM_COMMERCE_TYPES; i=(CommerceTypes)(i+1))
++		{
++			iValue += 4*AI_averageCommerceMultiplier(i)*(kTechInfo.getSpecialistExtraCommerce(i) * std::max((getTotalPopulation()+12*iTotalBonusSpecialists) / 12, iTotalCurrentSpecialists));
++		}
++	}
++	// K-Mod end
++
+ 	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 	{
+ 		if (kTechInfo.isCommerceFlexible(iJ))
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 0707f9475..6a5e3546a 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6450,17 +6450,24 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
++		if (kLoopPlayer.getTeam() == getID())
+ 		{
+-			GET_PLAYER((PlayerTypes)iI).changeFeatureProductionModifier(GC.getTechInfo(eTech).getFeatureProductionModifier() * iChange);
+-			GET_PLAYER((PlayerTypes)iI).changeWorkerSpeedModifier(GC.getTechInfo(eTech).getWorkerSpeedModifier() * iChange);
+-			GET_PLAYER((PlayerTypes)iI).changeTradeRoutes(GC.getTechInfo(eTech).getTradeRoutes() * iChange);
+-			GET_PLAYER((PlayerTypes)iI).changeExtraHealth(GC.getTechInfo(eTech).getHealth() * iChange);
+-			GET_PLAYER((PlayerTypes)iI).changeExtraHappiness(GC.getTechInfo(eTech).getHappiness() * iChange);
++			kLoopPlayer.changeFeatureProductionModifier(GC.getTechInfo(eTech).getFeatureProductionModifier() * iChange);
++			kLoopPlayer.changeWorkerSpeedModifier(GC.getTechInfo(eTech).getWorkerSpeedModifier() * iChange);
++			kLoopPlayer.changeTradeRoutes(GC.getTechInfo(eTech).getTradeRoutes() * iChange);
++			kLoopPlayer.changeExtraHealth(GC.getTechInfo(eTech).getHealth() * iChange);
++			kLoopPlayer.changeExtraHappiness(GC.getTechInfo(eTech).getHappiness() * iChange);
+ 
+-			GET_PLAYER((PlayerTypes)iI).changeAssets(GC.getTechInfo(eTech).getAssetValue() * iChange);
+-			GET_PLAYER((PlayerTypes)iI).changePower(GC.getTechInfo(eTech).getPowerValue() * iChange);
+-			GET_PLAYER((PlayerTypes)iI).changeTechScore(getTechScore(eTech) * iChange);
++			kLoopPlayer.changeAssets(GC.getTechInfo(eTech).getAssetValue() * iChange);
++			kLoopPlayer.changePower(GC.getTechInfo(eTech).getPowerValue() * iChange);
++			kLoopPlayer.changeTechScore(getTechScore(eTech) * iChange);
++			// K-Mod. Extra commerce for specialist (new xml field)
++			for (CommerceTypes eCommerce = (CommerceTypes)0; eCommerce < NUM_COMMERCE_TYPES; eCommerce=(CommerceTypes)(eCommerce+1))
++			{
++				kLoopPlayer.changeSpecialistExtraCommerce(eCommerce, GC.getTechInfo(eTech).getSpecialistExtraCommerce(eCommerce) * iChange);
++			}
++			// K-Mod end
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 3fb934b51..954a4f94b 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -388,19 +388,18 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_GLOBELAYER", WIDGET_GLOBELAYER)
+ 		.value("WIDGET_GLOBELAYER_OPTION", WIDGET_GLOBELAYER_OPTION)
+ 		.value("WIDGET_GLOBELAYER_TOGGLE", WIDGET_GLOBELAYER_TOGGLE)
+-/*
+-** K-Mod, 5/jan/11, karadoc
+-** environmental advisor widgets
+-*/
++		// K-Mod widgets
++		// Environmental advisor
+ 		.value("WIDGET_HELP_POLLUTION_OFFSETS", WIDGET_HELP_POLLUTION_OFFSETS)
+ 		.value("WIDGET_HELP_POLLUTION_SOURCE", WIDGET_HELP_POLLUTION_SOURCE)
+ 		.value("WIDGET_HELP_SUSTAINABILITY_THRESHOLD", WIDGET_HELP_SUSTAINABILITY_THRESHOLD)
+ 		.value("WIDGET_HELP_GW_RELATIVE_CONTRIBUTION", WIDGET_HELP_GW_RELATIVE_CONTRIBUTION)
+ 		.value("WIDGET_HELP_GW_INDEX", WIDGET_HELP_GW_INDEX)
+ 		.value("WIDGET_HELP_GW_UNHAPPY", WIDGET_HELP_GW_UNHAPPY)
+-/*
+-** K-Mod end
+-*/
++
++		// Extra specialist commerce (from tech)
++		.value("WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE", WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE)
++		// K-Mod end
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+ /*
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 5af9fb742..c9987e2bb 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -96,6 +96,7 @@ void CyInfoPythonInterface1()
+ 		.def("getPrereqOrTechs", &CvTechInfo::getPrereqOrTechs, "int (int i)")
+ 		.def("getPrereqAndTechs", &CvTechInfo::getPrereqAndTechs, "int (int i)")
+ 
++		.def("getSpecialistExtraCommerce", &CvTechInfo::getSpecialistExtraCommerce, "int (int i)") // K-Mod
+ 		.def("isCommerceFlexible", &CvTechInfo::isCommerceFlexible, "bool (int i)")
+ 		.def("isTerrainTrade", &CvTechInfo::isTerrainTrade, "bool (int i)")
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=16273

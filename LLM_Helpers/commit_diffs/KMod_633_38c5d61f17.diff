@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 633
+# Commit: 38c5d61f17be5275f44dc74d772c93ff6573fda8
+# History segment: K-Mod history
+# Parent used for diff: f2720494832c928b1d5922f76916d88ce21125f3
+# Title: Rewrote the unit costs section of AI_civicValue so that it uses actual costs and figures rather than arbitrary numbers. Also changed the value of the worker...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	12	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+64	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f098aa05c..eb283ff8f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7229,6 +7229,26 @@ void CvPlayer::setGwPercentAnger(int iNewValue)
+ ** K-Mod end
+ */
+ 
++// K-Mod
++int CvPlayer::getUnitCostMultiplier() const
++{
++	int iMultiplier = 100;
++	iMultiplier *= GC.getHandicapInfo(getHandicapType()).getUnitCostPercent();
++	iMultiplier /= 100;
++
++	if (!isHuman() && !isBarbarian())
++	{
++		iMultiplier *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIUnitCostPercent();
++		iMultiplier /= 100;
++
++		iMultiplier *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
++		iMultiplier /= 100;
++	}
++
++	return iMultiplier;
++}
++// K-Mod end
++
+ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost) const
+ {
+ 	//int iSupport;
+@@ -7278,21 +7298,10 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
+ 	// K-Mod. GoldPerUnit, etc, are now done as percentages.
+ 	// Also, "UnitCostPercent" handicap modifiers now apply directly to unit cost only, not military or extra cost.
+ 	// (iBaseUnitCost is no longer fed back to the caller. Only the modified cost is.)
+-	iUnitCost = iPaidUnits * getGoldPerUnit() / 100;
++	iUnitCost = iPaidUnits * getGoldPerUnit() * getUnitCostMultiplier() / 10000;
+ 	iMilitaryCost = iPaidMilitaryUnits * getGoldPerMilitaryUnit() / 100;
+ 	iExtraCost = getExtraUnitCost() / 100;
+ 
+-	iUnitCost *= GC.getHandicapInfo(getHandicapType()).getUnitCostPercent();
+-	iUnitCost /= 100;
+-
+-	if (!isHuman() && !isBarbarian())
+-	{
+-		iUnitCost *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIUnitCostPercent();
+-		iUnitCost /= 100;
+-
+-		iUnitCost *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+-		iUnitCost /= 100;
+-	}
+ 	int iSupport = iUnitCost + iMilitaryCost + iExtraCost;
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 67afac95f..302cb9852 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -272,6 +272,7 @@ public:
+ 	int getGwPercentAnger() const; // K-Mod, Exposed to Python
+ 	void setGwPercentAnger(int iNewValue); // K-Mod
+ 
++	int getUnitCostMultiplier() const; // K-Mod
+ 	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost) const; // (K-Mod changed iBaseUnitCost to iUnitCost)
+ 	int calculateUnitCost() const;																																				// Exposed to Python
+ 	int calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost) const;																	// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 51a8e240a..0f736f2d7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13189,7 +13189,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		eBestReligion = getStateReligion();
+ 	}
+ 	int iHighestReligionCount = ((eBestReligion == NO_RELIGION) ? 0 : getHasReligionCount(eBestReligion));
+-	int iWarmongerPercent = 25000 / std::max(100, (100 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand())); 
++	int iWarmongerFactor = 25000 / std::max(100, (100 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
++	// K-Mod note. max war rand is between 50 and 400, so I've renamed the above number from iWarmongerPercent to iWarmongerFactor.
++	// I don't know what it is meant to be a percentage of. It's a number roughly between 56 and 167.
+ 
+ 	int iValue = (iCities * 6);
+ 
+@@ -13248,11 +13250,12 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		int iTempValue = (kCivic.getFreeExperience() * getTotalPopulation() * (bWarPlan ? 30 : 12))/100;
+ 		iTempValue *= AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 		iTempValue /= 100;
+-		iTempValue *= iWarmongerPercent;
++		iTempValue *= iWarmongerFactor;
+ 		iTempValue /= 100;
+ 		iValue += iTempValue;
+ 	}
+ 
++	/* original bts code
+ 	iValue += ((kCivic.getWorkerSpeedModifier() * AI_getNumAIUnits(UNITAI_WORKER)) / 15);
+ 	iValue += ((kCivic.getImprovementUpgradeRateModifier() * iCities) / 50);
+ 	iValue += (kCivic.getMilitaryProductionModifier() * iCities * iWarmongerPercent) / (bWarPlan ? 300 : 500 ); 
+@@ -13260,8 +13263,65 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	iValue += (kCivic.getBaseFreeMilitaryUnits() / 2);
+ 	iValue += ((kCivic.getFreeUnitsPopulationPercent() * getTotalPopulation()) / 200);
+ 	iValue += ((kCivic.getFreeMilitaryUnitsPopulationPercent() * getTotalPopulation()) / 300);
+-	iValue += -(kCivic.getGoldPerUnit() * getNumUnits())/100; // didn't have /100
+-	iValue += -(kCivic.getGoldPerMilitaryUnit() * getNumMilitaryUnits() * iWarmongerPercent) / 20000; // was 200
++	iValue += -(kCivic.getGoldPerUnit() * getNumUnits());
++	iValue += -(kCivic.getGoldPerMilitaryUnit() * getNumMilitaryUnits() * iWarmongerPercent) / 200; */
++	// K-Mod, just a bunch of minor accuracy improvements to these approximations.
++	if (kCivic.getWorkerSpeedModifier() != 0)
++	{
++		int iWorkers = 0;
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			iWorkers += 2 * pLoopCity->AI_getWorkersNeeded();
++		}
++		iWorkers -= AI_getNumAIUnits(UNITAI_WORKER);
++		if (iWorkers > 0)
++		{
++			iValue += kCivic.getWorkerSpeedModifier() * iWorkers / 15;
++		}
++	}
++	iValue += kCivic.getImprovementUpgradeRateModifier() * iCities / 50; // this is a tough one... I'll leave it alone for now.
++	iValue += (kCivic.getMilitaryProductionModifier() * iCities * iWarmongerFactor) / (bWarPlan ? 300 : 500 ); // whatever
++	if (kCivic.getBaseFreeUnits() || kCivic.getBaseFreeMilitaryUnits() ||
++		kCivic.getFreeUnitsPopulationPercent() || kCivic.getFreeMilitaryUnitsPopulationPercent() ||
++		kCivic.getGoldPerUnit() || kCivic.getGoldPerMilitaryUnit())
++	{
++		int iFreeUnits = 0;
++		int iFreeMilitaryUnits = 0;
++		int iUnits = getNumUnits();
++		int iMilitaryUnits = getNumMilitaryUnits();
++		int iPaidUnits = iUnits;
++		int iPaidMilitaryUnits = iMilitaryUnits;
++		int iMilitaryCost = 0;
++		int iUnitCost = 0;
++		int iExtraCost = 0; // unused
++		calculateUnitCost(iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iUnitCost, iMilitaryCost, iExtraCost);
++
++		int iTempValue = 0;
++
++		// units costs
++		int iCostPerUnit = (getGoldPerUnit() + (iS > 0 ? kCivic.getGoldPerUnit() : 0)) * getUnitCostMultiplier() / 100;
++		int iFreeUnitDelta = iS * (std::min(iUnits, iFreeUnits + iS*(kCivic.getBaseFreeUnits() + kCivic.getFreeUnitsPopulationPercent() * getTotalPopulation()/100)) - std::min(iUnits, iFreeUnits));
++		FAssert(iFreeUnitDelta >= 0);
++		iTempValue += iFreeUnitDelta * iCostPerUnit * AI_commerceWeight(COMMERCE_GOLD) / 10000;
++		iTempValue -= (iPaidUnits-iFreeUnitDelta) * kCivic.getGoldPerUnit() * AI_commerceWeight(COMMERCE_GOLD) / 10000;
++
++		// military
++		iCostPerUnit = getGoldPerMilitaryUnit() + (iS > 0 ? kCivic.getGoldPerMilitaryUnit() : 0);
++		iFreeUnitDelta = iS * (std::min(iMilitaryUnits, iFreeMilitaryUnits + iS*(kCivic.getBaseFreeMilitaryUnits() + kCivic.getFreeMilitaryUnitsPopulationPercent() * getTotalPopulation()/100)) - std::min(iMilitaryUnits, iFreeMilitaryUnits));
++		FAssert(iFreeUnitDelta >= 0);
++		iTempValue += iFreeUnitDelta * iCostPerUnit * AI_commerceWeight(COMMERCE_GOLD) / 10000;
++		iTempValue -= (iPaidMilitaryUnits-iFreeUnitDelta) * kCivic.getGoldPerMilitaryUnit() * AI_commerceWeight(COMMERCE_GOLD) / 10000;
++
++		// adjust based on future expectations
++		if (iTempValue < 0)
++		{
++			iTempValue *= 100 + iWarmongerFactor / (bWarPlan ? 3 : 6);
++			iTempValue /= 100;
++		}
++		iValue += iTempValue;
++	}
++	// K-Mod end
+ 
+ 	//iValue += ((kCivic.isMilitaryFoodProduction()) ? 0 : 0);
+ 	// bbai
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7950

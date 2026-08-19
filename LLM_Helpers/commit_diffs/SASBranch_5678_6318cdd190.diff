@@ -1,0 +1,120 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5678
+# Commit: 6318cdd190866dc570c5c21b111236f8d80a532b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: efd952b607c5af02fa465eb8487f8c81e6b1874d
+# Title: fix needless and disruptive empty item pages in sevopedia first open of a category - they woudl pollute history too which is/was annoying - also in this comm...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+20	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index da299fb6d..597037b8a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -623,6 +623,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if not screen.isActive():
+ 			self.createScreen(screen)
+ 
++		# <!-- custom: fix Sevopedia category-open UX: many categories land on a blank header/spacer page first
++		# (item id -1), which slows navigation; auto-jump to first real item on fresh category clicks only.
++		# Also avoid auto-jump for no-item categories. See KI#119. (GPT-5.3-Codex) -->
+ 		if (iCategory == SevoScreenEnums.PEDIA_MAIN):
+ 			BugUtil.debug("Main link %d" % iItem)
+ 			self.SAS_lastPediaJump = (iCategory, iItem)
+@@ -630,7 +633,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			iListIndex = self.SAS_categoryEnumToIndex.get(iItem, -1)
+ 			if iListIndex != -1:
+ 				screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iListIndex)
+-			#self.iCategory = iItem
++			if bRemoveFwdList and self.SAS_lastItemsWidget is not None:
++				iFirstItem = self.SAS_getFirstSelectableItemIdFromCurrentList()
++				if iFirstItem != -1:
++					# <!-- custom: drop the transient category node from history when auto-redirecting to the
++					# first real item; this avoids needless BACK/NEXT steps that pollute pedia navigation.
++					# Keep category history when no redirect occurs (e.g., no-item category). See KI#119. (GPT-5.3-Codex) -->
++					if self.pediaHistory and self.pediaHistory[-1] == (SevoScreenEnums.PEDIA_MAIN, iItem):
++						self.pediaHistory.pop()
++					return self.pediaJump(iItem, iFirstItem, bRemoveFwdList, False)
+ 			return
+ 
+ 		if (iCategory == SevoScreenEnums.PEDIA_BUILDINGS):
+@@ -678,6 +689,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return SevoScreenEnums.PEDIA_SHORTCUTS
+ 		return SevoScreenEnums.PEDIA_BTS_CONCEPTS
+ 
++	def SAS_getFirstSelectableItemIdFromCurrentList(self):
++		if not hasattr(self, "list"):
++			return -1
++		for item in self.list:
++			if len(item) > 1 and item[1] != -1:
++				return item[1]
++		return -1
++
+ 	def isContentsShowing(self):
+ 		return self.tab == self.TAB_TOC
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 71af7a826..1b5c2151e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -152,6 +152,7 @@ Note 3: all issues that have a drive link are also accessible via the [common kn
+ [116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)  
+ [117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
+ [118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
++[119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4531,3 +4532,22 @@ Safety rule used:
+ - We avoid renaming files under `.../nif/...` unless all NIF references are also updated and validated, to avoid breaking models.
+ 
+ So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.
++
++## 119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Pmlc3XtyCe6qwUYRVBwEL4dYNEIUOZTK?usp=sharing).
++
++Observed issue:
++
++- In many Sevopedia categories, opening the category lands first on a blank no-item page (header/spacer row where `item id == -1`) instead of the first real entry.
++- This slows navigation (extra click per category) and adds useless transient pages in BACK/NEXT history.
++
++Fix applied:
++
++- In `SevoPediaMain.pediaJump`, when opening a category from `PEDIA_MAIN`, resolve and auto-jump to the first selectable item (`item[1] != -1`) on fresh category clicks.
++- Skip auto-jump for no-item categories.
++- If redirect happened, remove the transient `(PEDIA_MAIN, category)` node from history so BACK/NEXT stays focused on real pages.
++
++Files changed:
++
++- [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c56fa1938..5caa40ebf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -300,6 +300,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Wider content area, narrower main category column; fills available screen space.
+ - **Search Bar**: shared by several Sevopedia pages; it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+ - **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
++- (Requires AdvCiv-SAS 5678+) **Fix empty pages** in Sevopedia **category opening flow:** opening a category now jumps **directly to the first real entry (if any)** instead of landing on a **blank header/spacer** row first; this makes **navigation easier** and avoids **needless and disruptive BACK/NEXT history pollution**. See [KI#119](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history).
+ - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) and [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
+ - the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8197

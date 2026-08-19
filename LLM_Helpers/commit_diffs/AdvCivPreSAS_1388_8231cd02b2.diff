@@ -1,0 +1,1224 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1388
+# Commit: 8231cd02b261834f37fa5c8453005f93d98b5bf4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 40f76ddd83320144401c2d172b8315da3f0b3ef4
+# Title: v0.94 (including some final fixes for certain game options)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	1	Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+11	0	Assets/xml/Text/CIV4GameText_advc.xml
+0	1	CvGameCoreDLL/CvArea.cpp
+0	1	CvGameCoreDLL/CvCity.cpp
+0	1	CvGameCoreDLL/CvCityAI.cpp
+0	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+0	1	CvGameCoreDLL/CvDeal.cpp
+50	34	CvGameCoreDLL/CvGame.cpp
+14	0	CvGameCoreDLL/CvGame.h
+0	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+18	31	CvGameCoreDLL/CvGameTextMgr.cpp
+11	1	CvGameCoreDLL/CvInfos.cpp
+4	1	CvGameCoreDLL/CvInfos.h
+6	2	CvGameCoreDLL/CvInitCore.cpp
+0	1	CvGameCoreDLL/CvMap.cpp
+0	1	CvGameCoreDLL/CvMapGenerator.cpp
+0	1	CvGameCoreDLL/CvPlayer.cpp
+1	8	CvGameCoreDLL/CvPlayerAI.cpp
+0	1	CvGameCoreDLL/CvPlot.cpp
+0	1	CvGameCoreDLL/CvRandom.cpp
+0	1	CvGameCoreDLL/CvReplayInfo.cpp
+0	1	CvGameCoreDLL/CvSelectionGroup.cpp
+0	1	CvGameCoreDLL/CvStatistics.cpp
+0	1	CvGameCoreDLL/CvTalkingHeadMessage.cpp
+0	1	CvGameCoreDLL/CvTeam.cpp
+0	1	CvGameCoreDLL/CvTeamAI.cpp
+0	1	CvGameCoreDLL/CvUnit.cpp
+0	1	CvGameCoreDLL/CvUnitAI.cpp
+0	1	CvGameCoreDLL/CyGlobalContext.cpp
+0	80	CvGameCoreDLL/InvasionGraph.cpp
+0	2	CvGameCoreDLL/InvasionGraph.h
+0	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	1	CvGameCoreDLL/RFChapterScore.cpp
+4	1	CvGameCoreDLL/RiseFall.cpp
+5	5	EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+17	9	EuroWorld scenario/java/wbo/WBOut.java
+3	3	future gameplay changes/readme.txt
+-	-	future gameplay changes/sources(ODT).zip
+-	-	future gameplay changes/stat-changes.pdf
+-	-	future gameplay changes/tech tree.pdf
+-	-	manual.odt
+-	-	manual.pdf
+-	-	manual_0.94.odt
+ delete mode 100644 manual_0.94.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/GameInfo/CIV4GameOptionInfos.xml b/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+index 7ac4014bb..ba9359260 100644
+--- a/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+@@ -124,12 +124,14 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
++		<!-- advc.054: Visible was 1. The AdvCiv DLL makes it visible on the
++			 Custom Scenario screen in any case. -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_NO_CHANGING_WAR_PEACE</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_NO_CHANGING_WAR_PEACE</Description>
+ 			<Help>TXT_KEY_GAME_OPTION_NO_CHANGING_WAR_PEACE_HELP</Help>
+ 			<bDefault>0</bDefault>
+-			<bVisible>1</bVisible>
++			<bVisible>0</bVisible>
+ 		</GameOptionInfo>
+ 		<!-- advc.701: Taking the spot of NEW_RANDOM_SEED so that it's grouped
+ 			 with the other special challenge options. -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 2ac84ec17..336b1191b 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4141,4 +4141,15 @@
+ 		<Spanish></Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.054: Originally in CIV4GameText_Misc1.xml. Text in parentheses
++		 added. -->
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_NO_CHANGING_WAR_PEACE_HELP</Tag>
++		<English>All civilizations are locked into either war or peace for the length of the game. (Same as Always Peace unless a scenario sets certain civs to be at war from the beginning.)</English>
++		<French>Toutes les civilisations sont en paix ou en guerre pour l'int&#233;gralit&#233; de la partie.</French>
++		<German>Alle Zivilisationen befinden sich f�r die gesamte Spieldauer entweder im Krieg oder im Frieden. (Ein Szenario kann festlegen, dass manche Zivilisationen sich von Anfang an im Krieg befinden; ansonsten dasselbe wie "Immer Frieden".)</German>
++		<Italian>Tutte le civilt&#224; sono bloccate in guerra o in pace per tutta la partita</Italian>
++		<Spanish>Todas las civilizaciones quedar&#225;n bloqueadas en guerra o en paz hasta que acabe la partida.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 029e81720..5efd630df 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -5,7 +5,6 @@
+ #include "CvMap.h"
+ #include "CvPlot.h"
+ #include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvGameCoreUtils.h"
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 65036db98..9ed4ecd8e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4,7 +4,6 @@
+ #include "CvGlobals.h"
+ #include "CvCity.h"
+ #include "CvArea.h"
+-#include "CvGameAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
+ #include "CvTeamAI.h"
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e9c64b574..3c366732e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4,7 +4,6 @@
+ #include "CvGlobals.h"
+ #include "CvGameCoreUtils.h"
+ #include "CvCityAI.h"
+-#include "CvGameAI.h"
+ #include "CvPlot.h"
+ #include "CvArea.h"
+ #include "CvPlayerAI.h"
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 0382da997..9f9ee095a 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -4,7 +4,6 @@
+ #include "CvDLLButtonPopup.h"
+ #include "CvGlobals.h"
+ #include "CvPlayerAI.h"
+-#include "CvGameAI.h"
+ #include "CvTeamAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index ff955d65b..0774305e3 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -2,7 +2,6 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvTeamAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4e42f81c8..5da8c1241 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3,7 +3,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameCoreUtils.h"
+ #include "CvGame.h"
+-#include "CvGameAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
+ #include "CvPlayerAI.h"
+@@ -292,8 +291,7 @@ void CvGame::setInitialItems()
+ 		spah.setInitialItems(); // </advc.250b>
+ 	int iStartTurn = getStartTurn(); // advc.250c, advc.251
+ 	// <advc.250c>
+-	if(GC.getGameINLINE().getStartEra() == 0 &&
+-			GC.getDefineINT("INCREASE_START_TURN") > 0) {
++	if(getStartEra() == 0 && GC.getDefineINT("INCREASE_START_TURN") > 0) {
+ 		std::vector<double> distr;
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+@@ -516,8 +514,7 @@ void CvGame::setStartTurnYear(int iTurn) {
+     int iI;
+ 
+     if (getGameTurn() == 0
+-            || iTurn > 0 // advc.250c
+-        )
++            || iTurn > 0) // advc.250c
+     {
+         iStartTurn = 0;
+ 
+@@ -858,6 +855,19 @@ void CvGame::initDiplomacy()
+ void CvGame::initFreeState()
+ {
+ 	int iI, iJ, iK;
++	if(GC.getInitCore().isScenario()) {
++		setScenario(true); // advc.052
++		AI().AI_initScenario(); // advc.104u
++	}
++	else { // advc.051: (Moved up.) Don't force 0 gold in scenarios.
++		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			{
++				GET_PLAYER((PlayerTypes)iI).initFreeState();
++			}
++		}
++	}
+ 	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+ 		for (iJ = 0; iJ < MAX_TEAMS; iJ++)
+@@ -915,15 +925,6 @@ void CvGame::initFreeState()
+ 				GC.getMapINLINE().setRevealedPlots((TeamTypes)iJ, true, true); 
+ 			}
+ 		}
+-	} // <advc.051> Don't force 0 gold in scenarios
+-	if(GC.getInitCore().isScenario())
+-		return; // </advc.051>
+-	for (iI = 0; iI < MAX_PLAYERS; iI++)
+-	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			GET_PLAYER((PlayerTypes)iI).initFreeState();
+-		}
+ 	}
+ }
+ 
+@@ -947,12 +948,31 @@ void CvGame::initScenario() {
+ 
+ void CvGame::initFreeUnits() {
+ 
++	bool bScenario = GC.getInitCore().isScenario();
+ 	/*  In scenarios, neither setInitialItems nor initFreeState is called; the
+ 		EXE only calls initFreeUnits, so the initialization of freebies needs to
+ 		happen here. */
+-	if(GC.getInitCore().isScenario())
++	if(bScenario)
+ 		initScenario();
+-	initFreeUnits_bulk();
++	initFreeUnits_bulk(); // (also sets Advanced Start points)
++	if(!bScenario)
++		return;
++	/*  <advc.250b> Advanced Start is always visible on the Custom Scenario screen,
++		but doesn't work properly unless Advanced Start is the scenario's
++		default setting. Verify that start points have been assigned, or else
++		disable Advanced Start. */
++	bool bValid = false;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
++		if(civ.isAlive() && civ.getAdvancedStartPoints() > 0) {
++			bValid = true;
++			break;
++		}
++	}
++	if(!bValid) {
++		setOption(GAMEOPTION_SPAH, false);
++		setOption(GAMEOPTION_ADVANCED_START, false);
++	} // </advc.250b>
+ }
+ 
+ void CvGame::initFreeUnits_bulk() { // </advc.051>
+@@ -4659,7 +4679,7 @@ int CvGame::getGlobalWarmingChances() const
+ 	// I estimate that the global warming index will actually be roughly proportional to the number of turns in the game
+ 	// so by scaling the chances, and the probability per chance, I hope to get roughly the same number of actually events per game
+ 	int iIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+-	iIndexPerChance*=GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++	iIndexPerChance*=GC.getGameSpeedInfo(getGameSpeedType()).getVictoryDelayPercent();
+ 	iIndexPerChance/=100;
+ 	return ROUND_DIVIDE(getGlobalWarmingIndex(), std::max(1, iIndexPerChance));
+ }
+@@ -4750,7 +4770,7 @@ int CvGame::calculateGwSeverityRating() const
+ 
+ 	// I recommend looking at the graph of this function to get a sense of how it works.
+ 
+-	const long x = GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (std::max(1,4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots()));
++	const long x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() / (std::max(1,4*GC.getGameSpeedInfo(getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots()));
+ 	const long b = 70; // shape parameter. Lower values result in the function being steeper earlier.
+ 	return 100L - b*100L/(b+x*x);
+ }
+@@ -5591,7 +5611,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
+ 		m_eWinner = eNewWinner;
+ 		m_eVictory = eNewVictory;
+ 		// advc.707: Handled by RiseFall::prepareForExtendedGame
+-		if(!GC.getGame().isOption(GAMEOPTION_RISE_FALL))
++		if(!isOption(GAMEOPTION_RISE_FALL))
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                        07/09/08                                jdog5000      */
+ /*                                                                                              */
+@@ -6847,7 +6867,7 @@ void CvGame::doGlobalWarming()
+ 	/*
+ 	** Calculate change in GW index
+ 	*/
+-	int iGlobalWarmingValue = GC.getGameINLINE().calculateGlobalPollution();
++	int iGlobalWarmingValue = calculateGlobalPollution();
+ 
+ 	int iGlobalWarmingDefense = calculateGwSustainabilityThreshold(); // Natural global defence
+ 	iGlobalWarmingDefense+= calculateGwLandDefence(); // defence from features (forests & jungles)
+@@ -6864,7 +6884,7 @@ void CvGame::doGlobalWarming()
+ 
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE");
+ 		// add the message to the replay
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++		addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+@@ -6908,7 +6928,7 @@ void CvGame::doGlobalWarming()
+ 	for (int iI = 0; iI < iGlobalWarmingRolls; iI++)
+ 	{
+ 		// note, warming prob out of 1000, not percent.
+-		int iLeftOdds = 10*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++		int iLeftOdds = 10*GC.getGameSpeedInfo(getGameSpeedType()).getVictoryDelayPercent();
+ 		if (getSorenRandNum(iLeftOdds, "Global Warming") < GC.getDefineINT("GLOBAL_WARMING_PROB"))
+ 		{
+ 			//CvPlot* pPlot = GC.getMapINLINE().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+@@ -7251,7 +7271,7 @@ int CvGame::religionPriority(PlayerTypes civId, ReligionTypes relId) const {
+ 	r += ((100 - GC.getHandicapInfo(civ.getHandicapType()).
+ 			getStartingLocationPercent()) * 31) / 100;
+ 	// With the pick-rel option, relId will change later on anyway
+-	if(!GC.getGame().isOption(GAMEOPTION_PICK_RELIGION)) {
++	if(!isOption(GAMEOPTION_PICK_RELIGION)) {
+ 		/*  Not excluding human here means that choosing a leader with an
+ 			early fav religion can make a difference in human getting
+ 			a religion. Unexpected, as fav religions are pretty obscure
+@@ -7529,7 +7549,7 @@ void CvGame::createBarbCity(bool bSkipCivAreas, float prMod) {
+ 			iUnowned += shelves[i]->countUnownedPlots() / 2;
+ 		unownedPerArea.insert(std::make_pair(a.getID(), iUnowned));
+ 	}
+-	bool isRage = GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS);
++	bool bRage = isOption(GAMEOPTION_RAGING_BARBARIANS);
+ 	// </advc.300>
+ 
+ 	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+@@ -7548,7 +7568,7 @@ void CvGame::createBarbCity(bool bSkipCivAreas, float prMod) {
+ 				pLoopPlot->area()->getID());
+ 		FAssert(unowned != unownedPerArea.end());
+ 		int iTargetCities = unowned->second;
+-		if(isRage) { // Didn't previously affect city density
++		if(bRage) { // Didn't previously affect city density
+ 			iTargetCities *= 7;
+ 			iTargetCities /= 5;
+ 		}
+@@ -7657,8 +7677,8 @@ void CvGame::createBarbarianUnits()
+ 		/*  <advc.300> No need to delay barbs if they start slowly.
+ 			However, added a similar check to CvUnitAI::AI_barbAttackMove
+ 			for slow game speed settings. */
+-		double crowdedness = GC.getGame().countCivPlayersEverAlive();
+-		crowdedness /= GC.getGame().getRecommendedPlayers();
++		double crowdedness = countCivPlayersEverAlive();
++		crowdedness /= getRecommendedPlayers();
+ 		if(GC.getDefineINT("BARB_PEAK_PERCENT") < 35 || crowdedness > 1.25)
+ 			bAnimals = true; // </advc.300>
+ 	}
+@@ -7798,11 +7818,8 @@ void CvGame::createAnimals()
+ 	int iI, iJ;
+ 
+ 	if (GC.getEraInfo(getCurrentEra()).isNoAnimals()
+-			|| GC.getGame().isOption(GAMEOPTION_NO_ANIMALS) // advc.309
+-		)
+-	{
++			|| isOption(GAMEOPTION_NO_ANIMALS)) // advc.309
+ 		return;
+-	}
+ 
+ 	if (GC.getHandicapInfo(getHandicapType()).getUnownedTilesPerGameAnimal() <= 0)
+ 	{
+@@ -7933,7 +7950,7 @@ int CvGame::numBarbariansToSpawn(int iTilesPerUnit, int iTiles, int iUnowned,
+ 	}
+ 	/*	For Rage, reduce divisor to 60% (50% in BtS), but
+ 		<advc.307> reduces it further based on the game era. */
+-	if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS)) {
++	if(isOption(GAMEOPTION_RAGING_BARBARIANS)) {
+ 		int iCurrentEra = getCurrentEra();
+ 		/*  Don't reduce divisor in start era (gets too tough on Classical
+ 			and Medieval starts b/c the starting defenders are mere Archers). */
+@@ -8884,8 +8901,7 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ /************************************************************************************************/
+ 			// <dlph.25> 'Cancel defensive pacts with the attackers first'
+ 			int foo=-1;
+-			for(CvDeal* pLoopDeal = GC.getGameINLINE().firstDeal(&foo);
+-					pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&foo)) {
++			for(CvDeal* pLoopDeal = firstDeal(&foo); pLoopDeal != NULL; pLoopDeal = nextDeal(&foo)) {
+ 				bool bCancelDeal = false;
+ 				if((TEAMID(pLoopDeal->getFirstPlayer()) == kPlayer.getTeam() &&
+ 						TEAMREF(pLoopDeal->getSecondPlayer()).isVotingMember(
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index bf497c776..a8a605afb 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -17,6 +17,7 @@ class CvPlot;
+ class CvCity;
+ class CvReplayMessage;
+ class CvReplayInfo;
++class CvGameAI; // advc.003: Needed for AI(void) functions
+ 
+ typedef std::vector<const CvReplayMessage*> ReplayMessageList;
+ 
+@@ -209,6 +210,8 @@ public:
+ 	void changeCutoffSlice(int iChange);
+ 
+ 	DllExport int getTurnSlicesRemaining();
++	// advc.003: const replacement
++	inline int turnSlicesRemaining() const { return getCutoffSlice() - getTurnSlice(); };
+ 	void resetTurnTimer();
+ 	void incrementTurnTimer(int iNumTurnSlices);
+ 	DllExport int getMaxTurnLen();
+@@ -509,6 +512,17 @@ public:
+ 	DllExport virtual void read(FDataStreamBase* pStream);
+ 	DllExport virtual void write(FDataStreamBase* pStream);
+ 	DllExport virtual void writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer);
++	// <advc.003>
++	inline CvGameAI& AI() {
++		//return *static_cast<CvGameAI*>(const_cast<CvGame*>(this));
++		/*  The above won't work in an inline function b/c the compiler doesn't know
++			that CvGameAI is derived from CvGame */
++		return *reinterpret_cast<CvGameAI*>(this);
++	}
++	inline CvGameAI const& AI() const {
++		//return *static_cast<CvGameAI const*>(this);
++		return *reinterpret_cast<CvGameAI const*>(this);
++	} // </advc.003>
+ 	/*  advc (warning): Mustn't add any pure virtual functions to this class.
+ 		(Or perhaps adding them at the end would be ok?) */
+ 	DllExport virtual void AI_init() = 0;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 7daf24ed6..09def198f 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2,7 +2,6 @@
+ #include "CvGameCoreUtils.h"
+ #include <algorithm>
+ #include "CvUnit.h"
+-#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 45468a348..77884b000 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -21,7 +21,6 @@
+ #include "CvCity.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+-#include "CvGameAI.h"
+ #include "CvSelectionGroup.h"
+ #include "CvMap.h"
+ #include "CvArea.h"
+@@ -18655,12 +18654,13 @@ void CvGameTextMgr::getInterfaceCenterText(CvWString& strText)
+ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ {
+ 	strText.clear();
++	CvGame const& g = GC.getGameINLINE(); // advc.003
+ 	if (gDLL->getInterfaceIFace()->getShowInterface() == INTERFACE_SHOW || gDLL->getInterfaceIFace()->getShowInterface() == INTERFACE_ADVANCED_START)
+ 	{
+-		if (GC.getGameINLINE().isMPOption(MPOPTION_TURN_TIMER))
++		if (g.isMPOption(MPOPTION_TURN_TIMER))
+ 		{
+ 			// Get number of turn slices remaining until end-of-turn
+-			int iTurnSlicesRemaining = GC.getGameINLINE().getTurnSlicesRemaining();
++			int iTurnSlicesRemaining = g.turnSlicesRemaining();
+ 
+ 			if (iTurnSlicesRemaining > 0)
+ 			{
+@@ -18686,7 +18686,6 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ 				}
+ 			}
+ 		}
+-		CvGame const& g = GC.getGameINLINE(); // advc.003
+ 		if (g.getGameState() == GAMESTATE_ON)
+ 		{	// <advc.700> Top priority for Auto Play timer
+ 			if(g.isOption(GAMEOPTION_RISE_FALL)) {
+@@ -18700,7 +18699,7 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ 			int iMinVictoryTurns = MAX_INT;
+ 			for (int i = 0; i < GC.getNumVictoryInfos(); ++i)
+ 			{
+-				TeamTypes eActiveTeam = GC.getGameINLINE().getActiveTeam();
++				TeamTypes eActiveTeam = g.getActiveTeam();
+ 				if (NO_TEAM != eActiveTeam)
+ 				{
+ 					int iCountdown = GET_TEAM(eActiveTeam).getVictoryCountdown((VictoryTypes)i);
+@@ -18711,44 +18710,32 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ 				}
+ 			}
+ 
+-			if (GC.getGameINLINE().isOption(GAMEOPTION_ADVANCED_START) && !GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) && GC.getGameINLINE().getElapsedGameTurns() <= GC.getPEACE_TREATY_LENGTH()
+-				/*  advc.250b: No need to (constantly) remind human of
+-					"universal" peace when the AI civs have big headstarts. */
+-				&& !GC.getGameINLINE().isOption(GAMEOPTION_SPAH)
+-				)
++			if (g.isOption(GAMEOPTION_ADVANCED_START) && !g.isOption(GAMEOPTION_ALWAYS_WAR) && g.getElapsedGameTurns() <= GC.getPEACE_TREATY_LENGTH()
++					/*  advc.250b: No need to (constantly) remind human of
++						"universal" peace when the AI civs have big headstarts. */
++					&& !g.isOption(GAMEOPTION_SPAH))
+ 			{
+-				if (!strText.empty())
+-				{
++				if(!strText.empty())
+ 					strText += L" -- ";
+-				}
+-
+-				strText += gDLL->getText("TXT_KEY_MISC_ADVANCED_START_PEACE_REMAINING", GC.getPEACE_TREATY_LENGTH() - GC.getGameINLINE().getElapsedGameTurns());
++				strText += gDLL->getText("TXT_KEY_MISC_ADVANCED_START_PEACE_REMAINING", GC.getPEACE_TREATY_LENGTH() - g.getElapsedGameTurns());
+ 			}
+ 			else if (iMinVictoryTurns < MAX_INT)
+ 			{
+ 				if (!strText.empty())
+-				{
+ 					strText += L" -- ";
+-				}
+-
+ 				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT_TO_VICTORY", iMinVictoryTurns);
+ 			} /* <advc.003> Merged these two conditions so that more else-if
+ 				clauses can be added below */ 
+-			else if (GC.getGameINLINE().getMaxTurns() > 0 &&
+-					((GC.getGameINLINE().getElapsedGameTurns() >= (GC.getGameINLINE().getMaxTurns() -
+-					30 // advc.004: was 100
+-					)) && (GC.getGameINLINE().getElapsedGameTurns() <
+-					GC.getGameINLINE().getMaxTurns())))
+-			{ // </advc.003>
+-				if (!strText.empty())
+-				{
++			else if (g.getMaxTurns() > 0 &&
++					((g.getElapsedGameTurns() >= (g.getMaxTurns() -
++					30)) // advc.004: was 100
++					&& g.getElapsedGameTurns() < g.getMaxTurns())) { // </advc.003>
++				if(!strText.empty())
+ 					strText += L" -- ";
+-				}
+-
+-				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT", (GC.getGameINLINE().getMaxTurns() - GC.getGameINLINE().getElapsedGameTurns()));
++				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT", (g.getMaxTurns() - g.getElapsedGameTurns()));
+ 			} // <advc.700> The other countdowns take precedence
+-			else if(GC.getGameINLINE().isOption(GAMEOPTION_RISE_FALL)) {
+-				std::pair<int,int> rfCountdown = GC.getGameINLINE().getRiseFall().
++			else if(g.isOption(GAMEOPTION_RISE_FALL)) {
++				std::pair<int,int> rfCountdown = g.getRiseFall().
+ 						getChapterCountdown();
+ 				/*  Only show it toward the end of a chapter. A permanent countdown
+ 					would have to be placed elsewhere b/c the font is too large and
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 6ebd4772e..73b8410b1 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -20174,6 +20174,16 @@ bool CvGameOptionInfo::getVisible() const
+ {
+ 	return m_bVisible;
+ }
++// <advc.054>
++bool CvGameOptionInfo::getVisibleXML() const 
++{
++	return m_bVisibleXML;
++}
++
++void CvGameOptionInfo::setVisible(bool b) {
++
++	m_bVisible = b;
++} // </advc.054>
+ 
+ bool CvGameOptionInfo::read(CvXMLLoadUtility* pXML)
+ {
+@@ -20184,7 +20194,7 @@ bool CvGameOptionInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	pXML->GetChildXmlValByName(&m_bDefault, "bDefault");
+ 	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
+-	
++	m_bVisibleXML = m_bVisible; // advc.054
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index cea2b88ba..b799ce6b5 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -5813,12 +5813,15 @@ public:
+ 
+ 	DllExport bool getDefault() const;
+ 	DllExport bool getVisible() const;
+-
++	// <advc.054>
++	void setVisible(bool b);
++	bool getVisibleXML() const; // </advc.054>
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ private:
+ 	bool m_bDefault;
+ 	bool m_bVisible;
++	bool m_bVisibleXML; // advc.054
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 2737b5d3a..5f37525a3 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -7,7 +7,6 @@
+ #include "CvInfos.h"
+ #include "CvGlobals.h"
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvGameAI.h"
+ #include "CvGameCoreUtils.h"
+ // advc.001m:
+ #include "CvDLLInterfaceIFaceBase.h"
+@@ -1185,7 +1184,12 @@ void CvInitCore::setType(GameType eType)
+ 	if (getType() != eType)
+ 	{
+ 		m_eType = eType;
+-
++		// <advc.054> Always visible in scenarios
++		CvGameOptionInfo& goi = GC.getGameOptionInfo(GAMEOPTION_NO_CHANGING_WAR_PEACE);
++		if(eType == GAME_SP_SCENARIO || eType == GAME_MP_SCENARIO)
++			goi.setVisible(true);
++		// Otherwise as set in XML
++		else goi.setVisible(goi.getVisibleXML()); // </advc.054>
+ 		if(CvPlayerAI::areStaticsInitialized())
+ 		{
+ 			for (int i = 0; i < MAX_PLAYERS; ++i)
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index b3372384b..571cf5f57 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -13,7 +13,6 @@
+ #include "CvCity.h"
+ #include "CvPlotGroup.h"
+ #include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index e26defb18..834687334 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -6,7 +6,6 @@
+ #include "CvGlobals.h"
+ #include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
+-#include "CvGameAI.h"
+ //#include "CvEnums.h"
+ #include "CvInfos.h"
+ #include "CvDLLPythonIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bc225ea87..7a7a1fc11 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3,7 +3,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGlobals.h"
+ #include "CvArea.h"
+-#include "CvGameAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
+ #include "CvRandom.h"
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bd22351d1..9d1184f4d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8,7 +8,6 @@
+ #include "CvMap.h"
+ #include "CvArea.h"
+ #include "CvPlot.h"
+-#include "CvGameAI.h"
+ #include "CvTeamAI.h"
+ #include "CvGameCoreUtils.h"
+ #include "CvDiploParameters.h"
+@@ -493,12 +492,6 @@ void CvPlayerAI::AI_doTurnPre()
+ 	FAssertMsg(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
+ 	FAssertMsg(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
+ 	FAssertMsg(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
+-	CvGameAI& g = GC.getGameINLINE(); // advc.003
+-	// <advc.104u>
+-	if(getID() == 0 && g.getElapsedGameTurns() <= 0 && GC.getInitCore().isScenario()) {
+-		g.AI_initScenario(); // </advc.104u>
+-		g.setScenario(true);
+-	}
+ 	//AI_invalidateCloseBordersAttitudeCache();
+ 
+ 	AI_doCounter();
+@@ -510,7 +503,7 @@ void CvPlayerAI::AI_doTurnPre()
+ 	// K-Mod. Update commerce weight before calculating great person weight
+ 	AI_updateCommerceWeights(); // (perhaps this should be done again after AI_doCommerce, or when sliders change?)
+ 	// GP weights can take a little bit of time, so lets only do it once every 3 turns.
+-	if ((g.getGameTurn() + AI_getStrategyRand(0))%3 == 0)
++	if ((GC.getGameINLINE().getGameTurn() + AI_getStrategyRand(0))%3 == 0)
+ 		AI_updateGreatPersonWeights();
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 67996c9cb..f18dcb85a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6,7 +6,6 @@
+ #include "CvUnit.h"
+ #include "CvGlobals.h"
+ #include "CvArea.h"
+-#include "CvGameAI.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLSymbolIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index aa721a7e0..c20c5245c 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -4,7 +4,6 @@
+ #include "CvRandom.h"
+ #include "CvGlobals.h"
+ #include "CyArgsList.h"
+-#include "CvGameAI.h"
+ 
+ #define RANDOM_A      (1103515245)
+ #define RANDOM_C      (12345)
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 13c82815c..05672b45c 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -2,7 +2,6 @@
+ #include "CvReplayInfo.h"
+ #include "CvInfos.h"
+ #include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+ #include "CvReplayMessage.h"
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index de5a8cb63..fd2897044 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3,7 +3,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGlobals.h"
+ #include "CvSelectionGroup.h"
+-#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvUnit.h"
+
+diff --git a/CvGameCoreDLL/CvStatistics.cpp b/CvGameCoreDLL/CvStatistics.cpp
+index 9d10ebc44..b5b9f15b8 100644
+--- a/CvGameCoreDLL/CvStatistics.cpp
++++ b/CvGameCoreDLL/CvStatistics.cpp
+@@ -3,7 +3,6 @@
+ #include "CvUnit.h"
+ #include "CvCity.h"
+ #include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ 
+ CvGameRecord::CvGameRecord()
+
+diff --git a/CvGameCoreDLL/CvTalkingHeadMessage.cpp b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+index 0ee984436..3847fe08f 100644
+--- a/CvGameCoreDLL/CvTalkingHeadMessage.cpp
++++ b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+@@ -1,6 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvTalkingHeadMessage.h"
+-#include "CvGameAI.h"
+ #include "CvGlobals.h"
+ 
+ CvTalkingHeadMessage::CvTalkingHeadMessage(int iMessageTurn, int iLen, LPCWSTR pszDesc, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCTSTR pszIcon, ColorTypes eColor, int iX, int iY, bool bShowOffScreenArrows, bool bShowOnScreenArrows) :
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 3dfefb236..6c6123ad8 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -7,7 +7,6 @@
+ #include "CvGlobals.h"
+ #include "CvTeamAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvGameAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
+ #include "CvTeam.h"
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0f2aebdfa..3a63eb063 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -9,7 +9,6 @@
+ #include "CvMap.h"
+ #include "CvPlot.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+-#include "CvGameAI.h"
+ #include "CvInfos.h"
+ #include "FProfiler.h"
+ #include "CyArgsList.h"
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8caf82a8f..ba0698db6 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7,7 +7,6 @@
+ #include "CvCity.h"
+ #include "CvGlobals.h"
+ #include "CvGameCoreUtils.h"
+-#include "CvGameAI.h"
+ #include "CvMap.h"
+ #include "CvPlayerAI.h"
+ #include "CvRandom.h"
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3fe4fd61b..6d3f7efc9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6,7 +6,6 @@
+ #include "CvArea.h"
+ #include "CvPlot.h"
+ #include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvTeamAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvGameCoreUtils.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 174b08562..b65d0cc79 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -10,7 +10,6 @@
+ #include "CyMap.h"
+ #include "CvGlobals.h"
+ #include "CvPlayerAI.h"
+-#include "CvGameAI.h"
+ //#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index eadacab37..7d04ceefe 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -266,15 +266,6 @@ void InvasionGraph::Node::findAndLinkTarget() {
+ 	}
+ 	if(canHaveTarget) {
+ 		targetId = findTarget();
+-// <advc.tmp>
+-#ifdef D_DEBUG
+-PlayerTypes verif=findTarget_oldImpl();
+-if(verif != targetId) {
+-	FAssert(verif==targetId);
+-	findTarget_oldImpl();
+-	findTarget();
+-}
+-#endif // </advc.tmp>
+ 		if(targetId == NO_PLAYER) {
+ 			if(warOpponents.empty())
+ 				report.log("%s has no war opponents.", report.leaderName(id));
+@@ -308,68 +299,6 @@ if(verif != targetId) {
+ 	else primaryTarget->targetedBy.insert(id);
+ }
+ 
+-// <advc.tmp> Remove once confident that the new function does the exact same thing
+-PlayerTypes InvasionGraph::Node::findTarget_oldImpl(TeamTypes include) const {
+-
+-	/*  Find the city with the highest targetValue and check which potential
+-		target has reachable cities left. (City::canReach says which ones are
+-		reachable in the actual game state; doesn't take into account
+-		Node::hasLost.) */
+-	bool canTarget[MAX_CIV_PLAYERS];
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+-		canTarget[i] = false;
+-	PlayerTypes likeliestTarget = NO_PLAYER;
+-	for(int i = 0; i < cache.size(); i++) {
+-		WarAndPeaceCache::City* city = cache.getCity(i);
+-		if(city == NULL || !city->canReach())
+-			continue;
+-		PlayerTypes owner = city->cityOwner();
+-		if(owner == NO_PLAYER || (!isWarOpponent[owner] &&
+-				(include == NO_TEAM || GET_PLAYER(owner).getMasterTeam() !=
+-				GET_TEAM(include).getMasterTeam())) ||
+-				outer.nodeMap[owner] == NULL ||
+-				outer.nodeMap[owner]->hasLost(city->id()) ||
+-				// Important for phase II:
+-				outer.nodeMap[owner]->isEliminated() ||
+-				outer.nodeMap[owner]->hasCapitulated())
+-			continue;
+-		// First hit is best target b/c cache is sorted
+-		if(likeliestTarget == NO_PLAYER) {
+-			likeliestTarget = owner;
+-			/*  W/e the current target is according to unit missions, assume it
+-				will change once war is declared. */
+-			if((outer.allWarPartiesKnown || include != NO_TEAM) &&
+-					!TEAMREF(id).isAtWar(TEAMID(likeliestTarget)))
+-				return likeliestTarget;
+-		}
+-		canTarget[owner] = true;
+-	}
+-	if(likeliestTarget == NO_PLAYER) // Can't reach any target
+-		return NO_PLAYER;
+-	// Against whom does this Node have the most missions?
+-	PlayerTypes mostMissions = NO_PLAYER;
+-	// Tbd. possibly: Use a fraction of cache.numNonNavy as the threshold
+-	int maxCount = 3;
+-	for(set<PlayerTypes>::const_iterator it = warOpponents.begin();
+-				it != warOpponents.end(); it++) {
+-		PlayerTypes oppId = *it;
+-		if(!canTarget[oppId])
+-			continue;
+-		int n = cache.targetMissionCount(oppId);
+-		if(n > maxCount) {
+-			maxCount = n;
+-			mostMissions = oppId;
+-		}
+-	}
+-	if(mostMissions == NO_PLAYER) { // Fall back on likeliestTarget
+-		/*report.log("Too few missions to determine target of %s",
+-				report.leaderName(id));*/
+-		return likeliestTarget;
+-	}
+-	/*report.log("Target of %s determined based on unit missions.",
+-			report.leaderName(id));*/
+-	return mostMissions;
+-} // </advc.tmp>
+ 
+ PlayerTypes InvasionGraph::Node::findTarget(TeamTypes include) const {
+ 
+@@ -605,15 +534,6 @@ void InvasionGraph::Node::predictArmament(int duration, bool noUpgrading) {
+ 				!TEAMREF(weId).isAtWar(targetId)) {
+ 			report.setMute(true);
+ 			PlayerTypes actualTarget = findTarget(targetId);
+-// <advc.tmp>
+-#ifdef D_DEBUG
+-PlayerTypes verif=findTarget_oldImpl(targetId);
+-if(verif != actualTarget) {
+-	FAssert(verif==actualTarget);
+-	findTarget_oldImpl(targetId);
+-	findTarget(targetId);
+-}
+-#endif // </advc.tmp>
+ 			tC = targetCity(actualTarget);
+ 			report.setMute(false);
+ 		}
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index abd7f0225..cece843c8 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -119,8 +119,6 @@ friend class Node;
+ 		/* param: In addition to warOpponents. Also includes the vassals
+ 		  of that team. */
+ 		PlayerTypes findTarget(TeamTypes include = NO_TEAM) const;
+-// advc.tmp: Remove once confident that the new function does the exact same thing
+-PlayerTypes findTarget_oldImpl(TeamTypes include = NO_TEAM) const;
+ 		bool isValidTarget(WarAndPeaceCache::City const& c,
+ 				TeamTypes include = NO_TEAM) const;
+ 		static std::vector<UnitAITypes> garrisonTypes();
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index b6e688d3c..2a6a678b8 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -297,7 +297,6 @@ void MilitaryAnalyst::simulateNuclearWar() {
+ 		CvPlayerAI const& civ = GET_PLAYER(getWPAI.properCivs()[j]);
+ 		if(!isWar(weId, civ.getID()))
+ 			continue;
+-		FAssert(civ.getMasterTeam() != agent.getMasterTeam());
+ 		double civNukes = civ.warAndPeaceAI().getCache().
+ 				getPowerValues()[NUCLEAR]->num();
+ 		if(ourNukes + civNukes < 0.5)
+
+diff --git a/CvGameCoreDLL/RFChapterScore.cpp b/CvGameCoreDLL/RFChapterScore.cpp
+index 7c9bd8fae..01584a7b4 100644
+--- a/CvGameCoreDLL/RFChapterScore.cpp
++++ b/CvGameCoreDLL/RFChapterScore.cpp
+@@ -77,7 +77,7 @@ void RFChapterScore::atChapterStart(RFChapter const& rfc) {
+ 	chapter = &rfc;
+ 	/*  Sometimes updated before the start of the first chapter anyway, but 
+ 		not guaranteed. */
+-	GC.getGame().updateScore();
++	GC.getGame().updateScore(true);
+ 	std::pair<int,int> rank_rivals = computeRank(true);
+ 	initialRank = rank_rivals.first;
+ 	initialRivals = rank_rivals.second;
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 875d140b4..66a61d267 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -387,7 +387,7 @@ void RiseFall::atActiveTurnStart() {
+ 	RFChapter& currentCh = *chapters[pos];
+ 	if(currentCh.getCiv() != activeId)
+ 		return;
+-	if(gameTurn == currentCh.getStartTurn())
++	if(gameTurn == currentCh.getStartTurn() && pos > 0)
+ 		welcomeToNextChapter(pos);
+ 	/*  Save at the start of the player turn rather than at the start
+ 		of the game turn. A bit hard to say when exactly the savegame should be
+@@ -729,6 +729,9 @@ bool RiseFall::isDeliverMessages(PlayerTypes civId) const {
+ 	for(size_t i = 0; i < chapters.size(); i++)
+ 		if(chapters[i]->hasEnded() && chapters[i]->getCiv() == civId)
+ 			return false;
++	// First player civ not in slot 0; initialization not yet done.
++	if(chapters.empty())
++		return true;
+ 	// Can't switch after the final chapter
+ 	int pos = getCurrentChapter();
+ 	if(pos == chapters.size() - 1)
+
+diff --git a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+index 2c52e09b8..2ca3a024f 100644
+--- a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
++++ b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
+@@ -3,8 +3,8 @@ BeginGame
+ 	Speed=GAMESPEED_EPIC
+ 	Calendar=CALENDAR_DEFAULT
+ 	Option=GAMEOPTION_PICK_RELIGION
+-	Option=GAMEOPTION_NO_EVENTS
+ 	Option=GAMEOPTION_LEAD_ANY_CIV
++	Option=GAMEOPTION_NO_EVENTS
+ 	GameTurn=0
+ 	StartYear=-3600
+ 	Description=Eurocentric world map to replace Earth18Civs. Custom projection with some resemblance to the Bonne projection. Optimized for the Advanced Civ mod, but no mod is required. Work in progress.
+@@ -84,7 +84,6 @@ BeginPlayer
+ 	PlayableCiv=1
+ 	StartingX=53, StartingY=14
+ 	Handicap=HANDICAP_EMPEROR
+-	CityList=TXT_KEY_CITY_NAME_AOMORI
+ 	CityList=TXT_KEY_CITY_NAME_KYOTO
+ 	CityList=TXT_KEY_CITY_NAME_OSAKA
+ 	CityList=TXT_KEY_CITY_NAME_TOKYO
+@@ -116,6 +115,7 @@ BeginPlayer
+ 	CityList=TXT_KEY_CITY_NAME_TAKAYAMA
+ 	CityList=TXT_KEY_CITY_NAME_AKITA
+ 	CityList=TXT_KEY_CITY_NAME_FUKUOKA
++	CityList=TXT_KEY_CITY_NAME_AOMORI
+ 	CityList=TXT_KEY_CITY_NAME_KAMAKURO
+ 	CityList=TXT_KEY_CITY_NAME_KOCHI
+ 	CityList=TXT_KEY_CITY_NAME_NAHA
+@@ -25335,7 +25335,7 @@ BeginPlot
+ 	BonusType=BONUS_COPPER
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_PLAINS
+-	PlotType=2
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=65,y=39
+@@ -25725,6 +25725,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=66,y=38
++	BonusType=BONUS_CLAM
+ 	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+@@ -26548,7 +26549,6 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=68,y=44
+-	BonusType=BONUS_COPPER
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+@@ -31626,7 +31626,7 @@ BeginPlot
+ 	EndUnit
+ 	BeginCity
+ 		CityOwner=18
+-		CityName=TXT_KEY_CITY_NAME_ARYAN
++		CityName=TXT_KEY_CITY_NAME_HARAPPAN
+ 	EndCity
+ EndPlot
+ BeginPlot
+
+diff --git a/EuroWorld scenario/java/wbo/WBOut.java b/EuroWorld scenario/java/wbo/WBOut.java
+index afdaa8a28..3db33c0de 100644
+--- a/EuroWorld scenario/java/wbo/WBOut.java	
++++ b/EuroWorld scenario/java/wbo/WBOut.java	
+@@ -23,11 +23,18 @@ public class WBOut {
+ 				"\tCalendar=CALENDAR_DEFAULT",
+ 				"\tOption=GAMEOPTION_PICK_RELIGION",
+ 				//"\tOption=GAMEOPTION_RAGING_BARBARIANS",
++				// Just to give players a hint that I've mixed and matched a bit
++				"\tOption=GAMEOPTION_LEAD_ANY_CIV",
+ 				/* No problems w/ events, but I don't want to play w/ them and the
+ 				   Custom Scenario screen doesn't remember this preference. */
+ 				"\tOption=GAMEOPTION_NO_EVENTS",
+-				// Just to give players a hint that I've mixed and matched a bit
+-				"\tOption=GAMEOPTION_LEAD_ANY_CIV",
++				//"NumAdvancedStartPoints=350", // Will be 0 otherwise
++				/* However, the Custom Scenario screen still suppresses Advanced Start
++				 * unless
++				 * "\tOption=GAMEOPTION_ADVANCED_START",
++				 * is set - but that enables Advanced Start by default.
++				 * "\tForceControl=FORCECONTROL_ADVANCED_START",
++				 * doesn't seem to have any impact. */
+ 				"\tGameTurn=0",
+ 				"\tStartYear=-3600",
+ 				"\tDescription=Eurocentric world map to replace Earth18Civs. " +
+@@ -69,7 +76,7 @@ public class WBOut {
+ 						new String[]{"YASODHARAPURA","Nakhon Pathom","Hanoi"/*"Fuzhou""NINGBO"*//*"GUANGZHOU","XINYU","MAOMING","KUNMING"*//*,"TAIPEI",*/},
+ 						"PRINCE"),
+ 				new Civ("TOKUGAWA", "JAPAN", 45, 10, "FISHING", "MYSTICISM",
+-						new String[]{"AOMORI"}, "", true, true, blockedReligions),
++						new String[]{/*"AOMORI"*/}, "", true, true, blockedReligions),
+ 				new Civ("ZARA_YAQOB", "ETHIOPIA", 59, 24, "AGRICULTURE", "",
+ 						new String[]{"AKSUM","NUBIAN"}, "PRINCE"),
+ 				new Civ("MANSA_MUSA", "MALI", 36, 29, "MINING", "",
+@@ -116,7 +123,7 @@ public class WBOut {
+ 		final Set<BarbCity> barbs = placeBarbs ? new HashSet<BarbCity>(
+ 				Arrays.asList(new BarbCity[] {
+ 				new BarbCity("SAMARQAND",71,41),
+-				new BarbCity("ARYAN",75,35),
++				new BarbCity("HARAPPAN",75,35),
+ 				new BarbCity("PHEONICIAN",59,33,new String[]{"JUDAISM"}),
+ 				new BarbCity("NUMIDIAN",40,35),
+ 				//new BarbCity("GEPID",50,47),
+@@ -128,7 +135,7 @@ public class WBOut {
+ 		})) : new HashSet<BarbCity>(
+ 				Arrays.asList(new BarbCity[] {
+ 				// To keep civs from rushing into the Indus valley 
+-				new BarbCity("ARYAN",73,32),
++				new BarbCity("HARAPPAN",73,32),
+ 		}));
+ 		final boolean magyars = barbs.stream().anyMatch(p -> p.getName().equals("MAGYAR") || p.getName().equals("GEPID")); 
+ 		final Set<Point2D> desert = new HashSet<Point2D>(
+@@ -315,7 +322,7 @@ public class WBOut {
+ 				new Point(69,43),
+ 				new Point(70,43),
+ 				new Point(65,42),
+-				//new Point(66,42), // should be land, but need Aral to be saline
++				//new Point(66,42), // should be land, but want Aral to be saline
+ 				new Point(68,42),
+ 				new Point(67,41),
+ 				new Point(68,41),
+@@ -2178,7 +2185,7 @@ public class WBOut {
+ 				new Point(60,32),
+ 				new Point(60,35),
+ 				new Point(61,36),
+-				new Point(58,34), // Cyprus
++				new Point(57,34), // Cyprus
+ 				// Anatolia
+ 				new Point(55,37),
+ 				new Point(56,37),
+@@ -2384,7 +2391,7 @@ public class WBOut {
+ 				new Point(76,43),
+ 				new Point(70,40),
+ 				new Point(65,42), // Ustyurt Plateau
+-				//new Point(66,42), // should be land, but need Aral to be saline
++				//new Point(66,42), // should be land, but want Aral to be saline
+ 				// Taklamakan
+ 				new Point(74,42),
+ 				new Point(75,40),
+@@ -3269,9 +3276,10 @@ public class WBOut {
+ 				// Levante
+ 				new Bonus("WINE",59,34),
+ 				new Bonus("HORSE",60,33),
++				new Bonus("CLAM",58,34),
+ 				new Bonus("COPPER",57,34), // Cyprus
+ 				// Caucasus
+-				new Bonus("COPPER",60,40),
++				//new Bonus("COPPER",60,40), // Murgul; disabled in favor of a Japanese deposit
+ 				new Bonus("SHEEP",61,41),
+ 				new Bonus("WINE",61,40),
+ 				new Bonus("OIL",63,40),
+
+diff --git a/future gameplay changes/readme.txt b/future gameplay changes/readme.txt
+index 63e9691d9..3de31d1f7 100644
+--- a/future gameplay changes/readme.txt	
++++ b/future gameplay changes/readme.txt	
+@@ -1,4 +1,4 @@
+-Draft of balance/historicity changes for the AdvCiv mod. Sept2018
++Draft of balance/historicity changes for the AdvCiv mod. Dec2018
+ **************************************************************************
+ 
+ tech-tree.pdf: The proposed tech tree
+@@ -22,7 +22,7 @@ See also: https://forums.civfanatics.com/threads/advanced-civ.614217/page-5#post
+ 
+ 4. Much lower corporation yields overall; the yields per city decrease each time the corporation expands. No HQ required in order to train Executives, but increased maintenance when there is no HQ or when war or a civic makes it inaccessible.
+ 
+-5. Make resources less crucial for health and happiness as this disadvantages small civs too much by the mid/late game: A few more resources go obsolete (see tech-tree.pdf) and perhaps cap the total health bonus of buildings like Granary at 2 (not spelled out in stat-changes.pdf). Grant happiness from city culture rate regardless of whether the culture slider is used; have the slider position only matter for Colosseum and Theater.
++5. Make resources less crucial for health and happiness as this disadvantages small civs too much by the mid/late game: A few more resources go obsolete (see tech-tree.pdf) and perhaps cap the total health bonus of buildings like Granary at 2 (not spelled out in stat-changes.pdf). Grant happiness from city culture rate (with diminishing returns) regardless of whether the culture slider is used; have the slider position only matter for Colosseum and Theater.
+ (Already implemented: The AI is willing to sell even non-surplus resources at reasonable prices when it doesn't need those resources for city growth.)
+ 
+ 6. Civs running a state religion different from that of the Apostolic Palace (AP) can't be AP members. The AP owner picks all proposals, no election of the AP resident. UN and AP voting populations are weighted by city nationality (i.e. relative city tile culture).
+@@ -39,7 +39,7 @@ See also: https://forums.civfanatics.com/threads/advanced-civ.614217/page-5#post
+ 
+ 12. Ravages of war:
+ * Razing a city takes one attack per population; each attack reduces the population by one and has a chance of destroying a building.
+-* Bombardment increases war weariness for the city owner and has a small chance of destroying a building (Civ 4 Reimagined already does this). Each attack against a city defender has a chance of destroying a building. Upon entering the city, few buildings or none are destroyed (unless razed).
++* Reduced city defense causes anger; bombardment causes war weariness and has a small chance of destroying a building (Civ 4 Reimagined already does this). Each attack against a city defender has a chance of destroying a building. Upon entering the city, few buildings or none are destroyed (unless razed).
+ * Reduce capture gold; perhaps only grant it when razing.
+ 
+ 13. City garrisons need to have sufficient (defensive) combat strength in order to quell "fear for safety" anger. (Already implemented as change 500b, but currently disabled through an XML switch.)
+
+[PATCH OMITTED] file=a/future gameplay changes/sources(ODT).zip b/future gameplay changes/sources(ODT).zip reason=binary/generated-file changedLines=0 bytes=240
+
+[PATCH OMITTED] file=a/future gameplay changes/stat-changes.pdf b/future gameplay changes/stat-changes.pdf reason=binary/generated-file changedLines=0 bytes=240
+
+[PATCH OMITTED] file=a/future gameplay changes/tech tree.pdf b/future gameplay changes/tech tree.pdf reason=binary/generated-file changedLines=0 bytes=228
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH COVERAGE]
+patchFiles=44 embeddedFiles=37 omittedFiles=7 embeddedPatchBytes=45030

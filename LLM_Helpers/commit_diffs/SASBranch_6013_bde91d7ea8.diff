@@ -1,0 +1,309 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6013
+# Commit: bde91d7ea89f21697873c5d1cead5045ee21347c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9e309a31fbfebf72c6ee9f5629e53dfc27af4550
+# Title: Prioritize actionable AI Work Boats before land Workers and remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (KI#174)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+17	15	CvGameCoreDLL/CvCityAI.cpp
+15	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+69	68	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6aa505bfa..757121214 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1160,7 +1160,22 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	// <!-- custom: Rebuild a minimum worker force before normal project/building/unit priorities can keep winning forever. In the 2039 Ciaco Canyon test save, the stuck last city already had a long production queue so this did not directly fix that city, but BBAI logs showed the floor firing often elsewhere. This guarantees more early workers after losses or underproduction; workers are high-value relative to cost, especially when larger cities convert food + hammers into them, and stronger early worker coverage makes AI development much stronger. Do not force only the capital/high-pop cities to rebuild workers: weaker or stagnant cities can sometimes produce one without interrupting the growth or key builds of stronger cities. AI_totalAreaUnitAIs includes workers already being trained, so this area-local floor gives 2 workers for the capital area and 1 per other city without making every city queue one at once. (GPT-5.5) -->
++	// <!-- custom: BBAI logs showed Seoul had safe, buildable BFC Molluscs from turn 0, but the land-Worker minimum ran first and delayed its Work Boat until about turn 17. Move the existing Work Boat priority before the land-Worker minimum: seafood improves growth without stopping it, accelerating the following Worker, while the no-defender branch above still preserves immediate city safety.
++	// Confirming save-file-443 tests first made Seoul choose defender -> Work Boat at turn 5. Mutal correctly kept Worker first because Maya lacked Fishing, then its Molluscs/Fish became improvable and it chose a Work Boat at turn 12.
++	// Note: similarly, Whale does not trigger this priority before it can be improved.
++	// Apply this to every safe city rather than only early capitals or low-population cities: Seoul reached population 3 and switched to its Worker before completing the Work Boat when this retained the old population limit. See KI#174. (GPT-5.5) -->
++	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
++	const bool bEarlyCapitalWorkerWindow = (isCapital() && kGame.getElapsedGameTurns() * 100 < 30 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() && bSafeEconomicWorkerProduction);
++	if (bSafeEconomicWorkerProduction && !bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
++	{
++		if (AI_chooseUnit(UNITAI_WORKER_SEA))
++		{
++			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++			return;
++		}
++	}
++
++	// <!-- custom: Rebuild the shared area Worker minimum before normal priorities can leave the AI short indefinitely. In the 2039 Ciaco Canyon test save, the stuck last city already had a long queue so this did not directly fix it, but BBAI logs showed the minimum firing often elsewhere. Any suitable city may contribute, and AI_totalAreaUnitAIs includes queued Workers. The centralized demand/minimum now preserves reliable availability without forcing the old early second Worker. (GPT-5.5) -->
+ 	int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
+ 	if (!bDanger && iExistingWorkers < iMinimumAreaWorkers)
+ 	{
+@@ -1275,21 +1290,8 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	bool bChooseWorker = false;
+ 
+-	if (isCapital() &&
+-		kGame.getElapsedGameTurns() * 100 <
+-		30 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() &&
+-		!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
++	if (bEarlyCapitalWorkerWindow)
+ 	{
+-		if (!bWaterDanger && iCityPopulation < 3 &&
+-			iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
+-		{
+-			// Build Work Boat first since it doesn't stop growth
+-			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+-			{
+-				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+-				return;
+-			}
+-		}
+ 		if (iExistingWorkers == 0 && /* advc.113: */ iMissingWorkers > 0 &&
+ 			//AI_totalBestBuildValue(kArea) > 10
+ 			AI_totalBestBuildValue(kArea) + 50 * iLandBonuses > 100) // K-Mod
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 7a688cccc..b7d3306b1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -212,6 +212,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#171---tentatively-addressed-and-hardened-rare-t281-crash-related-to-cvplotsetlayoutdirty0x12f3-and-cvplotchecklateera0x877)\
+ [172 - (Fixed) Base AdvCiv bug: inverted city-value percentile gave intended important-city evacuation protection to low-value cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities)\
+ [173 - (Fixed/Improved) Base AdvCiv issue: Live first-settler scoring reused hidden map-generation surroundings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings)\
++[174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6308,3 +6309,17 @@ Continued BBAI testing exposed additional overlapping first-city filters and sco
+ - After these follow-up changes, Berlin naturally ranks fully revealed `(33,13)` above `(35,11)` by `4027` to `3957` and founds there in the save file 442 regression test. Save file 360 improved from tundra/resource-heavy `(49,43)` to river Grassland `(50,40)` with Pig and Maize; save file 431 selected reasonable river Grassland `(38,44)` in a generally poor starting region.
+ 
+ Fixed/improved with the help of GPT-5.5 (on Codex) thanks.
++
++## 174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1F-DdmpQDPttnb9lwsLrttUFCJdHdTjNk?usp=sharing).
++
++Base AdvCiv's early Worker logic considered a Work Boat only while the city population was below 3. In the original save file 443 run (`BBAI_20260705T095326Z_load4.log`), BBAI logging showed Seoul had safe, currently improvable BFC Molluscs from turn 0, but the land-Worker priority delayed its Work Boat until about turn 17. After moving the useful Work Boat choice before the land-Worker minimum, the intermediate run (`BBAI_20260705T104621Z_load4.log`) made Seoul select it on turn 5, but Seoul reached population 3 on turn 12 and switched to a Worker before completing it; Lisbon similarly switched at population 3 on turn 13 in `BBAI_20260705T104459Z_load1.log`.
++
++The Work Boat priority now has no population cutoff. After producing an immediate defender when needed, any safe city with currently improvable seafood and no available Work Boat can complete that economic improvement before the land-Worker minimum. Danger, water danger, and the Turtle strategy still prevent this priority.
++
++This does not produce unusable Work Boats. `AI_neededSeaWorkers` uses no technology lookahead, so only seafood that is currently buildable and reachable counts. Maya starts with Hunting and Pottery rather than Fishing, so Mutal correctly built its Worker first; its Molluscs and Fish became buildable when it acquired Fishing on turn 12, and it then selected a Work Boat. Whale remains excluded until Seafaring makes Whaling Boats available.
++
++In the confirming save file 443 run (`BBAI_20260705T105644Z_load4.log`), Seoul continued choosing its Work Boat at populations 3 and 4, completed it, then started its Worker. The separate Lisbon test (`BBAI_20260705T105453Z_load1.log`) also completed its Work Boat before starting its Worker.
++
++Fixed/improved with the help of GPT-5.5 (on Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f05b94620..40ae74dd2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -11,66 +11,66 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
+ 
+ ## Menu
+ 
+-[Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)  
+-[Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)  
+-&emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)  
+-&emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)  
+-&emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations)  
+-&emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll)  
+-&emsp;[AI](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ai)  
+-&emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes-ai)  
+-&emsp;&emsp;[Victories (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#victories-ai)  
+-&emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses-ai)  
+-&emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#city-plots-ai)  
+-&emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#city-production-ai)  
+-&emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#specialists-ai)  
+-&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civics-ai)  
+-&emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies-ai)  
+-&emsp;&emsp;[Religions (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#religions-ai)  
+-&emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders-ai)  
+-&emsp;&emsp;[Barbarians (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians-ai)  
+-&emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy-ai)  
+-&emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings-ai)  
+-&emsp;&emsp;[Units (Common) (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#units-common-ai)  
+-&emsp;&emsp;[Civilian Units (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units-ai)  
+-&emsp;&emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai)  
+-&emsp;&emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#workers-ai)  
+-&emsp;&emsp;&emsp;[Other Civilian Units (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#other-civilian-units-ai)  
+-&emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military-ai)  
+-&emsp;[UI](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui)  
+-&emsp;&emsp;[UI (Main Menu)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-main-menu)  
+-&emsp;&emsp;[UI (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-common)  
+-&emsp;&emsp;[UI (Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-sevopedia)  
+-&emsp;&emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game)  
+-&emsp;[General changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes)  
+-&emsp;[Game Speeds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds)  
+-&emsp;[World Size/Scaling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#world-sizescaling)  
+-&emsp;[Mapscripts](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mapscripts)  
+-&emsp;[Handicaps](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicaps)  
+-&emsp;[Terrains / Features](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features)  
+-&emsp;[Bonuses](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses)  
+-&emsp;[Improvements](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#improvements)  
+-&emsp;[Builds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#builds)  
+-&emsp;[Specialists](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#specialists)  
+-&emsp;[Traits](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#traits)  
+-&emsp;[Civics](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civics)  
+-&emsp;[Technologies](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies)  
+-&emsp;[Eras](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#eras)  
+-&emsp;[Culture](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#culture)  
+-&emsp;[Religions](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#religions)  
+-&emsp;[Corporations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#corporations)  
+-&emsp;[Votes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)  
+-&emsp;[Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#events)  
+-&emsp;[Event Triggers and Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)  
+-&emsp;[Barbarians](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians)  
+-&emsp;[Civilizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilizations)  
+-&emsp;[Leaders](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders)  
+-&emsp;[Diplomacy](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy)  
+-&emsp;[Buildings](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings)  
+-&emsp;[Units (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#units-common)  
+-&emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units)  
+-&emsp;[Military & related units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military--related-units)  
+-[Fixes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#fixes)  
++[Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)\
++[Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)\
++&emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)\
++&emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)\
++&emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations)\
++&emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll)\
++&emsp;[AI](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ai)\
++&emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes-ai)\
++&emsp;&emsp;[Victories (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#victories-ai)\
++&emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses-ai)\
++&emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#city-plots-ai)\
++&emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#city-production-ai)\
++&emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#specialists-ai)\
++&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civics-ai)\
++&emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies-ai)\
++&emsp;&emsp;[Religions (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#religions-ai)\
++&emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders-ai)\
++&emsp;&emsp;[Barbarians (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians-ai)\
++&emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy-ai)\
++&emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings-ai)\
++&emsp;&emsp;[Units (Common) (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#units-common-ai)\
++&emsp;&emsp;[Civilian Units (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units-ai)\
++&emsp;&emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai)\
++&emsp;&emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#workers-ai)\
++&emsp;&emsp;&emsp;[Other Civilian Units (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#other-civilian-units-ai)\
++&emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military-ai)\
++&emsp;[UI](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui)\
++&emsp;&emsp;[UI (Main Menu)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-main-menu)\
++&emsp;&emsp;[UI (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-common)\
++&emsp;&emsp;[UI (Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-sevopedia)\
++&emsp;&emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game)\
++&emsp;[General changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes)\
++&emsp;[Game Speeds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds)\
++&emsp;[World Size/Scaling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#world-sizescaling)\
++&emsp;[Mapscripts](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mapscripts)\
++&emsp;[Handicaps](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicaps)\
++&emsp;[Terrains / Features](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features)\
++&emsp;[Bonuses](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses)\
++&emsp;[Improvements](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#improvements)\
++&emsp;[Builds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#builds)\
++&emsp;[Specialists](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#specialists)\
++&emsp;[Traits](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#traits)\
++&emsp;[Civics](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civics)\
++&emsp;[Technologies](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies)\
++&emsp;[Eras](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#eras)\
++&emsp;[Culture](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#culture)\
++&emsp;[Religions](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#religions)\
++&emsp;[Corporations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#corporations)\
++&emsp;[Votes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)\
++&emsp;[Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#events)\
++&emsp;[Event Triggers and Events](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)\
++&emsp;[Barbarians](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians)\
++&emsp;[Civilizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilizations)\
++&emsp;[Leaders](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders)\
++&emsp;[Diplomacy](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy)\
++&emsp;[Buildings](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings)\
++&emsp;[Units (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#units-common)\
++&emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units)\
++&emsp;[Military & related units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military--related-units)\
++[Fixes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#fixes)\
+ 
+ ## Full code diff (very long)
+ 
+@@ -111,7 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ ### Code/Performance optimizations
+ 
+ - **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+-- **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empirically fixes**  direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method. Possibly similar issues and crashes encountered when early caching sevopedia playground's background and cache. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
++- **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empirically fixes** direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method. Possibly similar issues and crashes encountered when early caching sevopedia playground's background and cache. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+ - **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map). (Requires AdvCiv-SAS 5940+) Also added `findInfoTypeNumOrFail(...)` for older `CvUtil.findInfoTypeNum(...)` callsites that need getter/count function. Note: now also double-checked by a GitHub workflow check which now blocks new raw static/literal Python info-type lookups unless they are explicitly listed as dynamic/guarded legacy exceptions.
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+@@ -201,6 +201,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ 
+ #### City Production (AI)
+ 
++- (Requires AdvCiv-SAS 6013+) **Prioritize useful Work Boats for seafood before land Workers:** after producing an immediate defender when needed, a safe AI city now builds a Work Boat before its land Worker when it has seafood that can be improved now (unless immediate defense and danger/Turtle safeguards take precedence). This is more efficient because improving seafood increases food without stopping city growth during production, and this extra food helps the following Worker and later production be produced faster. Note: the AI does not waste a Work Boat on unavailable improvements such as Whale before the required technology like as of now `TECH_SEAFARING` is discovered. Note: also remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (See [KI#174](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)). After these changes, in save file 443 BBAI tests, Seoul successfully selected a Work Boat for its available Molluscs on turn 5 instead of delaying it until about turn 17 (to produce a worker before it), while Mutal correctly built its Worker first because Maya lacked the as of now required `TECH_FISHING` for Molluscs and Fish, then selected a Work Boat on turn 12 when this tech was discovered and thus these bonuses became improvable.
+ - **Emergency water-food / water-hammer buildings (pre-fallback):** Before the "no-production" fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. (Requires AdvCiv-SAS 5919+) Also force the **water-hammer building class** (e.g., **Port**) for **high-enough pop** (enough headcount so it is worth investing on water plots) coastal cities unless they are very good and don't need it: cities that **still have fairly low production** or **not too high food surplus**; Port can take significant time, but these cities are **unlikely to contribute much short-term production anyway**, and hammer on water tiles makes their later infrastructure and future building time **more helpful later on**. Immediate danger / defense logic still runs earlier, so Walls/Castle can still go first when needed, otherwise the **risk is deemed worth the delay** to produce these buildings. Runs in `CvCity::doTurn`.
+ - **Emergency defense priority (risk-aware):** When invasion risk is high—enemy team **significantly stronger**, **nearby danger** detected, or **at war** with an opponent not significantly weaker—**force-build** **Walls**, then **Castle** (if missing) at top priority. Triggers are conservative to avoid growth drag. Implemented in `CvCity::AI_doTurn`. Early autoplay suggests fewer snowball steamrolls. **Update:** Skip this emergency defense path for **very low-hammer** cities (scaled by era) or cities whose inner BFC is **mostly water tiles**, as these are better used as economy cities and unlikely to hold the main front; this also prevents triggering fallback-unit / emergency-defense builds too early and avoids stalling early growth. **Update 2:** For **water-heavy cities**, this emergency-defense path is **disabled**; see the related Update 2 note below.
+ - **"No production" stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to "any suitable land unit" if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. **Update 2:** For **water-heavy cities**, when the **no-production fallback** in `CvCity::AI_doTurn` triggers, try to use key **water-focused economic buildings** (food / hammers / gold) as the fallback instead of a generic land-unit fallback; this is usually more efficient for growth/economy, and such cities are less likely to be main land-attack targets. See also [Buildings](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings) or Sevopedia/XML.
+@@ -383,7 +384,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ### UI (Common)
+ 
+ - **Optionally** support **upscaling font size** (i.e. UI text size) regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, most of **diplomacy screen** (when it was possible) in [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) and `CvPlayer::getItemTradeString` (for trading table), **Event Log** window (as of now only **Event Log** and **Combat Log** tabs are supported) and **event message popup** (top-center) in [CvUtil.py](/Assets/Python/CvUtil.py) and [CvEventManager.py](/Assets/Python/CvEventManager.py) and `CvDLLInterfaceIFaceBase::addMessage` (note: Event related message upscaling **only applies to new messages written after upscaling is enabled**, not to previously written event messages before upscaling was applied), miscellaneous screens such as the [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py) (i.e. the e.g., "You have entered the Renaissance era!" screen), [CvWonderMovieScreen.py](/Assets/Python/Screens/CvWonderMovieScreen.py), (from hardcoded `<font=4b>` to SAS FONT `TITLE` (more readable without bold)), [CvSpaceShipScreen.py](/Assets/Python/Screens/CvSpaceShipScreen.py), and other places where font size could be changed. Made some **UI adjustments when needed to accommodate the larger text**. Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). A **simple way to upscale all text to max font size** is for example to set `SAS_UI_FONT_TINY`, `SAS_UI_FONT_BODY`, `SAS_UI_FONT_LABEL`, `SAS_UI_FONT_TITLE` and `SAS_UI_FONT_HOVER` all to max font size which is 4. See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+-- **Upscaling adjustments** include generally to expand them so text does not overflow, or notably: smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **smaller Sevopedia speeds first column** (only at **lower resolutions** since these don't have enough horizontal room per column to show them without clipping),  **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**, **do not upscale icons** in the Foreign Diplomacy Advisor's **Glance Tab** when text is upscaled and there are **>= 2 icons** (e.g., worst enemy + at war icons) (See [KI#116](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)), added **attitude icon chars** in [GameFont.tga](/Assets/res/Fonts/GameFont.tga) (21x20 icon size): previously they existed only in [GameFont_75.tga](/Assets/res/Fonts/GameFont_75.tga) (16x16 icon size), causing attitude icon chars to **disappear** (e.g., in Score Tab) **when font was upscaled (attitude font size >= 3)** (see [KI#117](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)), increase **vertical spacing** in Info screen's **Graph Tab** between **leader lines** when text is upscaled (label > 3), **dynamically adjust** the Info Screen's **Graph Tab**'s legend (i.e. leaders') **line height** (**reduced** when there are **many leaders** (e.g., > 36) but **expanded if vertical resolution is high** enough to accommodate it (e.g., >= 1440p)), and adjust legend **line width** depending on **font size** (label >= 3) (and further enlarge it for long leader names).
++- **Upscaling adjustments** include generally to expand them so text does not overflow, or notably: smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **smaller Sevopedia speeds first column** (only at **lower resolutions** since these don't have enough horizontal room per column to show them without clipping), **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**, **do not upscale icons** in the Foreign Diplomacy Advisor's **Glance Tab** when text is upscaled and there are **>= 2 icons** (e.g., worst enemy + at war icons) (See [KI#116](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)), added **attitude icon chars** in [GameFont.tga](/Assets/res/Fonts/GameFont.tga) (21x20 icon size): previously they existed only in [GameFont_75.tga](/Assets/res/Fonts/GameFont_75.tga) (16x16 icon size), causing attitude icon chars to **disappear** (e.g., in Score Tab) **when font was upscaled (attitude font size >= 3)** (see [KI#117](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)), increase **vertical spacing** in Info screen's **Graph Tab** between **leader lines** when text is upscaled (label > 3), **dynamically adjust** the Info Screen's **Graph Tab**'s legend (i.e. leaders') **line height** (**reduced** when there are **many leaders** (e.g., > 36) but **expanded if vertical resolution is high** enough to accommodate it (e.g., >= 1440p)), and adjust legend **line width** depending on **font size** (label >= 3) (and further enlarge it for long leader names).
+ - **Increase hover text** base **font size** from **2 to 3** and most UI elements (e.g., scoreboard, advisors, main interface, sevopedia) **from body (i.e. 2) to label (i.e. 3)**, and **increased font2 billboard from 100 to 120 percent** so it is **more readable**.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+@@ -413,7 +414,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player). See also [KI#141](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game). Note: Civ selection/action sounds can include several variants. Replay to hear different samples. Note 2: some Improvement 3D sounds as of now can play no or the wrong sound. Try to click Play several times to hear the correct sound. Note 3: Ambience 3D can start late; e.g;, dog begins around 5-20 seconds, and horn beings at around 8-20 seconds (They seem not to start right away, e.g., after entering city screen).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, **Corporations** (if any; as of now in base AdvCiv there are none), and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+-- New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared across all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **text color**, **background**, and **panel styles**, with `+` and `-` button to swap them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`,  `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
++- New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared across all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **text color**, **background**, and **panel styles**, with `+` and `-` button to swap them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`, `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ - New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units, Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
+ - New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude**, **action**, and (if set) **leaderhead art era buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+@@ -436,7 +437,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### UI (In-game)
+ 
+-- **Beautified** and **expanded**, and add **support for text upscaling** for miscellaneous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score Tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscellaneous screens)](/README.md#miscellaneous-screens)
++- **Beautified** and **expanded**, and add **support for text upscaling** for miscellaneous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered) is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score Tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscellaneous screens)](/README.md#miscellaneous-screens)
+ - **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, moved away the **Environment Tab** from the former **Economic Advisor** (now removed), the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - Add **debug mode support** (for player selection) in the Domestic Advisor. Add **Barbarian** to **selectable leaders** in debug mode in advisors where it is relevant: Domestic Advisor, Policy Advisor, World Advisor, and Info Screen.
+@@ -562,9 +563,9 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ - **Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
+ - **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
+ - **Camel** replaces Hit Movies; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).
+-- **Bonuses — distribution (repartition) & yields (with stronger competition):** Adjusted **distribution/spawn chances** and **yields** across many bonuses.  
+-  **Yields:** formerly weak bonuses (e.g., **Silver**, **Deer**) are **stronger**; a few outliers (e.g., **Gold**) are **slightly weaker**; overall, bonuses grant **less commerce** to keep pacing gradual.  
+-  **Repartition:** **land food bonuses spawn less often** to create **real competition** for high-value spots; after testing, rates were raised enough that maps still feel lively. Several bonuses were **reworked** for clearer roles (e.g., **Sugar** gives **base hammer**; **Horse** gives **base food** on the tile but **hammer** once improved). **Deer** now **spawns more** (primary tundra/snow food) with **strong yields**, making **tundra cities** near Deer more viable. See **Sevopedia → Bonus** for current values and **[commit b841968](https://github.com/wonderingabout/AdvCiv-SAS/commit/b841968682f022e2cefbe1722efb3520492659b8)**; screenshots: **[5238](https://drive.google.com/file/d/1178did3ROEoIV_wbonpH91jZcdaNtzRg/view?usp=sharing)**, **[5241](https://drive.google.com/file/d/15acCk947FpTMmDJdzg6sMXCXOjYwiUB0/view?usp=sharing)**.
++- **Bonuses — distribution (repartition) & yields (with stronger competition):** Adjusted **distribution/spawn chances** and **yields** across many bonuses:  
++  - **Yields:** formerly weak bonuses (e.g., **Silver**, **Deer**) are **stronger**; a few outliers (e.g., **Gold**) are **slightly weaker**; overall, bonuses grant **less commerce** to keep pacing gradual.  
++  - **Repartition:** **land food bonuses spawn less often** to create **real competition** for high-value spots; after testing, rates were raised enough that maps still feel lively. Several bonuses were **reworked** for clearer roles (e.g., **Sugar** gives **base hammer**; **Horse** gives **base food** on the tile but **hammer** once improved). **Deer** now **spawns more** (primary tundra/snow food) with **strong yields**, making **tundra cities** near Deer more viable. See **Sevopedia → Bonus** for current values and **[commit b841968](https://github.com/wonderingabout/AdvCiv-SAS/commit/b841968682f022e2cefbe1722efb3520492659b8)**; screenshots: **[5238](https://drive.google.com/file/d/1178did3ROEoIV_wbonpH91jZcdaNtzRg/view?usp=sharing)**, **[5241](https://drive.google.com/file/d/15acCk947FpTMmDJdzg6sMXCXOjYwiUB0/view?usp=sharing)**.
+ - **Water bonuses — increased but conservative spawns:** **Molluscs** and **Fish** now spawn **more frequently** (they’re "general" water resources). Rates were tuned with tests to avoid over-spawning—**significant yet conservative** increases. See **Sevopedia → Bonus** for current values.
+ - **Whales — buff & placement:** **Whales** have been **buffed** and can now **spawn on coast** as well as ocean. Details in **Sevopedia → Bonus → Whales**.
+ - **Horses — no tundra placement:** **Horses no longer spawn on tundra.** Food needs there are primarily handled by **Deer**. Concentrating Horses on non-tundra improves typical access patterns on most starts.
+@@ -676,7 +677,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ - New leaders: **Ewuare**; **Grace O'Malley**, **Michael Collins**.
+ - Add support for optional **leaderhead art per era** with the new `EraArtDefineTags` and `EraArtDefineTag` XML fields; e.g., Gandhi's appearance and button changing at Ancient, Classical, Medieval, etc. The feature **is technically functional**, but **currently no leaderhead era art has been added**. Note: This is **per-player** not human-centered; e.g. even if the human player is at Medieval Era, if the rival Gandhi is still at Classical Era then Gandhi will use the Classical Era (if set). If none is set or disabled in SAS defines, the art defaults to the base `ArtDefineTag`. Note 2: due to a Civ4 limitation, if a leader (e.g., Gandhi) is used by several players (e.g., in Custom Game), only the first of these leaders' current era is used to select the art for all instances of that leader regardless of their own progress (e.g., if Gandhi 1 is at Medieval and Gandhi 2 and 3 are still at Classical, then Gandhi 2 and 3 will use Gandhi 1's Medieval art). See [README.md (EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art) and [KI#120](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players).
+ - Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer). Note: switched **De Gaulle** from Louis' music in Base AdvCiv to Base Civ4's Napoleon's music, and added an AdvCiv-SAS specific new music for Napoleon so each leader has its own specific music, see [KI#98](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon).
+-- **Trait overhaul:** Overhauled for historical fit + gameplay relevance. **Examples**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale in  [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework), or the values and rankings only in the new **Sevopedia Traits' Charts**. *Note: leader "flavors" unchanged.*
++- **Trait overhaul:** Overhauled for historical fit + gameplay relevance. **Examples**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale in [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework), or the values and rankings only in the new **Sevopedia Traits' Charts**. *Note: leader "flavors" unchanged.*
+ - Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s).
+ 
+ ## Diplomacy
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=56242

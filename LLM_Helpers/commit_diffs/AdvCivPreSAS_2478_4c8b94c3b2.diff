@@ -1,0 +1,124 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2478
+# Commit: 4c8b94c3b2d42e1ac71ec4b3b87cf9ffde9c5157
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cd7bf10b44a3e646a53b66ce12167f1189cbaa9c
+# Title: Show message when noncombat units are killed by attack
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+39	22	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9e6524f06..cb68761d7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1578,28 +1578,8 @@ void CvUnit::updateCombat(bool bQuick)
+ 			}
+ 		} // <advc.130m>
+ 
+-		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(),
+-				pDefender->getNameKeyNoGG()); // advc.004u
+-		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, GC.getInfo(
+-				GET_PLAYER(getOwner()) // advc.002l
+-				.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL,
+-				GC.getColorType("GREEN"), pPlot->getX(), pPlot->getY());
+-		if (getVisualOwner(pDefender->getTeam()) != getOwner())
+-		{
+-			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN",
+-					pDefender->getNameKeyNoGG(), // advc.004u
+-					getNameKey());
+-		}
+-		else
+-		{
+-			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED",
+-					pDefender->getNameKeyNoGG(), // advc.004u
+-					getNameKey(), getVisualCivAdjective(pDefender->getTeam()));
+-		}
+-		gDLL->UI().addMessage(pDefender->getOwner(), true, -1, szBuffer, GC.getInfo(
+-				GET_PLAYER(pDefender->getOwner()) // advc.002l
+-				.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL,
+-				GC.getColorType("RED"), pPlot->getX(), pPlot->getY());
++		addAttackSuccessMessages(*pDefender, true); // advc.010: Moved into new function
++
+ 		// report event to Python, along with some other key state
+ 		CvEventReporter::getInstance().combatResult(this, pDefender);
+ 
+@@ -1662,6 +1642,37 @@ void CvUnit::updateCombat(bool bQuick)
+ 	}
+ }
+ 
++// advc.010: Cut from resolveCombat. Used for killed noncombatants when bFought=false.
++void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const
++{
++	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY",
++			getNameKey(), /* advc.004u: */ kDefender.getNameKeyNoGG());
++	CvPlot const& kPlot = kDefender.getPlot();
++	gDLL->UI().addMessage(getOwner(), bFought, -1, szBuffer, bFought ? GC.getInfo(
++			GET_PLAYER(getOwner()) // advc.002l
++			.getCurrentEra()).getAudioUnitVictoryScript()
++			: NULL, // advc.010: No victory sound for killing noncombatant
++			MESSAGE_TYPE_INFO, NULL,
++			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
++	if (getVisualOwner(kDefender.getTeam()) != getOwner())
++	{
++		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN",
++				kDefender.getNameKeyNoGG(), // advc.004u
++				getNameKey());
++	}
++	else
++	{
++		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED",
++				kDefender.getNameKeyNoGG(), // advc.004u
++				getNameKey(), getVisualCivAdjective(kDefender.getTeam()));
++	}
++	gDLL->UI().addMessage(kDefender.getOwner(), bFought, -1, szBuffer, GC.getInfo(
++			GET_PLAYER(kDefender.getOwner()) // advc.002l
++			.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL,
++			GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
++}
++
++
+ void CvUnit::checkRemoveSelectionAfterAttack()
+ {
+ 	if (!canMove() ||/*!isBlitz()*/ /* advc.164:*/ isMadeAllAttacks())
+@@ -8215,6 +8226,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 						}
+ 						if (!isNoUnitCapture())
+ 							pLoopUnit->setCapturingPlayer(getOwner());
++						// <advc.010> Report death when pLoopUnit won't be captured
++						if (pLoopUnit->getCaptureUnitType(
++							GET_PLAYER(getOwner()).getCivilizationType()) == NO_UNIT)
++						{
++							addAttackSuccessMessages(*pLoopUnit, false);
++						} // </advc.010>
+ 						pLoopUnit->kill(false, getOwner());
+ 					}
+ 				}
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 11a20f7a7..8a4f128c9 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1141,6 +1141,7 @@ protected:
+ 	bool isCombatVisible(const CvUnit* pDefender) const;
+ 	//void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, CvBattleDefinition& kBattle);
+ 	void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible); // K-Mod
++	void addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const; // advc.010
+ 	void resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionDefinition& kBattle);
+ 	void checkRemoveSelectionAfterAttack();
+ // <advc.003u>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4238

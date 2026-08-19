@@ -1,0 +1,571 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1656
+# Commit: e4c29a33931c69d6b58212202b57a767e0397e08
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7d3dab89562838fd75e7c6b19ade074a2462324a
+# Title: Ensure that std::pow isn't used with a negative base
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	7	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	0	CvGameCoreDLL/CvGlobals.h
+49	74	CvGameCoreDLL/CvPlayerAI.cpp
+8	3	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/InvasionGraph.cpp
+5	4	CvGameCoreDLL/Project/Makefile
+9	5	CvGameCoreDLL/WarAndPeaceAgent.cpp
+2	1	CvGameCoreDLL/WarAndPeaceCache.cpp
+15	11	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index de2e9a0c0..3efe57ece 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4904,7 +4904,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	int iEra = g.getCurrentEra();
+ 	if(GET_PLAYER(ePlayer).isAlive())
+ 		iEra = GET_PLAYER(ePlayer).getCurrentEra();
+-	double eraFactor = 1 + std::pow((double)iEra, 1.3);
++	double eraFactor = 1 + (iEra > 0 ? std::pow((double)iEra, 1.3) : 0);
+ 	// To put a cap on the initial revolt chance in large cities:
+ 	pop = std::min(pop, 1.5 * eraFactor);
+ 	int iTimeOwned = g.getGameTurn() - getGameTurnAcquired();
+@@ -5056,11 +5056,14 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 		pUnitNode = plot()->nextUnitNode(pUnitNode);
+ 
+ 		int iGarrisonLoop = pLoopUnit->getUnitInfo().getCultureGarrisonValue();
+-		/*  advc.101: Culture garrison values increase a bit too slowly over the
++		// <advc.101>
++		if (iGarrisonLoop <= 0)
++			continue;
++		/*  Culture garrison values increase a bit too slowly over the
+ 			course of the game. Easier to adjust that here than through XML.
+ 			Note that this exponentiation is partly canceled out by exponentiation
+ 			of the current game era in CvCity::cultureStrength. */
+-		iGarrisonLoop = ::round(std::pow(iGarrisonLoop * 2 / 3.0, 1.4));
++		iGarrisonLoop = ::round(std::pow(iGarrisonLoop * 2 / 3.0, 1.4)); // </advc.101>
+ 		// <advc.023>
+ 		iGarrisonLoop *= pLoopUnit->maxHitPoints() - pLoopUnit->getDamage();
+ 		iGarrisonLoop /= 100;
+@@ -5069,8 +5072,9 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 	// Commented out: </advc.023>
+ 	/*if (atWar(GET_PLAYER(ePlayer).getTeam(), getTeam()))
+ 		iGarrison *= 2; */
+-	// advc.101: Exponentiate again to give strength in numbers a superlinear effect
+-	iGarrison = ::round(std::pow((double)iGarrison, 1.2));
++	// <advc.101> Exponentiate again to give strength in numbers a superlinear effect
++	if (iGarrison > 0)
++		iGarrison = ::round(std::pow((double)iGarrison, 1.2)); // </advc.101>
+ 	return iGarrison;
+ }
+ 
+@@ -9911,8 +9915,10 @@ double CvCity::probabilityOccupationDecrement() const {
+ 		if(eCulturalOwner != NO_PLAYER && TEAMREF(eCulturalOwner).isAtWar(getTeam()))
+ 			return 0;
+ 	}
+-	double r = std::pow(1 - revoltProbability(true, false, true),
+-			GC.getDefineINT("OCCUPATION_COUNTDOWN_EXPONENT"));
++	double r = 0;
++	double prRevolt = revoltProbability(true, false, true);
++	if (prRevolt < 1)
++		r = std::pow(1 - prRevolt, GC.getDefineINT(CvGlobals::OCCUPATION_COUNTDOWN_EXPONENT));
+ 	// Don't use probabilities that are too small to be displayed
+ 	if(r < 0.001)
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index b2ccc952d..bbbe6e143 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4878,7 +4878,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	if(c.isOccupation()) { // </advc.101>
+ 		// <advc.023>
+ 		// Show probability of decrementing occupation - unless it's always 1
+-		if(GC.getDefineINT("OCCUPATION_COUNTDOWN_EXPONENT") > 0) {
++		if(GC.getDefineINT(CvGlobals::OCCUPATION_COUNTDOWN_EXPONENT) > 0) {
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_OCCUPATION_TIMER",
+ 					c.getOccupationTimer()));
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 183bce592..527714d7c 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -1347,6 +1347,7 @@ public:
+ 		DO(CITY_RADIUS_DECAY) /* advc.130s */ \
+ 		DO(REVOLTS_IGNORE_CULTURE_RANGE) /* advc.099c */ \
+ 		DO(NUM_WARNING_REVOLTS) /* advc.101 */ \
++		DO(OCCUPATION_COUNTDOWN_EXPONENT) /* advc.023 */ \
+ 		DO(MAX_DISTANCE_CITY_MAINTENANCE) /* advc.140 */ \
+ 		DO(OWN_EXCLUSIVE_RADIUS) /* advc.035 */ \
+ 		DO(ANNOUNCE_REPARATIONS) /* advc.039 */ \
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0fa60f44b..e6987e1ee 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3365,8 +3365,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				{
+ 					//aiYield[eYield] -= GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, eYield);
+ 					// <advc.031> Replacing the above
+-					CvImprovementInfo& impr = GC.getImprovementInfo(eBonusImprovement);
+-					int imprYieldChg = impr.getImprovementBonusYield(eBonus, eYield);
++					CvImprovementInfo& kImpr = GC.getImprovementInfo(eBonusImprovement);
++					int iImprBonusYield = kImpr.getImprovementBonusYield(eBonus, eYield);
+ 					double const exp = 1.41;
+ 					/*  Add this, exponentiate, then subtract it again.
+ 						This should discourage the AI from settling on
+@@ -3375,11 +3375,14 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 						can't be evened out by fitting a plains hill instead
+ 						of a desert hill into the BFC -- the Copper would be
+ 						worked much sooner than the plains hill!) */
+-					int nonBonusYieldChg = impr.getYieldChange(eYield) +
+-							iBasePlotYield;
+-					aiYield[eYield] -= imprYieldChg <= 0 ? imprYieldChg :
+-							::round(std::pow((double)imprYieldChg +
+-							nonBonusYieldChg, exp) - nonBonusYieldChg);
++					int iNonBonusImprYield = kImpr.getYieldChange(eYield) + iBasePlotYield;
++					if (iImprBonusYield <= 0)
++						aiYield[eYield] -= iImprBonusYield;
++					else if (iImprBonusYield + iNonBonusImprYield > 0)
++					{
++						aiYield[eYield] -= ::round(std::pow((double)iImprBonusYield +
++								iNonBonusImprYield, exp) - iNonBonusImprYield);
++					}
+ 				} // </advc.031>
+ 				/*  (K-Mod) and subtract the base yield, so as to emphasise
+ 					city plots which add yield rather than remove it.
+@@ -5478,42 +5481,6 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 	CvWString szPlayerName = getName();
+ 	DEBUGLOG("AI_bestTech:%S\n", szPlayerName.GetCString());
+ #endif
+-	// k146: Commented out
+-	/*for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+-	{
+-		if ((eIgnoreTech == NO_TECH) || (iI != eIgnoreTech))
+-		{
+-			if ((eIgnoreAdvisor == NO_ADVISOR) || (GC.getTechInfo((TechTypes)iI).getAdvisorType() != eIgnoreAdvisor))
+-			{
+-				if (canEverResearch((TechTypes)iI))
+-				{
+-					if (!(kTeam.isHasTech((TechTypes)iI)))
+-					{
+-						if (GC.getTechInfo((TechTypes)iI).getEra() <= (getCurrentEra() + 1))
+-						{
+-							iPathLength = findPathLength(((TechTypes)iI), false);
+-
+-							if (iPathLength <= iMaxPathLength)
+-							{
+-								iValue = AI_techValue((TechTypes)iI, iPathLength, bIgnoreCost, bAsync, viBonusClassRevealed, viBonusClassUnrevealed, viBonusClassHave);
+-
+-								if (gPlayerLogLevel >= 3)
+-								{
+-									logBBAI("      Player %d (%S) consider tech %S with value %d", getID(), getCivilizationDescription(0), GC.getTechInfo((TechTypes)iI).getDescription(), iValue);
+-								}
+-
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									eBestTech = ((TechTypes)iI);
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}*/
+ 	// <k146>
+ 	/*  Instead of choosing a tech anywhere inside the max path length with no
+ 		adjustments for how deep the tech is, we'll evaluate all techs inside
+@@ -5606,10 +5573,7 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 			//values.push_back(iValue);
+ 			++iTechCount;
+ 
+-			if (iDepth == 0 && gPlayerLogLevel >= 3)
+-			{
+-				logBBAI("      Player %d (%S) consider tech %S with value %d", getID(), getCivilizationDescription(0), GC.getTechInfo(eTech).getDescription(), iValue);
+-			}
++			if (!bAsync && iDepth == 0 && gPlayerLogLevel >= 3) logBBAI("      Player %d (%S) consider tech %S with value %d", getID(), getCivilizationDescription(0), GC.getTechInfo(eTech).getDescription(), iValue); // advc.007: Don't log when bAsync
+ 		}
+ 	}
+ 	// We need this to ensure techs_to_depth[1] exists.
+@@ -6644,8 +6608,11 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 						iYieldValue = iYieldValue * 2/3;
+ 					/*  <advc.036> Since iBonusVal no longer overestimates early-game health,
+ 						high-yield tiles need to be appreciated more. */
+-					// This makes iYieldValue=225 a fixpoint
+-					iYieldValue = ::round(std::pow((double)iYieldValue, 1.5) / 15);
++					if (iYieldValue > 0)
++					{
++						// This makes iYieldValue=225 a fixpoint
++						iYieldValue = ::round(std::pow((double)iYieldValue, 1.5) / 15);
++					}
+ 					/*  At the start of the game, extra yields are very important,
+ 						but we need to be sure that the tile isn't blocked by a feature
+ 						before increasing iYieldValue further. Will have to check
+@@ -7454,7 +7421,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	/*  K-Mod, 12/sep/10, Karadoc
+ 		Use a random _factor_ at the end. */
+ 	// advc.003: Renamed from iRandomFactor, which is already defined (though unused).
+-	int iFinalRandomFactor = (bAsync ? getASyncRand().get(
++	int iFinalRandomFactor = (bAsync ? getASyncRand().get( // advc (comment): Should randomness be used at all when recommending tech (bAsync)?
+ 			200, "AI Research factor ASYNC") : // k146: was 100
+ 			GC.getGame().getSorenRandNum(
+ 			200, "AI Research factor")); // k146: was 100
+@@ -9464,7 +9431,8 @@ int CvPlayerAI::AI_getTradeAttitude(PlayerTypes ePlayer) const {
+ 	double tradeValDiff = AI_getPeacetimeTradeValue(ePlayer) -
+ 			(5/6.0) * GET_PLAYER(ePlayer).AI_getPeacetimeTradeValue(getID());
+ 	r += std::max(0.0, tradeValDiff);
+-	r = 11.5 * std::pow((double)r, 2/3.0); // Diminishing returns
++	if (r > 0)
++		r = 11.5 * std::pow((double)r, 2/3.0); // Diminishing returns
+ 	return range(::round(r * TEAMREF(ePlayer).AI_recentlyMetMultiplier(getTeam()))
+ 			/ AI_peacetimeTradeValDivisor(false), 0, PEACETIME_TRADE_RELATIONS_LIMIT);
+ 	/*  (Adjustment to game progress now happens when recording grant and trade values;
+@@ -9487,7 +9455,8 @@ int CvPlayerAI::AI_getRivalTradeAttitude(PlayerTypes ePlayer) const {
+ 	TeamTypes eTeam = TEAMID(ePlayer);
+ 	int r = kOurTeam.AI_getEnemyPeacetimeGrantValue(eTeam) +
+ 			(kOurTeam.AI_getEnemyPeacetimeTradeValue(eTeam) / 2);
+-	r = ::round(11.5 * std::pow((double)r, 2/3.0)); // Diminishing returns
++	if (r > 0)
++		r = ::round(11.5 * std::pow((double)r, 2/3.0)); // Diminishing returns
+ 	// OB hurt our feelings also
+ 	TeamTypes eEnemy = kOurTeam.AI_getWorstEnemy();
+ 	/*  Checking enemyValue here should - hopefully - fix an oscillation problem,
+@@ -12299,15 +12268,16 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 		/* original bts code
+ 		... */ // advc.003: deleted
+ 		// K-Mod. Similar, but much better. (maybe)
+-		const int iBaseValue = //30;
+-			/*  <advc.031> This value gets multiplied by the number of cities
+-				when converted to gold per turn, but AI_foundValue does not do
+-				this, and a civ that never expands beyond 6 cities should still
+-				value access to e.g. nukes more than to Swordsmen, if only
+-				because gold is more readily available in the late game. */
+-				std::max(10,
+-				::round(12 * std::pow((double)kLoopUnit.getPowerValue(), 0.5)));
+-				// </advc.031>
++		int iBaseValue = /* <advc.031> */ 10; // was 30
++		int iPowerValue = kLoopUnit.getPowerValue();
++		/*  iBaseValue gets multiplied by the number of cities when converted to
++			gold per turn, but AI_foundValue does not do this, and a civ that
++			never expands beyond 6 cities should still value access to e.g. nukes
++			more than to Swordsmen, if only because gold is more readily available
++			in the late game. */
++		if (iPowerValue > 0)
++			iBaseValue = std::max(iBaseValue, ::round(12 * std::pow((double)iPowerValue, 0.5)));
++		// </advc.031>
+ 		int iUnitValue = 0;
+ 		if(kLoopUnit.getPrereqAndBonus() == eBonus)
+ 			iUnitValue = iBaseValue;
+@@ -12539,24 +12509,24 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 			if(GC.getRouteInfo(eRoute).getPrereqOrBonus(iJ) == eBonus)
+ 				iTempValue += 40;
+ 		}
+-		if (eBestRoute != NO_ROUTE &&
+-				/*  advc.003b: Was GC.getRouteInfo(getBestRoute()), which iterates
+-					through all builds. */
+-				GC.getRouteInfo(eBestRoute).
+-				getValue() <= GC.getRouteInfo(eRoute).getValue())
+-			dValue += iTempValue;
+-		else dValue += iTempValue / 2;
+ 		// <advc.036> The usual tech checks
+ 		TechTypes eTech = (TechTypes)GC.getBuildInfo((BuildTypes)iI).getTechPrereq();
+ 		if(eTech != NO_TECH && !GET_TEAM(getTeam()).isHasTech(eTech)) {
++			if(bTrade)
++				continue;
+ 			iTempValue /= 2;
+ 			int iTechEra = GC.getTechInfo(eTech).getEra();
+ 			int iEraDiff = iTechEra - getCurrentEra();
+ 			if(iEraDiff > 0)
+ 				iTempValue /= iEraDiff;
+-			if(bTrade)
+-				iTempValue = 0;
+ 		} // </advc.036>
++		if (eBestRoute != NO_ROUTE &&
++				/*  advc.003b: Was GC.getRouteInfo(getBestRoute()), which iterates
++					through all builds. */
++				GC.getRouteInfo(eBestRoute).
++				getValue() <= GC.getRouteInfo(eRoute).getValue())
++			dValue += iTempValue;
++		else dValue += iTempValue / 2;
+ 	}
+ 
+ 	/*int iCorporationValue = AI_corporationBonusVal(eBonus);
+@@ -12691,7 +12661,8 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer, int iCh
+ 	ourVal *= getNumCities(); // bonusVal is per city
+ 	/*  Don't pay fully b/c trade doesn't give us permanent access to the
+ 		resource, and b/c it tends to be (and should be) a buyer's market. */
+-	ourVal = std::pow(ourVal, 0.7);
++	if (ourVal > 0)
++		ourVal = std::pow(ourVal, 0.7);
+ 	/*  What else could ePlayer do with the resource? Trade it to somebody else.
+ 		I'm assuming that trade denial has already filtered out resources that
+ 		ePlayer (really) needs domestically. */
+@@ -13132,7 +13103,8 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 				(TEAMREF(ePlayer).getPower(false) +
+ 				(GET_TEAM(eTradeTeam).isAtWar(getTeam()) ?
+ 				GET_TEAM(getTeam()).getPower(false) / 4 : 0));
+-		iModifier += ::round(std::pow((double)iPowRatioPercent, 1.9) / 100);
++		if (iPowRatioPercent > 0)
++			iModifier += ::round(std::pow((double)iPowRatioPercent, 1.9) / 100);
+ 	}
+ 	int iAlive = GC.getGame().countCivPlayersAlive();
+ 	iModifier += 200 / iAlive - 10;
+@@ -18004,6 +17976,7 @@ double CvPlayerAI::AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer,
+ 	int iAssets = (bTeam ? GET_TEAM(getTeam()).getAssets() : getAssets());
+ 	int iOtherAssets = (bTeam ? GET_TEAM(eOtherTeam).getAssets() :
+ 			GET_PLAYER(eOtherPlayer).getAssets());
++	FAssertMsg(iAssets + iOtherAssets > 0, "Negative base for std::pow");
+ 	CvHandicapInfo const& h = GC.getHandicapInfo(GC.getGame().getHandicapType());
+ 	/*  Far more AI assets if difficulty is high; trade values not affected
+ 		by difficulty as much. */
+@@ -22229,12 +22202,14 @@ double CvPlayerAI::AI_exclusiveRadiusWeight(int iDist) const {
+ 		distMultiplier = 2;
+ 	else if(iDist == 2)
+ 		distMultiplier = 1;
++	double base = 1 - (distMultiplier * GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY) /
++			1000.0);
++	FAssertMsg(base > 0, "CITY_RADIUS_DECAY too great; negative base for std::pow.");
+ 	/*  Between 0 and 1. Expresses our confidence about winning culturally
+ 		contested tiles that are within the working radius of our cities
+ 		exclusively. Since the decay of tile culture isn't based on game speed,
+ 		that confidence is greater on the slower speed settings. */
+-	return 1 - std::pow(1 - (distMultiplier * GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY) /
+-			1000.0), 25 * GC.getGameSpeedInfo(GC.getGame().
++	return 1 - std::pow(base, 25 * GC.getGameSpeedInfo(GC.getGame().
+ 			getGameSpeedType()).getGoldenAgePercent() / 100.0);
+ } // </advc.099b>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index eeb81ec8c..132abaca8 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14723,9 +14723,14 @@ bool CvUnitAI::AI_pirateBlockade()
+ 							GET_TEAM(getTeam()).isVassal(pPlotCity->getTeam()))
+ 						iCityValue = 0;
+ 					if(!isBarbarian()) {
+-						int iAttitudeFactor = std::max(1, 10 - ::round(
+-								std::pow((double)GET_PLAYER(getOwner()).
+-								AI_getAttitude(pPlotCity->getOwner()), 1.5)));
++						int iAttitudeFactor = 10;
++						int iAttitudeLevel = GET_PLAYER(getOwner()).
++								AI_getAttitude(pPlotCity->getOwner());
++						if (iAttitudeLevel > 0)
++						{
++							std::max(1, iAttitudeFactor - ::round(
++									std::pow((double)iAttitudeLevel, 1.5)));
++						}
+ 						iCityValue *= iAttitudeFactor;
+ 						TechTypes eTechReq = (TechTypes)getUnitInfo().getPrereqAndTech();
+ 						int iOurEra = (eTechReq == NO_TECH ?
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 2a27beb63..c75ac7713 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1135,6 +1135,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 	/* Needs to be updated in any case in order to take into account potential
+ 	   losses from clash. */
+ 	armyPowMod = armyPow * armyModAttCorr * confAtt;
++	FAssertMsg(armyPowMod >= 0, "Base for std::pow will be negative");
+ 	FAssert(remainingCitiesDef > 0);
+ 	/* Assume that the defenders stationed in a city are 50% static city defenders
+ 	   and 50% floating defenders that can move to reinforce a nearby city that is
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 50d8027fe..aa9d4a8e1 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -21,12 +21,13 @@
+ # YOURMOD2 and YOURLOGS (see under "Paths").
+ # PROJECT_Profile_CFLAGS added to Makefile.project. So that the internal profiler
+ # can be enabled from there.
+-# CvGameCoreDLL.rc used only for final release.
+ # Removed unused /DCVGAMECOREDLL_EXPORTS from Debug_DEFINES
+ # devolution (Erik) has added the target 'Final_Release' with
+-#   additional optimizations. [There is also a Firaxis define called
++#   whole-program optimization. [There is also a Firaxis define called
+ #   FINAL_RELEASE, which merely disables the OutputDebugString function from
+ #   debugapi.h. That's used for all non-debug builds.]
++# CvGameCoreDLL.rc used only for final release.
++# Use /arch:SSE2 for all release builds (Erik had added it only final releases).
+ 
+ ## User setup
+ ##
+@@ -186,8 +187,8 @@ GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(P
+ Debug_CFLAGS=/MD /Z7 /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
+ # (DebugMem: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
+ DebugMem_CFLAGS=/MD /O2 /Zi /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+-Release_CFLAGS= /MD /O2 /Oy /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+-Final_Release_CFLAGS= /MD /O2 /Oy /Oi /G7 /arch:SSE2 /GL $(Release_DEFINES) $(GLOBAL_CFLAGS)
++Release_CFLAGS=/MD /O2 /Oy /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
++Final_Release_CFLAGS=$(Release_CFLAGS) /GL
+ 
+ PRECOMPILE_CFLAGS1 = /Yu"
+ PRECOMPILE_CFLAGS2 = CvGameCoreDLL.h" /Fp"$(Target_PCH)"
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.cpp b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+index 6e4f50e79..a869b3968 100644
+--- a/CvGameCoreDLL/WarAndPeaceAgent.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+@@ -1192,7 +1192,9 @@ double WarAndPeaceAI::Team::limitedWarWeight() const {
+ 		limited or total war. */
+ 	double const exp = 0.75;
+ 	// Bias for total war b/c the WarRand values are biased toward limited war
+-	return std::pow(0.8 * GET_TEAM(agentId).AI_maxWarRand() / limitedWarRand, exp);
++	double const base = 0.8 * GET_TEAM(agentId).AI_maxWarRand() / limitedWarRand;
++	FAssert(base >= 0);
++	return std::pow(base, exp);
+ }
+ 
+ struct TargetData {
+@@ -1301,6 +1303,7 @@ void WarAndPeaceAI::Team::scheme() {
+ 			I.e. peaceful leaders hesitate longer before starting war preparations;
+ 			warlike leaders have more drive. */
+ 		double div = (total ? agent.AI_maxWarRand() : agent.AI_limitedWarRand());
++		FAssert(div >= 0);
+ 		// Let's make the AI a bit less patient, especially the peaceful types
+ 		div = std::pow(div, 0.95); // This maps e.g. 400 to 296 and 40 to 33
+ 		if(div < 0.01)
+@@ -1308,9 +1311,9 @@ void WarAndPeaceAI::Team::scheme() {
+ 		else drive /= div;
+ 		/*  Delay preparations probabilistically (by lowering drive) when there's
+ 			still a peace treaty */
+-		double peacePortionRemaining = agent.turnsOfForcedPeaceRemaining(targetId) /
++		double peacePortionRemaining = std::min(0.95, agent.turnsOfForcedPeaceRemaining(targetId) /
+ 				// +1.0 b/c I don't want 0 drive at this point
+-				(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) + 1.0);
++				(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) + 1.0));
+ 		drive *= std::pow(1 - peacePortionRemaining, 1.0); // was ^1.5; let's try it w/o exponentiation
+ 		targets.push_back(TargetData(drive, targetId, total, u));
+ 		totalDrive += drive;
+@@ -2217,8 +2220,9 @@ bool WarAndPeaceAI::Civ::considerDemand(PlayerTypes theyId, int tradeVal) const
+ 	ourUtility += 45 * prideRating() - 5;
+ 	/*  The more prior demands we remember, the more recalcitrant we become
+ 		(does not count the current demand) */
+-	ourUtility += std::pow((double)
+-			we.AI_getMemoryCount(theyId, MEMORY_MADE_DEMAND), 2);
++	int iMemoryDemand = we.AI_getMemoryCount(theyId, MEMORY_MADE_DEMAND);
++	if (iMemoryDemand > 0)
++		ourUtility += std::pow((double)iMemoryDemand, 2);
+ 	if(ourUtility >= 0) // Bring it on!
+ 		return false;
+ 	WarEvalParameters theirParams(TEAMID(theyId), we.getTeam(), silentReport);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index d5b06305a..d542aeb8c 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -397,7 +397,8 @@ double WarAndPeaceCache::goldPerProdSites() {
+ 	FOR_EACH_CITY(c, GET_PLAYER(BARBARIAN_PLAYER)) {
+ 		if(GET_TEAM(owner.getTeam()).AI_deduceCitySite(c)) {
+ 			int const targetVal = owner.AI_targetCityValue(c, false, true);
+-			sites += std::pow(std::min((double)targetVal, refVal) / refVal, 3.0);
++			if (targetVal > 0)
++				sites += std::pow(std::min((double)targetVal, refVal) / refVal, 3.0);
+ 		}
+ 	}
+ 	CvGame& g = GC.getGame();
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 0e8ccff94..d49c54e10 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2293,6 +2293,7 @@ void KingMaking::evaluate() {
+ 	/*  Over the course of the game, we become more willing to take out rivals even
+ 		if several rivals are still in competition. */
+ 	double progressFactor = std::max(2/3.0 - (1/3.0) * GC.getGame().gameTurnProgress(), 1/3.0);
++	FAssert(progressFactor > 0);
+ 	double div = 1 + std::pow(progressFactor * winningRivals, 2.0);
+ 	double competitionMultiplier = 1.0 / div;
+ 	log("Winning civs: %d (%d rivals)", ::round(winningFuture.size()),
+@@ -2957,6 +2958,7 @@ void Affection::evaluate() {
+ 		There's already a diplo penalty for having an unpopular vassal, so
+ 		I'm only applying a minor penalty here. */
+ 	CvLeaderHeadInfo& lh = GC.getLeaderHeadInfo(we->getPersonalityType());
++	double uMinus = 0;
+ 	if(noWarPercent > 0) { // for efficiency
+ 		double vassalPenalty = 0;
+ 		for(size_t i = 0; i < properCivs.size(); i++) {
+@@ -2975,9 +2977,8 @@ void Affection::evaluate() {
+ 			log("No-war-chance for %s reduced by %d b/c of peace vassals",
+ 					report.leaderName(theyId), iVassalPenalty);
+ 		}
++		uMinus = std::pow(noWarPercent / 100.0, 5.5) * 75;
+ 	}
+-	double pr = noWarPercent / 100.0;
+-	double uMinus = std::pow(pr, 5.5) * 75;
+ 	if(noWarPercent >= 100) {
+ 		uMinus += 5;
+ 		if(towardsThem >= ATTITUDE_FRIENDLY)
+@@ -3018,7 +3019,7 @@ void Affection::evaluate() {
+ 	if(uMinus > 0.5) {
+ 		log("NoWarAttProb: %d percent, our attitude: %d, for linked war: %d percent,"
+ 				" for direct war plan: %d percent, for game turn: %d percent",
+-				::round(100 * pr), towardsThem, ::round(100 * linkedWarFactor),
++				noWarPercent, towardsThem, ::round(100 * linkedWarFactor),
+ 				::round(100 * directPlanFactor), ::round(100 * gameProgressFactor));
+ 		u -= ::round(uMinus);
+ 	}
+@@ -3452,18 +3453,17 @@ void FairPlay::evaluate() {
+ 	if(gameEra > 1) // Dogpiling remains an issue in the Classical era
+ 		return;
+ 	// Don't dogpile when human has lost cities in the early game
+-	int citiesBuilt = they->getPlayerRecord()->getNumCitiesBuilt();
++	int theyFounded = they->getPlayerRecord()->getNumCitiesBuilt();
++	int theyHave = they->getNumCities();
+ 	double fromCityLoss = 0;
+-	if(citiesBuilt > 0) {
+-		fromCityLoss = 100 * std::pow((1 -
+-				they->getNumCities() / (double)citiesBuilt), 0.85);
+-	}
++	if(theyFounded > 0 && theyHave < theyFounded)
++		fromCityLoss = 100 * std::pow(1 - theyHave / (double)theyFounded, 0.85);
+ 	if(fromCityLoss >= 0.5) {
+ 		log("From lost human cities: %d", ::round(fromCityLoss));
+ 		uMinus += fromCityLoss;
+ 	}
+ 	// If no cities gained nor lost, at least don't DoW in quick succession.
+-	else if(they->getNumCities() == citiesBuilt) {
++	else if(they->getNumCities() == theyFounded) {
+ 		int fromRecentDoW = 35 * TEAMREF(theyId).getWarPlanCount(WARPLAN_ATTACKED_RECENT);
+ 		log("From recent DoW: %d", fromRecentDoW);
+ 		uMinus += fromRecentDoW;
+@@ -3706,7 +3706,10 @@ void TacticalSituation::evalOperational() {
+ 			ourCache->getPowerValues()[LOGISTICS]->getTypicalUnitType() == NO_UNIT))
+ 		return;
+ 	// Similar to CvUnitAI::AI_stackOfDoomExtra
+-	double targetAttackers = 4 + std::pow((double)they->getCurrentEra(), 1.3);
++	double targetAttackers = 4;
++	int theyEra = they->getCurrentEra();
++	if(theyEra > 0)
++		targetAttackers += std::pow((double)theyEra, 1.3);
+ 	if(params.isNaval())
+ 		targetAttackers *= 1.3;
+ 	double trainMod = GC.getHandicapInfo(GC.getGame().
+@@ -3764,7 +3767,8 @@ void TacticalSituation::evalOperational() {
+ 				// escort not totally crucial
+ 				0.5 * (readiness + escort / targetEscort)));
+ 	}
+-	if(readiness > 0.99) return;
++	if(readiness > 0.99)
++		return;
+ 	int remaining = params.getPreparationTime();
+ 	FAssert(remaining >= 0);
+ 	int initialPrepTime = 0;
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=25799

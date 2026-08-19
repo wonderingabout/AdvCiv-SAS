@@ -1,0 +1,569 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5934
+# Commit: ca5b991a4ad5597e9dd24c2d0b8c3cbd35975c0b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b22500bf3dc0b1b139ead58267a81f08634cd296
+# Title: Add XML parent duplicate-key build check; fix XML parent duplicates detected; clarify (See KI#148), and fix KI#19 asian art def changes Adding this allowed t...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+130	0	.github/workflows/build/xml_parent_duplicate_keys.py
+31	3	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+0	46	Assets/XML/Audio/Audio2DScripts.xml
+0	49	Assets/XML/Audio/AudioDefines.xml
+1	1	Long_Comments/Long_Comments_XML.txt
+2	2	README.md
+45	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/xml_parent_duplicate_keys.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 2fdcdda4a..aba698ea8 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -18,13 +18,14 @@ According to ChatGPT-5.5:
+ - `build.yml` is the authoritative list of build checks
+ - The `.github/` workflow folder is development infrastructure and should stay excluded from player release archives through `.gitattributes`.
+ 
+-For example, this helped spot map scripts that were previously unclassified in SAS map-script heaviness defines; they are now listed explicitly for exhaustiveness.
++For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness. This also helped spot and fix duplicate parent XML keys [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See if needed [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)).
+ 
+ ## Current build checks
+ 
+ - `build/launch_guard.py`: verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
+ - `build/xml_comments.py`: verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
+ - `build/xml_sas_text_english.py`: verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
++- `build/xml_parent_duplicate_keys.py`: verifies parent-style XML objects are not defined twice with the same key, such as duplicate `*Info` `<Type>` values or duplicate audio `ScriptID` / `SoundID` entries. This intentionally does not check child/list duplicate semantics, which can be more context-dependent.
+ - `build/define_tag_refs.py`: verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
+ - `build/define_int_bounds.py`: verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except the launch-guard sentinel checked separately by `build/launch_guard.py`.
+ - `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
+@@ -57,3 +58,5 @@ For example, as of 2026-06-09, this was added to help address the following GitH
+ ```text
+ build-checks
+ Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/<hidden-email>, actions/<hidden-email> Actions will be forced to run with Node.js 24 by default starting June 16th, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
++
++Which it fixed here: [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24).
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 71a4f3dcb..87fb2ce58 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -20,6 +20,7 @@ jobs:
+       - run: python .github/workflows/build/launch_guard.py
+       - run: python .github/workflows/build/xml_comments.py
+       - run: python .github/workflows/build/xml_sas_text_english.py
++      - run: python .github/workflows/build/xml_parent_duplicate_keys.py
+       - run: python .github/workflows/build/define_tag_refs.py
+       - run: python .github/workflows/build/define_int_bounds.py
+       - run: python .github/workflows/build/opening_music.py
+
+diff --git a/.github/workflows/build/xml_parent_duplicate_keys.py b/.github/workflows/build/xml_parent_duplicate_keys.py
+new file mode 100644
+index 000000000..1184ec3e2
+--- /dev/null
++++ b/.github/workflows/build/xml_parent_duplicate_keys.py
+@@ -0,0 +1,130 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++XML_SCAN_RELATIVE_PATHS = (
++	Path("Assets/XML"),
++)
++
++IGNORED_XML_RELATIVE_DIRS = {
++	Path("Assets/XML/Text"),
++}
++
++# <!-- custom: Parent-style XML objects that do not use an *Info/<Type> shape.
++# Child/list duplicate semantics are intentionally not checked here. (ChatGPT-5.5) -->
++PARENT_KEY_FIELDS_BY_TAG = {
++	"Script2DSound": "ScriptID",
++	"Script3DSound": "ScriptID",
++	"SoundData": "SoundID",
++}
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def child_text_by_local_name(node: ET.Element, child_name: str) -> str | None:
++	for child in list(node):
++		if local_name(child.tag) == child_name:
++			return (child.text or "").strip()
++	return None
++
++
++def parent_key_field_for_tag(tag_name: str) -> str | None:
++	if tag_name.endswith("Info"):
++		return "Type"
++	return PARENT_KEY_FIELDS_BY_TAG.get(tag_name)
++
++
++def collect_parent_key_entries(relative_path: Path, root: ET.Element) -> list[tuple[str, str, str, str]]:
++	entries: list[tuple[str, str, str, str]] = []
++
++	for node in root.iter():
++		tag_name = local_name(node.tag)
++		key_field = parent_key_field_for_tag(tag_name)
++		if key_field is None:
++			continue
++
++		key_value = child_text_by_local_name(node, key_field)
++		if not key_value:
++			continue
++
++		entries.append((tag_name, key_field, key_value, str(relative_path)))
++
++	return entries
++
++
++def check_duplicate_parent_keys(all_entries: list[tuple[str, str, str, str]]) -> list[str]:
++	failures: list[str] = []
++	locations_by_key: dict[tuple[str, str, str], list[str]] = {}
++
++	for tag_name, key_field, key_value, relative_path in all_entries:
++		locations_by_key.setdefault((tag_name, key_field, key_value), []).append(relative_path)
++
++	for (tag_name, key_field, key_value), locations in sorted(locations_by_key.items()):
++		if len(locations) <= 1:
++			continue
++
++		locations_text = ", ".join(sorted(set(locations)))
++		failures.append(f"{locations_text}: duplicate parent key <{key_field}> {key_value} for <{tag_name}> ({len(locations)} entries)")
++
++	return failures
++
++
++def check_xml_parent_duplicate_keys(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	all_entries: list[tuple[str, str, str, str]] = []
++
++	for relative_root in XML_SCAN_RELATIVE_PATHS:
++		root_dir = repo_root / relative_root
++		if not root_dir.exists():
++			failures.append(f"{relative_root}: missing XML scan folder")
++			continue
++
++		for path in sorted(root_dir.rglob("*.xml")):
++			relative_path = path.relative_to(repo_root)
++			if any(relative_path == ignored_dir or ignored_dir in relative_path.parents for ignored_dir in IGNORED_XML_RELATIVE_DIRS):
++				continue
++
++			try:
++				root = ET.parse(path).getroot()
++			except ET.ParseError as exc:
++				failures.append(f"{relative_path}: XML parse error: {exc}")
++				continue
++
++			all_entries.extend(collect_parent_key_entries(relative_path, root))
++
++	failures.extend(check_duplicate_parent_keys(all_entries))
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that parent-style Civ4 XML objects are not defined twice with the same key.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_xml_parent_duplicate_keys(args.repo_root)
++
++	if failures:
++		print("FAIL XML duplicate parent keys")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS XML duplicate parent keys")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index e91fa6c48..204038f9d 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -4048,9 +4048,9 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<!-- custom: rename ART_DEF_UNIT_ARCHER_CHINESE to ART_DEF_UNIT_ARCHER_ASIAN -->
++		<!-- custom: rename ART_DEF_UNIT_ARCHER_CHINESE to ART_DEF_UNIT_LONGBOWMAN_ASIAN (because it is an archer visually, and since there is no asian longbowman art def it seems assigning it to it rather). See KI#19. Note: as of now still unused. See KI#19. -->
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_ARCHER_ASIAN</Type>
++			<Type>ART_DEF_UNIT_LONGBOWMAN_ASIAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+@@ -4073,6 +4073,7 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: visually it looks like a chinese spearman, and since there is an asian variant already, it keeps this name. See also KI#19. Note: as of now still unused. See also KI#19. -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SPEARMAN_CHINESE</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Spearman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,6</Button>
+@@ -4221,7 +4222,32 @@
+ 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+ 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+ 		</UnitArtInfo>
+-		<!-- custom: Long_Comments_XML.txt #125 -->
++		<!-- custom: has the same mongolish outfit as Spearman_Eurasian/Spearman_Eurasian.nif, but visually looks more south-east asian e.g. khmer or whatnot. Since we now use a clearer asian variant this one as of now keeps the EURASIAN old name. Note: as of now unused. See also KI#19. -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_ARCHER_EURASIAN</Type>
++			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Archer_Eurasian/Archer_Eurasian.nif</NIF>
++			<KFM>Art/Units/Archer_Eurasian/Archer_Eurasian.kfm</KFM>
++			<SHADERNIF>Art/Units/Archer_Eurasian/Archer_Eurasian_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.85</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
++		<!-- custom: note: seems clearly asian/mongol looking visually not european so renamed ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN, since there was no asian spearman variant named as such before. See also KI#19. -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SPEARMAN_ASIAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Spearman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,6</Button>
+@@ -4246,6 +4272,7 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: Note: as of now unused it seems. See also KI#19. -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_HORSEMAN_EURASIAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/HorseArcher.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,3,9</Button>
+@@ -4402,6 +4429,7 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: note: visually this is an archer and asian looking so it keeps its name. See KI#19. -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_ARCHER_ASIAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 336da2502..c9fa5c3f3 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -707,29 +707,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_SONG_DIP_AS_EARLY_PEACE</ScriptID>
+-		<SoundID>SONG_DIP_AS_EARLY_PEACE</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>70</iMinVolume>
+-		<iMaxVolume>70</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_SONG_DIP_EC_EARLY_PEACE</ScriptID>
+ 		<SoundID>SONG_DIP_EC_EARLY_PEACE</SoundID>
+@@ -20970,29 +20947,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_TUTORIAL_BUILD_QUARRY_0</ScriptID>
+-		<SoundID>SND_TUTORIAL_BUILD_QUARRY_0</SoundID>
+-		<SoundType>GAME_SPEECH</SoundType>
+-		<iMinVolume>100</iMinVolume>
+-		<iMaxVolume>100</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_TUTORIAL_BUILD_ROAD_0</ScriptID>
+ 		<SoundID>SND_TUTORIAL_BUILD_ROAD_0</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 5d33c2106..f86a5a1a7 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -1325,13 +1325,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_WANGKON_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Wangkon_Early</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_WANGKON_MIDDLE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Wangkon_Middle</Filename>
+@@ -2158,27 +2151,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_HANNIBAL_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Hannibal_Early</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_HANNIBAL_MIDDLE</SoundID>
+-			<Filename>Sounds/Diplomacy/Hannibal_Middle</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_HANNIBAL_LATE</SoundID>
+-			<Filename>Sounds/Diplomacy/Hannibal_Late</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_BRENNUS_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Brennus_Early</Filename>
+@@ -4349,13 +4321,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_COMBAT</SoundID>
+-			<Filename>Sounds/Combat</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_REVOLTSTART</SoundID>
+ 			<Filename>Sounds/RevolutionStart</Filename>
+@@ -5140,13 +5105,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_CBMN_DIE_VOX</SoundID>
+-			<Filename>Sounds/Units/CbmnDieVox</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_CBMN_HIT_VOX</SoundID>
+ 			<Filename>Sounds/Units/CbmnHitVox</Filename>
+@@ -10740,13 +10698,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TUTORIAL_BUILD_QUARRY_0</SoundID>
+-			<Filename>Sounds/Tutorial/Tut_49A</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TUTORIAL_BUILD_QUARRY_1</SoundID>
+ 			<Filename>Sounds/Tutorial/Tut_49B</Filename>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 4213cbd69..a2aaebff4 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -2552,7 +2552,7 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings).
+ ===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
+ ----- Comment #125 -----
+ 
+-<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (and in civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency or such, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN -->
++Deleted.
+ 
+ ===== \Assets/XML/BasicInfos/CIV4NewConceptInfos.xml =====
+ ----- Comment #126 -----
+
+diff --git a/README.md b/README.md
+index bb7052843..97cdca6ce 100644
+--- a/README.md
++++ b/README.md
+@@ -881,9 +881,9 @@ For modders: i have made several scripts with AI assistance. We don't use them a
+ 
+ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+ 
+-GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). This also **helped spot and fix duplicate parent XML keys** [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)).
+ 
+-Also added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20. This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
++Also added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
+ 
+ ## CuCuGS
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index e52c2325a..5f1002c12 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -32,7 +32,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [17 - (now fixed) Missing BBAI getters for Sevopedia leader info](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)  
+ [17.5 - (now fixed) Missing AdvCiv-specific XML fields in Sevopedia leader](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---now-fixed-similarly-missing-base-advciv-if-i-am-not-mistaken-specific-xml-fields-in-gc-of-sevopedia-leader-now-exposed-there-as-well-these-new-getcityrefuseattitudethreshold-and-getnativecityrefuseattitudethreshold)  
+ [18 - Very inconsistent naming in some assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#18---very-inconsistent-naming-in-some-assets)  
+-[19 - (now removed) Unused art assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19---now-removed-for-the-onethose-i-spotted-unused-art-assets)  
++[19 - Unused or unclearly named art assets (e.g., _ASIAN/_CHINESE/_EURASIAN mixed up), and some are used while others are not](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19---unused-or-unclearly-named-art-assets-eg-_asian_chinese_eurasian-mixed-up-and-some-are-used-while-others-are-not)  
+ [20 - Negative/inconsistent DLL-adjusted nowarattitudeprobs for some leaders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#20---negative-and-inconsistent-dll-ajusted-nowarattitudeprobs-for-some-leaders-like-leader_alexander-thatwho-has-nowarattitude-prob-furious-of--2-lower-than-furious-0-and-lower-than-cautious-14)  
+ [21 - (now fixed) Missing "Cannot enter" terrain/feature info in map view of unit effects](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-now-added-this-info-as-well)  
+ [21.5 - (Addressed / fixed) Removed giant configobj docstring in python code](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)  
+@@ -183,6 +183,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen)  
+ [146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps)  
+ [147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring)  
++[148 - (Fixed) Base AdvCiv issue (and one AdvCiv-SAS issue) of duplicate parent XML keys found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -698,7 +699,7 @@ Now exposed(/exposing?) these to python as well of gc 's Sevopedia leader as wel
+ 
+ For example _UTOPIA for `_COMMUNISM`, `_OBELISK` for monument sometimes and other times it means the actual `_OBELISK`, also for example `_CHINESE` being inconsistentlyunrelated to the chinese empire but instead in some cases to the default art asset of a unit for the asian civilizations in general, also using... `_GREAT_PALACE` instead of `_FORBIDDEN_PALACE` (as was hinted or rather i noticed from a base advciv code comment i am thankful for) i have renamed them as much as i found or could and wanted, actually a lot earlier in mod development than when i wrote this example issue, but solving them bit by bit as i see them and or want to ideally too but not guaranteed may or may not.., in all cases hopefully asset naming is a lot clearer or consistent at least for those i went through, probably did not do all as for remaining ones is wait and see....
+ 
+-## 19 - (now removed for the one/those i spotted) Unused art assets
++## 19 - Unused or unclearly named art assets (e.g., _ASIAN/_CHINESE/_EURASIAN mixed up), and some are used while others are not
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ie5Uln9-vquy601oCUex3QIsgWCGnUXl?usp=sharing)
+ 
+@@ -710,6 +711,8 @@ Note: the `ART_DEF_UNIT_ARCHER_CHINESE` (see screenshot 6705 similarly) now rena
+ 
+ Also, if we want an art asset, we can import one another mod, but since we don't use the art asset and it seems to indeed be unused, remove it entirely, simpler and cleaner and more consistent with our code.
+ 
++Update: sorted it out and restored the deleted `ART_DEF_UNIT_ARCHER_EURASIAN` (still unused as of now though). We rename assets e.g., from `ART_DEF_UNIT_ARCHER_ASIAN` to `ART_DEF_UNIT_LONGBOWMAN_ASIAN` when relevant (as of now still unused though), keep `ART_DEF_UNIT_SPEARMAN_CHINESE` when relevant and as an `ART_DEF_UNIT_SPEARMAN_ASIAN` variant exists already (renamed from `ART_DEF_UNIT_SPEARMAN_EURASIAN`), and rename `ART_DEF_UNIT_SWORDSMAN_CHINESE` to `ART_DEF_UNIT_SWORDSMAN_ASIAN` when relevant (no asian swordsman seems to exist, so make its name reflect that it is used for all asian units and looks asian enough and not specifically chinese enough).
++
+ ## 20 - Negative and inconsistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1zPIMTN97zhubyrHBzAVLjCb2-YAFmLqG?usp=sharing)
+@@ -5447,3 +5450,43 @@ The value is applied once per distinct bonus type in the candidate BFC, only aft
+ Observed Archipelago example: with a value of 250, Japan settled Osaka northeast for **unowned Molluscs + unowned Maize + unowned Stone** (iron was seemingly not known yet (and otherwise unowned as well)), instead of another site with **already-owned Sheep + unowned Maize + unowned Crab**.
+ 
+ Observed Pangaea Large save 360 example: the change produced different settling points, and by turn 100 some players owned more distinct bonus types.
++
++## 148 - (Fixed) Base AdvCiv issue (and one AdvCiv-SAS issue) of duplicate parent XML keys found by new GitHub workflow check
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1L5ubYioq_8I4hejIZbdV0uRhSKj3FS38?usp=sharing).
++
++While adding `build/xml_parent_duplicate_keys.py` to the GitHub workflow checks, [the first CI run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) correctly failed and exposed several duplicate parent XML identifiers. This was a useful validation that the check works, because it caught both old inherited XML duplicates and one AdvCiv-SAS art duplicate.
++
++GitHub Actions output:
++
++```text
++Run python .github/workflows/build/xml_parent_duplicate_keys.py
++  
++FAIL XML duplicate parent keys
++  - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_SONG_DIP_AS_EARLY_PEACE for <Script2DSound> (2 entries)
++  - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_TUTORIAL_BUILD_QUARRY_0 for <Script2DSound> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_EARLY for <SoundData> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_LATE for <SoundData> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_MIDDLE for <SoundData> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_WANGKON_EARLY for <SoundData> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_CBMN_DIE_VOX for <SoundData> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_COMBAT for <SoundData> (2 entries)
++  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_TUTORIAL_BUILD_QUARRY_0 for <SoundData> (2 entries)
++  - Assets/XML/Art/CIV4ArtDefines_Unit.xml: duplicate parent key <Type> ART_DEF_UNIT_ARCHER_ASIAN for <UnitArtInfo> (2 entries)
++Error: Process completed with exit code 1.
++```
++
++These were fixed by removing or correcting the duplicate parent entries.
++
++Note, they were all clear duplicates; as for `SND_TUTORIAL_BUILD_QUARRY_0`, it pointed to different sounds, played as such in sevopedia media player too. They are something like:
++
++- 49A "i am going to disable research once again while i explain the next lesson"
++- 50A "now build a quarry on this tile, it will take a few turns to complete"
++
++So 50A seems closer to guessedly intended sound, even though it is numerically ordered uncontinuously to other variants. But since we don't use the tutorial and this fixes a duplicate, maybe seems fine and best for this issue attemptedly accurately.
++
++The `ART_DEF_UNIT_ARCHER_ASIAN` case was especially useful because it was an AdvCiv-SAS-side duplicate caused by art-definition cleanup/renaming work (see [KI#19](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19---unused-or-unclearly-named-art-assets-eg-_asian_chinese_eurasian-mixed-up-and-some-are-used-while-others-are-not)).
++
++This is the kind of XML mistake that can be easy to miss manually because Civ4 XML files are large and repeated identifiers may not always produce an obvious startup error. The new workflow check now catches this class of issue automatically before release.
++
++Note: the workflow intentionally checks only parent-style XML identifiers, such as `*Info` `<Type>`, audio `<ScriptID>`, and audio `<SoundID>`. It does not check child/list duplicate semantics because those can be context-dependent and would risk false positives.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3bf3c08fc..2f33f2edb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -111,8 +111,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+-- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
+-- (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20. This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
++- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). (Requires AdvCiv-SAS 5934+) This also **helped spot and fix duplicate parent XML keys** [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
++- (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=40862

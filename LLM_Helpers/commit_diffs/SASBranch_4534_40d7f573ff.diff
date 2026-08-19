@@ -1,0 +1,122 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4534
+# Commit: 40d7f573ff03083a36beb94906d6d37875e3df72
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b9c81d130de6d3651485034c2c3fd4c65f180e72
+# Title: update docs or/and military tech tree map view
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	4	README.md
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+25	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/{notes_about_military_unit_imports_listing_only.txt => notes_about_unit_imports_listing_only.txt}
+ rename _1_AdvCiv-SAS/Docs_And_Appendixes/{notes_about_military_unit_imports_listing_only.txt => notes_about_unit_imports_listing_only.txt} (98%)
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 61a355655..efc88da1f 100644
+--- a/README.md
++++ b/README.md
+@@ -68,23 +68,28 @@ are the added new civ's real world location) :
+ 
+ ![img2](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+ 
+-A preview of the changes (screenshots), can be found on this google drive: 
+-[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
++Here is a view (current) of the military tree you can expect/find in this AdvCiv-SAS mod below.
++I tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay
++diversity:
++![img3](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
+ 
+ ## Docs
+ 
+ I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod:
+ [here](/_1_AdvCiv-SAS/)
+ 
++Additionally, A preview of the changes (screenshots), can be found on this google drive: 
++[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
++
+ If you want to know more about the project, how i ordered the tree tech historically, why i decided
+-on balance changes and such, please visit it.
++on balance changes and such, please visit these pages (as well).
+ 
+ # Credits
+ - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
+ exchanges/experiences during these times i mean anyways, thanks
+ - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
+ - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
+-- Fall from Heaven II ((also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
++- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+ - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
+ which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 3dd63f9ac..e8cc184da 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index d75c1798f..79a355bcc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -174,3 +174,28 @@ maybe not. In all cases, about this fast spearman, i am glad i could add it/keep
+ very cool effects and combat bonuses to it (low strength fast speed in particular among other(s)
+ things maybe i mean anyways, about this i mean anyways, at, least), but maybe as it is, and how
+ i chose it to, too maybe, but anyways, thanks,
++
++- catapult was from iron age:
++https://en.wikipedia.org/wiki/List_of_siege_engines
++https://en.wikipedia.org/wiki/Catapult
++Around 7 BC(E) according to wikipedia about this at least i mean anywyas, thanks, i don't want
++to complicate too much the support type of military or civilian units (partly because they don't
++have too much of an influence about this at least i mean anyways in terms of gameplay), so i
++would rather just keep one or a few. Still, this is a bit empty, maybe i will add some more, not
++promised or guaranteed though, about this, at least if i may say, i mean anyways, as is or not,
++but i mean anyways, i mean anyways, thanks,
++It may also have an influence on the AI, so i would rather have the AI build the few core units
++with some diversity, than be confused or build many of the more "useless" ones relatively in
++terms of gameplay and gameplay win about this at least i mean anyways.
++If it can help the human player or/and provide a more satisfying, easier to grasp/digest or/and
++focus on experience, about this i mean, at least i mean, anyways, i mean, anyways, i mean anyways,
++thanks, then all good i mean anyways, else is maybe as is, about this at least i mean anyways, or
++not or etc i mean anyways, but maybe as is or not or etc, but anyways, i focus on this about this
++at least i mean anyways, thanks, (sorry if this is a bit spammy i have a lot to say, maybe always
++have, if i think about it, not that i dislike in fact the opposite, but sorry if this is a
++disturbance, especially on this technical page, but i still have a lot to say, but i should
++focus a bit, about this at least i mean anyways, as is or not but i mean anyways, is maybe as
++is, but anyways, or not or yes, but in all cases i mean anyways, maybe, i mean anyways, thanks,
++so maybe not sorry to say this but i do not want it to bother, still i don't want to hold back
++on saying it, whatever that means, about this i mean anyways, but i focus, choose to, i mean
++anywyas, thanks, )
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+similarity index 98%
+rename from _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 1b3a0e34d..9a5707e9c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -73,6 +73,10 @@ explore 5: -
+ explore 6:
+ explore 7:
+ 
++___________________________________________________________________________________________
++siege:
++
++
+ 
+ ___________________________________________________________________________________________
+ boats:
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6188

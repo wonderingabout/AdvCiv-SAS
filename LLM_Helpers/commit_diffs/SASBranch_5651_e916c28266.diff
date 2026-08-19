@@ -1,0 +1,199 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5651
+# Commit: e916c282664cd89627052dc2264ae318a1a73530
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a689059534e3170283ec6c202394e3a7e14a31c5
+# Title: add icons for buildings and units in CvDawnOfMan.py
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+56	14	Assets/Python/Screens/CvDawnOfMan.py
+1	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDawnOfMan.py b/Assets/Python/Screens/CvDawnOfMan.py
+index 4924ec290..4aac644a6 100644
+--- a/Assets/Python/Screens/CvDawnOfMan.py
++++ b/Assets/Python/Screens/CvDawnOfMan.py
+@@ -31,7 +31,7 @@ class CvDawnOfMan:
+ 		# the lower blue panel. Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
+ 		self.W_MAIN_PANEL = 800 # Was 550
+ 		
+-		self.H_MAIN_PANEL = 575
++		self.H_MAIN_PANEL = 590
+ 		
+ 		self.X_MAIN_PANEL = (self.W_SCREEN/2) - (self.W_MAIN_PANEL/2)# Was 250
+ 		
+@@ -42,7 +42,7 @@ class CvDawnOfMan:
+ 		self.X_HEADER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
+ 		self.Y_HEADER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
+ 		self.W_HEADER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
+-		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 30
++		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 55
+ 		
+ 		self.X_LEADER_ICON = self.X_HEADER_PANEL + self.iMarginSpace
+ 		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
+@@ -55,10 +55,10 @@ class CvDawnOfMan:
+ 		self.Y_FANCY_ICON = (self.Y_HEADER_PANEL + self.iMarginSpace + 6) - 6
+ 		self.WH_FANCY_ICON = 64
+ 		
+-		self.X_LEADER_TITLE_TEXT = (self.X_FANCY_ICON1+self.WH_FANCY_ICON)+((self.X_FANCY_ICON2 - (self.X_FANCY_ICON1+self.WH_FANCY_ICON))/2) - ((self.W_HEADER_PANEL / 3)/2)
++		self.W_LEADER_TITLE_TEXT = int(self.W_HEADER_PANEL * 2 / 5)
++		self.X_LEADER_TITLE_TEXT = (self.X_FANCY_ICON1+self.WH_FANCY_ICON)+((self.X_FANCY_ICON2 - (self.X_FANCY_ICON1+self.WH_FANCY_ICON))/2) - (self.W_LEADER_TITLE_TEXT/2)
+ 
+ 		self.Y_LEADER_TITLE_TEXT = self.Y_HEADER_PANEL + self.iMarginSpace + 6
+-		self.W_LEADER_TITLE_TEXT = self.W_HEADER_PANEL / 3
+ 		self.H_LEADER_TITLE_TEXT = self.H_HEADER_PANEL / 2
+ 
+ 		self.X_STATS_TEXT = self.X_FANCY_ICON1# + self.W_LEADER_ICON + (self.iMarginSpace * 2) + 5
+@@ -150,9 +150,51 @@ class CvDawnOfMan:
+ 				if (gc.getCivilizationInfo(self.player.getCivilizationType()).isCivilizationFreeTechs(iTech)):
+ 					screen.attachImageButton( "HeaderText3", "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+ 			
+-		self.Text_BoxText = CyGameTextMgr().parseCivInfos(self.player.getCivilizationType(), True)
+-		
+-		screen.addMultilineText( "HeaderText4", SASTextScale.normalizeLabelText(self.Text_BoxText), self.X_STATS_TEXT, self.Y_STATS_TEXT+30+self.H_TECH, self.W_STATS_TEXT - (self.iMarginSpace * 3), self.H_STATS_TEXT - (self.iMarginSpace * 4), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		iCivInfoX = self.X_STATS_TEXT
++		iCivInfoY = self.Y_STATS_TEXT + 30 + self.H_TECH
++		iCivInfoW = self.W_STATS_TEXT - (self.iMarginSpace * 3)
++		iCivInfoH = self.H_STATS_TEXT - (self.iMarginSpace * 4)
++		# <!-- custom: show civ unique unit/building info as button strips (left=buildings, right=units), each with default + unique buttons; fall back to parseCivInfos text only if no pairs exist. (GPT-5.3-Codex) -->
++		kCivInfo = gc.getCivilizationInfo(self.player.getCivilizationType())
++		uniqueBuildingPairs = []
++		uniqueUnitPairs = []
++
++		for iBuildingClass in range(gc.getNumBuildingClassInfos()):
++			iUniqueBuilding = kCivInfo.getCivilizationBuildings(iBuildingClass)
++			iDefaultBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
++			if iUniqueBuilding > -1 and iDefaultBuilding > -1 and iUniqueBuilding != iDefaultBuilding:
++				uniqueBuildingPairs.append((iDefaultBuilding, iUniqueBuilding))
++
++		for iUnitClass in range(gc.getNumUnitClassInfos()):
++			iUniqueUnit = kCivInfo.getCivilizationUnits(iUnitClass)
++			iDefaultUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
++			if iUniqueUnit > -1 and iDefaultUnit > -1 and iUniqueUnit != iDefaultUnit:
++				uniqueUnitPairs.append((iDefaultUnit, iUniqueUnit))
++
++		if len(uniqueBuildingPairs) > 0 or len(uniqueUnitPairs) > 0:
++			iGap = self.iMarginSpace
++			iTotalW = self.X_FANCY_ICON2 - self.X_FANCY_ICON1  # full width from left to right fancy icon
++			iHalfW = (iTotalW - iGap) / 2
++			iLeftX = iCivInfoX
++			iRightX = iCivInfoX + iHalfW + iGap
++			# <!-- custom: mirror Starting Technologies layout — label via addMultilineText (+5), buttons via attachImageButton in PANEL_STYLE_EMPTY panel (+20), BUTTON_SIZE_CUSTOM for consistent icon size; full width to right icon prevents label wrap. (GPT-5.3-Codex) -->
++			screen.addMultilineText("HeaderText4BuildingsLabel", SASTextScale.labelText(localText.getText("TXT_KEY_UNIQUE_BUILDINGS", ()) + ":"), iLeftX, iCivInfoY + 5, iHalfW, self.H_TECH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addPanel("HeaderText4BuildingsPanel", "", "", False, True, iLeftX, iCivInfoY + 20, iHalfW, self.H_TECH, PanelStyles.PANEL_STYLE_EMPTY)
++			screen.addMultilineText("HeaderText4UnitsLabel", SASTextScale.labelText(localText.getText("TXT_KEY_FREE_UNITS", ()) + ":"), iRightX, iCivInfoY + 5, iHalfW, self.H_TECH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addPanel("HeaderText4UnitsPanel", "", "", False, True, iRightX, iCivInfoY + 20, iHalfW, self.H_TECH, PanelStyles.PANEL_STYLE_EMPTY)
++
++			if len(uniqueBuildingPairs) > 0:
++				iDefaultBuilding, iUniqueBuilding = uniqueBuildingPairs[0]
++				screen.attachImageButton("HeaderText4BuildingsPanel", "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
++				screen.attachImageButton("HeaderText4BuildingsPanel", "", gc.getBuildingInfo(iUniqueBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iUniqueBuilding, 1, False)
++
++			if len(uniqueUnitPairs) > 0:
++				iDefaultUnit, iUniqueUnit = uniqueUnitPairs[0]
++				screen.attachImageButton("HeaderText4UnitsPanel", "", gc.getUnitInfo(iDefaultUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, 1, False)
++				screen.attachImageButton("HeaderText4UnitsPanel", "", gc.getUnitInfo(iUniqueUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUniqueUnit, 1, False)
++		else:
++			self.Text_BoxText = CyGameTextMgr().parseCivInfos(self.player.getCivilizationType(), True)
++			screen.addMultilineText("HeaderText4", SASTextScale.normalizeLabelText(self.Text_BoxText), iCivInfoX, iCivInfoY, iCivInfoW, iCivInfoH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							
+ 		# Fancy icon things
+ 		screen.addDDSGFC( "IconLeft", ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.player.getCivilizationType()).getArtDefineTag()).getButton(), self.X_FANCY_ICON1, self.Y_FANCY_ICON, self.WH_FANCY_ICON, self.WH_FANCY_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+@@ -168,8 +210,8 @@ class CvDawnOfMan:
+ 		bodyString = ""
+ 		# <advc.704>
+ 		if riseFall:
+-			len = gc.getGame().getChapterEnd(rfChapter) - gc.getGame().getChapterStart(rfChapter) + 1
+-			bodyString2 = localText.getText("TXT_KEY_RF_DOM_FOUND", (len, self.player.getCivilizationAdjectiveKey()))
++			iChapterLen = gc.getGame().getChapterEnd(rfChapter) - gc.getGame().getChapterStart(rfChapter) + 1
++			bodyString2 = localText.getText("TXT_KEY_RF_DOM_FOUND", (iChapterLen, self.player.getCivilizationAdjectiveKey()))
+ 			chapterNumber = rfChapter + 1 # Start at 1
+ 			chp = localText.getText("TXT_KEY_RF_CHAPTER", ())
+ 			chapterString = localText.getText("TXT_KEY_RF_CHAPTER", ()) + " " + str(chapterNumber)
+@@ -178,7 +220,7 @@ class CvDawnOfMan:
+ 			chapterString += ". "
+ 			bodyString = chapterString
+ 			if rfChapter > 0: # not the first chapter
+-				bodyString += localText.getText("TXT_KEY_RF_DOM", (CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn(), false), len, self.player.getCivilizationAdjectiveKey()))
++				bodyString += localText.getText("TXT_KEY_RF_DOM", (CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn(), false), iChapterLen, self.player.getCivilizationAdjectiveKey()))
+ 		if rfChapter <= 0:
+ 		# </advc.704>
+ 			if not isLaterEraStart:
+@@ -217,7 +259,7 @@ class CvDawnOfMan:
+ 
+ 		self.W_MAIN_PANEL = 800 # Was 550
+ 		
+-		self.H_MAIN_PANEL = 575 # advc.002b: Was 525.
++		self.H_MAIN_PANEL = 590 # advc.002b: Was 525.
+ 		self.X_MAIN_PANEL = (self.W_SCREEN/2) - (self.W_MAIN_PANEL/2)# Was 250
+ 		
+ 		self.Y_MAIN_PANEL = 70
+@@ -227,7 +269,7 @@ class CvDawnOfMan:
+ 		self.X_HEADER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
+ 		self.Y_HEADER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
+ 		self.W_HEADER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
+-		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 30
++		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 55
+ 		
+ 		self.X_LEADER_ICON = self.X_HEADER_PANEL + self.iMarginSpace
+ 		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
+@@ -240,10 +282,10 @@ class CvDawnOfMan:
+ 		self.X_FANCY_ICON2 = self.X_LEADER_ICON + (self.W_HEADER_PANEL - (self.iMarginSpace * 2) - self.WH_FANCY_ICON) # Was 430
+ 		self.Y_FANCY_ICON = (self.Y_HEADER_PANEL + self.iMarginSpace + 6) - 6
+ 		
+-		self.X_LEADER_TITLE_TEXT = (self.X_FANCY_ICON1+self.WH_FANCY_ICON)+((self.X_FANCY_ICON2 - (self.X_FANCY_ICON1+self.WH_FANCY_ICON))/2) - ((self.W_HEADER_PANEL / 3)/2)
++		self.W_LEADER_TITLE_TEXT = int(self.W_HEADER_PANEL * 2 / 5)
++		self.X_LEADER_TITLE_TEXT = (self.X_FANCY_ICON1+self.WH_FANCY_ICON)+((self.X_FANCY_ICON2 - (self.X_FANCY_ICON1+self.WH_FANCY_ICON))/2) - (self.W_LEADER_TITLE_TEXT/2)
+ 
+ 		self.Y_LEADER_TITLE_TEXT = self.Y_HEADER_PANEL + self.iMarginSpace + 6
+-		self.W_LEADER_TITLE_TEXT = self.W_HEADER_PANEL / 3
+ 		self.H_LEADER_TITLE_TEXT = self.H_HEADER_PANEL / 2
+ 		
+ 		self.X_STATS_TEXT = self.X_FANCY_ICON1# + self.W_LEADER_ICON + (self.iMarginSpace * 2) + 5
+
+diff --git a/README.md b/README.md
+index 823aaa560..c7903f0a5 100644
+--- a/README.md
++++ b/README.md
+@@ -41,6 +41,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
++&emsp;[Miscallenous screens](/README.md#miscallenous-screens)  
+ &emsp;[Main interface rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7b64db1a5..d0ffa41d6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -329,7 +329,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### UI (In-game)
+ 
+-- (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**; [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See
++- (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling** and add **icons** for buildings and units; [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the **Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG
+index d77387633..b387e2e91 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15260

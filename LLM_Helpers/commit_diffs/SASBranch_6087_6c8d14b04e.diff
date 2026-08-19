@@ -1,0 +1,219 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6087
+# Commit: 6c8d14b04eb5077109296d1379231b3c883b60be
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bff444456275a42631f5ad449fec942dfb6ff310
+# Title: (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	CvGameCoreDLL/CvCity.cpp
+31	5	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/SASGameRecordLog.cpp
+25	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index bbba5e714..2597d202f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2169,6 +2169,19 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: Base AdvCiv/K-Mod can throttle unit production when total power is high but has no opposite catch-up when military strength falls behind empire size. Increase AI unit-production probability when power per city is below the city-weighted average power per city of relevant rivals. This strengthens genuinely under-militarized empires without making a small empire try to match a much larger rival's total power or chase one unusually militarized outlier. Financial/economy emergency reductions and the strategy to wait for better units remain respected. 1 enables this AI optimization; 0 disables it. See KI#197. (ChatGPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum multiplicative percentage increase to AI build-unit probability from the relevant-rival average power-per-city understrength adjustment. The actual increase scales with the relative power-per-city deficit up to this cap; 0 makes the adjustment inert while leaving its toggle enabled. See KI#197. (ChatGPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 1ea0d226f..e073e8c9b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -839,7 +839,7 @@ void CvCity::doTurn()
+ 			//const bool bNeedFallback = !isProduction();
+ 			const bool bQueueEmpty = (getOrderQueueLength() == 0);
+ 			const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
+-			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (GPT-5.6-Thinking) -->
++			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (ChatGPT-5.6-Sol) -->
+ 			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid);
+ 
+ 			if (bNeedFallback)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 65b51ca57..ef7a74fa5 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -16739,6 +16739,11 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+ 	int iHighestRivalPowForLog = -1;
++	int iOurPowerPerCityX100ForLog = -1;
++	int iRelevantRivalAvgPowerPerCityX100ForLog = -1;
++	int iUnderstrengthBoostPercentForLog = 0;
++	int iPreUnderstrengthProbForLog = -1;
++	int iPostUnderstrengthProbForLog = -1;
+ 	int iPowerThrottleForLog = 0; // <!-- custom: Diagnostic code: 0 = none, 1 = gradual, 2 = quartered. (ChatGPT-5.6-Sol) -->
+ 
+ 	scaled r = per100(GC.getInfo(getPersonalityType()).getBuildUnitProb());
+@@ -16787,8 +16792,9 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 		{
+ 			CvTeamAI const& kOurTeam = kTeam;
+ 			int iHighestRivalPow = 0;
+-			for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> it(getTeam());
+-				it.hasNext(); ++it)
++			int iRelevantRivalPower = 0;
++			int iRelevantRivalCities = 0;
++			for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
+ 			{
+ 				CvTeamAI const& kRival = *it; // (Akin to code in CvPlayerAI::AI_feelsSafe)
+ 				if (kOurTeam.AI_getWarPlan(kRival.getID()) != NO_WARPLAN ||
+@@ -16799,10 +16805,15 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 					kRival.AI_anyMemberAtVictoryStage(
+ 					AI_VICTORY_MILITARY3 | AI_VICTORY_MILITARY4))
+ 				{
+-					iHighestRivalPow = std::max(kRival.getPower(true), iHighestRivalPow);
++					int const iRivalPower = kRival.getPower(true);
++					iHighestRivalPow = std::max(iRivalPower, iHighestRivalPow);
++					iRelevantRivalPower += iRivalPower;
++					iRelevantRivalCities += kRival.getNumCities();
+ 				}
+ 			}
+ 			iHighestRivalPowForLog = iHighestRivalPow;
++			iOurPowerPerCityX100ForLog = (100 * kOurTeam.getPower(false)) / std::max(1, kOurTeam.getNumCities());
++			iRelevantRivalAvgPowerPerCityX100ForLog = (iRelevantRivalCities <= 0 ? 0 : (100 * iRelevantRivalPower) / iRelevantRivalCities);
+ 			// Don't throttle at all until we're clearly ahead of the best rival
+ 			scaled rTargetAdvantage = per100(25);
+ 			if (kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY1))
+@@ -16831,6 +16842,21 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 					iPowerThrottleForLog = 1;
+ 				}
+ 			}
++			// <!-- custom: The existing logic only throttles unit production when our total power is high.
++			// Add bounded pressure in the opposite direction when our power per city is below the city-weighted average of relevant rivals.
++			// This lets genuinely under-militarized empires react before war without making a small empire match a much larger rival's total army or chase one unusually militarized outlier.
++			// Let the existing total-power throttle take precedence when we are already clearly ahead, and preserve deliberate financial/economic and better-units reductions.
++			// Post-fix full runs from save file 458 (two runs) and save file 457 (one independent run) activated the catch-up in about 46-47% of logged BuildUnitProb evaluations, averaging about +7 to +9 actual points when active, with no simultaneous high-power throttle. See KI#197. (ChatGPT-5.6-Sol) -->
++			static const bool bUnderstrengthOptimize = GC.getDefineBOOL("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_OPTIMIZE");
++			static const int iMaxUnderstrengthBoostPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT"));
++			iPreUnderstrengthProbForLog = r.getPercent();
++			if (bUnderstrengthOptimize && !bGreatlyReduced && rPowRatio <= 1 && !kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS) && kOurTeam.AI_isWarPossible() && iRelevantRivalAvgPowerPerCityX100ForLog > iOurPowerPerCityX100ForLog)
++			{
++				int const iPowerPerCityDeficitPercent = 100 - (100 * iOurPowerPerCityX100ForLog) / iRelevantRivalAvgPowerPerCityX100ForLog;
++				iUnderstrengthBoostPercentForLog = std::min(iMaxUnderstrengthBoostPercent, std::max(0, iPowerPerCityDeficitPercent));
++				r *= 1 + per100(iUnderstrengthBoostPercentForLog);
++			}
++			iPostUnderstrengthProbForLog = r.getPercent();
+ 		}
+ 		/*  Can't afford to specialize one city entirely on military production
+ 			until we've expanded a bit */
+@@ -16844,10 +16870,10 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 	int const iFinalBuildUnitProb = r.getPercent();
+ 	if (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian() && !bDraft)
+ 	{
+-		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
++		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d ourPowerPerCityX100=%d relevantRivalAvgPowerPerCityX100=%d understrengthBoostPercent=%d preUnderstrengthProb=%d postUnderstrengthProb=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
+ 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+ 			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iXPWeight, iFinalBuildUnitProb, getMilitaryProductionModifier(), kOwner.AI_isFinancialTrouble(), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS),
+-			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iPowerThrottleForLog, bGreatlyReduced,
++			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iOurPowerPerCityX100ForLog, iRelevantRivalAvgPowerPerCityX100ForLog, iUnderstrengthBoostPercentForLog, iPreUnderstrengthProbForLog, iPostUnderstrengthProbForLog, iPowerThrottleForLog, bGreatlyReduced,
+ 			kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST1), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY3), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY4));
+ 	}
+ 	return iFinalBuildUnitProb;
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 5a7644acf..3f599763b 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -3136,7 +3136,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ 	const int iLand = kPlayer.getTotalLand();
+ 	const int iUnits = kPlayer.getNumUnits();
+ 	const int iMilitarySupportUnits = kPlayer.getNumMilitaryUnits();
+-	// <!-- custom: CvPlayer::getNumMilitaryUnits counts XML bMilitarySupport, which can fall sharply when an army upgrades into combat units that intentionally do not pay military support. Count actual combat-capable units with the same predicate used by GAME_RECORD_UNIT_POSTURE, and keep the raw Civ4 counter separately. This scan runs only when a GameRecord player snapshot is already being generated. (GPT-5.6-Thinking) -->
++	// <!-- custom: CvPlayer::getNumMilitaryUnits counts XML bMilitarySupport, which can fall sharply when an army upgrades into combat units that intentionally do not pay military support. Count actual combat-capable units with the same predicate used by GAME_RECORD_UNIT_POSTURE, and keep the raw Civ4 counter separately. This scan runs only when a GameRecord player snapshot is already being generated. (ChatGPT-5.6-Sol) -->
+ 	int iCombatUnits = 0;
+ 	int iCombatLoop = 0;
+ 	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iCombatLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iCombatLoop))
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 91e2f976b..54c0b0a0e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -245,6 +245,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#194---fixedimproved-advciv-sas-inland-capital-settler-production-gate-could-ignore-worthwhile-islands-that-existing-settler-transports-could-reach)\
+ [195 - (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#195---fixedimproved-two-related-base-advciv-barbarian-work-boat-bugs-ignored-outer-city-radius-seafood-and-failed-to-count-docked-or-queued-boats)\
+ [196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#196---fixedimproved-advciv-sass-short-chain-irrigation-replacement-could-leave-valuable-bfc-bonus-farms-dry-for-up-to-191-turns-base-advciv-had-a-similar-untargeted-routine-which-advciv-sas-does-not-use-because-it-conflicted-with-sas-improvement-choice)\
++[197 - (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#197---fixedimproved-base-advcivk-mod-military-production-could-remain-too-low-when-an-empire-was-under-strength-for-its-size-because-relative-power-logic-only-throttled-strong-ais)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7377,3 +7378,27 @@ In the confirming save-file 450 run, the route toward Mayapan's Maize advanced o
+ Save file 449 independently confirmed a long route to Camulodunum's Rice: its Farm was irrigated by turn 206 and remained so until an enemy pillaged it on turn 319. Ollantaytambo initially had no owned route, then its border expansion made one valid on turn 152 and Workers completed it by turn 176. Save file 452 produced 110 selected irrigation-chain jobs; valid routes used at most 7 plots, so none reached the default maximum of 12. The only five repeated target/location failures were explained by current ownership or terrain, and Avar's later repeated dry Farm was a pillaged improvement that Workers repaired before its diagnostic stopped again.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 197 - (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/12ausI-H34CWK1jaXzn1cedb0l9yOvxtX?usp=sharing).
++
++The dedicated `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL` diagnostics were added to investigate AI military production, notably to investigate why some AIs produced very large armies while others remained comparatively weak. Before reaching the inherited issue documented here, that investigation first exposed two AdvCiv-SAS-specific problems. The SAS no-production safety net treated a valid Process as if the city had no production, so an AI that rejected another unit because of its normal military-spending limit could deliberately choose Wealth, Research or another Process and then have that Process immediately replaced by a forced military unit. That was fixed by limiting the fallback to genuinely empty or invalid production queues. The same investigation also showed that SASGameRecord's old `militaryUnits` field used `CvPlayer::getNumMilitaryUnits()`, which counts XML `bMilitarySupport` units rather than all combat-capable units; the log now records `combatUnits` and `militarySupportUnits` separately. These were AdvCiv-SAS-specific findings already fixed before this issue and are only context for how the remaining Base AdvCiv behavior was isolated.
++
++After those confounders were removed, the logs showed a remaining asymmetry inherited directly from Base AdvCiv/K-Mod in `CvCityAI::AI_buildUnitProb`. The existing relative-power logic identifies relevant rivals and reduces unit-production probability once the AI's total power is clearly above its target relative to the strongest relevant rival. There is no corresponding upward adjustment when the AI is weak relative to the size of its own empire. A civilization that expands quickly can therefore acquire many cities faster than its army grows and remain under-militarized for its size while ordinary building and unit-production logic continues without a relative-power catch-up signal.
++
++The logs showed this concretely in more than one game. In save file 458, Kublai reached 9 cities with 579 team power, about 64 power per city against a relevant-rival city-weighted average of about 125; the inherited logic had no upward response to that deficit. In save file 457, Shaka independently reached 7 cities with 377 power, about 54 per city against a relevant-rival average of about 94. These were not simply small empires failing to match a much larger rival's raw army total: they were empires whose military density had fallen well behind the field as they expanded.
++
++AdvCiv-SAS now adds a bounded adjustment in the opposite direction. It compares the AI team's power per city with the city-weighted average power per city of the same relevant rivals already considered by the inherited relative-power logic. Using power per city avoids telling a small empire to match a much larger rival's total army, while using the city-weighted rival average avoids letting one unusually militarized small rival dominate the target. The increase scales with the relative power-per-city deficit up to `SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT`, 50% by default.
++
++The catch-up remains inside the normal `AI_buildUnitProb` path rather than forcing a unit order. It does not apply when the existing logic has already greatly reduced military production for financial/economic reasons, while the AI is deliberately waiting for better units, when war is impossible, or when the inherited total-power logic already says the AI is clearly strong enough and is throttling production. The resulting `iBuildUnitProb` still flows through the ordinary spending limits, building choices, UnitAI selection and concrete-unit checks.
++
++Save file 458 produced two independent refined full runs with very similar behavior despite divergent game histories. The catch-up fired in 2,765 of 5,839 build-probability evaluations (about 47%) in one run and 2,542 of 5,501 (about 46%) in the rerun. The average requested increases were about +17%, corresponding to about +7 actual BuildUnitProb points, and neither run contained a case where the under-strength boost fired together with the inherited high-power throttle. Save file 457 independently reproduced the same pattern with a different leader set and RNG state: 2,152 of 4,674 evaluations (about 46%) were boosted, averaging about +19% and about +9 actual BuildUnitProb points, again with zero boost/throttle conflicts.
++
++In practical terms, the correction made the ordinary AI production logic noticeably more military-biased whenever an empire's army density lagged behind relevant rivals: when active, it raised BuildUnitProb by about 7 to 9 percentage points on average, making affected cities more likely to continue toward unit production through the normal production gates. This does not mean 7 to 9% more units overall because spending limits, building choices, UnitAI selection and concrete-unit checks still apply; it means under-strength AIs now receive a consistent catch-up pressure that Base AdvCiv lacked.
++
++The runs also retained substantial variation between civilizations rather than equalizing every army. Small empires were evaluated by military density rather than being asked to chase the raw total power of much larger rivals, while rapidly expanded empires could receive strong temporary pressure until their military caught up. The earlier SAS Process-fallback overproduction did not return: the refined runs continued to show only genuine empty-queue fallback contexts and no Process-replacement fallback.
++
++A separate related Base AdvCiv/K-Mod follow-up remains under investigation: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 does not use `iBuildUnitProb`. The new diagnostics show that this can still let a building intercept the final generic unit-production opportunity during severe under-strength. That possible follow-up is not part of the KI#197 cure above and can be evaluated separately.
++
++Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 0e7ba3b70..53c9717f4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -395,6 +395,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well)** and **[Civilian Units](#civilian-units)**.
+ - Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE` (but despite that, AI still seems to occasionally pillage), `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
+ - Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps. Goal: fewer wandering/baited units; more decisive stacks.
++- (Requires AdvCiv-SAS 6087+) **AI military production now catches up when an empire becomes under-strength for its size:** dedicated BBAI military-production logging together with SASGameRecord exposed a Base AdvCiv/K-Mod asymmetry: relative-power logic could reduce unit production when an AI was already strong, but there was no opposite catch-up when expansion outpaced army growth. This could leave a rapidly expanding empire with too little military for the amount of territory and cities it needed to defend. To address this, the AI now compares its power per city with the city-weighted average of relevant rivals and proportionally increases its normal willingness to build units while under-strength, while still respecting financial/economic reductions, the better-units strategy and the inherited high-power throttle. In two full post-fix runs from save file 458 and an independent post-fix run from save file 457, this catch-up activated in about 46-47% of logged military-production evaluations when applicable. For example, one save-file 458 state had Kublai at 9 cities and 579 power (about 64 power per city versus 125 for the relevant-rival average), increasing his BuildUnitProb from 47 to 70; save file 457 independently showed Shaka at 7 cities and 377 power (about 54 versus 94 per city), increasing it from 57 to 81. In practice, under-strength AIs therefore became noticeably more willing to reinforce their armies until they caught up, while already-strong AIs received no boost. See [KI#197](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#197---fixedimproved-base-advcivk-mod-military-production-could-remain-too-low-when-an-empire-was-under-strength-for-its-size-because-relative-power-logic-only-throttled-strong-ais).
+ - Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`).
+ - XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
+ - Promotions logic in `CvUnitAI::AI_promotionValue`: add **hard rules** so AIs pick context-appropriate promotions (e.g., City Garrison for `UNITAI_CITY_DEFENSE`, City Raider for `UNITAI_ATTACK_CITY`; avoid Woodsman/Medic on front-line attackers unless context justifies). Rules apply per **UnitAI** (not just by unit type); with exceptions like recon. See **[KI#47](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more)**.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=24760

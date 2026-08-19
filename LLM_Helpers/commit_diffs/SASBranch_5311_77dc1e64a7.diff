@@ -1,0 +1,1691 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5311
+# Commit: 77dc1e64a73227b38707bd158950be2853cb1c95
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ba5517013b1d3c22afc3585901ed8d09862b0d87
+# Title: Add new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena), update 48 civs DLL, and other changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL_48_civs_DLL.dll
+44	35	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+71	70	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+87	42	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+24	1	Assets/Python/CvMapGeneratorUtil.py
+2	2	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+1	1	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+128	1	Assets/XML/GameInfo/CIV4WorldInfo.xml
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+578	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+70	0	Assets/XML/Text/XXL_World_SAS_Modified.xml
+18	7	CvGameCoreDLL/CvEnums.h
+1	1	CvGameCoreDLL/CvInfo_GameOption.h
+2	2	CvGameCoreDLL/CvUnit.cpp
+26	1	README.md
+8	6	_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+8	6	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+6	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+ create mode 100644 Assets/XML/Interface/CIV4WorldPickerInfos.xml
+ create mode 100644 Assets/XML/Text/XXL_World_SAS_Modified.xml
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_48_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index 0006e44d9..44d9fe071 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -160,42 +160,49 @@ class SevoPediaGameSpeedChart:
+ 		#   ("btn",   <name>)   -> IconsAsButtons.xml (resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+ 		#   ("glyph", <name>)   -> GameFont glyph (yield/commerce/symbol char)
+ 		row_specs = (
+-			("iGrowthPercent",               "getGrowthPercent",               ("glyph", "food")),
+-			("iTrainPercent",                "getTrainPercent",                ("btn",   "swords")),
+-			("iConstructPercent",             "getConstructPercent",            ("glyph", "prod")),
+-			("iCreatePercent",                "getCreatePercent",               ("glyph", "prod")),
+-			("iResearchPercent",              "getResearchPercent",             ("glyph", "research")),
+-			("iBuildPercent",                 "getBuildPercent",                ("glyph", "citizen")),
+-			("iImprovementPercent",           "getImprovementPercent",          ("glyph", "citizen")),
+-			("iGreatPeoplePercent",           "getGreatPeoplePercent",          ("glyph", "great_people")),
+-			("iCulturePercent",               "getCulturePercent",              ("glyph", "culture")),
+-			("iAnarchyPercent",               "getAnarchyPercent",              ("btn",   "fire")),
+-			("iBarbPercent",                  "getBarbPercent",                 ("btn",   "skull")),
+-			("iFeatureProductionPercent",     "getFeatureProductionPercent",    ("glyph", "citizen")),
+-			("iUnitDiscoverPercent",          "getUnitDiscoverPercent",         ("glyph", "research")),
+-			("iUnitHurryPercent",             "getUnitHurryPercent",            ("glyph", "prod")),
+-			("iUnitTradePercent",             "getUnitTradePercent",            ("btn",   "swords")),
+-			("iUnitGreatWorkPercent",         "getUnitGreatWorkPercent",        ("glyph", "culture")),
+-			("iGoldenAgePercent",             "getGoldenAgePercent",            ("glyph", "golden_age")),
+-			("iHurryPercent",                 "getHurryPercent",                ("glyph", "prod")),
+-			("iHurryConscriptAngerPercent",   "getHurryConscriptAngerPercent",  ("glyph", "happy")),
+-			("iInflationPercent",             "getInflationPercent",            ("glyph", "gold")),
+-			("iInflationOffset",              "getInflationOffset",             ("glyph", "gold")),
+-			("iUnitCostPercent",              "getUnitCostPercent",             ("btn",   "swords")),
+-			("iExtraFreeOutsideUnits",        "getExtraFreeOutsideUnits",       ("btn",   "swords")),
+-			("iVictoryDelayPercent",          "getVictoryDelayPercent",         ("btn",   "trophy")),
+-			("iAIMemoryRandPercent",          "getAIMemoryRandPercent",         ("btn",   "brain")),
+-			("iAIContactRandPercent",         "getAIContactRandPercent",        ("btn",   "dove")),
+-			("iAIContactDelayPercent",        "getAIContactDelayPercent",       ("btn",   "hourglass")),
+-			("iFullTradeCreditPercent",       "getFullTradeCreditPercent",      ("glyph", "gold")),
+-			("iRevoltDivPercent",             "getRevoltDivPercent",            ("btn",   "fire")),
+-			("iReligionSpreadDivPercent",     "getReligionSpreadDivPercent",    ("btn",   "dove")),
+-			("iEventRollSidesPercent",        "getEventRollSidesPercent",       ("btn",   "gear")),
+-			("iVoteIntervalPercent",          "getVoteIntervalPercent",         ("btn",   "dove")),
+-			("NumTurnIncrements",             None,                             ("btn",   "hourglass")),  # derived
+-			("TotalTurns",                    None,                             ("btn",   "hourglass")),  # derived
++			("iGrowthPercent",              "getGrowthPercent",              ("glyph", "food")),
++			("iTrainPercent",               "getTrainPercent",               ("btn",   "swords")),
++			("iConstructPercent",           "getConstructPercent",           ("glyph", "prod")),
++			("iCreatePercent",              "getCreatePercent",              ("glyph", "prod")),
++			("iResearchPercent",            "getResearchPercent",            ("glyph", "research")),
++			("iBuildPercent",               "getBuildPercent",               ("glyph", "citizen")),
++			("iImprovementPercent",         "getImprovementPercent",         ("glyph", "citizen")),
++			("iGreatPeoplePercent",         "getGreatPeoplePercent",         ("glyph", "great_people")),
++			("iCulturePercent",             "getCulturePercent",             ("glyph", "culture")),
++			("iAnarchyPercent",             "getAnarchyPercent",             ("btn",   "fire")),
++			("iBarbPercent",                "getBarbPercent",                ("btn",   "skull")),
++			("iFeatureProductionPercent",   "getFeatureProductionPercent",   ("glyph", "citizen")),
++			("iUnitDiscoverPercent",        "getUnitDiscoverPercent",        ("glyph", "research")),
++			("iUnitHurryPercent",           "getUnitHurryPercent",           ("glyph", "prod")),
++			("iUnitTradePercent",           "getUnitTradePercent",           ("btn",   "swords")),
++			("iUnitGreatWorkPercent",       "getUnitGreatWorkPercent",       ("glyph", "culture")),
++			("iGoldenAgePercent",           "getGoldenAgePercent",           ("glyph", "golden_age")),
++			("iHurryPercent",               "getHurryPercent",               ("glyph", "prod")),
++			("iHurryConscriptAngerPercent", "getHurryConscriptAngerPercent", ("glyph", "happy")),
++			("iInflationPercent",           "getInflationPercent",           ("glyph", "gold")),
++			("iInflationOffset",            "getInflationOffset",            ("glyph", "gold")),
++			("iUnitCostPercent",            "getUnitCostPercent",            ("btn",   "swords")),
++			("iExtraFreeOutsideUnits",      "getExtraFreeOutsideUnits",      ("btn",   "swords")),
++			("iVictoryDelayPercent",        "getVictoryDelayPercent",        ("btn",   "trophy")),
++			("iAIMemoryRandPercent",        "getAIMemoryRandPercent",        ("btn",   "brain")),
++			("iAIContactRandPercent",       "getAIContactRandPercent",       ("btn",   "dove")),
++			("iAIContactDelayPercent",      "getAIContactDelayPercent",      ("btn",   "hourglass")),
++			("iFullTradeCreditPercent",     "getFullTradeCreditPercent",     ("glyph", "gold")),
++			("iRevoltDivPercent",           "getRevoltDivPercent",           ("btn",   "fire")),
++			("iReligionSpreadDivPercent",   "getReligionSpreadDivPercent",   ("btn",   "dove")),
++			("iEventRollSidesPercent",      "getEventRollSidesPercent",      ("btn",   "gear")),
++			("iVoteIntervalPercent",        "getVoteIntervalPercent",        ("btn",   "dove")),
++			("NumTurnIncrements",           None,                            ("btn",   "hourglass")),
++			("TotalTurns",                  None,                            ("btn",   "hourglass")),
+ 		)
+ 
++		# Derived rows have no getter (getter_name is None): values are computed from per-increment data,
++		# not read from a single XML field. Mark them with '*' in the display label.
++		derived_field_keys = {}
++		for (k, getter_name, _icon_spec) in row_specs:
++			if getter_name is None:
++				derived_field_keys[k] = True
++
+ 		# ---------------------------------------------------------------------
+ 		# Icon libraries
+ 		# ---------------------------------------------------------------------
+@@ -337,7 +344,7 @@ class SevoPediaGameSpeedChart:
+ 
+ 			parsed_data[speed_type] = speed_dict
+ 
+-		# Derived: NumTurnIncrements / TotalTurns, and Calendar_* rows.
++		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
+ 		start_year = gc.getDefineINT("START_YEAR")
+ 		max_increments = 0
+ 
+@@ -412,6 +419,8 @@ class SevoPediaGameSpeedChart:
+ 		row_index = 0
+ 		for field in field_order:
+ 			szFieldName = self._beautify_field_name(field)
++			if derived_field_keys.get(field):
++				szFieldName += u"*"
+ 
+ 			if self.bShowIconColumn:
+ 				row = [icon_cell_for_key(field, row_index), _font2(szFieldName)]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index e89abe452..146d9dd61 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -141,78 +141,79 @@ class SevoPediaHandicapChart:
+ 		#   field_getters = (...)   and   icon_token_by_key = {...}
+ 		# had to be kept in sync manually.
+ 		field_specs = (
++			# <!-- custom: aligned with the help of ChatGPT-5.2 Thinking thanks a lot! -->
+ 			# (field_name, getter_name, icon_token)
+-			("iAIAttitudeChangePercent", "getAIAttitudeChangePercent", "btn:dove"),
+-			("iAIAdvancedStartPercent", "getAIAdvancedStartPercent", "glyph:defense"),
+-			("iAIAnimalBonus", "getAIAnimalCombatModifier", "btn:lion"),
+-			("iAIBarbarianBonus", "getAIBarbarianCombatModifier", "btn:skull"),
+-			("iAICivicUpkeepPercent", "getAICivicUpkeepPercent", "glyph:gold"),
+-			("iAIConstructPercent", "getAIConstructPercent", "glyph:prod"),
+-			("iAICreatePercent", "getAICreatePercent", "glyph:prod"),
+-			("iAIDeclareWarProb", "getAIDeclareWarProb", "btn:swords"),
+-			("iAIGPThresholdPercent", "getAIGPThresholdPercent", "glyph:great_people"),
+-			("iAIGrowthPercent", "getAIGrowthPercent", "glyph:food"),
+-			("iAIHandicapIncrementTurns", "getAIHandicapIncrementTurns", "glyph:defense"),
+-			("iAIInflationPercent", "getAIInflationPercent", "glyph:gold"),
+-			("iAIResearchPercent", "getAIResearchPercent", "glyph:research"),
+-			("iAIStartingDefenseUnits", "getAIStartingDefenseUnits", "btn:swords"),
+-			("iAIStartingExploreUnits", "getAIStartingExploreUnits", "btn:swords"),
+-			("iAIStartingUnitMultiplier", "getAIStartingUnitMultiplier", "btn:swords"),
+-			("iAIStartingWorkerUnits", "getAIStartingWorkerUnits", "glyph:citizen"),
+-			("iAITrainPercent", "getAITrainPercent", "btn:swords"),
+-			("iAIUnitCostPercent", "getAIUnitCostPercent", "btn:swords"),
+-			("iAIUnitSupplyPercent", "getAIUnitSupplyPercent", "btn:swords"),
+-			("iAIUnitUpgradePercent", "getAIUnitUpgradePercent", "btn:swords"),
+-			("iAIWarWearinessPercent", "getAIWarWearinessPercent", "btn:swords"),
+-			("iAIWorkRateModifier", "getAIWorkRateModifier", "glyph:citizen"),
+-			("iAIWorldConstructPercent", "getAIWorldConstructPercent", "glyph:prod"),
+-			("iAIWorldCreatePercent", "getAIWorldCreatePercent", "glyph:prod"),
+-			("iAIWorldTrainPercent", "getAIWorldTrainPercent", "btn:swords"),
+-			("iAdvancedStartPointsMod", "getAdvancedStartPointsMod", "glyph:defense"),
+-			("iAnimalAttackProb", "getAnimalAttackProb", "btn:lion"),
+-			("iAnimalBonus", "getAnimalCombatModifier", "btn:lion"),
+-			("iAttitudeChange", "getAttitudeChange", "btn:dove"),
+-			("iBarbarianBonus", "getBarbarianCombatModifier", "btn:skull"),
+-			("iBarbarianCityAttackBonus", "getBarbarianCityAttackBonus", "btn:skull"),
+-			("iBarbarianCityCreationProb", "getBarbarianCityCreationProb", "btn:skull"),
++			("iAIAttitudeChangePercent",           "getAIAttitudeChangePercent",           "btn:dove"),
++			("iAIAdvancedStartPercent",            "getAIAdvancedStartPercent",            "glyph:defense"),
++			("iAIAnimalBonus",                     "getAIAnimalCombatModifier",            "btn:lion"),
++			("iAIBarbarianBonus",                  "getAIBarbarianCombatModifier",         "btn:skull"),
++			("iAICivicUpkeepPercent",              "getAICivicUpkeepPercent",              "glyph:gold"),
++			("iAIConstructPercent",                "getAIConstructPercent",                "glyph:prod"),
++			("iAICreatePercent",                   "getAICreatePercent",                   "glyph:prod"),
++			("iAIDeclareWarProb",                  "getAIDeclareWarProb",                  "btn:swords"),
++			("iAIGPThresholdPercent",              "getAIGPThresholdPercent",              "glyph:great_people"),
++			("iAIGrowthPercent",                   "getAIGrowthPercent",                   "glyph:food"),
++			("iAIHandicapIncrementTurns",          "getAIHandicapIncrementTurns",          "glyph:defense"),
++			("iAIInflationPercent",                "getAIInflationPercent",                "glyph:gold"),
++			("iAIResearchPercent",                 "getAIResearchPercent",                 "glyph:research"),
++			("iAIStartingDefenseUnits",            "getAIStartingDefenseUnits",            "btn:swords"),
++			("iAIStartingExploreUnits",            "getAIStartingExploreUnits",            "btn:swords"),
++			("iAIStartingUnitMultiplier",          "getAIStartingUnitMultiplier",          "btn:swords"),
++			("iAIStartingWorkerUnits",             "getAIStartingWorkerUnits",             "glyph:citizen"),
++			("iAITrainPercent",                    "getAITrainPercent",                    "btn:swords"),
++			("iAIUnitCostPercent",                 "getAIUnitCostPercent",                 "btn:swords"),
++			("iAIUnitSupplyPercent",               "getAIUnitSupplyPercent",               "btn:swords"),
++			("iAIUnitUpgradePercent",              "getAIUnitUpgradePercent",              "btn:swords"),
++			("iAIWarWearinessPercent",             "getAIWarWearinessPercent",             "btn:swords"),
++			("iAIWorkRateModifier",                "getAIWorkRateModifier",                "glyph:citizen"),
++			("iAIWorldConstructPercent",           "getAIWorldConstructPercent",           "glyph:prod"),
++			("iAIWorldCreatePercent",              "getAIWorldCreatePercent",              "glyph:prod"),
++			("iAIWorldTrainPercent",               "getAIWorldTrainPercent",               "btn:swords"),
++			("iAdvancedStartPointsMod",            "getAdvancedStartPointsMod",            "glyph:defense"),
++			("iAnimalAttackProb",                  "getAnimalAttackProb",                  "btn:lion"),
++			("iAnimalBonus",                       "getAnimalCombatModifier",              "btn:lion"),
++			("iAttitudeChange",                    "getAttitudeChange",                    "btn:dove"),
++			("iBarbarianBonus",                    "getBarbarianCombatModifier",           "btn:skull"),
++			("iBarbarianCityAttackBonus",          "getBarbarianCityAttackBonus",          "btn:skull"),
++			("iBarbarianCityCreationProb",         "getBarbarianCityCreationProb",         "btn:skull"),
+ 			("iBarbarianCityCreationTurnsElapsed", "getBarbarianCityCreationTurnsElapsed", "btn:skull"),
+-			("iBarbarianCreationTurnsElapsed", "getBarbarianCreationTurnsElapsed", "btn:skull"),
+-			("iBarbarianDefenders", "getBarbarianInitialDefenders", "btn:skull"),
+-			("iBaseGrowthThresholdPercent", "getBaseGrowthThresholdPercent", "glyph:food"),
+-			("iBuildTimePercent", "getBuildTimePercent", "glyph:citizen"),
+-			("iCivicUpkeepPercent", "getCivicUpkeepPercent", "glyph:gold"),
+-			("iColonyMaintenancePercent", "getColonyMaintenancePercent", "glyph:gold"),
+-			("iConstructPercent", "getConstructPercent", "glyph:prod"),
+-			("iCorporationMaintenancePercent", "getCorporationMaintenancePercent", "glyph:gold"),
+-			("iCreatePercent", "getCreatePercent", "glyph:prod"),
+-			("iCultureLevelPercent", "getCultureLevelPercent", "glyph:culture"),
+-			("iDifficulty", "getDifficulty", "glyph:defense"),
+-			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent", "glyph:gold"),
+-			("iForeignCultureStrength", "getForeignCultureStrength", "glyph:culture"),
+-			("iFreeUnits", "getFreeUnits", "btn:swords"),
+-			("iFreeWinsVsBarbs", "getFreeWinsVsBarbs", "btn:skull"),
+-			("iGold", "getStartingGold", "glyph:gold"),
+-			("iGPThresholdPercent", "getGPThresholdPercent", "glyph:great_people"),
+-			("iHappyBonus", "getHappyBonus", "glyph:happy"),
+-			("iHealthBonus", "getHealthBonus", "glyph:health"),
+-			("iInflationPercent", "getInflationPercent", "glyph:gold"),
+-			("iMaxColonyMaintenance", "getMaxColonyMaintenance", "glyph:gold"),
+-			("iMaxNumCitiesMaintenance", "getMaxNumCitiesMaintenance", "glyph:gold"),
+-			("iNoTechTradeModifier", "getNoTechTradeModifier", "glyph:research"),
+-			("iNumCitiesMaintenancePercent", "getNumCitiesMaintenancePercent", "glyph:gold"),
+-			("iResearchPercent", "getResearchPercent", "glyph:research"),
+-			("iSeaBarbarianBonus", "getSeaBarbarianBonus", "btn:skull"),
+-			("iSeaBarbarianExtraMoves", "getSeaBarbarianExtraMoves", "btn:skull"),
+-			("iStartingDefenseUnits", "getStartingDefenseUnits", "btn:swords"),
+-			("iStartingExploreUnits", "getStartingExploreUnits", "btn:swords"),
+-			("iStartingLocPercent", "getStartingLocationPercent", "glyph:defense"),
+-			("iStartingWorkerUnits", "getStartingWorkerUnits", "glyph:citizen"),
+-			("iTechTradeKnownModifier", "getTechTradeKnownModifier", "glyph:research"),
+-			("iTrainPercent", "getTrainPercent", "btn:swords"),
+-			("iUnitCostPercent", "getUnitCostPercent", "btn:swords"),
+-			("iUnownedTilesPerBarbarianCity", "getUnownedTilesPerBarbarianCity", "btn:skull"),
+-			("iUnownedTilesPerBarbarianUnit", "getUnownedTilesPerBarbarianUnit", "btn:skull"),
+-			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal", "btn:lion"),
++			("iBarbarianCreationTurnsElapsed",     "getBarbarianCreationTurnsElapsed",     "btn:skull"),
++			("iBarbarianDefenders",                "getBarbarianInitialDefenders",         "btn:skull"),
++			("iBaseGrowthThresholdPercent",        "getBaseGrowthThresholdPercent",        "glyph:food"),
++			("iBuildTimePercent",                  "getBuildTimePercent",                  "glyph:citizen"),
++			("iCivicUpkeepPercent",                "getCivicUpkeepPercent",                "glyph:gold"),
++			("iColonyMaintenancePercent",          "getColonyMaintenancePercent",          "glyph:gold"),
++			("iConstructPercent",                  "getConstructPercent",                  "glyph:prod"),
++			("iCorporationMaintenancePercent",     "getCorporationMaintenancePercent",     "glyph:gold"),
++			("iCreatePercent",                     "getCreatePercent",                     "glyph:prod"),
++			("iCultureLevelPercent",               "getCultureLevelPercent",               "glyph:culture"),
++			("iDifficulty",                        "getDifficulty",                        "glyph:defense"),
++			("iDistanceMaintenancePercent",        "getDistanceMaintenancePercent",        "glyph:gold"),
++			("iForeignCultureStrength",            "getForeignCultureStrength",            "glyph:culture"),
++			("iFreeUnits",                         "getFreeUnits",                         "btn:swords"),
++			("iFreeWinsVsBarbs",                   "getFreeWinsVsBarbs",                   "btn:skull"),
++			("iGold",                              "getStartingGold",                      "glyph:gold"),
++			("iGPThresholdPercent",                "getGPThresholdPercent",                "glyph:great_people"),
++			("iHappyBonus",                        "getHappyBonus",                        "glyph:happy"),
++			("iHealthBonus",                       "getHealthBonus",                       "glyph:health"),
++			("iInflationPercent",                  "getInflationPercent",                  "glyph:gold"),
++			("iMaxColonyMaintenance",              "getMaxColonyMaintenance",              "glyph:gold"),
++			("iMaxNumCitiesMaintenance",           "getMaxNumCitiesMaintenance",           "glyph:gold"),
++			("iNoTechTradeModifier",               "getNoTechTradeModifier",               "glyph:research"),
++			("iNumCitiesMaintenancePercent",       "getNumCitiesMaintenancePercent",       "glyph:gold"),
++			("iResearchPercent",                   "getResearchPercent",                   "glyph:research"),
++			("iSeaBarbarianBonus",                 "getSeaBarbarianBonus",                 "btn:skull"),
++			("iSeaBarbarianExtraMoves",            "getSeaBarbarianExtraMoves",            "btn:skull"),
++			("iStartingDefenseUnits",              "getStartingDefenseUnits",              "btn:swords"),
++			("iStartingExploreUnits",              "getStartingExploreUnits",              "btn:swords"),
++			("iStartingLocPercent",                "getStartingLocationPercent",           "glyph:defense"),
++			("iStartingWorkerUnits",               "getStartingWorkerUnits",               "glyph:citizen"),
++			("iTechTradeKnownModifier",            "getTechTradeKnownModifier",            "glyph:research"),
++			("iTrainPercent",                      "getTrainPercent",                      "btn:swords"),
++			("iUnitCostPercent",                   "getUnitCostPercent",                   "btn:swords"),
++			("iUnownedTilesPerBarbarianCity",      "getUnownedTilesPerBarbarianCity",      "btn:skull"),
++			("iUnownedTilesPerBarbarianUnit",      "getUnownedTilesPerBarbarianUnit",      "btn:skull"),
++			("iUnownedTilesPerGameAnimal",         "getUnownedTilesPerGameAnimal",         "btn:lion"),
+ 			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit", "btn:skull"),
+ 		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 7e3ae9a5c..c61afc027 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -2098,7 +2098,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		setShowListIdx = None
+ 		self.SAS_listIdxToRow = None
+ 
+-		# <!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (chatgpt 5.2) -->
++		# <!-- custom: rebuild arrow-navigation selectable caches every time we rebuild the list (fixes stale indices / out-of-range) (ChatGPT 5.2 Thinking) -->
+ 		self.SAS_selectableListIdx = []
+ 		self.SAS_itemToSelectablePos = {}
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index d42c6b3ae..fceccc8e2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -135,30 +135,37 @@ class SevoPediaWorldSizeChart:
+ 
+ 	def _buildTableFromGameData(self):
+ 		row_specs = (
+-			("GridSize",                    None,                          "glyph:map"),
+-			("GridTiles",                   None,                          "glyph:map"),
+-			("iDefaultPlayers",             "getDefaultPlayers",           "glyph:citizen"),
+-			("iTargetNumCities",            "getTargetNumCities",          "glyph:citizen"),
+-			("iNumFreeBuildingBonuses",     "getNumFreeBuildingBonuses",   "glyph:prod"),
+-			("iBuildingClassPrereqModifier","getBuildingClassPrereqModifier","glyph:prod"),
+-			("iUnitNameModifier",           "getUnitNameModifier",         "btn:swords"),
+-			("iMaxConscriptModifier",       "getMaxConscriptModifier",     "btn:swords"),
+-			("iWarWearinessModifier",       "getWarWearinessModifier",     "glyph:unhappy"),
+-			("iUnitCostPercent",            "getUnitCostPercent",          "btn:swords"),
+-			("iTerrainGrainChange",         "getTerrainGrainChange",       "btn:herb"),
+-			("iFeatureGrainChange",         "getFeatureGrainChange",       "btn:herb"),
+-			("iResearchPercent",            "getResearchPercent",          "glyph:research"),
+-			("iTradeProfitPercent",         "getTradeProfitPercent",       "glyph:gold"),
+-			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent","glyph:gold"),
+-			("iNumCitiesMaintenancePercent","getNumCitiesMaintenancePercent","glyph:gold"),
+-			("iColonyMaintenancePercent",   "getColonyMaintenancePercent", "glyph:gold"),
+-			("iCorporationMaintenancePercent","getCorporationMaintenancePercent","glyph:gold"),
+-			("iNumCitiesAnarchyPercent",    "getNumCitiesAnarchyPercent",  "btn:fire"),
+-			("iAdvancedStartPointsMod",     "getAdvancedStartPointsMod",   "glyph:defense"),
++			# NOTE: Some rows are direct XML fields, others are convenience composites.
++			# Use a trailing '*' in the *display label* when the displayed value is not a single XML tag.
++			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while "Grid Size (W x H)" just formats the XML GridWidth/GridHeight.
++			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
++			("GridSize",                       "Grid Size (W x H)",         None,                               "glyph:map"),
++			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
++			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
++			("TilesPerDefaultPlayer",          "Tiles Per Default Player*", None,                               "glyph:map"),
++			("iDefaultPlayers",                "Default Players",           "getDefaultPlayers",                "glyph:citizen"),
++			("iTargetNumCities",               "Target Num Cities",         "getTargetNumCities",               "glyph:citizen"),
++			("iNumFreeBuildingBonuses",        "Free Building Bonuses",     "getNumFreeBuildingBonuses",        "glyph:prod"),
++			("iBuildingClassPrereqModifier",   "Building Class Prereq Mod", "getBuildingClassPrereqModifier",   "glyph:prod"),
++			("iUnitNameModifier",              "Unit Name Modifier",        "getUnitNameModifier",              "btn:swords"),
++			("iMaxConscriptModifier",          "Max Conscript Mod",         "getMaxConscriptModifier",          "btn:swords"),
++			("iWarWearinessModifier",          "War Weariness Mod",         "getWarWearinessModifier",          "glyph:unhappy"),
++			("iUnitCostPercent",               None,                        "getUnitCostPercent",               "btn:swords"),
++			("iTerrainGrainChange",            None,                        "getTerrainGrainChange",            "btn:herb"),
++			("iFeatureGrainChange",            None,                        "getFeatureGrainChange",            "btn:herb"),
++			("iResearchPercent",               None,                        "getResearchPercent",               "glyph:research"),
++			("iTradeProfitPercent",            None,                        "getTradeProfitPercent",            "glyph:gold"),
++			("iDistanceMaintenancePercent",    None,                        "getDistanceMaintenancePercent",    "glyph:gold"),
++			("iNumCitiesMaintenancePercent",   None,                        "getNumCitiesMaintenancePercent",   "glyph:gold"),
++			("iColonyMaintenancePercent",      None,                        "getColonyMaintenancePercent",      "glyph:gold"),
++			("iCorporationMaintenancePercent", None,                        "getCorporationMaintenancePercent", "glyph:gold"),
++			("iNumCitiesAnarchyPercent",       None,                        "getNumCitiesAnarchyPercent",       "btn:fire"),
++			("iAdvancedStartPointsMod",        "Advanced Start Points Mod", "getAdvancedStartPointsMod",        "glyph:defense"),
++			("RecommendedDLL",                 "Recommended DLL*",          None,                               "glyph:defense"),
+ 		)
+ 
+ 		field_getters_list = []
+-		for field_name, getter_name, _icon_token in row_specs:
++		for field_name, _display_label, getter_name, _icon_token in row_specs:
+ 			if getter_name:
+ 				field_getters_list.append((field_name, getter_name))
+ 		field_getters = tuple(field_getters_list)
+@@ -225,10 +232,15 @@ class SevoPediaWorldSizeChart:
+ 		def _sort_key(iGroup, iRowIndex):
+ 			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
+ 		icon_token_by_key = {}
+-		for field_name, _getter_name, icon_token in row_specs:
++		for field_name, _display_label, _getter_name, icon_token in row_specs:
+ 			if icon_token:
+ 				icon_token_by_key[field_name] = icon_token
+ 
++		display_label_by_key = {}
++		for field_name, display_label, _getter_name, _icon_token in row_specs:
++			if display_label:
++				display_label_by_key[field_name] = display_label
++
+ 		def icon_cell_for_key(icon_key, iRowIndex):
+ 			# Always return a stable invisible tie-breaker, even if no icon is found.
+ 			if not icon_key:
+@@ -276,6 +288,57 @@ class SevoPediaWorldSizeChart:
+ 
+ 			parsed_data[world_type] = world_dict
+ 
++
++		# -----------------------------------------------------------------
++		# Derived rows (AdvCiv-SAS: XXL-inspired extra world sizes, adjusted for SAS; e.g. SAS24/SAS32/SAS40/SAS48)
++		# Computed fields are marked in the UI with a trailing \"*\".
++		# Added with help from ChatGPT (GPT-5.2 Thinking)
++		# -----------------------------------------------------------------
++		iStandardTiles = None
++		if parsed_data.has_key("WORLDSIZE_STANDARD"):
++			try:
++				iStandardTiles = int(parsed_data["WORLDSIZE_STANDARD"].get("GridTiles", "0"))
++			except:
++				iStandardTiles = None
++
++		# Ratio to Standard: GridTiles / Standard GridTiles (3 decimals).
++		# Tiles Per Default Player: GridTiles / iDefaultPlayers (rounded to int).
++		for world_type in world_types:
++			# Ratio
++			if iStandardTiles is not None and iStandardTiles > 0:
++				try:
++					iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
++					parsed_data[world_type]["RatioToStandard"] = ("%.3f" % (float(iTiles) / float(iStandardTiles)))
++				except:
++					parsed_data[world_type]["RatioToStandard"] = ""
++			else:
++				parsed_data[world_type]["RatioToStandard"] = ""
++
++			# Tiles per default player
++			try:
++				iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
++			except:
++				iTiles = 0
++			try:
++				iDefaultPlayers = int(parsed_data.get(world_type, {}).get("iDefaultPlayers", "0"))
++			except:
++				iDefaultPlayers = 0
++			if iTiles > 0 and iDefaultPlayers > 0:
++				parsed_data[world_type]["TilesPerDefaultPlayer"] = str(int(round(float(iTiles) / float(iDefaultPlayers))))
++			else:
++				parsed_data[world_type]["TilesPerDefaultPlayer"] = ""
++
++		# Recommended DLL: show "48 civs" when iDefaultPlayers exceeds the base DLL cap (18).
++		for world_type in world_types:
++			try:
++				iDefaultPlayers = int(parsed_data.get(world_type, {}).get("iDefaultPlayers", "0"))
++			except:
++				iDefaultPlayers = 0
++			if iDefaultPlayers > 18:
++				parsed_data[world_type]["RecommendedDLL"] = "48 civs"
++			else:
++				parsed_data[world_type]["RecommendedDLL"] = "Base"
++
+ 		header = []
+ 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+ 			header.append(u"")
+@@ -288,8 +351,8 @@ class SevoPediaWorldSizeChart:
+ 		table = [header]
+ 
+ 		row_index = 0
+-		for field_name, _getter_name, _icon_token in row_specs:
+-			szFieldName = self._display_field_name(field_name)
++		for field_name, display_label, _getter_name, _icon_token in row_specs:
++			szFieldName = display_label_by_key.get(field_name, self._beautify_field_name(field_name))
+ 
+ 			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+ 				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
+@@ -304,24 +367,6 @@ class SevoPediaWorldSizeChart:
+ 
+ 		return table
+ 
+-	def _display_field_name(self, field_name):
+-		field_map = {
+-			"GridSize": "Grid Size (W x H)",
+-			"GridTiles": "Grid Tiles",
+-			"iDefaultPlayers": "Default Players",
+-			"iTargetNumCities": "Target Num Cities",
+-			"iNumFreeBuildingBonuses": "Free Building Bonuses",
+-			"iBuildingClassPrereqModifier": "Building Class Prereq Mod",
+-			"iUnitNameModifier": "Unit Name Modifier",
+-			"iMaxConscriptModifier": "Max Conscript Mod",
+-			"iWarWearinessModifier": "War Weariness Mod",
+-			"iAdvancedStartPointsMod": "Advanced Start Points Mod",
+-		}
+-		name = field_map.get(field_name, "")
+-		if name:
+-			return name
+-		return self._beautify_field_name(field_name)
+-
+ 	def _beautify_field_name(self, raw_name):
+ 		name = raw_name
+ 		if name.startswith("i") and len(name) > 1 and name[1].isupper():
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index e126c1628..37e8c3b94 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -985,7 +985,30 @@ class MultilayeredFractal:
+ 			}
+ 		# You can add as many grain entries as you like.
+ 		# Seed them all from the matrix using the following type of line:
+-		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = sizevalues[sizekey]
++
++		# <!-- custom: Fallback for unknown world sizes in CvMapGeneratorUtil.py to avoid KeyError: base map scripts might still need XXL-aware getGridSize handling; the fallback only helps scripts that rely on CvMapGeneratorUtil. If you want, I can bring in the XXL map scripts from the add-on folder and wire them up. (GPT-5.2-Codex). -->
++		values = sizevalues.get(sizekey)
++		# <!-- custom: WorldSizeTypes only includes the 6 hardcoded sizes; extra XML world sizes
++		# (e.g. WORLDSIZE_ARENA / WORLDSIZE_SAS*) should map to the closest hardcoded size
++		# by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking) -->
++		# <!-- custom: check if accurate as i don't know too much about these. -->
++		if values is None:
++			try:
++				wi = gc.getWorldInfo(sizekey)
++				iTiles = wi.getGridWidth() * wi.getGridHeight()
++				bestKey = WorldSizeTypes.WORLDSIZE_HUGE
++				bestDiff = 1 << 30
++				for k in sizevalues.keys():
++					wiK = gc.getWorldInfo(k)
++					diff = abs(iTiles - (wiK.getGridWidth() * wiK.getGridHeight()))
++					if diff < bestDiff:
++						bestDiff = diff
++						bestKey = k
++				values = sizevalues[bestKey]
++			except:
++				values = sizevalues[WorldSizeTypes.WORLDSIZE_HUGE]
++		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = values
++
+ 		# The example is for four grain values. You may not need that many.
+ 		# Check scripts that use MultilayeredFractal for more examples.
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index df43c7743..f605cc781 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -13,12 +13,12 @@
+ 	- 720 months = 60y
+ 	- 780 months = 65y
+ 	and adjust iTurnsPerIncrement to keep the same segment endpoints and total turns.
+-	Sub-year steps (<12 months) are kept as separate rows (e.g., 6/3/2 months) for clarity. (ChatGPT 5.2) -->
++	Sub-year steps (<12 months) are kept as separate rows (e.g., 6/3/2 months) for clarity. (ChatGPT 5.2 Thinking) -->
+ <!-- custom: note: iExtraFreeOutsideUnits is an OPTIONAL tag (schema minOccurs=0), but the DLL default was 100 (percent-style fallback).
+      That default is wrong for this field because it is a UNIT COUNT added to INITIAL_FREE_OUTSIDE_UNITS, not a percent.
+      Result: speeds missing the tag display/behave like "100" (see SevoPedia Game Speed Chart), while slower speeds explicitly set "1".
+      We now set this tag explicitly for ALL game speeds (usually 0) to avoid hidden fallback values and keep behavior consistent.
+-     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2). See known issue as of now 92 for details. -->
++     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
+ <!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
+ <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameSpeedInfos>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 7e92f51da..f47dee0d9 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -96,7 +96,7 @@
+ 			<!-- custom: see code comment at iBaseGrowthThresholdPercent. Additionally, I also thought we can adjust `iAIGrowthPercent` to 100 at all handicaps, since the human player now has no advantage or disadvantage, and it could have helped the issue of AI runaway at higher handicaps (or vice versa) and allow finer tuning instead through other knobs, but maybe the base growth change is enough for now. Possibly to keep in mind if AI is much smarter as a way to nerf it further perhaps. -->
+ 			<iAIGrowthPercent>115</iAIGrowthPercent>
+ 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from \_0_Common_Docs\AdvCiv_Base_Doc\manual.txt -->
+-			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2) -->
++			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2 Thinking) -->
+ 			<iAIGPThresholdPercent>124</iAIGPThresholdPercent>
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there -->
+ 			<iAIResearchPercent>118</iAIResearchPercent>
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 4bb2e2036..bc7a9aa56 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -3,10 +3,37 @@
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
++<!-- custom: new world sizes based on the XXL Word (BtS) mod (https://forums.civfanatics.com/resources/xxl-world-bts.6708/)'s approach, with values adjusted for AdvCiv-SAS with the help of GPT-Codex-5.2 and then ChatGPT 5.2 Thinking thanks. For details, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\XXL_World_SAS_Modified.xml and docs. -->
+ <!-- World Infos -->
+ <!-- NOTE: If you remove any of these you need to update Interface/WorldPickerInfos.xml -->
+ <Civ4WorldInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<WorldInfos>
++		<WorldInfo>
++			<Type>WORLDSIZE_ARENA</Type>
++			<Description>TXT_KEY_WORLD_ARENA</Description>
++			<Help>TXT_KEY_WORLD_ARENA_HELP</Help>
++			<iDefaultPlayers>2</iDefaultPlayers>
++			<iUnitNameModifier>50</iUnitNameModifier>
++			<iTargetNumCities>4</iTargetNumCities>
++			<iNumFreeBuildingBonuses>1</iNumFreeBuildingBonuses>
++			<iBuildingClassPrereqModifier>0</iBuildingClassPrereqModifier>
++			<iMaxConscriptModifier>-30</iMaxConscriptModifier>
++			<iWarWearinessModifier>30</iWarWearinessModifier>
++			<iUnitCostPercent>109</iUnitCostPercent>
++			<!-- custom: Smaller-than-Duel size for fast 2-player games (14x10). -->
++			<iGridWidth>14</iGridWidth>
++			<iGridHeight>10</iGridHeight>
++			<iTerrainGrainChange>-1</iTerrainGrainChange>
++			<iFeatureGrainChange>-1</iFeatureGrainChange>
++			<iResearchPercent>85</iResearchPercent>
++			<iTradeProfitPercent>70</iTradeProfitPercent>
++			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>42</iNumCitiesMaintenancePercent>
++			<iColonyMaintenancePercent>67</iColonyMaintenancePercent>
++			<iCorporationMaintenancePercent>400</iCorporationMaintenancePercent>
++			<iNumCitiesAnarchyPercent>11</iNumCitiesAnarchyPercent>
++			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
++		</WorldInfo>
+ 		<WorldInfo>
+ 			<Type>WORLDSIZE_DUEL</Type>
+ 			<Description>TXT_KEY_WORLD_DUEL</Description>
+@@ -225,8 +252,108 @@
+ 			<!-- advc.250c: was 120 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 		</WorldInfo>
++
++		<WorldInfo>
++			<Type>WORLDSIZE_SAS24</Type>
++			<Description>TXT_KEY_WORLD_SAS24</Description>
++			<Help>TXT_KEY_WORLD_SAS24_HELP</Help>
++			<iDefaultPlayers>24</iDefaultPlayers>
++			<iUnitNameModifier>0</iUnitNameModifier>
++			<iTargetNumCities>7</iTargetNumCities>
++			<iNumFreeBuildingBonuses>7</iNumFreeBuildingBonuses>
++			<iBuildingClassPrereqModifier>100</iBuildingClassPrereqModifier>
++			<iMaxConscriptModifier>60</iMaxConscriptModifier>
++			<iWarWearinessModifier>-35</iWarWearinessModifier>
++			<iUnitCostPercent>91</iUnitCostPercent>
++			<iGridWidth>71</iGridWidth>
++			<iGridHeight>49</iGridHeight>
++			<iTerrainGrainChange>2</iTerrainGrainChange>
++			<iFeatureGrainChange>2</iFeatureGrainChange>
++			<iResearchPercent>115</iResearchPercent>
++			<iTradeProfitPercent>26</iTradeProfitPercent>
++			<iDistanceMaintenancePercent>109</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>18</iNumCitiesMaintenancePercent>
++			<iColonyMaintenancePercent>23</iColonyMaintenancePercent>
++			<iCorporationMaintenancePercent>40</iCorporationMaintenancePercent>
++			<iNumCitiesAnarchyPercent>5</iNumCitiesAnarchyPercent>
++			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
++		</WorldInfo>
++		<WorldInfo>
++			<Type>WORLDSIZE_SAS32</Type>
++			<Description>TXT_KEY_WORLD_SAS32</Description>
++			<Help>TXT_KEY_WORLD_SAS32_HELP</Help>
++			<iDefaultPlayers>32</iDefaultPlayers>
++			<iUnitNameModifier>0</iUnitNameModifier>
++			<iTargetNumCities>8</iTargetNumCities>
++			<iNumFreeBuildingBonuses>8</iNumFreeBuildingBonuses>
++			<iBuildingClassPrereqModifier>125</iBuildingClassPrereqModifier>
++			<iMaxConscriptModifier>75</iMaxConscriptModifier>
++			<iWarWearinessModifier>-45</iWarWearinessModifier>
++			<iUnitCostPercent>88</iUnitCostPercent>
++			<iGridWidth>83</iGridWidth>
++			<iGridHeight>58</iGridHeight>
++			<iTerrainGrainChange>2</iTerrainGrainChange>
++			<iFeatureGrainChange>2</iFeatureGrainChange>
++			<iResearchPercent>120</iResearchPercent>
++			<iTradeProfitPercent>19</iTradeProfitPercent>
++			<iDistanceMaintenancePercent>118</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>14</iNumCitiesMaintenancePercent>
++			<iColonyMaintenancePercent>15</iColonyMaintenancePercent>
++			<iCorporationMaintenancePercent>30</iCorporationMaintenancePercent>
++			<iNumCitiesAnarchyPercent>4</iNumCitiesAnarchyPercent>
++			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
++		</WorldInfo>
++		<WorldInfo>
++			<Type>WORLDSIZE_SAS40</Type>
++			<Description>TXT_KEY_WORLD_SAS40</Description>
++			<Help>TXT_KEY_WORLD_SAS40_HELP</Help>
++			<iDefaultPlayers>40</iDefaultPlayers>
++			<iUnitNameModifier>0</iUnitNameModifier>
++			<iTargetNumCities>9</iTargetNumCities>
++			<iNumFreeBuildingBonuses>9</iNumFreeBuildingBonuses>
++			<iBuildingClassPrereqModifier>150</iBuildingClassPrereqModifier>
++			<iMaxConscriptModifier>90</iMaxConscriptModifier>
++			<iWarWearinessModifier>-55</iWarWearinessModifier>
++			<iUnitCostPercent>85</iUnitCostPercent>
++			<iGridWidth>92</iGridWidth>
++			<iGridHeight>63</iGridHeight>
++			<iTerrainGrainChange>2</iTerrainGrainChange>
++			<iFeatureGrainChange>2</iFeatureGrainChange>
++			<iResearchPercent>125</iResearchPercent>
++			<iTradeProfitPercent>12</iTradeProfitPercent>
++			<iDistanceMaintenancePercent>127</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>10</iNumCitiesMaintenancePercent>
++			<iColonyMaintenancePercent>8</iColonyMaintenancePercent>
++			<iCorporationMaintenancePercent>20</iCorporationMaintenancePercent>
++			<iNumCitiesAnarchyPercent>3</iNumCitiesAnarchyPercent>
++			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
++		</WorldInfo>
++		<WorldInfo>
++			<Type>WORLDSIZE_SAS48</Type>
++			<Description>TXT_KEY_WORLD_SAS48</Description>
++			<Help>TXT_KEY_WORLD_SAS48_HELP</Help>
++			<iDefaultPlayers>48</iDefaultPlayers>
++			<iUnitNameModifier>0</iUnitNameModifier>
++			<iTargetNumCities>10</iTargetNumCities>
++			<iNumFreeBuildingBonuses>10</iNumFreeBuildingBonuses>
++			<iBuildingClassPrereqModifier>175</iBuildingClassPrereqModifier>
++			<iMaxConscriptModifier>105</iMaxConscriptModifier>
++			<iWarWearinessModifier>-65</iWarWearinessModifier>
++			<iUnitCostPercent>82</iUnitCostPercent>
++			<iGridWidth>102</iGridWidth>
++			<iGridHeight>73</iGridHeight>
++			<iTerrainGrainChange>2</iTerrainGrainChange>
++			<iFeatureGrainChange>2</iFeatureGrainChange>
++			<iResearchPercent>130</iResearchPercent>
++			<iTradeProfitPercent>5</iTradeProfitPercent>
++			<iDistanceMaintenancePercent>136</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>6</iNumCitiesMaintenancePercent>
++			<iColonyMaintenancePercent>2</iColonyMaintenancePercent>
++			<iCorporationMaintenancePercent>10</iCorporationMaintenancePercent>
++			<iNumCitiesAnarchyPercent>2</iNumCitiesAnarchyPercent>
++			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
++		</WorldInfo>
+ 		<!-- advc.test: For testing MAX_CIV_PLAYERS > 18 -->
+ 		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #23 -->
+-		
+ 	</WorldInfos>
+ </Civ4WorldInfo>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index c4d1ba16b..c2b3dec7b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -143,7 +143,7 @@
+ 	<!-- custom: set the world size chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT</DefineName>
+-		<iDefineIntVal>45</iDefineIntVal>
++		<iDefineIntVal>76</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS</DefineName>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+new file mode 100644
+index 000000000..2ae22a831
+--- /dev/null
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -0,0 +1,578 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jason Winokur (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- custom: file imported from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Interface\CIV4WorldPickerInfos.xml as part of adding new world sizes in AdvCiv-SAs based on the XXL World Mod's approach with the help of GPT-Codex-5.2 thanks. For details, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\XXL_World_SAS_Modified.xml and docs. -->
++<!-- World Picker -->
++<!-- custom: Globe.nif size scale factors: values after 'Random' are ratios to Standard (1.0).
++     Computed as (iGridWidth*iGridHeight) / StandardTiles from CIV4WorldInfo.xml.
++     This matches the Sevopedia 'Ratio to Standard' row (area ratio; no sqrt).
++     Note: if a map script overrides getGridSize(), the preview globe may not match perfectly.
++     IMPORTANT: the order of <Size> entries must match the WorldInfo order; if you reorder
++     CIV4WorldInfo.xml (e.g. to keep Arena first in the world-size list), reorder <Sizes> too. (ChatGPT-5.2 Thinking) -->
++<Civ4WorldPickerInfos xmlns="x-schema:CIV4InterfaceSchema.xml">
++	<WorldPickerInfos>
++		<WorldPickerInfo>
++			<MapName>DefaultWorldPicker</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_DARK.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>aDebugMap</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Archipelago</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Continents</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterCONT03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_CONT03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Lakes</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Pangaea</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterPANG03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Ice_Age</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterICEAGE03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Terra</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterTERRA03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Inland_Sea</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Oasis</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
++				<!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_OASIS.dds</WaterLevelDecalPath>
++				<!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
++				<!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Great_Plains</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_GREATPLAINS.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Highlands</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_Highlands.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Earth</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Earth1000AD</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Earth_IceAge</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Earth18Civs</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WORLD.dds</WaterLevelDecalPath> <!-- Random -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Big_And_Small</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.186</Size> <!-- SAS24 -->
++				<Size>4.408</Size> <!-- SAS32 -->
++				<Size>5.308</Size> <!-- SAS40 -->
++				<Size>6.819</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH01.dds</WaterLevelDecalPath> <!-- Low -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH02.dds</WaterLevelDecalPath> <!-- Medium -->
++				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterARCH03.dds</WaterLevelDecalPath> <!-- High -->
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Random -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH01.dds</WaterLevelGlossPath> <!-- Low -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH02.dds</WaterLevelGlossPath> <!-- Medium -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
++	</WorldPickerInfos>
++</Civ4WorldPickerInfos>
+
+diff --git a/Assets/XML/Text/XXL_World_SAS_Modified.xml b/Assets/XML/Text/XXL_World_SAS_Modified.xml
+new file mode 100644
+index 000000000..cbac08b81
+--- /dev/null
++++ b/Assets/XML/Text/XXL_World_SAS_Modified.xml
+@@ -0,0 +1,70 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- custom: The Mod XXL World (https://forums.civfanatics.com/resources/xxl-world-bts.6708/) is as of now now implemented into AdvCiv-SAS, with the help of GPT-5.2-Codex thanks. These are where TXT KEYs that are most relevant to XXL World Mod are located in AdvCiv-SAS.
++Note: AdvCiv-SAS uses a modified version of the XXL World with different World Size names (adjusted by GPT-Codex-5.2 for AdvCiv-SAS thanks).
++Note 2 : XLL and bigger world sizes are recommended to be played with the 48 civs DLL, and they require the a > MAX_CIV_PLAYERS civs DLL to be able able to play with all players the world size supports. Since we only provided the 48 civs DLL (as of now CvGameCoreDLL_48_civs_DLL.dll, see docs for details on how to use it) in AdvCiv-SAS, to simplify, we explain it as requiring the 48 civs DLL for SAS24+ world sizes, but a 24 civs DLL or 96 civs DLL could just as well respectively for SAS24 or SAS40 world sizes for example. -->
++<Civ4GameText>
++	<TEXT>
++		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SETUP</Tag>
++		<English>WORLD SIZE (Base/48 civs DLL)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SIZE_TITLE</Tag>
++		<English>WORLD SIZE (Base/48 civs DLL)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MENU_SIZE</Tag>
++		<English>Size (Base/48 civs):</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_RECOMMENDED_DLL_FIELD</Tag>
++		<English>Recommended DLL</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_BASE_DLL</Tag>
++		<English>Base</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_48_CIVS_DLL</Tag>
++		<English>48 civs</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ARENA</Tag>
++		<English>Arena</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS24</Tag>
++		<English>SAS24</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS32</Tag>
++		<English>SAS32</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS40</Tag>
++		<English>SAS40</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS48</Tag>
++		<English>SAS48</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ARENA_HELP</Tag>
++		<English>An extra-small World Size smaller than Base AdvCiv's Duel World Size. Requires the 48 civs DLL for default player counts.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS24_HELP</Tag>
++		<English>An extra-large World Size sized for about 24 civs. Requires the 48 civs DLL for default player counts.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS32_HELP</Tag>
++		<English>A massive World Size sized for about 32 civs. Requires the 48 civs DLL for default player counts.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS40_HELP</Tag>
++		<English>A huge World Size sized for about 40 civs. Requires the 48 civs DLL for default player counts.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_SAS48_HELP</Tag>
++		<English>A huge World Size sized for about 48 civs. Requires the 48 civs DLL for default player counts.</English>
++	</TEXT>
++</Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 43b38eb36..3c82120f4 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -62,13 +62,24 @@ DEFINE_INCREMENT_OPERATORS(CivTeamTypes);
+ // This generates most of the enums with associated XML data
+ DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
+ 
+-/*  The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
+-	info enums are generated upfront and enums that don't support FOR_EACH_ENUM
+-	have been moved to the end. */ // </advc.enum>
+-
+-/*  advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+-	still possible to add values through XML only.
+-	(The harcoded world sizes are used by map scripts and random events.) */
++// The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
++// info enums are generated upfront and enums that don't support FOR_EACH_ENUM
++// have been moved to the end. // </advc.enum>
++
++// advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
++// still possible to add values through XML only.
++// (The harcoded world sizes are used by map scripts and random events.)
++
++// <!-- custom: as per ChatGPT-5.2 Thinking's recommendation, not adding the new world sizes we added in AdvCiv-SAS here (like Arena, SAS24, SAS32, SAS40, SAS48) with the below rationale. It seems to work fine ingame btw so maybe fine to leave as such. I don't know too much about these, check if accurate, and thanks chatgpt xd thanks -->
++// CvEnums.h: do we need to add world sizes there?
++// Recommendation: no.
++// Keep WorldSizeTypes as the original 6 entries (Duel..Huge). Your extra world sizes are already supported via XML (that’s how Civ4 mods normally do it). If you extend the enum, you risk:
++// 	- breaking assumptions in existing code/scripts,
++// 	- shifting indices if anything gets reordered,
++// 	- causing subtle save/compat issues.
++// If you need to detect Arena/SAS sizes in Python/C++:
++// 	- Python: gc.getWorldInfo(CyMap().getWorldSize()).getType()
++// 	- C++: compare against GC.getInfoTypeForString("WORLDSIZE_ARENA") / "WORLDSIZE_SAS24" etc.
+ enum WorldSizeTypes
+ {
+ 	NO_WORLDSIZE = -1,
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 52a511433..fcf57ae60 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -262,7 +262,7 @@ protected:
+ 		kElements.addInt(UnitCostPercent, "UnitCostPercent", 100);
+ 
+ 		// <!-- custom: ExtraFreeOutsideUnits is a UNIT COUNT (added to INITIAL_FREE_OUTSIDE_UNITS in CvPlayer::calculateUnitSupply), not a percent. The XML schema allows the tag to be omitted (minOccurs=0), so the default matters.
+-		// It was previously defaulted to 100 (copied from percent-style fields), which effectively means "+100 free outside units" on any game speed missing <iExtraFreeOutsideUnits>, causing confusing mismatches (spotted via the SevoPedia Game Speed Chart). Defaulting to 0 makes "tag missing" behave like "no extra", which matches intent and avoids accidental huge free allowances. (ChatGPT 5.2). See known issue as of now 92 for details. -->
++		// It was previously defaulted to 100 (copied from percent-style fields), which effectively means "+100 free outside units" on any game speed missing <iExtraFreeOutsideUnits>, causing confusing mismatches (spotted via the SevoPedia Game Speed Chart). Defaulting to 0 makes "tag missing" behave like "no extra", which matches intent and avoids accidental huge free allowances. (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
+ 		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 0);
+ 
+ 		// </advc.252>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a733607ec..322ac53ba 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7110,7 +7110,7 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ 		if (kOwner.getGold() < iPrice)
+ 			return false;
+ 
+-		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (chatgpt 5.2) -->
++		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (ChatGPT 5.2 Thinking) -->
+ 		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial and may backfire, see for details known issue of as now 88 for details. -->
+ 		if (!isHuman())
+ 		{
+@@ -7167,7 +7167,7 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ 				}
+ 			}
+ 		}
+-		// <!-- custom: end AI upgrade economic checks (chatgpt 5.2) -->
++		// <!-- custom: end AI upgrade economic checks (ChatGPT 5.2 Thinking) -->
+ 	}
+ 
+ 	if (hasUpgrade(eUnit))
+
+diff --git a/README.md b/README.md
+index 2ab91fa8c..dfe9d600d 100644
+--- a/README.md
++++ b/README.md
+@@ -47,6 +47,8 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok
+ &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
+ [Assets Rebalancing](/README.md#assets-rebalancing)  
+ [48 Civs DLL](/README.md#48-civs-dll)  
++&emsp;[How to use](/README.md#how-to-use)  
++&emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+ [Long Comments Archive](/README.md#long-comments-archive)  
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Python scripts](/README.md#python-scripts)  
+@@ -138,6 +140,8 @@ Very cool clarification idea by chatgpt 5.2 (web) as part of adding new game spe
+ 
+ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). Commit: [commit/d194577b3bf54364637817d767ccf607b5480325](https://github.com/wonderingabout/AdvCiv-SAS/commit/d194577b3bf54364637817d767ccf607b5480325)
+ 
++Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
++
+ <img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (1).JPG" alt="0.401_main_menu_play_now (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG" alt="0.401_main_menu_play_now (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (3).JPG" alt="0.401_main_menu_play_now (3).JPG" width="250"></img>
+@@ -226,6 +230,8 @@ New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart
+ 
+ They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
++They notably feature additional fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity.
++
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+@@ -440,9 +446,11 @@ The changes before/after with rationale tables are synthethized in .md tables in
+ 
+ ## 48 Civs DLL
+ 
++### How to use
++
+ A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_48_civs_dll.dll").
+ 
+-To use it, rename old base 18 MAX_CIV_PLAYERS DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
++To use it, rename old base 18 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
+ 
+ I have run a test run for fun and to test it too, as well as documented this DLL i tried for the first time xd, and to answer [this](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316) CFC forum request.
+ 
+@@ -454,6 +462,23 @@ Note: it seems that savegames are not compatible when switching from 18 civ DLL
+ 
+ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL.
+ 
++### New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)
++
++This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the base DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
++
++The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes.
++
++| AdvCiv-SAS size | SAS Grid (W x H) | SAS Tiles | SAS Default players | SAS Ratio vs Std | XXL reference size | XXL Grid (W x H) | XXL Tiles | XXL Default players | XXL Ratio vs Std |
++| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
++| SAS24 | 71 x 49 | 3479 | 24 | 3.186 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
++| SAS32 | 83 x 58 | 4814 | 32 | 4.408 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
++| SAS40 | 92 x 63 | 5796 | 40 | 5.308 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
++| SAS48 | 102 x 73 | 7446 | 48 | 6.819 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
++
++Note: "tiles/player" uses each file's iDefaultPlayers. XXL World sets Giant/Ultra to 34 default players; AdvCiv-SAS uses 32 and 40.
++
++See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
++
+ ## Long Comments Archive
+ 
+ Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+index 8712dbb5f..db5891abd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+@@ -36,7 +36,7 @@ The aim is to make more and more options player-tunable via XML in SAS defines,
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details)  
+ &emsp;[Game Speeds (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#game-speeds-non-exhaustive)  
+-&emsp;[Game Scaling (Other) (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#game-scaling-other-non-exhaustive)  
++&emsp;[World Size/Scaling (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#world-sizescaling-non-exhaustive)  
+ &emsp;[Handicaps (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicaps-non-exhaustive)  
+ &emsp;[Terrains / Features (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Bonuses (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#bonuses-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+@@ -103,6 +103,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+ - (Requires AdvCiv-SAS 5295+) Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
++- (Requires AdvCiv-SAS 5311+) Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in "Play Now" use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
+ 
+ ### UI (Common)
+ 
+@@ -132,8 +133,8 @@ For sevopedia new content and most reworks, see above the main README.md's [UI (
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+-- (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all world size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
++- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game spede Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - Sevopedia — Techs: add the list of all untradeable techs. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory).
+@@ -303,15 +304,16 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ 
+ ### Game Speeds (non-exhaustive)
+ 
++- reduced `GAMESPEED_MARATHON` from 1250 in base advciv if i'm not mistaken to now 1000 turns so it is more affordable and less of a grind / too long. Adjusted modifiers so they match closer to this new setting.
++- (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+ - (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
+ - (Requires AdvCiv-SAS 5296+) **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
+ - (Requires AdvCiv-SAS 5303+) **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
+ - i intend this AdvCiv-SAS mod to be quite fast paced but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments quite fast early on (5 000 per turn at normal speed) then gradually less, so after a few dozen turns approximately at normal speed more or less you should be around the bronze age (see full game speed details in the **new Sevopedia Speeds category**.), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages), and ends at 2105 AD (turn 500 at normal gamespeed). Note: i did the `GAMESPEED_NORMAL` timeline myself; as for, the other other game speeds they are done by chatgpt 5 based on my timeline, check if accurate and see info about them in the xml file as well (in code comments for details, it even commented them nicely as a timeline in years without me asking, thanks a lot chatgpt 5! Check if accurate).
+-- reduced `GAMESPEED_MARATHON` from 1250 in base advciv if i'm not mistaken to now 1000 turns so it is more affordable and less of a grind / too long. Adjusted modifiers so they match closer to this new setting.
+-- (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+ 
+-### Game Scaling (Other) (non-exhaustive)
++### World Size/Scaling (non-exhaustive)
+ 
++- (Requires AdvCiv-SAS 5311+) **New World Sizes**: `SAS24`, `SAS32`, `SAS40`, `SAS48`, **bigger than Huge** (Recommended for about 24, 32, 40, 48 players). They are [modified versions of the XXL World mod](/README.md#about-the-xxl-world-mod)'s largest maps. Recommended DLL to play these is the [48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll) that is provided in AdvCiv-SAS. Also a new `Arena` World Size **smaller than Tiny**. See full World Sizes details in the **new Sevopedia W. Sizes category**.
+ - set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this.
+ - rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/105/110, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid.. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay!... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!!.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 2c5a7c99f..42c5dedd6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -3683,7 +3683,7 @@ Not knowing anything about what the DLL change may be other than a DLL change wa
+ >
+ > If you want, paste the old (pre-change) selection block call sites you care about (where else `AI_getBestGroupAttacker` is called), and I can tell you exactly where this new behavior will and will not apply (and where it might be unexpectedly bypassing LFB).
+ 
+-#### About siege (ChatGPT 5.2)
++#### About siege (ChatGPT 5.2 Thinking)
+ 
+ > ### Siege and collateral units
+ >
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index bbeaa3b4f..5e2ad9e44 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -37,7 +37,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes-non-exhaustive-see-globaldefinesxml)  
+ &emsp;[Game Speeds (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds-non-exhaustive)  
+-&emsp;[Game Scaling (Other) (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-scaling-other-non-exhaustive)  
++&emsp;[World Size/Scaling (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#world-sizescaling-non-exhaustive)  
+ &emsp;[Handicaps (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicaps-non-exhaustive)  
+ &emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features-non-exhaustive)  
+ &emsp;[Bonuses (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses-non-exhaustive)  
+@@ -105,6 +105,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+ - (Requires AdvCiv-SAS 5295+) Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
++- (Requires AdvCiv-SAS 5311+) Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in "Play Now" use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
+ 
+ ### UI (Common)
+ 
+@@ -132,8 +133,8 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+-- (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all world size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
++- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game spede Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+@@ -299,15 +300,16 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### Game Speeds (non-exhaustive)
+ 
++- `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
++- (Requires AdvCiv-SAS 5296+) **New Game Speeds**: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+ - (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
+ - (Requires AdvCiv-SAS 5296+) **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
+ - (Requires AdvCiv-SAS 5303+) **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
+ - **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; on **Normal**, early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See full game speed details in the **new Sevopedia Speeds category**.
+-- `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
+-- (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+ 
+-### Game Scaling (Other) (non-exhaustive)
++### World Size/Scaling (non-exhaustive)
+ 
++- (Requires AdvCiv-SAS 5311+) **New World Sizes**: `SAS24`, `SAS32`, `SAS40`, `SAS48`, **bigger than Huge** (Recommended for about 24, 32, 40, 48 players). They are [modified versions of the XXL World mod](/README.md#about-the-xxl-world-mod)'s largest maps. Recommended DLL to play these is the [48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll) that is provided in AdvCiv-SAS. Also a new `Arena` World Size **smaller than Tiny**. See full World Sizes details in the **new Sevopedia W. Sizes category**.
+ - **Research — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+ - **Research — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 2f71fedf2..73f2f7eb4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -108,7 +108,9 @@ Extending on the Handicap Chart, with the help of GPT-Codex-5.2 and ChatGPT 5.2
+ 
+ Especially useful to see the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
+-Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
++Note: computed or manually added fields such as `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro), that don't exist in XML are provided for convenience. They are marked with an `*` at the end of the field name to help distinguish them from regular XML info fields.
++
++Note 2 : similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+ 
+ <img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (1).JPG" alt="0.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+@@ -117,7 +119,9 @@ Note: similarly to how the handicap chart does, in the game speed chart you also
+ 
+ Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2, i also added a World Sizes Sevopedia category.
+ 
+-Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
++Note: computed or manually added fields such as `Ratio to Standard*` (e.g. "3.640" for the SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), that don't exist in XML are provided for convenience. They are marked with an `*` at the end of the field name (e.g. `Ratio to Standard*` or `Recommended DLL*`).
++
++Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+ 
+ <img src="../Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG b/_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG
+index 4936e9f1f..440178fc7 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu_reworks/0.401_main_menu_play_now (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+index 2edc0997c..ad7a27d55 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=21 omittedFiles=1 embeddedPatchBytes=118454

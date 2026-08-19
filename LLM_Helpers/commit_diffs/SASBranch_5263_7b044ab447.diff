@@ -1,0 +1,337 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5263
+# Commit: 7b044ab447bbfbe69e6d5ad5944efc4f95c31825
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 884ddc0acc1d55f2c7df4bdca62b3c20011ce6a1
+# Title: add hourglass_not_done image as a button, further further beautify 2 the stats tab (info screen), update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds
+26	12	Assets/Python/Screens/CvInfoScreen.py
+23	15	Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+9	0	README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds
+new file mode 100644
+index 000000000..de1c03ec8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds differ
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 4bf86970c..297be5c57 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -493,7 +493,7 @@ class CvInfoScreen:
+ 		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
+ 		self.H_STATS_TOP_CHART = self.H_LEADER_ICON
+ 
+-		self.STATS_TOP_CHART_W_COL_1 = 76
++		self.STATS_TOP_CHART_W_COL_1 = 100
+ 		self.STATS_TOP_CHART_W_COL_0 = self.W_STATS_TOP_CHART - self.STATS_TOP_CHART_W_COL_1
+ 		
+ 
+@@ -502,6 +502,10 @@ class CvInfoScreen:
+ 		self.X_LEADER_NAME = self.X_LEADER_ICON
+ 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
+ 
++		# <!-- custom: 32 is a bit too high and overfills the rows where the buttons are at, this seems to fit well ingame as well as recommended by claude opus 4.5 thanks.. -->
++		self.W_STATS_BUTTON_SIZE = 24
++		self.H_STATS_BUTTON_SIZE = 24
++
+ 		self.reset()
+ 
+ 	def initText(self):
+@@ -666,6 +670,14 @@ class CvInfoScreen:
+ 		self.BUGProject_On = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_ON").getPath()
+ 		self.BUGProject_Off = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 
++		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
++		self.szTimeIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds"  # ⏳
++		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
++		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
++		self.szRazeIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds"  # 🔥
++		self.szReligionIconStats = "Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds"  # 🕊️
++		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
++
+ 	def reset(self):
+ 
+ 		# City Members
+@@ -3174,7 +3186,7 @@ class CvInfoScreen:
+ 
+ 		# Create Table
+ 		szTopChart = self.getNextWidgetName()
+-		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART, False, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART, False, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Add Columns
+ 		screen.setTableColumnHeader(szTopChart, 0, "", self.STATS_TOP_CHART_W_COL_0)
+@@ -3194,9 +3206,11 @@ class CvInfoScreen:
+ 		statsRowId2 = -1
+ 		statsRowFont = CvUtil.FONT_LEFT_JUSTIFY
+ 
++		# <!-- custom: added buttons in the top chart with the help of claude opus 4.5 thanks, old code replaced. -->
++		# Time Played - using gear as a "game mechanics" metaphor, or add a clock emoji later
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+ 		screen.setTableText(szTopChart, iCol, iRow, szTimeString, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+@@ -3207,16 +3221,16 @@ class CvInfoScreen:
+ 			iRow += 1
+ 			screen.appendTableRow(szTopChart)
+ 			iCol = 0
+-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, self.szCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iCol = 1
+ 			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+-		# K-Mod end (note. I've also changed some of the structure of the surrounding code...)
++		# K-Mod end
+ 		# advc.004:
+ 		if iNumCitiesBuilt != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+ 			iRow += 1
+ 			screen.appendTableRow(szTopChart)
+ 			iCol = 0
+-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, self.szFoundCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iCol = 1
+ 			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# advc.004:
+@@ -3224,7 +3238,7 @@ class CvInfoScreen:
+ 			iRow += 1
+ 			screen.appendTableRow(szTopChart)
+ 			iCol = 0
+-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, self.szRazeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iCol = 1
+ 			screen.setTableText(szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# advc.004:
+@@ -3232,7 +3246,7 @@ class CvInfoScreen:
+ 			iRow += 1
+ 			screen.appendTableRow(szTopChart)
+ 			iCol = 0
+-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, self.szReligionIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iCol = 1
+ 			screen.setTableText(szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+@@ -3243,7 +3257,7 @@ class CvInfoScreen:
+ 			iRow += 1
+ 			screen.appendTableRow(szTopChart)
+ 			iCol = 0
+-			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			screen.setTableText(szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, self.szGoldenAgeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iCol = 1
+ 			screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# K-Mod end
+@@ -3252,18 +3266,18 @@ class CvInfoScreen:
+ 
+ 		# Create Tables
+ 		szUnitsTable = self.getNextWidgetName()
+-		screen.addTableControlGFC(szUnitsTable, self.iNumUnitStatsChartCols, self.X_STATS_BOTTOM_CHART, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_UNITS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(szUnitsTable, self.iNumUnitStatsChartCols, self.X_STATS_BOTTOM_CHART, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_UNITS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(szUnitsTable)
+ 
+ 		szBuildingsTable = self.getNextWidgetName()
+-		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(szBuildingsTable)
+ 
+ #BUG: improvements - start
+ 		#if AdvisorOpt.isShowImprovements():
+ 		if True: # advc.004
+ 			szImprovementsTable = self.getNextWidgetName()
+-			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
++			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 			screen.enableSort(szImprovementsTable)
+ #BUG: improvements - end
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+index bc9de5ac2..1b580fc56 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+@@ -6,7 +6,7 @@ See also /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md modding
+ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there anyways etc anyways etc anyways etc) anyways etc
+ -->
+ <Civ4GameText>
+-	<!-- custom: 🕊️ emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🕊️ emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds</English>
+@@ -14,14 +14,14 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 📣 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 📣 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Megaphone/1f4e3_64px.dds</English>
+ 	</TEXT>
+ 
+ 
+-	<!-- custom: ❤️ emoji similarly from emojiterra anyways etc -->
++	<!-- custom: ❤️ emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Red_Heart/2764_64px.dds</English>
+@@ -29,7 +29,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 💔 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 💔 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BROKEN_HEART_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Broken_Heart/1f494_64px.dds</English>
+@@ -37,7 +37,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 💀 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 💀 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Skull/1f480_64px.dds</English>
+@@ -45,7 +45,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 🔥 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🔥 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds</English>
+@@ -53,7 +53,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 🧠 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🧠 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Brain/1f9e0_64px.dds</English>
+@@ -61,7 +61,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 🏆 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🏆 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds</English>
+@@ -69,7 +69,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 🌿 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🌿 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Herb/1f33f_64px.dds</English>
+@@ -77,7 +77,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: ⚙️ emoji similarly from emojiterra anyways etc -->
++	<!-- custom: ⚙️ emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Gear/2699_64px.dds</English>
+@@ -93,7 +93,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 💰 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 💰 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Money_Bag/1f4b0_64px.dds</English>
+@@ -101,7 +101,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: ⛔ emoji similarly from emojiterra anyways etc -->
++	<!-- custom: ⛔ emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/No_Entry/26d4_64px.dds</English>
+@@ -109,7 +109,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-	<!-- custom: 🪓 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🪓 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Axe/1fa93_64px.dds</English>
+@@ -117,7 +117,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 	
+ 
+ 
+-	<!-- custom: 📉 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 📉 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Chart_Decreasing/1f4c9_64px.dds</English>
+@@ -125,9 +125,17 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 	
+ 
+ 
+-	<!-- custom: 🔧 emoji similarly from emojiterra anyways etc -->
++	<!-- custom: 🔧 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Wrench/1f527_64px.dds</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: ⏳ emoji similarly from emojiterra. -->
++    <TEXT>
++		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH</Tag>
++		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 66f62e734..edc0c3340 100644
+--- a/README.md
++++ b/README.md
+@@ -170,6 +170,15 @@ See also for details:
+ - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+ - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+ 
++### Images as buttons
++
++Not mentionned previously, and also used in sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)), we use in AdvCiv-SAS an Images as buttons approach, typically to add emoji as buttons without having to tediously add them as textual icons.
++
++The relevant files can be found in:
++
++- XML: as of now in [/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) and in [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml)
++- `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Images_As_Buttons/](/Assets/Art/AdvCiv_SAS/Images_As_Buttons/)
++
+ ## UI (Main Sevopedia reworks)
+ 
+ ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG
+index 940cbdc82..c3c9bb37b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=17136

@@ -1,0 +1,357 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2800
+# Commit: e29a0d766e0bc26f076e3700b1891686e9650120
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c984eaa053d7f9f8f6ab276c6e636445382f6c3d
+# Title: Tag all overwritten global defines with a comment
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/AI_Variables_GlobalDefines.xml
+14	12	Assets/XML/GlobalDefinesAlt.xml
+18	17	Assets/XML/GlobalDefines_advc.xml
+4	3	Assets/XML/TechDiffusion_GlobalDefines.xml
+25	4	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 2328edbc6..42908a6ff 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -260,7 +260,7 @@
+ 	<!-- Better BTS AI / K-Mod variables to allow easy AI tweaking -->
+ 	<!-- by jdog5000 / karadoc -->
+ 	<!-- -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<!-- War success value of capturing a city.  BBAI default: 25, BTS 10 -->
+ 		<DefineName>WAR_SUCCESS_CITY_CAPTURING</DefineName>
+ 		<iDefineIntVal>25</iDefineIntVal>
+
+diff --git a/Assets/XML/GlobalDefinesAlt.xml b/Assets/XML/GlobalDefinesAlt.xml
+index 50f4d81d2..8a5a7c5b7 100644
+--- a/Assets/XML/GlobalDefinesAlt.xml
++++ b/Assets/XML/GlobalDefinesAlt.xml
+@@ -1,31 +1,33 @@
+ <?xml version="1.0"?>
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- This file contains only the GlobalDefines that K-Mod has introduced
+-	 or overwritten, and some related settings for change advc.002m. -->
++<!-- advc: This file contains only the GlobalDefines that K-Mod has introduced
++	 or overwritten, and some related settings for change advc.002m.
++	 I've marked the overwritten ones with a "redefine" comment. -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>INITIAL_GOLD_PER_UNIT</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal> <!-- this is now percent cost, so I've changed it from 1 to 100 -->
+ 	</Define>
+-	<Define>
++	<!-- (Unchanged by K-Mod; just for reference.)
++	<!--Define>
+ 		<DefineName>BASE_REVOLT_OCCUPATION_TURNS</DefineName>
+-		<iDefineIntVal>2</iDefineIntVal> <!-- same as original value -->
+-	</Define>
+-	<Define>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define-->
++	<Define> <!-- redefine -->
+ 		<DefineName>REVOLT_TEST_PROB</DefineName>
+ 		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define> <!-- increased from 10 -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>NUM_WARNING_REVOLTS</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define> <!-- increased from 1 -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>EVENT_MESSAGE_STAGGER_TIME</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal> <!-- decreased from 3 -->
+ 	</Define>
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>BARBARIAN_FREE_TECH_PERCENT</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal> <!-- increased from 3, to compensate for other changes -->
+ 	</Define>
+@@ -81,7 +83,7 @@
+ 		<iDefineIntVal>-2</iDefineIntVal>
+ 	</Define>-->
+ 	<!-- warming prob is out of 1000, not pecent. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>GLOBAL_WARMING_PROB</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+@@ -172,7 +174,7 @@
+ 		<DefineName>RELIGION_INFLUENCE_RANDOM_WEIGHT</DefineName>
+ 		<iDefineIntVal>80</iDefineIntVal>
+ 	</Define>
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal> <!-- increased from 0 -->
+ 	</Define>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index ebf35153f..46101de6a 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -2,7 +2,8 @@
+ 
+ <!-- Joined with GlobalDefinesAlt.xml (K-Mod settings) and the various
+ 	 ..._GlobalDefines files upon loading Advanced Civ. Takes precedence over
+-	 BtS GlobalDefines.xml. -->
++	 BtS GlobalDefines.xml. Defines that overwrite a BtS value are tagged with
++	 a "redefine" comment. -->
+ 
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 
+@@ -28,7 +29,7 @@
+ 		 Mod-mods should use a different SAVE_VERSION, ideally a completely
+ 		 different one, though this currently only matters for the
+ 		 HOF_DISPLAY_OTHER_MOD_REPLAYS option (see below). -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>SAVE_VERSION</DefineName>
+ 		<iDefineIntVal>14223</iDefineIntVal>
+ 	</Define>
+@@ -79,7 +80,7 @@
+ 		 AdvCiv (since version 0.97) stores MINIMAP_RENDER_SIZE in
+ 		 replay files, so compatibility between within AdvCiv isn't
+ 		 an issue, but BtS can only read size 512. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>MINIMAP_RENDER_SIZE</DefineName>
+ 		<iDefineIntVal>512</iDefineIntVal>
+ 	</Define>
+@@ -105,7 +106,7 @@
+ 		 BML.fpk. Original value: 1. If BML.fpk is removed, then this value
+ 		 should be set back to 1; otherwise, there will be cloud shadows without
+ 		 clouds. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>RENDER_GLOBEVIEW_CLOUDS</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+@@ -163,7 +164,7 @@
+ 		 religion in the city, i.e. a religion that differs from the city owner's
+ 		 state religion (no suppression if no state religion).
+ 		 Recommended: 50 because doubling is a bit much. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>REVOLT_OFFENSE_STATE_RELIGION_MODIFIER</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+@@ -173,7 +174,7 @@
+ 		 that the modifiers canceled out when both applied. Now combined
+ 		 additively, meaning that they still cancel out because I've reduced the
+ 		 OFFENSE_MODIFIER. The DEFENSE_MODIFIER remains -50. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>REVOLT_DEFENSE_STATE_RELIGION_MODIFIER</DefineName>
+ 		<iDefineIntVal>-50</iDefineIntVal>
+ 	</Define>
+@@ -241,7 +242,7 @@
+ 
+ 	<!-- advc.137: 12 in BtS. Recommended: 10 to match the
+ 		 higher default player counts in AdvCiv. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>STARTING_DISTANCE_PERCENT</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+@@ -388,7 +389,7 @@
+ 		 celebrations.
+ 		 Recommended: a high value in order to disable celebrations;
+ 		 original value from GlobalDefines.xml: 8 -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>WE_LOVE_THE_KING_POPULATION_MIN_POPULATION</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+@@ -533,7 +534,7 @@
+ 		 at war in this context. (Otherwise, there would be an
+ 	     awkward incentive to stop short of elimination when
+ 		 capitulation isn't possible.) -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>AT_WAR_CULTURE_ANGER_MODIFIER</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+@@ -544,7 +545,7 @@
+ 		 I've slightly increased the value (to 425) to even out rounding errors.
+ 		 I've tried 50% (520), which is a nice even value and results in 100%
+ 		 culture anger at wartime, but that seemed a bit too punishing. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>CULTURE_PERCENT_ANGER</DefineName>
+ 		<iDefineIntVal>425</iDefineIntVal>
+ 	</Define>
+@@ -649,7 +650,7 @@
+ 		 Recommended: 1.
+ 		 NB: AdvCiv adds a restriction that prevents barbarians from appearing
+ 		 on tiles with 0 food yield (regardless of this parameter). -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>MIN_BARBARIAN_STARTING_DISTANCE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+@@ -714,7 +715,7 @@
+ 		 If reset to 10, the AI will only contact human civs to offer its
+ 		 map if that map is estimated to be worth at least 10 gold to the
+ 		 human. Perhaps that's also fine. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>DIPLOMACY_VALUE_REMAINDER</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+@@ -722,7 +723,7 @@
+ 	<!-- [advc.250c]
+ 	     Originally in GlobalDefines.xml; set to 25 there. Essentially the
+ 		 number of start points charged per 10 culture. Recommended: 15. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>ADVANCED_START_CULTURE_COST</DefineName>
+ 		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+@@ -739,7 +740,7 @@
+ 	     Originally in GlobalDefines.xml; set to 2 there, which results in a
+ 		 total cost of 5 initially once ADVANCED_START_VISIBILITY_COST_INCREASE is taken into account.
+ 		 Recommended: 1, which results in an initial cost of 2. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>ADVANCED_START_VISIBILITY_COST</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+@@ -749,7 +750,7 @@
+ 		 Recommended: 4, meaning the cost increases after every 25 tiles.
+ 		 Note that the AdvCiv DLL counts automatically revealed tiles only
+ 		 partially. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>ADVANCED_START_VISIBILITY_COST_INCREASE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+@@ -806,7 +807,7 @@
+ 		 screen when clicking the right arrow button next to the unit
+ 		 icons. Originally (GlobalDefines.xml) 10, recommended 100
+ 		 (i.e. normally show all units when pressing the button once). -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>MAX_PLOT_LIST_SIZE</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+@@ -868,7 +869,7 @@
+ 		 Recommended: 0, i.e. no impact of population, except that a value of
+ 		 0 also means that population size is used as an upper bound for the
+ 		 occupation timer. -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>OCCUPATION_TURNS_POPULATION_PERCENT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Assets/XML/TechDiffusion_GlobalDefines.xml b/Assets/XML/TechDiffusion_GlobalDefines.xml
+index 23dac5e4f..8aebba62b 100644
+--- a/Assets/XML/TechDiffusion_GlobalDefines.xml
++++ b/Assets/XML/TechDiffusion_GlobalDefines.xml
+@@ -32,11 +32,12 @@
+ 		<DefineName>TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<Define>
+-		<!-- Research rate boost for knowing additional OR tech prereqs.  In vanilla BTS this is 20.  Default: 20 -->
++	<!-- Research rate boost for knowing additional OR tech prereqs.  In vanilla BTS this is 20.  Default: 20 -->
++	<!-- advc: Let's comment it out then. -->
++	<!--Define>
+ 		<DefineName>TECH_COST_KNOWN_PREREQ_MODIFIER</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+-	</Define>
++	</Define-->
+ 	<!-- BBAI has also introduced a tech cost modifier by era, which can be found in CIV4EraInfos.xml -->
+ 	<Define>
+ 		<!-- This variable allows the throttling of research rates, effectively changing the cost of all techs.
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index eb66b3aab..c34b152c5 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -39,6 +39,10 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 		sprintf(szMessage, "LoadXML call failed for %s.\nCurrent XML file is: %s", szXMLFileName, GC.getCurrentXMLFile().GetCString());
+ 		errorMessage(szMessage, XML_LOAD_ERROR);
+ 	}
++	/*	advc: Switch that will cause a failed assertion for each global define
++		that gets read multiple times, i.e. that the mod overwrites. Could be helpful
++		for merging a mod into AdvCiv. */
++	#define CHECK_FOR_OVERWRITES 0
+ 
+ 	if (bLoaded)
+ 	{
+@@ -75,7 +79,11 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 									{
+ 										// if the node type of the current tag is a float then
+ 										if (strcmp(szNodeType,"float")==0)
+-										{
++										{	// <advc>
++											#if CHECK_FOR_OVERWRITES
++												float fDummy;
++												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, fDummy), szName);
++											#endif // </advc>
+ 											// get the float value for the define
+ 											float fVal;
+ 											GetXmlVal(fVal);
+@@ -83,7 +91,11 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										}
+ 										// else if the node type of the current tag is an int then
+ 										else if (strcmp(szNodeType,"int")==0)
+-										{
++										{	// <advc>
++											#if CHECK_FOR_OVERWRITES
++												int iDummy;
++												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, iDummy), szName);
++											#endif // </advc>
+ 											// get the int value for the define
+ 											int iVal;
+ 											GetXmlVal(iVal);
+@@ -91,7 +103,11 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										}
+ 										// else if the node type of the current tag is a boolean then
+ 										else if (strcmp(szNodeType,"boolean")==0)
+-										{
++										{	// <advc>
++											#if CHECK_FOR_OVERWRITES
++												bool bDummy;
++												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, bDummy), szName);
++											#endif // </advc>
+ 											// get the boolean value for the define
+ 											bool bVal;
+ 											GetXmlVal(bVal);
+@@ -99,7 +115,12 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										}
+ 										// otherwise we will assume it is a string/text value
+ 										else
+-										{
++										{	// <advc>
++											#if CHECK_FOR_OVERWRITES
++												char szBuffer[256];
++												char* szDummy = szBuffer;
++												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, szDummy), szName);
++											#endif // </advc>
+ 											char szVal[256];
+ 											// get the string/text value for the define
+ 											GetXmlVal(szVal);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=13020

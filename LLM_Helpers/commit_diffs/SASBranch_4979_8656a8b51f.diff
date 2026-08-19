@@ -1,0 +1,540 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4979
+# Commit: 8656a8b51fe4537b338031e35308141be51ca168
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ce3a118eab45a27b093739f745733da9829ca6b9
+# Title: fix/tweak GAMESPEED_NORMAL timeline to now have 500 turns anyways etc; add GAMESPEED_EPIC, GAMESPEED_MARATHON, GAMESPEED_QUICK timelines thanks to chatgpt 5...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+218	116	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+23	0	Assets/XML/Text/CIV4GameText_Custom.xml
+0	36	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index eb84bb6df..e1986f18a 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -66,39 +66,72 @@
+ 			<!-- advc.252: start -->
+ 			<iEventRollSidesPercent>200</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>250</iVoteIntervalPercent>
++			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate anyways etc -->
++			<!--
++			I kept even month increments (multiples of 2) and preserved your “big decades early / 2-ish later” vibe. To avoid ugly 3-month steps at the very end, I left the last three half-year bands at 6 months/turn and compensated by tripling earlier bands — result still lands exactly on 2150-01 at T1250.
++
++			Sanity (all good)
++			Total turns: 1 250 (exact).
++			Total time: 625 800 months (52 150 years) → −50 000 to 2150 CE (exact).
++			Clean pivots kept: 1936, 1990, 2030, 2060, 2090, 2100, 2125, 2150.
++			Even month increments: all are even; late game stays on 6/4/12-style steps, no 3-month oddities at the end.
++			-->
+ 			<GameTurnInfos>
+-				<GameTurnInfo>
+-					<iMonthIncrement>240</iMonthIncrement>
+-					<iTurnsPerIncrement>130</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>120</iMonthIncrement>
+-					<iTurnsPerIncrement>235</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>65</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>12</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>6</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>3</iMonthIncrement>
+-					<iTurnsPerIncrement>160</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>1</iMonthIncrement>
+-					<iTurnsPerIncrement>240</iTurnsPerIncrement>
+-				</GameTurnInfo>
++				<!-- -50,000 to -30,000 (20k years) -->
++				<GameTurnInfo><iMonthIncrement>20000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -30,000 to -20,000 (10k years) -->
++				<GameTurnInfo><iMonthIncrement>10000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -20,000 to -15,000 (5k years) -->
++				<GameTurnInfo><iMonthIncrement>4000</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -15,000 to -12,000 (3k years) -->
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -12,000 to -7,500 (4.5k years) -->
++				<GameTurnInfo><iMonthIncrement>2000</iMonthIncrement><iTurnsPerIncrement>27</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -4,500 (3k years) -->
++				<GameTurnInfo><iMonthIncrement>1000</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -4,500 to -3,000 (1.5k years) -->
++				<GameTurnInfo><iMonthIncrement>500</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -3,000 to -2,200 (800 years) -->
++				<GameTurnInfo><iMonthIncrement>200</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -2,200 to -1,480 (720 years) -->
++				<GameTurnInfo><iMonthIncrement>160</iMonthIncrement><iTurnsPerIncrement>54</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to -1,000 (480 years) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -1,000 to 500 (1,500 years) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 500 to 1300 (800 years) -->
++				<GameTurnInfo><iMonthIncrement>80</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1300 to 1400 (100 years)  -->
++				<!-- use ×2 here (not ×3) to hit 1,250 turns while keeping late bands at 6 months -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1400 to 1750 (350 years) -->
++				<GameTurnInfo><iMonthIncrement>40</iMonthIncrement><iTurnsPerIncrement>105</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1750 to 1825 (75 years) -->
++				<GameTurnInfo><iMonthIncrement>20</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1825 to 1920 (95 years) -->
++				<GameTurnInfo><iMonthIncrement>20</iMonthIncrement><iTurnsPerIncrement>57</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1920 to 1936 (16 years) -->
++				<GameTurnInfo><iMonthIncrement>16</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1936 to 1990 (54 years) -->
++				<GameTurnInfo><iMonthIncrement>8</iMonthIncrement><iTurnsPerIncrement>81</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1990 to 2030 (40 years) -->
++				<GameTurnInfo><iMonthIncrement>8</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2030 to 2060 (30 years) -->
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2060 to 2090 (30 years) -->
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 2090 to 2100 (10 years) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2100 to 2125 (25 years) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2125 to 2150 (25 years) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 			<!-- advc.252: end -->
+ 		</GameSpeedInfo>
+@@ -218,46 +251,71 @@
+ 			<!-- advc.252: start -->
+ 			<iEventRollSidesPercent>125</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>150</iVoteIntervalPercent>
++			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate anyways etc -->
++			<!--
++			What I kept/ensured
++			Total turns: 750 (exact)
++			Total span: 625,800 months = 52,150 years (exactly −50 000 → 2150)
++			“Even” month increments: every iMonthIncrement is a multiple of 12 (or 6 for half-years)
++			Pacing shape: mirrors your Normal fade; 1936/1990/2030/2060/2090/2100/2125/2150 all land cleanly
++			Late game granularity: 2y → 1y → ½y, only in the modern/future bands (no early ½-year weirdness)
++			-->
+ 			<!-- advc.252: end -->
+ 			<!-- advc.910: Changed all of the turn counts,
+ 				 some of the increments. -->
+ 			<GameTurnInfos>
+-				<GameTurnInfo>
+-					<!-- was 300 -->
+-					<iMonthIncrement>360</iMonthIncrement>
+-					<iTurnsPerIncrement>90</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>180</iMonthIncrement>
+-					<iTurnsPerIncrement>145</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>120</iMonthIncrement>
+-					<iTurnsPerIncrement>75</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>21</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>57</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>12</iMonthIncrement>
+-					<iTurnsPerIncrement>120</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>6</iMonthIncrement>
+-					<iTurnsPerIncrement>102</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<!-- Can't avoid going into quarter years if we want to
+-					 maintain 1 year per turn for long enough to avoid
+-					 getting ahead of the time line in the 20th century. -->
+-				<GameTurnInfo>
+-					<iMonthIncrement>3</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+-				</GameTurnInfo>
++				<!-- -50,000 to -30,000 (20k years) -->
++				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -30,000 to -20,000 (10k years) -->
++				<GameTurnInfo><iMonthIncrement>4800</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -20,000 to -15,000 (5k years) -->
++				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -15,000 to -12,000 (3k years) -->
++				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -12,000 to -7,500 (4.5k years) -->
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -4,500 (3k years) -->
++				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -4,500 to -3,000 (1.5k years) -->
++				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -3,000 to -2,200 (800 years) -->
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -2,200 to -1,480 (720 years) -->
++				<GameTurnInfo><iMonthIncrement>192</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to -1,000 (480 years) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -1,000 to 500 (1,500 years) -->
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>75</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 500 to 1300 (800 years) -->
++				<GameTurnInfo><iMonthIncrement>192</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1300 to 1400 (100 years) -->
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1400 to 1750 (350 years) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1750 to 1825 (75 years) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1825 to 1920 (95 years) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1920 to 1936 (16 years) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1936 to 1990 (54 years) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>27</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1990 to 2030 (40 years) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2030 to 2060 (30 years) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2060 to 2090 (30 years) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 2090 to 2100 (10 years) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2100 to 2125 (25 years) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2125 to 2150 (25 years) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
+@@ -308,21 +366,23 @@
+ 			For from  500     to  1300		;	Month increment: 12 * 20     years = 240     months		;	Turns: 40
+ 			For from  1300    to  1400		;	Month increment: 12 * 10     years = 120     months		;	Turns: 10
+ 														- end of turn 200 -
+-			For from  1400    to  1840		;	Month increment: 12 * 10     years = 120     months		;	Turns: 44
+-			For from  1840    to  1870		;	Month increment: 12 * 5      years = 60      months		;	Turns: 6
++			For from  1400    to  1750		;	Month increment: 12 * 10     years = 120     months		;	Turns: 35
++			For from  1750    to  1825		;	Month increment: 12 * 5      years = 60      months		;	Turns: 15
+ 														- end of turn 250 -
+-			For from  1870    to  2000		;	Month increment: 12 * 5      years = 60      months		;	Turns: 26
+-			For from  2000    to  2048		;	Month increment: 12 * 2      years = 24      months		;	Turns: 24
++			For from  1825    to  1920		;	Month increment: 12 * 5      years = 60      months		;	Turns: 19
++			For from  1920    to  1936		;	Month increment: 12 * 4      years = 48      months		;	Turns: 4
++			For from  1936    to  1990		;	Month increment: 12 * 2      years = 24      months		;	Turns: 27
+ 														- end of turn 300 -
+-			For from  2048    to  2052		;	Month increment: 12 * 2      years = 24      months		;	Turns: 2
+-			For from  2052    to  2100		;	Month increment: 12 * 1      years = 12      months		;	Turns: 48
++			For from  1990    to  2030		;	Month increment: 12 * 2      years = 24      months		;	Turns: 20
++			For from  2030    to  2060		;	Month increment: 12 * 1      years = 12      months		;	Turns: 30
+ 														- end of turn 350 -
+-			For from  2100    to  2125		;	Month increment: 6 * 1      years = 6      months		;	Turns: 50
++			For from  2060    to  2090		;	Month increment: 12 * 1      years = 12      months		;	Turns: 30
++			For from  2090    to  2100		;	Month increment: 6 * 1       years = 6       months		;	Turns: 20
+ 														- end of turn 400 -
+-			For from  2125    to  2150		;	Month increment: 6 * 1      years = 6      months		;	Turns: 50
++			For from  2100    to  2125		;	Month increment: 6 * 1       years = 6       months		;	Turns: 50
+ 														- end of turn 450 -
+-			For from  2150    to  2155		;	Month increment: 6 * 1      years = 6      months		;	Turns: 10
+-														- end of turn 460 [END] -
++			For from  2125    to  2150		;	Month increment: 6 * 1       years = 6       months		;	Turns: 50
++														- end of turn 500 [END] -
+ 			-->
+ 			<GameTurnInfos>
+ 				<GameTurnInfo>
+@@ -379,11 +439,11 @@
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>120</iMonthIncrement>
+-					<iTurnsPerIncrement>44</iTurnsPerIncrement>
++					<iTurnsPerIncrement>35</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>6</iTurnsPerIncrement>
++					<iTurnsPerIncrement>15</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<!-- custom: comment out this since we covered this time of history if i'm not mistaken anwyays etc, but keep to base advciv comment as is informative or/and useful if i may say anyways etc -->
+ 				<!--<GameTurnInfo>-->
+@@ -407,19 +467,31 @@
+ 				</GameTurnInfo>-->
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>26</iTurnsPerIncrement>
++					<iTurnsPerIncrement>19</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>48</iMonthIncrement>
++					<iTurnsPerIncrement>4</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>24</iTurnsPerIncrement>
++					<iTurnsPerIncrement>27</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>2</iTurnsPerIncrement>
++					<iTurnsPerIncrement>20</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>12</iMonthIncrement>
+-					<iTurnsPerIncrement>48</iTurnsPerIncrement>
++					<iTurnsPerIncrement>30</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>12</iMonthIncrement>
++					<iTurnsPerIncrement>30</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>6</iMonthIncrement>
++					<iTurnsPerIncrement>20</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>6</iMonthIncrement>
+@@ -476,39 +548,69 @@
+ 			<!-- advc.252: end -->
+ 			<!-- advc.910: Changed most of the turn count. Now sum up to a
+ 				 max turn of 335 instead of 330. -->
++			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate anyways etc -->
++			<!--
++			I kept even month increments (all multiples of 12; no weird partial-year steps), so you won’t land on funky dates like “January −48 164 BCE”. A few bands use slightly coarser steps than Normal to hit the 330-turn cap, but the band boundaries (those historical pivots) are identical.
++
++			Sanity checks
++			- Total turns: 330 (exact)
++			- Total span: 625,800 months = 52,150 years → −50 000 → 2150 CE (exact)
++			- Pivots preserved: 1936 / 1990 / 2030 / 2060 / 2090 / 2100 / 2125 / 2150 all line up on the same years as Normal
++			- Even-month increments: every iMonthIncrement is a multiple of 12 (clean years/half-years only)
++			-->
+ 			<GameTurnInfos>
+-				<GameTurnInfo>
+-					<iMonthIncrement>720</iMonthIncrement>
+-					<iTurnsPerIncrement>45</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>480</iMonthIncrement>
+-					<iTurnsPerIncrement>50</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>360</iMonthIncrement>
+-					<iTurnsPerIncrement>15</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>240</iMonthIncrement>
+-					<iTurnsPerIncrement>15</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>120</iMonthIncrement>
+-					<iTurnsPerIncrement>25</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>26</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>61</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>12</iMonthIncrement>
+-					<iTurnsPerIncrement>98</iTurnsPerIncrement>
+-				</GameTurnInfo>
++				<!-- -50,000 to -30,000 (20k years) -->
++				<GameTurnInfo><iMonthIncrement>48000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -30,000 to -20,000 (10k years) -->
++				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -20,000 to -15,000 (5k years) -->
++				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -15,000 to -12,000 (3k years) -->
++				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -12,000 to -7,500 (4.5k years) -->
++				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -4,500 (3k years) -->
++				<GameTurnInfo><iMonthIncrement>4500</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -4,500 to -3,000 (1.5k years) -->
++				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -3,000 to -2,200 (800 years) -->
++				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -2,200 to -1,480 (720 years) -->
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to -1,000 (480 years) -->
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -1,000 to 500 (1,500 years) -->
++				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 500 to 1300 (800 years) -->
++				<GameTurnInfo><iMonthIncrement>384</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1300 to 1400 (100 years) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1400 to 1750 (350 years) -->
++				<GameTurnInfo><iMonthIncrement>168</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1750 to 1825 (75 years) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1825 to 1920 (95 years) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1920 to 1936 (16 years) -->
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1936 to 1990 (54 years) -->
++				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1990 to 2030 (40 years) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2030 to 2060 (30 years) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2060 to 2090 (30 years) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 2090 to 2100 (10 years) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2100 to 2125 (25 years) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2125 to 2150 (25 years) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+ 	</GameSpeedInfos>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 1cc7d7c48..a39cc0fab 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -454,4 +454,27 @@
+ 		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_RANGED</Tag>
+ 		<English>Congratulations, you have trained your first Mounted (Ranged) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
+ 	</TEXT>
++
++
++
++	<!-- From Civ4GameText_Misc1.xml (because Marathon speed was added by
++		 patch 1.52). advc.252: Multipliers adjusted. -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
++		<English>Up to 1250 turns. Research, growth and building production take 2.5 times longer than on normal speed, but unit production takes only 2 times longer. This setting favors warfare and demands much patience. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
++	</TEXT>
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_GAMESPEED_EPIC_HELP</Tag>
++		<English>Up to 750 turns. Research, growth and production take 50% longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
++	</TEXT>
++	<!-- I've only added the turn number here (assuming Ancient-era start and
++		 enabled Time victory) -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_GAMESPEED_NORMAL_HELP</Tag>
++		<English>Up to 500 turns. This is the traditional game speed for Civ. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
++	</TEXT>
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
++		<English>Up to 335 turns. Research, growth and production are 33% faster than on normal speed. As unit movement is unaffected by game speed, warfare is relatively slow. This setting is worth considering especially for multiplayer games and small maps. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index c880412c1..054c2ce24 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1390,42 +1390,6 @@
+ 
+ 
+ 
+-	<!-- From Civ4GameText_Misc1.xml (because Marathon speed was added by
+-		 patch 1.52). advc.252: Multipliers adjusted. -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
+-		<English>Up to 1250 turns. Research, growth and building production take 2.5 times longer than on normal speed, but unit production takes only 2 times longer. This setting favors warfare and demands much patience.</English>
+-		<French>Cette vitesse de jeu tr&#232;s lente permet de faire entrer dans chaque &#232;re le m&#234;me nombre de tours que pour une partie classique.</French>
+-		<German>Bis zu 1250 Z�ge. Forschung, Wachstum und Bau dauern 2,5-mal so lange wie bei normaler Geschwindigkeit, w�hrend Einheitenproduktion nur 2-mal so lange dauert, was Eroberungskriege beg�nstigt. Diese Option erfordert ein hohes Durchhalteverm�gen.</German>
+-		<Italian>Questa velocit&#224; di gioco incredibilmente lunga permetter&#224; una quantit&#224; di turni pari a quelli di una partita normale per ogni era.</Italian>
+-		<Spanish>A esta velocidad prolongada, se tarda casi tantos turnos en completar cada &#233;poca como en una partida normal.</Spanish>
+-	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_GAMESPEED_EPIC_HELP</Tag>
+-		<English>Up to 750 turns. Research, growth and production take 50% longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era.</English>
+-		<French>Si vous choisissez cette vitesse, le temps passera tr&#232;s lentement. Le jeu est &#233;quilibr&#233; pour durer plus longtemps, mais vous aurez l'impression de jouer &#224; une partie normale.</French>
+-		<German>Bis zu 750 Z�ge. Forschung, Wachstum und Produktion dauern 50% l�nger als bei normaler Geschwindigkeit. Da die Bewegung von Einheiten nicht von der Spielgeschwindigkeit abh�ngt, bleibt in jedem Zeitalter mehr Zeit f�r Kriege.</German>
+-		<Italian>Scegliendo questa velocit&#224;, potrai provare l'esperienza dello scorrere del tempo. Il gioco &#232; bilanciato per durare pi&#249; a lungo, ma avrai la sensazione di giocare una partita normale.</Italian>
+-		<Spanish>Experimentar&#233;is todo el transcurso del tiempo si escog&#233;is esta velocidad.  La partida est&#225; equilibrada para durar m&#225;s, aunque seguir&#225; pareciendo normal.</Spanish>
+-	</TEXT>
+-	<!-- I've only added the turn number here (assuming Ancient-era start and
+-		 enabled Time victory) -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_GAMESPEED_NORMAL_HELP</Tag>
+-		<English>Up to 500 turns. This is the traditional game speed for Civ.</English>
+-		<French>La vitesse par d&#233;faut utilis&#233;e dans le jeu.</French>
+-		<German>Bis zu 500 Z�ge. Die traditionelle Spielgeschwindigkeit von Civilization.</German>
+-		<Italian>Questa &#232; la velocit&#224; di gioco tradizionale di Civilization.</Italian>
+-		<Spanish>Es la velocidad de juego tradicional del Civi.</Spanish>
+-	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
+-		<English>Up to 335 turns. Research, growth and production are 33% faster than on normal speed. As unit movement is unaffected by game speed, warfare is relatively slow. This setting is worth considering especially for multiplayer games and small maps.</English>
+-		<French>Tout se d&#233;roulera plus vite &#224; cette vitesse. Le jeu sera plus rapide, mais toujours &#233;quilibr&#233; pour conserver l'impression d'une partie normale.</French>
+-		<German>Bis zu 335 Z�ge. Forschung, Wachstum und Produktion dauern 33% k�rzer als bei normaler Geschwindigkeit. Da die Bewegung von Einheiten nicht von der Spielgeschwindigkeit abh�ngt, dauert das Erobern von St�dten verh�ltnism��ig lange. Diese Option is besonders f�r den Mehrspielermodus und f�r kleine Karten attraktiv.</German>
+-		<Italian>Scegli questa opzione per avviare una partita nella quale le cose avvengono pi&#249; rapidamente. La partita sar&#224; pi&#249; veloce, ma bilanciata in modo da sembrare una partita normale.</Italian>
+-		<Spanish>Escoged &#233;sta si quer&#233;is una partida en la que todo suceda un poco m&#225;s deprisa.  La partida ser&#225; m&#225;s r&#225;pida pero estar&#225; equilibrada para seguir pareciendo normal.</Spanish>
+-	</TEXT>
+ 	<!-- I don't think these are shown anywhere, but I still wanted to correct
+ 		 the recommended player counts (in English and German only).-->
+ 	<TEXT> <!-- redefine -->
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 0210e802e..97b910af2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -193,7 +193,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+-- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed more or less you should be at the bronze age) (view docs or ingame or or [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages). Note: as of now i only did it for `GAMESPEED_NORMAL`, the other other game speeds still use base advciv timeline (i.e. that starts at 4000 BC) as is tedious to do it for one plus would have to adjust for other game speeds, and when i played i played only at normal gamespeed (so would not involve me too much plus more(most? Anyways etc) importantly i may be mistaken in how i'd balance it, hopefully not too bad as it is or and quite good but anyways etc)
++- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments quite fast early on (5 000 per turn) then gradually less, so after a few dozen turns approximately at normal speed more or less you should be around the bronze age (view docs or ingame or or [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages), and ends at 2150 AD (turn 500 at normal gamespeed). Note: i did the `GAMESPEED_NORMAL` timeline myself; as for, the other other game speeds they are done by chatgpt 5 based on my timeline, check if accurate and see info about them in the xml file as well (in code comments for details, it even commented them nicely as a timeline in years without me asking, thanks a lot chatgpt 5! Check if accurate anyways etc) anyways etc.
+ - in global defines or/and related xml files, also changed start map behaviour. There is now not so much terrain polishing (map script removing bad tiles such as jungle or snow or peak, they are now kept, but instead you have more starting vision to choose your spot, which should be realistic too because at 50 000 BCE (approximately) humans may have enough vision of their surroundings to know where to live or adjust to it maybe (even though first city settling is not as realistic, but is for convenience, and could maybe be imagined as a nomadic settlment in the region maybe, still convenient so allowing it))
+ - slavery iProductionPerPopulation increased (currently as of now set to 27, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in `HURRY_POPULATION` of [/Assets/XML/GameInfo/CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) for details anyways etc), the granary building is also nerfed or/and reworked a bit rather to compensate for this change if i may say, see Buildings changes for details anyways etc. This was first increased from 24 to 26, then increased again from 26 to 27 after the recent military changes that would favour mostly AIs due to many new unit upgrades and sooner ones now being available anyways etc, so there would need to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increased a bit more to 27 i mean anyways etc
+ - reduced PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT from 20 to 0, meaning each civ has an equal roll chance when leader selection is random (read/see GlobalDefines_advc.xml for extra details and conditions anyways etc), so a civ with say 3 leaders will not or not as often be more likely to be picked randomly vs civs with only one leader. This means for example rome or france (examples of civs with multiple/many leaders as of now anyways etc) will not get a higher overall chance of being randomly chosen than say mali or carthage (examples of civs with 1 leader as of now anyways etc) anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index a172fbdca..f0db52737 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -175,7 +175,7 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+ 
+-- **Timeline / Pace**: game starts at **-50 000 BC** on `GAMESPEED_NORMAL`, then accelerates (large early steps, smaller later ones). Other game speeds currently follow base AdvCiv pacing. See *CIV4GameSpeedInfo.xml* and [Tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md).
++- **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2150 AD** (**turn 500** on Normal). See [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) and [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md) for current values. **Note:** the **GAMESPEED_NORMAL** timeline was authored here; other game speeds were derived by **ChatGPT 5** from that timeline (with an annotated year progression in the XML comments).
+ - **Start map behavior**: less “terrain polishing”; more starting **vision** so you can choose a spot rather than forcing ideal tiles.
+ - **Slavery**: `HURRY_POPULATION` production increased (**27**). See *CIV4HurryInfo.xml* (`HURRY_POPULATION`).
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See *GlobalDefines_advc.xml*.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=37155

@@ -1,0 +1,111 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5258
+# Commit: 4295623ff153cb22d5e9b3e76441cc2b766dc83d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 09e0c5100e38b2fb580a959b5519df915247d277
+# Title: Sheep is now Plains only (was Plains + Grass), Pig is now Forest (was Jungle) - Adjust some **animal Food Bonuses**' terrains/features for balance, accuracy,...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	5	Assets/XML/Terrain/CIV4BonusInfos.xml
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index e406c7023..346d08295 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1065,9 +1065,10 @@
+ 					<bTerrain>1</bTerrain>
+ 				</TerrainBoolean>
+ 			</TerrainBooleans>
++			<!-- custom: in real world map forest-like areas seem much more prevalent, also fine to change to as of now forest according to chatgpt 5.2. Also, since we as of now removed sheep from grass, maybe this is fine to allow pig on forest that has a grass only, and since jungle is as of now stronger (no inherent food penalty) in advciv-sas, fine to weaken it a bit on that end as well i think, was FEATURE_JUNGLE -->
+ 			<FeatureBooleans>
+ 				<FeatureBoolean>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<FeatureType>FEATURE_FOREST</FeatureType>
+ 					<bFeature>1</bFeature>
+ 				</FeatureBoolean>
+ 			</FeatureBooleans>
+@@ -1183,11 +1184,8 @@
+ 			<bFlatlands>1</bFlatlands>
+ 			<bNoRiverSide>1</bNoRiverSide>
+ 			<bNormalize>1</bNormalize>
++			<!-- custom: more accurate (heavy population in savanna-like regions (africa, western asia, australia, etc.)), thematic (cultural/religious population differences), and balanced (grass over-repesented in food bonuses and stronger in general) to remove grass and allow sheep as of now only on plains, was TERRAIN_GRASS and TERRAIN_PLAINS -->
+ 			<TerrainBooleans>
+-				<TerrainBoolean>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<bTerrain>1</bTerrain>
+-				</TerrainBoolean>
+ 				<TerrainBoolean>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<bTerrain>1</bTerrain>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index c7c8fac13..bf16aac14 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -345,6 +345,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ - as for desert tiles, similarly to how tundra tiles were indirectly buffed from the BONUS_DEER (deer), replace BONUS_MOVIES with BONUS_CAMEL that also buffs desert tiles. Unlike deer for tundra tiles though, the rework is quite differently, as the new camel bonus is related to military units (see Military: camel changes) and competing with the BONUS_HORSE for mounted units so their repartition/frequency need to be adjusted as such to keep the balance of mounted units ressources/bonuses (excluding the BONUS_ELEPHANTS as as of now they dont span across several eras anyways etc). BONUS_CAMEL's XML is based on BONUS_HORSE's xml and adjusted and such; also similarly to deer in tundra tiles, give camel, the only representative animal of desert tiles, a quite high food yield and such, hopefully is accurate too anyways etc as camels can store water in their bodies if i am not mistaken or such in similar or such or not anyway etc kind of "reservoir" if it's a word in english and if i may say or not but anyways etc; in all cases should be balanced to make camel a quite high food bonus with among highest food yield food
+ - reduce frequency of bonus_horse which bonus_camel is now an alternative to, to accomodate for this change anyways etc
+ - also reduced quite bit slightly but anyways etc the repartition of other high food land animal bonuses/ressources anyways etc to accomodate bonus_camel being quite present in the map and have ressources/bonuses being still rare enough hopefully so players fight/compete for them as should be ideally in a strategy game i mean maybe but anyways etc
++- (Requires AdvCiv-SAS 5258+) Adjust some **animal Food Bonuses**' terrains/features for balance, accuracy, or thematic fit: **Sheep**: Grassland + Plains -> **Plains only** (Plains are weaker, Grassland food is overpowered and over-represented, real world population is mostly on savanna-like biomes and culturally closer to African, Western Asian, and Australian regions); **Pig** Jungle -> **Forest** (real world population is mostly around typical forest biomes, this helps counter-balance the Sheep removal from Grassland, and Jungle is stronger in AdvCiv-SAS (no inherent food-penalty) so it can accomodate this change).
+ - bonus_gemstones spawns on new terrains or/and features, in particular it spawns on flood_plains now, see sevopedia bonus's gemstone page or/and sevopedia terrain's Hill page as well or/and xml for details or/and updated values anyways etc
+ 
+ ### Improvements and worker builds (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 40661419e..9433b5ca5 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -333,6 +333,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Desert rework — Camel replaces Movies:** On **desert**, **BONUS_CAMEL** now **replaces BONUS_MOVIES**, providing a **desert-friendly food bonus** and serving as a **mounted unit resource** that **competes with Horses** (see **[Military: camel changes](/README.md#military-tree-and-changes)**). Camel XML derives from Horse with AdvCiv-SAS adjustments; desert tiles become more viable via **high food yield**.
+ - **Horse frequency reduced:** With **Camels** added as an alternative mount, **Horse** **spawn frequency is reduced** to keep mounted-resource balance.
+ - **High-food animals slightly rarer:** Other **high-food land animals** are **slightly reduced** in frequency so **Camels** can be present without making food abundances trivial—keeping **competition for top sites** intact.
++- (Requires AdvCiv-SAS 5258+) Adjust some **animal Food Bonuses**' terrains/features for balance, accuracy, or thematic fit: **Sheep**: Grassland + Plains -> **Plains only** (Plains are weaker, Grassland food is overpowered and over-represented, real world population is mostly on savanna-like biomes and culturally closer to African, Western Asian, and Australian regions); **Pig** Jungle -> **Forest** (real world population is mostly around typical forest biomes, this helps counter-balance the Sheep removal from Grassland, and Jungle is stronger in AdvCiv-SAS (no inherent food-penalty) so it can accomodate this change).
+ - **Gemstones** can spawn on **flood plains**. See Sevopedia/XML.
+ 
+ ### Improvements and worker builds (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index c276796db..f8623cd90 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index 9747b060c..993225472 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+index 6dee922a3..f04b1d370 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 630766e66..ae045074d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 337d80a3d..4a219f7c1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index f798108b5..80e00388b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=9232

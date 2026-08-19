@@ -1,0 +1,207 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 333
+# Commit: fa0d5c92bdc26c3433a1ccc4e8fb2a2721e61a2f
+# History segment: K-Mod history
+# Parent used for diff: 940618aa7b9cc0df7adbac61dcf2ec9157ed9da6
+# Title: Disabled a bunch of useless worker AI code. (The code was useless because of an original BtS bug. I chose to disable it rather than fix it because fixing it...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCityAI.cpp
+29	16	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6a5783460..eb4580b20 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7224,9 +7224,9 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 	}
+ 
+ 	// K-mod
+-	if (kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0)
++	if (kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0 || kPlayer.AI_getFlavorValue(FLAVOR_MILITARY) >= 10)
+ 	{
+-		iProductionMultiplier += 10 + 2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION);
++		iProductionMultiplier += 10 + 2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) + kPlayer.AI_getFlavorValue(FLAVOR_MILITARY);
+ 	}
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 924e59bfe..402515b66 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1622,11 +1622,12 @@ void CvUnitAI::AI_workerMove()
+ 		}
+ 	}
+ 	
+-	CvPlot* pBestBonusPlot = NULL;
++	/*CvPlot* pBestBonusPlot = NULL;
+ 	BuildTypes eBestBonusBuild = NO_BUILD;
+ 	int iBestBonusValue = 0; 
+ 
+-    if (AI_improveBonus(25, &pBestBonusPlot, &eBestBonusBuild, &iBestBonusValue))
++    if (AI_improveBonus(25, &pBestBonusPlot, &eBestBonusBuild, &iBestBonusValue)) */
++	if (AI_improveBonus()) // K-Mod
+ 	{
+ 		return;
+ 	}
+@@ -1738,13 +1739,13 @@ void CvUnitAI::AI_workerMove()
+ 
+ 	if ((pCity == NULL) || (pCity->AI_getWorkersNeeded() == 0) || ((pCity->AI_getWorkersHave() > (pCity->AI_getWorkersNeeded() + 1))))
+ 	{
+-		if ((pBestBonusPlot != NULL) && (iBestBonusValue >= 15))
++		/* if ((pBestBonusPlot != NULL) && (iBestBonusValue >= 15))
+ 		{
+ 			if (AI_improvePlot(pBestBonusPlot, eBestBonusBuild))
+ 			{
+ 				return;
+ 			}
+-		}
++		} */ // disabled by K-Mod. (this did nothing - ever - because of a bug.)
+ 
+ //		if (pCity == NULL)
+ //		{
+@@ -1759,13 +1760,13 @@ void CvUnitAI::AI_workerMove()
+ 		bNextCity = true;
+ 	}
+ 
+-	if (pBestBonusPlot != NULL)
++	/* if (pBestBonusPlot != NULL)
+ 	{
+ 		if (AI_improvePlot(pBestBonusPlot, eBestBonusBuild))
+ 		{
+ 			return;
+ 		}
+-	}
++	} */ // K-Mod
+ 		
+ 	if (pCity != NULL)
+ 	{
+@@ -6060,7 +6061,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 		}
+ 	}
+ 
+-	if (AI_improveBonus(20))
++	/* if (AI_improveBonus(20))
+ 	{
+ 		return;
+ 	}
+@@ -6068,7 +6069,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 	if (AI_improveBonus(10))
+ 	{
+ 		return;
+-	}
++	} */ // disabled by K-Mod. .. obviously redundant.
+ 
+ 	if (AI_improveBonus())
+ 	{
+@@ -9683,7 +9684,7 @@ void CvUnitAI::AI_networkAutomated()
+ 		}
+ 	}
+ 
+-	if (AI_improveBonus(20))
++	/* if (AI_improveBonus(20))
+ 	{
+ 		return;
+ 	}
+@@ -9691,7 +9692,11 @@ void CvUnitAI::AI_networkAutomated()
+ 	if (AI_improveBonus(10))
+ 	{
+ 		return;
+-	}
++	} */
++	// K-Mod
++	if (AI_improveBonus())
++		return;
++	// K-Mod end. (I don't think AI_connectBonus() is useful either, but I haven't looked closely enough to remove it.)
+ 
+ 	if (AI_connectBonus())
+ 	{
+@@ -9703,10 +9708,10 @@ void CvUnitAI::AI_networkAutomated()
+ 		return;
+ 	}
+ 
+-	if (AI_improveBonus())
++	/* if (AI_improveBonus())
+ 	{
+ 		return;
+-	}
++	} */ // disabled by K-Mod
+ 
+ 	if (AI_routeTerritory(true))
+ 	{
+@@ -19543,7 +19548,8 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ }
+ 
+ // Returns true if a mission was pushed...
+-bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* peBestBuild, int* piBestValue)
++//bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* peBestBuild, int* piBestValue)
++bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyway.)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -19612,10 +19618,16 @@ bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* p
+                         {
+                             bDoImprove = true;
+                         }
+-                        else if (!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
++                        /* else if (!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
+                         {
+                         	bDoImprove = true;
+-                        }
++                        } */
++						// K-Mod. Let "best build" handle improvement replacements near cities.
++						else if (pLoopPlot->getWorkingCity() == NULL && !GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
++						{
++							bDoImprove = true;
++						}
++						// K-Mod end
+ 
+                         iBestTempBuildValue = MAX_INT;
+                         eBestTempBuild = NO_BUILD;
+@@ -19744,6 +19756,7 @@ bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* p
+ 		}
+ 	}
+ 
++	/* original bts code
+ 	if ((iBestValue < iMinValue) && (NULL != ppBestPlot))
+ 	{
+ 		FAssert(NULL != peBestBuild);
+@@ -19752,7 +19765,7 @@ bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* p
+ 		*ppBestPlot = pBestPlot;
+ 		*peBestBuild = eBestBuild;
+ 		*piBestValue = iBestResourceValue;
+-	}
++	} */ // disabled by K-Mod. This is clearly wrong. But even if it was fixed it isn't useful anyway, so I'm removing it.
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 49a4a5eb3..f4d905b79 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -218,7 +218,8 @@ protected:
+ 	bool AI_nextCityToImproveAirlift();
+ 	bool AI_irrigateTerritory();
+ 	bool AI_fortTerritory(bool bCanal, bool bAirbase);
+-	bool AI_improveBonus(int iMinValue = 0, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, int* piBestValue = NULL);
++	//bool AI_improveBonus(int iMinValue = 0, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, int* piBestValue = NULL);
++	bool AI_improveBonus(); // K-Mod
+ 	bool AI_improvePlot(CvPlot* pPlot, BuildTypes eBuild);
+ 	BuildTypes AI_betterPlotBuild(CvPlot* pPlot, BuildTypes eBuild);
+ 	bool AI_connectBonus(bool bTestTrade = true);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5836

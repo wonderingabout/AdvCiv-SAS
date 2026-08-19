@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1252
+# Commit: 9009a91666a55d5f15ecc2ef2de13956470d8ff9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 43d62e84cab3758d1145096bdfbd9649bdef0f61
+# Title: Initial commit (cont.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	K-Mod.ini => AdvCiv.ini
+ rename K-Mod.ini => AdvCiv.ini (83%)
+
+[PATCHES]
+
+diff --git a/K-Mod.ini b/AdvCiv.ini
+similarity index 83%
+rename from K-Mod.ini
+rename to AdvCiv.ini
+index 93fd41a95..ee4545b41 100644
+--- a/K-Mod.ini
++++ b/AdvCiv.ini
+@@ -38,7 +38,7 @@ AllowPublicMaps = 1
+ ImageFile = 0
+ 
+ ; Name of Mod
+-Name = K-Mod
++Name = AdvCiv
+ 
+ ; Description of Mod
+-Description = The mod aims to improve some of the weaker elements of Beyond the Sword without changing the overall flavour.
+\ No newline at end of file
++Description = A mod for advanced players, building on karadoc's K-Mod
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=541

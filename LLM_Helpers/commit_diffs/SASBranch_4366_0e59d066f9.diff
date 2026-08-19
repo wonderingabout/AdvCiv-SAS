@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4366
+# Commit: 0e59d066f96606df68b1a7aa78c9453094d4dcdd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6c4ac8f9ca340a3880d706ce34cae9a0bb8c1178
+# Title: Merge branch 'bugfixes_from_Oxidized'
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	5	CvGameCoreDLL/ArithmeticUtils.h
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvRandom.cpp
+1	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+2	3	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArithmeticUtils.h b/CvGameCoreDLL/ArithmeticUtils.h
+index 66235315e..d091950cd 100644
+--- a/CvGameCoreDLL/ArithmeticUtils.h
++++ b/CvGameCoreDLL/ArithmeticUtils.h
+@@ -185,15 +185,22 @@ namespace stats // Seems too generic, but what else to name it?
+ 		return r;
+ 	}
+ 	template<typename T> // (see e.g. Wikipedia)
+-	T percentileRank(std::vector<T>& kDistribution, T tScore, bool bSorted = false)
+-	{
++	T percentileRank(std::vector<T> const& kDistribution, T tScore, bool bSorted = false)
++	{	// int not supported b/c result is in the unit interval
++		BOOST_STATIC_ASSERT(!integer_limits<T>::is_integer);
++		std::vector<T> const* pSorted = &kDistribution;
++		std::vector<T> localCopy;
+ 		if (!bSorted)
+-			std::sort(kDistribution.begin(), kDistribution.end());
++		{
++			localCopy = kDistribution;
++			std::sort(localCopy.begin(), localCopy.end());
++			pSorted = &localCopy;
++		}
+ 		int iLesserScores = 0;
+-		int iSz = (int)kDistribution.size();
++		int iSz = (int)pSorted->size();
+ 		for (int i = 0; i < iSz; i++)
+ 		{
+-			if (kDistribution[i] < tScore)
++			if ((*pSorted)[i] < tScore)
+ 				iLesserScores++;
+ 			else break;
+ 		}
+@@ -210,6 +217,11 @@ namespace fmath
+ 		int r = (int)(d + 0.5 * iMultiple);
+ 		return r - r % iMultiple;
+ 	}
++	inline double log2(double d) // as in C++11
++	{
++		static const double dLn2 = std::log(2.0);
++		return std::log(d) / dLn2;
++	}
+ }
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 33607a577..38ab34bd0 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -376,7 +376,7 @@ short AIFoundValue::evaluate()
+ 	int iInnerBadTiles = 0;
+ 	int iLandTiles = 0; // advc.031
+ 	// <advc.040>
+-	bool bFirstColony = isPrioritizeAsFirstColony();
++	bFirstColony = isPrioritizeAsFirstColony();
+ 	IFLOG if(bFirstColony) logBBAI("First colony");
+ 	// Scope for countBadTiles return parameters
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 21877eb8c..26c0c16a3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1536,7 +1536,7 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
+ 
+ 	std::vector<PlayerTypes> aeStartingLocs(MAX_CIV_PLAYERS);
+ 	// each player starting in own location
+-	std11::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
++	sequtil::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
+ 
+ 	int iBestScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
+ 	bool bFoundSwap = true;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 24c903480..bf3875161 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -35,7 +35,7 @@ class FAStar;
+  have been too lazy to find a proper place for. */
+ 
+ // advc:
+-namespace std11
++namespace sequtil
+ {
+ // Erik: "Back-ported" from C++11
+ template<class ForwardIt, class T>
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 0bb728ea7..8989500cc 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -93,7 +93,7 @@ void CvRandom::shuffle(int* piShuffle, int iNum)
+ // advc.enum:
+ void CvRandom::shuffle(std::vector<int>& aiIndices)
+ {
+-	std11::iota(aiIndices.begin(), aiIndices.end(), 0);
++	sequtil::iota(aiIndices.begin(), aiIndices.end(), 0);
+ 	int const iSize = (int)aiIndices.size();
+ 	FAssertMsg(iSize > 0, "Shuffling empty vector; intended?");
+ 	for (int i = 0; i < iSize; i++)
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 945c8cdfd..93812b1ce 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -360,7 +360,7 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kEnemyOfEnemy = *it;
+-			if (isWar(kEnemyOfEnemy.getID(), kEnemyOfEnemy.getID()))
++			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()))
+ 				rEnemyTargets += (kEnemyOfEnemy.isAVassal() ? fixp(0.5) : 1);
+ 		}
+ 		scaled rFiredOnUs = rPortionFired * rOurVassalMult * rEnemyVassalMult *
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 0a671ecc5..926263372 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2089,14 +2089,13 @@ void BorderDisputes::evaluate()
+ 		// advc.003g: Tbd.: Write a fixed-point logarithm function
+ 		double dOurCultureMultiplier = iOurPlotCulturePercent / 100.0;
+ 		/*	E.g. dOurCultureModifier=1 if 0% culture;
+-			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.08.
++			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.09.
+ 			If we already have a lot of culture in the city, then it's probably
+ 			not the city causing us to lose border tiles. */
+ 		if (dOurCultureMultiplier > 0.04)
+ 		{
+ 			dOurCultureMultiplier = std::max(0.0,
+-					1 - 0.25 * std::log(25 * dOurCultureMultiplier) /
+-					0.301/*std::log(2.0)*/); // binary log
++					1 - 0.25 * fmath::log2(25 * dOurCultureMultiplier));
+ 		}
+ 		else dOurCultureMultiplier = 1;
+ 		scaled rOurCultureModifier = scaled::fromDouble(dOurCultureMultiplier);
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=5150

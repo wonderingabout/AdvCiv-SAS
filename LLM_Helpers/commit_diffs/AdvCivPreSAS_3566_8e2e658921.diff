@@ -1,0 +1,227 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3566
+# Commit: 8e2e6589214b1b1e363425ae6402f01b51d22f1c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4e4fcef932071b62ac73a63c835ae57bde29ad12
+# Title: Fix an issue with parsing of comments in XML
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	3	Assets/XML/Units/CIV4BuildInfos.xml
+16	11	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index ac0604e41..1857a9f53 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -4,9 +4,7 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Build Infos -->
+-<!-- kekm.9: Added FeatureStruct FALLOUT to all 12 non-route builds.
+-	 (XML parser fails if I place comments inside FeatureStructs to mark these
+-	 changes.) -->
++
+ <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<BuildInfos>
+ 		<BuildInfo>
+@@ -73,6 +71,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -152,6 +151,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -193,6 +193,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -255,6 +256,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -297,6 +299,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -338,6 +341,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -379,6 +383,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -420,6 +425,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -446,6 +452,7 @@
+ 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- kekm.9 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+@@ -488,6 +495,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -548,6 +556,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -589,6 +598,7 @@
+ 					<iProduction>30</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
++				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+ 					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+@@ -615,6 +625,7 @@
+ 			<ImprovementType>IMPROVEMENT_FORT</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- kekm.9 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index d7149dd5d..15b3536f1 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -500,10 +500,10 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar
+ 	//FAssertMsg(gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName) < 2,"More children with tag name than expected, should only be 1.");
+ 	// ... However, I think FXML already detects duplicate tags when enforcing the XML schema.
+ 
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+-		// skip to the next non-comment node
+-		if (SkipToNextVal())
++		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+ 			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml, r);
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+@@ -542,10 +542,10 @@ bool CvXMLLoadUtility::GetChildXmlValByName(char* r, TCHAR const* szName, char c
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+-		// skip to the next non-comment node
+-		if (SkipToNextVal())
++		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+ 			// get the string value of the current xml node
+ 			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml, r);
+@@ -583,7 +583,8 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::string& r, TCHAR const* szName,
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -622,7 +623,8 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& r, TCHAR const* szName
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -661,7 +663,8 @@ bool CvXMLLoadUtility::GetChildXmlValByName(int* r, TCHAR const* szName, int iDe
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -706,7 +709,8 @@ bool CvXMLLoadUtility::GetChildXmlValByName(float* r, TCHAR const* szName, float
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -750,7 +754,8 @@ bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName,
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
++	if (SkipToNextVal() && // advc.001
++		gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7568

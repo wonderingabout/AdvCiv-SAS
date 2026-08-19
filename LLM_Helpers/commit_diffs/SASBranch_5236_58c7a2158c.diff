@@ -1,0 +1,241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5236
+# Commit: 58c7a2158cc820d9dbefa0a666472dbd29116ecd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9d6e66d2a667efa7981f2f8fa85caea469674827
+# Title: refactor the extremely messy and redundant refreshUnitSelection with the help of chatgpt 5.2 and gemini 3 pro for review
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+69	58	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 1d7390cc2..05eb51ad3 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -326,26 +326,56 @@ class CvMilitaryAdvisor:
+ 			self.selectedUnitList.append(selectedUnit)
+ 		self.refreshUnitSelection(false)		
+ 	
++	# <!-- custom: refactor old code for this function while preserving behaviour otherwise as it is, with the help of chatgpt 5.2 Old code was shit in terms of redundance or such, is much much cleaner although i didn't look in detail to tell. Reviewed by gemini 3 pro which confirms it is nice anyways etc. -->
+ 	def refreshUnitSelection(self, bReload):
+ 		screen = self.getScreen()
+ 		
+ 		screen.minimapClearAllFlashingTiles()
+ 
++		iNumUnitInfos = gc.getNumUnitInfos()
++		iActiveTeam = gc.getPlayer(self.iActivePlayer).getTeam()
++
+ 		if (bReload):
+ 			if (self.bUnitDetails):
+-				screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
+-				screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ()), CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_MINUS
++				szButtonTextKey = "TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF"
+ 			else:
+-				screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
+-				screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ()), CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
++				szButtonTextKey = "TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON"
++			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
++			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", localText.getText(szButtonTextKey, ()), CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
+ 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
+ 		# self.unitsList[iUnit][2] is a list of the active player's actual units
+ 		# self.unitsList[iUnit][3] is the total number of those units seen by the active player (not only his own)
+ 		
++		iColorYellow = gc.getInfoTypeForString("COLOR_YELLOW")
++		iColorRed = gc.getInfoTypeForString("COLOR_RED")
++		iColorWhite = gc.getInfoTypeForString("COLOR_WHITE")
++		iWidget = WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT
++		iFont = CvUtil.FONT_LEFT_JUSTIFY
++
++		if (bReload):
++			def addUnitListRow(iIndex, szText, iData1, iData2):
++				screen.appendListBoxString(self.UNIT_LIST_ID, szText, iWidget, iData1, iData2, iFont)
++				return iIndex + 1
++		else:
++			def addUnitListRow(iIndex, szText, iData1, iData2):
++				screen.setListBoxStringGFC(self.UNIT_LIST_ID, iIndex, szText, iWidget, iData1, iData2, iFont)
++				return iIndex + 1
++
++		def formatSelection(szIndent, szText, bUnderline, bYellow):
++			if (bUnderline):
++				szText = szIndent + u"<u>" + szText + u"</u>"
++			else:
++				szText = szIndent + szText
++			if (bYellow):
++				szText = localText.changeTextColor(szText, iColorYellow)
++			return szText
++
+ 		if bReload:
+-			for iUnit in range(gc.getNumUnitInfos()):
++			for iUnit in range(iNumUnitInfos):
+ 				self.unitsList[iUnit] = (gc.getUnitInfo(iUnit).getUnitCombatType(), iUnit, [], 0)
+ 
+ 			for iPlayer in range(gc.getMAX_PLAYERS()):			
+@@ -359,9 +389,9 @@ class CvMilitaryAdvisor:
+ 						plot = loopUnit.plot()
+ 						if (not plot.isNone()):
+ 							# advc.007: bDebug=True in isVisible and isInvisible call
+-							bVisible = plot.isVisible(gc.getPlayer(self.iActivePlayer).getTeam(), True) and not loopUnit.isInvisible(gc.getPlayer(self.iActivePlayer).getTeam(), True)
++							bVisible = plot.isVisible(iActiveTeam, True) and not loopUnit.isInvisible(iActiveTeam, True)
+ 
+-						if unitType >= 0 and unitType < gc.getNumUnitInfos() and bVisible:
++						if unitType >= 0 and unitType < iNumUnitInfos and bVisible:
+ 							iNumUnits = self.unitsList[unitType][3]
+ 							if (iPlayer == self.iActivePlayer):
+ 								iNumUnits += 1
+@@ -374,47 +404,31 @@ class CvMilitaryAdvisor:
+ 			self.unitsList.sort()
+ 		
+ 		szText = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
+-		if (-1 in self.selectedGroupList):
+-			szText = localText.changeTextColor(u"<u>" + szText + u"</u>", gc.getInfoTypeForString("COLOR_YELLOW"))
++		bAllSelected = (-1 in self.selectedGroupList)
++		szText = formatSelection(u"", szText, bAllSelected, bAllSelected)
+ 		if (bReload):
+ 			screen.addListBoxGFC(self.UNIT_LIST_ID, "", self.X_TEXT+self.MAP_MARGIN, self.Y_TEXT+self.MAP_MARGIN+15, self.W_TEXT-2*self.MAP_MARGIN, self.H_TEXT-2*self.MAP_MARGIN-15, TableStyles.TABLE_STYLE_STANDARD)
+ 			screen.enableSelect(self.UNIT_LIST_ID, False)
+ 			screen.setStyle(self.UNIT_LIST_ID, "Table_StandardCiv_Style")
+-			screen.appendListBoxString(self.UNIT_LIST_ID, szText, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		else:		
+-			screen.setListBoxStringGFC(self.UNIT_LIST_ID, 0, szText, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		
+ 		iPrevUnitCombat = -2
+-		iItem = 1
+-		for iUnit in range(gc.getNumUnitInfos()):
++		iItem = addUnitListRow(0, szText, 1, -1)
++
++		dPrimaryColor = {}
++		dPyPlayer = {}
++		dTeamId = {}
++
++		for iUnit in range(iNumUnitInfos):
+ 			if (len(self.unitsList[iUnit][2]) > 0):
+ 				if (iPrevUnitCombat != self.unitsList[iUnit][0] and self.unitsList[iUnit][0] != -1):
+ 					iPrevUnitCombat = self.unitsList[iUnit][0]
+ 					szDescription = gc.getUnitCombatInfo(self.unitsList[iUnit][0]).getDescription().upper()
+-					if (self.isSelectedGroup(self.unitsList[iUnit][0], False)):
+-						szDescription = u"   <u>" + szDescription + u"</u>"
+-					else:
+-						szDescription = u"   " + szDescription
+-					if (self.isSelectedGroup(self.unitsList[iUnit][0], True)):
+-						szDescription = localText.changeTextColor(szDescription, gc.getInfoTypeForString("COLOR_YELLOW"))
+-					if (bReload):
+-						screen.appendListBoxString(self.UNIT_LIST_ID, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, self.unitsList[iUnit][0] + gc.getNumUnitInfos(), CvUtil.FONT_LEFT_JUSTIFY)
+-					else:
+-						screen.setListBoxStringGFC(self.UNIT_LIST_ID, iItem, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, self.unitsList[iUnit][0] + gc.getNumUnitInfos(), CvUtil.FONT_LEFT_JUSTIFY)
+-					iItem += 1
++					szDescription = formatSelection(u"   ", szDescription, self.isSelectedGroup(self.unitsList[iUnit][0], False), self.isSelectedGroup(self.unitsList[iUnit][0], True))
++					iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][0] + iNumUnitInfos)
+ 				
+ 				szDescription = gc.getUnitInfo(self.unitsList[iUnit][1]).getDescription() + u" (" + unicode(len(self.unitsList[iUnit][2])) + u")"
+-				if (self.isSelectedUnitType(self.unitsList[iUnit][1], False)):
+-					szDescription = u"      <u>" + szDescription + u"</u>"
+-				else:
+-					szDescription = u"      " + szDescription
+-				if (self.isSelectedUnitType(self.unitsList[iUnit][1], True)):
+-					szDescription = localText.changeTextColor(szDescription, gc.getInfoTypeForString("COLOR_YELLOW"))
+-				if (bReload):
+-					screen.appendListBoxString(self.UNIT_LIST_ID, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, self.unitsList[iUnit][1], CvUtil.FONT_LEFT_JUSTIFY)
+-				else:
+-					screen.setListBoxStringGFC(self.UNIT_LIST_ID, iItem, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, self.unitsList[iUnit][1], CvUtil.FONT_LEFT_JUSTIFY)
+-				iItem += 1
++				szDescription = formatSelection(u"      ", szDescription, self.isSelectedUnitType(self.unitsList[iUnit][1], False), self.isSelectedUnitType(self.unitsList[iUnit][1], True))
++				iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][1])
+ 				
+ 				for loopUnit in self.unitsList[iUnit][2]:
+ 				
+@@ -428,33 +442,30 @@ class CvMilitaryAdvisor:
+ 						if (loopUnit.isWaiting()):
+ 							szDescription = '*' + szDescription
+ 						
+-						if (self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), False)):
+-							szDescription = u"         <u>" + szDescription + u"</u>"
+-						else:
+-							szDescription = u"         " + szDescription
+-
+-						if (self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), True)):
+-							szDescription = localText.changeTextColor(szDescription, gc.getInfoTypeForString("COLOR_YELLOW"))
+-
+-						if (bReload):
+-							screen.appendListBoxString(self.UNIT_LIST_ID, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, -loopUnit.getOwner(), loopUnit.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+-						else:
+-							screen.setListBoxStringGFC(self.UNIT_LIST_ID, iItem, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, -loopUnit.getOwner(), loopUnit.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+-						iItem += 1
++						szDescription = formatSelection(u"         ", szDescription, self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), False), self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), True))
++						iItem = addUnitListRow(iItem, szDescription, -loopUnit.getOwner(), loopUnit.getID())
+ 
+ 					iPlayer = loopUnit.getVisualOwner()
+-					player = PyPlayer(iPlayer)
+-					iColor = gc.getPlayerColorInfo(gc.getPlayer(iPlayer).getPlayerColor()).getColorTypePrimary()
++					if (iPlayer not in dPyPlayer):
++						dPyPlayer[iPlayer] = PyPlayer(iPlayer)
++					player = dPyPlayer[iPlayer]
++					if (iPlayer not in dPrimaryColor):
++						dPrimaryColor[iPlayer] = gc.getPlayerColorInfo(gc.getPlayer(iPlayer).getPlayerColor()).getColorTypePrimary()
++					iColor = dPrimaryColor[iPlayer]
+ 					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_MILITARY, loopUnit.getX(), loopUnit.getY(), iColor, 0.6)
+ 					if (self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), True) and (iPlayer in self.selectedPlayerList)):
+-						
+-						if (player.getTeam().isAtWar(gc.getPlayer(self.iActivePlayer).getTeam())):
+-							iColor = gc.getInfoTypeForString("COLOR_RED")
+-						elif (gc.getPlayer(iPlayer).getTeam() != gc.getPlayer(self.iActivePlayer).getTeam()):
+-							iColor = gc.getInfoTypeForString("COLOR_YELLOW")
++						if (player.getTeam().isAtWar(iActiveTeam)):
++							iFlashColor = iColorRed
+ 						else:
+-							iColor = gc.getInfoTypeForString("COLOR_WHITE")
+-						screen.minimapFlashPlot(loopUnit.getX(), loopUnit.getY(), iColor, -1)
++							if (iPlayer not in dTeamId):
++								dTeamId[iPlayer] = gc.getPlayer(iPlayer).getTeam()
++							if (dTeamId[iPlayer] != iActiveTeam):
++								iFlashColor = iColorYellow
++							else:
++								iFlashColor = iColorWhite
++						screen.minimapFlashPlot(loopUnit.getX(), loopUnit.getY(), iFlashColor, -1)
++
++
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 7a7d3b1cf..9f8280e6f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -133,7 +133,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ## Code/Performance optimizations
+ 
+-- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
++- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. (Requires AdvCiv-SAS 5236+) Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py))
+ 
+ ## 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 6258227b9..6cb6f1a2e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -127,7 +127,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### Code/Performance optimizations
+ 
+-- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring; cached hot values via `static const`/hoisting; normalized inconsistent asset names), plus **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), plus **feature-level caching** (AI Personality Panel). See (examples; not exhaustive): [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
++- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), (Requires AdvCiv-SAS 5236+) refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), etc.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=20959

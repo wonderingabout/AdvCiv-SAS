@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5602
+# Commit: 0532e0fd8b7a45227bc1cd6ff83f6cc4dbfc80ca
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9953b9f0ad2622e6aebb048252e89af026cad697
+# Title: Move victory screen to f9 and info screen to f8
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Screens/CvMainInterface.py
+5	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+13	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+3	2	Assets/XML/Units/CIV4ControlInfos.xml
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index c78a6a34c..b9ca6fefc 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1400,8 +1400,9 @@ class CvMainInterface:
+ 
+ 	def setAdvisorButtonRects(self):
+ 		iSize = BTNSZ(28)
++		# <!-- custom: advisor button order updated to Info then Victory after the F8/F9 swap. (GPT-5.3-Codex) -->
+ 		advisorNames = [ "Domestic", "Finance", "Civics", "Foreign", "Military", "Tech",
+-				"Religious", "Corporation", "Victory", "Info" ]
++				"Religious", "Corporation", "Info", "Victory" ]
+ 		if GameUtil.isEspionage():
+ 			advisorNames.append("Espionage")
+ 		iButtons = len(advisorNames)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index e539dba0f..2b5d71511 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1438,4 +1438,9 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+ 		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
++	<!-- custom: advisor shortcuts updated to F8 Info Screen and F9 Victory Status. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
++		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Financial Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Civics Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Religion Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Corporation Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Status[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 0bf4d83b1..ca2dd8b1a 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3541,4 +3541,17 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
+ 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+ 	</TEXT>
++	<!-- custom: advisor hotkey labels: Info Screen = F8, Victory = F9. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_INFO_SCREEN</Tag>
++		<English>Info Screen</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
++		<English>Info Screen [F8]:</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
++		<English>Victory [F9]:</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4ControlInfos.xml b/Assets/XML/Units/CIV4ControlInfos.xml
+index a3cc65ccf..ad273bd1a 100644
+--- a/Assets/XML/Units/CIV4ControlInfos.xml
++++ b/Assets/XML/Units/CIV4ControlInfos.xml
+@@ -789,11 +789,12 @@
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+ 		</ControlInfo>
++		<!-- custom: hotkeys swapped: Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex) -->
+ 		<ControlInfo>
+ 			<Type>CONTROL_VICTORY_SCREEN</Type>
+ 			<Description>TXT_KEY_VICTORY_SCREEN_TITLE</Description>
+ 			<Help/>
+-			<HotKey>KB_F8</HotKey>
++			<HotKey>KB_F9</HotKey>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+@@ -808,7 +809,7 @@
+ 			<Type>CONTROL_INFO</Type>
+ 			<Description>TXT_KEY_INFO_SCREEN</Description>
+ 			<Help/>
+-			<HotKey>KB_F9</HotKey>
++			<HotKey>KB_F8</HotKey>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 2db8618b0..af092c742 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -98,6 +98,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - "Unique units" → "Civilization units" (they aren’t singletons; they’re civ-specific).
+ - Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
+ - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic ("Combat 3").
++- (Requires AdvCiv-SAS 5524+) "Demographics" → "Info Screen" (correct advisor name, not only shows the Demographics tab of the Info Screen)
+ 
+ ### Code/Performance optimizations
+ 
+@@ -323,7 +324,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### UI (In-game)
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor**, and **merged the Economic Advisor's Finance Tab into the Domestic Advisor** and the **Economic Advisor's Environment Tab into the Info Screen**, so they are now tabs of these instead (deleted the old now obsolete lone advisor .py files).
++- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor**, and **merged the Economic Advisor's Finance Tab into the Domestic Advisor** and the **Economic Advisor's Environment Tab into the Info Screen**, so they are now tabs of these instead (deleted the old now obsolete lone advisor .py files). (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text (e.g., move Victory screen to F9 and Info Screen to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors).
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5522+) **Beautified** the **Civics Advisor**: enlarge **top panels text** so **long civic names don't overflow**. Change in [CvCivicsScreen.py](/Assets/Python/Screens/CvCivicsScreen.py).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=10687

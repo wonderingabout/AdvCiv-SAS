@@ -1,0 +1,304 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1305
+# Commit: 4b9258df5cbc22b2063b438cec624395f3b70863
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ce3cf805f64807a437e192e40e62dc5064c4f41c
+# Title: Merged some recent changes by DarkLunaPhantom, namely: * Game era computed by rounding the average era to the nearest integer (rather than always rounding do...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+2	1	CvGameCoreDLL/CvCityAI.cpp
+10	9	CvGameCoreDLL/CvGame.cpp
+8	2	CvGameCoreDLL/CvInitCore.cpp
+9	1	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+9	1	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+24	8	CvGameCoreDLL/CvUnit.cpp
+-	-	manual_0.92c.odt
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4GameOptionInfos.xml b/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+index 9de8467f0..01930d75b 100644
+--- a/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+@@ -65,6 +65,9 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
++		<!-- advc.003: According to DarkLunaPhantom, this option has to remain
++			 in the eighth position.
++			 https://github.com/DarkLunaPhantom/Civ4-K-Mod/commit/908160ecea97d427cc24736fb4fb1e1b51f282f3 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_RANDOM_PERSONALITIES</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_RANDOM_PERSONALITIES</Description>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index acf08c0a3..013e84d0d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5658,7 +5658,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					//iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
+ 					iFlavour += std::min(kOwner.AI_getFlavorValue((FlavorTypes)iI), kBuilding.getFlavorValue(iI)); // K-Mod
+ 				}
+-				iValue = iValue * (10 + iFlavour) / 10; // K-Mod. (This will give +100% for 10-10 flavour matchups.)
++				//iValue = iValue * (10 + iFlavour) / 10; // K-Mod. (This will give +100% for 10-10 flavour matchups.)
++				iValue = iValue * (8 + iFlavour) / 12; // advc.020
+ 			}
+ 		}
+ 	} // <advc.131>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a8fda3e35..be295cd98 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3866,7 +3866,8 @@ EraTypes CvGame::getCurrentEra() const
+ 
+ 	if (iCount > 0)
+ 	{
+-		return ((EraTypes)(iEra / iCount));
++		//return ((EraTypes)(iEra / iCount));
++		return (EraTypes)::round(iEra / (double)iCount); // dlph.17
+ 	}
+ 
+ 	return NO_ERA;
+@@ -7356,8 +7357,9 @@ void CvGame::createBarbCity(bool skipCivAreas, float prMod) {
+ 			getBarbarianCityCreationProb();
+ 	/* No cities past Medieval, so it's either +0 (Ancient), +1 (Classical)
+ 	   or +4 (Medieval). */
+-	cp += std::pow((float)GC.getGame().getCurrentEra(), 2);
+-	if(skipCivAreas) cp *= prMod;
++	cp += std::pow((float)getCurrentEra(), 2);
++	if(skipCivAreas)
++		cp *= prMod;
+ 	// Adjust creation prob to game speed
+ 	CvGameSpeedInfo& gsi = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType());
+ 	/*  Time to build a Settler depends on TrainPercent, but overall slow-down
+@@ -7448,7 +7450,7 @@ void CvGame::createBarbCity(bool skipCivAreas, float prMod) {
+ 				{
+ 					/* Was: times 3. Want to make it era-based.
+ 					   times (2 + era) seems a bit much in tests. Try 5/3 + era. */
+-					iTargetCities *= (5 + 3 * (int)GC.getGame().getCurrentEra());
++					iTargetCities *= (5 + 3 * getCurrentEra());
+ 					iTargetCities /= 3; // </advc.300>
+ 				}
+ 								
+@@ -7562,8 +7564,7 @@ void CvGame::createBarbarianUnits()
+ 	bool noSpawn = GC.getEraInfo(getCurrentEra()).isNoBarbUnits() ||
+ 			/*  advc.307: Also stop spawning when barb tech falls behind too much;
+ 				may resume once barb tech catches up. */
+-			GC.getGame().getCurrentEra() >
+-			GET_PLAYER(BARBARIAN_PLAYER).getCurrentEra() + 1;
++			getCurrentEra() > GET_PLAYER(BARBARIAN_PLAYER).getCurrentEra() + 1;
+ 
+ 	if (getNumCivCities() < ((countCivPlayersAlive() * 3) / 2) && !isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+ 	{
+@@ -7825,10 +7826,10 @@ int CvGame::numBarbariansToSpawn(int tilesPerUnit, int nTiles, int nUnowned,
+ 	/*	For Rage, reduce divisor to 60% (50% in BtS), but
+ 		<advc.307> reduce it further based on the game era. */
+ 	if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS)) {
+-		int currentEra = (int)GC.getGame().getCurrentEra();
++		int currentEra = getCurrentEra();
+ 		/*  Don't reduce divisor in start era (gets too tough on Classical
+ 			and Medieval starts b/c the starting defenders are mere Archers). */
+-		if(currentEra <= (int)GC.getGame().getStartEra())
++		if(currentEra <= getStartEra())
+ 			currentEra = 0;
+ 		double rageMultiplier = 0.6;
+ 		rageMultiplier *= (8 - currentEra) / 8.0;
+@@ -8069,7 +8070,7 @@ UnitTypes CvGame::randomBarbUnit(UnitAITypes ai, CvArea const& a) {
+ 		int unitEra = 0;
+ 		if(reqTech != NO_TECH)
+ 			unitEra = GC.getTechInfo(reqTech).getEra();
+-		if(unitEra + 1 < ((int)GC.getGame().getCurrentEra()))
++		if(unitEra + 1 < getCurrentEra())
+ 			continue;
+ 		// </advc.301>
+ 		BonusTypes andReq = (BonusTypes)u.getPrereqAndBonus();
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 5e3250e44..49cf81ce6 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -590,8 +590,14 @@ void CvInitCore::resetGame(CvInitCore * pSource, bool bClear, bool bSaveGameType
+ 		// Standard game options
+ 		int i;
+ 		for (i = 0; i < NUM_GAMEOPTION_TYPES; ++i)
+-		{
+-			setOption((GameOptionTypes)i, pSource->getOption((GameOptionTypes)i));
++		{	// <advc.003>
++			GameOptionTypes got = (GameOptionTypes)i;
++			bool b = pSource->getOption(got); // </advc.003>
++			// <dlph.18>
++			CvGameOptionInfo& goi = GC.getGameOptionInfo(got);
++			if(goi.getVisible() == 0)
++				b = goi.getDefault(); // </dlph.18>
++			setOption((GameOptionTypes)i, b);
+ 		}
+ 
+ 		for (i = 0; i < NUM_MPOPTION_TYPES; ++i)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d09173d9a..ceea005ca 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6925,7 +6925,15 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+ 			return false;
+ 		}
+ 	}
+-
++	// <dlph.19>
++	if(eBuilding == (BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).
++			getCivilizationBuildings(GC.getDefineINT("CAPITAL_BUILDINGCLASS")))) {
++        for(int i = 0; i < GC.getNumVictoryInfos(); i++) {
++            if(currentTeam.getVictoryCountdown((VictoryTypes)i) >= 0 &&
++					GC.getGameINLINE().getGameState() == GAMESTATE_ON)
++                return false;
++        }
++    } // </dlph.19>
+ 	if (GC.getBuildingInfo(eBuilding).getMaxStartEra() != NO_ERA)
+ 	{
+ 		if (GC.getGameINLINE().getStartEra() > GC.getBuildingInfo(eBuilding).getMaxStartEra())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8961d1433..29018afdd 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7521,7 +7521,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
+ 	// <advc.020> Replacing the above
+ 	double flavorFactor = 1.0;
+ 	for(int i = 0; i < GC.getNumFlavorTypes(); i++) {
+-		flavorFactor += 0.25 * AI_getFlavorValue((FlavorTypes)i) *
++		flavorFactor += 0.22 * AI_getFlavorValue((FlavorTypes)i) *
+ 				kTechInfo.getFlavorValue(i) * std::min(iCityCount, iCityTarget) /
+ 				(100.0 * std::max(1, iCityTarget));
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4faa17ba6..ab0d5a7bf 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1077,7 +1077,15 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ 					{
+ 						pLoopUnit->changeDamage(iNukeDamage, ((pNukeUnit != NULL) ? pNukeUnit->getOwnerINLINE() : NO_PLAYER));
+ 					}
+-					else if (iNukeDamage >= GC.getDefineINT("NUKE_NON_COMBAT_DEATH_THRESHOLD"))
++					//else if (iNukeDamage >= GC.getDefineINT("NUKE_NON_COMBAT_DEATH_THRESHOLD"))
++					// <dlph.20>
++					else if(GC.getGameINLINE().getSorenRandNum(100,
++							"Non-Combat Nuke Rand") * 100 <
++							std::max(0, (pLoopCity->getNukeModifier() + 100)) *
++							(GC.getDefineINT("NUKE_UNIT_DAMAGE_BASE") - 1 +
++							(GC.getDefineINT("NUKE_UNIT_DAMAGE_RAND_1") +
++							GC.getDefineINT("NUKE_UNIT_DAMAGE_RAND_2") - 1) / 2))
++							// </dlph.20>
+ 					{
+ 						pLoopUnit->kill(false, ((pNukeUnit != NULL) ? pNukeUnit->getOwnerINLINE() : NO_PLAYER));
+ 					}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 0ef351131..6b5aab955 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2914,7 +2914,7 @@ bool CvTeam::isInContactWithBarbarians() const {
+ 	bool checkCity = GC.getGame().getElapsedGameTurns() >=
+ 			GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getBarbPercent();
+ 	// (Perhaps just unitThresh=1 would have the same effect)
+-	int unitThresh = (int)GC.getGame().getCurrentEra();
++	int unitThresh = GC.getGame().getCurrentEra();
+ 	CvTeam const& barbTeam = GET_TEAM(BARBARIAN_TEAM);
+ 	CvMap& m = GC.getMap(); int i;
+ 	for(CvArea* ap = m.firstArea(&i); ap != NULL; ap = m.nextArea(&i)) {
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index e4cd5fa73..df1aad1d8 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1660,9 +1660,13 @@ void CvUnit::updateCombat(bool bQuick)
+ 			} // <advc.130m>
+ 
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING", getNameKey(), pDefender->getNameKey());
+-			gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", pDefender->getNameKey(), getNameKey(), getVisualCivAdjective(pDefender->getTeam()));
+-			gDLL->getInterfaceIFace()->addHumanMessage(pDefender->getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(pDefender->getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(pDefender->getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 
+ 			// report event to Python, along with some other key state
+ 			CvEventReporter::getInstance().combatResult(pDefender, this);
+@@ -1702,7 +1706,9 @@ void CvUnit::updateCombat(bool bQuick)
+ 			} // <advc.130m>
+ 
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), pDefender->getNameKey());
+-			gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 			if (getVisualOwner(pDefender->getTeam()) != getOwnerINLINE())
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN", pDefender->getNameKey(), getNameKey());
+@@ -1711,7 +1717,9 @@ void CvUnit::updateCombat(bool bQuick)
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED", pDefender->getNameKey(), getNameKey(), getVisualCivAdjective(pDefender->getTeam()));
+ 			}
+-			gDLL->getInterfaceIFace()->addHumanMessage(pDefender->getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer,GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(pDefender->getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(pDefender->getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 
+ 			// report event to Python, along with some other key state
+ 			CvEventReporter::getInstance().combatResult(this, pDefender);
+@@ -12935,9 +12943,13 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength, in
+ 		if (pUnit->isDead())
+ 		{
+ 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_KILLED_UNIT_BY_FLANKING", getNameKey(), pUnit->getNameKey(), pUnit->getVisualCivAdjective(getTeam()));
+-			gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_UNIT_DIED_BY_FLANKING", pUnit->getNameKey(), getNameKey(), getVisualCivAdjective(pUnit->getTeam()));
+-			gDLL->getInterfaceIFace()->addHumanMessage(pUnit->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(pUnit->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(pUnit->getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 
+ 			pUnit->kill(false); 
+ 		}
+@@ -12948,12 +12960,16 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength, in
+ 	if (iNumUnitsHit > 0)
+ 	{
+ 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DAMAGED_UNITS_BY_FLANKING", getNameKey(), iNumUnitsHit);
+-		gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++		gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++				GET_PLAYER(getOwnerINLINE()) // advc.002l
++				.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 
+ 		if (NULL != pSkipUnit)
+ 		{
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_UNITS_DAMAGED_BY_FLANKING", getNameKey(), iNumUnitsHit);
+-			gDLL->getInterfaceIFace()->addHumanMessage(pSkipUnit->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
++			gDLL->getInterfaceIFace()->addHumanMessage(pSkipUnit->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getEraInfo(
++					GET_PLAYER(pSkipUnit->getOwnerINLINE()) // advc.002l
++					.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 		}
+ 	}
+ }
+
+[PATCH OMITTED] file=a/manual_0.92c.odt b/manual_0.92c.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=16047

@@ -1,0 +1,214 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2592
+# Commit: 75f37df86dfd56d498d2bfab1df3b64af9a554f4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a18874d7cec83d77344ded974e8b3969eeb71ad6
+# Title: Move heuristic weight variables back to KmodPathFinder
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	3	CvGameCoreDLL/CvMap.cpp
+0	41	CvGameCoreDLL/GroupPathFinder.cpp
+7	7	CvGameCoreDLL/GroupPathFinder.h
+26	0	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 5a05aff09..9fbbbeee1 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -21,6 +21,7 @@
+ #include "GroupPathFinder.h"
+ #include "FAStarFunc.h"
+ #include "FAStarNode.h"
++#include "CvInfo_Terrain.h" // advc.pf (for pathfinder initialization)
+ #include "CvInfo_GameOption.h"
+ #include "CvReplayInfo.h" // advc.106n
+ #include "CvDLLIniParserIFaceBase.h"
+@@ -162,9 +163,6 @@ void CvMap::setup()
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvSelectionGroup::initPathFinder(); // advc.pf
+-	GroupPathFinder::initHeuristicWeights(); // K-Mod
+-
+ 	CvDLLFAStarIFaceBase& kAStar = *gDLL->getFAStarIFace(); // advc
+ 	kAStar.Initialize(&GC.getPathFinder(),
+ 			getGridWidth(),	getGridHeight(),isWrapX(),	isWrapY(),
+@@ -194,6 +192,26 @@ void CvMap::setup()
+ 			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
+ 			NULL,			NULL,			NULL,		plotGroupValid,
+ 			NULL,			countPlotGroup,	NULL);
++	// <advc.pf>
++	CvSelectionGroup::initPathFinder();
++	// Moved this computation out of KmodPathFinder to avoid a header inclusion
++	int iMinMovementCost = MAX_INT;
++	int iMinFlatMovementCost = MAX_INT;
++	FOR_EACH_ENUM(Route)
++	{
++		CvRouteInfo const& kLoopRoute = GC.getInfo(eLoopRoute);
++		int iCost = kLoopRoute.getMovementCost();
++		FOR_EACH_ENUM(Tech)
++		{
++			if (kLoopRoute.getTechMovementChange(eLoopTech) < 0)
++				iCost += kLoopRoute.getTechMovementChange(eLoopTech);
++		}
++		iMinMovementCost = std::min(iMinMovementCost, iCost);
++		iMinFlatMovementCost = std::min(iMinFlatMovementCost,
++				kLoopRoute.getFlatMovementCost());
++	}
++	GroupPathFinder::initHeuristicWeights( // K-Mod
++			iMinMovementCost, iMinFlatMovementCost); // </advc.pf>
+ }
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index f789b78bb..eca40d38f 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -728,47 +728,6 @@ template bool GroupStepMetric::updatePathData<FAStarNode>(FAStarNode&, FAStarNod
+ 		CvSelectionGroup const&, MovementFlags);
+ 
+ 
+-int GroupPathFinder::iAdmissibleBaseWeight = 1;
+-int GroupPathFinder::iAdmissibleScaledWeight = 1;
+-
+-
+-void GroupPathFinder::initHeuristicWeights()
+-{	// <advc.tmp>
+-	#ifdef FASSERT_ENABLE
+-	KmodPathFinderLegacy::InitHeuristicWeights();
+-	#endif // </advc.tmp>
+-	iAdmissibleBaseWeight = iAdmissibleScaledWeight = GC.getMOVE_DENOMINATOR() / 2;
+-	FOR_EACH_ENUM(Route)
+-	{
+-		CvRouteInfo const& kLoopRoute = GC.getInfo(eLoopRoute);
+-		int iCost = kLoopRoute.getMovementCost();
+-		FOR_EACH_ENUM(Tech)
+-		{
+-			if (kLoopRoute.getTechMovementChange(eLoopTech) < 0)
+-				iCost += kLoopRoute.getTechMovementChange(eLoopTech);
+-		}
+-		iAdmissibleBaseWeight = std::min(iAdmissibleBaseWeight, iCost);
+-		iAdmissibleScaledWeight = std::min(iAdmissibleScaledWeight,
+-				kLoopRoute.getFlatMovementCost());
+-	}
+-}
+-
+-
+-int GroupPathFinder::minimumStepCost(int iBaseMoves)
+-{
+-	#ifndef FASSERT_ENABLE // advc.tmp
+-	return std::max(1, std::min(iAdmissibleBaseWeight,
+-			iBaseMoves * iAdmissibleScaledWeight));
+-	//<advc.tmp>
+-	#else
+-	int r=std::max(1, std::min(iAdmissibleBaseWeight,
+-			iBaseMoves * iAdmissibleScaledWeight));
+-	FAssert(r==KmodPathFinderLegacy::MinimumStepCost(iBaseMoves));
+-	return r;
+-	#endif //</advc.tmp>
+-}
+-
+-
+ void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
+ 	MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
+ {	// <advc.tmp>
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.h b/CvGameCoreDLL/GroupPathFinder.h
+index 0b68f8ec5..431ba431b 100644
+--- a/CvGameCoreDLL/GroupPathFinder.h
++++ b/CvGameCoreDLL/GroupPathFinder.h
+@@ -131,8 +131,6 @@ protected:
+ class GroupPathFinder : public KmodPathFinder<GroupStepMetric, GroupPathNode>
+ {
+ public:
+-	static void initHeuristicWeights();
+-	static int minimumStepCost(int iBaseMoves);
+ 	void invalidateGroup(CvSelectionGroup const& kGroup);
+ 	void setGroup( // was "SetSettings"
+ 			CvSelectionGroup const& kGroup,
+@@ -174,13 +172,15 @@ public:
+ 		FAssert(m_pEndNode != NULL);
+ 		return m_pEndNode;
+ 	}
+-private:
+-	static int iAdmissibleBaseWeight;
+-	static int iAdmissibleScaledWeight;
+ 	// <advc.tmp>
+ 	#ifdef FASSERT_ENABLE
+-	KmodPathFinderLegacy leg;
+-	#endif // </advc.tmp>
++	static void initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost)
++	{
++		KmodPathFinderLegacy::InitHeuristicWeights();
++		KmodPathFinder<GroupStepMetric,GroupPathNode>::initHeuristicWeights(iMinMovementCost, iMinFlatMovementCost);
++	}
++private: KmodPathFinderLegacy leg;
++	#endif // <advc.tmp>
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index b37f510ee..2bc9d96cb 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -330,6 +330,9 @@ public:
+ 		return m_pEndNode->getPathLength();
+ 	}
+ 	CvPlot& getPathFirstPlot() const;
++	// Both group and team pathfinder need this, so I'll keep it at the base class.
++	static void initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost);
++	static int minimumStepCost(int iBaseMoves);
+ 
+ protected:
+ 	CvMap const& m_kMap;
+@@ -339,6 +342,8 @@ protected:
+ 	// <advc> Replacing (x,y) coordinates
+ 	CvPlot const* m_pStart;
+ 	CvPlot const* m_pDest; // </advc>
++	static int iAdmissibleBaseWeight;
++	static int iAdmissibleScaledWeight;
+ 
+ 	void recalculateHeuristics();
+ 	bool processNode();
+@@ -349,6 +354,27 @@ protected:
+ 	//bool validateNodeMap(); // advc: Not needed anymore
+ };
+ 
++template<class StepMetric, class Node>
++int KmodPathFinder<StepMetric,Node>::iAdmissibleBaseWeight = 1;
++template<class StepMetric, class Node>
++int KmodPathFinder<StepMetric,Node>::iAdmissibleScaledWeight = 1;
++
++template<class StepMetric, class Node>
++void KmodPathFinder<StepMetric,Node>::initHeuristicWeights(
++	// advc: Let CvMap compute these; don't want to include CvInfo_Terrain.h here.
++	int iMinMovementCost, int iMinFlatMovementCost)
++{
++	iAdmissibleBaseWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinMovementCost);
++	iAdmissibleScaledWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinFlatMovementCost);
++}
++
++template<class StepMetric, class Node>
++int KmodPathFinder<StepMetric,Node>::minimumStepCost(int iBaseMoves)
++{
++	return std::max(1, std::min(iAdmissibleBaseWeight,
++			iBaseMoves * iAdmissibleScaledWeight));
++}
++
+ // (Comments below are from K-Mod unless stated otherwise)
+ 
+ template<class StepMetric, class Node>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6363

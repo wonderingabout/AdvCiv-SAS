@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1659
+# Commit: cbaa76dfcd7d1cca037cc831b79f5de6a0ee4ecc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b89a00773a076809fa926c1cb7f4b96f54f64e28
+# Title: A few improvements to German K-Mod game text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/CIV4GameText_advc.xml
+14	7	Assets/XML/Text/Civ4GameText_K-Mod.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 84eaa830d..b438daa77 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2337,7 +2337,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.005b: From Civ4GameTextInfos_Objects.xml.
++	<!-- advc.005: From Civ4GameTextInfos_Objects.xml.
+ 		 The adjective was "Malinese"; "Malian" appears to be more correct.
+ 		 Also corrected the German and Italian adjectives. -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/Civ4GameText_K-Mod.xml b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+index 20c54c17a..a0ba77f0b 100644
+--- a/Assets/XML/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+@@ -7,11 +7,13 @@
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ 	<!-- The word "obsolete", used to describe bonuses after they are made obsolete. -->
++	<!-- advc.002c : Use German translation from
++		 TXT_KEY_BUILDING_OBSOLETE_WITH (Civ4GameTextInfos.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_OBSOLETE</Tag>
+ 		<English>[COLOR_LIGHT_GREY][SPACE](Obsolete)[SPACE][COLOR_REVERT]</English>
+ 		<French>[COLOR_LIGHT_GREY][SPACE](Obsol�te)[SPACE][COLOR_REVERT]</French>
+-		<German>[COLOR_LIGHT_GREY][SPACE](Obsolet)[SPACE][COLOR_REVERT]</German>
++		<German>[COLOR_LIGHT_GREY][SPACE](Veraltet)[SPACE][COLOR_REVERT]</German>
+ 		<Italian>[COLOR_LIGHT_GREY][SPACE](Obsoleto)[SPACE][COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_LIGHT_GREY][SPACE](Obsoleto)[SPACE][COLOR_REVERT]</Spanish>
+ 	</TEXT>
+@@ -39,15 +41,16 @@
+ 		<Tag>TXT_KEY_UNIT_GREAT_WORK</Tag>
+ 		<English>[ICON_BULLET]Can Create a Great Work (%D1_Change[ICON_CULTURE] per era)</English>
+ 		<French>[ICON_BULLET]Peut cr&#233;er un chef d'oeuvre (%D1_Change[ICON_CULTURE] par epoque)</French>
+-		<German>[ICON_BULLET]Kann ein Gro&#223;es Bauwerk errichten (%D1_Change[ICON_CULTURE] pro zeitalter)</German>
++		<German>[ICON_BULLET]Kann ein Gro&#223;es Bauwerk errichten (%D1_Change[ICON_CULTURE] pro Zeitalter)</German>
+ 		<Italian>[ICON_BULLET]Pu&#242; creare una Grande Opera (%D1_Change[ICON_CULTURE] per era)</Italian>
+ 		<Spanish>[ICON_BULLET]Puede crear una gran obra (%D1_Change [ICON_CULTURE] por &#233;poca)</Spanish>
+ 	</TEXT>
++	<!-- advc.002c: German was garbled/ ungrammatical -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_RELIGION_REMOVE</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] has died out in %s2_CityName.</English>
+ 		<French>Cette religion ([COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT]) s'est &#233;teinte &#224; %s2_CityName.</French>
+-		<German>Die Religion [COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] hat aus %s2_CityName entfernt worden.</German>
++		<German>Die Religion [COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] wird in %s2_CityName nicht mehr praktiziert.</German>
+ 		<Italian>[COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] ha [NUM1:lasciato:lasciata] %s2_CityName</Italian>
+ 		<Spanish>El [COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] ha abandonado %s2_CityName.</Spanish>
+ 	</TEXT>
+@@ -581,11 +584,12 @@
+ 	[end of unused tags] -->
+ 
+ 	<!-- New diplomacy text -->
++	<!-- advc.002c: German was unidiomatic -->
+ 	<TEXT>
+ 		<Tag>USER_DIPLO_WARPLAN_1</Tag>
+ 		<English>Join us in preparing for war...</English>
+ 		<French>Rejoignez-nous dans la pr�paration de la guerre...</French>
+-		<German>Bereiten Sie sich vor, auf Krieg...</German>
++		<German>Trefft Kriegsvorbereitungen gegen ...</German>
+ 		<Italian>Unitevi a noi nella preparazione per la guerra...</Italian>
+ 		<Spanish>�nase a nosotros en la preparaci�n para la guerra...</Spanish>
+ 	</TEXT>
+@@ -593,15 +597,18 @@
+ 		<Tag>USER_DIPLO_WARPLAN_CANCEL_1</Tag>
+ 		<English>Your war preparations are no longer required.</English>
+ 		<French>Vos pr�paratifs de guerre ne sont plus n�cessaires.</French>
+-		<German>Ihre Kriegsvorbereitungen sind nicht mehr erforderlich.</German>
++		<German>Eure Kriegsvorbereitungen sind nicht mehr erforderlich.</German>
+ 		<Italian>I vostri preparativi di guerra non sono pi� necessari.</Italian>
+ 		<Spanish>Ya no se requieren sus preparativos de guerra.</Spanish>
+ 	</TEXT>
++	<!-- advc.002c : Was "OK, we'll cancel our war preparations" (German:
++		 "Gut, wir beenden unsere Kriegsvorbereitungen."). I've tried to
++		 enliven it a little. -->
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_WARPLAN_CANCEL_1</Tag>
+-		<English>OK, we'll cancel our war preparations.</English>
++		<English>All right, swords to plowshares it is.</English>
+ 		<French>D'accord, nous allons annuler notre pr�paratifs de guerre.</French>
+-		<German>Gut, wir beenden unsere Kriegsvorbereitungen.</German>
++		<German>Na dann - Schwerter zu Pflugscharen!</German>
+ 		<Italian>Ok, provvederemo ad annullare i nostri preparativi di guerra.</Italian>
+ 		<Spanish>Bueno, no cancelaremos nuestros preparativos para la guerra.</Spanish>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4820

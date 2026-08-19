@@ -1,0 +1,288 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 681
+# Commit: 56dcadee1fef70ef5f0301cc5fbdba262a130cf1
+# History segment: K-Mod history
+# Parent used for diff: 5468391bc9816d0d4a631ebb3acdacd28917e8e6
+# Title: Refacted / tided some code in CvCity::doMeltdown and CvPlot::nukeExplosion. (The meltdown effect is now done in nukeExplosion, with the help of a new argument.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	41	CvGameCoreDLL/CvCity.cpp
+70	76	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 64d4c7d58..57c117a20 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13415,47 +13415,8 @@ void CvCity::doMeltdown()
+ 					{
+ 						setNumRealBuilding(((BuildingTypes)iI), 0);
+ 					}
+-/**
+-*** K-Mod, 31/08/10, karadoc
+-*** Reduced damage from meltdowns
+-**/
+-					/* orginal bts code
+-					plot()->nukeExplosion(1);
+-					*/
+-					// Instead of a full nuclear explosion, we'll just scatter some fallout.
+-					int iDX, iDY;
+-					const int iRange = 1;
+-					CvPlot* pLoopPlot;
+-
+-					for (iDX = -(iRange); iDX <= iRange; iDX++)
+-					{
+-						for (iDY = -(iRange); iDY <= iRange; iDY++)
+-						{
+-							pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-
+-							if (pLoopPlot != NULL)
+-							{
+-								// Skip the city square
+-								if (pLoopPlot->getPlotCity() != NULL)
+-									continue;
+-
+-								if (!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable()))
+-								{
+-									if (NO_FEATURE == pLoopPlot->getFeatureType() || !GC.getFeatureInfo(pLoopPlot->getFeatureType()).isNukeImmune())
+-									{
+-										if (GC.getGameINLINE().getSorenRandNum(100, "Nuke Fallout") < GC.getDefineINT("NUKE_FALLOUT_PROB"))
+-										{
+-											pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+-											pLoopPlot->setFeatureType((FeatureTypes)(GC.getDefineINT("NUKE_FEATURE")));
+-										}
+-									}
+-								}
+-							}
+-						}// iDY loop
+-					}// iDX loop
+-/*
+-** K-Mod END
+-*/
++					//plot()->nukeExplosion(1);
++					plot()->nukeExplosion(1, 0, false); // K-Mod
+ 
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_MELTDOWN_CITY", getNameKey());
+ 					gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MELTDOWN", MESSAGE_TYPE_MINOR_EVENT, ARTFILEMGR.getInterfaceArtInfo("INTERFACE_UNHEALTHY_PERSON")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), getX_INLINE(), getY_INLINE(), true, true);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d006bf8ef..eeb8c0087 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -967,120 +967,114 @@ void CvPlot::forceBumpUnits()
+ ** K-Mod end
+ */
+ 
+-void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit)
++// K-Mod. Added bBomb argument.
++// bBomb signals that the explosion should damage units, buildings, and city population.
++// (I've also tided up the code a little bit)
++void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ {
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvCity* pLoopCity;
+-	CvUnit* pLoopUnit;
+-	CvPlot* pLoopPlot;
+-	CLinkList<IDInfo> oldUnits;
+-	CvWString szBuffer;
+-	int iNukeDamage;
+-	int iNukedPopulation;
+-	int iDX, iDY;
+-	int iI;
+-
+-	GC.getGameINLINE().changeNukesExploded(1);
+-
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	for (int iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		for (int iDY = -(iRange); iDY <= iRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+-			if (pLoopPlot != NULL)
+-			{
+-				// if we remove roads, don't remove them on the city... XXX
++			if (pLoopPlot == NULL)
++				continue;
+ 
+-				pLoopCity = pLoopPlot->getPlotCity();
++			// if we remove roads, don't remove them on the city... XXX
++
++			CvCity* pLoopCity = pLoopPlot->getPlotCity();
+ 
+-				if (pLoopCity == NULL)
++			if (pLoopCity == NULL)
++			{
++				if (!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable()))
+ 				{
+-					if (!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable()))
++					if (NO_FEATURE == pLoopPlot->getFeatureType() || !GC.getFeatureInfo(pLoopPlot->getFeatureType()).isNukeImmune())
+ 					{
+-						if (NO_FEATURE == pLoopPlot->getFeatureType() || !GC.getFeatureInfo(pLoopPlot->getFeatureType()).isNukeImmune())
++						if (GC.getGameINLINE().getSorenRandNum(100, "Nuke Fallout") < GC.getDefineINT("NUKE_FALLOUT_PROB"))
+ 						{
+-							if (GC.getGameINLINE().getSorenRandNum(100, "Nuke Fallout") < GC.getDefineINT("NUKE_FALLOUT_PROB"))
+-							{
+-								pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+-								pLoopPlot->setFeatureType((FeatureTypes)(GC.getDefineINT("NUKE_FEATURE")));
+-							}
++							pLoopPlot->setImprovementType(NO_IMPROVEMENT);
++							pLoopPlot->setFeatureType((FeatureTypes)(GC.getDefineINT("NUKE_FEATURE")));
+ 						}
+ 					}
+ 				}
++			}
++			// K-Mod. If this is not a bomb, then we're finished with this plot.
++			if (!bBomb)
++				continue;
+ 
+-				oldUnits.clear();
++			CLinkList<IDInfo> oldUnits;
+ 
+-				pUnitNode = pLoopPlot->headUnitNode();
++			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
+ 
+-				while (pUnitNode != NULL)
+-				{
+-					oldUnits.insertAtEnd(pUnitNode->m_data);
+-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-				}
++			while (pUnitNode != NULL)
++			{
++				oldUnits.insertAtEnd(pUnitNode->m_data);
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++			}
+ 
+-				pUnitNode = oldUnits.head();
++			pUnitNode = oldUnits.head();
+ 
+-				while (pUnitNode != NULL)
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = oldUnits.next(pUnitNode);
++
++				if (pLoopUnit == NULL || pLoopUnit == pNukeUnit)
++					continue;
++
++				if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
+ 				{
+-					pLoopUnit = ::getUnit(pUnitNode->m_data);
+-					pUnitNode = oldUnits.next(pUnitNode);
++					int iNukeDamage = (GC.getDefineINT("NUKE_UNIT_DAMAGE_BASE") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_UNIT_DAMAGE_RAND_1"), "Nuke Damage 1") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_UNIT_DAMAGE_RAND_2"), "Nuke Damage 2"));
+ 
+-					if (pLoopUnit != NULL)
++					if (pLoopCity != NULL)
+ 					{
+-						if (pLoopUnit != pNukeUnit)
+-						{
+-							if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
+-							{
+-								iNukeDamage = (GC.getDefineINT("NUKE_UNIT_DAMAGE_BASE") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_UNIT_DAMAGE_RAND_1"), "Nuke Damage 1") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_UNIT_DAMAGE_RAND_2"), "Nuke Damage 2"));
+-
+-								if (pLoopCity != NULL)
+-								{
+-									iNukeDamage *= std::max(0, (pLoopCity->getNukeModifier() + 100));
+-									iNukeDamage /= 100;
+-								}
++						iNukeDamage *= std::max(0, (pLoopCity->getNukeModifier() + 100));
++						iNukeDamage /= 100;
++					}
+ 
+-								if (pLoopUnit->canFight() || pLoopUnit->airBaseCombatStr() > 0)
+-								{
+-									pLoopUnit->changeDamage(iNukeDamage, ((pNukeUnit != NULL) ? pNukeUnit->getOwnerINLINE() : NO_PLAYER));
+-								}
+-								else if (iNukeDamage >= GC.getDefineINT("NUKE_NON_COMBAT_DEATH_THRESHOLD"))
+-								{
+-									pLoopUnit->kill(false, ((pNukeUnit != NULL) ? pNukeUnit->getOwnerINLINE() : NO_PLAYER));
+-								}
+-							}
+-						}
++					if (pLoopUnit->canFight() || pLoopUnit->airBaseCombatStr() > 0)
++					{
++						pLoopUnit->changeDamage(iNukeDamage, ((pNukeUnit != NULL) ? pNukeUnit->getOwnerINLINE() : NO_PLAYER));
++					}
++					else if (iNukeDamage >= GC.getDefineINT("NUKE_NON_COMBAT_DEATH_THRESHOLD"))
++					{
++						pLoopUnit->kill(false, ((pNukeUnit != NULL) ? pNukeUnit->getOwnerINLINE() : NO_PLAYER));
+ 					}
+ 				}
++			}
+ 
+-				if (pLoopCity != NULL)
++			if (pLoopCity != NULL)
++			{
++				for (int iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
+ 				{
+-					for (iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
++					if (pLoopCity->getNumRealBuilding((BuildingTypes)iI) > 0)
+ 					{
+-						if (pLoopCity->getNumRealBuilding((BuildingTypes)iI) > 0)
++						if (!(GC.getBuildingInfo((BuildingTypes) iI).isNukeImmune()))
+ 						{
+-							if (!(GC.getBuildingInfo((BuildingTypes) iI).isNukeImmune()))
++							if (GC.getGameINLINE().getSorenRandNum(100, "Building Nuked") < GC.getDefineINT("NUKE_BUILDING_DESTRUCTION_PROB"))
+ 							{
+-								if (GC.getGameINLINE().getSorenRandNum(100, "Building Nuked") < GC.getDefineINT("NUKE_BUILDING_DESTRUCTION_PROB"))
+-								{
+-									pLoopCity->setNumRealBuilding(((BuildingTypes)iI), pLoopCity->getNumRealBuilding((BuildingTypes)iI) - 1);
+-								}
++								pLoopCity->setNumRealBuilding(((BuildingTypes)iI), pLoopCity->getNumRealBuilding((BuildingTypes)iI) - 1);
+ 							}
+ 						}
+ 					}
++				}
+ 
+-					iNukedPopulation = ((pLoopCity->getPopulation() * (GC.getDefineINT("NUKE_POPULATION_DEATH_BASE") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_POPULATION_DEATH_RAND_1"), "Population Nuked 1") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_POPULATION_DEATH_RAND_2"), "Population Nuked 2"))) / 100);
++				int iNukedPopulation = ((pLoopCity->getPopulation() * (GC.getDefineINT("NUKE_POPULATION_DEATH_BASE") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_POPULATION_DEATH_RAND_1"), "Population Nuked 1") + GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("NUKE_POPULATION_DEATH_RAND_2"), "Population Nuked 2"))) / 100);
+ 
+-					iNukedPopulation *= std::max(0, (pLoopCity->getNukeModifier() + 100));
+-					iNukedPopulation /= 100;
++				iNukedPopulation *= std::max(0, (pLoopCity->getNukeModifier() + 100));
++				iNukedPopulation /= 100;
+ 
+-					pLoopCity->changePopulation(-(std::min((pLoopCity->getPopulation() - 1), iNukedPopulation)));
+-				}
++				pLoopCity->changePopulation(-(std::min((pLoopCity->getPopulation() - 1), iNukedPopulation)));
+ 			}
+ 		}
+ 	}
+ 
+-	CvEventReporter::getInstance().nukeExplosion(this, pNukeUnit);
++	if (bBomb) // K-Mod
++	{
++		GC.getGameINLINE().changeNukesExploded(1);
++		CvEventReporter::getInstance().nukeExplosion(this, pNukeUnit);
++	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index cd4a88811..65b662909 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -71,7 +71,7 @@ public:
+ 	void verifyUnitValidPlot();
+ 	void forceBumpUnits(); // K-Mod
+ 
+-	void nukeExplosion(int iRange, CvUnit* pNukeUnit = NULL);																							// Exposed to Python
++	void nukeExplosion(int iRange, CvUnit* pNukeUnit = NULL, bool bBomb = true); //  K-Mod added bBomb, Exposed to Python
+ 
+ 	bool isConnectedTo( const CvCity* pCity) const;																												// Exposed to Python
+ 	bool isConnectedToCapital(PlayerTypes ePlayer = NO_PLAYER) const;																			// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10294

@@ -72,6 +72,12 @@ DEFAULT_COMPRESSION_LEVEL = 6
 DEFAULT_COMMIT_DIFF_COUNT = -1  # -1 = all commits reachable from current HEAD; 0 = disabled; N = newest N reachable commits
 COMMIT_DIFF_CACHE_FORMAT_VERSION = 2
 COMMIT_DIFF_CACHE_DIR_NAME = "advciv_sas_light_source_commit_diffs"
+# <!-- custom: The greppable tracked mirror is generated from this same history renderer.
+# Exclude it from rendered Git patches and ordinary light-ZIP file selection so history never recursively archives copies of itself. (ChatGPT-5.6-Sol) -->
+TRACKED_COMMIT_DIFF_DIR = "LLM_Helpers/commit_diffs"
+COMMIT_DIFF_EXCLUDED_PATHS = (
+    f"{TRACKED_COMMIT_DIFF_DIR}/**",
+)
 COMMIT_DIFF_MAX_FILE_PATCH_BYTES = 2 * 1024 * 1024
 COMMIT_DIFF_MAX_FILE_CHANGED_LINES = 10_000
 COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES = 16 * 1024 * 1024
@@ -140,7 +146,7 @@ SKIP_DIR_NAMES = {".git", "__pycache__"}
 
 # Skip whole folders that are included through a parent folder but do not help compact LLM/code-agent review.
 # Civ4 cursor assets are visual/binary UI files and are usually noise for source/debugging tasks.
-SKIP_REL_DIRS = {"assets/res/cursors"}
+SKIP_REL_DIRS = {"assets/res/cursors", TRACKED_COMMIT_DIFF_DIR.lower()}
 
 # Skip generated/binary payloads that are too heavy or not useful for compact ChatGPT/code-agent source review.
 # FPK art packs and DLL binaries should be shared separately only when specifically needed.
@@ -679,6 +685,11 @@ def build_git_ignored_paths_tree(repo_root: Path) -> str:
     lines.extend(render_path_tree(ignored_paths) if ignored_paths else ["(none)"])
     return "\n".join(lines) + "\n"
 
+def commit_diff_pathspec_args() -> list[str]:
+    """Return Git pathspecs that keep generated tracked-history mirrors out of review/history diffs."""
+    return [".", *(f":(exclude,top){path}" for path in COMMIT_DIFF_EXCLUDED_PATHS)]
+
+
 def build_git_diff(repo_root: Path, cached: bool) -> bytes:
     """Return a raw review diff while ignoring line-ending/trailing-EOL-only noise."""
     args = ["diff"]
@@ -692,6 +703,7 @@ def build_git_diff(repo_root: Path, cached: bool) -> bytes:
             "--ignore-space-at-eol",
             "--ignore-cr-at-eol",
             "--",
+            *commit_diff_pathspec_args(),
         ]
     )
     raw, error = run_git(repo_root, *args)
@@ -931,7 +943,7 @@ def migrate_cached_commit_diff(cache_path: Path, commit: dict[str, str], write_c
 
 def commit_diff_cache_policy_key() -> str:
     """Fingerprint cache-affecting patch policy constants so tuning caps/exclusions does not reuse stale renderings."""
-    payload = repr((COMMIT_DIFF_CACHE_FORMAT_VERSION, COMMIT_DIFF_MAX_FILE_PATCH_BYTES, COMMIT_DIFF_MAX_FILE_CHANGED_LINES, COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES, COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS, COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES, COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES)).encode("utf-8")
+    payload = repr((COMMIT_DIFF_CACHE_FORMAT_VERSION, COMMIT_DIFF_MAX_FILE_PATCH_BYTES, COMMIT_DIFF_MAX_FILE_CHANGED_LINES, COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES, COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS, COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES, COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES, COMMIT_DIFF_EXCLUDED_PATHS)).encode("utf-8")
     return hashlib.sha1(payload).hexdigest()[:12]
 
 
@@ -944,6 +956,19 @@ def commit_diff_cache_dir(repo_root: Path) -> tuple[Path | None, str | None]:
     if not git_dir.is_absolute():
         git_dir = (repo_root / git_dir).resolve()
     return git_dir / COMMIT_DIFF_CACHE_DIR_NAME / f"v{COMMIT_DIFF_CACHE_FORMAT_VERSION}_{commit_diff_cache_policy_key()}", None
+
+
+def tracked_commit_diff_candidates(repo_root: Path) -> dict[str, list[Path]]:
+    """Index valid-looking tracked mirror files by short SHA so a fresh clone can reuse them as a read-only cache."""
+    tracked_dir = repo_root / TRACKED_COMMIT_DIFF_DIR
+    candidates: dict[str, list[Path]] = {}
+    if not tracked_dir.is_dir():
+        return candidates
+    for path in tracked_dir.glob("*.diff"):
+        match = re.search(r"_([0-9a-fA-F]{10})\.diff$", path.name)
+        if match:
+            candidates.setdefault(match.group(1).lower(), []).append(path)
+    return candidates
 
 
 def prune_superseded_commit_diff_cache_dirs(cache_dir: Path) -> tuple[int, list[str]]:
@@ -1084,10 +1109,10 @@ def render_commit_diff(repo_root: Path, commit: dict[str, str]) -> tuple[bytes, 
     # such as odt2txt for historical documents that the light-source archive does not need.
     common_args = ["--numstat", "--summary", "--patch", "--no-ext-diff", "--no-textconv", "--no-color", "--ignore-space-at-eol", "--ignore-cr-at-eol"]
     if parent is None:
-        combined_raw, combined_error = run_git(repo_root, "show", "--format=", *common_args, full_hash, "--")
+        combined_raw, combined_error = run_git(repo_root, "show", "--format=", *common_args, full_hash, "--", *commit_diff_pathspec_args())
         parent_label = "(root commit)"
     else:
-        combined_raw, combined_error = run_git(repo_root, "diff", *common_args, "--find-renames", parent, full_hash, "--")
+        combined_raw, combined_error = run_git(repo_root, "diff", *common_args, "--find-renames", parent, full_hash, "--", *commit_diff_pathspec_args())
         parent_label = parent
 
     summary_raw = None
@@ -1489,6 +1514,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
             cache_writable = False
 
     generated: dict[str, bytes | Path] = {}
+    tracked_candidates = tracked_commit_diff_candidates(repo_root)
     index_lines = [
         "# Reachable commit diff index",
         "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
@@ -1500,6 +1526,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
         f"# Recent AdvCiv-SAS messages not yet in the tracked SAS log: {GENERATED_INCREMENTAL_GIT_LOG_NAME}.",
         "# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.",
         "# Files are named <segment>_<practical-count>_<short-sha>.diff; coverage is full, partial, summary-only, or unknown.",
+        f"# Self-recursion guard: {TRACKED_COMMIT_DIFF_DIR}/ is excluded from these historical patches because it is only a generated tracked mirror of this same data.",
         "# Columns: segment<TAB>practical-count<TAB>short-sha<TAB>coverage<TAB>title-preview",
     ]
     if segment_warnings:
@@ -1507,7 +1534,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
     index_lines.append("")
 
     path_history: dict[str, list[tuple[str, str, str]]] = {}
-    reused = rendered = in_memory = cache_migrations = 0
+    reused = mirror_reused = rendered = in_memory = cache_migrations = 0
     segment_counts: dict[str, int] = {}
     for commit in commits:
         full_hash = commit["hash"]
@@ -1523,25 +1550,39 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
             cache_migrations += int(cache_migrated)
             reused += 1
         else:
-            data, version, coverage = render_commit_diff(repo_root, commit)
-            rendered += 1
-            if cache_writable and cache_path is not None:
-                temp_path = cache_path.with_suffix(".tmp")
-                try:
-                    temp_path.write_bytes(data)
-                    temp_path.replace(cache_path)
-                    value = cache_path
-                except OSError:
+            # <!-- custom: A tracked mirror can seed a fresh clone with validated history immediately; keep the private cache for new/unsynced SHAs. (ChatGPT-5.6-Sol) -->
+            mirror_path = None
+            mirror_info = None
+            for candidate in tracked_candidates.get(full_hash[:10].lower(), []):
+                candidate_info = cached_commit_info(candidate, full_hash)
+                if candidate_info is not None:
+                    mirror_path = candidate
+                    mirror_info = candidate_info
+                    break
+            if mirror_path is not None and mirror_info is not None:
+                value = mirror_path
+                version, coverage = mirror_info
+                mirror_reused += 1
+            else:
+                data, version, coverage = render_commit_diff(repo_root, commit)
+                rendered += 1
+                if cache_writable and cache_path is not None:
+                    temp_path = cache_path.with_suffix(".tmp")
                     try:
-                        if temp_path.exists():
-                            temp_path.unlink()
+                        temp_path.write_bytes(data)
+                        temp_path.replace(cache_path)
+                        value = cache_path
                     except OSError:
-                        pass
+                        try:
+                            if temp_path.exists():
+                                temp_path.unlink()
+                        except OSError:
+                            pass
+                        value = data
+                        in_memory += 1
+                else:
                     value = data
                     in_memory += 1
-            else:
-                value = data
-                in_memory += 1
         rel_name = f"{GENERATED_COMMIT_DIFF_DIR}/{segment_id}_{version}_{full_hash[:10]}.diff"
         generated[rel_name] = value
         safe_subject = compact_history_title(commit.get("subject", ""))
@@ -1565,7 +1606,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
     segment_note = ",".join(f"{key}:{segment_counts[key]}" for key in ("SASBranch", "AdvCivPreSAS", "KMod", "Other") if key in segment_counts)
     if segment_warnings:
         segment_note += f"; segment warnings={len(segment_warnings)}"
-    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} cache hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
+    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} private-cache hit(s), {mirror_reused} tracked-mirror hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
     return generated, summary
 
 
@@ -1590,11 +1631,12 @@ def build_snapshot_context_readme() -> str:
         "  directories can be collapsed to one entry, so this adds useful local context without listing\n"
         "  every generated/build file beneath them.\n\n"
         "staged_changes_no_eol.diff\n"
-        "  Raw staged diff (HEAD -> index), with end-of-line whitespace/CR-only noise ignored.\n"
-        "  An empty file means there were no staged tracked changes.\n\n"
+        "  Raw staged diff (HEAD -> index), with end-of-line whitespace/CR-only noise ignored. The generated tracked\n"
+        f"  history mirror at {TRACKED_COMMIT_DIFF_DIR}/ is omitted here to avoid duplicating hundreds of MB of generated\n"
+        "  patch text; git_repository_state.txt still reports its tracked status. An empty file means no other staged changes.\n\n"
         "unstaged_changes_no_eol.diff\n"
-        "  Raw unstaged diff (index -> working tree), with end-of-line whitespace/CR-only noise ignored.\n"
-        "  An empty file means there were no unstaged tracked changes.\n\n"
+        "  Raw unstaged diff (index -> working tree), with the same EOL-noise and tracked-history-mirror exclusions.\n"
+        "  An empty file means there were no other unstaged tracked changes.\n\n"
         "git_log_since_tracked_advciv_sas_log.txt\n"
         f"  Commit messages after the newest commit already recorded in {TRACKED_ADVCIV_SAS_GIT_LOG}\n"
         "  through this snapshot's HEAD. The boundary commit is not duplicated. Unlike the tracked\n"
@@ -1609,6 +1651,9 @@ def build_snapshot_context_readme() -> str:
         "  keep a short title, change summary and useful patches, while full messages/metadata redirect to the tracked\n"
         "  anonymized Git logs above (or the generated recent SAS gap). This avoids duplicating long commit messages.\n"
         "  Known generated/log/binary or exceptionally huge historical payloads are summarized instead of embedded.\n"
+        f"  The repository also has a greppable tracked mirror at {TRACKED_COMMIT_DIFF_DIR}/ for clone/code-agent use. That\n"
+        "  mirror is excluded from these generated patches and from ordinary light-ZIP file selection, preventing recursive\n"
+        "  history-of-history growth while this fresh _SNAPSHOT_CONTEXT copy remains generated from current Git ancestry.\n"
         "  Practical commit counts can repeat on divergent/merged history; the full Git SHA is always canonical.\n"
         "\ncommit_diffs/PATH_HISTORY_INDEX.txt\n"
         "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
@@ -1624,9 +1669,9 @@ def build_snapshot_context_readme() -> str:
         "  archive creation should explicitly refresh upstream first (normal generation remains network-free).\n"
         "\nHistory cache/privacy\n"
         "  Generated history follows the existing anonymized Git-log email policy and also redacts email-shaped strings\n"
-        "  embedded in historical patch text. The local cache lives inside Git metadata and is keyed by immutable full\n"
-        "  SHA, so normal reruns only render newly created commits. Existing SAS cache entries from the older message-heavy\n"
-        "  layout are upgraded in place instead of re-rendered. Amend/force-push/reset needs no arbitrary last-N refresh.\n"
+        "  embedded in historical patch text. Reuse checks the private immutable-SHA cache inside Git metadata first, then\n"
+        f"  the tracked {TRACKED_COMMIT_DIFF_DIR}/ mirror as a read-only secondary cache, so fresh clones do not rerender\n"
+        "  already-tracked history. Git renders only missing/new entries; amend/force-push/reset needs no arbitrary last-N refresh.\n"
         "  Use --commit-diff-count 0 to disable, or a positive N to include only the newest N reachable commits.\n"
     )
 

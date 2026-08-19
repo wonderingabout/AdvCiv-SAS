@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 430
+# Commit: 2d29b463a887618a4139c0dbec0abe88b0a5ffcd
+# History segment: K-Mod history
+# Parent used for diff: cc18a50777fba684aa11cf32e1bd21fc3d14b768
+# Title: Changed CvCity::getBuildingCommerceByBuilding so that it only applies the 2x time multiplier to the base commerce, not to bonus commerce. (Currently the only...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GlobalDefinesAlt.xml
+18	14	CvGameCoreDLL/CvCity.cpp
+5	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 5ea8a12b1..293c93929 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -107,7 +107,7 @@
+ 	</Define>-->
+ 	<Define>
+ 		<DefineName>RELIGION_SPREAD_DIVISOR_BASE</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_SPREAD_DISTANCE_FACTOR</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index dee470b5f..d8c30e560 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8760,25 +8760,36 @@ int CvCity::getBuildingCommerce(CommerceTypes eIndex) const
+ 
+ int CvCity::getBuildingCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eBuilding) const
+ {
+-	int iCommerce;
+-
+ 	FAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+ 	FAssertMsg(eIndex < NUM_COMMERCE_TYPES, "eIndex expected to be < NUM_COMMERCE_TYPES");
+ 	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+ 	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "GC.getNumBuildingInfos expected to be >= 0");
+ 
+-	iCommerce = 0;
++	int iCommerce = 0;
++
++	// K-Mod. I've rearranged some stuff so that bonus commerce does not get doubled at the end.
++	// (eg. the bonus culture that the Sistine Chapel gives to religious buildings should not be doubled.)
+ 
+ 	if (getNumBuilding(eBuilding) > 0)
+ 	{
+-		CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);	
+-		if (!(kBuilding.isCommerceChangeOriginalOwner(eIndex)) || (getBuildingOriginalOwner(eBuilding) == getOwnerINLINE()))
++		const CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
++
++		int iTimeFactor =
++			kBuilding.getCommerceChangeDoubleTime(eIndex) != 0 &&
++			getBuildingOriginalTime(eBuilding) != MIN_INT &&
++			GC.getGameINLINE().getGameTurnYear() - getBuildingOriginalTime(eBuilding) >= kBuilding.getCommerceChangeDoubleTime(eIndex)
++			? 2 : 1;
++		// there are just two components which get multiplied by the time factor: the standard commerce, and the "safe" commerce.
++		// the rest of the compontents are bonuses which should not be doubled.
++
++		if (!kBuilding.isCommerceChangeOriginalOwner(eIndex) || getBuildingOriginalOwner(eBuilding) == getOwnerINLINE())
+ 		{
+-			iCommerce += kBuilding.getObsoleteSafeCommerceChange(eIndex) * getNumBuilding(eBuilding);
++			iCommerce += kBuilding.getObsoleteSafeCommerceChange(eIndex) * getNumBuilding(eBuilding) * iTimeFactor; // 1
+ 
+ 			if (getNumActiveBuilding(eBuilding) > 0)
+ 			{
+-				iCommerce += (GC.getBuildingInfo(eBuilding).getCommerceChange(eIndex) + getBuildingCommerceChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding).getBuildingClassType(), eIndex)) * getNumActiveBuilding(eBuilding);
++				iCommerce += GC.getBuildingInfo(eBuilding).getCommerceChange(eIndex) * getNumActiveBuilding(eBuilding) * iTimeFactor; // 2
++				iCommerce += getBuildingCommerceChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding).getBuildingClassType(), eIndex) * getNumActiveBuilding(eBuilding);
+ 
+ 				if (GC.getBuildingInfo(eBuilding).getReligionType() != NO_RELIGION)
+ 				{
+@@ -8799,13 +8810,6 @@ int CvCity::getBuildingCommerceByBuilding(CommerceTypes eIndex, BuildingTypes eB
+ 				}
+ 			}
+ 
+-			if ((GC.getBuildingInfo(eBuilding).getCommerceChangeDoubleTime(eIndex) != 0) &&
+-				(getBuildingOriginalTime(eBuilding) != MIN_INT) &&
+-				((GC.getGameINLINE().getGameTurnYear() - getBuildingOriginalTime(eBuilding)) >= GC.getBuildingInfo(eBuilding).getCommerceChangeDoubleTime(eIndex)))
+-			{
+-				return (iCommerce * 2);
+-			}
+-
+ 			return iCommerce;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0eca03679..a2932fb89 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5913,10 +5913,12 @@ bool CvUnitAI::AI_greatPersonMove()
+ 
+ 				if (eBestBuilding != NO_BUILDING)
+ 				{
+-					if (gUnitLogLevel > 2) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), getGroup()->AI_getMissionAIType() == MISSIONAI_CONSTRUCT?"continues" :"chooses", GC.getBuildingInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
++					MissionAITypes eMissionAI = canConstruct(pBestPlot, eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
++
++					if (gUnitLogLevel > 2) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getBuildingInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
+ 					if (atPlot(pBestPlot))
+ 					{
+-						if (canConstruct(pBestPlot, eBestBuilding))
++						if (eMissionAI == MISSIONAI_CONSTRUCT)
+ 						{
+ 							getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
+ 						}
+@@ -5943,7 +5945,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 					}
+ 					else
+ 					{
+-						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), alwaysInvisible() ? 0 : MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_CONSTRUCT);
++						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), alwaysInvisible() ? 0 : MOVE_NO_ENEMY_TERRITORY, false, false, eMissionAI);
+ 						return true;
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5353

@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4539
+# Commit: 0fca9a428c6ddedf88ab4da2600dc1269280c03d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 18bfde6d32209d315e31adc610ee0f7f626f5c33
+# Title: minor and few updates to docs or/and code comments
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	1	Assets/XML/GlobalDefines_advc.xml
+1	1	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index c41f7ab0a..573fc50b7 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -479,7 +479,17 @@
+ 		 after razing.
+ 		 Either way, founding a city clears all terrain features in the
+ 		 city tile - at least temporarily. -->
+-	<!-- custom: -->
++	<!-- custom: i would not want the difficulty to be in such tedious
++	things, may also be more pleasant for the human player, may indirectly
++	help the AI too, also there is no strong reason to think a land
++	developped by a civ could not be reused by other civs even if city
++	is destroyed (not atomic bomb or something i mean but anyways about
++	this i mean anyways, thanks, ), or else maybe i mean anyways then
++	all terrains should be degraded about this i mean anywyas after
++	being used and destroyed. I don't find such design desirable nor
++	realistic, so i choose the more pleasant and effective and simple
++	and perhaps rationnal approach, hopefully allowing a more relaxing
++	gameplay too, about this i mean, anyways, i mean anyways, thanks, -->
+     <Define>
+         <DefineName>FLOODPLAIN_AFTER_RAZE</DefineName>
+         <iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index a59137b68..ce652a403 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -42,7 +42,7 @@ targets otherwise, at least in theory. They should especially target more lone u
+ outside of cities, but much less those in cities.)
+ - global defines have been changed to have religion importance higher (in terms
+ of culture strength (not exactly sure what this means but should be fine and as i
+-intend i think i mean) for example, lower revolt chance, anger from war quite a
++intend i think i mean)) for example, lower revolt chance, anger from war quite a
+ bit reduced higher reluctance to agree to a war trade, etc. A bit more pragmatic
+ or/and opportunistic, or possibly realistic conditions, war may not always be a
+ fatality, at least in the long run, even though it's hell at first, but this is
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2178

@@ -1,0 +1,102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6010
+# Commit: 419b449728d0033bee5a2a948cebd870d6bec4a8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1c4e04179177fa799e8271abfb5d92d9de6c1c48
+# Title: Heavily reduce naval-heavy coastal AI settling biases after scoring fixes from KI#173 (KI#146)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	4	Assets/XML/GlobalDefines_advciv_sas.xml
+4	5	CvGameCoreDLL/CitySiteEvaluator.cpp
+6	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e83e79ca5..5f35cd2fe 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -956,13 +956,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_NATURE_YIELD_DEFAULT_COMMERCE_VALUE</DefineName>
+ 		<iDefineIntVal>8</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: flat coastal found-value bonus applied in CitySiteEvaluator on naval-heavy maps. This nudge toward coastal access, work boat scouting/contact, trade, and galleys, Moai or other key water buildings, etc.. Set to 0 to disable. (ChatGPT-5.5) -->
+-	<!-- custom: Empirically Cuzco needed 1800 (1700 was not enough to make it stop prefer the central 4 sugar river grass site, instead of pig + banana + 2 sugar river coast), so prefer a fairly high value to mitigate these. See KI#146. -->
++	<!-- custom: Optional flat coastal found-value biases on naval-heavy maps. Following the KI#173 scoring changes, save file 420 now chooses the strong Cuzco coastal site with both values at 0, and Japan no longer favored the old tundra-heavy candidates thus a significant naval settling bias no longer seems necessary: keep these disabled by default, or use only a fairly small positive value if an additional strategic preference for coastal access, work boats, contact, trade, galleys, or Moai is wanted. See KI#146. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE</DefineName>
+-		<iDefineIntVal>1800</iDefineIntVal>
++		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Empirically 200 lead japan AI to settle on tundra for coast instead of a stronger grass/floodplains site so do not make this extra valuation too high for other cities. -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 6dcb619b6..e16db47ed 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1556,11 +1556,10 @@ int AIFoundValue::evaluate()
+ 		iValue += iBreakdownGoodies; // </advc.031>
+ 	}
+ 
+-	// <!-- custom: On naval-heavy maps, give coastal city sites a small flat value bonus in the central
+-	// CitySiteEvaluator path. This affects both cached found values and direct AI_foundValue calls, including first-city
+-	// rechecks, without duplicating the adjustment in CvPlot::getFoundValue or CvUnitAI::AI_foundFirstCity. Use a flat
+-	// bonus rather than a percent so this is a modest strategic nudge toward coastal access for work boat scouting, naval
+-	// contact, trade, and galleys, not a multiplier that can over-amplify already-strong sites. See KI#146. (ChatGPT-5.5) -->
++	// <!-- custom: Optionally give coastal sites a flat naval-heavy-map bias in the central CitySiteEvaluator path, affecting cached found values and direct AI_foundValue calls without duplicating it elsewhere.
++	// Following the KI#173 scoring changes, save file 420 still chose the strong Cuzco coastal site with both biases set to 0, while Japan no longer favored
++	// the old tundra-heavy candidates.
++	// Keep this disabled or small if an extra strategic preference for coastal access, work boats, contact, trade, and galleys is wanted. See KI#146 (Update). (GPT-5.5) -->
+ 	if (!kPlayer.isHuman() && !kSet.isNormalizing() && bCoastal &&
+ 			kGame.isNavalHeavyMapnameCached() && !kGame.isLandHeavyMapnameCached())
+ 	{
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 3b5e53ba3..7a688cccc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -5463,9 +5463,13 @@ Observed example: Inca/Cuzco preferred a central 4-Sugar river grass site over a
+ 
+ Fixed/enhanced in `AIFoundValue::evaluate()` by adding tunable flat coastal found-value bonuses on naval-heavy maps.
+ 
+-The first-city value is intentionally much higher because capital coastal access can define the whole opening on naval-heavy maps. The other-cities value is intentionally much lower: testing showed that a value of 200 could make Japan prefer tundra coast over a stronger grass/floodplains site, so the default was kept more moderate.
++The initial first-city value was intentionally much higher because capital coastal access can define the whole opening on naval-heavy maps. The other-cities value was intentionally much lower: testing showed that a value of 200 could make Japan prefer tundra coast over a stronger grass/floodplains site.
+ 
+-Note: it seems they often would settle coastal anyway even without this fix/enhancement, but it doesn't seem to have been enforced or strengthened somewhere in the code at a glance before our fix and based on ChatGPT-5.5's review/solution.
++Update following the KI#173 and related city-site scoring changes:
++
++- Save file 420 now chooses the strong coastal Cuzco site at `(11,35)` with the first-city coastal extra value disabled: it scores `4874` against the strongest nearby alternative's `4394`. Restoring the old `1800` merely raises the same chosen site to `6674`.
++- A turn-100 Japan retest with both coastal extra values disabled founded Kyoto at `(71,18)`, Osaka at `(73,15)`, and Tokyo at `(67,16)`. Attractive `(73,23)` was still valued strongly at `5344` before normal distance shaping, while the old tundra-heavy candidate areas around `(74,11)` and `(79,12)` were no longer top candidates. The strongest northern alternative was the defensible `(77,14)` river/Grass site with Copper, Sheep, and Silver.
++- The extra biases were therefore reduced heavily, to keep a small strategic pressure for naval settling only as this may generally be strategically better in naval-heavy maps. Normal coastal valuation remains active, and the defines remain available if a fairly small additional naval-map preference is wanted; the old large values are no longer recommended.
+ 
+ ## 147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b3fb1900a..e95fe16cc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -313,7 +313,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse "preferred" site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes).
+ - (Requires AdvCiv-SAS 5940+) **First-city roaming**: Since the first city is especially important, unlike later cities that can be more strategic or semi-decent resource grabs, starting settlers can now **roam briefly for a better first-city site when the current site is bad enough**. Settlers can spend the bounded early window to **move to visible good-enough sites**, do **safe adjacent scouting for better information**, or **wait if no safe scouting step exists**. (Requires AdvCiv-SAS 5976+) Starting-site checks use a shared **potential-food environment score** (using the same logic described under Low-food environments). Food-surplus plots offset poor plots, productive Grass Hills remain neutral, and no-yield peaks/ice receive an extra citizen-unworkable penalty because they are dead BFC slots. This keeps useful resources/coasts from looking poor while still moving away from bad tundra/plains/peak-heavy starts.
+ - (Requires AdvCiv-SAS 6009+) **First-city recheck and efficient return after scouting:** After leaving a very poor spawn location, the AI settler explores nearby unrevealed plots (fog) within a limited scouting window (in turns) instead of founding the first merely good-enough site, trying to find better first-city sites, like a human player would. Only fully revealed BFCs can interrupt scouting; before each further step, the AI settler compares its current plot and other revealed reachable sites by full city-site value minus a tunable return-path cost. The turns window includes the trip back, so the AI settler commits before further scouting would make its best return too late, then queues movement and founding together instead of restarting scouting on arrival or founding wherever scouting stopped. Empirically and as BBAI logging also showed, this helped Berlin, Karakorum, Cuzco, and the Aztecs choose strong revealed sites and found promptly in save files 442, 360, and 431. As of now this applies only to the first city, which critically benefits from extra information and founds much stronger first-city sites, while later AI settlers usually know more of the local map and so do not need to use this (so as of now disabled for them). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+-- (Requires AdvCiv-SAS 5928+) **Naval-heavy-map coastal settling:** On naval-heavy (e.g., Archipelago) maps, settler AI site valuation now optionally add **extra valuation for coastal sites**, as of now especially for the **first city**. This helps early work boat, scouting/contact, trade, first galleys, Moai, or other water-focused buildings; e.g., Cuzco needed a high first-city coastal extra valuation to prefer a coastal Pig + Banana + 2-Sugar river site over a central 4-Sugar river grass site; and kept **moderate for other cities** than the capital after testing showed higher values could, for example, overpull Japan toward tundra coast instead of grass. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
++- (Requires AdvCiv-SAS 5928+) **Optional naval-heavy-map coastal settling bias:** Naval-heavy maps can now add a tunable first-city or later-city preference for coastal settling in naval-heavy maps. This should be more useful and strategically stronger in such maps, notably for coastal access, work boats, scouting/contact, trade, first galleys, Moai, or other water-focused strategies. However, following the [KI#173](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings) and related AI settler/found scoring changes, BBAI logging showed even a value of `0` correctly selects the strong Cuzco coastal site in save file 420, while Japan no longer favors the old tundra-heavy candidates that motivated this new feature. So use only a fairly small naval settling bias positive value for additional strategic coastal preference. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
+ - **Parking addressed (early game):** Reduced cases of settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` to found sooner when conditions allow. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (settler production varies somehow, but we move much sooner after we have it now). See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found).
+ 
+ ##### Workers (AI)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12250

@@ -1,0 +1,117 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 789
+# Commit: 47b7a0eb8980985cc2c43bebdfba67c3df424f64
+# History segment: K-Mod history
+# Parent used for diff: 5e7d371b294dfc50417bda67008e820545378664
+# Title: Updated the changelog & minor things. This is v1.31.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/Makefile
+32	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 195e4ab6c..b9867330a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7023,6 +7023,7 @@ int CvPlayer::getImprovementUpgradeRate() const
+ 
+ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
+ {
++	PROFILE_FUNC();
+ 	CvCity* pLoopCity;
+ 	int iTotalCommerce = 0;
+ 	int iLoop = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a0efcc207..6a186c86b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3942,10 +3942,10 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+-	if (pCity->getDefenseDamage() > 0)
++	/* if (pCity->getDefenseDamage() > 0)
+ 	{
+ 		iValue += ((pCity->getDefenseDamage() / 30) + 1);
+-	}
++	} */ // disabled by K-Mod
+ 
+ 	// Significant amounting of borrowing/adapting from Mongoose AITargetCityValueFix
+ 	if (pCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+
+diff --git a/CvGameCoreDLL/Makefile b/CvGameCoreDLL/Makefile
+index 5cc3075d0..38c7802f7 100644
+--- a/CvGameCoreDLL/Makefile
++++ b/CvGameCoreDLL/Makefile
+@@ -263,7 +263,9 @@ Profile\$(BLACKLIST).obj: $(BLACKLIST).cpp
+ !IF [$(FD) --objectextension=pch -q -O Debug CvGameCoreDLL.cpp > depends] != 0 || \
+     [$(FD) --objectextension=obj -q -O Debug $(SOURCES) >> depends] != 0 || \
+     [$(FD) --objectextension=pch -q -O Release CvGameCoreDLL.cpp >> depends] != 0 || \
+-    [$(FD) --objectextension=obj -q -O Release $(SOURCES) >> depends] != 0
++    [$(FD) --objectextension=obj -q -O Release $(SOURCES) >> depends] != 0 || \
++    [$(FD) --objectextension=pch -q -O Profile CvGameCoreDLL.cpp >> depends] != 0 || \
++    [$(FD) --objectextension=obj -q -O Profile $(SOURCES) >> depends] != 0
+ !MESSAGE Error running fastdep.
+ !ENDIF
+ !ELSE
+
+diff --git a/changelog.txt b/changelog.txt
+index c44ce3c51..ec336644f 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,6 +1,37 @@
+-This is K-Mod version 1.30.
++This is K-Mod version 1.31.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
++v1.31 changelist
++
++Game / UI
++
+++ Fixed an original BtS bug which caused pitboss servers to crash whenever a player launched a spaceship.
+++ Fixed an original BtS pitboss OOS bug which was triggered when an attack animation included a siege tower.
+++ Fixed several bugs which caused the pitboss server to attempt to access unallocated memory. (There were bugs like this in the original BtS code, and K-Mod code, and BUG code.)
+++ Changed the default Field of View settings so a dynamic value which scales with the size of the player's monitor.
+++ Removed the city-screen field of view switching. It didn't work correctly, and I don't think we need it anyway.
+++ Fixed a bug which essentially negated my previous bugfix for the 'plains cow' problem with starting positions.
+++ The starting site will now always be recommended on the first turn.
+++ Fixed some bugs in the BUG religion advisor which prevented the sub-options from working correctly.
+++ Fixed some bugs which sometimes caused civilizations to be described as "unknown" in replays.
+++ Adjusted some of the weights used for automated cities choosing military units.
+++ Workers will no longer be interrupted by nearby danger if they were already in danger when they started their build.
++
++AI
++
+++ Rewrote the AI evaluation of war targets. The new version will consider things such as relative unit strength, diplomatic impact, and relative productivity; as well as things which were already considered in the old version such as proximity, attitude score, and power rating.
+++ Redesigned and rewrote the AI's code for deciding whether or not a potential enemy civ is a "land target". It should be far more accurate now.
+++ The AI will no longer consider starting a war against civs for which no city sites have been revealed.
+++ The AI's 'dagger' strategy will now more strongly encourage the AI to build units, and will significantly increase their unit spending limit.
+++ Increased the war weariness threshold in AI_acceptSurrender.
+++ Fixed a bug in the executive AI which caused them to evaluate corporations for themselves rather than for the player they are spreading to.
+++ The AI will now take into account the cost of removing an old corp when spreading a new corp.
+++ Adjusted the AI civic value for slavery pop-rushing.
+++ Corrected a game-speed scaling problem in the AI for pop-rushing.
+++ Greatly reduced the AI's perceived value of bonuses produced by corporations.
+++ Slightly reduced the trade value of bonuses in general.
++
++--
+ v1.30 changelist
+ 
+ Game
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4976

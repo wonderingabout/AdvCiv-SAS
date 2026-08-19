@@ -1,0 +1,146 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2802
+# Commit: a2773614aed1f602399092a6d3c8ef9aa1431a50
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 87d4772b404162720a01a62da89abd76f7e09593
+# Title: Cleaner implementation of GET_TEAM macros
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CoreAI.h
+1	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	2	CvGameCoreDLL/CvGamePlay.h
+6	2	CvGameCoreDLL/CvTeam.h
+6	5	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CoreAI.h b/CvGameCoreDLL/CoreAI.h
+index 0e27128ab..2c43dec6f 100644
+--- a/CvGameCoreDLL/CoreAI.h
++++ b/CvGameCoreDLL/CoreAI.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+-#ifndef CIV4_AI_H
+-#define CIV4_AI_H
++#ifndef COREAI_H
++#define COREAI_H // Caveat: This guard gets referenced in other headers too
+ 
+ // advc.make: Wrapper header to reduce the number of include directives
+ 
+@@ -10,8 +10,8 @@
+ #include "CvTeamAI.h"
+ #include "CvPlayerAI.h"
+ 
+-// <advc.003u>
+-#undef GET_TEAM // Overwrite definition in CvGamePlay.h
++// <advc.003u> Overwrite the definitions in CvGamePlay.h and CvTeamAI.h
++#undef GET_TEAM
+ #define GET_TEAM(x) CoreAI::getTeam(x)
+ 
+ namespace CoreAI
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index e0f1f4b5f..b6f257dc8 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1,9 +1,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameCoreUtils.h"
+-#include "CvGamePlay.h"
++#include "CoreAI.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+-#include "CvTeamAI.h"
+ #include "CityPlotIterator.h"
+ #include "BBAILog.h" // advc.007
+ #include "CvInfo_GameOption.h"
+
+diff --git a/CvGameCoreDLL/CvGamePlay.h b/CvGameCoreDLL/CvGamePlay.h
+index de64c8f3b..a8b992a06 100644
+--- a/CvGameCoreDLL/CvGamePlay.h
++++ b/CvGameCoreDLL/CvGamePlay.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #ifndef CIV4_GAME_PLAY_H
+-#define CIV4_GAME_PLAY_H
++#define CIV4_GAME_PLAY_H // Caveat: This guard gets referenced in other headers too
+ 
+ /*  advc.make: Wrapper header to reduce the number of include statements and
+ 	a place for the team accessor macros. (However, the one that returns a CvTeamAI
+@@ -15,7 +15,8 @@
+ #include "CvCivilization.h" // advc.003w
+ 
+ // <advc.003u>
+-#ifndef GET_TEAM // Prefer the definition in CoreAI.h
++#ifndef COREAI_H // Overwrite CvTeam(AI).h, but yield to CoreAI.h.
++#undef GET_TEAM
+ #define GET_TEAM(x) CvGamePlay::getTeam(x)
+ #endif
+ #define TEAMID(x) GET_PLAYER(x).getTeam()
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index defa71265..6af578e65 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -1,12 +1,16 @@
+ #pragma once
+ 
+-// team.h
+-
+ #ifndef CIV4_TEAM_H
+ #define CIV4_TEAM_H
+ 
+ class CvArea;
+ 
++// <advc.003u> Let the more powerful macros take precedence
++#if !defined(CIV4_GAME_PLAY_H) && !defined(COREAI_H) && !defined(CIV4_TEAM_AI_H)
++	#undef GET_TEAM // </advc.003u>
++	#define GET_TEAM(x) CvTeam::getTeam(x)
++#endif
++
+ class CvTeam /* advc.003e: */ : private boost::noncopyable
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 7a71d08f6..4844fc547 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -3,17 +3,18 @@
+ // teamAI.h
+ 
+ #ifndef CIV4_TEAM_AI_H
+-#define CIV4_TEAM_AI_H
++#define CIV4_TEAM_AI_H // advc.003u (caveat): This guard gets referenced in CvTeam.h
+ 
+ #include "CvTeam.h"
+ #include "UWAI.h" // advc.104
+ #include "AIStrengthMemoryMap.h" // advc.158
+ #include "AIStrategies.h" // advc.enum
+ 
+-/*  <advc.003u> Overwrite definition in CvTeam.h (should perhaps instead define a
+-	new macro "TEAMAI" - a lot of call locations to change though ...) */
+-#undef GET_TEAM
+-#define GET_TEAM(x) CvTeamAI::AI_getTeam(x) // </advc.003u>
++// <advc.003u> Let the more powerful macros take precedence
++#if !defined(CIV4_GAME_PLAY_H) && !defined(COREAI_H)
++	#undef GET_TEAM
++	#define GET_TEAM(x) CvTeamAI::AI_getTeam(x)
++#endif // </advc.003u>
+ 
+ class CvTeamAI : public CvTeam
+ {
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=3491

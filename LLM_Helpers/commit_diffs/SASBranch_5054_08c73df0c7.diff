@@ -1,0 +1,479 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5054
+# Commit: 08c73df0c72844dbcafb90ab38cf3490b4adae0c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: be91870024551420f202e4fabe17b78e0b51d244
+# Title: adjust=reduce tech costs a bit in the mid game until end game but anyways etc + minor or not tech changes or not or yes or etc but anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	42	Assets/XML/Technologies/CIV4TechInfos.xml
+4	1	README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index a145812b5..95734c642 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -227,7 +227,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>4200</iCost>
++			<iCost>4000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -1153,7 +1153,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1239,7 +1239,7 @@
+ 			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
+ 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1390,7 +1390,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 1400 -->
+-			<iCost>2000</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1465,7 +1465,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2000</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1533,7 +1533,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1607,7 +1607,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -1691,7 +1691,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -1769,7 +1769,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 3600 -->
+-			<iCost>2600</iCost>
++			<iCost>2400</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -1844,7 +1844,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: ERA_MODERN -->
+@@ -2840,7 +2840,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3130,7 +3130,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3441,7 +3441,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2000</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3516,7 +3516,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 3600 -->
+-			<iCost>2200</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3669,7 +3669,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3743,7 +3743,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3814,7 +3814,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2800</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL????? -->
+@@ -3887,7 +3887,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2600</iCost>
++			<iCost>2400</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -3968,7 +3968,7 @@
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 5000 -->
+-			<iCost>2800</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -4112,7 +4112,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>3200</iCost>
++			<iCost>3000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -4178,7 +4178,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>8000</iCost>
++			<iCost>7000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -4248,7 +4248,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2800</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_FUTURE -->
+@@ -4320,7 +4320,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>4200</iCost>
++			<iCost>4000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -4401,7 +4401,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>5600</iCost>
++			<iCost>5500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -4617,7 +4617,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>4200</iCost>
++			<iCost>4000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -5637,7 +5637,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2600</iCost>
++			<iCost>2400</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -5712,7 +5712,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5853,7 +5853,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -5931,7 +5931,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6008,7 +6008,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -6081,7 +6081,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>8000</iCost>
++			<iCost>7000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -6162,7 +6162,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: ERA_INDUSTRIAL -->
+@@ -6228,7 +6228,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2800</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -6288,8 +6288,10 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_FASCISM</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: the TECH_THEORY_OF_EVOLUTION requirement allows to not beeline too fast from past military or such techs, plus not nonsensical e.g. hitler into eugenics which leans into choosing best genes via evolution or/and such maybe if one were to find a tentative explanation i just got xd but that i think works quite well or/and is maybe as well quite relevant in this case i mean but anyways etc -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
++				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_INDUSTRIALISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_INDUSTRIALISM</Sound>
+@@ -6305,7 +6307,7 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2400</iCost>
++			<iCost>2300</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6372,7 +6374,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2200</iCost>
++			<iCost>2100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_MODERN -->
+@@ -6446,7 +6448,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>3200</iCost>
++			<iCost>3000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6511,7 +6513,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>3200</iCost>
++			<iCost>3000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6588,7 +6590,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>8000</iCost>
++			<iCost>7000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -6662,7 +6664,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2800</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6731,7 +6733,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>3200</iCost>
++			<iCost>3000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6802,7 +6804,7 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>5600</iCost>
++			<iCost>5500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+@@ -6876,7 +6878,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>5600</iCost>
++			<iCost>5500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+
+diff --git a/README.md b/README.md
+index a82f3bf11..ddd6ffa02 100644
+--- a/README.md
++++ b/README.md
+@@ -76,11 +76,14 @@ See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes
+ 
+ ## Ingame gameplay samples
+ 
+-These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Latest napoleon ai screenshots are shortly before version 5030.
++These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later napoleon ai screenshots are shortly before version 5030, and the screenshots after them are from version 5045.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1.JPG" alt="0.961_autoplay_about_5030_sample_monarch_1.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_2.JPG" alt="0.961_autoplay_about_5030_sample_monarch_2.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG" alt="0.961_autoplay_about_5045_sample_monarch_1_1.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG" alt="0.961_autoplay_about_5045_sample_monarch_1_2.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG" alt="0.961_autoplay_about_5045_sample_monarch_2.JPG" width="250"></img>
+ 
+ See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below anyways etc) for more gameplay samples although some of these may be old/dated now but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 8495e52a6..dfc571185 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 2c796e875..373e0ec27 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index c7b31b939..1f97e22f2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 07e890c9d..779b634c6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG
+new file mode 100644
+index 000000000..9378910a0
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG
+new file mode 100644
+index 000000000..3280ef11d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG
+new file mode 100644
+index 000000000..e982346eb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=19521

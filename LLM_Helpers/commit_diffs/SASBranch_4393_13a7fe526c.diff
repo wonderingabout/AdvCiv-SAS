@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4393
+# Commit: 13a7fe526cbd7d11ce1f6dac76d4f1ed201f1a6a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bacba58f2d13f1b9d8d0a0e41b4c7e6dbe255e75
+# Title: Fix unused AdvCiv Python function
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/RectLayout.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 78e0f9be6..da2a22fed 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -153,7 +153,7 @@ class RectLayout(object):
+ 	def y(self):
+ 		return int(round(self.fY))
+ 	def upperLeft(self):
+-		return Point(self.fX, self.fY)
++		return PointLayout(self.fX, self.fY)
+ 	# Screen coordinates of lower right corner
+ 	def xRight(self):
+ 		return self.x() + self.width()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=491

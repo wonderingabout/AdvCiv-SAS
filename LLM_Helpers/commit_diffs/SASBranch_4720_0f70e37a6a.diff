@@ -1,0 +1,1034 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4720
+# Commit: 0f70e37a6ad59809682ac1b015f0ca0f45cb7620
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 65357eb9e92d0f28d0801f721e6123aa8ec781b9
+# Title: major/tremendous improvement in the understanding and code and logic of AI Aggregates, in particular for now only fixed the aggressive trait which should be...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+203	120	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	0	README.md
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 0.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 10.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 4.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 6.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 7.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 8.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 9.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 0.01.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 4.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 6.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 7.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 8.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 9.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.05-old-memory-etc.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.1-last-memory-information.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-10.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-4.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-6.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-7.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-8.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-9.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-4.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-5.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-6.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-7.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-2.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-3.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 1.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 2.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 3.PNG
+10	0	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 0.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 10.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 4.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 6.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 7.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 8.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 9.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 0.01.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 4.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 6.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 7.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 8.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 9.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.05-old-memory-etc.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.1-last-memory-information.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-10.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-4.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-6.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-7.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-8.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-9.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-4.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-5.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-6.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-7.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-3.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 1.png
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 2.png
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 3.PNG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 03ebefe98..ac7ff3763 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -140,166 +140,232 @@ AI_ATTRIBUTE_CATEGORIES = {
+ 
+ 
+ 
+-# Aggregates grouped thematically in code (for clarity and future doc)
+-AI_AGGREGATES = [
++# Revised AI_AGGREGATES with more representative parameters (5–10 where useful)
++REVISED_AI_AGGREGATES = [
++
+ 	# === WAR / CONFLICT BEHAVIOR ===
+ 	("Aggressive", [
+ 		("getMaxWarRand", False),
++		("getLimitedWarRand", False),
++		("getDogpileWarRand", False),
+ 		("getBuildUnitProb", False),
+-		("getBaseAttackOddsChange", False)
++		("getBaseAttackOddsChange", False),
++		("getAttackOddsChangeRand", False),
++		("getWarmongerRespect", False)
+ 	]),
+ 	("Dogpiler", [
+ 		("getDogpileWarRand", False),
+ 		("getDeclareWarTradeRand", False),
+-		("getWarmongerRespect", False)
++		("getMaxWarRand", False),
++		("getWarmongerRespect", False),
++		("getPowerWeightModifier", False)
+ 	]),
+ 	("Allied Warmonger", [
+ 		("getWarmongerRespect", False),
+ 		("getShareWarAttitudeChangeLimit", False),
+-		("getDogpileWarRand", False)
++		("getDogpileWarRand", False),
++		("getDeclareWarTradeRand", False)
+ 	]),
+ 	("Reckless", [
+ 		("getBaseAttackOddsChange", False),
++		("getAttackOddsChangeRand", False),
+ 		("getLimitedWarRand", True),
+-		("getDeclareWarRefuseAttitudeThreshold", True)
++		("getMaxWarRand", True),
++		("getDeclareWarRefuseAttitudeThreshold", True),
++		("getRefuseToTalkWarThreshold", True)
+ 	]),
+ 	("Cautious", [
+ 		("getLimitedWarRand", False),
+ 		("getLimitedWarPowerRatio", False),
+-		("getMaxWarNearbyPowerRatio", True)
++		("getMaxWarNearbyPowerRatio", True),
++		("getMakePeaceRand", False),
++		("getRefuseToTalkWarThreshold", False)
+ 	]),
+ 	("Power Tracker", [
+ 		("getMaxWarNearbyPowerRatio", False),
+ 		("getMaxWarDistantPowerRatio", False),
+-		("getLimitedWarPowerRatio", False)
++		("getLimitedWarPowerRatio", False),
++		("getPowerWeightModifier", False)
+ 	]),
+ 
+ 	# === DIPLOMACY & PERSONALITY ===
+ 	("Peaceful", [
+ 		("getMakePeaceRand", False),
+ 		("getBasePeaceWeight", False),
+-		("getRefuseToTalkWarThreshold", True)
++		("getCultureVictoryWeight", False),
++		("getRefuseToTalkWarThreshold", True),
++		("getSameReligionAttitudeChangeLimit", False),
++		("getDiplomacyVictoryWeight", False)
+ 	]),
+ 	("Diplomatic", [
+ 		("getBasePeaceWeight", False),
+-		("getNoTechTradeThreshold", True),
+-		("getOpenBordersRefuseAttitudeThreshold", True)
++		("getTechTradeKnownPercent", False),
++		("getOpenBordersRefuseAttitudeThreshold", True),
++		("getSameReligionAttitudeChangeLimit", False),
++		("getWarmongerRespect", True),
++		("getFavoriteCivicAttitudeChangeLimit", False)
+ 	]),
+ 	("Stubborn", [
+ 		("getTechRefuseAttitudeThreshold", False),
+ 		("getCityRefuseAttitudeThreshold", False),
+ 		("getStopTradingRefuseAttitudeThreshold", False),
+ 		("getAdoptCivicRefuseAttitudeThreshold", False),
+-		("getConvertReligionRefuseAttitudeThreshold", False)
++		("getConvertReligionRefuseAttitudeThreshold", False),
++		("getDeclareWarRefuseAttitudeThreshold", False),
++		("getMapRefuseAttitudeThreshold", False),
++		("getVassalRefuseAttitudeThreshold", False)
+ 	]),
+ 	("Flexible", [
+ 		("getAdoptCivicRefuseAttitudeThreshold", True),
+ 		("getConvertReligionRefuseAttitudeThreshold", True),
+-		("getFavoriteCivicAttitudeChangeLimit", True)
++		("getFavoriteCivicAttitudeChangeLimit", True),
++		("getSameReligionAttitudeChangeLimit", True),
++		("getNoTechTradeThreshold", True)
+ 	]),
+ 	("Grudgy", [
+ 		("getWorseRankDifferenceAttitudeChange", False),
+ 		("getCloseBordersAttitudeChange", False),
+-		("getDifferentReligionAttitudeChangeLimit", False)
++		("getDifferentReligionAttitudeChangeLimit", False),
++		("getDeclareWarThemRefuseAttitudeThreshold", False)
+ 	]),
+ 	("Collaborative", [
+ 		("getShareWarAttitudeChangeLimit", False),
+ 		("getSameReligionAttitudeChangeLimit", False),
+-		("getFavoriteCivicAttitudeChangeLimit", False)
++		("getFavoriteCivicAttitudeChangeLimit", False),
++		("getOpenBordersRefuseAttitudeThreshold", True)
+ 	]),
+ 	("Isolationist", [
+ 		("getOpenBordersRefuseAttitudeThreshold", False),
++		("getStopTradingRefuseAttitudeThreshold", False),
++		("getStopTradingThemRefuseAttitudeThreshold", False),
++		("getVassalRefuseAttitudeThreshold", False),
+ 		("getDeclareWarRefuseAttitudeThreshold", False),
+-		("getStopTradingRefuseAttitudeThreshold", False)
++		("getMapRefuseAttitudeThreshold", False),
++		("getTechRefuseAttitudeThreshold", False)
+ 	]),
+ 	("Dealbreaker", [
+ 		("getRefuseToTalkWarThreshold", False),
+ 		("getTechRefuseAttitudeThreshold", False),
+-		("getStopTradingRefuseAttitudeThreshold", False)
++		("getStopTradingRefuseAttitudeThreshold", False),
++		("getDeclareWarRefuseAttitudeThreshold", False)
+ 	]),
+ 	("Vassalizer", [
+ 		("getVassalRefuseAttitudeThreshold", False),
+ 		("getPowerWeightModifier", False),
+-		("getRefuseToTalkWarThreshold", True)
++		("getRefuseToTalkWarThreshold", True),
++		("getMaxWarNearbyPowerRatio", False)
+ 	]),
+ 
+ 	# === ECONOMIC / STRATEGIC ===
+ 	("Trader", [
+ 		("getTechTradeKnownPercent", False),
+ 		("getMaxGoldTradePercent", False),
+-		("getMapRefuseAttitudeThreshold", True)
++		("getMapRefuseAttitudeThreshold", True),
++		("getMaxGoldPerTurnTradePercent", False),
++		("getCityRefuseAttitudeThreshold", True)
+ 	]),
+ 	("Tech Hoarder", [
+ 		("getNoTechTradeThreshold", False),
+ 		("getTechRefuseAttitudeThreshold", False),
+-		("getTechTradeKnownPercent", True)
++		("getTechTradeKnownPercent", True),
++		("getDeclareWarTradeRand", False)
+ 	]),
+ 	("Gold Hoarder", [
+ 		("getMaxGoldTradePercent", False),
+ 		("getMaxGoldPerTurnTradePercent", False),
+-		("getCityRefuseAttitudeThreshold", False)
++		("getCityRefuseAttitudeThreshold", False),
++		("getMapRefuseAttitudeThreshold", False)
+ 	]),
+ 	("Stingy", [
+ 		("getHealthBonusRefuseAttitudeThreshold", False),
+ 		("getHappinessBonusRefuseAttitudeThreshold", False),
+-		("getStrategicBonusRefuseAttitudeThreshold", False)
++		("getStrategicBonusRefuseAttitudeThreshold", False),
++		("getGoldTradedLimitPercent", False)
+ 	]),
+ 	("Builder", [
+ 		("getWonderConstructRand", True),
+ 		("getBuildUnitProb", True),
+-		("getMaxGoldTradePercent", False)
++		("getMaxGoldTradePercent", False),
++		("getBasePeaceWeight", False),
++		("getCultureVictoryWeight", False)
+ 	]),
+ 	("Wonder Chaser", [
+ 		("getWonderConstructRand", True),
+ 		("getBuildUnitProb", True),
+-		("getBasePeaceWeight", False)
++		("getBasePeaceWeight", False),
++		("getCultureVictoryWeight", False),
++		("getTechTradeKnownPercent", True)
+ 	]),
+ 	("Culture Pusher", [
+ 		("getCultureVictoryWeight", False),
+ 		("getMaxWarMinAdjacentLandPercent", True),
+-		("getSameReligionAttitudeChangeLimit", False)
++		("getSameReligionAttitudeChangeLimit", False),
++		("getFavoriteCivicAttitudeChangeLimit", False)
+ 	]),
+ 
+ 	# === HYBRID / ABSTRACT BEHAVIOR ===
+ 	("Opportunistic", [
+ 		("getDeclareWarTradeRand", False),
+ 		("getTechTradeKnownPercent", False),
+-		("getWarmongerRespect", False)
++		("getWarmongerRespect", False),
++		("getDogpileWarRand", False),
++		("getAttackOddsChangeRand", False)
+ 	]),
+ 	("Sneaky", [
+ 		("getDemandRebukedSneakProb", False),
+ 		("getDogpileWarRand", False),
+-		("getEspionageWeight", False)
++		("getEspionageWeight", False),
++		("getDeclareWarTradeRand", False),
++		("getRefuseToTalkWarThreshold", False)
+ 	]),
+ 	("Civic Enforcer", [
+ 		("getFavoriteCivicAttitudeChangeLimit", False),
+ 		("getAdoptCivicRefuseAttitudeThreshold", False),
+-		("getNoTechTradeThreshold", False)
++		("getNoTechTradeThreshold", False),
++		("getConvertReligionRefuseAttitudeThreshold", False),
++		("getStopTradingRefuseAttitudeThreshold", False)
+ 	]),
+ 	("Globalist", [
+ 		("getTechTradeKnownPercent", False),
+ 		("getMaxWarDistantPowerRatio", False),
+-		("getDeclareWarTradeRand", False)
++		("getDeclareWarTradeRand", False),
++		("getOpenBordersRefuseAttitudeThreshold", True)
+ 	]),
+ 	("Micro-manager", [
+ 		("getAttackOddsChangeRand", False),
+ 		("getMakePeaceRand", False),
+-		("getRefuseToTalkWarThreshold", False)
++		("getRefuseToTalkWarThreshold", False),
++		("getLimitedWarPowerRatio", False)
+ 	]),
+ 	("Unpredictable", [
+ 		("getAttackOddsChangeRand", False),
+ 		("getLimitedWarRand", False),
+-		("getDeclareWarTradeRand", False)
++		("getDeclareWarTradeRand", False),
++		("getMakePeaceRand", False),
++		("getPowerWeightModifier", False)
+ 	]),
+ 	("Border Watcher", [
+ 		("getMaxWarMinAdjacentLandPercent", False),
+ 		("getCloseBordersAttitudeChange", False),
+-		("getMaxWarNearbyPowerRatio", False)
++		("getMaxWarNearbyPowerRatio", False),
++		("getDeclareWarRefuseAttitudeThreshold", True)
+ 	])
+ ]
+ 
+ 
+ 
++
++
++# Inverted because higher = more caution, less aggression
++#"getMaxWarMinAdjacentLandPercent",
++
++# DO NOT INVERT the below — they are already *positive signs* of the behavior
++# So we REMOVE:
++# "getSameReligionAttitudeChangeLimit",
++# "getFavoriteCivicAttitudeChangeLimit",
++
++
++
+ # <!-- custom: performance improvement, store the all leaders calculation once
+ # then refer to the result directly here (cache according to ChatGPT this
+ # called and i intutiively or from general culture of this IT things but
+@@ -310,108 +376,131 @@ AI_AGGREGATES = [
+ # https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853
+ # -->
+ # Precomputed min/max cache for all AI personality functions
+-AI_VALUE_RANGES = {}
+-
+-def cache_ai_value_ranges():
+-	global AI_VALUE_RANGES
+-	numLeaders = gc.getNumLeaderHeadInfos()
+-	unique_funcs = set()
+-
+-	# Collect all function names from both individual attributes and aggregates
+-	for category_attrs in AI_ATTRIBUTE_CATEGORIES.values():
+-		for _, funcName in category_attrs:
+-			unique_funcs.add(funcName)
+-	for _, funcPairs in AI_AGGREGATES:
+-		for funcName, _ in funcPairs:
+-			unique_funcs.add(funcName)
+-
+-	for funcName in unique_funcs:
+-		values = []
+-		for i in range(numLeaders):
+-			try:
+-				val = getattr(gc.getLeaderHeadInfo(i), funcName)()
+-				values.append(val)
+-			except:
+-				pass
+-		if values:
+-			AI_VALUE_RANGES[funcName] = (min(values), max(values))
+-
+-# Initialize the cache
+-cache_ai_value_ranges()
+ 
+ 
+ 
+-# <!-- custom: see full ChatGPT / catgpt breakdown here, anyways, :
+-# https://github.com/wonderingabout/AdvCiv-SAS/commit/bf8764cb337550b4e84cef5106acdaaf4b159018
+-# -->
+-# Precomputed aggregate scores for each leader
++# --- AI Caching and Aggregation Fixes for Median & Average Percentile Scoring ---
++
++# --- Inversion logic updated (moved to top for reuse) ---
++AI_INVERTED_TRAITS = set([
++	"getRefuseToTalkWarThreshold",
++	"getNoTechTradeThreshold",
++	"getOpenBordersRefuseAttitudeThreshold",
++	"getStopTradingRefuseAttitudeThreshold",
++	"getAdoptCivicRefuseAttitudeThreshold",
++	"getConvertReligionRefuseAttitudeThreshold",
++	"getDeclareWarRefuseAttitudeThreshold",
++	"getCityRefuseAttitudeThreshold",
++	"getMapRefuseAttitudeThreshold",
++	"getTechRefuseAttitudeThreshold",
++	"getHealthBonusRefuseAttitudeThreshold",
++	"getHappinessBonusRefuseAttitudeThreshold",
++	"getStrategicBonusRefuseAttitudeThreshold",
++	"getDeclareWarThemRefuseAttitudeThreshold",
++	"getStopTradingThemRefuseAttitudeThreshold",
++	"getVassalRefuseAttitudeThreshold",
++	"getMaxWarMinAdjacentLandPercent",
++	"getLimitedWarRand",
++	"getMaxWarRand",
++	"getDogpileWarRand"
++])
++
++# --- Utility function for percentile calculation ---
++def get_percentile(value, sorted_values, inverse=False):
++	if not sorted_values:
++		return 0
++	count = len(sorted_values)
++	for i in range(count):
++		if value <= sorted_values[i]:
++			pos = int(i * 100 / (count - 1))
++			break
++	else:
++		pos = 100
++	if inverse:
++		pos = 100 - pos
++	return pos
++
++# --- Cache for percentile ranking ---
++AI_VALUE_RANGES = {}
++AI_SORTED_VALUES = {}
+ AI_AGGREGATE_SCORES = {}
+-
+-
+-
+-# New cache for percentile normalization
+ AI_PERCENTILE_SCORES = {}
++AI_AGGREGATE_RAW_SCORES = {}  # Store average for future use
+ 
+-# Helper to compute percentile position of a value in a sorted list
+-# Returns integer between 0 and 100
++# --- Caching function for AI attribute value ranges ---
++def cache_ai_value_ranges():
++	global AI_VALUE_RANGES, AI_SORTED_VALUES
++	all_func_values = {}
++	numLeaders = gc.getNumLeaderHeadInfos()
+ 
+-def get_percentile(value, sorted_values):
+-	if not sorted_values:
+-		return 0
+-	count = len(sorted_values)
+-	for i, v in enumerate(sorted_values):
+-		if value <= v:
+-			return int(i * 100 / (count - 1))
+-	return 100
++	for i in range(numLeaders):
++		leaderInfo = gc.getLeaderHeadInfo(i)
++		for funcName in dir(leaderInfo):
++			if funcName.startswith("get") and callable(getattr(leaderInfo, funcName)):
++				try:
++					val = getattr(leaderInfo, funcName)()
++					all_func_values.setdefault(funcName, []).append(val)
++				except:
++					continue
+ 
++	for funcName, values in all_func_values.items():
++		if values:
++			AI_VALUE_RANGES[funcName] = (min(values), max(values))
++			AI_SORTED_VALUES[funcName] = sorted(values)
+ 
++# --- Cache aggregate scores with both median and average ---
+ def cache_ai_aggregate_scores():
+-	global AI_AGGREGATE_SCORES, AI_PERCENTILE_SCORES
++	global AI_AGGREGATE_SCORES, AI_PERCENTILE_SCORES, AI_AGGREGATE_RAW_SCORES
+ 	numLeaders = gc.getNumLeaderHeadInfos()
+-	all_trait_values = {}  # {funcName: [v1, v2, ..., vN]}
+-
+-	# First pass: gather all values by function
+-	for funcName in AI_VALUE_RANGES:
+-		all_trait_values[funcName] = []
+-		for iLeader in range(numLeaders):
+-			try:
+-				val = getattr(gc.getLeaderHeadInfo(iLeader), funcName)()
+-				all_trait_values[funcName].append(val)
+-			except:
+-				all_trait_values[funcName].append(None)  # Keep alignment
+-
+-	# Build sorted lists (excluding None)
+-	sorted_trait_values = {}
+-	for funcName, values in all_trait_values.items():
+-		sorted_trait_values[funcName] = sorted([v for v in values if v is not None])
+-
+-	# Second pass: compute aggregate scores
++	AI_AGGREGATE_SCORES.clear()
++	AI_PERCENTILE_SCORES.clear()
++	AI_AGGREGATE_RAW_SCORES.clear()
++
+ 	for iLeader in range(numLeaders):
+ 		leaderInfo = gc.getLeaderHeadInfo(iLeader)
+ 		leaderScores = {}
+-		for label, fields in AI_AGGREGATES:
+-			score_total = 0
+-			score_count = 0
+-			for funcName, inverse in fields:
++		leaderAverages = {}
++
++		for label, fields in REVISED_AI_AGGREGATES:
++			percentiles = []
++
++			for funcName, _ in fields:
+ 				try:
+ 					val = getattr(leaderInfo, funcName)()
+-					percentile = get_percentile(val, sorted_trait_values[funcName])
+-					if inverse:
+-						percentile = 100 - percentile
+-					score_total += percentile
+-					score_count += 1
++					sorted_vals = AI_SORTED_VALUES.get(funcName, [])
++					if not sorted_vals:
++						continue
++					inv = funcName in AI_INVERTED_TRAITS
++					percentile = get_percentile(val, sorted_vals, inv)
++					percentiles.append(percentile)
+ 				except:
+-					pass
+-			if score_count > 0:
+-				leaderScores[label] = score_total // score_count
++					continue
++
++			if percentiles:
++				average = int(round(sum(percentiles) / float(len(percentiles))))
++				median = sorted(percentiles)[len(percentiles) // 2]
+ 			else:
+-				leaderScores[label] = 0
++				average = 0
++				median = 0
++
++			leaderScores[label] = median
++			leaderAverages[label] = average
++
+ 		AI_AGGREGATE_SCORES[iLeader] = leaderScores
+-		AI_PERCENTILE_SCORES[iLeader] = leaderScores  # same for now
++		AI_AGGREGATE_RAW_SCORES[iLeader] = leaderAverages
++		AI_PERCENTILE_SCORES[iLeader] = leaderScores
+ 
+-# Re-run after caching ranges
++# Reinitialize cache with corrected logic
++cache_ai_value_ranges()
+ cache_ai_aggregate_scores()
+ 
++# (<!-- custom: good sign checked emoji i remove here just to be safe with civ4 python, keeping the explanaton though, anyways, -->)
++# AI personality panel rendering logic already uses AI_AGGREGATE_SCORES (median), so no changes are needed there for now.
++# 
++# (<!-- custom: paper note and pen emoji, removed replaced with this text for same reason etc anyways etc -->)
++# However, in future we may want to render AI_AGGREGATE_RAW_SCORES (average) alongside or as a tooltip, toggle, or legend.
++# For now, averages are computed and stored, but not shown.
++
+ 
+ 
+ class SevoPediaLeader:
+@@ -730,12 +819,6 @@ class SevoPediaLeader:
+ 			AI_HEADER_VICTORY_STRATEGY
+ 		]
+ 
+-		inverse_logic = [
+-			"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
+-			"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
+-			"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
+-		]
+-
+ 		def render_categories(screen, categories, xName, xValue, xScale, yStart):
+ 			y = yStart
+ 			first = True
+@@ -751,7 +834,7 @@ class SevoPediaLeader:
+ 				y += lineHeight
+ 
+ 				if category == AI_HEADER_AGGREGATES:
+-					for idx, (label, fields) in enumerate(AI_AGGREGATES):
++					for idx, (label, fields) in enumerate(REVISED_AI_AGGREGATES):
+ 						if idx in AI_AGGREGATE_CATEGORY_BREAKS:
+ 							y += categorySpacing * 2
+ 
+@@ -773,7 +856,7 @@ class SevoPediaLeader:
+ 				for label, funcName in AI_ATTRIBUTE_CATEGORIES.get(category, []):
+ 					try:
+ 						value = getattr(leader, funcName)()
+-						inverse = funcName in inverse_logic
++						inverse = funcName in AI_INVERTED_TRAITS
+ 						score = normalize(value, funcName, inverse)
+ 						scale_text = get_symbol_scale(score)
+
+diff --git a/README.md b/README.md
+index 415d9f2e0..c85be7d1f 100644
+--- a/README.md
++++ b/README.md
+@@ -54,6 +54,7 @@ example 1: AI personality panel (data fetched directly from xml in live, auto up
+ <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+ 
+ example 2: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range), while other unit combat types only have 8, click to view these images full size:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG
+index dc80c9886..8b3047fc3 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG
+index 07b3220f2..eb605ad5d 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG
+index 9b19055c2..9f90deeb2 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG
+index cf10241cc..7b2201b53 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG
+index e66a886c4..41d0980fd 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG
+index 30e25fc9f..82b9d3954 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG
+new file mode 100644
+index 000000000..c70ec9d78
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 0.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 0.PNG
+new file mode 100644
+index 000000000..db58d9ec6
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 0.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 1.PNG
+new file mode 100644
+index 000000000..61155e45b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 2.PNG
+new file mode 100644
+index 000000000..776ce3517
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 3.PNG
+new file mode 100644
+index 000000000..6e262d1e3
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/ask chatgpt to do tests 3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 1.PNG
+new file mode 100644
+index 000000000..d16e16656
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 10.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 10.PNG
+new file mode 100644
+index 000000000..e2352f0b6
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 10.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 2.PNG
+new file mode 100644
+index 000000000..e771bbe28
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 3.PNG
+new file mode 100644
+index 000000000..0d3a3badd
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 4.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 4.PNG
+new file mode 100644
+index 000000000..767eee45b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 4.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 5.PNG
+new file mode 100644
+index 000000000..6a777e34f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 6.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 6.PNG
+new file mode 100644
+index 000000000..10c414a38
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 6.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 7.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 7.PNG
+new file mode 100644
+index 000000000..591cdcf16
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 7.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 8.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 8.PNG
+new file mode 100644
+index 000000000..ae3d19d19
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 8.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 9.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 9.PNG
+new file mode 100644
+index 000000000..cbbde25ce
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt forget all and rethink from scratch sometiems works 9.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 0.01.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 0.01.PNG
+new file mode 100644
+index 000000000..6e23307d3
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 0.01.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 1.PNG
+new file mode 100644
+index 000000000..6648eba20
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 2.PNG
+new file mode 100644
+index 000000000..26a06f5bf
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 3.PNG
+new file mode 100644
+index 000000000..b86285f21
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 4.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 4.PNG
+new file mode 100644
+index 000000000..a52ef4214
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 4.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 5.PNG
+new file mode 100644
+index 000000000..b0e22ab95
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 6.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 6.PNG
+new file mode 100644
+index 000000000..f4980dc79
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 6.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 7.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 7.PNG
+new file mode 100644
+index 000000000..154b6f167
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 7.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 8.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 8.PNG
+new file mode 100644
+index 000000000..c4837e878
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 8.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 9.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 9.PNG
+new file mode 100644
+index 000000000..e72ce3eca
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test 9.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-1.PNG
+new file mode 100644
+index 000000000..0f45f724f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-2.PNG
+new file mode 100644
+index 000000000..04694f93b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-3.PNG
+new file mode 100644
+index 000000000..884aa7885
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.05-old-memory-etc.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.05-old-memory-etc.PNG
+new file mode 100644
+index 000000000..b2c8efe17
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.05-old-memory-etc.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.1-last-memory-information.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.1-last-memory-information.PNG
+new file mode 100644
+index 000000000..49fc3ab35
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.1-last-memory-information.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.5.PNG
+new file mode 100644
+index 000000000..16a025201
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.PNG
+new file mode 100644
+index 000000000..63a435229
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-4.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.5.PNG
+new file mode 100644
+index 000000000..fd1db768e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.PNG
+new file mode 100644
+index 000000000..c85136517
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.5.PNG
+new file mode 100644
+index 000000000..160593c64
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.PNG
+new file mode 100644
+index 000000000..0993b0256
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test b-6.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-1.PNG
+new file mode 100644
+index 000000000..39087f088
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-10.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-10.PNG
+new file mode 100644
+index 000000000..7783c49ad
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-10.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-2.PNG
+new file mode 100644
+index 000000000..48cf0bdfc
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-3.PNG
+new file mode 100644
+index 000000000..27c654313
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-4.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-4.PNG
+new file mode 100644
+index 000000000..3db206fdb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-4.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-5.PNG
+new file mode 100644
+index 000000000..64f04a7c0
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-6.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-6.PNG
+new file mode 100644
+index 000000000..f0d8f787f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-6.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-7.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-7.PNG
+new file mode 100644
+index 000000000..7e1bbf303
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-7.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-8.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-8.PNG
+new file mode 100644
+index 000000000..a2353e4ff
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-8.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-9.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-9.PNG
+new file mode 100644
+index 000000000..24c452072
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test c-9.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-1.PNG
+new file mode 100644
+index 000000000..7a88419ee
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-2.PNG
+new file mode 100644
+index 000000000..9a33689aa
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-3.PNG
+new file mode 100644
+index 000000000..f1b4ec122
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-4.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-4.PNG
+new file mode 100644
+index 000000000..4baebae66
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-4.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-5.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-5.PNG
+new file mode 100644
+index 000000000..c5f532d3b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-5.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-6.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-6.PNG
+new file mode 100644
+index 000000000..b1a7bdb61
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-6.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-7.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-7.PNG
+new file mode 100644
+index 000000000..abf557351
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test d-7.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-1.PNG
+new file mode 100644
+index 000000000..6500d1700
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-2.PNG
+new file mode 100644
+index 000000000..0e4e79d22
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-3.PNG
+new file mode 100644
+index 000000000..2884c3299
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test e-3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-1.PNG
+new file mode 100644
+index 000000000..908500611
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-2.PNG
+new file mode 100644
+index 000000000..3bf005774
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-2.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-3.PNG
+new file mode 100644
+index 000000000..834ae7c46
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt mroe detaield test f-3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 1.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 1.png
+new file mode 100644
+index 000000000..655d738f7
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 1.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 2.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 2.png
+new file mode 100644
+index 000000000..fa1ad20d5
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 2.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 3.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 3.PNG
+new file mode 100644
+index 000000000..1906ed0b4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/example of ai analysis request 3.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 6ab1ee6ce..2cc7c0f50 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -33,6 +33,16 @@ A copy of the screenshots (may not be latest version of it)
+ For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), please
+ visit [this page of the main README.md](/README.md#example-of-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)
+ 
++And please be sure to check the AI personality panel (same link as above), it is a major improvement of/in AdvCiv-SAS, a sample below provided to you as well here:
++
++<img src="./Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++<img src="./Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++
+ And remember the latest info if there is any newer is ingame, there may also be other
+ sevopedia docs or not written by ChatGPT or not, anyways.
+
+[PATCH COVERAGE]
+patchFiles=71 embeddedFiles=71 omittedFiles=0 embeddedPatchBytes=47103

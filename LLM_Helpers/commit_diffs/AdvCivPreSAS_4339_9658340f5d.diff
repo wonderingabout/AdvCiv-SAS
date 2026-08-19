@@ -1,0 +1,89 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4339
+# Commit: 9658340f5da35754266217bb305b58c080c411b7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3ac6e61bb0b8b42e92f4d8f367b5579992fe0ac8
+# Title: Minor restriction on reported locations of 1st meetings
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	CvGameCoreDLL/CvPlot.cpp
+19	6	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 3fe69cb46..9ed6df3de 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5902,6 +5902,10 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange,
+ 			GET_TEAM(getTeam()).meet(eTeam, true, /* advc.071: */ &fcData);
+ 		}
+ 		// K-Mod. Meet the owner of any units you can see.
++		/*	advc.071: When border spread grants visibility, any unit spotted
++			could move away before the next graphics update. Confusing, then,
++			to trigger a meeting at this point. */
++		if (pUnit != NULL)
+ 		{
+ 			PROFILE("CvPlot::changeVisibility -- meet units"); // (this is new, so I want to time it.)
+ 			FOR_EACH_UNIT_IN(pLoopUnit, *this)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e279b06e0..4bc73d847 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2909,17 +2909,20 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 	if (isActive() || GET_TEAM(eOther).isActive())
+ 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 	// <advc.071>
+-	bool bShowMessage = (isHuman() && pData != NULL);
+-	if (bShowMessage || bNewDiplo)
++	bool bShowMessage = false;
++	if (bNewDiplo &&
++		((isHuman() || GET_TEAM(eOther).isHuman()))) // save time
+ 	{
+ 		int iOnFirstContact = 1;
+ 		// If met during the placement of free starting units, show only a diplo popup.
+ 		if (GC.IsGraphicsInitialized())
+ 			iOnFirstContact = BUGOption::getValue("Civ4lerts__OnFirstContact", 2);
+-		if(bNewDiplo && iOnFirstContact == 0)
+-			bNewDiplo = false;
+-		if(bShowMessage && iOnFirstContact == 1)
+-			bShowMessage = false;
++		if (iOnFirstContact != 1)
++		{
++			bShowMessage = (pData != NULL && isHuman());
++			if (iOnFirstContact == 0)
++				bNewDiplo = false;
++		}	
+ 	} // </advc.071>
+ 	if (isAlwaysWar() && getID() != eOther)
+ 		declareWar(eOther, false, NO_WARPLAN);
+@@ -3005,6 +3008,16 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 			pAt = pUnit2->plot();
+ 		}
+ 	}
++	// Don't indicate a plot if we can't tell how it was spotted
++	if ((pAt1 == NULL || pAt2 == NULL) && pUnit1 == NULL && pUnit2 == NULL)
++		pAt = NULL;
++	// Can't generally tell where meetings occur with simultaneous turns
++	// ... But still no harm, I guess, in letting players know?
++	/*if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++	{
++		pAt = NULL;
++		pUnitMet = NULL;
++	}*/
+ 	if (!bShowMessage)
+ 		return pAt;
+ 	CvWString szMsg = gDLL->getText("TXT_KEY_MISC_TEAM_MET",
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2482

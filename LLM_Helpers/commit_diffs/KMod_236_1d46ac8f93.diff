@@ -1,0 +1,70 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 236
+# Commit: 1d46ac8f93a776071e485f251727a53d68fb45e4
+# History segment: K-Mod history
+# Parent used for diff: 7b8e44f86c01a7b706d36ee8bf3fa124beb392eb
+# Title: Updated the changelog. This is version 1.03.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+18	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e023e9d83..aeb62c015 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -12026,7 +12026,7 @@ void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes
+ 	}
+ 
+ 	// K-Mod
+-	if (pCity && gDLL->getChtLvl() > 0 && gDLL->ctrlKey())
++	if (GC.getGameINLINE().isReligionFounded(eReligion) && pCity && gDLL->getChtLvl() > 0 && gDLL->ctrlKey())
+ 	{
+ 		szBuffer.append(CvWString::format(L"grip: %d", pCity->getReligionGrip(eReligion)));
+ 		szBuffer.append(NEWLINE);
+
+diff --git a/changelog.txt b/changelog.txt
+index 67f581b12..f39c69345 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,8 +1,25 @@
+-This is K-Mod version 1.02c.
++This is K-Mod version 1.03.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v1.03 changelist
++
+++ Changed the mechanics of the natural spread of religions. With the new system, only the religion with the highest 'grip' gets a chance to spread to a city - but religions may still spread even if the city already has religion. Also, if an existing religion in the city has a lower grip than the new religion, there is a chance that the existing religion will be removed. "grip" is a measure of how strong the religion is in a particular city. It is calculated based on several factors, including proximity to the holy city, the number of religious buildings in the city, the year the religion was founded, and so on. The new system is a fairly significant change, but it isn't one you should have to worry about if you don't want to.
+++ Culture flipping is now blocked for the most recent previous owner of a city instead of for all previous owners (when using the default "no flipping after conquest")
++
+++ Fixed some problems in the new automatic citizen assignment code.
+++ Changed the way the AI counts food when deciding on plot improvements.
+++ Rewrote the AI's strategy for spreading corporations. Hopefully it will spread them a bit smarter now.
+++ AIs using the crush strategy will now spend less time preparing for war. (2/3 of the prep normal time)
+++ AIs who are fully committed to a conquest victory will no longer make peace for any price unless they don't want a particular war.
+++ AIs who are trying to get the last techs for a space victory will no longer use espionage economy.
+++ Refined the AIs building value calculations, and production selection calculations.
++
+++ Blocked some more python callbacks.
++
++--
++
+ v1.02 changelist
+ 
+ + Reduced the global warming defence of forests and jungles, from 20 to 15.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2683

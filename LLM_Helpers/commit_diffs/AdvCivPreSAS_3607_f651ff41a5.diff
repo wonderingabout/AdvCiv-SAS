@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3607
+# Commit: f651ff41a581a8edd50f4a927be76e404b43114d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 33cb0a9d8a43af6b400411aab8fed673e7e5822c
+# Title: Remove JOIN_WAR_DIPLO_BONUS XML setting
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	9	Assets/XML/GlobalDefines_advc.xml
+1	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 4304c3976..df04fb072 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -846,15 +846,6 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.130s] When set to 1 or higher (recommended), the relations bonus
+-		 for accepting AI requests for military aid is enabled. The bonus is
+-		 set to +1 for every leader in the Leaderhead XML. Set to 0 or less
+-		 for no diplo bonus (BtS behavior). -->
+-	<Define>
+-		<DefineName>ENABLE_JOIN_WAR_DIPLO_BONUS</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+-
+ 	<!-- [advc.130o] MADE_DEMAND_RECENT memory is increased to this number when
+ 		 a human player attacks an AI civ after receiving their tribute.
+ 		 MADE_DEMAND_RECENT memory causes the AI to reject demands and pleas,
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e54e5219d..301b10eed 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8188,9 +8188,7 @@ int CvPlayerAI::AI_getMemoryAttitude(PlayerTypes ePlayer, MemoryTypes eMemory) c
+ 	if(eMemory == MEMORY_ACCEPTED_JOIN_WAR)
+ 	{
+ 		CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+-		static bool bJOIN_WAR_DIPLO_BONUS = GC.getDefineBOOL("ENABLE_JOIN_WAR_DIPLO_BONUS");
+-		if(!bJOIN_WAR_DIPLO_BONUS ||
+-			(kOurTeam.getNumWars() > 0 && !kOurTeam.AI_shareWar(TEAMID(ePlayer))) ||
++		if ((kOurTeam.getNumWars() > 0 && !kOurTeam.AI_shareWar(TEAMID(ePlayer))) ||
+ 			kOurTeam.isAtWar(TEAMID(ePlayer)))
+ 		{
+ 			return 0;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1578

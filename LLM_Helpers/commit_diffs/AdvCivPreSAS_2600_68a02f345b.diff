@@ -1,0 +1,116 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2600
+# Commit: 68a02f345bd56ed229d9f8ec62f0e19833aeaf21
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b9d4dd7ded66b56c70515ddc8f2c30f00bd4cefe
+# Title: Fix crash in WB scenarios with random starts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+6	6	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGame.h
+1	0	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 4b90c81f8..25acd579b 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2439,7 +2439,7 @@ int AIFoundValue::adjustToStartingSurroundings(int iValue) const
+ 	int const iTempValue = r; // advc.031c
+ 	int iMinDistanceFactor = MAX_INT;
+ 	int const iMinRange = //startingPlotRange();
+-			kGame.getStartingPlotRange(); // advc.opt: Now precomputed
++			kGame.getStartingPlotRange(); // advc.opt (now cached)
+ 	//r *= 100; // (disabled by K-Mod to prevent int overflow)
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1f87e77a0..cf4513f42 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1091,7 +1091,6 @@ NormalizationTarget* CvGame::assignStartingPlots()
+ 		starting_plots[iRandOffset] = starting_plots[starting_plots.size()-1];
+ 		starting_plots.pop_back();
+ 	} // K-Mod end
+-	updateStartingPlotRange(); // advc.opt
+ 	if (GC.getPythonCaller()->callMapFunction("assignStartingPlots"))
+ 		return /* <advc.027> */ NULL;
+ 
+@@ -1476,11 +1475,11 @@ CvGame::StartingPlotNormalizationLevel CvGame::getStartingPlotNormalizationLevel
+ 	return m_eNormalizationLevel;
+ } // </advc.108
+ 
+-/*  <advc.opt> Replacing CvPlayer::startingPlotRange. And now precomputed through
+-	CvGame::updateStartingPlotRange. */
++// advc.opt: Replacing CvPlayer::startingPlotRange. Now cached.
+ int CvGame::getStartingPlotRange() const
+ {
+-	FAssertMsg(m_iStartingPlotRange > 0, "CvGame::updateStartingPlotRange hasn't been called");
++	if (m_iStartingPlotRange <= 0)
++		updateStartingPlotRange();
+ 	return m_iStartingPlotRange;
+ } // </advc.opt>
+ 
+@@ -2473,8 +2472,9 @@ void CvGame::normalizeStartingPlots(NormalizationTarget const* pTarget)
+ }
+ 
+ /*  advc.opt: Body cut from CvPlayer::startingPlotRange. Not player-dependent,
+-	and there's no need to recompute it for every prospective starting plot. */
+-void CvGame::updateStartingPlotRange()
++	and there's no need to recompute it for every prospective starting plot.
++	const b/c it only updates a mutable cache. */
++void CvGame::updateStartingPlotRange() const
+ {
+ 	CvMap const& kMap = GC.getMap();
+ 	int iRange = kMap.maxStepDistance() + 10;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index cec0e3e17..d03beb2d2 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -877,7 +877,7 @@ protected:
+ 	int m_iGwEventTally;		// K-Mod
+ 	int m_iTurnLoadedFromSave; // advc.044
+ 	// <advc.opt>
+-	int m_iStartingPlotRange;
++	mutable int m_iStartingPlotRange;
+ 	int m_iCivPlayersEverAlive;
+ 	int m_iCivTeamsEverAlive;
+ 	// </advc.opt>
+@@ -1002,7 +1002,7 @@ protected:
+ 	void initFreeState();
+ 	/* <advc.027> */ NormalizationTarget* /* </advc.027> */ assignStartingPlots();
+ 	void normalizeStartingPlots(/* advc.027: */ NormalizationTarget const* pTarget = NULL);
+-	void updateStartingPlotRange(); // advc.opt
++	void updateStartingPlotRange() const; // advc.opt
+ 	void applyOptionEffects(bool bEnableAll = false); // advc.310
+ 	void doTurn();
+ 	void doDeals();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e15904aa6..057c261d4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1106,6 +1106,7 @@ int CvPlayer::startingPlotDistanceFactor(CvPlot const& kPlot, PlayerTypes ePlaye
+ 	PROFILE_FUNC();
+ 
+ 	FAssert(ePlayer != getID());
++	FAssert(iRange > 0);
+ 
+ 	int iValue = 1000;
+ 	CvPlot const* pStartingPlot = getStartingPlot();
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3552

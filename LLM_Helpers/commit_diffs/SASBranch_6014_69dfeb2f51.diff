@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6014
+# Commit: 69dfeb2f51d56e8ee40e7259138f4371aeda8eae
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bde91d7ea89f21697873c5d1cead5045ee21347c
+# Title: Optionally build a Worker or Work Boat before the first AI capital's defender
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+39	3	CvGameCoreDLL/CvCityAI.cpp
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index bf5432ec8..52f4b1d8f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1357,6 +1357,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Allow the first and only capital, when not in danger, to produce one immediately useful Work Boat or required land Worker before filling an empty city garrison. This accelerates the first improvement and growth, but can be exploited by an unusually early rush. After this one economic unit, the unchanged Base AdvCiv no-defender priority resumes. Set to 0 to always produce the defender first. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 757121214..964e09aeb 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1128,7 +1128,45 @@ void CvCityAI::AI_chooseProduction()
+ 		} // </advc.192>
+ 	}
+ 
+-	if (kPlot.getNumDefenders(getOwner()) == 0) // XXX check for other team's units?
++	// <!-- custom: Hoisted from the existing early Worker/Work Boat logic below so the new first-capital priority can share the same safety context. (GPT-5.5) -->
++	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
++	// <!-- custom: Base AdvCiv immediately filled an empty first-capital garrison even without danger, delaying the first Worker or useful Work Boat and the growth/resources it unlocks. The tunable exception tries exactly one such economic unit first, then falls through to the unchanged no-defender priority below. (GPT-5.5) -->
++	static const bool bFirstCityEconomicUnitBeforeDefender = GC.getDefineBOOL("SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE");
++	const int iCityDefenders = kPlot.getNumDefenders(getOwner());
++	const int iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
++	const bool bFirstEconomicUnitContext = (bFirstCityEconomicUnitBeforeDefender && isCapital() && iNumCities == 1 && iCityDefenders == 0 && !bDanger && iExistingWorkers == 0 && iAvailableSeaWorkers <= 0);
++	// <!-- custom: iNeededSeaWorkers says whether useful unimproved seafood remains, not whether this exception already produced a Work Boat. iAvailableSeaWorkers detects a queued, produced, or travelling boat; once consumed, scan its completed BFC sea improvement instead of adding persistent savegame state. (GPT-5.5) -->
++	bool bHasImprovedSeaBonus = false;
++	if (bFirstEconomicUnitContext)
++	{
++		for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS && !bHasImprovedSeaBonus; ++iCityPlot)
++		{
++			CvPlot const* pCityPlot = plotCity(getX(), getY(), static_cast<CityPlotTypes>(iCityPlot));
++			if (pCityPlot == NULL || !pCityPlot->isWater() || pCityPlot->getOwner() != getOwner())
++				continue;
++			const BonusTypes eBonus = pCityPlot->getBonusType(getTeam());
++			const ImprovementTypes eImprovement = pCityPlot->getImprovementType();
++			bHasImprovedSeaBonus = (eBonus != NO_BONUS && eImprovement != NO_IMPROVEMENT && kPlayer.doesImprovementConnectBonus(eImprovement, eBonus));
++		}
++	}
++	const bool bTryEconomicUnitBeforeDefender = (bFirstEconomicUnitContext && !bHasImprovedSeaBonus);
++	if (bTryEconomicUnitBeforeDefender)
++	{
++		if (!bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0 && AI_chooseUnit(UNITAI_WORKER_SEA))
++		{
++			if (gCityLogLevel >= 2) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Work Boat", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
++			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before first defender", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++			return;
++		}
++		if (iExistingWorkers < iMinimumAreaWorkers && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
++		{
++			if (gCityLogLevel >= 2) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Worker", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
++			if (gWorkerLogLevel >= 2) logBBAI("      City %S chooses first Worker before first defender %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
++			return;
++		}
++	}
++
++	if (iCityDefenders == 0) // XXX check for other team's units?
+ 	{
+ 		if (gCityLogLevel >= 2) logBBAI("      City %S uses no defenders", sCityName);
+ 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+@@ -1164,7 +1202,6 @@ void CvCityAI::AI_chooseProduction()
+ 	// Confirming save-file-443 tests first made Seoul choose defender -> Work Boat at turn 5. Mutal correctly kept Worker first because Maya lacked Fishing, then its Molluscs/Fish became improvable and it chose a Work Boat at turn 12.
+ 	// Note: similarly, Whale does not trigger this priority before it can be improved.
+ 	// Apply this to every safe city rather than only early capitals or low-population cities: Seoul reached population 3 and switched to its Worker before completing the Work Boat when this retained the old population limit. See KI#174. (GPT-5.5) -->
+-	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
+ 	const bool bEarlyCapitalWorkerWindow = (isCapital() && kGame.getElapsedGameTurns() * 100 < 30 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() && bSafeEconomicWorkerProduction);
+ 	if (bSafeEconomicWorkerProduction && !bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
+ 	{
+@@ -1176,7 +1213,6 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	// <!-- custom: Rebuild the shared area Worker minimum before normal priorities can leave the AI short indefinitely. In the 2039 Ciaco Canyon test save, the stuck last city already had a long queue so this did not directly fix it, but BBAI logs showed the minimum firing often elsewhere. Any suitable city may contribute, and AI_totalAreaUnitAIs includes queued Workers. The centralized demand/minimum now preserves reliable availability without forcing the old early second Worker. (GPT-5.5) -->
+-	int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
+ 	if (!bDanger && iExistingWorkers < iMinimumAreaWorkers)
+ 	{
+ 		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 40ae74dd2..8813df0a5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -201,7 +201,8 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ 
+ #### City Production (AI)
+ 
+-- (Requires AdvCiv-SAS 6013+) **Prioritize useful Work Boats for seafood before land Workers:** after producing an immediate defender when needed, a safe AI city now builds a Work Boat before its land Worker when it has seafood that can be improved now (unless immediate defense and danger/Turtle safeguards take precedence). This is more efficient because improving seafood increases food without stopping city growth during production, and this extra food helps the following Worker and later production be produced faster. Note: the AI does not waste a Work Boat on unavailable improvements such as Whale before the required technology like as of now `TECH_SEAFARING` is discovered. Note: also remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (See [KI#174](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)). After these changes, in save file 443 BBAI tests, Seoul successfully selected a Work Boat for its available Molluscs on turn 5 instead of delaying it until about turn 17 (to produce a worker before it), while Mutal correctly built its Worker first because Maya lacked the as of now required `TECH_FISHING` for Molluscs and Fish, then selected a Work Boat on turn 12 when this tech was discovered and thus these bonuses became improvable.
++- (Requires AdvCiv-SAS 6014+) **Optional first economic unit before the capital's first defender:** when the first and only capital is not in danger, it can produce one immediately useful Work Boat or required land Worker before filling an empty city garrison. This should be more efficient because it avoids delaying the first improvement and the growth, production, and resources it unlocks, and animals are not a serious city-capture threat. However, because a human can try an unusually early rush against the temporarily empty capital, this tradeoff is XML-tunable and can be disabled to restore Base AdvCiv's defender-first behavior. This is as of now only applicable to the first city, so the unchanged no-defender priority resumes after this first economic unit.
++- (Requires AdvCiv-SAS 6013+) **Prioritize useful Work Boats for seafood before land Workers:** after producing an immediate defender when needed, a safe AI city now builds a Work Boat before its land Worker when it has seafood that can be improved now (unless immediate defense and danger/Turtle safeguards take precedence). This is more efficient because improving seafood increases food without stopping city growth during production, and this extra food helps the following Worker and later production be produced faster. Note: the AI does not waste a Work Boat on unavailable improvements such as Whale before the required technology like as of now `TECH_SEAFARING` is discovered. Note: also remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (See [KI#174](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker). After these changes, in save file 443 BBAI tests, Seoul successfully selected a Work Boat for its available Molluscs on turn 5 instead of delaying it until about turn 17 (to produce a worker before it), while Mutal correctly built its Worker first because Maya lacked the as of now required `TECH_FISHING` for Molluscs and Fish, then selected a Work Boat on turn 12 when this tech was discovered and thus these bonuses became improvable.
+ - **Emergency water-food / water-hammer buildings (pre-fallback):** Before the "no-production" fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. (Requires AdvCiv-SAS 5919+) Also force the **water-hammer building class** (e.g., **Port**) for **high-enough pop** (enough headcount so it is worth investing on water plots) coastal cities unless they are very good and don't need it: cities that **still have fairly low production** or **not too high food surplus**; Port can take significant time, but these cities are **unlikely to contribute much short-term production anyway**, and hammer on water tiles makes their later infrastructure and future building time **more helpful later on**. Immediate danger / defense logic still runs earlier, so Walls/Castle can still go first when needed, otherwise the **risk is deemed worth the delay** to produce these buildings. Runs in `CvCity::doTurn`.
+ - **Emergency defense priority (risk-aware):** When invasion risk is high—enemy team **significantly stronger**, **nearby danger** detected, or **at war** with an opponent not significantly weaker—**force-build** **Walls**, then **Castle** (if missing) at top priority. Triggers are conservative to avoid growth drag. Implemented in `CvCity::AI_doTurn`. Early autoplay suggests fewer snowball steamrolls. **Update:** Skip this emergency defense path for **very low-hammer** cities (scaled by era) or cities whose inner BFC is **mostly water tiles**, as these are better used as economy cities and unlikely to hold the main front; this also prevents triggering fallback-unit / emergency-defense builds too early and avoids stalling early growth. **Update 2:** For **water-heavy cities**, this emergency-defense path is **disabled**; see the related Update 2 note below.
+ - **"No production" stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to "any suitable land unit" if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. **Update 2:** For **water-heavy cities**, when the **no-production fallback** in `CvCity::AI_doTurn` triggers, try to use key **water-focused economic buildings** (food / hammers / gold) as the fallback instead of a generic land-unit fallback; this is usually more efficient for growth/economy, and such cities are less likely to be main land-attack targets. See also [Buildings](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings) or Sevopedia/XML.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=14790

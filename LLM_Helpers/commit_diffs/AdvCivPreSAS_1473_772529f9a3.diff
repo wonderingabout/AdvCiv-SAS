@@ -1,0 +1,66 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1473
+# Commit: 772529f9a393002c5c222ab0e34b1d780201c131
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dde66d276082911b61d2b966fc0b6cb347270f82
+# Title: BUG1: Corrected a plausible signed integer overflow issue (UB) in CvUnitAI::AI_sacrificeValue
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 05775d747..79ee547f9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1108,11 +1108,15 @@ void CvUnitAI::AI_setUnitAIType(UnitAITypes eNewValue)
+ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ {
+     //int iValue;
+-	long iValue; // K-Mod. (the int will overflow)
++	//long iValue; // K-Mod. (the int will overflow)
++	// Erik: Based on his comment he probably meant to use
++	// a 64 bit integer here since sizeof(int) == sizeof(long) hence a long long is needed
++	long long iValue;
++
+     int iCollateralDamageValue = 0;
+     if (pPlot != NULL)
+     {
+-        int iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits());
++        const int iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits());
+ 
+         if (iPossibleTargets > 0)
+         {
+@@ -1208,13 +1212,17 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		// K-Mod end
+ 		/*  <advc.048> LFBgetRelativeValueRating is too coarse to account for
+ 			small XP differences. Make sure that XP will at least break ties. */
+-		int iXP = getExperience();
++		const int iXP = getExperience();
+ 		if(iValue > 100 * iXP)
+ 			iValue -= iXP; // </advc.048>
+ 	}
+ 
+ 	//return iValue;
+-	return std::min((long)MAX_INT, iValue); // K-Mod
++	//return std::min((long)MAX_INT, iValue); // K-Mod
++	// Erik: We cannot change the signature due to the virtual specifier so we have to truncate the final value
++	// to an int. At least we probably avoid undefined behaviour during an intermediate computation...
++	// Note that if signed overflow do occur, the std::min operation is meaningless
++	return static_cast<int>(iValue);
+ }
+ 
+ // Protected Functions...
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1815

@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1881
+# Commit: 6a5b64619a66fbda417f4793f6edaa25787bf51e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8a3cf7d4606d71b4dc5cca74a7103ff24f7c7355
+# Title: Lower Ancient-era tech costs by 5% if goody huts disabled
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	4	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index c8b9d76aa..a360627ca 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2114,16 +2114,21 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 	if (bGlobalModifiers) // K-Mod
+ 	{	// advc:
+ 		CvWorldInfo const& kWorld = GC.getInfo(GC.getMap().getWorldSize());
+-		if(eTechEra > 0) { // advc.910
++		if(eTechEra > 0) // advc.910
++		{
+ 			cost *= 0.01 * kWorld.getResearchPercent();
+ 			// advc.910:
+ 			cost *= 0.01 * GC.getInfo(GC.getMap().getSeaLevel()).getResearchPercent();
+-		}
++		}  // <advc.910>
++		else if (g.isOption(GAMEOPTION_NO_GOODY_HUTS))
++			cost *= 0.95; // </advc.910>
+ 		cost *= 0.01 * GC.getInfo(g.getGameSpeedType()).getResearchPercent();
+ 		cost *= 0.01 * GC.getInfo(g.getStartEra()).getResearchPercent();
+ 		// <advc.308>
+-		if(g.isOption(GAMEOPTION_RAGING_BARBARIANS) && g.getStartEra() == 0) {
+-			switch(eTechEra) {
++		if(g.isOption(GAMEOPTION_RAGING_BARBARIANS) && g.getStartEra() == 0)
++		{
++			switch(eTechEra)
++			{
+ 			case 1: iModifier -= 14; break;
+ 			case 2: iModifier -= 7; break;
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1141

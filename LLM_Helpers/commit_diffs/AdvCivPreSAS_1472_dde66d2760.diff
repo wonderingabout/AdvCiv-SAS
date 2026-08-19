@@ -1,0 +1,359 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1472
+# Commit: dde66d276082911b61d2b966fc0b6cb347270f82
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7d9d209e7d2b87690a97c0ff5cd2441f66d5ecdf
+# Title: AI explore units in Adv. Start, bugfix unit layer colors
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	13	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+58	34	CvGameCoreDLL/CvPlayerAI.cpp
+5	2	CvGameCoreDLL/CvPlayerAI.h
+11	11	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cf180bb26..d4aa88774 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2690,16 +2690,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	   where a dead civ arranged a vassal agreement. */
+ 	if(eOldOwner != NO_PLAYER)
+ 		GET_PLAYER(eOldOwner).verifyAlive(); // </advc.001>
+-	// <advc.130w> Acquired city may increase expansionist hate
+-	if(isBarbarian())
+-		return;
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+-		CvPlayerAI& civ = GET_PLAYER((PlayerTypes)i);
+-		if(civ.isAlive() && civ.getID() != getID() && !civ.isMinorCiv() &&
+-				pCityPlot->isRevealed(civ.getTeam(), false) &&
+-				GET_TEAM(civ.getTeam()).isHasMet(getTeam()))
+-			civ.AI_updateAttitudeCache(getID());
+-	} // </advc.130w>
++	AI().AI_updateCityAttitude(*pCityPlot); // advc.130w
+ }
+ 
+ 
+@@ -5836,8 +5827,9 @@ void CvPlayer::raze(CvCity* pCity)
+ 
+ 	// Report this event
+ 	CvEventReporter::getInstance().cityRazed(pCity, getID());
+-
++	CvPlot const& kCityPlot = *pCity->plot(); // advc.130w
+ 	disband(pCity);
++	AI().AI_updateCityAttitude(kCityPlot); // advc.130w
+ }
+ 
+ 
+@@ -16543,7 +16535,8 @@ void CvPlayer::changeEspionageSpendingWeightAgainstTeam(TeamTypes eIndex, int iC
+ 	setEspionageSpendingWeightAgainstTeam(eIndex, getEspionageSpendingWeightAgainstTeam(eIndex) + iChange);
+ }
+ 
+-void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd)
++void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd,
++		int iData2) // advc.250c
+ {
+ 	if (getAdvancedStartPoints() < 0)
+ 	{
+@@ -16637,7 +16630,8 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 			{
+ 				if (getAdvancedStartPoints() >= iCost)
+ 				{
+-					CvUnit* pUnit = initUnit(eUnit, iX, iY);
++					CvUnit* pUnit = initUnit(eUnit, iX, iY,
++							(UnitAITypes)iData2); // advc.250c
+ 					if (NULL != pUnit)
+ 					{
+ 						pUnit->finishMoves();
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 0d975e357..2bb0d9ae3 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -412,7 +412,8 @@ public:
+ 	// advc.120d: Exposed to Python
+ 	int getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvCity* pCity) const; // K-Mod
+ 
+-	void doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd);
++	void doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd,
++			int iData2 = -1); // advc.250c
+ 	int getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot = NULL) const;																													// Exposed to Python 
+ 	int getAdvancedStartCityCost(bool bAdd, CvPlot* pPlot = NULL) const;																													// Exposed to Python 
+ 	int getAdvancedStartPopCost(bool bAdd, CvCity* pCity = NULL) const;																													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8087495c9..5dad756b5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -316,7 +316,7 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 		if(iI < MAX_CIV_PLAYERS) {
+ 			m_aeLastBrag[iI] = NO_UNIT;
+ 			m_aeLastWarn[iI] = NO_TEAM; // </advc.079>
+-			m_abTheyFarAhead[iI] = false; // advc.130c
++			m_abTheyFarAhead[iI] = m_abTheyBarelyAhead[iI] = false; // advc.130c
+ 		}
+ 		m_abFirstContact[iI] = false;
+ 		for (int iJ = 0; iJ < NUM_CONTACT_TYPES; iJ++)
+@@ -344,7 +344,8 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 			if(getID() < MAX_CIV_PLAYERS) {
+ 				kLoopPlayer.m_aeLastBrag[getID()] = NO_UNIT;
+ 				kLoopPlayer.m_aeLastWarn[getID()] = NO_TEAM; // </advc.079>
+-				kLoopPlayer.m_abTheyFarAhead[getID()] = false; // advc.130c
++				// advc.130c:
++				kLoopPlayer.m_abTheyFarAhead[getID()] = kLoopPlayer.m_abTheyBarelyAhead[getID()] = false;
+ 			}
+ 			kLoopPlayer.m_abFirstContact[getID()] = false;
+ 			for (int iJ = 0; iJ < NUM_CONTACT_TYPES; iJ++)
+@@ -9286,13 +9287,16 @@ void CvPlayerAI::AI_updateAttitudeCache(PlayerTypes ePlayer,
+ 	if (!GC.getGameINLINE().isFinalInitialized() || ePlayer == getID() ||
+ 		!isAlive() || !kPlayer.isAlive() || !GET_TEAM(getTeam()).isHasMet(kPlayer.getTeam()))
+ 	{
+-		m_abTheyFarAhead[ePlayer] = false; // advc.130c
++		m_abTheyFarAhead[ePlayer] = m_abTheyBarelyAhead[ePlayer] = false; // advc.130c
+ 		m_aiAttitudeCache[ePlayer] = 0;
+ 		return;
+ 	} // <advc.130c> Are they (ePlayer) 150% ahead in score?
+ 	CvGame const& g = GC.getGameINLINE();
+-	m_abTheyFarAhead[ePlayer] = (g.getPlayerScore(ePlayer) * 10 >
+-			g.getPlayerScore(getID()) * 15); // </advc.130c>
++	int iTheirScore = g.getPlayerScore(ePlayer);
++	int iOurScore = g.getPlayerScore(getID());
++	m_abTheyFarAhead[ePlayer] = (iTheirScore * 10 > iOurScore * 15);
++	m_abTheyBarelyAhead[ePlayer] = (iTheirScore > iOurScore &&
++			iTheirScore - iOurScore < 25); // </advc.130c>
+ 	// <advc.sha> Now computed in subroutines
+ 	int iAttitude = AI_getFirstImpressionAttitude(ePlayer);
+ 	iAttitude += AI_getTeamSizeAttitude(ePlayer);
+@@ -9347,6 +9351,22 @@ void CvPlayerAI::AI_changeCachedAttitude(PlayerTypes ePlayer, int iChange)
+ }
+ // K-Mod end
+ 
++/*  <advc.130w> Gained and lost cities may change expansionist hate and perhaps other
++	modifiers too. This function should be called on the city owner. CvPlot param
++	b/c the city may have been razed. */
++void CvPlayerAI::AI_updateCityAttitude(CvPlot const& kCityPlot) {
++
++	if(isBarbarian())
++		return;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayerAI& kOtherCiv = GET_PLAYER((PlayerTypes)i);
++		if(kOtherCiv.isAlive() && kOtherCiv.getID() != getID() && !kOtherCiv.isMinorCiv() &&
++				kCityPlot.isRevealed(kOtherCiv.getTeam(), false) &&
++				GET_TEAM(kOtherCiv.getTeam()).isHasMet(getTeam()))
++			kOtherCiv.AI_updateAttitudeCache(getID());
++	}
++} // </advc.130w>
++
+ AttitudeTypes CvPlayerAI::AI_getAttitude(PlayerTypes ePlayer, bool bForced) const
+ {
+ 	PROFILE_FUNC();
+@@ -10159,9 +10179,9 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const {
+ 	int r = ::round(base * multiplier);
+ 	// Don't hate them if they're still in the first era
+ 	if(r < 0 && (GET_PLAYER(ePlayer).getCurrentEra() <= g.getStartEra() ||
+-			/*  nor if the score difference is small (otherwise attitude can
+-				change too frequently) */
+-			g.getPlayerScore(ePlayer) - g.getPlayerScore(getID()) < 25))
++			/*  nor if the score difference is small (otherwise attitude
++				changes too frequently in the early game) */
++			m_abTheyBarelyAhead[ePlayer]))
+ 		return 0;
+ 	// Don't like them if we're still in the first era
+ 	if(r > 0 && (getCurrentEra() <= g.getStartEra() ||
+@@ -10184,30 +10204,29 @@ int CvPlayerAI::AI_getLostWarAttitude(PlayerTypes ePlayer) const {
+ int CvPlayerAI::AI_knownRankDifference(PlayerTypes otherId) const {
+ 
+ 	CvGame& g = GC.getGameINLINE();
+-	int ourRank = g.getPlayerRank(getID());
+-	int theirRank = g.getPlayerRank(otherId);
+-	int delta = ourRank - theirRank;
++	int iOurRank = g.getPlayerRank(getID());
++	int iTheirRank = g.getPlayerRank(otherId);
++	int iDelta = iOurRank - iTheirRank;
+ 	// We know who's ranked better, but (perhaps) not the exact rank difference.
+-	if(delta < -1)
+-		delta = -1;
+-	if(delta > 1)
+-		delta = 1;
++	if(iDelta < -1)
++		iDelta = -1;
++	if(iDelta > 1)
++		iDelta = 1;
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+-		PlayerTypes thirdId = (PlayerTypes)i;
+-		CvPlayer const& thirdCiv = GET_PLAYER(thirdId);
+-		if(!thirdCiv.isAlive() || thirdCiv.isBarbarian() || thirdCiv.isMinorCiv() ||
++		CvPlayer const& kThirdCiv = GET_PLAYER((PlayerTypes)i);
++		if(!kThirdCiv.isAlive() || kThirdCiv.isBarbarian() || kThirdCiv.isMinorCiv() ||
+ 				/*  This would deny otherId info about civs that we have met and they
+ 					haven't -- not crucial I think. */
+ 				//!TEAMREF(otherId).isHasMet(TEAMID(thirdId))
+-				!GET_TEAM(getTeam()).isHasMet(TEAMID(thirdId)))
++				!GET_TEAM(getTeam()).isHasMet(kThirdCiv.getTeam()))
+ 			continue;
+-		int thirdRank = g.getPlayerRank(thirdId);
+-		if(delta < 0 && thirdRank > ourRank && thirdRank < theirRank)
+-			delta--;
+-		else if(delta > 0 && thirdRank < ourRank && thirdRank > theirRank)
+-			delta++;
++		int iThirdRank = g.getPlayerRank(kThirdCiv.getID());
++		if(iDelta < 0 && iThirdRank > iOurRank && iThirdRank < iTheirRank)
++			iDelta--;
++		else if(iDelta > 0 && iThirdRank < iOurRank && iThirdRank > iTheirRank)
++			iDelta++;
+ 	}
+-	return delta;
++	return iDelta;
+ } // </advc.130c>
+ 
+ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose)
+@@ -22280,6 +22299,8 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	// <advc.130c>
+ 	if(uiFlag >= 13)
+ 		pStream->Read(MAX_CIV_PLAYERS, m_abTheyFarAhead);
++	if(uiFlag >= 14)
++		pStream->Read(MAX_CIV_PLAYERS, m_abTheyBarelyAhead);
+ 	// </advc.130c>
+ 	// K-Mod. Load the attitude cache. (originally, in BBAI and the CAR Mod, this was not saved.
+ 	// But there are rare situations in which it needs to be saved/read to avoid OOS errors.)
+@@ -22388,7 +22409,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	uiFlag = 10; // advc.036
+ 	uiFlag = 11; // advc.104i
+ 	uiFlag = 12; // advc.079
+-	uiFlag = 13; // advc.130c
++	uiFlag = 14; // advc.130c
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -22433,7 +22454,9 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 		pStream->Write(m_aeLastBrag[i]);
+ 		pStream->Write(m_aeLastWarn[i]);
+ 	} // </advc.079>
+-	pStream->Write(MAX_CIV_PLAYERS, m_abTheyFarAhead); // advc.130c
++	// <advc.130c>
++	pStream->Write(MAX_CIV_PLAYERS, m_abTheyFarAhead);
++	pStream->Write(MAX_CIV_PLAYERS, m_abTheyBarelyAhead); // </advc.130c>
+ 	// K-Mod. save the attitude cache. (to avoid OOS problems)
+ 	pStream->Write(MAX_PLAYERS, &m_aiAttitudeCache[0]); // uiFlag >= 4
+ 	// K-Mod end
+@@ -26688,14 +26711,14 @@ bool CvPlayerAI::AI_advancedStartPlaceExploreUnits(bool bLand)
+ 				int iAreaId = pLoopArea->getID();
+ 					
+ 				int iRange = 4;
+-					for (int iX = -iRange; iX <= iRange; iX++)
++				for (int iX = -iRange; iX <= iRange; iX++)
++				{
++					for (int iY = -iRange; iY <= iRange; iY++)
+ 					{
+-						for (int iY = -iRange; iY <= iRange; iY++)
+-						{
+-							CvPlot* pLoopPlot2 = plotXY(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iX, iY);
++						CvPlot* pLoopPlot2 = plotXY(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iX, iY);
+ 						if (NULL != pLoopPlot2) 
+-							{
+-								iExplorerCount += pLoopPlot2->plotCount(PUF_isUnitAIType, eUnitAI, -1, NO_PLAYER, getTeam());
++						{
++							iExplorerCount += pLoopPlot2->plotCount(PUF_isUnitAIType, eUnitAI, -1, NO_PLAYER, getTeam());
+ 							if (pLoopPlot2->getArea() == iAreaId)
+ 							{
+ 								if (pLoopPlot2->isGoody())
+@@ -26730,7 +26753,8 @@ bool CvPlayerAI::AI_advancedStartPlaceExploreUnits(bool bLand)
+ 	
+ 	if (pBestExplorePlot != NULL)
+ 	{
+-		doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT, pBestExplorePlot->getX_INLINE(), pBestExplorePlot->getY_INLINE(), eBestUnitType, true);
++		doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT, pBestExplorePlot->getX_INLINE(), pBestExplorePlot->getY_INLINE(), eBestUnitType, true,
++				UNITAI_EXPLORE); // advc.250c
+ 		return true;
+ 	}
+ 	return false;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index ebab82bda..bbed976b9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -13,7 +13,7 @@
+ 
+ class CvPlayerAI : public CvPlayer
+ {
+-
++	friend CvPlayer; // adsvc.003: for CvPlayer::AI
+ public:
+ 
+ 	CvPlayerAI();
+@@ -673,7 +673,9 @@ protected:
+ 	int* m_aiBonusValueTrade; // advc.036
+ 	int* m_aiUnitClassWeights;
+ 	int* m_aiUnitCombatWeights;
+-	bool m_abTheyFarAhead[MAX_CIV_PLAYERS]; // advc.130c
++	// <advc.130c>
++	bool m_abTheyFarAhead[MAX_CIV_PLAYERS];
++	bool m_abTheyBarelyAhead[MAX_CIV_PLAYERS]; // </advc.130c>
+ 	std::map<UnitClassTypes, int> m_GreatPersonWeights; // K-Mod
+ 	static int const singleBonusTradeTolerance = 20; // advc.036
+ 	//mutable int* m_aiCloseBordersAttitudeCache;
+@@ -778,6 +780,7 @@ protected:
+ 	int AI_knownRankDifference(PlayerTypes otherId) const; // advc.130c
+ 	// advc.042: Relies on caller to reset GC.getBorderFinder()
+ 	bool AI_isUnimprovedBonus(CvPlot const& p, CvPlot* pFromPlot, bool bCheckPath) const;
++	void AI_updateCityAttitude(CvPlot const& kCityPlot); // advc.130w
+ 
+ 	// K-Mod. I've moved the bulk of AI_getStrategyHash into a new function: AI_updateStrategyHash.
+ 	inline int AI_getStrategyHash() const { return m_iStrategyHash; }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 6a67a68dd..0ec14ece6 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1627,26 +1627,26 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps) // advc.003: refactored
+ 		if(bDestVisible || (bStartVisible && m->bInitiallyVisible)) {
+ 			// Pass pFromPlot
+ 			updateMissionTimer(iSteps, pFromPlot);
+-			if(showMoves(*pFromPlot)
+-					&& g.getActivePlayer() != NO_PLAYER
+-					&& getOwnerINLINE() != g.getActivePlayer()) {
+-				// Show FromPlot when moving out of sight
++			if(g.getActivePlayer() != NO_PLAYER && getOwnerINLINE() != g.getActivePlayer()) {
+ 				bool bDestActiveVisible = !isInvisible(g.getActiveTeam());
+-				bool bStartActiveVisible = (bDestActiveVisible &&
+-						pFromPlot->isActiveVisible(false));
+-				bDestActiveVisible = (bDestActiveVisible &&
+-						plot()->isActiveVisible(false));
+ 				CvDLLInterfaceIFaceBase* pInterface = gDLL->getInterfaceIFace();
+ 				if(gDLL->getEngineIFace()->isGlobeviewUp()) {
+-					if(bDestActiveVisible && g.getCurrentLayer() == GLOBE_LAYER_UNIT)
++					if(bDestActiveVisible && g.getCurrentLayer() == GLOBE_LAYER_UNIT &&
++							plot()->isActiveVisible(true))
+ 						pInterface->setDirty(GlobeLayer_DIRTY_BIT, true);
+ 				}
+-				else {
++				else if(showMoves(*pFromPlot)) {
++					// Show FromPlot when moving out of sight
++					bool bStartActiveVisible = (bDestActiveVisible &&
++							pFromPlot->isActiveVisible(false));
++					bDestActiveVisible = (bDestActiveVisible &&
++							plot()->isActiveVisible(false));
+ 					if(bDestActiveVisible && bDestVisible)
+ 						pInterface->lookAt(plot()->getPoint(), CAMERALOOKAT_NORMAL);
+ 					else if(bStartActiveVisible && bStartVisible)
+ 						pInterface->lookAt(pFromPlot->getPoint(), CAMERALOOKAT_NORMAL);
+-				} // </advc.102>
++					// </advc.102>
++				}
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=14469

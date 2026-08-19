@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1221
+# Commit: c0a9497b0a99843f991cf6516a4fb40a33727716
+# History segment: K-Mod history
+# Parent used for diff: f33cf7e6a3baf034e852921f732bf372d8396b67
+# Title: Sci-Method now gives +10% science. Computers gives +1 to specialists.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	3	Assets/xml/Technologies/CIV4TechInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Technologies/CIV4TechInfos.xml b/Assets/xml/Technologies/CIV4TechInfos.xml
+index cb92c9578..9b5a5e309 100644
+--- a/Assets/xml/Technologies/CIV4TechInfos.xml
++++ b/Assets/xml/Technologies/CIV4TechInfos.xml
+@@ -3284,11 +3284,11 @@
+ 			<iGridX>13</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+-			<SpecialistExtraCommerces>
++			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>1</iCommerce>
++				<iCommerce>10</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-			</SpecialistExtraCommerces>
++			</CommerceModifiers>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+@@ -6336,6 +6336,11 @@
+ 			<iGridX>17</iGridX>
+ 			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
++			<SpecialistExtraCommerces>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1</iCommerce>
++				<iCommerce>0</iCommerce>
++			</SpecialistExtraCommerces>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=960

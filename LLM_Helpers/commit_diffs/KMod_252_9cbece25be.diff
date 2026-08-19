@@ -1,0 +1,349 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 252
+# Commit: 9cbece25be6e23981d1a316eef5a42fcbac61da5
+# History segment: K-Mod history
+# Parent used for diff: ce5a1952a160a27345e555e640c6c5be9d7b3bb2
+# Title: Made a stack more changes to finally move towards my ultimate goal of preventing the AI from making peace when they are trying to get a conquest victory! (ye...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	6	CvGameCoreDLL/CvPlayer.cpp
+93	16	CvGameCoreDLL/CvPlayerAI.cpp
+18	5	CvGameCoreDLL/CvTeamAI.cpp
+3	2	CvGameCoreDLL/CvTeamAI.h
+4	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 672492b8f..47345cc91 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5152,12 +5152,8 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 
+ 	case TRADE_PEACE_TREATY:
+ 		// K-Mod
+-		if (kOurTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
+-			(kOurTeam.AI_isChosenWar(GET_PLAYER(eWhoTo).getTeam()) || kOurTeam.getAtWarCount(true, true) == 1) &&
+-			kOurTeam.AI_getWarSuccessCapitulationRatio() > 0)
+-		{
++		if (kOurTeam.AI_refusePeace(GET_PLAYER(eWhoTo).getTeam()))
+ 			return DENIAL_VICTORY;
+-		}
+ 		// K-Mod end
+ 		break;
+ 	}
+@@ -22599,7 +22595,8 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 
+ 		if (pFirstOffer != NULL)
+ 		{
+-			if (!CvDeal::isEndWar(pFirstOffer->m_data.m_eItemType) || !::atWar(getTeam(), GET_PLAYER(eOtherPlayer).getTeam()))
++			//if (!CvDeal::isEndWar(pFirstOffer->m_data.m_eItemType) || !::atWar(getTeam(), GET_PLAYER(eOtherPlayer).getTeam()))
++			if (!::atWar(getTeam(), GET_PLAYER(eOtherPlayer).getTeam())) // K-Mod
+ 			{
+ 				for (CLLNode<TradeData>* pNode = ourInventory.head(); pNode != NULL; pNode = ourInventory.next(pNode))
+ 				{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8151eee05..df3001d1d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -838,18 +838,7 @@ void CvPlayerAI::AI_doPeace()
+ 											}
+ 											else
+ 											{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/22/09                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-												if( GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).AI_acceptSurrender(getTeam()) )
+-												{
+-													GC.getGameINLINE().implementDeal(getID(), ((PlayerTypes)iI), &ourList, &theirList);
+-												}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++												GC.getGameINLINE().implementDeal(getID(), ((PlayerTypes)iI), &ourList, &theirList);
+ 											}
+ 										}
+ 
+@@ -6807,9 +6796,10 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 
+ 	const CvTeamAI& kOurTeam = GET_TEAM(getTeam()); // K-Mod
++	const CvTeam& kTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()); // K-Mod
+ 
+ 	if (GET_PLAYER(ePlayer).getTeam() == getTeam()
+-		|| GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam())
++		|| kTheirTeam.isVassal(getTeam())
+ 		|| kOurTeam.isVassal(GET_PLAYER(ePlayer).getTeam()))
+ 	{
+ 		return true;
+@@ -6824,8 +6814,17 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 	{
+ 		// K-Mod
+-		if (kOurTeam.isHuman())
++		if (kOurTeam.isHuman() && !isHuman())
+ 			return false;
++
++		if (kOurTeam.AI_refusePeace(GET_PLAYER(ePlayer).getTeam()))
++		{
++			TradeData item;
++			setTradeItem(&item, TRADE_SURRENDER);
++
++			if (!GET_PLAYER(ePlayer).canTradeItem(getID(), item, true))
++				return false; // if they can't (or won't) capitulate, don't talk to them.
++		}
+ 		// K-Mod end
+ 
+ 		if (kOurTeam.isAVassal())
+@@ -6836,7 +6835,7 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 		int iRefuseDuration = (GC.getLeaderHeadInfo(getPersonalityType()).getRefuseToTalkWarThreshold() * ((kOurTeam.AI_isChosenWar(GET_PLAYER(ePlayer).getTeam())) ? 2 : 1));
+ 		
+ 		int iOurSuccess = 1 + kOurTeam.AI_getWarSuccess(GET_PLAYER(ePlayer).getTeam());
+-		int iTheirSuccess = 1 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_getWarSuccess(getTeam());
++		int iTheirSuccess = 1 + kTheirTeam.AI_getWarSuccess(getTeam());
+ 		if (iTheirSuccess > iOurSuccess * 2)
+ 		{
+ 			iRefuseDuration *= 20 + ((80 * iOurSuccess * 2) / iTheirSuccess);
+@@ -8335,6 +8334,26 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 		return true;
+ 	}
+ 
++	// K-Mod. Refuse all war-time offers unless it's part of a peace deal
++	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
++	{
++		bool bEndWar = false;
++		for (pNode = pTheirList->head(); !bEndWar && pNode; pNode = pTheirList->next(pNode))
++		{
++			if (CvDeal::isEndWar(pNode->m_data.m_eItemType))
++				bEndWar = true;
++		}
++		for (pNode = pOurList->head(); !bEndWar && pNode; pNode = pOurList->next(pNode))
++		{
++			if (CvDeal::isEndWar(pNode->m_data.m_eItemType))
++				bEndWar = true;
++		}
++
++		if (!bEndWar)
++			return false;
++	}
++	// K-Mod end
++
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      10/23/09                                jdog5000      */
+ /*                                                                                              */
+@@ -8541,6 +8560,63 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	pTheirCounter->clear();
+ 	pOurCounter->clear();
+ 
++	// K-Mod. Refuse all war-time offers unless it's part of a peace deal
++	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
++	{
++		// Check to see if there is already an end-war item on the table
++		bool bEndWar = false;
++		for (pNode = pTheirList->head(); !bEndWar && pNode; pNode = pTheirList->next(pNode))
++		{
++			if (CvDeal::isEndWar(pNode->m_data.m_eItemType))
++				bEndWar = true;
++		}
++		for (pNode = pOurList->head(); !bEndWar && pNode; pNode = pOurList->next(pNode))
++		{
++			if (CvDeal::isEndWar(pNode->m_data.m_eItemType))
++				bEndWar = true;
++		}
++
++		// see if someone is willing to surrender
++		if (!bEndWar)
++		{
++			TradeData item;
++			setTradeItem(&item, TRADE_SURRENDER);
++			if (canTradeItem(ePlayer, item, true))
++			{
++				pOurCounter->insertAtEnd(item);
++				bEndWar = true;
++			}
++			else if (GET_PLAYER(ePlayer).canTradeItem(getID(), item, true))
++			{
++				pTheirCounter->insertAtEnd(item);
++				bEndWar = true;
++			}
++		}
++		// last chance: try a peace treaty.
++		if (!bEndWar)
++		{
++			TradeData item;
++			setTradeItem(&item, TRADE_PEACE_TREATY);
++			if (canTradeItem(ePlayer, item, true) && GET_PLAYER(ePlayer).canTradeItem(getID(), item, true))
++			{
++				//pOurCounter->insertAtEnd(item);
++				//pTheirCounter->insertAtEnd(item);
++				// unfortunately, there is some weirdness in the game engine which causes it to flip its wig
++				// if trade items are added to both sides of a peace deal... so we have to do it like this:
++				if (iAIDealWeight > iHumanDealWeight)
++					pTheirCounter->insertAtEnd(item);
++				else
++					pOurCounter->insertAtEnd(item);
++				bEndWar = true;
++			}
++			else
++			{
++				return false; // if there is no peace, there will be no trade
++			}
++		}
++	}
++	// K-Mod end
++
+ 	if (iAIDealWeight > iHumanDealWeight)
+ 	{
+ 		if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+@@ -8806,6 +8882,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	{
+ 		if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 		{
++			/* original bts code
+ 			bool bSurrender = false;
+ 			for (pNode = pOurInventory->head(); pNode; pNode = pOurInventory->next(pNode))
+ 			{
+@@ -8837,7 +8914,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 						}
+ 					}
+ 				}
+-			}
++			} */ // Disabled by K-Mod. This is obsolete.
+ 
+ 			iBestValue = 0;
+ 			iBestWeight = 0;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 4fbba3bd9..a73075f21 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -211,7 +211,7 @@ void CvTeamAI::AI_makeAssignWorkDirty()
+ /* 	General AI																*/
+ /********************************************************************************/
+ // Find plot strength of teammates and potentially vassals
+-int CvTeamAI::AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals)
++int CvTeamAI::AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals) const
+ {
+ 	int iI;
+ 	int iPlotStrength = 0;
+@@ -2201,6 +2201,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 
+ 	if (!isAtWar(eTeam))
+ 	{
++		FAssertMsg(false, "surrender trade while not at war"); // K-Mod. I just want to know if this can even happen! (surrendering while not at war)
+ 		if (!GET_TEAM(eTeam).isParent(getID()))
+ 		{
+ 			if (AI_getWorstEnemy() == eTeam)
+@@ -2532,7 +2533,21 @@ int CvTeamAI::AI_getRivalAirPower( ) const
+ 	return iEnemyAirPower + iRivalAirPower / std::max(1, iTeamCount);
+ }
+ 
+-bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam )
++// K-Mod
++bool CvTeamAI::AI_refusePeace(TeamTypes ePeaceTeam) const
++{
++	// Refuse peace if we need the war for our conquest / domination victory.
++	if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
++		(AI_isChosenWar(ePeaceTeam) || getAtWarCount(true, true) == 1) &&
++		AI_getWarSuccessCapitulationRatio() > 0)
++	{
++		return true;
++	}
++	return false;
++}
++// K-Mod end
++
++bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam ) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3065,9 +3080,7 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eTeam) c
+ 		return DENIAL_VICTORY;
+ 	} */
+ 	// K-Mod
+-	if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
+-		(AI_isChosenWar(ePeaceTeam) || getAtWarCount(true, true) == 1) &&
+-		AI_getWarSuccessCapitulationRatio() > 0)
++	if (AI_refusePeace(ePeaceTeam))
+ 	{
+ 		return DENIAL_VICTORY;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 835a88482..5fc5a6a9d 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -43,7 +43,7 @@ public:
+ /* 																			    */
+ /* 																			    */
+ /********************************************************************************/
+-	int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals = false);
++	int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals = false) const;
+ /********************************************************************************/
+ /* 	BETTER_BTS_AI_MOD						END								    */
+ /********************************************************************************/
+@@ -129,7 +129,8 @@ public:
+ 	int AI_getEnemyPowerPercent( bool bConsiderOthers = false ) const;
+ 	int AI_getAirPower() const; // K-Mod
+ 	int AI_getRivalAirPower( ) const;
+-	bool AI_acceptSurrender( TeamTypes eSurrenderTeam );
++	bool AI_refusePeace(TeamTypes ePeaceTeam) const; // K-Mod. (refuse peace when we need war for conquest victory.)
++	bool AI_acceptSurrender( TeamTypes eSurrenderTeam ) const;
+ 	bool AI_isOkayVassalTarget( TeamTypes eTeam );
+ 
+ 	void AI_getWarRands( int &iMaxWarRand, int &iLimitedWarRand, int &iDogpileWarRand ) const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4b795f950..52850ac42 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5552,7 +5552,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 					}
+ 					else
+ 					{
+-						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_JOIN);
++						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), alwaysInvisible() ? 0 : MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_JOIN);
+ 						return true;
+ 					}
+ 				}
+@@ -5567,7 +5567,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 					}
+ 					else
+ 					{
+-						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_CONSTRUCT);
++						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), alwaysInvisible() ? 0 : MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_CONSTRUCT);
+ 						return true;
+ 					}
+ 				}
+@@ -5716,7 +5716,7 @@ void CvUnitAI::AI_spyMove()
+ 			// cf. approximation used in AI_attackCityMove.
+ 
+ 			//if( 5*iOurPower > 6*iEnemyPower && eWarPlan != NO_WARPLAN )
+-			if (100*iOurPower > GC.getBBAI_SKIP_BOMBARD_BASE_STACK_RATIO()*iEnemyPower && eWarPlan != NO_WARPLAN)
++			if (95*iOurPower > GC.getBBAI_ATTACK_CITY_STACK_RATIO()*iEnemyPower && eWarPlan != NO_WARPLAN)
+ 			{
+ 				bTargetCity = true;
+ 
+@@ -22668,7 +22668,7 @@ bool CvUnitAI::AI_revoltCitySpy()
+ 	}
+ 
+ 	// K-Mod
+-	if (100 * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDefenseDamage())/std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE()) < 20)
++	if (100 * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDefenseDamage())/std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE()) < 15)
+ 		return false;
+ 	// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=13317

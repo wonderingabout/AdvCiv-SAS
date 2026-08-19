@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3637
+# Commit: 81fe77d3db383f0e44d143aa5494997c3d6d094b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ca6589fb9c4867a54e21a87d6058ad6d91571563
+# Title: Remove Archery req. from Great Wall
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index e3edd9573..d72ba62da 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -26424,8 +26424,7 @@
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+ 			<!-- advc.310: Was NONE -->
+ 			<ObsoleteTech>TECH_CORPORATION</ObsoleteTech>
+-			<!-- advc.310: Was TECH_MASONRY -->
+-			<PrereqTech>TECH_ARCHERY</PrereqTech>
++			<PrereqTech>TECH_MASONRY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 0f1bf32fe..4a6188fa3 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -245,9 +245,9 @@
+ 		 advc.911: Mention extra specialist at Courthouse. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_GREAT_WALL_STRATEGY</Tag>
+-		<English>The [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] affects the area inside its owner's cultural borders on that continent, even if it is physically outside of the Great Wall. The effects are that [COLOR_HIGHLIGHT_TEXT]Barbarians[COLOR_REVERT] cannot enter that area, and the owner receives more [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points from combat within that area. [BOLD]AdvCiv[\BOLD]: Since the utility of the anti-Barbarian effect depends very much on game settings, the Great Wall now grants an extra [ICON_TRADE] when not playing with the [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT] option. When playing with [COLOR_HIGHLIGHT_TEXT]No Barbarians[COLOR_REVERT], the [ICON_TRADE] effect replaces the anti-Barbarian effect; under default settings, the [ICON_TRADE] effect replaces the Great General effect. Moreover, Great Merchant points are generated instead of Great Spy points. (The earliest path to a [LINK=UNIT_GREAT_SPY]Great Spy[\LINK] is now [LINK=BUILDING_COURTHOUSE]Courthouse[\LINK], which gains a second Spy specialist.) The Great Wall also requires Archery and a number of Walls now.</English>
++		<English>The [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] affects the area inside its owner's cultural borders on that continent, even if it is physically outside of the Great Wall. The effects are that [COLOR_HIGHLIGHT_TEXT]Barbarians[COLOR_REVERT] cannot enter that area, and the owner receives more [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points from combat within that area. [BOLD]AdvCiv[\BOLD]: Since the utility of the anti-Barbarian effect depends very much on game settings, the Great Wall now grants an extra [ICON_TRADE] when not playing with the [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT] option. When playing with [COLOR_HIGHLIGHT_TEXT]No Barbarians[COLOR_REVERT], the [ICON_TRADE] effect replaces the anti-Barbarian effect; under default settings, the [ICON_TRADE] effect replaces the Great General effect. Moreover, Great Merchant points are generated instead of Great Spy points. (The earliest path to a [LINK=UNIT_GREAT_SPY]Great Spy[\LINK] is now [LINK=BUILDING_COURTHOUSE]Courthouse[\LINK], which gains a second Spy specialist.) The Great Wall also requires a number of regular [LINK=BUILDING_WALLS]Walls[\LINK] now.</English>
+ 		<French>La [COLOR_BUILDING_TEXT]Grande muraille[COLOR_REVERT] affecte la zone situ&#233;e au sein des fronti&#232;res culturelles de son propri&#233;taire sur ce continent, m&#234;me si elle se trouve physiquement en dehors de la Grande muraille. Les [COLOR_HIGHLIGHT_TEXT]barbares[COLOR_REVERT] ne peuvent alors plus entrer dans cette zone. Le propri&#233;taire re&#231;oit, quant &#224; lui, davantage de points de [COLOR_HIGHLIGHT_TEXT]g&#233;n&#233;ral illustre[COLOR_REVERT] en combattant dans cette zone.</French>
+-		<German>Der Einflussbereich der [COLOR_BUILDING_TEXT]Gro�en Mauer[COLOR_REVERT] erstreckt sich �ber das innerhalb der kulturellen Grenzen der besitzenden Zivilisation befindliche Gebiet auf dem jeweiligen Kontinent - auch dann, wenn es sich physikalisch au�erhalb der Gro�en Mauer befindet. Dadurch wird [COLOR_HIGHLIGHT_TEXT]Barbaren[COLOR_REVERT] der Zutritt zu diesem Territorium verwehrt und die besitzende Zivilisation gewinnt durch K�mpfe innerhalb dieses Gebiets mehr [COLOR_HIGHLIGHT_TEXT]Gro�er General[COLOR_REVERT]-Punkte. [BOLD]AdvCiv[\BOLD]-�nderung: Da der Nutzen des Anti-Barbaren-Effekts stark von den Spieloptionen abh�ngt, liefert die Gro�e Mauer nun eine zus�tzliche [ICON_TRADE] falls nicht mit der Option [COLOR_HIGHLIGHT_TEXT]W�tende Barbaren[COLOR_REVERT] gespielt wird. Wenn [COLOR_HIGHLIGHT_TEXT]Keine Barbaren[COLOR_REVERT] aktiviert ist, dann ersetzt der [ICON_TRADE]-Effekt den Anti-Barbaren-Effekt; andernfalls (Standardeinstellung) ersetzt der [ICON_TRADE]-Effekt den Gro�er-General-Effekt. Des Weiteren bringt die Gro�e Mauer nun Gro�e H�ndler hervor anstatt Gro�er Spione. (Einen fr�hen [LINK=UNIT_GREAT_SPY]Gro�en Spion[\LINK] erh�lt man nun am ehesten �ber das [LINK=BUILDING_COURTHOUSE]Gerichtsgeb�ude[\LINK], welches einen weiteren Spion-Spezialisten erm�glicht.) Au�erdem setzt die Gro�e Mauer neuerdings Bogenschie�en und mehrere (gew�hnliche) Mauern voraus.</German>
++		<German>Der Einflussbereich der [COLOR_BUILDING_TEXT]Gro�en Mauer[COLOR_REVERT] erstreckt sich �ber das innerhalb der kulturellen Grenzen der besitzenden Zivilisation befindliche Gebiet auf dem jeweiligen Kontinent - auch dann, wenn es sich physikalisch au�erhalb der Gro�en Mauer befindet. Dadurch wird [COLOR_HIGHLIGHT_TEXT]Barbaren[COLOR_REVERT] der Zutritt zu diesem Territorium verwehrt und die besitzende Zivilisation gewinnt durch K�mpfe innerhalb dieses Gebiets mehr [COLOR_HIGHLIGHT_TEXT]Gro�er General[COLOR_REVERT]-Punkte. [BOLD]AdvCiv[\BOLD]-�nderung: Da der Nutzen des Anti-Barbaren-Effekts stark von den Spieloptionen abh�ngt, liefert die Gro�e Mauer nun eine zus�tzliche [ICON_TRADE] falls nicht mit der Option [COLOR_HIGHLIGHT_TEXT]W�tende Barbaren[COLOR_REVERT] gespielt wird. Wenn [COLOR_HIGHLIGHT_TEXT]Keine Barbaren[COLOR_REVERT] aktiviert ist, dann ersetzt der [ICON_TRADE]-Effekt den Anti-Barbaren-Effekt; andernfalls (Standardeinstellung) ersetzt der [ICON_TRADE]-Effekt den Gro�er-General-Effekt. Des Weiteren bringt die Gro�e Mauer nun Gro�e H�ndler hervor anstatt Gro�er Spione. (Einen fr�hen [LINK=UNIT_GREAT_SPY]Gro�en Spion[\LINK] erh�lt man nun am ehesten �ber das [LINK=BUILDING_COURTHOUSE]Gerichtsgeb�ude[\LINK], welches einen weiteren Spion-Spezialisten erm�glicht.) Au�erdem erfordert die Gro�e Mauer neuerdings mehrere (gew�hnliche) [LINK=BUILDING_WALLS]Mauern[\LINK].</German>
+ 		<Italian>La [COLOR_BUILDING_TEXT]Grande Muraglia[COLOR_REVERT] produce effetti all'interno dei confini culturali presenti sul continente, anche su territori materialmente all'esterno della Grande Muraglia. Tali effetti si sostanziano nel fatto che i [COLOR_HIGHLIGHT_TEXT]barbari[COLOR_REVERT] non possono mettere piede in quei territori e che la civilt&#224; riceve pi&#249; punti da [COLOR_HIGHLIGHT_TEXT]Grande Generale[COLOR_REVERT] per gli scontri combattuti all'interno dell'area.</Italian>
+ 		<Spanish>La [COLOR_BUILDING_TEXT]Gran muralla[COLOR_REVERT] afecta al &#225;rea situada dentro de las fronteras culturales de su propietario en ese continente, aunque &#233;sta se encuentre fuera de la Gran muralla. Los efectos son que los [COLOR_HIGHLIGHT_TEXT]B&#225;rbaros[COLOR_REVERT] no pueden entrar en dicha &#225;rea y que el propietario recibe m&#225;s puntos de [COLOR_HIGHLIGHT_TEXT]Gran general[COLOR_REVERT] por los combates que se libren en ella.</Spanish>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7694

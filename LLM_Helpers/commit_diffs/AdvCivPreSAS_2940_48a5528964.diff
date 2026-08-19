@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2940
+# Commit: 48a5528964624c17f25e830d016ba94dd4056a3c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: df3ec3c8b34d39d8716818b7d41cf6fa42b9bbcf
+# Title: Handle RTT duration at CvTeamAI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+10	0	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index dfeafbf55..763352ee4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7169,7 +7169,8 @@ int CvPlayerAI::AI_refuseToTalkTurns(PlayerTypes ePlayer) const
+ 	FAssert(GET_TEAM(getTeam()).isAtWar(TEAMID(ePlayer)));
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+ 	CvTeamAI const& kTheirTeam = GET_TEAM(ePlayer);
+-	int r = GC.getInfo(getPersonalityType()).getRefuseToTalkWarThreshold() *
++	// advc.104: Use team average of RTT war thresh
++	int iR = kOurTeam.AI_refuseToTalkWarThreshold() *
+ 			(kOurTeam.AI_isChosenWar(kTheirTeam.getID()) ? 2 : 1);
+ 	int iOurSuccess = 1 + kOurTeam.AI_getWarSuccess(kTheirTeam.getID());
+ 	int iTheirSuccess = 1 + kTheirTeam.AI_getWarSuccess(getTeam());
+@@ -7178,10 +7179,10 @@ int CvPlayerAI::AI_refuseToTalkTurns(PlayerTypes ePlayer) const
+ 	{
+ 		/*  Otherwise, killing a single stray unit can be enough to lower
+ 			the refuse duration to three turns (ratio 5:1). </advc.001> */
+-		r *= 20 + (80 * iOurSuccess * 2) / iTheirSuccess;
+-		r /= 100;
++		iR *= 20 + (80 * iOurSuccess * 2) / iTheirSuccess;
++		iR /= 100;
+ 	}
+-	return r;
++	return iR;
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index aef23cc44..99b2bb2fa 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5223,6 +5223,16 @@ int CvTeamAI::AI_noTechTradeThreshold() const
+ 	return r / std::max(1, it.nextIndex());
+ }
+ 
++// advc.104: Members of the same team should refuse to talk in unison
++int CvTeamAI::AI_refuseToTalkWarThreshold() const
++{
++	int iRTT = 0;
++	MemberIter itMember(getID());
++	for (; itMember.hasNext(); ++itMember)
++		iRTT += GC.getInfo(itMember->getPersonalityType()).getRefuseToTalkWarThreshold();
++	return intdiv::round(iRTT, itMember.nextIndex());
++}
++
+ 
+ int CvTeamAI::AI_techTradeKnownPercent() const
+ {
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index c0b4f34b1..460cf7492 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -278,6 +278,7 @@ public:
+ 	// <advc.104>
+ 	inline UWAI::Team& uwai() { return *m_pUWAI; }
+ 	inline UWAI::Team const& uwai() const { return *m_pUWAI; }
++	int AI_refuseToTalkWarThreshold() const;
+ 	// These 9 were protected </advc.104>
+ 	int AI_maxWarRand() const;
+ 	int AI_maxWarNearbyPowerRatio() const;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2346

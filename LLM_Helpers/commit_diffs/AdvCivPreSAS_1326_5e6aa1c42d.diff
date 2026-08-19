@@ -1,0 +1,608 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1326
+# Commit: 5e6aa1c42d7fe86cd234a1a15b109cd6e2bd945a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3edd94663f924fbfc8448d2307195b8b6ec19a8
+# Title: An amendment to the previous commit [advc.001p] and various minor changes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	Assets/xml/BBAI_Game_Options_GlobalDefines.xml
+16	16	Assets/xml/Text/CIV4GameText_AIAutoPlay.xml
+5	5	Assets/xml/Text/CIV4GameText_advc.008d.xml
+13	3	Assets/xml/Text/CIV4GameText_advc.xml
+5	4	CvGameCoreDLL/CvCity.cpp
+108	46	CvGameCoreDLL/CvGame.cpp
+12	9	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/WarAndPeaceCache.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/BBAI_Game_Options_GlobalDefines.xml b/Assets/xml/BBAI_Game_Options_GlobalDefines.xml
+index 954b4e2be..3aa68166d 100644
+--- a/Assets/xml/BBAI_Game_Options_GlobalDefines.xml
++++ b/Assets/xml/BBAI_Game_Options_GlobalDefines.xml
+@@ -55,8 +55,10 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Better BTS AI: Allows human player to offer themselves as vassal to an AI.  The AI has been taught to value this appropriately.  (Def: 0) -->
++		<!-- Better BTS AI: Allows human player to offer themselves as vassal to an AI.  The AI has been taught to value this appropriately.  (Def: 0) 
++		advc.112: The BBAI default was 0; 1 in K-Mod. Not supported in AdvCiv.
++		-->
+ 		<DefineName>BBAI_HUMAN_AS_VASSAL_OPTION</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Text/CIV4GameText_AIAutoPlay.xml b/Assets/xml/Text/CIV4GameText_AIAutoPlay.xml
+index d39534686..b64ed6d06 100644
+--- a/Assets/xml/Text/CIV4GameText_AIAutoPlay.xml
++++ b/Assets/xml/Text/CIV4GameText_AIAutoPlay.xml
+@@ -2,7 +2,7 @@
+ <!-- Sid Meier's Civilization 4 Beyond the Sword -->
+ <!-- Modified by the RevolutionDCM Team -->
+ <!-- Game Text -->
+-<!-- -->
++<!-- advc.004g: Some misc. changes -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_CANCEL</Tag>
+@@ -16,7 +16,7 @@
+ 		<Tag>TXT_KEY_AIAUTOPLAY_PICK_CIV</Tag>
+ 		<English>Pick a civ</English>
+ 		<French>Choisir une civilisation</French>
+-		<German>W&#228;hlen Sie eine Civ aus</German>
++		<German>W�hlen Sie eine Zivilisation</German>
+ 		<Italian>Selezioni un civ</Italian>
+ 		<Spanish>Elige una civilizaci�n</Spanish>
+ 	</TEXT>
+@@ -24,7 +24,7 @@
+ 		<Tag>TXT_KEY_AIAUTOPLAY_CIV_DIED</Tag>
+ 		<English>Your civ has died.[NEWLINE]Would you like to lead another civ?[NEWLINE]</English>
+ 		<French>Votre civilisation est morte.[NEWLINE]Voulez-vous diriger une autre civilisation ?[NEWLINE]</French>
+-		<German>Ihre Civ ist gestorben.[NEWLINE]M&#246;chten Sie eine andere Civ f&#252;hren?[NEWLINE]</German>
++		<German>Ihre Zivilisation wurde besiegt.[NEWLINE]M�chten Sie eine andere Zivilisation f&#252;hren?[NEWLINE]</German>
+ 		<Italian>Il vostro civ &#232; morto.[NEWLINE]gradite condurre un altro civ?[NEWLINE]</Italian>
+ 		<Spanish>Tu civilizaci�n ha muerto.[NEWLINE]�Le gustar�a dirigir otra civilizaci�n?[NEWLINE]</Spanish>
+ 	</TEXT>
+@@ -32,7 +32,7 @@
+ 		<Tag>TXT_KEY_AIAUTOPLAY_TAKE_CONTROL_CIV</Tag>
+ 		<English>Take control of this civ ...</English>
+ 		<French>Prendre le contr�le de la civilisation ...</French>
+-		<German>Kontrollieren Sie diese Civ ...</German>
++		<German>�bernehmen Sie diese Zivilisation ...</German>
+ 		<Italian>Prenda il controllo di questo civ ...</Italian>
+ 		<Spanish>Coge el control de esta civilizaci�n ...</Spanish>
+ 	</TEXT>
+@@ -48,7 +48,7 @@
+ 		<Tag>TXT_KEY_AIAUTOPLAY_NOW_CONTROL</Tag>
+ 		<English>You now control the %s</English>
+ 		<French>Vous dirigez maintenant les %s</French>
+-		<German>Sie steuern jetzt %s</German>
++		<German>Sie kontrollieren jetzt %s</German>
+ 		<Italian>Ora controllate %s</Italian>
+ 		<Spanish>Ahora controlas %s</Spanish>
+ 	</TEXT>
+@@ -62,25 +62,25 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_TURN_ON</Tag>
+-		<English>Turn on AI Auto Control?</English>
++		<English>Turn on AI Auto Play?</English>
+ 		<French>Basculer en mode Jeu Automatique ?</French>
+-		<German>AI-Autosteuerung einschalten?</German>
++		<German>Auto Play einschalten?</German>
+ 		<Italian>Accenda il controllo dell'automobile di AI?</Italian>
+-		<Spanish>�Activar el Auto Control de la IA?</Spanish>
++		<Spanish>�Activar el Auto Play de la IA?</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_TURNS</Tag>
+ 		<English>How many turns would you like the AI to control?</English>
+ 		<French>Combien de tours souhaitez-vous que l'ordinateur joue en mode Jeu Automatique ?</French>
+ 		<German>Wieviele Runden m&#246;chten Sie die AI kontrollieren lassen?</German>
+-		<Italian>Wieviele Umdrehungen wurden, m&#246;gen Sie den AI steuern</Italian>
++		<Italian>Quanti turni vuole lasciare all'IA?</Italian>
+ 		<Spanish>�Cu�ntos turnos quieres que coja el control la IA?</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_AUTOMATION</Tag>
+ 		<English>Choose type of automation</English>
+ 		<French>Choisissez le type d'automatisation</French>
+-		<German>W&#228;hlen Sie die Art der Automatisierung</German>
++		<German>W�hlen Sie die Art der Automatisierung</German>
+ 		<Italian>Scelga il tipo di automazione</Italian>
+ 		<Spanish>Elige tipo de automatizaci�n</Spanish>
+ 	</TEXT>
+@@ -94,9 +94,9 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_LIMIT_DIPLO</Tag>
+-		<English>Limit diplomacy changes</English>
++		<English>Limit diplomacy</English>
+ 		<French>Limiter des changements de diplomatie</French>
+-		<German>Diplomatie&#228;nderungen begrenzen</German>
++		<German>Diplomatie begrenzen</German>
+ 		<Italian>Limit diplomacy changes</Italian>
+ 		<Spanish>Limitar cambios de la diplomacia</Spanish>
+ 	</TEXT>
+@@ -118,9 +118,9 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AIAUTOPLAY_DEBUG</Tag>
+-		<English>Debug Mode (will reveal entire world!!!)</English>
++		<English>Debug Mode (will reveal map!!!)</English>
+ 		<French>Mode Debug (R�vellera la carte du monde !!!)</French>
+-		<German>Fehlerpr&#252;fungsmodus (deckt ganze Welt auf!!!)</German>
++		<German>Debug-Modus (deckt Karte auf!!!)</German>
+ 		<Italian>Metta a punto il modo (riveler&#224; il mondo intero!!!)</Italian>
+ 		<Spanish>Modo Debug (���Revelar� el mundo entero!!!)</Spanish>
+ 	</TEXT>
+@@ -128,7 +128,7 @@
+ 		<Tag>TXT_KEY_AIAUTOPLAY_NEW_LEADER</Tag>
+ 		<English>There is a new leader!!!</English>
+ 		<French>Il y a un nouveau leader !!!</French>
+-		<German>Es gibt einen neuen Anf&#252;hrer!!!</German>
++		<German>Es gibt einen neuen Anf�hrer!!!</German>
+ 		<Italian>Ci &#232; un nuovo capo!!!</Italian>
+ 		<Spanish>���Hay un nuevo l�der!!!</Spanish>
+ 	</TEXT>
+@@ -136,7 +136,7 @@
+ 		<Tag>TXT_KEY_AIAUTOPLAY_ABDICATE</Tag>
+ 		<English>Old age has finally caught up with you and you decide to abdicate rule.</English>
+ 		<French>La vieillesse a fini par vous rattrapper et vous avez d�cidez d'abandonner le pouvoir.</French>
+-		<German>Hohes Alter hat Sie schlie&#223;lich eingeholt und Sie entscheiden sich, die Herrschaft abzugeben.</German>
++		<German>Hohes Alter hat Sie schlie�lich eingeholt und Sie entscheiden sich, die Herrschaft abzugeben.</German>
+ 		<Italian>La vecchiaia infine ha preso con voi e decidete alla regola abdicata.</Italian>
+ 		<Spanish>Los viejos tiempos finalmente te han alcanzado y decides abdicar del poder.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index cbe08985b..70b4eff96 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -394,11 +394,11 @@
+ 
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_24</Tag>
+-	<English>(UWAI) While your opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</English>
+-	<French>(UWAI) While your opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</French>
+-	<German>(UWAI) Ihre Gegner meiden zwar Zweifrontenkriege, aber nicht in jedem Fall. F�hlen Sie sich nicht zu sicher, wenn ein Gegner abgelenkt zu sein scheint!</German>
+-	<Italian>(UWAI) While your opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</Italian>
+-	<Spanish>(UWAI) While your opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</Spanish>
++	<English>(UWAI) While your AI opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</English>
++	<French>(UWAI) While your AI opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</French>
++	<German>(UWAI) Ihre KI-Gegner meiden zwar Zweifrontenkriege, aber nicht in jedem Fall. F�hlen Sie sich nicht zu sicher, wenn ein Gegner abgelenkt zu sein scheint!</German>
++	<Italian>(UWAI) While your AI opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</Italian>
++	<Spanish>(UWAI) While your AI opponents try to avoid two-front wars, they still give consideration to starting more than one war at a time. Don't feel too safe when an opponent seems distracted!</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index c3bf19b79..b30eea734 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2370,15 +2370,15 @@
+ 		<Spanish>[ICON_BULLET]Almacena el %d1_Mod%% de los [ICON_FOOD] tras el crecimiento o inanici�n.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.104t: Warning added; hopefully temporary. -->
+-	<TEXT>
++	<!-- advc.104t: Warning hopefully no longer needed -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_PERMANENT_ALLIANCES_HELP</Tag>
+ 		<English>(WARNING: This option hasn't been tested with the AdvCiv mod.) Two civilizations can form a Permanent Alliance which lasts the rest of the game.</English>
+ 		<French>(WARNING: This option hasn't been tested with the AdvCiv mod.) Deux civilisations peuvent former une alliance permanente qui dure jusqu'&#224; la fin du jeu.</French>
+ 		<German>(WARNING: This option hasn't been tested with the AdvCiv mod.) Zwei Zivilisationen k&#246;nnen eine Allianz schlie&#223;en, die die restliche Spielzeit &#252;berdauert.</German>
+ 		<Italian>(WARNING: This option hasn't been tested with the AdvCiv mod.) Due civilt&#224; possono formare una alleanza permanente che duri fino alla fine della partita.</Italian>
+ 		<Spanish>(WARNING: This option hasn't been tested with the AdvCiv mod.) Dos civilizaciones pueden formar una alianza permanente que dure hasta que acabe la partida.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	
+ 	<!-- advc.004t: Shortened version of TXT_KEY_POPUP_RECOMMENDED in
+ 		 CIV4GameTextInfos.xml. -->
+@@ -3425,4 +3425,14 @@
+ 		<Spanish>[ICON_BULLET]Recolecta oro del saqueo cuando bloquea ciudades rivales</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.150b -->
++	<TEXT>
++		<Tag>TXT_KEY_REPLAY_RESOLUTION_PASSED</Tag>
++		<English>The %s1_institution has passed the following resolution as proposed by %s2_TeamName with %d3 of %d4 votes: %s5_resolution</English>
++		<French>[NUM1:Le:Les] %s1_institution [NUM1:a:ont] adopt� la r�solution suivante telle que propos�e par %s2_TeamName avec %d3 sur %d4 votes: %s5_resolution</French>
++		<German>Die %s1_institution-Mitglieder haben auf Vorschlag von %s2_TeamName mit %d3 von %d4 Stimmen folgenden Beschluss gefasst: %s5_resolution</German>
++		<Italian>[NUM1:Il:Le] %s1_institution [NUM1:ha:hanno] approvato la seguente risoluzione proposta da %s2_TeamName con %d3 su %d4 voti: %s5_resolution</Italian>
++		<Spanish>[NUM1:El:Las] %s1_institution [NUM1:ha:han] aprobado la siguiente resoluci�n propuesta por %s2_TeamName con %d3 de %d4 votos: %s5_resolution</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 320159f54..1c3a5ff2c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -16204,7 +16204,9 @@ bool CvCity::isAutoRaze() const
+ }
+ 
+ int CvCity::getMusicScriptId() const
+-{
++{	// <advc.001p>
++	if(getOwnerINLINE() == NO_PLAYER)
++		return 0; // </advc.001p>
+ 	bool bIsHappy = true;
+ 	if (GC.getGameINLINE().getActiveTeam() == getTeam())
+ 	{
+@@ -16222,10 +16224,9 @@ int CvCity::getMusicScriptId() const
+ 	} // <advc.001p> (Shouldn't be needed anymore)
+ 	CvPlayer const& owner = GET_PLAYER(getOwnerINLINE());
+ 	LeaderHeadTypes lht = owner.getLeaderType();
+-	if(lht <= -1) {
+-		FAssert(lht > -1);
++	if(lht <= -1)
+ 		return 0;
+-	} // </advc.001p>
++	// </advc.001p>
+ 	CvLeaderHeadInfo& kLeaderInfo = GC.getLeaderHeadInfo(GET_PLAYER(getOwnerINLINE()).getLeaderType());
+ 	EraTypes eCurEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
+ 	if (bIsHappy)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index de449ca1d..bad970792 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10546,11 +10546,12 @@ void CvGame::doVoteResults()
+ 	{
+ 		CvWString szBuffer;
+ 		CvWString szMessage;
+-		VoteTypes eVote = pVoteTriggered->kVoteOption.eVote;
++		VoteSelectionSubData subd = pVoteTriggered->kVoteOption; // advc.003
++		VoteTypes eVote = subd.eVote;
+ 		VoteSourceTypes eVoteSource = pVoteTriggered->eVoteSource;
+ 		bool bPassed = false;
+ 
+-		if (!canDoResolution(eVoteSource, pVoteTriggered->kVoteOption))
++		if (!canDoResolution(eVoteSource, subd))
+ 		{
+ 			for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+ 			{
+@@ -10592,16 +10593,18 @@ void CvGame::doVoteResults()
+ 			if (!bAllVoted)
+ 			{
+ 				continue;
+-			}
+-
++			} // <advc.150b>
++			wchar const* targetCityNameKey = NULL;
++			int voteCount = -1; // </advc.150b>
+ 			if (isTeamVote(eVote))
+ 			{
+ 				TeamTypes eTeam = findHighestVoteTeam(*pVoteTriggered);
+ 
+ 				if (NO_TEAM != eTeam)
+-				{
+-					bPassed = countVote(*pVoteTriggered, (PlayerVoteTypes)eTeam) >= getVoteRequired(eVote, eVoteSource);
+-				}
++				{	// <advc.150b> Store voteCount for later
++					voteCount = countVote(*pVoteTriggered, (PlayerVoteTypes)eTeam);
++					bPassed = (voteCount >= getVoteRequired(eVote, eVoteSource));
++				}	// </advc.150b>
+ 
+ 				szBuffer = GC.getVoteInfo(eVote).getDescription();
+ 
+@@ -10645,9 +10648,15 @@ void CvGame::doVoteResults()
+ 				}
+ 			}
+ 			else
+-			{
+-				bPassed = countVote(*pVoteTriggered, PLAYER_VOTE_YES) >= getVoteRequired(eVote, eVoteSource);
+-
++			{	// <advc.150b>
++				if(subd.ePlayer != NO_PLAYER && subd.iCityId >= 0) {
++					CvCity* targetCity = GET_PLAYER(subd.ePlayer).getCity(subd.iCityId);
++					if(targetCity != NULL)
++						targetCityNameKey = targetCity->getNameKey();
++				}
++				voteCount = countVote(*pVoteTriggered, PLAYER_VOTE_YES);
++				bPassed = (voteCount >= getVoteRequired(eVote, eVoteSource));
++				// </advc.150b>
+ 				// Defying resolution
+ 				if (bPassed)
+ 				{
+@@ -10657,7 +10666,7 @@ void CvGame::doVoteResults()
+ 						{
+ 							bPassed = false;
+ 
+-							GET_PLAYER((PlayerTypes)iJ).setDefiedResolution(eVoteSource, pVoteTriggered->kVoteOption);
++							GET_PLAYER((PlayerTypes)iJ).setDefiedResolution(eVoteSource, subd);
+ 						}
+ 					}
+ 				}
+@@ -10670,7 +10679,7 @@ void CvGame::doVoteResults()
+ 						{
+ 							if (getPlayerVote(((PlayerTypes)iJ), pVoteTriggered->getID()) == PLAYER_VOTE_YES)
+ 							{
+-								GET_PLAYER((PlayerTypes)iJ).setEndorsedResolution(eVoteSource, pVoteTriggered->kVoteOption);
++								GET_PLAYER((PlayerTypes)iJ).setEndorsedResolution(eVoteSource, subd);
+ 							}
+ 						}
+ 					}
+@@ -10711,15 +10720,77 @@ void CvGame::doVoteResults()
+ 
+ 				setVoteOutcome(*pVoteTriggered, bPassed ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
+ 			}
+-			bool bReplayDone = false; // advc.150b
++			// <advc.150b>
++			CvVoteInfo& kVote = GC.getVoteInfo(eVote);
++			if(bPassed && !kVote.isSecretaryGeneral()) {
++				CvWString resolutionStr;
++				// Special treatment for resolutions with targets
++				if(subd.ePlayer != NO_PLAYER) {
++					CvWString key;
++					if(kVote.isForcePeace())
++						key = L"TXT_KEY_POPUP_ELECTION_FORCE_PEACE";
++					else if(kVote.isForceNoTrade())
++						key = L"TXT_KEY_POPUP_ELECTION_FORCE_NO_TRADE";
++					else if(kVote.isForceWar())
++						key = L"TXT_KEY_POPUP_ELECTION_FORCE_WAR";
++					if(!key.empty()) {
++						resolutionStr = gDLL->getText(key, GET_PLAYER(subd.ePlayer).
++								getReplayName(), 0, 0);
++					}
++					else if(kVote.isAssignCity() && targetCityNameKey != NULL &&
++							subd.eOtherPlayer != NO_PLAYER) {
++						resolutionStr = gDLL->getText("TXT_KEY_POPUP_ELECTION_ASSIGN_CITY",
++								GET_PLAYER(subd.ePlayer).getCivilizationAdjectiveKey(),
++								targetCityNameKey,
++								GET_PLAYER(subd.eOtherPlayer).getReplayName(), 0, 0);
++					}
++				}
++				if(resolutionStr.empty()) {
++					resolutionStr = kVote.getDescription();
++					/*  This is e.g.
++						"U.N. Resolution #1284 (Nuclear Non-Proliferation Treaty - Cannot Build Nuclear Weapons)
++						Only want "Nuclear Non-Proliferation Treaty". */
++					size_t pos1 = resolutionStr.find(L"(");
++					if(pos1 != CvWString::npos && pos1 + 1 < resolutionStr.length()) {
++						bool bForceCivic = false;
++						// Mustn't remove the stuff after the dash if bForceCivic
++						for(int i = 0; i < GC.getNumCivicInfos(); i++) {
++							if(kVote.isForceCivic(i)) {
++								bForceCivic = true;
++								break;
++							}
++						}
++						size_t pos2 = std::min((bForceCivic ? CvWString::npos :
++								resolutionStr.find(L" -")),
++								resolutionStr.find(L")"));
++						if(pos2 > pos1)
++							resolutionStr = resolutionStr.substr(pos1 + 1, pos2 - pos1 - 1);
++					}
++				}
++				else {
++					/*  Throw out stuff in parentheses, e.g.
++						"Stop the war against Napoleon (Requires 0 of 0 Total Votes)" */
++					resolutionStr = resolutionStr.substr(0, resolutionStr.find(L"(") - 1);
++				}
++				TeamTypes secGen = getSecretaryGeneral(eVoteSource);
++				szMessage = gDLL->getText("TXT_KEY_REPLAY_RESOLUTION_PASSED",
++						GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(),
++						(secGen == NO_TEAM ?
++						gDLL->getText("TXT_KEY_TOPCIVS_UNKNOWN").GetCString() :
++						GET_TEAM(secGen).getReplayName().GetCString()),
++						voteCount, // Don't show the required votes after all
++						//getVoteRequired(eVote, eVoteSource),
++						countPossibleVote(eVote, eVoteSource),
++						resolutionStr.GetCString());
++				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage,
++						-1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++			} // </advc.150b>
+ 			for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 			{
+ 				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+-				// <advc.003>
+-				if(!kPlayer.isHuman())
+-					continue; // </advc.003>
+ 				bool bShow = kPlayer.isVotingMember(pVoteTriggered->eVoteSource);
+-				if (bShow)
++				if (bShow
++						&& kPlayer.isHuman()) // advc.127
+ 				{
+ 					CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_TEXT);
+ 					if (NULL != pInfo)
+@@ -10727,43 +10798,34 @@ void CvGame::doVoteResults()
+ 						pInfo->setText(szBuffer);
+ 						gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+ 					}
+-				} // <advc.127>
+-				if(!bShow)
+-					bShow = kPlayer.isSpectator(); // </advc.127>
+-				// <advc.003>
+-				if(!bShow && iI == pVoteTriggered->kVoteOption.ePlayer &&
+-						GET_PLAYER(pVoteTriggered->kVoteOption.ePlayer).
++				} // <advc.003>
++				if(!bShow && iI == subd.ePlayer && GET_PLAYER(subd.ePlayer).
+ 						isVotingMember(pVoteTriggered->eVoteSource))
+ 					bShow = true;
+-				if(!bShow && iI == pVoteTriggered->kVoteOption.eOtherPlayer &&
+-						GET_PLAYER(pVoteTriggered->kVoteOption.eOtherPlayer).
++				if(!bShow && iI == subd.eOtherPlayer && GET_PLAYER(subd.eOtherPlayer).
+ 						isVotingMember(pVoteTriggered->eVoteSource))
+ 					bShow = true; // </advc.003>
+-				if (bPassed) // advc.150b: Don't req. bShow for replay msg
+-				{
+-					CvWString szMessage = gDLL->getText("TXT_KEY_VOTE_RESULTS",
+-							GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(),
+-							pVoteTriggered->kVoteOption.szText.GetCString());
++				if (bPassed && (bShow // <advc.127>
++						|| kPlayer.isSpectator()))
++				{	
++					if(bShow || szMessage.empty()) { // Else use the replay msg
++						// </advc.127>
++						szMessage = gDLL->getText("TXT_KEY_VOTE_RESULTS",
++								GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(),
++								subd.szText.GetCString());
++					}
+ 					// <advc.127b>
+ 					BuildingTypes vsBuilding = getVoteSourceBuilding(eVoteSource);
+ 					std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
+ 					// </advc.127b>
+-					if(bShow) {// advc.150b
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA", MESSAGE_TYPE_MINOR_EVENT,
+-								// <advc.127b>
+-								vsBuilding == NO_BUILDING ? NULL :
+-								GC.getBuildingInfo(vsBuilding).getButton(),
+-								// </advc.127b>
+-								(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
+-								xy.first, xy.second); // advc.127b
+-					} // <advc.150b>
+-					if(!bReplayDone) {
+-						/*  Throw out everything after parentheses
+-							(votes for and against). */
+-						szMessage = szMessage.substr(0, szMessage.find(L")") + 1);
+-						addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage);
+-						bReplayDone = true;
+-					} // </advc.150b>
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA",
++							MESSAGE_TYPE_MAJOR_EVENT, // advc.127: was MINOR
++							// <advc.127b>
++							vsBuilding == NO_BUILDING ? NULL :
++							GC.getBuildingInfo(vsBuilding).getButton(),
++							// </advc.127b>
++							(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++							xy.first, xy.second); // advc.127b
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e51976d0a..a2729dd22 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10014,7 +10014,10 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 		{
+ 			if (eSecretaryGeneral != NO_TEAM)
+ 			{
+-				if (eSecretaryGeneral == getTeam())
++				if (eSecretaryGeneral == getTeam()
++						// <advc.130v>
++						|| (GET_TEAM(getTeam()).isVassal(eSecretaryGeneral)
++						&& GET_TEAM(getTeam()).isCapitulated())) // </advc.130v>
+ 				{
+ 					return PLAYER_VOTE_YES;
+ 				}
+@@ -10060,7 +10063,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 									if (iBestCivicValue > ((iNewCivicValue * (140 + (GC.getGame().getSorenRandNum(120, "AI Erratic Defiance (Force Civic)"))) / 100)))
+ */
+ 								// Increase threshold of voting for friend's proposal
+-								if( bFriendlyToSecretary )
++								if (bFriendlyToSecretary)
+ 								{
+ 									iNewCivicValue *= 6;
+ 									iNewCivicValue /= 5;
+@@ -10096,7 +10099,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /*                                                                                              */
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+-				if( bFriendlyToSecretary )
++				if (bFriendlyToSecretary)
+ 				{
+ 					return PLAYER_VOTE_YES;
+ 				}
+@@ -10146,7 +10149,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /*                                                                                              */
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+-				if( bFriendlyToSecretary )
++				if (bFriendlyToSecretary)
+ 				{
+ 					iVoteBanThreshold *= 2;
+ 					iVoteBanThreshold /= 3;
+@@ -10184,7 +10187,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /*                                                                                              */
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+-				if( bFriendlyToSecretary )
++				if (bFriendlyToSecretary)
+ 				{
+ 					return PLAYER_VOTE_YES;
+ 				}
+@@ -10234,7 +10237,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /*                                                                                              */
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+-				if( bFriendlyToSecretary )
++				if (bFriendlyToSecretary)
+ 				{
+ 					return PLAYER_VOTE_YES;
+ 				}
+@@ -10266,7 +10269,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /*                                                                                              */
+ /* Diplomacy AI                                                                                 */
+ /************************************************************************************************/
+-				if( bFriendlyToSecretary )
++				if (bFriendlyToSecretary)
+ 				{
+ 					return PLAYER_VOTE_YES;
+ 				}
+@@ -10572,7 +10575,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 
+ 					if( !bValid )
+ 					{
+-						if( bFriendlyToSecretary && !kOurTeam.isVassal(ePeaceTeam) )
++						if (bFriendlyToSecretary && !kOurTeam.isVassal(ePeaceTeam))
+ 						{
+ 							// Influence by secretary
+ 							bValid = true;
+@@ -10605,7 +10608,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ /************************************************************************************************/
+ 				else
+ 				{
+-					if( bFriendlyToSecretary )
++					if (bFriendlyToSecretary)
+ 					{
+ 						return PLAYER_VOTE_YES;
+ 					}
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index ef793e408..150c2bd34 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -1299,7 +1299,9 @@ void WarAndPeaceCache::City::write(FDataStreamBase* stream) {
+ 	stream->Write(assetScore);
+ 	/*  I hadn't thought of a version number in the initial release.
+ 		Fold it into 'distance' to avoid breaking compatibility. */
+-	FAssert(distance >= -1 && distance < 10000);
++	FAssertMsg(distance >= -1 && distance < 10000, "-2 is OK if loaded from an "
++			"old savegame version");
++	distance = ::range(distance, -1, 9999);
+ 	// Add 1 b/c distance can be -1
+ 	stream->Write(distance + 1 + 10000 * savegameVersion);
+ 	stream->Write(targetValue);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 288daf614..9d3a6cd17 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1419,7 +1419,7 @@ double MilitaryVictory::progressRatingDiplomacy() {
+ 	double r = popGained / votesToGo;
+ 	if(apObstacles < 1)
+ 		return r;
+-	// If there are AP obstacles, give the progress rate on those 25% weight
++	// If there are AP obstacles, give the progress rate on those 25% weight.
+ 	return 0.25 * obstacleProgress + 0.75 * r;
+ }
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=27093

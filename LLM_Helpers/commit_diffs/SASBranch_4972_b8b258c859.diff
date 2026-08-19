@@ -1,0 +1,521 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4972
+# Commit: b8b258c8593658b659bedebf27bfe6c15fa959de
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5e16104b83234476eae61793e5fb9bf40fb43b9c
+# Title: (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block base...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+159	22	CvGameCoreDLL/CvUnitAI.cpp
+26	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+56	13	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4821b9320..a388327af 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1186,14 +1186,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					}
+ 				}
+ 			}
+-			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean if i'm not mistaken but anyways etc) if i'm not mistaken even though it has highest value due to urgency to clean/remove/scrub this feature if i'm not mistaken but anyways etc -->
++			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean if i'm not mistaken but anyways etc) if i'm not mistaken even though it has highest value due to urgency to clean/remove/scrub this feature, but very few feature_fallout ever happen in the game and generally quite late, but we loop quite often over al tiles if i'm not mistaken but anyways etc, so try to save computation and put this check last even though is the most important in iValue as of now anyways etc -->
+ 			else if (eFeature == eFeatureFallout)
+ 			{
+ 				if (canBuild(kPlot, eBuildScrubFallout))
+ 				{
+ 					eBestSupposedBuild = eBuildScrubFallout;
+ 
+-					iValue += 19500;
++					// <!-- custom: more important than improving any bonus, and add some value so it is also more important than scrubing non-bonus fallout tiles anyways etc (not sure it makes a difference since we want to clear all fallout anyway before improving any bonus but maybe the distinction helps if we change the code someday or someone does it or such in this case i mean but anyways etc) -->
++					iValue += 150000;
+ 				}
+ 				else
+ 				{
+@@ -1927,6 +1928,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						iValue += std::max(0, 50 * (-1 * iCityHealthCalculatedDifference));
+ 					}
+ 				}
++				// <!-- custom: even if plot is not a bonus one, removing/clearing/scrubing feature_fallout is more important than anything else for AI workers to tell them if i am not mistaken i mean but anyways etc, due to the strong yield and such penalties of this. Also, because if we don't do it here, it might never be done by any other function or very rarely if at all in city radius if i'm not mistaken but anyways etc. But since there is so few feature_fallout during the game and generally in the late game if ever, put this check last to save some computation anyways etc, and with a small reduction so it is slightly less than fallout on a bonus, but still more than improving any bonus if i'm not mistaken but anyways etc -->
++				else if (eFeature == eFeatureFallout)
++				{
++					if (canBuild(kPlot, eBuildScrubFallout))
++					{
++						eBestSupposedBuild = eBuildScrubFallout;
++
++						iValue += 100000;
++					}
++					else
++					{
++						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite” with another build.
++						continue;
++					}
++				}
+ 				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that if i may say but anyways etc, then nothing to do here for now at least if not always or not and in this case i mean but anyways etc -->
+ 				else if (eBestSupposedBuild == NO_BUILD)
+ 				{
+@@ -19192,6 +19208,9 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+     GroupPathFinder& pf = CvSelectionGroup::pathFinder();
+     pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
+ 
++	// <!-- custom: addition related to the fix of crash at turn 95, see below code comments or/and known issue as of now 58 for details anyways etc -->
++	int iTargetCityId = -1; // <-- remember which city owned the chosen plot
++
+     FOR_EACH_CITYAI(pLoopCity, kOwner)
+     {
+         if (pLoopCity == pCity)       // don’t pick current city A
+@@ -19222,7 +19241,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			continue;
+ 		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not be directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
+ 		// <!-- custom: update 2: although the crash at turn 77 was fixed, we get another crash (in another save file, at turn 68 now) fixed by uncommenting this, so until this is found kept as such i.e. uncommented anyways etc. Update 3: fixed by commenting out our old reliance on line `eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);` below in this CvUnitAI::AI_nextCityToImprove function: since we return nice builds and all and also optimized ones that should also be reliable, no need to rely on the old AI_betterPlotBuild function that here caused an issue as well. Tricky bug found by chatgpt 5 thanks to my prompts and such too hehe, so disabling this below guard/safety again. At this point i think it's better to crash and fix whatever flawed logic we have cleanly than avoiding it and having suboptimal, not necessarily visible issue(s? But anyways etc). If you have a crash again, consider adding or/and reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now at least but anyways etc and see if it helps or tinker around this (or/and ask a chatbot or whatever ai you have xd helped lot for me at least but do as you prefer i mean xd hopefully helpful or not or yes or etc anyways etc). See also known issue as of now 55 for extra info if needed and if any info is there anyways etc. -->
+-		// <!-- custom: update 3: after fixing crash at turn 68 issue, we now have a crash at turn 156, which happens rarely depending on autoplay settings in same map. I suspect it's a rare type of crash, and our logic otherwise works fine. It is hard to pinpoint exactly what failed, but the below "guard" or rather hard reject actually from what i understand thanks to chatgpt 5's explanation too i mean and my prompts too xd but anyways etc, is that this avoided the crashes at turn 68 and now turn 156 after we fixed the old betterplotbuild wrong for us now but anyways etc (if i'm not mistaken in this case i mean but anyways etc) reliance, by simply hard rejecting any candidate to be chosen rather than actually cleanly guarding against an issue. Indeed, at city loop selection stage pBestPlot and eBestBuild are still null/NO_BUILD, it is only the current candidates pPlot and eBuild for the current cityai in loop that are assigned and that we should guard. So effectively, we would never choose anything here at all, therefore this guard is wrong and should be removed although it helped fix the rare turn 156 crash and others due to hard rejecting everything. A softer solution is ideally to find where the crash happens and fix it there, and not ruin 99%+ of the valid choices (actually probably 99.9%+ (or 99.99+%? Maybe but anyways etc...) but anyways etc xd if not more. If i can't find where or why, i'll have to reenable this, but ideally if i can fix it i'd rather not use this very extreme hard reject here. Updated info about this: now solved, see known issue as of now 56 for details and code below too in the else block anyways etc -->
++		// <!-- custom: update 3: after fixing crash at turn 68 issue, we now have a crash at turn 156, which happens rarely depending on autoplay settings in same map. I suspect it's a rare type of crash, and our logic otherwise works fine. It is hard to pinpoint exactly what failed, but the below "guard" or rather hard reject actually from what i understand thanks to chatgpt 5's explanation too i mean and my prompts too xd but anyways etc, is that this avoided the crashes at turn 68 and now turn 156 after we fixed the old betterplotbuild wrong for us now but anyways etc (if i'm not mistaken in this case i mean but anyways etc) reliance, by simply hard rejecting any candidate to be chosen rather than actually cleanly guarding against an issue. Indeed, at city loop selection stage pBestPlot and eBestBuild are still null/NO_BUILD, it is only the current candidates pPlot and eBuild for the current cityai in loop that are assigned and that we should guard. So effectively, we would never choose anything here at all, therefore this guard is wrong and should be removed although it helped fix the rare turn 156 crash and others due to hard rejecting everything. A softer solution is ideally to find where the crash happens and fix it there, and not ruin 99%+ of the valid choices (actually probably 99.9%+ (or 99.99+%? Maybe but anyways etc...) but anyways etc xd if not more. If i can't find where or why, i'll have to reenable this, but ideally if i can fix it i'd rather not use this very extreme hard reject here. Updated info about this: now solved, see known issue as of now 56 for details and code below too in the else block anyways etc; update again: commenting out this hard reject also fixes, although not ideal since it rejects everything but helps pinpoint issue but anyways etc, crash at turn 95 (see known issue as of now 58 for details anyways etc), so definitely useful to try to comment this out temporarily and see if it helps fix your issue i mean but check if accurate anyways etc -->
+ 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+ 		// 	continue;
+ 
+@@ -19241,6 +19260,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // Found the first viable target in another city — take it.
+         eBestBuild = eBuild;
+         pBestPlot = pPlot;
++		// <!-- custom: new addition part of the fix/rewrite of the else block below that was seemingly causing the crash at turn 95 that is now seemingly fixed as well, see below code comments for details or/and known issue as of now 58 for details anyways etc. -->
++		iTargetCityId = pLoopCity->getID(); // <-- add this
+         break;
+     }
+ 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
+@@ -19304,34 +19325,143 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	// <!-- custom: note: the else i added here is redundant i think since we return true but just for clarity and in case code changes somehow someday or such but anyways etc -->
+ 	// <!-- custom: update 4 or whichever number it is now anyways etc: below else code block caused a crash at turn 156 in a rare save file (i.e. from turn 100 going to the next 100 turns we 100% trigger the crash, but in same map but from turn 150 no crash it seems or something else changed possibly, also i played a few autoplay maps up to turn 300 and the crash didn't happen, so this is what i mean by rare xd, so far only commenting out this (or using the too extreme hard reject in city loop above but much less ideal if i'm not mistaken anyways etc) fix(es) it, this is what i mean by rare but it is reproductible and consistent anyways etc), and even at turn 117 in same rare save file too when disabling the <advc.121> check and eMission change, so i think something is wrong here or/and doesn't go well with our current code but anyways etc -->
+ 	// <!-- custom: the crash in the else block below is reproductible, always at turn 156, i found the issue, see below code comments for details anyways etc -->
++	// <!-- custom: update again anyways etc: we now also have a reproductible crash at turn 95, that disappears after disabling/commenting out the below else block, trying to pinpoint exactly where anyways etc. Also about this crash, i have observed that if we autoplay 35 turns only, so 50->85 if i may say anyways etc, then autoplay X amount of turns, say 20 turns, to say 85->105 then we don't crash anymore?? Despite me not reloading nor anything but just holding a little while to save? This is consistent with what i had observed in known issue as of now 56 where i couldn't reproduce the crash if starting from a closer save point but always could from a farther one, very weird though but there must be some explanation, it also means saving could maybe help somehow workaround unknown crashes for players? Anyways etc. Back to our issue of crash at turn 95, fixed by rewriting the old else block below, now commented out, with the new one below that seemingly preserves nice routing logic, see known issue as of now 58 for details anyways etc, and check if accurate i mean too if i may say anyways etc. -->
++	// else
++	// {
++
++	// 	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled anyways etc -->
++	// 	// // 1) Re-validate legality of the planned build now
++	// 	// if (!canBuild(*pBestPlot, eBestBuild))
++	// 	// 	return false; // something changed; replan next turn
++
++	// 	// <advc.121>
++	// 	MissionTypes eMission = MISSION_MOVE_TO;
++
++	// 	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled anyways etc -->
++	// 	// // Only consider ROUTE_TO when we can actually lay routes
++	// 	// if (canBuildRoute())
++	// 	// {
++	// 	// 	// (Keep your original heuristic, minus the plot-group bit)
++	// 	// 	if (!getPlot().isRoute() || SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
++	// 	// 	{
++	// 	// 		// Don’t try a “safe territory route” to water with a land unit
++	// 	// 		if (!(getDomainType() == DOMAIN_LAND && pBestPlot->isWater()))
++	// 	// 		{
++	// 	// 			if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY))
++	// 	// 				eMission = MISSION_ROUTE_TO;
++	// 	// 		}
++	// 	// 	}
++	// 	// }
++	// 	// if (getDomainType() == DOMAIN_LAND && pBestPlot->isWater())
++	// 	// 	eMission = MISSION_MOVE_TO;
++
++	// 	// <!-- custom: after a bunch of back and forth and trial and error, i empirically got the idea to comment out this myself hehe, and found that this check is what causes the crash at turn 156! Disabling the sameplotgroup check fixes the crash. I don't know exactly why, but among all AIs i asked chatgpt 5 helped me most. Grok AI which i tried for the first time too but anyways etc was surprisingly sharp (Grok 4 Expert), and it gave the below explanation (for context if i may say but anyways etc i had commented out sameplotgroup and syncranonechancein calls hehe if i'm not mistaken that they are calls but anyways etc), check if accurate anyways etc -->
++	// 	// Of the two commented parts, the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || is more likely the culprit—it derefs pBestPlot and checks connectivity, which could lead to ROUTE_TO in semi-connected scenarios where pathing/flags assume disconnection but reality differs, causing downstream corruption. The random SyncRandOneChanceIn adds nondeterminism, but since Civ4's rand is synced/deterministic, it's less likely alone (though it could trigger the bad case in your specific save seed).
++	// 	// if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
++	// 	// 	SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
++	// 	if (!getPlot().isRoute() || SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
++	// 	{
++	// 		if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
++	// 			eMission = MISSION_ROUTE_TO;
++	// 	}
++
++	// 	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled anyways etc -->
++	// 	// // 2) Re-check *again* just before queuing the build (ownership/feature/tech can change)
++	// 	// if (!canBuild(*pBestPlot, eBestBuild))
++	// 	// 	return false; // something changed; replan next turn
++
++	// 	getGroup()->pushMission(eMission, /* </advc.121> */
++	// 			pBestPlot->getX(), pBestPlot->getY(),
++	// 			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
++	// 			false, false, MISSIONAI_BUILD, pBestPlot);
++	// 	// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or/and known issue as of now 55 for details anyways etc, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such anyways etc -->
++	// 	//eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
++	// 	//
++
++	// 	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled anyways etc -->
++	// 	// // 3) Re-check *again* just before queuing the build (ownership/feature/tech can change)
++	// 	// if (!canBuild(*pBestPlot, eBestBuild))
++	// 	// 	return false; // something changed; replan next turn
++
++	// 	getGroup()->pushMission(MISSION_BUILD,
++	// 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
++	// 			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
++	// 			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
++	// 	return true;
++	// }
++
++	// <!-- custom: ended up rewriting the above old else block (done by chatgpt 5) based on the code at CvUnitAI::AI_connectPlot, fixes our reproductible crash at turn 95, see known issue as of now 58 for details. Unlike below previous code, this preserves nice routing logic, and workers seem efficient enough seemingly as they were before (1 worker per tile, no roaming around mostly, cities nicely imrpoved at turn 100 starting from turn 50 or turn 0), so i think i'll keep it it seems this time in this case i mean but anyways etc -->
++	// Why this is minimal + safe
++	// Reuses the exact two-leg ROUTE_TO pattern you trust (city → plot), which avoids the flaky single jump.
++	// Keeps your efficient targeting logic intact.
++	// Only adds a tiny fallback move and a final canBuild check.
+ 	else
+ 	{
+-		// <advc.121>
+-		MissionTypes eMission = MISSION_MOVE_TO;
+-		// <!-- custom: after a bunch of back and forth and trial and error, i empirically got the idea to comment out this myself hehe, and found that this check is what causes the crash at turn 156! Disabling the sameplotgroup check fixes the crash. I don't know exactly why, but among all AIs i asked chatgpt 5 helped me most. Grok AI which i tried for the first time too but anyways etc was surprisingly sharp (Grok 4 Expert), and it gave the below explanation (for context if i may say but anyways etc i had commented out sameplotgroup and syncranonechancein calls hehe if i'm not mistaken that they are calls but anyways etc), check if accurate anyways etc -->
+-		// Of the two commented parts, the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || is more likely the culprit—it derefs pBestPlot and checks connectivity, which could lead to ROUTE_TO in semi-connected scenarios where pathing/flags assume disconnection but reality differs, causing downstream corruption. The random SyncRandOneChanceIn adds nondeterminism, but since Civ4's rand is synced/deterministic, it's less likely alone (though it could trigger the bad case in your specific save seed).
+-		// if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
+-		// 	SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
+-		if (!getPlot().isRoute() || SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
++		// Reconstruct the city pointer (safe even after the loop)
++		CvCityAI* pTargetCity = (iTargetCityId >= 0 ?
++			GET_PLAYER(getOwner()).AI_getCity(iTargetCityId) : NULL);
++
++		// Safety: if something changed, bail cleanly
++		if (pBestPlot == NULL || eBestBuild == NO_BUILD)
++			return false;
++
++		// Prefer the stable two-leg ROUTE pattern when possible
++		bool bDidRouteLegs = false;
++		if (canBuildRoute() && pTargetCity != NULL &&
++			pTargetCity->isArea(getArea()) && pBestPlot->isArea(getArea()) &&
++			!pBestPlot->isWater())
+ 		{
+-			if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
+-				eMission = MISSION_ROUTE_TO;
++			// Make sure both legs are pathable with safe flags
++			if (generatePath(pTargetCity->getPlot(), MOVE_SAFE_TERRITORY, true) &&
++				generatePath(*pBestPlot, MOVE_SAFE_TERRITORY, true))
++			{
++				if (atPlot(pBestPlot))
++				{
++					// Already at plot: route from plot to city
++					getGroup()->pushMission(MISSION_ROUTE_TO,
++						pTargetCity->getX(), pTargetCity->getY(),
++						MOVE_SAFE_TERRITORY, false, false,
++						MISSIONAI_BUILD, pBestPlot);
++				}
++				else
++				{
++					// Route to city first (no append), then to the plot (append)
++					getGroup()->pushMission(MISSION_ROUTE_TO,
++						pTargetCity->getX(), pTargetCity->getY(),
++						MOVE_SAFE_TERRITORY, false, false,
++						MISSIONAI_BUILD, pBestPlot);
++
++					getGroup()->pushMission(MISSION_ROUTE_TO,
++						pBestPlot->getX(), pBestPlot->getY(),
++						MOVE_SAFE_TERRITORY, true, false,
++						MISSIONAI_BUILD, pBestPlot); // K-Mod pattern
++				}
++				bDidRouteLegs = true;
++			}
+ 		}
+-		getGroup()->pushMission(eMission, /* </advc.121> */
++
++		if (!bDidRouteLegs)
++		{
++			// Fallback: simple move (don’t attach mission-plot on pure move)
++			getGroup()->pushMission(MISSION_MOVE_TO,
+ 				pBestPlot->getX(), pBestPlot->getY(),
+-				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
+-				false, false, MISSIONAI_BUILD, pBestPlot);
+-		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or/and known issue as of now 55 for details anyways etc, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such anyways etc -->
+-		//eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+-		//
++				NO_MOVEMENT_FLAGS, false, false,
++				MISSIONAI_BUILD, (CvPlot*)NULL);
++		}
++
++		// Final sanity before building (cheap; protects against rare invalidation)
++		if (!canBuild(*pBestPlot, eBestBuild))
++			return true; // movement/route queued; replan next turn
++
++		// Queue the improvement
+ 		getGroup()->pushMission(MISSION_BUILD,
+-				eBestBuild, -1, NO_MOVEMENT_FLAGS,
+-				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+-				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
++			eBestBuild, -1, NO_MOVEMENT_FLAGS,
++			/*append*/true, /*manual*/false, MISSIONAI_BUILD, pBestPlot);
++
+ 		return true;
+ 	}
+ 
+-	// <!-- custom: below code successfully avoids the turn 156 crash, try it if you notice other issues maybe but anyways etc, as for me i fixed the old code above since it has much better worker efficiency, kept if we meet future crashes in the future or such (redundant word future but anyways etc) in case it helps but anyways etc -->
++	// <!-- custom: below code successfully avoids the turn 156 crash, try it if you notice other issues maybe but anyways etc, as for me i fixed the old code above since it has much better worker efficiency, kept if we meet future crashes in the future or such (redundant word future but anyways etc) in case it helps but anyways etc; update, using this else block instead of the above one fixes crash at turn 95 (see known issue as of now 58 for details anyways etc), so definitely handy to have and to help pinpoint issue too (with the hard reject also but anyways etc), but since worker logic is very inefficient in this else block, commenting it out again and trying to fix the above one rather but helped lot again if i may say but anyways etc. Update: now crash at turn 95 fixed using another new else block, see known issue as of now 58 for details or/and above code anyways etc. -->
+ 	// else
+ 	// {
+ 	// 	// --- minimal & robust generic path (no ROUTE_TO here) ---
+@@ -20004,6 +20134,13 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)
+ 
+ 	FAssert(eBuild != NO_BUILD);
+ 
++	// <!-- custom: was added in an attempt to fix crash at turn 95, in the end it didn't help fix but since doesn't seem to break anything may as well keep it just to be safe, hopefully it doesn't break anything but anyways etc, also code is by chatgpt 5, check if accurate and see related crash we attempted to fix info in known issue as of now 58 for details anyways etc -->
++	// Hard guard – don't trust callers in Release
++	if (eBuild == NO_BUILD)
++		return NO_BUILD;
++	if (eBuild < 0 || eBuild >= GC.getNumBuildInfos())
++		return NO_BUILD;
++
+ 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+ 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+ 	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index d6df89dd0..0f0c8581d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -45,6 +45,7 @@ Instead of:
+ [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)  
+ [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)  
+ [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)  
++[Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
+ [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
+ [Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
+ [ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)  
+@@ -465,7 +466,7 @@ Which would help you solve them, in my case by doing a global search, finding th
+ 
+ In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path anyways etc, update to your own windows user account path anyways etc), there is an option that you can set to `generatecrashdumps = 1`.
+ 
+-It is useful in issues such as for example [57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots bu tanyways etc.
++It is useful in issues such as for example [57 - (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproductible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots bu tanyways etc.
+ 
+ I don't know too much about these nor can really read these .dmp files, but Visual 2010 C++ Express seemingly can, and so can WinDbg although that may be bit trickier/harder (but check if accurate again as i don't know too much about this).
+ 
+@@ -508,6 +509,30 @@ Which helped fix our issue successfully now anyways etc if i may say thnakfulyl
+ 
+ note: many many many other things global search can be useful for, for example this includes how i made suepr fast as of now all the readme md files's menus with chatgpt 5's help, bug hunting, and many other uses hehe if i may say but anyways etc.
+ 
++## Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)
++
++See screenshots or/and files about this in this [google drive folder link](https://drive.google.com/drive/folders/17FJs8tJy6g7SOsvtaRd5wVuX96mbmR_u?usp=sharing)
++
++This is something that may seem obvious but i didn't know it until i noticed someone explaining something to me (thanks xd hehe if i may say but anyways etc) mention it.
++
++For example, say you want to add or/and change some code related to basicinfos xml file in your mod. If you do a global search with vs code at root of civ4 folder (as for me for example it is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`) (note: not to be confounded with the BTS folder that is a subfolder of the former civ4 vanilla one at least in the steam version of civ4 bts it seems but anyways etc, and so that is in instead : `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\`), you'll find results in many files and folders related to such code samples you looked for.
++
++Or easier, if you use a tool like wiztree to search for said files (e.g. basicinfos xml file in this example but anyways etc) in root of civ4 folder (which as for me is the vanilla steam civ4 folder mentionned before anyways etc), you see something as in the screenshot, so many basicinfos xml files:
++
++- one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 vanilla version of it if i'm not mistaken but anyways etc) (+/- 800 lines)
++- and one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 warlords version of it i assume if i'm not mistaken but anyways etc) (+/- 843 lines if i'm not mistaken anyways etc)
++- one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 bts version of it i assume if i'm not mistaken but anyways etc) (+/- 260 lines)
++
++I don't know too much about these, but it seems to me that these are different versions of same file, and only most recent one relevant to your mod is applied (i.e. if you play vanilla the vanilla one applies i guess, but if you play bts the bts one applies rather i guess) but this is just a guess and i could or not be mistaken, check if accurate (for example ask chatgpt 5 or whichever recent or relevant version of it or some other ai or ask in some forum or such alternatively anyways etc) anyways etc.
++
++Sometimes the differences are small, sometimes the differences are huge as here, so which version to pick? Generally if you play bts i'd say pick latest, but again i don't know for sure, so i compiled this info since it would have been nice to know when i started modding, hopefully helpful and helps you if you want to start your mod but anyways etc.
++
++In this case i guess they changed the way old code worked or/and split it among other files or did some massive change that would explain the difference, but check if accurate as these are also just guesses of mine that may be accurate but i don't know for sure.
++
++Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or/and any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe but in all cases check if accurate too in license section of this mod's main readme if in doubt or/and to be sure but anyways etc) but anyways etc).
++
++Hopefully helpful anyways etc.
++
+ ## Civ4 ProcessInfos XML info
+ 
+ From: [modiki's website, wayback archive version latest i found anyways etc](https://web.archive.org/web/20230330010924/https://modiki.civfanatics.com/index.php?title=Civ4ProcessInfo) since was/is down the website as of/for now anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b9e4c3d33..39f4b58c8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -71,10 +71,11 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc)  
+ [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
+ [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc)  
+-[54 - (Fixed) Major Base Advciv +/- civ4 in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
++[54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-bug-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
+ [55 - (To keep in mind if you have a game crash in AdvCiv-SAS) One of the culprits could be AI_bestCityBuild (after we rewrote it entirely more or less anyways etc) sometimes firing not null or whatever (there are lines to uncomment in its callers that may fix it)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#55---to-keep-in-mind-if-you-have-a-game-crash-in-advciv-sas-one-of-the-culprits-could-be-ai_bestcitybuild-after-we-rewrote-it-entirely-more-or-less-anyways-etc-sometimes-firing-not-null-or-whatever-there-are-lines-to-uncomment-in-its-callers-that-may-fix-it)  
+ [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code)  
+-[57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94)  
++[57 - (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproductible-unknown-game-crash-at-turn-94)  
++[58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproductible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -950,7 +951,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this
+ 
+ Some promotions were missing in sevopedia unit's placePromotions, for example for the generic swordsman or the zulu impi (melee units combat type if i am not mistaken but anyways etc), they didn't show collateral damage 1 and collateral damage 2 (as of now renamed from base advciv +/- civ4's barrage promotions if i am not mistaken but anyways etc).
+ 
+-So thanks to chatgpt's help, i found the cause althoguh i suspected it too intuitively hehe, but chatgpt told me the issue thnaks to my prompt too but thanks to itself too but anyways etc and provided me and int his code if i may say but anyways etc a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition if i may say but anyways etc showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example anyways etc.
++So thanks to chatgpt's help, i found the cause althoguh i suspected it too intuitively hehe, but chatgpt told me the issue thanks to my prompt too but thanks to itself too but anyways etc and provided me and int his code if i may say but anyways etc a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition if i may say but anyways etc showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example anyways etc.
+ 
+ This seems to fix the issue (see screenshots for details, as we specifically now see the missing promotions on top of same old ones if i am not mistaken (didn't check in detail but there seem to be more than before and also to have relevant ones, check screenshots or/and xml for details or comparison or and such but anyways etc)), hopefully helpful or not or yes or etc but anyways etc
+ 
+@@ -1078,7 +1079,7 @@ This means that what was a good spot is now not anymore a good spot, and AI will
+ 
+ As can be seen in screenshots if i may say but anyways etc, with some previous changes i made, AI had a seemingly better understanding or/annd reaction but anyways etc to which bonuses are valuable and to settle near and not on, such as in screenshot 1475, here i assume to successfully grab the water bonuses thankfully thanks to our changes i assume that incentivize this more but anyways etc, however in screenshot 1476, these changes still did not compell AI to settle on coast and corinth in full tundra/snow is starved soon, which could have been avoided just by settling one tile south or somewhere near that for a much higher potential city relatively if i may say but anyways etc.
+ 
+-After these new changes i implemented in this known issue as of now 32 but anyways etc, we can see if i may say but anyways that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta). In particular, thanks to the changes and buffs we made to coastal planting, it may be a bit stronger to plant on coast than in base advciv, relatively, although land should sitll be quite betetr as of now at least if i may say but anyways etc.
++After these new changes i implemented in this known issue as of now 32 but anyways etc, we can see if i may say but anyways that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta). In particular, thanks to the changes and buffs we made to coastal planting, it may be a bit stronger to plant on coast than in base advciv, relatively, although land should still be quite betetr as of now at least if i may say but anyways etc.
+ 
+ Hopefully AI is stronger with these changes anyways etc.
+ 
+@@ -1155,7 +1156,7 @@ The code that seemed to make a nice and decisive positive difference it seems to
+ 
+ I also did a few other tentative changes that may be relevant or not, not documented here, see [this git commit on the mod's github](https://github.com/wonderingabout/AdvCiv-SAS/commit/a6525a8b7c78ccc5058b657ec5d049d4c41d97a2) for details anyways etc.
+ 
+-Appendix: i have noticed the issue still happens in screenshots 1690 and 1691, now in map 336 but somehow still in ulundi!! (Although all players should be random but anyways etc). The city was just at happiness cap (5 happy vs 5 unhappy = 0 if i am not mistaken, although i am not sure it is exactly counted as such in our code but let's assume for the sake of explanation if i may say but anyways etc), so instead of `>0` i did as is now fixed also above `>=0`. The issue happened again with this change in screenshots 1695 and 1696 (starting from turn 50, the exact same save file that was already at turn 50 if i am not mistaken but anyways etc), but after ending turn, fixed itself at screenshots 1697 and 1698 right away the next, with the very nice sheep hill grassland now allocated and starvation solved :) So i hope this fixes the issue or at least i'd like to think so. If not, i hope and in all cases too i mean if i may say that it helped, and that AI is now stronger or not weaker than it was thnaks to this change (production seems good and strong too in this example if i am not mistaken too but anyways etc).
++Appendix: i have noticed the issue still happens in screenshots 1690 and 1691, now in map 336 but somehow still in ulundi!! (Although all players should be random but anyways etc). The city was just at happiness cap (5 happy vs 5 unhappy = 0 if i am not mistaken, although i am not sure it is exactly counted as such in our code but let's assume for the sake of explanation if i may say but anyways etc), so instead of `>0` i did as is now fixed also above `>=0`. The issue happened again with this change in screenshots 1695 and 1696 (starting from turn 50, the exact same save file that was already at turn 50 if i am not mistaken but anyways etc), but after ending turn, fixed itself at screenshots 1697 and 1698 right away the next, with the very nice sheep hill grassland now allocated and starvation solved :) So i hope this fixes the issue or at least i'd like to think so. If not, i hope and in all cases too i mean if i may say that it helped, and that AI is now stronger or not weaker than it was thanks to this change (production seems good and strong too in this example if i am not mistaken too but anyways etc).
+ 
+ Hopefully AI is a bit stronger with this changed i attempted to make in a balanced way (not too much food, not as it was too much production)
+ 
+@@ -1856,7 +1857,7 @@ I didn't implement any economy check, but it seems we don't go bankrupt at least
+ 
+ So what this changes in short is:
+ 
+-- prevent naval overproduction and such: don't overproduce naval units when in danger or such and evne if not add some sanity max quotas or limits per unitai (prevents overproducing naval units from any short circuit code if i'm not mistaken as we block the order itself now (unless some other unknown code emits orders, else we should now handle most if not all)): helps react better to threat and map type and produce optimal unitais (with some flexibility is not too strict but quite guided for the AIs's sake and for efficiency of the AI if i may say but anyways etc)
++- prevent naval overproduction and such: don't overproduce naval units when in danger or such and even if not add some sanity max quotas or limits per unitai (prevents overproducing naval units from any short circuit code if i'm not mistaken as we block the order itself now (unless some other unknown code emits orders, else we should now handle most if not all)): helps react better to threat and map type and produce optimal unitais (with some flexibility is not too strict but quite guided for the AIs's sake and for efficiency of the AI if i may say but anyways etc)
+ - prevent naval dementia: don't go like: "oh i need one more unit, let's produce it". (Production completes...) "Oh i have one too many unit, let's scrap 1 or 2 just because xd no one will notice it" (i mean yes but it's horrible and hurts AI strength and aesthetic too but anyways etc...), then AI is like "oh, i need one more unit, let's produce it" (ofc you do, you jsut scrapped it xd). This was the issue with workboats, possibly with privateers, maybe with other units. At this point i don't trust the code anymore xd, not sure that i did though but now i definitely don't, although it works not too bad otherwise, so i implemented global sanity checks for almost all unitAIs if not all then almost anyways etc.
+ 
+ Results are tremendously positive, i started from a very desperate save at turn 200, 20 turns more or less before capital fell with the naval dementia or/and overproduction issue.
+@@ -2065,7 +2066,7 @@ pushOrder(ORDER_TRAIN, eUnit, eUnitAI)
+ return true
+ ```
+ 
+-## 54 - (Fixed) Major Base Advciv +/- civ4 in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
++## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1gYU7NrXpJNc5p6hbqOsCxnOmCy_7VTDf?usp=sharing)
+ 
+@@ -2109,7 +2110,7 @@ Kept as is until i find the cause, but if we can streghten our functio so we don
+ 
+ If i remove it (i.e. assuming we fix this specific crash and you encounter a crash), consider tinkering around `CvUnitAI::AI_bestCityBuild` and/or its callers, and see what happens and if it solves your issue, including but not only reenabling the safeties i mentionned or others you get the idea to, hopefully helpful or not or yes or etc anyways etc.
+ 
+-Update: fixed!!! The culprit was not our now streghtened (and before that nicely rewritten but anyways etc) `CvUnitAI::AI_bestCityBuild` function but instead our reliance on old code of the `AI_betterPlotBuild` in `CvUnitAI::AI_nextCityToImprove` a bit after calling our rewritten function but anyways etc:
++Update: fixed!!! The culprit was not our now strenghtened (and before that nicely rewritten but anyways etc) `CvUnitAI::AI_bestCityBuild` function but instead our reliance on old code of the `AI_betterPlotBuild` in `CvUnitAI::AI_nextCityToImprove` a bit after calling our rewritten function but anyways etc:
+ 
+ ```cpp
+ 		getGroup()->pushMission(eMission, /* </advc.121> */
+@@ -2135,7 +2136,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this
+ 
+ So this is a tricky crash that we got after fixing the crash at turn 68 above (see known issue as of now 55 for details anyways etc). We since then don't rely on the old "guard" that was in fact a hard reject so of course we got/had no crash anymore (or no more xd? But anyways etc) but anyways etc since we rejected all builds xd, as chatgpt 5 told me if i understood it correctly, which was very bad, so now this old hard reject is not used anymore, and instead through trial and error and blindly commenting out myself hehe, i found the issue to be in the else block (i.e. the non-bonus roading old base advciv +/- civ4 logic that we kept as an alternative path but anyways etc) in `CvUnitAI::AI_nextCityToImprove` anyways etc.
+ 
+-Then after a lot of back and forth, and then evne then back and forth with many AIs including Grok AI i used for the first time xd too (Grok 4 Expert as of now but anyways etc) which was very sharp and helped chatgpt 5 too, from what i understood of it as i don't know too much about these xd but anyways etc, i then got the idea myself to blindly comment out things in the else block, and luckily got it right at first try hehe (i did so because i didn't want to change old code unless we had to, plus a non crashing code chatgpt 5 provided performed much worse in terms of worker AI efficiency, 5 workers on a tile to chop forest, then cancelling it and roaming wherever xd, it was a mess but no crash then, but helped too to motivate me to try this xd thnaks maybe but anyways etc):
++Then after a lot of back and forth, and then even then back and forth with many AIs including Grok AI i used for the first time xd too (Grok 4 Expert as of now but anyways etc) which was very sharp and helped chatgpt 5 too, from what i understood of it as i don't know too much about these xd but anyways etc, i then got the idea myself to blindly comment out things in the else block, and luckily got it right at first try hehe (i did so because i didn't want to change old code unless we had to, plus a non crashing code chatgpt 5 provided performed much worse in terms of worker AI efficiency, 5 workers on a tile to chop forest, then cancelling it and roaming wherever xd, it was a mess but no crash then, but helped too to motivate me to try this xd thanks maybe but anyways etc):
+ 
+ ```cpp
+ 		if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
+@@ -2151,7 +2152,7 @@ which i commented out as such at first:
+ 
+ No crash!!!
+ 
+-After asking Grok AI and chatgpt 5 (AI too but anyways etc), i went on and reenabled the syncrandonechancein part of the check and still no crash, so this confirms that the issue was indeed this issameplotgroup part of the check that was causing errors, and our workers are sitll super efficient, great!
++After asking Grok AI and chatgpt 5 (AI too but anyways etc), i went on and reenabled the syncrandonechancein part of the check and still no crash, so this confirms that the issue was indeed this issameplotgroup part of the check that was causing errors, and our workers are still super efficient, great!
+ 
+ So now code is as of now as such instead in `CvUnitAI::AI_nextCityToImprove` in the else block still but anyways etc:
+ 
+@@ -2166,9 +2167,9 @@ Considering i recompiled it several times including after polishing code comment
+ 
+ I am very happy of this result and of us (i.e. me or/and maybe players xd but anyways etc) being able to keep AI worker efficiency and also solve what i think is/was now but anyways etc an old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what but anyways etc), that was hidden by the betterplotbuild assignment as explained in known issue as of now 55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much aobut these, ask chatgpt 5 to be sure! Or some other AI (or/and but anyways etc), and check if accurate too if i may say! But anyways etc.
+ 
+-See also: [57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94)
++See also: [58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproductible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc)
+ 
+-## 57 (reproductible and as of now not yet fixed if ever fixed anyways etc) Unknown game crash at turn 94 (this one isn't reproductible) but also at turn 95 in another map (this one IS reproductible)
++## 57 - (Not reproductible) Unknown game crash at turn 94
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/15z0uxT_RxClHNk0u7HnlcmqdmA9gLNkO?usp=sharing)
+ 
+@@ -2178,4 +2179,46 @@ No idea what the cause is, but could be DLL related based on the .dmp (see scree
+ 
+ Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc), anyways etc.
+ 
+-Update: however after our starting techs changes/reworks, now on map number 385 (is just my own numbering of testing map, not related to any other popular save or such numbering or purely coincidental if so anyways etc), starting from save file (appended in drive link anyways etc) at turn 50, autoplay 50 turns and we reliably crash at turn 95. Very unlikely to be caused by this pure xml civilization info change, especially considering past history of recent crashes in this case i mean but anyways etc, but since this crash is now (assuming is the same, regardless we'd have to debug or attempt to debug or fix it ideally anyways etc) reproductible so this could be used to investigate why or/and such anyways etc.
++## 58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1EbDC3zsot974BCe-hTyh0aB9xhxnjZyq?usp=sharing)
++
++This time i got a crash i could reproduce, so eventually found and fixed this one in this case i mean but anyways etc.
++
++But first some context if i may say but anyways etc
++
++After our starting techs changes/reworks, now on map number 385 (is just my own numbering of testing map, not related to any other popular save or such numbering or purely coincidental if so anyways etc), starting from save file (appended in drive link anyways etc) at turn 50, autoplay 50 turns from there and we reliably crash at turn 95. Very unlikely to be caused by this pure xml civilization info change, especially considering past history of recent crashes in this case i mean but anyways etc, but since this crash is now (assuming is the same, regardless we'd have to debug or attempt to debug or fix it ideally anyways etc) reproductible so i could use it to investigate and now fix the crash it seems reliably but anyways etc.
++
++I did as in previous issues, uncommenting i.e. reenabling the hard reject in `CvUnitAI::AI_nextCityToImprove` fixed the issue, so it pinpointed it a small scale of likely culprits. As this is not optimal, i also tried commenting out the else block which also fixes the issue.
++
++Then i tried changing a few things blindly or/and empirically +/- with the help of chatgpt 5 and/or some other ais like grok 4 or and such but no luck.
++
++After looking at other code samples and how they use ROUTE_TO, it seemed like the code at `CvUnitAI::AI_connectPlot` was very reliable, at least worth a try, i quickly glanced but it seemed so and also based on how chatgpt 5 mentionned it when i gave it some code samples among other ones if i'm not mistaken but anyways etc.
++
++So chatgpt 5 wrote some drafts, and one of them i tested seemed to be minimal, conservative, fixing our issue, while also preserving roading and efficient enough (seemingly same as before: one worker per tile, cities roaded enough, no weird worker roaming or back and forth without builds, and cities improved fast enough at turn 100 or such) so i kept the rewrite this time. It seems to enhance our roading logic too although i only checked or glanced rather and i don't understand too much this code or the c++ code in general but i think i got the main idea hehe.
++
++A few notes now that this is seemingly solved reliably and nicely enhanced it seems if i am not mistaken but anyways etc:
++
++- this is a rare crash, a few games autoplayed end to end fine after the fix of crash at turn 156 in [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code) (btw coincidence of issue 56 and turn 156 crash xd i just noticed but purely coincidental really but anyways etc (but still cool in this case i mean but anyways etc)). It is reliably reproductible 100% though from same save file it seems though so rare in the sense that many other maps play fine after our last fix, so hopefully code is even mre robust now (and not just going back and forth between fixing and unfixing xd, at least i think so (that code is more robust if i'm not mistaken but anyways etc))
++- observation: if i autoplay 35 turns only, so 50->85 if i may say anyways etc, then autoplay X amount of turns, say 20 turns, to say 85->105 then we don't crash anymore weirdly. Despite me not reloading nor anything but just holding off for a little while to save. This is consistent though with what i had observed in known issue as of now 56 where i couldn't reproduce the crash if starting from a closer save point but always could from a farther one, very weird though but there must be some explanation, it also means saving could maybe help somehow workaround unknown crashes for players? Anyways etc
++- while attempting to fix, i added an extra safety in `CvUnitAI::AI_betterPlotBuild`. Although it didn't help fix it and seemingly wasn't related to our crash (didn't cause it, didn't help fix it) but it seems fine and safe to add, as recommended and provided by chatgpt 5 thanks to my prompts and such too but anyways etc. In case a future crash happens there, hopefully this would help prevent it, and hopefully it doesn't break anything. Consider tinkering with it to troubleshoot and see if it is still needed or not now, or if it makes any difference. Seems like a good practice to add, but i didn't rewrite the other functions (that call it) so i don't know too much if at all what this would cause in terms of gameplay. Cities seem to mostly be improved fine so kept as such, check if accurate anyways etc (also added for my sanity xd if i may say but anyways etc)
++- game now plays end to end until some ai wins at turn 270+ a space victory so all seems good.
++- finally below chatgpt 5 recommended upon re review at next prompt this extra safety when i told it issue is fixed but anyways etc. I didn't want to complicate anything since our code is clean and simple if i may say but anyways etc, but consider adding it if helps (i also don't know too much about these so check if accurate too and all the more reason not to mess xd at least since we have no issue nor thing to improve here it seems at least but check if accurate or if this is possibly useful as grok also recommended after seeing the solution chatgpt 5 had provided before this extra safety it recommended but anyways etc)
++
++>Extra-safe city fallback
++>
++>If the saved iTargetCityId somehow goes stale, try the working city of the target plot before falling back to MOVE_TO.
++>
++>```cpp
++>CvCityAI* pTargetCity = NULL;
++>if (iTargetCityId >= 0)
++>    pTargetCity = GET_PLAYER(getOwner()).AI_getCity(iTargetCityId);
++>if (pTargetCity == NULL && pBestPlot != NULL)
++>{
++>    if (CvCity* pWC = pBestPlot->getWorkingCity())
++>        if (pWC->getOwner() == getOwner())
++>            pTargetCity = pWC->AI_getCity();
++>}
++>```
++
++Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems if i am not mistaken but anyways etc, except elephantine city that is not imrpoved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 25e013cf1..dccc4d530 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -124,7 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disable `AIFoundValue::adjustToBadHealth`, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc. Update: since then toned it down a bit and enhanced it: now we have a threshold, we tolerate some bad health without penalty, after not too bad, we can as of now chop jungle for benefits (see changes to feature_jungle below anyways etc), but if too much health to the point we may not grow or it's just too high, and not offset by forest good health, then we avoid the site for our capital quite strongly and a bit less for later cities. For example, as of now for the capital the healthpercent difference we tolerate is <= 350 without applying penalty yet. So if you have as of now (i.e if the AI settler, not human players, anyways etc) 7 jungle tiles, of 50 health percent (i.e -0.50 health in city if i am not mistaken but anyways etc) in city radius (if i am not mistaken too but anyways etc), then you are barely not penalized i mean the AI settler still thinks it is good, same if city spot candidate had say 9 jungle and 3 forest (9 x (-50) + 3 x (+ 50) = 6 x (-50) = -300 still under 350 so AI thinks it's good even for capital, but say 8 jungle tiles without forest is beyond the threshold (8 x (-50) = -400)), so AI will quite strongly avoid it, at least for now, until no better site remains, so that it grows fine. When AI has more workers, it willb e able to chop these easier so i hope these make sense, but old base advciv code penalized them more linearly and not dynamically like we do, but ofc i could be mistaken and just glanced at their code before changing it, so check to be sure if accurate, anyways etc. As of now for later cities the ratio of tolerance is >= 450 if i am not mistaken so we have more leeway, still overly jungly or such areas will be aovided at least at first, else fine. Note: floodplains not counted as their advantage of high food offsets the health penalty, as of now. As a result, AI have better starting cities, not totally rejecting fine sites, but avoid early the very unhelathy one,s and then coming back to them later as they can be often quite good actually in potential, epecially with our jungle changes, but later in the game most often at least in theory (i didn't retest it too much since that change but seems to behave as so and as intended, but check to be sure) check code for details as of now in `AIFoundValue::evaluate` if i am not mistaken anyways etc, anyways etc.
+ - make ai cities wider spread and simplify conditions with changes in `AIFoundValue::isTooManyTakenTiles` and `AIFoundValue::adjustToCivSurroundings` (remove long distance penalties of settling cities in this case i mean but anyways etc, and if i am not mistaken anyways etc), they were often times too or even very much way too crowded and close in a way that doesn't allow them to grow past size 4 or 6 and they'd compete for yields, hopefully much more efficient now with a wider spreading, although as a result they are a bit thinner and militarily weaker but should be very worth it or so i think but anyways etc.
+ - since that change, fine tune it further by penalizing too close cities, and also penalizing too far cities. Not from our capital as in old code and that we disabled, but from our nearest city rather. This means that otherwise good city spots that are not compatible with a star-shaped empire will still be considered and not unfairly or unfortunately dismissed because they don't fit this. So thin empires may be good, only criterion is how far or close we are to nearest city. This penalty is strongest early as empire needs to be especially cohesive early, and fades moderately the more cities we have (see `int AIFoundValue::adjustToCivSurroundings` for details). Hopefully AI is more creative and combative, especially later as the game goes on if i may say in this case but anyways etc and the city spots remaining are less, while economy should be stronger and strong enough now in this case i mean but anyways etc to support farther city settlements(/settling ?), and military stronger to protect this potentially thinner empire too if i am not mistaken but anyways etc, in its city settlement(/settling ?) choices. I hope this helps AI spread cities more as is needed as they are too crowded in base advciv +/- civ4 quite often, plus also penalize spreading too far the farther we are, but the less we penalize it the more cities we have. Code provided by gemini ai which i then tweaked, results seem very good (cities nicely spread but not too far as with my first change) but test/check to be sure anyways etc.
+-- since that change much later, fixed a major base advciv +/- civ4 in `AIFoundValue::adjustToCivSurroundings` causing AI settlers to value midgame (turn 51+ and not before turn 50 in the example i saw but anyways etc) settling for example on camel desert or/and in a desertic area. Fixed by disabling this very messy and dysfunctionnal function, and instead rewrite a very simplified version of it inline in its only caller if i'm not mistaken in its only caller (`AIFoundValue::evaluate` if i'm not mistaken). As a result of this change, AI now does not settle on camel anymore, plus, it settles nicely around the desertic area 15+ desertic tiles and not in it anymore as intended. Thanks to this change, i believe AI is much stronger in its settling choices, at least should less likely fall in weird bugs like this caused by stupid interferences poorly written, but there was no chatgpt or such at the time but anyways etc (i used chatgpt 5 to help me tons since i don't know too much about these otherwise but still contributed many ideas and such but i mean thanks lot anyways etc). I also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)). See for details [54 - (Fixed) Major Base Advciv +/- civ4 in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)
++- since that change much later, fixed a major base advciv +/- civ4 in `AIFoundValue::adjustToCivSurroundings` causing AI settlers to value midgame (turn 51+ and not before turn 50 in the example i saw but anyways etc) settling for example on camel desert or/and in a desertic area. Fixed by disabling this very messy and dysfunctionnal function, and instead rewrite a very simplified version of it inline in its only caller if i'm not mistaken in its only caller (`AIFoundValue::evaluate` if i'm not mistaken). As a result of this change, AI now does not settle on camel anymore, plus, it settles nicely around the desertic area 15+ desertic tiles and not in it anymore as intended. Thanks to this change, i believe AI is much stronger in its settling choices, at least should less likely fall in weird bugs like this caused by stupid interferences poorly written, but there was no chatgpt or such at the time but anyways etc (i used chatgpt 5 to help me tons since i don't know too much about these otherwise but still contributed many ideas and such but i mean thanks lot anyways etc). I also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)). See for details [54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-bug-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
+ - `AIFoundValue::evaluateDefense`: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - `AIFoundValue::adjustToBarbarianSurroundings`: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index 0480d6fe3..278e1c3d2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -66,6 +66,8 @@ As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCi
+ 
+ ### before most recent as of now rework anyways etc
+ 
++#### main table (chatgpt 5 written anyways etc) - before change anyways etc
++
+ Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
+ 
+ | Civ                      | Lines       | FreeTechs                               | Allowed-only? |
+@@ -108,6 +110,8 @@ Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file
+ | Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
+ | Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
+ 
++#### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
++
+ Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe but anyways etc):
+ 
+ Allowed starting techs
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=76952

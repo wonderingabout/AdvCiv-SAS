@@ -1,0 +1,265 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5910
+# Commit: 93ce591ae99a1fb034cbc3ca732c1ae4d72a1929
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a1a6690eafe47d83697d75bfd1c2d25037ab6ac5
+# Title: Fix Ruff E902 (stream did not contain valid UTF-8) converting the files to UTF-8 with VS Code seems to solve this
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	11	Assets/Python/Contrib/TechWindow.py
+12	11	Assets/Python/Contrib/TechWindowWide.py
+4	4	LLM_Helpers/README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/TechWindow.py b/Assets/Python/Contrib/TechWindow.py
+index 112f728b0..f1d80553f 100644
+--- a/Assets/Python/Contrib/TechWindow.py
++++ b/Assets/Python/Contrib/TechWindow.py
+@@ -1,9 +1,10 @@
+ ## TechWindow
+ ##
+-## Originally by SirRethcir: Techanzeige hinzugef�gt
++## Originally by SirRethcir: Techanzeige hinzugefügt
+ ## Enhanced by Roamty, Caesium, Guarav
+ ##
+ ## Copyright (c) 2008 The BUG Mod.
++## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. (GPT-5.5) -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+@@ -73,7 +74,7 @@ class CvTechSplashScreen:
+ 		self.W_QUOTE = 400
+ 		self.H_QUOTE = self.H_UPPER_PANEL - (self.iMarginSpace * 2) - 38
+ 
+-#---Ge�ndert START - siehe original Datei -----------------		
++#---Geändert START - siehe original Datei -----------------		
+ 		# Lower Panel
+ 
+ 		self.X_LOWER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
+@@ -99,7 +100,7 @@ class CvTechSplashScreen:
+ 		self.W_ALLOWS_PANEL = self.W_LOWER_PANEL/2 - (self.iMarginSpace)
+ 		self.Y_ALLOWS_PANEL2 = self.Y_SPECIAL_PANEL + self.H_ALLOWS_PANEL + self.H_ALLOWS_SPACE
+ 		self.Y_ALLOWS_PANEL3 = self.Y_SPECIAL_PANEL + 2 * (self.H_ALLOWS_PANEL + self.H_ALLOWS_SPACE)
+-#---Ge�ndert ENDE ------------------------------------------
++#---Geändert ENDE ------------------------------------------
+ 
+ 		# Contents
+ 
+@@ -164,19 +165,19 @@ class CvTechSplashScreen:
+ 		screen.addPanel( szSpecialPanel, "", "", true, true, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(szSpecialPanel, "Panel_Black25_Style")
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden-----------------
++#---Eingefügt START - kann komplett gelöscht werden-----------------
+ 		# Allows PanelSIR
+ 		panelNameSIR = "SIR"
+ 		screen.addPanel( panelNameSIR, "", "", false, true, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR, self.W_ALLOWS_PANELSIR-(self.iMarginSpace * 2), self.H_ALLOWS_PANELSIR, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(panelNameSIR, "Panel_Black25_Style")
+-#---Eingef�gt ENDE -------------------------------------------------
++#---Eingefügt ENDE -------------------------------------------------
+ 
+ 		# Allows Panel
+ 		panelName = self.getNextWidgetName()
+ 		screen.addPanel( panelName, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(panelName, "Panel_Black25_Style")
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden-----------------
++#---Eingefügt START - kann komplett gelöscht werden-----------------
+ 		# Allows Panel2
+ 		panelName2 = "SIR2"
+ 		screen.addPanel( panelName2, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL2, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+@@ -186,7 +187,7 @@ class CvTechSplashScreen:
+ 		panelName3 = "SIR3"
+ 		screen.addPanel( panelName3, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL3, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(panelName3, "Panel_Black25_Style")
+-#---Eingef�gt ENDE -------------------------------------------------
++#---Eingefügt ENDE -------------------------------------------------
+ 
+ 		# Add Contents
+ 
+@@ -216,7 +217,7 @@ class CvTechSplashScreen:
+ 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, True, -1)[1:]
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden --------------
++#---Eingefügt START - kann komplett gelöscht werden --------------
+ 		# Allows -> LeadsTo
+ 		szAllowsTitleDescSIR = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()) + ":" + u"</font>"
+ 		szAllowsTitleWidgetSIR = "AllowsTitleSIR"
+@@ -232,7 +233,7 @@ class CvTechSplashScreen:
+ 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqAndTechs(k)
+ 				if (iPrereq == self.iTech):
+ 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
+-#---Eingef�gt ENDE ------------------------------------------------
++#---Eingefügt ENDE ------------------------------------------------
+ 
+                 # Allows
+ 		# szAllowsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + u"</font>"
+@@ -277,7 +278,7 @@ class CvTechSplashScreen:
+ 			if (CyGlobalContext().getPromotionInfo(j).getTechPrereq() == self.iTech):
+ 				screen.attachImageButton( panelName3, "", CyGlobalContext().getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False )
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden --------------
++#---Eingefügt START - kann komplett gelöscht werden --------------
+                 # Improvements
+ 		for j in range(CyGlobalContext().getNumBuildInfos()):
+ 				bTechFound = 0
+@@ -305,7 +306,7 @@ class CvTechSplashScreen:
+ 		for j in range(CyGlobalContext().getNumCivicInfos()):
+ 			if (CyGlobalContext().getCivicInfo(j).getTechPrereq() == self.iTech):
+ 				screen.attachImageButton( panelName3, "", CyGlobalContext().getCivicInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, j, 1, False )
+-#---Eingef�gt ENDE ------------------------------------------------		
++#---Eingefügt ENDE ------------------------------------------------		
+ 
+ 	# returns a unique ID for a widget in this screen
+ 	def getNextWidgetName(self):
+
+diff --git a/Assets/Python/Contrib/TechWindowWide.py b/Assets/Python/Contrib/TechWindowWide.py
+index 32f93dd53..648c98fcb 100644
+--- a/Assets/Python/Contrib/TechWindowWide.py
++++ b/Assets/Python/Contrib/TechWindowWide.py
+@@ -1,9 +1,10 @@
+ ## TechWindowWide
+ ##
+-## Originally by SirRethcir: Techanzeige hinzugef�gt
++## Originally by SirRethcir: Techanzeige hinzugefügt
+ ## Enhanced by Roamty, Caesium, Guarav
+ ##
+ ## Copyright (c) 2008 The BUG Mod.
++## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. (GPT-5.5) -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+@@ -78,7 +79,7 @@ class CvTechSplashScreen:
+ #		self.H_QUOTE = self.H_UPPER_PANEL - (self.iMarginSpace * 2) - 38
+ 		self.H_QUOTE = self.H_UPPER_PANEL - (self.Y_QUOTE - self.Y_UPPER_PANEL) - (self.iMarginSpace * 2)
+ 
+-#---Ge�ndert START - siehe original Datei -----------------		
++#---Geändert START - siehe original Datei -----------------		
+ 		# Lower Panel
+ 
+ 		self.X_LOWER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
+@@ -104,7 +105,7 @@ class CvTechSplashScreen:
+ 		self.W_ALLOWS_PANEL = self.W_LOWER_PANEL/2 - (self.iMarginSpace)
+ 		self.Y_ALLOWS_PANEL2 = self.Y_SPECIAL_PANEL + self.H_ALLOWS_PANEL + self.H_ALLOWS_SPACE
+ 		self.Y_ALLOWS_PANEL3 = self.Y_SPECIAL_PANEL + 2 * (self.H_ALLOWS_PANEL + self.H_ALLOWS_SPACE)
+-#---Ge�ndert ENDE ------------------------------------------
++#---Geändert ENDE ------------------------------------------
+ 
+ 		# Contents
+ 
+@@ -169,19 +170,19 @@ class CvTechSplashScreen:
+ 		screen.addPanel( szSpecialPanel, "", "", true, true, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(szSpecialPanel, "Panel_Black25_Style")
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden-----------------
++#---Eingefügt START - kann komplett gelöscht werden-----------------
+ 		# Allows PanelSIR
+ 		panelNameSIR = "SIR"
+ 		screen.addPanel( panelNameSIR, "", "", false, true, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR, self.W_ALLOWS_PANELSIR-(self.iMarginSpace * 2), self.H_ALLOWS_PANELSIR, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(panelNameSIR, "Panel_Black25_Style")
+-#---Eingef�gt ENDE -------------------------------------------------
++#---Eingefügt ENDE -------------------------------------------------
+ 
+ 		# Allows Panel
+ 		panelName = self.getNextWidgetName()
+ 		screen.addPanel( panelName, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(panelName, "Panel_Black25_Style")
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden-----------------
++#---Eingefügt START - kann komplett gelöscht werden-----------------
+ 		# Allows Panel2
+ 		panelName2 = "SIR2"
+ 		screen.addPanel( panelName2, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL2, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+@@ -191,7 +192,7 @@ class CvTechSplashScreen:
+ 		panelName3 = "SIR3"
+ 		screen.addPanel( panelName3, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL3, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+ 		screen.setStyle(panelName3, "Panel_Black25_Style")
+-#---Eingef�gt ENDE -------------------------------------------------
++#---Eingefügt ENDE -------------------------------------------------
+ 
+ 		# Add Contents
+ 
+@@ -221,7 +222,7 @@ class CvTechSplashScreen:
+ 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, True, -1)[1:]
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden --------------
++#---Eingefügt START - kann komplett gelöscht werden --------------
+ 		# Allows -> LeadsTo
+ 		szAllowsTitleDescSIR = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()) + ":" + u"</font>"
+ 		szAllowsTitleWidgetSIR = "AllowsTitleSIR"
+@@ -237,7 +238,7 @@ class CvTechSplashScreen:
+ 				if (iPrereq == self.iTech):
+ 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
+ 
+-#---Eingef�gt ENDE ------------------------------------------------
++#---Eingefügt ENDE ------------------------------------------------
+ 		# Allows
+ 		# szAllowsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + u"</font>"
+ 		# szAllowsTitleWidget = "AllowsTitle"
+@@ -281,7 +282,7 @@ class CvTechSplashScreen:
+ 			if (CyGlobalContext().getPromotionInfo(j).getTechPrereq() == self.iTech):
+ 				screen.attachImageButton( panelName3, "", CyGlobalContext().getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False )
+ 
+-#---Eingef�gt START - kann komplett gel�scht werden --------------
++#---Eingefügt START - kann komplett gelöscht werden --------------
+ 
+ 		# Improvements
+ 		for j in range(CyGlobalContext().getNumBuildInfos()):
+@@ -311,7 +312,7 @@ class CvTechSplashScreen:
+ 			if (CyGlobalContext().getCivicInfo(j).getTechPrereq() == self.iTech):
+ 				screen.attachImageButton( panelName3, "", CyGlobalContext().getCivicInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, j, 1, False )
+ 
+-#---Eingef�gt ENDE ------------------------------------------------		
++#---Eingefügt ENDE ------------------------------------------------		
+ 
+ 	# returns a unique ID for a widget in this screen
+ 	def getNextWidgetName(self):
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 95368b039..7d3b40a3c 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -24,10 +24,10 @@ Always review diffs before committing generated source changes.
+   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
+   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+ - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
+-  - [`singleline_pass.py`](#cvmaininterface-cleanup-reference-scripts)
+-  - [`singleline_pass_comments.py`](#cvmaininterface-cleanup-reference-scripts)
+-  - [`singleline_pass3_comments_and_long.py`](#cvmaininterface-cleanup-reference-scripts)
+-  - [`comment_cleanup_pass_v2.py`](#cvmaininterface-cleanup-reference-scripts)
++  - [`singleline_pass.py`](#singleline_passpy)
++  - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
++  - [`singleline_pass3_comments_and_long.py`](#singleline_pass3_comments_and_longpy)
++  - [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py)
+   - [Notes](#notes)
+ - [Game speed helper scripts](#game-speed-helper-scripts)
+   - [`compare_speed_summaries.py`](#compare_speed_summariespy)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c4475f6b8..518cd47c0 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -118,6 +118,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Collapse multiline statements to single-line form** (e.g., `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)`): much **easier** to **scan**, **maintain**, and **grep**, especially **for LLMs**. Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change. Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
+ - **Python 2 bare-print cleanup:** converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup. This keeps Civ4 Python 2.4 compatibility while reducing Ruff/Python 3 parser noise (e.g., on VS Code) so real issues are easier to see. Also used **local ruff checks** to find and cautiously address likely fixable py linter issues that wouldn't break code changes. See [Modding_Ressources/README.md: How to check with ruff installed locally a folder](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report).
+ - (Requires AdvCiv-SAS 5910+) **Cleaned** several **old Python 2-style** BUG syntax patterns so modern Python 3 linters/parsers can inspect them while keeping Civ4 Python 2.4 compatibility. These **distracted** modern Python linters such as ruff and **prevented them from finding errors**. Removed these parser blockers, such as old comma-exception binding `except Exception, e:` (to the already existing `e = sys.exc_info()[1]` in [BugUtil.py](/Assets/Python/BUG/BugUtil.py) pattern) and the old compatibility fallback `True, False = 1, 0` (to an equivalent), which improves code quality. This allowed Ruff to surface and find a **real previously hidden bug** in BUG [configobj.py](/Assets/Python/BUG/configobj.py): `_handle_comment` used undefined `_a_to_u('# ')` instead of the correct `self._a_to_u('# ')`, which we then **fixed**. See also [KI#143](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug).
++- (Requires AdvCiv-SAS 5911+) **Python source encoding cleanup:** fixed Ruff E902 `stream did not contain valid UTF-8` errors in old BUG TechWindow Python files by converting them to UTF-8 in VS Code. UTF-8 is the natural target because most Python files in the mod already use it, and this fixed Ruff parsing while preserving comments and leaving runtime code unchanged. This seems less risky than XML encoding edits so done for these py files.
+ - **Code cleanup and linting support:** started a **broad Python** cleanup, linting, and source sanitizing work to reduce formatting noise and make large legacy files easier to review. For especially **messy files** where automated scripts are **risky** (typically mapscripts), some files are now also repaired through **full-file LLM review** (e.g., by ChatGPT), then **checked manually** so indentation and code structure are cleaned up carefully.
+ - **Repo-wide blank-line cleanup (`.py` only):** reduced excessive **consecutive blank lines** to a **single blank line** in Python files with a `(\r?\n)(?:[ \t]*\r?\n){2,}` find to `$1$1` regexp on VS Code. This is a pure formatting no-op (Python ignores blank lines), but it makes large files denser, easier to scan, easier to grep, and more manageable for future review/LLM-assisted cleanup. Comments and code are untouched; only **vertical whitespace** is normalized.
+ - A later **horizontal whitespace** pass also **stripped spaces/tabs** from otherwise empty Python lines to reduce invisible diff/lint noise: done with the help of `^[\t ]+$` find regexp with replace all (to nothing) globally on VS Code.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=18221

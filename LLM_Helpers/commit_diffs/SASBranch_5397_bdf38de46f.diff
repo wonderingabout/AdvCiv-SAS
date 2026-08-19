@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5397
+# Commit: bdf38de46f49607cb922e38cac7663dcbe975cba
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0ccd2d326531e86392923753a1b2f672361775f5
+# Title: add nif in sevopedia media player leader entries
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	6	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 6fb84794c..ac79c61e1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -239,12 +239,18 @@ class SevoPediaMusic:
+ 		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
+ 		self.mediaPlayer.startTimer()
+ 
+-		iEra = self.top.SAS_getMusicEra(iMusic)
+-		szImagePath = ""
+-		if iEra != -1:
+-			szImagePath = gc.getEraInfo(iEra).getButton()
+-		if szImagePath:
+-			screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
++		iLeaderId = -1
++		if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
++			iLeaderId = self.top.SAS_getMusicLeaderId(iMusic)
++		if iLeaderId != -1:
++			screen.addLeaderheadGFC("MusicPlayerLeaderhead", iLeaderId, AttitudeTypes.ATTITUDE_PLEASED, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		else:
++			iEra = self.top.SAS_getMusicEra(iMusic)
++			szImagePath = ""
++			if iEra != -1:
++				szImagePath = gc.getEraInfo(iEra).getButton()
++			if szImagePath:
++				screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+ 
+ 		if szSoundScript or (iSoundId != -1):
+ 			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+@@ -292,6 +298,12 @@ class SevoPediaMusic:
+ 		if self.SAS_lastMusicSound is None:
+ 			return
+ 		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
++		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
++		if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
++			self.mediaPlayer.stopSound()
++			self.mediaPlayer.closeScreen()
++			self.showMusicPlayer(self.iMusic)
++			return
+ 		self.mediaPlayer.resetTimer()
+ 		self.mediaPlayer.stopSound()
+ 		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 39c4b6886..b259b86f5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -197,6 +197,8 @@ So the common media playing logic to Sevopedia Movies and Music is in [SevoPedia
+ <img src="../Images/sevopedia/0.810_sevopedia_media_player (1).JPG" alt="0.810_sevopedia_media_player (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.810_sevopedia_media_player (2).JPG" alt="0.810_sevopedia_media_player (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.810_sevopedia_media_player (3).JPG" alt="0.810_sevopedia_media_player (3).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.810_sevopedia_media_player (4).JPG" alt="0.810_sevopedia_media_player (4).JPG" width="250"></img>
++
+ 
+ ### example 0.91: Movies category (with audio support)
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (4).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (4).JPG
+new file mode 100644
+index 000000000..f97fa074c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3280

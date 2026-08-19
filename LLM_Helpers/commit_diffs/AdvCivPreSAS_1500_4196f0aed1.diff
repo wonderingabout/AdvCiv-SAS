@@ -1,0 +1,381 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1500
+# Commit: 4196f0aed1dbb1fdd93a8165c9d1a6be7f6e5d46
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3e233e679412c94a509ff66c5f083c662a7db078
+# Title: Floating point compatibility test for multiplayer
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvEnums.h
+45	0	CvGameCoreDLL/CvGame.cpp
+3	0	CvGameCoreDLL/CvGame.h
+50	54	CvGameCoreDLL/CvGameInterface.cpp
+4	1	CvGameCoreDLL/CvMessageControl.cpp
+1	0	CvGameCoreDLL/CvMessageControl.h
+28	0	CvGameCoreDLL/CvMessageData.cpp
+14	2	CvGameCoreDLL/CvMessageData.h
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index ccdb01c48..b6e8294c2 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2680,6 +2680,7 @@ enum GameMessageTypes				// Exposed to Python
+ 	GAMEMESSAGE_FOUND_RELIGION,
+ 	GAMEMESSAGE_MOD_NET_MESSAGE,
+ 	GAMEMESSAGE_PUSH_MODIFIED_MISSION, // advc.011b
++	GAMEMESSAGE_FP_TEST, // advc.003g
+ };
+ 
+ enum PopupControlLayout		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a1b079bf6..bd49e6048 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -231,6 +231,10 @@ void CvGame::init(HandicapTypes eHandicap)
+ void CvGame::setInitialItems()
+ {
+ 	PROFILE_FUNC();
++
++	// advc.003g: Want to set this as soon as CvGame knows the GameType
++	b_mFPTestDone = !isNetworkMultiPlayer(); 
++
+ 	int iAI = 0; // advc.250b: Just for disabling SPaH in game w/o any AI civs
+ 	// K-Mod: Adjust the game handicap level to be the average of all the human player's handicap.
+ 	// (Note: in the original bts rules, it would always set to Noble if the humans had different handicaps)
+@@ -755,6 +759,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bLayerFromSavegame = false; // </advc.004m>
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
++	b_mFPTestDone = false; // advc.003g
+ 	m_iScoreboardDirtyTimer = -1; // advc.085
+ }
+ 
+@@ -8988,6 +8993,45 @@ bool CvGame::checkInSync() {
+ 	return true;
+ } // </advc.001n>
+ 
++/*  <advc.003g> Test the platform's floating point behavior (intermediate precision
++	and/or rounding). */
++int CvGame::FPChecksum() const {
++
++	/*  I've used this together with the _controlfp call at the end to test the
++		error message in doFPCheck (i.e. for testing the test) */
++	/*if(getActivePlayer() == 0)
++		_controlfp(_PC_64, _MCW_PC);*/
++
++	// Test 1: based on https://stackoverflow.com/questions/14749929/c-float-operations-have-different-results-on-i386-and-arm-but-why
++	float x = 4.80000019f;
++	int result1 = (int)(38000 / x + 10000 / x);
++	result1 -= 9995; // 4 or 5
++	// Test 2: based on https://stackoverflow.com/questions/11832428/windows-intel-and-ios-arm-differences-in-floating-point-calculations
++	x = (-5.241729736328125f * 94.37158203125f) - (-7.25933837890625f * 68.14253997802734f);
++	int result2 = ::round(-10000.0 * x); // 5 or 6
++
++	/*if(getActivePlayer()==0)
++		_controlfp(_PC_24, _MCW_PC);*/
++
++	return 10 * result1 + result2; // Fold them into a single return value
++	// (I'm sure there are simpler and more reliable ways to test FP behavior ...)
++}
++
++void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer) {
++
++	if(b_mFPTestDone)
++		return;
++	b_mFPTestDone = true;
++	if(iChecksum == FPChecksum())
++		return; // Active player is able to reproduce checksum received over the net
++
++	gDLL->getInterfaceIFace()->addHumanMessage(getActivePlayer(), true, GC.getEVENT_MESSAGE_TIME(),
++			CvWString::format(L"Your machine's FP test computation has yielded a"
++				 L" different result than that of %s. The game may frequently go"
++				 L" out of sync due to floating point calculations in the AdvCiv mod.",
++				 GET_PLAYER(ePlayer).getName()), NULL, MESSAGE_TYPE_MAJOR_EVENT, NULL,
++			(ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++} // </advc.003g
+ 
+ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString pszText, int iPlotX, int iPlotY, ColorTypes eColor)
+ {
+@@ -9377,6 +9421,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		pStream->Read(&m_bScenario); // </advc.052>
+ 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
+ 	applyOptionEffects(); // advc.310
++	b_mFPTestDone = !isNetworkMultiPlayer(); // advc.003g
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index d8c946144..576060fbf 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -505,6 +505,7 @@ public:
+ 	DllExport int calculateSyncChecksum();																								// Exposed to Python
+ 	DllExport int calculateOptionsChecksum();																							// Exposed to Python
+ 	bool checkInSync(); // advc.001n
++	void doFPCheck(int iChecksum, PlayerTypes ePlayer); // advc.003g
+ 
+ 	void addReplayMessage(ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER, CvWString pszText = L"", 
+ 		int iPlotX = -1, int iPlotY = -1, ColorTypes eColor = NO_COLOR);
+@@ -714,6 +715,7 @@ protected:
+ 	bool m_bAllGameDataRead; // advc.003
+ 	bool m_bDoMShown; // advc.004x
+ 	bool m_bLayerFromSavegame; // advc.004m
++	bool b_mFPTestDone; // advc.003g
+ 
+ 	HandicapTypes m_eHandicap;
+ 	HandicapTypes m_eAIHandicap; // advc.127
+@@ -839,6 +841,7 @@ protected:
+ 
+ 	void testAlive();
+ 	void testVictory();
++	int FPChecksum() const; // advc.003g
+ 
+ 	void processVote(const VoteTriggeredData& kData, int iChange);
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index cd7306a4e..5bad7f8d0 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -449,67 +449,63 @@ void CvGame::updateSelectionList()
+ }
+ 
+ 
+-void CvGame::updateTestEndTurn()
++void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/ return statements
+ {
++	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
++		return;
++
++	// <advc.003g>
++	if(!b_mFPTestDone)
++		CvMessageControl::getInstance().sendFPTest(FPChecksum()); // </advc.003g>
+ 
+-	bool bShift = GC.shiftKey();
+ 	bool bAny = (gDLL->getInterfaceIFace()->getHeadSelectedUnit() != NULL &&
+ 			!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_CYCLING));
+ 
+-	if (GET_PLAYER(getActivePlayer()).isTurnActive())
++	if (gDLL->getInterfaceIFace()->isEndTurnMessage())
+ 	{
+-		if (gDLL->getInterfaceIFace()->isEndTurnMessage())
+-		{
+-			if (GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
+-			{
+-				gDLL->getInterfaceIFace()->setEndTurnMessage(false);
+-			}
+-		}
+-		else
+-		{
+-			if (!(GET_PLAYER(getActivePlayer()).hasBusyUnit()) && !(GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny)))
+-			{
+-				if (!(gDLL->getInterfaceIFace()->isForcePopup()))
+-				{
+-					if (!bShift && !GC.suppressCycling()) // K-Mod
+-						gDLL->getInterfaceIFace()->setForcePopup(true);
+-				}
+-				else
+-				{
+-					if (GET_PLAYER(getActivePlayer()).hasAutoUnit())
+-					{
+-						//if (!(GC.shiftKey()))
+-						// K-Mod. Don't start automoves if we currently have a group selected which would move.
+-						CvUnit* pSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+-						if (!bShift && !GC.suppressCycling() && (pSelectedUnit == NULL || !pSelectedUnit->getGroup()->readyToAuto()))
+-						// K-Mod end
+-						{
+-							CvMessageControl::getInstance().sendAutoMoves();
+-						}
+-					}
+-					else
+-					{
+-						if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_WAIT_END_TURN) || !gDLL->getInterfaceIFace()->isHasMovedUnit() || isHotSeat() || isPbem())
+-						{
+-							gDLL->getInterfaceIFace()->setEndTurnMessage(true);
+-						}
+-						else
+-						{
+-							if (gDLL->getInterfaceIFace()->getEndTurnCounter() > 0)
+-							{
+-								gDLL->getInterfaceIFace()->changeEndTurnCounter(-1);
+-							}
+-							else
+-							{
+-								CvMessageControl::getInstance().sendTurnComplete();
+-								gDLL->getInterfaceIFace()->setEndTurnCounter(3); // XXX
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
++		if (GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
++			gDLL->getInterfaceIFace()->setEndTurnMessage(false);
++		return;
++	}
++
++	if (GET_PLAYER(getActivePlayer()).hasBusyUnit() ||
++			GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
++		return;
++
++	bool bShift = GC.shiftKey();
++
++	if (!(gDLL->getInterfaceIFace()->isForcePopup()))
++	{
++		if (!bShift && !GC.suppressCycling()) // K-Mod
++			gDLL->getInterfaceIFace()->setForcePopup(true);
++		return;
+ 	}
++
++	if (GET_PLAYER(getActivePlayer()).hasAutoUnit())
++	{
++		//if (!(GC.shiftKey()))
++		// K-Mod. Don't start automoves if we currently have a group selected which would move.
++		CvUnit* pSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++		if (!bShift && !GC.suppressCycling() && (pSelectedUnit == NULL || !pSelectedUnit->getGroup()->readyToAuto()))
++		// K-Mod end
++			CvMessageControl::getInstance().sendAutoMoves();
++		return;
++	}
++
++	if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_WAIT_END_TURN) || !gDLL->getInterfaceIFace()->isHasMovedUnit() || isHotSeat() || isPbem())
++	{
++		gDLL->getInterfaceIFace()->setEndTurnMessage(true);
++		return;
++	}
++
++	if (gDLL->getInterfaceIFace()->getEndTurnCounter() > 0)
++	{
++		gDLL->getInterfaceIFace()->changeEndTurnCounter(-1);
++		return;
++	}
++
++	CvMessageControl::getInstance().sendTurnComplete();
++	gDLL->getInterfaceIFace()->setEndTurnCounter(3); // XXX
+ }
+ 
+ CvUnit* CvGame::getPlotUnit(const CvPlot* pPlot, int iIndex) const
+
+diff --git a/CvGameCoreDLL/CvMessageControl.cpp b/CvGameCoreDLL/CvMessageControl.cpp
+index d6f714a83..46879d303 100644
+--- a/CvGameCoreDLL/CvMessageControl.cpp
++++ b/CvGameCoreDLL/CvMessageControl.cpp
+@@ -203,4 +203,7 @@ void CvMessageControl::sendPing(int iX, int iY)
+ 	}
+ }
+ 
+-
++void CvMessageControl::sendFPTest(int iResult)
++{
++	gDLL->sendMessageData(new CvNetFPTest(GC.getGameINLINE().getActivePlayer(), iResult));
++}
+
+diff --git a/CvGameCoreDLL/CvMessageControl.h b/CvGameCoreDLL/CvMessageControl.h
+index 8779f98ca..eb9ee1045 100644
+--- a/CvGameCoreDLL/CvMessageControl.h
++++ b/CvGameCoreDLL/CvMessageControl.h
+@@ -33,6 +33,7 @@ public:
+ 	void sendDiploVote(int iVoteId, PlayerVoteTypes eChoice);
+ 	DllExport void sendChangeWar(TeamTypes eRivalTeam, bool bWar);
+ 	DllExport void sendPing(int iX, int iY);
++	void sendFPTest(int iResult); // advc.003g
+ };
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index 274af3427..b120df378 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -64,6 +64,9 @@ CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
+ 		return new CvNetChangeWar();
+ 	case GAMEMESSAGE_PING:
+ 		return new CvNetPing();
++	// <advc.003g>
++	case GAMEMESSAGE_FP_TEST: 
++		return new CvNetFPTest(); // </advc.003g>
+ 	default:
+ 		FAssertMsg(false, "Unknown message type");
+ 	}
+@@ -1140,4 +1143,29 @@ void CvNetPing::Execute()
+ 		}
+ 	}
+ }
++// <advc.003g>
++CvNetFPTest::CvNetFPTest(PlayerTypes ePlayer, int iResult) :
++	CvMessageData(GAMEMESSAGE_FP_TEST), m_ePlayer(ePlayer), m_iResult(iResult)
++{}
++
++void CvNetFPTest::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "FPTest message received");	
++}
+ 
++void CvNetFPTest::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_iResult);
++	pStream->Write(m_ePlayer);
++}
++
++void CvNetFPTest::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read(&m_iResult);
++	pStream->Read((int*)&m_ePlayer);
++}
++
++void CvNetFPTest::Execute()
++{
++	GC.getGameINLINE().doFPCheck(m_iResult, m_ePlayer);
++} // </advc.003g>
+
+diff --git a/CvGameCoreDLL/CvMessageData.h b/CvGameCoreDLL/CvMessageData.h
+index c16cb4403..d92f03c2d 100644
+--- a/CvGameCoreDLL/CvMessageData.h
++++ b/CvGameCoreDLL/CvMessageData.h
+@@ -426,7 +426,19 @@ private:
+ 	int m_iX;
+ 	int m_iY;
+ };
+-
+-
++// <advc.003g>
++class CvNetFPTest : public CvMessageData
++{
++public:
++	CvNetFPTest(PlayerTypes ePlayer = NO_PLAYER, int iResult = MIN_INT);
++	virtual void Debug(char* szAddendum);
++	virtual void Execute();
++	virtual void PutInBuffer(FDataStreamBase* pStream);
++	virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iResult;
++};
++// </advc.003g>
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index c7966a16b..f18d9cc29 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1896,6 +1896,7 @@ void CyEnumsPythonInterface()
+ 		.value("GAMEMESSAGE_MOD_NET_MESSAGE", GAMEMESSAGE_MOD_NET_MESSAGE)
+ 		// advc.011b: Not sure if anything breaks if I don't add this here
+ 		.value("GAMEMESSAGE_PUSH_MODIFIED_MISSION", GAMEMESSAGE_PUSH_MISSION)
++		.value("GAMEMESSAGE_PUSH_FP_TEST", GAMEMESSAGE_PUSH_MISSION) // advc.003g
+ 		;
+ 
+ 	python::enum_<PopupControlLayout>("PopupControlLayout")
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=12021

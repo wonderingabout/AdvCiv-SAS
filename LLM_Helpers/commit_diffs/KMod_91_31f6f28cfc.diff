@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 91
+# Commit: 31f6f28cfcffbbaef65f9796b69fef2c2f9a9b28
+# History segment: K-Mod history
+# Parent used for diff: fb5750d4f5bd142203ed469f8a78ca262c9aaa83
+# Title: Changed the way yield is valued in a few places. Added a new function for evaluating permanent specialists, as opposed to specialists which are assigned from...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvCity.h
+91	20	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvCityAI.h
+7	3	CvGameCoreDLL/CvPlayerAI.cpp
+6	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 40bda2ae5..7e9df1f3e 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -952,6 +952,7 @@ public:
+ 	virtual void AI_updateAssignWork() = 0;
+ 	virtual bool AI_avoidGrowth() = 0;											// Exposed to Python
+ 	virtual int AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth, bool bRemove) = 0;
++	virtual int AI_permanentSpecialistValue(SpecialistTypes eSpecialist) = 0; // K-Mod
+ 	virtual void AI_chooseProduction() = 0;
+ 	virtual UnitTypes AI_bestUnit(bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, UnitAITypes* peBestUnitAI = NULL) = 0;
+ 	virtual UnitTypes AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 09f6283d4..085459935 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -659,6 +659,77 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 	return iValue;
+ }
+ 
++// K-Mod. The value of a long-term specialist, for use in calculating great person value, and value of free specialists from buildings.
++// value is roughly 4 * 100 * commerce
++int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist)
++{
++	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
++
++	const int iCommerceValue = 4;
++	const int iProdValue = 7;
++	const int iFoodValue = 11;
++
++	int iValue = 0;
++
++	iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD);
++	iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION);
++	iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE);
++
++	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		int iTemp = iCommerceValue * kPlayer.specialistCommerce(eSpecialist, (CommerceTypes)iI);
++		iTemp *= getTotalCommerceRateModifier((CommerceTypes)iI);
++		iTemp *= kPlayer.AI_commerceWeight((CommerceTypes)iI, this);
++		iTemp /= 100;
++		iValue += iTemp;
++	}
++	
++	int iGreatPeopleRate = GC.getSpecialistInfo(eSpecialist).getGreatPeopleRateChange();
++
++	if (iGreatPeopleRate != 0)
++	{
++		int iGPPValue = 4;
++		
++		int iTempValue = 100 * iGreatPeopleRate * iGPPValue;
++		
++		// Scale based on how often this city will actually get a great person.
++		int iCityRate = getGreatPeopleRate();
++		int iHighestRate = 0;
++		int iLoop;
++		for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
++		{
++			int x = pLoopCity->getGreatPeopleRate();
++			if (x > iHighestRate)
++				iHighestRate = x;
++		}
++		if (iHighestRate > iCityRate)
++		{
++			iTempValue *= 100;
++			iTempValue /= (2*100*(iHighestRate+3))/(iCityRate+3) - 100;
++		}
++		
++		iTempValue *= getTotalGreatPeopleRateModifier();
++		iTempValue /= 100;
++		
++		iValue += iTempValue;
++	}
++	
++	int iExperience = GC.getSpecialistInfo(eSpecialist).getExperience();
++	if (0 != iExperience)
++	{
++		int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
++
++		iValue += 100 * iExperience * 4;
++		if (iProductionRank <= kPlayer.getNumCities()/2 + 1)
++		{
++			iValue += 100 * iExperience *  4;
++		}
++		iValue += (getMilitaryProductionModifier() * iExperience * 8);
++	}
++
++	return iValue;
++}
++
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      10/22/09                                jdog5000      */
+ /*                                                                                              */
+@@ -4253,7 +4324,9 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 				{
+ 					if (kBuilding.getFreeSpecialistCount(iI) > 0)
+ 					{
+-						iValue += ((AI_specialistValue(((SpecialistTypes)iI), false, false) * kBuilding.getFreeSpecialistCount(iI)) / 50);
++						//iValue += ((AI_specialistValue(((SpecialistTypes)iI), false, false) * kBuilding.getFreeSpecialistCount(iI)) / 50);
++						// K-Mod
++						iValue += AI_permanentSpecialistValue((SpecialistTypes)iI) * kBuilding.getFreeSpecialistCount(iI) / 100;
+ 					}
+ 				}
+ 
+@@ -9579,10 +9652,13 @@ bool CvCityAI::AI_foodAvailable(int iExtra)
+ 
+ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth, bool bIgnoreStarvation, bool bWorkerOptimization)
+ {
+-	const int iBaseProductionValue = 15;
+-	const int iBaseCommerceValue = 7;
++	/* const int iBaseProductionValue = 15;
++	const int iBaseCommerceValue = 7; */
++	// K-Mod, reduced the scale to match the building evaluation code.
++	const int iBaseProductionValue = 7;
++	const int iBaseCommerceValue = 4;
+ 	
+-	const int iMaxFoodValue = (3 * iBaseProductionValue) - 1;
++	int iMaxFoodValue = (3 * iBaseProductionValue) - 1; // K-Mod, originally was const int.
+ 
+ 	int aiYields[NUM_YIELD_TYPES];
+ 	int aiCommerceYieldsTimes100[NUM_COMMERCE_TYPES];
+@@ -9639,12 +9715,6 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 		aiCommerceYieldsTimes100[iJ] += (iCommerceTimes100 * iModifier) / 100;
+ 	}
+ 
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       07/09/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-/* original BTS code
+ 	if (isProductionProcess() && !bWorkerOptimization)
+ 	{
+ 		for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+@@ -9653,13 +9723,10 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 		}
+ 
+ 		aiYields[YIELD_PRODUCTION] = 0;
++		// K-Mod, Note, this if block was commented out by the Unofficial Patch. They say that this code causes an
++		// over-emphasis of food. I've restored the original code, but to deal with the food issue I'm adding the following line.
++		iMaxFoodValue = (3 * iBaseCommerceValue) - 1;
+ 	}
+-*/
+-	// Above code causes governor and AI to heavily weight food when building any form of commerce,
+-	// which is not expected by human and does not seem to produce better results for AI either.  
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 
+ 	// should not really use this much, but making it accurate
+ 	aiYields[YIELD_COMMERCE] = 0;
+@@ -11833,10 +11900,14 @@ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ 		iMultiplier += (getCommerceRateModifier(COMMERCE_GOLD) * 35) / 100;
+ 		iMultiplier += (getCommerceRateModifier(COMMERCE_CULTURE) * 15) / 100; */
+ 		// K-Mod
+-		// this breakdown seems wrong... but I'm not bold enough to change it yet.
+-		iMultiplier += (getCommerceRateModifier(COMMERCE_RESEARCH) * 60 + 
+-			getCommerceRateModifier(COMMERCE_GOLD) * 35 +
+-			getCommerceRateModifier(COMMERCE_CULTURE) * 15) / 100;
++		// this breakdown seems wrong... lets try it a different way.
++		const CvPlayer& kPlayer = GET_PLAYER(getOwner());
++		int iExtra = 0;
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			iExtra += getCommerceRateModifier((CommerceTypes)iI) * kPlayer.getCommercePercent((CommerceTypes)iI);
++		}
++		iMultiplier += iExtra/100;
+ 	}
+ 	
+ 	return iMultiplier;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 538363774..162e86d72 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -29,6 +29,7 @@ public:
+ 	bool AI_avoidGrowth();
+ 	bool AI_ignoreGrowth();
+ 	int AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth, bool bRemove);
++	int AI_permanentSpecialistValue(SpecialistTypes eSpecialist); // K-Mod
+ 
+ 	void AI_chooseProduction();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 363ca9206..ffb95abd9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2158,10 +2158,13 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity) const
+ 				iWeight -= 25 - getCommercePercent(COMMERCE_GOLD);
+ 			}
+ 		}
+-		// K-Mod
++		// K-Mod.
++		// (note. This factor is helpful for assigning merchant specialists in the right places, but it causes problems
++		// when building wealth. Really we dont' want to scale all gold commerce like this, we only want to scale it when
++		// it is independant of the commerce slider.)
+ 		if (pCity != NULL)
+ 		{
+-			iWeight *= (pCity->getCommerceRateModifier(COMMERCE_GOLD)+100);
++			iWeight *= pCity->getTotalCommerceRateModifier(COMMERCE_GOLD);
+ 			iWeight /= AI_averageCommerceMultiplier(COMMERCE_GOLD);
+ 		}
+ /************************************************************************************************/
+@@ -15887,7 +15890,8 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, const EventTriggeredData& kTrig
+ 			{
+ 				if (kEvent.getFreeSpecialistCount(iSpecialist) > 0)
+ 				{
+-					iCityTurnValue += (pCity->AI_specialistValue((SpecialistTypes)iSpecialist, false, false) / 300);
++					//iCityTurnValue += (pCity->AI_specialistValue((SpecialistTypes)iSpecialist, false, false) / 300);
++					iCityTurnValue += pCity->AI_permanentSpecialistValue((SpecialistTypes)iSpecialist) / 100; // K-Mod
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5436da51f..ef059d145 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5191,8 +5191,8 @@ bool CvUnitAI::AI_greatPersonMove()
+ 					{
+ 						if ( !(kPlayer.AI_getAnyPlotDanger(pLoopCity->plot(), 2)) )
+ 						{
+-							// Note, specialistValue is roughly 700x the commerce it provides. /= 7 to make it 100x.
+-							int iValue = pLoopCity->AI_specialistValue(eSpecialist, pLoopCity->AI_avoidGrowth(), false)/7;
++							// Note, specialistValue is roughly 400x the commerce it provides. So /= 4 to make it 100x.
++							int iValue = pLoopCity->AI_permanentSpecialistValue(eSpecialist)/4;
+ 							if (iValue > iBestValue)
+ 							{
+ 								iBestValue = iValue;
+@@ -13042,7 +13042,8 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 							{
+-								iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++								//iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++								iValue = pLoopCity->AI_permanentSpecialistValue((SpecialistTypes)iI); // K-Mod
+ 								if (iValue > iBestValue)
+ 								{
+ 									iBestValue = iValue;
+@@ -23339,7 +23340,8 @@ bool CvUnitAI::AI_artistCultureVictoryMove()
+ 					{
+ 						if (canJoin(pBestPlot, ((SpecialistTypes)iI)))
+ 						{
+-							iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++							//iValue = pLoopCity->AI_specialistValue(((SpecialistTypes)iI), pLoopCity->AI_avoidGrowth(), false);
++							iValue = pLoopCity->AI_permanentSpecialistValue((SpecialistTypes)iI); // K-Mod
+ 
+ 							if (iValue > iBestValue)
+ 							{
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=11592

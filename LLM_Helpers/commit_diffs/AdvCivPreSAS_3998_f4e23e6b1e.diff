@@ -1,0 +1,336 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3998
+# Commit: f4e23e6b1ebf574947f9bb2c6030c140b371dbb3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2aa3c7801dd91404a7aafb283fb238bf856bafe2
+# Title: Increase effect of Emphasize buttons when no job changed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+71	22	CvGameCoreDLL/CvCityAI.cpp
+6	2	CvGameCoreDLL/CvCityAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d3ead5471..8cdfb0d3e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -50,6 +50,7 @@ CvCityAI::CvCityAI() // advc.003u: Merged with AI_reset
+ 	m_iCityValPercent = 0; // advc.139
+ 
+ 	m_bForceEmphasizeCulture = false;
++	m_bStrongEmphasis = false; // advc.131d
+ 	m_bAssignWorkDirty = false;
+ 	m_eSafety = CITYSAFETY_SAFE; // advc.139
+ }
+@@ -113,7 +114,7 @@ void CvCityAI::AI_doTurn()
+ }
+ 
+ // (Most of this function has been rewritten for K-Mod)
+-void CvCityAI::AI_assignWorkingPlots()
++void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -239,7 +240,7 @@ void CvCityAI::AI_assignWorkingPlots()
+ 
+ 	// if automated, look for better choices than the current ones
+ 	if (!isHuman() || isCitizensAutomated())
+-		AI_juggleCitizens();
++		AI_juggleCitizens(/* advc.131d: */ bEmphasize);
+ 
+ 	// at this point, we should not be over the limit
+ 	FAssert((getWorkingPopulation() + getSpecialistPopulation()) <= (totalFreeSpecialists() + getPopulation()));
+@@ -7277,6 +7278,9 @@ void CvCityAI::AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue)
+ 		return;
+ 
+ 	m_pbEmphasize[eIndex] = bNewValue;
++	/*	advc.131d: Re-evaluate whether strong emphasis is appropriate each time that
++		emphasis settings change */
++	m_bStrongEmphasis = false;
+ 
+ 	if (GC.getInfo(eIndex).isAvoidGrowth())
+ 	{
+@@ -7308,11 +7312,20 @@ void CvCityAI::AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue)
+ 		}
+ 	}
+ 
+-	AI_assignWorkingPlots();
++	AI_assignWorkingPlots(/* advc.131d: */ bNewValue);
+ 	if (isActiveOwned() && isCitySelected())
+ 		gDLL->UI().setDirty(SelectionButtons_DIRTY_BIT, true);
+ }
+ 
++// advc.131d:
++void CvCityAI::AI_setStrongEmphasis(bool bStrongEmphasis)
++{
++	if (m_bStrongEmphasis == bStrongEmphasis)
++		return;
++	m_bStrongEmphasis = bStrongEmphasis;
++	AI_assignWorkingPlots();
++}
++
+ // advc.003j: Added in BtS, was never used as far as I can tell.
+ /*void CvCityAI::AI_forceEmphasizeCulture(bool bNewValue)
+ {
+@@ -7735,18 +7748,21 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 		}*/ // moved lower
+ 		if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 		{
+-			iProductionMultiplier *= 130; // was 140
++			iProductionMultiplier *= 130 // was 140
++					+ (AI_isStrongEmphasis() ? 25 : 0); // advc.131d
+ 			iProductionMultiplier /= 100;
+ 			// K-Mod
+ 			if (!AI_isEmphasizeYield(YIELD_COMMERCE))
+ 			{
+-				iCommerceMultiplier *= 80;
++				iCommerceMultiplier *= 80
++						- (AI_isStrongEmphasis() ? 13 : 0); // advc.131d
+ 				iCommerceMultiplier /= 100;
+ 			} // K-Mod end
+ 		}
+ 		if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 		{
+-			iCommerceMultiplier *= 140;
++			iCommerceMultiplier *= 140
++					+ (AI_isStrongEmphasis() ? 33 : 0); // advc.131d
+ 			iCommerceMultiplier /= 100;
+ 		}
+ 	}
+@@ -7819,7 +7835,8 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 
+ 	if (isHuman() && AI_isEmphasizeYield(YIELD_FOOD))
+ 	{
+-		iFoodMultiplier *= 140;
++		iFoodMultiplier *= 140
++				+ (AI_isStrongEmphasis() ? 33 : 0); // advc.131d
+ 		iFoodMultiplier /= 100;
+ 	}
+ 	// K-Mod end
+@@ -9686,7 +9703,7 @@ bool CvCityAI::AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist)
+ }
+ 
+ // This function has been completely rewritten for K-Mod - original code deleted
+-void CvCityAI::AI_juggleCitizens()
++void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -9716,6 +9733,7 @@ void CvCityAI::AI_juggleCitizens()
+ 	std::vector<std::pair<bool, int> > new_jobs; // jobs assigned by this juggling process
+ 
+ 	bool bDone = false;
++	bool bAnyNewJobTaken = false; // advc.131d
+ 	int iCycles = 0;
+ 	do
+ 	{
+@@ -9850,6 +9868,7 @@ void CvCityAI::AI_juggleCitizens()
+ 		}
+ 		else
+ 		{
++			bAnyNewJobTaken = true; // advc.131d
+ 			// remove the current job
+ 			if (worked_it->second.first)
+ 			{
+@@ -9886,7 +9905,13 @@ void CvCityAI::AI_juggleCitizens()
+ 		}
+ 		iCycles++;
+ 	} while (!bDone);
+-
++	// <advc.131d>
++	if (bEmphasize && isHuman() && !bAnyNewJobTaken && !AI_isStrongEmphasis())
++	{
++		/*	The player probably wanted there to be a change.
++			Let's try harder. */
++		AI_setStrongEmphasis(true);
++	} // </advc.131d>
+ 	// Record keeping, to test efficiency.
+ #ifdef LOG_JUGGLE_CITIZENS
+ 	{
+@@ -10238,7 +10263,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 			// (Should we still use this with bWorkerOptimization?)
+ 			int iCommerceWeight = kOwner.AI_commerceWeight(eCommerce, this);
+ 			if (AI_isEmphasizeCommerce(eCommerce))
+-				iCommerceWeight *= 2;
++				iCommerceWeight *= 2 + /* advc.131d: */ (AI_isStrongEmphasis() ? 1 : 0);
+ 			if (!bWorkerOptimization && eCommerce == COMMERCE_CULTURE &&
+ 				getCultureLevel() <= 1)
+ 			{
+@@ -10318,8 +10343,10 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 			iGrowthValue = AI_growthValuePerFood();
+ 		// <k146>
+ 		if (bEmphasizeFood)
+-			iGrowthValue += 8; // in addition to other effects.
+-		// </k146>
++		{
++			iGrowthValue += 8 // in addition to other effects.
++					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
++		} // </k146>
+ 		// tiny food factor, to ensure that even when we don't want to grow,
+ 		// we still prefer more food if everything else is equal
+ 		iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
+@@ -10455,6 +10482,12 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 					//If we are emphasize food, pay less heed to caps.
+ 					iHealthLevel += 5;
+ 					iFutureHappy += 3; // k146: was +=2
++					// <advc.131d>
++					if (AI_isStrongEmphasis())
++					{
++						iHealthLevel++;
++						iFutureHappy++;
++					} // </advc.131d>
+ 				}
+ 
+ 				bool const bBarFull = (iFoodLevel + iAdjustedFoodPerTurn >
+@@ -10475,9 +10508,15 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 					if (iPopulation < 3 && iHappinessLevel+iFutureHappy > 0)
+ 						iPopToGrow = std::max(iPopToGrow, 1); // </k146>
+ 					if (AI_isEmphasizeYield(YIELD_PRODUCTION) || AI_isEmphasizeGreatPeople())
+-						iPopToGrow = std::min(iPopToGrow, 2);
++					{
++						iPopToGrow = std::min(iPopToGrow, 2
++								- (AI_isStrongEmphasis() ? 1 : 0)); // advc.131d
++					}
+ 					else if (AI_isEmphasizeYield(YIELD_COMMERCE))
+-						iPopToGrow = std::min(iPopToGrow, 3);
++					{
++						iPopToGrow = std::min(iPopToGrow, 3
++								- (AI_isStrongEmphasis() ? 1 : 0)); // advc.131d
++					}
+ 				}
+ 
+ 				// if we have growth pontential, then get the food bar close to full
+@@ -10640,18 +10679,20 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 		Added safeguards to make sure commerce is counted, even if just a tiny amount. */
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+-		iProductionValue *= 140; // was 130
++		int const iMultPercent = 140 // was 130
++				+ (AI_isStrongEmphasis() ? 25 : 0); // advc.131d
++		iProductionValue *= iMultPercent;
+ 		iProductionValue /= 100;
+-
+ 		if (isFoodProduction())
+ 		{
+-			iFoodValue *= 140; // was 130
++			iFoodValue *= iMultPercent;
+ 			iFoodValue /= 100;
+ 		}
+ 	}
+ 	else if (iProductionValue > 0 && AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		iProductionValue *= 75;
++		iProductionValue *= 75
++				- (AI_isStrongEmphasis() ? 8 : 0); // advc.131d
+ 		iProductionValue /= 100;
+ 		iProductionValue = std::max(1, iProductionValue);
+ 	}
+@@ -10660,7 +10701,8 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 	{
+ 		if (!isFoodProduction())
+ 		{
+-			iFoodValue *= 130;
++			iFoodValue *= 130
++					+ (AI_isStrongEmphasis() ? 15 : 0); // advc.131d
+ 			iFoodValue /= 100;
+ 		}
+ 	}
+@@ -10673,12 +10715,14 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		iCommerceValue *= 140; // was 130
++		iCommerceValue *= 140 // was 130
++				+ (AI_isStrongEmphasis() ? 17 : 0); // advc.131d
+ 		iCommerceValue /= 100;
+ 	}
+ 	else if (iCommerceValue > 0 && AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+-		iCommerceValue *= 75; // was 60
++		iCommerceValue *= 75 // was 60
++				- (AI_isStrongEmphasis() ? 15 : 0); // advc.131d
+ 		iCommerceValue /= 100;
+ 		iCommerceValue = std::max(1, iCommerceValue);
+ 	}
+@@ -13570,6 +13614,9 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(NUM_YIELD_TYPES, m_aiEmphasizeYieldCount);
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiEmphasizeCommerceCount);
+ 	pStream->Read(&m_bForceEmphasizeCulture);
++	// <advc.131d>
++	if (uiFlag >= 9)
++		pStream->Read(&m_bStrongEmphasis); // </advc.131d>
+ 	pStream->Read(NUM_CITY_PLOTS, m_aiBestBuildValue);
+ 	pStream->Read(NUM_CITY_PLOTS, (int*)m_aeBestBuild);
+ 	// <advc.opt>
+@@ -13636,7 +13683,8 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	//uiFlag = 5; // advc.003u: Move m_bChooseProductionDirty to CvCity
+ 	//uiFlag = 6; // advc.opt: Per-player meta data for closeness cache
+ 	//uiFlag = 7; // advc.139: m_bSafe, m_iCityValPercent
+-	uiFlag = 8; // advc.139: m_eSafety
++	//uiFlag = 9; // advc.139: m_eSafety
++	uiFlag = 9; // advc.131d
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE(CvString::format("CityAI(%d,%d)", getX(), getY()));
+ 	pStream->Write(m_iEmphasizeAvoidGrowthCount);
+@@ -13650,6 +13698,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(NUM_YIELD_TYPES, m_aiEmphasizeYieldCount);
+ 	pStream->Write(NUM_COMMERCE_TYPES, m_aiEmphasizeCommerceCount);
+ 	pStream->Write(m_bForceEmphasizeCulture);
++	pStream->Write(m_bStrongEmphasis); // advc.131d
+ 	pStream->Write(NUM_CITY_PLOTS, m_aiBestBuildValue);
+ 	pStream->Write(NUM_CITY_PLOTS, (int*)m_aeBestBuild);
+ 	pStream->Write(m_eBestBuild); // advc.opt
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index c2a1ccf75..a7ef00e7a 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -19,7 +19,7 @@ public:
+ 			int iOccupationTimer = 0); // advc.ctr
+ 
+ 	void AI_doTurn();
+-	void AI_assignWorkingPlots();
++	void AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize = false);
+ 	void AI_updateAssignWork();
+ 
+ 	//bool AI_avoidGrowth(); // disabled by K-Mod
+@@ -109,6 +109,9 @@ public:
+ 
+ 	bool AI_isEmphasize(EmphasizeTypes eIndex) const;
+ 	void AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue);
++	// <advc.131d>
++	bool AI_isStrongEmphasis() const { return m_bStrongEmphasis; }
++	void AI_setStrongEmphasis(bool bStrongEmphasis); // </advc.131d>
+ 	//void AI_forceEmphasizeCulture(bool bNewValue); // advc.003j
+ 
+ 	int AI_getBestBuildValue(/* advc.enum: */ CityPlotTypes ePlot) const
+@@ -187,6 +190,7 @@ protected:
+ 	int* m_aiEmphasizeYieldCount;
+ 	int* m_aiEmphasizeCommerceCount;
+ 	bool m_bForceEmphasizeCulture; // advc.003j (comment): unused
++	bool m_bStrongEmphasis; // advc.131d
+ 	bool* m_pbEmphasize;
+ 
+ 	BuildTypes* m_aeBestBuild;
+@@ -225,7 +229,7 @@ protected:
+ 	bool AI_addBestCitizen(bool bWorkers, bool bSpecialists, CityPlotTypes* peBestPlot = NULL,
+ 			SpecialistTypes* peBestSpecialist = NULL);
+ 	bool AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist = NO_SPECIALIST);
+-	void AI_juggleCitizens();
++	void AI_juggleCitizens(/* advc.131d: */ bool bEmphasize = false);
+ 	int AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel = 0, int iNewAnger = 0, int iAngerTimer = 0); // K-Mod
+ 	// advc: Both unused
+ 	/*bool AI_potentialPlot(CvPlot const& kPlot) const; // advc.enum: param was 'short* piYields'
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=11381

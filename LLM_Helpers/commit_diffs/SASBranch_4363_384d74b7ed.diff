@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4363
+# Commit: 384d74b7edc5274feb1d17d376e45873a81268ef
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4392e52130d440f0ec628e805639c4a334cf71f0
+# Title: Fix UWAI discovery of potential parties in nuclear war
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 945c8cdfd..93812b1ce 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -360,7 +360,7 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kEnemyOfEnemy = *it;
+-			if (isWar(kEnemyOfEnemy.getID(), kEnemyOfEnemy.getID()))
++			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()))
+ 				rEnemyTargets += (kEnemyOfEnemy.isAVassal() ? fixp(0.5) : 1);
+ 		}
+ 		scaled rFiredOnUs = rPortionFired * rOurVassalMult * rEnemyVassalMult *
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=621

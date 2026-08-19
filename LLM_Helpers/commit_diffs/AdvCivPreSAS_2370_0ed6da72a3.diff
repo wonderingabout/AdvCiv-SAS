@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2370
+# Commit: 0ed6da72a3c2ef7779b5f256545c5c7a8cd5908c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 17fe7c5fe10c22ffe7d8d9482cc5015785bde902
+# Title: Greater range for Crab, decrease Fish frequency a bit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	Assets/XML/Terrain/CIV4BonusInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index cf1ae3957..e5a1c1f7f 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -822,7 +822,8 @@
+ 			<iPlacementOrder>6</iPlacementOrder>
+ 			<iConstAppearance>50</iConstAppearance>
+ 			<iMinAreaSize>10</iMinAreaSize>
+-			<iMinLatitude>40</iMinLatitude>
++			<!-- advc.129: was 40 -->
++			<iMinLatitude>25</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>25</iRandApp1>
+@@ -939,7 +940,8 @@
+ 				<iRandApp4>0</iRandApp4>
+ 			</Rands>
+ 			<iPlayer>0</iPlayer>
+-			<iTilesPer>32</iTilesPer>
++			<!-- advc.129: was 32 -->
++			<iTilesPer>35</iTilesPer>
+ 			<iMinLandPercent>0</iMinLandPercent>
+ 			<iUnique>1</iUnique>
+ 			<iGroupRange>0</iGroupRange>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=811

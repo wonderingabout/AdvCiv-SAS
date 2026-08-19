@@ -1,0 +1,466 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3974
+# Commit: cbb9fe7ef68b7e8ea9ee5dd3ab5eb9883a83273d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f852d8678bf010a94761e66b0c55c1b6e5da6ac7
+# Title: Fave civics based on displayed leader type
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Python/BUG/PlayerUtil.py
+21	2	Assets/Python/Contrib/FavoriteCivicDetector.py
+8	7	Assets/Python/Screens/CvExoticForeignAdvisor.py
+6	16	CvGameCoreDLL/CvGame.cpp
+28	1	CvGameCoreDLL/CvPlayer.cpp
+6	1	CvGameCoreDLL/CvPlayer.h
+16	20	CvGameCoreDLL/CvPlayerAI.cpp
+25	0	CvGameCoreDLL/CyPlayer.cpp
+5	1	CvGameCoreDLL/CyPlayer.h
+5	0	CvGameCoreDLL/CyPlayerInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/PlayerUtil.py b/Assets/Python/BUG/PlayerUtil.py
+index 3b9ed898f..44af1dc1f 100644
+--- a/Assets/Python/BUG/PlayerUtil.py
++++ b/Assets/Python/BUG/PlayerUtil.py
+@@ -300,12 +300,16 @@ def getFavoriteCivic(playerOrID):
+ 	
+ 	This works even when the Random Personalities option is enabled.
+ 	"""
++	'''
+ 	eLeaderType = getPlayer(playerOrID).getPersonalityType()
+ 	if eLeaderType != -1:
+ 		leader = gc.getLeaderHeadInfo(eLeaderType)
+ 		if leader:
+ 			return leader.getFavoriteCivic()
+ 	return CivicTypes.NO_CIVIC
++	'''
++	# advc.130n (DLL takes care of dead civs that have no leader info)
++	return getPlayer(playerOrID).getFavoriteCivic()
+ 
+ def getWorstEnemy(playerOrID, askingPlayerOrID=None):
+ 	"""
+
+diff --git a/Assets/Python/Contrib/FavoriteCivicDetector.py b/Assets/Python/Contrib/FavoriteCivicDetector.py
+index d2d4cff62..6b5be4857 100644
+--- a/Assets/Python/Contrib/FavoriteCivicDetector.py
++++ b/Assets/Python/Contrib/FavoriteCivicDetector.py
+@@ -79,6 +79,9 @@ def doUpdate ():
+ 				if (not pActiveTeam.isHasMet(iTeam)):
+ 					BugUtil.debug(" -- Skipping; active team has not met team we are updating")
+ 					continue
++				# <advc.130n> Future-proof for only some players having hidden fave civics
++				if pPlayer.isFavoriteCivicKnown():
++					continue # </advc.130n>
+ 				favorite = gFavoriteByPlayer[iPlayer]
+ 				# Check Diplomacy first (if necessary)
+ 				if not favorite.isKnown():
+@@ -159,7 +162,17 @@ def initHelpers ():
+ 	specific category instead of having to iterate over all civics each time.
+ 	"""
+ 	global gDetectionNecessary
+-	gDetectionNecessary = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES)
++	#gDetectionNecessary = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES)
++	# <advc.130n>
++	gDetectionNecessary = False
++	if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES):
++		return
++	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++		kPlayer = gc.getPlayer(iPlayer)
++		if kPlayer.isAlive() and not kPlayer.isFavoriteCivicKnown():
++			gDetectionNecessary = True
++			break
++	# </advc.130n>
+ 	BugUtil.debug("FavoriteCivicDetector.initHelpers() gDetectionNecessary: %s" % (str(gDetectionNecessary)))
+ 	if gDetectionNecessary:
+ 		BugUtil.debug("FavoriteCivicDetector.initHelpers() initializing gCivicsByCategory")
+@@ -346,7 +359,13 @@ class FavoriteCivicDetector:
+ 						bNeedToSave = True
+ 						break
+ 				if (bNeedToSave):
+-					SdToolKit.sdSetGlobal(SD_MOD_ID, SD_VAR_ID, gFavoriteByPlayer)
++					#SdToolKit.sdSetGlobal(SD_MOD_ID, SD_VAR_ID, gFavoriteByPlayer)
++					# advc.001: This is not working correctly. Since advc.130n
++					# makes civic detection unnecessary, I'm not going to hunt
++					# for the bug. If the BtS rules are restored, then it'll still
++					# be better to fail silently than to show a Python error
++					# each time that the game is (auto-)saved.
++					pass
+ 					#BugUtil.debug("Data Saved to sdtoolkit")
+ 
+ 	def onCivicDemanded(self, argsList):
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 7fedb451e..4552418e3 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -550,14 +550,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					nCivic = gc.getPlayer(iLoopPlayer).getCivics (nCivicOption)
+ 					screen.attachImageButton (infoPanelName, "", gc.getCivicInfo (nCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nCivic, 1, False)
+ 
++				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
+ 				# Don't show favorite civic if playing with Random Personalities.
+-				if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES):
+-					nFavoriteCivic = objLeaderHead.getFavoriteCivic()
+-					if (nFavoriteCivic != -1) and (not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES)):
+-						screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_PEDIA_FAV_CIVIC", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-						objCivicInfo = gc.getCivicInfo (nFavoriteCivic)
+-						screen.attachImageButton (infoPanelName, "", objCivicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nFavoriteCivic, 1, False)
+-						screen.attachTextGFC(infoPanelName, "", "(" + gc.getCivicOptionInfo (objCivicInfo.getCivicOptionType()).getDescription() + ")", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				#if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES):
++				if (gc.getPlayer(iLoopPlayer).isFavoriteCivicKnown() and # advc.130n
++						nFavoriteCivic != -1):
++					screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_PEDIA_FAV_CIVIC", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					objCivicInfo = gc.getCivicInfo (nFavoriteCivic)
++					screen.attachImageButton (infoPanelName, "", objCivicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nFavoriteCivic, 1, False)
++					screen.attachTextGFC(infoPanelName, "", "(" + gc.getCivicOptionInfo (objCivicInfo.getCivicOptionType()).getDescription() + ")", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 
+ 	def drawInfoImproved (self, bInitial):
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index bfc42ded5..227190fd7 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6786,7 +6786,7 @@ int CvGame::religionPriority(PlayerTypes ePlayer, ReligionTypes eReligion) const
+ 			e.g. Buddhism would fit so well for Ashoka.
+ 			Don't use PersonalityType here; fav. religion is always a matter
+ 			of LeaderType. */
+-		if (GC.getInfo(kPlayer.getLeaderType()).getFavoriteReligion() == eReligion)
++		if (kPlayer.getFavoriteReligion() == eReligion)
+ 			iR += 6;
+ 	}
+ 	return iR;
+@@ -9156,7 +9156,9 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 21; // advc.enum
+ 	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
+ 	//uiFlag = 23; // advc.124b: Need a plot group update for compatibility
+-	uiFlag = 24; // advc.enum: Bugfix in bool-valued ArrayEnumMap; advc.130c: tweak.
++	/*	advc.enum: Bugfix in bool-valued ArrayEnumMap; advc.130c: tweak;
++		advc.130n: fave civic based on displayed leader type. */
++	uiFlag = 24;
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9374,26 +9376,14 @@ void CvGame::onAllGameDataRead()
+ 		}
+ 		SAFE_DELETE_ARRAY(m_pLegacyOrgSeatData);
+ 	} // </advc.enum>
+-	// <advc.130n>, advc.148, advc.130x
+-	if (m_uiSaveFlag < 22 ||
++	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c
++	if (m_uiSaveFlag < 24 ||
+ 		// <advc.127> Save created during AI Auto Play
+ 		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+ 	{
+ 		m_iAIAutoPlay = 0; // </advc.127>
+ 		CvPlayerAI::AI_updateAttitudes();
+ 	} // </advc.130n>
+-	// <advc.130r>
+-	else if (m_uiSaveFlag < 24)
+-	{
+-		for (TeamAIIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+-		{
+-			for (TeamIter<MAJOR_CIV,ENEMY_OF> itEnemy(itTeam->getID());
+-				itEnemy.hasNext(); ++itEnemy)
+-			{
+-				itTeam->AI_updateAttitude(itEnemy->getID(), false);
+-			}
+-		}
+-	} // </advc.130r>
+ 	// <advc.500c>
+ 	if (m_uiSaveFlag < 19)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e6439ceee..8b3703ea0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3654,7 +3654,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 		AI().AI_changeMemoryCount(ePlayer, MEMORY_ACCEPTED_CIVIC, 1);
+ 		CivicMap aeNewCivics;
+ 		GET_PLAYER(ePlayer).getCivics(aeNewCivics);
+-		CivicTypes eFavCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
++		CivicTypes eFavCivic = getFavoriteCivic();
+ 		aeNewCivics.set(GC.getInfo(eFavCivic).getCivicOptionType(), eFavCivic);
+ 		GET_PLAYER(ePlayer).revolution(aeNewCivics, true);
+ 		break;
+@@ -6824,6 +6824,33 @@ int CvPlayer::getCivicPercentAnger(CivicTypes eCivic, bool bIgnore) const
+ 	return (GC.getInfo(eCivic).getCivicPercentAnger() * iCount) / iPossibleCount;
+ }
+ 
++/*	<advc.130n> Functions that allow favorite ideologies to be tied to either
++	to personality or leader type in a single place. (This distinction matters
++	only for the Random Personalities option.)
++	Could argue that these should be CvPlayerAI functions b/c only the AI
++	should care about favorite ideologies, but mods might want to reward
++	human players for roleplaying their leader.
++	NB: AttitudeChanges remain tied to personality. */
++CivicTypes CvPlayer::getFavoriteCivic() const
++{
++	return GC.getInfo(
++			//getPersonalityType() // BtS
++			getLeaderType()).getFavoriteCivic();
++}
++bool CvPlayer::isFavoriteCivicKnown() const
++{
++	//return !GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES); // BtS
++	return true;
++}
++ReligionTypes CvPlayer::getFavoriteReligion() const
++{
++	return GC.getInfo(getLeaderType()).getFavoriteReligion(); // (as in BtS)
++}
++bool CvPlayer::isFavoriteReligionKnown() const
++{
++	return true; // (as in BtS)
++} // </advc.130n>
++
+ 
+ bool CvPlayer::canChangeReligion() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index f674b64c7..76b15c383 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -401,7 +401,12 @@ public:
+ 				GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS)) / 100);
+ 	}
+ 	int getCivicPercentAnger(CivicTypes eCivic, bool bIgnore = false) const;										// Exposed to Python
+-
++	// <advc.130n> (all four exposed to Python)
++	CivicTypes getFavoriteCivic() const;
++	bool isFavoriteCivicKnown() const;
++	ReligionTypes getFavoriteReligion() const;
++	bool isFavoriteReligionKnown() const;
++	// </advc.130n>
+ 	bool canDoReligion(ReligionTypes eReligion) const																// Exposed to Python
+ 	{	//return (GET_TEAM(getTeam()).getHasReligionCount(eReligion) != 0);
+ 		return (getHasReligionCount(eReligion) > 0); // advc.132c
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fe723434e..9884ef9e3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5554,7 +5554,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 				iValue += 4 * std::min(iCityCount, iCityTarget); // </k146>
+ 			}
+ 
+-			if (eCivic == GC.getInfo(getPersonalityType()).getFavoriteCivic())
++			if (eCivic == getFavoriteCivic())
+ 			{
+ 				/*  k146: favourite civic is already taken into account in the
+ 					civic evaluation above. */
+@@ -6938,8 +6938,7 @@ int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
+ 	CvRandom& kRand, int& iRandomMax, bool bRandomize) const
+ {
+ 	CvTechInfo const& kTech = GC.getInfo(eTech);
+-	ReligionTypes const eFavoriteReligion = GC.getInfo(getLeaderType()).
+-			getFavoriteReligion();
++	ReligionTypes const eFavoriteReligion = getFavoriteReligion();
+ 	// <advc.171>
+ 	bool bLateFavoriteReligion = false;
+ 	bool bLateReligion = false; // </advc.171>
+@@ -8304,11 +8303,11 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 
+ int CvPlayerAI::AI_getFavoriteCivicAttitude(PlayerTypes ePlayer) const
+ {
+-	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
+-	CivicTypes const eFavCivic = kPersonality.getFavoriteCivic();
++	CivicTypes const eFavCivic = getFavoriteCivic();
+ 	if (eFavCivic != NO_CIVIC &&
+ 		isCivic(eFavCivic) && GET_PLAYER(ePlayer).isCivic(eFavCivic))
+ 	{
++		CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
+ 		return kPersonality.getFavoriteCivicAttitudeChange() +
+ 				// advc.130n: Moved into new function
+ 				AI_ideologyAttitudeChange(ePlayer, SAME_CIVIC,
+@@ -13261,7 +13260,7 @@ DenialTypes CvPlayerAI::AI_civicTrade(CivicTypes eCivic, PlayerTypes ePlayer) co
+ 		{
+ 			return DENIAL_ANGER_CIVIC;
+ 		}
+-		CivicTypes eFavoriteCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
++		CivicTypes const eFavoriteCivic = getFavoriteCivic();
+ 		if (eFavoriteCivic != NO_CIVIC)
+ 		{
+ 			if (isCivic(eFavoriteCivic) &&
+@@ -15054,7 +15053,7 @@ int CvPlayerAI::AI_nukeWeight() const
+ 	scaled rPersonalNukeLove = per100(kPersonality.getEspionageWeight()) *
+ 			per100(100 - kPersonality.getNoWarAttitudeProb(ATTITUDE_CAUTIOUS));
+ 	{	// Environmentalists shouldn't like nukes
+-		CivicTypes eFavCivic = GC.getInfo(getLeaderType()).getFavoriteCivic();
++		CivicTypes eFavCivic = getFavoriteCivic();
+ 		if (eFavCivic != NO_CIVIC &&
+ 			GC.getInfo(eFavCivic).getUnhealthyPopulationModifier() <= -10)
+ 		{
+@@ -17520,7 +17519,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				iValue -= 3 * std::max(0,
+ 						iCities + iBestReligionCities - iTotalReligonCount);
+ 			}
+-			else if (eBestReligion == GC.getInfo(getLeaderType()).getFavoriteReligion() &&
++			else if (eBestReligion == getFavoriteReligion() &&
+ 				/*	advc.115b: Used to be a logical OR. Theocracy as the standard civic
+ 					from Medieval onwards hurts religious strategies unduly. */
+ 				(hasHolyCity(eBestReligion) && countHolyCities() == 1))
+@@ -17860,9 +17859,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			AttitudeTypes eAttitude = AI_getAttitude(kAIRival.getID(), false);
+ 			if (eAttitude >= ATTITUDE_PLEASED)
+ 			{
+-				CvLeaderHeadInfo const& kPersonality = GC.getInfo(kAIRival.getPersonalityType());
+-				if (kPersonality.getFavoriteCivic() == eCivic &&
+-					kAIRival.isCivic(eCivic))
++				if (kAIRival.getFavoriteCivic() == eCivic && kAIRival.isCivic(eCivic))
+ 				{
+ 					// (better to use getVotes; but that's more complex.)
+ 					//iValue += kAIRival.getTotalPopulation() * (2 + kPersonality.getFavoriteCivicAttitudeChangeLimit()) / 20;
+@@ -17872,7 +17869,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		}
+ 	} // K-Mod end
+ 
+-	if (GC.getInfo(getPersonalityType()).getFavoriteCivic() == eCivic &&
++	if (getFavoriteCivic() == eCivic &&
+ 		iValue > 0) // advc.131: Just to make sure
+ 	{
+ 		if (!kCivic.isStateReligion() || iBestReligionCities > 0)
+@@ -17919,7 +17916,7 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
+ {
+ 	ReligionTypes eBestReligion = NO_RELIGION;
+ 	int iBestValue = 0;
+-	ReligionTypes const eFavorite = GC.getInfo(getLeaderType()).getFavoriteReligion();
++	ReligionTypes const eFavorite = getFavoriteReligion();
+ 	FOR_EACH_ENUM(Religion)
+ 	{
+ 		if (canDoReligion(eLoopReligion))
+@@ -18800,7 +18797,7 @@ int CvPlayerAI::AI_ideologyAttitudeChange(PlayerTypes eOther, IdeologicMarker eM
+ 			break;
+ 		case SAME_CIVIC:
+ 		{
+-			CivicTypes eFavCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
++			CivicTypes eFavCivic = getFavoriteCivic();
+ 			if (eFavCivic != NO_CIVIC && isCivic(eFavCivic) &&
+ 				itPlayer->isCivic(eFavCivic))
+ 			{
+@@ -19284,9 +19281,9 @@ void CvPlayerAI::AI_doCounter()
+ 		}
+ 		else AI_setDifferentReligionCounter(ePlayer,
+ 				(AI_getDifferentReligionCounter(ePlayer) * rDecayFactor).floor());
+-		if (kPersonality.getFavoriteCivic() != NO_CIVIC)
++		if (getFavoriteCivic() != NO_CIVIC)
+ 		{
+-			CivicTypes eFavCivic = kPersonality.getFavoriteCivic();
++			CivicTypes eFavCivic = getFavoriteCivic();
+ 			if (isCivic(eFavCivic) && kPlayer.isCivic(eFavCivic))
+ 				AI_changeFavoriteCivicCounter(ePlayer, kOurTeam.AI_randomCounterChange());
+ 			else
+@@ -19416,8 +19413,7 @@ void CvPlayerAI::AI_doCounter()
+ 			} // </advc.130r>
+ 			/*  <advc.145> Decay of accepted/denied civic/religion memory based on
+ 				current civics and religion */
+-			// Fav. civic and religion are based on LeaderType, not PersonalityType.
+-			CivicTypes eFavCivic = GC.getInfo(getLeaderType()).getFavoriteCivic();
++			CivicTypes eFavCivic = getFavoriteCivic();
+ 			scaled const rAbolishMultiplier = 4;
+ 			if (eMem == MEMORY_ACCEPTED_CIVIC)
+ 			{
+@@ -22039,7 +22035,7 @@ bool CvPlayerAI::AI_contactCivics(PlayerTypes eHuman)
+ {
+ 	if(AI_getContactTimer(eHuman, CONTACT_CIVIC_PRESSURE) > 0)
+ 		return false;
+-	CivicTypes eFavoriteCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
++	CivicTypes const eFavoriteCivic = getFavoriteCivic();
+ 	if(eFavoriteCivic == NO_CIVIC || !isCivic(eFavoriteCivic))
+ 		return false;
+ 	CvPlayer& kHuman = GET_PLAYER(eHuman);
+@@ -28640,7 +28636,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
+ 
+ ReligionTypes CvPlayerAI::AI_chooseReligion()
+ {
+-	ReligionTypes eFavorite = GC.getInfo(getLeaderType()).getFavoriteReligion();
++	ReligionTypes eFavorite = getFavoriteReligion();
+ 	if (eFavorite != NO_RELIGION && !GC.getGame().isReligionFounded(eFavorite))
+ 		return eFavorite;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index e2cf97b10..46a23c585 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -674,6 +674,31 @@ int CyPlayer::getCivicPercentAnger(int /*CivicTypes*/ eCivic)
+ 	return m_pPlayer ? m_pPlayer->getCivicPercentAnger((CivicTypes) eCivic) : -1;
+ }
+ 
++// <advc.130n>
++CivicTypes CyPlayer::getFavoriteCivic()
++{
++	return (m_pPlayer == NULL || !m_pPlayer->isAlive() ? NO_CIVIC :
++			m_pPlayer->getFavoriteCivic());
++}
++
++bool CyPlayer::isFavoriteCivicKnown()
++{
++	return (m_pPlayer == NULL || !m_pPlayer->isAlive() ? false :
++			m_pPlayer->isFavoriteCivicKnown());
++}
++
++ReligionTypes CyPlayer::getFavoriteReligion()
++{
++	return (m_pPlayer == NULL || !m_pPlayer->isAlive() ? NO_RELIGION :
++			m_pPlayer->getFavoriteReligion());
++}
++
++bool CyPlayer::isFavoriteReligionKnown()
++{
++	return (m_pPlayer == NULL || !m_pPlayer->isAlive() ? false :
++			m_pPlayer->isFavoriteReligionKnown());
++} // </advc.130n>
++
+ bool CyPlayer::canDoReligion(int /*ReligionTypes*/ eReligion)
+ {
+ 	return m_pPlayer ? m_pPlayer->canDoReligion((ReligionTypes) eReligion) : false;
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 605feec93..081760991 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -174,7 +174,11 @@ public:
+ 	bool canAdopt(boost::python::list& kNewCivics);
+ 	void revolution(boost::python::list& kNewCivics, bool bForce); // </advc.001>
+ 	int getCivicPercentAnger(int /*CivicTypes*/ eCivic);
+-
++	// <advc.130n>
++	CivicTypes getFavoriteCivic();
++	bool isFavoriteCivicKnown();
++	ReligionTypes getFavoriteReligion();
++	bool isFavoriteReligionKnown(); // </advc.130n>
+ 	bool canDoReligion(int /*ReligionTypes*/ eReligion);
+ 	bool canChangeReligion();
+ 	bool canConvert(int /*ReligionTypes*/ iIndex);
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index c3916d1b1..99419c205 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -157,6 +157,11 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("canAdopt", &CyPlayer::canAdopt, "bool (int* (CivicTypes*) paeNewCivics)") // </advc.001>
+ 		.def("revolution", &CyPlayer::revolution, "void (int* (CivicTypes*) paeNewCivics, bool bForce)")
+ 		.def("getCivicPercentAnger", &CyPlayer::getCivicPercentAnger, "int (int /*CivicTypes*/ eCivic)")
++		// <advc.130n>
++		.def("getFavoriteCivic", &CyPlayer::getFavoriteCivic, "CivicTypes ()")
++		.def("isFavoriteCivicKnown", &CyPlayer::isFavoriteCivicKnown, "bool ()")
++		.def("getFavoriteReligion", &CyPlayer::getFavoriteReligion, "ReligionTypes ()")
++		.def("isFavoriteReligionKnown", &CyPlayer::isFavoriteReligionKnown, "bool ()") // </advc.130n>
+ 
+ 		.def("canDoReligion", &CyPlayer::canDoReligion, "int (int /*ReligionTypes*/ eReligion)")
+ 		.def("canChangeReligion", &CyPlayer::canChangeReligion, "bool ()")
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=19472

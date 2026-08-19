@@ -1,0 +1,973 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4037
+# Commit: 55bfda095dc15b5ac8e31526a69c1633da708b86
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bc4a48c1aafda3efd5b2a37b319caec276f18541
+# Title: Air Bomb mission can hit routes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	Assets/XML/Misc/CIV4MiscSchema.xml
+6	0	Assets/XML/Misc/CIV4RouteInfos.xml
+39	36	CvGameCoreDLL/CvGameTextMgr.cpp
+12	0	CvGameCoreDLL/CvInfo_Terrain.cpp
+22	2	CvGameCoreDLL/CvInfo_Terrain.h
+2	0	CvGameCoreDLL/CvPlayer.cpp
+5	5	CvGameCoreDLL/CvSelectionGroup.cpp
+133	98	CvGameCoreDLL/CvUnit.cpp
+8	4	CvGameCoreDLL/CvUnit.h
+62	63	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+9	1	CvGameCoreDLL/CyUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Misc/CIV4MiscSchema.xml b/Assets/XML/Misc/CIV4MiscSchema.xml
+index 7399a0407..e19571515 100644
+--- a/Assets/XML/Misc/CIV4MiscSchema.xml
++++ b/Assets/XML/Misc/CIV4MiscSchema.xml
+@@ -32,6 +32,10 @@
+ 	<ElementType name="iValue" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMovement" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iFlatMovement" content="textOnly" dt:type="int"/>
++	<!-- advc.255 -->
++	<ElementType name="iAirBombDefense" content="textOnly" dt:type="int"/>
++	<!-- advc.255 -->
++	<ElementType name="RoutePillage" content="textOnly"/>
+ 	<ElementType name="RouteInfo" content="eltOnly">
+ 		<element type="Type"/>
+ 		<element type="Description"/>
+@@ -40,6 +44,11 @@
+ 		<element type="iAdvancedStartCostIncrease"/>
+ 		<element type="iMovement"/>
+ 		<element type="iFlatMovement"/>
++		<!-- advc.255: Set to 0 by default in the DLL. -1 means that the route
++			 cannot be air-bombed. -->
++		<element type="iAirBombDefense" minOccurs="0"/>
++		<!-- advc.255: By default, pillaging results in destruction w/o replacement. -->
++		<element type="RoutePillage" minOccurs="0"/>
+ 		<element type="BonusType"/>
+ 		<element type="PrereqOrBonuses"/>
+ 		<element type="Yields"/>
+
+diff --git a/Assets/XML/Misc/CIV4RouteInfos.xml b/Assets/XML/Misc/CIV4RouteInfos.xml
+index 57e0f66fb..78cb36991 100644
+--- a/Assets/XML/Misc/CIV4RouteInfos.xml
++++ b/Assets/XML/Misc/CIV4RouteInfos.xml
+@@ -14,6 +14,8 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMovement>30</iMovement>
+ 			<iFlatMovement>30</iFlatMovement>
++			<!-- advc.255 -->
++			<iAirBombDefense>10</iAirBombDefense>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqOrBonuses/>
+ 			<Yields/>
+@@ -33,6 +35,10 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMovement>20</iMovement>
+ 			<iFlatMovement>6</iFlatMovement>
++			<!-- advc.255 -->
++			<iAirBombDefense>5</iAirBombDefense>
++			<!-- advc.255 -->
++			<RoutePillage>ROUTE_ROAD</RoutePillage>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqOrBonuses>
+ 				<PrereqOrBonus>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d7313a754..877d25c90 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20832,11 +20832,8 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
+ {
+ 	CvUnit const* pBestSelectedUnit = gDLL->UI().getSelectionList()->AI().
+ 			AI_bestUnitForMission(MISSION_AIRBOMB, &kPlot);
+-	if (pBestSelectedUnit == NULL || !pBestSelectedUnit->canAirBombAt(
+-		pBestSelectedUnit->plot(), kPlot.getX(), kPlot.getY()))
+-	{
++	if (pBestSelectedUnit == NULL || !pBestSelectedUnit->canAirBombAt(kPlot))
+ 		return;
+-	}
+ 	setInterceptPlotHelp(kPlot, *pBestSelectedUnit, szHelp);
+ 
+ 	TeamTypes const eActiveTeam = getActiveTeam();
+@@ -20865,41 +20862,47 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
+ 		else szHelp.append(gDLL->getText("TXT_KEY_AIR_BOMB_MODE_HELP_CITY_DEFENSE_NO_DAMAGE",
+ 					pBombardCity->getNameKey()));
+ 		szHelp.append(NEWLINE);
++		return;
+ 	} 
+-	else
+-	{
+-		ImprovementTypes eImprov = kPlot.getRevealedImprovementType(eActiveTeam);
+-		if (eImprov != NO_IMPROVEMENT)
+-		{
+-			// Formula matches dice roll in CvUnit::airBomb
+-			int const iAttack = pBestSelectedUnit->airBombCurrRate();
+-			int const iDefense = GC.getInfo(eImprov).getAirBombDefense();
+-			scaled rSuccessProb = 1;
+-			if (iDefense > 0)
+-			{
+-				if (iAttack <= 0)
+-					rSuccessProb = 0;
+-				else
+-				{	/*	Probability of iAttack-sided die rolling greater than
+-						or equal to iDefense-sided die */
+-					rSuccessProb = (iAttack > iDefense ?
+-							1 - scaled(iDefense - 1, 2 * iAttack) :
+-							scaled(iAttack + 1, 2 * iDefense));
+-				}
+-			}
+-			if (rSuccessProb > 0)
+-			{
+-				int iPercent = rSuccessProb.getPercent();
+-				if (iPercent == 0) // Don't show uncertain outcome as certain
+-					iPercent++;
+-				if (iPercent == 100 && rSuccessProb < 1)
+-					iPercent--;
+-				szHelp.append(gDLL->getText("TXT_KEY_AIR_BOMB_MODE_HELP_DESTR_IMPROV",
+-						GC.getInfo(eImprov).getDescription(), iPercent));
+-				szHelp.append(NEWLINE);
+-			}
++	// <advc.255>
++	CvUnit::StructureTypes const eStructure = kHeadSelectedUnit.
++			getDestructibleStructureAt(kPlot, true);
++	if (eStructure == CvUnit::NO_STRUCTURE)
++		return; // </advc.255>
++	// Formula matches dice roll in CvUnit::airBomb
++	int const iAttack = pBestSelectedUnit->airBombCurrRate();
++	bool const bRoute = (eStructure == CvUnit::STRUCTURE_ROUTE); // advc.255
++	ImprovementTypes const eImprov = kPlot.getRevealedImprovementType(eActiveTeam);
++	RouteTypes const eRoute = kPlot.getRevealedRouteType(eActiveTeam); // advc.255
++	int const iDefense = /* <advc.255> */ (bRoute ?
++			GC.getInfo(eRoute).get(CvRouteInfo::AirBombDefense) : // </advc.255>
++			GC.getInfo(eImprov).getAirBombDefense());
++	scaled rSuccessProb = 1;
++	if (iDefense > 0)
++	{
++		if (iAttack <= 0)
++			rSuccessProb = 0;
++		else
++		{	/*	Probability of iAttack-sided die rolling greater than
++				or equal to iDefense-sided die */
++			rSuccessProb = (iAttack > iDefense ?
++					1 - scaled(iDefense - 1, 2 * iAttack) :
++					scaled(iAttack + 1, 2 * iDefense));
+ 		}
+ 	}
++	if (rSuccessProb > 0)
++	{
++		int iPercent = rSuccessProb.getPercent();
++		if (iPercent == 0) // Don't show uncertain outcome as certain
++			iPercent++;
++		if (iPercent == 100 && rSuccessProb < 1)
++			iPercent--;
++		szHelp.append(gDLL->getText("TXT_KEY_AIR_BOMB_MODE_HELP_DESTR_IMPROV",
++				bRoute ? GC.getInfo(eRoute).getDescription() : // advc.255
++				GC.getInfo(eImprov).getDescription(),
++				iPercent));
++		szHelp.append(NEWLINE);
++	}
+ }
+ 
+ // advc.004c:
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 27c3ff36f..8b3793f9d 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -855,6 +855,7 @@ m_iAdvancedStartCostIncrease(0),
+ m_iValue(0),
+ m_iMovementCost(0),
+ m_iFlatMovementCost(0),
++m_eRoutePillage(NO_ROUTE), // advc.255
+ m_ePrereqBonus(NO_BONUS),
+ m_piYieldChange(NULL),
+ m_piTechMovementChange(NULL)
+@@ -892,6 +893,7 @@ int CvRouteInfo::getTechMovementChange(int i) const
+ 	FAssertBounds(0, GC.getNumTechInfos(), i);
+ 	return m_piTechMovementChange ? m_piTechMovementChange[i] : 0; // advc.003t
+ }
++
+ // advc.003t: Calls from Python aren't going to respect the bounds
+ int CvRouteInfo::py_getPrereqOrBonus(int i) const
+ {
+@@ -952,6 +954,16 @@ bool CvRouteInfo::read(CvXMLLoadUtility* pXML)
+ 	return true;
+ }
+ 
++// advc.255:
++bool CvRouteInfo::readPass2(CvXMLLoadUtility* pXML)
++{
++	CvString szTextVal;
++	pXML->GetChildXmlValByName(szTextVal, "RoutePillage", "");
++	m_eRoutePillage = (RouteTypes)GC.getInfoTypeForString(szTextVal);
++	return true;
++}
++
++
+ CvImprovementInfo::CvImprovementInfo() :
+ m_iAdvancedStartCost(0),
+ m_iAdvancedStartCostIncrease(0),
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index f79d39fb8..6e487718d 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -313,9 +313,26 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvRouteInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvRouteInfo : public CvInfoBase
++class CvRouteInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-	typedef CvInfoBase base_t;
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(AirBombDefense, "AirBombDefense"); // advc.255
++	}
++public:
++	enum IntElementTypes
++	{
++		AirBombDefense = base_t::NUM_INT_ELEMENT_TYPES, // advc.255
++		NUM_INT_ELEMENT_TYPES
++	};
++	int get(IntElementTypes e) const
++	{
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
++	}
++	// </advc.tag>
+ public: // All the const functions are exposed to Python except those added by mods
+ 	CvRouteInfo();
+ 	~CvRouteInfo();
+@@ -326,6 +343,7 @@ public: // All the const functions are exposed to Python except those added by m
+ 	int getValue() const;
+ 	int getMovementCost() const { return m_iMovementCost; }
+ 	int getFlatMovementCost() const { return m_iFlatMovementCost; }
++	RouteTypes getRoutePillage() const { return m_eRoutePillage; } // advc.255
+ 	BonusTypes getPrereqBonus() const { return m_ePrereqBonus; }
+ 
+ 	int getYieldChange(int i) const;
+@@ -340,6 +358,7 @@ public: // All the const functions are exposed to Python except those added by m
+ 	int py_getPrereqOrBonus(int i) const;
+ 	// </advc.003t>
+ 	bool read(CvXMLLoadUtility* pXML);
++	bool readPass2(CvXMLLoadUtility* pXML); // advc.255
+ 
+ protected:
+ 	int m_iAdvancedStartCost;
+@@ -348,6 +367,7 @@ protected:
+ 	int m_iValue;
+ 	int m_iMovementCost;
+ 	int m_iFlatMovementCost;
++	RouteTypes m_eRoutePillage; // advc.255
+ 	BonusTypes m_ePrereqBonus;
+ 
+ 	int* m_piYieldChange;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index add767a0e..38481d524 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12370,6 +12370,8 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 			szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_SOMETHING_DESTROYED",
+ 					GC.getInfo(pPlot->getRouteType()).getDescription()).GetCString();
+ 			pPlot->setRouteType(NO_ROUTE);
++					// (advc.255: Let's actually keep this as in BtS: no downgrade.)
++					//GC.getInfo(pPlot->getRouteType()).getRoutePillage());
+ 			bSomethingHappened = true;
+ 		}
+ 		if (bSomethingHappened)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 133c9c00b..d45c5b97c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -931,13 +931,13 @@ void CvSelectionGroup::startMission()
+ 		}
+ 		case MISSION_AIRBOMB:
+ 		{
+-			CvPlot const& kMissionPlot = GC.getMap().getPlot(
++			CvPlot& kMissionPlot = GC.getMap().getPlot(
+ 					headMissionQueueNode()->m_data.iData1,
+ 					headMissionQueueNode()->m_data.iData2);
+ 			bool bIntercepted = false;
+ 			CvUnit* pUnit;
+ 			while ((pUnit = AI().AI_bestUnitForMission(MISSION_AIRBOMB, &kMissionPlot)) != NULL &&
+-				pUnit->airBomb(kMissionPlot.getX(), kMissionPlot.getY(), &bIntercepted))
++				pUnit->airBomb(kMissionPlot, &bIntercepted))
+ 			{
+ 				bAction = true;
+ 				if (bIntercepted && !bStackAttack)
+@@ -1886,7 +1886,7 @@ bool CvSelectionGroup::canDoInterfaceMode(InterfaceModeTypes eInterfaceMode)
+ 			break;
+ 
+ 		case INTERFACEMODE_AIRBOMB:
+-			if (pUnit->canAirBomb(pUnit->plot()))
++			if (pUnit->canAirBomb())
+ 				return true;
+ 			break;
+ 
+@@ -1957,7 +1957,7 @@ bool CvSelectionGroup::canDoInterfaceModeAt(InterfaceModeTypes eInterfaceMode, C
+ 				return true;
+ 			break;
+ 		case INTERFACEMODE_AIRBOMB:
+-			if (pUnit->canAirBombAt(pUnit->plot(), pPlot->getX(), pPlot->getY()))
++			if (pUnit->canAirBombAt(*pPlot))
+ 				return true;
+ 			break;
+ 		case INTERFACEMODE_RANGE_ATTACK:
+@@ -3428,7 +3428,7 @@ bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData
+ 			break;
+ 
+ 		case MISSION_AIRBOMB:
+-			if (pUnit->canAirBombAt(pPlot, iData1, iData2) &&
++			if (pUnit->canAirBombAt(GC.getMap().getPlot(iData1, iData2), pPlot) &&
+ 				(!bCheckMoves || pUnit->canMove()))
+ 			{
+ 				return true;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ecbd10ffd..b21767195 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4344,8 +4344,11 @@ bool CvUnit::paradrop(int iX, int iY, /* <advc.004c> */ IDInfo* pInterceptor)
+ }
+ 
+ 
+-bool CvUnit::canAirBomb(const CvPlot* pPlot) const
++bool CvUnit::canAirBomb(CvPlot const* pFrom) const
+ {
++	// (advc: Should uncomment this if the param is ever actually used)
++	/*if (pFrom == NULL)
++		pFrom = plot();*/
+ 	if (getDomainType() != DOMAIN_AIR)
+ 		return false;
+ 	if (airBombBaseRate() == 0)
+@@ -4360,68 +4363,85 @@ bool CvUnit::canAirBomb(const CvPlot* pPlot) const
+ 	return true;
+ }
+ 
+-
+-bool CvUnit::canAirBombAt(const CvPlot* pPlot, int iX, int iY) const
++// advc: Params swapped, 2nd one optional
++bool CvUnit::canAirBombAt(CvPlot const& kTarget, CvPlot const* pFrom) const
+ {
+-	if (!canAirBomb(pPlot))
++	if (!canAirBomb(pFrom))
+ 		return false;
+-
+-	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
+-	if (plotDistance(pPlot, pTargetPlot) > airRange())
++	// <advc>
++	if (pFrom == NULL)
++		pFrom = plot(); // </advc>
++	if (plotDistance(pFrom, &kTarget) > airRange())
+ 		return false;
+-
+-	if (pTargetPlot->isOwned() &&
+-		// advc.004c: Don't give away revealed owner to humans
+-		(!isHuman() || pTargetPlot->getRevealedOwner(getTeam()) != NO_PLAYER))
++	// <advc.004c> Don't give away revealed owner to humans
++	if (isHuman())
+ 	{
+-		// advc (note): This boils down to isEnemy for humans
+-		if (!AI().AI_mayAttack(*pTargetPlot))
++		TeamTypes eRevealedTeam = kTarget.getRevealedTeam(getTeam(), false);
++		if (eRevealedTeam != NO_TEAM &&
++			// <advc.255> Allow bombing own routes
++			(kTarget.getOwner() != getOwner() ||
++			getDestructibleStructureAt(kTarget, true) != STRUCTURE_ROUTE) &&
++			// </advc.255>
++			!isEnemy(eRevealedTeam, kTarget))
++		{
+ 			return false;
++		}
+ 	}
+-
+-	CvCity const* pCity = pTargetPlot->getPlotCity();
+-	if (pCity != NULL &&
+-		// advc.004c: Don't give away unrevealed cities to humans
+-		(!isHuman() || pCity->isRevealed(getTeam())))
++	else // </advc.004c>
+ 	{
+-		if (!pCity->isBombardable(this) || /* K-Mod: */ !pCity->isRevealed(getTeam()))
++		if (kTarget.isOwned() && !AI().AI_mayAttack(kTarget))
+ 			return false;
+ 	}
+-	else
+ 	{
+-		/*if (pTargetPlot->getImprovementType() == NO_IMPROVEMENT)
+-			return false;
+-		if (GC.getInfo(pTargetPlot->getImprovementType()).isPermanent())
+-			return false;
+-		if (GC.getInfo(pTargetPlot->getImprovementType()).getAirBombDefense() == -1)
+-			return false;*/ // BtS
+-		// K-Mod. Don't allow the player to bomb improvements that they don't know exist.
+-		ImprovementTypes eActualImprovement = pTargetPlot->getImprovementType();
+-		ImprovementTypes eRevealedImprovement = pTargetPlot->getRevealedImprovementType(getTeam());
+-		/*	<advc.004c> The K-Mod code still gives away improvements that
+-			have been removed. Instead, allow humans to make futile attacks
+-			against improvements that no longer exist. */
+-		if (isHuman())
+-		{
+-			if (!pTargetPlot->isVisible(getTeam()))
+-				eActualImprovement = eRevealedImprovement;
+-			else FAssert(eActualImprovement == eRevealedImprovement);
+-		} // </advc.004c>
+-		if (eActualImprovement == NO_IMPROVEMENT || eRevealedImprovement == NO_IMPROVEMENT)
+-			return false;
+-		if (GC.getInfo(eActualImprovement).isPermanent() ||
+-			GC.getInfo(eRevealedImprovement).isPermanent())
++		CvCity const* pCity = kTarget.getPlotCity();
++		if (pCity != NULL &&
++			// advc.004c: Don't give away unrevealed cities to humans
++			(!isHuman() || pCity->isRevealed(getTeam())))
+ 		{
+-			return false;
++			return (pCity->isBombardable(this) &&
++					pCity->isRevealed(getTeam())); // K-Mod
+ 		}
+-		if (GC.getInfo(eActualImprovement).getAirBombDefense() == -1 ||
+-			GC.getInfo(eRevealedImprovement).getAirBombDefense() == -1)
+-		{
+-			return false;
+-		} // K-Mod end
+ 	}
++	// K-Mod. Don't allow the player to bomb improvements that they don't know exist.
++	// <advc.255> Moved into new function
++	return (getDestructibleStructureAt(kTarget,
++			/*	advc.004c: The K-Mod code still gave away improvements that have
++				been removed. Instead, allow humans to make futile attacks against
++				structures that no longer exist. */
++			isHuman()) != NO_STRUCTURE); // </advc.255>
++}
+ 
+-	return true;
++/*	advc.255: Whether the first structure that this unit could destroy in the
++	target plot would be an improvement, a route or none - assuming that the unit
++	has the ability to pillage or air bomb the plot (not checked). */
++CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget,
++	bool bTestVisibility) const
++{
++	ImprovementTypes eImprov = (bTestVisibility ?
++			kTarget.getRevealedImprovementType(getTeam()) :
++			kTarget.getImprovementType());
++	if (eImprov != NO_IMPROVEMENT && GC.getInfo(eImprov).isPermanent())
++		eImprov = NO_IMPROVEMENT;
++	RouteTypes eRoute = (bTestVisibility ?
++			kTarget.getRevealedRouteType(getTeam()) :
++			kTarget.getRouteType());
++	if (getDomainType() == DOMAIN_AIR)
++	{
++		if (eImprov != NO_IMPROVEMENT && GC.getInfo(eImprov).getAirBombDefense() < 0)
++			eImprov = NO_IMPROVEMENT;
++		if (eRoute != NO_ROUTE && GC.getInfo(eRoute).get(CvRouteInfo::AirBombDefense) < 0)
++			eRoute = NO_ROUTE;
++	}
++	if (eImprov == NO_IMPROVEMENT && eRoute == NO_ROUTE)
++		return NO_STRUCTURE;
++	if (getTeam() == (bTestVisibility ?
++		kTarget.getRevealedTeam(getTeam(), false) : kTarget.getTeam()))
++	{
++		return (eRoute == NO_ROUTE ? STRUCTURE_IMPROVEMENT : STRUCTURE_ROUTE);
++	}
++	return (eRoute != NO_ROUTE &&
++			(eImprov == NO_IMPROVEMENT || eImprov == GC.getRUINS_IMPROVEMENT()) ?
++			STRUCTURE_ROUTE : STRUCTURE_IMPROVEMENT);
+ }
+ 
+ // advc: Moved out of CvUnit::airBomb
+@@ -4436,22 +4456,19 @@ int CvUnit::airBombDefenseDamage(CvCity const& kCity) const
+ 	return (airBombCurrRate() * scaled(iDefWithBuildings, iDefSansBuildings)).round();
+ }
+ 
+-
+-bool CvUnit::airBomb(int iX, int iY, /* <advc.004c> */ bool* pbIntercepted)
++// advc: Target plot was given as coordinates
++bool CvUnit::airBomb(CvPlot& kTarget, /* <advc.004c> */ bool* pbIntercepted)
+ {
+ 	if (pbIntercepted != NULL)
+ 		*pbIntercepted = false; // </advc.004c>
+-	if (!canAirBombAt(plot(), iX, iY))
++	if (!canAirBombAt(kTarget))
+ 		return false;
+-
+-	CvPlot& kPlot = GC.getMap().getPlot(iX, iY); // advc: was CvMap::plot
+ 	/* if (!isEnemy(kPlot.getTeam()))
+-		getGroup()->groupDeclareWar(pPlot, true);*/
+-	// Disabled by K-Mod
+-	if (!isEnemy(kPlot))
+-		return false;
+-
+-	if (interceptTest(kPlot))
++		getGroup()->groupDeclareWar(pPlot, true);*/ // Disabled by K-Mod
++	// advc.004c: Move this down; don't want it to fail silently.
++	/*if (!isEnemy(kTarget))
++		return false;*/
++	if (interceptTest(kTarget))
+ 	{	// <advc.004c>
+ 		if (pbIntercepted != NULL)
+ 			*pbIntercepted = true; // </advc.004c>
+@@ -4459,7 +4476,7 @@ bool CvUnit::airBomb(int iX, int iY, /* <advc.004c> */ bool* pbIntercepted)
+ 	}
+ 	CvWString szBuffer;
+ 
+-	CvCity* pCity = kPlot.getPlotCity();
++	CvCity* pCity = kTarget.getPlotCity();
+ 	if (pCity != NULL)
+ 	{
+ 		//pCity->changeDefenseModifier(-airBombCurrRate());
+@@ -4476,53 +4493,76 @@ bool CvUnit::airBomb(int iX, int iY, /* <advc.004c> */ bool* pbIntercepted)
+ 				"AS2D_BOMBARD", MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"));
+ 	}
+ 	else
+-	{
+-		if (kPlot.isImproved())
+-		{	/*	advc.004c (note) Changes to this dice roll should be matched with
+-				changes to the probability display in CvGameTextMgr::getAirBombPlotHelp */
+-			if (SyncRandNum(airBombCurrRate()) >=
+-				SyncRandNum(GC.getInfo(kPlot.getImprovementType()).getAirBombDefense()))
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP", getNameKey(),
+-						GC.getInfo(kPlot.getImprovementType()).getTextKeyWide());
++	{	// <advc.255> 
++		bool const bValidOwner = (!kTarget.isOwned() || isEnemy(kTarget) || // advc.004c
++				kTarget.getOwner() == getOwner());
++		StructureTypes const eStructure = getDestructibleStructureAt(kTarget, false);
++		if (bValidOwner && eStructure != NO_STRUCTURE)
++		{
++			bool const bRoute = (eStructure == STRUCTURE_ROUTE);
++			wchar const* szStructure = (bRoute ?
++					GC.getInfo(kTarget.getRouteType()).getTextKeyWide() :
++					GC.getInfo(kTarget.getImprovementType()).getTextKeyWide());
++			int const iDefense = (bRoute ?
++					GC.getInfo(kTarget.getRouteType()).get(CvRouteInfo::AirBombDefense) :
++					GC.getInfo(kTarget.getImprovementType()).getAirBombDefense());
++			// </advc.255>
++			/*	advc.004c (note): Changes to this dice roll should be matched with changes
++				to the probability display in CvGameTextMgr::getAirBombPlotHelp */
++			if (SyncRandNum(airBombCurrRate()) >= SyncRandNum(iDefense))
++			{
++				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
++						getNameKey(), szStructure);
+ 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
+ 						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+-						kPlot.getX(), kPlot.getY());
+-				if (kPlot.isOwned())
++						kTarget.getX(), kTarget.getY());
++				if (kTarget.isOwned() &&
++					kTarget.getOwner() != getOwner()) // advc.004c
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_IMP_WAS_DESTROYED",
+-							GC.getInfo(kPlot.getImprovementType()).getTextKeyWide(), getNameKey(), 
+-							getVisualCivAdjective(kPlot.getTeam()));
+-					gDLL->UI().addMessage(kPlot.getOwner(), true, // advc.004g: was false
+-							-1, szBuffer, kPlot, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
++							szStructure, getNameKey(), 
++							getVisualCivAdjective(kTarget.getTeam()));
++					gDLL->UI().addMessage(kTarget.getOwner(), true, // advc.004g: was false
++							-1, szBuffer, kTarget, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
+ 							getButton(), GC.getColorType("RED"));
+ 				}
+-				kPlot.setImprovementType(GC.getInfo(kPlot.getImprovementType()).
+-						getImprovementPillage());
++				// <advc.255>
++				if (bRoute)
++				{
++					kTarget.setRouteType(GC.getInfo(kTarget.getRouteType()).
++							getRoutePillage());
++				}
++				else // </advc.255>
++				{
++					kTarget.setImprovementType(GC.getInfo(kTarget.getImprovementType()).
++							getImprovementPillage());
++				}
+ 			}
+ 			else
+ 			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_FAIL_DESTROY_IMP", getNameKey(),
+-						GC.getInfo(kPlot.getImprovementType()).getTextKeyWide());
++				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_FAIL_DESTROY_IMP",
++						getNameKey(), szStructure);
+ 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
+ 						"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
+-						GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
++						GC.getColorType("RED"), kTarget.getX(), kTarget.getY());
+ 			}
+-		}  // <advc.004c> Can now fail when the improvement only existed in the FoW
++		}
++		/*	<advc.004c> Can now fail when the improvement only existed in the FoW
++			or when plot owner in FoW was out of date */
+ 		else
+ 		{
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_AIR_BOMB_FAIL_IMP_GONE", getNameKey());
+ 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
+ 					"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
+-					NO_COLOR, kPlot.getX(), kPlot.getY());
++					NO_COLOR, kTarget.getX(), kTarget.getY());
+ 		} // </advc.004c>
+ 	}
+ 
+-	setReconPlot(&kPlot);
++	setReconPlot(&kTarget);
+ 	setMadeAttack(true);
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 
+-	if (kPlot.isActiveVisible(false))
++	if (kTarget.isActiveVisible(false))
+ 	{
+ 		CvAirMissionDefinition kAirMission;
+ 		kAirMission.setMissionType(MISSION_AIRBOMB);
+@@ -4530,7 +4570,7 @@ bool CvUnit::airBomb(int iX, int iY, /* <advc.004c> */ bool* pbIntercepted)
+ 		kAirMission.setUnit(BATTLE_UNIT_DEFENDER, NULL);
+ 		kAirMission.setDamage(BATTLE_UNIT_DEFENDER, 0);
+ 		kAirMission.setDamage(BATTLE_UNIT_ATTACKER, 0);
+-		kAirMission.setPlot(&kPlot);
++		kAirMission.setPlot(&kTarget);
+ 		kAirMission.setMissionTime(GC.getInfo(MISSION_AIRBOMB).getTime() *
+ 				gDLL->getSecsPerTurn());
+ 		gDLL->getEntityIFace()->AddMission(&kAirMission);
+@@ -4759,16 +4799,9 @@ bool CvUnit::pillage()
+ 	RouteTypes const eOldRoute = kPlot.getRouteType();
+ 	// <advc.111>
+ 	bool bPillaged = false;
+-	if (kPlot.getTeam() == getTeam())
+-	{
+-		if ((bPillaged = pillageRoute()) == false) // (works around warning c4706)
+-			bPillaged = pillageImprovement();
+-	}
+-	else
+-	{
+-		if ((bPillaged = pillageImprovement()) == false)
+-			bPillaged = pillageRoute();
+-	} // </advc.111>
++	if (getDestructibleStructureAt(kPlot, false) == STRUCTURE_ROUTE)
++		bPillaged = pillageRoute();
++	else bPillaged = pillageImprovement(); // </advc.111>
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 	if (kPlot.isActiveVisible(false))
+ 	{
+@@ -4792,7 +4825,7 @@ bool CvUnit::pillage()
+ bool CvUnit::pillageImprovement()
+ {
+ 	CvPlot& kPlot = getPlot();
+-	if (kPlot.getImprovementType() == NO_IMPROVEMENT)
++	if (!kPlot.isImproved())
+ 		return false;
+ 	if (kPlot.getTeam() != getTeam())
+ 	{
+@@ -4842,7 +4875,9 @@ bool CvUnit::pillageRoute()
+ {
+ 	if (!getPlot().isRoute())
+ 		return false;
+-	getPlot().setRouteType(NO_ROUTE); // XXX downgrade rail???
++	getPlot().setRouteType(//NO_ROUTE // XXX downgrade rail???
++			// advc.255: Indeed, we shall.
++			GC.getInfo(getPlot().getRouteType()).getRoutePillage());
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index d0251e077..eaab711ca 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -162,11 +162,15 @@ public:
+ 	bool canRecon(const CvPlot* pPlot) const;																// Exposed to Python
+ 	bool canReconAt(const CvPlot* pPlot, int iX, int iY) const;												// Exposed to Python
+ 	bool recon(int iX, int iY);
+-
+-	bool canAirBomb(const CvPlot* pPlot) const;																// Exposed to Python
+-	bool canAirBombAt(const CvPlot* pPlot, int iX, int iY) const;											// Exposed to Python
++	// <advc> Param lists changed for these two
++	bool canAirBomb(CvPlot const* pFrom = NULL) const;														// Exposed to Python
++	bool canAirBombAt(CvPlot const& kTarget, CvPlot const* pFrom = NULL) const; // </advc>					// Exposed to Python
++	// <advc.255>
++	enum StructureTypes { NO_STRUCTURE, STRUCTURE_IMPROVEMENT, STRUCTURE_ROUTE };
++	StructureTypes getDestructibleStructureAt(CvPlot const& kTarget,
++			bool bTestVisibility) const; // </advc.255>
+ 	int airBombDefenseDamage(CvCity const& kCity) const; // advc
+-	bool airBomb(int iX, int iY, /* advc.004c: */ bool* pbIntercepted = NULL);
++	bool airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted = NULL);
+ 
+ 	bool canAirStrike(CvPlot const& kPlot) const; // (advc.004c: was protected)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2da839185..212877305 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19205,7 +19205,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
+ 						iTempValue += (3*pLoopCity->getPopulation() + 30);
+ 
+ 						//if (canAirBomb(pPlot) && pLoopCity->isBombardable(this))
+-						if (canAirBombAt(&kPlot, pLoopCity->getX(), pLoopCity->getY())) // K-Mod
++						if (canAirBombAt(pLoopCity->getPlot(), &kPlot)) // K-Mod
+ 							iTempValue *= 2;
+ 						if (p.getArea().AI_getTargetCity(getOwner()) == pLoopCity)
+ 							iTempValue *= 2;
+@@ -19229,7 +19229,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
+ 						}
+ 
+ 						// Weight resources
+-						if (canAirBombAt(&kPlot, p.getX(), p.getY()))
++						if (canAirBombAt(p, &kPlot))
+ 						{
+ 							if (p.getBonusType(getTeam()) != NO_BONUS)
+ 							{
+@@ -19692,7 +19692,7 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 		}
+ 	}
+ 	// bombard (destroy improvement / city defences)
+-	if (canAirBombAt(plot(), kPlot.getX(), kPlot.getY()))
++	if (canAirBombAt(kPlot))
+ 	{
+ 		if (kPlot.isCity())
+ 		{
+@@ -19710,8 +19710,7 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 		else
+ 		{
+ 			BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam(), true);
+-			if (eBonus != NO_BONUS && kPlot.isOwned() &&
+-				canAirBombAt(plot(), kPlot.getX(), kPlot.getY()))
++			if (eBonus != NO_BONUS && kPlot.isOwned() && canAirBombAt(kPlot))
+ 			{
+ 				iBombValue = GET_PLAYER(kPlot.getOwner()).AI_bonusVal(eBonus, -1);
+ 				iBombValue += GET_PLAYER(kPlot.getOwner()).AI_bonusVal(eBonus, 0);
+@@ -19827,59 +19826,59 @@ bool CvUnitAI::AI_airBombPlots()
+ 	for (SquareIter it(*this, airRange(), false); it.hasNext(); ++it)
+ 	{
+ 		CvPlot& p = *it;
+-		if (p.isCity() || !p.isOwned() || !canAirBombAt(plot(), p.getX(), p.getY()))
++		if (p.isCity() || !p.isOwned() || !canAirBombAt(p))
+ 			continue;
+ 		int iValue = 0;
+-		if (p.getBonusType(p.getTeam()) != NO_BONUS)
++		if (p.getBonusType(p.getTeam()) != NO_BONUS &&
++			p.isImproved()) // advc.255
+ 		{
+ 			iValue += AI_pillageValue(p, 15);
+ 			iValue += SyncRandNum(10);
+ 		}
+ 		else if (isSuicide())
+ 		{
+-			//This should only be reached when the unit is desperate to die
++			// AI_airBombPlots should only be reached when the unit is desperate to die
+ 			iValue += AI_pillageValue(p);
+-			// Guided missiles lean towards destroying resource-producing tiles as opposed to improvements like Towns
++			/*	Guided missiles lean towards destroying resource-producing tiles
++				as opposed to improvements like Towns */
+ 			if (p.getBonusType(p.getTeam()) != NO_BONUS)
+ 			{
+-				//and even more so if it's a resource
+ 				iValue += GET_PLAYER(p.getOwner()).AI_bonusVal(
+ 						p.getBonusType(p.getTeam()), 0);
+ 			}
+ 		}
+-		if (iValue > 0)
++		if (iValue <= 0)
++			continue;
++		/*pInterceptor = bestInterceptor(pLoopPlot);
++		if (pInterceptor != NULL) {
++			iInterceptProb = isSuicide() ? 100 : pInterceptor->currInterceptionProbability();
++			iInterceptProb *= std::max(0, (100 - evasionProbability()));
++			iInterceptProb /= 100;
++			iValue *= std::max(0, 100 - iInterceptProb / 2);
++			iValue /= 100;
++		}*/ // BtS
++		// K-Mod. Try to avoid using bestInterceptor... because that's a slow function.
++		if (isSuicide())
++			iValue /= 2;
++		else if (!canAirDefend()) // assume that air defenders are strong.. and that they are willing to fight
+ 		{
+-			/*pInterceptor = bestInterceptor(pLoopPlot);
+-			if (pInterceptor != NULL) {
+-				iInterceptProb = isSuicide() ? 100 : pInterceptor->currInterceptionProbability();
++			CvUnit const* pInterceptor = bestInterceptor(p,
++					// advc.128: Don't always cheat with visibility (only 67% of the time)
++					m_iSearchRangeRandPercent > 33);
++			if (pInterceptor != NULL)
++			{
++				int iInterceptProb = pInterceptor->currInterceptionProbability();
+ 				iInterceptProb *= std::max(0, (100 - evasionProbability()));
+ 				iInterceptProb /= 100;
+ 				iValue *= std::max(0, 100 - iInterceptProb / 2);
+ 				iValue /= 100;
+-			}*/ // BtS
+-			// K-Mod. Try to avoid using bestInterceptor... because that's a slow function.
+-			if (isSuicide())
+-				iValue /= 2;
+-			else if (!canAirDefend()) // assume that air defenders are strong.. and that they are willing to fight
+-			{
+-				CvUnit const* pInterceptor = bestInterceptor(p,
+-						// advc.128: Don't always cheat with visibility (only 67% of the time)
+-						m_iSearchRangeRandPercent > 33);
+-				if (pInterceptor != NULL)
+-				{
+-					int iInterceptProb = pInterceptor->currInterceptionProbability();
+-					iInterceptProb *= std::max(0, (100 - evasionProbability()));
+-					iInterceptProb /= 100;
+-					iValue *= std::max(0, 100 - iInterceptProb / 2);
+-					iValue /= 100;
+-				}
+-			} // K-Mod end
+-			if (iValue > iBestValue)
+-			{
+-				iBestValue = iValue;
+-				pBestPlot = &p;
+-				FAssert(!atPlot(pBestPlot));
+ 			}
++		} // K-Mod end
++		if (iValue > iBestValue)
++		{
++			iBestValue = iValue;
++			pBestPlot = &p;
++			FAssert(!atPlot(pBestPlot));
+ 		}
+ 	}
+ 
+@@ -21313,7 +21312,7 @@ bool CvUnitAI::AI_defendPlot(CvPlot* pPlot)
+ 
+ int CvUnitAI::AI_pillageValue(CvPlot const& kPlot, int iBonusValueThreshold)
+ {
+-	FAssert(canPillage(kPlot) || canAirBombAt(plot(), kPlot.getX(), kPlot.getY()) || (getGroup()->getCargo() > 0));
++	FAssert(canPillage(kPlot) || canAirBombAt(kPlot) || (getGroup()->getCargo() > 0));
+ 
+ 	if (!kPlot.isOwned())
+ 		return 0;
+@@ -21338,31 +21337,31 @@ int CvUnitAI::AI_pillageValue(CvPlot const& kPlot, int iBonusValueThreshold)
+ 			return 0;
+ 	}
+ 
+-	if (getDomainType() != DOMAIN_AIR)
++	if ((getDomainType() != DOMAIN_AIR ||
++		// advc.255: (Though the AI will currently not air bomb routes)
++		kPlot.getRevealedImprovementType(getTeam()) == NO_IMPROVEMENT) &&
++		kPlot.//isRoute()
++		getRevealedRouteType(getTeam()) != NO_ROUTE) // advc.001i
+ 	{
+-		if (kPlot.//isRoute()
+-			getRevealedRouteType(getTeam()) != NO_ROUTE) // advc.001i
++		iValue++;
++		if (eNonObsoleteBonus != NO_BONUS)
+ 		{
+-			iValue++;
+-			if (eNonObsoleteBonus != NO_BONUS)
+-			{
+-				//iValue += iBonusValue * 4;
+-				iValue += iBonusValue; // K-Mod. (many more iBonusValues will be added again later anyway)
+-			}
+-
+-			FOR_EACH_ADJ_PLOT(kPlot) // K-Mod (bugfix): was *this
++			//iValue += iBonusValue * 4;
++			// K-Mod. (many more iBonusValues will be added again later anyway)
++			iValue += iBonusValue;
++		}
++		FOR_EACH_ADJ_PLOT(kPlot) // K-Mod (bugfix): was *this
++		{
++			if (pAdj->getTeam() != kPlot.getTeam())
++				continue;
++			if (pAdj->isCity())
++				iValue += 10;
++			//if (!pAdj->isRoute())
++			// advc.001i:
++			if (pAdj->getRevealedRouteType(getTeam()) == NO_ROUTE)
+ 			{
+-				if (pAdj->getTeam() != kPlot.getTeam())
+-					continue;
+-				if (pAdj->isCity())
+-					iValue += 10;
+-				//if (!pAdj->isRoute())
+-				// advc.001i:
+-				if (pAdj->getRevealedRouteType(getTeam()) == NO_ROUTE)
+-				{
+-					if (!pAdj->isWater() && !pAdj->isImpassable())
+-						iValue += 2;
+-				}
++				if (!pAdj->isWater() && !pAdj->isImpassable())
++					iValue += 2;
+ 			}
+ 		}
+ 	}
+@@ -21386,11 +21385,12 @@ int CvUnitAI::AI_pillageValue(CvPlot const& kPlot, int iBonusValueThreshold)
+ 
+ 		if (getDomainType() != DOMAIN_AIR)
+ 			iValue += GC.getInfo(eImprovement).getPillageGold();
+-
+ 		if (eNonObsoleteBonus != NO_BONUS)
+ 		{
+ 			//if (GC.getInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+-			if (GET_PLAYER(kPlot.getOwner()).doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus)) // K-Mod
++			// <K-Mod>
++			if (GET_PLAYER(kPlot.getOwner()).doesImprovementConnectBonus(
++				eImprovement, eNonObsoleteBonus)) // </K-Mod>
+ 			{
+ 				int iTempValue = iBonusValue * 4;
+ 
+@@ -21404,7 +21404,6 @@ int CvUnitAI::AI_pillageValue(CvPlot const& kPlot, int iBonusValueThreshold)
+ 			}
+ 		}
+ 	}
+-
+ 	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 984f3eb48..4da6c6b45 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -676,7 +676,8 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paVictoryInfo, "CIV4VictoryInfo", "GameInfo", "Civ4VictoryInfo/VictoryInfos/VictoryInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paBonusInfo, "CIV4BonusInfos", "Terrain", "Civ4BonusInfos/BonusInfos/BonusInfo", false, &CvDLLUtilityIFaceBase::createBonusInfoCacheObject);
+ 	LoadGlobalClassInfo(GC.m_paCorporationInfo, "CIV4CorporationInfo", "GameInfo", "Civ4CorporationInfo/CorporationInfos/CorporationInfo", false);
+-	LoadGlobalClassInfo(GC.m_paRouteInfo, "Civ4RouteInfos", "Misc", "Civ4RouteInfos/RouteInfos/RouteInfo", false);
++	LoadGlobalClassInfo(GC.m_paRouteInfo, "Civ4RouteInfos", "Misc", "Civ4RouteInfos/RouteInfos/RouteInfo",
++			true); // advc.255
+ 	LoadGlobalClassInfo(GC.m_paImprovementInfo, "CIV4ImprovementInfos", "Terrain", "Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo", true, &CvDLLUtilityIFaceBase::createImprovementInfoCacheObject);
+ 	LoadGlobalClassInfo(GC.m_paBuildingClassInfo, "CIV4BuildingClassInfos", "Buildings", "Civ4BuildingClassInfos/BuildingClassInfos/BuildingClassInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paBuildingInfo, "CIV4BuildingInfos", "Buildings", "Civ4BuildingInfos/BuildingInfos/BuildingInfo", false, &CvDLLUtilityIFaceBase::createBuildingInfoCacheObject);
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 1c0b14a2a..78afa9b8a 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -9,6 +9,7 @@
+ #include "CvUnitAI.h" // advc.003u
+ #include "CvArea.h"
+ #include "CvPlot.h"
++#include "CvMap.h" // advc: For canAirBombAt
+ 
+ CyUnit::CyUnit() : m_pUnit(NULL) {}
+ // advc.003y: (see CyCity.cpp)
+@@ -237,9 +238,16 @@ bool CyUnit::canAirBomb(CyPlot* pPlot)
+ 	return m_pUnit ? m_pUnit->canAirBomb(pPlot->getPlot()) : false;
+ }
+ 
++// advc: Adjusted to changed param list of CvUnit::canAirBombAt
+ bool CyUnit::canAirBombAt(CyPlot* pPlot, int iX, int iY)
+ {
+-	return m_pUnit ? m_pUnit->canAirBombAt(pPlot->getPlot(), iX, iY) : false;
++	if (m_pUnit == NULL)
++		return false;
++	CvPlot const* pTarget = GC.getMap().plot(iX, iY);
++	if (pTarget == NULL)
++		return false;
++	return m_pUnit->canAirBombAt(*pTarget,
++			pPlot == NULL ? NULL : pPlot->getPlot());
+ }
+ 
+ CyCity* CyUnit::bombardTarget(CyPlot* pPlot)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=36063

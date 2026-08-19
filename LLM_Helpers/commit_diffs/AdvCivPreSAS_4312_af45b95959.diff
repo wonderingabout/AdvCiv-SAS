@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4312
+# Commit: af45b959595cecdf0e9c9c873f6137223a38f314
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0d57a8c78bffd214babfde08250253309c80c01b
+# Title: Show all air combat announcements immediately
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	5	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index b6d816417..9b3fa35c2 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -966,7 +966,9 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 		{
+ 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SHOT_DOWN_ENEMY",
+ 					pInterceptor->getNameKey(), getNameKey(), getVisualCivAdjective(pInterceptor->getTeam()));
+-			gDLL->UI().addMessage(pInterceptor->getOwner(), false, -1, szBuffer, *pPlot,
++			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
++					true, // advc.004g
++					-1, szBuffer, *pPlot,
+ 					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+ 
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_SHOT_DOWN",
+@@ -981,7 +983,9 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 					pInterceptor->getNameKey(), getNameKey(),
+ 					kAirMission.getDamage(BATTLE_UNIT_ATTACKER), // advc.004g
+ 					getVisualCivAdjective(pInterceptor->getTeam()));
+-			gDLL->UI().addMessage(pInterceptor->getOwner(), false, -1, szBuffer, *pPlot,
++			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
++					true, // advc.004g
++					-1, szBuffer, *pPlot,
+ 					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+ 
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_AIR_UNIT_HURT",
+@@ -1001,7 +1005,9 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_SHOT_DOWN",
+ 					pInterceptor->getNameKey(), getNameKey());
+-			gDLL->UI().addMessage(pInterceptor->getOwner(), false, -1, szBuffer,
++			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
++					true, // advc.004g
++					-1, szBuffer,
+ 					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+ 					pPlot->getX(), pPlot->getY());
+ 		}
+@@ -1017,7 +1023,9 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_AIR_UNIT_DAMAGED",
+ 					pInterceptor->getNameKey(), getNameKey(),
+ 					kAirMission.getDamage(BATTLE_UNIT_DEFENDER)); // advc.004g
+-			gDLL->UI().addMessage(pInterceptor->getOwner(), false, -1, szBuffer,
++			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
++					true, // advc.004g
++					-1, szBuffer,
+ 					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+ 					pPlot->getX(), pPlot->getY());
+ 		}
+@@ -1031,7 +1039,9 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_AIR_UNIT_ABORTED",
+ 					getNameKey(), pInterceptor->getNameKey());
+-			gDLL->UI().addMessage(getOwner(), false, -1, szBuffer,
++			gDLL->UI().addMessage(getOwner(), //false
++					true, // advc.004g
++					-1, szBuffer,
+ 					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+ 					pPlot->getX(), pPlot->getY());
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2796

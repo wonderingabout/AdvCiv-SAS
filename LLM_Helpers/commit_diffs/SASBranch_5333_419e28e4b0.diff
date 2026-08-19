@@ -1,0 +1,643 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5333
+# Commit: 419e28e4b09e675f5dcf9f7a5f10e4b1a167adc9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8340dcb4d9276ae72f0d97c8a90f554ef55abb56
+# Title: add new Obsoletes panel in Sevopedia Techs, with a thin RedX art (ChatGPT 5.2 for generation + Claude code Sonnet 4.5's help thanks) - Sevopedia — Techs: Add...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds
+-	-	Assets/CvGameCoreDLL.dll
+161	3	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+13	4	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+81	83	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CyInfoInterface1.cpp
+14	1	README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+3	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds b/Assets/Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds
+new file mode 100644
+index 000000000..7b072d651
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds differ
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 6ec083cc7..ec5b85c90 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -29,8 +29,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+-# <!-- custom: change its value if you don't want to see this info -->
+ IS_SHOW_NON_TRADEABLE_TECHS_LIST = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") > 0)
++IS_SHOW_OBSOLETES_RED_X = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_OBSOLETES_RED_X") > 0)
+ 
+ 
+ 
+@@ -88,15 +88,25 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
+ 
+ 		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments -->
+-		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (3 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (3 * self.SMALL_MARGIN)
++		# <!-- custom: add obsoletes panel height to the total bottom panels (Claude code Sonnet 4.5) -->
++		self.H_OBSOLETES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
++		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (4 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (4 * self.SMALL_MARGIN)
+ 
+ 		self.X_HISTORY = self.X_TECH_PANE
+ 		self.Y_HISTORY = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY - self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS
+ 
++		self.X_OBSOLETES = self.X_TECH_PANE
++		self.Y_OBSOLETES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
++		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
++
++		# <!-- custom: note: Now that we switched to the thinner ChatGPT 5.2 based model, 64 is a bit too small, so extending it to fit buttons -->
++		# self.RED_X_BUTTON_SIZE = 64
++		self.RED_X_BUTTON_SIZE = 72
++
+ 		self.X_REQUIRES = self.X_TECH_PANE
+-		self.Y_REQUIRES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
++		self.Y_REQUIRES = self.Y_OBSOLETES + self.H_OBSOLETES + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
+ 		self.H_REQUIRES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+ 
+@@ -127,6 +137,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		self.placeTechPane()
+ 		self.placeCivilizationsThatStartWithThisTech()
++		self.placeObsoletes()
+ 		self.placePrereqs()
+ 		self.placeLeadsTo()
+ 		self.placeUnits()
+@@ -187,6 +198,153 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
++	# <!-- custom: new obsoletes panel showing buildings, bonuses, special buildings, and units obsoleted by this tech with red X overlay (Claude code Sonnet 4.5) -->
++	def placeObsoletes(self):
++		screen = self.top.getScreen()
++
++		# Collect all obsolete items for this tech
++		obsoleteBuildings = []
++		obsoleteBonuses = []
++		obsoleteSpecialBuildings = []
++		obsoleteUnits = []
++
++		# Obsolete Buildings (iterate by building class to get civ-specific buildings)
++		for iBuildingClass in range(gc.getNumBuildingClassInfos()):
++			iBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
++			if iBuilding != -1:
++				buildingInfo = gc.getBuildingInfo(iBuilding)
++				if buildingInfo.getObsoleteTech() == self.iTech:
++					obsoleteBuildings.append(iBuilding)
++
++		# Obsolete Bonuses
++		for iBonus in range(gc.getNumBonusInfos()):
++			bonusInfo = gc.getBonusInfo(iBonus)
++			if bonusInfo.getTechObsolete() == self.iTech:
++				obsoleteBonuses.append(iBonus)
++
++		# Obsolete Special Buildings
++		for iSpecialBuilding in range(gc.getNumSpecialBuildingInfos()):
++			specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuilding)
++			if specialBuildingInfo.getObsoleteTech() == self.iTech:
++				obsoleteSpecialBuildings.append(iSpecialBuilding)
++
++		# Obsolete Units - check that getObsoleteTech is exposed in DLL
++		unitInfo = gc.getUnitInfo(0)
++		if not hasattr(unitInfo, "getObsoleteTech"):
++			raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvUnitInfo Python getter: getObsoleteTech. Please expose it in CyInfoInterface1.cpp and rebuild the DLL.")
++		for iUnit in range(gc.getNumUnitInfos()):
++			unitInfo = gc.getUnitInfo(iUnit)
++			if unitInfo.getObsoleteTech() == self.iTech:
++				obsoleteUnits.append(iUnit)
++
++		# Always show panel, display "None" if no obsolete items
++		totalObsoleteCount = len(obsoleteBuildings) + len(obsoleteBonuses) + len(obsoleteSpecialBuildings) + len(obsoleteUnits)
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_OBSOLETES", ()), "", False, True, self.X_OBSOLETES, self.Y_OBSOLETES, self.W_OBSOLETES, self.H_OBSOLETES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		if totalObsoleteCount > 0:
++			# Get red X overlay path for obsolete indicator
++			# <!-- custom: default Civ4 one was too bold at 64 px making it hard to read; replaced with a thinner one imrpessively generated by ChatGPT 5.2 thanks a lot! -->
++			# szRedX = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RED_X").getPath()
++			szRedX = "Art/AdvCiv_SAS/Interface/RedX_Thin/chatgpt_5_2_obsolete_x_edge_thin_1204_preview64.dds"
++
++			# Helper to add an obsolete item with red X overlay
++			# We use addDDSGFCAt to overlay red X on top of the button
++			# Since attachImageButton doesn't support overlays, we use a workaround:
++			# attach the button first, then add the overlay separately using screen coordinates
++
++			# For simplicity, we'll use a different approach: create a child panel for each item
++			# Actually, the cleanest approach is to use attachImageButton and then manually
++			# add the red X overlay at the same position using addDDSGFC
++
++			# Obsolete Buildings
++			for iBuilding in obsoleteBuildings:
++				buildingInfo = gc.getBuildingInfo(iBuilding)
++				screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++
++			# Obsolete Bonuses
++			for iBonus in obsoleteBonuses:
++				bonusInfo = gc.getBonusInfo(iBonus)
++				screen.attachImageButton(panelName, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
++
++			# Obsolete Special Buildings - show individual buildings that belong to this special building type
++			for iSpecialBuilding in obsoleteSpecialBuildings:
++				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuilding)
++				# Find all buildings with this special building type and display them
++				for iBuilding in range(gc.getNumBuildingInfos()):
++					buildingInfo = gc.getBuildingInfo(iBuilding)
++					if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
++						screen.attachImageButton(panelName, "", buildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++
++			# Obsolete Units
++			iActivePlayer = gc.getGame().getActivePlayer()
++			for iUnit in obsoleteUnits:
++				unitInfo = gc.getUnitInfo(iUnit)
++				szButton = unitInfo.getButton()
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++			# Now add red X overlays on top of all buttons (if enabled via SAS define)
++			if IS_SHOW_OBSOLETES_RED_X:
++				# Since attachImageButton positions are managed by the panel, we need to use a different approach
++				# We'll add the overlays as separate DDS graphics at calculated positions
++				# The panel adds a label "  " first, then buttons start after that
++
++				# Calculate total items and add overlays
++				# Adjusted values to match actual button positions in the panel
++				# Note: actual buttons in panel are 64px (BUTTON_SIZE_CUSTOM), RED_X_BUTTON_SIZE is for the overlay DDS
++				# <!-- custom: old values for base INTERFACE_BUTTONS_RED_X (64px, bold):
++				#   iOverlaySize = 64
++				#   iCurrentX = self.X_OBSOLETES + 10
++				#   iOverlayY = self.Y_OBSOLETES + 36
++				#   iButtonSpacing = 64 + 4
++				# -->
++				iButtonSize = 64  # Actual button size in panel (BUTTON_SIZE_CUSTOM)
++				iOverlaySize = self.RED_X_BUTTON_SIZE  # Size of the thin red X DDS (128px to fit properly)
++				iOverlayOffset = (iButtonSize - iOverlaySize) / 2  # Center overlay on button (will be negative if overlay > button)
++				iCurrentX = self.X_OBSOLETES + 10 + iOverlayOffset  # Starting position with centering offset
++				iOverlayY = self.Y_OBSOLETES + 36 + iOverlayOffset  # Y position with centering offset
++				iButtonSpacing = iButtonSize + 4  # Actual button spacing (64 + 4 = 68)
++
++				# Process buildings
++				for iBuilding in obsoleteBuildings:
++					szOverlayName = self.top.getNextWidgetName()
++					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
++					iCurrentX += iButtonSpacing
++
++				# Process bonuses
++				for iBonus in obsoleteBonuses:
++					szOverlayName = self.top.getNextWidgetName()
++					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1)
++					iCurrentX += iButtonSpacing
++
++				# Process special buildings (individual buildings)
++				for iSpecialBuilding in obsoleteSpecialBuildings:
++					for iBuilding in range(gc.getNumBuildingInfos()):
++						buildingInfo = gc.getBuildingInfo(iBuilding)
++						if buildingInfo.getSpecialBuildingType() == iSpecialBuilding:
++							szOverlayName = self.top.getNextWidgetName()
++							screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
++							iCurrentX += iButtonSpacing
++
++				# Process units
++				for iUnit in obsoleteUnits:
++					szOverlayName = self.top.getNextWidgetName()
++					screen.addDDSGFC(szOverlayName, szRedX, iCurrentX, iOverlayY, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1)
++					iCurrentX += iButtonSpacing
++		
++		else:
++			# No obsolete items - display "None" text
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
++			screen.addMultilineText(textName, szText, self.X_OBSOLETES + 7, yPanelCenter, self.W_OBSOLETES - 14, self.H_OBSOLETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeLeadsTo(self):
+ 		screen = self.top.getScreen()
+ 		szLeadsTo = localText.getText("TXT_KEY_PEDIA_LEADS_TO", ())
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index f668de76a..b0df5bdcd 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -55,6 +55,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: show red X overlay on obsolete items in the Obsoletes panel (set to 0 to disable). Note new thinner RedX button generated by ChatGPT 5.2 thanks a lot! -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_TECH_SHOW_OBSOLETES_RED_X</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 7475c80b1..e08cb08ed 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -14,12 +14,12 @@
+ 		<French>Index</French>
+ 		<German>Index</German>
+ 		<Italian>Indice</Italian>
+-		<Spanish>�ndice</Spanish>
++		<Spanish>Índice</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SCREEN_CONTENTS</Tag>
+ 		<English>Contents</English>
+-		<French>Mati�res</French>
++		<French>Matières</French>
+ 		<German>Inhalt</German>
+ 		<Italian>Contenuto</Italian>
+ 		<Spanish>Contenido</Spanish>
+@@ -63,10 +63,10 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
+ 		<English>Favorite Civic and Religion</English>
+-		<French>Doctrine et Religion Pr�f�r�e</French>
++		<French>Doctrine et Religion Préférée</French>
+ 		<German>Bevorzugte Staatsform und Religion</German>
+ 		<Italian>Forme di governo e Religioni preferite</Italian>
+-		<Spanish>Principio y religi�n favoritos</Spanish>
++		<Spanish>Principio y religión favoritos</Spanish>
+ 	</TEXT>
+ 
+ 
+@@ -234,4 +234,13 @@
+ 			<Plural>1</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- custom: new text key for Obsoletes panel in Sevopedia Tech (Claude code Sonnet 4.5) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_OBSOLETES</Tag>
++		<English>Obsoletes</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND</Tag>
++		<English>None</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b6ebd8d14..aedf5bb75 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8118,110 +8118,108 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	if (bTreeInfo && NO_TECH != eFromTech)
+ 		buildTechTreeString(szBuffer, eTech, bPlayerContext, eFromTech);
+ 
+-	// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
+-	//	Obsolete Buildings
+-	CvWString szObsoleteBuildings;
+-	bool bAnyObsoleteBuildings = false;
+-	FOR_EACH_ENUM(BuildingClass)
++	// <!-- custom: skip obsolete bullets in civilopedia text since we now have a dedicated Obsoletes panel in Sevopedia Tech (Claude code Opus 4.5) -->
++	if (!bCivilopediaText)
+ 	{
+-		if (!bPlayerContext || (GET_PLAYER(eActivePlayer).
+-			getBuildingClassCount(eLoopBuildingClass) > 0))
++		// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
++		//	Obsolete Buildings
++		CvWString szObsoleteBuildings;
++		bool bAnyObsoleteBuildings = false;
++		FOR_EACH_ENUM(BuildingClass)
+ 		{
+-			BuildingTypes eLoopBuilding;
+-			if (eActivePlayer != NO_PLAYER)
+-				eLoopBuilding = kGame.getActiveCivilization()->getBuilding(eLoopBuildingClass);
+-			else eLoopBuilding = GC.getInfo(eLoopBuildingClass).getDefaultBuilding();
+-			if (eLoopBuilding != NO_BUILDING)
++			if (!bPlayerContext || (GET_PLAYER(eActivePlayer).
++				getBuildingClassCount(eLoopBuildingClass) > 0))
+ 			{
+-				//	Obsolete Buildings Check...
+-				if (GC.getInfo(eLoopBuilding).getObsoleteTech() == eTech)
++				BuildingTypes eLoopBuilding;
++				if (eActivePlayer != NO_PLAYER)
++					eLoopBuilding = kGame.getActiveCivilization()->getBuilding(eLoopBuildingClass);
++				else eLoopBuilding = GC.getInfo(eLoopBuildingClass).getDefaultBuilding();
++				if (eLoopBuilding != NO_BUILDING)
+ 				{
+-					if (bAnyObsoleteBuildings)
+-						szObsoleteBuildings += L", ";
+-					szObsoleteBuildings += CvWString::format(L"<link=literal>%s</link>",
+-							GC.getInfo(eLoopBuilding).getDescription());
+-					bAnyObsoleteBuildings = true;
++					//	Obsolete Buildings Check...
++					if (GC.getInfo(eLoopBuilding).getObsoleteTech() == eTech)
++					{
++						if (bAnyObsoleteBuildings)
++							szObsoleteBuildings += L", ";
++						szObsoleteBuildings += CvWString::format(L"<link=literal>%s</link>",
++								GC.getInfo(eLoopBuilding).getDescription());
++						bAnyObsoleteBuildings = true;
++					}
+ 				}
+ 			}
+ 		}
+-	}
+-	if (bAnyObsoleteBuildings)
+-	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+-				szObsoleteBuildings.GetCString()));
+-	}
+-
+-	//	Obsolete Bonuses
+-	CvWString szObsoleteBonuses;
+-	bool bAnyObsoleteBonuses = false;
+-	FOR_EACH_ENUM(Bonus)
+-	{
+-		if (GC.getInfo(eLoopBonus).getTechObsolete() == eTech)
++		if (bAnyObsoleteBuildings)
+ 		{
+-			if (bAnyObsoleteBonuses)
+-				szObsoleteBonuses += L", ";
+-			szObsoleteBonuses += CvWString::format(L"<link=literal>%s</link>",
+-					GC.getInfo(eLoopBonus).getDescription());
+-			bAnyObsoleteBonuses = true;
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
++					szObsoleteBuildings.GetCString()));
+ 		}
+-	}
+-	if (bAnyObsoleteBonuses)
+-	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+-				szObsoleteBonuses.GetCString()));
+-	}
+ 
+-	//	Obsolete Special Buildings
+-	CvWString szObsoleteSpecialBuildings;
+-	bool bAnyObsoleteSpecialBuildings = false;
+-	FOR_EACH_ENUM(SpecialBuilding)
+-	{
+-		if (GC.getInfo(eLoopSpecialBuilding).getObsoleteTech() == eTech)
++		//	Obsolete Bonuses
++		CvWString szObsoleteBonuses;
++		bool bAnyObsoleteBonuses = false;
++		FOR_EACH_ENUM(Bonus)
+ 		{
+-			if (bAnyObsoleteSpecialBuildings)
+-				szObsoleteSpecialBuildings += L", ";
+-			szObsoleteSpecialBuildings += CvWString::format(L"<link=literal>%s</link>",
+-					GC.getInfo(eLoopSpecialBuilding).getDescription());
+-			bAnyObsoleteSpecialBuildings = true;
++			if (GC.getInfo(eLoopBonus).getTechObsolete() == eTech)
++			{
++				if (bAnyObsoleteBonuses)
++					szObsoleteBonuses += L", ";
++				szObsoleteBonuses += CvWString::format(L"<link=literal>%s</link>",
++						GC.getInfo(eLoopBonus).getDescription());
++				bAnyObsoleteBonuses = true;
++			}
++		}
++		if (bAnyObsoleteBonuses)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
++					szObsoleteBonuses.GetCString()));
+ 		}
+-	}
+-	if (bAnyObsoleteSpecialBuildings)
+-	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES_NO_LINK",
+-				szObsoleteSpecialBuildings.GetCString()));
+-	}
+ 
+-	if (!bTreeInfo)
+-	{
+-		// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
+-		CvWString szObsoleteUnits;
+-		bool bAnyObsoleteUnits = false;
+-		FOR_EACH_ENUM(Unit)
++		//	Obsolete Special Buildings
++		CvWString szObsoleteSpecialBuildings;
++		bool bAnyObsoleteSpecialBuildings = false;
++		FOR_EACH_ENUM(SpecialBuilding)
+ 		{
+-			CvUnitInfo const& kLoopUnitInfo = GC.getInfo(eLoopUnit);
+-			if (kLoopUnitInfo.getObsoleteTech() == eTech)
++			if (GC.getInfo(eLoopSpecialBuilding).getObsoleteTech() == eTech)
+ 			{
+-				if (bAnyObsoleteUnits)
+-					szObsoleteUnits += L", ";
+-				szObsoleteUnits += CvWString::format(L"<link=literal>%s</link>",
+-						kLoopUnitInfo.getDescription());
+-				bAnyObsoleteUnits = true;
++				if (bAnyObsoleteSpecialBuildings)
++					szObsoleteSpecialBuildings += L", ";
++				szObsoleteSpecialBuildings += CvWString::format(L"<link=literal>%s</link>",
++						GC.getInfo(eLoopSpecialBuilding).getDescription());
++				bAnyObsoleteSpecialBuildings = true;
+ 			}
+ 		}
+-		if (bAnyObsoleteUnits)
++		if (bAnyObsoleteSpecialBuildings)
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+-					szObsoleteUnits.GetCString()));
++			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES_NO_LINK",
++					szObsoleteSpecialBuildings.GetCString()));
+ 		}
+-		if (bCivilopediaText && bAnyObsoleteUnits)
++
++		if (!bTreeInfo)
+ 		{
+-			// <!-- custom: keep tech tree uncluttered; add a pedia note only when relevant. (GPT-5.2-Codex) -->
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE"));
++			// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
++			CvWString szObsoleteUnits;
++			bool bAnyObsoleteUnits = false;
++			FOR_EACH_ENUM(Unit)
++			{
++				CvUnitInfo const& kLoopUnitInfo = GC.getInfo(eLoopUnit);
++				if (kLoopUnitInfo.getObsoleteTech() == eTech)
++				{
++					if (bAnyObsoleteUnits)
++						szObsoleteUnits += L", ";
++					szObsoleteUnits += CvWString::format(L"<link=literal>%s</link>",
++							kLoopUnitInfo.getDescription());
++					bAnyObsoleteUnits = true;
++				}
++			}
++			if (bAnyObsoleteUnits)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
++						szObsoleteUnits.GetCString()));
++			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index e2007ce94..4e9524d11 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -359,6 +359,9 @@ void CyInfoPythonInterface1()
+ 		.def("getFreePromotions", &CvUnitInfo::getFreePromotions, "bool (int i)")
+ 		.def("getLeaderPromotion", &CvUnitInfo::getLeaderPromotion, "int ()")
+ 		.def("getLeaderExperience", &CvUnitInfo::getLeaderExperience, "int ()")
++		// <!-- custom: expose getObsoleteTech to Python for Sevopedia Tech obsoletes panel (Claude code Sonnet 4.5) -->
++		.def("getObsoleteTech", &CvUnitInfo::getObsoleteTech, "int ()")
++		// <!-- custom: End - expose getObsoleteTech to Python for Sevopedia Tech obsoletes panel (Claude code Sonnet 4.5) -->
+ 
+ 		.def("getEarlyArtDefineTag", &CvUnitInfo::getEarlyArtDefineTag, "string (int i, UnitArtStyleTypes eStyle)")
+ 		.def("getLateArtDefineTag", &CvUnitInfo::getLateArtDefineTag, "string (int i, UnitArtStyleTypes eStyle)")
+
+diff --git a/README.md b/README.md
+index a8342be29..1ed4cc65f 100644
+--- a/README.md
++++ b/README.md
+@@ -426,8 +426,10 @@ Also Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pr
+ 
+ It also helped me generate a very nice building_russian_gord corresponding button and other images as well if any. The images are so good i'm losing my mind (in a good way i mean.) thanks a lot!!!
+ 
++I was also extremely impressed by ChatGPT 5.2's ability to fully plan the new addition of a new RedX art with thinner lines, just based on a sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance. ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds. See for details [README.md#redx-new-art-button](/README.md#redx-new-art-button).
++
+ <img src="https://drive.google.com/thumbnail?id=15rhihjY5wM0ABKwpBn_BqqRh_EU_6vLg&sz=w1024" width="150" alt="mounted_tech_edited.png"></img>
+-<img src="https://drive.google.com/thumbnail?id=1IrxlGcTWPkZ0Y2VLfRVdg7h9A_uvBXKI&sz=w1024" width="150" alt="gord.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1on2cbFeqFF54Q9iTos9g1oZpbUOnmaBn&sz=w1024" width="150" alt="chatgpt_5_2_obsolete_x_edge_thin_1204"></img>
+ <img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" width="267" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp"></img>
+ 
+ ## Less Generic unit names or combat types
+@@ -681,6 +683,17 @@ Also helped me nicely fix python issues very effectively thanks, i didn't test i
+ 
+ After some more time using it, what i like the most is how really accurate and and precise it is in its solutions. It checks and double-checks stuff it seems, and i often get a very accurate and targeted surgical fix or solution after a long thinking time which is very nice. Check if this comment is accurate.
+ 
++##### RedX new art button
++
++After some more time using ChatGPT 5.2, i have been very imrpessed by ChatGPT 5.2's autonomy and plannfication abilities: this sentiment only grew stronger! Just based on a sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance, ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds! Very impressive, useful and now implemented in our new sevopedia tech (see [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)) and thanks a lot!!
++
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG" alt="chatgpt_5.2_red_x_new_art (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG" alt="chatgpt_5.2_red_x_new_art (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG" alt="chatgpt_5.2_red_x_new_art (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG" alt="chatgpt_5.2_red_x_new_art (4).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG" alt="chatgpt_5.2_red_x_new_art (5).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG" alt="chatgpt_5.2_red_x_new_art (6).PNG" width="250"></img>
++
+ ### GPT-Codex (VS Code extension)
+ 
+ Note: see also [AGENTS.md](/AGENTS.md).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 65dece593..85c199e26 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -130,10 +130,10 @@ Note: see moe details in the [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/REA
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game spede Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+-- (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
++- (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability: change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp).
+-- Sevopedia — Buildings: Beautify, in particular add **hoverable and clickable great person image links** using `screen.setImageButtonAt`. See [Sevopedia reworks (Buildings category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category)
++- (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - (Requires AdvCiv-SAS 5331+) Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 48afdf41e..cbb00eb86 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -306,8 +306,11 @@ Note: the untradeable techs list as string/text is very efficiently precomputed
+ 
+ More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
+ 
++And after that, added a new Obsoletes panel with the help of Claude code Sonnet 4.5, that notably shows a new thinner RedX art than in Civ4 (as it was too bold and hard to read at 64px) for any asset that has a button this tech obsoletes. ChatGPT 5.2 very impressively helped adding such a feature. See [README.md#redx-new-art-button](/README.md#redx-new-art-button).
++
+ <img src="../Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.710_sevopedia_techs (3).JPG" alt="0.710_sevopedia_techs (3).JPG" width="250"></img>
+ 
+ ### example 11: shortcuts category
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG
+new file mode 100644
+index 000000000..a6ae2077e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG
+new file mode 100644
+index 000000000..a30d1401a
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG
+new file mode 100644
+index 000000000..1ddff0ec5
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG
+new file mode 100644
+index 000000000..057eee5c1
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG
+new file mode 100644
+index 000000000..22f8ded39
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG
+new file mode 100644
+index 000000000..9fb18bd80
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+index dec3e1d71..b7081ecbd 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+index aeabbd4dd..c54c275e1 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+index 5f03e8e79..03b689e2b 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=18 omittedFiles=1 embeddedPatchBytes=34672

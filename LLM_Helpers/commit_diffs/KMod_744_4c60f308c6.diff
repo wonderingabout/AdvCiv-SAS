@@ -1,0 +1,219 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 744
+# Commit: 4c60f308c6b08f4e00b35fe01b5f47d0e58195b5
+# History segment: K-Mod history
+# Parent used for diff: ae439a413a67ba4e73c36dc9b8832ac89c65f61a
+# Title: Made some adjustments to help the AI better prioritize spaceship research and building when close to a space victory. Increased the AI's colony cost estimate...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+43	38	CvGameCoreDLL/CvCityAI.cpp
+4	4	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8cd4bb831..e5f4a4929 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1562,6 +1562,15 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
++	// K-Mod
++	ProjectTypes eBestProject = NO_PROJECT;
++	int iProjectValue = 0; //
++	if (kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) || !(bLandWar && iWarSuccessRating < 30))
++	{
++		eBestProject = AI_bestProject(&iProjectValue);
++	}
++	// K-Mod end
++
+ 	int iSpreadUnitThreshold = 1000;
+ 
+ 	if( bLandWar )
+@@ -1578,8 +1587,8 @@ void CvCityAI::AI_chooseProduction()
+ 		int iSpreadUnitRoll = (100 - iBuildUnitProb) / 3;
+ 		iSpreadUnitRoll += bLandWar ? 0 : 10;
+ 		// K-Mod
+-		iSpreadUnitRoll *= (200 + iBestBuildingValue);
+-		iSpreadUnitRoll /= (100 + 3 * iBestBuildingValue);
++		iSpreadUnitRoll *= (200 + std::max(iProjectValue, iBestBuildingValue));
++		iSpreadUnitRoll /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
+ 		// K-Mod end
+ 		
+ 		if (AI_bestSpreadUnit(true, true, iSpreadUnitRoll, &eBestSpreadUnit, &iBestSpreadUnitValue))
+@@ -1596,34 +1605,18 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	ProjectTypes eBestProject = NO_PROJECT; // K-Mod
+-	int iProjectValue = 0; //
+-
+-	if( !(bLandWar && iWarSuccessRating < 30) )
++	// K-Mod
++	if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
+ 	{
+-		/* original code
+-		if (!bDanger && (iProductionRank <= ((kPlayer.getNumCities() / 5) + 1)))
++		int iOdds = 100 * (iProjectValue - iBestBuildingValue) / (iProjectValue + iBestBuildingValue + iBuildUnitProb);
++		if (GC.getGameINLINE().getSorenRandNum(100, "Build Project chance 1") < iOdds)
+ 		{
+-			if (AI_chooseProject())
+-			{
+-				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 1", getName().GetCString());
+-				return;
+-			}
+-		} */
+-		// K-Mod
+-		eBestProject = AI_bestProject(&iProjectValue);
+-		if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
+-		{
+-			int iOdds = 100 * (iProjectValue - iBestBuildingValue) / (iProjectValue + iBestBuildingValue + iBuildUnitProb);
+-			if (GC.getGameINLINE().getSorenRandNum(100, "Build Project chance 1") < iOdds)
+-			{
+-				pushOrder(ORDER_CREATE, eBestProject);
+-				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
+-				return;
+-			}
++			pushOrder(ORDER_CREATE, eBestProject);
++			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
++			return;
+ 		}
+-		// K-Mod end
+ 	}
++	// K-Mod end
+ 
+ 	//minimal defense.
+ 	//if (!bUnitExempt && iPlotCityDefenderCount < (AI_minDefenders() + iPlotSettlerCount))
+@@ -1752,8 +1745,8 @@ void CvCityAI::AI_chooseProduction()
+ 		if (iNumSpies < iNeededSpies)
+ 		{
+ 			int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || GET_TEAM(getTeam()).getAnyWarPlanCount(true)) ?45 : 35;
+-			iOdds *= 50 + iBestBuildingValue;
+-			iOdds /= 20 + 2 * iBestBuildingValue;
++			iOdds *= 50 + std::max(iProjectValue, iBestBuildingValue);
++			iOdds /= 20 + 2 * std::max(iProjectValue, iBestBuildingValue);
+ 			iOdds *= iNeededSpies;
+ 			iOdds /= 4*iNumSpies + iNeededSpies;
+ 			iOdds -= bUnitExempt ? 10 : 0; // not completely exempt, but at least reduced probability.
+@@ -2027,8 +2020,8 @@ void CvCityAI::AI_chooseProduction()
+ 			iTrainInvaderChance /= (bGetBetterUnits ? 2 : 1);
+ 
+ 			// K-Mod
+-			iTrainInvaderChance *= (100 + iBestBuildingValue);
+-			iTrainInvaderChance /= (20 + 3 * iBestBuildingValue);
++			iTrainInvaderChance *= (100 + std::max(iProjectValue, iBestBuildingValue));
++			iTrainInvaderChance /= (20 + 3 * std::max(iProjectValue, iBestBuildingValue));
+ 			// K-Mod end
+ 
+ 			iUnitsToTransport *= 9;
+@@ -2604,8 +2597,8 @@ void CvCityAI::AI_chooseProduction()
+ 	if (iUnitSpending < iMaxUnitSpending + 15) // was +5 (new metric)
+ 	{
+ 		// K-Mod
+-		iBuildUnitProb *= (250 + iBestBuildingValue);
+-		iBuildUnitProb /= (100 + 3 * iBestBuildingValue);
++		iBuildUnitProb *= (250 + std::max(iProjectValue, iBestBuildingValue));
++		iBuildUnitProb /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
+ 		// K-Mod end
+ 
+ 		if ((bLandWar) ||
+@@ -5654,7 +5647,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue)
+ 		if (bGoodFit)
+ 		{
+ 			// building the project in this city is probably a good idea.
+-			iValue += getProjectProduction(i) + (bVictory ? getProductionNeeded(i)/4 : 0);
++			iValue += getProjectProduction(i) + (bVictory ? getProductionNeeded(i)/4 + iValue/2 : 0);
+ 		}
+ 		else
+ 		{
+@@ -5849,15 +5842,22 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject)
+ 	{
+ 		if (GC.getGameINLINE().isVictoryValid((VictoryTypes)iI) && kProject.getVictoryThreshold(iI) > 0)
+ 		{
+-			iSpaceValue += 20;
+-			iSpaceValue += (std::max(0, (kProject.getVictoryThreshold(iI) - GET_TEAM(getTeam()).getProjectCount(eProject))) * 20);
++			/* iSpaceValue += 20;
++			iSpaceValue += std::max(0, kProject.getVictoryThreshold(iI) - GET_TEAM(getTeam()).getProjectCount(eProject)) * 20; */
++			iSpaceValue += 15;
++			iSpaceValue += std::max(0, kProject.getVictoryMinThreshold(iI) - GET_TEAM(getTeam()).getProjectCount(eProject)) * (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) ? 60 : 30);
++			iSpaceValue += kProject.getSuccessRate();
++			iSpaceValue += kProject.getVictoryDelayPercent() / (4 * kProject.getVictoryThreshold(iI));
++			//
+ 		}
+ 	}
+ 
+-	if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
+-		iSpaceValue = 3*iSpaceValue;
++	if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4))
++		iSpaceValue *= 4;
++	else if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
++		iSpaceValue *= 3;
+ 	else if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE2))
+-		iSpaceValue = 2*iSpaceValue;
++		iSpaceValue *= 2;
+ 	else if (!kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE1) && kOwner.AI_isDoVictoryStrategyLevel4())
+ 		iSpaceValue = 2*iSpaceValue/3;
+ 
+@@ -10706,6 +10706,11 @@ int CvCityAI::AI_cityValue() const
+ 	iValue += getCommerceRateTimes100(COMMERCE_GOLD);
+ 
+ 	int iCosts = calculateColonyMaintenanceTimes100() + 2*getMaintenanceTimes100()/3;
++	// slightly encourage empire split when aiming for a diplomatic victory
++	if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY3) && kOwner.getCommercePercent(COMMERCE_GOLD) > 0)
++	{
++		iCosts = iCosts * 4 / 3;
++	}
+ 	int iTargetPop = std::max(5, AI_getTargetPopulation()); // target pop is not a good measure for small cities w/ unimproved tiles.
+ 	if (getPopulation() > 0 && getPopulation() < iTargetPop)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fdcc44967..8144805c6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5611,10 +5611,10 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 					if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE2))
+ 					{
+ 						iValue += 1000;
+-					}
+-					if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
+-					{
+-						iValue += 800; // (additional)
++						if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
++						{
++							iValue += 1000; // (additional)
++						}
+ 					}
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 34522159e..11c7c79fa 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -24191,10 +24191,10 @@ int CvUnitAI::AI_stackOfDoomExtra() const
+ 	//return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra())) + 4);
+ 	// K-Mod
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+-	int iMilitaryFlavour = kOwner.AI_getFlavorValue(FLAVOR_MILITARY);
++	int iFlavourExtra = kOwner.AI_getFlavorValue(FLAVOR_MILITARY)/2 + (kOwner.AI_getFlavorValue(FLAVOR_MILITARY) > 0 ? 8 : 4);
+ 	int iEra = kOwner.getCurrentEra();
+ 	// 4 base. then rand between 0 and ... (1 or 2 + iEra + flavour * era ratio)
+-	return AI_getBirthmark() % ((kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH) ? 2 : 1) + iEra + (iEra+1)*iMilitaryFlavour/std::max(1, GC.getNumEraInfos())) + 4;
++	return AI_getBirthmark() % ((kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH) ? 2 : 1) + iEra + (iEra+1)*iFlavourExtra/std::max(1, GC.getNumEraInfos())) + 4;
+ 	// K-Mod end
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8278

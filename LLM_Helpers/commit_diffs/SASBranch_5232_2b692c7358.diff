@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5232
+# Commit: 2b692c735880c58acb00c17b9aebcfaa656ca9c8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 363224c004bfe425a7ae7ad1c7bef3f987627449
+# Title: fix ironworks requiring coal+coal in sevopedia building instead of coal+iron; add hover on the great person's button as well anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	10	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 60437c759..95c3342ce 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -585,7 +585,10 @@ class SevoPediaBuilding:
+ 					buttonWidget = self.top.getNextWidgetName()
+ 					buttonX = self.X_FLAT_GREAT_PERSON + buttonXOffset
+ 					buttonY = self.Y_FLAT_GREAT_PERSON + buttonYOffset
+-					screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					# <!-- custom: add tooltip when hovering on the great person button, with the help of chatgpt 5.2 thanks anyways etc. -->
++					# screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH,
++                WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iGreatPersonUnit, 1)
+ 
+ 				# <!-- custom: else block below's code untested but probably works, i guess it covers case where great person type is not any of the great people's types if i am not mistaken like great scientist and great prophet and such, but really i have no idea or don'tknow too much maybe, so test to be sure, may or not work-function, hopefully does but in all cases anyways etc... -->
+ 				else:
+@@ -657,15 +660,6 @@ class SevoPediaBuilding:
+ 				# <!-- custom: note: no specific text, no need for numTxt and such, simply display the button then end this part of the code anyways etc, but we still increment so that buttons that buttons that need/use a numTxt under have their numTxt correctly positioned anyways etc -->
+ 				iButtonIndex += 1
+ 
+-		iPrereqBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
+-		if iPrereqBonus >= 0:
+-			# Column index (always 0 when numLists=1)
+-			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iPrereqBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereqBonus, 1, False)
+-
+-			isButtonFound = True
+-			iButtonIndex += 1
+-
+ 		iPrereqAndBonus = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
+ 		if iPrereqAndBonus >= 0:
+ 			# Column index (always 0 when numLists=1)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2312

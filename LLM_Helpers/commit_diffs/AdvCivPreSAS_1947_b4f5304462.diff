@@ -1,0 +1,540 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1947
+# Commit: b4f5304462c030d1d5add026fa916da0168a8e8d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 818e5a192f24a7490a88724d6918cbf1d3263e8d
+# Title: Rename CvAI.h wrapper header to CoreAI.h
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+1	1	CvGameCoreDLL/AgentIteratorTest.cpp
+1	1	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+5	7	CvGameCoreDLL/{CvAI.h => CoreAI.h}
+1	1	CvGameCoreDLL/CvAgents.cpp
+1	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvDeal.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameAI.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+2	2	CvGameCoreDLL/CvGamePlay.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	1	CvGameCoreDLL/RFChapter.cpp
+1	1	CvGameCoreDLL/RiseFall.cpp
+1	1	CvGameCoreDLL/UWAI.cpp
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+1	1	CvGameCoreDLL/UWAICache.cpp
+1	1	CvGameCoreDLL/WarEvaluator.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+ rename CvGameCoreDLL/{CvAI.h => CoreAI.h} (52%)
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 6fb4f1291..bc6d9818f 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -4,7 +4,7 @@
+ #include "AdvCiv4lerts.h"
+ #include "CvInfo_Unit.h"
+ #include "CvInfo_Terrain.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDealList.h" // advc.003s
+ #include "RiseFall.h" // advc.706
+ #include "UWAIAgent.h" // advc.ctr
+
+diff --git a/CvGameCoreDLL/AgentIteratorTest.cpp b/CvGameCoreDLL/AgentIteratorTest.cpp
+index 478dd216e..75a012011 100644
+--- a/CvGameCoreDLL/AgentIteratorTest.cpp
++++ b/CvGameCoreDLL/AgentIteratorTest.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvAgents.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ 
+ //#define AGENT_ITERATOR_TEST
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 5706219ed..41e5a888d 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -6,7 +6,7 @@
+ #include "MilitaryAnalyst.h"
+ #include "WarEvalParameters.h"
+ #include "UWAIReport.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvMap.h"
+ #include "CvArea.h"
+ #include "CvInfo_GameOption.h"
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 69b14bfdb..680a8f558 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CitySiteEvaluator.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvCivilization.h"
+ #include "PlotRange.h"
+ #include "CvArea.h"
+
+diff --git a/CvGameCoreDLL/CvAI.h b/CvGameCoreDLL/CoreAI.h
+similarity index 52%
+rename from CvGameCoreDLL/CvAI.h
+rename to CvGameCoreDLL/CoreAI.h
+index 58e3ab228..0e27128ab 100644
+--- a/CvGameCoreDLL/CvAI.h
++++ b/CvGameCoreDLL/CoreAI.h
+@@ -3,20 +3,18 @@
+ #ifndef CIV4_AI_H
+ #define CIV4_AI_H
+ 
+-/*  advc.make: Wrapper header to improve the readability of classes that need
+-	all or most of the AI headers. */
++// advc.make: Wrapper header to reduce the number of include directives
+ 
+-#include "CvGamePlay.h"
+-// Note: Most of the headers in CvGamePlay.h are included by the ...AI.h headers as well
++#include "CvGamePlay.h" // The AI headers aren't much good w/o the core gameplay headers
+ #include "CvGameAI.h"
+ #include "CvTeamAI.h"
+-#include "CvPlayerAI.h" // Includes the remaining AI headers (except the UWAI headers)
++#include "CvPlayerAI.h"
+ 
+ // <advc.003u>
+ #undef GET_TEAM // Overwrite definition in CvGamePlay.h
+-#define GET_TEAM(x) CvAI::getTeam(x)
++#define GET_TEAM(x) CoreAI::getTeam(x)
+ 
+-namespace CvAI
++namespace CoreAI
+ {
+ 	__forceinline CvTeamAI& getTeam(TeamTypes eTeam)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvAgents.cpp b/CvGameCoreDLL/CvAgents.cpp
+index 860918abb..8bfe89824 100644
+--- a/CvGameCoreDLL/CvAgents.cpp
++++ b/CvGameCoreDLL/CvAgents.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvAgents.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ 
+ CvAgents::CvAgents(int iMaxPlayers, int iMaxTeams)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b7c05acdf..60adb311e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvCity.h"
+ #include "CityPlotIterator.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 057809e7b..c3716afcc 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvCityAI.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "UWAIAgent.h" // advc.031b (for trait checks)
+ #include "CityPlotIterator.h"
+ #include "CvArea.h"
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index acb3b5887..aa090b608 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLButtonPopup.h"
+ #include "CvPopupInfo.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "RiseFall.h" // advc.706
+ #include "CvMap.h"
+ #include "CvAreaList.h" // advc.003s
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 936f3fbc4..dfaa2165f 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLWidgetData.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDeal.h"
+ #include "PlotRange.h"
+ #include "CvGameTextMgr.h"
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 80ce916c0..d69e9cbd5 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDeal.h"
+ #include "CvDealList.h" // advc.003s
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "CvMap.h"
+ #include "CvGameTextMgr.h"
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b89ee29df..756177f9d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4,7 +4,7 @@
+ #include "CvGame.h"
+ #include "CvDealList.h" // advc.003u
+ #include "CvAgents.h" // advc.agent
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CitySiteEvaluator.h"
+ #include "CityPlotIterator.h"
+ #include "CvAreaList.h" // advc.003s
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 4ae959998..45866af45 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvGameAI.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "UWAIAgent.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index f56e24b46..678e6a58d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameCoreUtils.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CityPlotIterator.h"
+ #include "FAStarNode.h"
+ #include "BBAILog.h" // advc.007
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 530abe220..242dce04c 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "PlotRange.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Command.h"
+
+diff --git a/CvGameCoreDLL/CvGamePlay.h b/CvGameCoreDLL/CvGamePlay.h
+index 5460a29a5..2b73a4a70 100644
+--- a/CvGameCoreDLL/CvGamePlay.h
++++ b/CvGameCoreDLL/CvGamePlay.h
+@@ -5,7 +5,7 @@
+ 
+ /*  advc.make: Wrapper header to reduce the number of include statements and
+ 	a place for the team accessor macros. (However, the one that returns a CvTeamAI
+-	reference is defined in CvAI.h.) For inline definitions, both CvPlayer.h
++	reference is defined in CoreAI.h.) For inline definitions, both CvPlayer.h
+ 	and CvTeam.h are needed. */
+ 
+ #include "CvGame.h"
+@@ -19,7 +19,7 @@
+ 	FFreeListTrashArray. */
+ 
+ // <advc.003u>
+-#ifndef GET_TEAM // Prefer the definition in CvAI.h
++#ifndef GET_TEAM // Prefer the definition in CoreAI.h
+ #define GET_TEAM(x) CvGamePlay::getTeam(x)
+ #endif
+ #define TEAMID(x) GET_PLAYER(x).getTeam()
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 1733aabfb..5869d71bb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1,7 +1,7 @@
+ //  CvGameTextMgr.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CitySiteEvaluator.h"
+ #include "CvDealList.h" // advc.003s
+ #include "CvGameTextMgr.h"
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a9cc202ff..e4ae009fa 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayer.h"
+ #include "CvAgents.h" // advc.agent
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDealList.h" // advc.003s
+ #include "UWAIAgent.h" // advc.104
+ #include "PlotRange.h"
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b6d882f20..ae50d7db9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayerAI.h"
+ #include "CitySiteEvaluator.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDealList.h" // advc.003s
+ #include "UWAIAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index cc6401aab..25c2c953c 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvPlot.h"
+ #include "PlotRange.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CitySiteEvaluator.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 70d07ee18..f4576fd09 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvTeam.h"
+ #include "CvAgents.h" // advc.agent
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDealList.h" // advc.003s
+ #include "UWAIAgent.h" // advc.104t
+ #include "CvMap.h"
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f0701b6ec..36be12afe 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvTeamAI.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CityPlotIterator.h"
+ #include "CvAreaList.h" // advc.003s
+ #include "CvInfo_City.h"
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index bf371906f..ed75c9c50 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvUnit.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7b66ae375..cf9fa3d2d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvUnitAI.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "PlotRange.h"
+ #include "CvArea.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index fd2a76686..2e6e2ff83 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -6,7 +6,7 @@
+ #include "ArmamentForecast.h"
+ #include "MilitaryAnalyst.h"
+ #include "WarEvalParameters.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvPlot.h"
+ #include "CvArea.h"
+ #include "CvInfo_Unit.h"
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 196a7d378..82da1f4ab 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -5,7 +5,7 @@
+ #include "WarEvalParameters.h"
+ #include "UWAIAgent.h"
+ #include "InvasionGraph.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvInfo_GameOption.h"
+ #include <iterator>
+
+diff --git a/CvGameCoreDLL/RFChapter.cpp b/CvGameCoreDLL/RFChapter.cpp
+index 85bcee850..5034b0151 100644
+--- a/CvGameCoreDLL/RFChapter.cpp
++++ b/CvGameCoreDLL/RFChapter.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "RFChapter.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ 
+ 
+ RFChapter::RFChapter() { reset(); }
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index fa1038342..509c79a90 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "RiseFall.h"
+ #include "CvInfo_GameOption.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDeal.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "CvPopupInfo.h"
+
+diff --git a/CvGameCoreDLL/UWAI.cpp b/CvGameCoreDLL/UWAI.cpp
+index 1885f113d..985c72159 100644
+--- a/CvGameCoreDLL/UWAI.cpp
++++ b/CvGameCoreDLL/UWAI.cpp
+@@ -4,7 +4,7 @@
+ #include "UWAI.h"
+ #include "UWAIAgent.h"
+ #include "WarEvaluator.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvMap.h"
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 084ff5759..effc59fcb 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -8,7 +8,7 @@
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // Just for vote-related info
+ #include "CvInfo_Unit.h" // for UWAI::Civ::militaryPower
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDiploParameters.h"
+ #include "CvMap.h"
+ #include "CvArea.h"
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 3f46a4f16..1905bd13c 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -7,7 +7,7 @@
+ #include "MilitaryBranch.h"
+ #include "WarEvalParameters.h"
+ #include "WarEvaluator.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CityPlotIterator.h"
+ #include "CvArea.h"
+ #include "CvInfo_Building.h"
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index b0f322899..c58b7daae 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -7,7 +7,7 @@
+ #include "MilitaryAnalyst.h"
+ #include "UWAIReport.h"
+ #include "WarEvalParameters.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvInfo_GameOption.h"
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 36b6fd62a..be436af8a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -7,7 +7,7 @@
+ #include "WarEvalParameters.h"
+ #include "UWAIAgent.h"
+ #include "MilitaryAnalyst.h"
+-#include "CvAI.h"
++#include "CoreAI.h"
+ #include "CvDealList.h"
+ #include "CvMap.h"
+ #include "CvAreaList.h"
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=33 omittedFiles=0 embeddedPatchBytes=13859

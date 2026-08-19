@@ -1,0 +1,1693 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1262
+# Commit: c01c07e94be3b86fa524a1cb14cff918d0996ae3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d0a846bce6e73d5208181ba36db38f688a6a6467
+# Title: v0.85: Early ships (further) buffed; "show moves" options improved; changes to "begging for peace"; power thresholds for capitulation adjusted; other AI impr...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+13	26	Assets/xml/GlobalDefines_advc.xml
+59	2	Assets/xml/Text/CIV4GameText_advc.008.xml
+4	4	Assets/xml/Text/CIV4GameText_advc.008d.xml
+40	0	Assets/xml/Text/CIV4GameText_advc.xml
+21	31	Assets/xml/Units/CIV4UnitInfos.xml
+39	20	CvGameCoreDLL/CvCity.cpp
+4	1	CvGameCoreDLL/CvCity.h
+76	68	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+1	3	CvGameCoreDLL/CvGameTextMgr.cpp
+5	2	CvGameCoreDLL/CvPlayer.cpp
+53	22	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+3	2	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+81	75	CvGameCoreDLL/CvSelectionGroup.cpp
+4	2	CvGameCoreDLL/CvSelectionGroup.h
+12	10	CvGameCoreDLL/CvTeamAI.cpp
+2	2	CvGameCoreDLL/CvTeamAI.h
+32	9	CvGameCoreDLL/CvUnit.cpp
+3	1	CvGameCoreDLL/CvUnitAI.cpp
+12	4	CvGameCoreDLL/InvasionGraph.cpp
+38	6	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	1	CvGameCoreDLL/WarAndPeaceAI.h
+21	3	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.84.pdf
+-	-	manual_0.85.pdf
+ delete mode 100644 manual_0.84.pdf
+ create mode 100644 manual_0.85.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index 62b2aba62..651b1009e 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -1106,7 +1106,7 @@
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
+-			<iAIPerEraModifier>-2</iAIPerEraModifier>
++			<iAIPerEraModifier>-3</iAIPerEraModifier>
+ 			<iAIAdvancedStartPercent>200</iAIAdvancedStartPercent>
+ 			<Goodies>
+                 <GoodyType>GOODY_HIGH_GOLD</GoodyType>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index d89a77994..e85582708 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -23,8 +23,8 @@
+ 		(i.e. "Aggressive AI" not checked), UWAI runs in the background and
+ 		writes a logfile (depending in REPORT_INTERVAL), but lets the K-Mod AI
+ 		make all decisions. No impact if UWAI disabled in Game Options ("Aggressive AI" checked), or through DISABLE_UWAI.
+-		For testing, or for switching off UWAI mid-game, otherwise,
+-		recommended: 0 -->
++		For testing, or for (temporarily or permanently) switching off UWAI
++		mid-game, otherwise, recommended: 0 -->
+ 	<Define>
+ 		<DefineName>UWAI_IN_BACKGROUND</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -109,12 +109,8 @@
+ 	</Define>
+ 
+ 	<!-- [advc.102]
+-		 As above; but this one goes for friendly civs' sea units.
+-		 Since sea units have many movement points, they can take up
+-		 much time when playing with a Show-Moves option. Again, units
+-		 outside their owners' borders are exempt, as are cargo units
+-		 (with more than 1 cargo space) -  such units are shown moving
+-		 regardless of this parameter. -->
++		 If set to 0, moves of sea units are treated as described in the manual.
++		 Otherwise, all sea moves are shown (as in BtS). -->
+ 	<Define>
+ 		<DefineName>SHOW_FRIENDLY_SEA_MOVES</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -140,23 +136,6 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
+-	<!-- [advc.102]
+-		 If set to 0, this one filters out moves of units with the following
+-		 properties:
+-		 * combat unit,
+-		 * land-based,
+-		 * not hostile to player,
+-		 * within its owner's borders AND
+-		 * moving into a plot containing no units.
+-		 That is, you'll still see stacks of units amass, and units that
+-		 reinforce a city's garrison.
+-		 Recommended: 1 because it's a bit complicated and the benefit
+-		 is small (now that the AI doesn't patrol its lands anymore). -->
+-	<Define>
+-		<DefineName>SHOW_FRIENDLY_SOLO_MOVES</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+-	
+ 	<!-- [advc.102]
+ 		 0 or less (recommended) disables the "Top Civs" pop-up ("... has
+ 		 completed his greatest work: The [e.g.] wealthiest civilizations"). -->
+@@ -640,6 +619,13 @@
+ 		<iDefineIntVal>-3</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- [advc.130l] If set to 1 or greater, change 130l (see manual) is
++		 enabled; otherwise (recommended) disabled.-->
++	<Define>
++		<DefineName>ENABLE_130L</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	
+ 	<!-- [advc.130s] When set to 1 or higher (recommended), the relations bonus
+ 		 for accepting AI requests for military aid is enabled. The bonus is
+ 		 set to +1 for every leader in the Leaderhead XML. Set to 0 or less 
+@@ -661,7 +647,8 @@
+ 	<!-- [advc.130o] MADE_DEMAND_RECENT memory is increased to this number when
+ 		 a human player attacks an AI civ after receiving their tribute.
+ 		 MADE_DEMAND_RECENT memory causes the AI to reject demands and pleas,
+-		 and takes 10 turns on average to decrease by 1.
++		 and takes 10 turns on average to decrease by 1. (But it doesn't decrease
++		 while there is a peace treaty.)
+ 		 0 or less means that MADE_DEMAND_RECENT remains unchanged; won't fully
+ 		 restore the BtS behavior.
+ 		 Recommended: 8 (for an expected 80 turns of rejection) -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008.xml b/Assets/xml/Text/CIV4GameText_advc.008.xml
+index c099a0930..9c3971b84 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008.xml
+@@ -220,10 +220,11 @@
+ 	
+ 	<!-- Overwrites text in CIV4GameText_Strategy.xml.
+ 		 Removed specific mention of cargo capacity 2 from strategy help
+-		 text. (It's 3 in K-Mod and subject to further change.) -->
++		 text. (It's 3 in K-Mod and subject to further change.)
++		 advc.905: Mentions the increased speed. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GALLEY_STRATEGY</Tag>
+-		<English>The earliest armed naval vessels, [COLOR_UNIT_TEXT]Galleys[COLOR_REVERT], can transport land units. They cannot enter ocean spaces.</English>
++		<English>The earliest armed naval vessels, [COLOR_UNIT_TEXT]Galleys[COLOR_REVERT], can transport land units. They cannot enter ocean spaces. [BOLD]AdvCiv[\BOLD] gives this unit +1 speed, and K-Mod increases the cargo capacity of all transport ships by 1.</English>
+ 		<French>Premier navire arm&#233; &#224; appara&#238;tre dans le jeu, la [COLOR_UNIT_TEXT]gal&#232;re[COLOR_REVERT] peut transporter 2 unit&#233;s terrestres mais ne peut pas naviguer en haute mer.</French>
+ 		<German>Diese fr&#252;hen Kriegsschiffe transportieren 2 Landeinheiten, k&#246;nnen aber nicht auf das offene Meer hinaus fahren.</German>
+ 		<Italian>Il primo vascello navale armato, la [COLOR_UNIT_TEXT]galea[COLOR_REVERT] pu&#242; trasportare 2 unit&#224; terrestri. Le galee non possono entrare nelle caselle oceaniche.</Italian>
+@@ -334,4 +335,60 @@
+ 		<Spanish>[H1]Alimentos [\H1][PARAGRAPH:2]Las ciudades necesitan alimentos para sobrevivir. Cuantos m&#225;s alimentos tenga disponibles una ciudad, mayor podr&#225; hacerse. Las ciudades consiguen alimentos al trabajar las tierras que las rodean (las casillas que est&#225;n dentro de las [LINK=CONCEPT_BORDERS]fronteras[\LINK] de la naci&#243;n y en el [LINK=CONCEPT_CITIES]radio urbano[\LINK].)[PARAGRAPH:2][H2]Consumo de alimentos[\H2][PARAGRAPH:2]Para sobrevivir, cada ciudadano (punto de poblaci&#243;n) de una [LINK=CONCEPT_CITIES]ciudad[\LINK] consume dos de alimentos por turno.[PARAGRAPH:2][BOLD]Excedente de alimentos:[\BOLD] Si una ciudad produce m&#225;s alimentos de los que consumen los ciudadanos, almacenar&#225; el excedente. Cuando tenga almacenados suficientes alimentos, todos ellos desaparecer&#225;n y la poblaci&#243;n de la ciudad aumentar&#225; en uno. A medida que crezca la ciudad, aumentar la poblaci&#243;n le costar&#225; m&#225;s alimentos almacenados. El [LINK=BUILDING_GRANARY]Granero[\LINK] almacena la mitad de alimentos necesarios para alcanzar el siguiente tama&#241;o, lo que acelera la velocidad a la que aumenta la poblaci&#243;n de la ciudad.[PARAGRAPH:2][BOLD]Escasez de alimentos:[\BOLD] Si una ciudad no produce suficientes alimentos para mantener a la poblaci&#243;n, empezar&#225; a perder los que haya almacenados. Cuando los pierda todos, uno de sus ciudadanos se morir&#225; de hambre. La hambruna continuar&#225; hasta que la ciudad produzca suficientes alimentos para mantener a la poblaci&#243;n.[PARAGRAPH:2][H2]Salud[\H2][PARAGRAPH:2]La [LINK=CONCEPT_HEALTH]salud[\LINK] de la ciudad tiene un gran efecto en su producci&#243;n de alimentos. Cuando una ciudad se vuelve insalubre, se necesitan m&#225;s alimentos para dar sustento a todos sus habitantes. Consulta esa secci&#243;n para obtener m&#225;s detalles.[PARAGRAPH:2] [H2]Trabajar la tierra[\H2][PARAGRAPH:2]Cada tipo de [LINK=CONCEPT_TERRAIN]terreno[\LINK] genera una cantidad concreta de alimentos, al igual que cada [LINK=CONCEPT_RESOURCES]recurso[\LINK]. Normalmente es posible aumentar la producci&#243;n de alimentos de una casilla si se la [LINK=CONCEPT_IMPROVEMENTS]mejora[\LINK] con los trabajadores. Por ejemplo, las casillas de pradera al lado de agua dulce pueden obtener riego de las granjas para producir m&#225;s alimentos.[PARAGRAPH:2][H2]Edificios y maravillas[\H2][PARAGRAPH:2]Algunos [LINK=CONCEPT_BUILDINGS]edificios[\LINK] y [LINK=CONCEPT_WONDERS]maravillas[\LINK] aumentan la producci&#243;n de alimentos de la ciudad (ver el [LINK=BUILDING_LIGHTHOUSE]faro[\LINK], por ejemplo, que a&#241;ade m&#225;s alimentos a las casillas de agua).[PARAGRAPH:2][H2]Principios[\H2][PARAGRAPH:2]El principio de [LINK=CIVIC_STATE_PROPERTY]propiedad estatal[\LINK] aumenta la producci&#243;n de alimentos de ciertas mejoras.[PARAGRAPH:2][H2]Tecnolog&#237;a[\H2][PARAGRAPH:2]Algunos [LINK=CONCEPT_TECHNOLOGY]avances tecnol&#243;gicos[\LINK] permiten a los trabajadores construir mejoras que aumentan la producci&#243;n de la tierra, mientras que otros hacen que mejoras ya existentes sean m&#225;s eficaces.[PARAGRAPH:2]</Spanish>
+ 	</TEXT>
+ 	
++	<!-- Removed the specific numbers for cargo sizes. The numbers were no
++		 longer correct b/c of a K-Mod change.
++		 Added mention of Executives as special cargo.
++		 advc.123c: Rule change for loading units into cargo mentioned. -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_TRANSPORT_PEDIA</Tag>
++		<English>[H1]Transport[\H1][PARAGRAPH:2]In the world, all land masses are not linked together. Islands and continents may be separated from each other by miles and miles of ocean. Needless to say, land units cannot walk on water: they need "naval transports" to carry them.[PARAGRAPH:2] [H2]Transport Types[\H2][PARAGRAPH:2]There are six naval transport units in the game. Some may carry only specific types of units, while others may not leave the coastline or waters inside their [LINK=CONCEPT_BORDERS]Cultural Borders[\LINK].[PARAGRAPH:2][BOLD]Galley[\BOLD][PARAGRAPH:2]The [LINK=UNIT_GALLEY]Galley[\LINK] is the earliest transport unit. It can carry land units of any type. The galley must remain in coastal spaces or spaces within your cultural borders (or within the cultural borders of civilizations you have [LINK=CONCEPT_DIPLOMACY]Open Borders[\LINK] agreements with).[PARAGRAPH:2][BOLD]Caravel[\BOLD][PARAGRAPH:2]The [LINK=UNIT_CARAVEL]Caravels[\LINK] may carry only [LINK=CONCEPT_GREAT_PEOPLE]Great People[\LINK], [LINK=UNIT_BUDDHIST_MISSIONARY]Missionaries[\LINK], [LINK=UNIT_EXECUTIVE_1]Executives[\LINK], [LINK=UNIT_SCOUT]Scouts[\LINK], [LINK=UNIT_EXPLORER]Explorers[\LINK], and [LINK=UNIT_SPY]Spies[\LINK]. The caravel is the first naval unit that can enter all ocean spaces. Unlike most units, Caravels do not trigger war when entering other civilizations' territories.[PARAGRAPH:2][BOLD]Galleon[\BOLD][PARAGRAPH:2]The [LINK=UNIT_GALLEON]Galleon[\LINK] can carry land units of any type, and has greater capacity than Galley. It can enter all ocean spaces.[PARAGRAPH:2][BOLD]Transport[\BOLD][PARAGRAPH:2]The [LINK=CONCEPT_TRANSPORT]Transport[\LINK] can carry land units of any type, and has greater capacity than Galleon. It can enter all ocean spaces.[PARAGRAPH:2][BOLD]Submarine[\BOLD][PARAGRAPH:2]The [LINK=UNIT_SUBMARINE]Submarine[\LINK] is invisible to most units. It can carry [LINK=CONCEPT_GREAT_PEOPLE]Great People[\LINK], [LINK=UNIT_BUDDHIST_MISSIONARY]Missionaries[\LINK], [LINK=UNIT_EXECUTIVE_1]Executives[\LINK], [LINK=UNIT_SCOUT]Scouts[\LINK], [LINK=UNIT_EXPLORER]Explorers[\LINK], or [LINK=UNIT_SPY]Spies[\LINK]. Submarines can enter all ocean spaces. Subs do not trigger war when entering other civilizations' territories.[PARAGRAPH:2][BOLD]Aircraft Carrier[\BOLD][PARAGRAPH:2]The [LINK=UNIT_CARRIER]Aircraft Carrier[\LINK] can carry [LINK=UNIT_FIGHTER]Fighters[\LINK] and/or [LINK=UNIT_JET_FIGHTER]Jet Fighters[\LINK]. It can enter all water spaces.[PARAGRAPH:2][H2]Loading Land Units onto Transports[\H2][PARAGRAPH:2]If a unit is in a coastal city that is also occupied by a transport that can carry that unit, activate the unit and click on the "board transport" action button. If a transport is in a coastal space, direct the unit to move into the transport's space and it will load automatically. A unit will not board a transport if the transport is full or if it is not allowed aboard that type of vessel. Loading a unit onto a transport uses up any remaining movement points that unit may have had that turn. [BOLD]AdvCiv[\BOLD]: A unit that has spent all movement points can't be loaded onto a transport. (Otherwise, one could move units over arbitrary distances within a single turn by passing them from transport to transport.)[PARAGRAPH:2][H2]Unloading Transports[\H2][PARAGRAPH:2]If a transport is in a city, click on the unit you want to unload and then click on the "exit transport" action button. If the transport is in a coastal square, you can order the transport to move onto a land square and all units aboard will exit onto that space. If you wish to unload just one of the transported units, activate the specific unit and order it to move to an adjacent land space. Unloading a unit uses up all of the unit's movement points for that turn.[PARAGRAPH:2][H2]Loading and Offloading Carriers[\H2][PARAGRAPH:2]To load a fighter onto a carrier, activate the fighter and then right-click on the carrier. To offload a fighter from a carrier, activate the fighter and then right-click on a friendly city.[PARAGRAPH:2][H2]Sinking Transports[\H2][PARAGRAPH:2]Transports can fight like any other naval vessels. If a transport is sunk, all of the units it carries go down with the ship. Land units cannot fight when loaded aboard transports; fighters can, if given the appropriate mission (see [LINK=CONCEPT_AIR_UNITS]Air Units[\LINK] for details).[PARAGRAPH:2][H2]Transporting Gunships[\H2][PARAGRAPH:2][LINK=UNIT_GUNSHIP]Gunships[\LINK] (combat helicopters) can be transported by galleys, galleons, and transports and are treated just like other land units. They CANNOT ride on carriers.[PARAGRAPH:2]</English>
++		<French>[H1]Transport[\H1][PARAGRAPH:2]Dans le monde, toutes les zones de terre ne sont pas reli&#233;es. Les &#238;les et les continents peuvent &#234;tre s&#233;par&#233;s par des kilom&#232;tres et des kilom&#232;tres d'oc&#233;an. Inutile de pr&#233;ciser que les unit&#233;s terrestres ne peuvent pas traverser les cases d'oc&#233;an : elles doivent &#234;tre embarqu&#233;es sur des "transports maritimes".[PARAGRAPH:2] [H2]Types de transports[\H2][PARAGRAPH:2]Il y a six types d'unit&#233;s de transport maritime dans le jeu. Certaines ne peuvent transporter que des types d'unit&#233;s particuliers, d'autres ne peuvent pas s'&#233;loigner des c&#244;tes ou doivent rester sur les cases de mer situ&#233;es &#224; l'int&#233;rieur des [LINK=CONCEPT_BORDERS]fronti&#232;res culturelles[\LINK].[PARAGRAPH:2][BOLD]Gal&#232;re[\BOLD][PARAGRAPH:2]La [LINK=UNIT_GALLEY]Gal&#232;re[\LINK] est la premi&#232;re unit&#233; de transport disponible. Elle peut transporter deux unit&#233;s terrestres, de n'importe quel type. La gal&#232;re doit rester sur les cases c&#244;ti&#232;res ou sur les cases situ&#233;es &#224; l'int&#233;rieur de vos fronti&#232;res culturelles (ou des fronti&#232;res culturelles des civilisations avec lesquelles vous avez un accord [LINK=CONCEPT_DIPLOMACY]d'ouverture des fronti&#232;res[\LINK]).[PARAGRAPH:2][BOLD]Caravelle[\BOLD][PARAGRAPH:2]La [LINK=UNIT_CARAVEL]Caravelle[\LINK] peut transporter un [LINK=CONCEPT_GREAT_PEOPLE]personnage illustre[\LINK], un [LINK=UNIT_BUDDHIST_MISSIONARY]missionnaire[\LINK], un [LINK=UNIT_SCOUT]&#233;claireur[\LINK], un [LINK=UNIT_EXPLORER]explorateur[\LINK] ou un [LINK=UNIT_SPY]espion[\LINK]. La caravelle est la premi&#232;re unit&#233; navale capable de circuler sur toutes les cases maritimes. Contrairement &#224; la plupart des unit&#233;s, les caravelles ne d&#233;clenchent pas de guerre en p&#233;n&#233;trant sur le territoire des autres civilisations.[PARAGRAPH:2][BOLD]Galion[\BOLD][PARAGRAPH:2]Le [LINK=UNIT_GALLEON]Galion[\LINK] peut transporter trois unit&#233;s terrestres de n'importe quel type. Il peut naviguer sur toutes les cases maritimes.[PARAGRAPH:2][BOLD]Bateau de transport[\BOLD][PARAGRAPH:2]Le [LINK=CONCEPT_TRANSPORT]bateau de transport[\LINK] peut transporter quatre unit&#233;s terrestres de n'importe quel type. Il peut naviguer sur toutes les cases maritimes.[PARAGRAPH:2][BOLD]Sous-marin[\BOLD][PARAGRAPH:2]Le [LINK=UNIT_SUBMARINE]sous-marin[\LINK] est invisible pour la plupart des unit&#233;s. Il peut transporter un [LINK=CONCEPT_GREAT_PEOPLE]personnage illustre[\LINK], un [LINK=UNIT_BUDDHIST_MISSIONARY]missionnaire[\LINK], un [LINK=UNIT_SCOUT]&#233;claireur[\LINK], un [LINK=UNIT_EXPLORER]explorateur[\LINK] ou un [LINK=UNIT_SPY]espion[\LINK]. Les sous-marins peuvent se rendre sur toutes les cases maritimes et ne d&#233;clenchent pas de guerre en p&#233;n&#233;trant sur le territoire des autres civilisations.[PARAGRAPH:2][BOLD]Porte-avions[\BOLD][PARAGRAPH:2]Le [LINK=UNIT_CARRIER]porte-avions[\LINK] peut transporter trois [LINK=UNIT_FIGHTER]chasseurs[\LINK] et/ou [LINK=UNIT_JET_FIGHTER]chasseurs &#224; r&#233;action[\LINK]. Il peut naviguer sur toutes les cases maritimes.[PARAGRAPH:2][H2]Charger des unit&#233;s terrestres sur des transports[\H2][PARAGRAPH:2]Lorsqu'une unit&#233; se trouve dans une ville c&#244;ti&#232;re en m&#234;me temps qu'un bateau de transport capable de la transporter, activez l'unit&#233; et cliquez sur le bouton d'action "embarquer". Lorsqu'un transport se trouve sur une case c&#244;ti&#232;re, d&#233;placez l'unit&#233; vers la case du bateau et elle embarquera automatiquement. Une unit&#233; ne montera pas sur un transport si celui-ci est d&#233;j&#224; plein ou s'il ne peut accueillir ce type d'unit&#233;s. L'embarquement co&#251;te &#224; l'unit&#233; tous les points de d&#233;placement qui lui reste pour le tour en cours.[PARAGRAPH:2][H2]D&#233;charger un transport[\H2][PARAGRAPH:2]Si le transport est dans une ville, cliquez sur l'unit&#233; que vous souhaitez faire descendre, puis cliquez sur le bouton d'action "quitter transport". Si le transport est sur une case c&#244;ti&#232;re, ordonnez-lui de se d&#233;placer vers une case terrestre, et toutes les unit&#233;s &#224; bord descendront sur cette case. Si vous ne voulez faire descendre qu'une seule unit&#233;, activez-la et ordonnez-lui de se d&#233;placer vers une des cases adjacentes. D&#233;charger une unit&#233; lui co&#251;te tous ses points de mouvement pour le tour en cours.[PARAGRAPH:2][H2]Charger et d&#233;charger les porte-avions[\H2][PARAGRAPH:2]Pour charger un chasseur &#224; bord d'un porte-avions, activez le chasseur et faites un clic droit sur le navire. Pour d&#233;charger un chasseur d'un porte-avions, activez le chasseur et faites un clic droit sur une ville alli&#233;e.[PARAGRAPH:2][H2]Couler un transport[\H2][PARAGRAPH:2]Les transports peuvent combattre comme toutes les autres unit&#233;s navales. Si un transport est coul&#233;, toutes les unit&#233;s qui sont &#224; bord sont perdues. Les unit&#233;s terrestres ne peuvent pas combattre lorsqu'elles sont &#224; bord d'un bateau, contrairement aux chasseurs, si on leur a assign&#233; la mission appropri&#233;e (consultez la section [LINK=CONCEPT_AIR_UNITS]Unit&#233;s a&#233;riennes[\LINK] pour plus de d&#233;tails).[PARAGRAPH:2][H2]Transport des h&#233;licopt&#232;res de combat[\H2][PARAGRAPH:2]Les [LINK=UNIT_GUNSHIP]h&#233;licopt&#232;res de combat[\LINK] peuvent &#234;tre transport&#233;s par les gal&#232;res, les galions et les bateaux de transport. Le fonctionnement est le m&#234;me que pour les autres unit&#233;s. Ils ne peuvent pas embarquer sur les porte-avions.[PARAGRAPH:2]</French>
++		<German>[H1]Transport[\H1][PARAGRAPH:2]In der Welt von Civilization IV sind nicht alle Landmassen miteinander verbunden. Inseln und Kontinente k&#246;nnen durch riesige Ozeane voneinander getrennt sein. Da Ihre Landeinheiten nicht schwimmen k&#246;nnen, m&#252;ssen Sie diese also irgendwie verschiffen.[PARAGRAPH:2][H2]Transportarten[H2][PARAGRAPH:2]Im Spiel gibt es sechs unterschiedliche Transportschiffe. W&#228;hrend einige dieser Schiffe nur bestimmte Einheiten transportieren k&#246;nnen, m&#252;ssen andere in der N&#228;he der K&#252;ste bzw. innerhalb der [LINK=CONCEPT_BORDERS]Kulturgrenzen[\LINK] Ihrer Zivilisation bleiben.[PARAGRAPH:2][BOLD]Triere[\BOLD][PARAGRAPH:2]Die [LINK=UNIT_GALLEY]Triere[\LINK] ist das erste Transportschiff des Spiels. Sie transportiert maximal zwei Landeinheiten, muss dabei aber in K&#252;nstenn&#228;he und innerhalb Ihrer Kulturgrenzen bleiben (bzw. innerhalb der Kulturgrenzen der Zivilisation, mit der Sie Krieg f&#252;hren oder ein [LINK=CONCEPT_DIPLOMACY]Offene-Grenzen-Abkommen[\LINK] geschlossen haben).[PARAGRAPH:2][BOLD]Karavelle[\BOLD][PARAGRAPH:2]Die [LINK=UNIT_CARAVEL]Karavelle[\LINK] kann eine [LINK=CONCEPT_GREAT_PEOPLE]Gro&#223;e Pers&#246;nlichkeit[\LINK], einen [LINK=UNIT_BUDDHIST_MISSIONARY]Missionar[\LINK], einen [LINK=UNIT_SCOUT]Sp&#228;her[\LINK], einen [LINK=UNIT_EXPLORER]Kundschafter[\LINK] oder einen [LINK=UNIT_SPY]Spion[\LINK] transportieren. Karavellen sind die ersten Schiffe, die alle Meeres-Gel&#228;ndefelder befahren d&#252;rfen. St&#246;&#223;t eine Karavelle in die Hoheitsgew&#228;sser einer fremden Zivilisation vor, kommt es unweigerlich zum Krieg.[PARAGRAPH:2][BOLD]Galeone[\BOLD][PARAGRAPH:2]Die [LINK=UNIT_GALLEON]Galeone[\LINK] kann drei Landeinheiten bef&#246;rdern und alle Meeres-Gel&#228;ndefelder befahren.[PARAGRAPH:2][BOLD]Transportschiff[\BOLD][PARAGRAPH:2]Das [LINK=CONCEPT_TRANSPORT]Transportschiff[\LINK] kann vier beliebige Landeinheiten bef&#246;rdern und alle Meeres-Gel&#228;ndefelder befahren.[PARAGRAPH:2][BOLD]U-Boot[\BOLD][PARAGRAPH:2][LINK=UNIT_SUBMARINE]U-Boote[\LINK] sind f&#252;r die meisten anderen Einheiten unsichtbar und k&#246;nnen eine [LINK=CONCEPT_GREAT_PEOPLE]Gro&#223;e Pers&#246;nlichkeit[\LINK], einen [LINK=UNIT_BUDDHIST_MISSIONARY]Missionar[\LINK], einen [LINK=UNIT_SCOUT]Sp&#228;her[\LINK], einen [LINK=UNIT_EXPLORER]Kundschafter[\LINK] oder einen [LINK=UNIT_SPY]Spion[\LINK] transportieren. U-Boote d&#252;rfen alle Meeres-Gel&#228;ndefelder befahren und l&#246;sen nicht zwingend einen Krieg aus, wenn sie in fremde Hoheitsgew&#228;sser vorsto&#223;en.[PARAGRAPH:2][BOLD]Flugzeugtr&#228;ger[\BOLD][LINK=UNIT_CARRIER]Flugzeugtr&#228;ger[\LINK] transportieren maximal drei [LINK=UNIT_FIGHTER]J&#228;ger[\LINK] und/oder [LINK=UNIT_JET_FIGHTER]D&#252;senj&#228;ger[\LINK] und d&#252;rfen alle Meeres-Gel&#228;ndefelder befahren.[PARAGRAPH:2][H2]Verschiffung von Landeinheiten[\H2][PARAGRAPH:2]Befindet sich eine Einheit in einer K&#252;stenstadt, in der ein f&#252;r den Transport geeignetes Schiff ankert, m&#252;ssen Sie die Einheit lediglich ausw&#228;hlen und mit einem Klick auf den Button "Transportschiff besteigen" verschiffen. Ankert das Transportschiff an einem K&#252;sten-Gel&#228;ndefeld, schicken Sie die Einheit einfach auf das entsprechende Gel&#228;ndefeld, um sie zu verschiffen. Einheiten werden nicht verschifft, wenn das Transportschiff voll ist oder sie das Schiff nicht betreten d&#252;rfen. Geht eine Einheit an Bord eines Transportschiffs, verfallen ihre verbleibenden Fortbewegungspunkte der aktuellen Runde.[PARAGRAPH:2][H2]Entladen von Transportschiffen[\H2][PARAGRAPH:2]Ankert das Transportschiff in einer Stadt, klicken Sie auf die Einheit, die Sie entladen m&#246;chten, und w&#228;hlen Sie den Aktionsbutton "Transportschiff verlassen". Ankert das Transportschiff auf einem K&#252;sten-Gel&#228;ndefeld, k&#246;nnen Sie ein Land-Gel&#228;ndefeld anlaufen, um dort alle Einheiten zu entladen. M&#246;chten Sie nur eine Einheit entladen, aktivieren Sie diese und schicken Sie sie auf das angrenzende Gel&#228;ndefeld. Verl&#228;sst eine Einheit ein Transportschiff, verfallen ihre verbleibenden Fortbewegungspunkte der aktuellen Runde.[PARAGRAPH:2][H2]Be- und Entladen von Flugzeugtr&#228;gern[\H2][PARAGRAPH:2]M&#246;chten Sie einen J&#228;ger auf einen Flugzeugtr&#228;ger verladen, aktivieren Sie zun&#228;chst den J&#228;ger und rechtsklicken Sie auf den Flugzeugtr&#228;ger. Wollen Sie den J&#228;ger entladen, aktivieren Sie ihn und rechtsklicken Sie auf eine verb&#252;ndete Stadt.[PARAGRAPH:2][H2]Versenken von Transportschiffen[\H2][PARAGRAPH:2]Transportsschiffe k&#228;mpfen wie alle anderen Marineeinheiten. Wird ein Transportschiff versenkt, gehen alle darauf stationierten Einheiten unter. Landeinheiten k&#246;nnen an Bord eines Transportschiffs nicht k&#228;mpfen. J&#228;ger mit einer entsprechenden Mission sind auch an Bord eines Transportschiffs einsatzf&#228;hig. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_AIR_UNITS]Lufteinheiten[\LINK]).[PARAGRAPH:2][H2]Transport von Kampfhubschraubern[\H2][PARAGRAPH:2][LINK=UNIT_GUNSHIP]Kampfhubschrauber[\LINK] k&#246;nnen von Trieren, Galeonen und Transportschiffen bef&#246;rdert werden, nicht aber von Flugzeugtr&#228;gern. Dar&#252;ber hinaus werden sie wie normale Landeinheiten behandelt.[PARAGRAPH:2]</German>
++		<Italian>[H1]Navi da trasporto[\H1][PARAGRAPH:2]Nel mondo, le terre emerse non sono tutte collegate tra loro. Le isole e i continenti possono essere divisi da chilometri e chilometri di oceano. Manco a dirlo, le unit&#224; di terra non possono muoversi sull'acqua, ma hanno bisogno di un "trasporto navale" che le accompagni a destinazione.[PARAGRAPH:2] [H2]Tipologie di navi da trasporto[\H2][PARAGRAPH:2]Ci sono sei tipologie di unit&#224; per il trasporto navale: alcune possono portare solo determinati tipi di unit&#224;, altre non possono lasciare la costa o le acque all'interno dei proprio [LINK=CONCEPT_BORDERS]confini culturali[\LINK].[PARAGRAPH:2][BOLD]Galea[\BOLD][PARAGRAPH:2]La [LINK=UNIT_GALLEY]galea[\LINK] &#232; uno dei primi mezzi di trasporto: pu&#242; trasportare un massimo di due unit&#224; di terra di qualsiasi tipo; la galea &#232; costretta a rimanere nelle caselle di costa o negli spazi all'interno dei suoi confini culturali (o di quelli delle civilt&#224; con cui hai un trattato per il [LINK=CONCEPT_DIPLOMACY]diritto di passaggio[\LINK]).[PARAGRAPH:2][BOLD]Caravella[\BOLD][PARAGRAPH:2]La [LINK=UNIT_CARAVEL]caravella[\LINK] pu&#242; portare un [LINK=CONCEPT_GREAT_PEOPLE]Grande Personaggio[\LINK], un [LINK=UNIT_BUDDHIST_MISSIONARY]missionario[\LINK], uno [LINK=UNIT_SCOUT]Scout[\LINK], un [LINK=UNIT_EXPLORER]Esploratore[\LINK] o una [LINK=UNIT_SPY]spia[\LINK]. La caravella &#232; la prima unit&#224; navale che pu&#242; entrare nelle caselle oceano. Diversamente da molte altre unit&#224;, le caravelle non scatenano la guerra quando entrano nei territori delle altre civilt&#224;.[PARAGRAPH:2][BOLD]Galeone[\BOLD][PARAGRAPH:2]Il [LINK=UNIT_GALLEON]galeone[\LINK] pu&#242; trasportare tre unit&#224; di terra di qualsiasi tipo, e pu&#242; entrare nelle caselle di oceano.[PARAGRAPH:2][BOLD]Trasporto[\BOLD][PARAGRAPH:2]Il [LINK=CONCEPT_TRANSPORT]trasporto[\LINK] pu&#242; portare fino a quattro unit&#224; di terra di qualsiasi tipo, ed entrare nelle caselle di oceano.[PARAGRAPH:2][BOLD]Sottomarino[\BOLD][PARAGRAPH:2]Il [LINK=UNIT_SUBMARINE]sottomarino[\LINK] &#232; invisibile alla maggior parte delle unit&#224;; pu&#242; trasportare un [LINK=CONCEPT_GREAT_PEOPLE]Grande Personaggio[\LINK], un [LINK=UNIT_BUDDHIST_MISSIONARY]missionario[\LINK], uno [LINK=UNIT_SCOUT]scout[\LINK], un [LINK=UNIT_EXPLORER]esploratore[\LINK] o una [LINK=UNIT_SPY]spia[\LINK]. I sottomarini possono entrare nelle caselle di oceano, e non scatenano la guerra quando entrano nel territorio di altre civilt&#224;.[PARAGRAPH:2][BOLD]Portaerei[\BOLD][PARAGRAPH:2]La [LINK=UNIT_CARRIER]portaerei[\LINK] pu&#242; portare tre [LINK=UNIT_FIGHTER]caccia[\LINK] e/o [LINK=UNIT_JET_FIGHTER]jet da combattimento[\LINK]. La portaerei pu&#242; entrare in tutte le caselle di acqua.[PARAGRAPH:2][H2]Caricare unit&#224; di terra sulle Navi da trasporto[\H2][PARAGRAPH:2]Se un'unit&#224; si trova in una citt&#224; costiera nella quale si trova una nave da trasporto che la pu&#242; portare, attiva l'unit&#224; e clicca l'azione "imbarco". Se una nave da trasporto si trova in una casella di costa, dirigi l'unit&#224; da trasportare in quella casella, e si imbarcher&#224; automaticamente. Un'unit&#224; non si imbarcher&#224; sulla nave se quest'ultima &#232; gi&#224; piena oppure se non le &#232; consentito trasportare quel tipo di unit&#224;. Imbarcarsi su una nave da trasporto costa all'unit&#224; tutti i suoi punti di movimento rimasti per quel turno.[PARAGRAPH:2][H2]Scarico delle navi da trasporto[\H2][PARAGRAPH:2]Se una nave da trasporto si trova in una citt&#224;, clicca sull'unit&#224; che vuoi scaricare e seleziona l'azione "scendi dalla nave". Se la nave da trasporto si trova in una casella di costa, puoi ordinare alla nave di muoversi su una casella di terra e tutte le unit&#224; a bordo scenderanno per andare automaticamente in quella casella. Se vuoi scaricare solo una delle unit&#224; trasportate, attivala e ordinale di spostarsi nella casella di terra adiacente. Scendere da una nave da trasporto costa all'unit&#224; tutti i suoi punti di movimento rimasti per quel turno.[PARAGRAPH:2][H2]Carico e scarico delle portaerei[\H2][PARAGRAPH:2]Per caricare un caccia su una portaerei, attivalo e clicca con il tasto destro sulla portaerei. Per scaricarlo, attivalo e clicca con il tasto destro su una citt&#224; alleata.[PARAGRAPH:2][H2]Affondare le navi da trasporto[\H2][PARAGRAPH:2]Le navi da trasporto possono combattere come tutte le altre unit&#224; navali. Se una nave da trasporto viene affondata, le unit&#224; a bordo affondano con lei. Le unit&#224; di terra non possono combattere quando sono caricate a bordo delle navi. Possono farlo solo i caccia, in determinate condizioni (vedi [LINK=CONCEPT_AIR_UNITS]unit&#224; aeree[\LINK]).[PARAGRAPH:2][H2]Trasporto di elicotteri da guerra[\H2][PARAGRAPH:2]Gli [LINK=UNIT_GUNSHIP]elicotteri da guerra[\LINK] possono essere trasportati da galee, galeoni e trasporti, e sono considerati alla stregua delle altre unit&#224; di terra. NON possono essere trasportati dalle portaerei.[PARAGRAPH:2]</Italian>
++		<Spanish>[H1]Transporte[\H1][PARAGRAPH:2]En el mundo, todas las masas de tierra no est&#225;n unidas. Puede que islas y continentes est&#233;n separados unos de otros por kil&#243;metros y kil&#243;metros de oc&#233;ano. Ni que decir tiene que las unidades terrestres no pueden caminar por el agua, sino que necesitan "transportes navales" que las lleven.[PARAGRAPH:2] [H2]Tipos de transporte[\H2][PARAGRAPH:2]En el juego hay seis unidades de transporte naval. Algunas solo pueden llevar tipos concretos de unidades, mientras que otras no pueden dejar la costa o las aguas que haya dentro de sus [LINK=CONCEPT_BORDERS]fronteras culturales[\LINK].[PARAGRAPH:2][BOLD]Galera[\BOLD][PARAGRAPH:2]La [LINK=UNIT_GALLEY]galera[\LINK] es la unidad de transporte m&#225;s temprana. Solo puede llevar a dos unidades terrestres de cualquier tipo. Debe permanecer en las casillas de costa o en las que est&#233;n dentro de tus fronteras culturales (o las de una civilizaci&#243;n con la que tengas un acuerdo de [LINK=CONCEPT_DIPLOMACY]apertura de fronteras[\LINK]).[PARAGRAPH:2][BOLD]Carabela[\BOLD][PARAGRAPH:2]La [LINK=UNIT_CARAVEL]carabela[\LINK] puede llevar a un [LINK=CONCEPT_GREAT_PEOPLE]gran personaje[\LINK], [LINK=UNIT_BUDDHIST_MISSIONARY]misionero[\LINK], [LINK=UNIT_SCOUT]batidor[\LINK], [LINK=UNIT_EXPLORER]explorador[\LINK] o [LINK=UNIT_SPY]esp&#237;a[\LINK]. La carabela es la primera unidad naval que puede entrar en todas las casillas de oc&#233;ano y, al contrario que la mayor&#237;a de las unidades, no desencadena una guerra cuando entra en el territorio de otra civilizaci&#243;n.[PARAGRAPH:2][BOLD]Gale&#243;n[\BOLD][PARAGRAPH:2]El [LINK=UNIT_GALLEON]gale&#243;n[\LINK] puede llevar a tres unidades terrestres de cualquier tipo y puede entrar en todas las casillas de oc&#233;ano.[PARAGRAPH:2][BOLD]Transporte[\BOLD][PARAGRAPH:2]El [LINK=CONCEPT_TRANSPORT]transporte[\LINK] puede llevar a cuatro unidades terrestres de cualquier tipo y puede entrar en todas las casillas de oc&#233;ano.[PARAGRAPH:2][BOLD]Submarino[\BOLD][PARAGRAPH:2]El [LINK=UNIT_SUBMARINE]submarino[\LINK] es invisible para todas las unidades y puede llevar a un [LINK=CONCEPT_GREAT_PEOPLE]gran personaje[\LINK], [LINK=UNIT_BUDDHIST_MISSIONARY]misionero[\LINK], [LINK=UNIT_SCOUT]batidor[\LINK], [LINK=UNIT_EXPLORER]explorador[\LINK] o [LINK=UNIT_SPY]esp&#237;a[\LINK]. Puede entrar en todas las casillas de oc&#233;ano y no desencadena una guerra cuando entra en el territorio de otra civilizaci&#243;n.[PARAGRAPH:2][BOLD]Portaaviones[\BOLD][PARAGRAPH:2]El [LINK=UNIT_CARRIER]portaaviones[\LINK] puede llevar a tres [LINK=UNIT_FIGHTER]cazas[\LINK] y/o [LINK=UNIT_JET_FIGHTER]cazas a reacci&#243;n[\LINK] y puede entrar en todas las casillas de agua.[PARAGRAPH:2][H2]Embarcar las unidades de tierra[\H2][PARAGRAPH:2]Si una unidad est&#225; en una ciudad costera en la que tambi&#233;n se encuentre un transporte que pueda llevarla, activa dicha unidad y haz clic en el bot&#243;n de la acci&#243;n "Embarcar". Si un transporte est&#225; en una casilla de costa, lleva la unidad a embarcar hasta la casilla del transporte y &#233;sta subir&#225; autom&#225;ticamente. La unidad no embarcar&#225; en un transporte que est&#233; lleno o si no se le permite embarcar en ese tipo de nave. Embarcar una unidad en un transporte consume los puntos de movimiento que le quedasen para ese turno.[PARAGRAPH:2][H2]Desembarcar de transportes[\H2][PARAGRAPH:2]Si un transporte est&#225; en una ciudad, haz clic en la unidad que quieras bajar y clic en el bot&#243;n de la acci&#243;n "Desembarcar". Si el transporte est&#225; en una casilla de costa, puedes ordenarle que se mueva a una casilla de tierra y todas las unidades que haya a bordo desembarcar&#225;n en esa casilla. Si solo quieres que baje una de las unidades transportadas, activa esa unidad en concreto y ord&#233;nale que se mueva a la casilla de tierra adyacente. Desembarcar una unidad consume todos sus puntos de movimiento para ese turno.[PARAGRAPH:2][H2]Cargar y descargar de portaaviones[\H2][PARAGRAPH:2]Para cargar un caza en un portaaviones, activa el caza y haz clic derecho en el portaaviones. Para descargar un caza de un portaaviones, activa el caza y haz clic derecho en una ciudad amiga.[PARAGRAPH:2][H2]Hundir transportes[\H2][PARAGRAPH:2]Los transportes pueden luchar como cualquier otro barco. Si uno se hunde, todas las unidades que lleve se ir&#225;n a pique con &#233;l. Las unidades terrestres no pueden luchar cuando vayan a bordo de transportes, pero los cazas s&#237;, cuando se les da la misi&#243;n apropiada (ver [LINK=CONCEPT_AIR_UNITS]Unidades a&#233;reas[\LINK] para obtener m&#225;s detalles).[PARAGRAPH:2][H2]Transportar helic&#243;pteros de combate[\H2][PARAGRAPH:2]Los [LINK=UNIT_GUNSHIP]helic&#243;pteros de combate[\LINK] pueden llevarse en galeras, galeones y transportes (se tratan igual que las dem&#225;s unidades), pero NO en los portaaviones.[PARAGRAPH:2]</Spanish>
++	</TEXT>
++	<!-- More cargo numbers removed. Buff (advc.905) mentioned. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GALLEY_STRATEGY</Tag>
++		<English>The earliest armed naval vessel, [COLOR_UNIT_TEXT]Galleys[COLOR_REVERT] can transport land units. They cannot enter ocean spaces. [BOLD]AdvCiv[\BOLD] gives this +1 speed and slightly reduces the cost, and K-Mod increases the cargo capacity of all transport ships.</English>
++		<French>Premier navire arm&#233; &#224; appara&#238;tre dans le jeu, la [COLOR_UNIT_TEXT]gal&#232;re[COLOR_REVERT] peut transporter 2 unit&#233;s terrestres mais ne peut pas naviguer en haute mer.</French>
++		<German>Diese fr&#252;hen Kriegsschiffe transportieren 2 Landeinheiten, k&#246;nnen aber nicht auf das offene Meer hinaus fahren.</German>
++		<Italian>Il primo vascello navale armato, la [COLOR_UNIT_TEXT]galea[COLOR_REVERT] pu&#242; trasportare 2 unit&#224; terrestri. Le galee non possono entrare nelle caselle oceaniche.</Italian>
++		<Spanish>Las [COLOR_UNIT_TEXT]Galeras[COLOR_REVERT] son los primeros nav&#237;os armados y pueden transportar dos unidades terrestres. No pueden entrar en las casillas de oc&#233;ano. </Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GALLEON_STRATEGY</Tag>
++		<English>The [COLOR_UNIT_TEXT]Galleon[COLOR_REVERT] is the largest transport of the Age of Sail. It can safely enter ocean spaces. [BOLD]K-Mod[\BOLD] has increased the cargo capacity of this unit and all other transport ships.</English>
++		<French>Le [COLOR_UNIT_TEXT]galion[COLOR_REVERT] est le meilleur navire de transport de l'&#232;re de la navigation &#224; voile. Il peut transporter 3 unit&#233;s et naviguer en toute s&#233;curit&#233; en haute mer.</French>
++		<German>[COLOR_UNIT_TEXT]Galeonen[COLOR_REVERT] sind die besten Segelschiffe ihrer Zeit. Sie k&#246;nnen 3 Einheiten transportieren und auch das offene Meer gefahrlos befahren.</German>
++		<Italian>Il [COLOR_UNIT_TEXT]galeone[COLOR_REVERT] &#232; il miglior mezzo di navigazione a vela; pu&#242; trasportare tre unit&#224; e transitare senza pericolo sulle caselle oceaniche.</Italian>
++		<Spanish>El [COLOR_UNIT_TEXT]Gale&#243;n[COLOR_REVERT] es el mejor transporte de la era de la navegaci&#243;n a vela. Puede llevar tres unidades y entrar sin peligro en las casillas de oc&#233;ano. </Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_TRANSPORT_STRATEGY</Tag>
++		<English>The [COLOR_UNIT_TEXT]Transport[COLOR_REVERT] is the cargo ship with the largest capacity. It can enter ocean spaces but is vulnerable to modern warships. [BOLD]K-Mod[\BOLD] has increased the cargo capacity of this unit and all earlier transport ships.</English>
++		<French>Le [COLOR_UNIT_TEXT]transport[COLOR_REVERT] est un cargo pouvant transporter 4 unit&#233;s et naviguer en haute mer, mais reste extr&#234;mement vuln&#233;rable face aux avions et aux navires de guerre modernes.</French>
++		<German>[COLOR_UNIT_TEXT]Transportschiffe[COLOR_REVERT] sind Frachter, die bis zu 4 Einheiten transportieren und auch das offene Meer befahren k&#246;nnen. Flugzeugen und modernen Kriegsschiffen haben sie allerdings nur wenig entgegenzusetzen.</German>
++		<Italian>Il [COLOR_UNIT_TEXT]trasporto[COLOR_REVERT] &#232; una nave mercantile. Pu&#242; trasportare fino a quattro unit&#224; e pu&#242; transitare sulle caselle oceaniche, ma &#232; estremamente vulnerabile agli attacchi di aerei e navi da guerra moderne.</Italian>
++		<Spanish>El [COLOR_UNIT_TEXT]Transporte[COLOR_REVERT] es un barco de carga. Puede llevar hasta cuatro unidades y entrar en las casillas de oc&#233;ano, pero es muy vulnerable a los aviones y a los barcos de guerra modernos.</Spanish>
++	</TEXT>
++
++	<!-- advc.905 -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_TRIREME_STRATEGY</Tag>
++		<English>[COLOR_UNIT_TEXT]Triremes[COLOR_REVERT] are especially effective in combat, but they have no transport capacity. They cannot enter ocean spaces. [BOLD]AdvCiv[\BOLD]: Now has +1 speed, cost slightly reduced and higher base strength, but no bonus specifically against Galley. This makes Trireme a more efficient warship than Caravel and Galleon, although still less mobile.</English>
++		<French>Les [COLOR_UNIT_TEXT]Trir&#232;mes[COLOR_REVERT] sont particuli&#232;rement efficaces contre les [COLOR_UNIT_TEXT]gal&#232;res[COLOR_REVERT], mais ne peuvent pas transporter de troupes ni aller sur les cases d'oc&#233;an.</French>
++		<German>[COLOR_UNIT_TEXT]Trieren[COLOR_REVERT] lassen sich besonders effektiv im Kampf gegen [COLOR_UNIT_TEXT]Kriegsschiffe[COLOR_REVERT] einsetzen, weisen jedoch keine Transportkapazit&#228;ten auf. Au&#223;erdem k&#246;nnen sie nicht auf das offene Meer hinaus fahren.</German>
++		<Italian>Le [COLOR_UNIT_TEXT]triremi[COLOR_REVERT] sono particolarmente efficaci contro le [COLOR_UNIT_TEXT]galee[COLOR_REVERT], ma non possono trasportare unit&#224;, n&#233; navigare in acque oceaniche.</Italian>
++		<Spanish>Los [COLOR_UNIT_TEXT]Trirremes[COLOR_REVERT] son especialmente eficaces en combate contra las [COLOR_UNIT_TEXT]Galeras[COLOR_REVERT] pero no tienen capacidad de transporte. No pueden entrar en las casillas de oc&#233;ano.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_CARAVEL_STRATEGY</Tag>
++		<English>This small and fast ship can explore oceans and rival territory. [COLOR_UNIT_TEXT]Caravels[COLOR_REVERT] can transport special units - [COLOR_UNIT_TEXT]Scouts[COLOR_REVERT], [COLOR_UNIT_TEXT]Explorers[COLOR_REVERT], [COLOR_UNIT_TEXT]Spies[COLOR_REVERT], [COLOR_UNIT_TEXT]Missionaries[COLOR_REVERT], [COLOR_UNIT_TEXT]Executives[COLOR_REVERT] and [COLOR_UNIT_TEXT]Great People[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD]: Speed increased by 1; as fast as [LINK=UNIT_GALLEON]Galleon[\LINK] now.</English>
++		<French>Ce petit navire rapide peut explorer les oc&#233;ans et territoires ennemis. Les [COLOR_UNIT_TEXT]caravelles[COLOR_REVERT] peuvent transporter une unit&#233; sp&#233;ciale : [COLOR_UNIT_TEXT]&#233;claireur[COLOR_REVERT], [COLOR_UNIT_TEXT]explorateur[COLOR_REVERT], [COLOR_UNIT_TEXT]missionnaire[COLOR_REVERT], [COLOR_UNIT_TEXT]espion[COLOR_REVERT] ou [COLOR_UNIT_TEXT]personnage illustre[COLOR_REVERT].</French>
++		<German>Diese kleinen und schnellen Schiffe k&#246;nnen die Weltmeere und ferne L&#228;nder erforschen. [COLOR_UNIT_TEXT]Karavellen[COLOR_REVERT] transportieren eine Spezialeinheit ([COLOR_UNIT_TEXT]Sp&#228;her[COLOR_REVERT], [COLOR_UNIT_TEXT]Kundschafter[COLOR_REVERT], [COLOR_UNIT_TEXT]Missionar[COLOR_REVERT], [COLOR_UNIT_TEXT]Spion[COLOR_REVERT] oder [COLOR_UNIT_TEXT]Gro&#223;e Pers&#246;nlichkeit[COLOR_REVERT]).</German>
++		<Italian>Questa piccola e rapida nave pu&#242; esplorare gli oceani e i territori rivali. Le [COLOR_UNIT_TEXT]caravelle[COLOR_REVERT] possono trasportare un'unit&#224; speciale: scout, esploratore, missionario, spia o Grande Personaggio.</Italian>
++		<Spanish>Esta nave, peque&#241;a y r&#225;pida, puede explorar oc&#233;anos y territorio enemigo. Las [COLOR_UNIT_TEXT]Carabelas[COLOR_REVERT] pueden transportar a una unidad especial: un [COLOR_UNIT_TEXT]Batidor[COLOR_REVERT], un [COLOR_UNIT_TEXT]Explorador[COLOR_REVERT], un [COLOR_UNIT_TEXT]Esp&#237;a[COLOR_REVERT], un [COLOR_UNIT_TEXT]Misionero[COLOR_REVERT] o un [COLOR_UNIT_TEXT]Gran personaje[COLOR_REVERT].</Spanish>
++	</TEXT>
++		 
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 32eeb82ab..63515fc51 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -222,11 +222,11 @@
+ 
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_12</Tag>
+-	<English>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. The barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</English>
+-	<French>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. The barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</French>
++	<English>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</English>
++	<French>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</French>
+ 	<German>(K-Mod) Setzen Sie Ihre Fischer nicht dem Risiko aus, von Barbaren gepl�ndert und blockiert zu werden. Die Barbarenschiffe sind Ihren Schiffen nicht ganz ebenb�rtig, so dass h�ufig schon eine einzelne Galeere reicht, um die Barbaren abzuwehren.</German>
+-	<Italian>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. The barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Italian>
+-	<Spanish>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. The barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Spanish>
++	<Italian>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Italian>
++	<Spanish>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 19676429f..9e0488f35 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -520,6 +520,46 @@
+ 		<Spanish>Abre las fronteras de dos civilizaciones, generando comercio a trav&#233;s de las rutas comerciales y confiriendo derecho de paso a las unidades.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: Added Executives to the list; sth. the BtS developers
++		 must've missed. Original key in CIV4GameTextInfos_Objects.xml. Translation for "Executive" taken from TXT_KEY_UNIT_EXECUTIVE in
++		 CIV4GameText_BTS_Fixed.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_SPECIALUNIT_PEOPLE</Tag>
++		<English>Scouts, Explorers, Missionaries, Execs, Spies, Great People</English>
++		<French>
++			<Text>Eclaireurs, Explorateurs, Missionnaires, Dirigeants, Espions, Personnages illustres</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Sp&#228;her, Kundschafter, Missionare, Vorst&#228;nde, Spione, gro&#223;e Pers&#246;nlichkeiten</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Scout, Esploratore, Missionario, Spia, Grande Personaggio:Scout, Esploratori, Missionari, Funzionari, Spie, Grandi Personaggi</Text>
++			<Gender>Male:Male:Male:Female:Male</Gender>
++			<Plural>0:1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Unidad de Batidor, Explorador, Misionero, Esp&#237;a, Gran personaje:Unidades de Batidores, Exploradores, Misioneros, Ejecutivos, Esp&#237;as, Grandes personajes</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- Overwrites key in CIV4GameTextInfos.xml. The "Carries
++		 [list of special units]" line gets a bit long with Executives added,
++		 and it's clear enough from context that the units are carried as
++		 cargo. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_CARRIES</Tag>
++		<English>[SPACE](%s1_Name)</English>
++		<French>[SPACE](%s1_Name)</French>
++		<German>[SPACE](%s1_Name)</German>
++		<Italian>[SPACE](%s1_Name)</Italian>
++		<Spanish>[SPACE](%s1_Name)</Spanish>
++	</TEXT>
++	
+ 	<!-- [advc.004s] Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+ 		 in CIV4GameText_Misc1.xml. -->
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index 2b0803f29..06f05a3d2 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -17048,7 +17048,8 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- advc.905: was 50 -->
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17190,13 +17191,15 @@
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- advc.905: Changed upgrade to Frigate into upgrade to Privateer
++				 -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_CARAVEL</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_FRIGATE</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_PRIVATEER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -17247,7 +17250,8 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- advc.905: was 50 -->
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17277,7 +17281,8 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<!-- advc.905: was 2 -->
++			<iCombat>3</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -17302,18 +17307,10 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitClassAttackMods>
+-				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_GALLEY</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassAttackMod>
+-			</UnitClassAttackMods>
+-			<UnitClassDefenseMods>
+-				<UnitClassDefenseMod>
+-					<UnitClassType>UNITCLASS_GALLEY</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassDefenseMod>
+-			</UnitClassDefenseMods>
++			<!-- advc.905: Removed AttackMod and DefenseMod vs.
++				 UNITCLASS_GALLEY (both 50%) -->
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -17418,19 +17415,12 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- advc.905: Removed RESERVE_SEA and ESCORT_SEA -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -17469,7 +17459,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>20</iMinAreaSize>
+-			<iMoves>3</iMoves>
++			<!-- advc.905: was 3 -->
++			<iMoves>4</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -17619,6 +17610,7 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- advc.905: Removed RESERVE_SEA (should use Trireme for that) -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
+@@ -17628,10 +17620,6 @@
+ 					<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -17678,7 +17666,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>20</iMinAreaSize>
+-			<iMoves>3</iMoves>
++			<!-- advc.905: was 3 -->
++			<iMoves>4</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -17732,7 +17721,8 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>3</iCargo>
++			<!-- advc.905: 3 in K-Mod, 2 in BtS -->
++			<iCargo>2</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 6132a6f45..b0a6c35bb 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1083,12 +1083,11 @@ void CvCity::doTurn()
+ // <advc.003> Code cut and pasted from CvPlot::doCulture; also refactored.
+ void CvCity::doRevolt() { PROFILE("CvCity::doRevolts()")
+ 
+-	if(isOccupation()) { // <advc.023>
+-		double prDecr = probabilityOccupationDecrement();
+-		if(::bernoulliSuccess(prDecr)) {
+-			changeOccupationTimer(-1);
+-			return;
+-		}
++	// <advc.023>
++	double prDecr = probabilityOccupationDecrement();
++	if(::bernoulliSuccess(prDecr)) {
++		changeOccupationTimer(-1);
++		return;
+ 	} // </advc.023>
+ 	PlayerTypes eCulturalOwner = calculateCulturalOwner();
+ 	// <advc.099c>
+@@ -1908,6 +1907,11 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
+ 	return NO_UNIT;
+ }
+ 
++// <advc.001b>
++bool CvCity::canUpgradeTo(UnitTypes eUnit) const {
++
++	return canTrain(eUnit, false, false, true, false, false);
++}// </advc.001b>
+ 
+ bool CvCity::isWorldWondersMaxed() const
+ {
+@@ -1990,7 +1994,8 @@ bool CvCity::isBuildingsMaxed() const
+ }
+ 
+ 
+-bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
++bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades,
++		bool checkAirUnitCap) const // advc.001b
+ {
+ 	if (eUnit == NO_UNIT)
+ 	{
+@@ -2029,7 +2034,8 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
+ 		}
+ 	}
+ 
+-	if (!plot()->canTrain(eUnit, bContinue, bTestVisible))
++	if (!plot()->canTrain(eUnit, bContinue, bTestVisible,
++			checkAirUnitCap)) // advc.001b
+ 	{
+ 		return false;
+ 	}
+@@ -5187,6 +5193,15 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	// <advc.101> Replacing the above
+ 	double pop = getPopulation();
+ 	CvGame& g = GC.getGameINLINE();
++	/*  Would make more sense to use owner's era (if ePlayer is dead) b/c the
++		insurgents would mostly use the owner's military tech. But don't want
++		human owner to have to pay attention to his/her tech era. */
++	EraTypes era = g.getCurrentEra();
++	if(GET_PLAYER(ePlayer).isAlive())
++		era = GET_PLAYER(ePlayer).getCurrentEra();
++	double eraFactor = 1 + std::pow((double)era, 1.3);
++	// To put a cap on the initial revolt chance in large cities:
++	pop = std::min(pop, 1.5 * eraFactor);
+ 	int time = g.getGameTurn() - getGameTurnAcquired();
+ 	double div = 0.75 * GC.getGameSpeedInfo(g.getGameSpeedType()).
+ 			getGoldenAgePercent();
+@@ -5198,13 +5213,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	double iStrength = 1 + 2 * pop;
+ 	double strFromInnerRadius = 0;
+ 	CvPlayer const& owner = GET_PLAYER(getOwnerINLINE());
+-	/*  Would make more sense to use owner's era (if ePlayer is dead) b/c the
+-		insurgents would mostly use the owner's military tech. But don't want
+-		human owner to have to pay attention to his/her tech era. */
+-	EraTypes era = g.getCurrentEra();
+-	if(GET_PLAYER(ePlayer).isAlive())
+-		era = GET_PLAYER(ePlayer).getCurrentEra();
+-	double eraFactor = 1 + std::pow((double)era, 1.3); // </advc.101>
++	// </advc.101>
+ 	// <advc.099c>
+ 	if(ePlayer == BARBARIAN_PLAYER)
+ 		eraFactor /= 2; // </advc.099c>
+@@ -5293,13 +5302,17 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	} // <advc.003>
+ 	ReligionTypes ownerReligion = owner.getStateReligion();
+ 	if(ownerReligion != NO_RELIGION && isHasReligion(ownerReligion)) { // </advc.003>
+-		/*  advc.101: Replacing the code below. Division by 50 so that it
++		/*  <advc.101> Replacing the code below. Division by 50 so that it
+ 			cancels out the OFFENSE modifier (no functional change). */
+ 		grievanceModifier += GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER") / 50.0;
+ 		//iStrength *= std::max(0, (GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER") + 100));
+ 		//iStrength /= 100;
+-	}
+-	// <advc.101>
++	} /* No state religion is still better than some oppressive state religion that
++		 the city doesn't share. */
++	if(ownerReligion == NO_RELIGION) {
++		grievanceModifier += GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER")
++				/ 100.0;
++	} // <advc.101>
+ 	if(getHurryAngerTimer() > 0)
+ 		grievanceModifier += 0.5;
+ 	// <advc.099c>
+@@ -8101,7 +8114,7 @@ bool CvCity::isBombardable(const CvUnit* pUnit) const
+ 			except cities that have nothing to recover.
+ 			Don't allow the AI to do this b/c the AI can't tell if it matters.
+ 			Much easier to prevent 0-bombardment by the AI here than in CvUnitAI. */
+-		|| (getTotalDefense(false) > 0 && pUnit->isHuman());
++			|| (getTotalDefense(false) > 0 && pUnit->isHuman() && !isBombarded());
+ }
+ 
+ 
+@@ -10209,8 +10222,14 @@ double CvCity::revoltProbability(bool ignoreWar,
+ 	/*  About the two revolt tests: I guess the first one checks if the city tries
+ 		to revolt, and the second if the garrison can stop the revolt.
+ 		Restored the BtS formula for the second test. */
+-	return std::max(0.0, (1.0 - (iGarrison / (double)iCityStrength))) *
++	double r = std::max(0.0, (1.0 - (iGarrison / (double)iCityStrength))) *
+ 			getRevoltTestProbability() * occupationFactor;
++	// Don't use probabilities that are too small to be displayed
++	if(r < 0.0001)
++		return 0;
++	if(r > 0.9999)
++		return 1;
++	return r;
+ } // </advc.101>
+ 
+ // <advc.023>
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 996a24b54..cedbf4faa 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -79,7 +79,10 @@ public:
+ 	bool isNationalWondersMaxed() const;																					// Exposed to Python
+ 	bool isBuildingsMaxed() const;																								// Exposed to Python
+ 
+-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false) const;					// Exposed to Python 
++	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false
++		, bool checkAirUnitCap = true // advc.001b
++		) const;					// Exposed to Python
++	bool canUpgradeTo(UnitTypes eUnit) const; // advc.001b
+ 	bool canTrain(UnitCombatTypes eUnitCombat) const;
+ 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreTech = false) const; // Exposed to Python, K-Mod added bIgnoreTech
+ 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d9c736497..e63f8a38f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7956,82 +7956,84 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 
+ 			// Don't shrink cities too much
+ 			//int iConscriptPop = getConscriptPopulation();
+-			if (!bGoodValue && !bDanger && (3 * (getPopulation() - iConscriptPop) < getHighestPopulation() * 2) )
++			if (//!bGoodValue && // advc.017: Don't shrink them arbitrarily just b/c it's "good value"!
++				!bDanger && (3 * (getPopulation() - iConscriptPop) < getHighestPopulation() * 2) )
+ 			{
+ 				return;
+ 			}
+-
++			// <advc.017>
++			// Cut-and-pasted from below:
++			bool tooMuchPop = AI_countWorkedPoorPlots() > 0 ||
++					foodDifference(false, true)+getFood() < 0 ||
++					(foodDifference(false, true) < 0 && healthRate() <= -4);
++			// Don't just draft for no particular reason
++			if(!bDanger && !kOwner.isFocusWar() && !tooMuchPop)
++				return; // </advc.017>
+ 			// Large cities want a little spare happiness
+ 			int iHappyDiff = GC.getDefineINT("CONSCRIPT_POP_ANGER") - iConscriptPop + (bGoodValue ? 0 : getPopulation()/10);
++			// <advc.003> DeMorgan'd
++			if((!bGoodValue && !bLandWar) || angryPopulation(iHappyDiff) > 0)
++				return; // </advc.003>
++			bool bWait = true;
+ 
+-			if ((bGoodValue || bLandWar) && angryPopulation(iHappyDiff) == 0)
++			if( bWait && kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) )
+ 			{
+-				bool bWait = true;
+-
+-				if( bWait && kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) )
++				// Full out defensive
++				/* original bts code
++				if( bDanger || (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
+ 				{
+-					// Full out defensive
+-					/* original bts code
+-					if( bDanger || (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
+-					{
+-						bWait = false;
+-					}
+-					else if( AI_countWorkedPoorPlots() >= 1 )
+-					{
+-						bWait = false;
+-					}*/
+-
+-					// K-Mod: full out defensive indeed. We've already checked for happiness, and we're desperate for units.
+-					// Just beware of happiness sources that might expire - such as military happiness.
+-					if (getConscriptAngerTimer() == 0 || AI_countWorkedPoorPlots() > 0)
+-						bWait = false;
++					bWait = false;
+ 				}
+-
+-				if( bWait && bDanger )
++				else if( AI_countWorkedPoorPlots() >= 1 )
+ 				{
+-					// If city might be captured, don't hold back
+-					/* BBAI code
+-					int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+-					int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
++					bWait = false;
++				}*/
++				// K-Mod: full out defensive indeed. We've already checked for happiness, and we're desperate for units.
++				// Just beware of happiness sources that might expire - such as military happiness.
++				if (getConscriptAngerTimer() == 0 || AI_countWorkedPoorPlots() > 0)
++					bWait = false;
++			}
+ 
+-					if( (iOurDefense == 0) || (3*iEnemyOffense > 2*iOurDefense) ) */
+-					// K-Mod
+-					int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-					int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-					if (iOurDefense < iEnemyOffense)
+-					// K-Mod end
+-					{
+-						bWait = false;
+-					}
+-				}
++			if( bWait && bDanger )
++			{
++				// If city might be captured, don't hold back
++				/* BBAI code
++				int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
++				int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
+ 
+-				if( bWait )
++				if( (iOurDefense == 0) || (3*iEnemyOffense > 2*iOurDefense) ) */
++				// K-Mod
++				int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
++				int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
++				if (iOurDefense < iEnemyOffense)
++				// K-Mod end
+ 				{
+-					// Non-critical, only burn population if population is not worth much
+-					//if ((getConscriptAngerTimer() == 0) && (AI_countWorkedPoorPlots() > 1))
+-					if ((getConscriptAngerTimer() == 0 || isNoUnhappiness()) // K-Mod
+-						&& (bGoodValue || AI_countWorkedPoorPlots() > 0 || foodDifference(false, true)+getFood() < 0 || (foodDifference(false, true) < 0 && healthRate() <= -4)))
+-					{
+-						//if( (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
+-						// We're working poor tiles. What more do you want?
+-						{
+-							bWait = false;
+-						}
+-					}
++					bWait = false;
+ 				}
++			}
+ 
+-				if( !bWait && gCityLogLevel >= 2 )
+-				{
+-					logBBAI("      City %S (size %d, highest %d) chooses to conscript with danger: %d, land war: %d, poor tiles: %d%s", getName().GetCString(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, AI_countWorkedPoorPlots(), bGoodValue ? ", good value" : "");
+-				}
++			if(bWait) {
++				// Non-critical, only burn population if population is not worth much
++				// <advc.017>
++				double prDraft = AI_buildUnitProb(true) / 100.0;
++				if(::bernoulliSuccess(prDraft) && // </advc.017>
++					(getConscriptAngerTimer() == 0 || isNoUnhappiness()) // K-Mod
++					&& (bGoodValue ||
++					tooMuchPop)) // advc.017: same condition as before, just as a variable
++						bWait = false;
++			}
++
++			if( !bWait && gCityLogLevel >= 2 )
++			{
++				logBBAI("      City %S (size %d, highest %d) chooses to conscript with danger: %d, land war: %d, poor tiles: %d%s", getName().GetCString(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, AI_countWorkedPoorPlots(), bGoodValue ? ", good value" : "");
++			}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
+-				if (!bWait)
+-				{
+-					conscript();
+-				}
++			if (!bWait)
++			{
++				conscript();
+ 			}
+ 		}
+ 	}
+@@ -10338,12 +10340,14 @@ int CvCityAI::AI_experienceWeight()
+ }
+ 
+ 
+-// BBAI / K-Mod
+-int CvCityAI::AI_buildUnitProb()
++// BBAI / K-Mod // <advc.017> Draft param added; count XP weight only half then.
++int CvCityAI::AI_buildUnitProb(bool draft)
+ {
+-	int iProb;
+-	iProb = (GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + AI_experienceWeight());
+-
++	int iProb = GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb();
++	int xpWeight = AI_experienceWeight();
++	if(draft)
++		xpWeight /= 2;
++	iProb += xpWeight; // </advc.017>
+ 	if (!isBarbarian() && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
+ 	{
+ 		iProb /= 2;
+@@ -10359,10 +10363,12 @@ int CvCityAI::AI_buildUnitProb()
+ 		iProb *= std::max(40, 100 - 20 * (GC.getGameINLINE().getCurrentEra() - GET_PLAYER(getOwnerINLINE()).getCurrentEra()));
+ 		iProb /= 100;
+ 	}
+-	// advc.017: Lowered multiplier from 2 to 1.5
+-	iProb *= 100 + ::round(1.5*getMilitaryProductionModifier());
+-	iProb /= 100;
+ 	// <advc.017>
++	if(!draft) {
++		// Lowered multiplier from 2 to 1.5
++		iProb *= 100 + ::round(1.5 * getMilitaryProductionModifier());
++		iProb /= 100;
++	} // <advc.017>
+ 	if(!isBarbarian()) {
+ 		int highestRivalPow = 0;
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+@@ -10380,14 +10386,16 @@ int CvCityAI::AI_buildUnitProb()
+ 			double advantage = ratio - 1;
+ 			if(advantage >= 1.5)
+ 				iProb = ::round(0.25 * iProb);
+-			else iProb = ::round(iProb * (1 - advantage / 2));
++			// No point in training more units when far behind
++			else if(advantage > -0.65)
++				iProb = ::round(iProb * (1 - advantage / 2));
+ 		}
+ 		int cities = GET_PLAYER(getOwnerINLINE()).getNumCities();
+ 		/*  Can't afford to specialize one city entirely on military production
+ 			until we've expanded a bit */
+ 		iProb = std::min(iProb, 20 * (1 + cities));
+-		/*  Don't get too careless in the early when most cities have negative
+-			AI_experienceWeight */
++		/*  Don't get too careless in the early game when most cities have
++			negative AI_experienceWeight */
+ 		iProb = std::max(iProb, 25 - 2 * cities);
+ 	} // </advc.017>
+ 	//return iProb;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index bdb6f772a..228cfe879 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -230,7 +230,7 @@ protected:
+ 	// K-mod end
+ 
+ 	int AI_experienceWeight();
+-	int AI_buildUnitProb();
++	int AI_buildUnitProb(bool draft = false); // advc.017: param added
+ 
+ 	void AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iDesiredFoodChange);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 46e0aaa5f..c64fbcc6d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5344,9 +5344,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					CvCity const& c = *pPlot->getPlotCity();
+ 					double pr = c.revoltProbability() *
+ 							(1 - c.probabilityOccupationDecrement()); // advc.023
+-					if(pr > 0) { // Don't falsely claim 0 or 100%
+-						pr = std::max(pr, 0.01);
+-						if(pr < 1) pr = std::min(pr, 0.99);
++					if(pr > 0) {
+ 						wchar floatBuffer[1024];
+ 						swprintf(floatBuffer, L"%.2f", (float)(100 * pr));
+ 						szString.append(gDLL->getText("TXT_KEY_MISC_CHANCE_OF_REVOLT",
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1f124dca6..e4a4aa1b2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5487,7 +5487,10 @@ bool CvPlayer::isTradingWithTeam(TeamTypes eTeam, bool bIncludeUncancelable) con
+ 
+ bool CvPlayer::canStopTradingWithTeam(TeamTypes eTeam, bool bContinueNotTrading) const
+ {
+-	if (eTeam == getTeam())
++	// <advc.130d> Replacing the two conditions below.
++	if(getMasterTeam() == GET_TEAM(eTeam).getMasterTeam())
++		return false;
++	/*if (eTeam == getTeam())
+ 	{
+ 		return false;
+ 	}
+@@ -5495,7 +5498,7 @@ bool CvPlayer::canStopTradingWithTeam(TeamTypes eTeam, bool bContinueNotTrading)
+ 	if (GET_TEAM(getTeam()).isVassal(eTeam))
+ 	{
+ 		return false;
+-	}
++	}*/ // </advc.130d>
+ 	/*  <advc.130f> ContinueNotTrading is only set when checking if
+ 		a ForceNoTrade resolution is legal. Can propose it when having no
+ 		deals or when all deals can be canceled, but not when there is an
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1f6296916..d5a4b9a69 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7936,8 +7936,8 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
+ 		}
+ 		// <advc.130v>
+ 		CvTeamAI const& ourTeam = GET_TEAM(getTeam());
+-		if(ourTeam.isCapitulated())
+-			return GET_TEAM(ourTeam.getMasterTeam()).AI_getAttitudeVal(TEAMID(ePlayer));
++		if(ourTeam.isCapitulated()) // Cautious. Or rather same val as master?
++			return 0;//GET_TEAM(ourTeam.getMasterTeam()).AI_getAttitudeVal(TEAMID(ePlayer));
+ 		if(TEAMREF(ePlayer).isCapitulated()) {
+ 			if(TEAMREF(ePlayer).isVassal(ourTeam.getID()))
+ 				return 5; // Pleased
+@@ -8367,7 +8367,7 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 	bool isShare = ourTeam.AI_shareWar(GET_PLAYER(ePlayer).getTeam());
+ 	if(!isShare && ourTeam.getAtWarCount() > 0) {
+ 		/*  Only suspend the relations bonus from past shared war if the current war
+-			is at least 5 turns old, and only if we could use help ( */
++			is at least 5 turns old, and only if we could use help. */
+ 		int wsThresh = ::round((3.0 * warSuccessAttitudeDivisor()) / 4);
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 			CvTeamAI const& t = GET_TEAM((TeamTypes)i);
+@@ -8444,6 +8444,11 @@ int CvPlayerAI::AI_getRivalTradeAttitude(PlayerTypes ePlayer) const {
+ 			(ourTeam.AI_getEnemyPeacetimeTradeValue(theirId) / 2);
+ 	// OB hurt our feelings also
+ 	TeamTypes enemyId = ourTeam.AI_getWorstEnemy();
++	/*  Checking enemyValue here should - hopefully - fix an oscillation problem,
++		but I don't quite know what I'm doing ...
++		(Checking this in CvTeamAI::AI_getWorstEnemy would be bad for perfromance.) */
++	if(ourTeam.enemyValue(enemyId) <= 0)
++		enemyId = NO_TEAM;
+ 	double dualDealCounter = 0; // cf. CvDeal::isDual
+ 	if(enemyId != NO_TEAM) {
+ 		if(GET_TEAM(theirId).isOpenBorders(enemyId)) {
+@@ -9835,7 +9840,9 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 	int iTheirValue = AI_dealVal(ePlayer, pTheirList, false, iChange);
+ 
+ 	if (iOurValue > 0 && 0 == pTheirList->getLength() && 0 == iTheirValue)
+-	{
++	{	// <advc.130v> Vassal mustn't force a peace treaty on its master
++		if(kOurTeam.isAVassal() && !kOurTeam.isVassal(TEAMID(ePlayer)))
++			return false; // </advc.130v>
+ 		// K-Mod
+ 		// Don't give any gifts to civs that you are about to go to war with.
+ 		if (kOurTeam.AI_getWarPlan(GET_PLAYER(ePlayer).getTeam()) != NO_WARPLAN)
+@@ -9904,15 +9911,9 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 					accept = false;
+ 				}
+ 			} // <advc.130o>
+-			else { // </advc.130o> <advc.144>
+-				int contactRandGiveHelp = GC.getLeaderHeadInfo(getPersonalityType()).
+-						getContactRand(CONTACT_GIVE_HELP);
+-				double pr = std::min(std::sqrt((double)contactRandGiveHelp) / 100.0,
+-						0.5);
+-				if(::bernoulliSuccess(pr))
+-					return false;
+-			} // </advc.144>
+-
++			// </advc.130o> <advc.144>
++			else if(::bernoulliSuccess(prDenyHelp()))
++				return false; // </advc.144>
+ 			// <advc.140m>
+ 			if(accept && demand && getWPAI.isEnabled())
+ 				accept = warAndPeaceAI().considerDemand(ePlayer, iOurValue);
+@@ -9935,6 +9936,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 			iThreshold -= GET_PLAYER(ePlayer).AI_getPeacetimeGrantValue(getID());
+ 
+ 			accept = (iOurValue < iThreshold); // advc.130o: Don't return yet
++			// <advc.144>
++			if(accept && !demand && getWPAI.isEnabled())
++				accept = warAndPeaceAI().considerGiftRequest(ePlayer, iOurValue);
++			// </advc.144>
+ 		}
+ 		// <advc.130o>
+ 		if(demand) {
+@@ -9965,6 +9970,14 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 	return (iTheirValue >= iOurValue);
+ }
+ 
++double CvPlayerAI::prDenyHelp() const {
++
++	int contactRandGiveHelp = GC.getLeaderHeadInfo(getPersonalityType()).
++			getContactRand(CONTACT_GIVE_HELP);
++	double r = std::min(std::sqrt((double)contactRandGiveHelp) / 100.0, 0.5);
++	return r;
++}
++
+ // K-Mod. Helper fuction for AI_counterPropose. (lambas would be really nice here, but we can't have nice things.)
+ bool maxValueCompare(const std::pair<TradeData*, int>& a, const std::pair<TradeData*, int>& b)
+ {
+@@ -11569,15 +11582,20 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 	default:
+ 		FAssert(false);
+ 		break;
+-	}
+-
++	} // <advc.130f>
++	CvTeam const& kTeam = TEAMREF(ePlayer); // The team that'll have to cancel OB
++	if(kTeam.isOpenBorders(eTradeTeam)) {
++		if(kTeam.getAtWarCount() > 0 && GET_PLAYER(ePlayer).isFocusWar())
++			iModifier += 150;
++		else iModifier += 50;
++	} // </advc.130f>
+ 	iValue *= std::max(0, (iModifier + 100));
+ 	iValue /= 100;
+-
+-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isOpenBorders(eTradeTeam))
++	// advc.130f: Factored into iModifier now
++	/*if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isOpenBorders(eTradeTeam))
+ 	{
+ 		iValue *= 2;
+-	}
++	}*/
+ 
+ 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isDefensivePact(eTradeTeam))
+ 	{
+@@ -12843,10 +12861,12 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ /* General AI                                                                                   */
+ /************************************************************************************************/
+ 		// Boats which can't be seen don't play defense, don't make good escorts
+-		if (GC.getUnitInfo(eUnit).getInvisibleType() != NO_INVISIBLE)
++		/*  <advc.028> They can defend now. Stats of subs and Stealth Destroyer
++			aren't great for escorting, but there's other code to check this. */
++		/*if (GC.getUnitInfo(eUnit).getInvisibleType() != NO_INVISIBLE)
+ 		{
+ 			iValue /= 2;
+-		}
++		}*/ // </advc.028>
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
+@@ -14677,7 +14697,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				}
+ 				else if (iProductionFactor >= 140) // cf. 'bGoodValue' in CvCityAI::AI_doDraft
+ 				{
+-					iTempValue *= 2*iMaxSpending;
++					// advc.017: was 2*iMaxSpending
++					iTempValue *= ::round(1.35*iMaxSpending);
+ 					iTempValue /= std::max(1, iMaxSpending + iUnitSpending);
+ 				}
+ 				// todo. put in something to do with how much happiness we can afford to lose.. or something like that.
+@@ -16480,6 +16501,8 @@ void CvPlayerAI::AI_rememberEvent(PlayerTypes civId, MemoryTypes mem) {
+ 		delta = std::min(3, delta); // </advc.130y>
+ 	AI_changeMemoryCount(civId, mem, delta);
+ 	// <advc.130l>
++	if(GC.getDefineINT("ENABLE_130L") <= 0)
++		return;
+ 	int const nPairs = 6;
+ 	MemoryTypes coupledRequests[nPairs][2] = {
+ 		{MEMORY_GIVE_HELP, MEMORY_REFUSED_HELP},
+@@ -16697,6 +16720,10 @@ void CvPlayerAI::AI_doCounter()
+ 					GC.getLeaderHeadInfo(getPersonalityType()).
+ 					getMemoryDecayRand(mId) <= 0)
+ 				continue; // </advc.003>
++			// <advc.144> No decay of MADE_DEMAND_RECENT while peace treaty
++			if(mId == MEMORY_MADE_DEMAND_RECENT &&
++					GET_TEAM(getTeam()).isForcePeace(TEAMID(civId)))
++				continue; // </advc.144>
+ 			// <advc.130r> No decay while war ongoing
+ 			if(mId == MEMORY_DECLARED_WAR &&
+ 					GET_TEAM(getTeam()).isAtWar(TEAMID(civId)))
+@@ -18117,7 +18144,11 @@ void CvPlayerAI::AI_doDiplo()
+ 					}
+ 				}
+ 				
+-				if (!abContacted[civ.getTeam()]) {
++				if (!abContacted[civ.getTeam()] &&
++						// <advc.130v> 
++						(!GET_TEAM(getTeam()).isAVassal() ||
++						GET_TEAM(getTeam()).getMasterTeam() == civ.getTeam())) {
++						// </advc.130v>
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      02/12/10                                jdog5000      */
+ /*                                                                                              */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index a81337e99..965f364a3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -241,6 +241,7 @@ public:
+ 		doesn't appear to in this case. (Well, could always cast it away in
+ 		the body.) */
+ 	bool AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, int iChange = 1);
++	double prDenyHelp() const; // advc.144
+ 	bool AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirInventory, CLinkList<TradeData>* pOurInventory, CLinkList<TradeData>* pTheirCounter, CLinkList<TradeData>* pOurCounter) const;
+ 	int AI_tradeAcceptabilityThreshold(PlayerTypes eTrader) const; // K-Mod
+ 	// advc.132:
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 090f3c5bf..211d6816f 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -10225,7 +10225,8 @@ void CvPlot::applyEvent(EventTypes eEvent)
+ 	}
+ }
+ 
+-bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const
++bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
++		bool checkAirUnitCap) const // advc.001b
+ {
+ 	CvCity* pCity = getPlotCity();
+ 
+@@ -10416,7 +10417,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const
+ 	}
+ 
+ 	// <advc.001b> Enforce air unit cap
+-	if(!bTestVisible && GC.getUnitInfo(eUnit).getAirUnitCap() > 0 &&
++	if(checkAirUnitCap && !bTestVisible && GC.getUnitInfo(eUnit).getAirUnitCap() > 0 &&
+ 			airUnitSpaceAvailable(getTeam()) < 1)
+ 		return false; // </advc.001b>
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 01ba91bde..b829ab3e0 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -545,7 +545,8 @@ public:
+ 	bool canApplyEvent(EventTypes eEvent) const;
+ 	void applyEvent(EventTypes eEvent);
+ 
+-	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
++	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
++			bool checkAirUnitCap = true) const; // advc.001b
+ 
+ 	bool isEspionageCounterSpy(TeamTypes eTeam) const;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 64be91177..ebb23db1d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -288,7 +288,8 @@ void CvSelectionGroup::doTurn()
+ 	doDelayedDeath();
+ }
+ 
+-bool CvSelectionGroup::showMoves() const
++bool CvSelectionGroup::showMoves(
++		CvPlot const& fromPlot) const // advc.102
+ {
+ 	if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || GC.getGameINLINE().isSimultaneousTeamTurns())
+ 	{
+@@ -298,72 +299,66 @@ bool CvSelectionGroup::showMoves() const
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-		if (kLoopPlayer.isAlive())
++		// <advc.003> To reduce indentation
++		if(!kLoopPlayer.isAlive() || !kLoopPlayer.isHuman())
++			continue;
++		CvUnit* pHeadUnit = getHeadUnit();
++		if(pHeadUnit == NULL)
++			continue; // </advc.003>
++		if (pHeadUnit->isEnemy(kLoopPlayer.getTeam()))
+ 		{
+-			if (kLoopPlayer.isHuman())
++			if (kLoopPlayer.isOption(PLAYEROPTION_SHOW_ENEMY_MOVES))
+ 			{
+-				CvUnit* pHeadUnit = getHeadUnit();
+-
+-				if (NULL != pHeadUnit)
+-				{
+-					if (pHeadUnit->isEnemy(kLoopPlayer.getTeam()))
+-					{
+-						if (kLoopPlayer.isOption(PLAYEROPTION_SHOW_ENEMY_MOVES))
+-						{
+-							return true;
+-						}
+-					}
+-					else
+-					{
+-						if (kLoopPlayer.isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
+-						{
+-							// <advc.102> Hide uninteresting friendly moves.
+-							PlayerTypes groupOwner = m_eOwner;
+-							PlayerTypes spectator = kLoopPlayer.getID();
+-							PlayerTypes plotOwner = plot()->getOwnerINLINE();
+-							bool isAwayFromHome = groupOwner != plotOwner;
+-							bool isInSpectatorsBorders = spectator == plotOwner;
+-							bool showSoloMoves = GC.getDefineINT("SHOW_FRIENDLY_SOLO_MOVES"),
+-							       showWorkers = GC.getDefineINT("SHOW_FRIENDLY_WORKER_MOVES"),
+-							         showShips = GC.getDefineINT("SHOW_FRIENDLY_SEA_MOVES"),
+-							// Also refers to Executives; those have the same Unit AI
+-						      showMissionaries = GC.getDefineINT("SHOW_FRIENDLY_MISSIONARY_MOVES");
+-							// This is just to avoid cycling through the units (efficiency)
+-							if(isInSpectatorsBorders || ((showMissionaries || showSoloMoves)
+-									&& isAwayFromHome))
+-								return true;
+-							if(showWorkers && showShips && showMissionaries && showSoloMoves)
+-								return true;
+-							for(CLLNode<IDInfo>* uNode = headUnitNode(); uNode != NULL;
+-									uNode = nextUnitNode(uNode)) {
+-								CvUnit& u = *(::getUnit(uNode->m_data));
+-								bool isSeaUnit = u.getDomainType() == DOMAIN_SEA;
+-								bool isCombatant = u.getUnitCombatType() != NO_UNITCOMBAT;
+-								if(!isSeaUnit && isCombatant && !isAwayFromHome
+-										&& plot()->getNumUnits() == 1)
+-									return false;
+-								bool isWorker = (u.AI_getUnitAIType() == UNITAI_WORKER ||
+-										u.AI_getUnitAIType() == UNITAI_WORKER_SEA);
+-								bool isNonCargoShip = (isSeaUnit && u.cargoSpace() <= 1);
+-								bool isMissionary = u.AI_getUnitAIType() == UNITAI_MISSIONARY;
+-								if(!isMissionary && isAwayFromHome)
+-									return true;
+-								if((isWorker && showWorkers) || (isNonCargoShip && showShips) ||
+-										(isMissionary && showMissionaries))
+-									return true;
+-								if(!isWorker && !isNonCargoShip && !isMissionary)
+-									return true;
+-							}
+-							return false;
+-							// original code was:
+-							//return true; </advc.102>
+-						}
+-					}
+-				}
+-			}
++				return true;
++			} // <advc.003>
++			else continue; 
++		}
++		if(!kLoopPlayer.isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
++			continue; // </advc.003>
++//FAssert(plot()->getX()<14||plot()->getX()>18||plot()->getY()<18||plot()->getY()>22);
++		// <advc.102> Hide uninteresting friendly moves
++		PlayerTypes groupOwner = m_eOwner;
++		TeamTypes spectator = kLoopPlayer.getTeam();
++		CvPlot const& toPlot = *plot();
++		PlayerTypes fromOwner = fromPlot.getOwnerINLINE();
++		PlayerTypes toOwner = toPlot.getOwnerINLINE();
++		bool isAwayFromHome = groupOwner != toOwner || groupOwner != fromOwner;
++		bool isInSpectatorsBorders = (fromOwner != NO_PLAYER &&
++				spectator == TEAMID(fromOwner)) || (toOwner != NO_PLAYER &&
++				spectator == TEAMID(toOwner));
++		bool showWorkers = GC.getDefineINT("SHOW_FRIENDLY_WORKER_MOVES"),
++			   showShips = GC.getDefineINT("SHOW_FRIENDLY_SEA_MOVES"),
++		  // Also refers to Executives; those have the same Unit AI
++		showMissionaries = GC.getDefineINT("SHOW_FRIENDLY_MISSIONARY_MOVES");
++		bool enteringOrLeaving = plot()->isVisible(spectator, false) !=
++				fromPlot.isVisible(spectator, false);
++		if(isInSpectatorsBorders) // Just to avoid cycling through the units
++			return true;
++		if(showWorkers && showShips && showMissionaries)
++			return true;
++		for(CLLNode<IDInfo>* uNode = headUnitNode(); uNode != NULL;
++				uNode = nextUnitNode(uNode)) {
++			CvUnit& u = *(::getUnit(uNode->m_data));
++			bool isSeaUnit = u.getDomainType() == DOMAIN_SEA;
++			bool isCombatant = u.getUnitCombatType() != NO_UNITCOMBAT;
++			if(!isSeaUnit && isCombatant && !isAwayFromHome
++					&& plot()->getNumUnits() == 1)
++				break;
++			bool isWorker = (u.AI_getUnitAIType() == UNITAI_WORKER ||
++					u.AI_getUnitAIType() == UNITAI_WORKER_SEA);
++			bool isNonCargoShip = (isSeaUnit && u.cargoSpace() <= 1);
++			bool isMissionary = u.AI_getUnitAIType() == UNITAI_MISSIONARY;
++			if(!isMissionary && isAwayFromHome && (!isSeaUnit ||
++					!isNonCargoShip || showShips || enteringOrLeaving))
++				return true;
++			if((isWorker && showWorkers) || (isNonCargoShip && showShips &&
++					enteringOrLeaving) || (isMissionary && showMissionaries))
++				return true;
++			if(!isWorker && !isNonCargoShip && !isMissionary)
++				return true;
++			// </advc.102>
+ 		}
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -1312,7 +1307,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 		setActivityType(ACTIVITY_AWAKE);
+ 		return false;
+ 	}
+-
++	CvPlot* fromPlot = plot(); // advc.102: Remember this for later
+ 	bool bDone = false;
+ 	bool bAction = false;
+ 
+@@ -1602,21 +1597,30 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 		{
+ 			//if (bDone || !canAllMove())
+ 			if (bDone || !readyForMission()) // K-Mod (I don't think this actually matters)
+-			{
+-				if (plot()->isVisibleToWatchingHuman())
+-				{
+-					updateMissionTimer(iSteps);
+-
+-					if (showMoves())
++			{	// <advc.102> Previously only checked if destVisible
++				bool destVisible = plot()->isVisibleToWatchingHuman();
++				bool startVisible = fromPlot->isVisibleToWatchingHuman();
++				if(destVisible || startVisible) // </advc.102>
++				{	// <advc.102> Pass fromPlot
++					updateMissionTimer(iSteps, fromPlot);
++					if(showMoves(*fromPlot)) // </advc.102>
+ 					{
+ 						if (GC.getGameINLINE().getActivePlayer() != NO_PLAYER)
+ 						{
+ 							if (getOwnerINLINE() != GC.getGameINLINE().getActivePlayer())
+-							{
+-								if (plot()->isActiveVisible(false) && !isInvisible(GC.getGameINLINE().getActiveTeam()))
++							{	// <advc.102> Show fromPlot when moving out of sight
++								bool destActiveVisible = !isInvisible(GC.getGameINLINE().getActiveTeam());
++								bool startActiveVisible = destActiveVisible &&
++										fromPlot->isActiveVisible(false);
++								destActiveVisible = destActiveVisible &&
++										plot()->isActiveVisible(false);
++								if(destActiveVisible && destVisible) // </advc.102>
+ 								{
+ 									gDLL->getInterfaceIFace()->lookAt(plot()->getPoint(), CAMERALOOKAT_NORMAL);
+-								}
++								} // <advc.102>
++								else if(startActiveVisible && startVisible)
++									gDLL->getInterfaceIFace()->lookAt(fromPlot->getPoint(), CAMERALOOKAT_NORMAL);
++								// </advc.102>
+ 							}
+ 						}
+ 					}
+@@ -4161,13 +4165,15 @@ void CvSelectionGroup::changeMissionTimer(int iChange)
+ }
+ 
+ 
+-void CvSelectionGroup::updateMissionTimer(int iSteps)
++void CvSelectionGroup::updateMissionTimer(int iSteps,
++		CvPlot* fromPlot) // advc.102
+ {
+ 	CvUnit* pTargetUnit;
+ 	CvPlot* pTargetPlot;
+ 	int iTime;
+ 
+-	if (!isHuman() && !showMoves())
++	if (!isHuman() && !showMoves(
++			fromPlot == NULL ? *plot() : *fromPlot)) // advc.102
+ 	{
+ 		iTime = 0;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index c4fa785ac..09bcc7a7f 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -29,7 +29,8 @@ public:
+ 
+ 	void doTurn();
+ 
+-	bool showMoves() const;
++	bool showMoves(
++			CvPlot const& fromPlot) const; // advc.102
+ 
+ 	void updateTimers();
+ 	bool doDelayedDeath();
+@@ -147,7 +148,8 @@ public:
+ 	int getMissionTimer() const;
+ 	void setMissionTimer(int iNewValue);
+ 	void changeMissionTimer(int iChange);
+-	void updateMissionTimer(int iSteps = 0);
++	void updateMissionTimer(int iSteps = 0,
++		CvPlot* fromPlot = NULL); // advc.102
+ 
+ 	inline bool isForceUpdate() { return m_bForceUpdate; } // K-Mod made inline
+ 	inline void setForceUpdate(bool bNewValue) { m_bForceUpdate = bNewValue; } // K-Mod made inline
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index fd0855fa9..40736817a 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2920,13 +2920,15 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier,
+ 		{
+ 			iOurSuccess += iOthersBestSuccess - iTheirSuccess;
+ 		}
+-
+-		iMasterPower = (2 * iMasterPower * iTheirSuccess) / (iTheirSuccess + iOurSuccess);
+-		// advc.112: FURIOUS clause added; WorstEnemy doesn't say much when at war
++		// <advc.112> Instead multiply VassalPower by the inverse factor
++		//iMasterPower = (2 * iMasterPower * iTheirSuccess) / (iTheirSuccess + iOurSuccess);
++		iVassalPower = ::round(iVassalPower * ((iTheirSuccess + iOurSuccess)) /
++				(1.8 * iTheirSuccess)); // Slightly reduce the coefficient
++		// FURIOUS clause added; WorstEnemy doesn't say much when at war.
+ 		if (AI_getWorstEnemy() == eTeam && AI_getAttitude(eTeam) <= ATTITUDE_FURIOUS)
+-		{
+-			iMasterPower *= 3;
+-			iMasterPower /= 4;
++		{	// was 75%, now 90%. 
++			iMasterPower *= 9;
++			iMasterPower /= 10; // </advc.112>
+ 		}
+ 	}
+ 	else
+@@ -3046,13 +3048,13 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier,
+ 	}
+ 	if(!colony) { // advc.112
+ 		// if (iVassalPower > iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
+-		// advc.112: Changed coefficients from 5/4 to 100/76
+-		if (100*iVassalPower > 76*iAveragePower // K-Mod. (second condition already checked)
++		// advc.112: Changed coefficients from 5/4 to 1/0.76
++		if (iVassalPower > 0.76*iAveragePower // K-Mod. (second condition already checked)
+ 				// <advc.112> Median condition; randomization when breaking free
+-				|| (!isAtWar(eTeam) && 100 * iVassalPower > 76 * medianPow)) {
++				|| (!isAtWar(eTeam) && iVassalPower > 0.76 * medianPow)) {
+ 			if(!isAVassal() || ::hash(GC.getGameINLINE().getGameTurn(),
+ 					getLeaderID()) < 0.1) // </advc.112>
+-			return DENIAL_POWER_US;
++				return DENIAL_POWER_US;
+ 		}
+ 	}
+ 	/*  <advc.112> Refactored, then decided to disable it entirely.
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 97a2de191..9dbda5950 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -161,6 +161,8 @@ public: // <advc.104>
+ 	TeamTypes AI_getWorstEnemy() const;
+ 	// advc.130p: new param
+ 	void AI_updateWorstEnemy(bool updateRivalTrade = true);
++	// advc.130p: 0 or less if tId isn't an enemy at all
++	int enemyValue(TeamTypes tId) const;
+ 	/*  advc.130k: Random number to add or subtract from state counters
+ 		(instead of just incrementing or decrementing). Non-negative result,
+ 		caller will have to multiply by -1 when decaying a counter.
+@@ -310,8 +312,6 @@ protected:
+ 	int AI_makePeaceRand() const;
+ 	int AI_noWarAttitudeProb(AttitudeTypes eAttitude) const;
+ 	int AI_getOpenBordersAttitudeDivisor() const; // advc.130i
+-	// advc.130p: 0 or less if tId isn't an enemy at all
+-	int enemyValue(TeamTypes tId) const;
+ 
+ 	void AI_doCounter();
+ 	void AI_doWar();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index dc2ec1258..244d870b5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4893,7 +4893,16 @@ bool CvUnit::airBomb(int iX, int iY)
+ 
+ 	if (pCity != NULL)
+ 	{
+-		pCity->changeDefenseModifier(-airBombCurrRate());
++		/*  <advc.004c> Same as in CvUnit::bombard except that IgnoreBuildingDefense
++			doesn't have to be checked here b/c all air units have that. */
++		int modWithBuildings = pCity->getDefenseModifier(false);
++		int modSansBuildings = pCity->getDefenseModifier(true);
++		FAssertMsg(modSansBuildings > 0 || isHuman(),
++				"The AI shoudn't bombard cities whose def is already 0");
++		double chg = -airBombCurrRate() * (modWithBuildings / (double)modSansBuildings);
++		pCity->changeDefenseModifier(std::min(0, (int)::floor(chg)));
++		// Replacing this line: // </advc.004c>
++		//pCity->changeDefenseModifier(-airBombCurrRate());
+ 
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DEFENSES_REDUCED_TO", pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
+ 		gDLL->getInterfaceIFace()->addHumanMessage(pCity->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX_INLINE(), pCity->getY_INLINE(), true, true);
+@@ -5041,17 +5050,27 @@ bool CvUnit::bombard()
+ 	{
+ 		return false;
+ 	}
+-	// advc.004c:
+-	FAssertMsg(pBombardCity->getDefenseModifier(false) > 0 || isHuman(),
++	// <advc.004c>
++	bool bIgnore = ignoreBuildingDefense();
++	int modWithBuildings = pBombardCity->getDefenseModifier(false);
++	FAssertMsg(modWithBuildings > 0 || isHuman(),
+ 			"The AI shoudn't bombard cities whose def is already 0");
++	int modSansBuildings = pBombardCity->getDefenseModifier(true);
++	// </advc.004c>
+ 	int iBombardModifier = 0;
+-	if (!ignoreBuildingDefense())
++	
++	if (!bIgnore) // advc.004c
+ 	{
+ 		iBombardModifier -= pBombardCity->getBuildingBombardDefense();
+ 	}
+-
+-	pBombardCity->changeDefenseModifier(-(bombardRate() * std::max(0, 100 + iBombardModifier)) / 100);
+-
++	// <advc.004c> Same formula as in BtS (except for rounding)
++	double chg = -(bombardRate() * std::max(0, 100 + iBombardModifier)) / 100.0;
++	if(bIgnore && modSansBuildings > 0) /*  bIgnore doesn't just ignore
++			BombardDefense, also need to decrease DefenseModifier proportional
++			to the effect of buildings in order to properly ignore BuildingDefense. */
++		chg *= modWithBuildings / (double)modSansBuildings;
++	pBombardCity->changeDefenseModifier(std::min(0, (int)::floor(chg)));
++	// </advc.004c>
+ 	setMadeAttack(true);
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 
+@@ -7810,7 +7829,9 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 					if (!bCoastalOnly || ((pWaterArea = pLoopCity->waterArea()) != NULL && !pWaterArea->isLake()))
+ 					{
+ 						// can this city train this unit?
+-						if (pLoopCity->canTrain(eUnit, false, false, true))
++						//if (pLoopCity->canTrain(eUnit, false, false, true))
++						// advc.001b: Replacing the above
++						if(pLoopCity->canUpgradeTo(eUnit))
+ 						{
+ 							// if we do not care about distance, then the first match will do
+ 							if (bIgnoreDistance)
+@@ -7856,7 +7877,9 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 		if (pClosestCity != NULL)
+ 		{
+ 			// if we can train, then return this city (otherwise it will return NULL)
+-			if (pClosestCity->canTrain(eUnit, false, false, true))
++			//if (pClosestCity->canTrain(eUnit, false, false, true))
++			// advc.001b: Replacing the above
++			if(pClosestCity->canUpgradeTo(eUnit))
+ 			{
+ 				// did not search, always return 1 for search value
+ 				iBestValue = 1;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c5abcecad..82f31bd21 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11869,7 +11869,9 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ {
+ 	PROFILE_FUNC();
+ 	// <advc.107> No defenders to spare for bonuses
+-	if(GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_TURTLE))
++	if(GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_TURTLE) ||
++			(area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE &&
++			GET_TEAM(getTeam()).AI_getWarSuccessRating() < -80))
+ 		return false; // </advc.107>
+ 	CvPlot* pLoopPlot;
+ 	CvPlot* pBestPlot;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 9a42a4ea9..9e8b77b1c 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -194,7 +194,10 @@ InvasionGraph::Node::~Node() {
+ void InvasionGraph::Node::addWarOpponents(std::set<PlayerTypes> const& wo) {
+ 
+ 	for(set<PlayerTypes>::const_iterator it = wo.begin(); it != wo.end(); it++) {
+-		if(!isWarOpponent[*it]) {
++		if(!isWarOpponent[*it] &&
++				/*  Should arguably be guaranteed somewhere higher up; not currently
++					guaranteed when there is a holy war vote. */
++				TEAMREF(id).getMasterTeam() != TEAMREF(*it).getMasterTeam()) {
+ 			isWarOpponent[*it] = true;
+ 			warOpponents.insert(*it);
+ 		}
+@@ -977,11 +980,11 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 	// Would be nicer to check all traits for defense bonuses
+ 	if(GET_PLAYER(defender.weId).warAndPeaceAI().getCache().hasProtectiveTrait())
+ 		cityDefenderBonus += 0.3;
++	bool isGunp = military[ARMY]->getTypicalUnit()->isIgnoreBuildingDefense();
+ 	// Normal defensive promotions are assumed to be countered by city raider
+ 	// For all non-mounted defenders
+ 	double tileBonus = military[ARMY]->getTypicalUnit() == NULL ? 0 :
+-			c->city()->getDefenseModifier(military[ARMY]->getTypicalUnit()->
+-			isIgnoreBuildingDefense());
++			c->city()->getDefenseModifier(isGunp);
+ 	/* AI tends to run low on siege after a while. era+1 based on assumption that
+ 	   AI tends to bring enough siege to bomb. twice per turn on average
+ 	   (on the final turn, some siege units will also attack, i.e. can't bomb).
+@@ -1004,6 +1007,8 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 	/* Walls and Castle slow down bombardment.
+ 	   min(75...: A mod could grant 100% bombard defense; treat >75% as 75% */
+ 	int bombDefPercent = std::min(75, c->city()->getBuildingBombardDefense());
++	if(isGunp)
++		bombDefPercent = 0;
+ 	FAssert(bombDefPercent >= 0);
+ 	if(bombDefPercent >= 85) { // No building does that
+ 		bombDuration = 0;
+@@ -1661,7 +1666,10 @@ void InvasionGraph::simulateComponent(Node& start) {
+ 	vector<Node*> cycle;
+ 	cycle.insert(cycle.begin(), forwardPath.begin() + startOfCycle,
+ 			forwardPath.end());
+-	FAssert(cycle.size() != 1);
++	if(cycle.size() == 1) {
++		FAssert(cycle.size() != 1);
++		return;
++	}
+ 	if(!cycle.empty()) {
+ 		report.log("*Cycle*");
+ 		string msg = "";
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index c9a65f088..4c60aa425 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -467,10 +467,10 @@ bool WarAndPeaceAI::Team::considerPeace(TeamTypes targetId, int u) {
+ 			return true; // Don't consider capitulation w/o having tried peace negot.
+ 		}
+ 	}
+-	int theirReluct = target.warAndPeaceAI().reluctanceToPeace(agentId);
++	int theirReluct = target.warAndPeaceAI().reluctanceToPeace(agentId, false);
+ 	report->log("Their reluctance to peace: %d", theirReluct);
+ 	if(theirReluct <= maxReparations && !human) {
+-		int tradeVal = ::round(utilityToTradeVal(theirReluct));
++		int tradeVal = ::round(utilityToTradeVal(std::max(0, theirReluct)));
+ 		tradeVal = ::round(tradeVal * WarAndPeaceAI::reparationsAIPercent / 100.0);
+ 		report->log("Trying to offer reparations with a trade value of %d",
+ 				tradeVal);
+@@ -480,7 +480,8 @@ bool WarAndPeaceAI::Team::considerPeace(TeamTypes targetId, int u) {
+ 		report->log("Peace negotiation %s", (r ? "failed" : "succeeded"));
+ 		return r;
+ 	}
+-	else report->log("No peace negotiation attempted; they're too reluctant");
++	else if(!human)
++		report->log("No peace negotiation attempted; they're too reluctant");
+ 	if(considerCapitulation(targetId, u, theirReluct))
+ 		return true; // No surrender
+ 	int cities = agent.getNumCities();
+@@ -526,7 +527,12 @@ bool WarAndPeaceAI::Team::considerCapitulation(TeamTypes masterId, int ourWarUti
+ 		them to conquer; doesn't have to mean that they'll soon offer peace.
+ 		Probability test to ensure that we eventually capitulate even if
+ 		master's reluctance remains low. */
+-	double prSkip = ::dRange(1 - masterReluctancePeace / 100.0, 0.0, 1.0);
++	double prSkip = 1 - (masterReluctancePeace * 0.015 + 0.25);
++	int ourCities = GET_TEAM(agentId).getNumCities();
++	// If few cities remain, we can't afford to wait
++	if(ourCities <= 2) prSkip -= 0.2;
++	if(ourCities <= 1) prSkip -= 0.1;
++	prSkip = ::dRange(prSkip, 0.0, 0.87);
+ 	report->log("%d percent probability to delay capitulation based on master's "
+ 			"reluctance to peace (%d)", ::round(100 * prSkip), masterReluctancePeace);
+ 	if(::bernoulliSuccess(prSkip)) {
+@@ -1214,8 +1220,8 @@ int WarAndPeaceAI::Team::endWarVal(TeamTypes enemyId) const {
+ 	int aiReluct = ai.warAndPeaceAI().reluctanceToPeace(human.getID(), false);
+ 	/*  If no payment is possible, human utility shouldn't matter.
+ 		(Should ideally also check if human could give the AI a city.
+-		Then again, human probably won't give up a city anywax, at least not
+-		pre-Alphabet and pre-Currency. */
++		Then again, human probably won't give up a city anyway, at least not
++		pre-Alphabet and pre-Currency.) */
+ 	if(aiReluct <= 0 && !human.isGoldTrading() && !human.isTechTrading() &&
+ 			!ai.isGoldTrading() && !ai.isTechTrading())
+ 		return 0;
+@@ -1885,6 +1891,32 @@ bool WarAndPeaceAI::Civ::amendTensions(PlayerTypes humanId) const {
+ 	return false;
+ }
+ 
++bool WarAndPeaceAI::Civ::considerGiftRequest(PlayerTypes theyId,
++		int tradeVal) const {
++
++	/*  Just check war utility and peace treaty here; all the other conditions
++		are handled by CvPlayerAI::AI_considerOffer. */
++	if(TEAMREF(weId).isForcePeace(TEAMID(theyId)))
++		return false;
++	// If war not possible, might as well sign a peace treaty
++	if(!TEAMREF(weId).canDeclareWar(TEAMID(theyId)) ||
++			!TEAMREF(theyId).canDeclareWar(TEAMID(weId)))
++		return true;
++	CvPlayerAI const& we = GET_PLAYER(weId);
++	/*  Accept probabilistically regardless of war utility (so long as we're
++		not planning war yet, which the caller ensures).
++		Probability to accept is 45% for Gandhi, 0% for Tokugawa. */
++	if(::bernoulliSuccess(0.5 - we.prDenyHelp()))
++		return true;
++	WarAndPeaceReport silentReport(true);
++	WarEvalParameters params(we.getTeam(), TEAMID(theyId), silentReport);
++	WarEvaluator eval(params);
++	double u = eval.evaluate(WARPLAN_LIMITED, 5) - 5; // minus 5 for goodwill
++	if(u >= 0)
++		return false;
++	return utilityToTradeVal(-u) < tradeVal;
++}
++
+ bool WarAndPeaceAI::Civ::isPossiblePeaceDeal(PlayerTypes humanId) const {
+ 
+ 	CvPlayer const& human = GET_PLAYER(humanId);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index 94eeb91e7..cd6398845 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -202,8 +202,9 @@ public:
+ 		  int totalWarRand() const;
+ 		  int limitedWarRand() const;
+ 		  int dogpileWarRand() const;
+-		// Tribute demands. BtS handles these in CvPlayerAI::AI_considerOffer.
++		// Request and demands. BtS handles these in CvPlayerAI::AI_considerOffer.
+ 		bool considerDemand(PlayerTypes theyId, int tradeVal) const;
++		bool considerGiftRequest(PlayerTypes theyId, int tradeVal) const;
+ 		bool amendTensions(PlayerTypes humanId) const;
+ 		// False if all assets of the human civ wouldn't be enough
+ 		bool isPossiblePeaceDeal(PlayerTypes humanId) const;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 5ef94a574..f55877eae 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2180,7 +2180,9 @@ int Effort::preEvaluate() {
+ 		if(ut == NO_UNIT) continue;
+ 		CvUnitInfo const& u = GC.getUnitInfo(ut);
+ 		double lost = m->lostPower(weId, mb);
+-		FAssert(lost >= 0); if(!(lost>=0)) continue;
++		/*  Really shouldn't be negative, but sometimes is minus 0.0-something;
++			probably not a bug worth chasing. */
++		FAssert(lost >= -1); if(!(lost>=0)) continue;
+ 		double typicalPow = weAI->militaryPower(u, u.getPowerValue());
+ 		if(typicalPow <= 0) continue;
+ 		double typicalCost = we->getProductionNeeded(ut);
+@@ -2773,12 +2775,28 @@ void Distraction::evaluate() {
+ 			}
+ 		}
+ 	}
++	if(numPotentialWars <= 0)
++		return;
+ 	/*  We're going start at most one of the potential wars, but having more
+ 		candidates is good */
+ 	double adjustedCostForPotential = maxPotential + totalCostForPotential /
+ 			std::sqrt((double)numPotentialWars);
++	/*  If we expect to knock them out, the current war may be over before the
++		time horizon of the simulation; then it's a smaller distraction.
++		(InvasionGraph could store elimination timestamps, but seems too much work
++		to implement. Can guess the time well enough here by counting their remaining
++		cities.) */
++	if(m->isEliminated(theyId) ||
++			m->getCapitulationsAccepted(agentId).count(TEAMID(theyId)) > 0) {
++		double mult = they->getNumCities() / 3.0;
++		if(mult < 1) {
++			log("Distraction cost reduced to %d percent b/c we're almost done "
++					"with %s", ::round(mult * 100), report.leaderName(theyId));
++			adjustedCostForPotential *= mult;
++		}
++	}
+ 	if(adjustedCostForPotential > 0.5) {
+-		log("Adjusted cost for all %d potential wars: %d", numPotentialWars,
++		log("Adjusted cost for all (%d) potential wars: %d", numPotentialWars,
+ 				::round(adjustedCostForPotential));
+ 		uMinus += adjustedCostForPotential;
+ 	}
+@@ -3033,7 +3051,7 @@ void Bellicosity::evaluate() {
+ 		for peaceful leaders) if the AI is too aggressive or not aggressive enough.
+ 		Currently, without this aspect, the AI doesn't seem quite aggressive enough
+ 		in the early game. */
+-	if(!m->isWar(agentId, TEAMID(theyId)))
++	if(we->isHuman() || !m->isWar(agentId, TEAMID(theyId)))
+ 		return;
+ 	// One war is enough
+ 	if(agent.getAtWarCount() > 0 && !agent.isAtWar(TEAMID(theyId)))
+
+[PATCH OMITTED] file=a/manual_0.84.pdf b/manual_0.84.pdf reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH OMITTED] file=a/manual_0.85.pdf b/manual_0.85.pdf reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=29 embeddedFiles=26 omittedFiles=3 embeddedPatchBytes=104454

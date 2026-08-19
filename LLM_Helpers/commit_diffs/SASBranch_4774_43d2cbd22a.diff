@@ -1,0 +1,350 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4774
+# Commit: 43d2cbd22ac913e8ec0da378d057a9a09917dd22
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9b4525ea0228d97c3233a9c93cea8c0be1c4141f
+# Title: reorder xml religious units (missionaries anyways etc) to match historical order as i want it anyways etc anyways etc anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+50	50	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index b34155125..0706a5bb9 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -3559,8 +3559,8 @@ then adjust maybe anyways):
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_JEWISH_MISSIONARY</Class>
+-			<Type>UNIT_JEWISH_MISSIONARY</Type>
++			<Class>UNITCLASS_PAGAN_MISSIONARY</Class>
++			<Type>UNIT_PAGAN_MISSIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+@@ -3569,9 +3569,9 @@ then adjust maybe anyways):
+ 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_JEWISH_MISSIONARY</Description>
++			<Description>TXT_KEY_UNIT_PAGAN_MISSIONARY</Description>
+ 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_JEWISH_MISSIONARY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -3618,8 +3618,8 @@ then adjust maybe anyways):
+ 			<Builds/>
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+-					<ReligionType>RELIGION_JUDAISM</ReligionType>
+-					<!-- K-Mod: Was 40 (but is no longer halved for rival cities) -->
++					<ReligionType>RELIGION_PAGANISM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3629,9 +3629,9 @@ then adjust maybe anyways):
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>RELIGION_JUDAISM</PrereqReligion>
++			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>BUILDING_JEWISH_MONASTERY</PrereqBuilding>
++			<PrereqBuilding>BUILDING_PAGAN_MONASTERY</PrereqBuilding>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -3712,7 +3712,7 @@ then adjust maybe anyways):
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_JEWISH_MISSIONARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_PAGAN_MISSIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -3726,8 +3726,8 @@ then adjust maybe anyways):
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_CHRISTIAN_MISSIONARY</Class>
+-			<Type>UNIT_CHRISTIAN_MISSIONARY</Type>
++			<Class>UNITCLASS_HINDU_MISSIONARY</Class>
++			<Type>UNIT_HINDU_MISSIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+@@ -3736,9 +3736,9 @@ then adjust maybe anyways):
+ 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY</Description>
++			<Description>TXT_KEY_UNIT_HINDU_MISSIONARY</Description>
+ 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_UNIT_HINDU_MISSIONARY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -3785,7 +3785,7 @@ then adjust maybe anyways):
+ 			<Builds/>
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+-					<ReligionType>RELIGION_CHRISTIANITY</ReligionType>
++					<ReligionType>RELIGION_HINDUISM</ReligionType>
+ 					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+@@ -3796,9 +3796,9 @@ then adjust maybe anyways):
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>RELIGION_CHRISTIANITY</PrereqReligion>
++			<PrereqReligion>RELIGION_HINDUISM</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>BUILDING_CHRISTIAN_MONASTERY</PrereqBuilding>
++			<PrereqBuilding>BUILDING_HINDU_MONASTERY</PrereqBuilding>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -3879,7 +3879,7 @@ then adjust maybe anyways):
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CHRISTIAN_MISSIONARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_HINDU_MISSIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -3893,8 +3893,8 @@ then adjust maybe anyways):
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_ISLAMIC_MISSIONARY</Class>
+-			<Type>UNIT_ISLAMIC_MISSIONARY</Type>
++			<Class>UNITCLASS_JEWISH_MISSIONARY</Class>
++			<Type>UNIT_JEWISH_MISSIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+@@ -3903,9 +3903,9 @@ then adjust maybe anyways):
+ 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_ISLAMIC_MISSIONARY</Description>
++			<Description>TXT_KEY_UNIT_JEWISH_MISSIONARY</Description>
+ 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_ISLAMIC_MISSIONARY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_UNIT_JEWISH_MISSIONARY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -3952,8 +3952,8 @@ then adjust maybe anyways):
+ 			<Builds/>
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+-					<ReligionType>RELIGION_ISLAM</ReligionType>
+-					<!-- K-Mod: was 40 -->
++					<ReligionType>RELIGION_JUDAISM</ReligionType>
++					<!-- K-Mod: Was 40 (but is no longer halved for rival cities) -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3963,9 +3963,9 @@ then adjust maybe anyways):
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>RELIGION_ISLAM</PrereqReligion>
++			<PrereqReligion>RELIGION_JUDAISM</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>BUILDING_ISLAMIC_MONASTERY</PrereqBuilding>
++			<PrereqBuilding>BUILDING_JEWISH_MONASTERY</PrereqBuilding>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -4046,7 +4046,7 @@ then adjust maybe anyways):
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ISLAMIC_MISSIONARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_JEWISH_MISSIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -4060,8 +4060,8 @@ then adjust maybe anyways):
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_HINDU_MISSIONARY</Class>
+-			<Type>UNIT_HINDU_MISSIONARY</Type>
++			<Class>UNITCLASS_DAOIST_MISSIONARY</Class>
++			<Type>UNIT_DAOIST_MISSIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+@@ -4070,9 +4070,9 @@ then adjust maybe anyways):
+ 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_HINDU_MISSIONARY</Description>
++			<Description>TXT_KEY_UNIT_DAOIST_MISSIONARY</Description>
+ 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_HINDU_MISSIONARY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -4119,7 +4119,7 @@ then adjust maybe anyways):
+ 			<Builds/>
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+-					<ReligionType>RELIGION_HINDUISM</ReligionType>
++					<ReligionType>RELIGION_DAOISM</ReligionType>
+ 					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+@@ -4130,9 +4130,9 @@ then adjust maybe anyways):
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>RELIGION_HINDUISM</PrereqReligion>
++			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>BUILDING_HINDU_MONASTERY</PrereqBuilding>
++			<PrereqBuilding>BUILDING_DAOIST_MONASTERY</PrereqBuilding>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -4213,7 +4213,7 @@ then adjust maybe anyways):
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_HINDU_MISSIONARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_DAOIST_MISSIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -4394,8 +4394,8 @@ then adjust maybe anyways):
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_PAGAN_MISSIONARY</Class>
+-			<Type>UNIT_PAGAN_MISSIONARY</Type>
++			<Class>UNITCLASS_CHRISTIAN_MISSIONARY</Class>
++			<Type>UNIT_CHRISTIAN_MISSIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+@@ -4404,9 +4404,9 @@ then adjust maybe anyways):
+ 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_PAGAN_MISSIONARY</Description>
++			<Description>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY</Description>
+ 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -4453,7 +4453,7 @@ then adjust maybe anyways):
+ 			<Builds/>
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+-					<ReligionType>RELIGION_PAGANISM</ReligionType>
++					<ReligionType>RELIGION_CHRISTIANITY</ReligionType>
+ 					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+@@ -4464,9 +4464,9 @@ then adjust maybe anyways):
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
++			<PrereqReligion>RELIGION_CHRISTIANITY</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>BUILDING_PAGAN_MONASTERY</PrereqBuilding>
++			<PrereqBuilding>BUILDING_CHRISTIAN_MONASTERY</PrereqBuilding>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -4547,7 +4547,7 @@ then adjust maybe anyways):
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_PAGAN_MISSIONARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CHRISTIAN_MISSIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -4561,8 +4561,8 @@ then adjust maybe anyways):
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_DAOIST_MISSIONARY</Class>
+-			<Type>UNIT_DAOIST_MISSIONARY</Type>
++			<Class>UNITCLASS_ISLAMIC_MISSIONARY</Class>
++			<Type>UNIT_ISLAMIC_MISSIONARY</Type>
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+@@ -4571,9 +4571,9 @@ then adjust maybe anyways):
+ 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_DAOIST_MISSIONARY</Description>
++			<Description>TXT_KEY_UNIT_ISLAMIC_MISSIONARY</Description>
+ 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_UNIT_ISLAMIC_MISSIONARY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -4620,7 +4620,7 @@ then adjust maybe anyways):
+ 			<Builds/>
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+-					<ReligionType>RELIGION_DAOISM</ReligionType>
++					<ReligionType>RELIGION_ISLAM</ReligionType>
+ 					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+@@ -4631,9 +4631,9 @@ then adjust maybe anyways):
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
++			<PrereqReligion>RELIGION_ISLAM</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>BUILDING_DAOIST_MONASTERY</PrereqBuilding>
++			<PrereqBuilding>BUILDING_ISLAMIC_MONASTERY</PrereqBuilding>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -4714,7 +4714,7 @@ then adjust maybe anyways):
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_DAOIST_MISSIONARY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ISLAMIC_MISSIONARY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=13884

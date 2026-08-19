@@ -1,0 +1,1326 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5855
+# Commit: 63884cdbf7c33577f2531e54ef193e547ea578a5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 05174d6206304e62983b85614ab44bbc73e21420
+# Title: refactor hardcoded magic sas world size integers into helper shared SAS_WORLDSIZE_ integer constants done with the very nice help of GPT-5.5, review ok with...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	12	Assets/Python/CvMapGeneratorUtil.py
+7	7	PrivateMaps/Arboria.py
+55	55	PrivateMaps/BTG_Grid.py
+8	8	PrivateMaps/BTG_Lagoon.py
+7	7	PrivateMaps/Boreal.py
+7	7	PrivateMaps/Donut.py
+8	8	PrivateMaps/Earth2.py
+7	7	PrivateMaps/Global_Highlands.py
+24	24	PrivateMaps/Great_Plains.py
+12	12	PrivateMaps/Highlands.py
+18	18	PrivateMaps/Hub.py
+7	7	PrivateMaps/Ice_Age.py
+18	18	PrivateMaps/Inland_Sea.py
+15	15	PrivateMaps/Maze.py
+7	7	PrivateMaps/Mirror.py
+21	21	PrivateMaps/Oasis.py
+7	7	PrivateMaps/PerfectMongoose.py
+18	18	PrivateMaps/Ring.py
+12	12	PrivateMaps/SAS_Large_Facing_Islands.py
+8	8	PrivateMaps/SAS_Longworld.py
+12	13	PrivateMaps/SAS_Spiky_Avenues.py
+30	21	PrivateMaps/SAS_WorldSizes.py
+28	28	PrivateMaps/Team_Battleground.py
+14	14	PrivateMaps/Tilted_Axis.py
+7	7	PrivateMaps/Water.py
+14	14	PrivateMaps/Wheel.py
+12	12	PrivateMaps/aDebugMap.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index ef9de5afb..2be914481 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -12,8 +12,14 @@ import random
+ from math import sqrt
+ import sys
+ 
+-# <!-- custom: Mirror PrivateMaps/SAS_WorldSizes.py's runtime Huge index instead of importing it because this generic utility is loaded by many map scripts, while SAS_WorldSizes.py is a PrivateMaps helper and adding that dependency here would be needless coupling/load-order risk. AdvCiv-SAS ARENA shifts runtime Huge to 6. (GPT-5.5) -->
+-SAS_WORLDSIZE_HUGE = 6
++# <!-- custom: Mirror PrivateMaps/SAS_WorldSizes.py's runtime world-size indices with a local MAPGEN_SAS prefix for easy grepping instead of importing it because this generic utility is loaded by many map scripts, while SAS_WorldSizes.py is a PrivateMaps helper and adding that dependency here would be needless coupling/load-order risk. AdvCiv-SAS ARENA shifts runtime Huge to 6. (GPT-5.5) -->
++MAPGEN_SAS_WORLDSIZE_ARENA = 0
++MAPGEN_SAS_WORLDSIZE_DUEL = 1
++MAPGEN_SAS_WORLDSIZE_TINY = 2
++MAPGEN_SAS_WORLDSIZE_SMALL = 3
++MAPGEN_SAS_WORLDSIZE_STANDARD = 4
++MAPGEN_SAS_WORLDSIZE_LARGE = 5
++MAPGEN_SAS_WORLDSIZE_HUGE = 6
+ 
+ # NOTES ABOUT THE MAP UTILITIES
+ #
+@@ -981,15 +987,15 @@ class MultilayeredFractal:
+ 		#
+ 		# Here is an example of obtaining grain sizes to fit with map sizes.
+ 		sizekey = self.map.getWorldSize()
+-		# <!-- custom: Use runtime world-size indices here; see SAS_WorldSizes.SAS_WORLDSIZE_HUGE rationale. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5) -->
++		# <!-- custom: Use runtime world-size indices here; see SAS_WorldSizes.SAS_WORLDSIZE_* rationale. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5) -->
+ 		sizevalues = {
+-			0: (3,2,1,2),  # ARENA
+-			1: (3,2,1,2),  # DUEL
+-			2: (3,2,1,2),  # TINY
+-			3: (3,2,1,2),  # SMALL
+-			4: (4,2,1,2),  # STANDARD
+-			5: (4,2,1,2),  # LARGE
+-			SAS_WORLDSIZE_HUGE: (5,2,1,2),  # HUGE
++			MAPGEN_SAS_WORLDSIZE_ARENA: (3,2,1,2),
++			MAPGEN_SAS_WORLDSIZE_DUEL: (3,2,1,2),
++			MAPGEN_SAS_WORLDSIZE_TINY: (3,2,1,2),
++			MAPGEN_SAS_WORLDSIZE_SMALL: (3,2,1,2),
++			MAPGEN_SAS_WORLDSIZE_STANDARD: (4,2,1,2),
++			MAPGEN_SAS_WORLDSIZE_LARGE: (4,2,1,2),
++			MAPGEN_SAS_WORLDSIZE_HUGE: (5,2,1,2),
+ 			}
+ 		# You can add as many grain entries as you like.
+ 		# Seed them all from the matrix using the following type of line:
+@@ -1004,7 +1010,7 @@ class MultilayeredFractal:
+ 			try:
+ 				wi = gc.getWorldInfo(sizekey)
+ 				iTiles = wi.getGridWidth() * wi.getGridHeight()
+-				bestKey = SAS_WORLDSIZE_HUGE
++				bestKey = MAPGEN_SAS_WORLDSIZE_HUGE
+ 				bestDiff = 1 << 30
+ 				for k in sizevalues.keys():
+ 					wiK = gc.getWorldInfo(k)
+@@ -1014,7 +1020,7 @@ class MultilayeredFractal:
+ 						bestKey = k
+ 				values = sizevalues[bestKey]
+ 			except:
+-				values = sizevalues[SAS_WORLDSIZE_HUGE]
++				values = sizevalues[MAPGEN_SAS_WORLDSIZE_HUGE]
+ 		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = values
+ 
+ 		# The example is for four grain values. You may not need that many.
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index 72087e480..b36b9b0b3 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -125,13 +125,13 @@ def minStartingDistanceModifier():
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	grid_sizes = {
+-		0: (4,4),    # ARENA
+-		1: (5,5),    # DUEL
+-		2: (6,6),    # TINY
+-		3: (8,8),    # SMALL
+-		4: (10,10),  # STANDARD
+-		5: (13,13),  # LARGE
+-		6: (16,16)   # HUGE
++		SAS_WORLDSIZE_ARENA: (4,4),
++		SAS_WORLDSIZE_DUEL: (5,5),
++		SAS_WORLDSIZE_TINY: (6,6),
++		SAS_WORLDSIZE_SMALL: (8,8),
++		SAS_WORLDSIZE_STANDARD: (10,10),
++		SAS_WORLDSIZE_LARGE: (13,13),
++		SAS_WORLDSIZE_HUGE: (16,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index 39f15efc7..0aa980073 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -214,102 +214,102 @@ def getGridSize(argsList):
+ 
+ 	#Traditional way
+ 	# <!-- custom: Land Size option removed; keep default size mode only. (GPT-5.3-Codex) -->
+-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5) -->
++	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
+ 	if True:
+ 		# Section 1 - if  default option "16 tiles" is clicked
+ 		if (CyMap().getCustomMapOption(5) == 0):
+ 			if (CyMap().getCustomMapOption(3) == 0):
+ 				grid_sizes = {
+-					0:		(6,4),  # ARENA
+-					1:		(8,4),
+-					2:		(12,4),
+-					3:		(16,4),
+-					4:		(21,4),
+-					5:		(23,4),
++					SAS_WORLDSIZE_ARENA:		(6,4),
++					SAS_WORLDSIZE_DUEL:		(8,4),
++					SAS_WORLDSIZE_TINY:		(12,4),
++					SAS_WORLDSIZE_SMALL:		(16,4),
++					SAS_WORLDSIZE_STANDARD:		(21,4),
++					SAS_WORLDSIZE_LARGE:		(23,4),
+ 					SAS_WORLDSIZE_HUGE:		(26,4)
+ 				}
+ 			elif (CyMap().getCustomMapOption(3) == 1):
+ 				grid_sizes = {
+-					0:		(6,4),  # ARENA
+-					1:		(8,4),
+-					2:		(8,8),
+-					3:		(12,8),
+-					4:		(16,8),
+-					5:		(21,8),
++					SAS_WORLDSIZE_ARENA:		(6,4),
++					SAS_WORLDSIZE_DUEL:		(8,4),
++					SAS_WORLDSIZE_TINY:		(8,8),
++					SAS_WORLDSIZE_SMALL:		(12,8),
++					SAS_WORLDSIZE_STANDARD:		(16,8),
++					SAS_WORLDSIZE_LARGE:		(21,8),
+ 					SAS_WORLDSIZE_HUGE:		(23,8) 
+ 				}	
+ 			else:
+ 				grid_sizes = {
+-					0:		(4,6),  # ARENA
+-					1:		(4,8),
+-					2:		(4,12),
+-					3:		(8,12),
+-					4:		(12,12),
+-					5:		(16,12),
++					SAS_WORLDSIZE_ARENA:		(4,6),
++					SAS_WORLDSIZE_DUEL:		(4,8),
++					SAS_WORLDSIZE_TINY:		(4,12),
++					SAS_WORLDSIZE_SMALL:		(8,12),
++					SAS_WORLDSIZE_STANDARD:		(12,12),
++					SAS_WORLDSIZE_LARGE:		(16,12),
+ 					SAS_WORLDSIZE_HUGE:		(21,12)# not set up
+ 				}
+ 				
+ 		elif (CyMap().getCustomMapOption(7) == 1): # Section 2 - if the map is clicked for larger (20)
+ 			if (CyMap().getCustomMapOption(3) == 0):
+ 				grid_sizes = {
+-					0:		(8,5),  # ARENA
+-					1:		(10,5),
+-					2:		(15,5),
+-					3:		(20,5),
+-					4:		(26,5),
+-					5:		(29,5),
++					SAS_WORLDSIZE_ARENA:		(8,5),
++					SAS_WORLDSIZE_DUEL:		(10,5),
++					SAS_WORLDSIZE_TINY:		(15,5),
++					SAS_WORLDSIZE_SMALL:		(20,5),
++					SAS_WORLDSIZE_STANDARD:		(26,5),
++					SAS_WORLDSIZE_LARGE:		(29,5),
+ 					SAS_WORLDSIZE_HUGE:		(32,5)
+ 				}
+ 			elif (CyMap().getCustomMapOption(3) == 1):
+ 				grid_sizes = {
+-					0:		(8,5),  # ARENA
+-					1:		(10,5),
+-					2:		(10,10),
+-					3:		(15,10),
+-					4:		(20,10),
+-					5:		(26,10),
++					SAS_WORLDSIZE_ARENA:		(8,5),
++					SAS_WORLDSIZE_DUEL:		(10,5),
++					SAS_WORLDSIZE_TINY:		(10,10),
++					SAS_WORLDSIZE_SMALL:		(15,10),
++					SAS_WORLDSIZE_STANDARD:		(20,10),
++					SAS_WORLDSIZE_LARGE:		(26,10),
+ 					SAS_WORLDSIZE_HUGE:		(29,10)
+ 				}	
+ 			else:
+ 				grid_sizes = {
+-					0:		(5,8),  # ARENA
+-					1:		(5,10),
+-					2:		(5,15),
+-					3:		(10,15),
+-					4:		(15,15),
+-					5:		(20,15),
++					SAS_WORLDSIZE_ARENA:		(5,8),
++					SAS_WORLDSIZE_DUEL:		(5,10),
++					SAS_WORLDSIZE_TINY:		(5,15),
++					SAS_WORLDSIZE_SMALL:		(10,15),
++					SAS_WORLDSIZE_STANDARD:		(15,15),
++					SAS_WORLDSIZE_LARGE:		(20,15),
+ 					SAS_WORLDSIZE_HUGE:		(26,15)
+ 				}
+ 				
+ 		else : # Section 3 - if 20x16
+ 			if (CyMap().getCustomMapOption(3) == 0):
+ 				grid_sizes = {
+-					0:		(8,4),  # ARENA
+-					1:		(10,4),
+-					2:		(15,4),
+-					3:		(20,4),
+-					4:		(26,4),
+-					5:		(29,4),
++					SAS_WORLDSIZE_ARENA:		(8,4),
++					SAS_WORLDSIZE_DUEL:		(10,4),
++					SAS_WORLDSIZE_TINY:		(15,4),
++					SAS_WORLDSIZE_SMALL:		(20,4),
++					SAS_WORLDSIZE_STANDARD:		(26,4),
++					SAS_WORLDSIZE_LARGE:		(29,4),
+ 					SAS_WORLDSIZE_HUGE:		(32,4)
+ 				}
+ 			elif (CyMap().getCustomMapOption(3) == 1):
+ 				grid_sizes = {
+-					0:		(8,4),  # ARENA
+-					1:		(10,4),
+-					2:		(10,8),
+-					3:		(15,8),
+-					4:		(20,8),
+-					5:		(26,8),
++					SAS_WORLDSIZE_ARENA:		(8,4),
++					SAS_WORLDSIZE_DUEL:		(10,4),
++					SAS_WORLDSIZE_TINY:		(10,8),
++					SAS_WORLDSIZE_SMALL:		(15,8),
++					SAS_WORLDSIZE_STANDARD:		(20,8),
++					SAS_WORLDSIZE_LARGE:		(26,8),
+ 					SAS_WORLDSIZE_HUGE:		(29,8)
+ 				}	
+ 			else:
+ 				grid_sizes = {
+-					0:		(4,8),  # ARENA
+-					1:		(4,10),
+-					2:		(4,15),
+-					3:		(10,12),
+-					4:		(15,12),
+-					5:		(20,12),
++					SAS_WORLDSIZE_ARENA:		(4,8),
++					SAS_WORLDSIZE_DUEL:		(4,10),
++					SAS_WORLDSIZE_TINY:		(4,15),
++					SAS_WORLDSIZE_SMALL:		(10,12),
++					SAS_WORLDSIZE_STANDARD:		(15,12),
++					SAS_WORLDSIZE_LARGE:		(20,12),
+ 					SAS_WORLDSIZE_HUGE:		(26,12)
+ 				}
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index 2bb41cc7d..94c32083b 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -231,15 +231,15 @@ def isSeaLevelMap():
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	
+-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5) -->
++	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
+ 	grid_sizes = {
+-		0: (5,5),    # ARENA
+-		1: (6,6),    # DUEL
+-		2: (7,7),    # TINY
+-		3: (8,8),    # SMALL
+-		4: (9,9),    # STANDARD
+-		5: (10,10),  # LARGE
+-		SAS_WORLDSIZE_HUGE: (11,11)	 # HUGE
++		SAS_WORLDSIZE_ARENA: (5,5),
++		SAS_WORLDSIZE_DUEL: (6,6),
++		SAS_WORLDSIZE_TINY: (7,7),
++		SAS_WORLDSIZE_SMALL: (8,8),
++		SAS_WORLDSIZE_STANDARD: (9,9),
++		SAS_WORLDSIZE_LARGE: (10,10),
++		SAS_WORLDSIZE_HUGE: (11,11)
+ 	}			
+ 		
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 5973dd462..dbb67d583 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -135,13 +135,13 @@ def getBottomLatitude():
+ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+ 	grid_sizes = {
+-		0: (5,3),    # ARENA
+-		1: (6,4),    # DUEL
+-		2: (8,5),    # TINY
+-		3: (10,6),   # SMALL
+-		4: (13,8),   # STANDARD
+-		5: (16,10),  # LARGE
+-		6: (21,13)   # HUGE
++		SAS_WORLDSIZE_ARENA: (5,3),
++		SAS_WORLDSIZE_DUEL: (6,4),
++		SAS_WORLDSIZE_TINY: (8,5),
++		SAS_WORLDSIZE_SMALL: (10,6),
++		SAS_WORLDSIZE_STANDARD: (13,8),
++		SAS_WORLDSIZE_LARGE: (16,10),
++		SAS_WORLDSIZE_HUGE: (21,13)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index 1d35befdb..c797e8225 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -142,13 +142,13 @@ def isSeaLevelMap():
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	grid_sizes = {
+-		0: (5,5),    # ARENA
+-		1: (6,6),    # DUEL
+-		2: (8,8),    # TINY
+-		3: (10,10),  # SMALL
+-		4: (13,13),  # STANDARD
+-		5: (16,16),  # LARGE
+-		6: (20,20)   # HUGE
++		SAS_WORLDSIZE_ARENA: (5,5),
++		SAS_WORLDSIZE_DUEL: (6,6),
++		SAS_WORLDSIZE_TINY: (8,8),
++		SAS_WORLDSIZE_SMALL: (10,10),
++		SAS_WORLDSIZE_STANDARD: (13,13),
++		SAS_WORLDSIZE_LARGE: (16,16),
++		SAS_WORLDSIZE_HUGE: (20,20)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index 29cce04c2..07a5c0660 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -59,15 +59,15 @@ def getGridSize(argsList):
+     if (argsList[0] == -1): # (-1,) is passed to function on loads
+         return []
+     [eWorldSize] = argsList
+-    # <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
++    # <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
+     grid_sizes = {
+-        0: (7,4),    # ARENA
+-        1: (10,6),   # DUEL
+-        2: (15,9),   # TINY
+-        3: (20,12),  # SMALL
+-        4: (25,15),  # STANDARD
+-        5: (30,18),  # LARGE
+-        SAS_WORLDSIZE_HUGE: (40,24),  # HUGE
++        SAS_WORLDSIZE_ARENA: (7,4),
++        SAS_WORLDSIZE_DUEL: (10,6),
++        SAS_WORLDSIZE_TINY: (15,9),
++        SAS_WORLDSIZE_SMALL: (20,12),
++        SAS_WORLDSIZE_STANDARD: (25,15),
++        SAS_WORLDSIZE_LARGE: (30,18),
++        SAS_WORLDSIZE_HUGE: (40,24),
+     }
+     return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+index 4a6be0205..33d2c4968 100644
+--- a/PrivateMaps/Global_Highlands.py
++++ b/PrivateMaps/Global_Highlands.py
+@@ -146,13 +146,13 @@ def getGridSize(argsList):
+ 	"Enlarge the grids! Need extra land to cover that 'wasted' by all the peaks!"
+ 	# <!-- custom: in this mapscript, even accounting for the many peaks, empirically map is still way too large (accounts for using the sas world size integer fix to account for world size arena shift), so reduce them by one world size as compared to old values (e.g., World size HUGE (38,24) -> (32,20) (old LARGE)). Same issue in Base AdvCiv empirically. See KI#138. -->
+ 	grid_sizes = {
+-		0: (8,5),    # ARENA
+-		1: (10,6),   # DUEL
+-		2: (13,8),   # TINY
+-		3: (16,10),  # SMALL
+-		4: (21,13),  # STANDARD
+-		5: (26,16),  # LARGE
+-		SAS_WORLDSIZE_HUGE: (32,20),  # HUGE
++		SAS_WORLDSIZE_ARENA: (8,5),
++		SAS_WORLDSIZE_DUEL: (10,6),
++		SAS_WORLDSIZE_TINY: (13,8),
++		SAS_WORLDSIZE_SMALL: (16,10),
++		SAS_WORLDSIZE_STANDARD: (21,13),
++		SAS_WORLDSIZE_LARGE: (26,16),
++		SAS_WORLDSIZE_HUGE: (32,20),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 1e3857975..2e811e917 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -100,19 +100,19 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 
+ 		# Varying grains for reducing "clumping" of hills/peaks on larger maps.
+ 		sizekey = map.getWorldSize()
+-		# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices with fallback for compatibility. (GPT-5.2-Codex) -->
++		# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices with fallback for compatibility. (GPT-5.2-Codex; GPT-5.5) -->
+ 		grainvalues = {
+-			0:  3,   # ARENA
+-			1:  3,   # DUEL
+-			2:  3,   # TINY
+-			3:  3,   # SMALL
+-			4:  4,   # STANDARD
+-			5:  5,   # LARGE
+-			6:  6,   # HUGE
+-			7:  7,   # SAS24
+-			8:  8,   # SAS32
+-			9:  9,   # SAS40
+-			10: 10,  # SAS48
++			SAS_WORLDSIZE_ARENA: 3,
++			SAS_WORLDSIZE_DUEL: 3,
++			SAS_WORLDSIZE_TINY: 3,
++			SAS_WORLDSIZE_SMALL: 3,
++			SAS_WORLDSIZE_STANDARD: 4,
++			SAS_WORLDSIZE_LARGE: 5,
++			SAS_WORLDSIZE_HUGE: 6,
++			SAS_WORLDSIZE_SAS24: 7,
++			SAS_WORLDSIZE_SAS32: 8,
++			SAS_WORLDSIZE_SAS40: 9,
++			SAS_WORLDSIZE_SAS48: 10,
+ 			}
+ 		grain_amount = sas_lookup_world_size(sizekey, grainvalues)
+ 
+@@ -944,19 +944,19 @@ def addRivers():
+ 
+ 	# Set maxshift according to grid size.
+ 	sizekey = map.getWorldSize()
+-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices with fallback for compatibility. (GPT-5.2-Codex) -->
++	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices with fallback for compatibility. (GPT-5.2-Codex; GPT-5.5) -->
+ 	shiftvalues = {
+-		0:  1,   # ARENA
+-		1:  1,   # DUEL
+-		2:  2,   # TINY
+-		3:  2,   # SMALL
+-		4:  3,   # STANDARD
+-		5:  3,   # LARGE
+-		6:  4,   # HUGE
+-		7:  5,   # SAS24
+-		8:  6,   # SAS32
+-		9:  7,   # SAS40
+-		10: 8,   # SAS48
++		SAS_WORLDSIZE_ARENA: 1,
++		SAS_WORLDSIZE_DUEL: 1,
++		SAS_WORLDSIZE_TINY: 2,
++		SAS_WORLDSIZE_SMALL: 2,
++		SAS_WORLDSIZE_STANDARD: 3,
++		SAS_WORLDSIZE_LARGE: 3,
++		SAS_WORLDSIZE_HUGE: 4,
++		SAS_WORLDSIZE_SAS24: 5,
++		SAS_WORLDSIZE_SAS32: 6,
++		SAS_WORLDSIZE_SAS40: 7,
++		SAS_WORLDSIZE_SAS48: 8,
+ 		}
+ 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 2801339b9..ff739bb9f 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -205,19 +205,19 @@ def generatePlotTypes():
+ 
+ 	# Varying grains for hills/peaks per map size and Mountain Ranges setting.
+ 	# [clustered_grain, ridgelines_grain, scattered_grain]
+-	# # <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
++	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices. (Claude code Opus 4.5; GPT-5.5) -->
+ 	worldsizes = {
+-		0:  [3, 4, 5],  # ARENA
+-		1:  [3, 4, 5],  # DUEL
+-		2:  [3, 4, 5],  # TINY
+-		3:  [4, 5, 6],  # SMALL
+-		4:  [4, 5, 6],  # STANDARD
+-		5:  [4, 5, 6],  # LARGE
+-		6:  [4, 5, 6],  # HUGE
+-		7:  [5, 6, 7],  # SAS24
+-		8:  [5, 6, 7],  # SAS32
+-		9:  [5, 6, 7],  # SAS40
+-		10: [5, 6, 7],  # SAS48
++		SAS_WORLDSIZE_ARENA: [3, 4, 5],
++		SAS_WORLDSIZE_DUEL: [3, 4, 5],
++		SAS_WORLDSIZE_TINY: [3, 4, 5],
++		SAS_WORLDSIZE_SMALL: [4, 5, 6],
++		SAS_WORLDSIZE_STANDARD: [4, 5, 6],
++		SAS_WORLDSIZE_LARGE: [4, 5, 6],
++		SAS_WORLDSIZE_HUGE: [4, 5, 6],
++		SAS_WORLDSIZE_SAS24: [5, 6, 7],
++		SAS_WORLDSIZE_SAS32: [5, 6, 7],
++		SAS_WORLDSIZE_SAS40: [5, 6, 7],
++		SAS_WORLDSIZE_SAS48: [5, 6, 7],
+ 	}
+ 
+ 	# Convert WorldSizeTypes enum to int for lookup
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index 65a81ee82..0e39e0b71 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -162,13 +162,13 @@ def isBonusIgnoreLatitude():
+ def getGridSize(argsList):
+ 	# <!-- custom: Keep Hub's original base profile and calibrate only sizes above Huge using shared SAS helpers so ARENA/SAS sizes avoid KeyError while preserving this script's shape. (GPT-5.3-Codex) -->
+ 	grid_sizes = {
+-		0:	(6,4),    # ARENA
+-		1:	(8,5),    # DUEL
+-		2:	(10,6),   # TINY
+-		3:	(13,8),   # SMALL
+-		4:	(16,10),  # STANDARD
+-		5:	(21,13),  # LARGE
+-		6:	(26,16)   # HUGE
++		SAS_WORLDSIZE_ARENA: (6,4),
++		SAS_WORLDSIZE_DUEL: (8,5),
++		SAS_WORLDSIZE_TINY: (10,6),
++		SAS_WORLDSIZE_SMALL: (13,8),
++		SAS_WORLDSIZE_STANDARD: (16,10),
++		SAS_WORLDSIZE_LARGE: (21,13),
++		SAS_WORLDSIZE_HUGE: (26,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -1136,17 +1136,17 @@ def assignStartingPlots():
+ 	map_size = map.getWorldSize()
+ 	# <!-- custom: Use integer world-size indices with SAS fallback so Hub supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
+ 	sizevalues = {
+-		0:	(2, 3),   # ARENA
+-		1:	(2, 3),   # DUEL
+-		2:	(2, 4),   # TINY
+-		3:	(3, 6),   # SMALL
+-		4:	(4, 10),  # STANDARD
+-		5:	(6, 12),  # LARGE
+-		6:	(6, 18),  # HUGE
+-		7:	(7, 20),  # SAS24
+-		8:	(8, 24),  # SAS32
+-		9:	(9, 28),  # SAS40
+-		10:	(10, 32)  # SAS48
++		SAS_WORLDSIZE_ARENA: (2, 3),
++		SAS_WORLDSIZE_DUEL: (2, 3),
++		SAS_WORLDSIZE_TINY: (2, 4),
++		SAS_WORLDSIZE_SMALL: (3, 6),
++		SAS_WORLDSIZE_STANDARD: (4, 10),
++		SAS_WORLDSIZE_LARGE: (6, 12),
++		SAS_WORLDSIZE_HUGE: (6, 18),
++		SAS_WORLDSIZE_SAS24: (7, 20),
++		SAS_WORLDSIZE_SAS32: (8, 24),
++		SAS_WORLDSIZE_SAS40: (9, 28),
++		SAS_WORLDSIZE_SAS48: (10, 32)
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index 24cd2b7c4..872b05210 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -77,13 +77,13 @@ def getGridSize(argsList):
+ 	# Map widths unchanged. Height reduced (lands lost to polar ice)
+ 	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex) -->
+ 	base_grid_sizes = {
+-		0:  (8, 3),    # ARENA
+-		1:  (10, 4),   # DUEL
+-		2:  (13, 5),   # TINY
+-		3:  (16, 7),   # SMALL
+-		4:  (21, 9),   # STANDARD
+-		5:  (26, 11),  # LARGE
+-		6:  (32, 13),  # HUGE
++		SAS_WORLDSIZE_ARENA: (8, 3),
++		SAS_WORLDSIZE_DUEL: (10, 4),
++		SAS_WORLDSIZE_TINY: (13, 5),
++		SAS_WORLDSIZE_SMALL: (16, 7),
++		SAS_WORLDSIZE_STANDARD: (21, 9),
++		SAS_WORLDSIZE_LARGE: (26, 11),
++		SAS_WORLDSIZE_HUGE: (32, 13),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index bc25fc0d8..4898a3182 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -141,17 +141,17 @@ def beforeGeneration():
+ 	map_size = CyMap().getWorldSize()
+ 	# <!-- custom: Use integer world-size indices with SAS fallback so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
+ 	sizevalues = {
+-		0:  (2, 3),   # ARENA
+-		1:  (2, 3),   # DUEL
+-		2:  (2, 3),   # TINY
+-		3:  (3, 4),   # SMALL
+-		4:  (4, 7),   # STANDARD
+-		5:  (5, 10),  # LARGE
+-		6:  (6, 15),  # HUGE
+-		7:  (7, 18),  # SAS24
+-		8:  (8, 22),  # SAS32
+-		9:  (9, 26),  # SAS40
+-		10: (10, 30), # SAS48
++		SAS_WORLDSIZE_ARENA: (2, 3),
++		SAS_WORLDSIZE_DUEL: (2, 3),
++		SAS_WORLDSIZE_TINY: (2, 3),
++		SAS_WORLDSIZE_SMALL: (3, 4),
++		SAS_WORLDSIZE_STANDARD: (4, 7),
++		SAS_WORLDSIZE_LARGE: (5, 10),
++		SAS_WORLDSIZE_HUGE: (6, 15),
++		SAS_WORLDSIZE_SAS24: (7, 18),
++		SAS_WORLDSIZE_SAS32: (8, 22),
++		SAS_WORLDSIZE_SAS40: (9, 26),
++		SAS_WORLDSIZE_SAS48: (10, 30),
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+@@ -613,13 +613,13 @@ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+ 	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex) -->
+ 	grid_sizes = {
+-		0:  (5, 3),    # ARENA
+-		1:  (6, 4),    # DUEL
+-		2:  (8, 5),    # TINY
+-		3:  (10, 6),   # SMALL
+-		4:  (13, 8),   # STANDARD
+-		5:  (16, 10),  # LARGE
+-		6:  (21, 13),  # HUGE
++		SAS_WORLDSIZE_ARENA: (5, 3),
++		SAS_WORLDSIZE_DUEL: (6, 4),
++		SAS_WORLDSIZE_TINY: (8, 5),
++		SAS_WORLDSIZE_SMALL: (10, 6),
++		SAS_WORLDSIZE_STANDARD: (13, 8),
++		SAS_WORLDSIZE_LARGE: (16, 10),
++		SAS_WORLDSIZE_HUGE: (21, 13),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Maze.py b/PrivateMaps/Maze.py
+index 02b3311dd..01bd72df4 100644
+--- a/PrivateMaps/Maze.py
++++ b/PrivateMaps/Maze.py
+@@ -131,13 +131,13 @@ def startHumansOnSameTile():
+ def getGridSize(argsList):
+ 	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex) -->
+ 	grid_sizes = {
+-		0:	(4,3),    # ARENA
+-		1:	(6,4),    # DUEL
+-		2:	(9,4),    # TINY
+-		3:	(10,6),   # SMALL
+-		4:	(14,8),   # STANDARD
+-		5:	(18,10),  # LARGE
+-		6:	(24,14)   # HUGE
++		SAS_WORLDSIZE_ARENA: (4,3),
++		SAS_WORLDSIZE_DUEL: (6,4),
++		SAS_WORLDSIZE_TINY: (9,4),
++		SAS_WORLDSIZE_SMALL: (10,6),
++		SAS_WORLDSIZE_STANDARD: (14,8),
++		SAS_WORLDSIZE_LARGE: (18,10),
++		SAS_WORLDSIZE_HUGE: (24,14)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -166,15 +166,15 @@ def generatePlotTypes():
+ 	# Varying grains for reducing "clumping" of hills/peaks on larger maps.
+ 	sizekey = map.getWorldSize()
+ 	grainvalues = {
+-		0:	2, # ARENA
+-		1:	3, # DUEL
+-		2:	3, # TINY
+-		3:	4, # SMALL
+-		4:	4, # STANDARD
+-		5:	5, # LARGE
+-		6:	6  # HUGE
++		SAS_WORLDSIZE_ARENA: 2,
++		SAS_WORLDSIZE_DUEL: 3,
++		SAS_WORLDSIZE_TINY: 3,
++		SAS_WORLDSIZE_SMALL: 4,
++		SAS_WORLDSIZE_STANDARD: 4,
++		SAS_WORLDSIZE_LARGE: 5,
++		SAS_WORLDSIZE_HUGE: 6
+ 		}
+-	grain_amount = grainvalues.get(int(sizekey), grainvalues[6])
++	grain_amount = grainvalues.get(int(sizekey), grainvalues[SAS_WORLDSIZE_HUGE])
+ 
+ 	# Init fractal for distribution of Hills plots.
+ 	hillsFrac = CyFractal()
+
+diff --git a/PrivateMaps/Mirror.py b/PrivateMaps/Mirror.py
+index 2b4bf6503..dd745101b 100644
+--- a/PrivateMaps/Mirror.py
++++ b/PrivateMaps/Mirror.py
+@@ -154,13 +154,13 @@ class MirrorMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		# The following grain matrix is specific to Pangaea.py
+ 		sizekey = self.map.getWorldSize()
+ 		sizevalues = {
+-			0: 2,  # ARENA
+-			1: 3,  # DUEL
+-			2: 3,  # TINY
+-			3: 4,  # SMALL
+-			4: 4,  # STANDARD
+-			5: 4,  # LARGE
+-			6: 5   # HUGE
++			SAS_WORLDSIZE_ARENA: 2,
++			SAS_WORLDSIZE_DUEL: 3,
++			SAS_WORLDSIZE_TINY: 3,
++			SAS_WORLDSIZE_SMALL: 4,
++			SAS_WORLDSIZE_STANDARD: 4,
++			SAS_WORLDSIZE_LARGE: 4,
++			SAS_WORLDSIZE_HUGE: 5
+ 			}
+ 		grain = sas_lookup_world_size(sizekey, sizevalues)
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 6429f29e9..dfad3b816 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -271,13 +271,13 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		# The following grain matrix is specific to Oasis.py
+ 		sizekey = self.map.getWorldSize()
+ 		sizevalues = {
+-			0: 2, # ARENA
+-			1: 3, # DUEL
+-			2: 3, # TINY
+-			3: 3, # SMALL
+-			4: 4, # STANDARD
+-			5: 4, # LARGE
+-			6: 5  # HUGE
++			SAS_WORLDSIZE_ARENA: 2,
++			SAS_WORLDSIZE_DUEL: 3,
++			SAS_WORLDSIZE_TINY: 3,
++			SAS_WORLDSIZE_SMALL: 3,
++			SAS_WORLDSIZE_STANDARD: 4,
++			SAS_WORLDSIZE_LARGE: 4,
++			SAS_WORLDSIZE_HUGE: 5
+ 			}
+ 		grain = sas_lookup_world_size(sizekey, sizevalues)
+ 
+@@ -717,13 +717,13 @@ def addBonusType(argsList):
+ 		# size modifier is a fixed component based on world size
+ 		sizekey = map.getWorldSize()
+ 		sizevalues = {
+-			0: 1, # ARENA
+-			1: 1, # DUEL
+-			2: 1, # TINY
+-			3: 1, # SMALL
+-			4: 2, # STANDARD
+-			5: 2, # LARGE
+-			6: 3  # HUGE
++			SAS_WORLDSIZE_ARENA: 1,
++			SAS_WORLDSIZE_DUEL: 1,
++			SAS_WORLDSIZE_TINY: 1,
++			SAS_WORLDSIZE_SMALL: 1,
++			SAS_WORLDSIZE_STANDARD: 2,
++			SAS_WORLDSIZE_LARGE: 2,
++			SAS_WORLDSIZE_HUGE: 3
+ 			}
+ 		sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
+ 		# playermodifier involves two layers of randomnity.
+@@ -932,13 +932,13 @@ def addRivers():
+ 	# Set maxshift, numbers of rivers for Oasis according to grid size.
+ 	sizekey = map.getWorldSize()
+ 	shiftvalues = {
+-		0: 1, # ARENA
+-		1: 1, # DUEL
+-		2: 2, # TINY
+-		3: 3, # SMALL
+-		4: 5, # STANDARD
+-		5: 7, # LARGE
+-		6: 9  # HUGE
++		SAS_WORLDSIZE_ARENA: 1,
++		SAS_WORLDSIZE_DUEL: 1,
++		SAS_WORLDSIZE_TINY: 2,
++		SAS_WORLDSIZE_SMALL: 3,
++		SAS_WORLDSIZE_STANDARD: 5,
++		SAS_WORLDSIZE_LARGE: 7,
++		SAS_WORLDSIZE_HUGE: 9
+ 		}
+ 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 92a169729..ca040fc8f 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -6157,13 +6157,13 @@ def getGridSize(argsList):
+ 	[eWorldSize] = argsList
+ 	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, like sas_compact_almost_all_land_grid_sizes. Do NOT key by WorldSizeTypes.WORLDSIZE_* here: that enum isn't ARENA-shifted (HUGE==5), so direct getGridSize dictionaries mis-key Large/Huge after adding ARENA; map scripts like Pangaea.py scale XML dimensions through getNumPlotsPercent, so they can still behave plausibly because XML provides the base size first. (Claude code Opus 4.7; GPT-5.5) -->
+ 	grid_sizes = {
+-		0: (6, 4),   # ARENA
+-		1: (8, 6),   # DUEL
+-		2: (11, 8),  # TINY
+-		3: (14, 10), # SMALL
+-		4: (17, 12), # STANDARD
+-		5: (20, 14), # LARGE
+-		SAS_WORLDSIZE_HUGE: (24, 17), # HUGE
++		SAS_WORLDSIZE_ARENA: (6, 4),
++		SAS_WORLDSIZE_DUEL: (8, 6),
++		SAS_WORLDSIZE_TINY: (11, 8),
++		SAS_WORLDSIZE_SMALL: (14, 10),
++		SAS_WORLDSIZE_STANDARD: (17, 12),
++		SAS_WORLDSIZE_LARGE: (20, 14),
++		SAS_WORLDSIZE_HUGE: (24, 17),
+ 	}
+ 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index 98a66c513..e1f82730a 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -166,13 +166,13 @@ def isBonusIgnoreLatitude():
+ def getGridSize(argsList):
+ 	# <!-- custom: Keep Ring's original compact base profile and calibrate only sizes above Huge with shared SAS helpers so ARENA/SAS sizes avoid KeyError. (GPT-5.3-Codex) -->
+ 	grid_sizes = {
+-		0:	(6,4),    # ARENA
+-		1:	(8,5),    # DUEL
+-		2:	(10,6),   # TINY
+-		3:	(13,8),   # SMALL
+-		4:	(16,10),  # STANDARD
+-		5:	(21,13),  # LARGE
+-		6:	(26,16)   # HUGE
++		SAS_WORLDSIZE_ARENA: (6,4),
++		SAS_WORLDSIZE_DUEL: (8,5),
++		SAS_WORLDSIZE_TINY: (10,6),
++		SAS_WORLDSIZE_SMALL: (13,8),
++		SAS_WORLDSIZE_STANDARD: (16,10),
++		SAS_WORLDSIZE_LARGE: (21,13),
++		SAS_WORLDSIZE_HUGE: (26,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -1105,17 +1105,17 @@ def assignStartingPlots():
+ 	map_size = map.getWorldSize()
+ 	# <!-- custom: Use integer world-size indices with SAS fallback so Ring supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
+ 	sizevalues = {
+-		0:	(2, 3),   # ARENA
+-		1:	(2, 3),   # DUEL
+-		2:	(2, 4),   # TINY
+-		3:	(3, 6),   # SMALL
+-		4:	(4, 10),  # STANDARD
+-		5:	(6, 12),  # LARGE
+-		6:	(6, 18),  # HUGE
+-		7:	(7, 20),  # SAS24
+-		8:	(8, 24),  # SAS32
+-		9:	(9, 28),  # SAS40
+-		10:	(10, 32)  # SAS48
++		SAS_WORLDSIZE_ARENA: (2, 3),
++		SAS_WORLDSIZE_DUEL: (2, 3),
++		SAS_WORLDSIZE_TINY: (2, 4),
++		SAS_WORLDSIZE_SMALL: (3, 6),
++		SAS_WORLDSIZE_STANDARD: (4, 10),
++		SAS_WORLDSIZE_LARGE: (6, 12),
++		SAS_WORLDSIZE_HUGE: (6, 18),
++		SAS_WORLDSIZE_SAS24: (7, 20),
++		SAS_WORLDSIZE_SAS32: (8, 24),
++		SAS_WORLDSIZE_SAS40: (9, 28),
++		SAS_WORLDSIZE_SAS48: (10, 32)
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+
+diff --git a/PrivateMaps/SAS_Large_Facing_Islands.py b/PrivateMaps/SAS_Large_Facing_Islands.py
+index c47f2f06c..c51721b71 100644
+--- a/PrivateMaps/SAS_Large_Facing_Islands.py
++++ b/PrivateMaps/SAS_Large_Facing_Islands.py
+@@ -125,22 +125,22 @@ def minStartingDistanceModifier():
+ def _world_profile(eWorldSize):
+ 	# <!-- custom: world-size-only scaling: island footprint stays identical; only island count increases with world size. (GPT-5.3-Codex) -->
+ 	profiles = {
+-		0:  (1, 1),   # ARENA
+-		1:  (1, 2),   # DUEL
+-		2:  (1, 3),   # TINY
+-		3:  (1, 4),   # SMALL
+-		4:  (2, 4),   # STANDARD
+-		5:  (2, 6),   # LARGE
+-		6:  (2, 8),   # HUGE
+-		7:  (2, 12),  # SAS24
+-		8:  (2, 16),  # SAS32
+-		9:  (2, 20),  # SAS40
+-		10: (2, 24)   # SAS48
++		SAS_WORLDSIZE_ARENA: (1, 1),
++		SAS_WORLDSIZE_DUEL: (1, 2),
++		SAS_WORLDSIZE_TINY: (1, 3),
++		SAS_WORLDSIZE_SMALL: (1, 4),
++		SAS_WORLDSIZE_STANDARD: (2, 4),
++		SAS_WORLDSIZE_LARGE: (2, 6),
++		SAS_WORLDSIZE_HUGE: (2, 8),
++		SAS_WORLDSIZE_SAS24: (2, 12),
++		SAS_WORLDSIZE_SAS32: (2, 16),
++		SAS_WORLDSIZE_SAS40: (2, 20),
++		SAS_WORLDSIZE_SAS48: (2, 24)
+ 	}
+ 	iWorld = int(eWorldSize)
+ 	if profiles.has_key(iWorld):
+ 		return profiles[iWorld]
+-	return profiles[10]
++	return profiles[SAS_WORLDSIZE_SAS48]
+ 
+ def _get_ew_connector_mode():
+ 	# 0 = Coast bands, 1 = Ocean bands
+
+diff --git a/PrivateMaps/SAS_Longworld.py b/PrivateMaps/SAS_Longworld.py
+index c306f51e1..03b2ac431 100644
+--- a/PrivateMaps/SAS_Longworld.py
++++ b/PrivateMaps/SAS_Longworld.py
+@@ -214,15 +214,15 @@ def getGridSize(argsList):
+ 	if argsList[0] == -1:
+ 		return []
+ 
+-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
++	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
+ 	grid_sizes = {
+-		0: (9, 4),   # ARENA
+-		1: (12, 4),  # DUEL
+-		2: (18, 5),  # TINY
+-		3: (27, 6),  # SMALL
+-		4: (34, 6),  # STANDARD
+-		5: (41, 6),  # LARGE
+-		SAS_WORLDSIZE_HUGE: (54, 6), # HUGE
++		SAS_WORLDSIZE_ARENA: (9, 4),
++		SAS_WORLDSIZE_DUEL: (12, 4),
++		SAS_WORLDSIZE_TINY: (18, 5),
++		SAS_WORLDSIZE_SMALL: (27, 6),
++		SAS_WORLDSIZE_STANDARD: (34, 6),
++		SAS_WORLDSIZE_LARGE: (41, 6),
++		SAS_WORLDSIZE_HUGE: (54, 6),
+ 	}
+ 
+ 	[eWorldSize] = argsList
+
+diff --git a/PrivateMaps/SAS_Spiky_Avenues.py b/PrivateMaps/SAS_Spiky_Avenues.py
+index 9325b06ad..48e6cccb7 100644
+--- a/PrivateMaps/SAS_Spiky_Avenues.py
++++ b/PrivateMaps/SAS_Spiky_Avenues.py
+@@ -197,20 +197,19 @@ def getGridSize(argsList):
+ 	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
+ 
+ def _profile_for_world_size(eWorldSize):
+-	# # <!-- custom:  Use integer indices (matching AdvCiv's 0-6 vanilla + 7-10 SAS world sizes)
+-	# instead of WorldSizeTypes enums, which are offset by 1 due to ARENA at index 0. (Claude code Opus 4.6) -->
++	# <!-- custom: Use runtime world-size indices because AdvCiv-SAS ARENA shifts Huge to 6; keep the player-capacity rationale beside the profile entries where it matters. (Claude code Opus 4.6; GPT-5.5) -->
+ 	profiles = {
+-		0:  (1, 1),  # ARENA
+-		1:  (1, 1),  # DUEL
+-		2:  (1, 1),  # TINY
+-		3:  (1, 2),  # SMALL
+-		4:  (2, 2),  # STANDARD
+-		5:  (2, 3),  # LARGE      (11 players -> 3 spikes * 2 streets = 12 houses)
+-		6:  (2, 4),  # HUGE       (16 players -> 4 spikes * 2 streets = 16 houses)
+-		7:  (3, 4),  # SAS24      (24 players -> 4 spikes * 3 streets = 24 houses)
+-		8:  (4, 4),  # SAS32      (32 players -> 4 spikes * 4 streets = 32 houses)
+-		9:  (4, 5),  # SAS40      (40 players -> 5 spikes * 4 streets = 40 houses)
+-		10: (4, 6),  # SAS48      (48 players -> 6 spikes * 4 streets = 48 houses)
++		SAS_WORLDSIZE_ARENA: (1, 1),
++		SAS_WORLDSIZE_DUEL: (1, 1),
++		SAS_WORLDSIZE_TINY: (1, 1),
++		SAS_WORLDSIZE_SMALL: (1, 2),
++		SAS_WORLDSIZE_STANDARD: (2, 2),
++		SAS_WORLDSIZE_LARGE: (2, 3), # 11 players -> 3 spikes * 2 streets = 12 houses
++		SAS_WORLDSIZE_HUGE: (2, 4), # 16 players -> 4 spikes * 2 streets = 16 houses
++		SAS_WORLDSIZE_SAS24: (3, 4), # 24 players -> 4 spikes * 3 streets = 24 houses
++		SAS_WORLDSIZE_SAS32: (4, 4), # 32 players -> 4 spikes * 4 streets = 32 houses
++		SAS_WORLDSIZE_SAS40: (4, 5), # 40 players -> 5 spikes * 4 streets = 40 houses
++		SAS_WORLDSIZE_SAS48: (4, 6), # 48 players -> 6 spikes * 4 streets = 48 houses
+ 	}
+ 	iWorldSize = int(eWorldSize)
+ 	if iWorldSize in profiles:
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/PrivateMaps/SAS_WorldSizes.py
+index 934052254..25b54b25f 100644
+--- a/PrivateMaps/SAS_WorldSizes.py
++++ b/PrivateMaps/SAS_WorldSizes.py
+@@ -10,39 +10,48 @@ from CvPythonExtensions import CyGlobalContext
+ SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
+ SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
+ 
+-# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct getGridSize dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these runtime indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for imported/direct grid-size tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. (GPT-5.5) -->
++# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct runtime dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical grid-size cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for direct grid/grain/start-variance tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. CvMapGeneratorUtil.py mirrors these values with a local MAPGEN_SAS_WORLDSIZE_* prefix because it should not import this PrivateMaps helper and the prefix is easy to grep. (GPT-5.5) -->
++SAS_WORLDSIZE_ARENA = 0
++SAS_WORLDSIZE_DUEL = 1
++SAS_WORLDSIZE_TINY = 2
++SAS_WORLDSIZE_SMALL = 3
++SAS_WORLDSIZE_STANDARD = 4
++SAS_WORLDSIZE_LARGE = 5
+ SAS_WORLDSIZE_HUGE = 6
+-
+-SAS_WORLDSIZE_LARGEST = 10
++SAS_WORLDSIZE_SAS24 = 7
++SAS_WORLDSIZE_SAS32 = 8
++SAS_WORLDSIZE_SAS40 = 9
++SAS_WORLDSIZE_SAS48 = 10
++SAS_WORLDSIZE_LARGEST = SAS_WORLDSIZE_SAS48
+ 
+ def sas_huge_custom_max_players():
+ 	return SAS_HUGE_CUSTOM_MAX_PLAYERS
+ 
+ def sas_default_sizevalues():
+ 	return {
+-		0:  1,   # ARENA
+-		1:  1,   # DUEL
+-		2:  1,   # TINY
+-		3:  1,   # SMALL
+-		4:  2,   # STANDARD
+-		5:  2,   # LARGE
+-		SAS_WORLDSIZE_HUGE:  3,   # HUGE
+-		7:  4,   # SAS24
+-		8:  5,   # SAS32
+-		9:  6,   # SAS40
+-		10: 7,   # SAS48
++		SAS_WORLDSIZE_ARENA:  1,
++		SAS_WORLDSIZE_DUEL:  1,
++		SAS_WORLDSIZE_TINY:  1,
++		SAS_WORLDSIZE_SMALL:  1,
++		SAS_WORLDSIZE_STANDARD:  2,
++		SAS_WORLDSIZE_LARGE:  2,
++		SAS_WORLDSIZE_HUGE:  3,
++		SAS_WORLDSIZE_SAS24:  4,
++		SAS_WORLDSIZE_SAS32:  5,
++		SAS_WORLDSIZE_SAS40:  6,
++		SAS_WORLDSIZE_SAS48: 7,
+ 	}
+ 
+ # <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
+ def sas_compact_almost_all_land_grid_sizes():
+ 	return {
+-		0:  (2, 2),    # ARENA
+-		1:  (3, 2),    # DUEL
+-		2:  (4, 3),    # TINY
+-		3:  (6, 4),    # SMALL
+-		4:  (8, 6),    # STANDARD
+-		5:  (11, 8),   # LARGE
+-		SAS_WORLDSIZE_HUGE:  (15, 11),  # HUGE
++		SAS_WORLDSIZE_ARENA:  (2, 2),
++		SAS_WORLDSIZE_DUEL:  (3, 2),
++		SAS_WORLDSIZE_TINY:  (4, 3),
++		SAS_WORLDSIZE_SMALL:  (6, 4),
++		SAS_WORLDSIZE_STANDARD:  (8, 6),
++		SAS_WORLDSIZE_LARGE:  (11, 8),
++		SAS_WORLDSIZE_HUGE:  (15, 11),
+ 	}
+ 
+ def sas_get_compact_almost_all_land_grid_size(eWorldSize):
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index 7aa15b584..4734e5f1a 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -189,13 +189,13 @@ def getGridSize(argsList):
+ 
+ 	# <!-- custom: Team Battleground round/top-bottom modes need square maps; keep them compact and SAS-safe with calibrated sizes above Huge. (GPT-5.3-Codex) -->
+ 	square_compact_grid_sizes = {
+-		0: (4,4),    # ARENA
+-		1: (4,4),    # DUEL
+-		2: (5,5),    # TINY
+-		3: (6,6),    # SMALL
+-		4: (8,8),    # STANDARD
+-		5: (10,10),  # LARGE
+-		6: (13,13),  # HUGE
++		SAS_WORLDSIZE_ARENA: (4,4),
++		SAS_WORLDSIZE_DUEL: (4,4),
++		SAS_WORLDSIZE_TINY: (5,5),
++		SAS_WORLDSIZE_SMALL: (6,6),
++		SAS_WORLDSIZE_STANDARD: (8,8),
++		SAS_WORLDSIZE_LARGE: (10,10),
++		SAS_WORLDSIZE_HUGE: (13,13),
+ 	}
+ 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes, sas_huge_custom_max_players())
+ 
+@@ -265,13 +265,13 @@ def generatePlotTypes():
+ 		
+ 		# Now add the bridge across the center!
+ 		sizevalues = {
+-			0:  3,  # ARENA
+-			1:  3,  # DUEL
+-			2:  4,  # TINY
+-			3:  5,  # SMALL
+-			4:  6,  # STANDARD
+-			5:  8,  # LARGE
+-			6: 10,  # HUGE
++			SAS_WORLDSIZE_ARENA: 3,
++			SAS_WORLDSIZE_DUEL: 3,
++			SAS_WORLDSIZE_TINY: 4,
++			SAS_WORLDSIZE_SMALL: 5,
++			SAS_WORLDSIZE_STANDARD: 6,
++			SAS_WORLDSIZE_LARGE: 8,
++			SAS_WORLDSIZE_HUGE: 10,
+ 		}
+ 		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+ 		linewidth = 3
+@@ -344,13 +344,13 @@ def generatePlotTypes():
+ 		if userInputPlots == 5: # donut
+ 			# get the size of the hole
+ 			sizevalues = {
+-				0: 2,  # ARENA
+-				1: 2,  # DUEL
+-				2: 3,  # TINY
+-				3: 4,  # SMALL
+-				4: 5,  # STANDARD
+-				5: 7,  # LARGE
+-				6: 8,  # HUGE
++				SAS_WORLDSIZE_ARENA: 2,
++				SAS_WORLDSIZE_DUEL: 2,
++				SAS_WORLDSIZE_TINY: 3,
++				SAS_WORLDSIZE_SMALL: 4,
++				SAS_WORLDSIZE_STANDARD: 5,
++				SAS_WORLDSIZE_LARGE: 7,
++				SAS_WORLDSIZE_HUGE: 8,
+ 			}
+ 			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+ 
+@@ -474,13 +474,13 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 			if userInputPlots == 5: # donut
+ 				# get the size of the hole
+ 				sizevalues = {
+-					0: 2,  # ARENA
+-					1: 2,  # DUEL
+-					2: 3,  # TINY
+-					3: 4,  # SMALL
+-					4: 5,  # STANDARD
+-					5: 7,  # LARGE
+-					6: 8,  # HUGE
++					SAS_WORLDSIZE_ARENA: 2,
++					SAS_WORLDSIZE_DUEL: 2,
++					SAS_WORLDSIZE_TINY: 3,
++					SAS_WORLDSIZE_SMALL: 4,
++					SAS_WORLDSIZE_STANDARD: 5,
++					SAS_WORLDSIZE_LARGE: 7,
++					SAS_WORLDSIZE_HUGE: 8,
+ 				}
+ 				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+ 			else:
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+index 29c49af4e..d74464472 100644
+--- a/PrivateMaps/Tilted_Axis.py
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -107,13 +107,13 @@ def addBonusType(argsList):
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	grid_sizes = {
+-		0:  (7,7),    # ARENA
+-		1:  (8,8),    # DUEL
+-		2:  (10,10),  # TINY
+-		3:  (13,13),  # SMALL
+-		4:  (16,16),  # STANDARD
+-		5:  (20,20),  # LARGE
+-		6:  (25,25)   # HUGE
++		SAS_WORLDSIZE_ARENA: (7,7),
++		SAS_WORLDSIZE_DUEL: (8,8),
++		SAS_WORLDSIZE_TINY: (10,10),
++		SAS_WORLDSIZE_SMALL: (13,13),
++		SAS_WORLDSIZE_STANDARD: (16,16),
++		SAS_WORLDSIZE_LARGE: (20,20),
++		SAS_WORLDSIZE_HUGE: (25,25)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -133,13 +133,13 @@ class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 		"For no rifts, use rift_grain = -1"
+ 		iFlags = CyFractal.FracVals.FRAC_WRAP_Y + CyFractal.FracVals.FRAC_POLAR
+ 		worldsizes = {
+-			0: (6,6), # ARENA
+-			1: (6,6), # DUEL
+-			2: (6,6), # TINY
+-			3: (6,6), # SMALL
+-			4: (7,7), # STANDARD
+-			5: (7,7), # LARGE
+-			6: (7,7)  # HUGE
++			SAS_WORLDSIZE_ARENA: (6,6),
++			SAS_WORLDSIZE_DUEL: (6,6),
++			SAS_WORLDSIZE_TINY: (6,6),
++			SAS_WORLDSIZE_SMALL: (6,6),
++			SAS_WORLDSIZE_STANDARD: (7,7),
++			SAS_WORLDSIZE_LARGE: (7,7),
++			SAS_WORLDSIZE_HUGE: (7,7)
+ 			}
+ 		(fracXExp, fracYExp) = sas_lookup_world_size(self.map.getWorldSize(), worldsizes)
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index 6311f0108..c1ff1e9d3 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -30,13 +30,13 @@ def getGridSize(argsList):
+ 	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, NOT WorldSizeTypes.WORLDSIZE_* (unshifted: HUGE==5), which mis-keyed every size by one and collided ARENA with DUEL. Same fix/reason as PerfectMongoose/SAS_Longworld getGridSize. (Claude code Opus 4.7) -->
+ 	# <!-- custom: before the fix, arena world size was "0:", but duel to huge were using "WorldSizeTypes.WORLDSIZE_DUEL:" format. Ingame worldsize huge was 72 x 44 and large was 60 x 36 before the fix which was empirically way too big, and now after the fix worldsize huge is now 60 x 36 (large before fix) and large is now 48 x 32, which empirically seems to fit well. -->
+ 	grid_sizes = {
+-		0: (3,3),    # ARENA
+-		1: (4,3),    # DUEL
+-		2: (6,3),    # TINY
+-		3: (8,4),    # SMALL
+-		4: (9,6),    # STANDARD
+-		5: (12,8),   # LARGE
+-		SAS_WORLDSIZE_HUGE: (15,9),   # HUGE
++		SAS_WORLDSIZE_ARENA: (3,3),
++		SAS_WORLDSIZE_DUEL: (4,3),
++		SAS_WORLDSIZE_TINY: (6,3),
++		SAS_WORLDSIZE_SMALL: (8,4),
++		SAS_WORLDSIZE_STANDARD: (9,6),
++		SAS_WORLDSIZE_LARGE: (12,8),
++		SAS_WORLDSIZE_HUGE: (15,9),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index 62b324c16..2c142fb60 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -166,13 +166,13 @@ def isBonusIgnoreLatitude():
+ def getGridSize(argsList):
+ 	# Reduce grid sizes by one level.
+ 	grid_sizes = {
+-		0: (7,4),    # ARENA
+-		1: (8,5),    # DUEL
+-		2: (10,6),   # TINY
+-		3: (13,8),   # SMALL
+-		4: (16,10),  # STANDARD
+-		5: (21,13),  # LARGE
+-		6: (26,16)   # HUGE
++		SAS_WORLDSIZE_ARENA: (7,4),
++		SAS_WORLDSIZE_DUEL: (8,5),
++		SAS_WORLDSIZE_TINY: (10,6),
++		SAS_WORLDSIZE_SMALL: (13,8),
++		SAS_WORLDSIZE_STANDARD: (16,10),
++		SAS_WORLDSIZE_LARGE: (21,13),
++		SAS_WORLDSIZE_HUGE: (26,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -1298,13 +1298,13 @@ def assignStartingPlots():
+ 	# Set variance for start plots according to map size vs number of players.
+ 	map_size = map.getWorldSize()
+ 	sizevalues = {
+-		0: (2, 2),    # ARENA
+-		1: (2, 3),    # DUEL
+-		2: (2, 4),    # TINY
+-		3: (3, 6),    # SMALL
+-		4: (4, 10),   # STANDARD
+-		5: (6, 12),   # LARGE
+-		6: (6, 18)    # HUGE
++		SAS_WORLDSIZE_ARENA: (2, 2),
++		SAS_WORLDSIZE_DUEL: (2, 3),
++		SAS_WORLDSIZE_TINY: (2, 4),
++		SAS_WORLDSIZE_SMALL: (3, 6),
++		SAS_WORLDSIZE_STANDARD: (4, 10),
++		SAS_WORLDSIZE_LARGE: (6, 12),
++		SAS_WORLDSIZE_HUGE: (6, 18)
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues, sas_huge_custom_max_players())
+ 	if iPlayers <= threeVar:
+
+diff --git a/PrivateMaps/aDebugMap.py b/PrivateMaps/aDebugMap.py
+index 8e9097df6..b0f9809b9 100644
+--- a/PrivateMaps/aDebugMap.py
++++ b/PrivateMaps/aDebugMap.py
+@@ -23,19 +23,19 @@ def isAdvancedMap():
+ 
+ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility (Claude code Opus 4.5) -->
++	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices for compatibility; see SAS_WorldSizes.SAS_WORLDSIZE_* rationale. (Claude code Opus 4.5; GPT-5.5) -->
+ 	grid_sizes = {
+-		0:  (5, 5),   # ARENA
+-		1:  (5, 5),   # DUEL
+-		2:  (5, 5),   # TINY
+-		3:  (5, 5),   # SMALL
+-		4:  (5, 5),   # STANDARD
+-		5:  (5, 5),   # LARGE
+-		6:  (5, 5),   # HUGE
+-		7:  (5, 5),   # SAS24
+-		8:  (5, 5),   # SAS32
+-		9:  (5, 5),   # SAS40
+-		10: (5, 5),   # SAS48
++		SAS_WORLDSIZE_ARENA: (5, 5),
++		SAS_WORLDSIZE_DUEL: (5, 5),
++		SAS_WORLDSIZE_TINY: (5, 5),
++		SAS_WORLDSIZE_SMALL: (5, 5),
++		SAS_WORLDSIZE_STANDARD: (5, 5),
++		SAS_WORLDSIZE_LARGE: (5, 5),
++		SAS_WORLDSIZE_HUGE: (5, 5),
++		SAS_WORLDSIZE_SAS24: (5, 5),
++		SAS_WORLDSIZE_SAS32: (5, 5),
++		SAS_WORLDSIZE_SAS40: (5, 5),
++		SAS_WORLDSIZE_SAS48: (5, 5),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+[PATCH COVERAGE]
+patchFiles=27 embeddedFiles=27 omittedFiles=0 embeddedPatchBytes=46595

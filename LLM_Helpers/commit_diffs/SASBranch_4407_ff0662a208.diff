@@ -1,0 +1,172 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4407
+# Commit: ff0662a208f438ca2450779d2813515b327a7b26
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: aa81ff32c2d9c22e2c0cc9ff8a214f81398eaad3
+# Title: Even faster temperature smoothing for PM
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+111	4	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index a3b5bae08..83f958512 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -1262,8 +1262,8 @@ class FloatMap:
+ 		deviation = math.sqrt(deviation / count)
+ 		return deviation
+ 
+-
+-	def Smooth(self, radius):
++	# advc.opt: Renamed; now unused.
++	def Smooth_Legacy(self, radius):
+ 		#dataCopy = {}
+ 		dataCopy = [0.0] * len(self.data) # advc.opt
+ 		for y in range(self.height):
+@@ -1272,6 +1272,92 @@ class FloatMap:
+ 				if i == -1: continue # advc.oxi
+ 				dataCopy[i] = self.GetAverageInHex(x, y, radius)
+ 		self.data = dataCopy
++	# advc.opt: This is almost 100% LLM work, based on my idea (incrementally
++	# moving the disk across the grid), but even that got hijacked. I did verify
++	# that just the same results as before are produced (see commented out
++	# test code at the call location and also run_smooth_tests). And, if there's
++	# a problem, one can always go back to the version above, which, for the
++	# now halved radii, is just a few seconds slower.
++	def Smooth(self, radius):
++		width = self.width
++		height = self.height
++		data = self.data
++		wrapX = self.wrapX
++		wrapY = self.wrapY
++		r2 = radius * radius
++		r = radius
++		# dx_max[k] corresponds to dy = (k - r)
++		dx_max = [0] * (2 * r + 1)
++		for k in range(2 * r + 1):
++			dy = k - r
++			dx_max[k] = int(math.sqrt(r2 - dy * dy))
++		# Row prefix sums for fast inclusive range sum: sum(data[row][l..r]) = pref[r+1]-pref[l]
++		prefix = [None] * height
++		for yy in range(height):
++			pref = [0.0] * (width + 1)
++			base = yy * width
++			s = 0.0
++			for xx in range(width):
++				s += data[base + xx]
++				pref[xx + 1] = s
++			prefix[yy] = pref
++		out = [0.0] * len(data)
++		for y in range(height):
++			for x in range(width):
++				total = 0.0
++				count = 0
++				for k in range(2 * r + 1):
++					dy = k - r
++					yy = y + dy
++					# Y handling: skip or wrap
++					if wrapY:
++						yy_idx = yy % height
++					else:
++						if yy < 0 or yy > height - 1:
++							continue
++						yy_idx = yy
++					dx = dx_max[k]
++					l = x - dx
++					rr = x + dx
++					if wrapX:
++						# sum and count over wrapped interval; may split into two segments
++						span = rr - l + 1  # equals 2*dx+1
++						if span >= width:
++							# interval covers entire row (or more)
++							total += prefix[yy_idx][width]  # sum entire row
++							count += width
++						else:
++							ll = l % width
++							rr2 = rr % width
++							if ll <= rr2:
++								total += prefix[yy_idx][rr2 + 1] - prefix[yy_idx][ll]
++								count += (rr2 - ll + 1)
++							else:
++								# wraps around end of row: [ll..width-1] + [0..rr2]
++								total += (prefix[yy_idx][width] - prefix[yy_idx][ll]) \
++										 + (prefix[yy_idx][rr2 + 1] - prefix[yy_idx][0])
++								count += (width - ll) + (rr2 + 1)
++					else:
++						# skip-out-of-bounds == clip to valid range
++						if rr < 0 or l > width - 1:
++							continue
++						if l < 0:
++							l_clip = 0
++						else:
++							l_clip = l
++						if rr > width - 1:
++							rr_clip = width - 1
++						else:
++							rr_clip = rr
++						if l_clip > rr_clip:
++							continue
++						total += prefix[yy_idx][rr_clip + 1] - prefix[yy_idx][l_clip]
++						count += (rr_clip - l_clip + 1)
++				if count == 0:
++					out[y * width + x] = 0.0
++				else:
++					out[y * width + x] = (total / count)
++		self.data = out
+ 
+ 
+ 	def Deviate(self, radius):
+@@ -1340,10 +1426,14 @@ def run_smooth_tests():
+ 		(False, False, 4, {
+ 			(1,1): 31/12.0, # mean of all plots
+ 		}),
++	]
++	'''
++		# Don't need to preserve the semantics for a full wrap-around.
++		# Real maps will be too big for this to happen.
+ 		(False, True, 3, {
+ 			(1,1): 74/26.0, # lots of double counting due to wrap-around
+ 		}),
+-	]
++	'''
+ 	for wrapX, wrapY, radius, expected_map in tests:
+ 		m = FloatMap()
+ 		m.initialize(width, height, wrapX, wrapY)
+@@ -2360,7 +2450,24 @@ class ClimateMap3:
+ 					tempMap.data[i] = latTemp
+ 		# advc: Was floor(em.width / 8.0). That's computationally expensive, and
+ 		# a smoothing diameter of a quarter of the equator seems enormous.
+-		tempMap.Smooth(int(math.ceil(em.width / 18.0)))
++		smoothRadius = int(math.ceil(em.width / 15.0))
++		# advc.test: Quick and dirty comparison with legacy smooth method.
++		# Results were identical when I tried this for a couple of maps with
++		# various wrapping behaviors.
++		'''
++		m2 = FloatMap()
++		m2.initialize(tempMap.width, tempMap.height, tempMap.wrapX, tempMap.wrapY)
++		m2.data = tempMap.data[:]
++		m2.Smooth_Legacy(smoothRadius)
++		tempMap.Smooth(smoothRadius)
++		anyErr = False
++		for i in range(tempMap.length):
++			if abs(tempMap.data[i] - m2.data[i]) > 0.001:
++				print "error at " + str(i) + ": " + str(tempMap.data[i]) + " vs. " + str(m2.data[i])
++				anyErr = True
++		if not anyErr:
++			print "Smoothing methods had the same result"
++		'''
+ 		tempMap.Normalize()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4877

@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 833
+# Commit: b2bada62d3b8267ceada60c2e69064d78029c38b
+# History segment: K-Mod history
+# Parent used for diff: 68ba74b966351b8a221926d774800c6b569668cd
+# Title: Fixed minor problems with nuke event messages and city capture sounds.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+1	0	CvGameCoreDLL/CvPlayer.cpp
+10	2	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index fc7d33859..7868ed7ca 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1459,7 +1459,7 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_CITY_WARNING_ANSWER3").c_str(), NULL, 3, WIDGET_GENERAL, -1, -1);
+ 	gDLL->getInterfaceIFace()->popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);
+ 
+-	gDLL->getInterfaceIFace()->playGeneralSound("AS2D_CITYCAPTURE");
++	//gDLL->getInterfaceIFace()->playGeneralSound("AS2D_CITYCAPTURE"); // disabled by K-Mod (I've put this somewhere else.)
+ 
+ 	return (true);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bb4041860..6462b43ea 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2503,6 +2503,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 					pInfo->setData2(eHighestCulturePlayer);
+ 					pInfo->setData3(iCaptureGold);
+ 					gDLL->getInterfaceIFace()->addPopup(pInfo, getID());
++					gDLL->getInterfaceIFace()->playGeneralSound("AS2D_CITYCAPTURE"); // K-Mod. (this use to be in CvDLLButtonPopup::launchRazeCityPopup)
+ 				}
+ 				else
+ 				{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 84d030ac2..38968df5b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4128,7 +4128,11 @@ bool CvUnit::nuke(int iX, int iY)
+ 	{
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			//if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			// K-Mod. Only show the message to players who have met the teams involved!
++			const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
++			if (kLoopPlayer.isAlive() && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(eBestTeam))
++			// K-Mod end
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_NUKE_INTERCEPTED", GET_PLAYER(getOwnerINLINE()).getNameKey(), getNameKey(), GET_TEAM(eBestTeam).getName().GetCString());
+ 				gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), (((PlayerTypes)iI) == getOwnerINLINE()), GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_NUKE_INTERCEPTED", MESSAGE_TYPE_MAJOR_EVENT, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE(), true, true);
+@@ -4236,7 +4240,11 @@ bool CvUnit::nuke(int iX, int iY)
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		//if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		// K-Mod
++		const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
++		if (kLoopPlayer.isAlive() && GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()))
++		// K-Mod end
+ 		{
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_NUKE_LAUNCHED", GET_PLAYER(getOwnerINLINE()).getNameKey(), getNameKey());
+ 			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), (((PlayerTypes)iI) == getOwnerINLINE()), GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_NUKE_EXPLODES", MESSAGE_TYPE_MAJOR_EVENT, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE(), true, true);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3274

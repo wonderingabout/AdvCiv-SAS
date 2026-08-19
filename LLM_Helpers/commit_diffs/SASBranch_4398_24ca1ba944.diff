@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4398
+# Commit: 24ca1ba9444b77d6d2db49eb7224a592df0536f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 953d0e73d5231c3f7697944dd2952cf405f34283
+# Title: fix old iCost wrong assumption of me code was working as intended and it was not a bug, but just me not understanding/knowing that it (the cost increase and...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	12	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index b1fab4b43..bbd44aa38 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7918,11 +7918,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: (needs fix) it seems the actual value after loading the map
+-			is higher than this value, 60 becomes 65, 72 becomes 80, since i want to
+-			have a final value of 60 for this unit, after several tries setting it
+-			here to 56 works to have that final value i desire for this unit, was 60 -->
+-			<iCost>56</iCost>
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -8175,13 +8171,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: (needs fix) it seems the actual value after loading the map
+-			is higher than this value, 60 becomes 65, 72 becomes 80, since i want to
+-			have a final value of 80 for this unit, after several tries setting it
+-			here to 72 works to have that final value i desire for this unit.
+-			Considering they are mercenaries, it should be expected their price/cost
+-			is higher than regular units of a nation maybe, was 60. -->
+-			<iCost>72</iCost>
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1538

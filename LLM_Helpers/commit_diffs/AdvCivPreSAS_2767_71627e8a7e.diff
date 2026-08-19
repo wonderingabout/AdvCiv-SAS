@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2767
+# Commit: 71627e8a7e10946c1e6c5e00d8c2df10578f4151
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e41c4626b218020de40229c042af69d11fe738c3
+# Title: UWAI: Relax conditions for enemy cities being land targets
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/ArmamentForecast.cpp
+9	6	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/InvasionGraph.h
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+15	6	CvGameCoreDLL/UWAICache.cpp
+6	2	CvGameCoreDLL/UWAICache.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 967bd6372..30f809c24 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -62,7 +62,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 		intensity = INCREASED;
+ 	bool navalArmament = false;
+ 	if(targetCity != NULL) {
+-		if(!targetCity->canReachByLand() ||
++		if(!targetCity->canReachByLandFromCapital() ||
+ 				targetCity->getDistance() > getUWAI.maxLandDist())
+ 			navalArmament = true;
+ 		report.log("Target city: %s%s", report.cityName(targetCity->city()),
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 95c18e52c..e0e2dfe93 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -627,12 +627,15 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		UWAICache::City const* defTargetCity = defender.targetCity();
+ 		UWAICache::City const* attTargetCity = targetCity();
+ 		if(defTargetCity != NULL && attTargetCity != NULL) {
+-			isNaval = !canReachByLand(attTargetCity->id()) &&
+-					!defender.canReachByLand(defTargetCity->id());
++			/*	Not clear whether reachability from a primary area
++				should suffice for !isNaval. As a compromise, check reachability
++				from capital when clashing but not when conquering cities. */
++			isNaval = !canReachByLand(attTargetCity->id(), true) &&
++					!defender.canReachByLand(defTargetCity->id(), true);
+ 		}
+ 		else FAssert(false); // They shouldn't clash then
+ 	}
+-	else isNaval = !canReachByLand(c->id());
++	else isNaval = !canReachByLand(c->id(), false);
+ 	bool canBombard = false;
+ 	bool canBombardFromSea = false;
+ 	bool canSoften = false;
+@@ -1326,14 +1329,14 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 	return rptr;
+ }
+ 
+-bool InvasionGraph::Node::canReachByLand(int cityId) const {
++bool InvasionGraph::Node::canReachByLand(int cityId, bool fromCapital) const {
+ 
+ 	// Allow weId to magically know whether other civs can reach a city by land
+ 	UWAICache::City* c = cache.lookupCity(cityId);
+ 	if(c == NULL) // Then they don't even know where it is
+ 		return false;
+-	return c->canReachByLand() && (c->getDistance() <= getUWAI.maxLandDist() ||
+-			!cache.canTrainDeepSeaCargo());
++	return (fromCapital ? c->canReachByLandFromCapital() : c->canReachByLand()) &&
++			(c->getDistance() <= getUWAI.maxLandDist() || !cache.canTrainDeepSeaCargo());
+ }
+ 
+ CvArea const* InvasionGraph::Node::clashArea(PlayerTypes otherId) const {
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index f9002d3d4..6abc9b980 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -160,7 +160,7 @@ friend class Node;
+ 		 double clashDistance(Node const& other) const;
+ 		 bool isSneakAttack(Node const& other, bool bClash) const;
+ 		 bool isContinuedWar(Node const& other) const;
+-		 bool canReachByLand(int cityId) const;
++		 bool canReachByLand(int cityId, bool fromCapital) const;
+ 		 CvArea const* clashArea(PlayerTypes otherId) const;
+ 
+ 		 std::vector<UWAICache::City const*> conquests;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index e3fa8ddfe..8d823bffd 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -354,7 +354,7 @@ void UWAI::Team::alignAreaAI(bool isNaval) {
+ 			else {
+ 				UWAICache::City* c = member.uwai().getCache().
+ 						lookupCity(targetCity->plotNum());
+-				if(c == NULL || !c->canReachByLand())
++				if(c == NULL || !c->canReachByLandFromCapital())
+ 					bAlign = false;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 69e9084bc..f4f5b2ba4 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1244,7 +1244,8 @@ void UWAICache::City::write(FDataStreamBase* stream) {
+ 	int savegameVersion;
+ 	//savegameVersion = 1; // canDeduce
+ 	//savegameVersion = 2; // take out can canDeduce again
+-	savegameVersion = 3; // reachBySea removed
++	//savegameVersion = 3; // reachBySea removed
++	savegameVersion = 4; // capitalArea added
+ 	stream->Write(plotIndex);
+ 	stream->Write(assetScore);
+ 	/*  I hadn't thought of a version number in the initial release.
+@@ -1256,6 +1257,7 @@ void UWAICache::City::write(FDataStreamBase* stream) {
+ 	stream->Write(distance + 1 + 10000 * savegameVersion);
+ 	stream->Write(targetValue);
+ 	stream->Write(reachByLand);
++	stream->Write(capitalArea);
+ }
+ 
+ void UWAICache::City::read(FDataStreamBase* stream) {
+@@ -1268,6 +1270,9 @@ void UWAICache::City::read(FDataStreamBase* stream) {
+ 	distance = (tmp % 10000) - 1;
+ 	stream->Read(&targetValue);
+ 	stream->Read(&reachByLand);
++	if(savegameVersion >= 4)
++		stream->Read(&capitalArea);
++	else capitalArea = reachByLand;
+ 	if(savegameVersion < 3) {
+ 		bool reachBySea; // discard
+ 		stream->Read(&reachBySea);
+@@ -1381,12 +1386,17 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 
+ 	if(pf == NULL) { // City of our team
+ 		distance = 0;
+-		reachByLand = true;
++		CvPlayerAI const& cityOwner = GET_PLAYER(targetCity.getOwner());
++		CvArea const& cityArea = targetCity.getArea();
++		reachByLand = cityOwner.AI_isPrimaryArea(cityArea);
++		capitalArea = (&cityArea == (cityOwner.getCapital() == NULL ?
++				NULL : cityOwner.getCapital()->area()));
+ 		return;
+ 	}
+ 	CvPlayerAI const& cacheOwner = GET_PLAYER(cacheOwnerId);
+ 	distance = -1;
+ 	reachByLand = false;
++	capitalArea = false;
+ 	bool reachBySea = false;
+ 	bool human = cacheOwner.isHuman();
+ 	EraTypes const era = cacheOwner.getCurrentEra();
+@@ -1416,11 +1426,10 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 					GC.getMOVE_DENOMINATOR());
+ 			if(pwd == 0) // Make sure 0 is reserved for own cities
+ 				pwd = 1;
+-			/*  reachByLand refers to our (AI) capital. This is to ensure that the
+-				AI can still detect the need for a naval assault when it has a
+-				colony near the target civ. */
+-			if(c->at(cacheOwner.getCapital()->plot()))
++			if(cacheOwner.AI_isPrimaryArea(c->getArea()))
+ 				reachByLand = true;
++			if(c->isCapital())
++				capitalArea = true;
+ 		}
+ 		if(trainAnyCargo &&
+ 				// This ignores cities that can access the ocean only through a canal
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index f77a90613..402531f4f 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -22,7 +22,8 @@ class UWAICity {
+ public:
+ 	inline int getAssetScore() const { return assetScore; }
+ 	inline bool canReach() const { return (distance >= 0); }
+-	inline bool canReachByLand() const { return reachByLand; }
++	inline bool canReachByLand() const { return reachByLand; } // from a primary area
++	inline bool canReachByLandFromCapital() const { return capitalArea; }
+ 	/*	-1 if unreachable, 0 for cities of the cache owner's team
+ 		(and never for cities of other teams). */
+ 	inline int getDistance() const { return distance; }
+@@ -30,9 +31,12 @@ public:
+ protected:
+ 	int distance;
+ 	int assetScore;
++	bool capitalArea;
+ 	bool reachByLand;
+ 
+-	UWAICity() : distance(-1), assetScore(-1), reachByLand(false) {}
++	UWAICity()
++	:	distance(-1), assetScore(-1), reachByLand(false), capitalArea(false)
++	{}
+ };
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7245

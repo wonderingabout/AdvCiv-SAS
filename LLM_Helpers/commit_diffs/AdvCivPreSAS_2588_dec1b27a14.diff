@@ -1,0 +1,3605 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2588
+# Commit: dec1b27a14037350cfd4fbe146f4db0001a54943
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3a035b40922d46207aa6155acb91e3fc7b7f1eed
+# Title: Restructure KmodPathFinder to make it easier to extend
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	CvGameCoreDLL/CvGameInterface.cpp
+32	11	CvGameCoreDLL/CvMap.cpp
+3	3	CvGameCoreDLL/CvMap.h
+11	14	CvGameCoreDLL/CvPlayerAI.cpp
+46	41	CvGameCoreDLL/CvSelectionGroup.cpp
+17	11	CvGameCoreDLL/CvSelectionGroup.h
+3	12	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvUnit.h
+32	30	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CySelectionGroup.cpp
+21	729	CvGameCoreDLL/FAStarFunc.cpp
+6	26	CvGameCoreDLL/FAStarFunc.h
+20	32	CvGameCoreDLL/FAStarNode.h
+869	0	CvGameCoreDLL/GroupPathFinder.cpp
+204	0	CvGameCoreDLL/GroupPathFinder.h
+678	0	CvGameCoreDLL/KmodPathFinder.h
+5	2	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/GroupPathFinder.cpp
+ create mode 100644 CvGameCoreDLL/GroupPathFinder.h
+ create mode 100644 CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2e5564fd9..5db314c70 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -4,7 +4,7 @@
+ #include "CvCityAI.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroup.h"
+-#include "KmodPathFinder.h"
++#include "GroupPathFinder.h"
+ #include "FAStarNode.h"
+ #include "PlotRange.h"
+ #include "CvInfo_City.h"
+@@ -283,16 +283,16 @@ void CvGame::updateColoredPlots()
+ 			the original code has been deleted, because it was quite bulky. */
+ 
+ 		// city sites
+-		const CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
+-		KmodPathFinder site_path;
+-		site_path.SetSettings(pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
++		CvPlayerAI const& kActivePlayer = GET_PLAYER(getActivePlayer());
++		GroupPathFinder sitePath;
++		sitePath.SetSettings(*pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
+ 				7, GC.getMOVE_DENOMINATOR());
+ 		if (pHeadSelectedUnit->canFound()) // advc.004h: was isFound
+ 		{
+ 			for (int i = 0; i < kActivePlayer.AI_getNumCitySites(); i++)
+ 			{
+ 				CvPlot* pSite = kActivePlayer.AI_getCitySite(i);
+-				if (pSite != NULL && site_path.GeneratePath(pSite))
++				if (pSite != NULL && sitePath.GeneratePath(*pSite))
+ 				{
+ 					kEngine.addColoredPlot(pSite->getX(), pSite->getY(),
+ 							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+@@ -310,7 +310,7 @@ void CvGame::updateColoredPlots()
+ 				iRange++;
+ 			else iRange--; // </advc.004z>
+ 			// just a smaller range.
+-			site_path.SetSettings(pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
++			sitePath.SetSettings(*pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
+ 					iRange, GC.getMOVE_DENOMINATOR());
+ 			for (SquareIter it(*pHeadSelectedUnit, iRange); it.hasNext(); ++it)
+ 			{
+@@ -318,7 +318,7 @@ void CvGame::updateColoredPlots()
+ 				if (kLoopPlot.isVisible(pHeadSelectedUnit->getTeam()) &&
+ 					kLoopPlot.isRevealedGoody(pHeadSelectedUnit->getTeam()))
+ 				{
+-					if (site_path.GeneratePath(&kLoopPlot))
++					if (sitePath.GeneratePath(kLoopPlot))
+ 					{
+ 						kEngine.addColoredPlot(kLoopPlot.getX(), kLoopPlot.getY(),
+ 								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 817658160..564408a4a 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -18,9 +18,9 @@
+ #include "CvPlotGroup.h"
+ #include "CvFractal.h"
+ #include "CvMapGenerator.h"
+-#include "KmodPathFinder.h"
+-#include "FAStarNode.h"
++#include "GroupPathFinder.h"
+ #include "FAStarFunc.h"
++#include "FAStarNode.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvReplayInfo.h" // advc.106n
+ #include "CvDLLIniParserIFaceBase.h"
+@@ -163,16 +163,37 @@ void CvMap::setup()
+ 	PROFILE_FUNC();
+ 
+ 	CvSelectionGroup::initPathFinder(); // advc.pf
+-	KmodPathFinder::InitHeuristicWeights(); // K-Mod
++	GroupPathFinder::InitHeuristicWeights(); // K-Mod
+ 
+ 	CvDLLFAStarIFaceBase& kAStar = *gDLL->getFAStarIFace(); // advc
+-	kAStar.Initialize(&GC.getPathFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), pathDestValid, pathHeuristic, pathCost, pathValid, pathAdd, NULL, NULL);
+-	kAStar.Initialize(&GC.getInterfacePathFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), pathDestValid, pathHeuristic, pathCost, pathValid, pathAdd, NULL, NULL);
+-	kAStar.Initialize(&GC.getStepFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), stepDestValid, stepHeuristic, stepCost, stepValid, stepAdd, NULL, NULL);
+-	kAStar.Initialize(&GC.getRouteFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), NULL, NULL, NULL, routeValid, NULL, NULL, NULL);
+-	kAStar.Initialize(&GC.getBorderFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), NULL, NULL, NULL, borderValid, NULL, NULL, NULL);
+-	kAStar.Initialize(&GC.getAreaFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), NULL, NULL, NULL, areaValid, NULL, joinArea, NULL);
+-	kAStar.Initialize(&GC.getPlotGroupFinder(), getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), NULL, NULL, NULL, plotGroupValid, NULL, countPlotGroup, NULL);
++	kAStar.Initialize(&GC.getPathFinder(),
++			getGridWidth(),	getGridHeight(),isWrapX(),	isWrapY(),
++			pathDestValid,	pathHeuristic,	pathCost,	pathValid,
++			pathAdd,		NULL,			NULL);
++	kAStar.Initialize(&GC.getInterfacePathFinder(),
++			getGridWidth(),	getGridHeight(),isWrapX(),	isWrapY(),
++			pathDestValid,	pathHeuristic,	pathCost,	pathValid,
++			pathAdd,		NULL,			NULL);
++	kAStar.Initialize(&GC.getStepFinder(),
++			getGridWidth(),	getGridHeight(),isWrapX(),	isWrapY(),
++			stepDestValid,	stepHeuristic,	stepCost,	stepValid,
++			stepAdd,		NULL,			NULL);
++	kAStar.Initialize(&GC.getRouteFinder(),
++			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
++			NULL,			NULL,			NULL,		routeValid,
++			NULL,			NULL,			NULL);
++	kAStar.Initialize(&GC.getBorderFinder(),
++			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
++			NULL,			NULL,			NULL,		borderValid,
++			NULL,			NULL,			NULL);
++	kAStar.Initialize(&GC.getAreaFinder(),
++			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
++			NULL,			NULL,			NULL,		areaValid,
++			NULL,			joinArea,		NULL);
++	kAStar.Initialize(&GC.getPlotGroupFinder(),
++			getGridWidth(), getGridHeight(), isWrapX(), isWrapY(),
++			NULL,			NULL,			NULL,		plotGroupValid,
++			NULL,			countPlotGroup,	NULL);
+ }
+ 
+ 
+@@ -349,7 +370,7 @@ void CvMap::updateCenterUnit()  // advc: some style changes
+ 		if (eLoopDomain == DOMAIN_LAND || eLoopDomain == DOMAIN_SEA) // advc.rstr
+ 		{
+ 			int iStepCost = (eLoopDomain == DOMAIN_LAND ?
+-					KmodPathFinder::MinimumStepCost(kLoopUnit.baseMoves()) :
++					GroupPathFinder::MinimumStepCost(kLoopUnit.baseMoves()) :
+ 					GC.getMOVE_DENOMINATOR());
+ 			int iMoveRange = kLoopUnit.maxMoves() / iStepCost +
+ 					(kLoopUnit.canParadrop(kLoopUnit.plot()) ?
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index f3f685e74..d933f565d 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -312,9 +312,9 @@ public: // advc: made several functions const
+ 		return (iX >= 0 && iX < getGridWidth() && iY >= 0 && iY < getGridHeight());
+ 	}
+ 	int numPlotsExternal() const; // advc.inl: Exported through .def file							// Exposed to Python
+-	inline int numPlots() const // advc.inl: Renamed from numPlotsINLINE
++	inline PlotNumTypes numPlots() const // advc.inl: Renamed from numPlotsINLINE
+ 	{
+-		return getGridWidth() * getGridHeight();
++		return (PlotNumTypes)(getGridWidth() * getGridHeight());
+ 	}
+ 	/*	advc.inl: Merged with plotNumINLINE (plotNum wasn't called externally).
+ 		advc.enum: return type changed from int. */
+@@ -542,7 +542,7 @@ protected:
+ // advc.enum: (for EnumMap)
+ __forceinline PlotNumTypes getEnumLength(PlotNumTypes, bool bAllowForEach = true)
+ {
+-	return (PlotNumTypes)GC.getMap().numPlots();
++	return GC.getMap().numPlots();
+ }
+ 
+ /* <advc.make> Global wrappers for distance functions. The int versions are
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 781e7bbe8..059a06a68 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7,8 +7,8 @@
+ #include "CvCityAI.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+-#include "KmodPathFinder.h"
+-#include "FAStarNode.h" // for AI_advancedStartDoRoute
++#include "GroupPathFinder.h"
++#include "FAStarNode.h"
+ #include "CvDeal.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+@@ -14859,7 +14859,7 @@ int CvPlayerAI::AI_cityTargetStrengthByPath(/* advc: */CvCity const* pCity,
+ 
+ 	//int iCount = 0;
+ 	int iTotalStrength = 0;
+-	KmodPathFinder temp_finder;
++	GroupPathFinder tempFinder;
+ 
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+ 	{
+@@ -14868,7 +14868,7 @@ int CvPlayerAI::AI_cityTargetStrengthByPath(/* advc: */CvCity const* pCity,
+ 		{
+ 			continue;
+ 		}
+-		FAssert(pLoopSelectionGroup->plot() != NULL); // this use to be part of the above condition. I've turned it into an assert. K-Mod.
++		FAssert(pLoopSelectionGroup->plot() != NULL); // K-Mod (was part of condition above)
+ 		CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
+ 		if (pMissionPlot == NULL)
+ 			continue;
+@@ -14883,9 +14883,9 @@ int CvPlayerAI::AI_cityTargetStrengthByPath(/* advc: */CvCity const* pCity,
+ 				if (iPathTurns <= iMaxPathTurns)
+ 					iCount += pLoopSelectionGroup->getNumUnits();
+ 			}*/ // BtS
+-			temp_finder.SetSettings(pLoopSelectionGroup, NO_MOVEMENT_FLAGS,
++			tempFinder.SetSettings(*pLoopSelectionGroup, NO_MOVEMENT_FLAGS,
+ 					iMaxPathTurns, GC.getMOVE_DENOMINATOR());
+-			if (temp_finder.GeneratePath(pMissionPlot))
++			if (tempFinder.GeneratePath(*pMissionPlot))
+ 			{
+ 				iTotalStrength += pLoopSelectionGroup->AI_sumStrength(
+ 						pCity->plot(), DOMAIN_LAND);
+@@ -27183,6 +27183,7 @@ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 	if(iRange == -1)
+ 		iRange = DANGER_RANGE;
+ 	CvArea const& kPlotArea = pPlot->getArea();
++	GroupPathFinder tempFinder; // advc.opt: Allow reuse of tempFinder
+ 	for (SquareIter it(*pPlot, iRange); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& p = *it;
+@@ -27215,14 +27216,10 @@ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 					if(iPathTurns <= 1)
+ 						return true;*/ // BtS
+ 					// K-Mod. Use a temp pathfinder, so as not to interfere with the normal one.
+-					/*KmodPathFinder temp_finder;
+-					temp_finder.SetSettings(pLoopUnit->getGroup(), MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, 1, GC.getMOVE_DENOMINATOR());
+-					if (temp_finder.GeneratePath(pPlot))
+-						return true;*/
+-					// <advc.128> Moved into CvUnit::generatePath
+-					return pLoopUnit->generatePath(pPlot, MOVE_MAX_MOVES |
+-							MOVE_IGNORE_DANGER, false, NULL, 1, true);
+-					// </advc.128>
++					tempFinder.SetSettings(*pLoopUnit->getGroup(),
++							MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, 1, GC.getMOVE_DENOMINATOR());
++					if (tempFinder.GeneratePath(*pPlot))
++						return true;
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index af2c1a2e2..589df0c0a 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3,12 +3,11 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvSelectionGroup.h"
+ #include "CvSelectionGroupAI.h"
+-#include "KmodPathFinder.h" // advc.pf: moved from header
++#include "GroupPathFinder.h"
+ #include "CvUnitAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvGamePlay.h"
+ #include "CvCity.h"
+-#include "CvMap.h"
+ #include "BBAILog.h"
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h" // for getBestBuildRoute
+@@ -16,7 +15,7 @@
+ #include "CySelectionGroup.h"
+ 
+ // K-Mod:
+-KmodPathFinder* CvSelectionGroup::m_pPathFinder = NULL; // advc.pf: pointer
++GroupPathFinder* CvSelectionGroup::m_pPathFinder = NULL; // advc.pf: pointer
+ // <advc.pf>
+ void CvSelectionGroup::initPathFinder()
+ {
+@@ -25,14 +24,14 @@ void CvSelectionGroup::initPathFinder()
+ 		FAssert(m_pPathFinder == NULL);
+ 		delete m_pPathFinder;
+ 	}
+-	m_pPathFinder = new KmodPathFinder();
++	m_pPathFinder = new GroupPathFinder();
+ }
+ void CvSelectionGroup::uninitPathFinder()
+ {
+ 	SAFE_DELETE(m_pPathFinder);
+ }
+ /*	Restored this BtS function for callers that
+-	otherwise don't need the KmodPathFinder header.
++	otherwise don't need the GroupPathFinder header.
+ 	Made it static. */
+ void CvSelectionGroup::resetPath()
+ {
+@@ -95,9 +94,10 @@ void CvSelectionGroup::reset(int iID, PlayerTypes eOwner, bool bConstructorCall)
+ void CvSelectionGroup::kill()
+ {
+ 	FAssert(getOwner() != NO_PLAYER);
+-	FAssertMsg(getID() != FFreeList::INVALID_INDEX, "getID() is not expected to be equal with FFreeList::INVALID_INDEX");
+-	FAssertMsg(getNumUnits() == 0, "The number of units is expected to be 0");
++	FAssert(getID() != FFreeList::INVALID_INDEX);
++	FAssert(getNumUnits() == 0);
+ 
++	CvSelectionGroup::m_pPathFinder->invalidateGroup(*this); // advc.pf
+ 	GET_PLAYER(getOwner()).removeGroupCycle(getID());
+ 	GET_PLAYER(getOwner()).deleteSelectionGroup(getID());
+ }
+@@ -2367,7 +2367,7 @@ bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea,
+ }
+ 
+ 
+-bool CvSelectionGroup::canMoveInto(CvPlot* pPlot, bool bAttack)
++bool CvSelectionGroup::canMoveInto(CvPlot const& kPlot, bool bAttack) const
+ {
+ 	if(getNumUnits() <= 0)
+ 		return false;
+@@ -2376,7 +2376,7 @@ bool CvSelectionGroup::canMoveInto(CvPlot* pPlot, bool bAttack)
+ 		pUnitNode = nextUnitNode(pUnitNode))
+ 	{
+ 		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		if (pLoopUnit->canMoveInto(*pPlot, bAttack))
++		if (pLoopUnit->canMoveInto(kPlot, bAttack))
+ 			return true;
+ 	}
+ 	return false;
+@@ -2780,13 +2780,13 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags, bool& b
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssert(!isBusy()); // K-Mod
++	CvPlot* pDestPlot = &GC.getMap().getPlot(iX, iY); // (advc: plot has to exist)
+ 
+-	CvPlot* pDestPlot = GC.getMap().plot(iX, iY);
++	FAssert(!isBusy()); // K-Mod
+ 
+ 	// K-Mod. Rather than clearing the existing path data; use a temporary pathfinder.
+-	KmodPathFinder final_path;
+-	final_path.SetSettings(this, eFlags & ~MOVE_DECLARE_WAR);
++	GroupPathFinder finalPath;
++	finalPath.SetSettings(*this, eFlags & ~MOVE_DECLARE_WAR);
+ 	/*if (eFlags & MOVE_THROUGH_ENEMY) {
+ 		if (generatePath(plot(), pDestPlot, eFlags))
+ 			pDestPlot = getPathFirstPlot();
+@@ -2794,10 +2794,9 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags, bool& b
+ 	// K-Mod
+ 	if (eFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK) && !(eFlags & MOVE_DIRECT_ATTACK))
+ 	{
+-		if (final_path.GeneratePath(pDestPlot))
+-			pDestPlot = final_path.GetPathFirstPlot();
++		if (finalPath.GeneratePath(*pDestPlot))
++			pDestPlot = finalPath.GetPathFirstPlot();
+ 	} // K-Mod end
+-	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+ 	if (getNumUnits() <= 0)
+ 		return false; // advc
+@@ -2811,8 +2810,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags, bool& b
+ 	//if ((eFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (eFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, eFlags) && (getPathFirstPlot() == pDestPlot)))
+ 	// K-Mod.
+ 	if (eFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) ||
+-		getDomainType() == DOMAIN_AIR || (final_path.GeneratePath(pDestPlot) &&
+-		final_path.GetPathFirstPlot() == pDestPlot)) // K-Mod end
++		getDomainType() == DOMAIN_AIR || (finalPath.GeneratePath(*pDestPlot) &&
++		finalPath.GetPathFirstPlot() == pDestPlot)) // K-Mod end
+ 	{
+ 		int iAttackOdds;
+ 		CvUnit* pBestAttackUnit = AI().AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+@@ -3004,7 +3003,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ // Returns true if move was made...
+ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ {
+-	KmodPathFinder final_path; // K-Mod
++	GroupPathFinder finalPath; // K-Mod
+ 	CvPlot* pOriginPlot = plot(); // K-Mod
+ 
+ 	if (at(iX, iY))
+@@ -3014,18 +3013,17 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 	FAssert(getOwner() != NO_PLAYER);
+ 	FAssert(headMissionQueueNode() != NULL);
+ 
+-	CvPlot* pDestPlot = GC.getMap().plot(iX, iY);
+-	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
++	CvPlot& kDestPlot = GC.getMap().getPlot(iX, iY);
+ 
+ 	//FAssertMsg(canAllMove(), "canAllMove is expected to be true");
+ 	FAssert(getDomainType() == DOMAIN_AIR ? canAnyMove() : canAllMove()); // K-Mod
+ 
+-	CvPlot* pPathPlot;
++	CvPlot* pPathPlot=NULL;
+ 	if (getDomainType() == DOMAIN_AIR)
+ 	{
+-		if (!canMoveInto(pDestPlot))
++		if (!canMoveInto(kDestPlot))
+ 			return false;
+-		pPathPlot = pDestPlot;
++		pPathPlot = &kDestPlot;
+ 	}
+ 	else
+ 	{
+@@ -3035,11 +3033,11 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 		// K-Mod. I've added & ~MOVE_DECLARE_WAR so that if we need to declare war at this point, and haven't yet done so,
+ 		// the move will fail here rather than splitting the group inside groupMove.
+ 		// Also, I've changed it to use a different pathfinder, to avoid clearing the path data - and to avoid OOS errors.
+-		final_path.SetSettings(this, eFlags & ~MOVE_DECLARE_WAR);
+-		if (!final_path.GeneratePath(pDestPlot))
++		finalPath.SetSettings(*this, eFlags & ~MOVE_DECLARE_WAR);
++		if (!finalPath.GeneratePath(kDestPlot))
+ 			return false;
+ 
+-		pPathPlot = final_path.GetPathFirstPlot();
++		pPathPlot = finalPath.GetPathFirstPlot();
+ 		// K-Mod end
+ 		if (groupAmphibMove(*pPathPlot, eFlags))
+ 			return false;
+@@ -3054,7 +3052,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 	// Disabled by K-Mod. AI war decisions have no business being here.
+ 
+ 	bool bEndMove = false;
+-	if(pPathPlot == pDestPlot)
++	if(pPathPlot == &kDestPlot)
+ 		bEndMove = true;
+ 
+ 	//groupMove(pPathPlot, eFlags & MOVE_THROUGH_ENEMY, NULL, bEndMove);
+@@ -3067,16 +3065,18 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 	{
+ 		//If the step we just took will make us change our path to something longer, then cancel the move.
+ 		// This prevents units from wasting all their moves by trying to walk around enemy units.
+-		FAssert(final_path.IsPathComplete());
+-		std::pair<int, int> old_moves = std::make_pair(final_path.GetPathTurns(), -final_path.GetFinalMoves());
+-		if (!final_path.GeneratePath(pDestPlot) ||
+-			std::make_pair(final_path.GetPathTurns(), -final_path.GetFinalMoves()) > old_moves)
++		FAssert(finalPath.IsPathComplete());
++		std::pair<int, int> old_moves = std::make_pair(
++				finalPath.GetPathTurns(), -finalPath.GetFinalMoves());
++		if (!finalPath.GeneratePath(kDestPlot) ||
++			std::make_pair(finalPath.GetPathTurns(), -finalPath.GetFinalMoves()) > old_moves)
+ 		{
+ 			clearMissionQueue();
+ 		}
+-		// Also, if the step we just took causes us to backtrack - its probably because we've lost vision of a unit that was blocking the path.
+-		// Apply the MOVE_ASSUME_VISIBLE flag, so that we remember to go the long way around.
+-		else if (final_path.GetPathFirstPlot() == pOriginPlot)
++		/*	Also, if the step we just took causes us to backtrack -
++			its probably because we've lost vision of a unit that was blocking the path.
++			Apply the MOVE_ASSUME_VISIBLE flag, so that we remember to go the long way around. */
++		else if (finalPath.GetPathFirstPlot() == pOriginPlot)
+ 			headMissionQueueNode()->m_data.eFlags |= MOVE_ASSUME_VISIBLE;
+ 	}
+ 	// K-Mod end
+@@ -3981,7 +3981,8 @@ CvPlot* CvSelectionGroup::getPathEndTurnPlot() const
+ 
+ 
+ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToPlot,
+-	MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath) const
++	MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath,
++	bool bUseTempFinder) const // advc.128
+ {
+ 	// K-Mod - if I can stop the UI from messing with this pathfinder, I might be able to reduce OOS bugs.
+ 	FAssert(AI_isControlled()); // advc.706 (note): Can trigger after defeat of active player in R&F game
+@@ -3990,14 +3991,18 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 
+ 	if (pFromPlot == NULL || pToPlot == NULL)
+ 		return false;
+-
++	// <advc.128>
++	FAssert(!bUseTempFinder || !bReuse);
++	GroupPathFinder tempFinder;
++	GroupPathFinder& kPathFinder = (bUseTempFinder ? tempFinder : pathFinder());
++	// </advc.128>
+ 	/*if (!bReuse)
+ 		pathFinder().Reset();*/
+-	pathFinder().SetSettings(this, eFlags, iMaxPath);
+-	bool bSuccess = pathFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(),
++	kPathFinder.SetSettings(*this, eFlags, iMaxPath);
++	bool bSuccess = kPathFinder.generatePath(pFromPlot->getX(), pFromPlot->getY(),
+ 			pToPlot->getX(), pToPlot->getY());
+ 	/* test.
+-	if (bSuccess != gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), false, eFlags, bReuse)) {
++	if (!bUseTempFinder && bSuccess != gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), false, eFlags, bReuse)) {
+ 		pNode = gDLL->getFAStarIFace()->GetLastNode(&GC.getPathFinder());
+ 		if (bSuccess || iMaxPath < 0 || !pNode || pNode->m_iData2 <= iMaxPath) {
+ 			//::MessageBoxA(NULL,"pathfind mismatch","CvGameCore",MB_OK);
+@@ -4009,7 +4014,7 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 	{
+ 		*piPathTurns = MAX_INT;
+ 		if (bSuccess)
+-			*piPathTurns = pathFinder().GetPathTurns();
++			*piPathTurns = kPathFinder.GetPathTurns();
+ 	}
+ 
+ 	return bSuccess;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 5764caf08..95840f6db 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -3,7 +3,7 @@
+ #ifndef CIV4_SELECTION_GROUP_H
+ #define CIV4_SELECTION_GROUP_H
+ 
+-class KmodPathFinder;
++class GroupPathFinder;
+ class CvMap;
+ class CvPlot;
+ class CvArea;
+@@ -15,7 +15,7 @@ class CvSelectionGroup /* advc.003k: */ : private boost::noncopyable
+ {
+ public:
+ 	// <advc.pf>
+-	static inline KmodPathFinder& pathFinder()
++	static inline GroupPathFinder& pathFinder()
+ 	{
+ 		return *m_pPathFinder;
+ 	}
+@@ -24,7 +24,7 @@ public:
+ 	/*	(disabled by K-mod. Use pathFinder().Reset instead. was exposed to Python.
+ 		note: the K-Mod finder doesn't need resetting in all the same places.)
+ 		advc: I'm not going to expose it to Python again, but, in the DLL, it's helpful
+-		as a (static) wrapper for avoiding inclusion of the KmodPathFinder header. */
++		as a (static) wrapper for avoiding inclusion of the GroupPathFinder header. */
+ 	static void resetPath();
+ 
+ 	CvSelectionGroup();
+@@ -99,11 +99,16 @@ public:
+ 	bool canCargoAllMove() const; // K-Mod (moved from CvUnit)
+ 	bool hasMoved() const; // Exposed to Python
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+-	bool canEnterArea(TeamTypes eTeam, CvArea const& kArea, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+-	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false);																		// Exposed to Python
+-	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false) {					 // Exposed to Python
++	bool canEnterArea(TeamTypes eTeam, CvArea const& kArea, bool bIgnoreRightOfPassage = false) const;					// Exposed to Python
++	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false)														// Exposed to Python
++	{	// <advc>
++		return canMoveInto(*pPlot, bAttack);
++	}
++	bool canMoveInto(CvPlot const& kPlot, bool bAttack = false) const; // </advc>
++	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false)											// Exposed to Python
++	{
+ 		return canMoveOrAttackInto(*pPlot, bDeclareWar, false);
+-	} // K-Mod. (hack to avoid breaking the DllExport)			advc: 2x const, CvPlot&
++	} // K-Mod. (avoid breaking the DllExport)			advc: 2x const, CvPlot&
+ 	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false, bool bCheckMoves = false, bool bAssumeVisible = true) const;
+ 	bool canMoveThrough(CvPlot const& kPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // Exposed to Python, K-Mod added bDeclareWar and bAssumeVisible; advc: CvPlot const&
+ 	bool canFight() const;																																										// Exposed to Python
+@@ -206,7 +211,8 @@ public:
+ 	bool generatePath(const CvPlot* pFromPlot, const CvPlot* pToPlot,								// Exposed to Python
+ 			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
+ 			bool bReuse = false, int* piPathTurns = NULL,
+-			int iMaxPath = -1) const; // K-Mod
++			int iMaxPath = -1, // K-Mod
++			bool bUseTempFinder = false) const; // advc.128
+ 
+ 	DllExport void clearUnits();
+ 	DllExport bool addUnit(CvUnit* pUnit, bool bMinimalChange);
+@@ -271,11 +277,11 @@ public:
+ protected:
+ 	// K-Mod! I'd rather this not be static, but I can't do that here.
+ 	//public: static KmodPathFinder path_finder; protected:
+-	/*	advc.pf: So, was it supposed to be a non-static member?
+-		We can do that, but that would require some refactoring at this point.
++	/*	advc.pf: Making it a non-static member would indeed be nicer.
++		We can do that, but it'll require some restructuring.
+ 		Making it a pointer at least allows us to delay initialization
+ 		until the map has been initialized. */
+-	static KmodPathFinder* m_pPathFinder;
++	static GroupPathFinder* m_pPathFinder;
+ 
+ 	// WARNING: adding to this class will cause the civ4 exe to crash
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 67130bd75..cc568914c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4,7 +4,6 @@
+ #include "CvUnit.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+-#include "KmodPathFinder.h" // advc.128
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "UWAIAgent.h"
+@@ -2173,20 +2172,12 @@ CvPlot* CvUnit::getPathEndTurnPlot() const
+ bool CvUnit::generatePath(const CvPlot* pToPlot, MovementFlags eFlags, bool bReuse,
+ 	int* piPathTurns, int iMaxPath, /* <advc.128> */ bool bUseTempFinder) const
+ {
+-	if(!bUseTempFinder) // </advc.128>
+-		return getGroup()->generatePath(plot(), pToPlot, eFlags, bReuse, piPathTurns, iMaxPath);
+-	// <advc.128>
+-	FAssert(!bReuse);
+-	KmodPathFinder temp_finder;
+-	temp_finder.SetSettings(getGroup(), eFlags, iMaxPath, GC.getMOVE_DENOMINATOR());
+-	bool r = temp_finder.GeneratePath(pToPlot);
+-	if(piPathTurns != NULL)
+-		*piPathTurns = temp_finder.GetPathTurns();
+-	return r; // </advc.128>
++	return getGroup()->generatePath(plot(), pToPlot, eFlags, bReuse, piPathTurns,
++			iMaxPath, bUseTempFinder);
+ }
+ 
+ // K-Mod: Return the standard pathfinder, for extracting path information.
+-KmodPathFinder& CvUnit::getPathFinder() const
++GroupPathFinder& CvUnit::getPathFinder() const
+ {
+ 	return CvSelectionGroup::pathFinder();
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 0047283ae..2744aa6f2 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -10,7 +10,7 @@ class CvArea;
+ class CvUnitInfo;
+ class CvSelectionGroup;
+ class CvArtInfoUnit;
+-class KmodPathFinder;
++class GroupPathFinder;
+ class CvUnitAI; // advc.003u
+ struct CombatDetails;
+ 
+@@ -50,7 +50,7 @@ public:
+ 			int* piPathTurns = NULL,
+ 			int iMaxPath = -1, // K-Mod
+ 			bool bUseTempFinder = false) const; // advc.128
+-	KmodPathFinder& getPathFinder() const; // K-Mod
++	GroupPathFinder& getPathFinder() const; // K-Mod
+ 
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false,								// Exposed to Python
+ 			CvArea const* pArea = NULL) const; // advc: canEnterArea merged into canEnterTerritory
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 587cffc5f..6c90f58e9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3,8 +3,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+-#include "KmodPathFinder.h"
+-#include "FAStarNode.h" // (just for AI_considerPathDOW)
++#include "GroupPathFinder.h"
++#include "FAStarNode.h"
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "CvPlotGroup.h" // (just for AI_betterPlotBuild)
+@@ -814,18 +814,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 		but this function is also used to give action recommendations for the player
+ 		- and for that I do not want to disrupt the standard pathfinder.
+ 		(because I'm paranoid about OOS bugs.) */
+-	KmodPathFinder alt_finder;
+-	KmodPathFinder& pathFinder = (getGroup()->AI_isControlled() ?
+-			CvSelectionGroup::pathFinder() : alt_finder);
++	GroupPathFinder altFinder;
++	GroupPathFinder& pathFinder = (getGroup()->AI_isControlled() ?
++			CvSelectionGroup::pathFinder() : altFinder);
+ 	if (getGroup()->AI_isControlled())
+ 	{
+ 		// standard settings. cf. CvUnit::generatePath
+-		pathFinder.SetSettings(getGroup(), NO_MOVEMENT_FLAGS);
++		pathFinder.SetSettings(*getGroup(), NO_MOVEMENT_FLAGS);
+ 	}
+ 	else
+ 	{
+ 		// like I said - this is only for action recommendations. It can be rough.
+-		pathFinder.SetSettings(getGroup(), NO_MOVEMENT_FLAGS, 5, GC.getMOVE_DENOMINATOR());
++		pathFinder.SetSettings(*getGroup(), NO_MOVEMENT_FLAGS, 5, GC.getMOVE_DENOMINATOR());
+ 	} // K-Mod end
+ 
+ 	for (int iPass = 0; iPass < 2; iPass++)
+@@ -873,7 +873,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 						iMaxWorkers += 10;
+ 					} }*/ // BtS
+ 				// K-Mod. basically the same thing, but using pathFinder.
+-				if (!pathFinder.GeneratePath(&kPlot))
++				if (!pathFinder.GeneratePath(kPlot))
+ 					continue;
+ 				int iPathTurns = pathFinder.GetPathTurns() + (pathFinder.GetFinalMoves() == 0 ? 1 : 0);
+ 				int iMaxWorkers = (iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(kPlot, eBuild));
+@@ -912,7 +912,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				iMaxWorkers = AI_calculatePlotWorkersNeeded(pBestPlot, eBestBuild);
+ 		} */ // BtS
+ 		// K-Mod. basically the same thing, but using pathFinder.
+-		if (pathFinder.GeneratePath(pBestPlot))
++		if (pathFinder.GeneratePath(*pBestPlot))
+ 		{
+ 			int iPathTurns = pathFinder.GetPathTurns() +
+ 					(pathFinder.GetFinalMoves() == 0 ? 1 : 0);
+@@ -1335,16 +1335,16 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags)
+ 	}
+ 
+ 	bool bDOW = false;
+-	FAStarNode* pNode = getPathFinder().GetEndNode(); // TODO: rewrite so that GetEndNode isn't used.
++	GroupPathNode* pNode = getPathFinder().GetEndNode(); // TODO: rewrite so that GetEndNode isn't used.
+ 	while (!bDOW && pNode)
+ 	{
+-		CvPlot const& kLoopPlot = GC.getMap().getPlot(pNode->m_iX, pNode->m_iY); // advc
++		CvPlot const& kLoopPlot = pNode->getPlot(); // advc
+ 		/*  we need to check DOW even for moves several turns away -
+ 			otherwise the actual move mission may fail to find a path.
+ 			however, I would consider it irresponsible to call this function for multi-move missions.
+ 			(note: amphibious landings may say 2 turns, even though it is really only 1...) */
+-		FAssert(pNode->m_iData2 <= 1 ||
+-				(pNode->m_iData2 == 2 && getGroup()->isAmphibPlot(&kLoopPlot)));
++		FAssert(pNode->getPathTurns() <= 1 ||
++				(pNode->getPathTurns() == 2 && getGroup()->isAmphibPlot(&kLoopPlot)));
+ 		bDOW = AI_considerDOW(kLoopPlot);
+ 		pNode = pNode->m_pParent;
+ 	}
+@@ -9941,8 +9941,8 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI,
+ 		// Can transport reach enemy in requested time
+ 		bool bFoundEnemyPlotInRange = false;
+ 		// K-Mod. use a separate pathfinder for the transports, so that we don't reset our current path data.
+-		KmodPathFinder temp_finder;
+-		temp_finder.SetSettings(pBestUnit->getGroup(),
++		GroupPathFinder tempFinder;
++		tempFinder.SetSettings(*pBestUnit->getGroup(),
+ 				eFlags & MOVE_DECLARE_WAR, iMaxTransportPath, GC.getMOVE_DENOMINATOR());
+ 		// K-Mod end
+ 		CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // advc
+@@ -9964,11 +9964,13 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI,
+ 					if (pAdjacentPlot == NULL || !pAdjacentPlot->isWater())
+ 						continue;
+ 					//if (pBestUnit->generatePath(pAdjacentPlot, 0, true, &iPathTurns, iMaxTransportPath))
+-					if (temp_finder.GeneratePath(pAdjacentPlot)) // K-Mod
++					if (tempFinder.GeneratePath(*pAdjacentPlot)) // K-Mod
+ 					{
+ 						/*if (pBestUnit->getPathLastNode()->m_iData1 == 0)
+-							iPathTurns++;*/
+-						int iPathTurns = temp_finder.GetPathTurns() + (temp_finder.GetFinalMoves() == 0 ? 1 : 0); // K-Mod
++							iPathTurns++;*/  // <K-Mod>
++						int iPathTurns = tempFinder.GetPathTurns();
++						if (tempFinder.GetFinalMoves() == 0)
++							iPathTurns++; // </K-Mod>
+ 						if (iPathTurns <= iMaxTransportPath)
+ 						{
+ 							bFoundEnemyPlotInRange = true;
+@@ -13226,7 +13228,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 	// iLoadTurns < 0 implies we should look for a transport; otherwise, it is the number of turns to reach the transport.
+ 	// Also, we only consider using transports if we aren't in enemy territory.
+ 	int iLoadTurns = isEnemy(getPlot()) ? MAX_INT : -1;
+-	KmodPathFinder transport_path;
++	GroupPathFinder transportPath;
+ 	// K-Mod end
+ 
+ 	CvCity* pTargetCity =  // advc.300:
+@@ -13291,14 +13293,14 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 					int iMaxTransportTurns = std::min(iMaxPathTurns, iPathTurns) - iLoadTurns;
+ 					if (pBestTransport != NULL && iMaxTransportTurns > 0)
+ 					{
+-						transport_path.SetSettings(pBestTransport->getGroup(),
++						transportPath.SetSettings(*pBestTransport->getGroup(),
+ 								eFlags & MOVE_DECLARE_WAR, iMaxTransportTurns,
+ 								GC.getMOVE_DENOMINATOR());
+-						if (transport_path.GeneratePath(pLoopCity->plot()))
++						if (transportPath.GeneratePath(pLoopCity->getPlot()))
+ 						{
+ 							// faster by boat
+-							FAssert(transport_path.GetPathTurns() + iLoadTurns <= iPathTurns);
+-							iPathTurns = transport_path.GetPathTurns() + iLoadTurns;
++							FAssert(transportPath.GetPathTurns() + iLoadTurns <= iPathTurns);
++							iPathTurns = transportPath.GetPathTurns() + iLoadTurns;
+ 						}
+ 					}
+ 				}
+@@ -15633,13 +15635,13 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 						int iOtherPathTurns = MAX_INT;
+ 						//if (pLoopSelectionGroup->generatePath(pLoopSelectionGroup->plot(), pLoopPlot, eFlags, true, &iOtherPathTurns))
+ 						// K-Mod. Use a different pathfinder, so that we don't clear our path data.
+-						KmodPathFinder loop_path;
+-						loop_path.SetSettings(pLoopSelectionGroup, eFlags, iPathTurns);
+-						if (loop_path.GeneratePath(pLoopPlot)) // K-Mod end
++						GroupPathFinder loopPath;
++						loopPath.SetSettings(*pLoopSelectionGroup, eFlags, iPathTurns);
++						if (loopPath.GeneratePath(*pLoopPlot)) // K-Mod end
+ 						{
+ 							//iOtherPathTurns += 1;
+ 							// (K-Mod note: I'm not convinced the +1 thing is a good idea.)
+-							iOtherPathTurns = loop_path.GetPathTurns();
++							iOtherPathTurns = loopPath.GetPathTurns();
+ 						}
+ 						else continue;
+ 
+@@ -16016,8 +16018,8 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 	int iOtherAreaBestFoundValue = 0;
+ 	CvPlot* pOtherAreaBestPlot = NULL;
+ 
+-	KmodPathFinder land_path;
+-	land_path.SetSettings(pSettlerUnit->getGroup(), MOVE_SAFE_TERRITORY);
++	GroupPathFinder landPath;
++	landPath.SetSettings(*pSettlerUnit->getGroup(), MOVE_SAFE_TERRITORY);
+ 
+ 	for (int iI = 0; iI < GET_PLAYER(getOwner()).AI_getNumCitySites(); iI++)
+ 	{
+@@ -16027,7 +16029,7 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 		{
+ 			int iValue = kCitySitePlot.getFoundValue(getOwner());
+ 			if (kCitySitePlot.isArea(getArea()) &&
+-				land_path.GeneratePath(&kCitySitePlot)) // K-Mod
++				landPath.GeneratePath(kCitySitePlot)) // K-Mod
+ 			{
+ 				if (iValue > iAreaBestFoundValue)
+ 				{
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.cpp b/CvGameCoreDLL/CySelectionGroup.cpp
+index e6985df83..dabfb6135 100644
+--- a/CvGameCoreDLL/CySelectionGroup.cpp
++++ b/CvGameCoreDLL/CySelectionGroup.cpp
+@@ -116,7 +116,7 @@ bool CySelectionGroup::canEnterArea(int /*TeamTypes*/ eTeam, CyArea* pArea, bool
+ 
+ bool CySelectionGroup::canMoveInto(CyPlot* pPlot, bool bAttack)
+ {
+-	return m_pSelectionGroup ? m_pSelectionGroup->canMoveInto(pPlot->getPlot(), bAttack) : false;
++	return m_pSelectionGroup ? m_pSelectionGroup->canMoveInto(*pPlot->getPlot(), bAttack) : false;
+ }
+ 
+ bool CySelectionGroup::canMoveOrAttackInto(CyPlot* pPlot, bool bDeclareWar)
+
+diff --git a/CvGameCoreDLL/FAStarFunc.cpp b/CvGameCoreDLL/FAStarFunc.cpp
+index f0a6cc0e0..8f4186230 100644
+--- a/CvGameCoreDLL/FAStarFunc.cpp
++++ b/CvGameCoreDLL/FAStarFunc.cpp
+@@ -1,519 +1,36 @@
+ #include "CvGameCoreDLL.h"
+ #include "FAStarFunc.h"
+ #include "FAStarNode.h"
+-#include "CvSelectionGroupAI.h"
+-#include "CvUnit.h"
+-#include "CoreAI.h"
+-#include "CvInfo_Terrain.h" // for terrain damage
++#include "GroupPathFinder.h"
++#include "CoreAI.h" // for AI war plans
+ 
+ // advc.pf: New implementation file; see comment in header.
+ 
+-/*	advc.pf: I've mainly wanted to increase PATH_STEP_WEIGHT.
+-	Symmetry breaking and PATH_STRAIGHT_WEIGHT can add up to a total of 6 per step.
+-	STEP_WEIGHT 7 still isn't always enough to trump that,
+-	so I'm adding 1 more later on for human units.
+-	Don't want to scale everything up too much, i.e. not too close to 1000.
+-	(Though I guess one could just increase PATH_MOVEMENT_WEIGHT as well, e.g. to 2048.) */
+ 
+-//#define PATH_MOVEMENT_WEIGHT    (1000) // advc.inl: Had to move this one to the header
+-// advc.pf: Was 20 in K-Mod, 100 in BtS.
+-#define PATH_RIVER_WEIGHT         (32) // river crossing penalty
+-// advc.pf: Was 200 in K-Mod, 100 in BtS.
+-#define PATH_CITY_WEIGHT         (225) // K-Mod
+-// advc.pf: Was 4 in K-Mod, 10 in BtS.
+-#define PATH_DEFENSE_WEIGHT        (7) // defence bonus
+-// advc.pf: Was 5 in K-Mod, 3 in BtS.
+-#define PATH_TERRITORY_WEIGHT      (9)
+-#define PATH_DOW_WEIGHT	           (7) // advc.082
+-// advc.pf: Was 4 in K-Mod, 2 in BtS.
+-#define PATH_STEP_WEIGHT           (7)
+-#define PATH_STRAIGHT_WEIGHT       (2) // K-Mod: was 1
+-//#define PATH_ASYMMETRY_WEIGHT    (1) // K-Mod
+-
+-// #define PATH_DAMAGE_WEIGHT      (500) // K-Mod (disabled because it isn't used)
+-// advc.pf: Was 300 in K-Mod
+-#define PATH_COMBAT_WEIGHT         (350) // K-Mod. penalty for having to fight along the way.
+-// Note: there will also be other combat penalties added, for example from defence weight and city weight.
+-
+-// (edited by K-Mod)
+ BOOL pathDestValid(int iToX, int iToY, void const* pointer, FAStar* finder)
+ {	// <advc.pf>
+-	return pathDestValid(GC.getMap().getPlot(iToX, iToY),
++	return GroupStepMetric::isValidDest(GC.getMap().getPlot(iToX, iToY),
+ 			*reinterpret_cast<CvSelectionGroup const*>(pointer),
+ 			(MovementFlags)gDLL->getFAStarIFace()->GetInfo(finder));
+ }
+ 
+ 
+-bool pathDestValid(CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags)
+-{	// </advc.pf>
+-	PROFILE_FUNC();
+-
+-	if (kGroup.at(kTo))
+-		return true;
+-
+-	if (kGroup.getDomainType() == DOMAIN_IMMOBILE)
+-		return false;
+-
+-	bool const bAIControl = kGroup.AI_isControlled();
+-
+-	if (bAIControl)
+-	{	/*  BETTER_BTS_AI_MOD, Efficiency, 11/04/09, jdog5000: START
+-			switch order as AI_isAnyPlotDanger is more expensive */
+-		if (kGroup.getDomainType() == DOMAIN_LAND)
+-		{
+-			CvArea const& kGroupArea = *kGroup.area();
+-			if (!kTo.isArea(kGroupArea) &&
+-				!kGroup.canMoveAllTerrain() &&
+-				!kTo.isAdjacentToArea(kGroupArea))
+-			{
+-				return false;
+-			}
+-		}
+-		if (!(eFlags & MOVE_IGNORE_DANGER))
+-		{
+-			if (!kGroup.canFight() && !kGroup.alwaysInvisible())
+-			{
+-				if (GET_PLAYER(kGroup.getHeadOwner()).AI_isAnyPlotDanger(kTo))
+-					return false;
+-			}
+-		}
+-		// BETTER_BTS_AI_MOD: END
+-	}
+-
+-	if (bAIControl || kTo.isRevealed(kGroup.getHeadTeam()))
+-	{
+-		if (kGroup.isAmphibPlot(&kTo))
+-		{
+-			for (CLLNode<IDInfo> const* pUnitNode1 = kGroup.headUnitNode();
+-				pUnitNode1 != NULL; pUnitNode1 = kGroup.nextUnitNode(pUnitNode1))
+-			{
+-				CvUnit const* pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
+-				if (pLoopUnit1->getCargo() > 0 && pLoopUnit1->domainCargo() == DOMAIN_LAND)
+-				{
+-					bool bValid = false;
+-					for (CLLNode<IDInfo> const* pUnitNode2 = pLoopUnit1->getPlot().headUnitNode();
+-						pUnitNode2 != NULL; pUnitNode2 = pLoopUnit1->getPlot().nextUnitNode(pUnitNode2))
+-					{
+-						CvUnit const* pLoopUnit2 = ::getUnit(pUnitNode2->m_data);
+-						if (pLoopUnit2->getTransportUnit() == pLoopUnit1)
+-						{
+-							if (pLoopUnit2->isGroupHead())
+-							{
+-								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(kTo,
+-									//kGroup.AI().AI_isDeclareWar(kTo) || (eFlags & MOVE_DECLARE_WAR)))
+-									// K-Mod. The new AI must be explicit about declaring war.
+-									eFlags & MOVE_DECLARE_WAR, false, bAIControl))
+-								{
+-									bValid = true;
+-									break;
+-								}
+-							}
+-						}
+-					}
+-					if (bValid)
+-						return true;
+-				}
+-			}
+-
+-			return false;
+-		}
+-		else
+-		{
+-			if (!kGroup.canMoveOrAttackInto(kTo,
+-				//pSelectionGroup->AI_isDeclareWar(pToPlot) || (eFlags & MOVE_DECLARE_WAR))
+-				// K-Mod. The new AI must be explicit about declaring war.
+-				eFlags & MOVE_DECLARE_WAR, false, bAIControl))
+-			{
+-				return false;
+-			}
+-		}
+-	}
+-
+-	return true;
++int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
++{
++	return GroupStepMetric::heuristicStepCost(iFromX, iFromY, iToX, iToY);
+ }
+ 
+-/*	This function has been completely rewritten for K-Mod.
+-	(the rewrite includes some bug fixes as well as some new features) */
++
+ int pathCost(FAStarNode* parent, FAStarNode* node,
+ 	int data, // advc (note): unused
+ 	void const* pointer, FAStar* finder)
+ {	// <advc.pf>
+-	return pathCost(
++	return GroupStepMetric::cost(
+ 			GC.getMap().getPlot(parent->m_iX, parent->m_iY),
+ 			GC.getMap().getPlot(node->m_iX, node->m_iY),
+ 			*reinterpret_cast<CvSelectionGroup const*>(pointer),
+ 			(MovementFlags)gDLL->getFAStarIFace()->GetInfo(finder),
+-			parent->m_iData1, parent->m_iKnownCost);
+-}
+-
+-
+-int pathCost(CvPlot const& kFrom, CvPlot const& kTo,
+-	CvSelectionGroup const& kGroup, MovementFlags eFlags,
+-	// Not sure if I've named these suitably
+-	int iCurrMovesLeft, int iKnownCost)
+-{	// </advc.pf>
+-	//PROFILE_FUNC(); // advc.003o
+-
+-	TeamTypes const eTeam = kGroup.getHeadTeam();
+-	// <advc.035>
+-	int const iFlipModifierDiv = 7;
+-	int iFlipModifier = iFlipModifierDiv;
+-	// </advc.035>
+-	// K-Mod
+-	int iExploreModifier = 3; // (in thirds)
+-	if (!kTo.isRevealed(eTeam))
+-	{
+-		if (kGroup.getAutomateType() == AUTOMATE_EXPLORE ||
+-			(!kGroup.isHuman() &&
+-			(kGroup.getHeadUnitAIType() == UNITAI_EXPLORE ||
+-			kGroup.getHeadUnitAIType() == UNITAI_EXPLORE_SEA)))
+-		{
+-			iExploreModifier = 2; // lower cost to encourage exploring unrevealed areas
+-		}
+-		else if (!kFrom.isRevealed(eTeam))
+-		{
+-			iExploreModifier = 4; // higher cost to discourage pathfinding deep into the unknown
+-		}
+-	}
+-	// K-Mod end
+-	// <advc.035>
+-	else if(GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS) &&
+-		(eFlags & MOVE_DECLARE_WAR) && eTeam != BARBARIAN_TEAM)
+-	{
+-		PlayerTypes const eSecondOwner = kTo.getSecondOwner();
+-		PlayerTypes const eFirstOwner = kTo.getOwner();
+-		if(eSecondOwner != NO_PLAYER && eFirstOwner != NO_PLAYER &&
+-			((kGroup.getDomainType() == DOMAIN_SEA) == kTo.isWater()))
+-		{	// Avoid tiles that flip from us to the enemy upon DoW
+-			if(TEAMID(eFirstOwner) == eTeam && (GET_TEAM(eTeam).isHuman() ?
+-				(!GET_TEAM(eTeam).isFriendlyTerritory(TEAMID(eSecondOwner)) &&
+-				!GET_TEAM(eTeam).isAtWar(TEAMID(eSecondOwner))) :
+-				GET_TEAM(eTeam).AI_isSneakAttackReady(TEAMID(eSecondOwner))))
+-			{
+-				iFlipModifier++;
+-			}
+-			// Seek out enemy tiles that will flip to us upon DoW
+-			if(TEAMID(eSecondOwner) == eTeam && (GET_TEAM(eTeam).isHuman() ?
+-				(!GET_TEAM(eTeam).isFriendlyTerritory(TEAMID(eFirstOwner)) &&
+-				!GET_TEAM(eTeam).isAtWar(TEAMID(eFirstOwner))) :
+-				GET_TEAM(eTeam).AI_isSneakAttackReady(TEAMID(eFirstOwner))))
+-			{
+-				iFlipModifier--;
+-			}
+-			/*  This could be done much more accurately, taking into account
+-				vassal agreements, defensive pacts, and going through the entire
+-				selection group, but I worry about the performance, and it's OK
+-				if it doesn't always work correctly. */
+-		}
+-	} // </advc.035>
+-	int iWorstCost = 0;
+-	int iWorstMovesLeft = MAX_INT;
+-	//int iWorstMaxMoves = MAX_INT; // advc: unused
+-	for (CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
+-		pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
+-	{
+-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		FAssert(pLoopUnit->getDomainType() != DOMAIN_AIR);
+-
+-		int iMaxMoves = (iCurrMovesLeft > 0 ? iCurrMovesLeft : pLoopUnit->maxMoves());
+-		int iMoveCost = kTo.movementCost(pLoopUnit, &kFrom,
+-				false); // advc.001i
+-		int iMovesLeft = std::max(0, iMaxMoves - iMoveCost);
+-
+-		iWorstMovesLeft = std::min(iWorstMovesLeft, iMovesLeft);
+-		//iWorstMaxMoves = std::min(iWorstMaxMoves, iMaxMoves);
+-
+-		int iCost = PATH_MOVEMENT_WEIGHT * (iMovesLeft == 0 ? iMaxMoves : iMoveCost);
+-		iCost = (iCost * iExploreModifier) / 3;
+-		iCost = (iCost * iFlipModifier) / iFlipModifierDiv; // advc.035
+-		if (iCost > iWorstCost)
+-		{
+-			iWorstCost = iCost;
+-			iWorstMovesLeft = iMovesLeft;
+-			//iWorstMaxMoves = iMaxMoves;
+-		}
+-	}
+-	iWorstCost += PATH_STEP_WEIGHT;
+-
+-	/*	symmetry breaking. This is meant to prevent two paths from having equal cost.
+-		(If two paths have equal cost, sometimes the interface shows one path
+-		and the units follow the other. This is bad.) */
+-	/* original K-Mod symmetry breaking. (extra cost for turning a corner)
+-	if (parent->m_pParent)
+-	{
+-		const int map_width = GC.getMap().getGridWidth();
+-		const int map_height = GC.getMap().getGridHeight();
+-
+-		#define WRAP_X(x) ((x) - ((x) > map_width/2 ? map_width : 0) + ((x) < -map_width/2 ? map_width : 0))
+-		#define WRAP_Y(y) ((y) - ((y) > map_height/2 ? map_height : 0) + ((y) < -map_height/2 ? map_height : 0))
+-
+-		int start_x = parent->m_pParent->m_iX;
+-		int start_y = parent->m_pParent->m_iY;
+-
+-		int dx1 = WRAP_X(pFromPlot->getX() - start_x);
+-		int dy1 = WRAP_Y(pFromPlot->getY() - start_y);
+-		int dx2 = WRAP_X(pToPlot->getX() - start_x);
+-		int dy2 = WRAP_Y(pToPlot->getY() - start_y);
+-
+-		// cross product. (greater than zero => sin(angle) > 0 => angle > 0)
+-		int cross = dx1 * dy2 - dx2 * dy1;
+-		if (cross > 0)
+-			iWorstCost += PATH_ASYMMETRY_WEIGHT; // turning left
+-		else if (cross < 0)
+-			iWorstCost -= PATH_ASYMMETRY_WEIGHT; // turning right
+-
+-		// woah - hang on. Does that say /minus/ asym weight?
+-		// Doesn't this guy know that bad things happen if the total weight is negative?
+-		// ...
+-		// take a breath.
+-		#if PATH_STEP_WEIGHT < PATH_ASYMMETRY_WEIGHT
+-		#error "I'm sorry, but I must demand that step weight be greater than asym weight."
+-		#endif
+-				// I think we're going to be ok.
+-
+-		#undef WRAP_X
+-		#undef WRAP_Y
+-	} */
+-
+-	/*	Unfortunately, the above code is not sufficient to fix the symmetry problem.
+-		Here's a new method, which combines symmetry breaking
+-		with the old "straight path" effect.
+-		Note: symmetry breaking is not important for AI controlled units. */
+-
+-	/*	It's actually marginally better strategy to move diagonally - for mapping reasons.
+-		So let the AI prefer diagonal movement.
+-		However, diagonal zig-zags will probably seem unnatural and weird to humans
+-		who are just trying to move in a straight line.
+-		So let the pathfinding for human groups prefer cardinal movement. */
+-	bool const bAIControl = kGroup.AI_isControlled();
+-	if (bAIControl)
+-	{
+-		if (kFrom.getX() == kTo.getX() || kFrom.getY() == kTo.getY())
+-			iWorstCost += PATH_STRAIGHT_WEIGHT;
+-	}
+-	else
+-	{
+-		if (kFrom.getX() != kTo.getX() && kFrom.getY() != kTo.getY())
+-		{
+-			iWorstCost += PATH_STRAIGHT_WEIGHT *
+-					(1 + ((kTo.getX() + kTo.getY()) % 2));
+-		}
+-		iWorstCost += (kTo.getX() + kTo.getY() + 1) % 3;
+-		iWorstCost++; // advc.pf: Essentially 1 extra
+-	}
+-	/*	unfortunately, this simple method may have problems at the world-wrap boundaries.
+-		It's difficult to tell when to correct for wrap effects and when not to,
+-		because as soon as the unit starts moving, the start position of the path changes,
+-		and so it's no longer possible to tell whether or not the unit started
+-		on the other side of the boundary. Drat. */
+-
+-	// end symmetry breaking.
+-
+-	if (!kTo.isRevealed(eTeam))
+-		return iWorstCost;
+-
+-	// the cost of battle...
+-	if (eFlags & MOVE_ATTACK_STACK)
+-	{
+-		FAssert(bAIControl); // only the AI uses MOVE_ATTACK_STACK
+-		FAssert(kGroup.getDomainType() == DOMAIN_LAND);
+-
+-		int iEnemyDefence = 0;
+-
+-		if (kTo.isVisible(eTeam))
+-		{	/*  <advc.001> In the rare case that the AI plans war while animals
+-				still roam the map, the DefenceStrength computation will crash
+-				when it gets to the point where the UnitCombatType is accessed.
+-				(Actually, not so exotic b/c advc.300 allows animals to survive
+-				in continents w/o civ cities.) */
+-			CvUnit* pUnit = kTo.headUnit();
+-			if (pUnit != NULL && !pUnit->isAnimal()) // </advc.001>
+-			{
+-				iEnemyDefence = GET_PLAYER(kGroup.getOwner()).
+-						AI_localDefenceStrength(&kTo, NO_TEAM,
+-						kGroup.getDomainType(), 0, true, false,
+-						kGroup.isHuman());
+-			}
+-		}
+-		else
+-		{
+-			// plot not visible. use memory
+-			iEnemyDefence = GET_TEAM(eTeam).AI_getStrengthMemory(kTo.getX(), kTo.getY());
+-		}
+-
+-		if (iEnemyDefence > 0)
+-		{
+-			iWorstCost += PATH_COMBAT_WEIGHT;
+-			int iAttackRatio = std::max(10,
+-					100 * kGroup.AI().AI_sumStrength(&kTo) / iEnemyDefence);
+-			/*	Note. I half intend to have pathValid return false whenever the
+-				above ratio is less than 100. I just haven't done that yet,
+-				mostly because I'm worried about performance. */
+-			if (iAttackRatio < 400)
+-			{
+-				iWorstCost += PATH_MOVEMENT_WEIGHT * GC.getMOVE_DENOMINATOR() *
+-						(400-iAttackRatio) / std::min(150, iAttackRatio);
+-			}
+-			// else, don't worry about it too much.
+-		}
+-	} //
+-
+-	// <advc.082>
+-	TeamTypes eToPlotTeam = kTo.getTeam();
+-	/*  The AVOID_ENEMY code in the no-moves-left branch below doesn't stop the AI
+-		from trying to move _through_ enemy territory and thus declaring war
+-		earlier than necessary */
+-	if(bAIControl && (eFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
+-		eToPlotTeam != eTeam && GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam))
+-	{
+-		iWorstCost += PATH_DOW_WEIGHT;
+-	} // </advc.082>
+-	if (iWorstMovesLeft <= 0)
+-	{
+-		if (eToPlotTeam != eTeam)
+-			iWorstCost += PATH_TERRITORY_WEIGHT;
+-
+-		// Damage caused by features (for mods)
+-		if (GC.getDefineINT(CvGlobals::PATH_DAMAGE_WEIGHT) != 0)
+-		{
+-			if (kTo.isFeature())
+-			{
+-				iWorstCost += (GC.getDefineINT(CvGlobals::PATH_DAMAGE_WEIGHT) *
+-						std::max(0, GC.getInfo(kTo.getFeatureType()).getTurnDamage())) /
+-						GC.getMAX_HIT_POINTS();
+-			}
+-
+-			if (kTo.getExtraMovePathCost() > 0)
+-				iWorstCost += (PATH_MOVEMENT_WEIGHT * kTo.getExtraMovePathCost());
+-		}
+-
+-		// defence modifiers
+-		int iDefenceMod = 0;
+-		int iDefenceCount = 0;
+-		int iFromDefenceMod = 0; // defence bonus for our attacking units left behind
+-		int iAttackWeight = 0;
+-		int iAttackCount = 0;
+-		int const iEnemies = kTo.getNumVisibleEnemyDefenders(kGroup.getHeadUnit());
+-
+-		for (CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
+-			pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
+-		{
+-			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			if (!pLoopUnit->canFight())
+-				continue; // advc
+-			iDefenceCount++;
+-			if (pLoopUnit->canDefend(&kTo))
+-			{
+-				iDefenceMod += pLoopUnit->noDefensiveBonus() ? 0 :
+-						//pToPlot->defenseModifier(eTeam, false);
+-						GET_TEAM(eTeam).AI_plotDefense(kTo); // advc.012
+-			}
+-			else iDefenceMod -= 100; // we don't want to be here.
+-
+-			// K-Mod note. the above code doesn't count all defensive bonuses, unfortunately.
+-			// We could count everything like this:
+-			/*CombatDetails combat_details;
+-			pLoopUnit->maxCombatStr(pToPlot, NULL, &combat_details);
+-			iDefenceMod += combat_details.iModifierTotal;*/
+-			// but that seems like overkill. I'm worried it would be too slow.
+-
+-			// defence for units who stay behind after attacking an enemy.
+-			if (iEnemies > 0)
+-			{
+-				/*	For human-controlled units, only apply the following effects
+-					for multi-step moves. (otherwise this might prevent the user
+-					from attacking from where they want to attack from.) */
+-				if (bAIControl || iKnownCost != 0 || (eFlags & MOVE_HAS_STEPPED))
+-				{
+-					iAttackCount++;
+-					if (!pLoopUnit->noDefensiveBonus())
+-						iFromDefenceMod += kFrom.defenseModifier(eTeam, false);
+-
+-					if (!kFrom.isCity())
+-					{
+-						iAttackWeight += PATH_CITY_WEIGHT;
+-						/*	it's done this way around rather than subtracting when in a city
+-							so that the overall adjustment can't be negative. */
+-					}
+-					if (pLoopUnit->canAttack() && !pLoopUnit->isRiver() &&
+-						kFrom.isRiverCrossing(directionXY(kFrom, kTo)))
+-					{
+-						iAttackWeight -= PATH_RIVER_WEIGHT *
+-								// Note, river modifier will be negative.
+-								GC.getDefineINT(CvGlobals::RIVER_ATTACK_MODIFIER);
+-						//iAttackMod -= (PATH_MOVEMENT_WEIGHT * iMovesLeft);
+-					}
+-				}
+-				/*	If this is a direct attack move from a human player,
+-					make sure it is the best value move possible.
+-					(This allows humans to choose which plot they attack from.)
+-					(note: humans have no way of ordering units to attack units en-route,
+-					so the fact that this is an attack move means we are at the destination.) */
+-				else if (pLoopUnit->canAttack()) // iKnownCost == 0 && !(eFlags & MOVE_HAS_STEPPED) && !bAIControl
+-					return PATH_STEP_WEIGHT; // DONE!
+-			}
+-		}
+-		//
+-		if (iAttackCount > 0)
+-		{
+-			// scale attack weights down if not all our units will need to fight.
+-			iAttackWeight *= std::min(iAttackCount, iEnemies);
+-			iAttackWeight /= iAttackCount;
+-			iFromDefenceMod *= std::min(iAttackCount, iEnemies);
+-			iFromDefenceMod /= iAttackCount;
+-			iAttackCount = std::min(iAttackCount, iEnemies);
+-		}
+-		//
+-		iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
+-				(iDefenceCount * 200 - iDefenceMod) / std::max(1, iDefenceCount));
+-		iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
+-				(iAttackCount * 200 - iFromDefenceMod) / std::max(1, iAttackCount));
+-		iWorstCost += std::max(0, iAttackWeight) / std::max(1, iAttackCount);
+-		/*	if we're in enemy territory, consider
+-			the sum of our defensive bonuses as well as the average */
+-		if (kTo.isOwned() && atWar(eToPlotTeam, eTeam))
+-		{
+-			iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
+-					(iDefenceCount * 200 - iDefenceMod) / 5);
+-			iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
+-					(iAttackCount * 200 - iFromDefenceMod) / 5);
+-			iWorstCost += std::max(0, iAttackWeight) / 5;
+-		}
+-
+-		// additional cost for ending turn in or adjacent to enemy territory based on flags (based on BBAI)
+-		if (eFlags & (MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_AVOID_ENEMY_WEIGHT_3))
+-		{
+-			if (kTo.isOwned() && GET_TEAM(eTeam).AI_getWarPlan(eToPlotTeam) != NO_WARPLAN)
+-				iWorstCost *= ((eFlags & MOVE_AVOID_ENEMY_WEIGHT_3) ? 3 : 2);
+-			else
+-			{
+-				FOR_EACH_ENUM(Direction)
+-				{
+-					CvPlot const* pAdj = plotDirection(kTo.getX(), kTo.getY(), eLoopDirection);
+-					if (pAdj == NULL)
+-						continue;
+-					if (pAdj->isOwned() &&
+-						GET_TEAM(pAdj->getTeam()).isAtWar(kGroup.getHeadTeam()))
+-					{
+-						if (eFlags & MOVE_AVOID_ENEMY_WEIGHT_3)
+-						{
+-							iWorstCost *= 3;
+-							iWorstCost /= 2;
+-						}
+-						else
+-						{
+-							iWorstCost *= 4;
+-							iWorstCost /= 3;
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	FAssert(iWorstCost > 0);
+-
+-	return iWorstCost;
++			parent->m_iData1, parent->m_iKnownCost != 0); // </advc.pf>
+ }
+ 
+ 
+@@ -552,138 +69,14 @@ BOOL pathValid(FAStarNode* parent, FAStarNode* node, int data, void const* point
+ 	CvPlot const& kTo = GC.getMap().getPlot(node->m_iX, node->m_iY);
+ 	CvSelectionGroup const& kGroup = *reinterpret_cast<CvSelectionGroup const*>(pointer);
+ 	MovementFlags eFlags = (MovementFlags)gDLL->getFAStarIFace()->GetInfo(finder);
+-	// </advc.pf>
+-	if (!pathValid_join(kFrom, kTo, kGroup, eFlags))
++	if (!GroupStepMetric::isValidStep(kFrom, kTo, kGroup, eFlags))
+ 		return FALSE;
+-	if (!pathValid_source(kFrom, kGroup, eFlags, // K-Mod
+-		parent->m_iData1, parent->m_iData2)) // advc.pf
++	if (!GroupStepMetric::canStepThrough(kFrom, kGroup, eFlags,
++		parent->m_iData1, parent->m_iData2))
+ 	{
+ 		return FALSE;
+ 	}
+-	return TRUE;
+-}
+-
+-
+-bool pathValid_join(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags)
+-{
+-	return (kGroup.getDomainType() != DOMAIN_SEA ||
+-			!GC.getMap().isSeparatedByIsthmus(kFrom, kTo) ||
+-			kGroup.canMoveAllTerrain());
+-}
+-
+-
+-bool pathValid_source(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags,
+-	int iMovesLeft, int iTurns) // advc.pf (instead of passing the node pointer)
+-{
+-	//PROFILE_FUNC(); // advc.003o
+-
+-	if (kGroup.atPlot(&kFrom))
+-		return true;
+-
+-	if (eFlags & MOVE_SAFE_TERRITORY)
+-	{
+-		if (kFrom.isOwned() && kFrom.getTeam() != kGroup.getHeadTeam())
+-			return false;
+-
+-		if (!kFrom.isRevealed(kGroup.getHeadTeam()))
+-			return false;
+-	}
+-	// <advc.pf> No new AI routes in human territory (but upgrade to railroad OK)
+-	if(eFlags & MOVE_ROUTE_TO)
+-	{
+-		if(kFrom.getRevealedRouteType(kGroup.getHeadTeam()) == NO_ROUTE &&
+-			!kGroup.isHuman())
+-		{
+-			PlayerTypes eOwner = kFrom.getOwner();
+-			if(eOwner != NO_PLAYER && GET_PLAYER(eOwner).isHuman())
+-				return false;
+-		}
+-	} // </advc.pf>
+-
+-	if ((eFlags & MOVE_NO_ENEMY_TERRITORY) && kFrom.isOwned() &&
+-		GET_TEAM(kFrom.getTeam()).isAtWar(kGroup.getHeadTeam()))
+-	{
+-		return false;
+-	}
+-	bool const bAIControl = kGroup.AI_isControlled();
+-	if (bAIControl)
+-	{
+-		if (iTurns > 1 || iMovesLeft == 0)
+-		{
+-			if (!(eFlags & MOVE_IGNORE_DANGER))
+-			{
+-				if (!kGroup.canFight() && !kGroup.alwaysInvisible())
+-				{
+-					if (GET_PLAYER(kGroup.getHeadOwner()).AI_isAnyPlotDanger(kFrom))
+-						return false;
+-				}
+-			}
+-		}
+-	}
+-
+-	if (bAIControl || kFrom.isRevealed(kGroup.getHeadTeam()))
+-	{
+-		if (eFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
+-		{
+-			if (!kGroup.canMoveOrAttackInto(kFrom,
+-				eFlags & MOVE_DECLARE_WAR && !kGroup.isHuman())) // K-Mod
+-			{
+-				return false;
+-			}
+-		}
+-		else
+-		{
+-			if (!kGroup.canMoveThrough(kFrom,
+-				// K-Mod
+-				(eFlags & MOVE_DECLARE_WAR) && !kGroup.isHuman(),
+-				(eFlags & MOVE_ASSUME_VISIBLE) || !kGroup.isHuman()))
+-				// K-Mod end
+-			{
+-				return false;
+-			}
+-		}
+-	}
+-	/*	K-Mod. Note: it's currently difficult to extract the
+-		vision-cheating part of this AI, because the AI needs to cheat
+-		inside canMoveOrAttackInto for its other cheating parts to work...
+-		.. anyway, here is the beginnings of what the code
+-		might look like without the cheats. (it's unfinished) */
+-	#if 0
+-	if (kFrom.isRevealed(kGroup.getHeadTeam(), false))
+-	{
+-		PROFILE("pathValid move through");
+-		CvTeamAI& kTeam = GET_TEAM(kGroup.getHeadTeam());
+-
+-		int iEnemyDefence;
+-		if (kFrom.isVisible(kGroup.getHeadTeam(), false))
+-		{
+-			iEnemyDefence = GET_PLAYER(kGroup.getOwner()).AI_localDefenceStrength(pToPlot, NO_TEAM, kGroup.getDomainType(), 0, true, false, kGroup.isHuman());
+-		}
+-		else
+-		{
+-			iEnemyDefence = kTeam.AI_getStrengthMemory(&kFrom);
+-		}
+-
+-		if (kTeam.AI_getStrengthMemory(&kFrom) > 0 && eFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK))
+-		{
+-			if (!kGroup.canMoveOrAttackInto(kFrom) ||
+-				(eFlags & MOVE_ATTACK_STACK && kGroup.AI_sumStrength(&kFrom) < iEnemyDefence))
+-			{
+-				return false;
+-			}
+-		}
+-		else
+-		{
+-			if (!kGroup.canMoveThrough(kFrom))
+-			{
+-				return false;
+-			}
+-		}
+-	}
+-	#endif
+-	// K-Mod end
+-
+-	return true;
++	return TRUE; // </advc.pf>
+ }
+ 
+ 
+@@ -693,122 +86,21 @@ BOOL pathAdd(FAStarNode* parent, FAStarNode* node, int data, void const* pointer
+ 	MovementFlags eFlags = (MovementFlags)gDLL->getFAStarIFace()->GetInfo(finder);
+ 	if (data == ASNC_INITIALADD)
+ 	{
+-		node->m_iData1 = pathInitialAdd(kGroup, eFlags);
+-		node->m_iData2 = 1;
++		node->setPathTurns(1);
++		node->setMoves(GroupStepMetric::initialMoves(kGroup, eFlags));
+ 	}
+-	else pathAdd(*parent, *node, kGroup, eFlags);
+-	return TRUE;
+-}
+-
+-
+-int pathInitialAdd(CvSelectionGroup const& kGroup, MovementFlags eFlags)
+-{
+-	// (This used to be a branch in pathAdd)
+-	FAssert(kGroup.getNumUnits() > 0);
+-	// K-Mod: Moved into separate functions
+-	return ((eFlags & MOVE_MAX_MOVES) ? kGroup.maxMoves() : kGroup.movesLeft());
+-}
+-
+-
+-void pathAdd(FAStarNode const& kParent, FAStarNode& kNode, CvSelectionGroup const& kGroup, MovementFlags eFlags)
+-{	// </advc.pf>
+-	//PROFILE_FUNC(); // advc.003o
+-	FAssert(kGroup.getNumUnits() > 0);
+-	CvMap const& kMap = GC.getMap();
+-	CvPlot const& kFrom = kMap.getPlot(kParent.m_iX, kParent.m_iY);
+-	CvPlot const& kTo = kMap.getPlot(kNode.m_iX, kNode.m_iY);
+-	int iStartMoves = kParent.m_iData1;
+-	int iTurns = kParent.m_iData2;
+-	int iMoves = MAX_INT;
+-	/*if (iStartMoves == 0)
+-		iTurns++;
+-	for (CLLNode<IDInfo>* pUnitNode = kGroup.headUnitNode(); pUnitNode != NULL;
+-			pUnitNode = kGroup.nextUnitNode(pUnitNode)) {
+-		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		int iUnitMoves = (iStartMoves == 0 ? pLoopUnit->maxMoves() : iStartMoves);
+-		iUnitMoves -= kTo.movementCost(pLoopUnit, &kFrom);
+-		iUnitMoves = std::max(iUnitMoves, 0);
+-		iMoves = std::min(iMoves, iUnitMoves);
+-	}*/ // BtS
+-	/*K-Mod. The original code would give incorrect results for groups
+-		where one unit had more moves but also had higher move cost.
+-		(the most obvious example is when a group with 1-move units and 2-move units
+-		is moving on a railroad. - In this situation, the original code would consistently
+-		underestimate the remaining moves at every step.) */
+-	{
+-		bool bNewTurn = (iStartMoves == 0);
+-		if (bNewTurn)
+-		{
+-			iTurns++;
+-			iStartMoves = kGroup.maxMoves();
+-		}
+-	}
+-	CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
+-	int iMoveCost = kTo.movementCost(::getUnit(pUnitNode->m_data), &kFrom,
+-			false); // advc.001i
+-	bool bUniformCost = true;
+-	for (pUnitNode = kGroup.nextUnitNode(pUnitNode);
+-		bUniformCost && pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
+-	{
+-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		int iLoopCost = kTo.movementCost(pLoopUnit, &kFrom,
+-				false); // advc.001i
+-		if (iLoopCost != iMoveCost)
+-			bUniformCost = false;
+-	}
+-	if (bUniformCost)
+-	{
+-		// the simple, normal case
+-		iMoves = std::max(0, iStartMoves - iMoveCost);
+-	}
+-	else
+-	{
+-		//PROFILE("pathAdd - non-uniform cost"); // advc.003o
+-		/*	Move costs are uneven for units in this group.
+-			To be sure of the true movement cost for the group,
+-			we need to calculate the movement cost for each unit
+-			for every step in this turn. */
+-		std::vector<CvPlot const*> plot_list; // will be traversed in reverse order
+-		plot_list.push_back(&kTo);
+-		plot_list.push_back(&kFrom);
+-		FAStarNode const* pStartNode = &kParent;
+-		while (pStartNode->m_iData2 == iTurns && pStartNode->m_pParent != NULL)
+-		{
+-			pStartNode = pStartNode->m_pParent;
+-			plot_list.push_back(kMap.plotSoren(pStartNode->m_iX, pStartNode->m_iY));
+-		}
+-		iMoves = MAX_INT;
+-		bool const bMaxMoves = (pStartNode->m_iData1 == 0 || eFlags & MOVE_MAX_MOVES);
+-		for (pUnitNode = kGroup.headUnitNode(); pUnitNode != NULL;
+-			pUnitNode = kGroup.nextUnitNode(pUnitNode))
+-		{
+-			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			int iUnitMoves = (bMaxMoves ? pLoopUnit->maxMoves() : pLoopUnit->movesLeft());
+-			for (size_t i = plot_list.size() - 1; i > 0; i--)
+-			{
+-				iUnitMoves -= plot_list[i-1]->movementCost(pLoopUnit, plot_list[i],
+-						false); // advc.001i
+-				FAssert(iUnitMoves > 0 || i == 1);
+-			}
+-
+-			iUnitMoves = std::max(iUnitMoves, 0);
+-			iMoves = std::min(iMoves, iUnitMoves);
+-		}
+-	}
+-	// K-Mod end
+-
+-	FAssert(iMoves >= 0);
+-	kNode.m_iData1 = iMoves;
+-	kNode.m_iData2 = iTurns;
++	else GroupStepMetric::updatePathData(*node, *parent, kGroup, eFlags);
++	return TRUE; // </advc.pf>
+ }
+ 
+ 
+-int stepDestValid(int iToX, int iToY, void const* pointer, FAStar* finder)
++BOOL stepDestValid(int iToX, int iToY, void const* pointer, FAStar* finder)
+ {
+ 	PROFILE_FUNC();
+ 
+ 	CvPlot const& kFrom = GC.getMap().getPlot(
+-			gDLL->getFAStarIFace()->GetStartX(finder), gDLL->getFAStarIFace()->GetStartY(finder));
++			gDLL->getFAStarIFace()->GetStartX(finder),
++			gDLL->getFAStarIFace()->GetStartY(finder));
+ 	CvPlot const& kTo = GC.getMap().getPlot(iToX, iToY);
+ 	if (!kFrom.sameArea(kTo))
+ 		return FALSE;
+@@ -817,7 +109,7 @@ int stepDestValid(int iToX, int iToY, void const* pointer, FAStar* finder)
+ }
+ 
+ // <advc.104b> Rule out (basically) no destinations; let teamStepValid_advc decide
+-int stepDestValid_advc(int iToX, int iToY, void const* pointer, FAStar* finder)
++BOOL stepDestValid_advc(int iToX, int iToY, void const* pointer, FAStar* finder)
+ {
+ 	CvPlot* pTo = GC.getMap().plotSoren(iToX, iToY);
+ 	if(pTo == NULL || pTo->isImpassable())
+
+diff --git a/CvGameCoreDLL/FAStarFunc.h b/CvGameCoreDLL/FAStarFunc.h
+index d9db217e4..5919564ad 100644
+--- a/CvGameCoreDLL/FAStarFunc.h
++++ b/CvGameCoreDLL/FAStarFunc.h
+@@ -9,9 +9,7 @@
+ 	from the EXE despite not being exported. I've replaced return type int with
+ 	BOOL (which is a typedef of int) where appropritate. Those functions that
+ 	KmodPathFinder used to call directly, I've turned into wrappers so that
+-	KmodPathFinder can use a more intuitive interface. */
+-
+-#include "CvMap.h" // advc.inl: for pathHeuristic
++	GroupPathFinder can use a more intuitive interface. */
+ 
+ class FAStarNode;
+ class FAStar;
+@@ -19,41 +17,23 @@ class CvPlot;
+ class CvSelectionGroup;
+ 
+ BOOL pathDestValid(int iToX, int iToY, void const* pointer, FAStar* finder);
+-// advc.pf:
+-bool pathDestValid(CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+-/*	<advc.inl> Inlining isn't going to help the pathfinder in the EXE,
+-	but I've verified (disassembly) that it helps KmodPathFinder. */
+-#define PATH_MOVEMENT_WEIGHT (1000)
+-// (NB: The linker requires the inline keyword here.)
+-inline int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
+-{
+-	return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT;
+-} // </advc.inl>
++int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+ int pathCost(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+-// advc.pf:
+-int pathCost(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags,
+-		int iCurrMovesLeft, int iKnownCost);
+ int stepHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+ int stepCost(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ BOOL pathValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+-// <K-Mod> (advc.pf: changed param lists so that the caller handles the plot lookup)
+-bool pathValid_join(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+-bool pathValid_source(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags,
+-		int iMovesLeft, int iTurns); // advc.pf
+-// </K-Mod>
+ BOOL pathAdd(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+-// <advc.pf>
+-void pathAdd(FAStarNode const& kParent, FAStarNode& kNode, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+-int pathInitialAdd(CvSelectionGroup const& kGroup, MovementFlags eFlags); // </advc.pf>
+-int stepDestValid(int iToX, int iToY, void const* pointer, FAStar* finder);
++
++BOOL stepDestValid(int iToX, int iToY, void const* pointer, FAStar* finder);
+ // advc.104b:
+-int stepDestValid_advc(int iToX, int iToY, void const* pointer, FAStar* finder);
++BOOL stepDestValid_advc(int iToX, int iToY, void const* pointer, FAStar* finder);
+ BOOL stepValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ BOOL stepAdd(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ // BETTER_BTS_AI_MOD, 11/30/08, jdog5000:
+ BOOL teamStepValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ // advc.104b:
+ BOOL teamStepValid_advc(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
++
+ BOOL routeValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ BOOL borderValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+ BOOL areaValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder);
+
+diff --git a/CvGameCoreDLL/FAStarNode.h b/CvGameCoreDLL/FAStarNode.h
+index 8cfc6d515..69d8e2d63 100644
+--- a/CvGameCoreDLL/FAStarNode.h
++++ b/CvGameCoreDLL/FAStarNode.h
+@@ -1,9 +1,15 @@
+ #pragma once
+ //  *****************   FIRAXIS GAME ENGINE   ********************
+-//  FILE:    FAStarNode.h
+-//  AUTHOR:  Casey O'Toole  --  8/21/2002
+-//  PURPOSE: A* Pathfinding - based off of A* Explorer from "AI Game Programming Wisdom"
+ //  Copyright (c) 2002 Firaxis Games, Inc. All rights reserved.
++//  author: Casey O'Toole  --  8/21/2002
++//  A* Pathfinding - based off of A* Explorer from "AI Game Programming Wisdom"
++//	^advc: Full bibliographic info on that:
++/*	Matthews, J.: Basic A* Pathfinding Made Simple.
++	In: Rabin, S. (ed.) AI Game Programming Wisdom, chapter 3.1,
++	pp. 105�113. Charles River Media, Inc., Rockland (2002) */
++
++#include "CvMap.h" // advc.pf (for inline plot lookup)
++
+ #ifndef FASTARNODE_H
+ #define FASTARNODE_H
+ 
+@@ -30,7 +36,7 @@ enum FAStarListType
+ class FAStarNode
+ {
+ 	/*	advc.pf: This gets initialized through memset by the KmodPathFinder and,
+-		apparently, also by the BtS path finder. To save time, presumably.
++		apparently, also by the BtS path finder.
+ 		I've removed the constructor to make this clearer. Note that the
+ 		constructor had set m_iX, m_iY and m_eFAStarListType to -1 (not 0). */
+ 	FAStarNode();
+@@ -66,6 +72,16 @@ public:
+ 	int m_iNumChildren;
+ 	int m_iData1;
+ 	int m_iData2;
++	/*	<advc.pf> Adapters to the interface of GroupPathNode - so that both
++		node classes can be used interchangeably as template parameters
++		in code shared by the FAStar path finder and GroupPathFinder. */
++	inline int getMoves() const { return m_iData1; }
++	inline void setMoves(int iMoves) { m_iData1 = iMoves; }
++	inline int getPathTurns() const { return m_iData2; }
++	inline void setPathTurns(int iPathTurns) { m_iData2 = iPathTurns; }
++	// Same thought - don't want to store plots as coordinates in my node classes.
++	inline CvPlot& getPlot() const { return GC.getMap().getPlot(m_iX, m_iY); }
++	// </advc.pf>
+ 
+ 	bool m_bOnStack;
+ 
+@@ -83,32 +99,4 @@ public:
+ 	the size needs to remain unchanged. */
+ BOOST_STATIC_ASSERT(sizeof(FAStarNode) == 88);
+ 
+-// advc.pf: Based on code cut from KmodPathFinder
+-class FAStarNodeMap
+-{
+-public:
+-	inline FAStarNodeMap(int iWidth, int iHeight)
+-	{
+-		m_data = new byte[iWidth * iHeight * sizeof(FAStarNode)];
+-		m_iWidth = iWidth;
+-		m_iHeight = iHeight;
+-		reset();
+-	}
+-	inline ~FAStarNodeMap()
+-	{
+-		SAFE_DELETE_ARRAY(m_data);
+-	}
+-	inline FAStarNode& get(int iX, int iY)
+-	{
+-		return reinterpret_cast<FAStarNode*>(m_data)[iY * m_iWidth + iX];
+-	}
+-	inline void reset()
+-	{
+-		memset(m_data, 0, sizeof(FAStarNode) * m_iWidth * m_iHeight);
+-	}
+-private:
+-	byte* m_data;
+-	int m_iWidth, m_iHeight;
+-};
+-
+ #endif
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+new file mode 100644
+index 000000000..de38d069e
+--- /dev/null
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -0,0 +1,869 @@
++#include "CvGameCoreDLL.h"
++#include "GroupPathFinder.h"
++#include "CvSelectionGroupAI.h"
++#include "CvUnit.h"
++#include "CoreAI.h"
++#include "CvInfo_Terrain.h"
++#include "FAStarNode.h" // for linking updatePathData
++
++// advc.pf: New implementation file; see comment in header.
++
++
++bool GroupStepMetric::canReuseInitialPathData(GroupPathNode const& kStart) const
++{
++	/*	K-Mod (note): This condition isn't actually enough to catch all
++		significant changes. We really need to check max moves _and_ moves left
++		_and_ base moves. but I don't feel like doing all that at the moment.
++		^advc: I don't think max moves _and_ base moves need to be checked(?),
++		but, in order to check, max moves will have to be stored in GroupPathNode.
++		Or units will have to call invalidateGroup on CvSelectionGroup::m_pPathFinder
++		when their base moves change. Either way, this will take a bit of work. */
++	return (initialMoves(*m_pGroup, m_eFlags) == kStart.getMoves());
++}
++
++// "pathValid_join" in K-Mod
++bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
++	CvSelectionGroup const& kGroup, MovementFlags eFlags)
++{
++	return (kGroup.getDomainType() != DOMAIN_SEA ||
++			!GC.getMap().isSeparatedByIsthmus(kFrom, kTo) ||
++			kGroup.canMoveAllTerrain());
++}
++
++// "pathValid_source" in K-Mod
++bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
++	MovementFlags eFlags, int iMoves, int iPathTurns)
++{
++	//PROFILE_FUNC(); // advc.003o
++
++	if (kGroup.atPlot(&kPlot))
++		return true;
++
++	if (eFlags & MOVE_SAFE_TERRITORY)
++	{
++		if (kPlot.isOwned() && kPlot.getTeam() != kGroup.getHeadTeam())
++			return false;
++
++		if (!kPlot.isRevealed(kGroup.getHeadTeam()))
++			return false;
++	}
++	// <advc.pf> No new AI routes in human territory (but upgrade to railroad OK)
++	if(eFlags & MOVE_ROUTE_TO)
++	{
++		if(kPlot.getRevealedRouteType(kGroup.getHeadTeam()) == NO_ROUTE &&
++			!kGroup.isHuman())
++		{
++			PlayerTypes eOwner = kPlot.getOwner();
++			if(eOwner != NO_PLAYER && GET_PLAYER(eOwner).isHuman())
++				return false;
++		}
++	} // </advc.pf>
++
++	if ((eFlags & MOVE_NO_ENEMY_TERRITORY) && kPlot.isOwned() &&
++		GET_TEAM(kPlot.getTeam()).isAtWar(kGroup.getHeadTeam()))
++	{
++		return false;
++	}
++	bool const bAIControl = kGroup.AI_isControlled();
++	if (bAIControl)
++	{
++		if (iPathTurns > 1 || iMoves == 0)
++		{
++			if (!(eFlags & MOVE_IGNORE_DANGER) &&
++				!kGroup.canFight() && !kGroup.alwaysInvisible() &&
++				GET_PLAYER(kGroup.getHeadOwner()).AI_isAnyPlotDanger(kPlot))
++			{
++				return false;
++			}
++		}
++	}
++
++	if (bAIControl || kPlot.isRevealed(kGroup.getHeadTeam()))
++	{
++		if (eFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
++		{
++			if (!kGroup.canMoveOrAttackInto(kPlot,
++				(eFlags & MOVE_DECLARE_WAR) && !kGroup.isHuman())) // K-Mod
++			{
++				return false;
++			}
++		}
++		else if (!kGroup.canMoveThrough(kPlot,
++			// K-Mod
++			(eFlags & MOVE_DECLARE_WAR) && !kGroup.isHuman(),
++			(eFlags & MOVE_ASSUME_VISIBLE) || !kGroup.isHuman()))
++			// K-Mod end
++		{
++			return false;
++		}
++	}
++	/*	K-Mod. Note: it's currently difficult to extract the
++		vision-cheating part of this AI, because the AI needs to cheat
++		inside canMoveOrAttackInto for its other cheating parts to work...
++		.. anyway, here is the beginnings of what the code
++		might look like without the cheats. (it's unfinished) */
++	/*if (kPlot.isRevealed(kGroup.getHeadTeam(), false))
++	{
++		PROFILE("pathValid move through");
++		CvTeamAI& kTeam = GET_TEAM(kGroup.getHeadTeam());
++		int iEnemyDefence;
++		if (kPlot.isVisible(kGroup.getHeadTeam(), false))
++		{
++			iEnemyDefence = GET_PLAYER(kGroup.getOwner()).
++					AI_localDefenceStrength(pToPlot, NO_TEAM,
++					kGroup.getDomainType(), 0, true, false, kGroup.isHuman());
++		}
++		else iEnemyDefence = kTeam.AI_getStrengthMemory(&kPlot);
++
++		if (kTeam.AI_getStrengthMemory(&kPlot) > 0 &&
++			(eFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK)))
++		{
++			if (!kGroup.canMoveOrAttackInto(kPlot) ||
++				((eFlags & MOVE_ATTACK_STACK) &&
++				kGroup.AI_sumStrength(&kPlot) < iEnemyDefence))
++			{
++				return false;
++			}
++		}
++		else if (!kGroup.canMoveThrough(kPlot))
++			return false;
++	}*/
++
++	return true;
++}
++
++// "pathDestValid" in BtS/ K-Mod
++bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
++	MovementFlags eFlags)
++{
++	PROFILE_FUNC();
++
++	if (kGroup.at(kPlot))
++		return true;
++
++	DomainTypes const eDomain = kGroup.getDomainType();
++	if (eDomain == DOMAIN_IMMOBILE)
++		return false;
++
++	bool const bAIControl = kGroup.AI_isControlled();
++
++	if (bAIControl)
++	{	/*  BETTER_BTS_AI_MOD, Efficiency, 11/04/09, jdog5000: START
++			switch order as AI_isAnyPlotDanger is more expensive */
++		if (eDomain == DOMAIN_LAND)
++		{
++			CvArea const& kGroupArea = *kGroup.area();
++			if (!kPlot.isArea(kGroupArea) &&
++				!kGroup.canMoveAllTerrain() &&
++				!kPlot.isAdjacentToArea(kGroupArea))
++			{
++				return false;
++			}
++		}
++		if (!(eFlags & MOVE_IGNORE_DANGER) &&
++			!kGroup.canFight() && !kGroup.alwaysInvisible() &&
++			GET_PLAYER(kGroup.getHeadOwner()).AI_isAnyPlotDanger(kPlot))
++		{
++			return false;
++		}
++		// BETTER_BTS_AI_MOD: END
++	}
++
++	if (bAIControl || kPlot.isRevealed(kGroup.getHeadTeam()))
++	{
++		if (kGroup.isAmphibPlot(&kPlot))
++		{
++			for (CLLNode<IDInfo> const* pUnitNode1 = kGroup.headUnitNode();
++				pUnitNode1 != NULL; pUnitNode1 = kGroup.nextUnitNode(pUnitNode1))
++			{
++				CvUnit const* pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
++				if (pLoopUnit1->getCargo() > 0 && pLoopUnit1->domainCargo() == DOMAIN_LAND)
++				{
++					bool bValid = false;
++					for (CLLNode<IDInfo> const* pUnitNode2 = pLoopUnit1->getPlot().headUnitNode();
++						pUnitNode2 != NULL; pUnitNode2 = pLoopUnit1->getPlot().nextUnitNode(pUnitNode2))
++					{
++						CvUnit const* pLoopUnit2 = ::getUnit(pUnitNode2->m_data);
++						if (pLoopUnit2->getTransportUnit() == pLoopUnit1)
++						{
++							if (pLoopUnit2->isGroupHead())
++							{
++								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(kPlot,
++									//kGroup.AI().AI_isDeclareWar(kPlot) || (eFlags & MOVE_DECLARE_WAR)))
++									// K-Mod. The new AI must be explicit about declaring war.
++									eFlags & MOVE_DECLARE_WAR, false, bAIControl))
++								{
++									bValid = true;
++									break;
++								}
++							}
++						}
++					}
++					if (bValid)
++						return true;
++				}
++			}
++
++			return false;
++		}
++		else
++		{
++			if (!kGroup.canMoveOrAttackInto(kPlot,
++				//pSelectionGroup->AI_isDeclareWar(pToPlot) || (eFlags & MOVE_DECLARE_WAR))
++				// K-Mod. The new AI must be explicit about declaring war.
++				eFlags & MOVE_DECLARE_WAR, false, bAIControl))
++			{
++				return false;
++			}
++		}
++	}
++
++	return true;
++}
++
++/*	advc.pf: I've mainly wanted to increase PATH_STEP_WEIGHT.
++	Symmetry breaking and PATH_STRAIGHT_WEIGHT can add up to a total of 6 per step.
++	STEP_WEIGHT 7 still isn't always enough to trump that,
++	so I'm adding 1 more later on for human units.
++	Don't want to scale everything up too much, i.e. not too close to 1000.
++	(Though I guess one could just increase PATH_MOVEMENT_WEIGHT as well, e.g. to 2048.) */
++
++//#define PATH_MOVEMENT_WEIGHT    (1000) // advc: moved to the header (for inline function)
++// advc.pf: Was 20 in K-Mod, 100 in BtS.
++#define PATH_RIVER_WEIGHT         (32) // river crossing penalty
++// advc.pf: Was 200 in K-Mod, 100 in BtS.
++#define PATH_CITY_WEIGHT         (225) // K-Mod
++// advc.pf: Was 4 in K-Mod, 10 in BtS.
++#define PATH_DEFENSE_WEIGHT        (7) // defence bonus
++// advc.pf: Was 5 in K-Mod, 3 in BtS.
++#define PATH_TERRITORY_WEIGHT      (9)
++#define PATH_DOW_WEIGHT	           (7) // advc.082
++// advc.pf: Was 4 in K-Mod, 2 in BtS.
++#define PATH_STEP_WEIGHT           (7)
++#define PATH_STRAIGHT_WEIGHT       (2) // K-Mod: was 1
++//#define PATH_ASYMMETRY_WEIGHT    (1) // K-Mod
++
++// #define PATH_DAMAGE_WEIGHT      (500) // K-Mod (disabled because it isn't used)
++// advc.pf: Was 300 in K-Mod
++#define PATH_COMBAT_WEIGHT         (350) // K-Mod. penalty for having to fight along the way.
++// Note: there will also be other combat penalties added, for example from defence weight and city weight.
++
++// "pathCost" in BtS/ K-Mod
++/*	This function has been completely rewritten for K-Mod.
++	(the rewrite includes some bug fixes as well as some new features) */
++int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
++	CvSelectionGroup const& kGroup, MovementFlags eFlags,
++	int iCurrMoves, // (advc: Moves left when at kFrom)
++	bool bAtStart) // (advc: True if kFrom is the start of the path)
++{
++	//PROFILE_FUNC(); // advc.003o
++
++	TeamTypes const eTeam = kGroup.getHeadTeam();
++	// <advc.035>
++	int const iFlipModifierDiv = 7;
++	int iFlipModifier = iFlipModifierDiv;
++	// </advc.035>
++	// K-Mod
++	int iExploreModifier = 3; // (in thirds)
++	if (!kTo.isRevealed(eTeam))
++	{
++		if (kGroup.getAutomateType() == AUTOMATE_EXPLORE ||
++			(!kGroup.isHuman() &&
++			(kGroup.getHeadUnitAIType() == UNITAI_EXPLORE ||
++			kGroup.getHeadUnitAIType() == UNITAI_EXPLORE_SEA)))
++		{
++			// lower cost to encourage exploring unrevealed areas
++			iExploreModifier = 2;
++		}
++		else if (!kFrom.isRevealed(eTeam))
++		{
++			// higher cost to discourage pathfinding deep into the unknown
++			iExploreModifier = 4;
++		}
++	}
++	// K-Mod end
++	// <advc.035>
++	else if (GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS) &&
++		(eFlags & MOVE_DECLARE_WAR) && eTeam != BARBARIAN_TEAM)
++	{
++		PlayerTypes const eSecondOwner = kTo.getSecondOwner();
++		PlayerTypes const eFirstOwner = kTo.getOwner();
++		if (eSecondOwner != NO_PLAYER && eFirstOwner != NO_PLAYER &&
++			((kGroup.getDomainType() == DOMAIN_SEA) == kTo.isWater()))
++		{	// Avoid tiles that flip from us to the enemy upon DoW
++			if (TEAMID(eFirstOwner) == eTeam && (GET_TEAM(eTeam).isHuman() ?
++				(!GET_TEAM(eTeam).isFriendlyTerritory(TEAMID(eSecondOwner)) &&
++				!GET_TEAM(eTeam).isAtWar(TEAMID(eSecondOwner))) :
++				GET_TEAM(eTeam).AI_isSneakAttackReady(TEAMID(eSecondOwner))))
++			{
++				iFlipModifier++;
++			}
++			// Seek out enemy tiles that will flip to us upon DoW
++			if (TEAMID(eSecondOwner) == eTeam && (GET_TEAM(eTeam).isHuman() ?
++				(!GET_TEAM(eTeam).isFriendlyTerritory(TEAMID(eFirstOwner)) &&
++				!GET_TEAM(eTeam).isAtWar(TEAMID(eFirstOwner))) :
++				GET_TEAM(eTeam).AI_isSneakAttackReady(TEAMID(eFirstOwner))))
++			{
++				iFlipModifier--;
++			}
++			/*  This could be done much more accurately, taking into account
++				vassal agreements, defensive pacts, and going through the entire
++				selection group, but I worry about the performance, and it's OK
++				if it doesn't always work correctly. */
++		}
++	} // </advc.035>
++	int iWorstCost = 0;
++	int iWorstMovesLeft = MAX_INT;
++	//int iWorstMaxMoves = MAX_INT; // advc: unused
++	for (CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
++		pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
++	{
++		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		FAssert(pLoopUnit->getDomainType() != DOMAIN_AIR);
++
++		int iMaxMoves = (iCurrMoves > 0 ? iCurrMoves : pLoopUnit->maxMoves());
++		int iMoveCost = kTo.movementCost(pLoopUnit, &kFrom,
++				false); // advc.001i
++		int iMovesLeft = std::max(0, iMaxMoves - iMoveCost);
++
++		iWorstMovesLeft = std::min(iWorstMovesLeft, iMovesLeft);
++		//iWorstMaxMoves = std::min(iWorstMaxMoves, iMaxMoves);
++
++		int iCost = PATH_MOVEMENT_WEIGHT * (iMovesLeft == 0 ? iMaxMoves : iMoveCost);
++		iCost = (iCost * iExploreModifier) / 3;
++		iCost = (iCost * iFlipModifier) / iFlipModifierDiv; // advc.035
++		if (iCost > iWorstCost)
++		{
++			iWorstCost = iCost;
++			iWorstMovesLeft = iMovesLeft;
++			//iWorstMaxMoves = iMaxMoves;
++		}
++	}
++	iWorstCost += PATH_STEP_WEIGHT;
++
++	/*	symmetry breaking. This is meant to prevent two paths from having equal cost.
++		(If two paths have equal cost, sometimes the interface shows one path
++		and the units follow the other. This is bad.) */
++	/* original K-Mod symmetry breaking. (extra cost for turning a corner)
++	if (parent->m_pParent)
++	{
++		const int map_width = GC.getMap().getGridWidth();
++		const int map_height = GC.getMap().getGridHeight();
++		#define WRAP_X(x) ((x) - ((x) > map_width/2 ? map_width : 0) + ((x) < -map_width/2 ? map_width : 0))
++		#define WRAP_Y(y) ((y) - ((y) > map_height/2 ? map_height : 0) + ((y) < -map_height/2 ? map_height : 0))
++		int start_x = parent->m_pParent->m_iX;
++		int start_y = parent->m_pParent->m_iY;
++		int dx1 = WRAP_X(pFromPlot->getX() - start_x);
++		int dy1 = WRAP_Y(pFromPlot->getY() - start_y);
++		int dx2 = WRAP_X(pToPlot->getX() - start_x);
++		int dy2 = WRAP_Y(pToPlot->getY() - start_y);
++		// cross product. (greater than zero => sin(angle) > 0 => angle > 0)
++		int cross = dx1 * dy2 - dx2 * dy1;
++		if (cross > 0)
++			iWorstCost += PATH_ASYMMETRY_WEIGHT; // turning left
++		else if (cross < 0)
++			iWorstCost -= PATH_ASYMMETRY_WEIGHT; // turning right
++		// woah - hang on. Does that say /minus/ asym weight?
++		// Doesn't this guy know that bad things happen if the total weight is negative?
++		// ...
++		// take a breath.*/
++		//#if PATH_STEP_WEIGHT < PATH_ASYMMETRY_WEIGHT
++		//#error "I'm sorry, but I must demand that step weight be greater than asym weight."
++		//#endif  // I think we're going to be ok.
++		//#undef WRAP_X
++		//#undef WRAP_Y
++	//}
++	/*	Unfortunately, the above code is not sufficient to fix the symmetry problem.
++		Here's a new method, which combines symmetry breaking
++		with the old "straight path" effect.
++		Note: symmetry breaking is not important for AI controlled units. */
++
++	/*	It's actually marginally better strategy to move diagonally - for mapping reasons.
++		So let the AI prefer diagonal movement.
++		However, diagonal zig-zags will probably seem unnatural and weird to humans
++		who are just trying to move in a straight line.
++		So let the pathfinding for human groups prefer cardinal movement. */
++	bool const bAIControl = kGroup.AI_isControlled();
++	if (bAIControl)
++	{
++		if (kFrom.getX() == kTo.getX() || kFrom.getY() == kTo.getY())
++			iWorstCost += PATH_STRAIGHT_WEIGHT;
++	}
++	else
++	{
++		if (kFrom.getX() != kTo.getX() && kFrom.getY() != kTo.getY())
++		{
++			iWorstCost += PATH_STRAIGHT_WEIGHT *
++					(1 + ((kTo.getX() + kTo.getY()) % 2));
++		}
++		iWorstCost += (kTo.getX() + kTo.getY() + 1) % 3;
++		iWorstCost++; // advc.pf: Essentially 1 extra
++	}
++	/*	unfortunately, this simple method may have problems at the world-wrap boundaries.
++		It's difficult to tell when to correct for wrap effects and when not to,
++		because as soon as the unit starts moving, the start position of the path changes,
++		and so it's no longer possible to tell whether or not the unit started
++		on the other side of the boundary. Drat. */
++
++	// end symmetry breaking.
++
++	if (!kTo.isRevealed(eTeam))
++		return iWorstCost;
++
++	// the cost of battle...
++	if (eFlags & MOVE_ATTACK_STACK)
++	{
++		FAssert(bAIControl); // only the AI uses MOVE_ATTACK_STACK
++		FAssert(kGroup.getDomainType() == DOMAIN_LAND);
++
++		int iEnemyDefence = 0;
++
++		if (kTo.isVisible(eTeam))
++		{	/*  <advc.001> In the rare case that the AI plans war while animals
++				still roam the map, the DefenceStrength computation will crash
++				when it gets to the point where the UnitCombatType is accessed.
++				(Actually, not so exotic b/c advc.300 allows animals to survive
++				in continents w/o civ cities.) */
++			CvUnit* pUnit = kTo.headUnit();
++			if (pUnit != NULL && !pUnit->isAnimal()) // </advc.001>
++			{
++				iEnemyDefence = GET_PLAYER(kGroup.getOwner()).
++						AI_localDefenceStrength(&kTo, NO_TEAM,
++						kGroup.getDomainType(), 0, true, false,
++						kGroup.isHuman());
++			}
++		}
++		else
++		{
++			// plot not visible. use memory
++			iEnemyDefence = GET_TEAM(eTeam).AI_getStrengthMemory(kTo.getX(), kTo.getY());
++		}
++
++		if (iEnemyDefence > 0)
++		{
++			iWorstCost += PATH_COMBAT_WEIGHT;
++			int iAttackRatio = std::max(10,
++					100 * kGroup.AI().AI_sumStrength(&kTo) / iEnemyDefence);
++			/*	Note. I half intend to have pathValid return false whenever the
++				above ratio is less than 100. I just haven't done that yet,
++				mostly because I'm worried about performance. */
++			if (iAttackRatio < 400)
++			{
++				iWorstCost += PATH_MOVEMENT_WEIGHT * GC.getMOVE_DENOMINATOR() *
++						(400-iAttackRatio) / std::min(150, iAttackRatio);
++			}
++			// else, don't worry about it too much.
++		}
++	} //
++
++	// <advc.082>
++	TeamTypes eToPlotTeam = kTo.getTeam();
++	/*  The AVOID_ENEMY code in the no-moves-left branch below doesn't stop the AI
++		from trying to move _through_ enemy territory and thus declaring war
++		earlier than necessary */
++	if(bAIControl && (eFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
++		eToPlotTeam != eTeam && GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam))
++	{
++		iWorstCost += PATH_DOW_WEIGHT;
++	} // </advc.082>
++	if (iWorstMovesLeft <= 0)
++	{
++		if (eToPlotTeam != eTeam)
++			iWorstCost += PATH_TERRITORY_WEIGHT;
++
++		// Damage caused by features (for mods)
++		if (GC.getDefineINT(CvGlobals::PATH_DAMAGE_WEIGHT) != 0)
++		{
++			if (kTo.isFeature())
++			{
++				iWorstCost += (GC.getDefineINT(CvGlobals::PATH_DAMAGE_WEIGHT) *
++						std::max(0, GC.getInfo(kTo.getFeatureType()).getTurnDamage())) /
++						GC.getMAX_HIT_POINTS();
++			}
++
++			if (kTo.getExtraMovePathCost() > 0)
++				iWorstCost += (PATH_MOVEMENT_WEIGHT * kTo.getExtraMovePathCost());
++		}
++
++		// defence modifiers
++		int iDefenceMod = 0;
++		int iDefenceCount = 0;
++		int iFromDefenceMod = 0; // defence bonus for our attacking units left behind
++		int iAttackWeight = 0;
++		int iAttackCount = 0;
++		int const iEnemies = kTo.getNumVisibleEnemyDefenders(kGroup.getHeadUnit());
++
++		for (CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
++			pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
++		{
++			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			if (!pLoopUnit->canFight())
++				continue; // advc
++			iDefenceCount++;
++			if (pLoopUnit->canDefend(&kTo))
++			{
++				iDefenceMod += pLoopUnit->noDefensiveBonus() ? 0 :
++						//pToPlot->defenseModifier(eTeam, false);
++						GET_TEAM(eTeam).AI_plotDefense(kTo); // advc.012
++			}
++			else iDefenceMod -= 100; // we don't want to be here.
++
++			// K-Mod note. the above code doesn't count all defensive bonuses, unfortunately.
++			// We could count everything like this:
++			/*CombatDetails combat_details;
++			pLoopUnit->maxCombatStr(pToPlot, NULL, &combat_details);
++			iDefenceMod += combat_details.iModifierTotal;*/
++			// but that seems like overkill. I'm worried it would be too slow.
++
++			// defence for units who stay behind after attacking an enemy.
++			if (iEnemies > 0)
++			{
++				/*	For human-controlled units, only apply the following effects
++					for multi-step moves. (otherwise this might prevent the user
++					from attacking from where they want to attack from.) */
++				if (bAIControl || !bAtStart || (eFlags & MOVE_HAS_STEPPED))
++				{
++					iAttackCount++;
++					if (!pLoopUnit->noDefensiveBonus())
++						iFromDefenceMod += kFrom.defenseModifier(eTeam, false);
++
++					if (!kFrom.isCity())
++					{
++						iAttackWeight += PATH_CITY_WEIGHT;
++						/*	it's done this way around rather than subtracting when in a city
++							so that the overall adjustment can't be negative. */
++					}
++					if (pLoopUnit->canAttack() && !pLoopUnit->isRiver() &&
++						kFrom.isRiverCrossing(directionXY(kFrom, kTo)))
++					{
++						iAttackWeight -= PATH_RIVER_WEIGHT *
++								// Note, river modifier will be negative.
++								GC.getDefineINT(CvGlobals::RIVER_ATTACK_MODIFIER);
++						//iAttackMod -= (PATH_MOVEMENT_WEIGHT * iMovesLeft);
++					}
++				}
++				/*	If this is a direct attack move from a human player,
++					make sure it is the best value move possible.
++					(This allows humans to choose which plot they attack from.)
++					(note: humans have no way of ordering units to attack units en-route,
++					so the fact that this is an attack move means we are at the destination.) */
++				else if (pLoopUnit->canAttack()) // iKnownCost == 0 && !(eFlags & MOVE_HAS_STEPPED) && !bAIControl
++					return PATH_STEP_WEIGHT; // DONE!
++			}
++		}
++		//
++		if (iAttackCount > 0)
++		{
++			// scale attack weights down if not all our units will need to fight.
++			iAttackWeight *= std::min(iAttackCount, iEnemies);
++			iAttackWeight /= iAttackCount;
++			iFromDefenceMod *= std::min(iAttackCount, iEnemies);
++			iFromDefenceMod /= iAttackCount;
++			iAttackCount = std::min(iAttackCount, iEnemies);
++		}
++		//
++		iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
++				(iDefenceCount * 200 - iDefenceMod) / std::max(1, iDefenceCount));
++		iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
++				(iAttackCount * 200 - iFromDefenceMod) / std::max(1, iAttackCount));
++		iWorstCost += std::max(0, iAttackWeight) / std::max(1, iAttackCount);
++		/*	if we're in enemy territory, consider
++			the sum of our defensive bonuses as well as the average */
++		if (kTo.isOwned() && atWar(eToPlotTeam, eTeam))
++		{
++			iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
++					(iDefenceCount * 200 - iDefenceMod) / 5);
++			iWorstCost += PATH_DEFENSE_WEIGHT * std::max(0,
++					(iAttackCount * 200 - iFromDefenceMod) / 5);
++			iWorstCost += std::max(0, iAttackWeight) / 5;
++		}
++
++		// additional cost for ending turn in or adjacent to enemy territory based on flags (based on BBAI)
++		if (eFlags & (MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_AVOID_ENEMY_WEIGHT_3))
++		{
++			if (kTo.isOwned() && GET_TEAM(eTeam).AI_getWarPlan(eToPlotTeam) != NO_WARPLAN)
++				iWorstCost *= ((eFlags & MOVE_AVOID_ENEMY_WEIGHT_3) ? 3 : 2);
++			else
++			{
++				FOR_EACH_ENUM(Direction)
++				{
++					CvPlot const* pAdj = plotDirection(kTo.getX(), kTo.getY(), eLoopDirection);
++					if (pAdj == NULL)
++						continue;
++					if (pAdj->isOwned() &&
++						GET_TEAM(pAdj->getTeam()).isAtWar(kGroup.getHeadTeam()))
++					{
++						if (eFlags & MOVE_AVOID_ENEMY_WEIGHT_3)
++						{
++							iWorstCost *= 3;
++							iWorstCost /= 2;
++						}
++						else
++						{
++							iWorstCost *= 4;
++							iWorstCost /= 3;
++						}
++					}
++				}
++			}
++		}
++	}
++
++	FAssert(iWorstCost > 0);
++
++	return iWorstCost;
++}
++
++// Part of "branchAdd" in BtS/ K-Mod
++int GroupStepMetric::initialMoves(CvSelectionGroup const& kGroup, MovementFlags eFlags)
++{
++	FAssert(kGroup.getNumUnits() > 0);
++	// K-Mod: Moved into separate functions
++	return ((eFlags & MOVE_MAX_MOVES) ? kGroup.maxMoves() : kGroup.movesLeft());
++}
++
++// "pathAdd" in BtS/ K-Mod
++template<class Node>
++bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
++	CvSelectionGroup const& kGroup, MovementFlags eFlags)
++{
++	//PROFILE_FUNC(); // advc.003o
++	FAssert(kGroup.getNumUnits() > 0);
++
++	int iPathTurns = kParent.getPathTurns();
++	int iMoves = MAX_INT;
++	{
++		CvPlot const& kFrom = kParent.getPlot();
++		CvPlot const& kTo = kNode.getPlot();
++		/*if (iStartMoves == 0)
++			iPathTurns++;
++		for (CLLNode<IDInfo>* pUnitNode = kGroup.headUnitNode(); pUnitNode != NULL;
++				pUnitNode = kGroup.nextUnitNode(pUnitNode)) {
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			int iUnitMoves = (iStartMoves == 0 ? pLoopUnit->maxMoves() : iStartMoves);
++			iUnitMoves -= kTo.movementCost(pLoopUnit, &kFrom);
++			iUnitMoves = std::max(iUnitMoves, 0);
++			iMoves = std::min(iMoves, iUnitMoves);
++		}*/ // BtS
++		/*K-Mod. The original code would give incorrect results for groups
++			where one unit had more moves but also had higher move cost.
++			(the most obvious example is when a group with 1-move units and 2-move units
++			is moving on a railroad. - In this situation, the original code would consistently
++			underestimate the remaining moves at every step.) */
++		int iParentMoves = kParent.getMoves();
++		{
++			bool bNewTurn = (iParentMoves == 0);
++			if (bNewTurn)
++			{
++				iPathTurns++;
++				iParentMoves = kGroup.maxMoves();
++			}
++		}
++		CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
++		int iMoveCost = kTo.movementCost(::getUnit(pUnitNode->m_data), &kFrom,
++				false); // advc.001i
++		bool bUniformCost = true;
++		for (pUnitNode = kGroup.nextUnitNode(pUnitNode);
++			bUniformCost && pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
++		{
++			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			int iLoopCost = kTo.movementCost(pLoopUnit, &kFrom,
++					false); // advc.001i
++			if (iLoopCost != iMoveCost)
++				bUniformCost = false;
++		}
++		if (bUniformCost)
++		{
++			// the simple, normal case
++			iMoves = std::max(0, iParentMoves - iMoveCost);
++		}
++		else
++		{
++			//PROFILE("pathAdd - non-uniform cost"); // advc.003o
++			/*	Move costs are uneven for units in this group.
++				To be sure of the true movement cost for the group,
++				we need to calculate the movement cost for each unit
++				for every step in this turn. */
++			std::vector<CvPlot const*> plotList; // will be traversed in reverse order
++			plotList.push_back(&kTo);
++			plotList.push_back(&kFrom);
++			Node const* pStartNode = &kParent;
++			while (pStartNode->getPathTurns() == iPathTurns &&
++				pStartNode->m_pParent != NULL)
++			{
++				pStartNode = pStartNode->m_pParent;
++				plotList.push_back(&pStartNode->getPlot());
++			}
++			iMoves = MAX_INT;
++			bool const bMaxMoves = (pStartNode->getMoves() == 0 || (eFlags & MOVE_MAX_MOVES));
++			for (pUnitNode = kGroup.headUnitNode(); pUnitNode != NULL;
++				pUnitNode = kGroup.nextUnitNode(pUnitNode))
++			{
++				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				int iUnitMoves = (bMaxMoves ? pLoopUnit->maxMoves() : pLoopUnit->movesLeft());
++				for (size_t i = plotList.size() - 1; i > 0; i--)
++				{
++					iUnitMoves -= plotList[i-1]->movementCost(pLoopUnit, plotList[i],
++							false); // advc.001i
++					FAssert(iUnitMoves > 0 || i == 1);
++				}
++
++				iUnitMoves = std::max(iUnitMoves, 0);
++				iMoves = std::min(iMoves, iUnitMoves);
++			}
++		}
++		// K-Mod end
++	}
++	FAssertBounds(0, MAX_INT, iMoves);
++	if (kNode.getMoves() != iMoves || kNode.getPathTurns() != iPathTurns)
++	{
++		kNode.setMoves(iMoves);
++		kNode.setPathTurns(iPathTurns);
++		return true;
++	}
++	return false;
++}
++class FAStarNode; // explicit instantiation
++template bool GroupStepMetric::updatePathData<FAStarNode>(FAStarNode&, FAStarNode const&,
++		CvSelectionGroup const&, MovementFlags);
++
++
++int GroupPathFinder::iAdmissibleBaseWeight = 1;
++int GroupPathFinder::iAdmissibleScaledWeight = 1;
++
++
++void GroupPathFinder::InitHeuristicWeights()
++{	// <advc.tmp>
++	#ifdef FASSERT_ENABLE
++	KmodPathFinderLegacy::InitHeuristicWeights();
++	#endif // </advc.tmp>
++	iAdmissibleBaseWeight = iAdmissibleScaledWeight = GC.getMOVE_DENOMINATOR() / 2;
++	FOR_EACH_ENUM(Route)
++	{
++		CvRouteInfo const& kLoopRoute = GC.getInfo(eLoopRoute);
++		int iCost = kLoopRoute.getMovementCost();
++		FOR_EACH_ENUM(Tech)
++		{
++			if (kLoopRoute.getTechMovementChange(eLoopTech) < 0)
++				iCost += kLoopRoute.getTechMovementChange(eLoopTech);
++		}
++		iAdmissibleBaseWeight = std::min(iAdmissibleBaseWeight, iCost);
++		iAdmissibleScaledWeight = std::min(iAdmissibleScaledWeight,
++				kLoopRoute.getFlatMovementCost());
++	}
++}
++
++
++int GroupPathFinder::MinimumStepCost(int iBaseMoves)
++{
++	#ifndef FASSERT_ENABLE // advc.tmp
++	return std::max(1, std::min(iAdmissibleBaseWeight,
++			iBaseMoves * iAdmissibleScaledWeight));
++	//<advc.tmp>
++	#else
++	int r=std::max(1, std::min(iAdmissibleBaseWeight,
++			iBaseMoves * iAdmissibleScaledWeight));
++	FAssert(r==KmodPathFinderLegacy::MinimumStepCost(iBaseMoves));
++	return r;
++	#endif //</advc.tmp>
++}
++
++
++void GroupPathFinder::SetSettings(CvSelectionGroup const& kGroup,
++	MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
++{	// <advc.tmp>
++	#ifdef FASSERT_ENABLE
++	leg.SetSettings(&kGroup,eFlags,iMaxPath,iHeuristicWeight);
++	#endif //</advc.tmp>
++	CvSelectionGroup const* pOldGroup = m_stepMetric.getGroup();
++	if (pOldGroup != &kGroup)
++		resetNodes();
++	else
++	{
++		/*	some flags are not relevant to pathfinder.
++			We should try to strip those out to avoid unnecessary resets. */
++		MovementFlags eRelevantFlags =  // any bar these:
++				~(MOVE_DIRECT_ATTACK | MOVE_SINGLE_ATTACK | MOVE_NO_ATTACK);
++		if ((m_stepMetric.getFlags() & eRelevantFlags) != (eFlags & eRelevantFlags))
++		{
++			// there's one more chance to avoid a reset..
++			/*	If the war flag is the only difference, and we aren't sneakattack-ready anyway
++				- then there is effectively no difference. */
++			eRelevantFlags &= ~MOVE_DECLARE_WAR;
++			if ((m_stepMetric.getFlags() & eRelevantFlags) != (eFlags & eRelevantFlags) ||
++				GET_TEAM(pOldGroup->getHeadTeam()).AI_isSneakAttackReady())
++			{
++				resetNodes();
++			}
++		}
++	}
++	if (iHeuristicWeight < 0)
++	{
++		if (kGroup.getDomainType() == DOMAIN_SEA)
++		{
++			/*	This assumes that there are no water routes,
++				no promotions that reduce water movement cost. */
++			iHeuristicWeight = GC.getMOVE_DENOMINATOR();
++		}
++		else iHeuristicWeight = MinimumStepCost(kGroup.baseMoves());
++	}
++	// advc: Use implicitly declared copy assignment operator
++	m_stepMetric = GroupStepMetric(&kGroup, eFlags, iMaxPath, iHeuristicWeight);
++}
++
++/*	advc: To make sure we don't end up with a dangling pointer.
++	Seems highly unlikely that such a pointer would clash with the group
++	passed in the next SetSettings call, but better not to take that chance.
++	(That said, I'm only going to call this function on
++	CvSelectionGroup::m_pPathFinder, so things may still not be perfectly safe.
++	The metric could store IDInfo about the group; that would prevent going
++	OOS when a clash does occur, but I worry that group ids would be
++	more likely to clash than pointers.) */
++void GroupPathFinder::invalidateGroup(CvSelectionGroup const& kGroup)
++{
++	if (m_stepMetric.getGroup() == &kGroup)
++	{
++		resetNodes();
++		m_stepMetric = GroupStepMetric();
++		// <advc.tmp>
++		#ifdef FASSERT_ENABLE
++		leg.Reset();//advc.tmp
++		leg.SetSettings(NULL,NO_MOVEMENT_FLAGS,-1,-1);
++		#endif // </advc.tmp>
++	}
++}
++
++
++bool GroupPathFinder::GeneratePath(CvPlot const& kTo)
++{
++	FAssertMsg(m_stepMetric.getGroup() != NULL, "Must call SetSettings before GeneratePath");
++	#ifndef FASSERT_ENABLE // advc.tmp
++	return generatePath(m_stepMetric.getGroup()->getPlot(), kTo);
++	// <advc.tmp>
++	#else
++	return generatePath(m_stepMetric.getGroup()->getX(), m_stepMetric.getGroup()->getY(),kTo.getX(),kTo.getY());
++	#endif // </advc.tmp>
++}
++
++
++CvPlot* GroupPathFinder::GetPathEndTurnPlot() const
++{
++	GroupPathNode* pNode = m_pEndNode;
++	FAssert(pNode->m_iPathLength == 1 || pNode->m_pParent != NULL);
++	while (pNode != NULL && pNode->m_iPathLength > 1)
++	{
++		pNode = pNode->m_pParent;
++	}
++	if (pNode == NULL)
++	{
++		FAssert(pNode != NULL);
++		return NULL;
++	}
++	#ifndef FASSERT_ENABLE // advc.tmp
++	return &m_kMap.getPlotByIndex(pNode->m_ePlot);
++	// <advc.tmp>
++	#else
++	CvPlot* r=&m_kMap.getPlotByIndex(pNode->m_ePlot); FAssert(r ==leg.GetPathEndTurnPlot());return r;
++	#endif // </advc.tmp>
++}
++
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.h b/CvGameCoreDLL/GroupPathFinder.h
+new file mode 100644
+index 000000000..c0dbd415d
+--- /dev/null
++++ b/CvGameCoreDLL/GroupPathFinder.h
+@@ -0,0 +1,204 @@
++#pragma once
++
++#ifndef GROUP_PATH_FINDER_H
++#define GROUP_PATH_FINDER_H
++
++#include "KmodPathFinder.h"
++#include "CvMap.h" // for inlining heuristicStepCost
++// <advc.tmp>
++#ifdef FASSERT_ENABLE
++#include "KmodPathFinderLegacy.h"
++#endif // </advc.tmp>
++
++/*	advc.pf: New header for classes implementing an A* path finder for
++	selection groups of units. Mostly pre-AdvCiv code, just organized differently. */
++
++class GroupPathNode : public PathNodeBase<GroupPathNode>
++{
++private:
++	/*	Number of moves remaining to the unit with the fewest moves in the group.
++		Corresponds to FAStarNode::m_iData1 in K-Mod. */
++	int m_iMoves; // (short would suffice - but wouldn't help currently b/c of padding)
++public:
++	__forceinline int getMoves() const
++	{
++		return m_iMoves;
++	}
++	__forceinline void setMoves(int iMoves)
++	{
++		m_iMoves = iMoves;
++	}
++	// Give more specific meaning to the inherited path length data member
++	__forceinline int getPathTurns() const
++	{
++		return m_iPathLength;
++	}
++	__forceinline void setPathTurns(int iPathTurns)
++	{
++		m_iPathLength = iPathTurns;
++	}
++	/*	I've added the same function to FAStarNode.
++		To make GroupPathNode and FAStarNode compatible as template parameters
++		in code shared by FAStar and GroupPathFinder. */
++	inline CvPlot& getPlot() const
++	{	/*	Not nice to access a global object here - which, if we weren't sure
++			that there is only one map, could be inconsistent with the map used
++			by GroupPathFinder. */
++		return GC.getMap().getPlotByIndex(m_ePlot);
++	}
++};
++
++class CvSelectionGroup;
++#define PATH_MOVEMENT_WEIGHT (1000)
++
++class GroupStepMetric : public StepMetricBase<GroupPathNode>
++{
++public:
++/*	static interface so that GroupStepMetric can share code with the
++	FAStar path finder in the EXE */
++	static bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
++			CvSelectionGroup const& kGroup, MovementFlags eFlags);	
++	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
++			MovementFlags eFlags, int iMoves, int iPathTurns);
++	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
++			MovementFlags eFlags);
++	static int cost(CvPlot const& kFrom, CvPlot const& kTo,
++			CvSelectionGroup const& kGroup, MovementFlags eFlags,
++			int iCurrMoves, bool bAtStart);
++	static inline int heuristicStepCost(int iFromX, int iFromY, int iToX, int iToY)
++	{
++		return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT;
++	}
++	/*	The K-Mod code for updating path data is pretty intrusive; needs to
++		have access to the node objects. */
++	template<class Node> // GroupPathNode or FAStarNode
++	static bool updatePathData(Node& kNode, Node const& kParent,
++			CvSelectionGroup const& kGroup, MovementFlags eFlags);
++	static int initialMoves(CvSelectionGroup const& kGroup, MovementFlags eFlags);
++
++// Non-static interface ...
++	GroupStepMetric(CvSelectionGroup const* pGroup = NULL,
++		MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = -1,
++		int iHeuristicWeight = -1)
++	:	StepMetricBase<GroupPathNode>(iMaxPath), m_pGroup(pGroup),
++		m_eFlags(eFlags), m_iHeuristicWeight(iHeuristicWeight)
++	{}
++	inline CvSelectionGroup const* getGroup() const
++	{
++		return m_pGroup;
++	}
++	inline MovementFlags getFlags() const
++	{
++		return m_eFlags;
++	}
++	inline int getHeuristicWeight() const
++	{
++		return m_iHeuristicWeight;
++	}
++	inline bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const
++	{
++		return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags);
++	}
++	inline bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const
++	{
++		return canStepThrough(kPlot, *m_pGroup, m_eFlags,
++				kNode.getMoves(), kNode.getPathTurns());
++	}
++	inline bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const
++	{
++		return isValidDest(kDest, *m_pGroup, m_eFlags);
++	}
++	inline int cost(CvPlot const& kFrom, CvPlot const& kTo,
++		GroupPathNode const& kParentNode) const
++	{
++		return cost(kFrom, kTo, *m_pGroup, m_eFlags,
++				kParentNode.getMoves(), kParentNode.m_iKnownCost != 0);
++	}
++	inline int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const
++	{
++		return heuristicStepCost(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) *
++				m_iHeuristicWeight;
++	}
++	inline bool updatePathData(GroupPathNode& kNode, GroupPathNode const& kParent) const
++	{
++		return updatePathData(kNode, kParent, *m_pGroup, m_eFlags);
++	}
++	inline void initializePathData(GroupPathNode& kNode) const
++	{
++		StepMetricBase<GroupPathNode>::initializePathData(kNode);
++		kNode.setMoves(initialMoves(*m_pGroup, m_eFlags));
++	}
++	bool canReuseInitialPathData(GroupPathNode const& kStart) const;
++
++protected:
++	CvSelectionGroup const* m_pGroup;
++	MovementFlags m_eFlags;
++	int m_iHeuristicWeight;
++};
++
++
++class GroupPathFinder : public KmodPathFinder<GroupStepMetric, GroupPathNode>
++{
++public:
++	static void InitHeuristicWeights();
++	static int MinimumStepCost(int iBaseMoves);
++	void invalidateGroup(CvSelectionGroup const& kGroup);
++	// Keep the K-Mod function names b/c there are a great many call locations
++	void SetSettings(CvSelectionGroup const& kGroup,
++			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
++			int iMaxPath = -1, int iHeuristicWeight = -1);
++	bool GeneratePath(CvPlot const& kTo);
++	#ifndef FASSERT_ENABLE // advc.tmp
++	inline int GetPathTurns() const
++	{
++		return getPathLength();
++	}
++	__forceinline void Reset() { resetNodes(); }
++	// <advc.tmp>
++	#else
++	int GetPathTurns() const
++	{
++		int r= getPathLength(); FAssert(r==leg.GetPathTurns()); return r;
++	}
++	inline void Reset() { resetNodes(); leg.Reset(); }
++	bool generatePath(int iStartX, int iStartY, int iDestX, int iDestY)
++	{
++		bool r=KmodPathFinder<GroupStepMetric,GroupPathNode>::generatePath(iStartX,iStartY,iDestX,iDestY);
++		FAssert(r==leg.GeneratePath(iStartX,iStartY,iDestX,iDestY));
++		return r;
++	}
++	#endif
++	#ifndef FASSERT_ENABLE // </advc.tmp>
++	__forceinline CvPlot* GetPathFirstPlot() { return getPathFirstPlot(); }
++	// <advc.tmp>
++	#else
++	CvPlot* GetPathFirstPlot() { CvPlot* r= getPathFirstPlot(); FAssert(r ==leg.GetPathFirstPlot()); return r;}
++	#endif // </advc.tmp>
++	CvPlot* GetPathEndTurnPlot() const; //tbd.: could return CvPlot&
++	__forceinline bool IsPathComplete() { return isPathComplete(); }
++	int GetFinalMoves() const
++	{
++		if (m_pEndNode == NULL)
++		{
++			FAssert(m_pEndNode != NULL);
++			return 0;
++		}
++		return m_pEndNode->getMoves();
++	}
++	/*	advc (tbd.): Remove this function so that GroupPathNode is fully encapasulated.
++		Cf. comment in CvUnitAI::AI_considerPathDOW (the only call location). */
++	GroupPathNode* GetEndNode() const
++	{	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
++		FAssert(m_pEndNode != NULL);
++		return m_pEndNode;
++	}
++private:
++	static int iAdmissibleBaseWeight;
++	static int iAdmissibleScaledWeight;
++	// <advc.tmp>
++	#ifdef FASSERT_ENABLE
++	KmodPathFinderLegacy leg;
++	#endif // </advc.tmp>
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+new file mode 100644
+index 000000000..eb1a2e9cd
+--- /dev/null
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -0,0 +1,678 @@
++#pragma once
++
++#ifndef KMOD_PATHFINDER_H
++#define KMOD_PATHFINDER_H
++
++/*	advc.pf, advc.104b: Refactored, moving the parts specific to group movement
++	into a derived class in GroupPathFinder.h.
++	Header-only in order to avoid explicit instantiations.
++	Comments in the KmodPathFinder member function definitions are from K-Mod unless they
++	state otherwise; all comments elsewhere are from AdvCiv unless they state otherwise. */
++
++
++enum PathNodeState // Replacing FAStarListType; cf. PathNodeBase::isState.
++{
++	PATHNODE_UNINITIALIZED, // default
++	PATHNODE_OPEN,
++	PATHNODE_CLOSED
++};
++
++/*	FAStarNode minus some data that KmodPathFinder doesn't use.
++	Instead of the all-purpose m_iData1, m_iData2 members, the path length
++	is now always part of the node data. Classes derived from KmodPathFinder that
++	require additional data should derive a node class from PathNode.
++	No constructors should be added; PathNodeMap handles the memory allocation
++	through memset (as in K-Mod). This also means that all data members will have
++	the initial value 0. */
++template<class Node> // (CRT pattern)
++class PathNodeBase
++{
++public:
++	PathNodeBase(); // public - to avoid a compiler warning (c4610), but w/o implementation.
++	// Tbd.: try CvPlot* m_pPlot -- why would we need to look up a node that we already have?
++	PlotNumTypes m_ePlot; // Was (x,y). A single id makes NodeMap more efficient.
++	// Keeping these public (for now) for interchangeability with FAStarNode
++	int m_iTotalCost;
++	int m_iKnownCost;
++	int m_iHeuristicCost;
++	int m_iPathLength; // FAStarNode::m_iData2 in K-Mod
++	Node* m_pParent;
++	Node* m_apChildren[NUM_DIRECTION_TYPES];
++	short m_iNumChildren;
++	/*	Replaces m_bOnStack and m_eFAStarListType. K-Mod comment (edited for clarity):
++		"I'd like to use NO_FASTARLIST as a signal that the node is uninitialised,
++		but unfortunately the default value for m_eFAStarListType is FASTARLIST_OPEN
++		because FASTARLIST_OPEN==0. Hence KmodPathFinder uses m_bOnStack to mean
++		that the node is both ready to be used and connected.
++		m_eFAStarListType is initialised manually."
++		m_eFAStarListType was set by K-Mod but never read. A single boolean is
++		indeed sufficient, but multiple states are safer to use and may allow for
++		performance optimizations in the future. */
++	__forceinline bool isState(PathNodeState eState) const
++	{
++		return (m_iState == eState);
++	}
++	__forceinline void setState(PathNodeState eState)
++	{
++		m_iState = static_cast<char>(eState);
++	}
++private:
++	char m_iState;
++};
++
++class PathNode : public PathNodeBase<PathNode> {};
++
++/*	Combines the CvPathSettings class in K-Mod with the FAStarFunc declarations
++	originally in CvGameCoreUtils.h.
++	(One could regard invalid steps as having infinite cost,
++	so the name "StepMetric" isn't really too narrow.)
++	The template parameter of KmodPathFinder should be derived from this class.
++	Derived classes have to shadow some of the member functions (those that
++	otherwise show an FErrorMsg at runtime). Those functions aren't pure virtual
++	b/c this class is only intended for compile-time polymorphism, and
++	virtual function calls come with a small performance penalty. (Some functions
++	get called very frequently by KmodPathFinder.) */
++template<class Node = PathNode>
++class StepMetricBase
++{
++public:
++	/*	KmodPathFinder will only consider paths of this length or shorter.
++		It's up to updatePathData to compute the length and to store it
++		at the given node. */
++	inline int getMaxPath() const { return m_iMaxPath; }
++	// Derived classes should probably not change this
++	inline int initialPathLength() const { return 1; }
++protected:
++	/*	Derived classes have to have a 0-argument constructor that will get called
++		when KmodPathFinder is instantiated. */
++	StepMetricBase(int iMaxPath = -1)
++	:	m_iMaxPath(iMaxPath < 0 ? MAX_INT : iMaxPath)
++	{}
++	int m_iMaxPath;
++public:
++	/*	isValidStep, canStepThrough and isValidDest, collectively, need to
++		ensure the following:
++		-	For two adjacent plots p and q that both aren't the path destination
++			and a path w from the start to p,
++			isValidStep(p, q) && canStepThrough(p)
++			needs to be true if and only if the step from p to q can be added to w.
++		-	If q is the path destination, then the conjunction above needs to be
++			true if and only if the step _could_ be added to w if some plot other
++			than p and q were the (valid; see below) path destination.
++			(For a single path generator call, it wouldn't matter how the
++			destination is treated, but the result can become cached and will
++			then matter for subsequent calls with a different destination.)
++		-	For the path start s and destination d and all plots p adjacent to d,
++			isValidStep(p, d) && isValidDest(s, d)
++			needs to be true if and only if the step from p to d can be added to
++			any path that reaches p from s.
++		-	isValidStep is the most frequently called function among these three,
++			so it should perform as little work as possible.
++		Remarks:
++		-	I've come up with this specification based on karadoc's code.
++			I wish it were less complicated, but I do want it to be fast.
++		-	More broadly speaking, canStepThrough should check whether a plot
++			can be entered if we assume that it isn't the destination, and
++			isValidStep should check any conditions that depend on the kFrom plot. */
++	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return false;
++	}
++	/*	kNode is the path finder node associated with kPlot. (The
++		group step metric will require some data from that node.)
++		The node data should not be used to enforce the path length limit;
++		KmodPathFinder handles that. */
++	bool canStepThrough(CvPlot const& kPlot, Node const& kNode) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return false;
++	}
++	inline bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return false;
++	}
++	/*	Cost of the step from kFrom to kTo. Should return a positive value.
++		The step checker functions above ensure that the step is allowed;
++		so there's no reason to return "infinity" (MAX_INT).
++		kParentNode is the node associated with kFrom. (The cost function
++		of the group path finder needs this info.) */
++	int cost(CvPlot const& kFrom, CvPlot const& kTo, Node const& kParentNode) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return -1;
++	}
++	/*	Heuristic cost (pessimistic estimate) of moving from kFrom to kTo.
++		I don't know how well KmodPathFinder would cope with an inadmissable
++		heuristic, i.e. one that can overestimate the cost. */
++	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return -1;
++	}
++	/*	Called when the step from kParent to kNode gets added to a path.
++		Should set the length of the path leading to kNode based on the
++		path length stored at kParent, and set any other path data that
++		a derived class may want to keep track of.
++		The new path length shouldn't be smaller than the old (kParent)
++		path length.
++		Should return true if any kNode data was changed, false otherwise. */
++	inline bool updatePathData(Node& kNode, Node const& kParent) const
++	{
++		kNode.m_iPathLength = kParent.m_iPathLength + 1; // uniform
++		return true;
++	}
++	/*	Called on the start node before generating a path.
++		Derived classes that shadow this function should still call this function;
++		i.e. they should leave the initialization of path length to this class. */
++	inline void initializePathData(Node& kNode) const
++	{
++		kNode.m_iPathLength = initialPathLength();
++	}
++	/*	Called before generating a path if the start node is already initialized
++		from a previous path finder call. Returning false will cause the
++		path finder's node data to be reset. Don't check kStart.m_iPathLength;
++		KmodPathFinder handles that. */
++	inline bool canReuseInitialPathData(Node const& kStart) const
++	{
++		return true;
++	}
++};
++
++/*	The class parameter should be derived from StepMetricBase. Policy-based design,
++	in part, to avoid the overhead of dynamic dispatch. */
++template<class StepMetric, class Node = PathNode>
++class KmodPathFinder
++{
++protected:
++
++	/*	Replaces
++		typedef std::vector<Node*> OpenList;
++		with a wrapper class that sets the correct PathNodeState.
++		Tbd.: vector::erase is expensive. Try std::list -- though it could be
++		that the fast vector traversal is more important. */
++	class OpenList
++	{
++	public:
++		typedef typename std::vector<Node*>::iterator iterator;
++		typedef typename std::vector<Node*>::const_iterator const_iterator;
++		inline const_iterator begin() const
++		{
++			return m_pNodes.begin();
++		}
++		inline const_iterator end() const
++		{
++			return m_pNodes.end();
++		}
++		inline iterator begin()
++		{
++			return m_pNodes.begin();
++		}
++		inline iterator end()
++		{
++			return m_pNodes.end();
++		}
++		// Does not change the state of the nodes
++		inline void clear()
++		{
++			m_pNodes.clear();
++		}
++		// These function do change the state of the nodes (hence the names)
++		inline void open(Node& kNode)
++		{
++			m_pNodes.push_back(&kNode);
++			// Inefficient to add the same node multiple times
++			FAssert(!kNode.isState(PATHNODE_OPEN)); // Tbd.: don't keep this assert permanently
++			kNode.setState(PATHNODE_OPEN);
++		}
++		inline void close(iterator pos)
++		{
++			Node& kNode = **pos;
++			m_pNodes.erase(pos);
++			FAssert(kNode.isState(PATHNODE_OPEN));
++			kNode.setState(PATHNODE_CLOSED);
++		}
++	private:
++		std::vector<Node*> m_pNodes;
++	};
++	/*struct OpenList_sortPred {
++		bool operator()(FAStarNode const*& kpLeft, FAStarNode const*& kpRight) {
++			return (kpLeft->m_iTotalCost < kpRight->m_iTotalCost);
++		}
++	};*/ // (K-Mod)
++	/*	^Looks like K-Mod has already tried a heap (std::priority_queue). Or maybe
++		it was abandoned w/o a test. Would have to re-heap after recalculateHeuristics.
++		And the functor should take m_stepMetric.getMaxPath() as a contructor argument
++		so that nodes within that limit can receive absolute priority. But, given the
++		modest number of open nodes, I doubt that a heap will be worthwhile. */
++
++	/*	Map from plots to nodes. Replacing naked array in K-Mod.
++		Historical note: Before K-Mod 1.45,
++		stdext::hash_map<int,boost::shared_ptr<FAStarNode> > had been used. */
++	class NodeMap
++	{
++	public:
++		inline NodeMap(PlotNumTypes eMaxPlots) : m_eMaxPlots(eMaxPlots)
++		{
++			m_data = new byte[numBytes()];
++			reset();
++		}
++		inline ~NodeMap()
++		{
++			delete[] m_data;
++		}
++		inline Node& get(PlotNumTypes ePlot)
++		{
++			return reinterpret_cast<Node*>(m_data)[ePlot];
++		}
++		inline void reset()
++		{
++			/*	advc: Might be able to save time here by resetting only those
++				nodes that have -possibly- been initialized. There's a section
++				"Beating memset" by Dan Higgins in the book mentioned in FAStarNode.h. */
++			PROFILE_FUNC();
++			memset(m_data, 0, numBytes());
++		}
++	private:
++		byte* m_data;
++		PlotNumTypes m_eMaxPlots;
++
++		inline int numBytes()
++		{
++			return sizeof(Node) * m_eMaxPlots;
++		}
++	};
++
++	StepMetric m_stepMetric;
++public:
++	/*	It's up to the derived classes to define a function for setting up m_stepMetric.
++		This constructor will only call the StepMetric default constructor. */
++	KmodPathFinder();
++	virtual ~KmodPathFinder();
++	void resetNodes();
++	bool generatePath(CvPlot const& kStart, CvPlot const& kDest);
++	// Note: Should prefer the version above, i.e. don't pass plots by coordinates.
++	bool generatePath(int iStartX, int iStartY, int iDestX, int iDestY)
++	{
++		return generatePath(
++				m_kMap.getPlot(iStartX, iStartY),
++				m_kMap.getPlot(iDestX, iDestY));
++	}
++	bool isPathComplete() const { return (m_pEndNode != NULL); }
++	int getPathLength() const // advc: Was "getPathTurns"; too specific.
++	{
++		if (m_pEndNode == NULL)
++		{
++			FAssert(m_pEndNode != NULL);
++			return 0;
++		}
++		return m_pEndNode->m_iPathLength;
++	}
++	CvPlot* getPathFirstPlot() const; // tbd.: could return CvPlot&
++
++protected:
++	CvMap const& m_kMap;
++	OpenList m_openList;
++	NodeMap* m_pNodeMap;
++	Node* m_pEndNode;
++	// <advc> Replacing (x,y) coordinates
++	PlotNumTypes m_eStart;
++	PlotNumTypes m_eDest;
++	CvPlot const* m_pStart;
++	CvPlot const* m_pDest; // </advc>
++
++	void addStartNode();
++	void recalculateHeuristics();
++	bool processNode();
++	void forwardPropagate(Node& kHead, int iCostDelta);
++	// advc: Moved into NodeMap
++	//FAStarNode& GetNode(int x, int y) { return node_data[y * map_width + x]; }
++	// advc: Not needed anymore
++	//bool validateNodeMap();
++};
++
++// (Comments below are from K-Mod unless stated otherwise)
++
++template<class StepMetric, class Node>
++KmodPathFinder<StepMetric,Node>::KmodPathFinder()
++	:	m_eStart(NO_PLOT_NUM), m_eDest(NO_PLOT_NUM), m_pStart(NULL), m_pDest(NULL),
++	/*	[...] Ideally the pathfinder would be initialised with a given CvMap
++		and then not refer to any global objects. [...] */
++	// advc: We can do that:
++	m_kMap(GC.getMap()), m_pEndNode(NULL), m_pNodeMap(NULL
++	/*	advc: KmodPathFinder sometimes gets instantiated w/o ultimately getting used.
++		Therefore allocate memory as late as possible. */
++	/*new NodeMap(m_kMap.numPlots())*/)
++{}
++
++template<class StepMetric, class Node>
++KmodPathFinder<StepMetric,Node>::~KmodPathFinder()
++{
++	if (m_pNodeMap != NULL)
++		delete m_pNodeMap;
++}
++
++template<class StepMetric, class Node>
++bool KmodPathFinder<StepMetric,Node>::generatePath(
++	CvPlot const& kStart, CvPlot const& kDest)
++{
++	PROFILE_FUNC();
++
++	m_pEndNode = NULL;
++	// advc.104b: Pass kStart for team path finder
++	if (!m_stepMetric.isValidDest(kStart, kDest))
++		return false;
++
++	if (m_pNodeMap == NULL)
++		m_pNodeMap = new NodeMap(m_kMap.numPlots());
++
++	if (&kStart != m_pStart)
++	{
++		/*	Note: It may be possible to salvage some of the old data to
++			get more speed. E.g. if the moves recorded on the node match the group
++			[advc: or other step metric data], just delete everything that isn't a
++			direct descendant of the new start. and then subtract the start cost
++			and moves from all the remaining nodes. */
++		resetNodes();
++	}
++
++	bool bRecalcHeuristics = true;
++	if (m_pDest == &kDest)
++		bRecalcHeuristics = false;
++
++	m_pStart = &kStart;
++	m_pDest = &kDest;
++	m_eStart = m_kMap.plotNum(kStart);
++	m_eDest = m_kMap.plotNum(kDest);
++	{
++		Node& kStartNode = m_pNodeMap->get(m_eStart);
++		if (!kStartNode.isState(PATHNODE_UNINITIALIZED))
++		{
++			if (m_stepMetric.canReuseInitialPathData(kStartNode))
++			{	// advc: Currently ensured by &kStart!=m_pStart
++				FAssert(kStartNode.m_iPathLength == m_stepMetric.initialPathLength());
++			}
++			else
++			{
++				resetNodes();
++				FAssert(kStartNode.isState(PATHNODE_UNINITIALIZED));
++			}
++		}
++		if (kStartNode.isState(PATHNODE_UNINITIALIZED))
++		{
++			addStartNode();
++			bRecalcHeuristics = true;
++		}
++		/*	advc (note): What if kStartNode is closed?
++			For a fixed start, processNode guarantees (I think) that,
++			for every destination, some node on the shortest path
++			to that destination remains open. */
++	}
++	{
++		Node& kDestNode = m_pNodeMap->get(m_eDest);
++		if (!kDestNode.isState(PATHNODE_UNINITIALIZED))
++			m_pEndNode = &kDestNode;
++		/*	advc (note): If kDestNode is closed, then it could be that we've
++			been unable to move through it on a previous call, but, this time,
++			we only need to enter it, and isValidDest says that we can. */
++	}
++	if (bRecalcHeuristics)
++		recalculateHeuristics();
++
++	while (processNode())
++	{
++		// nothing
++	}
++
++	if (m_pEndNode != NULL &&
++		(m_pEndNode->m_iPathLength <= m_stepMetric.getMaxPath()))
++	{
++		return true;
++	}
++	return false;
++}
++
++template<class StepMetric, class Node>
++void KmodPathFinder<StepMetric,Node>::resetNodes()
++{
++	//memset(&node_data[0] 0, sizeof(*node_data) * map_width * map_height); // K-Mod
++	if (m_pNodeMap != NULL)
++		m_pNodeMap->reset();
++	m_openList.clear();
++	m_pEndNode = NULL;
++}
++
++template<class StepMetric, class Node>
++void KmodPathFinder<StepMetric,Node>::addStartNode()
++{
++	Node& kStartNode = m_pNodeMap->get(m_eStart);
++	kStartNode.m_ePlot = m_eStart;
++	//pathAdd(NULL, pStartNode, ASNC_INITIALADD, &settings, NULL); // K-Mod
++	m_stepMetric.initializePathData(kStartNode);
++	kStartNode.m_iKnownCost = 0;
++	/*// This means nothing. But maybe one day I'll use it.
++	kStartNode.m_eFAStarListType = FASTARLIST_OPEN;
++	// This means the node is connected and ready to be used.
++	kStartNode.m_bOnStack = true;*/ // (K-Mod)
++	// advc: Now handled by OpenList. See also the comment at the m_iState declaration.
++	m_openList.open(kStartNode);
++}
++
++template<class StepMetric, class Node>
++void KmodPathFinder<StepMetric,Node>::recalculateHeuristics()
++{
++	// Recalculate heuristic cost for all open nodes
++	for (OpenList::iterator it = m_openList.begin(); it != m_openList.end(); ++it)
++	{
++		Node& kNode = **it;
++		int iHeuristicCost = m_stepMetric.heuristicCost(
++				m_kMap.getPlotByIndex(kNode.m_ePlot), *m_pDest);
++		kNode.m_iHeuristicCost = iHeuristicCost;
++		kNode.m_iTotalCost = iHeuristicCost + kNode.m_iKnownCost;
++	}
++}
++
++template<class StepMetric, class Node>
++bool KmodPathFinder<StepMetric,Node>::processNode()
++{
++	OpenList::iterator itBest = m_openList.end();
++	{
++		int iLowestCost = (m_pEndNode != NULL ? m_pEndNode->m_iKnownCost : MAX_INT);
++		for (OpenList::iterator it = m_openList.begin(); it != m_openList.end(); ++it)
++		{
++			if ((*it)->m_iTotalCost < iLowestCost &&
++				(*it)->m_iPathLength <= m_stepMetric.getMaxPath())
++			{
++				itBest = it;
++				iLowestCost = (*it)->m_iTotalCost;
++			}
++		}
++	}
++
++	// If we didn't find a suitable node to process, then quit.
++	if (itBest == m_openList.end())
++		return false;
++	Node& kParent = **itBest;
++	/*	Note: Needs to be done before pushing new entries,
++		otherwise the iterator will be invalid. */
++	m_openList.close(itBest);
++	FAssert(&m_pNodeMap->get(kParent.m_ePlot) == &kParent);
++	CvPlot const& kParentPlot = m_kMap.getPlotByIndex(kParent.m_ePlot);
++	// (advc: This clutter will go away when I cache plot adjacency lists)
++	int const iParentX = kParentPlot.getX();
++	int const iParentY = kParentPlot.getY();
++
++	// Open a new node for each direction coming off the chosen node
++	FOR_EACH_ENUM(Direction)
++	{
++		CvPlot const* pChildPlot = plotDirection(iParentX, iParentY, eLoopDirection);
++		if (pChildPlot == NULL)
++			continue;
++		PlotNumTypes const eChildPlot = m_kMap.plotNum(*pChildPlot);
++		if (kParent.m_pParent != NULL && eChildPlot == kParent.m_pParent->m_ePlot)
++			continue; // don't backtrack
++		// advc: Moved up; no functional difference.
++		if (!m_stepMetric.isValidStep(kParentPlot, *pChildPlot))
++			continue; // Can't get to the plot from here
++		Node& kChild = m_pNodeMap->get(eChildPlot);
++		bool const bNewNode = kChild.isState(PATHNODE_UNINITIALIZED);
++		if (bNewNode) // (advc: No point in opening a node more than once)
++		{
++			// This path to the new node is valid. So we need to fill in the data.
++			//pathAdd(parent_node, child_node, ASNC_NEWADD, &settings, NULL); // K-Mod
++			kChild.m_ePlot = eChildPlot;
++			m_stepMetric.updatePathData(kChild, kParent);
++			kChild.m_iKnownCost = MAX_INT;
++			kChild.m_iHeuristicCost = m_stepMetric.heuristicCost(
++					*pChildPlot, *m_pDest);
++			// Total cost will be set when the parent is set
++			if (m_stepMetric.canStepThrough(*pChildPlot, kChild))
++				m_openList.open(kChild);
++			else
++			{	// This node is a dead end
++				/*	(advc: Which is to say, we can never enter it, not even on a
++					later call to generatePath - except if it is the destination;
++					that remains to be checked.) */
++				kChild.setState(PATHNODE_CLOSED);
++			}
++		}
++		FAssert(kChild.m_ePlot == eChildPlot);
++
++		if (pChildPlot == m_pDest)
++		{
++			// We've found our destination but still need to finish our calculations
++			m_pEndNode = &kChild;
++		}
++		if (kParent.m_iKnownCost >= kChild.m_iKnownCost)
++			continue; // There must already be a faster route to the child
++
++		int const iNewCost = kParent.m_iKnownCost + m_stepMetric.cost(
++				//parent_node, child_node, 666, &settings, NULL); // K-Mod
++				kParentPlot, *pChildPlot, kParent);
++		FAssert(iNewCost > 0);
++		if (iNewCost >= kChild.m_iKnownCost)
++			continue;
++		// New minus old; negative value.
++		int const iCostDelta = iNewCost - kChild.m_iKnownCost;
++
++		kChild.m_iKnownCost = iNewCost;
++		kChild.m_iTotalCost = kChild.m_iKnownCost + kChild.m_iHeuristicCost;
++
++		// Remove child from the list of the previous parent
++		if (kChild.m_pParent != NULL)
++		{
++			FAssert(!bNewNode);
++			Node& kOldParent = *kChild.m_pParent;
++			#ifdef FASSERT_ENABLE
++			int iTemp = kOldParent.m_iNumChildren;
++			#endif
++			/*	kOldParent just lost one of its children.
++				We have to break the news to them.
++				This would easier if we had STL instead of bog arrays.
++				[advc: Could use a vector, but since karadoc has already
++				worked it out ...]*/
++			for (int j = 0; j < kOldParent.m_iNumChildren; j++)
++			{
++				if (kOldParent.m_apChildren[j] == &kChild)
++				{	// Found it
++					for (j++; j < kOldParent.m_iNumChildren; j++)
++						kOldParent.m_apChildren[j - 1] = kOldParent.m_apChildren[j];
++					// Not necessary, but easy enough to keep things neat.
++					kOldParent.m_apChildren[j - 1] = 0;
++					kOldParent.m_iNumChildren--;
++				}
++			}
++			FAssert(kOldParent.m_iNumChildren == iTemp - 1);
++			// Recalculate movement points
++			//pathAdd(parent_node, child_node, ASNC_PARENTADD_UP, &settings, NULL);
++			m_stepMetric.updatePathData(kChild, kParent);
++		}
++
++		// Add child to the list of the new parent
++		FAssertBounds(0, NUM_DIRECTION_TYPES, kParent.m_iNumChildren);
++		kParent.m_apChildren[kParent.m_iNumChildren] = &kChild;
++		kParent.m_iNumChildren++;
++		kChild.m_pParent = &kParent;
++
++		// Update the new (reduced) costs for all the grandchildren.
++		FAssert(kChild.m_iNumChildren == 0 || !bNewNode);
++		forwardPropagate(kChild, iCostDelta);
++		FAssert(kChild.m_iKnownCost > kParent.m_iKnownCost);
++	}
++	return true;
++}
++
++template<class StepMetric, class Node>
++void KmodPathFinder<StepMetric,Node>::forwardPropagate(Node& kHead, int iCostDelta)
++{
++	//FAssert(iCostDelta < 0 || kHead.m_iNumChildren == 0);
++	/*	Note: There are some legitimate cases in which the iCostDelta can be positive.
++		For example, suppose a shorter path is found to the parent plot, but the path
++		involves resting on less attractive plots. And suppose the addition moves
++		saved by the shorter path are then spent anyway to take the final step
++		onto the destination...
++		In that case, although the path the parent plot has been upgraded,
++		the path to the destination is actually degraded (ie. it has a higher total cost).
++		Can't think of a way to solve this problem. (I don't think it's very important.) */
++
++	// Change the known cost of all children by iCostDelta, recursively.
++	for (int i = 0; i < kHead.m_iNumChildren; i++)
++	{
++		Node& kLoopChild = *kHead.m_apChildren[i];
++		FAssert(kLoopChild.m_pParent == &kHead);
++
++		// Recalculate movement points
++		//int iNewDelta = iCostDelta;
++		//pathAdd(head, head->m_apChildren[i], ASNC_PARENTADD_UP, &settings, NULL); // K-Mod
++		bool const bChanged = m_stepMetric.updatePathData(kLoopChild, kHead);
++
++		// If the moves don't match, we may need to recalculate the path cost.
++		//if (iOldMoves != kLoopChild.m_iData1)
++		/*	Strictly, the cost shouldn't depend on our path history,
++			but it does - because I wanted to use the path history
++			for path symmetry breaking. But anyway, according to the profiler,
++			this is only going to cost us about a milisecond per turn. */
++		int iStepCost = m_stepMetric.cost(
++				//head, head->m_apChildren[i], 666, &settings, NULL // K-Mod
++				m_kMap.getPlotByIndex(kHead.m_ePlot),
++				m_kMap.getPlotByIndex(kLoopChild.m_ePlot),
++				kHead);
++		int iNewDelta = kHead.m_iKnownCost + iStepCost - kLoopChild.m_iKnownCost;
++		//FAssert(iNewDelta <= 0);
++
++		kLoopChild.m_iKnownCost += iNewDelta;
++		kLoopChild.m_iTotalCost += iNewDelta;
++
++		FAssert(kLoopChild.m_iKnownCost > kHead.m_iKnownCost);
++		/*	advc (tbd.?): iNewDelta is never 0 here in tests. Often it's -4.
++			Perhaps that makes sense as a result of symmetry breaking.
++			No need then, though, to check and return bChange in updatePathData. */
++		if (bChanged || iNewDelta != 0)
++			forwardPropagate(kLoopChild, iNewDelta);
++	}
++}
++
++template<class StepMetric, class Node>
++CvPlot* KmodPathFinder<StepMetric,Node>::getPathFirstPlot() const
++{
++	if (m_pEndNode == NULL)
++	{
++		FAssert(m_pEndNode != NULL);
++		return NULL;
++	}
++
++	Node* pNode = m_pEndNode;
++
++	if (pNode->m_pParent == NULL)
++		return &m_kMap.getPlotByIndex(pNode->m_ePlot);
++
++	while (pNode->m_pParent->m_pParent != NULL)
++	{
++		pNode = pNode->m_pParent;
++	}
++
++	return &m_kMap.getPlotByIndex(pNode->m_ePlot);
++}
++
++#endif
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index e0a37f121..acbfc149b 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -163,13 +163,14 @@
+     <ClCompile Include="..\CyUnit.cpp" />
+     <ClCompile Include="..\CyUnitInterface1.cpp" />
+     <ClCompile Include="..\FAStarFunc.cpp" />
++    <ClCompile Include="..\GroupPathFinder.cpp" />
++    <ClCompile Include="..\KmodPathFinderLegacy.cpp" />
+     <ClCompile Include="..\ReproTest.cpp" />
+     <ClCompile Include="..\EnumMapTest.cpp" />
+     <ClCompile Include="..\FDialogTemplate.cpp" />
+     <ClCompile Include="..\FFreeListTrashArray.cpp" />
+     <ClCompile Include="..\FProfiler.cpp" />
+     <ClCompile Include="..\InvasionGraph.cpp" />
+-    <ClCompile Include="..\KmodPathFinder.cpp" />
+     <ClCompile Include="..\FAssert.cpp" />
+     <ClCompile Include="..\MilitaryAnalyst.cpp" />
+     <ClCompile Include="..\MilitaryBranch.cpp" />
+@@ -312,6 +313,9 @@
+     <ClInclude Include="..\CyUnit.h" />
+     <ClInclude Include="..\FAStarFunc.h" />
+     <ClInclude Include="..\GameBryo.h" />
++    <ClInclude Include="..\GroupPathFinder.h" />
++    <ClInclude Include="..\KmodPathFinder.h" />
++    <ClInclude Include="..\KmodPathFinderLegacy.h" />
+     <ClInclude Include="..\LinkedListTraversal.h" />
+     <ClInclude Include="..\PragmaWarnings.h" />
+     <ClInclude Include="..\ReproTest.h" />
+@@ -328,7 +332,6 @@
+     <ClInclude Include="..\FreeListTraversal.h" />
+     <ClInclude Include="..\FVariableSystem.h" />
+     <ClInclude Include="..\InvasionGraph.h" />
+-    <ClInclude Include="..\KmodPathFinder.h" />
+     <ClInclude Include="..\LinkedList.h" />
+     <ClInclude Include="..\MilitaryAnalyst.h" />
+     <ClInclude Include="..\MilitaryBranch.h" />
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=135358

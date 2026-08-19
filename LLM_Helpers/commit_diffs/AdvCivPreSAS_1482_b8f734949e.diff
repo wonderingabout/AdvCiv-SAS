@@ -1,0 +1,468 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1482
+# Commit: b8f734949eaf6ebb97dab79054d4fe6ea2eb7c36
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4a65bf5c0fb187fd25d4908346abb462354a9172
+# Title: Resolve some open issues with the previous commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	Assets/Python/BUG/Scoreboard.py
+1	1	Assets/xml/Text/Advanced Scoreboard Options.xml
+108	101	CvGameCoreDLL/CvDLLWidgetData.cpp
+13	11	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGame.h
+7	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 3db7d64a7..63d8a27a4 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -19,6 +19,7 @@ import FontUtil
+ import CvUtil
+ import re
+ import string
++import MonkeyTools # advc.085: For checking Ctrl key
+ 
+ # Globals
+ ScoreOpt = BugCore.game.Scores
+@@ -217,7 +218,12 @@ class Scoreboard:
+ 		self._set(MASTER, ACTIVE_MASTER_ICON)
+ 		
+ 	def setScore(self, value):
+-		self._set(SCORE, smallText(value))
++		# <advc.085> Score breakdown when hovering over the active player's score (no longer provided by WIDGET_CONTACT_CIV) -- or anyone's score in Debug mode w/ Ctrl pressed.
++		widgetData = None
++		if self._activePlayer == self._currPlayerScore.getID() or (gc.getGame().isDebugMode() and MonkeyTools.bCtrl()):
++			widgetData = (WidgetTypes.WIDGET_SCORE_BREAKDOWN, self._currPlayerScore.getID(), 0)
++		# </advc.085>
++		self._set(SCORE, smallText(value), widgetData)
+ 		
+ 	def setScoreDelta(self, value):
+ 		self._set(SCORE_DELTA, smallText(value))
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index e278be7c3..a59628ee5 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -383,7 +383,7 @@
+ 		 advc.085: Mention the underscores -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYORDER_HOVER</Tag>
+-		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet rivals (for Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon if master of at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Player ID number (position in turn order)[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've accumulated more espionage points against them than vice versa[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if there is a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have an Open Borders agreement with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - A star next to players waiting for you to finish your turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.[NEWLINE][NEWLINE]Letters preceded by an underscore appear only on mouse-over and only if [COLOR_HIGHLIGHT_TEXT]Expand on Hover[COLOR_REVERT] is enabled.</English>
++		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet rivals (multiplayer/ Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon if master of at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Player ID number (position in turn order)[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've accumulated more espionage points against them than vice versa[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if there is a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have an Open Borders agreement with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (multiplayer) A star next to players who have already taken their turns[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.[NEWLINE][NEWLINE]Letters preceded by an underscore appear only on mouse-over and only if [COLOR_HIGHLIGHT_TEXT]Expand on Hover[COLOR_REVERT] is enabled.</English>
+ 		<French>Ceci d�termine l'ordre dans lequel les colonnes apparaissent.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Vous �tes en guerre contre cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score de la civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Ic&#244;ne de chef[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Ic&#244;ne de la civilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nom de la civilisation et/ou du dirigeant.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Vous n'avez pas encore rencontr� cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - The civ refuses to talk to you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Votre pro rata d'espionnage avec cette civilisation est bon.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Pro rata du pouvoir de cette civilisation compar� � vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - La technologie que la civilisation recherche (vassaux, �quipe et espionnage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Le nombre de tours qui restent � la recherche.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Cette civilisation est connect�e � votre r�seau de commerce.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Vous avez une accord de fronti�res ouvertes avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Vous avez un pacte d�fensif avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - La religion nationale de cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - L'attitude de cette civilisation envers vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Vous attendez que cette civilisation finisse son tour.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Statistique de R�seau (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Le joueur est out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</French>
+ 		<German>Die Zeichenfolge bestimmt die Spalten der Punkteanzeige und ihre Reihenfolge:[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Ausrufezeichen bei Gespr�chsverweigerung[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Fragezeichen vor unbekannten Gegnern (f�r Debug-Modus)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Punktestand[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Punktetrend[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Punkterang[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vasallensymbol bei Hegemonie �ber wenigstens einen Vasallenstaat[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Interne Spieler-ID, die die Zugreihenfolge bestimmt[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Staatsoberhaupt-Symbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Zivilisationssymbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Anzeigename[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE]-Symbol, wenn ein Gegner weniger Spionagepunkte angesammelt hat als Sie[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeit erforschte Technologie[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Anzahl verbleibender Runden bis zur Erforschung[NEWLINE] [COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE]-Symbol bei Handelsverbindung mit der gegnerischen Hauptstadt[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS]-Symbol bei Abkommen �ber offene Grenzen[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT]-Symbol bei Verteidigungsb�ndnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religionssymbol (Staatsreligion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Emoticon, das die Einstellung der KI anzeigt [NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP]-Symbol, wenn Sie der Erzfeind Ihres Gegners sind[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (Mehrspielermodus) Sternchen bei Spielern, die bereits gezogen haben[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik (Ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "out-of-sync"-Warnung wenn aus dem Takt[NEWLINE][NEWLINE]Zwischen den Spaltenk�rzeln k�nnen (positive und negative) Zahlen platziert werden, um Abst�nde einzustellen; ansonsten wird der Standardabstand verwendet.[NEWLINE][NEWLINE]Steht vor einem Buchstaben ein Unterstrich, dann erscheint die entspr. Spalte nur, wenn der Mauszeiger auf die Punkteanzeige bewegt wird und die Option [COLOR_HIGHLIGHT_TEXT]ausklappbare Spalten[COLOR_REVERT] aktiviert ist.</German>
+ 		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle citt� della Civilt�.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icona del leader[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icona di civilt&#224;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Il Leader della Civilt� rifiuta di parlarti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - la Potenza della Civilt� rispetto alla tua (o viceversa);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 00faf3d8b..bcf3036ec 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -141,7 +141,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_CONTACT_CIV:
+ 		parseContactCivHelp(widgetDataStruct, szBuffer);
+ 		break;
+-
++	// advc.085 (comment): Was unused in BtS; now used on the scoreboard.
+ 	case WIDGET_SCORE_BREAKDOWN:
+ 		parseScoreHelp(widgetDataStruct, szBuffer);
+ 		break;
+@@ -1368,19 +1368,13 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 	//	Do not execute this if we are trying to contact ourselves...
+ 	if (GC.getGameINLINE().getActivePlayer() == widgetDataStruct.m_iData1)
+ 	{
+-		if (!gDLL->getInterfaceIFace()->isFocusedWidget())
+-		{
++		if (!gDLL->getInterfaceIFace()->isFocusedWidget()
++				// advc.085: Never minimize the scoreboard
++				&& gDLL->getInterfaceIFace()->isScoresMinimized())
+ 			gDLL->getInterfaceIFace()->toggleScoresMinimized();
+-		}
+-
+ 		return;
+ 	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/11/09                                jdog5000      */
+-/*                                                                                              */
+-/* Player Interface                                                                             */
+-/************************************************************************************************/
++	// BETTER_BTS_AI_MOD, Player Interface, 01/11/09, jdog5000: START
+ 	if (GC.shiftKey() && !GC.altKey())
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).isHuman())
+@@ -1445,10 +1439,7 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 		}
+ 		return;
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
++	// BETTER_BTS_AI_MOD: END
+ 	GET_PLAYER(GC.getGameINLINE().getActivePlayer()).contact((PlayerTypes)widgetDataStruct.m_iData1);
+ }
+ 
+@@ -3489,7 +3480,7 @@ void CvDLLWidgetData::parseChangePercentHelp(CvWidgetDataStruct &widgetDataStruc
+ 	}
+ }
+ 
+-
++// advc (comment): Could this function be merged into CvGameTextMgr::parseLeaderHeadHelp?
+ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)  // advc.003: Some style changes
+ {
+ 	// do not execute if player is out of range
+@@ -3520,22 +3511,23 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		parseScoreboardCheatText(widgetDataStruct, szBuffer);
+ 		// K-Mod end
+ 	}
+-	//	Show score info instead if we are trying to contact ourselves...
+-	if ( eActivePlayer == ePlayer || (GC.ctrlKey() && //gDLL->getChtLvl() > 0) )
+-			GC.getGameINLINE().isDebugMode())) // advc.135c
+-	{
++	// Show score info instead if we are trying to contact ourselves...
++	/*  advc.085: No, show active player's contact hover, mainly, for the worst-enemy info.
++		(And I've moved these checks into Scoreboard.py.) */
++	/*if(eActivePlayer == ePlayer || (GC.ctrlKey() && GC.getGameINLINE().isDebugMode())) {
+ 		parseScoreHelp(widgetDataStruct, szBuffer);
+ 		return;
+-	}
++	}*/
+ 
+ 	/* original bts code
+ 	szBuffer.append(gDLL->getText("TXT_KEY_MISC_CONTACT_LEADER", kPlayer.getNameKey(), kPlayer.getCivilizationShortDescription()));
+ 	szBuffer.append(NEWLINE);
+ 	GAMETEXT.parsePlayerTraits(szBuffer, ePlayer); */
+-	if (!kActiveTeam.isHasMet(eTeam))
+-	{
+-		// K-Mod. If we haven't met the player yet - don't say "contact". Because we can't actually contact them!
+-		szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), kPlayer.getName()));
++	if (eActivePlayer != ePlayer && // advc.085
++			!kActiveTeam.isHasMet(eTeam))
++	{	// K-Mod. If we haven't met the player yet - don't say "contact". Because we can't actually contact them!
++		szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++				TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), kPlayer.getName()));
+ 		// K-Mod end
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HAVENT_MET_CIV"));
+@@ -3543,8 +3535,17 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	// K-Mod
+ 	else
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_CONTACT_LEADER", kPlayer.getNameKey(),
+-				kPlayer.getCivilizationShortDescription()));
++		CvWString szTmp; // advc.085
++		szTmp.append(gDLL->getText(
++				eActivePlayer == ePlayer ? "TXT_KEY_LEADER_CIV_DESCRIPTION" : // advc.085
++				"TXT_KEY_MISC_CONTACT_LEADER",
++				kPlayer.getNameKey(), kPlayer.getCivilizationShortDescription()));
++		// <advc.085>
++		if(eActivePlayer == ePlayer) {
++			szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++					TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTmp.GetCString()));
++		}
++		else szBuffer.append(szTmp); // </advc.085>
+ 		szBuffer.append(NEWLINE);
+ 		GAMETEXT.parsePlayerTraits(szBuffer, ePlayer);
+ 	} // K-Mod end
+@@ -3568,12 +3569,16 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			szBuffer.append(NEWLINE);
+ 			GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer);
+ 		} */
+-
+-		// <advc.104l>
+-		WarEvaluator::enableCache();
+-		// Don't check this twice; potentially costly.
+-		bool bWillTalk = kPlayer.AI_isWillingToTalk(eActivePlayer);
+-		WarEvaluator::disableCache(); // </advc.104l>
++		bool bWillTalk = false;  // <advc.085>
++		if(eActivePlayer == ePlayer)
++			bWillTalk = true;
++		else { // </advc.085>
++			// <advc.104l>
++			WarEvaluator::enableCache();
++			// Don't check this twice; potentially costly.
++			bool bWillTalk = kPlayer.AI_isWillingToTalk(eActivePlayer);
++			WarEvaluator::disableCache(); // </advc.104l>
++		}
+ 		// K-Mod
+ 		if (!bWillTalk)
+ 		{
+@@ -3583,8 +3588,11 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		if (!((GC.altKey() || GC.ctrlKey()) && //gDLL->getChtLvl() > 0))
+ 			GC.getGameINLINE().isDebugMode())) // advc.135c
+ 		{
+-			GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
+-			GAMETEXT.getWarWearinessString(szBuffer, ePlayer, eActivePlayer); // K-Mod
++			if(eActivePlayer != ePlayer) // advc.085
++				GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
++			GAMETEXT.getWarWearinessString(szBuffer, ePlayer, // K-Mod
++					eActivePlayer == ePlayer ? NO_PLAYER : // advc.085
++					eActivePlayer);
+ 			// <advc.104v> Handled later
+ 			/*if (!kPlayer.isHuman() && willTalk) {
+ 				szBuffer.append(NEWLINE);
+@@ -3599,84 +3607,79 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(szString);
+ 		} // </advc.034>
+-		if (eTeam != eActiveTeam )
+-		{
+-			// Show which civs this player is at war with
+-			CvWStringBuffer szWarWithString;
+-			CvWStringBuffer szWorstEnemyString;
+-			bool bFirst = true;
+-			bool bFirst2 = true;
+-			// advc.003: Variables renamed to ...Loop... in order to avoid shadowing
+-			for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
++		//if (eTeam != eActiveTeam ) // advc.085
++		// Show which civs this player is at war with
++		CvWStringBuffer szWarWithString;
++		CvWStringBuffer szWorstEnemyString;
++		bool bFirst = true;
++		bool bFirst2 = true;
++		// advc.003: Variables renamed to ...Loop... in order to avoid shadowing
++		for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
++		{
++			CvTeamAI& kLoopTeam = GET_TEAM((TeamTypes)iLoopTeam);
++			if (!kLoopTeam.isAlive() || kLoopTeam.isMinorCiv() || iLoopTeam == eTeam)
++					// K-Mod. show "at war" for the active player if appropriate
++					//|| iLoopTeam == TEAMID(ePlayer))
++				continue;
++			if (!kActiveTeam.isHasMet(kLoopTeam.getID()))
++				continue;
++			if (::atWar((TeamTypes)iLoopTeam, eTeam))
+ 			{
+-				CvTeamAI& kLoopTeam = GET_TEAM((TeamTypes)iLoopTeam);
+-				//if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != eActiveTeam && iTeam != GET_PLAYER(ePlayer).getTeam())
+-				// K-Mod. show "at war" for the active player if appropriate
+-				if (kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv() && iLoopTeam != eTeam)
+-				{
+-					if (kActiveTeam.isHasMet(kLoopTeam.getID()))
+-					{
+-						if (::atWar((TeamTypes)iLoopTeam, eTeam))
+-						{
+-							setListHelp(szWarWithString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst);
+-							bFirst = false;
+-						}
+-						//if (kTeam.AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
+-						if (!kLoopTeam.isHuman() && kLoopTeam.AI_getWorstEnemy() == eTeam) // K-Mod
+-						{
+-							setListHelp(szWorstEnemyString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst2);
+-							bFirst2 = false;
+-						}
+-					}
+-				}
++				setListHelp(szWarWithString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst);
++				bFirst = false;
+ 			}
+-
+-			if (!szWorstEnemyString.isEmpty())
++			//if (kTeam.AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
++			if (!kLoopTeam.isHuman() && kLoopTeam.AI_getWorstEnemy() == eTeam) // K-Mod
+ 			{
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString.getCString()));
++				setListHelp(szWorstEnemyString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst2);
++				bFirst2 = false;
+ 			}
+-			if (!szWarWithString.isEmpty())
++		}
++		if (!szWarWithString.isEmpty()) // advc.004: List wars before worst enemies
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
++		}
++		if (!szWorstEnemyString.isEmpty())
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString.getCString()));
++		}
++		// <advc.004v> Moved here from above
++		bool bShowCtrlTrade = (!((GC.altKey() || GC.ctrlKey()) && //gDLL->getChtLvl() > 0)
++				GC.getGameINLINE().isDebugMode()) // advc.135c
++				&& !kPlayer.isHuman() && bWillTalk
++				&& ePlayer != eActivePlayer); // advc.085
++		if (bShowCtrlTrade) {
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
++		} // </advc.004>
++		if (!kActiveTeam.isAtWar(eTeam) /* advc.085: */ && ePlayer != eActivePlayer)
++		{
++			if (kActiveTeam.canDeclareWar(eTeam))
++			{	// <advc.104v>
++				if(bShowCtrlTrade)
++					szBuffer.append(L", "); // Put them on one line
++				else // </advc.104v>
++					szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_ALT_DECLARE_WAR"));
++			}
++			else
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CANNOT_DECLARE_WAR"));
+ 			}
+-			// <advc.004v> Moved here from above
+-			bool bShowCtrlTrade = !((GC.altKey() || GC.ctrlKey()) && //gDLL->getChtLvl() > 0)
+-					GC.getGameINLINE().isDebugMode()) // advc.135c
+-					&& !kPlayer.isHuman() && bWillTalk;
+-			if (bShowCtrlTrade) {
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
+-			} // </advc.004>
+-			if (!kActiveTeam.isAtWar(eTeam))
++			// K-Mod. The BBAI war plan control currently is not implemented for multiplayer, and it is only relevant for team games.
++			if (!GC.getGameINLINE().isGameMultiPlayer() && kActiveTeam.getAliveCount() > 1)
+ 			{
+-				if (kActiveTeam.canDeclareWar(eTeam))
+-				{	// <advc.104v>
+-					if(bShowCtrlTrade)
+-						szBuffer.append(L", "); // Put them on one line
+-					else // </advc.104v>
+-						szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_MISC_ALT_DECLARE_WAR"));
+-				}
+-				else
+-				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_MISC_CANNOT_DECLARE_WAR"));
+-				}
+-
+-				// K-Mod. The BBAI war plan control currently is not implemented for multiplayer, and it is only relevant for team games.
+-				if (!GC.getGameINLINE().isGameMultiPlayer() && kActiveTeam.getAliveCount() > 1)
+-				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_MISC_SHIFT_ALT_PREPARE_WAR"));
+-				}
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_SHIFT_ALT_PREPARE_WAR"));
+ 			}
+ 		}
+ 	}
+ 
+-	if (kPlayer.isHuman())
+-	{// szBuffer += "\n(<SHIFT> to Send Chat Message)";
++	if (kPlayer.isHuman() /* advc.085: */ && eActivePlayer != ePlayer)
++	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_SHIFT_SEND_CHAT"));
+ 	}
+@@ -6048,6 +6051,10 @@ void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct,
+ void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
+ {
+ 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
++	// <advc.085>
++	if(widgetDataStruct.m_iData2 == 0)
++		GET_PLAYER(GC.getGameINLINE().getActivePlayer()).setScoreboardExpanded(true);
++	// </advc.085>
+ }
+ 
+ // BULL - Trade Hover - start
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ac5654bc5..8ce64fdce 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -776,7 +776,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bLayerFromSavegame = false; // </advc.004m>
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
+-	m_bScoreboardDirtyDelayed = false; // advc.085
++	m_iScoreboardDirtyTimer = -1; // advc.085
+ }
+ 
+ 
+@@ -2525,14 +2525,16 @@ void CvGame::update()
+ 		if(!isAITurn()) {
+ 			CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+ 			// <advc.085> See CvPlayer::setScoreboardExpanded
+-			if(m_bScoreboardDirtyDelayed) {
+-				gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+-				/*  For some strange reason, the HUD retains mouse focus after
+-					expanding the scoreboard, and this is the only remedy I was
+-					able to find (apart from CvInterface::makeInterfaceDirty,
+-					which results in flickering). */
+-				gDLL->getInterfaceIFace()->makeSelectionListDirty();
+-				m_bScoreboardDirtyDelayed = false;
++			if(m_iScoreboardDirtyTimer >= 0) {
++				if(m_iScoreboardDirtyTimer == 0) {
++					gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++					/*  For some strange reason, the HUD retains mouse focus after
++						expanding the scoreboard, and this is the only remedy I was
++						able to find (apart from CvInterface::makeInterfaceDirty,
++						which results in flickering). */
++					gDLL->getInterfaceIFace()->makeSelectionListDirty();
++				}
++				m_iScoreboardDirtyTimer--;
+ 			} // </advc.085>
+ 		}
+ 		if (getTurnSlice() == 0)
+@@ -4827,9 +4829,9 @@ void CvGame::setScoreDirty(bool bNewValue)
+ }
+ 
+ // <advc.085>
+-void CvGame::setScoreboardDirtyOnUpdate() {
++void CvGame::setScoreboardDirtyTimer(int iDelay) {
+ 
+-	m_bScoreboardDirtyDelayed = true;
++	m_iScoreboardDirtyTimer = iDelay;
+ } // </advc.085>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index a63f9ae3d..306960313 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -281,7 +281,7 @@ public:
+ 
+ 	bool isScoreDirty() const;																							// Exposed to Python
+ 	void setScoreDirty(bool bNewValue);																			// Exposed to Python
+-	void setScoreboardDirtyOnUpdate(); // advc.085
++	void setScoreboardDirtyTimer(int iDelay); // advc.085
+ 
+ 	bool isCircumnavigated() const;																// Exposed to Python
+ 	void makeCircumnavigated();																		// Exposed to Python
+@@ -700,10 +700,10 @@ protected:
+ 	int m_iCivPlayersEverAlive;
+ 	int m_iCivTeamsEverAlive;
+ 	// </advc.003b>
++	int m_iScoreboardDirtyTimer; // advc.085
+ 	unsigned int m_uiInitialTime;
+ 
+ 	bool m_bScoreDirty;
+-	bool m_bScoreboardDirtyDelayed; // advc.085
+ 	bool m_bCircumnavigated;
+ 	bool m_bDebugMode;
+ 	bool m_bDebugModeCache;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0714432ce..fd110a929 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -23569,7 +23569,13 @@ void CvPlayer::setScoreboardExpanded(bool b) {
+ 	}
+ 	/*  If !b, then it doesn't help to dirty it b/c the update is still in progress
+ 		(when called from Python). */
+-	else GC.getGameINLINE().setScoreboardDirtyOnUpdate();
++	else {
++		/*  0 would make the scoreboard collapse almost instantly when the mouse is
++			moved away. Can't properly inspect icons then. 1 works pretty well;
++			a higher delay shouldn't be necessary. */
++		int const iDelay = 1;
++		GC.getGameINLINE().setScoreboardDirtyTimer(iDelay);
++	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=32154

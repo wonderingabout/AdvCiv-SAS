@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3149
+# Commit: ca86698c9bfc2b3995c3d244a54d34de4f0cec8c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0ef530775ede834437895dc5c1a72ced19dc7efe
+# Title: Increase culture level thresholds on Quick speed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml b/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+index 6edd4e8a4..969150537 100644
+--- a/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
++++ b/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+@@ -71,7 +71,8 @@
+ 				</SpeedThreshold>
+ 				<SpeedThreshold>
+ 					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
+-					<iThreshold>5</iThreshold>
++					<!-- advc.251: was 5 -->
++					<iThreshold>6</iThreshold>
+ 				</SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+@@ -94,7 +95,8 @@
+ 				</SpeedThreshold>
+ 				<SpeedThreshold>
+ 					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
+-					<iThreshold>50</iThreshold>
++					<!-- advc.251: was 50 -->
++					<iThreshold>60</iThreshold>
+ 				</SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+@@ -117,7 +119,8 @@
+ 				</SpeedThreshold>
+ 				<SpeedThreshold>
+ 					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
+-					<iThreshold>250</iThreshold>
++					<!-- advc.251: was 250 -->
++					<iThreshold>300</iThreshold>
+ 				</SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+@@ -140,7 +143,8 @@
+ 				</SpeedThreshold>
+ 				<SpeedThreshold>
+ 					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
+-					<iThreshold>2500</iThreshold>
++					<!-- advc.251: was 2500 -->
++					<iThreshold>3000</iThreshold>
+ 				</SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1390

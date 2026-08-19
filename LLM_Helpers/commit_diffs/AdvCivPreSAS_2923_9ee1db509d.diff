@@ -1,0 +1,2380 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2923
+# Commit: 9ee1db509d93a0c62385e041e7ad09a700bf8ac6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1f49671a7ed7d7b7da9feeed5d38d72bc24b3879
+# Title: Minor adjustments to the revised UWAI code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+14	13	CvGameCoreDLL/ArmamentForecast.cpp
+3	3	CvGameCoreDLL/ArmamentForecast.h
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvCity.cpp
+4	4	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+8	8	CvGameCoreDLL/CvPlayerAI.cpp
+11	9	CvGameCoreDLL/CvReplayInfo.cpp
+2	2	CvGameCoreDLL/CvTeam.cpp
+10	0	CvGameCoreDLL/CvTeam.h
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/EnumMap.h
+65	63	CvGameCoreDLL/InvasionGraph.cpp
+4	4	CvGameCoreDLL/InvasionGraph.h
+34	32	CvGameCoreDLL/MilitaryAnalyst.cpp
+6	7	CvGameCoreDLL/MilitaryAnalyst.h
+20	19	CvGameCoreDLL/MilitaryBranch.cpp
+2	2	CvGameCoreDLL/MilitaryBranch.h
+2	2	CvGameCoreDLL/ScaledNum.h
+44	49	CvGameCoreDLL/UWAIAgent.cpp
+34	27	CvGameCoreDLL/UWAIAgent.h
+8	8	CvGameCoreDLL/UWAICache.cpp
+17	25	CvGameCoreDLL/UWAICache.h
+1	1	CvGameCoreDLL/UWAIReport.h
+2	2	CvGameCoreDLL/WarEvalParameters.h
+72	71	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 13aa178ba..628c74e2b 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -239,7 +239,7 @@ void BonusThirdPartiesAlert::check()
+ 	std::multiset<int> updatedDeals[MAX_CIV_PLAYERS];
+ 	FOR_EACH_DEAL(pDeal)
+ 	{
+-		// This alert ignores trades of ownerId
++		// This alert ignores trades of the alert owner
+ 		if (pDeal->getFirstPlayer() == m_eOwner || pDeal->getSecondPlayer() == m_eOwner)
+ 			continue;
+ 		vector<int> aiDealData;
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 8b1b8e6c8..0557238fb 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -53,18 +53,19 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
+ 	if (rProductionPortion != 1)
+ 	{
+ 		m_kReport.log("Production considering lost cities: %d",
+-				rProductionEstimate.round());
++				rProductionEstimate.uround());
+ 	}
+ 	// Express upgrades in terms of differences in production costs
+ 	scaled rProductionFromUpgrades = 0;
+ 	if (!bNoUpgrading)
+ 		rProductionFromUpgrades = productionFromUpgrades();
+ 	if (rProductionFromUpgrades > 0)
+-		m_kReport.log("Production from upgrades: %d", rProductionFromUpgrades.round());
++		m_kReport.log("Production from upgrades: %d", rProductionFromUpgrades.uround());
+ 
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+ 	TeamTypes const eTeam = kPlayer.getTeam();
+ 	CvTeamAI const& kTeam = GET_TEAM(eTeam);
++	TeamTypes const eMaster = kTeam.getMasterTeam();
+ 	Intensity eIntensity = NORMAL;
+ 	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1))
+ 		eIntensity = INCREASED;
+@@ -80,7 +81,6 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
+ 				(bNavalArmament ? " (naval target)": ""));
+ 	}
+ 	TeamTypes const eTargetTeam = kParams.getTarget();
+-	TeamTypes const eMaster = GET_PLAYER(ePlayer).getMasterTeam();
+ 	int iTotalWars = 0, iWars = 0;
+ 	// Whether simulation assumes peace between ePlayer and any other player
+ 	bool bPeaceAssumed = false;
+@@ -380,7 +380,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 		behavior.
+ 		Doesn't matter much if I increase rPerTurnProduction or rArmamentPortion;
+ 		they're multiplied in the end. */
+-	scaled rAtWarAdjustment = 0;
++	scaled rAtWarAdjustment;
+ 	WarEvalParameters const& kParams = m_kMA.evaluationParams();
+ 	if (kParams.isConsideringPeace())
+ 	{
+@@ -449,7 +449,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 					fixp(0.08) + rCoastPortion / fixp(2.8));
+ 		}
+ 		scaled rTypicalCargo = m_kMilitary[LOGISTICS]->getTypicalPower(
+-				kParams.getAgent());
++				m_kMA.getAgent());
+ 		if (rTypicalCargo > 0 && m_kMilitary[LOGISTICS]->getTypicalUnit() != NO_UNIT)
+ 		{
+ 			rBranchPortions[LOGISTICS] = std::min(rBranchPortions[FLEET],
+@@ -467,10 +467,11 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 				rMultCargo = (rMultCargo + 1) / 2; // dilute
+ 				rBranchPortions[LOGISTICS] *= rMultCargo;
+ 				scaled rTypicalFleetPow = m_kMilitary[FLEET]->getTypicalPower(
+-						kParams.getAgent());
++						m_kMA.getAgent());
+ 				if (rTypicalFleetPow > 0)
+ 				{
+-					scaled rMultFleet = 2 - m_kMilitary[FLEET]->power() /
++					scaled rMultFleet = 2 -
++							m_kMilitary[FLEET]->power() /
+ 							(rTypicalFleetPow * kPlayer.AI_getCurrEraFactor());
+ 					rMultFleet.clamp(1, fixp(1.5));
+ 					rMultFleet = (rMultFleet + 1) / 2;
+@@ -585,7 +586,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 	scaled rTotalProductionForBuildUp = rAdditionalProduction;
+ 	rTotalProductionForBuildUp += iTurnsBuildUp * rArmamentPortion * rPerTurnProduction;
+ 	m_kReport.log("Total production for build-up: %d hammers",
+-			rTotalProductionForBuildUp.round());
++			rTotalProductionForBuildUp.uround());
+ 	m_rProductionInvested = rTotalProductionForBuildUp;
+ 
+ 	// Increase military power
+@@ -593,17 +594,17 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 	for (int i = 0; i < NUM_BRANCHES; i++)
+ 	{
+ 		MilitaryBranch& kBranch = *m_kMilitary[i];
+-		scaled const rTypicalCost = kBranch.getTypicalCost(kParams.getAgent());
++		scaled const rTypicalCost = kBranch.getTypicalCost(m_MA.getAgent());
+ 		if (rTypicalCost <= 0)
+ 			continue;
+-		scaled const rTypicalPower = kBranch.getTypicalPower(kParams.getAgent());
++		scaled const rTypicalPower = kBranch.getTypicalPower(m_MA.getAgent());
+ 		scaled rIncrease = rBranchPortions[i] * rTotalProductionForBuildUp *
+ 				rTypicalPower / rTypicalCost;
+ 		kBranch.changePower(rIncrease);
+-		if (rIncrease.round() > 0)
++		if (rIncrease.uround() > 0)
+ 		{
+ 			m_kReport.log("Predicted power increase in %s by %d",
+-					kBranch.str(), rIncrease.round());
++					kBranch.str(), rIncrease.uround());
+ 		}
+ 	}
+ 	m_kReport.logNewline();
+@@ -642,7 +643,7 @@ scaled ArmamentForecast::productionFromUpgrades()
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(m_ePlayer);
+ 	scaled r = kPlayer.AI_getGoldToUpgradeAllUnits();
+ 	if (2 * r >= 1)
+-		m_kReport.log("Total gold needed for upgrades: %d", r.round());
++		m_kReport.log("Total gold needed for upgrades: %d", r.uround());
+ 	/*	kPlayer may not have the funds to make all the upgrades in the medium term.
+ 		Think of a human player keeping stacks of Warriors around, or a vassal
+ 		receiving tech quickly from its master. Spend at most iIncomeTurns turns
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.h b/CvGameCoreDLL/ArmamentForecast.h
+index 9a8f559e3..df11a79de 100644
+--- a/CvGameCoreDLL/ArmamentForecast.h
++++ b/CvGameCoreDLL/ArmamentForecast.h
+@@ -27,9 +27,9 @@ public:
+ 	/*	kMA is making a forecast about ePlayer. The predicated power increase
+ 		is written to kMilitary.
+ 		bPeaceScenario: Assume peace between the agent and target of kMA.
+-		bPartyAddedRecently: Use this to indicate that this is the first forecast
+-		after adding any war parties to kMA. Need to figure out if a DoW on ePlayer
+-		is recent (recently attacked players train more military).
++		bPartyAddedRecently: Indicates that this is the first forecast after adding
++		any war parties to kMA. Need to figure out if a DoW on ePlayer is recent
++		(recently attacked players train more military).
+ 		The pTargetCity from ePlayer's UWAICache is used for figuring out whether
+ 		ePlayer is in a naval war. */
+ 	ArmamentForecast(PlayerTypes ePlayer,
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index a385327d9..5b9474a43 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1985,7 +1985,7 @@ void AIFoundValue::calculateSpecialYields(CvPlot const& p,
+ 	{
+ 		int iSurplus = (std::max(0,
+ 				iEffectiveFood - GC.getFOOD_CONSUMPTION_PER_POPULATION()) *
+-				per100(iModifier)).round(); // advc.031
++				per100(iModifier)).uround(); // advc.031
+ 		iSpecialFoodPlus += iSurplus;
+ 		aiSpecialYield[YIELD_FOOD] += iSurplus; // advc.031: A little extra love for Flood Plains
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3a49b4c77..161f6ac2c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7923,7 +7923,7 @@ scaled CvCity::probabilityOccupationDecrement() const
+ 		if(eCulturalOwner != NO_PLAYER && GET_TEAM(eCulturalOwner).isAtWar(getTeam()))
+ 			return 0;
+ 	}
+-	scaled r = 0;
++	scaled r;
+ 	scaled rRevoltProb = revoltProbability(true, false, true);
+ 	if (rRevoltProb < 1)
+ 		r = (1 - rRevoltProb).pow(GC.getDefineINT(CvGlobals::OCCUPATION_COUNTDOWN_EXPONENT));
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7e8a8f4c8..630cd7598 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5347,9 +5347,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					// K-Mod
+ 					int iExpectedSpread = kGame.countReligionLevels(eGlobalCommerceReligion);
+ 					iExpectedSpread += ((//GC.getNumEraInfos() - iOwnerEra +
+-							// <advc.erai> Subsequent eras plus current era
+-							(1 + CvEraInfo::normalizeEraNum(
+-							GC.getNumEraInfos() - iOwnerEra - 1)) + // </advc.erai>
++							// <advc.erai> Current era plus subsequent eras
++							1 + CvEraInfo::normalizeEraNum(
++							GC.getNumEraInfos() - iOwnerEra - 1) + // </advc.erai>
+ 							(eStateReligion == eGlobalCommerceReligion ? 2 : 0)) *
+ 							//GC.getInfo(GC.getMap().getWorldSize()).getDefaultPlayers()
+ 							kGame.getRecommendedPlayers()).round(); // advc.137
+@@ -13105,7 +13105,7 @@ void CvCityAI::AI_updateWorkersHaveAndNeeded()
+ 	m_iWorkersHave = iWorkersHave;
+ }
+ 
+-// advc.179::
++// advc.179:
+ scaled CvCityAI::AI_estimateReligionBuildings(PlayerTypes ePlayer, ReligionTypes eReligion,
+ 	std::vector<BuildingTypes> const& aeBuildings) const
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 975d7d88c..734cf0280 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -63,6 +63,7 @@ namespace stats // Seems too generic, but what else to name it?
+ 	template<typename T>
+ 	T median(std::vector<T>& kSamples, bool bSorted = false)
+ 	{
++		PROFILE("stats::median");
+ 		FAssert(!kSamples.empty());
+ 		if (!bSorted)
+ 			std::sort(kSamples.begin(), kSamples.end());
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index b0bc57465..3501d6bd7 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -831,7 +831,7 @@ int CvMap::maxStepDistance() const
+ }
+ 
+ /*	advc.140: Not sure what distance this measures exactly; I'm using it as a
+-	replacement (everywwere) for maxPlotDistance, with reduced impact of world wraps. */
++	replacement (everywhere) for maxPlotDistance, with reduced impact of world wraps. */
+ int CvMap::maxTypicalDistance() const
+ {
+ 	CvGame const& kGame = GC.getGame();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6ae51e6de..af8e0b854 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -18032,7 +18032,7 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
+ 	static int const iBASE_CITY_GROWTH_THRESHOLD = GC.getDefineINT("BASE_CITY_GROWTH_THRESHOLD");
+ 	static int const iCITY_GROWTH_MULTIPLIER = GC.getDefineINT("CITY_GROWTH_MULTIPLIER");
+ 	int iBaseThreshold = (iBASE_CITY_GROWTH_THRESHOLD * per100(
+-			GC.getInfo(getHandicapType()).getBaseGrowthThresholdPercent())).round();
++			GC.getInfo(getHandicapType()).getBaseGrowthThresholdPercent())).uround();
+ 	int iThreshold = iBaseThreshold + // </advc.251>
+ 			(iPopulation * iCITY_GROWTH_MULTIPLIER);
+ 	// <advc.251>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0d27a51ab..260703762 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -358,12 +358,12 @@ void CvPlayerAI::AI_updateCacheData()
+ 	FOR_EACH_CITYAI(c, *this)
+ 		rCityValues.push_back(AI_assetVal(*c, true));
+ 	int i = 0;
+-	FOR_EACH_CITYAI_VAR(c, *this)
++	FOR_EACH_CITYAI_VAR(pCity, *this)
+ 	{
+-		c->AI_setCityValPercent(
++		pCity->AI_setCityValPercent(
+ 				(1 - stats::percentileRank(
+ 				rCityValues, rCityValues[i] + scaled::epsilon())).getPercent());
+-		c->AI_updateSafety();
++		pCity->AI_updateSafety();
+ 		i++;
+ 	} // </advc.139>
+ }
+@@ -2246,7 +2246,7 @@ int CvPlayerAI::AI_yieldWeight(YieldTypes eYield,
+ 		else // Gradually reduce weight of food in the second half of the game
+ 		{
+ 			iWeight -= (60 * scaled::max(0,
+-					GC.getGame().gameTurnProgress() - fixp(0.5))).round();
++					GC.getGame().gameTurnProgress() - fixp(0.5))).uround();
+ 		} // </advc.110>
+ 		break;
+ 	case YIELD_PRODUCTION:
+@@ -7673,7 +7673,7 @@ int CvPlayerAI::AI_getPeaceAttitude(PlayerTypes ePlayer) const
+ 	iMetAndAtPeace = std::min(iMetAndAtPeace,
+ 			GET_TEAM(getTeam()).AI_getHasMetCounter(TEAMID(ePlayer)));
+ 	iDivisor = (iDivisor * std::max(fixp(0.5),
+-			1 - GC.getGame().gameTurnProgress())).round();
++			1 - GC.getGame().gameTurnProgress())).uround();
+ 	/*  Rounded down as in BtS; at least iDivisor turns need to pass before
+ 		diplo improves. */
+ 	int iAttitudeChange = iMetAndAtPeace / iDivisor;
+@@ -20105,9 +20105,9 @@ void CvPlayerAI::AI_doDiplo()
+ 					int iRand = GC.getInfo(getPersonalityType()).getContactRand(CONTACT_TRADE_TECH);
+ 					int iTechPerc = kOurTeam.getBestKnownTechScorePercent();
+ 					if (iTechPerc < 90)
+-					{	/* BBAI
+-						iRand *= std::max(1, iTechPerc - 60);
+-						iRand /= 30; */
++					{
++						/*iRand *= std::max(1, iTechPerc - 60);
++						iRand /= 30;*/ // BBAI
+ 						// K-Mod: not so extreme.
+ 						iRand = intdiv::uround(iRand * (10 + iTechPerc), 100);
+ 					}
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 10a922101..f80a9d369 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -268,7 +268,7 @@ void CvReplayInfo::addSettingsMsg()
+ 
+ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer) const
+ {
+-	CvGame const& g = GC.getGame();
++	CvGame const& kGame = GC.getGame();
+ 	bool bScenario = false;
+ 	// Strip away file ending of WB scenario
+ 	CvWString const szWBEnding = L".CivBeyondSwordWBSave";
+@@ -315,16 +315,16 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 	}
+ 	szSettings.append(NEWLINE);
+ 	// <advc.250b>
+-	if(g.isOption(GAMEOPTION_ADVANCED_START) && !g.isOption(GAMEOPTION_SPAH))
++	if(kGame.isOption(GAMEOPTION_ADVANCED_START) && !kGame.isOption(GAMEOPTION_SPAH))
+ 	{
+ 		szSettings += gDLL->getText("TXT_KEY_ADVANCED_START_POINTS") + L" "
+-				+ CvWString::format(L"%d", g.getNumAdvancedStartPoints()) + L"\n";
++				+ CvWString::format(L"%d", kGame.getNumAdvancedStartPoints()) + L"\n";
+ 	} // </advc.250b>
+ 	int iDisabled = 0;
+ 	for(int i = 0; i < GC.getNumVictoryInfos(); i++)
+ 	{
+ 		VictoryTypes eVictory = (VictoryTypes)i;
+-		if(g.isVictoryValid(eVictory))
++		if(kGame.isVictoryValid(eVictory))
+ 			continue;
+ 		iDisabled++;
+ 		szSettings += GC.getInfo(eVictory).getDescription();
+@@ -335,10 +335,10 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 		szSettings = szSettings.substr(0, szSettings.length() - 2) + L" "; // Drop the final comma
+ 		szSettings += gDLL->getText("TXT_KEY_VICTORY_DISABLED") + L"\n";
+ 	} // <advc.250b>
+-	if(g.isOption(GAMEOPTION_SPAH))
++	if(kGame.isOption(GAMEOPTION_SPAH))
+ 	{
+ 		// bTab=false b/c that's a bit too much indentation
+-		std::wstring* pszPointDistrib = g.startPointsAsHandicap().forSettingsScreen(false);
++		std::wstring* pszPointDistrib = kGame.startPointsAsHandicap().forSettingsScreen(false);
+ 		if(pszPointDistrib != NULL)
+ 			szSettings += *pszPointDistrib;
+ 	} // </advc.250b>
+@@ -348,10 +348,12 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 		GameOptionTypes eOption = (GameOptionTypes)i;
+ 		// advc.250b:
+ 		if(eOption == GAMEOPTION_ADVANCED_START || eOption == GAMEOPTION_SPAH ||
+-				!g.isOption(eOption) ||
+-				// advc.104:
+-				(eOption == GAMEOPTION_AGGRESSIVE_AI && getUWAI().isEnabled()))
++			!kGame.isOption(eOption) ||
++			// advc.104:
++			(eOption == GAMEOPTION_AGGRESSIVE_AI && getUWAI().isEnabled()))
++		{
+ 			continue;
++		}
+ 		iOptions++;
+ 		szSettings += GC.getInfo(eOption).getDescription();
+ 		szSettings += L", ";
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index eb3e15851..042cdfec3 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2391,9 +2391,9 @@ void CvTeam::changeAliveCount(int iChange)
+ 	} // </advc.104>
+ }
+ 
+-/*	advc.104: I'm using this functions to let pick members for conducting
++/*	advc.104: I'm using this functions to pick members for conducting
+ 	war-related diplomacy -- instead of using the team leaders. bHuman causes
+-	a human to be returned if this is a human team. Otherwise ignored. */
++	a human to be returned if this is a human team (otherwise ignored). */
+ PlayerTypes CvTeam::getRandomMemberAlive(bool bHuman) const
+ {
+ 	if (!isHuman())
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index f31eccae8..672c11fc3 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -31,6 +31,16 @@ public:
+ 	static void triggerWars(/* advc: */ bool bForceUpdateAttitude = false);
+ 	// </kekm.26>
+ 
++	/*	advc (comment): Call order during (de-)initialization of CvTeam, CvPlayer:
++		+	When Civ 4 is launched, constructors are called.
++		+	When Civ 4 is exited, destructors are called.
++		+	When starting a new game, init is called.
++		+	When returning to the main menu, reset is called.
++		+	When saving a game, write is called.
++		+	When loading a saved game, read is called.
++		read, init and the constructor use reset to clear the data.
++		(Reusing classes like this is error-prone and seems ill-advised in this case,
++		but there's probably no changing it because the EXE is involved.) */
+ 	explicit CvTeam(TeamTypes eID);
+ 	virtual ~CvTeam();
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2a10a9f35..eefaf6960 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5309,7 +5309,7 @@ int CvTeamAI::AI_techTradeKnownPercent() const
+ 	return r / std::max(1, it.nextIndex());
+ }
+ 
+-// advc.104: Teams should refuse to talk consistently
++// advc.104: Members of the same team should refuse to talk in unison
+ int CvTeamAI::AI_refuseToTalkWarThreshold() const
+ {
+ 	int iRTT = 0;
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 776d90e1b..cabc29a62 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1360,7 +1360,7 @@ public:
+ 	__forceinline T get(T_SUBSET eSubIndex) const { return get(static_cast<IndexType>(eSubIndex)); }
+ 	__forceinline void set(T_SUBSET eSubIndex, T tValue) { set(static_cast<IndexType>(eSubIndex), tValue); }
+ 	__forceinline void add(T_SUBSET eSubIndex, T tValue) { add(static_cast<IndexType>(eSubIndex), tValue); }
+-	// Unhide base class function
++	// Unhide base class functions
+ 	using EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::get;
+ 	using EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::set;
+ 	using EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::add;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 21f822e43..a1d10293a 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -568,10 +568,10 @@ void InvasionGraph::Node::predictArmament(int iTurns, bool bNoUpgrading)
+ 	// Target city assumed for the forecast (to decide on naval build-up)
+ 	UWAICache::City const* pTargetCity = targetCity();
+ 	WarEvalParameters const& kParams = m_kOuter.m_kMA.evaluationParams();
+-	TeamTypes const eMasterTeam = GET_PLAYER(m_ePlayer).getMasterTeam();
++	TeamTypes const eMasterTeam = GET_TEAM(m_ePlayer).getMasterTeam();
+ 	/*	Simulated DoW is taken into account by targetCity, but a
+ 		(simulated) warplan isn't. */
+-	if (eMasterTeam == GET_PLAYER(m_eAgent).getMasterTeam() ||
++	if (eMasterTeam == GET_TEAM(m_eAgent).getMasterTeam() ||
+ 		kParams.isWarAlly(eMasterTeam))
+ 	{
+ 		TeamTypes eTarget = kParams.getTarget();
+@@ -632,9 +632,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		computing the army portions. */
+ 	/*	Adjust the portion of the army that is assumed to be absent,
+ 		i.e. 1 minus portion */
+-	rArmyPortionDefender = scaled::max(0, 1 - (1 - rArmyPortionDefender) *
++	rArmyPortionDefender *= scaled::max(0, 1 - (1 - rArmyPortionDefender) *
+ 			rConfAlliesAtt);
+-	rArmyPortionAttacker = scaled::max(0, 1 - (1 - rArmyPortionAttacker) *
++	rArmyPortionAttacker *= scaled::max(0, 1 - (1 - rArmyPortionAttacker) *
+ 			rConfAlliesDef);
+ 	// No clash w/o mutual reachability
+ 	FAssert(!bClashOnly || (targetCity() != NULL && kDefender.targetCity() != NULL));
+@@ -653,14 +653,12 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			rArmyPortionAttacker.getPercent(), m_kReport.leaderName(m_ePlayer),
+ 			rArmyPortionDefender.getPercent(), m_kReport.leaderName(kDefender.m_ePlayer));
+ 	// Only log if portions are non-trivial
+-	if (rArmyPortionDefender > 0 && rArmyPortionDefender < 1 &&
+-		rConfAlliesAtt.getPercent() != 100)
++	if (rArmyPortionDefender != 0 && rArmyPortionDefender != 1 && rConfAlliesAtt != 1)
+ 	{
+ 		m_kReport.log("Confidence in allies of %s: %d percent",
+ 				m_kReport.leaderName(m_ePlayer), rConfAlliesAtt.getPercent());
+ 	}
+-	if (rArmyPortionAttacker > 0 && rArmyPortionAttacker < 1 &&
+-		rConfAlliesDef.getPercent() != 100)
++	if (rArmyPortionAttacker != 0 && rArmyPortionAttacker != 1 && rConfAlliesDef != 1)
+ 	{
+ 		m_kReport.log("Confidence in allies of %s: %d percent",
+ 				m_kReport.leaderName(kDefender.m_ePlayer), rConfAlliesDef.getPercent());
+@@ -788,12 +786,12 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		if ((rConfAttLearned < 0) != (rConfAtt < 1) &&
+ 			rConfAtt != 1 && rConfAttLearned != 0)
+ 		{
+-			rConfAttLearned *= (1 + (1 - rConfAtt).abs());
++			rConfAttLearned *= 1 + (1 - rConfAtt).abs();
+ 		}
+ 		if ((rConfDefLearned < 0) != (rConfDef < 1) &&
+ 			rConfDef != 1 && rConfDefLearned != 0)
+ 		{
+-			rConfDefLearned *= (1 + (1 - rConfDef).abs());
++			rConfDefLearned *= 1 + (1 - rConfDef).abs();
+ 		}
+ 		rConfAtt += rConfAttLearned;
+ 		rConfDef += rConfDefLearned;
+@@ -806,14 +804,15 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		/*	Only defender is assumed to bring cargo units into battle.
+ 			Fixme: [LOGISTICS]->power is the cargo capacity. The military power
+ 			is greater, but currently not tracked. */
+-		scaled rFleetPow = (m_military[FLEET]->power() - m_military[LOGISTICS]->power()
+-				- m_arLostPower[FLEET] + m_arLostPower[LOGISTICS]) * rConfAtt
++		scaled rFleetPow =
++				(m_military[FLEET]->power() - m_military[LOGISTICS]->power()
++				- m_arLostPower[FLEET] + m_arLostPower[LOGISTICS]) *
+ 				// Use attacker/ defender portion also for fleet
+-				* rArmyPortionAttacker;
++				rConfAtt * rArmyPortionAttacker;
+ 		rFleetPow.increaseTo(0);
+-		scaled rDefFleetPow = (kDefender.m_military[FLEET]->power()
+-				- kDefender.m_arLostPower[FLEET]) * rConfDef
+-				* rArmyPortionDefender;
++		scaled rDefFleetPow =
++				(kDefender.m_military[FLEET]->power() - kDefender.m_arLostPower[FLEET]) *
++				rConfDef * rArmyPortionDefender;
+ 		rDefFleetPow.increaseTo(0);
+ 		/*	Don't factor in distance; naval units tend to be fast;
+ 			would have to use a special metric b/c City::getDistance is
+@@ -846,11 +845,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	if (bCanBombardFromSea)
+ 		bCanBombard = true;
+ 	bool bCavalryAttack = (!bClashOnly && !bCanBombard && !bNaval && !bCanSoften &&
+-		/*	Minor issue: a cavalry attack might be assumed when assessing priority
+-			b/c then rDefArmyPow is 0, but for the actual simulation, no cavalry
+-			attack would be assumed. This is inconsistent. */
+-			rCavPow / (rArmyPow + scaled::epsilon()) > fixp(2/3.) &&
+-			rCavPow > rDefArmyPow);
++		/*	Minor inconsistency: A cavalry attack might be assumed when assessing
++			priority b/c then rDefArmyPow is 0, but for the actual simulation,
++			no cavalry attack would be assumed. */
++			rCavPow > fixp(2/3.) * rArmyPow && rCavPow > rDefArmyPow);
+ 	if (!bClashOnly)
+ 	{
+ 		if (bCavalryAttack)
+@@ -962,14 +960,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	}
+ 	if (bCavalryAttack)
+ 	{
+-		iDeployTurns = (fixp(0.6) * iDeployTurns).round();
++		iDeployTurns = (fixp(0.6) * iDeployTurns).uround();
+ 		rDeploymentDistAttacker *= fixp(0.75);
+ 	}
+ 	m_kReport.log("Deployment distances (%s/%s): %d/%d",
+ 				m_kReport.leaderName(m_ePlayer),
+ 				m_kReport.leaderName(kDefender.m_ePlayer),
+-				rDeploymentDistAttacker.round(),
+-				rDeploymentDistDefender.round());
++				rDeploymentDistAttacker.uround(),
++				rDeploymentDistDefender.uround());
+ 	if (!bClashOnly) // Duration has no bearing on clashes
+ 	{
+ 		m_kReport.log("Deployment duration: %d%s", iDeployTurns,
+@@ -1019,7 +1017,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			else if (kDefender.m_ePlayer == m_eAgent)
+ 				rFleetPowMult /= fixp(1.25);
+ 		}
+-		bool bAttWin = (rFleetPow > 1 && rFleetPowMult * rFleetPow > rDefFleetPow);
++		bool const bAttWin = (rFleetPow > 1 && rFleetPowMult * rFleetPow > rDefFleetPow);
+ 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(
+ 				rFleetPow, rDefFleetPow, false, true);
+ 		scaled rLossesAtt, rLossesDef;
+@@ -1058,11 +1056,12 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 						rCargoSize.round());
+ 				if (rArmySize > 0)
+ 				{
+-					scaled rLandingRatio = scaled::min(1, rCargoSize / rArmySize);
++					scaled rLandingRatio = rCargoSize / rArmySize;
++					rLandingRatio.decreaseTo(1);
+ 					rArmyPow *= rLandingRatio;
+ 					rCavPow *= rLandingRatio;
++					m_kReport.log("Power of landing party: %d", rArmyPow.uround());
+ 				}
+-				m_kReport.log("Power of landing party: %d", rArmyPow.round());
+ 			}
+ 		}
+ 		else
+@@ -1090,15 +1089,17 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			return &kStep;
+ 		}
+ 		if (rLossesAtt > 0 || rLossesDef > 0)
++		{
+ 			m_kReport.log("Losses from sea battle (A/D): %d/%d",
+-					rLossesAtt.round(), rLossesDef.round());
++					rLossesAtt.uround(), rLossesDef.uround());
++		}
+ 	}
+ 	// Subtract 2% per distance unit, but at most 50%
+-	scaled rDefDeploymentMod = scaled::max(100 -
+-			2 * rDeploymentDistDefender, 50) / 100;
++	scaled rDefDeploymentMod = scaled::max(
++			100 - 2 * rDeploymentDistDefender, 50) / 100;
+ 	rDefArmyPow *= rDefDeploymentMod;
+-	rArmyPow *= scaled::max(100 -
+-			fixp(1.55) * rDeploymentDistAttacker.pow(fixp(1.15)), 50) / 100;
++	rArmyPow *= scaled::max(
++			100 - fixp(1.55) * rDeploymentDistAttacker.pow(fixp(1.15)), 50) / 100;
+ 	// Units available in battle area
+ 	CvArea const* pBattleArea = NULL;
+ 	if (pCity != NULL)
+@@ -1170,7 +1171,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			/*	Even if the local army is too small to prevent the (temporary)
+ 				capture of a city, reinforcements will arrive before long. */
+ 			rAreaWeightDef.clamp(fixp(1/3.), 1);
+-			if (rAreaWeightDef < 1)
++			if (rAreaWeightDef != 1)
+ 			{
+ 				m_kReport.log("Area weight defender: %d percent",
+ 						rAreaWeightDef.getPercent());
+@@ -1193,11 +1194,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	scaled rArmyModAttCorr = powerCorrect(1 + rArmyModAtt);
+ 	scaled rArmyModDefCorr = powerCorrect(1 + rArmyModDef);
+ 	// These bonuses are removed again (through division) when applying losses
+-	scaled rArmyPowMod = rArmyPow * rArmyModAttCorr * rConfAtt;
+-	scaled rDefArmyPowMod = rDefArmyPow * rArmyModDefCorr * rConfDef;
++	scaled rArmyPowModified = rArmyPow * rArmyModAttCorr * rConfAtt;
++	scaled rDefArmyPowModified = rDefArmyPow * rArmyModDefCorr * rConfDef;
+ 	// Two turns for the actual attack
+ 	kStep.setDuration(iHealTurns + iDeployTurns + (bSneakAttack ? 0 : 2));
+-	//bool bDefenderOutnumbered = (fixp(1.5) * rDefArmyPowMod < rArmyPowMod);
++	//bool bDefenderOutnumbered = (fixp(1.5) * rDefArmyPowModified < rArmyPowModified);
+ 	/*	Don't do a second clash. Can reward the attacker for having fewer units.
+ 		Not unrealistic (a larger army can cause the defending army to dig in),
+ 		but can lead to erratic AI decisions since I'm only considering a
+@@ -1205,11 +1206,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	bool const bDefenderOutnumbered = true;
+ 	if (!bDefenderOutnumbered || bClashOnly)
+ 	{
+-		bool const bAttWin = (rArmyPowMod > rDefArmyPowMod);
++		bool const bAttWin = (rArmyPowModified > rDefArmyPowModified);
+ 		m_kReport.log("Army clash with modified power (A/D): %d/%d",
+-				rArmyPowMod.round(), rDefArmyPowMod.round());
++				rArmyPowModified.uround(), rDefArmyPowModified.uround());
+ 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(
+-				rArmyPowMod, rDefArmyPowMod, !bClashOnly, false);
++				rArmyPowModified, rDefArmyPowModified, !bClashOnly, false);
+ 		scaled rCavRatio, rDefCavRatio;
+ 		if (rArmyPow > 0)
+ 		{
+@@ -1229,7 +1230,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		}
+ 		scaled rLossesWinner = rrLossesWL.first;
+ 		scaled rLossesLoser = rrLossesWL.second;
+-		scaled rTempLosses = clashLossesTemporary(rArmyPowMod, rDefArmyPowMod);
++		scaled rTempLosses = clashLossesTemporary(
++				rArmyPowModified, rDefArmyPowModified);
+ 		if (bAttWin)
+ 		{
+ 			// Have tempLosses take effect immediately (not necessary if bClashOnly)
+@@ -1271,7 +1273,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			{
+ 				m_kReport.log("Attack repelled by defending army; "
+ 						"losses (A/D): %d/%d",
+-						rLossesLoser.round(), rLossesWinner.round());
++						rLossesLoser.uround(), rLossesWinner.uround());
+ 			}
+ 			return &kStep;
+ 		}
+@@ -1286,7 +1288,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	}
+ 	/*	Needs to be updated in any case in order to take into account potential
+ 		losses from clash. */
+-	rArmyPowMod = rArmyPow * rArmyModAttCorr * rConfAtt;
++	rArmyPowModified = rArmyPow * rArmyModAttCorr * rConfAtt;
+ 	FAssert(iRemainingCitiesDef > 0);
+ 	/*	Assume that the defenders stationed in a city are 50% static city defenders
+ 		and 50% floating defenders that can move to reinforce a nearby city that is
+@@ -1317,12 +1319,12 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		rTypicalGarrisonPow = fixp(3.25); // That's a Warrior
+ 	}
+ 	// Fewer rallies if all spread thin
+-	int iRallied = (rPowerPerGarrison / rTypicalGarrisonPow).round();
++	int iRallied = (rPowerPerGarrison / rTypicalGarrisonPow).uround();
+ 	// Upper bound for rallies based on importance of city
+ 	int iRallyBound = 0;
+ 	// Population above 75% of the average
+-	if (pCity->getPopulation() > (fixp(0.75) *
+-		GET_PLAYER(kDefender.m_ePlayer).getTotalPopulation()) /
++	if (pCity->getPopulation() >
++		(fixp(0.75) * GET_PLAYER(kDefender.m_ePlayer).getTotalPopulation()) /
+ 		std::max(1, iDefCities))
+ 	{
+ 		iRallyBound = 1;
+@@ -1454,11 +1456,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	m_kReport.log("City defender power: %d (%d from local garrisons, "
+ 			"%d from rallied garrisons, %d from retreated army"
+ 			" (%d percent), %d from defender advantage)",
+-			rDefenderPow.round(), rLocalGarrisonPow.round(),
+-			rRalliedGarrisonPow.round(), rDefendingArmyPow.round(),
+-			rDefArmyPortion.getPercent(), rPowFromDefAdvantage.round());
+-	m_kReport.log("Besieger power: %d", rArmyPowMod.round());
+-	scaled rPowRatio = rArmyPowMod / scaled::max(1, rDefenderPow);
++			rDefenderPow.uround(), rLocalGarrisonPow.uround(),
++			rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(),
++			rDefArmyPortion.getPercent(), rPowFromDefAdvantage.uround());
++	m_kReport.log("Besieger power: %d", rArmyPowModified.uround());
++	scaled rPowRatio = rArmyPowModified / scaled::max(1, rDefenderPow);
+ 	scaled rThreat = rPowRatio;
+ 	m_kReport.log("Power ratio (A/D): %d percent", rPowRatio.getPercent());
+ 	/*	Attacks on important cities may result in greater distraction for
+@@ -1466,7 +1468,6 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		be equally distracting ... */
+ 	//if (bCityImportant) rThreat *= fixp(1.5);
+ 	kStep.setThreat(rThreat);
+-	scaled rDeltaPow = rArmyPowMod - rDefenderPow;
+ 	/*	Add extra turns for coordinating city raiders and siege. Even with ships
+ 		or aircraft, it takes (the AI) some effort, and in the lategame
+ 		iDeployTurns should be small; hopefully, no special treatment needed. */
+@@ -1478,7 +1479,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 	// Faster conquest when defenders outnumbered
+ 	kStep.setDuration(iBombTurns + kStep.getDuration());
+ 	FAssert(rArmyModAttCorr > 0 && rConfAtt > 0);
+-	if (rDeltaPow > 0)
++	if (rArmyPowModified > rDefenderPow)
+ 	{
+ 		/*	Full losses for defender would be realistic, but doesn't capture the
+ 			uncertainty of success if threat is near 100%. Therefore: */
+@@ -1493,7 +1494,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		/*	These losses are a bit exaggerated I think, at least when threat is
+ 			near 1. Deliberate, in order to account for uncertainty. */
+ 		scaled const rAttLossRatio = fixp(0.55) / rThreat.pow(fixp(0.75));
+-		scaled rLossesAttArmy = (rAttLossRatio * rArmyPowMod / rArmyModAttCorr) / rConfAtt;
++		scaled rLossesAttArmy = (rAttLossRatio * rArmyPowModified) /
++				(rArmyModAttCorr * rConfAtt);
+ 		/*	Assume less impact of softening when already some cities conquered
+ 			b/c AI tends to run out of/ low on siege units after a while.
+ 			Reduce losses to 12/18 (66%) for the first city, then 13/18 etc. */
+@@ -1512,7 +1514,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 		kStep.reducePower(kDefender.m_ePlayer, HOME_GUARD, rGuardPowUnmodified *
+ 				fixp(0.75) * rThreat);
+ 		// Few losses for defending army
+-		if (bDefenderOutnumbered && rArmyPowMod > rGarrisonPow)
++		if (bDefenderOutnumbered && rArmyPowModified > rGarrisonPow)
+ 		{
+ 			scaled rLossesDefArmy = rDefArmyPow * rDefArmyPortion * fixp(0.5) * rThreat;
+ 			kStep.reducePower(kDefender.m_ePlayer, ARMY, rLossesDefArmy);
+@@ -1530,8 +1532,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			taking a city) as this can lead to counterintuitive AI decisions.
+ 			Also, whether an attack happens in the simulation depends on the
+ 			time horizon; timing quirks mustn't have a major impact on the outcome. */
+-		scaled rLossesAttArmy = ((fixp(0.2) * std::min(rArmyPowMod, rDefenderPow)) /
+-				rArmyModAttCorr) / rConfAtt;
++		scaled rLossesAttArmy = (fixp(0.2) * std::min(rArmyPowModified, rDefenderPow)) /
++				(rArmyModAttCorr * rConfAtt);
+ 		kStep.reducePower(m_ePlayer, ARMY, rLossesAttArmy);
+ 		if (rArmyPow > 0)
+ 			kStep.reducePower(m_ePlayer, CAVALRY, rLossesAttArmy * rCavPow / rArmyPow);
+@@ -1631,8 +1633,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
+ 		{
+ 			m_kReport.log("Losses in branch %s: %d (%s), %d (%s)",
+ 					m_military[eBranch]->str(),
+-					rLostPowerAtt.round(), m_kReport.leaderName(kAttacker.m_ePlayer),
+-					rLostPowerDef.round(), m_kReport.leaderName(m_ePlayer));
++					rLostPowerAtt.uround(), m_kReport.leaderName(kAttacker.m_ePlayer),
++					rLostPowerDef.uround(), m_kReport.leaderName(m_ePlayer));
+ 			bReportedLosses = true;
+ 		}
+ 		m_arLostPower[eBranch] += rLostPowerDef;
+@@ -1650,7 +1652,7 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
+ 		m_rTempArmyLosses += rTempLosses;
+ 	if (rTempLosses >= fixp(0.5))
+ 	{
+-		m_kReport.log("Temporary army losses (damaged): %d", rTempLosses.round());
++		m_kReport.log("Temporary army losses (damaged): %d", rTempLosses.uround());
+ 		bReportedLosses = true;
+ 	}
+ 	if (!bReportedLosses)
+@@ -1663,8 +1665,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
+ 		{
+ 			UWAICache::City const& kStepCity = *kStep.getCity();
+ 			addCityLoss(kStepCity);
+-			int const iCurrActualCities = GET_PLAYER(m_ePlayer).getNumCities();
+-			if (m_cityLosses.size() == iCurrActualCities)
++			int const iCurrentCities = GET_PLAYER(m_ePlayer).getNumCities();
++			if (m_cityLosses.size() == iCurrentCities)
+ 				setEliminated(true);
+ 			/*	Assume that own offensive stops upon losing a city to a third civ,
+ 				and whole army becomes available for defense.
+@@ -1736,10 +1738,10 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
+ 					/*	Need to conquer about half of the cities; some fewer
+ 						if there are a lot of them. */
+ 					scaled rCapitulationThresh = scaled(
+-							iCurrActualCities - iConqueredByOther).pow(fixp(0.95)) *
++							iCurrentCities - iConqueredByOther).pow(fixp(0.95)) *
+ 							scaled::max(36,
+ 							55 + (bWar ? -10 : 0) + rPowModPercent) / 100;
+-					if (iConqueredByAtt >= rCapitulationThresh.round())
++					if (iConqueredByAtt >= rCapitulationThresh.uround())
+ 					{
+ 						setCapitulated(TEAMID(kAttacker.m_ePlayer));
+ 						m_kReport.log("%s has *capitulated* to %s",
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index 5313bb4be..beabc0dee 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -24,7 +24,7 @@ class CvArea;
+ 	NB: This class does not _decide_ who targets whom. That happens in CvPlayerAI.
+ 	The invasion graph is a prediction on which the agent bases its decisions
+ 	on war and peace.
+-	Fixme: This class does too much and has too many LoC. If everything triggered
++	Tbd.: This class does too much and has too many LoC. If everything triggered
+ 	by simulate(int) could be encapsulated in a new class (and file), that would
+ 	be best. Else, at least the step function should be moved into SimulationStep,
+ 	and SimulationStep into a new file. */
+@@ -87,7 +87,7 @@ public:
+ 				scaled rArmyPortionAttacker = 1, bool bClashOnly = false) const;
+ 		void applyStep(SimulationStep const& kStep); // To be called on the defender
+ 		void setEliminated(bool b) { m_bEliminated = b; }
+-		inline bool isEliminated() const { return m_bEliminated; }
++		bool isEliminated() const { return m_bEliminated; }
+ 		void resolveLosses();
+ 		/*	Simulates a clash of armies of two Nodes targeting each other.
+ 			This node clashes with its target. The parameters says which
+@@ -182,7 +182,7 @@ public:
+ 		{
+ 			m_cityLosses.insert(kLostCity.getID());
+ 		}
+-		// Vassals that break free are currently not modeled.
++		// (Vassals that break free are not modeled)
+ 		void setCapitulated(TeamTypes eMaster);
+ 		scaled clashDistance(Node const& kOther) const;
+ 		bool isSneakAttack(Node const& kOther, bool bClash) const;
+@@ -190,7 +190,7 @@ public:
+ 		bool canReachByLand(PlotNumTypes eCityPlot, bool bFromCapital) const;
+ 		CvArea const* clashArea(PlayerTypes eEnemy) const;
+ 
+-		/*	Should create a small class for this stuff. Related:
++		/*	Tbd.: Should create a small class for this stuff. Related:
+ 			Losses from city attack. */
+ 		static scaled const m_rClashPortion;
+ 		static std::pair<scaled,scaled> clashLossesWinnerLoser(
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index db7f2360f..53d8c86ed 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -43,8 +43,8 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer,
+ 			If we are at war, our vassals are covered here as well. */
+ 		if (isKnownToBeAtWar(TEAMID(ePlayer), kAgent.getID()))
+ 			currentlyAtWar.insert(ePlayer);
+-		TeamTypes eMaster = GET_PLAYER(ePlayer).getMasterTeam();
+-		if (eMaster == GET_PLAYER(m_eWe).getMasterTeam())
++		TeamTypes eMaster = GET_TEAM(ePlayer).getMasterTeam();
++		if (eMaster == kAgent.getMasterTeam())
+ 			weAndOurVassals.insert(ePlayer);
+ 		if (eMaster == GET_TEAM(m_eTarget).getMasterTeam())
+ 			theyAndTheirVassals.insert(ePlayer);
+@@ -282,13 +282,13 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 	// Only simulates nukes fired by or on us
+ 	PlayerTypes const eWe = m_eWe; // abbreviate
+ 	CvPlayerAI const& kWe = GET_PLAYER(eWe);
+-	if (isEliminated(kWe.getID()) || kWe.getNumCities() <= 0)
++	if (isEliminated(eWe) || kWe.getNumCities() <= 0)
+ 		return; // Who cares then
+ 	CvTeamAI const& kAgent = GET_TEAM(eWe);
+ 	UWAICache const& kOurCache = kWe.uwai().getCache();
+ 	/*	Counts the number of nukes. Assume no further build-up of nukes throughout
+ 		the military analysis. (They take long to build.) */
+-	int iOurNukes = kOurCache.getPowerValues()[NUCLEAR]->numUnits();
++	int const iOurNukes = kOurCache.getPowerValues()[NUCLEAR]->numUnits();
+ 	scaled rOurTargets;
+ 	for (PlayerIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
+ 	{
+@@ -322,10 +322,10 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 		// Assume that vassals are hit by fewer nukes, and fire fewer nukes.
+ 		scaled rOurVassalMult = 1;
+ 		if (kAgent.isAVassal())
+-			rOurVassalMult = fixp(0.5);
++			rOurVassalMult /= 2;
+ 		scaled rEnemyVassalMult = 1;
+ 		if (kAgent.isAVassal())
+-			rEnemyVassalMult = fixp(0.5);
++			rEnemyVassalMult = /= 2;
+ 		scaled rEnemyTargets;
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+@@ -345,9 +345,9 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 					(kWe.AI_isDoStrategy(AI_STRATEGY_OWABWNW) ? fixp(1.1) : fixp(0.9)) /
+ 					rOurTargets;
+ 		}
+-		rFiredByUs = std::min(rFiredByUs, fixp(1.5) * kEnemy.getNumCities());
+-		scaled rHittingUs = rFiredOnUs * nukeInterceptionMultiplier(kAgent.getID());
+-		scaled rHittingEnemy = rFiredByUs * nukeInterceptionMultiplier(kEnemy.getTeam());
++		rFiredByUs.decreaseTo(fixp(1.5) * kEnemy.getNumCities());
++		scaled rHittingUs = rFiredOnUs * nukeChanceToHit(kAgent.getID());
++		scaled rHittingEnemy = rFiredByUs * nukeChanceToHit(kEnemy.getTeam());
+ 		// Make sure not to allocate PlayerResult unnecessarily
+ 		if (rHittingUs > 0)
+ 		{
+@@ -366,31 +366,33 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 	}
+ }
+ 
+-
+-scaled MilitaryAnalyst::nukeInterceptionMultiplier(TeamTypes eTeam)
++namespace
+ {
+-	int const iNukeInterception = std::max(GET_TEAM(eTeam).getNukeInterception(),
+-			// advc.143b:
+-			GET_TEAM(GET_TEAM(eTeam).getMasterTeam()).getNukeInterception());
+-	scaled const rEvasionProb = fixp(0.5); // Fixme: Shouldn't hardcode this
+-	// Percentage of Tactical Nukes
+-	scaled rTactRatio = (GET_TEAM(eTeam).isHuman() ? fixp(0.5) : fixp(1/3.));
+-	scaled r = 100 - (iNukeInterception *
+-			((1 - rTactRatio) + rEvasionProb * rTactRatio));
+-	r /= 100;
+-	r.clamp(0, 1);
+-	return r;
+-}
++	scaled nukeChanceToHit(TeamTypes eTeam)
++	{
++		scaled const rInterceptionProb = per100(std::max(
++				GET_TEAM(eTeam).getNukeInterception(),
++				// advc.143b:
++				GET_TEAM(GET_TEAM(eTeam).getMasterTeam()).getNukeInterception()));
++		scaled const rEvasionProb = fixp(0.5); // Fixme: Shouldn't hardcode this
++		// Percentage of Tactical Nukes
++		scaled rTactRatio = (GET_TEAM(eTeam).isHuman() ? fixp(0.5) : fixp(1/3.));
++		scaled rHitProb = 1 - (rInterceptionProb *
++				((1 - rTactRatio) + rTactRatio * (1 - rEvasionProb)));
++		r.clamp(0, 1);
++		return rHitProb;
++	}
+ 
+ 
+-bool MilitaryAnalyst::isKnownToBeAtWar(TeamTypes eTeam, TeamTypes eObserver) const
+-{
+-	for (TeamIter<MAJOR_CIV,ENEMY_OF> it(eTeam); it.hasNext(); ++it)
++	bool isKnownToBeAtWar(TeamTypes eTeam, TeamTypes eObserver) const
+ 	{
+-		if (eObserver == NO_TEAM || GET_TEAM(eObserver).isHasMet(it->getID()))
+-			return true;
++		for (TeamIter<MAJOR_CIV,ENEMY_OF> it(eTeam); it.hasNext(); ++it)
++		{
++			if (eObserver == NO_TEAM || GET_TEAM(eObserver).isHasMet(it->getID()))
++				return true;
++		}
++		return false;
+ 	}
+-	return false;
+ }
+ 
+ 
+@@ -426,7 +428,7 @@ void MilitaryAnalyst::prepareResults()
+ 	for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+ 		PlayerTypes const ePlayer = itPlayer->getID();
+-		int iCurrTotalPop = GET_PLAYER(ePlayer).getTotalPopulation();
++		int const iCurrTotalPop = GET_PLAYER(ePlayer).getTotalPopulation();
+ 		if (iCurrTotalPop <= 0)
+ 			continue;
+ 		int iPopIncrease = 0;
+@@ -541,7 +543,7 @@ void MilitaryAnalyst::logResults(PlayerTypes ePlayer)
+ 	if (m_kReport.isMute())
+ 		return;
+ 	// Not the best way to identify civs that weren't part of the simulation ...
+-	if (militaryProduction(ePlayer).round() == 0)
++	if (militaryProduction(ePlayer).uround() == 0)
+ 		return;
+ 	m_kReport.log("Results about %s", m_kReport.leaderName(ePlayer));
+ 	m_kReport.log("\nbq.");
+@@ -550,7 +552,7 @@ void MilitaryAnalyst::logResults(PlayerTypes ePlayer)
+ 	logCities(ePlayer, false);
+ 	logPower(ePlayer, false);
+ 	logPower(ePlayer, true);
+-	m_kReport.log("Invested production: %d", militaryProduction(ePlayer).round());
++	m_kReport.log("Invested production: %d", militaryProduction(ePlayer).uround());
+ 	logDoW(ePlayer);
+ 	m_kReport.log("");
+ }
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.h b/CvGameCoreDLL/MilitaryAnalyst.h
+index 913998da7..e701ef7d5 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.h
++++ b/CvGameCoreDLL/MilitaryAnalyst.h
+@@ -20,20 +20,20 @@ class InvasionGraph;
+ class MilitaryAnalyst
+ {
+ public:
+-	/*	bPeaceScenario=false - simulate a "war" scenario:
++	/*	bPeaceScenario=false - "war" scenario:
+ 		War against the target is assumed to be declared immediately or,
+ 		depending on the war eval parameters, after some preparation time,
+ 		or war is continued (if already at war).
+-		bPeaceScenario=true - simulate a "peace" scenario:
++		bPeaceScenario=true - "peace" scenario:
+ 		No war is declared or, if agent and target are at war, the war
+ 		is ended immediately. */
+ 	MilitaryAnalyst(PlayerTypes eAgentPlayer, WarEvalParameters& kWarEvalParams,
+ 			bool bPeaceScenario);
+ 	~MilitaryAnalyst();
+-	inline WarEvalParameters& evaluationParams() { return m_kWarEvalParams; }
+-	inline WarEvalParameters const& evaluationParams() const { return m_kWarEvalParams; }
+-	inline PlayerTypes getAgentPlayer() const { return m_eWe; }
+-	inline bool isPeaceScenario() const { return m_bPeaceScenario; }
++	WarEvalParameters& evaluationParams() { return m_kWarEvalParams; }
++	WarEvalParameters const& evaluationParams() const { return m_kWarEvalParams; }
++	__forceinline PlayerTypes getAgentPlayer() const { return m_eWe; }
++	bool isPeaceScenario() const { return m_bPeaceScenario; }
+ 
+ 	bool isOnOurSide(TeamTypes eTeam) const;
+ 	/*  The parameter only refers to proper defensive pacts;
+@@ -189,7 +189,6 @@ private:
+ 	bool doWePlanToDeclWar(PlayerTypes ePlayer) const;
+ 	void prepareResults();
+ 	void simulateNuclearWar();
+-	scaled nukeInterceptionMultiplier(TeamTypes eTeam);
+ 	// Known to be at war with anyone. If no observer, all wars are checked.
+ 	bool isKnownToBeAtWar(TeamTypes eTeam, TeamTypes eObserver = NO_TEAM) const;
+ 	/*  Also checks vassal agreements, including other vassals of
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index bc2512e10..c0198a0cc 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -34,7 +34,7 @@ void MilitaryBranch::write(FDataStreamBase* pStream) const
+ 	int iSaveVersion;
+ 	//iSaveVersion = 0;
+ 	iSaveVersion = 1; // scaled instead of double
+-	/*  I hadn't thought of a version number in the initial release. Need
++	/*	I hadn't thought of a version number in the initial release. Need
+ 		to fold it into m_eTypicalUnit now to avoid breaking compatibility.
+ 		Add 1 b/c the typical unit can be -1. */
+ 	pStream->Write(m_eTypicalUnit + 1 + 1000 * iSaveVersion);
+@@ -95,7 +95,7 @@ void MilitaryBranch::updateTypicalUnit()
+ 			continue;
+ 		}
+ 		UnitClassTypes const eUnitClass = CvCivilization::unitClass(eUnit);
+-		/*  I may want to give some combat unit (e.g. War Elephant) a national limit
++		/*	I may want to give some combat unit (e.g. War Elephant) a national limit
+ 			or an instance cost modifier at some point */
+ 		CvUnitClassInfo const& kUnitClass = GC.getInfo(eUnitClass);
+ 		{
+@@ -157,10 +157,10 @@ void MilitaryBranch::NuclearArsenal::updateTypicalUnit()
+ 		UnitTypes eUnit = kCiv.unitAt(i);
+ 		if (!kOwner.getCapitalCity()->canTrain(eUnit))
+ 			continue;
+-		scaled const rUnitPow = unitPower(eUnit, true);
++		scaled const rPow = unitPower(eUnit, true);
+ 		if (rUnitPow <= 0)
+ 			continue;
+-		scaled rUtility = unitUtility(eUnit, rUnitPow);
++		scaled rUtility = unitUtility(eUnit, rPow);
+ 		scaled rProductionCost = estimateProductionCost(eUnit);
+ 		if (rProductionCost <= 0)
+ 			continue;
+@@ -226,7 +226,7 @@ scaled MilitaryBranch::estimateProductionCost(UnitTypes eUnit)
+ {
+ 	scaled rCost = GC.getInfo(eUnit).getProductionCost();
+ 	UnitClassTypes const eUnitClass = GC.getInfo(eUnit).getUnitClassType();
+-	/*  CvPlayer::getProductionNeeded would be needlessly slow. Don't need all
++	/*	CvPlayer::getProductionNeeded would be needlessly slow. Don't need all
+ 		those modifiers, and we need a projection for InstanceCostModifier anyway. */
+ 	int iInstanceCostMod = GC.getInfo(eUnitClass).getInstanceCostModifier();
+ 	if (iInstanceCostMod > 0)
+@@ -248,11 +248,11 @@ scaled MilitaryBranch::unitPower(UnitTypes eUnit, scaled rBasePower) const
+ 	scaled r = rBasePower;
+ 	if (r < 0)
+ 		r = kUnit.getPowerValue();
+-	/* A good start. Power values mostly equal combat strength; the
+-	   BtS developers have manually increased the value of first strikers
+-	   (usually +1 power), and considerably decreased the value of units
+-	   that can only defend.
+-	   Collateral damage and speed seem underappreciated. */
++	/*	A good start. Power values mostly equal combat strength; the
++		BtS developers have manually increased the value of first strikers
++		(usually +1 power), and considerably decreased the value of units
++		that can only defend.
++		Collateral damage and speed seem underappreciated. */
+ 	if (kUnit.getCollateralDamage() > 0 && kUnit.getDomainType() == DOMAIN_LAND ||
+ 		kUnit.getMoves() > 1)
+ 	{
+@@ -262,14 +262,14 @@ scaled MilitaryBranch::unitPower(UnitTypes eUnit, scaled rBasePower) const
+ 	if (kUnit.getDomainType() == DOMAIN_SEA && kUnit.getBombardRate() == 0)
+ 		r *= fixp(2/3.);
+ 
+-	/*  The BtS power value for Tactical Nuke seems low (30, same as Tank),
++	/*	The BtS power value for Tactical Nuke seems low (30, same as Tank),
+ 		but considering that the AI isn't good at using nukes tactically, and that
+-		the strategic value is captured by the NuclearDeterrent WarUtilityAspect,
+-		it seems just about right. */
++		the strategic value is captured by the Risk WarUtilityAspect, it seems
++		just about right. */
+ 	//if(kUnit.isSuicide()) r *= fixp(4/3.); // all missiles
+ 
+-	/*  Combat odds don't increase linearly with strength. Use a power law
+-		with a power between 1.5 and 2 (configured in XML). */
++	/*	Combat odds don't increase linearly with strength. Use a power law
++		with an exponent between 1.5 and 2 (configured in XML). */
+ 	r.exponentiate(per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION)));
+ 	return r;
+ }
+@@ -281,9 +281,10 @@ bool MilitaryBranch::canEmploy(UnitTypes eUnit) const
+ 			unitPower(eUnit, false) > 0);
+ }
+ 
++
+ void MilitaryBranch::reportUnit(UnitTypes eUnit, int iChange)
+ {
+-	// (Calling canEmploy might cause unitPower to be called twice)
++	// (Calling canEmploy could cause unitPower to be called twice)
+ 	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).getNukeRange() >= 0) &&
+ 		isValidDomain(eUnit))
+ 	{
+@@ -398,7 +399,7 @@ scaled MilitaryBranch::HomeGuard::unitPower(UnitTypes eUnit, bool bModify) const
+ 	return MilitaryBranch::unitPower(eUnit, rBasePow);
+ }
+ 
+-// Utility equals power by default (template pattern)
++// Utility equals power by default
+ scaled MilitaryBranch::unitUtility(UnitTypes, scaled rPower) const
+ {
+ 	return rPower;
+@@ -435,8 +436,8 @@ scaled MilitaryBranch::Army::unitPower(UnitTypes eUnit, bool bModify) const
+ 				break;
+ 			}
+ 		}
+-		/* Military power is already biased toward aggression.
+-		   No further adjustments needed. */
++		/*	Military power is already biased toward aggression.
++			No further adjustments needed. */
+ 	}
+ 	return MilitaryBranch::unitPower(eUnit, rBasePow);
+ }
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.h b/CvGameCoreDLL/MilitaryBranch.h
+index 6e786c208..f6ff46e07 100644
+--- a/CvGameCoreDLL/MilitaryBranch.h
++++ b/CvGameCoreDLL/MilitaryBranch.h
+@@ -94,9 +94,9 @@ protected:
+ 	/*	Vague expectation of how many extra instances will have been produced
+ 		when halfway through with the military buildup that this class helps predict.
+ 		(Could get the era from m_eOwner, but don't want to include CvPlayer.h.) */
+-	inline scaled estimateExtraInstances(scaled eraFactor) const
++	inline scaled estimateExtraInstances(scaled rEraFactor) const
+ 	{
+-		return fixp(1.75) + fixp(1.25) * eraFactor;
++		return fixp(1.75) + fixp(1.25) * rEraFactor;
+ 	}
+ 
+ private:
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 4f0650163..f8d359e2f 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -884,10 +884,10 @@ int ScaledNum_T::round() const
+ template<ScaledNum_PARAMS>
+ int ScaledNum_T::uround() const
+ {
+-	BOOST_STATIC_ASSERT(bSIGNED);
++	BOOST_STATIC_ASSERT(bSIGNED); // Use round() instead
+ 	if (INTMAX < SCALE)
+ 		FAssert(false);
+-	FAssert(m_i <= static_cast<IntType>(INTMAX - SCALE / 2));
++	FAssert(m_i >= 0 && m_i <= static_cast<IntType>(INTMAX - SCALE / 2));
+ 	return (m_i + SCALE / 2) / SCALE;
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 6f558b13a..65bc4a562 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -16,14 +16,16 @@
+ using std::vector;
+ using std::set;
+ 
+-
+-int const iMaxReparationUtility = 25;
+-int const iWarTradeUtilityThresh = -35;
+-// AI payments for peace (with human or AI enemy)
+-scaled const rReparationsModifierAI = fixp(0.5);
+-/*  Modifier for human payments for peace, i.e what the AI asks a human to pay
+-	(no modifier for brokering, i.e. 100%). */
+-scaled const rReparationsModifierHuman = fixp(0.75);
++namespace
++{
++	int const iMaxReparationUtility = 25;
++	int const iWarTradeUtilityThresh = -35;
++	// AI payments for peace (with human or AI enemy)
++	scaled const rReparationsModifierAI = fixp(0.5);
++	/*  Modifier for human payments for peace, i.e what the AI asks a human to pay
++		(no modifier for brokering, i.e. 100%). */
++	scaled const rReparationsModifierHuman = fixp(0.75);
++}
+ 
+ 
+ UWAI::Team::Team()
+@@ -114,7 +116,7 @@ void UWAI::Team::doWar()
+ 			it.hasNext(); ++it)
+ 		{
+ 			TeamTypes const eTarget = it->getID();
+-			WarPlanTypes eWP = kAgent.AI_getWarPlan(eTarget);
++			WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+ 			if (eWP == WARPLAN_ATTACKED_RECENT)
+ 				considerPlanTypeChange(eTarget, 0);
+ 			/*  Non-human vassals abandon human-instructed war prep. after 20 turns.
+@@ -208,10 +210,10 @@ namespace
+ 		:	iU(iU), eTarget(eTarget), iPrepTurns(iPrepTurns), bNaval(bNaval)
+ 		{}
+ 		inline bool operator<(PlanData const& kOther) { return iU < kOther.iU; }
+-		int iU;
+-		TeamTypes eTarget;
+-		int iPrepTurns;
+-		bool bNaval;
++		int const iU;
++		TeamTypes const eTarget;
++		int const iPrepTurns;
++		bool const bNaval;
+ 	};
+ }
+ 
+@@ -242,7 +244,7 @@ bool UWAI::Team::reviewWarPlans()
+ 				continue;
+ 			if (kTarget.isHuman()) // considerCapitulation may set ReadyToCapitulate
+ 				leaderCache().setReadyToCapitulate(eTarget, false);
+-			WarPlanTypes eWP = kAgent.AI_getWarPlan(eTarget);
++			WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+ 			if (eWP == NO_WARPLAN)
+ 			{
+ 				// As good a place as any to make sure of this
+@@ -657,27 +659,27 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 			{
+ 				iTradeVal = endWarVal(eTarget) - kTarget.uwai().endWarVal(kAgent.getID());
+ 				// A bit higher than the K-Mod discounts (advc.134a)
+-				scaled rDiscountFactor = fixp(1.3);
++				scaled const rDiscountFactor = fixp(1.3);
+ 				if (iTradeVal < 0)
+ 				{
+ 					iDemandVal = -iTradeVal;
+ 					// Offer a square deal when it's close
+ 					if (iDemandVal < kTargetPlayer.uwai().utilityToTradeVal(fixp(4.25)))
+ 						iDemandVal = 0;
+-					else iDemandVal = (iDemandVal / rDiscountFactor).round();
++					else iDemandVal = (iDemandVal / rDiscountFactor).uround();
+ 					m_pReport->log("Seeking reparations with a trade value of %d", iDemandVal);
+ 					iTradeVal = 0;
+ 				}
+-				else iTradeVal = (iTradeVal * rDiscountFactor).round();
++				else iTradeVal = (iTradeVal * rDiscountFactor).uround();
+ 			}
+ 			else
+ 			{
+ 				// Base the reparations they demand on their economy
+ 				iTradeVal = (kTarget.uwai().utilityToTradeVal(
+-						std::max(0, iTheirReluct))).round();
++						std::max(0, iTheirReluct))).uround();
+ 				/*  Reduce the trade value b/c the war isn't completely off the table;
+ 					could continue after 10 turns. */
+-				iTradeVal = (iTradeVal * rReparationsModifierAI).round();
++				iTradeVal = (iTradeVal * rReparationsModifierAI).uround();
+ 			}
+ 			if (iTradeVal > 0 || iDemandVal == 0)
+ 			{
+@@ -813,7 +815,7 @@ bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
+ 	}
+ 	if (bHumanMaster)
+ 	{
+-		// Otherwise, AI_surrenderTrade can't return true for a human master.
++		// This allows AI_surrenderTrade to return true (for a human master)
+ 		leaderCache().setReadyToCapitulate(eMaster, true);
+ 	}
+ 	// Checks our willingness and that of the master
+@@ -853,7 +855,6 @@ bool UWAI::Team::tryFindingMaster(TeamTypes eEnemy)
+ 		if (!kAgentPlayer.canContact(kMasterPlayer.getID(), true))
+ 			continue;
+ 		// Based on code in CvPlayerAI::AI_doDiplo
+-		
+ 		TradeData item(TRADE_VASSAL);
+ 		/*  Test Denial separately b/c it can cause the master to evaluate war
+ 			against enemyId, which is costly. */
+@@ -972,7 +973,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
+ 			rSwitchProb = (rLimitedWarWeight.isPositive() ?
+ 					rSwitchProb / rLimitedWarWeight : 1);
+ 		}
+-		if (!rLimitedWarWeight.approxEquals(1, fixp(0.01)))
++		if (rLimitedWarWeight != 1)
+ 		{
+ 			m_pReport->log("Bias for/against limited war: %d percent",
+ 					rLimitedWarWeight.getPercent());
+@@ -1282,7 +1283,7 @@ int UWAI::Team::tradeValJointWar(TeamTypes eTarget, TeamTypes eAlly) const
+ 		return 0;
+ 	}
+ 	// NB: declareWarTrade applies an additional threshold
+-	return utilityToTradeVal(std::min(iU, -iWarTradeUtilityThresh)).round();
++	return utilityToTradeVal(std::min(iU, -iWarTradeUtilityThresh)).uround();
+ }
+ 
+ 
+@@ -1341,10 +1342,10 @@ namespace
+ 		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), iU(iU)
+ 		{}
+ 		inline bool operator<(TargetData const& kOther) { return rDrive < kOther.rDrive; }
+-		scaled rDrive;
+-		TeamTypes eTeam;
+-		bool bTotal;
+-		int iU;
++		scaled const rDrive;
++		TeamTypes const eTeam;
++		bool const bTotal;
++		int comst iU;
+ 	};
+ }
+ 
+@@ -1402,7 +1403,7 @@ void UWAI::Team::scheme()
+ 			bTotalNaval = params.isNaval();
+ 			iTotalPrepTime = params.getPreparationTime();
+ 		}
+-		int iLimitedU = eval.evaluate(WARPLAN_PREPARING_LIMITED, bShortWork ? 0 : -1);
++		int const iLimitedU = eval.evaluate(WARPLAN_PREPARING_LIMITED, bShortWork ? 0 : -1);
+ 		bool const bLimitedNaval = params.isNaval();
+ 		int const iLimitedPrepTime = params.getPreparationTime();
+ 		bool bTotal = false;
+@@ -1413,10 +1414,10 @@ void UWAI::Team::scheme()
+ 		if (iLimitedU > 0 && iTotalU > 0)
+ 		{
+ 			scaled const rLimitedWarWeight = limitedWarWeight();
+-			if (!rLimitedWarWeight.approxEquals(1, fixp(0.01)))
++			if (rLimitedWarWeight != 1)
+ 			{
+ 				m_pReport->log("Bias for/against limited war: %d percent",
+-						rLimitedWarWeight.round());
++						rLimitedWarWeight.uround());
+ 			}
+ 			int const iPadding = GC.getGame().getSorenRandNum(40,
+ 					"UWAI: total vs. limited war");
+@@ -1569,7 +1570,7 @@ DenialTypes UWAI::Team::declareWarTrade(TeamTypes eTarget, TeamTypes eSponsor) c
+ 					}
+ 				}
+ 				iUtilityThresh = std::max(iUtilityThresh,
+-						-(tradeValToUtility(iHumanTradeVal) +
++						- (tradeValToUtility(iHumanTradeVal) +
+ 						// Add 5 for gold that the human might be able to procure
+ 						((GET_TEAM(eSponsor).isGoldTrading() ||
+ 						kAgent.isGoldTrading() ||
+@@ -1601,6 +1602,7 @@ DenialTypes UWAI::Team::declareWarTrade(TeamTypes eTarget, TeamTypes eSponsor) c
+ 	return DENIAL_TOO_MANY_WARS;
+ }
+ 
++
+ int UWAI::Team::declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const
+ {
+ 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
+@@ -1890,7 +1892,7 @@ int UWAI::Team::endWarVal(TeamTypes eEnemy) const
+ 			{
+ 				int iMaxHumanCanPay = -1;
+ 				kAI.uwai().leaderUWAI().canTradeAssets(
+-						r.ceil(), kHuman.getLeaderID(),
++						r.round(), kHuman.getLeaderID(),
+ 						&iMaxHumanCanPay);
+ 				if (iMaxHumanCanPay < r)
+ 				{
+@@ -2030,6 +2032,7 @@ scaled UWAI::Team::reparationsToHuman(scaled rUtility) const
+ 	return utilityToTradeVal(rUtility); // Trade value based on our economy
+ }
+ 
++
+ void UWAI::Team::respondToRebuke(TeamTypes eTarget, bool bPrepare)
+ {
+ 	/*  Caveat: Mustn't use RNG here b/c this is called from both async (prepare=false)
+@@ -2591,10 +2594,10 @@ bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
+ 				return true;
+ 		}
+ 	}
+-	int iCityLimit = intdiv::uceil(kHuman.getNumCities(), 6);
+-	int iCities = 0;
+ 	if (!bIgnoreCities)
+ 	{
++		int const iCityLimit = intdiv::uceil(kHuman.getNumCities(), 6);
++		int iCities = 0;
+ 		FOR_EACH_CITYAI(pCity, kHuman)
+ 		{
+ 			if (iCities >= iCityLimit)
+@@ -2603,16 +2606,14 @@ bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
+ 			if(kHuman.canTradeItem(
+ 				m_eAgent, TradeData(TRADE_CITIES, pCity->getID()), true))
+ 			{
+-				if (iTotalTradeVal < iTargetTradeVal)
+-					iCities++;
++				iCities++;
+ 				iTotalTradeVal += GET_PLAYER(m_eAgent).AI_cityTradeVal(*pCity);
+ 				if (iTotalTradeVal >= iTargetTradeVal)
+ 					return true;
+ 			}
+ 		}
+ 	}
+-	if (iTotalTradeVal >= iTargetTradeVal)
+-		return true;
++	FAssert(iTotalTradeVal < iTargetTradeVal);
+ 	if (piAvailableTradeVal != NULL)
+ 		*piAvailableTradeVal = iTotalTradeVal;
+ 	return false;
+@@ -2730,7 +2731,7 @@ scaled UWAI::Player::confidenceFromWarSuccess(TeamTypes eTarget) const
+ 	int const iTargetSuccess = std::max(1, kTarget.AI_getWarSuccess(kAgent.getID()));
+ 	scaled rSuccessRatio = (iAgentSuccess, iTargetSuccess);
+ 	scaled const rFixedBound = fixp(0.5);
+-	// Reaches fixedBound after 20 turns
++	// Reaches rFixedBound after 20 turns
+ 	scaled rTimeBasedBound = (100 - fixp(2.5) * iTurnsAtWar) / 100;
+ 	/*  Bound based on total war success: Becomes relevant once a war lasts long; e.g.
+ 		after 25 turns, in the Industrial era, will need a total war success of 250
+@@ -2867,15 +2868,9 @@ scaled UWAI::Player::warConfidenceAllies() const
+ 	return r;
+ }
+ 
+-
+-scaled UWAI::Player::confidenceAgainstHuman() const
+-{
+-	/*  Doesn't seem necessary so far; AI rather too reluctant to attack humans
+-		due to human diplomacy, and other special treatment of humans; e.g.
+-		can't get a capitulation from human. */
+-	return 1;
+-	/*  Older comment:
+-		How hesitant should the AI be to engage humans?
++// (See comment in header)
++//scaled UWAI::Player::confidenceAgainstHuman() const {
++	/*  How hesitant should the AI be to engage humans?
+ 		This will have to be set based on experimentation. 90% is moderate
+ 		discouragement against wars vs. humans. Perhaps unneeded, perhaps needs to
+ 		be lower than 90%. Could set it based on the difficulty setting, however,
+@@ -2885,7 +2880,7 @@ scaled UWAI::Player::confidenceAgainstHuman() const
+ 		The learning-which-civs-are-dangerous approach in warConfidenceLearned
+ 		is more elgant, but won't prevent an AI-on-human dogpile in the early game. */
+ 	//return (GET_PLAYER(m_eAgent).isHuman() ? 1 : fixp(0.9));
+-}
++//}
+ 
+ 
+ int UWAI::Player::vengefulness() const
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index 9b6b1efcb..c90f741d9 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -29,20 +29,20 @@ public:
+ 	void doWar(); // replacement for CvTeamAI::doWar
+ 	// Replacing parts of CvTeamAI::AI_declareWarTrade
+ 	DenialTypes declareWarTrade(TeamTypes eTeam, TeamTypes eSponsor) const;
+-	/*  Replacing CvTeamAI::AI_declareWarTradeVal. However, that function is
++	/*	Replacing CvTeamAI::AI_declareWarTradeVal. However, that function is
+ 		called on the sponsor, whereas this one is called on the hireling
+ 		(consistent with declareWarTrade). */
+ 	int declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const;
+ 	// Replacing parts of CvTeamAI::AI_makePeaceTrade
+ 	DenialTypes makePeaceTrade(TeamTypes eEnemy, TeamTypes eBroker) const;
+-	/*  Replacing CvTeamAI::AI_makePeaceTradeVal. However, that function is
++	/*	Replacing CvTeamAI::AI_makePeaceTradeVal. However, that function is
+ 		called on the broker, whereas this one is called on the team that gets
+ 		payed for peace (consistent with makePeaceTrade). */
+ 	int makePeaceTradeVal(TeamTypes eEnemy, TeamTypes eBroker) const;
+-	/*  Replacing some calls to CvTeamAI::AI_endWarVal.
++	/*	Replacing some calls to CvTeamAI::AI_endWarVal.
+ 		How much we value ending the war with eEnemy. */
+ 	int endWarVal(TeamTypes eEnemy) const;
+-	/*  Utility of ending all our wars (through diplo vote).
++	/*	Utility of ending all our wars (through diplo vote).
+ 		Positive if we want to end the war.
+ 		If eVS is set, only wars with members of that vote source are considered. */
+ 	int uEndAllWars(VoteSourceTypes eVS = NO_VOTESOURCE) const;
+@@ -50,7 +50,7 @@ public:
+ 	int uEndWar(TeamTypes eEnemy) const;
+ 	// Joint war through a diplo vote. We mustn't be at war yet.
+ 	int uJointWar(TeamTypes eTarget, VoteSourceTypes eVS) const;
+-	/*  If we're at war with eTarget, then compute and return our
++	/*	If we're at war with eTarget, then compute and return our
+ 		utility of convincing eAlly to join the war against eTarget
+ 		(compared with a scenario where we continue the war by ourselves).
+ 		Otherwise, return our utility of a joint war together with eAlly
+@@ -59,27 +59,27 @@ public:
+ 	int uJointWar(TeamTypes eTarget, TeamTypes eAlly) const;
+ 	// How much we're willing to pay to eAlly for declaring war on eTarget
+ 	int tradeValJointWar(TeamTypes eTarget, TeamTypes eAlly) const;
+-	/*  Based on war utility and the utility threshold for peace.
++	/*	Based on war utility and the utility threshold for peace.
+ 		At least 0 unless bNonNegative=false, in which case a negative
+ 		return value indicates a willingness for peace. */
+ 	int reluctanceToPeace(TeamTypes eEnemy, bool bNonNegative = true) const;
+-	/*  Trade value that we're willing to pay to any human player for peace
++	/*	Trade value that we're willing to pay to any human player for peace
+ 		if peace has a utility of rUtility for us */
+ 	scaled reparationsToHuman(scaled rUtility) const;
+ 	// Replacing CvPlayerAI::AI_demandRebukedSneak (bPrepare=true) and AI_demandRebukedWar
+ 	void respondToRebuke(TeamTypes eTarget, bool bPrepare);
+-	/*  Taking over parts of CvTeamAI::AI_vassalTrade; only called when
++	/*	Taking over parts of CvTeamAI::AI_vassalTrade; only called when
+ 		accepting eVassal will require us (the would-be master) to declare a war. */
+ 	DenialTypes acceptVassal(TeamTypes eVassal) const;
+ 	// Replacing CvTeamAI::AI_isLandTarget
+ 	bool isLandTarget(TeamTypes eTeam) const;
+-	/*  Whether this team can reach any city of eTarget with military units;
++	/*	Whether this team can reach any city of eTarget with military units;
+ 		based on cached info. */
+ 	bool canReach(TeamTypes eTarget) const;
+ 	UWAI::Player const& leaderUWAI() const;
+ 	// E.g. never need to (directly) evaluate war against vassals
+ 	bool isWarEvalNeeded(TeamTypes eTeam) const;
+-	/*  Runs 'scheme' as if UWAI was running in the background and writes a
++	/*	Runs 'scheme' as if UWAI was running in the background and writes a
+ 		report file regardless of the REPORT_INTERVAL set in XML.
+ 		Intended for debugging. Could insert a call like
+ 		GET_TEAM((TeamTypes)1).uwai().doWarReport()
+@@ -92,10 +92,10 @@ private:
+ 	UWAICache& leaderCache();
+ 	UWAICache const& leaderCache() const;
+ 	void reset();
+-	/*  Abandon wars in preparation, switch plans or targets and consider peace.
++	/*	Abandon wars in preparation, switch plans or targets and consider peace.
+ 		Returns false if scheming should be skipped this turn. */
+ 	bool reviewWarPlans();
+-	/*  Review plan vs. eTarget. Returns true if plan continues unchanged,
++	/*	Review plan vs. eTarget. Returns true if plan continues unchanged,
+ 		false if any change (abandoned, peace made, target changed). */
+ 	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns);
+ 	// All these return true if the war plan remains unchanged, false otherwise.
+@@ -115,7 +115,7 @@ private:
+ 	scaled limitedWarWeight() const;
+ 	
+ 	scaled utilityToTradeVal(scaled rUtility) const;
+-	/*  tradeVal should roughly correspond to gold per turn; converted into
++	/*	tradeVal should roughly correspond to gold per turn; converted into
+ 		war utility based on our current commerce rate. */
+ 	scaled tradeValToUtility(scaled rTradeVal) const;
+ 
+@@ -152,15 +152,15 @@ public:
+ 	bool considerDemand(PlayerTypes eDemandPlayer, int iTradeVal) const;
+ 	bool considerPlea(PlayerTypes ePleaPlayer, int iTradeVal) const;
+ 	bool amendTensions(PlayerTypes eHuman);
+-	/*  Returns -1 if unwilling, 1 if willing and 0 to leave the decision to the
++	/*	Returns -1 if unwilling, 1 if willing and 0 to leave the decision to the
+ 		BtS AI */
+ 	int willTalk(PlayerTypes eToPlayer, int iAtWarCounter, bool bUseCache) const;
+ 	// False if all assets of the human civ wouldn't nearly be enough
+ 	bool isPeaceDealPossible(PlayerTypes eHuman) const;
+-	/*  Can eHuman trade assets to us with a total value of at least
++	/*	Can eHuman trade assets to us with a total value of at least
+ 		iTargetTradeVal? */
+ 	bool canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
+-			/*  If this is not NULL, then it is used to return the trade value of
++			/*	If this is not NULL, then it is used to return the trade value of
+ 				all assets that the human can trade, but only up to targetTradeVal. */
+ 			int* piAvailableTradeVal = NULL, bool bIgnoreCities = false) const;
+ 	scaled utilityToTradeVal(scaled rUtility) const;
+@@ -171,7 +171,7 @@ public:
+ 	/*	iTurns: Build-up over how many turns?
+ 		Will be adjusted to game speed by this function! */
+ 	scaled estimateBuildUpRate(PlayerTypes ePlayer, int iTurns = 10) const;
+-	/*  Whether this player can reach any city of eTarget with military units;
++	/*	Whether this player can reach any city of eTarget with military units;
+ 		based on cached info. */
+ 	bool canReach(PlayerTypes eTarget) const;
+ 
+@@ -179,40 +179,47 @@ public:
+ 		Between 0.5 (low confidence) and 1.5 (high confidence);
+ 		-1 if not at war. */
+ 	scaled confidenceFromWarSuccess(TeamTypes eTarget) const;
+-	/*  Confidence based on experience from past wars with eTarget.
++	/*	Confidence based on experience from past wars with eTarget.
+ 		1 if none, otherwise between 0.5 and 1.5. */
+ 	scaled confidenceFromPastWars(TeamTypes eTarget) const;
+-  // LeaderHead-derived personality values that aren't cached. More in UWAICache.
+-	/*  A measure of how paranoid our leader is, based on EspionageWeight and
++	// LeaderHead-derived personality values that aren't cached. More in UWAICache.
++	/*	A measure of how paranoid our leader is, based on EspionageWeight and
+ 		protective trait. EspionageWeight is between 50 (Gandhi) and 150 (Stalin).
+ 		Return value is between 0.5 and 1.8.
+ 		"Paranoia" would be a better name, but that already means sth. else
+ 		(related to the Alert AI strategy). */
+ 	scaled distrustRating() const;
+-	/*  A measure of optimism (above 1) or pessimism (between 0 and 1) of our
++	/*	A measure of optimism (above 1) or pessimism (between 0 and 1) of our
+ 		leader about conducting war against eTarget. (It's not clear
+ 		whether bTotal should matter.) */
+ 	scaled warConfidencePersonal(bool bNaval, bool bTotal, PlayerTypes eTarget) const;
+-	/*  Confidence based on experience in the current war or past wars.
++	/*	Confidence based on experience in the current war or past wars.
+ 		Between 0.5 (low confidence) and 1.5 (high confidence).
+ 		bIgnoreDefOnly: Don't count factors that only make us confident about
+ 		defending ourselves. */
+ 	scaled warConfidenceLearned(PlayerTypes eTarget, bool bIgnoreDefOnly) const;
+-	/*  How much our leader is (generally) willing to rely on war allies.
++	/*	How much our leader is (generally) willing to rely on war allies.
+ 		0 to 1 means that the leader is rather self-reliant, above means
+ 		he or she likes dogpile wars. */
+ 	scaled warConfidenceAllies() const;
+-	scaled confidenceAgainstHuman() const;
++	scaled confidenceAgainstHuman() const
++	{
++		/*  Doesn't seem necessary so far; AI rather too reluctant to attack humans
++			due to human diplomacy, and other special treatment of humans; e.g.
++			can't get a capitulation from human.
++			(I've left an older implementation commented out in the .cpp file.) */
++		return 1;
++	}
+ 	/*	How willing our leader is to go after players that he or she really dislikes.
+ 		Between 0 (Gandhi) and 10 (Montezuma). */
+ 	int vengefulness() const;
+-	/*  Willingness to come to the aid of partners. "Interventionism" might
++	/*	Willingness to come to the aid of partners. "Interventionism" might
+ 		also fit. Between 1.3 (Roosevelt) and 0.7 (Qin). */
+ 	scaled protectiveInstinct() const;
+-	/*  Between 0.25 (Tokugawa) and 1.75 (Mansa Musa, Zara Yaqob). A measure
++	/*	Between 0.25 (Tokugawa) and 1.75 (Mansa Musa, Zara Yaqob). A measure
+ 		of how much a leader cares about being generally liked in the world. */
+ 	scaled diploWeight() const;
+-	/*  Between 0 (Pacal and several others) and 1 (Sitting Bull). How much a
++	/*	Between 0 (Pacal and several others) and 1 (Sitting Bull). How much a
+ 		leader insists on reparations to end a war. Based on MakePeaceRand
+ 		(from our leader's personality unless another value is given by the caller). */
+ 	scaled prideRating(int iMakePeaceRand = -1) const;
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 6ee38c856..a31fa757b 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -100,7 +100,7 @@ void UWAICache::clear(bool bBeforeUpdate)
+ 	m_aiWarUtilityIgnoringDistraction.reset();
+ 
+ 	if (!bBeforeUpdate)
+-	{	// These are updated are various times, not by the regular update function.
++	{	// These are updated at various times, not by the regular update function.
+ 		m_iNonNavalUnits = 0;
+ 		deleteMilitaryBranches();
+ 		m_aiPastWarScore.reset();
+@@ -331,7 +331,7 @@ void UWAICache::update()
+ 	/*	(Apart from the yield estimation problem, the other players' caches
+ 		wouldn't be up to date, which can cause problems in scenarios.) */
+ 	if (bPlayerHistAvailable)
+-	{	// Any values used by war evaluation need to be updated before this!
++	{	// Any cache data used by war evaluation needs to be updated before this!
+ 		updateWarUtility();
+ 	}
+ }
+@@ -477,8 +477,8 @@ void UWAICache::updateGoldPerProduction()
+ 	m_rGoldPerProduction.increaseTo(goldPerProdVictory());
+ 	/*	Currently, this ratio is currently pretty much 1. Just so that any changes
+ 		to AI_yieldWeight or Civ4YieldInfos.xml take effect here. */
+-	m_rGoldPerProduction *= scaled(GET_PLAYER(m_eOwner).
+-			AI_yieldWeight(YIELD_PRODUCTION), 225);
++	m_rGoldPerProduction.mulDiv(
++			GET_PLAYER(m_eOwner).AI_yieldWeight(YIELD_PRODUCTION), 225);
+ }
+ 
+ namespace
+@@ -539,7 +539,7 @@ scaled UWAICache::goldPerProdBuildings()
+ 	// Cities about to be founded; will soon need buildings.
+ 	int iFutureCities = (fixp(0.6) * std::min(
+ 			kOwner.AI_getNumAIUnits(UNITAI_SETTLE),
+-			kOwner.AI_getNumCitySites())).round();
++			kOwner.AI_getNumCitySites())).uround();
+ 	scaled const rMaxNonWonderCount = stats::max(arNonWonderCounts);
+ 	for (int i = 0; i < iFutureCities; i++)
+ 		arNonWonderCounts.push_back(rMaxNonWonderCount);
+@@ -1320,13 +1320,13 @@ void UWAICache::reportWarEnding(TeamTypes eEnemy,
+ 	if ((((rSuccessRatio > fixp(1.3) && bChosenWar) || rSuccessRatio > fixp(1.5)) &&
+ 		!bForceNoSuccess) || bForceSuccess)
+ 	{
+-		m_aiPastWarScore.add(eEnemy, (100 / rDurationFactor).round());
++		m_aiPastWarScore.add(eEnemy, (100 / rDurationFactor).uround());
+ 	}
+ 	// Equal war success not good enough if we started it
+ 	else if (((bChosenWar || rSuccessRatio < fixp(0.7)) &&
+ 		!bForceNoFailure) || bForceFailure)
+ 	{
+-		m_aiPastWarScore.add(eEnemy, -(100 * rDurationFactor).round());
++		m_aiPastWarScore.add(eEnemy, -(100 * rDurationFactor).uround());
+ 	}
+ }
+ 
+@@ -1722,7 +1722,7 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
+ 			scaled(getUWAI().maxLandDist() + getUWAI().maxSeaDist(), 2),
+ 			(rWeightedSum +
+ 			scaled(4 * iMixedPaths, iMixedPaths + (int)aiPairwDurations.size())
+-			)).round();
++			)).uround();
+ }
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index 5aede9536..0ebf05699 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -17,7 +17,7 @@ class FDataStreamBase;
+ 	team's leader changes - a bit messy, but a separate cache for team data
+ 	would come with some red tape.
+ 	Also handles the updating of cached values, i.e. some of UWAI's heuristics
+-	are part of this class. (I think I'd prefer to move them elsewhere.) */
++	are part of this class. (I think I'd prefer to move them elsewhere ...) */
+ 
+ // Interface of UWAICache::City for use outside of the UWAI component
+ class UWAICity
+@@ -51,23 +51,17 @@ public:
+ 
+ 	UWAICache();
+ 	~UWAICache();
+-	/*	Call order during (de-)initialization for CvTeam(AI), CvPlayer(AI):
+-		+	When Civ 4 is launched, constructors are called.
+-		+	When Civ 4 is exited, destructors are called.
+-		+	When starting a new game, init is called.
+-		+	When returning to the main menu, reset is called.
++	/*	CvPlayer is a class that gets reset and reused when returning to the main menu
++		or loading a savegame (see a comment above the CvTeam constructor in CvTeam.h
++		for details), and UWAICache follows a similar pattern:
+ 		+	When saving a game, write is called.
+-		+	When loading a saved game, read is called.
+-		read, init and the constructor use reset to clear the data.
+-		Reusing classes like this is error-prone, and I see no good reason for it,
+-		but there's (probably) no changing it because the EXE is involved.
+-		I'll do sth. slightly simpler with UWAICache (read/ write: as above):
+-		+	The constructor sets the few POD members to a clean state at launch.
+-		+	The destructor ensures that all memory is deallocated before exiting.
+-		+	uninit frees memory when the owner is defeated (for performance).
++		+	When loading a saved game, read is called, which resets the data members.
++		+	The constructor sets the (few) POD members to a clean state upon launching Civ 4.
++		+	The destructor ensures that all memory is deallocated before exiting Civ 4.
++		+	uninit frees memory when the cache owner is defeated (for performance).
++		+	init resets the data (and does some other things) when a new game is started.
+ 		+	Nothing is done upon returning to the main menu.
+-		+	The reset function is named "clear" and is also used before cache updates.
+-		+	init calls clear (and does some other things) when a new game is started. */
++		+	The reset function is named "clear" and is also used before cache updates. */
+ 	void init(PlayerTypes eOwner);
+ 	void uninit();
+ 	void update();
+@@ -140,7 +134,7 @@ public:
+ 	bool isFocusOnPeacefulVictory() const { return m_bFocusOnPeacefulVictory; }
+ 
+ 	/*	Power values per military branch. The caller must not modify
+-		the MilitaryBranch data. Should work on copies instead. */
++		the MilitaryBranch data; should work on copies instead. */
+ 	inline std::vector<MilitaryBranch*> const& getPowerValues() const { return m_militaryPower; }
+ 	// Counts only combatants
+ 	int numNonNavalUnits() const { return m_iNonNavalUnits; }
+@@ -171,7 +165,7 @@ public:
+ 	void addTeam(PlayerTypes eOtherLeader);
+ 	// Moves data that is stored only at the team leader
+ 	void onTeamLeaderChanged(PlayerTypes formerLeaderId);
+-	/*  public b/c this needs to be done ahead of the normal update when a
++	/*	public b/c this needs to be done ahead of the normal update when a
+ 		colony is created (bootstrapping problem) */
+ 	void updateTypicalUnits();
+ 
+@@ -219,7 +213,7 @@ private:
+ 
+ 	PlayerTypes m_eOwner;
+ 	std::vector<City*> m_cityList;
+-	// I've tried stdext::hash_map for both of these. That was a little bit slower.
++	// I've tried stdext::hash_map; that was a little bit slower.
+ 	std::map<PlotNumTypes,City*> m_cityMap;
+ 	std::vector<MilitaryBranch*> m_militaryPower;
+ 
+@@ -251,18 +245,16 @@ private:
+ 	CivTeamMap<bool,true> m_abCanBeHiredAgainst; // Are we willing to be hired?
+ 
+ public:
+-	/* Information to be cached about a CvCity and scoring functions useful
+-	   for computing war utility. */
+-	class City : public UWAICity
++	class City : public UWAICity // Information to be cached about a CvCity
+ 	{
+ 	public:
+ 		City(PlayerTypes eCacheOwner, CvCity& kCity, TeamPathFinders* pPathFinders);
+-		// for reading from savegame:
++		// for reading from a savegame:
+ 		City() : m_pCity(NULL), m_iTargetValue(-1), m_ePlot(NO_PLOT_NUM) {}
+ 		inline bool isOwnTeamCity() const { return (m_iDistance == 0); }
+ 		inline int getTargetValue() const { return m_iTargetValue; }
+-		/* A mix of target value and distance. Target value alone would
+-		   ignore opportunistic attacks. */
++		/*	A mix of target value and distance. Target value alone would
++			ignore opportunistic attacks. */
+ 		scaled attackPriority() const;
+ 		inline CvCity& city() const { return *m_pCity; }
+ 		inline PlotNumTypes getID() const { return m_ePlot; }
+
+diff --git a/CvGameCoreDLL/UWAIReport.h b/CvGameCoreDLL/UWAIReport.h
+index 89736b0ac..a0aee751e 100644
+--- a/CvGameCoreDLL/UWAIReport.h
++++ b/CvGameCoreDLL/UWAIReport.h
+@@ -8,7 +8,7 @@
+    Calls to 'log' have no effect when in silent or mute mode.
+    However, DEBUG mode is not a prerequisite for logging output,
+    meaning also that logging through this class isn't completely "free"
+-   in terms of overhead.
++   in terms of overhead in release builds.
+    Each 'log' call is written to the log file separately (flushed). */
+ class UWAIReport
+ {
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.h b/CvGameCoreDLL/WarEvalParameters.h
+index 441d17df9..c384a171c 100644
+--- a/CvGameCoreDLL/WarEvalParameters.h
++++ b/CvGameCoreDLL/WarEvalParameters.h
+@@ -7,7 +7,7 @@ class WarUtilityAspect;
+ class UWAIReport;
+ 
+ /*	For WarEvalParameters::getID.
+-	(Could go a bit higher with 32 bit, but e.g. 31 civs won't fit.) */
++	(Could go a bit higher with 32 bit, but e.g. 30 civs won't fit.) */
+ #if MAX_CIV_PLAYERS < 20 && MAX_CIV_TEAMS < 20
+ 	typedef int WarEvalParamID;
+ #else
+@@ -22,7 +22,7 @@ public:
+ 	WarEvalParameters(TeamTypes eTeam, TeamTypes eTarget, UWAIReport& kReport,
+ 			bool bIgnoreDistraction = false,
+ 			/*	Not clear if it should matter which player makes the deal.
+-				Can't hurt to store that player id. Can always used its team id
++				Can't hurt to store that player id. Can always use its team id
+ 				later if appropriate. */
+ 			PlayerTypes eSponsor = NO_PLAYER,
+ 			TeamTypes eCapitulationTeam = NO_TEAM);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 923cf729b..91552d509 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -282,7 +282,7 @@ scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo,
+ scaled WarUtilityAspect::lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo) const
+ {
+ 	PROFILE_FUNC();
+-	// Blockades can be painful for maritime empires
++	// Blockades can be painful for maritime empires ...
+ 	CvPlayerAI const& kVictim = GET_PLAYER(eVictim);
+ 	scaled rTotalEnemyFleetPow;
+ 	for (PlayerIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
+@@ -296,7 +296,7 @@ scaled WarUtilityAspect::lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo
+ 		// Cheat; see UWAICache::updateRelativeNavyPower.
+ 		MilitaryBranch const& kEnemyFleet = *GET_PLAYER(eEnemy).uwai().getCache().
+ 				getPowerValues()[FLEET];
+-		// (Privateers can't bombard, but can blockade regardless of war.)
++		// I don't think blockading at war happens much before Frigates
+ 		//if (!kEnemyFleet.canBombard()) // Let's cheat a little less (use eObserver arg)
+ 		UnitTypes const eTypicalEnemyWarShip = kEnemyFleet.getTypicalUnit(eOurTeam);
+ 		if (eTypicalEnemyWarShip == NO_UNIT ||
+@@ -304,15 +304,17 @@ scaled WarUtilityAspect::lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo
+ 		{
+ 			continue;
+ 		}
+-		scaled rEnemyFleetPow = kEnemyFleet.power();
++		scaled rEnemyFleetPow = kEnemyFleet.power() +
++				militAnalyst().gainedPower(eEnemy, FLEET);
+ 		if (rEnemyFleetPow > 100) // Unlikely to send any ships otherwise
+ 			rTotalEnemyFleetPow += rEnemyFleetPow;
+ 	}
+ 	scaled rEnemyToVictimPowRatio = 2;
+ 	MilitaryBranch const& kVictimFleet = *kVictim.uwai().getCache().
+ 			getPowerValues()[FLEET];
+-	scaled rVictimFleetPow = militAnalyst().gainedPower(eVictim, FLEET) +
+-			kVictimFleet.power();
++	// Allies of the victim? I suppose they wouldn't necessarily defend its shores.
++	scaled rVictimFleetPow = kVictimFleet.power() +
++			militAnalyst().gainedPower(eVictim, FLEET);
+ 	if (rVictimFleetPow > 0)
+ 		rEnemyToVictimPowRatio = rTotalEnemyFleetPow / rVictimFleetPow;
+ 	if (rEnemyToVictimPowRatio < fixp(1.25)) // Enemies won't bring all their units
+@@ -336,7 +338,8 @@ scaled WarUtilityAspect::lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo
+ 	if (iCoastalCities <= 0)
+ 		return 0;
+ 	scaled rAvgCoastalPop(iCoastalPop, iCoastalCities);
+-	scaled rAttackFactor = scaled::min(1, rEnemyToVictimPowRatio - 1);
++	scaled rAttackFactor = rEnemyToVictimPowRatio - 1;
++	rAttackFactor.clamp(0, 1);
+ 	scaled rPopFactor(iCoastalPop, iTotalPop);
+ 	// Small cities tend to work few coastal tiles (b/c land tiles are better)
+ 	scaled rVulnerabilityFactor = scaled::min(1, fixp(0.1) + rAvgCoastalPop / 25);
+@@ -371,7 +374,7 @@ scaled WarUtilityAspect::lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSourc
+ 	{
+ 		log("Lost score of %s for cities hit: %d; assets per city: %d; "
+ 				"cities hit: %.2f; ", m_kReport.leaderName(eVictim),
+-				r.round(), rScorePerCity.round(), rHits.getFloat());
++				r.round(), rScorePerCity.uround(), rHits.getFloat());
+ 	}
+ 	return r;
+ }
+@@ -382,7 +385,7 @@ scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim,
+ {
+ 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
+ 		return 0;
+-	scaled r = 0;
++	scaled r;
+ 	int iVictimLostTiles = 0;
+ 	vector<TeamTypes> aeTo;
+ 	if (eTo == NO_PLAYER)
+@@ -510,7 +513,7 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
+ 		log("Tech trade bonus for human civs: %d", iHumanExtra);
+ 	// Use their commerce to determine potential for future tech trade
+ 	scaled rTheyToUsCommerceRatio = kOurTeam.AI_estimateYieldRate(eThey, YIELD_COMMERCE) /
+-			kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE);
++			(kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE) + scaled::epsilon());
+ 	if (rTheyToUsCommerceRatio > 1)
+ 		rTheyToUsCommerceRatio.flipFraction();
+ 	scaled r = SQR(rTheyToUsCommerceRatio) * (20 + iHumanExtra);
+@@ -645,7 +648,7 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
+ 		rTradeRouteProfit = iTradeRouteProfitCap;
+ 	}
+ 	else if (iTradeRouteProfitCap > 0)
+-		log("Per-turn trade route profit: %d", rTradeRouteProfit.round());
++		log("Per-turn trade route profit: %d", rTradeRouteProfit.uround());
+ 	return kWeAI.tradeValToUtility(rGoldVal + rTradeRouteProfit * iDefaultTimeHorizon) *
+ 			kWeAI.amortizationMultiplier();
+ }
+@@ -722,7 +725,7 @@ scaled GreedForAssets::overextensionCost() const
+ 		Look at our current expenses: are we already overextended? */
+ 	// Don't mind paying 25% for city maintenance
+ 	scaled r = fixp(-0.25);
+-	scaled rOurIncome = kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE);
++	scaled const rOurIncome = kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE);
+ 	if (rOurIncome > 0)
+ 	{
+ 		// Expenses excluding unit cost and supply
+@@ -730,7 +733,7 @@ scaled GreedForAssets::overextensionCost() const
+ 				(kWe.getTotalMaintenance() + kWe.getCivicUpkeep(NULL, true));
+ 		r += rOurMaintenance / rOurIncome;
+ 		log("Rel. maint. = %d / %d = %d percent",
+-				rOurMaintenance.round(), rOurIncome.round(),
++				rOurMaintenance.uround(), rOurIncome.uround(),
+ 				(rOurMaintenance / rOurIncome).getPercent());
+ 	}
+ 	// Can happen in later-era start if a civ immediately changes civics/ religion
+@@ -812,7 +815,7 @@ scaled GreedForAssets::threatToCities(PlayerTypes ePlayer, scaled rRemoteness) c
+ 		return 0;
+ 	log("Dangerous civ near our conquests: %s (dist. ratio %d/%d)",
+ 			m_kReport.leaderName(kPlayer.getID()),
+-			rPlayerDist.round(), rRemoteness.round());
++			rPlayerDist.uround(), rRemoteness.uround());
+ 	scaled rPowerRatio = scaled::max(0,
+ 			rPlayerPower / scaled::max(10, rOurPower) - fixp(0.1));
+ 	return SQR(rPowerRatio);
+@@ -925,15 +928,15 @@ void GreedForVassals::evaluate()
+ 	scaled const rVassalToOurIncome = rVassalIncome * rTheirCityRatio / rOurIncome;
+ 	log("Rel. income of vassal %s = %d percent = cr * %d / %d",
+ 			m_kReport.leaderName(eThey), rVassalToOurIncome.getPercent(),
+-			rVassalIncome.round(), rOurIncome.round());
++			rVassalIncome.uround(), rOurIncome.uround());
+ 	scaled rUtilityFromTechTrade = 100 * rVassalToOurIncome;
+ 	// Tech they already have
+ 	scaled const rTechScore = ourCache().vassalTechScore(eThey);
+ 	log("Vassal score from tech they have in advance of us: %d",
+-			rTechScore.round());
++			rTechScore.uround());
+ 	rUtilityFromTechTrade += kWeAI.tradeValToUtility(rTechScore);
+ 	log("Utility from vassal tech and income (still to be reduced): %d",
+-			rUtilityFromTechTrade.round());
++			rUtilityFromTechTrade.uround());
+ 	/*	If they're much more advanced than us, we won't be able to trade for
+ 		all their tech. */
+ 	rUtilityFromTechTrade.decreaseTo(100);
+@@ -942,10 +945,10 @@ void GreedForVassals::evaluate()
+ 	scaled rUtility = (kOurTeam.isHuman() ? fixp(0.5) : fixp(0.35)) *
+ 			rUtilityFromTechTrade;
+ 	scaled rUtilityFromResources = ourCache().vassalResourceScore(eThey);
+-	log("Resource score: %d", rUtilityFromResources.round());
++	log("Resource score: %d", rUtilityFromResources.uround());
+ 	// Expect just +1.5 commerce per each of their cities from trade routes
+ 	scaled rUtilityFromTR = fixp(1.5) * kThey.getNumCities() * rOurIncome;
+-	log("Trade route score: %d", rUtilityFromTR.round());
++	log("Trade route score: %d", rUtilityFromTR.uround());
+ 	// These trades are pretty safe bets; treated as 75% probable
+ 	rUtility += fixp(0.75) * rTheirCityRatio * (rUtilityFromResources + rUtilityFromTR);
+ 	int iOurVassalPlayers = PlayerIter<ALIVE,VASSAL_OF>::count(eOurTeam);
+@@ -985,7 +988,7 @@ void GreedForVassals::evaluate()
+ 	// Multiplier reflects coordination problems and lack of commitment
+ 	scaled rUtilityFromMilitary = 45 * rTheirCityRatio * rTheirPower /
+ 			scaled::max(rOurPower, 10);
+-	log("Base utility from military: %d", rUtilityFromMilitary.round());
++	log("Base utility from military: %d", rUtilityFromMilitary.uround());
+ 	if (!bUsefulArea)
+ 	{
+ 		rUtilityFromMilitary /= 2;
+@@ -1084,7 +1087,7 @@ void GreedForCash::evaluate()
+ 		}
+ 	}
+ 	log("Adding utility for future reparations");
+-	m_iU += normalizeUtility(4).round(); // Only one team member will pay
++	m_iU += normalizeUtility(4).uround(); // Only one team member will pay
+ }
+ 
+ 
+@@ -1187,8 +1190,8 @@ scaled Loathing::lossRating() const
+ 	{
+ 		log("Their lost assets: %d; their present assets: %d;"
+ 				" our present assets: %d; asset ratio: %d percent",
+-				rTheirLostAssets.round(), rTheirAssets.round(),
+-				rOurAssets.round(), rTheirAssetsToOurs.getPercent());
++				rTheirLostAssets.uround(), rTheirAssets.uround(),
++				rOurAssets.uround(), rTheirAssetsToOurs.getPercent());
+ 	}
+ 	/*	This is mostly about their losses, and not ours, but we shouldn't be
+ 		satisfied to have weakened their army if ours fares far worse.
+@@ -1424,9 +1427,9 @@ scaled MilitaryVictory::progressRatingDomination() const
+ 	if (rCitiesGained == 0)
+ 		return 0;
+ 	log("%d population-to-go for domination, %d cities",
+-			rPopGained.round(), rCitiesToGo.round());
++			rPopGained.uround(), rCitiesToGo.round());
+ 	FAssert(rPopGained > 0);
+-	log("%d pop gained, and %d cities", rPopGained.round(), rCitiesGained.round());
++	log("%d pop gained, and %d cities", rPopGained.uround(), rCitiesGained.uround());
+ 	// No use in population beyond the victory threshold
+ 	rPopGained.decreaseTo(iPopToGo);
+ 	/*	The to-go values can be negative (already past the threshold). In the case
+@@ -1435,7 +1438,7 @@ scaled MilitaryVictory::progressRatingDomination() const
+ 		it's certain we've reached the pop threshold. */
+ 	if (iPopToGo < 0)
+ 	{
+-		/*	If rCities to go is non-positive, then boths victory thresholds
++		/*	If rCitiesToGo is non-positive, then boths victory thresholds
+ 			should be met -- but somehow we haven't won.
+ 			Assume that we need a few more cities. */
+ 		int const iMinCitiesToGo = 4;
+@@ -1559,7 +1562,7 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
+ 		if (!bSecular && !kCacheCity.city().isHasReligion(eVSReligion))
+ 			rPop *= fixp(0.5); // Not 0 b/c religion can still be spread
+ 		log("Votes expected from %s: %d", m_kReport.cityName(kCacheCity.city()),
+-				rPop.round());
++				rPop.uround());
+ 		rPopGained += rPop;
+ 	}
+ 	if (militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0)
+@@ -1588,13 +1591,13 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
+ 				rNewVassalVotes *= fixp(2/3.);
+ 		}
+ 		log("Votes expected from capitulated cities of %s: %d",
+-				m_kReport.leaderName(eThey), rNewVassalVotes.round());
++				m_kReport.leaderName(eThey), rNewVassalVotes.uround());
+ 		rPopGained += rNewVassalVotes;
+ 	}
+ 	if (rPopGained >= fixp(0.5))
+ 	{
+ 		log("Total expected votes: %d, current votes-to-go: %d",
+-				rPopGained.round(), m_iVotesToGo);
++				rPopGained.uround(), m_iVotesToGo);
+ 	}
+ 	FAssert(m_iVotesToGo > 0);
+ 	rPopGained.decreaseTo(m_iVotesToGo);
+@@ -1686,7 +1689,7 @@ void Assistance::evaluate()
+ 	if (rTradeUtility > 0 || rOtherUtility > 0)
+ 	{
+ 		log("Utility for trade: %d, tech/military: %d, both weighted by saved assets",
+-				rTradeUtility.round(), rOtherUtility.round());
++				rTradeUtility.uround(), rOtherUtility.uround());
+ 	}
+ 	scaled rUtility = rTradeUtility + rOtherUtility;
+ 	if (!kWe.isHuman() && towardThem() >= ATTITUDE_FRIENDLY)
+@@ -1760,7 +1763,7 @@ void Reconquista::evaluate()
+ 		rUtility += rBaseReconqVal * rReconqMult;
+ 		log("Reconquering %s; base val %d, modifier %d percent",
+ 				m_kReport.cityName(kCity),
+-				rBaseReconqVal.round(), rReconqMult.getPercent());
++				rBaseReconqVal.uround(), rReconqMult.getPercent());
+ 	}
+ 	m_iU += rUtility.round();
+ }
+@@ -1852,7 +1855,6 @@ void Fidelity::evaluate()
+ 	}
+ 	if (!bWarOngoing)
+ 		return;
+-	
+ 	scaled rLeaderFactor = 1;
+ 	if (!kWe.isHuman())
+ 	{
+@@ -1860,7 +1862,6 @@ void Fidelity::evaluate()
+ 			Not sure if I want him to act as a peacekeeper ... Let's try it. */
+ 		rLeaderFactor = per100(kOurPersonality.
+ 				getMemoryAttitudePercent(MEMORY_DECLARED_WAR_ON_FRIEND));
+-		// That's normally negative
+ 		if (!rLeaderFactor.isNegative())
+ 			return;
+ 		rLeaderFactor = (-rLeaderFactor).sqrt();
+@@ -1906,7 +1907,7 @@ void HiredHand::evaluate()
+ 			iDeniedHelpDiplo -= kWe.AI_getMemoryAttitude(
+ 					itSponsorMember->getID(), MEMORY_DENIED_JOIN_WAR);
+ 		}
+-		if (iDeniedHelpDiplo > 0)
++		if (iDeniedHelpDiplo > 0) // (The above normally subtracts a negative value)
+ 		{
+ 			log("Utility reduced b/c of denied help");
+ 			rUtility /= scaled(iDeniedHelpDiplo).sqrt();
+@@ -2174,7 +2175,8 @@ void PreEmptiveWar::evaluate()
+ 	if (rCurrThreat < fixp(0.15))
+ 		return;
+ 	// rCurrThreat includes their vassals, so include vassals here as well.
+-	scaled rTheirCurrentCities, rTheirPredictedCities = 0;
++	scaled rTheirCurrentCities;
++	scaled rTheirPredictedCities;
+ 	for (PlayerIter<MAJOR_CIV> itTheirAlly; itTheirAlly.hasNext(); ++itTheirAlly)
+ 	{	// Them, a teammate or a vassal.
+ 		CvPlayer const& kTheirAlly = *itTheirAlly;
+@@ -2249,8 +2251,8 @@ void PreEmptiveWar::evaluate()
+ 	log("Long-term threat rating for %s: %d percent", m_kReport.leaderName(eThey),
+ 			rCurrThreat.getPercent());
+ 	log("Our cities (now/predicted) and theirs: %d/%d, %d/%d",
+-			rOurCurrentCities.round(), rOurPredictedCities.round(),
+-			rTheirCurrentCities.round(), rTheirPredictedCities.round());
++			rOurCurrentCities.uround(), rOurPredictedCities.uround(),
++			rTheirCurrentCities.uround(), rTheirPredictedCities.uround());
+ 	log("Their gain in power: %d percent", rTheirEdge.getPercent());
+ 	// Shifts in power tend to affect the threat disproportionately
+ 	scaled rThreatChange = rTheirEdge.abs().sqrt();
+@@ -2619,7 +2621,7 @@ scaled KingMaking::theirRelativeLoss() const
+ 		CvTeam const& kTheirAllyTeam = GET_TEAM(eTheirAlly);
+ 		scaled rVassalFactor = 1;
+ 		if (kTheirAllyTeam.isAVassal())
+-			rVassalFactor *= fixp(0.5);
++			rVassalFactor /= 2;
+ 		if (kTheirAllyTeam.getMasterTeam() != eTheirTeam)
+ 		{
+ 			if (kCapitulationsAccepted.count(kTheirAllyTeam.getID()) > 0)
+@@ -2684,7 +2686,7 @@ int Effort::preEvaluate()
+ 				(though it shouldn't); therefore not 0 cost. */
+ 			rUtility += 2;
+ 			log("All targets are short work; only %d for wartime economy",
+-					rUtility.round());
++					rUtility.uround());
+ 		}
+ 		else
+ 		{
+@@ -2694,7 +2696,7 @@ int Effort::preEvaluate()
+ 					((bAllWarsLongDist ? 8 : fixp(5.5)) +
+ 					// Workers not much of a concern later on
+ 					kWe.AI_getCurrEraFactor() / 2);
+-			log("Cost for wartime economy and ravages: %d%s", rUtility.round(),
++			log("Cost for wartime economy and ravages: %d%s", rUtility.uround(),
+ 					(bAllWarsLongDist ? " (reduced b/c of distance)" : ""));
+ 		}
+ 	}
+@@ -2797,8 +2799,8 @@ int Effort::preEvaluate()
+ 	log("Production value of lost units: %d, invested production: %d,"
+ 			" multiplier for future use of trained units: %d percent, "
+ 			"adjusted production value of build-up and losses: %d",
+-			rOurLostProductionInUnits.round(), rInvested.round(),
+-			rFutureUse.getPercent(), rOurLostProduction.round());
++			rOurLostProductionInUnits.uround(), rInvested.uround(),
++			rFutureUse.getPercent(), rOurLostProduction.uround());
+ 	scaled rSupplyCost; // Assume none if we're losing (i.e. on the defensive)
+ 	if (militAnalyst().lostCities(eWe).empty() && rOurLostUnits > 0)
+ 	{
+@@ -2813,8 +2815,8 @@ int Effort::preEvaluate()
+ 			rSupplyCost /= 2;
+ 		}
+ 		log("Estimated gold for supply: %d (%d turns simulated, %d units lost)",
+-				rSupplyCost.round(), militAnalyst().turnsSimulated(),
+-				rOurLostUnits.round());
++				rSupplyCost.uround(), militAnalyst().turnsSimulated(),
++				rOurLostUnits.uround());
+ 		rSupplyCost *= kWeAI.amortizationMultiplier();
+ 	}
+ 	/*	If the war has been going on for a long time, increase rGoldPerProduction
+@@ -2834,7 +2836,7 @@ int Effort::preEvaluate()
+ 				rGoldPerProduction.getFloat(), iDuration);
+ 	}
+ 	scaled rTradeVal = rSupplyCost + rGoldPerProduction * rOurLostProduction;
+-	log("Trade value of build-up and war effort: %d", rTradeVal.round());
++	log("Trade value of build-up and war effort: %d", rTradeVal.uround());
+ 	rUtility += kWeAI.tradeValToUtility(rTradeVal);
+ 	/*	Nukes are included in army, and therefore already covered by the costs above.
+ 		But these don't take into account that nukes are always lost when used.
+@@ -2850,7 +2852,7 @@ int Effort::preEvaluate()
+ 		scaled rNukeProduction = fixp(0.3) * rFired * kNukeBranch.getTypicalCost();
+ 		scaled rNukeCost = kWeAI.tradeValToUtility(rGoldPerProduction * rNukeProduction);
+ 		log("Extra cost for fired nukes: %d; lost prod: %d",
+-				rNukeCost.round(), rNukeProduction.round());
++				rNukeCost.uround(), rNukeProduction.uround());
+ 		rUtility += rNukeCost;
+ 	}
+ 	return -std::min(200, rUtility.round());
+@@ -2885,12 +2887,12 @@ int Risk::preEvaluate()
+ 			rRelativeVassalLoss = rLostVassalAssets /
+ 					(vassalCache.totalAssetScore() + scaled::epsilon());
+ 		}
+-		scaled rVassalCost = 0; // (i.e. negative utility)
++		scaled rVassalCost; // (i.e. negative utility)
+ 		if (rRelativeVassalLoss > 0)
+ 		{
+ 			rVassalCost = rRelativeVassalLoss * 33;
+ 			log("Cost for losses of vassal %s: %d", m_kReport.leaderName(eVassal),
+-					rVassalCost.round());
++					rVassalCost.uround());
+ 		}
+ 		if (!GET_TEAM(eVassal).isCapitulated())
+ 		{
+@@ -2898,15 +2900,15 @@ int Risk::preEvaluate()
+ 					(militAnalyst().gainedPower(eVassal, ARMY) +
+ 					vassalCache.getPowerValues()[ARMY]->power()) /
+ 					(militAnalyst().gainedPower(eWe, ARMY) +
+-					ourCache().getPowerValues()[ARMY]->power() + scaled::epsilon())
+-					- fixp(0.9);
++					ourCache().getPowerValues()[ARMY]->power() + scaled::epsilon());
++			rRelativePow -= fixp(0.9);
+ 			if (rRelativePow > 0)
+ 			{
+ 				scaled rBreakAwayCost = scaled::min(20, rRelativePow.sqrt() * 40);
+-				if (rBreakAwayCost > fixp(0.5))
++				if (rBreakAwayCost >= fixp(0.5))
+ 				{
+ 					log("Cost for %s breaking free: %d", m_kReport.leaderName(eVassal),
+-							rBreakAwayCost.round());
++							rBreakAwayCost.uround());
+ 				}
+ 				rVassalCost += rBreakAwayCost;
+ 			}
+@@ -2952,7 +2954,7 @@ void Risk::evaluate()
+ 				rAssetScore += (bCulture4 ? 15 : 8);
+ 			}
+ 		}
+-		log("%s: %d lost assets%s", m_kReport.cityName(kCity), rAssetScore.round(),
++		log("%s: %d lost assets%s", m_kReport.cityName(kCity), rAssetScore.uround(),
+ 				(bCulture3 || bSpace4 ? " (important for victory)" : ""));
+ 		rLostAssets += rAssetScore;
+ 	}
+@@ -2978,11 +2980,11 @@ void Risk::evaluate()
+ 	if (rUtility >= fixp(0.5))
+ 	{
+ 		if (rFromBlockade / rTotalAssets >= fixp(0.5))
+-			log("From naval blockade: %d", (rFromBlockade / rTotalAssets).round());
++			log("From naval blockade: %d", (rFromBlockade / rTotalAssets).uround());
+ 		if (rFromNukes / rTotalAssets >= fixp(0.5))
+-			log("From nukes: %d", (rFromNukes / rTotalAssets));
++			log("From nukes: %d", (rFromNukes / rTotalAssets).uround());
+ 		log("Cost for lost assets: %d (loss: %d, present: %d)",
+-				rUtility.round(), rLostAssets.round(), rTotalAssets.round());
++				rUtility.round(), rLostAssets.uround(), rTotalAssets.uround());
+ 	}
+ 	if (militAnalyst().getCapitulationsAccepted(eTheirTeam).count(eOurTeam) > 0)
+ 	{	/*	Counting lost cities in addition to capitulation might make us too
+@@ -3222,7 +3224,7 @@ void IllWill::evalRevenge()
+ 			/*scaled rMult(kOurTeam.AI_getWarSuccessRating(), -10);
+ 			rMult.clamp(3, fixp(6.5));*/ // Instead of the 5.5?
+ 			scaled rHopelessStalemateCost = (1 - kWe.uwai().prideRating()) * fixp(5.5);
+-			log("Cost for hopeless stalemate: %d", rHopelessStalemateCost.round());
++			log("Cost for hopeless stalemate: %d", rHopelessStalemateCost.uround());
+ 			m_rCost += rHopelessStalemateCost;
+ 		}
+ 		return;
+@@ -3318,7 +3320,7 @@ void IllWill::evalAngeredPartners()
+ 				aren't as dynamic, and it's sufficient for tech trading if some
+ 				team members get along. */
+ 			scaled(kOurTeam.getNumMembers()).sqrt();
+-	log("Cost per -1 relations: %d", rCostPerPenalty.round());
++	log("Cost per -1 relations: %d", rCostPerPenalty.uround());
+ 	/*	costPerPenalty already adjusted to game progress, but want to dilute
+ 		the impact of leader personality in addition to that. diploWeight is
+ 		mostly about trading, and trading becomes less relevant in the latem_kGame. */
+@@ -3419,7 +3421,7 @@ void Affection::evaluate()
+ 			if (iDelta > 0)
+ 				rVassalPenalty += scaled(iDelta, 10);
+ 		}
+-		int const iVassalPenalty = rVassalPenalty.round();
++		int const iVassalPenalty = rVassalPenalty.uround();
+ 		if (iVassalPenalty > 0)
+ 		{
+ 			iNoWarPercent = std::max(iNoWarPercent / 2, iNoWarPercent - iVassalPenalty);
+@@ -3550,7 +3552,7 @@ void Distraction::evaluate()
+ 				preparations against eAltTarget and eThey at the same time.) */
+ 				rDistractionCost += rWarUtilityVsAlt;
+ 				log("%d extra cost for distraction from war in preparation",
+-						rWarUtilityVsAlt.round());
++						rWarUtilityVsAlt.uround());
+ 			}
+ 			// NB: Imminent war against eAltTarget is covered by UWAI::Team::considerPeace
+ 		}
+@@ -3578,7 +3580,7 @@ void Distraction::evaluate()
+ 						"against %s. Current utilities: %d/%d; Distraction cost: %d",
+ 						m_kReport.leaderName(eThey), iWarDuration,
+ 						m_kReport.teamName(eAltTarget), rWarUtilityVsThem.round(),
+-						rWarUtilityVsAlt.round(), rOpportunityCost.round());
++						rWarUtilityVsAlt.uround(), rOpportunityCost.uround());
+ 				rHighestOpportunityCost.increaseTo(rOpportunityCost);
+ 				rTotalOpportunityCost += rOpportunityCost;
+ 				iAltWars++;
+@@ -3595,7 +3597,7 @@ void Distraction::evaluate()
+ 		if (rOverallOpportunityCost >= fixp(0.5))
+ 		{
+ 			log("Adjusted cost for all (%d) potential wars: %d", iAltWars,
+-					rOverallOpportunityCost.round());
++					rOverallOpportunityCost.uround());
+ 			rDistractionCost += rOverallOpportunityCost;
+ 		}
+ 	}
+@@ -3646,7 +3648,7 @@ void PublicOpposition::evaluate()
+ 	if (rWWAnger + rFaithAnger <= 0)
+ 		return;
+ 	log("Angry citizens from religion: %d, from ww: %d; total citizens: %d",
+-			rFaithAnger.round(), rWWAnger.round(), iTotalPop);
++			rFaithAnger.uround(), rWWAnger.uround(), iTotalPop);
+ 	// Assume that more WW is coming, and especially if we take the fight to them.
+ 	WarPlanTypes const eWarPlan = kOurTeam.AI_getWarPlan(eTheirTeam);
+ 	bool bTotal = (eWarPlan == WARPLAN_PREPARING_TOTAL || eWarPlan == WARPLAN_TOTAL);
+@@ -3908,8 +3910,8 @@ void FairPlay::evaluate()
+ 		}
+ 		if (rFromOtherEnemies >= fixp(0.5))
+ 		{
+-			log("From other enemies: %d", rFromOtherEnemies.round());
+-			m_iU -= rFromOtherEnemies.round();
++			log("From other enemies: %d", rFromOtherEnemies.uround());
++			m_iU -= rFromOtherEnemies.uround();
+ 		}
+ 	}
+ 	// The rest of this function deals with the early game
+@@ -3950,8 +3952,8 @@ void FairPlay::evaluate()
+ 	// Allow earlier aggression on crowded maps
+ 	iTargetTurn = (iTargetTurn * ((1 + fixp(1.5) *
+ 			scaled(m_kGame.getRecommendedPlayers(), m_kGame.getCivPlayersEverAlive())) /
+-			fixp(2.5))).round();
+-	int const iElapsed = (m_kGame.getElapsedGameTurns() / rTrainMod).round();
++			fixp(2.5))).uround();
++	int const iElapsed = (m_kGame.getElapsedGameTurns() / rTrainMod).uround();
+ 	int iTurnsRemaining = iTargetTurn - iElapsed
+ 			- GC.getInfo(eStartEra).getStartPercent();
+ 	if (iTurnsRemaining > 0)
+@@ -3984,7 +3986,7 @@ void FairPlay::evaluate()
+ 		rFromCityLoss = 100 * (1 - scaled(iCitiesTheyHave, iCitiesTheyFounded)).pow(fixp(0.85));
+ 	if (rFromCityLoss >= fixp(0.5))
+ 	{
+-		log("From lost human cities: %d", rFromCityLoss.round());
++		log("From lost human cities: %d", rFromCityLoss.uround());
+ 		rFairnessCost += rFromCityLoss;
+ 	}
+ 	// If no cities gained nor lost, at least don't DoW in quick succession.
+@@ -4056,7 +4058,7 @@ void Bellicosity::evaluate()
+ 	scaled rGloryRate = rOurMinusTheirLostPow / rCurrentAggrPow;
+ 	rGloryRate.decreaseTo(1);
+ 	log("Difference in lost power: %d; present aggressive power: %d; bellicosity: %d",
+-			rOurMinusTheirLostPow.round(), rCurrentAggrPow.round(), iBellicosity);
++			rOurMinusTheirLostPow.uround(), rCurrentAggrPow.uround(), iBellicosity);
+ 	m_iU += (2 * iBellicosity * rGloryRate).round();
+ }
+ 
+@@ -4397,7 +4399,6 @@ void TacticalSituation::evalOperational()
+ 	}
+ 	if (rReadiness >= 1)
+ 		return;
+-	rReadiness.decreaseTo(1);
+ 	int const iRemainingTime = m_kParams.getPreparationTime();
+ 	FAssert(iRemainingTime >= 0);
+ 	int iInitialPrepTime = 0;
+@@ -4431,10 +4432,10 @@ void TacticalSituation::evalOperational()
+ 	log("Readiness %d percent (%d of %d attackers, %d of %d cargo, "
+ 			"%d of %d escort); %d of %d turns for preparation remain",
+ 			rReadiness.getPercent(), iAttackers, rTargetAttackers.round(),
+-			rCargo.round(), rTargetCargo.round(), iEscort, rTargetEscort.round(),
++			rCargo.uround(), rTargetCargo.uround(), iEscort, rTargetEscort.uround(),
+ 			iRemainingTime, iInitialPrepTime);
+ 	int iUnreadinessCost = (100 * rPassedPortion.pow(fixp(1.5)) *
+-			(1 - rReadiness.pow(fixp(3.7)))).round();
++			(1 - rReadiness.pow(fixp(3.7)))).uround();
+ 	if (iUnreadinessCost == 0)
+ 	{
+ 		log("Cost for lack of readiness vs. %s negligible",
+
+[PATCH COVERAGE]
+patchFiles=29 embeddedFiles=29 omittedFiles=0 embeddedPatchBytes=106537

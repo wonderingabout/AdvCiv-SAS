@@ -1,0 +1,417 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5115
+# Commit: 8d6fb60205d48a6f4813b12e09483e0cbcc93b51
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 07ed4d273d111a403eba0554bce7074ae55c004e
+# Title: (Tremendously Improved) Fix AI spam of pikemen or other land direct combat units at renaissance+ (was very inefficient and ineffective militarily and economi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+33	6	Assets/XML/GlobalDefines_advciv_sas.xml
+5	5	Assets/XML/Units/CIV4UnitInfos.xml
+43	18	CvGameCoreDLL/CvCity.cpp
+52	15	CvGameCoreDLL/CvCityAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 72a18ea69..6179dec9c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -566,6 +566,11 @@
+ 	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example anyways etc), where our code remains active. Past this turn, we don't control excess defenders anymore anyways etc. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less anyways etc -->
+ 	<!-- custom: as of now only applies to land unitais as are +/- were anyways etc the most important to trim and that overproduce as of now with our changes anyways etc -->
+ 	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean if i'm not mistaken but anyways etc -->
++	<!-- If your intent is:
++		- Anc/Class/Med caps only early, but
++		- Renaissance+ cheap land caps always active,
++	then you’d need to decouple the bEarly gate from the Renaissance+ branch (e.g. only wrap the Ancient/Class/Med tiers in if (bEarly) and leave the Renaissance+ tier under if (bNoExcessVeryCheapMilitaryUnits) alone). -->
++	<!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks but anyways etc. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
+ 		<iDefineIntVal>170</iDefineIntVal>
+@@ -624,9 +629,9 @@
+ 
+ 	Note: only affects combat units (strength > 0) if i'm not mistaken anyways etc, so no workers unless they ahve strength, but scouts, galleys, archers, all are combat i.e. fighters here i mean anyways etc.
+ 
+-	Note 2: correction to above and extra precision, these era thresholds are tiers, meaning the ancient tier (e.g. ancient maceman, as of now 18 hammer is lower than 20 anyways etc) keeps its gates/caps even after changing era, else we'd have ancient macemen being produced again when we enter classical, which happened in autoplay after i refactored the code, so fixed it by taking the worse cap of each tier (we need to put lower values here though e.g. 20 at ancient tier is lower than 27 at classical tier (for example anyways etc), but say 18 at classical era would not be higher. It is not a strict requirement but just makes things smoother if caps increase anyways etc). Then the classical tier units (e.g. archer 25 hammer < 28 hammer classical tier will have a limit, that will not increase even when we enter medieval era).
+-	-->
+-	<!-- custom: note: now the anti excess very cheap units is also included in CvCity::doTurn in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc -->
++	Note 2: correction to above and extra precision, these era thresholds are tiers, meaning the ancient tier (e.g. ancient maceman, as of now 18 hammer is lower than 20 anyways etc) keeps its gates/caps even after changing era, else we'd have ancient macemen being produced again when we enter classical, which happened in autoplay after i refactored the code, so fixed it by taking the worse cap of each tier (we need to put lower values here though e.g. 20 at ancient tier is lower than 27 at classical tier (for example anyways etc), but say 18 at classical era would not be higher. It is not a strict requirement but just makes things smoother if caps increase anyways etc). Then the classical tier units (e.g. archer 25 hammer < 28 hammer classical tier will have a limit, that will not increase even when we enter medieval era). -->
++	<!-- custom: note 3: now the anti excess very cheap units is also included in CvCity::doTurn in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc -->
++	<!-- custom: note 4: this as of now applies only to land direct combat units (not spies, scouts, etc.) -->
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -644,9 +649,21 @@
+ 	</Define>
+ 	<!-- custom: expanded on to target for example longbows at medieval tier as as of now they cost 45 in xml, so at medieval they would be 47 > 45 so hopefully we stop producing them anyways etc -->
+ 	<Define>
+-		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD</DefineName>
++		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD</DefineName>
+ 		<iDefineIntVal>47</iDefineIntVal>
+ 	</Define>
++	<!-- custom: AIs overproduce pikemen late into renaissance and sometimes maybe even industrial era (i don't remember exactly but +/- turn 300 at game speed normal) which is way too late as these units are no longer effective as soon as we get cannons or cuirassier units against which pikemen are very weak so don't produce them anymore. Also, since they are so cheap, on top of being militarily inefficient/ineffective but anyways etc, they are also most likely to bankrupt us or make our economy significantly weaker for no gain so avoid entirely building them at renaissance+ but anyways etc -->
++	<!-- custom: note 1.1: as of now, before renaissance, all tiers apply only to domain_land units only (e.g. no sea or air domain (note: gunship or such are domain land though anyways etc) etc units anyways etc) in the no production unit fallback code in CvCity::doTurn, however it applies to all domain units in the general until production gates in CvCityAI::AI_chooseUnit, even though both of these functions use the same SAS_ defines/knobs anyways etc. -->
++	<!-- custom: note 1.2: however, as of now, for the renaissance plus tier specifically, this tier applies only to domain_land units, both in the no production unit fallback code in CvCity::doTurn, and in the general until production gates in CvCityAI::AI_chooseUnit, both of which use the same SAS_ defines/knobs anyways etc. -->
++	<!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
++	<!-- // only after we actually reach Renaissance -->
++	<Define>
++		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD</DefineName>
++		<iDefineIntVal>83</iDefineIntVal>
++	</Define>
++
++
++
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -678,13 +695,23 @@
+ 	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 4 cities multiplier * 5 cities + 8 extra = 4 * 5 + 8 = 20 + 6 = 28 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
+ 	<!-- custom: sometimes we have nothing better at all to build (no bonus, etc.), and longbow window is quite long, sometimes fine to overproduce and in autoplay sometimes the best move for AI to rush someone with these if i'm not mistaken but anyways etc, so don't trim it too hard if i'm not mistaken but anyways etc -->
+ 	<Define>
+-		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER</DefineName>
++		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_TIER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER</DefineName>
++		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_TIER</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
++	<!-- Renaissance+ land cheap tier caps.
++	     Default: 0 ⇒ "never build these anymore in Renaissance+." -->
++	<Define>
++		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_RENAISSANCE_PLUS_LAND_TIER</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_RENAISSANCE_PLUS_LAND_TIER</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index b3dd05bf7..ab6ad6d15 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -16336,7 +16336,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 -->
+-			<iCost>100</iCost>
++			<iCost>95</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16551,7 +16551,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 -->
+-			<iCost>110</iCost>
++			<iCost>105</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16793,7 +16793,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 (in the base advciv horse knight anyways etc) -->
+-			<iCost>110</iCost>
++			<iCost>105</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17029,7 +17029,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 -->
+-			<iCost>100</iCost>
++			<iCost>95</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17257,7 +17257,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 -->
+-			<iCost>100</iCost>
++			<iCost>95</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 6638d5cbf..0c5fda42a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -663,7 +663,9 @@ void CvCity::doTurn()
+ 				}
+ 			}
+ 			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
+-			else if (!bEarlyBuildingClassName2)
++			// <!-- custom: note: this should be an if not an else if else we'd have a bug: "bugfix emergency castle gate being unreachable after we are past the emergency walls turn gate as nicely found by chatgpt 5.1 (i think chatgpt 5 had found it too but i disregarded/skipped it i mean my bad i mean but anyways etc thanks anyways etc) thanks but anyways etc". I added a !bEmergencyBuilding to avoid double orders in same turn which was my intention and which matches the water food and later unit code check but anyways etc. -->
++			// As soon as !bEarlyBuildingClassName1 is true (i.e. iCurrentTurn > cutoff1), you always go into the Walls branch, and the else if Castle branch never runs on that turn.
++			if (!bEmergencyBuilding && !bEarlyBuildingClassName2)
+ 			{
+ 				BuildingTypes eCastle = NO_BUILDING;
+ 				if (eCastleClass != NO_BUILDINGCLASS)
+@@ -900,17 +902,19 @@ void CvCity::doTurn()
+ 			}
+ 
+ 			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
++			// <!-- If your intent is:
++			// 	- Anc/Class/Med caps only early, but
++			// 	- Renaissance+ cheap land caps always active,
++			// then you’d need to decouple the bEarly gate from the Renaissance+ branch (e.g. only wrap the Ancient/Class/Med tiers in if (bEarly) and leave the Renaissance+ tier under if (bNoExcessVeryCheapMilitaryUnits) alone). -->
++			// <!-- custom: note 2: as of now in CvCity::doTurn, renaissance plus land tier unaffected by this as nicely noted by chatgpt 5.1 thanks but anyways etc. As for CvCityAI:AI_ChooseUnit, this is never applied at all for very cheap units gates anyways etc -->
+ 			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
+ 			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+ 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+ 
+-			static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+-			static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+-			static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
+-
+-			// <!-- custom: cheaper to hoist the last tier since we are doing a loop here unlike in ::AI_ChooseUnit if i'm not mistaken but anyways etc, especially in the later game tiers where more and more units would be part of it in this case i mean if i'm not mistaken but anyways etc, as for the earlier tiers probably cheaper not to hoist them as we don't access them later in the game anyway, and there are more units then as well if i'm not mistaken but anyways etc -->
+-			static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
+-			static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
++			static const int TH_ANC = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
++			static const int TH_CLA = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
++			static const int TH_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
++			static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
+ 
+ 			FOR_EACH_ENUM(Unit)
+ 			{
+@@ -920,7 +924,8 @@ void CvCity::doTurn()
+ 				}
+ 				const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+ 				// Land-only, must actually fight
+-				if (kU.getDomainType() != DOMAIN_LAND)
++				const bool bLoopUnitDomainLand = (kU.getDomainType() == DOMAIN_LAND);
++				if (!bLoopUnitDomainLand)
+ 				{
+ 					continue;
+ 				}
+@@ -1010,19 +1015,24 @@ void CvCity::doTurn()
+ 					continue;
+ 				}
+ 				// <!-- custom: also eliminate very cheap units as we do in CvCityAI::AI_chooseUnit as we now have many early ancient macemen early (19 ancient macemen at turn 100 with the new offense unit only code, which makes sense since longbows or archers are no longer an option, and very cheap units are uncapped (before adding it here now) if i'm not mistaken, but anyways etc -->
+-				if (bEarly && bNoExcessVeryCheapMilitaryUnits)
++				if (bNoExcessVeryCheapMilitaryUnits)
+ 				{
+ 					// Classify tier (exclusive)
+-					const bool bTierAnc = (iLoopXMLCost <= TH_ANC);
+-					const bool bTierCla = (!bTierAnc && iLoopXMLCost <= TH_CLA);
+-					const bool bTierMedPlus = (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED_PLUS);
++					const bool bTierAnc = (bEarly && (iLoopXMLCost <= TH_ANC));
++					const bool bTierCla = (bEarly && (!bTierAnc && iLoopXMLCost <= TH_CLA));
++					const bool bTierMed = (bEarly && (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED));
++					const bool bTierRendLandPlus = (
++						// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
++						bRenaissancePlus && // only after we actually reach Renaissance
++						(!bTierAnc && !bTierCla && !bTierMed && iLoopXMLCost <= TH_REN_LAND_PLUS)
++					);
+ 
+ 					// <!-- custom: note: we already check domain_land and combat > 0 so no need to check it here again in this implementation of the very cheap code now in CvCity::doTurn if i'm not mistaken but added note for exhaustiveness if i may say in this case i mean but anyways etc -->
+ 
+-					if (bTierAnc || bTierCla || bTierMedPlus)
++					if (bTierAnc || bTierCla || bTierMed || bTierRendLandPlus)
+ 					{
+ 						// Non-regressing cap by tier: take the minimum across tiers up to this one
+-						int iVeryCheapUnitsCap = 0;
++						int iVeryCheapUnitsCap = -9999;
+ 						// Do you really need the “min across tiers”?
+ 						// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
+ 						// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
+@@ -1057,9 +1067,24 @@ void CvCity::doTurn()
+ 
+ 							iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
+ 						}
+-						else if (bTierMedPlus)
++						else if (bTierMed)
++						{
++							static const int CM_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_TIER");
++							static const int EX_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_TIER");
++
++							iVeryCheapUnitsCap = (CM_MED * iNumCities) + EX_MED;
++						}
++						else if (bTierRendLandPlus)
+ 						{
+-							iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
++							// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such (as of now is not the case but anyways etc), as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap but anyways etc. -->
++							// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD anyways etc -->
++							if (bLoopUnitDomainLand)
++							{
++								static const int CM_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_RENAISSANCE_PLUS_LAND_TIER");
++								static const int EX_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_RENAISSANCE_PLUS_LAND_TIER");
++								
++								iVeryCheapUnitsCap = (CM_REN_LAND_PLUS * iNumCities) + EX_REN_LAND_PLUS;
++							}
+ 						}
+ 
+ 						// <!-- custom: here we don't change unit unlike in ::AI_ChooseUnit as of now if i'm not mistaken so no need to use a pointer if i'm not mistaken but anyways etc -->
+@@ -1067,7 +1092,7 @@ void CvCity::doTurn()
+ 						const int iHaveVeryCheapThisUnits = kOwner.getUnitClassCountPlusMaking(eUnitClass);
+ 
+ 						// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
+-						if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
++						if ((iVeryCheapUnitsCap >= 0) && (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap))
+ 						{
+ 							continue;
+ 						}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ebe95b43e..19c843086 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11801,13 +11801,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 							// const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
+ 							// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens in this case i mean but anyways etc, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info anyways etc -->
+ 
+-							const int iCurrentTurnAdjusted = (iCurrentTurn * iTrainPct) / 100;
++							static const int iEarlyTurnNoNeedYetExtraDefendersNormal = 100;
++							const int iEarlyNoNeedYetCutoff = (iEarlyTurnNoNeedYetExtraDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
++							const bool bEarlyNoNeedYetExtraDefenders = (iCurrentTurn <= iEarlyNoNeedYetCutoff);
+ 
+ 							// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
+-							// cap = 2 …then +1 at ~T100, +1 at ~T150 (and you can add ~T200 too)
++							// cap = 2 …then +1 at ~T100, <!-- custom: may need, as of now removed but anyways etc: --> +1 at ~T150 (and you can add ~T200 too)
+ 							int iMaxDefendersPerCityEarlyAdjusted = 2;
+-							if (iCurrentTurnAdjusted >= 100) iMaxDefendersPerCityEarlyAdjusted += 1;
+-							// else if (iCurrentTurnAdjusted >= 155) iMaxDefendersPerCityEarlyAdjusted += 1;
++							if (!bEarlyNoNeedYetExtraDefenders)
++							{
++								iMaxDefendersPerCityEarlyAdjusted += 1;
++							}
+ 
+ 							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
+ 							// Guard against div-by-zero and define a very simple “defense overweight” signal:
+@@ -12027,19 +12031,25 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					{
+ 						// <!-- custom: make sure to not overproduce them and risk going bankrupt or hindering our early progression, but build enough for our immediate early or defense needs anyways etc. Note: in our mod as of now archers are available at TECH_HUNTING and they are more versatile and stronger at city defense (also a bit more expensive) and require as of now no bonus, only the tech. If all else fails (then longbows), build these rather than stacking very cheap units that would be bit inefficient, but don't overdo it, as ancient macemen are better at combat outside of cities anyways etc, just they would be produced too much which would cripple our economy. Gating them early also helps us meet our quota of defenders sooner indirectly by focusing more on archers or whatever else we want to build, so that we hopefully maybe can move sooner to our no excess defender code in next productions so all in all should hopefully be good and helpful if i am not mistaken but anyways etc -->
+ 						// Tier thresholds
+-						static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+-						static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+-						static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
++						static const int TH_ANC           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
++						static const int TH_CLA           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
++						static const int TH_MED           = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_TIER_THRESHOLD");
++						static const int TH_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD");
+ 
+ 						// Classify tier (exclusive)
+ 						const bool bTierAnc = (iXMLCost <= TH_ANC);
+ 						const bool bTierCla = (!bTierAnc && iXMLCost <= TH_CLA);
+-						const bool bTierMedPlus = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED_PLUS);
++						const bool bTierMed = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED);
++						const bool bTierRendLandPlus = (
++							// <!-- custom: note: this renaissance plus era uses a different logic of actually expecting an era unlike the other tiers that operate based on city max units as nicely noted by chatgpt 5.1 thanks a lot but anyways etc -->
++							bRenaissancePlus && // only after we actually reach Renaissance
++							(!bTierAnc && !bTierCla && !bTierMed && iXMLCost <= TH_REN_LAND_PLUS)
++						);
+ 
+-						if (bTierAnc || bTierCla || bTierMedPlus)
++						if (bTierAnc || bTierCla || bTierMed || bTierRendLandPlus)
+ 						{
+ 							// Non-regressing cap by tier: take the minimum across tiers up to this one
+-							int iVeryCheapUnitsCap = 0;
++							int iVeryCheapUnitsCap = -9999;
+ 							// Do you really need the “min across tiers”?
+ 							// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
+ 							// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
+@@ -12074,12 +12084,39 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 								iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
+ 							}
+-							else if (bTierMedPlus)
++							else if (bTierMed)
++							{
++								static const int CM_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_TIER");
++								static const int EX_MED = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_TIER");
++
++								iVeryCheapUnitsCap = (CM_MED * iNumCities) + EX_MED;
++							}
++							// <!-- custom: make extra sure here that it applies only to domain_land units only in case we change logic later to for example include naval units in naval heavy maps or such, as frigates or galleons or such are still useful later in the game even though they are as of now fairly cheap but anyways etc. -->
++							// <!-- custom: see code comment in as of now sas defines at SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_RENAISSANCE_PLUS_LAND_TIER_THRESHOLD anyways etc -->
++							else if (bTierRendLandPlus)
+ 							{
+-								static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
+-								static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
++								// <!-- custom: be careful to include only land direct combat units (not spies, scouts, etc.), and to use the variable that had the pointer refreshed if it changed since then but anyways etc -->
++								const bool bDirectCombatLandUnitAI = (
++									(pUnitInfo->getDomainType() == DOMAIN_LAND) &&
++									(
++										(eChangedUnitAI == UNITAI_ATTACK) ||
++										(eChangedUnitAI == UNITAI_ATTACK_CITY) ||
++										// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
++										(eChangedUnitAI == UNITAI_COUNTER) ||
++										(eChangedUnitAI == UNITAI_CITY_COUNTER) ||
++										(eChangedUnitAI == UNITAI_CITY_DEFENSE) ||
++										(eChangedUnitAI == UNITAI_CITY_SPECIAL) ||
++										(eChangedUnitAI == UNITAI_RESERVE)
++									)
++								);
++
++								if (bDirectCombatLandUnitAI)
++								{
++									static const int CM_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_RENAISSANCE_PLUS_LAND_TIER");
++									static const int EX_REN_LAND_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_RENAISSANCE_PLUS_LAND_TIER");
+ 
+-								iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
++									iVeryCheapUnitsCap = (CM_REN_LAND_PLUS * iNumCities) + EX_REN_LAND_PLUS;
++								}
+ 							}
+ 
+ 							// <!-- custom: use a reference only in this scope in case we change the unit again later (reuse reference as needed maybe but anyways etc) if i am not mistaken, check if accurate anyways etc -->
+@@ -12087,7 +12124,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 							const int iHaveVeryCheapThisUnits = kPlayer.getUnitClassCountPlusMaking(eUnitClassSoFar);
+ 
+ 							// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
+-							if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
++							if ((iVeryCheapUnitsCap >= 0) && (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap))
+ 							{
+ 								return false; // over cap → let chooser try a different unit
+ 							}
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index e7a85c06f..430caf20e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -236,7 +236,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - Tremendously improved AI overbuilding trebuchets in particular but more generally siege units, especially when it is bad like being weaker (trebuchets are useless and very hammer inefficient if not strictly to attack city tiles, catapults or cannons or such are also not too versatile or/and used correctly by AI to defend for example). Used various conditions in `CvCityAI::AI_chooseUnit` to try to make siege units production as minimal as possible, up to none at all if needed, but if other conditions are met but anyways etc hopefully not too low (a bit low as of now but much better than before when it was too strong). As a result, AIs should have a more varied offensive stack composition, as well as being better at defense when weaker, as seems the case in autoplay test i ran at a glance but anyways etc. See for details [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). Update: since then, relaxed siege thresholds in `CvCityAI::AI_chooseUnit` and in the fallback unit if no production code as well in `CvCity::doTurn`: slightly relaxed them before renaissance, and relaxed them extra more if we have key strategic bonus (as of now iron, copper, horse, camel, elephants) as siege units may help us do a successful longbow rush or such if we fit the other offense conditions to produce them if i'm not mistaken but anyways etc, and heavily relaxed them at renaissance+ as cannons as a viable alternative to a defender, especially if we have no mounted bonus and no access to muskets yet, overbuilding pikemen against cuirassiers is useless, ineffective, and will bankrupt us sooner. More generally also allows more varied stacks compositions and much better results ingame for some AIs it seems that had the issue of dying due to having too much pikemen and keeping to build them when cannons and later siege units are available and much stronger / more effective, but check to be sure anyways etc.
+ - removed `UNITAI_CITY_COUNTER` from non-versatile enough units such as the UNIT_MACEMAN, as they are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places anyways etc). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles if i am not mistaken but anyways etc, and same for other units if any have that issue as well anyways etc.
+ - removed `UNITAI_COUNTER` from mounted units that had it (UNIT_CHARIOT, UNIT_EGYPTIAN_WAR_CHARIOT, UNIT_CARTHAGE_NUMIDIAN_CAVALRY) as they are not strong enough defender units to warrant it (doesn't ""receive defense bonuses" (i.e. modifiers if i'm not mistaken but anyways etc), plus takes a longbowman slot inefficiently as well i mean if i may say but anyways etc), and are wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly anyways etc) if i'm not mistaken but anyways etc. For chariot class units in particular, it may have made sense when longbows were available much later, but now in our mod but anyways etc they are available at about same time in tech as axeman class units but anyways etc, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities if i am not mistaken but anyways etc).
+-- Tremendously improved AI overbuilding very cheap (as of now 20 or less hammer cost in unitinfo XML (indepent from any trainpercent modifier if i am not mistaken anyways etc)) combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient, nonsensical since there are so many better options like swordsmen, chariots, longbowmen, anything else basically some of which not requiring any bonus if i'm not mistaken but anyways etc, and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless. Since they are easy to overbuild due to being so cheap, they may quickly make us bankrupt, and are not so effective per unit. As in our mod archers are as of now available very soon, fairly cheap, and more versatile and overall stronger, plus since they also help fill our defense needs/quotas sooner so we move to offense focus sooner, it seems very nice to be able to cut down on excess very cheap units, as of now only the ancient maceman (note: this trims down scouts as well since they have combat if i am not mistaken, but we don't seem to overproduce them so fine anyways etc, and even if we were to then would be handled by the same cap if i am not mistaken but anyways etc). As a result of these changes in `CvCityAI::AI_chooseUnit`, ingame, we seem to have much better compositions (e.g. 3 ancient macemen at turn 100-130 vs 11 before in AI players), and much more stronger units in comparison. Hopefully helps being economically efficient as well. AI should be stronger as a result of these changes hopefully if i am not mistaken but anyways etc. See for details [53.4 (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc) anyways etc. Update: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc.
++- Tremendously improved AI overbuilding very cheap (as of now 20 or less hammer cost in unitinfo XML (indepent from any trainpercent modifier if i am not mistaken anyways etc)) combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient, nonsensical since there are so many better options like swordsmen, chariots, longbowmen, anything else basically some of which not requiring any bonus if i'm not mistaken but anyways etc, and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless. Since they are easy to overbuild due to being so cheap, they may quickly make us bankrupt, and are not so effective per unit. As in our mod archers are as of now available very soon, fairly cheap, and more versatile and overall stronger, plus since they also help fill our defense needs/quotas sooner so we move to offense focus sooner, it seems very nice to be able to cut down on excess very cheap units, as of now only the ancient maceman (note: this trims down scouts as well since they have combat if i am not mistaken, but we don't seem to overproduce them so fine anyways etc, and even if we were to then would be handled by the same cap if i am not mistaken but anyways etc). As a result of these changes in `CvCityAI::AI_chooseUnit`, ingame, we seem to have much better compositions (e.g. 3 ancient macemen at turn 100-130 vs 11 before in AI players), and much more stronger units in comparison. Hopefully helps being economically efficient as well. AI should be stronger as a result of these changes hopefully if i am not mistaken but anyways etc. See for details [53.4 (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc) anyways etc. Update: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc. (Requires AdvCiv-SAS 5115+) Update 2: Also added renaissance plus (anti pikemen or such, but only for land AND direct combat units (no scouts, spies, etc.)) logic as well as these units are ineffective against gun and higher units, and economically very inefficient (high spam and unit cost, low combat potential vs lower unit costs for stronger units or/and possibly more buildings as well i mean but anyways etc).
+ - AI now favours a military instructor specialist rather than a great general leader, as this is much stronger and scales better with late game. Added logic to favour top hammer city decrementially (top 1 hammer city the most, then top 2 city a bit less but still a lot, etc.), and tweaked existing logic to favour top as of now 3 hammer cities tremendously more. Also added logic to favour city especially more if it has or is building the heroic epic effect building (or whichever equivalent is in your mod mod if you modified it and implemented it as such in sas defines as well). Also, removed the military instructor per city limit, so now an AI city can have many military instructors not 1 max, which is much stronger. Changes in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. Partially tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#69](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc) for details anyways etc. Note: sometimes it seems to rarely be ignored in autoplay for some reason, although mostly applied it seems anyways etc.
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 499789091..81489a90b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -223,7 +223,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). **Update:** Thresholds have been **slightly relaxed pre-Renaissance**; **extra-relaxed when holding key strategic bonuses** (**Iron**, **Copper**, **Horse**, **Camel**, **Elephants**) to enable offense windows (e.g., longbow + siege); and **heavily relaxed from Renaissance onward** so **Cannons** can serve as a defensive pivot and the AI avoids over-producing Pikemen into Cuirassiers, and more generally since later sieges units are stronger and more effective, to also have a more varied and effective military composition.
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+ - **Mounted “Counter” role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+-- **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In AdvCiv-SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). **Update (fallback production):** Applied the same cap inside CvCity::doTurn’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100).
++- **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In AdvCiv-SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). **Update (fallback production):** Applied the same cap inside `CvCity::doTurn`’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100). (Requires AdvCiv-SAS 5115+) **Update 2 (Renaissance+ anti-pike / cheap melee):** Added extra gating for **Renaissance+ very-cheap land, direct-combat units** (no scouts, spies, naval units, etc.). Goal: reduce ineffective late-game spam of obsolete counters (e.g. pikes into guns) and improve economic efficiency (lower unit costs, with more hammers available for stronger units and/or additional buildings instead of obsolete high-maintenance units).
+ - **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. Partially tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#69](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). Note: sometimes/rarely ignored in autoplay.
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=54997

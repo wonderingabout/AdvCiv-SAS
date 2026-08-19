@@ -1,0 +1,1141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3432
+# Commit: d28c14e2ae2ae4cf8a52f4725bf01b2b13cc70e4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ca3e110fd5fc45bc3148647622172463c0922d5f
+# Title: Typedef CvInfo base classes for easier use of CvXMLInfo
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvInfo_Build.cpp
+1	0	CvGameCoreDLL/CvInfo_Build.h
+5	5	CvGameCoreDLL/CvInfo_Building.cpp
+5	0	CvGameCoreDLL/CvInfo_Building.h
+4	4	CvGameCoreDLL/CvInfo_City.cpp
+5	0	CvGameCoreDLL/CvInfo_City.h
+5	5	CvGameCoreDLL/CvInfo_Civics.cpp
+3	0	CvGameCoreDLL/CvInfo_Civics.h
+7	7	CvGameCoreDLL/CvInfo_Civilization.cpp
+3	1	CvGameCoreDLL/CvInfo_Civilization.h
+4	4	CvGameCoreDLL/CvInfo_Command.cpp
+4	0	CvGameCoreDLL/CvInfo_Command.h
+9	10	CvGameCoreDLL/CvInfo_GameOption.cpp
+8	0	CvGameCoreDLL/CvInfo_GameOption.h
+1	1	CvGameCoreDLL/CvInfo_Organization.cpp
+1	0	CvGameCoreDLL/CvInfo_Organization.h
+6	6	CvGameCoreDLL/CvInfo_RandomEvent.cpp
+2	0	CvGameCoreDLL/CvInfo_RandomEvent.h
+2	2	CvGameCoreDLL/CvInfo_Symbol.cpp
+2	0	CvGameCoreDLL/CvInfo_Symbol.h
+3	3	CvGameCoreDLL/CvInfo_Tech.cpp
+2	1	CvGameCoreDLL/CvInfo_Tech.h
+10	10	CvGameCoreDLL/CvInfo_Terrain.cpp
+9	2	CvGameCoreDLL/CvInfo_Terrain.h
+9	9	CvGameCoreDLL/CvInfo_Unit.cpp
+5	1	CvGameCoreDLL/CvInfo_Unit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Build.cpp b/CvGameCoreDLL/CvInfo_Build.cpp
+index a858f0828..fea5f971d 100644
+--- a/CvGameCoreDLL/CvInfo_Build.cpp
++++ b/CvGameCoreDLL/CvInfo_Build.cpp
+@@ -69,7 +69,7 @@ bool CvBuildInfo::isFeatureRemove(FeatureTypes eFeature) const
+ 
+ bool CvBuildInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereq, "PrereqTech");
+
+diff --git a/CvGameCoreDLL/CvInfo_Build.h b/CvGameCoreDLL/CvInfo_Build.h
+index 51792619b..5341fe485 100644
+--- a/CvGameCoreDLL/CvInfo_Build.h
++++ b/CvGameCoreDLL/CvInfo_Build.h
+@@ -10,6 +10,7 @@
+ 
+ class CvBuildInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: /*	All the const functions are exposed to Python.
+ 			Integers in signatures replaced with enum types. */
+ 	CvBuildInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 96ff78f57..76c6c0e68 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -871,7 +871,7 @@ int CvBuildingClassInfo::getLimit() const
+ 
+ bool CvBuildingClassInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iMaxGlobalInstances, "iMaxGlobalInstances");
+@@ -914,7 +914,7 @@ m_bValid(false)
+ 
+ bool CvSpecialBuildingInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_eObsoleteTech, "ObsoleteTech");
+@@ -946,7 +946,7 @@ const CvWString CvVoteSourceInfo::getSecretaryGeneralText() const
+ 
+ bool CvVoteSourceInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iVoteInterval, "iVoteInterval");
+@@ -1001,7 +1001,7 @@ m_bAssignCity(false)
+ 
+ bool CvVoteInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iPopulationThreshold, "iPopulationThreshold");
+@@ -1073,7 +1073,7 @@ bool CvProjectInfo::nameNeedsArticle() const
+ 
+ bool CvProjectInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_eVictoryPrereq, "VictoryPrereq");
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index 7b0c05a4b..2a18e2f17 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -16,6 +16,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvBuildingClassInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvBuildingClassInfo();
+ 
+@@ -476,6 +477,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvSpecialBuildingInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvSpecialBuildingInfo();
+ 
+@@ -502,6 +504,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvVoteSourceInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 	CvVoteSourceInfo();
+ 
+@@ -533,6 +536,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvVoteInfo :	public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvVoteInfo();
+ 
+@@ -584,6 +588,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvProjectInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All const functions are exposed to Python
+ 	CvProjectInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_City.cpp b/CvGameCoreDLL/CvInfo_City.cpp
+index 1abbeb076..82cbe39e8 100644
+--- a/CvGameCoreDLL/CvInfo_City.cpp
++++ b/CvGameCoreDLL/CvInfo_City.cpp
+@@ -24,7 +24,7 @@ int CvProcessInfo::getProductionToCommerceModifier(CommerceTypes eCommerce) cons
+ 
+ bool CvProcessInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_eTechPrereq, "TechPrereq");
+@@ -117,7 +117,7 @@ const TCHAR* CvSpecialistInfo::getTexture() const
+ 
+ bool CvSpecialistInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szTexture, "Texture");
+@@ -162,7 +162,7 @@ int CvCultureLevelInfo::getSpeedThreshold(int i) const
+ 
+ bool CvCultureLevelInfo::read(CvXMLLoadUtility* pXml)
+ {
+-	if (!CvInfoBase::read(pXml))
++	if (!base_t::read(pXml))
+ 		return false;
+ 
+ 	pXml->GetChildXmlValByName(&m_iCityDefenseModifier, "iCityDefenseModifier");
+@@ -208,7 +208,7 @@ int CvEmphasizeInfo::getCommerceChange(int i) const
+ 
+ bool CvEmphasizeInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bAvoidGrowth, "bAvoidGrowth");
+
+diff --git a/CvGameCoreDLL/CvInfo_City.h b/CvGameCoreDLL/CvInfo_City.h
+index 9460edda7..6b3538d8a 100644
+--- a/CvGameCoreDLL/CvInfo_City.h
++++ b/CvGameCoreDLL/CvInfo_City.h
+@@ -15,6 +15,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvProcessInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvProcessInfo();
+ 	~CvProcessInfo();
+@@ -37,6 +38,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvSpecialistInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: // All the const functions are exposed to Python
+ 	CvSpecialistInfo();
+ 	~CvSpecialistInfo();
+@@ -78,6 +80,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvCultureLevelInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvCultureLevelInfo();
+ 	~CvCultureLevelInfo();
+@@ -102,6 +105,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvEmphasizeInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 
+ 	CvEmphasizeInfo();
+@@ -128,6 +132,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvHurryInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 	CvHurryInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index 76fdb3874..c872f9bfd 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -207,7 +207,7 @@ int CvCivicInfo::getImprovementYieldChanges(int i, int j) const
+ #if ENABLE_XML_FILE_CACHE
+ void CvCivicInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -312,7 +312,7 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 
+ void CvCivicInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag = 0;
+ 	stream->Write(uiFlag);
+ 
+@@ -383,7 +383,7 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_eCivicOptionType, "CivicOptionType");
+@@ -546,7 +546,7 @@ bool CvCivicOptionInfo::getTraitNoUpkeep(int i) const
+ 
+ bool CvCivicOptionInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetVariableListTagPair(&m_pabTraitNoUpkeep, "TraitNoUpkeeps", GC.getNumTraitInfos());
+@@ -561,7 +561,7 @@ m_iCityPercent(0)
+ 
+ bool CvUpkeepInfo::read(CvXMLLoadUtility* pXml)
+ {
+-	if (!CvInfoBase::read(pXml))
++	if (!base_t::read(pXml))
+ 		return false;
+ 
+ 	pXml->GetChildXmlValByName(&m_iPopulationPercent, "iPopulationPercent");
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.h b/CvGameCoreDLL/CvInfo_Civics.h
+index 1dda4f6cf..49bea5cbf 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.h
++++ b/CvGameCoreDLL/CvInfo_Civics.h
+@@ -14,6 +14,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvCivicInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python except those (to be) added by AdvCiv
+ 	CvCivicInfo();
+ 	~CvCivicInfo();
+@@ -177,6 +178,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvCivicOptionInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvCivicOptionInfo();
+ 	~CvCivicOptionInfo();
+@@ -193,6 +195,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvUpkeepInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvUpkeepInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 2bcb85af3..c8e0e47d3 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -41,7 +41,7 @@ CvCivilizationInfo::~CvCivilizationInfo()
+ 
+ void CvCivilizationInfo::reset()
+ {
+-	CvInfoBase::reset();
++	base_t::reset();
+ 
+ 	m_aszAdjective.clear();
+ 	m_aszShortDescription.clear();
+@@ -203,7 +203,7 @@ std::string CvCivilizationInfo::getCityNames(int i) const
+ #if ENABLE_XML_FILE_CACHE
+ void CvCivilizationInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -251,7 +251,7 @@ void CvCivilizationInfo::read(FDataStreamBase* stream)
+ 
+ void CvCivilizationInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag=0;
+ 	stream->Write(uiFlag);
+ 
+@@ -282,7 +282,7 @@ void CvCivilizationInfo::write(FDataStreamBase* stream)
+ 
+ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	// Get the Text from Text/Civ4GameTextXML.xml
+@@ -665,7 +665,7 @@ const TCHAR* CvLeaderHeadInfo::getLeaderHead() const
+ #if ENABLE_XML_FILE_CACHE
+ void CvLeaderHeadInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -808,7 +808,7 @@ void CvLeaderHeadInfo::read(FDataStreamBase* stream)
+ 
+ void CvLeaderHeadInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag=1; // BETTER_BTS_AI_MOD, 03/21/10, jdog5000
+ 	uiFlag = 2; // advc.104i
+ 	uiFlag = 3; // advc.104 (love of peace)
+@@ -922,7 +922,7 @@ const CvArtInfoLeaderhead* CvLeaderHeadInfo::getArtInfo() const
+ 
+ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag",
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 173da68b1..043262be7 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -16,6 +16,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvCivilizationInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // advc: All the const functions are exposed to Python
+ 	CvCivilizationInfo();
+ 	~CvCivilizationInfo();
+@@ -108,7 +109,8 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvLeaderHeadInfo : public CvInfoBase
+ {
+-friend class UWAI; // advc.104x (for applyPersonalityWeight)
++	typedef CvInfoBase base_t;
++	friend class UWAI; // advc.104x (for applyPersonalityWeight)
+ public: // advc: All the const functions are exposed to Python except those added by mods
+ 	CvLeaderHeadInfo();
+ 	CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther); // advc.xmldefault
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.cpp b/CvGameCoreDLL/CvInfo_Command.cpp
+index 2148e4de7..5237931c5 100644
+--- a/CvGameCoreDLL/CvInfo_Command.cpp
++++ b/CvGameCoreDLL/CvInfo_Command.cpp
+@@ -35,7 +35,7 @@ bool CvCommandInfo::getAll() const
+ 
+ bool CvCommandInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	CvString szTextVal;
+@@ -78,7 +78,7 @@ bool CvAutomateInfo::getVisible() const
+ 
+ bool CvAutomateInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iCommand, "Command");
+@@ -493,7 +493,7 @@ EntityEventTypes CvMissionInfo::getEntityEvent() const
+ 
+ bool CvMissionInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szWaypoint, "Waypoint");
+@@ -558,7 +558,7 @@ bool CvInterfaceModeInfo::getSelectAll() const
+ 
+ bool CvInterfaceModeInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iCursorIndex, "CursorType");
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.h b/CvGameCoreDLL/CvInfo_Command.h
+index 3acb7253d..7cc9f4439 100644
+--- a/CvGameCoreDLL/CvInfo_Command.h
++++ b/CvGameCoreDLL/CvInfo_Command.h
+@@ -14,6 +14,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvCommandInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public:
+ 	CvCommandInfo();
+ 
+@@ -37,6 +38,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvAutomateInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public:
+ 	CvAutomateInfo();
+ 
+@@ -124,6 +126,7 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvMissionInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: // The const functions are exposed to Python
+ 	CvMissionInfo();
+ 
+@@ -154,6 +157,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvInterfaceModeInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: // "(ADD to Python)" // <-- advc: Looks like all the const functions are exposed as usual
+ 	CvInterfaceModeInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index 39735fa52..81120bca3 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -34,7 +34,7 @@ void CvGameOptionInfo::setVisible(bool b) {
+ 
+ bool CvGameOptionInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bDefault, "bDefault");
+@@ -53,7 +53,7 @@ bool CvMPOptionInfo::getDefault() const
+ 
+ bool CvMPOptionInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bDefault, "bDefault");
+@@ -429,7 +429,7 @@ void CvGameSpeedInfo::allocateGameTurnInfos(const int iSize)
+ 
+ bool CvGameSpeedInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iGrowthPercent, "iGrowthPercent");
+@@ -513,7 +513,7 @@ int CvTurnTimerInfo::getFirstTurnMultiplier() const
+ 
+ bool CvTurnTimerInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iBaseTime, "iBaseTime");
+@@ -612,8 +612,7 @@ const char* CvVictoryInfo::getMovie() const
+ 
+ bool CvVictoryInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bTargetScore, "bTargetScore");
+@@ -1424,7 +1423,7 @@ int CvWorldInfo::getAdvancedStartPointsMod() const
+ 
+ bool CvWorldInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iDefaultPlayers, "iDefaultPlayers");
+@@ -1522,7 +1521,7 @@ float CvClimateInfo::getRandIceLatitude() const
+ 
+ bool CvClimateInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iDesertPercentChange, "iDesertPercentChange");
+@@ -1553,7 +1552,7 @@ int CvSeaLevelInfo::getSeaLevelChange() const
+ 
+ bool CvSeaLevelInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iSeaLevelChange, "iSeaLevelChange");
+@@ -1579,5 +1578,5 @@ CvWString CvSeaLevelInfo::getDescriptionInternal() const
+ 		if (szText != szTag)
+ 			return szText;
+ 	}
+-	return CvInfoBase::getDescriptionInternal();
++	return base_t::getDescriptionInternal();
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 022723d19..ed46b7346 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -13,6 +13,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvGameOptionInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvGameOptionInfo();
+ 
+@@ -34,6 +35,7 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvMPOptionInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvMPOptionInfo();
+ 
+@@ -231,6 +233,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvGameSpeedInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 	CvGameSpeedInfo();
+ 	~CvGameSpeedInfo();
+@@ -298,6 +301,7 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvTurnTimerInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 
+ 	CvTurnTimerInfo();
+@@ -321,6 +325,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvVictoryInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 	CvVictoryInfo();
+ 
+@@ -571,6 +576,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvWorldInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvWorldInfo();
+ 
+@@ -623,6 +629,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvClimateInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvClimateInfo();
+ 
+@@ -661,6 +668,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvSeaLevelInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvSeaLevelInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.cpp b/CvGameCoreDLL/CvInfo_Organization.cpp
+index 14f054523..06ada908d 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.cpp
++++ b/CvGameCoreDLL/CvInfo_Organization.cpp
+@@ -54,7 +54,7 @@ const TCHAR* CvOrganizationInfo::getSound() const
+ 
+ bool CvOrganizationInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereq, "TechPrereq");
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.h b/CvGameCoreDLL/CvInfo_Organization.h
+index 02bfb43fc..a503e752b 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.h
++++ b/CvGameCoreDLL/CvInfo_Organization.h
+@@ -10,6 +10,7 @@
+ 	was exactly the same in CvReligionInfo and CvCorporationInfo. */
+ class CvOrganizationInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: // All the const functions are exposed to Python
+ 	CvOrganizationInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_RandomEvent.cpp b/CvGameCoreDLL/CvInfo_RandomEvent.cpp
+index fe43768f9..80fc387b2 100644
+--- a/CvGameCoreDLL/CvInfo_RandomEvent.cpp
++++ b/CvGameCoreDLL/CvInfo_RandomEvent.cpp
+@@ -461,7 +461,7 @@ const wchar* CvEventInfo::getOtherPlayerPopup() const
+ #if ENABLE_XML_FILE_CACHE
+ void CvEventInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -570,7 +570,7 @@ void CvEventInfo::read(FDataStreamBase* stream)
+ 
+ void CvEventInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag=0;
+ 	stream->Write(uiFlag);
+ 
+@@ -657,7 +657,7 @@ void CvEventInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvEventInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bQuest, "bQuest");
+@@ -1300,7 +1300,7 @@ const char* CvEventTriggerInfo::getPythonCanDoUnit() const
+ void CvEventTriggerInfo::read(FDataStreamBase* stream)
+ {
+ 	CvWString szElement;
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -1482,7 +1482,7 @@ void CvEventTriggerInfo::read(FDataStreamBase* stream)
+ 
+ void CvEventTriggerInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag=0;
+ 	stream->Write(uiFlag);
+ 
+@@ -1626,7 +1626,7 @@ void CvEventTriggerInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvEventTriggerInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iPercentGamesActive, "iPercentGamesActive");
+
+diff --git a/CvGameCoreDLL/CvInfo_RandomEvent.h b/CvGameCoreDLL/CvInfo_RandomEvent.h
+index 2555499d7..e472af5ab 100644
+--- a/CvGameCoreDLL/CvInfo_RandomEvent.h
++++ b/CvGameCoreDLL/CvInfo_RandomEvent.h
+@@ -12,6 +12,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvEventInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ 	friend class CvXMLLoadUtility;
+ public: // All the const functions returning primitive types are exposed to Python
+ 	CvEventInfo();
+@@ -190,6 +191,7 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvEventTriggerInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ 	friend class CvXMLLoadUtility;
+ public: // All the const functions returning primitive types are exposed to Python
+ 	CvEventTriggerInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Symbol.cpp b/CvGameCoreDLL/CvInfo_Symbol.cpp
+index 859710157..68bd8470a 100644
+--- a/CvGameCoreDLL/CvInfo_Symbol.cpp
++++ b/CvGameCoreDLL/CvInfo_Symbol.cpp
+@@ -54,7 +54,7 @@ const TCHAR* CvYieldInfo::getSymbolPath(int i) const
+ 
+ bool CvYieldInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iHillsChange, "iHillsChange");
+@@ -135,7 +135,7 @@ bool CvCommerceInfo::isFlexiblePercent() const
+ 
+ bool CvCommerceInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iInitialPercent, "iInitialPercent");
+
+diff --git a/CvGameCoreDLL/CvInfo_Symbol.h b/CvGameCoreDLL/CvInfo_Symbol.h
+index d7d84020b..444325598 100644
+--- a/CvGameCoreDLL/CvInfo_Symbol.h
++++ b/CvGameCoreDLL/CvInfo_Symbol.h
+@@ -10,6 +10,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvYieldInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvYieldInfo();
+ 	~CvYieldInfo();
+@@ -57,6 +58,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvCommerceInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 
+ 	CvCommerceInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index 5685d7c8a..a41c9688e 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -126,7 +126,7 @@ bool CvTechInfo::isTerrainTrade(int i) const
+ #if ENABLE_XML_FILE_CACHE
+ void CvTechInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -206,7 +206,7 @@ void CvTechInfo::read(FDataStreamBase* stream)
+ 
+ void CvTechInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag = 0;
+ 	stream->Write(uiFlag);
+ 
+@@ -272,7 +272,7 @@ void CvTechInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iAdvisorType, "Advisor");
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index a66d6902c..f86754c72 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -6,7 +6,8 @@
+ // advc.003x: Cut from CvInfos.h. Just CvTechInfo b/c I want to precompile this one.
+ class CvTechInfo : public CvInfoBase
+ {
+-friend class CvXMLLoadUtility;
++	typedef CvInfoBase base_t;
++	friend class CvXMLLoadUtility;
+ public: // advc: All the const functions are exposed to Python except those added by mods
+ 	CvTechInfo();
+ 	~CvTechInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 97a0f6821..27c3ff36f 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -68,7 +68,7 @@ int CvTerrainInfo::get3DAudioScriptFootstepIndex(int i) const
+ 
+ bool CvTerrainInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
+@@ -319,7 +319,7 @@ const CvArtInfoFeature* CvFeatureInfo::getArtInfo() const
+ 
+ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
+@@ -617,7 +617,7 @@ const TCHAR* CvBonusInfo::getButton() const
+ #if ENABLE_XML_FILE_CACHE
+ void CvBonusInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -671,7 +671,7 @@ void CvBonusInfo::read(FDataStreamBase* stream)
+ 
+ void CvBonusInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag=0;
+ 	stream->Write(uiFlag);
+ 
+@@ -716,7 +716,7 @@ void CvBonusInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvBonusInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_eBonusClassType, "BonusClassType");
+@@ -843,7 +843,7 @@ int CvBonusClassInfo::getUniqueRange() const
+ 
+ bool CvBonusClassInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 	pXML->GetChildXmlValByName(&m_iUniqueRange, "iUnique");
+ 	return true;
+@@ -902,7 +902,7 @@ int CvRouteInfo::py_getPrereqOrBonus(int i) const
+ 
+ bool CvRouteInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iAdvancedStartCost, "iAdvancedStartCost");
+@@ -1510,7 +1510,7 @@ int CvImprovementBonusInfo::getYieldChange(int i) const
+ #if ENABLE_XML_FILE_CACHE
+ void CvImprovementBonusInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 	stream->Read(&m_iDiscoverRand);
+@@ -1523,7 +1523,7 @@ void CvImprovementBonusInfo::read(FDataStreamBase* stream)
+ 
+ void CvImprovementBonusInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag=0;
+ 	stream->Write(uiFlag);
+ 	stream->Write(m_iDiscoverRand);
+@@ -1633,7 +1633,7 @@ const TCHAR* CvGoodyInfo::getSound() const
+ 
+ bool CvGoodyInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szSound, "Sound");
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index b3fe1608e..96726aba5 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -19,6 +19,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvTerrainInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python except for those related to sound
+ 	CvTerrainInfo();
+ 	~CvTerrainInfo();
+@@ -78,6 +79,7 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvFeatureInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: /*  All the const functions are exposed to Python except for those dealing with art
+ 			and those added by mods */
+ 	CvFeatureInfo();
+@@ -192,6 +194,7 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvBonusInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python
+ 	CvBonusInfo();
+ 	virtual ~CvBonusInfo();
+@@ -296,6 +299,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvBonusClassInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvBonusClassInfo();
+ 
+@@ -311,6 +315,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvRouteInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python except those added by mods
+ 	CvRouteInfo();
+ 	~CvRouteInfo();
+@@ -514,8 +519,9 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvImprovementBonusInfo : public CvInfoBase
+ {
+-friend class CvImprovementInfo;
+-friend class CvXMLLoadUtility;
++	typedef CvInfoBase base_t;
++	friend class CvImprovementInfo;
++	friend class CvXMLLoadUtility;
+ public: // The const functions are exposed to Python
+ 	CvImprovementBonusInfo();
+ 	~CvImprovementBonusInfo();
+@@ -541,6 +547,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvGoodyInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // The const functions are exposed to Python
+ 	CvGoodyInfo();
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.cpp b/CvGameCoreDLL/CvInfo_Unit.cpp
+index e49d6bc2a..e73767010 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.cpp
++++ b/CvGameCoreDLL/CvInfo_Unit.cpp
+@@ -728,7 +728,7 @@ const CvArtInfoUnit* CvUnitInfo::getArtInfo(int i, EraTypes eEra, UnitArtStyleTy
+ #if ENABLE_XML_FILE_CACHE
+ void CvUnitInfo::read(FDataStreamBase* stream)
+ {
+-	CvHotkeyInfo::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -1005,7 +1005,7 @@ void CvUnitInfo::read(FDataStreamBase* stream)
+ 
+ void CvUnitInfo::write(FDataStreamBase* stream)
+ {
+-	CvHotkeyInfo::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag = 0;
+ 	stream->Write(uiFlag);
+ 
+@@ -1191,7 +1191,7 @@ void CvUnitInfo::write(FDataStreamBase* stream)
+ 
+ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_eUnitClassType, "Class");
+@@ -1681,7 +1681,7 @@ m_iDefaultUnitIndex(NO_UNIT)
+ 
+ bool CvUnitClassInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iMaxGlobalInstances, "iMaxGlobalInstances");
+@@ -1749,7 +1749,7 @@ int CvSpecialUnitInfo::getProductionTraits(int i) const
+ 
+ bool CvSpecialUnitInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bValid, "bValid");
+@@ -2115,7 +2115,7 @@ bool CvPromotionInfo::getUnitCombat(int i) const
+ #if ENABLE_XML_FILE_CACHE
+ void CvPromotionInfo::read(FDataStreamBase* stream)
+ {
+-	CvHotkeyInfo::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -2195,7 +2195,7 @@ void CvPromotionInfo::read(FDataStreamBase* stream)
+ 
+ void CvPromotionInfo::write(FDataStreamBase* stream)
+ {
+-	CvHotkeyInfo::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag = 0;
+ 	stream->Write(uiFlag);
+ 
+@@ -2257,7 +2257,7 @@ void CvPromotionInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvPromotionInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szSound, "Sound");
+@@ -2510,7 +2510,7 @@ int CvEspionageMissionInfo::getDifficultyMod() const
+ 
+ bool CvEspionageMissionInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iCost, "iCost");
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.h b/CvGameCoreDLL/CvInfo_Unit.h
+index 7aa55cc2b..10a43b43a 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.h
++++ b/CvGameCoreDLL/CvInfo_Unit.h
+@@ -18,6 +18,7 @@
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvUnitClassInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public: // All the const functions are exposed to Python. advc:inl: All inlined.
+ 	CvUnitClassInfo();
+ 
+@@ -74,6 +75,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvUnitInfo : public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: /*  All const functions are exposed to Python except some related to art and those added by mods.
+ 			Replaced int return types with enum. */
+ 	CvUnitInfo();
+@@ -551,8 +553,8 @@ typedef CvUnitArtStyleInfo CvUnitArtStyleTypeInfo; // advc.enum: for any legacy
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvSpecialUnitInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+-
+ 	CvSpecialUnitInfo();
+ 	~CvSpecialUnitInfo();
+ 
+@@ -577,6 +579,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvPromotionInfo :	public CvHotkeyInfo
+ {
++	typedef CvHotkeyInfo base_t;
+ public: // All the const functions are exposed to Python
+ 	CvPromotionInfo();
+ 	~CvPromotionInfo();
+@@ -719,6 +722,7 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvEspionageMissionInfo : public CvInfoBase
+ {
++	typedef CvInfoBase base_t;
+ public:
+ 	CvEspionageMissionInfo();
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=26 omittedFiles=0 embeddedPatchBytes=34942

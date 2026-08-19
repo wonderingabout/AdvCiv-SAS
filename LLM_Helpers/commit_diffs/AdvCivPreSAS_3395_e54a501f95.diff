@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3395
+# Commit: e54a501f95f0b9719d715ab5eed1a3c0d27b2021
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0471de547bb033ee3c454f5b50dd472a357617a1
+# Title: Clean up some comments of mine in PerfectMongoose
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 22f64ee79..d84bc488a 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -3478,7 +3478,7 @@ class TerrainMap:
+ 		steppePlainsPercent = mc.PlainsPercent * 0.75
+ 		junglePlainsPercent = mc.PlainsPercent - steppePlainsPercent
+ 		junglePlainsThreshold = FindValueFromPercent(warmTiles, warmLength, 1 - junglePlainsPercent, False)
+-		self.plainsRainfall = FindValueFromPercent(warmTiles, warmLength, steppePlainsPercent, False) # </advc.021b>
++		self.plainsRainfall = FindValueFromPercent(warmTiles, warmLength, steppePlainsPercent, False) # </advc>
+ 		self.jungleRainfall = self.plainsRainfall * mc.JungleFactor
+ 		for y in range(mc.height):
+ 			for x in range(mc.width):
+@@ -4136,7 +4136,7 @@ class RiverMap:
+ 		#of the rainfall from rm.rainMap
+ 		worldSz = CyMap().getWorldSize() # advc
+ 		for y in range(mc.height):
+-			# <advc> Kludge for making the extreme latitudes less riverine. Those river exacerbate the problem with (supposed) rainforests being highly productive tiles, and such rivers weren't as important to human habitation than rivers through temperate areas or through deserts. Somehow, it seems that rivers tend to be placed in higher latitudes on larger maps. Hence the worldSz adjustment.
++			# <advc> Kludge for making the extreme latitudes less riverine. Those river exacerbate the problem with (supposed) rainforests being highly productive tiles, and such rivers weren't as important to human habitation as rivers through temperate areas or through deserts. Somehow, it seems that rivers tend to be placed in higher latitudes on larger maps. Hence the worldSz adjustment.
+ 			latitudeMult = 1.0
+ 			absLat = abs(em.GetLatitudeForY(y))
+ 			vicinityToEquator = (mc.tropicsLatitude - absLat) / float(mc.tropicsLatitude)
+@@ -4168,7 +4168,7 @@ class RiverMap:
+ 							total += rfVal
+ 							count += 1.0
+ 				self.averageRainfallMap[i] = total / count
+-				# <advc> Another kludge pretty much. Spreads rivers out more, it seems.
++				# <advc> Another kludge, pretty much. Spreads rivers out more, it seems.
+ 				if mc.ClimateSystem == 0:
+ 					# Note that increasing rainfall values like this (or decreasing them through latitudeMult) requires adjustments to riverThreshold as well.
+ 					self.averageRainfallMap[i] += 4 * (maxRf - minRf) # </advc>
+@@ -6661,7 +6661,7 @@ def addRivers():
+ 	CyPythonMgr().allowDefaultImpl() # </advc>
+ 	if mc.RiverGenerator != 0:
+ 		return
+-	# <advc> Cut from addLakes. Let PM
++	# <advc> Cut from addLakes
+ 	''' # We no longer let the DLL place rivers first; no need to clear them.
+ 	for y in range(mc.height):
+ 		for x in range(mc.width):
+@@ -6930,7 +6930,7 @@ def findStartingArea(argsList):
+ 	plot = player.getStartingPlot()
+ 	if not plot or plot.isNone(): # Don't run starting plot finder more than once(!)
+ 		sf.SetStartingPlots()
+-	# Tell SPI to respect the starting areas chosen by PM. (One area per-player- however, SPI may still move players between starting areas; i.e. only the New-Old World split is handled by PM.)
++	# Tell SPI to respect the starting areas chosen by PM. (One area per-player - however, SPI may still move players between starting areas; i.e. only the New-Old World split is handled by PM.)
+ 	plot = player.getStartingPlot()
+ 	if plot and not plot.isNone():
+ 		return plot.getArea()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3373

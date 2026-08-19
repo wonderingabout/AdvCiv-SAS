@@ -1,0 +1,36 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4108
+# Commit: 05cbde45edcb50c3b3bfedc2ee0da7a0b01cc8df
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7db2973627130343e9c47acf8309663eb9740c00
+# Title: Round "Developing" culture threshold to a multiple of 5
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 8dfecdbed..5dd75d6f6 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9773,6 +9773,7 @@ int CvGame::getCultureThreshold(CultureLevelTypes eLevel) const
+ 			iMultiple = 100;
+ 		else if (iThreshold > 100)
+ 			iMultiple = 10;
++		else iMultiple = 5;
+ 		iThreshold *= GC.getInfo(getHandicapType()).getCultureLevelPercent();
+ 		iThreshold = per100(iThreshold).roundToMultiple(iMultiple);
+ 		iThreshold = std::max(iThreshold, iExempt);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=523

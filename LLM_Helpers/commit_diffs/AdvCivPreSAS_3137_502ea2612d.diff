@@ -1,0 +1,273 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3137
+# Commit: 502ea2612d6d13c5b47421ec2390b711dda91ca5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 198d60fede276e989860cc830dab3c566b20e8dd
+# Title: Rename "StealTreasuryTypes" function
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+12	23	CvGameCoreDLL/CvGameTextMgr.cpp
+2	7	CvGameCoreDLL/CvInfo_Unit.cpp
+8	2	CvGameCoreDLL/CvInfo_Unit.h
+20	28	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CyInfoInterface3.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index 86384e20f..a850739e6 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -1278,6 +1278,8 @@
+ 	<ElementType name="iDestroyProductionCostFactor" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iBuyUnitCostFactor" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iBuyCityCostFactor" content="textOnly" dt:type="int"/>
++	<!-- advc (note): The DLL now uses the name "StolenGoldPercent" for this.
++		 The name of the XML element makes no sense to me. -->
+ 	<ElementType name="iStealTreasuryTypes" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCityInsertCultureAmountFactor" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCityInsertCultureCostFactor" content="textOnly" dt:type="int"/>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a9ed5f09d..d731065f3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -19036,35 +19036,24 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+-	}
+-
+-	if (kMission.getStealTreasuryTypes() > 0)
++	if (kMission.getStolenGoldPercent() > 0 && eTargetPlayer != NO_PLAYER)
+ 	{
+-		if (NO_PLAYER != eTargetPlayer)
++		int iNumTotalGold /* kmodx: initialize */ = 0;
++		if (pPlot != NULL)
+ 		{
+-			//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+-			int iNumTotalGold
+-				= 0; // kmodx: Missing initialization
+-
+-			if (NULL != pPlot)
++			CvCity const* pCity = pPlot->getPlotCity();
++			if (pCity != NULL)
+ 			{
+-				CvCity* pCity = pPlot->getPlotCity();
+-
+-				if (NULL != pCity)
+-				{
+-					/* iNumTotalGold *= pCity->getPopulation();
+-					iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());*/
+-					// K-Mod
+-					iNumTotalGold = kPlayer.getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+-				}
++				/*iNumTotalGold *= pCity->getPopulation();
++				iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());*/
++				// K-Mod:
++				iNumTotalGold = kPlayer.getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 			}
+-
+-			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_STEAL_TREASURY",
+-					iNumTotalGold, GET_PLAYER(eTargetPlayer).getCivilizationAdjectiveKey()));
+-			szBuffer.append(NEWLINE);
+ 		}
++		szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_STEAL_TREASURY",
++				iNumTotalGold, GET_PLAYER(eTargetPlayer).getCivilizationAdjectiveKey()));
++		szBuffer.append(NEWLINE);
+ 	}
+-
+ 	if (kMission.getBuyTechCostFactor() > 0)
+ 	{
+ 		szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_STEAL_TECH",
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.cpp b/CvGameCoreDLL/CvInfo_Unit.cpp
+index 87833ebff..390ca75e3 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.cpp
++++ b/CvGameCoreDLL/CvInfo_Unit.cpp
+@@ -2393,7 +2393,7 @@ CvEspionageMissionInfo::CvEspionageMissionInfo() // <kmodx>
+ 	m_iDestroyProductionCostFactor(0),
+ 	m_iBuyUnitCostFactor(0),
+ 	m_iBuyCityCostFactor(0),
+-	m_iStealTreasuryTypes(0),
++	m_iStolenGoldPercent(0),
+ 	m_iCityInsertCultureAmountFactor(0),
+ 	m_iCityInsertCultureCostFactor(0),
+ 	m_iCityPoisonWaterCounter(0),
+@@ -2489,11 +2489,6 @@ int CvEspionageMissionInfo::getBuyCityCostFactor() const
+ 	return m_iBuyCityCostFactor;
+ }
+ 
+-int CvEspionageMissionInfo::getStealTreasuryTypes() const
+-{
+-	return m_iStealTreasuryTypes;
+-}
+-
+ int CvEspionageMissionInfo::getCityInsertCultureAmountFactor() const
+ {
+ 	return m_iCityInsertCultureAmountFactor;
+@@ -2580,7 +2575,7 @@ bool CvEspionageMissionInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iDestroyProductionCostFactor, "iDestroyProductionCostFactor");
+ 	pXML->GetChildXmlValByName(&m_iBuyUnitCostFactor, "iBuyUnitCostFactor");
+ 	pXML->GetChildXmlValByName(&m_iBuyCityCostFactor, "iBuyCityCostFactor");
+-	pXML->GetChildXmlValByName(&m_iStealTreasuryTypes, "iStealTreasuryTypes");
++	pXML->GetChildXmlValByName(&m_iStolenGoldPercent, "iStealTreasuryTypes");
+ 	pXML->GetChildXmlValByName(&m_iCityInsertCultureAmountFactor, "iCityInsertCultureAmountFactor");
+ 	pXML->GetChildXmlValByName(&m_iCityInsertCultureCostFactor, "iCityInsertCultureCostFactor");
+ 	pXML->GetChildXmlValByName(&m_iCityPoisonWaterCounter, "iCityPoisonWaterCounter");
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.h b/CvGameCoreDLL/CvInfo_Unit.h
+index 7f8fba14e..fcbb0dae5 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.h
++++ b/CvGameCoreDLL/CvInfo_Unit.h
+@@ -742,7 +742,13 @@ public:
+ 	int getDestroyProductionCostFactor() const;
+ 	int getBuyUnitCostFactor() const;
+ 	int getBuyCityCostFactor() const;
+-	int getStealTreasuryTypes() const;
++	//int getStealTreasuryTypes() const;
++	/*	Use a less confusing name at least in the DLL
++		(not going to rename the XML tag) */
++	int getStolenGoldPercent() const
++	{
++		return m_iStolenGoldPercent;
++	}
+ 	int getCityInsertCultureAmountFactor() const;
+ 	int getCityInsertCultureCostFactor() const;
+ 	int getCityPoisonWaterCounter() const;
+@@ -780,7 +786,7 @@ protected:
+ 	int m_iDestroyProductionCostFactor;
+ 	int m_iBuyUnitCostFactor;
+ 	int m_iBuyCityCostFactor;
+-	int m_iStealTreasuryTypes;
++	int m_iStolenGoldPercent;
+ 	int m_iCityInsertCultureAmountFactor;
+ 	int m_iCityInsertCultureCostFactor;
+ 	int m_iCityPoisonWaterCounter;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b9caa3ace..c57f7e879 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11633,20 +11633,15 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 	int iMissionCost = -1;
+ 	CvGameSpeedInfo const& kSpeed = GC.getInfo(GC.getGame().getGameSpeedType()); //advc
+ 
+-	if (kMission.getStealTreasuryTypes() > 0)
++	if (kMission.getStolenGoldPercent() > 0)
+ 	{
+-		// Steal Treasury
+-		//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+-		int iNumTotalGold /* kmodx: */ = 0;
++		int iGoldStolen /* kmodx: */ = 0;
+ 		if (pCity!= NULL)
+-		{
+-			/*iNumTotalGold *= pCity->getPopulation();
+-			iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());*/
+-			// K-Mod:
+-			iNumTotalGold = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
++		{	// K-Mod: Moved into new function
++			iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 		}
+-		if (iNumTotalGold > 0)
+-			iMissionCost = (iBaseMissionCost * iNumTotalGold) / 100;
++		if (iGoldStolen > 0)
++			iMissionCost = (iGoldStolen * iBaseMissionCost) / 100;
+ 	}
+ 	else if (kMission.getBuyTechCostFactor() > 0)
+ 	{
+@@ -12280,22 +12275,15 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)", getID(), getCivilizationDescription(0), pCity->getName().GetCString(), GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner());
+ 	}
+ 
+-	if (kMission.getStealTreasuryTypes() > 0 && pCity != NULL)
+-	{	/*	<advc> Part of this branch was executed for eTargetPlayer=NO_PLAYER.
+-			I don't think that can happen. */
+-		FAssert(eTargetPlayer == pCity->getOwner());
+-		if (eTargetPlayer == NO_PLAYER)
+-			eTargetPlayer = pCity->getOwner(); // </advc>
+-		//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+-		int iNumTotalGold /* kmodx: */ = 0;
+-		/* iNumTotalGold *= pCity->getPopulation();
+-		iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation()); */
+-		// K-Mod. Make stealing gold still worthwhile against large civs.
+-		iNumTotalGold = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
++	if (kMission.getStolenGoldPercent() > 0 && pCity != NULL)
++	{
++		FAssert(eTargetPlayer == pCity->getOwner()); // advc: Replacing if(eTargetPlayer!=NO_PLAYER)
++		// K-Mod: Moved into new function
++		int iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_STEAL_TREASURY",
+-				iNumTotalGold); // advc.004i
+-		changeGold(iNumTotalGold);
+-		GET_PLAYER(eTargetPlayer).changeGold(-iNumTotalGold);
++				iGoldStolen); // advc.004i
++		changeGold(iGoldStolen);
++		GET_PLAYER(eTargetPlayer).changeGold(-iGoldStolen);
+ 		bSomethingHappened = true;
+ 	}
+ 
+@@ -17949,7 +17937,7 @@ bool CvPlayer::canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject)
+ 	return true;
+ }
+ 
+-// K-Mod
++// K-Mod: Moved out of getEspionageMissionBaseCost/ doEspionageMission
+ int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission,
+ 	PlayerTypes eTargetPlayer, CvCity const* pCity) const
+ {
+@@ -17959,7 +17947,11 @@ int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission,
+ 	CvPlayer const& kTargetPlayer = GET_PLAYER(eTargetPlayer);
+ 	CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
+ 	int iGoldStolen = (kTargetPlayer.getGold() *
+-			kMission.getStealTreasuryTypes()) / 100;
++			kMission.getStolenGoldPercent()) / 100;
++	/*iGoldStolen *= pCity->getPopulation();
++	iGoldStolen /= std::max(1,
++			GET_PLAYER(eTargetPlayer).getTotalPopulation());*/ // BtS
++	// Make stealing gold still worthwhile against large civs
+ 	iGoldStolen *= 3 * pCity->getPopulation();
+ 	iGoldStolen /= std::max(1, pCity->getPopulation() +
+ 			2 * kTargetPlayer.getAveragePopulation());
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 26c3cd466..b58fe1884 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17621,7 +17621,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer,
+ 		}
+ 	}
+ 
+-	if (bMalicious && GC.getInfo(eMission).getStealTreasuryTypes() > 0 && pCity != NULL)
++	if (bMalicious && GC.getInfo(eMission).getStolenGoldPercent() > 0 && pCity != NULL)
+ 	{
+ 		/* int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getInfo(eMission).getStealTreasuryTypes()) / 100;
+ 		iGoldStolen *= kPlot.getPlotCity()->getPopulation();
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index 830e801f2..8a25ad075 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -705,7 +705,7 @@ void CyInfoPythonInterface3()
+ 		// </advc.120d>
+ 		.def("getBuyUnitCostFactor", &CvEspionageMissionInfo::getBuyUnitCostFactor, "int ()")
+ 		.def("getBuyCityCostFactor", &CvEspionageMissionInfo::getBuyCityCostFactor, "int ()")
+-		.def("getStealTreasuryTypes", &CvEspionageMissionInfo::getStealTreasuryTypes, "int ()")
++		.def("getStealTreasuryTypes", &CvEspionageMissionInfo::getStolenGoldPercent, "int ()")
+ 		.def("getCityInsertCultureAmountFactor", &CvEspionageMissionInfo::getCityInsertCultureAmountFactor, "int ()")
+ 		.def("getCityInsertCultureCostFactor", &CvEspionageMissionInfo::getCityInsertCultureCostFactor, "int ()")
+ 		.def("getCityPoisonWaterCounter", &CvEspionageMissionInfo::getCityPoisonWaterCounter, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=10974

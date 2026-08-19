@@ -1,0 +1,426 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6047
+# Commit: 1545a3afc856351ffc1ebb278e02abce1f1e44f2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 559ee966cbc17bcf6b9891acf367a9e0bfa10f24
+# Title: (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+135	31	CvGameCoreDLL/CvUnitAI.cpp
+31	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8f5d07a7d..38bf57bac 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2940,6 +2940,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+ 		<iDefineIntVal>9</iDefineIntVal>
+ 	</Define>
++	<!-- custom: While at peace and not yet ready for a sneak attack, cap each barbarian-city expedition at this multiple of the estimated garrison (minus one, preserving base AdvCiv's former `< 3 * garrison` boundary). Actual attack and city-capture capability counts regardless of UnitAI role; oversized capable groups are split into independently useful expeditions instead of being marked not ready and attracting still more joiners. The estimated attackers needed remains the minimum cap. BBAI testing found single groups holding 65-82% of an empire's military under the old feedback loop. Minimum 1. See KI#188. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
++	<!-- custom: If an area has enough floating UNITAI_ATTACK units for a barbarian city but no UNITAI_ATTACK_CITY unit, convert one attacker that can capture cities and has positive attack-city value into the missing expedition leader. K-Mod otherwise splits friendly-territory UNITAI_ATTACK groups of 4+ down to two units; SASGameSummary testing found early armies with 9-14 attackers but no attack-city role, delaying useful conquest despite sufficient military strength. Ordinary city-defense claims run first. 1 enables, 0 disables. See KI#188. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 87329e659..8455f0637 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -830,6 +830,47 @@ static void SAS_countGroupCityAttackCapability(CvSelectionGroup const& kGroup, i
+ 	}
+ }
+ 
++// <!-- custom: Base AdvCiv rejects peaceful barbarian-city expeditions at 3 times the estimated barbarian garrison, but then treats that rejection as a need for more reinforcements. Keep its dynamic garrison-based intent while exposing the multiplier for tuning; the attackers-needed estimate remains the minimum useful expedition even when the estimates overlap. See KI#188. (GPT-5.6-Sol) -->
++static int SAS_getBarbarianCityExpeditionMaxUnits(int iBarbarianGarrison, int iBarbarianAttackersNeeded)
++{
++	static int const iGarrisonMultiplier = std::max(1, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER"));
++	return std::max(std::max(1, iBarbarianAttackersNeeded), iGarrisonMultiplier * std::max(0, iBarbarianGarrison) - 1);
++}
++
++// <!-- custom: SASGameSummary testing found early armies with 9-14 UNITAI_ATTACK units but no UNITAI_ATTACK_CITY unit. Those units can capture cities, but K-Mod normally splits friendly-territory attack groups down to two and only occasionally sends them toward cities, so raw military strength cannot become a coordinated expedition without the missing organizational role.
++// After ordinary city-defense claims have had priority, convert one actually suitable floating attacker when the area has enough attackers and a pathable barbarian city. AI_setUnitAIType detaches that unit so it can become the attack-city group leader and recruit the remaining broad attacker roles through the normal grouping logic. See KI#188. (GPT-5.6-Sol) -->
++static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
++{
++	static bool const bEnabled = GC.getDefineBOOL("SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE");
++	if (!bEnabled || kUnit.isBarbarian() || kUnit.AI_getUnitAIType() != UNITAI_ATTACK || !kUnit.canAttack() || kUnit.isNoCityCapture() || kUnit.getUnitInfo().isMostlyDefensive())
++		return false;
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
++	if (kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) || kTeam.getNumWars() > 0 || kTeam.AI_isSneakAttackReady() || kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK_CITY) > 0)
++		return false;
++	int const iAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
++	int const iAreaAttackUnits = kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK);
++	int const iAttackCityValue = kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
++	if (iAreaAttackUnits < iAttackersNeeded || iAttackCityValue <= 0)
++		return false;
++	int iPathTurns = -1;
++	int iTargetValue = -1;
++	int iStepDistance = -1;
++	int iDefenders = -1;
++	int iValue = MIN_INT;
++	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
++	if (pTargetCity == NULL)
++		return false;
++	if (gUnitLogLevel >= 2)
++	{
++		logBBAI("    ATTACK_CITY_BARBARIAN_EXPEDITION_LEADER_CREATED turn=%d player=%d %S unitId=%d unit=%S oldUnitAI=UNITAI_ATTACK newUnitAI=UNITAI_ATTACK_CITY areaAttackUnits=%d attackersNeeded=%d target=%S target=(%d,%d) pathTurns=%d stepDistance=%d defenders=%d targetValue=%d value=%d attackCityUnitValue=%d",
++			GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName().GetCString(), iAreaAttackUnits, iAttackersNeeded,
++			pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iPathTurns, iStepDistance, iDefenders, iTargetValue, iValue, iAttackCityValue);
++	}
++	kUnit.AI_setUnitAIType(UNITAI_ATTACK_CITY);
++	return true;
++}
++
+ // <!-- custom: Diagnostic for late-game weak barbarian cities surviving near strong AI players. PlayerAI already has a production-side barbarian-city score, but existing attack stacks can still sit or follow normal war targets; log nearby revealed barbarian city opportunities from the stack's actual movement context before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTargetCity, bool bHuntBarbs, bool bReadyToAttack, bool bTargetTooStrong, MovementFlags eMoveFlags)
+ {
+@@ -947,7 +988,7 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
+ 	{
+ 		if (bTurtle) szReadinessReason = "turtle";
+ 		else if (bHuntOnlyBarbs && pGroup->getNumUnits() < iBarbarianAttackersNeeded) szReadinessReason = "barbarian_below_min";
+-		else if (bHuntOnlyBarbs && pGroup->getNumUnits() >= 3 * iBarbarianGarrison) szReadinessReason = "barbarian_above_max";
++		else if (bHuntOnlyBarbs && pGroup->getNumUnits() > SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, iBarbarianAttackersNeeded)) szReadinessReason = "barbarian_above_max";
+ 		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iWarStackNeeded) szReadinessReason = "war_below_needed";
+ 		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iMinStackSize) szReadinessReason = "below_sas_min";
+ 		else szReadinessReason = "composition";
+@@ -5565,6 +5606,8 @@ void CvUnitAI::AI_attackMove()
+ 		{
+ 			return;
+ 		}
++		if (!bDanger && SAS_createMissingBarbarianCityExpeditionLeader(*this))
++			return;
+ 
+ 		//join any city attacks in progress
+ 		/*if (getPlot().isOwned() && getPlot().getOwner() != getOwner()) {
+@@ -5574,8 +5617,7 @@ void CvUnitAI::AI_attackMove()
+ 		// K-Mod
+ 		if (isEnemy(getPlot()))
+ 		{
+-			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS,
+-				2, true, false))
++			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS, 2, true, false))
+ 			{
+ 				return;
+ 			}
+@@ -5761,25 +5803,22 @@ void CvUnitAI::AI_attackMove()
+ 		{
+ 			// BBAI TODO: If we're fast, maybe shadow an attack city stack and pillage off of it
+ 
++			AreaAITypes const eAreaAIType = getArea().getAreaAIType(getTeam());
+ 			bool bIgnoreFaster = false;
+ 			if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ))
+ 			{
+-				if (getArea().getAreaAIType(getTeam()) != AREAAI_ASSAULT)
++				if (eAreaAIType != AREAAI_ASSAULT)
+ 				{
+ 					bIgnoreFaster = true;
+ 				}
+ 			}
+-
+ 			//if (AI_group(UNITAI_ATTACK_CITY, 1, 1, -1, bIgnoreFaster, true, true, 5))
+ 			// K-Mod
+-			bool bAttackCity = (bLandWar &&
+-					(getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE ||
+-					(AI_getBirthmark() + GC.getGame().getGameTurn() / 8) % 5 <= 1));
++			bool const bAttackCity = (bLandWar && (eAreaAIType == AREAAI_OFFENSIVE || (AI_getBirthmark() + GC.getGame().getGameTurn() / 8) % 5 <= 1));
+ 			if (bAttackCity)
+ 			{
+ 				// strong merge strategy
+-				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS,
+-					5, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, false))
++				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS, 5, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, false))
+ 				{
+ 					return;
+ 				}
+@@ -5787,8 +5826,7 @@ void CvUnitAI::AI_attackMove()
+ 			else
+ 			{
+ 				// weak merge strategy
+-				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, 2, true, NO_MOVEMENT_FLAGS,
+-					5, true, false, bIgnoreFaster, false, false))
++				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, 2, true, NO_MOVEMENT_FLAGS, 5, true, false, bIgnoreFaster, false, false))
+ 				{
+ 					return;
+ 				}
+@@ -6169,6 +6207,8 @@ void CvUnitAI::AI_attackCityMove()
+ 	bool bHuntBarbs = false;
+ 	bool bHuntOnlyBarbs = false;
+ 	int iBarbarianGarrison = -1;
++	int iBarbarianAttackersNeeded = -1;
++	int iBarbarianExpeditionMaxUnits = -1;
+ 	int iWarStackNeeded = (isBarbarian() ? 3 : -1);
+ 	int iMinStackSize = -1;
+ 	bool bReadyToAttack = false;
+@@ -6188,10 +6228,15 @@ void CvUnitAI::AI_attackCityMove()
+ 			decide on the proper size of the attack stack. But if there is nothing else
+ 			to attack, it's easy. */
+ 		bHuntOnlyBarbs = (bHuntBarbs && !GET_TEAM(getTeam()).AI_isSneakAttackReady() && GET_TEAM(getTeam()).getNumWars() <= 0);
++		if (bHuntOnlyBarbs)
++		{
++			iBarbarianAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
++			iBarbarianExpeditionMaxUnits = SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, iBarbarianAttackersNeeded);
++		}
+ 		// <!-- custom: simple sanity check - require minimum stack size before considering "ready to attack". Prevents premature wars where small stacks advance then retreat ("weird back and forth"). See KI#104 (Claude code Opus 4.5) -->
+ 		if (!bHuntOnlyBarbs && iGroupSz >= iWarStackNeeded && iGroupSz >= iMinStackSize) bReadyToAttack = true;
+ 		// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
+-		else if (bHuntOnlyBarbs && iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() && iGroupSz < 3 * iBarbarianGarrison) bReadyToAttack = true;
++		else if (bHuntOnlyBarbs && iGroupSz >= iBarbarianAttackersNeeded && iGroupSz <= iBarbarianExpeditionMaxUnits) bReadyToAttack = true;
+ 	} // </advc.300>
+ 
+ 	if (bReadyToAttack)
+@@ -6224,6 +6269,53 @@ void CvUnitAI::AI_attackCityMove()
+ 		}
+ 	}
+ 
++	int iBarbarianCanAttackUnits = 0;
++	int iBarbarianCityCaptureUnits = 0;
++	int iBarbarianExpeditionGroupsAfter = 0;
++	bool const bOversizedBarbarianExpedition = (bHuntOnlyBarbs && getGroup()->getNumUnits() > iBarbarianExpeditionMaxUnits);
++	if (bOversizedBarbarianExpedition)
++	{
++		SAS_countGroupCityAttackCapability(*getGroup(), iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits);
++		iBarbarianExpeditionGroupsAfter = (getGroup()->getNumUnits() + iBarbarianExpeditionMaxUnits - 1) / iBarbarianExpeditionMaxUnits;
++	}
++	int const iCityCaptureUnitsPerExpedition = (bOversizedBarbarianExpedition ? std::min(3, iBarbarianExpeditionMaxUnits / 2 + 1) : 0);
++	bool const bCanFormUsefulBarbarianExpedition = (bOversizedBarbarianExpedition && iBarbarianCanAttackUnits >= iBarbarianExpeditionGroupsAfter * iBarbarianAttackersNeeded && iBarbarianCityCaptureUnits >= iBarbarianExpeditionGroupsAfter * iCityCaptureUnitsPerExpedition);
++	if (bOversizedBarbarianExpedition && !bCanFormUsefulBarbarianExpedition && gUnitLogLevel >= 2)
++	{
++		logBBAI("    ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT_SKIP turn=%d player=%d %S reason=insufficient_capability groupId=%d groupUnits=%d canAttack=%d cityCapture=%d groupsPlanned=%d expeditionMax=%d attackersRequired=%d cityCaptureRequired=%d barbarianGarrison=%d barbarianAttackersNeeded=%d",
++			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getGroup()->getID(), getGroup()->getNumUnits(), iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits, iBarbarianExpeditionGroupsAfter, iBarbarianExpeditionMaxUnits,
++			iBarbarianExpeditionGroupsAfter * iBarbarianAttackersNeeded, iBarbarianExpeditionGroupsAfter * iCityCaptureUnitsPerExpedition, iBarbarianGarrison, iBarbarianAttackersNeeded);
++	}
++	if (bCanFormUsefulBarbarianExpedition)
++	{
++		// <!-- custom: BBAI logging showed the unfinished base AdvCiv giant-stack guard creating a feedback loop: exceeding the barbarian maximum made a stack not ready, the generic not-ready path requested more joiners, and peaceful/prewar groups grew to 65-82% of an empire's military before finally moving when war began.
++		// Partition the army into independently useful expeditions instead. Actual attack and city-capture capability rather than UNITAI_ATTACK_CITY labels ensures that broad attacker roles count before splitting; splitGroup then preserves proportional UnitAI/unit-type composition.
++		// This lets enough units act now and leaves the other groups free for different barbarian targets, defense, or later war rather than concentrating maintenance and opportunity cost in one inflexible stack. See KI#188. (GPT-5.6-Sol) -->
++		int const iOriginalGroupId = getGroup()->getID();
++		int const iOriginalGroupUnits = getGroup()->getNumUnits();
++		int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
++		CvSelectionGroup* pRemainderGroup = getGroup();
++		int iSplitCount = 0;
++		while (pRemainderGroup != NULL && pRemainderGroup->getNumUnits() > iBarbarianExpeditionMaxUnits)
++		{
++			CvSelectionGroup* pNextRemainderGroup = NULL;
++			CvSelectionGroup* pSplitGroup = pRemainderGroup->splitGroup(iBarbarianExpeditionMaxUnits, NULL, &pNextRemainderGroup);
++			if (pSplitGroup == NULL || pSplitGroup == pRemainderGroup)
++				break;
++			pSplitGroup->pushMission(MISSION_SKIP);
++			pRemainderGroup = pNextRemainderGroup;
++			iSplitCount++;
++		}
++		if (pRemainderGroup != NULL) pRemainderGroup->pushMission(MISSION_SKIP);
++		if (gUnitLogLevel >= 2)
++		{
++			logBBAI("    ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d canAttack=%d cityCapture=%d groupsAfter=%d expeditionMax=%d remainderGroupId=%d remainderUnits=%d barbarianGarrison=%d barbarianAttackersNeeded=%d incomingJoiners=%d warStackNeeded=%d anyWarPlan=%d",
++				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits, iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits, iSplitCount + 1, iBarbarianExpeditionMaxUnits,
++				(pRemainderGroup == NULL ? -1 : pRemainderGroup->getID()), (pRemainderGroup == NULL ? -1 : pRemainderGroup->getNumUnits()), iBarbarianGarrison, iBarbarianAttackersNeeded, iIncomingJoiners, iWarStackNeeded, GET_TEAM(getTeam()).AI_isAnyWarPlan());
++		}
++		return;
++	}
++
+ 	/*	K-Mod. Try to be consistent in our usage of move flags,
+ 		so that we don't cause unnecessary pathfinder resets.
+ 		advc (note): There are a couple of exceptions where NO_MOVEMENT_FLAGS
+@@ -6240,8 +6332,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	}
+ 
+ 	//if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true, bIgnoreFaster))
+-	if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
+-		0, true, false, bIgnoreFaster))
++	if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 0, true, false, bIgnoreFaster))
+ 	{
+ 		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_same_plot");
+ 		return;
+@@ -6353,8 +6444,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				if (4 * iOurOffense < 3 * iEnemyOffense)
+ 				{
+ 					// including smaller groups
+-					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
+-						3, true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false))
++					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3, true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false))
+ 					{
+ 						return;
+ 					}
+@@ -6384,8 +6474,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				}
+ 				else
+ 				{
+-					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
+-						3, true, false, bIgnoreFaster)) // bigger groups only
++					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3, true, false, bIgnoreFaster)) // bigger groups only
+ 					{
+ 						return;
+ 					}
+@@ -6396,8 +6485,7 @@ void CvUnitAI::AI_attackCityMove()
+ 						return;
+ 					}
+ 
+-					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3,
+-						true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false)) // any size
++					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3, true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false)) // any size
+ 					{
+ 						return;
+ 					}
+@@ -6520,8 +6608,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 		} // </advc.083>
+ 		//if (AI_groupMergeRange(UNITAI_ATTACK_CITY, iMaxGroupPath, true, true, bIgnoreFaster))
+-		if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, iMaxGroupPath,
+-			true, false, bIgnoreFaster))
++		if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, iMaxGroupPath, true, false, bIgnoreFaster))
+ 		{
+ 			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_staging_range", pTargetCity);
+ 			return;
+@@ -7042,8 +7129,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			/*	BBAI TODO: Some sense of minimum stack size?
+ 				Can have big stack moving 10 turns to merge with tiny stacks */
+ 			//if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, bIgnoreFaster, true, true, /*iMaxPath*/ 10, /*bAllowRegrouping*/ true))
+-			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 10,
+-				true, getGroup()->getNumUnits() < 2, bIgnoreFaster, true, true))
++			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 10, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, true, true))
+ 			{
+ 				return;
+ 			}
+@@ -7051,9 +7137,7 @@ void CvUnitAI::AI_attackCityMove()
+ 		else
+ 		{
+ 			//if (AI_group(UNITAI_ATTACK_CITY, AI_stackOfDoomExtra() * 2, -1, -1, bIgnoreFaster, true, true, /*iMaxPath*/ 10, /*bAllowRegrouping*/ false))
+-			if (AI_omniGroup(UNITAI_ATTACK_CITY, AI_stackOfDoomExtra() * 2,
+-				-1, true, eMoveFlags, 10,
+-				true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, true))
++			if (AI_omniGroup(UNITAI_ATTACK_CITY, AI_stackOfDoomExtra() * 2, -1, true, eMoveFlags, 10, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, true))
+ 			{
+ 				return;
+ 			}
+@@ -13562,6 +13646,26 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 		return false;
+ 	}
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	int iEffectiveMaxGroup = iMaxGroup;
++	bool bEffectiveStackOfDoom = bStackOfDoom;
++	// <!-- custom: BBAI diagnostics found 166 grouping decisions that bypassed the peaceful barbarian-expedition cap: 113 from UNITAI_COUNTER, 48 from other UNITAI_ATTACK_CITY groups, and 5 from UNITAI_CITY_DEFENSE. Enforce the cap centrally whenever any UnitAI groups with an attack-city expedition, rather than relying on every present and future caller to duplicate it.
++	// AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup for legacy compatibility, so subtract one from the actual expedition cap. Active war, sneak-attack, turtle, and non-barbarian-hunting contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188. (GPT-5.6-Sol) -->
++	if (eUnitAI == UNITAI_ATTACK_CITY && !isBarbarian() && bMergeGroups)
++	{
++		CvTeamAI const& kTeam = GET_TEAM(getTeam());
++		if (!kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) && !kTeam.AI_isSneakAttackReady() && kTeam.getNumWars() <= 0)
++		{
++			int const iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
++			AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
++			bool const bHuntBarbs = ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1)) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor());
++			if (bHuntBarbs)
++			{
++				int const iExpeditionGroupMax = std::max(0, SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, kOwner.AI_neededCityAttackersVsBarbarians().ceil()) - 1);
++				if (iEffectiveMaxGroup < 0 || iExpeditionGroupMax < iEffectiveMaxGroup) iEffectiveMaxGroup = iExpeditionGroupMax;
++				bEffectiveStackOfDoom = false;
++			}
++		}
++	}
+ 	/*	<advc.057> Except for assault groups, the head unit should have the
+ 		most restrictive impassable types. */
+ 	int const iOurGroupFirstVal = AI_groupFirstVal();
+@@ -13620,12 +13724,12 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 			(iMaxOwnUnitAI == -1 ||
+ 			(bMergeGroups ? std::max(0, getGroup()->countNumUnitAIType(AI_getUnitAIType()) - 1) : 0) +
+ 			pLoopGroup->countNumUnitAIType(AI_getUnitAIType()) <=
+-			iMaxOwnUnitAI + (bStackOfDoom ? AI_stackOfDoomExtra() : 0))
++			iMaxOwnUnitAI + (bEffectiveStackOfDoom ? AI_stackOfDoomExtra() : 0))
+ 			&&
+-			(iMaxGroup == -1 || (bMergeGroups ? getGroup()->getNumUnits() - 1 : 0) +
++			(iEffectiveMaxGroup == -1 || (bMergeGroups ? getGroup()->getNumUnits() - 1 : 0) +
+ 			pLoopGroup->getNumUnits() +
+ 			kOwner.AI_unitTargetMissionAIs(*pLoopUnit, MISSIONAI_GROUP, getGroup()) <=
+-			iMaxGroup + (bStackOfDoom ? AI_stackOfDoomExtra() : 0))
++			iEffectiveMaxGroup + (bEffectiveStackOfDoom ? AI_stackOfDoomExtra() : 0))
+ 			&&
+ 			(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY ||
+ 			!pLoopGroup->getPlot().isCity() ||
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 237f38c31..a84a8200e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -227,6 +227,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting)\
+ [186 - (Fixed/Improved) Base AdvCiv `AI_isAwfulSite` could cause economically wasteful captured-city raze/resettle cycles and destroy valuable population and buildings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings)\
+ [186.2 - (Fixed/Improved) Base AdvCiv active-World-Wonder exemption could make the AI retain remote captured cities, exhaust defenders, and return the preserved Wonder to a nearer rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1862---fixedimproved-base-advciv-active-world-wonder-exemption-could-make-the-ai-retain-remote-captured-cities-exhaust-defenders-and-return-the-preserved-wonder-to-a-nearer-rival)\
++[187 - (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#187---fixedimproved-base-advciv-excessively-devalued-soon-connectable-bonuses-in-ai-city-site-scoring)\
++[188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6989,3 +6991,32 @@ Most bonuses that are already visible in the current AdvCiv-SAS XML can be conne
+ Added detailed BBAI timing diagnostics with the current era, earliest connection era, era distance, XML loss per era, and resulting timing percentage for testing.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1r__V2DklSbDwdxqCrmbvILlGSApYo6sA?usp=sharing).
++
++SASGameSummary and BBAI logging exposed a major military-efficiency failure. Strong AIs could accumulate most of their army in one city-attack group while at peace, often inside a city, yet count very few units as an active field army. In the baseline save-file 453 run, the largest observed groups included 201 Scandinavian units (82% of its military), 95 Aztec units (65%), and 62 Sumerian units (77%). Sumer also had only 2 units counted as field army around turn 190 while a large concentration remained in Susa after conquest.
++
++This was not harmless preparation. An army sitting together for many turns still costs maintenance, loses the opportunity to capture weak nearby Barbarian cities or pressure rivals, and lets opponents catch up to a temporary military advantage. It can also leave the rest of the empire inflexible: most units are nominally available, but concentrated in a group that has decided neither to attack nor to disperse.
++
++The primary cause was an unfinished Base AdvCiv rule in `CvUnitAI::AI_attackCityMove` (`advc.300`). When an AI was at peace, not ready for a sneak attack, and effectively hunting only Barbarian cities, Base AdvCiv accepted a stack only below three times the estimated Barbarian garrison. Its own nearby comment already said that an oversized stack should perhaps be split. Instead, exceeding the maximum made the stack "not ready." The generic not-ready behavior could then wait for or attract still more units, making the exact condition that blocked movement progressively worse.
++
++K-Mod grouping behavior amplified this Base AdvCiv problem. `AI_omniGroup` can merge multiple UnitAI roles into an attack-city group and can add a stack-of-doom allowance. Initially capping only the obvious `AI_attackCityMove` grouping calls reduced but did not remove repeated merge/split behavior. A dedicated diagnostic later recorded 166 grouping decisions that would bypass the expedition cap: 113 came from `UNITAI_COUNTER`, 48 from other `UNITAI_ATTACK_CITY` groups through late fallback grouping, and 5 from `UNITAI_CITY_DEFENSE`. This proved that caller-by-caller caps would remain fragile.
++
++A separate K-Mod role-coordination issue could prevent an expedition from forming at all. SASGameSummary found early armies with 9-14 `UNITAI_ATTACK` units in an area but no `UNITAI_ATTACK_CITY` unit. Those broad attackers could capture cities, but K-Mod normally separates friendly-territory `UNITAI_ATTACK` groups of four or more down to two units and only occasionally directs them toward cities. Without one attack-city leader, substantial raw military strength could therefore remain fragmented instead of becoming a coordinated expedition.
++
++The fix addresses both failures:
++
++- The former three-times-garrison boundary is preserved as an XML-tunable expedition maximum, with the estimated attackers needed as the minimum useful cap.
++- Oversized groups are partitioned into independently useful expeditions instead of being marked not ready. Actual attack and city-capture capability counts regardless of UnitAI label, and splitting proceeds only when the original group has enough total capability to provision the planned expeditions. `splitGroup` preserves proportional UnitAI and unit-type composition.
++- The peaceful expedition cap is enforced centrally inside `AI_omniGroup` whenever any UnitAI tries to group with `UNITAI_ATTACK_CITY`. This covers current and future callers instead of depending on each caller to duplicate the cap. Active wars, sneak-attack readiness, turtle strategy, and contexts not focused on Barbarian hunting retain normal wartime grouping and stack-of-doom behavior.
++- If an area has enough floating `UNITAI_ATTACK` units and a reachable Barbarian city but no `UNITAI_ATTACK_CITY` unit, one suitable attacker that can capture cities and has positive attack-city value becomes the missing leader. Ordinary city-defense claims still run first.
++
++The iterative diagnostics also verified why central enforcement was necessary. Early versions produced 1,154 repeated split rows because groups immediately reunited; capping one same-plot path reduced this only to 1,010, broader attack-city caller caps to 388/385, and a diagnostic run still found the three bypassing UnitAI sources above. After centralizing the cap, the confirming `BBAI_20260717T061839Z_load1.log` contained only 23 split events across turns 102-271. They were isolated responses to genuine oversized groups or later changes in the dynamic cap, not the previous turn-after-turn 5+1 merge/split loop.
++
++The same confirming `SASGameSummary_20260717T061839Z_load1.log` showed Scythian, Minoan, Khoisan, and Libyan captured on turns 70, 77, 90, and 123. No parking row used `readinessReason=barbarian_above_max`; 171 of 182 logged parking decisions considered the stack ready. Large concentration remained possible when appropriate: Scandinavia still had a 159-unit attack-city group at turn 270, then partitioned it once the peaceful Barbarian-only branch processed it. Sumer still had 78 field-army units at turn 270 and won the Space Race on turn 273, providing a useful sanity check that the fix did not broadly fragment normal military strength.
++
++The main tuning points are `SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER` and `SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE`. The first controls peaceful expedition size; the second can disable the missing-leader conversion for compatibility testing.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index ee517884a..fc324e318 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -403,6 +403,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Ready attack stacks stop parking for unavailable upgrades:** if a city-attack stack is ready, the target is not too strong, and **0 units can upgrade now**, the AI now keeps moving toward the target instead of waiting for possible future upgrades. This fixes real offensive freezes: in one BBAI-log sample, USA Washington waited from **T147-T181** with up to **59 units / 69% of total military** while targets were only **3-5 turns** away; Mali Gao waited from **T233-T255** with up to **42 units / 41% of total military**. The AI still waits for real immediate upgrades: a USA Seattle stack waited while **6 units could upgrade now**, then attacked/moved once that number became **0**. This is thought to be much stronger, because it uses the current military advantage before enemies catch up; old units can be spent in war instead of sitting around draining upkeep, needing future upgrade gold (solved if they die as well), and risking obsolescence; successful captures can then increase economy, unit support, and long-term growth; and the needless wait was very problematic and inefficient too. See [KI#156](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now).
+ - **AI unit upgrades - stop routine upgrades from draining the treasury:** Fixes an AI spending problem where normal unit **upgrades could overshoot the intended upgrade budget**. Previously, the AI only checked whether it was still below budget before starting the next upgrade, but did not check whether that next upgrade itself fit the remaining budget. For example, in BBAI diagnostics, an AI with 280 gold reserved for upgrades could spend 237 gold, still count as under budget, then start another 237 gold upgrade and end up spending 474 gold total, sometimes leaving only a few gold in the treasury. Routine **upgrades now check the actual remaining upgrade budget before upgrading**. **Emergency**-style upgrades, such as important city defenders or special impassable-unit upgrades, **remain more flexible**, but normal upgrades are much less likely to waste all available gold. AIs in **financial trouble also avoid** routine upgrades **unless they are focused on war**. See [KI#160](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke).
+ - **AI attack stacks now opportunistically capture nearby barbarian cities:** before this fix, ready city-attack-capable (i.e. not just `UNITAI_ATTACK_CITY`) stacks could sit idle because the AI had **no normal war target yet**, even with a **nearby pathable barbarian city**. Now, if the AI has **no normal target** and is **not already busy with an active war**, the stack can **attack that barbarian city instead**. This does not override normal wars or normal war targets; it fills the no-target idle gap. This change is usually a **strong** move: barbarian cities are often weak, cost little diplomatically, and capturing them can give land, population, resources, unit support, and future growth without spending a settler or interrupting city production nor growth. In the tested save before the fix, nearby barbarian cities survived at game end at ~T400 despite reachable AI armies to Napoleon and Shaka, and barbarian being very weak in comparison, yet bonuses-rich, and Shaka was among weakest players; after the fix, Zulu captured Hurrian at T127, Alemanni at T132, Visigoth at T148, and Gaul at T153, turning those nearby barb cities into an early expansion boost and making Shaka the strongest player for almost all middle game and end game, almost allowing him to win. This change should make AI significantly stronger. See [KI#158](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war).
++- (Requires AdvCiv-SAS 6047+) **AI armies no longer wait indefinitely in one city while preparing only for Barbarian conquest:** SASGameSummary and BBAI logging in save file 453 showed an unfinished Base AdvCiv rule in `CvUnitAI::AI_attackCityMove`, amplified by K-Mod grouping `AI_omniGroup`, kept armies assembled to capture a Barbarian city waiting merely because they had grown larger than needed for their weak target; for example, when the estimated Barbarian garrison was two units and five attackers were otherwise enough, those five could move, but adding a sixth made the entire army "not ready" again. While the army waited, normal grouping kept sending additional units into it, making it even larger and preventing those units from defending elsewhere or forming another expedition. In save file 453, individual waiting groups reached 65-82% of an empire's military - up to 201 units - while the AI paid their upkeep and delayed conquering reachable weak Barbarian cities. To fix this, the AI now divides such an army once into several self-sufficient expeditions that can capture different Barbarian cities, defend territory, or prepare for later wars, and prevents them from immediately joining back together. Normal large armies remain allowed during active wars and when a planned surprise attack is ready. See [KI#188](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions).
++- (Requires AdvCiv-SAS 6047+) **Capable early armies can organize themselves to capture Barbarian cities:** SASGameSummary and BBAI logging also found AIs with 9-14 units individually able (`UNITAI_ATTACK`) to attack and capture cities, but none assigned to organize the others (`UNITAI_ATTACK_CITY`) into a city-assault army, so this is a difference in `UNITAI` assignment, not their abilities. A K-Mod rule automatically broke down any group of 4 or more such units into smaller groups of 2 or 3 units if the group was in territory owned by the AI or one of its teammates. Because of this, many of the AI's military units could remain at home instead of grouping together to capture a reachable Barbarian city. To fix this, if no city the unit can reach within one turn needs it as a defender and the unit is not currently threatened, the AI now checks if enough attackers are available in the area, and if so, the AI assigns that unit as the expedition leader; the others can then group with it and they set out against a Barbarian city. For example, the save file 453 confirming run created four such expedition leaders. Among them, one was of a Spanish Chariot reassigned on T60 had gathered a four-unit group by T61, redirected toward Minoan on T73, and Spain captured it on T77. Another was of a War Elephant reassigned for the Holy Roman Empire on T79 was leading four units toward Khoisan by T86, and the Holy Roman Empire captured it on T90. See [KI#188](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions).
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=38698

@@ -1,0 +1,980 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5020
+# Commit: 226e3f11a520aa6221936e6df510e836cfc87781
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1733842bddfae289b0ae519b24449004264dd346
+# Title: move some AI_ChooseUnit settings to GlobalDefines_advciv_sas.xml, other tweaks and changes anyways etc - further reduce research percent on largest maps from...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+19	22	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	2	Assets/XML/GameInfo/CIV4WorldInfo.xml
+75	1	Assets/XML/GlobalDefines_advciv_sas.xml
+8	2	Assets/XML/Units/CIV4UnitInfos.xml
+218	171	CvGameCoreDLL/CvCityAI.cpp
+1	3	README.md
+13	37	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG => 0.621_sevopedia_leaders_no_emoji.JPG}
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG => 0.622_sevopedia_leaders_labels_as_keys.JPG}
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG
+ rename _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG => 0.621_sevopedia_leaders_no_emoji.JPG} (100%)
+ rename _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG => 0.622_sevopedia_leaders_labels_as_keys.JPG} (100%)
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 7fbbe16c7..6ead54100 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -53,18 +53,15 @@ localText = CyTranslator()
+ 
+ 
+ 
+-# <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
+-# 🌟🛠️ CUSTOMIZATION: Toggle emoji buttons in AI category headers!
+-# 🎨 Set to True to enable emoji icons (like ⚔️, 🏆, 💰) in the AI Personality panel headers.
+-# 🙈 Set to False to disable them if you prefer a cleaner or text-only look.
+-# 📍This is the main switch for controlling emoji visuals in category titles.
+-# 🧠✨ Config line co-crafted in response to wonderingabout's prompt, by becomingthrough ☁️
+-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+-
+-# <!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc ; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc -->
+-IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD = False
+-
+-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
++IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
++if gc.getDefineINT("SAS_AI_PERSONALITY_PANEL_SHOW_EMOJI") != 0:
++	IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
++
++IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = False
++if gc.getDefineINT("SAS_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") != 0:
++	IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = True
++
++# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
+ IS_DEBUG_LEADER = False
+ 
+ # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding anyways etc -->
+@@ -878,7 +875,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				raw_value_generic = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_generic)()
+ 				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc -->
+ 				label_raw_generic = "(%d)" % raw_value_generic
+-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
+ 				else:
+ 					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
+@@ -890,7 +887,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
+ 				raw_value_attitude_threshold = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_attitude_threshold)()
+ 				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
+-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 					label_with_raw_value_attitude_threshold = get_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
+ 				else:
+ 					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
+@@ -907,7 +904,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				label_flavor = suffix
+ 				raw_value_flavor = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
+ 				label_raw_flavor = "(%d)" % raw_value_flavor
+-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 					label_with_raw_value_flavor = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
+ 				else:
+@@ -930,7 +927,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				# parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
+ 				# raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
+ 				# label_raw_rand = "(%d)" % raw_value_rand
+-				# if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 				# 	label_with_raw_value_rand = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand, 19)
+ 				# else:
+@@ -944,7 +941,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				# min_value_delay = leader_info_minimums[parsed_name_delay]
+ 				# max_value_delay = leader_info_maximums[parsed_name_delay]
+ 				# label_raw_delay = "(%d)" % raw_value_delay
+-				# if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 				# 	label_with_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_delay, 19)
+ 				# else:
+@@ -963,7 +960,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
+ 				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
+ 				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
+-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
+ 				else:
+@@ -1008,7 +1005,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 						# if parsed_name_attitude_percent not in leader_info_cached:
+ 						# 	raw_value_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
+ 						# 	label_raw_attitude_percent = "(%d)" % raw_value_attitude_percent
+-						# 	if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 						# 		label_with_raw_value_attitude_percent = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent, 19)
+ 						# 	else:
+@@ -1021,7 +1018,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 						# if parsed_name_decay not in leader_info_cached:
+ 						# 	raw_value_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+ 						# 	label_raw_decay = "(%d)" % raw_value_decay
+-						# 	if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 						# 		label_with_raw_value_decay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_decay, 19)
+ 						# 	else:
+@@ -1043,7 +1040,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 						raw_value_4_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
+ 						raw_value_4_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+ 						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
+-						if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++						if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 							label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
+ 						else:
+@@ -1065,7 +1062,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 				label_no_war_attitude_prob = suffix
+ 				raw_value_no_war_attitude_prob = gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(i)
+ 				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
+-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
++				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+ 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+ 					label_with_raw_value_no_war_attitude_prob = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
+ 				else:
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 9f11e7675..e3fcc535f 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -175,7 +175,7 @@
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+ 			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 137 -->
+ 			<!-- advc.910: was 140 -->
+-			<iResearchPercent>110</iResearchPercent>
++			<iResearchPercent>105</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+ 			<!-- advc.140: was 90 -->
+ 			<iDistanceMaintenancePercent>91</iDistanceMaintenancePercent>
+@@ -213,7 +213,7 @@
+ 			<!-- advc.129: was 1 -->
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+ 			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 150 -->
+-			<iResearchPercent>120</iResearchPercent>
++			<iResearchPercent>110</iResearchPercent>
+ 			<!-- advc.140: was 30 -->
+ 			<iTradeProfitPercent>33</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e72c10a29..9e819c94e 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -5,9 +5,26 @@
+ <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
+ <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
+ 
++
++
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 
+-	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk gogin beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
++
++
++	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc -->
++	<Define>
++		<DefineName>SAS_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section anyways etc -->
++	<Define>
++		<DefineName>SAS_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
+ 
+ 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+ 		- peak tiles
+@@ -395,4 +412,61 @@
+ 		<DefineName>SAS_EVALUATE_GUARD_KMAXFOUND</DefineName>
+ 		<iDefineIntVal>32765</iDefineIntVal>
+ 	</Define>
++
++
++
++	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions anyways etc). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead anyways etc). Note: if i'm not mistaken the code we added in this function takes into account units in queue, not just existing ones, anyways etc. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame anyways etc)). -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us anyways etc). -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units. For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example anyways etc. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense if i'm not mistaken especially for AI but anyways etc)) -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaissance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds anyways etc), etc.) -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: always useful to have some minimal extra threshold, just don't overdo it anyways etc -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example anyways etc), where our code remains active. Past this turn, we don't control excess defenders anymore anyways etc. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase past 150 more or less. -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- custom: this is the general toggle, for specific ones, look below anyways etc. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit anyways etc. -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases anyways etc) -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused if i may say but anyways etc: we only attempt them if this excess defender unit order (to produce this unit anyways etc) is not rejected by the above reject flag. -->
++	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit anyways etc etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure anyways etc) -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefulyl capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do anyways etc), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
++	<Define>
++		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 91e6e6ee2..d5b06dda7 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7880,8 +7880,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_IRON</BonusType>
+-			<PrereqBonuses/>
++			<!-- custom: match the generic maceman, else unit is worse which defeats the purpose, and using copper is not nonsensical based on what i saw about it in copper vs iron anyways etc, was BONUS_IRON and prereqbonuses empty anyways etc -->
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_COPPER</BonusType>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6429d5d80..7f4228094 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11399,15 +11399,19 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 			const int iMainDefenders = kPlayer.AI_mainDefensiveLandTotalUnitAIs();
+ 			const int iMainAttackers = kPlayer.AI_mainOffensiveLandTotalUnitAIs();
+ 
+-			if (bUnitCombatSiege)
++			static const bool bNoExcessSieges = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_SIEGES");
++
++			if (bUnitCombatSiege && bNoExcessSieges)
+ 			{
+ 				// <!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
+ 				// <!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
+ 				const int iCityAttackModifier = pUnitInfo->getCityAttackModifier();
+ 				const bool bTrebuchetLike = (iCityAttackModifier >= 50);
+ 
++				static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_TREBUCHETS_LIKE");
++
+ 				// Trebuchet-like stricter rule
+-				if (bTrebuchetLike)
++				if (bTrebuchetLike && bNoExcessTrebuchetsLike)
+ 				{
+ 					int iCapTrebs = 20;
+ 
+@@ -11432,75 +11436,87 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					}
+ 
+ 					// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
++					static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_BEST_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
++
++
+ 					int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
+-					if (iTrebsShareOff >= iCapTrebs)
++
++					if (iTrebsShareOff >= (iCapTrebs + iTrebuchetsLikeMinExtraCap))
+ 					{
+ 						return false;
+ 					}
+ 				}
+ 
+-				// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
+-				// Simple caps:
+-				int iCapSiegesAll = 50;
++				static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_SIEGES_ALL");
+ 
+-				// <!-- custom: even more broadly for all siege units in general like catapults, trebuchets, cannons, etc, they are still not too versatile, especially at defense, so employ if i may say but anyways etc similar checks than for trebuchets, perhaps a bit more lax but not too much, especially for early game units like the catapult that are even less versatile than say a cannon if i am not mistaken but anyways etc (so do not overproduce them especially when defending/weaker as is bad for us if i'm not mistaken but anyways etc) -->
+-				// --- Generic siege cap (non-trebuchet specifics) ---
+-				if (bAtWar && !bEnemyWeakNotZero)
+-				{
+-					iCapSiegesAll = 25;
+-				}
+-				if (bDanger)
++				if (bNoExcessSiegesAll)
+ 				{
+-					return false; // don’t add more narrow-purpose siege when not stronger
+-				}
++					// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
++					// Simple caps:
++					int iCapSiegesAll = 50;
+ 
+-				// <!-- custom: don't need that many so early they'd be too inefficient to keep and maintain for our purpose if i am not mistaken but anyways etc -->
+-				if (!bEraRenaissanceOrAfter)
+-				{
+-					// <!-- custom: a bit extreme as catapults could help destroy strong stacks, but not sure AI knows how to use them as such, better rely more on defensive units anyways etc -->
+-					if (bEnemyStrong)
++					// <!-- custom: even more broadly for all siege units in general like catapults, trebuchets, cannons, etc, they are still not too versatile, especially at defense, so employ if i may say but anyways etc similar checks than for trebuchets, perhaps a bit more lax but not too much, especially for early game units like the catapult that are even less versatile than say a cannon if i am not mistaken but anyways etc (so do not overproduce them especially when defending/weaker as is bad for us if i'm not mistaken but anyways etc) -->
++					// --- Generic siege cap (non-trebuchet specifics) ---
++					if (bAtWar && !bEnemyWeakNotZero)
+ 					{
+-						iCapSiegesAll = 20;
++						iCapSiegesAll = 25;
+ 					}
+-					// <!-- custom: a bit redundant else since we return before but for clarity and in case we change code or something in this case i mean but anyways etc -->
+-					// <!-- custom: invasions should be few early and siege units quite weak, do not overbuilt for efficiency at to have strong versatile stacks with enough non-siege attackers if i am not mistaken but anyways etc -->
+-					else
++					if (bDanger)
+ 					{
+-						// <!-- custom: for non cannon or later units, fine to under build them a bit or not at all if not plotting war soon or something similar, keep a very small reserve (no pun but anyways etc) siege units we can mobilize, but don't capitalize on it too much anyways etc -->
+-						if (!bWarPlan)
++						return false; // don’t add more narrow-purpose siege when not stronger
++					}
++
++					// <!-- custom: don't need that many so early they'd be too inefficient to keep and maintain for our purpose if i am not mistaken but anyways etc -->
++					if (!bEraRenaissanceOrAfter)
++					{
++						// <!-- custom: a bit extreme as catapults could help destroy strong stacks, but not sure AI knows how to use them as such, better rely more on defensive units anyways etc -->
++						if (bEnemyStrong)
+ 						{
+ 							iCapSiegesAll = 20;
+ 						}
++						// <!-- custom: a bit redundant else since we return before but for clarity and in case we change code or something in this case i mean but anyways etc -->
++						// <!-- custom: invasions should be few early and siege units quite weak, do not overbuilt for efficiency at to have strong versatile stacks with enough non-siege attackers if i am not mistaken but anyways etc -->
+ 						else
+ 						{
+-							iCapSiegesAll = 40;
++							// <!-- custom: for non cannon or later units, fine to under build them a bit or not at all if not plotting war soon or something similar, keep a very small reserve (no pun but anyways etc) siege units we can mobilize, but don't capitalize on it too much anyways etc -->
++							if (!bWarPlan)
++							{
++								iCapSiegesAll = 20;
++							}
++							else
++							{
++								iCapSiegesAll = 40;
++							}
+ 						}
+ 					}
+-				}
+-				// <!-- custom: cannons and such could be used in a more versatile way for defense perhaps, but don't trust the AI too much to do that. They are also strong offense units, so it's fine to overproduce them a bit, if AI wants to (we keep versatile strategies of AIs for example one AI wanting/producing many cannons vs another AI having mostly mounted units or a mix of muskets or such dominantly if i may say in this case i mean but anyways etc), just make sure to not overdo it so add this limit if i am not mistaken but anyways etc. -->
+-				else
+-				{
+-					// <!-- custom: cannons and onwards (artillery etc anyways etc) are a bit stronger and thus more versatile if AI were to use them as such (e.g. maybe defending cities or something), still as they are strong, don't penalize them as hard for versatility of game startegies and efficiency as a cannon dominant stack could work to capture a rennaissance+ city i would guess but didn't check to be sure seemed so in games i played, so larger threshold for cannons anyways etc anyways etc -->
+-					// <!-- custom: tighten it a bit so we indirectly focus more on immediate defense or more versatile units -->
+-					if (bEnemyStrong)
+-					{
+-						iCapSiegesAll = 40;
+-					}
+-					// <!-- custom: stronger so allow a bit more reserve than for earlier siege units if i am not mistaken in thinking so but anyways etc, but still don't count on AI too much to use them well, and favour versatile units be it any non-siege attackers or defenders rather in case we need to defender or such, hopefully helps the AI be more efficient with its units but anyways etc -->
+-					else if (!bWarPlan)
+-					{
+-						iCapSiegesAll = 25;
+-					}
++					// <!-- custom: cannons and such could be used in a more versatile way for defense perhaps, but don't trust the AI too much to do that. They are also strong offense units, so it's fine to overproduce them a bit, if AI wants to (we keep versatile strategies of AIs for example one AI wanting/producing many cannons vs another AI having mostly mounted units or a mix of muskets or such dominantly if i may say in this case i mean but anyways etc), just make sure to not overdo it so add this limit if i am not mistaken but anyways etc. -->
+ 					else
+ 					{
+-						iCapSiegesAll = 70;
++						// <!-- custom: cannons and onwards (artillery etc anyways etc) are a bit stronger and thus more versatile if AI were to use them as such (e.g. maybe defending cities or something), still as they are strong, don't penalize them as hard for versatility of game startegies and efficiency as a cannon dominant stack could work to capture a rennaissance+ city i would guess but didn't check to be sure seemed so in games i played, so larger threshold for cannons anyways etc anyways etc -->
++						// <!-- custom: tighten it a bit so we indirectly focus more on immediate defense or more versatile units -->
++						if (bEnemyStrong)
++						{
++							iCapSiegesAll = 40;
++						}
++						// <!-- custom: stronger so allow a bit more reserve than for earlier siege units if i am not mistaken in thinking so but anyways etc, but still don't count on AI too much to use them well, and favour versatile units be it any non-siege attackers or defenders rather in case we need to defender or such, hopefully helps the AI be more efficient with its units but anyways etc -->
++						else if (!bWarPlan)
++						{
++							iCapSiegesAll = 25;
++						}
++						else
++						{
++							iCapSiegesAll = 70;
++						}
+ 					}
+-				}
+ 
+-				const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iMainAttackers);
+-				if (iSiegesShareOff >= iCapSiegesAll)
+-				{
+-					return false;
++					const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iMainAttackers);
++
++					static const int iSiegesAllMinExtraCap = GC.getDefineINT("SAS_BEST_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP");
++
++					if ((iSiegesShareOff) >= (iCapSiegesAll + iSiegesAllMinExtraCap))
++					{
++						return false;
++					}
+ 				}
+ 			}
+ 
+@@ -11516,7 +11532,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 			// Early-game window (scaled by game speed TrainPercent)
+ 			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+-			const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
++			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
++			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
++			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_BEST_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
++			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+ 			const int iCurrentTurn = GC.getGame().getGameTurn();
+ 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+ 
+@@ -11529,10 +11548,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					(eChangedUnitAI == UNITAI_RESERVE)
+ 				);
+ 
+-				if (bStrictLandDefenderUnitAI)
++				static const bool bNoExcessStrictDefendersUnitAIs = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS");
++
++				if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
+ 				{
+ 					// 2) Don’t starve defenders if there’s immediate danger
+-					if (!bDanger && !(bAtWar && bEnemyStrong))
++					// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves anyways etc -->
++					// if (!bDanger && !(bAtWar && bEnemyStrong))
++					if (!(bAtWar && bEnemyStrong))
+ 					{
+ 						// // <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
+ 						// // 1) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
+@@ -11544,7 +11567,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						const int iCurrentTurnAdjusted = (iCurrentTurn * iTrainPct) / 100;
+ 
+ 						// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
+-						const int iMaxDefendersPerCityEarlyAdjusted = 2 + (iCurrentTurnAdjusted >= 100 ? 1 : 0);
++						// cap = 2 …then +1 at ~T100, +1 at ~T150 (and you can add ~T200 too)
++						int iMaxDefendersPerCityEarlyAdjusted = 2;
++						if (iCurrentTurnAdjusted >= 100) iMaxDefendersPerCityEarlyAdjusted += 1;
++						// else if (iCurrentTurnAdjusted >= 155) iMaxDefendersPerCityEarlyAdjusted += 1;
+ 
+ 						// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
+ 						// Guard against div-by-zero and define a very simple “defense overweight” signal:
+@@ -11566,150 +11592,168 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
+ 						// Using non-strict defenders makes the check tolerant to variety (mix of spears/LBs/etc).
+ 						// With 5 cities and target 3 per city → cap=15: hitting that cap early and flipping is fine—your new offense units still defend in practice.
++
+ 						if (bEnoughEarlyDefendersPerCityGuessedly || bDefenseOverweight)
+ 						{
+-							// <!-- custom: if we can produce better, more offense or versatile focused units, abandon current defense unit project -->
+-							// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doign so here, so maybe fine as such or not too bad as i said but anyways etc -->
+-							const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
+-							// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
+-							const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 3);
+-
+-							const bool bNoNewSiegeRightNow = (
+-								(bAtWar && !bEnemyWeakNotZero) ||
+-								!bWarPlan ||
+-								bDanger
+-								// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes if i may say in this case i mean but anyways etc -->
+-								// bEnemyStrong
+-							);
+-
+-							// “Can we build any generic offensive land unit right now?”
+-							// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn anyways etc -->
+-							UnitTypes   eBestUnit = NO_UNIT;
+-							UnitAITypes eBestUnitAI = NO_UNITAI;
+-							int         iBestScore = -1;
+-							int         iBestCost  = MIN_INT;
+-
+-							// same era cap you use elsewhere
+-							static const int iMaxHammerPerEra = 50;
+-							const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
+-
+-							// prefetch civ UU mapping once
+-							const CvCivilizationInfo& kCiv = GC.getInfo(kPlayer.getCivilizationType());
+-
+-							FOR_EACH_ENUM(Unit)
++							static const bool bNoExcessStrictDefendersUnitAIsRejectUnit = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT");
++							static const bool bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT");
++							static const bool bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI = GC.getDefineBOOL("SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI");
++
++							if (bNoExcessStrictDefendersUnitAIsRejectUnit)
+ 							{
+-								if (!canTrain(eLoopUnit, false)) continue;
+-								// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit anyways etc -->
+-								const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+-								if (kU.getDomainType() != DOMAIN_LAND) continue;
+-								if (kU.getCombat() <= 0) continue;
+-								// Skip picking the same type you’re trying to replace (just in case an archer line slips through with an offensive AI):
+-								if (eLoopUnit == eChangedUnit) continue;
+-
+-								const bool bLoopUnitIsSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
+-								if (bLoopUnitIsSiege)
+-								{
+-									// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above anyways etc -->
+-									if (bEnoughSiegeAlready || bEnoughTrebsLikeAlready || bNoNewSiegeRightNow)
+-									{
+-										continue;
+-									}
+-								}  
++								// <!-- custom: update: actually add a reject all excess defenders check and knob/tunable anyways etc, useful in itself as an option i mean in this case i mean if i may say but anyways etc but/and but anywyas etc also to help debug the cases where we have excess early defenders anyways etc -->
++								return false;
++							}
++							else if (bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit)
++							{
++								// <!-- custom: if we can produce better, more offense or versatile focused units, abandon current defense unit project -->
++								// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doign so here, so maybe fine as such or not too bad as i said but anyways etc -->
++								const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
++								// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
++								const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 3);
++
++								const bool bNoNewSiegeRightNow = (
++									(bAtWar && !bEnemyWeakNotZero) ||
++									// <!-- custom: try to be a bit more versatile and not too restrictive, as we don't produce enough siege units as of now anyways etc -->
++									// !bWarPlan ||
++									bDanger
++									// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes if i may say in this case i mean but anyways etc -->
++									// bEnemyStrong
++								);
+ 
+-								// sanity cap by era on REAL cost (don’t use inflated for the cap)
+-								const int iLoopCost = getProductionNeeded(eLoopUnit);
+-								if (iLoopCost > iMaxCost)
+-								{
+-									continue;
+-								}
++								// “Can we build any generic offensive land unit right now?”
++								// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn anyways etc -->
++								UnitTypes   eBestCandidateUnit = NO_UNIT;
++								UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
++								int         iBestScore = -1;
++								int         iBestCost  = MIN_INT;
+ 
+-								// must be usable offensively by default UnitAI
+-								const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
+-								const bool bMainOffenseDefaultUnitAIUnit = (
+-									(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
+-									(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY) ||
+-									// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
+-									(eLoopDefaultUnitAI == UNITAI_COUNTER)
+-								);
++								// same era cap you use elsewhere
++								static const int iMaxHammerPerEra = 50;
++								const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
+ 
+-								if (!bMainOffenseDefaultUnitAIUnit)
+-								{
+-									continue;
+-								}
+-								// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order if i am not mistaken but anyways etc -->
+-								else
++								// prefetch civ UU mapping once
++								const CvCivilizationInfo& kCiv = GC.getInfo(kPlayer.getCivilizationType());
++
++								FOR_EACH_ENUM(Unit)
+ 								{
+-									// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+-									// prefer the civilization's unique unit (war chariot over horse archer, etc.)
+-									// score = cost, with a UU override bump (2*cost + 1)
+-									int iLoopScore = iLoopCost;
+-									const UnitClassTypes eClass = kU.getUnitClassType();
+-									const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
+-									const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
+-									const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
+-									if (bIsUUOverride)
++									if (!canTrain(eLoopUnit, false)) continue;
++									// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit anyways etc -->
++									const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
++									if (kU.getDomainType() != DOMAIN_LAND) continue;
++									if (kU.getCombat() <= 0) continue;
++									// Skip picking the same type you’re trying to replace (just in case an archer line slips through with an offensive AI):
++									if (eLoopUnit == eChangedUnit) continue;
++
++									const bool bLoopUnitIsSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
++									if (bLoopUnitIsSiege)
+ 									{
+-										// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+-										if (eLoopDefaultUnitAI != UNITAI_COUNTER)
++										// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above anyways etc -->
++										if (bEnoughSiegeAlready || bEnoughTrebsLikeAlready || bNoNewSiegeRightNow)
+ 										{
+-											iLoopScore = (2 * iLoopScore) + 1;
++											continue;
+ 										}
+ 									}  
+ 
+-									// pick highest score; on score tie pick the higher real cost
+-									if (iLoopScore > iBestScore || (iLoopScore == iBestScore && iLoopCost > iBestCost))
++									// sanity cap by era on REAL cost (don’t use inflated for the cap)
++									const int iLoopCost = getProductionNeeded(eLoopUnit);
++									if (iLoopCost > iMaxCost)
+ 									{
+-										iBestScore = iLoopScore;
+-										iBestCost  = iLoopCost;
+-										eBestUnit  = eLoopUnit;
+-										eBestUnitAI = eLoopDefaultUnitAI;
++										continue;
++									}
++
++									// must be usable offensively by default UnitAI
++									const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
++									const bool bMainOffenseDefaultUnitAIUnit = (
++										(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
++										(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY) ||
++										// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
++										(eLoopDefaultUnitAI == UNITAI_COUNTER)
++									);
++
++									if (!bMainOffenseDefaultUnitAIUnit)
++									{
++										continue;
++									}
++									// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order if i am not mistaken but anyways etc -->
++									else
++									{
++										// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
++										// prefer the civilization's unique unit (war chariot over horse archer, etc.)
++										// score = cost, with a UU override bump (2*cost + 1)
++										int iLoopScore = iLoopCost;
++										const UnitClassTypes eClass = kU.getUnitClassType();
++										const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
++										const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
++										const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
++										if (bIsUUOverride)
++										{
++											// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
++											if (eLoopDefaultUnitAI != UNITAI_COUNTER)
++											{
++												iLoopScore = (2 * iLoopScore) + 1;
++											}
++										}
++
++										// pick highest score; on score tie pick the higher real cost
++										if (iLoopScore > iBestScore || (iLoopScore == iBestScore && iLoopCost > iBestCost))
++										{
++											iBestScore = iLoopScore;
++											iBestCost  = iLoopCost;
++											eBestCandidateUnit  = eLoopUnit;
++											eBestCandidateUnitAI = eLoopDefaultUnitAI;
++										}
+ 									}
+ 								}
+-							}
+-							// commit if we found something
+-							if (eBestUnit != NO_UNIT)
+-							{
+-								eChangedUnit   = eBestUnit;
+-								eChangedUnitAI = eBestUnitAI;
+-								// <!-- custom: if we change the unit, also refresh the pointer if i am not mistaken anyways etc -->
+-								// refresh
+-								pUnitInfo = &GC.getInfo(eChangedUnit);
++								// commit if we found something
++								if (eBestCandidateUnit != NO_UNIT)
++								{
++									eChangedUnit   = eBestCandidateUnit;
++									eChangedUnitAI = eBestCandidateUnitAI;
++									// <!-- custom: if we change the unit, also refresh the pointer if i am not mistaken anyways etc -->
++									// refresh
++									pUnitInfo = &GC.getInfo(eChangedUnit);
+ 									
++								}
+ 							}
+ 							// <!-- custom: else if no unit was found, fallback to alternative unitai types for this defensive unit that had a strict or heavily defensive unitai, now instead focusing on most reliable unitais we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most here is we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc), see known issue as of now 53.2 for related info anyways etc -->
+-							else
++							else if (bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI && (pUnitInfo->getDomainType() == DOMAIN_LAND) && (pUnitInfo->getCombat() > 0))
+ 							{
+-								// We’ll attempt up to 3 alternatives in weighted order: 50% ATTACK, 25% ATTACK_CITY, 25% COUNTER <!-- custom: COUNTER rather as we can use them for attack if i'm not mistaken anyways etc -->.
+-								// <!-- custom: save some computation xd when we can if i may say but anyways etc -->
+-								// Pre-cached weighted permutations (built once)
+-								static const UnitAITypes kTry50[3]  = { UNITAI_ATTACK,      UNITAI_ATTACK_CITY, UNITAI_COUNTER }; // 50%
+-								static const UnitAITypes kTry75[3]  = { UNITAI_ATTACK_CITY, UNITAI_ATTACK,      UNITAI_COUNTER }; // next 25%
+-								static const UnitAITypes kTry100[3] = { UNITAI_COUNTER,     UNITAI_ATTACK,      UNITAI_ATTACK_CITY }; // last 25%
+-				
+-								const int r = syncRand().get(100, "SAS: defender->offense AI nudge");
+-								const UnitAITypes* pTry = (r < 50) ? kTry50 : ((r < 75) ? kTry75 : kTry100);
+-
+-								// Only flip if THIS unit type can actually serve in that role.
+-								// quick sanity: land combat only (defensive picks should already be land)
+-
+-
++								// preconditions already true: bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI
++								// and we're in the strict-defender branch
+ 								if (pUnitInfo->getDomainType() == DOMAIN_LAND && pUnitInfo->getCombat() > 0)
+ 								{
+-									for (int i = 0; i < 3; i++)
++									// <!-- custom: maybe (hypothetically/guessedly of me but i ahve no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
++									// Prefer COUNTER, then ATTACK, then ATTACK_CITY.
++									if (pUnitInfo->getUnitAIType(UNITAI_COUNTER))
+ 									{
+-										if (pUnitInfo->getUnitAIType(pTry[i])) // unit supports this AI role?
+-										{
+-											eChangedUnitAI = pTry[i]; // switch role, keep same unit
+-											break;
+-										}
++										eChangedUnitAI = UNITAI_COUNTER;
++									}
++									else if (pUnitInfo->getUnitAIType(UNITAI_CITY_COUNTER))
++									{
++										eChangedUnitAI = UNITAI_CITY_COUNTER;
++									}
++									else if (pUnitInfo->getUnitAIType(UNITAI_ATTACK))
++									{
++										eChangedUnitAI = UNITAI_ATTACK;
++									}
++									else if (pUnitInfo->getUnitAIType(UNITAI_ATTACK_CITY))
++									{
++										eChangedUnitAI = UNITAI_ATTACK_CITY;
++									}
++									// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is betetr than overstacking excess defense without using our advantage of unit count (or desperate position but anyways etc then dying later anyways etc) -->
++									else if (pUnitInfo->getUnitAIType(UNITAI_RESERVE))
++									{
++										eChangedUnitAI = UNITAI_RESERVE;
+ 									}
++									// else: leave as is (keeps defender AI)
+ 								}
+-								// else: keep original defender AI (can’t sensibly attack)
+-								// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
+-								// notes
+-								// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
+-								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
+ 							}
++							// else: keep original defender AI (can’t sensibly attack)
++							// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
++							// notes
++							// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
++							// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
+ 						}		
+ 					}
+ 				}
+@@ -15092,6 +15136,9 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 							}
+ 						}
+ 					}
++					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction if i am not mistaken but anyways etc) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say if i'm not mistaken as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd if i may say but anyways etc, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean if i may say but anyways etc it seems accurate/correct of me if i may say but anyways etc but check to be sure anyways etc -->
++					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass” isn’t what’s creating AI longbows.
++					//
+ 					// otherwise, we're ready to build the unit
+ 					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
+ 					return;
+
+diff --git a/README.md b/README.md
+index 9535c527e..3fc206079 100644
+--- a/README.md
++++ b/README.md
+@@ -138,9 +138,7 @@ For the full more extensive screenshot of main new sevopedia reworks, i highly h
+ 
+ note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+ 
+-note 2: you can enable/disable the emoji display as you prefer by changing `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to/from `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True`, see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
+-
+-note 3: similarly you can set `IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD` to `True` if you want to display key names instead of abbreviated custom labels in the AI Personality Panel (or to `False` if not and you'd prefer the as of now default of using abbreviated custom labels anyways etc), see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc anyways etc
++note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
+ 
+ ### Other advciv-sas changes example(s)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index a7446ee6d..c0e007987 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -20,9 +20,9 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#where-and-how-to-find-the-abbreviations-in-label-in-the-ai-personality-panels-meaning)  
+ [Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#normalization-to-100-in-advciv-sas-anyways-and-leaders-scoreranking)  
+ [As a player (i.e. only if you want to play anyways etc), what you need to know and do](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#as-a-player-ie-only-if-you-want-to-play-anyways-etc-what-you-need-to-know-and-do)  
++[Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels)  
+ [Notes about performance optimization of the AI Personality panel caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)  
+ [If you want to mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#if-you-want-to-mod)  
+-[Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels)  
+ [Note about some ai attributes being ignored](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored)  
+ [Currently if not always unfinished todo or(/and?) not or etc anyways](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)  
+ [Note about the value of 0 not always being 0, and a value > 0 sometimes being 0](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-the-value-of-0-not-always-being-0-and-a-value--0-sometimes-being-0)  
+@@ -48,35 +48,11 @@ More screenshot samples in the [sevopedia reworks Google Drive folder](https://d
+ 
+ ### how to enable/disable emoji buttons in sevopedia leader
+ 
+-You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
+-
+-To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
+-
+-Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
+-
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG" width="250"></img>
+-
+-Change this line:
+-
+-```python
+-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+-```
+-
+-to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
+-
+-```python
+-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+-```
+-
+-As in the screenshot below as well similarly anyways etc:
+-
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG" width="250"></img>
+-
+-And vice versa to disable it (restart the game to apply changes if game was already running)
++You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc, in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ Here is how it would look like without emojis for example anyways etc:
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_no_emoji.JPG" alt="0.621_sevopedia_leaders_no_emoji.JPG" width="250"></img>
+ 
+ ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
+ 
+@@ -122,11 +98,11 @@ Be careful because AIs such as ChatGPT tend to invent what they don't know, so e
+ 
+ ### how to show keys or suffixes instead of abbreviated custom labels
+ 
+-Similarly to how was done for emoji images, there is also an `IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD` config flag in sevopedia leader you can set to `True` or `False` depending on whether you want to show only key names or suffix names (shrunk if too long to fit table length, for example `MaxWarRand` (shrunk if too long anyways etc)) instead of abbreviated custom labels such as `T.W. Likely` for example anyways etc ; useful for calibrating or if you'd prefer to display it as such.
++Similarly to how was done for emoji images, there is also a tunable/knob in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) but anyways etc that you can configure to show only key names or suffix names (shrunk if too long to fit table length, for example `MaxWarRand` (shrunk if too long anyways etc)) instead of abbreviated custom labels such as `T.W. Likely` for example anyways etc ; useful for calibrating or if you'd prefer to display it as such.
+ 
+ Here is an example below of it would look like with this set to `True` hopefully helpful or not or yes or and other or and not anyways etc:
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG" alt="0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG" alt="0.622_sevopedia_leaders_labels_as_keys.JPG" width="250"></img>
+ 
+ ## Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking
+ 
+@@ -143,6 +119,14 @@ What these columns and symbols mean is explained here in [README_AI_Personality_
+ 
+ If you want to know the code though, it is in Sevopedia Leader py file, [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), as well as some helper files, that are as of now only if i am not mistaken anyways etc[/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) and [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) anyways etc
+ 
++## Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels
++
++Finally, the last main point to know regarding this AI personality panel is the display. We separate ai attributes by categories such as "War Strategy", "Core Personality", etc for easier read and clarity or/and other things etc. There are currently 3 panels, containing each:
++
++- first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened and (tentative) explanation of what iMaxWarRand means ingame), as said earlier, please read the code in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), hopefully helpful or not etc anyways. This (column) almost always if not always contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc (if there is/are any anyways etc), the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line (for gandhi) shows that G(g anyways etc)andhi has a raw ai attribute memory attitude percent of -200 ((i.e.? anyways etc) he (gandhi anyways etc) resents quite strongly you declaring war on his friends) and a memory decay of 120. And for moctezuma, for the same "D.W on Fr" negative memory resentment, he (moctezuma (anyways etc)) does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders if i'm not mistaken (in civ4/advciv and thus advciv-sas too but anyways), not ideal but maybe functional anyways))
++- second column: the (normalized) score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal but anyways), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer for better or worse (war is bad maybe? And peace good? Stiil moctezuma performs good at war attributes, and gandhi good at peace attributes, for example)), if we didn't do (hopefully but anyways) inverting mistakes or oversights/overlook(s?)ings(?) then it should be hopefully accurately represented (inversion in particular). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones or not, and how much), and you could also additionally or(/and?) alternatively (anyways etc) (also? anyways etc) tweak the existing leaders xml values as you please. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated (anyways (etc anyways)), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized (in generate_leaders_data.py), they are not re-normalized during caching and sevopedialeader.py computation, anyways etc. In short, they can be intepreted similarly as raw ai attributes if i am not mistaken anyways.
++- third column: scale, this is an indicative/intuitive (hopefully, at least attempt, or not (or etc) but anyways etc) display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear hopefully or not or etc but anyways, while also civ4-compatible (not many special characters supported in display anyways (but i like these ones they are quite cool (too but not only too but anyways)))). So for example maxwarrand 400 gandhi has a score of 0 (normalized) among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too anyways))) so his scale is "++++++++++" (100th percentile if i am not mistaken anyways), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50 anyways))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is quite likely (very in fact), relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols etc anyways so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####" if i am not mistaken anyways. This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes (at least as of now me writing this doc README etc but anyways) and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute (aggregated or raw is same in this case functionally anyways, i.e. that read after bracket anyways etc: ) they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders, hopefully for an easier read, as chatgpt (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :) but anyways (and thanks! but anyways)
++
+ ## Notes about performance optimization of the AI Personality panel caching
+ 
+ Screenshots about this part of the readme are in this [google drive link folder](https://drive.google.com/drive/folders/1D8RIy6iqkADMXtCl1VuWkEInrpqtIzrU?usp=sharing) with screenshots for details or/and example of how we me and chatgpt implemented it together even though i skipped some prompts where i feel its response was not adequate or i mean correct or optimal or as i wanted anyways etc, but it did help me lot anyways etc.
+@@ -163,14 +147,6 @@ Note: technically should be in modding ressources but fits also here as well so
+ 
+ Even if you want to mod, as explained in the docs, you can modify the XML values of leaders or even add/remove leaders, all this will be dynamically (i.e. no change needed from you at all) taken into account, including the ranking between leaders anyways etc (restart game to apply changes, ideally do not modify XML while civ4 is launched as it seems to cause errors that need to exit/relaunch game to fix if i am not mistaken that these errors are indeed not permanent anyways etc).
+ 
+-## Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels
+-
+-Finally, the last main point to know regarding this AI personality panel is the display. We separate ai attributes by categories such as "War Strategy", "Core Personality", etc for easier read and clarity or/and other things etc. There are currently 3 panels, containing each:
+-
+-- first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened and (tentative) explanation of what iMaxWarRand means ingame), as said earlier, please read the code in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), hopefully helpful or not etc anyways. This (column) almost always if not always contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc (if there is/are any anyways etc), the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line (for gandhi) shows that G(g anyways etc)andhi has a raw ai attribute memory attitude percent of -200 ((i.e.? anyways etc) he (gandhi anyways etc) resents quite strongly you declaring war on his friends) and a memory decay of 120. And for moctezuma, for the same "D.W on Fr" negative memory resentment, he (moctezuma (anyways etc)) does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders if i'm not mistaken (in civ4/advciv and thus advciv-sas too but anyways), not ideal but maybe functional anyways))
+-- second column: the (normalized) score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal but anyways), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer for better or worse (war is bad maybe? And peace good? Stiil moctezuma performs good at war attributes, and gandhi good at peace attributes, for example)), if we didn't do (hopefully but anyways) inverting mistakes or oversights/overlook(s?)ings(?) then it should be hopefully accurately represented (inversion in particular). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones or not, and how much), and you could also additionally or(/and?) alternatively (anyways etc) (also? anyways etc) tweak the existing leaders xml values as you please. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated (anyways (etc anyways)), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized (in generate_leaders_data.py), they are not re-normalized during caching and sevopedialeader.py computation, anyways etc. In short, they can be intepreted similarly as raw ai attributes if i am not mistaken anyways.
+-- third column: scale, this is an indicative/intuitive (hopefully, at least attempt, or not (or etc) but anyways etc) display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear hopefully or not or etc but anyways, while also civ4-compatible (not many special characters supported in display anyways (but i like these ones they are quite cool (too but not only too but anyways)))). So for example maxwarrand 400 gandhi has a score of 0 (normalized) among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too anyways))) so his scale is "++++++++++" (100th percentile if i am not mistaken anyways), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50 anyways))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is quite likely (very in fact), relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols etc anyways so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####" if i am not mistaken anyways. This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes (at least as of now me writing this doc README etc but anyways) and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute (aggregated or raw is same in this case functionally anyways, i.e. that read after bracket anyways etc: ) they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders, hopefully for an easier read, as chatgpt (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :) but anyways (and thanks! but anyways)
+-
+ ## Note about some ai attributes being ignored
+ 
+ Some AI attributes (raw or/and aggregated if i were to make them anyways (maybe, not guaranteed, may or may not indeed too, etc anyways)) are not in the data, either because ai panel is incomplete yet (see below in the [README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)), or because i have assessed that these are not used anymore in AdvCiv (i may have forgotten some or not, but for example iLoveOfPeace XML AI attribute is not used anymore in AdvCiv if i'm not mistaken, as shown in this code comment for example from [CIV4LeaderHeadInfos.xml](Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) (adapt if you don't use the Steam version of Civ4 (and by extension of AdvCiv-SAS etc anyways...)):
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 6870d6ed1..4820fff88 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -982,7 +982,7 @@ This is another AI change we did much later hence the .2 to this old but still n
+ 
+ I have noticed the issue that usa ai settles a quite good site, but there was a much better one one tile south east anyways etc that had more hill grassland and less very bad desert and peak. We need to give up the desert stone even if it's a bonus, if the site there is otherwise better, while this one here is otherwise noticeably worse.
+ 
+-Added code in `AIFoundValue::evaluate()` to handle that, see there for details, plus also added tunables/knobs but anyways etc in our new `GlobalDefines_advciv_sas.xml` file but anyways etc to tweak this without having to tediously recompile every time anymore (tested to work anyways etc).
++Added code in `AIFoundValue::evaluate()` to handle that, see there for details, plus also added tunables/knobs but anyways etc in our new [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) file but anyways etc to tweak this without having to tediously recompile every time anymore (tested to work anyways etc).
+ 
+ Result ingame is very good as shown in screenshots, we now choose the correct best site, and future city north is also better, avoiding the coast camel desert site that has too many desert tiles, in favour of a coastal to the east desert plant that has iron and stone in its BFC as we need, but plenty coast to nicely benefit from it if we settle there. AI should be stronger as a result of this, especially if it leverages well this better site if i'm not mistaken but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 612068930..959eb53e2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -232,7 +232,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - otherwise mostly simple gameplay, and overall not too much clutter, i don't want too many things, but i want the things i have/add, to go (very) in depth in them rather maybe anyways etc, so quite lightweight and hopefully easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
+ - we love the king chance is restored unlike in AdvCiv, i think it's a cool mechanic and also pleasant for the player, maybe realistic too, so if it can happen all good (feels good in civ3 for example at least from/in my experience playing it)
+ - set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical. But anyways etc.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say anyways etc. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this, but anyways etc.
+-- rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/110/120, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
++- rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/105/110, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
+ - remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) at noble (no handicap as of now if i'm not mistaken anyways etc) while the human player would pay 40 (or 43 vs 45), it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 too that helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive, see the .csv comparison tables locally (libreoffice, etc.) or on github (recommended) provided, or/and sevopedia, or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 7072527d8..b9461bd9b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -218,7 +218,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **We Love the King Day**: restored (present in SAS).
+ - **Research scaling — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+-- **Research scaling — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 110 / 120` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
++- **Research scaling — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
+ - **Cost rounding to 5 removed (human-side)**: Eliminated the base AdvCiv “round to 5” rule from `CvPlayer::getProductionNeeded` (units, buildings, projects) that applied only to human players, so **costs are no longer altered for the human player** — e.g., a Swordsman at 42 hammers costs 42 (not 40), at 43 costs 43 (not 45), and an Ancient Maceman at 18 costs 18 (not 20). Also removed analogous rounding in `CvPlayer::greatPeopleThreshold`, `CvPlayer::getNewCityProductionValue`, and `CvTeam::getResearchCost`. This fixes the Sevopedia vs. in-game mismatch, and the issue of human players having a different cost than AI players even if cost would have otherwise been the same (e.g., at Noble, the AI paid 42 while the human paid 40; 43 vs. 45). Fine-grained costs now also enable true **per-hammer** tuning—e.g., you can set 40, 41, 42, 43, 44, or 45 instead of being forced to choose 40 or 45. See [KI#67](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG
+deleted file mode 100644
+index 38449f4db..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG
+deleted file mode 100644
+index a616c3b46..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_no_emoji.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG
+rename to _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_no_emoji.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG
+rename to _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=14 omittedFiles=1 embeddedPatchBytes=103870

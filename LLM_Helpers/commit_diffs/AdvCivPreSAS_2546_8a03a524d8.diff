@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2546
+# Commit: 8a03a524d8f84b53fdce3454d69d9c75132822b2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8d5b38f104b1213bd20c3c0aa4561864b8eb2ba6
+# Title: Change "Bonuses" to "Resources" in health help text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	0	Assets/XML/Text/CIV4GameText_advc.xml
+3	2	Assets/XML/Text/Civ4GameText_K-Mod.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 0747a5c7f..10869f86a 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1121,6 +1121,34 @@
+ 		<Spanish>"No es posible que os un&#225;is a la guerra en nuestro bando."</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: "Resources" instead of "Bonuses" -->
++	<!-- from CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_WB_BONUSES</Tag>
++		<English>Resources</English>
++		<French>Bonus</French>
++		<German>Ressourcen</German>
++		<Italian>Bonus</Italian>
++		<Spanish>Bonificaciones</Spanish>
++	</TEXT>
++	<!-- both from Civ4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HEALTH_FROM_BONUSES</Tag>
++		<English>%D1_Change[ICON_UNHEALTHY] from Resources</English>
++		<French>%D1_Change[ICON_UNHEALTHY] (bonus)</French>
++		<German>%D1_Change[ICON_UNHEALTHY] durch Ressourcen</German>
++		<Italian>%D1_Change[ICON_UNHEALTHY] per i bonus</Italian>
++		<Spanish>%D1_Change [ICON_UNHEALTHY] por bonificaciones</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_GOOD_HEALTH_FROM_BONUSES</Tag>
++		<English>%D1_Change[ICON_HEALTHY] from Resources</English>
++		<French>%D1_Change[ICON_HEALTHY] (bonus)</French>
++		<German>%D1_Change[ICON_HEALTHY] durch Ressourcen</German>
++		<Italian>%D1_Change[ICON_HEALTHY] per i bonus</Italian>
++		<Spanish>%D1_Change [ICON_HEALTHY] por bonificaciones</Spanish>
++	</TEXT>
++
+ 	<!-- advc.004: German translation - "Neuer Random Seed" was just too
+ 		 awful. Originally in CIV4GameText_Misc1.xml. -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/Civ4GameText_K-Mod.xml b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+index a0ba77f0b..b38cfcff2 100644
+--- a/Assets/XML/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+@@ -442,11 +442,12 @@
+ 		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dagli edifici</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Num por [ICON_UNHEALTHY] de edificios</Spanish>
+ 	</TEXT>
++	<!-- advc.004g: Was "from Bonuses" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POLLUTION_FROM_BONUSES</Tag>
+-		<English>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] from Bonuses</English>
++		<English>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] from Resources</English>
+ 		<French>[ICON_BULLET]%d1_Num par [ICON_UNHEALTHY] (bonus)</French>
+-		<German>[ICON_BULLET]%d1_Num pro [ICON_UNHEALTHY] durch Boni</German>
++		<German>[ICON_BULLET]%d1_Num pro [ICON_UNHEALTHY] durch Ressourcen</German>
+ 		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dai bonus</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Num por [ICON_UNHEALTHY] de bonificaciones</Spanish>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2606

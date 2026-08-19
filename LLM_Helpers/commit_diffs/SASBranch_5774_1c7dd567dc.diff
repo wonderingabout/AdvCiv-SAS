@@ -1,0 +1,207 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5774
+# Commit: 1c7dd567dc03886d60e0e6a3d255f4717ea1a315
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: dfaf0ab340df74cfaa5fa5742a3f4c4a679ae959
+# Title: add sorting for icon buttons in tables for battles tab (military advisor), score tab (info screen), sevopedia techs/traits/improvements that didn't have it;...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+15	0	Assets/Python/SASUtils.py
+5	3	Assets/Python/Screens/CvInfoScreen.py
+13	12	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index d70ae52db..ef337da24 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -1025,10 +1025,11 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount,
+ 	# For leaders: extraData should contain "leaderToCiv" mapping iLeader -> iCiv
+ 	# For civs/techs: extraData is not required
+ 
++	# <!-- custom: In-category chart icon cells are standalone image columns, so give them the same invisible text sort key as full chart-category icon cells. (GPT-5.5) -->
+ 	for iCol in xrange(colCount):  # noqa: F821
+ 		if iCol >= len(itemIds):
+ 			# Empty cell
+-			screen.setTableText(tableName, colStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(0, row), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			continue
+ 
+ 		itemId = itemIds[iCol]
+@@ -1069,6 +1070,6 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount,
+ 				widgetData2 = -1
+ 
+ 		if buttonPath:
+-			screen.setTableText(tableName, colStart + iCol, row, "", buttonPath, widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(itemId + 1, row), buttonPath, widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
+ 		else:
+-			screen.setTableText(tableName, colStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(0, row), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index b1fd85e4c..d1a6609ea 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -90,6 +90,21 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
+ 	return aiLinkWidths
+ 
+ 
++# <!-- custom: invisible sort key for advisor icon-only table cells. GameFont chars (religion, attitude, trade icons, etc.) already sort as text; this is only for separate icon-button cells where the visible text is otherwise empty. Usually skip this when an icon button is immediately followed by matching text in the next column (e.g. Info Screen Wonders), because that text column already gives the useful sort path. Keep hardcoded font=1 unscaled so the sort key stays invisible and does not affect row height. Pattern based on Sevopedia chart icon sorting. (GPT-5.5) -->
++def getAdvisorIconSortKey(iGroup, iRow):
++	aDigits = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
++	aParts = []
++	iValue = int(iGroup)
++	for _ in xrange(4):
++		aParts.insert(0, aDigits[iValue % 5])
++		iValue = iValue / 5
++	iValue = int(iRow)
++	for _ in xrange(6):
++		aParts.insert(4, aDigits[iValue % 5])
++		iValue = iValue / 5
++	return u"<font=1>" + u"".join(aParts) + u"</font>"
++
++
+ # <!-- custom: shared debug/vassal player dropdown for advisors. Debug mode keeps each legacy advisor's MAX_PLAYERS vs MAX_CIV_PLAYERS and active-row preselection behavior. Outside debug, selected advisors may inspect only the current active player plus alive vassals of the active player's team, not a hardcoded human slot; vassals are subordinate enough to make their domestic/world/policy state relevant, but this remains perspective-only UI access and does not reveal unrelated players or hidden map data. (GPT-5.5) -->
+ def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT, bAllowVassalPerspective=False):
+ 	aiPlayers = getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective)
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 2d75f1977..dc56cd939 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1276,8 +1276,8 @@ class CvInfoScreen:
+ 
+ 			# <!-- custom: Score tab is a reference matrix, so leader/civ identity cells open Sevopedia
+ 			# instead of diplomacy; contact actions are already covered by the scoreboard and Foreign Advisor. (GPT-5.5) -->
+-			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
+-			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, getAdvisorIconSortKey(pPlayer.getLeaderType() + 1, iRow), gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, getAdvisorIconSortKey(pPlayer.getCivilizationType() + 1, iRow), gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			szColor = self.SCORETAB_COLOR_MARKER
+ 			ePlayerColor = pPlayer.getPlayerColor()
+ 			if ePlayerColor > -1:
+@@ -1429,17 +1429,19 @@ class CvInfoScreen:
+ 			szResearchButton = ""
+ 			szResearchPct = u""
+ 			iProgressPct = -1
++			iResearchSortGroup = 0
+ 			if bMet and (bDebugMode or (pActivePlayer.canSeeResearch(ePlayer) and (eTeam != eActiveTeam or bActiveTeamHasMultipleMembers))):
+ 				if eCurrentResearch != -1:
+ 					kTech = gc.getTechInfo(eCurrentResearch)
+ 					szResearchButton = kTech.getButton()
++					iResearchSortGroup = eCurrentResearch + 1
+ 					iResearchCost = pTeam.getResearchCost(eCurrentResearch)
+ 					if iResearchCost > 0:
+ 						iProgressPct = pTeam.getResearchProgress(eCurrentResearch) * 100 / iResearchCost
+ 						iProgressPct = max(0, min(99, iProgressPct))
+ 						szResearchPct = str(iProgressPct)
+ 			SASTextScale.setTableIntLabel(screen, szTable, iColTechs, iRow, str(teamTechCounts[eTeam]), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, getAdvisorIconSortKey(iResearchSortGroup, iRow), szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 			if iProgressPct > -1:
+ 				SASTextScale.setTableIntLabel(screen, szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			else:
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 4f8714178..4f164d062 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -459,22 +459,23 @@ class CvMilitaryAdvisor:
+ 		return szText
+ 
+ 	def setBattleTerrainFeatureCell(self, screen, iRow, iCol, iInfo, bTerrain):
++		szSortKey = getAdvisorIconSortKey(iInfo + 1, iRow)
+ 		if bTerrain:
+ 			if iInfo >= 0 and iInfo < gc.getNumTerrainInfos():
+-				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getTerrainInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, szSortKey, gc.getTerrainInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 				return
+ 		else:
+ 			if iInfo >= 0 and iInfo < gc.getNumFeatureInfos():
+-				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getFeatureInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, szSortKey, gc.getFeatureInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 				return
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, getAdvisorIconSortKey(0, iRow), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 	def setBattleHillPeakCell(self, screen, iRow, iHillPeakTerrain):
+ 		# <!-- custom: show only peak/hill here: flat/water have no separate pedia redirects and are already visible through terrain, while peak/hill are separate combat-relevant map properties with Sevopedia entries/icons. (GPT-5.5) -->
+ 		if iHillPeakTerrain == self.iBattleTerrainPeak or iHillPeakTerrain == self.iBattleTerrainHill:
+-			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", gc.getTerrainInfo(iHillPeakTerrain).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHillPeakTerrain, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, getAdvisorIconSortKey(iHillPeakTerrain + 1, iRow), gc.getTerrainInfo(iHillPeakTerrain).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHillPeakTerrain, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 			return
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, getAdvisorIconSortKey(0, iRow), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 	def getBattleTerrainTypeText(self, iTerrain):
+ 		if iTerrain >= 0 and iTerrain < gc.getNumTerrainInfos():
+@@ -535,7 +536,7 @@ class CvMilitaryAdvisor:
+ 		return ""
+ 
+ 	def getBattleResultLogText(self, iResult):
+-		# <!-- custom: dev-only PythonDbg log dump labels — hardcoded English (no localization round-trip via TXT_KEY) since logs are dev/diagnostic and never user-facing. (Claude code Opus 4.7) -->
++		# <!-- custom: dev-only PythonDbg log dump labels: hardcoded English (no localization round-trip via TXT_KEY) since logs are dev/diagnostic and never user-facing. Credit: Claude code Opus 4.7. (GPT-5.5) -->
+ 		if iResult == self.RESULT_WON:
+ 			return u"Won"
+ 		if iResult == self.RESULT_LOST:
+@@ -639,9 +640,9 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 0, iRow, str(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.getTurnDate(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		# <!-- custom: show result as compact icon art in the table to save width and reduce colored-text overload; keep Won/Lost/Ret. text in the PythonDbg.log dump below. (GPT-5.5) -->
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, "", self.getBattleResultArt(iResult), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, getAdvisorIconSortKey((iResult + 1) * 10, iRow), self.getBattleResultArt(iResult), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 3, iRow, self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, "", self.getBattleRoleArt(iOurRole), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, getAdvisorIconSortKey(iOurRole + 1, iRow), self.getBattleRoleArt(iOurRole), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 5, iRow, self.getBattleBaseStrengthText(iOurUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleCurrentStrengthText(iOurCurrStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, self.getBattleCurrentStrengthText(iOurEndStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+@@ -660,16 +661,16 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, self.getBattleCurrentStrengthText(iTheirEndStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, "", gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, "", gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, getAdvisorIconSortKey(iTheirCiv + 1, iRow), gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, getAdvisorIconSortKey(iTheirLeader + 1, iRow), gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 19, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 20, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 21, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 21, iRow, getAdvisorIconSortKey(iCapturedUnit + 1, iRow), self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+ 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
+ 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
+ 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.getBattlePlotButton(iCityContext), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, getAdvisorIconSortKey(iCityContext + 1, iRow), self.getBattlePlotButton(iCityContext), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 	def dbgLogBattleHistory(self):
+ 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4333e6823..850017423 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -121,6 +121,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same).
+ - (Requires AdvCiv-SAS 5754+) Refactor to **helper files** reusable logic; e.g., debug dropdown making and place legend link or geometry for advisors [SASUtils.py](/Assets/Python/SASUtils.py); expanded text and animation panels or draw none text ([_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), and many others.
++- (Requires AdvCiv-SAS 5773+) **Sortable icon-only table cells**: for actual image-icon cells where visible text is empty, add an invisible `<font=1>` sort key using **zero-width Unicode marks** `U+200B`, `U+200C`, `U+200D`, `U+200E`, and `U+200F`. **Sevopedia charts** and **in-category chart icon helpers** use `chart_sort_key` in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py); **advisors** use `getAdvisorIconSortKey` in [SASUtils.py](/Assets/Python/SASUtils.py), reused for example by the Military Advisor Battles tab and Info Screen Score tab leader/civ/research image cells. This is intentionally **only for separate icon-button** cells: **GameFont chars** such as religions, attitudes, trait icons, trade, war/peace, etc. **already sort as text**. The hardcoded `font=1` is intentionally not upscaled because the key must stay invisible and must not affect row height.
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=19074

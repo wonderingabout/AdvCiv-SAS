@@ -1,0 +1,218 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 709
+# Commit: ea9892ec051c1b7ff0705a91354c0b7aae6e00e8
+# History segment: K-Mod history
+# Parent used for diff: ae504fe8e7efa109400fe6aabee2418ce6f633db
+# Title: UnitAI::AI_spreadCorporation will now rely more strongly on CvPlayerAI::AI_executiveValue to choose the target. In particular, spread to anyone other that th...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	99	CvGameCoreDLL/CvUnitAI.cpp
+1	1	readme.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5b31566f5..c34a07f18 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12962,8 +12962,7 @@ bool CvUnitAI::AI_spreadCorporation()
+ 
+ 	CorporationTypes eCorporation = NO_CORPORATION;	
+ 
+-	int iI;
+-	for (iI = 0; iI < GC.getNumCorporationInfos(); ++iI)
++	for (int iI = 0; iI < GC.getNumCorporationInfos(); ++iI)
+ 	{
+ 		if (m_pUnitInfo->getCorporationSpreads((CorporationTypes)iI) > 0)
+ 		{
+@@ -13005,8 +13004,14 @@ bool CvUnitAI::AI_spreadCorporation()
+ 
+ 		if (isHuman())
+ 			eTargetPlayer = plot()->isOwned() ? plot()->getOwnerINLINE() : getOwnerINLINE();
+-		else if (kOwner.AI_executiveValue(area(), eCorporation, &eTargetPlayer, true) <= 0)
+-			return false; // corp is not worth spreading in this region.
++
++		if (eTargetPlayer == NO_PLAYER ||
++			GET_PLAYER(eTargetPlayer).isNoCorporations() || GET_PLAYER(eTargetPlayer).isNoForeignCorporations() ||
++			GET_PLAYER(eTargetPlayer).countCorporations(eCorporation, area()) >= area()->getCitiesPerPlayer(eTargetPlayer))
++		{
++			if (kOwner.AI_executiveValue(area(), eCorporation, &eTargetPlayer, true) <= 0)
++				return false; // corp is not worth spreading in this region.
++		}
+ 
+ 		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 		{
+@@ -13014,9 +13019,10 @@ bool CvUnitAI::AI_spreadCorporation()
+ 			if (kLoopPlayer.isAlive() && canEnterTerritory(kLoopPlayer.getTeam()) && area()->getCitiesPerPlayer((PlayerTypes)iI) > 0)
+ 			{
+ 				AttitudeTypes eAttitude = GET_TEAM(getTeam()).AI_getAttitude(kLoopPlayer.getTeam());
+-				if (iI == eTargetPlayer || getTeam() == kLoopPlayer.getTeam() || GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()) ||
+-					(bHasHQ && kLoopPlayer.countCorporations(eCorporation) > 0 && (eAttitude >= ATTITUDE_PLEASED || kLoopPlayer.AI_corporationValue(eCorporation) <= 0)) ||
+-					(bHasHQ && (eAttitude >= ATTITUDE_FRIENDLY || kLoopPlayer.AI_corporationValue(eCorporation) <= 0)))
++				if (iI == eTargetPlayer || getTeam() == kLoopPlayer.getTeam())// || (!isHuman() && GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam())) ||
++					//(bHasHQ && kLoopPlayer.countCorporations(eCorporation) > 0 && (eAttitude >= ATTITUDE_PLEASED || kLoopPlayer.AI_corporationValue(eCorporation) <= 0)) ||
++					//(bHasHQ && (eAttitude >= ATTITUDE_FRIENDLY || kLoopPlayer.AI_corporationValue(eCorporation) <= 0)))
++					// (let eTargetPlayer decide whether it is a good idea to spread to other players)
+ 				{
+ 					int iLoop;
+ 					for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+@@ -13035,13 +13041,15 @@ bool CvUnitAI::AI_spreadCorporation()
+ 								iValue += bHasHQ ? 1000 : 0; // we should probably calculate the true HqValue, but I couldn't be bothered right now.
+ 								iValue += pLoopCity->getTeam() == getTeam() ? kOwner.AI_corporationValue(eCorporation, pLoopCity) : 0;
+ 
+-								if (iI == eTargetPlayer)
++								/* if (iI == eTargetPlayer)
+ 									iValue *= 15;
+ 								else if (kLoopPlayer.getTeam() == getTeam())
+ 									iValue *= 10;
+ 								else if (GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()))
+ 									iValue *= 5;
+ 								else if (eAttitude >= ATTITUDE_FRIENDLY)
++									iValue *= 2; */
++								if (iI == eTargetPlayer)
+ 									iValue *= 2;
+ 
+ 								iValue *= 1000;
+@@ -13063,96 +13071,7 @@ bool CvUnitAI::AI_spreadCorporation()
+ 	}
+ 	// K-Mod end
+ 
+-	/* original bts code w/ BBAI changes
+-	CvTeam& kTeam = GET_TEAM(getTeam());
+-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+-	{
+-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-		if (kLoopPlayer.isAlive() && ((bHasHQ && canEnterTerritory(GET_PLAYER((PlayerTypes)iI).getTeam())) || (getTeam() == kLoopPlayer.getTeam())))
+-		{			
+-			int iLoopPlayerCorpCount = kLoopPlayer.countCorporations(eCorporation);
+-			CvTeam& kLoopTeam = GET_TEAM(kLoopPlayer.getTeam());
+-			int iLoop;
+-			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); NULL != pLoopCity; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+-			{
+-				if (AI_plotValid(pLoopCity->plot()))
+-				{
+-					if ( pLoopCity->area() == area() && canSpreadCorporation(pLoopCity->plot(), eCorporation))
+-					{
+-						if (!(pLoopCity->plot()->isVisibleEnemyUnit(this)))
+-						{
+-							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_SPREAD_CORPORATION, getGroup()) == 0)
+-							{
+-								int iPathTurns;
+-								if (generatePath(pLoopCity->plot(), MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+-								{
+-									int iValue = (10 + pLoopCity->getPopulation() * 2);
+-
+-									if (pLoopCity->getOwnerINLINE() == getOwnerINLINE())
+-									{
+-										iValue *= 4;
+-									}
+-									else if (kLoopTeam.isVassal(getTeam()))
+-									{
+-										iValue *= 3;
+-									}
+-									else if (kTeam.isVassal(kLoopTeam.getID()))
+-									{
+-										if (iLoopPlayerCorpCount == 0)
+-										{
+-											iValue *= 10;
+-										}
+-										else
+-										{
+-											iValue *= 3;
+-											iValue /= 2;
+-										}
+-									}
+-									else if (pLoopCity->getTeam() == getTeam())
+-									{
+-										iValue *= 2;
+-									}
+-
+-									if (iLoopPlayerCorpCount == 0)
+-									{
+-										//Generally prefer to heavily target one player
+-										iValue /= 2;
+-									}
+-
+-									bool bForceMove = false;
+-									if (isHuman())
+-									{
+-										//If human, prefer to spread to the player where automated from.
+-										if (plot()->getOwnerINLINE() == pLoopCity->getOwnerINLINE())
+-										{
+-											iValue *= 10;
+-											if (pLoopCity->isRevealed(getTeam(), false))
+-											{
+-												bForceMove = true;
+-											}
+-										}
+-									}
+-
+-									FAssert(iPathTurns > 0);
+-
+-									iValue *= 1000;
+-
+-									iValue /= (iPathTurns + 1);
+-
+-									if (iValue > iBestValue)
+-									{
+-										iBestValue = iValue;
+-										pBestPlot = bForceMove ? pLoopCity->plot() : getPathEndTurnPlot();
+-										pBestSpreadPlot = pLoopCity->plot();
+-									}
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	} */
++	// (original code deleted)
+ 
+ 	if (pBestPlot != NULL && pBestSpreadPlot != NULL)
+ 	{
+@@ -13161,14 +13080,17 @@ bool CvUnitAI::AI_spreadCorporation()
+ 			if (canSpreadCorporation(pBestSpreadPlot, eCorporation))
+ 			{
+ 				getGroup()->pushMission(MISSION_SPREAD_CORPORATION, eCorporation);
++				return true;
+ 			}
+ 			//else
+ 			else if (GET_PLAYER(getOwnerINLINE()).getGold() < spreadCorporationCost(eCorporation, pBestSpreadPlot->getPlotCity()))
+ 			{
+ 				// wait for more money
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_SPREAD_CORPORATION, pBestSpreadPlot);
++				return true;
+ 			}
+-			return true;
++			// FAssertMsg(false, "AI_spreadCorporation has taken us to a bogus pBestSpreadPlot");
++			// this can happen from time to time. For example, when the player loses their only corp resources while the exec is en route.
+ 		}
+ 		else
+ 		{
+
+diff --git a/readme.txt b/readme.txt
+index 1ad449268..f3be00406 100644
+--- a/readme.txt
++++ b/readme.txt
+@@ -4,7 +4,7 @@ K-Mod
+ * Unzip into your mods directory. (eg. C:\games\Civilization 4 Complete\Beyond the Sword\Mods)
+ * You should now have a directory called ...\Beyond the Sword\Mods\K-Mod, and the installation is complete!
+ * To play the mod, start Beyond the Sword; choose Advanced, then Load a Mod, then K-Mod.
+-* To load the mod automatically, create a shortcut to ["Civ4BeyondSword.exe" -mod= K-Mod].
++* To load the mod automatically, create a shortcut to ["Civ4BeyondSword.exe" mod="K-Mod"].
+ 
+ == Uninstallation instructions ==
+ * Delete the K-Mod directory.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7640

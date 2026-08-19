@@ -1,0 +1,631 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5314
+# Commit: e8659a5e4c4afae41306dfc04e8ec62eeb77eb99
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c4ce1e7796c2404d7b67a24286fd8538e6658dd7
+# Title: Change from short to int the Found Value pipeline - **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache,...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_48_civs_DLL.dll
+0	11	Assets/XML/GlobalDefines_advciv_sas.xml
+8	25	CvGameCoreDLL/CitySiteEvaluator.cpp
+7	6	CvGameCoreDLL/CitySiteEvaluator.h
+2	1	CvGameCoreDLL/CvArea.h
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+3	2	CvGameCoreDLL/CvPlot.cpp
+3	2	CvGameCoreDLL/CvPlot.h
+2	1	CvGameCoreDLL/CvPythonCaller.cpp
+2	1	CvGameCoreDLL/CvPythonCaller.h
+23	24	CvGameCoreDLL/StartingPositionIteration.cpp
+6	5	CvGameCoreDLL/StartingPositionIteration.h
+28	0	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_48_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6d7f9366f..d09da0a3a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -241,8 +241,6 @@
+ 
+ 
+ 
+-	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctlymay be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value) -->
+-
+ 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well if i'm not mistaken. Are accounted as very bad tiles (check if not updated in code), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city)):
+ 		- peak tiles
+ 		- ice cap tiles
+@@ -632,15 +630,6 @@
+ 
+ 
+ 
+-	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too, check if accurate; also refactored a bit otherwise our already changed code as commented below -->
+-	<!-- leave headroom under 32767 -->
+-	<Define>
+-		<DefineName>SAS_EVALUATE_GUARD_KMAXFOUND</DefineName>
+-		<iDefineIntVal>32765</iDefineIntVal>
+-	</Define>
+-
+-
+-
+ 	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
+ 	<!-- custom: 1 to enable (recommended), 0 to disable -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index cfb85f372..dee922029 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -155,14 +155,15 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
+ }
+ 
+ 
+-short CitySiteEvaluator::evaluate(CvPlot const& kPlot) const
++// <!-- custom: found-value evaluation now returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++int CitySiteEvaluator::evaluate(CvPlot const& kPlot) const
+ {
+ 	AIFoundValue foundVal(kPlot, *this);
+ 	return foundVal.get();
+ }
+ 
+ 
+-short CitySiteEvaluator::evaluate(int iX, int iY) const
++int CitySiteEvaluator::evaluate(int iX, int iY) const
+ {
+ 	CvPlot const* pPlot = GC.getMap().plot(iX, iY);
+ 	if (pPlot == NULL)
+@@ -239,10 +240,10 @@ void CitySiteEvaluator::setDebug(bool b)
+ }
+ 
+ // <advc.031c>
+-short CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
++int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
+ {
+ 	AIFoundValue::setLoggingEnabled(true);
+-	short r = evaluate(kPlot);
++	int r = evaluate(kPlot);
+ 	AIFoundValue::setLoggingEnabled(false);
+ 	return r;
+ }
+@@ -355,6 +356,7 @@ AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettin
+ 	m_iResult = evaluate();
+ }
+ 
++// <!-- custom: we now return int (no longer short) in AIFoundValue::evaluate, so overflow risk is much lower; keep penalties bounded but don't expect short wraparound behavior here. (GPT-5.2-Codex (summarized)) -->
+ /*  Body from CvPlayerAI::AI_foundValue_bulk, split into subroutines.
+ 	More refactoring could be done; for one thing, some of the functions have
+ 	long (return) parameter lists. Should probably introduce a class CityPlot
+@@ -363,7 +365,7 @@ AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettin
+ 	K-Mod: Heavily edited (some changes marked, others not.)
+ 	note, this function is called for every revealed plot for every player
+ 	at the start of every turn. try to not make it too slow! */
+-short AIFoundValue::evaluate()
++int AIFoundValue::evaluate()
+ {
+ 	IFLOG logSite();
+ 
+@@ -829,7 +831,6 @@ short AIFoundValue::evaluate()
+ 					if (fImp >= iMinOnBonusFoodImproveWorth)
+ 					{
+ 						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate) -->
+-						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had -->
+ 						int const iOnBonusFoodPenalty = iBaseValueOnBonusFood * fImp;
+ 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract -->
+ 						r += iOnBonusFoodPenalty;
+@@ -1493,25 +1494,7 @@ short AIFoundValue::evaluate()
+ 	// advc: BtS code (iDifferentAreaTile) deleted
+ 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
+ 
+-	// <!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too, check if accurate; also refactored a bit otherwise our already changed code as commented below -->
+-	static const int kMaxFound = GC.getDefineINT("SAS_EVALUATE_GUARD_KMAXFOUND"); // leave headroom under 32767
+-	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids overflow, as chatgpt 5 seems to rightfully be concerned about it but check if accurate i mean, i also refactored it a bit -->
+-	// if (iValue <= 0)
+-	// 	return 1;
+-	if (iValue <= 0)
+-	{
+-		iValue = 1;
+-	}
+-	// guard high (saturate before narrowing)
+-	// FAssert(iValue >= 0);
+-	// IFLOG logBBAI("Bottom line (found-city value): %d\n", iValue);
+-	// return std::max<short>(1, truncIntCast<short>(iValue));
+-	else if (iValue > kMaxFound)
+-	{
+-		IFLOG logBBAI("Clamp high iValue %d -> %d", iValue, kMaxFound);
+-		iValue = kMaxFound;
+-	}
+-	return (short)iValue;
++	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index f89a398d5..d8d87a927 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -18,9 +18,10 @@ class CitySiteEvaluator
+ public:
+ 	CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange = -1,
+ 			bool bStartingLoc = false, bool bNormalize = false);
+-	short evaluate(CvPlot const& kPlot) const;
+-	short evaluate(int iX, int iY) const;
+-	short evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
++	// <!-- custom: found-value path uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++	int evaluate(CvPlot const& kPlot) const;
++	int evaluate(int iX, int iY) const;
++	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
+ 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
+ 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
+ 	bool isStartingLoc() const { return m_bStartingLoc; }
+@@ -92,7 +93,7 @@ class AIFoundValue
+ {
+ public:
+ 	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings);
+-	short get() const { return m_iResult; }
++	int get() const { return m_iResult; }
+ 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
+ 
+ 	// <advc.031c> Will have to enable the found log in BBAILog.h in addition
+@@ -100,7 +101,7 @@ public:
+ 	static bool isLoggingEnabled() { return bLoggingEnabled; } // </advc.031c>
+ 
+ private:
+-	short m_iResult;
++	int m_iResult;
+ 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
+ 		the reference members needs to match their order in the ctor initalizer list. */
+ 	CvPlot const& kPlot;
+@@ -136,7 +137,7 @@ private:
+ 			bool bCanSoonImproveBonus, bool bEasyAccess,
+ 			int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const;
+ 	// </advc.031c>
+-	short evaluate();
++	int evaluate();
+ 	// Subroutines of evaluate ...
+ 	bool isHome(CvPlot const& p) const { return (&p == &kPlot); }
+ 	bool isSiteValid() const;
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 2e2f4473d..b9bd2d121 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -223,7 +223,8 @@ protected:
+ 	ArrayEnumMap<PlayerTypes,int,char> m_aiTradeRoutes; // advc.310
+ 	ArrayEnumMap<PlayerTypes,int,char> m_aiFreeSpecialist;
+ 	ArrayEnumMap<PlayerTypes,int> m_aiPower;
+-	ArrayEnumMap<PlayerTypes,int,short> m_aiBestFoundValue;
++	// <!-- custom: best found values stored as int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++	ArrayEnumMap<PlayerTypes,int> m_aiBestFoundValue;
+ 	ArrayEnumMap<TeamTypes,int,PlotNumInt> m_aiNumRevealedTiles;
+ 	ArrayEnumMap<TeamTypes,int,char> m_aiCleanPowerCount;
+ 	ArrayEnumMap<TeamTypes,int,char> m_aiBorderObstacleCount;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e8351f54e..d5a6ed28e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1062,7 +1062,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStarting)  // advc: refactored
+ 			kLoopPlot.setFoundValue(getID(), 0);
+ 			continue;
+ 		}
+-		short iValue = GC.getPythonCaller()->AI_foundValue(getID(), kLoopPlot);
++		int iValue = GC.getPythonCaller()->AI_foundValue(getID(), kLoopPlot);
+ 		if (iValue == -1)
+ 		{	// K-Mod:
+ 			iValue = citySiteEval.evaluate(kLoopPlot);
+@@ -1071,7 +1071,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStarting)  // advc: refactored
+ 				// Unless it doesn't have fresh water
+ 				kLoopPlot.isFreshWater())
+ 			{
+-				iValue = truncIntCast<short>(iValue + intdiv::round(iValue, 20));
++				iValue += intdiv::round(iValue, 20);
+ 			} // </advc.108>
+ 		}
+ 		kLoopPlot.setFoundValue(getID(), iValue);
+@@ -2789,7 +2789,8 @@ int CvPlayerAI::AI_calculateEspionageWeight() const
+ }
+ 
+ 
+-short CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc,
++// <!-- custom: found-value evaluation returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc,
+ 	bool bNormalize) const // advc.031e
+ {
+ 	CitySiteEvaluator eval(*this, iMinRivalRange, bStartingLoc, /* advc.031e: */ bNormalize);
+@@ -29215,7 +29216,7 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
+ 			p.setFoundValue(getID(), 0);
+ 		else if (p.isRevealed(getTeam()))
+ 		{
+-			short iValue = GC.getPythonCaller()->AI_foundValue(getID(), p);
++			int iValue = GC.getPythonCaller()->AI_foundValue(getID(), p);
+ 			if (iValue == -1)
+ 				iValue = AI_foundValue(p.getX(), p.getY());
+ 			p.setFoundValue(getID(), iValue);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index e9d7df83f..624b3636b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -118,7 +118,8 @@ public:
+ 	// <advc.035>
+ 	bool AI_isPlotContestedByRival(CvPlot const& kPlot,
+ 			PlayerTypes eRival = NO_PLAYER) const; // </advc.035>
+-	short AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false,			// Exposed to Python
++	// <!-- custom: found-value evaluation returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++	int AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false,			// Exposed to Python
+ 			bool bNormalize = false) const; // advc.031e
+ 	// advc: Replaced by the CitySiteEvaluator class
+ 	//struct CvFoundSettings { ... } // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 56474de5e..f7d355ff9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5601,13 +5601,14 @@ void CvPlot::changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate)
+ }
+ 
+ 
++// <!-- custom: found-value pipeline uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+ int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) const
+ {
+ 	FAssertBounds(0, MAX_PLAYERS, eIndex);
+ 
+ 	if (m_aiFoundValue.get(eIndex) == -1)
+ 	{
+-		short iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
++		int iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
+ 		if (iValue == -1)
+ 		{
+ 			// advc: Otherwise bStartingLoc=true probably isn't correct
+@@ -5658,7 +5659,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex) /* advc: */ const
+ }
+ 
+ 
+-void CvPlot::setFoundValue(PlayerTypes eIndex, short iNewValue)
++void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
+ {
+ 	m_aiFoundValue.set(eIndex, iNewValue);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 4450f389a..4a3b453dc 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -584,7 +584,7 @@ public:
+ 	int getFoundValue(PlayerTypes eIndex,															// Exposed to Python
+ 			bool bRandomize = false) const; // advc.052
+ 	bool isBestAdjacentFound(PlayerTypes eIndex) const;												// Exposed to Python
+-	void setFoundValue(PlayerTypes eIndex, short iNewValue); // K-Mod (was int iNewValue)
++	void setFoundValue(PlayerTypes eIndex, int iNewValue);
+ 	bool canFound(bool bTestVisible = false, TeamTypes eTeam = NO_TEAM) const; // advc
+ 	bool canEverFound() const; // advc.129d
+ 
+@@ -910,7 +910,8 @@ protected:
+ 	YieldChangeMap m_aiYield;
+ 	ArrayEnumMap<PlayerTypes,int> m_aiCulture;
+ 	ArrayEnumMap<PlayerTypes,int,int,FFreeList::INVALID_INDEX> m_aiPlotGroup;
+-	mutable ArrayEnumMap<PlayerTypes,short> m_aiFoundValue; // advc: mutable
++	// <!-- custom: found values stored as int (not short) to avoid overflow/underflow in site eval. (GPT-5.2-Codex (summarized)) -->
++	mutable ArrayEnumMap<PlayerTypes,int> m_aiFoundValue; // advc: mutable
+ 	ListEnumMap<PlayerTypes,int,char> m_aiPlayerCityRadiusCount;
+ 	ArrayEnumMap<TeamTypes,int,short> m_aiVisibilityCount;
+ 	ListEnumMap<TeamTypes,int,short> m_aiStolenVisibilityCount;
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index 46da79a4c..52c3b36b0 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1033,7 +1033,8 @@ bool CvPythonCaller::doResearch(PlayerTypes ePlayer) const
+ 	return toBool(lResult);
+ }
+ 
+-short CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const
++// <!-- custom: found-value callback returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++int CvPythonCaller::AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const
+ {
+ 	if (!isUse(GET_CITY_FOUND_VALUE))
+ 		return -1;
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.h b/CvGameCoreDLL/CvPythonCaller.h
+index 1e2ff2586..25a32ccdf 100644
+--- a/CvGameCoreDLL/CvPythonCaller.h
++++ b/CvGameCoreDLL/CvPythonCaller.h
+@@ -113,7 +113,8 @@ public:
+ 	bool canDoCivicOverride(PlayerTypes ePlayer, CivicTypes eCivic) const;
+ 	bool doGold(PlayerTypes ePlayer) const;
+ 	bool doResearch(PlayerTypes ePlayer) const;
+-	short AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
++	// <!-- custom: found-value callback returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++	int AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
+ 	TechTypes AI_chooseTech(PlayerTypes ePlayer, bool bFree) const;
+ 	bool AI_doDiplo(PlayerTypes ePlayer) const;
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index e3d07dfc8..25c42f9ee 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -294,15 +294,13 @@ StartingPositionIteration::PotentialSites::PotentialSites(
+ 		CvPlot const& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
+ 		if (bRestrictedAreas && validAreas.count(kPlot.area()) <= 0)
+ 			continue;
+-		short iFoundValue = std::max<short>(0, m_kEval.evaluate(kPlot));
++		int iFoundValue = std::max(0, m_kEval.evaluate(kPlot));
+ 		if (iFoundValue >= rMinFoundVal)
+ 		{
+ 			// Randomize a little - mainly so that settling in place isn't a no-brainer
+-			iFoundValue = safeIntCast<short>(
+-					(iFoundValue + iFoundValue *
++			iFoundValue = (iFoundValue + iFoundValue *
+ 					((iFoundValue / rMinFoundVal - 1) * fixp(0.05) *
+-					(scaled::rand(mapRand(), NULL) - fixp(0.5)))).
+-					round());
++					(scaled::rand(mapRand(), NULL) - fixp(0.5)))).round();
+ 			m_foundValuesPerSite.insert(make_pair(eLoopPlotNum, iFoundValue));
+ 		}
+ 	}
+@@ -313,7 +311,7 @@ StartingPositionIteration::PotentialSites::PotentialSites(
+ 	// "Clearing the neighborhood"
+ 
+ 	EagerEnumMap<PlotNumTypes,scaled> arVicinityPenaltiesPerPlot;
+-	for (map<PlotNumTypes,short>::const_iterator itSite = m_foundValuesPerSite.begin();
++	for (map<PlotNumTypes,int>::const_iterator itSite = m_foundValuesPerSite.begin();
+ 		itSite != m_foundValuesPerSite.end(); ++itSite)
+ 	{
+ 		CvPlot const& p = kMap.getPlotByIndex(itSite->first);
+@@ -325,9 +323,9 @@ StartingPositionIteration::PotentialSites::PotentialSites(
+ 			(Tbd. - Perhaps better: take Voronoi cells with few sites left off limits.) */
+ 		if (fewestPotentialSites() < 2 && numSites() < iPlayers * 15u)
+ 			break;
+-		map<PlotNumTypes,short>::iterator minPos;
++		map<PlotNumTypes,int>::iterator minPos;
+ 		scaled rMinVal = scaled::MAX;
+-		for (map<PlotNumTypes,short>::iterator it = m_foundValuesPerSite.begin();
++		for (map<PlotNumTypes,int>::iterator it = m_foundValuesPerSite.begin();
+ 			it != m_foundValuesPerSite.end(); ++it)
+ 		{
+ 			scaled rVal = it->second * std::max(fixp(0.3),
+@@ -339,7 +337,7 @@ StartingPositionIteration::PotentialSites::PotentialSites(
+ 			}
+ 		}
+ 		CvPlot const& kMinPlot = kMap.getPlotByIndex(minPos->first);
+-		short iMinFoundVal = minPos->second;
++		int iMinFoundVal = minPos->second;
+ 		m_foundValuesPerSite.erase(minPos);
+ 		recordSite(kMinPlot, iMinFoundVal, false, arVicinityPenaltiesPerPlot);
+ 	}
+@@ -357,11 +355,11 @@ StartingPositionIteration::PotentialSites::~PotentialSites()
+ 
+ scaled StartingPositionIteration::PotentialSites::computeMinFoundValue()
+ {
+-	vector<short> aiFoundValuesPerCurrSite; // vector for stats::median
+-	short iWorstCurrFoundVal = MAX_SHORT;
++vector<int> aiFoundValuesPerCurrSite; // vector for stats::median
++int iWorstCurrFoundVal = MAX_INT;
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 	{
+-		short iFoundVal = m_kEval.evaluate(*it->getStartingPlot());
++		int iFoundVal = m_kEval.evaluate(*it->getStartingPlot());
+ 		aiFoundValuesPerCurrSite.push_back(iFoundVal);
+ 		m_foundValuesPerCurrSite.set(it->getID(), iFoundVal);
+ 		iWorstCurrFoundVal = std::min(iWorstCurrFoundVal, iFoundVal);
+@@ -374,7 +372,7 @@ scaled StartingPositionIteration::PotentialSites::computeMinFoundValue()
+ /*	(Could get the found value from m_foundValuesPerSite, but the callers
+ 	happen to have it at hand.) */
+ void StartingPositionIteration::PotentialSites::recordSite(
+-	CvPlot const& kPlot, short iFoundValue, bool bAdd,
++	CvPlot const& kPlot, int iFoundValue, bool bAdd,
+ 	EagerEnumMap<PlotNumTypes,scaled>& kVicinityPenaltiesPerPlot)
+ {
+ 	// Update vicinity penalties
+@@ -382,7 +380,7 @@ void StartingPositionIteration::PotentialSites::recordSite(
+ 	for (PlotCircleIter it(kPlot, 8, false); it.hasNext(); ++it)
+ 	{
+ 		PlotNumTypes const eLoopPlot = it->plotNum();
+-		map<PlotNumTypes,short>::const_iterator pos = m_foundValuesPerSite.find(eLoopPlot);
++		map<PlotNumTypes,int>::const_iterator pos = m_foundValuesPerSite.find(eLoopPlot);
+ 		if (pos != m_foundValuesPerSite.end() && pos->second < iFoundValue)
+ 		{
+ 			kVicinityPenaltiesPerPlot.add(eLoopPlot, iSign *
+@@ -463,7 +461,7 @@ void StartingPositionIteration::PotentialSites::updateCurrSites(bool bUpdateCell
+ 	CvMap const& kMap = GC.getMap();
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 	{
+-		map<PlotNumTypes,short>::iterator pos = m_foundValuesPerSite.find(
++		map<PlotNumTypes,int>::iterator pos = m_foundValuesPerSite.find(
+ 				it->getStartingPlot()->plotNum());
+ 		if (pos != m_foundValuesPerSite.end())
+ 		{
+@@ -480,7 +478,7 @@ void StartingPositionIteration::PotentialSites::updateCurrSites(bool bUpdateCell
+ 		}
+ 	}
+ 	m_remoteSitesByAreaSize.clear();
+-	for (map<PlotNumTypes,short>::const_iterator it = m_foundValuesPerSite.begin();
++	for (map<PlotNumTypes,int>::const_iterator it = m_foundValuesPerSite.begin();
+ 		it != m_foundValuesPerSite.end(); ++it)
+ 	{
+ 		PlotNumTypes ePlotNum = it->first;
+@@ -507,7 +505,7 @@ void StartingPositionIteration::PotentialSites::getPlots(
+ {
+ 	FAssert(r.empty());
+ 	CvMap const& kMap = GC.getMap();
+-	for (map<PlotNumTypes,short>::const_iterator it = m_foundValuesPerSite.begin();
++	for (map<PlotNumTypes,int>::const_iterator it = m_foundValuesPerSite.begin();
+ 		it != m_foundValuesPerSite.end(); ++it)
+ 	{
+ 		r.push_back(&kMap.getPlotByIndex(it->first));
+@@ -539,17 +537,17 @@ PlotNumTypes StartingPositionIteration::PotentialSites::getRemoteSite(
+ 
+ 
+ void StartingPositionIteration::PotentialSites::getCurrFoundValues(
+-	EagerEnumMap<PlayerTypes,short>& kFoundValuesPerPlayer) const
++	EagerEnumMap<PlayerTypes,int>& kFoundValuesPerPlayer) const
+ {
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 	{
+-		map<PlotNumTypes,short>::const_iterator pos = m_foundValuesPerSite.
++		map<PlotNumTypes,int>::const_iterator pos = m_foundValuesPerSite.
+ 				find(it->getStartingPlot()->plotNum());
+ 		if (pos != m_foundValuesPerSite.end())
+ 			kFoundValuesPerPlayer.set(it->getID(), pos->second);
+ 		else
+ 		{
+-			short iCurrFoundVal = m_foundValuesPerCurrSite.get(it->getID());
++			int iCurrFoundVal = m_foundValuesPerCurrSite.get(it->getID());
+ 			if (iCurrFoundVal > 0)
+ 				kFoundValuesPerPlayer.set(it->getID(), iCurrFoundVal);
+ 		}
+@@ -843,10 +841,11 @@ std::string StartingPositionIteration::Step::debugStr() const
+ }
+ 
+ 
++// <!-- custom: found values use int (not short) throughout SPI to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+ void StartingPositionIteration::evaluateCurrPosition(
+ 	SolutionAttributes& kResult, bool bLog) const
+ {
+-	EagerEnumMap<PlayerTypes,short> foundValues;
++EagerEnumMap<PlayerTypes,int> foundValues;
+ 	m_pPotentialSites->getCurrFoundValues(foundValues);
+ 	computeStartValues(foundValues, kResult, bLog);
+ 	kResult.m_rStartPosVal = startingPositionValue(kResult);
+@@ -1039,7 +1038,7 @@ StartingPositionIteration::SpaceEvaluator::cacheDelayFactors(word iMaxDist)
+ 
+ // The results are on the scale of AIFoundValue
+ void StartingPositionIteration::computeStartValues(
+-	EagerEnumMap<PlayerTypes,short> const& kFoundValues,
++	EagerEnumMap<PlayerTypes,int> const& kFoundValues,
+ 	SolutionAttributes& kResult, bool bLog) const
+ {
+ 	#ifdef SPI_LOG
+@@ -2170,7 +2169,7 @@ bool NormalizationTarget::isReached(CvPlot const& kStartSite,
+ 	CvMap const& kMap = GC.getMap();
+ 
+ 	scaled rCurrStartVal = -1;
+-	short iCurrFoundVal = -1;
++int iCurrFoundVal = -1;
+ 	vector<scaled> arCurrFoundValues;
+ 	vector<scaled> arCurrStartValues;
+ 	for (map<PlotNumTypes,StartValBreakdown>::const_iterator it =
+@@ -2178,7 +2177,7 @@ bool NormalizationTarget::isReached(CvPlot const& kStartSite,
+ 	{
+ 		PlotNumTypes const eLoopPlot = it->first;
+ 		CvPlot const& kLoopPlot = kMap.getPlotByIndex(eLoopPlot);
+-		short iFoundVal = m_pEval->evaluate(kLoopPlot);
++		int iFoundVal = m_pEval->evaluate(kLoopPlot);
+ 		arCurrFoundValues.push_back(iFoundVal);
+ 		StartValBreakdown svb = it->second;
+ 		scaled rStartVal = svb.rTotal;
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+index ff8f64301..9dda6bb4a 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.h
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -55,7 +55,8 @@ private:
+ 
+ 	CitySiteEvaluator* createSiteEvaluator(bool bNormalize = false) const;
+ 	void evaluateCurrPosition(SolutionAttributes& kResult, bool bLog = false) const;
+-	void computeStartValues(EagerEnumMap<PlayerTypes,short> const& kFoundValues,
++	// <!-- custom: found values stored as int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
++	void computeStartValues(EagerEnumMap<PlayerTypes,int> const& kFoundValues,
+ 			SolutionAttributes& kResult, bool bLog = false) const;
+ 	scaled computeRivalDistFactors(EagerEnumMap<PlayerTypes,scaled>& kResult,
+ 			bool bSameArea) const;
+@@ -90,17 +91,17 @@ private:
+ 		VoronoiCell* getCell(PlayerTypes eCurrSite) const;
+ 		PlotNumTypes getRemoteSite(int iIndex) const;
+ 		void getCurrFoundValues(
+-				EagerEnumMap<PlayerTypes,short>& kFoundValuesPerPlayer) const;
++				EagerEnumMap<PlayerTypes,int>& kFoundValuesPerPlayer) const;
+ 
+ 	private:
+ 		CitySiteEvaluator const& m_kEval;
+-		std::map<PlotNumTypes,short> m_foundValuesPerSite;
++		std::map<PlotNumTypes,int> m_foundValuesPerSite;
+ 		std::map<PlayerTypes,VoronoiCell*> m_sitesClosestToCurrSite;
+-		EagerEnumMap<PlayerTypes,short> m_foundValuesPerCurrSite;
++		EagerEnumMap<PlayerTypes,int> m_foundValuesPerCurrSite;
+ 		std::vector<std::pair<int,PlotNumTypes> > m_remoteSitesByAreaSize;
+ 
+ 		scaled computeMinFoundValue();
+-		void recordSite(CvPlot const& kPlot, short iFoundValue, bool bAdd,
++		void recordSite(CvPlot const& kPlot, int iFoundValue, bool bAdd,
+ 				EagerEnumMap<PlotNumTypes,scaled>& kVicinityPenaltiesPerPlot);
+ 		void closestPlayers(CvPlot const& kPlot, std::vector<PlayerTypes>& kResult) const;
+ 		int fewestPotentialSites() const;
+
+diff --git a/README.md b/README.md
+index 351d5bb6d..0f248cb35 100644
+--- a/README.md
++++ b/README.md
+@@ -48,6 +48,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok
+ [48 Civs DLL](/README.md#48-civs-dll)  
+ &emsp;[How to use](/README.md#how-to-use)  
+ &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
++[Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
+ [Long Comments Archive](/README.md#long-comments-archive)  
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Python scripts](/README.md#python-scripts)  
+@@ -467,6 +468,33 @@ Note: "tiles/player" uses each file's iDefaultPlayers. XXL World sets Giant/Ultr
+ 
+ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ 
++## Change from short to int the Found value pipeline
++
++Disclaimer: I don't know too much about these, check if accurate.
++
++With the help of GPT-5.2-Codex, we changed in AdvCiv-SAS a common overflow/underflow issue or weaker of `AIFoundValue::evaluate` and related code from `short` to now using `int`.
++
++From what i understand, this should heavily increase reliability, as well as possibly performance since an older version of ChatGPT told me that int may be faster than short and GPT-5.2 Code seemingly said so too from what i understood of its explanation, thanks a lot for help!
++
++Runs fine end to end on the usual 18 civs DLL, and from 0 T10 to T100 on a SAS 48 World size without any obvious issue, so looks good to merge (again check if accurate)!
++
++Below is the recap by GPT-5.2-Codex thanks.
++
++>Moved the found‑value pipeline off short and onto int end‑to‑end, and removed the short‑specific overflow clamps in that path. This keeps the logic intact but avoids short wrap/underflow and the extra casts.
++>
++>Key changes:
++>
++>- CitySiteEvaluator.h and CitySiteEvaluator.cpp: `CitySiteEvaluator::evaluate*` and `AIFoundValue::evaluate/get` now return `int`; removed the final `(short)` cast and updated the overflow‑risk comment.
++>- CvPlayerAI.h and CvPlayerAI.cpp: `AI_foundValue` returns `int`; removed `truncIntCast<short>` in the starting‑plot bump; Python fallback values now stored as `int`.
++>- CvPlot.h and CvPlot.cpp: `m_aiFoundValue` storage and `setFoundValue` now use `int`, plus the Python fallback uses `int`.
++>- CvArea.h: `m_aiBestFoundValue` storage switched to `int`.
++>- StartingPositionIteration.h and StartingPositionIteration.cpp: all found‑value containers and calculations in SPI now use `int`; removed the `safeIntCast<short>` randomization clamp.
++>- CvPythonCaller.h and CvPythonCaller.cpp: Python AI_foundValue callback now returns `int` (not short), matching the pipeline.
++>
++>Important note on saves:
++>
++>- This does change save format because CvPlot::m_aiFoundValue and CvArea::m_aiBestFoundValue are serialized. Old saves will likely be incompatible or read garbage for found values.
++
+ ## Long Comments Archive
+ 
+ Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 184553577..6d440ce44 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -139,6 +139,7 @@ Note: see moe details in the [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/REA
+ 
+ - (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
++- (Requires AdvCiv-SAS 5314+) **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=14 omittedFiles=2 embeddedPatchBytes=36577

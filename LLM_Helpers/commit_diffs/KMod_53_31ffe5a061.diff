@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 53
+# Commit: 31ffe5a061d41de73223c5323666484679216e4e
+# History segment: K-Mod history
+# Parent used for diff: 77a2f415049ed88074f8a522cb6f34f3821f2166
+# Title: Tweaked the prereq building value. Increased the cost of The Great Lighthouse from 200 to 300.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/buildings/CIV4BuildingInfos.xml
+2	3	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/xml/buildings/CIV4BuildingInfos.xml
+index f4bb1ecba..8abca15eb 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/xml/buildings/CIV4BuildingInfos.xml
+@@ -21467,7 +21467,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>200</iCost>
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1d7396fd3..f7ea5eff9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4302,11 +4302,10 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 										iHighestValue = std::max(pLoopCity->AI_buildingValue((BuildingTypes)iI, 0), iHighestValue);
+ 								}
+ 
+-								int iBasePrereq = GC.getBuildingInfo((BuildingTypes)iI).getPrereqNumOfBuildingClass(eBuildingClass);
+ 								iTempValue = iHighestValue;
+ 								iTempValue *= iCanBuildPrereq + 3*iPrereqBuildings;
+-								iTempValue /= iBasePrereq*(3*iCanBuildPrereq + iPrereqBuildings);
+-								// That's between 1/iBasePrereq and 1/3*iBasePrereq, depending on # needed and # buildable
++								iTempValue /= (iPrereqBuildings+1)*(3*iCanBuildPrereq + iPrereqBuildings);
++								// That's between 1/(iPrereqBuildings+1) and 1/3*(iPrereqBuildings+1), depending on # needed and # buildable
+ 								iValue += iTempValue;
+ 							}
+ 						}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1593

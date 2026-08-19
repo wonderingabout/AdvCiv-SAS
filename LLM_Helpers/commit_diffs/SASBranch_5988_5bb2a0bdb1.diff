@@ -1,0 +1,204 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5988
+# Commit: 5bb2a0bdb14b284bca7aa253215bbac8f9549e20
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d065ecda85f85718256c662b017243f48ab32843
+# Title: Add BBAI diagnostics for missed AI citizen swaps and suspicious plot allocations (SAS_BBAI_CITIZEN_LOG_LEVEL)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+8	1	CvGameCoreDLL/BBAILog.cpp
+2	0	CvGameCoreDLL/BBAILog.h
+97	0	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6286b2886..d9b8ea299 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1211,6 +1211,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. Use 0 outside targeted tests because exhaustive pair comparisons are intentionally expensive. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs. Use this to diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_CULTURE_LOG_LEVEL</DefineName>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 4e025c9f7..00d1d12c3 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -21,7 +21,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
+ // <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
+ bool isSASBBAILogEnabled()
+ {
+-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
++	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+ 	return bEnabled;
+ }
+ 
+@@ -49,6 +49,13 @@ int getSASBBAICityLogLevel()
+ 	return iLevel;
+ }
+ 
++// <!-- custom: Separate citizen-assignment log level so expensive contextual swap and raw plot-yield diagnostics can run without broad city logging. (GPT-5.5) -->
++int getSASBBAICitizenLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_CITIZEN_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
+ int getSASBBAIUnitLogLevel()
+ {
+ 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_UNIT_LOG_LEVEL") : 0);
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index fe0db2f94..732a513f6 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -18,6 +18,7 @@ bool isSASBBAILogMasterEnabled();
+ int getSASBBAIPlayerLogLevel();
+ int getSASBBAITeamLogLevel();
+ int getSASBBAICityLogLevel();
++int getSASBBAICitizenLogLevel();
+ int getSASBBAIUnitLogLevel();
+ int getSASBBAIWorkerLogLevel();
+ int getSASBBAIWorkerSeaLogLevel();
+@@ -32,6 +33,7 @@ int getSASBBAIScoreLogInterval();
+ #define gScoreLogInterval getSASBBAIScoreLogInterval() // advc.007: was hardcoded to 25 in CvPlayer::onTurnLogging
+ #define gTeamLogLevel getSASBBAITeamLogLevel()
+ #define gCityLogLevel getSASBBAICityLogLevel()
++#define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Citizen-assignment and plot-allocation diagnostics. (GPT-5.5) -->
+ #define gUnitLogLevel getSASBBAIUnitLogLevel()
+ #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+ #define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 124a48542..abdffebb0 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13849,6 +13849,103 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 
+ 		if (!bTakeNewJob)
+ 		{
++			// <!-- custom: K-Mod orders candidate jobs by approximate standalone values and stops before contextual
++			// AI_jobChangeValue comparisons once the best unworked approximation is no better than the worst worked one.
++			// At citizen log level 3, audit the final allocation for positive contextual swaps hidden by that prefilter.
++			// Also report the strongest non-upgrading plot disagreement under the deliberately simple diagnostic score
++			// 3F + 2H + 1C; this second signal is not itself proof of a bad assignment because city priorities still matter. (GPT-5.5) -->
++			if (gCitizenLogLevel >= 3 && !isHuman())
++			{
++				PotentialJob_t const* pBestMissedWorkedJob = NULL;
++				PotentialJob_t const* pBestMissedUnworkedJob = NULL;
++				int iBestMissedContextValue = 0;
++				int iMissedContextCount = 0;
++				PotentialJob_t const* pBestRawWorkedJob = NULL;
++				PotentialJob_t const* pBestRawUnworkedJob = NULL;
++				int iBestRawDelta = 0;
++				int iBestRawContextValue = 0;
++				int iRawSuspectCount = 0;
++				for (std::vector<PotentialJob_t>::const_iterator workedAudit = worked_jobs.begin(); workedAudit != worked_jobs.end(); ++workedAudit)
++				{
++					for (std::vector<PotentialJob_t>::const_iterator unworkedAudit = unworked_jobs.begin(); unworkedAudit != unworked_jobs.end(); ++unworkedAudit)
++					{
++						if (workedAudit->second == unworkedAudit->second)
++							continue;
++						int iContextValue = MIN_INT;
++						bool const bHiddenByApproximatePrefilter = (unworkedAudit->first <= workedAudit->first);
++						if (bHiddenByApproximatePrefilter)
++						{
++							int const iCurrentFood = (workedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)workedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)workedAudit->second.second)->getYield(YIELD_FOOD));
++							int const iNextFood = (unworkedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworkedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedAudit->second.second)->getYield(YIELD_FOOD));
++							bool const bWouldStarve = (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0);
++							bool const bWouldRemoveFreeSpecialist = (workedAudit->second.first && !unworkedAudit->second.first && getSpecialistPopulation() <= iTotalFreeSpecialists);
++							bool const bWouldBreakForcedSpecialist = ((bForcedSpecAvailable || (workedAudit->second.first && getForceSpecialistCount((SpecialistTypes)workedAudit->second.second) > 0)) && unworkedAudit->second.first && getForceSpecialistCount((SpecialistTypes)unworkedAudit->second.second) == 0);
++							bool const bWouldUndoJuggleJob = (std::find(new_jobs.begin(), new_jobs.end(), workedAudit->second) != new_jobs.end());
++							if (!bWouldStarve && !bWouldRemoveFreeSpecialist && !bWouldBreakForcedSpecialist && !bWouldUndoJuggleJob)
++							{
++								iContextValue = AI_jobChangeValue(unworkedAudit->second, workedAudit->second, false, false, iGrowthValue);
++								if (iContextValue > 0)
++								{
++									iMissedContextCount++;
++									if (iContextValue > iBestMissedContextValue)
++									{
++										iBestMissedContextValue = iContextValue;
++										pBestMissedWorkedJob = &*workedAudit;
++										pBestMissedUnworkedJob = &*unworkedAudit;
++									}
++								}
++							}
++						}
++						if (!workedAudit->second.first && !unworkedAudit->second.first)
++						{
++							CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)workedAudit->second.second);
++							CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)unworkedAudit->second.second);
++							ImprovementTypes const eWorkedImprovement = kWorkedPlot.getImprovementType();
++							bool const bWorkedImprovementUpgrades = (eWorkedImprovement != NO_IMPROVEMENT && GC.getInfo(eWorkedImprovement).getImprovementUpgrade() != NO_IMPROVEMENT);
++							int const iWorkedRawScore = 3 * kWorkedPlot.getYield(YIELD_FOOD) + 2 * kWorkedPlot.getYield(YIELD_PRODUCTION) + kWorkedPlot.getYield(YIELD_COMMERCE);
++							int const iUnworkedRawScore = 3 * kUnworkedPlot.getYield(YIELD_FOOD) + 2 * kUnworkedPlot.getYield(YIELD_PRODUCTION) + kUnworkedPlot.getYield(YIELD_COMMERCE);
++							int const iRawDelta = iUnworkedRawScore - iWorkedRawScore;
++							if (!bWorkedImprovementUpgrades && iRawDelta > 0)
++							{
++								if (iContextValue == MIN_INT)
++									iContextValue = AI_jobChangeValue(unworkedAudit->second, workedAudit->second, false, false, iGrowthValue);
++								iRawSuspectCount++;
++								if (iRawDelta > iBestRawDelta)
++								{
++									iBestRawDelta = iRawDelta;
++									iBestRawContextValue = iContextValue;
++									pBestRawWorkedJob = &*workedAudit;
++									pBestRawUnworkedJob = &*unworkedAudit;
++								}
++							}
++						}
++					}
++				}
++				if (pBestMissedWorkedJob != NULL)
++				{
++					bool const bWorkedSpecialist = pBestMissedWorkedJob->second.first;
++					bool const bUnworkedSpecialist = pBestMissedUnworkedJob->second.first;
++					CvPlot const* pWorkedPlot = (bWorkedSpecialist ? NULL : getCityIndexPlot((CityPlotTypes)pBestMissedWorkedJob->second.second));
++					CvPlot const* pUnworkedPlot = (bUnworkedSpecialist ? NULL : getCityIndexPlot((CityPlotTypes)pBestMissedUnworkedJob->second.second));
++					SpecialistTypes const eWorkedSpecialist = (bWorkedSpecialist ? (SpecialistTypes)pBestMissedWorkedJob->second.second : NO_SPECIALIST);
++					SpecialistTypes const eUnworkedSpecialist = (bUnworkedSpecialist ? (SpecialistTypes)pBestMissedUnworkedJob->second.second : NO_SPECIALIST);
++					logBBAI("CITIZEN_CONTEXT_SWAP_MISSED turn=%d player=%d %S city=%S cityId=%d missedPairs=%d contextValue=%d approximateDelta=%d oldJob=%s oldIndex=%d oldX=%d oldY=%d oldFood=%d oldProduction=%d oldCommerce=%d newJob=%s newIndex=%d newX=%d newY=%d newFood=%d newProduction=%d newCommerce=%d",
++							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), iMissedContextCount, iBestMissedContextValue, pBestMissedUnworkedJob->first - pBestMissedWorkedJob->first,
++							(bWorkedSpecialist ? GC.getInfo(eWorkedSpecialist).getType() : "PLOT"), pBestMissedWorkedJob->second.second, (pWorkedPlot == NULL ? -1 : pWorkedPlot->getX()), (pWorkedPlot == NULL ? -1 : pWorkedPlot->getY()), (bWorkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eWorkedSpecialist, YIELD_FOOD) : pWorkedPlot->getYield(YIELD_FOOD)), (bWorkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eWorkedSpecialist, YIELD_PRODUCTION) : pWorkedPlot->getYield(YIELD_PRODUCTION)), (bWorkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eWorkedSpecialist, YIELD_COMMERCE) : pWorkedPlot->getYield(YIELD_COMMERCE)),
++							(bUnworkedSpecialist ? GC.getInfo(eUnworkedSpecialist).getType() : "PLOT"), pBestMissedUnworkedJob->second.second, (pUnworkedPlot == NULL ? -1 : pUnworkedPlot->getX()), (pUnworkedPlot == NULL ? -1 : pUnworkedPlot->getY()), (bUnworkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eUnworkedSpecialist, YIELD_FOOD) : pUnworkedPlot->getYield(YIELD_FOOD)), (bUnworkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eUnworkedSpecialist, YIELD_PRODUCTION) : pUnworkedPlot->getYield(YIELD_PRODUCTION)), (bUnworkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eUnworkedSpecialist, YIELD_COMMERCE) : pUnworkedPlot->getYield(YIELD_COMMERCE)));
++				}
++				if (pBestRawWorkedJob != NULL)
++				{
++					CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)pBestRawWorkedJob->second.second);
++					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)pBestRawUnworkedJob->second.second);
++					ImprovementTypes const eWorkedImprovement = kWorkedPlot.getImprovementType();
++					ImprovementTypes const eUnworkedImprovement = kUnworkedPlot.getImprovementType();
++					logBBAI("CITIZEN_RAW_PLOT_SUSPECT turn=%d player=%d %S city=%S cityId=%d suspectPairs=%d raw321Delta=%d contextValue=%d approximateDelta=%d oldPlot=(%d,%d) oldFood=%d oldProduction=%d oldCommerce=%d oldImprovement=%s newPlot=(%d,%d) newFood=%d newProduction=%d newCommerce=%d newImprovement=%s",
++							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), iRawSuspectCount, iBestRawDelta, iBestRawContextValue, pBestRawUnworkedJob->first - pBestRawWorkedJob->first,
++							kWorkedPlot.getX(), kWorkedPlot.getY(), kWorkedPlot.getYield(YIELD_FOOD), kWorkedPlot.getYield(YIELD_PRODUCTION), kWorkedPlot.getYield(YIELD_COMMERCE), (eWorkedImprovement == NO_IMPROVEMENT ? "NONE" : GC.getInfo(eWorkedImprovement).getType()),
++							kUnworkedPlot.getX(), kUnworkedPlot.getY(), kUnworkedPlot.getYield(YIELD_FOOD), kUnworkedPlot.getYield(YIELD_PRODUCTION), kUnworkedPlot.getYield(YIELD_COMMERCE), (eUnworkedImprovement == NO_IMPROVEMENT ? "NONE" : GC.getInfo(eUnworkedImprovement).getType()));
++				}
++			}
+ 			bDone = true; // no more job swaps. So we're finished.
+ 		}
+ 		else
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=13564

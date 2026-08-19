@@ -1,0 +1,2344 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1405
+# Commit: 08c4a24a42a6ce25a4076848a3334de7fa9006c5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 92943edd0a8b54a839c84c9f9f24b8ea83255b3e
+# Title: Map size and tech cost adjustments
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	0	Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+1	2	Assets/xml/GameInfo/CIV4EraInfos.xml
+2	0	Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+27	16	Assets/xml/GameInfo/CIV4WorldInfo.xml
+21	26	Assets/xml/Text/CIV4GameText_advc.xml
+4	1	CvGameCoreDLL/CvInfos.cpp
+2	0	CvGameCoreDLL/CvInfos.h
+10	4	CvGameCoreDLL/CvTeam.cpp
+3	4	PrivateMaps/Fractal.py
+535	0	PrivateMaps/Hemispheres.py
+629	0	PrivateMaps/Pangaea.py
+1	1	PrivateMaps/PerfectMongoose.py
+35	18	PrivateMaps/Tectonics.py
+567	0	PrivateMaps/Terra.py
+17	0	PrivateMaps/not_too_Big_or_Small.py
+-	-	manual_0.94d.odt
+ create mode 100644 Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+ create mode 100644 PrivateMaps/Hemispheres.py
+ create mode 100644 PrivateMaps/Pangaea.py
+ create mode 100644 PrivateMaps/Terra.py
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml b/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+new file mode 100644
+index 000000000..341e83e26
+--- /dev/null
++++ b/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Sea Level -->
++<Civ4SeaLevelInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<SeaLevelInfos>
++		<SeaLevelInfo>
++			<Type>SEALEVEL_LOW</Type>
++			<Description>TXT_KEY_SEALEVEL_LOW</Description>
++			<iSeaLevelChange>-8</iSeaLevelChange>
++			<!-- advc.910 -->
++			<iResearchPercent>120</iResearchPercent>
++		</SeaLevelInfo>
++		<SeaLevelInfo>
++			<Type>SEALEVEL_MEDIUM</Type>
++			<Description>TXT_KEY_SEALEVEL_MEDIUM</Description>
++			<iSeaLevelChange>0</iSeaLevelChange>
++			<!-- advc.910 -->
++			<iResearchPercent>100</iResearchPercent>
++		</SeaLevelInfo>
++		<SeaLevelInfo>
++			<Type>SEALEVEL_HIGH</Type>
++			<Description>TXT_KEY_SEALEVEL_HIGH</Description>
++			<iSeaLevelChange>6</iSeaLevelChange>
++			<!-- advc.910 -->
++			<iResearchPercent>85</iResearchPercent>
++		</SeaLevelInfo>
++	</SeaLevelInfos>
++</Civ4SeaLevelInfo>
+
+diff --git a/Assets/xml/GameInfo/CIV4EraInfos.xml b/Assets/xml/GameInfo/CIV4EraInfos.xml
+index 3ac7d4860..0c525de0a 100644
+--- a/Assets/xml/GameInfo/CIV4EraInfos.xml
++++ b/Assets/xml/GameInfo/CIV4EraInfos.xml
+@@ -38,8 +38,7 @@
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iResearchPercent>100</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era. Default: 0 -->
+-			<!-- advc.910 -->
+-			<iTechCostModifier>-20</iTechCostModifier>
++			<iTechCostModifier>0</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+
+diff --git a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+index 4799cb009..b02c57d7d 100644
+--- a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+@@ -58,6 +58,8 @@
+ 		<element type="Type"/>
+ 		<element type="Description"/>
+ 		<element type="iSeaLevelChange"/>
++		<!-- advc.910 -->
++		<element type="iResearchPercent"/>
+ 	</ElementType>
+ 	<ElementType name="WorldInfo" content="eltOnly">
+ 		<element type="Type"/>
+
+diff --git a/Assets/xml/GameInfo/CIV4WorldInfo.xml b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+index 86a647c0b..29a8711e1 100644
+--- a/Assets/xml/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+@@ -20,11 +20,13 @@
+ 			<iMaxConscriptModifier>-30</iMaxConscriptModifier>
+ 			<!-- advc.140: was 37 -->
+ 			<iWarWearinessModifier>30</iWarWearinessModifier>
+-			<iGridWidth>10</iGridWidth>
++			<!-- advc.137: was 10 -->
++			<iGridWidth>8</iGridWidth>
+ 			<iGridHeight>6</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+-			<iResearchPercent>100</iResearchPercent>
++			<!-- advc.910: was 100 -->
++			<iResearchPercent>95</iResearchPercent>
+ 			<!-- advc.140: was 80 -->
+ 			<iTradeProfitPercent>70</iTradeProfitPercent>
+ 			<!-- advc.140: was 50 -->
+@@ -50,11 +52,13 @@
+ 			<iMaxConscriptModifier>-15</iMaxConscriptModifier>
+ 			<!-- advc.140: was 30 -->
+ 			<iWarWearinessModifier>20</iWarWearinessModifier>
+-			<iGridWidth>13</iGridWidth>
++			<!-- advc.137: was 13 -->
++			<iGridWidth>12</iGridWidth>
+ 			<iGridHeight>8</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+-			<iResearchPercent>110</iResearchPercent>
++			<!-- advc.910: was 110 -->
++			<iResearchPercent>105</iResearchPercent>
+ 			<!-- advc.140: was 70 -->
+ 			<iTradeProfitPercent>63</iTradeProfitPercent>
+ 			<!-- advc.140: was 60 -->
+@@ -79,11 +83,13 @@
+ 			<iMaxConscriptModifier>0</iMaxConscriptModifier>
+ 			<!-- advc.140: was 10 -->
+ 			<iWarWearinessModifier>12</iWarWearinessModifier>
+-			<iGridWidth>16</iGridWidth>
++			<!-- advc.137: was 16 -->
++			<iGridWidth>15</iGridWidth>
+ 			<iGridHeight>10</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+-			<iResearchPercent>120</iResearchPercent>
++			<!-- advc.910: was 120 -->
++			<iResearchPercent>110</iResearchPercent>
+ 			<!-- advc.140: was 60 -->
+ 			<iTradeProfitPercent>55</iTradeProfitPercent>
+ 			<!-- advc.140: was 70 -->
+@@ -114,11 +120,13 @@
+ 			<iMaxConscriptModifier>15</iMaxConscriptModifier>
+ 			<!-- advc.140: was -10 -->
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGridWidth>21</iGridWidth>
++			<!-- advc.137: was 21 -->
++			<iGridWidth>20</iGridWidth>
+ 			<iGridHeight>13</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+-			<iResearchPercent>130</iResearchPercent>
++			<!-- advc.910: was 130 -->
++			<iResearchPercent>115</iResearchPercent>
+ 			<!-- advc.140: was 50 -->
+ 			<iTradeProfitPercent>48</iTradeProfitPercent>
+ 			<!-- advc.140: was 80 -->
+@@ -146,12 +154,14 @@
+ 			<iMaxConscriptModifier>30</iMaxConscriptModifier>
+ 			<!-- advc.140: was -30 -->
+ 			<iWarWearinessModifier>-13</iWarWearinessModifier>
+-			<iGridWidth>26</iGridWidth>
+-			<iGridHeight>16</iGridHeight>
++			<!-- advc.137: was 26 -->
++			<iGridWidth>25</iGridWidth>
++			<!-- advc.137: was 16 -->
++			<iGridHeight>15</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+-			<!-- advc.140: was 140 -->
+-			<iResearchPercent>148</iResearchPercent>
++			<!-- advc.910: was 140 -->
++			<iResearchPercent>125</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+ 			<!-- advc.140: was 90 -->
+ 			<iDistanceMaintenancePercent>89</iDistanceMaintenancePercent>
+@@ -179,12 +189,13 @@
+ 			<iMaxConscriptModifier>45</iMaxConscriptModifier>
+ 			<!-- advc.140: was -50 -->
+ 			<iWarWearinessModifier>-25</iWarWearinessModifier>
+-			<iGridWidth>32</iGridWidth>
+-			<iGridHeight>20</iGridHeight>
++			<!-- advc.137: was 32 -->
++			<iGridWidth>31</iGridWidth>
++			<!-- advc.137: was 20 -->
++			<iGridHeight>19</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+-			<!-- advc.140: was 150 -->
+-			<iResearchPercent>165</iResearchPercent>
++			<iResearchPercent>150</iResearchPercent>
+ 			<!-- advc.140: was 30 -->
+ 			<iTradeProfitPercent>33</iTradeProfitPercent>
+ 			<!-- advc.140: was 100 -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 0e6e3bee8..9c70cb294 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1351,32 +1351,6 @@
+ 		<Spanish>[ICON_BULLET]%D1_Change%% por nivel de dificultad</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.137: Copy-pasted from Vanilla Civ4GameText_Misc1.xml;
+-		 recommendation added (only in English and German). -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MAP_SCRIPT_TERRA_DESCR</Tag>
+-		<English>Extra players recommended (ca. +30%%).&#010;Terra generates random land masses similar to those of the planet Earth. All players begin in the Old World. These maps are extra large!</English>
+-		<French>Des continents similaires &#224; ceux de la Terre sont cr&#233;&#233;s al&#233;atoirement. Tous les joueurs commencent dans l'Antiquit&#233;. Ces cartes sont immenses !</French>
+-		<German>H�here Spielerzahl empfohlen (ca. +30%%). Terra generiert zuf&#228;llige Landfl&#228;chen, &#228;hnlich wie die auf dem Planeten Erde. Alle Spieler beginnen zun&#228;chst in der Alten Welt. Diese Kartenvarianten sind besonders gro&#223;!</German>
+-		<Italian>Terra genera delle masse terrestri casuali simili a quelle del nostro pianeta. Tutti i giocatori iniziano nel Vecchio Mondo. Queste mappe sono grandissime!</Italian>
+-		<Spanish>Terra genera al azar masas de tierra similares a las del planeta Tierra. Todos los jugadores empiezan en el Viejo Mundo. &#161;Estos mapas son supergrandes!</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MAP_SCRIPT_PANGAEA_DESCR</Tag>
+-		<English>Pan-Gaia: "One Earth," a massive single continent. Fewer players than normal recommended (about -15%%) because relatively few water tiles can be worked.</English>
+-		<French>Pan-Gaia: "Une terre", un seul et &#233;norme continent.</French>
+-		<German>Pang&#228;a: "Eine Erde", ein einziger gewaltiger Kontinent. Geringere Spielerzahl empfohlen (etwa -15%%) da weniger Wasserfelder bearbeitet werden k�nnen als auf anderen Karten.</German>
+-		<Italian>Pan-Gaia: "Una terra", un enorme continente.</Italian>
+-		<Spanish>Pan-gea ("una Tierra"), un solo continente enorme.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MAP_SCRIPT_OASIS_DESCR</Tag>
+-		<English>The desert region in the middle holds the strategic minerals. The fertile region in the north has less land (but more resources) than the south. Extra players recommended (ca. +25%%) because there is very little sea and much of the desert is habitable because of rivers.</English>
+-		<French>La r&#233;gion d&#233;sertique au centre contient toutes les ressources min&#233;rales strat&#233;giques. Les fertiles r&#233;gions du nord sont moins grandes (mais contiennent plus de ressources) que celles du sud.</French>
+-		<German>In der W&#252;stenregion in der Mitte der Karte finden sich wichtige strategische Mineralienvorkommen. In der fruchtbaren Region im Norden stehen weniger Landstriche (aber mehr Ressourcen) zur Verf&#252;gung als im S&#252;den. H�here Spielerzahl empfohlen (ca. +25%%), da das Meer kaum Raum einnimmt und die W�ste gro�teils bewohnbar ist.</German>
+-		<Italian>La regione desertica nella zona centrale della mappa contiene le risorse strategiche minerarie. La regione fertile a nord dispone di meno terra ma di pi&#249; risorse di quella a sud.</Italian>
+-		<Spanish>La regi&#243;n des&#233;rtica central contiene los minerales estrat&#233;gicos. La f&#233;rtil regi&#243;n septentrional tiene menos tierra, pero m&#225;s recursos, que la meridional.</Spanish>
+-	</TEXT>
+ 
+ 	<!-- advc.137: Copy-pasted from Vanilla Civ4GameTextInfos.xml;
+ 		 recommendation added (only in English). -->
+@@ -1415,6 +1389,17 @@
+ 		<Spanish>Alto</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.165: Copy-pasted from Civ4GameText_Misc1.xml; no longer
++		 "extra large". -->
++	<TEXT>
++		<Tag>TXT_KEY_MAP_SCRIPT_TERRA_DESCR</Tag>
++		<English>Terra generates random land masses similar to those of the planet Earth. All players begin in the Old World.</English>
++		<French>Des continents similaires &#224; ceux de la Terre sont cr&#233;&#233;s al&#233;atoirement. Tous les joueurs commencent dans l'Antiquit&#233;. Ces cartes sont immenses !</French>
++		<German>Terra generiert zuf&#228;llige Landfl&#228;chen, &#228;hnlich wie die auf dem Planeten Erde. Alle Spieler beginnen zun&#228;chst in der Alten Welt.</German>
++		<Italian>Terra genera delle masse terrestri casuali simili a quelle del nostro pianeta. Tutti i giocatori iniziano nel Vecchio Mondo.</Italian>
++		<Spanish>Terra genera al azar masas de tierra similares a las del planeta Tierra. Todos los jugadores empiezan en el Viejo Mundo.</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.704: Originally in CIV4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DAWN_OF_MAN_SCREEN_TITLE</Tag>
+@@ -4402,4 +4387,14 @@
+ 		<Spanish>%F1: %s2 %s3/turno</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.069: Originally in CIV4GameTextInfos.xml; removed parentheses. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_HELP_LEVEL</Tag>
++		<English>, XP: %d1_Curr/%d2_Needed</English>
++		<French>, EXP : %d1_Curr/%d2_Needed</French>
++		<German>, EP: %d1_Curr/%d2_Needed</German>
++		<Italian>, XP: %d1_Curr/%d2_Needed</Italian>
++		<Spanish>, PX: %d1_Curr/%d2_Needed</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 27be734ae..e336490cb 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -15450,7 +15450,8 @@ bool CvClimateInfo::read(CvXMLLoadUtility* pXML)
+ //					CvSeaLevelInfo
+ //======================================================================================================
+ CvSeaLevelInfo::CvSeaLevelInfo() :
+-m_iSeaLevelChange(0)
++m_iSeaLevelChange(0),
++m_iResearchPercent(-1) // advc.910
+ {
+ }
+ 
+@@ -15471,6 +15472,8 @@ bool CvSeaLevelInfo::read(CvXMLLoadUtility* pXML)
+ 	}
+ 
+ 	pXML->GetChildXmlValByName(&m_iSeaLevelChange, "iSeaLevelChange");
++	// advc.910:
++	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 1bee2ce4c..4852377ff 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -3897,12 +3897,14 @@ public:
+ 	virtual ~CvSeaLevelInfo();
+ 
+ 	int getSeaLevelChange() const;		// Exposed to Python
++	inline int getResearchPercent() const { return m_iResearchPercent; }// advc.910
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
+ 
+ 	int m_iSeaLevelChange;
++	int m_iResearchPercent; // advc.910
+ 
+ };
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 534faef69..73f2ece81 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3464,8 +3464,13 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 	iModifier += GC.getTECH_COST_MODIFIER();
+ 	// </advc.910>
+ 	if (bGlobalModifiers) // K-Mod
+-	{
+-		cost *= 0.01 * GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent();
++	{	// advc.003:
++		CvWorldInfo const& wi = GC.getWorldInfo(GC.getMapINLINE().getWorldSize());
++		if(eTechEra > 0) { // advc.910
++			cost *= 0.01 * wi.getResearchPercent();
++			// advc.910:
++			cost *= 0.01 * GC.getSeaLevelInfo(GC.getMapINLINE().getSeaLevel()).getResearchPercent();
++		}
+ 		cost *= 0.01 * GC.getGameSpeedInfo(g.getGameSpeedType()).getResearchPercent();
+ 		cost *= 0.01 * GC.getEraInfo(g.getStartEra()).getResearchPercent();
+ 		// <advc.308>
+@@ -3477,8 +3482,9 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 		} // </advc.308>
+ 		// <advc.550d>
+ 		if(g.isOption(GAMEOPTION_NO_TECH_TRADING) && eTechEra > 0 && eTechEra < 6) {
+-			iModifier += std::max(0, ::round(GC.getTECH_COST_NOTRADE_MODIFIER() + 5 *
+-					std::pow(std::abs(eTechEra - 2.5), 1.5)));
++			iModifier += std::max(0, ::round((GC.getTECH_COST_NOTRADE_MODIFIER() + 5 *
++					std::pow(std::abs(eTechEra - 2.5), 1.5)) *
++					::dRange((wi.getDefaultPlayers() - 2) / 6.0, 0, 2)));
+ 		} // </advc.550d>
+ 	}
+
+diff --git a/PrivateMaps/Fractal.py b/PrivateMaps/Fractal.py
+index 82074e311..5d5f4b4d3 100644
+--- a/PrivateMaps/Fractal.py
++++ b/PrivateMaps/Fractal.py
+@@ -1,9 +1,8 @@
+ # advc.137: Copy from WL, no changes. Just so that this widely used map
+-# shows up higher on the list of maps (mod maps are apparently prioritized).
+-#
+-#	FILE:	 Continents.py
++# shows up higher on the list of maps (mod maps are prioritized).
++#	FILE:	 Fractal.py
+ #	AUTHOR:  Soren Johnson
+-#	PURPOSE: Global map script - Civ4's default map script
++#	PURPOSE: Global map script
+ #-----------------------------------------------------------------------------
+ #	Copyright (c) 2004, 2005 Firaxis Games, Inc. All rights reserved.
+ #-----------------------------------------------------------------------------
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+new file mode 100644
+index 000000000..10ff6b0d3
+--- /dev/null
++++ b/PrivateMaps/Hemispheres.py
+@@ -0,0 +1,535 @@
++#
++#	FILE:	 Hemispheres.py
++#	AUTHOR:  Ben Sarsgard
++#	PURPOSE: Global map script - Hemisphere or quadrant split with oceanic divide
++#		Mostly adapted from Sirian's Big_and_Small
++#	VERSION: 1.20
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2007 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++
++# <advc.165>
++def getGridSize(argsList):
++	[iWorldSize] = argsList
++	if iWorldSize < 0:
++		return ()
++	sizeModifiers = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(0, -1),
++		WorldSizeTypes.WORLDSIZE_TINY:		(-1,-1),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(-2,-1),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(-2,-2),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(-1,-2),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(-4,-2)
++	}
++	wi = CyGlobalContext().getWorldInfo(iWorldSize)
++	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
++# </advc.165>
++
++def getDescription():
++	#TODO: get my own text string
++	return "TXT_KEY_MAP_SCRIPT_LEFT_AND_RIGHT_DESCR"
++
++def isAdvancedMap():
++	"This map should not show up in simple mode"
++	return 0
++
++def getNumCustomMapOptions():
++	return 3
++	
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
++		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
++		2:	"TXT_KEY_MAP_SCRIPT_NUMBER_OF_CONTINENTS"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++	
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	4,
++		1:	2,
++		2:	5
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
++			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
++			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
++			3: "TXT_KEY_MAP_SCRIPT_VARIED"
++			},
++		1:	{
++			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
++			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
++			},
++		2:	{
++			0: "2",
++			1: "3",
++			2: "4",
++			3: "5",
++			4: "6"
++			}
++		}
++	if (iOption < 3):
++		translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	else:
++		translated_text = selection_names[iOption][iSelection]
++	return translated_text
++
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	1,
++		1:	1,
++		2:	0
++		}
++	return option_defaults[iOption]
++
++def minStartingDistanceModifier():
++	return -12
++
++def beforeGeneration():
++	global xShiftRoll
++	global yShiftRoll
++	global ySplitRoll
++	global yPortionRoll
++	gc = CyGlobalContext()
++	dice = gc.getGame().getMapRand()
++
++	# Binary shift roll (for horizontal shifting if Island Region Separate).
++	xShiftRoll = dice.get(2, "Region Shift, Horizontal - Left and Right PYTHON")
++	yShiftRoll = dice.get(2, "Region Shift, Vertical - Left and Right PYTHON")
++	ySplitRoll = dice.get(2, "Region Split, Vertical - Left and Right PYTHON")
++	yPortionRoll = dice.get(2, "Region Portioning, Vertical - Left and Right PYTHON")
++	print xShiftRoll
++
++class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
++	def generateIslandRegion(self, minTinies, extraTinies, iWestX, iSouthY, iWidth, iHeight, iGrain):
++		# Add a few random patches of Tiny Islands first.
++		#TODO: Base numTinies on global prevalance option
++		numTinies = minTinies + self.dice.get(extraTinies, "Tiny Islands - Custom Continents PYTHON")
++		print("Patches of Tiny Islands: ", numTinies)
++		if numTinies:
++			for tiny_loop in range(numTinies):
++				tinyWidth = int(self.iW * 0.15)
++				tinyHeight = int(self.iH * 0.15)
++
++				tinyWestX = iWestX + self.dice.get(iWidth - tinyWidth, "Tiny Longitude - Custom Continents PYTHON")
++				tinySouthY = iSouthY + self.dice.get(iHeight - tinyHeight, "Tiny Latitude - Custom Continents PYTHON")
++
++				self.generatePlotsInRegion(80,
++										   tinyWidth, tinyHeight,
++										   tinyWestX, tinySouthY,
++										   iGrain, 3,
++										   0, self.iTerrainFlags,
++										   6, 5,
++										   True, 3,
++										   -1, False,
++										   False
++										   )
++		return 0
++
++	def generateContinentRegion(self, iWater, iWidth, iHeight, iWestX, iSouthY, iGrain, xExp):
++		self.generatePlotsInRegion(iWater,
++								   iWidth, iHeight,
++								   iWestX, iSouthY,
++								   iGrain, 4,
++								   self.iRoundFlags, self.iTerrainFlags,
++								   xExp, 6,
++								   True, 15,
++								   -1, False,
++								   False
++								   )
++		return 0
++
++	def generatePlotsByRegion(self):
++		# Sirian's MultilayeredFractal class, controlling function.
++		# You -MUST- customize this function for each use of the class.
++		global xShiftRoll
++		global yShiftRoll
++		global ySplitRoll
++		global yPortionRoll
++
++		print("getSeaLevelChange", self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange())
++
++		if (self.map.getCustomMapOption(0) == 3):
++			# Generate varied
++			iContinentsGrain = 1
++			iSecondaryContinentsGrain = 3
++			iTertiaryContinentsGrain = 2
++			iPrimaryWater = 74
++			iSecondaryWater = 79
++			iTertiaryWater = 76
++		else:
++			iContinentsGrain = 1 + self.map.getCustomMapOption(0)
++			iSecondaryContinentsGrain = 1 + self.map.getCustomMapOption(0)
++			iTertiaryContinentsGrain = 1 + self.map.getCustomMapOption(0)
++			iPrimaryWater = 74
++			iSecondaryWater = 74
++			iTertiaryWater = 74
++
++		iPrimaryWater += self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
++		iSecondaryWater += self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
++		iTertiaryWater += self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
++
++		splitYBigger = 0.5
++		splitYSmaller = 0.5
++		splitYBuffer = 0.1
++
++		iIslandsGrain = 3 + self.map.getCustomMapOption(1)
++		tinyIslandOverlap = 0
++		regions = 2 + self.map.getCustomMapOption(2)
++		if (regions == 2):
++			vSplitPrimary = 0
++			vSplitSecondary = 0
++			vSplitTertiary = 0
++			tripleSplit = 0
++		elif (regions == 3):
++			vSplitPrimary = 0
++			vSplitSecondary = 0
++			vSplitTertiary = 0
++			tripleSplit = 1
++		elif (regions == 4):
++			vSplitPrimary = 1
++			vSplitSecondary = 1
++			vSplitTertiary = 0
++			tripleSplit = 0
++		elif (regions == 5):
++			vSplitPrimary = 0
++			vSplitSecondary = 1
++			vSplitTertiary = 1
++			tripleSplit = 1
++		elif (regions == 6):
++			vSplitPrimary = 1
++			vSplitSecondary = 1
++			vSplitTertiary = 1
++			tripleSplit = 1
++		else:
++			#unexpected
++			vSplitPrimary = 0
++			vSplitSecondary = 0
++			vSplitTertiary = 0
++			tripleSplit = 0
++
++		# Water variables need to differ if Overlap is set. Defining default here.
++		#TODO: Set this from the global option
++		#iWater = 74
++
++		# Base values for full map
++		iSouthY = 0
++		iNorthY = self.iH - 1
++		iHeight = iNorthY - iSouthY + 1
++		iWestX = 0
++		iEastX = self.iW - 1
++		iWidth = iEastX - iWestX + 1
++		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
++
++		if tinyIslandOverlap:
++			self.generateIslandRegion(4, 6, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++		# Add the Continents.
++		# Horizontal dimensions may be affected by overlap and/or shift.
++		# The regions are separate, with continents only in one part, islands only in the other.
++		# Set X exponent to square setting:
++		xExp = 6
++		# Handle horizontal shift for the Continents layer.
++		# (This will choose one side or the other for this region then fit it properly in its space).
++		if tripleSplit:
++			if xShiftRoll:
++				westShift = int(0.33 * self.iW)
++				eastShift = int(0.33 * self.iW)
++			else:
++				westShift = 0
++				eastShift = int(0.66 * self.iW)
++		else:
++			if xShiftRoll:
++				westShift = int(0.5 * self.iW)
++				eastShift = 0
++			else:
++				westShift = 0
++				eastShift = int(0.5 * self.iW)
++		
++		iWestX = westShift
++		iEastX = self.iW - eastShift
++		iWidth = iEastX - iWestX
++
++		if vSplitPrimary:
++			# Do first in split
++			if yPortionRoll:
++				if yShiftRoll:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYBigger * self.iH)
++				else:
++					northShift = int(splitYSmaller * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++			else:
++				if yShiftRoll:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYSmaller * self.iH)
++				else:
++					northShift = int(splitYBigger * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++
++			iSouthY = southShift
++			iNorthY = self.iH - northShift
++			iHeight = iNorthY - iSouthY
++
++			print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++			self.generateContinentRegion(iPrimaryWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrain, xExp)
++
++			if (tinyIslandOverlap == 0):
++				self.generateIslandRegion(1, 2, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++			# Second in split
++			if yPortionRoll:
++				if yShiftRoll:
++					northShift = int(splitYSmaller * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++				else:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYBigger * self.iH)
++			else:
++				if yShiftRoll:
++					northShift = int(splitYBigger * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++				else:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYSmaller * self.iH)
++
++			iSouthY = southShift
++			iNorthY = self.iH - northShift
++			iHeight = iNorthY - iSouthY
++
++			print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++			self.generateContinentRegion(iPrimaryWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrain, xExp)
++
++			if (tinyIslandOverlap == 0):
++				self.generateIslandRegion(1, 2, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++		else:
++			# Only one primary region
++			iSouthY = 0
++			iNorthY = self.iH - 1
++			iHeight = iNorthY - iSouthY + 1
++			print("Cont West: ", iWestX, "Cont East: ", iEastX, "Cont Width: ", iWidth)
++			self.generateContinentRegion(iPrimaryWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrain, xExp)
++
++			if (tinyIslandOverlap == 0):
++				self.generateIslandRegion(2, 3, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++		# Add the Secondary continents.
++		# Horizontal dimensions may be affected by overlap and/or shift.
++		# The regions are separate, with continents only in one part, islands only in the other.
++		# Set X exponent to square setting:
++		xExp = 6
++		# Handle horizontal shift for the Continents layer.
++		# (This will choose one side or the other for this region then fit it properly in its space).
++		if tripleSplit:
++			if xShiftRoll:
++				westShift = 0
++				eastShift = int(0.66 * self.iW)
++			else:
++				westShift = int(0.33 * self.iW)
++				eastShift = int(0.33 * self.iW)
++		else:
++			if xShiftRoll:
++				westShift = 0
++				eastShift = int(0.5 * self.iW)
++			else:
++				westShift = int(0.5 * self.iW)
++				eastShift = 0
++
++		iWestX = westShift
++		iEastX = self.iW - eastShift
++		iWidth = iEastX - iWestX
++
++		if vSplitSecondary:
++			# Do first in split
++			if yPortionRoll:
++				if yShiftRoll:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYBigger * self.iH)
++				else:
++					northShift = int(splitYSmaller * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++			else:
++				if yShiftRoll:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYSmaller * self.iH)
++				else:
++					northShift = int(splitYBigger * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++
++			iSouthY = southShift
++			iNorthY = self.iH - northShift
++			iHeight = iNorthY - iSouthY
++
++			print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++			self.generateContinentRegion(iSecondaryWater, iWidth, iHeight, iWestX, iSouthY, iSecondaryContinentsGrain, xExp)
++
++			if (tinyIslandOverlap == 0):
++				self.generateIslandRegion(2, 3, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++			# Second in split
++			if yPortionRoll:
++				if yShiftRoll:
++					northShift = int(splitYSmaller * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++				else:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYBigger * self.iH)
++			else:
++				if yShiftRoll:
++					northShift = int(splitYBigger * self.iH)
++					southShift = int(splitYBuffer * self.iH)
++				else:
++					northShift = int(splitYBuffer * self.iH)
++					southShift = int(splitYSmaller * self.iH)
++
++			iSouthY = southShift
++			iNorthY = self.iH - northShift
++			iHeight = iNorthY - iSouthY
++
++			print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++			self.generateContinentRegion(iSecondaryWater, iWidth, iHeight, iWestX, iSouthY, iSecondaryContinentsGrain, xExp)
++
++			if (tinyIslandOverlap == 0):
++				self.generateIslandRegion(2, 3, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++		else:
++			# Only one secondary region
++			iSouthY = 0
++			iNorthY = self.iH - 1
++			iHeight = iNorthY - iSouthY + 1
++			print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++			self.generateContinentRegion(iSecondaryWater, iWidth, iHeight, iWestX, iSouthY, iSecondaryContinentsGrain, xExp)
++
++			if (tinyIslandOverlap == 0):
++				self.generateIslandRegion(3, 4, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++		if tripleSplit:
++			# Add the Tertiary continents.
++			# Horizontal dimensions may be affected by overlap and/or shift.
++			# The regions are separate, with continents only in one part, islands only in the other.
++			# Set X exponent to square setting:
++			xExp = 6
++			# Handle horizontal shift for the Continents layer.
++			# (This will choose one side or the other for this region then fit it properly in its space).
++			westShift = int(0.66 * self.iW)
++			eastShift = 0
++			
++			iWestX = westShift
++			iEastX = self.iW - eastShift
++			iWidth = iEastX - iWestX
++
++			if vSplitTertiary:
++				# Do first in split
++				if yPortionRoll:
++					if yShiftRoll:
++						northShift = int(splitYBuffer * self.iH)
++						southShift = int(splitYBigger * self.iH)
++					else:
++						northShift = int(splitYSmaller * self.iH)
++						southShift = int(splitYBuffer * self.iH)
++				else:
++					if yShiftRoll:
++						northShift = int(splitYBuffer * self.iH)
++						southShift = int(splitYSmaller * self.iH)
++					else:
++						northShift = int(splitYBigger * self.iH)
++						southShift = int(splitYBuffer * self.iH)
++
++				iSouthY = southShift
++				iNorthY = self.iH - northShift
++				iHeight = iNorthY - iSouthY
++
++				print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++				self.generateContinentRegion(iTertiaryWater, iWidth, iHeight, iWestX, iSouthY, iTertiaryContinentsGrain, xExp)
++
++				if (tinyIslandOverlap == 0):
++					self.generateIslandRegion(2, 3, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++				# Second in split
++				if yPortionRoll:
++					if yShiftRoll:
++						northShift = int(splitYSmaller * self.iH)
++						southShift = int(splitYBuffer * self.iH)
++					else:
++						northShift = int(splitYBuffer * self.iH)
++						southShift = int(splitYBigger * self.iH)
++				else:
++					if yShiftRoll:
++						northShift = int(splitYBigger * self.iH)
++						southShift = int(splitYBuffer * self.iH)
++					else:
++						northShift = int(splitYBuffer * self.iH)
++						southShift = int(splitYSmaller * self.iH)
++
++				iSouthY = southShift
++				iNorthY = self.iH - northShift
++				iHeight = iNorthY - iSouthY
++
++				print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++				self.generateContinentRegion(iTertiaryWater, iWidth, iHeight, iWestX, iSouthY, iTertiaryContinentsGrain, xExp)
++
++				if (tinyIslandOverlap == 0):
++					self.generateIslandRegion(2, 3, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++			else:
++				# Only one tertiary region
++				iSouthY = 0
++				iNorthY = self.iH - 1
++				iHeight = iNorthY - iSouthY + 1
++				print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
++				self.generateContinentRegion(iTertiaryWater, iWidth, iHeight, iWestX, iSouthY, iTertiaryContinentsGrain, xExp)
++
++				if (tinyIslandOverlap == 0):
++					self.generateIslandRegion(3, 4, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
++
++		# All regions have been processed. Plot Type generation completed.
++		print "Done"
++		return self.wholeworldPlotTypes
++
++'''
++Regional Variables Key:
++
++iWaterPercent,
++iRegionWidth, iRegionHeight,
++iRegionWestX, iRegionSouthY,
++iRegionGrain, iRegionHillsGrain,
++iRegionPlotFlags, iRegionTerrainFlags,
++iRegionFracXExp, iRegionFracYExp,
++bShift, iStrip,
++rift_grain, has_center_rift,
++invert_heights
++'''
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Custom Continents) ...")
++	fractal_world = BnSMultilayeredFractal()
++	plotTypes = fractal_world.generatePlotsByRegion()
++	return plotTypes
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Custom Continents) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Custom Continents) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+new file mode 100644
+index 000000000..ec159e88b
+--- /dev/null
++++ b/PrivateMaps/Pangaea.py
+@@ -0,0 +1,629 @@
++#
++#	FILE:	 Pangaea.py
++#	AUTHOR:  Bob Thomas (Sirian)
++#	CONTRIB: Soren Johnson, Andy Szybalski
++#	PURPOSE: Global map script - Simulates a Pan-Earth SuperContinent
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import MultilayeredFractal
++from CvMapGeneratorUtil import HintedWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++
++balancer = BonusBalancer()
++
++# <advc.165>
++def getGridSize(argsList):
++	[iWorldSize] = argsList
++	if iWorldSize < 0:
++		return ()
++	sizeModifiers = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(2, 0),
++		WorldSizeTypes.WORLDSIZE_TINY:		(2, 0),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(2, 0),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(2, 0),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(2, 1),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(2, 2)
++	}
++	wi = CyGlobalContext().getWorldInfo(iWorldSize)
++	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
++# </advc.165>
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_PANGAEA_DESCR"
++
++def getNumCustomMapOptions():
++	return 3
++
++def getNumHiddenCustomMapOptions():
++	return 2
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_SCRIPT_SHORELINE",
++		1:	"TXT_KEY_MAP_WORLD_WRAP",
++		2:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++	
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	4,
++		1:	3,
++		2:  2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_SCRIPT_RANDOM",
++			1: "TXT_KEY_MAP_SCRIPT_NATURAL",
++			2: "TXT_KEY_MAP_SCRIPT_PRESSED",
++			3: "TXT_KEY_MAP_SCRIPT_SOLID"
++			},
++		1:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		2:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	0,
++		1:	1,
++		2:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	false,
++		1:	false,
++		2:  false
++		}
++	return option_random[iOption]
++
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(1) == 2)
++	
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(2) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(2) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def isAdvancedMap():
++	"This map should show up in simple mode"
++	return 0
++
++def getGridSize(argsList):
++	# Reduce grid sizes by one level.
++	grid_sizes = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(8,5),
++		WorldSizeTypes.WORLDSIZE_TINY:		(10,6),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(13,8),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(16,10),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(21,13),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(26,16)
++	}
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	return grid_sizes[eWorldSize]
++
++def beforeGeneration():
++	# Detect whether this game is primarily a team game or not. (1v1 treated as a team game!)
++	# Team games, everybody starts on the coast. Otherwise, start anywhere on the pangaea.
++	global isTeamGame
++	gc = CyGlobalContext()
++	iPlayers = gc.getGame().countCivPlayersEverAlive()
++	iTeams = gc.getGame().countCivTeamsEverAlive()
++	if iPlayers >= iTeams * 2 or iPlayers == 2:
++		isTeamGame = True
++	else:
++		isTeamGame = False
++
++class PangaeaHintedWorld:
++	def generateSorensHintedPangaea(self):
++		NiTextOut("Setting Plot Types (Python Pangaea) ...")
++		global hinted_world
++		hinted_world = HintedWorld(8,4)
++
++		mapRand = CyGlobalContext().getGame().getMapRand()
++
++		for y in range(hinted_world.h):
++			for x in range(hinted_world.w):
++				if x in (0, hinted_world.w-1) or y in (0, hinted_world.h-1):
++					hinted_world.setValue(x,y,0)
++				else:
++					hinted_world.setValue(x,y,200 + mapRand.get(55, "Plot Types - Pangaea PYTHON"))
++
++		hinted_world.setValue(1, 1 + mapRand.get(3, "Plot Types - Pangaea PYTHON"), mapRand.get(64, "Plot Types - Pangaea PYTHON"))
++		hinted_world.setValue(2 + mapRand.get(2, "Plot Types - Pangaea PYTHON"), 1 + mapRand.get(3, "Plot Types - Pangaea PYTHON"), mapRand.get(64, "Plot Types - Pangaea PYTHON"))
++		hinted_world.setValue(4 + mapRand.get(2, "Plot Types - Pangaea PYTHON"), 1 + mapRand.get(3, "Plot Types - Pangaea PYTHON"), mapRand.get(64, "Plot Types - Pangaea PYTHON"))
++		hinted_world.setValue(6, 1 + mapRand.get(3, "Plot Types - Pangaea PYTHON"), mapRand.get(64, "Plot Types - Pangaea PYTHON"))
++		if (mapRand.get(2, "Plot Types - Pangaea PYTHON") == 0):
++			hinted_world.setValue(2, 1 + mapRand.get(3, "Plot Types - Pangaea PYTHON"), mapRand.get(64, "Plot Types - Pangaea PYTHON"))
++		else:
++			hinted_world.setValue(5, 1 + mapRand.get(3, "Plot Types - Pangaea PYTHON"), mapRand.get(64, "Plot Types - Pangaea PYTHON"))
++
++		hinted_world.buildAllContinents()
++		return hinted_world.generatePlotTypes(shift_plot_types=True)
++	
++	def generateAndysHintedPangaea(self):
++		NiTextOut("Setting Plot Types (Python Pangaea Hinted) ...")
++		global hinted_world
++		hinted_world = HintedWorld(16,8)
++
++		mapRand = CyGlobalContext().getGame().getMapRand()
++
++		numBlocks = hinted_world.w * hinted_world.h
++		numBlocksLand = int(numBlocks*0.33)
++		cont = hinted_world.addContinent(numBlocksLand,mapRand.get(5, "Generate Plot Types PYTHON")+4,mapRand.get(3, "Generate Plot Types PYTHON")+2)
++		if not cont:
++			# Couldn't create continent! Reverting to Soren's Hinted Pangaea
++			return self.generateSorensHintedPangaea()
++		else:		
++			for x in range(hinted_world.w):
++				for y in (0, hinted_world.h - 1):
++					hinted_world.setValue(x,y, 1) # force ocean at poles
++			hinted_world.buildAllContinents()
++			return hinted_world.generatePlotTypes(shift_plot_types=True)
++
++class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
++	# Subclass. Only the controlling function overridden in this case.
++	def generatePlotsByRegion(self, pangaea_type):
++		# Sirian's MultilayeredFractal class, controlling function.
++		# You -MUST- customize this function for each use of the class.
++		#
++		# The following grain matrix is specific to Pangaea.py
++		sizekey = self.map.getWorldSize()
++		sizevalues = {
++			WorldSizeTypes.WORLDSIZE_DUEL:      3,
++			WorldSizeTypes.WORLDSIZE_TINY:      3,
++			WorldSizeTypes.WORLDSIZE_SMALL:     4,
++			WorldSizeTypes.WORLDSIZE_STANDARD:  4,
++			WorldSizeTypes.WORLDSIZE_LARGE:     4,
++			WorldSizeTypes.WORLDSIZE_HUGE:      5
++			}
++		grain = sizevalues[sizekey]
++		
++		# Sea Level adjustment (from user input), limited to value of 5%.
++		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
++		sea = min(sea, 5)
++		sea = max(sea, -5)
++
++		# The following regions are specific to Pangaea.py
++		mainWestLon = 0.2
++		mainEastLon = 0.8
++		mainSouthLat = 0.2
++		mainNorthLat = 0.8
++		subcontinentDimension = 0.4
++		bSouthwardShift = False
++
++		# Define the three types.
++		if pangaea_type == 2: # Pressed Polar
++			numSubcontinents = 3
++			# Place mainland near north or south pole?
++			global polarShiftRoll
++			polarShiftRoll = self.dice.get(2, "Shift - Pangaea PYTHON")
++			if polarShiftRoll == 1:
++				mainNorthLat += 0.175
++				mainSouthLat += 0.175
++				# Define potential subcontinent slots (regional definitions).
++				# List values: [westLon, southLat, vertRange, horzRange, southShift]
++				scValues = [[0.05, 0.375, 0.2, 0.0, 0],
++				            [0.55, 0.375, 0.2, 0.0, 0],
++				            [0.1, 0.225, 0.0, 0.15, 0],
++				            [0.3, 0.225, 0.0, 0.15, 0]
++				            ]
++			else:
++				mainNorthLat -= 0.175
++				mainSouthLat -= 0.175
++				# List values: [westLon, southLat, vertRange, horzRange, southShift]
++				scValues = [[0.05, 0.025, 0.2, 0.0, 0],
++				            [0.55, 0.025, 0.2, 0.0, 0],
++				            [0.1, 0.375, 0.0, 0.15, 0],
++				            [0.3, 0.375, 0.0, 0.15, 0]
++				            ]
++		elif pangaea_type == 1: # Pressed Equatorial
++			# Define potential subcontinent slots (regional definitions).
++			equRoll = self.dice.get(4, "Subcontinents - Pangaea PYTHON")
++			if equRoll == 3: equRoll = 1 # 50% chance result = 1
++			numSubcontinents = 2 + equRoll
++			# List values: [westLon, southLat, vertRange, horzRange, southShift]
++			scValues = [[0.05, 0.2, 0.2, 0.0, 0.0],
++			            [0.55, 0.2, 0.2, 0.0, 0.0],
++			            [0.2, 0.05, 0.0, 0.2, 0.0],
++			            [0.2, 0.55, 0.0, 0.2, 0.0]
++			            ]
++		else: # Natural
++			subcontinentDimension = 0.3
++			# Shift mainland north or south?
++			global shiftRoll
++			shiftRoll = self.dice.get(2, "Shift - Pangaea PYTHON")
++			if shiftRoll == 1:
++				mainNorthLat += 0.075
++				mainSouthLat += 0.075
++			else:
++				mainNorthLat -= 0.075
++				mainSouthLat -= 0.075
++				bSouthwardShift = True
++			# Define potential subcontinent slots (regional definitions).
++			numSubcontinents = 4 + self.dice.get(3, "Subcontinents - Pangaea PYTHON")
++			# List values: [westLon, southLat, vertRange, horzRange, southShift]
++			scValues = [[0.05, 0.575, 0.0, 0.0, 0.15],
++			            [0.05, 0.275, 0.0, 0.0, 0.15],
++			            [0.2, 0.175, 0.0, 0.0, 0.15],
++			            [0.5, 0.175, 0.0, 0.0, 0.15],
++			            [0.65, 0.575, 0.0, 0.0, 0.15],
++			            [0.65, 0.275, 0.0, 0.0, 0.15],
++			            [0.2, 0.675, 0.0, 0.0, 0.15],
++			            [0.5, 0.675, 0.0, 0.0, 0.15]
++			            ]
++
++		# Generate the main land mass, first pass (to vary shape).
++		mainWestX = int(self.iW * mainWestLon)
++		mainEastX = int(self.iW * mainEastLon)
++		mainNorthY = int(self.iH * mainNorthLat)
++		mainSouthY = int(self.iH * mainSouthLat)
++		mainWidth = mainEastX - mainWestX + 1
++		mainHeight = mainNorthY - mainSouthY + 1
++		
++		mainWater = 55+sea
++
++		self.generatePlotsInRegion(mainWater,
++		                           mainWidth, mainHeight,
++		                           mainWestX, mainSouthY,
++		                           2, grain,
++		                           self.iHorzFlags, self.iTerrainFlags,
++		                           -1, -1,
++		                           True, 15,
++		                           2, False,
++		                           False
++		                           )
++
++		# Second pass (to ensure cohesion).
++		second_layerHeight = mainHeight/2
++		second_layerWestX = mainWestX + mainWidth/10
++		second_layerEastX = mainEastX - mainWidth/10
++		second_layerWidth = second_layerEastX - second_layerWestX + 1
++		second_layerNorthY = mainNorthY - mainHeight/4
++		second_layerSouthY = mainSouthY + mainHeight/4
++
++		second_layerWater = 60+sea
++                
++		self.generatePlotsInRegion(second_layerWater,
++		                           second_layerWidth, second_layerHeight,
++		                           second_layerWestX, second_layerSouthY,
++		                           1, grain,
++		                           self.iHorzFlags, self.iTerrainFlags,
++		                           -1, -1,
++		                           True, 15,
++		                           2, False,
++		                           False
++		                           )
++
++		# Add subcontinents.
++		# Subcontinents can be akin to India/Alaska, Europe, or the East Indies.
++		while numSubcontinents > 0:
++			# Choose a slot for this subcontinent.
++			if len(scValues) > 1:
++				scIndex = self.dice.get(len(scValues), "Subcontinent Placement - Pangaea PYTHON")
++			else:
++				scIndex = 0
++			[scWestLon, scSouthLat, scVertRange, scHorzRange, scSouthShift] = scValues[scIndex]
++			scWidth = int(subcontinentDimension * self.iW)
++			scHeight = int(subcontinentDimension * self.iH)
++			scHorzShift = 0; scVertShift = 0
++			if scHorzRange > 0.0:
++				scHorzShift = self.dice.get(int(self.iW * scHorzRange), "Subcontinent Variance - Terra PYTHON")
++			if scVertRange > 0.0:
++				scVertShift = self.dice.get(int(self.iW * scVertRange), "Subcontinent Variance - Terra PYTHON")
++			scWestX = int(self.iW * scWestLon) + scHorzShift
++			scEastX = scWestX + scWidth
++			if scEastX >= self.iW: # Trouble! Off the right hand edge!
++				while scEastX >= self.iW:
++					scWidth -= 1
++					scEastX = scWestX + scWidth
++			scSouthY = int(self.iH * scSouthLat) + scVertShift
++			# Check for southward shift.
++			if bSouthwardShift:
++				scSouthY -= int(self.iH * scSouthShift)
++			scNorthY = scSouthY + scHeight
++			if scNorthY >= self.iH: # Trouble! Off the top edge!
++				while scNorthY >= self.iH:
++					scHeight -= 1
++					scNorthY = scSouthY + scHeight
++
++			scShape = self.dice.get(5, "Subcontinent Shape - Terra PYTHON")
++			if scShape > 1: # Regular subcontinent.
++				scWater = 55+sea; scGrain = 1; scRift = -1
++			elif scShape == 1: # Irregular subcontinent.
++				scWater = 66+sea; scGrain = 2; scRift = 2
++			else: # scShape == 0, Archipelago subcontinent.
++				scWater = 77+sea; scGrain = grain; scRift = -1
++                
++			self.generatePlotsInRegion(scWater,
++			                           scWidth, scHeight,
++			                           scWestX, scSouthY,
++			                           scGrain, grain,
++			                           self.iRoundFlags, self.iTerrainFlags,
++			                           6, 6,
++			                           True, 7,
++			                           scRift, False,
++			                           False
++			                           )
++
++			del scValues[scIndex]
++			numSubcontinents -= 1
++
++		# All regions have been processed. Plot Type generation completed.
++		return self.wholeworldPlotTypes
++
++'''
++Regional Variables Key:
++
++iWaterPercent,
++iRegionWidth, iRegionHeight,
++iRegionWestX, iRegionSouthY,
++iRegionGrain, iRegionHillsGrain,
++iRegionPlotFlags, iRegionTerrainFlags,
++iRegionFracXExp, iRegionFracYExp,
++bStrip, strip,
++rift_grain, has_center_rift,
++invert_heights
++'''
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Pangaea) ...")
++	global pangaea_type
++	gc = CyGlobalContext()
++	mapgen = CyMapGenerator()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	hinted_world = PangaeaHintedWorld()
++	fractal_world = PangaeaMultilayeredFractal()
++
++	# Get user input.
++	userInputLandmass = map.getCustomMapOption(0)
++	
++	# Implement Pangaea by Type
++	if userInputLandmass == 3: # Solid
++		# Roll for type selection.
++		typeRoll = dice.get(3, "PlotGen Chooser - Pangaea PYTHON")
++		# Solid Shoreline cohesion check and catch - patched Dec 30, 2005 - Sirian
++		# Error catching for non-cohesive results.
++		cohesive = False
++		while not cohesive:
++			plotTypes = []
++			if typeRoll == 2:
++				plotTypes = hinted_world.generateAndysHintedPangaea()
++			else:
++				plotTypes = hinted_world.generateSorensHintedPangaea()
++			mapgen.setPlotTypes(plotTypes)
++			biggest_area = map.findBiggestArea(false)
++			iTotalLandPlots = map.getLandPlots()
++			iBiggestAreaPlots = biggest_area.getNumTiles()
++			if iBiggestAreaPlots >= 0.9 * iTotalLandPlots:
++				cohesive = True
++		return plotTypes
++
++	elif userInputLandmass == 2: # Pressed
++		# Roll for type selection.
++		typeRoll = dice.get(3, "PlotGen Chooser - Pangaea PYTHON")
++		if typeRoll == 1:
++			pangaea_type = 1
++		else:
++			pangaea_type = 2
++		return fractal_world.generatePlotsByRegion(pangaea_type)
++		
++	elif userInputLandmass == 1: # Natural
++		pangaea_type = 0
++		return fractal_world.generatePlotsByRegion(pangaea_type)
++		
++	else: # Random
++		global terrainRoll
++		terrainRoll = dice.get(10, "PlotGen Chooser - Pangaea PYTHON")
++		# 0-3 = Natural
++		# 4 = Pressed, Equatorial
++		# 5,6 = Pressed, Polar
++		# 7,8 = Solid, Irregular
++		# 9 = Solid, Round
++		
++		if terrainRoll > 6:
++			# Solid Shoreline cohesion check and catch - patched Dec 30, 2005 - Sirian
++			cohesive = False
++			while not cohesive:
++				plotTypes = []
++				if terrainRoll == 9:
++					plotTypes = hinted_world.generateAndysHintedPangaea()
++				else:
++					plotTypes = hinted_world.generateSorensHintedPangaea()
++				mapgen.setPlotTypes(plotTypes)
++				biggest_area = map.findBiggestArea(false)
++				iTotalLandPlots = map.getLandPlots()
++				iBiggestAreaPlots = biggest_area.getNumTiles()
++				if iBiggestAreaPlots >= 0.9 * iTotalLandPlots:
++					cohesive = True
++			return plotTypes
++
++		elif terrainRoll == 5 or terrainRoll == 6:
++			pangaea_type = 2
++			return fractal_world.generatePlotsByRegion(pangaea_type)
++		elif terrainRoll == 4:
++			pangaea_type = 1
++			return fractal_world.generatePlotsByRegion(pangaea_type)
++		else:
++			pangaea_type = 0
++			return fractal_world.generatePlotsByRegion(pangaea_type)
++
++def generateTerrainTypes():
++	# Run a check for cohesion failure.
++	# If the largest land area contains less than 80% of the land (Natural/Pressed),
++	# or less than 90% of the land (Solid), add a third layer of fractal terrain 
++	# to try to link the main landmasses in to a true Pangaea.
++	gc = CyGlobalContext()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	iHorzFlags = CyFractal.FracVals.FRAC_WRAP_X + CyFractal.FracVals.FRAC_POLAR
++	biggest_area = map.findBiggestArea(false)
++	global terrainRoll
++	userInputShoreline = map.getCustomMapOption(0)
++	iTotalLandPlots = map.getLandPlots()
++	iBiggestAreaPlots = biggest_area.getNumTiles()
++	#print("Total Land: ", iTotalLandPlots, " Main Landmass Plots: ", iBiggestAreaPlots)
++	if (userInputShoreline == 1 or userInputShoreline == 2 or (userInputShoreline == 0 and terrainRoll < 7)) and iBiggestAreaPlots < 0.8 * iTotalLandPlots:
++		global pangaea_type
++		print("Total Land: ", iTotalLandPlots, " Main Landmass Plots: ", iBiggestAreaPlots)
++		print "Cohesion failure! Attempting to remedy..."
++		#print("Pangaea Type: ", pangaea_type)
++		iW = map.getGridWidth()
++		iH = map.getGridHeight()
++		iWestX = int(0.3 * iW)
++		eastX = int(0.7 * iW)
++		southLat = 0.4
++		northLat = 0.6
++		if pangaea_type == 0: # Natural
++			global shiftRoll
++			#print("Shift Roll: ", shiftRoll)
++			if shiftRoll == 1:
++				southLat += 0.075
++				northLat += 0.075
++			else:
++				southLat -= 0.075
++				northLat -= 0.075
++		elif pangaea_type == 2: # Pressed Polar
++			global polarShiftRoll
++			#print("Polar Shift Roll: ", polarShiftRoll)
++			if polarShiftRoll == 1:
++				southLat += 0.175
++				northLat += 0.175
++			else:
++				southLat -= 0.175
++				northLat -= 0.175
++		else: # Pressed Equatorial
++			pass
++		iSouthY = int(southLat * iH)
++		northY = int(northLat * iH)
++		iRegionWidth = eastX - iWestX + 1
++		iRegionHeight = northY - iSouthY + 1
++		
++		# Init the plot types array and the regional fractals
++		plotTypes = [] # reinit the array for each pass
++		plotTypes = [PlotTypes.PLOT_OCEAN] * (iRegionWidth*iRegionHeight)
++		regionContinentsFrac = CyFractal()
++		regionHillsFrac = CyFractal()
++		regionPeaksFrac = CyFractal()
++		regionContinentsFrac.fracInit(iRegionWidth, iRegionHeight, 1, dice, iHorzFlags, 7, 5)
++		regionHillsFrac.fracInit(iRegionWidth, iRegionHeight, 3, dice, iHorzFlags, 7, 5)
++		regionPeaksFrac.fracInit(iRegionWidth, iRegionHeight, 4, dice, iHorzFlags, 7, 5)
++
++		iWaterThreshold = regionContinentsFrac.getHeightFromPercent(40)
++		iHillsBottom1 = regionHillsFrac.getHeightFromPercent(20)
++		iHillsTop1 = regionHillsFrac.getHeightFromPercent(30)
++		iHillsBottom2 = regionHillsFrac.getHeightFromPercent(70)
++		iHillsTop2 = regionHillsFrac.getHeightFromPercent(80)
++		iPeakThreshold = regionPeaksFrac.getHeightFromPercent(25)
++
++		# Loop through the region's plots
++		for x in range(iRegionWidth):
++			for y in range(iRegionHeight):
++				i = y*iRegionWidth + x
++				val = regionContinentsFrac.getHeight(x,y)
++				if val <= iWaterThreshold: pass
++				else:
++					hillVal = regionHillsFrac.getHeight(x,y)
++					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++						peakVal = regionPeaksFrac.getHeight(x,y)
++						if (peakVal <= iPeakThreshold):
++							plotTypes[i] = PlotTypes.PLOT_PEAK
++						else:
++							plotTypes[i] = PlotTypes.PLOT_HILLS
++					else:
++						plotTypes[i] = PlotTypes.PLOT_LAND
++
++		for x in range(iRegionWidth):
++			wholeworldX = x + iWestX
++			for y in range(iRegionHeight):
++				i = y*iRegionWidth + x
++				if plotTypes[i] == PlotTypes.PLOT_OCEAN: continue # Not merging water!
++				wholeworldY = y + iSouthY
++				# print("Changing water plot at ", wholeworldX, wholeworldY, " to ", plotTypes[i])
++				iWorld = wholeworldY*iW + wholeworldX
++				pPlot = map.plotByIndex(iWorld)
++				if pPlot.isWater():	# Only merging new land plots over old water plots.
++					pPlot.setPlotType(plotTypes[i], true, true)
++
++		# Smooth any graphical glitches these changes may have produced.
++		map.recalculateAreas()
++
++	# Now generate Terrain.
++	NiTextOut("Generating Terrain (Python Pangaea) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Pangaea) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
++	
++def findStartingPlot(argsList):
++	[playerID] = argsList
++
++	def isValid(playerID, x, y):
++		global isTeamGame
++		map = CyMap()
++		pPlot = map.plot(x, y)
++
++		if (pPlot.getArea() != map.findBiggestArea(False).getID()):
++			return false
++
++		if isTeamGame:
++			pWaterArea = pPlot.waterArea()
++			if (pWaterArea.isNone()):
++				return false
++			return not pWaterArea.isLake()
++		else:
++			return true
++	
++	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 6a5145d4b..4583120f0 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -5492,7 +5492,7 @@ def getBottomLatitude():
+ 
+ 
+ def getGridSize(argsList):
+-	# <advc.021b> Use the defaults (10x6,13x8,16x10,21x13,26x16,32x20), which are smaller, combined with a higher land ratio.
++	# <advc.021b> Use the defaults, which are smaller, combined with a higher land ratio.
+ 	CyPythonMgr().allowDefaultImpl()
+ 	return
+ 	# At first, I had tried these sizes in between the default and PerfectMongoose:
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index 7bf2067ba..4a0d42584 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -1,5 +1,5 @@
+-# advc.021: Tectonics 3.16 with minor changes
+-# replacing 3.15 (included with BtS)
++# advc.021a: Tectonics 3.16 with minor changes
++# replacing v3.15 (included with BtS)
+ 
+ #-----------------------------------------------------------------------------
+ #	Copyright (c) 2005-2008 Laurent Di Cesare
+@@ -78,6 +78,23 @@ import Popup as PyPopup
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ 
++# <advc.165>
++def getGridSize(argsList):
++	[iWorldSize] = argsList
++	if iWorldSize < 0:
++		return ()
++	sizeModifiers = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(1, -1),
++		WorldSizeTypes.WORLDSIZE_TINY:		(0, -1),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(0, -1),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(-1,-1),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(-2, 0),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(-1,-1)
++	}
++	wi = CyGlobalContext().getWorldInfo(iWorldSize)
++	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
++# </advc.165>
++
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_TECTONICS_DESCR"
+ 
+@@ -102,12 +119,12 @@ def getCustomMapOptionName(argsList):
+ def getNumCustomMapOptionValues(argsList):
+ 	index = argsList[0]
+ 	if (index == 0):
+-		return 9 # advc.021: was 8
++		return 9 # advc.021a: was 8
+ 	else:
+ 		return 4
+ 
+ def getWrapX():
+-	if (6 == CyMap().getCustomMapOption(0)): # advc.021: was 5==...
++	if (6 == CyMap().getCustomMapOption(0)): # advc.021a: was 5==...
+ 		return False
+ 	return True
+ 
+@@ -115,11 +132,11 @@ def getWrapY():
+ 	return False
+ 
+ def getTopLatitude():
+-	if (6 == CyMap().getCustomMapOption(0)): # advc.021: was 5==...
++	if (6 == CyMap().getCustomMapOption(0)): # advc.021a: was 5==...
+ 		return 65
+ 	return 90
+ def getBottomLatitude():
+-	if (6 == CyMap().getCustomMapOption(0)): # advc.021: was 5==...
++	if (6 == CyMap().getCustomMapOption(0)): # advc.021a: was 5==...
+ 		return 25
+ 	return -90
+ 	
+@@ -128,7 +145,7 @@ def getCustomMapOptionDescAt(argsList):
+ 	iSelection = argsList[1]
+ 	selection_names = ["TXT_KEY_MAP_SCRIPT_EARTH_70",
+ 	                   "TXT_KEY_MAP_SCRIPT_EARTH_60",
+-					   "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021
++					   "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021a
+ 	                   "TXT_KEY_MAP_SCRIPT_PANGAEA",
+ 	                   "TXT_KEY_MAP_SCRIPT_LAKES",
+ 	                   "TXT_KEY_MAP_SCRIPT_ISLANDS",
+@@ -149,7 +166,7 @@ def getCustomMapOptionDescAt(argsList):
+ def getCustomMapOptionDefault(argsList):
+ 	iOption = argsList[0]
+ 	if (iOption == 0):
+-		return 1 # advc.021: Was 0, i.e. 70%. Now 60% as the default.
++		return 1 # advc.021a: Was 0, i.e. 70%. Now 60% as the default.
+ 	else:
+ 		return 1
+ 
+@@ -164,7 +181,7 @@ def generateTerrainTypes():
+ 
+ def addFeatures():
+ 	NiTextOut("Adding Features (from Python Continents) ...")
+-	# advc.021: was ...==5
++	# advc.021a: was ...==5
+ 	if (CyMap().getCustomMapOption(0) == 6):         #  "Mediterranean"
+ 		featuregen = NoIceFeatureGenerator()
+ 	else:
+@@ -915,7 +932,7 @@ class ClimateGenerator:
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		"returns a value in the range of 0-90 degrees"
+-		# advc.021: was ...==5
++		# advc.021a: was ...==5
+ 		if (CyMap().getCustomMapOption(0) == 6):         #  "Mediterranean"
+ 			return 65 - (40 * (self.mapHeight - iY) / self.mapHeight)
+ 		return self.map.plot(iX,iY).getLatitude()
+@@ -1114,7 +1131,7 @@ def generatePlotTypes():
+ 	elif (userInputLandmass == 1):       # "Earthlike (60% water)"
+ 		numContinents = 1 + numPlayers*2
+ 		numSeaPlates = numPlayers*3 - 1
+-	# advc.021: Added this block and pushed all subsequent ids one down
++	# advc.021a: Added this block and pushed all subsequent ids one down
+ 	elif (userInputLandmass == 2):       # "Earthlike (50% water)"
+ 		numContinents = 1 + numPlayers*2
+ 		numSeaPlates = 2 + numPlayers*2
+@@ -1406,7 +1423,7 @@ class riversFromSea:
+ 			divider = 2
+ 		maxNumber = (self.width + self.height) / divider
+ 		userInputLandmass = self.map.getCustomMapOption(0)
+-		# <advc.021> ==1 isn't Pangaea, should've been 2 (bug); with
++		# <advc.021a> ==1 isn't Pangaea, should've been 2 (bug); with
+ 		# the 50% option added, it should now be 3.
+ 		# However: Too many rivers in 3.16 in general, so
+ 		# let's always reduce their number.
+@@ -1416,7 +1433,7 @@ class riversFromSea:
+ 			maxNumber /= 2
+ 		# Moved down; guaranteeing at least 1 river sounds prudent
+ 		riversNumber = 1 + maxNumber
+-		# </advc.021>
++		# </advc.021a>
+ 		self.coasts = self.collateCoasts()
+ 		coastsNumber = len(self.coasts)
+ 		if (coastsNumber == 0):
+@@ -1729,7 +1746,7 @@ def findStartingPlot(argsList):
+ 	allOnBest = false
+ 	isolatedStarts = false
+ 	userInputLandmass = CyMap().getCustomMapOption(0)
+-	# advc.021: was ...==4 and ...==7
++	# advc.021a: was ...==4 and ...==7
+ 	if (userInputLandmass == 5):     #                 "Islands"
+ 		isolatedStarts = true
+ 	if (userInputLandmass == 8):     #                 "Terra"
+@@ -1750,7 +1767,7 @@ def findStartingPlot(argsList):
+ 		shuffledPlayers.append(player_list[iChoosePlayer])
+ 		del player_list[iChoosePlayer]
+ 
+-	# advc.021: Need to return sth. to avoid an exception in
++	# advc.021a: Need to return sth. to avoid an exception in
+ 	# CvPlayer::findStartingPlot
+ 	r = -1
+ 	
+@@ -1793,9 +1810,9 @@ def findStartingPlot(argsList):
+ 		findstart = CvMapGeneratorUtil.findStartingPlot(playerID,isValid)
+ 		sPlot = map.plotByIndex(findstart)
+ 		player.setStartingPlot(sPlot,true)
+-		r = findstart # advc.021
++		r = findstart # advc.021a
+ 
+-	if r >= 0: # advc.021: Code to tell the DLL not to worry
++	if r >= 0: # advc.021a: Code to tell the DLL not to worry
+ 		return -10
+ 	return None
+ 
+@@ -1807,7 +1824,7 @@ class MediterraneanFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		return lat
+ 	
+ def addFeatures():
+-	if (6 == CyMap().getCustomMapOption(0)): # advc.021: was 5==...
++	if (6 == CyMap().getCustomMapOption(0)): # advc.021a: was 5==...
+ 		featuregen = MediterraneanFeatureGenerator()
+ 		featuregen.addFeatures()
+ 		return 0
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+new file mode 100644
+index 000000000..c0967d7ea
+--- /dev/null
++++ b/PrivateMaps/Terra.py
+@@ -0,0 +1,567 @@
++#
++#	FILE:	 Terra.py
++#	AUTHOR:  Bob Thomas (Sirian)
++#	PURPOSE: Global map script - Simulates Terran (Earth-like) worlds
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import MultilayeredFractal
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++
++balancer = BonusBalancer()
++
++
++'''
++MULTILAYERED FRACTAL NOTES
++
++The MultilayeredFractal class was created for use with this script.
++
++I worked to make it adaptable to other scripts, though, and eventually it
++migrated in to the MapUtil file along with the other primary map classes.
++
++- Bob Thomas   July 13, 2005
++
++
++TERRA NOTES
++
++Terra turns out to be our largest size map. This is the only map script
++in the original release of Civ4 where the grids are this large!
++
++This script is also the one that got me started in to map scripting. I had 
++this idea early in the development cycle and just kept pestering until Soren 
++turned me loose on it, finally. Once I got going, I just kept on going!
++
++- Bob Thomas   September 20, 2005
++'''
++
++#def getGridSize(argsList):
++#	"Enlarge the grids! According to Soren, Earth-type maps are usually huge anyway."
++#	grid_sizes = {
++#		WorldSizeTypes.WORLDSIZE_DUEL:		(13,8),
++#		WorldSizeTypes.WORLDSIZE_TINY:		(16,10),
++#		WorldSizeTypes.WORLDSIZE_SMALL:		(21,13),
++#		WorldSizeTypes.WORLDSIZE_STANDARD:	(26,16),
++#		WorldSizeTypes.WORLDSIZE_LARGE:		(32,20),
++#		WorldSizeTypes.WORLDSIZE_HUGE:		(38,24)
++#	}
++
++#	if (argsList[0] == -1): # (-1,) is passed to function on loads
++#		return []
++#	[eWorldSize] = argsList
++#	return grid_sizes[eWorldSize]
++# <advc.165> The normal grid would be fine, but b/c of advc.137, it's a bit too small.
++def getGridSize(argsList):
++	[iWorldSize] = argsList
++	if iWorldSize < 0:
++		return ()
++	sizeModifiers = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(1, 0),
++		WorldSizeTypes.WORLDSIZE_TINY:		(1, 0),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(1, 0),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(0, 1),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(1, 1),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(1, 1)
++	}
++	wi = CyGlobalContext().getWorldInfo(iWorldSize)
++	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
++# </advc.165>
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_TERRA_DESCR"
++
++def isAdvancedMap():
++	"This map should show up in simple mode"
++	return 0
++
++def getNumCustomMapOptions():
++	return 2
++
++def getNumHiddenCustomMapOptions():
++	return 2
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_WORLD_WRAP",
++		1:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	3,
++		1:	2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		1:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	1,
++		1:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	false,
++		1:  false
++		}
++	return option_random[iOption]
++
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 2)
++
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(1) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(1) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def minStartingDistanceModifier():
++	return -20
++
++def findStartingPlot(argsList):
++	[playerID] = argsList
++
++	def isValid(playerID, x, y):
++		map = CyMap()
++		pPlot = map.plot(x, y)
++		
++		if (pPlot.getArea() != map.findBiggestArea(False).getID()):
++			return False
++
++		return True
++	
++	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
++
++class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
++	# Subclass. Only the controlling function overridden in this case.
++	def generatePlotsByRegion(self):
++		# Sirian's MultilayeredFractal class, controlling function.
++		# You -MUST- customize this function for each use of the class.
++		#
++		# The following grain matrix is specific to Terra.py
++		sizekey = self.map.getWorldSize()
++		sizevalues = {
++			WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
++			WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
++			WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
++			WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
++			WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
++			WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
++			}
++		(archGrain, contGrain, gaeaGrain, eurasiaGrain) = sizevalues[sizekey]
++		
++		# Sea Level adjustment (from user input), limited to value of 5%.
++		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
++		sea = min(sea, 5)
++		sea = max(sea, -5)
++
++		# The following regions are specific to Terra.py
++		newworldWestLon = 0.05
++		newworldEastLon = 0.35
++		eurasiaWestLon = 0.45
++		eurasiaEastLon = 0.95
++		eurasiaNorthLat = 0.95
++		eurasiaSouthLat = 0.45
++		thirdworldDimension = 0.125
++		thirdworldNorthLat = 0.35
++		thirdworldSouthLat = 0.05
++		subcontinentLargeHorz = 0.2
++		subcontinentLargeVert = 0.32
++		subcontinentLargeNorthLat = 0.6
++		subcontinentLargeSouthLat = 0.28
++		subcontinentSmallDimension = 0.125
++		subcontinentSmallNorthLat = 0.525
++		subcontinentSmallSouthLat = 0.4
++
++		# Dice rolls to randomize the quadrants (specific to Terra.py's regions)
++		roll1 = self.dice.get(2, "Eurasian Hemisphere N/S - Terra PYTHON")
++		if roll1 == 1:
++			eurasiaNorthLat -= 0.4; eurasiaSouthLat -= 0.4
++			thirdworldNorthLat += 0.6; thirdworldSouthLat += 0.6
++			subcontinentLargeNorthLat += 0.12; subcontinentLargeSouthLat += 0.12
++			subcontinentSmallNorthLat += 0.075; subcontinentSmallSouthLat += 0.075
++		roll2 = self.dice.get(2, "Eurasian Hemisphere E/W - Terra PYTHON")
++		if roll2 == 1:
++			newworldWestLon += 0.6; newworldEastLon += 0.6
++			eurasiaWestLon -= 0.4; eurasiaEastLon -= 0.4
++
++		# Simulate the Old World - a large continent akin to Earth's Eurasia.
++		NiTextOut("Generating the Old World (Python Terra) ...")
++		# Set dimensions of the Old World region (specific to Terra.py)
++		eurasiaWestX = int(self.iW * eurasiaWestLon)
++		eurasiaEastX = int(self.iW * eurasiaEastLon)
++		eurasiaNorthY = int(self.iH * eurasiaNorthLat)
++		eurasiaSouthY = int(self.iH * eurasiaSouthLat)
++		eurasiaWidth = eurasiaEastX - eurasiaWestX + 1
++		eurasiaHeight = eurasiaNorthY - eurasiaSouthY + 1
++		
++		eurasiaWater = 55+sea
++
++		self.generatePlotsInRegion(eurasiaWater,
++		                           eurasiaWidth, eurasiaHeight,
++		                           eurasiaWestX, eurasiaSouthY,
++		                           eurasiaGrain, archGrain,
++		                           self.iHorzFlags, self.iTerrainFlags,
++		                           -1, -1,
++		                           True, 11,
++		                           2, False,
++		                           False
++		                           )
++
++		# Eurasia, second layer (to increase pangaea-like cohesion).
++		twHeight = eurasiaHeight/2
++		twWestX = eurasiaWestX + eurasiaWidth/10
++		twEastX = eurasiaEastX - eurasiaWidth/10
++		twWidth = twEastX - twWestX + 1
++		twNorthY = eurasiaNorthY - eurasiaHeight/4
++		twSouthY = eurasiaSouthY + eurasiaHeight/4
++
++		twWater = 60+sea; twGrain = 1; twRift = 2
++                
++		self.generatePlotsInRegion(twWater,
++		                           twWidth, twHeight,
++		                           twWestX, twSouthY,
++		                           twGrain, archGrain,
++		                           self.iHorzFlags, self.iTerrainFlags,
++		                           -1, -1,
++		                           True, 11,
++		                           twRift, False,
++		                           False
++		                           )
++
++		# Simulate the New World - land masses akin to Earth's American continents.
++		# First simulate North America
++		NiTextOut("Generating the New World (Python Terra) ...")
++		nwWestX = int(self.iW * newworldWestLon)
++		nwEastX = int(self.iW * newworldEastLon)
++		nwNorthY = int(self.iH * 0.85)
++		nwSouthY = int(self.iH * 0.52)
++		nwWidth = nwEastX - nwWestX + 1
++		nwHeight = nwNorthY - nwSouthY + 1
++
++		nwWater = 61+sea; nwGrain = 1; nwRift = -1
++                
++		self.generatePlotsInRegion(nwWater,
++		                           nwWidth, nwHeight,
++		                           nwWestX, nwSouthY,
++		                           nwGrain, archGrain,
++		                           self.iVertFlags, self.iTerrainFlags,
++		                           6, 6,
++		                           True, 7,
++		                           nwRift, False,
++		                           False
++		                           )
++
++		# Now simulate South America
++		nwsRoll = self.dice.get(2, "New World South E/W - Terra PYTHON")
++		nwsVar = 0.0
++		if nwsRoll == 1: nwsVar = 0.05
++		nwsWestX = nwWestX + int(self.iW * (0.08 - nwsVar)) # Not as wide as the north
++		nwsEastX = nwEastX - int(self.iW * (0.03 + nwsVar))
++		nwsNorthY = int(self.iH * 0.47)
++		nwsSouthY = int(self.iH * 0.25)
++		nwsWidth = nwsEastX - nwsWestX + 1
++		nwsHeight = nwsNorthY - nwsSouthY + 1
++
++		nwsWater = 55+sea; nwsGrain = 1; nwsRift = -1
++                
++		self.generatePlotsInRegion(nwsWater,
++		                           nwsWidth, nwsHeight,
++		                           nwsWestX, nwsSouthY,
++		                           nwsGrain, archGrain,
++		                           self.iRoundFlags, self.iTerrainFlags,
++		                           6, 6,
++		                           True, 5,
++		                           nwsRift, False,
++		                           False
++		                           )
++
++		nwpWestX = nwWestX + int(self.iW * (0.1 - nwsVar)) # Not as wide as the north
++		nwpEastX = nwEastX - int(self.iW * (0.07 + nwsVar))
++		nwpNorthY = int(self.iH * 0.3)
++		nwpSouthY = int(self.iH * 0.18)
++		nwpWidth = nwpEastX - nwpWestX + 1
++		nwpHeight = nwpNorthY - nwpSouthY + 1
++
++		nwpWater = 67+sea; nwpGrain = 1; nwpRift = -1
++                
++		self.generatePlotsInRegion(nwpWater,
++		                           nwpWidth, nwpHeight,
++		                           nwpWestX, nwpSouthY,
++		                           nwpGrain, archGrain,
++		                           self.iVertFlags, self.iTerrainFlags,
++		                           6, 5,
++		                           True, 3,
++		                           nwpRift, False,
++		                           False
++		                           )
++
++		# Now the Yukon
++		twWidth = int(self.iW * 0.15)
++		twWestX = nwWestX
++		boreal = self.dice.get(2, "New World North E/W - Terra PYTHON")
++		if boreal == 1: twWestX += int(self.iW * 0.15)
++		twEastX = twWestX + twWidth
++		twNorthY = int(self.iH * 0.93)
++		twSouthY = int(self.iH * 0.75)
++		twHeight = twNorthY - twSouthY + 1
++
++		twWater = 68+sea; twGrain = 2; twRift = -1
++                
++		self.generatePlotsInRegion(twWater,
++		                           twWidth, twHeight,
++		                           twWestX, twSouthY,
++		                           twGrain, archGrain,
++		                           self.iRoundFlags, self.iTerrainFlags,
++		                           6, 5,
++		                           True, 5,
++		                           twRift, False,
++		                           False
++		                           )
++
++		# Now add a random region of arctic islands
++		twWidth = int(thirdworldDimension * self.iW)
++		twHeight = int(thirdworldDimension * self.iH)
++		if boreal == 0: 
++			twEastX = nwEastX
++			twWestX = twEastX - twWidth
++		else:
++			twWestX = nwWestX
++			twEastX = twWestX + twWidth
++		twNorthY = int(self.iH * 0.975)
++		twSouthY = int(self.iH * 0.85)
++
++		twWater = 76+sea; twGrain = archGrain; twRift = -1
++                
++		self.generatePlotsInRegion(twWater,
++		                           twWidth, twHeight,
++		                           twWestX, twSouthY,
++		                           twGrain, archGrain,
++		                           self.iHorzFlags, self.iTerrainFlags,
++		                           6, 5,
++		                           True, 5,
++		                           twRift, False,
++		                           False
++		                           )
++
++ 		# Now simulate Central America
++ 		nwcVar = 0.0
++		if nwsRoll == 1: nwcVar = 0.04
++		nwcWidth = int(self.iW * 0.06)
++		nwcRoll = self.dice.get(2, "Central America and Carribean Placement - Terra PYTHON")
++		nwcWestX = nwWestX + int(self.iW * (0.1 + nwcVar))
++		nwcEastX = nwcWestX + nwcWidth
++		nwcNorthY = int(self.iH * 0.6)
++		nwcSouthY = int(self.iH * 0.42)
++		nwcHeight = nwcNorthY - nwcSouthY + 1
++
++		nwcWater = 60+sea; nwcGrain = 1; nwcRift = -1
++                
++		self.generatePlotsInRegion(nwcWater,
++		                           nwcWidth, nwcHeight,
++		                           nwcWestX, nwcSouthY,
++		                           nwcGrain, archGrain,
++		                           self.iVertFlags, self.iTerrainFlags,
++		                           6, 5,
++		                           True, 5,
++		                           nwcRift, False,
++		                           False
++		                           )
++
++		# Now the Carribean islands
++ 		carVar = 0.0
++		if nwsRoll == 1: carVar = 0.15
++		twWidth = int(0.15 * self.iW)
++		twEastX = nwEastX - int(carVar * self.iW)
++		twWestX = twEastX - twWidth
++		twNorthY = int(self.iH * 0.55)
++		twSouthY = int(self.iH * 0.47)
++		twHeight = twNorthY - twSouthY + 1
++
++		twWater = 75+sea; twGrain = archGrain + 1; twRift = -1
++                
++		self.generatePlotsInRegion(twWater,
++		                           twWidth, twHeight,
++		                           twWestX, twSouthY,
++		                           twGrain, archGrain,
++		                           0, self.iTerrainFlags,
++		                           6, 5,
++		                           True, 3,
++		                           twRift, False,
++		                           False
++		                           )
++
++		# Add subcontinents to the Old World, one large, one small. (Terra.py)
++		# Subcontinents can be akin to pangaea, continents, or archipelago.
++		# The large adds an amount of land akin to subSaharan Africa.
++		# The small adds an amount of land akin to South Pacific islands.
++		NiTextOut("Generating the Third World (Python Terra) ...")
++		scLargeWidth = int(subcontinentLargeHorz * self.iW)
++		scLargeHeight = int(subcontinentLargeVert * self.iH)
++		scRoll = self.dice.get((eurasiaWidth - scLargeWidth), "Large Subcontinent Placement - Terra PYTHON")
++		scWestX = eurasiaWestX + scRoll
++		scEastX = scWestX + scLargeWidth
++		scNorthY = int(self.iH * subcontinentLargeNorthLat)
++		scSouthY = int(self.iH * subcontinentLargeSouthLat)
++
++		scShape = self.dice.get(4, "Large Subcontinent Shape - Terra PYTHON")
++		if scShape > 1: # Massive subcontinent! (Africa style)
++			scWater = 55+sea; scGrain = 1; scRift = 2
++		elif scShape == 1: # Standard subcontinent.
++			scWater = 66+sea; scGrain = 2; scRift = 2
++		else: # scShape == 0, Archipelago subcontinent.
++			scWater = 77+sea; scGrain = archGrain; scRift = -1
++                
++		self.generatePlotsInRegion(scWater,
++		                           scLargeWidth, scLargeHeight,
++		                           scWestX, scSouthY,
++		                           scGrain, archGrain,
++		                           self.iRoundFlags, self.iTerrainFlags,
++		                           6, 6,
++		                           True, 7,
++		                           scRift, False,
++		                           False
++		                           )
++
++		scSmallWidth = int(subcontinentSmallDimension * self.iW)
++		scSmallHeight = int(subcontinentSmallDimension * self.iH)
++		endless = 1
++		while endless == 1: # Prevent excessive overlap of the two subcontinents.
++			scsRoll = self.dice.get((eurasiaWidth - scSmallWidth), "Small Subcontinent Placement - Terra PYTHON")
++			scsWestX = eurasiaWestX + scsRoll
++			if abs((scsWestX + self.iW/12) - scWestX) > self.iW/8: break
++		scsEastX = scsWestX + scSmallWidth
++		scsNorthY = int(self.iH * subcontinentSmallNorthLat)
++		scsSouthY = int(self.iH * subcontinentSmallSouthLat)
++
++		scsShape = self.dice.get(4, "Small Subcontinent Shape - Terra PYTHON")
++		if scsShape == 2: # Massive subcontinent!
++			scsWater = 55+sea; scsGrain = 1; scsRift = 2
++		elif scsShape == 1: # Standard subcontinent. (India style).
++			scsWater = 66+sea; scsGrain = 2; scsRift = 2
++		else: # scsShape == 0 or 3, Archipelago subcontinent (East Indies style).
++			scsWater = 77+sea; scsGrain = archGrain; scsRift = -1
++                
++		self.generatePlotsInRegion(scsWater,
++		                           scSmallWidth, scSmallHeight,
++		                           scsWestX, scsSouthY,
++		                           scsGrain, archGrain,
++		                           self.iHorzFlags, self.iTerrainFlags,
++		                           6, 5,
++		                           True, 5,
++		                           scsRift, False,
++		                           False
++		                           )
++
++		# Now simulate random lands akin to Australia and Antarctica
++		extras = 2 + self.dice.get(3, "Number of Minor Regions - Terra PYTHON")
++		for loop in range(extras):
++			# Two to four of these regions.
++			twWidth = int(thirdworldDimension * self.iW)
++			twHeight = int(thirdworldDimension * self.iH)
++			twVertRange = int(0.3 * self.iH) - twHeight
++			twRoll = self.dice.get((eurasiaWidth - twWidth), "Minor Region Placement - Terra PYTHON")
++			twWestX = eurasiaWestX + twRoll
++			twEastX = scWestX + scLargeWidth
++			twVertRoll = self.dice.get(twVertRange, "Minor Region Placement - Terra PYTHON")
++			twNorthY = int(self.iH * thirdworldNorthLat) + twVertRoll
++			twSouthY = int(self.iH * thirdworldSouthLat) + twVertRoll
++
++			twShape = self.dice.get(3, "Minor Region Shape - Terra PYTHON")
++			if twShape == 2: # Massive subcontinent!
++				twWater = 60+sea; twGrain = 1; twRift = 2
++			elif twShape == 1: # Standard subcontinent.
++				twWater = 65+sea; twGrain = 2; twRift = 2
++			else: # twShape == 0, Archipelago subcontinent.
++				twWater = 70+sea; twGrain = archGrain; twRift = -1
++                
++			self.generatePlotsInRegion(twWater,
++			                           twWidth, twHeight,
++			                           twWestX, twSouthY,
++			                           twGrain, archGrain,
++			                           self.iHorzFlags, self.iTerrainFlags,
++			                           6, 5,
++			                           True, 5,
++			                           twRift, False,
++			                           False
++			                           )
++
++		# All regions have been processed. Plot Type generation completed.
++		return self.wholeworldPlotTypes
++
++'''
++Regional Variables Key:
++
++iWaterPercent,
++iRegionWidth, iRegionHeight,
++iRegionWestX, iRegionSouthY,
++iRegionGrain, iRegionHillsGrain,
++iRegionPlotFlags, iRegionTerrainFlags,
++iRegionFracXExp, iRegionFracYExp,
++bShift, iStrip,
++rift_grain, has_center_rift,
++invert_heights
++'''
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Terra) ...")
++	# Call generatePlotsByRegion() function, from TerraMultilayeredFractal subclass.
++	global plotgen
++	plotgen = TerraMultilayeredFractal()
++	return plotgen.generatePlotsByRegion()
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Terra) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Terra) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 20f366a88..e32b2044e 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -12,6 +12,23 @@ from CvMapGeneratorUtil import FeatureGenerator
+ def getDescription():
+ 	return "A modified version of Big and Small, designed to scale better for large maps."
+ 	
++# <advc.165>
++def getGridSize(argsList):
++	[iWorldSize] = argsList
++	if iWorldSize < 0:
++		return ()
++	sizeModifiers = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(0, -1),
++		WorldSizeTypes.WORLDSIZE_TINY:		(0, -2),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(-1,-2),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(-2,-2),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(-3,-2),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(-5,-2)
++	}
++	wi = CyGlobalContext().getWorldInfo(iWorldSize)
++	return (sizeModifiers[iWorldSize][0] + wi.getGridWidth(), sizeModifiers[iWorldSize][1] + wi.getGridHeight())
++# </advc.165>
++
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+ 	return 0
+
+[PATCH OMITTED] file=a/manual_0.94d.odt b/manual_0.94d.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=84212

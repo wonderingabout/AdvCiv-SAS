@@ -1,0 +1,560 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2963
+# Commit: 617986be5701622c7544da8874f44bca3bf0f676
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9bc5f3259405e22b7473c12bc43457c925f33171
+# Title: Minor bugfixes, clean-up following Cppcheck analysis
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/ACOText.cpp
+3	3	CvGameCoreDLL/CvDLLLogger.cpp
+1	1	CvGameCoreDLL/CvDLLLogger.h
+2	2	CvGameCoreDLL/CvGame.cpp
+12	2	CvGameCoreDLL/CvGlobals.cpp
+3	6	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+14	20	CvGameCoreDLL/CvRandom.cpp
+7	9	CvGameCoreDLL/CvRandom.h
+23	22	CvGameCoreDLL/CvTalkingHeadMessage.cpp
+1	6	CvGameCoreDLL/CvUnit.cpp
+4	1	CvGameCoreDLL/CvUnit.h
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/FProfiler.h
+5	2	CvGameCoreDLL/Project/AdvCiv.cppcheck
+1	1	CvGameCoreDLL/ScaledNum.h
+1	1	CvGameCoreDLL/WarEvaluator.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ACOText.cpp b/CvGameCoreDLL/ACOText.cpp
+index 0d2a561d8..c475e1554 100644
+--- a/CvGameCoreDLL/ACOText.cpp
++++ b/CvGameCoreDLL/ACOText.cpp
+@@ -434,9 +434,9 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	float const prob2 = prob1 + 100.0f * RetreatOdds;//up to retreat odds
+ 
+ 	//float prob = 100.0f * (AttackerKillOdds+RetreatOdds + PullOutOdds); // advc: unused
+-	int pixels_left = 199;// 1 less than 200 to account for right end bar
+-	// 1% per pixel // subtracting one to account for left end bar
+ 	{
++		int pixels_left = 199;// 1 less than 200 to account for right end bar
++		// 1% per pixel // subtracting one to account for left end bar
+ 		int pixels = (2 * ((int)(prob1 + 0.5)))-1;
+ 		{
+ 			int fullBlocks = pixels / 10;
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 95ab177f1..7cd6a839e 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -12,11 +12,11 @@
+ // </advc.mapstat>
+ 
+ CvDLLLogger::CvDLLLogger(bool bEnabled, bool bRandEnabled)
+-	: m_bEnabled(bEnabled), m_bRandEnabled(bRandEnabled) {}
++:	m_bEnabled(bEnabled), m_bRandEnabled(bRandEnabled) {}
+ 
+ // Cut from CvRandom::getInt
+ void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
+-	unsigned long ulSeed, int iData1, int iData2,
++	unsigned int uiSeed, int iData1, int iData2,
+ 	CvString const* pszFileName) // advc.007b
+ {
+ 	FAssert(isEnabledRand()); // Caller should handle this, for performance reasons.
+@@ -41,7 +41,7 @@ void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
+ 	if (!bNetworkMP)
+ 		iOn = GC.getGame().getGameTurn(); // (any more useful info to put here?)
+ 	// The second and last %s are new
+-	std::sprintf(szOut, "Rand = %ul / %hu (%s%s) on %s%d\n", ulSeed, usNum,
++	std::sprintf(szOut, "Rand = %u / %hu (%s%s) on %s%d\n", uiSeed, usNum,
+ 			szMsg, szData.c_str(), bNetworkMP ? "" : "t", iOn);
+ 	// <advc.007b>
+ 	if (pszFileName != NULL)
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.h b/CvGameCoreDLL/CvDLLLogger.h
+index 0a689334e..6190f60b1 100644
+--- a/CvGameCoreDLL/CvDLLLogger.h
++++ b/CvGameCoreDLL/CvDLLLogger.h
+@@ -12,7 +12,7 @@ class CvDLLLogger : private boost::noncopyable
+ public:
+ 	CvDLLLogger(bool bEnabled, bool bRandEnabled);
+ 	// Requires "RandLog" to be set in addition to "MessageLog"
+-	void logRandomNumber(const TCHAR* szMsg, unsigned short usNum, unsigned long ulSeed,
++	void logRandomNumber(const TCHAR* szMsg, unsigned short usNum, unsigned int uiSeed,
+ 			int iData1, int iData2, /* advc.007b: */ CvString const* pszFileName = NULL);
+ 	void logTurnActive(PlayerTypes ePlayer);
+ 	void logCityBuilt(CvCity const& kCity);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4b36f9904..3e07aa04c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1281,7 +1281,7 @@ namespace
+ 				/*	pStartPlot->getFoundValue(ePlayer) would be faster,
+ 					but CvPlot::setFoundValue may not have been called
+ 					(and then it returns 0). */
+-				scaled r = GET_PLAYER(ePlayer).AI_foundValue(
++				r = GET_PLAYER(ePlayer).AI_foundValue(
+ 						pStartPlot->getX(), pStartPlot->getY(), -1,
+ 						false, true); // advc.027: bNormalize instead of bStartingLoc
+ 				FAssertMsg(r.isPositive(), "Starting site likely unplayable");
+@@ -3554,7 +3554,7 @@ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
+ 		else if (iPopulation > iNextBestPopulation)
+ 			iNextBestPopulation = iPopulation;
+ 	}
+-	return std::min(100, ((iNextBestPopulation * 100) / getTotalPopulation()) +
++	return std::min(100, (iNextBestPopulation * 100) / getTotalPopulation() +
+ 			GC.getInfo(eVictory).getPopulationPercentLead());
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 04f59ae2d..41aa9b9ee 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -629,17 +629,27 @@ void CvGlobals::setXMLLoadUtility(CvXMLLoadUtility* pXML)
+ 
+ void CvGlobals::loadOptionalXMLInfo()
+ {
++	#ifdef FASSERT_ENABLE
+ 	bool bSuccess = false;
+ 	if (m_pXMLLoadUtility != NULL)
+-		bSuccess = m_pXMLLoadUtility->LoadOptionalGlobals();
++	{
++		bSuccess =
++	#endif
++			m_pXMLLoadUtility->LoadOptionalGlobals();
++	}
+ 	FAssertMsg(bSuccess, "Failed to load optional XML data");
+ }
+ 
+ void CvGlobals::loadThroneRoomInfo()
+ {
++	#ifdef FASSERT_ENABLE
+ 	bool bSuccess = false;
+ 	if (m_pXMLLoadUtility != NULL)
+-		bSuccess = m_pXMLLoadUtility->LoadThroneRoomInfo();
++	{
++		bSuccess =
++	#endif
++			m_pXMLLoadUtility->LoadThroneRoomInfo();
++	}
+ 	FAssertMsg(bSuccess, "Failed to load XML data for Throne Room");
+ } // </advc.003v>
+ // <advc.opt>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1bd2b45ae..07245bca9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10498,16 +10498,13 @@ CLLNode<int>* CvPlayer::tailGroupCycleNode() const
+ //	Finds the path length from this tech type to one you already know
+ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
+ {
+-	int iNumSteps = 0;
+-	int iShortestPath = 0;
+-	int iPathLength = 0;
+ 	if (GET_TEAM(getTeam()).isHasTech(eTech) || isResearchingTech(eTech))
+ 	{
+ 		//	We have this tech, no reason to add this to the pre-reqs
+ 		//	Base case return 0, we know it...
+ 		return 0;
+ 	}
+-
++	int iPathLength = 0;
+ 	//	Cycle through the and paths and add up their tech lengths
+ 	for (int i = 0; i < GC.getInfo(eTech).getNumAndTechPrereqs(); i++)
+ 	{
+@@ -10516,14 +10513,14 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
+ 	}
+ 
+ 	TechTypes eShortestOr = NO_TECH;
+-	iShortestPath = MAX_INT;
++	int iShortestPath = MAX_INT;
+ 	//	Find the shortest OR tech
+ 	for (int i = 0; i < GC.getInfo(eTech).getNumOrTechPrereqs(); i++)
+ 	{
+ 		TechTypes const ePreReq = GC.getInfo(eTech).getPrereqOrTechs(i);
+ 		//	Recursively find the path length (takes into account all ANDs)
+ 		// k146 (note): This will double-count any shared AND-prepreqs.
+-		iNumSteps = findPathLength(ePreReq, bCost);
++		int iNumSteps = findPathLength(ePreReq, bCost);
+ 		//	If the prereq is a valid tech and its the current shortest, mark it as such
+ 		if (iNumSteps < iShortestPath)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1429b0784..4ed8fadd5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23825,7 +23825,7 @@ void CvPlayerAI::AI_updateVictoryStageHash()
+ 					even with other stage4 strategies already running. */
+ 				if (iVictoryStage > 3)
+ 				{
+-					bStartedOtherLevel4 = true;
++					//bStartedOtherLevel4 = true; // advc.115b (no longer used below)
+ 					m_eVictoryStageHash |= AI_VICTORY_CULTURE4;
+ 				}
+ 			}
+@@ -26813,7 +26813,7 @@ bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity, bool bConquest) const
+ 	int iThresh = 7;
+ 	if (bConquest && kCity.getPopulation() >= iEra + 4)
+ 		iThresh--;
+-	return (rDecentPlots < 7);
++	return (rDecentPlots < iThresh);
+ }
+ 
+ // advc.104:
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 7e970a3d4..1be3627e9 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -12,10 +12,10 @@ unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog,
+ {	// <advc.003t>
+ 	if (GC.getLogger().isEnabledRand() && szLog != NULL)
+ 		printToLog(szLog, usNum, iData1, iData2); // </advc.003t>
+-	m_ulRandomSeed = (RANDOM_A * m_ulRandomSeed) + RANDOM_C;
++	m_uiRandomSeed = (RANDOM_A * m_uiRandomSeed) + RANDOM_C;
+ 	unsigned short r = (unsigned short)
+-			((((m_ulRandomSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) *
+-			((unsigned long)usNum)) / (MAX_UNSIGNED_SHORT + 1));
++			((((m_uiRandomSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) *
++			((unsigned int)usNum)) / (MAX_UNSIGNED_SHORT + 1));
+ 	return r;
+ }
+ 
+@@ -34,10 +34,10 @@ void CvRandom::init(unsigned long ulSeed)
+ 	reset(ulSeed);
+ }
+ 
+-// Initializes data members that are serialized.
+-void CvRandom::reset(unsigned long ulSeed)
++// Initializes data members that are serialized
++void CvRandom::reset(unsigned int uiSeed)
+ {
+-	m_ulRandomSeed = ulSeed;
++	m_uiRandomSeed = uiSeed;
+ }
+ 
+ /*	advc.190c: Separate function for calls from the EXE. So that the DLL can figure out
+@@ -49,28 +49,28 @@ unsigned short CvRandom::getExternal(unsigned short usNum, TCHAR const* szLog)
+ }
+ 
+ 
+-void CvRandom::reseed(unsigned long ulNewValue)
++void CvRandom::reseed(unsigned int uiNewValue)
+ {
+-	m_ulRandomSeed = ulNewValue;
++	m_uiRandomSeed = uiNewValue;
+ }
+ 
+ 
+-unsigned long CvRandom::getSeed()
++unsigned int CvRandom::getSeed()
+ {
+-	return m_ulRandomSeed;
++	return m_uiRandomSeed;
+ }
+ 
+ 
+ void CvRandom::read(FDataStreamBase* pStream)
+ {
+ 	reset();
+-	pStream->Read(&m_ulRandomSeed);
++	pStream->Read(&m_uiRandomSeed);
+ }
+ 
+ 
+ void CvRandom::write(FDataStreamBase* pStream)
+ {
+-	pStream->Write(m_ulRandomSeed);
++	pStream->Write(m_uiRandomSeed);
+ }
+ 
+ // <advc.007b>
+@@ -79,23 +79,17 @@ void CvRandom::write(FDataStreamBase* pStream)
+ void CvRandom::printToLog(TCHAR const* szMsg, unsigned short usNum,
+ 	int iData1, int iData2) // advc.001n
+ {	// advc.003t:
+-	GC.getLogger().logRandomNumber(szMsg, usNum, m_ulRandomSeed, iData1, iData2);
++	GC.getLogger().logRandomNumber(szMsg, usNum, m_uiRandomSeed, iData1, iData2);
+ }
+ 
+ 
+ void CvRandomExtended::printToLog(TCHAR const* szMsg, unsigned short usNum,
+ 	int iData1, int iData2) // advc.001n
+ {
+-	GC.getLogger().logRandomNumber(szMsg, usNum, m_ulRandomSeed, iData1, iData2,
++	GC.getLogger().logRandomNumber(szMsg, usNum, m_uiRandomSeed, iData1, iData2,
+ 			&m_szFileName);
+ }
+ 
+-// Initializes data members that are serialized.
+-void CvRandomExtended::reset(unsigned long ulSeed)
+-{
+-	CvRandom::reset(ulSeed);
+-}
+-
+ 
+ void CvRandomExtended::setLogFileName(CvString szName)
+ {
+
+diff --git a/CvGameCoreDLL/CvRandom.h b/CvGameCoreDLL/CvRandom.h
+index 35ad71569..a1785f7e6 100644
+--- a/CvGameCoreDLL/CvRandom.h
++++ b/CvGameCoreDLL/CvRandom.h
+@@ -10,7 +10,7 @@ public:
+ 	DllExport virtual ~CvRandom(); // advc (comment): Can't make this non-virtual b/c of DllExport
+ 
+ 	DllExport void init(unsigned long ulSeed);
+-	virtual void reset(unsigned long ulSeed = 0); // advc.007b: virtual
++	void reset(unsigned int uiSeed = 0);
+ 	// for serialization
+ 	virtual void read(FDataStreamBase* pStream); // advc.007b: virtual
+ 	virtual void write(FDataStreamBase* pStream); // advc.007b: virtual
+@@ -42,14 +42,14 @@ public:
+ 		return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT;
+ 	}
+ 
+-	void reseed(unsigned long ulNewValue);
+-	unsigned long getSeed();
++	void reseed(unsigned int uiNewValue);
++	unsigned int getSeed();
+ 
+ protected:
+ 	virtual void printToLog(TCHAR const* szMsg, unsigned short usNum, // advc.007b
+ 			int iData1, int iData2); // advc.001n
+ 
+-	unsigned long m_ulRandomSeed;
++	unsigned int m_uiRandomSeed;
+ 	// advc.001n, advc.006:
+ 	unsigned short getInt(unsigned short usNum, TCHAR const* szMsg, int iData1, int iData2);
+ };
+@@ -67,12 +67,10 @@ public:
+ 		savegame compatibility unless the owning class increases the uiFlag constant
+ 		in its write function. */
+ 	void setLogFileName(CvString szName);
+-	// The rest are overrides
+-	void reset(unsigned long ulSeed = 0);
+-	void read(FDataStreamBase* pStream);
+-	void write(FDataStreamBase* pStream);
++	void read(FDataStreamBase* pStream); // override
++	void write(FDataStreamBase* pStream); // override
+ protected:
+-	// Override:
++	// override:
+ 	void printToLog(TCHAR const* szMsg, unsigned short usNum, int iData1, int iData2);
+ 	CvString m_szFileName;
+ };
+
+diff --git a/CvGameCoreDLL/CvTalkingHeadMessage.cpp b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+index 39404bd77..1d8611e6c 100644
+--- a/CvGameCoreDLL/CvTalkingHeadMessage.cpp
++++ b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+@@ -210,6 +210,28 @@ void CvTalkingHeadMessage::setTarget(ChatTargetTypes eType)
+ int CvTalkingHeadMessage::getExpireTurn(/* advc.700: */ bool bHuman)
+ {
+ 	int iExpireTurn = getTurn();
++	/*  <advc.700> Quicker expiration for AI. Note that messages are delivered to
++		the AI only with GAMEOPTION_RISE_FALL. */
++	if (!bHuman)
++	{
++		switch(m_eMessageType)
++		{
++		case MESSAGE_TYPE_INFO: iExpireTurn += 1; break;
++		case MESSAGE_TYPE_COMBAT_MESSAGE: iExpireTurn += 2; break;
++		case MESSAGE_TYPE_MINOR_EVENT: iExpireTurn += 10; break;
++		case MESSAGE_TYPE_QUEST:
++			iExpireTurn = GC.getGame().getGameTurn() + 1;
++			break;
++		case MESSAGE_TYPE_MAJOR_EVENT:
++		case MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY: // advc.106b
++			iExpireTurn += 50;
++			break;
++		default:
++			iExpireTurn = GC.getGame().getGameTurn() - 1;
++			break;
++		}
++		return iExpireTurn;
++	} // </advc.700>
+ 	switch (m_eMessageType)
+ 	{
+ 	case MESSAGE_TYPE_INFO:
+@@ -243,28 +265,7 @@ int CvTalkingHeadMessage::getExpireTurn(/* advc.700: */ bool bHuman)
+ 		FAssert(false);
+ 		break;
+ 	}
+-	/*  <advc.700> Quicker expiration for AI. Note that messages are delivered to
+-		the AI only if GAMEOPTION_RISE_FALL. */
+-	if(bHuman)
+-		return iExpireTurn;
+-	iExpireTurn = getTurn();
+-	switch(m_eMessageType)
+-	{
+-	case MESSAGE_TYPE_INFO: iExpireTurn += 1; break;
+-	case MESSAGE_TYPE_COMBAT_MESSAGE: iExpireTurn += 2; break;
+-	case MESSAGE_TYPE_MINOR_EVENT: iExpireTurn += 10; break;
+-	case MESSAGE_TYPE_QUEST:
+-		iExpireTurn = GC.getGame().getGameTurn() + 1;
+-		break;
+-	case MESSAGE_TYPE_MAJOR_EVENT:
+-	case MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY: // advc.106b
+-		iExpireTurn += 50;
+-		break;
+-	default:
+-		iExpireTurn = GC.getGame().getGameTurn() - 1;
+-		break;
+-	}
+-	return iExpireTurn; // </advc.700>
++	return iExpireTurn;
+ }
+ 
+ bool CvTalkingHeadMessage::getShown() const
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 330d93f8b..ddda16f6c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6895,12 +6895,7 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 		pAttackedPlot = plot();
+ 
+ 	if (pCombatDetails != NULL)
+-	{
+-		pCombatDetails->setAllToNull(); // advc
+-		pCombatDetails->eOwner = getOwner();
+-		pCombatDetails->eVisualOwner = getVisualOwner();
+-		pCombatDetails->sUnitName = getName().GetCString();
+-	}
++		pCombatDetails->reset(getOwner(), getVisualOwner(), getName().c_str()); // advc
+ 
+ 	if (baseCombatStr() == 0)
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index fa78788a3..ff689439c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1238,9 +1238,12 @@ struct CombatDetails											// Exposed to Python
+ 	PlayerTypes eVisualOwner;
+ 	std::wstring sUnitName;
+ 	// advc:
+-	void setAllToNull()
++	void reset(PlayerTypes eOwner, PlayerTypes eVisualOwner, std::wstring sUnitName)
+ 	{
+ 		memset(this, 0, sizeof(*this));
++		this->eOwner = eOwner;
++		this->eVisualOwner = eVisualOwner;
++		this->sUnitName = sUnitName;
+ 	}
+ };
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 69468ba17..caba71c0f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15544,13 +15544,13 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 						int iValue = iAssaultsHere * 5;
+ 						iValue += iTargetCities * 10;
+ 						{
+-							//bool bCanCargoAllUnload = true;
+-							int iCannotUnload = 0; // advc.082
+ 							bool const bCity = p.isCity();
+ 							if (bCity ||
+ 								//p.getNumVisibleEnemyDefenders(this) > 0
+ 								p.isVisibleEnemyDefender(this)) // advc.opt
+ 							{
++								//bool bCanCargoAllUnload = true;
++								int iCannotUnload = 0; // advc.082
+ 								for (size_t i = 0; i < apGroupCargo.size(); ++i)
+ 								{
+ 									CvUnit const* pAttacker = apGroupCargo[i];
+
+diff --git a/CvGameCoreDLL/FProfiler.h b/CvGameCoreDLL/FProfiler.h
+index 66cd2127e..5a9ca89d1 100644
+--- a/CvGameCoreDLL/FProfiler.h
++++ b/CvGameCoreDLL/FProfiler.h
+@@ -79,8 +79,8 @@ public:
+ 	CProfileScope(ProfileSample *pSample)
+ 	{
+ 		m_pSample = pSample;
+-		bValid = false;
+-		//if (!giProfilerDisabled)
++		/*bValid = false;
++		if (!giProfilerDisabled)*/
+ 		{
+ 			bValid = true;
+ #ifdef USE_INTERNAL_PROFILER
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.cppcheck b/CvGameCoreDLL/Project/AdvCiv.cppcheck
+index 695893505..2d05c239c 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.cppcheck
++++ b/CvGameCoreDLL/Project/AdvCiv.cppcheck
+@@ -1,8 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!-- To be loaded by the Cppcheck GUI for a static analysis of the
+-	 CvGameCore source code. On 9 Oct 2020, I've addressed all reported
++	 CvGameCore source code. On 27 Mar 2021, I've addressed all reported
+ 	 issues that I feel should be addressed. For the few dozen that remain,
+-	 it should be easy to tell that the code is working as intended. -->
++	 it should be easy to tell that the code is working as intended.
++	 In particular, the "shadowed local variable ...Anon..." warnings
++	 are spurious and "condition always true/false" warnings are guesswork;
++	 usually false positives. -->
+ <project version="1">
+     <builddir>AdvCiv-cppcheck-build-dir</builddir>
+     <platform>win32W</platform>
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index f8d359e2f..e59c34440 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -149,7 +149,7 @@ public:
+ 		that the conversion to SCALE happens at compile time, so that
+ 		floating-point math can be used for maximal accuracy. */
+ 	template<int iNUM, int iDEN>
+-	static inline ScaledNum fromRational()
++	static __forceinline ScaledNum fromRational()
+ 	{
+ 		BOOST_STATIC_ASSERT(iDEN != 0);
+ 		BOOST_STATIC_ASSERT(bSIGNED || (iDEN > 0 && iNUM >= 0));
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 7fe78bf8e..4d2b55173 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -227,7 +227,7 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, int iPreparationTime)
+ 	int iNavalU = MIN_INT;
+ 	if (!bSkipNaval)
+ 		iNavalU = evaluate(eWarPlan, true, iPreparationTime);
+-	int iU = MIN_INT;
++	int iU=MIN_INT;
+ 	if (bExtraRun)
+ 	{
+ 		m_kReport.setMute(false);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index c5afc5e6e..b0c334c6c 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -647,7 +647,7 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
+ 		log("Per-turn Trade route profit capped at %d", iTradeRouteProfitCap);
+ 		rTradeRouteProfit = iTradeRouteProfitCap;
+ 	}
+-	else if (iTradeRouteProfitCap > 0)
++	else if (rTradeRouteProfit > 0)
+ 		log("Per-turn trade route profit: %d", rTradeRouteProfit.uround());
+ 	return kWeAI.tradeValToUtility(rGoldVal + rTradeRouteProfit * iDefaultTimeHorizon) *
+ 			kWeAI.amortizationMultiplier();
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=18497

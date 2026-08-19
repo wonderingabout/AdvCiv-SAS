@@ -1,0 +1,978 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5451
+# Commit: 1e8acff71e6cf406f5ade59003fdfc22625838d7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0dcc98613ca2415ba1f0a7602d979c4658e6cf02
+# Title: add workaround with ingame warning once to KI#106 (press Esc key many times or several seconds)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	PrivateMaps/Arboria.py
+5	0	PrivateMaps/Archipelago.py
+4	0	PrivateMaps/BTG_Cross.py
+10	0	PrivateMaps/BTG_Lagoon.py
+5	0	PrivateMaps/Big_and_Small.py
+10	0	PrivateMaps/Boreal.py
+5	0	PrivateMaps/Continents.py
+5	0	PrivateMaps/Custom_Continents.py
+4	0	PrivateMaps/Donut.py
+4	0	PrivateMaps/Fantasy_Realm.py
+5	0	PrivateMaps/Fractal.py
+4	0	PrivateMaps/Global_Highlands.py
+5	0	PrivateMaps/Hemispheres.py
+4	0	PrivateMaps/Highlands.py
+4	0	PrivateMaps/Hub.py
+4	0	PrivateMaps/Inland_Sea.py
+5	0	PrivateMaps/Islands.py
+4	0	PrivateMaps/Lakes.py
+4	0	PrivateMaps/Maze.py
+5	0	PrivateMaps/Medium_and_Small.py
+4	0	PrivateMaps/Mirror.py
+5	0	PrivateMaps/Mixed_Continents.py
+4	0	PrivateMaps/Oasis.py
+5	0	PrivateMaps/Pangaea.py
+3	0	PrivateMaps/PerfectMongoose.py
+4	0	PrivateMaps/Ring.py
+10	0	PrivateMaps/SAS_WorldSizes.py
+5	0	PrivateMaps/Shuffle.py
+6	0	PrivateMaps/Team_Battleground.py
+5	0	PrivateMaps/Terra.py
+4	0	PrivateMaps/Tilted_Axis.py
+4	0	PrivateMaps/Wheel.py
+5	0	PrivateMaps/not_too_Big_or_Small.py
+3	2	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index ee7aa18df..5e5c71acb 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -49,6 +49,8 @@ def getCustomMapOptionName(argsList):
+ 		0: "Deer Percentage",
+ 		1: "TXT_KEY_MAP_WORLD_WRAP"
+ 	}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -77,6 +79,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 		}
+ 	}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Archipelago.py b/PrivateMaps/Archipelago.py
+index 0c92ef066..613643ff8 100644
+--- a/PrivateMaps/Archipelago.py
++++ b/PrivateMaps/Archipelago.py
+@@ -14,6 +14,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -43,6 +44,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		2:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -73,6 +76,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index fcf0439e3..4039dde60 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -84,6 +84,8 @@ def getCustomMapOptionName(argsList):
+ 		10: "Central Hub",
+ 		11:	"Desert"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -174,6 +176,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "None - replace by marsh (BTG)"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index e27fe75a0..bece8c901 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -62,6 +62,8 @@ def getCustomMapOptionName(argsList):
+ 		4:	"Start Position",
+ 		5:	"TXT_KEY_MAP_WORLD_WRAP"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -75,6 +77,8 @@ def getNumCustomMapOptionValues(argsList):
+ 		4:	3,
+ 		5:	3
+ 		}
++	if not option_values.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+@@ -108,6 +112,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			}			
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	if not selection_names[iOption].has_key(iSelection):
+ 		return u""
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+@@ -123,6 +129,8 @@ def getCustomMapOptionDefault(argsList):
+ 		4:	1,
+ 		5:	0
+ 		}
++	if not option_defaults.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+@@ -135,6 +143,8 @@ def isRandomCustomMapOption(argsList):
+ 		4:	false,
+ 		5:	false
+ 		}
++	if not option_random.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	return option_random[iOption]
+ 
+ def getWrapX():
+
+diff --git a/PrivateMaps/Big_and_Small.py b/PrivateMaps/Big_and_Small.py
+index a6ada2a48..9957f0970 100644
+--- a/PrivateMaps/Big_and_Small.py
++++ b/PrivateMaps/Big_and_Small.py
+@@ -13,6 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -36,6 +37,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+ 		2:	"TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -65,6 +68,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_SCRIPT_ISLANDS_MIXED_IN"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 031e70455..a16fc4874 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -51,6 +51,8 @@ def getCustomMapOptionName(argsList):
+ 		0: "Deer Percentage",
+ 		1: "TXT_KEY_MAP_WORLD_WRAP"
+ 	}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -60,6 +62,8 @@ def getNumCustomMapOptionValues(argsList):
+ 		0: 6,
+ 		1: 3
+ 	}
++	if not option_values.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+@@ -79,6 +83,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 		}
+ 	}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	if not selection_names[iOption].has_key(iSelection):
+ 		return u""
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+@@ -90,6 +96,8 @@ def getCustomMapOptionDefault(argsList):
+ 		0: 4, # 75%
+ 		1: 0
+ 	}
++	if not option_defaults.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+@@ -98,6 +106,8 @@ def isRandomCustomMapOption(argsList):
+ 		0: false,
+ 		1: false
+ 	}
++	if not option_random.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	return option_random[iOption]
+ 
+ def getWrapX():
+
+diff --git a/PrivateMaps/Continents.py b/PrivateMaps/Continents.py
+index cc3297f76..bbbf98411 100644
+--- a/PrivateMaps/Continents.py
++++ b/PrivateMaps/Continents.py
+@@ -13,6 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -41,6 +42,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -65,6 +68,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Custom_Continents.py b/PrivateMaps/Custom_Continents.py
+index a8e2aaba2..18ae29d41 100644
+--- a/PrivateMaps/Custom_Continents.py
++++ b/PrivateMaps/Custom_Continents.py
+@@ -13,6 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -38,6 +39,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		2:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -73,6 +76,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index c4195af0d..bcbecf88e 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -41,6 +41,8 @@ def getCustomMapOptionName(argsList):
+ 		2:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		3:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -78,6 +80,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index 041e24bd6..75ed5fa87 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -41,6 +41,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_SCRIPT_RESOURCE_APPEARANCE",
+ 		1:	"TXT_KEY_MAP_WORLD_WRAP"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -66,6 +68,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Fractal.py b/PrivateMaps/Fractal.py
+index 5d5f4b4d3..f5037d745 100644
+--- a/PrivateMaps/Fractal.py
++++ b/PrivateMaps/Fractal.py
+@@ -9,6 +9,7 @@
+ #
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -37,6 +38,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -61,6 +64,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+index abd4640ae..272abe12e 100644
+--- a/PrivateMaps/Global_Highlands.py
++++ b/PrivateMaps/Global_Highlands.py
+@@ -42,6 +42,8 @@ def getCustomMapOptionName(argsList):
+ 		3:  "TXT_KEY_MAP_WORLD_WRAP",
+ 		4:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -85,6 +87,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index 34b966116..f17ae3d7a 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -10,6 +10,7 @@
+ #
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+@@ -50,6 +51,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+ 		2:	"TXT_KEY_MAP_SCRIPT_NUMBER_OF_CONTINENTS"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -84,6 +87,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			}
+ 		}
+ 	if (iOption < 3):
++		if not selection_names.has_key(iOption):
++			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 		translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	else:
+ 		translated_text = selection_names[iOption][iSelection]
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 788ca6b96..2801339b9 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -45,6 +45,8 @@ def getCustomMapOptionName(argsList):
+ 		3:  "TXT_KEY_MAP_WORLD_WRAP",
+ 		4:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -87,6 +89,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index 0d7851ce7..0fdfd043a 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -54,6 +54,8 @@ def getCustomMapOptionName(argsList):
+ 		4:  "TXT_KEY_MAP_WORLD_WRAP",
+ 		5:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -102,6 +104,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index d407be50d..230709ee8 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -45,6 +45,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -68,6 +70,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Islands.py b/PrivateMaps/Islands.py
+index 12c9f5b0d..8294af704 100644
+--- a/PrivateMaps/Islands.py
++++ b/PrivateMaps/Islands.py
+@@ -13,6 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -43,6 +44,8 @@ def getCustomMapOptionName(argsList):
+ 		2:  "TXT_KEY_MAP_WORLD_WRAP",
+ 		3:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -80,6 +83,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Lakes.py b/PrivateMaps/Lakes.py
+index 1f66f47a4..59e9849ed 100644
+--- a/PrivateMaps/Lakes.py
++++ b/PrivateMaps/Lakes.py
+@@ -45,6 +45,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -69,6 +71,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Maze.py b/PrivateMaps/Maze.py
+index 1613280c6..02b3311dd 100644
+--- a/PrivateMaps/Maze.py
++++ b/PrivateMaps/Maze.py
+@@ -37,6 +37,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		2:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -69,6 +71,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Medium_and_Small.py b/PrivateMaps/Medium_and_Small.py
+index 18f69ca07..757f338c5 100644
+--- a/PrivateMaps/Medium_and_Small.py
++++ b/PrivateMaps/Medium_and_Small.py
+@@ -13,6 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -36,6 +37,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+ 		2:	"TXT_KEY_MAP_SCRIPT_ISLAND_OVERLAP"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -67,6 +70,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_SCRIPT_ISLANDS_MIXED_IN"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Mirror.py b/PrivateMaps/Mirror.py
+index d7d0816d0..2b4bf6503 100644
+--- a/PrivateMaps/Mirror.py
++++ b/PrivateMaps/Mirror.py
+@@ -39,6 +39,8 @@ def getCustomMapOptionName(argsList):
+ 		2:	"TXT_KEY_MAP_SCRIPT_LANDMASS_TYPE",
+ 		3:  "TXT_KEY_MAP_WORLD_WRAP"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -80,6 +82,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index c730c8761..687fa0827 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -33,6 +33,7 @@
+ 
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+@@ -91,6 +92,8 @@ def getCustomMapOptionName(argsList):
+ 		#6:	"Reduce Desert",
+ 		#7:	"Add Plains",
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -170,6 +173,8 @@ def getCustomMapOptionDescAt(argsList):
+ 		#	5: "75%"
+ 		#	}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index a2ecace71..87f55e0d2 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -44,6 +44,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -68,6 +70,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 023e8e931..6f694c3be 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -9,6 +9,7 @@
+ #
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import MultilayeredFractal
+@@ -74,6 +75,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		2:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -105,6 +108,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 12b1fe34b..87fa3dac8 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -40,6 +40,7 @@
+ ##
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ 
+@@ -6198,6 +6199,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+ 	# </advc>
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index 4e132f2ae..98a66c513 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -57,6 +57,8 @@ def getCustomMapOptionName(argsList):
+ 		4:  "TXT_KEY_MAP_WORLD_WRAP",
+ 		5:  "TXT_KEY_CONCEPT_RESOURCES"		
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -105,6 +107,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/PrivateMaps/SAS_WorldSizes.py
+index 6b41979f4..d74f19810 100644
+--- a/PrivateMaps/SAS_WorldSizes.py
++++ b/PrivateMaps/SAS_WorldSizes.py
+@@ -11,6 +11,7 @@ from CvPythonExtensions import CyGlobalContext
+ 
+ SAS_WORLDSIZE_LARGEST = 10
+ SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
++SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
+ 
+ 
+ 
+@@ -85,6 +86,15 @@ def sas_world_default_players(iWorldSize, iFallbackPlayers):
+ 	return max(1, iFallbackPlayers)
+ 
+ 
++def sas_warn_simple_game_stale_option_once(iOption, iRealCount):
++	# <!-- custom: Shared one-time warning for stale Simple Game custom-option cache indices (KI#106); keep implementation minimal with a single boolean flag. (GPT-5.3-Codex) -->
++	global SAS_SIMPLE_GAME_STALE_OPTION_WARNED
++	if SAS_SIMPLE_GAME_STALE_OPTION_WARNED:
++		return
++	SAS_SIMPLE_GAME_STALE_OPTION_WARNED = True
++	raise KeyError("Notice: if you started this map from Simple Game, you'll likely encounter a stale custom option index KeyError on next Simple Game launch. Workaround: press Esc key many times (or faster keep it pressed several seconds), or play Custom Game to avoid this issue entirely. See KI#106. (requested option %d, real options %d)" % (iOption, iRealCount))
++
++
+ 
+ # <!-- custom: Helper for map-size tuning: keep anchor ratio and tiles-per-player roughly stable when extrapolating to larger player caps. Intended for script calibration by maintainers. (GPT-5.3-Codex) -->
+ def sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorMaxPlayers, iTargetMaxPlayers):
+
+diff --git a/PrivateMaps/Shuffle.py b/PrivateMaps/Shuffle.py
+index 9cbbe5862..d82303977 100644
+--- a/PrivateMaps/Shuffle.py
++++ b/PrivateMaps/Shuffle.py
+@@ -8,6 +8,7 @@
+ #
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+@@ -44,6 +45,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -68,6 +71,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index a6388e97a..a396d1471 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -57,6 +57,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_SCRIPT_TEAM_SETTING",
+ 		2:  "TXT_KEY_MAP_WORLD_WRAP"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -94,6 +96,10 @@ def getCustomMapOptionDescAt(argsList):
+ 			}
+ 		}
+ 
++	if not selection_names.has_key(iOption):
++
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+index 0ddb885a5..e927aac07 100644
+--- a/PrivateMaps/Terra.py
++++ b/PrivateMaps/Terra.py
+@@ -8,6 +8,7 @@
+ #
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import MultilayeredFractal
+@@ -88,6 +89,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_WORLD_WRAP",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -112,6 +115,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+index 9d41f7066..f76c9ad04 100644
+--- a/PrivateMaps/Tilted_Axis.py
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -38,6 +38,8 @@ def getCustomMapOptionName(argsList):
+ 		0:	"TXT_KEY_MAP_SCRIPT_LANDMASS_SIZE",
+ 		1:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -65,6 +67,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index 6539ed2eb..fbe0002ca 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -58,6 +58,8 @@ def getCustomMapOptionName(argsList):
+ 		4:  "TXT_KEY_MAP_WORLD_WRAP",
+ 		5:  "TXT_KEY_CONCEPT_RESOURCES"
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -105,6 +107,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			1: "TXT_KEY_MAP_BALANCED"
+ 			}
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 1af11edf9..354bf2fba 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -3,6 +3,7 @@
+ # advc: Some tweaks; see in-inline comments. Changes tagged with "advc.mxc" were ported from Mixed_Continents.
+ 
+ from CvPythonExtensions import *
++from SAS_WorldSizes import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+@@ -42,6 +43,8 @@ def getCustomMapOptionName(argsList):
+ 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+ 		2:	"TXT_KEY_MAP_WORLD_WRAP" # kekm.32
+ 		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+@@ -73,6 +76,8 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			} # </kekm.32>
+ 		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index bf627987d..9ca54dd33 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -139,6 +139,7 @@ hopefully helpful, thanks thanks,
+ [103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#103---fixed-base-advciv-crash-variant-of-the-cvcitygetproductionbarpercentages-crash)  
+ [104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient)  
+ [105 - (Fixed) Base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal)  
++[106 - (Worked Around) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#106---worked-around-base-advciv-bug-of-having-an-option-number-error-in-simple-game-eg-in-highlands-boreal-if-we-started-another-simple-game-map-before-that-had-a-lot-of-options-eg-btg_lagoon-and-planet_generator_068-have-around-15-options-but-custom-game-works-fine)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4186,10 +4187,10 @@ After applying this pattern in Boreal, Deer and other food bonuses now appear re
+ 
+ See [commit/accf8702ebf916e999fd07a56211e9aec98af9d7](https://github.com/wonderingabout/AdvCiv-SAS/commit/accf8702ebf916e999fd07a56211e9aec98af9d7).
+ 
+-## 106 - (Currently not Fixed) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine
++## 106 - (Worked Around) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13kb0UBefgFoOKjN7qxpJDhqnNYXGCSTf?usp=sharing).
+ 
+ Confirmed in base AdvCiv too by minimally adding BTG_Lagoon map only, so issue is not caused by any of our changes to Highlands or Boreal or such it seems.
+ 
+-Currently not fixed.
++Currently worked around by warning once that in Simple Gaùme, pressing Esc key many times solves the issue then options are selectable again
+
+[PATCH COVERAGE]
+patchFiles=34 embeddedFiles=34 omittedFiles=0 embeddedPatchBytes=36763

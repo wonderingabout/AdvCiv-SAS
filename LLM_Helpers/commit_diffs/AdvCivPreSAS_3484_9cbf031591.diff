@@ -1,0 +1,97 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3484
+# Commit: 9cbf0315917777326c63abb4f15a7e9a54141cb3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 434d4ea27246f8d1b9351964af8f97d5c0d2f3e6
+# Title: Bit more refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	4	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvTeamAI.cpp
+6	3	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b589ea81b..3205c8ed1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -24989,18 +24989,17 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 
+ 	// Scale paranoia in later eras/larger games
+ 	//iParanoia -= (100*(iCurrentEra + 1)) / std::max(1, GC.getNumEraInfos());
+-
+ 	/*	K-Mod. You call that scaling for "later eras/larger games"?
+ 		It isn't scaling, and it doesn't use the map size.
+-		Lets try something else. Rough and ad hoc, but hopefully a bit better. */
++		Lets try something else. Rough and ad hoc, but hopefully a bit better.
++		This starts as a factor of 1, and drops to 1/3. */
+ 	iParanoia *= 3 * GC.getNumEraInfos() - 2 * iCurrentEra;
+ 	iParanoia /= 3 * std::max(1, GC.getNumEraInfos());
+-	// That starts as a factor of 1, and drop to 1/3.  And now for game size...
++	// And now for game size...
+ 	iParanoia *= 14;
+ 	iParanoia /= 7 + std::max(kTeam.getHasMetCivCount(true),
+ 			//GC.getInfo(GC.getMap().getWorldSize()).getDefaultPlayers()));
+ 			kGame.getRecommendedPlayers()); // advc.137
+-
+ 	// Alert strategy
+ 	if (iParanoia >= 200)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a400b3942..2375a66f1 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5541,9 +5541,9 @@ int CvTeamAI::AI_noWarAttitudeProb(AttitudeTypes eAttitude) const
+ int CvTeamAI::AI_noWarProbAdjusted(TeamTypes eOther) const
+ {
+ 	AttitudeTypes eTowardThem = AI_getAttitude(eOther, true);
+-	int r = AI_noWarAttitudeProb(eTowardThem);
+-	if(r < 100 || isOpenBorders(eOther) || eTowardThem == ATTITUDE_FURIOUS)
+-		return r;
++	int iR = AI_noWarAttitudeProb(eTowardThem);
++	if (iR < 100 || isOpenBorders(eOther) || eTowardThem == 0)
++		return iR;
+ 	return AI_noWarAttitudeProb((AttitudeTypes)(eTowardThem - 1));
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index b956d2d5c..48836ee8f 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1493,7 +1493,10 @@ void UWAI::Team::scheme()
+ 		/*  WarRand of e.g. Alexander and Montezuma 50 for total war, else 40;
+ 			Gandhi and Mansa Musa 400 for total, else 200.
+ 			I.e. peaceful leaders hesitate longer before starting war preparations;
+-			warlike leaders have more drive. */
++			warlike leaders have more drive.
++			(Could easily use DogpileWarRand here when the target is already
++			in a war, but I think I've found a better use for DogpileWarRand
++			in warConfidenceAllies. Less dogpiling on weak targets that way.) */
+ 		scaled rDiv = (bTotal ? kAgent.AI_maxWarRand() : kAgent.AI_limitedWarRand());
+ 		FAssert(rDiv >= 0);
+ 		// Let's make the AI a bit less patient, especially the peaceful types.
+@@ -2071,8 +2074,8 @@ scaled UWAI::Team::reparationsToHuman(scaled rUtility) const
+ 
+ void UWAI::Team::respondToRebuke(TeamTypes eTarget, bool bPrepare)
+ {
+-	/*  Caveat: Mustn't use RNG here b/c this is called from both async (prepare=false)
+-		and sync (prepare=true) contexts */
++	/*  Caveat: Mustn't use RNG here b/c this is called from both async (bPrepare=false)
++		and sync (bPrepare=true) contexts */
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	if (!canSchemeAgainst(eTarget, true) || (bPrepare ?
+ 		kAgent.AI_isSneakAttackPreparing(eTarget) :
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3297

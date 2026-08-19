@@ -1,0 +1,615 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5966
+# Commit: 382fdd118cd6c64f55a2325e2dd09499d6d9b445
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cc2fbd2b2a68bffb472ad9d94053de13efd38bc0
+# Title: Minor Tighten BBAI log guards - also minor remove unused Huge player fallback
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	12	Assets/Python/SAS_WorldSizeUtils.py
+0	4	CvGameCoreDLL/CvCityAI.cpp
+12	11	CvGameCoreDLL/CvPlayerAI.cpp
+8	6	CvGameCoreDLL/CvUnitAI.cpp
+1	1	PrivateMaps/Arboria.py
+2	2	PrivateMaps/BTG_Cross.py
+1	1	PrivateMaps/BTG_Grid.py
+1	1	PrivateMaps/BTG_Lagoon.py
+1	1	PrivateMaps/Boreal.py
+1	1	PrivateMaps/Donut.py
+1	1	PrivateMaps/Earth2.py
+1	1	PrivateMaps/Global_Highlands.py
+1	1	PrivateMaps/Highlands.py
+1	1	PrivateMaps/Hub.py
+1	1	PrivateMaps/Ice_Age.py
+1	1	PrivateMaps/Inland_Sea.py
+1	1	PrivateMaps/Maze.py
+1	1	PrivateMaps/PerfectMongoose.py
+1	1	PrivateMaps/Ring.py
+4	4	PrivateMaps/Team_Battleground.py
+1	1	PrivateMaps/Water.py
+2	2	PrivateMaps/Wheel.py
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/SAS_WorldSizeUtils.py b/Assets/Python/SAS_WorldSizeUtils.py
+index fec8890b2..a21453811 100644
+--- a/Assets/Python/SAS_WorldSizeUtils.py
++++ b/Assets/Python/SAS_WorldSizeUtils.py
+@@ -8,12 +8,8 @@ import math
+ from CvPythonExtensions import CyGlobalContext
+ from SASMagicNumbers import *
+ 
+-SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
+ SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
+ 
+-def sas_huge_custom_max_players():
+-	return SAS_HUGE_CUSTOM_MAX_PLAYERS
+-
+ def sas_default_sizevalues():
+ 	return {
+ 		SAS_MAGIC_WORLDSIZE_ARENA:  1,
+@@ -29,7 +25,7 @@ def sas_default_sizevalues():
+ 		SAS_MAGIC_WORLDSIZE_SAS48: 7,
+ 	}
+ 
+-# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
++# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from the Huge XML default-player anchor so tiles-per-player stay closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex + GPT-5.5) -->
+ def sas_compact_almost_all_land_grid_sizes():
+ 	return {
+ 		SAS_MAGIC_WORLDSIZE_ARENA:  (2, 2),
+@@ -42,7 +38,7 @@ def sas_compact_almost_all_land_grid_sizes():
+ 	}
+ 
+ def sas_get_compact_almost_all_land_grid_size(eWorldSize):
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes(), SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes())
+ 
+ def sas_lookup_world_size(eWorldSize, values):
+ 	iWorldSize = int(eWorldSize)
+@@ -56,12 +52,12 @@ def sas_grid_ratio(iWidth, iHeight):
+ def sas_tiles_per_player(iWidth, iHeight, iMaxPlayers):
+ 	return float(iWidth * iHeight) / float(max(1, iMaxPlayers))
+ 
+-def sas_world_default_players(iWorldSize, iFallbackPlayers):
++def sas_world_default_players(iWorldSize):
+ 	gc = CyGlobalContext()
+ 	iWorld = int(iWorldSize)
+ 	if iWorld >= 0 and iWorld < gc.getNumWorldInfos():
+ 		return max(1, gc.getWorldInfo(iWorld).getDefaultPlayers())
+-	return max(1, iFallbackPlayers)
++	raise IndexError("Unknown world-size index %d; missing CIV4WorldInfo default-player entry" % iWorld)
+ 
+ def sas_warn_simple_game_stale_option_once(iOption, iRealCount):
+ 	# <!-- custom: Shared one-time warning for stale Simple Game custom-option cache indices (KI#106); keep implementation minimal with a single boolean flag. (GPT-5.3-Codex) -->
+@@ -80,8 +76,8 @@ def sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorMaxPlayer
+ 	iTargetWidth = max(1, int((float(iTargetHeight) * fRatio) + 0.5))
+ 	return (iTargetWidth, iTargetHeight)
+ 
+-# <!-- custom: For map-size calibration workflows, compute only the requested world size: base tiers return directly; SAS24/32/40/48 are calibrated on demand from the last base tier (usually Huge) and anchor max players. (GPT-5.3-Codex) -->
+-def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnchorMaxPlayers):
++# <!-- custom: For map-size calibration workflows, compute only the requested world size: base tiers return directly; SAS24/32/40/48 are calibrated on demand from the last base tier (usually Huge) and XML default-player counts. Fail loudly if a referenced world size is missing instead of using stale fallback player counts. (GPT-5.3-Codex + GPT-5.5) -->
++def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes):
+ 	iWorldSize = int(eWorldSize)
+ 	if iWorldSize in base_grid_sizes:
+ 		return base_grid_sizes[iWorldSize]
+@@ -89,7 +85,7 @@ def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnch
+ 	iAnchorWorldSize = max(base_grid_sizes.keys())
+ 	if iWorldSize > iAnchorWorldSize and iWorldSize <= SAS_MAGIC_WORLDSIZE_LARGEST:
+ 		(iAnchorWidth, iAnchorHeight) = base_grid_sizes[iAnchorWorldSize]
+-		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize, iAnchorMaxPlayers)
+-		iTargetPlayers = sas_world_default_players(iWorldSize, 0)
++		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize)
++		iTargetPlayers = sas_world_default_players(iWorldSize)
+ 		return sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorPlayers, iTargetPlayers)
+ 	return base_grid_sizes[max(base_grid_sizes.keys())]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 166fe07af..49290c057 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -15,8 +15,6 @@
+ // <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
+ static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
+ {
+-	if (gWorkerSeaLogLevel < 2)
+-		return;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+ 	CvArea const* pCityWaterArea = kCity.waterArea(true);
+ 	CvArea const* pSecondWaterArea = kCity.secondWaterArea();
+@@ -50,8 +48,6 @@ static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot cons
+ 
+ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pWaterArea, char const* szAreaLabel)
+ {
+-	if (gWorkerSeaLogLevel < 3)
+-		return;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+ 	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
+ 	int iLoggedTargets = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a1213ef78..1bf13adb8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1789,6 +1789,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
+ 	bool bCultureVictory = false; // advc.116
+ 	bool bRaze = false;
++	bool const bLogRazeDecision = (gPlayerLogLevel >= 1);
+ 	// Reasons to always raze
+ 	if (2 * kCity.getCulture(kPreviousOwner.getID()) >
+ 		kCity.getCultureThreshold(kGame.culturalVictoryCultureLevel()))
+@@ -1820,7 +1821,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 				if(5 * iAttStr > 4 * iDefStr)
+ 					bRaze = true;
+ 				// <!-- custom: logBBAI now has only a global runtime gate, so player-AI conquest details still need player-log guards to avoid leaking into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
+-				if (bRaze && gPlayerLogLevel >= 1)
++				if (bRaze && bLogRazeDecision)
+ 					logBBAI("  Razing enemy cultural victory city");
+ 			}
+ 		} // </advc.116>
+@@ -1888,7 +1889,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 		if (bGoingForDomination)
+ 		{
+ 			// Do not raze, going for domination
+-			if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
++			if (bLogRazeDecision) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+ 			keepCity(kCity);
+ 			return;
+ 		}
+@@ -2064,12 +2065,12 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 					if (GET_TEAM(getTeam()).hasShrine(getStateReligion()))
+ 					{
+ 						iRazeValue -= 50;
+-						if (gPlayerLogLevel >= 1) logBBAI("      Reduction for state religion with shrine");
++						if (bLogRazeDecision) logBBAI("      Reduction for state religion with shrine");
+ 					}
+ 					else
+ 					{
+ 						iRazeValue -= 10;
+-						if (gPlayerLogLevel >= 1) logBBAI("      Reduction for state religion");
++						if (bLogRazeDecision) logBBAI("      Reduction for state religion");
+ 					}
+ 				}
+ 			} // K-Mod
+@@ -2084,7 +2085,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 			{
+ 				if (kCity.isHolyCity(eLoopReligion))
+ 				{
+-					if (gPlayerLogLevel >= 1)
++					if (bLogRazeDecision)
+ 						logBBAI("      Reduction for holy city");
+ 					if(getStateReligion() == eLoopReligion)
+ 						iRazeValue -= 150;
+@@ -2098,7 +2099,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 			{
+ 				if (kCity.isHeadquarters(eCorp))
+ 				{
+-					if (gPlayerLogLevel >= 1)
++					if (bLogRazeDecision)
+ 						logBBAI("      Reduction for corp headquarters");
+ 					iRazeValue -= 10 + 100 * kGame.countCorporationLevels(eCorp) /
+ 							kGame.getNumCities();
+@@ -2163,7 +2164,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 			iRazeValue += ::range((GET_TEAM(getTeam()).
+ 					AI_getEnemyPowerPercent(true) - 100) / 6, -10, 10);
+ 			// </advc.116>
+-			if(gPlayerLogLevel >= 1)
++			if(bLogRazeDecision)
+ 			{
+ 				if (bBarbCity) logBBAI("      %S is a barb city", kCity.getName().GetCString());
+ 				if (bPrevOwnerBarb) logBBAI("      %S was last owned by barbs", kCity.getName().GetCString());
+@@ -2174,7 +2175,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 			iRazeValue += SyncRandNum(6);
+ 		} // End of !isBarbarian()
+ 
+-		if(gPlayerLogLevel >= 1)
++		if(bLogRazeDecision)
+ 		{
+ 			//logBBAI("    Player %d (%S) has odds %d to raze city %S", getID(), getCivilizationDescription(0), iRazeValue, kCity.getName().GetCString());
+ 			// advc.116: Replacing the above
+@@ -2212,7 +2213,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 				if (bLiberate)
+ 				{
+ 					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
+-					if (gPlayerLogLevel >= 1)
++					if (bLogRazeDecision)
+ 						logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
+ 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
+ 					kCity.liberate(true);
+@@ -2227,7 +2228,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 
+ 	if (bRaze)
+ 	{	// K-Mod moved the log message up - otherwise it will crash due to pCity being deleted!
+-		if (gPlayerLogLevel > 0) logBBAI("    Player %d (%S) decides to raze city %S!!!", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
++		if (bLogRazeDecision) logBBAI("    Player %d (%S) decides to raze city %S!!!", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+ 		kCity.doTask(TASK_RAZE);
+ 	}
+ 	// advc (replacing a bugfix from UNOFFICIAL_PATCH (06/14/09, Maniac & jdog5000)
+@@ -15552,7 +15553,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
+ void CvPlayerAI::AI_logWorkerSeaAudit() const
+ {
+ 	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
+-	if (isHuman() || isBarbarian() || gWorkerSeaLogLevel < 3)
++	if (isHuman() || isBarbarian())
+ 		return;
+ 
+ 	int const iTurn = GC.getGame().getGameTurn();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index decac7aa5..69a0311cf 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -20632,6 +20632,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	CvPlot*   pSelfPlot   = NULL;
+ 	BuildTypes eSelfBuild  = NO_BUILD;
+ 	bool      bSelfImprovable = false;
++	bool const bLogWorkerCityTargetLevel = (gWorkerLogLevel >= 3);
+ 
+     FOR_EACH_CITYAI(pLoopCity, kOwner)
+     {
+@@ -20644,6 +20645,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // land workers stick to same land area (keeps it sane)
+         if (!pLoopCity->isArea(getArea()))
+             continue;
++		bool const bLogWorkerCityTarget = (bLogWorkerCityTargetLevel && pLoopCity->getPopulation() >= 6);
+ 
+         // Ask the per-city logic for its single best target plot + build
+         CvPlot* pPlot = NULL;
+@@ -20655,7 +20657,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
+         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+         {
+-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (bLogWorkerCityTarget)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation());
+             continue; // nothing useful to do in this city right now
+         }
+@@ -20663,7 +20665,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
+ 		if (pPlot == NULL || eBuild == NO_BUILD)
+ 		{
+-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (bLogWorkerCityTarget)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
+ 			continue;
+ 		}
+@@ -20677,7 +20679,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
+         if (iReservedCityTargetPlot >= iMaxWorkers)
+         {
+-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (bLogWorkerCityTarget)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected reserved plot=(%d,%d) build=%S reserved=%d/%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), iReservedCityTargetPlot, iMaxWorkers);
+             continue;
+         }
+@@ -20685,7 +20687,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
+         if (!pf.generatePath(*pPlot))
+         {
+-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (bLogWorkerCityTarget)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected no path plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription());
+             continue;
+ 		}
+@@ -20703,7 +20705,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			bSelfImprovable = true;
+ 			pSelfPlot  = pPlot;
+ 			eSelfBuild = eBuild;
+-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (bLogWorkerCityTarget)
+ 				logBBAI("    %S worker city-target scan: self city=%S pop=%d stored fallback plot=(%d,%d) build=%S pathTurns=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), pf.getPathTurns());
+ 			continue; // still let the loop look for better (other-city) jobs
+ 		}
+@@ -20741,7 +20743,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 		const int q = score / 1000, r = score - q * 1000;
+ 		score = q * factorPermille + (r * factorPermille) / 1000;
+ 
+-        if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++        if (bLogWorkerCityTarget)
+         {
+ 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
+ 			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index c82c8ad99..0f0858cb9 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -137,7 +137,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def beforeGeneration():
+ 	gc = CyGlobalContext()
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 72871c28b..8fb11bb9a 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -276,10 +276,10 @@ def getGridSize(argsList):
+ 	if iWorld <= SAS_MAGIC_WORLDSIZE_HUGE:
+ 		return sas_lookup_world_size(eWorldSize, grid_sizes)
+ 
+-	iDefaultPlayers = sas_world_default_players(iWorld, sas_huge_custom_max_players())
++	iDefaultPlayers = sas_world_default_players(iWorld)
+ 	iTargetPlayers = int(math.ceil(float(iDefaultPlayers) * 1.5))
+ 	(iHugeW, iHugeH) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
+-	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_huge_custom_max_players(), iTargetPlayers)
++	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_world_default_players(SAS_MAGIC_WORLDSIZE_HUGE), iTargetPlayers)
+ 
+ def beforeGeneration():
+ 	global iNumRegions
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index 381d81f7a..9ba42209f 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -315,7 +315,7 @@ def getGridSize(argsList):
+ 
+ 		[eWorldSize] = argsList
+ 		# <!-- custom: Keep existing BTG line options untouched; only extend world-size support by calibrating SAS sizes from Huge instead of falling back to Huge dimensions. (GPT-5.3-Codex) -->
+-		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ 	return grid_size
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index fb2a17d09..e691206ff 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -242,7 +242,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ 	#return (10, 10)
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 4eecf5569..c09f99035 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -147,7 +147,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def minStartingDistanceModifier():
+ 	return -27
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index c3deb13f4..80f210fdb 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -155,7 +155,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def minStartingDistanceModifier():
+ 	return -12
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index bc7d8da0b..531832fe9 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -69,7 +69,7 @@ def getGridSize(argsList):
+         SAS_MAGIC_WORLDSIZE_LARGE: (30,18),
+         SAS_MAGIC_WORLDSIZE_HUGE: (40,24),
+     }
+-    return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++    return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def minStartingDistanceModifier():
+     return -15
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+index c96a6229c..366641785 100644
+--- a/PrivateMaps/Global_Highlands.py
++++ b/PrivateMaps/Global_Highlands.py
+@@ -158,7 +158,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def minStartingDistanceModifier():
+ 	return -25
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index aebd09407..676ea4d96 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -175,7 +175,7 @@ def getBottomLatitude():
+ 
+ def getGridSize(argsList):
+ 	"Use the shared compact almost-all-land grid profile."
+-	# <!-- custom: Shared almost-all-land profile now calibrates SAS24/32/40/48 from Huge baseline (18 players custom max) so Highlands keeps closer Huge-relative scale without a separate helper. (GPT-5.3-Codex) -->
++	# <!-- custom: Shared almost-all-land profile now calibrates SAS24/32/40/48 from the Huge XML default-player anchor so Highlands keeps closer Huge-relative scale without a separate helper. (GPT-5.3-Codex + GPT-5.5) -->
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index c62532700..d2b2a2999 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -174,7 +174,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def beforeGeneration():
+ 	# Set up land mass data for all players (Square Wheels) then access later.
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index 61d4a8c9d..381628337 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -85,7 +85,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes)
+ 
+ # Subclass FractalWorld to alter min/max Sea Level.
+ class IceAgeFractalWorld(CvMapGeneratorUtil.FractalWorld):
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index 14b608474..8d16c4d42 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -624,7 +624,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ # Subclasses to fix the FRAC_POLAR zero row bugs.
+ class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
+
+diff --git a/PrivateMaps/Maze.py b/PrivateMaps/Maze.py
+index 840e9ed85..2b1882f38 100644
+--- a/PrivateMaps/Maze.py
++++ b/PrivateMaps/Maze.py
+@@ -143,7 +143,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def generatePlotTypes():
+ 	NiTextOut("Setting Plot Types (Python Maze) ...")
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 8a2a5fcff..30bd92c9b 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -6167,7 +6167,7 @@ def getGridSize(argsList):
+ 		SAS_MAGIC_WORLDSIZE_LARGE: (20, 14),
+ 		SAS_MAGIC_WORLDSIZE_HUGE: (24, 17),
+ 	}
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def generatePlotTypes():
+ 	print("")
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index 6eae0ac03..a988c545c 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -178,7 +178,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def beforeGeneration():
+ 	# Set up land mass data for all players (Square Wheels) then access later.
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index bfe0e7a0e..29f855ac2 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -197,7 +197,7 @@ def getGridSize(argsList):
+ 		SAS_MAGIC_WORLDSIZE_LARGE: (10,10),
+ 		SAS_MAGIC_WORLDSIZE_HUGE: (13,13),
+ 	}
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes)
+ 
+ def generatePlotTypes():
+ #	BugUtil.debug("Team_Battleground: generatePlotTypes")
+@@ -273,7 +273,7 @@ def generatePlotTypes():
+ 			SAS_MAGIC_WORLDSIZE_LARGE: 8,
+ 			SAS_MAGIC_WORLDSIZE_HUGE: 10,
+ 		}
+-		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
++		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+ 		linewidth = 3
+ 		offsetstart = 0 - int(linewidth/2)
+ 		offsetrange = range(offsetstart, offsetstart + linewidth)
+@@ -352,7 +352,7 @@ def generatePlotTypes():
+ 				SAS_MAGIC_WORLDSIZE_LARGE: 7,
+ 				SAS_MAGIC_WORLDSIZE_HUGE: 8,
+ 			}
+-			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
++			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+ 
+ 		# Set all blocks to ocean except the inner circle
+ 		for x in range(iNumPlotsX):
+@@ -479,7 +479,7 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 					SAS_MAGIC_WORLDSIZE_LARGE: 7,
+ 					SAS_MAGIC_WORLDSIZE_HUGE: 8,
+ 				}
+-				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
++				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+ 			else:
+ 				hole_radii = -1
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index 79f164f25..b08f709fc 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -42,7 +42,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def getWrapX(): return True
+ def getWrapY(): return False
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index 0228f88b2..38d8a5f4b 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -178,7 +178,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+ 
+ def beforeGeneration():
+ 	# Set up land mass data for all players (Square Wheels) then access later.
+@@ -1262,7 +1262,7 @@ def assignStartingPlots():
+ 		SAS_MAGIC_WORLDSIZE_LARGE: (6, 12),
+ 		SAS_MAGIC_WORLDSIZE_HUGE: (6, 18)
+ 		}
+-	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues, sas_huge_custom_max_players())
++	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+ 		iPlotShift = 3
+ 	elif iPlayers <= twoVar:
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=22 omittedFiles=1 embeddedPatchBytes=29446

@@ -1,0 +1,270 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1451
+# Commit: 8585205b4b4221a40a96dd47fbb8fcbfa9035598
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 81c89a9e0511aa58630f7821fdc9287ecffa8edf
+# Title: Changes to OOSLogger
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+42	24	Assets/Python/Kek-Mod/OOSLogger.py
+2	1	Assets/xml/Units/CIV4UnitClassInfos.xml
+2	2	CvGameCoreDLL/CvGlobals.h
+9	0	CvGameCoreDLL/CyGlobalContext.cpp
+4	1	CvGameCoreDLL/CyGlobalContext.h
+4	1	CvGameCoreDLL/CyGlobalContextInterface1.cpp
+2	0	CvGameCoreDLL/CyRandomInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Kek-Mod/OOSLogger.py b/Assets/Python/Kek-Mod/OOSLogger.py
+index de3dbfd44..29a4cbd36 100644
+--- a/Assets/Python/Kek-Mod/OOSLogger.py
++++ b/Assets/Python/Kek-Mod/OOSLogger.py
+@@ -7,10 +7,11 @@ gc = CyGlobalContext()
+ 
+ #szFilename = "OOSLog.txt"
+ 
+-bWroteLog = False
++bWroteLog = False # (advc: I don't think this accomplishes anything)
+ 
+ SEPERATOR = "-----------------------------------------------------------------\n"
+ 
++# dlph.27
+ # DarkLunaPhantom - OOS logging, idea from Fall from Heaven 2 by Kael. This implementation is a slight modification of the one from ExtraModMod by Terkhen. Implemented as a BUG module.
+ 
+ # Simply checks every game turn for OOS. If it finds it, writes the
+@@ -18,25 +19,37 @@ SEPERATOR = "-----------------------------------------------------------------\n
+ # variable so that it only happens once.
+ def onGameUpdate(argsList):
+ 	global bWroteLog
++	# <advc> Same checks as in for the MPLog in CvRandom::get plus a WorldBuilder check for advc.135c (WorldBuilder always leads to OOS)
++	if not gc.isLogging() or not gc.isRandLogging() or gc.getGame().GetWorldBuilderMode():
++		return # </advc>
++
+ 	bOOS = CyInterface().isOOSVisible()
+ 
+ 	if (bOOS and not bWroteLog):
+ 		writeLog()
+ 		# Automatic OOS detection START
+-		gc.getGame().setOOSVisible()
++		#gc.getGame().setOOSVisible() # advc: This function doesn't exist in Kek-Mod/AdvCiv
+ 		# Automatic OOS detection END
+ 		bWroteLog = True
+-	# Make sure that OOS will be generated when the game is not restarted after an OOS.
++	# Make sure that the OOS log will be generated when the game is not restarted (advc: but e.g. reloaded?) after an OOS.
+ 	if (not bOOS):
+ 		bWroteLog = False
+ 
+ def writeLog():
+-	if not CyGame().isPitbossHost():
+-		playername = CvUtil.convertToStr(gc.getPlayer(gc.getGame().getActivePlayer()).getName())
+-	else:
+-		playername = "PitBoss"
+-	playername = CvUtil.convertToStr(gc.getPlayer(gc.getGame().getActivePlayer()).getName())
+-	szNewFilename = BugPath.getRootDir() + "\\Logs\\" + "OOSLog - %s - " % (playername) + "Turn %s" % (gc.getGame().getGameTurn()) + ".txt"
++	# advc: Overwritten below, so what's the point?
++	#if not CyGame().isPitbossHost():
++	#	playername = CvUtil.convertToStr(gc.getPlayer(gc.getGame().getActivePlayer()).getName())
++	#else:
++	#	playername = "PitBoss"
++	activePlayer = gc.getPlayer(gc.getGame().getActivePlayer())
++	# advc: Prepend id b/c player names can be the same (that happens easily when testing on a single machine)
++	playername = str(activePlayer.getID()) + CvUtil.convertToStr(activePlayer.getName())
++	szNewFilename = BugPath.getRootDir() + "\\Logs\\" + "OOSLog - %s - " % (playername) + "Turn %s" % (gc.getGame().getGameTurn()) + ".log"
++	# <advc> Replacement for the bWroteLog mechanism above
++	bExists = os.path.isfile(szNewFilename)
++	if bExists:
++		return
++	# </advc>
+ 	pFile = open(szNewFilename, "w")
+ 
+ 	# Backup current language
+@@ -60,9 +73,9 @@ def writeLog():
+ 	pFile.write(SEPERATOR)
+ 	pFile.write(SEPERATOR)
+ 	pFile.write("\n\n")
+-
+-	pFile.write("Next Map Rand Value: %d\n" % CyGame().getMapRand().get(10000, "OOS Log"))
+-	pFile.write("Next Soren Rand Value: %d\n" % CyGame().getSorenRand().get(10000, "OOS Log"))
++	# advc: Call getSeed instead of get -- no need to change the state of the RNGs here.
++	pFile.write("Last Map Rand Value: %d\n" % CyGame().getMapRand().getSeed())
++	pFile.write("Last Soren Rand Value: %d\n" % CyGame().getSorenRand().getSeed())
+ 
+ 	pFile.write("Total cities: %d\n" % CyGame().getNumCities() )
+ 	pFile.write("Total population: %d\n" % CyGame().getTotalPopulation() )
+@@ -147,7 +160,7 @@ def writeLog():
+ 			pFile.write("Building Class Info:\n")
+ 			pFile.write("--------------------\n")
+ 			for iBuildingClass in range(gc.getNumBuildingClassInfos()):
+-				pFile.write("Player %d, %s, Building class count plus building: %d\n" % (iPlayer, CvUtil.convertToStr(gc.getBuildingClassInfo(iBuildingClass).getDescription()), pPlayer.getBuildingClassCountPlusMaking(iBuildingClass) ))
++				pFile.write("Player %d, %s, Building class count plus making: %d\n" % (iPlayer, CvUtil.convertToStr(gc.getBuildingClassInfo(iBuildingClass).getDescription()), pPlayer.getBuildingClassCountPlusMaking(iBuildingClass) ))
+ 
+ 			pFile.write("\n\n")
+ 
+@@ -190,15 +203,18 @@ def writeLog():
+ 					pLoopUnitTuple = pPlayer.nextUnit(pLoopUnitTuple[1], False)
+ 					pFile.write("\n")
+ 
+-			pFile.write("\n\n")
+-
+-			pFile.write("Attitude Info:\n")
+-			pFile.write("----------\n")
++			if not pPlayer.isBarbarian(): # advc.003n
++				pFile.write("\n\n")
++				pFile.write("Attitude Info:\n")
++				pFile.write("----------\n")
+ 
+-			iLoopPlayer = 0
+-			for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+-				pLoopPlayer = gc.getPlayer(iLoopPlayer)
+-				pFile.write("Players %d - %d, Attitude: %d (Note, actual attitudeval number is used for the OOS checksum.)\n" % (iPlayer, iLoopPlayer, pPlayer.AI_getAttitude(iLoopPlayer)))
++				iLoopPlayer = 0
++				# <advc.003n> was MAX_PLAYERS
++				for iLoopPlayer in range(gc.getMAX_CIV_PLAYERS()): 
++					if iPlayer == iLoopPlayer:
++						continue # </advc.003n>
++					pLoopPlayer = gc.getPlayer(iLoopPlayer)
++					pFile.write("Players %d - %d, Attitude: %d (Note, actual attitudeval number is used for the OOS checksum.)\n" % (iPlayer, iLoopPlayer, pPlayer.AI_getAttitude(iLoopPlayer)))
+ 
+ 			pFile.write("\n\n")
+ 
+@@ -208,7 +224,8 @@ def writeLog():
+ 
+ 			if (iNumCities == 0):
+ 				pFile.write("No Cities")
+-			else:
++			else: # advc: Don't print this for each city
++				pFile.write("(Events that have occurred are also used for the checksum.)\n")
+ 				pLoopCityTuple = pPlayer.firstCity(False)
+ 				while (pLoopCityTuple[0] != None):
+ 					pCity = pLoopCityTuple[0]
+@@ -221,10 +238,11 @@ def writeLog():
+ 					#pFile.write("Improved Plots: %d\n" % pCity.countNumImprovedPlots() )
+ 					#pFile.write("Producing: %s\n" % pCity.getProductionName() )
+ 					#pFile.write("Turns remaining for production: %d\n" % pCity.getProductionTurnsLeft() )
+-					pFile.write("%d happiness, %d unhappiness, %d health, %d unhealth, %d food\n" % (pCity.happyLevel(), pCity.unhappyLevel(0), pCity.goodHealth(), pCity.badHealth(False)), pCity.getFood() )
++					pFile.write("%d happiness, %d unhappiness, %d health, %d unhealth, %d food\n" % (pCity.happyLevel(), pCity.unhappyLevel(0), pCity.goodHealth(), pCity.badHealth(False), pCity.getFood()) )
++					# advc.007:
++					pFile.write("Needed floating defenders: %d\n" % pCity.AI_neededFloatingDefenders())
+ 					#pFile.write("%d Tiles Worked, %d Specialists, %d Great People\n" % (pCity.getWorkingPopulation(), pCity.getSpecialistPopulation(), pCity.getNumGreatPeople()) )
+ 					#pFile.write("City radius: %d\n" % pCity.getPlotRadius() )
+-					pFile.write("Events that have occurred are also used for the checksum.\n")
+ 
+ 					pLoopCityTuple = pPlayer.nextCity(pLoopCityTuple[1], False)
+ 					pFile.write("\n")
+
+diff --git a/Assets/xml/Units/CIV4UnitClassInfos.xml b/Assets/xml/Units/CIV4UnitClassInfos.xml
+index 14ddc3680..d091d4439 100644
+--- a/Assets/xml/Units/CIV4UnitClassInfos.xml
++++ b/Assets/xml/Units/CIV4UnitClassInfos.xml
+@@ -772,9 +772,10 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_SCIENTIST</DefaultUnit>
+ 		</UnitClassInfo>
++		<!-- advc.001: was TXT_KEY_UNIT_GREAT_TYCOON -->
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_MERCHANT</Type>
+-			<Description>TXT_KEY_UNIT_GREAT_TYCOON</Description>
++			<Description>TXT_KEY_UNIT_GREAT_MERCHANT</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 227b020ce..0d5b2856e 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -194,9 +194,9 @@ public:
+ 	DllExport CvInterfaceModeInfo& getInterfaceModeInfo(InterfaceModeTypes e);
+ 
+ 	//NiPoint3& getPt3CameraDir(); // advc.003j: unused
+-
++	// <advc> Exposed these two to Python for dlph.27
+ 	DllExport bool& getLogging();
+-	DllExport bool& getRandLogging();
++	DllExport bool& getRandLogging(); // </advc>
+ 	DllExport bool& getSynchLogging();
+ 	DllExport bool& overwriteLogs();
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 5d3bbfccb..136cc1a29 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -102,7 +102,16 @@ CyTeam* CyGlobalContext::getCyTeam(int i)
+ 
+ 	return i<MAX_TEAMS ? &cyTeams[i] : NULL;
+ }
++// <dlph.27> (AdvCiv code)
++bool CyGlobalContext::isLogging() {
+ 
++	return GC.getLogging();
++}
++
++bool CyGlobalContext::isRandLogging() {
++
++	return GC.getRandLogging();
++} // </dlph.27>
+ 
+ CvEffectInfo* CyGlobalContext::getEffectInfo(int /*EffectTypes*/ i) const
+ {
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.h b/CvGameCoreDLL/CyGlobalContext.h
+index 7660ceb6c..ab4d71c2b 100644
+--- a/CvGameCoreDLL/CyGlobalContext.h
++++ b/CvGameCoreDLL/CyGlobalContext.h
+@@ -37,7 +37,10 @@ public:
+ 	CvRandom& getCyASyncRand() const;
+ 	CyTeam* getCyTeam(int i);
+ 	CyArtFileMgr* getCyArtFileMgr() const;
+-
++	// <dlph.27>
++	bool isLogging();
++	bool isRandLogging();
++	// </dlph.27>
+ 	CvEffectInfo* getEffectInfo(int i) const;
+ 	CvTerrainInfo* getTerrainInfo(int i) const;
+ 	CvBonusClassInfo* getBonusClassInfo(int i) const;
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface1.cpp b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+index d1630e217..8cc82776c 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface1.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+@@ -26,7 +26,10 @@ void CyGlobalContextPythonInterface1(python::class_<CyGlobalContext>& x)
+ 		.def("getActivePlayer", &CyGlobalContext::getCyActivePlayer, python::return_value_policy<python::reference_existing_object>(), "() - active player instance")
+ 		.def("getASyncRand", &CyGlobalContext::getCyASyncRand, python::return_value_policy<python::reference_existing_object>(), "Non-Synch'd random #")
+ 		.def("getTeam", &CyGlobalContext::getCyTeam, python::return_value_policy<python::reference_existing_object>(), "(iTeam) - iTeam instance")
+-
++		// <dlph.27>
++		.def("isLogging", &CyGlobalContext::isLogging, "bool () - returns true iff logging is enabled in the INI")
++		.def("isRandLogging", &CyGlobalContext::isRandLogging, "bool () - returns true iff rand logging (MPLog) is enabled in the INI")
++		// </dlph.27>
+ 		// infos
+ 		.def("getNumEffectInfos", &CyGlobalContext::getNumEffectInfos, "int () - Number of effect infos")
+ 		.def("getEffectInfo", &CyGlobalContext::getEffectInfo, python::return_value_policy<python::reference_existing_object>(), "(int (EffectTypes) eEffectID) - CvInfo for EffectID")
+
+diff --git a/CvGameCoreDLL/CyRandomInterface.cpp b/CvGameCoreDLL/CyRandomInterface.cpp
+index c39ece236..3bf2e968c 100644
+--- a/CvGameCoreDLL/CyRandomInterface.cpp
++++ b/CvGameCoreDLL/CyRandomInterface.cpp
+@@ -14,6 +14,8 @@ void CyRandomPythonInterface()
+ 
+ 	python::class_<CvRandom>("CyRandom")
+ 		.def("get", &CvRandom::get, CvRandom_get_overloads( args("usNum", "pszLog"), "returns a random number"))
++		// dlph.27:
++		.def("getSeed", &CvRandom::getSeed,  "int () current seed")
+ 		.def("init", &CvRandom::init, "void (unsigned long int ulSeed)")
+ 		;
+ }
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=11202

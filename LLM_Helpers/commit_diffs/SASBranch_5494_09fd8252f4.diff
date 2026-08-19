@@ -1,0 +1,619 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5494
+# Commit: 09fd8252f406364421e6e3d2079b418e28005ce2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 08396a2b15db6a7101bdf2be5ae526b6f9985855
+# Title: rework the byzantine_hippodrome so it is now based on the stable - "Stronger and more efficient building than weak situational culture of the theater for thi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+10	10	Assets/XML/Art/CIV4ArtDefines_Building.xml
+203	206	Assets/XML/Buildings/CIV4BuildingInfos.xml
+3	3	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+5	0	Long_Comments/Long_Comments_XML.txt
+2	2	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index fcad54c1d..99ce80835 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -110,11 +110,11 @@ class SevoPediaLeader:
+ 
+ 		# <!-- custom: Favorites panel only needs two icons (favorite civic/religion), so size it with shared helper for a strict two-button layout. (GPT-5.3-Codex) -->
+ 		self.W_FAVORITES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+-		# <!-- custom: readability tweak - Music on the left, Favorites on the right near the civ icon. (GPT-5.3-Codex) -->
+-		self.X_MUSIC = self.X_LEADERHEAD_PANE
++		# <!-- custom: layout order tweak: Favorites at left, then Music, then civ icon at far right. (GPT-5.3-Codex) -->
++		self.X_FAVORITES = self.X_LEADERHEAD_PANE
++		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_MUSIC
+ 		self.Y_MUSIC = self.Y_FAVORITES
+ 		self.H_MUSIC = self.H_FAVORITES
+-		self.X_FAVORITES = self.X_MUSIC + self.W_MUSIC + self.SMALL_MARGIN
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 1408880df..f20ad490c 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -108,6 +108,16 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Barracks.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,3</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</Type>
++			<LSystem>LSYSTEM_3x3</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.77</fScale>
++			<fInterfaceScale>0.65</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/Byzantine_Hippodrome/Byzantine_Hippodrome.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/Colosseum.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,7</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_BUNKER</Type>
+ 			<LSystem>LSYSTEM_2x2</LSystem>
+@@ -558,16 +568,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Theatre.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,7</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</Type>
+-			<LSystem>LSYSTEM_3x3</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>0.77</fScale>
+-			<fInterfaceScale>0.65</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Byzantine_Hippodrome/Byzantine_Hippodrome.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Colosseum.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,7</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_COLOSSEUM</Type>
+ 			<LSystem>LSYSTEM_3x3</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 86bafa8fc..15b9f935f 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2320,8 +2320,7 @@
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+-			<!-- custom: note: told AIs to never build this in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this-->
+-			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
++			<!-- custom: note: told AIs to never build this in the DLL in as of now CvCityAI::AI_buildingValue if we don't have any of the required bonuses to produce units with it; Long_Comments_XML.txt #375; see code comment at BUILDING_BARRACKS for details, was 0 -->
+ 			<iAIWeight>75</iAIWeight>
+ 			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+@@ -2496,9 +2495,9 @@
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+-			<!-- custom: see code comment at BUILDING_BARRACKS for details, was 0 -->
++			<!-- custom: see code comment at BUILDING_BARRACKS and BUILDING_STABLE for details, was 0 -->
+ 			<iAIWeight>80</iAIWeight>
+-			<iCost>75</iCost>
++			<iCost>70</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2599,12 +2598,211 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: see code comment at BUILDING_BARRACKS, value unchanged as of now -->
++			<!-- custom: see code comment at BUILDING_BARRACKS, value unchanged as of now, was flavor_military 6 -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
++		<BuildingInfo> <!-- custom: class: stable, type: byzantine_hippodrome -->
++			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
++			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME</Description>
++			<Civilopedia>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<FreeStartEra>NONE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #10 -->
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>0</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<!-- custom: see code comment at BUILDING_BARRACKS and BUILDING_STABLE for details, was 0 -->
++			<iAIWeight>75</iAIWeight>
++			<iCost>60</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>0</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>2</iAsset>
++			<!-- custom: was 2 -->
++			<iPower>7</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<!-- custom: add some culture in this stable-based variant -->
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes/>
++			<CommerceModifiers/>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<!-- custom: extra effect from the as old theater-based building, same as the generic theater's effect -->
++			<CommerceHappinesses>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>5</iCommerce>
++			</CommerceHappinesses>
++			<ReligionChanges/>
++			<SpecialistCounts/>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_BARRACKS</ConstructSound>
++			<BonusHealthChanges/>
++			<!-- custom: same as old theater-based building -->
++			<BonusHappinessChanges>
++				<BonusHappinessChange>
++					<BonusType>BONUS_HORSE</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++			</BonusHappinessChanges>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences>
++				<UnitCombatFreeExperience>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iExperience>2</iExperience>
++				</UnitCombatFreeExperience>
++				<UnitCombatFreeExperience>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<iExperience>2</iExperience>
++				</UnitCombatFreeExperience>
++			</UnitCombatFreeExperiences>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: see code comment at BUILDING_BARRACKS, value unchanged as of now; was flavor military 6 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+ 					<iFlavor>6</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -11355,207 +11553,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: theatre, type: byzantine_hippodrome -->
+-			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
+-			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was (now removed) TECH_DRAMA -->
+-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<!-- custom: was TRAIT_CREATIVE 100 -->
+-			<ProductionTraits/>
+-			<!-- custom: was empty -->
+-			<HappinessTraits>
+-				<HappinessTrait>
+-					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+-					<iHappinessTrait>1</iHappinessTrait>
+-				</HappinessTrait>
+-			</HappinessTraits>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>1</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 50 -->
+-			<iCost>60</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>0</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>1</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>4</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>3</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
+-			<CommerceChangeDoubleTimes>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1000</iCommerce>
+-			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<!-- advc.908b: was 20 culture -->
+-			<CommerceHappinesses>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>10</iCommerce>
+-			</CommerceHappinesses>
+-			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<!-- K-Mod -->
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_COLOSSEUM</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges>
+-				<BonusHappinessChange>
+-					<BonusType>BONUS_HORSE</BonusType>
+-					<iHappinessChange>1</iHappinessChange>
+-				</BonusHappinessChange>
+-			</BonusHappinessChanges>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: was 10 Growth; should be a mix of Growth
+-				 and Culture -->
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>7</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>7</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum -->
+ 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+ 			<Type>BUILDING_COLOSSEUM</Type>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 79708c44d..d083ae1e5 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -511,7 +511,7 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
+ 					<BuildingType>BUILDING_BYZANTINE_HIPPODROME</BuildingType>
+ 				</Building>
+ 			</Buildings>
+@@ -4391,7 +4391,7 @@
+ 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+-				<!-- custom: note: this seemingly does nothing as barbarians still build libraries about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least -->
++				<!-- custom: note: this seemingly does nothing as barbarians still build libraries -->
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+@@ -4493,7 +4493,7 @@
+ 					<UnitClassType>UNITCLASS_SPY</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+ 				</Unit>
+-				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too)-->
++				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born in a barbarian city -->
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_GREAT_ARTIST</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index be3ef6715..470fead9b 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -4959,3 +4959,8 @@ humans would have little to gain from stacking them past a certain point fairly
+ ----- Comment #374 -----
+ 
+ . This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit
++
++===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
++----- Comment #375 -----
++
++, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 1d3e0ce61..bbb33c21c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -216,7 +216,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ | Arabia | Madrassa (Library) | **Keep** (University) | Thematic fit, more balanced than op library. |
+ | Aztec | Sacrificial Altar (Courthouse) | **Keep** (Monument) | Much stronger than late courthouse. Fits aztec early slaving profile |
+ | Babylon | Garden (Colosseum) | **Keep** (Keep) | |
+-| Byzantium | Hippodrome (Theatre) | **Keep** (Keep) | |
++| Byzantium | Hippodrome (Theatre) | **Keep** (Stable) | Stronger and more efficient building than weak situational culture of the theater for this civ, since the stable is likely almost always desired for their civ-specific unit in particular. As of now takes most of old theater building effects with some cultural effects instead of all happiness effects. |
+ | Carthage | Cothon (Harbor) | **Keep** (Port) | Port is the new AdvCiv-SAS stronger water classical production building |
+ | Celt | Dun (Walls) | **La Tene Smithy** (Forge) | Dun is weak and too defensive/situational; also doesn't match the aggressive Celtic profile. Shift to a Forge-based UB for a stronger metalwork identity, with happiness support tied to Iron/Copper. Good synergy with their swordsman-based civ-specific unit and overall military profile that may use these bonuses as well. |
+ | China | Pavillion (Theatre) | **Changpingcang** (Market) | Not so cultural game profile plus it is weaker. This new building leans into a market-management/state-stability theme (price smoothing and social calm) rather than pure food storage. As China in this setup is often health-rich, extra happiness support is valuable and a nice synergy for larger empires and sustained city growth. Identity with happy from Rice capitalizes on such excess health, and food kept fits thematically and is not as op later in the game. |
+@@ -229,7 +229,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ | Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit and gameplay fit for Germany's growth profile |
+ | Greece | Odeon (Colosseum) | **Keep** (Keep) | |
+ | Holy Roman | Rathaus (Courthouse) | **Keep** (Keep) | |
+-| Inca | Terrace (Granary) | **Qullqa** (Granary) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |
++| Inca | Terrace (Granary) | **Qullqa** (Keep) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |
+ | India | Mausoleum (Jail) | **Keep** (Keep) | Jail is moved to late Classical so fine as such |
+ | Japan | Shale Plant (Factory) | **Doujou** (Jail) | Late/weak building; replaced with an early impactful one; thematic fit and boosts Tokugawa/Japan's isolationist profile by strengthening its espionage and military independence potential |
+ | Khmer | Baray (Aqueduct) | **Keep** (Keep) | |
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index 290dab5be..1806f4889 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+index c00c68f4d..be77958e9 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+index 65aa46ea8..afc14cc72 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=28987

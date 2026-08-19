@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2128
+# Commit: a83e978e6c81f08bffc3ae0620efa8b714b456d7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fc7aa30ef7a882c7f77b21afef3e4a90962487b5
+# Title: Print failed assertions to stdout
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/FAssert.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/FAssert.cpp b/CvGameCoreDLL/FAssert.cpp
+index 00c9b01da..b53e0519b 100644
+--- a/CvGameCoreDLL/FAssert.cpp
++++ b/CvGameCoreDLL/FAssert.cpp
+@@ -139,8 +139,6 @@ namespace
+ bool FAssertDlg( const char* szExpr, const char* szMsg, const char* szFile, unsigned int line,
+ 	/* <advc.006f> */ const char* szFunction, /* </advc006f> */ bool& bIgnoreAlways )
+ {
+-//	FILL_CONTEXT( g_AssertInfo.context );
+-
+ 	g_AssertInfo.szExpression = szExpr;
+ 	g_AssertInfo.szMessage = szMsg;
+ 	g_AssertInfo.szFileName = szFile;
+@@ -164,6 +162,11 @@ bool FAssertDlg( const char* szExpr, const char* szMsg, const char* szFile, unsi
+ 	case ASSERT_DLG_EXIT:
+ 		exit(0);
+ 		break;
++	/*	<advc.wine> DisplayAssertDialog goes through DialogBoxIndirect (WinUser.h).
++		Wine won't display that. */
++	default:	
++		printf("FAssertDlg: {%s} %s in %s, %s, line %d",
++				szExpr, szMsg, szFile, szFunction, line); // </advc.wine>
+ 	}
+ 
+ 	return true;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=937

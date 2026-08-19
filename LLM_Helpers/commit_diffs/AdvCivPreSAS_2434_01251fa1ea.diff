@@ -1,0 +1,952 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2434
+# Commit: 01251fa1eab04a1dd298a357cea79171f897c05e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 187ec79741b9001a62a554fea1c604f34bf0c332
+# Title: Misc. style, comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCity.h
+69	44	CvGameCoreDLL/CvDeal.cpp
+3	3	CvGameCoreDLL/CvGame.cpp
+5	5	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayer.h
+3	1	CvGameCoreDLL/CvPlayerAI.cpp
+6	6	CvGameCoreDLL/CvPlot.cpp
+62	50	CvGameCoreDLL/CvTeamAI.cpp
+4	2	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CyPlayer.cpp
+2	1	CvGameCoreDLL/FreeListTraversal.h
+11	9	CvGameCoreDLL/PlotRadiusIterator.h
+20	16	CvGameCoreDLL/ScaledNum.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 900ce37fe..6b819fba3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8849,12 +8849,12 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
+ 	m_aiNumRealBuilding.set(eBuilding, iNewValue);
+ 	if (getNumRealBuilding(eBuilding) > 0)
+ 	{
+-		m_aiBuildingOriginalOwner.set(eBuilding, eOriginalOwner);
++		m_aeBuildingOriginalOwner.set(eBuilding, eOriginalOwner);
+ 		m_aiBuildingOriginalTime.set(eBuilding, iOriginalTime);
+ 	}
+ 	else
+ 	{
+-		m_aiBuildingOriginalOwner.set(eBuilding, NO_PLAYER);
++		m_aeBuildingOriginalOwner.set(eBuilding, NO_PLAYER);
+ 		m_aiBuildingOriginalTime.set(eBuilding, MIN_INT);
+ 	}
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+@@ -8889,7 +8889,7 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
+ 	if (iChange > 0 && bFirst)
+ 	{
+ 		if (kBuilding.isCapital())
+-			GET_PLAYER(getOwner()).setCapitalCity(this);
++			GET_PLAYER(getOwner()).setCapital(this);
+ 
+ 		if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
+ 		{
+@@ -11134,7 +11134,7 @@ void CvCity::read(FDataStreamBase* pStream)
+ 	m_aiProjectProduction.Read(pStream);
+ 	m_aiBuildingProduction.Read(pStream);
+ 	m_aiBuildingProductionTime.Read(pStream);
+-	m_aiBuildingOriginalOwner.Read(pStream);
++	m_aeBuildingOriginalOwner.Read(pStream);
+ 	m_aiBuildingOriginalTime.Read(pStream);
+ 	m_aiUnitProduction.Read(pStream);
+ 	m_aiUnitProductionTime.Read(pStream);
+@@ -11402,7 +11402,7 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	m_aiProjectProduction.Write(pStream);
+ 	m_aiBuildingProduction.Write(pStream);
+ 	m_aiBuildingProductionTime.Write(pStream);
+-	m_aiBuildingOriginalOwner.Write(pStream);
++	m_aeBuildingOriginalOwner.Write(pStream);
+ 	m_aiBuildingOriginalTime.Write(pStream);
+ 	m_aiUnitProduction.Write(pStream);
+ 	m_aiUnitProductionTime.Write(pStream);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 6c6d19d70..db85c4cb7 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -978,7 +978,7 @@ public:
+ 
+ 	PlayerTypes getBuildingOriginalOwner(BuildingTypes eIndex) const														// Exposed to Python
+ 	{
+-		return m_aiBuildingOriginalOwner.get(eIndex);
++		return m_aeBuildingOriginalOwner.get(eIndex);
+ 	}
+ 	int getBuildingOriginalTime(BuildingTypes eIndex) const															// Exposed to Python
+ 	{
+@@ -1414,7 +1414,7 @@ protected:
+ 	EnumMap<ProjectTypes,int> m_aiProjectProduction;
+ 	EnumMap<BuildingTypes,int> m_aiBuildingProduction;
+ 	EnumMap<BuildingTypes,int> m_aiBuildingProductionTime;
+-	EnumMap<BuildingTypes,PlayerTypes> m_aiBuildingOriginalOwner;
++	EnumMap<BuildingTypes,PlayerTypes> m_aeBuildingOriginalOwner;
+ 	EnumMapDefault<BuildingTypes,int,MIN_INT> m_aiBuildingOriginalTime;
+ 	EnumMap<BuildingTypes,int> m_aiNumRealBuilding;
+ 	EnumMap<BuildingTypes,int> m_aiNumFreeBuilding;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index b9dfa77d7..7c215bae7 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -336,24 +336,43 @@ void CvDeal::doTurn()
+ 	{
+ 		if (getLengthSecondTrades() > 0)
+ 		{
+-			int iValue = (GET_PLAYER(getFirstPlayer()).AI_dealVal(getSecondPlayer(), *getSecondTrades()) /
++			int iValue = (GET_PLAYER(getFirstPlayer()).AI_dealVal(
++					getSecondPlayer(), *getSecondTrades()) /
+ 					GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
+ 			if (getLengthFirstTrades() > 0)
+-				GET_PLAYER(getFirstPlayer()).AI_processPeacetimeTradeValue(getSecondPlayer(), iValue);
+-			else GET_PLAYER(getFirstPlayer()).AI_processPeacetimeGrantValue(getSecondPlayer(), iValue);
++			{
++				GET_PLAYER(getFirstPlayer()).AI_processPeacetimeTradeValue(
++						getSecondPlayer(), iValue);
++			}
++			else
++			{
++				GET_PLAYER(getFirstPlayer()).AI_processPeacetimeGrantValue(
++						getSecondPlayer(), iValue);
++			}
+ 		}
+ 
+ 		if (getLengthFirstTrades() > 0)
+ 		{
+-			int iValue = (GET_PLAYER(getSecondPlayer()).AI_dealVal(getFirstPlayer(), *getFirstTrades()) /
++			int iValue = (GET_PLAYER(getSecondPlayer()).AI_dealVal(
++					getFirstPlayer(), *getFirstTrades()) /
+ 					GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
+ 			if (getLengthSecondTrades() > 0)
+-				GET_PLAYER(getSecondPlayer()).AI_processPeacetimeTradeValue(getFirstPlayer(), iValue);
+-			else GET_PLAYER(getSecondPlayer()).AI_processPeacetimeGrantValue(getFirstPlayer(), iValue);
++			{
++				GET_PLAYER(getSecondPlayer()).AI_processPeacetimeTradeValue(
++						getFirstPlayer(), iValue);
++			}
++			else
++			{
++				GET_PLAYER(getSecondPlayer()).AI_processPeacetimeGrantValue(
++						getFirstPlayer(), iValue);
++			}
+ 		}
+-		// K-Mod note: for balance reasons this function should probably be called at the boundry of some particular player's turn,
+-		// rather than at the turn boundry of the game itself. -- Unfortunately, the game currently doesn't work like this.
+-		// Also, note that we do not update attitudes of particular players here, but instead update all of them at the game turn boundry.
++		/*	K-Mod note: for balance reasons this function should probably
++			be called at the boundry of some particular player's turn,
++			rather than at the turn boundry of the game itself.
++			-- Unfortunately, the game currently doesn't work like this.
++			Also, note that we do not update attitudes of particular players here,
++			but instead update all of them at the game turn boundry. */
+ 	}
+ }
+ 
+@@ -373,8 +392,8 @@ void CvDeal::verify()
+ bool CvDeal::verify(PlayerTypes eRecipient, PlayerTypes eGiver)
+ {
+ 	CvPlayer& kGiver = GET_PLAYER(eGiver);
+-	for (CLLNode<TradeData> const* pNode = this->headReceivesNode(eRecipient); pNode != NULL;
+-		pNode = nextReceivesNode(pNode, eRecipient))
++	for (CLLNode<TradeData> const* pNode = this->headReceivesNode(eRecipient);
++		pNode != NULL; pNode = nextReceivesNode(pNode, eRecipient))
+ 	{
+ 		if (pNode->m_data.m_eItemType == TRADE_RESOURCES)
+ 		{
+@@ -411,7 +430,8 @@ bool CvDeal::isVassalDeal() const
+ 
+ bool CvDeal::isVassalTrade(CLinkList<TradeData> const& kList)
+ {
+-	for (CLLNode<TradeData> const* pNode = kList.head(); pNode != NULL; pNode = kList.next(pNode))
++	for (CLLNode<TradeData> const* pNode = kList.head(); pNode != NULL;
++		pNode = kList.next(pNode))
+ 	{
+ 		if (isVassal(pNode->m_data.m_eItemType))
+ 			return true;
+@@ -427,7 +447,7 @@ bool CvDeal::isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReaso
+ {
+ 	FAssertMsg(involves(eByPlayer), "Caller should have ensured this");
+ 	// Vassal and master (technically) have the same master
+-	TeamTypes eMaster = GET_PLAYER(getFirstPlayer()).getMasterTeam();
++	TeamTypes const eMaster = GET_PLAYER(getFirstPlayer()).getMasterTeam();
+ 	if (eMaster != GET_PLAYER(getSecondPlayer()).getMasterTeam())
+ 		return false; // There is no vassal deal, so this can't be one.
+ 	TeamTypes eVassal;
+@@ -482,7 +502,7 @@ bool CvDeal::isVassalTributeDeal(const CLinkList<TradeData>* pList)
+ 	return true;
+ }
+ 
+-/*  <advc> True if one side is the other side's vassal, and the vassal gives
++/*  advc: True if one side is the other side's vassal, and the vassal gives
+ 	only resources, and the master gives nothing in return. */
+ bool CvDeal::isVassalTributeDeal() const
+ {
+@@ -500,14 +520,14 @@ bool CvDeal::isVassalTributeDeal() const
+ 	}
+ 	return eVassalPlayer != NO_PLAYER && getGivesList(eMasterPlayer).getLength() <= 0 &&
+ 			CvDeal::isVassalTributeDeal(&getGivesList(eVassalPlayer));
+-} // </advc>
++}
+ 
+-// <advc.034>
++// advc.034:
+ bool CvDeal::isDisengage() const
+ {
+-	return m_firstTrades.getLength() == 1 && m_firstTrades.getLength() == 1 &&
+-			m_firstTrades.head()->m_data.m_eItemType == TRADE_DISENGAGE;
+-} // </advc.034>
++	return (m_firstTrades.getLength() == 1 && m_firstTrades.getLength() == 1 &&
++			m_firstTrades.head()->m_data.m_eItemType == TRADE_DISENGAGE);
++}
+ 
+ // advc.130p: Replaced by code in recordTradeValue
+ /*bool CvDeal::isPeaceDealBetweenOthers(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList) const {
+@@ -530,11 +550,11 @@ void CvDeal::setInitialGameTurn(int iNewValue)
+ 	m_iInitialGameTurn = iNewValue;
+ }
+ 
+-// <advc.133>
++// advc.133:
+ int CvDeal::getAge() const
+ {
+ 	return GC.getGame().getGameTurn() - getInitialGameTurn();
+-} // </advc.133>
++}
+ 
+ // <advc> Might be important here that getFirstPlayer and getSecondPlayer are inlined
+ bool CvDeal::isBetween(PlayerTypes ePlayer, PlayerTypes eOtherPlayer) const
+@@ -834,9 +854,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 	{
+ 		PROFILE("CvDeal::startTrade.MAPS"); // advc
+ 		CvMap const& kMap = GC.getMap();
+-		for (int iI = 0; iI < kMap.numPlots(); iI++)
++		for (int i = 0; i < kMap.numPlots(); i++)
+ 		{
+-			CvPlot& kPlot = kMap.getPlotByIndex(iI);
++			CvPlot& kPlot = kMap.getPlotByIndex(i);
+ 			if (kPlot.isRevealed(TEAMID(eFromPlayer)))
+ 				kPlot.setRevealed(TEAMID(eToPlayer), true, false, TEAMID(eFromPlayer), false);
+ 		}
+@@ -891,9 +911,10 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 			if(kAttacked.AI_getMemoryCount(eFromPlayer, MEMORY_DECLARED_WAR_RECENT) < 2)
+ 				kAttacked.AI_rememberEvent(eFromPlayer, MEMORY_DECLARED_WAR_RECENT);
+ 			if(::atWar(TEAMID(eToPlayer), kAttacked.getTeam()) &&
+-					kAttacked. AI_getMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT) < 2)
++				kAttacked. AI_getMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT) < 2)
++			{
+ 				kAttacked.AI_rememberEvent(eToPlayer, MEMORY_DECLARED_WAR_RECENT);
+-			// </advc.104i>
++			} // </advc.104i>
+ 		}
+ 		break;
+ 
+@@ -1003,19 +1024,19 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 	bool bTeamTradeEnded = false; // advc.133
+ 	/*	<advc> Skip some steps when a trade ends through the defeat of one party -
+ 		to avoid failed assertions */
+-	bool bAlive = (GET_PLAYER(eFromPlayer).isAlive() && GET_PLAYER(eToPlayer).isAlive());
++	bool const bAlive = (GET_PLAYER(eFromPlayer).isAlive() && GET_PLAYER(eToPlayer).isAlive());
+ 	if (!bAlive)
+ 		bUpdateAttitude = false; // </advc>
+ 	switch(trade.m_eItemType)
+ 	{
+ 	case TRADE_RESOURCES:
+-		GET_PLAYER(eToPlayer).changeBonusImport(((BonusTypes)trade.m_iData), -1);
+-		GET_PLAYER(eFromPlayer).changeBonusExport(((BonusTypes)trade.m_iData), -1);
++		GET_PLAYER(eToPlayer).changeBonusImport((BonusTypes)trade.m_iData, -1);
++		GET_PLAYER(eFromPlayer).changeBonusExport((BonusTypes)trade.m_iData, -1);
+ 		break;
+ 
+ 	case TRADE_GOLD_PER_TURN:
+ 		GET_PLAYER(eFromPlayer).changeGoldPerTurnByPlayer(eToPlayer, trade.m_iData);
+-		GET_PLAYER(eToPlayer).changeGoldPerTurnByPlayer(eFromPlayer, -(trade.m_iData));
++		GET_PLAYER(eToPlayer).changeGoldPerTurnByPlayer(eFromPlayer, -trade.m_iData);
+ 		break;
+ 
+ 	// <advc.143>
+@@ -1111,7 +1132,7 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 	// </advc.133>
+ }
+ 
+-// <advc.130p> Cut-and-pasted from CvDeal::endTrade
++// advc.130p: Cut from CvDeal::endTrade
+ void CvDeal::addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 		TradeableItems eItemType)
+ {
+@@ -1119,14 +1140,18 @@ void CvDeal::addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 	{
+ 		PlayerTypes eToTeamMember = (PlayerTypes)i;
+ 		if(!GET_PLAYER(eToTeamMember).isAlive() ||
+-				TEAMID(eToTeamMember) != TEAMID(eToPlayer))
++			TEAMID(eToTeamMember) != TEAMID(eToPlayer))
++		{
+ 			continue;
++		}
+ 		for(int j = 0; j < MAX_CIV_PLAYERS; j++)
+ 		{
+ 			PlayerTypes eFromTeamMember = (PlayerTypes)j;
+ 			if(!GET_PLAYER(eFromTeamMember).isAlive() ||
+-					TEAMID(eFromTeamMember) != TEAMID(eFromPlayer))
++				TEAMID(eFromTeamMember) != TEAMID(eFromPlayer))
++			{
+ 				continue;
++			}
+ 			MemoryTypes eMemory = MEMORY_CANCELLED_OPEN_BORDERS;
+ 			if(eItemType == TRADE_DEFENSIVE_PACT)
+ 				eMemory = MEMORY_CANCELLED_DEFENSIVE_PACT;
+@@ -1136,7 +1161,7 @@ void CvDeal::addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 			GET_PLAYER(eToTeamMember).AI_setMemoryCount(eFromTeamMember, eMemory, 2);
+ 		}
+ 	}
+-} // </advc.130p>
++}
+ 
+ 
+ void CvDeal::startTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam, bool bDual)
+@@ -1246,7 +1271,7 @@ bool CvDeal::isAllDual() const
+ 	return true;
+ }
+ 
+-// static
++
+ bool CvDeal::isAnnual(TradeableItems eItem)
+ {
+ 	switch (eItem)
+@@ -1265,7 +1290,7 @@ bool CvDeal::isAnnual(TradeableItems eItem)
+ 	return false;
+ }
+ 
+-// static
++
+ bool CvDeal::isDual(TradeableItems eItem, bool bExcludePeace)
+ {
+ 	switch (eItem)
+@@ -1281,20 +1306,20 @@ bool CvDeal::isDual(TradeableItems eItem, bool bExcludePeace)
+ 	return false;
+ }
+ 
+-// static
++
+ bool CvDeal::hasData(TradeableItems eItem)
+ {
+ 	return (eItem != TRADE_MAPS &&
+-		eItem != TRADE_VASSAL &&
+-		eItem != TRADE_SURRENDER &&
+-		eItem != TRADE_OPEN_BORDERS &&
+-		eItem != TRADE_DISENGAGE && // advc.034
+-		eItem != TRADE_DEFENSIVE_PACT &&
+-		eItem != TRADE_PERMANENT_ALLIANCE &&
+-		eItem != TRADE_PEACE_TREATY);
++			eItem != TRADE_VASSAL &&
++			eItem != TRADE_SURRENDER &&
++			eItem != TRADE_OPEN_BORDERS &&
++			eItem != TRADE_DISENGAGE && // advc.034
++			eItem != TRADE_DEFENSIVE_PACT &&
++			eItem != TRADE_PERMANENT_ALLIANCE &&
++			eItem != TRADE_PEACE_TREATY);
+ }
+ 
+-// static
++
+ bool CvDeal::isEndWar(TradeableItems eItem)
+ {
+ 	if (eItem == getPeaceItem())
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 052e6e497..34bb6a099 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1081,10 +1081,10 @@ NormalizationTarget* CvGame::assignStartingPlots()
+ 	// <advc.108b>
+ 	else // i.e. if not a team game
+ 	{	/*	<advc.027> If the map script allows it, StartingPositionIteration will
+-			set starting locations that the code below may then shuffle around. */
++			set starting sites that the code below may then reassign among the civs. */
+ 		StartingPositionIteration spi;
+ 		pNormalizationTarget = spi.createNormalizationTarget();
+-		// Shuffling the positions around makes debugging harder
++		// Reassigning the starting sites makes debugging harder
+ 		if (pNormalizationTarget != NULL && spi.isDebug())
+ 			return pNormalizationTarget; // </advc.027>
+ 		/*	Apply StartingLocationPercent from handicap.
+@@ -3778,7 +3778,7 @@ int CvGame::getNumFreeBonuses(BuildingTypes eBuilding) const
+ {
+ 	if (GC.getInfo(eBuilding).getNumFreeBonuses() == -1)
+ 		return GC.getInfo(GC.getMap().getWorldSize()).getNumFreeBuildingBonuses();
+-	else return GC.getInfo(eBuilding).getNumFreeBonuses();
++	return GC.getInfo(eBuilding).getNumFreeBonuses();
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9c08ba4e8..b62481b94 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1550,7 +1550,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	EnumMap<CorporationTypes,bool> abHasCorporation;
+ 	EnumMap<CorporationTypes,bool> abHeadquarters;
+ 	EnumMap<BuildingTypes,int> aiNumRealBuilding;
+-	EnumMap<BuildingTypes,PlayerTypes> aiBuildingOriginalOwner;
++	EnumMap<BuildingTypes,PlayerTypes> aeBuildingOriginalOwner;
+ 	EnumMapDefault<BuildingTypes,int,MIN_INT> aiBuildingOriginalTime;
+ 
+ 	PlayerTypes const eOldOwner = pOldCity->getOwner();
+@@ -1596,7 +1596,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	FOR_EACH_ENUM2(Building, eBuilding)
+ 	{
+ 		aiNumRealBuilding.set(eBuilding, pOldCity->getNumRealBuilding(eBuilding));
+-		aiBuildingOriginalOwner.set(eBuilding, pOldCity->getBuildingOriginalOwner(eBuilding));
++		aeBuildingOriginalOwner.set(eBuilding, pOldCity->getBuildingOriginalOwner(eBuilding));
+ 		aiBuildingOriginalTime.set(eBuilding, pOldCity->getBuildingOriginalTime(eBuilding));
+ 	}
+ 	// <advc.001f>
+@@ -1755,7 +1755,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 					kNewCity.getNumRealBuilding(eBuilding) +
+ 					aiNumRealBuilding.get(eBuilding)),
+ 					false,
+-					aiBuildingOriginalOwner.get(eBuilding),
++					aeBuildingOriginalOwner.get(eBuilding),
+ 					aiBuildingOriginalTime.get(eBuilding));
+ 		}
+ 	}
+@@ -8178,8 +8178,8 @@ void CvPlayer::changeStateReligionFreeExperience(int iChange)
+ 	m_iStateReligionFreeExperience += iChange;
+ }
+ 
+-
+-void CvPlayer::setCapitalCity(CvCity* pNewCapital)
++// advc: Renamed from "setCapitalCity"
++void CvPlayer::setCapital(CvCity* pNewCapital)
+ {
+ 	CvCity* pOldCapital = getCapital();
+ 	if(pOldCapital == pNewCapital)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index a59ff2bfb..ad18211c1 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -739,7 +739,7 @@ public:
+ 	{
+ 		return getCapital();
+ 	}
+-	void setCapitalCity(CvCity* pNewCapital);
++	void setCapital(CvCity* pNewCapital);
+ 	// <advc.127b> -1 if no capital or (eObserver!=NO_TEAM) unrevealed to eObserver
+ 	int getCapitalX(TeamTypes eObserver, bool bDebug = false) const;
+ 	int getCapitalY(TeamTypes eObserver, bool bDebug = false) const;
+@@ -747,7 +747,7 @@ public:
+ 	int getCapitalY(PlayerTypes eObserver, bool bDebug = false) const;
+ 	// </advc.127b>  <advc>
+ 	inline bool hasCapital() const
+-	{	// (Don't want to waste time checking both coordinates)
++	{
+ 		return (m_iCapitalCityID != FFreeList::INVALID_INDEX);
+ 	} // </advc>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b5d1c4a7a..5a962ea3e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8804,8 +8804,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 			{
+ 				TradeData tdata = pNode->m_data;
+ 				if(tdata.m_eItemType == TRADE_RESOURCES &&
+-						kPlayer.getTradeDenial(getID(), tdata) != NO_DENIAL)
++					kPlayer.getTradeDenial(getID(), tdata) != NO_DENIAL)
++				{
+ 					return false;
++				}
+ 			}
+ 		} // </advc.036>  <advc.026>
+ 		else if(bOurGoldDeal && !AI_checkMaxGold(kWeGive, ePlayer))
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index dc016df39..b37226a34 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1135,7 +1135,8 @@ bool CvPlot::isAdjacentSaltWater() const
+ 
+ bool CvPlot::isPotentialIrrigation() const
+ {
+-	if ((isCity() && !isHills()) ||
++	// advc: 2nd condition was !isHills. Mods might allow cities on peaks.
++	if ((isCity() && isFlatlands()) ||
+ 		(isImproved() && GC.getInfo(getImprovementType()).isCarriesIrrigation()))
+ 	{
+ 		if (isOwned() && GET_TEAM(getTeam()).isIrrigation())
+@@ -1149,13 +1150,12 @@ bool CvPlot::isPotentialIrrigation() const
+ bool CvPlot::canHavePotentialIrrigation() const
+ {
+ 	PROFILE_FUNC(); // advc.test: To be profiled
+-	// advc: 2nd check was !isHills. Mods might allow cities on peaks.
+-	if (isCity() && isFlatlands())
+-		return true;
+ 	// <advc.opt>
+ 	if(isWater())
+-		return false;
+-	// </advc.opt>
++		return false; // </advc.opt>
++	// advc: 2nd condition was !isHills. Mods might allow cities on peaks.
++	if (isCity() && isFlatlands())
++		return true;
+ 	FOR_EACH_ENUM(Improvement)
+ 	{
+ 		if (GC.getInfo(eLoopImprovement).isCarriesIrrigation())
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 8f6c7f900..51063c3bf 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2206,16 +2206,19 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 
+ 	FAssert(eMasterTeam != getID());
+ 
+-	CvTeamAI& kMasterTeam = GET_TEAM(eMasterTeam);
++	CvTeamAI const& kMasterTeam = GET_TEAM(eMasterTeam);
+ 	bool const bWar = isAtWar(eMasterTeam);
+-	/*  advc.112: Colonies are more loyal than other peace vassals, but not more
++	/*  <advc.112> Colonies are more loyal than other peace vassals, but not more
+ 		likely to come back once broken away (isVassal is checked). */
+-	bool bColony = isVassal(eMasterTeam) && !isCapitulated() && kMasterTeam.isParent(getID());
+-
+-	// K-Mod. I've disabled the denial for "war not possible"
+-	// In K-Mod, surrendering overrules existing peace treaties - just like defensive pacts overrule peace treaties.
+-	// For voluntary vassals, the treaties still apply. [advc: see AI_vassalTrade] */
+-	// K-Mod. However, "peace not possible" should still be checked here -- but only if this is a not a peace-vassal deal!
++	bool const bColony = (isVassal(eMasterTeam) &&
++			!isCapitulated() && kMasterTeam.isParent(getID())); // </advc.112>
++
++	/*	K-Mod. I've disabled the denial for "war not possible"
++		In K-Mod, surrendering overrules existing peace treaties -
++		just like defensive pacts overrule peace treaties.
++		For voluntary vassals, the treaties still apply. [advc: see AI_vassalTrade]
++		K-Mod. However, "peace not possible" should still be checked here --
++		but only if this is a not a peace-vassal deal! */
+ 	if (bWar)
+ 	{
+ 		for (TeamIter<FREE_MAJOR_CIV,ENEMY_OF> it(getID()); it.hasNext(); ++it)
+@@ -2235,7 +2238,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		return DENIAL_VICTORY;
+ 	FOR_EACH_ENUM(VoteSource)
+ 	{
+-		// Doesn't imply stage 3 of diplo victory
++		// (Doesn't imply stage 3 of diplo victory)
+ 		if(GC.getGame().getSecretaryGeneral(eLoopVoteSource) == getID())
+ 			return DENIAL_VICTORY;
+ 	}  // <advc>
+@@ -2329,7 +2332,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 	}// </advc.143b>
+ 	int iTotalPower = 0;
+ 	int iNumNonVassals = 0;
+-	std::vector<double> powerValues; // advc.112
++	std::vector<scaled> arPowerValues; // advc.112
+ 	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 	{
+ 		CvTeam& kTeam = *it;
+@@ -2340,23 +2343,23 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		else
+ 		{
+ 			// <advc.112> For median computation
+-			powerValues.push_back(iPow);
++			arPowerValues.push_back(iPow);
+ 			iTotalPower += iPow;
+ 			// </advc.112>
+ 			iNumNonVassals++;
+ 		}
+ 	}
+ 	// advc.112: Probably not much of an improvement over using the mean
+-	double medianPow = ::dMedian(powerValues);
+-	int iAveragePower = iTotalPower / std::max(1, iNumNonVassals);
+-	int iMasterPower = kMasterTeam.getPower(false);
++	scaled rMedianPow = stats::median(arPowerValues);
++	scaled rAveragePower(iTotalPower, std::max(1, iNumNonVassals));
++	scaled rMasterPower = kMasterTeam.getPower(false);
+ 	// <advc.112>
+ 	if(bFaraway ||
+ 		(getNumWars() <= 0 && AI_teamCloseness(eMasterTeam, -1, false, true) <= 0))
+ 	{
+-		iMasterPower = ::round(iMasterPower  * 0.7); // </advc.112>
++		rMasterPower *= fixp(0.7); // </advc.112>
+ 	}
+-	int iOurPower = getPower(true); // K-Mod (this value is used a bunch of times separately)
++	int const iOurPower = getPower(true); // K-Mod (this value is used a bunch of times separately)
+ 	/*  <advc.143> Reluctant to sign voluntary vassal agreement if we recently
+ 		canceled one */
+ 	if(!bWar && !isVassal(eMasterTeam))
+@@ -2388,8 +2391,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		hashInput.push_back(kGame.getTeamRank(getID()));
+ 		hashInput.push_back(kGame.getTeamRank(eMasterTeam));
+ 		hashInput.push_back(getNumWars());
+-		double h = ::hash(hashInput, getLeaderID());
+-		iPowerMultiplier -= ::round(10 + h * 30);
++		scaled rHash = scaled::hash(hashInput, getLeaderID());
++		iPowerMultiplier -= (10 + rHash * 30).round();
+ 	}
+ 	// iPersonalityModifier: moved here from farther up
+ 	// </advc.112>
+@@ -2400,8 +2403,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		iPersonalityModifier += GC.getInfo(itMember->getPersonalityType()).
+ 				getVassalPowerModifier();
+ 	}
+-	int iVassalPower = (iOurPower * (iPowerMultiplier + iPersonalityModifier /
+-			std::max(1, itMember.nextIndex()))) / 100;
++	scaled rVassalPower = per100(iOurPower * (iPowerMultiplier + iPersonalityModifier /
++			std::max(1, itMember.nextIndex())));
+ 	if (bWar)
+ 	{
+ 		int iTheirSuccess = std::max(10, kMasterTeam.AI_getWarSuccess(getID()));
+@@ -2423,23 +2426,21 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		if (iTheirSuccess < iOthersBestSuccess)
+ 			iOurSuccess += iOthersBestSuccess - iTheirSuccess;
+ 		// <advc.112> Instead multiply VassalPower by the inverse factor
+-		//iMasterPower = (2 * iMasterPower * iTheirSuccess) / (iTheirSuccess + iOurSuccess);
+-		iVassalPower = ::round(iVassalPower * (iTheirSuccess + iOurSuccess) /
+-				(1.8 * iTheirSuccess)); // Slightly reduce the coefficient
++		//rMasterPower = (2 * rMasterPower * iTheirSuccess) / (iTheirSuccess + iOurSuccess);
++		rVassalPower *= (iTheirSuccess + iOurSuccess) /
++				(fixp(1.8) * iTheirSuccess); // Slightly reduce the coefficient
+ 		// FURIOUS clause added; WorstEnemy doesn't say much when at war.
+ 		if (AI_getWorstEnemy() == eMasterTeam && eTowardMaster <= ATTITUDE_FURIOUS)
+-		{	// was 75%, now 90%.
+-			iMasterPower *= 9;
+-			iMasterPower /= 10; // </advc.112>
+-		}
++			rMasterPower *= per100(90); // was 75%
++		// </advc.112>
+ 	}
+-	else if (!kMasterTeam.AI_isLandTarget(getID()))
+-		iMasterPower /= 2;
++	else if (kMasterTeam.AI_isLandTarget(getID())
++		rMasterPower /= 2;
+ 
+ 	// K-Mod. (condition moved here from lower down; for efficiency.)
+ 	// <advc.112> Special treatment of vassal-master power ratio if colony
+-	if((!bColony && 3 * iVassalPower > 2 * iMasterPower) ||
+-		(bColony && 5 * getPower(true) > 4 * iMasterPower)) // </advc.112>
++	if ((!bColony && 3 * rVassalPower > 2 * rMasterPower) ||
++		(bColony && 5 * getPower(true) > 4 * rMasterPower)) // </advc.112>
+ 	{
+ 		return DENIAL_POWER_US;
+ 	} // K-Mod end
+@@ -2476,11 +2477,16 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			}
+ 			/*  Randomly between these two bounds; randomness from a hash of the
+ 				turn number */
+-			double bound1 = (0.5 * getCurrentEra() + 1.5) * 0.75 * getNumCities();
+-			double bound2 = (0.5 * getCurrentEra() + 1.5) * getNumCities();
+-			if(iTheirAttackers < bound1 + ::hash(kGame.getGameTurn()) * (bound2 - bound1))
++			scaled rBound1 = (fixp(0.5) * getCurrentEra() + fixp(1.5)) *
++					fixp(0.75) * getNumCities();
++			scaled rBound2 = (fixp(0.5) * getCurrentEra() + fixp(1.5)) *
++					getNumCities();
++			if (iTheirAttackers < rBound1 + scaled::hash(kGame.getGameTurn()) *
++				(rBound2 - rBound1))
++			{
+ 				return DENIAL_NEVER;
+-			if(iSafePopulation / (getTotalPopulation() + 0.1) > 0.3)
++			}
++			if(iSafePopulation / (getTotalPopulation() + fixp(0.1)) > fixp(0.3))
+ 				return DENIAL_NEVER;
+ 		}
+ 	} // </advc.112b>
+@@ -2506,24 +2512,27 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		int iEnemyPower = kEnemy.getPower(true); // K-Mod
+ 		if (iEnemyPower > iOurPower)
+ 		{
+-			if (kEnemy.isAtWar(eMasterTeam) && !kEnemy.isAtWar(getID())
+-					&& (!bWar || iMasterPower < 2 * iEnemyPower)) // K-Mod
++			if (kEnemy.isAtWar(eMasterTeam) && !kEnemy.isAtWar(getID()) &&
++				(!bWar || rMasterPower < 2 * iEnemyPower)) // K-Mod
++			{
+ 				return DENIAL_POWER_YOUR_ENEMIES;
+-			iAveragePower = (2 * iAveragePower * iEnemyPower) /
++			}
++			rAveragePower = (2 * rAveragePower * iEnemyPower) /
+ 					std::max(1, iEnemyPower + iOurPower);
+ 			// advc.112: The same threat adjustment for the median
+-			medianPow = (2 * medianPow * iEnemyPower) / std::max(1, iEnemyPower + iOurPower);
++			rMedianPow = (2 * rMedianPow * iEnemyPower) /
++					std::max(1, iEnemyPower + iOurPower);
+ 			//iAttitudeModifier += (3 * kEnemy.getPower(true)) / std::max(1, getPower(true)) - 2;
+ 			/*  advc.112: Commented out K-Mod's replacement as well.
+ 				Attitude is handled later. */
+ 			//iAttitudeModifier += (6 * iEnemyPower / std::max(1, iOurPower) - 5)/2; // K-Mod. (effectively -2.5 instead of 2)
+ 		}
+ 		if (!kEnemy.isAtWar(eMasterTeam) && kEnemy.isAtWar(getID()))
+-		{
+-			iAveragePower = iAveragePower *
+-					(iOurPower + iMasterPower) / std::max(1, iOurPower + std::max(iOurPower, iEnemyPower)); // K-Mod
++		{	// <K-Mod>
++			rAveragePower *= (iOurPower + rMasterPower) /
++					std::max(1, iOurPower + std::max(iOurPower, iEnemyPower)); // </K-Mod>
+ 			// <advc.112>
+-			medianPow = medianPow * (iOurPower + iMasterPower) /
++			rMedianPow *= (iOurPower + rMasterPower) /
+ 					std::max(1, iOurPower + std::max(iOurPower, iEnemyPower)); // </advc.112>
+ 		}
+ 	}
+@@ -2535,12 +2544,15 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 	{
+ 		// if (iVassalPower > iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
+ 		// advc.112: Changed coefficients from 5/4 to 1/0.76
+-		if (iVassalPower > 0.76*iAveragePower || // K-Mod. (second condition already checked)
++		if (rVassalPower > fixp(0.76) * rAveragePower || // K-Mod. (second condition already checked)
+ 			// <advc.112> Median condition; randomization when breaking free
+-			(!bWar && iVassalPower > 0.76 * medianPow))
++			(!bWar && rVassalPower > fixp(0.76) * rMedianPow))
+ 		{
+-			if(!isAVassal() || ::hash(kGame.getGameTurn(), getLeaderID()) < 0.1) // </advc.112>
++			if(!isAVassal() ||
++				scaled::hash(kGame.getGameTurn(), getLeaderID()) < fixp(0.1))
++			{ // </advc.112>
+ 				return DENIAL_POWER_US;
++			}
+ 		}
+ 	}
+ 
+@@ -2595,8 +2607,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		if(isAVassal()) // (should perhaps check master's NoWarProb at Pleased)
+ 			iAttitudeModifier += 3;
+ 		if(iAttitudeModifier <= 2 &&
+-			4 * iVassalPower > 3 * iAveragePower &&
+-			4 * iVassalPower > 3 * medianPow &&
++			4 * rVassalPower > 3 * rAveragePower &&
++			4 * rVassalPower > 3 * rMedianPow &&
+ 			// Exception: stick to our colonial master
+ 			(!isAVassal() || !kMasterTeam.isParent(getID())))
+ 		{
+@@ -2612,8 +2624,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			// <advc.112> Handled higher up
+ 			int iAttitudeThresh = GC.getInfo(kOurMember.getPersonalityType()).
+ 					getVassalRefuseAttitudeThreshold();
+-			/*  Don't use Annoyed thresh from XML, only increase the
+-				relations modifier by 1. */
++			/*  Don't apply thresh worse than Cautious, only increase the
++				relations modifier. */
+ 			if(iAttitudeThresh < ATTITUDE_CAUTIOUS)
+ 			{
+ 				iAttitudeModifier += (ATTITUDE_CAUTIOUS - iAttitudeThresh);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ca8a47847..8f81b92a6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14279,8 +14279,10 @@ bool CvUnitAI::AI_blockade()  // advc: some style changes
+ 	if (atPlot(pBestBlockadePlot))
+ 	{
+ 		if (canBombard(getPlot()))
+-			getGroup()->pushMission(MISSION_BOMBARD, -1, -1, 0, false, false, MISSIONAI_BLOCKADE, pBestBlockadePlot);
+-
++		{
++			getGroup()->pushMission(MISSION_BOMBARD, -1, -1, 0, false, false,
++					MISSIONAI_BLOCKADE, pBestBlockadePlot);
++		}
+ 		getGroup()->pushMission(MISSION_PLUNDER, -1, -1, 0,
+ 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BLOCKADE, pBestBlockadePlot);
+ 				true, false, MISSIONAI_BLOCKADE, pBestBlockadePlot); // K-Mod
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index d68476fcc..4d7594997 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -2134,6 +2134,7 @@ int CyPlayer::AI_foundValue(int iX, int iY, int iMinRivalRange/* = -1*/, bool bS
+ 			bStartingLoc = true;
+ 		else bNormalize = true;
+ 	} // </advc.031e>
++	FAssertMsg(false, "Just to see if this works correctly if it ever happens");
+ 	return m_pPlayer->AI_foundValue(iX, iY, iMinRivalRange, bStartingLoc, bNormalize);
+ }
+
+diff --git a/CvGameCoreDLL/FreeListTraversal.h b/CvGameCoreDLL/FreeListTraversal.h
+index cd49ff963..87a9c6360 100644
+--- a/CvGameCoreDLL/FreeListTraversal.h
++++ b/CvGameCoreDLL/FreeListTraversal.h
+@@ -8,7 +8,8 @@
+ 
+ /*  All FOR_EACH macros need to be listed in cpp.hint so that Visual Studio can
+ 	parse them properly! Otherwise, the navigation bar will show "Global Scope"
+-	for any functions that use the macros. */
++	for any functions that use the macros. (At least in VS2010; perhaps not an issue
++	with more recent versions.) */
+ 
+ // ('iLoopCounter_##__LINE__' won't work)
+ #define LOOPCOUNTERNAME CONCATVARNAME(iLoopCounter_, __LINE__)
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.h b/CvGameCoreDLL/PlotRadiusIterator.h
+index 36459aea4..f5773fb61 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.h
++++ b/CvGameCoreDLL/PlotRadiusIterator.h
+@@ -8,13 +8,15 @@
+ #include "CvMap.h"
+ 
+ /*  Iterators over the CvPlot objects within a radius around a central plot or unit.
+-	For now, I've only implemented a square, which is the most frequently used
+-	plot range. The radius is measured according to the stepDistance metric.
+-	The center plot doesn't count toward the radius; e.g. iRadius=3 is a 7x7 square.
+-	A more circular range (plostDistance metric) can be generated through the
+-	b_IN_CIRCLE template parameter. The implementation of the in-circle
+-	isn't terribly efficient: A square is generated and plots outside of the
+-	plostDistance radius are skipped. (That's also what the BtS code did.)
++	If bINCIRCLE is false, then the radius is measured according to the
++	stepDistance metric, which results in a square of plots. The center plot
++	doesn't count toward the radius, so e.g. iRadius=3 yields a 7x7 square.
++
++	If bINCIRCLE is true, then the plotDistance metric is used, which corresponds
++	to a range of plots that approximates the incircle of a square of the same radius.
++	The implementation for bINCIRCLE=true isn't terribly efficient: A square is
++	generated and plots outside of the plostDistance radius are skipped.
++	(That's also what the BtS code did.)
+ 	There are derived classes at the end of this file that hide the template parameter.
+ 	For the special case of iterating over a city radius, see CityPlotIterator.h.
+ 
+@@ -23,7 +25,7 @@
+ 	checked when considering to move into a tile, and even then there can be faster
+ 	alternatives (see comments at the definition of AI_plotValid). */
+ 
+-template<bool bIN_CIRCLE = false>
++template<bool bINCIRCLE = false>
+ class SquareIterator
+ {
+ public:
+@@ -118,7 +120,7 @@ protected:
+ 			computeNext();
+ 			return; // tail recursion
+ 		}
+-		if (bIN_CIRCLE)
++		if (bINCIRCLE)
+ 		{
+ 			if (currPlotDist() > m_iRadius)
+ 				computeNext();
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 1968ecdd4..22fea3e74 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -87,10 +87,9 @@ CvString ScaledNumBase<Dummy>::szBuf = "";
+ 	iSCALE, the greater the precision and the tighter the limits.
+ 
+ 	IntType is the type of the underlying integer variable. Has to be an integral type.
+-	__int64 isn't currently supported. For unsigned IntType, internal integer
+-	divisions are rounded to the nearest IntType value in order to improve precision.
+-	For signed IntType, this isn't guaranteed. Using an unsigned IntType also
+-	speeds up multiplication.
++	__int64 is not supported. For unsigned IntType, internal integer divisions are rounded
++	to the nearest IntType value in order to improve precision. For signed IntType, this
++	isn't guaranteed. Using an unsigned IntType also speeds up multiplication.
+ 
+ 	ScaledNum instances of different iSCALE values or different IntTypes can be mixed.
+ 	Multiplications, divisions and comparisons on differing scales will internally scale
+@@ -156,6 +155,13 @@ public:
+ 		BOOST_STATIC_ASSERT(bSIGNED || (iDEN > 0 && iNUM >= 0));
+ 		return fromDouble(iNUM / static_cast<double>(iDEN));
+ 	}
++	// Smallest positive number that can be represented
++	static __forceinline ScaledNum epsilon()
++	{
++		ScaledNum r;
++		r.m_i = 1;
++		return r;
++	}
+ 
+ 	__forceinline static ScaledNum max(ScaledNum r1, ScaledNum r2)
+ 	{
+@@ -368,9 +374,6 @@ public:
+ 
+ 	template<typename NumType, typename Epsilon>
+ 	bool approxEquals(NumType num, Epsilon e) const;
+-	// To make one ScaledNum differ from another by the smallest amount possible
+-	__forceinline void addEpsilon() { m_i++; }
+-	__forceinline void subtractEpsilon() { m_i--; }
+ 
+ 	__forceinline bool isPositive() const { return (m_i > 0); }
+ 	__forceinline bool isNegative() const { return (bSIGNED && m_i < 0); }
+@@ -395,11 +398,11 @@ public:
+ 	{
+ 		return (m_i < scaleForComparison(i));
+ 	}
+-    __forceinline bool operator>(int i) const
++	__forceinline bool operator>(int i) const
+ 	{
+ 		return (m_i > scaleForComparison(i));
+ 	}
+-    __forceinline bool operator==(int i) const
++	__forceinline bool operator==(int i) const
+ 	{
+ 		return (m_i == scaleForComparison(i));
+ 	}
+@@ -411,7 +414,7 @@ public:
+ 	{
+ 		return (m_i <= scaleForComparison(i));
+ 	}
+-    __forceinline bool operator>=(int i) const
++	__forceinline bool operator>=(int i) const
+ 	{
+ 		return (m_i >= scaleForComparison(i));
+ 	}
+@@ -419,11 +422,11 @@ public:
+ 	{
+ 		return (m_i < scaleForComparison(u));
+ 	}
+-    __forceinline bool operator>(uint u) const
++	__forceinline bool operator>(uint u) const
+ 	{
+ 		return (m_i > scaleForComparison(u));
+ 	}
+-    __forceinline bool operator==(uint u) const
++	__forceinline bool operator==(uint u) const
+ 	{
+ 		return (m_i == scaleForComparison(u));
+ 	}
+@@ -435,12 +438,12 @@ public:
+ 	{
+ 		return (m_i <= scaleForComparison(u));
+ 	}
+-    __forceinline bool operator>=(uint u) const
++	__forceinline bool operator>=(uint u) const
+ 	{
+ 		return (m_i >= scaleForComparison(u));
+ 	}
+ 
+-	/*	Can't guarantee here that only const expressions are used.
++	/*	Couldn't guarantee here that only const expressions are used.
+ 		So floating-point operands will have to be wrapped in fixp. */
+ 	/*__forceinline bool operator<(double d) const
+ 	{
+@@ -1237,7 +1240,7 @@ template<ScaledNum_PARAMS>
+ {
+ 	return (r <= i);
+ }
+-/*	Can't guarantee here that only const expressions are used.
++/*	Couldn't guarantee here that only const expressions are used.
+ 	So floating-point operands will have to be wrapped in fixp. */
+ /*template<ScaledNum_PARAMS>
+ __forceinline bool operator<(double d, ScaledNum_T r)
+@@ -1286,7 +1289,8 @@ __forceinline scaled per10000(int iNum)
+ 	return scaled(iNum, 10000);
+ }
+ /*	'scaled' construction from double. Only const expressions are allowed.
+-	Can only make sure of that through a macro. Tbd.: Could return a uscaled
++	Can only make sure of that through a macro (as we want to spare the caller
++	the use of angle brackets). Tbd.: Could return a uscaled
+ 	when the double expression is non-negative:
+ 	choose_type<(dConstExpr) >= 0,uscaled,scaled>::type::fromRational
+ 	Arithmetic operations are faster on uscaled, but mixing the two types
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=38044

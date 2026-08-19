@@ -1,0 +1,119 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3761
+# Commit: 949d2c662e15c6348138c6697ba5536be9da4e75
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: af51e2486fb1c553bf06e80fd1204a143a0533e9
+# Title: Generate switch-hot-seat Py event for any player change
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	2	Assets/Python/Contrib/Civ4lerts.py
+4	0	Assets/Python/Contrib/CvStrategyOverlay.py
+6	0	CvGameCoreDLL/CvGame.cpp
+0	6	CvGameCoreDLL/RiseFall.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index a057a9143..8ef3e6e40 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -181,6 +181,11 @@ class AbstractStatefulAlert:
+ 	def __init__(self, eventManager):
+ 		eventManager.addEventHandler("GameStart", self.onGameStart)
+ 		eventManager.addEventHandler("OnLoad", self.onLoadGame)
++		# <advc.001> For colonial vassals
++		eventManager.addEventHandler("SwitchHotSeatPlayer", self.onSwitchPlayer)
++
++	def onSwitchPlayer(self, argsList):
++		self._reset() # </advc.001>
+ 
+ 	def onGameStart(self, argsList):
+ 		self._init()
+@@ -931,7 +936,7 @@ class RefusesToTalk(AbstractStatefulAlert):
+ 		try: # advc.009b
+ 			refusals = self.refusals[eActivePlayer]
+ 		# <advc.009b>
+-		except AttributeError, KeyError:
++		except(AttributeError, KeyError):
+ 			return # </advc.009b>
+ 		newRefusals = set()
+ 		newRefusalsDisplay = set() # advc.106d: Don't necessarily display them all
+@@ -1033,7 +1038,7 @@ class WorstEnemy(AbstractStatefulAlert):
+ 		try: # advc.009b
+ 			enemies = self.enemies[eActivePlayer]
+ 		# <advc.009b>
+-		except AttributeError, KeyError:
++		except(AttributeError, KeyError):
+ 			return # </advc.009b>
+ 		newEnemies = AttitudeUtil.getWorstEnemyTeams()
+ 		delayedMessages = {}
+
+diff --git a/Assets/Python/Contrib/CvStrategyOverlay.py b/Assets/Python/Contrib/CvStrategyOverlay.py
+index 03ec0028b..df2224573 100644
+--- a/Assets/Python/Contrib/CvStrategyOverlay.py
++++ b/Assets/Python/Contrib/CvStrategyOverlay.py
+@@ -128,6 +128,9 @@ class StrategyLayer(object):
+ 		Resets the data to a blank state and clears the dirty flag.
+ 		"""
+ 		self.dirty = False
++		# advc.004: Force-enable upon reset - now that this option is accessible
++		# only through its key combo.
++		StratLayerOpt.setShowDotMap(True)
+ 	
+ 	def read(self):
+ 		"""
+@@ -283,6 +286,7 @@ class DotMapLayer(StrategyLayer):
+ 		self.highlightedCity = None
+ 	
+ 	def reset(self):
++		super(DotMapLayer, self).reset() # advc.001
+ 		self.cities = {}
+ 		self.dirty = False
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9dd172353..840fe17eb 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9505,6 +9505,12 @@ void CvGame::changeHumanPlayer(PlayerTypes eNewHuman,
+ 	bool bSetTurnActive) // advc
+ {
+ 	PlayerTypes const eCurHuman = getActivePlayer();
++	/*	<advc.001> For BUG dot map update, Civ4lerts (when switching to
++		a colonial vassal). */
++	CyArgsList pyArgs;
++	pyArgs.add(eCurHuman);
++	CvEventReporter::getInstance().genericEvent(
++			"SwitchHotSeatPlayer", pyArgs.makeFunctionArgs()); // </advc.001>
+ 	/*	<advc> Probably not necessary, but seems cleaner to swap the
+ 		player options of the old and new human rather than just copying
+ 		from old to new. */
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 3e0cf6a85..fa90d1e21 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -502,12 +502,6 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 			g.updateActiveVisibility();
+ 		setUIHidden(!b);
+ 	}
+-	if(!b) { // Update dot map owner
+-		CyArgsList pyArgs;
+-		pyArgs.add(formerHumanCiv);
+-		CvEventReporter::getInstance().genericEvent(
+-				"SwitchHotSeatPlayer", pyArgs.makeFunctionArgs());
+-	}
+ 	if (b) // (Otherwise CvPlayer::setIsHuman has already updated the full attitude cache)
+ 	{
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3426

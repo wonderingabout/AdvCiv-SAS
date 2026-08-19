@@ -1,0 +1,177 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1349
+# Commit: 9f20a36f4c9c3ca536e13df4835d570549640762
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 33acdb941a4faf2b5b568caa6545b389ee239aff
+# Title: War Trades alert no longer triggers when a war trade becomes unavailable. [advc.210a]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	0	Assets/xml/GlobalDefines_advc.xml
+10	1	Assets/xml/Text/CIV4GameText_advc.xml
+2	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+4	6	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+4	0	CvGameCoreDLL/CvTeam.cpp
+2	2	CvGameCoreDLL/WarAndPeaceAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 4916420af..ac3960ac0 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -956,4 +956,16 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.210a: If set to 1 and if the War Trades alert is enabled, a
++		 message is shown when a civ can no longer be convinced to start a war
++		 against some other civ. If set to 0, the War Trades alert only
++		 triggers when a civ becomes willing to start a war
++		 Recommended: 0, at least in games with more than 10 civs. War trades
++		 are offered only for a couple of turns most of the time, so an alert
++		 about the trade becoming available should be sufficient. -->
++	<Define>
++		<DefineName>ALERT_ON_NO_LONGER_WAR_TRADE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 14e7df02a..8cd64afb9 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2179,13 +2179,22 @@
+ 	<!-- Based on TXT_KEY_BUG_OPT_CIV4LERTS__WORSTENEMY_HOVER in
+ 		 Civ4lerts Options.xml. Romance languages through Google Translate. -->
+ 	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_HOVER</Tag>
++		<English>Displays an alert whenever an AI leader becomes willing to start a war at your request.</English>
++		<French>Affiche une alerte lorsqu'un chef d'IA devient pr�t � d�clencher une guerre � votre demande.</French>
++		<German>Mitteilung, wenn ein KI-Gegner bereit ist, einem anderen Gegner auf Ihren Wunsch den Krieg zu erkl�ren.</German>
++		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa disposto a iniziare una guerra su sua richiesta.</Italian>
++		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte dispuesto a iniciar una guerra a petici�n suya.</Spanish>
++	</TEXT>
++	<!-- Prior to v0.93: -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_HOVER</Tag>
+ 		<English>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</English>
+ 		<French>Affiche une alerte lorsqu'un chef d'IA devient (ou cesse d'�tre) pr�t � d�clencher une guerre � votre demande.</French>
+ 		<German>Mitteilung, wenn ein KI-Gegner bereit (oder nicht mehr bereit) ist, einem anderen Gegner auf Ihren Wunsch den Krieg zu erkl�ren.</German>
+ 		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa (o smette di essere) disposto a iniziare una guerra su sua richiesta.</Italian>
+ 		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte (o deja de estar) dispuesto a iniciar una guerra a petici�n suya.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
+ 		<English>%s1_TeamName can be convinced to start a war against</English>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 3a16f0710..ee5980d2f 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -119,7 +119,8 @@ void WarTradeAlert::check() {
+ 				noLongerTradeMsgTeams.push_back(victim.getID());
+ 		}
+ 		msg(warTeam.getID(), willTradeMsgTeams, true);
+-		msg(warTeam.getID(), noLongerTradeMsgTeams, false);
++		if(GC.getDefineINT("ALERT_ON_NO_LONGER_WAR_TRADE") > 0)
++			msg(warTeam.getID(), noLongerTradeMsgTeams, false);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 421ce47df..ccf9ba50a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2498,13 +2498,11 @@ void CvGame::update()
+ 		// sample generic event
+ 		CyArgsList pyArgs;
+ 		pyArgs.add(getTurnSlice());
+-		/*  advc.706: To prevent BUG alerts from being checked at the start of a
++		/*  advc.210: To prevent BUG alerts from being checked at the start of a
+ 			game turn. I've tried doing that through BugEventManager.py, but
+-			eventually gave up. Not sure if my isAITurn clause prevents any
+-			useful Python code from being executed. Nothing seems to be amiss,
+-			but, to avoid breaking sth. that doesn't need to be fixed, I'm still
+-			blocking the gameUpdate event only when R&F is enabled. */
+-		if(!isAITurn() || !isOption(GAMEOPTION_RISE_FALL))
++			eventually gave up. Tagging advc.706 b/c it's especially important
++			to supress the update when R&F is enabled. */
++		if(!isAITurn())
+ 			CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+ 
+ 		if (getTurnSlice() == 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9fb9acda6..5ad22e9b6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -24817,7 +24817,8 @@ void CvPlayer::checkAlert(int alertId, bool silent)  {
+ 	case 2: alert = &bonusThirdPartiesAlert; break; // advc.210d
+ 	default: FAssertMsg(false, "Invalid alert id");
+ 	}
+-	if(alert == NULL) return;
++	if(alert == NULL)
++		return;
+ 	alert->check(silent);
+ } // </advc.210>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 46368187c..27c880933 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -624,6 +624,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			GET_PLAYER((PlayerTypes)iI).setTeam(getID());
+ 		}
+ 	}
++	updateLeaderID(); // advc.003b
+ 	// <dlph.13>
+ 	// "AP resident and UN secretary general teams need to be updated if that team will not be used anymore."
+ 	for (iI = 0; iI < GC.getNumVoteSourceInfos(); iI++)
+@@ -778,6 +779,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			{
+ 				kLoopTeam.AI_setWarPlan(getID(), NO_WARPLAN, false);
+ 				kLoopTeam.AI_setWarPlan(eTeam, NO_WARPLAN, false);
++				// <advc.001> Cancel our war plans too
++				if(isHuman() && !isAtWar(kLoopTeam.getID()))
++					AI_setWarPlan(kLoopTeam.getID(), NO_WARPLAN); // </advc.001>
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index faf00f950..7f95fb5b7 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1354,7 +1354,7 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 	/*  Sponsored war results in a peace treaty with the sponsor. Don't check if
+ 		we're planning war against the sponsor - too easy to read (b/c there are
+ 		just two possibilities). Instead check war utility against the sponsor. */
+-	if(canSchemeAgainst(sponsorId)) {
++	if(canSchemeAgainst(sponsorId, true)) {
+ 		WarEvalParameters params2(agentId, sponsorId, silentReport);
+ 		WarEvaluator eval2(params2);
+ 		int uVsSponsor = eval2.evaluate(WARPLAN_LIMITED, 3);
+@@ -1405,7 +1405,7 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 			attitudeModifier -= 0.25;
+ 	}
+ 	double obscured = price + price * attitudeModifier * 0.6 * h;
+-	int r = ::round(obscured);
++	int r = ::roundToMultiple(obscured, 5);
+ 	rep.log("Obscured price: %d (attitude modifier: %d percent)\n", r,
+ 			::round(100 * attitudeModifier));
+ 	return r;
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=6952

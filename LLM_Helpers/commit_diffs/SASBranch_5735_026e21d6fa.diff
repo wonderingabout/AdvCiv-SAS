@@ -1,0 +1,567 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5735
+# Commit: 026e21d6fa3ced82ff034b64c50828bfc6c4092c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1730719cbf66783288c2ac08fc6d2f70825c5f0a
+# Title: refactor expanded text 2 - unify offset so it applies to vote and eventtrigger: seems to run fine ingame
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+2	14	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+2	19	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+2	15	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+2	16	Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 6b0eac18f..579c3eee6 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -155,6 +155,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
++- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multi-line needlessly stylized version of it.
+ - When doing performance optimizations, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
+ - When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+ - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 6eb29d1d9..75bec1338 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -656,20 +656,7 @@ class SevoPediaBonus:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getBonusInfo(self.iBonus).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index b97877b29..0c39febca 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -351,20 +351,8 @@ class SevoPediaBuild:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getBuildInfo(self.iBuild).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput(self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 1783311c1..cb31f47bd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -1159,21 +1159,8 @@ class SevoPediaBuilding:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getBuildingInfo(self.iBuilding).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 35deee45a..6d4356c81 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -282,20 +282,7 @@ class SevoPediaCivic:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			u"",
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = u""
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index e946f67f8..7b28ef501 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -212,20 +212,7 @@ class SevoPediaCivilization:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getCivilizationInfo(self.iCivilization).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			u"",
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = u""
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index bfe087e67..b172cb418 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -252,20 +252,7 @@ class SevoPediaCorporation:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getCorporationInfo(self.iCorporation).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			u"",
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = u""
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index a9babceb2..6a62d76ad 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -766,25 +766,8 @@ class SevoPediaEventTrigger:
+ 		else:
+ 			szBody = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+ 
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS", ()),
+-			self.X_TEXTS,
+-			self.Y_TEXTS,
+-			self.W_TEXTS,
+-			self.H_TEXTS,
+-			szBody,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+-			# <!-- custom: push collapsed body text below the panel's "Texts" header bar
+-			# (helper's default 10 px leaves the first line crammed into/over the header).
+-			# 24 matches the offset draw_expandable_text_panel uses for similar cases in
+-			# other Sevopedia pages. (Claude code Opus 4.7) -->
+-			24
+-		)
+-
+-
++		szTitle = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_TEXTS, self.Y_TEXTS, self.W_TEXTS, self.H_TEXTS, szBody, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def placeEvents(self):
+ 		screen = self.top.getScreen()
+ 		info = self._getTriggerInfo()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index bdaa5d4b6..f2a9af276 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -590,21 +590,8 @@ class SevoPediaFeature:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getFeatureInfo(self.iFeature).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 77e7e54f3..366fb318d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -574,21 +574,8 @@ class SevoPediaImprovement:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getImprovementInfo(self.iImprovement).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index a8853c09a..2a389c687 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -567,21 +567,8 @@ class SevoPediaLeader:
+ 		screen = self.top.getScreen()
+ 		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+ 		szText = SASTextScale.normalizeLabelText(gc.getLeaderHeadInfo(self.iLeader).getCivilopedia())
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			u"",
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = u""
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	# <!-- custom: logo / flag of the civ -->
+ 	def placeCiv(self):
+ 		screen = self.top.getScreen()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index 6a44ff4ab..5e816c4ec 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -185,21 +185,8 @@ class SevoPediaProject:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getProjectInfo(self.iProject).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			u"",
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = u""
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def getProjectType(self, iProject):
+ 		if (isWorldProject(iProject)):
+ 			return (3)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 2ae282504..31c23b2f9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -265,20 +265,7 @@ class SevoPediaReligion:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			u"",
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = u""
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index e2d389eb5..081ed21ea 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -265,21 +265,8 @@ class SevoPediaSpecialist:
+ 		screen = self.top.getScreen()
+ 		# <!-- custom: pre-normalize so the helper's labelText call is a no-op (specialist civilopedia entries need normalizeLabelText like leaders). -->
+ 		szText = SASTextScale.normalizeLabelText(gc.getSpecialistInfo(self.iSpecialist).getCivilopedia())
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 526e0aee3..1bd02dcfb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -1149,20 +1149,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getTechInfo(self.iTech).getQuote()
+ 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 9f6cc70fb..ff8591127 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -629,21 +629,8 @@ class SevoPediaTerrain:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getTerrainInfo(self.iTerrain).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 9b20c3ede..a3f5681ab 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -438,20 +438,7 @@ class SevoPediaTrait:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 6bbace5c3..65b765b90 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -994,21 +994,8 @@ class SevoPediaUnit:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = self._getHistoryText()
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def placePromotions(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+index 83cac8cee..48f123bcb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+@@ -371,22 +371,8 @@ class SevoPediaVote:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		szText = SASTextScale.normalizeLabelText(gc.getVoteInfo(self.iVote).getCivilopedia())
+-		draw_expandable_text_panel(
+-			screen,
+-			self.top,
+-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+-			self.X_HISTORY,
+-			self.Y_HISTORY,
+-			self.W_HISTORY,
+-			self.H_HISTORY,
+-			szText,
+-			self.bHistoryExpanded,
+-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+-			20
+-		)
+-
+-
+-
++		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
++		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+ 	def _drawNoneText(self, screen, iX, iY, iW, iH):
+ 		textName = self.top.getNextWidgetName()
+ 		szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=20798

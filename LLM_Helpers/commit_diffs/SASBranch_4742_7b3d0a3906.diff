@@ -1,0 +1,213 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4742
+# Commit: 7b3d0a390655e9fb6748809134cbfc9e0a4f947d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d5ad78bc0453adf5505049a30f3cd16ef80c1188
+# Title: add units panel in sevopedia religion (import from Rise Of Mankind 291), removed old RFC DOC code, add docs about ROM 291 their code is so much cleaner and h...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+41	26	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+0	4	Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+17	0	Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+2	1	README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG
+ create mode 100644 Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index c6affd00f..ed369ca4a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -13,9 +13,9 @@
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
+ # which may be modified or not for AdvCiv-SAS
+ #
+-# <!-- custom: part of the code here (placeBuildings in particular, but not exhaustive or maybe exhaustive
+-# or not, anyways, is imported from RFC Dawn of Civilization mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaReligion.py
++# <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
++# or not, anyways, is imported from Rise of Mankind (291) mod:
++# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
+ # which may be modified or not for AdvCiv-SAS
+ 
+ from CvPythonExtensions import *
+@@ -45,10 +45,15 @@ class SevoPediaReligion:
+ 		self.W_REQUIRES = 84
+ 		self.H_REQUIRES = 110
+ 
+-		self.X_BUILDINGS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+-		self.Y_BUILDINGS = self.Y_REQUIRES
+-		self.W_BUILDINGS = self.top.R_PEDIA_PAGE - self.X_BUILDINGS
+-		self.H_BUILDINGS = self.H_REQUIRES
++		self.X_BUILDING = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.Y_BUILDING = self.Y_REQUIRES
++		self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - self.MEDIUM_MARGIN) / 2
++		self.H_BUILDING = self.H_REQUIRES
++
++		self.X_UNIT = self.X_BUILDING + self.W_BUILDING + self.MEDIUM_MARGIN
++		self.Y_UNIT = self.Y_BUILDING
++		self.W_UNIT = self.top.R_PEDIA_PAGE - self.X_UNIT
++		self.H_UNIT = 110
+ 
+ 		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
+ 		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.MEDIUM_MARGIN - 5
+@@ -85,7 +90,8 @@ class SevoPediaReligion:
+ 
+ 		self.placeSpecial()
+ 		self.placeRequires()
+-		self.placeBuildings()
++		self.placeBuilding()
++		self.placeUnit()
+ 		self.placeLeaders()
+ 		self.placeText()
+ 
+@@ -101,27 +107,36 @@ class SevoPediaReligion:
+ 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+ 
+ 
+-
+-	def placeBuildings(self):
++	# Rise of Mankind 2.9
++	def placeBuilding(self):
+ 		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_BUILDINGS_ROM_291", ()), "", False, True, self.X_BUILDING, self.Y_BUILDING, self.W_BUILDING, self.H_BUILDING, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++		for iBuilding in range(gc.getNumBuildingInfos()):
++			# buildings have several options for religions so need to check them all, only one of them needs to be true
++			iPrereq = gc.getBuildingInfo(iBuilding).getPrereqReligion()
++			iPrereq2 = gc.getBuildingInfo(iBuilding).getReligionType()
++			iPrereq3 = gc.getBuildingInfo(iBuilding).getStateReligion()
++			iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
++			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
++				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++#			elif (iPrereq == self.iReligion and iPrereq4 > 0):
++#				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
++
+ 
+-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_BUILDINGS", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panel, "", "  ")
+ 
+-		for iBuildingClass in xrange(gc.getNumBuildingClassInfos()):
+-			iCivilization = CyGame().getActiveCivilizationType()
+-			if iCivilization > -1:
+-				iBuilding = gc.getCivilizationInfo(iCivilization).getCivilizationBuildings(iBuildingClass)
+-			else:
+-				iBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
+-
+-			if iBuilding > -1:
+-				building = gc.getBuildingInfo(iBuilding)
+-				#if self.iReligion in [building.getPrereqReligion(), building.getOrPrereqReligion(), building.getStateReligion(), building.getOrStateReligion(), building.getHolyCity()]:
+-				#	screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+-				if self.iReligion in [building.getPrereqReligion(), building.getStateReligion()]:
+-					screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
++	def placeUnit(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_UNITS_ROM_291", ()), "", False, True, self.X_UNIT, self.Y_UNIT, self.W_UNIT, self.H_UNIT, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++		for iUnit in range(gc.getNumUnitInfos()):
++			iPrereq = gc.getUnitInfo(iUnit).getPrereqReligion()
++			iPrereq2 = gc.getUnitInfo(iUnit).getReligionType()
++			iPrereq3 = gc.getUnitInfo(iUnit).getStateReligion()
++			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
++				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/XML/Text/RFC_DOC_Interface_Custom.xml b/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+index d643809d6..79b1253c9 100644
+--- a/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+@@ -20,8 +20,4 @@ and modified for our needs if needed.
+ 		<Tag>TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS</Tag>
+ 		<English>Favourite Civics and Religions</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_BUILDINGS</Tag>
+-		<English>Buildings</English>
+-	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml b/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+new file mode 100644
+index 000000000..7b97771b0
+--- /dev/null
++++ b/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- custom: Assets imported from Rise Of Mankind (291) mod (with
++some modifications or not for AdvCiv-SAS anyways etc):
++Assets imported from this file (possibly from other ones too):
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
++which may be modified or not for AdvCiv-SAS
++-->
++<Civ4GameText>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
++		<English>Buildings</English>
++	</TEXT>
++    <TEXT>
++		<Tag>TXT_KEY_UNITS_ROM_291</Tag>
++		<English>Units</English>
++	</TEXT>
++</Civ4GameText>
+\ No newline at end of file
+
+diff --git a/README.md b/README.md
+index cb60910e5..adf500b70 100644
+--- a/README.md
++++ b/README.md
+@@ -95,7 +95,7 @@ example 3: ressources category, mostly my own modding and first attemps at decip
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+ 
+-example 4: new Leaders (based on History Rewritten's code) and Buildings (based on RFC DOC's code) in Sevopedia Religion category:
++example 4: new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) in Sevopedia Religion category:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
+@@ -345,6 +345,7 @@ exchanges/experiences during these times
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+ too too, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
++- Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
+ - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot!
+ - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
+ which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG
+index eff441fa4..c3938de40 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG
+index 26ade599b..69eacd731 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG
+index 144c34962..2aacf3699 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG
+index 9802f188f..8afdaa8e0 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG
+index cd4aaafff..00a54a18e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=11572

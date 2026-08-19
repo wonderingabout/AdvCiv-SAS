@@ -1,0 +1,127 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6086
+# Commit: bff444456275a42631f5ad449fec942dfb6ff310
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f651eeade3e95dcb49670625ee2fd5dcaa3a92dd
+# Title: Fix AdvCiv-SAS No Production AI Process fallback military units overproduction and SASGameRecord combat-unit counts bugs
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	5	CvGameCoreDLL/CvCity.cpp
+15	6	CvGameCoreDLL/SASGameRecordLog.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 52d79b15d..1ea0d226f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -837,10 +837,10 @@ void CvCity::doTurn()
+ 		{
+ 			// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 -->
+ 			//const bool bNeedFallback = !isProduction();
+-			const bool bQueueEmpty  = (getOrderQueueLength() == 0);
+-			const bool bHeadProcess = (!bQueueEmpty && isProductionProcess());
++			const bool bQueueEmpty = (getOrderQueueLength() == 0);
+ 			const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
+-			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid || bHeadProcess); 
++			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (GPT-5.6-Thinking) -->
++			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid);
+ 
+ 			if (bNeedFallback)
+ 			{
+@@ -849,9 +849,9 @@ void CvCity::doTurn()
+ 
+ 				if (bLogDetailedMilitaryProduction)
+ 				{
+-					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=CONTEXT queueEmpty=%d headProcess=%d headInvalid=%d emergencyBuilding=%d forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d innerRingLand=%d era=%d baseProd=%d danger=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d enemyWeak=%d",
++					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=CONTEXT queueEmpty=%d headInvalid=%d emergencyBuilding=%d forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d innerRingLand=%d era=%d baseProd=%d danger=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d enemyWeak=%d",
+ 						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+-						bQueueEmpty, bHeadProcess, bHeadInvalid, bEmergencyBuilding, bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE,
++						bQueueEmpty, bHeadInvalid, bEmergencyBuilding, bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE,
+ 						bInnerRingMostlyWaterNonPeak, iInnerRingNonWaterNonPeak, iCurrentEra, getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bEnemyStrong, bEnemyWeakNotZero);
+ 				}
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 8baa96b2d..5a7644acf 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -326,7 +326,8 @@ struct SASGameRecordPlayerPrevious
+ 	int iPopulation;
+ 	int iLand;
+ 	int iUnits;
+-	int iMilitaryUnits;
++	int iCombatUnits;
++	int iMilitarySupportUnits;
+ 	int iPower;
+ 	int iGold;
+ 	int iGoldRate;
+@@ -3134,7 +3135,14 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ 	const int iPopulation = kPlayer.getTotalPopulation();
+ 	const int iLand = kPlayer.getTotalLand();
+ 	const int iUnits = kPlayer.getNumUnits();
+-	const int iMilitaryUnits = kPlayer.getNumMilitaryUnits();
++	const int iMilitarySupportUnits = kPlayer.getNumMilitaryUnits();
++	// <!-- custom: CvPlayer::getNumMilitaryUnits counts XML bMilitarySupport, which can fall sharply when an army upgrades into combat units that intentionally do not pay military support. Count actual combat-capable units with the same predicate used by GAME_RECORD_UNIT_POSTURE, and keep the raw Civ4 counter separately. This scan runs only when a GameRecord player snapshot is already being generated. (GPT-5.6-Thinking) -->
++	int iCombatUnits = 0;
++	int iCombatLoop = 0;
++	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iCombatLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iCombatLoop))
++	{
++		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) ++iCombatUnits;
++	}
+ 	const int iPower = kPlayer.getPower();
+ 	const int iGold = kPlayer.getGold();
+ 	const int iGoldRate = kPlayer.calculateGoldRate();
+@@ -3155,12 +3163,12 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ 	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
+ 	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
+ 	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
+-	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d militaryUnits=%d militaryUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d anarchyTurns=%d totalAnarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
++	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d combatUnits=%d combatUnitsDelta=%+d militarySupportUnits=%d militarySupportUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d anarchyTurns=%d totalAnarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
+ 			iGameTurn, ePlayer, kPlayer.getTeam(), szCiv, szLeader, bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kGame.getPlayerRank(ePlayer) + 1, kPrevious.bValid,
+ 			iScore, getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iScore), iCities, getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCities),
+ 			iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand),
+-			iUnits, getSASGameRecordDelta(kPrevious.bValid, iUnits, kPrevious.iUnits), iMilitaryUnits, getSASGameRecordDelta(kPrevious.bValid, iMilitaryUnits, kPrevious.iMilitaryUnits),
+-			iPower, getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iPower), iGold, getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate, getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate),
++			iUnits, getSASGameRecordDelta(kPrevious.bValid, iUnits, kPrevious.iUnits), iCombatUnits, getSASGameRecordDelta(kPrevious.bValid, iCombatUnits, kPrevious.iCombatUnits),
++			iMilitarySupportUnits, getSASGameRecordDelta(kPrevious.bValid, iMilitarySupportUnits, kPrevious.iMilitarySupportUnits), iPower, getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iPower), iGold, getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate, getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate),
+ 			iResearchRate, getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH), getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns,
+ 			szEra, getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(), kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true),
+ 			kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordTotalAnarchyTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
+@@ -3201,7 +3209,8 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ 	kPrevious.iPopulation = iPopulation;
+ 	kPrevious.iLand = iLand;
+ 	kPrevious.iUnits = iUnits;
+-	kPrevious.iMilitaryUnits = iMilitaryUnits;
++	kPrevious.iCombatUnits = iCombatUnits;
++	kPrevious.iMilitarySupportUnits = iMilitarySupportUnits;
+ 	kPrevious.iPower = iPower;
+ 	kPrevious.iGold = iGold;
+ 	kPrevious.iGoldRate = iGoldRate;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 0dcdb1b61..0e7ba3b70 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -172,6 +172,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
+ - **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
++- (Requires AdvCiv-SAS 6085+) **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging. Higher detail notably records unit-build probability, spending limits, building/nonunit gates, unit selection and rejection reasons, and no-production fallback decisions.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=11171

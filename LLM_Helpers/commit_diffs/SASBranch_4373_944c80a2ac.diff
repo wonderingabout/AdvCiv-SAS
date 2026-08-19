@@ -1,0 +1,136 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4373
+# Commit: 944c80a2accc16c8ed8fd0dda023b22f5310eb35
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9be28b73b336b400f227503e2a1147b2873cf79b
+# Title: Give woodsman promotions same attack bonuses as defense bonuses for each level No specific reason why units would be good at defense in forest/jungle but wei...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+58	9	Assets/XML/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 90073fe8a..058d52837 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1807,15 +1807,31 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
++			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
++		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
++			at offense in such terrains
++			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
++			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
++			would still not affect too much the warfare in the end so it would not be OP.
++			Also tweak the values a bit for it to be more gradual, was 20 -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>20</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>20</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitCombatMods/>
+@@ -1891,15 +1907,31 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
++			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
++		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
++			at offense in such terrains
++			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
++			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
++			would still not affect too much the warfare in the end so it would not be OP.
++			Also tweak the values a bit for it to be more gradual, was 30 -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>30</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>30</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitCombatMods/>
+@@ -1984,17 +2016,34 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
++			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
++		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
++			at offense in such terrains
++			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
++			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
++			would still not affect too much the warfare in the end so it would not be OP.
++			Also tweak the values a bit for it to be more gradual, was 50 -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>50</iFeatureAttack>
++					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>50</iFeatureAttack>
++					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+-			<FeatureDefenses/>
++			<!-- custom: was 0 -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4650

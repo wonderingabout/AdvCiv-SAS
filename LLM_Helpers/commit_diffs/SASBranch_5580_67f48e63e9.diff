@@ -1,0 +1,174 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5580
+# Commit: 67f48e63e92a843086a6917424596ee2a6117eb5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8a2494a806f24c84af6f3f8a3ee51a5857ee483f
+# Title: Remove screen-dependent geometry computation from `__init__` in foreign advisor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/Python/SASUtils.py
+22	39	Assets/Python/Screens/CvForeignAdvisor.py
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 034b2313f..7248578df 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -25,3 +25,13 @@ def getNewConceptID(szConceptType):
+ 		if gc.getNewConceptInfo(i).getType() == szConceptType:
+ 			return i
+ 	return -1
++
++
++# <!-- custom: shared advisor layout constants used by runtime bounds math. Use named dict keys (instead of positional tuples) so future fields (e.g. exit margins) can be added safely without unpack-order bugs. (GPT-5.3-Codex) -->
++def getSASAdvisorLayoutEdges():
++	return {
++		"left_space_for_commerce_sliders": 172,
++		"right_space_for_scoreboard": 390,
++		"top_space_for_tech_bar": 28,
++		"bottom_space": 0,
++	}
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 0405be2db..1346f70d1 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -17,6 +17,7 @@ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+ import math
++from SASUtils import *
+ from SASFontUtils import *
+ 
+ ############################################
+@@ -91,32 +92,23 @@ class CvForeignAdvisor:
+ 		self.EXIT_ID = "ForeignAdvisorExitWidget"
+ 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
+ 
+-		xHardcodedResolution = 1920
+-		yHardcodedResolution = 1080
+-		wLeftSpaceForCommerceSliders = 172
+-		self.X_SCREEN = wLeftSpaceForCommerceSliders
+-		wRightSpaceForScoreBoard = 390
+-		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
+-		hTopSpaceForTechBar = 28
+-		self.Y_SCREEN = hTopSpaceForTechBar
+-		hBottomSpace = 0
+-		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
++		# <!-- custom: these are screen-independent edge constants (safe in __init__); runtime geometry that depends on actual resolution is computed in interfaceScreen. Shared helper keeps literals centralized for other advisors. (GPT-5.3-Codex) -->
++		layoutEdges = getSASAdvisorLayoutEdges()
++		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = layoutEdges["left_space_for_commerce_sliders"]
++		self.W_RIGHT_SPACE_FOR_SCOREBOARD = layoutEdges["right_space_for_scoreboard"]
++		self.H_TOP_SPACE_FOR_TECH_BAR = layoutEdges["top_space_for_tech_bar"]
++		self.H_BOTTOM_SPACE = layoutEdges["bottom_space"]
+ 		self.Y_TITLE = 8
+-		self.X_EXIT = 994
+-		self.Y_EXIT = 726
+ 		self.X_LEADER = 80
+ 		self.Y_LEADER = 115
+ 		self.H_LEADER = 64
+ 		self.W_LEADER = 64
+ 		self.X_LINK = 50
+ 		self.DX_LINK = 220
+-		self.Y_LINK = 726
+ 		self.H_LEGEND = 180
+ 		self.W_LEGEND = 160
+ 		self.MARGIN_LEGEND = 10
+ 		self.X_LEGEND = 20
+-		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
+-		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
+ 		self.Y_LEADER_CIRCLE_TOP = 87
+ 		self.RADIUS_LEADER_ARC = 480
+ 		self.LINE_WIDTH = 6
+@@ -129,7 +121,6 @@ class CvForeignAdvisor:
+ 		self.GLANCE_HEADER = "ForeignAdvisorGlanceHeader"
+ 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
+ 		self.X_LINK = 0
+-		self.Y_LINK = 726
+ 		
+ 		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks.  -->
+ 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
+@@ -368,41 +359,33 @@ class CvForeignAdvisor:
+ 		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
+ 		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
+ 
+-		# <!-- custom: calculate tab widths (claude code sonnet 4.5) -->
+-		self.LABEL_WIDTH_LIST[:] = []
+-		width_list = []
+-		for i in self.ORDER_LIST:
+-			width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
+-		total_width = sum(width_list) + CyInterface().determineWidth(self.EXIT_TEXT) + 20
+-
+-		for i in width_list:
+-			self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
+-
+ 	def interfaceScreen (self, iScreen):
+ 		screen = self.getScreen()
++		# <!-- custom: all screen-dependent geometry is computed at runtime (not in __init__) because this advisor object is created before a reliable screen context exists; doing layout here ensures correct values for the current resolution and keeps tab link widths in sync with runtime X_EXIT. This is the first extraction pattern for shared advisor helpers later (bounds/tab-width math), while foreign-specific behavior remains local. (GPT-5.3-Codex) -->
+ 		# <!-- custom: use runtime resolution for advisor bounds (instead of hardcoded 1920x1080) so the screen doesn't overflow on smaller displays; keep the same left/top anchoring pattern as non-BUG military advisor. (GPT-5.3-Codex) -->
+ 		xRuntimeResolution = screen.getXResolution()
+ 		yRuntimeResolution = screen.getYResolution()
+-		wLeftSpaceForCommerceSliders = 172
+-		wRightSpaceForScoreBoard = 390
+-		hTopSpaceForTechBar = 28
+-		hBottomSpace = 0
+-		iPrevW = self.W_SCREEN
+-		iPrevH = self.H_SCREEN
+-		self.X_SCREEN = wLeftSpaceForCommerceSliders
+-		self.W_SCREEN = xRuntimeResolution - wLeftSpaceForCommerceSliders - wRightSpaceForScoreBoard
+-		self.Y_SCREEN = hTopSpaceForTechBar
+-		self.H_SCREEN = yRuntimeResolution - hTopSpaceForTechBar - hBottomSpace
++		self.X_SCREEN = self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS
++		self.W_SCREEN = xRuntimeResolution - self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS - self.W_RIGHT_SPACE_FOR_SCOREBOARD
++		self.Y_SCREEN = self.H_TOP_SPACE_FOR_TECH_BAR
++		self.H_SCREEN = yRuntimeResolution - self.H_TOP_SPACE_FOR_TECH_BAR - self.H_BOTTOM_SPACE
+ 		# <!-- custom: keep footer controls at footer level after runtime-size recompute. (GPT-5.3-Codex) -->
+ 		self.X_EXIT = self.W_SCREEN - 30
+ 		self.Y_EXIT = self.H_SCREEN - 42
+ 		self.Y_LINK = self.H_SCREEN - 42
+ 		self.Y_BOTTOM_PANEL = self.H_SCREEN - 55
+-		if iPrevW != self.W_SCREEN or iPrevH != self.H_SCREEN:
+-			self.iLanguageLoaded = -1
++		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
++		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
+ 
+-		# <!-- custom: initialize text once per language/geometry after runtime-size recompute so footer tab widths use current dimensions. (GPT-5.3-Codex) -->
++		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
+ 		self.initText()
++		self.LABEL_WIDTH_LIST[:] = []
++		width_list = []
++		for i in self.ORDER_LIST:
++			width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
++		total_width = sum(width_list) + CyInterface().determineWidth(self.EXIT_TEXT) + 20
++		for i in width_list:
++			self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
+ 
+ 		# self.ATTITUDE_DICT = {
+ 		# 	"COLOR_YELLOW": re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FRIENDLY", ())),
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 468db0e5a..120f80e14 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -104,6 +104,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+ - **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - (Requires AdvCiv-SAS 5515+) **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
++- (Requires AdvCiv-SAS 5516+) **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - Convert **single quote to double quote** (e.g. `'BONUS_IRON'` to `"BONUS_IRON"`), which allowed to **detect and fix incorrect fields** and later strengthen them with `getInfoTypeOrFail(...)`.
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=12027

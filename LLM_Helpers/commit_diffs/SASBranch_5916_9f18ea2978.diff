@@ -1,0 +1,243 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5916
+# Commit: 9f18ea297837942da844afac467278d9927d1dc7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 81dc983da98a5ba2836d2417ef8cd903dd117923
+# Title: Ensure AI rebuilds a minimum worker force - Add a shared AdvCiv-SAS minimum worker floor per area and use it in both city production and worker scrapping gua...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+11	0	CvGameCoreDLL/CvCityAI.cpp
+8	0	CvGameCoreDLL/CvPlayerAI.cpp
+2	0	CvGameCoreDLL/CvPlayerAI.h
+6	0	CvGameCoreDLL/CvUnit.cpp
+3	2	CvGameCoreDLL/CvUnitAI.cpp
+3	1	README.md
+15	38	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 84b1b818c..08f355d59 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -939,6 +939,17 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
++	// <!-- custom: Rebuild a minimum worker force before normal project/building/unit priorities can keep winning forever. In the 2039 Ciaco Canyon test save, the stuck last city already had a long production queue so this did not directly fix that city, but BBAI logs showed the floor firing often elsewhere. This guarantees more early workers after losses or underproduction; workers are high-value relative to cost, especially when larger cities convert food + hammers into them, and stronger early worker coverage makes AI development much stronger. Do not force only the capital/high-pop cities to rebuild workers: weaker or stagnant cities can sometimes produce one without interrupting the growth or key builds of stronger cities. AI_totalAreaUnitAIs includes workers already being trained, so this area-local floor gives 2 workers for the capital area and 1 per other city without making every city queue one at once. (GPT-5.5) -->
++	int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
++	if (!bDanger && iExistingWorkers < iMinimumAreaWorkers)
++	{
++		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
++		{
++			if (gCityLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
++			return;
++		}
++	}
++
+ 	// K-Mod. Make room for a 'best project'. -1 indicates that we haven't yet calculated the best project.
+ 	// Well evaluate it soon if we are aiming for a space victory; otherwise we'll just leave it until the end.
+ 	ProjectTypes eBestProject = NO_PROJECT;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f1f57faec..68ed7dc21 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15696,6 +15696,14 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
+ }
+ 
+ 
++int CvPlayerAI::AI_getSASMinimumAreaWorkers(CvArea const& kArea) const
++{
++	// <!-- custom: Shared AdvCiv-SAS worker floor used by worker production and worker-scrap guards so future tuning cannot make cities rebuild fewer workers than unit logic is allowed to remove. Keep the floor area-local: 1 worker per city in the land area, plus 1 extra if the capital is in that area. (GPT-5.5) -->
++	CvCity const* pCapital = getCapital();
++	return kArea.getCitiesPerPlayer(getID()) + ((pCapital != NULL && pCapital->isArea(kArea)) ? 1 : 0);
++}
++
++
+ int CvPlayerAI::AI_neededMissionaries(CvArea const& kArea, ReligionTypes eReligion) const
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 56c897c9d..424432122 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -366,6 +366,8 @@ public:
+ 		return (AI_countOwnedBonuses(eBonus, 1) > 0);
+ 	} // </advc.opt>
+ 	int AI_neededWorkers(CvArea const& kArea) const;
++	// <!-- custom: Shared AdvCiv-SAS worker-floor helper; see implementation for production/scrap synchronization rationale. (GPT-5.5) -->
++	int AI_getSASMinimumAreaWorkers(CvArea const& kArea) const;
+ 	int AI_neededMissionaries(CvArea const& kArea, ReligionTypes eReligion) const;
+ 	int AI_neededExecutives(CvArea const& kArea, CorporationTypes eCorporation) const;
+ 	int AI_unitCostPerMil() const; // K-Mod
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 4821a4788..8b1569776 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3588,6 +3588,12 @@ bool CvUnit::canScrap() const
+ 					int iTotalUnitAIs = 0;
+ 					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
+ 
++					// <!-- custom: Keep worker scrapping synchronized with the AdvCiv-SAS production floor, so future max-worker tuning cannot allow unit logic to remove workers below the minimum that city production immediately rebuilds. (GPT-5.5) -->
++					if (kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <= kPlayer.AI_getSASMinimumAreaWorkers(getArea()))
++					{
++						return false;
++					}
++
+ 					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
+ 					if (iTotalUnitAIs <= iMaxUnits)
+ 					{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f793cc259..cd29ca54e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3583,9 +3583,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;        // young unit
+ 					if (AI_getCityToImprove() != NULL) return;                                  // we have demand
+ 
+-					// Also avoid scrapping when we don't exceed need:
++					// <!-- custom: Also avoid worker self-scrapping when the area does not exceed worker need or the shared AdvCiv-SAS minimum worker floor. (GPT-5.5) -->
+ 					if (GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <=
+-						GET_PLAYER(getOwner()).AI_neededWorkers(getArea()))
++						std::max(GET_PLAYER(getOwner()).AI_neededWorkers(getArea()),
++						GET_PLAYER(getOwner()).AI_getSASMinimumAreaWorkers(getArea())))
+ 					{
+ 						return;
+ 					}
+
+diff --git a/README.md b/README.md
+index 65685e675..87bba0a1f 100644
+--- a/README.md
++++ b/README.md
+@@ -937,7 +937,9 @@ For example, in our mod's github default branch's main page [our mod's github de
+ 
+ Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
+ 
+-Exception: when the latest stable release receives fixes or small tweaks after release, the stable release tag may keep the original stable version number even if it is moved forward to a later commit/version. For example, `AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release)` can keep the `5860` release tag and download link while pointing to commit/version `5900`. This keeps the same CFC/GitHub download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
++Exception: when the latest stable release receives fixes or small tweaks after release, the stable release tag may keep the original stable version number even if it is moved forward to a later commit/version. Updates to a stable release erase and replace the previous download for that same stable release; e.g. `AdvCiv-SAS 5860 Update 1 (2 days after release)` replaces the first `AdvCiv-SAS 5860` release.
++
++For example, `AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release)` can keep the `5860` release tag and download link while pointing to commit/version `5900`. This keeps the same CFC/GitHub download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
+ 
+ ## Copyright and Disclaimer
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 3f3f4d538..b981c76f2 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -174,7 +174,9 @@ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
+ git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$start".."$end" > git_log_anonymized_email.txt
+ ```
+ 
+-Note: since i cleared up the logs from verbosity, i recommend adding new comments on old text rather than generating previous ones again.
++Note: since as of now git log text docs are updated incrementally unlike releases where we always like to compare vs last stable instead of vs last update of a stable (e.g., 5860 updated vs last 5500 for full git diff, but 5860 update 4 vs last 5860 which is update 3 for git log incremental last addition), the command may use different old and new tags than the git tag release one.
++
++Note 2: since i cleared up the logs from verbosity, i recommend adding new comments on old text rather than generating previous ones again.
+ 
+ For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
+ 
+@@ -214,60 +216,35 @@ A more advanced version would allow to better control the date we set to the tag
+ 
+ To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case))
+ 
+-##### example 1 with more advanced version (me totally not using it selfishly as storage. Or i am indeed xd i guess here)
+-
+-```cmd
+-git fetch origin
+-
+-# choose names
+-# new tag
+-TAG=4986
+-SHA=8d6bf6e0f61004e415aa3584e906fdb77275c1f8   # <- the 4986 commit
+-OLDNAME="base AdvCiv 1.12"                     # quote because of spaces
+-BASE=96790915238bdaf7d1ef38658e69fe1035129687
+-WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
+-
+-# replace the tag locally with correct date + message
+-GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
+-git tag -fa "$TAG" "$SHA" \
+-  -m "AdvCiv-SAS $TAG" \
+-  -m "Commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/?since=2025-03-22&until=2025-09-05 or at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
++Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again for exhaustiveness) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful.
+ 
+-# force-push because we’re updating an existing remote tag object
+-git push --force origin "$TAG"
+-# if you’re not correcting an existing remote tag:
+-# if not force pushing then before you'd need to rather do instead git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
+-# and then next line you could do (no force push if new tag that did not existing before): 
+-# git push origin "$TAG"
+-```
++##### example with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)
+ 
+-Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again for exhaustiveness) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful.
++As of now, this is the command we use to make each new git tag release.
+ 
+-##### example 2 with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)
++For stable release updates, the update tag/label is the new download for that same stable release, not a separate parallel stable release. For example, `AdvCiv-SAS 5860 Update 1 (2 days after release)` replaces the first `AdvCiv-SAS 5860` release.
+ 
+ ```cmd
+ git fetch origin
+ 
+ # choose names
+-# new tag
++# stable release tag stays the same for concision; new name/message can show the update for consistency with cfc/moddb or such release version names and for clear full git diff compare link vs last stable too
+ TAG=5860
+-SHA=82f042a44f4cd4bbc2b687444356d220b83131c1  # <- the TAG commit (AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release))
++NEWNAME="AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release)"
++SHA=82f042a44f4cd4bbc2b687444356d220b83131c1  # <- the NEWNAME commit
+ OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
+-BASE=d005985125bc2ed497070ecc3246913121871821 # <- the OLDNAME commit (AdvCiv-SAS 5860 Update 3 (2026-06-02: 9 days after release))
++BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
+ WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+ 
+ # replace the tag locally with correct date + message
+ GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
+ git tag -fa "$TAG" "$SHA" \
+-  -m "AdvCiv-SAS $TAG" \
+-  -m "Full Cumulative file changes and git commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
++  -m "$NEWNAME" \
++  -m "Full Cumulative file changes and git commit history from $OLDNAME to $NEWNAME viewable at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
+ 
+-# force-push because we’re updating an existing remote tag object
++# force-push because we’re updating an existing remote tag object; <!-- custom: verify TAG first because this overwrites an existing remote tag when one exists. (GPT-5.5) -->
++# <!-- custom: this seems to be convenient both for new tag releases and for replacing an old tag with a new commit it seems so as of now always using force regardless of which case. -->
+ git push --force origin "$TAG"
+-# if you’re not correcting an existing remote tag:
+-# if not force pushing then before you'd need to rather do instead git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
+-# and then next line you could do (no force push if new tag that did not existing before): 
+-# git push origin "$TAG"
+ ```
+ 
+ ### manual(s) and docs in .txt
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index cc88ea886..a9e3f2166 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -182,6 +182,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Strongly discourage building **forts on bonuses** (very poor early yield/time trade). *(Mostly a guardrail now that worker logic is overhauled, but still helps prevent regressions.)* See [KI#24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-bonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive).
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
++- (Requires AdvCiv-SAS 5916+) **Minimum worker production floor**: AI cities now rebuild toward an area-local worker minimum (2 workers for the capital area, 1 per other city) before normal production priorities can keep winning indefinitely. This makes **early worker availability** much more reliable **after losses or underproduction**, **improving early development** because workers are **high-value relative to their cost**, especially when larger cities can produce them with **food + hammers**. The floor does not force only high-pop/capital cities to build workers, because weaker or stagnant cities can sometimes contribute without interrupting stronger cities' growth or key builds. This higher worker production is also beneficial throughout the game. Worker **scrapping** uses the same shared floor so later quota tuning cannot accidentally scrap below the rebuild minimum.
+ - Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**, but still ensure **important bonus connections** (road/route when the bonus is connectable and not yet connected). See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+ - **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, or **specialist economies**; (Requires AdvCiv-SAS 5914+) concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield.
+ - **Mobility:** workers leave "over-improved" cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but). Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals.
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=20155

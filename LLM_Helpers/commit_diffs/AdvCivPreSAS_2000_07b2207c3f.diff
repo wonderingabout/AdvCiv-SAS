@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2000
+# Commit: 07b2207c3fd815d03a4ead76081e422a313ac74a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 37a1232cc2853c041719775af554194c32a08a92
+# Title: Minor misc. refactoring (const, style)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameCoreDLL.h
+14	10	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	2	CvGameCoreDLL/CvGameCoreUtils.h
+9	6	CvGameCoreDLL/CvPlayerAI.cpp
+4	4	CvGameCoreDLL/CvStructs.h
+5	4	CvGameCoreDLL/CvUnitAI.cpp
+1	3	CvGameCoreDLL/KmodPathFinder.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3897b9dc8..42ba972f0 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8570,9 +8570,9 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
+ 
+ 	gDLL->getInterfaceIFace()->addMessage(getActivePlayer(), true, GC.getEVENT_MESSAGE_TIME(),
+ 			CvWString::format(L"Your machine's FP test computation has yielded a"
+-				 L" different result than that of %s. The game may frequently go"
+-				 L" out of sync due to floating point calculations in the AdvCiv mod.",
+-				 GET_PLAYER(ePlayer).getName()), NULL, MESSAGE_TYPE_MAJOR_EVENT, NULL,
++			L" different result than that of %s. The game may frequently go"
++			L" out of sync due to floating point calculations in the AdvCiv mod.",
++			GET_PLAYER(ePlayer).getName()), NULL, MESSAGE_TYPE_MAJOR_EVENT, NULL,
+ 			(ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ } // </advc.003g
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 5fbe83d86..b87549535 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -274,13 +274,13 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ 
+ //jason tests
+ // advc.make: Removed most of these. (Don't know what the comment above means.)
++#include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
+ #include "CvGlobals.h"
+ #include "EnumMap2D.h" // advc.enum: Includes EnumMap.h, which includes BitUtil.h.
+ #include "CvPythonCaller.h" // advc.003y
+ #include "CvDLLLogger.h" // advc.003t
+ #include "FProfiler.h"
+-#include "CvRandom.h"
+ // <advc.003x> Include only parts of the old CvInfos.h (caveat: the order of these matters)
+ #include "CvInfo_Base.h"
+ #include "CvInfo_Asset.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 5cb8130ea..a1ef62397 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -976,7 +976,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 
+ 	//pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvSelectionGroup* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
++	CvSelectionGroup const* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
+ 	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : ((CvPathSettings*)pointer)->iFlags;
+ 	// K-Mod end
+ 
+@@ -1081,7 +1081,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	//CvSelectionGroup* pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvSelectionGroup* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
++	CvSelectionGroup const* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
+ 	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : ((CvPathSettings*)pointer)->iFlags;
+ 	// K-Mod end
+ 
+@@ -1428,22 +1428,26 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	return iWorstCost;
+ }
+ 
+-int pathValid_join(FAStarNode* parent, FAStarNode* node, CvSelectionGroup* pSelectionGroup, int iFlags)  // advc: style changes
++int pathValid_join(FAStarNode* parent, FAStarNode* node, CvSelectionGroup const* pSelectionGroup, // advc: const group; style changes.
++	int iFlags)
+ {
+ 	CvMap const& kMap = GC.getMap();
+ 	CvPlot const& kFromPlot = kMap.getPlot(parent->m_iX, parent->m_iY);
+ 	CvPlot const& kToPlot = kMap.getPlot(node->m_iX, node->m_iY);
+ 	// Ship can't cross isthmus 
+ 	if (pSelectionGroup->getDomainType() == DOMAIN_SEA &&
+-			kFromPlot.isWater() && kToPlot.isWater() &&
+-			!kMap.getPlot(kFromPlot.getX(), kToPlot.getY()).isWater() &&
+-			!kMap.getPlot(kToPlot.getX(), kFromPlot.getY()).isWater() &&
+-			!pSelectionGroup->canMoveAllTerrain())
++		kFromPlot.isWater() && kToPlot.isWater() &&
++		!kMap.getPlot(kFromPlot.getX(), kToPlot.getY()).isWater() &&
++		!kMap.getPlot(kToPlot.getX(), kFromPlot.getY()).isWater() &&
++		!pSelectionGroup->canMoveAllTerrain())
++	{
+ 		return FALSE;
++	}
+ 	return TRUE;
+ }
+ 
+-int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int iFlags)  // advc: some style changes
++int pathValid_source(FAStarNode* parent, CvSelectionGroup const* pSelectionGroup, // advc: const group; some style changes.
++	 int iFlags)
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+ 	CvPlot const& kFromPlot = GC.getMap().getPlot(parent->m_iX, parent->m_iY);
+@@ -1568,7 +1572,7 @@ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 	CvPlot* pToPlot = ...; */
+ 	//pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvSelectionGroup* pSelectionGroup = finder ? (CvSelectionGroup*)pointer :
++	CvSelectionGroup const* pSelectionGroup = finder ? (CvSelectionGroup*)pointer :
+ 			((CvPathSettings*)pointer)->pGroup;
+ 	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) :
+ 			((CvPathSettings*)pointer)->iFlags;
+@@ -1587,7 +1591,7 @@ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer,
+ 	//PROFILE_FUNC(); // advc.003o
+ 	//CvSelectionGroup* pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+-	CvSelectionGroup* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
++	CvSelectionGroup const* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
+ 	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) : ((CvPathSettings*)pointer)->iFlags;
+ 	// K-Mod end
+ 	FAssert(pSelectionGroup->getNumUnits() > 0);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index ed2f7d8be..4fbdbfd65 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -234,8 +234,8 @@ int changeIrrigated(FAStarNode* parent, FAStarNode* node, int data, const void*
+ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder);
+ int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY);
+ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+-int pathValid_join(FAStarNode* parent, FAStarNode* node, CvSelectionGroup* pSelectionGroup, int iFlags); // K-Mod
+-int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int iFlags); // K-Mod
++int pathValid_join(FAStarNode* parent, FAStarNode* node, CvSelectionGroup const* pSelectionGroup, int iFlags); // K-Mod
++int pathValid_source(FAStarNode* parent, CvSelectionGroup const* pSelectionGroup, int iFlags); // K-Mod
+ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+ int stepDestValid(int iToX, int iToY, const void* pointer, FAStar* finder);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index cfb9098bd..4a4bcb49a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17471,7 +17471,7 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes e
+ {
+ 	PROFILE_FUNC(); // advc.opt
+ 
+-	// K-Mod. getTradeDenial is not equipped to consider deal cancelation properly.
++	// K-Mod: getTradeDenial is not equipped to consider deal cancelation properly.
+ 	if(!AI_considerOffer(ePlayer, d.getGivesList(ePlayer), d.getGivesList(getID()), -1, d.getAge()))
+ 	{
+ 		if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"trade value");
+@@ -17489,10 +17489,11 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes e
+ 	{
+ 		DenialTypes eDenial = getTradeDenial(ePlayer, pNode->m_data);
+ 		if(eDenial != NO_DENIAL &&
+-				// <dlph.3> Cancel DP immediately when war no longer shared
+-				(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+-				eDenial == DENIAL_JOKING)) || // </dlph.3>
+-				::bernoulliSuccess(0.2, "advc.133"))) {
++			// <dlph.3> Cancel DP immediately when war no longer shared
++			(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
++			eDenial == DENIAL_JOKING)) || // </dlph.3>
++			::bernoulliSuccess(0.2, "advc.133")))
++		{
+ 			if (gDealCancelLogLevel > 1) logBBAICancel(d, getID(), L"dual denial");
+ 			return DO_CANCEL;
+ 		}
+@@ -17540,8 +17541,10 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
+ 	FOR_EACH_DEAL_VAR(pLoopDeal)
+ 	{
+ 		if(!pLoopDeal->isBetween(getID(), eOther) || // advc: Ensure this upfront
+-				!pLoopDeal->isCancelable(getID()))
++			!pLoopDeal->isCancelable(getID()))
++		{
+ 			continue;
++		}
+ 		// if ((g.getGameTurn() - pLoopDeal->getInitialGameTurn()) >= (GC.getPEACE_TREATY_LENGTH() * 2)) // K-Mod disabled
+ 		// (original bts code deleted)
+ 		/*  advc: Cancellation checks moved into a subfunction
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 73e92b144..3f7513eb4 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -96,10 +96,10 @@ struct TradeData					// Exposed to Python
+ 		bool bOffering = false, bool bHidden = false) :
+ 		m_eItemType(eItem), m_iData(iData), m_bOffering(bOffering), m_bHidden(bHidden) {}
+ 	// </advc>
+-	TradeableItems m_eItemType;				//	What type of item is this
+-	int m_iData;											//	Any additional data?
+-	bool m_bOffering;									//	Is this item up for grabs?
+-	bool m_bHidden;										//	Are we hidden?
++	TradeableItems m_eItemType;	//	What type of item is this
++	int m_iData;				//	Any additional data?
++	bool m_bOffering;			//	Is this item up for grabs?
++	bool m_bHidden;				//	Are we hidden?
+ };
+ 
+ struct EventTriggeredData
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ee44c7368..e4583d9e7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12933,10 +12933,11 @@ bool CvUnitAI::AI_explore()  // advc: style changes
+ 		}
+ 
+ 		if (iValue <= 0 || kPlot.isVisibleEnemyUnit(this) ||
+-				GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-				&kPlot, MISSIONAI_EXPLORE, getGroup(), 3) > 0)
++			GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++			&kPlot, MISSIONAI_EXPLORE, getGroup(), 3) > 0)
++		{
+ 			continue;
+-
++		}
+ 		int iPathTurns;
+ 		if (at(kPlot) || !generatePath(&kPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+ 			continue;
+@@ -21559,7 +21560,7 @@ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
+ 					{
+ 						CvPlot const& kPlot = GC.getMap().getPlot(pStepNode->m_pPrev->m_iX, pStepNode->m_pPrev->m_iY);
+ 						CvTeamAI& kTeam = GET_TEAM(getTeam());
+-						if (kPlot.getTeam() != NO_TEAM && !canMoveInto(kPlot, true, true))
++						if (kPlot.isOwned() && !canMoveInto(kPlot, true, true))
+ 						{
+ 							//if (!isPotentialEnemy(kPlot.getTeam(), &kPlot))
+ 							if (!kTeam.AI_mayAttack(kPlot.getTeam())) // advc
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 7422eb108..113b434c2 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -11,9 +11,7 @@ int KmodPathFinder::admissible_scaled_weight = 1;
+ int KmodPathFinder::admissible_base_weight = 1;
+ 
+ CvPathSettings::CvPathSettings(const CvSelectionGroup* pGroup, int iFlags, int iMaxPath, int iHW)
+-	: pGroup(const_cast<CvSelectionGroup*>(pGroup)), iFlags(iFlags), iMaxPath(iMaxPath), iHeuristicWeight(iHW)
+-// I'm really sorry about the const_cast. I can't fix the const-correctness of all the relevant functions,
+-// because some of them are dllexports. The original code essentially does the same thing anyway, with void* casts.
++	: pGroup(pGroup), iFlags(iFlags), iMaxPath(iMaxPath), iHeuristicWeight(iHW)
+ {
+ 	// empty. (there use to be something here, but we don't need it anymore.)
+ }
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 3ce844c21..e6257aba3 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -12,7 +12,7 @@ struct CvPathSettings
+ {
+ 	CvPathSettings(const CvSelectionGroup* pGroup = 0, int iFlags = 0, int iMaxPath = -1, int iHW = -1);
+ 
+-	CvSelectionGroup* pGroup;
++	CvSelectionGroup const* pGroup;
+ 	int iFlags;
+ 	int iMaxPath;
+ 	int iHeuristicWeight;
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=12109

@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 483
+# Commit: 3a58ca6261b84e97663a7c33f72d99d8ba18c164
+# History segment: K-Mod history
+# Parent used for diff: cabb9d99eef636c52ef08e1d529b2b2260de1919
+# Title: Changed the way the AI decides to slave-whip when trying to reduce happiness.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	6	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6b0403635..c12a296ae 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8324,17 +8324,37 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 		bool bGrowth = false;
+ 		bool bDanger = AI_isDanger();
+ 
+-		// Whip to eliminate unhappiness - thank you Blake!
+-		if (getProduction() > 0)
++		//if (getProduction() > 0)
++		if (iHurryPopulation > 0)
+ 		{
+-			if (AI_getHappyFromHurry((HurryTypes)iI) > 0)
++			int iHappyDiff = iHurryPopulation - GC.getDefineINT("HURRY_POP_ANGER");
++
++			if (iHappyDiff > 0 && getHurryAngerTimer() > 1)
++				iHappyDiff -= ROUND_DIVIDE(3 * getHurryAngerTimer(), flatHurryAngerLength());
++
++			int iHappy = happyLevel() - unhappyLevel();
++
++			if (iHappyDiff > 0)
+ 			{
+-				if( gCityLogLevel >= 2 )
++				if (iHappy < 0)
+ 				{
+-					logBBAI("      City %S hurry to remove unhappiness", getName().GetCString() );
++					if (gCityLogLevel >= 2)
++						logBBAI("      City %S hurry to reduce unhappiness", getName().GetCString() );
++					hurry((HurryTypes)iI);
++					return;
+ 				}
++			}
++			else if (iHappy < 0)
++			{
++				continue; // not enough happiness to afford this hurry
++			}
++
++			if (iHappy + iHappyDiff >= 1 && foodDifference() < -iHurryPopulation)
++			{
++				if (gCityLogLevel >= 2)
++					logBBAI("      City %S hurry to reduce food loss", getName().GetCString() );
+ 				hurry((HurryTypes)iI);
+-				break;
++				return;
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1453

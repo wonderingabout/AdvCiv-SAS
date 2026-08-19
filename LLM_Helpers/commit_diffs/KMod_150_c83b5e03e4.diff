@@ -1,0 +1,302 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 150
+# Commit: c83b5e03e40e87ddbdd7626d30751abbd7c16d16
+# History segment: K-Mod history
+# Parent used for diff: 38d980bb5a3f03dd88fa204bb1db1febbac3ee51
+# Title: Added a new religion mechanic: religions may be removed from cities when a new religion is spread to them.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	0	Assets/xml/GlobalDefinesAlt.xml
+7	7	Assets/xml/Units/CIV4UnitInfos.xml
+44	0	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+45	2	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index c113eb5d8..66f9b157c 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -101,6 +101,34 @@
+ 		<DefineName>BONUS_OBSOLETE_VALUE_MODIFIER</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>-->
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_POPULATION_WEIGHT</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_BUILDING_WEIGHT</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_DISTANCE_WEIGHT</DefineName>
++		<iDefineIntVal>40</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_TIME_WEIGHT</DefineName>
++		<iDefineIntVal>40</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_SHRINE_WEIGHT</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_STATE_RELIGION_WEIGHT</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_INFLUENCE_RANDOM_WEIGHT</DefineName>
++		<iDefineIntVal>80</iDefineIntVal>
++	</Define>
+ 	<Define>
+ 		<DefineName>WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal> <!-- increased from 0 -->
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index b00c31eaa..6b1734277 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -3161,7 +3161,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_JUDAISM</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+@@ -3328,7 +3328,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_CHRISTIANITY</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+@@ -3495,7 +3495,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_ISLAM</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+@@ -3662,7 +3662,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_HINDUISM</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+@@ -3829,7 +3829,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_BUDDHISM</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+@@ -3996,7 +3996,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+@@ -4163,7 +4163,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_TAOISM</ReligionType>
+-					<iReligionSpread>40</iReligionSpread>
++					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+ 			<CorporationSpreads/>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 826921bb7..18a214de8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10965,6 +10965,50 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 	}
+ }
+ 
++// K-Mod. A rating for how strong a religion can take hold in this city
++int CvCity::getReligionGrip(ReligionTypes eReligion) const
++{
++	if (!GC.getGame().isReligionFounded(eReligion))
++		return 0;
++
++	int iScore = 0;
++
++	if (isHasReligion(eReligion))
++	{
++		iScore += GC.getDefineINT("RELIGION_INFLUENCE_POPULATION_WEIGHT") * getPopulation();
++	}
++
++	if (GET_PLAYER(getOwner()).getStateReligion() == eReligion)
++	{
++		iScore += GC.getDefineINT("RELIGION_INFLUENCE_STATE_RELIGION_WEIGHT");
++	}
++
++	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++	{
++		if (GC.getBuildingInfo((BuildingTypes)iI).getPrereqReligion() == eReligion)
++		{
++			iScore += GC.getDefineINT("RELIGION_INFLUENCE_BUILDING_WEIGHT") * getNumActiveBuilding((BuildingTypes)iI);
++		}
++	}
++
++	CvCity* pHolyCity = GC.getGame().getHolyCity(eReligion);
++	if (pHolyCity)
++	{
++		if (pHolyCity->hasShrine(eReligion))
++			iScore += GC.getDefineINT("RELIGION_INFLUENCE_SHRINE_WEIGHT");
++
++		int iDistance = plotDistance(getX_INLINE(), getY_INLINE(), pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE());
++		iScore += GC.getDefineINT("RELIGION_INFLUENCE_DISTANCE_WEIGHT") * (GC.getMapINLINE().maxPlotDistance() - iDistance) / GC.getMapINLINE().maxPlotDistance();
++	}
++
++	int iCurrentTurn = GC.getGame().getGameTurn();
++	int iTurnFounded = GC.getGame().getReligionGameTurnFounded(eReligion);
++	int iTimeScale = GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()/2;
++	iScore += GC.getDefineINT("RELIGION_INFLUENCE_TIME_WEIGHT") * (iTurnFounded + iTimeScale) / (iCurrentTurn + iTimeScale);
++
++	return iScore; // note. the random part is not included in this function.
++}
++// K-Mod end
+ 
+ void CvCity::processVoteSourceBonus(VoteSourceTypes eVoteSource, bool bActive)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index d04773a78..8874c942d 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -867,6 +867,7 @@ public:
+ 
+ 	bool isHasReligion(ReligionTypes eIndex) const;
+ 	void setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce, bool bArrows = true);
++	int getReligionGrip(ReligionTypes eReligion) const; // K-Mod
+ 
+ 	bool isHasCorporation(CorporationTypes eIndex) const;
+ 	void setHasCorporation(CorporationTypes eIndex, bool bNewValue, bool bAnnounce, bool bArrows = true);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b62c6f6a8..38cc5feaa 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13554,7 +13554,7 @@ int CvPlayerAI::AI_calculateGoldenAgeValue() const
+ 			}
+ 			// production and GGP matter too, but I don't really want to try to evaluate them properly. Sorry.
+ 			iValue += getTotalPopulation() * iAnarchyLength;
+-			// On the other hand, I'm ignoring the negation of maintanence cost.
++			// On the other hand, I'm ignoring the negation of maintenance cost.
+ 		}
+ 		SAFE_DELETE_ARRAY(paeBestCivic);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 18969cf72..5fee7ca6b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5708,7 +5708,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ {
+ 	CvCity* pCity;
+ 	CvWString szBuffer;
+-	int iSpreadProb;
++	//int iSpreadProb;
+ 
+ 	if (!canSpread(plot(), eReligion))
+ 	{
+@@ -5719,6 +5719,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 
+ 	if (pCity != NULL)
+ 	{
++		/* original bts code
+ 		iSpreadProb = m_pUnitInfo->getReligionSpreads(eReligion);
+ 
+ 		if (pCity->getTeam() != getTeam())
+@@ -5728,7 +5729,16 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 
+ 		bool bSuccess;
+ 
+-		iSpreadProb += (((GC.getNumReligionInfos() - pCity->getReligionCount()) * (100 - iSpreadProb)) / GC.getNumReligionInfos());
++		iSpreadProb += (((GC.getNumReligionInfos() - pCity->getReligionCount()) * (100 - iSpreadProb)) / GC.getNumReligionInfos()); */
++		// K-Mod. A more dynamic formula
++		int iPresentReligions = pCity->getReligionCount();
++		int iMissingReligions = GC.getNumReligionInfos() - iPresentReligions;
++		int iSpreadProb = iPresentReligions * (m_pUnitInfo->getReligionSpreads(eReligion) + pCity->getPopulation())
++		                + iMissingReligions * (100 - 10 * iPresentReligions);
++		iSpreadProb /= GC.getNumReligionInfos();
++
++		bool bSuccess;
++		// K-Mod end
+ 
+ 		if (GC.getGameINLINE().getSorenRandNum(100, "Unit Spread Religion") < iSpreadProb)
+ 		{
+@@ -5737,9 +5747,42 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 		}
+ 		else
+ 		{
++			/* original bts code
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD", getNameKey(), GC.getReligionInfo(eReligion).getChar(), pCity->getNameKey());
+ 			gDLL->getInterfaceIFace()->addMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_NOSPREAD", MESSAGE_TYPE_INFO, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX_INLINE(), pCity->getY_INLINE());
+ 			bSuccess = false;
++			*/
++			// K-Mod. Instead of simply failing, give some chance of removing one of the existing religions.
++			std::multimap<int, ReligionTypes> rankedReligions;
++			int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
++			for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++			{
++				if (pCity->isHasReligion((ReligionTypes)iI) || iI == eReligion)
++				{
++					if (pCity != GC.getGame().getHolyCity((ReligionTypes)iI)) // holy city can't lose its religion!
++					{
++						int iInfluence = pCity->getReligionGrip(eReligion);
++						iInfluence += GC.getGameINLINE().getSorenRandNum(iRandomWeight, "Religion influence");
++						iInfluence += (iI == eReligion) ? m_pUnitInfo->getReligionSpreads(eReligion)/2 : 0;
++
++						rankedReligions.insert(std::make_pair(iInfluence, eReligion));
++					}
++				}
++			}
++			ReligionTypes eFailedReligion = rankedReligions.begin()->second;
++			if (eFailedReligion == eReligion)
++			{
++				szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD", getNameKey(), GC.getReligionInfo(eReligion).getChar(), pCity->getNameKey());
++				gDLL->getInterfaceIFace()->addMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_NOSPREAD", MESSAGE_TYPE_INFO, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX_INLINE(), pCity->getY_INLINE());
++				bSuccess = false;
++			}
++			else
++			{
++				pCity->setHasReligion(eReligion, true, true, false);
++				pCity->setHasReligion(eFailedReligion, false, true, false);
++				bSuccess = true;
++			}
++			// K-Mod
+ 		}
+ 
+ 		// Python Event
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10214

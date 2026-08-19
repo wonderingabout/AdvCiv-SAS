@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4062
+# Commit: d14c744a6f5d5df77c6ba991cc3fb6289db7d6f8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0c85ecea873525410a4bc356f1fe16c172f9f06a
+# Title: Fix Pedia-jump to tech from research bar (main screen)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Python/Screens/CvMainInterface.py
+15	5	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index f1f28708e..583e5d022 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -4167,15 +4167,17 @@ class CvMainInterface:
+ 				RectLayout.CENTER, self.stackBarDefaultTextOffset())
+ 		bAnarchy = gc.getPlayer(ePlayer).isAnarchy()
+ 		szText = None
++		iTech = -1 # advc.001: Need tech id for jump to Pedia
+ 		if bAnarchy:
+ 			szText = localText.getText("INTERFACE_ANARCHY",
+ 					(gc.getPlayer(ePlayer).getAnarchyTurns(),))
+ 		elif gc.getPlayer(ePlayer).getCurrentResearch() != -1:
+ 			szText = CyGameTextMgr().getResearchStr(ePlayer)
++			iTech = gc.getPlayer(ePlayer).getCurrentResearch() # advc.001
+ 		if szText:
+ 			self.setText("ResearchText", "Background", szText,
+ 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
+-					WidgetTypes.WIDGET_RESEARCH)
++					WidgetTypes.WIDGET_RESEARCH, iTech) # advc.001: Pass along tech id
+ 			# advc.004x: Always show ResearchText (i.e. anarchy turns)
+ 			#if not bAnarchy:
+ 			screen.show("ResearchText")
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 404e4c0bb..751169216 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1452,20 +1452,30 @@ void CvDLLWidgetData::doResearch(CvWidgetDataStruct &widgetDataStruct)
+ 	bool bShift = GC.shiftKey();
+ 
+ 	// UNOFFICIAL_PATCH, Bugfix (Free Tech Popup Fix), 12/07/09, EmperorFool: START
++	CvPlayer& kActivePlayer = GET_PLAYER(getActivePlayer());
+ 	if (widgetDataStruct.m_iData2 > 0)
+ 	{
+-		CvPlayer& kPlayer = GET_PLAYER(getActivePlayer());
+-		if (!kPlayer.isChoosingFreeTech())
++		if (!kActivePlayer.isChoosingFreeTech())
+ 		{
+ 			gDLL->UI().addMessage(getActivePlayer(), true, -1,
+ 					gDLL->getText("TXT_KEY_CHEATERS_NEVER_PROSPER"), NULL, MESSAGE_TYPE_MAJOR_EVENT);
+ 			FErrorMsg("doResearch called for free tech when !isChoosingFreeTech()");
+ 			return;
+ 		}
+-		else kPlayer.changeChoosingFreeTechCount(-1);
++		else kActivePlayer.changeChoosingFreeTechCount(-1);
+ 	} // UNOFFICIAL_PATCH: END
+-
+-	CvMessageControl::getInstance().sendResearch(((TechTypes)widgetDataStruct.m_iData1), widgetDataStruct.m_iData2, bShift);
++	TechTypes eNewActiveResearch = (TechTypes)widgetDataStruct.m_iData1;
++	/*	<advc.001> The main interface now passes the tech ID when the name of
++		the current research is clicked (for the right-click Pedia jump). But
++		we still want to clear the current research on left-click, so we mustn't
++		pass the tech ID along here. */
++	if (widgetDataStruct.m_eWidgetType == WIDGET_RESEARCH &&
++		eNewActiveResearch == kActivePlayer.getCurrentResearch())
++	{
++		eNewActiveResearch = NO_TECH;
++	} // </advc.001>
++	CvMessageControl::getInstance().sendResearch(eNewActiveResearch,
++			widgetDataStruct.m_iData2, bShift);
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2859

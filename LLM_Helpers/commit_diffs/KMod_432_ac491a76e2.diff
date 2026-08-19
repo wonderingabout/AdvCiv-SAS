@@ -1,0 +1,183 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 432
+# Commit: ac491a76e28abf1377caa9f94dcd70eedc4da68f
+# History segment: K-Mod history
+# Parent used for diff: 8bbab868a09af7b65e311b55cc4ebec8ee9551b0
+# Title: Corrected some problems with the strategy-rand initialization. Tightened the rules for converting units for crush to reduce the chance of leaving a city unde...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	8	CvGameCoreDLL/CvGameCoreUtils.h
+24	14	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index d21b8cd34..f8a9bb305 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1301,7 +1301,12 @@ bool PUF_isFiniteRangeAndNotJustProduced(const CvUnit* pUnit, int iData1, int iD
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
++// K-Mod
++bool PUF_isMissionAIType(const CvUnit* pUnit, int iData1, int iData2)
++{
++	return pUnit->getGroup()->AI_getMissionAIType() == iData1;
++}
++// K-Mod end
+ 
+ int potentialIrrigation(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 010277b41..d832e0222 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -314,17 +314,12 @@ bool PUF_isSelected( const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
+ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
+ bool PUF_isNoMission(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
+ bool PUF_isFiniteRange(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/15/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
++// bbai
+ bool PUF_isAvailableUnitAITypeGroupie(const CvUnit* pUnit, int iData1, int iData2);
+ bool PUF_isUnitAITypeGroupie(const CvUnit* pUnit, int iData1, int iData2);
+ bool PUF_isFiniteRangeAndNotJustProduced(const CvUnit* pUnit, int iData1, int iData2);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++// bbai end
++bool PUF_isMissionAIType(const CvUnit* pUnit, int iData1, int iData2); // K-Mod
+ 
+ // FAStarFunc...
+ int potentialIrrigation(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5321b4232..de3da3ceb 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -198,9 +198,9 @@ void CvPlayerAI::AI_init()
+ 		//AI_setCivicTimer(((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY) / 2);
+ 		AI_setReligionTimer(1);
+ 		AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? 1 : 2);
++		AI_initStrategyRand(); // K-Mod
++		updateCacheData(); // K-Mod
+ 	}
+-	AI_initStrategyRand(); // K-Mod
+-	updateCacheData(); // K-Mod
+ }
+ 
+ 
+@@ -303,7 +303,7 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 	//m_iStrategyHashCacheTurn = -1;
+ 
+ // BBAI
+-	m_iStrategyRand = -1; // was 0 (K-Mod)
++	m_iStrategyRand = UINT_MAX; // was 0 (K-Mod)
+ 	m_iVictoryStrategyHash = 0;
+ 	//m_iVictoryStrategyHashCacheTurn = -1;
+ // BBAI end
+@@ -19277,23 +19277,24 @@ void CvPlayerAI::AI_updateVictoryStrategyHash()
+ // K-Mod, based on BBAI
+ void CvPlayerAI::AI_initStrategyRand()
+ {
+-	const unsigned iBits = 16;
++	const unsigned iBits = 24;
+ 	m_iStrategyRand = GC.getGameINLINE().getSorenRandNum((1<<(iBits+1))-1, "AI Strategy Rand");
+ }
+ 
+ int CvPlayerAI::AI_getStrategyRand(int iShift) const
+ {
+-	const unsigned iBits = 16; // cf bits in AI_initStrategyRand
++	const unsigned iBits = 24; // cf bits in AI_initStrategyRand
+ 
+ 	iShift += getCurrentEra();
+ 	while (iShift < 0)
+ 		iShift += iBits;
+ 	iShift %= iBits;
+ 
+-	FAssert(m_iStrategyRand > 0);
++	FAssert(m_iStrategyRand != UINT_MAX);
+ 	unsigned x = 2654435761; // golden ratio of 2^32
+ 	x *= (m_iStrategyRand << iShift) + (m_iStrategyRand >> (iBits - iShift));
+ 	x >>= 1; // force positive;
++	FAssert(x <= INT_MAX);
+ 	return x;
+ }
+ // K-Mod end
+@@ -20965,8 +20966,7 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 	std::vector<std::pair<int, int> > unit_list; // { score, unitID }.
+ 	// note unitID is used rather than CvUnit* to ensure that the list gives the same order for players on different computers.
+ 
+-	CvArea *pLoopArea = NULL;
+-	for (pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
++	for (CvArea *pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
+ 	{
+ 		// Keep 1/2 of recommended floating defenders.
+ 		if (!pLoopArea || pLoopArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT
+@@ -20980,10 +20980,10 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 		}
+ 	}
+ 	
+-	CvUnit* pLoopUnit;
+-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
++	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+ 	{
+ 		bool bValid = false;
++		const CvPlot* pPlot = pLoopUnit->plot();
+ 
+ 		/* if (pLoopUnit->AI_getUnitAIType() == UNITAI_RESERVE
+ 			|| pLoopUnit->AI_isCityAIType() && (pLoopUnit->getExtraCityDefensePercent() <= 0)) */
+@@ -21010,21 +21010,31 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 	
+ 		if (bValid)
+ 		{
+-			if (pLoopUnit->plot()->isCity())
++			if (pPlot->isCity())
+ 			{
+-				if (pLoopUnit->plot()->getPlotCity()->getOwner() == getID())
++				if (pPlot->getPlotCity()->getOwner() == getID())
+ 				{
+-					if (pLoopUnit->plot()->getBestDefender(getID()) == pLoopUnit)
++					if (pPlot->getBestDefender(getID()) == pLoopUnit)
+ 					{
+ 						bValid = false;
+ 					}
+ 				}
+-				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_DEFENSE && GET_TEAM(getTeam()).getAtWarCount(true) > 0)
++				/*if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_DEFENSE && GET_TEAM(getTeam()).getAtWarCount(true) > 0)
+ 				{
+ 					int iCityDefenders = pLoopUnit->plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getID());
+ 
+ 					if (iCityDefenders <= pLoopUnit->plot()->getPlotCity()->AI_minDefenders())
+ 						bValid = false;
++				}*/
++				if (pLoopUnit->getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY)
++				{
++					int iDefendersHere = pPlot->plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getID());
++					int iDefendersWant = pLoopUnit->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE
++						? pPlot->getPlotCity()->AI_neededDefenders()
++						: pPlot->getPlotCity()->AI_minDefenders();
++
++					if (iDefendersHere <= iDefendersWant)
++						bValid = false;
+ 				}
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6977

@@ -1,0 +1,274 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1426
+# Commit: ddad2b41913053b9955554539f8000d2d8ea4f18
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dc6918c1ee008a94292af400d9efc5b0ebd494c9
+# Title: Better handling of prematurely awoken cargo + 2 small changes concerning cities under occupation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	1	Assets/Python/Contrib/Civ4lerts.py
+1	1	CvGameCoreDLL/CvCity.cpp
+8	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+45	16	CvGameCoreDLL/CvSelectionGroup.cpp
+6	4	CvGameCoreDLL/CvSelectionGroup.h
+6	6	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index da17136a8..403abc380 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -358,7 +358,8 @@ class AbstractCityTestAlert(AbstractCityAlert):
+ 			willPass = self._willPassTest(city)
+ 			if passed != willPass and willPass: # avdc.106d: 'and willPass' added
+ 				message, icon = self._getPendingAlertMessageIcon(city, willPass)
+-		if (message):
++		# advc.106d: suppress check added
++		if message and not self._suppressMessage(city):
+ 			addMessageAtCity(iPlayer, message, icon, city)
+ 	
+ 	def _passedTest(self, cityId):
+@@ -398,6 +399,12 @@ class AbstractCityTestAlert(AbstractCityAlert):
+ 	def _getPendingAlertMessageIcon(self, city, passes):
+ 		"Returns a tuple of the message and icon to use for the pending alert."
+ 		return (None, None)
++	# <advc.106d>
++	def _suppressMessage(self, city):
++		"Returns true if no messages should currently be displayed about the city."
++		# By default, don't show messages about cities in occupation, but subclasses can override this.
++		return city.isOccupation()
++	# </advc.106d>
+ 
+ # Population
+ 
+@@ -640,6 +647,12 @@ class CityOccupation(AbstractCityTestAlert):
+ 			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_PACIFIED", (city.getName(), )),
+ 					HAPPY_ICON)
+ 
++	# <advc.106d> The default implementation suppresses messages about cities in occupation. Obv. don't want that here.
++	# (Untested b/c the occupation alert is permanently disabled.)
++	def _suppressMessage(self, city):
++		return False
++	# </advc.106d>
++
+ # Hurrying Production
+ 
+ class AbstractCanHurry(AbstractCityTestAlert):
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0448a7738..abb7c12cf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10325,7 +10325,7 @@ double CvCity::revoltProbability(bool bIgnoreWar,
+ // <advc.023>
+ double CvCity::probabilityOccupationDecrement() const {
+ 
+-	if(!isOccupation())
++	if(!isOccupation() || getMilitaryHappinessUnits() <= 0)
+ 		return 0;
+ 	return std::pow(1 - revoltProbability(true, false, true),
+ 			GC.getDefineINT("OCCUPATION_COUNTDOWN_EXPONENT"));
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index aff0b6efb..b5bb1d31c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -448,7 +448,7 @@ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
+ 
+ // K-Mod
+ // return true if the first unit in the first group comes before the first unit in the second group.
+-// (note: the purpose of this function is to return _false_ when the groupCycleDistance should include a pentalty.)
++// (note: the purpose of this function is to return _false_ when the groupCycleDistance should include a penalty.)
+ bool isBeforeGroupOnPlot(const CvSelectionGroup* pFirstGroup, const CvSelectionGroup* pSecondGroup)
+ {
+ 	FAssert(pFirstGroup && pSecondGroup);
+@@ -489,8 +489,13 @@ int groupCycleDistance(const CvSelectionGroup* pFirstGroup, const CvSelectionGro
+ 	const int iBaseScale = 4;
+ 	int iPenalty = 0;
+ 	if (pFirstHead->getUnitType() != pSecondHead->getUnitType())
+-	{
+-		if (pFirstHead->canFight() != pSecondHead->canFight())
++	{	/*  <advc.075> When a unit in cargo is told to skip its turn, we want
++			the ship to be selected before its cargo on the next turn.
++			(Or would it be better to do this through isBeforeGroupOnPlot?) */
++		if(pFirstHead->isHuman() && pFirstHead->isCargo() != pSecondHead->isCargo())
++			iPenalty += 5;
++		else // </advc.075>
++			if (pFirstHead->canFight() != pSecondHead->canFight())
+ 			iPenalty += 4;
+ 		else
+ 		{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 1cc5511b4..facc0ac47 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -832,6 +832,7 @@ void CvSelectionGroup::startMission()
+ 		}
+ 		else setActivityType(ACTIVITY_HOLD);
+ 		// K-Mod end
++		resetBoarded(); // advc.075
+ 
+ 		// Whole group effects
+ 		switch (headMissionQueueNode()->m_data.eMissionType)
+@@ -5059,7 +5060,8 @@ int CvSelectionGroup::getMissionData2(int iNode) const
+ // <advc.075>
+ void CvSelectionGroup::handleBoarded() {
+ 
+-	if(!isHuman() || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
++	if(!isHuman() || getDomainType() != DOMAIN_SEA ||
++			GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
+ 		return;
+ 	CLLNode<MissionData>* pMissionNode = headMissionQueueNode();
+ 	if(pMissionNode == NULL) {
+@@ -5072,6 +5074,47 @@ void CvSelectionGroup::handleBoarded() {
+ 		return;
+ 	if(plot()->isWater() && !plot()->isAdjacentToLand())
+ 		return;
++
++	std::vector<CvSelectionGroup*> aLandCargoGroups;
++	getLandCargoGroups(aLandCargoGroups);
++	for(size_t i = 0; i < aLandCargoGroups.size(); i++) {
++		CvSelectionGroup& kGroup = *aLandCargoGroups[i];
++		if(kGroup.getActivityType() == ACTIVITY_BOARDED && kGroup.canDisembark())
++			kGroup.setActivityType(ACTIVITY_AWAKE);
++	}
++}
++
++
++bool CvSelectionGroup::canDisembark() const {
++
++	if(!plot()->isWater() && movesLeft())
++		return true;
++	for(int i = 0; i < NUM_DIRECTION_TYPES; i++) {
++		CvPlot* pAdj = plotDirection(getX(), getY(), (DirectionTypes)i);
++		if(pAdj != NULL && canMoveOrAttackInto(pAdj, false, true, false))
++			return true;
++	}
++	return false;
++}
++
++
++void CvSelectionGroup::resetBoarded() {
++
++	if(!isHuman() || getDomainType() != DOMAIN_SEA ||
++			GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
++		return;
++
++	std::vector<CvSelectionGroup*> aLandCargoGroups;
++	getLandCargoGroups(aLandCargoGroups);
++	for(size_t i = 0; i < aLandCargoGroups.size(); i++) {
++		if(aLandCargoGroups[i]->getActivityType() == ACTIVITY_AWAKE)
++			aLandCargoGroups[i]->setActivityType(ACTIVITY_BOARDED);
++	}
++}
++
++
++void CvSelectionGroup::getLandCargoGroups(std::vector<CvSelectionGroup*>& r) {
++
+ 	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 	while(pUnitNode != NULL) {
+ 		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+@@ -5085,24 +5128,10 @@ void CvSelectionGroup::handleBoarded() {
+ 					FAssert(gr != NULL);
+ 					continue;
+ 				}
+-				if(gr->getActivityType() == ACTIVITY_BOARDED && gr->canDisembark())
+-					gr->setActivityType(ACTIVITY_AWAKE);
++				r.push_back(gr);
+ 			}
+ 		}
+ 	}
+-}
+-
+-
+-bool CvSelectionGroup::canDisembark() const {
+-
+-	if(!plot()->isWater() && movesLeft())
+-		return true;
+-	for(int i = 0; i < NUM_DIRECTION_TYPES; i++) {
+-		CvPlot* pAdj = plotDirection(getX(), getY(), (DirectionTypes)i);
+-		if(pAdj != NULL && canMoveOrAttackInto(pAdj, false, true, false))
+-			return true;
+-	}
+-	return false;
+ } // </advc.075>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 070ab15c6..1a3c008a5 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -213,9 +213,6 @@ public:
+ 	int getMissionType(int iNode) const;																														// Exposed to Python
+ 	int getMissionData1(int iNode) const;																														// Exposed to Python
+ 	int getMissionData2(int iNode) const;																														// Exposed to Python
+-	// <advc.075>
+-	void handleBoarded();
+-	bool canDisembark() const; // </advc.075>
+ 
+ 	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+@@ -297,7 +294,12 @@ protected:
+ 
+ 	void activateHeadMission();
+ 	void deactivateHeadMission();
+-	
++	// <advc.075>
++	void handleBoarded();
++	bool canDisembark() const;
++	void resetBoarded();
++	void getLandCargoGroups(std::vector<CvSelectionGroup*>& r);
++	// </advc.075>
+ 	bool sentryAlert(
+ 			bool bUpdateKnownEnemies = false); // advc.004l
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0244baed7..3891d2fbe 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4471,18 +4471,18 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eTeam) const
+ 
+ 	eAttitude = AI_getAttitude(eTeam);
+ 	// <advc.124>
+-	bool theirLandRevealed = false;
++	bool bTheirLandRevealed = false;
+ 	for(int i = 0; i < GC.getMapINLINE().numPlotsINLINE(); i++) {
+ 		CvPlot* pp = GC.getMapINLINE().plotByIndexINLINE(i);
+ 		if(pp == NULL) continue; CvPlot const& p = *pp;
+-		PlayerTypes plotOwner = p.getOwnerINLINE();
+-		if(plotOwner != NO_PLAYER && TEAMID(plotOwner) == eTeam &&
++		PlayerTypes ePlotOwner = p.getOwnerINLINE();
++		if(ePlotOwner != NO_PLAYER && TEAMID(ePlotOwner) == eTeam &&
+ 				p.isRevealed(getID(), false) && !p.isWater()) {
+-			theirLandRevealed = true;
++			bTheirLandRevealed = true;
+ 			break;
+ 		}
+ 	}
+-	if(theirLandRevealed && AI_shareWar(eTeam))
++	if(bTheirLandRevealed && AI_shareWar(eTeam))
+ 		eAttitude = (AttitudeTypes)std::min(NUM_ATTITUDE_TYPES - 1, eAttitude + 1);
+ 	// </advc.124>
+ 
+@@ -4498,7 +4498,7 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eTeam) const
+ 						getOpenBordersRefuseAttitudeThreshold();
+ 				if(eAttitude <= thresh)
+ 					return DENIAL_ATTITUDE;
+-				else if(eAttitude == thresh + 1 && !theirLandRevealed)
++				else if(eAttitude == thresh + 1 && !bTheirLandRevealed)
+ 					return DENIAL_NO_GAIN;
+ 				// </advc.124>
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=9111

@@ -1,0 +1,244 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 99
+# Commit: 470c1cfd4ace29fb1985e260e1efebd58ed3477b
+# History segment: K-Mod history
+# Parent used for diff: 6923c8d4e899ac2b256ec6353ca31a37431cb536
+# Title: Changed the AI's espionage weighting to better reflect the goal when trying to steal tech. Tweaked the AI's unit group search evaluation.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+58	49	CvGameCoreDLL/CvPlayerAI.cpp
+13	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bb480ab0a..ebb432924 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13763,6 +13763,7 @@ void CvPlayerAI::AI_doCommerce()
+ 		int* aiWeight = new int[MAX_CIV_TEAMS];
+ 		int iHighestTarget = 0;
+ 		int iMinModifier = INT_MAX;
++		int iApproxTechCost = 0;
+ 		TeamTypes eMinModTeam = NO_TEAM;
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+@@ -13782,7 +13783,7 @@ void CvPlayerAI::AI_doCommerce()
+ 				int iDesiredMissionPoints = 0;
+ 				int iDesiredEspPoints = 0;
+ 					
+-				aiWeight[iTeam] = 7;
++				aiWeight[iTeam] = 6;
+ 				int iRateDivisor = 12;
+ 
+ 				if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
+@@ -13807,14 +13808,9 @@ void CvPlayerAI::AI_doCommerce()
+ 						}
+ 					}
+ 
+-					iRateDivisor = 10;
+-					aiWeight[iTeam] = 13;
++					iRateDivisor -= 2;
++					aiWeight[iTeam] += 6;
+ 
+-					if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
+-					{
+-						aiWeight[iTeam] = 20;
+-						iRateDivisor = 8;
+-					}
+ 				}
+ 				else
+ 				{
+@@ -13864,6 +13860,12 @@ void CvPlayerAI::AI_doCommerce()
+ 					iRateDivisor += (iAttitude/5);
+ 					aiWeight[iTeam] -= (iAttitude/3);
+ 				}
++				if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
++				{
++					aiWeight[iTeam] += 6;
++					iRateDivisor -= 2;
++				}
++
+ 				// Individual player targeting
+ 				if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+ 				{
+@@ -13891,17 +13893,16 @@ void CvPlayerAI::AI_doCommerce()
+ 								if (iModifier < iMinModifier ||
+ 									(iModifier == iMinModifier && GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam) < GET_TEAM(getTeam()).AI_getAttitudeVal(eMinModTeam)))
+ 								{
+-									bool bValid = getTechScore() < kLoopPlayer.getTechScore();
+-									if (!bValid)
++									// do they have any techs we can steal?
++									bool bValid = false;
++									for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
+ 									{
+-										// do they have _any_ techs we can steal?
+-										for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
++										if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+ 										{
+-											if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+-											{
+-												bValid = true;
+-												break;
+-											}
++											bValid = true;
++											// get a (very rough) approximation of how much it will cost to steal a tech.
++											iApproxTechCost = (GET_TEAM(getTeam()).getResearchCost((TechTypes)iT) + iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
++											break;
+ 										}
+ 									}
+ 									if (bValid)
+@@ -13926,6 +13927,40 @@ void CvPlayerAI::AI_doCommerce()
+ 			}
+ 		}
+ 
++		// now, the big question is whether or not we can steal techs more easilly than we can research them.
++		bool bCheapTechSteal = false;
++		if (eMinModTeam != NO_TEAM && !AI_avoidScience() && !isNoResearchAvailable())
++		{
++			iMinModifier *= 100 - GC.getDefineINT("MAX_FORTIFY_TURNS") * GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
++			iMinModifier /= 100;
++			int iStealMod = 100000; // arbitrary large number - until we find the real modifier.
++			for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++			{
++				CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++				if (kMissionInfo.getBuyTechCostFactor() != 0)
++				{
++					if (kMissionInfo.getBuyTechCostFactor() < iStealMod)
++					{
++						iStealMod = kMissionInfo.getBuyTechCostFactor();
++					}
++				}
++			}
++			iMinModifier *= 100 + iStealMod;
++			iMinModifier /= 100;
++			// This is the espionage cost modifier for stealing techs.
++
++			// lets say "cheap" means 70% of the research cost.
++			bCheapTechSteal = (7000 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
++			if (bCheapTechSteal)
++			{
++				aiTarget[iTeam] += iApproxTechCost / 10;
++				iEspionageTargetRate += iApproxTechCost / 10;
++				// I'm just using iApproxTechCost to get a rough sense of scale.
++				// cf. (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
++			}
++		}
++
++
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+ 			if( aiTarget[iTeam] > 0 )
+@@ -13939,31 +13974,11 @@ void CvPlayerAI::AI_doCommerce()
+ 			}
+ 			if (iTeam == eMinModTeam)
+ 			{
+-				// This is pretty arbitrary. I'm sorry. :(
+-				aiWeight[iTeam] = std::max(2*aiWeight[iTeam] + 1, 4);
+-				// that "4" is 100 / (6 * 4). It's based on the numbers used earlier.
+-				iMinModifier *= 100 - GC.getDefineINT("MAX_FORTIFY_TURNS") * GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+-				iMinModifier /= 100;
+-				int iStealMod = 100000;
+-				for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+-				{
+-					CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+-					if (kMissionInfo.getBuyTechCostFactor() != 0)
+-					{
+-						if (kMissionInfo.getBuyTechCostFactor() < iStealMod)
+-						{
+-							iStealMod = kMissionInfo.getBuyTechCostFactor();
+-						}
+-					}
+-				}
+-				iMinModifier *= 100 + iStealMod;
+-				iMinModifier /= 100;
+-				// This number will be used while setting the espionage commerce slider
++				aiWeight[iTeam]++;
+ 			}
+-			else if (eMinModTeam != NO_TEAM)
++			else if (eMinModTeam != NO_TEAM && bCheapTechSteal)
+ 			{
+-				aiWeight[iTeam] *= 2;
+-				aiWeight[iTeam] /= 3;
++				aiWeight[iTeam] /= 2; // we want to focus hard on the best target
+ 			}
+ 			// note. bounds checks are done the set weight function
+ 			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, aiWeight[iTeam]);
+@@ -13999,14 +14014,8 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 			//while (getCommerceRate(COMMERCE_ESPIONAGE) < iEspionageTargetRate && getCommercePercent(COMMERCE_ESPIONAGE) < 20)
+ 			// K-Mod
+-			bool bCheapTech = (eMinModTeam != NO_TEAM && 700 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
+-			int iCap = 20;
+-			if (bCheapTech && !AI_avoidScience() && !isNoResearchAvailable() && getCurrentResearch() != NO_TECH)
+-			{
+-				iCap = 60;
+-				iEspionageTargetRate += GET_TEAM(getTeam()).getResearchCost(getCurrentResearch()) / 10;
+-				// cf. (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
+-			}
++			bool bCheapTechSteal = (eMinModTeam != NO_TEAM && 700 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
++			int iCap = (bCheapTechSteal? 60 :20);
+ 
+ 			while (getCommerceRate(COMMERCE_ESPIONAGE) < iEspionageTargetRate && getCommercePercent(COMMERCE_ESPIONAGE) < iCap)
+ 			{
+@@ -14018,7 +14027,7 @@ void CvPlayerAI::AI_doCommerce()
+ 					break;
+ 				}
+ 
+-				if (!AI_avoidScience() && !isNoResearchAvailable() && !bCheapTech)
++				if (!AI_avoidScience() && !isNoResearchAvailable() && !bCheapTechSteal)
+ 				{
+ 	//				if (2 * getCommercePercent(COMMERCE_RESEARCH) < iInitialResearchPercent)
+ 	//				{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3e8007b3d..666e1c7f5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10220,7 +10220,6 @@ bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, i
+ 	CvUnit* pLoopUnit;
+ 	CvUnit* pBestUnit;
+ 	int iPathTurns;
+-	int iValue;
+ 	int iBestValue;
+ 	int iLoop;
+ 
+@@ -10323,13 +10322,23 @@ bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, i
+ 															{
+ 																if (iPathTurns <= iMaxPath)
+ 																{
++																	/* original code
+ 																	iValue = 1000 * (iPathTurns + 1);
+ 																	iValue *= 4 + pLoopGroup->getCargo();
+ 																	iValue /= pLoopGroup->getNumUnits();
+-
+-																	if (iValue < iBestValue)
++																	*/
++																	// K-Mod
++																	int iCost = 100 * iPathTurns * iPathTurns + 1;
++																	iCost *= 4 + pLoopGroup->getCargo();
++																	iCost /= pLoopGroup->getNumUnits();
++																	int iSizeMod = 10*std::max(getGroup()->getNumUnits(), pLoopGroup->getNumUnits());
++																	iSizeMod /= std::min(getGroup()->getNumUnits(), pLoopGroup->getNumUnits());
++																	iCost *= iSizeMod * iSizeMod;
++																	iCost /= 10000;
++
++																	if (iCost < iBestValue)
+ 																	{
+-																		iBestValue = iValue;
++																		iBestValue = iCost;
+ 																		pBestUnit = pLoopUnit;
+ 																	}
+ 																}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=8762

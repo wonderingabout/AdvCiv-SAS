@@ -1,0 +1,95 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4035
+# Commit: 81f42c3d506cf2e26b24223df7e347889a020e4a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6ae9056f646b1ce95103a81f61c0d48b9667a903
+# Title: Fix fast human units pillaging multiple times
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	CvGameCoreDLL/CvSelectionGroup.cpp
+7	2	CvGameCoreDLL/CvSelectionGroupAI.cpp
+2	1	CvGameCoreDLL/CvSelectionGroupAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 940ab9e82..133c9c00b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -892,13 +892,17 @@ void CvSelectionGroup::startMission()
+ 		case MISSION_PILLAGE:
+ 		{	// <advc> K-Mod code moved into subroutine
+ 			CvUnit* pUnit;
+-			while ((pUnit = AI().AI_bestUnitForMission(MISSION_PILLAGE)) != NULL) // </advc>
++			// Human units should pillage at most once per command
++			std::vector<int> aiHasPillaged;
++			while ((pUnit = AI().AI_bestUnitForMission(MISSION_PILLAGE,
++				NULL, &aiHasPillaged)) != NULL) // </advc>
+ 			{	// <K-Mod>
+ 				if (pUnit->pillage())
+ 				{
+ 					bAction = true;
+-					/*	AI groups might want to reconsider their action after pillaging.
+-						advc (note): Only relevant when pillaging upgraded improvements. */
++					if (!AI_isControlled())
++						aiHasPillaged.push_back(pUnit->getID());
++					// AI groups might want to reconsider their action after pillaging
+ 					if (!isHuman() && canAllMove())
+ 						break;
+ 				} // </K-Mod>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index ccba53c76..fa80179cc 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -648,7 +648,7 @@ namespace
+ 	Ideally, there would be a const version returning a const unit,
+ 	but that would lead to a lot of duplicate code.) */
+ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
+-	CvPlot const* pMissionPlot)
++	CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
+ {
+ 	PROFILE_FUNC(); // advc (neither frequently called nor expensive)
+ 	CvPlot const& kAt = getPlot();
+@@ -705,8 +705,13 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
+ 	scaled rMaxPriority = scaled::MIN;
+ 	FOR_EACH_UNITAI_VAR_IN(pUnit, *this)
+ 	{
+-		if (!pUnit->canMove())
++		if (!pUnit->canMove() ||
++			(pUnitsToSkip != NULL &&
++			std::find(pUnitsToSkip->begin(), pUnitsToSkip->end(),
++			pUnit->getID()) != pUnitsToSkip->end()))
++		{
+ 			continue;
++		}
+ 		scaled rPriority;
+ 		switch (eMission)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index b0c4be202..0b1e28d45 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -44,7 +44,8 @@ public:
+ 			bool bCheckCanAttack = false) const;
+ 	// <advc.004c>
+ 	CvUnit* AI_bestUnitForMission(MissionTypes eMission,
+-			CvPlot const* pMissionPlot = NULL); // </advc.004c>
++			CvPlot const* pMissionPlot = NULL,
++			std::vector<int> const* pUnitsToSkip = NULL); // </advc.004c>
+ 
+ 	void AI_queueGroupAttack(int iX, int iY);
+ 	void AI_cancelGroupAttack() { m_bGroupAttack = false; } // K-Mod (made inline)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2780

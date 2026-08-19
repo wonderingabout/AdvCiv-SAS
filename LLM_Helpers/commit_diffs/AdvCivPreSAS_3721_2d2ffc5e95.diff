@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3721
+# Commit: 2d2ffc5e9501d5f243de615bb2ef1769706820f3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f6b9c42de7aa5e42ca5d59a417b7eac31e8dcfb4
+# Title: Slightly increase Normal land-sea ratio
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Python/CvMapGeneratorUtil.py
+2	2	Assets/XML/Text/CIV4GameText_advc.xml
+2	2	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index f2c3c61ba..d533e136a 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -241,7 +241,9 @@ class FractalWorld:
+ 			landWeights[i] = landWeight
+ 		return landWeights
+ 
+-	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
++	def generatePlotTypes(self,
++			water_percent=77, # advc.137: was 0.78
++			shift_plot_types=True, grain_amount=3):
+ 		# Check for changes to User Input variances.
+ 		self.checkForOverrideDefaultUserInputVariances()
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 395aece8a..904f35e44 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2076,9 +2076,9 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SEALEVEL_HIGH_RECOMMEND</Tag>
+-		<English>High - fewer players recommended (-30%%)</English>
++		<English>High - fewer players recommended (-25%%)</English>
+ 		<French>Haut</French>
+-		<German>Hoch - weniger Spieler empfohlen (-30%%)</German>
++		<German>Hoch - weniger Spieler empfohlen (-25%%)</German>
+ 		<Italian>Alto</Italian>
+ 		<Spanish>Alto</Spanish>
+ 	</TEXT>
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 8add77a5d..0cd207c0f 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -91,8 +91,8 @@ class MapConstants:
+ 		#Percent of land vs. water
+ 		#LM - Exact Real Earth Value. Actual results vary depending on map size, meteors, and which landmass generator was used.
+ 		#self.landPercent = 0.2889
+-		# advc: Low sea level should be close to the real ratio because that's how it works with the standard map scripts (e.g. Fractal). At Medium sea level, Fractal only yields about 21% land. PM has more bad, marginal and initially inaccessible terrain, but also a longer coastline and thus more seafood.
+-		self.landPercent = 0.223
++		# advc.137: At Medium sea level, Fractal only aims at 23% land (BtS: 22). PM has more bad, marginal and initially inaccessible terrain, but also a longer coastline and thus more seafood.
++		self.landPercent = 0.24
+ 
+ 		#Percentage of land squares high enough to be Hills or Peaks.
+ 		self.HillPercent = 0.225 # advc: was 0.42
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2307

@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1713
+# Commit: 705ee2ce6ba3c168b4e6d3a80a443cad94b7b2ec
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 476f6d6e20249307b3d4c5144c9d6e703cca73cc
+# Title: Show rival techs even when tech trading disabled
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	5	Assets/Python/Screens/CvExoticForeignAdvisor.py
+10	0	Assets/XML/Text/CIV4GameText_advc.xml
+23	21	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 3bac23378..7aa114f9c 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -1293,7 +1293,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				# advc.120d: Make sure that Tech tab is consistent with Espionage screen
+ 				if not activePlayer.canSeeTech(iLoopPlayer):
+ 					message = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
+-
+ 				self.techIconGrid.appendRow(currentPlayer.getName(), message)
+ 				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
+ 										 , 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+@@ -1332,8 +1331,14 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 							else: # won't trade
+ 								# advc.073: Changed so that WIDGET_PEDIA_JUMP_TO_TECH_TRADE works w/o BugDll
+ 								self.techIconGrid.addIcon( currentRow, iTechColWont, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH_TRADE, iLoopTech, iLoopPlayer )
+-						elif (gc.getTeam(currentPlayer.getTeam()).isHasTech(iLoopTech) and activePlayer.canResearch(iLoopTech, False)):
+-							self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
++						else:
++							# <advc.553> If tech trading disabled, show a hint about that only once (in row 0).
++							if currentRow == 0 and gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
++								message = gc.getGameOptionInfo(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING).getDescription()
++								self.techIconGrid.setText(currentRow, iTechColWill, message)
++							# </advc.553>
++							if (gc.getTeam(currentPlayer.getTeam()).isHasTech(iLoopTech) and activePlayer.canResearch(iLoopTech, False)):
++								self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 				currentRow += 1
+ 		self.techIconGrid.refresh()
+ 
+@@ -1346,14 +1351,18 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		gridY = self.MIN_TOP_BOTTOM_SPACE + 10
+ 		gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
+ 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
+-		
++		willTradeColumnType = IconGrid_BUG.GRID_MULTI_LIST_COLUMN
++		# <advc.553> Make the will-trade column a text column so that the no-tech-trading hint can be placed there
++		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
++			willTradeColumnType = IconGrid_BUG.GRID_TEXT_COLUMN
++		# </advc.553>
+ 		columns = ( IconGrid_BUG.GRID_ICON_COLUMN,
+ 					IconGrid_BUG.GRID_TEXT_COLUMN,
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+ 					IconGrid_BUG.GRID_TEXT_COLUMN,
+-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
++					willTradeColumnType,
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
+ 		self.techIconGridName = self.getNextWidgetName()
+@@ -1374,6 +1383,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.techIconGrid.setHeader( iTechColGold, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 		self.techIconGrid.setTextColWidth( iTechColGold, self.TECH_GOLD_COL_WIDTH )
+ 		self.techIconGrid.setHeader( iTechColWill, localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ()) )
++		# <advc.553>
++		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
++			self.techIconGrid.setTextColWidth(iTechColWill, 2 * self.TECH_GOLD_COL_WIDTH) # </advc.553>
+ 		self.techIconGrid.setHeader( iTechColWont, localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ()) )
+ 		self.techIconGrid.setHeader( iTechColCantThem, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ()) )
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 2e67346c4..e80a7d648 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5358,6 +5358,16 @@
+ 		<Spanish>No intercambia</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.553: From Civ4GameTextInfos.xml. Shortened. -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING</Tag>
++		<English>Tech Trading Not Allowed</English>
++		<French>Aucun �change de tech</French>
++		<German>Kein Technologiehandel</German>
++		<Italian>Nessun scambio di tecnologie</Italian>
++		<Spanish>Intercambio no permitido</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004y: Like TXT_KEY_MAIN_MENU_CIVILOPEDIA (CIV4GameTextInfos.xml),
+ 		 but all capitalized. -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bb5704a32..da2171a52 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6889,6 +6889,29 @@ int CvPlayer::getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) cons
+ 	return iTurnsLeft; // advc.004x
+ }
+ 
++// <advc.104>  (also used for advc.079)
++bool CvPlayer::canSeeTech(PlayerTypes eOther) const
++{
++	// Partly based on drawTechDeals in ExoticForeignAdvisor.py
++	if(eOther == NO_PLAYER)
++		return false;
++	CvTeam const& ourTeam = GET_TEAM(getTeam());
++	CvTeam const& otherTeam = GET_TEAM(eOther);
++	if(ourTeam.getID() == otherTeam.getID())
++		return true;
++	if(otherTeam.isVassal(ourTeam.getID()))
++		return true; // Can see tech through "we'd like you to research ..."
++	// advc.553: Make tech visible despite No Tech Trading (as in BtS)
++	/*if(GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && !canSeeResearch(eOther))
++		return false;*/
++	if(!ourTeam.isAlive() || !otherTeam.isAlive() ||
++			ourTeam.isBarbarian() || otherTeam.isBarbarian() ||
++			ourTeam.isMinorCiv() || otherTeam.isMinorCiv())
++		return false;
++	return ourTeam.isHasMet(otherTeam.getID()) &&
++			(ourTeam.isTechTrading() || otherTeam.isTechTrading());
++} // </advc.104>
++
+ // K-Mod. Return true if this player can see what ePlayer is researching
+ bool CvPlayer::canSeeResearch(PlayerTypes ePlayer, /* advc.085: */ bool bCheckPoints) const
+ {
+@@ -13607,27 +13630,6 @@ TechTypes CvPlayer::getStealCostTech(PlayerTypes eTargetPlayer) const
+ 	return r;
+ }
+ 
+-// <advc.104>  (also used for advc.079)
+-bool CvPlayer::canSeeTech(PlayerTypes eOther) const
+-{
+-	// Partly based on drawTechDeals in ExoticForeignAdvisor.py
+-	if(eOther == NO_PLAYER)
+-		return false;
+-	CvTeam const& ourTeam = GET_TEAM(getTeam());
+-	CvTeam const& otherTeam = GET_TEAM(eOther);
+-	if(ourTeam.getID() == otherTeam.getID())
+-		return true;
+-	if(otherTeam.isVassal(ourTeam.getID()))
+-		return true; // Can see tech through "we'd like you to research ..."
+-	if(GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING))
+-		return false;
+-	if(!ourTeam.isAlive() || !otherTeam.isAlive() ||
+-			ourTeam.isBarbarian() || otherTeam.isBarbarian() ||
+-			ourTeam.isMinorCiv() || otherTeam.isMinorCiv())
+-		return false;
+-	return ourTeam.isHasMet(otherTeam.getID()) &&
+-			(ourTeam.isTechTrading() || otherTeam.isTechTrading());
+-} // </advc.104>
+ 
+ bool CvPlayer::canSpy() const
+ {
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7239

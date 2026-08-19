@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4260
+# Commit: 4a2fcff2b0bb4fbcf68896b08a81bc00c85e83a7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e34b4fa9959422a844f66c9a3077ced42294c41e
+# Title: Fix current research not being granted as free tech
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	13	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 992cf7c7c..eb7fc3c95 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1449,10 +1449,20 @@ void CvDLLWidgetData::doResearch(CvWidgetDataStruct &widgetDataStruct)
+ 		if ((GetKeyState(VK_LSHIFT) & 0x8000) || (GetKeyState(VK_RSHIFT) & 0x8000))
+ 			bShift = true;
+ 	}*/ // BtS
+-	bool bShift = GC.shiftKey();
+-
+-	// UNOFFICIAL_PATCH, Bugfix (Free Tech Popup Fix), 12/07/09, EmperorFool: START
++	bool const bShift = GC.shiftKey();
+ 	CvPlayer& kActivePlayer = GET_PLAYER(getActivePlayer());
++	TechTypes eNewActiveResearch = (TechTypes)widgetDataStruct.m_iData1;
++	/*	<advc.001> The main interface now passes the tech ID when the name of
++		the current research is clicked (for the right-click Pedia jump). But
++		we still want to clear the current research on left-click, so we mustn't
++		pass the tech ID along here. */
++	if (widgetDataStruct.m_eWidgetType == WIDGET_RESEARCH &&
++		eNewActiveResearch == kActivePlayer.getCurrentResearch() &&
++		!kActivePlayer.isChoosingFreeTech())
++	{
++		eNewActiveResearch = NO_TECH;
++	} // </advc.001>
++	// UNOFFICIAL_PATCH, Bugfix (Free Tech Popup Fix), 12/07/09, EmperorFool: START
+ 	if (widgetDataStruct.m_iData2 > 0)
+ 	{
+ 		if (!kActivePlayer.isChoosingFreeTech())
+@@ -1464,16 +1474,6 @@ void CvDLLWidgetData::doResearch(CvWidgetDataStruct &widgetDataStruct)
+ 		}
+ 		else kActivePlayer.changeChoosingFreeTechCount(-1);
+ 	} // UNOFFICIAL_PATCH: END
+-	TechTypes eNewActiveResearch = (TechTypes)widgetDataStruct.m_iData1;
+-	/*	<advc.001> The main interface now passes the tech ID when the name of
+-		the current research is clicked (for the right-click Pedia jump). But
+-		we still want to clear the current research on left-click, so we mustn't
+-		pass the tech ID along here. */
+-	if (widgetDataStruct.m_eWidgetType == WIDGET_RESEARCH &&
+-		eNewActiveResearch == kActivePlayer.getCurrentResearch())
+-	{
+-		eNewActiveResearch = NO_TECH;
+-	} // </advc.001>
+ 	CvMessageControl::getInstance().sendResearch(eNewActiveResearch,
+ 			widgetDataStruct.m_iData2, bShift);
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2127

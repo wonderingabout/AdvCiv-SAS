@@ -1,0 +1,132 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3478
+# Commit: 3bb274cbdcccff34241ae0bf6e2526fe0fb106db
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1b796618e77be46b120f77413c20ff6bf187bdba
+# Title: UWAI: Don't plan war against faraway member of a DP
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	7	CvGameCoreDLL/UWAIAgent.cpp
+2	1	CvGameCoreDLL/UWAIAgent.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index bfcce1325..b956d2d5c 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1294,7 +1294,8 @@ int UWAI::Team::reluctanceToPeace(TeamTypes eEnemy, bool bNonNegative) const
+ }
+ 
+ 
+-bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan) const
++bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
++	bool bCheckDefensivePacts) const
+ {
+ 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
+ 	if (eTarget == NO_TEAM || eTarget == BARBARIAN_TEAM || eTarget == kAgent.getID())
+@@ -1310,10 +1311,48 @@ bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan) cons
+ 	{
+ 		return false;
+ 	}
+-	return (kTarget.isAlive() && !kTarget.isMinorCiv() && kAgent.isHasMet(eTarget) &&
+-			!kTarget.isAVassal() && kTarget.getNumCities() > 0 && (bAssumeNoWarPlan ||
+-			kAgent.AI_getWarPlan(eTarget) == NO_WARPLAN) &&
+-			kAgent.canEventuallyDeclareWar(eTarget));
++	if (!(kTarget.isAlive() && !kTarget.isMinorCiv() && kAgent.isHasMet(eTarget) &&
++		!kTarget.isAVassal() && kTarget.getNumCities() > 0 &&
++		(bAssumeNoWarPlan || kAgent.AI_getWarPlan(eTarget) == NO_WARPLAN) &&
++		kAgent.canEventuallyDeclareWar(eTarget)))
++	{
++		return false;
++	}
++	/*	Important not to scheme against a faraway member of a DP b/c that
++		may delay our DoW considerably, may even require transports. CvUnitAI
++		is only going to target cities of the target team and its vassals.
++		The initial DoW matters for diplo penalties, but that's a less important
++		consideration. */
++	if (bCheckDefensivePacts)
++	{
++		for (TeamIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itAlly(eTarget);
++			itAlly.hasNext(); ++itAlly)
++		{
++			if (itAlly->isDefensivePact(eTarget) &&
++				/*	(Should come up rarely, so the performance of these checks
++					shouldn't matter much. Closeness also gets cached.) */
++				canSchemeAgainst(itAlly->getID(), bAssumeNoWarPlan, false))
++			{
++				int iAllyCloseness = kAgent.AI_teamCloseness(itAlly->getID());
++				for (TeamIter<MAJOR_CIV,VASSAL_OF> itVassal(itAlly->getID());
++					itVassal.hasNext(); ++itVassal)
++				{
++					iAllyCloseness = std::max(iAllyCloseness,
++							kAgent.AI_teamCloseness(itVassal->getID()));
++				}
++				int iTargetCloseness = kAgent.AI_teamCloseness(eTarget);
++				for (TeamIter<MAJOR_CIV,VASSAL_OF> itVassal(eTarget);
++					itVassal.hasNext(); ++itVassal)
++				{
++					iTargetCloseness = std::max(iTargetCloseness,
++							kAgent.AI_teamCloseness(itVassal->getID()));
++				}
++				if (2 * iAllyCloseness > 3 * iTargetCloseness)
++					return false;
++			}
++		}
++	}
++	return true;
+ }
+ 
+ 
+@@ -1376,7 +1415,7 @@ void UWAI::Team::scheme()
+ 		itTarget.hasNext(); ++itTarget)
+ 	{
+ 		TeamTypes const eTarget = itTarget->getID();
+-		if (!canSchemeAgainst(eTarget, true))
++		if (!canSchemeAgainst(eTarget, true, false))
+ 			kCache.setCanBeHiredAgainst(eTarget, false);
+ 		if (!canSchemeAgainst(eTarget, false))
+ 			continue;
+@@ -1626,7 +1665,7 @@ int UWAI::Team::declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const
+ 	/*  Sponsored war results in a peace treaty with the sponsor. Don't check if
+ 		we're planning war against the sponsor - too easy to read (b/c there are
+ 		just two possibilities). Instead check war utility against the sponsor. */
+-	if (canSchemeAgainst(eSponsor, true))
++	if (canSchemeAgainst(eSponsor, true, false))
+ 	{
+ 		WarEvalParameters paramsVsSponsor(kAgent.getID(), eSponsor, silentReport);
+ 		WarEvaluator evalVsSponsor(paramsVsSponsor);
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index 6f0ef532b..d0b603acb 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -27,6 +27,8 @@ public:
+ 			CLinkList<TradeData> const* pWeGive = NULL);
+ 	void turnPre();
+ 	void doWar(); // replacement for CvTeamAI::doWar
++	bool canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
++			bool bCheckDefensivePacts = true) const;
+ 	// Replacing parts of CvTeamAI::AI_declareWarTrade
+ 	DenialTypes declareWarTrade(TeamTypes eTeam, TeamTypes eSponsor) const;
+ 	/*	Replacing CvTeamAI::AI_declareWarTradeVal. However, that function is
+@@ -110,7 +112,6 @@ private:
+ 	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
+ 
+ 	void scheme(); // Consider new war plans
+-	bool canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan) const;
+ 	void alignAreaAI(bool bNaval);
+ 	int peaceThreshold(TeamTypes eTarget) const;
+ 	scaled limitedWarWeight() const;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4500

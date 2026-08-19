@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1510
+# Commit: c8495e3a582584085fc0726da7556104739651f1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 39226c11b40e52fa58b85d865962d1e9288984a6
+# Title: Report spy attacks with bForce=false
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	5	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 194617a72..9b0864c9f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -15433,7 +15433,8 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 	{
+ 		if (pPlot)
+ 		{
+-			if (pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), false))
++			if (pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), false)
++					&& GC.getGameINLINE().getActiveTeam() == getTeam()) // advc.120i
+ 			{
+ 				EffectTypes eEffect = GC.getEntityEventInfo(GC.getMissionInfo(MISSION_BOMBARD).getEntityEvent()).getEffectType();
+ 				gDLL->getEngineIFace()->TriggerEffect(eEffect, pPlot->getPoint(), (float)(GC.getASyncRand().get(360)));
+@@ -15489,14 +15490,15 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 
+ 		if (NO_PLAYER != eTargetPlayer)
+ 		{	// <advc.120>
+-			ColorTypes col = NO_COLOR;
++			ColorTypes eColor = NO_COLOR;
+ 			if(bAggressiveMission)
+-				col = (ColorTypes)GC.getInfoTypeForString("COLOR_RED");
++				eColor = (ColorTypes)GC.getInfoTypeForString("COLOR_RED");
+ 			// </advc.120>
+-			gDLL->getInterfaceIFace()->addHumanMessage(eTargetPlayer, true,
++			gDLL->getInterfaceIFace()->addHumanMessage(eTargetPlayer,
++					/*true*/ false, // advc.120i
+ 					GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DEAL_CANCELLED",
+ 					MESSAGE_TYPE_INFO, ARTFILEMGR.getInterfaceArtInfo(
+-					"ESPIONAGE_BUTTON")->getPath(), col, iX, iY, true, true);
++					"ESPIONAGE_BUTTON")->getPath(), eColor, iX, iY, true, true);
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1566

@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2948
+# Commit: b67a138061a88d18143c1ff4a50d32d6fc4a1d7f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 325996c29ab8d458a8c7b0a12b214cf600b4d141
+# Title: Fix potential issue with UWAI UI cache with 48-civ DLL
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/WarEvalParameters.cpp
+8	0	CvGameCoreDLL/WarEvalParameters.h
+3	3	CvGameCoreDLL/WarEvaluator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.cpp b/CvGameCoreDLL/WarEvalParameters.cpp
+index 9945f4801..248f3b357 100644
+--- a/CvGameCoreDLL/WarEvalParameters.cpp
++++ b/CvGameCoreDLL/WarEvalParameters.cpp
+@@ -124,11 +124,11 @@ TeamTypes WarEvalParameters::getCapitulationTeam() const {
+ 	return capitulationTeam;
+ }
+ 
+-int WarEvalParameters::id() const {
++WarEvalParamID WarEvalParameters::id() const {
+ 
+-	/*  Some 500 mio. possible combinations; fits into a single int.
++	/*  Some 500 mio. possible combinations; fits into 32 bit.
+ 		Ensure uniqueness through a mixed-base positional system: */
+-	long r = _targetId + 1; r *= 20;
++	WarEvalParamID r = _targetId + 1; r *= 20;
+ 	r += _agentId + 1; r *= 20;
+ 	r += consideringPeace; r *= 2;
+ 	r += ignoreDistraction; r *= 2;
+@@ -138,9 +138,9 @@ int WarEvalParameters::id() const {
+ 	r += sponsor + 1; r *= 20;
+ 	r += capitulationTeam + 1; r *= 20;
+ 	r += immediateDoW;
+-	/*  warAllies and extraTargets matter only in situations where the cache
+-		should be disabled. (Also wouldn't fit into a single int, but long long
+-		could be used instead.) */
++	/*  WarAllies and ExtraTargets matter only in situations where the cache
++		should be disabled. (Also wouldn't fit into a single int; would have
++		to use 64 bit regardless of MAX_CIV_PLAYERS.) */
+ 	FAssert(warAllies.empty() && extraTargets.empty());
+ 	return r;
+ }
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.h b/CvGameCoreDLL/WarEvalParameters.h
+index 0c909d165..543618665 100644
+--- a/CvGameCoreDLL/WarEvalParameters.h
++++ b/CvGameCoreDLL/WarEvalParameters.h
+@@ -6,6 +6,14 @@
+ class WarUtilityAspect;
+ class UWAIReport;
+ 
++/*	For WarEvalParameters::getID.
++	(Could go a bit higher with 32 bit, but e.g. 30 civs won't fit.) */
++#if MAX_CIV_PLAYERS < 20 && MAX_CIV_TEAMS < 20
++	typedef int WarEvalParamID;
++#else
++	typedef __int64 WarEvalParamID;
++#endif
++
+ /* advc.104: New class. Parameters that enter into the computation of
+    war utility. On the level of teams (not individual civs).
+    These parameters need to be passed around a bit, ultimately to the
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 6af76dc80..ee14c0934 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -28,7 +28,7 @@ bool WarEvaluator::cacheCleared = true;
+ 	limited/ total or mutual war utility of two civs,
+ 	so caching just the last result isn't effective. */
+ #define cacheSz 16
+-static int lastCallParams[cacheSz];
++static WarEvalParamID lastCallParams[cacheSz];
+ static int lastCallResult[cacheSz];
+ static int lastIndex;
+ 
+@@ -239,7 +239,7 @@ int WarEvaluator::evaluate(WarPlanTypes wp, bool isNaval, int preparationTime) {
+ 	params.setPreparationTime(preparationTime);
+ 	// Don't check cache in recursive calls (peaceScenario=true)
+ 	if(!peaceScenario && (checkCache || useCache || gDLL->isDiplomacy())) {
+-		int id = params.id();
++		WarEvalParamID id = params.id();
+ 		for(int i = 0; i < cacheSz; i++)
+ 			if(id == lastCallParams[i] && lastCallResult[i] != MIN_INT)
+ 				return lastCallResult[i];
+@@ -275,7 +275,7 @@ int WarEvaluator::evaluate(WarPlanTypes wp, bool isNaval, int preparationTime) {
+ 			that this can push out just the values that are needed. */
+ 		if(checkCache || useCache) {
+ 			// Cache the total result after returning from the recursive call
+-			long id = params.id();
++			WarEvalParamID id = params.id();
+ 			lastCallParams[lastIndex] = id;
+ 			lastCallResult[lastIndex] = u;
+ 			lastIndex = (lastIndex + 1) % cacheSz;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3496

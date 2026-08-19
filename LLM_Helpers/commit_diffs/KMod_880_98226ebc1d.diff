@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 880
+# Commit: 98226ebc1d782a7fe1864f775cd7c59ddfbf1ab8
+# History segment: K-Mod history
+# Parent used for diff: 53c6812d59f03e687da69ce90fc2720e4c9e1dad
+# Title: Extra yield from improvement upgrades is now counted in AI_plotValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	3	CvGameCoreDLL/CvCityAI.cpp
+2	0	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8d98b8bbd..a0d1d2582 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7454,6 +7454,8 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 			{
+ 				aiFinalYields[iJ] -= 2 * GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange((YieldTypes)iJ);							
+ 			} */ // disabled by K-Mod. (this is already taken into account with bIgnoreFeature in calculateNatureYield)
++			// K-Mod note: these calculations currently do not take the 'financial' bonus into account.
++			// They probably should take that bonus into account. But it would be a bit messy to code and I don't want to do it right now.
+ 
+ 			int iCurYield = 2*(pPlot->calculateNatureYield(((YieldTypes)iJ), getTeam(), false));
+ 
+@@ -10147,10 +10149,18 @@ int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bRemove, bool bIgnoreFood, bool b
+ 	//if (eFinalImprovement != NO_IMPROVEMENT)
+ 	if (eFinalImprovement != NO_IMPROVEMENT && eFinalImprovement != eCurrentImprovement) // K-Mod
+ 	{
+-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		const CvPlayer& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
++		for (YieldTypes i = (YieldTypes)0; i < NUM_YIELD_TYPES; i=(YieldTypes)(i+1))
+ 		{
+-			int iYieldDiff = (pPlot->calculateImprovementYieldChange(eFinalImprovement, ((YieldTypes)iI), getOwnerINLINE()) - pPlot->calculateImprovementYieldChange(eCurrentImprovement, ((YieldTypes)iI), getOwnerINLINE()));
+-			aiYields[iI] += iYieldDiff;
++			int iYieldDiff = pPlot->calculateImprovementYieldChange(eFinalImprovement, i, getOwnerINLINE()) - pPlot->calculateImprovementYieldChange(eCurrentImprovement, i, getOwnerINLINE());
++			// K-Mod. Try to count the 'extra yield', for financial civs. (Don't bother with golden-age bonuses.)
++			if (kOwner.getExtraYieldThreshold(i) > 0)
++			{
++				iYieldDiff += (aiYields[i] >= kOwner.getExtraYieldThreshold(i) ? -GC.getEXTRA_YIELD() : 0) + (aiYields[i]+iYieldDiff >= kOwner.getExtraYieldThreshold(i) ? GC.getEXTRA_YIELD() : 0);
++			}
++			// K-Mod end
++
++			aiYields[i] += iYieldDiff;
+ 		}
+ 		int iFinalYieldValue = AI_yieldValue(aiYields, NULL, bRemove, bIgnoreFood, bIgnoreStarvation, false, iGrowthValue) * 100;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 07e86d429..3666412e4 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6290,6 +6290,8 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
+ 			iYield += GC.getImprovementInfo(eImprovement).getTechYieldChanges(iI, eYield);
+ 		}
+ 
++		// K-Mod note: this doesn't calculate the 'optimal' yield, because it will count negative effects and it will count effects from competing civics.
++		// Maybe I'll fix it later.
+ 		for (iI = 0; iI < GC.getNumCivicInfos(); ++iI)
+ 		{
+ 			iYield += GC.getCivicInfo((CivicTypes) iI).getImprovementYieldChanges(eImprovement, eYield);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2921

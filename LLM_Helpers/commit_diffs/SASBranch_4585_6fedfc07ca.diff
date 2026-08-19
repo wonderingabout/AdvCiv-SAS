@@ -1,0 +1,133 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4585
+# Commit: 6fedfc07ca8211b7a21807110c1fd172db1b5481
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2be572deff89d8ea7104ad10206b9d7994369d5f
+# Title: add sniper units (docs only) or/and other units or/and docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+37	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+10	9	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index cb94727b7..d4414467d 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 12b5d0fed..2423c3b16 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -739,3 +739,40 @@ the USA equivalent of gun defense now etc i mean anyways, to stir the nostalgia
+ curiosity or not of some etc i mena anyways todo delete later etc i mean anyways, but focus on myself i need it and need to etc
+ i mean anyways to not mislead etc i mean anyways todo delete later before merging this pr etc i mean anyways sorry if spammy
+ for those who read or not etc but i wanted to write this hopefully not mind but may bother anywyas etc i mean anyways, thanks,
++
++- reuse this wikipedia description https://en.wikipedia.org/wiki/Sniper#1543-1600 (as quoted before about this etc) about the early sniper that i may call "long range marksman" or similar as in this wikipedia quote below etc, after the initial date of 1543-1600 about this etc, beginning of quote:
++"Long range marksmanship occurred as early as the mid-sixteenth century.
++
++One example is the Ise-no-kami school of gunnery. It was founded by the Christian feudal lord of the Saiki Domain, Mori Takamasa (毛利高政 1559- 1628). Takamasa had aspired to become a marksman from a young age, and in his prime, he used up a 10-tan sailboat's worth of ammunition in just a few years, showing his considerable passion. He is said to have always told people, "You won't improve your skills unless you fire that much ammunition." During the battle of Ulsan Castle in Korea, he was a master of guns, firing at the enemy from a distance of seven cho ( about 770 meters ) with a 278 cm long "焔魔王 - Flaming Demon King" O-zutsu (Matchlock Cannon) throwing the enemy camp into confusion with his accurate shots."
++end of quote
++
++- about the long range sharpshooter same etc:
++https://en.wikipedia.org/wiki/Sniper#1701%E2%80%931800 and https://en.wikipedia.org/wiki/Sniper#1801%E2%80%931900
++quote:
++"
++1701–1800
++Later "sharpshooting" or "sniping" became implemented in shooting terminology.
++
++For example: in the 1752 Appin Murder, Colin Roy Campbell of Glenure was shot in the back near Duror by an unknown sniper, most likely from within Clan Stewart of Appin, in retaliation for Campbell's role in an early version of the Highland Clearances; the mass eviction of Stewart clansmen and their replacement by members of Clan Campbell.
++
++Hunting terminology was quickly adapted to warfare by British soldiers. In a 1772 letter, a soldier described enemies firing very accurately:
++
++… in erecting our batteries, the people frequently play tricks, by putting a hat with a cockade in it on a spunge staff, which the enemy fire at and often hit, to the diversion of the soldiery, who humorously call it sniping, and watch the flash to return the fire.
++
++On 11 September 1777, during the Battle of Brandywine, British Captain Patrick Ferguson had a tall, distinguished American officer in his rifle's iron sights. Ferguson did not take the shot, as he considered shooting anyone in the back dishonourable. Only later, did Ferguson learn that George Washington had been on the battlefield that day.
++
++At the Battles of Saratoga, Morgan's Riflemen hid in the trees and used early model rifles to shoot senior British officers. Most notably, Timothy Murphy shot and killed General Simon Fraser of Balnain on 7 October 1777 at a distance of about 400 yards.
++
++In early 1800, Colonel Coote Manningham and Lieutenant-Colonel the Hon. William Stewart of the British Army proposed using what they had learned while leading light infantry to establish a special unit of marksmen. Subsequently raised as the "Experimental Corps of Riflemen", they were armed with the formidable Baker rifle rather than the inaccurate smoothbore muskets used by most troops at that time. Through the combination of a leather wad and tight grooves on the inside of the barrel (rifling), this weapon was far more accurate, though slower to load. On 25 August 1800, three companies, under the command of Stewart, spearheaded an amphibious landing at Ferrol, Spain.
++
++1801–1900
++The term, "sharp shooter" was in use in British newspapers as early as 1801. In the Edinburgh Advertiser, 23 June 1801, can be found the following quote in a piece about the North British Militia; "This Regiment has several Field Pieces, and two companies of Sharp Shooters, which are very necessary in the modern Stile of War". The term appears even earlier, around 1781, in Continental Europe, translated from the German Scharfschütze. Scouts in the Ashanti army were made up of professional hunters who used their skill as marksmen to snipe at advancing enemy forces in response to detection by the enemy. They executed this often from a perch high in trees. The Whitworth rifle was arguably the first long-range sniper rifle in the world. A muzzleloader designed by Sir Joseph Whitworth, a prominent British engineer, it used polygonal rifling instead, which meant that the projectile did not have to bite into grooves as was done with conventional rifling. The Whitworth rifle was far more accurate than the Pattern 1853 Enfield, which had shown some weaknesses during the recent Crimean War. At trials in 1857 which tested the accuracy and range of both weapons, Whitworth's design outperformed the Enfield at a rate of about three to one. The Whitworth rifle was capable of hitting the target at a range of 2,000 yards, whereas the Enfield could only manage it at 1,400 yards.
++
++During the Crimean War, the first optical sights were designed to fit onto rifles. Much of this pioneering work was the brainchild of Colonel D. Davidson, using optical sights produced by Chance Brothers of Birmingham. This allowed a marksman to observe and target objects more accurately at a greater distance than ever before. The telescopic sight, or scope, was originally fixed and could not be adjusted, which therefore limited its range.
++
++Despite its success at the trials, the rifle was not adopted by the British Army. However, the Whitworth Rifle Company was able to sell the weapon to the French army, and also to the Confederacy during the American Civil War, where both the Union and Confederate armies employed sharpshooters. The most notable incident was during the Battle of Spotsylvania Court House, where on 9 May 1864, Union General John Sedgwick was killed by a Confederate Whitworth sharpshooter at a range of about 1,000 yards (910 meters) after saying the enemy "couldn't hit an elephant at this distance"."
++end of quote
++
++- for the early sniper, similarly, quote https://en.wikipedia.org/wiki/Sniper#Second_Boer_War + https://en.wikipedia.org/wiki/Sniper#World_War_I
++
++- for the modern sniper similarly, quote https://en.wikipedia.org/wiki/Sniper#World_War_II
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 5d2da641d..1e97563b1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -15,6 +15,7 @@ pikeman (not useful about this i mean anyways, thanks)
+ chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+ swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
+ catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
++rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
+ infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
+ 
+ 
+@@ -293,7 +294,7 @@ short bows
+ archer 1: stone thrower c2c
+ archer 2: -
+ archer 3: archer semitic realism invictus
+-archer 4: marksman ffh2
++archer 4: marksman _ marksman same name? Ffh2 etc
+ -
+ 
+ 
+@@ -500,8 +501,8 @@ gun offense units
+ -
+ -
+ -
+-gun offense 5: - ?
+-gun offense 6: - ? should be fine etc about this etc, thanks, (i mean anyways etc i mean anyways, thanks, todo delete etc i mean anyways, thanks)
++gun offense 5: - _ rename to arquebusier? -
++gun offense 6: rifleman realism invictus (same unit just different art etc)
+ gun offense 7: trench infantry realism invictus
+ gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
+ gun offense 9: super soldier c2c
+@@ -512,8 +513,8 @@ gun defense units
+ -
+ -
+ -
+-gun offense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
+-gun offense 6: -
++gun defense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
++gun defense 6: blauwe guard (unique) _ royal (rifleman?) guard history rewritten
+ gun defense 7: - (machine gun -)
+ gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick M4A1)
+ gun defense 9: special infantry c2c
+@@ -540,10 +541,10 @@ gun sniper units
+ -
+ -
+ -
+-gun sniper 5: ?
+-gun sniper 6: ?
+-gun sniper 7: ?
+-gun sniper 8: ?
++gun sniper 5:  (unique) _ long range marksman history rewritten
++gun sniper 6: rifleman (british) _ - sharpshooter realism invictus
++gun sniper 7: early sniper
++gun sniper 8: modern sniper
+ gun sniper 9: ?
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9795

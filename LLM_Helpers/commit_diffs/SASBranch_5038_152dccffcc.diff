@@ -1,0 +1,225 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5038
+# Commit: 152dccffccaf15a3667b9eea6a94d7cb34ef32c7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a4255a54e6829483a4d7d76dd752882477739eb4
+# Title: fix missing no trebuchets-like gate in the new no production siege code, fixes excess trebuchets and improves ai performance by allowing a few in fallback co...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+15	3	Assets/XML/GlobalDefines_advciv_sas.xml
+58	8	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 91dbeb4c1..0c8417673 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -454,8 +454,9 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us anyways etc). -->
++	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean if i'm not mistaken but anyways etc -->
+ 	<Define>
+-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
++		<DefineName>SAS_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units. For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example anyways etc. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense if i'm not mistaken especially for AI but anyways etc)) -->
+@@ -478,8 +479,9 @@
+ 
+ 	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example anyways etc), where our code remains active. Past this turn, we don't control excess defenders anymore anyways etc. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less anyways etc -->
+ 	<!-- custom: as of now only applies to land unitais as are +/- were anyways etc the most important to trim and that overproduce as of now with our changes anyways etc -->
++	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean if i'm not mistaken but anyways etc -->
+ 	<Define>
+-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
++		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
+ 		<iDefineIntVal>170</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: this is the general toggle, for specific ones, look below anyways etc. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit anyways etc. -->
+@@ -581,7 +583,7 @@
+ 	<!-- custom: e.g. 2 cities multiplier and 3 num cities and 4 extra: (2 * 3) + 4 = 6 + 4 = 10 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
+@@ -634,6 +636,16 @@
+ 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
++	<!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold if i am not mistaken anyways etc. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental anyways etc) via the no production fallback part of the code i mean but anyways etc -->
++	<Define>
++		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
++	<!-- custom: percent of the above threshold if !bWarPlan (i.e. if no war plan more or less guessedly of me if i may say but anyways etc), rather than forbidding all, allow some but less, e.g. 50% of that value max if  anyways etc -->
++	<Define>
++		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT</DefineName>
++		<iDefineIntVal>67</iDefineIntVal>
++	</Define>
+ 	<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 47b7bd936..f70e692d9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -631,7 +631,8 @@ void CvCity::doTurn()
+ 			const CvCivilizationInfo& kCiv = GC.getInfo(kOwner.getCivilizationType());
+ 
+ 			// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate anyways etc) (with .AI() it seems if i understood it correctly but check if accurate or to be sure in this case i mean but anyways etc) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure anyways etc. As for us this fixes our compile error that it was not a member of a class if i'm not mistaken so left as such as well but check if accurate or to be sure anyways etc -->
+-			const int iSiegesAllNoTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
++			const int iSiegesAllNonTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
++			const int iSiegesAllTrebuchetsLike = kOwner.AI().AI_countTrebuchetsLike();
+ 
+ 			static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
+ 
+@@ -653,6 +654,24 @@ void CvCity::doTurn()
+ 
+ 			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
+ 
++			static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
++
++			// Situation read
++			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
++			// change to:
++			bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
++			bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
++			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
++			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
++			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
++			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
++			// <!-- custom: see/read but anyways etc code comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details if i may say but anyways etc -->
++
++			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD");
++			int iCapTrebsPreRenaissance = iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThreshold;
++
++			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThresholdNoWarPlanPercent = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
++
+ 			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
+ 
+ 			const int iNumCities = kOwner.getNumCities();
+@@ -670,7 +689,7 @@ void CvCity::doTurn()
+ 			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+ 			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+ 			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+-			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
++			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
+ 			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+ 			const int iCurrentTurn = GC.getGame().getGameTurn();
+ 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+@@ -679,6 +698,10 @@ void CvCity::doTurn()
+ 			static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+ 			static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
+ 
++			// <!-- custom: cheaper to hoist the last tier since we are doing a loop here unlike in ::AI_ChooseUnit if i'm not mistaken but anyways etc, especially in the later game tiers where more and more units would be part of it in this case i mean if i'm not mistaken but anyways etc, as for the earlier tiers probably cheaper not to hoist them as we don't access them later in the game anyway, and there are more units then as well if i'm not mistaken but anyways etc -->
++			static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
++			static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
++
+ 			FOR_EACH_ENUM(Unit)
+ 			{
+ 				if (!canTrain(eLoopUnit, false))
+@@ -730,16 +753,47 @@ void CvCity::doTurn()
+ 						// <!-- custom: simplified non-trebuchets like (i.e. catapults only as of now anyways etc) gate -->
+ 						if (!bTrebuchetLike)
+ 						{
+-							if (iSiegesAllNoTrebuchetsLike >= iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold)
++							if (iSiegesAllNonTrebuchetsLike >= iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold)
+ 							{
+ 								continue;
+ 							}
+ 						}
++						// <!-- custom: simplified trebuchets like rule anyways etc -->
++						else
++						{
++							if (bNoExcessTrebuchetsLike)
++							{
++								// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
++								if (bAtWar && bEnemyStrong)
++								{
++									continue; // don’t add more narrow-purpose siege when not stronger
++								}
++								// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
++								if (bDanger)
++								{
++									continue; // don’t add more narrow-purpose siege when not stronger
++								}
++								// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking but anyways etc -->
++								if (!bWarPlan)
++								{
++									iCapTrebsPreRenaissance = (iCapTrebsPreRenaissance * iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThresholdNoWarPlanPercent) / 100;
++								}
++								// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
++								if (bEnemyStrong)
++								{
++									continue;
++								}
++
++								if (iSiegesAllTrebuchetsLike >= iCapTrebsPreRenaissance)
++								{
++									continue;
++								}
++							}
++						}
+ 					}
+ 					// <!-- custom: else no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet anyways etc. -->
+ 				}
+ 
+-
+ 				// Stable classification by XML base cost
+ 				// (keeps behavior stable if a modmod has odd XML)
+ 				// const int iLoopCost = getProductionNeeded(eLoopUnit);
+@@ -757,10 +811,6 @@ void CvCity::doTurn()
+ 					const bool bTierCla = (!bTierAnc && iLoopXMLCost <= TH_CLA);
+ 					const bool bTierMedPlus = (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED_PLUS);
+ 
+-					// <!-- custom: cheaper to hoist the last tier since we are doing a loop here unlike in ::AI_ChooseUnit if i'm not mistaken but anyways etc, especially in the later game tiers where more and more units would be part of it in this case i mean if i'm not mistaken but anyways etc, as for the earlier tiers probably cheaper not to hoist them as we don't access them later in the game anyway, and there are more units then as well if i'm not mistaken but anyways etc -->
+-					static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
+-					static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
+-
+ 					// <!-- custom: note: we already check domain_land and combat > 0 so no need to check it here again in this implementation of the very cheap code now in CvCity::doTurn if i'm not mistaken but added note for exhaustiveness if i may say in this case i mean but anyways etc -->
+ 
+ 					if (bTierAnc || bTierCla || bTierMedPlus)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 9f1c49dbd..815a5a212 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11398,7 +11398,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				const int iCityAttackModifier = pUnitInfo->getCityAttackModifier();
+ 				const bool bTrebuchetLike = (iCityAttackModifier >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD);
+ 
+-				static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_TREBUCHETS_LIKE");
++				static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
+ 
+ 				// Trebuchet-like stricter rule
+ 				if (bTrebuchetLike && bNoExcessTrebuchetsLike)
+@@ -11497,7 +11497,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+ 			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+ 			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+-			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
++			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
+ 			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+ 			const int iCurrentTurn = GC.getGame().getGameTurn();
+ 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=17941

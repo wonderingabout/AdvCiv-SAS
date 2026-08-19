@@ -1,0 +1,222 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5343
+# Commit: 4a015ac5beceb9ecca4b38eccff5142a11940946
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2b994644624cae9db20ae3b1249654367d196f3c
+# Title: Fix incorrect readme to WIGET_PYTHON 6798, add build entries to Sevopedia Index with buttons
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	AGENTS.md
+30	3	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+8	3	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+5	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index db40bac45..49fdc66a0 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -21,7 +21,7 @@ If you don't know how to do something, generally mostly for UI stuff as we like
+ - The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
+ - The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
+ 
+-While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such when we do so.
++While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such in code comments or docs when we do so.
+ 
+ Example of UI tip discovered: if a new Sevopedia category needs clickable entries and the EXE doesn't fire a custom widget, use `WidgetTypes.WIDGET_PYTHON` with a custom data1 code (e.g. 6798) and route it in `SevoPediaMain.handleInput` to `pediaJump`. Middle-earth's PlatyPedia routes/traits use this pattern. C2C mod also uses `WidgetTypes.WIDGET_PYTHON`.
+ 
+@@ -39,6 +39,12 @@ Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particula
+ 
+ - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+ 
++Our AdvCiv-SAS documentation is mostly located here:
++
++- root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
++- Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
++- Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
++
+ May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
+ 
+ ## Comment Editing Rules
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index dc7d06562..ef9a28956 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -121,6 +121,8 @@ class SevoPediaIndex:
+ 		
+ 		conceptList = self.top.getConceptList()
+ 		newConceptList = self.top.getNewConceptList()
++		# <!-- custom: add Builds to index, inspired by Middle-earth mod's PlatyPedia approach (Claude Opus 4.5) -->
++		buildList = self.top.getBuildList()
+ 		
+ 		list=[]
+ 		for item in techList:
+@@ -199,6 +201,9 @@ class SevoPediaIndex:
+ 			list.append([item[0],"Concept",item])
+ 		for item in newConceptList:
+ 			list.append([item[0],"NewConcept",item])
++		# <!-- custom: add Builds to index (Claude Opus 4.5) -->
++		for item in buildList:
++			list.append([item[0],"Build",item])
+ 		
+ 		list.sort()
+ 		self.index = list
+@@ -219,10 +224,18 @@ class SevoPediaIndex:
+ 		
+ 		nColumns = 3
+ 		self.tableName = self.top.getNextWidgetName()
++		self.SAS_rowToBuild = {}
++		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
+ 		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
+-		iTableH = self.H_INDEX - (self.SAS_INDEX_SEARCH_H + 4)
+-		screen.addTableControlGFC(self.tableName, nColumns, self.X_INDEX, iTableY, self.W_INDEX, iTableH, False, False, self.LIST_BUTTON_SIZE, self.LIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+-		screen.enableSelect(self.tableName, False)
++		iTableH = self.H_INDEX - (iTableY - self.Y_INDEX)
++		# <!-- custom: For Build entries, table selection is the only reliable click signal, so keep the table selectable and capture
++		# row->Build mapping in handleInput. We previously tried overlay buttons, but they ignored table scrolling and desynced from rows.
++		# Also, if the table doesn't have focus on first open, NOTIFY_CHARACTER goes nowhere and the search bar appears "dead" until
++		# you navigate away and back. Setting focus here keeps search responsive and avoids the broken first-load behavior. Credit:
++		# Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
++		screen.addTableControlGFC(self.tableName, nColumns, self.X_INDEX, iTableY, self.W_INDEX, iTableH, True, True, self.LIST_BUTTON_SIZE, self.LIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSelect(self.tableName, True)
++		screen.setFocus(self.tableName)
+ 		self.SAS_indexWidgetNames.append(self.tableName)
+ 		for i in range(nColumns):
+ 			screen.setTableColumnHeader(self.tableName, i, "", (self.W_INDEX - 10) / nColumns)
+@@ -294,6 +307,11 @@ class SevoPediaIndex:
+ 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+ 			elif (type == "Improv"):
+ 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++			# <!-- custom: Build rows use the normal table cell (icon + text) and rely on table selection to trigger pediaJump.
++			# This avoids overlay widgets that don't scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
++			elif (type == "Build"):
++				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				self.SAS_rowToBuild[iRow] = iData1
+ 			
+ 			elif (type == "Civ"):
+ 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -362,4 +380,13 @@ class SevoPediaIndex:
+ 			screen = self.top.getScreen()
+ 			screen.selectRow(self.tableName, self.iLastRow, True)
+ 			screen.selectRow(self.tableName, inputClass.getData1(), True)
++			return 1
++		
++		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
++				or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
++			if inputClass.getFunctionName() == self.top.WIDGET_ID and inputClass.getID() == self.iTableWidgetId:
++				iRow = inputClass.getData()
++				iBuild = self.SAS_rowToBuild.get(iRow, None)
++				if iBuild is not None:
++					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
+ 		return 0
+
+diff --git a/README.md b/README.md
+index dc1efe6ed..25dd45468 100644
+--- a/README.md
++++ b/README.md
+@@ -38,7 +38,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+-&emsp;&emsp;[Widget Python 6278 to link (e.g. for Builds)](/README.md#widget-python-6278-to-link-eg-for-builds)  
++&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds)](/README.md#widget-python-6798-to-link-eg-for-builds)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
+ &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+@@ -228,14 +228,19 @@ Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt
+ 
+ #### Index As Category
+ 
+-Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.). Note that it also implements a Sevopedia Search Bar. See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category).
++Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.). Note that it also implements a Sevopedia Search Bar.
++
++In particular, we now added the new Sevopedia Build's entries in the index too! Index Builds entries are now clickable too: keep the index table selectable (row->Build mapping) and set table focus on open so the search bar works immediately (GPT-5.2-Codex + Claude Opus 4.5).
++
++See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+ 
+ ### Other new categories
+ 
+-#### Widget Python 6278 to link (e.g. for Builds)
++#### Widget Python 6798 to link (e.g. for Builds)
+ 
+ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such. As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the new Sevopedia Builds' category's corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)!
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index ede5f3357..fad6142ec 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -293,7 +293,7 @@ Note: New panels added or modified mostly not mentionned here for concision. See
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game spede Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Scrub Fallout"**, **"Build a Road"**, **"Build a Railroad"**, **"Create a Farm"**) distinct from the Sevopedia Improvements and a dedicated Builds page. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
++- (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Scrub Fallout"**, **"Build a Road"**, **"Build a Railroad"**, **"Create a Farm"**) distinct from the Sevopedia Improvements and a dedicated Builds page. Also added them to **Sevopedia Index** as **clickable entires with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability: change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp).
+ - (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 255c1cfc5..c37766566 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -16,7 +16,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+ &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
+ [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
+-&emsp;[Widget Python 6278 to link (e.g. for Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6278-to-link-eg-for-builds)  
++&emsp;[Widget Python 6798 to link (e.g. for Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds)  
+ &emsp;&emsp;[example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)  
+ &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+@@ -95,12 +95,15 @@ As of now has its own search bar, but keyboard navigation is not supported.
+ 
+ More recently, added the Builds entries to the Index. See [example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm") new category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
+ 
++Then, to make those Index Builds entries fully clickable and stable, we kept the table selectable, mapped row->Build IDs, and routed the click in `SevoPediaIndex.handleInput` instead of overlaying buttons. The overlay approach looked correct at first but the buttons did not scroll with the table and became desynced. Also, the index search bar was dead on first open until the table received focus, so we explicitly set focus to the index table when building it. Credit: Claude code Opus 4.5 + GPT-5.2-Codex.
++
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+ 
+ ## Other new categories
+ 
+-### Widget Python 6278 to link (e.g. for Builds)
++### Widget Python 6798 to link (e.g. for Builds)
+ 
+ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG
+index 1e5e0376b..341dff422 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG
+index dc4408319..7ccc8dd1d 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG
+new file mode 100644
+index 000000000..e279362a9
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=19447

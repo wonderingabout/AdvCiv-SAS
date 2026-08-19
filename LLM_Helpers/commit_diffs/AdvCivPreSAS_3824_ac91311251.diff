@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3824
+# Commit: ac91311251477c426ac9d2230a9603b9d93a73b4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4d0c34fb2a0c78bdc44f9ea81027c62e178483d9
+# Title: Fix UWAI bug with counting of entangled units
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	19	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 3790ccfc1..e64d1f505 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -4161,7 +4161,10 @@ void TacticalSituation::evalEngagement()
+ 			if (!kPlot.isVisible(eOurTeam) || !kPlot.sameArea(kGroupPlot) ||
+ 				!kPlot.isUnit() || // shortcut
+ 				// Could do without this if it's too slow
+-				!pHeadUnit->canMoveInto(kPlot, true, false, false, true, false))
++				!pHeadUnit->canMoveInto(kPlot, true, false, false, true,
++				/*	We're about to move our units, but their movement points haven't
++					been restored yet, so it's important not to check for moves. */
++				/*bDangerCheck=*/true))
+ 			{
+ 				continue;
+ 			}
+@@ -4199,18 +4202,30 @@ void TacticalSituation::evalEngagement()
+ 			// Akin to CvPlayerAI::AI_enemyTargetMissions
+ 			MissionAITypes const eMission = pGroup->AI_getMissionAIType();
+ 			CvPlot const* pMissionPlot = pGroup->AI_getMissionAIPlot();
+-			/*	K-Mod uses MISSIONAI_ASSAULT also for land-based assaults on cities.
+-				This should be more helpful than CvPlayerAI::AI_enemyTargetMission,
+-				which counts all missions that target a hostile tile, i.e. also
+-				reinforcements. (CvTeamAI::AI_endWarVal relies on that function.) */
+-			if ((eMission == MISSIONAI_PILLAGE && ePlotOwner == eThey) ||
+-				(eMission == MISSIONAI_ASSAULT && pMissionPlot != NULL &&
+-				pMissionPlot->getOwner() == eThey))
++			bool const bPillage = (eMission == MISSIONAI_PILLAGE && ePlotOwner == eThey);
++			if (bPillage ||
++				// (K-Mod uses MISSIONAI_ASSAULT also for land-based assaults on cities)
++				((eMission == MISSIONAI_ASSAULT || eMission == MISSIONAI_GROUP ||
++				eMission == MISSIONAI_REINFORCE) &&
++				pMissionPlot != NULL && pMissionPlot->getOwner() == eThey &&
++				// Don't count besiegers
++				(!pMissionPlot->isCity() || stepDistance(&kGroupPlot, pMissionPlot) > 1)))
+ 			{
+-				iOurMissions += iGroupSize + pGroup->getCargo();
++				int iMissionScore = pGroup->getNumUnits() + pGroup->getCargo();
++				if (bPillage)
++					iMissionScore = intdiv::uround(iMissionScore, 2);
++				iOurMissions += iMissionScore;
+ 			}
+ 		}
+ 	}
++	if (iOurMissions > 0 && kOurTeam.AI_isPushover(eTheirTeam))
++	{
++		/*	If the target is weak, even a small fraction of our military en route
++			could have a big impact once it arrives. */
++		iOurMissions *= 3;
++		iOurMissions /= 2;
++		log("Mission count increased b/c target is short work");
++	}
+ 	/*	So long as we check canMoveInto with bAttack=true above, this here
+ 		probably won't save time. */
+ 	/*FOR_EACH_GROUPAI(pGroup, kWe)
+@@ -4265,16 +4280,6 @@ void TacticalSituation::evalEngagement()
+ 		iTheirExposed += iTheirDamaged;
+ 	}
+ 	} // (end of profile scope)
+-	// Don't count entangled units on missions
+-	iOurMissions = std::max(0, iOurMissions - iEntangled);
+-	if (iOurMissions > 0 && kOurTeam.AI_isPushover(eTheirTeam))
+-	{
+-		/*	If the target is weak, even a small fraction of our military en route
+-			could have a big impact once it arrives. */
+-		iOurMissions *= 3;
+-		iOurMissions /= 2;
+-		log("Mission count increased b/c target is short work");
+-	}
+ 	int const iOurEvac = evacPop(eWe, eThey);
+ 	int const iTheirEvac = evacPop(eThey, eWe);
+ 	/*	If a human is involved or if it's our turn, then we shouldn't worry too
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3314

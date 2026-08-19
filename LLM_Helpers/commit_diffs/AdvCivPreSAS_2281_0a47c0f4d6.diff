@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2281
+# Commit: 0a47c0f4d68bc1a1b88b50fb0588b59de03a963c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a70e4ce3a1db01c51da7fa370a706d8784191b38
+# Title: UWAI: Better handling of per-instance unit cost modifier
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/ArmamentForecast.cpp
+4	3	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+28	14	CvGameCoreDLL/MilitaryBranch.cpp
+8	1	CvGameCoreDLL/MilitaryBranch.h
+2	2	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index a5346c75e..d1f9d2bb4 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -508,7 +508,7 @@ void ArmamentForecast::predictArmament(int turnsBuildUp, double perTurnProductio
+ 	//report.log("\nbq."); // Textile block quote (takes up too much space)
+ 	for(int i = 0; i < NUM_BRANCHES; i++) {
+ 		MilitaryBranch& mb = *military[i];
+-		int typicalProd = mb.getTypicalUnitCost(m.ourId());
++		double typicalProd = mb.getTypicalUnitCost(m.ourId());
+ 		if(typicalProd <= 0)
+ 			continue;
+ 		double pow = mb.getTypicalUnitPower(m.ourId());
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dcaffa238..07c037a12 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5706,15 +5706,16 @@ bool CvPlayer::isProductionMaxedProject(ProjectTypes eProject) const
+ }
+ 
+ 
+-int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
++int CvPlayer::getProductionNeeded(UnitTypes eUnit,
++	int iExtraInstances) const // advc.104
+ {
+ 	UnitClassTypes eUnitClass = GC.getInfo(eUnit).getUnitClassType();
+ 	FAssert(NO_UNITCLASS != eUnitClass);
+ 
+ 	int iProductionNeeded = GC.getInfo(eUnit).getProductionCost();
+ 
+-	iProductionNeeded *= 100 + getUnitClassCount(eUnitClass) *
+-			GC.getInfo(eUnitClass).getInstanceCostModifier();
++	iProductionNeeded *= 100 + (GC.getInfo(eUnitClass).getInstanceCostModifier() *
++			(getUnitClassCount(eUnitClass) + /* advc.104: */ iExtraInstances));
+ 	iProductionNeeded /= 100;
+ 
+ 	static int const iUNIT_PRODUCTION_PERCENT = GC.getDefineINT("UNIT_PRODUCTION_PERCENT"); // advc.opt
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 0bd030d8c..96c7f6cf1 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -269,7 +269,8 @@ public:
+ 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;																						// Exposed to Python
+ 	bool isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity = false) const;		// Exposed to Python
+ 	bool isProductionMaxedProject(ProjectTypes eProject) const;																									// Exposed to Python
+-	int getProductionNeeded(UnitTypes eUnit) const;																										// Exposed to Python
++	int getProductionNeeded(UnitTypes eUnit,																		// Exposed to Python
++			int iExtraInstances = 0) const; // advc.104
+ 	int getProductionNeeded(BuildingTypes eBuilding) const;																						// Exposed to Python
+ 	int getProductionNeeded(ProjectTypes eProject) const;																							// Exposed to Python
+ 	int getProductionModifier(UnitTypes eUnit) const;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index ec5042d78..89065b5d6 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -474,7 +474,7 @@ void InvasionGraph::Node::logTypicalUnits() {
+ 		int actualPow = ::round(mb.getTypicalUnitPower());
+ 		report.log("%s: %d (%s, cost: %d)", mb.str(), actualPow,
+ 				report.unitName(u), actualCost);
+-		int povCost = mb.getTypicalUnitCost(outer.weId);
++		int povCost = ::round(mb.getTypicalUnitCost(outer.weId));
+ 		int povPow = ::round(mb.getTypicalUnitPower(outer.weId));
+ 		if(povPow != actualPow) {
+ 			/*  povCost and actualCost often won't match b/c actualCost here
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index bdbbe8bff..bf6d70173 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -55,21 +55,21 @@ void MilitaryBranch::updateTypicalUnit() {
+ 	CvPlayerAI& owner = GET_PLAYER(ownerId);
+ 	CvCivilization const& civ = owner.getCivilization();
+ 	for(int i = 0; i < civ.getNumUnits(); i++) {
+-		UnitTypes ut = civ.unitAt(i);
++		UnitTypes const ut = civ.unitAt(i);
+ 		CvUnitInfo const& u = GC.getInfo(ut);
+ 		// Siege and air units count for power but aren't typical
+ 		if(u.getCombat() == 0 || u.getCombatLimit() < 100 || !isValidDomain(u) ||
+ 				u.getDomainType() == DOMAIN_AIR || u.getDomainType() == DOMAIN_IMMOBILE)
+ 			continue;
++		UnitClassTypes const uct = CvCivilization::unitClass(ut);
+ 		/*  I may want to give some combat unit (e.g. War Elephant) a national limit
+ 			or an instance cost modifier at some point */
+-		CvUnitClassInfo const& uci = GC.getInfo((UnitClassTypes)i);
++		CvUnitClassInfo const& uci = GC.getInfo(uct);
+ 		int nationalLimit = uci.getMaxPlayerInstances();
+ 		if(nationalLimit >= 0 && nationalLimit <
+ 				(GC.getGame().getCurrentEra() + 1) * 4)
+ 			continue;
+-		int instanceCostModifier = uci.getInstanceCostModifier();
+-		if(instanceCostModifier > 5)
++		if(uci.getInstanceCostModifier() >= 20)
+ 			continue;
+ 		/* Could call this for land units as well, but relying on the capital for
+ 		   those is faster, and perhaps more accurate as well. */
+@@ -90,12 +90,10 @@ void MilitaryBranch::updateTypicalUnit() {
+ 		if(unitPow < 0.01)
+ 			continue;
+ 		double utility = unitUtility(u, unitPow);
+-		/*  CvPlayer::getProductionNeeded would be more accurate, but slower,
+-			and shouldn't make a difference unless a unit is modded to use
+-			InstanceCostModifier or UnitExtraCost. */
+-		if(u.getProductionCost() <= 0) // Apparently acquired through special means
++		double productionCost = estimateProductionCost(u);
++		if(productionCost <= 0)
+ 			continue;
+-		val = utility / u.getProductionCost();
++		val = utility / productionCost;
+ 		if(val > bestVal) {
+ 			bestVal = val;
+ 			typicalUnitPower = unitPower(u, false);
+@@ -119,9 +117,10 @@ void MilitaryBranch::NuclearArsenal::updateTypicalUnit() {
+ 		if(unitPow < 0.01)
+ 			continue;
+ 		double utility = unitUtility(u, unitPow);
+-		if(u.getProductionCost() <= 0)
++		double productionCost = estimateProductionCost(u);
++		if(productionCost <= 0)
+ 			continue;
+-		double val = utility / u.getProductionCost();
++		double val = utility / productionCost;
+ 		if(val > bestVal) {
+ 			bestVal = val;
+ 			typicalUnitPower = unitPower(u, false);
+@@ -150,15 +149,17 @@ double MilitaryBranch::getTypicalUnitPower(PlayerTypes pov) const {
+ 	return typicalUnitPower * 0.8;
+ }
+ 
+-int MilitaryBranch::getTypicalUnitCost(PlayerTypes pov) const {
++double MilitaryBranch::getTypicalUnitCost(PlayerTypes pov) const {
+ 
+ 	if(typicalUnitType == NO_UNIT)
+ 		return -1;
+-	int r = GET_PLAYER(ownerId).getProductionNeeded(typicalUnitType);
++	CvPlayer const& owner = GET_PLAYER(ownerId);
++	double r = owner.getProductionNeeded(typicalUnitType,
++			::round(estimateExtraInstances(owner.getCurrentEra())));
+ 	if(canKnowTypicalUnit(pov))
+ 		return r;
+ 	// Underestimate cost
+-	return ::round(r * 0.85);
++	return r * 0.85;
+ }
+ 
+ bool MilitaryBranch::canKnowTypicalUnit(PlayerTypes pov) const {
+@@ -174,6 +175,19 @@ bool MilitaryBranch::canKnowTypicalUnit(PlayerTypes pov) const {
+ 	return false;
+ }
+ 
++double MilitaryBranch::estimateProductionCost(CvUnitInfo const& u) {
++
++	double r = u.getProductionCost();
++	CvPlayer const& owner = GET_PLAYER(ownerId);
++	UnitClassTypes const uct = u.getUnitClassType();
++	/*  CvPlayer::getProductionNeeded would be needlessly slow. Don't need all
++		those modifiers, and we need a projection for InstanceCostModifier anyway. */
++	r *= 1 + (GC.getInfo(uct).getInstanceCostModifier() * 0.01 *
++				(owner.getUnitClassCount(uct) +
++				estimateExtraInstances(owner.getCurrentEra())));
++	return r;
++}
++
+ bool MilitaryBranch::canEmploy(CvUnitInfo const& u) const {
+ 
+ 	return u.getCombat() > 0 && isValidDomain(u) && unitPower(u) > 0;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.h b/CvGameCoreDLL/MilitaryBranch.h
+index 9f5a2e002..445ca72b9 100644
+--- a/CvGameCoreDLL/MilitaryBranch.h
++++ b/CvGameCoreDLL/MilitaryBranch.h
+@@ -41,7 +41,7 @@ public:
+ 	/*  pov: The player from whose point of view the typical power/ cost is
+ 		estimated. If NO_PLAYER or equal to ownerId, the true value is returend. */
+ 	  double getTypicalUnitPower(PlayerTypes pov = NO_PLAYER) const;
+-	  int getTypicalUnitCost(PlayerTypes pov = NO_PLAYER) const;
++	  double getTypicalUnitCost(PlayerTypes pov = NO_PLAYER) const;
+ 	// Total military power of units in this branch
+ 	inline double power() const { return pow; }
+ 	void changePower(double delta) { pow += delta; }
+@@ -75,6 +75,13 @@ protected:
+ 	// Can a unit of this branch have domain 'd'?
+ 	virtual bool isValidDomain(DomainTypes d) const;
+ 	bool canKnowTypicalUnit(PlayerTypes pov) const;
++	double estimateProductionCost(CvUnitInfo const& u);
++	/*	Vague expectation of how many extra instances will have been produced
++		when halfway through with the military buildup that this class helps predict.
++		(Could get the era from ownerId, but don't want to include CvPlayer.h.) */
++	inline double estimateExtraInstances(EraTypes era) const {
++		return 1.75 + 1.25 * era;
++	}
+ 
+ 	PlayerTypes ownerId;
+ 	UnitTypes typicalUnitType;
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 23dc2ce9f..134799738 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -897,7 +897,7 @@ double UWAICache::longTermPower(TeamTypes tId, bool defensive) const {
+ 			continue;
+ 		UWAI::Civ const& uwai = civ.uwai();
+ 		MilitaryBranch& army = *uwai.getCache().getPowerValues()[ARMY];
+-		int typicalUnitProd = army.getTypicalUnitCost();
++		double typicalUnitProd = army.getTypicalUnitCost();
+ 		if(typicalUnitProd <= 0)
+ 			continue;
+ 		/*  Long-term power mostly depends on production capacity and willingness
+@@ -908,7 +908,7 @@ double UWAICache::longTermPower(TeamTypes tId, bool defensive) const {
+ 				0.35 * civ.estimateYieldRate(YIELD_FOOD) +
+ 				0.25 * civ.estimateYieldRate(YIELD_COMMERCE)) *
+ 				(uwai.buildUnitProb() + 0.15) * army.getTypicalUnitPower() /
+-				(double)typicalUnitProd;
++				typicalUnitProd;
+ 	}
+ 	return r;
+ }
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=9725

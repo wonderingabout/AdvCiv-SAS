@@ -1,0 +1,165 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4205
+# Commit: 6c12950422223708a8ec4c1fe0a90834fc10b0cf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 55027329c59b97eba8dbe4a6a741d2999e349d43
+# Title: Fix a rare issue with counting of military happiness units
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	11	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+7	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+10	0	CvGameCoreDLL/CvTeam.cpp
+1	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 14f74f4b2..20a2ef533 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -174,7 +174,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 		initTraitCulture(); // </advc.908b>
+ 	updateCultureLevel(false);
+ 
+-	CvPlot& kPlot = GC.getMap().getPlot(iX, iY);
++	CvPlot& kPlot = getPlot();
+ 	{
+ 		int const iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
+ 		if (kPlot.getCulture(getOwner()) < iFreeCityPlotCulture)
+@@ -211,7 +211,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 			setRevealed(it->getID(), true);
+ 	}
+ 
+-	changeMilitaryHappinessUnits(kPlot.plotCount(PUF_isMilitaryHappiness));
++	updateMilitaryHappinessUnits(); // advc.184: Moved into new function
+ 
+ 	FOR_EACH_ENUM(Commerce)
+ 	{
+@@ -5413,15 +5413,21 @@ int CvCity::getMilitaryHappiness() const
+ 
+ void CvCity::changeMilitaryHappinessUnits(int iChange)
+ {
+-	if (iChange != 0)
+-	{
+-		m_iMilitaryHappinessUnits += iChange;
+-		FAssert(getMilitaryHappinessUnits() >= 0);
+-		AI_setAssignWorkDirty(true);
+-		// <advc.004> Update the unhappiness indicator
+-		if (isActiveOwned())
+-			gDLL->UI().setDirty(CityInfo_DIRTY_BIT, true); // </advc.004>
+-	}
++	if (iChange == 0)
++		return;
++	m_iMilitaryHappinessUnits += iChange;
++	FAssert(getMilitaryHappinessUnits() >= 0);
++	AI_setAssignWorkDirty(true);
++	// <advc.004> Update the unhappiness indicator
++	if (isActiveOwned())
++		gDLL->UI().setDirty(CityInfo_DIRTY_BIT, true); // </advc.004>
++}
++
++// advc.184: Cut from init
++void CvCity::updateMilitaryHappinessUnits()
++{
++	changeMilitaryHappinessUnits(getPlot().plotCount(PUF_isMilitaryHappiness)
++			- getMilitaryHappinessUnits());
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 182fd5855..3f23ff091 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -502,6 +502,7 @@ public:
+ 	int getMilitaryHappiness() const;																			// Exposed to Python
+ 	int getMilitaryHappinessUnits() const { return m_iMilitaryHappinessUnits; }									// Exposed to Python
+ 	void changeMilitaryHappinessUnits(int iChange);
++	void updateMilitaryHappinessUnits(); // advc.184
+ 
+ 	int getBuildingGoodHappiness() const { return m_iBuildingGoodHappiness; }									// Exposed to Python
+ 	int getBuildingBadHappiness() const { return m_iBuildingBadHappiness; }										// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index fdf954df8..3caae3fa1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3198,6 +3198,13 @@ void CvPlayer::updatePlunder(int iChange, bool bUpdatePlotGroups)
+ 	}
+ }
+ 
++// advc.184:
++void CvPlayer::updateMilitaryHappinessUnits()
++{
++	FOR_EACH_CITY_VAR(pCity, *this)
++		pCity->updateMilitaryHappinessUnits();
++}
++
+ void CvPlayer::updateTimers()
+ {
+ 	FOR_EACH_GROUP_VAR(pLoopSelectionGroup, *this)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index b58ee82fd..7087457e2 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -190,6 +190,7 @@ public:
+ 	void updateCitySight(bool bIncrement, bool bUpdatePlotGroups);
+ 	void updateTradeRoutes();
+ 	void updatePlunder(int iChange, bool bUpdatePlotGroups);
++	void updateMilitaryHappinessUnits(); // advc.184
+ 
+ 	void updateTimers();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 7c358a24d..deaba0fc1 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3367,6 +3367,9 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+ 		it->updateCitySight(true, false);
++	// <advc.184>
++	updateMilitaryHappinessUnits();
++	GET_TEAM(eMaster).updateMilitaryHappinessUnits(); // </advc.184>
+ 
+ 	CvMap const& kMap = GC.getMap();
+ 	for (int i = 0; i < kMap.numPlots(); ++i)
+@@ -5322,6 +5325,13 @@ void CvTeam::updateTechShare()
+ 		updateTechShare(eLoopTech, /* advc.opt: */ iBestTechShare);
+ }
+ 
++// advc.184:
++void CvTeam::updateMilitaryHappinessUnits()
++{
++	for (MemberIter it(getID()); it.hasNext(); ++it)
++		it->updateMilitaryHappinessUnits();
++}
++
+ // advc.opt: Cut from updateTechShare(TechTypes)
+ int CvTeam::calculateBestTechShare() const
+ {
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 483b9b786..bf766fdb0 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -694,6 +694,7 @@ protected:
+ 	void doBarbarianResearch(); // advc
+ 	void updateTechShare(TechTypes eTech, /* advc.opt: */ int iOtherKnownThreshold = -1);
+ 	void updateTechShare();
++	void updateMilitaryHappinessUnits(); // advc.184
+ 	int calculateBestTechShare() const; // advc.opt
+ 	void updatePlotGroupBonus(TechTypes eTech, bool bAdd); // advc
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=4764

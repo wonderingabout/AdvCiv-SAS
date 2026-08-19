@@ -1,0 +1,200 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5605
+# Commit: 236c73f2bc1717ec9a941cea365d07c6392f5250
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: aaa800431bd3094d131be3fa847904a429782082
+# Title: rename to policy advisor 2
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	4	Assets/Python/EntryPoints/CvScreensInterface.py
+15	14	Assets/Python/Screens/CvCivicsScreen.py
+1	1	Assets/Python/Screens/CvMainInterface.py
+2	1	Assets/Python/Screens/CvScreenEnums.py
+2	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+2	1	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index d9817e8f4..905e3d34b 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -101,10 +101,11 @@ hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
+ def showHallOfFame(argsList):
+ 	hallOfFameScreen.interfaceScreen(argsList[0])
+ 
+-policyScreen = CvCivicsScreen.CvPolicyScreen()
+-def showCivicsScreen():
++policyAdvisorScreen = CvCivicsScreen.CvPolicyAdvisorScreen()
++# <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
++def showPolicyAdvisorScreen():
+ 	if (-1 != CyGame().getActivePlayer()):
+-		policyScreen.interfaceScreen()
++		policyAdvisorScreen.interfaceScreen()
+ 
+ religionScreen = CvReligionScreen.CvReligionScreen()
+ def showReligionScreen():
+@@ -1185,7 +1186,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
+ #					DOMESTIC_ADVISOR : domesticAdvisor,
+ 					RELIGION_SCREEN : religionScreen,
+ 					CORPORATION_SCREEN : corporationScreen,
+-					CIVICS_SCREEN : policyScreen,
++					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
+ 					TECH_CHOOSER : techChooser,
+ 					FOREIGN_ADVISOR : foreignAdvisor,
+ #					FINANCE_ADVISOR : financeAdvisor,
+@@ -1226,3 +1227,4 @@ AdvisorOpt = BugCore.game.Advisors
+ CustDomAdvOpt = BugCore.game.CustDomAdv
+ TechWindowOpt = BugCore.game.TechWindow
+ # BUG - Options - end
++
+
+diff --git a/Assets/Python/Screens/CvCivicsScreen.py b/Assets/Python/Screens/CvCivicsScreen.py
+index b4a77b9c6..91ca557a2 100644
+--- a/Assets/Python/Screens/CvCivicsScreen.py
++++ b/Assets/Python/Screens/CvCivicsScreen.py
+@@ -13,22 +13,22 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+-class CvPolicyScreen:
+-	"Policy Screen"
++class CvPolicyAdvisorScreen:
++	"Policy Advisor Screen"
+ 
+ 	def __init__(self):
+-		self.SCREEN_NAME = "PolicyScreen"
++		self.SCREEN_NAME = "PolicyAdvisorScreen"
+ 		self.CANCEL_NAME = "PolicyCancel"
+ 		self.EXIT_NAME = "PolicyExit"
+ 		self.TITLE_NAME = "PolicyTitleHeader"
+-		self.BUTTON_NAME = "PolicyScreenButton"
+-		self.TEXT_NAME = "PolicyScreenText"
+-		self.AREA_NAME = "PolicyScreenArea"
+-		self.HELP_AREA_NAME = "PolicyScreenHelpArea"
+-		self.HELP_IMAGE_NAME = "PolicyScreenCivicOptionImage"
++		self.BUTTON_NAME = "PolicyAdvisorScreenButton"
++		self.TEXT_NAME = "PolicyAdvisorScreenText"
++		self.AREA_NAME = "PolicyAdvisorScreenArea"
++		self.HELP_AREA_NAME = "PolicyAdvisorScreenHelpArea"
++		self.HELP_IMAGE_NAME = "PolicyAdvisorScreenCivicOptionImage"
+ 		self.DEBUG_DROPDOWN_ID =  "PolicyDropdownWidget"
+ 		self.BACKGROUND_ID = "PolicyBackground"
+-		self.HELP_HEADER_NAME = "PolicyScreenHeaderName"
++		self.HELP_HEADER_NAME = "PolicyAdvisorScreenHeaderName"
+ 
+ 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen via shared SASUtils helpers. (GPT-5.3-Codex) -->
+ 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+@@ -55,7 +55,7 @@ class CvPolicyScreen:
+ 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+ 		self.Z_TEXT = self.Z_SCREEN - 0.2
+ 
+-		self.PolicyScreenInputMap = {
++		self.PolicyAdvisorScreenInputMap = {
+ 			self.BUTTON_NAME		: self.PolicyButton,
+ 			self.TEXT_NAME			: self.PolicyButton,
+ 			self.EXIT_NAME			: self.Revolution,
+@@ -99,7 +99,7 @@ class CvPolicyScreen:
+ 		self.HEADINGS_WIDTH = (self.W_SCREEN - self.HEADINGS_SPACING) / gc.getNumCivicOptionInfos() - self.HEADINGS_SPACING
+ 
+ 	def getScreen(self):
+-		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.CIVICS_SCREEN)
++		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.POLICY_ADVISOR_SCREEN)
+ 
+ 	def setActivePlayer(self, iPlayer):
+ 
+@@ -403,12 +403,12 @@ class CvPolicyScreen:
+ 			self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
+ 			self.drawContents()
+ 			return 1
+-		elif (self.PolicyScreenInputMap.has_key(inputClass.getFunctionName())):	
+-			'Calls function mapped in CvPolicyScreen'
++		elif (self.PolicyAdvisorScreenInputMap.has_key(inputClass.getFunctionName())):	
++			'Calls function mapped in CvPolicyAdvisorScreen'
+ 			# only get from the map if it has the key		
+ 
+ 			# get bound function from map and call it
+-			self.PolicyScreenInputMap.get(inputClass.getFunctionName())(inputClass)
++			self.PolicyAdvisorScreenInputMap.get(inputClass.getFunctionName())(inputClass)
+ 			return 1
+ 		return 0
+ 		
+@@ -418,3 +418,4 @@ class CvPolicyScreen:
+ 
+ 
+ 
++
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 636104474..22543674d 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -2881,7 +2881,7 @@ class CvMainInterface:
+ 				self.updateFlag()
+ 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
+ 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
+-			# Miscellaneous buttons (civics screen, etc)
++			# Miscellaneous buttons (policy advisor screen, etc)
+ 			self.updateMiscButtons()
+ 			CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, False)
+ 		if (CyInterface().isDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT)):
+
+diff --git a/Assets/Python/Screens/CvScreenEnums.py b/Assets/Python/Screens/CvScreenEnums.py
+index 8d4803381..ec3ae93f8 100644
+--- a/Assets/Python/Screens/CvScreenEnums.py
++++ b/Assets/Python/Screens/CvScreenEnums.py
+@@ -14,7 +14,8 @@ FINANCE_ADVISOR = 5
+ WONDER_MOVIE_SCREEN = 6
+ RELIGION_SCREEN = 7
+ INTRO_MOVIE_SCREEN = 8
+-CIVICS_SCREEN = 9
++# <!-- custom: canonical policy advisor screen id; removed civics/policy alias layer for strict naming consistency. (GPT-5.3-Codex) -->
++POLICY_ADVISOR_SCREEN = 9
+ DIPLOMACY_SCREEN = 10
+ OPTIONS_SCREEN = 11
+ TECH_SPLASH = 12
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 4af694b72..cc6a94e37 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -376,7 +376,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			CvMessageControl::getInstance().sendUpdateCivics(aeNewCivics);
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() == 2)
+-			GC.getPythonCaller()->showPythonScreen("CivicsScreen");
++			// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping gameplay behavior unchanged. (GPT-5.3-Codex) -->
++			GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
+ 		break;
+ 
+ 	case BUTTONPOPUP_CHANGERELIGION:
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index ac5edbc50..7bc6aadd2 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1684,7 +1684,8 @@ void CvGame::doControl(ControlTypes eControl)
+ 	// <!-- custom: control handlers for Religion/Corporation removed after control enum cleanup. (GPT-5.3-Codex) -->
+ 	case CONTROL_CIVICS_SCREEN:
+ 		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGECIVIC); // advc.004x
+-		GC.getPythonCaller()->showPythonScreen("CivicsScreen");
++		// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping control id for compatibility. (GPT-5.3-Codex) -->
++		GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
+ 		break;
+ 
+ 	case CONTROL_FOREIGN_SCREEN:
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=7332

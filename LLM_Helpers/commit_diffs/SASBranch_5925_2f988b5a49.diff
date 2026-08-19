@@ -1,0 +1,174 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5925
+# Commit: 2f988b5a492fa4bc9b2ee2428cdf3a72dba6a478
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e73e44b6b3a17a3e8d0a3313b822bcc8e1ebcc54
+# Title: Add timestamped BBAI log filenames
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+56	8	CvGameCoreDLL/BBAILog.cpp
+1	1	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index d052717ef..9c567564c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -40,7 +40,7 @@ In particular but not only, these are usually helpful:
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+-- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first, then verify the resulting hypothesis locally while still using the log as evidence.
++- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first, then verify the resulting hypothesis locally while still using the log as evidence.
+ 
+ The root Program Files Civ4 folder is here:
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 451bf202a..014851509 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1140,6 +1140,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
++	<!-- custom: If BBAI logging is enabled, write each Civ4 launch/session to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log filenaming behavior. (ChatGPT-5.5) -->
++	<Define>
++		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index fe2ed3205..7ec34277d 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -3,6 +3,8 @@
+ // <advc.133>
+ #include "CvGameTextMgr.h"
+ #include "CvGamePlay.h" // </advc.133>
++// <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
++#include <time.h>
+ 
+ // AI decision making logging
+ 
+@@ -78,6 +80,59 @@ int getSASBBAIScoreLogInterval()
+ 	return iInterval;
+ }
+ 
++static CvString getSASBBAILogSessionTimestamp()
++{
++	static CvString szTimestamp;
++	if (szTimestamp.empty())
++	{
++		char szBuffer[32];
++		time_t kNow;
++		time(&kNow);
++		struct tm* pUtcTime = gmtime(&kNow);
++		if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
++		{
++			szTimestamp = szBuffer;
++		}
++		else
++		{
++			szTimestamp = "unknown_time";
++		}
++	}
++	return szTimestamp;
++}
++
++static CvString getSASBBAILogName()
++{
++	// <!-- custom: This function is only reached after BBAI logging is enabled. If enabled, each Civ4 launch/session writes to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. (ChatGPT-5.5) -->
++	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME") > 0);
++	CvString szLogName;
++	// <advc.007>
++	if (GC.getGame().isNetworkMultiPlayer())
++	{
++		// For OOS debugging on one PC
++		if (bUseTimestampedFilename)
++		{
++			szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogSessionTimestamp().GetCString());
++		}
++		else
++		{
++			szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
++		}
++	}
++	else
++	{
++		if (bUseTimestampedFilename)
++		{
++			szLogName.Format("BBAI_%s.log", getSASBBAILogSessionTimestamp().GetCString());
++		}
++		else
++		{
++			szLogName = "BBAI.log";
++		}
++	} // </advc.007>
++	return szLogName;
++}
++
+ void logBBAI(TCHAR* format, ... )
+ {
+ 	static const bool bEnabled = isSASBBAILogEnabled();
+@@ -89,14 +144,7 @@ void logBBAI(TCHAR* format, ... )
+ 	va_start(args, format);
+ 	_vsnprintf(buf, 2048-4, format, args);
+ 	va_end(args); // kmodx
+-	// <advc.007>
+-	CvString szLogName;
+-	if (GC.getGame().isNetworkMultiPlayer())
+-	{
+-		// For OOS debugging on one PC
+-		szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
+-	}
+-	else szLogName = "BBAI.log"; // </advc.007>
++	CvString szLogName = getSASBBAILogName();
+ 	gDLL->logMsg(szLogName.GetCString(), buf, /* advc.007: No time stamps */ false, false);
+ }
+
+diff --git a/README.md b/README.md
+index 87bba0a1f..da64e9af5 100644
+--- a/README.md
++++ b/README.md
+@@ -16,7 +16,7 @@ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slo
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+ 
+-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate `BBAI.log` files for review. Note: Since BBAI.log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now does not not consume our agentic tokens (e.g., Codex, Claude Code).
++Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now does not not consume our agentic tokens (e.g., Codex, Claude Code). Note: now optionally default written as a new file with a time stamp (e.g., `BBAI_20260608T065231Z.log` instead of expanding launch/session the existing `BBAI.log` which was very tedious to cleanup everytime or identify/store/read/review/upload).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index af8f9319f..f54136b15 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -137,7 +137,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+-- **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write `BBAI.log`. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis.
++- **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis.
++- (Requires AdvCiv-SAS 5925+) **BBAI log files timestamped name**: Optionally log BBAI to a **new file each time** Civ4 launch/session with a **new UTC-timestamp** in filename such as (e.g., `BBAI_20260608T065231Z.log`) instead of repeatedly appending to `BBAI.log`. This **avoids previous tedious manual clearing** `BBAI.log` before restarting Civ4, prevents one **massive mixed log from accumulating** across many test runs, and makes the **relevant log easier to identify, store, or upload** for review.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=11015

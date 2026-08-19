@@ -1,0 +1,319 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5921
+# Commit: d04d4be4c1bdff2baec5b33479b5c7e97ec46c2d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a28faf659846786b9398c36b7e75c1f286aec142
+# Title: Run again AI settler evaluate when we reach our not very bad plot anymore rather than settle right away (includes newly discovered plots since then); Increas...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+18	0	Assets/XML/GlobalDefines_advciv_sas.xml
+33	0	CvGameCoreDLL/CitySiteEvaluator.cpp
+37	6	CvGameCoreDLL/CvUnitAI.cpp
+45	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+4	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a7d40d2ed..5ef275f12 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -860,6 +860,24 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>-400</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food resource value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-resource starts, without changing later strategic/resource city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield resource-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT</DefineName>
++		<iDefineIntVal>140</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT</DefineName>
++		<iDefineIntVal>95</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE</DefineName>
++		<iDefineIntVal>125</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++
+ 
+ 
+ 	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 08348b822..9b75a9edb 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -478,6 +478,8 @@ int AIFoundValue::evaluate()
+ 	int iStealPercent = 0;
+ 	int iRiverTiles = 0;
+ 	int iGreenTiles = 0;
++	// <!-- custom: enhance and add logging for first-city found logic: add scouting, moving away from high bad plot count starts, and running again an evaluate city site scoring when a site is no longer bad instead of settling right away; also add logging. See KI#144. Additionally, add a stronger food and river/fresh water valuation for first city because it is more critical for it. -->
++	int iStartingRiverTiles = 0;
+ 	int iTotalFeatureProduction = 0; // </advc.031>
+ 	int iHealth = 0;
+ 
+@@ -521,6 +523,10 @@ int AIFoundValue::evaluate()
+ 	static const int iValueHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW");
+ 
+ 	static const int iValueHomeWaterBonusNoCoast = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST");
++	static const int iStartingHomeFreshWaterValue = GC.getDefineINT("SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE");
++	static const int iStartingFoodBonusValuePercent = GC.getDefineINT("SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT");
++	static const int iStartingRiverTileValue = GC.getDefineINT("SAS_EVALUATE_STARTING_RIVER_TILE_VALUE");
++	static const int iStartingNonFoodBonusValuePercent = GC.getDefineINT("SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT");
+ 
+ 	static const int iExtraValueNotHomeAIObjectiveBonusExtraValueMultiplier = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER");
+ 
+@@ -744,6 +750,11 @@ int AIFoundValue::evaluate()
+ 			if (!p.isWater())
+ 			{
+ 				iPlotValue += ((p.isRiver() || p.isFreshWater()) ? iExtraValueHomeFreshWaterRiver : 0);
++				if (kSet.isStartingLoc() && p.isFreshWater())
++				{
++					iPlotValue += iStartingHomeFreshWaterValue;
++					IFLOG if(iStartingHomeFreshWaterValue!=0) logBBAI("%d from starting home fresh water", iStartingHomeFreshWaterValue);
++				}
+ 			}
+ 		}
+ 		else
+@@ -998,6 +1009,12 @@ int AIFoundValue::evaluate()
+ 
+ 		if (eBonus != NO_BONUS) // advc.040: Same-area checks moved into nonYieldBonusValue
+ 		{
++			// <!-- custom: For the first city, food bonuses and rivers snowball earlier than non-food bonuses because growth
++			// unlocks more tiles, whipping/specialists, and faster worker/settler development. Apply capital-only resource
++			// value percents and concrete river/fresh-water boosts so Karakorum/Beijing-like starts prefer nearby
++			// corn/fresh-water positions over slower commerce/hammer-resource positions. (GPT-5.5) -->
++			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 || aiBonusImprovementYield[YIELD_FOOD] > 0));
++
+ 			if (!bBarbarian && // advc.303: Barbarians don't care about resource trade
+ 				// advc.031: Otherwise we can already trade the resource
+ 				getRevealedOwner(p) != ePlayer)
+@@ -1005,6 +1022,14 @@ int AIFoundValue::evaluate()
+ 				int iBonusValue = nonYieldBonusValue(p, eBonus,
+ 						bCanTradeBonus, bCanSoonTradeBonus, bEasyAccess,
+ 						bAnyGrowthBonus, &aiBonusCount, iCultureModifier);
++				if (kSet.isStartingLoc())
++				{
++					const int iStartingBonusValuePercent = (bStartingFoodBonus ? iStartingFoodBonusValuePercent : iStartingNonFoodBonusValuePercent);
++					const int iOldBonusValue = iBonusValue;
++					iBonusValue = (iBonusValue * iStartingBonusValuePercent) / 100;
++					IFLOG if(iBonusValue!=iOldBonusValue) logBBAI("Starting %S resource value x%d%%: %d -> %d (%S)",
++							bStartingFoodBonus ? L"food" : L"non-food", iStartingBonusValuePercent, iOldBonusValue, iBonusValue, GC.getInfo(eBonus).getDescription());
++				}
+ 				IFLOG if(iBonusValue!=0) logBBAI("+%d non-yield resource value (%S)",
+ 						iBonusValue, GC.getInfo(eBonus).getDescription());
+ 				//iValue += (iBonusValue + 10);
+@@ -1037,6 +1062,12 @@ int AIFoundValue::evaluate()
+ 			}
+ 		}
+ 
++		if (kSet.isStartingLoc() && !bHome && !bSteal && p.isRiver())
++		{
++			iStartingRiverTiles++;
++			iValue += iStartingRiverTileValue;
++		}
++
+ 		if (!bHome) // (Home plot was handled upfront)
+ 		{
+ 			// <!-- custom: for non-bonus tiles and not for home plot but instead which environment to settle near, add our own logic to also tell the AI other than just valuing any tile as we do for bonuses as long as tile has a bonus, here even if tile doesn't have a bonus, we tell the AI to value local environment specifically (if not already done by the code i mean but helps to do as well maybe to improve settling further if not optimal or close to itmaybe; note: this does not apply to home plot, where we use a different logic in this function (for example settling near flood plains or flatland grass is good, but settling on home plot floodplains or flatland grass is bad and not done here) -->
+@@ -1137,6 +1168,8 @@ int AIFoundValue::evaluate()
+ 	iValue += sumUpPlotValues(aiPlotValues);
+ 	// A sensible order (CITY_HOME_PLOT first) isn't guaranteed anymore, hence:
+ 	aiPlotValues.clear();
++	IFLOG if(kSet.isStartingLoc() && iStartingRiverTiles > 0 && iStartingRiverTileValue != 0)
++		logBBAI("+%d from %d starting river BFC tiles", iStartingRiverTiles * iStartingRiverTileValue, iStartingRiverTiles);
+ 	// <!-- custom: disabled as part of the change there as well where this variable is used -->
+ 	// advc.031: Preserve this for later
+ 	// int iNonYieldResourceVal = std::max(0, iResourceValue);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a82e0455d..bdc27ea82 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3024,6 +3024,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 		int iBestWeightedValue = -99999; // weighted score = raw * weight (0..100)
+ 		int iBestTurnToFound = 0;
+ 		// <!-- custom: Karakorum founded in-place in plains/tundra while nearby high-food sites existed. Log the starting settler's top three reachable first-city candidates so we can see whether site valuation or the movement window caused the decision. (GPT-5.5) -->
++		// <!-- custom: enhance and add logging for first-city found logic: add scouting, moving away from high bad plot count starts, and running again an evaluate city site scoring when a site is no longer bad instead of settling right away; also add logging. See KI#144. -->
+ 		const bool bLogFirstCityCandidates = (gUnitLogLevel >= 2);
+ 		int aiTopWeightedValue[3] = {-99999, -99999, -99999};
+ 		int aiTopValue[3] = {0, 0, 0};
+@@ -3150,7 +3151,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 				CvPlot& kLoopPlot = *itPlot;
+ 				if (!kLoopPlot.isRevealed(getTeam()))
+ 					continue;
+-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, false);
++				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+ 				if (iLoopValue <= 0)
+ 					continue;
+ 				int iLoopFoundTurn = -1;
+@@ -3186,7 +3187,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 			}
+ 		}
+ 
+-		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? kOwner.AI_foundValue(getX(), getY(), -1, false) : iBestValue);
++		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? kOwner.AI_foundValue(getX(), getY(), -1, true) : iBestValue);
+ 		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
+ 		static const int iBadLowFoodPlotsThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_LOW_FOOD_PLOTS");
+ 		int iCurrentFoodBonuses = 0;
+@@ -3202,8 +3203,38 @@ bool CvUnitAI::AI_foundFirstCity()
+ 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
+ 		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming)
+ 		{
+-			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If the current foundable plot is not clearly low-food-heavy, stop roaming and found. (GPT-5.5) -->
+-			if (gUnitLogLevel >= 2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d lowFoodPlots=%d badLowFoodThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentLowFoodPlots, iBadLowFoodPlotsThreshold, getPlot().isFreshWater(), kOwner.AI_foundValue(getX(), getY(), -1, false), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
++			const int iCurrentFirstCityValue = kOwner.AI_foundValue(getX(), getY(), -1, true);
++			CvPlot* pBetterGoodEnoughFirstCityPlot = NULL;
++			int iBetterGoodEnoughFirstCityValue = iCurrentFirstCityValue;
++			int iBetterGoodEnoughFirstCityTurn = -1;
++			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
++			const int iGoodEnoughRecheckRange = std::min(2, iRemainingFirstCityTurns);
++			for (SquareIter itGoodEnough(*this, iGoodEnoughRecheckRange, false); iGoodEnoughRecheckRange > 0 && itGoodEnough.hasNext(); ++itGoodEnough)
++			{
++				CvPlot& kLoopPlot = *itGoodEnough;
++				if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
++					continue;
++				int iLoopPathTurns = 0;
++				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iGoodEnoughRecheckRange) || iLoopPathTurns > iGoodEnoughRecheckRange))
++					continue;
++				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
++				const int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
++				if (iLoopAdjustedValue > iBetterGoodEnoughFirstCityValue)
++				{
++					pBetterGoodEnoughFirstCityPlot = &kLoopPlot;
++					iBetterGoodEnoughFirstCityValue = iLoopAdjustedValue;
++					iBetterGoodEnoughFirstCityTurn = kGame.getElapsedGameTurns() + iLoopPathTurns;
++				}
++			}
++			if (pBetterGoodEnoughFirstCityPlot != NULL && !at(*pBetterGoodEnoughFirstCityPlot))
++			{
++				// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. But if the current plot is heuristic-good-enough, still re-run first-city found-value scoring on nearby visible candidates before founding; this keeps the gate situational and lets one-tile Karakorum/Beijing-style improvements win without hard-requiring food bonuses or fresh water. (GPT-5.5) -->
++				if (gUnitLogLevel >= 2) logBBAI("    Settler moving from heuristic-good-enough first-city site for %S player %d from %d,%d to nearby better site %d,%d; currentValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iCurrentFirstCityValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
++				pushGroupMoveTo(*pBetterGoodEnoughFirstCityPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBetterGoodEnoughFirstCityPlot);
++				return true;
++			}
++			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If nearby first-city scoring does not find a better visible reachable plot, stop roaming and found. (GPT-5.5) -->
++			if (gUnitLogLevel >= 2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d lowFoodPlots=%d badLowFoodThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentLowFoodPlots, iBadLowFoodPlotsThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+ 			getGroup()->pushMission(MISSION_FOUND);
+ 			return true;
+ 		}
+@@ -3230,7 +3261,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold);
+ 				if (bBadLoopFirstCity || (iGoodEnoughFoodBonuses > 0 && iLoopFoodBonuses < iGoodEnoughFoodBonuses && !kLoopPlot.isFreshWater()))
+ 					continue;
+-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, false);
++				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+ 				if (iLoopValue <= 0)
+ 					continue;
+ 				const int iLoopGoodEnoughValue = iLoopValue - 50 * iLoopPathTurns;
+@@ -3277,7 +3308,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 					if (!(*itReveal).isRevealed(getTeam()))
+ 						iExploreValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
+ 				}
+-				const int iEndTurnFoundValue = kOwner.AI_foundValue(kEndTurnPlot.getX(), kEndTurnPlot.getY(), -1, false);
++				const int iEndTurnFoundValue = kOwner.AI_foundValue(kEndTurnPlot.getX(), kEndTurnPlot.getY(), -1, true);
+ 				iExploreValue += std::max(0, iEndTurnFoundValue - iBestValue);
+ 				if (iExploreValue > iBestExploreValue)
+ 				{
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 283043ed6..1e84f9b8c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -179,6 +179,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
+ [142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
+ [143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
++[144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5310,3 +5311,47 @@ Fix:
+ File changed:
+ 
+ - [Assets/Python/BUG/configobj.py](/Assets/Python/BUG/configobj.py)
++
++## 144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1g0qHBH8Jk4fy5QrH4uOdakaVW8iGEwQT?usp=sharing).
++
++This was a base AdvCiv lineage issue and also an AdvCiv-SAS follow-up to our earlier extended first-city founding window.
++
++Observed problem:
++
++- Karakorum could settle a very weak tundra/plains-heavy capital despite a high visible bonus count, because nearby non-food bonuses could make the site look tempting even though the early capital would grow poorly.
++- A much stronger nearby capital existed after brief exploration: pig + corn + river + more grassland. This was much better for early growth and long-term snowballing.
++- After the first AdvCiv-SAS roaming/scouting fix, the settler could leave the very bad start, but then it could still stop at the first merely good-enough plot it reached instead of checking whether the newly revealed nearby plots were stronger.
++- Beijing, which originally had a good enough site at start, but not anymore after our first not high bad plot count fix: after the final fix, it moved to a stronger corn + river home plot rather than stopping at the first acceptable site.
++
++Why the earlier approach was incomplete:
++
++- The first-city roaming fix correctly let settlers briefly scout away from clearly bad BFC shapes instead of founding immediately.
++- However, once a scouted plot became heuristic-good-enough, the code could found there immediately.
++- That was too early: the whole point of scouting was to get better information, so after reaching a merely acceptable plot, the AI should still re-run first-city evaluation on nearby visible plots before founding.
++- Some direct first-city local checks also used non-starting `AI_foundValue(..., false)`, so first-city-specific valuation was not applied consistently to these local rechecks.
++
++Fix:
++
++- For first-city local rechecks in `CvUnitAI::AI_foundFirstCity`, use first-city scoring with `AI_foundValue(..., true)`.
++- When a settler reaches a heuristic-good-enough first-city plot after scouting, scan nearby visible reachable plots and compare them with first-city scoring before settling.
++- Keep this situational and brief instead of hard-requiring food bonuses or fresh water, because some unusual starts can still be good without them.
++- Add first-city-only scoring support in `CitySiteEvaluator`: food bonuses, fresh-water city tiles, and river support are valued more for the capital than for ordinary later city sites, because early capital growth snowballs into faster tile access, worker/settler production, whipping, and specialists.
++- Also added BBAI logging to track changes and results more easily.
++
++Result:
++
++- Karakorum moved to the stronger corn + pig + hill-plains river capital site.
++- Beijing moved again now to a slightly stronger but mostly identical corn + river capital site.
++- The behavior remains first-city-only as of now; later settlers usually know more of the map and can sensibly found strategic/semi-decent resource cities.
++
++To fix later on at this point:
++
++- Some cities spend a few turns to ultimately settle at same place, which is inefficient and weaker.
++
++Files changed:
++
++- [CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp)
++- [CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp)
++- [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index cab684d22..c6e400912 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -171,11 +171,13 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Settler evaluation — midgame desert/bonus bias fix**: Disabled the buggy `AIFoundValue::adjustToCivSurroundings` that, from about **turn 51+**, made settlers overvalue founding **on desert bonus tiles** (e.g., **Camel**) or **inside** desert belts. Replaced it with a very small inline pass in its only caller, `AIFoundValue::evaluate`. Observed effect: no longer plants directly on Camel/desert; instead settles **around** large deserts. **Since the spacing change above**, also tightened distance-to-civs and culture-pressure checks to **hard-reject** sites that are **too far** or **heavily pressed** (instead of just penalizing). See [KI#54](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#54---fixed-major-base-advciv---civ4-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller).
+ - **Defense/barbarian surroundings:** drop special "avoid barbarians" or "weaker barb cities" site adjustments; choose the best yield sites regardless.
+ - **Who builds settlers:** only the **capital** can build settlers, and only at **pop ≥ 5** (unless a city is stuck at low growth, in which case building one can be allowed). This leverages food→hammer conversion efficiently and reduces early barbarian losses from small frontier cities producing settlers.
++- **Avoid excessively watery capitals:** if fewer than **12** "good starter BFC tiles" (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but).
++- **Additional tweaks:** value fresh water more (logic refactored/merged), value settling on **hill-plains** much more, and disable legacy "anti-crowd" biases so the choice stays yield-driven.
++- (Requires AdvCiv-SAS 5921+) **First-city scoring**: value food bonuses, fresh-water city tiles, and river support more for the capital than for ordinary later city sites, because early capital growth snowballs into faster tile access, worker/settler production, whipping, and specialists. See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+ - **Free window:** during the first ~75 turns at Normal speed (scaled by game speed), a "free to produce settler" period lets the capital grow before switching into chosen early strategy (offense, defense, etc.).
+ - **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse "preferred" site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes).
+ - (Requires AdvCiv-SAS 5920+) **First-city roaming**: Since the first city is especially important, unlike later cities that can be more strategic or semi-decent resource grabs, starting settlers can now **roam briefly for a better first-city site when the current site is bad enough**. This uses a heuristic **BFC bad-plot count** so settlers can move away from clearly bad capital sites without making decent starts wander needlessly, like a human player would: settlers can now spend the bounded early window to **move to visible good-enough sites**, do **safe adjacent scouting for better information**, or **wait if no safe scouting step exists**. Bad plots include no-yield plots, bad water, no-bonus foodless hills (so not hill grassland for example as of now), and no-bonus low-food flat land, while seafood, useful bonus tiles, grass hills, high-yield plots, and workable water are preserved. Empirically, this is notably especially effective in moving away from bad tundra/plain no-bonus heavy starts for the first city.
+-- **Avoid excessively watery capitals:** if fewer than **12** "good starter BFC tiles" (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but).
+-- **Additional tweaks:** value fresh water more (logic refactored/merged), value settling on **hill-plains** much more, and disable legacy "anti-crowd" biases so the choice stays yield-driven.
++- (Requires AdvCiv-SAS 5921+) **First-city recheck after scouting**: **instead of settling the first good-enough** capital site found **after leaving a very bad start**, the **settler now runs first-city evaluation again** on **nearby visible plots** including **now newly visible** ones first, like a human player would. Empirically, this helped choose even stronger nearby capital sites with more food bonuses and/or river support rather than stopping at the first merely-no-longer-bad site. As of now this applies only to the first city, because as of now only the first city is deemed most needing it critically, and later settlers usually know more of the local map so they would generally have a lower need to change route midway (may create other issues too maybe). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+ - **Parking addressed (early game):** Reduced cases of settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` to found sooner when conditions allow. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (settler production varies somehow, but we move much sooner after we have it now). See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found).
+ 
+ #### Workers (AI)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=28971

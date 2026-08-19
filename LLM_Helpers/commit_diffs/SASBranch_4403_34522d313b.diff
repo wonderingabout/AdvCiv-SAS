@@ -1,0 +1,1630 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4403
+# Commit: 34522d313b26b6f938f6073304ba6c421bc7b4cf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 51669177f8dd4b78d0e83c78605f0a63ffb0e3f3
+# Title: Merge 1.12 into 1.13
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL[1.13rc].dll
+1	1	Assets/Python/BUG/configobj.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+1	1	Assets/Python/Screens/RectLayout.py
+2	2	Assets/XML/AI_Variables_GlobalDefines.xml
+2	42	Assets/XML/Audio/AudioDefines.xml
+4	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+5	3	Assets/XML/GlobalDefines_advc.xml
+6	3	Assets/XML/Text/ActualQuotesText.xml
+5	4	Assets/XML/Text/ActualQuotesText_BtS.xml
+1	1	Assets/XML/Text/BUG Main Interface Options.xml
+1	1	Assets/XML/Text/BUG_CIV4GameText.xml
+7	7	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_rf.xml
+0	10	Assets/XML/Text/Sevopedia_CIV4GameText.xml
+1	0	Assets/XML/Text/Shortcuts_CIV4GameText.xml
+17	5	CvGameCoreDLL/ArithmeticUtils.h
+9	6	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	2	CvGameCoreDLL/CvCity.cpp
+15	8	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvInfo_Building.cpp
+1	1	CvGameCoreDLL/CvInfo_GameOption.h
+6	2	CvGameCoreDLL/CvMap.h
+15	6	CvGameCoreDLL/CvPlayer.cpp
+72	32	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvRandom.cpp
+11	3	CvGameCoreDLL/CvSelectionGroup.cpp
+4	2	CvGameCoreDLL/CvTeam.cpp
+28	6	CvGameCoreDLL/CvTeamAI.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+25	6	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.h
+6	3	CvGameCoreDLL/CyInfoInterface3.cpp
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+2	2	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	1	CvGameCoreDLL/PragmaWarnings.h
+1	1	CvGameCoreDLL/ScaledNumTest.cpp
+2	2	CvGameCoreDLL/SelfMod.cpp
+2	2	CvGameCoreDLL/TeamPathFinder.cpp
+2	3	CvGameCoreDLL/WarUtilityAspect.cpp
+61	32	PrivateMaps/PerfectMongoose.py
+ create mode 100644 Assets/CvGameCoreDLL[1.13rc].dll
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL[1.13rc].dll b/Assets/CvGameCoreDLL[1.13rc].dll reason=binary/generated-file changedLines=0 bytes=197
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 749f33346..ebc056b14 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -1861,7 +1861,7 @@ class ConfigObj(Section):
+         else:
+             start = self._a_to_u(' ' * NUM_INDENT_SPACES)
+         if not comment.startswith('#') and not comment.startswith(';'):
+-            start += _a_to_u('# ')
++            start += self._a_to_u('# ') # advc.sas: was missing "self"
+         return (start + comment)
+ 
+     def _compute_indent_string(self, depth):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index d02d3ca08..0ba3aadc3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -112,7 +112,8 @@ class SevoPediaBonus:
+ 					sign = "+"
+ 				else:
+ 					sign = ""
+-				szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
++				# advc.003y: Remove an awkward space
++				szYield = (u"%s: %s%i" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
+ 				screen.appendListBoxString(panelName, u"<font=3>" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 78e0f9be6..da2a22fed 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -153,7 +153,7 @@ class RectLayout(object):
+ 	def y(self):
+ 		return int(round(self.fY))
+ 	def upperLeft(self):
+-		return Point(self.fX, self.fY)
++		return PointLayout(self.fX, self.fY)
+ 	# Screen coordinates of lower right corner
+ 	def xRight(self):
+ 		return self.x() + self.width()
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index fb8bc31c6..e46038eb5 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -176,8 +176,8 @@
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Discourages early war against humans; not fair when the AI has a
+-			 head start. -->
++		<!-- Discourages dogpiling and early war against humans; not fair
++			 when the AI has a head start. -->
+ 		<DefineName>UWAI_WEIGHT_FAIR_PLAY</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 9e81b29bc..d4685c85b 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -6,6 +6,8 @@
+ <!-- AudioDefines -->
+ <!-- K-Mod has added SND_SQUISH and SND_THEIRALLIANCE. Note that no comments
+ 	 are allowed within the SoundDatas element. -->
++<!-- advc.sas: Deleted duplicates: DIPLO_HANNIBAL_EARLY, DIPLO_HANNIBAL_MIDDLE,
++	 DIPLO_HANNIBAL_LATE, DIPLO_WANGKON_EARLY, SND_CBMN_DIE_VOX, SND_COMBAT. -->
+ <AudioDefines xmlns="x-schema:AudioDefinesSchema.xml">
+ 	<SoundDatas>
+ 		<SoundData>
+@@ -1233,13 +1235,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_WANGKON_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Wangkon_Early</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_WANGKON_MIDDLE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Wangkon_Middle</Filename>
+@@ -2003,27 +1998,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_HANNIBAL_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Hannibal_Early</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_HANNIBAL_MIDDLE</SoundID>
+-			<Filename>Sounds/Diplomacy/Hannibal_Middle</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_HANNIBAL_LATE</SoundID>
+-			<Filename>Sounds/Diplomacy/Hannibal_Late</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_BRENNUS_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Brennus_Early</Filename>
+@@ -4194,13 +4168,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_COMBAT</SoundID>
+-			<Filename>Sounds/Combat</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_REVOLTSTART</SoundID>
+ 			<Filename>Sounds/RevolutionStart</Filename>
+@@ -4992,13 +4959,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_CBMN_DIE_VOX</SoundID>
+-			<Filename>Sounds/Units/CbmnDieVox</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_CBMN_HIT_VOX</SoundID>
+ 			<Filename>Sounds/Units/CbmnHitVox</Filename>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 473874a64..2588ae725 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1527,7 +1527,8 @@
+ 				<City>TXT_KEY_CITY_NAME_PYLOS</City>
+ 				<City>TXT_KEY_CITY_NAME_PELLA</City>
+ 				<City>TXT_KEY_CITY_NAME_NAXOS</City>
+-				<City>TXT_KEY_CITY_NAME_SICYON</City>
++				<!-- advc.001: duplicate -->
++				<!--City>TXT_KEY_CITY_NAME_SICYON</City-->
+ 				<City>TXT_KEY_CITY_NAME_SMYRNA</City>
+ 				<City>TXT_KEY_CITY_NAME_LARISSA</City>
+ 				<City>TXT_KEY_CITY_NAME_APOLLONIA</City>
+@@ -2867,7 +2868,8 @@
+ 				<City>TXT_KEY_CITY_NAME_IZMIT</City>
+ 				<City>TXT_KEY_CITY_NAME_AFYON</City>
+ 				<City>TXT_KEY_CITY_NAME_BITLIS</City>
+-				<City>TXT_KEY_CITY_NAME_MARMARIS</City>
++				<!-- advc.001: duplicate -->
++				<!--City>TXT_KEY_CITY_NAME_MARMARIS</City-->
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index f4db730d4..9d2a91aaf 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1180,12 +1180,14 @@
+ 
+ 	<!-- advc.156: When multiple members of a team are researching the same
+ 		 technology, their research modifiers are increased by this many
+-		 percentage points. Recommended: -10 to penalize researching the same
+-		 tech; use 0 for BtS behavior.
++		 percentage points. Recommended: 0 for BtS behavior. -10 for a moderate
++		 penalty when researching the same tech. Note, however, that
++		 human players can use a "binary research" scheme to bypass the
++		 penalty while still focusing their research on one tech at a time.
+ 		 Related: TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER (50) -->
+ 	<Define>
+ 		<DefineName>RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER</DefineName>
+-		<iDefineIntVal>-10</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.082: If set to 1, hover text when about to attack says to
+
+diff --git a/Assets/XML/Text/ActualQuotesText.xml b/Assets/XML/Text/ActualQuotesText.xml
+index e7295a617..68ad40af2 100644
+--- a/Assets/XML/Text/ActualQuotesText.xml
++++ b/Assets/XML/Text/ActualQuotesText.xml
+@@ -1867,7 +1867,9 @@
+ 	</TEXT>
+ 	<!-- advc.005f: This key was named "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED"
+ 		 in Warlords. I don't see how that will "correct" anything. Give it the same name as the
+-		 Vanilla key instead (which says "think well or we'll re-evaluate our friendship"). -->
++		 Vanilla key instead (which says "think well or we'll re-evaluate our friendship").
++		 There was also "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1" later in this file;
++		 I've renamed that one to ..._2. -->
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1</Tag>
+ 		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
+@@ -1909,8 +1911,9 @@
+ 		<Italian>Questa non &#232; una semplice richiesta di pagamento di tributi, [CT_NAME]. Diciamo che &#232; un investimento sulla pace nel mondo.</Italian>
+ 		<Spanish>No cre&#225;is que os estamos exigiendo un tributo, [CT_NAME]. Pensad en ello como en una inversi&#243;n en la paz mundial.</Spanish>
+ 	</TEXT>
++	<!-- advc.005f: was #1 -->
+ 	<TEXT>
+-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1</Tag>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_2</Tag>
+ 		<English>These are [OUR_NAME]'s demands, [CT_NAME]. Should you displease me, I will punish you by sending my hosts of brave warriors against you.</English>
+ 		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
+ 		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
+@@ -1919,7 +1922,7 @@
+ 	</TEXT>
+ 	<!-- advc.005h: Repurpose Montezuma's power_weaker #1 -->
+ 	<TEXT>
+-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_2</Tag>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_3</Tag>
+ 		<English>The gods demand sacrifice, [CT_NAME]. If your civilization is to exist for much longer, I recommend that you comply.</English>
+ 		<French>Les dieux veulent des sacrifices, [CT_NAME]. Si votre civilisation veut durer, je vous conseille de vous plier &#224; mes exigences.</French>
+ 		<German>Die G&#246;tter fordern Opfer, [CT_NAME]! Wenn Eure Zivilisation &#252;berleben soll, w&#228;rt Ihr gut beraten, dieser Forderung nachzukommen!</German>
+
+diff --git a/Assets/XML/Text/ActualQuotesText_BtS.xml b/Assets/XML/Text/ActualQuotesText_BtS.xml
+index 483581370..062c1f2a8 100644
+--- a/Assets/XML/Text/ActualQuotesText_BtS.xml
++++ b/Assets/XML/Text/ActualQuotesText_BtS.xml
+@@ -238,7 +238,7 @@
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_DE_GAULLE_1</Tag>
+ 		<English>I, [OUR_NAME], welcome you and the [CT_CIV_ADJ] people. Nothing great will ever be achieved without great men. And men are great only if they are determined to be so. Are you determined to find greatness alongside [OUR_CIV_SHORT]?</English>
+-		<French>>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
++		<French>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
+ 		<German>Ich, [OUR_NAME], ausgestattet mit einem der gr��ten und sch�nsten Riechkolben der Menschheitsgeschichte, hei�e Euch im Namen des glorreichen Volkes von [OUR_CIV_SHORT] willkommen!</German>
+ 		<Italian>Io, [OUR_NAME], possessore di uno dei pi� grandi e dei migliori nasi della storia, ti do il benvenuto presso [OUR_CIV_SHORT]!</Italian>
+ 		<Spanish>Yo, [OUR_NAME], poseedor de una de las m�s bellas narices de la historia de la Humanidad, os doy la bienvenida a la gloriosa tierra de [OUR_CIV_SHORT]!</Spanish>
+@@ -246,7 +246,7 @@
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_DE_GAULLE_2</Tag>
+ 		<English>Monseigneur [CT_NAME]? I am [OUR_NAME], leader of [OUR_CIV_SHORT]. A leader must aim high, see big, judge widely, thus setting himself apart form the ordinary people who debate in narrow confines. Don't you agree?</English>
+-		<French>>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
++		<French>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
+ 		<German>Ich, [OUR_NAME], ausgestattet mit einem der gr��ten und sch�nsten Riechkolben der Menschheitsgeschichte, hei�e Euch im Namen des glorreichen Volkes von [OUR_CIV_SHORT] willkommen!</German>
+ 		<Italian>Io, [OUR_NAME], possessore di uno dei pi� grandi e dei migliori nasi della storia, ti do il benvenuto presso [OUR_CIV_SHORT]!</Italian>
+ 		<Spanish>Yo, [OUR_NAME], poseedor de una de las m�s bellas narices de la historia de la Humanidad, os doy la bienvenida a la gloriosa tierra de [OUR_CIV_SHORT]!</Spanish>
+@@ -262,7 +262,7 @@
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_NO_PEACE_LEADER_DE_GAULLE_1</Tag>
+ 		<English>[OUR_CIV_SHORT] cannot be [OUR_CIV_SHORT] without greatness. The war continues, for Glory gives herself only to those who dream of her.</English>
+-		<French>>Certainement pas ! L'honneur des [OUR_CIV_SHORT:3] exige que cette guerre continue jusqu'� ce que vous soyez r�duits en bouillie.</French>
++		<French>Certainement pas ! L'honneur des [OUR_CIV_SHORT:3] exige que cette guerre continue jusqu'� ce que vous soyez r�duits en bouillie.</French>
+ 		<German>Keinesfalls! Es geb�hrt der Ehre des Volkes von [OUR_CIV_SHORT], dass dieser Krieg fortgef�hrt wird, bis Ihr alle im Staub liegt!</German>
+ 		<Italian>Certo che no! L'onore di [OUR_CIV_SHORT] vuole che questa guerra continui fino a quando non sarai ridotto in pezzi molto piccoli.</Italian>
+ 		<Spanish>�Por supuesto que no! El honor de [OUR_CIV_SHORT] exige que la guerra contin�e hasta que os hayamos hecho pat� de foie.</Spanish>
+@@ -276,8 +276,9 @@
+ 		<Italian>Benvenuto, [CT_NAME]. Sei di nuovo qui per ammirare il mio eroico profilo?</Italian>
+ 		<Spanish>Saludos, [CT_NAME]. �Hab�is vuelto a admirar mi heroico perfil?</Spanish>
+ 	</TEXT>
++	<!-- advc.005f: was #2 -->
+ 	<TEXT>
+-		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2</Tag>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_3</Tag>
+ 		<English>Greatness is a road leading towards the unknown, mon ami. I am glad we walk it together.</English>
+ 		<French>Bienvenue, [CT_NAME]. Etes-vous revenu admirer mon allure h�ro�que ?</French>
+ 		<German>Willkommen, [CT_NAME]. Seid Ihr gekommen, um ein weiteres Mal mein heldenhaftes Profil zu w�rdigen?</German>
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 4cf858eec..397e9ab75 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -144,7 +144,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEBROKECOLOR_HOVER</Tag>
+ 		<English>Text color to use when a negative per-turn income exceeds the gold reserves in the treasury</English>
+-		<German>Textfarbe bei negativem Einkommen, das den Goldvorrat �bersteigt.</German>>
++		<German>Textfarbe bei negativem Einkommen, das den Goldvorrat �bersteigt.</German>
+ 	</TEXT>
+ 	
+ 	<!-- advc.004: German shortened (was the longest heading in its column) -->
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+index 14baf4c3f..31cb96a5f 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -27,7 +27,7 @@
+ 	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
+-		<English>Created by The BUG Mod.</English>>
++		<English>Created by The BUG Mod.</English>
+ 		<German>Erstellt durch die BUG Mod.</German>
+ 		<Italian>Creato dal BUG Mod.</Italian>
+ 		<Spanish>Creado por el BUG Mod.</Spanish>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index c4cb8ed78..8013ed13f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -873,7 +873,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_HOME_TILE_YIELD</Tag>
+ 		<English>Tile yield: </English>
+-		<French>Produit du case: </French>
++		<French>Produit du case : </French>
+ 		<German>Gel&#228;ndeertrag: </German>
+ 		<Italian>Prodotti della casella: </Italian>
+ 		<Spanish>Rendim. de la casilla: </Spanish>
+@@ -4264,11 +4264,11 @@
+ 	<!-- advc.106b -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_END_TURN_MSG</Tag>
+-		<English>[COLOR_LIGHT_GREY]----- Older messages:[COLOR_REVERT]</English>
+-		<French>[COLOR_LIGHT_GREY]----- Messages plus anciens:[COLOR_REVERT]</French>
+-		<German>[COLOR_LIGHT_GREY]----- �ltere Nachrichten:[COLOR_REVERT]</German>
+-		<Italian>[COLOR_LIGHT_GREY]----- Messaggi meno recenti:[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_LIGHT_GREY]----- Mensajes m�s antiguos:[COLOR_REVERT]</Spanish>
++		<English>----- Older messages:</English>
++		<French>----- Messages plus anciens :</French>
++		<German>----- �ltere Nachrichten:</German>
++		<Italian>----- Messaggi meno recenti:</Italian>
++		<Spanish>----- Mensajes m�s antiguos:</Spanish>
+ 	</TEXT>
+ 	
+ 	<!-- advc.104v -->
+@@ -6789,7 +6789,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POPUP_ELECTION_FORCE_WAR_VS_YOU</Tag>
+ 		<English>Force the full members to declare war on you(!!) (Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
+-		<French>>Force les membres permanents � vous (!) d�clarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
++		<French>Force les membres permanents � vous (!) d�clarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
+ 		<German>Zwingt die Vollmitglieder Ihnen(!) den Krieg zu erkl�ren. (Erfordert %d1_ReqNum on insgesamt %d2_TotNum Stimmen.)</German>
+ 		<Italian>Costringe i membri a pieno titolo a dichiarare guerra a te(!!) (Richiede %d1_ReqNum su %d2_TotNum voti totali)</Italian>
+ 		<Spanish>Obliga a los miembros de pleno derecho a declararos la guerra(!!) (Requiere %d1_ReqNum de %d2_TotNum votos totales)</Spanish>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_rf.xml b/Assets/XML/Text/CIV4GameText_advc_rf.xml
+index b20a7498c..5186f7f73 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_rf.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_rf.xml
+@@ -386,7 +386,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_YOU_AT_WAR</Tag>
+ 		<English>You're at war with %s1_Civ!</English>
+-		<German>Wir befinden uns im Krieg mit %s1_Civ!</German>>
++		<German>Wir befinden uns im Krieg mit %s1_Civ!</German>
+ 	</TEXT>
+ 	<!-- Translations: TXT_KEY_QUEST_MESSAGE_LOG in CIV4GameText_BTS.xml.
+ 		 fr. Qu&#234;tes, it. Imprese, sp. Misiones -->
+
+diff --git a/Assets/XML/Text/Sevopedia_CIV4GameText.xml b/Assets/XML/Text/Sevopedia_CIV4GameText.xml
+index c7666d20f..acd9c0c71 100644
+--- a/Assets/XML/Text/Sevopedia_CIV4GameText.xml
++++ b/Assets/XML/Text/Sevopedia_CIV4GameText.xml
+@@ -89,16 +89,6 @@
+ 		<German>Gesteigerte Ertr�ge</German>
+ 		<Italian>Miglioramenti</Italian>
+ 		<Spanish>Mejoras</Spanish>
+-	</TEXT>
+-	<!-- advc.004y: From CIV4GameTextInfos.xml. Only English and German
+-		 changed. -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
+-		<English>Bonus Resources</English>
+-		<French>Rendement bonus</French>
+-		<German>Bonusressourcen</German>
+-		<Italian>Prodotti bonus</Italian>
+-		<Spanish>Rendim. bonif.</Spanish>
+ 	</TEXT>
+ 		<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
+ 		 parentheses and "Total"; more comprehensible this way. -->
+
+diff --git a/Assets/XML/Text/Shortcuts_CIV4GameText.xml b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+index e26e9590b..c26d0bd2a 100644
+--- a/Assets/XML/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+@@ -92,6 +92,7 @@
+ 		<Italian>Multiplayer</Italian>
+ 		<Spanish>Multijugador</Spanish>
+ 	</TEXT>
++	<!-- advc (note): Could just replace all the [NEWLINE] with \n for easier editing -->
+ 	<!-- advc.002b: Added/removed tabs to fix alignment (only for English
+ 		 though) -->
+ 	<!-- advc.004y: Stylistic changes to most of the _PEDIA keys, but only for
+
+diff --git a/CvGameCoreDLL/ArithmeticUtils.h b/CvGameCoreDLL/ArithmeticUtils.h
+index 66235315e..d091950cd 100644
+--- a/CvGameCoreDLL/ArithmeticUtils.h
++++ b/CvGameCoreDLL/ArithmeticUtils.h
+@@ -185,15 +185,22 @@ namespace stats // Seems too generic, but what else to name it?
+ 		return r;
+ 	}
+ 	template<typename T> // (see e.g. Wikipedia)
+-	T percentileRank(std::vector<T>& kDistribution, T tScore, bool bSorted = false)
+-	{
++	T percentileRank(std::vector<T> const& kDistribution, T tScore, bool bSorted = false)
++	{	// int not supported b/c result is in the unit interval
++		BOOST_STATIC_ASSERT(!integer_limits<T>::is_integer);
++		std::vector<T> const* pSorted = &kDistribution;
++		std::vector<T> localCopy;
+ 		if (!bSorted)
+-			std::sort(kDistribution.begin(), kDistribution.end());
++		{
++			localCopy = kDistribution;
++			std::sort(localCopy.begin(), localCopy.end());
++			pSorted = &localCopy;
++		}
+ 		int iLesserScores = 0;
+-		int iSz = (int)kDistribution.size();
++		int iSz = (int)pSorted->size();
+ 		for (int i = 0; i < iSz; i++)
+ 		{
+-			if (kDistribution[i] < tScore)
++			if ((*pSorted)[i] < tScore)
+ 				iLesserScores++;
+ 			else break;
+ 		}
+@@ -210,6 +217,11 @@ namespace fmath
+ 		int r = (int)(d + 0.5 * iMultiple);
+ 		return r - r % iMultiple;
+ 	}
++	inline double log2(double d) // as in C++11
++	{
++		static const double dLn2 = std::log(2.0);
++		return std::log(d) / dLn2;
++	}
+ }
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index b9a9e0036..2138a1d31 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -430,7 +430,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 		int iRevealedCoast = 0;
+ 		FOR_EACH_CITY(pCity, kPlayer)
+ 		{
+-			if (pCity->isRevealed(kPlayer.getTeam()))
++			if (pCity->isRevealed(TEAMID(m_eAnalyst)))
+ 			{
+ 				iRevealed++;
+ 				if (pCity->isCoastal())
+@@ -442,11 +442,14 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 			if (iRevealed >= kPlayer.getNumCities() && iRevealedCoast <= 0)
+ 				rBranchPortions[FLEET] = 0;
+ 			// Assume little defensive build-up when attacking across the sea
+-			else if (!bDefensive)
+-				rBranchPortions[HOME_GUARD] = fixp(0.12);
+-			scaled rCoastPortion(iRevealedCoast, iRevealed);
+-			rBranchPortions[FLEET] = std::min(fixp(0.35),
+-					fixp(0.08) + rCoastPortion / fixp(2.8));
++			else
++			{
++				if (!bDefensive)
++					rBranchPortions[HOME_GUARD] = fixp(0.12);
++				scaled rCoastPortion(iRevealedCoast, iRevealed);
++				rBranchPortions[FLEET] = std::min(fixp(0.35),
++						fixp(0.08) + rCoastPortion / fixp(2.8));
++			}
+ 		}
+ 		TeamTypes const eAgentTeam = TEAMID(m_kMA.getAgentPlayer());
+ 		scaled rTypicalCargo = m_kMilitary[LOGISTICS]->getTypicalPower(eAgentTeam);
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 33607a577..38ab34bd0 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -376,7 +376,7 @@ short AIFoundValue::evaluate()
+ 	int iInnerBadTiles = 0;
+ 	int iLandTiles = 0; // advc.031
+ 	// <advc.040>
+-	bool bFirstColony = isPrioritizeAsFirstColony();
++	bFirstColony = isPrioritizeAsFirstColony();
+ 	IFLOG if(bFirstColony) logBBAI("First colony");
+ 	// Scope for countBadTiles return parameters
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9440165f5..982dd82d8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6701,8 +6701,8 @@ void CvCity::updateCultureLevel(bool bUpdatePlotGroups)
+ 	setCultureLevel(eCultureLevel, bUpdatePlotGroups);
+ }
+ 
+-/*	advc: Cut from updateCultureLevel. Unlike getCulture(PlayerTypes), this function
+-	will always recalculate the culture level. */
++/*	advc: Cut from updateCultureLevel. Unlike getCultureLevel(PlayerTypes),
++	this function is guaranteed to recalculate the culture level. */
+ CultureLevelTypes CvCity::calculateCultureLevel(PlayerTypes ePlayer) const
+ {
+ 	int const iCultureTimes100 = getCultureTimes100(ePlayer);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 0ac475f93..9daf70174 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -63,6 +63,8 @@ CvCityAI::~CvCityAI()
+ 	SAFE_DELETE_ARRAY(m_aiEmphasizeCommerceCount);
+ 	SAFE_DELETE_ARRAY(m_aiSpecialYieldMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiPlayerCloseness);
++	SAFE_DELETE_ARRAY(m_aiCachePlayerClosenessTurn);
++	SAFE_DELETE_ARRAY(m_aiCachePlayerClosenessDistance);
+ 
+ 	SAFE_DELETE_ARRAY(m_aiBestBuildValue);
+ 	SAFE_DELETE_ARRAY(m_aeBestBuild);
+@@ -2326,11 +2328,17 @@ void CvCityAI::AI_chooseProduction()
+ 			SyncRandNum(1200) < std::min(400, iNukeWeight)) &&
+ 			(!bAssault || SyncRandNum(400) < std::min(200, 50 + iNukeWeight/2)))
+ 		{
+-			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
+-			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(),
++			int const iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
++			int const iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(),
+ 					kGame.getNumCities() - kPlayer.getNumCities());
+ 			if (iTotalNukes < iNukesWanted &&
+-				SyncRandNum(100) * iNukesWanted < 90 - (80 * iTotalNukes))
++				/*	advc.650: Reduced in favor of a second, higher-priority rule.
++					Weights were 90 and 80. Now 60% initially, 10% (as before)
++					when target reached, decreasing further from there.
++					The odds effectively a weighted delta divided by the target.
++					Multiple rolls may need to succeed b/c the AI may re-consider
++					the production order on later turns (fixme?).) */
++				SyncRandNum(100) * iNukesWanted < 60 * iNukesWanted - (50 * iTotalNukes))
+ 			{
+ 				if (pWaterArea != NULL &&
+ 					kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA) * 2 < iTotalNukes &&
+@@ -2343,8 +2351,7 @@ void CvCityAI::AI_chooseProduction()
+ 					return;
+ 			}
+ 		}
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ 
+ 	// Assault case now completely handled above
+ 	if (!bAssault && (!bCultureCity || bDefenseWar) && iUnitSpending < iMaxUnitSpending)
+@@ -4903,7 +4910,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					if(kRival.AI_atVictoryStage(AI_VICTORY_DIPLOMACY1))
+ 						iRivalStage++;
+ 					if(!kBuilding.isStateReligion() &&
+-						kOwner.AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
++						kRival.AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
+ 					{
+ 						iRivalStage++;
+ 					}
+@@ -4929,7 +4936,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					FOR_EACH_ENUM(Building)
+ 					{
+ 						if (GC.getInfo(eLoopBuilding).getReligionType() == eStateReligion)
+-							aeReligionBuildings.push_back(eBuilding);
++							aeReligionBuildings.push_back(eLoopBuilding);
+ 					}
+ 					scaled rOurBuildings = AI_estimateReligionBuildings(
+ 							kOwner.getID(), eStateReligion, aeReligionBuildings);
+@@ -11653,7 +11660,7 @@ void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildType
+ 					eBestBuild == NO_BUILD) // advc.001 (restored)
+ 				{	// <advc.121> Akin to the boost for RouteYieldChanges below
+ 					if (eBestBuild == NO_BUILD && kPlot.isBeingWorked())
+-						iBestValue *= 2; // </advc.121>
++						iValue *= 2; // </advc.121>
+ 					iBestValue = iValue;
+ 					eBestBuild = eLoopBuild;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 21877eb8c..26c0c16a3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1536,7 +1536,7 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
+ 
+ 	std::vector<PlayerTypes> aeStartingLocs(MAX_CIV_PLAYERS);
+ 	// each player starting in own location
+-	std11::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
++	sequtil::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
+ 
+ 	int iBestScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
+ 	bool bFoundSwap = true;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 24c903480..bf3875161 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -35,7 +35,7 @@ class FAStar;
+  have been too lazy to find a proper place for. */
+ 
+ // advc:
+-namespace std11
++namespace sequtil
+ {
+ // Erik: "Back-ported" from C++11
+ template<class ForwardIt, class T>
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 76c6c0e68..565d4b8f7 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -960,7 +960,7 @@ bool CvVoteSourceInfo::read(CvXMLLoadUtility* pXML)
+ 		m_aszExtraXMLforPass3.push_back(szTextVal);
+ 	}
+ 	pXML->SetYieldList(ReligionYield(), "ReligionYields");
+-	pXML->SetCommerceList(ReligionYield(), "ReligionCommerces");
++	pXML->SetCommerceList(ReligionCommerce(), "ReligionCommerces");
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 0f601eca5..9553798e1 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -260,7 +260,7 @@ protected:
+ 		kElements.addInt(EventRollSidesPercent, "EventRollSidesPercent", 100);
+ 		kElements.addInt(VoteIntervalPercent, "VoteIntervalPercent", 100);
+ 		kElements.addInt(UnitCostPercent, "UnitCostPercent", 100);
+-		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 100);
++		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits");
+ 		// </advc.252>
+ 	}
+ public:
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index d635c0a3f..5d644cc0d 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -61,14 +61,18 @@ public:
+ 	// 4 | 4 | 3 | 3 | 3 | 4 | 4
+ 	//
+ 	// Returns the distance between plots according to the pattern above...
++	/*	advc (note): The standard octile metric would use (sqrt(2)-1) as the
++		weight of the min, providing the exact length of the shortest (zigzag-y)
++		path along centers of adjacent squares. This here is a pretty close
++		approximation of that length. */
+ 	int plotDistance(int iX1, int iY1, int iX2, int iY2) const
+ 	{
+ 		int iDX = xDistance(iX1, iX2);
+ 		int iDY = yDistance(iY1, iY2);
+ 		//return std::max(iDX, iDY) + std::min(iDX, iDY) / 2;
+ 		/*	advc.opt: Non-branching replacement
+-			(abs in stdlib uses just xor and sub). Could also use the max and min
+-			functions in CvGameCoreUtils.h, but this here seems a little faster. */
++			(abs in stdlib uses just xor and sub). Could also use the max and min functions
++			in the branchless namespace, but this here seems a little faster. */
+ 		return (3 * (iDX + iDY) + abs(iDX - iDY)) / 4;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ab4f749df..04c73e730 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5068,20 +5068,29 @@ void CvPlayer::found(int iX, int iY)
+ 
+ 	if (getAdvancedStartPoints() >= 0)
+ 	{	// Free border expansion for Creative
+-		bool bCreative = false;
++		bool bFreeBorderExp = false; // advc: Renamed from "bCreative"
+ 		FOR_EACH_ENUM(Trait)
+ 		{
+ 			if (hasTrait(eLoopTrait))
+ 			{
+ 				if (GC.getInfo(eLoopTrait).getCommerceChange(COMMERCE_CULTURE) > 0)
+ 				{
+-					bCreative = true;
++					bFreeBorderExp = true;
+ 					break;
+ 				}
+ 			}
+ 		}
+-
+-		if (bCreative)
++		/*	<advc.908b> Let traits handle this explicitly
++			unless the free culture effect is unused */
++		FOR_EACH_ENUM(Trait)
++		{
++			if (kGame.freeCityCultureFromTrait(eLoopTrait) != 0)
++			{
++				bFreeBorderExp = false;
++				break;
++			}
++		} // </advc.908b>
++		if (bFreeBorderExp)
+ 		{
+ 			FOR_EACH_ENUM(CultureLevel)
+ 			{
+@@ -10999,7 +11008,7 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
+ 	if (eMessage == MESSAGE_TYPE_INFO || eMessage == MESSAGE_TYPE_MINOR_EVENT ||
+ 		eMessage == MESSAGE_TYPE_MAJOR_EVENT || eMessage == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY)
+ 	{
+-		m_iNewMessages++; // See comment in postProcessBeginTurnEvents
++		m_iNewMessages++; // See comment in postProcessMessages
+ 	}
+ 	/*	Hotseat clears some messages before players get to see them; we'll show them
+ 		again at the start of the recipient's next turn. */
+@@ -11010,7 +11019,7 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
+ 	if (eMessage == MESSAGE_TYPE_MAJOR_EVENT || bMissedMsg)
+ 	{
+ 		/*  Need to make a copy b/c, apparently, the EXE deletes the original
+-			before postProcessBeginTurnEvents gets called. */
++			before postProcessMessages gets called. */
+ 		CvTalkingHeadMessage* pCopy = new CvTalkingHeadMessage(kMessage.getTurn(),
+ 				kMessage.getLength(), kMessage.getDescription(),
+ 				// Don't play it twice
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1b17f4818..7c119e2db 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -375,9 +375,8 @@ void CvPlayerAI::AI_updateCacheData()
+ 	int i = 0;
+ 	FOR_EACH_CITYAI_VAR(pCity, *this)
+ 	{
+-		pCity->AI_setCityValPercent(
+-				(1 - stats::percentileRank(
+-				rCityValues, rCityValues[i] + scaled::epsilon())).getPercent());
++		pCity->AI_setCityValPercent(stats::percentileRank(
++				rCityValues, rCityValues[i] + scaled::epsilon()).getPercent());
+ 		pCity->AI_updateSafety();
+ 		i++;
+ 	} // </advc.139>
+@@ -489,6 +488,16 @@ void CvPlayerAI::AI_doTurnUnitsPre()
+ 	}
+ }
+ 
++// advc.131e:
++struct DescByExperience
++{
++	bool operator()(CvUnitAI const* pFirst, CvUnitAI const* pSecond) const
++	{
++		if (pFirst->AI_upgradePriority() != pSecond->AI_upgradePriority())
++			return pFirst->AI_upgradePriority() > pSecond->AI_upgradePriority();
++		return pFirst->getID() < pSecond->getID(); // (mustn't let address break ties)
++	}
++};
+ 
+ void CvPlayerAI::AI_doTurnUnitsPost()
+ {
+@@ -511,7 +520,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	}
+ 	// BETTER_BTS_AI_MOD, Gold AI, 02/24/10, jdog5000: START
+ 	//bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+-	int iStartingGold = getGold();
++	int const iStartingGold = getGold();
+ 	/* BBAI code
+ 	int iTargetGold = AI_goldTarget();
+ 	int iUpgradeBudget = (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
+@@ -531,21 +540,30 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 		int iMaxBudget = AI_goldTarget(true);
+ 		iUpgradeBudget = std::min(iMaxBudget, getGold() * iMaxBudget /
+ 				std::max(1, AI_goldTarget(false)));
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ 
+ 	// Always willing to upgrade 1 unit if we have the money
+-	iUpgradeBudget = std::max(iUpgradeBudget,1);
++	iUpgradeBudget = std::max(iUpgradeBudget, 1);
+ 	// BETTER_BTS_AI_MOD: END
+ 
+ 	CvPlot const* pLastUpgradePlot = NULL;
+-	for (int iPass = 0; iPass < 4; iPass++)
+-	{
+-		FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+-		{
++	// <advc.131e>
++	std::vector<CvUnitAI*> apUnitsByExp;
++	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
++		apUnitsByExp.push_back(pLoopUnit);
++	std::sort(apUnitsByExp.begin(), apUnitsByExp.end(), DescByExperience());
++	for (int iPass = 0; iPass < 5; iPass++) // Case inserted for upgrade discounts
++	{	// BBAI check moved up to save time
++		if (iPass >= 3 && iStartingGold - getGold() >= iUpgradeBudget)
++			break; // </advc.131e>
++		//FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
++		// <advc.131e>
++		for (std::vector<CvUnitAI*>::iterator itUnit = apUnitsByExp.begin();
++			itUnit != apUnitsByExp.end(); /* Increment later; may want to erase. */)
++		{
++			CvUnitAI* pLoopUnit = *itUnit; // </advc.131e>
+ 			bool bNoDisband = false;
+ 			bool bValid = false;
+-
+ 			switch (iPass)
+ 			{
+ 			case 0:
+@@ -577,23 +595,27 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 				}
+ 				break;
+ 			}
++			// <advc.131e>
+ 			case 2:
++				if (pLoopUnit->getUpgradeDiscount() >= 40)
++					bValid = true;
++				break; // </advc.131e>
++			case 3:
+ 				/*if (pLoopUnit->cargoSpace() > 0)
+ 					bValid = true;*/ // BtS
+ 				// Only normal transports
+ 				if (pLoopUnit->cargoSpace() > 0 &&
+ 					pLoopUnit->specialCargo() == NO_SPECIALUNIT)
+ 				{
+-					bValid = iStartingGold - getGold() < iUpgradeBudget;
++					bValid = true;
+ 				}
+ 				// Also upgrade escort ships
+ 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_ESCORT_SEA)
+-					bValid = iStartingGold - getGold() < iUpgradeBudget;
++					bValid = true;
+ 
+ 				break;
+-			case 3:
+-				//bValid = true; // BtS
+-				bValid = iStartingGold - getGold() < iUpgradeBudget;
++			case 4:
++				bValid = true;
+ 				break;
+ 			default:
+ 				FAssert(false);
+@@ -601,14 +623,23 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 			}
+ 
+ 			if (!bValid)
++			{
++				++itUnit; // advc.131e
+ 				continue;
++			}
++			// advc.131e: One upgrade attempt per unit suffices
++			else itUnit = apUnitsByExp.erase(itUnit);
+ 
+ 			bool bKilled = false;
+ 			if (!bNoDisband)
+ 			{
+ 				//if (pLoopUnit->canFight()) // BtS
+ 				// K-Mod - bug fix for the rare case of a barb city spawning on top of an animal
+-				if (pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT)
++				if (pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT &&
++					!pLoopUnit->isFound() && // advc: Future-proof; from DoC.
++					/*	advc.131e: Will otherwise need to remove cargo from apUnitsByExp.
++						But probably a bad idea to scrap transports with cargo anyway. */
++					!pLoopUnit->hasCargo())
+ 				{
+ 					int iExp = pLoopUnit->getExperience();
+ 					CvCityAI const* pPlotCity = pLoopUnit->getPlot().AI_getPlotCity();
+@@ -4912,25 +4943,28 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	}
+ 
+ 	// K-Mod. Extra specialist commerce. (Based on my civic evaluation code)
+-	bool bSpecialistCommerce = false;
++	bool bSpecialistCommerce = false; // (advc: Just for saving time)
+ 	int iTotalBonusSpecialists = -1;
+ 	int iTotalCurrentSpecialists = -1;
+ 	FOR_EACH_ENUM(Commerce)
+ 	{
+-		bSpecialistCommerce = kTech.getSpecialistExtraCommerce(eLoopCommerce) != 0;
++		//bSpecialistCommerce = kTechInfo.getSpecialistExtraCommerce(i) != 0;
++		// <advc.001>
++		if (kTech.getSpecialistExtraCommerce(eLoopCommerce) != 0)
++		{
++			bSpecialistCommerce = true;
++			break;
++		} // </advc.001>
+ 	}
+-
+ 	if (bSpecialistCommerce)
+ 	{
+-		// If there are any bonuses, we need to count our specialists.
+- 		// (The value from the bonuses will be applied later.)
++		/*	If there are any bonuses, we need to count our specialists.
++			(The value from the bonuses will be applied later.) */
+ 		iTotalBonusSpecialists = iTotalCurrentSpecialists = 0;
+-
+ 		FOR_EACH_CITY(pLoopCity, *this)
+ 		{
+ 			iTotalBonusSpecialists += pLoopCity->getNumGreatPeople();
+ 			iTotalBonusSpecialists += pLoopCity->totalFreeSpecialists();
+-
+ 			iTotalCurrentSpecialists += pLoopCity->getNumGreatPeople();
+ 			iTotalCurrentSpecialists += pLoopCity->getSpecialistPopulation();
+ 		}
+@@ -4944,9 +4978,6 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+  		// Commerce for specialists
+  		if (bSpecialistCommerce)
+  		{
+-			// If there are any bonuses, we need to count our specialists.
+- 			// (The value from the bonuses will be applied later.)
+-			iTotalBonusSpecialists = iTotalCurrentSpecialists = 0;
+  			iCommerceValue += 4*AI_averageCommerceMultiplier(eLoopCommerce)*
+ 					(kTech.getSpecialistExtraCommerce(eLoopCommerce) *
+ 					std::max((getTotalPopulation()+12*iTotalBonusSpecialists) /
+@@ -7435,8 +7466,11 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool b
+ 			and some of the new code (isPeaceDealPossible) is expensive. */
+ 		if (gDLL->getDiplomacyPlayer() == getID())
+ 			return true;
+-		if (GET_TEAM(ePlayer).isAlwaysWar() || GET_TEAM(getTeam()).isAlwaysWar())
++		if (TEAMID(ePlayer) != getTeam() &&
++			(GET_TEAM(ePlayer).isAlwaysWar() || GET_TEAM(getTeam()).isAlwaysWar()))
++		{
+ 			return false;
++		}
+ 	} // </advc.104i>
+ 
+ 	// <advc.003n> In particular, don't call AI_surrenderTrade on non-major civs.
+@@ -13415,8 +13449,8 @@ uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
+ 	if (!GC.getInfo(eUnit).isAnyTerrainImpassable() &&
+ 		!GC.getInfo(eUnit).isAnyFeatureImpassable())
+ 	{
+-		return 0; // </advc.003t>
+-	}
++		return 0;
++	} // </advc.003t>
+ 	uint uiCount = 0;
+ 	// <advc.057>
+ 	uint const uiCountBits = 3;
+@@ -24199,6 +24233,11 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(
+ 				iVictoryCities, countdownList.end());
+ 		iWinningCountdown = countdownList[iVictoryCities-1];
+ 	}
++	{	// <advc.sas>
++		int iOwnVictoryCountdown = GET_TEAM(getTeam()).AI_getLowestVictoryCountdown();
++		if (iOwnVictoryCountdown >= 0 && iOwnVictoryCountdown < iWinningCountdown)
++			return 1; // </advc.sas>
++	}
+ 	if (iCloseToLegendaryCount >= iVictoryCities ||
+ 		//getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2))
+ 		// K-Mod (note: this matches the above)
+@@ -25888,7 +25927,8 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 			}
+ 			else if (kVictory.getCityCulture() > 0)
+ 			{
+-				if (m_eStrategyHash & AI_VICTORY_CULTURE1)
++				//if (m_iStrategyHash & AI_VICTORY_CULTURE1) // BBAI
++				if (AI_atVictoryStage(AI_VICTORY_CULTURE1)) // advc.001
+ 					iAchieveVictories++;
+ 			}
+ 			else if (kVictory.getMinLandPercent() > 0 || kVictory.getLandPercent() > 0)
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 0bb728ea7..8989500cc 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -93,7 +93,7 @@ void CvRandom::shuffle(int* piShuffle, int iNum)
+ // advc.enum:
+ void CvRandom::shuffle(std::vector<int>& aiIndices)
+ {
+-	std11::iota(aiIndices.begin(), aiIndices.end(), 0);
++	sequtil::iota(aiIndices.begin(), aiIndices.end(), 0);
+ 	int const iSize = (int)aiIndices.size();
+ 	FAssertMsg(iSize > 0, "Shuffling empty vector; intended?");
+ 	for (int i = 0; i < iSize; i++)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index b3fa83eb7..58a356e27 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1500,13 +1500,21 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			break;
+ 
+ 		case MISSION_BUILD:
+-			if(!groupBuild((BuildTypes)missionData.iData1,
+-				!missionData.bModified)) // advc.011b
++		{
++			BuildTypes eBuild = (BuildTypes)missionData.iData1;
++			/*	<advc.001> (based on SAS) Routes may get built along the way to the
++				mission plot, but, if route-to or move-to fails and the mission plot
++				isn't reached, then any improvement build needs to be canceled. */
++			CvPlot const* pMissionAIPlot = AI().AI_getMissionAIPlot();
++			bool bCancel = (pMissionAIPlot != NULL && eBuild != NO_BUILD &&
++					GC.getInfo(eBuild).getRoute() == NO_ROUTE && !atPlot(pMissionAIPlot));
++			if (bCancel || // </advc.001>
++				!groupBuild(eBuild, /* advc.011b: */ !missionData.bModified))
+ 			{
+ 				bDone = true;
+ 			}
+ 			break;
+-
++		}
+ 		default: FAssert(false);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 63e9eb472..17a766a11 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2369,9 +2369,11 @@ void CvTeam::updateLeaderID()
+ 		}
+ 	}
+ 	// <advc.104t>
+-	if (m_eLeader != eFormerLeader && getUWAI().isEnabled())
++	if (m_eLeader != eFormerLeader && getUWAI().isEnabled() &&
++		GET_PLAYER(m_eLeader).isAlive())
++	{
+ 		GET_PLAYER(m_eLeader).uwai().getCache().onTeamLeaderChanged(eFormerLeader);
+-	// </advc.104t>
++	} // </advc.104t>
+ 	if (m_eLeader == NO_PLAYER)
+ 	{
+ 		FAssert(m_eLeader != NO_PLAYER);
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a49a0a14f..9860630ab 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -401,6 +401,14 @@ bool CvTeamAI::AI_hasSharedPrimaryArea(TeamTypes eTeam) const
+ 	return false;
+ }
+ 
++namespace
++{	// advc.300:
++	int presenceScore(int iCities, int iPop)
++	{
++		return iCities * iCities - iCities + 2 * iPop;
++	}
++}
++
+ /*  advc.104s (note): If UWAI is enabled, AI_doWar may adjust (i.e. overwrite) the
+ 	result of this calculation through UWAI::Team::alignAreaAI. */
+ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea const& kArea, bool bPreparingTotal) const
+@@ -412,12 +420,26 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea const& kArea, bool bPreparin
+ 
+ 	if (isBarbarian())
+ 	{
+-		if (//kArea.getNumCities() == kArea.getCitiesPerPlayer(BARBARIAN_PLAYER)
+-			// advc.300: Relatively peaceable (New World) Barbarians until outnumbered
+-			kArea.getTotalPopulation() <= kArea.getPopulationPerPlayer(BARBARIAN_PLAYER) * 2)
+-		{
+-			return AREAAI_ASSAULT;
+-		}
++		if (kArea.getNumCities() == kArea.getCitiesPerPlayer(BARBARIAN_PLAYER))
++		{	/*	advc (note): Meaning naval assault against civs on other continents
++				(if any are even reachable). Relatively peaceful behavior within kArea. */
++				return AREAAI_ASSAULT;
++		}
++		// <advc.300> Do the above also while clearly outnumbering the civs
++		int const iBarbarianCities = kArea.getCitiesPerPlayer(BARBARIAN_PLAYER);
++		if (iBarbarianCities > 0)
++		{
++			int const iBarbarianPop = kArea.getPopulationPerPlayer(BARBARIAN_PLAYER);
++			int const iCivCities = kArea.getNumCities() - iBarbarianCities;
++			int const iCivPop = kArea.getTotalPopulation() - iBarbarianPop;
++			int const iBarbarianPresence = presenceScore(iBarbarianCities,
++					std::min(iBarbarianPop, iBarbarianCities * 5));
++			int const iCivPresence = presenceScore(iCivCities, iCivPop);
++			scaled const rExp = GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ?
++					fixp(0.6) : fixp(0.75);
++			if (iCivPresence <= scaled(iBarbarianPresence).pow(rExp))
++				return AREAAI_ASSAULT;
++		} // </advc.300>
+ 		if (countNumAIUnitsByArea(kArea, UNITAI_ATTACK) +
+ 			countNumAIUnitsByArea(kArea, UNITAI_ATTACK_CITY) +
+ 			countNumAIUnitsByArea(kArea, UNITAI_PILLAGE) +
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 86c3f84b2..8d3876cef 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3387,7 +3387,7 @@ void CvUnit::gift(bool bTestTransport)
+ 	CvEventReporter::getInstance().unitGifted(pGiftUnit, getOwner(), plot());
+ }
+ 
+-// advc: Renamed from canLoadUnit, params changed to references.
++// advc: Renamed from "canLoadUnit"
+ bool CvUnit::canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot,
+ 	bool bCheckMoves) const // advc.123c
+ {
+@@ -6617,7 +6617,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
+ 	return std::max(0, iPrice); // advc.mnai: max (future-proofing)
+ }
+ 
+-// advc.080: Based on code cut from CvUnit::upgrade. The param is (so far) unused.
++// advc.080, 131e: Based on code cut from CvUnit::upgrade. The param is (so far) unused.
+ int CvUnit::upgradeXPChange(UnitTypes eUnit) const
+ {
+ 	if(getLeaderUnitType() != NO_UNIT)
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index c16c9e86a..89d928e20 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -276,7 +276,7 @@ public:
+ 	int getStackExperienceToGive(int iNumUnits) const;
+ 
+ 	int upgradePrice(UnitTypes eUnit) const;																// Exposed to Python
+-	int upgradeXPChange(UnitTypes eUnit) const; // advc.080
++	int upgradeXPChange(UnitTypes eUnit = NO_UNIT) const; // advc.080, advc.131e
+ 	bool upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount = 0) const;			// Exposed to Python
+ 	bool canUpgrade(UnitTypes eUnit, bool bTestVisible = false) const;										// Exposed to Python
+ 	bool isReadyForUpgrade() const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 008b9f3da..afd9781d5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -419,9 +419,9 @@ void CvUnitAI::AI_upgrade()
+ 	if (!isReadyForUpgrade())
+ 		return;
+ 
+-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+-	UnitAITypes eUnitAI = AI_getUnitAIType();
+-	CvArea* pArea = area();
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	UnitAITypes const eUnitAI = AI_getUnitAIType();
++	CvArea const* pArea = area();
+ 
+ 	int iBestValue = kOwner.AI_unitValue(getUnitType(), eUnitAI, pArea) * 100;
+ 	UnitTypes eBestUnit = NO_UNIT;
+@@ -510,6 +510,15 @@ void CvUnitAI::AI_promote()
+ 	}
+ }
+ 
++/*	advc.131e: The higher, the greater the priority. Can be negative when
++	a lot of XP will be lost. Most of the prioritization still happens in
++	CvPlayerAI::AI_doTurnUnitsPost; should perhaps move here. */
++scaled CvUnitAI::AI_upgradePriority() const
++{	/*	The post-upgrade XP with extra weight for the (normally non-positive)
++		change upon upgrading */
++	return getExperience() + fixp(1.6) * upgradeXPChange();
++}
++
+ // <advc.003u>, advc.003s
+ CvSelectionGroupAI const* CvUnitAI::AI_getGroup() const
+ {
+@@ -5063,6 +5072,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 	// 3) Attempt to carry out missions, starting with the highest value.
+ 
+ 	CvPlot* pBestPlot = NULL;
++	CvCity const* pBestCity = NULL; // advc.001 (from SAS)
+ 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+ 	BuildingTypes eBestBuilding = NO_BUILDING;
+ 	int iBestValue = 1;
+@@ -5093,6 +5103,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					// <advc.001> (from SAS)
++					pBestCity = pLoopCity;
++					iBestPathTurns = iPathTurns; // </advc.001>
+ 					eBestSpecialist = eLoopSpecialist;
+ 					eBestBuilding = NO_BUILDING;
+ 				}
+@@ -5114,6 +5127,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					// <advc.001> (from SAS)
++					pBestCity = pLoopCity;
++					iBestPathTurns = iPathTurns; // </advc.001>
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
+ 				}
+@@ -5158,6 +5174,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					pBestCity = pLoopCity; // advc.001 (from SAS)
+ 					iBestPathTurns = iPathTurns;
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
+@@ -5413,7 +5430,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 			}
+ 			if (eBestBuilding != NO_BUILDING)
+ 			{
+-				MissionAITypes eMissionAI = canConstruct(pBestPlot, eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
++				MissionAITypes eMissionAI = canConstruct(
++						pBestCity->plot(), // advc.001: was pBestPlot
++						eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
+ 				if (gUnitLogLevel > 2) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
+ 				if (at(*pBestPlot))
+ 				{
+@@ -9767,8 +9786,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 					can't rely on head having the most impassable types. */
+ 				if (kHeadUnit.AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
+ 				{
+-					for (pUnitNode = getGroup()->nextUnitNode(pUnitNode);
+-						pUnitNode != NULL; pUnitNode = getGroup()->nextUnitNode(pUnitNode))
++					for (pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
++						pUnitNode != NULL; pUnitNode = pLoopGroup->nextUnitNode(pUnitNode))
+ 					{
+ 						CvUnit const& kUnit = *::getUnit(pUnitNode->m_data);
+ 						uiTheirMaxImpassables = std::max(uiTheirMaxImpassables,
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 294a25c86..0d8bb30e5 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -24,7 +24,7 @@ public:
+ 	bool AI_follow(/* K-Mod: */ bool bFirst = true);
+ 	void AI_upgrade();
+ 	void AI_promote();
+-
++	scaled AI_upgradePriority() const; // advc.131e
+ 	int AI_groupFirstVal() const;
+ 	int AI_groupSecondVal() const;
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index 93b4224f6..7483b5207 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -584,7 +584,8 @@ void CyInfoPythonInterface3()
+ 		.def("getNumBonusesRequired", &CvEventTriggerInfo::getNumBonusesRequired, "int ()")
+ 		.def("getRouteRequired", &CvEventTriggerInfo::getRouteRequired, "int (int)")
+ 		.def("getNumRoutesRequired", &CvEventTriggerInfo::getNumRoutesRequired, "int ()")
+-		.def("getReligionRequired", &CvEventTriggerInfo::getBonusRequired, "int (int)")
++		// advc.sas (bugfix): 2nd arg was getBonusRequired
++		.def("getReligionRequired", &CvEventTriggerInfo::getReligionRequired, "int (int)")
+ 		.def("getNumReligionsRequired", &CvEventTriggerInfo::getNumReligionsRequired, "int ()")
+ 		.def("getCorporationRequired", &CvEventTriggerInfo::getCorporationRequired, "int (int)")
+ 		.def("getNumCorporationsRequired", &CvEventTriggerInfo::getNumCorporationsRequired, "int ()")
+@@ -598,7 +599,8 @@ void CyInfoPythonInterface3()
+ 		.def("isOtherPlayerHasOtherReligion", &CvEventTriggerInfo::isOtherPlayerHasOtherReligion, "bool ()")
+ 		.def("isOtherPlayerAI", &CvEventTriggerInfo::isOtherPlayerAI, "bool ()")
+ 		.def("isPickCity", &CvEventTriggerInfo::isPickCity, "bool ()")
+-		.def("isPickOtherPlayerCity", &CvEventTriggerInfo::isPickCity, "bool ()")
++		// advc.sas (bugfix): 2nd arg was isPickCity
++		.def("isPickOtherPlayerCity", &CvEventTriggerInfo::isPickOtherPlayerCity, "bool ()")
+ 		.def("isUnitsOnPlot", &CvEventTriggerInfo::isUnitsOnPlot, "bool ()")
+ 		.def("isOwnPlot", &CvEventTriggerInfo::isOwnPlot, "bool ()")
+ 		.def("isPickReligion", &CvEventTriggerInfo::isPickReligion, "bool ()")
+@@ -628,7 +630,8 @@ void CyInfoPythonInterface3()
+ 		.def("getTechMinTurnsLeft", &CvEventInfo::getTechMinTurnsLeft, "int ()")
+ 		.def("getPrereqTech", &CvEventInfo::getPrereqTech, "int ()")
+ 		.def("getUnitClass", &CvEventInfo::getUnitClass, "int ()")
+-		.def("getNumUnits", &CvEventTriggerInfo::getNumUnits, "int ()")
++		// advc.sas (bugfix): was CvEventTriggerInfo
++		.def("getNumUnits", &CvEventInfo::getNumUnits, "int ()")
+ 		.def("getBuildingClass", &CvEventInfo::getBuildingClass, "int ()")
+ 		.def("getBuildingChange", &CvEventInfo::getBuildingChange, "int ()")
+ 		.def("getHappy", &CvEventInfo::getHappy, "int ()")
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index e311fd5c8..3fea4fbcb 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1537,7 +1537,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
+ 			if (rDefArmyPow > 0)
+ 			{
+ 				kStep.reducePower(kDefender.m_ePlayer, CAVALRY,
+-						rLossesDefArmy * rDefArmyPortion * rDefCavPow / rDefArmyPow);
++						rLossesDefArmy * rDefCavPow / rDefArmyPow);
+ 			}
+ 		}
+ 		/*	Attacker may lose nothing b/c city is so strongly defended that no
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 945c8cdfd..f838c0f4b 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -354,13 +354,13 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 		if (kAgent.isAVassal())
+ 			rOurVassalMult /= 2;
+ 		scaled rEnemyVassalMult = 1;
+-		if (kAgent.isAVassal())
++		if (kEnemy.isAVassal())
+ 			rEnemyVassalMult /= 2;
+ 		scaled rEnemyTargets;
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kEnemyOfEnemy = *it;
+-			if (isWar(kEnemyOfEnemy.getID(), kEnemyOfEnemy.getID()))
++			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()))
+ 				rEnemyTargets += (kEnemyOfEnemy.isAVassal() ? fixp(0.5) : 1);
+ 		}
+ 		scaled rFiredOnUs = rPortionFired * rOurVassalMult * rEnemyVassalMult *
+
+diff --git a/CvGameCoreDLL/PragmaWarnings.h b/CvGameCoreDLL/PragmaWarnings.h
+index c612161e9..9cc8a02c6 100644
+--- a/CvGameCoreDLL/PragmaWarnings.h
++++ b/CvGameCoreDLL/PragmaWarnings.h
+@@ -15,7 +15,7 @@
+ 	warnings. BtS had disabled that one through the PCH. */
+ 
+ /*	These should remain enabled even if the global level is dialed back down to 3.
+-	But I'm not sure how disable them in the std headers etc.
++	But I'm not sure how to disable them in the std headers etc.
+ 	May need to put them into a separate header for that, to be included in the PCH
+ 	after loading the non-conforming headers. */
+ /*
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index c9573fe4b..e6d95cad1 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -57,7 +57,7 @@ void TestScaledNum()
+ 	FAssert(rTest == 3);
+ 	// The exact result would be 4.5/1024
+ 	FAssert(ScaledNum<100>(30,100) * ScaledNum<1024>(15,1024) == ScaledNum<1024>(5,1024));
+-	// If multiplication was performed like this, we'd get 4/1024:
++	// If multiplication were performed like this, we'd get 4/1024:
+ 	FAssert(ScaledNum<1024>(ScaledNum<100>(30,100)) *
+ 			ScaledNum<1024>(15,1024) == ScaledNum<1024>(4,1024));
+ 	// Now force a result on the smaller scale:
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index aa4e19c03..7324efc3b 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -61,7 +61,7 @@ protected:
+ 		that has been reverse-engineered to write this class. I don't think a
+ 		compatibility layer should make a difference. Large address awareness
+ 		has been tested both ways. It's unclear whether different builds exist
+-		apart from the incompatible Steam version. Localized editions perhaps. 
++		apart from the (default) Steam version. Localized editions perhaps. 
+ 		So this hasn't really been tested; it's a better-than-nothing effort to
+ 		align a starting address at which a certain sequence of code bytes is
+ 		expected with the address, if any, at which the sequence is actually found.
+@@ -72,7 +72,7 @@ protected:
+ 		byte* pNeedleBytes, int iNeedleBytes, uint uiExpectedStart,
+ 		/*	Shorter sequence to check for upfront, to save time.
+ 			If found at uiQuckTestStart, then an offset of 0 is returned
+-			w/o checking pNeeldeBytes. */
++			w/o checking pNeedleBytes. */
+ 		byte* pQuickTestBytes = NULL, int iQuickTestBytes = 0, uint uiQuickTestStart = 0,
+ 		/*	How big an offset we contemplate. Not going to search the
+ 			entire virtual memory*/
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.cpp b/CvGameCoreDLL/TeamPathFinder.cpp
+index 68c760cf8..c6108ab94 100644
+--- a/CvGameCoreDLL/TeamPathFinder.cpp
++++ b/CvGameCoreDLL/TeamPathFinder.cpp
+@@ -53,7 +53,7 @@ bool TeamStepMetric<eMODE>::canStepThrough(CvPlot const& kPlot) const
+ 			{
+ 				//bCanal = (kPlot.isImproved() && m_pTeam->isBase(kPlot));
+ 				/*	^Just too needlessly slow. We check most of the conditions here
+-					anyway. As much as I don't like having redundant code ... */
++					anyway. As much as I dislike having redundant code ... */
+ 				bCanal = (kPlot.isCity() || (kPlot.isImproved() &&
+ 						GC.getInfo(kPlot.getImprovementType()).isActsAsCity()));
+ 			}
+@@ -162,7 +162,7 @@ int TeamStepMetric<eMODE>::cost(CvPlot const& kFrom, CvPlot const& kTo) const
+ 	return iCost;
+ }
+ 
+-// Eplicit instantiations ...
++// Explicit instantiations ...
+ #define DO_FOR_EACH_MODE(DO) \
+ 		DO(LAND) \
+ 		DO(ANY_WATER) \
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 0a671ecc5..926263372 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2089,14 +2089,13 @@ void BorderDisputes::evaluate()
+ 		// advc.003g: Tbd.: Write a fixed-point logarithm function
+ 		double dOurCultureMultiplier = iOurPlotCulturePercent / 100.0;
+ 		/*	E.g. dOurCultureModifier=1 if 0% culture;
+-			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.08.
++			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.09.
+ 			If we already have a lot of culture in the city, then it's probably
+ 			not the city causing us to lose border tiles. */
+ 		if (dOurCultureMultiplier > 0.04)
+ 		{
+ 			dOurCultureMultiplier = std::max(0.0,
+-					1 - 0.25 * std::log(25 * dOurCultureMultiplier) /
+-					0.301/*std::log(2.0)*/); // binary log
++					1 - 0.25 * fmath::log2(25 * dOurCultureMultiplier));
+ 		}
+ 		else dOurCultureMultiplier = 1;
+ 		scaled rOurCultureModifier = scaled::fromDouble(dOurCultureMultiplier);
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index b6780c0b4..31403cdd6 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -2,7 +2,8 @@
+ ## advc.021b: Latest changes to PerfectWorld in MongooseMod (v3.3) ported back
+ ## to the latest standalone version of the script (v3.2) and enhanced and
+ ## customized for the AdvCiv mod. The AdvCiv changes are marked with
+-## "advc" comments, "advc.001" for bugfixes, "advc.027" for the integration of
++## "advc" comments, "advc.001" for bugfixes, "advc.oxi" for getCirclePoints
++## bugfixes adopted from CFC user Oxidized, "advc.027" for the integration of
+ ## AdvCiv's starting position algorithm. 
+ ## Also corrected some debug output that used "FairWeather" as the map name.
+ ## Version history up to v3.3 moved to the end of the file.
+@@ -1166,31 +1167,49 @@ class FloatMap:
+ 
+ 
+ 	def GetAverageInHex(self, x, y, radius):
+-		list = pb.getCirclePoints(x, y, radius)
++		# advc.oxi: Was getCirclePoints
++		list = pb.getFilledCirclePoints(x, y, radius)
+ 		avg = 0.0
++		count = 0 # advc.oxi
+ 		for n in range(len(list)):
+ 			hex = list[n]
+ 			i = self.GetIndex(hex.x, hex.y)
+-			avg = avg + self.data[i]
+-		avg = avg / len(list)
++			# <advc.oxi>
++			if i == -1:
++				continue
++			count += 1 # </advc.oxi>
++			avg += self.data[i]
++		# <advc.oxi>
++		if count == 0:
++			return 0.0
++		#avg = avg / len(list)
++		avg /= count # </advc.oxi>
+ 		return avg
+ 
+-
++	# advc.oxi: Similar changes as in GetAverageInHex
+ 	def GetStdDevInHex(self, x, y, radius):
+-		list = pb.getCirclePoints(x, y, radius)
++		list = pb.getFilledCirclePoints(x, y, radius)
+ 		avg = 0.0
++		count = 0
+ 		for n in range(len(list)):
+ 			hex = list[n]
+ 			i = self.GetIndex(hex.x, hex.y)
+-			avg = avg + self.data[i]
+-		avg = avg / len(list)
++			if i == -1:
++				continue
++			count += 1
++			avg += self.data[i]
++		if count == 0:
++			return 0.0
++		avg /= count
+ 		deviation = 0.0
+ 		for n in range(len(list)):
+ 			hex = list[n]
+ 			i = self.GetIndex(hex.x, hex.y)
++			if i == -1:
++				continue
+ 			sqr = self.data[i] - avg
+-			deviation = deviation + (sqr * sqr)
+-		deviation = math.sqrt(deviation / len(list))
++			deviation += sqr * sqr
++		deviation = math.sqrt(deviation / count)
+ 		return deviation
+ 
+ 
+@@ -1199,6 +1218,7 @@ class FloatMap:
+ 		for y in range(self.height):
+ 			for x in range(self.width):
+ 				i = self.GetIndex(x, y)
++				if i == -1: continue # advc.oxi
+ 				dataCopy[i] = self.GetAverageInHex(x, y, radius)
+ 		self.data = dataCopy
+ 
+@@ -1208,6 +1228,7 @@ class FloatMap:
+ 		for y in range(self.height):
+ 			for x in range(self.width):
+ 				i = self.GetIndex(x, y)
++				if i == -1: continue # advc.oxi
+ 				dataCopy[i] = self.GetStdDevInHex(x, y, radius)
+ 		self.data = dataCopy
+ 
+@@ -1800,7 +1821,7 @@ class ElevationMap2(FloatMap):
+ 		#initialize maps
+ 		for y in range(mc.hmHeight):
+ 			for x in range(mc.hmWidth):
+-				i = GetHmIndex(x, y)
++				#i = GetHmIndex(x, y) # advc: unused
+ 				self.plateMap.append(PlatePlot(0, maxDistance))
+ 				borderMap.append(False)
+ 				self.plateHeightMap.append(0.0)
+@@ -3665,7 +3686,7 @@ class PangaeaBreaker:
+ 		x, y = self.getHighestCentrality(biggestContinentID)
+ 		return x, y
+ 
+-
++	# advc (note): All three unused. Unclear if circle points past map edges handled correctly.
+ 	def isChokePoint(self, x, y, biggestContinentID):
+ 		circlePoints = self.getCirclePoints(x, y, mc.minimumMeteorSize)
+ 		waterOpposite = False
+@@ -3688,8 +3709,6 @@ class PangaeaBreaker:
+ 			if percent >= mc.minimumLandInChoke:
+ 				return True
+ 		return False
+-
+-
+ 	def getLandPercentInCircle(self, circlePoints, biggestContinentID):
+ 		land  = 0
+ 		water = 0
+@@ -3707,8 +3726,6 @@ class PangaeaBreaker:
+ 			water += waterLine
+ 		percent = float(land) / float(land + water)
+ 		return percent
+-
+-
+ 	def countCraterLine(self, x1, x2, y, biggestContinentID):
+ 		land  = 0
+ 		water = 0
+@@ -3785,17 +3802,20 @@ class PangaeaBreaker:
+ 			return
+ 		for x in range(x1, x2 + 1):
+ 			i = GetHmIndex(x, y)
++			# advc.001: Though this might not be an issue.
++			# Or maybe the map edges should be addressed by castMeteorUponTheEarth.
++			if i == -1: continue
+ 			#em.data[i] = 0.0
+ 			# advc: 0 elevation leads to coastal peaks when using the lowest-neighbor slope option.
+ 			em.data[i] *= min(0.88, 0.37 + math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)) / 7.0)
+ 
+ 
+ 	def getCirclePoints(self, xCenter, yCenter, radius):
+-		circlePointList = list()
++		circlePoints = set() # advc.oxi: was list
+ 		x = 0
+ 		y = radius
+ 		p = 1 - radius
+-		self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
++		self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
+ 		while (x < y):
+ 			x += 1
+ 			if p < 0:
+@@ -3803,19 +3823,28 @@ class PangaeaBreaker:
+ 			else:
+ 				y -= 1
+ 				p += 2 * (x - y) + 1
+-			self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
+-		return circlePointList
+-
+-
+-	def addCirclePoints(self, xCenter, yCenter, x, y, circlePointList):
+-		circlePointList.append(CirclePoint(xCenter + x, yCenter + y))
+-		circlePointList.append(CirclePoint(xCenter - x, yCenter + y))
+-		circlePointList.append(CirclePoint(xCenter + x, yCenter - y))
+-		circlePointList.append(CirclePoint(xCenter - x, yCenter - y))
+-		circlePointList.append(CirclePoint(xCenter + y, yCenter + x))
+-		circlePointList.append(CirclePoint(xCenter - y, yCenter + x))
+-		circlePointList.append(CirclePoint(xCenter + y, yCenter - x))
+-		circlePointList.append(CirclePoint(xCenter - y, yCenter - x))
++			self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
++		return list(circlePoints) # advc.oxi
++
++	# advc.oxi: Had been circlePointsList.append, leading to duplicates.
++	def addCirclePoints(self, xCenter, yCenter, x, y, circlePoints):
++		circlePoints.add(CirclePoint(xCenter + x, yCenter + y))
++		circlePoints.add(CirclePoint(xCenter - x, yCenter + y))
++		circlePoints.add(CirclePoint(xCenter + x, yCenter - y))
++		circlePoints.add(CirclePoint(xCenter - x, yCenter - y))
++		circlePoints.add(CirclePoint(xCenter + y, yCenter + x))
++		circlePoints.add(CirclePoint(xCenter - y, yCenter + x))
++		circlePoints.add(CirclePoint(xCenter + y, yCenter - x))
++		circlePoints.add(CirclePoint(xCenter - y, yCenter - x))
++
++	# advc.oxi: New method to replace some erroneous uses of getCirclePoints
++	def getFilledCirclePoints(self, xCenter, yCenter, radius):
++		points = []
++		for dy in range(-radius, radius + 1):
++			dx = int(math.sqrt(radius * radius - dy * dy))
++			for x in range(xCenter - dx, xCenter + dx + 1):
++				points.append(CirclePoint(x, yCenter + dy))
++		return points
+ 
+ 
+ 	def createDistanceMap(self):
+@@ -5811,7 +5840,7 @@ class StartingArea:
+ 		# advc: Moved into subroutine
+ 		self.ClearVicinity(3)
+ 		print "Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)}
+-		# advc.021b: Moved up:
++		# advc: Moved up:
+ 		for n in range(len(self.plotList)):
+ 			self.rawValue += self.plotList[n].localValue
+ 		# Moved the last third of this function's body into a new function FillDistanceTable
+
+[PATCH COVERAGE]
+patchFiles=45 embeddedFiles=44 omittedFiles=1 embeddedPatchBytes=65933

@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 521
+# Commit: 7f6e99c53f5f1abdc84c0813c1f7d05073122eca
+# History segment: K-Mod history
+# Parent used for diff: 84bf13eb4586e39beb34c55331febc9bb2cb552f
+# Title: Updated the changelog. This is version 1.18.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/changelog.txt b/changelog.txt
+index 53184e587..56d24b66c 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,6 +1,35 @@
+-This is K-Mod version 1.17.
++This is K-Mod version 1.18.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
++--
++v1.18 changelist
++
+++ The choose production popup screen will now be postponed if the city is in disorder.
+++ Fixed a problem which prevented the end-of-turn message from displaying when the player has all their units automated.
+++ Rearranged the the layout of the BUG City Screen options tab so that it fits neatly on one page.
+++ Happiness and healthiness bonuses from events are now included in mouse-over text for buildings. (The bonuses are included in the total. They do not have their own description.)
+++ Implemented "actual building effect" mouse-over hover options from BUG.
+++ Fixed an original BtS problem which prevented units from executing chained commands when standing near hostile units. (ie. issuing commands while holding shift did not work. It does now.)
+++ Fixed a couple of possible divide-by-zero bugs.
+++ Increased the estimated movement cost of moving from one unrevealed tile to another. (So that the pathfinder is less inclined to try to walk through unexplored land.)
+++ Fixed a minor bug in the original BtS code for loading xml. (This bug caused an assertion failure if the final xml entry is commented out in any file.)
++
++AI
++
+++ Made several significant changes to the new slave-whip AI. (Basically, it now takes more effects into consideration.)
+++ Fixed a couple of naval AI problem which could cause a loop.
+++ Removed a strange rule from the original BtS code which disallowed the AI from loading into boats on the coast. (They were only allowed to load from cities and forts. This prevented the AI from rescuing stranded units.)
+++ Added some missing calls to CvUnitAI::AI_handleStranded.
+++ The AI's weighting for great person points now depends on their personality flavour.
+++ The AI may now delay having a revolution if they are currently researching the prereq tech for a civic they want to use.
+++ Added some more AI flavour effects to slave-whipping.
+++ The AI will now reconsider its research options after bulbing.
+++ The AI will now consider its civic options when it starts a golden age.
+++ Made several changes to the AI's military defence tactics and related decision making.
+++ Attack AI groups bigger than 4 will now ungroup before escorting workers.
+++ Changed the way the AI decides which units to move first.
++
++
+ --
+ v1.17 changelist
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2626

@@ -1,0 +1,2757 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5865
+# Commit: fa6b78670d3a2483c3740ec96b942fa3492fae5a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8e39ab6e0ade37d4a0678477d4a5c00a62451635
+# Title: Wrap most Python 2 prints so modern linters can parse files; add wrap_python2_prints_for_linting.py - script + manual (LLM + me checking quick) pass
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	AGENTS.md
+1	1	Assets/Python/BUG/BugOptions.py
+2	2	Assets/Python/BUG/DealUtil.py
+3	3	Assets/Python/BUG/SvnUtil.py
+3	3	Assets/Python/BUG/TechPrefs.py
+7	7	Assets/Python/BUG/TradeUtil.py
+5	5	Assets/Python/Contrib/AIAutoPlay.py
+2	2	Assets/Python/Contrib/ChangePlayer.py
+2	2	Assets/Python/Contrib/Tester.py
+7	7	Assets/Python/CvDiplomacy.py
+6	6	Assets/Python/CvMapGeneratorUtil.py
+1	1	Assets/Python/CvUtil.py
+4	4	Assets/Python/EntryPoints/CvScreensInterface.py
+1	1	Assets/Python/Screens/CvForeignAdvisor.py
+5	5	Assets/Python/Screens/CvVictoryScreen.py
+10	10	Assets/Python/pyWB/CvWBDesc.py
+17	0	LLM_Helpers/README.md
+430	0	LLM_Helpers/wrap_python2_prints_for_linting.py
+1	1	PrivateMaps/Arboria.py
+3	3	PrivateMaps/Archipelago.py
+9	9	PrivateMaps/BTG_Cross.py
+9	9	PrivateMaps/BTG_Grid.py
+1	1	PrivateMaps/Balanced.py
+2	2	PrivateMaps/Big_and_Small.py
+66	66	PrivateMaps/Boreal.py
+6	6	PrivateMaps/Equal_Islands_V2_beta.py
+2	2	PrivateMaps/Hemispheres.py
+66	66	PrivateMaps/Highlands.py
+1	1	PrivateMaps/Inland_Sea.py
+6	6	PrivateMaps/Islands.py
+3	3	PrivateMaps/Medium_and_Small.py
+1	1	PrivateMaps/Mirror.py
+1	1	PrivateMaps/Pangaea.py
+3	3	PrivateMaps/Peirce.py
+53	53	PrivateMaps/PerfectMongoose.py
+28	28	PrivateMaps/Planet_Generator_0_68.py
+66	66	PrivateMaps/Rainforest.py
+1	1	PrivateMaps/Team_Battleground.py
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 LLM_Helpers/wrap_python2_prints_for_linting.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 36d8bb28e..1960ddd55 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -161,7 +161,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+ - Note: for the collapse multiline to singleline bullets below, such a refactor would be extensive, so if we need to, do it as we go rather than all in one-go throughout our whole codebase. It's a low-priority nicety — don't go out of your way for it during unrelated tasks; only apply it to code you're already editing, or if it seems relevant/related to your current task, or when explicitly asked to do a collapse pass.
+-- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multiline mostly needlessly stylized version of it. The user has line wrap on VS Code so it is preferrable for the user too. See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/singleline_pass3_comments_and_long.py).
++- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multiline mostly needlessly stylized version of it. The user has line wrap on VS Code so it is preferrable for the user too. See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/singleline_pass3_comments_and_long.py).
+ - Note: there are some exceptions to the above collapse multiline preference; for example, for very long or uniform listings, a multiline statement seems preferable and more readable. Examples: as of now in `self.SAS_CATEGORY_DEFS` (in SevoPediaMain.py), or multi-field tabular data (e.g. `aSupport`/`aArmy` in CvMilitaryAdvisor.py, `field_specs`/`row_specs` chart tables, polygon `[x, y]` vertex lists, 2D matrices, dispatch dicts, and per-row-documented config tables). Flat lists/tuples of plain values, single split calls, and boolean `or`/`and` chains, that should generally be collapsed as well, also have some exceptions, such as clearly very lengthy or iterative ones; e.g., the `or` chains near `eComment == self.getCommentID(` (CvDiplomacy.py). Adjust as you see fit.
+ - Note: a fast way to find collapse candidates is a global regex search for `(\n\t` and `[\n\t` (an open paren or bracket immediately followed by a newline + tab, i.e. a wrapped call/list/tuple/`if`/`def`); also `,\n\t` catches mid-arg splits.
+ - When manually collapsing, if a block has inline comments mid-args, hoist them into a single comment line just above the now-collapsed line (rephrase so it still reads correctly out of position) rather than skipping the collapse — one greppable line of code is the goal, comments above are fine.
+@@ -182,7 +182,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`sasFontTag*`/ `sasFontTag*.bold` / `SAS_FONT_TAG_CLOSE` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE` or `sasFontTagTitle.bold + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText` or `u"<font=4b>%s</font>" % szText`.
+ - Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
+ - Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
+-- Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
++- Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only). For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+ - For Civ4 Python UI labels that pass through font-tagged/markup renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.), keep raw text in state and escape only the display string: `szDisplay = szRaw.replace(u"&", u"&amp;").replace(u"<", u"&lt;").replace(u">", u"&gt;")`. This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely. Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text. In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear.
+ - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+@@ -193,7 +193,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator map (e.g., incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` failing instead of `DirectionTypes.DIRECTION_NORTH*` enum constants; or incorrect `getInfoTypeOrFail("PLOT_PEAK")` instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map)).
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+-- Keep import burden on callers for Civ4-specific dependencies: helper functions should receive Civ4 objects (e.g. `gc`, `screen`, `CyGame()`) as parameters rather than importing them internally. This avoids circular dependencies. Standard Python modules (`re`, `math`, etc.) are fine to import directly in helpers since they're cached and always available.
++- Keep caller-owned or volatile Civ4 UI/game objects as parameters when needed (e.g. `screen`, `top`, selected city/player objects, or a precomputed `kGame`) rather than hiding them inside helpers. Stable shared Civ4 globals such as `gc`, `localText`, and `ArtFileMgr` may live at helper-module scope when that matches the file's established pattern. This avoids circular dependencies while keeping high-use helpers practical.
+ - Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across maps, advisors, Sevopedia, and utilities. This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk. Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star. Useful examples: `SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798` is shared by Sevopedia and Tech Chooser instead of being defined twice; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision; `SAS_MAGIC_WORLDSIZE_HUGE = 6` avoids duplicated Huge-index fixes in map generator utilities and mapscripts after the AdvCiv-SAS Arena world-size insertion shifted runtime world-size indices.
+ - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
+
+diff --git a/Assets/Python/BUG/BugOptions.py b/Assets/Python/BUG/BugOptions.py
+index af7169882..db8e148e6 100644
+--- a/Assets/Python/BUG/BugOptions.py
++++ b/Assets/Python/BUG/BugOptions.py
+@@ -279,7 +279,7 @@ class IniFile(object):
+ 		self.write()
+ 	
+ 	def fillComments(self):
+-		print dir(self.config)
++		print(dir(self.config))
+ 		self.config.clearInitialComment()
+ 		self.config.addInitialComment(self.id)
+ 		self.config.addInitialComment("")
+
+diff --git a/Assets/Python/BUG/DealUtil.py b/Assets/Python/BUG/DealUtil.py
+index d5294c0f3..4e1a3f199 100644
+--- a/Assets/Python/BUG/DealUtil.py
++++ b/Assets/Python/BUG/DealUtil.py
+@@ -270,6 +270,6 @@ class ReversedDeal(Deal):
+ def test():
+ 	allDeals = findDealsByPlayerAndType(0, (TradeableItems.TRADE_PEACE_TREATY, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_RESOURCES, TradeableItems.TRADE_GOLD_PER_TURN))
+ 	for player, deals in allDeals.iteritems():
+-		print PlayerUtil.getPlayer(player).getName()
++		print(PlayerUtil.getPlayer(player).getName())
+ 		for type, deal in deals.iteritems():
+-			print "%s: %r" % (TradeUtil.TRADE_FORMATS[type].name, deal)
++			print("%s: %r" % (TradeUtil.TRADE_FORMATS[type].name, deal))
+
+diff --git a/Assets/Python/BUG/SvnUtil.py b/Assets/Python/BUG/SvnUtil.py
+index 62505511e..9572b8e9f 100644
+--- a/Assets/Python/BUG/SvnUtil.py
++++ b/Assets/Python/BUG/SvnUtil.py
+@@ -22,9 +22,9 @@ done = False
+ rev = None
+ error = None
+ def testL():
+-	print getLocalRevision("C:/Coding/Civ/BUG/BUG New Core")
++	print(getLocalRevision("C:/Coding/Civ/BUG/BUG New Core"))
+ def testR():
+-	print getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/")
++	print(getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/"))
+ def testW():
+ 	global done
+ 	done = False
+@@ -42,7 +42,7 @@ def testW():
+ 	while not t.done() and count < 100:
+ 		time.sleep(0.05)
+ 		count += 1
+-	print t.rev()
++	print(t.rev())
+ 
+ def getLocalRevision(path):
+ 	# Parses and returns the revision number from a local SVN working copy.
+
+diff --git a/Assets/Python/BUG/TechPrefs.py b/Assets/Python/BUG/TechPrefs.py
+index 61c97793b..39b6874a5 100644
+--- a/Assets/Python/BUG/TechPrefs.py
++++ b/Assets/Python/BUG/TechPrefs.py
+@@ -196,21 +196,21 @@ class TechPrefs:
+ 		# Prints the techs in the flavor's list.
+ 		#
+ 		for pTech in self.lTechsByFlavor[iFlavor]:
+-			print pTech
++			print(pTech)
+ 
+ 	def printResearchableFlavorTechs(self, iFlavor):
+ 		# Prints the techs in the flavor's list.
+ 		#
+ 		for pTech in self.lTechsByFlavor[iFlavor]:
+ 			if pTech.canResearch():
+-				print pTech
++				print(pTech)
+ 
+ 	def printResearchableWithFlavorTechs(self, iFlavor, sTechs):
+ 		# Prints the techs in the flavor's list.
+ 		#
+ 		for pTech in self.lTechsByFlavor[iFlavor]:
+ 			if pTech.canResearchWith(sTechs):
+-				print pTech
++				print(pTech)
+ 
+ class Tech:
+
+diff --git a/Assets/Python/BUG/TradeUtil.py b/Assets/Python/BUG/TradeUtil.py
+index 1cf42b2fb..b958a1591 100644
+--- a/Assets/Python/BUG/TradeUtil.py
++++ b/Assets/Python/BUG/TradeUtil.py
+@@ -637,14 +637,14 @@ def makeTrade(type, value=-1):
+ 	return trade
+ 
+ def test(player, type, value):
+-	print format(player, makeTrade(type, value))
++	print(format(player, makeTrade(type, value)))
+ 
+ def testAll():
+ 	for i in TRADE_FORMATS.keys():
+ 		test(2, i, 1)
+ 
+ def testList():
+-	print format(2, [makeTrade(TradeableItems.TRADE_GOLD, 53), makeTrade(TradeableItems.TRADE_MAPS), makeTrade(TradeableItems.TRADE_PEACE, 1), makeTrade(TradeableItems.TRADE_CITY, 1), makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6)])
++	print(format(2, [makeTrade(TradeableItems.TRADE_GOLD, 53), makeTrade(TradeableItems.TRADE_MAPS), makeTrade(TradeableItems.TRADE_PEACE, 1), makeTrade(TradeableItems.TRADE_CITY, 1), makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6)]))
+ 
+ STATUS_TRADE_ITEMS = ((TradeableItems.TRADE_MAPS, "Map"), (TradeableItems.TRADE_VASSAL, "Vassal"), (TradeableItems.TRADE_SURRENDER, "Surrender"), (TradeableItems.TRADE_OPEN_BORDERS, "Borders"), (TradeableItems.TRADE_DEFENSIVE_PACT, "Pact"), (TradeableItems.TRADE_PERMANENT_ALLIANCE, "Alliance"), (TradeableItems.TRADE_PEACE_TREATY, "Peace"))
+ DENIALS = {
+@@ -685,7 +685,7 @@ def printStatus(ePlayer, eAskingPlayer=None):
+ 	player = PlayerUtil.getPlayer(ePlayer)
+ 	if eAskingPlayer is None:
+ 		eAskingPlayer = PlayerUtil.getActivePlayerID()
+-	print "Trade Status -- %s" % player.getName()
++	print("Trade Status -- %s" % player.getName())
+ 	for eItem, name in STATUS_TRADE_ITEMS:
+ 		tradeData = TradeData()
+ 		tradeData.ItemType = eItem
+@@ -698,11 +698,11 @@ def printStatus(ePlayer, eAskingPlayer=None):
+ 			denial = str(denial)
+ 		if not can:
+ 			if will:
+-				print "%s: can't but will" % (name)
++				print("%s: can't but will" % (name))
+ 			else:
+-				print "%s: can't and won't because %s" % (name, denial)
++				print("%s: can't and won't because %s" % (name, denial))
+ 		else:
+ 			if will:
+-				print "%s: will" % (name)
++				print("%s: will" % (name))
+ 			else:
+-				print "%s: won't because %s" % (name, denial)
++				print("%s: won't because %s" % (name, denial))
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 3c17887c4..eebad9df3 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -31,7 +31,7 @@ class AIAutoPlay :
+ 
+ 	def __init__(self, customEM ) :
+ 
+-		print "Initializing AIAutoPlay Mod"
++		print("Initializing AIAutoPlay Mod")
+ 
+ 		self.LOG_DEBUG = False
+ 		self.blockPopups = True
+@@ -63,23 +63,23 @@ class AIAutoPlay :
+ 		CvUtil.SilentEvents.extend([7050,7052])
+ 		
+ 		if( self.blockPopups ) :
+-			print "Removing some event handlers"
++			print("Removing some event handlers")
+ 			try :
+ 				self.customEM.removeEventHandler( "cityBuilt", customEM.onCityBuilt )
+ 				self.customEM.addEventHandler( "cityBuilt", self.onCityBuilt )
+ 			except ValueError :
+-				print "Failed to remove 'onCityBuilt', perhaps not registered"
++				print("Failed to remove 'onCityBuilt', perhaps not registered")
+ 				self.customEM.setEventHandler( "cityBuilt", self.onCityBuilt )
+ 			
+ 			try :
+ 				self.customEM.removeEventHandler( "BeginGameTurn", customEM.onBeginGameTurn )
+ 				self.customEM.addEventHandler( "BeginGameTurn", self.onBeginGameTurn )
+ 			except ValueError :
+-				print "Failed to remove 'onBeginGameTurn', perhaps not registered"
++				print("Failed to remove 'onBeginGameTurn', perhaps not registered")
+ 				self.customEM.setEventHandler( "BeginGameTurn", self.onBeginGameTurn )
+ 
+ 	def removeEventHandlers( self ) :
+-		print "Removing event handlers from AIAutoPlay"
++		print("Removing event handlers from AIAutoPlay")
+ 		
+ 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
+ 		# advc: Disable unused handlers
+
+diff --git a/Assets/Python/Contrib/ChangePlayer.py b/Assets/Python/Contrib/ChangePlayer.py
+index ed1c23927..55dbf17cb 100644
+--- a/Assets/Python/Contrib/ChangePlayer.py
++++ b/Assets/Python/Contrib/ChangePlayer.py
+@@ -24,7 +24,7 @@ class ChangePlayer :
+ 
+ 	def __init__(self, customEM ) :
+ 
+-		print "Initializing ChangePlayer Mod"
++		print("Initializing ChangePlayer Mod")
+ 
+ 		global LOG_DEBUG
+ 
+@@ -42,7 +42,7 @@ class ChangePlayer :
+ 		CvUtil.SilentEvents.extend([changeCivPopupNum,changeHumanPopupNum])
+ 
+ 	def removeEventHandlers( self ) :
+-		print "Removing event handlers from ChangePlayer"
++		print("Removing event handlers from ChangePlayer")
+ 		
+ 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
+
+diff --git a/Assets/Python/Contrib/Tester.py b/Assets/Python/Contrib/Tester.py
+index 96f7b6b3f..94d8dcfb7 100644
+--- a/Assets/Python/Contrib/Tester.py
++++ b/Assets/Python/Contrib/Tester.py
+@@ -20,7 +20,7 @@ class Tester :
+ 
+ 	def __init__(self, customEM):
+ 
+-		print "Initializing Tester"
++		print("Initializing Tester")
+ 
+ 		self.LOG_DEBUG = True
+ 
+@@ -29,7 +29,7 @@ class Tester :
+ 		self.customEM = customEM
+ 
+ 	def removeEventHandlers( self ) :
+-		print "Removing event handlers from Tester"
++		print("Removing event handlers from Tester")
+ 		
+ 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index b58f1750e..e420680b3 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -24,7 +24,7 @@ class CvDiplomacy:
+ 		# constructor - set up class vars, AI and User strings
+ 		#
+ 		if DebugLogging:
+-			print "Launching Diplomacy"
++			print("Launching Diplomacy")
+ 		
+ 		self.iLastResponseID = -1
+ 
+@@ -38,7 +38,7 @@ class CvDiplomacy:
+ 		# Will determine the user responses given an AI comment
+ 		#
+ 		if DebugLogging:
+-			print "CvDiplomacy.determineResponses: %s" %(eComment,)
++			print("CvDiplomacy.determineResponses: %s" %(eComment,))
+ 		
+ 		# Eliminate previous comments
+ 		self.diploScreen.clearUserComments()
+@@ -372,9 +372,9 @@ class CvDiplomacy:
+ 		AIString = self.getDiplomacyComment(eComment)
+ 
+ 		if DebugLogging:
+-			print "CvDiplomacy.setAIComment: %s" %(eComment,)
++			print("CvDiplomacy.setAIComment: %s" %(eComment,))
+ 			if (len(args)):
+-				print "args", args
++				print("args %s" % (args,))
+ 			AIString = "(%d) - %s" %(self.getLastResponseID(), AIString)
+ 
+ 		# <!-- custom: diplomacy main AI line text uses label scaling so upscaled UI font settings apply here too. (GPT-5.3-Codex) -->
+@@ -456,7 +456,7 @@ class CvDiplomacy:
+ 		debugString = "CvDiplomacy.getDiplomacyComment: %s" %(eComment,)
+ 		eComment = int(eComment)
+ 		if DebugLogging:
+-			print debugString, eComment
++			print("%s %s" % (debugString, eComment))
+ 		
+ 		szString = ""
+ 		szFailString = "Error***: No string found for eComment: %s"
+@@ -464,7 +464,7 @@ class CvDiplomacy:
+ 		if ( gc.getDiplomacyInfo(eComment) ):
+ 			DiplomacyTextInfo = gc.getDiplomacyInfo(eComment)
+ 			if ( not DiplomacyTextInfo ):
+-				print "%s IS AN INVALID DIPLOCOMMENT" %(eComment,)
++				print("%s IS AN INVALID DIPLOCOMMENT" %(eComment,))
+ 				CvUtil.pyAssert(True, "CvDiplomacy.getDiplomacyComment: %s does not have a DiplomacyTextInfo" %(eComment,))
+ 				return szFailString %(eComment,)
+ 			
+@@ -559,7 +559,7 @@ class CvDiplomacy:
+ 			
+ 	def handleUserResponse(self, eComment, iData1, iData2):
+ 		if DebugLogging:
+-			print "CvDiplomacy.handleUserResponse: %s" %(eComment,)
++			print("CvDiplomacy.handleUserResponse: %s" %(eComment,))
+ 			
+ 		diploScreen = CyDiplomacy()
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 6e85f0132..1054ac398 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -456,7 +456,7 @@ class HintedWorld(FractalWorld):
+ 					else:
+ 						return True
+ 		
+-		print "\tcould not expand continent:"
++		print("\tcould not expand continent:")
+ 		printMap(self.data, self.w, self.h, cont.centerx, cont.centery)
+ 		cont.done = True
+ 		return False
+@@ -507,7 +507,7 @@ class HintedWorld(FractalWorld):
+ 		return best_split
+ 	
+ 	def shiftHintsBy(self, splitx, splity):
+-		print "shifting hints by ", splitx, splity
++		print("shifting hints by %s %s" % (splitx, splity))
+ 		if splitx != 0 or splity != 0:
+ 			buf = self.data[:]
+ 			# shift the values in self.data left by best_split
+@@ -607,7 +607,7 @@ class HintedWorld(FractalWorld):
+ 		return FractalWorld.generatePlotTypes(self, water_percent, shift_plot_types) # call superclass
+ 		
+ def printMap(data, w, h, markerx=-1, markery=-1):
+-	print "-"*(w+2)
++	print("-"*(w+2))
+ 	hrange = range(h)
+ 	hrange.reverse()
+ 	for y in hrange:
+@@ -621,8 +621,8 @@ def printMap(data, w, h, markerx=-1, markery=-1):
+ 			else:
+ 				str += " "
+ 		str += "|"
+-		print str
+-	print "-"*(w+2)
++		print(str)
++	print("-"*(w+2))
+ 
+ #
+ # SIRIAN's "MULTILAYERED FRACTAL" INSTRUCTIONS
+@@ -1336,7 +1336,7 @@ class TerrainGenerator:
+ 		for attribName in essentialMethods:
+ 			if getattr(self, attribName).im_func is not getattr(TerrainGenerator, attribName).im_func:
+ 				self.bEarthlike = False
+-				print "CvMapGeneratorUtil: Essential TerrainGenerator method overridden by map script: " + attribName + ". AdvCiv customizations disabled."
++				print("CvMapGeneratorUtil: Essential TerrainGenerator method overridden by map script: " + attribName + ". AdvCiv customizations disabled.")
+ 				break
+ 	# </advc.129c>
+
+diff --git a/Assets/Python/CvUtil.py b/Assets/Python/CvUtil.py
+index 30913a505..67498554c 100644
+--- a/Assets/Python/CvUtil.py
++++ b/Assets/Python/CvUtil.py
+@@ -391,7 +391,7 @@ def initDynamicFontIcons():
+ def addIconToMap(infoChar, desc):
+ 	global FontIconMap
+ 	desc = convertToStr(desc)
+-	print "%s - %s" %(infoChar(), desc)
++	print("%s - %s" %(infoChar(), desc))
+ 	uc = infoChar()
+ 	if (uc>=0):
+ 		FontIconMap[desc] = u"%c" %(uc,)
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index 5aa44a802..480d84c6f 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -59,12 +59,12 @@ g_bIsScreenActive = -1
+ 
+ def toggleSetNoScreens():
+ 	global g_bIsScreenActive
+-	print "SCREEN OFF"
++	print("SCREEN OFF")
+ 	g_bIsScreenActive = -1
+ 
+ def toggleSetScreenOn(argsList):
+ 	global g_bIsScreenActive
+-	print "%s SCREEN TURNED ON" %(argsList[0],)
++	print("%s SCREEN TURNED ON" %(argsList[0],))
+ 	g_bIsScreenActive = argsList[0]
+ 
+ # BUG - Options - start
+@@ -1032,7 +1032,7 @@ def handleBack(screens):
+ 		if (HandleNavigationMap.has_key(iScreen)):
+ 			screen = HandleNavigationMap.get( iScreen )
+ 			screen.back()
+-	print "Mouse BACK"
++	print("Mouse BACK")
+ 	return 0
+ 
+ def handleForward(screens):
+@@ -1040,7 +1040,7 @@ def handleForward(screens):
+ 		if (HandleNavigationMap.has_key(iScreen)):
+ 			screen = HandleNavigationMap.get( iScreen )
+ 			screen.forward()
+-	print "Mouse FWD"
++	print("Mouse FWD")
+ 	return 0
+ 
+ def refreshMilitaryAdvisor (argsList):
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index eaa236a0e..ac6cf21d2 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -2464,7 +2464,7 @@ class CvForeignAdvisor:
+ 		
+ 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
+ 			if (inputClass.getFunctionName() + str(inputClass.getID()) == self.getWidgetName(self.DEBUG_DROPDOWN_ID)):
+-				print 'debug dropdown event'
++				print('debug dropdown event')
+ 				szName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
+ 				self.iActiveLeader = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
+ 				self.drawContents(True)
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index f777244a4..d162c7d24 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -949,15 +949,15 @@ class CvVictoryScreen:
+ 				iSecretaryGeneralVote = -1
+ 				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
+ 					for j in range(gc.getNumVoteInfos()):
+-						print j
++						print(j)
+ 						if gc.getVoteInfo(j).isVoteSourceType(i):
+-							print "votesource"
++							print("votesource")
+ 							if gc.getVoteInfo(j).isSecretaryGeneral():
+-								print "secgen"
++								print("secgen")
+ 								iSecretaryGeneralVote = j
+ 								break
+ 
+-				print iSecretaryGeneralVote
++				print(iSecretaryGeneralVote)
+ 				for j in range(gc.getMAX_PLAYERS()):
+ 					if gc.getPlayer(j).isAlive() and not gc.getPlayer(j).isBarbarian() and gc.getTeam(iActiveTeam).isHasMet(gc.getPlayer(j).getTeam()):
+ 						# <!-- custom: add leader icon to player name (claude opus 4.5) -->
+@@ -1190,7 +1190,7 @@ class CvVictoryScreen:
+ 			return False, localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+ 
+ 	def getVoteTotalColor(self, iVoteReq, iVoteTotal, iVoteCand, bWinner, bVictoryVote):
+-		print "%i %i %i" % (iVoteReq, iVoteTotal, iVoteCand)
++		print("%i %i %i" % (iVoteReq, iVoteTotal, iVoteCand))
+ 		if not bWinner:
+ 			return -1
+ 		if (iVoteCand > iVoteReq
+
+diff --git a/Assets/Python/pyWB/CvWBDesc.py b/Assets/Python/pyWB/CvWBDesc.py
+index 6ac9e19d8..78ea5125d 100644
+--- a/Assets/Python/pyWB/CvWBDesc.py
++++ b/Assets/Python/pyWB/CvWBDesc.py
+@@ -1416,7 +1416,7 @@ class CvMapDesc:
+ 		self.__init__()
+ 		parser = CvWBParser()
+ 		if parser.findNextToken(f, "BeginMap")==false:
+-			print "can't find map"
++			print("can't find map")
+ 			return
+ 		while (true):
+ 			nextLine = parser.getNextLine(f)
+@@ -1520,7 +1520,7 @@ class CvSignDesc:
+ 		self.__init__()
+ 		parser = CvWBParser()
+ 		if parser.findNextToken(f, "BeginSign")==false:
+-			print "can't find sign"
++			print("can't find sign")
+ 			return
+ 		while (true):
+ 			nextLine = parser.getNextLine(f)
+@@ -1623,22 +1623,22 @@ class CvWBDesc:
+ 		seaLevelType = CvUtil.findInfoTypeNum(gc.getSeaLevelInfo, gc.getNumSeaLevelInfos(), self.mapDesc.seaLevel)
+ 		CyMap().rebuild(self.mapDesc.iGridW, self.mapDesc.iGridH, self.mapDesc.iTopLatitude, self.mapDesc.iBottomLatitude, self.mapDesc.bWrapX, self.mapDesc.bWrapY, WorldSizeTypes(worldSizeType), ClimateTypes(climateType), SeaLevelTypes(seaLevelType), 0, None)
+ 
+-		print "preapply plots"
++		print("preapply plots")
+ 		for pDesc in self.plotDesc:
+ 			pDesc.preApply()	# set plot type / terrain type
+ 
+ 		print("map apply - recalc areas/regions")
+ 		CyMap().recalculateAreas()
+ 
+-		print "apply plots"
++		print("apply plots")
+ 		for pDesc in self.plotDesc:
+ 			pDesc.apply()
+ 
+-		print "apply signs"
++		print("apply signs")
+ 		for pDesc in self.signDesc:
+ 			pDesc.apply()
+ 
+-		print "Randomize Resources"
++		print("Randomize Resources")
+ 		if (self.mapDesc.bRandomizeResources != "false"):
+ 			for iPlotLoop in range(CyMap().numPlots()):
+ 				pPlot = CyMap().plotByIndex(iPlotLoop)
+@@ -1844,9 +1844,9 @@ class CvWBDesc:
+ 			CvUtil.pyPrint("Error: wrong WorldBuilder save version.  Expected %d, got %d" %(self.getVersion(), version))
+ 			return -1	# failed
+ 
+-		print "Reading game desc"
++		print("Reading game desc")
+ 		self.gameDesc.read(f)	# read game info
+-		print "Reading teams desc"
++		print("Reading teams desc")
+ 		filePos = f.tell()
+ 		self.teamsDesc = []
+ 		for i in range(gc.getMAX_CIV_TEAMS()):
+@@ -1860,7 +1860,7 @@ class CvWBDesc:
+ 		for i in range(len(self.teamsDesc), gc.getMAX_CIV_TEAMS()):
+ 			self.teamsDesc.append(CvTeamDesc()) # </advc.056>
+ 
+-		print "Reading players desc"
++		print("Reading players desc")
+ 		filePos = f.tell() # advc.056
+ 		self.playersDesc = []
+ 		for i in range(gc.getMAX_CIV_PLAYERS()):
+@@ -1879,7 +1879,7 @@ class CvWBDesc:
+ 			deadPlayer.neverAlive = True
+ 			self.playersDesc.append(deadPlayer)
+ 		# </advc.056>
+-		print "Reading map desc"
++		print("Reading map desc")
+ 		self.mapDesc.read(f)	# read map info
+ 
+ 		print("Reading/creating %d plot descs" %(self.mapDesc.numPlotsWritten,))
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 7a239c5a2..a0b97b6a5 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -32,6 +32,23 @@ Example:
+ python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+ ```
+ 
++### `wrap_python2_prints_for_linting.py`
++
++Conservative Python 2 print-wrapper helper.
++
++- Converts simple active Python 2 bare prints such as `print "hello"` and `print "value = %s" % value` to Python 2.4/3-compatible single-expression calls such as `print("hello")` and `print("value = %s" % value)`.
++- Skips ambiguous cases such as redirected prints, trailing-comma prints, semicolon-packed lines, and top-level comma prints; manually rewrite those with one formatted string such as `print("player %s pass %s failed" % (playerID, iPass))`.
++- Does not touch commented-out prints, because comments do not block Ruff/Python 3 parsing.
++- Intended to reduce parser/linter noise while preserving Civ4 Python 2.4 runtime compatibility.
++
++Example:
++
++```powershell
++python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --diff Assets\Python PrivateMaps
++python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --in-place Assets\Python PrivateMaps
++python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --check Assets\Python PrivateMaps
++```
++
+ ### ChatGPT single-line cleanup scripts
+ 
+ These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
+
+diff --git a/LLM_Helpers/wrap_python2_prints_for_linting.py b/LLM_Helpers/wrap_python2_prints_for_linting.py
+new file mode 100644
+index 000000000..9d50aad25
+--- /dev/null
++++ b/LLM_Helpers/wrap_python2_prints_for_linting.py
+@@ -0,0 +1,430 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++"""Conservatively wrap easy Python 2 print statements for Python 3 linters.
++
++Purpose
++-------
++Convert only safe one-line Python 2 prints like:
++
++    print "hello"
++    print 'hello'
++    print "value = %s" % value
++    print "-" * 40
++    print szDebugText
++
++into:
++
++    print("hello")
++    print('hello')
++    print("value = %s" % value)
++    print("-" * 40)
++    print(szDebugText)
++
++This keeps the statement valid in Civ4's Python 2.4 runtime for the
++single-expression cases and lets Python 3 linters parse more files.
++
++Deliberately skipped
++--------------------
++- print "a", b              # Python 2 multi-argument print
++- print "a",                # Python 2 trailing-comma print
++- print >> sys.stderr, "a"  # redirected print
++- print ("a", b)            # already parenthesized / ambiguous tuple
++- print "a"; print "b"      # multiple statements on one line
++- commented-out prints      # comments do not block linters such as Ruff parsing
++
++Path handling
++-------------
++This is a portable helper, not a sandbox-only staged script:
++
++- Pass local Windows/PowerShell paths directly.
++- Pass ChatGPT sandbox paths such as /mnt/data/CvDiplomacy.py directly.
++- Pass directories with --recursive to scan *.py files.
++- Use --sandbox-samples in ChatGPT when the common uploaded sample files exist.
++
++Default mode is dry-run. Use --diff to inspect changes, then --in-place only
++after the diff looks boring. Always review generated source diffs before commit.
++"""
++
++from __future__ import print_function
++
++import argparse
++import difflib
++import io
++from pathlib import Path
++import sys
++import tokenize
++
++
++TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "cp1252", "latin-1")
++DEFAULT_INCLUDES = ("*.py",)
++SANDBOX_SAMPLE_PATHS = (
++    "/mnt/data/CvMapGeneratorUtil.py",
++    "/mnt/data/CvDiplomacy.py",
++    "/mnt/data/CvMainInterface.py",
++    "/mnt/data/BTG_Cross.py",
++    "/mnt/data/PerfectMongoose.py",
++    "/mnt/data/Planet_Generator_0_68.py",
++)
++
++
++class FileResult(object):
++    def __init__(self, path, encoding, original, rewritten, changed_lines, skipped_reasons):
++        self.path = path
++        self.encoding = encoding
++        self.original = original
++        self.rewritten = rewritten
++        self.changed_lines = changed_lines
++        self.skipped_reasons = skipped_reasons
++
++    @property
++    def changed(self):
++        return self.original != self.rewritten
++
++    @property
++    def skipped_lines(self):
++        return sum(self.skipped_reasons.values())
++
++
++def decode_bytes(data):
++    for encoding in TEXT_ENCODINGS:
++        try:
++            text = data.decode(encoding)
++        except UnicodeDecodeError:
++            continue
++        if encoding == "utf-8-sig" and not data.startswith(b"\xef\xbb\xbf"):
++            return text, "utf-8"
++        return text, encoding
++    return data.decode("latin-1"), "latin-1"
++
++
++def split_line_ending(line):
++    if line.endswith("\r\n"):
++        return line[:-2], "\r\n"
++    if line.endswith("\n"):
++        return line[:-1], "\n"
++    if line.endswith("\r"):
++        return line[:-1], "\r"
++    return line, ""
++
++
++def leading_print_statement(body):
++    stripped = body.lstrip(" \t")
++    indent = body[:len(body) - len(stripped)]
++
++    if not stripped.startswith("print"):
++        return None
++
++    after = stripped[5:]
++    if after and (after[0].isalnum() or after[0] == "_"):
++        return None
++    if after.startswith("(") or after.startswith(" ("):
++        return None
++
++    return indent, after
++
++
++def find_comment_column(body):
++    try:
++        tokens = tokenize.generate_tokens(io.StringIO(body + "\n").readline)
++        for token in tokens:
++            if token.type == tokenize.COMMENT:
++                return token.start[1]
++    except (tokenize.TokenError, IndentationError):
++        return None
++    return None
++
++
++def expression_skip_reason(expr):
++    if not expr:
++        return None
++
++    if expr.startswith(">>"):
++        return "redirect"
++
++    if expr.startswith("("):
++        return "already/ambiguous parens"
++
++    try:
++        tokens = tokenize.generate_tokens(io.StringIO(expr + "\n").readline)
++        depth = 0
++        previous_significant = None
++        for token in tokens:
++            token_type = token.type
++            token_text = token.string
++
++            if token_type in (tokenize.NL, tokenize.NEWLINE, tokenize.ENDMARKER, tokenize.INDENT, tokenize.DEDENT):
++                continue
++
++            if token_type == tokenize.OP:
++                if token_text in ("(", "[", "{"):
++                    depth += 1
++                elif token_text in (")", "]", "}"):
++                    depth -= 1
++                    if depth < 0:
++                        return "unbalanced brackets"
++                elif depth == 0 and token_text == ",":
++                    return "top-level comma"
++                elif depth == 0 and token_text == ">>":
++                    return "redirect"
++                elif depth == 0 and token_text == ";":
++                    return "top-level semicolon"
++
++            previous_significant = token_text
++
++        if previous_significant == ",":
++            return "trailing comma"
++        if depth != 0:
++            return "unbalanced brackets"
++
++    except (tokenize.TokenError, IndentationError) as exc:
++        return "tokenize error: %s" % (exc,)
++
++    return None
++
++
++def rewrite_line(line):
++    body, eol = split_line_ending(line)
++    parsed = leading_print_statement(body)
++    if parsed is None:
++        return line, False, None
++
++    if body.lstrip(" \t").startswith("#"):
++        return line, False, "commented"
++
++    comment_column = find_comment_column(body)
++    if comment_column is None:
++        code = body.rstrip()
++        comment = ""
++    else:
++        code = body[:comment_column].rstrip()
++        comment = body[comment_column:]
++
++    parsed_code = leading_print_statement(code)
++    if parsed_code is None:
++        return line, False, None
++
++    indent, after_print = parsed_code
++    expr = after_print.strip()
++
++    reason = expression_skip_reason(expr)
++    if reason is not None:
++        return line, False, reason
++
++    if expr:
++        new_code = "%sprint(%s)" % (indent, expr)
++    else:
++        new_code = "%sprint(\"\")" % indent
++
++    if comment:
++        new_code += " " + comment.lstrip()
++
++    return new_code + eol, True, None
++
++
++def rewrite_text(text):
++    rewritten_lines = []
++    changed_lines = 0
++    skipped_reasons = {}
++
++    for line in text.splitlines(True):
++        new_line, changed, skip_reason = rewrite_line(line)
++        rewritten_lines.append(new_line)
++        if changed:
++            changed_lines += 1
++        elif skip_reason is not None:
++            skipped_reasons[skip_reason] = skipped_reasons.get(skip_reason, 0) + 1
++
++    rewritten = "".join(rewritten_lines)
++    return rewritten, changed_lines, skipped_reasons
++
++
++def process_file(path):
++    data = path.read_bytes()
++    original, encoding = decode_bytes(data)
++    rewritten, changed_lines, skipped_reasons = rewrite_text(original)
++    return FileResult(path, encoding, original, rewritten, changed_lines, skipped_reasons)
++
++
++def unified_diff(result):
++    old_lines = result.original.splitlines(True)
++    new_lines = result.rewritten.splitlines(True)
++    return "".join(difflib.unified_diff(
++        old_lines,
++        new_lines,
++        fromfile=str(result.path),
++        tofile=str(result.path) + " (wrapped prints)",
++    ))
++
++
++def write_text_preserving_encoding(path, text, encoding):
++    path.write_bytes(text.encode(encoding))
++
++
++def write_result(result, output, in_place):
++    if output is not None and in_place:
++        raise ValueError("--output and --in-place cannot be used together")
++    target = result.path if in_place else output
++    if target is None:
++        return
++    write_text_preserving_encoding(target, result.rewritten, result.encoding)
++
++
++def result_summary_lines(results):
++    total_changed = sum(result.changed_lines for result in results)
++    total_skipped = sum(result.skipped_lines for result in results)
++    changed_files = sum(1 for result in results if result.changed)
++
++    lines = []
++    lines.append("Files examined: %d" % len(results))
++    lines.append("Files with changes: %d" % changed_files)
++    lines.append("Print lines wrapped: %d" % total_changed)
++    lines.append("Print lines skipped: %d" % total_skipped)
++
++    for result in results:
++        if result.changed_lines or result.skipped_lines:
++            lines.append("")
++            lines.append(str(result.path))
++            lines.append("  encoding: %s" % result.encoding)
++            lines.append("  wrapped: %d" % result.changed_lines)
++            if result.skipped_reasons:
++                for reason in sorted(result.skipped_reasons):
++                    lines.append("  skipped %-24s %d" % (reason + ":", result.skipped_reasons[reason]))
++    return lines
++
++
++def print_summary(results):
++    for line in result_summary_lines(results):
++        print(line)
++
++
++def normalize_include_patterns(patterns):
++    if not patterns:
++        return list(DEFAULT_INCLUDES)
++    normalized = []
++    for pattern in patterns:
++        for part in pattern.split(";"):
++            part = part.strip()
++            if part:
++                normalized.append(part)
++    return normalized or list(DEFAULT_INCLUDES)
++
++
++def iter_directory_files(directory, include_patterns, recursive):
++    seen = set()
++    for pattern in include_patterns:
++        iterator = directory.rglob(pattern) if recursive else directory.glob(pattern)
++        for path in iterator:
++            if path.is_file():
++                resolved = path.resolve()
++                if resolved not in seen:
++                    seen.add(resolved)
++                    yield path
++
++
++def expand_input_paths(raw_paths, include_patterns, recursive, sandbox_samples):
++    paths = []
++
++    if sandbox_samples:
++        for sample in SANDBOX_SAMPLE_PATHS:
++            path = Path(sample)
++            if path.exists():
++                paths.append(path)
++
++    for raw_path in raw_paths:
++        path = Path(raw_path)
++        if path.is_dir():
++            paths.extend(iter_directory_files(path, include_patterns, recursive))
++        else:
++            paths.append(path)
++
++    # Preserve order while removing duplicates.
++    seen = set()
++    unique = []
++    for path in paths:
++        key = str(path.resolve()) if path.exists() else str(path)
++        if key not in seen:
++            seen.add(key)
++            unique.append(path)
++    return unique
++
++
++def validate_paths(paths):
++    missing = [path for path in paths if not path.exists()]
++    directories = [path for path in paths if path.exists() and path.is_dir()]
++    errors = []
++    for path in missing:
++        errors.append("missing path: %s" % path)
++    for path in directories:
++        errors.append("directory was not expanded: %s" % path)
++    return errors
++
++
++def parse_args(argv):
++    parser = argparse.ArgumentParser(
++        description="Conservatively wrap easy Python 2 print statements as print(...) for Python 3 linters."
++    )
++    parser.add_argument("paths", nargs="*", help="Python source files or directories to scan/rewrite.")
++    parser.add_argument("--recursive", action="store_true", help="When a directory is passed, scan it recursively.")
++    parser.add_argument("--include", action="append", help="Glob pattern for directory scanning. Default: *.py. Can be repeated or separated with semicolons.")
++    parser.add_argument("--sandbox-samples", action="store_true", help="Also scan common /mnt/data sample files when they exist. Useful inside ChatGPT.")
++    parser.add_argument("--in-place", action="store_true", help="Rewrite each file in place. Default is dry-run.")
++    parser.add_argument("--output", help="Write rewritten output to this path. Only valid with exactly one input file.")
++    parser.add_argument("--diff", action="store_true", help="Print a unified diff for files that would change.")
++    parser.add_argument("--report", help="Write the summary report to this path as well as stdout.")
++    parser.add_argument("--check", action="store_true", help="Exit with status 1 if any file would change.")
++    return parser.parse_args(argv)
++
++
++def main(argv):
++    args = parse_args(argv)
++    include_patterns = normalize_include_patterns(args.include)
++    input_paths = expand_input_paths(args.paths, include_patterns, args.recursive, args.sandbox_samples)
++
++    if not input_paths:
++        print("No input paths. Pass files/directories, or use --sandbox-samples inside ChatGPT.", file=sys.stderr)
++        return 2
++
++    if args.output and len(input_paths) != 1:
++        print("--output requires exactly one input file", file=sys.stderr)
++        return 2
++
++    if args.output and args.in_place:
++        print("--output and --in-place cannot be used together", file=sys.stderr)
++        return 2
++
++    path_errors = validate_paths(input_paths)
++    if path_errors:
++        for error in path_errors:
++            print(error, file=sys.stderr)
++        return 2
++
++    results = [process_file(path) for path in input_paths]
++
++    if args.diff:
++        for result in results:
++            if result.changed:
++                diff_text = unified_diff(result)
++                sys.stdout.write(diff_text)
++                if diff_text and not diff_text.endswith("\n"):
++                    print("")
++
++    output_path = Path(args.output) if args.output else None
++    for result in results:
++        write_result(result, output_path, args.in_place)
++
++    print_summary(results)
++
++    if args.report:
++        report_path = Path(args.report)
++        report_path.write_text("\n".join(result_summary_lines(results)) + "\n", encoding="utf-8")
++
++    if args.check and any(result.changed for result in results):
++        return 1
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main(sys.argv[1:]))
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index c47e186c4..897879584 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -160,7 +160,7 @@ def generatePlotTypes():
+ 	numBlocksLand = int(numBlocks*0.50)
+ 	cont = hinted_world.addContinent(numBlocksLand,mapRand.get(5, "Generate Plot Types PYTHON")+4,mapRand.get(3, "Generate Plot Types PYTHON")+2)
+ 	if not cont:
+-		print "Couldn't create continent! Reverting to C implementation."
++		print("Couldn't create continent! Reverting to C implementation.")
+ 		CyPythonMgr().allowDefaultImpl()
+ 	else:		
+ 		for x in range(hinted_world.w):
+
+diff --git a/PrivateMaps/Archipelago.py b/PrivateMaps/Archipelago.py
+index 613643ff8..ea8cacb61 100644
+--- a/PrivateMaps/Archipelago.py
++++ b/PrivateMaps/Archipelago.py
+@@ -562,9 +562,9 @@ def assignStartingPlots():
+ 					continue
+ 				else: # A region has failed to produce any valid starts!
+ 					bSuccessFlag = False
+-					print "---"
+-					print "A region has failed"
+-					print "---"
++					print("---")
++					print("A region has failed")
++					print("---")
+ 					# Regional start plot assignment has failed. Reverting to default.
+ 					CyPythonMgr().allowDefaultImpl()
+ 					return
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 97dbb9d3a..0a4d3337e 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -986,15 +986,15 @@ def assignStartingPlots():
+ 					
+ 					# Check to see if a valid start was found in ANY areaID.
+ 					if pBestPlot == None:
+-						print "player", playerID, "pass", iPass, "failed"
++						print("player %s pass %s failed" % (playerID, iPass))
+ 						iPass += 1
+ 						if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
+ 							continue
+ 						else: # A region has failed to produce any valid starts!
+ 							bSuccessFlag = False
+-							print "---"
+-							print "A region has failed"
+-							print "---"
++							print("---")
++							print("A region has failed")
++							print("---")
+ 							# Regional start plot assignment has failed. Reverting to default.
+ 							CyPythonMgr().allowDefaultImpl()
+ 							return
+@@ -1015,7 +1015,7 @@ def assignStartingPlots():
+ 							if not item in tpR : tpR.append(item)
+ 					best_regions = tpR
+ 		else :
+-			print "you missed something there O.o"
++			print("you missed something there O.o")
+ 
+ 		for assignLoop in range(iPlayers):# -Penny ; Not necessary for condition
+ 		# for assignLoop in range(iNumRegions):
+@@ -1132,15 +1132,15 @@ def assignStartingPlots():
+ 					
+ 					# Check to see if a valid start was found in ANY areaID.
+ 					if pBestPlot == None:
+-							print "player", playerID, "pass", iPass, "failed"
++							print("player %s pass %s failed" % (playerID, iPass))
+ 							iPass += 1
+ 							if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
+ 								continue
+ 							else: # A region has failed to produce any valid starts!
+ 								bSuccessFlag = False
+-								print "---"
+-								print "A region has failed"
+-								print "---"
++								print("---")
++								print("A region has failed")
++								print("---")
+ 								# Regional start plot assignment has failed. Reverting to default.
+ 								CyPythonMgr().allowDefaultImpl()
+ 								return
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index e252ac31b..e4affdb64 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -1156,15 +1156,15 @@ def assignStartingPlots():
+ 				
+ 				# Check to see if a valid start was found in ANY areaID.
+ 				if pBestPlot == None:
+-					print "player", playerID, "pass", iPass, "failed"
++					print("player %s pass %s failed" % (playerID, iPass))
+ 					iPass += 1
+ 					if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
+ 						continue
+ 					else: # A region has failed to produce any valid starts!
+ 						bSuccessFlag = False
+-						print "---"
+-						print "A region has failed"
+-						print "---"
++						print("---")
++						print("A region has failed")
++						print("---")
+ 						# Regional start plot assignment has failed. Reverting to default.
+ 						CyPythonMgr().allowDefaultImpl()
+ 						return
+@@ -1185,7 +1185,7 @@ def assignStartingPlots():
+ 							if not item in tpR : tpR.append(item)
+ 					best_regions = tpR
+ 		else :
+-			print "you missed something there O.o"
++			print("you missed something there O.o")
+ 
+ 		#2.18 A funky way, you double and remove the num of Spec : now the specs are on the left and players on the right
+ 		#iNumSpectators
+@@ -1286,15 +1286,15 @@ def assignStartingPlots():
+ 					
+ 					# Check to see if a valid start was found in ANY areaID.
+ 					if pBestPlot == None:
+-							print "player", playerID, "pass", iPass, "failed"
++							print("player %s pass %s failed" % (playerID, iPass))
+ 							iPass += 1
+ 							if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
+ 								continue
+ 							else: # A region has failed to produce any valid starts!
+ 								bSuccessFlag = False
+-								print "---"
+-								print "A region has failed"
+-								print "---"
++								print("---")
++								print("A region has failed")
++								print("---")
+ 								# Regional start plot assignment has failed. Reverting to default.
+ 								CyPythonMgr().allowDefaultImpl()
+ 								return
+
+diff --git a/PrivateMaps/Balanced.py b/PrivateMaps/Balanced.py
+index 2a59823e6..dfc27802b 100644
+--- a/PrivateMaps/Balanced.py
++++ b/PrivateMaps/Balanced.py
+@@ -78,7 +78,7 @@ def generatePlotTypes():
+ 	numBlocksLand = int(numBlocks*0.25)
+ 	cont = hinted_world.addContinent(numBlocksLand,mapRand.get(5, "Generate Plot Types PYTHON")+4,mapRand.get(3, "Generate Plot Types PYTHON")+2)
+ 	if not cont:
+-		print "Couldn't create continent! Reverting to C implementation."
++		print("Couldn't create continent! Reverting to C implementation.")
+ 		CyPythonMgr().allowDefaultImpl()
+ 	else:		
+ 		for x in range(hinted_world.w):
+
+diff --git a/PrivateMaps/Big_and_Small.py b/PrivateMaps/Big_and_Small.py
+index 4ff8c6787..b48dd52a8 100644
+--- a/PrivateMaps/Big_and_Small.py
++++ b/PrivateMaps/Big_and_Small.py
+@@ -92,7 +92,7 @@ def beforeGeneration():
+ 
+ 	# Binary shift roll (for horizontal shifting if Island Region Separate).
+ 	xShiftRoll = dice.get(2, "Region Shift, Horizontal - Big and Small PYTHON")
+-	print xShiftRoll
++	print(xShiftRoll)
+ 
+ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	def generatePlotsByRegion(self):
+@@ -215,7 +215,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		                           )
+ 
+ 		# All regions have been processed. Plot Type generation completed.
+-		print "Done"
++		print("Done")
+ 		return self.wholeworldPlotTypes
+ 
+ '''
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 787727a96..13a165127 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -360,9 +360,9 @@ def assignStartingPlots():
+ 	iPlayers = gc.getGame().countCivPlayersEverAlive()
+ 	iNumStartsAllocated = 0
+ 	start_plots = []
+-	print "==="
+-	print "Number of players:", iPlayers
+-	print "==="
++	print("===")
++	print("Number of players: %s" % iPlayers)
++	print("===")
+ 
+ 	terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+ 
+@@ -396,38 +396,38 @@ def assignStartingPlots():
+ 		if assign_loop == 0:
+ 			start_plots.append([iStartX, iStartY])
+ 			player.setStartingPlot(sPlot, true) # True flag causes data to be refreshed for MinOriginalStartDist data cells in plots on the same land mass.
+-			print "-+-+-"
+-			print "Player"
+-			print playerID
+-			print "First player assigned."
+-			print "-+-+-"
++			print("-+-+-")
++			print("Player")
++			print(playerID)
++			print("First player assigned.")
++			print("-+-+-")
+ 			continue
+ 		
+ 		# Check the pathing in the start plot.
+ 		if sPlot.getMinOriginalStartDist() != -1:
+ 			start_plots.append([iStartX, iStartY])
+ 			player.setStartingPlot(sPlot, true)
+-			print "-+-+-"
+-			print "Player"
+-			print playerID
+-			print "Open Path, no problems."
+-			print "-+-+-"
++			print("-+-+-")
++			print("Player")
++			print(playerID)
++			print("Open Path, no problems.")
++			print("-+-+-")
+ 			continue
+ 		
+ 		# If the process has reached this point, then this player is stuck 
+ 		# in a "pocket". This could be an island, a valley surrounded by peaks, 
+ 		# or an area blocked off by peaks. Could even be that a major line 
+ 		# of peaks and lakes combined is bisecting the entire map.
+-		print "-----"
+-		print "Player"
+-		print playerID
+-		print "Pocket detected, attempting to resolve..."
+-		print "-----"
++		print("-----")
++		print("Player")
++		print(playerID)
++		print("Pocket detected, attempting to resolve...")
++		print("-----")
+ 		#
+ 		# First step is to identify which existing start plot is closest.
+-		print "Pocket Plot"
+-		print iStartX, iStartY
+-		print "---"
++		print("Pocket Plot")
++		print("%s %s" % (iStartX, iStartY))
++		print("---")
+ 		[iEndX, iEndY] = start_plots[0]
+ 		fMinDistance = sqrt(((iStartX - iEndX) ** 2) + ((iStartY - iEndY) ** 2))
+ 		for check_loop in range(1, len(start_plots)):
+@@ -436,12 +436,12 @@ def assignStartingPlots():
+ 				# Closer start plot found!
+ 				[iEndX, iEndY] = start_plots[check_loop]
+ 				fMinDistance = sqrt(((iStartX - iX) ** 2) + ((iStartY - iY) ** 2))
+-		print "Nearest player (path destination)"
+-		print iEndX, iEndY
+-		print "---"
+-		print "Absolute distance:"
+-		print fMinDistance
+-		print "-----"
++		print("Nearest player (path destination)")
++		print("%s %s" % (iEndX, iEndY))
++		print("---")
++		print("Absolute distance:")
++		print(fMinDistance)
++		print("-----")
+ 		
+ 		# Now we draw an invisible line, plot by plot, one plot wide, from 
+ 		# the current start to the nearest start, converting peaks along the 
+@@ -455,11 +455,11 @@ def assignStartingPlots():
+ 			if iStartX > iEndX:
+ 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
+ 				bReverseFlag = True
+-				print "Path reversed, working from the end plot."
++				print("Path reversed, working from the end plot.")
+ 			else: # don't swap
+ 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
+ 				bReverseFlag = False
+-				print "Path not reversed."
++				print("Path not reversed.")
+ 			dx = endX-startX
+ 			dy = endY-startY
+ 			if dx == 0 or dy == 0:
+@@ -469,9 +469,9 @@ def assignStartingPlots():
+ 			print("Slope: ", slope)
+ 			y = startY
+ 			for x in range(startX, endX):
+-				print "Checking plot"
+-				print x, int(round(y))
+-				print "---"
++				print("Checking plot")
++				print("%s %s" % (x, int(round(y))))
++				print("---")
+ 				if map.isPlot(x, int(round(y))):
+ 					i = map.plotNum(x, int(round(y)))
+ 					pPlot = map.plotByIndex(i)
+@@ -479,36 +479,36 @@ def assignStartingPlots():
+ 					print("y plus slope: ", y)
+ 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+ 					if pPlot.isPeak():
+-						print "Peak found! Bulldozing this plot."
+-						print "---"
++						print("Peak found! Bulldozing this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 					elif pPlot.isWater():
+-						print "Lake found! Filling in this plot."
+-						print "---"
++						print("Lake found! Filling in this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
+ 						pPlot.setTerrainType(terrainTundra, true, true)
+ 						if pPlot.getBonusType(-1) != -1:
+-							print "########################"
+-							print "A sea-based Bonus is now present on the land! EEK!"
+-							print "########################"
++							print("########################")
++							print("A sea-based Bonus is now present on the land! EEK!")
++							print("########################")
+ 							pPlot.setBonusType(-1)
+-							print "OK, nevermind. The resource has been removed."
+-							print "########################"
++							print("OK, nevermind. The resource has been removed.")
++							print("########################")
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 
+ 		else:
+@@ -516,11 +516,11 @@ def assignStartingPlots():
+ 			if iStartY > iEndY:
+ 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
+ 				bReverseFlag = True
+-				print "Path reversed, working from the end plot."
++				print("Path reversed, working from the end plot.")
+ 			else: # don't swap
+ 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
+ 				bReverseFlag = False
+-				print "Path not reversed."
++				print("Path not reversed.")
+ 			dx, dy = endX-startX, endY-startY
+ 			if dx == 0 or dy == 0:
+ 				slope = 0
+@@ -529,9 +529,9 @@ def assignStartingPlots():
+ 			print("Slope: ", slope)
+ 			x = startX
+ 			for y in range(startY, endY+1):
+-				print "Checking plot"
+-				print int(round(x)), y
+-				print "---"
++				print("Checking plot")
++				print("%s %s" % (int(round(x)), y))
++				print("---")
+ 				if map.isPlot(int(round(x)), y):
+ 					i = map.plotNum(int(round(x)), y)
+ 					pPlot = map.plotByIndex(i)
+@@ -539,36 +539,36 @@ def assignStartingPlots():
+ 					print("x plus slope: ", x)
+ 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+ 					if pPlot.isPeak():
+-						print "Peak found! Bulldozing this plot."
+-						print "---"
++						print("Peak found! Bulldozing this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 					elif pPlot.isWater():
+-						print "Lake found! Filling in this plot."
+-						print "---"
++						print("Lake found! Filling in this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
+ 						pPlot.setTerrainType(terrainTundra, true, true)
+ 						if pPlot.getBonusType(-1) != -1:
+-							print "########################"
+-							print "A sea-based Bonus is now present on the land! EEK!"
+-							print "########################"
++							print("########################")
++							print("A sea-based Bonus is now present on the land! EEK!")
++							print("########################")
+ 							pPlot.setBonusType(-1)
+-							print "OK, nevermind. The resource has been removed."
+-							print "########################"
++							print("OK, nevermind. The resource has been removed.")
++							print("########################")
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 			
+ 		# Now that all the pathing for this player is resolved, set the start plot.
+@@ -576,9 +576,9 @@ def assignStartingPlots():
+ 		player.setStartingPlot(sPlot, true)
+ 
+ 	# All done!
+-	print "**********"
+-	print "All start plots assigned!"
+-	print "**********"
++	print("**********")
++	print("All start plots assigned!")
++	print("**********")
+ 	return None
+ 
+ def normalizeRemovePeaks():
+
+diff --git a/PrivateMaps/Equal_Islands_V2_beta.py b/PrivateMaps/Equal_Islands_V2_beta.py
+index fd7394876..469eeef59 100644
+--- a/PrivateMaps/Equal_Islands_V2_beta.py
++++ b/PrivateMaps/Equal_Islands_V2_beta.py
+@@ -422,14 +422,14 @@ def generatePlotTypes():
+ 	return plotTypes
+ 
+ def generateTerrainTypes():
+-	print "terrain"
++	print("terrain")
+ 	NiTextOut("Generating Terrain (Python Islands) ...")
+ 	terraingen = TerrainGenerator()
+ 	terrainTypes = terraingen.generateTerrain()
+ 	return terrainTypes
+ 
+ def addFeatures():
+-	print "features"
++	print("features")
+ 	NiTextOut("Adding Features (Python Islands) ...")
+ 	featuregen = FeatureGenerator()
+ 	featuregen.addFeatures()
+@@ -669,7 +669,7 @@ def assignStartingPlots():
+ 			
+ 			# Check to see if a valid start was found in ANY areaID.
+ 			if pBestPlot == None:
+-				print "player", playerID, "pass", iPass, "failed"
++				print("player %s pass %s failed" % (playerID, iPass))
+ 				iPass += 1
+ 				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
+ 					continue
+@@ -697,9 +697,9 @@ def assignStartingPlots():
+ 							if pBestPlot != None:
+ 								break
+ 					if pBestPlot == None:
+-						print "---"
+-						print "A region has failed"
+-						print "---"
++						print("---")
++						print("A region has failed")
++						print("---")
+ 						CyPythonMgr().allowDefaultImpl()
+ 						return
+ 					min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index f17ae3d7a..39aa0711b 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -120,7 +120,7 @@ def beforeGeneration():
+ 	yShiftRoll = dice.get(2, "Region Shift, Vertical - Left and Right PYTHON")
+ 	ySplitRoll = dice.get(2, "Region Split, Vertical - Left and Right PYTHON")
+ 	yPortionRoll = dice.get(2, "Region Portioning, Vertical - Left and Right PYTHON")
+-	print xShiftRoll
++	print(xShiftRoll)
+ 
+ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	def generateIslandRegion(self, minTinies, extraTinies, iWestX, iSouthY, iWidth, iHeight, iGrain):
+@@ -504,7 +504,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 					self.generateIslandRegion(3, 4, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
+ 
+ 		# All regions have been processed. Plot Type generation completed.
+-		print "Done"
++		print("Done")
+ 		return self.wholeworldPlotTypes
+ 
+ #
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 15b6011f5..dc095d7e1 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -509,9 +509,9 @@ def assignStartingPlots():
+ 	iPlayers = gc.getGame().countCivPlayersEverAlive()
+ 	iNumStartsAllocated = 0
+ 	start_plots = []
+-	print "==="
+-	print "Number of players:", iPlayers
+-	print "==="
++	print("===")
++	print("Number of players: %s" % iPlayers)
++	print("===")
+ 
+ 	terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+ 
+@@ -547,38 +547,38 @@ def assignStartingPlots():
+ 		if assign_loop == 0:
+ 			start_plots.append([iStartX, iStartY])
+ 			player.setStartingPlot(sPlot, true) # True flag causes data to be refreshed for MinOriginalStartDist data cells in plots on the same land mass.
+-			print "-+-+-"
+-			print "Player"
+-			print playerID
+-			print "First player assigned."
+-			print "-+-+-"
++			print("-+-+-")
++			print("Player")
++			print(playerID)
++			print("First player assigned.")
++			print("-+-+-")
+ 			continue
+ 
+ 		# Check the pathing in the start plot.
+ 		if sPlot.getMinOriginalStartDist() != -1:
+ 			start_plots.append([iStartX, iStartY])
+ 			player.setStartingPlot(sPlot, true)
+-			print "-+-+-"
+-			print "Player"
+-			print playerID
+-			print "Open Path, no problems."
+-			print "-+-+-"
++			print("-+-+-")
++			print("Player")
++			print(playerID)
++			print("Open Path, no problems.")
++			print("-+-+-")
+ 			continue
+ 
+ 		# If the process has reached this point, then this player is stuck
+ 		# in a "pocket". This could be an island, a valley surrounded by peaks,
+ 		# or an area blocked off by peaks. Could even be that a major line
+ 		# of peaks and lakes combined is bisecting the entire map.
+-		print "-----"
+-		print "Player"
+-		print playerID
+-		print "Pocket detected, attempting to resolve..."
+-		print "-----"
++		print("-----")
++		print("Player")
++		print(playerID)
++		print("Pocket detected, attempting to resolve...")
++		print("-----")
+ 		#
+ 		# First step is to identify which existing start plot is closest.
+-		print "Pocket Plot"
+-		print iStartX, iStartY
+-		print "---"
++		print("Pocket Plot")
++		print("%s %s" % (iStartX, iStartY))
++		print("---")
+ 		[iEndX, iEndY] = start_plots[0]
+ 		fMinDistance = sqrt(((iStartX - iEndX) ** 2) + ((iStartY - iEndY) ** 2))
+ 		for check_loop in range(1, len(start_plots)):
+@@ -587,12 +587,12 @@ def assignStartingPlots():
+ 				# Closer start plot found!
+ 				[iEndX, iEndY] = start_plots[check_loop]
+ 				fMinDistance = sqrt(((iStartX - iX) ** 2) + ((iStartY - iY) ** 2))
+-		print "Nearest player (path destination)"
+-		print iEndX, iEndY
+-		print "---"
+-		print "Absolute distance:"
+-		print fMinDistance
+-		print "-----"
++		print("Nearest player (path destination)")
++		print("%s %s" % (iEndX, iEndY))
++		print("---")
++		print("Absolute distance:")
++		print(fMinDistance)
++		print("-----")
+ 
+ 		# Now we draw an invisible line, plot by plot, one plot wide, from
+ 		# the current start to the nearest start, converting peaks along the
+@@ -606,11 +606,11 @@ def assignStartingPlots():
+ 			if iStartX > iEndX:
+ 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
+ 				bReverseFlag = True
+-				print "Path reversed, working from the end plot."
++				print("Path reversed, working from the end plot.")
+ 			else: # don't swap
+ 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
+ 				bReverseFlag = False
+-				print "Path not reversed."
++				print("Path not reversed.")
+ 			dx = endX-startX
+ 			dy = endY-startY
+ 			if dx == 0 or dy == 0:
+@@ -620,9 +620,9 @@ def assignStartingPlots():
+ 			print("Slope: ", slope)
+ 			y = startY
+ 			for x in range(startX, endX):
+-				print "Checking plot"
+-				print x, int(round(y))
+-				print "---"
++				print("Checking plot")
++				print("%s %s" % (x, int(round(y))))
++				print("---")
+ 				if map.isPlot(x, int(round(y))):
+ 					i = map.plotNum(x, int(round(y)))
+ 					pPlot = map.plotByIndex(i)
+@@ -630,36 +630,36 @@ def assignStartingPlots():
+ 					print("y plus slope: ", y)
+ 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+ 					if pPlot.isPeak():
+-						print "Peak found! Bulldozing this plot."
+-						print "---"
++						print("Peak found! Bulldozing this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 					elif pPlot.isWater():
+-						print "Lake found! Filling in this plot."
+-						print "---"
++						print("Lake found! Filling in this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
+ 						pPlot.setTerrainType(terrainPlains, true, true)
+ 						if pPlot.getBonusType(-1) != -1:
+-							print "########################"
+-							print "A sea-based Bonus is now present on the land! EEK!"
+-							print "########################"
++							print("########################")
++							print("A sea-based Bonus is now present on the land! EEK!")
++							print("########################")
+ 							pPlot.setBonusType(-1)
+-							print "OK, nevermind. The resource has been removed."
+-							print "########################"
++							print("OK, nevermind. The resource has been removed.")
++							print("########################")
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 
+ 		else:
+@@ -667,11 +667,11 @@ def assignStartingPlots():
+ 			if iStartY > iEndY:
+ 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
+ 				bReverseFlag = True
+-				print "Path reversed, working from the end plot."
++				print("Path reversed, working from the end plot.")
+ 			else: # don't swap
+ 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
+ 				bReverseFlag = False
+-				print "Path not reversed."
++				print("Path not reversed.")
+ 			dx, dy = endX-startX, endY-startY
+ 			if dx == 0 or dy == 0:
+ 				slope = 0
+@@ -680,9 +680,9 @@ def assignStartingPlots():
+ 			print("Slope: ", slope)
+ 			x = startX
+ 			for y in range(startY, endY+1):
+-				print "Checking plot"
+-				print int(round(x)), y
+-				print "---"
++				print("Checking plot")
++				print("%s %s" % (int(round(x)), y))
++				print("---")
+ 				if map.isPlot(int(round(x)), y):
+ 					i = map.plotNum(int(round(x)), y)
+ 					pPlot = map.plotByIndex(i)
+@@ -690,36 +690,36 @@ def assignStartingPlots():
+ 					print("x plus slope: ", x)
+ 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+ 					if pPlot.isPeak():
+-						print "Peak found! Bulldozing this plot."
+-						print "---"
++						print("Peak found! Bulldozing this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 					elif pPlot.isWater():
+-						print "Lake found! Filling in this plot."
+-						print "---"
++						print("Lake found! Filling in this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
+ 						pPlot.setTerrainType(terrainPlains, true, true)
+ 						if pPlot.getBonusType(-1) != -1:
+-							print "########################"
+-							print "A sea-based Bonus is now present on the land! EEK!"
+-							print "########################"
++							print("########################")
++							print("A sea-based Bonus is now present on the land! EEK!")
++							print("########################")
+ 							pPlot.setBonusType(-1)
+-							print "OK, nevermind. The resource has been removed."
+-							print "########################"
++							print("OK, nevermind. The resource has been removed.")
++							print("########################")
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 
+ 		# Now that all the pathing for this player is resolved, set the start plot.
+@@ -727,9 +727,9 @@ def assignStartingPlots():
+ 		player.setStartingPlot(sPlot, true)
+ 
+ 	# All done!
+-	print "**********"
+-	print "All start plots assigned!"
+-	print "**********"
++	print("**********")
++	print("All start plots assigned!")
++	print("**********")
+ 	return None
+ 
+ def normalizeRemovePeaks():
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index 292351c03..d1d146f8a 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -598,7 +598,7 @@ def getStartingPlot(playerID, validFn = None):
+ 			plotValue = map.plotNum(pBestPlot.getX(), pBestPlot.getY())
+ 			break
+ 			
+-		print "player", playerID, "pass", iPass, "failed"
++		print("player %s pass %s failed" % (playerID, iPass))
+ 		
+ 		iPass += 1
+
+diff --git a/PrivateMaps/Islands.py b/PrivateMaps/Islands.py
+index 8294af704..123b81712 100644
+--- a/PrivateMaps/Islands.py
++++ b/PrivateMaps/Islands.py
+@@ -431,14 +431,14 @@ def generatePlotTypes():
+ 	return plotTypes
+ 
+ def generateTerrainTypes():
+-	print "terrain"
++	print("terrain")
+ 	NiTextOut("Generating Terrain (Python Islands) ...")
+ 	terraingen = TerrainGenerator()
+ 	terrainTypes = terraingen.generateTerrain()
+ 	return terrainTypes
+ 
+ def addFeatures():
+-	print "features"
++	print("features")
+ 	NiTextOut("Adding Features (Python Islands) ...")
+ 	featuregen = FeatureGenerator()
+ 	featuregen.addFeatures()
+@@ -666,15 +666,15 @@ def assignStartingPlots():
+ 			
+ 			# Check to see if a valid start was found in ANY areaID.
+ 			if pBestPlot == None:
+-				print "player", playerID, "pass", iPass, "failed"
++				print("player %s pass %s failed" % (playerID, iPass))
+ 				iPass += 1
+ 				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
+ 					continue
+ 				else: # A region has failed to produce any valid starts!
+ 					bSuccessFlag = False
+-					print "---"
+-					print "A region has failed"
+-					print "---"
++					print("---")
++					print("A region has failed")
++					print("---")
+ 					# Regional start plot assignment has failed. Reverting to default.
+ 					CyPythonMgr().allowDefaultImpl()
+ 					return
+
+diff --git a/PrivateMaps/Medium_and_Small.py b/PrivateMaps/Medium_and_Small.py
+index e1f4f0358..6eb8d014a 100644
+--- a/PrivateMaps/Medium_and_Small.py
++++ b/PrivateMaps/Medium_and_Small.py
+@@ -101,9 +101,9 @@ def beforeGeneration():
+ 
+ 	# Binary shift roll (for horizontal shifting if Island Region Separate).
+ 	yShiftRoll1 = dice.get(2, "West Region Shift, Vertical - Medium and Small PYTHON")
+-	print yShiftRoll1
++	print(yShiftRoll1)
+ 	yShiftRoll2 = dice.get(2, "East Region Shift, Vertical - Medium and Small PYTHON")
+-	print yShiftRoll2
++	print(yShiftRoll2)
+ 
+ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 	def generatePlotsByRegion(self):
+@@ -324,7 +324,7 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		                           )
+ 
+ 		# All regions have been processed. Plot Type generation completed.
+-		print "Done"
++		print("Done")
+ 		return self.wholeworldPlotTypes
+ 
+ '''
+
+diff --git a/PrivateMaps/Mirror.py b/PrivateMaps/Mirror.py
+index 1cef34571..4d987e2e1 100644
+--- a/PrivateMaps/Mirror.py
++++ b/PrivateMaps/Mirror.py
+@@ -552,7 +552,7 @@ def assignStartingPlots():
+ 	global shuffledTeams
+ 	global assignedPlayers
+ 	assignedPlayers = [0] * gc.getGame().countCivTeamsEverAlive()
+-	print assignedPlayers
++	print(assignedPlayers)
+ 	shuffle = gc.getGame().getMapRand().get(2, "Start Location Shuffle - PYTHON")
+ 	if gc.getGame().countCivTeamsEverAlive() < 5:
+ 		team_list = [0, 1, 2, 3]
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 6f694c3be..24f8d6f09 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -537,7 +537,7 @@ def generateTerrainTypes():
+ 	if (userInputShoreline == 1 or userInputShoreline == 2 or (userInputShoreline == 0 and terrainRoll < 7)) and iBiggestAreaPlots < 0.8 * iTotalLandPlots:
+ 		global pangaea_type
+ 		print("Total Land: ", iTotalLandPlots, " Main Landmass Plots: ", iBiggestAreaPlots)
+-		print "Cohesion failure! Attempting to remedy..."
++		print("Cohesion failure! Attempting to remedy...")
+ 		#print("Pangaea Type: ", pangaea_type)
+ 		iW = map.getGridWidth()
+ 		iH = map.getGridHeight()
+
+diff --git a/PrivateMaps/Peirce.py b/PrivateMaps/Peirce.py
+index 51ef29963..490bf9606 100644
+--- a/PrivateMaps/Peirce.py
++++ b/PrivateMaps/Peirce.py
+@@ -168,7 +168,7 @@ def generatePlotTypes():
+ 	# Generates the PlotTypes for all plots in the map. See PeirceMultilayeredFractal for details. This method also
+ 	# creates the border of the Peirce.  It should ensure that there is Ocean where the crease in the map is.
+ 	# :return: List of the PlotTypes generated for each plot of the map.
+-	print "[PEIRCE] -- generatePlotTypes()"
++	print("[PEIRCE] -- generatePlotTypes()")
+ 
+ 	plotGenerator = PeirceMultilayeredFractal()
+ 
+@@ -241,7 +241,7 @@ def generatePlotTypes():
+ def generateTerrainTypes():
+ 	# Generates terrain types for all the plots of the map. The terrain generation is based on the equators being the diagonals linking the midpoints of the sides.
+ 	# :return: List of generated terrain types.
+-	print "[PEIRCE] -- generateTerrainTypes()"
++	print("[PEIRCE] -- generateTerrainTypes()")
+ 
+ 	global terrainVarFractal
+ 	terrainVarFractal = getVariationFractal(iTerrainGrain)
+@@ -326,7 +326,7 @@ def generateTerrainTypes():
+ 
+ def addFeatures():
+ 	# Generates feature types for all the plots of the map. These reflect the equator on the diagonals linking the midpoints of the edges
+-	print "[PEIRCE] -- addFeatures()"
++	print("[PEIRCE] -- addFeatures()")
+ 
+ 	# Add other features.
+ 	global featuresVarFractal
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 38ca9e972..5e1dc4c6c 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -875,10 +875,10 @@ class AreaMap:
+ 					newSeg = LineSegment(seg.y + seg.dy, xLeftExtreme, xRightExtreme - 1, -seg.dy)
+ 					self.segStack.append(newSeg)
+ 					if debugReport:
+-						print "opposite direction to stack",str(newSeg)
++						print("opposite direction to stack %s" % str(newSeg))
+ 				if xRightExtreme >= seg.xRight + landOffset:
+ 					if debugReport:
+-						print "finished with line"
++						print("finished with line")
+ 					break #past the end of the parent line and this line ends
+ 			elif not lineFound and xRightExtreme >= seg.xRight + landOffset:
+ 				break #past the end of the parent line and no line found
+@@ -886,13 +886,13 @@ class AreaMap:
+ 				continue #keep looking for more line segments
+ 		if lineFound: #still a line needing to be put on stack
+ 			if debugReport:
+-				print "still needing to stack some segs"
++				print("still needing to stack some segs")
+ 			lineFound = False
+ 			#put same direction on stack
+ 			newSeg = LineSegment(seg.y + seg.dy, xLeftExtreme, xRightExtreme - 1, seg.dy)
+ 			self.segStack.append(newSeg)
+ 			if debugReport:
+-				print str(newSeg)
++				print(str(newSeg))
+ 			#determine if we must put reverse direction on stack
+ 			if xLeftExtreme < seg.xLeft or xRightExtreme - 1 > seg.xRight:
+ 				#out of shadow so put reverse direction on stack also
+@@ -3004,8 +3004,8 @@ def FindValueFromPercent(map, length, percent, greaterThan):
+ 	while not inTolerance:
+ 		iterations += 1
+ 		if(iterations > 500):
+-			print "can't find value within tolerance"
+-			print "threshold = %f, thresholdChange = %f" % (threshold, thresholdChange)
++			print("can't find value within tolerance")
++			print("threshold = %f, thresholdChange = %f" % (threshold, thresholdChange))
+ 			break #close enough
+ 		matchCount = 0
+ 		for i in range(length):
+@@ -3189,9 +3189,9 @@ class TerrainMap:
+ 			self.tData.append(mc.OCEAN)
+ 
+ 	def GeneratePlotMap(self):
+-		print "-------------------"
+-		print "Generating Plot Map"
+-		print "-------------------"
++		print("-------------------")
++		print("Generating Plot Map")
++		print("-------------------")
+ 		deAttenuate = False # advc (only e3 uses attenuation)
+ 		if mc.LandmassGenerator == 2:
+ 			em = e2
+@@ -3349,9 +3349,9 @@ class TerrainMap:
+ 		#
+ 
+ 	def GenerateTerrainMap(self):
+-		print "----------------------"
+-		print "Generating Terrain Map"
+-		print "----------------------"
++		print("----------------------")
++		print("Generating Terrain Map")
++		print("----------------------")
+ 		gc = CyGlobalContext()
+ 		mmap = gc.getMap()
+ 		if mc.LandmassGenerator == 2:
+@@ -3469,7 +3469,7 @@ class TerrainMap:
+ 						self.tData[i] = mc.PLAINS
+ 					else:
+ 						self.tData[i] = mc.GRASS
+-		print "Jungle Temperature"
++		print("Jungle Temperature")
+ 		jungleTiles  = []
+ 		jungleLength = 0
+ 		for y in range(mc.height):
+@@ -3511,7 +3511,7 @@ class PangaeaBreaker:
+ 			while self.isPangaea() and meteorCount < mc.maximumMeteorCount:
+ 				pangaeaDetected = True
+ 				x, y = self.getMeteorStrike()
+-				print "A meteor has struck the Earth at %(x)d, %(y)d!!" % {"x":x,"y":y}
++				print("A meteor has struck the Earth at %(x)d, %(y)d!!" % {"x":x,"y":y})
+ 				self.castMeteorUponTheEarth(x, y)
+ 				meteorThrown = True
+ 				meteorCount += 1
+@@ -3519,15 +3519,15 @@ class PangaeaBreaker:
+ 				self.createDistanceMap()
+ 				self.areaMap.defineAreas(isHmWaterMatch)
+ 		if not pangaeaDetected:
+-			print "No pangaea detected on this map."
++			print("No pangaea detected on this map.")
+ 		if meteorThrown:
+-			print "The age of dinosaurs has come to a cataclysmic end."
++			print("The age of dinosaurs has come to a cataclysmic end.")
+ 		#if meteorCount == 15:
+ 		if meteorCount == mc.maximumMeteorCount: # advc.001
+-			print "Maximum meteor count of %d has been reached." % meteorCount
++			print("Maximum meteor count of %d has been reached." % meteorCount)
+ 			# <advc> Previously always said that "Pangaea may still exist"
+ 			if self.isPangaea():
+-				print "Pangaea still exists" # </advc>
++				print("Pangaea still exists") # </advc>
+ 
+ 	def isPangaea(self):
+ 		continentList = list()
+@@ -3863,9 +3863,9 @@ class ContinentMap:
+ 		return
+ 
+ 	def GenerateContinentMap(self):
+-		print "------------------------"
+-		print "Generating Continent Map"
+-		print "------------------------"
++		print("------------------------")
++		print("Generating Continent Map")
++		print("------------------------")
+ 		self.areaMap = AreaMap(mc.width, mc.height, True, True)
+ 		self.areaMap.defineAreas(isWaterMatch)
+ 		#self.newWorldID = self.getNewWorldID()
+@@ -3899,7 +3899,7 @@ class ContinentMap:
+ 			if len(continentList) <= 1:
+ 				return 0, 0
+ 			bRegionID = False
+-			print "Pangaea; will at best be able to designate an area separated by shallow water as the New World"
++			print("Pangaea; will at best be able to designate an area separated by shallow water as the New World")
+ 			# </advc>
+ 		#totalLand = 0
+ 		#for c in continentList:
+@@ -3959,7 +3959,7 @@ class ContinentMap:
+ 			oldWorldPercent = oldWorldScore / float(totalScore)
+ 			if oldWorldPercent > oldWorldTargetPercent:
+ 				break
+-		print "oldWorldPercent=" + str(oldWorldPercent) # advc
++		print("oldWorldPercent=" + str(oldWorldPercent)) # advc
+ 		#add back the mainNewWorld continent
+ 		if reserveSecondBest:
+ 			# <advc> A too small Old World is going to be unplayable; rather reserve no New World then (or just some islands).
+@@ -3999,9 +3999,9 @@ class RiverMap:
+ 		return
+ 
+ 	def GenerateRiverMap(self):
+-		print "--------------------"
+-		print "Generating River Map"
+-		print "--------------------"
++		print("--------------------")
++		print("Generating River Map")
++		print("--------------------")
+ 		if mc.LandmassGenerator == 2:
+ 			em = e2
+ 		else:
+@@ -4135,7 +4135,7 @@ class RiverMap:
+ 					self.averageRainfallMap[i] += 4 * (maxRf - minRf) # </advc>
+ 		#Now use the flowMap as a guide to distribute average rainfall.
+ 		#Wherever the most rainfall ends up is where the rivers will be.
+-		print "Distributing rainfall"
++		print("Distributing rainfall")
+ 		for y in range(mc.height):
+ 			for x in range(mc.width):
+ 				i = GetIndex(x, y)
+@@ -4172,7 +4172,7 @@ class RiverMap:
+ 			else:
+ 				self.riverMap[i] = self.O
+ 		# advc: Print number of pegged river segments
+-		print "River map generated (" + str(riversPlaced) + " segments placed)"
++		print("River map generated (" + str(riversPlaced) + " segments placed)")
+ 		#at this point river should be in tolerance or close to it
+ 		#riverMap is ready for use
+ 
+@@ -4312,8 +4312,8 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
+ 			bonus = self.bonusList[i]
+ 			bonusInfo = gc.getBonusInfo(bonus.eBonus)
+ 			if bonus.currentBonusCount == 0 and bonus.desiredBonusCount > 0:
+-				print "No room at all found for %(bt)s!!!" % {"bt":bonusInfo.getType()}
+-			print "Placed %(cb)d, desired %(db)d for %(bt)s" % {"cb":bonus.currentBonusCount, "db":bonus.desiredBonusCount, "bt":bonusInfo.getType()}
++				print("No room at all found for %(bt)s!!!" % {"bt":bonusInfo.getType()})
++			print("Placed %(cb)d, desired %(db)d for %(bt)s" % {"cb":bonus.currentBonusCount, "db":bonus.desiredBonusCount, "bt":bonusInfo.getType()})
+ 
+ 	#AIAndy - Changed to start at the end of the last run in the plot list
+ 	def AddBonusType(self, eBonus, plotIndexList, startAtIndex):
+@@ -4407,7 +4407,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
+ 				if featureEnum != FeatureTypes.NO_FEATURE:
+ 					if bonusInfo == None or bonusInfo.isFeature(featureEnum):
+ 						plot.setFeatureType(featureEnum, featureVariety)
+-				print "Emergency placement of 1 %(bt)s" % {"bt":bonusInfo.getType()}
++				print("Emergency placement of 1 %(bt)s" % {"bt":bonusInfo.getType()})
+ 				break
+ 		lastI = (lastI + 1) % plotListLength
+ 		return lastI
+@@ -4792,7 +4792,7 @@ class StartingPlotFinder:
+ 						startArea = StartingArea(areas[i].getID())
+ 						# <advc>
+ 						if mc.OldWorldStarts:
+-							print "Appending area of size " + str(areas[i].getNumTiles()) + " to startingAreaList"
++							print("Appending area of size " + str(areas[i].getNumTiles()) + " to startingAreaList")
+ 						# </advc>
+ 						self.startingAreaList.append(startArea)
+ 
+@@ -4828,7 +4828,7 @@ class StartingPlotFinder:
+ 				startingArea.idealNumberOfPlayers = float(startingArea.rawValue) / float(max(1, oldWorldValuePerPlayer))
+ 			#Now we want best first
+ 			self.startingAreaList.reverse()
+-			print "number of starting areas is %(s)3d" % {"s":len(self.startingAreaList)}
++			print("number of starting areas is %(s)3d" % {"s":len(self.startingAreaList)})
+ 			#LM - This iteration-based while loop is a complete mess. Not only is it slow and inefficient, but it
+ 			#ONLY MODIFIES THE BEST/LARGEST LANDMASS'S PLAYER COUNT, no matter HOW far off it is in either direction!
+ 			#You can EASILY end up with a super-crowded main landmass, or a nearly-deserted one, this way.
+@@ -5545,39 +5545,39 @@ class StartingPlotFinder:
+ 				sPlot = StartPlot(startPlot.getX(),startPlot.getY(), 0)
+ 				if eHandicap == getInfoTypeOrFail("HANDICAP_SETTLER"):
+ 					if mc.SettlerBonus > 0:
+-						print "Human player at Settler difficulty, adding %d resources" % mc.SettlerBonus
++						print("Human player at Settler difficulty, adding %d resources" % mc.SettlerBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.SettlerBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_CHIEFTAIN"):
+ 					if mc.ChieftainBonus > 0:
+-						print "Human player at Chieftain difficulty, adding %d resources" % mc.ChieftainBonus
++						print("Human player at Chieftain difficulty, adding %d resources" % mc.ChieftainBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ChieftainBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_WARLORD"):
+ 					if mc.WarlordBonus > 0:
+-						print "Human player at Warlord difficulty, adding %d resources" % mc.WarlordBonus
++						print("Human player at Warlord difficulty, adding %d resources" % mc.WarlordBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.WarlordBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_NOBLE"):
+ 					if mc.NobleBonus > 0:
+-						print "Human player at Noble difficulty, adding %d resources" % mc.NobleBonus
++						print("Human player at Noble difficulty, adding %d resources" % mc.NobleBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.NobleBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_PRINCE"):
+ 					if mc.PrinceBonus > 0:
+-						print "Human player at Prince difficulty, adding %d resources" % mc.PrinceBonus
++						print("Human player at Prince difficulty, adding %d resources" % mc.PrinceBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.PrinceBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_MONARCH"):
+ 					if mc.MonarchBonus > 0:
+-						print "Human player at Monarch difficulty, adding %d resources" % mc.MonarchBonus
++						print("Human player at Monarch difficulty, adding %d resources" % mc.MonarchBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.MonarchBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_EMPEROR"):
+ 					if mc.EmperorBonus > 0:
+-						print "Human player at Emperor difficulty, adding %d resources" % mc.EmperorBonus
++						print("Human player at Emperor difficulty, adding %d resources" % mc.EmperorBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.EmperorBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_IMMORTAL"):
+ 					if mc.ImmortalBonus > 0:
+-						print "Human player at Immortal difficulty, adding %d resources" % mc.ImmortalBonus
++						print("Human player at Immortal difficulty, adding %d resources" % mc.ImmortalBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ImmortalBonus, sPlot.isCoast())
+ 				elif eHandicap == getInfoTypeOrFail("HANDICAP_DEITY"):
+ 					if mc.DeityBonus > 0:
+-						print "Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus
++						print("Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus)
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.DeityBonus, sPlot.isCoast())
+ 
+ class CityPlot:
+@@ -5658,7 +5658,7 @@ class StartingArea:
+ 		self.plotList.reverse()
+ 		# advc: Moved into subroutine
+ 		self.ClearVicinity(3)
+-		print "Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)}
++		print("Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)})
+ 		# advc: Moved up:
+ 		for n in range(len(self.plotList)):
+ 			self.rawValue += self.plotList[n].localValue
+@@ -6168,10 +6168,10 @@ def getGridSize(argsList):
+ 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
+ 
+ def generatePlotTypes():
+-	print ""
+-	print "====================="
+-	print "Generating Plot Types"
+-	print "====================="
++	print("")
++	print("=====================")
++	print("Generating Plot Types")
++	print("=====================")
+ 	gc = CyGlobalContext()
+ 	map = gc.getMap()
+ 	mc.width  = map.getGridWidth()
+@@ -6266,9 +6266,9 @@ def scaleMinMeteorSize():
+ 	mc.minimumMeteorSize = int(math.ceil((mc.minimumMeteorSize * mc.hmWidth) / float(mc.width)))
+ 
+ def generateTerrainTypes():
+-	print "========================"
+-	print "Generating Terrain Types"
+-	print "========================"
++	print("========================")
++	print("Generating Terrain Types")
++	print("========================")
+ 	if mc.LandmassGenerator == 2:
+ 		em = e2
+ 	else:
+@@ -6620,9 +6620,9 @@ def addLakes():
+ 	mmap.recalculateAreas(); # advc.opt: No longer done in makeChannel
+ 
+ def addFeatures():
+-	print "========================"
+-	print "Generating Feature Types"
+-	print "========================"
++	print("========================")
++	print("Generating Feature Types")
++	print("========================")
+ 	gc = CyGlobalContext()
+ 	mmap = gc.getMap()
+ 	if mc.LandmassGenerator == 2:
+
+diff --git a/PrivateMaps/Planet_Generator_0_68.py b/PrivateMaps/Planet_Generator_0_68.py
+index 8360c2e11..5fe969ecd 100644
+--- a/PrivateMaps/Planet_Generator_0_68.py
++++ b/PrivateMaps/Planet_Generator_0_68.py
+@@ -1715,13 +1715,13 @@ def generatePlotTypes():
+ 
+ 	#calculate actual land tiles we must produce
+ 	maxLandTiles = iW * (iH - poleSeparation * 2) * ((100 - oceanPercentage) / 100.0)
+-	print "default max tiles:",maxLandTiles
++	print("default max tiles: %s" % maxLandTiles)
+ 	if continentCount > 0 and maxLandTiles >=0:
+ 		newMaxLandTiles = ((( sqrt(maxLandTiles / float(continentCount))) - continentSeparation * 0.9)**2) * continentCount
+ 		if newMaxLandTiles > continentCount * 2:
+ 			maxLandTiles = newMaxLandTiles
+ 	maxLandTiles = int(maxLandTiles * 0.95)
+-	print "modified max tiles:",maxLandTiles
++	print("modified max tiles: %s" % maxLandTiles)
+ 
+ 	#world is two-dimensional array which wraps in X automagically, so you may not worry about edges
+ 	world = worldArray([iW,iH],PlotTypes.PLOT_OCEAN)
+@@ -1869,7 +1869,7 @@ def generatePlotTypes():
+ 			#print "Final %d continent parts: %d"%(i,len(continent.continentParts))
+ 			continent.joinParts(continent.coastScatterMax * 2)
+ 
+-	print "size",size
++	print("size %s" % size)
+ 
+ 	# now we want to remove one-square and two-square lakes. more templates (which describe how to remove tiles) can be added in initReplacements function,
+ 	#  and code below should handle them just fine. i am not adding comments to it because i forgot how it works :D
+@@ -2775,7 +2775,7 @@ def addFeatures():
+ 					if score < 0:
+ 						break
+ 				if score > 0:
+-					print "Peak with score %d was found."%(score)
++					print("Peak with score %d was found."%(score))
+ 					tileList = getTilesAroundDistance(x,y,1)
+ 					for tile in tileList:
+ 						tx,ty = tile
+@@ -3124,7 +3124,7 @@ def getTileTemperature(y,h):
+ #this method puts down the tile bonuses, such as iron, whale, rice, oil, etc.
+ def addBonuses():
+ 	"Can override to control where bonuses are added on	the	map"
+-	print "-------- Add bonuses ----------"
++	print("-------- Add bonuses ----------")
+ 	global bonusGeneration
+ 
+ 	bonusGeneration = "standard"
+@@ -3191,47 +3191,47 @@ def findStartingPlot(argsList):
+ 
+ def normalizeStartingPlotLocations():
+ 	"Can override to change	how	starting plots are distributed.	(note, this	function is	called after all starting locs are distributed...)"
+-	print "-------- Normalize starting plot locations ----------"
++	print("-------- Normalize starting plot locations ----------")
+ 	CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeAddRiver():
+ 	"A normalize start function	(called	after starting plots are set) -	this call adds a river."
+-	print "-------- Normalize add river ----------"
++	print("-------- Normalize add river ----------")
+ 	if bonusGeneration == "standard":
+ 		CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeRemovePeaks():
+ 	"A normalize start function	(called	after starting plots are set) -	this call removes peaks."
+-	print "-------- Normalize remove peaks ----------"
++	print("-------- Normalize remove peaks ----------")
+ 	if bonusGeneration == "standard":
+ 		CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeAddLakes():
+ 	"A normalize start function	(called	after starting plots are set) -	this call adds a lake."
+-	print "-------- Normalize add lakes ----------"
++	print("-------- Normalize add lakes ----------")
+ 	if bonusGeneration == "standard":
+ 		CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeRemoveBadFeatures():
+ 	"A normalize start function	(called	after starting plots are set) -	this call removes bad features."
+-	print "-------- Normalize remove gbad features ----------"
++	print("-------- Normalize remove gbad features ----------")
+ 	CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeRemoveBadTerrain():
+ 	"A normalize start function	(called	after starting plots are set) -	this call removes bad terrain."
+-	print "-------- Normalize remove good terrain ----------"
++	print("-------- Normalize remove good terrain ----------")
+ 	if bonusGeneration == "standard":
+ 		CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeAddFoodBonuses():
+ 	"A normalize start function	(called	after starting plots are set) -	this call adds food	bonuses."
+-	print "-------- Normalize add food ----------"
++	print("-------- Normalize add food ----------")
+ 	if bonusGeneration == "standard":
+ 		CyPythonMgr().allowDefaultImpl()
+ 
+ def normalizeAddGoodTerrain():
+ 	"A normalize start function	(called	after starting plots are set) -	this call adds good	terrain."
+-	print "-------- Normalize add good terrain ----------"
++	print("-------- Normalize add good terrain ----------")
+ 	if bonusGeneration == "standard":
+ 		CyPythonMgr().allowDefaultImpl()
+ 
+@@ -3385,7 +3385,7 @@ class BonusBuilder(FairBuilder):
+ 
+ def normalizeAddExtras():
+ 	"A normalize start function (called after starting plots are set) - this call adds extra features and bonuses."
+-	print "-------- Normalize extras ----------"
++	print("-------- Normalize extras ----------")
+ 	collectGarbage()
+ 
+ 	global bonusGeneration
+@@ -3441,8 +3441,8 @@ def normalizeAddExtras():
+ 				bonusTypesLand.append([bonusInt,bonusInfo])
+ 		bonusTypesOcean.sort(lambda x, y: cmp(x[1].getPlacementOrder(), y[1].getPlacementOrder()))
+ 		bonusTypesLand.sort(lambda x, y: cmp(x[1].getPlacementOrder(), y[1].getPlacementOrder()))
+-		print "bonusTypesOcean:",bonusTypesOcean
+-		print "bonusTypesLand:",bonusTypesLand
++		print("bonusTypesOcean: %s" % bonusTypesOcean)
++		print("bonusTypesLand: %s" % bonusTypesLand)
+ 
+ 		# we use BonusBuilder class to get all land and coast tiles player can reach without sailing
+ 		# it is done using randomly calculated aproximate traveling paths, but produces generally accurate result
+@@ -3472,7 +3472,7 @@ def normalizeAddExtras():
+ 				else:
+ 					grows = False
+ 		if size >= maxSize:
+-			print "WARNING: size limit exceeded!"
++			print("WARNING: size limit exceeded!")
+ 
+ 		for index in range(cgc.getNumBonusInfos()):
+ 			bonusInfo = cgc.getBonusInfo(index)
+@@ -3626,19 +3626,19 @@ def saveMapOptionDefaults():
+ 			smoptions.append((smoption,valueName))
+ 
+ 		#print "    try to store settings to",fileName
+-		print smoptions
++		print(smoptions)
+ 		try:
+ 			pickle.dump(smoptions, settings)
+ 		except Exception, inst:
+-			print "    Pickling Error",inst,"trying to save map settings to",fileName
++			print("    Pickling Error %s trying to save map settings to %s" % (inst, fileName))
+ 		settings.close()
+-		print "    store successful"
++		print("    store successful")
+ 	except IOError:
+-		print "    Couldn't create ",fileName
++		print("    Couldn't create %s" % fileName)
+ 	except EOFError:
+-		print "    EOF writing ",fileName
++		print("    EOF writing %s" % fileName)
+ 	except:
+-		print "    unexpected problem writing ",fileName
++		print("    unexpected problem writing %s" % fileName)
+ 
+ def loadMapOptionDefaults():
+ 	global selection_defaults
+@@ -3659,11 +3659,11 @@ def loadMapOptionDefaults():
+ 		#print "    loaded option from cfg:",option,value
+ 		settings.close()
+ 	except IOError:
+-		print "    Couldn't find ",fileName
++		print("    Couldn't find %s" % fileName)
+ 	except EOFError:
+-		print "    Bad contents in ",fileName
++		print("    Bad contents in %s" % fileName)
+ 	except:
+-		print "    unexpected problem reading",fileName
++		print("    unexpected problem reading %s" % fileName)
+ 
+ def isRandomCustomMapOption(argsList):
+ 	return False # we use our own defaults
+@@ -3704,8 +3704,8 @@ def isBonusIgnoreLatitude():
+ 	CyPythonMgr().allowDefaultImpl()
+ 
+ def collectGarbage():
+-	print "Collect python garbage"
++	print("Collect python garbage")
+ 	try:
+ 		gc.collect()
+ 	except:
+-		print "Unexpected error during garbage collection"
++		print("Unexpected error during garbage collection")
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index c297504ac..c3d8f66f9 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -318,9 +318,9 @@ def assignStartingPlots():
+ 	iPlayers = gc.getGame().countCivPlayersEverAlive()
+ 	iNumStartsAllocated = 0
+ 	start_plots = []
+-	print "==="
+-	print "Number of players:", iPlayers
+-	print "==="
++	print("===")
++	print("Number of players: %s" % iPlayers)
++	print("===")
+ 
+ 	terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+@@ -354,38 +354,38 @@ def assignStartingPlots():
+ 		if assign_loop == 0:
+ 			start_plots.append([iStartX, iStartY])
+ 			player.setStartingPlot(sPlot, true) # True flag causes data to be refreshed for MinOriginalStartDist data cells in plots on the same land mass.
+-			print "-+-+-"
+-			print "Player"
+-			print playerID
+-			print "First player assigned."
+-			print "-+-+-"
++			print("-+-+-")
++			print("Player")
++			print(playerID)
++			print("First player assigned.")
++			print("-+-+-")
+ 			continue
+ 		
+ 		# Check the pathing in the start plot.
+ 		if sPlot.getMinOriginalStartDist() != -1:
+ 			start_plots.append([iStartX, iStartY])
+ 			player.setStartingPlot(sPlot, true)
+-			print "-+-+-"
+-			print "Player"
+-			print playerID
+-			print "Open Path, no problems."
+-			print "-+-+-"
++			print("-+-+-")
++			print("Player")
++			print(playerID)
++			print("Open Path, no problems.")
++			print("-+-+-")
+ 			continue
+ 		
+ 		# If the process has reached this point, then this player is stuck 
+ 		# in a "pocket". This could be an island, a valley surrounded by peaks, 
+ 		# or an area blocked off by peaks. Could even be that a major line 
+ 		# of peaks and lakes combined is bisecting the entire map.
+-		print "-----"
+-		print "Player"
+-		print playerID
+-		print "Pocket detected, attempting to resolve..."
+-		print "-----"
++		print("-----")
++		print("Player")
++		print(playerID)
++		print("Pocket detected, attempting to resolve...")
++		print("-----")
+ 		#
+ 		# First step is to identify which existing start plot is closest.
+-		print "Pocket Plot"
+-		print iStartX, iStartY
+-		print "---"
++		print("Pocket Plot")
++		print("%s %s" % (iStartX, iStartY))
++		print("---")
+ 		[iEndX, iEndY] = start_plots[0]
+ 		fMinDistance = sqrt(((iStartX - iEndX) ** 2) + ((iStartY - iEndY) ** 2))
+ 		for check_loop in range(1, len(start_plots)):
+@@ -394,12 +394,12 @@ def assignStartingPlots():
+ 				# Closer start plot found!
+ 				[iEndX, iEndY] = start_plots[check_loop]
+ 				fMinDistance = sqrt(((iStartX - iX) ** 2) + ((iStartY - iY) ** 2))
+-		print "Nearest player (path destination)"
+-		print iEndX, iEndY
+-		print "---"
+-		print "Absolute distance:"
+-		print fMinDistance
+-		print "-----"
++		print("Nearest player (path destination)")
++		print("%s %s" % (iEndX, iEndY))
++		print("---")
++		print("Absolute distance:")
++		print(fMinDistance)
++		print("-----")
+ 		
+ 		# Now we draw an invisible line, plot by plot, one plot wide, from 
+ 		# the current start to the nearest start, converting peaks along the 
+@@ -413,11 +413,11 @@ def assignStartingPlots():
+ 			if iStartX > iEndX:
+ 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
+ 				bReverseFlag = True
+-				print "Path reversed, working from the end plot."
++				print("Path reversed, working from the end plot.")
+ 			else: # don't swap
+ 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
+ 				bReverseFlag = False
+-				print "Path not reversed."
++				print("Path not reversed.")
+ 			dx = endX-startX
+ 			dy = endY-startY
+ 			if dx == 0 or dy == 0:
+@@ -427,9 +427,9 @@ def assignStartingPlots():
+ 			print("Slope: ", slope)
+ 			y = startY
+ 			for x in range(startX, endX):
+-				print "Checking plot"
+-				print x, int(round(y))
+-				print "---"
++				print("Checking plot")
++				print("%s %s" % (x, int(round(y))))
++				print("---")
+ 				if map.isPlot(x, int(round(y))):
+ 					i = map.plotNum(x, int(round(y)))
+ 					pPlot = map.plotByIndex(i)
+@@ -437,36 +437,36 @@ def assignStartingPlots():
+ 					print("y plus slope: ", y)
+ 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+ 					if pPlot.isPeak():
+-						print "Peak found! Bulldozing this plot."
+-						print "---"
++						print("Peak found! Bulldozing this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 					elif pPlot.isWater():
+-						print "Lake found! Filling in this plot."
+-						print "---"
++						print("Lake found! Filling in this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
+ 						pPlot.setTerrainType(terrainGrass, true, true)
+ 						if pPlot.getBonusType(-1) != -1:
+-							print "########################"
+-							print "A sea-based Bonus is now present on the land! EEK!"
+-							print "########################"
++							print("########################")
++							print("A sea-based Bonus is now present on the land! EEK!")
++							print("########################")
+ 							pPlot.setBonusType(-1)
+-							print "OK, nevermind. The resource has been removed."
+-							print "########################"
++							print("OK, nevermind. The resource has been removed.")
++							print("########################")
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 
+ 		else:
+@@ -474,11 +474,11 @@ def assignStartingPlots():
+ 			if iStartY > iEndY:
+ 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
+ 				bReverseFlag = True
+-				print "Path reversed, working from the end plot."
++				print("Path reversed, working from the end plot.")
+ 			else: # don't swap
+ 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
+ 				bReverseFlag = False
+-				print "Path not reversed."
++				print("Path not reversed.")
+ 			dx, dy = endX-startX, endY-startY
+ 			if dx == 0 or dy == 0:
+ 				slope = 0
+@@ -487,9 +487,9 @@ def assignStartingPlots():
+ 			print("Slope: ", slope)
+ 			x = startX
+ 			for y in range(startY, endY+1):
+-				print "Checking plot"
+-				print int(round(x)), y
+-				print "---"
++				print("Checking plot")
++				print("%s %s" % (int(round(x)), y))
++				print("---")
+ 				if map.isPlot(int(round(x)), y):
+ 					i = map.plotNum(int(round(x)), y)
+ 					pPlot = map.plotByIndex(i)
+@@ -497,36 +497,36 @@ def assignStartingPlots():
+ 					print("x plus slope: ", x)
+ 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+ 					if pPlot.isPeak():
+-						print "Peak found! Bulldozing this plot."
+-						print "---"
++						print("Peak found! Bulldozing this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 					elif pPlot.isWater():
+-						print "Lake found! Filling in this plot."
+-						print "---"
++						print("Lake found! Filling in this plot.")
++						print("---")
+ 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
+ 						pPlot.setTerrainType(terrainGrass, true, true)
+ 						if pPlot.getBonusType(-1) != -1:
+-							print "########################"
+-							print "A sea-based Bonus is now present on the land! EEK!"
+-							print "########################"
++							print("########################")
++							print("A sea-based Bonus is now present on the land! EEK!")
++							print("########################")
+ 							pPlot.setBonusType(-1)
+-							print "OK, nevermind. The resource has been removed."
+-							print "########################"
++							print("OK, nevermind. The resource has been removed.")
++							print("########################")
+ 						if bReverseFlag:
+ 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
+ 						else:
+ 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
+ 						if currentDistance != -1: # The path has been opened!
+-							print "Pocket successfully opened!"
+-							print "-----"
++							print("Pocket successfully opened!")
++							print("-----")
+ 							break
+ 			
+ 		# Now that all the pathing for this player is resolved, set the start plot.
+@@ -534,9 +534,9 @@ def assignStartingPlots():
+ 		player.setStartingPlot(sPlot, true)
+ 
+ 	# All done!
+-	print "**********"
+-	print "All start plots assigned!"
+-	print "**********"
++	print("**********")
++	print("All start plots assigned!")
++	print("**********")
+ 	return None
+ 
+ def normalizeRemovePeaks():
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index 9e7ab6f31..a0c20b453 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -802,7 +802,7 @@ def normalizeStartingPlotLocations():
+ def getRiverStartCardinalDirection(argsList):
+ 	"Returns the cardinal direction of the first river segment."
+ 	pPlot = argsList[0]
+-	print pPlot
++	print(pPlot)
+ 	map = CyMap()
+ 	x, y = pPlot.getX(), pPlot.getY()
+ 	iW = map.getGridWidth()
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 0e9d416b9..e88b84850 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -115,7 +115,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+-- **Collapse multiline statements to single-line form** (e.g., `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)`): much **easier** to **scan**, **maintain**, and **grep**, especially **for LLMs**. Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change. Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
++- **Collapse multiline statements to single-line form** (e.g., `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)`): much **easier** to **scan**, **maintain**, and **grep**, especially **for LLMs**. Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change. Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
++- (Requires AdvCiv-SAS 5865+) **Python 2 bare-print cleanup:** converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup. This keeps Civ4 Python 2.4 compatibility while reducing Ruff/Python 3 parser noise so real issues are easier to see.
+ - **Repo-wide blank-line trim (`.py` only):** compacted vertical whitespace for tighter **LLM/grep scanning** (denser context, fewer tokens). Blank-line removal only (comments untouched, unlike the collapse scripts), so it is a pure formatting **no-op** (Python ignores blank lines). Scoped to `.py` for now: they are **not user-facing** so there is no readability/loss concern, and the trim is trivial to apply safely.
+ - Convert **single quote to double quote** (e.g. `'BONUS_IRON'` to `"BONUS_IRON"`), which allowed to **detect and fix incorrect fields** and later strengthen them with `getInfoTypeOrFail(...)`.
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+
+[PATCH COVERAGE]
+patchFiles=39 embeddedFiles=39 omittedFiles=0 embeddedPatchBytes=115174

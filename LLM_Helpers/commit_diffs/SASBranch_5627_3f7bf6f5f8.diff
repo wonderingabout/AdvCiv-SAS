@@ -1,0 +1,86 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5627
+# Commit: 3f7bf6f5f8a6225a6079bd5c53c9f285e66903c8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 71065af0f953f20b556de5d216ff12d0f6947b1f
+# Title: reduce food/production top bars size; reduce tech bar and increase gp bar in map view
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	Assets/Python/Screens/CvMainInterface.py
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index f7288cc8e..b57f1e364 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -453,6 +453,8 @@ class CvMainInterface:
+ 		if iX is None and szRectName:
+ 			lRect = gRect(szRectName)
+ 			iX = lRect.x() + (lRect.width() - iTotalWidth) / 2
++			# <!-- custom: keep icon+text row within the target bar rect so larger upscaled fonts don't push the icon outside and make it look missing. (GPT-5.3-Codex) -->
++			iX = max(lRect.x(), min(iX, lRect.xRight() - iTotalWidth))
+ 		iTextX = iX + iIconSize + iMargin
+ 		gSetPoint(szTextName, PointLayout(iTextX, iY + iTextYOffset))
+ 		if szIcon.startswith("<img="):
+@@ -1305,12 +1307,13 @@ class CvMainInterface:
+ 				gRect("CityLeftPanel").xRight() + HSPACE(8), VSPACE(2),
+ 				-(gRect("CityRightPanel").width() + HSPACE(8)),
+ 				2 * self.stackBarDefaultHeight())
+-		fResearchBarWidth = fThinResearchBarWidth = 487
++		# <!-- custom: on upscaled 1080p, shift one-line top-bar space from research to GP so GP text fits while research keeps enough room. (GPT-5.3-Codex) -->
++		fResearchBarWidth = fThinResearchBarWidth = 415
+ 		fGGBarWidth = 100
+ 		fThinGGBarWidth = 84
+ 		iSpacing = HSPACE(7)
+ 		iThinSpacing = HSPACE(6)
+-		fThinGPBarWidth = 320
++		fThinGPBarWidth = 392
+ 		fOneLineTotalWidth = float(fResearchBarWidth + fThinGPBarWidth + fThinGGBarWidth +
+ 				2 * iThinSpacing)
+ 		if self.bScaleHUD: # Scale to use up the available space
+@@ -1370,7 +1373,8 @@ class CvMainInterface:
+ 		gSetRectangle("CityScrollPlus", lCityScrollButtons.next())
+ 
+ 	def setCityCenterBarRects(self):
+-		iYieldTextWidth = HLEN(140)
++		# <!-- custom: shorten top city food/production bars so upscaled text does not overflow at 1080p when text is upscaled; keep both bars matched by sharing the same inset. (GPT-5.3-Codex); also since we increased base font size from body to label, this preserves the original distance from food/production bars' outside text to side panels feel -->
++		iYieldTextWidth = HLEN(160)
+ 		gSetRect("PopulationBar", "TopCityPanelLeftAndRight",
+ 				iYieldTextWidth, VSPACE(4),
+ 				-iYieldTextWidth, self.stackBarDefaultHeight())
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8d577f36c..13bf30334 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -283,7 +283,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Common)
+ 
+-- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**)). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
++- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+@@ -341,7 +341,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tabs so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active for exhaustiveness and clarity. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py). See also [KI#115](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left). **Increase base font** size **from body (i.e. 2) to label (i.e. 3)** as it is **more readable**. See [Main interface rework](/README.md#main-interface-rework).
+-- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
++- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=12056

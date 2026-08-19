@@ -1,0 +1,257 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3194
+# Commit: 3fdb21e5509c739163fbc479c7c1ecc7da91b066
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cad7831489046904574aa7af0a3e8c1876eb1d26
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/BitUtil.h
+5	3	CvGameCoreDLL/CvCityAI.cpp
+3	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+4	4	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+3	4	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvUnit.cpp
+5	4	CvGameCoreDLL/CvUnitAI.cpp
+2	7	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+index f2135cd6c..af323f792 100644
+--- a/CvGameCoreDLL/BitUtil.h
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -4,10 +4,11 @@
+ #define BIT_UTIL_H
+ 
+ /*  advc.enum: Helper functions for bitwise operations. Copied from the
+-	"We the People" mod (all code by Nightinggale), which keeps these functions
+-	directly in CvGameCoreDLL.h. */
++	"We the People" mod (WtP) in 2020 (all code by Nightinggale).
++	WtP used to keep these functions in the global namespace (in CvGameCoreDLL.h);
++	the current WtP code wraps them into a "BoolToken" struct. */
+ 
+-namespace BitUtil // advc: Don't want these in the global namespace
++namespace BitUtil
+ {
+ 	template <typename T>
+ 	bool GetBit(const T x, const int y) // advc: renamed from "HasBit"
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 72a5da619..23630d1f8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10842,7 +10842,8 @@ bool CvCityAI::AI_finalImprovementYieldDifference(/* advc: */ CvPlot const& kPlo
+ 		{
+ 			int iYieldDiff = kPlot.calculateImprovementYieldChange(
+ 					eFinalImprovement, eLoopYield, getOwner()) -
+-					kPlot.calculateImprovementYieldChange(eCurrentImprovement, eLoopYield, getOwner());
++					kPlot.calculateImprovementYieldChange(
++					eCurrentImprovement, eLoopYield, getOwner());
+ 			// <advc.908a>
+ 			int extraYieldThresh = kOwner.getExtraYieldThreshold(eLoopYield);
+ 			if(extraYieldThresh > 0 &&
+@@ -10916,7 +10917,8 @@ bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, Improvement
+ 		}
+ 		FOR_EACH_ENUM(Yield)
+ 		{
+-			int iYieldDiff = kPlot.calculateImprovementYieldChange(eImprovement, eLoopYield, getOwner());
++			int iYieldDiff = kPlot.calculateImprovementYieldChange(
++					eImprovement, eLoopYield, getOwner());
+ 			/*	todo: Extra yield for finacial civs
+ 				(see AI_finalImprovementYieldDifference for guidence.) */
+ 			//if (kOwner.getExtraYieldThreshold(i) > 0)
+@@ -11167,7 +11169,7 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ }
+ 
+ 
+-void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildTypes* peBestBuild, // advc: 1st param was pointer
++void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildTypes* peBestBuild,
+ 	int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop,
+ 	int iHappyAdjust, int iHealthAdjust, // advc (note): obsolete
+ 	int iDesiredFoodChange)
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 418f58669..d9ec6ea2f 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2719,13 +2719,12 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 			int iYield = 0;
+ 			if (eImprovement != NO_IMPROVEMENT)
+ 			{
+-				iYield += kMissionPlot.calculateImprovementYieldChange(eImprovement,
+-						eYield, kUnitOwner.getID());
++				iYield += kMissionPlot.calculateImprovementYieldChange(
++						eImprovement, eYield, kUnitOwner.getID());
+ 				if (kMissionPlot.isImproved())
+ 				{
+ 					iYield -= kMissionPlot.calculateImprovementYieldChange(
+-							kMissionPlot.getImprovementType(), eYield,
+-							kUnitOwner.getID());
++							kMissionPlot.getImprovementType(), eYield, kUnitOwner.getID());
+ 				}
+ 			}
+ 			if (kMissionPlot.isFeature())
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4c33c5d13..6292f3f5c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2123,11 +2123,11 @@ void CvGame::normalizeAddFoodBonuses(/* advc.027: */ NormalizationTarget const*
+ 			int const iHighFoodThreshold = 2 * iFoodPerPop;
+ 			int const iNaturalFood = p.calculateBestNatureYield(YIELD_FOOD, kPlayer.getTeam());
+ 			// (+1 just as a shortcut to save time for obvious cases.)
+-			bool bHighFood = iNaturalFood + 1 >= iHighFoodThreshold;
+-			for (ImprovementTypes eImp = (ImprovementTypes)0;
+-				!bHighFood && eImp < GC.getNumImprovementInfos();
+-				eImp=(ImprovementTypes)(eImp+1))
++			bool bHighFood = (iNaturalFood + 1 >= iHighFoodThreshold);
++			FOR_EACH_ENUM2(Improvement, eImp)
+ 			{
++				if (bHighFood)
++					break;
+ 				if (GC.getInfo(eImp).isImprovementBonusTrade(eBonus))
+ 				{
+ 					bHighFood = (iNaturalFood + p.calculateImprovementYieldChange(
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2f0ef7234..d1a6267d4 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -56,7 +56,7 @@ void CvGame::updateColoredPlots()
+ 	CvMap const& kMap = GC.getMap();
+ 	int const iPlots = kMap.numPlots();
+ 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
+-	if(kUI.isShowYields() && !gDLL->GetWorldBuilderMode()) // advc.007
++	if (kUI.isShowYields() && !gDLL->GetWorldBuilderMode()) // advc.007
+ 	{
+ 		// City circles for debugging
+ 		if (isDebugMode())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f6a0275de..e7d9c135e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2249,9 +2249,8 @@ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+ 	/* if (pbWrap != NULL)
+ 		*pbWrap = false;*/
+ 	// <K-Mod>
+-	bool bDummy = false;
+-	// this means we can just use bWrap directly and it will update *pbWrap if need be.
+-	bool& bWrap = (pbWrap != NULL ? *pbWrap : bDummy); // <K-Mod>
++	bool bWrap_local = false;
++	bool& bWrap = (pbWrap != NULL ? *pbWrap : bWrap_local); // <K-Mod>
+ 	bWrap = false;
+ 	// advc.154: Copy the set
+ 	std::set<int> kCycledGroups = GC.getGame().getActivePlayerCycledGroups(); // K-Mod
+@@ -10391,7 +10390,7 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eImprov, YieldTypes
+ /*	K-Mod. I've changed this function from using pUnit to using pGroup.
+ 	I've also rewritten most of the code, to give more natural ordering,
+ 	and to be more robust and readable code. */
+-void CvPlayer::updateGroupCycle(CvSelectionGroup const& kGroup)  // advc: const reference param
++void CvPlayer::updateGroupCycle(CvSelectionGroup const& kGroup)
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 161a01bca..bec714123 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1709,7 +1709,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 	/*  <advc.002e> This needs to be done in some CvUnit function that gets called
+ 		by the EXE after read, after isPromotionReady and late enough for IsSelected
+ 		to work. (E.g. setupGraphical and shouldShowEnemyGlow are too early.) */
+-	if(iAction == 0 && !BUGOption::isEnabled("PLE__ShowPromotionGlow", false))
++	if (iAction == 0 && !BUGOption::isEnabled("PLE__ShowPromotionGlow", false))
+ 	{
+ 		FOR_EACH_UNIT_VAR_IN(pUnit, *getGroup())
+ 		{
+@@ -1722,7 +1722,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 	} // </advc.002e>
+ 
+ 	// <advc.004h> Hack for replacing the founding borders shown around Settlers
+-	if(iAction == 0 && isFound())
++	if (iAction == 0 && isFound())
+ 		updateFoundingBorder(); // </advc.004h>
+ 
+ 	if (GET_PLAYER(getOwner()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS))
+@@ -1740,7 +1740,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 		pTmpPlot = getGroup()->lastMissionPlot();
+ 	CvPlot const& kPlot = (pTmpPlot == NULL ? getPlot() : *pTmpPlot);
+ 	// </advc>
+-	switch(GC.getActionInfo(iAction).getMissionType()) // advc
++	switch (GC.getActionInfo(iAction).getMissionType()) // advc
+ 	{
+ 	case MISSION_FORTIFY:
+ 		if (kPlot.getOwner() == getOwner() && // advc.004
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1b2eab81f..50676a5a5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -98,7 +98,8 @@ bool CvUnitAI::AI_update()
+ 	if (AI_afterAttack())
+ 		return false;
+ 
+-	if (getGroup()->isAutomated() && isHuman())
++	if (getGroup()->isAutomated() &&
++		isHuman()) // K-Mod: for AI Auto Play
+ 	{
+ 		switch (getGroup()->getAutomateType())
+ 		{
+@@ -17360,11 +17361,11 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 			}
+ 		}
+ 		// <advc.121>
+-		if(eBestTempBuild != NO_BUILD && !canBuild(kPlot, eBestTempBuild))
++		if (eBestTempBuild != NO_BUILD && !canBuild(kPlot, eBestTempBuild))
+ 			eBestTempBuild = NO_BUILD; // </advc.121>
+-		if(eBestTempBuild != NO_BUILD)
++		if (eBestTempBuild != NO_BUILD)
+ 		{
+-			if(!kPlot.isVisibleEnemyUnit(this))
++			if (!kPlot.isVisibleEnemyUnit(this))
+ 			{
+ 				bool bValid = true;
+ 				if (GET_PLAYER(getOwner()).isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index c0507ffcb..897c8f475 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -185,7 +185,7 @@ public:
+ 		Derived classes with bARITHMETIC=false can implement setUnsafe
+ 		(or setCompact) instead of lookup.*/
+ 	V get(E eKey) const
+-	{
++	{	// Derived classes can assert that eKey is within its bounds here
+ 		return derived().getUnsafe(eKey);
+ 	}
+ 	void set(E eKey, V vValue)
+@@ -316,12 +316,7 @@ public:
+ 	void writeArray(FDataStreamBase* pStream) const
+ 	{
+ 		FOR_EACH_KEY(eKey)
+-		{	/*	If internal representation is no bigger than ValueType,
+-				then bounds don't need to be checked. */
+-			if (IS_SAFE_INT_CAST(CompactV, ValueType))
+-				writeVal(pStream, (ValueType)derived().getUnsafe(eKey));
+-			else writeVal(pStream, safeCast<ValueType>(derived().getUnsafe(eKey)));
+-		}
++			writeVal(pStream, safeCast<ValueType>(derived().getUnsafe(eKey)));
+ 	}
+ 	template<typename ValueType>
+ 	void readArray(FDataStreamBase* pStream)
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=9486

@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4277
+# Commit: aa6bef8e31b031eaa43b7dcd330af7104daf0e1a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8d14920f7dddfdbc18110ed8238c70b398b0231c
+# Title: AI war-declaring moves anticipate loss of Open Borders
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+21	20	CvGameCoreDLL/CvUnitAI.cpp
+24	9	CvGameCoreDLL/GroupPathFinder.cpp
+2	2	CvGameCoreDLL/GroupPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d32f94f27..836120918 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2652,7 +2652,8 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 
+ 
+ int CvPlot::movementCost(CvUnit const& kUnit, CvPlot const& kFrom,
+-	bool bAssumeRevealed) const // advc.001i
++	bool bAssumeRevealed, // advc.001i
++	bool bIgnoresRoutes) const // advc.001t
+ {
+ 	// <advc.162>
+ 	if(kUnit.isInvasionMove(kFrom, *this))
+@@ -2724,7 +2725,8 @@ int CvPlot::movementCost(CvUnit const& kUnit, CvPlot const& kFrom,
+ 	if (kFrom.isValidRoute(&kUnit, bAssumeRevealed) &&
+ 		isValidRoute(&kUnit, bAssumeRevealed) && // </advc.001i>
+ 		(GET_TEAM(eTeam).isBridgeBuilding() ||
+-		!kFrom.isRiverCrossing(directionXY(kFrom, *this))))
++		!kFrom.isRiverCrossing(directionXY(kFrom, *this))) &&
++		!bIgnoresRoutes) // advc.001t
+ 	{	// <advc.001i>
+ 		RouteTypes eFromRoute = (bAssumeRevealed ? kFrom.getRouteType() :
+ 				kFrom.getRevealedRouteType(eTeam));
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 70fad2a00..4450f389a 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -192,7 +192,8 @@ public:
+ 			TeamTypes eAttacker = NO_TEAM, bool bHelp = false,
+ 			bool bGarrisonStrength = false) const; // advc.500b
+ 	int movementCost(CvUnit const& kUnit, CvPlot const& kFrom,										// Exposed to Python
+-			bool bAssumeRevealed = true) const; // advc.001i
++			bool bAssumeRevealed = true, // advc.001i
++			bool bIgnoreRoutes = false) const; // advc.001t
+ 	// advc.enum: Still exposed to Python, obsolete within the DLL.
+ 	/*int getExtraMovePathCost() const;																// Exposed to Python
+ 	void changeExtraMovePathCost(int iChange);*/													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4f5fe4a5c..eb8d10bee 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1280,7 +1280,9 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags)
+ 	}
+ 
+ 	bool bDOW = false;
+-	GroupPathNode* pNode = getPathFinder().getEndNode(); // TODO: rewrite so that getEndNode isn't used.
++	/*	TODO: rewrite so that getEndNode isn't used.
++		(advc: And how would we do that?) */
++	GroupPathNode* pNode = getPathFinder().getEndNode();
+ 	while (!bDOW && pNode != NULL)
+ 	{
+ 		CvPlot const& kLoopPlot = pNode->getPlot(); // advc
+@@ -13686,37 +13688,36 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags,  // advc: some refactorin
+ 	{	// <advc.163>
+ 		if(!canMove())
+ 			return true; // </advc.163>
+-		/*  regenerate the path, just in case we want to take a different route after the DOW
++		/*  regenerate the path after the DOW
+ 			(but don't bother recalculating the best destination)
+ 			Note. if the best destination happens to be on the border,
+ 			and has a stack of defenders on it, this will make us attack them.
+ 			That's bad. I'll try to fix that in the future. */
+-		if (!generatePath(*pBestPlot, eFlags, false))
++		if (!generatePath(*pBestPlot, eFlags))
+ 			return false;
+-		CvPlot* pEnemyPlot = pEndTurnPlot; // advc.001t
++		CvPlot* pPreDoWEndTurnPlot = pEndTurnPlot; // advc.001t
+ 		pEndTurnPlot = &getPathEndTurnPlot();
+ 		// <advc.139> Don't move through city that is about to be lost
+ 		CvCityAI const* pPlotCity = pEndTurnPlot->AI_getPlotCity();
+-		if(pPlotCity != NULL && pPlotCity->AI_isEvacuating())
++		if (pPlotCity != NULL && pPlotCity->AI_isEvacuating())
+ 			return false; // </advc.139>
+-		// <advc.001t>
+-		if(!isEnemy(*pEndTurnPlot))
+-		{
+-			// This will trigger a few times in most games
+-			/*FAssertMsg(isEnemy(pEndTurnPlot->getTeam()),
+-				"Known issue: AI may change its mind about the path to the target city "
+-				"after declaring war; temporary fix: stick to the original path.");*/
+-			if(isEnemy(*pEnemyPlot))
+-				pEndTurnPlot = pEnemyPlot;
+-			else FAssert(isEnemy(pEnemyPlot->getTeam()));
+-			/*  If the else... assert fails, it's probably b/c the stack has multiple
+-				moves and there is an intermediate tile that requires a DoW. So this
+-				can be fine. Could check this through getPathFinder().GetEndNode()
+-				like it's done in AI_considerPathDOW -- tbd.? */
++		/*	<advc.001t> A DoW on a human and no immediately invading stack will
++			cause confusion, and makes the AI look inept. */
++		if (!isEnemy(*pEndTurnPlot) && pTargetCity->isHuman())
++		{
++			/*	Consider going back to the original path - even if it's not optimal.
++				(If our group has multiple moves, then we should really also
++				check for enemy plots along the path; but that's too rare
++				to worry about.) */
++			if (isEnemy(*pPreDoWEndTurnPlot) && generatePath(*pPreDoWEndTurnPlot, eFlags))
++				pEndTurnPlot = pPreDoWEndTurnPlot;
++			/*	Could be that neither path ends in an enemy plot; especially (only?)
++				when our group has multiple moves. */
+ 		} // </advc.001t>
+ 	}
+ 	pushGroupMoveTo(*pEndTurnPlot,
+-			// I'm going to use MISSIONAI_ASSAULT signal to our spies and other units that we're attacking this city.
++			/*	Using the mission AI type to signal to our spies
++				and other units that we're attacking this city. */
+ 			eFlags, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
+ 	// K-Mod end
+ 	return true;
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index b4c8fc14c..ce8a70056 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -238,7 +238,7 @@ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& k
+ #define PATH_DEFENSE_WEIGHT			(7) // defence bonus
+ // advc.pf: Was 5 in K-Mod, 3 in BtS.
+ #define PATH_TERRITORY_WEIGHT		(9)
+-#define PATH_DOW_WEIGHT				(7) // advc.082
++#define PATH_DOW_WEIGHT				(7) // advc.001t
+ // advc.pf: Was 4 in K-Mod, 2 in BtS.
+ #define PATH_STEP_WEIGHT			(7)
+ #define PATH_STRAIGHT_WEIGHT		(2) // K-Mod: was 1
+@@ -314,6 +314,11 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 				if it doesn't always work correctly. */
+ 		}
+ 	} // </advc.035>
++	TeamTypes const eToPlotTeam = kTo.getTeam();
++	/*	<advc.001t> Don't plan on using enemy routes when declaring war.
++		(Not bothering with CvUnit::isEnemyRoute. AI won't have a DoW group of those. */
++	bool const bIgnoreRoutes = ((eFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
++			GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam)); // </advc.001t>
+ 	int iWorstCost = 0;
+ 	int iWorstMovesLeft = MAX_INT;
+ 	//int iWorstMaxMoves = MAX_INT; // advc: unused
+@@ -322,7 +327,8 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 		FAssert(pGroupUnit->getDomainType() != DOMAIN_AIR);
+ 		int const iMaxMoves = (iCurrMoves > 0 ? iCurrMoves : pGroupUnit->maxMoves());
+ 		int const iMoveCost = kTo.movementCost(*pGroupUnit, kFrom,
+-				false); // advc.001i
++				false, // advc.001i
++				bIgnoreRoutes); // advc.001t
+ 		int const iMovesLeft = std::max(0, iMaxMoves - iMoveCost);
+ 
+ 		iWorstMovesLeft = std::min(iWorstMovesLeft, iMovesLeft);
+@@ -464,16 +470,15 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 		}
+ 	} //
+ 
+-	// <advc.082>
+-	TeamTypes eToPlotTeam = kTo.getTeam();
++	// <advc.001t>
+ 	/*  The AVOID_ENEMY code in the no-moves-left branch below doesn't stop the AI
+ 		from trying to move _through_ enemy territory and thus declaring war
+ 		earlier than necessary */
+ 	if (bAIControl && (eFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
+-		eToPlotTeam != eTeam && GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam))
++		GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam))
+ 	{
+ 		iWorstCost += PATH_DOW_WEIGHT;
+-	} // </advc.082>
++	} // </advc.001t>
+ 	if (iWorstMovesLeft <= 0)
+ 	{
+ 		if (eToPlotTeam != eTeam)
+@@ -661,16 +666,22 @@ bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
+ 				iParentMoves = kGroup.maxMoves();
+ 			}
+ 		}
++		// <advc.001t> Consistent with our cost function above
++		bool const bIgnoreRoutes = ((eFlags & MOVE_DECLARE_WAR) && kTo.isOwned() &&
++				GET_TEAM(kGroup.getHeadTeam()).AI_isSneakAttackReady(kTo.getTeam()));
++		// </advc.001t>
+ 		CLLNode<IDInfo> const* pUnitNode = kGroup.headUnitNode();
+ 		int iMoveCost = kTo.movementCost(*::getUnit(pUnitNode->m_data), kFrom,
+-				false); // advc.001i
++				false, // advc.001i
++				bIgnoreRoutes); // advc.001t
+ 		bool bUniformCost = true;
+ 		for (pUnitNode = kGroup.nextUnitNode(pUnitNode);
+ 			bUniformCost && pUnitNode != NULL; pUnitNode = kGroup.nextUnitNode(pUnitNode))
+ 		{
+ 			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			int iLoopCost = kTo.movementCost(*pLoopUnit, kFrom,
+-					false); // advc.001i
++					false, // advc.001i
++					bIgnoreRoutes); // advc.001t
+ 			if (iLoopCost != iMoveCost)
+ 				bUniformCost = false;
+ 		}
+@@ -706,7 +717,11 @@ bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
+ 				for (size_t i = plotList.size() - 1; i > 0; i--)
+ 				{
+ 					iUnitMoves -= plotList[i-1]->movementCost(*pLoopUnit, *plotList[i],
+-							false); // advc.001i
++							false, // advc.001i
++							// <advc.001t>
++							((eFlags & MOVE_DECLARE_WAR) && plotList[i-1]->isOwned() &&
++							GET_TEAM(kGroup.getHeadTeam()).AI_isSneakAttackReady(
++							plotList[i-1]->getTeam()))); // </advc.001t>
+ 					FAssert(iUnitMoves > 0 || i == 1);
+ 				}
+ 				iUnitMoves = std::max(iUnitMoves, 0);
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.h b/CvGameCoreDLL/GroupPathFinder.h
+index c3ec2d5e0..1f5b3b131 100644
+--- a/CvGameCoreDLL/GroupPathFinder.h
++++ b/CvGameCoreDLL/GroupPathFinder.h
+@@ -156,8 +156,8 @@ public:
+ 		}
+ 		return m_pEndNode->getMoves();
+ 	}
+-	/*	advc (tbd.): Remove this function so that GroupPathNode is fully encapasulated.
+-		Cf. comment in CvUnitAI::AI_considerPathDOW (the only call location). */
++	/*	advc (tbd.): Perhaps this function could be removed. Then GroupPathNode
++		would be fully encapasulated. Cf. comment in CvUnitAI::AI_considerPathDOW. */
+ 	GroupPathNode* getEndNode() const
+ 	{	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
+ 		FAssert(m_pEndNode != NULL);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=10035

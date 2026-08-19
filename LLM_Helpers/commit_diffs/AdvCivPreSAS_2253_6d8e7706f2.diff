@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2253
+# Commit: 6d8e7706f2b0c9349bdf38d9545430f7075e5726
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9c45d3a714e423a9e512f91cd2163f5fe83dd104
+# Title: R&F: Update owner of city dot map at end of chapter
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	CvGameCoreDLL/RiseFall.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index f6170216a..1ecbcbc13 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -478,6 +478,12 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 			g.updateActiveVisibility();
+ 		setUIHidden(!b);
+ 	}
++	if(!b) { // Update dot map owner
++		CyArgsList pyArgs;
++		pyArgs.add(formerHumanCiv);
++		CvEventReporter::getInstance().genericEvent(
++				"SwitchHotSeatPlayer", pyArgs.makeFunctionArgs());
++	}
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 		CvPlayerAI& other = GET_PLAYER((PlayerTypes)i);
+ 		if(!other.isAlive() || other.isMinorCiv())
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=644

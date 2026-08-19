@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1210
+# Commit: 5b43f6d01866579b7e1896f82e4b71c3db479396
+# History segment: K-Mod history
+# Parent used for diff: 68529d82ac3547a86b7ac2551263802ca9d626ba
+# Title: Minor changes. (Comments, asserts, style.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvTeam.cpp
+3	6	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 1b473ae2a..1679764bb 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4697,7 +4697,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
+ 		{
+ 			if (kProject.getVictoryThreshold(iVictory) > 0)
+ 			{
+-				m_abCanLaunch[iVictory] = GC.getGameINLINE().testVictory((VictoryTypes)iVictory, getID());
++				setCanLaunch((VictoryTypes)iVictory, GC.getGameINLINE().testVictory((VictoryTypes)iVictory, getID()));
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a6a206603..6a46d37b3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15314,6 +15314,7 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 		if (pBestPlot != NULL)
+ 		{
+ 			FAssert(!(pTargetCity->at(pEndTurnPlot)) || 0 != (iFlags & MOVE_THROUGH_ENEMY)); // no suicide missions...
++			// K-Mod note: it may be possible for this assert to fail if the city is so weak that ATTACK_STACK_MOVE would choose to just walk through it.
+ 			if (!atPlot(pEndTurnPlot))
+ 			{
+ 				//getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iFlags);
+@@ -15574,6 +15575,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, int iFlags, bool bF
+ 
+ // Returns true if a mission was pushed...
+ // This function has been been writen for K-Mod. (it started getting messy, so I deleted most of the old code)
++// bFollow implies AI_follow conditions - ie. not everyone in the group can move, and this unit might not be the group leader.
+ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMinStack, bool bAllowCities, bool bFollow)
+ {
+ 	PROFILE_FUNC();
+@@ -15640,8 +15642,7 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 		}
+ 		if (bFollow && pBestPlot->getNumVisiblePotentialEnemyDefenders(this) == 0)
+ 		{
+-			FAssert(pBestPlot->getPlotCity() != 0);
+-			// we need to ungroup this unit so that we can move into the city.
++			// we need to ungroup to capture the undefended unit / city. (because not everyone in our group can move)
+ 			joinGroup(0);
+ 			bFollow = false;
+ 		}
+@@ -15652,10 +15653,6 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 
+ 	return false;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_rangeAttack(int iRange)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2746

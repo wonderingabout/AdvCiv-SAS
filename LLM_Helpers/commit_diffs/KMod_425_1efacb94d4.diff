@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 425
+# Commit: 1efacb94d452d65d6d6c9a9e023ad571c3f48365
+# History segment: K-Mod history
+# Parent used for diff: 3a55cd46d09497aff58ed5e97315b68240436dcb
+# Title: Fixed a factor of 10 mistake in the evaluation of great person points for permanent specialists. Adjusted the new values for natural religion spread.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/xml/GlobalDefinesAlt.xml
+3	4	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index de4463fed..5ea8a12b1 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -107,11 +107,11 @@
+ 	</Define>-->
+ 	<Define>
+ 		<DefineName>RELIGION_SPREAD_DIVISOR_BASE</DefineName>
+-		<iDefineIntVal>5</iDefineIntVal>
++		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_SPREAD_DISTANCE_FACTOR</DefineName>
+-		<iDefineIntVal>7</iDefineIntVal>
++		<iDefineIntVal>11</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_POPULATION_WEIGHT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index deb1729ed..9c852dc73 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12654,16 +12654,15 @@ void CvCity::doReligion()
+ 								{
+ 									//iSpread /= std::max(1, (((GC.getDefineINT("RELIGION_SPREAD_DISTANCE_DIVISOR") * plotDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE())) / GC.getMapINLINE().maxPlotDistance()) - 5));
+ 
+-									// K-Mod. The original formula basically divided the spread by the percent of max distance.
++									// K-Mod. The original formula basically divided the spread by the percent of max distance. (RELIGION_SPREAD_DISTANCE_DIVISOR == 100)
+ 									// In my view, this produced too much spread at short distance, and too little at long.
+-									// Note: in original bts, RELIGION_SPREAD_DISTANCE_DIVISOR == 100.
+-									// RELIGION_SPREAD_BASE_DIVISOR and RELIGION_SPREAD_DISTANCE_FACTOR are new values, with defaults is 5 and 7 respectively.
+ 									int iDivisor = std::max(1, iDivisorBase);
+ 
+ 									iDivisor *= 100 + 100 * iDistanceFactor * plotDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE()) / GC.getMapINLINE().maxPlotDistance();
+ 									iDivisor /= 100;
+ 
+-									// now iDivisor is in the range [1, 1+iDistanceFactor] * iDivisorBase. (ie. [5, 40].)
++									// now iDivisor is in the range [1, 1+iDistanceFactor] * iDivisorBase
++									// this is approximately in the range [4, 60], depending on what the xml value are. (the value currently being tested and tuned.)
+ 									iSpread /= iDivisor;
+ 									// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 87c43bc82..6a39730fe 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -768,7 +768,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 			iTempValue /= (2*100*(iHighestRate+3))/(iCityRate+3) - 100;
+ 		} */
+ 		iTempValue *= kPlayer.AI_getGreatPersonWeight((UnitClassTypes)GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass());
+-		iTempValue /= 10;
++		iTempValue /= 100;
+ 		
+ 		iTempValue *= getTotalGreatPeopleRateModifier();
+ 		iTempValue /= 100;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2846

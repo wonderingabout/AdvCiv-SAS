@@ -1,0 +1,117 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2092
+# Commit: 4ba8a6293f71a0ad72f2cf1d1333abfe627da600
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fb30e27dfba2c3339ad871d0e5c766701e7b47ef
+# Title: Fix recently introduced city cycling bug
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	8	CvGameCoreDLL/CvGameInterface.cpp
+10	1	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 0844902af..615129673 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -533,19 +533,23 @@ CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUni
+ 	return NULL;
+ }
+ 
++
+ void CvGame::cycleCities(bool bForward, bool bAdd) const
+ {
++	/*	advc: bForward is now handled a bit differently b/c I've added
++		separate functions for backward traversal (no functional change) */
++
+ 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	CvCity* pSelectCity = NULL;
+ 	if (pHeadSelectedCity != NULL && (pHeadSelectedCity->getTeam() == getActiveTeam() || isDebugMode()))
+ 	{
+ 		int iLoop = pHeadSelectedCity->getIndex();
+ 		iLoop += (bForward ? 1 : -1);
+-
+-		CvCity* pLoopCity = GET_PLAYER(pHeadSelectedCity->getOwner()).nextCity(&iLoop, !bForward);
++		CvPlayer const& kOwner = GET_PLAYER(pHeadSelectedCity->getOwner());
++		CvCity* pLoopCity = (bForward ? kOwner.nextCity(&iLoop) : kOwner.prevCity(&iLoop));
+ 
+ 		if (pLoopCity == NULL)
+-			pLoopCity = GET_PLAYER(pHeadSelectedCity->getOwner()).firstCity(&iLoop, !bForward);
++			pLoopCity = (bForward ? kOwner.firstCity(&iLoop) : kOwner.lastCity(&iLoop));
+ 
+ 		if (pLoopCity != NULL && pLoopCity != pHeadSelectedCity)
+ 			pSelectCity = pLoopCity;
+@@ -553,7 +557,8 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
+ 	else
+ 	{
+ 		int iLoop;
+-		pSelectCity = GET_PLAYER(getActivePlayer()).firstCity(&iLoop, !bForward);
++		pSelectCity = (bForward ? GET_PLAYER(getActivePlayer()).firstCity(&iLoop) :
++				GET_PLAYER(getActivePlayer()).lastCity(&iLoop));
+ 	}
+ 
+ 	if (pSelectCity != NULL)
+@@ -570,14 +575,12 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
+ // advc.003i: const removed so that updateTestEndTurn can be called
+ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
+ {
+-	CvSelectionGroup* pNextSelectionGroup;
++	CvSelectionGroup* pNextSelectionGroup=NULL;
+ 	CvUnit* pCycleUnit = gDLL->UI().getHeadSelectedUnit();
+ 	if (pCycleUnit != NULL)
+ 	{
+ 		if (pCycleUnit->getOwner() != getActivePlayer())
+-		{
+ 			pCycleUnit = NULL;
+-		}
+ 		bool bWrap=false;
+ 		pNextSelectionGroup = GET_PLAYER(getActivePlayer()).cycleSelectionGroups(
+ 				pCycleUnit, bForward, bWorkers, &bWrap);
+@@ -609,7 +612,7 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
+ 		gDLL->UI().selectUnit(pNextSelectionGroup->getHeadUnit(), bClear);
+ 	}
+ 	// K-Mod
+-	else if (pCycleUnit)
++	else if (pCycleUnit != NULL)
+ 	{
+ 		gDLL->UI().clearSelectionList();
+ 		updateTestEndTurn();
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 5fa54ae95..ae93a0dce 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1029,10 +1029,19 @@ public:
+ 		FAssert(!bRev);
+ 		return m_cities.beginIter(pIterIdx); // advc.opt
+ 	}
+-	DllExport inline CvCity* nextCity(int *pIterIdx, bool bRev=false) const											// Exposed to Python
++	DllExport inline CvCity* nextCity(int* pIterIdx, bool bRev=false) const											// Exposed to Python
+ 	{	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
+ 		return m_cities.nextIter(pIterIdx); // advc.opt
+ 	}
++	// <advc.opt> Backwards traversal Moved into separate functions (needed for city cycling)
++	inline CvCity* lastCity(int* pIterIdx) const
++	{
++		return m_cities.endIter(pIterIdx);
++	}
++	inline CvCity* prevCity(int* pIterIdx) const
++	{
++		return m_cities.prevIter(pIterIdx);
++	} // </advc.opt>
+ 	DllExport int getNumCities() const																				// Exposed to Python
+ 	{
+ 		return m_cities.getCount();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3642

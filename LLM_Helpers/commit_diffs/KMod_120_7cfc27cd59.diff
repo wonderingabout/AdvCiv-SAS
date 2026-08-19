@@ -1,0 +1,261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 120
+# Commit: 7cfc27cd597b8510497c4246abf53c7abd5d9292
+# History segment: K-Mod history
+# Parent used for diff: 311639cee047886e54156ba6483001a51c92ad9b
+# Title: My previous fix to stop spies from forcing a relgion switch on Free Relgion civs was wrong. I've fixed it properly now... Made some minor changes to site val...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.cpp
+59	46	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c7ecbdba2..3109b9c7b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -21796,7 +21796,7 @@ bool CvPlayer::canForceReligion(PlayerTypes eTarget, ReligionTypes eReligion) co
+ {
+ 	//return (GET_PLAYER(eTarget).canDoReligion(eReligion) && GET_PLAYER(eTarget).getStateReligion() != eReligion && getStateReligion() == eReligion);
+ 	// K-Mod - You shouldn't be able to force a relgion on an irreligious civ.
+-	return (isStateReligion() && GET_PLAYER(eTarget).canDoReligion(eReligion) && GET_PLAYER(eTarget).getStateReligion() != eReligion && getStateReligion() == eReligion);
++	return (GET_PLAYER(eTarget).isStateReligion() && GET_PLAYER(eTarget).canDoReligion(eReligion) && GET_PLAYER(eTarget).getStateReligion() != eReligion && getStateReligion() == eReligion);
+ }
+ 
+ bool CvPlayer::canSpyDestroyUnit(PlayerTypes eTarget, CvUnit& kUnit) const
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 896910e48..1160879be 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2502,6 +2502,8 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity) const
+ }
+ 
+ // Heavily edited for K-Mod (some changes marked, others not.)
++// note, this function is called for every revealed plot for every player at the start of every turn.
++// try to not make it too slow!
+ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc) const
+ {
+ 	CvCity* pNearestCity;
+@@ -2566,44 +2568,8 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 		}
+ 	}
+ 	
+-	//Explaination of city site adjustment:
+-	//Any plot which is otherwise within the radius of a city site
+-	//is basically treated as if it's within an existing city radius
+-	std::vector<bool> abCitySiteRadius(NUM_CITY_PLOTS, false);
+-		
+-	if (!bStartingLoc)
+-	{
+-		if (!AI_isPlotCitySite(pPlot))
+-		{
+-			for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+-			{
+-				pLoopPlot = plotCity(iX, iY, iI);
+-				if (pLoopPlot != NULL)
+-				{
+-					for (int iJ = 0; iJ < AI_getNumCitySites(); iJ++)
+-					{
+-						CvPlot* pCitySitePlot = AI_getCitySite(iJ);
+-						if (pCitySitePlot != pPlot)
+-						{
+-							if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pCitySitePlot->getX_INLINE(), pCitySitePlot->getY_INLINE()) <= CITY_PLOTS_RADIUS)
+-							{
+-								//Plot is inside the radius of a city site
+-								abCitySiteRadius[iI] = true;
+-								break;
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-	
+-	std::vector<int> paiBonusCount;
+-
+-    for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+-    {
+-        paiBonusCount.push_back(0);
+-    }
++	// K-Mod. city site radius check used to be here. I've moved it down a bit.
++	// ... and also the bonus vector initializtion
+ 
+ 	if (iMinRivalRange != -1)
+ 	{
+@@ -2631,7 +2597,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 			return 0;
+ 		}
+ 
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			pLoopPlot = plotCity(iX, iY, iI);
+ 
+@@ -2666,6 +2632,46 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 		return 0;
+ 	}
+ 
++	// (K-Mod this site radius check code was moved from higher up)
++	//Explaination of city site adjustment:
++	//Any plot which is otherwise within the radius of a city site
++	//is basically treated as if it's within an existing city radius
++	std::vector<bool> abCitySiteRadius(NUM_CITY_PLOTS, false);
++		
++	if (!bStartingLoc)
++	{
++		if (!AI_isPlotCitySite(pPlot))
++		{
++			for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
++			{
++				pLoopPlot = plotCity(iX, iY, iI);
++				if (pLoopPlot != NULL)
++				{
++					for (int iJ = 0; iJ < AI_getNumCitySites(); iJ++)
++					{
++						CvPlot* pCitySitePlot = AI_getCitySite(iJ);
++						if (pCitySitePlot != pPlot)
++						{
++							if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pCitySitePlot->getX_INLINE(), pCitySitePlot->getY_INLINE()) <= CITY_PLOTS_RADIUS)
++							{
++								//Plot is inside the radius of a city site
++								abCitySiteRadius[iI] = true;
++								break;
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++	
++	std::vector<int> paiBonusCount;
++
++    for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++    {
++        paiBonusCount.push_back(0);
++    }
++
+ 	iBadTile = 0;
+ 
+ 	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+@@ -2924,7 +2930,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 				iTeammateTakenTiles++;
+ 			}
+ 		}
+-		else
++		else // K-Mod Note: it kind of sucks that no value is counted taken tiles. Tile sharing / stealing should be allowed.
+ 		{
+ 			iTempValue = 0;
+ 
+@@ -3116,7 +3122,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 			{
+ 				//iTempValue += 10;
+ 				// K-Mod
+-				iTempValue += (bFinancial ? 20 : 5);
++				iTempValue += (bFinancial ? 25 : 5);
+ 				iTempValue += (pPlot->isRiver() ? 15 : 0);
+ 			}
+ 			// K-Mod
+@@ -3257,10 +3263,11 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 		return 0;
+ 	}
+ 
++	/* original bts code (K-Mod: just go look at what "iTeammateTakenTiles" actually is...)
+ 	if (iTeammateTakenTiles > 1)
+ 	{
+ 		return 0;
+-	}
++	}*/
+ 
+ 	iValue += (iHealth / 5);
+ 
+@@ -3559,7 +3566,12 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 
+ 	if (pArea->getNumCities() == 0)
+ 	{
+-		iValue *= 2;
++		//iValue *= 2;
++		// K-Mod: presumably this is meant to be a bonus for being the first on a new continent.
++		// But I don't want it to be a bonus for settling on tiny islands, so I'm changing it.
++		iValue *= range(100 * (pArea->getNumTiles() - 15) / 15, 100, 200);
++		iValue /= 100;
++		// K-Mod end
+ 	}
+ 	else
+ 	{
+@@ -12804,7 +12816,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 			iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));*/
+ 			// K-Mod
+ 			int iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pPlot->getPlotCity());
+-			iValue += (GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble() ? 4 : 2) * iGoldStolen;
++			iValue += (GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble() ? 6 : 4) * iGoldStolen;
+ 		}
+ 	}
+ 
+@@ -12937,7 +12949,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		//if (iCost < GET_TEAM(getTeam()).getResearchLeft((TechTypes)iData) * 4 / 3)
+ 		if (canStealTech(eTargetPlayer, (TechTypes)iData)) // K-Mod!
+ 		{
+-			int iTempValue = GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam());
++			//int iTempValue = GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam());
++			int iTempValue = 2 * GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam()); // K-Mod
+ 
+ 			if( GET_TEAM(getTeam()).getBestKnownTechScorePercent() < 85 )
+ 			{
+@@ -12968,7 +12981,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 	// K-Mod
+ 	if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)
+ 		&& iValue < 50*getCurrentEra()*getCurrentEra() // 50, 200, 450, 800, 1250, ...
+-		&& iValue < 2*getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iData))
++		&& iValue < 3*getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iData))
+ 	{
+ 		return 0;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0825775bb..62c39a9ee 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5586,7 +5586,7 @@ void CvUnitAI::AI_spyMove()
+ 	{
+ 		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) && bAnyTargets)
+ 		{
+-			if (AI_cityOffenseSpy(10))
++			if (AI_cityOffenseSpy(20))
+ 			{
+ 				return;
+ 			}
+@@ -5657,7 +5657,7 @@ void CvUnitAI::AI_spyMove()
+ 		}
+ 		else if (bAnyTargets)
+ 		{
+-			if (AI_cityOffenseSpy(10))
++			if (AI_cityOffenseSpy(20))
+ 			{
+ 				return;
+ 			}
+@@ -22689,7 +22689,7 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 	}
+ 	if (gUnitLogLevel > 2 && eBestMission != NO_ESPIONAGEMISSION && kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+ 	{
+-		logBBAI("      %S chooses %S as their best Big Espionage mission (value: %d).", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getEspionageMissionInfo(eBestMission).getText(), iBestValue);
++		logBBAI("      %S chooses %S as their best Big Espionage mission (value: %d, cost: %d).", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getEspionageMissionInfo(eBestMission).getText(), iBestValue, kPlayer.getEspionageMissionCost(eBestMission, eTargetPlayer, pPlot, iData, this));
+ 	}
+ 
+ 	return eBestMission;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8865

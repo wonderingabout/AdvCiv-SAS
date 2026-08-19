@@ -1,0 +1,1360 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1816
+# Commit: 6029d4205ce0e3c6206d816ee2d8b9a6c46442d5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 399b0a35af053dccd6d20771558944eac34fbad4
+# Title: AgentIterator class for looping over players and teams
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+172	0	CvGameCoreDLL/AgentGenerator.cpp
+93	0	CvGameCoreDLL/AgentGenerator.h
+84	0	CvGameCoreDLL/AgentIterator.h
+45	0	CvGameCoreDLL/AgentPredicates.h
+489	0	CvGameCoreDLL/CvAgents.cpp
+204	0	CvGameCoreDLL/CvAgents.h
+4	0	CvGameCoreDLL/CvGame.cpp
+3	0	CvGameCoreDLL/CvGlobals.cpp
+3	0	CvGameCoreDLL/CvGlobals.h
+6	0	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+6	1	CvGameCoreDLL/CvTeam.cpp
+6	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/AgentGenerator.cpp
+ create mode 100644 CvGameCoreDLL/AgentGenerator.h
+ create mode 100644 CvGameCoreDLL/AgentIterator.h
+ create mode 100644 CvGameCoreDLL/AgentPredicates.h
+ create mode 100644 CvGameCoreDLL/CvAgents.cpp
+ create mode 100644 CvGameCoreDLL/CvAgents.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentGenerator.cpp b/CvGameCoreDLL/AgentGenerator.cpp
+new file mode 100644
+index 000000000..968f72c83
+--- /dev/null
++++ b/CvGameCoreDLL/AgentGenerator.cpp
+@@ -0,0 +1,172 @@
++// advc.agent: New file; see comment in header file.
++
++#include "CvGameCoreDLL.h"
++#include "AgentGenerator.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++
++
++namespace
++{
++	template<class AgentType>
++	AgentType& getBarbarianAgent()
++	{
++		FAssertMsg(false, "No generic implementation");
++		return GET_PLAYER(BARBARIAN_PLAYER);
++	}
++	template<>
++	CvPlayerAI& getBarbarianAgent<CvPlayerAI>()
++	{
++		return GET_PLAYER(BARBARIAN_PLAYER);
++	}
++	template<>
++	CvTeamAI& getBarbarianAgent<CvTeamAI>()
++	{
++		return GET_TEAM(BARBARIAN_TEAM);
++	}
++	TeamTypes getTeam(CvPlayerAI const& kPlayer)
++	{
++		return kPlayer.getTeam();
++	}
++	TeamTypes getTeam(CvTeamAI const& kTeam)
++	{
++		return kTeam.getID();
++	}
++}
++
++template<class AgentType>
++void FullyCachedAgentGenerator<AgentType>::generateNext()
++{
++	if (m_iPos < (int)m_pCache->size())
++		m_pNext = (*m_pCache)[m_iPos];
++	else m_pNext = NULL;
++	m_iPos++;
++}
++
++template<class AgentType>
++void BarbarianAppendingAgentGenerator<AgentType>::generateNext()
++{
++	if (m_iPos == (int)m_pCache->size())
++		m_pNext = &getBarbarianAgent<AgentType>();
++	else if (m_iPos < (int)m_pCache->size())
++		m_pNext = (*m_pCache)[m_iPos];
++	else m_pNext = NULL;
++	m_iPos++;
++}
++
++template<class AgentType>
++void FilteringAgentGenerator<AgentType>::
++init(std::vector<AgentType*> const* pCachedSeq, bool bInclBarbarians,
++	AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++	TeamTypes eTeam, PlayerTypes ePlayer)
++{
++	m_bIncludeBarbarians = bInclBarbarians;
++	m_eStatus = eStatus;
++	m_eRelation = eRelation;
++	m_eTeam = eTeam;
++	m_ePlayer = ePlayer;
++	if (m_eTeam == NO_TEAM && m_ePlayer != NO_PLAYER)
++		m_eTeam = GET_PLAYER(m_ePlayer).getTeam();
++	AgentGenerator<AgentType>::init(pCachedSeq);
++}
++
++template<class AgentType>
++void FilteringAgentGenerator<AgentType>::generateNext()
++{
++	if (!m_bIncludeBarbarians)
++	{
++		if (m_iPos < (int)m_pCache->size())
++			m_pNext = (*m_pCache)[m_iPos];
++		else m_pNext = NULL;
++	}
++	else
++	{
++		if (m_iPos == (int)m_pCache->size())
++			m_pNext = &getBarbarianAgent<AgentType>();
++		else if (m_iPos < (int)m_pCache->size())
++			m_pNext = (*m_pCache)[m_iPos];
++		else m_pNext = NULL;
++	}
++	if (m_pNext != NULL && !passFilters(*m_pNext))
++		m_pNext = NULL;
++	m_iPos++;
++}
++
++
++template<class AgentType>
++bool FilteringAgentGenerator<AgentType>::passFilters(AgentType const& kAgent) const
++{
++	switch(m_eStatus)
++	{
++	case ANY_AGENT_STATUS:
++	case NON_BARBARIAN: // Handled by m_bInclBarbarians
++		break;
++	case EVER_ALIVE:
++		if (!kAgent.isEverAlive())
++			return false;
++		break;
++	case ALIVE:
++		if (!kAgent.isAlive())
++			return false;
++		break;
++	case MAJOR_CIV:
++		if (kAgent.isMinorCiv() || !kAgent.isAlive())
++			return false;
++		break;
++	case VASSAL:
++		if (!kAgent.isAVassal() || !kAgent.isAlive())
++			return false;
++		break;
++	case FREE_MAJOR:
++		if (kAgent.isAVassal() || !kAgent.isAlive() || kAgent.isMinorCiv())
++			return false;
++		break;
++	case FREE_MAJOR_AI:
++		if (kAgent.isAVassal() || kAgent.isHuman() ||
++				!kAgent.isAlive() || kAgent.isMinorCiv())
++			return false;
++		break;
++	case HUMAN:
++		if (!kAgent.isHuman() || !kAgent.isAlive())
++			return false;
++		break;
++	default:
++		FAssertMsg(false, "Unknown agent status type");
++		return false;
++	}
++	if (m_eTeam == NO_TEAM)
++		return true;
++	switch(m_eRelation)
++	{
++	case ANY_AGENT_RELATION:
++		return true;
++	case SAME_TEAM_AS:
++		return getTeam(kAgent) == m_eTeam;
++	case NOT_SAME_TEAM_AS:
++		return getTeam(kAgent) != m_eTeam;
++	case VASSAL_OF:
++		return GET_TEAM(getTeam(kAgent)).isVassal(m_eTeam);
++	case NOT_A_RIVAL_OF:
++		return (getTeam(kAgent) == m_eTeam || kAgent.getMasterTeam() == GET_TEAM(m_eTeam).getMasterTeam());
++	case POTENTIAL_ENEMY_OF:
++		return (getTeam(kAgent) != m_eTeam && kAgent.getMasterTeam() != GET_TEAM(m_eTeam).getMasterTeam());
++	case KNOWN_TO:
++		return GET_TEAM(getTeam(kAgent)).isHasMet(m_eTeam);
++	case KNOWN_POTENTIAL_ENEMY_OF:
++		return (GET_TEAM(getTeam(kAgent)).isHasMet(m_eTeam) && getTeam(kAgent) != m_eTeam &&
++			kAgent.getMasterTeam() != GET_TEAM(m_eTeam).getMasterTeam());
++	case ENEMY_OF:
++			return GET_TEAM(getTeam(kAgent)).isAtWar(m_eTeam);
++	default:
++		FAssertMsg(false, "Unknown agent relation type");
++		return false;
++	}
++}
++
++// All possible instantiations; needed by the linker.
++template class FullyCachedAgentGenerator<CvPlayerAI>;
++template class BarbarianAppendingAgentGenerator<CvPlayerAI>;
++template class FilteringAgentGenerator<CvPlayerAI>;
++template class FullyCachedAgentGenerator<CvTeamAI>;
++template class BarbarianAppendingAgentGenerator<CvTeamAI>;
++template class FilteringAgentGenerator<CvTeamAI>;
+
+diff --git a/CvGameCoreDLL/AgentGenerator.h b/CvGameCoreDLL/AgentGenerator.h
+new file mode 100644
+index 000000000..cb03fb2a4
+--- /dev/null
++++ b/CvGameCoreDLL/AgentGenerator.h
+@@ -0,0 +1,93 @@
++#pragma once
++
++#ifndef AGENT_GENERATOR_H
++#define AGENT_GENERATOR_H
++
++/*  advc.agent: New file. Hierarchy of generators of
++	agent (CvTeam, CvPlayer) sequences. So that AgentIterator can obtain
++	the most efficient generator for the given predicates. The generators
++	are accessed through CvAgents::getAgentGenerator. */
++
++#include "AgentPredicates.h"
++
++
++template<class AgentType>
++class AgentGenerator
++{
++public:
++	/*  Reusable object.
++		Derived classes that call this function need to carry out their own initialization
++		first so that generateNext is called on a fully initialized object. */
++	virtual void init(std::vector<AgentType*> const* pCachedSeq)
++	{
++		m_iPos = 0;
++		m_pNext = NULL;
++		m_pCache = pCachedSeq;
++
++		generateNext();
++	}
++
++	__forceinline bool hasNext() const
++	{
++		return (m_pNext != NULL);
++	}
++
++	__forceinline AgentType& get() const
++	{
++		return *m_pNext;
++	}
++
++	virtual void generateNext() = 0;
++
++protected:
++	std::vector<AgentType*> const* m_pCache;
++	int m_iPos;
++	AgentType* m_pNext;
++};
++
++/*  The constructors are only to be called from CvAgent::GeneratorPool
++	(friend declarations to that effect are difficult to write) */
++
++template<class AgentType>
++class FullyCachedAgentGenerator : public AgentGenerator<AgentType>
++{
++public:
++	void generateNext();
++	FullyCachedAgentGenerator() {}
++};
++
++
++template<class AgentType>
++class BarbarianAppendingAgentGenerator : public AgentGenerator<AgentType>
++{
++public:
++	void generateNext();
++	BarbarianAppendingAgentGenerator() {}
++};
++
++
++template<class AgentType>
++class FilteringAgentGenerator : public AgentGenerator<AgentType>
++{
++public:
++	void init(std::vector<AgentType*> const* pCachedSeq, bool bInclBarbarians,
++		AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++		TeamTypes eTeam, PlayerTypes ePlayer);
++	void generateNext();
++	FilteringAgentGenerator() {}
++
++protected:
++	std::vector<AgentType*> const* m_pCache;
++	int m_iPos;
++	AgentType* m_pNext;
++	bool m_bIncludeBarbarians;
++
++	bool passFilters(AgentType const& kAgent) const;
++	// The remaining private data should only be read in passFilters
++	AgentStatusPredicate m_eStatus;
++	AgentRelationPredicate m_eRelation;
++	TeamTypes m_eTeam;
++	PlayerTypes m_ePlayer;
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+new file mode 100644
+index 000000000..85150ecb8
+--- /dev/null
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -0,0 +1,84 @@
++#pragma once
++
++#ifndef AGENT_ITERATOR_H
++#define AGENT_ITERATOR_H
++
++// advc.agent: New file. Iterators over sequences of CvTeam or CvPlayer objects.
++
++#include "CvAgents.h"
++
++class CvTeam;
++class CvPlayer;
++
++template<class AgentType>
++class AgentIterator
++{
++public:
++	AgentIterator(AgentStatusPredicate eStatus = ALIVE)
++	{	
++		m_pGenerator = m_pAgents->getAgentGenerator<AgentType>(eStatus, ANY_AGENT_RELATION, NO_TEAM);
++	}
++	AgentIterator(AgentStatusPredicate eStatus, TeamTypes eTeam)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(eStatus, SAME_TEAM_AS, eTeam);
++	}
++	AgentIterator(TeamTypes eTeam)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(ALIVE, SAME_TEAM_AS, eTeam);
++	}
++	AgentIterator(AgentRelationPredicate eRelation, TeamTypes eTeam)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(ALIVE, eRelation, eTeam);
++	}
++	AgentIterator(AgentRelationPredicate eRelation, CvTeam const& kTeam)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(ALIVE, eRelation, kTeam.getID());
++	}
++	AgentIterator(AgentRelationPredicate eRelation, PlayerTypes ePlayer)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(ALIVE, eRelation, NO_TEAM, ePlayer);
++	}
++	AgentIterator(AgentRelationPredicate eRelation, CvPlayer const& kPlayer)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(ALIVE, eRelation, NO_TEAM, kPlayer.getID());
++	}
++	AgentIterator(AgentStatusPredicate eStatus, AgentRelationPredicate eRelation, CvTeam const& kTeam)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(eStatus, eRelation, kTeam.getID());
++	}
++	AgentIterator(AgentStatusPredicate eStatus, AgentRelationPredicate eRelation, PlayerTypes ePlayer)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(eStatus, eRelation, NO_TEAN, ePlayer);
++	}
++	AgentIterator(AgentStatusPredicate eStatus, AgentRelationPredicate eRelation, CvPlayer const& kPlayer)
++	{
++		m_pGenerator = m_pAgents->getAgentGenerator(eStatus, eRelation, NO_TEAN, kPlayer.getID());
++	}
++
++	__forceinline bool hasNext() const
++	{
++		return m_pGenerator->hasNext();
++	}
++	__forceinline AgentIterator& operator++()
++	{
++		m_pGenerator->generateNext();
++		return *this;
++	}
++	__forceinline AgentType& operator*()
++	{
++		return m_pGenerator->get();
++	}
++
++private:
++	AgentGenerator<AgentType>* m_pGenerator;
++	friend CvAgents::CvAgents(int,int);
++	static CvAgents* m_pAgents;
++};
++
++template<class AgentType>
++CvAgents* AgentIterator<AgentType>::m_pAgents = NULL;
++
++typedef AgentIterator<CvPlayerAI> PlayerIter;
++typedef AgentIterator<CvTeamAI> TeamIter;
++
++#endif
+
+diff --git a/CvGameCoreDLL/AgentPredicates.h b/CvGameCoreDLL/AgentPredicates.h
+new file mode 100644
+index 000000000..ca435a2b7
+--- /dev/null
++++ b/CvGameCoreDLL/AgentPredicates.h
+@@ -0,0 +1,45 @@
++#pragma once
++
++#ifndef AGENT_PREDICATES_H
++#define AGENT_PREDICATES_H
++
++/*  advc.agent: New file. Predicates for specifying sets of agents
++	(CvTeam or CvPlayer objects). */
++
++/*  Any predicates that are added to this enum need to satisfy the assumptions
++	stated in comments. Otherwise, client code may break; e.g. code that relies on
++	eStatus >= ALIVE implying that dead agents are excluded. */
++enum AgentStatusPredicate
++{
++	ANY_AGENT_STATUS,
++	EVER_ALIVE,
++	//NEVER_ALIVE, // Iterating over _only_ dead agents should rarely be needed
++	//DEFEATED,
++	ALIVE,
++	// The rest are assumed to imply ALIVE
++	NON_BARBARIAN, // The above are assumed to include Barbarians
++	//MINOR_CIV,
++	// The rest are assumed to exclude minor civs and Barbarians
++	MAJOR_CIV, 
++	VASSAL,
++	FREE_MAJOR,
++	FREE_MAJOR_AI,
++	HUMAN,
++}; // Default: ALIVE
++
++enum AgentRelationPredicate // Relative to some given second agent
++{
++	ANY_AGENT_RELATION,
++	SAME_TEAM_AS,
++	NOT_SAME_TEAM_AS,
++	VASSAL_OF,
++	NOT_A_RIVAL_OF, // Same team or some vassal/ master relation
++	POTENTIAL_ENEMY_OF, // incl. current war enemies
++	//OPEN_BORDERS_WITH, // Or rather CAN_ENTER_BORDERS_OF
++	// The rest include minor civs and Barbarians unless ruled out AgentStatusPredicate
++	KNOWN_TO,
++	KNOWN_POTENTIAL_ENEMY_OF,
++	ENEMY_OF,
++}; // Default: SAME_TEAM_AS when a second agent is given; otherwise ANY_AGENT_RELATION.
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvAgents.cpp b/CvGameCoreDLL/CvAgents.cpp
+new file mode 100644
+index 000000000..f72bce607
+--- /dev/null
++++ b/CvGameCoreDLL/CvAgents.cpp
+@@ -0,0 +1,489 @@
++// advc.agent: New file; see comment in header file.
++
++#include "CvGameCoreDLL.h"
++#include "CvAgents.h"
++#include "AgentIterator.h"
++#include "CvAI.h"
++
++CvAgents::CvAgents(int iMaxPlayers, int iMaxTeams)
++{
++	// Tbd.: Instead create the CvPlayerAI and CvTeamAI objects here
++	for (int i = 0; i < iMaxTeams; i++)
++	{
++		CvTeamAI* pTeam = &GET_TEAM((TeamTypes)i);
++		m_allTeams.push_back(pTeam);
++	}
++	for (int i = 0; i < iMaxPlayers; i++)
++	{
++		CvPlayerAI* pPlayer = &GET_PLAYER((PlayerTypes)i);
++		m_allPlayers.push_back(pPlayer);
++	}
++	m_playersPerTeam.resize(iMaxPlayers);
++	m_playersAlivePerTeam.resize(iMaxPlayers);
++	m_vassalTeamsAlivePerTeam.resize(iMaxPlayers);
++	m_vassalPlayersAlivePerTeam.resize(iMaxPlayers);
++	PlayerIter::m_pAgents = this;
++	TeamIter::m_pAgents = this;
++}
++
++// <advc.tmp>
++//#define AGENT_ITERATOR_TEST
++#ifdef AGENT_ITERATOR_TEST
++#include "TSCProfiler.h"
++namespace
++{
++	int speedTest()
++	{
++		int r = 0;
++		{
++			TSC_PROFILE("MAJOR_CIV TeamIter");
++			for (TeamIter it(MAJOR_CIV); it.hasNext(); ++it)
++			{
++				CvTeam& kTeam = *it;
++				r += kTeam.getID();
++			}
++		}
++		{
++			TSC_PROFILE("MAJOR_CIV MAX_CIV_TEAMS");
++			for (int i = 0; i < MAX_CIV_TEAMS; i++)
++			{
++				CvTeam& kTeam = GET_TEAM((TeamTypes)i);
++				if (!kTeam.isAlive() || kTeam.isMinorCiv())
++					continue;
++				r += kTeam.getID();
++			}
++		}
++		{
++			TSC_PROFILE("MAJOR_CIV vector<CvTeamAI*>");
++			CvAgents const& kAgents = GC.getAgents();
++			for (int i = 0; i < kAgents.majorTeams(); i++)
++			{
++				CvTeam& kTeam = kAgents.majorTeam(i);
++				r += kTeam.getID();
++			}
++		}
++		{
++			TSC_PROFILE("FREE_MAJOR TeamIter");
++			for (TeamIter it(FREE_MAJOR); it.hasNext(); ++it)
++			{
++				CvTeam& kTeam = *it;
++				r += kTeam.getID();
++			}
++		}
++		{
++			TSC_PROFILE("FREE_MAJOR MAX_CIV_TEAMS");
++			for (int i = 0; i < MAX_CIV_TEAMS; i++)
++			{
++				CvTeam& kTeam = GET_TEAM((TeamTypes)i);
++				if (!kTeam.isAlive() || kTeam.isMinorCiv() || kTeam.isAVassal())
++					continue;
++				r += kTeam.getID();
++			}
++		}
++		{
++			TSC_PROFILE("FREE_MAJOR vector<CvTeamAI*>");
++			CvAgents const& kAgents = GC.getAgents();
++			for (int i = 0; i < kAgents.majorTeams(); i++)
++			{
++				CvTeam& kTeam = kAgents.majorTeam(i);
++				if (kTeam.isAVassal())
++					continue;
++				r += kTeam.getID();
++			}
++		}
++		return r;
++	}
++}
++#endif
++// </advc.tmp>
++
++void CvAgents::gameStart(bool bFromSaveGame)
++{
++	m_bNoBarbarians = GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS);
++	updateAllCachedSequences();
++	// <advc.tmp>
++	#ifdef AGENT_ITERATOR_TEST
++	if (bFromSaveGame)
++	{
++		int iNonsense = 0;
++		for (int i = 0; i < 100; i++)
++			iNonsense += speedTest();
++		if (iNonsense == -1) // Just to make sure that the whole thing doesn't somehow get optimized away
++			updateAllCachedSequences();
++	}
++	#endif
++	// </advc.tmp>
++}
++
++void CvAgents::updateAllCachedSequences()
++{
++	m_civPlayersEverAlive.clear();
++	m_civPlayersAlive.clear();
++	m_majorPlayersAlive.clear();
++	m_civTeamsEverAlive.clear();
++	m_civTeamsAlive.clear();
++	m_majorTeamsAlive.clear();
++	for (size_t i = 0; i < m_allTeams.size(); i++)
++	{
++		m_playersPerTeam[i].clear();
++		m_playersAlivePerTeam[i].clear();
++		m_vassalPlayersAlivePerTeam[i].clear();
++		m_vassalTeamsAlivePerTeam[i].clear();
++	}
++
++	for (size_t i = 0; i < m_allTeams.size(); i++)
++	{
++		CvTeamAI* pTeam = m_allTeams[i];
++		if (pTeam->isBarbarian() || !pTeam->isEverAlive())
++			continue;
++		m_civTeamsEverAlive.push_back(pTeam);
++		if (!pTeam->isAlive())
++			continue;
++		m_civTeamsAlive.push_back(pTeam);
++		if (!pTeam->isMinorCiv())
++			m_majorTeamsAlive.push_back(pTeam);
++	}
++	for (size_t i = 0; i < m_allPlayers.size(); i++)
++	{
++		CvPlayerAI* pPlayer = m_allPlayers[i];
++		TeamTypes eTeam = pPlayer->getTeam();
++		m_playersPerTeam[eTeam].push_back(pPlayer);
++		if (!pPlayer->isEverAlive())
++			continue;
++		if (!pPlayer->isBarbarian())
++			m_civPlayersEverAlive.push_back(pPlayer);
++		if (!pPlayer->isAlive())
++			continue;
++		m_playersAlivePerTeam[eTeam].push_back(pPlayer);
++		if(!pPlayer->isMinorCiv())
++			m_majorPlayersAlive.push_back(pPlayer);
++	}
++}
++
++namespace
++{
++	template<class AgentType>
++	void eraseFromVector(std::vector<AgentType*>& v, int iAgentID, bool bAssertSuccess = true)
++	{
++		for (std::vector<AgentType*>::iterator it = v.begin(); it != v.end(); ++it)
++		{
++			if ((*it)->getID() == iAgentID)
++			{
++				v.erase(it);
++				return;
++			}
++		}
++		FAssert(!bAssertSuccess);
++	}
++
++	template<class AgentType>
++	void insertIntoVector(std::vector<AgentType*>& v, AgentType* pAgent, bool bAssertSuccess = true)
++	{
++		int iAgentID = pAgent->getID();
++		std::vector<AgentType*>::iterator pos;
++		for (pos = v.begin(); pos != v.end(); ++pos)
++		{
++			int const iPosID = (*pos)->getID();
++			FAssert (!bAssertSuccess || iPosID != iAgentID);
++			if (iPosID > iAgentID)
++				break;
++		}
++		v.insert(pos, pAgent);
++	}
++}
++
++
++void CvAgents::playerDefeated(PlayerTypes eDeadPlayer)
++{
++	eraseFromVector(m_civPlayersAlive, eDeadPlayer);
++	if (!GET_PLAYER(eDeadPlayer).isMinorCiv())
++		eraseFromVector(m_majorPlayersAlive, eDeadPlayer);
++	TeamTypes eTeam = TEAMID(eDeadPlayer);
++	eraseFromVector(m_playersAlivePerTeam[eTeam], eDeadPlayer);
++	TeamTypes eMasterTeam = GET_TEAM(eTeam).getMasterTeam();
++	if (eMasterTeam != eTeam)
++		eraseFromVector(m_vassalPlayersAlivePerTeam[eTeam], eDeadPlayer);
++	if (!GET_TEAM(eTeam).isAlive())
++	{
++		eraseFromVector(m_civTeamsAlive, eTeam);
++		if (GET_TEAM(eTeam).isMinorCiv())
++			eraseFromVector(m_majorTeamsAlive, eTeam, false);
++		if (eMasterTeam != eTeam)
++			eraseFromVector(m_vassalTeamsAlivePerTeam[eMasterTeam], eTeam, false);
++	}
++}
++
++
++void CvAgents::colonyCreated(PlayerTypes eNewPlayer)
++{
++	CvPlayerAI* pPlayer = &GET_PLAYER(eNewPlayer);
++	CvTeamAI* pTeam = &GET_TEAM(eNewPlayer);
++	insertIntoVector(m_civTeamsEverAlive, pTeam);
++	insertIntoVector(m_civTeamsAlive, pTeam);
++	insertIntoVector(m_majorTeamsAlive, pTeam);
++	insertIntoVector(m_civPlayersEverAlive, pPlayer);
++	insertIntoVector(m_civPlayersAlive, pPlayer);
++	insertIntoVector(m_majorPlayersAlive, pPlayer);
++	PlayerVector const& members = m_playersPerTeam[pTeam->getID()];
++	FAssert(std::find(members.begin(), members.end(), pPlayer) != members.end());
++	PlayerVector& membersAlive = m_playersAlivePerTeam[pTeam->getID()];
++	insertIntoVector(membersAlive, pPlayer);
++}
++
++
++void CvAgents::updateVassal(TeamTypes eVassal, TeamTypes eMaster, bool bVassal)
++{
++	FASSERT_BOUNDS(0, (int)m_allTeams.size(), eMaster, "CvAgents::updateVassal");
++	TeamVector& vassalTeams = m_vassalTeamsAlivePerTeam[eMaster];
++	PlayerVector& vassalPlayers = m_vassalPlayersAlivePerTeam[eMaster];
++	for (size_t i = 0; i < m_playersPerTeam[eVassal].size(); i++)
++	{
++		CvPlayerAI* pMember = m_playersPerTeam[eVassal][i];
++		if (bVassal)
++			insertIntoVector(vassalPlayers, pMember);
++		else eraseFromVector(vassalPlayers, pMember->getID());
++	}
++	CvTeamAI* pVassalTeam = &GET_TEAM(eVassal);
++	if (bVassal)
++		insertIntoVector(vassalTeams, pVassalTeam);
++	else eraseFromVector(vassalTeams, pVassalTeam->getID());
++}
++
++
++template<class AgentType> AgentGenerator<AgentType>* CvAgents
++::getAgentGenerator(AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++	TeamTypes eTeam, PlayerTypes ePlayer)
++{
++	std::vector<AgentType*> const* pCachedSeq = NULL;
++	bool bIncludeBarbarians = false;
++	bool bFilter = false;
++	switch(eRelation)
++	{
++	case ANY_AGENT_RELATION:
++		switch(eStatus)
++		{
++			case ANY_AGENT_STATUS:
++				pCachedSeq = getAllAgents<AgentType>();
++				bIncludeBarbarians = true;
++				break;
++			case EVER_ALIVE:
++				pCachedSeq = getCivAgentsEverAlive<AgentType>();
++				bIncludeBarbarians = true;
++				break;
++			case ALIVE:
++				pCachedSeq = getCivAgentsAlive<AgentType>();
++				bIncludeBarbarians = true;
++				break;
++			case NON_BARBARIAN:
++				pCachedSeq = getCivAgentsAlive<AgentType>();
++				break;
++			case MAJOR_CIV:
++				pCachedSeq = getMajorAgentsAlive<AgentType>();
++				break;
++			default:
++				pCachedSeq = getMajorAgentsAlive<AgentType>();
++				bFilter = true;
++		}
++		break;
++
++	case SAME_TEAM_AS:
++		switch(eStatus)
++		{
++		case ANY_AGENT_STATUS:
++			pCachedSeq = getAgentsPerTeam<AgentType>(eTeam);
++			break;
++		case EVER_ALIVE:
++			pCachedSeq = getAgentsPerTeam<AgentType>(eTeam);
++			bFilter = true;
++		case ALIVE:
++			pCachedSeq = getAgentsAlivePerTeam<AgentType>(eTeam);
++			break;
++		default:
++			pCachedSeq = getAgentsAlivePerTeam<AgentType>(eTeam);
++			bFilter = true;
++		}
++		break;
++
++	case VASSAL_OF:
++		switch(eStatus)
++		{
++		case ANY_AGENT_STATUS:
++			pCachedSeq = getAllAgents<AgentType>();
++			bFilter = true;
++			break;
++		case EVER_ALIVE:
++			pCachedSeq = getCivAgentsEverAlive<AgentType>();
++			bFilter = true;
++			eStatus = ANY_AGENT_STATUS; // No need for generator to check status
++			break;
++		case ALIVE:
++			pCachedSeq = getVassalAgentsAlivePerTeam<AgentType>(eTeam);
++			eStatus = ANY_AGENT_STATUS;
++			break;
++		default:
++			pCachedSeq = getVassalAgentsAlivePerTeam<AgentType>(eTeam);
++			bFilter = true;
++		}
++		break;
++
++	case POTENTIAL_ENEMY_OF:
++	case KNOWN_TO:
++	case KNOWN_POTENTIAL_ENEMY_OF:
++	case ENEMY_OF: // Applicable to minor civs
++		bFilter = true;
++		bIncludeBarbarians = includeBarbarians(eStatus, eRelation);
++		if (eStatus >= MAJOR_CIV)
++		{
++			pCachedSeq = getMajorAgentsAlive<AgentType>();
++			if (eStatus == MAJOR_CIV)
++				eStatus = ANY_AGENT_STATUS;
++		}
++		else
++		{
++			pCachedSeq = getCivAgentsAlive<AgentType>();
++			if (eStatus == ALIVE)
++				eStatus = ANY_AGENT_STATUS;
++		}
++		break;
++
++	default:
++		bFilter = true;
++		bIncludeBarbarians = includeBarbarians(eStatus, eRelation);
++		pCachedSeq = getMajorAgentsAlive<AgentType>();
++		if (eStatus == MAJOR_CIV)
++			eStatus = ANY_AGENT_STATUS;
++	}
++	return getAgentGenerator<AgentType>(bIncludeBarbarians && !m_bNoBarbarians, bFilter,
++			pCachedSeq, eStatus, eRelation, eTeam, ePlayer);
++}
++
++// Explicit instantiations; needed by the linker.
++template AgentGenerator<CvPlayerAI>* CvAgents::getAgentGenerator<CvPlayerAI>(
++	AgentStatusPredicate, AgentRelationPredicate, TeamTypes, PlayerTypes);
++template AgentGenerator<CvTeamAI>* CvAgents::getAgentGenerator<CvTeamAI>(
++	AgentStatusPredicate, AgentRelationPredicate, TeamTypes, PlayerTypes);
++
++bool CvAgents::includeBarbarians(AgentStatusPredicate eStatus, AgentRelationPredicate eRelation)
++{
++	return (eStatus < NON_BARBARIAN && eRelation != VASSAL_OF &&
++			eRelation != NOT_A_RIVAL_OF && eRelation != KNOWN_TO);
++}
++
++template<>
++AgentGenerator<CvPlayerAI>* CvAgents::getAgentGenerator<CvPlayerAI>(
++	bool bFilter, bool bInclBarbarians, PlayerVector const* pCachedSeq,
++	AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++	TeamTypes eTeam, PlayerTypes ePlayer) const
++{
++	if (bFilter)
++	{
++		FilteringAgentGenerator<CvPlayerAI>& kFiltering = m_filteringPlayerGen.getNext();
++		kFiltering.init(pCachedSeq, bInclBarbarians, eStatus, eRelation, eTeam, ePlayer);
++		return &kFiltering;
++	}
++	if (bInclBarbarians)
++	{
++		BarbarianAppendingAgentGenerator<CvPlayerAI>& kBarbAppending = m_barbAppendingPlayerGen.getNext();
++		kBarbAppending.init(pCachedSeq);
++		return &kBarbAppending;
++	}
++	FullyCachedAgentGenerator<CvPlayerAI>& kFullyCached = m_fullyCachedPlayerGen.getNext();
++	kFullyCached.init(pCachedSeq);
++	return &kFullyCached;
++}
++
++template<>
++AgentGenerator<CvTeamAI>* CvAgents::getAgentGenerator<CvTeamAI>(
++	bool bFilter, bool bInclBarbarians, TeamVector const* pCachedSeq,
++	AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++	TeamTypes eTeam, PlayerTypes ePlayer) const
++{
++	if (bFilter)
++	{
++		FilteringAgentGenerator<CvTeamAI>& kFiltering = m_filteringTeamGen.getNext();
++		kFiltering.init(pCachedSeq, bInclBarbarians, eStatus, eRelation, eTeam, ePlayer);
++		return &kFiltering;
++	}
++	if (bInclBarbarians)
++	{
++		BarbarianAppendingAgentGenerator<CvTeamAI>& kBarbAppending = m_barbAppendingTeamGen.getNext();
++		kBarbAppending.init(pCachedSeq);
++		return &kBarbAppending;
++	}
++	FullyCachedAgentGenerator<CvTeamAI>& kFullyCached = m_fullyCachedTeamGen.getNext();
++	kFullyCached.init(pCachedSeq);
++	return &kFullyCached;
++}
++
++#define NO_GENERIC_IMPLEMENTATION() \
++	FAssertMsg(false, "No generic implementation"); \
++	return NULL
++
++template<class AgentType>
++AgentGenerator<AgentType>* CvAgents::getAgentGenerator(bool,bool,std::vector<AgentType*>const*,AgentStatusPredicate,AgentRelationPredicate,TeamTypes,PlayerTypes) const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++
++template<>
++std::vector<CvTeamAI*> const* CvAgents::getAgentsPerTeam<CvTeamAI>(TeamTypes) const
++{
++	FAssertMsg(false, "Cannot generate 'teams per team'");
++	return NULL;
++}
++
++template<>
++std::vector<CvTeamAI*> const* CvAgents::getAgentsAlivePerTeam<CvTeamAI>(TeamTypes) const
++{
++	FAssertMsg(false, "Cannot generate 'teams alive per team'");
++	return NULL;
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getAllAgents() const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getCivAgentsEverAlive() const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getCivAgentsAlive() const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getMajorAgentsAlive() const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getVassalAgentsAlivePerTeam(TeamTypes) const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getAgentsPerTeam(TeamTypes) const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getAgentsAlivePerTeam(TeamTypes) const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
++
++template<class AgentType>
++std::vector<AgentType*> const* CvAgents::getNoAgents() const
++{
++	NO_GENERIC_IMPLEMENTATION();
++}
+
+diff --git a/CvGameCoreDLL/CvAgents.h b/CvGameCoreDLL/CvAgents.h
+new file mode 100644
+index 000000000..fd7f431c8
+--- /dev/null
++++ b/CvGameCoreDLL/CvAgents.h
+@@ -0,0 +1,204 @@
++#pragma once
++
++#ifndef CV_AGENTS_H
++#define CV_AGENTS_H
++
++/*  advc.agent: New class for access (via AgentIterator) to sequences of
++	agent (CvTeam, CvPlayer) objects. Caches frequently needed sequences. */
++
++#include "AgentGenerator.h"
++
++class CvPlayerAI;
++class CvTeamAI;
++
++
++class CvAgents
++{
++public:
++	/*  To be initialized from CvGame (replacing the initStatics calls
++		in CvGlobals::init) */
++	CvAgents(int iMaxPlayers, int iMaxTeams);
++	void gameStart(bool bFromSaveGame);
++	void playerDefeated(PlayerTypes ePlayer);
++	void colonyCreated(PlayerTypes eNewPlayer);
++	void teamCapitulated(TeamTypes eVassal, TeamTypes eMaster)
++	{
++		updateVassal(eVassal, eMaster, true); // sufficient for now
++	}
++	void voluntaryVassalAgreementSigned(TeamTypes eVassal, TeamTypes eMaster)
++	{
++		updateVassal(eVassal, eMaster, true);
++	}
++	void vassalFreed(TeamTypes eVassal, TeamTypes eMaster)
++	{
++		updateVassal(eVassal, eMaster, false);
++	}
++	void allianceFormed() // Tbd.: Not currently called
++	{
++		updateAllCachedSequences();
++	}
++	// Might be needed in the future
++	//void bordersOpened(TeamTypes eFirst, TeamTypes eSecond);
++	//void bordersClosed(TeamTypes eFirst, TeamTypes eSecond);
++	//void warDeclared(TeamTypes eFirst, TeamTypes eSecond);
++	//void peaceMade(TeamTypes eFirst, TeamTypes eSecond);
++	//void teamsMet(TeamTypes eFirst, TeamTypes eSecond);
++	//void setHuman(PlayerTypes ePlayer, bool bNewValue);
++
++	template<class AgentType>
++	AgentGenerator<AgentType>* getAgentGenerator(
++			AgentStatusPredicate eStatus = ALIVE,
++			AgentRelationPredicate eRelation = ANY_AGENT_RELATION,
++			TeamTypes eTeam = NO_TEAM, PlayerTypes ePlayer = NO_PLAYER);
++	// <advc.tmp> For speedTest in CvAgents.cpp
++	int majorTeams() const { return (int)m_majorTeamsAlive.size(); }
++	CvTeamAI& majorTeam(int iAt) const { return *m_majorTeamsAlive[iAt]; }
++	// </advc.tmp>
++	// Implement functions like CvGame::countCivPlayersAlive (also: CvTeam)
++	// here. Either get the size of a vector (add 1 for barbs) or step
++	// through a generator with a counter
++
++private:
++	void updateAllCachedSequences();
++	void updateVassal(TeamTypes eVassal, TeamTypes eMaster, bool bVassal);
++	static bool includeBarbarians(AgentStatusPredicate eStatus, AgentRelationPredicate eRelation);
++
++	bool m_bNoBarbarians;
++	typedef std::vector<CvPlayerAI*> PlayerVector;
++	typedef std::vector<CvTeamAI*> TeamVector;
++	PlayerVector m_allPlayers;
++	PlayerVector m_civPlayersEverAlive;
++	PlayerVector m_civPlayersAlive;
++	PlayerVector m_majorPlayersAlive;
++	PlayerVector m_noPlayers; // empty
++	TeamVector m_allTeams;
++	TeamVector m_civTeamsEverAlive;
++	TeamVector m_civTeamsAlive;
++	TeamVector m_majorTeamsAlive;
++	TeamVector m_noTeams; // empty
++	std::vector<PlayerVector> m_playersPerTeam;
++	std::vector<PlayerVector> m_playersAlivePerTeam;
++	std::vector<PlayerVector> m_vassalPlayersAlivePerTeam;
++	std::vector<TeamVector> m_vassalTeamsAlivePerTeam;
++
++	// For accessing agent vectors from function templates
++	template<class AgentType> std::vector<AgentType*> const* getAllAgents() const;
++	template<class AgentType> std::vector<AgentType*> const* getCivAgentsEverAlive() const;
++	template<class AgentType> std::vector<AgentType*> const* getCivAgentsAlive() const;
++	template<class AgentType> std::vector<AgentType*> const* getMajorAgentsAlive() const;
++	template<class AgentType> std::vector<AgentType*> const* getVassalAgentsAlivePerTeam(TeamTypes) const;
++	template<class AgentType> std::vector<AgentType*> const* getAgentsPerTeam(TeamTypes) const;
++	template<class AgentType> std::vector<AgentType*> const* getAgentsAlivePerTeam(TeamTypes) const;
++	template<class AgentType> std::vector<AgentType*> const* getNoAgents() const;
++	template<>
++	__forceinline PlayerVector const* getAllAgents<CvPlayerAI>() const
++	{
++		return &m_allPlayers;
++	}
++	template<>
++	__forceinline PlayerVector const* getCivAgentsEverAlive<CvPlayerAI>() const
++	{
++		return &m_civPlayersEverAlive;
++	}
++	template<>
++	__forceinline PlayerVector const* getCivAgentsAlive<CvPlayerAI>() const
++	{
++		return &m_civPlayersAlive;
++	}
++	template<>
++	__forceinline PlayerVector const* getMajorAgentsAlive<CvPlayerAI>() const
++	{
++		return &m_majorPlayersAlive;
++	}
++	template<>
++	__forceinline PlayerVector const* getVassalAgentsAlivePerTeam<CvPlayerAI>(TeamTypes eMaster) const
++	{
++		return &m_vassalPlayersAlivePerTeam[eMaster];
++	}
++	template<>
++	__forceinline PlayerVector const* getAgentsPerTeam<CvPlayerAI>(TeamTypes eTeam) const
++	{
++		return &m_playersPerTeam[eTeam];
++	}
++	template<>
++	__forceinline PlayerVector const* getAgentsAlivePerTeam<CvPlayerAI>(TeamTypes eTeam) const
++	{
++		return &m_playersAlivePerTeam[eTeam];
++	}
++	template<>
++	__forceinline PlayerVector const* getNoAgents<CvPlayerAI>() const
++	{
++		return &m_noPlayers;
++	}
++	template<>
++	__forceinline TeamVector const* getAllAgents<CvTeamAI>() const
++	{
++		return &m_allTeams;
++	}
++	template<>
++	__forceinline TeamVector const* getCivAgentsEverAlive<CvTeamAI>() const
++	{
++		return &m_allTeams;
++	}
++	template<>
++	__forceinline TeamVector const* getCivAgentsAlive<CvTeamAI>() const
++	{
++		return &m_allTeams;
++	}
++	template<>
++	__forceinline TeamVector const* getMajorAgentsAlive<CvTeamAI>() const
++	{
++		return &m_majorTeamsAlive;
++	}
++	template<>
++	__forceinline TeamVector const* getVassalAgentsAlivePerTeam<CvTeamAI>(TeamTypes eMaster) const
++	{
++		return &m_vassalTeamsAlivePerTeam[eMaster];
++	}
++	template<>
++	TeamVector const* getAgentsPerTeam<CvTeamAI>(TeamTypes eTeam) const;
++	template<>
++	TeamVector const* getAgentsAlivePerTeam<CvTeamAI>(TeamTypes eTeam) const;
++	template<>
++	__forceinline TeamVector const* getNoAgents<CvTeamAI>() const
++	{
++		return &m_noTeams;
++	}
++
++	template<class AgentGeneratorType>
++	class AgentGeneratorPool
++	{
++	public:
++		AgentGeneratorPool() : m_iPos(0) {}
++		inline AgentGeneratorType& getNext()
++		{
++			AgentGeneratorType& r = m_aGenerators[m_iPos];
++			m_iPos = (m_iPos + 1) % m_iSize;
++			return r;
++		}
++	private:
++		static int const m_iSize = 10;
++		AgentGeneratorType m_aGenerators[m_iSize];
++		int m_iPos;
++	};
++
++	mutable AgentGeneratorPool<FullyCachedAgentGenerator<CvPlayerAI> > m_fullyCachedPlayerGen;
++	mutable AgentGeneratorPool<BarbarianAppendingAgentGenerator<CvPlayerAI> > m_barbAppendingPlayerGen;
++	mutable AgentGeneratorPool<FilteringAgentGenerator<CvPlayerAI> > m_filteringPlayerGen;
++	mutable AgentGeneratorPool<FullyCachedAgentGenerator<CvTeamAI> > m_fullyCachedTeamGen;
++	mutable AgentGeneratorPool<BarbarianAppendingAgentGenerator<CvTeamAI> > m_barbAppendingTeamGen;
++	mutable AgentGeneratorPool<FilteringAgentGenerator<CvTeamAI> > m_filteringTeamGen;
++
++	template<class AgentType>
++	AgentGenerator<AgentType>* getAgentGenerator(bool,bool,std::vector<AgentType*>const*,AgentStatusPredicate,AgentRelationPredicate,TeamTypes,PlayerTypes) const;
++	template<>
++	AgentGenerator<CvPlayerAI>* getAgentGenerator<CvPlayerAI>(bool bFilter, bool bInclBarbarians,
++		PlayerVector const* pCachedSeq, AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++		TeamTypes eTeam, PlayerTypes ePlayer) const;
++	template<>
++	AgentGenerator<CvTeamAI>* getAgentGenerator<CvTeamAI>(bool bFilter, bool bInclBarbarians,
++		TeamVector const* pCachedSeq, AgentStatusPredicate eStatus, AgentRelationPredicate eRelation,
++		TeamTypes eTeam, PlayerTypes ePlayer) const;
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1ab5f4f38..7de95eb9f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3,6 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
+ #include "CvDealList.h" // advc.003u
++#include "AgentIterator.h" // advc.agent
+ #include "CvAI.h"
+ #include "CvMap.h"
+ #include "CvAreaList.h" // advc.003s
+@@ -85,6 +86,8 @@ void CvGame::init(HandicapTypes eHandicap)
+ 	int iI;
+ 	CvInitCore& ic = GC.getInitCore();
+ 
++	GC.getAgents().gameStart(false); // advc.agent
++
+ 	reset(eHandicap); // Reset serialized data
+ 
+ 	//--------------------------------
+@@ -9380,6 +9383,7 @@ void CvGame::allGameDataRead()
+ 	if(m_iCivTeamsEverAlive == 0)
+ 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
+ 	// </advc.opt>
++	GC.getAgents().gameStart(true); // advc.agent
+ 	getWPAI.update(); // advc.104
+ 	GET_PLAYER(getActivePlayer()).validateDiplomacy(); // advc.134a
+ 	m_bAllGameDataRead = true;
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 65b376bc8..a01f97e8c 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -4,6 +4,7 @@
+ #include "FVariableSystem.h"
+ #include "CvGamePlay.h"
+ #include "CvGameAI.h"
++#include "CvAgents.h" // advc.agent
+ #include "CvMap.h"
+ #include "CvInfo_All.h"
+ #include "CvGameTextMgr.h"
+@@ -35,6 +36,7 @@ m_pPythonCaller(NULL), // advc.003y
+ m_pLogger(NULL), // advc.003t
+ m_interface(NULL),
+ m_game(NULL),
++m_agents(NULL), // advc.agent
+ m_messageQueue(NULL),
+ m_hotJoinMsgQueue(NULL),
+ m_messageControl(NULL),
+@@ -228,6 +230,7 @@ void CvGlobals::init() // allocate
+ 
+ 	CvPlayer::initStatics();
+ 	CvTeam::initStatics();
++	m_agents = new CvAgents(MAX_PLAYERS, MAX_TEAMS); // advc.agent
+ 
+ 	//m_pt3Origin = NiPoint3(0.0f, 0.0f, 0.0f); // advc.003j: unused
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 8d259990b..9008d2a73 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -17,6 +17,7 @@ class CvDLLLogger; // advc.003t
+ class CvRandom;
+ class CvGame; // advc.003u
+ class CvGameAI;
++class CvAgents; // advc.agent
+ class CMessageControl;
+ class CvDropMgr;
+ class CMessageQueue;
+@@ -102,6 +103,7 @@ public:
+ 		return *reinterpret_cast<CvGame*>(m_game);
+ 	} 
+ 	__forceinline CvGameAI& AI_getGame() const { return *m_game; } // advc.003u
++	CvAgents& getAgents() const { return *m_agents; } // advc.agents
+ 	#endif
+ 	CvMap& getMapExternal(); // advc.inl: Exported through .def file
+ 	CvGameAI& getGameExternal(); // advc.inl: Exported through .def file
+@@ -776,6 +778,7 @@ protected:
+ 	CvPythonCaller* m_pPythonCaller; // advc.003y
+ 	CvDLLLogger* m_pLogger; // advc.003t
+ 	CvGameAI* m_game;
++	CvAgents* m_agents; // advc.agents
+ 
+ 	CMessageQueue* m_messageQueue;
+ 	CMessageQueue* m_hotJoinMsgQueue;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9c1497f98..844303e0c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayer.h"
++#include "CvAgents.h" // advc.agent
+ #include "CvAI.h"
+ #include "CvDealList.h" // advc.003s
+ #include "WarAndPeaceAgent.h" // advc.104
+@@ -270,6 +271,8 @@ void CvPlayer::initInGame(PlayerTypes eID)
+ 	if(!initOtherData()) // New subroutine to avoid code duplication
+ 		return;
+ 
++	GC.getAgents().colonyCreated(getID()); // advc.agent
++
+ 	/*  I've kept the initialization of random event data out of initOtherData
+ 		b/c the BBAI code handles that part differently (cf. resetCivTypeEffects). */
+ 	// </advc.003q>
+@@ -9706,6 +9709,9 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 		g.changeCivPlayersEverAlive(1);
+ 	GET_TEAM(getTeam()).updateLeaderID(); // </advc.opt>
+ 	GET_TEAM(getTeam()).changeAliveCount(isAlive() ? 1 : -1);
++	// <advc.agent>
++	if (!isAlive())
++		GC.getAgents().playerDefeated(getID()); // </advc.agent>
+ 
+ 	// Report event to Python
+ 	CvEventReporter::getInstance().setPlayerAlive(getID(), bNewValue);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0ca7475ce..5ebb84164 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12840,7 +12840,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			information that FromPlayer might not have. */
+ 		CvBonusInfo& kBonus = GC.getInfo(eBonus);
+ 		// I can live with cheating when it comes to strategic bonuses
+-		bUseOurBonusVal = (kBonus.getHappiness() + kBonus.getHealth() == 0);
++		bUseOurBonusVal = (kBonus.getHappiness() == 0 && kBonus.getHealth() == 0);
+ 		// Also don't worry about the value of additional copies (for corps)
+ 		if(!bUseOurBonusVal && getNumAvailableBonuses(eBonus) + iChange >
+ 				(iChange < 0 ? 0 : 1))
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 995874b19..6ef39d9db 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvTeam.h"
++#include "CvAgents.h" // advc.agent
+ #include "CvAI.h"
+ #include "CvDealList.h" // advc.003s
+ #include "WarAndPeaceAgent.h" // advc.104t
+@@ -3855,7 +3856,11 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 	}
+ 
+ 	m_eMaster = (bNewValue ? eMaster : NO_TEAM); // advc.opt
+-
++	// <advc.agent>
++	if (bCapitulated)
++		GC.getAgents().teamCapitulated(getID(), eMaster);
++	else GC.getAgents().voluntaryVassalAgreementSigned(getID(), eMaster);
++	// </advc.agent>
+ 	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+ 	{
+ 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 981b59fba..81c1bf341 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -36,8 +36,10 @@
+   </ItemGroup>
+   <ItemGroup>
+     <ClCompile Include="..\AdvCiv4lerts.cpp" />
++    <ClCompile Include="..\AgentGenerator.cpp" />
+     <ClCompile Include="..\ArmamentForecast.cpp" />
+     <ClCompile Include="..\BBAILog.cpp" />
++    <ClCompile Include="..\CvAgents.cpp" />
+     <ClCompile Include="..\CvArea.cpp" />
+     <ClCompile Include="..\CvArtFileMgr.cpp" />
+     <ClCompile Include="..\CvBugOptions.cpp" />
+@@ -183,10 +185,14 @@
+   </ItemGroup>
+   <ItemGroup>
+     <ClInclude Include="..\AdvCiv4lerts.h" />
++    <ClInclude Include="..\AgentGenerator.h" />
++    <ClInclude Include="..\AgentPredicates.h" />
++    <ClInclude Include="..\AgentIterator.h" />
+     <ClInclude Include="..\ArmamentForecast.h" />
+     <ClInclude Include="..\BBAI_Defines.h" />
+     <ClInclude Include="..\BBAILog.h" />
+     <ClInclude Include="..\BitUtil.h" />
++    <ClInclude Include="..\CvAgents.h" />
+     <ClInclude Include="..\CvAI.h" />
+     <ClInclude Include="..\CvArea.h" />
+     <ClInclude Include="..\CvAreaList.h" />
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=39970

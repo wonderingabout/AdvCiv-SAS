@@ -1,0 +1,407 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6031
+# Commit: 892798dc1eee12c607bee35f6d7a88c67f0ee33f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 26b0d5967d691fc5d59a350856ffc7597b47c290
+# Title: Add dedicated Great General BBAI diagnostics (SAS_BBAI_GREAT_GENERAL_LOG_LEVEL)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+10	3	CvGameCoreDLL/BBAILog.cpp
+2	0	CvGameCoreDLL/BBAILog.h
+68	2	CvGameCoreDLL/CvUnitAI.cpp
+5	6	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 1b1e293b1..50673ebe3 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1366,6 +1366,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Warlord attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 logs compact parking/security decisions, and level 3 adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 326712f8f..ad74822a1 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -22,7 +22,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
+ // <!-- custom: Cache each effective XML-backed BBAI diagnostic log setting on first use for cheap hot-path checks. Game-summary run reports are handled independently in SASGameSummaryLog.cpp. (GPT-5.5? + GPT-5.5) -->
+ bool isSASBBAILogEnabled()
+ {
+-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
++	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+ 	return bEnabled;
+ }
+ 
+@@ -63,6 +63,13 @@ int getSASBBAIUnitLogLevel()
+ 	return iLevel;
+ }
+ 
++// <!-- custom: Separate Great General diagnostics from general UNIT logging because one decision spans Military Academy construction, Military Instructor joining, Warlord attachment, and the target-city/unit valuation that decides between them. (GPT-5.5) -->
++int getSASBBAIGreatGeneralLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_GREAT_GENERAL_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
+ // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently; FOUND separately controls detailed city-site scoring calculations. (GPT-5.5) -->
+ int getSASBBAISettlerLogLevel()
+ {
+@@ -236,8 +243,8 @@ static void logSASBBAIGameState(const char* szRowType)
+ // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
+ static void logSASBBAILogSettings()
+ {
+-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
+-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
++	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
++			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+ }
+ 
+ // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index 6144d3fe7..18b9a7c6e 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -20,6 +20,7 @@ int getSASBBAITeamLogLevel();
+ int getSASBBAICityLogLevel();
+ int getSASBBAICitizenLogLevel();
+ int getSASBBAIUnitLogLevel();
++int getSASBBAIGreatGeneralLogLevel();
+ int getSASBBAISettlerLogLevel();
+ int getSASBBAIEvacuationLogLevel();
+ int getSASBBAIWorkerLogLevel();
+@@ -40,6 +41,7 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded
+ #define gCityLogLevel getSASBBAICityLogLevel()
+ #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Separate citizen-assignment and plot-allocation diagnostics from general CITY logging. (GPT-5.5) -->
+ #define gUnitLogLevel getSASBBAIUnitLogLevel()
++#define gGreatGeneralLogLevel getSASBBAIGreatGeneralLogLevel() // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
+ #define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
+ #define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Separate evacuation/retreat diagnostics from general CITY and UNIT logging. (GPT-5.5) -->
+ #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: Separate land-Worker diagnostics from general UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2e82e032a..fb24d722a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -8161,11 +8161,15 @@ void CvUnitAI::AI_generalMove()
+ {
+ 	PROFILE_FUNC();
+ 
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), getArea().getAreaAIType(getTeam()));
++
+ 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
+ 	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy -->
+ 	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
+ 	if (AI_construct(1))
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
+@@ -8174,6 +8178,7 @@ void CvUnitAI::AI_generalMove()
+ 	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
+ 	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+ 		return;
+ 	}
+ 
+@@ -8187,18 +8192,21 @@ void CvUnitAI::AI_generalMove()
+ 		aeUnitAITypes.push_back(UNITAI_COUNTER);
+ 		if (AI_lead(aeUnitAITypes))
+ 		{
++			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+ 		}
+ 	}
+ 
+     if (AI_construct(1))
+     {
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1 stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+         return;
+     }
+ 
+     // Try joining again
+     if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+     {
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+         return;
+     }
+ 	// Rest of original logic...
+@@ -8210,6 +8218,7 @@ void CvUnitAI::AI_generalMove()
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
+ 		if (AI_lead(aeUnitAITypes))
+ 		{
++			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+ 		}
+ 
+@@ -8217,22 +8226,26 @@ void CvUnitAI::AI_generalMove()
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK);
+ 		if (AI_lead(aeUnitAITypes))
+ 		{
++			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+ 		}
+ 	} // BETTER_BTS_AI_MOD: END
+ 
+ 	if (AI_join(2))
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=2 stage=legacy1", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
+ 	if (AI_construct(2))
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=2", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
+ 	if (AI_join(4))
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=4 stage=legacy2", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
+@@ -8240,17 +8253,20 @@ void CvUnitAI::AI_generalMove()
+ 	{
+ 		if (AI_construct())
+ 		{
++			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=unbounded random=1in3", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+ 		}
+ 	}
+ 
+ 	if (AI_join())
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=unbounded stage=legacy3", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
+ 	if (AI_retreatToCity())
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=retreat", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
+@@ -8261,9 +8277,11 @@ void CvUnitAI::AI_generalMove()
+ 
+ 	if (AI_safety())
+ 	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=safety", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 		return;
+ 	}
+ 
++	if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=skip", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 	getGroup()->pushMission(MISSION_SKIP);
+ }
+ 
+@@ -15809,6 +15827,12 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+ 				}
+ 				// or the unit with the best healing ability
+ 				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
++				if (gGreatGeneralLogLevel >= 3)
++				{
++					CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
++					logBBAI("      GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
++							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iHealing, getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
++				}
+ 				if (iHealing > iBestHealing)
+ 				{
+ 					iBestHealing = iHealing;
+@@ -15834,28 +15858,44 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+ 	{
+ 		if (at(*pBestPlot) && pBestUnit != NULL)
+ 		{
+-			if (gUnitLogLevel > 2)
++			if (gGreatGeneralLogLevel >= 1)
+ 			{
+ 				CvWString szString; getUnitAIString(szString, pBestUnit->AI_getUnitAIType());
+-				logBBAI("      Great general %d for %S chooses to lead %S with UNITAI %S", getID(), kOwner.getCivilizationDescription(0), pBestUnit->getName(0).GetCString(), szString.GetCString());
++				logBBAI("      GREAT_GENERAL_LEAD_CHOSEN turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d reason=%s",
++						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(), pBestUnit->getName(0).GetCString(), GC.getInfo(pBestUnit->getUnitType()).getType(), szString.GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getLevel(), pBestUnit->getExperience(), pBestUnit->baseCombatStr(), pBestUnit->currCombatStr(NULL, NULL), pBestUnit->combatLimit(), (pBestUnit == pBestHealUnit ? "healing" : "strength"));
+ 			}
+ 			getGroup()->pushMission(MISSION_LEAD, pBestUnit->getID());
+ 			return true;
+ 		}
+ 		else
+ 		{
++			if (gGreatGeneralLogLevel >= 2 && pBestUnit != NULL)
++				logBBAI("      GREAT_GENERAL_LEAD_MOVE turn=%d player=%d %S generalId=%d targetUnitId=%d targetUnit=%S target=(%d,%d) pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(), pBestUnit->getName(0).GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
+ 			pushGroupMoveTo(*pBestPlot, MOVE_AVOID_ENEMY_WEIGHT_3);
+ 			return true;
+ 		}
+ 	}
+ 	// BETTER_BTS_AI_MOD: END
+ 
++	if (gGreatGeneralLogLevel >= 2)
++		logBBAI("      GREAT_GENERAL_LEAD_NO_CANDIDATE turn=%d player=%d %S generalId=%d roles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), (int)aeUnitAITypes.size());
+ 	return false;
+ }
+ 
+ // iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
+ /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
+ 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
++// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Warlord attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
++static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount)
++{
++	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
++	const int iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel(0);
++	const int iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
++	const int iDefenders = kCity.getPlot().getNumDefenders(kGeneral.getOwner());
++	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d",
++			GC.getGame().getGameTurn(), kGeneral.getOwner(), GET_PLAYER(kGeneral.getOwner()).getCivilizationDescription(0), kGeneral.getID(), kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount, kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true), kCity.AI_isSafe(), GET_PLAYER(kGeneral.getOwner()).AI_isAnyPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft());
++}
++
+ bool CvUnitAI::AI_join(int iMaxCount)
+ {
+ 	PROFILE_FUNC();
+@@ -15871,13 +15911,20 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 		if (!AI_canEnterByLand(pLoopCity->getArea()) // advc.030 (replacing same-area check)
+ 			/*|| AI_plotValid(pLoopCity->plot())*/) // advc.opt: Mostly redundant
+ 		{
++			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "cannot-enter-by-land", iMaxCount, iCount);
+ 			continue;
+ 		}
+ 		//if (pLoopCity->getPlot().isVisibleEnemyUnit(this))
+ 		if (!pLoopCity->AI_isSafe()) // advc.139: Replacing the above
++		{
++			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-not-safe", iMaxCount, iCount);
+ 			continue;
++		}
+ 		if (!generatePath(pLoopCity->getPlot(), MOVE_SAFE_TERRITORY, true))
++		{
++			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "no-safe-path", iMaxCount, iCount);
+ 			continue;
++		}
+ 		// BETTER_BTS_AI_MOD: END
+ 		FOR_EACH_ENUM(Specialist)
+ 		{
+@@ -15891,7 +15938,10 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 			{
+ 				iCount += pLoopCity->getSpecialistCount(eLoopSpecialist);
+ 				if (iCount >= iMaxCount)
++				{
++					if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MAXCOUNT_REACHED turn=%d player=%d %S generalId=%d specialist=%s maxCount=%d currentCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eLoopSpecialist).getType(), iMaxCount, iCount);
+ 					return false;
++				}
+ 			}
+ 			if (canJoin(pLoopCity->plot(), eLoopSpecialist))
+ 			{
+@@ -15900,6 +15950,14 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 				{
+ 					//iValue = pLoopCity->AI_specialistValue(eLoopSpecialist, pLoopCity->AI_avoidGrowth(), false);
+ 					int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist); // K-Mod
++					if (gGreatGeneralLogLevel >= 3)
++					{
++						const int iFoodSurplus = pLoopCity->getYieldRate(YIELD_FOOD) - pLoopCity->foodConsumption();
++						const int iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(0);
++						const int iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
++						const int iDefenders = pLoopCity->getPlot().getNumDefenders(getOwner());
++						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue, pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true), pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(), getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
++					}
+ 					if (iValue > iBestValue)
+ 					{
+ 						iBestValue = iValue;
+@@ -15907,7 +15965,11 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 						eBestSpecialist = eLoopSpecialist;
+ 					}
+ 				}
++				else if (gGreatGeneralLogLevel >= 3)
++					logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-plot-danger-radius2", iMaxCount, iCount);
+ 			}
++			else if (bDoesJoin && gGreatGeneralLogLevel >= 3)
++				logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "cannot-join-specialist", iMaxCount, iCount);
+ 		}
+ 	}
+ 
+@@ -15915,17 +15977,21 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 	{
+ 		if (at(*pBestPlot))
+ 		{
++			if (gGreatGeneralLogLevel >= 1) logBBAI("      GREAT_GENERAL_JOIN_CHOSEN turn=%d player=%d %S generalId=%d specialist=%s value=%d cityPlot=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
+ 			getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+ 			return true;
+ 		}
+ 		else
+ 		{
+ 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
++			if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MOVE turn=%d player=%d %S generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
+ 			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY);
+ 			return true;
+ 		}
+ 	}
+ 
++	if (gGreatGeneralLogLevel >= 2)
++		logBBAI("      GREAT_GENERAL_JOIN_NO_CANDIDATE turn=%d player=%d %S generalId=%d maxCount=%d currentCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), iMaxCount, iCount);
+ 	return false;
+ }
+
+diff --git a/README.md b/README.md
+index 78d99cc50..def0d3b59 100644
+--- a/README.md
++++ b/README.md
+@@ -910,16 +910,15 @@ AdvCiv-SAS has two complementary log families, that are as of now both tunable v
+ 
+ ### BBAI logging and head example
+ 
+-BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, culture, evacuation, citizen allocation, or found-value scoring.
++BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
+ 
+ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
+ 
+ ```log
+-BBAI_NEW_GAME_INITIALIZING utc=20260706T191308Z logFile=BBAI_20260706T191308Z_new1.log
+-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=3 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=3 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
+-BBAI_NEW_GAME_STARTED utc=20260706T191308Z logFile=BBAI_20260706T191308Z_new1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_NETHERLANDS activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1
+-BBAI_GAME_SETTINGS mapScript=Equal_Islands_V2_beta map=120x84 landHeavy=0 navalHeavy=1 world=WORLDSIZE_HUGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_MONARCH options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+-BBAI_GAME_RNG mapRandState=880265761 syncRandState=971898437
++BBAI_SAVE_LOADED utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
++BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
++BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
++BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
+ ```
+ 
+ ### SAS game summary log
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7d1a5a4f8..1523cccbe 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -156,6 +156,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
++- (Requires AdvCiv-SAS 6031+) **Great General BBAI diagnostics:** added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Warlord attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs. This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
+ - **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+ - **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
+ - **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=32270

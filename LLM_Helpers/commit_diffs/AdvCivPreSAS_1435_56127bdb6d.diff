@@ -1,0 +1,513 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1435
+# Commit: 56127bdb6d95076504e161b8696f2669c59b1286
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 784ff51b3ae4a339eebf8c1265336a77d0c73ea3
+# Title: Revised/ fixed restore-default buttons
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+75	13	Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+65	36	Assets/Python/Screens/CvOptionsScreen.py
+8	4	Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml
+62	8	Assets/XML/Text/CIV4GameText_advc.076.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+index c5ab5e9c6..ab3fb6ded 100644
+--- a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
++++ b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+@@ -77,9 +77,10 @@ def handleLanguagesDropdownBoxInput ( argsList ):
+ def handleGameReset ( argsList ):
+ 	"Resets these options"
+ 	szName = argsList
+-	
+-	UserProfile.resetOptions(TabGroupTypes.TABGROUP_GAME)
+-	refresh()
++	#UserProfile.resetOptions(TabGroupTypes.TABGROUP_GAME)
++	#refresh()
++	# advc.076: I see no way (in the SDK) to assign a player option to TABGROUP_GRAPHICS, so UserProfile.resetOptions is no help. New function:
++	resetTabOptions(1)
+ 	saveProfile()
+ 	
+ 	return 1
+@@ -92,13 +93,12 @@ def handleGraphicOptionsClicked ( argsList ):
+ 	iGraphicOption = int(szName[szName.find("_")+1:])
+ 	
+ 	UserProfile.setGraphicOption(iGraphicOption, bValue)
+-	
+-	if (iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_SINGLE_UNIT_GRAPHICS or iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_FULLSCREEN):
+-		restartPopup(true)
+-	# advc.076: LOWRES_TEXTURES added
+-	if (iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_HIRES_TERRAIN or iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_LOWRES_TEXTURES):
+-		restartPopup(false)
+-		
++	#if (iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_SINGLE_UNIT_GRAPHICS or iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_FULLSCREEN):
++	#	restartPopup(true)
++	#if (iGraphicOption == GraphicOptionTypes.GRAPHICOPTION_HIRES_TERRAIN):
++	#	restartPopup(false)
++	# advc.076: Now handled by a subroutine
++	handleRestart(isImmediate(iGraphicOption))
+ 	return 1
+ 	
+ def handleGraphicsLevelDropdownBoxInput ( argsList ):
+@@ -164,9 +164,10 @@ def handleGraphicsReset ( argsList ):
+ 	"Resets these options"
+ 	szName = argsList
+ 	
+-	UserProfile.resetOptions(TabGroupTypes.TABGROUP_GRAPHICS)
+-	refresh()
+-	restartPopup()
++	#UserProfile.resetOptions(TabGroupTypes.TABGROUP_GRAPHICS)
++	#refresh()
++	#restartPopup()
++	resetTabOptions(2) # advc.076
+ 	saveProfile()
+ 	
+ 	return 1
+@@ -491,3 +492,64 @@ def handleExitButtonInput ( argsList ):
+ 	getTabControl().destroy()
+ 	
+ 	return 1
++
++# <advc.076>
++def resetTabOptions(iTab):
++	options = None
++	if iTab == 1:
++		options = getOptionsScreen().tab1Options
++	elif iTab == 2:
++		options = getOptionsScreen().tab2Options
++	else:
++		assert(False)
++		return
++	gc = CyGlobalContext()
++	iMinImmediate = 1
++	for iOption,bPlayerOption in options:
++		bOldVal = False
++		bNewVal = False
++		if bPlayerOption:
++			bOldVal = UserProfile.getPlayerOption(iOption)
++			# Player options need to be synchronized
++			CyMessageControl().sendPlayerOption(iOption, gc.getPlayerOptionsInfoByIndex(iOption).getDefault())
++			bNewVal = UserProfile.getPlayerOption(iOption)
++		else:
++			if iOption == GraphicOptionTypes.GRAPHICOPTION_FULLSCREEN:
++				continue # Don't change fullscreen/windowed
++			bOldVal = UserProfile.getGraphicOption(iOption)
++			UserProfile.setGraphicOption(iOption, gc.getGraphicOptionsInfoByIndex(iOption).getDefault())
++			bNewVal = UserProfile.getGraphicOption(iOption)
++		if bOldVal != bNewVal:
++			iMinImmediate = min(iMinImmediate, isImmediate(iOption, bPlayerOption))
++	if iTab == 2:
++		# BtS defaults are all 1. Don't know where these are set - perhaps hardcoded in the EXE. I'm going to hardcode my defaults:
++		iAntiAliasing = 1 # I.e. the second lowest option (2 samples)
++		# High quality levels
++		iRenderLevel = 0
++		iGlobeLevel = 0
++		iMovieLevel = 0
++		UserProfile.setAntiAliasing(iAntiAliasing)
++		UserProfile.setRenderQualityLevel(iRenderLevel)
++		iOld = UserProfile.getGlobeViewRenderLevel()
++		UserProfile.setGlobeViewRenderLevel(iGlobeLevel)
++		if iOld != iGlobeLevel:
++			iMinImmediate = min(iMinImmediate, 0)
++		UserProfile.setMovieQualityLevel(iMovieLevel)
++		# For the other graphics dropdowns, defaults don't make sense.
++	refresh()
++	handleRestart(iMinImmediate)
++
++# -1: restart needed; 0: reload needed; 1: changes take effect immediately
++def isImmediate(iOption, bPlayerOption=False):
++	if bPlayerOption:
++		return 1
++	if iOption == GraphicOptionTypes.GRAPHICOPTION_SINGLE_UNIT_GRAPHICS or iOption == GraphicOptionTypes.GRAPHICOPTION_FULLSCREEN:
++		return -1 # Same as in BtS
++	if iOption == GraphicOptionTypes.GRAPHICOPTION_HIRES_TERRAIN or iOption == GraphicOptionTypes.GRAPHICOPTION_LOWRES_TEXTURES:
++		return 0 # LOWRES_TEXTURES added
++	return 1
++		
++def handleRestart(iImmediate):
++	if iImmediate < 1:
++		restartPopup(iImmediate < 0)
++# </advc.076>
+
+diff --git a/Assets/Python/Screens/CvOptionsScreen.py b/Assets/Python/Screens/CvOptionsScreen.py
+index 23fdbfaa4..9189373d0 100644
+--- a/Assets/Python/Screens/CvOptionsScreen.py
++++ b/Assets/Python/Screens/CvOptionsScreen.py
+@@ -77,6 +77,9 @@ class CvOptionsScreen:
+ 		
+ 	def refreshScreen (self):
+ 		
++		# advc.076: Active profile may have changed
++		UserProfile = CyUserProfile()
++		
+ 		#################### Game Options ####################
+ 		
+ 		szTab = self.getGameOptionsTabName()
+@@ -224,6 +227,16 @@ class CvOptionsScreen:
+ 		# Modem Checkbox
+    		self.getTabControl().setValue("ModemSelection", gc.getGame().isModem())
+ 		
++		# <advc.076> Update button tooltips b/c profile name may have changed
++		# Tbd.: A function updateTooltips to get rid of duplicate code and hardcoded widget names
++		szProfileName = UserProfile.getProfileName()
++		for iTab in range(4):
++			self.getTabControl().setToolTip("OptionsExitButton" + str(iTab), localText.getText("TXT_KEY_OPTIONS_SCREEN_EXIT_HELP", (szProfileName,)))
++		self.getTabControl().setToolTip("GameOptionsResetButton", localText.getText("TXT_KEY_OPTIONS_SCREEN_RESET1_HELP", (szProfileName,)))
++		self.getTabControl().setToolTip("GraphicOptionsResetButton", localText.getText("TXT_KEY_OPTIONS_SCREEN_RESET2_HELP", (szProfileName,)))
++		self.getTabControl().setToolTip("AudioOptionsResetButton", localText.getText("TXT_KEY_OPTIONS_SCREEN_RESET3_HELP", (szProfileName,)))
++		# </advc.076>
++		
+ 	def interfaceScreen (self):
+ 		"Initial creation of the screen"
+ 		self.initText()
+@@ -243,8 +256,11 @@ class CvOptionsScreen:
+ 		# <advc.076> Initialize some data for the draw...Tab functions
+ 		self.graphicOptionsDone = set()
+ 		self.playerOptionsDone = set()
++		self.tab1Options = set() # for the reset buttons
++		self.tab2Options = set()
+ 		self.iBlank = 0 # for attachVSpace
+ 		self.iHeading = 0 # for attachHeading
++		self.iExitButton = 0 # for attachExitButton
+ 		# </advc.076>
+ 		
+ 		self.drawGameOptionsTab()
+@@ -390,11 +406,10 @@ class CvOptionsScreen:
+ 		szCallbackFunction = "handleGameReset"
+ 		szWidgetName = "GameOptionsResetButton"
+ 		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+-		
+-		szOptionDesc = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())
+-		szCallbackFunction = "handleExitButtonInput"
+-		szWidgetName = "GameOptionsExitButton"
+-		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
++		# advc.076:
++		tab.setToolTip(szWidgetName, localText.getText("TXT_KEY_OPTIONS_SCREEN_RESET1_HELP", (UserProfile.getProfileName(),)))
++		# advc.076: Moved into subroutine
++		self.attachExitButton(tab)
+ 		
+ 	def drawGraphicOptionsTab(self):
+ 		
+@@ -586,13 +601,13 @@ class CvOptionsScreen:
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_FROZEN_ANIMATIONS)
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_EFFECTS_DISABLED)
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_NO_COMBAT_ZOOM)
+-		self.attachPlayerOption(tab, vbox, PlayerOptionTypes.PLAYEROPTION_QUICK_MOVES) # Moved from first tab
++		self.attachPlayerOption(tab, vbox, PlayerOptionTypes.PLAYEROPTION_QUICK_MOVES, True) # Moved from first tab
+ 		self.attachHeading(tab, vbox, "UNITGFX")
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_SINGLE_UNIT_GRAPHICS)
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_HEALTH_BARS)
+ 		self.attachHeading(tab, vbox, "VISAIDS")
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_NO_ENEMY_GLOW)
+-		self.attachPlayerOption(tab, vbox, PlayerOptionTypes.PLAYEROPTION_NUMPAD_HELP) # Moved from first tab
++		self.attachPlayerOption(tab, vbox, PlayerOptionTypes.PLAYEROPTION_NUMPAD_HELP, True) # Moved from first tab
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_CITY_RADIUS)
+ 		self.attachGraphicsOption(tab, vbox, GraphicOptionTypes.GRAPHICOPTION_CITY_DETAIL)
+ 
+@@ -613,21 +628,20 @@ class CvOptionsScreen:
+ 		szCallbackFunction = "handleGraphicsReset"
+ 		szWidgetName = "GraphicOptionsResetButton"
+ 		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+-		
+-		szOptionDesc = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())
+-		szCallbackFunction = "handleExitButtonInput"
+-		szWidgetName = "GraphicOptionsExitButton"
+-		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
++		# advc.076:
++		tab.setToolTip(szWidgetName, localText.getText("TXT_KEY_OPTIONS_SCREEN_RESET2_HELP", (UserProfile.getProfileName(),)))
++		# advc.076: Moved into subroutine
++		self.attachExitButton(tab)
+ 
+ 	# <advc.076> 
+-	def attachGraphicsOption(self, tab, panel, iOption):
+-		self.attachOption(tab, panel, iOption, False)
++	def attachGraphicsOption(self, tab, panel, iOption, bAsPlayerOption=False):
++		self.attachOption(tab, panel, iOption, False, bAsPlayerOption)
+ 		
+-	def attachPlayerOption(self, tab, panel, iOption):
+-		self.attachOption(tab, panel, iOption, True)
++	def attachPlayerOption(self, tab, panel, iOption, bAsGfxOption=False):
++		self.attachOption(tab, panel, iOption, True, bAsGfxOption)
+ 
+ 	# Mix of the code from the "Checkboxes" loop in drawGraphicOptionsTab and drawGameOptionsTab
+-	def attachOption(self, tab, panel, iOption, bPlayerOption):
++	def attachOption(self, tab, panel, iOption, bPlayerOption, bWrongTab):
+ 		optionInfo = None
+ 		if bPlayerOption:
+ 			optionInfo = gc.getPlayerOptionsInfoByIndex(iOption)
+@@ -639,16 +653,26 @@ class CvOptionsScreen:
+ 		szCallbackFunction = ""
+ 		szWidgetName = ""
+ 		bOptionOn = False
++		tabOptions = None
+ 		if bPlayerOption:
+ 			szCallbackFunction = "handleGameOptionsClicked"
+ 			szWidgetName = "GameOptionCheckBox_"
+ 			bOptionOn = UserProfile.getPlayerOption(iOption)
+ 			self.playerOptionsDone.add(iOption)
++			if bWrongTab:
++				tabOptions = self.tab2Options
++			else:
++				tabOptions = self.tab1Options
+ 		else:
+ 			szCallbackFunction = "handleGraphicOptionsClicked"
+ 			szWidgetName = "GraphicOptionCheckbox_"
+ 			bOptionOn = UserProfile.getGraphicOption(iOption)
+ 			self.graphicOptionsDone.add(iOption)
++			if bWrongTab:
++				tabOptions = self.tab1Options
++			else:
++				tabOptions = self.tab2Options
++		tabOptions.add((iOption,bPlayerOption))
+ 		szWidgetName += str(iOption)
+ 		tab.attachCheckBox(panel, szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName, bOptionOn)
+ 		tab.setToolTip(szWidgetName, szHelp)
+@@ -935,12 +959,10 @@ class CvOptionsScreen:
+ 		szCallbackFunction = "handleAudioReset"
+ 		szWidgetName = "AudioOptionsResetButton"
+ 		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+-		
+-		szOptionDesc = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())
+-		szCallbackFunction = "handleExitButtonInput"
+-		szWidgetName = "AudioOptionsExitButton"
+-		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+-		tab.setLayoutFlag(szWidgetName, "LAYOUT_HCENTER")
++		# advc.076:
++		tab.setToolTip(szWidgetName, localText.getText("TXT_KEY_OPTIONS_SCREEN_RESET3_HELP", (UserProfile.getProfileName(),)))
++		# advc.076: Moved into subroutine
++		self.attachExitButton(tab)
+ 		
+ 		
+ 	def drawOtherTab(self):
+@@ -1055,8 +1077,8 @@ class CvOptionsScreen:
+ 		tab.attachDropDown("ProfilePanelVBox",szWidgetName,szDropdownDesc, aszDropdownElements, self.callbackIFace, szCallbackFunction, szWidgetName, iInitialSelection)
+ 		
+ 		# Edit Box ProfileName
+-		tab.attachLabel("ProfilePanelVBox","ProfilesName",localText.getText("TXT_KEY_OPTIONS_SCREEN_PROFILE_NAME", ()))
+-		
++		# advc.076: Txt key was TXT_KEY_OPTIONS_SCREEN_PROFILE_NAME
++		tab.attachLabel("ProfilePanelVBox","ProfilesName",localText.getText("TXT_KEY_OPTIONS_SCREEN_EDIT_PROFILE", ()))
+ 		
+ 		#szCallbackIFace = ""
+ 		szEditBoxDesc = UserProfile.getProfileName()
+@@ -1116,15 +1138,22 @@ class CvOptionsScreen:
+ 		
+ 		tab.attachHBox("OtherVBox", "LowerHBox")
+ 		tab.setLayoutFlag("LowerHBox", "LAYOUT_HCENTER")
+-		
+-		szOptionDesc = localText.getText("TXT_KEY_OPTIONS_RESET", ())
+-		szCallbackFunction = "handleOtherReset"
+-		szWidgetName = "OtherOptionsResetButton"
+-		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+-		
+-		szOptionDesc = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())
++		# advc.076: Don't need a reset button just for the clock options. Reset-all would make some sense. Too much work for now.
++		#szOptionDesc = localText.getText("TXT_KEY_OPTIONS_RESET", ())
++		#szCallbackFunction = "handleOtherReset"
++		#szWidgetName = "OtherOptionsResetButton"
++		#tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.#callbackIFace, szCallbackFunction, szWidgetName)
++
++		# advc.076: Moved into subroutine
++		self.attachExitButton(tab)
++	
++	# advc.076: Moved here to reduce code duplication
++	def attachExitButton(self, tab):
++		box = "LowerHBox" # That widget name is used by all tabs
++		szButtonDesc = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ())
+ 		szCallbackFunction = "handleExitButtonInput"
+-		szWidgetName = "OtherOptionsExitButton"
+-		tab.attachButton("LowerHBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+-		tab.setLayoutFlag(szWidgetName, "LAYOUT_HCENTER")
+-		
++		szWidgetName = "OptionsExitButton" + str(self.iExitButton)
++		self.iExitButton += 1
++		tab.attachButton(box, szWidgetName, szButtonDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
++		# advc.076:
++		tab.setToolTip(szWidgetName, localText.getText("TXT_KEY_OPTIONS_SCREEN_EXIT_HELP", (UserProfile.getProfileName(),)))
+
+diff --git a/Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml b/Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml
+index 3d91f3a74..3ff8c28a5 100644
+--- a/Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml
++++ b/Assets/XML/GameInfo/CIV4GraphicOptionInfos.xml
+@@ -3,7 +3,8 @@
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+-<!-- Graphic Option - This structure describes the name for each multiplayer option. -->
++<!-- advc.076: Changed a couple of defaults. Only relevant if a profile is
++	 reset. -->
+ <Civ4GraphicOptionInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GraphicOptionInfos>
+ 		<GraphicOptionInfo>
+@@ -28,7 +29,8 @@
+ 			<Type>GRAPHICOPTION_NO_COMBAT_ZOOM</Type>
+ 			<Description>TXT_KEY_PLAYER_OPTION_NO_COMBAT_ZOOM</Description>
+ 			<Help>TXT_KEY_PLAYER_OPTION_NO_COMBAT_ZOOM_HELP</Help>
+-			<bDefault>0</bDefault>
++			<!-- advc.076: Was 0 -->
++			<bDefault>1</bDefault>
+ 		</GraphicOptionInfo>
+ 		<GraphicOptionInfo>
+ 			<Type>GRAPHICOPTION_NO_ENEMY_GLOW</Type>
+@@ -52,7 +54,8 @@
+ 			<Type>GRAPHICOPTION_GLOBE_VIEW_BUILDINGS_DISABLED</Type>
+ 			<Description>TXT_KEY_GRAPHICOPTION_GLOBE_VIEW_BUILDINGS_DISABLED</Description>
+ 			<Help>TXT_KEY_GRAPHICOPTION_GLOBE_VIEW_BUILDINGS_DISABLED_HELP</Help>
+-			<bDefault>1</bDefault>
++			<!-- advc.076: Was 1 -->
++			<bDefault>0</bDefault>
+ 		</GraphicOptionInfo>
+ 		<GraphicOptionInfo>
+ 			<Type>GRAPHICOPTION_FULLSCREEN</Type>
+@@ -70,7 +73,8 @@
+ 			<Type>GRAPHICOPTION_HIRES_TERRAIN</Type>
+ 			<Description>TXT_KEY_GRAPHICOPTION_HIRES_TERRAIN</Description>
+ 			<Help>TXT_KEY_GRAPHICOPTION_HIRES_TERRAIN_HELP</Help>
+-			<bDefault>0</bDefault>
++			<!-- advc.076: Was 0 -->
++			<bDefault>1</bDefault>
+ 		</GraphicOptionInfo>
+ 		<GraphicOptionInfo>
+ 			<Type>GRAPHICOPTION_NO_MOVIES</Type>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.076.xml b/Assets/XML/Text/CIV4GameText_advc.076.xml
+index 2aea7934e..3eea492a3 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.076.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.076.xml
+@@ -7,8 +7,9 @@
+ 	<!-- From CIV4GameTextInfos.xml -->
+ 	<!-- Was "Game", but the options on the Custom Game screen are also
+ 		 game options. The options for rival moves and recommendations don't
+-		 really fit under "Controls". "UI"?
+-		 I'm quite happy with German "Bedienung". -->
++		 really fit under "Controls". "UI"? I'm happy with German "Bedienung".
++		 Note that the tab names are also used in the OPTIONS_SCREEN_RESET
++		 texts in this file. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_OPTIONS_GAME</Tag>
+ 		<English>Controls</English>
+@@ -28,6 +29,17 @@
+ 		<Spanish>Perfiles</Spanish>
+ 	</TEXT>
+ 	
++	<!-- New key, replacing "Profile Name" as the heading for the edit box.
++		 FR, IT, SP through deepl.com -->
++	<TEXT>
++		<Tag>TXT_KEY_OPTIONS_SCREEN_EDIT_PROFILE</Tag>
++		<English>Name of profile to be created or deleted:</English>
++		<French>Nom du profil � cr�er ou supprimer:</French>
++		<German>Profilname (zum Erstellen oder L�schen):</German>
++		<Italian>Nome del profilo da creare o cancellare:</Italian>
++		<Spanish>Nombre del perfil a crear o borrar:</Spanish>
++	</TEXT>
++	
+ 	<!-- Based on TXT_KEY_OPTIONS_NEED_TO_RESTART in CIV4GameTextInfos.xml.
+ 		 Romance-language translations just copied from there. -->
+ 	<TEXT>
+@@ -162,6 +174,48 @@
+ 		<Spanish>Mudo</Spanish>
+ 	</TEXT>
+ 	
++	<!-- New: Tooltips for the reset and exit buttons.
++		 deepl.com for FR, IT, SP. -->
++	<TEXT>
++		<Tag>TXT_KEY_OPTIONS_SCREEN_RESET1_HELP</Tag>
++		<English>Sets the options on the [COLOR_HIGHLIGHT_TEXT]Controls[COLOR_REVERT] tab to the AdvCiv default values and stores that configuration in the current profile (%s1_ProfileName). To restore the BtS defaults, AdvCiv needs to be unloaded first.</English>
++		<French>D�finit les options de l'onglet courant aux valeurs par d�faut recommand�es pour AdvCiv et enregistre cette configuration dans le profil actif (%s1_ProfileName). Pour restaurer les valeurs par d�faut BtS, AdvCiv doit d'abord �tre d�charg�.</French>
++		<German>�bernimmt die AdvCiv-Standardeinstellungen f�r den Reiter [COLOR_HIGHLIGHT_TEXT]Bedienung[COLOR_REVERT] und speichert sie im aktuellen Profil (%s1_ProfileName) ab. Um stattdessen die BtS-Standardeinstellungen zu �bernehmen, muss der AdvCiv-Mod zun�chst deaktiviert werden.</German>
++		<Italian>Imposta le opzioni della scheda corrente sui valori raccomandati per AdvCiv e salva la configurazione nel profilo attivo (%s1_ProfileName). Per ripristinare le predefiniti BtS, AdvCiv deve prima essere annullato.</Italian>
++		<Spanish>Establece las opciones de la ficha actual con los valores recomendados para AdvCiv y guarda esa configuraci�n en el perfil activo (%s1_ProfileName). Para restaurar los valores predeterminados de BtS, primero se debe descargar AdvCiv.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_OPTIONS_SCREEN_RESET2_HELP</Tag>
++		<English>Sets the options on the [COLOR_HIGHLIGHT_TEXT]Graphics[COLOR_REVERT] tab to the AdvCiv defaults and stores that configuration in the current profile (%s1_ProfileName). Won't change screen mode, resolution and menu background. To restore the BtS defaults, AdvCiv needs to be unloaded first.</English>
++		<French>D�finit les options de l'onglet courant aux valeurs par d�faut recommand�es pour AdvCiv et enregistre cette configuration dans le profil actif (%s1_ProfileName). Pour restaurer les valeurs par d�faut BtS, AdvCiv doit d'abord �tre d�charg�.</French>
++		<German>�bernimmt die AdvCiv-Standardeinstellungen f�r den Reiter [COLOR_HIGHLIGHT_TEXT]Grafik[COLOR_REVERT] und speichert sie im aktuellen Profil (%s1_ProfileName) ab. Ausgenommen: Bild-Modus, Aufl�sung und Men�hintergrund. Um die BtS-Standardeinstellungen zu �bernehmen, muss der AdvCiv-Mod zun�chst deaktiviert werden.</German>
++		<Italian>Imposta le opzioni della scheda corrente sui valori raccomandati per AdvCiv e salva la configurazione nel profilo attivo (%s1_ProfileName). Per ripristinare le predefiniti BtS, AdvCiv deve prima essere annullato.</Italian>
++		<Spanish>Establece las opciones de la ficha actual con los valores recomendados para AdvCiv y guarda esa configuraci�n en el perfil activo (%s1_ProfileName). Para restaurar los valores predeterminados de BtS, primero se debe descargar AdvCiv.</Spanish>
++	</TEXT>
++	<!-- I'm not sure what gets reset apart from the volume levels, and how the
++		 defaults are determined. -->
++	<TEXT>
++		<Tag>TXT_KEY_OPTIONS_SCREEN_RESET3_HELP</Tag>
++		<English>Sets the options on the [COLOR_HIGHLIGHT_TEXT]Audio[COLOR_REVERT] tab to the BtS default values and stores that configuration in the current profile (%s1_ProfileName).</English>
++		<French>D�finit les options de l'onglet courant aux valeurs par d�faut BtS et enregistre cette configuration dans le profil actif (%s1_ProfileName).</French>
++		<German>�bernimmt die BtS-Standardeinstellungen f�r den Reiter [COLOR_HIGHLIGHT_TEXT]Audio[COLOR_REVERT] und speichert sie im aktuellen Profil (%s1_ProfileName) ab.</German>
++		<Italian>Imposta le opzioni della scheda corrente sui valori predefiniti BtS e salva la configurazione nel profilo attivo (%s1_ProfileName).</Italian>
++		<Spanish>Establece las opciones de la ficha actual con los valores predeterminados de BtS y guarda esa configuraci�n en el perfil activo (%s1_ProfileName).</Spanish>
++	</TEXT>
++	<!-- Reassure the user that changes won't be lost. Notes: The profile can be
++		 saved before exiting if the main menu background is changed, when
++		 "create profile" is clicked or (see above) upon a reset.
++		 Not all data is stored in the profile; e.g. fullscreen/windowed mode
++		 is saved in CivilizationIV.ini. -->
++	<TEXT>
++		<Tag>TXT_KEY_OPTIONS_SCREEN_EXIT_HELP</Tag>
++		<English>Exits the options screen. Any changes have already been stored in the current profile (%s1_ProfileName); exiting causes that profile to be saved on disk.</English>
++		<French>Ferme l'�cran des options et sauvegarde le profil d'options actif (%s1_ProfileName) avec vos modifications.</French>
++		<German>Schlie�t den Optionsbildschirm und speichert das aktuelle Optionsprofil (%s1_ProfileName) mit Ihren �nderungen.</German>
++		<Italian>Chiude la schermata delle opzioni e salva il profilo delle opzioni attivo (%s1_ProfileName) con le tue modifiche.</Italian>
++		<Spanish>Cierra la pantalla de opciones y guarda el perfil de opciones activo (%s1_ProfileName) con sus cambios.</Spanish>
++	</TEXT>
++
+ 	<!-- New: Tooltip for the dropdown menus -->
+ 	<!-- See "Tbd." in manual about these two -->
+ 	<TEXT>
+@@ -186,7 +240,7 @@
+ 		 So it seems that 0 or 2 are the best recommendations. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_OPTIONS_SCREEN_ANTIALIAS_HELP</Tag>
+-		<English>Multisample anti-aliasing increases the rendering accuracy and results in slightly smoother edges, but may increase power consumption. The more samples, the higher the quality, and the greater the strain on the graphics card. The default value is 2.</English>
++		<English>Multisample anti-aliasing increases the rendering accuracy and results in slightly smoother edges, but may increase power consumption. The more samples, the higher the quality, and the greater the demands on the graphics card. The default value is 2.</English>
+ 		<French>Multi-&#233;chantillons anti-aliasing</French>
+ 		<German>Multisample-Anti-Aliasing: Erh�ht die Darstellungsgenauigkeit, k�nnte aber den Stromverbrauch der Grafikkarte steigern. Je h�her die Anzahl der Abtastungen, desto h�her die Qualit�t. Standardwert: 2.</German>
+ 		<Italian>Multi Sample di Antialias</Italian>
+@@ -350,9 +404,9 @@
+ 	<!-- advc.102 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_SHOW_FRIENDLY_MOVES_HELP</Tag>
+-		<English>Movement animations are shown for non-hostile foreign units that enter or leave a visible tile. Only recommended in combination with [COLOR_HIGHLIGHT_TEXT]Quick Moves[COLOR_REVERT] on the "Graphics" tab. To save time, AdvCiv never shows the moves of Workers, Missionaries and Executives within their owner's borders.</English>
++		<English>Movement animations are shown for non-hostile foreign units that enter or leave a visible tile. Recommended only in combination with [COLOR_HIGHLIGHT_TEXT]Quick Moves[COLOR_REVERT] on the "Graphics" tab. To save time, AdvCiv never shows the moves of Workers, Missionaries and Executives within their owner's borders.</English>
+ 		<French>Voir les d&#233;placements des unit&#233;s alli&#233;es entre deux tours.</French>
+-		<German>Zeigt Bewegungsanimationen an, wenn eine nicht-feindliche Einheit ein einsehbares Feld betritt oder es verl�sst. Nur in Kombination mit [COLOR_HIGHLIGHT_TEXT]Schnelle Bewegungen[COLOR_REVERT] (siehe unter "Grafik"). Um Zeit zu sparen, zeigt AdvCiv keine Bewegungen von Bautrupps, Missionaren und Vorst�nden auf dem Gebiet ihres Besitzers an.</German>
++		<German>Zeigt Bewegungsanimationen an, wenn eine nicht-feindliche Einheit ein einsehbares Feld betritt oder es verl�sst. Nur in Kombination mit [COLOR_HIGHLIGHT_TEXT]Schnelle Bewegungen[COLOR_REVERT] (siehe unter "Grafik") empfohlen. Um Zeit zu sparen, zeigt AdvCiv keine Bewegungen von Bautrupps, Missionaren und Vorst�nden auf dem Gebiet ihres Besitzers an.</German>
+ 		<Italian>Mostra i movimenti delle unit&#224; amichevoli tra un turno e l'altro</Italian>
+ 		<Spanish>Muestra los movimientos de las unidades amistosas entre turno y turno.</Spanish>
+ 	</TEXT>
+@@ -575,11 +629,11 @@
+ 		<Italian>Menu d'apertura</Italian>
+ 		<Spanish>Men� inicial</Spanish>
+ 	</TEXT>
+-	<!-- Was "Globe View Buildings Disabled". Globe View now implied by
++	<!-- Was "Globe View Buildings Disabled". Globe View now already implied by
+ 		 the placement of the checkbox. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GRAPHICOPTION_GLOBE_VIEW_BUILDINGS_DISABLED</Tag>
+-		<English>No Buildings</English>
++		<English>No Buildings on Globe</English>
+ 		<French>B&#226;timents d&#233;sactiv&#233;s</French>
+ 		<German>Keine Geb�ude</German>
+ 		<Italian>Edifici disattivati</Italian>
+@@ -626,7 +680,7 @@
+ 		 Moves". -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_QUICK_MOVES_HELP</Tag>
+-		<English>Movement animations of units are accelerated.</English>
++		<English>Movement animations of units are sped up.</English>
+ 		<French>Tous les mouvements du joueur sont acc&#233;l&#233;r&#233;s.</French>
+ 		<German>Bewegungsanimationen von Einheiten werden schneller abgespielt.</German>
+ 		<Italian>Tutti i movimenti del giocatore vengono velocizzati</Italian>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=26735

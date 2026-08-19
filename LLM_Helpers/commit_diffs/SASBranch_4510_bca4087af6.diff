@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4510
+# Commit: bca4087af6cee1c3a9d70e05f6be2ea7683ddf79
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3a6753c687f6d55dd12d7e63a0240a9f93387494
+# Title: reduce the history panel's (in Ressources category) size to better accomodate the new positin of the buildings panel looks so nice though if i may say i mean...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 716a0ad0f..47aadc635 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -84,8 +84,8 @@ class SevoPediaBonus:
+ 		self.H_BUILDINGS = self.H_ALLOWS_PANE
+ 
+ 		# <!--custom: not changing the existing math since it was already done,
+-		# but ideally should base this on the buildings panel now just above it
+-		# i mean anywyas, thanks,
++		# but ideally (i think (?)) should base this on the buildings panel now
++		# just above it i mean anywyas, thanks,
+ 		self.X_HISTORY_PANE = self.X_ALLOWS_PANE
+ 		self.W_HISTORY_PANE = self.W_ALLOWS_PANE
+ 		self.Y_HISTORY_PANE = self.Y_ALLOWS_PANE + self.H_ALLOWS_PANE + 10
+@@ -325,7 +325,7 @@ class SevoPediaBonus:
+ 		# just freeing enough space to put our new panel, no need to
+ 		# reduce too much the history panel's size -->
+ 		#screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 100, self.W_HISTORY_PANE, self.H_HISTORY_PANE - 100, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 120, self.W_HISTORY_PANE, self.H_HISTORY_PANE - 120, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		textName = self.top.getNextWidgetName()
+ 		# <!custom: -- move the text line (too), to a lower point (Y) so that it
+@@ -345,7 +345,7 @@ class SevoPediaBonus:
+ 		# not that it was an error but weird i think in this case at least
+ 		# indeed maybe i mean anyways, thanks,
+ 		#screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10 + 100 + 23, self.W_HISTORY_PANE - 30, self.H_HISTORY_PANE - (15 * 2) - 25 - 100, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10 + 120 + 23, self.W_HISTORY_PANE - 30, self.H_HISTORY_PANE - (15 * 2) - 25 - 120, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2760

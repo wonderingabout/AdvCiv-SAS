@@ -1,0 +1,34 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4655
+# Commit: 76878fc250b55ab3fe840380ab02cb6354a08d4d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 22e989bf8109bf57750fea41701fed031c72ee43
+# Title: resize Ogiso Igoso leaderhead button to 64x64 (64px) i had not /did not notice(d) that it was still in 96px or that 64px was required, looks very nice now, n...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/LeaderHeads/Ogiso_Igodo_Button.dds
+-	-	_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full_cropped_resized 2 (without ratio)_button_64x64.dds
+ create mode 100644 _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full_cropped_resized 2 (without ratio)_button_64x64.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/LeaderHeads/Ogiso_Igodo_Button.dds b/Assets/Art/LeaderHeads/Ogiso_Igodo_Button.dds
+index 5bc4d4a5f..dc9bb641f 100644
+Binary files a/Assets/Art/LeaderHeads/Ogiso_Igodo_Button.dds and b/Assets/Art/LeaderHeads/Ogiso_Igodo_Button.dds differ
+
+diff --git a/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full_cropped_resized 2 (without ratio)_button_64x64.dds b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full_cropped_resized 2 (without ratio)_button_64x64.dds
+new file mode 100644
+index 000000000..dc9bb641f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full_cropped_resized 2 (without ratio)_button_64x64.dds differ
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=745

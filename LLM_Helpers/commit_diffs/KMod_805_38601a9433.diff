@@ -1,0 +1,94 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 805
+# Commit: 38601a9433c00e915fd1b3cf93c72f1b2698f539
+# History segment: K-Mod history
+# Parent used for diff: 8efe75ac36463d4eb87f973b569cb0d13cf55810
+# Title: Minor tweaks to unit building probabilty, and city spoils value.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b34cee15b..cf839cd86 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2015,7 +2015,7 @@ void CvCityAI::AI_chooseProduction()
+ 			int iTrainInvaderChance = iBuildUnitProb + 10;
+ 
+ 			iTrainInvaderChance += (bAggressiveAI ? 15 : 0);
+-			iTrainInvaderChance += (bTotalWar || bDagger ? 10 : 0); // K-Mod
++			iTrainInvaderChance += bTotalWar ? 10 : 0; // K-Mod
+ 			iTrainInvaderChance /= (bAssaultAssist ? 2 : 1);
+ 			iTrainInvaderChance /= (bImportantCity ? 2 : 1);
+ 			iTrainInvaderChance /= (bGetBetterUnits ? 2 : 1);
+@@ -2258,7 +2258,7 @@ void CvCityAI::AI_chooseProduction()
+ 		if (!bFinancialTrouble && (bLandWar || (bDagger && !bGetBetterUnits)))
+ 		{
+ 			//int iTrainInvaderChance = iBuildUnitProb + 10;
+-			int iTrainInvaderChance = iBuildUnitProb + (bTotalWar || bDagger ? 16 : 8); // K-Mod
++			int iTrainInvaderChance = iBuildUnitProb + (bTotalWar ? 16 : 8); // K-Mod
+ 
+ 			if (bAggressiveAI)
+ 			{
+@@ -2838,7 +2838,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			if (bLandWar || bAssault || !bFinancialTrouble || (kOwner.calculateUnitCost() == 0))
+ 			{
+ 				aiUnitAIVal[UNITAI_ATTACK] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 9 : 16)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+-				aiUnitAIVal[UNITAI_ATTACK_CITY] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 6 : 15)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0)); // K-Mod, used to be (bLandWar || bAssault) ? 7
++				aiUnitAIVal[UNITAI_ATTACK_CITY] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 7 : 15)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_COLLATERAL] += ((iMilitaryWeight / ((bDefense) ? 8 : 14)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_PILLAGE] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 10 : 19)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_RESERVE] += ((iMilitaryWeight / ((bLandWar) ? 12 : 17)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 77d8cf2c6..e25c27dc4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12075,7 +12075,7 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 			case AREAAI_NEUTRAL:
+ 				// think of 'dagger' as being prep for total war.
+ 				FAssert(!bTotalWar);
+-				iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 30 + iBuildProb*2/3 : 0;
++				iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 20 + iBuildProb*2/3 : 0;
+ 				break;
+ 			default:
+ 				FAssert(false);
+@@ -12088,7 +12088,7 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 			else
+ 			{
+ 				FAssert(!bTotalWar);
+-				iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 30 + iBuildProb*2/3 : 0;
++				iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 20 + iBuildProb*2/3 : 0;
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 96fd94207..c09130315 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1395,7 +1395,7 @@ int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan) const
+ 			for (ReligionTypes i = (ReligionTypes)0; i < GC.getNumReligionInfos(); i=(ReligionTypes)(i+1))
+ 			{
+ 				if (pLoopCity->isHolyCity(i))
+-					iCityValue += GC.getGameINLINE().countReligionLevels(i);
++					iCityValue += GC.getGameINLINE().countReligionLevels(i) / (pLoopCity->hasShrine(i) ? 1 : 2);
+ 			}
+ 
+ 			// corp HQ value
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3584

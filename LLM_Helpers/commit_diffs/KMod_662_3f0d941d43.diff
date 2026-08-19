@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 662
+# Commit: 3f0d941d4385cf9542bbd28b08fad43d8e01e7bb
+# History segment: K-Mod history
+# Parent used for diff: 6fa2613d586cda0b5cf7862858066325634f7930
+# Title: Made some adjustments to the value of food when emphasising great people points.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	4	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 138d374c8..649d7cd5a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9922,8 +9922,14 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 							iGrowthValue = iGrowthValue * iFoodYield / (iFoodYield + 1);
+ 
+ 						//iFoodGrowthValue = iFoodYield * iFactorPopToGrow;
+-						// K-Mod. think of the integral of (x * iGrowthValue * (100 - factor*(iFoodPerTurn+x))/100)
+-						int iDevalueRate = bEmphasizeFood ? 0 : (bFillingBar ? 15 + 15 * iFoodToGrow / std::max(1, iFoodToGrow + 2*iFoodLevel + iFoodPerTurn) : 13 - std::min(5, iPopToGrow));
++						// K-Mod. think of the integral of (x * iGrowthValue * (100 - iDevalueRate*(iFoodPerTurn+x))/100)
++						int iDevalueRate = bEmphasizeFood
++							? 0
++							: (bFillingBar
++								? 15 + 15 * iFoodToGrow / std::max(1, iFoodToGrow + 2*iFoodLevel + iFoodPerTurn)
++								: (AI_isEmphasizeGreatPeople()
++									? 15
++									: 13 - std::min(5, iPopToGrow)));
+ 						int iBestFoodYield = std::max(0, std::min(iFoodYield, 100/std::max(1, iDevalueRate) - iFoodPerTurn)); // maximum value for this amount of food.
+ 						iFoodGrowthValue = iBestFoodYield * iGrowthValue * (100 - iDevalueRate*iFoodPerTurn) / 100;
+ 						iFoodGrowthValue -= iBestFoodYield * iBestFoodYield * iDevalueRate * iGrowthValue / 200;
+@@ -9981,7 +9987,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 				}
+ 
+ 				//Great People Override
+-				if ((iExtraPopulationThatCanWork > 1) && AI_isEmphasizeGreatPeople())
++				/* if ((iExtraPopulationThatCanWork > 1) && AI_isEmphasizeGreatPeople())
+ 				{
+ 					int iAdjust = iConsumtionPerPop;
+ 					if (iFoodPerTurn <= 0)
+@@ -9992,7 +9998,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 					// K-Mod, rescaling
+ 					iFoodGPPValue += std::max(0, iFoodYield - iAdjust) * std::max(0, 3 * iBaseCommerceValue * (2 + std::min(0, iHappinessLevel+iFutureHappy))/2);
+ 					// K-Mod end
+-				}
++				} */ // obsolete
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2100

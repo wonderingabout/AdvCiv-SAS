@@ -1,0 +1,538 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4767
+# Commit: f551d27b34b4e0b394744ff3f857076b1978653f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e5ed0454fa24e873a4256528f33aaf41bac33f0b
+# Title: rename _GEMS to _GEMSTONES, replace gemstones's and coal's buttons with HR mod's buttons looks very pretty and a lot more accurate and understandable as in i...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Bonus/Coal/Coal.dds
+-	-	Assets/Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds
+9	3	Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+2	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Events/CIV4EventTriggerInfos.xml
+1	1	Assets/XML/GameInfo/CIV4CorporationInfo.xml
+4	4	Assets/XML/Terrain/CIV4BonusInfos.xml
+1	1	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+6	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+9	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+175	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+ create mode 100644 Assets/Art/AdvCiv_SAS/Bonus/Coal/Coal.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Bonus/Coal/Coal.dds b/Assets/Art/AdvCiv_SAS/Bonus/Coal/Coal.dds
+new file mode 100644
+index 000000000..0d5d6cb0c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Bonus/Coal/Coal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds b/Assets/Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds
+new file mode 100644
+index 000000000..a5ef9f010
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+index 48bb0e11b..1517d6ec5 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+@@ -16,13 +16,16 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Aluminum.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,12</Button>
+ 			<FontButtonIndex>0</FontButtonIndex>
+ 		</BonusArtInfo>
++		<!-- custom: import coal button from HR mod, was in base advciv (/civ4 (too)? Anyways etc)('s(Anyways etc))) code:
++			<Button>,Art/Interface/Buttons/WorldBuilder/Coal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,12</Button>
++		-->
+ 		<BonusArtInfo>
+ 			<Type>ART_DEF_BONUS_COAL</Type>
+ 			<fScale>1.0</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Coal/Coal.nif</NIF>
+ 			<KFM>Art/Terrain/Resources/Coal/Coal.kfm</KFM>
+-			<Button>,Art/Interface/Buttons/WorldBuilder/Coal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,12</Button>
++			<Button>Art/AdvCiv_SAS/Bonus/Coal/Coal.dds</Button>
+ 			<FontButtonIndex>1</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<BonusArtInfo>
+@@ -108,13 +111,16 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Fur.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,13</Button>
+ 			<FontButtonIndex>21</FontButtonIndex>
+ 		</BonusArtInfo>
++		<!-- custom: import gemstones button from HR mod, was in base advciv (/civ4 (too)? Anyways etc)('s(Anyways etc))) code:
++			<Button>,Art/Interface/Buttons/WorldBuilder/Gems.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,13</Button>
++		-->
+ 		<BonusArtInfo>
+-			<Type>ART_DEF_BONUS_GEMS</Type>
++			<Type>ART_DEF_BONUS_GEMSTONES</Type>
+ 			<fScale>1.0</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Gems/Gems.nif</NIF>
+ 			<KFM>Art/Terrain/Resources/Gems/Gems.kfm</KFM>
+-			<Button>,Art/Interface/Buttons/WorldBuilder/Gems.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,13</Button>
++			<Button>Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds</Button>
+ 			<FontButtonIndex>22</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<BonusArtInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index a4eb119bc..238cd1825 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6509,7 +6509,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges>
+ 				<BonusHappinessChange>
+-					<BonusType>BONUS_GEMS</BonusType>
++					<BonusType>BONUS_GEMSTONES</BonusType>
+ 					<iHappinessChange>1</iHappinessChange>
+ 				</BonusHappinessChange>
+ 				<BonusHappinessChange>
+@@ -6703,7 +6703,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges>
+ 				<BonusHappinessChange>
+-					<BonusType>BONUS_GEMS</BonusType>
++					<BonusType>BONUS_GEMSTONES</BonusType>
+ 					<iHappinessChange>1</iHappinessChange>
+ 				</BonusHappinessChange>
+ 				<BonusHappinessChange>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 92212aa67..976ffbf00 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -11021,7 +11021,7 @@
+ 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+ 			</ImprovementsRequired>
+ 			<BonusesRequired>
+-				<BonusType>BONUS_GEMS</BonusType>
++				<BonusType>BONUS_GEMSTONES</BonusType>
+ 			</BonusesRequired>
+ 			<RoutesRequired>
+ 				<RouteType>ROUTE_ROAD</RouteType>
+
+diff --git a/Assets/XML/GameInfo/CIV4CorporationInfo.xml b/Assets/XML/GameInfo/CIV4CorporationInfo.xml
+index c2f73a8ad..4a83ddbe3 100644
+--- a/Assets/XML/GameInfo/CIV4CorporationInfo.xml
++++ b/Assets/XML/GameInfo/CIV4CorporationInfo.xml
+@@ -233,7 +233,7 @@
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_GOLD</BonusType>
+ 				<BonusType>BONUS_SILVER</BonusType>
+-				<BonusType>BONUS_GEMS</BonusType>
++				<BonusType>BONUS_GEMSTONES</BonusType>
+ 			</PrereqBonuses>
+ 			<HeadquarterCommerces>
+ 				<iHeadquarterCommerce>4</iHeadquarterCommerce>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 080fbdead..c70651a4b 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1329,11 +1329,11 @@
+ 			</FeatureTerrainBooleans>
+ 		</BonusInfo>
+ 		<BonusInfo>
+-			<Type>BONUS_GEMS</Type>
+-			<Description>TXT_KEY_BONUS_GEMS</Description>
+-			<Civilopedia>TXT_KEY_BONUS_GEMS_PEDIA</Civilopedia>
++			<Type>BONUS_GEMSTONES</Type>
++			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
++			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
+ 			<BonusClassType>BONUSCLASS_PRECIOUS</BonusClassType>
+-			<ArtDefineTag>ART_DEF_BONUS_GEMS</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_MINING</TechCityTrade>
+ 			<TechObsolete>NONE</TechObsolete>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 197766b81..3cedc4652 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -479,7 +479,7 @@
+ 					</YieldChanges>
+ 				</BonusTypeStruct>
+ 				<BonusTypeStruct>
+-					<BonusType>BONUS_GEMS</BonusType>
++					<BonusType>BONUS_GEMSTONES</BonusType>
+ 					<bBonusMakesValid>1</bBonusMakesValid>
+ 					<bBonusTrade>1</bBonusTrade>
+ 					<iDiscoverRand>10000</iDiscoverRand>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index c2c2b75b9..c44b44ba1 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -141,6 +141,12 @@
+ 		<English>Cattle</English>
+ 	</TEXT>
+ 
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_GEMSTONES</Tag>
++		<English>Gemstones</English>
++	</TEXT>
++
++
+ 
+ 	<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, anyways etc, see the code comment (global search with VS Code if need anyways etc "K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 9cd23fff9..955b60e50 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -16,6 +16,15 @@
+ 	 are also from K-Mod. -->
+ 
+ 
++
++	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Bonuses.xml (for languages we chose or didn't choose see AdvCiv-SAS core doc for details), description not changed otherwise as it correctly at least matching our new name so no change needed maybe fine as is or not or yes or other and or not and other or etc or other anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_GEMSTONES_PEDIA</Tag>
++		<English>[TAB]Gemstones, treasured throughout time for their beauty and value, have always been a sought-after commodity. Most gemstones, such as diamonds, are mined in various areas throughout the world, most notably Africa. Some of the most notable gem deposits, however, have been found in archeological digs. The ruins of ancient civilizations in the jungles of Central and South America have sometimes been found to hide large quantities of precious and semi-precious gems, as well as gold and other items of value. The discovery of such a site can lead to an increase in trade in the areas surrounding the dig, as both professional and amateur treasure hunters swarm to the region to seek their fortune.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the sevopedia unit ('s) history panel('s text), removing the H1, and adding info about how animals can't/cannot anyways etc anyways etc anyways etc be built by any civ, including barbarians if i am not mistaken, and how our new placeExclusiveCivs "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it hopefully well or not or yes or and other or and not or yes or and other or and not but anyways etc.
+ 	Note: also remove the uncertain note about animals not invading borders, maybe some mods would make animals do this, anyways etc, i don't know about advciv-sas('s take decision if i may say but anyways etc... on this), but removing it is probably clearer indeed and we don't commit to a specific explanation indeed that may be false or not if i may say indeed anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index 11b2c4f20..e7113f57f 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -675,8 +675,8 @@
+ 			</EncouragedCivs>
+ 		</TruBonusInfo>
+ 		<TruBonusInfo>
+-			<Type>TRU_GEMS</Type>
+-			<BonusType>BONUS_GEMS</BonusType>
++			<Type>TRU_GEMSTONES</Type>
++			<BonusType>BONUS_GEMSTONES</BonusType>
+ 			<!-- Don't bother with civs that most likely won't satisfy the
+ 				 placement reqs for Gems -->
+ 			<DiscouragedCivs>
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index 0f8e43120..c007d3833 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -2546,7 +2546,7 @@ p1015
+ I24
+ g969
+ tp1016
+-a(S'HAS_BONUS_GEMS'
++a(S'HAS_BONUS_GEMSTONES'
+ p1017
+ I24
+ g969
+@@ -2703,7 +2703,7 @@ p1073
+ I60
+ g910
+ tp1074
+-a(S'BONUS_GEMS'
++a(S'BONUS_GEMSTONES'
+ p1075
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 582b8bd57..63c6afe6f 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -2546,7 +2546,7 @@ p1015
+ I24
+ g969
+ tp1016
+-a(S'HAS_BONUS_GEMS'
++a(S'HAS_BONUS_GEMSTONES'
+ p1017
+ I24
+ g969
+@@ -2703,7 +2703,7 @@ p1073
+ I60
+ g910
+ tp1074
+-a(S'BONUS_GEMS'
++a(S'BONUS_GEMSTONES'
+ p1075
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index ae241fb0a..11e44d4cf 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -2290,7 +2290,7 @@ p918
+ I24
+ g872
+ tp919
+-a(S'HAS_BONUS_GEMS'
++a(S'HAS_BONUS_GEMSTONES'
+ p920
+ I24
+ g872
+@@ -2454,7 +2454,7 @@ p977
+ I40
+ g816
+ tp978
+-a(S'BONUS_GEMS'
++a(S'BONUS_GEMSTONES'
+ p979
+ I40
+ g816
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index 6ddbbcbfa..98372bac2 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -2404,7 +2404,7 @@ p954
+ I24
+ g908
+ tp955
+-a(S'HAS_BONUS_GEMS'
++a(S'HAS_BONUS_GEMSTONES'
+ p956
+ I24
+ g908
+@@ -2569,7 +2569,7 @@ p1014
+ I45
+ g849
+ tp1015
+-a(S'BONUS_GEMS'
++a(S'BONUS_GEMSTONES'
+ p1016
+ I45
+ g849
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index dbe7f386a..722486565 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -188,6 +188,8 @@ So hopefully fine and solved now even though not sure and not guaranteed but may
+ 
+ # 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
+ 
++Related to [example/issue 9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#9---art-and-maybe-other-assets-too-or-not-anyways-etc-xml-assets-silently-causing-a-game-crash-during-initgame-loadstartup-instead-of-telling-us-which-asset-was-missing-no-error)
++
+ Be careful of having too long XML code comments, they (seem to indeed but anyways etc) cause game crashes (or maybe errors too? Anyways etc) in some circumstances, i assume it is especially due to or/and caused by if it's not same but anyways etc nested code comments more specifically but anyways, since i don't know more, it is only speculation on my end but anyways etc, but moving these nested code comments outside of the XML did fix the early game crash issue that is reproductible.
+ 
+ Something to keep in mind perhaps if i may say i mean anyways while doing XML code comments, that if they have to be long, move them outside of the XML tree entirely maybe, or at least outside the nested ones maybe, tweak this advice or opinion or feel or not feel or yes feel but maybe rather too view/thought as you see fit and/or want or not, hopefully helpful or not or and other or and not but in all cases maybe or not or yes anyways etc anyways etc anyways etc.
+@@ -203,3 +205,176 @@ On windows 10 at least if not in other systems as well, at least in my machine b
+ For example as in [these screenshots (google drive folder link anyways etc)](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or/and equivalent configuration/version of this that fits/suits your system username or/and other settings anyways etc (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log) anyways etc.
+ 
+ If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or/and why you are doing (it) or/and other (reason) or and not as you prefer or not or yes or and other or and not anyways etc anyways etc anyways etc
++
++# 9 - Art (and maybe other assets too or not anyways etc) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
++
++Related to [example/issue 6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#6---now-worked-around-anyways-etc-too-long-xml-code-comments-cause-errors-orand-game-crashes)
++
++For example, while i was renaming _GEMS to _GEMSTONES, everywhere (with VS Code global search), except one part i had forgotten:
++
++Like this (Results/status anyways etc shown below thanks to VS Code's global search's "Copy all" UI menu anyways etc):
++
++```
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Art\CIV4ArtDefines_Bonus.xml
++  118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml
++  6512,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
++  6706,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Events\CIV4EventTriggerInfos.xml
++  11024,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4CorporationInfo.xml
++  236,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4BonusInfos.xml
++  1332,15: 			<Type>BONUS_GEMSTONES</Type>
++  1333,30: 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
++  1334,30: 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
++  1336,31: 			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4ImprovementInfos.xml
++  482,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\TrueStarts\CIV4TruBonusInfos.xml
++  678,13: 			<Type>TRU_GEMSTONES</Type>
++  679,20: 			<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ger.txt
++  2549,14: a(S'HAS_BONUS_GEMSTONES'
++  2706,10: a(S'BONUS_GEMSTONES'
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ita.txt
++  2293,14: a(S'HAS_BONUS_GEMSTONES'
++  2457,10: a(S'BONUS_GEMSTONES'
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv.txt
++  2549,14: a(S'HAS_BONUS_GEMSTONES'
++  2706,10: a(S'BONUS_GEMSTONES'
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\WS_CustomDomAdv.txt
++  2407,14: a(S'HAS_BONUS_GEMSTONES'
++  2572,10: a(S'BONUS_GEMSTONES'
++```
++
++Here as seen above, i had forgotten to rename `118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>` to `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>` as well, but instead of getting the usual error like in unitinfos xml or such from little or not little i experimented ith xml of civ4 in the past since doing this advciv-sas mod anyways etc, here we have a silent crash instead of an error, and inspecting the err log or dbg log of pytohn in civ4 shows us nothing, file is empty, the app init log (in C:\Users\PC\Documents\My Games\beyond the sword\Logs\init.log) is not too helpful either:
++
++```
++[38971.390] DBG: CIV Init
++[38971.390] VERSION: App: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe
++[38971.390] VERSION: Build: Thu May 29 04:28:49 2014
++[38971.390] VERSION: 3.1.9.0 (128100)
++[38971.718] VERSION: Mod Loaded: Mods\AdvCiv-SAS\
++[38971.734] DBG: FILE Cat Init
++[38972.234] DBG: Game Init
++[38972.234] DBG: Multiplayer Init BEGIN
++[38972.328] DBG: Multiplayer Init END
++[38972.328] DBG: Audio Init
++[38972.625] DBG: ArtFileMgr Init
++[38972.625] DBG: Python Init
++[38974.343] VERSION: CIV Version: 319
++[38974.343] VERSION: Minimum Version: 319
++[38974.343] VERSION: Save Version: 14223
++[38974.343] DBG: Input Init
++[38974.343] DBG: Engine Init
++[38974.421] DBG: Checking available screen resolution
++[38974.546] DBG: Validating screen resolution
++[38974.546] DBG: Creating rendererer
++[38974.797] DBG: Engine: renderer Initialized
++[38974.797] DBG: Engine: Shaders Initialized
++[38974.922] DBG: Engine: Scene Lights Initialized
++[38974.922] DBG: Music Start
++[38974.938] DBG: Font Init
++```
++
++But it seems last element we loaded successfully or (maybe? Anyways etc) crashed at while trying to load anyways etc was "Font"(s?)?? Could this be related to art assests or referring/being a reference/mention to(/of?) them perhaps or not?
++
++In all cases, unless i am mistaken or not too knowledgeable about this issue or this part of civ4 knowledge or experience or and other or and not anyways etc, this does not help us directly like as if for exmapel it told us error missing asset X at line etc asset not found or something.
++
++So it seems art xml assets need special attention especially in the case of errors, not as easy to handle, but fixing it now works:
++
++```
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Art\CIV4ArtDefines_Bonus.xml
++  118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml
++  6512,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
++  6706,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Events\CIV4EventTriggerInfos.xml
++  11024,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4CorporationInfo.xml
++  236,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4BonusInfos.xml
++  1332,15: 			<Type>BONUS_GEMSTONES</Type>
++  1333,30: 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
++  1334,30: 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
++  1336,31: 			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4ImprovementInfos.xml
++  482,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\TrueStarts\CIV4TruBonusInfos.xml
++  678,13: 			<Type>TRU_GEMSTONES</Type>
++  679,20: 			<BonusType>BONUS_GEMSTONES</BonusType>
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ger.txt
++  2549,14: a(S'HAS_BONUS_GEMSTONES'
++  2706,10: a(S'BONUS_GEMSTONES'
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ita.txt
++  2293,14: a(S'HAS_BONUS_GEMSTONES'
++  2457,10: a(S'BONUS_GEMSTONES'
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv.txt
++  2549,14: a(S'HAS_BONUS_GEMSTONES'
++  2706,10: a(S'BONUS_GEMSTONES'
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\WS_CustomDomAdv.txt
++  2407,14: a(S'HAS_BONUS_GEMSTONES'
++  2572,10: a(S'BONUS_GEMSTONES'
++```
++
++like this:   `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>`, now works and game can start fine and all at least in main menu anyways etc.
++
++Something to keep in mind if i may say anyways etc if having we/i/you or and other or and not anyways etc have a crash after modifying art assets, but no idea why, it could be linked to this issue or something similar, ideally we'd get a nice error crash message and such, but comitting in smalle rchunks ideally and testing at each step occasionally or lot or not may help prevent or spot these, hopefully this message or rather anyways etc note here in this doc of known civ4 issues also helps me or and other or and not reading this or not or yes or etc or and other or and not anyways etc anyways etc anyways etc...
++
++Also for info init log after successfully load is like this after fixing it and successfully finally (even though was not long but as in/in terms of having success step now if i may say anyways etc anyways etc anyways etc or not or yes or and other or and not anyways etc) anyways etc:
++
++```
++[39838.765] DBG: CIV Init
++[39838.781] VERSION: App: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe
++[39838.781] VERSION: Build: Thu May 29 04:28:49 2014
++[39838.781] VERSION: 3.1.9.0 (128100)
++[39839.109] VERSION: Mod Loaded: Mods\AdvCiv-SAS\
++[39839.109] DBG: FILE Cat Init
++[39839.609] DBG: Game Init
++[39839.625] DBG: Multiplayer Init BEGIN
++[39839.734] DBG: Multiplayer Init END
++[39839.765] DBG: Audio Init
++[39840.078] DBG: ArtFileMgr Init
++[39840.078] DBG: Python Init
++[39841.812] VERSION: CIV Version: 319
++[39841.812] VERSION: Minimum Version: 319
++[39841.812] VERSION: Save Version: 14223
++[39841.812] DBG: Input Init
++[39841.812] DBG: Engine Init
++[39841.890] DBG: Checking available screen resolution
++[39842.015] DBG: Validating screen resolution
++[39842.015] DBG: Creating rendererer
++[39842.250] DBG: Engine: renderer Initialized
++[39842.250] DBG: Engine: Shaders Initialized
++[39842.375] DBG: Engine: Scene Lights Initialized
++[39842.375] DBG: Music Start
++[39842.391] DBG: Font Init
++[39842.406] DBG: Begin MenuManager
++[39842.406] DBG: Total Frame MS: 3681.0  FPS: 000  Min:000 Max:000 Avg:000  SampleFilter:10.000000
++ Time   :   Ave  :  Min% :  Max% : Num : Profile Name
++-----------------------------------------------------
++--------------------------------------------------
++```
++
++Anyways etc anyways etc anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+index b8f74d415..0ef3b30fc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+@@ -30,10 +30,15 @@ Arabs
+ - Harun al rashid? (RFC DOC? Or SOI?)
+ - Saladin? (RFC DOC? Or SOI?)
+ - Suleiman? (RFC DOC? Or SOI?)
++- Khawla bint al-Azwar? (https://historum.com/t/on-the-8th-of-march-8-great-arab-women-from-history.177192/) Great because she is an arab general and woman, and we have skin/animation for her if we implement here for example https://en.wikipedia.org/wiki/Khawla_bint_al-Azwar, but it seems not sure that she existed though so not sure we add her or not but anyways etc use Dihya al Kahina from HR? Anyways etc
++- or Arwa al-Sulayhi she seems like the real deal hehe, full power general and such and leader if i may say anyways etc..., (https://historum.com/t/on-the-8th-of-march-8-great-arab-women-from-history.177192/) (and) (https://en.wikipedia.org/wiki/Arwa_al-Sulayhi), and her reign seems historically more certain and solid, a bit deeper dive in https://cso-yemen.org/queen-arwa-of-yemen/#:~:text=Arwa%20implemented%20economic%20reforms%2C%20including,and%20religious%20tolerance%20in%20Yemen., so maybe her with use Dihya al Kahina from HR? Anyways etc
+ 
+ Egypt
+ - Cleopatra (add "VII"/7 in name too anyways etc) (ROM 291? or the one in many other mods but that i may want a bit less if not lot or other or not anyways etc?)
+ - Nasser? (RFC DOC? Check if HR's version is same or not too anyways etc may or (may (i.e. not anyways etc...)) not add him though anyways etc anyways etc anyways etc)
++- Shajar al-Durr? (https://en.wikipedia.org/wiki/Shajar_al-Durr) use Dihya al Kahina from HR? Anyways etc
++- Zenobia? (https://historum.com/t/on-the-8th-of-march-8-great-arab-women-from-history.177192/) use Dihya al Kahina from HR? Anyways etc
++- or Mawiyya? (same) (and also https://en.wikipedia.org/wiki/Mawiyya) use Dihya al Kahina from HR? Anyways etc (or create assyrian empire if i am not mistaken? Or maybe add to Persian Empire or something other or not or other? Todo research if we/i etc add her anyways etc, Anyways etc)
+ 
+ Persia
+ - Xerxes? (NW?, or LOR?)
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=28952

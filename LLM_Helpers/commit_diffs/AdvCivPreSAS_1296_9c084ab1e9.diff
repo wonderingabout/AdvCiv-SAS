@@ -1,0 +1,487 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1296
+# Commit: 9c084ab1e9a6267da357f378ecb617f057c03613
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8f2d87568a3929733721ffc7044bce4dae9988a8
+# Title: Removed garbled text accidentally added in v0.91 from Civilopedia entries for buildings.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+265	0	Assets/xml/Text/CIV4GameText_advc.xml
+16	12	Assets/xml/Units/CIV4UnitInfos.xml
+2	2	CvGameCoreDLL/CvCityAI.cpp
+5	4	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/WarAndPeaceCache.cpp
+28	12	PrivateMaps/PerfectMongoose.py
+-	-	manual_092b.odt
+ create mode 100644 manual_092b.odt
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 1962d1772..3bf768acf 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -963,6 +963,271 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- advc.005b: New Great Spies -->
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_FRITZ_DUQUESNE</Tag>
++		<English>Fritz Duquesne</English>
++		<French>
++			<Text>Fritz Duquesne</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Fritz Duquesne</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Fritz Duquesne</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Fritz Duquesne</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_JUAN_PUJOL_GARCIA</Tag>
++		<English>Juan Pujol Garc�a</English>
++		<French>
++			<Text>Juan Pujol Garc�a</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Juan Pujol Garc�a</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Juan Pujol Garc�a</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Juan Pujol Garc�a</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_KRYSTYNA_SKARBEK</Tag>
++		<English>Krystyna Skarbek</English>
++		<French>
++			<Text>Krystyna Skarbek</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Krystyna Skarbek</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Krystyna Skarbek</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Krystyna Skarbek</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_JOSEPHINE_BAKER</Tag>
++		<English>Josephine Baker</English>
++		<French>
++			<Text>Josephine Baker</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Josephine Baker</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Josephine Baker</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Josephine Baker</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_LAVRENTIY_BERIA</Tag>
++		<English>Lavrentiy Beria</English>
++		<French>
++			<Text>Lavrenti Beria</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Lawrenti Beria</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Lavrentij Berija</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Lavrenti Beria</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_KANG_SHENG</Tag>
++		<English>Kang Sheng</English>
++		<French>
++			<Text>Kang Sheng</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kang Sheng</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Kang Sheng</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Kang Sheng</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_MARKUS_WOLF</Tag>
++		<English>Markus Wolf</English>
++		<French>
++			<Text>Markus Wolf</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Markus Wolf</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Markus Wolf</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Markus Wolf</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_IVAN_SEROV</Tag>
++		<English>Ivan Serov</English>
++		<French>
++			<Text>Ivan Serov</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Iwan Serow</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Ivan Serov</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Ivan Serov</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_KIM_PHILBY</Tag>
++		<English>Kim Philby</English>
++		<French>
++			<Text>Kim Philby</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kim Philby</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Kim Philby</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Kim Philby</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_RAMESHWARNATH_KAO</Tag>
++		<English>Rameshwarnath Kao</English>
++		<French>
++			<Text>Rameshwarnath Kao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Rameshwarnath Kao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Rameshwarnath Kao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Rameshwarnath Kao</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GREAT_PERSON_HAMID_GUL</Tag>
++		<English>Hamid Gul</English>
++		<French>
++			<Text>Hamid Gul</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Hamid Gul</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Hamid Gul</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Hamid Gul</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.005: From CIV4GameText_Objects_BTS.xml -->
+ 	<TEXT>
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index 72f5c74c5..668151b01 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -23156,6 +23156,8 @@
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_ALLAN_PINKERTON</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_WILLIAM_MELVILLE</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_BELLE_BOYD</UniqueName>
++				<!-- advc.005b: Replacement for Qin Wuyang -->
++				<UniqueName>TXT_KEY_GREAT_PERSON_FRITZ_DUQUESNE</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_SIDNEY_REILLY</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_AN_JUNG_GEUN</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_CLAUDE_DANSEY</UniqueName>
+@@ -23167,18 +23169,20 @@
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_CLAUS_VON_STAUFFENBERG</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_SUZANNE_SPAAK</UniqueName>
+ 				<UniqueName>TXT_KEY_GREAT_PERSON_WILLIAM_DONOVAN</UniqueName>
+-				<!-- advc.005 (comment): These are named after playtesters.
+-					 Would be nice to replace them. -->
+-				<UniqueName>TXT_KEY_GREAT_PERSON_SPEAKER</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_VIKTOR_GRIPH</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_NOLAN</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_ATLAS</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_FOSHAUG</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_JOE_MATISE</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_EYSTEIN</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_DANIEL_COLE</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_MAX_GOGF</UniqueName>
+-				<UniqueName>TXT_KEY_GREAT_PERSON_MARK_SWISS</UniqueName>
++				<!-- advc.005b These were named after BtS playtesters:
++					 SPEAKER, VIKTOR_GRIPH, NOLAN, ATLAS, FOSHAUG, JOE_MATISE,
++					 EYSTEIN, DANIEL_COLE, MAX_GOGF, MARK_SWISS
++					 10 replacements: -->
++				<UniqueName>TXT_KEY_GREAT_PERSON_JUAN_PUJOL_GARCIA</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_KRYSTYNA_SKARBEK</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_JOSEPHINE_BAKER</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_LAVRENTIY_BERIA</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_KANG_SHENG</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_MARKUS_WOLF</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_IVAN_SEROV</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_KIM_PHILBY</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_RAMESHWARNATH_KAO</UniqueName>
++				<UniqueName>TXT_KEY_GREAT_PERSON_HAMID_GUL</UniqueName>
+ 			</UniqueNames>
+ 			<Special>SPECIALUNIT_PEOPLE</Special>
+ 			<Capture>NONE</Capture>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6720f6c3f..acf08c0a3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -714,8 +714,8 @@ void CvCityAI::AI_chooseProduction()
+ 	if( pWaterSettlerArea == NULL )
+ 	{
+ 		pWaterSettlerArea = GC.getMap().findBiggestArea(true);
+-
+-		if( GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0 )
++		if(pWaterSettlerArea != NULL && // advc.001: What if there is no water at all?
++			GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0 )
+ 		{
+ 			pWaterSettlerArea = NULL;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3f4490cc3..c5140cf59 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9509,10 +9509,11 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 	/*  ePlayer is NULL if Civilopedia accessed from main menu.
+ 		bCivilopedia is false then by the way (fixme?). */
+ 	CvPlayer const* pPlayer = (ePlayer == NO_PLAYER ? NULL : &GET_PLAYER(ePlayer));
+-	// </advc.003>
+-	//if(!bCivilopediaText && ePlayer != NO_PLAYER) { // advc.003
+-	szTempBuffer.Format( SETCOLR L"<link=literal>%s</link>" ENDCOLR , TEXT_COLOR("COLOR_BUILDING_TEXT"), kBuilding.getDescription());
+-	szBuffer.append(szTempBuffer);
++	//if(!bCivilopediaText && ePlayer != NO_PLAYER) {
++	if(!bCivilopediaText) { // </advc.003>
++		szTempBuffer.Format( SETCOLR L"<link=literal>%s</link>" ENDCOLR , TEXT_COLOR("COLOR_BUILDING_TEXT"), kBuilding.getDescription());
++		szBuffer.append(szTempBuffer);
++	}
+ /*
+ ** K-Mod, 30/dec/10, karadoc
+ ** changed so that conditional happiness is not double-reported. (such as happiness from state-religion buildings, or culture slider)
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 6b57b7acc..ef793e408 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -647,7 +647,7 @@ void WarAndPeaceCache::sortCitiesByAttackPriority() {
+ 	PROFILE_FUNC();
+ 	/*  Selection sort b/c I want to factor in city areas. An invading army tends
+ 		to stay in one area until all cities there are conquered. */
+-	for(size_t i = 0; i < v.size() - 1; i++) {
++	for(int i = 0; i < ((int)v.size()) - 1; i++) {
+ 		CvCity* cvc = NULL;
+ 		if(i > 0)
+ 			cvc = v[i - 1]->city();
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 44c7d9136..2a01ffdb9 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -390,6 +390,7 @@ class MapConstants:
+ 		#The following values are used for assigning starting locations. For now,
+ 		#they have the same ratio that is found in CvPlot::getFoundValue
+ 		# <advc.021b> Was 20/40/10. Using the values from Civ 4 Reimagined instead, except for food, now valued at 23 (40 in Civ 4 Reimagined). Don't want to rule out steppe starts when there isn't enough room elsewhere. Let the normalization code worry about lack of food.
++		# (Now that I've replaced PotentialValue with AI_foundValue in one important spot, these coefficients should be less important. They're still used though.)
+ 		self.CommerceValue   = 15
+ 		self.ProductionValue = 30
+ 		self.FoodValue       = 23
+@@ -397,8 +398,8 @@ class MapConstants:
+ 
+ 		#Coastal cities are important, how important is determined by this
+ 		#value.
+-		# advc.021b: Was 1.3; now set as in Civ 4 Reimagined.
+-		self.CoastalCityValueBonus = 1.25
++		# advc.021b: Was 1.3; 1.25 in Civ 4 Reimagined. 1.2 seems to be enough to prevent cities one off the coast.
++		self.CoastalCityValueBonus = 1.2
+ 
+ 		#River side cities are also important, how important is determined by this
+ 		#value.
+@@ -5064,6 +5065,8 @@ class StartingArea:
+ 	def CalculatePlotList(self):
+ 		gc = CyGlobalContext()
+ 		gameMap = CyMap()
++		# advc.021b:
++		activePl = gc.getPlayer(gc.getGame().getActivePlayer())
+ 		for y in range(mc.height):
+ 			for x in range(mc.width):
+ 				plot = gameMap.plot(x, y)
+@@ -5075,6 +5078,8 @@ class StartingArea:
+ 					if plot.area().getNumTiles() - plot.getLatitude() < 25 or plot.getLatitude() > 55:
+ 						continue # </advc.021b>
+ 					food, value = sf.getCityPotentialValue(x, y)
++					# advc.021b:
++					value = activePl.AI_foundValue(x, y, -1, True)
+ 					if value > 0:
+ 						startPlot = StartPlot(x, y, value)
+ 						if plot.isWater():
+@@ -5158,16 +5163,27 @@ class StartingArea:
+ 		numPlayers = len(self.playerList)
+ 		if numPlayers <= 0:
+ 			return
+-		avgDistanceList = list()
+-		for i in range(len(self.plotList)):
+-			avgDistanceList.append(self.plotList[i])
+-		#Make sure first guy starts on the end and not in the middle, otherwise if
+-		#there are two players one will start on the middle and the other on the end
+-		avgDistanceList.sort(lambda x, y:cmp(x.avgDistance, y.avgDistance))
+-		avgDistanceList.reverse()
+-		#First place players as far as possible away from each other
+-		#Place the first player
+-		avgDistanceList[0].vacant = False
++		# <advc.021b> Sometimes begin by making the plot with the best localValue a starting plot
++		firstPlayerPlaced = False
++		if numPlayers == 1 or PRand.randint(0, 100) < (numPlayers - 2) * 20:
++			# On PM, the best plot is almost always at a coast. I want to have inland starts too from time to time.
++			for i in range(min(7, len(self.plotList))):
++				if not self.plotList[i].isCoast() or PRand.randint(0, 100) < 15:
++					self.plotList[i].vacant = False
++					firstPlayerPlaced = True
++					break
++		if not firstPlayerPlaced:
++		# </advc.021b>
++			avgDistanceList = list()
++			for i in range(len(self.plotList)):
++				avgDistanceList.append(self.plotList[i])
++			#Make sure first guy starts on the end and not in the middle, otherwise if
++			#there are two players one will start on the middle and the other on the end
++			avgDistanceList.sort(lambda x, y:cmp(x.avgDistance, y.avgDistance))
++			avgDistanceList.reverse()
++			#First place players as far as possible away from each other
++			#Place the first player
++			avgDistanceList[0].vacant = False
+ 		for i in range(1,numPlayers):
+ 			distanceList = list()
+ 			for n in range(len(self.plotList)):
+
+[PATCH OMITTED] file=a/manual_092b.odt b/manual_092b.odt reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=15025

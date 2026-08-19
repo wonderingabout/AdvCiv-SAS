@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 750
+# Commit: 1d850b3bc2a7d82cbd04cbde6b8313f716e619fe
+# History segment: K-Mod history
+# Parent used for diff: 201150ab61534364caaca3bc2c25ea49def1177d
+# Title: Espionage spending weights now default to 1 rather than 0. Changed the behaviour of barbarian galleys. (They are now a bit more interested in pillaging rathe...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayer.cpp
+13	27	CvGameCoreDLL/CvUnitAI.cpp
+3	3	readme.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c0176b248..84e01c436 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -819,7 +819,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+-		m_aiEspionageSpendingWeightAgainstTeam[iI] = 0;
++		m_aiEspionageSpendingWeightAgainstTeam[iI] = 1;
+ 
+ 		if (!bConstructorCall && getTeam() != NO_TEAM)
+ 		{
+@@ -827,7 +827,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 			{
+ 				if (GET_PLAYER((PlayerTypes) iJ).getTeam() == iI)
+ 				{
+-					GET_PLAYER((PlayerTypes) iJ).setEspionageSpendingWeightAgainstTeam(getTeam(), 0);
++					GET_PLAYER((PlayerTypes) iJ).setEspionageSpendingWeightAgainstTeam(getTeam(), 1);
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 911b62beb..115a38d13 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6293,11 +6293,6 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ {
+ 	PROFILE_FUNC();
+ 
+-	/********************************************************************************/
+-	/* 	BETTER_BTS_AI_MOD						9/25/08				jdog5000	*/
+-	/* 																			*/
+-	/* 	Barbarian AI															*/
+-	/********************************************************************************/
+ 	/* original BTS code
+ 	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0)
+ 	{
+@@ -6322,35 +6317,27 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 		return;
+ 	}
+ 	*/
+-	// Less suicide, always chase good targets
+-	if( AI_anyAttack(2,51) )
+-	{
++	// K-Mod
++	if (AI_anyAttack(1, 51)) // safe attack
+ 		return;
+-	}
+ 
+-	if (AI_pillageRange(1))
+-	{
++	if (AI_pillageRange(1)) // near pillage
+ 		return;
+-	}
+ 
+-	if( AI_anyAttack(1,34) )
+-	{
++	if (AI_heal())
+ 		return;
+-	}
+ 
+-	// We're easy to take out if wounded
+-	if (AI_heal())
+-	{
++	if (AI_anyAttack(1, 30)) // reckless attack
+ 		return;
+-	}
+ 
+-	if (AI_pillageRange(3))
+-	{
++	if (GC.getGameINLINE().getSorenRandNum(10, "AI barb attack sea pillage") < 4 && AI_pillageRange(3)) // long pillage
+ 		return;
+-	}
+ 
+-	// Barb ships will often hang out for a little while blockading before moving on
+-	if( (GC.getGame().getGameTurn() + getID())%12 > 5 )
++	if (GC.getGameINLINE().getSorenRandNum(16, "AI barb attack sea chase") < 15 && AI_anyAttack(2, 45)) // chase
++		return;
++
++	// Barb ships will often hang out for a little while blockading before moving on (BBAI)
++	if( (GC.getGame().getGameTurn() + AI_getBirthmark())%12 > 5 )
+ 	{
+ 		if( AI_pirateBlockade())
+ 		{
+@@ -6358,6 +6345,7 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 		}
+ 	}
+ 
++	// (trap checking from BBAI)
+ 	if( GC.getGameINLINE().getSorenRandNum(3, "AI Check trapped") == 0 )
+ 	{
+ 		// If trapped in small hole in ice or around tiny island, disband to allow other units to be generated
+@@ -6391,9 +6379,7 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 			scrap();
+ 		}
+ 	}
+-	/********************************************************************************/
+-	/* 	BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++	// K-Mod / BBAI end
+ 
+ 	if (AI_patrol())
+ 	{
+
+diff --git a/readme.txt b/readme.txt
+index f3be00406..39f444410 100644
+--- a/readme.txt
++++ b/readme.txt
+@@ -21,7 +21,7 @@ Bitcoin: 15kzyE5fvQvicfg2rtXppqKYD63t4rFCSt
+ == Introduction ==
+ I originally intended for this mod to be extremely minimalistic, and for personal use only. My original intended changes were just to buff serfdom, protective, and aggressive, and to introduce some features to make automated workers a bit more friendly. The plan was that my mod would be basically the same as the unmodded game, but with a few of the obviously game elements improved. But as I read the game code to learn how to implement my changes, and as I browsed the change-lists of other mods (such as the PIG mod) to see what other minor changes I could make, I started to realise that unmodded BtS isn't anywhere near as planned and polished as I had thought. I use to think that all the mechanics and numbers were a result of careful calculations and thinking and testing, but I learnt that many of the features in the game are completely arbitrary and sometimes obviously unfinished. So the scope of my mod widened dramatically to include pretty much everything that I thought was not as it should be.
+ 
+-I now think of K-Mod as an kind of _unofficial content & balance patch_. The mod is intended to be played as a replacement for standard BtS. Many of the changes are 'under-the-hood' things that a casual player probably wouldn't notice, but I think the changes will enhance their enjoyment of the game nonetheless.
++I now think of K-Mod as an kind of 'unofficial content & balance patch'. The mod is intended to be played as a replacement for standard BtS. Many of the changes are 'under-the-hood' things that a casual player probably wouldn't notice, but I think the changes will enhance their enjoyment of the game nonetheless.
+ 
+ Here I'll list a few significant features. See changelog.txt for a more complete list.
+ 
+@@ -36,7 +36,7 @@ Here I'll list a few significant features. See changelog.txt for a more complete
+  + K-Mod includes many bug fixes to the controls and user-interface of the game. For example, units will no longer automatically attack when they are ordered into an unseen enemy unit in the fog-of-war; and using the diplomacy screen to suggest peace will now bring up possible peace-trade deal rather than simply ending the war without negotiations. There are many other such minor improvements.
+ 
+ == Better AI ==
+-The BBAI mod was used as the starting point for the AI in K-Mod, but each new version of K-Mod comes with further AI improvements which are gradually replacing all of the old AI. The AI in K-Mod is now noticeably stronger than the AI in the BBAI mod, and the standard BtS AI. The obvious improvements are that AI civilizations will research faster, fight smarter, and place cities more thoughtfully. But there are also some "flavour" changes as well - different AI leaders like to pursue different kinds of strategies, with different areas of emphasis. It's also worth noting that the AI in K-Mod actually cheats /less/ than the standard AI; not more. (For those who don't know; the standard AI 'cheats' by sometimes knowing what is on certain plots without actually seeing them. This still sometimes happens in K-Mod, but it happens far less.)
++The BBAI mod was used as the starting point for the AI in K-Mod, but each new version of K-Mod comes with further AI improvements which are gradually replacing all of the old AI. The AI in K-Mod is now noticeably stronger than the AI in the BBAI mod, and the standard BtS AI. The obvious improvements are that AI civilizations will research faster, fight smarter, and place cities more thoughtfully, and so on. But there are also some "flavour" changes as well - different AI leaders like to pursue different kinds of strategies, with different areas of emphasis based on their individual personalities. It's also worth noting that the AI in K-Mod actually cheats /less/ than the standard AI; not more. (For those who don't know; the standard AI 'cheats' by sometimes knowing what is on certain plots without actually seeing them. This still sometimes happens in K-Mod, but it happens far less.)
+ 
+ == New global warming system ==
+ In standard BtS, global warming is a bit of a joke. It is triggered by the wrong things, you can't really do much to prevent it, and it hits the world in a harsh and unintuitive way. I've completely changed it.
+@@ -75,4 +75,4 @@ I hope you enjoy the mod.
+ 
+  - Karadoc
+  
+- (The full source-code for this mod is available at [https://github.com/karadoc/Civ4-K-Mod].)
+\ No newline at end of file
++(The full source-code for this mod is available at [https://github.com/karadoc/Civ4-K-Mod]. You can contact me at [<hidden-email>].)
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7944

@@ -1,0 +1,2298 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2388
+# Commit: e3e630e3c3e7aad1b837c9fe1913de6c1aa25ed0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1f11c1f4b24755b51c0178f8b0d133df1871f321
+# Title: Comments: mark changes from Kek-Mod with "kekm"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/OOSLogger.xml
+1	1	Assets/Config/init.xml
+7	7	Assets/Python/BUG/Scoreboard.py
+1	1	Assets/Python/Contrib/OOSLogger.py
+3	3	Assets/Python/Screens/CvInfoScreen.py
+4	4	Assets/Python/Screens/CvMainInterface.py
+2	2	Assets/XML/BBAI_Game_Options_GlobalDefines.xml
+1	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+1	1	Assets/XML/Terrain/CIV4FeatureInfos.xml
+1	1	Assets/XML/Text/Advanced Scoreboard Options.xml
+1	1	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	Assets/XML/Units/CIV4BuildInfos.xml
+8	8	CvGameCoreDLL/CvCity.cpp
+6	6	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvDLLPython.cpp
+21	21	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGlobals.h
+2	2	CvGameCoreDLL/CvInitCore.cpp
+59	59	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayer.h
+23	23	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+13	13	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+58	58	CvGameCoreDLL/CvTeam.cpp
+6	6	CvGameCoreDLL/CvTeam.h
+6	6	CvGameCoreDLL/CvTeamAI.cpp
+8	8	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyCityInterface2.cpp
+2	2	CvGameCoreDLL/CyGlobalContext.cpp
+2	2	CvGameCoreDLL/CyGlobalContext.h
+2	2	CvGameCoreDLL/CyGlobalContextInterface1.cpp
+1	1	CvGameCoreDLL/CyRandomInterface.cpp
+1	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+8	8	PrivateMaps/not_too_Big_or_Small.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/OOSLogger.xml b/Assets/Config/OOSLogger.xml
+index 599430f0a..397683fb4 100644
+--- a/Assets/Config/OOSLogger.xml
++++ b/Assets/Config/OOSLogger.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="ISO-8859-1" ?>
+ 
+-<!-- dlph.27 - OOS logging, idea from Fall from Heaven 2 by Kael. -->
++<!-- kekm.27 - OOS logging, idea from Fall from Heaven 2 by Kael. -->
+ 
+ <mod id="OOSLogger" module="OOSLogger">
+
+diff --git a/Assets/Config/init.xml b/Assets/Config/init.xml
+index e6718dbd1..5ed78813a 100644
+--- a/Assets/Config/init.xml
++++ b/Assets/Config/init.xml
+@@ -160,7 +160,7 @@
+ 	<load mod="EventSigns"/>
+ 	<load mod="Strategy Overlay"/>
+ 	<load mod="StatusDump"/>
+-	<!-- dlph.27: -->
++	<!-- kekm.27: -->
+ 	<load mod="OOSLogger"/> <!-- OOS logging, idea from Fall From Heaven 2 by Kael. -->
+ 	
+ 	<!-- BULL -->
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 292b77aa7..5eecf60a0 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -56,7 +56,7 @@ NUM_PARTS = 28
+ 	WAITING,
+ 	NET_STATS,
+ 	OOS,
+-	LEADER_BUTTON, CIV_BUTTON, # dlph.30
++	LEADER_BUTTON, CIV_BUTTON, # kekm.30
+ 	GOLDEN_AGE # advc.085
+ ) = range(NUM_PARTS)
+ 
+@@ -120,10 +120,10 @@ def init():
+ 	columns.append(Column('*', WAITING, FIXED, smallText("*")))
+ 	columns.append(Column('L', NET_STATS, DYNAMIC))
+ 	columns.append(Column('O', OOS, DYNAMIC))
+-	# <dlph.30>
++	# <kekm.30>
+ 	columns.append(Column('F', LEADER_BUTTON, SPECIAL))
+ 	columns.append(Column('G', CIV_BUTTON, SPECIAL))
+-	# </dlph.30>
++	# </kekm.30>
+ 	columns.append(Column('J', GOLDEN_AGE, DYNAMIC)) # advc.085
+ 	
+ 	global WAR_ICON, PEACE_ICON
+@@ -316,13 +316,13 @@ class Scoreboard:
+ 		
+ 	def setOOS(self, value):
+ 		self._set(OOS, smallText(value))
+-	# <dlph.30>
++	# <kekm.30>
+ 	def setLeaderIcon(self, leader):
+ 		self._set(LEADER_BUTTON, leader)
+ 
+ 	def setCivIcon(self, civ):
+ 		self._set(CIV_BUTTON, civ)
+-	# </dlph.30>
++	# </kekm.30>
+ 	# <advc.085>
+ 	def setGoldenAge(self, bAnarchy):
+ 		eWidget = WidgetTypes.WIDGET_GOLDEN_AGE
+@@ -560,7 +560,7 @@ class Scoreboard:
+ 					x -= techIconSize
+ 					totalWidth += techIconSize + spacing
+ 					spacing = defaultSpacing
+-				# <dlph.30>
++				# <kekm.30>
+ 				elif c == LEADER_BUTTON:
+ 					x -= spacing
+ 					for p, playerScore in enumerate(self._playerScores):
+@@ -583,7 +583,7 @@ class Scoreboard:
+ 					x -= techIconSize
+ 					totalWidth += techIconSize + spacing
+ 					spacing = defaultSpacing
+-				# </dlph.30>
++				# </kekm.30>
+ 		
+ 		for playerScore in self._playerScores:
+ 			interface.checkFlashReset( playerScore.getID() )
+
+diff --git a/Assets/Python/Contrib/OOSLogger.py b/Assets/Python/Contrib/OOSLogger.py
+index 5c5b424ea..c7fb55295 100644
+--- a/Assets/Python/Contrib/OOSLogger.py
++++ b/Assets/Python/Contrib/OOSLogger.py
+@@ -11,7 +11,7 @@ bWroteLog = False # (advc: This doesn't seem to accomplish anything(?))
+ 
+ SEPERATOR = "-----------------------------------------------------------------\n"
+ 
+-# dlph.27
++# kekm.27
+ # DarkLunaPhantom - OOS logging, idea from Fall from Heaven 2 by Kael. This implementation is a slight modification of the one from ExtraModMod by Terkhen. Implemented as a BUG module.
+ 
+ # Simply checks every game turn for OOS. If it finds it, writes the
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 8e277af23..de3814ab5 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -2690,7 +2690,7 @@ class CvInfoScreen:
+ 										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0),pCity, iPlayerLoop])
+ 									else:
+ 										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,False,localText.getText("TXT_KEY_UNKNOWN", ()),pCity,gc.getBARBARIAN_PLAYER()])
+-										# dlph: Replaced hardcoded 18 with barbarian player
++										# kekm: Replaced hardcoded 18 with barbarian player
+ 	#								print("Adding World wonder to list: %s, %d, %s" %(pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,pPlayer.getCivilizationAdjective(0)))
+ 									self.iNumWonders += 1
+ 
+@@ -2798,7 +2798,7 @@ class CvInfoScreen:
+ 				playerColor = gc.getPlayerColorInfo(ePlayerColor)
+ 				if playerColor:
+ 					#color = playerColor.getColorTypePrimary()
+-					color = playerColor.getTextColorType() # dlph.36
++					color = playerColor.getTextColorType() # kekm.36
+ 
+ 			if (self.szWonderDisplayMode == self.szWDM_Project):
+ 				pWonderInfo = gc.getProjectInfo(iWonderType)
+@@ -2846,7 +2846,7 @@ class CvInfoScreen:
+ 				playerColor = gc.getPlayerColorInfo(ePlayerColor)
+ 				if playerColor:
+ 					#color = playerColor.getColorTypePrimary()
+-					color = playerColor.getTextColorType() # dlph.36
++					color = playerColor.getTextColorType() # kekm.36
+ 
+ 			if (self.szWonderDisplayMode == self.szWDM_Project):
+ 				pWonderInfo = gc.getProjectInfo(iWonderType)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index b14fc41ef..14f27242a 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5097,11 +5097,11 @@ class CvMainInterface:
+ 			screen.hide( szName )
+ 			szName = "ScoreTech" + str(i)
+ 			screen.hide( szName )
+-			# <dlph.30>
++			# <kekm.30>
+ 			szName = "ScoreLeader" + str(i)
+ 			screen.hide( szName )
+ 			szName = "ScoreCiv" + str(i)
+-			screen.hide( szName ) # </dlph.30>
++			screen.hide( szName ) # </kekm.30>
+ 			for j in range( Scoreboard.NUM_PARTS ):
+ 				szName = "ScoreText%d-%d" %( i, j )
+ 				screen.hide( szName )
+@@ -5307,11 +5307,11 @@ class CvMainInterface:
+ 				if bAlignIcons:
+ 					scores.setNotMet()
+ 			# K-Mod end
+-			# <dlph.30>
++			# <kekm.30>
+ 			if bAlignIcons:
+ 				scores.setLeaderIcon(pPlayer.getLeaderType())
+ 				scores.setCivIcon(pPlayer.getCivilizationType())
+-			# </dlph.30>
++			# </kekm.30>
+ 			# K-Mod
+ 			if pTeam.isAlive() and (pActiveTeam.isHasMet(eTeam) or g.isDebugMode()):
+ 			# K-Mod end
+
+diff --git a/Assets/XML/BBAI_Game_Options_GlobalDefines.xml b/Assets/XML/BBAI_Game_Options_GlobalDefines.xml
+index 3aa68166d..77907fac0 100644
+--- a/Assets/XML/BBAI_Game_Options_GlobalDefines.xml
++++ b/Assets/XML/BBAI_Game_Options_GlobalDefines.xml
+@@ -37,7 +37,7 @@
+ 	<Define>
+ 	<!-- Better BTS AI: Vassals of human player build some extra
+ 	     military units (recommended for multiplayer only)
+-		 dlph.3: 'Taken care of by K-mod's "prepare for war"
++		 kekm.3: 'Taken care of by K-mod's "prepare for war"
+ 		 vassal option, so unnecessary?' -->
+ 		<DefineName>BBAI_HUMAN_VASSAL_WAR_BUILD</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -48,7 +48,7 @@
+ 			1 : Defensive pacts do not cancel when a player has war declared on them
+ 			2 : Turns defensive pacts into alliances, so they are now also offensive pacts.  Plus pacts
+ 				do not cancel when war is declared.  Does not change name/description in game.
+-			dlph.3: Set to 1 and 'can be signed while at war' (if 1 or 2;
++			kekm.3: Set to 1 and 'can be signed while at war' (if 1 or 2;
+ 			though 2 is bugged)
+ 		 -->
+ 		<DefineName>BBAI_DEFENSIVE_PACT_BEHAVIOR</DefineName>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index b5aaefcfd..afc273b08 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -11,7 +11,7 @@
+ 	 advc.305: Removed (now allowed) Workboat.
+ 	 advc.307: Allowed Musketman
+ 	 Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
+-	 Spy (dlph.6). -->
++	 Spy (kekm.6). -->
+ <Civ4CivilizationInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+ 	<CivilizationInfos>
+ 		<CivilizationInfo>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+index ef081e433..e2aed0898 100644
+--- a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+@@ -67,7 +67,7 @@
+ 		</GameOptionInfo>
+ 		<!-- advc: According to DarkLunaPhantom, this option has to remain
+ 			 in the eighth position.
+-			 https://github.com/DarkLunaPhantom/Civ4-K-Mod/commit/908160ecea97d427cc24736fb4fb1e1b51f282f3 -->
++			 github.com/DarkLunaPhantom/Civ4-K-Mod/commit/908160ecea97d427cc24736fb4fb1e1b51f282f3 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_RANDOM_PERSONALITIES</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_RANDOM_PERSONALITIES</Description>
+
+diff --git a/Assets/XML/Terrain/CIV4FeatureInfos.xml b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+index bc8bbc4aa..e6eab30a2 100644
+--- a/Assets/XML/Terrain/CIV4FeatureInfos.xml
++++ b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+@@ -624,7 +624,7 @@
+ 			<bImpassable>0</bImpassable>
+ 			<!-- advc.651: was 0 -->
+ 			<bNoCity>1</bNoCity>
+-			<!-- dlph.9: was 1 -->
++			<!-- kekm.9: was 1 -->
+ 			<bNoImprovement>0</bNoImprovement>
+ 			<bVisibleAlways>0</bVisibleAlways>
+ 			<bNukeImmune>0</bNukeImmune>
+
+diff --git a/Assets/XML/Text/Advanced Scoreboard Options.xml b/Assets/XML/Text/Advanced Scoreboard Options.xml
+index 954e3c74d..7379e6e54 100644
+--- a/Assets/XML/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/XML/Text/Advanced Scoreboard Options.xml	
+@@ -379,7 +379,7 @@
+ 
+ 	<!-- advc.004: Revised (English, German); explanation for N (trade
+ 		 network) matches advc.124.
+-		 dlph.30: Leader and civ icon
++		 kekm.30: Leader and civ icon
+ 		 advc.085: Underscores, tech progress, 'J' (Golden Age/ Anarchy)
+ 		 advc.120h: Meaning of 'E' changed -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 0bd1f29a5..b01994fe1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5308,7 +5308,7 @@
+ 		<Spanish>from breaking new ground</Spanish>
+ 	</TEXT>
+ 
+-	<!-- dlph.7 (advc): From CIV4GameText_BTS.xml. Was "Cannot Nuke Friendly
++	<!-- kekm.7 (advc): From CIV4GameText_BTS.xml. Was "Cannot Nuke Friendly
+ 		 Territory or Units" - that's still true, but units don't prevent
+ 		 players from firing nukes, which is what matters in this context.
+ 		 And "friendly" isn't the right term. Strictly speaking, unclaimed
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index feea3db17..0f0151f80 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -4,7 +4,7 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Build Infos -->
+-<!-- dlph.9: Added FeatureStruct FALLOUT to all 12 non-route builds.
++<!-- kekm.9: Added FeatureStruct FALLOUT to all 12 non-route builds.
+ 	 (XML parser fails if I place comments inside FeatureStructs to mark these
+ 	 changes.) -->
+ <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4791daf91..ee42ffc68 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10399,13 +10399,13 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,  // advc:
+ 			{
+ 				iCultureToAdd = (iCultureToAdd * iCultureToMaster) / 100;
+ 			} // </advc.025>
+-			// <dlph.23> Loss of tile culture upon city trade
++			// <kekm.23> Loss of tile culture upon city trade
+ 			if (iCultureToAdd < 0)
+ 			{
+ 				FAssert(iCultureRateTimes100 < 0);
+ 				int iPlotCulture = pLoopPlot->getCulture(ePlayer);
+ 				iCultureToAdd = -std::min(-iCultureToAdd, iPlotCulture);
+-			} // </dlph.23>
++			} // </kekm.23>
+ 			pLoopPlot->changeCulture(ePlayer, iCultureToAdd, bUpdate || !pLoopPlot->isOwned());
+ 		}
+ 	} // K-Mod end
+@@ -10882,7 +10882,7 @@ void CvCity::doMeltdown()
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+ 		BuildingTypes eDangerBuilding = kCiv.buildingAt(i);
+-		// <dlph.5> (advc: Restructured the Kek-Mod code the code a bit)
++		// <kekm.5> (advc: Restructured the Kek-Mod code the code a bit)
+ 		int iOddsDivisor = GC.getInfo(eDangerBuilding).getNukeExplosionRand();
+ 		if (iOddsDivisor <= 0)
+ 			continue; // Save some time
+@@ -10895,14 +10895,14 @@ void CvCity::doMeltdown()
+ 			!hasBonus(kDangerBuilding.getPowerBonus())))
+ 		{
+ 			continue;
+-		} // </dlph.5>
++		} // </kekm.5>
+ 		// <advc> Roll the dice before checking for a safe power source - faster
+ 		// Adjust odds to game speed:
+ 		double pr = 1.0 / (iOddsDivisor * GC.getGame().gameSpeedFactor());
+ 		//if (GC.getGame().getSorenRandNum(GC.getInfo((BuildingTypes)iI).getNukeExplosionRand(), "Meltdown!!!") == 0)
+ 		if (!::bernoulliSuccess(pr, "Meltdown"))
+ 			continue; // </advc>
+-		// <dlph.5>
++		// <kekm.5>
+ 		bool bUnused = false;
+ 		// Check for hydroplant (or any modded plant with less severe drawbacks)
+ 		for (int j = 0; j < kCiv.getNumBuildings(); j++)
+@@ -10948,7 +10948,7 @@ void CvCity::doMeltdown()
+ 			}
+ 		}
+ 		if (bUnused)
+-			continue; // </dlph.5>
++			continue; // </kekm.5>
+ 
+ 		if (getNumRealBuilding(eDangerBuilding) > 0)
+ 			setNumRealBuilding(eDangerBuilding, 0);
+@@ -12579,7 +12579,7 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
+ 	PlayerTypes ePlayer = getLiberationPlayer(bConquest);
+ 	if(ePlayer == NO_PLAYER)
+ 		return; // advc
+-	// dlph.23: No longer used
++	// kekm.23: No longer used
+ 	/*CvPlot* pPlot = plot();
+ 	int iOldOwnerCulture = getCultureTimes100(getOwner());
+ 	bool bPreviouslyOwned = isEverOwned(ePlayer);*/ // K-Mod, for use below
+@@ -12630,7 +12630,7 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
+ 				iNewVassalLand - iOldVassalLand);
+ 	}
+ 	GET_PLAYER(ePlayer).AI_updateAttitude(getOwner()); // advc.ctr
+-	// dlph.23: setCulture now done by advc.ctr in acquireCity
++	// kekm.23: setCulture now done by advc.ctr in acquireCity
+ 	/*if (NULL != pPlot) {
+ 		CvCity* pCity = pPlot->getPlotCity();
+ 		if (NULL != pCity) {
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index eee79fe8d..56674957f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2025,7 +2025,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 				return;
+ 			}
+-			// dlph.15: missile carrier code moved
++			// kekm.15: missile carrier code moved
+ 		}
+ 	}
+ 
+@@ -2143,7 +2143,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 			}
+ 		}
+-	} // <dlph.15>
++	} // <kekm.15>
+ 	int iMissileCarriers = kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);
+ 	if (!bFinancialTrouble && iMissileCarriers > 0 && !bImportantCity)
+ 	{	// Bugfix(?): was '<=' in BtS
+@@ -2173,7 +2173,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 			}
+ 		}
+-	} // </dlph.15>
++	} // </kekm.15>
+ 
+ 	/*if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || (g.getSorenRandNum(12, "AI consider Nuke") == 0))) {
+ 		if (!bFinancialTrouble) {
+@@ -3571,7 +3571,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	PROFILE_FUNC();
+ 
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+-	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // dlph.16
++	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+ 	CvGame const& kGame = GC.getGame();
+ 	int const iOwnerEra = kOwner.getCurrentEra();
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+@@ -5694,7 +5694,7 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
+ 	}
+ 	//r += -kBuilding.getNukeModifier() / (g.isNukesValid() && !g.isNoNukes() ? 4 : 40);
+ 	// K-Mod end
+-	// <dlph.16> Replacing the line above.
++	// <kekm.16> Replacing the line above.
+ 	// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
+ 	int iNukeDefense = -kBuilding.getNukeModifier();
+ 	if(iNukeDefense > 0)
+@@ -5733,7 +5733,7 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
+ 		iTempValue /= 10000;
+ 		iTempValue /= GET_PLAYER(getOwner()).AI_nukeDangerDivisor();
+ 		r += iTempValue;
+-	} // </dlph.16>
++	} // </kekm.16>
+ 	return r;
+ }
+
+diff --git a/CvGameCoreDLL/CvDLLPython.cpp b/CvGameCoreDLL/CvDLLPython.cpp
+index 4b356b1a7..b34ebb0ca 100644
+--- a/CvGameCoreDLL/CvDLLPython.cpp
++++ b/CvGameCoreDLL/CvDLLPython.cpp
+@@ -4,7 +4,7 @@
+ #include "CyGame.h"
+ 
+ void CyCityPythonInterface1(python::class_<CyCity>& x);
+-void CyCityPythonInterface2(python::class_<CyCity>& x); // dlph.34
++void CyCityPythonInterface2(python::class_<CyCity>& x); // kekm.34
+ void CyPlotPythonInterface1(python::class_<CyPlot>& x);
+ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x);
+ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x);
+@@ -60,7 +60,7 @@ DllExport void DLLPublishToPython()
+ 	python::class_<CyCity> city ("CyCity");		// define city class
+ 	// publish its methods
+ 	CyCityPythonInterface1(city);
+-	CyCityPythonInterface2(city); // dlph.34
++	CyCityPythonInterface2(city); // kekm.34
+ 
+ 	python::class_<CyPlayer> player ("CyPlayer");	// define player class
+ 	CyPlayerPythonInterface1(player);				// publish its methods
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b4bbfb193..aa70c1bbb 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -792,7 +792,7 @@ void CvGame::initGameHandicap()
+ 			/*  advc.250a: Relies on no strange new handicaps being placed
+ 				between Settler and Deity. Same in CvTeam::getHandicapType. */
+ 				setHandicapType((HandicapTypes)
+-				::round // dlph.22
++				::round // kekm.22
+ 				(iSum / (10.0 * iDiv)));
+ 		}
+ 		FAssertMsg(iDiv > 0, "All-AI game. Not necessarily wrong, but unexpected.");
+@@ -3947,7 +3947,7 @@ EraTypes CvGame::getCurrentEra() const
+ 	if (iCount > 0)
+ 	{
+ 		//return ((EraTypes)(iEra / iCount));
+-		return (EraTypes)::round(iEra / (double)iCount); // dlph.17
++		return (EraTypes)::round(iEra / (double)iCount); // kekm.17
+ 	}
+ 	FAssert(iCount > 0); // advc
+ 	return NO_ERA;
+@@ -4913,14 +4913,14 @@ bool CvGame::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionSub
+ 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+ 
+ 		if (kPlayer.isVotingMember(eVoteSource))
+-		{	// <dlph.25/advc>
++		{	// <kekm.25/advc>
+ 			if(kVote.isForceWar())
+ 			{
+ 				if(GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource) &&
+ 						!kPlayer.canDoResolution(eVoteSource, kData))
+ 					return false;
+ 			}
+-			else // </dlph.25/advc>
++			else // </kekm.25/advc>
+ 			if (!kPlayer.canDoResolution(eVoteSource, kData))
+ 			{
+ 				return false;
+@@ -5028,7 +5028,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		if(kPlayer.isAVassal()) // advc
+ 			return false;
+ 		//if (!kPlayer.isFullMember(eVoteSource))
+-		// dlph.25: 'These are not necessarily the same.'
++		// kekm.25: 'These are not necessarily the same.'
+ 		if (!GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 			return false;
+ 
+@@ -5050,7 +5050,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+ 		//if (kPlayer.isFullMember(eVoteSource))
+-		// dlph.25: 'These are not necessarily the same.'
++		// kekm.25: 'These are not necessarily the same.'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 			return false;
+ 
+@@ -5061,7 +5061,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			if (kPlayer2.getTeam() != kPlayer.getTeam())
+ 			{
+ 				//if (kPlayer2.isFullMember(eVoteSource))
+-				// dlph.25: 'These are not necessarily the same.'
++				// kekm.25: 'These are not necessarily the same.'
+ 				if (GET_TEAM(kPlayer2.getTeam()).isFullMember(eVoteSource))
+ 				{
+ 					if (kPlayer2.canStopTradingWithTeam(kPlayer.getTeam()))
+@@ -5084,7 +5084,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 		if (kTeam.isAVassal())
+ 			return false;
+ 		//if (kPlayer.isFullMember(eVoteSource))
+-		// dlph.25: 'These are not necessarily the same.'
++		// kekm.25: 'These are not necessarily the same.'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 			return false;
+ 
+@@ -5109,7 +5109,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			return false;
+ 
+ 		//if (!kPlayer.isVotingMember(eVoteSource))
+-		// dlph.25: Replacing the above
++		// kekm.25: Replacing the above
+ 		if (!GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+ 		{
+ 			// Can be passed only if already at war with a member
+@@ -5136,7 +5136,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+ 		//if (kPlayer.isFullMember(eVoteSource) || !kPlayer.isVotingMember(eVoteSource))
+-		// dlph.25: 'These are not necessarily the same'
++		// kekm.25: 'These are not necessarily the same'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource) || !GET_TEAM(kPlayer.getTeam()).isVotingMember(eVoteSource))
+ 			return false;
+ 
+@@ -5158,7 +5158,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, const VoteSelecti
+ 			return false;
+ 
+ 		//if (!kOtherPlayer.isFullMember(eVoteSource))
+-		// dlph.25: 'These are not necessarily the same'
++		// kekm.25: 'These are not necessarily the same'
+ 		if (!GET_TEAM(kOtherPlayer.getTeam()).isFullMember(eVoteSource))
+ 			return false;
+ 
+@@ -6762,7 +6762,7 @@ void CvGame::doGlobalWarming()
+ 			{
+ 				// only destroy the improvement if the new terrain cannot support it
+ 				if (!pPlot->canHaveImprovement(pPlot->getImprovementType()),
+-					NO_BUILD, false) // dlph.9
++					NO_BUILD, false) // kekm.9
+ 				{
+ 					pPlot->setImprovementType(NO_IMPROVEMENT);
+ 				}  // <advc.055>
+@@ -7714,7 +7714,7 @@ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAll
+ 		// </advc.300>
+ 		// K-Mod. Give a combat penalty to barbarian boats.
+ 		if (pNewUnit && pPlot->isWater() &&
+-				!pNewUnit->getUnitInfo().isHiddenNationality()) // dlph.12
++				!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
+ 		{	// find the "disorganized" promotion. (is there a better way to do this?)
+ 			PromotionTypes eDisorganized = (PromotionTypes)
+ 					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+@@ -8319,7 +8319,7 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ 			FAssert(NO_PLAYER != kData.kVoteOption.ePlayer);
+ 			CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
+ 			if (gTeamLogLevel >= 1) logBBAI("  Vote for forcing peace against team %d (%S) passes", kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+-			// <dlph.25> 'Cancel defensive pacts with the attackers first'
++			// <kekm.25> 'Cancel defensive pacts with the attackers first'
+ 			FOR_EACH_DEAL_VAR(pLoopDeal)
+ 			{
+ 				if ((TEAMID(pLoopDeal->getFirstPlayer()) == kPlayer.getTeam() &&
+@@ -8339,7 +8339,7 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ 						}
+ 					} // advc: Don't bother with SecondTrades; DPs are dual.
+ 				}
+-			} // </dlph.25>
++			} // </kekm.25>
+ 			for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+ 			{
+ 				CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+@@ -8384,18 +8384,18 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ 				it.hasNext(); ++it)
+ 			{
+ 				CvTeam& kFullMember = GET_TEAM(it->getTeam());
+-				// dlph.25/advc: was isVotingMember
++				// kekm.25/advc: was isVotingMember
+ 				if (!kFullMember.isFullMember(kData.eVoteSource))
+ 					continue;
+ 				if (kFullMember.canChangeWarPeace(kTeam.getID()))
+ 				{
+-					// <dlph.26>
++					// <kekm.26>
+ 					CvTeam::queueWar(kFullMember.getID(), kTeam.getID(),
+-							false, WARPLAN_DOGPILE); // </dlph.26>
++							false, WARPLAN_DOGPILE); // </kekm.26>
+ 					kTeam.AI_makeUnwillingToTalk(kFullMember.getID()); // advc.104i
+ 				}
+ 			}
+-			CvTeam::triggerWars(); // dlph.26
++			CvTeam::triggerWars(); // kekm.26
+ 			setVoteOutcome(kData, NO_PLAYER_VOTE);
+ 		}
+ 		else if (kVote.isAssignCity())
+@@ -10177,7 +10177,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, const V
+ 					kVoter.AI_diploVote(kOptionData, eVoteSource, false));
+ 			continue; // advc
+ 		}
+-		// <dlph.25> (advc: simplified)
++		// <kekm.25> (advc: simplified)
+ 		if (isTeamVote(kOptionData.eVote))
+ 		{
+ 			TeamTypes const eVoterMaster = kVoter.getMasterTeam();
+@@ -10190,7 +10190,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, const V
+ 						kVoter.AI_diploVote(kOptionData, eVoteSource, false));
+ 				continue;
+ 			}
+-		} // </dlph.25>
++		} // </kekm.25>
+ 		CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DIPLOVOTE);
+ 		pInfo->setData1(pData->getID());
+ 		gDLL->getInterfaceIFace()->addPopup(pInfo, kVoter.getID());
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7869314f2..6f41f701d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -19583,7 +19583,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 
+ 	int iMissionCost = kPlayer.getEspionageMissionBaseCost(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
+ 	//iMissionCost *= GET_TEAM(kPlayer.getTeam()).getNumMembers(); // K-Mod
+-	// dlph.33/advc:
++	// kekm.33/advc:
+ 	iMissionCost = kPlayer.adjustMissionCostToTeamSize(iMissionCost, eTargetPlayer);
+ 
+ 	if (kMission.isDestroyImprovement())
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 4fdb3c1c8..a61b3ec65 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -137,7 +137,7 @@ public:
+ 	DllExport bool& getSynchLogging() { return m_bSynchLogging; }
+ 	DllExport bool& overwriteLogs() { return m_bOverwriteLogs; }
+ 	// <advc> const inline versions of the above
+-	// The first two are exposed to Python for dlph.27
++	// The first two are exposed to Python for kekm.27
+ 	inline bool isLogging() const { return m_bLogging; }
+ 	inline bool isRandLogging() const { return m_bRandLogging; }
+ 	inline bool isSynchLogging() const { return m_bSynchLogging; }
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 330d302f2..56cac665b 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -511,10 +511,10 @@ void CvInitCore::resetGame(CvInitCore* pSource, bool bClear, bool bSaveGameType)
+ 	FOR_EACH_ENUM(GameOption)
+ 	{
+ 		bool b = pSource->getOption(eLoopGameOption);
+-		// <dlph.18>
++		// <kekm.18>
+ 		CvGameOptionInfo const& kLoopGameOption = GC.getInfo(eLoopGameOption);
+ 		if (!kLoopGameOption.getVisible())
+-			b = kLoopGameOption.getDefault(); // </dlph.18>
++			b = kLoopGameOption.getDefault(); // </kekm.18>
+ 		setOption(eLoopGameOption, b);
+ 	}
+ 	FOR_EACH_ENUM(MPOption)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d3c283b2c..52a286d99 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1163,9 +1163,9 @@ void CvPlayer::initFreeState()
+ 
+ 
+ void CvPlayer::initFreeUnits()
+-{	// <dlph.28>
++{	// <kekm.28>
+ 	if(isBarbarian())
+-		return; // </dlph.28>
++		return; // </kekm.28>
+ 	// <advc>
+ 	CvGame const& kGame = GC.getGame();
+ 	int const iStartingUnitMultiplier = GC.getInfo(kGame.getStartEra()).
+@@ -1468,7 +1468,7 @@ int CvPlayer::coastRiverStartingAreaScore(CvArea const& a) const
+ 	return r;
+ } // </advc.027>
+ 
+-// <dlph.35>
++// <kekm.35>
+ class VectorPairSecondGreaterComparator
+ {
+ public:
+@@ -1476,10 +1476,10 @@ public:
+ 	{
+ 		return (a.second >= b.second);
+ 	}
+-}; // </dlph.35>
++}; // </kekm.35>
+ // Returns the id of the best area, or -1 if it doesn't matter:
+ //int CvPlayer::findStartingArea() const
+-// dlph.35: "Returns a vector of all starting areas sorted by their value (instead of one best starting area)."
++// kekm.35: "Returns a vector of all starting areas sorted by their value (instead of one best starting area)."
+ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(  // advc: style changes
+ 	bool* pbFoundByMapScript) const // advc.027
+ {
+@@ -1487,20 +1487,20 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(  // advc: style ch
+ 	// <advc.027>
+ 	if (pbFoundByMapScript != NULL)
+ 		*pbFoundByMapScript = false; // </advc.027>
+-	std::vector<std::pair<int,int> > areas_by_value; // dlph.35
++	std::vector<std::pair<int,int> > areas_by_value; // kekm.35
+ 	{
+ 		CvArea* pyArea = GC.getPythonCaller()->findStartingArea(getID());
+ 		if (pyArea != NULL)
+ 		{
+-			areas_by_value.push_back(std::make_pair(pyArea->getID(), 1)); // dlph.35
++			areas_by_value.push_back(std::make_pair(pyArea->getID(), 1)); // kekm.35
+ 			// <advc.027>
+ 			if (pbFoundByMapScript != NULL)
+ 				*pbFoundByMapScript = true; // </advc.027>
+-			return areas_by_value; // dlph.35
++			return areas_by_value; // kekm.35
+ 		}
+ 	}
+ 	// find best land area
+-	//int iBestValue = 0; int iBestArea = -1; // dlph.35
++	//int iBestValue = 0; int iBestArea = -1; // kekm.35
+ 	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		if (pLoopArea->isWater())
+@@ -1529,14 +1529,14 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(  // advc: style ch
+ 		/*if (iValue > iBestValue) {
+ 			iBestValue = iValue;
+ 			iBestArea = pLoopArea->getID();
+-		}*/ // dlph.35:
++		}*/ // kekm.35:
+ 		areas_by_value.push_back(std::make_pair(pLoopArea->getID(), iValue));
+ 	}
+-	//return iBestArea; // <dlph.35>
++	//return iBestArea; // <kekm.35>
+ 	VectorPairSecondGreaterComparator kComparator;
+ 	std::sort(areas_by_value.begin(), areas_by_value.end(), kComparator);
+ 	areas_by_value.resize(8); // advc: No need to pass around every little island
+-	return areas_by_value; // </dlph.35>
++	return areas_by_value; // </kekm.35>
+ }
+ 
+ 
+@@ -1560,12 +1560,12 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 		}
+ 	}
+ 	//int iBestArea = -1;
+-	// dlph.35: "This function is adjusted to work with a list of possible starting areas instead of a single one."
++	// kekm.35: "This function is adjusted to work with a list of possible starting areas instead of a single one."
+ 	std::vector<std::pair<int,int> > areas_by_value;
+ 	bool bNew = false;
+ 	if (getStartingPlot() != NULL)
+ 	{
+-		//iBestArea = getStartingPlot()->getArea().getID(); // dlph.35:
++		//iBestArea = getStartingPlot()->getArea().getID(); // kekm.35:
+ 		areas_by_value.push_back(std::make_pair(getStartingPlot()->getArea().getID(), 1));
+ 		setStartingPlot(NULL, true);
+ 		bNew = true;
+@@ -1576,19 +1576,19 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 	if (!bNew)
+ 	{
+ 		//iBestArea = findStartingArea();
+-		areas_by_value = findStartingAreas( // dlph.35
++		areas_by_value = findStartingAreas( // kekm.35
+ 				pbAreaFoundByMapScript); // advc.027
+ 	}
+ 	/*  <advc.140> Cut and pasted from CvMap::maxPlotDistance. I've changed that
+ 		function, but I think the original formula might be needed here.
+ 		I'm not sure I understand the purpose of this outer loop. */
+-	// ^dlph.35 replaces the outer loop
++	// ^kekm.35 replaces the outer loop
+ 	/*int iMaxPlotDist = std::max(1, ::plotDistance(0, 0, ((m.isWrapX()) ?
+ 			(m.getGridWidth() / 2) : (m.getGridWidth() - 1)),
+ 			((m.isWrapY()) ? (m.getGridHeight() / 2) :
+ 			(m.getGridHeight() - 1))));
+ 	for(int iPass = 0; iPass < iMaxPlotDist; iPass++)*/ // </advc.140>
+-	/*  <dlph.35> "First pass avoids starting locations that have very little food
++	/*  <kekm.35> "First pass avoids starting locations that have very little food
+ 		(before normalization) to avoid starting on the edge of very bad terrain." */
+ 	int const iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+ 	CvMap const& kMap = GC.getMap();
+@@ -1596,14 +1596,14 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 	for(int iPass = 0; iPass <= iMaxPass; iPass++)
+ 	{
+ 		for(size_t iJ = 0; iJ < areas_by_value.size(); iJ++)
+-		{ // </dlph.35>
++		{ // </kekm.35>
+ 			CvPlot *pBestPlot = NULL;
+ 			int iBestValue = iMaxPass - iPass; // advc: was 0 flat
+ 			for (int iI = 0; iI < kMap.numPlots(); iI++)
+ 			{
+ 				CvPlot* pLoopPlot = kMap.plotByIndex(iI);
+ 				//if (iBestArea == -1 || pLoopPlot->getArea() == iBestArea)
+-				// <dlph.35>
++				// <kekm.35>
+ 				if (pLoopPlot->getArea().getID() != areas_by_value[iJ].first)
+ 					continue;
+ 				if (iPass == 0) // "Avoid very bad terrain in the first pass."
+@@ -1622,7 +1622,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 					}
+ 					if (iTotalFood < std::max(1, iLandPlots) / 2)
+ 						continue;
+-				} // </dlph.35>
++				} // </kekm.35>
+ 				//the distance factor is now done inside foundValue
+ 				int iValue = pLoopPlot->getFoundValue(getID());
+ 				if (bRandomize && iValue > 0)
+@@ -1641,7 +1641,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 
+ 			if (pBestPlot != NULL)
+ 				return pBestPlot;
+-		} // dlph.35: end of areas_by_value loop
++		} // kekm.35: end of areas_by_value loop
+ 		FAssertMsg(iPass != 0, "CvPlayer::findStartingPlot - could not find starting plot in first pass.");
+ 	}
+ 
+@@ -1996,7 +1996,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		PlayerTypes eLoopPlayer = (PlayerTypes)i;
+ 		kNewCity.setEverOwned(eLoopPlayer, abEverOwned[eLoopPlayer]);
+ 		kNewCity.setCultureTimes100(eLoopPlayer, aiCulture[eLoopPlayer], false, false);
+-	} // <dlph.23>
++	} // <kekm.23>
+ 	if(bTrade) // Further repercussions of cession: city culture
+ 	{
+ 		int iOldOwnerCulture = kNewCity.getCultureTimes100(eOldOwner);
+@@ -2007,7 +2007,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 				iNewOwnerCulture + iConvertedCulture, true, false);
+ 		kNewCity.setCultureTimes100(eOldOwner,
+ 				iOldOwnerCulture - iConvertedCulture, true, false);
+-	} // </dlph.23>
++	} // </kekm.23>
+ 
+ 	// Destruction of buildings
+ 	for (int i = 0; i < GC.getNumBuildingInfos(); i++)
+@@ -3057,7 +3057,7 @@ void CvPlayer::doTurn()  // advc: style changes
+ 		changeAnarchyTurns(-1);
+ 	verifyCivics();
+ 	doChangeCivicsPopup(NO_CIVIC); // advc.004x
+-	//verifyStateReligion(); // dlph.10: disabled for now
++	//verifyStateReligion(); // kekm.10: disabled for now
+ 
+ 	updateTradeRoutes();
+ 	updateWarWearinessPercentAnger();
+@@ -3210,12 +3210,12 @@ void CvPlayer::verifyCivics()  // advc: refactored
+ 	}
+ }
+ 
+-// <dlph.10>
++// <kekm.10>
+ void CvPlayer::verifyStateReligion()
+ {
+ 	if(!isAnarchy() && !canDoReligion(getStateReligion()))
+ 		setLastStateReligion(NO_RELIGION);
+-} // </dlph.10>
++} // </kekm.10>
+ 
+ // <advc.064d>
+ void CvPlayer::verifyCityProduction()
+@@ -4258,7 +4258,7 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 			!kOurTeam.isDefensivePact(kToTeam.getID()) &&
+ 			(kOurTeam.isDefensivePactTrading() || kToTeam.isDefensivePactTrading()))
+ 		{
+-			/*  <dlph.3> 'Added possibility of signing defensive pact while in war
++			/*  <kekm.3> 'Added possibility of signing defensive pact while in war
+ 				if BBAI defensive pact option is >= 1' */
+ 			if ((kOurTeam.getNumWars() <= 0 && kToTeam.getNumWars() <= 0) ||
+ 				(GC.getDefineINT(CvGlobals::BBAI_DEFENSIVE_PACT_BEHAVIOR) >= 1
+@@ -4266,7 +4266,7 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 					Enough to have the AI refuse such pacts I think
+ 					(in CvTeamAI::AI_defensivePactTrade). */
+ 					//&& GET_TEAM(getID()).allWarsShared(theirTeam.getID())
+-				)) // </dlph.3>
++				)) // </kekm.3>
+ 			{
+ 				if (kOurTeam.canSignDefensivePact(kToTeam.getID()))
+ 					return true;
+@@ -5438,12 +5438,12 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+ 		if (eFoundCorp != NO_CORPORATION && isNoCorporations())
+ 			return false;
+ 	}
+-	// <dlph.19> (advc: simplified)
++	// <kekm.19> (advc: simplified)
+ 	if (kBuilding.isCapital() && GC.getGame().getGameState() == GAMESTATE_ON &&
+ 		GET_TEAM(getTeam()).isAnyVictoryCountdown()) // advc.opt
+ 	{
+ 		return false;
+-	} // </dlph.19>
++	} // </kekm.19>
+ 	if (kOurTeam.isBuildingClassMaxedOut(eBuildingClass))
+ 		return false;
+ 
+@@ -8397,9 +8397,9 @@ int CvPlayer::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) cons
+ }
+ 
+ int CvPlayer::getGoldPerUnit() const
+-{	// <dlph.14>
++{	// <kekm.14>
+ 	if(isBarbarian())
+-		return 0; // </dlph.14>
++		return 0; // </kekm.14>
+ 	return m_iGoldPerUnit;
+ }
+ 
+@@ -8419,9 +8419,9 @@ void CvPlayer::changeGoldPerUnit(int iChange)
+ 
+ 
+ int CvPlayer::getGoldPerMilitaryUnit() const
+-{	// <dlph.14>
++{	// <kekm.14>
+ 	if(isBarbarian())
+-		return 0; // </dlph.14>
++		return 0; // </kekm.14>
+ 	return m_iGoldPerMilitaryUnit;
+ }
+ 
+@@ -13418,7 +13418,7 @@ int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerType
+ 
+ 	// Multiply cost of mission * number of team members
+ 	//iMissionCost *= GET_TEAM(getTeam()).getNumMembers(); // K-Mod
+-	// dlph.33/advc
++	// kekm.33/advc
+ 	iMissionCost = adjustMissionCostToTeamSize(iMissionCost, eTargetPlayer);
+ 
+ 	iMissionCost *= getEspionageMissionCostModifier(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
+@@ -13427,7 +13427,7 @@ int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerType
+ 	return std::max(0, iMissionCost);
+ }
+ 
+-// advc: Auxiliary function for dlph.33
++// advc: Auxiliary function for kekm.33
+ int CvPlayer::adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlayer) const
+ {
+ 	// Don't compute anything when the teams have equal size
+@@ -13437,13 +13437,13 @@ int CvPlayer::adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlay
+ 		return iBaseCost;
+ 	// Tie it to the tech cost modifier
+ 	double extraTeamMemberModifier = GC.getDefineINT(CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) / 100.0;
+-	/* <dlph.33> "New formula for espionage costs in team. Essentially, I want costs
++	/* <kekm.33> "New formula for espionage costs in team. Essentially, I want costs
+ 		to scale with 1+0.5(number of members - 1), but since there are two teams
+ 		(and two directions) involved, it will scale with the square root of the
+ 		ratio of those values. Idea for formula by Fran." */
+ 	return (int)(iBaseCost * std::sqrt(
+ 			(1 + extraTeamMemberModifier * (iOurTeamSize - 1)) /
+-			(1 + extraTeamMemberModifier * (iTheirTeamSize - 1)))); // </dlph.33>
++			(1 + extraTeamMemberModifier * (iTheirTeamSize - 1)))); // </kekm.33>
+ }
+ 
+ 
+@@ -14629,7 +14629,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 				{
+ 					CvUnit* pUnit = ::getUnit(pUnitNode->m_data);
+ 					iCost = getAdvancedStartUnitCost(pUnit->getUnitType(), false,
+-							pPlot); // dlph.11
++							pPlot); // kekm.11
+ 					FAssertMsg(iCost != -1, "If this is -1 then that means it's going to try to delete a unit which shouldn't exist");
+ 					pUnit->kill(false);
+ 					changeAdvancedStartPoints(iCost);
+@@ -14754,7 +14754,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 				if (bPopChanged)
+ 				{
+ 					pCity->setHighestPopulation(pCity->getPopulation());
+-					// advc.250c, dlph: Commented out
++					// advc.250c, kekm: Commented out
+ 					/*if (pCity->getPopulation() == 1) {
+ 						pCity->setFood(0);
+ 						pCity->setFoodKept(0);
+@@ -15229,7 +15229,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
+ 			iCost /= 100;
+ 		}
+ 	} // <advc.250c>
+-	if(getNumCities() > 0) // <dlph>
++	if(getNumCities() > 0) // <kekm>
+ 	{
+ 		for(int i = 0; i < GC.getNumUnitInfos(); i++)
+ 		{
+@@ -15240,7 +15240,7 @@ int CvPlayer::getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot) const
+ 				iCost /= std::max(1, 100 + getProductionModifier(eUnit));
+ 				break;
+ 			}
+-		} // </dlph>
++		} // </kekm>
+ 	}
+ 	return adjustAdvStartPtsToSpeed(iCost); // </advc.250c>
+ }
+@@ -19446,10 +19446,10 @@ PlayerTypes CvPlayer::getSplitEmpirePlayer(CvArea const& kArea) const // advc: w
+ 
+ 	if (eNewPlayer == NO_PLAYER)
+ 	{
+-		/*	<dlph.24> Reusing a defeated player might not work correctly. advc:
++		/*	<kekm.24> Reusing a defeated player might not work correctly. advc:
+ 			Allow human players to try it, but don't let the AI wreck the game somehow. */
+ 		if (!isHuman())
+-			return NO_PLAYER; // </dlph.24>
++			return NO_PLAYER; // </kekm.24>
+ 		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+ 		{
+ 			if (!GET_PLAYER((PlayerTypes)i).isAlive())
+@@ -19658,7 +19658,7 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId; and some other s
+ 				}
+ 			}
+ 		}
+-		// dlph.24: Commented out
++		// kekm.24: Commented out
+ 		/*for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam) {
+ 			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+ 			if (kLoopTeam.isAlive()) {
+@@ -20192,17 +20192,17 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 			if (!kOurTeam.isDefensivePactTrading() && !kVotingMember.isDefensivePactTrading())
+ 				return false;
+ 			if ((kOurTeam.getNumWars() > 0 || kVotingMember.getNumWars() > 0) &&
+-				// dlph.25: 'Sometimes defensive pact can be signed while at war'
++				// kekm.25: 'Sometimes defensive pact can be signed while at war'
+ 				GC.getDefineINT(CvGlobals::BBAI_DEFENSIVE_PACT_BEHAVIOR) == 0)
+ 			{
+ 				return false;
+-			} // <dlph.25>
++			} // <kekm.25>
+ 			if(kOurTeam.isAtWar(kVotingMember.getID()) ||
+-				// advc: Same additional restriction as for DP between AI teams (dlph.3)
++				// advc: Same additional restriction as for DP between AI teams (kekm.3)
+ 				!kOurTeam.allWarsShared(kVotingMember.getID()))
+ 			{
+ 				return false;
+-			} // </dlph.25>
++			} // </kekm.25>
+ 			if (!kOurTeam.canSignDefensivePact(kVotingMember.getID()))
+ 				return false;
+ 		}
+@@ -20225,12 +20225,12 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+ 		if (!kOurTeam.isAtWar(kPlayer.getTeam()) &&
+-			kOurTeam.isFullMember(eVoteSource)) // dlph.25/advc
++			kOurTeam.isFullMember(eVoteSource)) // kekm.25/advc
+ 		{
+ 			CvTeam const& kOurMaster = GET_TEAM(getMasterTeam());
+-			if ((kOurMaster.isFullMember(eVoteSource) && // dlph.25/advc: was isVotingMember
++			if ((kOurMaster.isFullMember(eVoteSource) && // kekm.25/advc: was isVotingMember
+ 				!kOurMaster.canDeclareWar(kPlayer.getTeam()) &&
+-				// <dlph.25/advc>
++				// <kekm.25/advc>
+ 				eSecretaryGeneral == kOurMaster.getID()) ||
+ 				!kOurMaster.canEventuallyDeclareWar(kPlayer.getTeam()))
+ 				// </advc.25/advc>
+@@ -20269,12 +20269,12 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 		return false;
+ 
+ 	CvVoteInfo const& kVote = GC.getInfo(kData.eVote); // advc
+-	// <dlph.25/advc> Kek-Mod just checks isAVassal
++	// <kekm.25/advc> Kek-Mod just checks isAVassal
+ 	if(GET_TEAM(getTeam()).isCapitulated() ||
+ 		(isAVassal() && (kVote.isForceWar() || kVote.isForcePeace())))
+ 	{
+ 		return false;
+-	} // </dlph.25/advc>
++	} // </kekm.25/advc>
+ 	if (kVote.isOpenBorders())
+ 	{
+ 		for (TeamIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(getTeam()); it.hasNext(); ++it)
+@@ -20304,12 +20304,12 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 	else if (kVote.isForceWar())
+ 	{
+ 		if (!::atWar(getTeam(), TEAMID(kData.ePlayer)) &&
+-			// dlph.25: 'Cannot defy war declaration against itself'
++			// kekm.25: 'Cannot defy war declaration against itself'
+ 			GET_TEAM(kData.ePlayer).getMasterTeam() != getMasterTeam() &&
+ 			isFullMember(eVoteSource)) // advc
+ 		{
+ 			// BETTER_BTS_AI_MOD, 12/31/08, jdog5000: Vassals can't defy declarations of war
+-			//if (!GET_TEAM(getTeam()).isAVassal()) // dlph.25: Vassals already handled
++			//if (!GET_TEAM(getTeam()).isAVassal()) // kekm.25: Vassals already handled
+ 			return true;
+ 		}
+ 	}
+@@ -20324,7 +20324,7 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 	else if (kVote.isAssignCity())
+ 	{
+ 		if (kData.ePlayer == getID() ||
+-			// dlph.25: 'You can defy resolution giving you a city'
++			// kekm.25: 'You can defy resolution giving you a city'
+ 			kData.eOtherPlayer == getID())
+ 		{
+ 			return true;
+@@ -20342,7 +20342,7 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ void CvPlayer::setDefiedResolution(VoteSourceTypes eVoteSource, const VoteSelectionSubData& kData)
+ {
+ 	FAssertMsg(canDefyResolution(eVoteSource, kData),
+-			"OK to fail when a team member defies a resolution"); // dlph.25
++			"OK to fail when a team member defies a resolution"); // kekm.25
+ 	// cities get unhappiness
+ 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+ 	{
+@@ -21957,7 +21957,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 		bool bVisible = kLoopPlot.isVisible(getTeam(), true);
+ 		if(bVisible)
+ 		{ // </advc.004z>
+-			// dlph.21: include Barbarians; advc.099: include defeated.
++			// kekm.21: include Barbarians; advc.099: include defeated.
+ 			for (PlayerIter<EVER_ALIVE> it; it.hasNext(); ++it)
+ 			{
+ 				PlayerTypes ePlayer = it->getID();
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 12e8bd843..66aca9407 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -75,7 +75,7 @@ public:
+ 	bool startingPlotWithinRange(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange, int iPass) const;									// Exposed to Python
+ 	int startingPlotDistanceFactor(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange) const;
+ 	//int findStartingArea() const;
+-	std::vector<std::pair<int,int> > findStartingAreas( // dlph.35
++	std::vector<std::pair<int,int> > findStartingAreas( // kekm.35
+ 			bool* pbFoundByMapScript = NULL) const; // advc.027
+ 	// advc.027: New auxiliary function (public only for Debug mode info)
+ 	int coastRiverStartingAreaScore(CvArea const& a) const;
+@@ -154,7 +154,7 @@ public:
+ 	void doTurnUnits();
+ 
+ 	void verifyCivics();
+-	void verifyStateReligion(); // dlph.10
++	void verifyStateReligion(); // kekm.10
+ 	void verifyCityProduction(); // advc.064d
+ 	void updatePlotGroups();
+ 
+@@ -417,7 +417,7 @@ public:
+ 			bool bCheckPoints = true) const; // advc.085
+ 	int getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const;
+ 	int getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;		// Exposed to Python
+-	// dlph.33/advc:
++	// kekm.33/advc:
+ 	int adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlayer) const;
+ 	// <advc.120d> New functions, all exposed to Python
+ 	TechTypes getStealCostTech(PlayerTypes eTargetPlayer) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c7ac3437d..2be49508e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2807,7 +2807,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity const* pCity, bool bRandomize, bool bI
+ 	//if (pCity->getHighestPopulation() < 1)
+ 	// Usually this means the city would be auto-razed.
+ 	// (We can't use isAutoRaze for this, because that assumes the city is already captured.)
+-	// dlph.29 (bugfix):
++	// kekm.29 (bugfix):
+ 	if (pCity->getHighestPopulation() == 1 && !kGame.isOption(GAMEOPTION_NO_CITY_RAZING))
+ 		iValue = (iValue + 2) / 3;
+ 	// K-Mod end
+@@ -7905,10 +7905,10 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 	// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 	// Remove blanket auto approval for friendly secretary
+ 	bool bFriendlyToSecretary = false;
+-	// dlph.25: (The bRepeal code is really advc code)
++	// kekm.25: (The bRepeal code is really advc code)
+ 	bool bRepeal = false;
+ 	if (!bPropose)
+-	{	// dlph.25:
++	{	// kekm.25:
+ 		bRepeal = (kGame.getVoteOutcome(eVote) == PLAYER_VOTE_YES);
+ 		if (eSecretaryGeneral != NO_TEAM)
+ 		{
+@@ -7916,9 +7916,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 				// <advc.130v>
+ 				(GET_TEAM(getTeam()).isVassal(eSecretaryGeneral) &&
+ 				GET_TEAM(getTeam()).isCapitulated())) // </advc.130v>
+-			{	// <dlph.25>
++			{	// <kekm.25>
+ 				if (bRepeal)
+-					return PLAYER_VOTE_NO; // </dlph.25>
++					return PLAYER_VOTE_NO; // </kekm.25>
+ 				return PLAYER_VOTE_YES;
+ 			}
+ 			else
+@@ -7974,9 +7974,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 	{
+ 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 		if (bFriendlyToSecretary)
+-		{	// <dlph.25>
++		{	// <kekm.25>
+ 			if (bRepeal)
+-				return PLAYER_VOTE_NO; // </dlph.25>
++				return PLAYER_VOTE_NO; // </kekm.25>
+ 			return PLAYER_VOTE_YES;
+ 		} // BETTER_BTS_AI_MOD: END
+ 		if (getNumCities() > (kGame.getNumCities() * 2) /
+@@ -8014,13 +8014,13 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 		}
+ 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 		if (bFriendlyToSecretary)
+-		{	// <dlph.25>
++		{	// <kekm.25>
+ 			if (bRepeal)
+ 			{
+ 				iVoteBanThreshold *= 3;
+ 				iVoteBanThreshold /= 2;
+ 			}
+-			else // </dlph.25>
++			else // </kekm.25>
+ 			{
+ 				iVoteBanThreshold *= 2;
+ 				iVoteBanThreshold /= 3;
+@@ -8051,9 +8051,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 	{
+ 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 		if (bFriendlyToSecretary)
+-		{	// <dlph.25>
++		{	// <kekm.25>
+ 			if (bRepeal)
+-				return PLAYER_VOTE_NO; // </dlph.25>
++				return PLAYER_VOTE_NO; // </kekm.25>
+ 			return PLAYER_VOTE_YES;
+ 		} // BETTER_BTS_AI_MOD: END
+ 
+@@ -8081,9 +8081,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 	{
+ 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 		if (bFriendlyToSecretary)
+-		{	// <dlph.25>
++		{	// <kekm.25>
+ 			if (bRepeal)
+-				return PLAYER_VOTE_NO; // </dlph.25>
++				return PLAYER_VOTE_NO; // </kekm.25>
+ 			return PLAYER_VOTE_YES;
+ 		} // BETTER_BTS_AI_MOD: END
+ 
+@@ -8103,9 +8103,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 	{
+ 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
+ 		if (bFriendlyToSecretary)
+-		{	// <dlph.25>
++		{	// <kekm.25>
+ 			if (bRepeal)
+-				return PLAYER_VOTE_NO; // </dlph.25>
++				return PLAYER_VOTE_NO; // </kekm.25>
+ 			return PLAYER_VOTE_YES;
+ 		} // BETTER_BTS_AI_MOD: END
+ 
+@@ -8456,9 +8456,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 		else if (eWarTeam == getTeam() || kOurTeam.isVassal(eWarTeam))
+ 		{	// Explicit rejection by all who will definitely be attacked
+ 			bValid = false;
+-		} // <dlph.25/advc> Try to honor peace treaty
++		} // <kekm.25/advc> Try to honor peace treaty
+ 		else if (kOurTeam.isForcePeace(eWarTeam))
+-			bValid = false; // </dlph.25/advc>
++			bValid = false; // </kekm.25/advc>
+ 		else if (kOurTeam.AI_getWarPlan(eWarTeam) != NO_WARPLAN) // BETTER_BTS_AI_MOD: END
+ 			bValid = true;
+ 		else
+@@ -18649,9 +18649,9 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes e
+ 	{
+ 		DenialTypes eDenial = getTradeDenial(ePlayer, pNode->m_data);
+ 		if(eDenial != NO_DENIAL &&
+-			// <dlph.3> Cancel DP immediately when war no longer shared
++			// <kekm.3> Cancel DP immediately when war no longer shared
+ 			(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+-			eDenial == DENIAL_JOKING)) || // </dlph.3>
++			eDenial == DENIAL_JOKING)) || // </kekm.3>
+ 			::bernoulliSuccess(0.2, "advc.133")))
+ 		{
+ 			if (gDealCancelLogLevel > 1) logBBAICancel(d, getID(), L"dual denial");
+@@ -25112,10 +25112,10 @@ UnitTypes CvPlayerAI::AI_bestAdvancedStartUnitAI(CvPlot const& kPlot, // advc: C
+ 
+ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc: style changes
+ {	// Not quite what Kek-Mod does, but would have the same result:
+-	// <dlph.35> "Don't exchange team members starting location."
++	// <kekm.35> "Don't exchange team members starting location."
+ 	/*CvPlot* pCurrentStart = getStartingPlot();
+ 	if(pCurrentStart != NULL && getAdvancedStartCityCost(true, pCurrentStart) > 0)
+-		return pCurrentStart;*/ // </dlph.35>
++		return pCurrentStart;*/ // </kekm.35>
+ 	// advc: However, I don't want to make that change for now.
+ 	CvMap const& m = GC.getMap();
+ 	CvPlot* pBestPlot = NULL;
+@@ -25164,7 +25164,7 @@ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc: style changes
+ 	//Execution should almost never reach here.
+ 
+ 	//Update found values just in case - particulary important for simultaneous turns.
+-	AI_updateFoundValues(/* dlph.35 (bugfix): */ true);
++	AI_updateFoundValues(/* kekm.35 (bugfix): */ true);
+ 
+ 	pBestPlot = NULL;
+ 	iBestValue = -1;
+@@ -27537,7 +27537,7 @@ bool CvPlayerAI::AI_isThreatFromMinorCiv() const
+ 	return false;
+ } // </advc.109>
+ 
+-// <dlph.16> (advc: separate function for this)
++// kekm.16: (advc: separate function for this)
+ int CvPlayerAI::AI_nukeDangerDivisor() const
+ {
+ 	if(GC.getGame().isNoNukes())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 366beb6c0..0481f2242 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -323,7 +323,7 @@ public:
+ 	int AI_unitCostPerMil() const; // K-Mod
+ 	int AI_maxUnitCostPerMil(CvArea const* pArea = NULL, int iBuildProb = -1) const; // K-Mod
+ 	int AI_nukeWeight() const; // K-Mod
+-	int AI_nukeDangerDivisor() const; // dlph.16
++	int AI_nukeDangerDivisor() const; // kekm.16
+ 	bool AI_isLandWar(CvArea const& kArea) const; // K-Mod
+ 	bool AI_isFocusWar(CvArea const* pArea = NULL) const; // advc.105
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 1943e9256..6f4344f85 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -760,19 +760,19 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ 			pUnitNode = oldUnits.next(pUnitNode);
+ 			if (pLoopUnit == NULL || pLoopUnit == pNukeUnit)
+ 				continue;
+-			// <dlph.7>
++			// <kekm.7>
+ 			TeamTypes eAttackingTeam = NO_TEAM;
+ 			if(pNukeUnit != NULL)
+ 				eAttackingTeam = TEAMID(pNukeUnit->getOwner());
+-			// </dlph.7>
++			// </kekm.7>
+ 			if (!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath() &&
+-				// <dlph.7>
++				// <kekm.7>
+ 				// Nukes target only enemy and own units.
+ 				//Needed because blocking by neutral players disabled.
+ 				(eAttackingTeam == NO_TEAM ||
+ 				pLoopUnit->isEnemy(eAttackingTeam) ||
+ 				eAttackingTeam == TEAMID(pLoopUnit->getOwner())))
+-				// </dlph.7>
++				// </kekm.7>
+ 			{
+ 				int iNukeDamage = (iNUKE_UNIT_DAMAGE_BASE +
+ 						GC.getGame().getSorenRandNum(iNUKE_UNIT_DAMAGE_RAND_1, "Nuke Damage 1") +
+@@ -789,11 +789,11 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
+ 							pNukeUnit->getOwner() : NO_PLAYER);
+ 				}
+ 				//else if (iNukeDamage >= GC.getDefineINT("NUKE_NON_COMBAT_DEATH_THRESHOLD"))
+-				// <dlph.20>
++				// <kekm.20>
+ 				else if(GC.getGame().getSorenRandNum(100,"Non-Combat Nuke Rand") * 100 <
+ 					std::max(0, ((pCity == NULL ? 0 : pCity->getNukeModifier()) + 100)) *
+ 					(iNUKE_UNIT_DAMAGE_BASE - 1 + (iNUKE_UNIT_DAMAGE_RAND_1 +
+-					iNUKE_UNIT_DAMAGE_RAND_2 - 1) / 2)) // </dlph.20>
++					iNUKE_UNIT_DAMAGE_RAND_2 - 1) / 2)) // </kekm.20>
+ 				{
+ 					pLoopUnit->kill(false, pNukeUnit != NULL ? pNukeUnit->getOwner() : NO_PLAYER);
+ 				}
+@@ -1728,7 +1728,7 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude,
+ 
+ 
+ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential,
+-	BuildTypes eBuild, bool bAnyBuild) const // dlph.9  advc: some style changes
++	BuildTypes eBuild, bool bAnyBuild) const // kekm.9  advc: some style changes
+ {
+ 	/*  K-Mod, 21/dec/10, karadoc
+ 		changed to check for NO_IMPROVEMENT rather than just assume the input is an actual improvement */
+@@ -1737,13 +1737,13 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ 		return true;
+ 	// K-Mod end
+ 
+-	// <dlph.9>
++	// <kekm.9>
+ 	FAssertMsg(!bAnyBuild || eBuild == NO_BUILD,
+ 			"expected: if bAnyBuild is true then eBuild is NO_BUILD");
+ 	FAssertMsg(eBuild == NO_BUILD ||
+ 			GC.getInfo(eBuild).getImprovement() == eImprovement,
+ 			"expected that eBuild matches eImprovement");
+-	// </dlph.9>
++	// </kekm.9>
+ 
+ 	if (isCity())
+ 		return false;
+@@ -1812,7 +1812,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ 		if (calculateNatureYield(((YieldTypes)iI), eTeam) < GC.getInfo(eImprovement).getPrereqNatureYield(iI))
+ 			return false;
+ 	}*/
+-	// <dlph.9> Replacing the above
++	// <kekm.9> Replacing the above
+ 	bool bFound = false;
+ 	bool bBuildable = false;
+ 	if (eBuild == NO_BUILD && !bAnyBuild)
+@@ -1865,7 +1865,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ 
+ 		if (bBuildable && !bFound)
+ 			return false;
+- 	} // </dlph.9>
++ 	} // </kekm.9>
+ 
+ 	if (getTeam() == NO_TEAM || !GET_TEAM(getTeam()).isIgnoreIrrigation())
+ 	{
+@@ -1895,7 +1895,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible)
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+ 		if (!canHaveImprovement(eImprovement, GET_PLAYER(ePlayer).getTeam(), bTestVisible,
+-			eBuild, false)) // dlph.9
++			eBuild, false)) // kekm.9
+ 		{
+ 			return false;
+ 		}
+@@ -7166,7 +7166,7 @@ ColorTypes CvPlot::plotMinimapColor()
+ 						getKnownPlayerColor()).getColorTypePrimary();
+ 			}
+ 		}
+-		// dlph.21: Removed !isRevealedBarbarian() clause
++		// kekm.21: Removed !isRevealedBarbarian() clause
+ 		if (getRevealedOwner(eActiveTeam, true) != NO_PLAYER)
+ 		{
+ 			return GC.getInfo(GET_PLAYER(getRevealedOwner(eActiveTeam, true)).
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 6afc2345a..9ce8669cf 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -118,7 +118,7 @@ public:
+ 			bool bIgnoreFeature = false) const; // advc.129
+ 	bool canHaveImprovement(ImprovementTypes eImprovement,														// Exposed to Python
+ 			TeamTypes eTeam = NO_TEAM, bool bPotential = false,
+-			BuildTypes eBuild = NO_BUILD, bool bAnyBuild = true) const; // dlph.9
++			BuildTypes eBuild = NO_BUILD, bool bAnyBuild = true) const; // kekm.9
+ 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false) const;														// Exposed to Python
+ 	int getBuildTime(BuildTypes eBuild,																																										// Exposed to Python
+ 			PlayerTypes ePlayer) const; // advc.251
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 8868725aa..1b1f669a9 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -873,13 +873,13 @@ void CvSelectionGroup::startMission()
+ 				}
+ 				/*if (pLoopUnit->isAttacking())
+ 					break;*/ // Sea patrol intercept
+-				/*  <dlph.37> "If this selection group survives sea patrol battle
++				/*  <kekm.37> "If this selection group survives sea patrol battle
+ 					then the game crashes because combat clears the mission queue [...].
+ 					Since post-combat code clears the mission queue (and this sets
+ 					activity to ACTIVITY_AWAKE) and also deals with unit selection
+ 					for the active player, we can just skip rest of the function here." */
+                 if (!headMissionQueueNode() || pLoopUnit->isAttacking())
+-                    return; // </dlph.37>
++                    return; // </kekm.37>
+ 			}
+ 			break;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 068279596..49b079e94 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -37,14 +37,14 @@ void CvTeam::freeStatics()
+ 	SAFE_DELETE_ARRAY(m_aTeams);
+ }
+ 
+-// <dlph.26>
++// <kekm.26>
+ std::queue<TeamTypes> CvTeam::attacking_queue;
+ std::queue<TeamTypes> CvTeam::defending_queue;
+ std::queue<bool> CvTeam::newdiplo_queue;
+ std::queue<WarPlanTypes> CvTeam::warplan_queue;
+ std::queue<bool> CvTeam::primarydow_queue;
+ bool CvTeam::bTriggeringWars = false;
+-// </dlph.26>
++// </kekm.26>
+ 
+ CvTeam::CvTeam(/* advc.003u: */ TeamTypes eID)
+ {
+@@ -265,7 +265,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	// K-Mod note: the cancel deals code use to be here. I've moved it lower down.
+ 
+ 	shareItems(eTeam);
+-	// dlph.26: "This team is not going to be used anymore and doing this might break some things."
++	// kekm.26: "This team is not going to be used anymore and doing this might break some things."
+ 	//GET_TEAM(eTeam).shareItems(getID());
+ 
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+@@ -291,21 +291,21 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 				if (GET_TEAM(eTeam).isAtWar((TeamTypes)iI))
+ 				{
+ 					//declareWar((TeamTypes)iI, false, GET_TEAM(eTeam).AI_getWarPlan((TeamTypes)iI));
+-					// <dlph.26>
++					// <kekm.26>
+ 					queueWar(getID(), (TeamTypes)iI, false,
+-							GET_TEAM(eTeam).AI_getWarPlan((TeamTypes)iI)); // </dlph.26>
++							GET_TEAM(eTeam).AI_getWarPlan((TeamTypes)iI)); // </kekm.26>
+ 				}
+ 				else if (isAtWar((TeamTypes)iI))
+ 				{
+ 					//GET_TEAM(eTeam).declareWar(((TeamTypes)iI), false, AI_getWarPlan((TeamTypes)iI));
+-					// <dlph.26>
++					// <kekm.26>
+ 					queueWar(eTeam, (TeamTypes)iI, false,
+-							AI().AI_getWarPlan((TeamTypes)iI)); // </dlph.26>
++							AI().AI_getWarPlan((TeamTypes)iI)); // </kekm.26>
+ 				}
+ 			}
+ 		}
+ 	}
+-	// <dlph.26>
++	// <kekm.26>
+ 	triggerWars();
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+@@ -324,7 +324,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 		}
+ 	}
+ 	triggerWars();
+-	// </dlph.26>
++	// </kekm.26>
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		if (iI != getID() && iI != eTeam)
+@@ -436,14 +436,14 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	/*  K-Mod note: eTeam is not going to be used after we've finished this merge,
+ 		so the sharing does not need to be two-way. */
+ 
+-	/*  <dlph.26> "Fix for permanent alliance bug that caused permanent espionage visibility
++	/*  <kekm.26> "Fix for permanent alliance bug that caused permanent espionage visibility
+ 		for cities that only the players with the higher team number sees at the time of the merge. */
+ 	for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(iI);
+ 		if (pLoopPlot->isCity())
+ 			pLoopPlot->getPlotCity()->setEspionageVisibility(eTeam, false, true);
+-	} // </dlph.26>
++	} // </kekm.26>
+ 
+ 	/*  advc.104t: Leader id needed later for merging data; unavailable after the
+ 		loop below. */
+@@ -454,7 +454,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			GET_PLAYER((PlayerTypes)iI).setTeam(getID());
+ 	}
+ 	updateLeaderID(); // advc.opt
+-	// <dlph.13>
++	// <kekm.13>
+ 	// "AP resident and UN secretary general teams need to be updated if that team will not be used anymore."
+ 	for (iI = 0; iI < GC.getNumVoteSourceInfos(); iI++)
+ 	{
+@@ -475,7 +475,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 				}
+ 			}
+ 		}
+-	} // </dlph.13>
++	} // </kekm.13>
+ 	// K-Mod. Adjust the progress of unfinished research so that it is proportionally the same as it was before the merge.
+ 	{
+ 		// cf. CvTeam::getResearchCost
+@@ -519,25 +519,25 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			}
+ 		}
+ 	}
+-	// <dlph.1>
++	// <kekm.1>
+ 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+ 	{
+ 		DomainTypes eDomain = (DomainTypes)iI; // advc
+ 		changeExtraMoves(eDomain, std::max(0, GET_TEAM(eTeam).getExtraMoves(eDomain) -
+ 				getExtraMoves(eDomain)));
+-	} // </dlph.1>
++	} // </kekm.1>
+ 	CvMap const& m = GC.getMap();
+ 	for (iI = 0; iI < m.numPlots(); iI++)
+ 	{
+ 		CvPlot& p = m.getPlotByIndex(iI); // advc
+ 
+-		/*  dlph.26: This part is moved above to the part where members of the
++		/*  kekm.26: This part is moved above to the part where members of the
+ 			other team still had their old team number. */
+-		// <dlph.2>
++		// <kekm.2>
+ 		/*if(p.isCity()) {
+ 			CvCity& c = *p.getPlotCity(); // advc
+ 			c.setEspionageVisibility(eTeam, false, false);
+-		}*/ // </dlph.2>
++		}*/ // </kekm.2>
+ 
+ 		p.changeVisibilityCount(getID(), p.getVisibilityCount(eTeam), NO_INVISIBLE, false);
+ 
+@@ -553,7 +553,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	}
+ 
+ 	g.updatePlotGroups();
+-	int iOtherTeamSize = getNumMembers() - iOriginalTeamSize; // dlph.26
++	int iOtherTeamSize = getNumMembers() - iOriginalTeamSize; // kekm.26
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		if (iI != getID() && iI != eTeam)
+@@ -563,7 +563,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			kLoopTeam.AI_setAtWarCounter(getID(), ((kLoopTeam.AI_getAtWarCounter(getID()) + kLoopTeam.AI_getAtWarCounter(eTeam)) / 2));
+ 			// ... (BtS code deleted)
+ 			kLoopTeam.setEspionagePointsAgainstTeam(getID(), std::max(kLoopTeam.getEspionagePointsAgainstTeam(getID()), kLoopTeam.getEspionagePointsAgainstTeam(eTeam))); // unofficial patch*/
+-			/*  <dlph.26> "These counters now scale properly with number of players in teams.
++			/*  <kekm.26> "These counters now scale properly with number of players in teams.
+ 				Also, espionage is now sum instead of max. */
+ 			kLoopTeam.AI_setAtWarCounter(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getAtWarCounter(getID()) + iOtherTeamSize *
+@@ -611,7 +611,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			kLoopTeam.AI_setEnemyPeacetimeGrantValue(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getEnemyPeacetimeGrantValue(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getEnemyPeacetimeGrantValue(eTeam)) / getNumMembers());
+-			// </dlph.26>
++			// </kekm.26>
+ 
+ 			if (kLoopTeam.isAlive())
+ 			{
+@@ -641,13 +641,13 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 	FOR_EACH_ENUM(Tech)
+ 	{
+ 		if (GET_TEAM(eTeam).isHasTech(eLoopTech))
+-		{	// <dlph.26> "Preserve no tech brokering status."
++		{	// <kekm.26> "Preserve no tech brokering status."
+ 			setNoTradeTech(eLoopTech, (!isHasTech(eLoopTech) || isNoTradeTech(eLoopTech)) &&
+-					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)); // </dlph.26>
++					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)); // </kekm.26>
+ 			setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+ 		}
+ 	}
+-	/*  <dlph.26> "Other direction also done here as other direction of shareItems
++	/*  <kekm.26> "Other direction also done here as other direction of shareItems
+ 		is not used anymore." */
+ 	FOR_EACH_ENUM(Tech)
+ 	{
+@@ -659,7 +659,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 					isNoTradeTech(eLoopTech));
+ 			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+ 		}
+-	} // </dlph.26>
++	} // </kekm.26>
+ 
+ 	FOR_EACH_ENUM(Bonus)
+ 	{
+@@ -667,25 +667,25 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 			setForceRevealedBonus(eLoopBonus, true);
+ 	}
+ 
+-	/*  <dlph.26> "Other direction also done here as other direction of shareItems
++	/*  <kekm.26> "Other direction also done here as other direction of shareItems
+ 		is not used anymore." */
+ 	FOR_EACH_ENUM(Bonus)
+ 	{
+ 		if (isForceRevealedBonus(eLoopBonus))
+ 			GET_TEAM(eTeam).setForceRevealedBonus(eLoopBonus, true);
+-	} // </dlph.26>
++	} // </kekm.26>
+ 
+ 	for (int i = 0; i < MAX_TEAMS; i++)
+ 	{
+ 		TeamTypes eLoopTeam = (TeamTypes)i;
+ 		//setEspionagePointsAgainstTeam(eLoopTeam, std::max(GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam), getEspionagePointsAgainstTeam(eLoopteam)));
+-		// <dlph.26> "Espionage is now sum instead of max."
++		// <kekm.26> "Espionage is now sum instead of max."
+ 		setEspionagePointsAgainstTeam(eLoopTeam,
+ 				GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam) +
+-				getEspionagePointsAgainstTeam(eLoopTeam)); // </dlph.26>
++				getEspionagePointsAgainstTeam(eLoopTeam)); // </kekm.26>
+ 	}
+ 	//setEspionagePointsEver(std::max(GET_TEAM(eTeam).getEspionagePointsEver(), getEspionagePointsEver())); // K-Mod
+-	// dlph.26: Replacing the above
++	// kekm.26: Replacing the above
+ 	setEspionagePointsEver(GET_TEAM(eTeam).getEspionagePointsEver() + getEspionagePointsEver());
+ 
+ 	for(int i = 0; i < MAX_PLAYERS; i++)  // advc: style changes
+@@ -718,7 +718,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 			}
+ 		}
+ 	}
+-	/*  <dlph.26> "Other direction also done here as other direction of shareItems
++	/*  <kekm.26> "Other direction also done here as other direction of shareItems
+ 		is not used anymore." */
+ 	for(int i = 0; i < MAX_PLAYERS; i++)
+ 	{
+@@ -749,7 +749,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 				GET_TEAM(eTeam).processBuilding(eBuilding, iCityBuildings);
+ 			}
+ 		}
+-	} // </dlph.26>
++	} // </kekm.26>
+ 
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+ 	{
+@@ -757,7 +757,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
+ 		if (!kLoopPlayer.isAlive())
+ 			continue;
+ 		if (kLoopPlayer.getTeam() == eTeam ||
+-			/*  dlph.26: "Other direction also done here as other direction
++			/*  kekm.26: "Other direction also done here as other direction
+ 				of shareItems is not used anymore." */
+ 			kLoopPlayer.getTeam() == getID())
+ 		{
+@@ -887,7 +887,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
+ 		// unofficial patch
+ 		/*if (kShareTeam.isHasTech(eTech) && !(kShareTeam.isNoTradeTech(eTech)))
+ 			setNoTradeTech((eTech), false);*/
+-		/*  dlph.26 (commented out): "What was this even supposed to be doing?
++		/*  kekm.26 (commented out): "What was this even supposed to be doing?
+ 			No tech brokering is now applied if necessary when tech is shared
+ 			in CvTeam::shareItems. */
+ 	}
+@@ -1248,12 +1248,12 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
+ 				-1, -1, GC.getColorType("WARNING_TEXT"));
+ 	}
+-	// dlph.26 (advc): EventReporter call moved down
++	// kekm.26 (advc): EventReporter call moved down
+ 
+ 	/*  K-Mod / BBAI. This section includes some customization options from BBAI.
+ 		The code has been modified for K-Mod, so that it uses "bPrimaryDoW" rather than the BBAI parameter.
+ 		The original BtS code has been deleted. */
+-	/* dlph.3: 'BBAI option 1 didn't work because if clauses for canceling pacts
++	/* kekm.3: 'BBAI option 1 didn't work because if clauses for canceling pacts
+ 	   were wrong. BBAI otpion 2 needs further fixing. When all players have
+ 	   defensive pacts with all other players and someone declares war the
+ 	   correct behaviour would be to have all attack the inital attacker,
+@@ -1268,14 +1268,14 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		CvTeam& kThirdTeam = *it;
+ 		if (kThirdTeam.getID() == getID() || kThirdTeam.getID() == eTarget)
+ 			continue;
+-		// <dlph.3> Ally can already be at war with the aggressor
++		// <kekm.3> Ally can already be at war with the aggressor
+ 		if(kThirdTeam.isAtWar(eTarget))
+-			continue; // </dlph.3>
++			continue; // </kekm.3>
+ 		if (kThirdTeam.isDefensivePact(eTarget))
+ 		{
+ 			FAssert(!kTarget.isAVassal() && !kThirdTeam.isAVassal());
+ 			//kThirdTeam.declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, false);
+-			// dlph.26:
++			// kekm.26:
+ 			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false);
+ 			// <advc.104i>
+ 			bDefPactTriggered = true;
+@@ -1289,14 +1289,14 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		else if (iDPBehavior > 1 && kThirdTeam.isDefensivePact(getID()))
+ 		{	// For alliance option.  This teams pacts are canceled above if not using alliance option.
+ 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
+-			// dlph.26:
++			// kekm.26:
+ 			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+ 		}
+ 	}
+-	if (iDPBehavior == 0)// dlph.3: || (iDPBehavior == 1 && bPrimaryDoW))
++	if (iDPBehavior == 0)// kekm.3: || (iDPBehavior == 1 && bPrimaryDoW))
+ 		kTarget.cancelDefensivePacts();
+ 	// K-Mod / BBAI end.
+-	kTarget.allowDefensivePactsToBeCanceled(); // dlph.3
++	kTarget.allowDefensivePactsToBeCanceled(); // kekm.3
+ 	/*  <advc.104i> When other teams come to the help of eTeam through a
+ 		defensive pact, then eTeam becomes unwilling to talk with us. */
+ 	if(bDefPactTriggered)
+@@ -1309,13 +1309,13 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		if (kThirdTeam.isVassal(eTarget) || kTarget.isVassal(kThirdTeam.getID()))
+ 		{
+ 			//declareWar(kThirdTeam.getID(), bNewDiplo, AI_getWarPlan(eTeam), false);
+-			// dlph.26:
++			// kekm.26:
+ 			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false);
+ 		}
+ 		else if (kThirdTeam.isVassal(getID()) || isVassal(kThirdTeam.getID()))
+ 		{
+ 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
+-			// dlph.26:
++			// kekm.26:
+ 			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+ 		}
+ 	}
+@@ -1323,12 +1323,12 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+ 			GET_PLAYER(i).AI_updateAttitude();
+ 	}*/
+-	// <dlph.26> The above is "updated when the war queue is emptied."
++	// <kekm.26> The above is "updated when the war queue is emptied."
+ 	/*  advc (bugfix): But not unless this function communicates to triggerWars that
+ 		a (primary) DoW has already occurred. */
+ 	triggerWars(true);
+ 	// advc: Moved down so that war status has already changed when event is reported
+-	CvEventReporter::getInstance().changeWar(true, getID(), eTarget); // </dlph.26>
++	CvEventReporter::getInstance().changeWar(true, getID(), eTarget); // </kekm.26>
+ }
+ 
+ 
+@@ -1769,7 +1769,7 @@ int CvTeam::countWarEnemies(bool bIgnoreMinors, bool bIgnoreVassals) const
+ 	return iCount;
+ }
+ // BETTER_BTS_AI_MOD: END
+-// <dlph.3> (actually an advc change)
++// <kekm.3> (actually an advc change)
+ bool CvTeam::allWarsShared(TeamTypes eOther, /* advc.130f: */ bool bCheckBothWays) const
+ {
+ 	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
+@@ -1783,7 +1783,7 @@ bool CvTeam::allWarsShared(TeamTypes eOther, /* advc.130f: */ bool bCheckBothWay
+ 			return false; // </advc.130f>
+ 	}
+ 	return true;
+-} // </dlph.3>
++} // </kekm.3>
+ 
+ 
+ int CvTeam::getHasMetCivCount(bool bIgnoreMinors) const
+@@ -3319,7 +3319,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 			if (GET_TEAM(eMaster).isAtWar(eThirdParty))
+ 			{
+ 				//declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
+-				// dlph.26: "These wars declared by capitulated vassal don't trigger defensive pacts."
++				// kekm.26: "These wars declared by capitulated vassal don't trigger defensive pacts."
+ 				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated);
+ 			}
+ 			else if (isAtWar(eThirdParty))
+@@ -3329,12 +3329,12 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 				else
+ 				{
+ 					//GET_TEAM(eMaster).declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
+-					// dlph.26:
++					// kekm.26:
+ 					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE);
+ 				}
+ 			}
+ 		}
+-		triggerWars(); // dlph.26
++		triggerWars(); // kekm.26
+ 		for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+ 			CvTeamAI& kRival = *it;
+@@ -3603,7 +3603,7 @@ void CvTeam::freeVassal(TeamTypes eVassal) const
+ 	} // </advc.130y>
+ }
+ 
+-/*  <dlph.26> "Changed how multiple war declarations work. declareWar used to
++/*  <kekm.26> "Changed how multiple war declarations work. declareWar used to
+ 	nest war declarations, now they are queued to trigger defensive pacts and
+ 	everything else in the correct order." */
+ void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
+@@ -3641,7 +3641,7 @@ void CvTeam::triggerWars(bool bForceUpdateAttitude)
+ 			it->AI_updateAttitude();
+ 	}
+ 	bTriggeringWars = false;
+-} // </dlph.26>
++} // </kekm.26>
+ 
+ 
+ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
+@@ -5004,7 +5004,7 @@ void CvTeam::doBarbarianResearch()
+ 	FAssert(isBarbarian());
+ 	CvGame& g = GC.getGame();
+ 	int iElapsed = g.getElapsedGameTurns();
+-	/*  <dlph.28> "Give some starting research to barbarians in advanced start
++	/*  <kekm.28> "Give some starting research to barbarians in advanced start
+ 		depending on other players' tech status after advanced start. */
+ 	if (iElapsed == 1 && // This function isn't called on turn 0
+ 			g.isOption(GAMEOPTION_ADVANCED_START))
+@@ -5027,7 +5027,7 @@ void CvTeam::doBarbarianResearch()
+ 						iPossibleCount, getLeaderID());
+ 			}
+ 		}
+-	} // </dlph.28>
++	} // </kekm.28>
+ 	// <advc.307>
+ 	bool bNoBarbCities = GC.getInfo(g.getCurrentEra()).isNoBarbCities();
+ 	bool bIgnorePrereqs = bNoBarbCities;
+@@ -5114,7 +5114,7 @@ void CvTeam::updateTechShare(TechTypes eTech)
+ 		{
+ 			setHasTech(eTech, true, NO_PLAYER, true, true);
+ 			if(GET_PLAYER(getLeaderID()).isSignificantDiscovery(eTech)) // advc.550e
+-				setNoTradeTech(eTech, true); // dlph.31
++				setNoTradeTech(eTech, true); // kekm.31
+ 			return;
+ 		}
+ 	}
+@@ -5454,7 +5454,7 @@ void CvTeam::cancelDefensivePacts()
+ 	}
+ }
+ 
+-// <dlph.3> (actually an advc change)
++// <kekm.3> (actually an advc change)
+ void CvTeam::allowDefensivePactsToBeCanceled()
+ {
+ 	FOR_EACH_DEAL_VAR(d)
+@@ -5464,7 +5464,7 @@ void CvTeam::allowDefensivePactsToBeCanceled()
+ 		if(d->headFirstTradesNode()->m_data.m_eItemType == TRADE_DEFENSIVE_PACT)
+ 			d->setInitialGameTurn(-100);
+ 	}
+-} // </dlph.3>
++} // </kekm.3>
+ 
+ 
+ void CvTeam::read(FDataStreamBase* pStream)
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 1a7e20459..d9aacbbdf 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -21,11 +21,11 @@ public:
+ 	static void initStatics();
+ 	static void freeStatics(); // </advc.003u>
+ 
+-	// <dlph.26>
++	// <kekm.26>
+ 	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
+ 			bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true);
+ 	static void triggerWars(/* advc: */ bool bForceUpdateAttitude = false);
+-	// </dlph.26>
++	// </kekm.26>
+ 
+ 	explicit CvTeam(TeamTypes eID);
+ 	virtual ~CvTeam();
+@@ -84,7 +84,7 @@ public:
+ 	//int getWarPlanCount(WarPlanTypes eWarPlan, bool bIgnoreMinors = true) const;
+ 	int getHasMetCivCount(bool bIgnoreMinors = true) const;																		// Exposed to Python
+ 
+-	bool allWarsShared(TeamTypes eOther, // dlph.3
++	bool allWarsShared(TeamTypes eOther, // kekm.3
+ 			/*  advc.130f: If false, check only if the war enemies of this team
+ 				are included in those of otherId (set inclusion). */
+ 			bool bCheckBothWays = true) const;
+@@ -588,14 +588,14 @@ protected:
+ 	mutable int m_iPeaceOfferStage;
+ 	// </advc.134a>
+ 
+-	// <dlph.26>
++	// <kekm.26>
+ 	static std::queue<TeamTypes> attacking_queue;
+ 	static std::queue<TeamTypes> defending_queue;
+ 	static std::queue<bool> newdiplo_queue;
+ 	static std::queue<WarPlanTypes> warplan_queue;
+ 	static std::queue<bool> primarydow_queue;
+ 	static bool bTriggeringWars;
+-	// </dlph.26>
++	// </kekm.26>
+ 
+ 	void uninit();
+ 
+@@ -608,7 +608,7 @@ protected:
+ 	void processTech(TechTypes eTech, int iChange, /* advc.121: */ bool bEndOfTurn);
+ 
+ 	void cancelDefensivePacts();
+-	void allowDefensivePactsToBeCanceled(); // dlph.3
++	void allowDefensivePactsToBeCanceled(); // kekm.3
+ 	// <advc.003m>
+ 	// New name for BBAI's getAtWarCount
+ 	int countWarEnemies(bool bIgnoreMinors = true, bool bIgnoreVassals = false) const;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index fed28884e..db3cdc659 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -818,15 +818,15 @@ int CvTeamAI::AI_chooseElection(const VoteSelectionData& kVoteSelectionData) con
+ 		{
+ 			for (MemberIter it(getID()); it.hasNext(); ++it)
+ 			{
+-				PlayerVoteTypes ePlayerVote = // dlph.25: was eVote (name clash)
++				PlayerVoteTypes ePlayerVote = // kekm.25: was eVote (name clash)
+ 						it->AI_diploVote(kVoteSelectionData.aVoteOptions[iI], eVoteSource, true);
+ 				//if (eVote != PLAYER_VOTE_YES || eVote == GC.getGame().getVoteOutcome((VoteTypes)iI))
+-				/*  <dlph.25> Replacing the above.
++				/*  <kekm.25> Replacing the above.
+ 					'AI can choose to repeal an already passed resolution
+ 					if all team members agree' */
+ 				bool bVoteYes = (ePlayerVote == PLAYER_VOTE_YES);
+ 				bool bAlreadyPassed = (GC.getGame().getVoteOutcome(eVote) == PLAYER_VOTE_YES);
+-				if((bVoteYes && bAlreadyPassed) || (!bVoteYes && !bAlreadyPassed)) // </dlph.25>
++				if((bVoteYes && bAlreadyPassed) || (!bVoteYes && !bAlreadyPassed)) // </kekm.25>
+ 				{
+ 					bValid = false;
+ 					break;
+@@ -3790,9 +3790,9 @@ DenialTypes CvTeamAI::AI_defensivePactTrade(TeamTypes eWithTeam) const
+ 	if (isHuman())
+ 		return NO_DENIAL;
+ 
+-	// <dlph.3> (actually an advc change): Refuses/ cancels DP when ally makes peace
++	// <kekm.3> (actually an advc change): Refuses/ cancels DP when ally makes peace
+ 	if(!allWarsShared(eWithTeam))
+-		return DENIAL_JOKING; // </dlph.3>
++		return DENIAL_JOKING; // </kekm.3>
+ 	// <advc.130p>
+ 	if(AI_getMemoryCount(eWithTeam, MEMORY_CANCELLED_DEFENSIVE_PACT) > 0)
+ 		return DENIAL_RECENT_CANCEL;
+@@ -6013,7 +6013,7 @@ void CvTeamAI::AI_doWar()
+ 									continue; // </advc.001>
+ 								iDogpilePower += itDog->getPower(false);
+ 							}
+-							// dlph.3 (advc): No longer holds I think; the target could have a DP despite being at war
++							// kekm.3 (advc): No longer holds I think; the target could have a DP despite being at war
+ 							//FAssert(bVassal || GET_TEAM(eTarget).getPower(true) == GET_TEAM(eTarget).getDefensivePower(getID()));
+ 							if ((GET_TEAM(eTarget).getDefensivePower(getID()) * 3) / 2 < iDogpilePower)
+ 							{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index e37de8e52..e67f13463 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3008,13 +3008,13 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) /* advc: */ const
+ 		eRecipientReligion != m_pUnitInfo->getReligionType())
+ 	{
+ 		return false;
+-	} // <dlph.4>
++	} // <kekm.4>
+ 	std::vector<CvUnit*> apCargoUnits;
+ 	getCargoUnits(apCargoUnits);
+ 	for(size_t i = 0; i < apCargoUnits.size(); i++)
+ 	{
+ 		if(!apCargoUnits[i]->canGift(false, false))
+-			return false; // </dlph.4>
++			return false; // </kekm.4>
+ 	} // </advc.123a>
+ 
+ 	// advc.opt: Moved down (check all the one-liners first)
+@@ -3061,7 +3061,7 @@ void CvUnit::gift(bool bTestTransport)
+ 	/*if (pGiftUnit->isGoldenAge())
+ 		kRecievingPlayer.AI_changeMemoryCount(eOwner, MEMORY_GIVE_HELP, 1);*/
+ 	// Note: I'm not currently considering special units with < 0 production cost.
+-	if (pGiftUnit->canCombat()) // dlph.8: was isCombat
++	if (pGiftUnit->canCombat()) // kekm.8: was isCombat
+ 	{
+ 		int iEffectiveWarRating =
+ 				getPlot().getArea().getAreaAIType(kRecievingPlayer.getTeam()) != AREAAI_NEUTRAL ?
+@@ -3627,7 +3627,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
+ 		if (kLoopPlot.getTeam() == eTeam)
+ 			return true;
+ 		if (kLoopPlot.plotCheck(PUF_isCombatTeam, eTeam, getTeam()) != NULL &&
+-			isEnemy(eTeam)) // dlph.7
++			isEnemy(eTeam)) // kekm.7
+ 		{
+ 			return true;
+ 		}
+@@ -3679,10 +3679,10 @@ bool CvUnit::nuke(int iX, int iY)
+ 		if (abTeamsAffected.get(it->getID()) && !isEnemy(it->getID()))
+ 		{
+ 			//GET_TEAM(getTeam()).declareWar(it->getID(), false, WARPLAN_LIMITED);
+-			// dlph.26:
++			// kekm.26:
+ 			CvTeam::queueWar(getTeam(), it->getID(), false, WARPLAN_LIMITED);
+ 		}
+-		CvTeam::triggerWars(); // dlph.26
++		CvTeam::triggerWars(); // kekm.26
+ 	}
+ 
+ 	int iBestInterception = 0;
+@@ -7126,12 +7126,12 @@ bool CvUnit::canSiege(TeamTypes eTeam) const
+ 	return true;
+ }
+ 
+-// <dlph.8> "Added function for checking whether a unit is a combat unit."
++// <kekm.8> "Added function for checking whether a unit is a combat unit."
+ bool CvUnit::canCombat() const
+ {
+ 	// avdc: Check m_pUnitInfo->isMilitaryProduction() instead?
+ 	return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || nukeRange() >= 0);
+-} // </dlph.8>
++} // </kekm.8>
+ 
+ 
+ bool CvUnit::canAttack() const
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index d623518eb..4cc77e68f 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -410,7 +410,7 @@ public:
+ 		return (baseCombatStr() > 0);
+ 	}
+ 	bool canSiege(TeamTypes eTeam) const;																	// Exposed to Python
+-	bool canCombat() const; // dlph.8
++	bool canCombat() const; // kekm.8
+ 	bool canAttack() const;																					// Exposed to Python
+ 	bool canAttack(const CvUnit& kDefender) const;
+ 	bool canDefend(const CvPlot* pPlot = NULL) const;														// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a59aa2215..4c6723bf0 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -20964,7 +20964,7 @@ int CvUnitAI::AI_nukeValue(CvPlot* pCenterPlot, int iSearchRange, CvPlot*& pBest
+ 									continue;
+ 								}
+ 							}
+-							// dlph.7: Commented out
++							// kekm.7: Commented out
+ 							//else FAssertMsg(false, "3rd party unit being considered for nuking.");
+ 						}
+ 					}
+
+diff --git a/CvGameCoreDLL/CyCityInterface2.cpp b/CvGameCoreDLL/CyCityInterface2.cpp
+index 2ff7a91b4..89c38431f 100644
+--- a/CvGameCoreDLL/CyCityInterface2.cpp
++++ b/CvGameCoreDLL/CyCityInterface2.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ 
+-// dlph.34/advc: Added in order to reduce the size of CyCityInterface1.cpp
++// kekm.34/advc: Added in order to reduce the size of CyCityInterface1.cpp
+ 
+ void CyCityPythonInterface2(python::class_<CyCity>& x)
+ {
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 5b49edc6a..20e5342be 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -98,7 +98,7 @@ CyTeam* CyGlobalContext::getCyTeam(int i)
+ 
+ 	return i<MAX_TEAMS ? &cyTeams[i] : NULL;
+ }
+-// <dlph.27> (advc)
++// <kekm.27> (advc)
+ bool CyGlobalContext::isLogging() {
+ 
+ 	return GC.isLogging();
+@@ -107,7 +107,7 @@ bool CyGlobalContext::isLogging() {
+ bool CyGlobalContext::isRandLogging() {
+ 
+ 	return GC.isRandLogging();
+-} // </dlph.27>
++} // </kekm.27>
+ 
+ CvEffectInfo* CyGlobalContext::getEffectInfo(int /*EffectTypes*/ i) const
+ {
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.h b/CvGameCoreDLL/CyGlobalContext.h
+index d294c839d..52ce6dd51 100644
+--- a/CvGameCoreDLL/CyGlobalContext.h
++++ b/CvGameCoreDLL/CyGlobalContext.h
+@@ -37,10 +37,10 @@ public:
+ 	CvRandom& getCyASyncRand() const;
+ 	CyTeam* getCyTeam(int i);
+ 	CyArtFileMgr* getCyArtFileMgr() const;
+-	// <dlph.27>
++	// <kekm.27>
+ 	bool isLogging();
+ 	bool isRandLogging();
+-	// </dlph.27>
++	// </kekm.27>
+ 	CvEffectInfo* getEffectInfo(int i) const;
+ 	CvTerrainInfo* getTerrainInfo(int i) const;
+ 	CvBonusClassInfo* getBonusClassInfo(int i) const;
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface1.cpp b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+index 44dd0aa03..8f68e6270 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface1.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+@@ -23,10 +23,10 @@ void CyGlobalContextPythonInterface1(python::class_<CyGlobalContext>& x)
+ 		.def("getActivePlayer", &CyGlobalContext::getCyActivePlayer, python::return_value_policy<python::reference_existing_object>(), "() - active player instance")
+ 		.def("getASyncRand", &CyGlobalContext::getCyASyncRand, python::return_value_policy<python::reference_existing_object>(), "Non-Synch'd random #")
+ 		.def("getTeam", &CyGlobalContext::getCyTeam, python::return_value_policy<python::reference_existing_object>(), "(iTeam) - iTeam instance")
+-		// <dlph.27>
++		// <kekm.27>
+ 		.def("isLogging", &CyGlobalContext::isLogging, "bool () - returns true iff logging is enabled in the INI")
+ 		.def("isRandLogging", &CyGlobalContext::isRandLogging, "bool () - returns true iff rand logging (MPLog) is enabled in the INI")
+-		// </dlph.27>
++		// </kekm.27>
+ 		// infos
+ 		.def("getNumEffectInfos", &CyGlobalContext::getNumEffectInfos, "int () - Number of effect infos")
+ 		.def("getEffectInfo", &CyGlobalContext::getEffectInfo, python::return_value_policy<python::reference_existing_object>(), "(int (EffectTypes) eEffectID) - CvInfo for EffectID")
+
+diff --git a/CvGameCoreDLL/CyRandomInterface.cpp b/CvGameCoreDLL/CyRandomInterface.cpp
+index 8322f2f86..40632eea2 100644
+--- a/CvGameCoreDLL/CyRandomInterface.cpp
++++ b/CvGameCoreDLL/CyRandomInterface.cpp
+@@ -13,7 +13,7 @@ void CyRandomPythonInterface()
+ 
+ 	python::class_<CvRandom>("CyRandom")
+ 		.def("get", &CvRandom::get, CvRandom_get_overloads( args("usNum", "pszLog"), "returns a random number"))
+-		// dlph.27:
++		// kekm.27:
+ 		.def("getSeed", &CvRandom::getSeed,  "int () current seed")
+ 		.def("init", &CvRandom::init, "void (unsigned long int ulSeed)")
+ 		;
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index c1cda1038..4bd24efea 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -62,7 +62,7 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes weId, WarEvalParameters& warEvalPar
+ 			for(PlayerIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> allyIt(agent.getID());
+ 					allyIt.hasNext(); ++allyIt) {
+ 				CvPlayerAI& ally = *allyIt;
+-				// Can happen b/c of the dlph.3 change
++				// Can happen b/c of the kekm.3 change
+ 				if(agent.isAtWar(ally.getTeam()))
+ 					continue;
+ 				if(GET_TEAM(civId).uwai().hasDefactoDefensivePact(ally.getTeam()))
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 95af7200d..62f6b4e32 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -34,14 +34,14 @@ def isAdvancedMap():
+ 	return 0
+ 
+ def getNumCustomMapOptions():
+-	return 3 # dlph.32
++	return 3 # kekm.32
+ 
+ def getCustomMapOptionName(argsList):
+ 	[iOption] = argsList
+ 	option_names = {
+ 		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
+ 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
+-		2:	"TXT_KEY_MAP_WORLD_WRAP" # dlph.32
++		2:	"TXT_KEY_MAP_WORLD_WRAP" # kekm.32
+ 		}
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+@@ -51,7 +51,7 @@ def getNumCustomMapOptionValues(argsList):
+ 	option_values = {
+ 		0:	3,
+ 		1:	2,
+-		2:	3 # dlph.32
++		2:	3 # kekm.32
+ 		}
+ 	return option_values[iOption]
+ 
+@@ -67,12 +67,12 @@ def getCustomMapOptionDescAt(argsList):
+ 			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
+ 			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
+ 			},
+-		# <dlph.32>
++		# <kekm.32>
+ 		2:	{
+ 			0: "TXT_KEY_MAP_WRAP_FLAT",
+ 			1: "TXT_KEY_MAP_WRAP_CYLINDER",
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+-			} # </dlph.32>
++			} # </kekm.32>
+ 		}
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+@@ -82,15 +82,15 @@ def getCustomMapOptionDefault(argsList):
+ 	option_defaults = {
+ 		0:	1,
+ 		1:	0,
+-		2:	1 # dlph.32
++		2:	1 # kekm.32
+ 		}
+ 	return option_defaults[iOption]
+-# <dlph.32>
++# <kekm.32>
+ def getWrapX():
+ 	return (CyMap().getCustomMapOption(2) >= 1)
+ 
+ def getWrapY():
+-	return (CyMap().getCustomMapOption(2) == 2) # </dlph.32>
++	return (CyMap().getCustomMapOption(2) == 2) # </kekm.32>
+ 
+ # advc.027: Leave this up to the DLL entirely
+ #def minStartingDistanceModifier():
+
+[PATCH COVERAGE]
+patchFiles=40 embeddedFiles=40 omittedFiles=0 embeddedPatchBytes=90003

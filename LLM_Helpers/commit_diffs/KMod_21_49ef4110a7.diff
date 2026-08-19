@@ -1,0 +1,483 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 21
+# Commit: 49ef4110a71b70a4223eeb3fd3a934f6366caa9d
+# History segment: K-Mod history
+# Parent used for diff: a65321d14313be73366f056e54ae057887bd07a3
+# Title: Fixed a bug that caused the game to crash when played with Time Victory disabled. (Gw chances are now the index divided by an ad hoc factor rather than divid...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	27	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+7	0	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+3	0	Assets/Python/Contrib/UnitUpgradesGraph.py
+233	0	Assets/Python/Screens/CvPediaPromotion.py
+2	1	Assets/Python/Screens/CvTechChooser.py
+1	1	Assets/Python/Screens/EconomicsAdvisor.py
+12	2	Assets/readme.txt
+4	0	Assets/xml/GlobalDefinesAlt.xml
+ create mode 100644 Assets/Python/Screens/CvPediaPromotion.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d4dcd0e5c..fa097cf1b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -163,7 +163,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: self.placeBTSConcepts,
+ 			SevoScreenEnums.PEDIA_HINTS		: self.placeHints,
+ 			SevoScreenEnums.PEDIA_SHORTCUTS  	: self.placeShortcuts,
+-			SevoScreenEnums.PEDIA_STRATEGY  	: self.placeStrategy,
+ 			}
+ 
+ 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
+@@ -193,7 +192,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			SevoScreenEnums.PEDIA_CONCEPTS		: SevoPediaHistory.SevoPediaHistory(self),
+ 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: SevoPediaHistory.SevoPediaHistory(self),
+ 			SevoScreenEnums.PEDIA_SHORTCUTS  	: SevoPediaHistory.SevoPediaHistory(self),
+-			SevoScreenEnums.PEDIA_STRATEGY  	: SevoPediaHistory.SevoPediaHistory(self),
+ 			}
+ 
+ 
+@@ -281,8 +279,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		BugUtil.debug("NewConcept itme %d is %s" % (iItem, info.getDescription()))
+ 		if (self.isTraitInfo(info)):
+ 			return SevoScreenEnums.PEDIA_TRAITS
+-		if (self.isStrategyInfo(info)):
+-			return SevoScreenEnums.PEDIA_STRATEGY
+ 		if (self.isShortcutInfo(info)):
+ 			return SevoScreenEnums.PEDIA_SHORTCUTS
+ 		return SevoScreenEnums.PEDIA_BTS_CONCEPTS
+@@ -360,7 +356,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
+ 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
+ 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
+-		self.szCategoryStrategy   	= localText.getText("TXT_KEY_PEDIA_CATEGORY_STRATEGY", ())
+ 		
+ 		self.categoryList = [
+ 			["TECHS",	self.szCategoryTechs],
+@@ -388,7 +383,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			["HINTS",	self.szCategoryConceptsNew],
+ 			["HINTS",	self.szCategoryHints],
+ 			["HINTS",	self.szCategoryShortcuts],
+-			["HINTS",	self.szCategoryStrategy],
+ 			]
+ 
+ 		self.categoryGraphics = {
+@@ -646,7 +640,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def getNewConceptInfo(self, id):
+ 		info = gc.getNewConceptInfo(id)
+-		if not self.isShortcutInfo(info) and not self.isStrategyInfo(info) and not self.isTraitInfo(info):
++		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
+ 			return info
+ 		return None
+ 
+@@ -679,21 +673,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return info.getType().find("SHORTCUTS") != -1
+ 
+ 	
+-	def placeStrategy(self):
+-		self.list = self.getSortedList(gc.getNumNewConceptInfos(), self.getStrategyInfo)
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, self.getStrategyInfo)
+-
+-	def getStrategyInfo(self, id):
+-		info = gc.getNewConceptInfo(id)
+-		if self.isStrategyInfo(info):
+-			return info
+-		return None
+-	
+-	def isStrategyInfo(self, info):
+-		return info.getType().find("STRATEGY") != -1
+-	
+-	
+-	
+ 	def placeItems(self, widget, info):
+ 		screen = self.getScreen()
+ 		screen.clearListBoxGFC(self.ITEM_LIST_ID)
+@@ -714,9 +693,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			elif (info == self.getShortcutInfo):
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+ 				data2 = item[1]
+-			elif (info == self.getStrategyInfo):
+-				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+-				data2 = item[1]
+ 			elif (info == self.getTraitInfo):
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+ 				data2 = item[1]
+@@ -786,8 +762,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_HINTS, True, True)
+ 		elif (szLink == "PEDIA_MAIN_SHORTCUTS"):
+ 			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_SHORTCUTS, True, True)
+-		elif (szLink == "PEDIA_MAIN_STRATEGY"):
+-			return self.pediaJump(SevoScreenEnums.PEDIA_MAIN, SevoScreenEnums.PEDIA_STRATEGY, True, True)
+ 
+ 		for i in range(gc.getNumTechInfos()):
+ 			if (gc.getTechInfo(i).isMatchForLink(szLink, False)):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 61a6bc0c8..10b83a409 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -99,6 +99,7 @@ class SevoPediaPromotion:
+ 			screen.attachImageButton(panelName, "", gc.getPromotionInfo(ePromo).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromo, 1, False)
+ 		ePromoOr1 = gc.getPromotionInfo(self.iPromotion).getPrereqOrPromotion1()
+ 		ePromoOr2 = gc.getPromotionInfo(self.iPromotion).getPrereqOrPromotion2()
++		ePromoOr3 = gc.getPromotionInfo(self.iPromotion).getPrereqOrPromotion3() # K-Mod
+ 		if (ePromoOr1 > -1):
+ 			if (ePromo > -1):
+ 				screen.attachLabel(panelName, "", localText.getText("TXT_KEY_AND", ()))
+@@ -110,6 +111,12 @@ class SevoPediaPromotion:
+ 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(ePromoOr2).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromoOr2, 1, False)
+ 				if (ePromo > -1):
+ 					screen.attachLabel(panelName, "", ")")
++			# K-Mod, extra prereq
++			if (ePromoOr3 > -1):
++				screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
++				screen.attachImageButton(panelName, "", gc.getPromotionInfo(ePromoOr3).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromoOr3, 1, False)
++				if (ePromo > -1):
++					screen.attachLabel(panelName, "", ")")			
+ 		eTech = gc.getPromotionInfo(self.iPromotion).getTechPrereq()
+ 		if (eTech > -1):
+ 			screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, eTech, 1, False)
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index f2f397153..3d0d0184e 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -579,6 +579,9 @@ class PromotionsGraph(UnitUpgradesGraph):
+ 			self.addUpgradePath(graph, unitB, unitA)
+ 			unitC = gc.getPromotionInfo(unitA).getPrereqOrPromotion2()
+ 			self.addUpgradePath(graph, unitC, unitA)
++			# K-Mod, extra prereq
++			unitE = gc.getPromotionInfo(unitA).getPrereqOrPromotion3()
++			self.addUpgradePath(graph, unitE, unitA)
+ 		
+ 	def unitToString(self, unit):
+ 		return gc.getPromotionInfo(unit).getDescription() + ":%d"%(unit, )
+
+diff --git a/Assets/Python/Screens/CvPediaPromotion.py b/Assets/Python/Screens/CvPediaPromotion.py
+new file mode 100644
+index 000000000..369a5a1a3
+--- /dev/null
++++ b/Assets/Python/Screens/CvPediaPromotion.py
+@@ -0,0 +1,233 @@
++## Sid Meier's Civilization 4
++## Copyright Firaxis Games 2005
++from CvPythonExtensions import *
++import CvUtil
++import ScreenInput
++import CvScreenEnums
++
++# globals
++gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
++localText = CyTranslator()
++
++class CvPediaPromotion:
++	"Civilopedia Screen for Promotions"
++
++	def __init__(self, main):
++		self.iPromotion = -1
++		self.top = main
++	
++		self.BUTTON_SIZE = 46
++		
++		self.X_UNIT_PANE = 50
++		self.Y_UNIT_PANE = 80
++		self.W_UNIT_PANE = 250
++		self.H_UNIT_PANE = 210
++
++		self.X_ICON = 98
++		self.Y_ICON = 110
++		self.W_ICON = 150
++		self.H_ICON = 150
++		self.ICON_SIZE = 64
++
++		self.X_PREREQ_PANE = 330
++		self.Y_PREREQ_PANE = 60
++		self.W_PREREQ_PANE = 420
++		self.H_PREREQ_PANE = 110
++
++		self.X_LEADS_TO_PANE = 330
++		self.Y_LEADS_TO_PANE = 180
++		self.W_LEADS_TO_PANE = self.W_PREREQ_PANE
++		self.H_LEADS_TO_PANE = 110
++				
++		self.X_SPECIAL_PANE = 330
++		self.Y_SPECIAL_PANE = 294
++		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
++		self.H_SPECIAL_PANE = 380
++
++		self.X_UNIT_GROUP_PANE = 50
++		self.Y_UNIT_GROUP_PANE = 294
++		self.W_UNIT_GROUP_PANE = 250
++		self.H_UNIT_GROUP_PANE = 380
++		self.DY_UNIT_GROUP_PANE = 25
++#		self.ITEMS_MARGIN = 18
++#		self.ITEMS_SEPARATION = 2
++
++	# Screen construction function
++	def interfaceScreen(self, iPromotion):	
++			
++		self.iPromotion = iPromotion
++	
++		self.top.deleteAllWidgets()						
++							
++		screen = self.top.getScreen()
++		
++		bNotActive = (not screen.isActive())
++		if bNotActive:
++			self.top.setPediaCommonWidgets()
++
++		# Header...
++		szHeader = u"<font=4b>" + gc.getPromotionInfo(self.iPromotion).getDescription().upper() + u"</font>"
++		szHeaderId = self.top.getNextWidgetName()
++		screen.setLabel(szHeaderId, "Background", szHeader, CvUtil.FONT_CENTER_JUSTIFY, self.top.X_SCREEN, self.top.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		
++		# Top
++		screen.setText(self.top.getNextWidgetName(), "Background", self.top.MENU_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.top.X_MENU, self.top.Y_MENU, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_MAIN, CivilopediaPageTypes.CIVILOPEDIA_PAGE_PROMOTION, -1)
++
++		if self.top.iLastScreen	!= CvScreenEnums.PEDIA_PROMOTION or bNotActive:		
++			self.placeLinks(true)
++			self.top.iLastScreen = CvScreenEnums.PEDIA_PROMOTION
++		else:
++			self.placeLinks(false)
++			
++		# Icon
++		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False,
++		    self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(self.top.getNextWidgetName(), "", "", false, false,
++		    self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
++		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getPromotionInfo(self.iPromotion).getButton(),
++		    self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++#		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getPromotionInfo(self.iPromotion).getButton(), self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, WidgetTypes.WIDGET_GENERAL, self.iPromotion, -1 )
++
++		# Place Required promotions
++		self.placePrereqs()
++
++		# Place Allowing promotions
++		self.placeLeadsTo()
++				
++		# Place the Special abilities block
++		self.placeSpecial()
++		
++		self.placeUnitGroups()
++			
++
++	# Place Leads To...
++	def placeLeadsTo(self):
++
++		screen = self.top.getScreen()
++
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()), "", false, true,
++				 self.X_LEADS_TO_PANE, self.Y_LEADS_TO_PANE, self.W_LEADS_TO_PANE, self.H_LEADS_TO_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		
++		screen.attachLabel(panelName, "", "  ")
++		
++		for j in range(gc.getNumPromotionInfos()):
++			iPrereq = gc.getPromotionInfo(j).getPrereqPromotion()
++			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion):
++				screen.attachImageButton( panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False )
++				
++	# Place prereqs...
++	def placePrereqs(self):
++
++		screen = self.top.getScreen()
++		
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", false, true,
++				 self.X_PREREQ_PANE, self.Y_PREREQ_PANE, self.W_PREREQ_PANE, self.H_PREREQ_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		
++		screen.attachLabel(panelName, "", "  ")
++
++		ePromo = gc.getPromotionInfo(self.iPromotion).getPrereqPromotion()
++		if (ePromo > -1):
++			screen.attachImageButton( panelName, "", gc.getPromotionInfo(ePromo).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromo, 1, False )
++
++		ePromoOr1 = gc.getPromotionInfo(self.iPromotion).getPrereqOrPromotion1()
++		ePromoOr2 = gc.getPromotionInfo(self.iPromotion).getPrereqOrPromotion2()
++		ePromoOr3 = gc.getPromotionInfo(self.iPromotion).getPrereqOrPromotion3() # K-Mod newline
++		if (ePromoOr1 > -1):
++			if (ePromo > -1):
++				screen.attachLabel(panelName, "", localText.getText("TXT_KEY_AND", ()))
++			
++				if (ePromoOr2 > -1):
++					screen.attachLabel(panelName, "", "(")
++
++			screen.attachImageButton( panelName, "", gc.getPromotionInfo(ePromoOr1).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromoOr1, 1, False )
++
++			if (ePromoOr2 > -1):
++				screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
++				screen.attachImageButton( panelName, "", gc.getPromotionInfo(ePromoOr2).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromoOr2, 1, False )
++
++				if (ePromo > -1 and ePromoOr3 < 0): # K-Mod added second condition
++					screen.attachLabel(panelName, "", ")")
++
++			# K-Mod new block
++			if (ePromoOr3 > -1):
++				screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
++				screen.attachImageButton( panelName, "", gc.getPromotionInfo(ePromoOr3).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, ePromoOr3, 1, False )
++
++				if (ePromo > -1):
++					screen.attachLabel(panelName, "", ")")
++			# K-Mod end
++								
++		eTech = gc.getPromotionInfo(self.iPromotion).getTechPrereq()
++		if (eTech > -1):
++			screen.attachImageButton( panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, eTech, 1, False )		
++						
++		eReligion = gc.getPromotionInfo(self.iPromotion).getStateReligionPrereq()
++		if (eReligion > -1):
++			screen.attachImageButton( panelName, "", gc.getReligionInfo(eReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, eReligion, 1, False )		
++						
++	def placeSpecial(self):
++
++		screen = self.top.getScreen()
++		
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", true, false,
++				 self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		
++		listName = self.top.getNextWidgetName()
++		
++		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
++		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE+5, self.Y_SPECIAL_PANE+30, self.W_SPECIAL_PANE-10, self.H_SPECIAL_PANE-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
++
++	def placeUnitGroups(self):
++		screen = self.top.getScreen()
++		
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_PROMOTION_UNITS", ()), "", true, true,
++			self.X_UNIT_GROUP_PANE, self.Y_UNIT_GROUP_PANE, self.W_UNIT_GROUP_PANE, self.H_UNIT_GROUP_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		
++		szTable = self.top.getNextWidgetName()
++		screen.addTableControlGFC(szTable, 1,
++			self.X_UNIT_GROUP_PANE + 10, self.Y_UNIT_GROUP_PANE + 40, self.W_UNIT_GROUP_PANE - 20, self.H_UNIT_GROUP_PANE - 50, False, False, 24, 24, TableStyles.TABLE_STYLE_EMPTY)
++		
++		i = 0
++		for iI in range(gc.getNumUnitCombatInfos()):
++			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
++				iRow = screen.appendTableRow(szTable)
++				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				i += 1
++
++	def placeLinks(self, bRedraw):
++
++		screen = self.top.getScreen()
++
++		if bRedraw:		               
++			screen.clearListBoxGFC(self.top.LIST_ID)
++		
++		# sort techs alphabetically
++		listSorted=[(0,0)]*gc.getNumPromotionInfos()
++		for j in range(gc.getNumPromotionInfos()):
++			listSorted[j] = (gc.getPromotionInfo(j).getDescription(), j)
++		listSorted.sort()
++			
++		i = 0
++		iSelected = 0
++		for iI in range(gc.getNumPromotionInfos()):
++			if (not gc.getPromotionInfo(listSorted[iI][1]).isGraphicalOnly()):
++				if bRedraw:
++					screen.appendListBoxStringNoUpdate( self.top.LIST_ID, listSorted[iI][0], WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, listSorted[iI][1], 0, CvUtil.FONT_LEFT_JUSTIFY )
++				if listSorted[iI][1] == self.iPromotion:
++					iSelected = i			
++				i += 1
++				
++		if bRedraw:
++			screen.updateListBox(self.top.LIST_ID)
++
++		screen.setSelectedListBoxStringGFC(self.top.LIST_ID, iSelected)
++
++	# Will handle the input for this screen...
++	def handleInput (self, inputClass):
++		return 0
++
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 7f409d67b..d4b8e1e3a 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -57,7 +57,8 @@ def resetTechPrefs(args=[]):
+ 	CvScreensInterface.techChooser.resetTechPrefs()
+ 
+ def getAllTechPrefsHover(widgetType, iData1, iData2, bOption):
+-	return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_ALL", CvScreensInterface.techChooser.pPrefs.getAllFlavorTechs(iData1))
++	#return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_ALL", CvScreensInterface.techChooser.pPrefs.getAllFlavorTechs(iData1))
++	return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_ALL", CvScreensInterface.techChooser.pPrefs.getRemainingFlavorTechs(iData1)) # K-Mod
+ 
+ def getCurrentTechPrefsHover(widgetType, iData1, iData2, bOption):
+ 	return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_CURRENT", CvScreensInterface.techChooser.pPrefs.getCurrentFlavorTechs(iData1))
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 34e2d5a24..aed8e88f6 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -523,7 +523,7 @@ class EconomicsAdvisor:
+ 		#fWarmingPercent = float(game.getGlobalWarmingChances() * gc.getDefineINT("GLOBAL_WARMING_PROB")) / (10.0*gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+ 		
+ 		# calculate the 'severity rating' as used in the GW unhappiness calculation
+-		iSeverityRating = 100-100000/(1000+(gc.getDefineINT("GLOBAL_WARMING_PROB") * iGlobalWarmingIndex / (4*CyMap().getLandPlots()*gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())))
++		iSeverityRating = 100-100000/(1000+(gc.getDefineINT("GLOBAL_WARMING_PROB") * iGlobalWarmingIndex / (max(1,4*CyMap().getLandPlots()*gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent()))))
+ 		
+ 		#szText = u"GLOBAL WARMING SEVERITY RATING: %d" % iSeverityRating
+ 		szText = u"GLOBAL WARMING SEVERITY RATING: "
+
+diff --git a/Assets/readme.txt b/Assets/readme.txt
+index ecc136df9..409fbfbfb 100644
+--- a/Assets/readme.txt
++++ b/Assets/readme.txt
+@@ -1,12 +1,22 @@
+-This is K-Mod version 0.91.
++This is K-Mod version 0.92.
+ If you have any questions, comments, suggetsions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v0.92 changelist *
++
++ + Fixed a bug that would cause K-Mod to crash when playing with time victory disabled
++ + Removed all the custom map scripts that previously came with the mod. (These scripts have nothing to do with K-Mod.)
++ + Fixed a bug that was preventing promotions with three 'or' prerequisites from being displayed.
++ + Added third promotion 'or' prerequisite information to the civilopedia (and sevopedia)
++ + Changed the tech chooser bulb preference list to only show techs that have not already been researched
++
++--
++
+ v0.91 changelist
+ 
+  + fixed a K-Mod bug that caused some cultural revolts to last much longer than they should.
+- + changed the length of cultural revolts 3 + 2*(number of previous revolts), so that they get longer each time. [previously it depended on the current era, the highest population of the city, and the number of adjacent plots owned by the player.
++ + changed the length of cultural revolts 3 + 2*(number of previous revolts), so that the system is simplier. [previously it depended on the current era, the highest population of the city, and the number of adjacent plots owned by the player]
+ 
+ 
+ ---
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 6b4b6f7e5..ea5cbf8b6 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -62,6 +62,10 @@
+ 		<DefineName>GLOBAL_WARMING_RESISTANCE</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>GLOBAL_WARMING_INDEX_PER_CHANCE</DefineName>
++		<iDefineIntVal>450</iDefineIntVal>
++	</Define>
+ 	<Define>
+ 		<DefineName>GLOBAL_WARMING_BASE_ANGER_PERCENT</DefineName>
+ 		<iDefineIntVal>30</iDefineIntVal>
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=20745

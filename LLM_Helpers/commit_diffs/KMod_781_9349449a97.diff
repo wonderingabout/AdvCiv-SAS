@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 781
+# Commit: 9349449a979448f067ae004eede6761ab48291c9
+# History segment: K-Mod history
+# Parent used for diff: ad2ba4279cb42c755b6813c240d4feb01c6fa03a
+# Title: Added new function, CvCityAI::AI_highestTeamCloseness.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvCity.h
+16	0	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvCityAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 1516b61f5..b7ac0966c 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1059,6 +1059,7 @@ public:
+ 	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) = 0;
+ 	virtual int AI_yieldMultiplier(YieldTypes eYield) const = 0;
+ 	virtual int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance = 7) = 0;
++	virtual int AI_highestTeamCloseness(TeamTypes eTeam) = 0; // K-Mod
+ 	virtual int AI_cityThreat(bool bDangerPercent = false) = 0;
+ 	virtual BuildingTypes AI_bestAdvancedStartBuilding(int iPass) = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a1d3d8ede..a999e9cc9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11878,6 +11878,22 @@ int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance)
+ 	return m_aiPlayerCloseness[eIndex];	
+ }
+ 
++// K-Mod
++int CvCityAI::AI_highestTeamCloseness(TeamTypes eTeam)
++{
++	int iCloseness = -1;
++	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
++	{
++		if (GET_PLAYER(i).getTeam() == eTeam)
++		{
++			iCloseness = std::max(iCloseness, AI_playerCloseness(i, DEFAULT_PLAYER_CLOSENESS));
++		}
++	}
++
++	return iCloseness;
++}
++// K-Mod end
++
+ void CvCityAI::AI_cachePlayerCloseness(int iMaxDistance)
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 04e7907cc..78ff14197 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -129,6 +129,7 @@ public:
+ 	int AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExtraTech = NO_TECH, bool bLand = true, bool bWater = false ); // BBAI
+ 
+ 	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance);
++	int AI_highestTeamCloseness(TeamTypes eTeam); // K-Mod
+ 	bool AI_isFrontlineCity() const; // K-Mod
+ 	int AI_cityThreat(bool bDangerPercent = false);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1981

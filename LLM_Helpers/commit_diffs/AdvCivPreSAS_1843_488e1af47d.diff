@@ -1,0 +1,539 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1843
+# Commit: 488e1af47d4685c73f2f3d27b8826cb6a8fae6a5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 99e98d31304e5c2c416e12a8296f3b84fcdb1dfe
+# Title: Amend some (not-so-recent) changes to defender selection
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	0	Assets/XML/Text/CIV4GameText_advc.xml
+4	1	CvGameCoreDLL/CvGameTextMgr.cpp
+7	5	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+51	40	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+50	62	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 6538f23fb..5bf1f6f83 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1745,6 +1745,27 @@
+ 		<Italian>[ICON_BULLET]Pu� attaccare solo barbari</Italian>
+ 		<Spanish>[ICON_BULLET]Puede atacar solo a los b�rbaros</Spanish>
+ 	</TEXT>
++	<!-- From Civ4GameTextInfos.xml; key was TXT_KEY_UNIT_CANNOT_CAPTURE and had
++		 been superseded by a BtS key saying "cannot capture cities and units".
++		 Turns out I need both keys.
++		 Removed the redundant word "enemy". -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_CANNOT_CAPTURE_CITIES</Tag>
++		<English>[ICON_BULLET]Cannot Capture Cities</English>
++		<French>[ICON_BULLET]Ne peut pas capturer de villes</French>
++		<German>[ICON_BULLET]Kann keine St&#228;dte erobern</German>
++		<Italian>[ICON_BULLET]Non pu&#242; conquistare le citt&#224;</Italian>
++		<Spanish>[ICON_BULLET]No puede capturar ciudades</Spanish>
++	</TEXT>
++	<!-- FromCIV4GameTextChanged_BTS.xml. Copied here only to remove the word "enemy". -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_CANNOT_CAPTURE</Tag>
++		<English>[ICON_BULLET]Cannot Capture Cities or Units</English>
++		<French>[ICON_BULLET]Ne peut pas capturer de villes ou d'unit&#233;s.</French>
++		<German>[ICON_BULLET]Kann keine St&#228;dte oder Einheiten erobern</German>
++		<Italian>[ICON_BULLET]Non pu&#242; conquistare citt&#224; o unit&#224;</Italian>
++		<Spanish>[ICON_BULLET]No es posible capturar ciudades o unidades</Spanish>
++	</TEXT>
+ 	<!-- advc.315c: The parentheses are there in order to teach players that
+ 		 it's correct when combat help says "vs. Barbarians" - since Animals
+ 		 count as Barbarians. -->
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 1187dfb0c..49ff95770 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9521,7 +9521,10 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 	if (u.isNoCapture())
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CANNOT_CAPTURE"));
++		szBuffer.append(gDLL->getText(
++				// advc.315b: Barbarian-only attackers can capture units
++				u.isOnlyAttackBarbarians() ? "TXT_KEY_UNIT_CANNOT_CAPTURE_CITIES" :
++				"TXT_KEY_UNIT_CANNOT_CAPTURE"));
+ 	}
+ 
+ 	if (u.isRivalTerritory())
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 3b8b97193..573da210c 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -126,14 +126,16 @@ public:
+ 	// </advc.011c>
+ 	int getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity) const;																// Exposed to Python
+ 
+-	DllExport CvUnit* getBestDefender(PlayerTypes eOwner,													// Exposed to Python
+-		PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL,
+-		bool bTestAtWar = false, bool bTestPotentialEnemy = false,
+-		// advc.028: Replacing unused bTestCanMove
++	DllExport CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER,													// Exposed to Python
++		const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false,
++		/*  advc.028: Replacing unused bTestCanMove. False by default b/c invisible units are
++			generally able to defend - they just choose not to (CvUnit::isBetterDefenderThan). */
+ 		bool bTestVisible = false) const  // <advc> Need some more params
+ 	{
+ 		return getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestAtWar,
+-				bTestPotentialEnemy, bTestVisible, false, false);
++				bTestPotentialEnemy, bTestVisible,
++				// advc.089: bTestCanAttack=true by default
++				true, false);
+ 	}
+ 	CvUnit* getBestDefender(PlayerTypes eOwner,
+ 			PlayerTypes eAttackingPlayer, CvUnit const* pAttacker,
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index d55583c54..985525c8b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2808,12 +2808,12 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 			if (pLoopUnit == pCombatUnit)
+ 				continue; // this unit is moved before the loop.
+ 			// <advc.001>
+-			if(pLoopUnit->isNoCapture() != (bool)iStage)
++			if(pLoopUnit->isNoCityCapture() != (bool)iStage)
+ 				continue; // </advc.001>
+ 			if (pLoopUnit->canMove() &&
+ 					/*  advc.001: This condition was removed in K-Mod 1.44, but is needed
+ 						b/c canMoveOrAttackInto doesn't cover it (perhaps it should). */
+-					!(pLoopUnit->isNoCapture() && pPlot->isEnemyCity(*pLoopUnit)) &&
++					!(pLoopUnit->isNoCityCapture() && pPlot->isEnemyCity(*pLoopUnit)) &&
+ 					(bCombat ? pLoopUnit->canMoveOrAttackInto(*pPlot) : pLoopUnit->canMoveInto(*pPlot)))
+ 				pLoopUnit->move(pPlot, true);
+ 			else
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index f6f48175f..afc8163ec 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1649,17 +1649,11 @@ void CvUnit::updateCombat(bool bQuick)
+ 		else
+ 		{
+ 			bAdvance = canAdvance(pPlot, pDefender->canDefend() ? 1 : 0);
+-
+-				if (bAdvance)
+-				{
+-					//if (!isNoCapture())
+-					/*  advc.315b: Let Explorer capture Workers,
+-						but not Gunship. */
+-					if(!m_pUnitInfo->isIgnoreTerrainCost())
+-					{
+-						pDefender->setCapturingPlayer(getOwner());
+-					}
+-				}
++			if (bAdvance)
++			{
++				if (!isNoUnitCapture())
++					pDefender->setCapturingPlayer(getOwner());
++			}
+ 
+ 			pDefender->kill(false);
+ 			pDefender = NULL;
+@@ -2474,7 +2468,7 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bo
+ 		}
+ 	}
+ 
+-	if (isNoCapture() /* advc.315a: */ || m_pUnitInfo->isOnlyAttackAnimals())
++	if (isNoCityCapture())
+ 	{
+ 		if (!bAttack && kPlot.isEnemyCity(*this))
+ 			return false;
+@@ -2537,7 +2531,7 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bo
+ 					{
+ 						//FAssertMsg(isHuman() || (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwner()) != bAttack)), "hopefully not an issue, but tracking how often this is the case when we dont want to really declare war");
+ 						/* original bts code
+-						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwner()) != bAttack && !(bAttack && pPlot->getPlotCity() && !isNoCapture()))) */
++						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwner()) != bAttack && !(bAttack && pPlot->getPlotCity() && !isNoCityCapture()))) */
+ 						// K-Mod. I'm not entirely sure I understand what they were trying to do here. But I'm pretty sure it's wrong.
+ 						// I think the rule should be that bAttack means we have to actually fight an enemy unit. Capturing an undefended city doesn't count.
+ 						// (there is no "isVisiblePotentialEnemyUnit" function, so I just wrote the code directly.)
+@@ -6834,12 +6828,19 @@ bool CvUnit::isOnlyDefensive() const
+ 	return m_pUnitInfo->isOnlyDefensive();
+ }
+ 
+-
+-bool CvUnit::isNoCapture() const
++// advc.315b: Renamed from "isNoCityCapture" b/c no-unit-capture is no longer implied
++bool CvUnit::isNoCityCapture() const
+ {
+-	return m_pUnitInfo->isNoCapture();
++	return (m_pUnitInfo->isNoCapture()
++			|| m_pUnitInfo->isOnlyAttackAnimals()); // advc.315a
+ }
+ 
++// <advc.315b> Allow Explorers to capture units (if worker stealing allowed; cf. advc.010)
++bool CvUnit::isNoUnitCapture() const
++{
++	return (isNoCityCapture() && !m_pUnitInfo->isOnlyAttackBarbarians());
++} // </advc.315b>
++
+ 
+ bool CvUnit::isRivalTerritory() const
+ {
+@@ -7451,26 +7452,42 @@ bool CvUnit::canAttack() const
+ 
+ bool CvUnit::canAttack(const CvUnit& kDefender) const
+ {
+-	if(!canAttack())
++	//PROFILE_FUNC(); // advc: Called "only" a few hundred thousand times per turn; pretty fast.
++	//if (!canAttack())
++	if (!canCombat() || isOnlyDefensive()) // advc.089: Need to handle air units
+ 		return false;
+ 	// <advc.315a>
+-	if(m_pUnitInfo->isOnlyAttackAnimals() && !kDefender.isAnimal())
++	if (m_pUnitInfo->isOnlyAttackAnimals() && !kDefender.isAnimal())
+ 		return false; // </advc.315a>
+ 	// <advc.315b>
+-	if(m_pUnitInfo->isOnlyAttackBarbarians() && !kDefender.isBarbarian())
++	if (m_pUnitInfo->isOnlyAttackBarbarians() && !kDefender.isBarbarian())
+ 		return false; // </advc.315b>
+-	if(kDefender.getDamage() >= combatLimit())
+-		return false;
+-
++	/*  <advc.089> Previously, the air combat limit was checked in CvPlot::hasDefender.
++		If either limit isn't reached, then some form of attack is possible.
++		(For units that have both a ranged attack and regular attack ability,
++		the mode of attack would have to be known in order to check the proper
++		damage limit here. So such units aren't supported.) */
++	if (kDefender.getDamage() >= std::max(combatLimit(), airCombatLimit()))
++		return false; // </advc.089>
+ 	// Artillery can't amphibious attack
+ 	if (plot()->isWater() && !kDefender.plot()->isWater())
+ 	{
+ 		if (combatLimit() < 100)
+ 			return false;
+-	} /* <advc.050> This prevents combat odds from being shown when pressing
++	} /* <advc.089> This prevents combat odds from being shown when pressing
+ 		 ALT while hovering over one's own units */
+ 	if(getTeam() == kDefender.getTeam())
+-		return false; // </advc.050>
++		return false;
++	/*  Can't attack defenseless units that are stacked
++		with a defender whose damage limit is reached. */
++	if (!kDefender.canFight() && combatLimit() < 100 &&
++		/*  Won't handle invisible defenders correctly
++			(there are none currently that can defend) */
++		kDefender.plot()->plotCheck(PUF_isEnemy, getOwner(), false,
++		NO_PLAYER, NO_TEAM, PUF_canDefend))
++	{
++		return false;
++	} // </advc.089>
+ 	return true;
+ }
+ 
+@@ -7528,14 +7545,6 @@ bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer,
+ 		// Moved from CvPlot::hasDefender
+ 		if (bTestCanAttack && !pAttacker->canAttack(*this))
+ 			return false;
+-		/*  Previously, only the air combat limit was checked here. If either limit
+-			isn't reached, then some form of attack is possible. (For units that have
+-			both a ranged attack and regular attack ability, the mode of attack
+-			would have to be known in order to check the proper damage limit here.
+-			So such units aren't supported.) */
+-		int const iDamage = getDamage();
+-		if (iDamage >= pAttacker->combatLimit() && iDamage >= pAttacker->airCombatLimit())
+-			return false;
+ 	} // </advc>
+ 	return true;
+ }
+@@ -7546,14 +7555,17 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	bool bPreferUnowned) const // advc.061
+ {
+ 	TeamTypes eAttackerTeam = NO_TEAM;
+-	if (NULL != pAttacker)
++	if (pAttacker != NULL)
+ 		eAttackerTeam = pAttacker->getTeam();
+ 
+ 	// <advc.028>
+ 	bool bInvisible = (eAttackerTeam != NO_TEAM && isInvisible(eAttackerTeam, false));
+ 	// Only pick invisible unit as defender once attack is underway ...
+-	if(bInvisible && pAttacker->getAttackPlot() == NULL)
++	if(bInvisible && (pAttacker->getAttackPlot() == NULL ||
++		pAttacker->getDomainType() == DOMAIN_AIR)) // And don't defend against air attack
++	{
+ 		return false;
++	}
+ 	/*  and if there is some visible team unit that could get attacked otherwise
+ 		(better: check if our team has the best visible defender; tbd.): */
+ 	if(bInvisible)
+@@ -8634,10 +8646,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 									GET_TEAM(getTeam()).AI_changeWarSuccess(pLoopUnit->getTeam(), GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING"));
+ 								}
+ 
+-								//if (!isNoCapture())
+-								/*  advc.315b: Let Explorer capture Workers,
+-									but not Gunship. */
+-								if(!m_pUnitInfo->isIgnoreTerrainCost())
++								if (!isNoUnitCapture())
+ 									pLoopUnit->setCapturingPlayer(getOwner());
+ 
+ 								pLoopUnit->kill(false, getOwner());
+@@ -10900,7 +10909,7 @@ bool CvUnit::canAdvance(const CvPlot* pPlot, int iThreshold) const
+ 	if (pPlot->getNumVisibleEnemyDefenders(this) > iThreshold)
+ 		return false;
+ 
+-	if (isNoCapture())
++	if (isNoCityCapture())
+ 	{
+ 		if (pPlot->isEnemyCity(*this))
+ 			return false;
+@@ -12015,7 +12024,9 @@ int CvUnit::LFBgetDefenderOdds(const CvUnit* pAttacker) const
+ 	{
+ 		// We start with straight combat odds
+ 		iDefense = LFBgetDefenderCombatOdds(pAttacker);
+-	} else {
++	}
++	else
++	{
+ 		// Lacking a real opponent (or if combat odds turned off) fall back on just using strength
+ 		iDefense = currCombatStr(plot(), pAttacker);
+ 		if (bUseAttacker)
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 13461693b..b6e40ce11 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -267,7 +267,8 @@ public:
+ 	bool isAnimal() const;																								// Exposed to Python
+ 	bool isNoBadGoodies() const;																					// Exposed to Python
+ 	bool isOnlyDefensive() const;																					// Exposed to Python
+-	bool isNoCapture() const;																							// Exposed to Python
++	bool isNoCityCapture() const;																							// Exposed to Python
++	bool isNoUnitCapture() const; // advc.315b
+ 	bool isRivalTerritory() const;																				// Exposed to Python
+ 	bool isMilitaryHappiness() const;																			// Exposed to Python
+ 	bool isInvestigate() const;																						// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c26acbc70..038818c5f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -698,28 +698,17 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvUnit* pDefender;
+-	int iOurStrength;
+-	int iTheirStrength;
+-	int iOurFirepower;
+-	int iTheirFirepower;
+-	int iBaseOdds;
+-	int iStrengthFactor;
+-	int iDamageToUs;
+-	int iDamageToThem;
+-	int iNeededRoundsUs;
+-	int iNeededRoundsThem;
+-	int iHitLimitThem;
+-
+-	pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), this, !bPotentialEnemy, bPotentialEnemy);
++	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), this,
++			!bPotentialEnemy, bPotentialEnemy,
++			true, // advc.028: bTestVisible
++			false); // advc.089: bTestCanAttack - attack isn't necessarily imminent here
+ 
+ 	if (pDefender == NULL)
+-	{
+ 		return 100;
+-	}
+ 
+ 	// BETTER_BTS_AI_MOD, Efficiency, Lead From Behind (UncutDragon), jdog5000: START
+-	if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) && GC.getDefineBOOL(CvGlobals::LFB_USECOMBATODDS))
++	if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
++		GC.getDefineBOOL(CvGlobals::LFB_USECOMBATODDS))
+ 	{
+ 		// Combat odds are out of 1000 - we need odds out of 100
+ 		int iOdds = (getCombatOdds(this, pDefender) + 5) / 10;
+@@ -728,46 +717,51 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 		return std::max(1, std::min(iOdds, 99));
+ 	}
+ 
+-	iOurStrength = ((getDomainType() == DOMAIN_AIR) ? airCurrCombatStr(NULL) : currCombatStr(NULL, NULL));
+-	iOurFirepower = ((getDomainType() == DOMAIN_AIR) ? iOurStrength : currFirepower(NULL, NULL));
++	int iOurStrength = ((getDomainType() == DOMAIN_AIR) ?
++			airCurrCombatStr(NULL) : currCombatStr(NULL, NULL));
++	int iOurFirepower = ((getDomainType() == DOMAIN_AIR) ?
++			iOurStrength : currFirepower(NULL, NULL));
+ 
+ 	if (iOurStrength == 0)
+-	{
+ 		return 1;
+-	}
+ 
+-	iTheirStrength = pDefender->currCombatStr(pPlot, this);
+-	iTheirFirepower = pDefender->currFirepower(pPlot, this);
++	int iTheirStrength = pDefender->currCombatStr(pPlot, this);
++	int iTheirFirepower = pDefender->currFirepower(pPlot, this);
+ 
+ 
+ 	FAssert((iOurStrength + iTheirStrength) > 0);
+ 	FAssert((iOurFirepower + iTheirFirepower) > 0);
+ 
+-	iBaseOdds = (100 * iOurStrength) / (iOurStrength + iTheirStrength);
++	int iBaseOdds = (100 * iOurStrength) / (iOurStrength + iTheirStrength);
+ 	if (iBaseOdds == 0)
+ 		return 1;
+ 
+-	iStrengthFactor = ((iOurFirepower + iTheirFirepower + 1) / 2);
+-	iDamageToUs = std::max(1, (GC.getCOMBAT_DAMAGE() *
++	int iStrengthFactor = ((iOurFirepower + iTheirFirepower + 1) / 2);
++	int iDamageToUs = std::max(1, (GC.getCOMBAT_DAMAGE() *
+ 			(iTheirFirepower + iStrengthFactor)) /
+ 			(iOurFirepower + iStrengthFactor));
+-	iDamageToThem = std::max(1, (GC.getCOMBAT_DAMAGE() *
++	int iDamageToThem = std::max(1, (GC.getCOMBAT_DAMAGE() *
+ 			(iOurFirepower + iStrengthFactor)) /
+ 			(iTheirFirepower + iStrengthFactor));
+-	iHitLimitThem = pDefender->maxHitPoints() - combatLimit();
++	int iHitLimitThem = pDefender->maxHitPoints() - combatLimit();
+ 
+-	iNeededRoundsUs = (std::max(0, pDefender->currHitPoints() - iHitLimitThem) + iDamageToThem - 1) / iDamageToThem;
+-	iNeededRoundsThem = (std::max(0, currHitPoints()) + iDamageToUs - 1) / iDamageToUs;
++	int iNeededRoundsUs = (std::max(0, pDefender->currHitPoints() - iHitLimitThem) +
++			iDamageToThem - 1) / iDamageToThem;
++	int iNeededRoundsThem = (std::max(0, currHitPoints()) + iDamageToUs - 1) / iDamageToUs;
+ 
+ 	if (getDomainType() != DOMAIN_AIR)
+ 	{
+ 		/*  BETTER_BTS_AI_MOD, Unit AI, 10/30/09, Mongoose & jdog5000: START
+ 			(from Mongoose SDK) */
+-		if (!pDefender->immuneToFirstStrikes()) {
+-			iNeededRoundsUs   -= ((iBaseOdds * firstStrikes()) + ((iBaseOdds * chanceFirstStrikes()) / 2)) / 100;
++		if (!pDefender->immuneToFirstStrikes())
++		{
++			iNeededRoundsUs -= (iBaseOdds * firstStrikes() +
++					(iBaseOdds * chanceFirstStrikes()) / 2) / 100;
+ 		}
+-		if (!immuneToFirstStrikes()) {
+-			iNeededRoundsThem -= (((100 - iBaseOdds) * pDefender->firstStrikes()) + (((100 - iBaseOdds) * pDefender->chanceFirstStrikes()) / 2)) / 100;
++		if (!immuneToFirstStrikes())
++		{
++			iNeededRoundsThem -= ((100 - iBaseOdds) * pDefender->firstStrikes() +
++					((100 - iBaseOdds) * pDefender->chanceFirstStrikes()) / 2) / 100;
+ 		}
+ 		iNeededRoundsUs   = std::max(1, iNeededRoundsUs);
+ 		iNeededRoundsThem = std::max(1, iNeededRoundsThem);
+@@ -776,13 +770,8 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 
+ 	int iRoundsDiff = iNeededRoundsUs - iNeededRoundsThem;
+ 	if (iRoundsDiff > 0)
+-	{
+ 		iTheirStrength *= (1 + iRoundsDiff);
+-	}
+-	else
+-	{
+-		iOurStrength *= (1 - iRoundsDiff);
+-	}
++	else iOurStrength *= (1 - iRoundsDiff);
+ 
+ 	int iOdds = (((iOurStrength * 100) / (iOurStrength + iTheirStrength)));
+ 	iOdds += ((100 - iOdds) * withdrawalProbability()) / 100;
+@@ -2922,7 +2911,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				// advc.315:
+ 				&& !pLoopUnit->getUnitInfo().isMostlyDefensive())
+ 			{
+-				iCityCapture += pLoopUnit->isNoCapture() ? 0 : 1;
++				iCityCapture += pLoopUnit->isNoCityCapture() ? 0 : 1;
+ 				iNoCombatLimit += pLoopUnit->combatLimit() < 100 ? 0 : 1;
+ 
+ 				//if (iCityCaptureCount > 5 || 3*iCityCaptureCount > getGroup()->getNumUnits())
+@@ -13843,35 +13832,33 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, int iFlags, bool bF
+ 	int iSearchRange = bFollow ? 1 : AI_searchRange(iRange);
+ 	bool bDeclareWar = iFlags & MOVE_DECLARE_WAR;
+ 
+-	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+-
+-	for (int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
++	int iBestValue = 0;
++	for (int iDX = -iSearchRange; iDX <= iSearchRange; iDX++)
+ 	{
+-		for (int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++		for (int iDY = -iSearchRange; iDY <= iSearchRange; iDY++)
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
++			if (pLoopPlot == NULL || !AI_plotValid(pLoopPlot))
++				continue; // advc
+ 
+-			if (pLoopPlot != NULL)
++			if (pLoopPlot->isCity() &&
++				(bDeclareWar ? AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot) :
++				isEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+ 			{
+-				if (AI_plotValid(pLoopPlot))
++				int iPathTurns;
++				if (!atPlot(pLoopPlot) && (bFollow ? canMoveOrAttackInto(*pLoopPlot, bDeclareWar) :
++					generatePath(pLoopPlot, iFlags, true, &iPathTurns, iRange)))
+ 				{
+-					if (pLoopPlot->isCity() && (bDeclareWar ? AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot) : isEnemy(pLoopPlot->getTeam(), pLoopPlot)))
++					int iValue = pLoopPlot->getNumVisiblePotentialEnemyDefenders(this) == 0 ? 100 :
++							AI_getGroup()->AI_getWeightedOdds(pLoopPlot, true);
++					if (iValue >= iOddsThreshold)
+ 					{
+-						int iPathTurns;
+-						if (!atPlot(pLoopPlot) && (bFollow ? canMoveOrAttackInto(*pLoopPlot, bDeclareWar) : generatePath(pLoopPlot, iFlags, true, &iPathTurns, iRange)))
++						if (iValue > iBestValue)
+ 						{
+-							int iValue = pLoopPlot->getNumVisiblePotentialEnemyDefenders(this) == 0 ? 100 : AI_getWeightedOdds(pLoopPlot, true);
+-
+-							if (iValue >= iOddsThreshold)
+-							{
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									pBestPlot = ((bFollow) ? pLoopPlot : getPathEndTurnPlot());
+-									FAssert(!atPlot(pBestPlot));
+-								}
+-							}
++							iBestValue = iValue;
++							pBestPlot = ((bFollow) ? pLoopPlot : getPathEndTurnPlot());
++							FAssert(!atPlot(pBestPlot));
+ 						}
+ 					}
+ 				}
+@@ -13902,7 +13889,8 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, int iFlags, bool bF
+ 			bFollow = false;
+ 		}
+ 		// K-Mod end
+-		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(), iFlags | (bFollow ? MOVE_DIRECT_ATTACK | MOVE_SINGLE_ATTACK : 0));
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(),
++				iFlags | (bFollow ? MOVE_DIRECT_ATTACK | MOVE_SINGLE_ATTACK : 0));
+ 		return true;
+ 	}
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index b1e7134a5..04a3ff585 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -573,7 +573,7 @@ bool CyUnit::isOnlyDefensive()
+ 
+ bool CyUnit::isNoCapture()
+ {
+-	return m_pUnit ? m_pUnit->isNoCapture() : false;
++	return m_pUnit ? m_pUnit->isNoCityCapture() : false;
+ }
+ 
+ bool CyUnit::isRivalTerritory()
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=21464

@@ -1,0 +1,277 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3192
+# Commit: 881638fb455b77247d99ce68be7e5cd62cc29711
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9d0c99742e7caef08441152678b053b421208e9e
+# Title: Fix tile yields giving away unrevealed resources of rivals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvGame.cpp
+4	3	CvGameCoreDLL/CvPlayerAI.cpp
+48	38	CvGameCoreDLL/CvPlot.cpp
+2	4	CvGameCoreDLL/CvPlot.h
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+5	2	CvGameCoreDLL/CyPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b9e57bbec..4c33c5d13 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2131,7 +2131,7 @@ void CvGame::normalizeAddFoodBonuses(/* advc.027: */ NormalizationTarget const*
+ 				if (GC.getInfo(eImp).isImprovementBonusTrade(eBonus))
+ 				{
+ 					bHighFood = (iNaturalFood + p.calculateImprovementYieldChange(
+-							eImp, YIELD_FOOD, kPlayer.getID(), false, false) >=
++							eImp, YIELD_FOOD, kPlayer.getID()) >=
+ 							iHighFoodThreshold);
+ 				}
+ 			}
+@@ -2224,8 +2224,8 @@ void CvGame::normalizeAddFoodBonuses(/* advc.027: */ NormalizationTarget const*
+ 									isImprovementBonusTrade(eLoopBonus))
+ 								{
+ 									bHighFood = (iNaturalFood +
+-											p.calculateImprovementYieldChange(eLoopImprovement,
+-											YIELD_FOOD, kPlayer.getID(), false, false) >=
++											p.calculateImprovementYieldChange(
++											eLoopImprovement, YIELD_FOOD, kPlayer.getID()) >=
+ 											iHighFoodThreshold);
+ 								}
+ 							}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 125251c17..88276484c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17533,12 +17533,13 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer,
+ 				if (kPlot.getWorkingCity() != NULL)
+ 				{
+ 					int iTempValue = 0;
++					// advc.182: Had been passing kPlot.getOwner() instead of getID()
+ 					iTempValue += (kPlot.calculateImprovementYieldChange(
+-							eImprovement, YIELD_FOOD, kPlot.getOwner()) * 2);
++							eImprovement, YIELD_FOOD, getID()) * 2);
+ 					iTempValue += (kPlot.calculateImprovementYieldChange(
+-							eImprovement, YIELD_PRODUCTION, kPlot.getOwner()) * 1);
++							eImprovement, YIELD_PRODUCTION, getID()) * 1);
+ 					iTempValue += (kPlot.calculateImprovementYieldChange(
+-							eImprovement, YIELD_COMMERCE, kPlot.getOwner()) * 2);
++							eImprovement, YIELD_COMMERCE, getID()) * 2);
+ 					iTempValue += GC.getInfo(eImprovement).getUpgradeTime() / 2;
+ 					iValue += iTempValue;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 876eef8e7..504ee27cd 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5143,72 +5143,77 @@ int CvPlot::calculateTotalBestNatureYield(TeamTypes eTeam) const
+ 			calculateBestNatureYield(YIELD_COMMERCE, eTeam);
+ }
+ 
+-// BETTER_BTS_AI_MOD, City AI, 10/06/09, jdog5000:
+-int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield,
+-	PlayerTypes ePlayer, bool bOptimal, bool bBestRoute) const
++/*	advc: Params bBestRoute (BBAI) and bOptimal (Vanilla Civ 4) removed b/c
++	they've been obsoleted by K-Mod. Had been used by CvCityAI. */
++int CvPlot::calculateImprovementYieldChange(
++	ImprovementTypes eImprovement, YieldTypes eYield,
++	PlayerTypes ePlayer) const
+ {
+ 	PROFILE_FUNC();
+ 
+ 	CvImprovementInfo const& kImpr = GC.getInfo(eImprovement);
+-
+ 	int iYield = kImpr.getYieldChange(eYield);
+ 	if (isRiverSide())
+ 		iYield += kImpr.getRiverSideYieldChange(eYield);
+ 	if (isHills())
+ 		iYield += kImpr.getHillsYieldChange(eYield);
+-	if (bOptimal ? true : isIrrigationAvailable())
++	if (isIrrigationAvailable())
+ 		iYield += kImpr.getIrrigatedYieldChange(eYield);
+-
+-	if (bOptimal)
+-	{
+-		int iBestYield = 0;
+-		FOR_EACH_ENUM(Route)
+-		{
+-			iBestYield = std::max(iBestYield,
+-					kImpr.getRouteYieldChanges(eLoopRoute, eYield));
+-		}
+-		iYield += iBestYield;
+-	}
+-	else
+ 	{
+ 		RouteTypes eRoute = getRouteType();
+-		if (bBestRoute && ePlayer != NO_PLAYER)
+-		{
+-			//eRoute = GET_PLAYER(ePlayer).getBestRoute(GC.getMap().plotSoren(getX(), getY()));
+-			eRoute = GET_PLAYER(ePlayer).getBestRoute(this); // K-Mod. (obvious?)
+-		}
+-
+ 		if (eRoute != NO_ROUTE)
+ 			iYield += kImpr.getRouteYieldChanges(eRoute, eYield);
+ 	}
+-
+-	if (bOptimal || ePlayer == NO_PLAYER)
++	/*	<advc.182> Compute the yield of the plot owner. Fall back on ePlayer
++		only for (apparently) unowned tiles. Use the map knowledge of ePlayer.
++		Call locations changed accordingly. */
++	TeamTypes const eObs = (ePlayer == NO_PLAYER ? NO_TEAM : TEAMID(ePlayer));
++	PlayerTypes eRevealedOwner = (eObs == NO_TEAM ? getOwner() :
++			getRevealedOwner(eObs));
++	PlayerTypes eYieldPlayer = (eRevealedOwner == NO_PLAYER ? ePlayer :
++			eRevealedOwner); // </advc.182>
++	if (eYieldPlayer == NO_PLAYER)
+ 	{
+ 		FOR_EACH_ENUM(Tech)
+ 		{
+ 			iYield += kImpr.getTechYieldChanges(eLoopTech, eYield);
+ 		}
+-		/*	K-Mod note (fixme): this doesn't calculate the 'optimal' yield, because it
++		/*	K-Mod not: this doesn't calculate the 'optimal' yield, because it
+ 			will count negative effects and it will count effects from competing civics. */
++		/*FOR_EACH_ENUM(Civic)
++			iYield += GC.getInfo(eLoopCivic).getImprovementYieldChanges(eImprovement, eYield);*/
++		// <advc.001> What he said ... (Though this whole branch isn't used much.)
++		EagerEnumMap<CivicOptionTypes,int> aiMaxYieldPerCivicOption;
+ 		FOR_EACH_ENUM(Civic)
+ 		{
+-			iYield += GC.getInfo(eLoopCivic).
++			int iYieldChange = GC.getInfo(eLoopCivic).
+ 					getImprovementYieldChanges(eImprovement, eYield);
++			if (iYieldChange > 0)
++			{
++				CivicOptionTypes eLoopCivicOption = GC.getInfo(eLoopCivic).
++						getCivicOptionType();
++				aiMaxYieldPerCivicOption.set(eLoopCivicOption, std::max(
++						aiMaxYieldPerCivicOption.get(eLoopCivicOption), iYieldChange));
++			}
+ 		}
++		FOR_EACH_ENUM(CivicOption)
++		{
++			iYield += aiMaxYieldPerCivicOption.get(eLoopCivicOption);
++		} // </advc.001>
+ 	}
+ 	else
+ 	{
+-		iYield += GET_PLAYER(ePlayer).getImprovementYieldChange(eImprovement, eYield);
+-		iYield += GET_TEAM(ePlayer).getImprovementYieldChange(eImprovement, eYield);
++		iYield += GET_PLAYER(eYieldPlayer).
++				getImprovementYieldChange(eImprovement, eYield);
++		iYield += GET_TEAM(eYieldPlayer).
++				getImprovementYieldChange(eImprovement, eYield);
+ 	}
+-
+-	if (ePlayer != NO_PLAYER)
++	//if (ePlayer != NO_PLAYER) // advc.182
+ 	{
+-		BonusTypes eBonus = getBonusType(GET_PLAYER(ePlayer).getTeam());
++		BonusTypes eBonus = getBonusType(eObs/*TEAMID(ePlayer)*/); // advc.182
+ 		if (eBonus != NO_BONUS)
+ 			iYield += kImpr.getImprovementBonusYield(eBonus, eYield);
+ 	}
+-
+ 	return iYield;
+ }
+ 
+@@ -5242,14 +5247,19 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
+ 		eRoute = getRouteType();
+ 	}
+ 	int iNatureYield = // advc.908a: Preserve this for later
+-			calculateNatureYield(eYield, (ePlayer != NO_PLAYER ?
+-			GET_PLAYER(ePlayer).getTeam() : NO_TEAM));
++			calculateNatureYield(eYield,
++			bDisplay ? GC.getGame().getActiveTeam() : // advc.182
++			/*	(advc: Note that NO_TEAM means that bonus resources are ignored.
++				In most other places it means god mode.) */
++			(ePlayer != NO_PLAYER ? TEAMID(ePlayer) : NO_TEAM));
+ 
+ 	int iYield = iNatureYield;
+ 
+ 	if (eImprovement != NO_IMPROVEMENT)
+-		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer);
+-
++	{
++		iYield += calculateImprovementYieldChange(eImprovement, eYield, //ePlayer
++				bDisplay ? GC.getGame().getActivePlayer() : ePlayer); // advc.182
++	}
+ 	if (eRoute != NO_ROUTE)
+ 		iYield += GC.getInfo(eRoute).getYieldChange(eYield);
+ 
+@@ -7622,7 +7632,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
+ 		}
+ 
+ 		iYieldRate += calculateImprovementYieldChange(
+-				eImprovement, eYield, getOwner(), false);
++				eImprovement, eYield, getOwner());
+ 	}
+ 
+ 	RouteTypes const eRoute = GC.getInfo(eBuild).getRoute();
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 331ca6166..008488b3b 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -521,10 +521,8 @@ public:
+ 			bool bIgnoreFeature = false, /* advc.300: */ bool bIgnoreHills = false) const;
+ 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;							// Exposed to Python
+ 	int calculateTotalBestNatureYield(TeamTypes eTeam) const;										// Exposed to Python
+-	// BETTER_BTS_AI_MOD, City AI, 10/06/09, jdog5000:
+-	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield,			// Exposed to Python
+-			PlayerTypes ePlayer = NO_PLAYER, bool bOptimal = false,
+-			bool bBestRoute = false) const;
++	int calculateImprovementYieldChange(ImprovementTypes eImprovement,								// Exposed to Python
++			 YieldTypes eYield, PlayerTypes ePlayer) const;
+ 	int calculateYield(YieldTypes eIndex, bool bDisplay = false) const;								// Exposed to Python
+ 	bool hasYield() const { return m_aiYield.isAnyNonDefault(); } // advc.enum							// Exposed to Python
+ 	void updateYield();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a0d23d512..1b2eab81f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17542,7 +17542,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 			eImprovement = GC.getInfo(eBestTempBuild).getImprovement();
+ 			FAssert(eImprovement != NO_IMPROVEMENT);
+ 			//iValue += (GC.getInfo(GC.getInfo(eBestTempBuild).getImprovement()))
+-			iValue += 5 * kPlot.calculateImprovementYieldChange(eImprovement, YIELD_FOOD, getOwner(), false);
++			iValue += 5 * kPlot.calculateImprovementYieldChange(
++					eImprovement, YIELD_FOOD, getOwner());
+ 			iValue += 5 * kPlot.calculateNatureYield(YIELD_FOOD, getTeam(),
+ 					!kPlot.isFeature() ? true :
+ 					GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()));
+
+diff --git a/CvGameCoreDLL/CyPlot.cpp b/CvGameCoreDLL/CyPlot.cpp
+index 040316989..b6a951f28 100644
+--- a/CvGameCoreDLL/CyPlot.cpp
++++ b/CvGameCoreDLL/CyPlot.cpp
+@@ -866,9 +866,12 @@ int CyPlot::calculateTotalBestNatureYield(TeamTypes eTeam)
+ 	return m_pPlot ? m_pPlot->calculateTotalBestNatureYield(eTeam) : -1;
+ }
+ 
+-int CyPlot::calculateImprovementYieldChange(int /*ImprovementTypes*/ eImprovement, YieldTypes eYield, int /*PlayerTypes*/ ePlayer, bool bOptimal)
++int CyPlot::calculateImprovementYieldChange(int /*ImprovementTypes*/ eImprovement,
++	YieldTypes eYield, int /*PlayerTypes*/ ePlayer, bool bOptimal)
+ {
+-	return m_pPlot ? m_pPlot->calculateImprovementYieldChange((ImprovementTypes) eImprovement, eYield, (PlayerTypes) ePlayer, bOptimal) : -1;
++	return m_pPlot ? m_pPlot->calculateImprovementYieldChange((ImprovementTypes)
++			eImprovement, eYield, (PlayerTypes)ePlayer) // advc: bOptimal is obsolete
++			: -1;
+ }
+ 
+ int CyPlot::calculateYield(YieldTypes eIndex, bool bDisplay)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10358

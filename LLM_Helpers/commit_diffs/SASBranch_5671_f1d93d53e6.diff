@@ -1,0 +1,213 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5671
+# Commit: f1d93d53e6b2e59558c46f0b0d0285bf7a46ccf5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2835bc63ff66ba509f232fa65ef75a9d051e0b3e
+# Title: simplify scoreboard +/- scroll buttons code (with the help of GPT-5.3-Codex thanks a lot)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+45	75	Assets/Python/Screens/CvMainInterface.py
+-	-	Assets/Res/Fonts/gamefont_tga_editor_preview.PNG
+3	3	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 7af5adedc..f4591da82 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -7263,93 +7263,63 @@ class CvMainInterface:
+ 			scores = None # </advc>
+ # BUG - Align Icons - end
+ 		# (BUG - Power Rating)  advc: Moved into the loop
+-		i = gc.getMAX_CIV_TEAMS() - 1
+-		while i > -1:
+-			eTeam = gc.getGame().getRankTeam(i)
++		# <!-- custom: refactor: keep a single ranked traversal, then reuse that ordered list for slice-based non-aligned draw or aligned BUG draw; this removes duplicate nested loops while preserving behavior. (GPT-5.3-Codex) -->
++		aeVisiblePlayers = []
++		for iTeamRank in range(gc.getMAX_CIV_TEAMS() - 1, -1, -1):
++			eTeam = gc.getGame().getRankTeam(iTeamRank)
+ 			# advc.085: Moved to BUG Scoreboard (static method)
+-			if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+-# BUG - Align Icons - start
+-				if bAlignIcons:
+-					scores.addTeam(gc.getTeam(eTeam), i)
+-# BUG - Align Icons - end
+-				j = gc.getMAX_CIV_PLAYERS() - 1
+-				while j > -1:
+-					ePlayer = gc.getGame().getRankPlayer(j)
+-					# advc.085: Moved to BUG Scoreboard
+-					if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
+-							gc.getPlayer(ePlayer).getTeam() == eTeam):
+-						szBuffer = SAS_FONT_TAG_LABEL
+-# BUG - Align Icons - start
+-						if bAlignIcons:
+-							scores.addPlayer(gc.getPlayer(ePlayer), j)
+-# BUG - Align Icons - end
+-						# advc: Code moved into auxiliary function
+-						szBuffer += self.playerScoreString(ePlayer, scores, bAlignIcons)
+-						szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
++			if not Scoreboard.Scoreboard.isShowTeamScore(eTeam):
++				continue
+ # BUG - Align Icons - start
+-						if not bAlignIcons:
+-							iCount += 1
++			if bAlignIcons:
++				scores.addTeam(gc.getTeam(eTeam), iTeamRank)
+ # BUG - Align Icons - end
+-					j = j - 1
+-			i = i - 1
+-		# <!-- custom: for the non-BUG path, iTotalCount is now in iCount; reset iCount for the drawing pass below. -->
++			for iPlayerRank in range(gc.getMAX_CIV_PLAYERS() - 1, -1, -1):
++				ePlayer = gc.getGame().getRankPlayer(iPlayerRank)
++				# advc.085: Moved to BUG Scoreboard
++				if (not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) or
++						gc.getPlayer(ePlayer).getTeam() != eTeam):
++					continue
++				aeVisiblePlayers.append(ePlayer)
++				if bAlignIcons:
++					scores.addPlayer(gc.getPlayer(ePlayer), iPlayerRank)
++					# AdvCiv/BUG aligned path fills per-part fields through playerScoreString side effects.
++					self.playerScoreString(ePlayer, scores, True)
++		iTotalCount = len(aeVisiblePlayers)
+ 		if not bAlignIcons:
+-			iTotalCount = iCount
+-			iCount = 0
+-			# Clamp scroll offset
+ 			if iTotalCount <= iMaxRows:
+ 				self.iScoreScrollOffset = 0
+ 			else:
+ 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+-			# Second pass: draw only the visible window
+-			i = gc.getMAX_CIV_TEAMS() - 1
+-			iValidIdx = 0
+-			while i > -1:
+-				eTeam = gc.getGame().getRankTeam(i)
+-				if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+-					j = gc.getMAX_CIV_PLAYERS() - 1
+-					while j > -1:
+-						ePlayer = gc.getGame().getRankPlayer(j)
+-						if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
+-								gc.getPlayer(ePlayer).getTeam() == eTeam):
+-							if iValidIdx >= self.iScoreScrollOffset and iValidIdx < self.iScoreScrollOffset + iMaxRows:
+-								szBuffer = SAS_FONT_TAG_LABEL
+-								szBuffer += self.playerScoreString(ePlayer, None, False)
+-								szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
+-								if CyInterface().determineWidth(szBuffer) > iWidth:
+-									iWidth = CyInterface().determineWidth(szBuffer)
+-								szName = "ScoreText" + str(ePlayer)
++			aeVisibleSlice = aeVisiblePlayers[self.iScoreScrollOffset : self.iScoreScrollOffset + iMaxRows]
++			iCount = 0
++			for ePlayer in aeVisibleSlice:
++				szBuffer = SAS_FONT_TAG_LABEL + self.playerScoreString(ePlayer, None, False) + SAS_FONT_TAG_CLOSE
++				iTextW = CyInterface().determineWidth(szBuffer)
++				if iTextW > iWidth:
++					iWidth = iTextW
++				szName = "ScoreText" + str(ePlayer)
+ # BUG - Dead Civs - start
+-								if gc.getPlayer(ePlayer).isAlive():
+-									iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
+-									eContactPlayer = ePlayer
+-								else:
+-									iWidgetType = WidgetTypes.WIDGET_GENERAL
+-									eContactPlayer = -1
+-								yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
+-								screen.setText(szName, "Background",
+-										szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
+-										gPoint("ScoreTextLowerRight").x(),
+-										yCoord - iCount * iBtnHeight,
+-										-0.3, FontTypes.SMALL_FONT,
+-										iWidgetType, eContactPlayer, -1)
++				if gc.getPlayer(ePlayer).isAlive():
++					iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
++					eContactPlayer = ePlayer
++				else:
++					iWidgetType = WidgetTypes.WIDGET_GENERAL
++					eContactPlayer = -1
++				yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
++				screen.setText(szName, "Background",
++						szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
++						gPoint("ScoreTextLowerRight").x(),
++						yCoord - iCount * iBtnHeight,
++						-0.3, FontTypes.SMALL_FONT,
++						iWidgetType, eContactPlayer, -1)
+ # BUG - Dead Civs - end
+-								screen.show(szName)
+-								CyInterface().checkFlashReset(ePlayer)
+-								iCount += 1
+-							iValidIdx += 1
+-						j = j - 1
+-				i = i - 1
++				screen.show(szName)
++				CyInterface().checkFlashReset(ePlayer)
++				iCount += 1
+ 			self.updateScoreBackgrSize(iWidth, iBtnHeight * iCount) # advc.092
+-			iTotalCount = iValidIdx  # actual total (may differ from pre-count if filters changed)
+ 		else:
+-			# BUG aligned path: let Scoreboard.draw handle slicing
+-			if scores is not None:
+-				iTotalCount = len(scores._playerScores)
+-			else:
+-				iTotalCount = 0
+-			# Clamp scroll offset against the pre-sort count (sort may truncate via maxPlayers)
+-			# draw() will re-clamp after sort; this is a best-effort pre-clamp.
++			# BUG aligned path: let Scoreboard.draw handle slicing.
+ 			if iTotalCount <= iMaxRows:
+ 				self.iScoreScrollOffset = 0
+ 			else:
+
+diff --git a/Assets/Res/Fonts/gamefont_tga_editor_preview.PNG b/Assets/Res/Fonts/gamefont_tga_editor_preview.PNG
+index 46d66aaf4..661a12c45 100644
+Binary files a/Assets/Res/Fonts/gamefont_tga_editor_preview.PNG and b/Assets/Res/Fonts/gamefont_tga_editor_preview.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 91c50d82d..71af7a826 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -6,7 +6,7 @@ Note: if a google drive link is missing or redundantly copy pasted from one know
+ 
+ Note 2: this doc may be outdated or not updated for some parts, but it is still useful for documentation, google drive links with screenshots of before/after, documentation, context for the changes, observed results, etc. For the updated changes, see rather the main change guides, for example the [Main Changes Guide](/README.md#main-changes-guide).
+ 
+-hopefully helpful, thanks thanks,
++Note 3: all issues that have a drive link are also accessible via the [common known issues drive folder](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8).
+ 
+ ## Menu
+ 
+@@ -3978,9 +3978,9 @@ If you want, paste your current **AI** growth-related rows (or just confirm you
+ 
+ ## 92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)
+ 
+-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pIXiY183a1NpEBSxr5zFUtcg56rwAXwV?usp=sharing).
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NoH3gqWnHBD9J5e_VwmQxJO_iUsFpfv6?usp=sharing).
+ 
+-I noticed these in the new Sevopedia Game speed that below Marathon values were way to high vs what marathon had (100 vs 1).
++I noticed these in the new Sevopedia Game speed that below Marathon values were way too high vs what marathon had (100 vs 1).
+ 
+ Now fixed with code comments, and added the `iExtraFreeOutsideUnits` (plus `iUnitCostPercent`) fields that were missing in XML too instead of relying on DLL defaults.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index de17430cd..7c18f4a3f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -350,7 +350,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+-- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) buttons scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. See [README.md (Scoreboard)](/README.md#scoreboard)
++- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard)
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ 
+ ### General changes
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=14588

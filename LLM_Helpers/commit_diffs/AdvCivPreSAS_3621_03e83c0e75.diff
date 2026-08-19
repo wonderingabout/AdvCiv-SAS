@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3621
+# Commit: 03e83c0e758600c68869b5a23112c382f292e6fd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 75b1e45cf1c5288bb966076b6959989c4074988a
+# Title: Reduce the impact of game speed on Barbarian start turn
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	6	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 41c7eb502..145bd7ca4 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7473,11 +7473,13 @@ void CvGame::createBarbarianCities()
+ 	if (getNumCivCities() < countCivPlayersAlive() * 2)
+ 			return;
+ 
+-	if (getElapsedGameTurns() <= ((kGameHandicap.getBarbarianCityCreationTurnsElapsed() *
+-			GC.getInfo(getGameSpeedType()).getBarbPercent()) / 100) /
+-			std::max(getStartEra() + 1, 1))
++	if (getElapsedGameTurns() * (getStartEra() + 1) * 200 <=
++		kGameHandicap.getBarbarianCityCreationTurnsElapsed() *
++		// advc.300: Add 100 to dilute effect (and times 200 on the left side)
++		(GC.getInfo(getGameSpeedType()).getBarbPercent() + 100))
++	{
+ 		return;
+-
++	}
+ 	/* <advc.300> Create up to two cities per turn, though at most one in an
+ 	   area settled by a civ. Moved the rest of createBarbarianCities (plural)
+ 	   into new function createBarbarianCity (singular). */
+@@ -7888,8 +7890,9 @@ int CvGame::getBarbarianStartTurn() const
+ {
+ 	int iTargetElapsed = GC.getInfo(getHandicapType()).
+ 		   getBarbarianCreationTurnsElapsed();
+-	iTargetElapsed *= GC.getInfo(getGameSpeedType()).getBarbPercent();
+-	int iDivisor = 100;
++	// Dilute impact of game speed on start turn
++	iTargetElapsed *= GC.getInfo(getGameSpeedType()).getBarbPercent() + 100;
++	int iDivisor = 200;
+ 	/*  This term is new. Well, not entirely, it's also applied to
+ 		BarbarianCityCreationTurnsElapsed. */
+ 	iDivisor *= std::max(1, (int)getStartEra());
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index b5855adff..da2e958a8 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5171,7 +5171,8 @@ void CvTeam::doBarbarianResearch()
+ 		the barbarian tech rate.) */
+ 	if (iElapsed < GC.getInfo(kGame.getHandicapType()).
+ 		getBarbarianCreationTurnsElapsed() *
+-		GC.getInfo(kGame.getGameSpeedType()).getBarbPercent() / 200)
++		// advc.300: Divisor was 200. I.e, shorten the delay a bit further.
++		GC.getInfo(kGame.getGameSpeedType()).getBarbPercent() / 250)
+ 	{
+ 		return;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2069

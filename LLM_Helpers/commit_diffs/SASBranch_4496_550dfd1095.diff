@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4496
+# Commit: 550dfd10952f953fbeb256000b2af2c89c20fcb8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1893f0ddc50f9707cda500025d8b2b80f146191f
+# Title: minor fix code comment tags
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+1	1	Assets/XML/Technologies/CIV4TechInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 20ed891a4..b56194e02 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -112,8 +112,8 @@ class SevoPediaBonus:
+ 					sign = "+"
+ 				else:
+ 					sign = ""
+-				# custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially
+-				# with the food logo i mean anyways i mean anyways, thanks,
++				# <!-- custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially
++				# with the food logo i mean anyways i mean anyways, thanks, -->
+ 				#szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
+ 				szYield = (u"%s%i " % (sign, iYieldChange))
+ 				# <!-- custom: add an information about the precise type of yield it is, which can be otherwise very confusing
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 416542ba8..31733cda6 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -12161,7 +12161,7 @@
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<!--custom: basing Ogiso Igodo on Zara Yaqob and tweaking from there, seems the
++		<!-- custom: basing Ogiso Igodo on Zara Yaqob and tweaking from there, seems the
+ 		profile that fits the best or quite best in this case at least i mean anyways
+ 		(growth type and financial, fairly peaceful, but also good at defense and a bit
+ 		military if need (mostly defense if i understood it correctly about this at least
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 749565f8e..17cd36634 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4532,7 +4532,7 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<!--custom: archery should be much less important to AIs now that they start with the more versatile warriors,
++			<!-- custom: archery should be much less important to AIs now that they start with the more versatile warriors,
+ 			it should maybe be important if AI is getting behind in military power or/and adopting turtle strategy, else it may
+ 			be fine to wait until feudalism is discovered if the AI then wants longbowmen.
+ 			Axemen and similar units should be good enough defenders, adding swordsmen or/and chariots or spearmen should also help
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2602

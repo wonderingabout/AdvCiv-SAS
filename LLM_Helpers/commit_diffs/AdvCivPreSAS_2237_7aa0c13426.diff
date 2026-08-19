@@ -1,0 +1,145 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2237
+# Commit: 7aa0c13426ca25d106167c069b67140d6002a474
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 181b97b1d058ecf8e8748ad553c88f1d724d2168
+# Title: Some minor amendments to [advc.xmldefault]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	11	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+5	0	CvGameCoreDLL/CvInfo_Asset.cpp
+1	2	CvGameCoreDLL/CvInfo_Asset.h
+1	1	CvGameCoreDLL/CvInfo_Base.cpp
+1	1	CvGameCoreDLL/CvInfo_Civilization.cpp
+2	1	CvGameCoreDLL/CvInfo_Civilization.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 525dbc601..684cf5115 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -316,7 +316,7 @@
+ 					<ContactType>CONTACT_PERMANENT_ALLIANCE</ContactType>
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+-				<!-- advc.134a (note): Taken times 4/4 by the DLL -->
++				<!-- advc.134a (note): Taken times 4/3 by the DLL -->
+ 				<ContactRand>
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+ 					<iContactRand>-1</iContactRand>
+@@ -681,8 +681,6 @@
+ 					<iMemoryAttitudePercent>100</iMemoryAttitudePercent>
+ 				</MemoryAttitudePercent>
+ 			</MemoryAttitudePercents>
+-			<!-- Need to cover all attitude types here so that sufficient
+-				 memory gets allocated. -->
+ 			<NoWarAttitudeProbs>
+ 				<NoWarAttitudeProb>
+ 					<AttitudeType>ATTITUDE_FURIOUS</AttitudeType>
+@@ -3986,14 +3984,8 @@
+ 					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
+ 					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
+ 				</MemoryAttitudePercent>
+-				<!-- advc.005a: MEMORY_HIRED_TRADE_EMBARGO not zeroed. -->
+-				<!-- advc.130o:  Gandhi, as the only leader, didn't have a
+-					 MADE_DEMAND MemoryAttitude entry, meaning that
+-					 tribute demands didn't affect his attitude. -->
+-				<MemoryAttitudePercent>
+-					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+-					<iMemoryAttitudePercent>-100</iMemoryAttitudePercent>
+-				</MemoryAttitudePercent>
++				<!-- MEMORY_HIRED_TRADE_EMBARGO (advc.005a) and
++					 MEMORY_MADE_DEMAND (advc.130o) not zeroed. -->
+ 				<MemoryAttitudePercent>
+ 					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
+ 					<iMemoryAttitudePercent>5</iMemoryAttitudePercent>
+
+diff --git a/CvGameCoreDLL/CvInfo_Asset.cpp b/CvGameCoreDLL/CvInfo_Asset.cpp
+index 789f716e1..fe8252c33 100644
+--- a/CvGameCoreDLL/CvInfo_Asset.cpp
++++ b/CvGameCoreDLL/CvInfo_Asset.cpp
+@@ -70,6 +70,11 @@ bool CvArtInfoAsset::read(CvXMLLoadUtility* pXML)
+ 
+ 	return true;
+ }
++// advc.xmldefault:
++CvArtInfoScalableAsset::CvArtInfoScalableAsset(CvArtInfoScalableAsset const& kOther)
++{
++	FAssertMsg(false, "No copy-ctor implemented");
++}
+ 
+ bool CvArtInfoScalableAsset::read(CvXMLLoadUtility* pXML)
+ {
+
+diff --git a/CvGameCoreDLL/CvInfo_Asset.h b/CvGameCoreDLL/CvInfo_Asset.h
+index 987527eef..47aed916b 100644
+--- a/CvGameCoreDLL/CvInfo_Asset.h
++++ b/CvGameCoreDLL/CvInfo_Asset.h
+@@ -48,8 +48,7 @@ class CvArtInfoScalableAsset : public CvArtInfoAsset, public CvScalableInfo
+ public:
+ 	// <advc.xmldefault> (for LoadGlobalClassInfo template)
+ 	CvArtInfoScalableAsset() {}
+-	CvArtInfoScalableAsset(CvArtInfoScalableAsset const& kOther)
+-	{ FAssertMsg(false, "No copy-ctor implemented"); }
++	CvArtInfoScalableAsset(CvArtInfoScalableAsset const& kOther);
+ 	bool isDefaultsType() const { return false; }
+ 	// </advc.xmldefault>
+ 	bool read(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 528b27bef..3efd64071 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -63,7 +63,7 @@ const TCHAR* CvInfoBase::getType() const
+ // advc.xmldefault:
+ bool CvInfoBase::isDefaultsType() const
+ {
+-	if (m_szType == NULL)
++	if (m_szType.empty())
+ 		return false;
+ 	CvString const szEnding = "_DEFAULTS";
+ 	return (m_szType.length() > szEnding.length() &&
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 305409d8e..91f5460ab 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -511,7 +511,7 @@ m_piDiploWarIntroMusicScriptIds(NULL),
+ m_piDiploWarMusicScriptIds(NULL)
+ {}
+ 
+-// </advc.xmldefault>
++// <advc.xmldefault>
+ #define ALLOCCOPY_INT(pDst, pSrc, iSize) \
+ 	if (pSrc != NULL) \
+ 	{ \
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 0e0e53af8..39ddbe9bb 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -330,9 +330,10 @@ protected:
+ 	int* m_piDiploPeaceMusicScriptIds;
+ 	int* m_piDiploWarIntroMusicScriptIds;
+ 	int* m_piDiploWarMusicScriptIds;
+-
++	// <advc.xmldefault>
+ 	static CvXMLLoadUtility* m_pXML;
+ 	static void GetChildXmlValByName(int& r, TCHAR const* szName, int iDefault = MIN_INT);
++	// </advc.xmldefault>
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=4437

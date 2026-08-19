@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5574
+# Commit: 9a310094409c4a4e8f54f0c1453696140da39991
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e9dfde4deae7fc35095a61b4c29d04b231e582a3
+# Title: minor ui adjustments in sevopedia charts
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+4	3	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 74f0bd85d..444ca0cb2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -162,8 +162,8 @@ class SevoPediaImprovement:
+ 		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + self.SMALL_MARGIN
+ 		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
+ 
+-		self.H_SPECIAL = 295
+-		self.H_HISTORY = 295
++		self.H_SPECIAL = 289
++		self.H_HISTORY = 289
+ 		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
+ 		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
+ 		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 98a0b430e..1bd5a1199 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -38,6 +38,7 @@ TECH_STATS_FIXED_RIGHT_ICON_COLS = 7
+ TECH_STATS_RIGHT_ICON_COL_W = INCHART_ICON_SIZE + INCHART_ICON_SPACING
+ TECH_STATS_RIGHT_SCROLLBAR_TAIL_W = 18
+ TECH_STATS_MOVE_LEFT_TO_RIGHT_W = 60
++TECH_STATS_MOVE_TOPLEFT_TO_BOTTOMLEFT_H = 2
+ 
+ 
+ 
+@@ -265,8 +266,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.X_STATS = self.X_TECH_PANE
+ 		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
+ 		self.W_STATS = self.top.R_PEDIA_PAGE - self.X_STATS
+-		# Stats height - reduced by 20px to give more room to Special/History
+-		self.H_STATS = 380
++		# Stats height - slightly increased to avoid bottom clipping in stats tables.
++		self.H_STATS = 384
+ 
+ 		# Stats sub-panels layout - blue panels without headers, margin separation
+ 		STATS_MARGIN = 8
+@@ -280,7 +281,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.STATS_LEFT_X = self.X_STATS + STATS_MARGIN
+ 		self.STATS_LEFT_TOP_Y = self.Y_STATS + STATS_MARGIN
+ 		# Top-left reduced, bottom-left gets more room (0.44 ratio gives ~1-2px to bottom)
+-		self.STATS_LEFT_TOP_H = int((self.H_STATS - 3 * STATS_MARGIN) * 0.44)
++		self.STATS_LEFT_TOP_H = int((self.H_STATS - 3 * STATS_MARGIN) * 0.44) - TECH_STATS_MOVE_TOPLEFT_TO_BOTTOMLEFT_H
+ 		self.STATS_LEFT_BOTTOM_Y = self.STATS_LEFT_TOP_Y + self.STATS_LEFT_TOP_H + STATS_MARGIN
+ 		self.STATS_LEFT_BOTTOM_H = self.H_STATS - 2 * STATS_MARGIN - self.STATS_LEFT_TOP_H - STATS_MARGIN
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index bd91a8a42..8a4296f20 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -140,7 +140,7 @@ class SevoPediaTrait:
+ 		# Precompute all layout values once in __init__ for performance. (Claude code Opus 4.5) (GPT-5.2-Codex (summarized)) -->
+ 
+ 		MARGIN = 10
+-		self.BOTTOM_PANELS_H = 296
++		self.BOTTOM_PANELS_H = 291
+ 
+ 		# Leaders panel - right side, full height
+ 		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3216

@@ -1,0 +1,477 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1283
+# Commit: d8c283f27e9eab01cfec4a354f1e2315d50bb45e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 20703b98c917750d406f388e169309be3aa251b9
+# Title: A few misc. changes: BUG default settings changed (only affects new installations of AdvCiv): * Wonders tab, with color coding, enabled. [advc.004] * Sevoped...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Config/Advanced Scoreboard.xml
+8	5	Assets/Config/BUG Advisors.xml
+-	-	Assets/CvGameCoreDLL.dll
+1	2	Assets/xml/Art/CIV4ArtDefines_Unit.xml
+9	0	Assets/xml/GlobalDefines_advc.xml
+1	1	Assets/xml/Text/CIV4GameText_advc.xml
+16	27	CvGameCoreDLL/CvGameTextMgr.cpp
+10	0	CvGameCoreDLL/CvGlobals.cpp
+3	0	CvGameCoreDLL/CvGlobals.h
+10	6	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+31	2	CvGameCoreDLL/CvTeam.cpp
+20	12	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	1	CvGameCoreDLL/WarAndPeaceCache.cpp
+-	-	manual.pdf
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Scoreboard.xml b/Assets/Config/Advanced Scoreboard.xml
+index f0f4d8338..d2d9d8182 100644
+--- a/Assets/Config/Advanced Scoreboard.xml	
++++ b/Assets/Config/Advanced Scoreboard.xml	
+@@ -75,8 +75,9 @@
+ 			<list   id="DefaultSpacing" key="Default Column Spacing" 
+ 					type="int" default="0" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10" 
+ 					get="getDefaultSpacing" set="setDefaultSpacing" dirtyBit="Score"/>
++			<!-- advc.106d: Default lowered to 18 (was 22) -->
+ 			<list   id="LineHeight" key="Line Height" 
+-					type="int" default="22" values="10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30" 
++					type="int" default="18" values="10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30" 
+ 					get="getLineHeight" set="setLineHeight" dirtyBit="Score"/>
+ 			<list   id="MaxPlayers" key="Max Players" 
+ 					type="int" default="0" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50"
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 439df0381..46b825133 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -17,11 +17,12 @@
+ 	<options id="Advisors" file="BUG Advisors.ini">
+ 		<section id="Advisors">
+ 			<!-- Exotic Foreign Advisor (F4) by Requies, Dresden, EmperorFool -->
++			<!-- advc.004: Set the default to Numbers (was Smilies) -->
+ 			<option id="EFAGlanceTab" key="EFA Glance" 
+ 					type="boolean" default="True" 
+ 					get="isShowGlance"/>
+ 			<list   id="EFAGlanceAttitudes" key="EFA Glance Attitudes" 
+-					type="int" default="1" listType="string">
++					type="int" default="0" listType="string">
+ 				<choice id="Numbers" get="isShowGlanceNumbers"/>
+ 				<choice id="Smilies" get="isShowGlanceSmilies"/>
+ 				<choice id="Both" get="isShowGlanceNumbers isShowGlanceSmilies"/>
+@@ -83,19 +84,21 @@
+ 			<option id="NonZeroStatsOnly" key="Non-Zero Stats Only"
+ 					type="boolean" default="True"
+ 					get="isNonZeroStatsOnly"/> <!-- K-Mod -->
++			<!-- advc.004: Both enabled by default -->
+ 			<option id="BugInfoWonders" key="Wonders" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowInfoWonders"/>
+ 			<option id="BugInfoWondersPlayerColor" key="Wonders Player Color" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isWonderListUsePlayerColor"/>
+ 
+ 			<!-- Sevopedia (F12) by Sevo -->
++			<!-- advc.004: Both enabled by default -->
+ 			<option id="Sevopedia" key="Sevopedia" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isSevopedia"/>
+ 			<option id="SevopediaSortItemList" key="Sevopedia Sort" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isSortSevopedia"/>
+ 		</section>
+ 	</options>
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Art/CIV4ArtDefines_Unit.xml b/Assets/xml/Art/CIV4ArtDefines_Unit.xml
+index e3bab55ab..cf8980ece 100644
+--- a/Assets/xml/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/xml/Art/CIV4ArtDefines_Unit.xml
+@@ -2040,8 +2040,7 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CARAVEL</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Caravel.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,9</Button>
+-			<!-- advc.002j: was 0.24 -->
+-			<fScale>0.25</fScale>
++			<fScale>0.24</fScale>
+ 			<fInterfaceScale>0.5</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 87fae4e04..139be084d 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -833,4 +833,13 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- [advc.550d] This modifier is applied to research rates when playing
++		 with the "No tech trading" option. The modifier is reduced in the
++		 early and late game. Recommended: 28. Use 0 for BtS behavior (research
++		 rate not modified when playing without tech trading). -->
++	<Define>
++		<DefineName>TECH_COST_NOTRADE_MODIFIER</DefineName>
++		<iDefineIntVal>28</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index c12091597..d0b3e0da0 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -689,7 +689,7 @@
+ 	<!-- advc.151 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_AND_RENOUNCE_RELIGION</Tag>
+-		<English>(And renounces %s1_RelName.)</English>
++		<English>(Renounces %s1_RelName.)</English>
+ 		<French>(Et renonce %s1_RelName.)</French>
+ 		<German>(Und schw&#246;rt dem %s1_RelName ab.)</German>
+ 		<Italian>(E abiura %s1:2_RelName.)</Italian>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f9c1d1ada..60dc0b006 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -316,29 +316,18 @@ void CvGameTextMgr::setOOSSeeds(CvWString& szString, PlayerTypes ePlayer)
+ }
+ 
+ void CvGameTextMgr::setNetStats(CvWString& szString, PlayerTypes ePlayer)
+-{
+-	if (ePlayer != GC.getGameINLINE().getActivePlayer())
+-	{
+-		if (GET_PLAYER(ePlayer).isHuman())
+-		{
+-			if (gDLL->getInterfaceIFace()->isNetStatsVisible())
+-			{
+-				int iNetID = GET_PLAYER(ePlayer).getNetID();
+-				if (gDLL->isConnected(iNetID))
+-				{
+-					szString = gDLL->getText("TXT_KEY_MISC_NUM_MS", gDLL->GetLastPing(iNetID));
+-				}
+-				else
+-				{
+-					szString = gDLL->getText("TXT_KEY_MISC_DISCONNECTED");
+-				}
+-			}
+-		}
+-		else
+-		{
+-			szString = gDLL->getText("TXT_KEY_MISC_AI");
+-		}
++{	// advc.003: Some refactoring
++	if(ePlayer == GC.getGameINLINE().getActivePlayer()
++			// advc.004v: Moved up
++			|| !gDLL->getInterfaceIFace()->isNetStatsVisible())
++		return;
++	if(GET_PLAYER(ePlayer).isHuman()) {
++		int iNetID = GET_PLAYER(ePlayer).getNetID();
++		if(gDLL->isConnected(iNetID))
++			szString = gDLL->getText("TXT_KEY_MISC_NUM_MS", gDLL->GetLastPing(iNetID));
++		else szString = gDLL->getText("TXT_KEY_MISC_DISCONNECTED");
+ 	}
++	else szString = gDLL->getText("TXT_KEY_MISC_AI");
+ }
+ 
+ 
+@@ -14702,14 +14691,14 @@ void CvGameTextMgr::getEspionageString(CvWStringBuffer& szBuffer, PlayerTypes eP
+ 	}
+ }
+ 
+-// <advc.>
++// <advc.004w>
+ void CvGameTextMgr::getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2) {
+ 
+ 	return getTradeString(szBuffer, tradeData, ePlayer1, ePlayer2, -1);
+-} // </advc.>
++} // </advc.004w>
+ 
+ void CvGameTextMgr::getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2,
+-		int turnsToCancel) // advc.
++		int turnsToCancel) // advc.004w
+ {
+ 	switch (tradeData.m_eItemType)
+ 	{
+@@ -14739,9 +14728,9 @@ void CvGameTextMgr::getTradeString(CvWStringBuffer& szBuffer, const TradeData& t
+ 		break;
+ 	case TRADE_PEACE_TREATY:
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PEACE_TREATY",
+-				// <advc.>
++				// <advc.004w>
+ 				(turnsToCancel < 0 ? GC.getDefineINT("PEACE_TREATY_LENGTH") :
+-				turnsToCancel))); // </advc.>
++				turnsToCancel))); // </advc.004w>
+ 		break;
+ 	case TRADE_TECHNOLOGIES:
+ 		szBuffer.assign(CvWString::format(L"%s", GC.getTechInfo((TechTypes)tradeData.m_iData).getDescription()));
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 9974b08d7..7a5118fde 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -271,6 +271,7 @@ m_paMainMenus(NULL)
+ ,m_iTECH_COST_FIRST_KNOWN_PREREQ_MODIFIER(20)
+ ,m_iTECH_COST_KNOWN_PREREQ_MODIFIER(20)
+ ,m_iTECH_COST_MODIFIER(0)
++,m_iTECH_COST_NOTRADE_MODIFIER(0) // advc.550d
+ 
+ // From Lead From Behind by UncutDragon
+ // Lead from Behind flags
+@@ -2791,6 +2792,9 @@ void CvGlobals::cacheGlobals()
+ 	m_iTECH_COST_FIRST_KNOWN_PREREQ_MODIFIER = getDefineINT("TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER", m_iTECH_COST_FIRST_KNOWN_PREREQ_MODIFIER);
+ 	m_iTECH_COST_KNOWN_PREREQ_MODIFIER = getDefineINT("TECH_COST_KNOWN_PREREQ_MODIFIER", m_iTECH_COST_KNOWN_PREREQ_MODIFIER);
+ 	m_iTECH_COST_MODIFIER = getDefineINT("TECH_COST_MODIFIER", m_iTECH_COST_MODIFIER);
++	// <advc.550d>
++	m_iTECH_COST_NOTRADE_MODIFIER = getDefineINT("TECH_COST_NOTRADE_MODIFIER",
++			m_iTECH_COST_NOTRADE_MODIFIER); // </advc.550d>
+ 	
+ // From Lead From Behind by UncutDragon
+ // Lead from Behind flags
+@@ -3866,6 +3870,12 @@ int CvGlobals::getTECH_COST_MODIFIER()
+ 	return m_iTECH_COST_MODIFIER;
+ }
+ 
++// <advc.550d>
++int CvGlobals::getTECH_COST_NOTRADE_MODIFIER() {
++
++	return m_iTECH_COST_NOTRADE_MODIFIER;
++} // </advc.550d>
++
+ 
+ // From Lead From Behind by UncutDragon (edited for K-Mod)
+ // Lead from Behind flags
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index e3a8164a5..39bef8fd1 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -1308,6 +1308,8 @@ public:
+ 	int getTECH_COST_FIRST_KNOWN_PREREQ_MODIFIER();
+ 	int getTECH_COST_KNOWN_PREREQ_MODIFIER();
+ 	int getTECH_COST_MODIFIER();
++	// advc.550d: Not tech diffusion, but related.
++	int getTECH_COST_NOTRADE_MODIFIER();
+ 
+ protected:
+ 	bool m_bTECH_DIFFUSION_ENABLE;
+@@ -1317,6 +1319,7 @@ protected:
+ 	int m_iTECH_COST_FIRST_KNOWN_PREREQ_MODIFIER;
+ 	int m_iTECH_COST_KNOWN_PREREQ_MODIFIER;
+ 	int m_iTECH_COST_MODIFIER;
++	int m_iTECH_COST_NOTRADE_MODIFIER; // advc.550d
+ 	
+ // From Lead From Behind by UncutDragon. (edited for K-Mod)
+ public:
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 88ebf49c4..4fc57571a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8005,19 +8005,23 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech) const
+ 		iModifier += (iPossiblePaths - iUnknownPaths) * GC.getTECH_COST_KNOWN_PREREQ_MODIFIER();
+ 	}
+ 
+-	EraTypes techEra = (EraTypes)GC.getTechInfo(eTech).getEra(); // advc.308
++	EraTypes techEra = (EraTypes)GC.getTechInfo(eTech).getEra(); // advc.003
+ 	iModifier -= GC.getEraInfo(techEra).getTechCostModifier();
+ 
+ 	iModifier -= GC.getTECH_COST_MODIFIER();
++	CvGame& g = GC.getGameINLINE(); // advc.003
+ 	// <advc.308>
+-	if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) && GC.getGame().
+-			getStartEra() == (EraTypes)0) {
++	if(g.isOption(GAMEOPTION_RAGING_BARBARIANS) && g.getStartEra() == (EraTypes)0) {
+ 		switch(techEra) {
+-		case 1: iModifier += 15; break;
+-		case 2: iModifier += 10; break;
++		case 1: iModifier += 14; break;
++		case 2: iModifier += 7; break;
+ 		}
+ 	} // </advc.308>
+-
++	// <advc.550d>
++	if(g.isOption(GAMEOPTION_NO_TECH_TRADING) && techEra > 0 && techEra < 6) {
++		iModifier += std::max(0, ::round(GC.getTECH_COST_NOTRADE_MODIFIER() - 5 *
++				std::pow(std::abs(techEra - 2.5), 1.5)));
++	} // </advc.550d>
+ 	return iModifier;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ddc44e172..c4b872c6d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3557,7 +3557,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 						and I don't want the AI to overvalue tundra and snow
+ 						rivers. */
+ 					int riverPlotVal = (kSet.bStartingLoc ? 25 : 7);
+-					if(kSet.bFinancial)
++					if(kSet.bFinancial && aiYield[YIELD_FOOD] +
++							aiYield[YIELD_PRODUCTION] >= 1)
+ 						riverPlotVal += 11;
+ 					riverPlotVal = std::max(30, riverPlotVal);
+ 					/*  Is this just to steer the AI toward settling at rivers
+@@ -11321,7 +11322,6 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled)
+ // (K-Mod note: very vague units. roughly 4x gold / turn / city.)
+ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus) const
+ {
+-	PROFILE_FUNC();
+ 	// advc.003: Reduced indentation throughout this function
+ 	//recalculate if not defined
+ 	if(m_aiBonusValue[eBonus] != -1)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 832e5008b..a5993de26 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4521,7 +4521,11 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	FAssertMsg(!bNewValue || !GET_TEAM(eIndex).isAVassal(), "can't become a vassal of a vassal")
+-	// <advc.003>
++	bool wasCapitulated = isCapitulated(); // advc.130v
++	/*  <advc.003> If this function is used for turning capitulated into
++		voluntary vassals at some point, then the code for processin this change
++		will have to be placed before this clause, or will also have to check if
++		isCapitulated()==bCapitulated here. */
+ 	if(isVassal(eIndex) == bNewValue)
+ 		return; // <advc.003>
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+@@ -4890,7 +4894,32 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 					masterMember.isHuman())
+ 				masterMember.setEspionageSpendingWeightAgainstTeam(getID(), 0);
+ 		}
+-	} // </advc.130v
++	} // </advc.130v>
++	// <advc.130f> Delete stopped-trading memory
++	if(wasCapitulated != bCapitulated) {
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayerAI& ourMember = GET_PLAYER((PlayerTypes)i);
++			if(!ourMember.isAlive() || ourMember.getTeam() != getID())
++				continue;
++			for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++				CvPlayerAI& theirMember = GET_PLAYER((PlayerTypes)j);
++				if(!theirMember.isAlive() || theirMember.getTeam() == getID())
++					continue;
++				int mem = ourMember.AI_getMemoryCount(theirMember.getID(), MEMORY_STOPPED_TRADING);
++				if(mem > 0) // Just so I can check this in the debugger
++					ourMember.AI_changeMemoryCount(theirMember.getID(), MEMORY_STOPPED_TRADING, -mem);
++				mem = ourMember.AI_getMemoryCount(theirMember.getID(), MEMORY_STOPPED_TRADING_RECENT);
++				if(mem > 0)
++					ourMember.AI_changeMemoryCount(theirMember.getID(), MEMORY_STOPPED_TRADING_RECENT, -mem);
++				mem = theirMember.AI_getMemoryCount(ourMember.getID(), MEMORY_STOPPED_TRADING);
++				if(mem > 0)
++					theirMember.AI_changeMemoryCount(ourMember.getID(), MEMORY_STOPPED_TRADING, -mem);
++				mem = theirMember.AI_getMemoryCount(ourMember.getID(), MEMORY_STOPPED_TRADING_RECENT);
++				if(mem > 0)
++					theirMember.AI_changeMemoryCount(ourMember.getID(), MEMORY_STOPPED_TRADING_RECENT, -mem);
++			}
++		}
++	} // </advc.130f
+ }
+ 
+ // K-Mod. Return the team which is the master of this team. (if this team is free, return getID())
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index cf83ed43a..2bff098b3 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -125,20 +125,28 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
+ 	plot()->updateCenterUnit();
+ 
+ 	plot()->setFlagDirty(true);
+-
+-	// advc.003: Was called iUnitName, which doesn't make any sense to me.
+-	int iCreated = GC.getGameINLINE().getUnitCreatedCount(getUnitType());
++	// <advc.003>
++	CvGame& g = GC.getGameINLINE();
++	// Was called iUnitName, which doesn't make any sense to me.
++	int iCreated = g.getUnitCreatedCount(getUnitType()); // </advc.003>
+ 	int iNumNames = m_pUnitInfo->getNumUnitNames();
+ 	if (iCreated < iNumNames)
+-	{
+-		// <advc.005b>
+-		int iRand = GC.getGameINLINE().getSorenRandNum(5, "advc.005b");
+-		/*  Basic assumption: About half the names are used in a long (space-race)
+-			game; so, skip every 2nd name on average (expected value of iRand is 2).
+-			The index of the most recently used name isn't available; instead,
+-			take two times the number of previously used names in order to pickup
+-			roughly where we left off. */
+-		int iOffset = 2 * iCreated + iRand;
++	{	// <advc.005b>
++		/*  Skip every step'th name on average. Basic assumption: About half of
++			the names are used in a long (space-race) game with 7 civs; therefore, skip every
++			step=2 then. Adjust this to the (current) number of civs. */
++		int alive = g.countCivPlayersAlive();
++		if(alive <= 0) {
++			FAssert(alive > 0);
++			alive = 7;
++		}
++		int step = std::max(1, ::round(14.0 / alive));
++		// This gives iRand an expected value of step
++		int iRand = GC.getGameINLINE().getSorenRandNum(2 * step + 1, "advc.005b");
++		/*  The index of the most recently used name isn't available; instead,
++			take step times the number of previously used names in order to
++			pick up roughly where we left off. */
++		int iOffset = step * iCreated + iRand;
+ 		// That's +8 in Medieval, +16 in Renaissance and +24 in Industrial or later
+ 		iOffset += std::min(24, 8 * std::max(0, GC.getGame().getStartEra() - 1));
+ 		bool nameSet = false;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 0f4c8e76a..1dc91da46 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1001,6 +1001,7 @@ int WarAndPeaceAI::Team::tradeValJointWar(TeamTypes targetId,
+ 	/*  This function could handle a human ally, but the AI isn't supposed to
+ 		pay humans for war (and I've no plans for changing that). */
+ 	FAssert(!GET_TEAM(allyId).isHuman());
++	PROFILE_FUNC();
+ 	// That's already a comparison between joint war and solo war
+ 	int u = uJointWar(targetId, allyId);
+ 	if(u < 0)
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index fe2c278cb..ebd1b6c3c 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -298,7 +298,7 @@ double WarAndPeaceCache::goldPerProdBuildings() {
+ 					owner.getBuildingClassMaking((BuildingClassTypes)
+ 					b.getBuildingClassType()) == 0) {
+ 				if(b.getReligionType() != NO_RELIGION) {
+-					// No Renaissance Monasteries
++					// No Monasteries when they're about to go obsolete
+ 					TechTypes obsTech = (TechTypes)b.getObsoleteTech();
+ 					if(obsTech != NO_TECH && GC.getTechInfo(obsTech).getEra() <=
+ 							ownerEra)
+@@ -1139,6 +1139,7 @@ int WarAndPeaceCache::City::getAssetScore() const {
+ 
+ bool WarAndPeaceCache::City::canReach() const {
+ 
++	PROFILE_FUNC();
+ 	if(city() == NULL || !TEAMREF(cacheOwnerId).AI_deduceCitySite(city()))
+ 		return false;
+ 	if(distance >= 0)
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=14 omittedFiles=2 embeddedPatchBytes=18312

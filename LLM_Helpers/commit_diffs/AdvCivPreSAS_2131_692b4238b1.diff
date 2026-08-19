@@ -1,0 +1,139 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2131
+# Commit: 692b4238b1aa693f76e8465e7a1eb6274f488642
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 05f1d8088cc84d42595227f37175868238aedf7a
+# Title: Store ruin names as C-strings
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+20	5	CvGameCoreDLL/CvPlot.cpp
+3	3	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d982ad69e..e158434be 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4929,8 +4929,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		bool bNamedRuin = false;
+ 		if(ePlotImprovement == GC.getRUINS_IMPROVEMENT())
+ 		{
+-			const wchar* szRuinsName = pPlot->getRuinsName();
+-			if(wcslen(szRuinsName) > 0)
++			wchar const* szRuinsName = pPlot->getRuinsName();
++			if(szRuinsName != NULL/*&& wcslen(szRuinsName) > 0*/)
+ 			{
+ 				szString.append(gDLL->getText("TXT_KEY_IMPROVEMENT_CITY_RUINS_NAMED",
+ 						szRuinsName));
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b9342f79f..10929e8b9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -38,6 +38,7 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ 	m_pFlagSymbolOffset = NULL;
+ 	m_pCenterUnit = NULL;
+ 	m_szScriptData = NULL;
++	m_szMostRecentCityName = NULL; // advc.005c
+ 
+ 	m_iX = 0;
+ 	m_iY = 0;
+@@ -76,7 +77,6 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ 	m_eRouteType = NO_ROUTE;
+ 	m_eRiverNSDirection = NO_CARDINALDIRECTION;
+ 	m_eRiverWEDirection = NO_CARDINALDIRECTION;
+-
+ 	m_plotCity.reset();
+ 	m_workingCity.reset();
+ 	m_workingCityOverride.reset();
+@@ -86,6 +86,7 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ CvPlot::~CvPlot() // advc: Merged with the deleted uninit function
+ {
+ 	SAFE_DELETE_ARRAY(m_szScriptData);
++	SAFE_DELETE_ARRAY(m_szMostRecentCityName); // advc.005c
+ 
+ 	gDLL->getFeatureIFace()->destroy(m_pFeatureSymbol);
+ 	if(m_pPlotBuilder)
+@@ -4856,9 +4857,15 @@ void CvPlot::setPlotCity(CvCity* pNewValue)  // advc: style changes
+ }
+ 
+ // <advc.005c>
+-void CvPlot::setRuinsName(const CvWString& szName)
++void CvPlot::setRuinsName(CvWString const& szName)
+ {
+-	m_szMostRecentCityName = szName;
++	SAFE_DELETE_ARRAY(m_szMostRecentCityName);
++	if (szName.empty())
++		return;
++	wchar* szBuffer = new wchar[szName.length() + 1]; // +1 for \0
++	wcsncpy(szBuffer, szName.c_str(), szName.length() + 1);
++	m_szMostRecentCityName = szBuffer;
++	FAssert(wcslen(m_szMostRecentCityName) == szName.length());
+ }
+ 
+ 
+@@ -7231,7 +7238,11 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 		m_iTurnsBuildsInterrupted = ::intToShort(iTmp);
+ 	}
+ 	else pStream->Read(&m_iTurnsBuildsInterrupted); // </advc.011>
+-	pStream->ReadString(m_szMostRecentCityName); // advc.005c
++	// <advc.005c>
++	CvWString szTmp;
++	pStream->ReadString(szTmp);
++	if (!szTmp.empty())
++		setRuinsName(szTmp); // </advc.005c>
+ 	// <advc.opt>
+ 	if(uiFlag >= 2)
+ 		pStream->Read(&m_iTotalCulture);
+@@ -7413,7 +7424,11 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 		m_aiBuildProgress.Write(pStream, false);
+ 	}
+ 	pStream->Write(m_iTurnsBuildsInterrupted); // advc.011
+-	pStream->WriteString(m_szMostRecentCityName); // advc.005c
++	// <advc.005c>
++	std::wstring szTmp;
++	if (m_szMostRecentCityName != NULL)
++		szTmp = m_szMostRecentCityName;
++	pStream->WriteString(szTmp); // </advc.005c>
+ 	pStream->Write(m_iTotalCulture); // advc.opt
+ 
+ 	if (!m_aaiCultureRangeCities.hasContent())
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index aa28a5d52..92b0bf676 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -448,8 +448,8 @@ public:
+ 	DllExport CvCity* getPlotCity() const;																												// Exposed to Python
+ 	CvCityAI* AI_getPlotCity() const;
+ 	void setPlotCity(CvCity* pNewValue);
+-	void setRuinsName(const CvWString& szName); // advc.005c
+-	const wchar* getRuinsName() const; // advc.005c
++	void setRuinsName(CvWString const& szName); // advc.005c
++	const wchar* getRuinsName() const; // advc.005c (NULL if none)
+ 	CvCity* getWorkingCity() const;																														// Exposed to Python
+ 	void updateWorkingCity();
+ 	CvCity const* defaultWorkingCity() const; // advc
+@@ -773,7 +773,7 @@ protected:
+ 	IDInfo m_workingCity;
+ 	IDInfo m_workingCityOverride;
+ 
+-	CvWString m_szMostRecentCityName; // advc.005c
++	wchar const* m_szMostRecentCityName; // advc.005c (wstring takes up 28 byte!)
+ 	char const* m_szScriptData; // advc: const
+ 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
+ 	//bool m_bActivePlayerNoDangerCache;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4293

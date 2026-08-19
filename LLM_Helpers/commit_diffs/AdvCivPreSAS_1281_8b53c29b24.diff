@@ -1,0 +1,366 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1281
+# Commit: 8b53c29b24c39f676db135682687fdc00e23df58
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a44438ed380640a052f574cd47c299e00f91020b
+# Title: Mostly small changes to announcement messages * In messages about civics and religion changes, the abandoned civic/ religion choice is named. [advc.151] * Wh...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/xml/GlobalDefines_advc.xml
+17	0	Assets/xml/Text/CIV4GameText_advc.xml
+15	4	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+16	4	CvGameCoreDLL/CvPlayer.cpp
+8	3	CvGameCoreDLL/CvPlayerAI.cpp
+26	4	CvGameCoreDLL/CvPlot.cpp
+17	5	CvGameCoreDLL/CvTeam.cpp
+6	3	CvGameCoreDLL/CvUnit.cpp
+-	-	manual_0.90c.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index fb4f88245..87fae4e04 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -401,6 +401,16 @@
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- advc.106e: 4 (recommended) means that religion spread in foreign
++		 cities is no longer announced once the player enters the Industrial era
++		 (unless the player owns the respective holy city). Set to -1 to
++		 disable those announcements in all eras or to 7 or greater to enable
++		 them in all eras. -->
++	<Define>
++		<DefineName>STOP_RELIGION_SPREAD_ANNOUNCE_ERA</DefineName>
++		<iDefineIntVal>4</iDefineIntVal>
++	</Define>
++	
+ 	<!-- [advc.099]
+ 		 New parameter: The default value for culture-based anger
+ 		 now assumes Open Borders; with closed borders, the anger is
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 0f8d6e148..c12091597 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -686,6 +686,23 @@
+ 		<Italian>%s1_PlyrName abiura %s2:2_RelName!</Italian>
+ 		<Spanish>%s1_PlyrName renega de %s2_RelName.</Spanish>
+ 	</TEXT>
++	<!-- advc.151 -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_AND_RENOUNCE_RELIGION</Tag>
++		<English>(And renounces %s1_RelName.)</English>
++		<French>(Et renonce %s1_RelName.)</French>
++		<German>(Und schw&#246;rt dem %s1_RelName ab.)</German>
++		<Italian>(E abiura %s1:2_RelName.)</Italian>
++		<Spanish>(E renega de %s1_RelName.)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_AND_ABOLISH_CIVIC</Tag>
++		<English>(Abolishes %s1_CvcName.)</English>
++		<French>(Aboli: %s1_CvcName.)</French>
++		<German>(Abgeschafft: %s1_CvcName.)</German>
++		<Italian>([NUM1:Abolito:Abolita]: %s1_CvcName.)</Italian>
++		<Spanish>([NUM1:Abolido:Abolida]: %s1_CvcName.)</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.099: Overwrites CIV4GameTextInfos.xml. Since its culture
+ 	     remains in the game, it isn't accurate to say the civ was
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d91ecd27d..5857f40c2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11899,7 +11899,8 @@ bool CvCity::isHasReligion(ReligionTypes eIndex) const
+ }
+ 
+ 
+-void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce, bool bArrows)
++void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce, bool bArrows,
++		PlayerTypes missionaryOwner) // advc.106e
+ {
+ 	FASSERT_BOUNDS(0, GC.getNumReligionInfos(), eIndex, "CvCity::setHasReligion");
+ 
+@@ -11926,7 +11927,10 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 		AI_setAssignWorkDirty(true);
+ 
+ 		setInfoDirty(true);
+-
++		// <advc.106e>
++		EraTypes ownerEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
++		EraTypes const eraThresh = (EraTypes)GC.getDefineINT(
++				"STOP_RELIGION_SPREAD_ANNOUNCE_ERA"); // </advc.106e>
+ 		if (isHasReligion(eIndex))
+ 		{
+ 			GC.getGameINLINE().makeReligionFounded(eIndex, getOwnerINLINE());
+@@ -11941,8 +11945,12 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 						{
+ 							if (isRevealed(GET_PLAYER((PlayerTypes)iI).getTeam(), false))
+ 							{
+-								// advc.106e: Commented out.
+-								//if ((getOwnerINLINE() == iI) || (GET_PLAYER((PlayerTypes)iI).getStateReligion() == eIndex) || GET_PLAYER((PlayerTypes)iI).hasHolyCity(eIndex))
++								// advc.106e:
++								if (ownerEra < eraThresh || missionaryOwner == iI ||
++										getOwnerINLINE() == iI ||
++										// advc.106e: Disable this clause
++										//(GET_PLAYER((PlayerTypes)iI).getStateReligion() == eIndex) ||
++										GET_PLAYER((PlayerTypes)iI).hasHolyCity(eIndex))
+ 								{
+ 									CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_SPREAD", GC.getReligionInfo(eIndex).getTextKeyWide(), getNameKey());
+ 									gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getReligionInfo(eIndex).getSound(),
+@@ -11980,6 +11988,9 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 				for (int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 					CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+ 					if(!civ.isAlive() || !isRevealed(civ.getTeam(), false))
++						continue;
++					if(missionaryOwner != civ.getID() && ownerEra >= eraThresh &&
++							getOwnerINLINE() != civ.getID() && !civ.hasHolyCity(eIndex))
+ 						continue; // </advc.106e>
+ 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_REMOVE", GC.getReligionInfo(eIndex).getTextKeyWide(), getNameKey());
+ 					gDLL->getInterfaceIFace()->addHumanMessage(
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 212c5cd61..9f8bb8f07 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -975,7 +975,8 @@ public:
+ 	void setNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
+ 
+ 	bool isHasReligion(ReligionTypes eIndex) const;
+-	void setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce, bool bArrows = true);
++	void setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce, bool bArrows = true,
++			PlayerTypes missionaryOwner = NO_PLAYER); // advc.106e
+ 	int getReligionGrip(ReligionTypes eReligion) const; // K-Mod
+ 
+ 	bool isHasCorporation(CorporationTypes eIndex) const;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ffa90af4b..3cdccbcf3 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12168,9 +12168,15 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 		if(eNewValue == NO_RELIGION)
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_RENOUNCE_RELIGION",
+ 					getNameKey(), GC.getReligionInfo(eOldReligion).getTextKeyWide());
+-		else szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_CONVERT_RELIGION",
++		else {
++			szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_CONVERT_RELIGION",
+ 					getNameKey(), GC.getReligionInfo(eNewValue).getTextKeyWide());
+-		// </advc.150a>
++			// <advc.151>
++			if(eOldReligion != NO_RELIGION) {
++				szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_RENOUNCE_RELIGION",
++						GC.getReligionInfo(eOldReligion).getTextKeyWide());
++			} // </advc.151>
++		} // </advc.150a>
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -13711,14 +13717,20 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 					// K-Mod
+ 					if (eOldCivic != NO_CIVIC)
+ 					// K-Mod end
+-					{
++					{	// <advc.151> Moved out of the loop
++						szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(),
++								GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
++						if(eOldCivic != GC.getCivilizationInfo(getCivilizationType()).
++								getCivilizationInitialCivics(eIndex)) {
++							szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_ABOLISH_CIVIC",
++									GC.getCivicInfo(eOldCivic).getTextKeyWide());
++						} // </advc.151>
+ 						for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 						{
+ 							if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 							{
+ 								if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 								{
+-									szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
+ 									gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CIVIC_ADOPT",
+ 											MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY); // advc.106b
+ 								}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 01f480502..dc4d72685 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19478,14 +19478,19 @@ bool CvPlayerAI::proposeJointWar(PlayerTypes humanId) {
+ 	Same assumptions as for contactReligion, plus can't be between vassal + master. */
+ bool CvPlayerAI::proposeEmbargo(PlayerTypes humanId) {
+ 
+-	if(AI_getContactTimer(humanId, CONTACT_STOP_TRADING) > 0)
++	if(AI_getContactTimer(humanId, CONTACT_STOP_TRADING) > 0 ||
++			AI_getAttitude(humanId) <= ATTITUDE_FURIOUS) // advc.130f
+ 		return false;
+-	TeamTypes eBestTeam = GET_TEAM(getTeam()).AI_getWorstEnemy();
++	CvTeamAI const& ourTeam = GET_TEAM(getTeam());
++	TeamTypes eBestTeam = ourTeam.AI_getWorstEnemy();
+ 	if(eBestTeam == NO_TEAM || !TEAMREF(humanId).isHasMet(eBestTeam) ||
+ 			GET_TEAM(eBestTeam).isVassal(TEAMID(humanId)) ||
+ 			!GET_PLAYER(humanId).canStopTradingWithTeam(eBestTeam) ||
+ 			// advc.104m:
+-			GET_TEAM(getTeam()).AI_isSneakAttackReady(TEAMID(humanId)))
++			ourTeam.AI_isSneakAttackReady(TEAMID(humanId)) ||
++			// <advc.130f>
++			ourTeam.AI_getAttitudeVal(TEAMID(humanId)) -
++			ourTeam.AI_getAttitudeVal(eBestTeam) < 2) // </advc.130f>
+ 		return false;
+ 	FAssert(!atWar(TEAMID(humanId), eBestTeam));
+ 	FAssert(TEAMID(humanId) != eBestTeam);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 5afcae4a2..61b504fd0 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5076,14 +5076,19 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 	UnitTypes eBestUnit;
+ 	int iFreeUnits;
+ 	int iI;
+-
+-	if(getOwnerINLINE() == eNewValue) return; // advc.003
++	// <advc.003>
++	if(getOwnerINLINE() == eNewValue)
++		return; // </advc.003>
+ 	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, (char*)NULL, getX_INLINE(), getY_INLINE());
+ 
+ 	pOldCity = getPlotCity();
+ 
+ 	if (pOldCity != NULL)
+-	{
++	{	// <advc.003>
++		if(eNewValue == NO_PLAYER) {
++			FAssert(eNewValue != NO_PLAYER);
++			return;
++		} // </advc.003>
+ 		/*  advc.101: Include pre-revolt owner in messages (sometimes not easy
+ 			to tell once the city has flipped, and in replays). */
+ 		const wchar* oldOwnerDescr = GET_PLAYER(pOldCity->getOwner()).getCivilizationDescriptionKey();
+@@ -5094,7 +5099,24 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 		gDLL->getInterfaceIFace()->addHumanMessage(eNewValue, false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CULTUREFLIP",
+ 				MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
+ 				ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), getX_INLINE(), getY_INLINE(), true, true);
+-
++		// <advc.101> Tell other civs about it (akin to code in CvCity::doRevolt)
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
++			if(!civ.isAlive() || civ.isMinorCiv() || civ.getID() == getOwnerINLINE() ||
++					civ.getID() == eNewValue || !isRevealed(civ.getTeam(), false))
++				continue;
++			ColorTypes color = (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
++			InterfaceMessageTypes msgType = MESSAGE_TYPE_MAJOR_EVENT;
++			if(TEAMREF(eNewValue).isVassal(civ.getTeam()))
++				color = (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN");
++			else if(GET_TEAM(pOldCity->getTeam()).isVassal(civ.getTeam()))
++				color = (ColorTypes)GC.getInfoTypeForString("COLOR_RED");
++			else msgType = MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY; // advc.106b
++			gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false,
++					GC.getEVENT_MESSAGE_TIME(), szBuffer, 0, msgType,
++					ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->
++					getPath(), color, getX_INLINE(), getY_INLINE(), true, true);
++		} // </advc.101>
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_REVOLTS_JOINS", pOldCity->getNameKey(), GET_PLAYER(eNewValue).getCivilizationDescriptionKey()
+ 			, oldOwnerDescr // advc.101
+ 			);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index f87f2ff69..832e5008b 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4521,8 +4521,9 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	FAssertMsg(!bNewValue || !GET_TEAM(eIndex).isAVassal(), "can't become a vassal of a vassal")
+-
+-	if(isVassal(eIndex) == bNewValue) return; // advc.003
++	// <advc.003>
++	if(isVassal(eIndex) == bNewValue)
++		return; // <advc.003>
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)i).getTeam() == getID())
+@@ -4865,8 +4866,9 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 		}
+ 	}
+ 	// K-Mod end
+-	// advc.014: Early re-election if vote source owner capitulates
+-	if(isCapitulated()) GC.getGameINLINE().updateSecretaryGeneral();
++	// <advc.014> Early re-election if vote source owner capitulates
++	if(isCapitulated())
++		GC.getGameINLINE().updateSecretaryGeneral(); // </advc.014>
+ 	// <advc.143b>
+ 	if(isCapitulated()) {
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+@@ -4880,6 +4882,15 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 			}
+ 		}
+ 	} // </advc.143b>
++	// <advc.130v>
++	if(bNewValue && bCapitulated && GET_TEAM(eIndex).isHuman()) {
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayer& masterMember = GET_PLAYER((PlayerTypes)i);
++			if(masterMember.isAlive() && masterMember.getTeam() == eIndex &&
++					masterMember.isHuman())
++				masterMember.setEspionageSpendingWeightAgainstTeam(getID(), 0);
++		}
++	} // </advc.130v
+ }
+ 
+ // K-Mod. Return the team which is the master of this team. (if this team is free, return getID())
+@@ -6140,7 +6151,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 					// <advc.004r>
+ 					TeamTypes revTeam = pLoopPlot->getRevealedTeam(getID(), false);
+ 					if((revTeam != getID() && revTeam != NO_TEAM &&
+-							revTeam != BARBARIAN_TEAM) ||
++							revTeam != BARBARIAN_TEAM &&
++							!GET_TEAM(revTeam).isVassal(getID())) ||
+ 							!pLoopPlot->isRevealed(getID(), false)) // </advc.004r>
+ 						continue; // advc.003
+ 					eBonus = pLoopPlot->getBonusType();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5945a3a8c..cf83ed43a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6196,7 +6196,8 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 
+ 		if (GC.getGameINLINE().getSorenRandNum(100, "Unit Spread Religion") < iSpreadProb)
+ 		{
+-			pCity->setHasReligion(eReligion, true, true, false);
++			pCity->setHasReligion(eReligion, true, true, false,
++					getOwnerINLINE()); // advc.106e
+ 			bSuccess = true;
+ 		}
+ 		else
+@@ -6233,8 +6234,10 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 			}
+ 			else
+ 			{
+-				pCity->setHasReligion(eReligion, true, true, false);
+-				pCity->setHasReligion(eFailedReligion, false, true, false);
++				pCity->setHasReligion(eReligion, true, true, false,
++						getOwnerINLINE()); // advc.106e
++				pCity->setHasReligion(eFailedReligion, false, true, false,
++						getOwnerINLINE()); // advc.106e
+ 				bSuccess = true;
+ 			}
+ 			// K-Mod
+
+[PATCH OMITTED] file=a/manual_0.90c.pdf b/manual_0.90c.pdf reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=9 omittedFiles=2 embeddedPatchBytes=14894

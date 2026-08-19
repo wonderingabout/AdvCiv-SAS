@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4070
+# Commit: af5e10d85deb33eec88690ba32830abc5775b8e3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b91d37a1b6cdf85061bd962c6157cf9735afea93
+# Title: Tighten conditions for AI leave-attacks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	9	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c2cc10d88..f163473d1 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14172,20 +14172,38 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 			if (p.getNumVisibleEnemyDefenders(this) > 0)*/ // BtS
+ 		if (!p.isVisibleEnemyDefender(this)) // K-Mod
+ 			continue;
+-
+-		if (generatePath(p, NO_MOVEMENT_FLAGS, true, 0, iRange))
++		if (!generatePath(p, NO_MOVEMENT_FLAGS, true, 0, iRange))
++			continue;
++		/*	<advc.114f> Enter hostile territory only if we can attack straight away
++			or if we'll have moves left for seeking safety */
++		if (getPathFinder().getPathTurns() > 1 &&
++			getPathFinder().getFinalMoves() <= 0)
+ 		{
+-			//iValue = getGroup()->AI_attackOdds(&p, true);
+-			int iValue = AI_getGroup()->AI_getWeightedOdds(&p, false); // K-Mod
+-			//if (iValue >= AI_finalOddsThreshold(&p, iOddsThreshold))
+-			if (iValue >= iOddsThreshold) // K-Mod
++			if (p.isOwned() && GET_TEAM(p.getTeam()).isAtWar(getTeam()))
++				continue;
++			/*	Don't make multi-turn moves in non-hostile territory either
++				if this is a non-lethal group. Can still damage them if and when
++				they come closer. */
++			bool bAnyLethal = false;
++			FOR_EACH_UNIT_IN(pGroupUnit, *getGroup())
+ 			{
+-				if (iValue > iBestValue)
++				if (pGroupUnit->combatLimit() >= 100)
+ 				{
+-					iBestValue = iValue;
+-					pBestPlot = &getPathEndTurnPlot();
++					bAnyLethal = true;
++					break;
+ 				}
+ 			}
++			if (!bAnyLethal)
++				continue;
++		} // </advc.114f>
++		//iValue = getGroup()->AI_attackOdds(&p, true);
++		int iValue = AI_getGroup()->AI_getWeightedOdds(&p, false); // K-Mod
++		//if (iValue >= AI_finalOddsThreshold(&p, iOddsThreshold))
++		if (iValue >= iOddsThreshold && // K-Mod
++			iValue > iBestValue)
++		{
++			iBestValue = iValue;
++			pBestPlot = &getPathEndTurnPlot();
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1898

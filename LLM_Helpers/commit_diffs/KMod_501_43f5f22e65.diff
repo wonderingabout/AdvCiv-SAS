@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 501
+# Commit: 43f5f22e65df9d3fcb3aedcb1aa5b454c9292381
+# History segment: K-Mod history
+# Parent used for diff: 6756c2f43bd2cba64ee9af2f21e57bee6bc5bce1
+# Title: Fixed an original BtS problem which prevented units from executing chained commands when standing near hostile units. (ie. issuing commands while holding shi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvCityAI.cpp
+3	9	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 549298f54..eb00564fe 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9069,7 +9069,8 @@ int CvCityAI::AI_citizenLossCost(int iCitDelta, int iAnger)
+ 	std::partial_sort(job_scores.begin(), job_scores.begin()+iCitDelta, job_scores.end());
+ 	int iAverageScore = ROUND_DIVIDE(iTotalScore, job_scores.size());
+ 
+-	int iTotalFood = getYieldRate(YIELD_FOOD);
++	int iWastedFood = -healthRate();
++	int iTotalFood = getYieldRate(YIELD_FOOD) - iWastedFood;
+ 
+ 	int iScoreLoss = 0;
+ 	int iCost = 0;
+@@ -9083,12 +9084,13 @@ int CvCityAI::AI_citizenLossCost(int iCitDelta, int iAnger)
+ 		int iFoodLoss = kOwner.getGrowthThreshold(getPopulation() - i - 1) * (110 - getMaxFoodKeptPercent()) / 100;
+ 		int iFoodRate = iTotalFood - (iScoreLoss * AI_yieldMultiplier(YIELD_FOOD) * iYields[YIELD_FOOD] + iTotalScore*100-1)/(iTotalScore * 100);
+ 		iFoodRate -= (getPopulation() - i - 1) * GC.getFOOD_CONSUMPTION_PER_POPULATION();
++		iFoodRate += std::max(iWastedFood, i+1);
+ 
+ 		int iRecoveryTurns = iFoodRate > 0 ? (iFoodLoss+iFoodRate-1) / iFoodRate : iFoodLoss * 3 / 2;
+ 		int iCostPerTurn = 0;
+ 		for (int j = 0; j < NUM_YIELD_TYPES; j++)
+ 		{
+-			int y = iYields[j] - (j == YIELD_FOOD ? GC.getFOOD_CONSUMPTION_PER_POPULATION()*job_scores.size() : 0);
++			int y = iYields[j] - (j == YIELD_FOOD ? std::max(iWastedFood, i+1) + GC.getFOOD_CONSUMPTION_PER_POPULATION()*job_scores.size() : 0);
+ 			if (y > 0)
+ 				iCostPerTurn += 4 * y * AI_yieldMultiplier((YieldTypes)j) * kOwner.AI_yieldWeight((YieldTypes)j) / 100;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index e7ba5e30e..4aee3a044 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -536,16 +536,10 @@ void CvSelectionGroup::autoMission()
+ 					}
+ 				}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI, Efficiency                                                                          */
+-/************************************************************************************************/
+ 				//if (bVisibleHuman && GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 1) > 0)
+-				if (bVisibleHuman && GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 1))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/	
++				// K-Mod. I want to allow players to queue actions when in danger without being overruled by this clause.
++				if (bVisibleHuman && GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 1) && headMissionQueueNode()->m_data.iPushTurn != GC.getGameINLINE().getGameTurn())
++				// K-Mod end
+ 				{
+ 					clearMissionQueue();
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3193

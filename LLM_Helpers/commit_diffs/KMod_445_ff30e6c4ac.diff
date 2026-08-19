@@ -1,0 +1,203 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 445
+# Commit: ff30e6c4ace2ef7963b27295b2f99e6f7168141f
+# History segment: K-Mod history
+# Parent used for diff: febffa9a319aff78fa0ccd44d35ec1f32daf0a15
+# Title: Units bumped out of closed borders will now stay in their groups when possible. (This will help the AI to recover when it botches its invasion approach path.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	3	CvGameCoreDLL/CvPlot.cpp
+33	0	CvGameCoreDLL/CvSelectionGroup.cpp
+1	0	CvGameCoreDLL/CvSelectionGroup.h
+3	3	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a4f08d578..481d8ac85 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -793,6 +793,8 @@ void CvPlot::verifyUnitValidPlot()
+ {
+ 	PROFILE_FUNC();
+ 
++	std::vector<std::pair<PlayerTypes, int> > bumped_groups; // K-Mod
++	
+ 	std::vector<CvUnit*> aUnits;
+ 	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 	while (pUnitNode != NULL)
+@@ -821,10 +823,14 @@ void CvPlot::verifyUnitValidPlot()
+ 					{
+ 						if (!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterArea(getTeam(), area())))
+ 						{
+-							if (!pLoopUnit->jumpToNearestValidPlot())
++							if (!pLoopUnit->jumpToNearestValidPlot(true))
+ 							{
+ 								bErased = true;
+ 							}
++							// K-Mod
++							else
++								bumped_groups.push_back(std::make_pair(pLoopUnit->getOwnerINLINE(), pLoopUnit->getGroupID()));
++							// K-Mod end
+ 						}
+ 					}
+ 				}
+@@ -861,10 +867,14 @@ void CvPlot::verifyUnitValidPlot()
+ 							{
+ 								if (!(pLoopUnit->isInvisible(getTeam(), false)))
+ 								{
+-									if (!pLoopUnit->jumpToNearestValidPlot())
++									if (!pLoopUnit->jumpToNearestValidPlot(true))
+ 									{
+ 										bErased = true;
+ 									}
++									// K-Mod
++									else
++										bumped_groups.push_back(std::make_pair(pLoopUnit->getOwnerINLINE(), pLoopUnit->getGroupID()));
++									// K-Mod end
+ 								}
+ 							}
+ 						}
+@@ -882,6 +892,21 @@ void CvPlot::verifyUnitValidPlot()
+ 			}
+ 		}
+ 	}
++
++	// K-Mod
++	// first remove duplicate group numbers
++	std::sort(bumped_groups.begin(), bumped_groups.end());
++	bumped_groups.erase(std::unique(bumped_groups.begin(), bumped_groups.end()), bumped_groups.end());
++	// now divide the broken groups
++	for (size_t i = 0; i < bumped_groups.size(); i++)
++	{
++		CvSelectionGroup* pLoopGroup = GET_PLAYER(bumped_groups[i].first).getSelectionGroup(bumped_groups[i].second);
++		if (pLoopGroup)
++		{
++			pLoopGroup->regroupSeparatedUnits();
++		}
++	}
++	// K-Mod end
+ }
+ 
+ /*
+@@ -918,7 +943,7 @@ void CvPlot::forceBumpUnits()
+ 				{
+ 					if (!(pLoopUnit->isCombat()))
+ 					{
+-						if (!pLoopUnit->jumpToNearestValidPlot(true))
++						if (!pLoopUnit->jumpToNearestValidPlot(true, true))
+ 						{
+ 							bErased = true;
+ 						}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index de3137463..0bf96c429 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4989,6 +4989,39 @@ CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadU
+ 	return pSplitGroup;
+ }
+ 
++// K-Mod
++// If the group has units of different plots, this function will create one new group for each of those plots
++void CvSelectionGroup::regroupSeparatedUnits()
++{
++	const CvUnit* pHeadUnit = getHeadUnit();
++	std::vector<CvSelectionGroup*> new_groups;
++
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
++	FAssert(pHeadUnit || !pUnitNode);
++	while (pUnitNode)
++	{
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++		if (pLoopUnit->plot() != pHeadUnit->plot())
++		{
++			bool bFoundGroup = false;
++			for (size_t i = 0; !bFoundGroup && i < new_groups.size(); i++)
++			{
++				if (pLoopUnit->plot() == new_groups[i]->plot())
++				{
++					pLoopUnit->joinGroup(new_groups[i], true);
++					bFoundGroup = true;
++				}
++			}
++			if (!bFoundGroup)
++			{
++				pLoopUnit->joinGroup(0, true);
++				new_groups.push_back(pLoopUnit->getGroup());
++			}
++		}
++	}
++}
++// K-Mod end
+ 
+ //------------------------------------------------------------------------------------------------
+ // FUNCTION:    CvSelectionGroup::getUnitIndex
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 2c442abf2..db77227b0 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -174,6 +174,7 @@ public:
+ 	void removeUnit(CvUnit* pUnit);
+ 	void mergeIntoGroup(CvSelectionGroup* pSelectionGroup);
+ 	CvSelectionGroup* splitGroup(int iSplitSize, CvUnit* pNewHeadUnit = NULL, CvSelectionGroup** ppOtherGroup = NULL);
++	void regroupSeparatedUnits(); // K-Mod
+ 
+ 	DllExport CLLNode<IDInfo>* deleteUnitNode(CLLNode<IDInfo>* pNode);
+ 	DllExport CLLNode<IDInfo>* nextUnitNode(CLLNode<IDInfo>* pNode) const;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7900180bb..7cab156bb 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3007,8 +3007,8 @@ void CvUnit::move(CvPlot* pPlot, bool bShow)
+ }
+ 
+ // false if unit is killed
+-// K-Mod, 2/jan/11, karadoc - added 'bForceMove' argument to following function
+-bool CvUnit::jumpToNearestValidPlot(bool bForceMove)
++// K-Mod, added bForceMove and bGroup
++bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
+ {
+ 	CvCity* pNearestCity;
+ 	CvPlot* pLoopPlot;
+@@ -3082,7 +3082,7 @@ bool CvUnit::jumpToNearestValidPlot(bool bForceMove)
+ 	bool bValid = true;
+ 	if (pBestPlot != NULL)
+ 	{
+-		setXY(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		setXY(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), bGroup);
+ 	}
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 6de571976..f2562e65c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -110,8 +110,8 @@ public:
+ 	void attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange);
+ 	void fightInterceptor(const CvPlot* pPlot, bool bQuick);
+ 	void move(CvPlot* pPlot, bool bShow);
+-	// K-Mod, 2/jan/11, karadoc - added 'bForceMove' argument to following function
+-	bool jumpToNearestValidPlot(bool bForceMove = false);																																// Exposed to Python
++	// K-Mod added bForceMove and bGroup
++	bool jumpToNearestValidPlot(bool bGroup = false, bool bForceMove = false); // Exposed to Python
+ 
+ 	bool canAutomate(AutomateTypes eAutomate) const;																							// Exposed to Python
+ 	void automate(AutomateTypes eAutomate);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5911

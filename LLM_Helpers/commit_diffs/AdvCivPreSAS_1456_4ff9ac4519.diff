@@ -1,0 +1,1677 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1456
+# Commit: 4ff9ac45196d90fe3a9996df2cfe83e2c904a372
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5a3feb86a0676b57e141bd75e0450a4322b52cc7
+# Title: Misc. bugfixes and tweaks; release candidate (v0.95rc)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/Python/CvMapGeneratorUtil.py
+50	41	Assets/Python/Screens/CvVictoryScreen.py
+9	8	Assets/xml/GameInfo/CIV4EraInfos.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.xml
+8	7	Assets/xml/Text/K-Mod hints.xml
+23	24	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+4	4	CvGameCoreDLL/CvDeal.cpp
+13	6	CvGameCoreDLL/CvFractal.cpp
+135	290	CvGameCoreDLL/CvGame.cpp
+34	25	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvInfos.cpp
+8	2	CvGameCoreDLL/CvPlayer.cpp
+6	7	CvGameCoreDLL/CvPlayerAI.cpp
+22	0	CvGameCoreDLL/CvPlot.cpp
+16	12	CvGameCoreDLL/CvPlot.h
+7	7	CvGameCoreDLL/CvTeam.cpp
+1	3	CvGameCoreDLL/CvTeamAI.cpp
+37	42	CvGameCoreDLL/CvUnitAI.cpp
+5	0	CvGameCoreDLL/CyPlot.cpp
+1	0	CvGameCoreDLL/CyPlot.h
+1	0	CvGameCoreDLL/CyPlotInterface1.cpp
+14	9	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 847fc4319..1b4c11bbe 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -1014,9 +1014,9 @@ invert_heights
+ class TerrainGenerator:
+ 	"If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar. \
+ 	Note that all percentages are approximate, as values have to be roughened to achieve a natural look."
+-	
++	# advc.tsl: Increased tundra and snow latitude by 0.03 each
+ 	def __init__(self, iDesertPercent=32, iPlainsPercent=18,
+-				 fSnowLatitude=0.7, fTundraLatitude=0.6,
++				 fSnowLatitude=0.73, fTundraLatitude=0.63,
+ 				 fGrassLatitude=0.1, fDesertBottomLatitude=0.2,
+ 				 fDesertTopLatitude=0.5, fracXExp=-1,
+ 				 fracYExp=-1, grain_amount=4):
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 127f7b960..c704ceadf 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -934,12 +934,13 @@ class CvVictoryScreen:
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		g = gc.getGame() # advc.003
+ 		#screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod. In multiplayer games, show both the game difficulty and the player difficulty
+-		if activePlayer.getHandicapType() == gc.getGame().getHandicapType():
++		if activePlayer.getHandicapType() == g.getHandicapType():
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		else:
+-			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), gc.getHandicapInfo(activePlayer.getHandicapType()).getText(), localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()), gc.getHandicapInfo(gc.getGame().getHandicapType()).getText(), localText.getText("TXT_KEY_OPTIONS_GAME", ()))
++			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), gc.getHandicapInfo(activePlayer.getHandicapType()).getText(), localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()), gc.getHandicapInfo(g.getHandicapType()).getText(), localText.getText("TXT_KEY_OPTIONS_GAME", ()))
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod end
+ 
+@@ -963,10 +964,16 @@ class CvVictoryScreen:
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, appendText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# </advc.137>
+ 		# advc.004:
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, str(gc.getGame().countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.appendListBoxStringNoUpdate(szSettingsTable, str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(gc.getGame().getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# <advc.251>
++		iStartTurn = g.getStartTurn()
++		if iStartTurn != 0:
++			szTurnDate = CyGameTextMgr().getDateStr(iStartTurn, False, g.getCalendar(), g.getStartYear(), g.getGameSpeedType())
++			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# </advc.251>
++		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# advc.106i
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+@@ -979,12 +986,12 @@ class CvVictoryScreen:
+ 		screen.enableSelect(szOptionsTable, False)
+ 
+ 		for i in range(GameOptionTypes.NUM_GAMEOPTION_TYPES):
+-			if gc.getGame().isOption(i):
++			if g.isOption(i):
+ 				# <advc.104> Handle Aggressive AI below; skip it here.
+ 				if gc.getGameOptionInfo(i).getTextKey() == "TXT_KEY_GAME_OPTION_AGGRESSIVE_AI":
+ 					continue # </advc.104>
+ 				# <advc.250b> Handle Advanced Start options below if SPaH.
+-				isSPaH = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_SPAH)
++				isSPaH = g.isOption(GameOptionTypes.GAMEOPTION_SPAH)
+ 				if isSPaH:
+ 					if gc.getGameOptionInfo(i).getTextKey() == "TXT_KEY_GAME_OPTION_SPAH":
+ 						continue
+@@ -994,9 +1001,9 @@ class CvVictoryScreen:
+ 				# <advc.300> Show earliest turn that barbarians can spawn on
+ 				descr = gc.getGameOptionInfo(i).getDescription()
+ 				if gc.getGameOptionInfo(i).getTextKey() =="TXT_KEY_GAME_OPTION_RAGING_BARBARIANS":
+-					barbStart = gc.getGame().getBarbarianStartTurn()
++					barbStart = g.getBarbarianStartTurn()
+ 					# Stop displaying after some time [Since v0.94: Don't show the start turn at all.]
+-					if False and barbStart + 25 > gc.getGame().getGameTurn():
++					if False and barbStart + 25 > g.getGameTurn():
+ 						descr += "\n\t("
+ 						descr += localText.getText("TXT_KEY_BARB_START", ())
+ 						descr += " " + str(barbStart) + ")"
+@@ -1004,13 +1011,13 @@ class CvVictoryScreen:
+ 				screen.appendListBoxStringNoUpdate(szOptionsTable, descr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# <advc.004> Disabled victory conditions. Some overlap with CvReplayInfo::addSettingsMsg
+ 		for i in range(gc.getNumVictoryInfos()):
+-			if not gc.getGame().isVictoryValid(i):
++			if not g.isVictoryValid(i):
+ 				screen.appendListBoxStringNoUpdate(szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.004>
+ 
+ 		# <advc.104> AI settings
+-		isAggro = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_AGGRESSIVE_AI)
+-		isK = gc.getGame().useKModAI()
++		isAggro = g.isOption(GameOptionTypes.GAMEOPTION_AGGRESSIVE_AI)
++		isK = g.useKModAI()
+ 		displayString = None
+ 		if isAggro and isK:
+ 			displayString = localText.getText("TXT_KEY_GAME_OPTION_AGGRESSIVE_AI",())
+@@ -1020,36 +1027,36 @@ class CvVictoryScreen:
+ 			screen.appendListBoxStringNoUpdate(szOptionsTable, displayString, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.104>
+ 
+-		if (gc.getGame().isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START)):
++		if (g.isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START)):
+ 			if not isSPaH: # advc.250b
+-				szNumPoints = u"%s %d" % (localText.getText("TXT_KEY_ADVANCED_START_POINTS", ()), gc.getGame().getNumAdvancedStartPoints())
++				szNumPoints = u"%s %d" % (localText.getText("TXT_KEY_ADVANCED_START_POINTS", ()), g.getNumAdvancedStartPoints())
+ 			# <advc.250b>
+ 			else:
+-				# Could be done directly in Python, but also need it for advc.106i
+-				szNumPoints = gc.getGame().SPaHPointsForSettingsScreen()
++				# Could be done directly in Python, but I also need it for advc.106i
++				szNumPoints = g.SPaHPointsForSettingsScreen()
+ 			# </advc.250b>
+ 			screen.appendListBoxStringNoUpdate(szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		if gc.getGame().isGameMultiPlayer():
++		if g.isGameMultiPlayer():
+ 			for i in range(gc.getNumMPOptionInfos()):
+-				if (gc.getGame().isMPOption(i)):
++				if (g.isMPOption(i)):
+ 					screen.appendListBoxStringNoUpdate(szOptionsTable, gc.getMPOptionInfo(i).getDescription(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			if gc.getGame().getMaxTurns() > 0:
++			if g.getMaxTurns() > 0:
+ 				# <advc.135d> Based on code in CvGame::setStartTurnYear
+ 				iDefaultEndTurn = 0
+-				for i in range(gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getNumTurnIncrements()):
+-					iDefaultEndTurn += gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getGameTurnInfo(i).iNumGameTurnsPerIncrement;
+-				if gc.getGame().getMaxTurns() != iDefaultEndTurn:
++				for i in range(gc.getGameSpeedInfo(g.getGameSpeedType()).getNumTurnIncrements()):
++					iDefaultEndTurn += gc.getGameSpeedInfo(g.getGameSpeedType()).getGameTurnInfo(i).iNumGameTurnsPerIncrement;
++				if g.getMaxTurns() != iDefaultEndTurn:
+ 				# </advc.135d>
+-					szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), gc.getGame().getMaxTurns())
++					szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), g.getMaxTurns())
+ 					screen.appendListBoxStringNoUpdate(szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			if (gc.getGame().getMaxCityElimination() > 0):
+-				szMaxCityElimination = u"%s %d" % (localText.getText("TXT_KEY_CITY_ELIM_TAG", ()), gc.getGame().getMaxCityElimination())
++			if (g.getMaxCityElimination() > 0):
++				szMaxCityElimination = u"%s %d" % (localText.getText("TXT_KEY_CITY_ELIM_TAG", ()), g.getMaxCityElimination())
+ 				screen.appendListBoxStringNoUpdate(szOptionsTable, szMaxCityElimination, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		if (gc.getGame().hasSkippedSaveChecksum()):
++		if (g.hasSkippedSaveChecksum()):
+ 			screen.appendListBoxStringNoUpdate(szOptionsTable, localText.getText("TXT_KEY_BUFFYWARNING_CHECKSUM_SKIPPED", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		screen.updateListBox(szOptionsTable)
+@@ -1063,7 +1070,7 @@ class CvVictoryScreen:
+ 
+ 		for iLoopPlayer in range(gc.getMAX_CIV_PLAYERS()):
+ 			player = gc.getPlayer(iLoopPlayer)
+-			if (player.isEverAlive() and iLoopPlayer != self.iActivePlayer and (gc.getTeam(player.getTeam()).isHasMet(activePlayer.getTeam()) or gc.getGame().isDebugMode()) and not player.isBarbarian() and not player.isMinorCiv()):
++			if (player.isEverAlive() and iLoopPlayer != self.iActivePlayer and (gc.getTeam(player.getTeam()).isHasMet(activePlayer.getTeam()) or gc.g.isDebugMode()) and not player.isBarbarian() and not player.isMinorCiv()):
+ 				screen.appendListBoxStringNoUpdate(szCivsTable, localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (player.getNameKey(), player.getCivilizationShortDescriptionKey())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 				screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(player.getLeaderType(), player.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 				screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+@@ -1165,19 +1172,6 @@ class CvVictoryScreen:
+ 					bestReligionPercent = religionPercent
+ 					iBestReligion = iLoopReligion
+ 
+-		# Total Culture
+-		ourCulture = activePlayer.getTeam().countTotalCulture()
+-
+-		iBestCultureTeam = -1
+-		bestCulture = 0
+-		for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
+-			if (gc.getTeam(iLoopTeam).isAlive() and not gc.getTeam(iLoopTeam).isMinorCiv() and not gc.getTeam(iLoopTeam).isBarbarian()):
+-				if (iLoopTeam != iActiveTeam and (activePlayer.getTeam().isHasMet(iLoopTeam) or gc.getGame().isDebugMode())):
+-					teamCulture = gc.getTeam(iLoopTeam).countTotalCulture()
+-					if (teamCulture > bestCulture):
+-						bestCulture = teamCulture
+-						iBestCultureTeam = iLoopTeam
+-
+ 		# Vote
+ 		aiVoteBuildingClass = []
+ 		for i in range(gc.getNumBuildingInfos()):
+@@ -1315,7 +1309,22 @@ class CvVictoryScreen:
+ 
+ 				if (victory.getTotalCultureRatio() > 0):
+ 					iRow = screen.appendTableRow(szTable)
+-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (int((100.0 * bestCulture) / victory.getTotalCultureRatio()), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					# <advc.003> Moved down to have this stuff in one place
++					ourCulture = activePlayer.getTeam().countTotalCulture()
++					iBestCultureTeam = -1
++					bestCulture = 0
++					for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
++						if (gc.getTeam(iLoopTeam).isAlive() and not gc.getTeam(iLoopTeam).isMinorCiv() and not gc.getTeam(iLoopTeam).isBarbarian()):
++							if (iLoopTeam != iActiveTeam and (activePlayer.getTeam().isHasMet(iLoopTeam) or gc.getGame().isDebugMode())):
++								teamCulture = gc.getTeam(iLoopTeam).countTotalCulture()
++								if (teamCulture > bestCulture):
++									bestCulture = teamCulture
++									iBestCultureTeam = iLoopTeam
++					# </advc.003>
++					#iCulturePercent = int((100.0 * bestCulture) / victory.getTotalCultureRatio())
++					# advc.004: The above is neither helpful nor really a percentage. Let's simply show the target ratio for now. What's really needed is, I think, the ratio of bestCulture to secondBestCulture, where secondBestCulture is computed w/o checking isHasMet. Or possibly that ratio divided by victory.getTotalCultureRatio (meaning that 100% is needed for victory). 
++					iCulturePercent = victory.getTotalCultureRatio()
++					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (iCulturePercent, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					if (iBestLandTeam != -1):
+
+diff --git a/Assets/xml/GameInfo/CIV4EraInfos.xml b/Assets/xml/GameInfo/CIV4EraInfos.xml
+index febd74464..70eb415d1 100644
+--- a/Assets/xml/GameInfo/CIV4EraInfos.xml
++++ b/Assets/xml/GameInfo/CIV4EraInfos.xml
+@@ -95,7 +95,7 @@
+ 			<iResearchPercent>90</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 0 -->
+ 			<!-- advc.910 -->
+-			<iTechCostModifier>-10</iTechCostModifier>
++			<iTechCostModifier>-11</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+@@ -147,7 +147,8 @@
+ 			<Type>ERA_MEDIEVAL</Type>
+ 			<Description>TXT_KEY_ERA_MEDIEVAL</Description>
+ 			<Strategy>TXT_KEY_ERA_MEDIEVAL_STRATEGY</Strategy>
+-			<bNoGoodies>1</bNoGoodies>
++			<!-- advc.314: was 0 -->
++			<bNoGoodies>0</bNoGoodies>
+ 			<bNoAnimals>1</bNoAnimals>
+ 			<bNoBarbUnits>0</bNoBarbUnits>
+ 			<bNoBarbCities>0</bNoBarbCities>
+@@ -168,7 +169,7 @@
+ 			<iResearchPercent>80</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 4 -->
+ 			<!-- advc.910: was 6 in K-Mod -->
+-			<iTechCostModifier>-3</iTechCostModifier>
++			<iTechCostModifier>-5</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+@@ -243,7 +244,7 @@
+ 			<iResearchPercent>70</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 9 -->
+ 			<!-- advc.910: was 12 in K-Mod -->
+-			<iTechCostModifier>10</iTechCostModifier>
++			<iTechCostModifier>11</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>90</iBuildPercent>
+ 			<iImprovementPercent>90</iImprovementPercent>
+@@ -316,8 +317,8 @@
+ 			<iCreatePercent>80</iCreatePercent>
+ 			<iResearchPercent>60</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 14 -->
+-			<!-- advc.910: was 16 in K-Mod -->
+-			<iTechCostModifier>15</iTechCostModifier>
++			<!-- advc.910: 16 in K-Mod -->
++			<iTechCostModifier>14</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>80</iBuildPercent>
+ 			<iImprovementPercent>80</iImprovementPercent>
+@@ -388,7 +389,7 @@
+ 			<iResearchPercent>50</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
+ 			<!-- advc.910: was 20 in K-Mod -->
+-			<iTechCostModifier>18</iTechCostModifier>
++			<iTechCostModifier>17</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>70</iBuildPercent>
+ 			<iImprovementPercent>70</iImprovementPercent>
+@@ -457,7 +458,7 @@
+ 			<iResearchPercent>40</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
+ 			<!-- advc.910: 18 in K-Mod -->
+-			<iTechCostModifier>18</iTechCostModifier>
++			<iTechCostModifier>17</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>60</iBuildPercent>
+ 			<iImprovementPercent>60</iImprovementPercent>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 770f2a82f..4661fdf36 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -5394,4 +5394,14 @@
+ 		<Spanish>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/turno[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.251 -->
++	<TEXT>
++		<Tag>TXT_KEY_SETTINGS_START_TURN</Tag>
++		<English>Start Turn %d1_Turn (%s2_Year)</English>
++		<French>Tour initial : %d1_Turn (%s2_Year)</French>
++		<German>Start in Runde %d1_Turn (%s2_Year)</German>
++		<Italian>Turno iniziale: %d1_Turn (%s2_Year)</Italian>
++		<Spanish>Turno inicial: %d1_Turn (%s2_Year)</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 2dd36fdce..7b19bb4dc 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -40,11 +40,11 @@
+ 	 reason not to chop. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_3</Tag>
+-	<English>In the late game, forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</English>
+-	<French>In the late game, forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</French>
+-	<German>W�lder und Dschungel helfen gegen Spielende, die Umweltverschmutzung Ihrer Zivilisation auszugleichen. Ziehen Sie in Betracht, sie zu erhalten, um dem Klimawandel entgegenzuwirken.</German>
+-	<Italian>Foreste e giungle aiutano a contrastare l'inquinamento causato dalla tua civilit�. Se non hai necessit� di abbatterle, considera di mantenerle per ridurre gli effetti del riscaldamento globale.</Italian>
+-	<Spanish>Los bosques y las selvas ayudan a compensar la poluci�n causada por tu civilizaci�n. Si no necesitas talarlos, consid�raros para reducir los efectos del calentamiento global.</Spanish>
++	<English>(K-Mod) In the late game, forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</English>
++	<French>(K-Mod) In the late game, forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</French>
++	<German>(K-Mod) W�lder und Dschungel helfen gegen Spielende, die Umweltverschmutzung Ihrer Zivilisation auszugleichen. Ziehen Sie in Betracht, sie zu erhalten, um dem Klimawandel entgegenzuwirken.</German>
++	<Italian>(K-Mod) Foreste e giungle aiutano a contrastare l'inquinamento causato dalla tua civilit�. Se non hai necessit� di abbatterle, considera di mantenerle per ridurre gli effetti del riscaldamento globale.</Italian>
++	<Spanish>(K-Mod) Los bosques y las selvas ayudan a compensar la poluci�n causada por tu civilizaci�n. Si no necesitas talarlos, consid�raros para reducir los efectos del calentamiento global.</Spanish>
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_4</Tag>
+@@ -71,10 +71,11 @@
+ 	<Italian>(K-Mod) Le unit� con la promozione "Leadership" (Grande Generale richiesto) riducono maggiormente le probabilit� di rivolta di una citt�.</Italian>
+ 	<Spanish>(K-Mod) Las unidades con el ascendo de caudillo "liderazgo" reduce enormemente la probabilidad de rebeliones culturales en su ciudad.</Spanish>
+ </TEXT>
++<!-- advc.008c: "grants" instead of "shares". "share to" sounds awkward. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_7</Tag>
+-	<English>(K-Mod) When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</English>
+-	<French>(K-Mod) When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</French>
++	<English>(K-Mod) When a Great General chooses to lead a unit as a warlord, it grants an immediate experience boost to all units in the group. More experience points are given to bigger groups.</English>
++	<French>(K-Mod) When a Great General chooses to lead a unit as a warlord, it grants an immediate experience boost to all units in the group. More experience points are given to bigger groups.</French>
+ 	<German>(K-Mod) Wenn ein Gro�er General sich dazu entschlie�t, eine Einheit als Kriegsherr zu f�hren, teilt er einmalig Erfahrungspunkte mit allen Einheiten der Gruppe. Gr��ere Gruppen erhalten dabei mehr Punkte als kleine.</German>
+ 	<Italian>(K-Mod) Quando un Grande Generale decide di unirsi ad un unit� come Grande Condottiero, distribuisce in immediato aumento di esperienza con tutte le unit� sulla stessa casella. Maggiore lo stack, maggiore l'esperienza.</Italian>
+ 	<Spanish>(K-Mod) Cuando un Gran General elige liderar una unidad como un caudillo, comparte un aumento inmediato de experiencia a todas las unidades en el grupo. M�s puntos de experiencia son dados a grupos m�s grandes.</Spanish>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e1e132f3b..dd0f2808c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8243,34 +8243,32 @@ int CvCity::getDefenseDamage() const
+ 
+ void CvCity::changeDefenseDamage(int iChange)
+ {
+-	if (iChange != 0)
+-	{
+-		m_iDefenseDamage = range((m_iDefenseDamage + iChange), 0, GC.getMAX_CITY_DEFENSE_DAMAGE());
+-
+-		if (iChange > 0)
+-		{
+-			setBombarded(true);
+-		}
+-
+-		setInfoDirty(true);
+-
+-		plot()->plotAction(PUF_makeInfoBarDirty);
+-	}
+-	else setBombarded(true); // advc.004c: Set bombarded if no change.
++	if (iChange == 0)
++		return;
++	m_iDefenseDamage = range((m_iDefenseDamage + iChange), 0, GC.getMAX_CITY_DEFENSE_DAMAGE());
++	if (iChange > 0)
++		setBombarded(true);
++	setInfoDirty(true);
++	plot()->plotAction(PUF_makeInfoBarDirty);
+ }
+ 
+ void CvCity::changeDefenseModifier(int iChange)
+ {
+-	// advc.004c: Want changeDefenseDamage to call setBombarded even if iChange==0
+-	//if (iChange != 0)
+-	{
+-		int iTotalDefense = getTotalDefense(false);
+-
+-		if (iTotalDefense > 0)
+-		{
+-			changeDefenseDamage(-(GC.getMAX_CITY_DEFENSE_DAMAGE() * iChange) / iTotalDefense);
+-		}
++	if(iChange == 0) {
++		setBombarded(true); // advc.004c: Set bombarded even if no change
++		return;
+ 	}
++	int iTotalDefense = getTotalDefense(false);
++	if(iTotalDefense <= 0)
++		return;
++	//changeDefenseDamage(-(GC.getMAX_CITY_DEFENSE_DAMAGE() * iChange) / iTotalDefense);
++	// <advc.004c> Replacing the above
++	int iDefenseDmg = getDefenseDamage();
++	int iDefenseMod = getDefenseModifier(false);
++	iChange = -iDefenseDmg + (GC.getMAX_CITY_DEFENSE_DAMAGE() * iTotalDefense -
++			(iDefenseMod + iChange) * GC.getMAX_CITY_DEFENSE_DAMAGE()) / iTotalDefense;
++	changeDefenseDamage(iChange);
++	// </advc.004c>
+ }
+ 
+ /*  advc.003j (comment): Not currently used (b/c K-Mod has removed AI_finalOddsThreshold).
+@@ -14691,7 +14689,8 @@ void CvCity::getCityBillboardSizeIconColors(NiColorA& kDotColor, NiColorA& kText
+ 	NiColorA kWhite(1,1,1,1);
+ 	NiColorA kBlack(0,0,0,1);
+ 
+-	if (getTeam() == GC.getGameINLINE().getActiveTeam())
++	if (getTeam() == GC.getGameINLINE().getActiveTeam()
++			&& isHuman()) // advc.127
+ 	{
+ 		if (foodDifference() < 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index aa3c2268b..59bd39f2f 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -137,7 +137,7 @@ public:
+ 	int getProductionTurnsLeft(int iProductionNeeded, int iProduction,
+ 			int iFirstProductionDifference, int iProductionDifference) const;
+ 	int sanitizeProductionTurns(int iTurns, OrderTypes eOrder = NO_ORDER,
+-			int iData = -1, bool bAssert = true) const; // advc.004x
++			int iData = -1, bool bAssert = false) const; // advc.004x
+ 	void setProduction(int iNewValue);																			// Exposed to Python
+ 	void changeProduction(int iChange);																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index f2914beba..49d0b9a8f 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -974,11 +974,11 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 			// advc.130j:
+ 			attacked.AI_rememberEvent(eToPlayer, MEMORY_HIRED_WAR_ALLY);
+ 			// <advc.104i> Similar to code in CvTeam::makeUnwillingToTalk
+-			if(attacked.AI_getMemoryCount(eFromPlayer, MEMORY_DECLARED_WAR_RECENT) <= 0)
+-				attacked.AI_changeMemoryCount(eFromPlayer, MEMORY_DECLARED_WAR_RECENT, 1);
++			if(attacked.AI_getMemoryCount(eFromPlayer, MEMORY_DECLARED_WAR_RECENT) < 2)
++				attacked.AI_rememberEvent(eFromPlayer, MEMORY_DECLARED_WAR_RECENT);
+ 			if(::atWar(TEAMID(eToPlayer), attacked.getTeam()) && attacked.
+-					AI_getMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT) <= 0)
+-				attacked.AI_changeMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT, 1);
++					AI_getMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT) < 2)
++				attacked.AI_rememberEvent(eToPlayer, MEMORY_DECLARED_WAR_RECENT);
+ 			// </advc.104i>
+ 		}
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index 56a4b7110..870735fbd 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -4,7 +4,7 @@
+ #include "CvFractal.h"
+ #include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
+-#include "CvGameCoreUtils.h"
++#include "CvInitCore.h" // advc.tsl
+ #include "FProfiler.h"
+ 
+ 
+@@ -114,7 +114,14 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
+ 	{
+ 		FAssertMsg(iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!")
+ 	}
+-
++	/*  <advc.tsl> No easy way to let map scripts set this param because the code
++		that exposes CvFractal (and CvFractal::FracVals) is in the EXE. */
++	int iPolarHeight = 0;
++	if(GC.getInitCore().getMapScriptName().compare(L"Fractal") == 0) {
++		/*  A power of 2 probably has no advantage here, but 64 also happens to work
++			pretty well. The closer to 0 this is set, the wider the polar water bands. */
++		iPolarHeight = (1 << 6);
++	} // </advc.tsl>
+ 	for (int iPass = iSmooth; iPass >= 0; iPass--)
+ 	{
+ 		int iScreen = 0;  // This screens out already marked spots in m_aaiFrac[][];
+@@ -135,8 +142,8 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
+ 		{
+ 			for (iX = 0; iX < m_iFracX + 1; iX++)
+ 			{
+-				m_aaiFrac[iX][   0    ] = 0;
+-				m_aaiFrac[iX][m_iFracY] = 0;
++				m_aaiFrac[iX][   0    ] = iPolarHeight;
++				m_aaiFrac[iX][m_iFracY] = iPolarHeight;
+ 			}
+ 		}
+ 
+@@ -151,8 +158,8 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
+ 		{
+ 			for (iY = 0; iY < m_iFracY + 1; iY++)
+ 			{
+-				m_aaiFrac[   0    ][iY] = 0;
+-				m_aaiFrac[m_iFracX][iY] = 0;
++				m_aaiFrac[   0    ][iY] = iPolarHeight;
++				m_aaiFrac[m_iFracX][iY] = iPolarHeight;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ed83f1d99..527aeebd8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3604,7 +3604,7 @@ int CvGame::countFreeTeamsAlive() const
+ int CvGame::getRecommendedPlayers() const {
+ 
+ 	CvWorldInfo const& wi = GC.getWorldInfo(GC.getMapINLINE().getWorldSize());
+-	return ::range(((-5 * getSeaLevelChange() + 100) * wi.getDefaultPlayers()) / 100,
++	return ::range(((-4 * getSeaLevelChange() + 100) * wi.getDefaultPlayers()) / 100,
+ 			2, MAX_CIV_PLAYERS);
+ }
+ 
+@@ -6406,21 +6406,20 @@ void CvGame::setHolyCity(ReligionTypes eIndex, CvCity* pNewValue, bool bAnnounce
+ 						//(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 				for (int iI = 0; iI < MAX_PLAYERS; iI++)
+-				{	// advc.003:
+-					CvPlayer const& civ = GET_PLAYER((PlayerTypes)iI);
+-					if (civ.isAlive())
++				{
++					CvPlayer const& kObs = GET_PLAYER((PlayerTypes)iI);
++					if (!kObs.isAlive())
++						continue; // advc.003
++					if (pHolyCity->isRevealed(kObs.getTeam(), false)
++							|| kObs.isSpectator()) // advc.127
+ 					{
+-						if (pHolyCity->isRevealed(civ.getTeam(), false)
+-								|| civ.isSpectator()) // advc.127
+-						{
+-							szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED", GC.getReligionInfo(eIndex).getTextKeyWide(), pHolyCity->getNameKey());
+-							gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE(), false, true);
+-						}
+-						else
+-						{
+-							szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN", GC.getReligionInfo(eIndex).getTextKeyWide());
+-							gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+-						}
++						szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED", GC.getReligionInfo(eIndex).getTextKeyWide(), pHolyCity->getNameKey());
++						gDLL->getInterfaceIFace()->addHumanMessage(kObs.getID(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE(), false, true);
++					}
++					else
++					{
++						szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN", GC.getReligionInfo(eIndex).getTextKeyWide());
++						gDLL->getInterfaceIFace()->addHumanMessage(kObs.getID(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, GC.getReligionInfo(eIndex).getSound(), MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 					}
+ 				}
+ 			}
+@@ -7768,7 +7767,7 @@ void CvGame::createBarbarianUnits()
+ 		int iUnowned = 0, iTiles = 0;
+ 		std::vector<Shelf*> shelves; GC.getMap().getShelves(a.getID(), shelves);
+ 		for(size_t i = 0; i < shelves.size(); i++) {
+-			// Shelves also count for land barbarians,
++			// Shelves also count for land barbarians, ...
+ 			iUnowned += shelves[i]->countUnownedPlots();
+ 			iTiles += shelves[i]->size();
+ 		}
+@@ -8058,36 +8057,36 @@ int CvGame::numBarbariansToSpawn(int iTilesPerUnit, int iTiles, int iUnowned,
+ }
+ 
+ // Returns the number of land units spawned (possibly in cargo)
+-int CvGame::spawnBarbarians(int n, CvArea& a, Shelf* shelf,
++int CvGame::spawnBarbarians(int n, CvArea& a, Shelf* pShelf,
+ 		bool bCargoAllowed) {
+ 
+   // </advc.300>
+ 	/* <advc.306> Spawn cargo load before ships. Othwerwise, the newly placed ship
+ 	   would always be an eligible target, and too many ships would carry cargo. */
+-	FAssert(!bCargoAllowed || shelf != NULL);
++	FAssert(!bCargoAllowed || pShelf != NULL);
+ 	int r = 0;
+ 	if(bCargoAllowed) {
+-		CvUnit* cargo = shelf->randomBarbCargoUnit();
+-		if(cargo != NULL) {
+-			UnitAITypes loadAI = UNITAI_ATTACK;
++		CvUnit* pTransport = pShelf->randomBarbCargoUnit();
++		if(pTransport != NULL) {
++			UnitAITypes eLoadAI = UNITAI_ATTACK;
+ 			for(int i = 0; i < 2; i++) {
+-				UnitTypes lut = randomBarbUnit(loadAI, a);
+-				if(lut == NO_UNIT)
++				UnitTypes eLoadUnit = randomBarbUnit(eLoadAI, a);
++				if(eLoadUnit == NO_UNIT)
+ 					break;
+-				CvUnit* load = GET_PLAYER(BARBARIAN_PLAYER).initUnit(
+-						lut, cargo->getX(), cargo->getY(), loadAI);
+-				/*  Don't set cargo to UNITAI_ASSAULT_SEA - that's for medium-/
+-					large-scale invasions, and too laborious to adjust. Instead
+-					add an unload routine to CvUnitAI::barbAttackSeaMove. */
+-				if(load == NULL)
++				CvUnit* pLoadUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(
++						eLoadUnit, pTransport->getX(), pTransport->getY(), eLoadAI);
++				/*  Don't set pTransport to UNITAI_ASSAULT_SEA -- that's for
++					medium-/large-scale invasions, and too laborious to adjust.
++					Instead add an unload routine to CvUnitAI::barbAttackSeaMove. */
++				if(pLoadUnit == NULL)
+ 					break;
+-				load->setTransportUnit(cargo);
++				pLoadUnit->setTransportUnit(pTransport);
+ 				r++;
+ 				/*  Only occasionally spawn two units at once. Prefer the natural
+ 					way, i.e. a ship receiving a second passenger while travelling
+ 					to its target through fog of war. I don't think that happens
+ 					often enough though. */
+-				if(cargo->getCargo() > 1 || ::bernoulliSuccess(0.7, "advc.306"))
++				if(pTransport->getCargo() > 1 || ::bernoulliSuccess(0.7, "advc.306"))
+ 					break;
+ 			}
+ 		}
+@@ -8100,7 +8099,7 @@ int CvGame::spawnBarbarians(int n, CvArea& a, Shelf* shelf,
+         // <advc.300>
+ 		// Reroll twice if the tile has poor yield
+ 		for(int i = 0; i < 3; i++) {
+-			pPlot = randomBarbPlot(a, shelf);
++			pPlot = randomBarbPlot(a, pShelf);
+ 			/*  If we can't find a plot once, we won't find one in a later
+ 				iteration either. */
+ 			if(pPlot == NULL)
+@@ -8119,7 +8118,7 @@ int CvGame::spawnBarbarians(int n, CvArea& a, Shelf* shelf,
+ 				break;
+ 		}
+ 		UnitAITypes ai = UNITAI_ATTACK;
+-		if(shelf != NULL)
++		if(pShelf != NULL)
+ 			ai = UNITAI_ATTACK_SEA;
+ 		// Original code moved into new function:
+ 		UnitTypes ut = randomBarbUnit(ai, a);
+@@ -8478,309 +8477,155 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
+ 	FAssert(eVictory >= 0 && eVictory < GC.getNumVictoryInfos());
+ 	FAssert(eTeam >=0 && eTeam < MAX_CIV_TEAMS);
+ 	FAssert(GET_TEAM(eTeam).isAlive());
+-
+-	bool bValid = isVictoryValid(eVictory);
+-	if (pbEndScore)
+-	{
++	// advc.003: Simplified this function a bit
++	if(pbEndScore != NULL)
+ 		*pbEndScore = false;
+-	}
+-
+-	if (bValid)
+-	{
+-		if (GC.getVictoryInfo(eVictory).isEndScore())
+-		{
+-			if (pbEndScore)
+-			{
+-				*pbEndScore = true;
+-			}
+-
+-			if (getMaxTurns() == 0)
+-			{
+-				bValid = false;
+-			}
+-			else if (getElapsedGameTurns() < getMaxTurns())
+-			{
+-				bValid = false;
+-			}
+-			else
+-			{
+-				bool bFound = false;
+-
+-				for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
+-				{
+-					if (GET_TEAM((TeamTypes)iK).isAlive())
+-					{
+-						if (iK != eTeam)
+-						{
+-							if (getTeamScore((TeamTypes)iK) >= getTeamScore(eTeam))
+-							{
+-								bFound = true;
+-								break;
+-							}
+-						}
+-					}
+-				}
+ 
+-				if (bFound)
+-				{
+-					bValid = false;
+-				}
+-			}
+-		}
+-	}
++	if(!isVictoryValid(eVictory))
++		return false;
+ 
+-	if (bValid)
++	CvVictoryInfo const& kVictory = GC.getVictoryInfo(eVictory);
++	if (kVictory.isEndScore())
+ 	{
+-		if (GC.getVictoryInfo(eVictory).isTargetScore())
+-		{
+-			if (getTargetScore() == 0)
+-			{
+-				bValid = false;
+-			}
+-			else if (getTeamScore(eTeam) < getTargetScore())
+-			{
+-				bValid = false;
+-			}
+-			else
+-			{
+-				bool bFound = false;
++		if (pbEndScore)
++			*pbEndScore = true;
+ 
+-				for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
+-				{
+-					if (GET_TEAM((TeamTypes)iK).isAlive())
+-					{
+-						if (iK != eTeam)
+-						{
+-							if (getTeamScore((TeamTypes)iK) >= getTeamScore(eTeam))
+-							{
+-								bFound = true;
+-								break;
+-							}
+-						}
+-					}
+-				}
++		if (getMaxTurns() == 0 || getElapsedGameTurns() < getMaxTurns())
++			return false;
+ 
+-				if (bFound)
+-				{
+-					bValid = false;
+-				}
+-			}
++		for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
++		{
++			if (GET_TEAM((TeamTypes)iK).isAlive() && iK != eTeam &&
++					getTeamScore((TeamTypes)iK) >= getTeamScore(eTeam))
++				return false;
+ 		}
+ 	}
+-
+-	if (bValid)
++	if (kVictory.isTargetScore())
+ 	{
+-		if (GC.getVictoryInfo(eVictory).isConquest())
+-		{
+-			if (GET_TEAM(eTeam).getNumCities() == 0)
+-			{
+-				bValid = false;
+-			}
+-			else
+-			{
+-				bool bFound = false;
+-
+-				for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
+-				{
+-					if (GET_TEAM((TeamTypes)iK).isAlive())
+-					{
+-						if (iK != eTeam && !GET_TEAM((TeamTypes)iK).isVassal(eTeam))
+-						{
+-							if (GET_TEAM((TeamTypes)iK).getNumCities() > 0)
+-							{
+-								bFound = true;
+-								break;
+-							}
+-						}
+-					}
+-				}
++		if (getTargetScore() == 0 || getTeamScore(eTeam) < getTargetScore())
++			return false;
+ 
+-				if (bFound)
+-				{
+-					bValid = false;
+-				}
+-			}
++		for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
++		{
++			if (GET_TEAM((TeamTypes)iK).isAlive() && iK != eTeam &&
++					getTeamScore((TeamTypes)iK) >= getTeamScore(eTeam))
++				return false;
+ 		}
+-	}
+ 
+-	if (bValid)
++	}
++	CvTeam const& kTeam = GET_TEAM(eTeam);
++	if (kVictory.isConquest())
+ 	{
+-		if (GC.getVictoryInfo(eVictory).isDiploVote())
+-		{
+-			bool bFound = false;
+-
+-			for (int iK = 0; iK < GC.getNumVoteInfos(); iK++)
+-			{
+-				if (GC.getVoteInfo((VoteTypes)iK).isVictory())
+-				{
+-					if (getVoteOutcome((VoteTypes)iK) == eTeam)
+-					{
+-						bFound = true;
+-						break;
+-					}
+-				}
+-			}
++		if (kTeam.getNumCities() == 0)
++			return false;
+ 
+-			if (!bFound)
+-			{
+-				bValid = false;
+-			}
++		bool bFound = false;
++		for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
++		{
++			CvTeam const& kLoopTeam = GET_TEAM((TeamTypes)iK);
++			if (kLoopTeam.isAlive() && iK != eTeam &&
++					!kLoopTeam.isVassal(eTeam) && kLoopTeam.getNumCities() > 0)
++				return false;
+ 		}
+ 	}
+-
+-	if (bValid)
++	if (kVictory.isDiploVote())
+ 	{
+-		if (getAdjustedPopulationPercent(eVictory) > 0)
++		bool bFound = false;
++		for (int iK = 0; iK < GC.getNumVoteInfos(); iK++)
+ 		{
+-			if (100 * GET_TEAM(eTeam).getTotalPopulation() < getTotalPopulation() * getAdjustedPopulationPercent(eVictory))
++			if (GC.getVoteInfo((VoteTypes)iK).isVictory() && getVoteOutcome((VoteTypes)iK) == eTeam)
+ 			{
+-				bValid = false;
++				bFound = true;
++				break;
+ 			}
+ 		}
++		if (!bFound)
++			return false;
+ 	}
+-
+-	if (bValid)
++	if (getAdjustedPopulationPercent(eVictory) > 0)
+ 	{
+-		if (getAdjustedLandPercent(eVictory) > 0)
+-		{
+-			if (100 * GET_TEAM(eTeam).getTotalLand() < GC.getMapINLINE().getLandPlots() * getAdjustedLandPercent(eVictory))
+-			{
+-				bValid = false;
+-			}
+-		}
++		if (100 * kTeam.getTotalPopulation() < getTotalPopulation() *
++				getAdjustedPopulationPercent(eVictory))
++			return false;
+ 	}
+-
+-	if (bValid)
++	if (getAdjustedLandPercent(eVictory) > 0)
+ 	{
+-		if (GC.getVictoryInfo(eVictory).getReligionPercent() > 0)
+-		{
+-			bool bFound = false;
+-
+-			if (getNumCivCities() > (countCivPlayersAlive() * 2))
+-			{
+-				for (int iK = 0; iK < GC.getNumReligionInfos(); iK++)
+-				{
+-					if (GET_TEAM(eTeam).hasHolyCity((ReligionTypes)iK))
+-					{
+-						if (calculateReligionPercent((ReligionTypes)iK) >= GC.getVictoryInfo(eVictory).getReligionPercent())
+-						{
+-							bFound = true;
+-							break;
+-						}
+-					}
+-
+-					if (bFound)
+-					{
+-						break;
+-					}
+-				}
+-			}
+-
+-			if (!bFound)
+-			{
+-				bValid = false;
+-			}
+-		}
++		if (100 * kTeam.getTotalLand() < GC.getMapINLINE().getLandPlots() *
++				getAdjustedLandPercent(eVictory))
++			return false;
+ 	}
+-
+-	if (bValid)
++	if (kVictory.getReligionPercent() > 0)
+ 	{
+-		if ((GC.getVictoryInfo(eVictory).getCityCulture() != NO_CULTURELEVEL) && (GC.getVictoryInfo(eVictory).getNumCultureCities() > 0))
+-		{
+-			int iCount = 0;
+-
+-			for (int iK = 0; iK < MAX_CIV_PLAYERS; iK++)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iK).isAlive())
+-				{
+-					if (GET_PLAYER((PlayerTypes)iK).getTeam() == eTeam)
+-					{
+-						int iLoop;
+-						for (CvCity* pLoopCity = GET_PLAYER((PlayerTypes)iK).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iK).nextCity(&iLoop))
+-						{
+-							if (pLoopCity->getCultureLevel() >= GC.getVictoryInfo(eVictory).getCityCulture())
+-							{
+-								iCount++;
+-							}
+-						}
+-					}
+-				}
+-			}
++		if (getNumCivCities() <= countCivPlayersAlive() * 2)
++			return false;
+ 
+-			if (iCount < GC.getVictoryInfo(eVictory).getNumCultureCities())
++		bool bFound = false;
++		for (int iK = 0; iK < GC.getNumReligionInfos(); iK++)
++		{
++			ReligionTypes eLoopReligion = (ReligionTypes)iK;
++			if (kTeam.hasHolyCity(eLoopReligion) &&
++					calculateReligionPercent(eLoopReligion) >=
++					kVictory.getReligionPercent())
+ 			{
+-				bValid = false;
++				bFound = true;
++				break;
+ 			}
+ 		}
++		if (!bFound)
++			return false;
+ 	}
+-
+-	if (bValid)
++	if (kVictory.getCityCulture() != NO_CULTURELEVEL &&
++			kVictory.getNumCultureCities() > 0)
+ 	{
+-		if (GC.getVictoryInfo(eVictory).getTotalCultureRatio() > 0)
++		int iCount = 0;
++		for (int iK = 0; iK < MAX_CIV_PLAYERS; iK++)
+ 		{
+-			int iThreshold = ((GET_TEAM(eTeam).countTotalCulture() * 100) / GC.getVictoryInfo(eVictory).getTotalCultureRatio());
+-
+-			bool bFound = false;
+-
+-			for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
+-			{
+-				if (GET_TEAM((TeamTypes)iK).isAlive())
+-				{
+-					if (iK != eTeam)
+-					{
+-						if (GET_TEAM((TeamTypes)iK).countTotalCulture() > iThreshold)
+-						{
+-							bFound = true;
+-							break;
+-						}
+-					}
+-				}
+-			}
+-
+-			if (bFound)
++			CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)iK);
++			if (!kLoopPlayer.isAlive() || kLoopPlayer.getTeam() != eTeam)
++				continue;
++			int iLoop;
++			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL;
++					pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 			{
+-				bValid = false;
++				if (pLoopCity->getCultureLevel() >= kVictory.getCityCulture())
++					iCount++;
+ 			}
+ 		}
++		if (iCount < kVictory.getNumCultureCities())
++			return false;
+ 	}
+-
+-	if (bValid)
++	if (kVictory.getTotalCultureRatio() > 0)
+ 	{
+-		for (int iK = 0; iK < GC.getNumBuildingClassInfos(); iK++)
++		int iThreshold = (kTeam.countTotalCulture() * 100) /
++				kVictory.getTotalCultureRatio();
++		for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
+ 		{
+-			if (GC.getBuildingClassInfo((BuildingClassTypes) iK).getVictoryThreshold(eVictory) > GET_TEAM(eTeam).getBuildingClassCount((BuildingClassTypes)iK))
+-			{
+-				bValid = false;
+-				break;
+-			}
++			CvTeam const& kLoopTeam = GET_TEAM((TeamTypes)iK);
++			if (kLoopTeam.isAlive() && iK != eTeam &&
++					kLoopTeam.countTotalCulture() > iThreshold)
++				return false;
+ 		}
+ 	}
+-
+-	if (bValid)
++	for (int iK = 0; iK < GC.getNumBuildingClassInfos(); iK++)
+ 	{
+-		for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
+-		{
+-			if (GC.getProjectInfo((ProjectTypes) iK).getVictoryMinThreshold(eVictory) > GET_TEAM(eTeam).getProjectCount((ProjectTypes)iK))
+-			{
+-				bValid = false;
+-				break;
+-			}
+-		}
++		BuildingClassTypes eLoopClass = (BuildingClassTypes)iK;
++		if (GC.getBuildingClassInfo(eLoopClass).getVictoryThreshold(eVictory) >
++				kTeam.getBuildingClassCount(eLoopClass))
++			return false;
+ 	}
+-
+-	if (bValid)
++	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
+ 	{
+-		long lResult = 1;
+-		CyArgsList argsList;
+-		argsList.add(eVictory);
+-		gDLL->getPythonIFace()->callFunction(PYGameModule, "isVictory", argsList.makeFunctionArgs(), &lResult);
+-		if (0 == lResult)
+-		{
+-			bValid = false;
+-		}
++		ProjectTypes eLoopProject = (ProjectTypes)iK;
++		if (GC.getProjectInfo(eLoopProject).getVictoryMinThreshold(eVictory) >
++				kTeam.getProjectCount(eLoopProject))
++			return false;
+ 	}
+-
+-	return bValid;
++	long lResult = 1; // advc.003b: Disable this callback unless enabled through XML?
++	CyArgsList argsList; argsList.add(eVictory);
++	gDLL->getPythonIFace()->callFunction(PYGameModule, "isVictory", argsList.makeFunctionArgs(), &lResult);
++	if (lResult == 0)
++		return false;
++	return true;
+ }
+ 
+ void CvGame::testVictory()
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index ce5bd4585..250a3cb53 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2571,15 +2571,15 @@ int teamStepValid_advc(FAStarNode* parent, FAStarNode* node, int data,
+ 	if(parent == NULL)
+ 		return TRUE;
+ 	CvMap const& m = GC.getMapINLINE();
+-	CvPlot* pNewPlot = m.plotSorenINLINE(node->m_iX, node->m_iY);
+-	if(pNewPlot->isImpassable())
++	CvPlot const& kToPlot = *m.plotSorenINLINE(node->m_iX, node->m_iY);
++	if(kToPlot.isImpassable())
+ 		return FALSE;
+-	CvPlot* pFromPlot = m.plotSorenINLINE(parent->m_iX, parent->m_iY);
+-	if(pFromPlot->isWater() && pNewPlot->isWater() &&
++	CvPlot const& kFromPlot = *m.plotSorenINLINE(parent->m_iX, parent->m_iY);
++	if(kFromPlot.isWater() && kToPlot.isWater() &&
+ 			!m.plotINLINE(parent->m_iX, node->m_iY)->isWater() &&
+ 			!m.plotINLINE(node->m_iX, parent->m_iY)->isWater())
+ 		return FALSE;
+-	TeamTypes ePlotTeam = pNewPlot->getTeam();
++	TeamTypes ePlotTeam = kToPlot.getTeam();
+ 	int* v = (int*)pointer;
+ 	int iMaxPath = v[5];
+ 	/*  As far as I understand the code, node (the pToPlot) is still set to 0
+@@ -2589,29 +2589,34 @@ int teamStepValid_advc(FAStarNode* parent, FAStarNode* node, int data,
+ 	if(iMaxPath > 0 && (parent->m_iHeuristicCost + parent->m_iKnownCost > iMaxPath ||
+ 			node->m_iHeuristicCost + node->m_iKnownCost > iMaxPath))
+ 		return FALSE;
+-	TeamTypes eTeam = (TeamTypes)v[0];
++	TeamTypes eTeam = (TeamTypes)v[0]; // The team that computes the path
+ 	TeamTypes eTargetTeam = (TeamTypes)v[1];
+-	DomainTypes dom = (DomainTypes)v[2];
+-	if(dom == NO_DOMAIN)
+-		dom = DOMAIN_LAND;
++	DomainTypes eDom = (DomainTypes)v[2];
++	if(eDom == NO_DOMAIN)
++		eDom = DOMAIN_LAND;
+ 	// Check domain legality:
+-	if(dom == DOMAIN_LAND && pNewPlot->isWater())
++	if(eDom == DOMAIN_LAND && kToPlot.isWater())
+ 		return FALSE;
+-	bool coastalCity = pNewPlot->isCity(true) && pNewPlot->isCoastalLand();
++	/*  <advc.033> Naval blockades (Barbarian eTeam) are allowed to reach a city
++		but mustn't pass through */
++	if(eTeam == BARBARIAN_TEAM && eDom != DOMAIN_LAND && kFromPlot.isCity() &&
++			kFromPlot.getTeam() != BARBARIAN_TEAM)
++		return FALSE; // </advc.033>
++	bool bCoastalCity = kToPlot.isCity(true) && kToPlot.isCoastalLand();
+ 	// Use DOMAIN_IMMOBILE to encode sea units with impassable terrain
+-	bool impassableTerrain = false;
+-	if(dom == DOMAIN_IMMOBILE) {
+-		impassableTerrain = true;
+-		dom = DOMAIN_SEA;
++	bool bImpassableTerrain = false;
++	if(eDom == DOMAIN_IMMOBILE) {
++		bImpassableTerrain = true;
++		eDom = DOMAIN_SEA;
+ 	}
+-	if(dom == DOMAIN_SEA && !coastalCity && !pNewPlot->isWater() &&
++	if(eDom == DOMAIN_SEA && !bCoastalCity && !kToPlot.isWater() &&
+ 			// Allow non-city land tile as cargo destination
+-			(pNewPlot->getX_INLINE() != v[3] || pNewPlot->getY_INLINE() != v[4]))
++			(kToPlot.getX_INLINE() != v[3] || kToPlot.getY_INLINE() != v[4]))
+ 		return FALSE;
+-	/*  This handles only Coast, and no other terrain types that a mod might make
+-		impassable. */
+-	if(!coastalCity && ePlotTeam != eTeam && impassableTerrain &&
+-			pNewPlot->getTerrainType() != (TerrainTypes)(GC.getDefineINT("SHALLOW_WATER_TERRAIN")))
++	/*  This handles only Coast and no other terrain types that a mod might make
++		impassable */
++	if(!bCoastalCity && ePlotTeam != eTeam && bImpassableTerrain &&
++			kToPlot.getTerrainType() != (TerrainTypes)(GC.getDefineINT("SHALLOW_WATER_TERRAIN")))
+ 		return FALSE;
+ 	// Don't check isRevealed; caller ensures that destination city is deducible.
+ 	if(ePlotTeam == NO_TEAM)
+@@ -2619,10 +2624,14 @@ int teamStepValid_advc(FAStarNode* parent, FAStarNode* node, int data,
+ 	if(GET_TEAM(ePlotTeam).getMasterTeam() == GET_TEAM(eTargetTeam).getMasterTeam())
+ 		return TRUE;
+ 	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+-	if(kTeam.isFriendlyTerritory(ePlotTeam) ||
+-			/*  A war plan isn't enough; war against eTargetTeam could replace
+-				that plan. */
+-			kTeam.isAtWar(ePlotTeam) || kTeam.isOpenBorders(ePlotTeam))
++	if(kTeam.isFriendlyTerritory(ePlotTeam) || kTeam.isOpenBorders(ePlotTeam))
++		return TRUE;
++	// A war plan isn't enough; war against eTargetTeam could supplant that plan.
++	if(kTeam.isAtWar(ePlotTeam) &&
++			/*  Units can't just move through an enemy city, but they can conquer
++				it. Even ships can when part of a naval assault. They can't really
++				conquer forts though. */
++			(eDom == DOMAIN_LAND || !bCoastalCity || kToPlot.isCity()))
+ 		return TRUE;
+ 	return FALSE;
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 473f71969..070eeeef6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16006,7 +16006,8 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 		}
+ 	} // <advc.sha>
+ 	if(!bConstCache && bSHowHiddenAttitude && iTotal != iTotalCached &&
+-			!g.isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !g.isNetworkMultiPlayer()) {
++			!g.isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !g.isNetworkMultiPlayer() &&
++			!g.isDebugMode()) {
+ 		FAssertMsg(iTotal == iTotalCached, "Attitude cache out of date");
+ 		kPlayer.AI_updateAttitudeCache(eTargetPlayer, true);
+ 		// Try again, this time without recursion. szBuffer hasn't been changed yet.
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 1a785ecaa..aebb152c2 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -14665,7 +14665,7 @@ int CvLeaderHeadInfo::getMemoryDecayRand(int i) const
+ 		return -1;
+ 	// The "clean" approach would be to set this 52 times in LeaderHead XML
+ 	if(i == MEMORY_DECLARED_WAR_RECENT && m_piMemoryDecayRand[i] == 0)
+-		return 22;
++		return 11;
+ 	return m_piMemoryDecayRand[i]; // </advc.104i>
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c946b9163..f8e80b23b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2248,6 +2248,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	int iOccupationTimer = pOldCity->getOccupationTimer();
+ 	szName = pOldCity->getNameKey();
+ 	int iDamage = pOldCity->getDefenseDamage();
++	bool bBombarded = pOldCity->isBombarded(); // advc.004c
+ 	int iOldCityId = pOldCity->getID();
+ 	std::vector<int> aeFreeSpecialists;
+ 	for (iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
+@@ -2404,6 +2405,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 			false, true); // advc.106k
+ 	pNewCity->setNeverLost(false);
+ 	pNewCity->changeDefenseDamage(iDamage);
++	/*  advc.004c: The above will set the city as bombarded if iDamage>0.
++		But iDamage>0 doesn't imply that the city was recently bombarded. */
++	pNewCity->setBombarded(bBombarded);
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+@@ -12586,8 +12590,10 @@ bool CvPlayer::setCommercePercent(CommerceTypes eIndex, int iNewValue, bool bFor
+ 		gDLL->getInterfaceIFace()->setDirty(Espionage_Advisor_DIRTY_BIT, true);
+ 		// Redraw +/- buttons if espionage set to 0
+ 		gDLL->getInterfaceIFace()->setDirty(PercentButtons_DIRTY_BIT, true);
+-		/*  Caveat: For some reason, the order of these two calls matters.
+-			The espionage bit needs to be set first. */
++		/*  There seems to be some sort of race condition here. Occasionally
++			(rarely?), the espionage screen isn't correctly updated when the
++			slider goes from 0 to 10. Also, the order of these two setDirty calls
++			seems to matter. Dirtying the Espionage_Advisor first works better. */
+ 		// </advc.120c>
+ 	}
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2e8bf76de..63d21a730 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2409,7 +2409,7 @@ int CvPlayerAI::AI_yieldWeight(YieldTypes eYield, const CvCity* pCity) const //
+ 		// </advc.110>
+ 		break;
+ 	case YIELD_PRODUCTION:
+-		iWeight *= 210; // advc.110: 270 in K-Mod, 200 in BtS
++		iWeight *= 220; // advc.110: 270 in K-Mod, 200 in BtS
+ 		iWeight /= 100;
+ 		// <advc.110>
+ 		if(!canPopRush())
+@@ -9289,7 +9289,6 @@ void CvPlayerAI::AI_updateAttitudeCache(PlayerTypes ePlayer,
+ 		bool bUpdateWorstEnemy) // advc.130e
+ {
+ 	PROFILE_FUNC();
+-
+ 	FAssert(ePlayer >= 0 && ePlayer < MAX_PLAYERS);
+ 	FAssert(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian()); // advc.003n
+ 	const CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+@@ -22173,9 +22172,9 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes humanId, int tributeType) {
+ 		break; // <advc.104m> New: demand gpt
+ 	} case 4: {
+ 		int gpt = (human.AI_getAvailableIncome() -
+-				human.calculateInflatedCosts()) / 10;
++				human.calculateInflatedCosts()) / 5;
+ 		int mod = GC.getDIPLOMACY_VALUE_REMAINDER();
+-		if(gpt >= mod) {
++		if(gpt >= 2 * mod) {
+ 			gpt -= gpt % mod;
+ 			setTradeItem(&item, TRADE_GOLD_PER_TURN, gpt);
+ 			if(human.canTradeItem(getID(), item))
+@@ -22441,9 +22440,9 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	// <advc.079>
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 		pStream->Write(m_aeLastBrag[i]);
+-		pStream->Write(m_aeLastWarn[i]); // </advc.079>
+-		pStream->Write(m_abTheyFarAhead[i]); // advc.130c
+-	} 
++		pStream->Write(m_aeLastWarn[i]);
++	} // </advc.079>
++	pStream->Write(MAX_CIV_PLAYERS, m_abTheyFarAhead); // advc.130c
+ 	// K-Mod. save the attitude cache. (to avoid OOS problems)
+ 	pStream->Write(MAX_PLAYERS, &m_aiAttitudeCache[0]); // uiFlag >= 4
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9d85df923..6ac7087e1 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -198,6 +198,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ 	m_iMinOriginalStartDist = -1;
+ 	m_iReconCount = 0;
+ 	m_iRiverCrossingCount = 0;
++	m_iLatitude = -1; // advc.tsl
+ 
+ 	m_bStartingPlot = false;
+ 	m_bHills = false;
+@@ -247,6 +248,9 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ 	m_iTurnsBuildsInterrupted = -2; // advc.011: Meaning none in progress
+ 	m_szMostRecentCityName = ""; // advc.005c
+ 	m_iTotalCulture = 0; // advc.003b
++	// <advc.tsl>
++	if(!bConstructorCall)
++		m_iLatitude = calculateLatitude(); // </advc.tsl>
+ }
+ 
+ 
+@@ -4327,8 +4331,20 @@ bool CvPlot::at(int iX, int iY) const
+ 	return ((getX_INLINE() == iX) && (getY_INLINE() == iY));
+ }
+ 
++// <advc.tsl>
++void CvPlot::setLatitude(int iLatitude) {
++
++	m_iLatitude = iLatitude;
++} // </advc.tsl>
++
+ 
+ int CvPlot::getLatitude() const
++{
++	return m_iLatitude; // advc.tsl
++}
++
++// advc.tsl: was getLatitude()
++int CvPlot::calculateLatitude() const
+ {
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       07/12/09                       Temudjin & jdog5000    */
+@@ -8980,6 +8996,10 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iMinOriginalStartDist);
+ 	pStream->Read(&m_iReconCount);
+ 	pStream->Read(&m_iRiverCrossingCount);
++	// <advc.tsl>
++	if(uiFlag >= 3)
++		pStream->Read(&m_iLatitude);
++	else m_iLatitude = calculateLatitude(); // </advc.tsl>
+ 
+ 	pStream->Read(&bVal);
+ 	m_bStartingPlot = bVal;
+@@ -9225,6 +9245,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.035
+ 	uiFlag = 2; // advc.003b
++	uiFlag = 3; // advc.tsl
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iX);
+@@ -9241,6 +9262,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iMinOriginalStartDist);
+ 	pStream->Write(m_iReconCount);
+ 	pStream->Write(m_iRiverCrossingCount);
++	pStream->Write(m_iLatitude); // advc.tsl
+ 
+ 	pStream->Write(m_bStartingPlot);
+ 	pStream->Write(m_bHills);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 1e1baa4c6..b4e98dd19 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -285,6 +285,7 @@ public:
+ #endif
+ 	bool at(int iX, int iY) const;																																		// Exposed to Python
+ 	int getLatitude() const;																																					// Exposed to Python
++	void setLatitude(int iLatitude); // advc.tsl	(exposed to Python)
+ 	int getFOWIndex() const;
+ 
+ 	CvArea* area() const;																																							// Exposed to Python
+@@ -615,18 +616,20 @@ protected:
+ 	short m_iMinOriginalStartDist;
+ 	short m_iReconCount;
+ 	short m_iRiverCrossingCount;
+-
+-	bool m_bStartingPlot:1;
+-	bool m_bHills:1;
+-	bool m_bNOfRiver:1;
+-	bool m_bWOfRiver:1;
+-	bool m_bIrrigated:1;
+-	bool m_bPotentialCityWork:1;
+-	bool m_bShowCitySymbols:1;
+-	bool m_bFlagDirty:1;
+-	bool m_bPlotLayoutDirty:1;
+-	bool m_bLayoutStateWorked:1;
+-
++	short m_iLatitude; // advc.tsl
++	/*  <advc.003b> These were bitfields (e.g. 'bool m_bStartingPlot:1;').
++		I doubt that this is a good memory/speed tradeoff on modern hardware. */
++	bool m_bStartingPlot;
++	bool m_bHills; // (unused; m_ePlotType says whether it's a hill)
++	bool m_bNOfRiver;
++	bool m_bWOfRiver;
++	bool m_bIrrigated;
++	bool m_bPotentialCityWork;
++	bool m_bShowCitySymbols;
++	bool m_bFlagDirty;
++	bool m_bPlotLayoutDirty;
++	bool m_bLayoutStateWorked;
++	// </advc.003b>
+ 	char /*PlayerTypes*/ m_eOwner;
+ 	short /*PlotTypes*/ m_ePlotType;
+ 	short /*TerrainTypes*/ m_eTerrainType;
+@@ -698,6 +701,7 @@ protected:
+ 	void doCulture();
+ 
+ 	void processArea(CvArea* pArea, int iChange);
++	int calculateLatitude() const; // advc.tsl
+ 	void doImprovementUpgrade();
+ 	// <advc.099b>
+ 	void doCultureDecay();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 950a294bc..2bd2ad535 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -7828,24 +7828,24 @@ void CvTeam::makeUnwillingToTalk(TeamTypes otherId) {
+ 				(!ourMember.isHuman() && ourMember.getID() != getLeaderID()))
+ 			continue;
+ 		for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
+-			CvPlayer& theirMember = GET_PLAYER((PlayerTypes)j);
++			CvPlayerAI& theirMember = GET_PLAYER((PlayerTypes)j);
+ 			if(!theirMember.isAlive() || theirMember.getTeam() != otherId ||
+ 					(!theirMember.isHuman() && theirMember.getID() !=
+ 					GET_TEAM(otherId).getLeaderID()))
+ 				continue;
+ 			if(!ourMember.isHuman() &&
+ 					ourMember.AI_getMemoryCount(theirMember.getID(),
+-					MEMORY_DECLARED_WAR_RECENT) <= 0) {
+-				ourMember.AI_changeMemoryCount(theirMember.getID(),
+-						MEMORY_DECLARED_WAR_RECENT, 1);
++					MEMORY_DECLARED_WAR_RECENT) < 2) {
++				ourMember.AI_rememberEvent(theirMember.getID(),
++						MEMORY_DECLARED_WAR_RECENT);
+ 			}
+ 			/*  Memory has no effect on humans. Make the other side unwilling then.
+ 				Could simply always make both sides unwilling, but then, the
+ 				expected RTT duration would become longer. */
+ 			else if(ourMember.isHuman() && theirMember.AI_getMemoryCount(
+-					ourMember.getID(), MEMORY_DECLARED_WAR_RECENT) <= 0) {
+-				theirMember.AI_changeMemoryCount(ourMember.getID(),
+-						MEMORY_DECLARED_WAR_RECENT, 1);
++					ourMember.getID(), MEMORY_DECLARED_WAR_RECENT) < 2) {
++				theirMember.AI_rememberEvent(ourMember.getID(),
++						MEMORY_DECLARED_WAR_RECENT);
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 7ffcf29f8..9920d1224 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -175,9 +175,7 @@ void CvTeamAI::AI_doTurnPre()
+ 			WarAndPeaceAI::Team::doWar requires the members to be up-to-date. */
+ 		wpai.turnPre();
+ 	} // </advc.104>
+-	/*  <advc.130n> Game turn increment can affect attitudes now. Might also be
+-		a good idea in general to update before a human turn. Outdated attitude cache
+-		doesn't really hurt, it just confuses humans. */
++	// <advc.130n> Game turn increment can affect attitudes now
+ 	if(isHuman()) {
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 			CvPlayerAI& civ = GET_PLAYER((PlayerTypes)i);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 57cf37205..deb15cf62 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6530,32 +6530,6 @@ void CvUnitAI::AI_workerSeaMove()
+ void CvUnitAI::AI_barbAttackSeaMove()
+ {
+ 	PROFILE_FUNC();
+-
+-	/* original BTS code
+-	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0)
+-	{
+-		if (AI_pillageRange(1))
+-		{
+-			return;
+-		}
+-	}
+-
+-	if (AI_anyAttack(2, 25))
+-	{
+-		return;
+-	}
+-
+-	if (AI_pillageRange(4))
+-	{
+-		return;
+-	}
+-
+-	if (AI_heal())
+-	{
+-		return;
+-	}
+-	*/
+-
+ 	// <advc.306> Assault mode until cargo delivered
+ 	if(hasCargo()) {
+ 		// Opportunistic attack on Worker or empty city
+@@ -6571,6 +6545,17 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 		}
+ 	} // </advc.306>
+ 
++	/* original BTS code
++	if (GC.getGameINLINE().getSorenRandNum(2, "AI Barb") == 0) {
++		if (AI_pillageRange(1))
++			return;
++	}
++	if (AI_anyAttack(2, 25))
++		return;
++	if (AI_pillageRange(4))
++		return;
++	if (AI_heal())
++		return;*/
+ 	// K-Mod
+ 	if (AI_anyAttack(1, 51)) // safe attack
+ 		return;
+@@ -14591,20 +14576,30 @@ bool CvUnitAI::AI_protect(int iOddsThreshold, int iFlags, int iMaxPathTurns)
+ bool CvUnitAI::AI_patrol() // advc.003: refactored
+ {
+ 	PROFILE_FUNC();
+-
+-	int iBestValue = 0;
+-	CvPlot* pBestPlot = NULL;
+-	// <advc.102>
++	// <advc.102> Only patrol near own territory
++	if(!isBarbarian()) {
++		bool bFound = false;
++		CvPlayer const& kOwner = GET_PLAYER(getOwnerINLINE()); int foo;
++		for(CvCity* pCity = kOwner.firstCity(&foo); pCity != NULL; pCity = kOwner.nextCity(&foo)) {
++			if(::plotDistance(pCity->plot(), plot()) <= 10) {
++				bFound = true;
++				break;
++			}
++		}
++		if(!bFound)
++			return false;
++	}
+ 	CvPlot* pFacedPlot = plotDirection(getX_INLINE(), getY_INLINE(),
+ 			getFacingDirection(true));
+ 	int iFacedX = -100, iFacedY = -100;
+-	if(pFacedPlot != NULL)
+-	{
++	if(pFacedPlot != NULL) {
+ 		iFacedX = pFacedPlot->getX_INLINE();
+ 		iFacedY = pFacedPlot->getY_INLINE();
+ 	} // </advc.102>
+ 	CvGame& g = GC.getGameINLINE();
+ 
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
+ 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 	{
+ 		CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)iI);
+@@ -14685,16 +14680,13 @@ bool CvUnitAI::AI_patrol() // advc.003: refactored
+ 			FAssert(!atPlot(pBestPlot));
+ 		}
+ 	}
++	if(pBestPlot == NULL)
++		return false;
+ 
+-	if(pBestPlot != NULL)
+-	{
+-		FAssert(!atPlot(pBestPlot));
+-		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(),
+-				0, false, false, MISSIONAI_PATROL);
+-		return true;
+-	}
+-
+-	return false;
++	FAssert(!atPlot(pBestPlot));
++	getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(),
++			0, false, false, MISSIONAI_PATROL);
++	return true;
+ }
+ 
+ 
+@@ -18294,7 +18286,10 @@ bool CvUnitAI::AI_transportGoTo(CvPlot* pEndTurnPlot, CvPlot* pTargetPlot, int i
+ 	}
+ 	else
+ 	{
+-		if (getGroup()->isAmphibPlot(pTargetPlot))
++		if (getGroup()->isAmphibPlot(pTargetPlot)
++				/*  advc.306: Allow Barbarians to unload in their own cities when
++					they're unable to reach any civs. */
++				|| (isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_SEA))
+ 		{
+ 			// If target is actually an amphibious landing from pEndTurnPlot, then set pEndTurnPlot = pTargetPlot so that we can land this turn.
+ 			if (pTargetPlot != pEndTurnPlot && stepDistance(pTargetPlot, pEndTurnPlot) == 1)
+
+diff --git a/CvGameCoreDLL/CyPlot.cpp b/CvGameCoreDLL/CyPlot.cpp
+index b5dda7b5c..1c4725a1a 100644
+--- a/CvGameCoreDLL/CyPlot.cpp
++++ b/CvGameCoreDLL/CyPlot.cpp
+@@ -457,6 +457,11 @@ bool CyPlot::at(int iX, int iY)
+ {
+ 	return m_pPlot ? m_pPlot->at(iX, iY) : false;
+ }
++// <advc.tsl>
++void CyPlot::setLatitude(int iLatitude) {
++	if(m_pPlot != NULL)
++		m_pPlot->setLatitude(iLatitude);
++} // </advc.tsl>
+ 
+ int CyPlot::getLatitude()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlot.h b/CvGameCoreDLL/CyPlot.h
+index 348cdc180..5b7002086 100644
+--- a/CvGameCoreDLL/CyPlot.h
++++ b/CvGameCoreDLL/CyPlot.h
+@@ -125,6 +125,7 @@ public:
+ 	int getX();
+ 	int getY();
+ 	bool at(int iX, int iY);
++	void setLatitude(int iLatitude); // advc.tsl
+ 	int getLatitude();
+ 	CyArea* area();
+ 	CyArea* waterArea();
+
+diff --git a/CvGameCoreDLL/CyPlotInterface1.cpp b/CvGameCoreDLL/CyPlotInterface1.cpp
+index a9b6ac772..ff797fb66 100644
+--- a/CvGameCoreDLL/CyPlotInterface1.cpp
++++ b/CvGameCoreDLL/CyPlotInterface1.cpp
+@@ -121,6 +121,7 @@ void CyPlotPythonInterface1(python::class_<CyPlot>& x)
+ 		.def("getX", &CyPlot::getX, "int ()")
+ 		.def("getY", &CyPlot::getY, "int ()")
+ 		.def("at", &CyPlot::at, "bool (int iX, int iY)")
++		.def("setLatitude", &CyPlot::setLatitude, "void (int)") // advc.tsl
+ 		.def("getLatitude", &CyPlot::getLatitude, "int ()")
+ 		.def("area", &CyPlot::area, python::return_value_policy<python::manage_new_object>(), "CyArea* ()")
+ 		.def("waterArea", &CyPlot::waterArea, python::return_value_policy<python::manage_new_object>(), "CyArea* ()")
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index cbf2b84eb..d45789360 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3418,19 +3418,24 @@ void FairPlay::evaluate() {
+ 	if(!powerTechFound)
+ 		return;*/
+ 	/*  Actually, never mind checking for starting tech. Don't want early rushes
+-		on low difficulty either, and on King, the AI doesn't get Archery, but
+-		lots of other freebies. */
+-	int trainPercent = GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent();
+-	if(trainPercent <= 0) {
+-		FAssert(trainPercent > 0);
++		on low difficulty either. */
++	EraTypes startEra = g.getStartEra();
++	int trainMod = GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent() *
++			GC.getEraInfo(startEra).getTrainPercent();
++	if(trainMod <= 0) {
++		FAssert(trainMod > 0);
+ 		return;
+ 	}
+-	int t = ::round(g.getElapsedGameTurns() / (trainPercent / 100.0));
++	int t = ::round(g.getElapsedGameTurns() / (trainMod / 10000.0));
++	double uMinus = 0;
+ 	/*  All bets off by turn 100, but, already by turn 50, the cost may
+ 		no longer be prohibitive. */
+-	double uMinus = std::pow((100 - t) / 2.0, 1.28);
+-	if(gameEra > 0) // The above only matters in the Ancient era
+-		uMinus = 0;
++	int iTurnsRemaining = 100 - t - GC.getEraInfo(startEra).getStartPercent();
++	if(iTurnsRemaining > 0) {
++		uMinus = std::pow(iTurnsRemaining / 2.0, 1.28);
++		if(gameEra != startEra) // The above only matters in the start era
++			uMinus = 0;
++	}
+ 	// ... but dogpiling remains an issue in the Classical era
+ 	if(gameEra > 1)
+ 		return;
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=24 omittedFiles=2 embeddedPatchBytes=67635

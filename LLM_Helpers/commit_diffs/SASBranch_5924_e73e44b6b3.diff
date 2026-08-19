@@ -1,0 +1,669 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5924
+# Commit: e73e44b6b3a17a3e8d0a3313b822bcc8e1ebcc54
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 941551b8184deefbd564cc0dbf61bbd809b3eae3
+# Title: Preserve the Military Advisor Map tab selected leader(s); rework/rebalance/fix civ-specific and some generic units - (icon clicked on) when switching Militar...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	7	Assets/Python/Screens/CvMilitaryAdvisor.py
+2	0	Assets/XML/Units/CIV4PromotionInfos.xml
+64	49	Assets/XML/Units/CIV4UnitInfos.xml
+8	3	Long_Comments/Long_Comments_XML.txt
+19	17	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+25	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 6f95c4abf..8a25ab123 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -495,6 +495,26 @@ class CvMilitaryAdvisor:
+ 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 		self.iAdvisorPerspectivePlayer = self.iActivePlayer
+ 
++	# <!-- custom: Map-tab tab switches and close/reopen used to reset the leader bar to the active player, which made debug comparisons and quick unit-count checks tedious. Keep selected leaders while they are still selectable; fall back to the active player only when selection is empty or invalid. (ChatGPT-5.5) -->
++	def isMapSelectedPlayerValid(self, iPlayer):
++		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
++			return False
++		pPlayer = gc.getPlayer(iPlayer)
++		if not pPlayer.isAlive():
++			return False
++		if gc.getGame().isDebugMode():
++			return True
++		iActiveTeam = gc.getPlayer(gc.getGame().getActivePlayer()).getTeam()
++		return gc.getTeam(pPlayer.getTeam()).isHasMet(iActiveTeam)
++
++	def restoreMapSelectedPlayers(self):
++		aOldSelectedPlayers = self.selectedPlayerList[:]
++		self.selectedPlayerList = [iPlayer for iPlayer in self.selectedPlayerList if self.isMapSelectedPlayerValid(iPlayer)]
++		if len(self.selectedPlayerList) == 0:
++			self.selectedPlayerList.append(self.iActivePlayer)
++		if self.selectedPlayerList != aOldSelectedPlayers:
++			self.selectedGroupList = []
++
+ 	def drawActivePage(self):
+ 		screen = self.getScreen()
+ 		self.drawTabs()
+@@ -534,13 +554,7 @@ class CvMilitaryAdvisor:
+ 
+ 		self.unitsList = [(0, 0, [], 0)] * gc.getNumUnitInfos()
+ 		self.selectedUnitList = []
+-		# <advc.004> Reset selected unit groups if a player other than the active player was selected
+-		if len(self.selectedPlayerList) != 1 or self.selectedPlayerList[0] != self.iActivePlayer:
+-			self.selectedGroupList = []
+-		# Always reset the selected players
+-		self.selectedPlayerList = []
+-		# </advc.004>
+-		self.selectedPlayerList.append(self.iActivePlayer)
++		self.restoreMapSelectedPlayers()
+ 
+ 		self.drawCombatExperience()
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 02447c010..d95988e99 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -4552,6 +4552,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Commando.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,3</Button>
+ 		</PromotionInfo>
++		<!-- custom: Note: iMoveDiscountChange reduces raw terrain/feature movement cost before CvPlot::movementCost caps cost to the unit's baseMoves. This is mostly useful for 2+ move units; on 1-move units it usually does not increase practical movement range, and can even interfere with double-move terrain checks because bHasTerrainCost is computed after the discount. Do not treat this as true +move mobility for 1-move units. (ChatGPT-5.5) -->
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_MOBILITY_COST</Type>
+ 			<Description>TXT_KEY_PROMOTION_MOBILITY_COST</Description>
+@@ -4627,6 +4628,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Mobility1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,4</Button>
+ 		</PromotionInfo>
++		<!-- custom: true +1 movement promotion. Unlike Mobility (Cost), this helps 1-move units directly, but it is much stronger and should not be used as a simple replacement for Mobility (Cost), especially on early peak-walking or enemy-route units. (ChatGPT-5.5) -->
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_MOBILITY_RANGE</Type>
+ 			<Description>TXT_KEY_PROMOTION_MOBILITY_RANGE</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 62248280a..4fe46ea65 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -6063,11 +6063,11 @@
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -6287,7 +6287,7 @@
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -6553,7 +6553,8 @@
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<iPower>5</iPower>
++			<!-- custom: was 5 in generic axeman -->
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -6571,10 +6572,10 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: Long_Comments_XML.txt #117, Was PROMOTION_WOODSMAN1 -->
++			<!-- custom: the jaguars are elite forces valued in society iirc and based on ChatGPT-5.5's info thanks; give an early enough, cheap enough, and widespread enough promotion, that this early unit may not be OP having (may have already have it) so maybe not OP while still being quite strong to have; Long_Comments_XML.txt #117, Was PROMOTION_WOODSMAN1 -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_SENTRY</PromotionType>
++					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -7140,10 +7141,11 @@
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
++			<!-- custom: this is still an offensive unit, so keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). -->
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -7197,9 +7199,10 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: see code comment as of now at samurai -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
++					<PromotionType>PROMOTION_COMBAT2</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -7578,9 +7581,10 @@
+ 			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: was 0 and 0 (in the generic swordsman) -->
++			<!-- custom: was 0 in the generic swordsman -->
+ 			<iHillsAttack>25</iHillsAttack>
+-			<iHillsDefense>25</iHillsDefense>
++			<!-- custom: do not overblow defensive bonus even though it is thematic, as would be unbalanced and identity spill (this is an attacker not a defender, similar reasoning as as of now the flying_column; was 0 in the generic swordsman -->
++			<iHillsDefense>10</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+@@ -7600,7 +7604,7 @@
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+@@ -7649,10 +7653,10 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was empty -->
++			<!-- custom: decent synergy with the can walk peak profile/ability, at a late enough stage in the game where gaining vision/exploration is no longer as OP (and not as much from high plots i'm guessing too). -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<PromotionType>PROMOTION_SENTRY</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -7722,7 +7726,7 @@
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: by that time and as of now longbowmen or such are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai hereas of now -->
+-			<!-- custom: removed UNITAI_CITY_COUNTER from here as macemen are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles -->
++			<!-- custom: removed UNITAI_CITY_COUNTER from here as macemen are not versatile enough to be reliable city defenders while still being good offense units; Long_Comments_XML.txt #377 -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -8091,10 +8095,10 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was PROMOTION_FIRST_STRIKE1 -->
++			<!-- custom: at this stage most units may already have COMBAT1 which is fairly ubiquitous, or we may inherit it from one of our upgraded units, or annoyingly purposely avoid to do so for human players: would make it too weak/useless; give a stronger one instead; was PROMOTION_FIRST_STRIKE1 -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
++					<PromotionType>PROMOTION_COMBAT2</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -8255,6 +8259,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
++			<!-- custom: although vikings have strong a cold weather identity iirc, in terms of gameplay this is still an offensive unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -8262,17 +8267,17 @@
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>35</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+@@ -11689,7 +11694,7 @@
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>110</iCost>
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11714,7 +11719,7 @@
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 9 -->
+-			<iCombat>14</iCombat>
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>110</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -11781,7 +11786,7 @@
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>14</iPower>
++			<iPower>13</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11799,7 +11804,13 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: give COMBAT2 rather than COMBAT1, same reasoning as of now as the samurai; also matches thematic power spike of this unit; was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COMBAT2</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -12005,7 +12016,7 @@
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>13</iPower>
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12029,10 +12040,6 @@
+ 					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -12163,14 +12170,15 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 9 -->
+-			<iCombat>12</iCombat>
++			<!-- custom: was 9, and 12 in generic musketman -->
++			<iCombat>13</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>1</iFirstStrikes>
++			<!-- custom: was 1 in base advciv unit (keep the promotion rather than iFirstStrikes so later units can inherit it) -->
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+@@ -12231,7 +12239,7 @@
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>12</iPower>
++			<iPower>13</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12514,7 +12522,8 @@
+ 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<!-- custom: guerilla thematic fit, and as of now same as the quechua but later in the game; was 0 in generic rifleman -->
++			<bCanMoveImpassable>1</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+ 			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+@@ -12616,14 +12625,15 @@
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>10</iWithdrawalProb>
++			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
++			<!-- custom: Note: not giving hill defense so it doesn't overlap with more defensive units, attack is a nice thematic guerilla fit already unlike defense i think too; was 0 in generic rifleman -->
++			<iHillsAttack>25</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+@@ -12803,7 +12813,8 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>120</iCost>
++			<!-- custom: Significant cost reduction better represents "No Taxation without Representation" and makes it a more unique perk of it costing same price as previous unit; indirectly buffs upgrades too that are now cheaper as well; was as of now 120 in SAS rifleman. -->
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -13733,10 +13744,10 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost -->
++			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost; + robotic infantry is meant to feel advanced/mobile (ChatGPT-5.5) -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<PromotionType>PROMOTION_MOBILITY_RANGE</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -15503,10 +15514,11 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
++			<!-- custom: base strength is high enough (similar reasoning as as of now for the Cataphract), and this is not an especially strong desert unit i'd say maybe, so do not increase them too much despite wanting to buff desert generally though -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>35</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -15516,7 +15528,7 @@
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>35</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -17087,10 +17099,11 @@
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
++			<!-- custom: Terrain modifiers: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. Plus, its base strength is already too or very high not needing a too high spike, and grass is strong in particular already so not needing a strong buff that may be unbalanced then. -->
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -17786,7 +17799,7 @@
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>35</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+@@ -18224,6 +18237,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
++			<!-- custom: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -18233,7 +18247,7 @@
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details -->
+@@ -18872,7 +18886,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online, but it's also to not make tundra too op while making sure to buff it enough though-->
++			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online. Yet, in terms of gameplay this is still a mostly offensive/mobile unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan). -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -18880,17 +18894,17 @@
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>35</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>35</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details -->
+@@ -19062,13 +19076,14 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 120 in the base advciv old unit -->
++			<!-- custom: was 120 in the base advciv old unit; lower than as of now the base Dragoon unit is a good thematic fit too iirc i mean and from asking ChatGPT-5.5 too thanks. -->
+ 			<iCost>140</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
++			<!-- custom: was 2 in SAS Dragoon: Increasing it is stronger, more unique, and a thematic fit based on ChatGPT-5.5's explanation when i asked it about it thanks. Also, reminds me of the Civ3 Cavalry has 3 move speed flavor which i think is nice and cool to have too, in terms of gameplay too also. -->
++			<iMoves>3</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index dceecd9b7..7703ca3ab 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -2457,13 +2457,13 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings).
+ ----- Comment #116 -----
+ 
+ 			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren�t inherently �fast� on foot (the 2-move in BtS is really a �dragoon flavor� abstraction). So your instinct to drop the extra move is spot-on. -->
+-			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise -->
++			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise
++			Update: since then removed the collateral effect because the mounted one alone is already strong enough against popular mounted units -->
+ 
+ ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+ ----- Comment #117 -----
+ 
+-			if i am not mistaken from my memory i mean, the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. However, we don't need to do that here, as after other changes the unit is plenty strong now already; plus with the terrain/feature modifiers civ-specific units have in our mod, we don't need to keep the old woodsman specific identity redundantly here anymore. So, also as per chatgpt 5.2's recommendation (and as i had the idea too it seems but not totally sure) thanks, adding a non-combat promotion rather that fits here so it is a strong enough as of now axeman variant as as of now the dog soldier is
+-			<!-- "UNITCOMBAT_MELEE_SHOCK 50% is too much, because it turns into �I don�t need metal and I still hard-win the metal line� too often (and it keeps scaling into later Shock units)." + It fits �jungle scouting / ambush / raiding.� + "You already said only Yeoman currently uses it, so it won�t feel spammy." -->
++			the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. -->
+ 
+ ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+ ----- Comment #118 -----
+@@ -4956,3 +4956,8 @@ humans would have little to gain from stacking them past a certain point fairly
+ 
+ 	<!-- custom: BBAI logging is useful for investigating AI decisions such as production, city founding, unit movement, diplomacy, map normalization, and similar behavior. These SAS defines tune which BBAI logs are sent. (GPT-5.5?) -->
+ 	<!-- custom: To use logging, Civ4 also requires LoggingEnabled=1 in CivilizationIV.ini. Then BBAI log files can be found in files like BBAI.log, for example (adjust to your Windows username/computer path) "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log". (GPT-5.5?) -->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #377 -----
++
++ (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 518ac4a42..ab1be22de 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -264,44 +264,46 @@ Terrain/feature modifiers are usually treated as secondary flavor or fine-tuning
+ 
+ Note: some units like Worker-type units are civilian as of now, so their terrain/feature combat modifiers are documented mainly for consistency/exhaustiveness.
+ 
++Note 2: since the table doesn't seem to render entirely laterally without having to scroll, it can be [as of now also viewed on cfc](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16954876) (refer to github or XML/Sevopedia if not updated) (or you can use right click open preview .md on vs code or such).
++
+ | Civ | Before | After | Old UU → current SAS UU diff | SAS generic → SAS UU delta | Summary / rationale |
+ | --- | --- | --- | --- | --- | --- |
+-| America / USA | AMERICAN_NAVY_SEAL (MARINE; GUN) | **USA_PATRIOT** (**RIFLEMAN**; Keep) | str 24→15, h 160→120; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS; free AMPHIBIOUS, MARCH→FIRST_STRIKE1; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk DESERT 10, TerrainAtk GRASS 25, +6 more; loses FirstStrikeChance 1, FirstStrikes 1, vsClass ARTILLERY 50, vsClass MACHINE_GUN 50 | vs SAS RIFLEMAN: free none→FIRST_STRIKE1; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk DESERT 10, TerrainAtk GRASS 25, +4 more. | Earlier Patriot/Rifleman timing is more useful than a late Marine-only UU. |
+-| Arabia | ARABIA_CAMELARCHER (KNIGHT; MOUNTED) | **ARABIA_HAJJAN** (**CAMEL_KNIGHT**; **MOUNTED_RANGED**) | h 90→95; tech GUILDS, HORSEBACK_RIDING, ARCHERY→CHIVALRY, MOUNTED_COMBAT; res none→CAMEL, IRON; free none→FIRST_STRIKE1; mods Withdraw 15→20; gains FeatureDef FOREST -25, FeatureDef JUNGLE -25, TerrainAtk DESERT 50, TerrainDef DESERT 35 | vs SAS CAMEL_KNIGHT: free none→FIRST_STRIKE1; mods TerrainAtk DESERT 25→50, TerrainDef DESERT 25→35, Withdraw 10→20; loses FeatureAtk FOREST -25, FeatureAtk JUNGLE -25. | Mounted-ranged camel knight: stronger vs Pikemen and broader polearm counters than melee knights; resists gun/modern units better than melee-mounted units do (same logic as Cuirassiers/Dragoons); retreat supports skirmishing. |
+-| Aztec | AZTEC_JAGUAR (SWORDSMAN; MELEE) | Keep (**AXEMAN**; **MELEE_SHOCK**) | tech IRON_WORKING→BRONZE_WORKING; free WOODSMAN1→SENTRY; gains FeatureAtk FOREST 10, FeatureAtk JUNGLE 25, FeatureDef FOREST 10, FeatureDef JUNGLE 50, +2 more; loses CityAtk 10 | vs SAS AXEMAN: res COPPER, IRON→none; free none→SENTRY; mods FeatureAtk JUNGLE 10→25, FeatureDef JUNGLE 10→50. | Jaguar moves to earlier no-bonus Axeman role; old Jaguar was weak/late and worse than normal Swordsman in practice; supports early aggressive Aztec profile and Sacrificial Altar/slavery economy. Having a stronger unit is also a better thematic fit for a strong/threatening ancient/early civlization. |
++| America / USA | AMERICAN_NAVY_SEAL (MARINE; GUN) | **USA_PATRIOT** (**RIFLEMAN**; Keep) | str 24→15, h 160→100; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS; free AMPHIBIOUS->none, MARCH→FIRST_STRIKE1; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk DESERT 10, TerrainAtk GRASS 25, +6 more; loses FirstStrikeChance 1, FirstStrikes 1, vsClass ARTILLERY 50, vsClass MACHINE_GUN 50 | vs SAS RIFLEMAN: h 120→100; free none→FIRST_STRIKE1; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk DESERT 10, TerrainAtk GRASS 25, +4 more. | Earlier Patriot/Rifleman timing is more useful than a late Marine-only UU. Significant cost reduction better represents "No Taxation without Representation" and makes it a more unique perk of it costing same price as previous unit; indirectly buffs upgrades too that are now cheaper as well. Real UU effect without making each individual Patriot unrealistically stronger. |
++| Arabia | ARABIA_CAMELARCHER (KNIGHT; MOUNTED) | **ARABIA_HAJJAN** (**CAMEL_KNIGHT**; **MOUNTED_RANGED**) | h 90→95; tech GUILDS, HORSEBACK_RIDING, ARCHERY→CHIVALRY, MOUNTED_COMBAT; res none→CAMEL, IRON; free none→FIRST_STRIKE1; mods Withdraw 15→20; gains FeatureDef FOREST -25, FeatureDef JUNGLE -25, TerrainAtk DESERT 35, TerrainDef DESERT 35 | vs SAS CAMEL_KNIGHT: free none→FIRST_STRIKE1; mods TerrainAtk DESERT 25→35, TerrainDef DESERT 25→35, Withdraw 10→20; loses FeatureAtk FOREST -25, FeatureAtk JUNGLE -25. | Mounted-ranged camel knight: stronger vs Pikemen and broader polearm counters than melee knights; resists gun/modern units better than melee-mounted units do (same logic as Cuirassiers/Dragoons); retreat supports skirmishing. |
++| Aztec | AZTEC_JAGUAR (SWORDSMAN; MELEE) | Keep (**AXEMAN**; **MELEE_SHOCK**) | tech IRON_WORKING→BRONZE_WORKING; free WOODSMAN1→COMBAT1; gains FeatureAtk FOREST 10, FeatureAtk JUNGLE 25, FeatureDef FOREST 10, FeatureDef JUNGLE 50, +2 more; loses CityAtk 10 | vs SAS AXEMAN: res COPPER, IRON→none; free none→COMBAT1; mods FeatureAtk JUNGLE 10→25, FeatureDef JUNGLE 10→50. | Jaguar moves to earlier Axeman role and keeps base no-bonus; the jaguars are elite forces valued in society, so give an early enough, cheap enough, and widespread enough promotion, that this early unit may not be OP having (may have already have it) so maybe not OP while still being quite strong to have; old Jaguar was weak/late and worse than normal Swordsman in practice; supports early aggressive Aztec profile and Sacrificial Altar/slavery economy. Having a stronger unit is also a better thematic fit for a strong/threatening ancient/early civlization. |
+ | Babylon | BABYLON_BOWMAN (ARCHER; ARCHER) | Keep (**LONGBOWMAN**; **ARCHER_BOW_SHORT**) | str 3→5, h 25→45; tech ARCHERY→CONSTRUCTION, HUNTING; free none→CITY_RAIDER1; mods CityDef 50→25; gains FirstStrikeChance 1, TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, +3 more; loses vsCombat MELEE 50 | vs SAS LONGBOWMAN: str 4→5; free RETREAT1→CITY_RAIDER1; mods CityDef 50→25; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, TerrainDef GRASS 25, +1 more; loses CityAtk 10. | Bowman moves to Construction Longbow slot; more versatile than ancient city garrison and can support offensive Babylon pushes. |
+-| Byzantium | BYZANTINE_CATAPHRACT (KNIGHT; MOUNTED) | Keep (**HORSE_KNIGHT**; **MOUNTED_MELEE**) | h 90→105; tech GUILDS, HORSEBACK_RIDING→CHIVALRY, MOUNTED_COMBAT; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +7 more | vs SAS HORSE_KNIGHT: str 10→12, h 95→105; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more. | Slight nerf through cost increase as Cataphract was a bit too strong. |
++| Byzantium | BYZANTINE_CATAPHRACT (KNIGHT; MOUNTED) | Keep (**HORSE_KNIGHT**; **MOUNTED_MELEE**) | h 90→105; tech GUILDS, HORSEBACK_RIDING→CHIVALRY, MOUNTED_COMBAT; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +7 more | vs SAS HORSE_KNIGHT: str 10→12, h 95→105; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more. | Slight nerf through cost increase as Cataphract was a bit too strong. Terrain modifiers: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. Plus, its base strength is already too or very high not needing a too high spike, and grass is strong in particular already so not needing a strong buff that may be unbalanced then. |
+ | Carthage | CARTHAGE_NUMIDIAN_CAVALRY (HORSE_ARCHER; MOUNTED) | Keep (Keep; **MOUNTED_MELEE**) | str 5→6; tech HORSEBACK_RIDING, ARCHERY→MOUNTED_COMBAT, HUNTING; free FLANKING1→RETREAT1; mods Withdraw 20→15; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +4 more; loses vsCombat MELEE 50 | vs SAS HORSE_ARCHER: free none→RETREAT1; mods Withdraw 20→15; gains FeatureAtk FOREST -25, FeatureAtk JUNGLE -25, TerrainAtk DESERT 10, TerrainAtk PLAINS 25, +2 more. | Raises Numidian to Horse Archer-level strength and shifts from narrow anti-melee gimmick to more general mobile skirmisher/withdraw unit. |
+ | Celts | CELTIC_GALLIC_WARRIOR (SWORDSMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | h 40→42; free GUERILLA1→FIRST_STRIKE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainDef PLAINS 10 | vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→FIRST_STRIKE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainDef PLAINS 10. | Guerilla hill-defense was too situational and a bad match for Brennus/Boudica aggressive profile; first-strike sword role is more generally useful; copper/iron access improves flexibility. |
+ | China | CHINA_CHOKONU (CROSSBOWMAN; ARCHER) | **CHINA_ZHUGE_NU** (Keep; **ARCHER_CROSSBOW**) | h 60→65; tech MACHINERY, ARCHERY→CIVIL_SERVICE, HUNTING; res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 50→15, CollateralLimit 60→200; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, HillsAtk 25, HillsDef 25, +4 more; loses vsCombat MELEE 50 | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods FirstStrikes 1→2; gains Collateral 15, CollateralLimit 200, CollateralMaxUnits 5, FeatureAtk FOREST 25, +3 more. | Slightly reduces old collateral burst and anti-melee focus, but adds first-strike utility and broader buildability through copper/iron access. |
+ | Netherlands / Dutch | NETHERLANDS_OOSTINDIEVAARDER (FRIGATE; NAVAL) | **DUTCH_SWIFT_WORKER** (**WORKER**; **NONE**) | str 8→0, h 90→50, mv 5→3; tech CHEMISTRY, ASTRONOMY→none; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, WorkRate 100; loses Bombard 12, Cargo 3 | vs SAS WORKER: mv 2→3; gains FeatureAtk FOREST 50, FeatureDef FOREST 50. | Late naval UU was too weak/situational; early Worker is useful on every map, better fits Dutch economy/growth, restores old BTS Fast Worker effect, and gives India real worker-UU company. And unlike India, the fairly late and situational Dutch civ-specific building counterbalances this civ-specific unit being quite strong. |
+-| Egypt | EGYPT_WARCHARIOT (CHARIOT; MOUNTED) | **EGYPTIAN_WAR_CHARIOT** (Keep; **MOUNTED_MELEE**) | mods vsClass AXEMAN 100→75; gains FeatureAtk FOREST -50, FeatureAtk JUNGLE -50, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +5 more | vs SAS CHARIOT: str 4→5; gains TerrainAtk DESERT 35, TerrainAtk GRASS 10, TerrainDef DESERT 35, TerrainDef GRASS 10. | — |
++| Egypt | EGYPT_WARCHARIOT (CHARIOT; MOUNTED) | **EGYPTIAN_WAR_CHARIOT** (Keep; **MOUNTED_MELEE**) | mods vsClass AXEMAN 100→75; gains FeatureAtk FOREST -50, FeatureAtk JUNGLE -50, FeatureDef FOREST -25, FeatureDef JUNGLE -25, +5 more | vs SAS CHARIOT: str 4→5; gains TerrainAtk DESERT 25, TerrainAtk GRASS 10, TerrainDef DESERT 10, TerrainDef GRASS 10. | For terrain modifiers, more offensive profile: (Similar reasoning as as of now for the Hajjan or the Cossack), and base strength is already high enough so do not increase it too much more via modifiers so early in the game (similar reasoning as as of now for the Cataphract) (not too thematic either maybe) |
+ | England | ENGLISH_REDCOAT (RIFLEMAN; GUN) | **ENGLISH_YEOMAN_ARCHER** (**CROSSBOWMAN**; **ARCHER_BOW_LONG**) | str 14→7, h 110→60; tech RIFLING→CIVIL_SERVICE, HUNTING; mods Withdraw 0→25; gains FeatureAtk FOREST 25, FeatureDef FOREST 50, FirstStrikes 1, vsCombat MELEE_SHOCK 30, +2 more; loses vsCombat GUN 25, vsCombat MOUNTED 25 | vs SAS CROSSBOWMAN: str 6→7, h 65→60; res IRON→none; mods HillsAtk 25→20, HillsDef 25→20, vsCombat MELEE_SHOCK 50→30; gains FeatureAtk FOREST 25, FeatureDef FOREST 50. | Moves England's civ-specific unit from late Rifleman timing to the Crossbowman slot. As of now, 7 strength and +30% vs shock melee gives nearly the same anti-shock-melee value as the generic Crossbowman: 7 x 1.30 = 9.1 > 6 x 1.50 = 9.0. Hills modifiers are lower than the generic Crossbowman's, but the higher base strength still makes 7 x 1.20 = 8.4 stronger than 6 x 1.25 = 7.5 on hills, while the stacked hill + shock-melee value stays equal: 7 x 1.50 = 10.5 == 6 x 1.75 = 10.5 (so not weaker than generic sas crossbowman in these). No Iron, higher base strength, and lower cost make the Yeoman more versatile than the generic Crossbowman; the lower cost also fits the longbow/yeoman historical flavor. This fits England's more defensive/economic early profile while still allowing aggressive use for thematic and strategic variety. |
+-| Ethiopia | ETHIOPIAN_OROMO_WARRIOR (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100; tech GUNPOWDER→FIREARMS; free DRILL1, DRILL2→FIRST_STRIKE1; gains TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, TerrainDef DESERT 10, +2 more | vs SAS MUSKETMAN: free none→FIRST_STRIKE1; gains FirstStrikes 1, TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, +3 more. | — |
+-| France | FRENCH_MUSKETEER (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100, mv 2→1; tech GUNPOWDER→FIREARMS; free none→COUNTER_MOUNTED, COLLATERAL_DAMAGE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more | vs SAS MUSKETMAN: free none→COUNTER_MOUNTED, COLLATERAL_DAMAGE1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more. | Buffs weak move-speed-only effect: movement helps positioning, not combat; anti-mounted/collateral gives actual fighting value against strong Renaissance/Industrial mounted units. |
+-| Germany | GERMAN_PANZER (TANK; ARMOR) | **GERMAN_HUSSAR** (**DRAGOON**; **MOUNTED_RANGED**) | str 28→16, h 180→140; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; res OIL→HORSE; free BLITZ→RETREAT1; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10, +2 more; loses FirstStrikes 2, vsCombat ARMOR 50 | vs SAS DRAGOON: h 150→140; free none→RETREAT1; gains FeatureAtk FOREST 25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10; loses FeatureDef FOREST -25. | Earlier than usually-too-late Panzer; later UU timing helps counterbalance Germany's strong early UB. |
++| Ethiopia | ETHIOPIAN_OROMO_WARRIOR (MUSKETMAN; GUN) | Keep | str 9→13, h 80→100; tech GUNPOWDER→FIREARMS; free DRILL1, DRILL2→FIRST_STRIKE1; FirstStrikes 1->0; gains TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, TerrainDef DESERT 10, +2 more | vs SAS MUSKETMAN: str 12→13, free none→FIRST_STRIKE1; TerrainAtk DESERT 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, +3 more. | An overall stronger unit than the SAS musketman and the base musketman, rather than being overly first-strike specialized (keep the promotion rather than iFirstStrikes so later units can inherit it). |
++| France | FRENCH_MUSKETEER (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100, mv 2→1; tech GUNPOWDER→FIREARMS; free none→COUNTER_MOUNTED; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more | vs SAS MUSKETMAN: free none→COUNTER_MOUNTED; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more. | Buffs weak move-speed-only effect: movement helps positioning, not combat; anti-mounted gives actual fighting value against strong Renaissance/Industrial mounted units. |
++| Germany | GERMAN_PANZER (TANK; ARMOR) | **GERMAN_HUSSAR** (**DRAGOON**; **MOUNTED_RANGED**) | str 28→16, h 180→140, mv 2→3; tech INDUSTRIALISM, RIFLING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; res OIL→HORSE; free BLITZ→RETREAT1; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10, +2 more; loses FirstStrikes 2, vsCombat ARMOR 50 | vs SAS DRAGOON: h 150→140, mv 2→3; free none→RETREAT1; gains FeatureAtk FOREST 25, TerrainAtk TUNDRA 10, TerrainDef TUNDRA 10; loses FeatureDef FOREST -25. | Earlier than usually-too-late Panzer; 3 movement gives the Hussar a clearer light-cavalry role as a fast raider, scout, pursuit unit, and artillery hunter rather than just a slightly cheaper Dragoon. This also brings back some of the fast Cavalry 3 Move Speed flavor from Civ3, which may be a good fit here and perhaps enjoyable too. Slightly lower-than-Dragoon cost as an alternative effect and for thematic fit. Later UU timing counterbalances Germany's strong early essential UB without making the unit a raw-strength upgrade. |
+ | Greece | GREEK_PHALANX (AXEMAN; MELEE) | **GREEK_HOPLITE** (**SPEARMAN**; **MELEE_POLEARM**) | gains CityDef 10, FeatureAtk FOREST 10, FeatureDef FOREST 10, HillsAtk 10, +7 more; loses defVsClass CHARIOT 100, vsCombat MELEE 50 | vs SAS SPEARMAN: mods vsCombat MELEE_SHOCK 10→25; gains CityDef 10, TerrainAtk GRASS 10, TerrainAtk PLAINS 25, TerrainDef GRASS 10, +1 more; loses FeatureAtk JUNGLE 10, FeatureDef JUNGLE 10. | Spear/polearm Hoplite is more accurate; SAS Spearman buff makes it better outside cities too, especially vs melee, while still guarding stacks against horse/camel archers and War Elephants. |
+ | Holy Rome | HOLY_ROMAN_LANDSKNECHT (PIKEMAN; MELEE) | **HOLY_ROMAN_HOUFNICE** (**CANNON**; **SIEGE**) | str 6→13, h 60→130; tech ENGINEERING→CHEMISTRY, MACHINERY; res IRON→COPPER, IRON; free none→CITY_BOMBARD_DAMAGE; gains Bombard 12, Collateral 100, CollateralLimit 200, CollateralMaxUnits 6, +6 more; loses vsCombat MELEE 100, vsCombat MOUNTED 100 | vs SAS CANNON: h 140→130; res IRON→COPPER, IRON; free none→CITY_BOMBARD_DAMAGE; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +2 more. | Old Landsknecht was a weak late defensive melee unit near guns; Houfnice gives Charlemagne offensive siege that stays useful into the Renaissance. |
+-| Inca | INCAN_QUECHUA (WARRIOR; MELEE) | Keep (**SWORDSMAN**; **MELEE_SHOCK**) | str 2→6, h 15→42; tech none→IRON_WORKING; res none→COPPER, IRON; free COMBAT1→MOBILITY_COST; gains CityAtk 10, FeatureAtk FOREST 10, FeatureDef FOREST 10, HillsAtk 25, +5 more; loses CityDef 25 | vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→MOBILITY_COST; gains FeatureAtk FOREST 10, FeatureDef FOREST 10, HillsAtk 25, HillsDef 25, +4 more. | AdvCiv Quechua was too weak and obsolete too quickly in the very early Warrior slot; later Swordsman-slot Quechua fits Inca's builder/economy profile and later historical identity better. Peak/Hill mobility or combat for thematic fit and gameplay variety. |
++| Inca | INCAN_QUECHUA (WARRIOR; MELEE) | Keep (**SWORDSMAN**; **MELEE_SHOCK**) | str 2→6, h 15→42; tech none→IRON_WORKING; res none→COPPER, IRON; bCanMoveImpassable 0->1; free COMBAT1→SENTRY; gains CityAtk 10, FeatureAtk FOREST 10, FeatureDef FOREST 10, HillsAtk 25, HillsDef 10, +4 more; loses CityDef 25 | vs SAS SWORDSMAN: res IRON→COPPER, IRON; bCanMoveImpassable 0->1; free none→SENTRY; gains FeatureAtk FOREST 10, FeatureDef FOREST 10, HillsAtk 25, HillsDef 10, +4 more. | AdvCiv Quechua was too weak and obsolete too quickly in the very early Warrior slot; later Swordsman-slot Quechua fits Inca's builder/economy profile and later historical identity better. Peak/Hill walking/advantage and scouting for thematic fit, as well as SENTRY being a decent synergy, at a late enough stage in the game where gaining vision/exploration is no longer as OP (and not as much from high plots i'm guessing too); adds gameplay variety. Note: do not overblow hill defensive bonus even though it is thematic, as would be unbalanced and identity spill (this is an attacker not a defender, similar reasoning as as of now the flying_column). |
+ | India | INDIAN_FAST_WORKER (WORKER; NONE) | Keep | h 60→50; gains FeatureAtk JUNGLE 10, FeatureDef JUNGLE 10, TerrainAtk DESERT 10, TerrainAtk PLAINS 25, +2 more | vs SAS WORKER: gains FeatureAtk JUNGLE 10, FeatureDef JUNGLE 10, TerrainAtk DESERT 10, TerrainAtk PLAINS 25, +2 more. | — |
+-| Japan | JAPAN_SAMURAI (MACEMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | h 70→65; tech CIVIL_SERVICE, MACHINERY→CIVIL_SERVICE, IRON_WORKING; res IRON→COPPER, IRON; free DRILL1→COMBAT1; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, FirstStrikeChance 1, TerrainAtk TUNDRA 10, +3 more; loses FirstStrikes 2, vsCombat MELEE 50 | vs SAS MACEMAN: free none→COMBAT1; mods vsCombat MELEE_SHOCK 25→50; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, FirstStrikeChance 1, TerrainAtk TUNDRA 10, +1 more. | — |
++| Japan | JAPAN_SAMURAI (MACEMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | h 70→65; tech CIVIL_SERVICE, MACHINERY→CIVIL_SERVICE, IRON_WORKING; res IRON→COPPER, IRON; free DRILL1→COMBAT2; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, FirstStrikeChance 1, TerrainAtk TUNDRA 10, +3 more; loses FirstStrikes 2, vsCombat MELEE 50 | vs SAS MACEMAN: free none→COMBAT2; mods vsCombat MELEE_SHOCK 25→50; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, FirstStrikeChance 1, TerrainAtk TUNDRA 10, +1 more. | At this stage most units may already have COMBAT1 which is fairly ubiquitous, or we may inherit it from one of our upgraded units, or annoyingly purposely avoid to do so for human players: would make it too weak/useless; give a stronger one instead |
+ | Khmer | KHMER_BALLISTA_ELEPHANT (WAR_ELEPHANT; MOUNTED) | Keep (Keep; **MOUNTED_RANGED**) | tech CONSTRUCTION, HORSEBACK_RIDING→MOUNTED_COMBAT, ANIMAL_HUSBANDRY; res IVORY→ELEPHANTS; gains FeatureAtk JUNGLE 25, FeatureDef FOREST -25, TerrainAtk PLAINS 25, TerrainDef PLAINS 25, +1 more; loses vsCombat MOUNTED 50 | vs SAS WAR_ELEPHANT: mods FeatureAtk JUNGLE -25→25, TerrainAtk PLAINS 10→25, TerrainDef PLAINS 10→25; gains FirstStrikes 1; loses FeatureAtk FOREST -25, FeatureDef JUNGLE -25. | Ranged War Elephant gives different matchups than base melee War Elephant, especially vs Spearman/Pikeman and broader polearm counters. |
+ | Korea | KOREAN_HWACHA (CATAPULT; SIEGE) | Keep (**CANNON**; Keep) | str 5→13, h 50→140; tech CONSTRUCTION→CHEMISTRY, MACHINERY; free none→COLLATERAL_DAMAGE1; mods Bombard 8→12, CollateralLimit 50→200, CollateralMaxUnits 6→7; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk GRASS 10, TerrainDef GRASS 10; loses vsCombat MELEE 50 | vs SAS CANNON: res IRON→none; free none→COLLATERAL_DAMAGE1; mods CollateralMaxUnits 6→7; gains FeatureAtk FOREST 50, FeatureDef FOREST 50, TerrainAtk GRASS 10, TerrainDef GRASS 10. | Catapult/Trebuchet window is short; Cannon-slot Hwacha stays useful much longer and better fits Korean gunpowder/fire-arrow technology. |
+ | Mali | MALI_SKIRMISHER (ARCHER; ARCHER) | Keep (**LONGBOWMAN**; **ARCHER_BOW_SHORT**) | str 4→5, h 25→45; tech ARCHERY→CONSTRUCTION, HUNTING; free none→FIRST_STRIKE1; mods CityDef 50→25; gains FeatureAtk JUNGLE 10, FeatureDef JUNGLE 10, FirstStrikes 1, TerrainAtk DESERT 25, +4 more; loses HillsDef 25 | vs SAS LONGBOWMAN: str 4→5; free RETREAT1→FIRST_STRIKE1; mods CityDef 50→25, Withdraw 25→50; gains FeatureAtk JUNGLE 10, FeatureDef JUNGLE 10, TerrainAtk DESERT 25, TerrainAtk PLAINS 25, +2 more; loses CityAtk 10, HillsDef 25. | Skirmisher becomes active field defender/harasser instead of early city garrison. |
+ | Maya | MAYA_HOLKAN (SPEARMAN; MELEE) | Keep (Keep; **MELEE_POLEARM**) | str 4→5; tech HUNTING, BRONZE_WORKING→BRONZE_WORKING; free none→RETREAT1; gains FeatureAtk FOREST 10, FeatureAtk JUNGLE 25, FeatureDef FOREST 10, FeatureDef JUNGLE 50, +4 more; loses vsCombat MOUNTED 100 | vs SAS SPEARMAN: res COPPER, IRON→none; free none→RETREAT1; mods FeatureAtk JUNGLE 10→25, FeatureDef JUNGLE 10→50; gains Withdraw 15, vsCombat MOUNTED_RANGED 50; loses HillsAtk 10, HillsDef 25. | Old Holkan was weak; SAS Spearman buffs plus Retreat make it a stronger skirmisher/support unit for field fighting and even city attacks. |
+ | Mongolia | MONGOL_KESHIK (HORSE_ARCHER; MOUNTED) | **MONGOL_KHISHIGTEN** (**HORSE_KNIGHT**; **MOUNTED_MELEE**) | str 6→10, h 50→105; tech HORSEBACK_RIDING, ARCHERY→CHIVALRY, MOUNTED_COMBAT; res HORSE→HORSE, IRON; free none→BLITZKRIEG, RETREAT1; mods Withdraw 20→15; gains FeatureAtk JUNGLE -25, FeatureDef JUNGLE -25, TerrainAtk DESERT 25, TerrainAtk GRASS 25, +2 more; loses FirstStrikes 1, vsClass CATAPULT 50 | vs SAS HORSE_KNIGHT: h 95→105; free none→BLITZKRIEG, RETREAT1; mods Withdraw 10→15; Ignores Terrain Movement Costs; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, TerrainDef GRASS 25; loses FeatureAtk FOREST -25, FeatureDef FOREST -25. | Keshik window was too short before Knights; Horse Knight slot gives Mongolia a longer medieval cavalry window toward its historical peak. Free terrain movement, retreat, and Blitz emphasize tactical control over Cataphract-style raw strength. |
+ | Native America | NATIVE_AMERICA_DOG_SOLDIER (AXEMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | str 4→5; free none→FIRST_STRIKE1; gains TerrainAtk DESERT 25, TerrainAtk GRASS 10, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +6 more; loses vsCombat MELEE 100 | vs SAS AXEMAN: res COPPER, IRON→none; free none→FIRST_STRIKE1; gains TerrainAtk DESERT 25, TerrainAtk GRASS 10, TerrainAtk PLAINS 10, TerrainAtk TUNDRA 10, +4 more; loses FeatureAtk FOREST 10, FeatureAtk JUNGLE 10, FeatureDef FOREST 10, FeatureDef JUNGLE 10. | No-metal anti-sword pressure without locking Dog Soldier into pure defense. |
+-| Ottomans | OTTOMAN_JANISSARY (MUSKETMAN; GUN) | Keep | str 9→14, h 80→110; tech GUNPOWDER→FIREARMS; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more; loses vsCombat ARCHER 25, vsCombat MELEE 25, vsCombat MOUNTED 25 | vs SAS MUSKETMAN: str 12→14, h 100→110; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more. | — |
++| Ottomans | OTTOMAN_JANISSARY (MUSKETMAN; GUN) | Keep | str 9→12, h 80→100; tech GUNPOWDER→FIREARMS; free none→COMBAT2; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more; loses vsCombat ARCHER 25, vsCombat MELEE 25, vsCombat MOUNTED 25 | vs SAS MUSKETMAN: free none→COMBAT2; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more. | Give COMBAT2 rather than COMBAT1 (same reasoning as of now as the samurai); also matches thematic power spike of this unit. |
+ | Persia | PERSIA_IMMORTAL (CHARIOT; MOUNTED) | Keep (**SWORDSMAN**; **MELEE_POLEARM**) | str 4→6, h 30→38, mv 2→1; tech THE_WHEEL→IRON_WORKING; res HORSE→COPPER, IRON; gains CityAtk 10, TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, +3 more; loses Withdraw 10, vsClass AXEMAN 100, vsCombat ARCHER 25 | vs SAS SWORDSMAN: h 42→38; res IRON→COPPER, IRON; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, TerrainDef GRASS 25, +2 more. | Closer to Civ3 sword-based Immortal: Chariot anti-archer rush→later Swordsman/Polearm fighter with bonuses vs melee-shock and mounted-melee; copper/iron access improves buildability. |
+ | Portugal | PORTUGAL_CARRACK (CARAVEL; NAVAL) | Keep (**GALLEON**; Keep) | str 3→5, mv 4→6; tech OPTICS→ASTRONOMY; mods Cargo 2→4; gains TerrainAtk COAST 10, TerrainAtk OCEAN 25, TerrainDef COAST 25, TerrainDef OCEAN 25 | vs SAS GALLEON: str 4→5, h 70→60, mv 4→6; gains TerrainAtk COAST 10, TerrainAtk OCEAN 25, TerrainDef COAST 25, TerrainDef OCEAN 25. | Naval UUs are usually weak/situational in SAS, but Portugal is the iconic exception: stronger, faster Carrack is closer to military Frigate-grade ocean control while still supporting trade/transport. |
+-| Rome | ROME_PRAETORIAN (SWORDSMAN; MELEE) | **ROMAN_LEGIONARY** (Keep; **MELEE_SHOCK**) | str 7→6, h 40→42; res IRON→COPPER, IRON; free MARCH→COMBAT1; gains CityAtk 10, FeatureAtk FOREST 10, FeatureDef FOREST 10, TerrainAtk DESERT 10, +3 more | vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→COMBAT1; gains FeatureAtk FOREST 10, FeatureDef FOREST 10, TerrainAtk DESERT 10, TerrainAtk PLAINS 25, +2 more. | Strength reduced because Praetorian was too strong; broader buildability through copper/iron access; weak March healing swapped for Combat I to support Roman classical aggression/solid expansion. |
+-| Russia | RUSSIA_COSSACK (CAVALRY; MOUNTED) | Keep (**DRAGOON**; **MOUNTED_RANGED**) | str 15→16, h 120→150; tech MILITARY_TRADITION, RIFLING, HORSEBACK_RIDING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk SNOW 50, TerrainAtk TUNDRA 25, +4 more; loses vsCombat MOUNTED 50 | vs SAS DRAGOON: gains FeatureAtk FOREST 25, TerrainAtk SNOW 50, TerrainAtk TUNDRA 25, TerrainDef SNOW 50, +3 more; loses FeatureDef FOREST -25. | — |
+-| Spain | SPANISH_CONQUISTADOR (CUIRASSIER; MOUNTED) | Keep (**HORSE_CUIRASSIER**; **MOUNTED_RANGED**) | str 12→13, h 100→130; tech MILITARY_TRADITION, GUNPOWDER, HORSEBACK_RIDING→FIREARMS, MOUNTED_COMBAT; free none→AMPHIBIOUS; mods Withdraw 15→30; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk PLAINS 25, TerrainDef PLAINS 25; loses vsCombat MELEE 50 | vs SAS HORSE_CUIRASSIER: free none→AMPHIBIOUS; mods Withdraw 15→30; gains FeatureAtk FOREST 25, TerrainAtk PLAINS 25, TerrainDef PLAINS 25; loses FeatureDef FOREST -25. | — |
+-| Sumeria | SUMERIAN_VULTURE (AXEMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | str 6→5; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, TerrainDef GRASS 25, +2 more; loses vsCombat MELEE 25 | vs SAS AXEMAN: mods vsCombat MELEE_SHOCK 25→50; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 25, TerrainDef GRASS 25; loses FeatureAtk FOREST 10, FeatureAtk JUNGLE 10, FeatureDef FOREST 10, FeatureDef JUNGLE 10. | — |
+-| Vikings / Scandinavia | VIKING_BESERKER (MACEMAN; MELEE) | **SCANDINAVIA_VIKING** (Keep; **MELEE_SHOCK**) | h 70→65; tech CIVIL_SERVICE, MACHINERY→CIVIL_SERVICE, IRON_WORKING; mods CityAtk 10→20; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk SNOW 50, TerrainAtk TUNDRA 25, +4 more; loses vsCombat MELEE 50 | vs SAS MACEMAN: free none→AMPHIBIOUS; gains CityAtk 20, FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk SNOW 50, +3 more. | Replaces awkward Berserker framing with iconic Viking raider role; stronger amphibious Maceman matters more before Knights/Crossbows make standard Macemen feel weak, matching the historical Viking era better. |
++| Rome | ROME_PRAETORIAN (SWORDSMAN; MELEE) | **ROMAN_LEGIONARY** (Keep; **MELEE_SHOCK**) | str 7→6, h 40→42; res IRON→COPPER, IRON; free MARCH→COMBAT2; gains CityAtk 10, FeatureAtk FOREST 10, FeatureDef FOREST 10, TerrainAtk DESERT 10, +3 more | vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→COMBAT2; gains FeatureAtk FOREST 10, FeatureDef FOREST 10, TerrainAtk DESERT 10, TerrainAtk PLAINS 25, +2 more. | Strength reduced because Praetorian was too strong; broader buildability through copper/iron access; weak March healing swapped for Combat to support Roman classical aggression/solid expansion. COMBAT2 rather than COMBAT1: same reasoning as as of now the Samurai. |
++| Russia | RUSSIA_COSSACK (CAVALRY; MOUNTED) | Keep (**DRAGOON**; **MOUNTED_RANGED**) | str 15→16, h 120→150; tech MILITARY_TRADITION, RIFLING, HORSEBACK_RIDING→MILITARY_TRADITION, FIREARMS, MOUNTED_COMBAT; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk SNOW 35, TerrainAtk TUNDRA 25, +4 more; loses vsCombat MOUNTED 50 | vs SAS DRAGOON: gains FeatureAtk FOREST 25, TerrainAtk SNOW 35, TerrainAtk TUNDRA 25, TerrainDef SNOW 25, +3 more; loses FeatureDef FOREST -25. | Russia seems a bit better at defense than offense based on some comments  found online. Yet, in terms of gameplay this is still a mostly offensive/mobile unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan). |
++| Spain | SPANISH_CONQUISTADOR (CUIRASSIER; MOUNTED) | Keep (**HORSE_CUIRASSIER**; **MOUNTED_RANGED**) | str 12→13, h 100→130; tech MILITARY_TRADITION, GUNPOWDER, HORSEBACK_RIDING→FIREARMS, MOUNTED_COMBAT; free none→AMPHIBIOUS; mods Withdraw 15→30; gains FeatureAtk FOREST 25, FeatureDef JUNGLE -25, TerrainAtk PLAINS 25, TerrainDef PLAINS 10; loses vsCombat MELEE 50 | vs SAS HORSE_CUIRASSIER: free none→AMPHIBIOUS; mods Withdraw 15→30; gains FeatureAtk FOREST 25, TerrainAtk PLAINS 25, TerrainDef PLAINS 10; loses FeatureDef FOREST -25. | More offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. |
++| Sumeria | SUMERIAN_VULTURE (AXEMAN; MELEE) | Keep (Keep; **MELEE_SHOCK**) | str 6→5; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 10, TerrainDef GRASS 10, +2 more; loses vsCombat MELEE 25 | vs SAS AXEMAN: mods vsCombat MELEE_SHOCK 25→50; gains TerrainAtk DESERT 25, TerrainAtk GRASS 25, TerrainDef DESERT 10, TerrainDef GRASS 10; loses FeatureAtk FOREST 10, FeatureAtk JUNGLE 10, FeatureDef FOREST 10, FeatureDef JUNGLE 10. | — |
++| Vikings / Scandinavia | VIKING_BESERKER (MACEMAN; MELEE) | **SCANDINAVIA_VIKING** (Keep; **MELEE_SHOCK**) | h 70→65; tech CIVIL_SERVICE, MACHINERY→CIVIL_SERVICE, IRON_WORKING; mods CityAtk 10→20; gains FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk SNOW 35, TerrainAtk TUNDRA 25, +4 more; loses vsCombat MELEE 50 | vs SAS MACEMAN: free none→AMPHIBIOUS; gains CityAtk 20, FeatureAtk FOREST 25, FeatureDef FOREST 25, TerrainAtk SNOW 35, +3 more. | Replaces awkward Berserker framing with iconic Viking raider role; stronger amphibious Maceman matters more before Knights/Crossbows make standard Macemen feel weak, matching the historical Viking era better. Although Vikings have strong a cold weather identity iirc, in terms of gameplay this is still an offensive unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). |
+ | Zulu | ZULU_IMPI (SPEARMAN; MELEE) | Keep (Keep; **MELEE_POLEARM**) | str 4→5; tech HUNTING→BRONZE_WORKING; free MOBILITY→none; gains HillsAtk 10, HillsDef 25, TerrainAtk DESERT 10, TerrainAtk GRASS 25, +6 more; loses vsCombat MOUNTED 100 | vs SAS SPEARMAN: mv 1→2; mods vsCombat MELEE_SHOCK 10→25; gains TerrainAtk DESERT 10, TerrainAtk GRASS 25, TerrainAtk PLAINS 10, TerrainDef DESERT 10, +2 more; loses FeatureAtk FOREST 10, FeatureAtk JUNGLE 10, FeatureDef FOREST 10, FeatureDef JUNGLE 10. | SAS Spearman buffs and stronger melee-shock focus make Impi a stronger field fighter; keeps fast 2-move pressure for Shaka/Zulu aggression; still counters mounted units. |
+ | Kingdom of Benin | — | New **KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN** (**CROSSBOWMAN**; **ARCHER_CROSSBOW**) | new SAS UU; str 6; h 65; mv 1; tech CIVIL_SERVICE, HUNTING; res COPPER, IRON; free LOGISTICS; mods HillsAtk 25, HillsDef 25, Withdraw 35, FirstStrikes 1, +5 more | vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→LOGISTICS; mods Withdraw 25→35; gains FeatureAtk JUNGLE 50, FeatureDef JUNGLE 50, TerrainAtk PLAINS 25, TerrainDef PLAINS 25. | Broader buildability through Copper/Iron access; Logistics promotion suits Benin organized warfare/siege-logistics theme; field kit supports fighting outside static defense. |
+-| Ireland | — | New **IRELAND_FLYING_COLUMN** (**RIFLEMAN**; **GUN**) | new SAS UU; str 15; h 120; mv 1; tech MILITARY_TRADITION, FIREARMS; free LOGISTICS; mods Withdraw 10, vsCombat MOUNTED_MELEE 50, vsCombat MOUNTED_RANGED 25, FeatureAtk FOREST 25, +1 more | vs SAS RIFLEMAN: free none→LOGISTICS; gains FeatureAtk FOREST 25, FeatureDef FOREST 50, Withdraw 10. | Ireland is late historically, so Rifleman timing avoids an even-later Infantry UU; Logistics/withdraw fits guerrilla/independence-war style while keeping the unit relevant. |
++| Ireland | — | New **IRELAND_FLYING_COLUMN** (**RIFLEMAN**; **GUN**) | new SAS UU; str 15; h 120; mv 1; tech MILITARY_TRADITION, FIREARMS; bCanMoveImpassable 0->1; free LOGISTICS; mods HillsAtk 25, vsCombat MOUNTED_MELEE 50, vsCombat MOUNTED_RANGED 25, FeatureAtk FOREST 25, +1 more | vs SAS RIFLEMAN: bCanMoveImpassable 0->1; free none→LOGISTICS; gains HillsAtk 25, FeatureAtk FOREST 25, FeatureDef FOREST 50. | Ireland is late historically, so Rifleman timing avoids an even-later Infantry UU. Logistics, Hill attack (but not defense so no identity overlap or unbalanced/non-relevant universal unit) and Peak walking fits guerrilla/independence-war style while keeping the unit relevant. |
+ 
+ ## Leaders' traits rework
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index d3782dac0..7fbd9a660 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -180,6 +180,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
+ [143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
+ [144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well)  
++[145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5367,3 +5368,27 @@ Files changed:
+ - [CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp)
+ - [CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp)
+ - [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
++
++## 145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen
++
++In the Military Advisor Map tab, selecting another leader was not preserved when switching to another Military Advisor tab, returning to the Map tab, or closing and reopening the advisor. The Map tab leader selection was reset to the active player each time.
++
++This was tedious in debug mode when comparing leaders, following unit production counts, or repeatedly checking a specific AI's units. It could also be useful in normal play when repeatedly inspecting a known rival from the Map tab.
++
++Cause:
++
++- `drawMap()` reset `selectedUnitList`, then always cleared `selectedPlayerList` and appended `iActivePlayer`.
++- The old path also cleared selected unit groups whenever the selected player list was not exactly the active player.
++- As a result, the leader bar could not preserve a valid non-active-player selection across tab redraws.
++
++Implemented fix:
++
++- Added `isMapSelectedPlayerValid(iPlayer)` to keep only players that are still selectable.
++- Added `restoreMapSelectedPlayers()` to preserve selected leaders while they remain valid.
++- Fall back to the active player only when the saved leader selection is empty or invalid.
++- Keep the existing `selectedUnitList` reset behavior unchanged.
++- Clear selected unit groups only when the preserved leader list had to be sanitized.
++
++File changed:
++
++- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c6e400912..af8f9319f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -188,7 +188,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - (Requires AdvCiv-SAS 5916+) **Minimum worker production floor**: AI cities now rebuild toward an area-local worker minimum (2 workers for the capital area, 1 per other city) before normal production priorities can keep winning indefinitely. This makes **early worker availability** much more reliable **after losses or underproduction**, **improving early development** because workers are **high-value relative to their cost**, especially when larger cities can produce them with **food + hammers**. The floor does not force only high-pop/capital cities to build workers, because weaker or stagnant cities can sometimes contribute without interrupting stronger cities' growth or key builds. This higher worker production is also beneficial throughout the game. Worker **scrapping** uses the same shared floor so later quota tuning cannot accidentally scrap below the rebuild minimum.
+ - Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**, but still ensure **important bonus connections** (road/route when the bonus is connectable and not yet connected). See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+-- **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, or **specialist economies**; (Requires AdvCiv-SAS 5914+) concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield.
++- **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, **more aggressive early slaving**, or **specialist economies**; (Requires AdvCiv-SAS 5914+) concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield.
+ - **Mobility:** workers leave "over-improved" cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but). Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals.
+ - **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
+ 
+@@ -371,6 +371,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - Add **debug mode support** (for player selection) in the Domestic Advisor. Add **Barbarian** to **selectable leaders** in debug mode in advisors where it is relevant: Domestic Advisor, Policy Advisor, World Advisor, and Info Screen.
+ - Preserve **selected debug/vassal perspective** when reopening or switching tabs in supported advisors where the selected player is meaningful (all supported advisors except for the Victory Screen's **Settings tab**: it intentionally stays anchored to the **real active player**, because it describes that player's game setup rather than a selected rival's victory progress).
++- (Requires AdvCiv-SAS 5924+) Preserve the **Military Advisor Map tab selected leader(s)** (icon clicked on) when **switching** Military Advisor tabs or **closing/reopening** the advisor (when valid/safe in relevant context (e.g., player still alive, known outside debug mode)). Previously, the Map tab reset its leader selection to the active player whenever the tab was redrawn, which **was tedious** in **debug mode** when comparing leaders, following unit production counts, or repeatedly checking a specific AI's units. Change in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See also [KI#145](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen).
+ - Allow the **current active player** (i.e. the human player or whichever player is active if cheats are enabled) to **select and view its alive vassals' information** in advisors' **player selection dropdown** even outside debug mode. This follows the active player (vassals are subordinate enough to make their domestic/world/policy state relevant). This **does not reveal unrelated players or hidden map** data as debug mode would.
+ - Always show advisor tabs where hidden tabs reduced discoverability: Foreign Advisor **Glance** and **Cities** tabs are now always shown, so the corresponding old BUG menu visibility toggles are now removed; Victory Screen **Resolutions** and **Members** tabs are also always shown, with a fallback table showing required wonders (as of now Apostolic Palace or United Nations) when no vote source is currently active.
+ - Preserve built heavy **advisor tables** where safe, to avoid rebuilding expensive UI tables when their player/history/language/layout/settings signature has not changed. This is used for the **Info Screen Timeline** table across close/reopen, and for the **Military Advisor Battles** table across **same-open advisor tab switches** (Map <-> Battles/Summary/Composition remains lightweight as long as the Military Advisor is not exited). We deliberately do **not** preserve the whole Military Advisor across full close/reopen: testing `screen.setPersistent(True)` there made very large late-game Battles histories faster to reopen, but broke Civ4's native minimap lifecycle, causing the Map tab to reopen as an empty blue panel and also break after debug-mode transitions until save reload. So the Battles cache is kept for tab switching only, while full Military Advisor close/reopen rebuilds the screen/minimap for reliability. See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs).
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=78041

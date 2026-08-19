@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3849
+# Commit: a9731c1189e2e5a8a4d7974e9a131a9aa9aded26
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1bc281572ce9ae2437561f256578f07547f52a31
+# Title: Some refactoring in CvUnitAI::AI_moveToStagingCity
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+42	47	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2ef0c088c..afd2e7a24 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -20977,26 +20977,13 @@ bool CvUnitAI::AI_moveToStagingCity()
+ {
+ 	PROFILE_FUNC();
+ 
++	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
++	// advc: Moved up
++	bool const bNaval = (getArea().getAreaAIType(kOurTeam.getID()) == AREAAI_ASSAULT ||
++			getArea().getAreaAIType(kOurTeam.getID()) == AREAAI_ASSAULT_MASSING);
+ 	CvPlot* pStagingPlot = NULL;
+ 	CvPlot* pEndTurnPlot = NULL;
+-
+ 	int iBestValue = 0;
+-	TeamTypes eTargetTeam = NO_TEAM;
+-	{
+-		int iWarCount = 0;
+-		for (TeamIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> it(getTeam()); it.hasNext(); ++it)
+-		{
+-			if (GET_TEAM(getTeam()).AI_isSneakAttackPreparing(it->getID()))
+-			{
+-				eTargetTeam = it->getID();
+-				iWarCount++;
+-			}
+-		}
+-		/*	advc (note): Should only prepare vs. 1 target at a time, but SneakAttackPreparing
+-			is also true for the vassals of targets. So iWarCount > 1 can happen. */
+-		if (iWarCount > 1)
+-			eTargetTeam = NO_TEAM;
+-	}
+ 	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+ 	{
+ 		// BETTER_BTS_AI_MOD, War tactics AI, Efficiency, 02/22/10, jdog5000, START:
+@@ -21006,57 +20993,66 @@ bool CvUnitAI::AI_moveToStagingCity()
+ 		/*	BBAI TODO: Need some knowledge of whether this is a good city to attack from ...
+ 			only get that indirectly from threat. */
+ 		int iValue = pLoopCity->AI_cityThreat();
+-
+ 		// Have attack stacks in assault areas move to coastal cities for faster loading
+-		if (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT ||
+-			getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING)
++		if (bNaval)
+ 		{
+ 			CvArea* pWaterArea = pLoopCity->waterArea();
+-			if (pWaterArea != NULL && GET_TEAM(getTeam()).AI_isWaterAreaRelevant(*pWaterArea))
++			if (pWaterArea != NULL && kOurTeam.AI_isWaterAreaRelevant(*pWaterArea))
+ 			{
+-				// BBAI TODO:  Need a better way to determine which cities should serve as invasion launch locations
+-
++				/*	BBAI TODO: Need a better way to determine which cities should
++					serve as invasion launch locations */
+ 				// Inertia so units don't just chase transports around the map
+-				iValue = iValue/2;
+-				if (pLoopCity->getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT)
++				iValue = iValue / 2;
++				if (pLoopCity->getArea().getAreaAIType(kOurTeam.getID()) == AREAAI_ASSAULT)
+ 				{
+ 					// If in assault, transports may be at sea ... tend to stay where they left from
+ 					// to speed reinforcement
+ 					iValue += pLoopCity->getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie,
+ 							UNITAI_ATTACK_CITY, -1, getOwner());
+ 				}
+-
+ 				// Attraction to cities which are serving as launch/pickup points
+-				iValue += 3*pLoopCity->getPlot().plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwner());
+-				iValue += 2*pLoopCity->getPlot().plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwner());
+-				iValue += 5*GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++				iValue += 3 * pLoopCity->getPlot().plotCount(PUF_isUnitAIType,
++							UNITAI_ASSAULT_SEA, -1, getOwner());
++				iValue += 2 * pLoopCity->getPlot().plotCount(PUF_isUnitAIType,
++							UNITAI_ESCORT_SEA, -1, getOwner());
++				iValue += 5 * GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+ 						pLoopCity->getPlot(), MISSIONAI_PICKUP);
+ 			}
+-			else iValue = iValue/8;
++			else iValue /= 8;
+ 		}
+-
+-		if (iValue*200 > iBestValue)
++		if (iValue * 200 <= iBestValue)
++			continue;
+ 		// BETTER_BTS_AI_MOD: END
++		int iPathTurns;
++		if (generatePath(pLoopCity->getPlot(), MOVE_AVOID_ENEMY_WEIGHT_3, true,
++			&iPathTurns))
+ 		{
+-			int iPathTurns;
+-			if (generatePath(pLoopCity->getPlot(), MOVE_AVOID_ENEMY_WEIGHT_3, true,
+-				&iPathTurns))
+-			{
+-				iValue *= 1000;
+-				iValue /= (5 + iPathTurns);
+-				if (!at(pLoopCity->getPlot()) && pLoopCity->isVisible(eTargetTeam))
+-					iValue /= 2;
+-
+-				if (iValue > iBestValue)
++			iValue *= 1000;
++			iValue /= 5 + iPathTurns;
++			if (!at(pLoopCity->getPlot()))
++			{
++				/*	advc: Moved from the start of the function; don't need to cache this.
++					Note that, while we should only prepare vs. 1 target at a time,
++					SneakAttackPreparing is also true for the vassals of our target.*/
++				for (TeamIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itTarget(kOurTeam.getID());
++					itTarget.hasNext(); ++itTarget)
+ 				{
+-					iBestValue = iValue;
+-					pStagingPlot = pLoopCity->plot();
+-					pEndTurnPlot = &getPathEndTurnPlot();
++					if (kOurTeam.AI_isSneakAttackPreparing(itTarget->getID()) &&
++						pLoopCity->isVisible(itTarget->getID()))
++					{
++						iValue /= 2;
++						break;
++					}
+ 				}
+ 			}
++			if (iValue > iBestValue)
++			{
++				iBestValue = iValue;
++				pStagingPlot = pLoopCity->plot();
++				pEndTurnPlot = &getPathEndTurnPlot();
++			}
+ 		}
+ 	}
+-
+ 	if (pStagingPlot != NULL)
+ 	{
+ 		if (at(*pStagingPlot))
+@@ -21072,7 +21068,6 @@ bool CvUnitAI::AI_moveToStagingCity()
+ 			return true;
+ 		}
+ 	}
+-
+ 	return false;
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4990

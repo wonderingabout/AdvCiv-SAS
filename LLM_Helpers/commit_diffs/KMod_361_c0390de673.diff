@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 361
+# Commit: c0390de673eeff3dec98f2cf7f9b52407617490d
+# History segment: K-Mod history
+# Parent used for diff: 956b64b558b61bd303d3161d7c7131ebe52c538d
+# Title: Adjusted AI_groupFirstVal values so that ATTACK_CITY always scores higher than ATTACK. (I don't know why they were originally made to overlap.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e96704892..23b1f9643 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -606,11 +606,11 @@ int CvUnitAI::AI_groupFirstVal()
+ 	case UNITAI_ATTACK:
+ 		if (collateralDamage() > 0)
+ 		{
+-			return 17;
++			return 15; // was 17
+ 		}
+ 		else if (withdrawalProbability() > 0)
+ 		{
+-			return 15;
++			return 14; // was 15
+ 		}
+ 		else
+ 		{
+@@ -629,11 +629,11 @@ int CvUnitAI::AI_groupFirstVal()
+ 		}
+ 		else if (withdrawalProbability() > 0)
+ 		{
+-			return 16;
++			return 17; // was 16
+ 		}
+ 		else
+ 		{
+-			return 14;
++			return 16; // was 14
+ 		}
+ 		break;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=649

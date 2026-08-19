@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 977
+# Commit: f8979f3c77dbfb872019cfcd54cc4814c616cbd7
+# History segment: K-Mod history
+# Parent used for diff: bfbab9414884c493210a3cd32a011ebe17494ce1
+# Title: Added missing text for volcanic food landmark.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/xml/Text/EventSigns_CIV4GameText.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/EventSigns_CIV4GameText.xml b/Assets/xml/Text/EventSigns_CIV4GameText.xml
+index 4b476bdb4..8a4968114 100644
+--- a/Assets/xml/Text/EventSigns_CIV4GameText.xml
++++ b/Assets/xml/Text/EventSigns_CIV4GameText.xml
+@@ -169,4 +169,9 @@
+ 		<Italian>grande animale</Italian>
+ 		<Spanish>gran bestia</Spanish>
+ 	</TEXT>
++<!-- K-Mod -->
++	<TEXT>
++		<Tag>TXT_KEY_SIGN_EVENT_VOLCANO_1</Tag>
++		<English>volcanic ash</English>
++	</TEXT>
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=467

@@ -1,0 +1,947 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5255
+# Commit: a9da325fd7d1113aceed2b5be4c979545ea8391c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02
+# Title: performance optimization: optionally load AI Personality Panel values from predumped file (default, tunable in SAS defines) with the very nice help of claude...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/Python/BUG/BugConfig.py
+1	1	Assets/Python/BUG/BugData.py
+3	3	Assets/Python/BUG/BugDll.py
+4	4	Assets/Python/BUG/BugEventManager.py
+2	2	Assets/Python/BUG/BugGameUtils.py
+1	1	Assets/Python/BUG/BugHelp.py
+1	1	Assets/Python/BUG/BugInit.py
+6	6	Assets/Python/BUG/BugPath.py
+3	3	Assets/Python/BUG/BugTypes.py
+2	2	Assets/Python/BUG/BugUtil.py
+1	1	Assets/Python/BUG/GPUtil.py
+1	2	Assets/Python/BUG/UnitUtil.py
+2	2	Assets/Python/BUG/configobj.py
+1	1	Assets/Python/Contrib/CvStrategyOverlay.py
+128	28	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+39	0	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	13	Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt
+1	2	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+2	2	Assets/Python/Contrib/savemap.py
+1	1	Assets/Python/CvDebugTools.py
+1	1	Assets/Python/EntryPoints/CvEventInterface.py
+4	4	Assets/Python/Screens/IconGrid_BUG.py
+2	2	Assets/Python/Screens/PLE.py
+21	2	Assets/XML/GlobalDefines_advciv_sas.xml
+5	3	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+7	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+3	3	flatten_leaders_data_to_csv.py
+2	1	ruff.toml
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugConfig.py b/Assets/Python/BUG/BugConfig.py
+index ca6a8abf8..8038c279c 100644
+--- a/Assets/Python/BUG/BugConfig.py
++++ b/Assets/Python/BUG/BugConfig.py
+@@ -85,7 +85,7 @@ class ConfigParser(xmllib.XMLParser):
+ 		except BugUtil.ConfigError:
+ 			BugUtil.trace("BugConfig - failure parsing %s at line %d", path, self.lineno)
+ 			raise
+-		except Exception:
++		except:
+ 			BugUtil.trace("BugConfig - failure parsing %s at line %d", path, self.lineno)
+ 			raise
+ 	
+@@ -99,7 +99,7 @@ class ConfigParser(xmllib.XMLParser):
+ 			#BugUtil.debug("BugConfig - %s", self.format(tag, attrs))
+ 			self._handler, self._element = self._handler.startChild(self._element, tag, attrs)
+ 			self._stack.append((self._handler, self._element))
+-		except Exception:
++		except:
+ 			BugUtil.trace("BugConfig - failure parsing %s at line %d" % (self._path, self.lineno))
+ 	
+ 	def unknown_endtag(self, tag):
+@@ -113,7 +113,7 @@ class ConfigParser(xmllib.XMLParser):
+ 				self._handler = None
+ 				self._element = None
+ 				handler.end(element)
+-		except Exception:
++		except:
+ 			BugUtil.trace("BugConfig - failure parsing %s at line %d" % (self._path, self.lineno))
+ 	
+ 	def handle_data(self, data):
+
+diff --git a/Assets/Python/BUG/BugData.py b/Assets/Python/BUG/BugData.py
+index 5c9d409b4..3841b60b9 100644
+--- a/Assets/Python/BUG/BugData.py
++++ b/Assets/Python/BUG/BugData.py
+@@ -145,7 +145,7 @@ class Table(object):
+ 		try:
+ 			del self.data[key]
+ 			self.dirty = True
+-		except Exception:
++		except:
+ 			pass
+ 	
+ 	def hasValue(self, key):
+
+diff --git a/Assets/Python/BUG/BugDll.py b/Assets/Python/BUG/BugDll.py
+index 15e27e78f..8af53d16d 100644
+--- a/Assets/Python/BUG/BugDll.py
++++ b/Assets/Python/BUG/BugDll.py
+@@ -157,7 +157,7 @@ def isWidgetVersion(version, widget, bugWidget):
+ 	if isVersion(version):
+ 		try:
+ 			return widget == getattr(WidgetTypes, bugWidget)
+-		except Exception:
++		except:
+ 			pass
+ 	return False
+ 
+@@ -179,7 +179,7 @@ def getOptionSTRING(argsList):
+ def castOptionValue(func, id, default):
+ 	try:
+ 		return func(BugOptions.getOption(id).getValue())
+-	except Exception:
++	except:
+ 		return default
+ 
+ # <advc.003d>
+@@ -204,7 +204,7 @@ def init():
+ 				BugInit.addInit("setIsBug", setIsBug)
+ 			else:
+ 				BugUtil.debug("BugDll - setIsBug() not found")
+-	except Exception:
++	except:
+ 		BugUtil.debug("BugDll - BULL not present")
+ 
+ def setIsBug():
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 9874f1124..967418416 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -213,7 +213,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		if noLogEvents is not None:
+ 			try:
+ 				"gameUpdate" in noLogEvents
+-			except Exception:
++			except:
+ 				raise BugUtil.ConfigError("noLogEvents must be tuple, list or set")
+ 			else:
+ 				self.noLogEvents = noLogEvents
+@@ -360,7 +360,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 			for eventHandler in self.EventHandlerMap[eventType]:
+ 				try:
+ 					eventHandler(argsList)
+-				except Exception:
++				except:
+ 					BugUtil.trace("Error in %s event handler %s", eventType, eventHandler)
+ 
+ 	def _handleConsumableEvent(self, eventType, argsList):
+@@ -376,7 +376,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 					result = eventHandler(argsList)
+ 					if (result > 0):
+ 						return result
+-				except Exception:
++				except:
+ 					BugUtil.trace("Error in %s event handler %s", eventType, eventHandler)
+ 		return 0
+ 
+@@ -397,7 +397,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 			for eventHandler in self.EventHandlerMap[eventType]:
+ 				try:
+ 					result += eventHandler(argsList)
+-				except Exception:
++				except:
+ 					BugUtil.trace("Error in %s event handler %s", eventType, eventHandler)
+ 		return result
+
+diff --git a/Assets/Python/BUG/BugGameUtils.py b/Assets/Python/BUG/BugGameUtils.py
+index 8bd641d37..2ca28cd82 100644
+--- a/Assets/Python/BUG/BugGameUtils.py
++++ b/Assets/Python/BUG/BugGameUtils.py
+@@ -338,7 +338,7 @@ class Callback:
+ 				return handler()
+ 			else:
+ 				return handler(argsList)
+-		except Exception:
++		except:
+ 			BugUtil.trace("Error in %s callback handler %s", handler.__module__, self.name)
+ 	
+ 	def callListener(self, listener, argsList, result):
+@@ -349,7 +349,7 @@ class Callback:
+ 				value = listener(argsList, result)
+ 			if value is not None:
+ 				BugUtil.warn("BugGameUtils - %s - ignoring %s listener's return value %r", self.name, listener.__module__, value)
+-		except Exception:
++		except:
+ 			BugUtil.trace("Error in %s callback listener %s", listener.__module__, self.name)
+ 	
+ 	def __call__(self, argsList=None):
+
+diff --git a/Assets/Python/BUG/BugHelp.py b/Assets/Python/BUG/BugHelp.py
+index 62229b490..f7e241b50 100644
+--- a/Assets/Python/BUG/BugHelp.py
++++ b/Assets/Python/BUG/BugHelp.py
+@@ -29,7 +29,7 @@ def launch(argsList=None):
+ 			showLaunchMessage()
+ 			webbrowser.open(url, new=1, autoraise=1)
+ 			return True
+-		except Exception:
++		except:
+ 			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_TITLE"), 
+ 					BugUtil.getText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_BODY", (url,)))		
+ 	else: # advc.009: There is no FRA and ESP translation
+
+diff --git a/Assets/Python/BUG/BugInit.py b/Assets/Python/BUG/BugInit.py
+index 71f4a1081..aed828b58 100644
+--- a/Assets/Python/BUG/BugInit.py
++++ b/Assets/Python/BUG/BugInit.py
+@@ -101,5 +101,5 @@ def callInits():
+ 		name, func = g_initQueue.pop(0)
+ 		try:
+ 			func()
+-		except Exception:
++		except:
+ 			BugUtil.trace("BugInit - init '%s' failed" % name)
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index 57a16cb29..00cd6236c 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -369,7 +369,7 @@ def initModFolder():
+ 		replay = CyReplayInfo()
+ 		replay.createInfo(0)
+ 		modDir = replay.getModName().replace('\\', r'/')
+-	except Exception:
++	except:
+ 		BugUtil.trace("replay not ready")
+ 	else:
+ 		if modDir and len(modDir) > 2:
+@@ -429,7 +429,7 @@ def initNoCustomAssetsSetting():
+ 				from configobj import ConfigObj
+ 				config = ConfigObj(join(getModDir(), getModFolder() + ".ini"), encoding='utf_8')
+ 				_noCustomAssets = config["CONFIG"].as_bool("NoCustomAssets")
+-			except Exception:
++			except:
+ 				BugUtil.trace("BugPath - failed to parse mod INI file for NoCustomAssets")
+ 		BugUtil.info("BugPath - NoCustomAssets is %s", _noCustomAssets)
+ 	_noCustomAssetsSettingInitDone = True
+@@ -493,7 +493,7 @@ def initRootFolder():
+ 		for version, key, subkey in MY_DOCUMENTS_FOLDER_REG_KEYS:
+ 			try:
+ 				myDocuments = getRegValue(_winreg.HKEY_CURRENT_USER, key, subkey)
+-			except Exception:
++			except:
+ 				pass
+ 			else:
+ 				if setUserDir(join(myDocuments, MY_GAMES_FOLDER)):
+@@ -568,7 +568,7 @@ def initDataFolder():
+ 						pass
+ 					# sucks.
+ 					shutil.copytree(default_dir, dir)
+-				except Exception:
++				except:
+ 					BugUtil.trace("Failed to copy settings")
+ 		if not isdir(dir):
+ 			# Second attempt: create the directory manually
+@@ -716,11 +716,11 @@ def isfile(path):
+ def safeDebugPath(message, path):
+ 	try:
+ 		BugUtil.debug(message, path)
+-	except Exception:
++	except:
+ 		pass
+ 
+ def safeInfoPath(message, path):
+ 	try:
+ 		BugUtil.info(message, path)
+-	except Exception:
++	except:
+ 		pass
+
+diff --git a/Assets/Python/BUG/BugTypes.py b/Assets/Python/BUG/BugTypes.py
+index ef3ccf0a9..b0cfd0181 100644
+--- a/Assets/Python/BUG/BugTypes.py
++++ b/Assets/Python/BUG/BugTypes.py
+@@ -84,7 +84,7 @@ def normalize(type):
+ 		return None
+ 	try:
+ 		return NORMALIZED_TYPES[type.lower()]
+-	except Exception:
++	except:
+ 		raise BugUtil.ConfigError("Invalid type %s", type)
+ 
+ 
+@@ -175,13 +175,13 @@ def to(type, value, noneIsDefault=True, emptyIsDefault=True):
+ 				return CONVERT_FROM_STRING[normalize(type)](value.replace("\r\n", " "))
+ 			except KeyError:
+ 				raise BugUtil.ConfigError("Invalid type %s", type)
+-			except Exception:
++			except:
+ 				raise BugUtil.ConfigError("Invalid %s: %s", type, value)
+ 	else:
+ 		if value:
+ 			try:
+ 				return eval(value)
+-			except Exception:
++			except:
+ 				raise BugUtil.ConfigError("Invalid expression %s", value)
+ 		else:
+ 			return None
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 61a143805..ea8566488 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -724,7 +724,7 @@ def fixSets(namespace):
+ 	#
+ 	try:
+ 		set
+-	except Exception:
++	except:
+ 		import sets
+ 		namespace["set"] = sets.Set
+ 		namespace["frozenset"] = sets.ImmutableSet
+@@ -818,5 +818,5 @@ def isNoEspionage():
+ 	#
+ 	try:
+ 		return gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE)
+-	except Exception:
++	except:
+ 		return False
+
+diff --git a/Assets/Python/BUG/GPUtil.py b/Assets/Python/BUG/GPUtil.py
+index ee5a2508c..3dee93516 100644
+--- a/Assets/Python/BUG/GPUtil.py
++++ b/Assets/Python/BUG/GPUtil.py
+@@ -108,7 +108,7 @@ def getColor(gpType):
+ def getUnitIcon(iUnit):
+ 	try:
+ 		return g_unitIcons[iUnit]
+-	except Exception:
++	except:
+ 		BugUtil.warn("no GP icon for unit %d", iUnit)
+ 		return u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
+
+diff --git a/Assets/Python/BUG/UnitUtil.py b/Assets/Python/BUG/UnitUtil.py
+index 30cc5ac2a..906e72ec6 100644
+--- a/Assets/Python/BUG/UnitUtil.py
++++ b/Assets/Python/BUG/UnitUtil.py
+@@ -620,6 +620,5 @@ def initOrders():
+ 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_LAND_UNITS] = ORDER_SENTRY
+ 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_NAVAL_UNITS] = ORDER_SENTRY
+ 		MOVE_TO_MISSIONS.append(MissionTypes.MISSION_MOVE_TO_SENTRY)
+-	# <!-- custom: do not use bare exceptions as per ruff rule E722 similarly anyways etc, was "except:" -->
+-	except Exception:
++	except:
+ 		pass
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 13579f5fa..07be7ae4b 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -674,7 +674,7 @@ class Section(dict):
+                 # bound again in case name has changed
+                 entry = self.scalars[i]
+                 out[entry] = val
+-            except Exception:
++            except:
+                 if raise_errors:
+                     raise
+                 else:
+@@ -686,7 +686,7 @@ class Section(dict):
+             if call_on_sections:
+                 try:
+                     function(self, entry, **keywargs)
+-                except Exception:
++                except:
+                     if raise_errors:
+                         raise
+                     else:
+
+diff --git a/Assets/Python/Contrib/CvStrategyOverlay.py b/Assets/Python/Contrib/CvStrategyOverlay.py
+index 62d214a74..74609e440 100644
+--- a/Assets/Python/Contrib/CvStrategyOverlay.py
++++ b/Assets/Python/Contrib/CvStrategyOverlay.py
+@@ -46,7 +46,7 @@ def init(paletteWidth=3, paletteColors=None):
+ 			for index in range(200):
+ 				info = gc.getColorInfo(index)
+ 				COLOR_KEYS.append(info.getType())
+-		except Exception:
++		except:
+ 			pass
+ 	
+ 	# create layers
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 97b9fdfd7..e5c767dfd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -12,24 +12,11 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: part of the code here (placeFavourites in particular, but not exhaustive or maybe exhaustive
+-# or not, anyways, is imported from RFC Dawn of Civilization mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
+-# which may be modified or not for AdvCiv-SAS
++# Store in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
++# Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe even though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
++# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
+ #
+-# <!-- custom: added many features in AdvCiv-SAS with heavy assistance of ChatGPT-4o as well as my own contribution or/and such anyways etc. -->
+-#
+-# Here is the current overview of how the AI personality panel feature works-functions as of now anyways etc, and if i am not mistaken i mean anyways etc:
+-#
+-# 1) Precompute (once at module load before any leader is selected at all)
+-#	 - Exclude leaders (typically barbarian, as for defaults DLL has excluded it entirely from idnexes it seems in abse advciv and since we use similar if not identical code since we didn't modify  this part thanks for making it anyways etc, no need to handle leader_defaults it seems anyways etc)
+-#	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they are now flat fields like any other field, ready to be processed then stored anyways etc.
+-# 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields like flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
+-#	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
+-#	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe even though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
+-# 2) UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
+-#
+-# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
++# <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
+ 
+ 
+ 
+@@ -64,24 +51,124 @@ if IS_DEBUG_LEADER:
+ EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
+ 	"LEADER_BARBARIAN",
+ )
+-
+ EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS, gc)
+ 
+-
+-
+ # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
+-
+ if IS_DEBUG_LEADER:
+ 	print("[DEBUG] EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s" % str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS))
+ 
+ 
+ 
+-# <!-- custom: note: collapse this below function with VS Code or similar to easily see right at next lines (at least as of now anyways etc) viewed the class SevoPediaLeader code anyways etc -->
+-# <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main anyways etc -->
+-def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
++# Simple system to dump leader AI personality cache to PythonDbg.log, then optionally load it from a pre-generated .py module instead of computing at runtime.
++#
++# USAGE:
++# ------
++# 1. Set IS_USE_PREDUMPED_CACHE = False (default)
++# 2. Play the game, open Sevopedia → Leaders category
++# 3. In PythonDbg.log, find the block between:
++#       # === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===
++#       ...
++#       # === SAS_LEADER_AI_CACHE_PYMODULE_END ===
++# 4. Copy that block into a new file: SevoPediaLeaderCachePredumped.py
++# 5. Place that file in your mod's Python folder
++# 6. Set IS_USE_PREDUMPED_CACHE to True (via XML SAS defines)
++# 7. Now the game loads the pre-dumped data instead of computing it
++#
++# NOTES:
++# ------
++# - If you change emoji settings or leader XML, you need to re-dump
++# - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
++# === Cache dump/load config and helpers ===
++IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED") > 0)
++IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG") > 0)
++# Name of the pre-dumped module (without .py extension)
++PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
++
++
++
++def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
++	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
++
++	leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories = leader_cache
++
++	# BEGIN marker
++	print("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
++	print("")
++
++	# Header with generation info
++	print("# Generated from in-game dump to PythonDbg.log")
++	print("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
++	print("#")
++	print("# Generation info:")
++	print("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
++	print("#   - Excluded leader types: %r" % (excluded_leader_types,))
++	print("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
++	print("#   - Raw XML field names: %s" % str(is_raw_xml_names))
++	print("")
++
++	# The actual data
++	print("LEADERS_INFO_CACHED = %r" % (leaders_info_cached,))
++	print("")
++	print("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
++	print("")
++	print("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
++	print("")
++	print("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
++
++	# END marker
++	print("")
++	print("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
++
++	print("AI Personality Panel cache dumped to PythonDbg.log successfully.")
++
+ 
+ 
++def try_load_predumped_cache():
++	# Attempts to load the pre-dumped cache module.
++	if not IS_USE_PREDUMPED_CACHE:
++		return None
+ 
++	try:
++		# Dynamic import of the pre-dumped module
++		predumped = __import__(PREDUMPED_MODULE_NAME)
++		
++		leaders_info_cached = predumped.LEADERS_INFO_CACHED
++		ai_right_categories = predumped.AI_RIGHT_CATEGORIES
++		ai_middle_categories = predumped.AI_MIDDLE_CATEGORIES
++		ai_left_categories = predumped.AI_LEFT_CATEGORIES
++		
++		print("AI Personality Panel cache Loaded pre-dumped cache from %s.py" % PREDUMPED_MODULE_NAME)
++		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
++	
++	except:
++		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines." % PREDUMPED_MODULE_NAME)
++
++
++
++def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
++	# Main entry point. Either loads pre-dumped cache or computes it.
++	# Always dumps to log when computing (so you can grab it later).
++
++	# Try loading pre-dumped first
++	predumped = try_load_predumped_cache()
++	if predumped is not None:
++		return predumped
++	
++	# Compute at runtime
++	print("AI Personality Panel cache Computing leader cache at runtime...")
++	leader_cache = compute_func()
++	
++	# Dump to log only if enabled via define
++	if IS_DUMP_CACHE_TO_LOG:
++		dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
++	
++	return leader_cache
++
++
++
++# <!-- custom: note: collapse this below function with the VS Code UI option or similar to see the line after function definition directly (i.e. as of now around line 1530, right after function definition line e.g. around line 100) for easier reading if desired. -->
++# <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main anyways etc -->
++def _compute_leader_cache_internal():
+ 	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+ 	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here if i'm not mistaken but anyways etc -->
+ 	NUM_LEADERS = gc.getNumLeaderHeadInfos()
+@@ -1476,17 +1563,30 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 
+ 		return ai_right_categories, ai_middle_categories, ai_left_categories
+ 
+-	# === AI Panel's Categor<!-- custom: ies anyways etc --> ===
++
++
++	# === AI Panel's Categories ===
+ 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
+ 
+-	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we don't cache needlessly in case we never access sevopedia leader at all during entire gaming session (i.e. i mean until game is exited i mean anyways etc), but also before any leader is selected for display as this would slow display of said leader, especially if we'd have to cache at every leader slection which would be ridiculously and needlessly expensive computaitnally anyways etc. So the return to this SevoPediaLeader 's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession function, if it is changed, needs to also be changed in a similar way in SevoPediaMain 's placeLeaders, hopefully clearer or and helpful but anyways etc anyways etc anyways etc -->
++	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players if i'm not mistaken in SevoPediaMain 's placeLeaders. -->
+ 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short, anyways etc -->
+-	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited)")
++	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession() which if it was called, should cause this message to appear only once for the entire game session (i.e. since civ4 was launched), even if we browse another category or exit sevopedia.")
+ 
+ 	return LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+ 
+ 
+ 
++def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
++	# Wrapper that either loads pre-dumped cache or computes it
++	return get_leader_cache_predumped_or_compute(
++		compute_func = _compute_leader_cache_internal,
++		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS,
++		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
++		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
++	)
++
++
++
+ class SevoPediaLeader:
+ 
+ 	def __init__(self, main):
+@@ -1624,7 +1724,7 @@ class SevoPediaLeader:
+ 
+ 
+ 
+-	# <!-- custom: imported from RFC DOC and modified or/and not for AdvCiv-SAS, anyways, -->
++	# <!-- custom: imported from RFC DOC (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py) and modified or/and not for AdvCiv-SAS. -->
+ 	def placeFavorites(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=39 bytes=551614
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 5921c87ea..aefde8fb9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -95,7 +95,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.bFullScreen = True
+ 		if self.bFullScreen:
+ 			self.bWideScreen = True
+-		# <!-- custom: Not much value in being able to see the elements at the edge parts of the screen, however i think the extra room can be useful to fit more data or simply enlarge the view, hopefully making it all clearer and more pleasant to see. Other mods such as realism invictus or c2c use the entire screen for the sevopedia if i'm not mistaken and i like it fine, tested in AdvCiv-SAS and i like it very much, so removing margins now. -->
++		# <!-- custom: Not much value in being able to see the elements at the edge parts of the screen, however i think the extra room can be useful to fit more data or simply enlarge the view, hopefully making it all clearer and more pleasant to see. Other mods use the entire screen for the sevopedia if i'm not mistaken and i like it fine, tested in AdvCiv-SAS and i like it very much, so removing margins now. -->
+ 		self.HORIZONTAL_MARGIN = 0
+ 		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
+ 		self.TOP_MARGIN = 0
+@@ -291,7 +291,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def SAS_safeDeleteWidget(self, screen, szWidget):
+ 		try:
+ 			screen.deleteWidget(szWidget)
+-		except Exception:
++		except:
+ 			pass
+ 
+ 	# <!-- custom: type-to-filter search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt b/Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt reason=known-generated/noisy-history changedLines=14 bytes=11427
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index 10f8cdd23..fe327ed81 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -18,14 +18,13 @@ def printObjAttrs(obj):
+ 				print(u"%s\n" % attr)
+ 			else:
+ 				print(u"%s = %s\n" % (attr, attr_value))
+-		except Exception:
++		except:
+ 			print(u"%s - Error accessing\n" % attr)
+ 	
+ 	print ("[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.")
+ 
+ 
+ 
+-# <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
+ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
+ 	#
+
+diff --git a/Assets/Python/Contrib/savemap.py b/Assets/Python/Contrib/savemap.py
+index 2e16a0b46..0c63d9aa4 100644
+--- a/Assets/Python/Contrib/savemap.py
++++ b/Assets/Python/Contrib/savemap.py
+@@ -179,7 +179,7 @@ def savemap(argsList=None):
+ 			pathStr = pathname + goodName + ".py"
+ 			try:
+ 				f = open(pathStr)
+-			except Exception:
++			except:
+ 				# File doesn't exist yet: good (or pathname is inaccessible; we'll see about that)
+ 				break
+ 			BugUtil.debug("savemap: File '%s' already exists", pathStr)
+@@ -191,7 +191,7 @@ def savemap(argsList=None):
+ 			f.close()
+ 		try:
+ 			f = open(pathStr, 'w')
+-		except Exception:
++		except:
+ 			BugUtil.debug("savemap: Cannot open path '%s' for writing", pathStr)
+ 			customAssets = True
+ 			continue
+
+diff --git a/Assets/Python/CvDebugTools.py b/Assets/Python/CvDebugTools.py
+index 9523489a2..a5dbc47e9 100644
+--- a/Assets/Python/CvDebugTools.py
++++ b/Assets/Python/CvDebugTools.py
+@@ -227,7 +227,7 @@ class CvDebugTools:
+ 		
+ 		try:
+ 			goldChange = int( popupReturn.getEditBoxString( 0 ) )
+-		except Exception:
++		except:
+ 			return 0
+ 			
+ 		if goldChange:
+
+diff --git a/Assets/Python/EntryPoints/CvEventInterface.py b/Assets/Python/EntryPoints/CvEventInterface.py
+index 29da6c900..80784720f 100644
+--- a/Assets/Python/EntryPoints/CvEventInterface.py
++++ b/Assets/Python/EntryPoints/CvEventInterface.py
+@@ -50,7 +50,7 @@ def initAfterReload():
+ 		try:
+ 			import CvScreensInterface
+ 			CvScreensInterface.reinitMainInterface()
+-		except Exception:
++		except:
+ 			import BugUtil
+ 			BugUtil.error("BugInit - failure rebuilding main interface after reloading Python modules")
+ 		getEventManager().fireEvent("PythonReloaded")
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index 9626da0e6..2bde554aa 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -382,7 +382,7 @@ class IconGrid_BUG:
+ 						bDataFound = True
+ 						try:
+ 							iconData = rowData.cells[startIndex + offset].icons[0]
+-						except Exception:
++						except:
+ 							bDataFound = False
+ 
+ 						szIcon_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset)
+@@ -444,7 +444,7 @@ class IconGrid_BUG:
+ 						try:
+ #							BugUtil.debug("Stacked Bar try")
+ 							stackedbarData = rowData.cells[startIndex + offset].stackedbar[0]
+-						except Exception:
++						except:
+ 							bDataFound = False
+ 
+ #						BugUtil.debug("Stacked Bar data found? %s" % (bDataFound))
+@@ -490,7 +490,7 @@ class IconGrid_BUG:
+ 					bDataFound = True
+ 					try:
+ 						iconData = rowData.cells[startIndex + offset].icons[0]
+-					except Exception:
++					except:
+ 						bDataFound = False
+ 
+ 					if bDataFound:
+@@ -537,7 +537,7 @@ class IconGrid_BUG:
+ 					bDataFound = True
+ 					try:
+ 						stackedbarData = rowData.cells[startIndex + offset].stackedbar[0]
+-					except Exception:
++					except:
+ 						bDataFound = False
+ 
+ 					if bDataFound:
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 6b05480f2..08d26e01b 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -253,7 +253,7 @@ class PLE:
+ 				if (lActUnitInfo != self.dPLEUnitInfo[ id ]):
+ 					self.setPLEUnitList(True)
+ 					# mt.debug("update unload:"+str(self.iLoopCnt))
+-		except Exception:
++		except:
+ 			# mt.debug("Sel Unit: <fail>")
+ 			pass
+ 
+@@ -1926,7 +1926,7 @@ class PLE:
+ 		pUnit = self.listPLEButtons[id][0]
+ 		try:
+ 			iUnitType = pUnit.getUnitType()
+-		except Exception:
++		except:
+ 			return
+ 
+ 		pUnitTypeInfo = gc.getUnitInfo(iUnitType)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 4a3b39515..0ee210d43 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -12,16 +12,35 @@
+ 
+ 
+ 
+-	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc -->
++	<!-- custom: Leader AI Cache:
++		0 = compute at runtime (still fairly fast, but needless computation: this ignores the predumped file (SevoPediaLeaderCachePredumped.py) and always recomputes the ai personality panel's values for the first time we access the sevopedia leader panel, and the same again every time we start the game and do so again (i.e. computes only once during same session, not many times, and does not compute if we don't access sevopedia leader, but still computes once every time we do for the first time during this session); optional for modders or temporarily for players who want to change some display options in the ai personality panel until they have updated the predump, then they can use 1 rather)
++		
++		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
++
++	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
++	Set to 0 to compute at runtime  -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later). Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such. -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_CACHE_DUMP_TO_LOG</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section anyways etc -->
++	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section anyways etc. Note: if SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.  -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++
++
++
+ 	<!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION</DefineName>
+
+diff --git a/README.md b/README.md
+index 7582ac839..fc6efa4ef 100644
+--- a/README.md
++++ b/README.md
+@@ -176,11 +176,11 @@ See also for details:
+ 
+ ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
+ 
+-One of the main and most significant sevopedia changes in AdvCiv-SAS among others as well anyways etc is the new AI Personality panel new feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefully or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
++One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
+ 
+-Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values anyways etc) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data anyways etc.).
++Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data). It is computationally lightweight, as all the values are already provided in the mod before the game is launched, the game just displays this data.
+ 
+-As always, ChatGPT is a key co-author and main code contributor. Created by the power of love and friendship between me and ChatGPT and with the help of other AIs (See [Authors](/README.md#authors) for details) thanks.
++As always, ChatGPT is a key co-author and main code contributor and with the help of other AIs (See [Authors](/README.md#authors) for details) thanks.
+ 
+ Here is below a sample of the example screenshots showing the AI Personality panel feature in sevopedialeader, as well as samples showing other sevopedia reworks that are part of AdvCiv-SAS.
+ 
+@@ -208,6 +208,8 @@ note 1: its performance should be very very efficient and optimized, see for det
+ 
+ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details anyways etc).
+ 
++note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
++
+ ### Some lower level changes (search bar, keyboard UP/DOWN navigation, etc.)
+ 
+ #### Search Bar
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 83bac80eb..bf4916b34 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -1115,7 +1115,7 @@ See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-gett
+ 
+ ## Example of performance optimization of python loading time (as in when we load the code) and loading times if i may say anyways etc (as in code performance due to how it is optimized from what little or not little i know or and did of it but anyways etc)
+ 
+-The AI Personality feature in/of sevopedia leader has a very or at least quite optimized caching system, i think it is a good example or maybe at least time to show how i did it if it helps or/and others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or/and pleasant/enjoyable maybe too or not or yes or other or etc anyways etc, see this doc section for details with google drive link with (= that has anyways etc) screenshots and such anyways etc: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
++The AI Personality feature in/of sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or/and others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or/and pleasant/enjoyable maybe too or not or yes or other or etc anyways etc, see this doc section for details with google drive link with (= that has anyways etc) screenshots and such anyways etc: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+ 
+ ## Files
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 37018bd95..a9f52dca1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -34,7 +34,7 @@ See [Modding_Ressources/README.md's Sources about XML AI Attributes and their me
+ The ai attributes (simply) aim to and display:
+ 
+ - for raw ai attributes, the raw value (such as warrand 50 for moctezuma, 400 for gandhi),
+-- while for aggregated ai attributes, they/we combine several attributes with a specific weight to each, and give a final score for several ai attributes. For example Positive Memory affections combine a main weight (between 0 and 1) on memory decay (value) with some conditions (see [generate_leaders_data.py('s code)](/generate_leaders_data.py) and/or the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) and secondary weight (1 - main weight equal to 1 at least we check it is as close to 1 as possible if not 1 exactly anyways etc)weight on memory rand, which gives a final score with a 1.0 weight of these scores combined.
++- while for aggregated ai attributes, they/we combine several attributes with a specific weight to each, and give a final score for several ai attributes. For example Positive Memory affections combine a main weight (between 0 and 1) on memory decay (value) with some conditions (see [generate_leaders_data.py('s code)](/generate_leaders_data.py) and/or the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) and secondary weight (1 - main weight equal to 1 at least we check it is as close to 1 as possible if not 1 exactly anyways etc) weight on memory rand, which gives a final score with a 1.0 weight of these scores combined.
+ 
+ Here is an example below of how it looks ingame in the sevopedia leader category:
+ 
+@@ -131,19 +131,21 @@ Screenshots about this part of the readme are in this [google drive link folder]
+ 
+ I am very happy that the AI Personality panel is coded in a way that i find is very efficient and performant. Even though i should say first that i am not an expert in this topic or too knowledgeable about these, i believe still and also thanks to the help of chatgpt i could do this as well thanks a lot anyways etc, that the system is very efficient in terms of memory consumption and load times in particular anyways etc.
+ 
+-For example, we store almost all data as cached precomputed tuples, and if there are strings it is almost only byte strings not unicode strings. At leader selection, there is barely anything left to do except unpack and display as is fully computed display with their label, normalized value, and scale. We also do not cache at module load, and we do not cache at all if we never click at the Leaders category in sevopedia, but we also cache before any leader is selected, and once we have the sevopedia leader variables we need cached, we don't recache even if sevopedia is closed or a save file loaded during the entire game session (i.e. until game is exited).
++For example, we store almost all data as cached precomputed tuples (in [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)), and if there are strings it is almost only byte strings not unicode strings. At leader selection, there is barely anything left to do except unpack and display as is fully precomputed display with their label, normalized value, and scale. We also do not cache at module load, and we do not cache at all if we never click at the Leaders category in sevopedia, but we load the precomputed cache before any leader is selected, and we don't reload cache even if sevopedia is closed or a save file loaded during the entire game session (i.e. until game is exited).
+ 
+-The little extra bonus is for example at least is the one that comes to my mind only anyways etc we build the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design more plasant, is idea i also got while contemplating a tiny bit this code and chatgpt's repleis i mean very quick contemplate while thinking, so and but or etc i am very happy of this part of the result too if i may say but anyways etc anyways etc anyways etc hopefully pleasant for players too or not or yes or other or etc anyways etc
++The little extra bonus is for example at least is the one that comes to my mind only anyways etc we load the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly load the precomputed cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design more plasant.
+ 
+ Using a function call gives us also more control than hardcoded code in sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now as well anyways etc anyways etc. This is also very nice because now in VS Code in sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the sevopedia leader remaining code we want so i hadn't planend it as such but is very nice side effect if i may say but or not but or yes but or etc but anyways etc anyways etc anyways etc.
+ 
+-Because of these and perhaps other related or other things or not, i believe this is a very very efficient design. Please look at sevopedia leader's code for details and the tiny bits in this case anyways etc in sevopedia main as well for the time where we cache and the flag to not recache anyways etc.
++Also, loading the precache rather than pre-caching and recomputing at each civ4 game launch, has the advantage for players that they don't need to always recompute these values that do not change on their end, and rarely so even for modders, every time they start civ4. Plus, as the AI Personality Panel is purely only a UI feature, no need to spend so much computation on it, only fetch the precomputed result directly rather. Also, this should scale better computationally so it is cheaper (calculate the max among more leaders or with more xml attributes would be more than linearily more expensive if i'm not mistaken, vs just fetching the precomputed value for say Leader number 150 in a heavy mod if not more). So the burden to update it is on the modder.
++
++Because of these and perhaps other related or other things or not, i believe this is a very very efficient design. Please look at sevopedia leader's code for details and the tiny bits in this case anyways etc in sevopedia main as well for the time where we load the precomputed cache and the flag to not reload the cache anyways etc.
+ 
+ Note: technically should be in modding ressources but fits also here as well so duplicated this entry of the doc with a link there to this anyways etc.
+ 
+ ## If you want to mod
+ 
+-Even if you want to mod, as explained in the docs, you can modify the XML values of leaders or even add/remove leaders, all this will be dynamically (i.e. no change needed from you at all) taken into account, including the ranking between leaders anyways etc (restart game to apply changes, ideally do not modify XML while civ4 is launched as it seems to cause errors that need to exit/relaunch game to fix if i am not mistaken that these errors are indeed not permanent anyways etc).
++If you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)).
+ 
+ ## Note about some ai attributes being ignored
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 123eb3f08..80eac8c4e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -58,9 +58,9 @@ In AdvCiv-SAS 5252, based on C2C mod's code thanks, and with the help of claude
+ 
+ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ 
+-- 1st commit: It is the conservative first stable functional version. Has some minor issues such sometimes as the tree pages (Unit Tree, Promotions Tree) having the arrows not result in anything unless the player clicks on the page itself, or some similar or related issues: []().
+-- 2nd commit: Conservative fixes with the help of chatgpt 5.2 and claude opus 4.5. Now scrolling in tree pages is functional without requiring a click, and when going from a tree page to a list page we can now use successfully the arrow keys without requiring a click. : []().
+-- 3rd commit: Conservative performance optimizations: Category-aware caching (O(1) navigation) (as per claude opus 4.5's summary of chatgpt 5.2's implementation based on their previous version of this optimization. See commit notes for details as i don't know too much about these, but seems harmless and hopefully helps indeed (check if accurate)) : []().
++- 1st commit: It is the conservative first stable functional version. Has some minor issues such sometimes as the tree pages (Unit Tree, Promotions Tree) having the arrows not result in anything unless the player clicks on the page itself, or some similar or related issues: [commit/10fd402effc12c3fa90c265b74630a263a7e761e](https://github.com/wonderingabout/AdvCiv-SAS/commit/10fd402effc12c3fa90c265b74630a263a7e761e).
++- 2nd commit: Conservative fixes with the help of chatgpt 5.2 and claude opus 4.5. Now scrolling in tree pages is functional without requiring a click, and when going from a tree page to a list page we can now use successfully the arrow keys without requiring a click. : [commit/ed2b7c658621f122e1824a858ab79856a5bef736](https://github.com/wonderingabout/AdvCiv-SAS/commit/ed2b7c658621f122e1824a858ab79856a5bef736).
++- 3rd commit: Conservative performance optimizations: Category-aware caching (O(1) navigation) (as per claude opus 4.5's summary of chatgpt 5.2's implementation based on their previous version of this optimization. See commit notes for details as i don't know too much about these, but seems harmless and hopefully helps indeed (check if accurate)) : [commit/e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02](https://github.com/wonderingabout/AdvCiv-SAS/commit/e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02).
+ 
+ Note: history handling (i.e. not remembering all visited pages with the arrows inbetween original entry and entry we browsed to) purposely ignored and not supported as it caused issues and fixing it was not easy and created other issues as well, cleaner to just support it as it is (i.e. remembering all these entries as is the default) if i'm not mistaken (check if accurate).
+
+diff --git a/flatten_leaders_data_to_csv.py b/flatten_leaders_data_to_csv.py
+index 15506a674..b05e2dc03 100644
+--- a/flatten_leaders_data_to_csv.py
++++ b/flatten_leaders_data_to_csv.py
+@@ -286,7 +286,7 @@ for leader_id in PARSED_XML_LEADERS_DATA:
+ 					]
+ 					val = ", ".join(formatted)
+ 					
+-			except Exception:
++			except:
+ 				val = val  # fallback silently
+ 		elif col == "Traits":
+ 			try:
+@@ -297,7 +297,7 @@ for leader_id in PARSED_XML_LEADERS_DATA:
+ 						for trait in trait_list if isinstance(trait, dict)
+ 					]
+ 					val = ", ".join(formatted)
+-			except Exception:
++			except:
+ 				val = val
+ 		elif col == "UnitAIWeightModifiers":
+ 			try:
+@@ -308,7 +308,7 @@ for leader_id in PARSED_XML_LEADERS_DATA:
+ 						for entry in unit_ai_list if isinstance(entry, dict)
+ 					]
+ 					val = ", ".join(formatted)
+-			except Exception:
++			except:
+ 				val = val  # fallback if needed
+ 
+ 		cleaned_row[col] = val
+
+diff --git a/ruff.toml b/ruff.toml
+index fff28bce6..0a2b093a2 100644
+--- a/ruff.toml
++++ b/ruff.toml
+@@ -9,4 +9,5 @@ select = ["E", "F"]
+ # F403: 'from module import *' used; can't track undefined names
+ # F405: Name may be undefined, or defined from star imports
+ # E501: Line too long (we allow longer lines in Civ4 UI scripts)
+-ignore = ["F403", "F405", "E501"]  # Allow star imports, undefined names, long lines
++# E722: Do not use bare `except` (<!-- custom: for python 2.4 compatibility as per claude opus 4.5's explanation thanks: "Python 2.4 compatibility note: Your bare except: clause is fine for Python 2.4. If you ever want to catch specific exceptions with the error message, use the old syntax: except ImportError, e: instead of except ImportError as e:." -->)
++ignore = ["F403", "F405", "E501", "E722"]  # Allow star imports, undefined names, long lines, bare except
+
+[PATCH COVERAGE]
+patchFiles=31 embeddedFiles=29 omittedFiles=2 embeddedPatchBytes=60781

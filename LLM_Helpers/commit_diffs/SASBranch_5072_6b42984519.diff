@@ -1,0 +1,378 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5072
+# Commit: 6b42984519c57f4937bcaec4a94e23ea52f4f9f0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9795f45348ad7bd1d6c54c20c93ad6ba61188508
+# Title: (Beyond Tremendously Improved) Add emergency defense buildings to build at highest priority if invasion risk is high enough, in CvCity::doTurn This seems to...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+35	0	Assets/XML/GlobalDefines_advciv_sas.xml
+104	11	CvGameCoreDLL/CvCity.cpp
+21	15	CvGameCoreDLL/CvCityAI.cpp
+4	2	CvGameCoreDLL/CvUnit.cpp
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index f57a7e708..27ca5000b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -847,6 +847,41 @@
+ 
+ 
+ 
++	<!-- custom: e.g. 120 means that enemy team has 1.2 times if we were to use our team's power as 1.0 as a base comparison (they are 20% stronger than us) anyways etc -->
++	<!-- Enemy strength threshold (team power%) to trigger -->
++	<Define>
++		<DefineName>SAS_ENEMY_STRONG_POWER_THRESHOLD</DefineName>
++		<iDefineIntVal>120</iDefineIntVal>
++	</Define>
++	<!-- custom: if enemy team has less than this power as compared to ours, they are weaker. E.g. if < 80 (i.e. < 0.8 times our team's power), we consider them weaker than us in our as of now advciv-sas added pieces of logic anyways etc -->
++	<!-- custom: if not at war value may be 0 so it is not always reliable for comparisons as is, check code for detail and if what i say is accurate as it is just from me remembering my vague understanding of it if i may say but anyways etc -->
++	<Define>
++		<DefineName>SAS_ENEMY_WEAK_POWER_THRESHOLD</DefineName>
++		<iDefineIntVal>80</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see quick guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help but anyways etc, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
++	<!-- custom: note 2: logic applies only if these buildings are urgent, else no need to force these buildings and it would most likely be inefficient in terms of AI strength if i may say but anyways etc to do so but anyways etc -->
++	<!-- // Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: adjust as per your xml if your defense buildings to urgently build are not the walls and the castle anyways etc -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME</DefineName>
++		<DefineTextVal>BUILDINGCLASS_WALLS</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME</DefineName>
++		<DefineTextVal>BUILDINGCLASS_CASTLE</DefineTextVal>
++	</Define>
++	<!-- custom: note 3: higher increments like 3, 4, 5, etc. not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed anyways etc. -->
++
++
++
+ 	<!-- custom: water food building (as of now building_harbor anyways etc) emergency/force anyways etc production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is anyways etc)), 0 to disable it -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 274180566..ccbf87dbf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -571,17 +571,109 @@ void CvCity::doTurn()
+ 
+ 	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
+ 	const bool bHuman = isHuman();
+-	bool const bDanger  = AI().AI_isDanger();	// method lives on CvCityAI
++
++	bool const bDanger = AI().AI_isDanger();	// method lives on CvCityAI
++	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
++	const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
++	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
++	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
++	// Practical use in your siege gate
++	// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
++	// This way:
++	// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
++	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++	//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
++	// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
++	const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
++
++	// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need if i'm not mistaken but anyways etc), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one in this case i mean but anyways etc, check if accurate anyways etc -->
++	// Yep—that header explains it perfectly.
++	// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
++	// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }
++	// So either call (getCivilizationInfo(...) or getInfo(...)) yields the same CvCivilizationInfo&. Your earlier grep just showed project usage prefers getInfo(...), but both compile to the same thing.
++	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
++
+ 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
+ 	bool bEmergencyBuilding = false;
+ 
++	// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see quick guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help but anyways etc, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
++	// Your guards use getNumBuilding(...) (not “active”), which is exactly what we want for “do we already have one?”—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
++	// --- SAS: force Walls/Castle if at war and enemy stronger ---
++	static const bool bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS = GC.getDefineBOOL("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS");
++
++	if (bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS && !bHuman && !bEmergencyBuilding)
++	{
++		// <!-- custom: note: logic applies only if these buildings are urgent: at war and we are weaker, else no need to force these buildings and it would most likely be inefficient in terms of AI strength if i may say but anyways etc to do so but anyways etc -->
++		const bool bShouldBuildEmergencyDefenseBuilding = (
++			bEnemyStrong ||
++			// <!-- custom: we risk being backstabbed while attacking someone, so be more cautious and build some defense if we don't have such maybe (slightly less effective offense, but much more reliable defense as a result so seems fine and good maybe but anyways etc) -->
++			(bAtWar && !bEnemyWeakNotZero) || 
++			bDanger
++		);
++
++		// Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger
++		if (bShouldBuildEmergencyDefenseBuilding)
++		{
++			// Resolve civ-specific building from BuildingClass
++			static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
++			static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
++
++			BuildingTypes eWalls = NO_BUILDING;
++			if (eWallsClass != NO_BUILDINGCLASS)
++			{
++				eWalls = (BuildingTypes)kCiv.getCivilizationBuildings(eWallsClass);
++			}
++			BuildingTypes eCastle = NO_BUILDING;
++			if (eCastleClass != NO_BUILDINGCLASS)
++			{
++				eCastle = (BuildingTypes)kCiv.getCivilizationBuildings(eCastleClass);
++			}
++
++			// First: Walls
++			if ((eWalls != NO_BUILDING) &&
++				getNumBuilding(eWalls) == 0 &&
++				canConstruct(eWalls, false, false, true))
++			{
++				if (getProductionBuilding() == eWalls)
++				{
++					bEmergencyBuilding = true; // already doing it
++				}
++				else
++				{
++					clearOrderQueue();                         // hard override
++					pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
++					setChooseProductionDirty(false);           // keep it next turn
++					bEmergencyBuilding = true;
++				}
++			}
++			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
++			else if ((eCastle != NO_BUILDING) &&
++					getNumBuilding(eCastle) == 0 &&
++					canConstruct(eCastle, false, false, true))
++			{
++				if (getProductionBuilding() == eCastle)
++				{
++					bEmergencyBuilding = true;
++				}
++				else
++				{
++					clearOrderQueue();
++					pushOrder(ORDER_CONSTRUCT, eCastle);
++					setChooseProductionDirty(false);
++					bEmergencyBuilding = true;
++				}
++			}
++		}
++	}
++	// --- end SAS defense rule ---
++
+ 	// <!-- custom: emergency harbor (or whatever the water food building is in your mod anyways etc) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments anyways etc and/or such, check if accurate anyways etc -->
+ 	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
+ 	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
+ 
+-	// Optional (recommended) war–danger gate
+-	// So you don’t cancel a critical unit in a besieged city:
+-	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bDanger)
++	// Don’t cancel a critical unit in a besieged city:
++	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bEmergencyBuilding && !bDanger)
+ 	{
+ 		// The low-food gate matches your original intent (fix tundra coasts that stagnate), while leaving healthy coastals alone.
+ 		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+@@ -602,11 +694,17 @@ void CvCity::doTurn()
+ 				BuildingTypes eWaterFoodBuilding = NO_BUILDING;
+ 				if (eWaterFoodBuildingClass != NO_BUILDINGCLASS)
+ 				{
+-					eWaterFoodBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eWaterFoodBuildingClass);
++					eWaterFoodBuilding = (BuildingTypes)kCiv.getCivilizationBuildings(eWaterFoodBuildingClass);
+ 				}
+ 
++				// When to use each
++				// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?” regardless of techs.
++				// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?”
++				// For your emergencies:
++				// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
++				// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
+ 				if ((eWaterFoodBuilding != NO_BUILDING) &&
+-					getNumActiveBuilding(eWaterFoodBuilding) == 0 &&
++					getNumBuilding(eWaterFoodBuilding) == 0 &&
+ 					canConstruct(eWaterFoodBuilding, false, false, true))
+ 				{
+ 					// if already building Harbor, let it finish
+@@ -719,11 +817,6 @@ void CvCity::doTurn()
+ 			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+ 			// change to:
+ 			bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
+-			// bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
+-			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+-			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+-			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+-			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+ 			// <!-- custom: see/read but anyways etc code comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details if i may say but anyways etc -->
+ 
+ 			static const int iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 32e8654a5..132e7478b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -488,9 +488,11 @@ void CvCityAI::AI_chooseProduction()
+ 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+ 				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+ 				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+-				const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
++				static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+ 				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+-				const bool bEnemyWeak = (iEnemyPowerPercent <= 80);
++				static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++				const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+ 				// <!-- custom: redundant given below checks but for clarity if i may say but anyways etc (ideally should apply it elsewhere it is used but didn't do so so far as bit tedious and would need to test it to be sure if better results as such or if relevant for relevant parts of the code although not checking war seems a mistake based on the info i found while solving known issue as of now 53.3 but check to be sure and left as such at least as of now in other places anyways etc) -->
+ 				const bool bAtWarAndEnemyWeak = (bAtWar && bEnemyWeak);
+ 
+@@ -1740,13 +1742,13 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 		// <!-- custom: if i may say... difensu moudo!! But anyways etc... -->
+ 		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+-		// int const iDefenseModeThreshold = 130;
+-		int const iDefenseModeThreshold = 120;
++		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++		int const iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD;
+ 		bool const bDefenseMode = ((iEnemyPowerPercent >= iDefenseModeThreshold) || /* bWarPossible || */ bAnyPlannedWar || bAnyRealWar || bDanger || bDefense /* && !bPeaceAloneLikely */);
+ 		// bool const bOffenseMode = (((!bAnyRealWar && iEnemyPowerPercent <= 70) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */));
+ 		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+-		// int const iOffenseModeThreshold = 70;
+-		int const iOffenseModeThreshold = 80;
++		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++		int const iOffenseModeThreshold = iSAS_ENEMY_WEAK_POWER_THRESHOLD;
+ 		bool const bOffenseMode = ((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */);
+ 
+ 		// int const iNumCities = kOwner.getNumCities();
+@@ -3475,12 +3477,12 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 		// <!-- custom: if i may say... difensu moudo!! But anyways etc... -->
+ 		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+-		// int const iDefenseModeThreshold = 130;
+-		int const iDefenseModeThreshold = 120;
++		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++		int const iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD;
+ 		bool const bDefenseMode = (((iEnemyPowerPercent >= iDefenseModeThreshold) /*||  bWarPossible ||*/ || bAnyPlannedWar || bAnyRealWar || bDanger || bDefense) && !bPeaceAloneLikely);
+ 		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+-		// int const iOffenseModeThreshold = 70;
+-		int const iOffenseModeThreshold = 80;
++		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++		int const iOffenseModeThreshold = iSAS_ENEMY_WEAK_POWER_THRESHOLD;
+ 		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
+ 
+ 		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+@@ -4524,8 +4526,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+ 
+ 		// Tunables
+-		const int iDefenseModeThreshold = 120; // ≥120 => they’re scary <!-- custom: or strong rather xd, clearer what it means, and weak one can be scary maybe too, is less clear, but funny as in humorous if i may say but anyways etc -->; prefer defense
+-		const int iOffenseModeThreshold = 80; // ≤80 => we’re strong enough to skip walls
++		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++		const int iDefenseModeThreshold = iSAS_ENEMY_STRONG_POWER_THRESHOLD; // ≥120 => they’re scary <!-- custom: or strong rather xd, clearer what it means, and weak one can be scary maybe too, is less clear, but funny as in humorous if i may say but anyways etc -->; prefer defense
++		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++		const int iOffenseModeThreshold = iSAS_ENEMY_WEAK_POWER_THRESHOLD; // ≤80 => we’re strong enough to skip walls
+ 
+ 		const bool bEnemyStrong  = (iEnemyPowerPercent >= iDefenseModeThreshold);
+ 		// <!-- custom: note: be careful of enemy weak being true if we're not at war (due to enemy percent being 0, not sure it would happen but better be safe from this false positive by wrapping with an at war check to get actual enemy percent and not 0 by default if i am not mistaken but this is just a guess, check if accurate anyways etc) -->
+@@ -11375,7 +11379,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+ 			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+ 			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+-			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
++			static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++			const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+ 			// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+ 			// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3 but anyways etc's related fixes and/or tweaks but anyways etc, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise anyways etc) when fed the code sample, check if accurate anyways etc -->
+ 			// Short answer: it’s solid during war or when a war is already “chosen”, but it’s not meaningful in generic peacetime.
+@@ -11397,9 +11402,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 			// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+ 			// This way:
+ 			// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+-			//const bool bEnemyWeak = (iEnemyPowerPercent <= 80);
++			static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++			//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+ 			// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
+-			const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= 80));
++			const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
+ 
+ 			const int iNumCities = kPlayer.getNumCities();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 1dfe5aa1c..a9b3658e7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3496,8 +3496,10 @@ bool CvUnit::canScrap() const
+ 			// 	const bool bWarPlan = kOwner.AI_isFocusWar();
+ 			// 	const bool bAtWar = (kTeam.getNumWars() > 0);
+ 			// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+-			// 	const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+-			// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
++			// 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++			// 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
++			// 	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++			// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+ 
+ 			// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
+ 			// 	// Danger heuristic: any unsafe city or any plot danger near a city
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d517fcbd7..31a4722e2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -180,7 +180,6 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### City Production (AI)
+ 
+ - massively patched / worked around and seemingly fixed the major base advciv +/- civ4 issue of AI cities being in a no production state (they don't produce anything at all, there is a "no entry" like button as chatgpt 5 describe it xd but anyways etc), not even a unit like a warrior / ancient maceman or such which would absolutely be free and better than litteral nothing. This wastes a lot of hammers, and happens in quite a few cities, not just during one turn. The very effective work around was to add another fallback of "produce most expensive (unless price is extremely and unusually high then cheapest among them instead anyways etc) unit that suits us" (a land unit of offense or defense, not civilian like a scout for example anyways etc). So now cities don't have no production at all anymore, and produce for example an archer instead in the ancient era as of now but anyways etc. Added in `CvCity::AI_doTurn`. See for details with screenshots and such anyways etc [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc).Thanks to the increase in AI efficiency and hammer use due to now using hammer instead of "passing" turns but anyways etc, i have reduced handicap settings a bit more to accomodate that (and so AIs don't go bankrupt, as well as human players having a more even game without excessive penalties too ideally so hopefully for the best in all at least to me if i may say but anyways etc). AI should be quite a bit stronger thanks to this change but anyways etc. Update: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
+-- (Requires AdvCiv-SAS 5068+) before that no production fix/patch is applied, also added an emergency/force water food building class (as of now it is the harbor buildings in advciv-sas (buildings that give +1 food on water tiles anyways etc)) logic that takes precedence: if we are low on food and city is coastal (connected to an ocean), force a harbor type of building (or their civ-specific variants anyways etc) so that we don't get stagnant while a harbor could help us grow our pop. Tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml), including in case you change the building(s) that give food yield in your mod anyways etc, see defines for details anyways etc.
+ 
+ #### Leaders (AI)
+ 
+@@ -193,6 +192,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+ - added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc.
+ - Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, by replacing in our prechecks in `CvCityAI::AI_buildingValue` the use of the too broad and unreliable base advciv +/- civ4's `CvCity::getAdditionalHappinessByBuilding` with our new `AI_strictAdditionalHappy`, as well as better account the expected food gains from them after removing unhappy citizens; these changes yielded (no pun but anyways etc) great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
++- (requires AdvCiv-SAS 5072+) add emergency defense buildings to build priority if we at a high enough risk of being attacked (as of now if enemy team is significantly stronger than ours, or if there is nearby danger, or if we are at war and enemy team is not significantly weaker than ours (risk of being backstabbed even if we are quite strong, so being more cautious in this case anyways etc)), force build at highest priority walls and then castle in our city, if these are missing (tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc), in `CvCity::AI_doTurn`. Trying not to overdo it as they are quite costly to build and may hinder/slow our growth, so these are applied in conservative cases where it may be most beneficial if i'm not mistaken as mentionned here anyways etc but anyways etc. After this change, it seems snowballer AIs have a significantly harder time steamrolling and other players defend themselves better in autoplay (check if accurate) anyways etc.
++- (Requires AdvCiv-SAS 5068+) before the no production fix/patch is applied, also added an emergency/force water food building class (as of now it is the harbor buildings in advciv-sas (buildings that give +1 food on water tiles anyways etc)) logic that takes precedence: if we are low on food and city is coastal (connected to an ocean), force a harbor type of building (or their civ-specific variants anyways etc) so that we don't get stagnant while a harbor could help us grow our pop. Tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml), including in case you change the building(s) that give food yield in your mod anyways etc, see defines for details anyways etc.
+ 
+ #### Diplomacy (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 8f9d4d2bb..57029ee79 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -169,7 +169,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### City Production (AI)
+ 
+ - **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to “any suitable land unit” if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+-- (Requires AdvCiv-SAS 5068+) **Emergency water-food building (pre-fallback):** Before the “no-production” fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. Runs first in `CvCity::AI_doTurn`. Tunables—including which buildings count—live in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ #### Leaders (AI)
+ 
+@@ -182,6 +181,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+ - Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+ - **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings (now using, in our prechecks, the new `AI_strictAdditionalHappy` instead of the too-broad `CvCity::getAdditionalHappinessByBuilding`) and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
++- (Requires AdvCiv-SAS 5072+) **Emergency defense priority (risk-aware):** When invasion risk is high—enemy team **significantly stronger**, **nearby danger** detected, or **at war** with an opponent not significantly weaker—**force-build** **Walls**, then **Castle** (if missing) at top priority. Triggers are conservative to avoid growth drag. Implemented in `CvCity::AI_doTurn`; thresholds and building list tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). Early autoplay suggests fewer snowball steamrolls.
++- (Requires AdvCiv-SAS 5068+) **Emergency water-food building (pre-fallback):** Before the “no-production” fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. Runs first in `CvCity::AI_doTurn`. Tunables—including which buildings count—live in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ #### Diplomacy (AI)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=45844

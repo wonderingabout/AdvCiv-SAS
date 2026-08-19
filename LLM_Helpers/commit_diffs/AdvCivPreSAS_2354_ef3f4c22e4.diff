@@ -1,0 +1,185 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2354
+# Commit: ef3f4c22e40116f028230c08e7486634c9877b38
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9f5d78cb171787689292007b77334ffed300bbe0
+# Title: A few tweaks to StartingPositionIteration
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CitySiteEvaluator.cpp
+40	21	CvGameCoreDLL/StartingPositionIteration.cpp
+1	1	CvGameCoreDLL/StartingPositionIteration.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 4d96f8ab1..0d8781276 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2038,8 +2038,8 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues) const
+ 	double minMultPercent = 47;
+ 	if (iCities <= 0) // Capital will grow large
+ 	{
+-		maxMultPercent -= 10;
+-		minMultPercent += 10;
++		maxMultPercent -= 8;
++		minMultPercent += 8;
+ 	}
+ 	double const normalizMult = 1;
+ 	double const subtr = 29;
+@@ -3146,10 +3146,10 @@ scaled AIFoundValue::evaluateWorkablePlot(CvPlot const& p) const
+ 				(eBonus != NO_BONUS || eFeature != NO_FEATURE ? 2 : 0);
+ 		if ((iVal >= 1 && !p.isWater()) || iVal >= 2)
+ 		{
+-			r += 5;
++			r += 4;
+ 			if (iVal >= 2)
+ 			{
+-				iVal += 3;
++				iVal += 4;
+ 				if (!p.isWater() || p.isLake())
+ 					r += 10;
+ 			}
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 0977e30ae..d46b1cf1a 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -957,7 +957,7 @@ void StartingPositionIteration::computeStartValues(
+ 	EraTypes const eStartEra = kGame.getStartEra();
+ 	/*	Adjust this to set the overall balance between city radius
+ 		and space for expansion */
+-	scaled rBaseSpaceWeight = fixp(1.6);
++	scaled rBaseSpaceWeight = fixp(5/3.);
+ 	if (eStartEra <= 1)
+ 	{
+ 		if (kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+@@ -968,6 +968,12 @@ void StartingPositionIteration::computeStartValues(
+ 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+ 		scaled rFoundValue = kFoundValues.get(itPlayer->getID());
++		// Anticipate normalization
++		if (rFoundValue < rMedianFoundValue)
++		{
++			rFoundValue = std::min((rMedianFoundValue + rFoundValue) / 2,
++					rFoundValue + rMedianFoundValue / 10);
++		}
+ 		scaled rSpaceWeight = rBaseSpaceWeight;
+ 		if (rMedianSpaceValue > 0)
+ 			rSpaceWeight *= rMedianFoundValue / rMedianSpaceValue;
+@@ -1197,24 +1203,22 @@ scaled StartingPositionIteration::weightedDistance(vector<short>& kDistances)
+ scaled StartingPositionIteration::outlierValue(
+ 	EnumMap<PlayerTypes,scaled> const& kStartValues, PlayerTypes eIndex,
+ 	scaled& rPercentage, scaled rNegativeOutlierExtraWeight,
+-	scaled* pMedian, scaled* pMax) const
++	scaled const* pMedian, // To save time if caller happens to have it
++	bool* pbNegativeOutlier) const // Out-param
+ {
++	if (pbNegativeOutlier != NULL)
++		*pbNegativeOutlier = false;
++	vector<scaled> arSamples;
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		arSamples.push_back(kStartValues.get(it->getID()));
++	}
+ 	scaled rMedian;
+ 	if (pMedian != NULL)
+ 		rMedian = *pMedian;
+-	scaled rMax;
+-	if (pMax != NULL)
+-		rMax = *pMax;
+-	if (pMedian == NULL || pMax == NULL)
+-	{
+-		vector<scaled> arSamples;
+-		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+-		{
+-			arSamples.push_back(kStartValues.get(it->getID()));
+-		}
+-		rMedian = stats::median(arSamples);
+-		rMax = stats::max(arSamples);
+-	}
++	else rMedian = stats::median(arSamples);
++	scaled rMax = stats::max(arSamples);
++
+ 	scaled const rStartVal = kStartValues.get(eIndex);
+ 	scaled r = (rStartVal - rMedian).abs();
+ 	// Don't mind small differences (at all); uniformity isn't the goal.
+@@ -1223,6 +1227,8 @@ scaled StartingPositionIteration::outlierValue(
+ 	r.increaseTo(0);
+ 	if (rStartVal < rMedian) // Small outliers are worse
+ 	{
++		if (pbNegativeOutlier != NULL)
++			*pbNegativeOutlier = true;
+ 		r *= 2 * (1 + rNegativeOutlierExtraWeight);
+ 		rPercentage = r / (rMedian * (1 + rPlusMinus));
+ 	}
+@@ -1481,12 +1487,21 @@ bool StartingPositionIteration::considerStep(Step& kStep,
+ 			{
+ 				/*	One last check: The outlier value of the site moved in kStep's first move
+ 					needs to improve. That's the site we're primarily interested in. */
++				PlayerTypes eFirst = kStep.getFirstMovePlayer();
+ 				scaled rDummy;
+ 				scaled rNewOutlierVal = outlierValue(newSolutionAttribs.m_startValues,
+-						kStep.getFirstMovePlayer(), rDummy);
++						eFirst, rDummy);
++				bool bNegativeOutlier=false;
+ 				scaled rCurrOutlierVal = outlierValue(kCurrSolutionAttribs.m_startValues,
+-						kStep.getFirstMovePlayer(), rDummy);
+-				if (rNewOutlierVal * fixp(1.01) > rCurrOutlierVal)
++						eFirst, rDummy, 0, NULL, &bNegativeOutlier);
++				scaled rCurrStartVal = kCurrSolutionAttribs.m_startValues.get(eFirst); 
++				if (rNewOutlierVal * fixp(1.01) > rCurrOutlierVal ||
++					/*	Start value of negative outlier needs to increase,
++						start value of positive outlier needs to decrease.
++						Don't want the outlier value to go down just as a side-effect
++						of the second move. */
++					bNegativeOutlier !=
++					(rCurrStartVal < newSolutionAttribs.m_startValues.get(eFirst)))
+ 				{
+ 					//logStep(kStep, kCurrSolutionAttribs, newSolutionAttribs, false);
+ 					kStep.takeBack();
+@@ -1571,11 +1586,15 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 		vector<std::pair<scaled,PlayerTypes> > currSitesByOutlierVal;
+ 		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		{
++			// Focus on negative outliers while the avg. error is high
++			scaled rNegativeOutlierExtraWeight = fixp(1.1) * 
++					(m_currSolutionAttribs.m_rAvgError - fixp(0.15));
++			// A little bit of randomness
++			if (iStepsConsidered % 2 == 0)
++				rNegativeOutlierExtraWeight += fixp(0.25);
+ 			scaled rDummy;
+ 			scaled rOutlierVal = outlierValue(m_currSolutionAttribs.m_startValues,
+-					it->getID(), rDummy,
+-					// Focus on negative outliers while the avg. error is high
+-					fixp(4/3.) * (m_currSolutionAttribs.m_rAvgError - fixp(0.15)));
++					it->getID(), rDummy, rNegativeOutlierExtraWeight);
+ 			if (rOutlierVal > 0)
+ 			{	/*	Also take into account volatility. Crowded areas tend to have higher
+ 					volatility. Need to avoid moving a small number of high-value
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+index 275c3ee78..da8f2fd2f 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.h
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -56,7 +56,7 @@ private:
+ 	scaled outlierValue(EnumMap<PlayerTypes,scaled> const& kStartValues,
+ 			PlayerTypes eIndex, scaled& rPercentage,
+ 			scaled rNegativeOutlierExtraWeight = 0,
+-			scaled* pMedian = NULL, scaled* pMax = NULL) const;
++			scaled const* pMedian = NULL, bool* pbNegativeOutlier = NULL) const;
+ 	scaled startingPositionValue(SolutionAttributes& kResult) const;
+ 	void currAltSites(PlayerTypes eCurrSitePlayer,
+ 			std::vector<std::pair<short,PlotNumTypes> >& kAltSitesByPriority,
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6628

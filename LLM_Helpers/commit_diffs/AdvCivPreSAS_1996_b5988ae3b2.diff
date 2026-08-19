@@ -1,0 +1,152 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1996
+# Commit: b5988ae3b2399e45ccf26aa1be0822f8be849f7a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1a56cca1df6934262257590fb3c6e808ccbdc7b3
+# Title: Reduce number of Partisan units by 1
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	11	Assets/Python/EntryPoints/CvRandomEventInterface.py
+14	0	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+5	0	CvGameCoreDLL/CyCity.cpp
+1	0	CvGameCoreDLL/CyCity.h
+1	0	CvGameCoreDLL/CyCityInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 5c93e5c03..e1098cd03 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -3221,17 +3221,11 @@ def canTriggerExperiencedCaptain(argsList):
+ ######## PARTISANS ###########
+ 
+ def getNumPartisanUnits(plot, iPlayer):
+-	for i in range(gc.getNumCultureLevelInfos()):
+-		iI = gc.getNumCultureLevelInfos() - i - 1
+-		# <advc.001> Bug found by SmokeyTheBear.
+-		# Note that CyCity.getCultureLevel can't be used b/c iPlayer no longer owns the city.
+-		if plot.isCity():
+-			iCulture = plot.getPlotCity().getCulture(iPlayer)
+-		else: # </advc.001>
+-			iCulture = plot.getCulture(iPlayer)
+-		if iCulture >= gc.getGame().getCultureThreshold(iI):
+-			return iI
+-	return 0
++	# <advc.003y> Let the DLL handle this so that it's consistent with the code moved from CvEventManager.onCityRazed.
++	if not plot.isCity():
++		return 1 # (shouldn't happen)
++	return plot.getPlotCity().getNumPartisanUnits(iPlayer)
++	# </advc.003y>
+ 
+ def getHelpPartisans1(argsList):
+ 	iEvent = argsList[0]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 586c53ece..3fd0a1912 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12087,6 +12087,8 @@ void CvCity::doPartisans()
+ {
+ 	if (GC.getGame().isOption(GAMEOPTION_NO_EVENTS))
+ 		return;
++	/*	(advc.001: The population check in CvEventManager had had no effect b/c of a typo.
++		Note that population loss from conquest will have already occurred when razing.) */
+ 	if (getPopulation() <= 1 || isBarbarian())
+ 		return;
+ 	// advc: Was based on city culture instead of plot culture
+@@ -12099,6 +12101,9 @@ void CvCity::doPartisans()
+ 		return;
+ 	if (!::atWar(getTeam(), kPartisanPlayer.getTeam()))
+ 		return;
++	// advc: Important now that getNumPartisanUnits subtracts 1 from the culture level
++	if (getNumPartisanUnits(kPartisanPlayer.getID()) <= 0)
++		return;
+ 
+ 	EventTriggerTypes eTrigger = (EventTriggerTypes)GC.getInfoTypeForString("EVENTTRIGGER_PARTISANS");
+ 	FAssert(eTrigger != NO_EVENTTRIGGER);
+@@ -12112,6 +12117,15 @@ void CvCity::doPartisans()
+ 	kPartisanPlayer.initTriggeredData(eTrigger, /*bFire=*/true, -1, getX(), getY(), getOwner(), getID());
+ }
+ 
++/*	advc.003y: Ported from CvRandomEventInterface.py; Python code there deleted.
++	Subtracting 1 is an idea by CFC user SmokeyTheBear. It means e.g. that 0 units
++	appear when culture is "poor". */
++int CvCity::getNumPartisanUnits(PlayerTypes ePartisanPlayer) const
++{
++	// advc.001: The culture level computation in Python was erroneous
++	return std::max(0, calculateCultureLevel(ePartisanPlayer) - 1);
++}
++
+ 
+ bool CvCity::hasShrine(ReligionTypes eReligion) const
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 282e0143b..87c9b8350 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -683,6 +683,7 @@ public:
+ 	void setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups);
+ 	void updateCultureLevel(bool bUpdatePlotGroups);
+ 	CultureLevelTypes calculateCultureLevel(PlayerTypes ePlayer) const; // advc.130f
++	int getNumPartisanUnits(PlayerTypes ePartisanPlayer) const; // advc.003y
+ 	int getCultureTurnsLeft() const; // advc.042
+ 
+ 	int getSeaPlotYield(YieldTypes eIndex) const { return m_aiSeaPlotYield.get(eIndex); }							// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 392d7f349..7459932c7 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -1519,6 +1519,11 @@ int /*CultureLevelTypes*/ CyCity::getCultureLevel()
+ {
+ 	return m_pCity ? m_pCity->getCultureLevel() : NO_CULTURELEVEL;
+ }
++// <advc.003y>
++int CyCity::getNumPartisanUnits(int /*PlayerTypes*/ ePartisanPlayer)
++{
++	return (m_pCity ? m_pCity->getNumPartisanUnits((PlayerTypes)ePartisanPlayer) : 0);
++} // </advc.003y>
+ 
+ int CyCity::getCultureThreshold()
+ {
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index e6aaa6b4c..705aae73b 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -329,6 +329,7 @@ public:
+ 	int /*PlayerTypes*/getPreviousOwner();
+ 	int /*PlayerTypes*/getOriginalOwner();
+ 	int /*CultureLevelTypes*/ getCultureLevel();
++	int getNumPartisanUnits(int /*PlayerTypes*/ ePartisanPlayer); // advc.003y
+ 	int getCultureThreshold();
+ 	int getSeaPlotYield(int /*YieldTypes*/ eIndex);
+ 	int getRiverPlotYield(int /*YieldTypes*/ eIndex);
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 078c5bce5..06799b190 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -321,6 +321,7 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getPreviousOwner", &CyCity::getPreviousOwner, "int /*PlayerTypes*/ ()")
+ 		.def("getOriginalOwner", &CyCity::getOriginalOwner, "int /*PlayerTypes*/ ()")
+ 		.def("getCultureLevel", &CyCity::getCultureLevel, "int /*CultureLevelTypes*/ ()")
++		.def("getNumPartisanUnits", &CyCity::getNumPartisanUnits, "int (int /*PlayerTypes*/)") // advc.003y
+ 		.def("getCultureThreshold", &CyCity::getCultureThreshold)
+ 		.def("getSeaPlotYield", &CyCity::getSeaPlotYield, "int (int /*YieldTypes*/) - total YieldType for water plots")
+ 		.def("getRiverPlotYield", &CyCity::getRiverPlotYield, "int (int /*YieldTypes*/) - total YieldType for river plots")
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5390

@@ -1,0 +1,412 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1377
+# Commit: dc91730714d0c6195d5b9e35daadb7daa3b95ff5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 525e919195916c8e061678b29cf21817eb9f07b8
+# Title: Mostly bugfixes in AdvCiv code (DLL included, still working toward v0.94)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+4	1	Assets/xml/GameInfo/CIV4Hints.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+10	5	CvGameCoreDLL/CvCityAI.cpp
+59	31	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayer.h
+16	8	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+3	2	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.94.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index d8defd3f1..5c371a1b9 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -633,7 +633,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_21</Description>
+ 		</HintInfo>
+-		<!-- Skip 22-26; shouldn't be as frequent. -->
++		<!-- Skip 22-26 and 31; shouldn't be as frequent. -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_27</Description>
+ 		</HintInfo>
+@@ -731,5 +731,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_30</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_31</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index ad48d8510..1972b10cc 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -460,6 +460,16 @@
+ 	<Spanish>Most announcements can be located on the map by opening the Event Log [Ctrl+Tab] and clicking on the announcement text.</Spanish>
+ </TEXT>
+ 
++<!-- advc.124 -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_31</Tag>
++	<English>(AdvCiv) When a war disrupts your maritime trade connections, a naval blockade can override this: tiles blockaded by your ships block enemy trade and enable friendly trade.</English>
++	<French>(AdvCiv) When a war disrupts your maritime trade connections, a naval blockade can override this: tiles blockaded by your ships block enemy trade and enable friendly trade.</French>
++	<German>(AdvCiv) Wenn ein Krieg Ihre maritimen Handelswege unterbricht, kann eine Blockade Ihrerseits ein Gegenmittel sein: Die blockierten Felder erlauben freundlichen Handel und stoppen feindlichen Handel.</German>
++	<Italian>(AdvCiv) When a war disrupts your maritime trade connections, a naval blockade can override this: tiles blockaded by your ships block enemy trade and enable friendly trade.</Italian>
++	<Spanish>(AdvCiv) When a war disrupts your maritime trade connections, a naval blockade can override this: tiles blockaded by your ships block enemy trade and enable friendly trade.</Spanish>
++</TEXT>
++
+ <!-- advc.008c: Was "Snacks are good in moderation" - the joke got old.
+ 	 It also works in the tech tree; however, right-click in the tech tree also
+ 	 sets a research target, so this is not recommendable. -->
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3bd5f4822..1640a3463 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4796,9 +4796,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY2))
+ 					diploStage++;
+ 				// (3 and 4 aren't possible without the respective vote source)
+-				iValue += iTempValue * 3 * diploStage;
++				//iValue += iTempValue * 3 * diploStage;
++				iTempValue *= 3 * diploStage;
+ 				/*  K-Mod code didn't factor in AI_VICTORY_DIPLOMACY2 b/c that
+-				stage wasn't used at the time */
++					stage wasn't used at the time */
+ 				//iValue += (iTempValue * (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1) ? 5 : 1));
+ 				// Don't pave the way for rival victory
+ 				int highestRivalStage = 0;
+@@ -4822,9 +4823,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 							humanRival = rival.isHuman();
+ 					}
+ 				}
+-				if(highestRivalStage > diploStage || (humanRival &&
+-						highestRivalStage >= diploStage))
+-					return 0; // Discouraging enough I hope
++				if(highestRivalStage > diploStage ||
++						(humanRival && highestRivalStage >= diploStage)) {
++					iTempValue = 0;
++					if(highestRivalStage >= 3)
++						return 0;
++				}
++				iValue += iTempValue;
+ 				// </advc.115b>
+ 
+ 				// Value religion buildings based on AP gains
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 39c4ebbdd..0cdd6bb73 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -13791,14 +13791,19 @@ void CvPlayer::changeHasReligionCount(ReligionTypes eIndex, int iChange)
+ }
+ 
+ 
+-// <advc.132> Body adopted from CvPlayerAI::AI_religionTrade
+-bool CvPlayer::isMinorityReligion(ReligionTypes rel) const {
++// <advc.132> Body basically from CvPlayerAI::AI_religionTrade (thresholds tweaked)
++bool CvPlayer::isMajorReligion(ReligionTypes eReligion) const {
+ 
++	int iReligionCities = getHasReligionCount(eReligion);
+ 	if(getStateReligion() == NO_RELIGION)
+-		return true;
+-	int const relCount = getHasReligionCount(rel);
+-	return relCount < getNumCities() / 2 &&
+-		   relCount < getHasReligionCount(getStateReligion()) - 1;
++		return iReligionCities > getNumCities() / 3;
++	int iOldReligionCities = (getStateReligion() == NO_RELIGION ? 0 :
++			getHasReligionCount(getStateReligion()));
++	/*  Not necessarily equal to the number of cities with neither religion,
++		but close enough. */
++	int iOtherCities = getNumCities() - iReligionCities - iOldReligionCities;
++	return (iReligionCities > iOtherCities / 3 +
++			std::max(0, iOldReligionCities - 1) / 2);
+ } // </advc.132>
+ 
+ 
+@@ -15751,7 +15756,7 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 		// Switch Civics
+ 		CivicTypes eCivic = (CivicTypes)iExtraData;
+ 
+-		if (NO_CIVIC == eCivic)
++		/*if (NO_CIVIC == eCivic)
+ 		{
+ 			for (int iCivic = 0; iCivic < GC.getNumCivicInfos(); ++iCivic)
+ 			{
+@@ -15763,26 +15768,34 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 			}
+ 		}
+ 
+-		if (NO_CIVIC != eCivic)
+-		{
+-			if (canForceCivics(eTargetPlayer, eCivic))
++		if (NO_CIVIC != eCivic)*/
++		/*  <advc.132> Replacing the above: Need to compute a cost for every civic
++			(like for the DestroyBuilding mission) */
++		int iMinCost = INT_MAX;
++		for(int i = 0; i < GC.getNumCivicInfos(); i++) {
++			CivicTypes eLoopCivic = (CivicTypes)i;
++			if(eCivic != NO_CIVIC && eLoopCivic != eCivic)
++				continue; // </advc.132>
++			if (canForceCivics(eTargetPlayer, eLoopCivic))
+ 			{
+ 				//iMissionCost = iBaseMissionCost + (kMission.getSwitchCivicCostFactor() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
+ 				// K-Mod
+-				iMissionCost = iBaseMissionCost + (kMission.getSwitchCivicCostFactor() * GET_PLAYER(eTargetPlayer).getTotalPopulation() * (GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()
++				int iLoopCost = iBaseMissionCost + (kMission.getSwitchCivicCostFactor() * GET_PLAYER(eTargetPlayer).getTotalPopulation() * (GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()
+ 						/* advc.132: Add 100 to one of the modifiers
+ 						   (doesn't matter which). */
+-						+ (isCivic(eCivic) ? 0 : 100))
++						+ (isCivic(eLoopCivic) ? 0 : 100))
+ 					) / 10000;
++				iMinCost = std::min(iMinCost, iLoopCost); // advc.132
+ 			}
+-		}
++		} // <advc.132>
++		if(iMinCost < INT_MAX)
++			iMissionCost = iMinCost; // </advc.132>
+ 	}
+ 	else if (kMission.getSwitchReligionCostFactor() > 0)
+ 	{
+ 		// Switch Religions
+ 		ReligionTypes eReligion = (ReligionTypes)iExtraData;
+-
+-		if (NO_RELIGION == eReligion)
++		/*if (NO_RELIGION == eReligion)
+ 		{
+ 			for (int iReligion = 0; iReligion < GC.getNumReligionInfos(); ++iReligion)
+ 			{
+@@ -15795,14 +15808,21 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 		}
+ 
+ 		if (NO_RELIGION != eReligion)
+-		{
+-			if (canForceReligion(eTargetPlayer, eReligion))
+-			{
++		{*/
++		// <advc.132> Replacing the above: Need to compute a cost for every religion
++		int iMinCost = INT_MAX;
++		for(int i = 0; i < GC.getNumReligionInfos(); i++) {
++			ReligionTypes eLoopReligion = (ReligionTypes)i;
++			if(eReligion != NO_RELIGION && eLoopReligion != eReligion)
++				continue; 
++			if (canForceReligion(eTargetPlayer, eLoopReligion)
++					&& (pCity == NULL || pCity->isHasReligion(eLoopReligion)))
++			{// </advc.132>
+ 				//iMissionCost = iBaseMissionCost + (kMission.getSwitchReligionCostFactor() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
+ 				// K-Mod
+-				iMissionCost = iBaseMissionCost + (kMission.getSwitchReligionCostFactor() * GET_PLAYER(eTargetPlayer).getTotalPopulation() * (GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()
++				int iLoopCost = iBaseMissionCost + (kMission.getSwitchReligionCostFactor() * GET_PLAYER(eTargetPlayer).getTotalPopulation() * (GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()
+ 						// advc.132: As above for civics
+-						+ (getStateReligion() == eReligion ? 0 : 100))
++						+ (getStateReligion() == eLoopReligion ? 0 : 100))
+ 					) / 10000;
+ 				ReligionTypes eCurrentReligion = GET_PLAYER(eTargetPlayer).getStateReligion();
+ 				// amplify the mission cost if we are trying to switch to a minority religion.
+@@ -15810,17 +15830,24 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 				{
+ 					// maybe getReligionPopulation would be slightly better, but it's a bit slower.
+ 					int iCurrent = GET_PLAYER(eTargetPlayer).getHasReligionCount(eCurrentReligion);
+-					int iNew = GET_PLAYER(eTargetPlayer).getHasReligionCount(eReligion);
++					int iNew = GET_PLAYER(eTargetPlayer).getHasReligionCount(eLoopReligion);
+ 					int iCitiesTarget = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
+ 					FAssert(//iCurrent > 0 && // advc.006: Possible to lose all
+ 											  // cities of the current state religion.
+ 						iNew > 0);
+-					iMissionCost *= std::max(iCurrent, iNew) + iCitiesTarget;
+-					iMissionCost /= iNew + iCitiesTarget;
+-				}
+-				// K-Mod end
+-			}
+-		}
++					/*iMissionCost *= std::max(iCurrent, iNew) + iCitiesTarget;
++					iMissionCost /= iNew + iCitiesTarget;*/
++					/*  <advc.132> Replacing the above (to increase the impact of
++						the iCurrent/iNew ratio) */
++					iLoopCost *= iCurrent + iCitiesTarget;
++					iLoopCost /= std::max(1, iNew + iCitiesTarget / 2);
++					// </advc.132>
++				} // K-Mod end
++				iMinCost = std::min(iMinCost, iLoopCost); // advc.132
++			}
++		} // <advc.132>
++		if(iMinCost < INT_MAX)
++			iMissionCost = iMinCost; // </advc.132>
+ 	}
+ 	else if (kMission.getDestroyUnitCostFactor() > 0)
+ 	{
+@@ -23389,16 +23416,17 @@ bool CvPlayer::canForceReligion(PlayerTypes eTarget, ReligionTypes eReligion) co
+ 	//return (GET_PLAYER(eTarget).canDoReligion(eReligion) && GET_PLAYER(eTarget).getStateReligion() != eReligion && getStateReligion() == eReligion);
+ 	// K-Mod - You shouldn't be able to force a religion on an irreligious civ.
+ 	//return (GET_PLAYER(eTarget).isStateReligion() && GET_PLAYER(eTarget).canDoReligion(eReligion) && GET_PLAYER(eTarget).getStateReligion() != eReligion && getStateReligion() == eReligion);
+-    // <advc.132> Rewritten based on the K-Mod condition (commented out above).
++    // <advc.132> Rewritten based on the K-Mod condition (commented out above)
+ 	CvPlayer const& they = GET_PLAYER(eTarget);
+-	// Just the conditions from above.
++	/*  Just the conditions from above. (Better use canConvert, which checks recent
++		religion change? Would also have to use canRevolution then in canForceCivics.) */
+ 	if(!they.isStateReligion() || !they.canDoReligion(eReligion) ||
+ 			they.getStateReligion() == eReligion)
+ 		return false;
+ 	if(getStateReligion() == eReligion)
+ 		return true;
+-	// New: Accept any non-minority religion
+-	return !they.isMinorityReligion(eReligion); // </advc.132>
++	// New: Accept any major religion
++	return they.isMajorReligion(eReligion); // </advc.132>
+ }
+ 
+ bool CvPlayer::canSpyDestroyUnit(PlayerTypes eTarget, CvUnit& kUnit) const
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 5d3e88ac3..6fde3261b 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -895,8 +895,8 @@ public:
+ 	int countTotalHasReligion() const;																																// Exposed to Python
+ 	int findHighestHasReligionCount() const;																													// Exposed to Python
+ 	void changeHasReligionCount(ReligionTypes eIndex, int iChange);
+-	// advc.132: No longer just an AI concept b/c spies can switch to non-minority
+-	bool isMinorityReligion(ReligionTypes rel) const;
++	// advc.132: No longer just an AI concept b/c spies can only switch to major now
++	bool isMajorReligion(ReligionTypes rel) const;
+ 
+ 	int getHasCorporationCount(CorporationTypes eIndex) const;																							// Exposed to Python
+ 	int countTotalHasCorporation() const;																																// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 78aea6500..1ed4a791c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12975,11 +12975,12 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 		2 is a bit much though, and 1 too little, so take a weighted mean
+ 		of the two. */
+ 	int iExtraPop1 = 1, iExtraPop2 = 2;
+-	if(!bTrade) // Look ahead farther then (trades are fickle)
+-		iExtraPop1 = iExtraPop2;
+ 	// Don't want iExtraPop to increase resource prices on the whole
+ 	double extraPopFactor = std::max(0.5, 0.1 * (10 - (0.7 * iExtraPop1 +
+ 			0.3 * iExtraPop2)));
++	// Look farther ahead only when not trading for a resource (trades are fickle)
++	if(!bTrade)
++		iExtraPop1 = iExtraPop2;
+ 	bool bAvailable = (getNumAvailableBonuses(eBonus) > 0);
+ 	if(happy > 0) {
+ 		/*  advc.912c: Better ignore getLuxuryModifier; don't want civs with a
+@@ -13758,7 +13759,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 	}
+ 	int valueForUs = AI_corporationBonusVal(eBonus);
+ 	if(iAvailUs - getBonusImport(eBonus) == 1)
+-		valueForUs = AI_bonusVal(eBonus, 0);
++		valueForUs = AI_bonusVal(eBonus, 0, false, true);
+ 	/*  Don't want city counts to matter much b/c large civs are supposed to
+ 		export to small (tall) ones. But selling to tiny civs often doesn't make
+ 		sense; could get a much better deal from some larger buyer. */
+@@ -14284,8 +14285,8 @@ DenialTypes CvPlayerAI::AI_religionTrade(ReligionTypes eReligion, PlayerTypes eP
+ 
+ 	if (getStateReligion() != NO_RELIGION)
+ 	{
+-		// advc.132: Original code moved into isMinorityReligion
+-		if(isMinorityReligion(eReligion))
++		// advc.132: Original code moved into isMajorReligion
++		if(!isMajorReligion(eReligion))
+ 		{
+ 			return DENIAL_MINORITY_RELIGION;
+ 		}
+@@ -18220,7 +18221,9 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
+ /// \brief Value of espionage mission at this plot.
+ ///
+ /// Assigns value to espionage mission against ePlayer at pPlot, where iData can provide additional information about mission.
+-// K-Mod note: A rough rule of thumb for this evaluation is that depriving the enemy of 1 commerce is worth 1 point; gaining 1 commerce for ourself is worth 2 points.
++/*  K-Mod note: A rough rule of thumb for this evaluation is that
++	depriving the enemy of 1 commerce is worth 1 point;
++	gaining 1 commerce for ourself is worth 2 points. */
+ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot* pPlot, int iData) const
+ {
+ 	TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
+@@ -18509,8 +18512,10 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 	}
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getSwitchReligionCostFactor() > 0)
+-	{
+-		iValue += AI_religionTradeVal((ReligionTypes)iData, eTargetPlayer);
++	{	// <advc.132>
++		ReligionTypes eReligion = (ReligionTypes)iData;
++		if(GET_PLAYER(eTargetPlayer).isMajorReligion(eReligion)) // </advc.132>
++			iValue += AI_religionTradeVal(eReligion, eTargetPlayer);
+ 	}
+ 
+ 	/*if (bMalicious && GC.getEspionageMissionInfo(eMission).getPlayerAnarchyCounter() > 0)
+@@ -19073,6 +19078,9 @@ void CvPlayerAI::AI_rememberEvent(PlayerTypes civId, MemoryTypes mem) {
+ 	if(mem == MEMORY_DECLARED_WAR && (GET_TEAM(getTeam()).isAVassal() ||
+ 			TEAMREF(civId).isAVassal()))
+ 		delta = std::min(3, delta); // </advc.130y>
++	// <advc.130f>
++	if(mem == MEMORY_HIRED_TRADE_EMBARGO && GET_TEAM(getTeam()).isAtWar(TEAMID(civId)))
++		delta--; // </advc.130f>
+ 	AI_changeMemoryCount(civId, mem, delta);
+ 	// <advc.130l>
+ 	if(GC.getDefineINT("ENABLE_130L") <= 0)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a9498cd03..ac9dd8079 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6254,7 +6254,8 @@ void CvUnitAI::AI_spyMove()
+ 			// cf. approximation used in AI_attackCityMove. (here we are slightly more pessimistic)
+ 
+ 			//if( 5*iOurPower > 6*iEnemyPower && eWarPlan != NO_WARPLAN )
+-			if (95*iOurPower > GC.getBBAI_ATTACK_CITY_STACK_RATIO()*iEnemyPower && eWarPlan != NO_WARPLAN)
++			if (95*iOurPower > GC.getBBAI_ATTACK_CITY_STACK_RATIO()*iEnemyPower && eWarPlan != NO_WARPLAN
++					&& iOurPower < 8 * iEnemyPower) // advc.120b
+ 			{
+ 				bTargetCity = true;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 89dea4007..caf4caaae 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2213,12 +2213,12 @@ void KingMaking::evaluate() {
+ 		return;
+ 	// NB: The two conditions above are superfluous; just for performance.
+ 	double attitudeMultiplier = 0.03 + 0.25 * (ATTITUDE_PLEASED - att);
+-	// We're less inclined to interfere if several rivals are in competition
+-	int winningRivals = winningFuture.size();
+ 	double caughtUpBonus = 0;
+ 	double catchUpVal = std::pow((16.0 * gameEra) / winningPresent.size(), 0.75);
+ 	catchUpVal *= std::pow((1 + weAI->amortizationMultiplier()) / 2, 2);
+ 	bool bCaughtUp = false;
++	// We're less inclined to interfere if several rivals are in competition
++	int winningRivals = winningFuture.size();
+ 	if(winningFuture.count(weId) > 0) {
+ 		winningRivals--;
+ 		if(winningPresent.count(weId) <= 0) {
+@@ -2241,6 +2241,7 @@ void KingMaking::evaluate() {
+ 	}
+ 	else if(winningPresent.count(weId) > 0) {
+ 		caughtUpBonus -= catchUpVal;
++		attitudeMultiplier += 0.25;
+ 		log("%d for falling behind %s", ::round(caughtUpBonus),
+ 				report.leaderName(theyId));
+ 	}
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=8 omittedFiles=2 embeddedPatchBytes=18071

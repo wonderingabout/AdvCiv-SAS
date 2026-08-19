@@ -1,0 +1,1026 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 675
+# Commit: 8912a5b08e770b579f57cb59ae663c57bfd2aab3
+# History segment: K-Mod history
+# Parent used for diff: 93da4d974d3e9dd36f8b3548084a8da170c82b60
+# Title: Added some missing mouse-over information in the foreign advisor screen. Changed the format of the war weariness mouse-over information.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+718	0	Assets/Python/Screens/CvForeignAdvisor.py
+9	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+24	6	CvGameCoreDLL/CvDLLWidgetData.cpp
+61	17	CvGameCoreDLL/CvGameTextMgr.cpp
+1	0	CvGameCoreDLL/CvGameTextMgr.h
+ create mode 100644 Assets/Python/Screens/CvForeignAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+new file mode 100644
+index 000000000..e5eaff622
+--- /dev/null
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -0,0 +1,718 @@
++## Sid Meier's Civilization 4
++## Copyright Firaxis Games 2005
++from CvPythonExtensions import *
++import CvUtil
++import ScreenInput
++import CvScreenEnums
++import math
++
++# globals
++gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
++localText = CyTranslator()
++
++# this class is shared by both the resource and technology foreign advisors
++FOREIGN_BONUS_SCREEN = 0
++FOREIGN_TECH_SCREEN = 1
++FOREIGN_RELATIONS_SCREEN = 2
++FOREIGN_ACTIVE_TRADE_SCREEN = 3
++NUM_FOREIGN_SCREENS = 4
++
++class CvForeignAdvisor:
++	"Foreign Advisor Screen"
++
++	def __init__(self):
++		self.iScreen = -1
++		self.nWidgetCount = 0
++		self.nLineCount = 0
++		self.WIDGET_ID = "ForeignAdvisorWidget"
++		self.LINE_ID = "ForeignAdvisorLine"
++		self.SCREEN_NAME = "ForeignAdvisor"
++		self.DEBUG_DROPDOWN_ID =  "ForeignAdvisorDropdownWidget"
++		self.EXIT_ID = "ForeignAdvisorExitWidget"
++		self.BACKGROUND_ID = "ForeignAdvisorBackground"
++		self.X_SCREEN = 500
++		self.Y_SCREEN = 396
++		self.W_SCREEN = 1024
++		self.H_SCREEN = 768
++		self.Y_TITLE = 8
++		self.X_EXIT = 994
++		self.Y_EXIT = 726
++		self.X_LEADER = 80
++		self.Y_LEADER = 115
++		self.H_LEADER = 64
++		self.W_LEADER = 64
++		self.X_LINK = 50
++		self.DX_LINK = 220
++		self.Y_LINK = 726
++		
++		self.X_LEGEND = 20
++		self.Y_LEGEND = 530
++		self.H_LEGEND = 180
++		self.W_LEGEND = 160
++		self.MARGIN_LEGEND = 10
++		
++		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
++		self.Y_LEADER_CIRCLE_TOP = 87
++		
++		self.RADIUS_LEADER_ARC = 480
++		self.LINE_WIDTH = 6
++		self.BUTTON_SIZE = 64
++		
++		
++		self.iSelectedLeader = -1
++		self.iActiveLeader = -1
++		self.listSelectedLeaders = []
++		self.iShiftKeyDown = 0
++				
++		self.iDefaultScreen = FOREIGN_RELATIONS_SCREEN
++						
++	def killScreen(self):
++		if (self.iScreen >= 0):
++			screen = self.getScreen()
++			screen.hideScreen()
++			self.iScreen = -1
++		return
++
++	def getScreen(self):
++		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_ADVISOR)
++
++	def interfaceScreen (self, iScreen):
++	
++		if (iScreen < 0):
++			if (self.iScreen < 0):
++				iScreen = self.iDefaultScreen
++			else:
++				iScreen = self.iScreen
++		
++		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
++		self.SCREEN_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + u"</font>"
++
++		if (self.iScreen != iScreen):	
++			self.killScreen()
++			self.iScreen = iScreen
++		
++		screen = self.getScreen()
++		if screen.isActive():
++			return
++		screen.setRenderInterfaceOnly(True);
++		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
++	
++		self.iActiveLeader = CyGame().getActivePlayer()
++		self.iSelectedLeader = self.iActiveLeader
++		self.listSelectedLeaders = []
++		#self.listSelectedLeaders.append(self.iSelectedLeader)
++
++		# Set the background and exit button, and show the screen
++		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
++		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
++		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
++		screen.showWindowBackground(False)
++		screen.setText(self.EXIT_ID, "", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
++
++		self.nWidgetCount = 0
++		self.nLineCount = 0
++		
++		if (CyGame().isDebugMode()):
++			self.szDropdownName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
++			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
++			for j in range(gc.getMAX_PLAYERS()):
++				if (gc.getPlayer(j).isAlive()):
++					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
++
++		CyInterface().setDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT, False)
++		
++		# Draw leader heads
++		self.drawContents(True)
++				
++	# Drawing Leaderheads
++	def drawContents(self, bInitial):
++	
++		if (self.iScreen < 0):
++			return
++						
++		self.deleteAllWidgets()
++		
++		screen = self.getScreen()
++
++		# Header...
++		screen.setLabel(self.getNextWidgetName(), "", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++	
++		if (self.iScreen == FOREIGN_RELATIONS_SCREEN):
++			self.drawRelations(bInitial)
++		elif (self.iScreen == FOREIGN_ACTIVE_TRADE_SCREEN):
++			self.drawActive()
++		else:
++			self.drawPossibleDeals()
++			
++		# Link to other Foreign advisor screens
++		xLink = self.X_LINK
++		
++		szRelationsId = self.getNextWidgetName()
++		if (self.iScreen != FOREIGN_RELATIONS_SCREEN):
++			screen.setText(szRelationsId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_RELATIONS", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_RELATIONS_SCREEN, -1)
++		else:
++			screen.setText(szRelationsId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_RELATIONS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
++		xLink += self.DX_LINK
++		
++		szBonusId = self.getNextWidgetName()
++		if (self.iScreen != FOREIGN_BONUS_SCREEN):
++			screen.setText(szBonusId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_RESOURCES", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_BONUS_SCREEN, -1)
++		else:
++			screen.setText(szBonusId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_RESOURCES", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
++		xLink += self.DX_LINK
++			
++		szTechId = self.getNextWidgetName()
++		if (self.iScreen != FOREIGN_TECH_SCREEN):
++			screen.setText(szTechId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TECHS", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_TECH_SCREEN, -1)
++		else:
++			screen.setText(szTechId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_TECHS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
++		xLink += self.DX_LINK
++	
++		szActiveId = self.getNextWidgetName()
++		if (self.iScreen != FOREIGN_ACTIVE_TRADE_SCREEN):
++			screen.setText(szActiveId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_ACTIVE_TRADE_SCREEN, -1)
++		else:
++			screen.setText(szActiveId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
++		xLink += self.DX_LINK
++
++	def drawActive(self):
++		screen = self.getScreen()
++
++		# Get the Players
++		playerActive = gc.getPlayer(self.iActiveLeader)
++					
++		# Put everything inside a main panel, so we get vertical scrolling
++		mainPanelName = self.getNextWidgetName()
++		screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
++
++		# loop through all players and sort them by number of active deals
++		listPlayers = [(0,0)] * gc.getMAX_PLAYERS()
++		nNumPLayers = 0
++		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
++			if (gc.getPlayer(iLoopPlayer).isAlive() and iLoopPlayer != self.iActiveLeader and not gc.getPlayer(iLoopPlayer).isBarbarian() and  not gc.getPlayer(iLoopPlayer).isMinorCiv()):
++				if (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()):
++					nDeals = 0				
++					for i in range(gc.getGame().getIndexAfterLastDeal()):
++						deal = gc.getGame().getDeal(i)
++						if ((deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader)):
++							nDeals += 1
++					listPlayers[nNumPLayers] = (nDeals, iLoopPlayer)
++					nNumPLayers += 1
++		listPlayers.sort()
++		listPlayers.reverse()
++
++		# loop through all players and display leaderheads
++		for j in range (nNumPLayers):
++			iLoopPlayer = listPlayers[j][1]
++
++			# Player panel
++			playerPanelName = self.getNextWidgetName()
++			screen.attachPanel(mainPanelName, playerPanelName, gc.getPlayer(iLoopPlayer).getName(), "", False, True, PanelStyles.PANEL_STYLE_MAIN)
++
++			screen.attachLabel(playerPanelName, "", "   ")
++
++			screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, False)
++						
++			innerPanelName = self.getNextWidgetName()
++			screen.attachPanel(playerPanelName, innerPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
++
++			dealPanelName = self.getNextWidgetName()
++			screen.attachListBoxGFC(innerPanelName, dealPanelName, "", TableStyles.TABLE_STYLE_EMPTY)	
++			screen.enableSelect(dealPanelName, False)
++
++			iRow = 0
++			for i in range(gc.getGame().getIndexAfterLastDeal()):
++				deal = gc.getGame().getDeal(i)
++
++				if (deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader and not deal.isNone()) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader):
++					screen.appendListBoxString(dealPanelName, CyGameTextMgr().getDealString(deal, iLoopPlayer), WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
++					iRow += 1
++																
++
++	def drawPossibleDeals(self):
++	
++		screen = self.getScreen()
++
++		# Get the Players
++		playerActive = gc.getPlayer(self.iActiveLeader)
++		playerSelected = gc.getPlayer(self.iSelectedLeader)
++					
++		# Put everything inside a main panel, so we get vertical scrolling
++		mainPanelName = self.getNextWidgetName()
++		screen.addPanel( mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_MAIN )
++
++		# Active player panel
++		activePlayerPanelName = self.getNextWidgetName()
++		szPlayerName = playerActive.getName()
++		
++		if (gc.getTeam(playerActive.getTeam()).isGoldTrading() or gc.getTeam(playerSelected.getTeam()).isGoldTrading()):
++			if (self.iScreen == FOREIGN_BONUS_SCREEN):
++				szPlayerName += u" : " + localText.getText("TXT_KEY_MISC_GOLD_PER_TURN", (playerActive.calculateGoldRate(), ))
++			elif (self.iScreen == FOREIGN_TECH_SCREEN):
++				szPlayerName += u" : " + localText.getText("TXT_KEY_MISC_GOLD", (playerActive.getGold(), ))
++		screen.attachPanel(mainPanelName, activePlayerPanelName, szPlayerName, "", False, True, PanelStyles.PANEL_STYLE_EMPTY )
++					
++		screen.attachLabel(activePlayerPanelName, "", "                    ")
++		screen.attachMultiListControlGFC(activePlayerPanelName, "Child" + activePlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		if (self.iScreen == FOREIGN_BONUS_SCREEN):
++			tradeData = TradeData()
++			tradeData.ItemType = TradeableItems.TRADE_RESOURCES
++			for iLoopBonus in range(gc.getNumBonusInfos()):
++				tradeData.iData = iLoopBonus
++				bTradeable = False
++				if (self.iSelectedLeader == self.iActiveLeader):
++					# loop through all players and display resources that are available to trade to at least one leader
++					for iLoopPlayer in range(gc.getMAX_PLAYERS()):
++						if (gc.getPlayer(iLoopPlayer).isAlive() and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv() and gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())):
++							if (iLoopPlayer != self.iActiveLeader and gc.getPlayer(self.iActiveLeader).canTradeItem(iLoopPlayer, tradeData, False)):
++								bTradeable = True
++								iLoopPlayer = gc.getMAX_PLAYERS() # exit for loop
++				else:
++					# display resources that you can trade to the selected leader
++					bTradeable = gc.getPlayer(self.iActiveLeader).canTradeItem(self.iSelectedLeader, tradeData, False)
++
++				if bTradeable:
++					for i in range(playerActive.getNumTradeableBonuses(iLoopBonus)):
++						screen.appendMultiListButton("Child" + activePlayerPanelName, gc.getBonusInfo(iLoopBonus).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus, -1, False)
++
++		elif (self.iScreen == FOREIGN_TECH_SCREEN):
++			tradeData = TradeData()
++			tradeData.ItemType = TradeableItems.TRADE_TECHNOLOGIES
++			for iLoopTech in range(gc.getNumTechInfos()):
++				bTradeable = False
++				tradeData.iData = iLoopTech
++				if (self.iSelectedLeader == self.iActiveLeader):
++					# loop through all players and display techs that are available to trade to at least one leader
++					for iLoopPlayer in range(gc.getMAX_PLAYERS()):
++						if (gc.getPlayer(iLoopPlayer).isAlive() and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv() and gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())):
++							if (iLoopPlayer != self.iActiveLeader and gc.getPlayer(self.iActiveLeader).canTradeItem(iLoopPlayer, tradeData, False)):
++								bTradeable = True
++								iLoopPlayer = gc.getMAX_PLAYERS() # exit for loop
++								
++				else:
++					# display techs that you can trade to the selected leader
++					bTradeable = gc.getPlayer(self.iActiveLeader).canTradeItem(self.iSelectedLeader, tradeData, False)
++					
++				if bTradeable:
++					screen.appendMultiListButton("Child" + activePlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
++
++		# Add active player leaderhead
++		screen.attachLabel(activePlayerPanelName, "", "   ")
++		szName = self.getNextWidgetName()			
++		screen.addCheckBoxGFCAt(activePlayerPanelName, szName, gc.getLeaderHeadInfo(gc.getPlayer(self.iActiveLeader).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), 10, 0, self.W_LEADER, self.H_LEADER, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++		if (self.iSelectedLeader == self.iActiveLeader):
++			screen.setState(szName, True)
++		else:
++			screen.setState(szName, False)
++
++		# Their leaderheads		
++		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
++			if (gc.getPlayer(iLoopPlayer).isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()) and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv()):
++
++				currentPlayerPanelName = self.getNextWidgetName()
++				szPlayerName = gc.getPlayer(iLoopPlayer).getName()
++				if (gc.getTeam(playerActive.getTeam()).isGoldTrading() or gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isGoldTrading()):
++					if (self.iScreen == FOREIGN_BONUS_SCREEN):
++						szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_GOLD_PER_TURN_FOR_TRADE", (gc.getPlayer(iLoopPlayer).AI_maxGoldPerTurnTrade(self.iActiveLeader), ))
++					elif (self.iScreen == FOREIGN_TECH_SCREEN):
++						szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_GOLD_FOR_TRADE", (gc.getPlayer(iLoopPlayer).AI_maxGoldTrade(self.iActiveLeader), ))
++				if (not playerActive.canTradeNetworkWith(iLoopPlayer) and self.iScreen == FOREIGN_BONUS_SCREEN):
++					szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_CONNECTED", ())
++				elif (not gc.getTeam(playerActive.getTeam()).isTechTrading() and not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isTechTrading()):
++					szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
++				screen.attachPanel(mainPanelName, currentPlayerPanelName, szPlayerName, "", False, True, PanelStyles.PANEL_STYLE_EMPTY )				
++
++				screen.attachLabel(currentPlayerPanelName, "", "                    ")
++
++				if (self.iScreen == FOREIGN_BONUS_SCREEN):
++					if (not playerActive.canTradeNetworkWith(iLoopPlayer) and not gc.getGame().isDebugMode()):
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 0, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
++					else:
++						listTradeable = []
++						listUntradeable = []
++						tradeData = TradeData()
++						tradeData.ItemType = TradeableItems.TRADE_RESOURCES
++						for iLoopBonus in range(gc.getNumBonusInfos()):
++							tradeData.iData = iLoopBonus
++							if (gc.getPlayer(iLoopPlayer).canTradeItem(self.iActiveLeader, tradeData, False)):
++								if (gc.getPlayer(iLoopPlayer).getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL):
++									listTradeable.append(iLoopBonus)
++								else:
++									listUntradeable.append(iLoopBonus)
++									
++						if len(listTradeable) > 0:
++							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE", ()) + u"</font>")
++										
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						for iLoopBonus in listTradeable:
++							screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, gc.getBonusInfo(iLoopBonus).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus, -1, False)
++									
++						if len(listUntradeable) > 0:
++							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE", ()) + u"</font>")
++										
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildNoTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						for iLoopBonus in listUntradeable:
++							screen.appendMultiListButton("ChildNoTrade" + currentPlayerPanelName, gc.getBonusInfo(iLoopBonus).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus, -1, False)
++
++				elif (self.iScreen == FOREIGN_TECH_SCREEN):
++					if (not gc.getTeam(playerActive.getTeam()).isTechTrading() and not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isTechTrading() and not gc.getGame().isDebugMode()):
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 0, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
++					else:
++						listTradeable = []
++						listUntradeable = []
++						listTradeNotAllowed = []						
++						tradeData = TradeData()
++						tradeData.ItemType = TradeableItems.TRADE_TECHNOLOGIES
++						for iLoopTech in range(gc.getNumTechInfos()):
++							tradeData.iData = iLoopTech
++							if (gc.getPlayer(iLoopPlayer).canTradeItem(self.iActiveLeader, tradeData, False)):
++								if (gc.getPlayer(iLoopPlayer).getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL):
++									listTradeable.append(iLoopTech)
++								else:
++									listUntradeable.append(iLoopTech)
++							elif (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasTech(iLoopTech) and playerActive.canResearch(iLoopTech, False)):
++								listTradeNotAllowed.append(iLoopTech)
++										
++						if len(listTradeable) > 0:
++							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE", ()) + u"</font>")
++										
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						for iLoopTech in listTradeable:
++							screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
++
++						if len(listUntradeable) > 0:
++							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE", ()) + u"</font>")
++										
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildNoTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						for iLoopTech in listUntradeable:
++							screen.appendMultiListButton("ChildNoTrade" + currentPlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
++
++						if len(listTradeNotAllowed) > 0:
++							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_ALLOWED_TRADE", ()) + u"</font>")
++										
++						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildCantTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++						for iLoopTech in listTradeNotAllowed:
++							screen.appendMultiListButton("ChildCantTrade" + currentPlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
++
++				screen.attachLabel(currentPlayerPanelName, "", "   ")
++				szName = self.getNextWidgetName()
++				screen.addCheckBoxGFCAt(currentPlayerPanelName, szName, gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), 10, 0, self.W_LEADER, self.H_LEADER, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++				if (self.iSelectedLeader == iLoopPlayer):
++					screen.setState(szName, True)
++				else:
++					screen.setState(szName, False)
++					
++	def drawRelations(self, bInitial):
++	
++		if self.iShiftKeyDown == 1:
++			if (self.iSelectedLeader in self.listSelectedLeaders):
++				self.listSelectedLeaders.remove(self.iSelectedLeader)
++			else:
++				self.listSelectedLeaders.append(self.iSelectedLeader)
++		else:
++			self.listSelectedLeaders = []
++			if (not bInitial):
++				self.listSelectedLeaders.append(self.iSelectedLeader)	
++		
++		bNoLeadersSelected = (len(self.listSelectedLeaders) == 0)
++		bSingleLeaderSelected = (len(self.listSelectedLeaders) == 1)
++		if bSingleLeaderSelected:
++			self.iSelectedLeader = self.listSelectedLeaders[0]
++		
++		# Get the Players
++		playerActive = gc.getPlayer(self.iActiveLeader)
++		
++		# count the leaders
++		iCount = 0
++		leaderMap = { }
++		# Count all other leaders
++		for iPlayer in range(gc.getMAX_PLAYERS()):
++			player = gc.getPlayer(iPlayer)
++			if (player.isAlive() and iPlayer != self.iActiveLeader and (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()) and not player.isBarbarian() and not player.isMinorCiv()):
++				leaderMap[iPlayer] = iCount
++				iCount = iCount + 1
++		fLeaderTop = self.Y_LEADER_CIRCLE_TOP
++		fRadius = self.RADIUS_LEADER_ARC - self.H_LEADER
++		fLeaderArcTop = fLeaderTop + self.H_LEADER + 10
++		
++		if iCount < 8:
++			iLeaderHeight = int((3 * self.H_LEADER) / 2)
++			iLeaderWidth = int((3 * self.W_LEADER) / 2)
++		else:
++			iLeaderHeight = self.H_LEADER
++			iLeaderWidth = self.W_LEADER
++			
++
++		screen = self.getScreen()
++
++		#screen.addPanel(self.getNextWidgetName(), "", "", False, False, 0, 50, self.W_SCREEN, 667, PanelStyles.PANEL_STYLE_MAIN_WHITE)
++		#screen.addPanel(self.getNextWidgetName(), "", "", False, False, 0, 50, self.W_SCREEN, 667, PanelStyles.PANEL_STYLE_MAIN_WHITE)
++		#screen.addPanel(self.getNextWidgetName(), "", "", False, False, 0, 50, self.W_SCREEN, 667, PanelStyles.PANEL_STYLE_MAIN_WHITE)
++
++		# legend
++		screen.addPanel(self.getNextWidgetName(), u"", u"", True, False, self.X_LEGEND, self.Y_LEGEND, self.W_LEGEND, self.H_LEGEND, PanelStyles.PANEL_STYLE_IN)
++		x = self.X_LEGEND + self.MARGIN_LEGEND
++		y = self.Y_LEGEND + self.MARGIN_LEGEND
++		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		y += self.MARGIN_LEGEND
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_WHITE"))
++		y += 2 * self.MARGIN_LEGEND
++		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_CONCEPT_WAR", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		y += self.MARGIN_LEGEND
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_RED"))
++		y += 2 * self.MARGIN_LEGEND
++		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		y += self.MARGIN_LEGEND
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_BLUE"))
++		y += 2 * self.MARGIN_LEGEND
++		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		y += self.MARGIN_LEGEND
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CITY_GREEN"))
++		y += 2 * self.MARGIN_LEGEND
++		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_PITBOSS_TEAM", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		y += self.MARGIN_LEGEND
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_YELLOW"))
++		y += 2 * self.MARGIN_LEGEND
++		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		y += self.MARGIN_LEGEND
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CYAN"))
++	
++		# Our leader head
++
++		# K-mod (moved from below)
++		if bSingleLeaderSelected:
++			iBaseLeader = self.iSelectedLeader
++		else:
++			iBaseLeader = self.iActiveLeader
++
++		playerBase = gc.getPlayer(iBaseLeader)
++		# K-Mod end
++		szLeaderHead = self.getNextWidgetName()
++		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(gc.getPlayer(self.iActiveLeader).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
++		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(gc.getPlayer(self.iActiveLeader).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
++		if (self.iActiveLeader in self.listSelectedLeaders):
++			screen.setState(szLeaderHead, True)
++		else:
++			screen.setState(szLeaderHead, False)
++		szName = self.getNextWidgetName()
++		szLeaderName = u"<font=3>" + playerActive.getName() + u"</font>"
++		screen.setLabel(szName, "", szLeaderName, CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++		# K-Mod. vassal / master label
++		szName = self.getNextWidgetName()
++		szText = u""
++		player = gc.getPlayer(self.iActiveLeader)
++		if iBaseLeader != self.iActiveLeader and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
++			if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
++				szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
++			elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
++				szText += localText.getText("TXT_KEY_MISC_MASTER", ())
++			if not gc.getPlayer(self.iActiveLeader).isHuman():
++				if szText != "":
++					szText += ", "
++				szText += gc.getAttitudeInfo(gc.getPlayer(self.iActiveLeader).AI_getAttitude(iBaseLeader)).getDescription()
++			if szText != "":
++				szText = " (" + szText + ")"
++		screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		# K-Mod end
++				
++		# angle increment in radians (180 degree range)
++		if (iCount < 2):
++			deltaTheta = 0
++		else:
++			deltaTheta = 3.1415927 / (iCount - 1)
++		
++		# draw other leaderheads
++		for iPlayer in leaderMap.keys():
++			player = gc.getPlayer(iPlayer)
++
++			# (iBaseLeader code was here)
++
++			fX = int(self.X_LEADER_CIRCLE_TOP - fRadius * math.cos(deltaTheta * leaderMap[iPlayer]) - iLeaderWidth/2) 
++			fY = int(fLeaderArcTop + fRadius * math.sin(deltaTheta * leaderMap[iPlayer]) - iLeaderHeight/2)
++
++			szLeaderHead = self.getNextWidgetName()
++			screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), int(fX), int(fY), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, iPlayer, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL)
++			if (iPlayer in self.listSelectedLeaders):
++				screen.setState(szLeaderHead, True)
++			else:
++				screen.setState(szLeaderHead, False)
++
++			szName = self.getNextWidgetName()
++			szText = u"<font=3>" + player.getName() + u"</font>"
++			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++			# Leader attitude towards active player. (rewritten by K-Mod)
++			szName = self.getNextWidgetName()
++			szText = u""
++			if iBaseLeader != iPlayer and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
++				if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
++					szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
++				elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
++					szText += localText.getText("TXT_KEY_MISC_MASTER", ())
++				if not gc.getPlayer(iPlayer).isHuman():
++					if szText != "":
++						szText += ", "
++					szText += gc.getAttitudeInfo(gc.getPlayer(iPlayer).AI_getAttitude(iBaseLeader)).getDescription()
++				if szText != "":
++					szText = " (" + szText + ")"
++			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			
++		# draw lines
++		for iSelectedLeader in range(gc.getMAX_PLAYERS()):
++			bDisplayed = (not gc.getPlayer(iSelectedLeader).isBarbarian() and not gc.getPlayer(iSelectedLeader).isMinorCiv() and gc.getPlayer(iSelectedLeader).isAlive() and (gc.getGame().isDebugMode() or gc.getTeam(playerActive.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())))
++			if iSelectedLeader in self.listSelectedLeaders or (bNoLeadersSelected and bDisplayed):
++				# get selected player and location
++				if (iSelectedLeader in leaderMap):
++					thetaSelected = deltaTheta * leaderMap[iSelectedLeader]
++					fXSelected = self.X_LEADER_CIRCLE_TOP - fRadius * math.cos(thetaSelected)
++					fYSelected = fLeaderArcTop + fRadius * math.sin(thetaSelected)
++				else:
++					fXSelected = self.X_LEADER_CIRCLE_TOP
++					fYSelected = fLeaderTop + iLeaderHeight/2
++				
++				for iPlayer in leaderMap.keys():
++					player = gc.getPlayer(iPlayer)
++
++					fX = self.X_LEADER_CIRCLE_TOP - fRadius * math.cos(deltaTheta * leaderMap[iPlayer])
++					fY = fLeaderArcTop + fRadius * math.sin(deltaTheta * leaderMap[iPlayer])
++					
++					# draw lines
++					if (iSelectedLeader != iPlayer):
++						if (player.getTeam() == gc.getPlayer(iSelectedLeader).getTeam()):
++							szName = self.getNextLineName()
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_YELLOW") )						
++						elif (gc.getTeam(player.getTeam()).isVassal(gc.getPlayer(iSelectedLeader).getTeam()) or gc.getTeam(gc.getPlayer(iSelectedLeader).getTeam()).isVassal(player.getTeam())):
++							szName = self.getNextLineName()
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_CYAN") )						
++						elif (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())):
++							if (gc.getTeam(player.getTeam()).isAtWar(gc.getPlayer(iSelectedLeader).getTeam())):
++								szName = self.getNextLineName()
++								screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_RED") )
++							else:
++								bJustPeace = True
++								if (gc.getTeam(player.getTeam()).isOpenBorders(gc.getPlayer(iSelectedLeader).getTeam())):
++									fDy = fYSelected - fY
++									fDx = fXSelected - fX
++									fTheta = math.atan2(fDy, fDx)
++									if (fTheta > 0.5 * math.pi):
++										fTheta -= math.pi
++									elif (fTheta < -0.5 * math.pi):
++										fTheta += math.pi
++									fSecondLineOffsetY = self.LINE_WIDTH * math.cos(fTheta)
++									fSecondLineOffsetX = -self.LINE_WIDTH * math.sin(fTheta)
++									szName = self.getNextLineName()
++									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(fX + fSecondLineOffsetX), int(fY + fSecondLineOffsetY), gc.getInfoTypeForString("COLOR_CITY_GREEN") )
++									bJustPeace = False
++								if (gc.getTeam(player.getTeam()).isDefensivePact(gc.getPlayer(iSelectedLeader).getTeam())):
++									szName = self.getNextLineName()
++									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_BLUE") )
++									bJustPeace = False
++								if (bJustPeace):
++									szName = self.getNextLineName()
++									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_WHITE") )
++		
++				player = gc.getPlayer(self.iActiveLeader)
++				if (player.getTeam() == gc.getPlayer(iSelectedLeader).getTeam()):
++					szName = self.getNextLineName()
++					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_YELLOW") )
++				elif (gc.getTeam(player.getTeam()).isVassal(gc.getPlayer(iSelectedLeader).getTeam()) or gc.getTeam(gc.getPlayer(iSelectedLeader).getTeam()).isVassal(player.getTeam())):
++					szName = self.getNextLineName()
++					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_CYAN") )
++				elif (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())):
++					if (gc.getTeam(player.getTeam()).isAtWar(gc.getPlayer(iSelectedLeader).getTeam())):
++						szName = self.getNextLineName()
++						screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_RED") )
++					else:
++						bJustPeace = True
++						if (gc.getTeam(player.getTeam()).isOpenBorders(gc.getPlayer(iSelectedLeader).getTeam())):
++							fDy = fLeaderTop + iLeaderHeight/2 - fYSelected
++							fDx = self.X_LEADER_CIRCLE_TOP - fXSelected
++							fTheta = math.atan2(fDy, fDx)
++							if (fTheta > 0.5 * math.pi):
++								fTheta -= math.pi
++							elif (fTheta < -0.5 * math.pi):
++								fTheta += math.pi
++							fSecondLineOffsetY = self.LINE_WIDTH * math.cos(fTheta)
++							fSecondLineOffsetX = -self.LINE_WIDTH * math.sin(fTheta)
++							szName = self.getNextLineName()
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(self.X_LEADER_CIRCLE_TOP + fSecondLineOffsetX), int(fLeaderTop + iLeaderHeight/2 + fSecondLineOffsetY), gc.getInfoTypeForString("COLOR_CITY_GREEN") )
++							bJustPeace = False
++						if (gc.getTeam(player.getTeam()).isDefensivePact(gc.getPlayer(iSelectedLeader).getTeam())):
++							szName = self.getNextLineName()
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), gc.getInfoTypeForString("COLOR_BLUE") )
++							bJustPeace = False
++						if (bJustPeace):
++							szName = self.getNextLineName()
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), gc.getInfoTypeForString("COLOR_WHITE") )
++
++															
++	# returns a unique ID for a widget in this screen
++	def getNextWidgetName(self):
++		szName = self.WIDGET_ID + str(self.nWidgetCount * NUM_FOREIGN_SCREENS + self.iScreen)
++		self.nWidgetCount += 1
++		return szName
++											
++	def getNextLineName(self):
++		szName = self.LINE_ID + str(self.nLineCount * NUM_FOREIGN_SCREENS + self.iScreen)
++		self.nLineCount += 1
++		return szName
++											
++	def getWidgetName(self, szBaseName):
++		szName = szBaseName + str(self.iScreen)
++		return szName
++		
++	def clearAllLines(self):
++		screen = self.getScreen()
++		nLines = self.nLineCount
++		self.nLineCount = 0
++		for i in range(nLines):
++			screen.removeLineGFC(self.BACKGROUND_ID, self.getNextLineName())
++		self.nLineCount = 0	
++
++		
++	def deleteAllWidgets(self):
++		screen = self.getScreen()
++		i = self.nWidgetCount - 1
++		while (i >= 0):
++			self.nWidgetCount = i
++			screen.deleteWidget(self.getNextWidgetName())
++			i -= 1
++
++		self.nWidgetCount = 0
++		self.clearAllLines()			
++			
++	# Handles the input for this screen...
++	def handleInput (self, inputClass):
++		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
++			if (inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD):
++				if (inputClass.getFlags() & MouseFlags.MOUSE_LBUTTONUP):
++					self.iSelectedLeader = inputClass.getData1()
++					self.drawContents(False)
++				elif (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
++					if (self.iActiveLeader != inputClass.getData1()):
++						self.getScreen().hideScreen()
++			 
++		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
++			if (inputClass.getFunctionName() + str(inputClass.getID()) == self.getWidgetName(self.DEBUG_DROPDOWN_ID)):
++				szName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
++				iIndex = self.getScreen().getSelectedPullDownID(szName)
++				self.iActiveLeader = self.getScreen().getPullDownData(szName, iIndex)
++				self.drawContents(False)
++		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
++			if (inputClass.getData() == int(InputTypes.KB_LSHIFT) or inputClass.getData() == int(InputTypes.KB_RSHIFT)):
++				self.iShiftKeyDown = inputClass.getID() 
++
++		return 0
++
++	def update(self, fDelta):
++		if (CyInterface().isDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT) == True):
++			CyInterface().setDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT, False)
++			self.drawContents(False)
++		return
++
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 929c96625..b14dcc1e8 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -102,6 +102,15 @@
+ 		<Italian>Costo di supporto per le unit&#224; militari</Italian>
+ 		<Spanish>de coste de abastecimiento por cada unidad militar</Spanish>
+ 	</TEXT>
++	<!-- similarly with war weariness, I've removed the number from the end so that I can change the way it is used in the DLL.-->
++	<TEXT>
++		<Tag>TXT_KEY_WAR_WEAR_HELP</Tag>
++		<English>War Weariness</English>
++		<French>Lassitude de la guerre</French>
++		<German>Kriegsm&#252;digkeit</German>
++		<Italian>Stanchezza della guerra</Italian>
++		<Spanish>Hast&#237;o b&#233;lico</Spanish>
++	</TEXT>
+ 	<!-- highlight leader name in the contact string -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CONTACT_LEADER</Tag>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 9cec03b83..81ea2446d 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4165,7 +4165,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ 	szBuffer.append(gDLL->getText("TXT_KEY_MISC_CONTACT_LEADER", kPlayer.getNameKey(), kPlayer.getCivilizationShortDescription()));
+ 	szBuffer.append(NEWLINE);
+-	GAMETEXT.parsePlayerTraits(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
++	GAMETEXT.parsePlayerTraits(szBuffer, ePlayer);
+ 
+ 	if (!(kActiveTeam.isHasMet(eTeam)))
+ 	{
+@@ -4175,6 +4175,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ 	if (kActiveTeam.isHasMet(eTeam) || GC.getGameINLINE().isDebugMode())
+ 	{
++		/* original bts code
+ 		if (!kPlayer.isHuman())
+ 		{
+ 			if (!kPlayer.AI_isWillingToTalk(eActivePlayer))
+@@ -4189,8 +4190,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
+ 
+ 				szBuffer.append(NEWLINE);
+-				//GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer); // Disabled by K-Mod
+-
++				GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
+ 			}
+ 		}
+@@ -4198,7 +4198,25 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer);
++		} */
++		// K-Mod
++		if (!kPlayer.AI_isWillingToTalk(eActivePlayer))
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_REFUSES_TO_TALK"));
++		}
++		if (!((GC.altKey() || GC.ctrlKey()) && gDLL->getChtLvl() > 0))
++		{
++			GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
++			GAMETEXT.getWarWearinessString(szBuffer, ePlayer, eActivePlayer); // K-Mod
++
++			if (!kPlayer.isHuman() && kPlayer.AI_isWillingToTalk(eActivePlayer))
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
++			}
+ 		}
++		// K-Mod end
+ 
+ 		if (eTeam != eActiveTeam )
+ 		{
+@@ -4210,17 +4228,17 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 			{
+ 				CvTeamAI& kTeam = GET_TEAM((TeamTypes) iTeam);
+-				if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != eActiveTeam && iTeam != GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam())
++				if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != eActiveTeam && iTeam != GET_PLAYER(ePlayer).getTeam())
+ 				{
+ 					if (kActiveTeam.isHasMet(kTeam.getID()))
+ 					{
+-						if (::atWar((TeamTypes) iTeam, GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam()))
++						if (::atWar((TeamTypes) iTeam, GET_PLAYER(ePlayer).getTeam()))
+ 						{
+ 							setListHelp(szWarWithString, L"", kTeam.getName().GetCString(), L", ", bFirst);
+ 							bFirst = false;
+ 						}
+ 
+-						if (kTeam.AI_getWorstEnemy() == GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1).getTeam())
++						if (kTeam.AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
+ 						{
+ 							setListHelp(szWorstEnemyString, L"", kTeam.getName().GetCString(), L", ", bFirst2);
+ 							bFirst2 = false;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7bbb116cf..cd4fe8b98 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -11689,7 +11689,7 @@ iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_D
+ 		for (iI = 0; iI < GC.getNumCivicInfos(); ++iI)
+ 		{
+ 			iNewAngerPercent += GET_PLAYER(city.getOwnerINLINE()).getCivicPercentAnger((CivicTypes)iI);
+-			iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")));
++			iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 			iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 			if (iAnger > 0)
+ 			{
+@@ -14032,8 +14032,8 @@ void CvGameTextMgr::getWarplanString(CvWStringBuffer& szString, WarPlanTypes eWa
+ 		case WARPLAN_LIMITED: szString.assign(L"limited war"); break;
+ 		case WARPLAN_TOTAL: szString.assign(L"total war"); break;
+ 		case WARPLAN_DOGPILE: szString.assign(L"dogpile war"); break;
+-		case NO_WARPLAN: szString.assign(L"unplanned war"); break;
+-		default:  szString.assign(L"unknown war"); break;
++		case NO_WARPLAN: szString.assign(L"no warplan"); break;
++		default:  szString.assign(L"unknown warplan"); break;
+ 	}
+ }
+ 
+@@ -14047,7 +14047,13 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 	TeamTypes eTeam = (TeamTypes) kPlayer.getTeam();
+ 	CvTeamAI& kTeam = GET_TEAM(eTeam);
+ 
+-	szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_TOWARDS", GC.getAttitudeInfo(GET_PLAYER(ePlayer).AI_getAttitude(eTargetPlayer)).getTextKeyWide(), GET_PLAYER(eTargetPlayer).getNameKey()));
++	// K-Mod
++	if (kPlayer.isHuman())
++		return;
++	szBuffer.append(NEWLINE);
++	// K-Mod end
++
++	szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_TOWARDS", GC.getAttitudeInfo(kPlayer.AI_getAttitude(eTargetPlayer)).getTextKeyWide(), GET_PLAYER(eTargetPlayer).getNameKey()));
+ 
+ 	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+ 	{
+@@ -14218,6 +14224,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 		}
+ 	}
+ 
++	/* original bts code
+ 	if (NO_PLAYER != eTargetPlayer)
+ 	{
+ 		int iWarWeariness = GET_PLAYER(eTargetPlayer).getModifiedWarWearinessPercentAnger(GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).getWarWeariness(eTeam) * std::max(0, 100 + kTeam.getEnemyWarWearinessModifier()));
+@@ -14226,12 +14233,47 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_WAR_WEAR_HELP", iWarWeariness / 10000));
+ 		}
++	}*/ // K-Mod, I've moved this to a new function
++}
++
++// K-Mod
++void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
++{
++	FAssert(ePlayer != NO_PLAYER);
++	// Show ePlayer's war weariness towards eTargetPlayer.
++	// (note: this is the reverse of what was shown in the original code.)
++	// War weariness should be shown in it natural units - it's a percentage of population
++	const CvPlayer& kPlayer = GET_PLAYER(ePlayer);
++
++	int iWarWeariness = 0;
++	if (eTargetPlayer == NO_PLAYER || eTargetPlayer == ePlayer)
++	{
++		// If eTargetPlayer == NO_PLAYER, show ePlayer's total war weariness?
++		// There are a couple of problems with displaying the total war weariness: information leak, out-of-date information...
++		// lets do it only for the active player.
++		if (GC.getGameINLINE().getActivePlayer() == ePlayer)
++			iWarWeariness = kPlayer.getWarWearinessPercentAnger();
+ 	}
++	else
++	{
++		const CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
++		if (atWar(kPlayer.getTeam(), kTargetPlayer.getTeam()))
++		{
++			iWarWeariness = kPlayer.getModifiedWarWearinessPercentAnger(GET_TEAM(kPlayer.getTeam()).getWarWeariness(kTargetPlayer.getTeam()) * std::max(0, 100 + GET_TEAM(kTargetPlayer.getTeam()).getEnemyWarWearinessModifier())/10000);
++		}
++	}
++
++	iWarWeariness *= 100;
++	iWarWeariness /= GC.getPERCENT_ANGER_DIVISOR();
+ 
++	if (iWarWeariness != 0)
++		szBuffer.append(CvWString::format(L"\n%s: %d%%", gDLL->getText("TXT_KEY_WAR_WEAR_HELP").GetCString(), iWarWeariness));
+ }
++// K-Mod end
+ 
+ void CvGameTextMgr::getEspionageString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer)
+ {
++	FAssertMsg(false, "obsolete function. (getEspionageString)"); // K-Mod
+ 	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+@@ -15032,22 +15074,21 @@ void CvGameTextMgr::parsePlayerTraits(CvWStringBuffer &szBuffer, PlayerTypes ePl
+ 	}
+ }
+ 
++// K-Mod. I've rewritten most of this function.
+ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+ {
+-	if (NO_PLAYER == eThisPlayer)
+-	{
++	if (eThisPlayer == NO_PLAYER)
+ 		return;
+-	}
+ 
+-	//szBuffer.append(CvWString::format(L"%s", GET_PLAYER(eThisPlayer).getName()));
+-	szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GET_PLAYER(eThisPlayer).getName())); // K-Mod
++	const CvPlayerAI& kPlayer = GET_PLAYER(eThisPlayer);
++
++	szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), kPlayer.getName()));
+ 
+ 	parsePlayerTraits(szBuffer, eThisPlayer);
+ 
+-	// K-Mod. Some debug info: found-site traits, and AI flavours
++	// Some debug info: found-site traits, and AI flavours
+ 	if (gDLL->getChtLvl() > 0 && GC.altKey())
+ 	{
+-		const CvPlayerAI& kPlayer = GET_PLAYER(eThisPlayer);
+ 		szBuffer.append(CvWString::format(SETCOLR SEPARATOR NEWLINE, TEXT_COLOR("COLOR_LIGHT_GREY")));
+ 		CvPlayerAI::CvFoundSettings kFoundSet(kPlayer, false);
+ 
+@@ -15090,27 +15131,30 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ 
+ 		szBuffer.append(SEPARATOR ENDCOLR);
+ 	}
+-	// K-Mod end
+ 
+-	szBuffer.append(L"\n");
++	//szBuffer.append(L"\n");
+ 
+ 	if (eOtherPlayer != NO_PLAYER)
+ 	{
+-		CvTeam& kThisTeam = GET_TEAM(GET_PLAYER(eThisPlayer).getTeam());
+-		//if (eOtherPlayer != eThisPlayer && kThisTeam.isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
+-		if (kThisTeam.isHasMet(GET_PLAYER(eOtherPlayer).getTeam())) // K-Mod. Allow the "other relations string" to display even if eOtherPlayer == eThisPlayer. It's useful info.
++		CvTeam& kThisTeam = GET_TEAM(kPlayer.getTeam());
++		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
++
++		if (kThisTeam.isHasMet(eOtherTeam)) // K-Mod. Allow the "other relations string" to display even if eOtherPlayer == eThisPlayer. It's useful info.
+ 		{
+ 			//getEspionageString(szBuffer, eThisPlayer, eOtherPlayer); // disabled by K-Mod. (The player should not be told exactly how many espionage points everyone has.)
+ 
+-			if (eOtherPlayer != eThisPlayer) // K-Mod
++			if (eOtherPlayer != eThisPlayer)
+ 			{
+ 				getAttitudeString(szBuffer, eThisPlayer, eOtherPlayer);
+ 				getActiveDealsString(szBuffer, eThisPlayer, eOtherPlayer);
+ 			}
++			getWarWearinessString(szBuffer, eThisPlayer, eOtherPlayer);
+ 
+ 			getOtherRelationsString(szBuffer, eThisPlayer, eOtherPlayer);
+ 		}
+ 	}
++	else
++		getWarWearinessString(szBuffer, eThisPlayer, NO_PLAYER); // total war weariness
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 9d88c9f23..205b3d655 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -188,6 +188,7 @@ public:
+ 
+ 	void getWarplanString(CvWStringBuffer& szString, WarPlanTypes eWarPlan);
+ 	DllExport void getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
++	void getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const; // K-Mod
+ 	DllExport void getEspionageString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
+ 	DllExport void getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+ 	DllExport void getDealString(CvWStringBuffer& szString, CvDeal& deal, PlayerTypes ePlayerPerspective = NO_PLAYER);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=53470

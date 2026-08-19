@@ -1,0 +1,275 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4936
+# Commit: 8797e7f461bd05732daf4a0d59949a092e0f6fe9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8c056ffd877f29d7c1bb29f9f4711be0cbf11f78
+# Title: Give more time to freely pick best site for AI settlers if i may say but anyways etc, now up to 4 free turns before penalties apply, and do not discard other...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	6	CvGameCoreDLL/CitySiteEvaluator.cpp
+94	43	CvGameCoreDLL/CvUnitAI.cpp
+18	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index e248faa24..f2bb081d2 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2057,12 +2057,13 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p,
+ 			r += 8 * (aiYield[YIELD_COMMERCE] + aiYield[YIELD_PRODUCTION]);
+ 		}
+ 		else r /= 3;
+-		if (kSet.isStartingLoc() && !bCoastal)
+-		{
+-			r -= 75; // advc.031: was -400 in BtS, -120 in K-Mod
+-			/*	(K-Mod comment: "I'm pretty much forbidding starting 1 tile
+-				inland non-coastal with more than a few non-lake water tiles.) */
+-		}
++		// <!-- custom: disable non coastal penalty, let ai decide if it wants coast or not and not induce a bias in it. With our changes to how ai evaluate terrains and features in evaluate function if i am not mistaken but anyways etc, AIs should be able to properly assess is coast is better (as of now for low-food environments or if there are water bonuses nearby which they were not so good if not at all able to do before but anyways etc), and if not able we'd better do it there rather than here and complexify formula. Also, generally coastal start is a bit weaker, so give AI a chance to go for land starter with more plots to grow, perhaps more forests to chop, unless it assesses it best to not do otherwise, anyways etc. -->
++		// if (kSet.isStartingLoc() && !bCoastal)
++		// {
++		// 	r -= 75; // advc.031: was -400 in BtS, -120 in K-Mod
++		// 	/*	(K-Mod comment: "I'm pretty much forbidding starting 1 tile
++		// 		inland non-coastal with more than a few non-lake water tiles.) */
++		// }
+ 	}  // <advc.031>
+ 	if (bCanNeverImprove)
+ 		r = (r * 77) / 100; // </advc.031>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1b8e33f5e..6258c6fd5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2568,21 +2568,31 @@ bool CvUnitAI::AI_foundFirstCity()
+ 	// <advc>
+ 	CvGame const& kGame = GC.getGame();
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+-	CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
++	// <!-- custom: we don't use kSpeed and game speed percent as noted by chatgpt 5 thanks hehe if i may say, can comment them out now if i am not mistaken, anyways etc -->
++	// CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
+ 	/*  Earlier exploreMove may have revealed more tiles. Don't set bStartingLoc;
+ 		that setting rules out e.g. plots with a goody hut or at the edge of a
+ 		flat map. I've added some getNumCities()<=0 checks to AI_foundValue. */
+ 	kOwner.AI_updateFoundValues(false); // </advc>
+-	int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
+-			+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
+-	int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
++	// int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
++	// 		+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
++
++	// <!-- custom: give AIs more time to pick best spot ; sometimes they start in really bad spot, sometimes they could get a much better one, no hurry to settle right away, give it a few turns safely, also same on all maps to simplify and because no reason no to, as capital city is important even at fastest speed if i am not mistaken but anyways etc. Lower quality starts may be fine for a 3rd city or such but not for capital that is key to wining, definitely spend sometime to find a better spot ; also did some minor refactor and cleanup but anyways etc ; code with the help of chatgpt 5 and claude ai and my adjustments or such, check if accurate, anyways etc -->
++	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
++	int const iMaxTurnsToFound = 4;
++
+ 	if(!kGame.isScenario() && // advc: Let the creator of the scenario decide where the AI settles
+ 		canMove() && !kOwner.AI_isPlotCitySite(getPlot()) &&
+-		kGame.getElapsedGameTurns() <= iMaxFoundTurn)
++		kGame.getElapsedGameTurns() <= iMaxTurnsToFound)
+ 	{
+ 		CvPlot* pBestPlot = NULL;
+-		int iBestValue = 0;
+-		int iBestFoundTurn = 0;
++		
++		int iBestValue = 0; // raw found value of the chosen site (for logs)
++		// <!-- custom: expand this logic chatgpt 5 suggested / had the idea if i may say but anyways etc, that in case the base value is somehow really low but the only good one if i am not mistaken but anyways etc, check if accurate but anyways etc -->
++		// (Nice-to-have) Initialize iBestWeightedValue = -1 so a site with score 0 can still win if nothing else is reachable.
++		int iBestWeightedValue = -99999; // weighted score = raw * weight (0..100)
++		int iBestTurnToFound = 0;
++
+ 		for (int iCitySite = 0; iCitySite < kOwner.AI_getNumCitySites(); iCitySite++)
+ 		{
+ 			CvPlot& kSite = kOwner.AI_getCitySite(iCitySite);
+@@ -2591,53 +2601,94 @@ bool CvUnitAI::AI_foundFirstCity()
+ 			{
+ 				continue;
+ 			}
++
+ 			//int iPlotValue = kOwner.AI_foundValue(pCitySite->getX(), pCitySite->getY());
+-			int iPlotValue = kSite.getFoundValue(kOwner.getID());
+-			if(iPlotValue <= iBestValue)
++			int const iPlotValue = kSite.getFoundValue(kOwner.getID());
++
++			// (Optional, nice speed-up) Add an upper-bound prune before pathfinding: if even with weight=100 a site can’t beat the current best, skip generatePath:
++			if (iPlotValue * 100 <= iBestWeightedValue)  // max weight is 100
++			{
+ 				continue;
++			}
++
+ 			//Can this unit reach the plot this turn? (getPathLastNode()->m_iData2 == 1)
+ 			//Will this unit still have movement points left to found the city the same turn? (getPathLastNode()->m_iData1 > 0))
+ 			if (generatePath(kSite))
+ 			{
+-				int iFoundTurn = kGame.getElapsedGameTurns() +
+-						/*getPathLastNode()->m_iData2 -
+-						(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
+-						// advc: Adapted to K-Mod pathfinder
+-						getPathFinder().getPathTurns() -
+-						(getPathFinder().getFinalMoves() > 0 ? 1 : 0);
+-				if (iFoundTurn <= iMaxFoundTurn)
+-				{
+-					iPlotValue *= 100; //more precision
+-					/*  the slower the game speed, the less penality the plotvalue
+-						gets for long walks towards it.
+-						On normal it's -18% per turn */
+-					/*  advc: 18% seems a bit much; try 15%. K-Mod found values
+-						aren't quite on the same scale as BBAI. */
+-					iPlotValue *= 100 - std::min(100, ((1500/
+-							std::max(1, iGameSpeedPercent)) * iFoundTurn));
+-					iPlotValue /= 100;
+-					if (iPlotValue > iBestValue)
+-					{
+-						iBestValue = iPlotValue;
+-						iBestFoundTurn = iFoundTurn;
+-						pBestPlot = &kSite;
+-					}
++				// CLAUDE: Calculate <!-- custom: found turn --> for THIS SPECIFIC PLOT
++				// Now we can ask the pathfinder about the path it just calculated:
++				// int const iFoundTurn = kGame.getElapsedGameTurns() +
++				// 		/*getPathLastNode()->m_iData2 -
++				// 		(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
++				// 		// advc: Adapted to K-Mod pathfinder
++				// 		getPathFinder().getPathTurns() -
++				// 		(getPathFinder().getFinalMoves() > 0 ? 1 : 0);
++				// <!-- custom: refactoring idea i got based on chatgpt 5's feedback, for clarity, check if accurate, anyways etc -->
++				int const pathTurnsFromNow = getPathFinder().getPathTurns() - (getPathFinder().getFinalMoves() > 0 ? 1 : 0);
++				int const iFoundTurn = kGame.getElapsedGameTurns() + pathTurnsFromNow;
++
++				// CLAUDE: Calculate weight for THIS SPECIFIC PLOT based on its turns to found
++				int const iTurnsBeyondMaxToFound = std::max(0, iFoundTurn - iMaxTurnsToFound);
++
++				int iTurnWeight;
++
++				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far ; also note: >, not >= to strictly allow 4 entire turns before any penalty is applied anyways etc ; give AI the best chances to win and overcome a bad start on tundra, coast only, etc ; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say andif i am not mistaken in my understanding too i mean but anyways etc -->
++				if (iTurnsBeyondMaxToFound == 0)
++				{
++					iTurnWeight = 100;
++				}
++				else if (iTurnsBeyondMaxToFound == 1)
++				{
++					iTurnWeight = 67; 
++				}
++				else if (iTurnsBeyondMaxToFound == 2)
++				{
++					iTurnWeight = 33; 
++				}
++				// <!-- custom: else, see claude ai's explanation below if i am not mistaken and it is not too i mean, check if accurate, anyways etc -->
++				// CLAUDE: Since we already filtered out plots that take too long above,
++				// iTurnWeight should never be 0 here
++				// CLAUDE: Skip plots that would take too long, matching original logic
++				else
++				{
++					continue;
++				}
++
++				// <!-- custom: note: no division here, the whole point of weighting is not doing a divison, just at the end remember to store the raw value and not weighted one and should be all good if i am not mistaken anyways etc -->
++				int const iWeightedPlotValue = (iTurnWeight * iPlotValue);
++
++				if (iWeightedPlotValue <= iBestWeightedValue)
++				{
++					continue;
++				}
++				else
++				{
++					iBestWeightedValue = iWeightedPlotValue;
++					iBestTurnToFound = iFoundTurn;
++					// CLAUDE: Store the raw value of THIS plot, not some other variable
++					iBestValue = iPlotValue;
++					pBestPlot = &kSite;
+ 				}
+ 			}
+ 		}
++
++		// <!-- custom: fresh water or river is not mandatory if the site is otherwise great if i am not mistaken, we'd miss some locally best sites, let aifoundvalue or whichever function(s) is(are) responsible for this pick river or such if locally best or such, just do not discard nice sites just because of not certain to be always best preferences (what if the river loses us a food bonus for example, let evaluate or other such functions ponder these if they can indeed but anyways etc) -->
++		// if (pBestPlot != NULL)
++		// {
++		// 	//Don't give up coast or river, don't settle on bonus with food
++		// 	/*if ((getPlot().isRiver() && !pBestPlot->isRiver())
++		// 		|| (getPlot().isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
++		// 		|| (pBestPlot->getBonusType(NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0))*/
++		// 	// advc: I think AI_foundValue can handle the other stuff
++		// 	if (getPlot().isFreshWater() && !pBestPlot->isFreshWater())
++		// 		pBestPlot = NULL;
++		// }
++
+ 		if (pBestPlot != NULL)
+ 		{
+-			//Don't give up coast or river, don't settle on bonus with food
+-			/*if ((getPlot().isRiver() && !pBestPlot->isRiver())
+-				|| (getPlot().isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+-				|| (pBestPlot->getBonusType(NO_TEAM) != NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0))*/
+-			// advc: I think AI_foundValue can handle the other stuff
+-			if (getPlot().isFreshWater() && !pBestPlot->isFreshWater())
+-				pBestPlot = NULL;
+-		}
+-		if (pBestPlot != NULL)
+-		{
+-			if (gUnitLogLevel >= 2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestFoundTurn, iBestValue);
++			// CLAUDE: iBestValue is already set correctly above, no need to reassign
++
++			if (gUnitLogLevel >= 2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestTurnToFound, iBestValue);
+ 			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY, false, false,
+ 					MISSIONAI_FOUND, pBestPlot);
+ 			return true;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index d50f44ab2..55610134d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -58,6 +58,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [40 - (Seemingly fixed/addressed) Plot allocation improvement 2: high happiness → favour food tiles](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2-if-we-are-high-in-happiness-favour-food-tiles-much-more-and-hammer-tiles-much-less-if-happiness-is-really-high-favour-growth-dynamically-and-plot-allocation-of-these-the-more-we-can-afford-it-even-if-porduction-is-slightly-reduced-short-term-as-a-result-it-auto-corrects-at-high-happiness-with-seemingly-much-stronger-ai-and-developped-cities-as-a-result-excluded-if-food-is-production-eg-worker-settler-etc-if-i-am-not-mistaken-but-anyways-etc)  
+ [41 - (Seemingly fixed) Tremendously improved AI worker mobility/flexibility/reliability](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc)  
+ [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc)  
++[43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -1291,3 +1292,20 @@ Here are the things i changed:
+ - restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4 anyways etc). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop. And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more. This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit but anyways etc, check quick get started guide for updated values or/and info, or/and sevopedia or/and xml anyways etc). As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it. I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch woudl help as well small cities being stuck in a very lnog settler production and being stagnant anyways etc, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed and/or noted as well but anyways etc. Update: also as it mentionned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise if i may say but anyways etc...
+ - free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefulyl AI would react better to these.
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and atatck more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far ; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, jsut to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units woudl be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i coudl have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimemd through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
++
++## 43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites, and other related changes
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1TTw-Ya5yHNh3iuXgGWw-9vw_E6ykdps8?usp=sharing).
++
++A few changes in this issue, with i believe more potential for long term better first city sites (i.e. at turn 0 if i am not mistaken anyways etc), but if AI misevaluates best site we can tweak it as the functions responsible for such rather.
++
++For now and as of now, here are the main changes, in `CvUnitAI::AI_foundFirstCity` and other more minor functions (see below for details anyways etc) i made to base advciv's founding first city logic, with the help of chatgpt 5 and claude ai but anyways etc:
++
++- no more hurry/panic fast settling and no penalty per turn not found, i.e. in old base advciv system, there was say a 15% penalty to the value of all plots per turn. So no matter what, a tile to found city at would only have say 85% of the value it had at turn 0, no matter how good it was. I believe this was done to encourage fast growth or such maybe or maybe for other reasons or not, but i believe giving AIs time would lead to better long term outcomes, especially when starters are really bad, like tundra, not enough land tiles, etc. For now, i am only addressing the issue in a general way, so our new system now gives AI settlers as of 4 turns to path to consider best site without any penalty, meaning as long as a site can be reached in 4 path turns (i.e. to walk there if i am not mistaken anyways etc), then only best value will be considered, no penalty per turn. This window is longer than in base advciv.
++- after the free window ends, we get stronger penalties to quickly encourage settling, i.e. if a tile gets say 5 turns from turn 0 to get there, it loses 33% value, meaning unless it's super high value, it would be highly unlikely to be chosen, but still not totally impossible. The penalty gets stronger being 67% for 6 turns of travel as of now but anyways etc, and then for 7+ tiles no tile is considered, only the best from before is taken. Meaning in total we have a window of up to 6 turns to choose our best city, with 4 no penalty free ones. In save file 336 i often do auto play on as of now at least but anyways etc, spain AI founded its capital on 4th turn only, it chose a strong starting point, although it didn't develop it totally optimally, but in theory it could do well. Its early game was slower as a result, but with more land tiles, river so more commerce and health if not before (not here but in theory i mean but anyways etc), and many commerce bonuses which would help a lot with plantations later. Food is lower but potential higher, as more land tiles can be grown. Most AIs didn't change their preferred best tile in this save file, so it may not make a huge difference, but may, especially for bad starts.
++- Another change is non-coastal sites are not penalized anymore, by disabling the code that did that in `AIFoundValue::evaluateYield` no non-coastal penalty is applied. I.e. if a city site is not coastal, it will still be considered best if it was the best, and not be discarded like in base advciv. I believe to just take the best, and if it happens to be coastal great, if not land is probably stronger then. We added code in evaluate function to tell AI when coast is better (such as when terrain is rich in high food, or if there are water bonuses, anyways etc)
++- Also, we (i.e. me but anyways etc) now don't discard sites that are not on fresh water or river unlike in base advciv but anyways etc. If they are otherwise the best, it woud be a really bad move to discard them jsut to get river and a worse site. Similar logic than before for coast.
++
++As for examples, as i said Spain AI, screenshots 2100 and 2101 show how it was before this change (minus all other changes we did since base advciv that are here though but anyways etc), and then remaining existing screenshots between 2092 and 2107 show how the AI behaved with this change with the other site it took. Again it had a slower growth as a result, but i believe long term potential of this site is higher. In other maps, in particular tundra or such although i didn't test them, it can be expected AI will/would actively avoid them rather than settle here, but test to be sure, anyways etc.
++
++Note: part of the reason why its growth was slower is due to using a specialist too soon when it had room to grow if i'm not mistaken, which i attempt to fix, even if not the case here, as it happened in other cities before this change and is really crippling, but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index e1c4810b4..5ca568c7b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -122,6 +122,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4 anyways etc). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop. And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more. This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit but anyways etc, check quick get started guide for updated values or/and info, or/and sevopedia or/and xml anyways etc). As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it. I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch woudl help as well small cities being stuck in a very lnog settler production and being stagnant anyways etc, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed and/or noted as well but anyways etc. Update: also as it mentionned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise if i may say but anyways etc...
+ - free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefulyl AI would react better to these.
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and atatck more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far ; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, jsut to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units woudl be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i coudl have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimemd through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
++- make AI settlers take longer to decide which site to start at for its first city to found, thanks to changes in ``CvUnitAI::AI_foundFirstCity``. In summary, now AI will take a free window of 4 turns of path from its spawn time vs 2 with penaltie sni base advciv max, to decide best plot to found its first city. Also, non-coastal sites are no longer discarded if coastal ones are in range if i am not mistaken but anyways etc, and non-rivers and non-fresh water ones are no longer discarded as well if rivers or fresh water ones are in range. Our system allows for much better site selection, although in most games AI settlers should sitll choose best site they start on already, but in some cases, like low food tundra or such, if grassland is nearby at a few turns of walk, the AI would probably settle there, and hopefully have a stronger, no emergency, no strong starting type of city bias and discarding potentially locally better ones (if river is bets all good, but don't discard a better site just because it doesn't ave a river or fresh water, and rivers aand such are valorized already at evaluate part of the code of bets site anyway for all cities to found during the game if i am not mistaken not just first one so no need to overdo it if i am not mistaken but anyways etc), so hopefully AI has stronger starting city sites thanks to these changes, especially if starting site is somehow really bad ; see for details [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)
+ 
+ ### UI / In-game
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=35166

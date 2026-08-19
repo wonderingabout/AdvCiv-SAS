@@ -1,0 +1,202 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5569
+# Commit: 08d32a43caf328e880fd70570660a1a31e90aad2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b4bf8dfadd0c54bd0e03eab321c3a77536c8a4f0
+# Title: trim excess city_billboard chars when upscaled
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+41	17	Assets/XML/GlobalDefines_advciv_sas.xml
+38	4	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index f7d57282e..cf73e63cc 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -93,6 +93,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
++
++
++
++	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
++		<iDefineIntVal>230</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
++		<iDefineIntVal>230</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
++		<iDefineIntVal>200</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
++		<iDefineIntVal>40</iDefineIntVal>
++	</Define>
+ 	<!-- custom: CITY_BILLBOARDS fScale by SAS_UI_FONT_BODY in tenths (e.g. -20 => -2.0). We key off BODY (not LABEL/TITLE) because map-view city name/production/pop are regular informational text and visually align with body-level density. Use 10 for vanilla-like default (1.0). Note: city billboards follow two render paths; positive values stay on GameFont path (e.g. 2.0 did not upscale as needed), while negative values switch to GFC/interface-font path where scaling worked for map-view city text. Empirically, as of now -20 seems to be the effective in-game ceiling: values more negative (e.g. -30 i.e. -3.0) did not produce visibly larger text. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_CITY_BILLBOARD_FSCALE_FONT_1</DefineName>
+@@ -110,6 +130,27 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CITY_BILLBOARD_FSCALE_FONT_4</DefineName>
+ 		<iDefineIntVal>-40</iDefineIntVal>
+ 	</Define>
++	<!-- custom: city billboard text char caps keyed by SAS_UI_FONT_BODY only. Empirical testing showed wide city bars do not change the actual trim point for billboard text, so one define family is enough. Set <= 0 to disable trimming for that font size. (GPT-5.4). Note: empirically 10 fits well enough but to account for double digit timers use one less char instead -->
++	<!-- custom: example: "ABCDE FGHIJKL (8)" if max total chars are 10 -> "ABCDE FGHIJKL is 13 chars" which is more than max so trim it: " (8)" is 4 chars so only 10-4=6 chars remain for left part of the name so "ABCDE " + right part " (8)" => "ABCDE  (8)" total 10 chars is within limit now -->
++	<!-- custom: example 2: "ABC DEF (20)" if max chars are 10 similarly is reduced to "ABC D (20)" -->
++	<!-- custom: example 3: "Courthouse (8)" if max chars are 10 similarly is reduced to "Courth (8)" -->
++	<!-- custom: example 4: "Research" is total 8 chars (no timer so relatively short) so not trimmed -->
++	<Define>
++		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_1</DefineName>
++		<iDefineIntVal>-1</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_2</DefineName>
++		<iDefineIntVal>-1</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_3</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_4</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
+ 
+ 
+ 
+@@ -158,23 +199,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+-	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+-		<iDefineIntVal>230</iDefineIntVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
+-		<iDefineIntVal>230</iDefineIntVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
+-		<iDefineIntVal>200</iDefineIntVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
+-		<iDefineIntVal>40</iDefineIntVal>
+-	</Define>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b51eb1677..b84104798 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18941,9 +18941,36 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ 	}
+ }
+ 
++// <!-- custom: assign name (trimmed if needed) + suffix so total fits within the per-font char limit (Claude code Opus 4.6) -->
++static void assignTrimmedBillboard(CvWStringBuffer& szBuffer,
++	const wchar* szName, CvWString const& szSuffix)
++{
++	static const int iBodyFont = GC.getDefineINT("SAS_UI_FONT_BODY");
++	static const int iLimit =
++		(iBodyFont == 1 ? GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_1") :
++		 iBodyFont == 2 ? GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_2") :
++		 iBodyFont == 3 ? GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_3") :
++		 GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_4"));
++	size_t uNameLen = wcslen(szName);
++	if (iLimit > 0)
++	{
++		// <!-- custom: as per GPT-5.4's previous fix on earlier version of the code: "cast the define-driven int limit to size_t because CvWString::length returns an unsigned size type, and this DLL build treats the old MSVC signed/unsigned warning as an error" + "szTrimmed.length() <= iCharLimit became szTrimmed.length() <= (size_t)iCharLimit". (GPT-5.4) -->
++		// 1>..\CvGameTextMgr.cpp(18969): error C2220: warning treated as error - no object file generated
++		// 1>..\CvGameTextMgr.cpp(18969): warning C4018: '<=' : signed/unsigned mismatch
++		// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
++		size_t uLimit = static_cast<size_t>(iLimit);
++		if (uNameLen + szSuffix.length() > uLimit && uLimit > szSuffix.length())
++			uNameLen = uLimit - szSuffix.length();
++	}
++	// <!-- custom: CvWString(ptr, len) is unavailable in MSVC 2003, so construct full string then substr. (Claude code Opus 4.6) -->
++	// 1>..\CvGameTextMgr.cpp(18965): error C2661: 'CvWString::CvWString' : no overloaded function takes 2 arguments
++	// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
++	szBuffer.assign(CvWString(szName).substr(0, uNameLen));
++	szBuffer.append(szSuffix);
++}
++
+ void CvGameTextMgr::buildCityBillboardCityNameString(CvWStringBuffer& szBuffer, CvCity* pCity)
+ {
+-	szBuffer.assign(pCity->getName());
+ 	if (pCity->canBeSelected() &&
+ 		gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL) /*&&
+ 		pCity->foodDifference() > 0*/) // advc.189
+@@ -18953,13 +18980,16 @@ void CvGameTextMgr::buildCityBillboardCityNameString(CvWStringBuffer& szBuffer,
+ 		{
+ 			if (iTurns < MAX_INT)
+ 			{
+-				szBuffer.append(CvWString::format(L" (%d)",
++				assignTrimmedBillboard(szBuffer, pCity->getName(),
++						CvWString::format(L" (%d)",
+ 						/*	advc.189: Absolute value. Red color would be nice,
+ 							but not possible here. */
+ 						abs(iTurns)));
++				return;
+ 			}
+ 		}
+ 	}
++	szBuffer.assign(pCity->getName());
+ }
+ 
+ void CvGameTextMgr::buildCityBillboardProductionString(CvWStringBuffer& szBuffer, CvCity* pCity)
+@@ -18970,13 +19000,17 @@ void CvGameTextMgr::buildCityBillboardProductionString(CvWStringBuffer& szBuffer
+ 		return;
+ 	}
+ 
+-	szBuffer.assign(pCity->getProductionName());
+ 	if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL))
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft();
+ 		if (iTurns < MAX_INT)
+-			szBuffer.append(CvWString::format(L" (%d)", iTurns));
++		{
++			assignTrimmedBillboard(szBuffer, pCity->getProductionName(),
++					CvWString::format(L" (%d)", iTurns));
++			return;
++		}
+ 	}
++	szBuffer.assign(pCity->getProductionName());
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c29360787..0a2d5f3b6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -279,7 +279,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Common)
+ 
+-- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else text overfills)). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
++- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills) (**tunable per font size**), trimmed `city_billboard` text (else upscaled text overflows (i.e. a part of it is not visible on left and right often invluding timers like `Courth (8)` to `Courthouse (8)`, or `ABC DEF (20)` to `ABC D (20)`)) (**max chars tunable per font size**)). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=11029

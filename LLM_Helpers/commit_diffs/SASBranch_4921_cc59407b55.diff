@@ -1,0 +1,320 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4921
+# Commit: cc59407b55267151ae1cad01472a3625b83fa9bb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d02f38ffd3ff6151db09f320eb6d4a8684b90710
+# Title: Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+79	106	CvGameCoreDLL/CvUnitAI.cpp
+3	2	README.md
+32	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ade8e9ddc..0261b3fd6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -18111,133 +18111,106 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
+ 
+ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) // advc: param was CvPlot*
+ {
++	// <!-- custom: rewrite and simplify this function's logic, with gemini ai's help anyways etc, so that we never override the best build, if i understood it correctly, in particular with roads but not only in very select few cases, otherwise always build best build first: deprioritize routes, we want the improvement first (pasture, farm, etc.) on our bonuses if i may say anyways etc before roading, gives the yield slightly sooner, especially valuable for food bonuses but maybe not only (may help production as well although the need to have a route for say iron would be higher, but even then in the end it would need to be mined (for iron for example anyways etc), then in that case better mine at first, we also allow only one AI worker per build now in advciv-sas to try to make AI more efficient (see changes at CvUnitAI::AI_bestCityBuild for details anyways etc)) ; so consider route later after other more important improvements have been built, we may lose some mobility but hoepfully get yields sooner or/and more reliably, i believe higher level players may more often than not not route as is more efficient but is just my opinion/intuition of it based of my memories of when i played at monarch/emperor hehe, every worker turn counts, try to save them, and move speed is not so critical early, but yields are if i am not mistaken, then later, it would be all roaded anyways etc, hopefully makes AI stronger this way at least in most cases anyways etc ; tweak hinted by gemini ai telling me to change something around here although i didn't look at all, i hope this code i did doesn't break anything as it is conservative yet hopefully effective anyways etc (trade movement for sooner yields in short anyways etc) thanks a lot for help gemini ai and thanks to me too hehe if i may say hoepfully helpful anyways etc -->
++
++	// <!-- custom: new function code here anyways etc -->
++	// This function is a simplified and refactored version of the original.
++	// It determines if a worker should perform a different, more urgent
++	// build task on a plot than the one it was originally assigned.
++	// This simplified version only overrides the original build for two specific,
++	// high-priority cases:
++	// 1. To clear a feature if a planned improvement requires it.
++	// 2. To build a road if the plot bridges two separate road networks.
+ 	FAssert(eBuild != NO_BUILD);
+-	bool bBuildRoute = false;
+-	bool bClearFeature = false;
+-	FeatureTypes eFeature = kPlot.getFeatureType();
+ 
+-	CvBuildInfo& kOriginalBuildInfo = GC.getInfo(eBuild);
+-	if (kOriginalBuildInfo.getRoute() != NO_ROUTE)
++	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
++
++	// If the original build is a route or the plot already has a route,
++	// we don't need to override it. This prevents the function from
++	// getting stuck in a loop or re-prioritizing a road that's already
++	// been built.
++	if (kOriginalBuildInfo.getRoute() != NO_ROUTE || kPlot.isRoute()) {
+ 		return eBuild;
+-	//int iWorkersNeeded // advc: It's more like a prediction of how many workers will attend to the task
+-	int iTargetWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBuild);
++	}
+ 
+-	//if (pPlot->getBonusType() == NO_BONUS)
+-	// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000:
+-	if (kPlot.getNonObsoleteBonusType(getTeam()) == NO_BONUS)
++	// --- High-Priority Override 1: Clear Feature ---
++	// We check if the originally planned improvement requires a feature
++	// to be removed first. If so, we find the specific build task to
++	// remove that feature and return it as the new, high-priority task.
++	FeatureTypes eFeature = kPlot.getFeatureType();
++	if (eFeature != NO_FEATURE && kOriginalBuildInfo.isFeatureRemove(eFeature))
+ 	{
+-		CvCityAI const* pTargetCity =  kPlot.AI_getWorkingCity();
+-		if (pTargetCity != NULL)
++		// Find a build type that specifically removes this feature.
++		FOR_EACH_ENUM(Build)
+ 		{
+-			int iCityWorkers = pTargetCity->AI_getWorkersHave();
+-			/*  <advc.113b> Count the current worker if it isn't already included
+-				(Previously, the caller took care of that by calling
+-				CvCity::AI_changeWorkersHave beforehand.) */
+-			if (AI_getCityToImprove() != pTargetCity)
+-				iCityWorkers++; // </advc.113b>
+-			iTargetWorkers = std::max(1, std::min(iTargetWorkers, iCityWorkers));
++			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
++			if (kLoopBuild.isFeatureRemove(eFeature))
++			{
++				if (canBuild(kPlot, eLoopBuild))
++				{
++					// Found a build to remove the feature. Return it as the high priority.
++					return eLoopBuild;
++				}
++			}
+ 		}
+ 	}
+-	if (eFeature != NO_FEATURE)
++
++	// --- High-Priority Override 2: Bridge Plot Groups ---
++	// We check if the plot is a critical link between two unconnected
++	// road networks. If so, building a road here is a high-priority
++	// strategic task for the empire's economy and military.
++	
++	// NEW LOGIC: Check if the original build is a local bonus improvement.
++	// If so, we should prioritize that over bridging plot groups.
++	if (kOriginalBuildInfo.getImprovement() != NO_IMPROVEMENT && kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+ 	{
+-		CvFeatureInfo& kFeatureInfo = GC.getInfo(eFeature);
+-		if (kOriginalBuildInfo.isFeatureRemove(eFeature))
+-		{
+-			if (kOriginalBuildInfo.getImprovement() == NO_IMPROVEMENT ||
+-					(!kPlot.isBeingWorked() ||
+-					kFeatureInfo.getYieldChange(YIELD_FOOD) +
+-					kFeatureInfo.getYieldChange(YIELD_PRODUCTION) <= 0))
+-				bClearFeature = true;
+-		}
+-		if (kFeatureInfo.getMovementCost() > 1 && iTargetWorkers > 1)
+-			bBuildRoute = true;
++		// The original plan is a bonus improvement. We don't want to override it with a road.
++		return eBuild;
+ 	}
+-	//if (pPlot->getBonusType() != NO_BONUS)
+-	// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000: START
+-	if (kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+-		bBuildRoute = true;
+-	else if (kPlot.isHills())
+-	{
+-		if (GC.getDefineINT(CvGlobals::HILLS_EXTRA_MOVEMENT) > 0 && iTargetWorkers > 1)
+-			bBuildRoute = true;
+-	} // BETTER_BTS_AI_MOD: END
+ 
+-	if (kPlot.isRoute())
+-		bBuildRoute = false;
++	int const NO_PLOTGROUP = FFreeList::INVALID_INDEX;
++	int iPlotGroupId = NO_PLOTGROUP;
++	bool bBridgesPlotGroups = false;
+ 
+-	int const NO_PLOTGROUP = FFreeList::INVALID_INDEX; // advc
+-	BuildTypes eBestBuild = NO_BUILD;
+-	int iBestValue = 0;
+-	FOR_EACH_ENUM(Build)
++	FOR_EACH_ADJ_PLOT(kPlot)
+ 	{
+-		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+-		RouteTypes eRoute = kLoopBuild.getRoute();
+-		if ((bBuildRoute && eRoute != NO_ROUTE) ||
+-			(bClearFeature && kLoopBuild.isFeatureRemove(eFeature)))
++		// We now care about adjacent plots that have a route OR a river.
++		if (!pAdj->isRoute() && !pAdj->isRiver())
++			continue;
++
++		CvPlotGroup* pAdjPlotGroup = pAdj->getPlotGroup(getOwner());
++		if (pAdjPlotGroup == NULL || pAdjPlotGroup->getID() == NO_PLOTGROUP)
++			continue;
++
++		// If we find an adjacent plot that is part of a different plot group
++		// than the first one we found, this plot is a bridge.
++		if (iPlotGroupId != NO_PLOTGROUP && pAdjPlotGroup->getID() != iPlotGroupId)
+ 		{
+-			if (!canBuild(kPlot, eLoopBuild))
+-				continue;
++			bBridgesPlotGroups = true;
++			break;
++		}
++		iPlotGroupId = pAdjPlotGroup->getID();
++	}
+ 
+-			int iValue = 10000;
+-			if (bBuildRoute && eRoute != NO_ROUTE)
++	if (bBridgesPlotGroups)
++	{
++		// If the plot is a bridge, we find and return a route-building task.
++		FOR_EACH_ENUM(Build)
++		{
++			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
++			if (kLoopBuild.getRoute() != NO_ROUTE)
+ 			{
+-				iValue *= (1 + GC.getInfo(eRoute).getValue());
+-				iValue /= 2;
+-				//if (pPlot->getBonusType() != NO_BONUS)
+-				// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000:
+-				if (kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+-					iValue *= 2;
+-
+-				if (kPlot.getWorkingCity() != NULL)
+-				{
+-					iValue *= 2 + iTargetWorkers +
+-							((kPlot.isHills() && iTargetWorkers > 1) ?
+-							2 * GC.getDefineINT(CvGlobals::HILLS_EXTRA_MOVEMENT) : 0);
+-					iValue /= 3;
+-				}
+-				ImprovementTypes const eImprovement = kOriginalBuildInfo.getImprovement();
+-				if (eImprovement != NO_IMPROVEMENT)
++				if (canBuild(kPlot, eLoopBuild))
+ 				{
+-					CvImprovementInfo const& kImprov = GC.getInfo(eImprovement);
+-					int iRouteMultiplier =
+-							100 * kImprov.getRouteYieldChanges(eRoute, YIELD_FOOD) +
+-							100 * kImprov.getRouteYieldChanges(eRoute, YIELD_PRODUCTION) +
+-							 60 * kImprov.getRouteYieldChanges(eRoute, YIELD_COMMERCE);
+-					iValue *= 100 + iRouteMultiplier;
+-					iValue /= 100;
+-				}
+-				int iPlotGroupId = NO_PLOTGROUP;
+-				FOR_EACH_ADJ_PLOT(kPlot)
+-				{
+-					if (!kPlot.isRiver() && !pAdj->isRoute())
+-						continue;
+-
+-					CvPlotGroup* pAdjPlotGroup = pAdj->getPlotGroup(getOwner());
+-					if (pAdjPlotGroup == NULL || pAdjPlotGroup->getID() == NO_PLOTGROUP)
+-						continue;
+-
+-					if (pAdjPlotGroup->getID() != iPlotGroupId &&
+-						// advc.001: Based on Mongoose Mod changelog (12-14 Dec 2012)
+-						iPlotGroupId != NO_PLOTGROUP)
+-					{
+-						//This plot bridges plot groups, so route it.
+-						iValue *= 4;
+-						break;
+-					}
+-					else iPlotGroupId = pAdjPlotGroup->getID();
++					// Found a route build that bridges a gap. Return it as a high priority.
++					return eLoopBuild;
+ 				}
+ 			}
+-			iValue /= kLoopBuild.getTime() + 1;
+-			if (iValue > iBestValue)
+-			{
+-				iBestValue = iValue;
+-				eBestBuild = eLoopBuild;
+-			}
+ 		}
+ 	}
+-	if (eBestBuild == NO_BUILD)
+-		return eBuild;
+-	return eBestBuild;
++
++	// If no high-priority override was found, return the original build.
++	return eBuild;
+ }
+
+diff --git a/README.md b/README.md
+index f94b2a159..f4821aeba 100644
+--- a/README.md
++++ b/README.md
+@@ -287,8 +287,9 @@ the finished version.
+ - Recent new goal but anyways: new AI-generated images (using ChatGPT for now at least if not always or not but anyways)
+ - Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) and [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) or/and main README.md for details anyways etc) 
+ - many changes, unlisted and still undone, so far this project is in the early stages, and some of the stated above may change too, refer to ingame sevopedia or and get started guide linked above for hopefully more accurate versions especially ingame sevopedia which always uses latest xml data if i am not mistaken anyways etc
+-- make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting CvUnitAI::AI_bestCityBuild, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see for most info also [/README.md#credits](/README.md#credits) about gemini AI in particular anyways etc.
+-- as a result and part of these changes, make AI workers only allocate max one worker per tile, hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
++make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting CvUnitAI::AI_bestCityBuild, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
++- as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
++- Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+ 
+ ## Known issues in base AdvCiv or/and Civ4
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index ef873c113..5b79df72c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -872,4 +872,35 @@ Ideally i would fix it, but is tedious, and most importantly, the issue shoudl d
+ 
+ See also, although not directly related: [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc)
+ 
+-## 30 -
++## 30 - (Attemptingly fixed) AI workers not prioritizing bonuses to improve, especially food bonuses, and other AI workers optimizations or/and changes anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xeAY-R41d3jQ8W4JvK8mhdRBlkKINpQu?usp=sharing)
++
++This is an issue i had in base advciv, and this solution may not necessarily in all cases be better, but i believe and hope in most cases it helps, at least for the part of the code changed. Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/README.md#gemini-ai](/README.md#gemini-ai)) for details anyways etc.
++
++I have written most details there, so only adding here as less tedious to do so anyways etc, but hopefully helpful or not or yes or etc but anyways etc a few or quite a few screenshots in the google drive link folder mentionned at the top of this known issue section (as of now number 30 anyways etc)
++
++These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not imrpoved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
++
++Ideally i would track other places where changes may be necessary, not sure i would do but maybe, or maybe not ; in this case i mean, anyways etc.
++
++As part of this change, i tried to increase AI worker efficiency by having them max put one worker to a tile to improve: if a worker is improving it already, skip it and go to another tile instead (there may be some delay until a worker goes there and starts improving it i mean anyways etc resulting in some ineffiencies of traveling there while a worker is also already travelling there, perhaps closer or not but anyways etc, but it seems to correct better, as soon as the closest worker starts, the other workers bounces back fast to another tile if i may say anyways etc)
++
++This is not always the best choice, but i believe generally AI would be more efficient this way.
++
++As a side effect, this new code seems slightly faster (see gemini ai link for details).
++
++I would want to do other changes ideally to AI worker and such logic, not sure i would but ideally ; and is in this case i mean if i may say, anyways etc.
++
++## 31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first, except in some rare cases
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1BpwAkJ6V4cT8zeN99UOds7wu0efB5PUe?usp=sharing)
++
++Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc.
++
++Areas of improvement not related to our code change:
++
++- screenshot 1502: do not build farm on spices grassland just because there is a river: the mine yields so much more
++- screenshot 1505: do not build cottage on plains, build on grassland rather, is a better tile to work, and improve any remaining bonus eligible to be improved before that
++
++Hopefully i'd continue improving these ideally but may or may not do anyways etc
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 7106be116..999c3e450 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -67,8 +67,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc. For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good, it seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference.
+ - about water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+ - similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc). I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
+-- make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting CvUnitAI::AI_bestCityBuild, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see for most info also [/README.md#credits](/README.md#credits) about gemini AI in particular anyways etc.
+-- as a result and part of these changes, make AI workers only allocate max one worker per tile, hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
++- make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting CvUnitAI::AI_bestCityBuild, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
++- as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
++- Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=30114

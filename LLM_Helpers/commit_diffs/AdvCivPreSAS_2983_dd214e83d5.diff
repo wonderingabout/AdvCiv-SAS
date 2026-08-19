@@ -1,0 +1,433 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2983
+# Commit: dd214e83d5842de8e7ab24c97146687d166db48e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7cbdab6f15a653a1189a536f07a4a272598d7cb1
+# Title: Move some AI functions out of CvSelectionGroup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	84	CvGameCoreDLL/CvSelectionGroup.cpp
+2	11	CvGameCoreDLL/CvSelectionGroup.h
+77	6	CvGameCoreDLL/CvSelectionGroupAI.cpp
+10	1	CvGameCoreDLL/CvSelectionGroupAI.h
+10	10	CvGameCoreDLL/CvUnitAI.cpp
+4	4	CvGameCoreDLL/CySelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4a06886e5..cd93b75dc 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2134,7 +2134,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 				szString.append(CvWString::format(L" %d%%", 100 - iAverageDamage));
+ 		}
+ 
+-		if (!pHeadGroup->isHuman() && pHeadGroup->isStranded())
++		if (!pHeadGroup->isHuman() && pHeadGroup->AI_isStranded())
+ 		{
+ 			szString.append(CvWString::format(SETCOLR L"\n***STRANDED***" ENDCOLR,
+ 					TEXT_COLOR("COLOR_RED")));
+@@ -2855,7 +2855,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		if (pPlot->getPlotCity() != NULL)
+ 		{
+ 			szTempBuffer.Format(L"\nBombard turns = %d",
+-					kSelectionList.getBombardTurns(pPlot->getPlotCity()));
++					kSelectionList.AI_getBombardTurns(pPlot->getPlotCity()));
+ 			szString.append(szTempBuffer);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 96fd54938..eef788400 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1164,7 +1164,7 @@ int CvPlayerAI::AI_movementPriority(
+ 	if (pHeadUnit->collateralDamage() > 0)
+ 		return 12;
+ 
+-	if (kGroup.isStranded())
++	if (kGroup.AI_isStranded())
+ 		return 505;
+ 
+ 	if (pHeadUnit->canFight())
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index cf47aa018..702374516 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2379,89 +2379,7 @@ int CvSelectionGroup::visibilityRange() const // advc: const; return type was bo
+ 	return iMaxRange;
+ }
+ 
+-/*  BETTER_BTS_AI_MOD, General AI, 03/30/10, jdog5000: START
+-	Approximate how many turns this group would take to reduce pCity's defense to zero */
+-int CvSelectionGroup::getBombardTurns(CvCity const* pCity) const // advc: 2x const
+-{
+-	PROFILE_FUNC();
+-
+-	bool const bHasBomber = (getOwner() != NO_PLAYER ?
+-			(GET_PLAYER(getOwner()).AI_calculateTotalBombard(DOMAIN_AIR) > 0) : false);
+-	int iTotalBombardRate = (bHasBomber ? 16 : 0);
+-	bool bIgnoreBuildingDefense = bHasBomber;
+-	int iUnitBombardRate = 0;
+-	FOR_EACH_UNIT_IN(pUnit, *this)
+-	{
+-		if (pUnit->bombardRate() <= 0)
+-			continue;
+-		iUnitBombardRate = pUnit->bombardRate();
+-		if (pUnit->ignoreBuildingDefense())
+-			bIgnoreBuildingDefense = true;
+-		else
+-		{
+-			iUnitBombardRate *= std::max(25, 100 - pCity->getBuildingBombardDefense());
+-			iUnitBombardRate /= 100;
+-		}
+-		iTotalBombardRate += iUnitBombardRate;
+-	}
+-
+-
+-	if (pCity->getTotalDefense(bIgnoreBuildingDefense) == 0)
+-		return 0;
+-
+-	int iBombardTurns = pCity->getTotalDefense(bIgnoreBuildingDefense);
+-
+-	if (iTotalBombardRate > 0)
+-	{
+-		iBombardTurns = (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDefenseDamage());
+-		iBombardTurns *= pCity->getTotalDefense(false);
+-		iBombardTurns += (GC.getMAX_CITY_DEFENSE_DAMAGE() * iTotalBombardRate) - 1;
+-		iBombardTurns /= std::max(1, (GC.getMAX_CITY_DEFENSE_DAMAGE() * iTotalBombardRate));
+-	}
+-
+-	//if (gUnitLogLevel > 2) logBBAI("      Bombard of %S will take %d turns at rate %d and current damage %d with bombard def %d", pCity->getName().GetCString(), iBombardTurns, iTotalBombardRate, pCity->getDefenseDamage(), (bIgnoreBuildingDefense ? 0 : pCity->getBuildingBombardDefense()));
+-
+-	return iBombardTurns;
+-}
+-
+-
+-bool CvSelectionGroup::isHasPathToAreaPlayerCity(PlayerTypes ePlayer,
+-	MovementFlags eFlags, int iMaxPathTurns) const
+-{
+-	PROFILE_FUNC();
+-	// <advc> Instead of relying on the area checks to fail when the group has no area
+-	if (getNumUnits() <= 0)
+-		return false; // </advc>
+-	FOR_EACH_CITY(pLoopCity, GET_PLAYER(ePlayer))
+-	{
+-		if (pLoopCity->isArea(*area()))
+-		{
+-			int iPathTurns;
+-			if (generatePath(getPlot(), pLoopCity->getPlot(), eFlags, true,
+-				&iPathTurns, iMaxPathTurns))
+-			{
+-				if (iMaxPathTurns < 0 || iPathTurns <= iMaxPathTurns)
+-					return true;
+-			}
+-		}
+-	}
+-	return false;
+-}
+-
+-
+-bool CvSelectionGroup::isStranded() const
+-{
+-	/*PROFILE_FUNC();
+-	if (!m_bIsStrandedCacheValid){
+-		m_bIsStrandedCache = calculateIsStranded();
+-		m_bIsStrandedCacheValid = true;
+-	}
+-	return m_bIsStrandedCache; */
+-
+-	return (AI().AI_getMissionAIType() == MISSIONAI_STRANDED); // K-Mod
+-}
+-
+-
++// BETTER_BTS_AI_MOD, 08/19/09, jdog5000 (General AI):
+ bool CvSelectionGroup::canMoveAllTerrain() const
+ {
+ 	//PROFILE_FUNC();
+@@ -2476,7 +2394,7 @@ bool CvSelectionGroup::canMoveAllTerrain() const
+ 	}
+ 	return true;
+ }
+-// BETTER_BTS_AI_MOD: END
++
+ 
+ void CvSelectionGroup::unloadAll()
+ {
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 9546b9446..fd8f8c0d1 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -124,17 +124,8 @@ public:
+ 	bool canDefend() const;																																										// Exposed to Python
+ 	bool canBombard(CvPlot const& kPlot) const;
+ 	int visibilityRange() const;
+-
+-	// BETTER_BTS_AI_MOD, General AI, 08/19/09, jdog5000: START
+-	int getBombardTurns(CvCity const* pCity) const;
+-	bool isHasPathToAreaPlayerCity(PlayerTypes ePlayer, MovementFlags eFlags = NO_MOVEMENT_FLAGS,
+-			int iMaxPathTurns = -1) /* Erik (CODE1): */ const;
+-	// (advc: isHasPathToAreaEnemyCity moved to CvSelectionGroupAI)
+-	bool isStranded() const; // Note: K-Mod no longer uses the stranded cache. I have a new system.
+-	//void invalidateIsStrandedCache(); // deleted by K-Mod
+-	//bool calculateIsStranded();
+-	bool canMoveAllTerrain() const;
+-	// BETTER_BTS_AI_MOD: END
++	// (advc: Other BBAI functions from same date moved to CvSelectionGroupAI)
++	bool canMoveAllTerrain() const; // BETTER_BTS_AI_MOD, General AI, 08/19/09, jdog5000
+ 
+ 	void unloadAll();
+ 	bool alwaysInvisible() const;																											// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 1de61eff9..e70c719d7 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -893,21 +893,56 @@ bool CvSelectionGroupAI::AI_isDeclareWar(
+ 	}
+ }
+ 
+-/*	advc: Moved from CvSelectionGroup b/c this checks for the
+-	group owner's war plans. Param renamed from bIgnoreMinors
+-	b/c it also causes Barbarians to be ignored. */
++/*	BETTER_BTS_AI_MOD, 08/19/09 and 03/30/10, jdog5000 (General AI): START
++	(advc: Moved from CvSelectionGroup) */
++// Approximate how many turns this group would take to reduce pCity's defense to zero
++int CvSelectionGroupAI::AI_getBombardTurns(CvCity const* pCity) const
++{
++	PROFILE_FUNC();
++	bool const bHasBomber = (getOwner() != NO_PLAYER ?
++			GET_PLAYER(getOwner()).AI_isDomainBombard(DOMAIN_AIR) : false);
++	int iTotalBombardRate = (bHasBomber ? 16 : 0);
++	bool bIgnoreBuildingDefense = bHasBomber;
++	int iUnitBombardRate = 0;
++	FOR_EACH_UNIT_IN(pUnit, *this)
++	{
++		if (pUnit->bombardRate() <= 0)
++			continue;
++		iUnitBombardRate = pUnit->bombardRate();
++		if (pUnit->ignoreBuildingDefense())
++			bIgnoreBuildingDefense = true;
++		else
++		{
++			iUnitBombardRate *= std::max(25, 100 - pCity->getBuildingBombardDefense());
++			iUnitBombardRate /= 100;
++		}
++		iTotalBombardRate += iUnitBombardRate;
++	}
++	// advc (minor bugfix?): BBAI had not passed bIgnoreBuildingDefense consistently
++	int const iTotalDefense = pCity->getTotalDefense(bIgnoreBuildingDefense);
++	if (iTotalDefense <= 0)
++		return 0;
++	int const iHP = GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDefenseDamage();
++	if (iHP <= 0)
++		return 0;
++	int iBombardTurns = intdiv::uceil(iHP * iTotalDefense,
++			std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE() * iTotalBombardRate));
++	//if (gUnitLogLevel > 2) logBBAI("      Bombard of %S will take %d turns at rate %d and current damage %d with bombard def %d", pCity->getName().GetCString(), iBombardTurns, iTotalBombardRate, pCity->getDefenseDamage(), (bIgnoreBuildingDefense ? 0 : pCity->getBuildingBombardDefense()));
++	return iBombardTurns;
++}
++
++// advc: Param renamed from bIgnoreMinors b/c it also causes Barbarians to be ignored
+ bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
+ 	MovementFlags eFlags, int iMaxPathTurns) const
+ {
+ 	PROFILE_FUNC();
+-
+ 	//int iPass = 0; // advc: unused
+ 	for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
+ 	{
+ 		if (bMajorOnly && !it->isMajorCiv())
+ 			continue;
+ 		if (GET_TEAM(getTeam()).AI_mayAttack(it->getTeam()) &&
+-			isHasPathToAreaPlayerCity(it->getID(), eFlags, iMaxPathTurns))
++			AI_isHasPathToAreaPlayerCity(it->getID(), eFlags, iMaxPathTurns))
+ 		{
+ 			return true;
+ 		}
+@@ -916,7 +951,43 @@ bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
+ }
+ 
+ 
+-CvPlot* CvSelectionGroupAI::AI_getMissionAIPlot() /* advc: */ const
++bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer,
++	MovementFlags eFlags, int iMaxPathTurns) const
++{
++	PROFILE_FUNC();
++	// <advc> Instead of relying on the area checks to fail when the group has no area
++	if (getNumUnits() <= 0)
++		return false; // </advc>
++	FOR_EACH_CITY(pLoopCity, GET_PLAYER(ePlayer))
++	{
++		if (pLoopCity->isArea(*area()))
++		{
++			int iPathTurns;
++			if (generatePath(getPlot(), pLoopCity->getPlot(), eFlags, true,
++				&iPathTurns, iMaxPathTurns))
++			{
++				if (iMaxPathTurns < 0 || iPathTurns <= iMaxPathTurns)
++					return true;
++			}
++		}
++	}
++	return false;
++}
++
++
++bool CvSelectionGroupAI::AI_isStranded() const
++{
++	/*PROFILE_FUNC();
++	if (!m_bIsStrandedCacheValid){
++		m_bIsStrandedCache = calculateIsStranded();
++		m_bIsStrandedCacheValid = true;
++	}
++	return m_bIsStrandedCache; */
++	return (AI_getMissionAIType() == MISSIONAI_STRANDED); // K-Mod
++} // BETTER_BTS_AI_MOD: END
++
++
++CvPlot* CvSelectionGroupAI::AI_getMissionAIPlot() const
+ {
+ 	return GC.getMap().plotSoren(m_iMissionAIX, m_iMissionAIY);
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index 690ec2f7e..c6876bcfe 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -52,9 +52,18 @@ public:
+ 
+ 	bool AI_isControlled() const { return (!isHuman() || isAutomated()); } // advc.inl
+ 	bool AI_isDeclareWar(CvPlot const& kPlot) const;
++	/*	BETTER_BTS_AI_MOD, General AI, 08/19/09, jdog5000: START
++		(advc: Moved from CvSelectionGroup) */
++	int AI_getBombardTurns(CvCity const* pCity) const;
+ 	bool AI_isHasPathToAreaEnemyCity(bool bMajorOnly = true,
+ 			MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPathTurns = -1) /* Erik (CODE1): */ const;
+-
++	bool AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer, MovementFlags eFlags = NO_MOVEMENT_FLAGS,
++			int iMaxPathTurns = -1) /* Erik (CODE1): */ const;
++	// Note: K-Mod no longer uses the stranded cache. I have a new system.
++	bool AI_isStranded() const;
++	//void invalidateIsStrandedCache(); // deleted by K-Mod
++	//bool calculateIsStranded();
++	// BETTER_BTS_AI_MOD: END
+ 	CvPlot* AI_getMissionAIPlot() const;
+ 
+ 	bool AI_isForceSeparate() const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index caba71c0f..d0c5ba5f9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3040,7 +3040,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	{
+ 		int iComparePostBombard = AI_getGroup()->
+ 				AI_compareStacks(pTargetCity->plot(), true);
+-		int iBombardTurns = getGroup()->getBombardTurns(pTargetCity);
++		int iBombardTurns = AI_getGroup()->AI_getBombardTurns(pTargetCity);
+ 		// K-Mod note: AI_compareStacks will try to use the AI memory if it can't see.
+ 		{
+ 			// K-Mod
+@@ -3964,7 +3964,7 @@ void CvUnitAI::AI_pillageMove()
+ 	if (!isHuman() && getPlot().isCoastalLand() &&
+ 		/*  advc.046: SKIP w/o setting eMissionAI would make the group forget
+ 			that it's stranded, and then AI_pickupStranded won't find it. */
+-		!getGroup()->isStranded() &&
++		!AI_getGroup()->AI_isStranded() &&
+ 		GET_PLAYER(getOwner()).AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_PICKUP))
+ 	{
+ 		getGroup()->pushMission(MISSION_SKIP);
+@@ -13191,7 +13191,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				else iValue = kOwner.AI_targetCityValue(*pLoopCity, true, true);
+ 				// adjust value based on defensive bonuses
+ 				{
+-					int iMod = std::min(8, getGroup()->getBombardTurns(pLoopCity)) *
++					int iMod = std::min(8, AI_getGroup()->AI_getBombardTurns(pLoopCity)) *
+ 							pLoopCity->getDefenseModifier(false) / 8
+ 							+ (pLoopCity->getPlot().isHills() ?
+ 							GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE) : 0);
+@@ -13579,12 +13579,12 @@ bool CvUnitAI::AI_bombardCity()
+ 
+ 	FAssert(pBombardCity != NULL);
+ 
+-	int iAttackOdds = AI_getGroup()->AI_attackOdds(pBombardCity->plot(), true);
++	int const iAttackOdds = AI_getGroup()->AI_attackOdds(pBombardCity->plot(), true);
+ 	int iBase = GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO);
+ 	int iMin = GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_MIN_STACK_RATIO);
+-	int iBombardTurns = getGroup()->getBombardTurns(pBombardCity);
++	int const iBombardTurns = AI_getGroup()->AI_getBombardTurns(pBombardCity);
+ 	// <advc.004c>
+-	if(iBombardTurns == 0)
++	if(iBombardTurns <= 0)
+ 		return false; // </advc.004c>
+ 	iBase = (iBase * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pBombardCity->getDefenseDamage()) +
+ 			iMin * pBombardCity->getDefenseDamage()) /
+@@ -18369,10 +18369,10 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 		{
+ 			return false;
+ 		}
+-		if (getGroup()->isHasPathToAreaPlayerCity(getOwner(), eFlags))
++		if (AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
+ 			return false;
+-		if ((canFight() || isSpy()) && AI_getGroup()->
+-			AI_isHasPathToAreaEnemyCity(true, eFlags))
++		if ((canFight() || isSpy()) &&
++			AI_getGroup()->AI_isHasPathToAreaEnemyCity(true, eFlags))
+ 		{
+ 			return false;
+ 		}
+@@ -18652,7 +18652,7 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 	CvPlot* pEndTurnPlot = 0;
+ 	FOR_EACH_GROUPAI_VAR(pLoopGroup, kPlayer)
+ 	{
+-		if (!pLoopGroup->isStranded())
++		if (!pLoopGroup->AI_isStranded())
+ 			continue;
+ 
+ 		CvUnit* pHeadUnit = pLoopGroup->getHeadUnit();
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.cpp b/CvGameCoreDLL/CySelectionGroup.cpp
+index 12a7fa8cb..38ca80d7f 100644
+--- a/CvGameCoreDLL/CySelectionGroup.cpp
++++ b/CvGameCoreDLL/CySelectionGroup.cpp
+@@ -4,7 +4,7 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CySelectionGroup.h"
+-#include "CvSelectionGroup.h"
++#include "CvSelectionGroupAI.h"
+ #include "CyArea.h"
+ #include "CvArea.h"
+ #include "CvPlot.h"
+@@ -159,11 +159,11 @@ bool CySelectionGroup::hasWorker()
+ {
+ 	return m_pSelectionGroup ? m_pSelectionGroup->hasWorker() : false;
+ }
+-// BETTER_BTS_AI_MOD, General AI, 11/30/08, jdog5000: START
++// BETTER_BTS_AI_MOD, General AI, 11/30/08, jdog5000:
+ bool CySelectionGroup::isStranded()
+ {
+-	return m_pSelectionGroup ? m_pSelectionGroup->isStranded() : false;
+-} // BETTER_BTS_AI_MOD: END
++	return m_pSelectionGroup ? m_pSelectionGroup->AI().AI_isStranded() : false;
++}
+ 
+ bool CySelectionGroup::at(int iX, int iY)
+ {
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=14936

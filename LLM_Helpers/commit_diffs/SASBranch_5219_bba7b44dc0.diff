@@ -1,0 +1,213 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5219
+# Commit: bba7b44dc0fe77f5e6bf842a3989ed99dc729a3b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2a2a43ee0466a778c998c5305af82d4e71d13467
+# Title: group corporations by era in sevopedia with the very nice help of chatgpt 5.2 thanks anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+91	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	0	Assets/XML/GlobalDefines_advciv_sas.xml
+2	8	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index a24bae90d..30686d327 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -185,6 +185,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheNationalWondersTuple = None
+ 		self.SAS_cacheWorldWondersTuple = None
+ 		self.SAS_cacheUnitsTuple = None
++		self.SAS_cacheCorporationsTuple = None
++		self.SAS_cacheCorporationHQBuildingByCorp = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -398,6 +400,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -1095,14 +1098,100 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getReligionList(self):
+ 		return self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+ 
++	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
++	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
++	# Map each corporation to its founding (HQ) building once, then reuse; used for grouping corporations by era.
++	def SAS_getCorporationHQBuilding(self, iCorporation):
++		if self.SAS_cacheCorporationHQBuildingByCorp is None:
++			m = {}
++			for iBuilding in range(gc.getNumBuildingInfos()):
++				bInfo = gc.getBuildingInfo(iBuilding)
++				if not bInfo or bInfo.isGraphicalOnly():
++					continue
++				iFounds = bInfo.getFoundsCorporation()
++				if iFounds >= 0:
++					m[iFounds] = iBuilding
++			self.SAS_cacheCorporationHQBuildingByCorp = m
++		return self.SAS_cacheCorporationHQBuildingByCorp.get(iCorporation, -1)
++
++	# Compute the "availability era" for a corporation, based on its founding building's prereq tech era.
++	def SAS_getCorporationAvailabilityEra(self, iCorporation, iNumBuildingAndTechs):
++		cInfo = gc.getCorporationInfo(iCorporation)
++		if not cInfo or cInfo.isGraphicalOnly():
++			return None  # caller should skip
++
++		iEra = -1
++
++		# In AdvCiv-SAS, corporations are typically gated by the founding building techs (see CIV4BuildingInfos.xml <FoundsCorporation>).
++		iHQBuilding = self.SAS_getCorporationHQBuilding(iCorporation)
++		if iHQBuilding >= 0:
++			iBuildingEra = self.SAS_getBuildingAvailabilityEra(iHQBuilding, iNumBuildingAndTechs)
++			if iBuildingEra is not None and iBuildingEra > iEra:
++				iEra = iBuildingEra
++
++		return iEra  # -1 means "No Tech Prerequisite" bucket
++
++	# Helper to group corporations by era for Sevopedia lists, mirroring the building/unit/tech patterns.
++	def SAS_getCorporationsGroupedByEra_fromBaseList(self, baseList):
++		corpsList = []
++
++		iNumEras = gc.getNumEraInfos()
++		iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
++
++		noTech = []
++		groups = {}  # iEra -> [(szName, iCorporation), ...]
++
++		for (szName, iCorporation) in baseList:
++			iEra = self.SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs)
++			if iEra is None:
++				continue
++
++			if iEra == -1:
++				noTech.append((szName, iCorporation))
++			else:
++				if iEra not in groups:
++					groups[iEra] = []
++				groups[iEra].append((szName, iCorporation))
++
++		if self.isSortLists():
++			noTech.sort()
++			for k in groups.keys():
++				groups[k].sort()
++
++		if noTech:
++			corpsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
++			for x in noTech:
++				corpsList.append(x)
++
++		for iEraLoop in range(iNumEras):
++			tmp = groups.get(iEraLoop, None)
++			if not tmp:
++				continue
++
++			if corpsList:
++				corpsList.append(("", -1))
++
++			corpsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
++			for x in tmp:
++				corpsList.append(x)
++
++		return tuple(corpsList)
+ 
+ 	def placeCorporations(self):
+ 		self.list = self.getCorporationList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, gc.getCorporationInfo)
+ 	
++	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getCorporationList(self):
+-		return self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
+-
++		if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
++			if self.SAS_cacheCorporationsTuple is None:
++				baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
++				self.SAS_cacheCorporationsTuple = self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList)
++			return self.SAS_cacheCorporationsTuple
++		else:
++			if self.SAS_cacheCorporationsTuple is None:
++				self.SAS_cacheCorporationsTuple = tuple(self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo))
++			return self.SAS_cacheCorporationsTuple
+ 
+ 	def placeConcepts(self):
+ 		self.list = self.getConceptList()
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8cf033d4a..d4d969cf9 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -60,6 +60,10 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 9fbd76d36..8ad6e8ef4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -2,6 +2,8 @@
+ 
+ Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
+ 
++Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings if any. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
++
+ Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
+ 
+ Note 2: in below sample examples, click the images to view them full size
+@@ -124,8 +126,6 @@ Also added the AI information now of as of now the UnitAI and iAIWeight informat
+ 
+ Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker anyways etc) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc but anyways etc.
+ 
+-Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+-
+ <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>
+@@ -136,8 +136,6 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
+ 
+ Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
+ 
+-Now grouped by eras (tech prereq of the asset) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+-
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (3).JPG" alt="0.690_sevopedia_buildings_sample (3).JPG" width="250"></img>
+@@ -168,8 +166,6 @@ Before that, i had also added a list of untradeable techs following the anti tec
+ 
+ Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or not but anyways etc too but anyways etc ; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details anyways etc
+ 
+-Now grouped by eras as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+-
+ <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
+ 
+@@ -199,8 +195,6 @@ Code provided by/with the help of claude ai too thanks if i may say (and thanks
+ 
+ More recently, added the `iCivicPercentAnger` info in sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really but anyways etc.
+ 
+-Even more recently but anyways etc., they are now optionally groupable (as of now default but anyways etc.) by civic type (e.g. Government, Economy, etc.). Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's help too but anyways etc.
+-
+ Examples of output below anyways etc.:
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=12612

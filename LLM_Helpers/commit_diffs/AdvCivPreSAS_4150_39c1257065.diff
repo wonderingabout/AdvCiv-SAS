@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4150
+# Commit: 39c12570650666db1b8fae880c49f84e4b9d84af
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a2e6e6ea7703cbd86db80b504291f70fff73550c
+# Title: Warn (comments) against changing size of CvInfoBase
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	CvGameCoreDLL/CvInfo_Asset.h
+3	1	CvGameCoreDLL/CvInfo_Base.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Asset.h b/CvGameCoreDLL/CvInfo_Asset.h
+index 4b0afb1b0..e21e158e2 100644
+--- a/CvGameCoreDLL/CvInfo_Asset.h
++++ b/CvGameCoreDLL/CvInfo_Asset.h
+@@ -9,6 +9,10 @@
+ 
+ class CvXMLLoadUtility;
+ 
++/*	advc.003k (caveat): Changing the memory layout of CvArtInfoScalableAsset
++	or any of its direct or indirect base classes is probably not safe b/c of
++	multiple inheritance and type casts in the EXE. */
++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvAssetInfoBase
+ //  Base for classes that store data from Art\Civ4ArtDefines.xml
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 6f64491a5..4ec794096 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -76,7 +76,9 @@ public: // All the const functions are exposed to Python
+ 	}
+ 
+ protected:
+-
++	/*	advc.003k (caveat): Changing the memory layout of this class is probably
++		not safe b/c it's a base class of CvArtInfoScalableAsset, which employs
++		multiple inheritance and gets cast unsafely in the EXE. */
+ 	bool m_bGraphicalOnly;
+ 
+ 	CvString m_szType;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1139

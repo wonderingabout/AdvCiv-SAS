@@ -1,0 +1,261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2330
+# Commit: 89f68d9b77d497304dab7fca4f7b934a93b2050f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f05390a9dc25274b4f05f4e6cc4ff4526ac89178
+# Title: Some AI tweaks from MNAI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Contrib/UnitUpgradesGraph.py
+11	6	CvGameCoreDLL/CvCityAI.cpp
+20	8	CvGameCoreDLL/CvPlayerAI.cpp
+6	3	CvGameCoreDLL/CvSelectionGroupAI.cpp
+14	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index a1d26018b..9eb2d2252 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -46,7 +46,8 @@ unitHorizontalMargin = 20
+ unitVerticalMargin = 20
+ 
+ #Spacing refers to the space between unit icons
+-unitHorizontalSpacing = 40
++# advc.004 (from MNAI): Was 40. (MNAI also doubles the v-space.)
++unitHorizontalSpacing = 80
+ unitVerticalSpacing = 5
+ 
+ #The same concepts apply to the promotions graphs as to the unit graphs
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ad8f90d07..6a7c3f02b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1248,7 +1248,8 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 			if (iNeededSeaWorkers > iExistingSeaWorkers)
+ 			{
+-				if (AI_chooseUnit(UNITAI_WORKER_SEA))
++				if (AI_chooseUnit(UNITAI_WORKER_SEA,
++					60)) // advc.131: From MNAI; was -1.
+ 				{
+ 					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 2", getName().GetCString());
+ 					return;
+@@ -1396,7 +1397,8 @@ void CvCityAI::AI_chooseProduction()
+ 	UnitTypes eBestSpreadUnit = NO_UNIT;
+ 	int iBestSpreadUnitValue = -1;
+ 
+-	if (!bDanger && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)))
++	if (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE) &&
++		!bAssault) // advc.131 (from MNAI)
+ 	{
+ 		int iSpreadUnitRoll = (100 - iBuildUnitProb) / 3;
+ 		iSpreadUnitRoll += bLandWar ? 0 : 10;
+@@ -1548,7 +1550,7 @@ void CvCityAI::AI_chooseProduction()
+ 			if (iMissingExplorers > 0)
+ 			{
+ 				if (AI_chooseUnit(UNITAI_EXPLORE,
+-					34 * iMissingExplorers)) //advc.131: was 100 flat
++					34 * iMissingExplorers)) // advc.131: was 100 flat (MNAI uses 25 flat)
+ 				{
+ 					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missing explorer", getName().GetCString()); // advc
+ 					return;
+@@ -6388,14 +6390,14 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
+ 	}
+ 
+ 	if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
+-		iDefenders += 10;
++		iDefenders += 5; // advc.107: From MNAI; was 10.
+ 
+ 	if (kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3))
+ 	{
+ 		if (findCommerceRateRank(COMMERCE_CULTURE) <=
+ 			kGame.culturalVictoryNumCultureCities())
+ 		{
+-			iDefenders += 4;
++			iDefenders += 2; // advc.107: From MNAI; was 4 in BtS, 1 in MNAI.
+ 			if (bDefenseWar /* cdtw: */ || isCoastal())
+ 				iDefenders += 2;
+ 		}
+@@ -6413,9 +6415,12 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
+ 			iDefenders += 6;
+ 	}
+ 
+-	iDefenders = std::max(iDefenders, AI_neededCultureDefenders()); // advc.099c
++	/*	advc (note): Take into account finances? (Idea from MNAI, which
++		halves iDefenders when in financial trouble - but seems excessive to me.) */
+ 
++	iDefenders = std::max(iDefenders, AI_neededCultureDefenders()); // advc.099c
+ 	iDefenders = std::max(iDefenders, AI_minDefenders());
++
+ 	return iDefenders;
+ } // BETTER_BTS_AI_MOD: END
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 70c2c2dc7..f321a75f1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -455,7 +455,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (!isHuman() || isOption(PLAYEROPTION_AUTO_PROMOTION))
++	//if (!isHuman() || isOption(PLAYEROPTION_AUTO_PROMOTION))
++	// <advc.mnai> Do non-human civ promotions after upgrades
++	if ((isHuman() && isOption(PLAYEROPTION_AUTO_PROMOTION)) ||
++		isBarbarian()) // </advc.mnai>
+ 	{
+ 		FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+ 			pLoopUnit->AI_promote();
+@@ -626,6 +629,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	if (gPlayerLogLevel > 2 && iStartingGold - getGold() > 0)
+ 		logBBAI("    %S spends %d on unit upgrades out of budget of %d, %d gold remaining", getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, getGold());
+ 
++	// <advc.mnai> Promotions for AI civs moved down
++	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
++		pLoopUnit->AI_promote(); // </advc.mnai>
++
+ 	// UF bugfix: AI_doSplit moved here per alexman's suggestion
+ 	AI_doSplit();
+ 	/*	K-Mod note: the reason for moving it here is that player turn ordering
+@@ -2701,9 +2708,9 @@ int CvPlayerAI::AI_targetCityValue(CvCity const* pCity, bool bRandomize, bool bI
+ 	} // </cdtw.2>
+ 	if (pCity->isEverOwned(getID()))
+ 	{
+-		iValue += 4;
++		iValue += 3; // advc.mnai: was 4
+ 		if (pCity->getOriginalOwner() == getID())
+-			iValue += 2;
++			iValue += 3; // advc.mnai: was 2
+ 	}
+ 
+ 	if (!bIgnoreAttackers)
+@@ -12891,7 +12898,8 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 	case UNITAI_ATTACK:
+ 
+ 		iValue += iCombatValue;
+-		iValue += ((iCombatValue * u.getWithdrawalProbability()) / 100);
++		// advc.131: From MNAI. Divisor was 100; MNAI uses 25.
++		iValue += (iCombatValue * u.getWithdrawalProbability()) / 50;
+ 		if (u.getCombatLimit() < 100)
+ 			iValue -= (iCombatValue * (125 - u.getCombatLimit())) / 100;
+ 		// K-Mod
+@@ -13122,7 +13130,8 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 			iValue += iCombatValue * u.getMoves() / 8; // k146: was /6
+ 		// K-Mod end
+ 
+-		iValue += (iCombatValue * u.getWithdrawalProbability()) / 100;
++		// advc.131: From MNAI. Divisor was 100; MNAI uses 25.
++		iValue += (iCombatValue * u.getWithdrawalProbability()) / 50;
+ 		// BETTER_BTS_AI_MOD, War strategy AI, 03/20/10, jdog5000: START
+ 		//iValue += (u.getInterceptionProbability() * 2);
+ 		if (u.getInterceptionProbability() > 0)
+@@ -13201,8 +13210,11 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 		iValue += u.getMoves() * 200;
+ 		if (u.isNoBadGoodies())
+ 			iValue += 100;
+-		// K-Mod note: spies are valid explorers, but the AI currently doesn't know to convert them to
+-		// UNITAI_SPY when the exploring is finished. Hence I won't yet give a value bonus for invisibility.
++		/*	K-Mod note: spies are valid explorers, but the AI currently doesn't know
++			how to convert them to UNITAI_SPY when the exploring is finished.
++			Hence I won't yet give a value bonus for invisibility. */
++		// advc: For reference, this is how MNAI accounts for invisible types.
++		//iValue += GC.getInfo(eUnit).getNumSeeInvisibleTypes() * 10;
+ 		break;
+ 
+ 	case UNITAI_MISSIONARY:
+@@ -13385,7 +13397,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 	case UNITAI_SPY_SEA:
+ 		iValue += iCombatValue / 2;
+ 		iValue += u.getMoves() * 200;
+-		iValue += u.getCargoSpace() * 300;
++		iValue += u.getCargoSpace() * 500; // advc.131: From MNAI; was 300.
+ 		/*  BETTER_BTS_AI_MOD, City AI, 05/18/09, jdog5000:
+ 			Never build galley transports when ocean faring ones exist
+ 			(issue mainly for Carracks) */
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 5debb16b5..a4b704f4c 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -839,10 +839,13 @@ CvUnitAI* CvSelectionGroupAI::AI_ejectBestDefender(CvPlot* pDefendPlot)
+ 			}
+ 
+ 			iValue *= 100;
+-			iValue /= (100 + pLoopUnit->cityAttackModifier() + pLoopUnit->getExtraCityAttackPercent());
+-
+-			iValue /= 2 + pLoopUnit->getLevel();
++			//iValue /= (100 + pLoopUnit->cityAttackModifier() + pLoopUnit->getExtraCityAttackPercent());
++			// advc.mnai: (Note that cityAttackModifier includes ExtraCityAttackPercent)
++			iValue /= 100 + std::max(-50, 2 * pLoopUnit->cityAttackModifier());
+ 
++			iValue /= 2 + (pLoopUnit->getLevel() *
++					// advc.mnai:
++					(pLoopUnit->AI_getUnitAIType() == UNITAI_ATTACK_CITY ? 2 : 1));
+ 			if (iValue > iBestUnitValue)
+ 			{
+ 				iBestUnitValue = iValue;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2adee151c..1ce9aaa54 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -493,6 +493,7 @@ void CvUnitAI::AI_upgrade()
+ 
+ 	if (eBestUnit != NO_UNIT)
+ 	{
++		logBBAI("    %S (unit %d - %S) upgrading to %S (value: %d)", getName().GetCString(), getID(), GC.getUnitAIInfo(AI_getUnitAIType()).getDescription(), GC.getUnitInfo(eBestUnit).getDescription(), iBestValue); // advc.mnai
+ 		/*upgrade(eBestUnit);
+ 		doDelayedDeath(); */ // BtS
+ 		// K-Mod. Ungroup the unit, so that we don't cause the whole group to miss their turn.
+@@ -5777,7 +5778,9 @@ void CvUnitAI::AI_workerSeaMove()
+ 	if (!getGroup()->canDefend())
+ 	{
+ 		// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/20/09, jdog5000: was AI_getPlotDanger
+-		if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot()))
++		//if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot()))
++		// advc.mnai (bugfix arguably; tagging advc.001)
++		if (GET_PLAYER(getOwner()).AI_isAnyWaterDanger(getPlot()))
+ 		{
+ 			if (AI_retreatToCity())
+ 			{
+@@ -7810,7 +7813,15 @@ void CvUnitAI::AI_settlerSeaMove()
+ void CvUnitAI::AI_missionarySeaMove()
+ {
+ 	PROFILE_FUNC();
+-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner()); // K-Mod
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
++	/*	<advc.mnai> (I think this could be relevant when a Caravel
++		upgrades to a Destroyer) */
++	if (cargoSpace() <= 0)
++	{
++		AI_setUnitAIType(UNITAI_EXPLORE_SEA);
++		getGroup()->pushMission(MISSION_SKIP);
++		return;
++	} // </advc.mnai>
+ 
+ 	// BETTER_BTS_AI_MOD, Naval AI, 10/21/08, Solver & jdog5000: START
+ 	if (getPlot().isCity(true))
+@@ -11086,7 +11097,7 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 
+ 	if (iDamagePercent == 0)
+ 		iDamagePercent = 10;
+-	iMaxPath = std::min(iMaxPath, 2);
++	iMaxPath = std::min(iMaxPath, 2); // advc (note): MNAI increases this to ...,4)
+ 
+ 	int iTotalDamage = 0;
+ 	int iTotalHitpoints = 0;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9644

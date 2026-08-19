@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4212
+# Commit: 6067f9f6ffa9c5cecd43148d9bb1b0f6ff5a550f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d4f3b4ef1be513ff4402bbd85aaec314634f3ef1
+# Title: Small tweak to AI threshold for Production strategy
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2d9d1ea6e..9afc7b888 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25763,7 +25763,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 				iProductionValue += 3;
+ 			}
+ 		}
+-		if (iProductionValue >= 10)
++		if (iProductionValue > 8) // advc.018: Threshold reduced by 1
+ 			m_eStrategyHash |= AI_STRATEGY_PRODUCTION;
+ 		log_strat2(AI_STRATEGY_PRODUCTION, iProductionValue)
+ 	} // K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=496

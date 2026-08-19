@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5905
+# Commit: 110672a12811d806756dc5c125ed61de15f9f021
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 505f032cedab434a8a847c6ffae81e14d6829c00
+# Title: Fix Info Screen Score Tab's ID column being too small - ID was clipped (e.g., "1." if not upscaled or "1" if upscaled instead of "10" with now enough width)....
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/SASFontUtils.py
+5	5	Assets/Python/Screens/CvInfoScreen.py
+-	-	_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASFontUtils.py b/Assets/Python/SASFontUtils.py
+index 8bec6b49b..ef32b264b 100644
+--- a/Assets/Python/SASFontUtils.py
++++ b/Assets/Python/SASFontUtils.py
+@@ -13,7 +13,7 @@ def _getSASUIFontSize(szDefineName):
+ 	iSize = gc.getDefineINT(szDefineName)
+ 	if iSize < 1 or iSize > 4:
+ 		_SAS_UI_FONT_SIZE_CACHE[szDefineName] = None
+-		raise RuntimeError("SASFontUtils: %s=%d out of [1,4] - check CIV4SASDefines.xml" % (szDefineName, iSize))
++		raise RuntimeError("SASFontUtils: %s=%d out of [1,4] - check GlobalDefines_advciv_sas.xml" % (szDefineName, iSize))
+ 	_SAS_UI_FONT_SIZE_CACHE[szDefineName] = iSize
+ 	print("SASFontUtils: initialized %s = %d" % (szDefineName, iSize))
+ 	return iSize
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 465dfecd8..f21bcfdd2 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1168,10 +1168,11 @@ class CvInfoScreen:
+ 		iAttW = iMinColW + 2
+ 		iAttNumW = iMinColW + 2
+ 		iColorW = iMinColW
+-		iPidW = iMinColW - 10
+-		iResearchPctW = iPidW + 8
++		# <!-- custom: avoid shriking ID below the normal compact column minimum: double-digit player IDs clip in the Civ4 table widget, e.g. "10" or "11" drawing as "1." or "1" (when font upscaled) with iPidW = iMinColW (42) - 10. (ChatGPT-5.5) -->
++		iPidW = iMinColW
++		iResearchPctW = iPidW
+ 		# <!-- custom: keep Tech width equal to '%' width because both are compact progress/count metrics and are near each other, so matched width reads cleaner; Tech is fine as 2-digit like '%' in AdvCiv-SAS (no 3-digit tech counts expected). (GPT-5.3-Codex) -->
+-		iTechsW = iResearchPctW
++		iTechsW = iPidW
+ 		iNameW = 115
+ 		# <!-- custom: second pass tuning after 1665 screenshot: reduce Score/dSc slightly, widen Att/Att#, significantly widen Land% and final research %, and fund it mostly from V/M baseline. (GPT-5.3-Codex) -->
+ 		iScoreW = 69
+@@ -1183,8 +1184,7 @@ class CvInfoScreen:
+ 		iLandPctW = iMinColW + 28
+ 		iVMW = iMinColW
+ 		iResearchW = iMinColW
+-		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
+-		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
++		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows. If needed, let V/M absorb the small width cost instead, since even accounting for double digit vassals/master and font upscaling, we rarely have that many, and if so they are still visible via Scoreboard. (GPT-5.3-Codex + ChatGPT-5.5) -->
+ 		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW + iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iTechsW + iAttW + 8 * iFlagW + iPidW + iNameW + iResearchW)
+ 		iExtraW = iW - iUsedW
+ 		iVMW += iExtraW
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG
+index e180642e2..fb31e4d42 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3200

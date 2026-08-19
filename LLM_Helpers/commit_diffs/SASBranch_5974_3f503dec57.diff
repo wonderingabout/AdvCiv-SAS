@@ -1,0 +1,189 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5974
+# Commit: 3f503dec574cf2fa48a7488de50b9b112c9b82e8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b16dd369962846de2c2be911efe3cbc7721b1b4b
+# Title: Add AIP predump manual GitHub Actions Bot refresh workflow - Add a workflow_dispatch GitHub Action that runs aip_predump_values.py --write and rechecks the c...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	0	.github/workflows/README.md
+84	0	.github/workflows/aip-predump-refresh.yml
+20	2	.github/workflows/build/aip_predump_values.py
+ create mode 100644 .github/workflows/aip-predump-refresh.yml
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index f4ee3073a..f0fed163f 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -5,6 +5,7 @@ These files are developer/repository automation, not Civ4 runtime files.
+ - `python-ruff.yml` shows full Ruff output and runs critical Ruff Python sanity checks.
+ - `python24-compile.yml` runs the real CPython 2.4 parser/bytecode compiler through Docker.
+ - `build.yml` runs checks that should pass for ordinary committed builds.
++- `aip-predump-refresh.yml` is a manual bot workflow that refreshes the committed Sevopedia Leader AI Personality predump and opens/updates a PR only when the predump file changes.
+ - `build/` contains Python 3 build-check scripts used by `build.yml`.
+ - `lib/` contains shared Python 3 helpers used by workflow scripts.
+ - Future `release.yml` and `release/` checks can be added for release-only checks such as documentation marker cleanup and archive contents.
+@@ -22,6 +23,16 @@ According to ChatGPT-5.5:
+ 
+ For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness. This also helped spot and fix duplicate parent XML keys [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See if needed [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)).
+ 
++## AIP predump refresh workflow
++
++[`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml) is intentionally manual-only (`workflow_dispatch`) for now. Run it from GitHub Actions when leader XML or shared AI Personality Panel display logic may have made `SevoPediaLeaderCachePredumped.py` stale.
++
++The workflow checks out the selected branch, runs `python .github/workflows/build/aip_predump_values.py --write`, reruns the normal checker, and then inspects the predump file diff. If there is no diff, the log says the predump is already current and no PR is created. If there is a diff, it commits only `SevoPediaLeaderCachePredumped.py` to `bot/refresh-aip-predump-cache-<base-branch>` and creates or updates a PR named `Refresh AIP predump cache`.
++
++This uses only official checkout/setup-python actions plus GitHub's runner-provided `git`/`gh` tools. If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
++
++This is the first cautious bot step: manual trigger first, then later we can decide whether a scheduled or post-check-failure trigger is worth it.
++
+ ## Python Ruff workflow
+ 
+ [`python-ruff.yml`](/.github/workflows/python-ruff.yml) runs latest Ruff through `astral-sh/ruff-action` as a separate Python sanity workflow. It intentionally runs isolated from [`ruff.toml`](/ruff.toml), because `ruff.toml` is for the user's VS Code Ruff extension and local editing signal/noise, not for CI strictness. The local config keeps legacy Civ4/Python 2.4 false-positive noise manageable in the user's IDE, while GitHub should show the broader repository picture.
+
+diff --git a/.github/workflows/aip-predump-refresh.yml b/.github/workflows/aip-predump-refresh.yml
+new file mode 100644
+index 000000000..a8791992c
+--- /dev/null
++++ b/.github/workflows/aip-predump-refresh.yml
+@@ -0,0 +1,84 @@
++name: Refresh AIP predump cache
++
++on:
++  workflow_dispatch:
++
++permissions:
++  contents: write
++  pull-requests: write
++
++concurrency:
++  group: refresh-aip-predump-cache-${{ github.ref_name }}
++  cancel-in-progress: false
++
++jobs:
++  refresh-aip-predump-cache:
++    if: startsWith(github.ref, 'refs/heads/')
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/<hidden-email>
++        with:
++          fetch-depth: 0
++      - uses: actions/<hidden-email>
++        with:
++          python-version: "3.x"
++      - name: Refresh AIP predump cache
++        shell: bash
++        run: |
++          # <!-- custom: Manual-only bot helper: rebuild the committed AIP predump with the same deterministic writer used locally. A following diff step decides whether there is anything worth proposing as a PR. (GPT-5.5) -->
++          python .github/workflows/build/aip_predump_values.py --write
++          python .github/workflows/build/aip_predump_values.py
++      - name: Check for predump diff
++        id: predump-diff
++        shell: bash
++        run: |
++          predump_path="Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py"
++          if git diff --quiet -- "$predump_path"; then
++            echo "changed=false" >> "$GITHUB_OUTPUT"
++            echo "AIP predump cache is already current; no PR needed."
++          else
++            echo "changed=true" >> "$GITHUB_OUTPUT"
++            echo "AIP predump cache changed; PR will be created or updated."
++            git diff -- "$predump_path"
++          fi
++      - name: Create or update predump refresh PR
++        if: steps.predump-diff.outputs.changed == 'true'
++        shell: bash
++        env:
++          GH_TOKEN: ${{ github.token }}
++          BASE_BRANCH: ${{ github.ref_name }}
++        run: |
++          set -euo pipefail
++          predump_path="Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py"
++          safe_base_branch="$(printf '%s' "$BASE_BRANCH" | tr -c 'A-Za-z0-9._-' '-')"
++          bot_branch="bot/refresh-aip-predump-cache-${safe_base_branch}"
++          pr_body_path="$RUNNER_TEMP/aip-predump-refresh-pr-body.md"
++
++          git config user.name "github-actions[bot]"
++          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
++          git switch -c "$bot_branch"
++          git add "$predump_path"
++          git commit -m "Refresh AIP predump cache"
++          git fetch origin "+refs/heads/$bot_branch:refs/remotes/origin/$bot_branch" || true
++          git push --force-with-lease --set-upstream origin "$bot_branch"
++
++          cat > "$pr_body_path" <<'EOF_PR_BODY'
++          Automated refresh of `SevoPediaLeaderCachePredumped.py`.
++
++          This PR was created by the manual **Refresh AIP predump cache** workflow. It runs:
++
++          ```bash
++          python .github/workflows/build/aip_predump_values.py --write
++          python .github/workflows/build/aip_predump_values.py
++          ```
++
++          Review the predump diff before merging.
++          EOF_PR_BODY
++
++          existing_pr_url="$(gh pr list --head "$bot_branch" --base "$BASE_BRANCH" --state open --json url --jq '.[0].url')"
++          if [ -n "$existing_pr_url" ]; then
++            gh pr edit "$existing_pr_url" --title "Refresh AIP predump cache" --body-file "$pr_body_path"
++            echo "Updated existing PR: $existing_pr_url"
++          else
++            gh pr create --base "$BASE_BRANCH" --head "$bot_branch" --title "Refresh AIP predump cache" --body-file "$pr_body_path"
++          fi
+
+diff --git a/.github/workflows/build/aip_predump_values.py b/.github/workflows/build/aip_predump_values.py
+index 9255683de..b12c6ba67 100644
+--- a/.github/workflows/build/aip_predump_values.py
++++ b/.github/workflows/build/aip_predump_values.py
+@@ -5,7 +5,8 @@
+ #
+ # <!-- custom: Build-check helper: compare LeaderHeadInfo AIP predump values against a lightweight Python mirror of CvLeaderHeadInfo XML defaults plus UWAI::applyPersonalityWeight.
+ # This is intentionally a separate script from build/aip.py so the always-on AIP release-safety check can stay lightweight while this deeper effective-value mirror can validate committed predump values.
+-# Direct scalar/simple-array values are checked here, and derived contact/memory aggregate values reuse the same pre-normalization AIP helper logic as the in-game Sevopedia AIP cache. UnitAIWeightModifiers and ImprovementWeightModifiers are not checked because they are not currently displayed/predumped. (ChatGPT-5.5) -->
++# Direct scalar/simple-array values are checked here, and derived contact/memory aggregate values reuse the same pre-normalization AIP helper logic as the in-game Sevopedia AIP cache.
++# UnitAIWeightModifiers and ImprovementWeightModifiers are not checked because they are not currently displayed/predumped. (ChatGPT-5.5) -->
+ 
+ from __future__ import annotations
+ 
+@@ -355,10 +356,27 @@ def build_predump_module_text(leaders: List[LeaderRecord], expected_cache: Dict[
+ 	return "\n".join(lines) + "\n"
+ 
+ 
++def detect_existing_newline(path: Path) -> str:
++	# <!-- custom: Preserve the checked-out predump file's newline style when --write rewrites it. GitHub/Linux checkouts may present a file as LF even when a Windows working tree has CRLF, and hardcoding either style can make a no-op refresh look like every line changed. (ChatGPT-5.5) -->
++	try:
++		data = path.read_bytes()
++	except FileNotFoundError:
++		return "\n"
++	crlf_count = data.count(b"\r\n")
++	lf_count = data.count(b"\n")
++	bare_lf_count = lf_count - crlf_count
++	if crlf_count and not bare_lf_count:
++		return "\r\n"
++	if bare_lf_count and not crlf_count:
++		return "\n"
++	# Mixed or newline-less files should be rare here. Preserve the majority style rather than forcing a full-file diff; line_endings.py still catches mixed EOL.
++	return "\r\n" if crlf_count > bare_lf_count else "\n"
++
++
+ def write_predump_cache(repo_root: Path, leaders: List[LeaderRecord], expected_cache: Dict[int, Dict[str, Tuple[Any, ...]]], is_emoji_enabled: bool, is_raw_xml_names: bool, shared_helpers: Any) -> Path:
+ 	path = repo_root / PREDUMP_RELATIVE_PATH
+ 	text = build_predump_module_text(leaders, expected_cache, is_emoji_enabled, is_raw_xml_names, shared_helpers)
+-	path.write_text(text, encoding="utf-8", newline="\r\n")
++	path.write_text(text, encoding="utf-8", newline=detect_existing_newline(path))
+ 	return path
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10024

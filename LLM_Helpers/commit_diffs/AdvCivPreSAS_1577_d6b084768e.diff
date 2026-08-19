@@ -1,0 +1,564 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1577
+# Commit: d6b084768edca9363dabc6eeada3ad6296aa42eb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 868f118f48680385034c2ccdd29d3fc90ec53fea
+# Title: Bug fixed in AI code for canceling trades; log canceled trades.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Kek-Mod/OOSLogger.py
+16	2	CvGameCoreDLL/BBAILog.cpp
+19	13	CvGameCoreDLL/BBAILog.h
+1	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	17	CvGameCoreDLL/CvDeal.cpp
+2	2	CvGameCoreDLL/CvGame.cpp
+34	52	CvGameCoreDLL/CvPlayer.cpp
+26	20	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+2	0	CvGameCoreDLL/InvasionGraph.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Kek-Mod/OOSLogger.py b/Assets/Python/Kek-Mod/OOSLogger.py
+index 79ea6914e..9f157be0e 100644
+--- a/Assets/Python/Kek-Mod/OOSLogger.py
++++ b/Assets/Python/Kek-Mod/OOSLogger.py
+@@ -221,7 +221,8 @@ def writeLog():
+ 
+ 			if (iNumCities == 0):
+ 				pFile.write("No Cities")
+-			else: # advc: Don't print this for each city
++			else:
++				# advc: Moved out of the loop - don't print this for each city.
+ 				pFile.write("(Events that have occurred are also used for the checksum.)\n")
+ 				pLoopCityTuple = pPlayer.firstCity(False)
+ 				while (pLoopCityTuple[0] != None):
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 15117baa4..3f9165cf0 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -1,6 +1,8 @@
+ #include "CvGameCoreDLL.h"
+-
+-#include "BetterBTSAI.h"
++#include "BBAILog.h"
++// <advc.133>
++#include "CvGameTextMgr.h"
++#include "CvGamePlay.h" // </advc.133>
+ 
+ // AI decision making logging
+ 
+@@ -15,3 +17,15 @@ void logBBAI(TCHAR* format, ... )
+ 	gDLL->logMsg("BBAI.log", buf);
+ #endif
+ }
++
++// <advc.133>
++void logBBAICancel(CvDeal const& d, PlayerTypes eCancelPlayer, wchar const* szReason) {
++
++	CvWStringBuffer szTmpBuffer;
++	GAMETEXT.getDealString(szTmpBuffer, d, eCancelPlayer, false);
++	CvWString szBuffer;
++	szBuffer.Format(L"    %s cancels deal (%s): %s", GET_PLAYER(eCancelPlayer).getName(0),
++			szReason, szTmpBuffer.getCString());
++	// Leave it to logBBAI to narrow the string
++	logBBAI("%S", szBuffer.GetCString());
++} // </advc.133>
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index aad40ec87..eae40d230 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+-#ifndef BETTERBTSAI_H
+-#define BETTERBTSAI_H
++#ifndef BBAI_LOG_H
++#define BBAI_LOG_H
+ 
+ // AI decision making logging
+ 
+@@ -14,19 +14,25 @@
+ // 2 - Many decisions
+ // 3 - All logging
+ #ifdef LOG_AI
+-#define gPlayerLogLevel 3
+-#define gTeamLogLevel   3
+-#define gCityLogLevel   3
+-#define gUnitLogLevel   3
+-#define gMapLogLevel    3 // K-Mod
++#define gPlayerLogLevel		3
++#define gTeamLogLevel		3
++#define gCityLogLevel		3
++#define gUnitLogLevel		3
++#define gMapLogLevel		3 // K-Mod
++#define gDealCancelLogLevel 1 // advc.133
+ #else
+-#define gPlayerLogLevel 0
+-#define gTeamLogLevel   0
+-#define gCityLogLevel   0
+-#define gUnitLogLevel   0
+-#define gMapLogLevel    0 // K-Mod
++#define gPlayerLogLevel		0
++#define gTeamLogLevel		0
++#define gCityLogLevel		0
++#define gUnitLogLevel		0
++#define gMapLogLevel		0 // K-Mod
++#define gDealCancelLogLevel 0 // advc.133
+ #endif
+ 
+ void logBBAI(TCHAR* format, ... );
++// <advc.133>
++class CvDeal;
++void logBBAICancel(CvDeal const& d, PlayerTypes eCancelPlayer, wchar const* szReason);
++// </advc.133>
+ 
+-#endif  //BETTERBTSAI_H
++#endif  //BBAI_LOG_H
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2f3bce4d7..b694f956d 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13,7 +13,7 @@
+ #include "CvEventReporter.h"
+ #include "CvBugOptions.h" // advc.060
+ #include "CvInitCore.h" // advc.001: Needed for bugfix in getCityBillboardSizeIconColors
+-#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++#include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ca6a964c6..367ed24aa 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9,7 +9,7 @@
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
+ #include "CvStatistics.h" // advc.310
+-#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++#include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "AI_Defines.h" // BBAI
+ 
+ #include "CvDLLPythonIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index efe092d55..6c63f88a1 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -7,7 +7,7 @@
+ #include "CvGameTextMgr.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvEventReporter.h"
+-#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++#include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 
+ 
+ CvDeal::CvDeal()
+@@ -615,22 +615,7 @@ bool CvDeal::isDisengage() const {
+ 
+ // advc.130p: Replaced by code in recordTradeValue
+ /*bool CvDeal::isPeaceDealBetweenOthers(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList) const {
+-	CLLNode<TradeData>* pNode;
+-	if (pFirstList != NULL) {
+-		for (pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode)) {
+-			if (pNode->m_data.m_eItemType == TRADE_PEACE)
+-				return true;
+-		}
+-	}
+-	if (pSecondList != NULL) {
+-		for (pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode)) {
+-			if (pNode->m_data.m_eItemType == TRADE_PEACE)
+-				return true;
+-		}
+-	}
+-	return false;
+-}*/
+-
++//... }*/
+ 
+ int CvDeal::getID() const
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index efff00820..81afc784b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -25,7 +25,7 @@
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ 
+-#include "BetterBTSAI.h" // bbai
++#include "BBAILog.h" // BBAI
+ #include "CvBugOptions.h" // K-Mod
+ 
+ // Public Functions...
+@@ -2434,7 +2434,7 @@ void CvGame::update()
+ 
+ 		testAlive();
+ 		AI().warAndPeaceAI().invalidateUICache(); // advc.104l
+-		if ((getAIAutoPlay() == 0) && !(gDLL->GetAutorun()) && GAMESTATE_EXTENDED != getGameState())
++		if (getAIAutoPlay() == 0 && !gDLL->GetAutorun() && GAMESTATE_EXTENDED != getGameState())
+ 		{
+ 			if (countHumanPlayersAlive() == 0
+ 					&& !isOption(GAMEOPTION_RISE_FALL)) // advc.707
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e0fb3c90f..00736c91b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -27,7 +27,7 @@
+ #include "CvDLLPythonIFaceBase.h"
+ //bbai
+ #include "CvDLLFlagEntityIFaceBase.h"
+-#include "BetterBTSAI.h"
++#include "BBAILog.h"
+ //bbai end
+ 
+ 
+@@ -7819,82 +7819,64 @@ int CvPlayer::countHolyCities() const
+ }
+ 
+ 
+-void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligion, bool bAward)
++void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligion, bool bAward)  // advc.003: some style changes
+ {
+-
+-	if (NO_RELIGION == eReligion)
+-	{
++	if (eReligion == NO_RELIGION)
+ 		return;
+-	}
+ 
+-	if (GC.getGame().isReligionFounded(eReligion))
++	CvReligionInfo const& kSlotReligion = GC.getReligionInfo(eSlotReligion);
++	CvGame& g = GC.getGame();
++	if (g.isReligionFounded(eReligion))
+ 	{
+ 		if (isHuman())
+ 		{
+ 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_FOUND_RELIGION, eSlotReligion);
+-			if (NULL != pInfo)
+-			{
++			if (pInfo != NULL)
+ 				gDLL->getInterfaceIFace()->addPopup(pInfo, getID());
+-			}
+ 		}
+-		else
+-		{
+-			foundReligion(AI_chooseReligion(), eSlotReligion, bAward);
+-		}
+-
++		else foundReligion(AI_chooseReligion(), eSlotReligion, bAward);
+ 		return;
+ 	}
++	g.setReligionSlotTaken(eSlotReligion, true);
+ 
+-	GC.getGame().setReligionSlotTaken(eSlotReligion, true);
+-
+-	bool bStarting = ((GC.getReligionInfo(eSlotReligion).getTechPrereq() == NO_TECH) || (GC.getTechInfo((TechTypes) GC.getReligionInfo(eSlotReligion).getTechPrereq()).getEra() < GC.getGame().getStartEra()));
++	bool bStarting = (kSlotReligion.getTechPrereq() == NO_TECH ||
++			GC.getTechInfo((TechTypes)kSlotReligion.getTechPrereq()).getEra() < g.getStartEra());
+ 
+ 	int iBestValue = 0;
+ 	CvCity* pBestCity = NULL;
+ 	int iLoop;
+ 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+-		if (!bStarting || !(pLoopCity->isHolyCity()))
+-		{
+-			int iValue = 10;
+-			iValue += pLoopCity->getPopulation();
+-			iValue += GC.getGame().getSorenRandNum(GC.getDefineINT("FOUND_RELIGION_CITY_RAND"), "Found Religion");
+-
+-			iValue /= (pLoopCity->getReligionCount() + 1);
+-
+-			if (pLoopCity->isCapital())
+-			{
+-				iValue /= 8;
+-			}
++		if (bStarting && pLoopCity->isHolyCity())
++			continue;
+ 
+-			iValue = std::max(1, iValue);
++		int iValue = 10;
++		iValue += pLoopCity->getPopulation();
++		iValue += g.getSorenRandNum(GC.getDefineINT("FOUND_RELIGION_CITY_RAND"), "Found Religion");
++		iValue /= (pLoopCity->getReligionCount() + 1);
++		if (pLoopCity->isCapital())
++			iValue /= 8;
++		iValue = std::max(1, iValue);
+ 
+-			if (iValue > iBestValue)
+-			{
+-				iBestValue = iValue;
+-				pBestCity = pLoopCity;
+-			}
++		if (iValue > iBestValue)
++		{
++			iBestValue = iValue;
++			pBestCity = pLoopCity;
+ 		}
+ 	}
+ 
+-	if (pBestCity != NULL)
+-	{
+-		GC.getGame().setHolyCity(eReligion, pBestCity, true);
++	if (pBestCity == NULL)
++		return;
+ 
+-		if (bAward)
++	g.setHolyCity(eReligion, pBestCity, true);
++	if (bAward && kSlotReligion.getNumFreeUnits() > 0)
++	{
++		UnitTypes eFreeUnit = (UnitTypes)GC.getCivilizationInfo(getCivilizationType()).
++				getCivilizationUnits(kSlotReligion.getFreeUnitClass());
++		if (eFreeUnit != NO_UNIT)
+ 		{
+-			if (GC.getReligionInfo(eSlotReligion).getNumFreeUnits() > 0)
+-			{
+-				UnitTypes eFreeUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(GC.getReligionInfo(eReligion).getFreeUnitClass())));
+-
+-				if (eFreeUnit != NO_UNIT)
+-				{
+-					for (int i = 0; i < GC.getReligionInfo(eSlotReligion).getNumFreeUnits(); ++i)
+-					{
+-						initUnit(eFreeUnit, pBestCity->getX(), pBestCity->getY());
+-					}
+-				}
+-			}
++			for (int i = 0; i < kSlotReligion.getNumFreeUnits(); i++)
++				initUnit(eFreeUnit, pBestCity->getX(), pBestCity->getY());
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 55c484c1a..7f310823a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayerAI.h"
+ #include "CvGamePlay.h"
+-#include "BetterBTSAI.h" // BBAI
++#include "BBAILog.h" // BBAI
+ #include "AI_Defines.h" // BBAI
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+@@ -12895,6 +12895,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes ePlayer, int iCh
+ 	return iR *  GC.getPEACE_TREATY_LENGTH();
+ }  // </advc.036>
+ 
++
+ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 		int iChange) const // advc.133
+ {
+@@ -19526,8 +19527,8 @@ void CvPlayerAI::AI_doReligion()
+ 	}
+ }
+ 
+-// advc.133: 1 means d should be canceled, -1 it shouldn't be canceled, 0 it should be renegotiated.
+-int CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip) {
++// advc.133: Partly cut from AI_doDiplo
++CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip) {
+ 
+ 	PROFILE_FUNC(); // advc.003b
+ 	PlayerTypes eWe = (bFlip ? d.getSecondPlayer() : d.getFirstPlayer());
+@@ -19537,13 +19538,14 @@ int CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip)
+ 	CLinkList<TradeData> const& kTheyGive = (bFlip ? *d.getFirstTrades() :
+ 			*d.getSecondTrades());
+ 	if(eWe != getID() || eThey != ePlayer)
+-		return -1;
+-	// advc.003: Cut and pasted from AI_doDiplo:
++		return NO_CANCEL;
+ 	// K-Mod. getTradeDenial is not equipped to consider deal cancelation properly.
+-	if(!AI_considerOffer(ePlayer, kTheyGive, kWeGive, -1, d.getAge())) // advc.133
+-		return 0;
++	if(!AI_considerOffer(ePlayer, kTheyGive, kWeGive, -1, d.getAge())) {
++		if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"trade value");
++		return RENEGOTIATE;
++	}
+ 	if(kWeGive.getLength() <= 0)
+-		return -1;
++		return NO_CANCEL;
+ 	/*  @"not equipped"-comment above: Resource trades do need special treatment.
+ 		For duals (Open Borders, Def. Pact, Perm. Alliance), getTradeDenial
+ 		is all right. AI_considerOffer will not cancel these b/c the trade values
+@@ -19556,9 +19558,11 @@ int CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip)
+ 				// <dlph.3> Cancel DP immediately when war no longer shared
+ 				(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+ 				eDenial == DENIAL_JOKING)) || // </dlph.3>
+-				::bernoulliSuccess(0.2, "advc.133")))
+-			return 1;
+-		else return -1;
++				::bernoulliSuccess(0.2, "advc.133"))) {
++			if (gDealCancelLogLevel > 1) logBBAICancel(d, getID(), L"dual denial");
++			return DO_CANCEL;
++		}
++		else return NO_CANCEL;
+ 	}
+ 	/*  getTradeDenial will always return DENIAL_JOKING. Instead, call
+ 		AI_bonusTrade explicitly and tell it that this is about cancelation. */
+@@ -19567,17 +19571,19 @@ int CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip)
+ 		if(data.m_eItemType != TRADE_RESOURCES)
+ 			continue;
+ 		if(AI_bonusTrade((BonusTypes)data.m_iData, ePlayer, -1) != NO_DENIAL)
+-			return 1;
++			return DO_CANCEL;
+ 	} /* Need to check their DENIAL_JOKING in case they're giving us a resource that
+ 		 we no longer need */
+ 	for(pNode = kTheyGive.head(); pNode != NULL; pNode = kTheyGive.next(pNode)) {
+ 		TradeData data = pNode->m_data;
+ 		if(data.m_eItemType != TRADE_RESOURCES)
+ 			continue;
+-		if(AI_bonusTrade((BonusTypes)data.m_iData, ePlayer, -1) == DENIAL_JOKING)
+-			return 1;
+-	} // </advc.133>
+-	return -1;
++		if(GET_PLAYER(ePlayer).AI_bonusTrade((BonusTypes)data.m_iData, getID(), -1) == DENIAL_JOKING) {
++			if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"resource - joking");
++			return DO_CANCEL;
++		}
++	}
++	return NO_CANCEL;
+ }
+ 
+ // advc.003: Body cut and pasted from AI_doDiplo. Returns true iff eOther contacted.
+@@ -19594,11 +19600,11 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther) {
+ 		/*  advc.003: Cancellation checks moved into a subfunction
+ 			to reduce code duplication */
+ 		// <advc.133>
+-		int iCancelCode1 = AI_checkCancel(*pLoopDeal, eOther, false);
+-		int iCancelCode2 = AI_checkCancel(*pLoopDeal, eOther, true);
+-		if(iCancelCode1 < 0 && iCancelCode2 < 0)
++		CancelCode eCancel1 = AI_checkCancel(*pLoopDeal, eOther, false);
++		CancelCode eCancel2 = AI_checkCancel(*pLoopDeal, eOther, true);
++		if(eCancel1 == NO_CANCEL && eCancel2 == NO_CANCEL)
+ 			continue;
+-		bool bRenegotiate = ((iCancelCode1 == 0 || iCancelCode2 == 0) &&
++		bool bRenegotiate = ((eCancel1 == RENEGOTIATE || eCancel2 == RENEGOTIATE) &&
+ 				/*  Canceled AI-human deals bring up the trade table anyway
+ 					(except when a trade becomes invalid); this is about AI-AI trades. */
+ 				!isHuman() && !GET_PLAYER(eOther).isHuman() &&
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index ba0e124d5..e6e040f88 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -730,7 +730,8 @@ protected:
+ 			int iHappyLeft, int iHealthLeft, int iOtherListLength) const;
+ 	int AI_tradeValToGold(int iTradeVal, bool bOverpay, int iMaxGold = MAX_INT,
+ 			bool* bEnough = NULL) const;
+-	int AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip);
++	enum CancelCode { NO_CANCEL = -1, RENEGOTIATE, DO_CANCEL };
++	CancelCode AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer, bool bFlip);
+ 	bool AI_doDeals(PlayerTypes eOther);
+ 	// </advc.003>
+ 	bool AI_proposeResourceTrade(PlayerTypes eTo); // advc.133
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index ca0d22fc4..654664c4c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4,7 +4,7 @@
+ #include "CvSelectionGroup.h"
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+-#include "BetterBTSAI.h"
++#include "BBAILog.h"
+ #include "FAStarNode.h"
+ #include "CvInfos.h"
+ #include "CvEventReporter.h"
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 72a104280..45abfa656 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -11,7 +11,7 @@
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+ #include "CyArgsList.h"
+-#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++#include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "AI_Defines.h" // BBAI
+ #include "CvInitCore.h" // advc.003m
+ #include "CvBugOptions.h" // advc.071
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index c15bb687a..b7ba1ca6f 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -6,7 +6,7 @@
+ #include "CvMap.h"
+ #include "CvInfos.h"
+ #include "CyArgsList.h"
+-#include "BetterBTSAI.h" // BBAI
++#include "BBAILog.h" // BBAI
+ #include "AI_Defines.h" // BBAI
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "CvDLLInterfaceIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8b4731ca6..addf2a93f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12,7 +12,7 @@
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+ #include "CvArtFileMgr.h"
+-#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
++#include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
+ #include "AI_Defines.h" // BBAI
+ #include "CvBugOptions.h" // advc.002e
+ #include "CvDLLEntityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ed20e732f..df8d806b0 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -7,7 +7,7 @@
+ #include "CyUnit.h"
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
+-#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++#include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "AI_Defines.h" // BBAI
+ #include "FAStarNode.h"
+ #include "CvDLLPythonIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 1b18feee9..241de92bd 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -235,6 +235,8 @@ bool InvasionGraph::Node::isIsolated() const {
+ 
+ void InvasionGraph::Node::logPower(char const* msg) const {
+ 
++	if(report.isMute())
++		return;
+ 	ostringstream out;
+ 	out << msg << " of " << report.leaderName(id)
+ 			<< "\n\np(.\n";
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=17986

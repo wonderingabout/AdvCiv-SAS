@@ -1,0 +1,175 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4030
+# Commit: 1b2adf4aea769c23269ac862d0c2f64c488f5b35
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6a471afd46fa7fc17ed4aa46241aecf4b005cc60
+# Title: Fix overflow in lake generation for super-Huge maps
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvMap.cpp
+13	5	CvGameCoreDLL/CvMapGenerator.cpp
+20	18	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index f9ec1e050..f39d8c446 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1118,7 +1118,9 @@ void CvMap::recalculateAreas(/* advc.opt: */bool bUpdateIsthmuses)
+ 			getPlotByIndex(i).updateAnyIsthmus();
+ 	} // </advc.opt>
+ 	for (int i = 0; i < numPlots(); i++)
+-		getPlotByIndex(i).setArea(NULL);
++	{	// advc.opt: Don't update the old areas, we're about to delete them.
++		getPlotByIndex(i).setArea(NULL, false);
++	}
+ 	m_areas.removeAll();
+ 	calculateAreas();
+ }
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 13bb66aca..97adb67f9 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -191,8 +191,8 @@ void CvMapGenerator::addLakes()
+ 	FOR_EACH_ENUM(PlotNum)
+ 	{
+ 		CvPlot& p = GC.getMap().getPlotByIndex(eLoopPlotNum);
+-		// (Same condition as in BtS)
+-		if (!p.isWater() && !p.isCoastalLand() && !p.isRiver())
++		if (!p.isWater() && !p.isCoastalLand() && !p.isRiver() && // as in BtS
++			p.getPlotType() != PLOT_PEAK)
+ 		{
+ 			bool bDesert = (p.getTerrainType() == eDesert);
+ 			apbCandidates.push_back(std::make_pair(&p, bDesert));
+@@ -204,11 +204,13 @@ void CvMapGenerator::addLakes()
+ 	int const iCandidates = (int)apbCandidates.size();
+ 	if (iCandidates > 0)
+ 	{	// This keeps the expected number of lakes the same as in BtS
+-		iLakeRollSides = ((iLakeRollSides *
+-				(iDesert * rDesertProbMult + iCandidates - iDesert)) / iCandidates)
++		iLakeRollSides = (iLakeRollSides *
++				// Important to divide first, to avoid overflow.
++				((iDesert * rDesertProbMult + iCandidates - iDesert) / iCandidates))
+ 				.round();
+ 	}
+ 	gDLL->callUpdater(); // Moved out of the loop
++	std::vector<CvPlot*> apLakes; // advc.opt
+ 	for (int i = 0; i < iCandidates; i++)
+ 	{
+ 		CvPlot& p = *apbCandidates[i].first;
+@@ -216,9 +218,15 @@ void CvMapGenerator::addLakes()
+ 			(!apbCandidates[i].second ||
+ 			MapRandSuccess(rDesertProbMult)))
+ 		{
+-			p.setPlotType(PLOT_OCEAN); // (as in BtS)
++			apLakes.push_back(&p);
+ 		}
+ 	} // </advc.129e>
++	// <advc.opt> Recalc only once
++	for (size_t i = 0; i < apLakes.size(); i++)
++	{
++		bool bRecalc = (i + 1 == apLakes.size());
++		apLakes[i]->setPlotType(PLOT_OCEAN, bRecalc, bRecalc);
++	} // </advc.opt>
+ }
+ 
+ void CvMapGenerator::addRivers()
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index ffd0d23da..04f508225 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7069,29 +7069,32 @@ void CvPlot::processArea(CvArea& kArea, int iChange)
+ 	// advc.opt:
+ 	/*if (getImprovementType() != NO_IMPROVEMENT)
+ 		kArea.changeNumImprovements(getImprovementType(), iChange);*/
+-
+-	for (int i = 0; i < MAX_PLAYERS; i++)
++	bool const bAnyUnit = (m_units.getLength() > 0); // advc.opt
++	FOR_EACH_ENUM2(Player, ePlayer)
+ 	{
+-		PlayerTypes ePlayer = (PlayerTypes)i;
+ 		if (GET_PLAYER(ePlayer).getStartingPlot() == this)
+ 			kArea.changeNumStartingPlots(iChange);
++		// <advc.opt>
++		if (!bAnyUnit)
++			continue; // </advc.opt>
+ 		kArea.changePower(ePlayer, getUnitPower(ePlayer) * iChange);
+ 		kArea.changeUnitsPerPlayer(ePlayer, plotCount(PUF_isPlayer, ePlayer) * iChange);
+ 		// advc: No longer kept track of
+ 		//kArea.changeAnimalsPerPlayer(ePlayer, plotCount(PUF_isAnimal, -1, -1, ePlayer) * iChange);
+-		for (int j = 0; j < NUM_UNITAI_TYPES; j++)
++		FOR_EACH_ENUM(UnitAI)
+ 		{
+-			UnitAITypes eUnitAI = (UnitAITypes)j;
+-			kArea.changeNumAIUnits(ePlayer, eUnitAI,
+-					plotCount(PUF_isUnitAIType, eUnitAI, -1, ePlayer) * iChange);
++			kArea.changeNumAIUnits(ePlayer, eLoopUnitAI,
++					plotCount(PUF_isUnitAIType, eLoopUnitAI, -1, ePlayer) * iChange);
+ 		}
+ 	}
+-	FOR_EACH_ENUM(Team)
++	if (m_abRevealed.isAnyNonDefault()) // advc.opt
+ 	{
+-		if (isRevealed(eLoopTeam))
+-			kArea.changeNumRevealedTiles(eLoopTeam, iChange);
++		FOR_EACH_ENUM(Team)
++		{
++			if (isRevealed(eLoopTeam))
++				kArea.changeNumRevealedTiles(eLoopTeam, iChange);
++		}
+ 	}
+-
+ 	CvCity* pCity = getPlotCity();
+ 	if (pCity == NULL)
+ 		return;
+@@ -7109,9 +7112,9 @@ void CvPlot::processArea(CvArea& kArea, int iChange)
+ 		processArea call with iChange=1 would then lead to an incorrect
+ 		city count. I think this can only happen in a scenario with preplaced
+ 		cities though, and I'm not sure what to do about it. */
+-	if(pWaterArea != NULL)
++	if (pWaterArea != NULL)
+ 	{
+-		if(iChange > 0 || (iChange < 0 &&
++		if (iChange > 0 || (iChange < 0 &&
+ 			// See comment in CvCity::kill
+ 			pWaterArea->getCitiesPerPlayer(getOwner()) > 0, true))
+ 		{
+@@ -7120,9 +7123,8 @@ void CvPlot::processArea(CvArea& kArea, int iChange)
+ 	} // </advc.030b>
+ 	kArea.changePopulationPerPlayer(pCity->getOwner(), pCity->getPopulation() * iChange);
+ 
+-	for (int i = 0; i < GC.getNumBuildingInfos(); i++)
++	FOR_EACH_ENUM2(Building, eBuilding)
+ 	{
+-		BuildingTypes eBuilding = (BuildingTypes)i;
+ 		int const iTotalChange = iChange * pCity->getNumActiveBuilding(eBuilding);
+ 		if (iTotalChange <= 0)
+ 			continue;
+@@ -7146,10 +7148,10 @@ void CvPlot::processArea(CvArea& kArea, int iChange)
+ 		kArea.changeNumTrainAIUnits(pCity->getOwner(), eLoopUnitAI,
+ 				pCity->getNumTrainUnitAI(eLoopUnitAI) * iChange);
+ 	}
+-	for (int i = 0; i < MAX_PLAYERS; i++)
++	FOR_EACH_ENUM(Player)
+ 	{
+-		if (kArea.AI_getTargetCity((PlayerTypes)i) == pCity)
+-			kArea.AI_setTargetCity((PlayerTypes)i, NULL);
++		if (kArea.AI_getTargetCity(eLoopPlayer) == pCity)
++			kArea.AI_setTargetCity(eLoopPlayer, NULL);
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5461

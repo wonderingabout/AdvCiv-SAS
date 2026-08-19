@@ -1,0 +1,706 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5240
+# Commit: b5ecf7a37ae7330c65384a4f880d20d344193230
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 04708e8fd10b5046e93c81927a2800c11e620b05
+# Title: replace hardcoded CvUnitAI::getBonusSpecificLandBuilds, replaced with dynamic fetch - replace hardcoded CvUnitAI::getBonusSpecificLandBuilds leads to much mo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_48_civs_dll.dll
+0	278	Assets/XML/GlobalDefines_advciv_sas.xml
+19	19	Assets/XML/Technologies/CIV4TechInfos.xml
+0	1	Assets/XML/Terrain/CIV4BonusInfos.xml
+0	1	Assets/XML/Units/CIV4BuildInfos.xml
+1	1	CvGameCoreDLL/CvEnums.h
+29	33	CvGameCoreDLL/CvUnitAI.cpp
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_dll.dll b/Assets/CvGameCoreDLL_48_civs_dll.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index d9a76be23..4a3b39515 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1840,282 +1840,4 @@
+ 
+ 
+ 
+-	<!-- custom: customize (no pun but anyways etc) civ4 bonus-specific worker builds here, to tell the AI which build is the best for a bonus: e.g. for BONUS_BANANA (as per xml) BUILD_PLANATATION is the best build (we can build a cottage or farm or etc but not best), or for BONUS_WHEAT (as per xml) BUILD_FARM is the best (we can build a cottage or workshop or whatever but not the best anyways etc): note: hit bonuses not included since we don't use them for worker builds, and they are disabled as of now in advciv-sas anyway, so this numbering follows xml order but doesn't necessarily attempt nor does it respect bonus info exact numbering, although it happens to do so for convenience and need in this case i mean if i may say but anyways etc -->
+-	<!-- custom: set this value to match total number of bonus specific builds you have, so that you can add or remove as many as you want directly via xml without needing to recompile (the bonus specific bonus->build array does not know the total number and uses this to know last entry, so you can for example add a 30th entry of say (imaginary) BONUS_30 with corresponding BUILD_30, just remember to also change the total here anyways etc). Works similarly for remove as well anyways etc -->
+-	<!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
+-	<!-- custom: note: not perfect to have these as defines instead of say xml fields per bonus, but at least they are sort of customizable this way for no performance cost since this is intialized only once if i'm not mistaken. Check if accurate anyways etc -->
+-	<!-- custom: note 2: the total is n + 1 than the last id, as we start from 0 (so as of now for example from 0th to 28th pair, total is 28 + 1 = 29 total entries anyways etc) -->
+-	<!-- If you ever add a new land bonus, just append _29, bump the total to 30, done. -->
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS</DefineName>
+-		<iDefineIntVal>29</iDefineIntVal>
+-	</Define>
+-
+-
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_0</DefineName>
+-		<DefineTextVal>BONUS_ALUMINUM</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_0</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_1</DefineName>
+-		<DefineTextVal>BONUS_COAL</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_1</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_2</DefineName>
+-		<DefineTextVal>BONUS_COPPER</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_2</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_3</DefineName>
+-		<DefineTextVal>BONUS_HORSE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_3</DefineName>
+-		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_4</DefineName>
+-		<DefineTextVal>BONUS_IRON</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_4</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_5</DefineName>
+-		<DefineTextVal>BONUS_MARBLE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_5</DefineName>
+-		<DefineTextVal>BUILD_QUARRY</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_6</DefineName>
+-		<DefineTextVal>BONUS_OIL</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_6</DefineName>
+-		<DefineTextVal>BUILD_WELL</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_7</DefineName>
+-		<DefineTextVal>BONUS_STONE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_7</DefineName>
+-		<DefineTextVal>BUILD_QUARRY</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_8</DefineName>
+-		<DefineTextVal>BONUS_URANIUM</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_8</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_9</DefineName>
+-		<DefineTextVal>BONUS_BANANA</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_9</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_10</DefineName>
+-		<DefineTextVal>BONUS_MAIZE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_10</DefineName>
+-		<DefineTextVal>BUILD_FARM</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_11</DefineName>
+-		<DefineTextVal>BONUS_CATTLE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_11</DefineName>
+-		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_12</DefineName>
+-		<DefineTextVal>BONUS_DEER</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_12</DefineName>
+-		<DefineTextVal>BUILD_CAMP</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_13</DefineName>
+-		<DefineTextVal>BONUS_PIG</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_13</DefineName>
+-		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_14</DefineName>
+-		<DefineTextVal>BONUS_RICE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_14</DefineName>
+-		<DefineTextVal>BUILD_FARM</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_15</DefineName>
+-		<DefineTextVal>BONUS_SHEEP</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_15</DefineName>
+-		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_16</DefineName>
+-		<DefineTextVal>BONUS_WHEAT</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_16</DefineName>
+-		<DefineTextVal>BUILD_FARM</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_17</DefineName>
+-		<DefineTextVal>BONUS_DYE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_17</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_18</DefineName>
+-		<DefineTextVal>BONUS_FUR</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_18</DefineName>
+-		<DefineTextVal>BUILD_CAMP</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_19</DefineName>
+-		<DefineTextVal>BONUS_GEMSTONES</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_19</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_20</DefineName>
+-		<DefineTextVal>BONUS_GOLD</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_20</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_21</DefineName>
+-		<DefineTextVal>BONUS_INCENSE</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_21</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_22</DefineName>
+-		<DefineTextVal>BONUS_ELEPHANTS</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_22</DefineName>
+-		<DefineTextVal>BUILD_CAMP</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_23</DefineName>
+-		<DefineTextVal>BONUS_SILK</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_23</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_24</DefineName>
+-		<DefineTextVal>BONUS_SILVER</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_24</DefineName>
+-		<DefineTextVal>BUILD_MINE</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_25</DefineName>
+-		<DefineTextVal>BONUS_SPICES</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_25</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_26</DefineName>
+-		<DefineTextVal>BONUS_SUGAR</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_26</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_27</DefineName>
+-		<DefineTextVal>BONUS_GRAPES</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_27</DefineName>
+-		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
+-	</Define>
+-
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_28</DefineName>
+-		<DefineTextVal>BONUS_CAMEL</DefineTextVal>
+-	</Define>
+-	<Define>
+-		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_28</DefineName>
+-		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
+-	</Define>
+-
+-	<!-- // Add other bonus-specific mappings here as needed. -->
+-
+-
+-
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index d7fdb3026..3d9099471 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -846,7 +846,7 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1900</iCost>
++			<iCost>1950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -1010,7 +1010,7 @@
+ 			<iAIWeight>100</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>875</iCost>
++			<iCost>950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -1156,7 +1156,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2050</iCost>
++			<iCost>2075</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1244,7 +1244,7 @@
+ 			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
+ 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1900</iCost>
++			<iCost>1950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1395,7 +1395,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 1400 -->
+-			<iCost>1700</iCost>
++			<iCost>1750</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1535,7 +1535,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2050</iCost>
++			<iCost>2075</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1846,7 +1846,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2050</iCost>
++			<iCost>2075</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: ERA_MODERN -->
+@@ -2929,7 +2929,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<iCost>1150</iCost>
++			<iCost>1250</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -2996,7 +2996,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>875</iCost>
++			<iCost>950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3068,7 +3068,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1150</iCost>
++			<iCost>1250</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3144,7 +3144,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1900</iCost>
++			<iCost>1950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3219,7 +3219,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1150</iCost>
++			<iCost>1250</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3458,7 +3458,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1700</iCost>
++			<iCost>1750</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3532,7 +3532,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 3600 -->
+-			<iCost>1900</iCost>
++			<iCost>1950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -5327,7 +5327,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<!-- advc.306: was 700 -->
+-			<iCost>875</iCost>
++			<iCost>950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -5559,7 +5559,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1150</iCost>
++			<iCost>1250</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5711,7 +5711,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1900</iCost>
++			<iCost>1950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5854,7 +5854,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1900</iCost>
++			<iCost>1950</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -6007,7 +6007,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2050</iCost>
++			<iCost>2075</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 99bf88d66..46a339a27 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -9,7 +9,6 @@
+ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0 if i am not mistaken, instead not as the latitutde 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often if i am not mistaken), so when (i) (anyways etc) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic , grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example anyways etc anyways etc anyways etc... so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do anyways etc, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate or and the scientific one or and scientific enough but maybe is hopefully accurate or/and understandable enough at least to me or and maybe others or not anyways etc) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N anyways etc), i don't know if doing so is accurate or/and relevant, hopefully is, but anyways etc anyways etc anyways etc in all cases anyways etc anyways etc anyways etc
+ -->
+ <!-- custom: due to the preexisting warning below anyways etc, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally anyways etc) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so i mean anyways etc. As for why they are removed, it is tedious (at leats to me if i may say anyways etc) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less but anyways etc. -->
+-<!-- custom: due to changes in CvUnitAI::AI_bestCityBuild in advciv-sas to try to optimize AI workers build choice (see there for details anyways etc), make sure that any drastic if i may say but anyways etc modification (such as renaming the bonusinfo type, or removing a real bonus (not hit bonuses) or adding a new one is also reflected there then recompile DLL (in aforementionned function in this code comment or/and as of now in getBonusSpecificLandBuilds too as of now in same file (CvUnitAI.cpp if i am not mistaken) as well anyways etc), else you may run into an error anyways etc), in particular defining the bonus-specific improvement as of now there anyways etc -->
+ <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
+ 
+ <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index dbe3921c1..f3654191d 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -4,7 +4,6 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Build Infos -->
+-<!-- custom: be careful when renaming or manipulating "BUILD_REMOVE_FOREST" and "BUILD_REMOVE_JUNGLE" in particular, as we hardcode them in CvUnitAI::AI_bestCityBuild as part of optimizing AI worker building choice, so if you make a change related to these or perhaps other feature removal in your mod, handle it there as well and recompile DLL anyways etc ; note: fallout doesn't seem to be handled specifically as a remove build unlike forest and jungle but only as part of building other builds, so is not related to this code comment warning if i may say and if i am not mistaken, but check to be sure, although should be accurate, but check to be sure if needed i mean in this case but anyways etc -->
+ <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<BuildInfos>
+ 		<BuildInfo>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index d643b162a..3e5574180 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -25,7 +25,7 @@ enum PlayerTypes
+ 	/*  advc.056 (note): Scenario (WB) files are now compatible so long
+ 		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
+ 		Savegames are still incompatible. */
+-	MAX_CIV_PLAYERS = 18,
++	MAX_CIV_PLAYERS = 48,
+ 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
+ 	MAX_PLAYERS
+ };
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4327f3807..e18ea825e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -833,52 +833,48 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ // - std::vector lookup: O(1) direct index, very cache-friendly.
+ // - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
+ // Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
++// <!-- custom: update: since each build cleanly pairs only to one and only one bonus on land builds in our mod (exception being oil to offshore platform (water) and well (land), but here we're only handling land so effectively only 1), then we can prefetch this data and cache it to avoid reuse, added with the help of chatgpt 5.2 anyways etc. -->
++// I checked your uploaded CIV4ImprovementInfos.xml: there are exactly 29 land bonuses that have bBonusTrade=1 on a land improvement, and they match your manual list one-for-one (Oil is Well on land; Offshore Platform is water-only so it gets filtered out automatically).
++// So you can keep the static-vector caching, but populate it dynamically by scanning:
++//	- BuildInfo -> ImprovementType
++// 	- ImprovementInfo -> isWater() (skip water)
++// 	- ImprovementInfo -> isImprovementBonusTrade(eBonus) (bonus-trade flag)
+ std::vector<BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
+ {
+-	// <!-- custom: refactor of this new function i had added, with chatgpt 5 so we can reuse it in other .cpp files, and simplifying/optimizing its performance to cache it or such since it shouldn't change while we can anyways etc and if was not done before already (i don't know too much about these, check if accurate anyways etc), check if accurate anyways etc -->
+-    static std::vector<BuildTypes> v; // created once, reused forever
+-    static bool v_inited = false;
+-    if (v_inited) return v;
++	static std::vector<BuildTypes> v;
++	static bool v_inited = false;
++	if (v_inited) return v;
+ 
+-	// you must size it to GC.getNumBonusInfos() because we index by BonusTypes (the XML enum id). I also added a tiny bounds guard on read.
+-	// size to the number of bonuses; default to NO_BUILD (dense table indexed by BonusTypes)
+ 	const int iNumBonuses = GC.getNumBonusInfos();
+ 	v.assign(iNumBonuses, NO_BUILD);
+ 
+-	// <!-- custom: note: we initialize this once per session so no need to make a static const of this total int define as we use it at every new game loaded during our entire civ4 session if i'm not mistaken but anyways etc -->
+-	const int iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS = GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS");
+-
+-	// <!-- custom: note 2: ideally move this to some utils so we don't need to recheck everytime if it is inited every time (i guess, check if my guess is accurate but anyways etc) -->
+-    for (int i = 0; i < iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS; ++i)
++	// Auto-infer: for each build that creates a LAND improvement, map any bonus it connects (bBonusTrade=1).
++	// Tie handling: later builds overwrite earlier ones (deterministic by XML enum order).
++	for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); ++iBuild)
+ 	{
+-		// GC.getDefineSTRING(...) doesn’t do printf-style formatting, and CvString::Format is an instance method that returns void, so you can’t chain it. Build the key first, then call getDefineSTRING.
+-		CvString keyBonus;
+-		keyBonus.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_%d", i);
+-		CvString keyBuild;
+-		keyBuild.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_%d", i);
+-
+-		// <!-- custom: note: no need to store them as static const lookups as we need them only once at first initalize and then they are not needed anymore if i'm not mistaken but anyways etc; added thanks to chatgpt 5 and my prompts too and/or such, check if accurate anyways etc -->
+-		const CvString bonusName = GC.getDefineSTRING(keyBonus);
+-		const CvString buildName = GC.getDefineSTRING(keyBuild);
+-		if (bonusName.empty() || buildName.empty()) continue;
++		const BuildTypes eBuild = (BuildTypes)iBuild;
++		const ImprovementTypes eImp = GC.getBuildInfo(eBuild).getImprovement();
++		if (eImp == NO_IMPROVEMENT)
++			continue;
+ 
+-        const BonusTypes eBonus = (BonusTypes)GC.getInfoTypeForString(bonusName);
+-        const BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString(buildName);
++		const CvImprovementInfo& kImp = GC.getInfo(eImp);
+ 
+-		// guard bad ids (user responsibility; we skip silently)
+-        if ((eBonus == NO_BONUS) || (eBuild == NO_BUILD))
+-		{
++		// Land-only table (workers-on-land bonuses). Water bonuses (fish/oil offshore etc) stay NO_BUILD here.
++		if (kImp.isWater())
+ 			continue;
+-			// silently skip (or IFLOG a warning if you like)
+-		}
+-		else
++
++		for (int iBonus = 0; iBonus < iNumBonuses; ++iBonus)
+ 		{
+-            v[eBonus] = eBuild;
++			const BonusTypes eBonus = (BonusTypes)iBonus;
++			if (kImp.isImprovementBonusTrade(eBonus))
++			{
++				v[iBonus] = eBuild; // overwrite ties (your requested behavior)
++			}
+ 		}
+-    }
++	}
+ 
+-    v_inited = true;
+-    return v;
++	v_inited = true;
++	return v;
+ }
+ 
+ BuildTypes CvUnitAI::getBonusSpecificLandBuild(BonusTypes eBonus)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index a32ec7c65..96bb31b00 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -115,7 +115,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5237+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); (Requires AdvCiv-SAS 5238+) added **Buttons** (i.e. icons) in the **Production Queue** fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); (Requires AdvCiv-SAS 5238+) added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+ 
+ ### UI (Sevopedia reworks & related)
+@@ -133,7 +133,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ## Code/Performance optimizations
+ 
+-- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. (Requires AdvCiv-SAS 5236+) Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py))
++- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), bonus-specific builds/improvements caching (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. (Requires AdvCiv-SAS 5236+) Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py))
+ 
+ ## 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 6c7d15247..746bdfc87 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -111,7 +111,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5237+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); (Requires AdvCiv-SAS 5238+) added **Buttons** (i.e. icons) in the **Production Queue** fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); (Requires AdvCiv-SAS 5238+) added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+ 
+ ### UI (Sevopedia reworks & related)
+@@ -127,7 +127,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### Code/Performance optimizations
+ 
+-- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), (Requires AdvCiv-SAS 5236+) refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), etc.
++- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), (Requires AdvCiv-SAS 5236+) refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), etc.
+ 
+ ### 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG
+index eb2958a71..ab2e4118c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG
+index 31158f79d..f41d82778 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 212be0600..fd458facb 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 9d9977e8c..9063c7695 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index eacad1516..7e5e7e643 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index b61761f9e..d6ae5d04f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG
+index 5d520261d..c0807ccd0 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=15 omittedFiles=2 embeddedPatchBytes=50962

@@ -1,0 +1,86 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4543
+# Commit: 3fd3627e336f156b95ef0a78e68e3f4194572cdd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8db508e9c2455b5f0c5c4f089a1f3024a6106cec
+# Title: remove cavalry ((ies) and cuirassiers) upgrade into gunship, this is the weirdest shuit i've ever seen in thsi game that is otherwise very good, about this i...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	16	Assets/XML/Units/CIV4UnitInfos.xml
+6	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 2f36e5319..129a1933d 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -14467,10 +14467,8 @@ for example for the archer
+ 					<UnitClassUpgradeType>UNITCLASS_CAVALRY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
++				<!-- custom: completely nonsensical to have cuirassiers or cavalries (and
++				their derivatives) evolve into gunship, (i think i mean anyways), remove -->
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+@@ -14874,12 +14872,7 @@ for example for the archer
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
++			<UnitClassUpgrades/>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -15071,12 +15064,7 @@ for example for the archer
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
++			<UnitClassUpgrades/>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 39941a1ad..6126277b7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -438,3 +438,9 @@ makes me happy maybe, but better hodl back on it, i may become bitter, focus on
+ saying this later, glad i shared but delete later, i delete later i mean others are free,
+ not saying this in coercive way, and i am not lookign again, at least not intentionally,
+ thanks,))))
++
++that being said, i mean i wanted to say this before continuing:
++
++- why does cavalry evolve in gunship??? I didn't know this!!! Not played much if at all
++games so late in the stage/era i mean anyways, of course i have to remove this, it is
++completely nonsensical i think, will try to find better link in upgrade else do none.
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2729

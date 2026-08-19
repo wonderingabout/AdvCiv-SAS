@@ -1,0 +1,555 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5746
+# Commit: 9b71eac1e7324ddb413be533aa66f380938f500e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 17aef0734f1f995ec5d4929eb2ce394bcda0be55
+# Title: refactor sas fonts and cache their tags also correction to previous message: was camelCase not PascalCase
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+18	16	Assets/Python/SASFontUtils.py
+1	1	Assets/Python/Screens/CvDanQuayle.py
+1	1	Assets/Python/Screens/CvDawnOfMan.py
+1	1	Assets/Python/Screens/CvDomesticAdvisor.py
+1	1	Assets/Python/Screens/CvForeignAdvisor.py
+1	1	Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+1	1	Assets/Python/Screens/CvHallOfFameScreen.py
+6	6	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/Python/Screens/CvMilitaryAdvisor.py
+2	2	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+2	2	Assets/Python/Screens/CvReplayScreen.py
+1	1	Assets/Python/Screens/CvTechChooser.py
+14	14	Assets/Python/Screens/CvVictoryScreen.py
+1	1	Assets/Python/Screens/CvWorldAdvisorScreen.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 053833420..a08878662 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -167,7 +167,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ ### Python (Civ4)
+ 
+ - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+-- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`SAS_FONT_TAG_*` / `sasFontTag*` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText`.
++- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`sasFontTag*`/ `sasFontTag*.bold` / `SAS_FONT_TAG_CLOSE` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE` or `sasFontTagTitle.bold + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText` or `u"<font=4b>%s</font>" % szText`.
+ - Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
+ - Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
+ - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index eaa5c8496..48d992fa9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -21,7 +21,7 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ import SASTextScale
+-from SASFontUtils import sasFontTagLabelBold
++from SASFontUtils import sasFontTagLabel
+ from _sevopedia_helpers import *
+ # <!-- custom: import to display chars before Traits -->
+ import TraitUtil
+@@ -632,7 +632,7 @@ class SevoPediaLeader:
+ 
+ 	def fillAITableRow(self, screen, label, value, scale, xLabel, xValue, xScale, y):
+ 		labelText = SASTextScale.labelText(label)
+-		valueText = SASTextScale.applyFontTag(u"%d" % value, sasFontTagLabelBold)
++		valueText = SASTextScale.applyFontTag(u"%d" % value, sasFontTagLabel.bold)
+ 		scaleText = SASTextScale.labelText(scale)
+ 
+ 		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -653,7 +653,7 @@ class SevoPediaLeader:
+ 			# AI Category Header Line
+ 			if ai_category_header_line is not None:
+ 				xOffsetButton = xLabel + ai_category_x_offset
+-				screen.setText(self.top.getNextWidgetName(), "", SASTextScale.applyFontTag(ai_category_header_line, sasFontTagLabelBold), CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText(self.top.getNextWidgetName(), "", SASTextScale.applyFontTag(ai_category_header_line, sasFontTagLabel.bold), CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				y += self.H_AI_LINE_HEIGHT
+ 
+ 			# <!-- custom: AI Category items in their predefined order -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d67628bd9..d754a370a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -872,7 +872,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	
+ 	def setPediaCommonWidgets(self):
+ 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
+-		self.HEAD_TEXT = sasFontTagTitleBold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
++		self.HEAD_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
+ 		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
+ 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
+ 		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index 243332ecb..27194011d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -7,7 +7,7 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import SASTextScale
+-from SASFontUtils import sasFontTagLabelBold, SAS_FONT_TAG_CLOSE
++from SASFontUtils import sasFontTagLabel, SAS_FONT_TAG_CLOSE
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -258,7 +258,7 @@ class SevoPediaMediaPlayer:
+ 			if i == currentIndex:
+ 				# <!-- custom: keep selected queue row visually distinct (bold), not only prefixed by ">", so active media is easy to track while browsing groups. (GPT-5.3-Codex) -->
+ 				szLabel = u"> " + szLabel
+-				szLabel = sasFontTagLabelBold + szLabel + SAS_FONT_TAG_CLOSE
++				szLabel = sasFontTagLabel.bold + szLabel + SAS_FONT_TAG_CLOSE
+ 			else:
+ 				szLabel = SASTextScale.labelText(szLabel)
+ 			szButton = ""
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 8930894ec..5c18b87e9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -98,7 +98,7 @@ class SevoPediaMovie:
+ 		szTitleText = ""
+ 		if info:
+ 			szTitleText = info.getDescription()
+-		szTitle = sasFontTagTitleBold + szTitleText.upper() + SAS_FONT_TAG_CLOSE
++		szTitle = sasFontTagTitle.bold + szTitleText.upper() + SAS_FONT_TAG_CLOSE
+ 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		if self.hasMovie(iMovieType, iMovieId):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 04f438f00..743c8f6e9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -110,7 +110,7 @@ class SevoPediaMusic:
+ 
+ 		szTitleText = ""
+ 		szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
+-		szTitle = sasFontTagTitleBold + szTitleText.upper() + SAS_FONT_TAG_CLOSE
++		szTitle = sasFontTagTitle.bold + szTitleText.upper() + SAS_FONT_TAG_CLOSE
+ 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		if self.hasMusic(self.iMusic):
+
+diff --git a/Assets/Python/SASFontUtils.py b/Assets/Python/SASFontUtils.py
+index 46050d996..7ded116f0 100644
+--- a/Assets/Python/SASFontUtils.py
++++ b/Assets/Python/SASFontUtils.py
+@@ -42,17 +42,24 @@ def getSASUIFontHover():
+ 
+ 
+ class _DynamicFontTag:
+-	def __init__(self, szDefineName, bBold):
++	def __init__(self, szDefineName, bBold=False):
+ 		self.szDefineName = szDefineName
+-		self.bBold = bBold
++		self._isBold = bBold
++		self._cachedTag = None
++		if not bBold:
++			self.bold = _DynamicFontTag(szDefineName, True)
+ 
+ 	def _build(self):
++		if self._cachedTag is not None:
++			return self._cachedTag
+ 		iSize = _getSASUIFontSize(self.szDefineName)
+ 		if iSize is None:
+-			return u""
+-		if self.bBold:
+-			return u"<font=%db>" % iSize
+-		return u"<font=%d>" % iSize
++			self._cachedTag = u""
++		elif self._isBold:
++			self._cachedTag = u"<font=%db>" % iSize
++		else:
++			self._cachedTag = u"<font=%d>" % iSize
++		return self._cachedTag
+ 
+ 	def __unicode__(self):
+ 		return self._build()
+@@ -69,13 +76,8 @@ class _DynamicFontTag:
+ 
+ SAS_FONT_TAG_CLOSE = u"</font>"
+ 
+-sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY", False)
+-sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY", False)
+-sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL", False)
+-sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE", False)
+-sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER", False)
+-
+-sasFontTagTinyBold = _DynamicFontTag("SAS_UI_FONT_TINY", True)
+-sasFontTagBodyBold = _DynamicFontTag("SAS_UI_FONT_BODY", True)
+-sasFontTagLabelBold = _DynamicFontTag("SAS_UI_FONT_LABEL", True)
+-sasFontTagTitleBold = _DynamicFontTag("SAS_UI_FONT_TITLE", True)
++sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY")
++sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY")
++sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
++sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
++sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER")
+
+diff --git a/Assets/Python/Screens/CvDanQuayle.py b/Assets/Python/Screens/CvDanQuayle.py
+index d0877ad26..35f65453f 100644
+--- a/Assets/Python/Screens/CvDanQuayle.py
++++ b/Assets/Python/Screens/CvDanQuayle.py
+@@ -147,7 +147,7 @@ class CvDanQuayle:
+ 		screen.setText(self.EXIT_ID, "Background", sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+ 
+ 		# Header...
+-		screen.setLabel(self.WIDGET_HEADER, "Background", sasFontTagTitleBold + localText.getText("TXT_KEY_GAME_END_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.WIDGET_HEADER, "Background", sasFontTagTitle.bold + localText.getText("TXT_KEY_GAME_END_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				
+ 		# Leaderhead
+ 		screen.addLeaderheadGFC(self.LEADERHEAD_ID, replayInfo.getLeader(replayInfo.getActivePlayer()), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Screens/CvDawnOfMan.py b/Assets/Python/Screens/CvDawnOfMan.py
+index 9d5dc69e2..652029c83 100644
+--- a/Assets/Python/Screens/CvDawnOfMan.py
++++ b/Assets/Python/Screens/CvDawnOfMan.py
+@@ -137,7 +137,7 @@ class CvDawnOfMan:
+ 		
+ 		# Info/"Stats" text
+ 		
+-		szNameText = "<color=255,255,0,255>" + sasFontTagTitleBold + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
++		szNameText = "<color=255,255,0,255>" + sasFontTagTitle.bold + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 		szNameText += u"\n" + sasFontTagLabel + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
+ 		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic,
+ 		# defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index d2c5781ea..7c881f518 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -135,7 +135,7 @@ class CvDomesticAdvisor:
+ 			if gc.getSpecialistInfo(eSpec).isVisible():
+ 				self.aOverview3Specialists.append(eSpec)
+ 				self.aOverview3SpecialistHeaders.append(SASTextScale.labelImageText(gc.getSpecialistInfo(eSpec).getButton(), self.OVERVIEW3_SPECIALIST_ICON_SIZE))
+-		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
+ 		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_FINANCE]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index b2f61b147..474485e7f 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -353,7 +353,7 @@ class CvForeignAdvisor:
+ 
+ 		# <!-- custom: precompute commonly used text strings to avoid repeated lookups (claude code sonnet 4.5) -->
+ 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+-		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 
+ 		# <!-- custom: precompute tab/column header texts (claude code sonnet 4.5) -->
+ 		self.TEXT_LEADER = localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ())
+
+diff --git a/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py b/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+index a2e69045c..e853f6fb4 100644
+--- a/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
++++ b/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+@@ -20,7 +20,7 @@ class CvForeignDiplomacyAdvisor(CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 	def initText(self):
+ 		CvForeignAdvisor.CvForeignAdvisor.initText(self)
+-		self.SCREEN_TITLE = CvForeignAdvisor.sasFontTagTitleBold + CvForeignAdvisor.localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + CvForeignAdvisor.SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = CvForeignAdvisor.sasFontTagTitle.bold + CvForeignAdvisor.localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + CvForeignAdvisor.SAS_FONT_TAG_CLOSE
+ 
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_DIPLOMACY_ADVISOR)
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index b384ada36..b12a0c811 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -161,7 +161,7 @@ class CvHallOfFameScreen:
+ 		screen.setText(self.EXIT_ID, "", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# Header...
+-		screen.setLabel(self.HEADER_ID, "Background", sasFontTagTitleBold + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.HEADER_ID, "Background", sasFontTagTitle.bold + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 01476ec54..731b73b39 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -306,7 +306,7 @@ class CvInfoScreen:
+ 		# K-Mod end
+ 
+ 		###### TEXT ######
+-		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + SAS_FONT_TAG_CLOSE
+ 
+ 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 
+@@ -462,7 +462,7 @@ class CvInfoScreen:
+ 		self.TEXT_WORLD_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS", ())
+ 		self.TEXT_NATIONAL_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ())
+ 		self.TEXT_PROJECTS = localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
+-		self.szWondersSpecialTitle = sasFontTagLabelBold + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
++		self.szWondersSpecialTitle = sasFontTagLabel.bold + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
+ 
+ 		# <!-- custom: moved here from drawWondersList_BUG: performance optimimization: avoid redundant recomputation if i'm not mistaken. -->
+ 		self.sNameWonders = BugUtil.getPlainText("TXT_KEY_WONDER_NAME")
+@@ -2902,7 +2902,7 @@ class CvInfoScreen:
+ 				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
+ 			self.szCityNameWidgets.append(self.getNextWidgetName())
+ #			szProjectDesc = u"<font=3b>" + pProjectInfo.getDescription().upper() + u"</font>"
+-			szCityDesc = sasFontTagTitleBold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabelBold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
++			szCityDesc = sasFontTagTitle.bold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabel.bold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
+ 			szCityDesc += sasFontTagLabel + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
+ 			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc,
+ 				self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -3282,7 +3282,7 @@ class CvInfoScreen:
+ 				pProjectInfo = gc.getProjectInfo(self.iWonderID)
+ 
+ 				# Stats panel (cont'd) - Name
+-				szProjectDesc = sasFontTagLabelBold + pProjectInfo.getDescription().upper() + SAS_FONT_TAG_CLOSE
++				szProjectDesc = sasFontTagLabel.bold + pProjectInfo.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 				szStatsText = szProjectDesc + "\n\n"
+ 
+ 				# Say whether this project is built yet or not
+@@ -3354,7 +3354,7 @@ class CvInfoScreen:
+ 				pWonderInfo = gc.getBuildingInfo(self.iWonderID)
+ 
+ 				# Stats panel (cont'd) - Name
+-				szWonderDesc = sasFontTagLabelBold + gc.getBuildingInfo(self.iWonderID).getDescription().upper() + SAS_FONT_TAG_CLOSE
++				szWonderDesc = sasFontTagLabel.bold + gc.getBuildingInfo(self.iWonderID).getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 				szStatsText = szWonderDesc + "\n\n"
+ 
+ 				# Wonder built-in year
+@@ -3930,7 +3930,7 @@ class CvInfoScreen:
+ 
+ 		# Leader Name
+ 		self.szLeaderNameWidget = self.getNextWidgetName()
+-		szText = sasFontTagTitleBold + gc.getPlayer(self.iActivePlayer).getName() + SAS_FONT_TAG_CLOSE
++		szText = sasFontTagTitle.bold + gc.getPlayer(self.iActivePlayer).getName() + SAS_FONT_TAG_CLOSE
+ 		screen.setText(self.szLeaderNameWidget, "", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEADER_NAME, self.Y_LEADER_NAME, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# Create Table
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 50e605df1..25acf427f 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -110,7 +110,7 @@ class CvMilitaryAdvisor:
+ 			return
+ 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+ 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+-		self.TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_COMBAT_EXPERIENCE = localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ())
+ 		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
+ 		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index eef0692e6..d9b636eb7 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -196,7 +196,7 @@ class CvPolicyAdvisorScreen:
+ 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+ 
+ 		self.TEXT_CANCEL = sasFontTagTitle + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + SAS_FONT_TAG_CLOSE
+-		self.TEXT_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.TEXT_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_REVOLUTION = sasFontTagTitle + localText.getText("TXT_KEY_CONCEPT_REVOLUTION", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_NO_UPKEEP = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
+@@ -378,7 +378,7 @@ class CvPolicyAdvisorScreen:
+ 		for iPage in range(len(self.PAGE_NAME_LIST)):
+ 			szLabel = self.PAGE_NAME_LIST[iPage]
+ 			if iPage == self.iPage:
+-				szText = sasFontTagTitleBold + szLabel + SAS_FONT_TAG_CLOSE
++				szText = sasFontTagTitle.bold + szLabel + SAS_FONT_TAG_CLOSE
+ 			else:
+ 				szText = sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE
+ 			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
+
+diff --git a/Assets/Python/Screens/CvReplayScreen.py b/Assets/Python/Screens/CvReplayScreen.py
+index a5a4a71a6..22e6d3982 100644
+--- a/Assets/Python/Screens/CvReplayScreen.py
++++ b/Assets/Python/Screens/CvReplayScreen.py
+@@ -194,7 +194,7 @@ class CvReplayScreen:
+ 		# Header...
+ 		self.szHeader = self.getNextWidgetName()
+ 		# advc.106m: X position was self.X_SCREEN; that doesn't work anymore.
+-		screen.setLabel(self.szHeader, "Background", sasFontTagTitleBold + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.szHeader, "Background", sasFontTagTitle.bold + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# Minimap initialization
+ 		self.H_MAP = (self.W_MAP * self.replayInfo.getMapHeight()) / self.replayInfo.getMapWidth()
+@@ -260,7 +260,7 @@ class CvReplayScreen:
+ 		szTurnDate = CyGameTextMgr().getDateStr(self.iTurn, false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
+ 		screen.deleteWidget(self.szHeader)
+ 		# advc.106m: x was X_SCREEN; that doesn't work anymore.
+-		screen.setLabel(self.szHeader, "Background", sasFontTagTitleBold + szTurnDate + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.szHeader, "Background", sasFontTagTitle.bold + szTurnDate + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		events = []
+ 		bFound = False
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 557643cc6..af63b3c85 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -189,7 +189,7 @@ class CvTechChooser:
+ 			self.TEXT_TECH_CHOOSER_TITLE = localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
+ 			self.TEXT_PEDIA_SCREEN_EXIT = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
+ 			self.TEXT_TECH_CHOOSER_EXIT = sasFontTagTitle + self.TEXT_PEDIA_SCREEN_EXIT + SAS_FONT_TAG_CLOSE
+-			self.TEXT_TECH_CHOOSER_TITLE_FMT = sasFontTagTitleBold + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
++			self.TEXT_TECH_CHOOSER_TITLE_FMT = sasFontTagTitle.bold + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
+ 
+ 		if self.bTechChooserArtCached:
+ 			return
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 08b302f0c..bfd0f06f1 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -244,15 +244,15 @@ class CvVictoryScreen:
+ 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
+ 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+ 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+-		self.HEADER_TEXT = sasFontTagTitleBold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.HEADER_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TAB_VICTORIES = localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper()
+ 		self.TAB_SETTINGS = localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper()
+ 		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
+ 		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
+ 		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
+ 		self.TEXT_DIPLOMATIC = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
+-		self.LABEL_SETTINGS_HEADER = sasFontTagLabelBold + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
+-		self.LABEL_OPTIONS_HEADER = sasFontTagLabelBold + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.LABEL_SETTINGS_HEADER = sasFontTagLabel.bold + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
++		self.LABEL_OPTIONS_HEADER = sasFontTagLabel.bold + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TAB_VICTORIES_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), self.COLOR_YELLOW).upper()
+ 		self.TAB_SETTINGS_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), self.COLOR_YELLOW).upper()
+ 		self.TAB_VOTING_ACTIVE = localText.getColorText("TXT_KEY_VOTING_TITLE", (), self.COLOR_YELLOW).upper()
+@@ -514,7 +514,7 @@ class CvVictoryScreen:
+ 				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
+ 				iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
+ 				szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+-				szHeaderText = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
++				szHeaderText = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				if (gc.getGame().getVoteSourceReligion(i) != -1):
+ 					# <!-- custom: add religion icon (claude opus 4.5) -->
+@@ -673,7 +673,7 @@ class CvVictoryScreen:
+ 
+ 		# heading
+ 		kVoteSource = gc.getVoteSourceInfo(iActiveVote)
+-		sTableHeader = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
++		sTableHeader = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 		if (gc.getGame().getVoteSourceReligion(iActiveVote) != -1):
+ 			sTableHeader += " (" + gc.getReligionInfo(gc.getGame().getVoteSourceReligion(iActiveVote)).getDescription() + ")"
+ 
+@@ -864,7 +864,7 @@ class CvVictoryScreen:
+ 		iRow = screen.appendTableRow(szTable)
+ 		iVoteReq = self.getVoteReq(iActiveVote, self.VoteType)
+ 		sVoteReq = "%i" % (iVoteReq)
+-		sString = sasFontTagLabelBold + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_TOTAL", ()) + SAS_FONT_TAG_CLOSE + u" "
++		sString = sasFontTagLabel.bold + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_TOTAL", ()) + SAS_FONT_TAG_CLOSE + u" "
+ 		if (iCand1Known != 0
+ 		and iCand2Known != 0):
+ 			sString +=  localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
+@@ -948,12 +948,12 @@ class CvVictoryScreen:
+ 				iRow = screen.appendTableRow(szTable)
+ 
+ 				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
+-				szHeaderText = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
++				szHeaderText = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 				szBuildingButton = u""
+ 				for iBuilding in range(gc.getNumBuildingInfos()):
+ 					if gc.getBuildingInfo(iBuilding).getVoteSourceType() == i:
+ 						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
+-						szHeaderText = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
++						szHeaderText = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 						break
+ 				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				if (gc.getGame().getVoteSourceReligion(i) != -1):
+@@ -1037,7 +1037,7 @@ class CvVictoryScreen:
+ 		screen.appendTableRow(szTable)
+ 		iNumRows = screen.getTableNumRows(szTable)
+ 		iTitleRow = iNumRows - 1
+-		szHeading = sasFontTagTitleBold + localText.getText("TXT_KEY_RF_CHAPTER_PLURAL", ()) + SAS_FONT_TAG_CLOSE
++		szHeading = sasFontTagTitle.bold + localText.getText("TXT_KEY_RF_CHAPTER_PLURAL", ()) + SAS_FONT_TAG_CLOSE
+ 		SASTextScale.setTableTextLabel(screen, szTable, 0, iTitleRow, szHeading, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		partialScore = 0
+ 		allScored = true
+@@ -1131,14 +1131,14 @@ class CvVictoryScreen:
+ 			self.H_RF_AREA -= iHeightMinus
+ 		screen.addPanel(self.AREA1_ID, "", "", True, True, self.X_RF1_AREA, self.Y_RF_AREA, self.W_RF_AREA, self.H_RF_AREA, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.AREA2_ID, "", "", True, True, self.X_RF2_AREA, self.Y_RF_AREA, self.W_RF_AREA, self.H_RF_AREA, PanelStyles.PANEL_STYLE_BLUE50)
+-		chapterScoreText = sasFontTagLabelBold
++		chapterScoreText = sasFontTagLabel.bold
+ 		chapterScoreText += localText.getText("TXT_KEY_RF_CHAPTER_BREAKDOWN_H", ())
+ 		chapterScoreText += u"</font>"
+ 		chapterScoreText += sasFontTagLabel + "\n\n"
+ 		if not extGame: # No breakdown after game end
+ 			chapterScoreText += gc.getGame().chapterScoreBreakdown()
+ 		chapterScoreText += u"</font>"
+-		riseScoreText = sasFontTagLabelBold
++		riseScoreText = sasFontTagLabel.bold
+ 		if extGame >= 0:
+ 			riseScoreText += localText.getText("TXT_KEY_RF_RISE_FINAL_H", ())
+ 		else:
+@@ -1152,7 +1152,7 @@ class CvVictoryScreen:
+ 		self.drawTabs()
+ 	
+ 	def highlight(self, s):
+-		return sasFontTagLabelBold + s + SAS_FONT_TAG_CLOSE
++		return sasFontTagLabel.bold + s + SAS_FONT_TAG_CLOSE
+ 	# </advc.703>
+ 
+ 	def formatPercent(self, f):
+@@ -1436,7 +1436,7 @@ class CvVictoryScreen:
+ 			szRivalsHeadingTag = "TXT_KEY_OTHER_PLAYERS" # </advc.190c>
+ 		screen.addPanel(szCivsPanel, "", "", True, True, self.SETTINGS_PANEL_X3, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+ 		szCivsHeader = self.getNextWidgetName()
+-		screen.setLabel(szCivsHeader, "Background", sasFontTagLabelBold + localText.getText(szRivalsHeadingTag, ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X3 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(szCivsHeader, "Background", sasFontTagLabel.bold + localText.getText(szRivalsHeadingTag, ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X3 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		szCivsTable = self.getNextWidgetName()
+ 		screen.addListBoxGFC(szCivsTable, "", self.SETTINGS_PANEL_X3 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
+@@ -1650,7 +1650,7 @@ class CvVictoryScreen:
+ 			if gc.getGame().isVictoryValid(iLoopVC):
+ 
+ 				iNumRows = screen.getTableNumRows(szTable)
+-				szVictoryType = sasFontTagTitleBold + victory.getDescription().upper() + SAS_FONT_TAG_CLOSE
++				szVictoryType = sasFontTagTitle.bold + victory.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 				if (victory.isEndScore() and (gc.getGame().getMaxTurns() > gc.getGame().getElapsedGameTurns())):
+ 					szTurnsLeft = localText.getText("TXT_KEY_MISC_TURNS_LEFT", (gc.getGame().getMaxTurns() - gc.getGame().getElapsedGameTurns(), ))
+ 					szVictoryType += u"    " + sasFontTagLabel + u"(" + szTurnsLeft + u")" + SAS_FONT_TAG_CLOSE
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 4369aeeae..33c530d93 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -125,7 +125,7 @@ class CvWorldAdvisorScreen:
+ 			return
+ 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+ 
+-		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_WORLD_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_WORLD_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+ 		self.ART_POPUPS_BACKGROUND_TRANSPARENT = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=34184

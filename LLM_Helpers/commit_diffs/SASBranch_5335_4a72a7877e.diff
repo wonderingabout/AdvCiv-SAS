@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5335
+# Commit: 4a72a7877ed256e0d7f7571c8facb7c17cd34b05
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 00689f2dafc70d0ca360fca2779055a4e0953bd6
+# Title: Fixed Base AdvCiv issue of "Remove Jungle", "Remove Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlik...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	0	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	README.md
+9	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 1b446a36b..a61cd6ff3 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1172,6 +1172,19 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
+ 			eImprovement = GC.getInfo(eBuild).getImprovement();
+ 		if (eImprovement != NO_IMPROVEMENT)
+ 			py.jumpToPedia(eImprovement, "Improvement");
++		// <!-- custom: for feature-removal builds (Chop Forest, Chop Jungle, Scrub Fallout), redirect to the feature page since there's no improvement to link to (Claude Code Opus 4.5) -->
++		else if (eBuild != NO_BUILD)
++		{
++			CvBuildInfo const& kBuild = GC.getInfo(eBuild);
++			FOR_EACH_ENUM(Feature)
++			{
++				if (kBuild.isFeatureRemove(eLoopFeature))
++				{
++					py.jumpToPedia(eLoopFeature, "Feature");
++					break;
++				}
++			}
++		}
+ 		break;
+ 	}
+ 	case WIDGET_HELP_YIELD_CHANGE:
+
+diff --git a/README.md b/README.md
+index 3feba85fb..ee6803b53 100644
+--- a/README.md
++++ b/README.md
+@@ -56,7 +56,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Python scripts](/README.md#python-scripts)  
+ [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+-[Known issues that may be fixed or not fixed in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4)  
++[Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)  
+ ["Temporary" crashes](/README.md#temporary-crashes)  
+ [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
+ [Version number](/README.md#version-number)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 957012fce..9b55066d4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -130,6 +130,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
+ [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
+ [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
++[97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Remove Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4068,3 +4069,11 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
+ Also fixed the base advciv issue of obsolete bullets spanning vertically instead of horizontally being comma-separated. We only make anothee bullet for Obsolete units that are comma-separated too.
+ 
+ This was a problem especially as we had many bullets. Now we only show one bullet per asset type (e.g. all obsolete buildings in one bullet, then all obsolete units in another bullet, etc.). Change with the help of Claude code Sonnet 4.5 in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) thanks.
++
++## 97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Remove Forest", and "Scrub Fallout" not redirecting to sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to sevopedia improvement corresponding page
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tDKR5ZqAbFrDZZ3G4YuO7CeiDbsM6mdb?usp=sharing).
++
++Fixed with the help of Claude code Opus 4.5 after i have noticed this issue in the technology advisor, by as of now adding a redirect in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp).
++
++So now right-clicking e.g. on the "Remove Jungle" button in the technology advisor successfully redirects to the sevopedia feature corresponding page, e.g. of the Jungle Feature!
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a2e42fb12..772e76fcb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -104,6 +104,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ - Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research (“Sid’s tips”) popups, as well as in the Civic Revolution popup (“Would you like to start a revolution?”), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
++- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding Sevopedia Feature** page (e.g. "Remove Jungle" build redirects to the Jungle Feature page; similarly for "Remove Forest" and "Scrub Fallout"). Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**) using the by changing the **widget**'s behaviour, in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp). See [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
+ 
+ ### UI (In-game)
+ 
+@@ -540,4 +541,4 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ## Fixes
+ 
+-See [Known issues / fixes](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4) for the indexed list and links to before/after notes and screenshots.
++See [Known issues / fixes](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4) for the indexed list and links to before/after notes and screenshots.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=7433

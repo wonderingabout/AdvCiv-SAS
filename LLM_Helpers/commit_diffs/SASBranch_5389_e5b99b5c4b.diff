@@ -1,0 +1,204 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5389
+# Commit: e5b99b5c4beafc64b0522569a96b2522ba098544
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 177af35b51c38854d96b2b88ff58d8f50b084031
+# Title: add queue list in sevopedia media player
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+56	0	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+7	3	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+7	3	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index 173e8e749..52ce1ddd4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -22,6 +22,8 @@ class SevoPediaMediaPlayer:
+ 		self.replayId = clickPrefix + "Replay"
+ 		self.prevId = clickPrefix + "Prev"
+ 		self.nextId = clickPrefix + "Next"
++		self.queuePanelId = clickPrefix + "QueuePanel"
++		self.queueListId = clickPrefix + "QueueList"
+ 		self.clickPrefix = clickPrefix
+ 		self.isOpen = False
+ 		self.soundId = None
+@@ -120,6 +122,60 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 
++	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex):
++		if (items is None) or (len(items) == 0):
++			return
++
++		iPanelW = 320
++		iPanelX = iScreenW - iPanelW - 20
++		iPanelY = 50
++		iPanelH = iScreenH - 140
++		if iPanelH <= 0:
++			return
++
++		try:
++			screen.deleteWidget(self.queuePanelId)
++		except:
++			pass
++		try:
++			screen.deleteWidget(self.queueListId)
++		except:
++			pass
++
++		screen.addPanel(self.queuePanelId, "", "", True, False, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addListBoxGFC(self.queueListId, "", iPanelX + 6, iPanelY + 6, iPanelW - 12, iPanelH - 12, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSelect(self.queueListId, False)
++
++		iRowH = 22
++		iMaxRows = iPanelH / iRowH
++		if iMaxRows <= 0:
++			iMaxRows = 1
++
++		iStart = 0
++		if currentIndex >= 0:
++			iStart = currentIndex - (iMaxRows / 2)
++			if iStart < 0:
++				iStart = 0
++		iEnd = iStart + iMaxRows
++		if iEnd > len(items):
++			iEnd = len(items)
++		if (iEnd - iStart) < iMaxRows and iStart > 0:
++			iStart = max(0, iEnd - iMaxRows)
++
++		i = iStart
++		while i < iEnd:
++			szLabel = items[i]
++			if i == currentIndex:
++				szLabel = u"> " + szLabel
++				szLabel = u"<font=3b>" + szLabel + u"</font>"
++			else:
++				szLabel = u"<font=3>" + szLabel + u"</font>"
++			screen.appendListBoxStringNoUpdate(self.queueListId, szLabel, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			i += 1
++		screen.updateListBox(self.queueListId)
++
++
++
+ 	def setReplayCallback(self, replayCallback):
+ 		self.replayCallback = replayCallback
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index ba10c2979..9f6d5b7f5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -33,6 +33,7 @@ class SevoPediaMovie:
+ 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
+ 		self.SAS_lastMoviePayload = None
+ 		self.SAS_playableMovies = None
++		self.SAS_playableMovieLabels = None
+ 		self.SAS_playableMovieIndex = -1
+ 
+ 		self.X_HEADER = self.top.X_PEDIA_PAGE
+@@ -164,6 +165,7 @@ class SevoPediaMovie:
+ 		self.mediaPlayer.setNextCallback(self.playNextMovie)
+ 
+ 		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
++		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex)
+ 
+ 
+ 
+@@ -226,7 +228,7 @@ class SevoPediaMovie:
+ 
+ 
+ 	def SAS_setupPlayableMovies(self, iMovieType, iMovieId):
+-		self.SAS_playableMovies = self.SAS_buildPlayableMovies()
++		self.SAS_playableMovies, self.SAS_playableMovieLabels = self.SAS_buildPlayableMoviesAndLabels()
+ 		iPacked = self.top.SAS_packMovieKey(iMovieType, iMovieId)
+ 		self.SAS_playableMovieIndex = -1
+ 		try:
+@@ -236,8 +238,9 @@ class SevoPediaMovie:
+ 
+ 
+ 
+-	def SAS_buildPlayableMovies(self):
++	def SAS_buildPlayableMoviesAndLabels(self):
+ 		r = []
++		labels = []
+ 		listEntries = self.top.getMovieList()
+ 		for (szName, iPacked) in listEntries:
+ 			if iPacked == -1:
+@@ -245,7 +248,8 @@ class SevoPediaMovie:
+ 			iType, iId = self.top.SAS_unpackMovieKey(iPacked)
+ 			if self.hasMovie(iType, iId):
+ 				r.append(iPacked)
+-		return r
++				labels.append(szName)
++		return (r, labels)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 1816070fd..9dea32667 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -28,6 +28,7 @@ class SevoPediaMusic:
+ 		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
+ 		self.SAS_lastMusicSound = None
+ 		self.SAS_playableMusic = None
++		self.SAS_playableMusicLabels = None
+ 		self.SAS_playableMusicIndex = -1
+ 
+ 		# Offset for the extra width of Music items list vs base width
+@@ -247,6 +248,7 @@ class SevoPediaMusic:
+ 		self.mediaPlayer.setNextCallback(self.playNextMusic)
+ 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+ 		self.SAS_setupPlayableMusic(iMusic)
++		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex)
+ 
+ 
+ 
+@@ -299,7 +301,7 @@ class SevoPediaMusic:
+ 
+ 
+ 	def SAS_setupPlayableMusic(self, iMusic):
+-		self.SAS_playableMusic = self.SAS_buildPlayableMusic()
++		self.SAS_playableMusic, self.SAS_playableMusicLabels = self.SAS_buildPlayableMusicAndLabels()
+ 		self.SAS_playableMusicIndex = -1
+ 		try:
+ 			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)
+@@ -308,15 +310,17 @@ class SevoPediaMusic:
+ 
+ 
+ 
+-	def SAS_buildPlayableMusic(self):
++	def SAS_buildPlayableMusicAndLabels(self):
+ 		r = []
++		labels = []
+ 		listEntries = self.top.getMusicList()
+ 		for (szName, iPacked) in listEntries:
+ 			if iPacked == -1:
+ 				continue
+ 			if self.hasMusic(iPacked):
+ 				r.append(iPacked)
+-		return r
++				labels.append(szName)
++		return (r, labels)
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG
+index d62ec12af..d9f699b86 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+index fa8cbe6b6..68b7dcc81 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6412

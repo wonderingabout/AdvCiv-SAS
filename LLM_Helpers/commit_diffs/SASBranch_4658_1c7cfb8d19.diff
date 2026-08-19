@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4658
+# Commit: 1c7cfb8d19d07739386f2b19d9ed3e5c2c24c406
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 368fbcd5e9dd3bfc7d9f400aeeb5602767ee07b6
+# Title: fixes and add (one) more unit(s)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	README.md
+-	-	_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/{lance_light_iron_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png => lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png}
+-	-	_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+ rename _1_AdvCiv-SAS/AI-generated images (files only) preview(s)/{lance_light_iron_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png => lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png} (100%)
+ create mode 100644 _1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index d941e51b3..6f0b53140 100644
+--- a/README.md
++++ b/README.md
+@@ -28,9 +28,13 @@ i would move them to the bottom so you don't have to reread all ideally.
+ 
+ ## AI-generated images
+ 
+-One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice. I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways)[here](/https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm). You can find below an example of preview for the lancer light 3 (iron age as of now if not always or not anyways) (click to view in full size):
++One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice. I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [here](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm). You can find below an example of preview for the lancer light 3 (iron age as of now if not always or not anyways) (click to view in full size):
+ 
+-<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_iron_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
++<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
++
++Another example:
++
++<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png" width="150"></img>
+ 
+ People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+
+diff --git a/_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_iron_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png b/_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_iron_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png
+rename to _1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png
+
+diff --git a/_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png b/_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png
+new file mode 100644
+index 000000000..ad2962498
+Binary files /dev/null and b/_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index c034a69b3..b5ec44d57 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3230

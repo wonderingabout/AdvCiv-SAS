@@ -1,0 +1,295 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2810
+# Commit: 9ffb0d869861f50784f03f968fc8acd6a471460f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1ce5042732f72589db5b35e2cc32e9552c1fb89a
+# Title: Merge branch split-groups-after-missions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	7	CvGameCoreDLL/CvGameInterface.cpp
+9	1	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+74	12	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 5e0b121ed..1dd933e42 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -406,7 +406,7 @@ void CvGame::updateSelectionList()
+ 		}
+ 		pHeadSelectedUnit = kUI.getHeadSelectedUnit();
+ 		if (pHeadSelectedUnit != NULL &&
+-			!pHeadSelectedUnit->getGroup()->readyToSelect())
++			!pHeadSelectedUnit->getGroup()->readyToSelect(/* advc.153: */ true))
+ 		{
+ 			kUI.clearSelectionList();
+ 		}
+@@ -610,6 +610,16 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
+ 		FAssert(pNextSelectionGroup->getOwner() == getActivePlayer());
+ 		FAssert(pNextSelectionGroup->getHeadUnit() != NULL); // K-Mod
+ 		gDLL->UI().selectUnit(pNextSelectionGroup->getHeadUnit(), bClear);
++		/*	<advc.153> Could deselect units without moves here, but then
++			the player can't just press skip without splitting up the group.
++			Perhaps skip could somehow receive special treatment in this case ...
++			So long as that's not implemented, it's better to let the player use
++			the Go To (All) button if he or she does want to split the group. */
++		/*FOR_EACH_UNIT_VAR_IN(pUnit, *pNextSelectionGroup)
++		{
++			if (!pUnit->canMove())
++				gDLL->UI().removeFromSelectionList(pUnit);
++		}*/ // </advc.153>
+ 	}
+ 	// K-Mod
+ 	else if (pCycleUnit != NULL)
+@@ -626,7 +636,8 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
+ 	} // K-Mod end
+ 
+ 	if (pCycleUnit != gDLL->UI().getHeadSelectedUnit() ||
+-		(pCycleUnit != NULL && pCycleUnit->getGroup()->readyToSelect()))
++		(pCycleUnit != NULL && pCycleUnit->getGroup()->readyToSelect(
++		true))) // advc.153: was false
+ 	{
+ 		gDLL->UI().lookAtSelectionPlot();
+ 	}
+@@ -732,7 +743,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
+ 		{
+ 			if (bAuto)
+ 			{
+-				if (pLoopUnit->getGroup()->readyToSelect())
++				if (pLoopUnit->getGroup()->readyToSelect(/* advc.153: */ true))
+ 				{
+ 					gDLL->UI().selectUnit(pLoopUnit, true);
+ 					return true;
+@@ -2388,12 +2399,14 @@ void CvGame::initSelection() const
+ {
+ 	bool bSelected = false;
+ 	CvPlayer& kActivePlayer = GET_PLAYER(getActivePlayer());
+-	/*	<advc> Replacing two non-nested loops
+-		(I had meant to add two passes, then changed my mind.) */
++	// <advc.153> Replacing two non-nested loops
+ 	enum PassTypes
+ 	{
+ 		FIGHT_AND_ALL_READY,
+ 		ALL_READY,
++		// New passes:
++		FIGHT_AND_ANY_READY,
++		ANY_READY,
+ 		NUM_PASSES
+ 	};
+ 	for (int iPass = 0; iPass < NUM_PASSES &&
+@@ -2402,7 +2415,7 @@ void CvGame::initSelection() const
+ 		PassTypes const ePass = (PassTypes)iPass;
+ 		FOR_EACH_UNIT_VAR(pLoopUnit, kActivePlayer)
+ 		{
+-			if (ePass == FIGHT_AND_ALL_READY &&
++			if ((ePass == FIGHT_AND_ALL_READY || ePass == FIGHT_AND_ANY_READY) &&
+ 				!pLoopUnit->canFight())
+ 			{
+ 				continue;
+@@ -2412,11 +2425,16 @@ void CvGame::initSelection() const
+ 			{
+ 				continue;
+ 			}
++			if ((ePass == FIGHT_AND_ANY_READY || ePass == ANY_READY) &&
++				!pLoopUnit->getGroup()->readyToSelect(true))
++			{
++				continue;
++			}
+ 			selectUnit(pLoopUnit, true);
+ 			bSelected = true;
+ 			break;
+ 		}
+-	} // </advc>
++	} // </advc.153>
+ 	if (!bSelected)
+ 	{
+ 		FOR_EACH_UNIT_VAR(pLoopUnit, kActivePlayer)
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index d4a3fc378..43bebd885 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -674,12 +674,20 @@ CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner,
+ 
+ 		FOR_EACH_GROUP_VAR(pLoopSelectionGroup, kLoopPlayer)
+ 		{
+-			if (bReadyToSelect && !pLoopSelectionGroup->readyToSelect(false))
++			bool const bAIControl = pLoopSelectionGroup->AI_isControlled(); // advc.153
++			if (bReadyToSelect && !pLoopSelectionGroup->readyToSelect(
++				!bAIControl)) // advc.153: was false
++			{
+ 				continue;
++			}
+ 			if (bWorkers && !pLoopSelectionGroup->hasWorker())
+ 				continue;
+ 			int iValue = plotDistance(iX, iY,
+ 					pLoopSelectionGroup->getX(), pLoopSelectionGroup->getY());
++			/*	<advc.153> Select groups where only some units are ready last
++				(unless plotDistance is 0) */
++			if (!bAIControl && pLoopSelectionGroup->readyToSelect())
++				iValue *= 100; // </advc.153>
+ 			if (iValue < iBestValue)
+ 			{
+ 				iBestValue = iValue;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b7cfb4a31..74b4b4fe8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2288,7 +2288,7 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 	{
+ 		CvSelectionGroup* pLoopSelectionGroup = getSelectionGroup(
+ 				pSelectionGroupNode->m_data);
+-		if (pLoopSelectionGroup->readyToSelect() &&
++		if (pLoopSelectionGroup->readyToSelect(/* advc.153: */ true) &&
+ 			kCycledGroups.count(pSelectionGroupNode->m_data) == 0) // K-Mod
+ 		{
+ 			if (!bWorkers || pLoopSelectionGroup->hasWorker())
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 8aa16e215..389d58e3c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1667,6 +1667,43 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			// start the next mission
+ 			if (headMissionQueueNode() != NULL)
+ 				activateHeadMission();
++			// <advc.153>
++			else if (getOwner() == kGame.getActivePlayer() &&
++				(missionData.eMissionType == MISSION_BUILD ||
++				// Too annoying?
++				//missionData.eMissionType == MISSION_MOVE_TO ||
++				missionData.eMissionType == MISSION_PILLAGE ||
++				missionData.eMissionType == MISSION_BOMBARD ||
++				missionData.eMissionType == MISSION_AIRBOMB) &&
++				canAnyMove() && !canAllMove())
++			{
++				if (IsSelected())
++				{
++					CvUnit* pSelectedUnit = NULL;
++					int iSelIndex = 0;
++					while ((pSelectedUnit = gDLL->UI().getSelectionUnit(iSelIndex++)) != NULL)
++					{
++						if (!pSelectedUnit->canMove())
++						{
++							gDLL->UI().removeFromSelectionList(pSelectedUnit);
++							iSelIndex--;
++						}
++					}
++				}
++				else if (!GET_PLAYER(kGame.getActivePlayer()).isEndTurn())
++				{	// Split group. Based on K-Mod code in startMission.
++					std::vector<CvUnit*> apCanMove;
++					FOR_EACH_UNIT_VAR_IN(pUnit, *this)
++					{
++						if (pUnit->canMove())
++							apCanMove.push_back(pUnit);
++					}
++					apCanMove[0]->joinGroup(NULL);
++					CvSelectionGroup* pNewGroup = apCanMove[0]->getGroup();
++					for (size_t i = 1; i < apCanMove.size(); i++)
++						apCanMove[i]->joinGroup(pNewGroup);
++				}
++			} // </advc.153>
+ 		} // K-Mod end
+ 	}
+ 	else
+@@ -2761,10 +2798,20 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 	CvPlot const& kFrom = getPlot(); // advc.139
+ 
+ 	// K-Mod. Some variables to help us regroup appropriately if not everyone can move.
+-	CvSelectionGroup* pStaticGroup = 0;
++	CvSelectionGroup* pBehindGroup = NULL;
++	CvSelectionGroup* pBehindGroupCannotMove = NULL; // advc.153
+ 	UnitAITypes eHeadAI = getHeadUnitAIType();
+-
+-	// Move the combat unit first, so that no-capture units don't get unneccarily left behind.
++	// <advc.153>
++	bool const bAIControl = AI_isControlled();
++	/*	True forces the join-pBehindGroup branch in the loop below to be taken.
++		Caveat: A player option for this will probably work in multiplayer, but
++		a BUG option won't unless a parameter is added to CvNetPushMission and
++		passed along through a bunch of function calls. */
++	bool const bGroupAdvance = (!bCombat || bAIControl);
++	// </advc.153>
++
++	/*	Move the combat unit first, so that no-capture units
++		don't get unnecessarily left behind. */
+ 	if (pCombatUnit != NULL)
+ 		pCombatUnit->move(*pPlot, true);
+ 	// K-Mod end
+@@ -2779,18 +2826,21 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 		K-Mod 1.45 has rewritten this function, which may fix the problem (and some others too),
+ 		but then I'd also have to merge the K-Mod fix for the Gunship city capture bug ... */
+ 	for (int iStage = 0; iStage < 2; iStage++)
+-	{
++	{	// <advc.153>
++		if (!bGroupAdvance && iStage >= 1)
++			break; // </advc.153>
+ 		FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+ 		{
+ 			//if ((pUnit->canMove() && ((bCombat && (!pUnit->isNoCapture() || !pPlot->isEnemyCity(*pUnit))) ? pUnit->canMoveOrAttackInto(pPlot) : pUnit->canMoveInto(pPlot))) || pUnit == pCombatUnit)
+ 			// K-Mod
+ 			if (pUnit == pCombatUnit)
+-				continue; // this unit is moved before the loop.
++				continue; // this unit is moved before the loop
+ 			// <advc.001>
+ 			if (pUnit->isNoCityCapture() == (iStage == 0))
+ 				continue; // </advc.001>
+-			if (pUnit->canMove() &&
+-				/*  advc.001: This condition was removed in K-Mod 1.44, but is needed
++			if (/* advc.153: */ bGroupAdvance &&
++				pUnit->canMove() &&
++				/*  advc.001: This condition was removed in K-Mod 1.44 but is needed
+ 					b/c canMoveOrAttackInto doesn't cover it (perhaps it should). */
+ 				!(pUnit->isNoCityCapture() && pUnit->isEnemyCity(*pPlot)) &&
+ 				(bCombat ? pUnit->canMoveOrAttackInto(*pPlot) : pUnit->canMoveInto(*pPlot)))
+@@ -2807,17 +2857,29 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 					(Note: it is important that units left behind are not in the original group.
+ 					The later code assumes that the original group has moved,
+ 					and if it hasn't, there will be an infinite loop.) */
+-				if (pStaticGroup != NULL && (isHuman() ||
+-					pStaticGroup->getHeadUnitAIType() == eHeadAI))
++				if (pBehindGroup != NULL &&
++					(bGroupAdvance || bAIControl || pUnit->canMove()) && // advc.153
++					(!bAIControl || pBehindGroup->getHeadUnitAIType() == eHeadAI))
+ 				{
+-					pUnit->joinGroup(pStaticGroup, true);
++					pUnit->joinGroup(pBehindGroup, true);
++				}  // <advc.153>
++				else if (!bGroupAdvance &&
++					pBehindGroupCannotMove != NULL && !bAIControl && !pUnit->canMove())
++				{
++					pUnit->joinGroup(pBehindGroupCannotMove, true);
+ 				}
++				else if (!bGroupAdvance &&
++					pBehindGroupCannotMove == NULL && !bAIControl && !pUnit->canMove())
++				{
++					pUnit->joinGroup(NULL, true);
++					pBehindGroupCannotMove = pUnit->getGroup();
++				} // </advc.153>
+ 				else
+ 				{
+ 					pUnit->joinGroup(NULL, true);
+-					pStaticGroup = pUnit->getGroup();
++					pBehindGroup = pUnit->getGroup();
+ 				}
+-				//
++				// K-Mod end
+ 			}
+ 			/*	K-Mod. If the unit is no longer in the original group;
+ 				then display it's movement animation now.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=10408

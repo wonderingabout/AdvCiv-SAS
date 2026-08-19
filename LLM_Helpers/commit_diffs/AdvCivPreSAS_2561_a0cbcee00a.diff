@@ -1,0 +1,124 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2561
+# Commit: a0cbcee00a5c2148440dbe24e043a8d856a4032c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: df2bccc6866d25b7024a148a06f9a15797a0b166
+# Title: Amend issues with sea level display text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	5	CvGameCoreDLL/CvInfo_Base.cpp
+3	4	CvGameCoreDLL/CvInfo_Base.h
+7	9	CvGameCoreDLL/CvInfo_GameOption.cpp
+1	1	CvGameCoreDLL/CvInfo_GameOption.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index fe16a807c..2dc6f1706 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -84,16 +84,20 @@ wchar const* CvInfoBase::getTextKeyWide() const
+ 	return m_szTextKey;
+ }
+ 
+-wchar const* CvInfoBase::getDescriptionInternal(uint uiForm) const
++/*	<advc.137> Split the original code so that derived classes don't need to worry
++	about the cache */
++wchar const* CvInfoBase::getDescription(uint uiForm) const
+ {
+ 	while(m_aCachedDescriptions.size() <= uiForm)
+-	{
+-		m_aCachedDescriptions.push_back(gDLL->getObjectText(m_szTextKey,
+-				m_aCachedDescriptions.size()));
+-	}
++		m_aCachedDescriptions.push_back(getDescriptionInternal());
+ 	return m_aCachedDescriptions[uiForm];
+ }
+ 
++CvWString CvInfoBase::getDescriptionInternal() const
++{
++	return gDLL->getObjectText(m_szTextKey, m_aCachedDescriptions.size());
++} // </advc.137>
++
+ wchar const* CvInfoBase::getText() const
+ {
+ 	// used instead of getDescription for Info entries that are not objects
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 7c6bdd1c6..4cf4d25bd 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -45,10 +45,9 @@ public: // All the const functions are exposed to Python
+ 	std::wstring pyGetStrategy() { return getStrategy(); }
+ 
+ 	DllExport wchar const* getTextKeyWide() const;
+-	DllExport wchar const* getDescription(uint uiForm = 0) const
+-	// <advc.137> Allow this to be overridden
+-	{ return getDescriptionInternal(uiForm); }
+-	virtual wchar const* getDescriptionInternal(uint uiForm) const; // </advc.137>
++	DllExport wchar const* getDescription(uint uiForm = 0) const;
++	// advc.137: Allow this to be overridden
++	virtual CvWString getDescriptionInternal() const;
+ 	DllExport wchar const* getText() const;
+ 	wchar const* getCivilopedia() const;
+ 	DllExport wchar const* getHelp() const;
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index 67822438c..5610c918b 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -1532,7 +1532,7 @@ bool CvSeaLevelInfo::read(CvXMLLoadUtility* pXML)
+ 	return true;
+ }
+ // advc.137: Include recommendation in description on Custom Game screen
+-wchar const* CvSeaLevelInfo::getDescriptionInternal(uint uiForm) const
++CvWString CvSeaLevelInfo::getDescriptionInternal() const
+ {
+ 	CvInitCore const& kInitCore = GC.getInitCore();
+ 	if (kInitCore.getActivePlayer() == NO_PLAYER &&
+@@ -1541,13 +1541,11 @@ wchar const* CvSeaLevelInfo::getDescriptionInternal(uint uiForm) const
+ 			and doesn't allow player counts to be adjusted.) */
+ 		kInitCore.getSlotStatus((PlayerTypes)0) == SS_OPEN)
+ 	{
+-		CvWString szTag;
+-		if (m_iSeaLevelChange < 0)
+-			szTag = L"TXT_KEY_SEALEVEL_LOW_RECOMMEND";
+-		else if (m_iSeaLevelChange > 0)
+-			szTag = L"TXT_KEY_SEALEVEL_HIGH_RECOMMEND";
+-		if (!szTag.empty())
+-			return gDLL->getText(szTag);
++		CvWString szTag = m_szTextKey + L"_RECOMMEND";
++		CvWString szText = gDLL->getText(szTag);
++		// If a text key with recommendation was found, show it.
++		if (szText != szTag)
++			return szText;
+ 	}
+-	return CvInfoBase::getDescriptionInternal(uiForm);
++	return CvInfoBase::getDescriptionInternal();
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 782e7e6f8..6189130a9 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -570,7 +570,7 @@ public:
+ 	int getSeaLevelChange() const; // Exposed to Python
+ 	inline int getResearchPercent() const { return m_iResearchPercent; } // advc.910
+ 	bool read(CvXMLLoadUtility* pXML);
+-	virtual wchar const* getDescriptionInternal(uint uiForm) const; // advc.137
++	virtual CvWString getDescriptionInternal() const; // advc.137
+ 
+ protected:
+ 	int m_iSeaLevelChange;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3848

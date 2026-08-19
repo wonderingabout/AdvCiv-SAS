@@ -1,0 +1,464 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1990
+# Commit: a8a8fb164cdfaf7e66730669783d5919b7edb2b6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8f753f67c2a0faa5974fd3890c11979e7d7a06cb
+# Title: ScaledInt uses MulDiv
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvCity.h
+2	2	CvGameCoreDLL/CvGame.h
+1	1	CvGameCoreDLL/CvMessageData.cpp
+88	68	CvGameCoreDLL/ScaledInt.h
+83	6	CvGameCoreDLL/ScaledIntTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index df419f801..282e0143b 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1147,7 +1147,11 @@ public:
+ 	CLLNode<OrderData>* nextOrderQueueNode(CLLNode<OrderData>* pNode) const
+ 	{
+ 		return m_orderQueue.next(pNode); // advc.inl
+-	}
++	}  // <advc.003s>
++	CLLNode<OrderData> const* nextOrderQueueNode(CLLNode<OrderData> const* pNode) const
++	{
++		return m_orderQueue.next(pNode);
++	} // </advc.003s>
+ 	CLLNode<OrderData>* headOrderQueueNode() const
+ 	{
+ 		return m_orderQueue.head(); // advc.inl
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 49d9dbe23..50be65d8e 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -623,11 +623,11 @@ public:
+ 	{
+ 		return m_mapRand.get(iNum, pszLog);
+ 	}
+-	inline CvRandom& getSorenRand()																								// Exposed to Python
++	CvRandom& getSorenRand()																								// Exposed to Python
+ 	{
+ 		return m_sorenRand;
+ 	}  // <advc> Shorter. "S" could also stand for "synchronized" (or "Soren"). (Tbd.: Move to CvGlobals.)
+-	CvRandom& getSRand()																										// Exposed to Python
++	inline CvRandom& getSRand()																										// Exposed to Python
+ 	{
+ 		return getSorenRand();
+ 	} // </advc>
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index 964ee2b87..2bcee6d1a 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -186,7 +186,7 @@ void CvNetPushOrder::Execute()
+ 		{
+ 			//pCity->pushOrder(m_eOrder, m_iData, -1, m_bAlt, !(m_bShift || m_bCtrl), m_bShift);
+ 			pCity->pushOrder(m_eOrder, m_iData, -1, m_bSave, m_bPop, m_iPosition); // K-Mod
+-			// K-Mod. We don't want automated cities to overrules our production choice.
++			// K-Mod. We don't want automated cities to overrule our production choice.
+ 			if (pCity->isHuman())
+ 				pCity->setChooseProductionDirty(false);
+ 			// K-Mod end
+
+diff --git a/CvGameCoreDLL/ScaledInt.h b/CvGameCoreDLL/ScaledInt.h
+index 4f4a4f697..28916bb65 100644
+--- a/CvGameCoreDLL/ScaledInt.h
++++ b/CvGameCoreDLL/ScaledInt.h
+@@ -8,15 +8,15 @@
+ // Large lookup table, but ScaledInt.h will eventually be precompiled.
+ #include "FixedPointPowTables.h"
+ 
+-/*  class ScaledInt: Approximates a fractional number as an integer times a scale factor.
+-	For fixed-point arithmetic that can't lead to network sync issues.
+-	Performance: Comparable to double (see ScaledIntTest.cpp) so long as the scale factor
+-	is a power of 2.
++/*  class ScaledInt: Approximates a fractional number as an integer multiplied by a
++	scale factor. For fixed-point arithmetic that can't lead to network sync issues.
++	Performance: Generally comparable to floating-point types when the scale factor is
++	a power of 2; see ScaledIntTest.cpp.
+ 	Overloads commonly used arithmetic operators and offers some conveniences that the
+ 	built-in types don't have, e.g. abs, clamp, approxEquals, bernoulliSuccess (coin flip).
+ 	Compile-time converter from double: macro 'fixp'
+ 	Conversion from percentage: macro 'per100' (also 'per1000', 'per10000')
+-	scaled_int typedef for default precision.
++	scaled_int and scaled_uint typedefs for default precision.
+ 
+ 	In code that uses Hungarian notation, I propose the prefix 'r' for
+ 	ScaledInt variables, or more generally for any types that represent
+@@ -41,11 +41,9 @@
+ 	differing template parameters.
+ 
+ 	For unsigned INT types, internal integer divisions are rounded to the nearest INT
+-	in order to improve precision. For signed INT types, only getInt rounds to the
+-	nearest int; the internal divisions round toward 0 in order to avoid a sign check
+-	(branching). That extra precision is important for the pow function. If it's
+-	important in client code, then the typedef scaled_uint can be used and unsigned int
+-	const expressions can be passed to the per100 macro.
++	in order to improve precision. For signed INT types, this isn't guaranteed. (But
++	ScaledInt::round always rounds to the nearest integer.) Using an unsigned INT type
++	also speeds up multiplication.
+ 
+ 	Tbd.: Perhaps overload more operators for mixed signed/unsigned INT operands.
+ 	If exactly one operand is signed, then the return type should be signed as well.
+@@ -71,6 +69,10 @@ public:
+ 	static inline ScaledInt<SCALE,INT> fromRational(int iNum)
+ 	{
+ 		ScaledInt<iDEN,INT> rRational;
++		if (!bSIGNED)
++		{
++			FAssert(iNum >= 0);
++		}
+ 		rRational.m_i = iNum;
+ 		return rRational;
+ 	}
+@@ -89,6 +91,11 @@ public:
+ 	__forceinline ScaledInt() : m_i(0) {}
+ 	__forceinline ScaledInt(int i) : m_i(SCALE * i)
+ 	{
++		// (Not sure if these assertions should be kept permanently)
++		if (!bSIGNED)
++		{
++			FAssert(i >= 0);
++		}
+ 		FAssertBounds(MIN / SCALE, MAX / SCALE + 1, i);
+ 	}
+ 	__forceinline ScaledInt(uint u) : m_i(SCALE * u)
+@@ -103,6 +110,10 @@ public:
+ 	template<int FROM_SCALE, class FROM_T>
+ 	__forceinline ScaledInt(ScaledInt<FROM_SCALE,FROM_T> rOther)
+ 	{
++		if (!bSIGNED && rOther.bSIGNED)
++		{
++			FAssert(rOther.m_i >= 0);
++		}
+ 		if (FROM_SCALE == SCALE)
+ 			m_i = static_cast<INT>(rOther.m_i);
+ 		else
+@@ -115,14 +126,14 @@ public:
+ 		}
+ 	}
+ 
+-	int getInt() const
++	__forceinline int getInt() const
+ 	{
+-		// Assumed to be used less frequently than scale conversion. Take the time to round.
+-		return (m_i + SCALE / (!bSIGNED || m_i > 0 ? 2 : -2)) / SCALE;
++		// Conversion to int shouldn't be extremely frequent; take the time to round.
++		return round();
+ 	}
+-	__forceinline round() const // Alias
++	int round() const
+ 	{
+-		return getInt();
++		return (m_i + SCALE / (!bSIGNED || m_i > 0 ? 2 : -2)) / SCALE;
+ 	}
+ 	// Cast operator - better require explicit calls to getInt.
+ 	/*__forceinline operator int() const
+@@ -168,6 +179,10 @@ public:
+ 
+ 	__forceinline void mulDiv(int iMultiplier, int iDivisor)
+ 	{
++		if (!bSIGNED)
++		{
++			FAssert(iMultiplier >= 0 && iDivisor >= 0);
++		}
+ 		m_i = toScale(m_i, iDivisor, iMultiplier);
+ 	}
+ 
+@@ -335,6 +350,7 @@ public:
+ 		m_i += rOther.m_i;
+ 		return *this;
+ 	}
++
+ 	__forceinline ScaledInt<SCALE,INT>& operator-=(ScaledInt<SCALE,INT> rOther)
+ 	{
+ 		/*FAssert(rOther >= 0 || m_i <= MAX + rOther.m_i);
+@@ -342,43 +358,7 @@ public:
+ 		m_i -= rOther.m_i;
+ 		return *this;
+ 	}
+-	__forceinline ScaledInt<SCALE,INT>& operator*=(ScaledInt<SCALE,INT> rOther)
+-	{
+-		if (std::numeric_limits<INT>::digits <= 32)
+-		{
+-			/*	According to my tests, MulDiv is slower than spelling the int32-int64
+-				conversion out. Perhaps MulDiv loses some time checking for overflow?
+-				I'll check in an assertion, but if the int64-to-int32 conversion fails,
+-				that's really the caller's responsibility. */
+-			/*int iNum = MulDiv(m_i, rOther.m_i, SCALE);
+-			//	-1 is how MulDiv indicates overflow, but could also be the legit result
+-			//	of -1/SCALE times 1/SCALE.
+-			FAssert(iNum != -1 || (m_i * rOther.m_i) / SCALE == -1);
+-			m_i = iNum;*/
+-			__int64 lNum = m_i;
+-			lNum = (lNum * rOther.m_i + (bSIGNED ? 0 : SCALE / 2)) / SCALE;
+-			FAssert(lNum >= MIN && lNum <= MAX);
+-			m_i = static_cast<INT>(lNum);
+-		}
+-		else
+-		{
+-			/*	If INT has more than 32 bit, then this might be fine.
+-				For __int32 and SCALE=1024, it would overflow already
+-				when computing 46*46. */
+-			FAssertBounds(MIN / rOther.m_i, MAX / rOther.m_i + 1, m_i);
+-			m_i *= rOther.m_i;
+-			if (!bSIGNED) // Round to nearest when sign doesn't need to be checked
+-				m_i += SCALE / 2;
+-			m_i /= SCALE;
+-		}
+-		/*	Another approach (when SCALE is a power of 2) would be to look for the
+-			least significant set bit in m_i and rOther.m_i in order to reduce
+-			(m_i*rOther.m_i)/SCALE. See comment about _BitScan elsewhere in this file. */
+-		/*	Another thought: Could add a bool template parameter to ScaledInt that
+-			enables the else branch above regardless of the size of INT --
+-			for client code where speed is essential and overflow impossible. */
+-		return *this;
+-	}
++
+ 	__forceinline ScaledInt<SCALE,INT>& operator/=(ScaledInt<SCALE,INT> rOther)
+ 	{
+ 		FAssertBounds(MIN / SCALE, MAX / SCALE + 1, m_i);
+@@ -390,6 +370,44 @@ public:
+ 		return *this;
+ 	}
+ 
++	__forceinline ScaledInt<SCALE,INT>& operator*=(ScaledInt<SCALE,INT> rOther)
++	{
++		/*	For INT=int and SCALE=1024, this would overflow already when squaring 45.5.
++			Perhaps do it only when std::numeric_limits<INT>::digits is
++			greater than some number?
++			Or add a bUNSAFE_MULT template parameter for client code where speed
++			is essential and overflow impossible. */
++		/*FAssertBounds(MIN / rOther.m_i, MAX / rOther.m_i + 1, m_i);
++		m_i *= rOther.m_i;
++		if (!bSIGNED)
++			m_i += SCALE / 2;
++		m_i /= SCALE;*/
++
++		if (bSIGNED)
++		{
++			/*__int64 lNum = m_i;
++			lNum *= rOther.m_i;
++			lNum /= SCALE; // This will call _alldiv, which involves a div.
++			FAssert(lNum >= MIN && lNum <= MAX);
++			m_i = static_cast<INT>(lNum);*/
++			// For bSIGNED, MulDiv seems to be a bit faster than the above.
++			int iNum = MulDiv(m_i, rOther.m_i, SCALE);
++			// -1 indicates overflow, but could also be the legit result of -1/SCALE times 1/SCALE.
++			FAssert(iNum != -1 || (m_i * rOther.m_i) / SCALE == -1);
++			m_i = iNum;
++		}
++		else
++		{
++			unsigned __int64 lNum = m_i;
++			lNum *= rOther.m_i;
++			lNum += SCALE / 2; // Round to nearest
++			lNum /= SCALE;
++			FAssert(lNum >= MIN && lNum <= MAX);
++			m_i = static_cast<INT>(lNum);
++		}
++		return *this;
++	}
++
+ 	__forceinline ScaledInt<SCALE,INT>& operator++()
+ 	{
+ 		(*this) += 1;
+@@ -511,27 +529,29 @@ private:
+ 	template<int OTHER_SCALE,class OTHER_INT>
+ 	friend class ScaledInt;
+ 
+-	__forceinline INT toScale(int iNum, int iFromScale, int iToScale = SCALE) const
++	static __forceinline INT toScale(int iNum, int iFromScale, int iToScale = SCALE)
+ 	{
+ 		// Akin to code in ctor(ScaledInt) and operator*=(ScaledInt)
+-		__int64 lNum = iNum;
+-		lNum *= iToScale;
+-		if (!bSIGNED)
++		if (bSIGNED)
++		{
++			int i = MulDiv(iNum, iToScale, iFromScale);
++			FAssert(i != -1 || (iNum * iToScale) / SCALE == -1);
++			return static_cast<INT>(i);
++		}
++		else
++		{
++			unsigned __int64 lNum = iNum;
++			lNum *= iToScale;
+ 			lNum += iFromScale / 2;
+-		lNum /= iFromScale;
+-		FAssert(lNum >= MIN && lNum <= MAX);
+-		return static_cast<INT>(lNum);
++			lNum /= iFromScale;
++			FAssert(lNum >= MIN && lNum <= MAX);
++			return static_cast<INT>(lNum);
++		}
+ 	}
+-	int toScaleRound(int iNum, int iFromScale, int iToScale = SCALE) const
++	static inline int toScaleRound(int iNum, int iFromScale, int iToScale = SCALE)
+ 	{
+-		__int64 lNum = iNum;
+-		lNum *= iToScale;
+-		if (!bSIGNED)
+-			lNum += iFromScale / 2;
+-		else lNum += iFromScale / (lNum >= 0 ? 2 : -2);
+-		lNum /= iFromScale;
+-		FAssert(lNum >= MIN && lNum <= MAX);
+-		return static_cast<int>(lNum);
++		// OK so long as toScale uses MulDiv (which rounds to nearest)
++		return static_cast<int>(toScale(iNum, iFromScale, iToScale));
+ 	}
+ 
+ 	ScaledInt<SCALE,INT> powNonNegative(int iExp) const
+
+diff --git a/CvGameCoreDLL/ScaledIntTest.cpp b/CvGameCoreDLL/ScaledIntTest.cpp
+index 2fecef413..801a6a27c 100644
+--- a/CvGameCoreDLL/ScaledIntTest.cpp
++++ b/CvGameCoreDLL/ScaledIntTest.cpp
+@@ -148,7 +148,7 @@ void TestScaledInt()
+ 	{
+ 		for (int i = 0; i < 10; i++)
+ 		{
+-			//TSC_PROFILE("MODIFIERS_BTS_STYLE"); // Result: 1104 cycles on average
++			//TSC_PROFILE("MODIFIERS_BTS_STYLE"); // Result: 927 cycles on average
+ 			int iCost = GC.getInfo((TechTypes)0).getResearchCost();
+ 			for (int j = i; j < 10; j++)
+ 			{
+@@ -181,8 +181,9 @@ void TestScaledInt()
+ 	{
+ 		for (int i = 0; i < 10; i++)
+ 		{
+-			//	Result: 950 cycles on average. 2403 with MulDiv, 910 without converting to 64b
+-			//	(which would be OK here b/c overflow won't occur with 32b). */
++			//	Result: 2855 cycles on average with MulDiv. 3932 with cast to __int64.
++			//	1584 for scaled_uint, 1045 for scaled_uint w/o overflow handling.
++			//	892 if the per100 arguments are also cast to uint.
+ 			//TSC_PROFILE("MODIFIERS_SCALED");
+ 			scaled_uint rCost = GC.getInfo((TechTypes)0).getResearchCost();
+ 			for (int j = i; j < 10; j++)
+@@ -208,7 +209,7 @@ void TestScaledInt()
+ 	{
+ 		for (int i = 0; i < 10; i++)
+ 		{
+-			//TSC_PROFILE("MODIFIERS_DOUBLE"); // Result: 944 cycles on average
++			//TSC_PROFILE("MODIFIERS_DOUBLE"); // Result: 659 cycles on average
+ 			double dCost = GC.getInfo((TechTypes)0).getResearchCost();
+ 			for (int j = i; j < 10; j++)
+ 			{
+@@ -233,7 +234,7 @@ void TestScaledInt()
+ 	{
+ 		for (int i = 0; i < 10; i++)
+ 		{
+-			//TSC_PROFILE("MODIFIERS_FLOAT"); // Result: 8146 cycles on average (on AMD Athlon X4 750K)
++			//TSC_PROFILE("MODIFIERS_FLOAT"); // Result: 641 cycles on average
+ 			double fCost = GC.getInfo((TechTypes)0).getResearchCost();
+ 			for (int j = i; j < 10; j++)
+ 			{
+@@ -244,7 +245,7 @@ void TestScaledInt()
+ 				fCost *= (100 + GC.getInfo(eTechEra).getTechCostModifier()) / 100.f;
+ 				fCost *= GC.getInfo((WorldSizeTypes)0).getResearchPercent() / 100.f;
+ 				fCost *= GC.getInfo((SeaLevelTypes)0).getResearchPercent() / 100.f;
+-				fCost *= 1.05;
++				fCost *= 1.05f;
+ 				fCost *= GC.getInfo((GameSpeedTypes)0).getResearchPercent() / 100.f;
+ 				fCost *= GC.getInfo((EraTypes)0).getResearchPercent() / 100.f;
+ 				fCost *= (GC.getDefineINT(
+@@ -256,6 +257,82 @@ void TestScaledInt()
+ 		}
+ 	}
+ 
++	// More modifier measurements; mostly compile-time constants this time.
++	{
++		for (int i = 0; i < 10; i++)
++		{
++			//TSC_PROFILE("CONST_MODIFIERS_BTS_STYLE"); // Result: 647 cycles on average
++			int iCost = GC.getInfo((TechTypes)0).getResearchCost();
++			for (int j = i; j < 10; j++)
++			{
++				iCost += j;
++				iCost *= 125;
++				iCost /= 100;
++				iCost *= GC.getInfo((HandicapTypes)0).getAIResearchPercent();
++				iCost /= 100;
++				iCost *= 75;
++				iCost /= 100;
++				iCost *= 200;
++				iCost /= 100;
++				iCost *= GC.getInfo((SeaLevelTypes)0).getResearchPercent();
++				iCost /= 100;
++				iCost *= 67;
++				iCost /= 100;
++				iCost *= GC.getInfo((GameSpeedTypes)0).getResearchPercent();
++				iCost /= 100;
++				iCost *= 80;
++				iCost /= 100;
++				iCost = range(iCost, 10, 2000);
++			}
++			iDummy += iCost;
++		}
++	}
++	{
++		for (int i = 0; i < 10; i++)
++		{
++			//	Result: 2087 cycles on average (scaled_int w/ MulDiv).
++			//	672 for scaled_uint, 579 for scaled_uint w/o overflow handling.
++			//	394 if the per100 arguments are also cast to uint.
++			//TSC_PROFILE("CONST_MODIFIERS_SCALED");
++			scaled_int rCost = GC.getInfo((TechTypes)0).getResearchCost();
++			for (int j = i; j < 10; j++)
++			{
++				rCost += j;
++				rCost *= per100(125);
++				rCost *= per100(GC.getInfo((HandicapTypes)0).getAIResearchPercent());
++				rCost *= per100(75);
++				rCost *= per100(200);
++				rCost *= per100(GC.getInfo((SeaLevelTypes)0).getResearchPercent());
++				rCost *= fixp(2/3.);
++				rCost *= per100(GC.getInfo((GameSpeedTypes)0).getResearchPercent());
++				rCost *= per100(80);
++				rCost.clamp(10, 2000);
++			}
++			iDummy += rCost.round();
++		}
++	}
++	{
++		for (int i = 0; i < 10; i++)
++		{
++			//TSC_PROFILE("CONST_MODIFIERS_DOUBLE"); // Result: 491 cycles on average
++			double dCost = GC.getInfo((TechTypes)0).getResearchCost();
++			for (int j = i; j < 10; j++)
++			{
++				dCost += j;
++				dCost *= 1.25;
++				dCost *= GC.getInfo((HandicapTypes)0).getAIResearchPercent() / 100.;
++				dCost *= 0.75;
++				dCost *= 2.;
++				dCost *= GC.getInfo((SeaLevelTypes)0).getResearchPercent() / 100.;
++				dCost *= 2/3.;
++				dCost *= GC.getInfo((GameSpeedTypes)0).getResearchPercent() / 100.;
++				dCost *= 0.8;
++				dCost = dRange(dCost, 10, 2000);
++			}
++			iDummy += (int)dCost;
++		}
++	}
++
+ 	// Syntax test
+ 	/*	Based on some calculations in InvasionGraph::step. Out of context,
+ 		the excerpts used here and their names are nonsensical. */
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=15589

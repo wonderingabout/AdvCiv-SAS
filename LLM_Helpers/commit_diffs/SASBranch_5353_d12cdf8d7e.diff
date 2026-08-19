@@ -1,0 +1,2097 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5353
+# Commit: d12cdf8d7eff63dd45c3dac1a7f744aca865232f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 37caed0b06d2f14b9fa96b5c71cd8b53eb6940eb
+# Title: beautify and add new Civilopedia XML field in BuildInfos, and other changes - add FeatureStructs panels, with mod-agnostic blurbs (generated with the help of...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	.gitattributes
+14	14	.gitignore
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/SevopediaLead_derExamplesOfOutputs.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaBonus-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaBuilding-gc-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaBuilding-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaFeature-gc-buildinfo-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaFeature-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaImprovement-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaLeader-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaTech-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaUnit-gc-inner-debug-content.txt
+0	0	Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevopediaProject-gc-inner-debug-content.txt
+3	9	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+138	71	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+22	28	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	3	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+10	17	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+31	3	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+5	9	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+1	3	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+11	16	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+1	3	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+21	28	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+1	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+92	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+141	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+45	22	Assets/XML/Units/CIV4BuildInfos.xml
+1	0	Assets/XML/Units/CIV4UnitSchema.xml
+1	1	README.md
+2	2	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+4	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_References.md
+12	4	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/SevopediaLead_derExamplesOfOutputs.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaBonus-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaBuilding-gc-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaBuilding-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaFeature-gc-buildinfo-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaFeature-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaImprovement-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaLeader-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaTech-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevoPediaUnit-gc-inner-debug-content.txt (100%)
+ rename Assets/Python/Contrib/Sevopedia/{ => Debug}/__SevopediaProject-gc-inner-debug-content.txt (100%)
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 3677c2c5b..0d01b069a 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -40,11 +40,11 @@
+ /.claude/             export-ignore
+ /AGENTS.md            export-ignore
+ 
+-/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
+-/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                              export-ignore
+-/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/                export-ignore
+-/_0_Common_Docs/git_logs/                                               export-ignore
+-/_1_AdvCiv-SAS/git_logs/                                                export-ignore
+-/_1_AdvCiv-SAS/Docs/Modding_Ressources/                                 export-ignore
+-/Assets/Res/Fonts/other_mods/                                           export-ignore
+-/Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt export-ignore
++/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                export-ignore
++/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                export-ignore
++/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/  export-ignore
++/_0_Common_Docs/git_logs/                                 export-ignore
++/_1_AdvCiv-SAS/git_logs/                                  export-ignore
++/_1_AdvCiv-SAS/Docs/Modding_Ressources/                   export-ignore
++/Assets/Res/Fonts/other_mods/                             export-ignore
++/Assets/Python/Contrib/Sevopedia/Debug/                   export-ignore
+
+diff --git a/.gitignore b/.gitignore
+index fe6e98f92..6c72606e0 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,20 +2,20 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-.vs/
+-Assert/
+-Assert-fast/
+-Debug/
+-Debug-fast/
+-Debug-Opt/
+-Final_Release/
+-Final_Release-fast/
+-obj/
+-Profile/
+-Profile-fast/
+-Release/
+-_Release-fast/
+-temp_files/
++# <!-- custom: use absolute paths as unrelated folders are getting incorrectly git ignored. -->
++/CvGameCoreDLL/Project/Assert/
++/CvGameCoreDLL/Project/Assert-fast/
++/CvGameCoreDLL/Project/Debug/
++/CvGameCoreDLL/Project/Debug-fast/
++/CvGameCoreDLL/Project/Debug-Opt/
++/CvGameCoreDLL/Project/Final_Release/
++/CvGameCoreDLL/Project/Final_Release-fast/
++/CvGameCoreDLL/Project/obj/
++/CvGameCoreDLL/Project/Profile/
++/CvGameCoreDLL/Project/Profile-fast/
++/CvGameCoreDLL/Project/Release/
++/CvGameCoreDLL/Project/_Release-fast/
++/CvGameCoreDLL/Project/temp_files/
+ *.opensdf
+ *.sdf
+ *.suo
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt b/Assets/Python/Contrib/Sevopedia/Debug/SevopediaLead_derExamplesOfOutputs.txt reason=known-generated/noisy-history changedLines=0 bytes=354
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaBonus-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-buildinfo-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-buildinfo-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaImprovement-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner-debug-content.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/__SevopediaProject-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner-debug-content.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 9d72abb65..3bf392d77 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -398,8 +398,6 @@ class SevoPediaBonus:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -410,7 +408,7 @@ class SevoPediaBonus:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+@@ -452,8 +450,6 @@ class SevoPediaBonus:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -464,7 +460,7 @@ class SevoPediaBonus:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+@@ -507,8 +503,6 @@ class SevoPediaBonus:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -519,7 +513,7 @@ class SevoPediaBonus:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index e9892e543..50be9bc44 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -32,40 +32,52 @@ class SevoPediaBuild:
+ 
+ 		self.X_BUILD_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_BUILD_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_BUILD_PANE = 210
+-		self.H_BUILD_PANE = 210
++		self.W_BUILD_PANE = 330
++		self.H_BUILD_PANE = 127
+ 
+-		self.W_ICON = 150
+-		self.H_ICON = 150
+-		self.X_ICON = self.X_BUILD_PANE + (self.H_BUILD_PANE - self.H_ICON) / 2
+-		self.Y_ICON = self.Y_BUILD_PANE + (self.H_BUILD_PANE - self.H_ICON) / 2
++		self.W_ICON = 100
++		self.H_ICON = 100
++		self.X_ICON = self.X_BUILD_PANE + 10
++		self.Y_ICON = self.Y_BUILD_PANE + 10
+ 		self.ICON_SIZE = 64
++		self.X_INFO_TEXT = self.X_BUILD_PANE + 110
++		self.Y_INFO_TEXT = self.Y_ICON + 15
++		self.W_INFO_TEXT = self.W_BUILD_PANE - 120
++		self.H_INFO_TEXT = self.H_BUILD_PANE - 20
+ 
+-		remainingW = self.top.R_PEDIA_PAGE - self.X_BUILD_PANE - self.W_BUILD_PANE - (2 * self.MEDIUM_MARGIN)
+ 		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + self.MEDIUM_MARGIN
+ 		self.Y_REQUIRES = self.Y_BUILD_PANE
+-		self.W_REQUIRES = (remainingW - self.MEDIUM_MARGIN) / 2
++		self.W_REQUIRES = 84
+ 		self.H_REQUIRES = self.H_BUILD_PANE
+ 
+-		self.X_RESULTS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+-		self.Y_RESULTS = self.Y_BUILD_PANE
+-		self.W_RESULTS = remainingW - self.W_REQUIRES - self.MEDIUM_MARGIN
+-		self.H_RESULTS = self.H_BUILD_PANE
++		self.X_IMPROVEMENTS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.Y_IMPROVEMENTS = self.Y_BUILD_PANE
++		self.W_IMPROVEMENTS = 84
++		self.H_IMPROVEMENTS = self.H_BUILD_PANE
+ 
+-		self.X_FEATURE_REMOVALS = self.X_BUILD_PANE
+-		self.Y_FEATURE_REMOVALS = self.Y_BUILD_PANE + self.H_BUILD_PANE + self.SMALL_MARGIN
+-		self.W_FEATURE_REMOVALS = self.top.R_PEDIA_PAGE - self.X_BUILD_PANE
+-		self.H_FEATURE_REMOVALS = 110
++		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + self.MEDIUM_MARGIN
++		self.Y_UNITS_BUILD = self.Y_BUILD_PANE
++		self.W_UNITS_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_BUILD
++		self.H_UNITS_BUILD = self.H_BUILD_PANE
++
++		self.X_FEATURE_STRUCTS = self.X_BUILD_PANE
++		self.Y_FEATURE_STRUCTS = self.Y_BUILD_PANE + self.H_BUILD_PANE + self.SMALL_MARGIN
++		self.W_FEATURE_STRUCTS = self.top.R_PEDIA_PAGE - self.X_FEATURE_STRUCTS
++		self.H_FEATURE_STRUCTS = 350
+ 
+ 		self.X_SPECIAL = self.X_BUILD_PANE
+-		self.Y_SPECIAL = self.Y_FEATURE_REMOVALS + self.H_FEATURE_REMOVALS + self.SMALL_MARGIN
+-		self.W_SPECIAL = (self.top.R_PEDIA_PAGE - self.X_BUILD_PANE - self.MEDIUM_MARGIN) / 2
++		self.Y_SPECIAL = self.Y_FEATURE_STRUCTS + self.H_FEATURE_STRUCTS + self.SMALL_MARGIN
++		self.W_SPECIAL = self.W_BUILD_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+ 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+ 		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
++		self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN = 20
++		self.FEATURE_STRUCT_BUTTON_ROW_H = 64
++		self.FEATURE_STRUCT_PANEL_HEADER_H = 28
++		self.FEATURE_STRUCT_BUTTON_TOP_REL = self.H_FEATURE_STRUCTS - self.FEATURE_STRUCT_PANEL_HEADER_H - self.FEATURE_STRUCT_BUTTON_ROW_H - self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN
+ 
+ 
+ 	def interfaceScreen(self, iBuild):
+@@ -73,18 +85,26 @@ class SevoPediaBuild:
+ 
+ 		self.placeBuildPane()
+ 		self.placeRequires()
+-		self.placeResults()
+-		self.placeFeatureRemovals()
++		self.placeImprovements()
++		self.placeUnitsBuild()
++		self.placeFeatureStructs()
+ 		self.placeSpecial()
+ 		self.placeHistory()
+ 
+ 
+ 	def placeBuildPane(self):
+ 		screen = self.top.getScreen()
++		buildInfo = gc.getBuildInfo(self.iBuild)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_BUILD_PANE, self.Y_BUILD_PANE, self.W_BUILD_PANE, self.H_BUILD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+ 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBuildInfo(self.iBuild).getButton(), self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
++		panel = self.top.getNextWidgetName()
++		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
++		screen.enableSelect(panel, False)
++		screen.appendListBoxString(panel, u"<font=4b>" + buildInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_BUILD", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 
+ 	def placeRequires(self):
+ 		screen = self.top.getScreen()
+@@ -94,21 +114,12 @@ class SevoPediaBuild:
+ 
+ 		buildInfo = gc.getBuildInfo(self.iBuild)
+ 		bFound = False
+-		seenTechs = {}
+ 
+ 		iTech = buildInfo.getTechPrereq()
+ 		if iTech > -1:
+ 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+-			seenTechs[iTech] = 1
+ 			bFound = True
+ 
+-		for iFeature in xrange(gc.getNumFeatureInfos()):
+-			iFeatureTech = buildInfo.getFeatureTech(iFeature)
+-			if iFeatureTech > -1 and not seenTechs.has_key(iFeatureTech):
+-				screen.attachImageButton(panelName, "", gc.getTechInfo(iFeatureTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iFeatureTech, 1, False)
+-				seenTechs[iFeatureTech] = 1
+-				bFound = True
+-
+ 		if not bFound:
+ 			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+@@ -117,10 +128,10 @@ class SevoPediaBuild:
+ 			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+-	def placeResults(self):
++	def placeImprovements(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD_RESULTS", ()), "", False, True, self.X_RESULTS, self.Y_RESULTS, self.W_RESULTS, self.H_RESULTS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+ 		buildInfo = gc.getBuildInfo(self.iBuild)
+@@ -148,54 +159,108 @@ class SevoPediaBuild:
+ 			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_RESULTS + (self.H_RESULTS / 2)
+-			screen.addMultilineText(textName, szText, self.X_RESULTS + 7, yPanelCenter, self.W_RESULTS - 14, self.H_RESULTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
++			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+-	def placeFeatureRemovals(self):
++	def placeUnitsBuild(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES", ()), "", False, True, self.X_FEATURE_REMOVALS, self.Y_FEATURE_REMOVALS, self.W_FEATURE_REMOVALS, self.H_FEATURE_REMOVALS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_BUILD", ()), "", False, True, self.X_UNITS_BUILD, self.Y_UNITS_BUILD, self.W_UNITS_BUILD, self.H_UNITS_BUILD, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
+ 
+-		rowListName = self.top.getNextWidgetName()
++		iActivePlayer = gc.getGame().getActivePlayer()
++		bUnitFound = False
+ 
+-		BUTTON_SIZE = 64
+-		multiListX = self.X_FEATURE_REMOVALS + MULTI_LIST_PANEL_OFFSET_X
+-		multiListY = self.Y_FEATURE_REMOVALS + MULTI_LIST_PANEL_OFFSET_Y
+-		multiListW = self.W_FEATURE_REMOVALS + MULTI_LIST_PANEL_ADDITIONAL_W
+-		multiListH = self.H_FEATURE_REMOVALS + MULTI_LIST_PANEL_ADDITIONAL_H
+-		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		for iUnit in xrange(gc.getNumUnitInfos()):
++			unitInfo = gc.getUnitInfo(iUnit)
++			if unitInfo.isGraphicalOnly():
++				continue
++			if unitInfo.getBuilds(self.iBuild):
++				szButton = unitInfo.getButton()
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				bUnitFound = True
++
++		if not bUnitFound:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_UNITS_BUILD + (self.H_UNITS_BUILD / 2)
++			screen.addMultilineText(textName, szText, self.X_UNITS_BUILD + 7, yPanelCenter, self.W_UNITS_BUILD - 14, self.H_UNITS_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++
++	def placeFeatureStructs(self):
++		screen = self.top.getScreen()
+ 		buildInfo = gc.getBuildInfo(self.iBuild)
+-		bFound = False
+-		iButtonIndex = 0
++		featureStructs = []
+ 
+ 		for iFeature in xrange(gc.getNumFeatureInfos()):
+ 			featureInfo = gc.getFeatureInfo(iFeature)
+ 			if featureInfo.isGraphicalOnly():
+ 				continue
+ 
+-			iFeatureTime = buildInfo.getFeatureTime(iFeature)
+-			if buildInfo.isFeatureRemove(iFeature) or iFeatureTime > 0:
+-				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, featureInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+-
+-				if iFeatureTime > 0:
+-					numTxt = str(iFeatureTime)
+-					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+-
+-				bFound = True
+-				iButtonIndex += 1
++			featureTech = buildInfo.getFeatureTech(iFeature)
++			featureTime = buildInfo.getFeatureTime(iFeature)
++			featureProduction = buildInfo.getFeatureProduction(iFeature)
++			bRemove = buildInfo.isFeatureRemove(iFeature)
++			if bRemove or featureTech > -1 or featureTime > 0 or featureProduction > 0:
++				featureStructs.append((iFeature, featureTech, featureTime, featureProduction, bRemove))
++
++		if len(featureStructs) == 0:
++			return
++
++		panelCount = len(featureStructs)
++		panelW = (self.W_FEATURE_STRUCTS - ((panelCount - 1) * self.MEDIUM_MARGIN)) / panelCount
++		panelH = self.H_FEATURE_STRUCTS
++		panelY = self.Y_FEATURE_STRUCTS
++		textMarginX = 7
++		textTop = panelY + 28
++		buttonRowH = self.FEATURE_STRUCT_BUTTON_ROW_H
++		buttonTopRel = self.FEATURE_STRUCT_BUTTON_TOP_REL
++
++		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
++			featureInfo = gc.getFeatureInfo(iFeature)
++			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + self.MEDIUM_MARGIN))
++			panelTitle = u"%s: %s" % (localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO", ()), featureInfo.getDescription())
++			panelName = self.top.getNextWidgetName()
++			screen.addPanel(panelName, panelTitle, "", False, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
++			screen.attachLabel(panelName, "", "  ")
++
++			lines = []
++			bullet = localText.getText("[ICON_BULLET]", ())
++			lines.append(u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE", ()), featureInfo.getDescription()))
++			if featureTime > 0:
++				lines.append(u"%s%s: %d" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_TIME", ()), featureTime))
++			if featureProduction > 0:
++				lines.append(u"%s+%d%s %s" % (bullet, featureProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())))
++			if bRemove and featureTime == 0 and featureProduction == 0:
++				lines.append(u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE", ())))
+ 
+-		if not bFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_FEATURE_REMOVALS + (self.H_FEATURE_REMOVALS / 2)
+-			screen.addMultilineText(textName, szText, self.X_FEATURE_REMOVALS + 7, yPanelCenter, self.W_FEATURE_REMOVALS - 14, self.H_FEATURE_REMOVALS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			text = u"\n".join(lines)
++			textH = (panelY + buttonTopRel) - textTop - 6
++			if textH < 20:
++				textH = 20
++			screen.addMultilineText(textName, text, panelX + textMarginX, textTop, panelW - (textMarginX * 2), textH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++			buttons = []
++			if featureTech > -1:
++				buttons.append(("tech", featureTech, gc.getTechInfo(featureTech).getButton()))
++			buttons.append(("feature", iFeature, featureInfo.getButton()))
++
++			if len(buttons) > 0:
++				buttonSpacing = 4
++				buttonRowW = (len(buttons) * buttonRowH) + ((len(buttons) - 1) * buttonSpacing)
++				buttonXStart = (panelW - buttonRowW) / 2
++
++				for iButtonIndex, (buttonType, buttonId, buttonArt) in enumerate(buttons):
++					x = buttonXStart + (iButtonIndex * (buttonRowH + buttonSpacing))
++					if buttonType == "tech":
++						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, buttonId, 1)
++					else:
++						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, buttonId, 1)
+ 
+ 
+ 	def placeSpecial(self):
+@@ -204,17 +269,19 @@ class SevoPediaBuild:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD_INFO", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+ 		buildInfo = gc.getBuildInfo(self.iBuild)
+-		szSpecialText = buildInfo.getHelp()
+-		if not szSpecialText:
+-			szSpecialText = u""
++		szSpecialText = u""
+ 
+-		szStrategy = buildInfo.getStrategy()
+-		if szStrategy:
++		bullet = localText.getText("[ICON_BULLET]", ())
++		iImprovement = buildInfo.getImprovement()
++		if iImprovement > -1:
++			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_IMPROVEMENT", ()), gc.getImprovementInfo(iImprovement).getDescription())
++
++		iRoute = buildInfo.getRoute()
++		if iRoute > -1:
+ 			if szSpecialText.strip():
+ 				szSpecialText += u"\n"
+-			szSpecialText += szStrategy
++			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_ROUTE", ()), gc.getRouteInfo(iRoute).getDescription())
+ 
+-		bullet = localText.getText("[ICON_BULLET]", ())
+ 		iTime = buildInfo.getTime()
+ 		if iTime > 0:
+ 			if szSpecialText.strip():
+@@ -233,7 +300,7 @@ class SevoPediaBuild:
+ 			szSpecialText += u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_KILL_WORKER", ()))
+ 
+ 		listName = self.top.getNextWidgetName()
+-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL - 13, self.W_SPECIAL - 10, self.H_SPECIAL - 10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 	def placeHistory(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 5cf391ff4..7924c29ee 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -562,8 +562,6 @@ class SevoPediaBuilding:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -574,13 +572,13 @@ class SevoPediaBuilding:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		for iPrereqTech in xrange(gc.getNumTechInfos()):
+ 			if isTechRequiredForBuilding(iPrereqTech, self.iBuilding):
+@@ -626,8 +624,8 @@ class SevoPediaBuilding:
+ 					if not bFirst:
+ 						numTxt = localText.getText("TXT_KEY_OR", ())
+ 						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
+-						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
+-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(MULTILIST_BUTTON_SIZE)
++						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 					else:
+ 						bFirst = False
+ 
+@@ -664,8 +662,8 @@ class SevoPediaBuilding:
+ 						# Also since our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe. -->
+ 						numTxt = localText.getText("TXT_KEY_OR", ())
+ 						# <!-- custom: "or" numTxt aligned between this button and the previous one -->
+-						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
+-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(MULTILIST_BUTTON_SIZE)
++						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 					else:
+ 						bFirst = False
+ 
+@@ -689,7 +687,7 @@ class SevoPediaBuilding:
+ 
+ 					numTxt = "InC"
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					isButtonFound = True
+ 					iButtonIndex += 1
+@@ -710,7 +708,7 @@ class SevoPediaBuilding:
+ 
+ 					numTxt = "AllC %s+RM" % iNumRequired
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					isButtonFound = True
+ 					iButtonIndex += 1
+@@ -766,8 +764,6 @@ class SevoPediaBuilding:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -778,13 +774,13 @@ class SevoPediaBuilding:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 		
+ 		# Get the building class of our current building
+ 		iCurrentBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
+@@ -801,7 +797,7 @@ class SevoPediaBuilding:
+ 
+ 				numTxt = "InC"
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -815,7 +811,7 @@ class SevoPediaBuilding:
+ 
+ 				numTxt = "AllC %s+RM" % iNumRequired
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -834,7 +830,7 @@ class SevoPediaBuilding:
+ 				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
+ 					numTxt = "(!)Civic(s)"
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				# <!-- custom: else do not display any numTxt, and just proceed in all cases -->
+ 				isButtonFound = True
+@@ -904,8 +900,6 @@ class SevoPediaBuilding:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -916,13 +910,13 @@ class SevoPediaBuilding:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# Get the building info
+ 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+@@ -936,7 +930,7 @@ class SevoPediaBuilding:
+ 
+ 			numTxt = "All Un.C"
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			isButtonFound = True
+ 			iButtonIndex += 1
+@@ -954,7 +948,7 @@ class SevoPediaBuilding:
+ 
+ 				numTxt = "All Cs"
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -971,7 +965,7 @@ class SevoPediaBuilding:
+ 
+ 			numTxt = get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			isButtonFound = True
+ 			iButtonIndex += 1
+@@ -987,7 +981,7 @@ class SevoPediaBuilding:
+ 
+ 				numTxt = "%d" % iSpecialistCount
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 6b190a1a0..a3fdff399 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -127,8 +127,6 @@ class SevoPediaCivic:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -139,7 +137,7 @@ class SevoPediaCivic:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Find all leaders who have this civic as favorite
+ 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 9ea3c23bf..d4bd61504 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -112,14 +112,12 @@ class SevoPediaFeature:
+ 		self.W_BONUSES_ON_ANY_TERRAIN = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
+ 		self.H_BONUSES_ON_ANY_TERRAIN = self.H_FEATURES
+ 
+-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
+-		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+-
+ 		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new sevopedia terrain implementation -->
+ 		self.X_RELEVANT_UNITS = self.X_BONUSES_ON_ANY_TERRAIN
+ 		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + self.SMALL_MARGIN
+ 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
+-		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
++		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
++		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
+ 
+ 		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
+ 		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
+@@ -296,7 +294,7 @@ class SevoPediaFeature:
+ 
+ 				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
+ 				if removeProduction > 0:
+-					szSpecialText += u"%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
++					szSpecialText += u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ()))
+ 
+ 				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or iTime based one -->
+ 				break
+@@ -369,9 +367,6 @@ class SevoPediaFeature:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
+-		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -382,13 +377,13 @@ class SevoPediaFeature:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		#isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# <!-- custom: handle feature(s) that is (are) impassable such as of now only the ice cap feature quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences, see code comments at sevopedia feature's placeUnitsImpassable -->
+ 		# <!-- custom: handle features with promotions or other specific effects separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on -->
+@@ -418,7 +413,7 @@ class SevoPediaFeature:
+ 
+ 					numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+@@ -464,7 +459,7 @@ class SevoPediaFeature:
+ 							numTxt = s
+ 
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+@@ -486,7 +481,7 @@ class SevoPediaFeature:
+ 
+ 					numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+@@ -513,8 +508,6 @@ class SevoPediaFeature:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -525,7 +518,7 @@ class SevoPediaFeature:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		iIce = self.I_FEATURE_ICE
+ 		if self.iFeature == iIce:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index aae70223a..03e3929cc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -74,9 +74,14 @@ class SevoPediaImprovement:
+ 		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 0.7
+ 
+-		self.X_REQUIRES = self.X_IMPROVEMENT_PANE
+-		self.Y_REQUIRES = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
+-		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION
++		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE
++		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
++		self.W_BUILD_PANEL = 84
++		self.H_BUILD_PANEL = self.H_REQUIRES
++
++		self.X_REQUIRES = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
++		self.Y_REQUIRES = self.Y_BUILD_PANEL
++		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION - self.W_BUILD_PANEL - self.MEDIUM_MARGIN
+ 
+ 		self.X_MOST_YIELDS = self.X_IMPROVEMENT_PANE
+ 		self.Y_MOST_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+@@ -109,6 +114,7 @@ class SevoPediaImprovement:
+ 		self.placeSpecial()
+ 		self.placeBonusYields()
+ 		self.placeImprovementAnimation()
++		self.placeBuilds()
+ 		self.placeRequires()
+ 		self.placeMostYields()
+ 		self.placeTerrainMakesValids()
+@@ -223,6 +229,28 @@ class SevoPediaImprovement:
+ 
+ 
+ 
++	def placeBuilds(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILD", ()), "", False, True, self.X_BUILD_PANEL, self.Y_BUILD_PANEL, self.W_BUILD_PANEL, self.H_BUILD_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		bButtonFound = False
++		for iBuild in range(gc.getNumBuildInfos()):
++			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
++				buildInfo = gc.getBuildInfo(iBuild)
++				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
++				bButtonFound = True
++
++		if not bButtonFound:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_BUILD_PANEL + (self.H_BUILD_PANEL / 2)
++			screen.addMultilineText(textName, szText, self.X_BUILD_PANEL + 7, yPanelCenter, self.W_BUILD_PANEL - 14, self.H_BUILD_PANEL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeRequires(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 2a7d76132..1e1cb0982 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -43,7 +43,7 @@ IS_DISPLAY_AI_CATEGORY_HEADERS = True
+ IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
+ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
+ 
+-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk code is there if you want to know what it does with also a debug sample (non-exhaustive but hopefully quite plenty) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to work fine, available there if needed, for my own hard drive too. -->
++# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times -->
+ IS_DEBUG_LEADER = False
+ 
+ # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization, so set B_WARN to false -->
+@@ -763,7 +763,7 @@ def _compute_leader_cache_internal():
+ 
+ 	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
+ 
+-	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps (see SevopediaLead_derExamplesOfOutputs.txt or whichever file it is named if still in this mod Sevopedia folder for example of outputs), so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
++	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps, so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index ba12abe1d..697eb3f36 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1057,8 +1057,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		iEra = -1
+ 
+ 		# Main AND prereq tech (<PrereqTech>)
+-		# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate -->
+-		# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
++		# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically -->
++		# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (see as of now Sevopedia/Debug/): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
+ 		# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
+ 		# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
+ 		# Additional sanity check: we also tested <PrereqTech>NONE</PrereqTech> with an existing TechTypes prereq (i.e. only the <TechTypes> prereq was set), and the building was still listed under the correct era, confirming the fallback scan of getPrereqAndTechs(i) works even when the main <PrereqTech> is NONE. -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index fa7365740..908c3f8ab 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -168,8 +168,6 @@ class SevoPediaPromotion:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -180,13 +178,13 @@ class SevoPediaPromotion:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually
++		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
+ 		# Loop through all units to find those with this promotion
+@@ -227,8 +225,6 @@ class SevoPediaPromotion:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -239,12 +235,12 @@ class SevoPediaPromotion:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		#iButtonIndex = 0
+ 
+-		## <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
+ 		#maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# <!-- custom: code provided by claude ai thanks to my prompts or such, that i adjusted or not or yes or etc, check if accurate -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 4c7828c2d..72f652161 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -138,8 +138,6 @@ class SevoPediaReligion:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -150,7 +148,7 @@ class SevoPediaReligion:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: (not catch them all... or maybe.. or not or yes... xd) -->
+ 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index f58745ba2..4442ad9a3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -66,17 +66,17 @@ class SevoPediaTerrain:
+ 		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
+ 
+ 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
+-		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
++		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
+ 
+ 		self.X_RELEVANT_UNITS = self.X_FEATURES
+ 		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + self.SMALL_MARGIN
+ 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
+-		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
++		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
+ 
+ 		self.X_UNITS_IMPASSABLE = self.X_FEATURES
+ 		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+-		self.H_UNITS_IMPASSABLE = self.H_FEATURES
++		self.H_UNITS_IMPASSABLE = self.H_FEATURES + HIDE_SECOND_ROW_MULTI_LIST
+ 
+ 		self.X_SPECIAL = self.X_INFO_PANE
+ 		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+@@ -400,9 +400,6 @@ class SevoPediaTerrain:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
+-		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -413,13 +410,13 @@ class SevoPediaTerrain:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		#isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		iPeak = self.I_TERRAIN_PEAK
+ 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
+@@ -455,7 +452,7 @@ class SevoPediaTerrain:
+ 
+ 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 						extraCorrectionX = get_extra_correction_x(numTxt)
+-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 						#isButtonFound = True
+ 						iButtonIndex += 1
+@@ -501,7 +498,7 @@ class SevoPediaTerrain:
+ 							numTxt = s
+ 
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+@@ -531,7 +528,7 @@ class SevoPediaTerrain:
+ 						numTxt = "_/_"  # or "" if you prefer no tag
+ 				
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+@@ -553,7 +550,7 @@ class SevoPediaTerrain:
+ 
+ 					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+@@ -578,8 +575,6 @@ class SevoPediaTerrain:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -590,7 +585,7 @@ class SevoPediaTerrain:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		iPeak = self.I_TERRAIN_PEAK
+ 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 625b035a1..c333777fa 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -219,8 +219,6 @@ class SevoPediaTrait:
+ 		self.LEADER_ICON_SIZE = 24
+ 		# <!-- custom: Leader button columns spacing; total column width is icon size + spacing. (GPT-5.2-Codex) -->
+ 		self.LEADER_BUTTON_COLUMN_SPACING = 2
+-		# <!-- custom: Leader button size in the right-side leaders panel. (GPT-5.2-Codex) -->
+-		self.LEADER_PANEL_BUTTON_SIZE = 64
+ 
+ 
+ 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
+@@ -253,7 +251,7 @@ class SevoPediaTrait:
+ 		multiListW = self.W_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_W
+ 		multiListH = self.H_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_H
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, self.LEADER_PANEL_BUTTON_SIZE, self.LEADER_PANEL_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		for iLeader in leadersWithTrait:
+ 			self.iLeader = iLeader
+ 			iCiv = leaderToCiv.get(iLeader, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 7eb7a2688..8fedf7f4b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -133,14 +133,14 @@ class SevoPediaUnit:
+ 		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - self.MEDIUM_MARGIN  # Takes remaining space (same as Requires)
+ 		self.H_REPLACE = self.H_REQUIRES
+ 
+-		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; check if accurate as i don't know too much about these. -->
+-		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+-
++		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; currently not implemented since we only use a button size of 64px so as of now using the same variable in all our file rather than declaring and passing a different button size locally in the multilist panels that have many rows, for simplicity. -->
++		# self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+ 		# Row 3-4: Of Other Units panel (full width, 2 rows height) - under Row 2
+ 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
+ 		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + self.SMALL_MARGIN
+ 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
+-		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
++		# self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
++		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + MULTILIST_BUTTON_SIZE
+ 
+ 		# Row 5: Special panel (left half)
+ 		self.X_SPECIAL = self.X_UNIT_PANE
+@@ -476,8 +476,6 @@ class SevoPediaUnit:
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel -->
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -488,13 +486,13 @@ class SevoPediaUnit:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# Get the unit info
+ 		unitInfo = gc.getUnitInfo(self.iUnit)
+@@ -517,7 +515,7 @@ class SevoPediaUnit:
+ 				# Handle class modifiers with x/y format
+ 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -538,7 +536,7 @@ class SevoPediaUnit:
+ 
+ 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					isButtonFound = True
+ 					iButtonIndex += 1
+@@ -567,9 +565,6 @@ class SevoPediaUnit:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details -->
+-		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -580,13 +575,13 @@ class SevoPediaUnit:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 
+ 		# Get the unit info for the current unit
+ 		unitInfo = gc.getUnitInfo(self.iUnit)
+@@ -609,7 +604,7 @@ class SevoPediaUnit:
+ 				# Handle class modifiers with x/y format
+ 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -628,7 +623,7 @@ class SevoPediaUnit:
+ 
+ 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					isButtonFound = True
+ 					iButtonIndex += 1
+@@ -657,8 +652,6 @@ class SevoPediaUnit:
+ 
+ 		rowListName = self.top.getNextWidgetName()
+ 
+-		BUTTON_SIZE = 64 # Size of each button
+-
+ 		# Create the MultiList control
+ 		# Constants for button display
+ 		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+@@ -669,13 +662,13 @@ class SevoPediaUnit:
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+-		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); so we calculate column layout manually -->
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 		
+ 		# Get the unit info
+ 		unitInfo = gc.getUnitInfo(self.iUnit)
+@@ -696,7 +689,7 @@ class SevoPediaUnit:
+ 
+ 			numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			isButtonFound = True
+ 			iButtonIndex += 1
+@@ -717,7 +710,7 @@ class SevoPediaUnit:
+ 
+ 				numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+@@ -736,7 +729,7 @@ class SevoPediaUnit:
+ 
+ 			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			isButtonFound = True
+ 			iButtonIndex += 1
+@@ -756,7 +749,7 @@ class SevoPediaUnit:
+ 
+ 				numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+ 				extraCorrectionX = get_extra_correction_x(numTxt)
+-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index c26924838..e06c3671e 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -168,7 +168,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
+ 
+ 	print("\n\n==== FLAVORS ====")
+-	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt for details), so no need to specify a number of values to loop over as in below code -->
++	# <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name, so no need to specify a number of values to loop over as in below code -->
+ 	for i in range(gc.getNumFlavorTypes()):
+ 		name = gc.getFlavorTypes(i)
+ 		value = info.getFlavorValue(i)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index e17b6d981..b37321028 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -11,6 +11,7 @@ import re
+ 
+ 
+ # <!-- custom: for multilist panels -->
++MULTILIST_BUTTON_SIZE = 64
+ MULTI_LIST_PANEL_OFFSET_X = 9
+ MULTI_LIST_PANEL_OFFSET_Y = 36
+ MULTI_LIST_PANEL_ADDITIONAL_W = -1 * (MULTI_LIST_PANEL_OFFSET_X * 2)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index ba7b0cf82..67dfd33d4 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1264,4 +1264,96 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Tag>
+ 		<English>[TAB]Imperialist leaders focus on expansion, influence beyond the core homeland, and the practical systems that keep far-flung holdings connected. They value reach: new cities, new routes, and new forms of control over territory. [PARAGRAPH:1]In play, this trait supports establishing a larger footprint earlier and benefiting from the networks that come with it. It can pair well with settlement planning, overseas ambitions, and trade-oriented growth, because expansion is only useful if it can be integrated. [PARAGRAPH:1]An imperial empire is strongest when it turns new land into real power: supply, administration, and economic ties that make distance manageable. The general theme is more effective expansion and integration of a large, connected realm.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: added new Build action texts (SevoPedia Builds page), generated with the help of ChatGPT-5.2 Thinking. Note: Text avoids hardcoded numeric effects so it stays valid across many rule sets. (ChatGPT-5.2 Thinking) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_ROAD_PEDIA</Tag>
++		<English>[TAB]Roads are basic overland infrastructure: cleared and maintained paths that make routine travel and hauling practical.[PARAGRAPH:1]A connected road network helps bind an empire together, letting people, goods, and armies move with far less friction across familiar ground.[PARAGRAPH:1]This build order lays down the route on a single tile; the bigger value comes from linking the places you care about into continuous lines.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_RAILROAD_PEDIA</Tag>
++		<English>[TAB]Railroads represent heavy transport infrastructure: graded beds, rails, and supporting works built for sustained long-distance movement.[PARAGRAPH:1]Where roads connect nearby places, rail lines tie regions together, enabling rapid strategic travel and dependable logistics across large territories.[PARAGRAPH:1]This build order extends the rail network tile by tile, with the greatest benefits appearing once major routes are continuous.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FARM_PEDIA</Tag>
++		<English>[TAB]Farms represent organized agriculture: cleared fields, irrigation where possible, planting, and seasonal maintenance.[PARAGRAPH:1]They are the classic way to turn workable land into a steady food base, supporting larger populations and more specialized cities.[PARAGRAPH:1]This is the build order given to a worker-type unit; the resulting tile improvement is documented separately in the Improvements section.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FISHING_BOATS_PEDIA</Tag>
++		<English>[TAB]Fishing boats represent the small fleets, gear, and shore support needed to harvest coastal and nearshore resources.[PARAGRAPH:1]Unlike land improvements, this build is typically performed by a naval worker unit, developing sea tiles that would otherwise remain underused.[PARAGRAPH:1]Fishing is a foundation of many coastal economies, turning nearby waters into reliable sustenance and trade goods.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WHALING_BOATS_PEDIA</Tag>
++		<English>[TAB]Whaling boats represent specialized crews, vessels, and processing needed to exploit whale resources far from shore.[PARAGRAPH:1]Compared to ordinary fishing, whaling tends to be more demanding and is often associated with later maritime development and stronger organization.[PARAGRAPH:1]This build is usually performed by a naval worker unit and is used to develop eligible whale resource tiles.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_MINE_PEDIA</Tag>
++		<English>[TAB]Mines represent excavations and supporting works for extracting underground resources such as metals, coal, and other minerals.[PARAGRAPH:1]They are a cornerstone of production and strategic materials, often determining where an empire can arm itself, build heavily, or industrialize.[PARAGRAPH:1]Use this build to develop mineral-rich tiles and to make use of resource deposits that require mining.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WORKSHOP_PEDIA</Tag>
++		<English>[TAB]Workshops represent concentrated craft and industrial labor: toolmaking, machining, and later specialized manufacturing.[PARAGRAPH:1]They help convert land into a stronger production base for units, buildings, and projects, especially once an economy can support more than subsistence farming.[PARAGRAPH:1]This build order creates the improvement; workshops are a practical sign that a city is shifting from raw output toward organized production.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_LUMBERMILL_PEDIA</Tag>
++		<English>[TAB]Lumbermills represent managed timber harvesting and processing without necessarily clearing the forest itself.[PARAGRAPH:1]They provide a long-term way to gain value from wooded land while keeping the underlying feature intact.[PARAGRAPH:1]This differs from chopping, which removes the forest feature; a lumbermill is a permanent improvement that treats forests as an ongoing resource.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WINDMILL_PEDIA</Tag>
++		<English>[TAB]Windmills represent mechanical power drawn from wind to grind grain, pump water, or run simple machinery.[PARAGRAPH:1]They are often built where open exposure is strong or where traditional farming needs help from engineered power.[PARAGRAPH:1]A windmill is a sign of practical ingenuity: turning the environment itself into work.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WATERMILL_PEDIA</Tag>
++		<English>[TAB]Watermills represent mechanical power drawn from flowing water for milling, sawing, and early industry.[PARAGRAPH:1]They are traditionally associated with rivers and reliable water sources, turning steady current into productive force.[PARAGRAPH:1]Watermills often mark the start of a more complex river economy: not just food, but processing and work performed by machines.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_PLANTATION_PEDIA</Tag>
++		<English>[TAB]Plantations represent organized cultivation of high-value crops such as sugar, cotton, spices, tea, and similar goods.[PARAGRAPH:1]They usually require land management, transport links, and a stable workforce to be profitable.[PARAGRAPH:1]Use this build to develop resource tiles that depend on plantation-style agriculture and export-oriented production.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_QUARRY_PEDIA</Tag>
++		<English>[TAB]Quarries represent the extraction of stone, marble, and other building materials from exposed rock.[PARAGRAPH:1]They are closely tied to construction booms and monumental architecture, supplying the heavy material that shapes cities and fortifications.[PARAGRAPH:1]Use this build to develop stone deposits and to support projects that depend on durable building resources.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_PASTURE_PEDIA</Tag>
++		<English>[TAB]Pastures represent managed grazing and animal husbandry for horses, cattle, sheep, and similar livestock.[PARAGRAPH:1]They turn open land into steady food and materials, and they often enable the practical use of animal-based resources.[PARAGRAPH:1]Use this build where herding is the natural fit: broad grasslands, open plains, and established livestock regions.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_CAMP_PEDIA</Tag>
++		<English>[TAB]Camps represent controlled access to wild resources through hunting, trapping, and early processing.[PARAGRAPH:1]They are typically built where the natural environment itself is the resource, rather than where heavy land transformation is desired.[PARAGRAPH:1]Compared to farms or pastures, camps lean on wilderness management: skilled extraction without fully reshaping the land.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WELL_PEDIA</Tag>
++		<English>[TAB]Wells represent engineered access to groundwater: digging, lining, lifting, and storage.[PARAGRAPH:1]They are historically vital in dry regions and can support settlement where surface water is scarce or unreliable.[PARAGRAPH:1]A well is simple infrastructure with outsized impact: it makes marginal land livable and turns distance from rivers into a manageable problem.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_OFFSHORE_PLATFORM_PEDIA</Tag>
++		<English>[TAB]Offshore platforms represent large-scale infrastructure at sea for extraction and processing of deep-water resources.[PARAGRAPH:1]They require advanced engineering, sustained logistics, and a strong industrial base, extending an empire's reach beyond the shoreline.[PARAGRAPH:1]This build is performed by a naval worker unit and is used to develop advanced offshore resource sites.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_COTTAGE_PEDIA</Tag>
++		<English>[TAB]Cottages represent small settlements and local economic activity at the edge of established cities.[PARAGRAPH:1]As an area is worked and protected over time, cottage-style development can mature into larger, more prosperous towns.[PARAGRAPH:1]This build action is the worker order that creates the improvement; growth and upgrade behavior belongs to the improvement itself.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FORT_PEDIA</Tag>
++		<English>[TAB]Forts represent permanent field fortifications and military outposts built to hold ground.[PARAGRAPH:1]They are placed to secure borders, protect key tiles, or create staging points for operations far from city walls.[PARAGRAPH:1]A well-sited fort shapes the map: it turns terrain into a defensible position and extends the reach of organized force.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_PEDIA</Tag>
++		<English>[TAB]Clearing jungle removes dense vegetation that can hinder movement, settlement, and development.[PARAGRAPH:1]This action is often used to open land for agriculture and infrastructure and to make the tile easier to improve.[PARAGRAPH:1]Removing jungle changes the underlying terrain feature; it is distinct from constructing a permanent improvement.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Tag>
++		<English>[TAB]Chopping removes the forest feature from a tile, converting it into open land suited to different uses.[PARAGRAPH:1]Clearing forests is commonly done to prepare terrain for farms, cottages, and other improvements, or to reshape a landscape around growing cities.[PARAGRAPH:1]This is a feature-removal build order, not a permanent improvement: the forest is gone once the work is complete.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_SCRUB_FALLOUT_PEDIA</Tag>
++		<English>[TAB]Fallout represents severe environmental contamination left by catastrophe or weapons.[PARAGRAPH:1]Scrubbing fallout is a cleanup effort that restores land so it can be worked and improved normally again.[PARAGRAPH:1]It is a slow kind of repair: not building something new, but making a damaged place usable and safe for the future.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_PEDIA</Tag>
++		<English>[TAB]A forest preserve represents protected land managed for conservation, research, and long-term sustainability.[PARAGRAPH:1]Unlike chopping, preservation keeps the natural feature in place while adding an organized framework for controlled use.[PARAGRAPH:1]A preserve is a deliberate choice to value enduring terrain: not everything must be harvested immediately to be useful.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 03a0d5864..6849a2e26 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -2109,10 +2109,58 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_BUILD_KILL_WORKER</Tag>
+ 		<English>Consumes Unit</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_IMPROVEMENT</Tag>
++		<English>Improvement</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_ROUTE</Tag>
++		<English>Route</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT</Tag>
++		<English>Feature Struct</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO</Tag>
++		<English>Feature Struct Info</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE</Tag>
++		<English>Feature</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE</Tag>
++		<English>Removes feature</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE</Tag>
++		<English>Remove</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_TIME</Tag>
++		<English>Remove Time</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION</Tag>
++		<English>on remove</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BUILD</Tag>
++		<English>Build</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD</Tag>
+ 		<English>Units (Any Build)</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_UNITS_BUILD</Tag>
++		<English>Units (Build)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT</Tag>
++		<English>Impr.</English>
++	</TEXT>
+ 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
+@@ -2553,7 +2601,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
+-		<English>Irrigation, Hill, River, Tech, Civic, Route Tile Yield Changes</English>
++		<English>Most Yield Changes</English>
+ 	</TEXT>
+ 
+ 
+@@ -2858,4 +2906,96 @@ Created as part of AdvCiv-SAS improvements
+ 		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
+ 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
+ 	</TEXT>
++
++
++
++	<!-- custom: added new Build action texts (SevoPedia Builds page), generated with the help of ChatGPT-5.2 Thinking. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_ROAD_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a road on the selected tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_RAILROAD_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a railroad route on the selected tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FARM_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Farm improvement on a suitable land tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FISHING_BOATS_HELP</Tag>
++		<English>[TAB]Order a work boat or similar unit to establish a fishing improvement on the selected water tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WHALING_BOATS_HELP</Tag>
++		<English>[TAB]Order a work boat or similar unit to establish a whaling improvement on the selected water tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_MINE_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Mine improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WORKSHOP_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Workshop improvement on a suitable land tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_LUMBERMILL_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Lumbermill improvement, usually on a forested tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WINDMILL_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Windmill improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WATERMILL_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Watermill improvement, commonly along rivers.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_PLANTATION_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Plantation improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_QUARRY_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Quarry improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_PASTURE_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Pasture improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_CAMP_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Camp improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_WELL_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Well improvement on a suitable tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Tag>
++		<English>[TAB]Order a work boat or similar unit to establish an offshore platform improvement on the selected water tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_COTTAGE_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Cottage improvement on a suitable land tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FORT_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to construct a Fort improvement on the selected land tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to clear jungle from the selected tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to cut down and remove forest from the selected tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to remove fallout contamination from the selected tile.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Tag>
++		<English>[TAB]Order a worker-type unit to establish a forest preserve improvement on a suitable tile.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index ed389856d..be6df20de 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -4,12 +4,14 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Build Infos -->
++<!-- custom: Added new Build Help/Civilopedia text keys (GPT-5.2-Codex). Generated with the help of ChatGPT-5.2 Thinking. -->
+ <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<BuildInfos>
+ 		<BuildInfo>
+ 			<Type>BUILD_ROAD</Type>
+ 			<Description>TXT_KEY_BUILD_ROAD</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_ROAD_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_ROAD_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+ 			<iTime>200</iTime>
+ 			<iCost>0</iCost>
+@@ -28,7 +30,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_RAILROAD</Type>
+ 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_RAILROAD_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_RAILROAD_PEDIA</Civilopedia>
+ 			<!-- custom: TECH_RAILROAD is an inefficient or inaccuratetech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner -->
+ 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+ 			<iTime>300</iTime>
+@@ -48,7 +51,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_FARM</Type>
+ 			<Description>TXT_KEY_BUILD_FARM</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_FARM_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_FARM_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<iTime>500</iTime>
+ 			<iCost>0</iCost>
+@@ -91,7 +95,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_FISHING_BOATS</Type>
+ 			<Description>TXT_KEY_BUILD_FISHING_BOATS</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_FISHING_BOATS_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_FISHING_BOATS_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_FISHING</PrereqTech>
+ 			<iTime>0</iTime>
+ 			<iCost>0</iCost>
+@@ -110,7 +115,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_WHALING_BOATS</Type>
+ 			<Description>TXT_KEY_BUILD_WHALING_BOATS</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_WHALING_BOATS_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_WHALING_BOATS_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_SEAFARING</PrereqTech>
+ 			<iTime>0</iTime>
+ 			<iCost>0</iCost>
+@@ -129,7 +135,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_MINE</Type>
+ 			<Description>TXT_KEY_BUILD_MINE</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_MINE_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_MINE_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_MINING</PrereqTech>
+ 			<iTime>400</iTime>
+ 			<iCost>0</iCost>
+@@ -172,7 +179,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_WORKSHOP</Type>
+ 			<Description>TXT_KEY_BUILD_WORKSHOP</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_WORKSHOP_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_WORKSHOP_PEDIA</Civilopedia>
+ 			<!-- custom: nerf the workshop a bit as it was a bit too op, was TECH_METAL_CASTING -->
+ 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			<iTime>600</iTime>
+@@ -216,7 +224,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_LUMBERMILL</Type>
+ 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_LUMBERMILL_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_LUMBERMILL_PEDIA</Civilopedia>
+ 			<!-- custom: historically more accurate in our reworked tech tree at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill, machinery is a bit late but fine, plus buffes tech_machinery too, was TECH_GUILDS (now removed) -->
+ 			<!-- K-Mod: was REPLACEABLE_PARTS -->
+ 			<PrereqTech>TECH_MACHINERY</PrereqTech>
+@@ -238,7 +247,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_WINDMILL</Type>
+ 			<Description>TXT_KEY_BUILD_WINDMILL</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_WINDMILL_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_WINDMILL_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			<iTime>500</iTime>
+ 			<iCost>0</iCost>
+@@ -282,7 +292,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_WATERMILL</Type>
+ 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_WATERMILL_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_WATERMILL_PEDIA</Civilopedia>
+ 			<!-- custom: seems historically more accurate or meshes or fits better with our reworked tech tree sooner, was TECH_MACHINERY -->
+ 			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			<iTime>400</iTime>
+@@ -326,7 +337,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_PLANTATION</Type>
+ 			<Description>TXT_KEY_BUILD_PLANTATION</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_PLANTATION_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_PLANTATION_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			<iTime>500</iTime>
+ 			<iCost>0</iCost>
+@@ -369,7 +381,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_QUARRY</Type>
+ 			<Description>TXT_KEY_BUILD_QUARRY</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_QUARRY_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_QUARRY_PEDIA</Civilopedia>
+ 			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
+ 			<PrereqTech>TECH_MINING</PrereqTech>
+ 			<iTime>600</iTime>
+@@ -413,7 +426,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_PASTURE</Type>
+ 			<Description>TXT_KEY_BUILD_PASTURE</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_PASTURE_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_PASTURE_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 			<iTime>400</iTime>
+ 			<iCost>0</iCost>
+@@ -456,7 +470,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_CAMP</Type>
+ 			<Description>TXT_KEY_BUILD_CAMP</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_CAMP_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_CAMP_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<iTime>400</iTime>
+ 			<iCost>0</iCost>
+@@ -484,7 +499,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_WELL</Type>
+ 			<Description>TXT_KEY_BUILD_WELL</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_WELL_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_WELL_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			<iTime>1000</iTime>
+ 			<iCost>0</iCost>
+@@ -527,7 +543,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
+ 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
+ 			<!-- custom: was the now removed TECH_PLASTICS -->
+ 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<iTime>0</iTime>
+@@ -547,7 +564,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_COTTAGE</Type>
+ 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_COTTAGE_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_COTTAGE_PEDIA</Civilopedia>
+ 			<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			<iTime>400</iTime>
+ 			<iCost>0</iCost>
+@@ -590,7 +608,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_FORT</Type>
+ 			<Description>TXT_KEY_BUILD_FORT</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_FORT_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_FORT_PEDIA</Civilopedia>
+ 			<!-- custom: move fort building a bit later in tech, hopefully a bit less or less soon nonsensical or unfit fort building, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this), was TECH_MATHEMATICS -->
+ 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+ 			<iTime>1000</iTime>
+@@ -619,7 +638,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_REMOVE_JUNGLE</Type>
+ 			<Description>TXT_KEY_BUILD_REMOVE_JUNGLE</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_REMOVE_JUNGLE_PEDIA</Civilopedia>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<iTime>0</iTime>
+ 			<iCost>0</iCost>
+@@ -649,7 +669,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_REMOVE_FOREST</Type>
+ 			<Description>TXT_KEY_BUILD_REMOVE_FOREST</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Civilopedia>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<iTime>0</iTime>
+ 			<iCost>0</iCost>
+@@ -679,7 +700,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_SCRUB_FALLOUT</Type>
+ 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_SCRUB_FALLOUT_PEDIA</Civilopedia>
+ 			<PrereqTech>NONE</PrereqTech>
+ 			<iTime>0</iTime>
+ 			<iCost>0</iCost>
+@@ -707,7 +729,8 @@
+ 		<BuildInfo>
+ 			<Type>BUILD_FOREST_PRESERVE</Type>
+ 			<Description>TXT_KEY_BUILD_FOREST_PRESERVE</Description>
+-			<Help/>
++			<Help>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Help>
++			<Civilopedia>TXT_KEY_BUILD_FOREST_PRESERVE_PEDIA</Civilopedia>
+ 			<!-- advc.901: was SciMethod -->
+ 			<PrereqTech>TECH_BIOLOGY</PrereqTech>
+ 			<iTime>800</iTime>
+
+diff --git a/Assets/XML/Units/CIV4UnitSchema.xml b/Assets/XML/Units/CIV4UnitSchema.xml
+index a30c0a167..48f098200 100644
+--- a/Assets/XML/Units/CIV4UnitSchema.xml
++++ b/Assets/XML/Units/CIV4UnitSchema.xml
+@@ -48,6 +48,7 @@
+ 		<element type="Type"/>
+ 		<element type="Description"/>
+ 		<element type="Help"/>
++		<element type="Civilopedia"/>
+ 		<element type="PrereqTech"/>
+ 		<element type="iTime"/>
+ 		<element type="iCost"/>
+
+diff --git a/README.md b/README.md
+index 11e160e4f..f9dec1ecc 100644
+--- a/README.md
++++ b/README.md
+@@ -244,7 +244,7 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
+ 
+ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such. As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the new Sevopedia Builds' category's corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)!
+ 
+-Added a new Sevopedia Builds Category listing these distinctly from improvements (see [Sevopedia Reworks: example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)), with the big and nice help of GPT-5.2-Codex; thanks a lot!
++Added a new Sevopedia Builds Category listing these distinctly from improvements (see [Sevopedia Reworks: example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)), with the big and nice help of GPT-5.2-Codex; thanks a lot!
+ 
+ We also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter.
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 0e33efbc0..a2e1682e5 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -332,7 +332,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
+ - many links in the main README.md first for example maybe indeed in the [main README.md 's page link](/README.md)
+ - todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files)
+ - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
+-- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not, hopefully helpful
++- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not, hopefully helpful
+ - todo add links if i have/want(/do) more to add
+ 
+ ## In case UnitAIs info from link above is deleted someday, here is a copy here in case
+@@ -1076,7 +1076,7 @@ And with the big help or support for ideas i found myself too of chatgpt as usua
+ 
+ Since i didn't know how to do it, what helped me, with past CvGameTextMgr.cpp modifying experiences i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in Sevopedia unit's experiences in mind, was to search for one message that is displayed seemingly specifically in Sevopedia tech's placeSpecial.
+ 
+-But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in Sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [__SevoPediaTech-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt). While not directly useful, it still helps to know. The info is in `.isTrade()` method. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt and it suggested me indeed this Sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way to modify/check more the .cpp.
++But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in Sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/). While not directly useful, it still helps to know. The info is in `.isTrade()` method. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt and it suggested me indeed this Sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way to modify/check more the .cpp.
+ 
+ So back to CvGameTextMgr.cpp, i found this "Enables Bridge Building".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 646378f68..b3f2a4101 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -616,7 +616,7 @@ Not solving it and at least not now didn't investigate it, but good to mention i
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wFSJ6huis6w_xg-OmrZGE2Scw8PRhI7e?usp=sharing)
+ 
+-Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
++Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
+ 
+ The XML is like this as reminder for example for leader_gandhi:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index bc2028375..f7b2c2cd3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -105,6 +105,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
++- (Requires AdvCiv-SAS 5353+) Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ 
+ ### 48 Civs DLL
+ 
+@@ -265,7 +266,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+-- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks: example 0.40 builds](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
++- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
+ - (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
+ 
+ ### UI (In-game)
+@@ -295,7 +296,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Scrub Fallout"**, **"Build a Road"**, **"Build a Railroad"**, **"Create a Farm"**) distinct from the Sevopedia Improvements and a dedicated Builds page. Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
++- (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry** : change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp).
+ - (Requires AdvCiv-SAS 5349+) Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a trait**, and **ranking for each trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+@@ -388,7 +389,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### Builds
+ 
+ - **Tech prereqs** adjusted (e.g. **Remove Jungle** and **Chop Down a Forest** available together and earlier).
+-- (Requires AdvCiv-SAS 5334+) **Remove Jungle** and **Chop Down a Forest** builds now use distinct buttons. These are visible both in the **Technology Advisor** and in **Sevopedia Techs' Enables** and in the new **Sevopedia Builds** category panel. See also [Sevopedia Reworks: example 0.40 builds](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
++- (Requires AdvCiv-SAS 5334+) **Remove Jungle** and **Chop Down a Forest** builds now use distinct buttons. These are visible both in the **Technology Advisor** and in **Sevopedia Techs' Enables** and in the new **Sevopedia Builds** category panel. See also [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ 
+ ### Specialists
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index 441557085..10230113b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -103,7 +103,7 @@ Some useful tools while doing this advciv-sas mod:
+ that i bombarded with updates and installs still works amazing so i recommend it)
+ - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) find all the "taois" entries(i.e. files)in the entire full civ4 folder (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1JW3IBenpJxP4ZIVrTb99huR0-Js9HPrt?usp=sharing)), very useful, thanks a lot!!!)
+ - CopyAsPath that i may also call for example "copy as path" or and other name or and not, a small menu extension i made myself hehe but only from copying intructions and importing an existing .reg file from another place (from [www.winhelponline.com](www.winhelponline.com) to be exhaustive or accurate hehe), in short i only compiled existing files and instructions hehe, read there for details also, and is also in, in [copy_as_path_context_menu (github repo link)](https://github.com/wonderingabout/copy_as_path_context_menu)
+-- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many), vscode-pdf, and ruff (which i use as a python linter) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and some very nice errors i found in python thanks to ruff and chatgpt which advised me and guided me thanks. also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) (see also [KI#21.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#216---addressed-old-python-code-not-being-optimized-with-many-ruff-linter-that-we-added-vs-code-errors-that-dont-allow-to-read-the-files)); the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors). Also, VS Code is very useful for the global search feature, also because it does not desynchronize folders before git commits, for example but not only also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and my explanation of it; see also another example here [Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod) showing how i used the civ4 BUG_Doc of which we included a copy in our mod, very useful for quick vs code results (see link for details; see also [__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for other cases where we may want a manual inspect/debug)
++- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many), vscode-pdf, and ruff (which i use as a python linter) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and some very nice errors i found in python thanks to ruff and chatgpt which advised me and guided me thanks. also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) (see also [KI#21.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#216---addressed-old-python-code-not-being-optimized-with-many-ruff-linter-that-we-added-vs-code-errors-that-dont-allow-to-read-the-files)); the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors). Also, VS Code is very useful for the global search feature, also because it does not desynchronize folders before git commits, for example but not only also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and my explanation of it; see also another example here [Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod) showing how i used the civ4 BUG_Doc of which we included a copy in our mod, very useful for quick vs code results (see link for details; see also [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) for other cases where we may want a manual inspect/debug)
+ - Visual C++ 2010 Express, to compile the DLL i want/require it after some mod changes i made in .cpp or such files (is free, just requires after trial a free registration)
+ - Git Bash for Windows
+ - GitHub Website
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index c32822ac8..32c37e672 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -17,7 +17,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
+ [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
+ &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+-&emsp;&emsp;[example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)  
++&emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
+ &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+ &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
+@@ -94,7 +94,7 @@ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved
+ 
+ As of now has its own search bar, but keyboard navigation is not supported.
+ 
+-More recently, added the Builds entries to the Index. See [example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm") new category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
++More recently, added the Builds entries to the Index. See [example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm") new category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ 
+ Then, to make those Index Builds entries fully clickable and stable, we kept the table selectable, mapped row->Build IDs, and routed the click in `SevoPediaIndex.handleInput` instead of overlaying buttons. The overlay approach looked correct at first but the buttons did not scroll with the table and became desynced. Also, the index search bar was dead on first open until the table received focus, so we explicitly set focus to the index table when building it. Credit: Claude code Opus 4.5 + GPT-5.2-Codex.
+ 
+@@ -112,9 +112,15 @@ As a result, builds are linkable: clicking on the entries in the Builds category
+ 
+ We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+ 
+-#### example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")
++#### example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")
+ 
+-Added a new Builds category under Improvements and a dedicated Builds page with Requires, Results, Removes Features, and Build Info panels (build time/cost/consumes unit), plus history text (GPT-5.2-Codex). It uses the new `WIDGET_PYTHON` approach and as of now does not require a DLL compile! Added with the very nice help of GPT-5.2-Codex thanks a lot!
++Added a new Builds category under Improvements and a dedicated Builds page with Requires, Results, Removes Features, and Build Info panels (build time/cost/consumes unit).
++
++Notably among additions, it also has FeatureStruct panels and mod-agnostic new Civilopedia blurbs-based Background panel (added the new XML field `Civilopedia`> to BuildInfos; blurbs generated with the help of ChatGPT-5.2 Thinking thanks).
++
++It uses the new `WIDGET_PYTHON` approach and as of now does not require a DLL compile! Added with the very nice help of GPT-5.2-Codex thanks a lot! Claude code Opus 4.5 also helped in some other additions for this category.
++
++It features info in a beautified way, partly based on the Sevopedia Feature's approach. See [example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category).
+ 
+ <img src="../Images/sevopedia/0.721_sevopedia_builds (1).JPG" alt="0.721_sevopedia_builds (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.721_sevopedia_builds (2).JPG" alt="0.721_sevopedia_builds (2).JPG" width="250"></img>
+@@ -248,6 +254,8 @@ Note: you can hover and click on the buttons in placeMostYields, as shown in one
+ 
+ More recently, entries are now grouped by Land/Water (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) depending on whether their terrain is a water type or not (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) an idea i got from seeing ingame how it is in the Middle-Earth mod which i find very polished and took ideas from btw thanks. Plus subdiving them based on growth or such (e.g. Cottages, hamlet, etc.) as i had the idea too xd as was bit too concentrated in land and we have the booleans i mean as chatgpt 5.2 mentioned that we have (booleans) more generally, and then chatgpt 5.2 found the other "Bonus-capable" idea of a subgroup we could use as well thanks a lot. Now they are nicely ordered i mean.! Implemented with chatgpt 5.2's help as for as of now the other ones thanks a lot.
+ 
++Then, also added a Build panel redirecting to the corresponding Sevopedia Builds page we added since then.
++
+ <img src="../Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.720_sevopedia_improvements (2).JPG" alt="0.720_sevopedia_improvements (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.720_sevopedia_improvements (3).JPG" alt="0.720_sevopedia_improvements (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG
+index ef4c97be9..e5c9c1587 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG
+index f1a19d9e7..10b07f59f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG
+index a371c4b0b..c61aef582 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG
+index d73956cad..72a2f830b 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG
+index 072bcb040..9ce943368 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG
+index afa93e6f1..bf0b2c024 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG
+index ff94d7ffb..6ac5a0b1f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG
+index e036385ed..91c427d0b 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG
+index 7340f646c..a103da3da 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=2 bytes=2961
+
+[PATCH COVERAGE]
+patchFiles=48 embeddedFiles=46 omittedFiles=2 embeddedPatchBytes=147636

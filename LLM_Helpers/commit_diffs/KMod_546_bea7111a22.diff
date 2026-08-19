@@ -1,0 +1,177 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 546
+# Commit: bea7111a229faac6cb487b89b08aacff0fee0ebc
+# History segment: K-Mod history
+# Parent used for diff: 095f5ed49320cdd884b212943e332516aa70c1e4
+# Title: Fixed a minor mistake in the iCorrectedFoodPriority in AI_getImprovementValue. Renamed iFoodChange to iFoodDesiredFoodChange, and added some comments / tweak...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.h
+21	19	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvCityAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 314de5aec..fecb489f7 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1042,8 +1042,8 @@ public:
+ 	// K-Mod note: the following functions were originally created by jdog5000 for debugging BBAI. I've adopted them and changed them.
+ 	virtual int AI_getTargetPopulation() const = 0;
+ 	virtual int AI_getGoodTileCount() const = 0;
+-	virtual int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) const = 0;
+ 	virtual void AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange ) const = 0;
++	virtual int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) const = 0;
+ 	// K-Mod end
+ 	virtual int AI_totalBestBuildValue(CvArea* pArea) = 0;
+ 	virtual int AI_countBestBuilds(CvArea* pArea) const = 0;													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 673a46250..fb7def565 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -728,8 +728,8 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 
+ 	if (bHasYield)
+ 	{
+-		int iFoodX, iProdX, iComX, iFoodChange;
+-		AI_getYieldMultipliers(iFoodX, iProdX, iComX, iFoodChange);
++		int iFoodX, iProdX, iComX, iUnused;
++		AI_getYieldMultipliers(iFoodX, iProdX, iComX, iUnused);
+ 		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD) * iFoodX / 100;
+ 		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION) * iProdX / 100;
+ 		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE) * iComX / 100;
+@@ -7043,7 +7043,7 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ }
+ 
+ 
+-int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
++int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange, int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
+ {
+ 	// first check if the improvement is valid on this plot
+ 	// this also allows us work out whether or not the improvement will remove the plot feature...
+@@ -7234,19 +7234,21 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 			{
+ 				iFoodMultiplier -= 8 + 4 * iFoodDifference;
+ 			}
+-		that roughly means that
+-		if iFoodChange > 0 && iFoodChange - aiDiffYields[0] <= 0, or
+-		if iFoodChange < -4 && iFoodChange - aiDiffYields[0] >= -4
++		In our situation, we have iDesiredFoodChange ~= -iFoodDifference and aiDiffYields[0] == 2 * food change from the improvement.
++		That roughly means that
++		if iDesiredFoodChange > 0 && iDesiredFoodChange - aiDiffYields[0]/2 <= 0, or
++		if iDesiredFoodChange < -4 && iDesiredFoodChange - aiDiffYields[0]/2 >= -4
+ 		then the food multiplier will change.
+-		We should try to preempt that change to prevent bestbuild from oscillating. */
++		We should try to preempt that change to prevent bestbuild from oscillating.
++		*/
+ 		int iCorrectedFoodPriority = iFoodPriority;
+-		if (iFoodChange > 0 && iFoodChange - aiDiffYields[YIELD_FOOD] <= 0)
++		if (iDesiredFoodChange > 0 && iDesiredFoodChange - aiDiffYields[YIELD_FOOD]/2 <= 0)
+ 		{
+-			iCorrectedFoodPriority -= iFoodChange * 4; // undo the food priority increase.
++			iCorrectedFoodPriority -= iDesiredFoodChange * 4; // undo the food priority increase.
+ 		}
+-		if (iFoodChange < -4 && iFoodChange - aiDiffYields[YIELD_FOOD] >= -4)
++		if (iDesiredFoodChange < -4 && iDesiredFoodChange - aiDiffYields[YIELD_FOOD]/2 >= -4)
+ 		{
+-			iCorrectedFoodPriority += 8 + 4 * -iFoodChange; // undo the food priority decrease
++			iCorrectedFoodPriority += 8 + 4 * -iDesiredFoodChange; // undo the food priority decrease
+ 		}
+ 		// This corrected priority isn't perfect, but I think it will be better than nothing.
+ 		// K-Mod end
+@@ -7279,9 +7281,9 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 					iValue *= 100 + iCorrectedFoodPriority;
+ 					iValue /= 200;
+ 				}
+-				if (iFoodChange > 0)
++				if (iDesiredFoodChange > 0)
+ 				{
+-					iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iFoodChange * iCorrectedFoodPriority) / 100;
++					iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iDesiredFoodChange * iCorrectedFoodPriority) / 100;
+ 				}
+ 				if (iCommercePriority > 100)
+ 				{
+@@ -7300,9 +7302,9 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 						iValue /= 100;
+ 					}
+ 				}
+-				if (iFoodChange < 0)
++				if (iDesiredFoodChange < 0)
+ 				{
+-					iValue *= 4 - iFoodChange;
++					iValue *= 4 - iDesiredFoodChange;
+ 					iValue /= 3 + aiFinalYields[YIELD_FOOD];
+ 				}
+ 			}
+@@ -7314,13 +7316,13 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 			}
+ 			if (eNonObsoleteBonus == NO_BONUS)
+ 			{
+-				if (iFoodChange > 0)
++				if (iDesiredFoodChange > 0)
+ 				{
+ 					//We want more food.
+ 					iValue *= 2 + std::max(0, aiDiffYields[YIELD_FOOD]);
+ 					iValue /= 2 * (1 + std::max(0, -aiDiffYields[YIELD_FOOD]));
+ 				}
+-//				else if (iFoodChange < 0)
++//				else if (iDesiredFoodChange < 0)
+ //				{
+ //					//We want to soak up food.
+ //					iValue *= 8;
+@@ -9943,7 +9945,7 @@ int CvCityAI::AI_buildUnitProb()
+ 	return std::min(100, iProb); // experimental (K-Mod)
+ }
+ 
+-void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iFoodChange)
++void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iDesiredFoodChange)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -10134,7 +10136,7 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 	{
+ 		ImprovementTypes eImprovement = ((ImprovementTypes)iI);
+ 		BuildTypes eBestTempBuild;
+-		int iValue = AI_getImprovementValue(pPlot, eImprovement, iFoodPriority, iProductionPriority, iCommercePriority, iFoodChange, iClearFeatureValue, bEmphasizeIrrigation, &eBestTempBuild);
++		int iValue = AI_getImprovementValue(pPlot, eImprovement, iFoodPriority, iProductionPriority, iCommercePriority, iDesiredFoodChange, iClearFeatureValue, bEmphasizeIrrigation, &eBestTempBuild);
+ 		if (iValue > iBestValue)
+ 		{
+ 			iBestValue = iValue;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index e050bc070..571fe16cb 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -107,8 +107,8 @@ public:
+ 	int AI_getGoodTileCount() const;
+ 	int AI_countWorkedPoorTiles() const;
+ 	int AI_getTargetPopulation() const;
+-	int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) const;
+ 	void AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange) const;
++	int AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange, int iClearFeatureValue = 0, bool bEmphasizeIrrigation = false, BuildTypes* peBestBuild = 0) const;
+ 	// K-Mod end
+ 	BuildTypes AI_getBestBuild(int iIndex) const;
+ 	int AI_countBestBuilds(CvArea* pArea) const;
+@@ -227,7 +227,7 @@ protected:
+ 	int AI_experienceWeight();
+ 	int AI_buildUnitProb();
+ 
+-	void AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iFoodChange);
++	void AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iDesiredFoodChange);
+ 
+ 	void AI_buildGovernorChooseProduction();
+ 	void AI_barbChooseProduction(); // K-Mod
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9050

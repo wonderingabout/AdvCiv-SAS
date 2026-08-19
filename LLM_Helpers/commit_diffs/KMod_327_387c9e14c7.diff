@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 327
+# Commit: 387c9e14c7e5bc59dcfc36c5266147b0cd7a6556
+# History segment: K-Mod history
+# Parent used for diff: 0059ba37ac075d3f3e11f7da0a620ea723c2b7ed
+# Title: Fixed an BBAI / original BtS bug which sometimes caused the game to hang when using sea-patrol.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	55	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index e713c1e94..3bd91f204 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1176,77 +1176,50 @@ void CvSelectionGroup::startMission()
+ 			NotifyEntity( headMissionQueueNode()->m_data.eMissionType );
+ 		}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/30/10                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+-		if( headMissionQueueNode()->m_data.eMissionType == MISSION_PILLAGE )
++		// K-Mod. Let fast units carry out the pillage action first. (based on the idea from BBAI, which had a buggy implementation)
++		if (headMissionQueueNode()->m_data.eMissionType == MISSION_PILLAGE)
+ 		{
+ 			// Fast units pillage first
++			std::vector<std::pair<int, int> > unit_list;
+ 			pUnitNode = headUnitNode();
+-			int iMaxMovesLeft = 0;
+ 
+ 			while (pUnitNode != NULL)
+ 			{
+ 				pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 				pUnitNode = nextUnitNode(pUnitNode);
+ 
+-				if( pLoopUnit->canMove() && pLoopUnit->canPillage(plot()) )
++				if (pLoopUnit->canMove() && pLoopUnit->canPillage(plot()))
+ 				{
+-					int iMovesLeft = pLoopUnit->movesLeft();
+-					if( pLoopUnit->bombardRate() > 0 )
+-					{
+-						iMovesLeft /= 2;
+-					}
+-					iMovesLeft *= pLoopUnit->currHitPoints();
+-					iMovesLeft /= std::max(1, pLoopUnit->maxHitPoints());
+-
+-					iMaxMovesLeft = std::max( iMaxMovesLeft, iMovesLeft );
++					int iPriority = 0;
++					if (pLoopUnit->bombardRate() > 0)
++						iPriority--;
++					if (pLoopUnit->isMadeAttack())
++						iPriority++;
++
++					iPriority = (3 + iPriority)*pLoopUnit->movesLeft() / 3;
++					iPriority *= pLoopUnit->currHitPoints();
++					iPriority /= std::max(1, pLoopUnit->maxHitPoints());
++					unit_list.push_back(std::make_pair(iPriority, pLoopUnit->getID()));
+ 				}
+ 			}
++			std::sort(unit_list.begin(), unit_list.end());
+ 
+-			bool bDidPillage = false;
+-			while( iMaxMovesLeft > 0 && !bDidPillage )
++			CvPlayer& kOwner = GET_PLAYER(getOwnerINLINE());
++			for (size_t i = 0; i < unit_list.size(); i++)
+ 			{
+-				pUnitNode = headUnitNode();
+-				int iNextMaxMovesLeft = 0;
++				pLoopUnit = kOwner.getUnit(unit_list[i].second);
+ 
+-				while (pUnitNode != NULL)
++				if (pLoopUnit->pillage())
+ 				{
+-					pLoopUnit = ::getUnit(pUnitNode->m_data);
+-					pUnitNode = nextUnitNode(pUnitNode);
+-
+-					if( pLoopUnit->canMove() && pLoopUnit->canPillage(plot()) )
+-					{
+-						int iMovesLeft = pLoopUnit->movesLeft();
+-						if( pLoopUnit->bombardRate() > 0 )
+-						{
+-							iMovesLeft /= 2;
+-						}
+-						iMovesLeft *= pLoopUnit->currHitPoints();
+-						iMovesLeft /= std::max(1, pLoopUnit->maxHitPoints());
+-
+-						if( iMovesLeft >= iMaxMovesLeft )
+-						{
+-							if (pLoopUnit->pillage())
+-							{
+-								bAction = true;
+-								if( isHuman() || canAllMove() )
+-								{
+-									bDidPillage = true;
+-									break;
+-								}
+-							}
+-						}
+-
+-						iNextMaxMovesLeft = std::max( iNextMaxMovesLeft, iMovesLeft );
+-					}
++					bAction = true;
++					if (isHuman() || canAllMove())
++						break;
+ 				}
+-
+-				iMaxMovesLeft = iNextMaxMovesLeft;
++				if (pLoopUnit->isAttacking())
++					break; // Sea patrol intercept
+ 			}
+ 		}
++		// K-Mod end. (note: I'm not sure what the original bts code was. I deleted the BBAI code.)
+ 		else
+ 		{
+ 			pUnitNode = headUnitNode();
+@@ -1494,9 +1467,6 @@ void CvSelectionGroup::startMission()
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	if ((getNumUnits() > 0) && (headMissionQueueNode() != NULL))
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4171

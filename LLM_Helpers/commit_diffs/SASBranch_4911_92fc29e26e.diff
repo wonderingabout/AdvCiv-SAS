@@ -1,0 +1,863 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4911
+# Commit: 92fc29e26e9bfe40311c02af385f58383e09c157
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: eba1162c664defd0de3e50627e57b5a3998d9021
+# Title: rework the airship now a recon unit with chatgpt's help too thanks anyways etc, update/fix docs anyways etc - rework the airship to now be a recon unit, as a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+39	39	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+9	9	Assets/XML/Units/CIV4UnitClassInfos.xml
+244	232	Assets/XML/Units/CIV4UnitInfos.xml
+4	147	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 41a1bb0c5..b3f746201 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -250,6 +250,45 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_AIRSHIP</Type>
++			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,12</Button>
++			<!-- custom: elevation trick now that the airship is a domain land unit now
++			<fScale>0.3</fScale>
++			trick by ChatGPT:
++			Hacky XML Workaround (Using Shadow Scale/Offset)
++			-->
++			<fScale>0.7</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Airship/Airship.nif</NIF>
++			<KFM>Art/Units/Airship/Airship.kfm</KFM>
++			<SHADERNIF>Art/Units/Airship/Airship_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/BearShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<!-- custom: part of the trick by ChatGPT
++				<fShadowScale>0.65</fShadowScale>
++				-->
++				<fShadowScale>0.3</fShadowScale>
++			</ShadowDef>
++			<iDamageStates>4</iDamageStates>
++			<fBattleDistance>0.55</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bSmoothMove>1</bSmoothMove>
++			<fAngleInterpRate>720.0</fAngleInterpRate>
++			<fBankRate>0.35</fBankRate>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop> </AudioRunTypeLoop>
++				<AudioRunTypeEnd> </AudioRunTypeEnd>
++			</AudioRunSounds>
++			<PatrolSound>AS3D_UN_AIRSHIP_PATROL</PatrolSound>
++			<SelectionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</SelectionSound>
++			<ActionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</ActionSound>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_ANCIENT_SPY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Spy.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,14</Button>
+@@ -2924,45 +2963,6 @@
+ 			<SelectionSound>AS3D_UN_DESTROYER_FORT</SelectionSound>
+ 			<ActionSound>AS3D_UN_DESTROYER_FORT</ActionSound>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_AIRSHIP</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,12</Button>
+-			<!-- custom: elevation trick now that the airship is a domain land unit now
+-			<fScale>0.3</fScale>
+-			trick by ChatGPT:
+-			Hacky XML Workaround (Using Shadow Scale/Offset)
+-			-->
+-			<fScale>0.7</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Airship/Airship.nif</NIF>
+-			<KFM>Art/Units/Airship/Airship.kfm</KFM>
+-			<SHADERNIF>Art/Units/Airship/Airship_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/BearShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<!-- custom: part of the trick by ChatGPT
+-				<fShadowScale>0.65</fShadowScale>
+-				-->
+-				<fShadowScale>0.3</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<fBattleDistance>0.55</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bSmoothMove>1</bSmoothMove>
+-			<fAngleInterpRate>720.0</fAngleInterpRate>
+-			<fBankRate>0.35</fBankRate>
+-			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop> </AudioRunTypeLoop>
+-				<AudioRunTypeEnd> </AudioRunTypeEnd>
+-			</AudioRunSounds>
+-			<PatrolSound>AS3D_UN_AIRSHIP_PATROL</PatrolSound>
+-			<SelectionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</SelectionSound>
+-			<ActionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</ActionSound>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_FIGHTER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Fighter.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,10</Button>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index 3e1e92c1f..ac1743ef6 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -78,6 +78,15 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_EXPLORER</DefaultUnit>
+ 		</UnitClassInfo>
++		<UnitClassInfo>
++			<Type>UNITCLASS_AIRSHIP</Type>
++			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
++			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
++			<iMaxTeamInstances>-1</iMaxTeamInstances>
++			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<iInstanceCostModifier>0</iInstanceCostModifier>
++			<DefaultUnit>UNIT_AIRSHIP</DefaultUnit>
++		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_SPY</Type>
+ 			<Description>TXT_KEY_UNIT_SPY</Description>
+@@ -702,15 +711,6 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_CARRIER</DefaultUnit>
+ 		</UnitClassInfo>
+-		<UnitClassInfo>
+-			<Type>UNITCLASS_AIRSHIP</Type>
+-			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
+-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+-			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+-			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_AIRSHIP</DefaultUnit>
+-		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_FIGHTER</Type>
+ 			<Description>TXT_KEY_UNIT_FIGHTER</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 12193c744..7fc693670 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2247,7 +2247,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
++			<!-- custom: was empty -->
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_AIRSHIP</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -2321,8 +2327,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<!-- custom: was 2 -->
+-			<iMoves>3</iMoves>
++			<iMoves>2</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -2422,6 +2427,241 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<UnitInfo> <!-- custom: class: UNITCLASS_AIRSHIP, type: UNIT_AIRSHIP (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_AIRSHIP</Class>
++			<Type>UNIT_AIRSHIP</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<!-- custom: was UNITCOMBAT_AIR -->
++			<Combat>UNITCOMBAT_RECON</Combat>
++			<!-- custom: make the unit walk, and on all terrains, hack it to be this way by giving it (solution to do this advised by ChatGPT), new combat type and domain, was DOMAIN_AIR -->
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<!-- custom: too tedious to manage, also not realistic according to chatgpt, make them strictly observer/explroer/recon based/type of units, hopefully historically more accurate and less tedious or/and relevant this way anyways etc, was INVISIBLE_SUBMARINE -->
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
++			<Civilopedia>TXT_KEY_UNIT_AIRSHIP_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<!-- custom: was 0 -->
++			<bOnlyDefensive>1</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>0</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>0</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<!-- custom: was 0 -->
++			<bCanMoveImpassable>1</bCanMoveImpassable>
++			<!-- custom: was 0 -->
++			<bCanMoveAllTerrain>1</bCanMoveAllTerrain>
++			<bFlatMovementCost>1</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades/>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<!-- custom: replace with the unit_explorer's unitais now that this unit is a recon unit anyways etc -->
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<!-- custom: was TECH_PHYSICS -->
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<TechTypes/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 80 -->
++			<iCost>100</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>2</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<!-- custom: now the airship is a domain_land unit, so disabling it now for this unit, based on / done in accordance with if i may say too but anyways etc chatgpt's explanation anyways etc, was 8 -->
++			<iAirRange>0</iAirRange>
++			<!-- custom: was 1 -->
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<!-- custom: do not make it weaker than unit_explorer it is an upgrade of, also simulate some sort of modest defense if someone has a gun or something on the unit, as for iaircombat and iaircombatlimit fields, disabling them as per chatgpt's recommendation after asking it anyways etc, was 0 0 4 20-->
++			<iCombat>6</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>4</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<!-- custom: was 0 -->
++			<iWithdrawalProb>20</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods/>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>0</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>3</iAsset>
++			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think soemone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
++			<iPower>4</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>1</iGroupSize>
++				<fMaxSpeed>0.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>1</iMeleeWaveSize>
++				<iRangedWaveSize>1</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_AIRSHIP</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_SENTRY</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT2</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<!-- custom: use a spy dedicated txt key entry to remove much of the unclear or potentially mistaken information. We only want the relevant info about the spy as a unit, not the whole espionnage concept. Also solves some display issues in the sevopedia history panel of this unit. -->
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_SPY, type: UNIT_SPY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_SPY</Class>
+@@ -20493,12 +20733,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: simulate it being able to walk at day and night non-stop and freely regardless of terrain or such since it levitates anyways etc minimal energetic cost anyways etc, so add PROMOTION_MOBILITY_COST as well to this unit's free promotions that were based on the modern_tank's free promotions anyways etc -->
++			<!-- custom: simulate it being able to walk at day and night non-stop and freely regardless of terrain or such since it levitates anyways etc minimal energetic cost anyways etc, so add PROMOTION_MOBILITY_COST anyways etc -->
+ 			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_MOBILITY_RANGE</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+@@ -23631,230 +23867,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_AIRSHIP, type: UNIT_AIRSHIP (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_AIRSHIP</Class>
+-			<Type>UNIT_AIRSHIP</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<!-- custom: make the unit walk, and on all terrains, hack it to be this way by giving it (solution to do this advised by ChatGPT), new combat type and domain, was UNITCOMBAT_AIR and DOMAIN_AIR -->
+-			<Combat>UNITCOMBAT_GUN</Combat>
+-			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
+-			<Civilopedia>TXT_KEY_UNIT_AIRSHIP_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_AIRSHIP_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>0</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>0</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<!-- custom: was 0 -->
+-			<bCanMoveImpassable>1</bCanMoveImpassable>
+-			<!-- custom: was 0 -->
+-			<bCanMoveAllTerrain>1</bCanMoveAllTerrain>
+-			<bFlatMovementCost>1</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>0</bMechanized>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_PARADROP</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY_LEMMING</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_SPY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</NotUnitAIs>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_PHYSICS -->
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+-			<TechTypes/>
+-			<BonusType>NONE</BonusType>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>80</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<!-- custom: todo check if we can still enable this (iAirRange), may make more sense
+-			though that the unit is useless at attacking other air units, in AdvCiv-SAS, todo would
+-			need to make this combat type extremely weak against fighters or even bombers, or
+-			helicopters, as well as other units such as gun ones -->
+-			<iAirRange>0</iAirRange>
+-			<iAirUnitCap>1</iAirUnitCap>
+-			<iDropRange>1</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<iCombat>0</iCombat>
+-			<iCombatLimit>0</iCombatLimit>
+-			<iAirCombat>4</iAirCombat>
+-			<iAirCombatLimit>20</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>4</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods/>
+-			<BonusProductionModifiers/>
+-			<iBombRate>0</iBombRate>
+-			<iBombardRate>0</iBombardRate>
+-			<!-- custom: imported from the (old) caravel, just so they don't drop tanks or something, may be a bit too early technologically or inefficient for ground (gun) infantry or inefficient for that as well, so may suit this too quite well/comfortably, anyways, -->
+-			<SpecialCargo>SPECIALUNIT_PEOPLE</SpecialCargo>
+-			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>0</iCargo>
+-			<iConscription>0</iConscription>
+-			<iCultureGarrison>0</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<iPower>4</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>1</iGroupSize>
+-				<fMaxSpeed>0.75</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>1</iMeleeWaveSize>
+-				<iRangedWaveSize>1</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_AIRSHIP</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_FIGHTER, type: UNIT_FIGHTER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_FIGHTER</Class>
+ 			<Type>UNIT_FIGHTER</Type>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 3640b9db1..799409459 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -93,9 +93,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - some terrains are buffed, for example snow (see Bonus: deer changes), desert (see Bonus: camel changes), and water tiles (see Bonus: water bonus changes, and Buildings: water buildings changes) are stronger and play a more important role in the game now.
+ - enabled floodplains after raze, hopefully they (previous city (owners) developped the land well enough that it can still be profitable, also for more relaxed and interesting gameplay, i would want the difficulty to be elsewhere, not in such tedious things)
+-- ground explore units can move through all terrains (`bCanMoveImpassable` enabled in xml anyways etc) since the begining of the game, not water tiles though, but for example peaks. They also all ignore terrain movement costs, not just the (renaissance) explorer, see sevopedia Terrain Peak (new entry added as part of the sevopedia rework anyways etc, see [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) or/and see xml for details as well anyways etc)
++- ground explore/recon units can move through all terrains (`bCanMoveImpassable` enabled in xml anyways etc) since the begining of the game, not water tiles though, but for example peaks. They also all ignore terrain movement costs, not just the (renaissance) explorer, see sevopedia Terrain Peak (new entry added as part of the sevopedia rework anyways etc, see [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) or/and see xml for details as well anyways etc)
+ - some other units such as for example as of now the quechua warrior can also move through all land terrains (`bCanMoveImpassable` enabled in xml anyways etc), see sevopedia terrain peak or hill (also newly added in sevopedia rework of the terrain category anyways etc) or any terrain there or/and in xml or and docs for relevant units per terrain.
+-- air explore units for example the dirigible (old airship) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
++- air explore/recon units (as of now for example the airship (see sevopedia unit or the military changes section in this readme for details about the airship changes anyways etc)) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). This effect applies to these tiles even if they are roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
+ - some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat ; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
+ - terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe but anyways etc). Civ-specific units in particular as of now all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example the camel knight or the zulu impi are stronger in desert or/and other terrains as well. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
+@@ -196,9 +196,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Military (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
++- Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer, (now also added the airship, see below anyways etc)), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
+ - some units are now in another combat type, for example as of now the mechanized_infantry is now in armored units, not in gun units anymore.
+-- This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken. Also for example the anti tank infantry and the gunship would now be strong against mechanized infantry if i am not mistaken for example too as of now at least it would be so if i am not mistaken anyways etc.
++- This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken. Also for example the anti tank infantry and the gunship would now be strong against mechanized infantry if i am not mistaken for example too as of now at least it would be so if i am not mistaken anyways etc. The airship is now a recon unit, not an air unit anymore, meant to be a defensive more effective recon unit than the explorer, see sevopedia unit for updated values anyways etc.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
+ - fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions but anyways etc, but we (i.e. me but anyways etc xd if i may say but anyways etc...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still ; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well if i am not mistaken but anyways etc) ; also as a result and in line/following this change but anyways etc, as of now collateral damage 1 and 2 promotions are available to all eligible units (which should be all or almost all, see sevopedia promotion or sevopedia unit for details) ; hopefully i am not mistaken in doing so or/and it is helpful or not or yes or etc but anyways etc)
+@@ -232,146 +232,3 @@ See:
+ 
+ - [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md)
+ - a few extra issues that are not listed in readme known issues may also be found in the main readme.md's [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) if i am not mistaken too anyways etc
+-
+-## Todos maybe (not yet effective, may never be so or be so later anyways etc if i find it not relevant anymore or simply don't do it if tedious or not want it anymore anyways etc)
+-
+-- todo maybe anyways etc the "citizen" specialist is removed, instead added the doctor specialist (that)
+-gives health todo and a great doctor great person that gives todo unlocked at
+-medicine tech todo. I found "citizen" quite useless and annoying even sometimes,
+-hopefully less now and maybe useful hopefully.
+-- as a result of the previous point, it should be even less likely for a "spearman"
+-to win against a tank, and also much less likely for a swordsman to every match a
+-musketman, for example, which should also make more sense historically hopefully.
+-Defenders may have a chance to prevail while being behind in tech but it will be
+-(much) harder.
+-- there are many new unit combat types todo, see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example there is no more "melee" combat type. Instead, for example about the former spearman (that was part of the melee combat type), there are now 3 new combat types the old "spearman" can be part of, melee_lancer_light, melee_lancer_medium (includes the former spearman that is now a lancer medium combat type at the bronze age era, for example), melee_lancer_heavy. See the "Unit Combat types" category of the sevopedia (ingame)(the sevopedia has been a bit tweaked/reworked too btw) for details.
+-- why bother to do (all) that? Each of these combat types have different units with
+-different strengths and weaknesses, but to give a general idea, generally the faster
+-ones will have less damage/strength but better at defense/avoiding/harassing other
+-units quite freely, while the slower ones have high strength, can defend and attack
+-well, but no such bonuses, and may cost a bit more too. Strategy should be a lot
+-more important and versatile/flexible/to be adjusted based on local circumstances.
+-For a full view of all existing units, on top of viewing the "Unit Combat Types",
+-you can also see the "Units Tree" for a better view of in the sevopedia ingame.
+-- A consequence of this is also that now there will be hopefully no more weirdness of
+-the axeman being good against lancer, now the relationships between types will be more
+-complicated or rather defined (may make more sense at same time too), for example an
+-axeman may be good against swordsmen (for example todo), but not against heavy lances.
+-Light lances may have strong bonuses against all/most melee types, except fast ones,
+-and light swords strong bonuses against all/most melee types too except fast ones
+-(their strength would be lower though). Strategy should be much more important while
+-not being too tedious ideally.
+-- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
+-than a medieval light swordsman, but the medieval light swordsman will have (much more)
+-bonuses that should make him (or her but most often him) more valuable
+-as a military unit. This is also realistic too, no reason why an ancient maceman could
+-not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
+-too extremely the case i think, in base advciv/bts, even accounting for armor and such,
+-i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
+-to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
+-and not tedious experience too.
+-- The tech tree is fairly straightforward, with max one (minus the civ units)
+-unit type per era, for example, which should hopefully help make sense of that and getting
+-immersed into it, while not neglecting on strategy, hopefully, at least was my/one of my
+-goal(s) making (and became as i was making too) this AdvCiv-SAS mod. Note also that this
+-is not the case for all units and eras, only the ones i found most relevant ones and to
+-not be tedious enough (there is no work boat 1 work boat 2 workboat 3 etc for example,
+-only one for all eras, but there are a few workers every few eras, but there are military
+-units for each new era, at max one unit per combat type (for example "sword light", "lance
+-heavy", are each one type), and not for all types, also lesser in later stages of the game
+-to simplify/rush/reach sooner the endgame)
+-- maybe even workers too can defend anyways etc
+-- in particular the settler is now not freely available but requires agriculture (is historical too, but for convenience first settler at starting game is provided for free as it was in Civ4 BTS and AdvCiv)
+-- some units can only be built under specific conditions, for example each religion
+-has one unit (same for neo religions at later eras. See religion changes below for
+-details), for example Buddhism is required to build monks (lance light combat type)
+-(yes such as shaolin but anyways..) and Christianism for Crusaders, etc.
+-- on that note, some religious units are listed on the units tree of the sevopedia
+-while some others not, check for detail the sevopedia (todo update this bullet
+-point) page of the sevopedia?
+-- some units have been removed: sometimes for graphical reasons: for example the
+-rifleman has a new graphic art but the concept of a rifleman remains in itself
+-(may be rebalanced or not though like the other units though)
+-- also ideally i'd want only and/or mostly only one class (for example a a galleon, a worker, a swordsman, etc.) of unit per era
+-- some units have been removed: sometimes for historical accuracy or flavor one
+-could say maybe reasons: for example the phalanx civ unit of the greek empire
+-is now the hoplite phalanx (a lancer heavy combat type, not based on the axeman
+-anymore), and available in mid iron age not in bronze age for better historical
+-accuracy. I did not check them all (maybe todo fix this note if did) but those
+-who i did and that i found to be (especially if gravely) mistaken and that i
+-wanted and did decide to fix or did i did fix. Feel free to point historical
+-accuracies to me, not guaranteed i would fix them, but if i am available to
+-read them and all i may or/and reply to those requests about these, but
+-not guaranteed, may or not,
+-- some units automatically upgrade, for example the workers, scout, and similar
+-units. They get a new design graphically at a new era, but also more bonuses, for
+-example every few eras workers may become more and more productive (faster
+-improvement build time, or/and move speed/ or and other things for example).
+-This is to remove the tediousness or a part of it from the game
+-- for simplicity most unit upgrade are fairly straightforward and
+-relaxed: all offensive units can be upraded to offense gun units, same for defensive
+-melee units into defensive gun units, same for all offensive mounted units into
+-offensive mounted units. I don't want the tediousness (if any must have to be, not
+-sure about this too but anyways) to be there. Historically is also not so nonsensical
+-to think archers started to use a gun, or even axemen actually, once it's not an
+-effective weapon anymore. Cavalries and similar upgrade into tanks, maybe their skills
+-translate into driving the tank better or having a better understanding of military
+-tactics/logistics required in doing so. This is mostly to simplify the tedious parts
+-of the game while also making all units relevant, a few one rather than many useless
+-ones, so plan your strategy accordingly.
+-- another element of attention is that military (at least early ones, now don't
+-have much strength difference between them. For example, an ancien maceman (warrior)
+-would be 10 strength, and a swordsman only 15 strength, while an archer would be 6
+-strength but with extra or/and other bonuses. In exchange of these adjustments, upgrade
+-costs are much cheaper todo, so you will not be able to build full warriors then upgrade
+-them later while going full economy. Also, since units are so close in strength now,
+-at least early ones, terrain multipliers and promotions multipliers play an especially
+-big part. The power correction part has been entirely removed or rather negated, in
+-fact slightly under 100 now. As a human even if odds are slightly below certainty, if
+-odds are good enough, attack. In exchange also, city attack has been severly increased,
+-now an AI will want to be about twice +/- as strong as city defenders else would not
+-bother to attack, ideally. Hopefully and ideally, in theory, this means AIs should/would
+-behave like a human player would or closer to it, hesitating less to attack and may be
+-willing to risk if good enough odds or reward, but more guarded about attacking stronger
+-targets otherwise, at least in theory. They should especially target more lone units
+-outside of cities, but much less those in cities.)
+-- some terrains are buffed, for example snow, desert, and water tiles are (very)
+-important now. Some terrain specific bonuses are added to some units or/and
+-Civlizations (for example todo), some buildings give bonus to desert and snow yields
+-, for example the impluvium building (Kingdom of Benin) improves quite a lot the
+-desert tiles (you can gain more bonuses with other buildings or techs or civs for
+-example), and another example is the building that replaces moai (nerfed but not a lot)
+-- also these "bad" terrains should be buffed a bit or quite a lot, so they would be more considered as alternative strategic options rather than bad tiles, among other possible changes
+-- (for corproations todo maybe it would be 100%?(?))) are even
+-stronger. (about conversion chance or something if such a thing exists same as for misisonaries although i didn't check anyways etc)
+-- (todo check if still accurate and if we implement this in advciv-sas or simply rather reduce their count or/and rework them anyways etc: ) no more small wonders!
+-- (todo check if still accurate and if we implement this in advciv-sas) some world wonders have changed names to reflect their history more, for example "The Great Lighthouse" is now "Lighthouse of Alexandria", and some wonders are tied to another civ than in civ4 bts/advciv, for example "The great wall" no longer is linked with China but is now "The Ancient Walls of Benin", if you want to know why, see [the Mod folder](/_1_AdvCiv-SAS/), i have also put the [source](https://thinkafrica.net/walls-of-benin/) here directly to illustrate this example.
+-- (todo check if still accurate and if we implement this in advciv-sas) also, each civilization now is tied to a world wonder, everyone can build it,
+-but if the civilization tied to it builds it first
+-- some ressources are not revealed until a certain tech: sheep is always visible,
+-but gold not until metal casting.
+-- a few new civs added, mostly in snow/desert terrains, or underrepresented parts
+-of the world, see world map with civs in [README.md#civs-you-can-expect-in-this-mod](/README.md#civs-you-can-expect-in-this-mod), for example The Kingdom Of Benin (Nigeria), or in weaker terrains (that are now buffed), (todo and not sure not done as of now anyways etc) for example Canada
+-- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hopefully helpful or not or and other or and not check sevopedia for latest content todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
+-leaders, should be plenty for a variety of gameplay, i don't want to clutter, prefer
+-to go deep in strategy instead, for example Joan Of Arc has been added, and Louis XIV
+-and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
+-added and Hatscheputt removed for example
+-- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as general info hopefully helpful or not or and other or and not check sevopedia for latest content todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) todo: space victory removed, it's too tedious to do, instead the USA is the
+-only civ who wins if they build the programme Appolo, make sure to keep them in
+-check
+-- (not sure if accurate anymore, may or not rework as described here) religion is very important: unlike in civ4 where they are very similar, now
+-each religion has specific bonuses (for example paganism gives slavery bonuses,
+-but buddhism gives science bonus), also the cathedrals have been removed (too
+-much clutter, and now the monasteries are called "Altars", very strong buildings
+-so you must (i think) pay a lot of attention to religion and consider which one
+-you want)
+-- (not sure if accurate anymore, may or not rework as described here) later in the game, neo religion, for example judaism has a neoreligion zionism
+-(even though not strictly religious), islam has jihad, with big bonuses, just
+-as in real life, even in modern eras, religions continue to play a big part in
+-politics and society, for better or worse, i think though
+-- gradual gameplay: slower early game, faster late game (less of a chore too
+-now maybe)
+-- todo animals can be captured?
+-
+-- todo continue maybe or not or yes or other or etc but anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+index 76751f106..ad47db941 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG
+index 5621cfe5e..3a5f03665 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=55359

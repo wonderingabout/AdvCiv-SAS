@@ -1,0 +1,725 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2175
+# Commit: c8bee6d282908935689d8afdc9f10fc6ab05b45b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 487e793d3800b366b810fda8ea11b7f3994a8815
+# Title: Some misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGame.h
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+3	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGlobals.cpp
+4	1	CvGameCoreDLL/CvMap.h
+58	59	CvGameCoreDLL/CvMapGenerator.cpp
+4	1	CvGameCoreDLL/CvMapGenerator.h
+11	9	CvGameCoreDLL/CvPlayer.cpp
+5	1	CvGameCoreDLL/CvPlot.cpp
+1	2	CvGameCoreDLL/CvPlot.h
+20	16	CvGameCoreDLL/CvTeam.cpp
+3	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index fc7b78fd1..a81745fe3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -717,7 +717,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bLayerFromSavegame = false; // </advc.004m>
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
+-	b_mFPTestDone = false; // advc.003g
++	m_bFPTestDone = false; // advc.003g
+ 	// <advc.003r>
+ 	for(int i = 0; i < NUM_UPDATE_TIMER_TYPES; i++)
+ 		m_aiUpdateTimers[i] = -1; // </advc.003r>
+@@ -823,7 +823,7 @@ void CvGame::initGameHandicap()
+ void CvGame::initFreeState()
+ {
+ 	// advc.003g: Want to set this as soon as CvGame knows the GameType
+-	b_mFPTestDone = !isNetworkMultiPlayer();
++	m_bFPTestDone = !isNetworkMultiPlayer();
+ 	GC.getAgents().gameStart(false); // advc.agent
+ 	initGameHandicap(); // advc.127
+ 	// <advc.250b>
+@@ -8550,9 +8550,9 @@ int CvGame::FPChecksum() const
+ 
+ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
+ {
+-	if(b_mFPTestDone)
++	if(m_bFPTestDone)
+ 		return;
+-	b_mFPTestDone = true;
++	m_bFPTestDone = true;
+ 	if(iChecksum == FPChecksum())
+ 		return; // Active player is able to reproduce checksum received over the net
+ 
+@@ -8945,7 +8945,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		pStream->Read(&m_bScenario); // </advc.052>
+ 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
+ 	applyOptionEffects(); // advc.310
+-	b_mFPTestDone = !isNetworkMultiPlayer(); // advc.003g
++	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 645a605a0..5cbcc12d4 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -818,6 +818,7 @@ protected:
+ 	int m_iCivTeamsEverAlive;
+ 	// </advc.opt>
+ 	int m_iUnitUpdateAttempts; // advc.001y
++	int m_iScreenWidth, m_iScreenHeight; // advc.061
+ 	unsigned int m_uiInitialTime;
+ 
+ 	bool m_bScoreDirty;
+@@ -829,14 +830,13 @@ protected:
+ 	bool m_bHotPbemBetweenTurns;
+ 	bool m_bPlayerOptionsSent;
+ 	bool m_bNukesValid;
+-	int m_iScreenWidth, m_iScreenHeight; // advc.061
+ 	bool m_bInBetweenTurns; // advc.106b
+ 	bool m_bFeignSP; // advc.135c
+ 	bool m_bScenario; // advc.052
+ 	bool m_bAllGameDataRead; // advc
+ 	bool m_bDoMShown; // advc.004x
+ 	bool m_bLayerFromSavegame; // advc.004m
+-	bool b_mFPTestDone; // advc.003g
++	bool m_bFPTestDone; // advc.003g
+ 
+ 	HandicapTypes m_eHandicap;
+ 	HandicapTypes m_eAIHandicap; // advc.127
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 90dfedcd6..3c6afbe64 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -415,7 +415,7 @@ void CvGame::updateTestEndTurn()  // advc: nested else branches replaced w/ retu
+ 		return;
+ 
+ 	// <advc.003g>
+-	if(!b_mFPTestDone)
++	if(!m_bFPTestDone)
+ 		CvMessageControl::getInstance().sendFPTest(FPChecksum()); // </advc.003g>
+ 
+ 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI(); // advc
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b16047ac6..5d1fa3155 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -21173,7 +21173,9 @@ void CvGameTextMgr::appendNegativeModifiers(CvWStringBuffer& szString,
+ 		CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot)
+ {
+ 	int iModifier = 0;
+-	if (!pAttacker->isRiver())
++	if (!pAttacker->isRiver() &&
++		// advc.opt: isRiverCrossing is no longer supposed to handle non-adjacent tiles
++		stepDistance(pAttacker->plot(), pPlot) == 1)
+ 	{
+ 		if (pAttacker->getPlot().isRiverCrossing(
+ 			directionXY(pAttacker->getPlot(), *pPlot)))
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 2cf1325fb..c236ec793 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -202,7 +202,7 @@ void CvGlobals::init() // allocate
+ 	DirectionTypes aaeXYDirection[DIRECTION_DIAMETER][DIRECTION_DIAMETER] =
+ 	{
+ 		DIRECTION_SOUTHWEST, DIRECTION_WEST,	DIRECTION_NORTHWEST,
+-		DIRECTION_SOUTH,     NO_DIRECTION,    DIRECTION_NORTH,
++		DIRECTION_SOUTH,     NO_DIRECTION,		DIRECTION_NORTH,
+ 		DIRECTION_SOUTHEAST, DIRECTION_EAST,	DIRECTION_NORTHEAST,
+ 	};
+ 	/*  <advc.006> getInfoTypeForString gets called for each of the PlotTypes values
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 7d6321a7a..e9893058a 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -143,8 +143,11 @@ public:
+ 	inline DirectionTypes directionXY(int iDX, int iDY) const
+ 	{
+ 		if (abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS)
++		{
++			FAssertMsg(false, "Just to see if the DIRECTION_RADIUS<abs branch is needed"); // advc.test
+ 			return NO_DIRECTION;
+-		else return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
++		}
++		return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
+ 	}
+ 
+ 	inline DirectionTypes directionXY(CvPlot const& kFromPlot, CvPlot const& kToPlot) const // advc: take params as references
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index cfc9ad63a..dcbcd25ad 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -267,7 +267,8 @@ void CvMapGenerator::addRivers()  // advc: Refactored
+ }
+ 
+ // pStartPlot = the plot at whose SE corner the river is starting
+-void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCardinalDirection, CardinalDirectionTypes eOriginalCardinalDirection, int iThisRiverID)
++void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCardinalDirection,
++	CardinalDirectionTypes eOriginalCardinalDirection, short iThisRiverID)
+ {
+ 	if (iThisRiverID == -1)
+ 	{
+@@ -285,73 +286,72 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 	CvPlot *pAdjacentPlot = NULL;
+ 
+ 	CardinalDirectionTypes eBestCardinalDirection = NO_CARDINALDIRECTION;
+-
+-	if (eLastCardinalDirection==CARDINALDIRECTION_NORTH)
++	if (eLastCardinalDirection == CARDINALDIRECTION_NORTH)
+ 	{
+ 		pRiverPlot = pStartPlot;
+ 		if (pRiverPlot == NULL)
+-		{
+ 			return;
+-		}
+-		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), CARDINALDIRECTION_EAST);
+-		if ((pAdjacentPlot == NULL) || pRiverPlot->isWOfRiver() || pRiverPlot->isWater() || pAdjacentPlot->isWater())
++		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++				CARDINALDIRECTION_EAST);
++		if (pAdjacentPlot == NULL || pRiverPlot->isWOfRiver() ||
++			pRiverPlot->isWater() || pAdjacentPlot->isWater())
+ 		{
+ 			return;
+ 		}
+ 
+ 		pStartPlot->setRiverID(iThisRiverID);
+ 		pRiverPlot->setWOfRiver(true, eLastCardinalDirection);
+-		pRiverPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), CARDINALDIRECTION_NORTH);
++		pRiverPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++				CARDINALDIRECTION_NORTH);
+ 	}
+ 	else if (eLastCardinalDirection==CARDINALDIRECTION_EAST)
+ 	{
+-		pRiverPlot = plotCardinalDirection(pStartPlot->getX(), pStartPlot->getY(), CARDINALDIRECTION_EAST);
++		pRiverPlot = plotCardinalDirection(pStartPlot->getX(), pStartPlot->getY(),
++				CARDINALDIRECTION_EAST);
+ 		if (pRiverPlot == NULL)
+-		{
+ 			return;
+-		}
+-		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), CARDINALDIRECTION_SOUTH);
+-		if ((pAdjacentPlot == NULL) || pRiverPlot->isNOfRiver() || pRiverPlot->isWater() || pAdjacentPlot->isWater())
++		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++				CARDINALDIRECTION_SOUTH);
++		if (pAdjacentPlot == NULL || pRiverPlot->isNOfRiver() ||
++			pRiverPlot->isWater() || pAdjacentPlot->isWater())
+ 		{
+ 			return;
+ 		}
+-
+ 		pStartPlot->setRiverID(iThisRiverID);
+ 		pRiverPlot->setNOfRiver(true, eLastCardinalDirection);
+ 	}
+ 	else if (eLastCardinalDirection==CARDINALDIRECTION_SOUTH)
+ 	{
+-		pRiverPlot = plotCardinalDirection(pStartPlot->getX(), pStartPlot->getY(), CARDINALDIRECTION_SOUTH);
++		pRiverPlot = plotCardinalDirection(pStartPlot->getX(), pStartPlot->getY(),
++			CARDINALDIRECTION_SOUTH);
+ 		if (pRiverPlot == NULL)
+-		{
+ 			return;
+-		}
+-		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), CARDINALDIRECTION_EAST);
+-		if ((pAdjacentPlot == NULL) || pRiverPlot->isWOfRiver() || pRiverPlot->isWater() || pAdjacentPlot->isWater())
++		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++				CARDINALDIRECTION_EAST);
++		if (pAdjacentPlot == NULL || pRiverPlot->isWOfRiver() ||
++			pRiverPlot->isWater() || pAdjacentPlot->isWater())
+ 		{
+ 			return;
+ 		}
+-
+ 		pStartPlot->setRiverID(iThisRiverID);
+ 		pRiverPlot->setWOfRiver(true, eLastCardinalDirection);
+ 	}
+-
+ 	else if (eLastCardinalDirection==CARDINALDIRECTION_WEST)
+ 	{
+ 		pRiverPlot = pStartPlot;
+ 		if (pRiverPlot == NULL)
+-		{
+ 			return;
+-		}
+-		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), CARDINALDIRECTION_SOUTH);
+-		if ((pAdjacentPlot == NULL) || pRiverPlot->isNOfRiver() || pRiverPlot->isWater() || pAdjacentPlot->isWater())
++		pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++				CARDINALDIRECTION_SOUTH);
++		if (pAdjacentPlot == NULL || pRiverPlot->isNOfRiver() ||
++			pRiverPlot->isWater() || pAdjacentPlot->isWater())
+ 		{
+ 			return;
+ 		}
+-
+ 		pStartPlot->setRiverID(iThisRiverID);
+ 		pRiverPlot->setNOfRiver(true, eLastCardinalDirection);
+-		pRiverPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), CARDINALDIRECTION_WEST);
++		pRiverPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++				CARDINALDIRECTION_WEST);
+ 	}
+ 	else
+ 	{
+@@ -363,33 +363,29 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 	}
+ 
+ 	if (pRiverPlot == NULL)
+-	{
+ 		return; // The river has flowed off the edge of the map. All is well.
+-	}
+-	else if (pRiverPlot->hasCoastAtSECorner())
+-	{
++	if (pRiverPlot->hasCoastAtSECorner())
+ 		return; // The river has flowed into the ocean. All is well.
+-	}
+ 
+ 	if (eBestCardinalDirection == NO_CARDINALDIRECTION)
+ 	{
+ 		int iBestValue = MAX_INT;
+-
+-		for (int iI = 0; iI < NUM_CARDINALDIRECTION_TYPES; iI++)
++		FOR_EACH_ENUM(CardinalDirection)
+ 		{
+-			if (getOppositeCardinalDirection((CardinalDirectionTypes)iI) != eOriginalCardinalDirection)
++			CardinalDirectionTypes eOppositeDir = getOppositeCardinalDirection(
++					eLoopCardinalDirection);
++			if (eOppositeDir != eOriginalCardinalDirection &&
++				eOppositeDir != eLastCardinalDirection)
+ 			{
+-				if (getOppositeCardinalDirection((CardinalDirectionTypes)iI) != eLastCardinalDirection)
++				pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(),
++						eLoopCardinalDirection);
++				if (pAdjacentPlot != NULL)
+ 				{
+-					pAdjacentPlot = plotCardinalDirection(pRiverPlot->getX(), pRiverPlot->getY(), ((CardinalDirectionTypes)iI));
+-					if (pAdjacentPlot != NULL)
++					int iValue = getRiverValueAtPlot(pAdjacentPlot);
++					if (iValue < iBestValue)
+ 					{
+-						int iValue = getRiverValueAtPlot(pAdjacentPlot);
+-						if (iValue < iBestValue)
+-						{
+-							iBestValue = iValue;
+-							eBestCardinalDirection = (CardinalDirectionTypes)iI;
+-						}
++						iBestValue = iValue;
++						eBestCardinalDirection = eLoopCardinalDirection;
+ 					}
+ 				}
+ 			}
+@@ -398,20 +394,18 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 
+ 	if (eBestCardinalDirection != NO_CARDINALDIRECTION)
+ 	{
+-		if  (eOriginalCardinalDirection	== NO_CARDINALDIRECTION)
+-		{
++		if (eOriginalCardinalDirection == NO_CARDINALDIRECTION)
+ 			eOriginalCardinalDirection = eBestCardinalDirection;
+-		}
+ 		doRiver(pRiverPlot, eBestCardinalDirection, eOriginalCardinalDirection, iThisRiverID);
+ 	}
+ }
++
+ //Note from Blake:
+ //Iustus wrote this function, it ensures that a new river actually
+ //creates fresh water on the passed plot. Quite useful really
+ //Although I veto'd its use since I like that you don't always
+ //get fresh water starts.
+ // pFreshWaterPlot = the plot we want to give a fresh water river
+-//
+ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ {
+ 	FAssert(pFreshWaterPlot != NULL);
+@@ -424,6 +418,9 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 	if (pFreshWaterPlot->isRiver())
+ 		return true;
+ 
++	int const iFreshWX = pFreshWaterPlot->getX(); // advc
++	int const iFreshWY = pFreshWaterPlot->getY(); // advc
++
+ 	// make two passes, once for each flow direction of the river
+ 	int iNWFlowPass = GC.getGame().getMapRandNum(2, "addRiver");
+ 	for (int iPass = 0; iPass <= 1; iPass++)
+@@ -439,12 +436,12 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 			case CARDINALDIRECTION_NORTH:
+ 				if (iPass == iNWFlowPass)
+ 				{
+-					pRiverPlot = plotDirection(pFreshWaterPlot->getX(), pFreshWaterPlot->getY(), DIRECTION_NORTH);
++					pRiverPlot = plotDirection(iFreshWX, iFreshWY, DIRECTION_NORTH);
+ 					eRiverDirection = CARDINALDIRECTION_WEST;
+ 				}
+ 				else
+ 				{
+-					pRiverPlot = plotDirection(pFreshWaterPlot->getX(), pFreshWaterPlot->getY(), DIRECTION_NORTHWEST);
++					pRiverPlot = plotDirection(iFreshWX, iFreshWY, DIRECTION_NORTHWEST);
+ 					eRiverDirection = CARDINALDIRECTION_EAST;
+ 				}
+ 				break;
+@@ -457,7 +454,7 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 				}
+ 				else
+ 				{
+-					pRiverPlot = plotDirection(pFreshWaterPlot->getX(), pFreshWaterPlot->getY(), DIRECTION_NORTH);
++					pRiverPlot = plotDirection(iFreshWX, iFreshWY, DIRECTION_NORTH);
+ 					eRiverDirection = CARDINALDIRECTION_SOUTH;
+ 				}
+ 				break;
+@@ -470,7 +467,7 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 				}
+ 				else
+ 				{
+-					pRiverPlot = plotDirection(pFreshWaterPlot->getX(), pFreshWaterPlot->getY(), DIRECTION_WEST);
++					pRiverPlot = plotDirection(iFreshWX, iFreshWY, DIRECTION_WEST);
+ 					eRiverDirection = CARDINALDIRECTION_EAST;
+ 				}
+ 				break;
+@@ -478,12 +475,12 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 			case CARDINALDIRECTION_WEST:
+ 				if (iPass == iNWFlowPass)
+ 				{
+-					pRiverPlot = plotDirection(pFreshWaterPlot->getX(), pFreshWaterPlot->getY(), DIRECTION_WEST);
++					pRiverPlot = plotDirection(iFreshWX, iFreshWY, DIRECTION_WEST);
+ 					eRiverDirection = CARDINALDIRECTION_NORTH;
+ 				}
+ 				else
+ 				{
+-					pRiverPlot = plotDirection(pFreshWaterPlot->getX(), pFreshWaterPlot->getY(), DIRECTION_NORTHWEST);
++					pRiverPlot = plotDirection(iFreshWX, iFreshWY, DIRECTION_NORTHWEST);
+ 					eRiverDirection = CARDINALDIRECTION_SOUTH;
+ 				}
+ 				break;
+@@ -495,7 +492,7 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 			if (pRiverPlot != NULL && !pRiverPlot->hasCoastAtSECorner())
+ 			{
+ 				// try to make the river
+-				doRiver(pRiverPlot, eRiverDirection, eRiverDirection, -1);
++				doRiver(pRiverPlot, eRiverDirection, eRiverDirection);
+ 
+ 				// if it succeeded, then we will be a river now!
+ 				if (pFreshWaterPlot->isRiver())
+@@ -517,13 +514,15 @@ void CvMapGenerator::addFeatures()
+ 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+ 		CvPlot& kPlot = GC.getMap().getPlotByIndex(iI);
+-		for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
++		FOR_EACH_ENUM(Feature)
+ 		{
+-			if (kPlot.canHaveFeature((FeatureTypes)iJ))
++			if (kPlot.canHaveFeature(eLoopFeature))
+ 			{
+ 				if (GC.getGame().getMapRandNum(10000, "addFeaturesAtPlot") <
+-						GC.getInfo((FeatureTypes)iJ).getAppearanceProbability())
+-					kPlot.setFeatureType((FeatureTypes)iJ);
++					GC.getInfo(eLoopFeature).getAppearanceProbability())
++				{
++					kPlot.setFeatureType(eLoopFeature);
++				}
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.h b/CvGameCoreDLL/CvMapGenerator.h
+index c1a59e338..b45d29f5d 100644
+--- a/CvGameCoreDLL/CvMapGenerator.h
++++ b/CvGameCoreDLL/CvMapGenerator.h
+@@ -23,7 +23,10 @@ public:
+ 
+ 	void addLakes();																			// Exposed to Python
+ 	DllExport void addRivers();														// Exposed to Python
+-	void doRiver(CvPlot* pStartPlot, CardinalDirectionTypes eLastCardinalDirection=NO_CARDINALDIRECTION, CardinalDirectionTypes eOriginalCardinalDirection=NO_CARDINALDIRECTION, int iThisRiverID=-1);	// Exposed to Python
++	void doRiver(CvPlot* pStartPlot,												// Exposed to Python
++			CardinalDirectionTypes eLastCardinalDirection = NO_CARDINALDIRECTION,
++			CardinalDirectionTypes eOriginalCardinalDirection = NO_CARDINALDIRECTION,
++			short iThisRiverID = -1); // advc.opt: was int
+ 	bool addRiver(CvPlot *pFreshWaterPlot);
+ 	DllExport void addFeatures();													// Exposed to Python
+ 	DllExport void addBonuses();													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 15833ca13..b51f4e43f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4906,7 +4906,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 		if (iOffset > 0)
+ 		{
+ 			int iBestValue = 0;
+-			for (SquareIter it(*pPlot, iOffset); it.hasNext(); ++it)
++			for (SquareIter it(*pPlot, iOffset, false); it.hasNext(); ++it)
+ 			{
+ 				CvPlot& kLoopPlot = *it;
+ 				if (kLoopPlot.isRevealed(getTeam()))
+@@ -4923,7 +4923,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 		if (pBestPlot == NULL)
+ 			pBestPlot = pPlot;
+ 
+-		for (PlotCircleIter it(*pBestPlot, iRange); it.hasNext(); ++it)
++		for (PlotCircleIter it(*pBestPlot, iRange, false); it.hasNext(); ++it)
+ 		{
+ 			if (g.getSorenRandNum(100, "Goody Map") < goody.getMapProb())
+ 				it->setRevealed(getTeam(), true, false, NO_TEAM, true);
+@@ -5008,9 +5008,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 			aeBestUnits.push_back(eBestUnit);
+ 		}
+ 	}
+-	if (goody.getUnitClassType() != NO_UNITCLASS
+-		// Pick a unit based on barb techs then
+-		|| (!goody.isBad() && goody.getMinBarbarians() > 0))
++	if (goody.getUnitClassType() != NO_UNITCLASS ||
++		// Pick a unit based on Barbarian tech then
++		(!goody.isBad() && goody.getMinBarbarians() > 0))
+ 	{
+ 		UnitTypes eUnit = NO_UNIT; // Declaration moved down
+ 		UnitClassTypes eUnitClass = (UnitClassTypes)goody.getUnitClassType();
+@@ -5113,7 +5113,8 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit, /* advc.314: */ GoodyTypes
+ 	FAssert(pPlot->isGoody() /* advc.314: */ || eTaboo != NO_GOODY);
+ 	pPlot->removeGoody();
+ 	// <advc>
+-	if(isBarbarian()) {
++	if(isBarbarian())
++	{
+ 		FAssertMsg(pPlot->isOwned(), "Barbarians should remove hut only when receiving a city");
+ 		return;
+ 	} // </advc>
+@@ -5128,9 +5129,10 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit, /* advc.314: */ GoodyTypes
+ 		FAssert(eGoody >= 0 && eGoody < GC.getNumGoodyInfos());
+ 		// <advc.314>
+ 		if(eGoody == eTaboo || (eTaboo != NO_GOODY && GC.getInfo(eGoody).isBad() !=
+-				GC.getInfo(eTaboo).isBad())) // Don't pair a good with a bad outcome
+-			continue; // </advc.314>
+-
++			GC.getInfo(eTaboo).isBad())) // Don't pair a good with a bad outcome
++		{
++			continue;
++		} // </advc.314>
+ 		if (canReceiveGoody(pPlot, eGoody, pUnit))
+ 		{
+ 			receiveGoody(pPlot, eGoody, pUnit, /* advc.314: */ eTaboo != NO_GOODY);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index ed176966a..5a4d3f76e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1229,7 +1229,7 @@ bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
+ {
+ 	switch (eDirection)
+ 	{
+-	case NO_DIRECTION: return false; // advc.opt (instead of checking it upfront?)
++	case NO_DIRECTION: return false; // advc.opt (instead of checking it upfront)
+ 	case DIRECTION_NORTH:
+ 		return (isRiverCrossing(DIRECTION_EAST) || isRiverCrossing(DIRECTION_WEST));
+ 	case DIRECTION_NORTHEAST:
+@@ -5892,7 +5892,10 @@ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
+ bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
+ {
+ 	if (eIndex == NO_DIRECTION)
++	{
++		FAssertMsg(false, "Just to see if the NO_DIRECTION branch is needed"); // advc.test
+ 		return false;
++	}
+ 	return m_abRiverCrossing.get(eIndex);
+ }
+ 
+@@ -7161,6 +7164,7 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 		pStream->Read(&m_eFeatureType);
+ 	}
+ 	pStream->Read(&m_eBonusType);
++	FAssertBounds(NO_BONUS, GC.getNumBonusInfos(), m_eBonusType); // advc
+ 	// <advc.opt>
+ 	if (uiFlag < 5)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index ee1430535..0f4533932 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -263,8 +263,7 @@ public:
+ 	{
+ 		return (getRouteType() != NO_ROUTE);
+ 	}
+-	bool isValidRoute(const CvUnit* pUnit,																											// Exposed to Python
+-			bool bAssumeRevealed) const; // advc.001i
++	bool isValidRoute(const CvUnit* pUnit, /* advc.001i: */ bool bAssumeRevealed) const;							// Exposed to Python
+ 	// advc.inl
+ 	inline bool isTradeNetworkImpassable(TeamTypes eTeam) const																														// Exposed to Python
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 35a7d2627..09540b302 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4297,7 +4297,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 	if (ePlayer == NO_PLAYER)
+ 		ePlayer = getLeaderID();
+ 
+-	CvGame& g = GC.getGame();
++	CvGame& kGame = GC.getGame();
+ 	CvTechInfo const& kTech = GC.getInfo(eTech);
+ 
+ 	if (kTech.isRepeat())
+@@ -4308,8 +4308,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 				bAnnounce && 1 == m_aiTechCount.get(eTech));
+ 
+ 		if (m_aiTechCount.get(eTech) == 1 && bAnnounce &&
+-				g.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
++			kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
++		{
+ 			announceTechToPlayers(eTech, /* advc.156: */ ePlayer);
++		}
+ 	}
+ 	else
+ 	{
+@@ -4339,7 +4341,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 		FOR_EACH_ENUM(SpecialBuilding)
+ 		{
+ 			if (eTech == GC.getInfo(eLoopSpecialBuilding).getTechPrereqAnyone())
+-				g.makeSpecialBuildingValid(eLoopSpecialBuilding, bAnnounce);
++				kGame.makeSpecialBuildingValid(eLoopSpecialBuilding, bAnnounce);
+ 		}
+ 
+ 		// report event to Python, along with some other key state
+@@ -4347,7 +4349,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 
+ 		bool bReligionFounded = false;
+ 		bool bFirstPerk = false; // advc: Reneamed from bFirstBonus
+-		bool bFirstToDiscover = (g.countKnownTechNumTeams(eTech) == 1); // advc.106
++		bool bFirstToDiscover = (kGame.countKnownTechNumTeams(eTech) == 1); // advc.106
+ 		if (bFirst && bFirstToDiscover &&
+ 			!GC.getPythonCaller()->doOrganizationTech(getID(), ePlayer, eTech))
+ 		{
+@@ -4363,7 +4365,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 					CvPlayer const& kMember = *it;
+ 
+ 					int iValue = 10;
+-					iValue += g.getSorenRandNum(10, "Found Religion (Player)");
++					iValue += kGame.getSorenRandNum(10, "Found Religion (Player)");
+ 					for (int iK = 0; iK < GC.getNumReligionInfos(); iK++)
+ 						iValue += kMember.getHasReligionCount((ReligionTypes)iK) * 10;
+ 
+@@ -4379,8 +4381,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 				if (eBestPlayer == NO_PLAYER)
+ 					continue;
+ 
+-				g.setReligionSlotTaken(eLoopReligion, true);
+-				if (g.isOption(GAMEOPTION_PICK_RELIGION))
++				kGame.setReligionSlotTaken(eLoopReligion, true);
++				if (kGame.isOption(GAMEOPTION_PICK_RELIGION))
+ 				{
+ 					if (GET_PLAYER(eBestPlayer).isHuman())
+ 					{
+@@ -4403,8 +4405,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 			{
+ 				CorporationTypes const eCorp = eLoopCorporation;
+ 				if (GC.getInfo(eCorp).getTechPrereq() != eTech ||
+-						g.isCorporationFounded(eCorp))
++					kGame.isCorporationFounded(eCorp))
++				{
+ 					continue;
++				}
+ 				/*  advc (comment): From here on unused and thus not properly tested;
+ 					see comment in CvGame::doHeadquarters. */
+ 				int iBestValue = MAX_INT;
+@@ -4413,7 +4417,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 				{
+ 					CvPlayer const& kMember = *it;
+ 					int iValue = 10;
+-					iValue += g.getSorenRandNum(10, "Found Corporation (Player)");
++					iValue += kGame.getSorenRandNum(10, "Found Corporation (Player)");
+ 					if (kMember.getCurrentResearch() != eTech)
+ 						iValue *= 10;
+ 					if (iValue < iBestValue)
+@@ -4477,7 +4481,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
+ 							GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
+-					g.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
++					kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
+ 							-1, -1, GC.getColorType("HIGHLIGHT_TEXT"));
+ 				} // advc.106
+ 			} // <advc.004>
+@@ -4518,7 +4522,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 		}
+ 
+ 
+-		if (bAnnounce && g.isFinalInitialized() &&
++		if (bAnnounce && kGame.isFinalInitialized() &&
+ 			!gDLL->GetWorldBuilderMode()) // advc
+ 		{
+ 			announceTechToPlayers(eTech, /* advc.156: */ ePlayer);
+@@ -4587,7 +4591,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 		}
+ 		/*  advc.004x: Don't check bAnnounce for civics popup. FinalInitialized:
+ 			Let CvPlayer::doChangeCivicsPopup handle that. */
+-		if (!gDLL->GetWorldBuilderMode() && getID() == g.getActiveTeam())
++		if (!gDLL->GetWorldBuilderMode() && getID() == kGame.getActiveTeam())
+ 		{
+ 			for (PlayerIter<HUMAN,MEMBER_OF> it(getID()); it.hasNext(); ++it)
+ 			{	// advc: Un-nested the conditions
+@@ -4620,12 +4624,12 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 		for (TeamIter<ALIVE,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
+ 			it->updateTechShare(eTech); // Share through "Internet" project
+ 		// <advc.106>
+-		if (bFirst && bFirstToDiscover && g.getElapsedGameTurns() > 0 &&
++		if (bFirst && bFirstToDiscover && kGame.getElapsedGameTurns() > 0 &&
+ 			GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0)
+ 		{
+ 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
+ 					GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
+-			g.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
++			kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
+ 					-1, -1, GC.getColorType("ALT_HIGHLIGHT_TEXT"));
+ 		} // </advc.106>
+ 	}
+@@ -4634,7 +4638,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 	{
+ 		if (bAnnounce)
+ 		{
+-			if (g.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
++			if (kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
+ 			{
+ 				FAssert(ePlayer != NO_PLAYER);
+ 				if (GET_PLAYER(ePlayer).isResearch() &&
+@@ -4648,7 +4652,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
+ 		}
+ 	}
+ 
+-	if (getID() == g.getActiveTeam())
++	if (getID() == kGame.getActiveTeam())
+ 	{
+ 		gDLL->UI().setDirty(MiscButtons_DIRTY_BIT, true);
+ 		gDLL->UI().setDirty(SelectionButtons_DIRTY_BIT, true);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 26cb8bbbd..cba200e1d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7037,7 +7037,9 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDet
+ 					pCombatDetails->iAnimalCombatModifierT = iExtraModifier;
+ 			}
+ 		}
+-		if (!pAttacker->isRiver())
++		if (!pAttacker->isRiver() &&
++			// advc.opt: isRiverCrossing is no longer supposed to handle non-adjacent tiles
++			stepDistance(pAttacker->plot(), pAttackedPlot) == 1)
+ 		{
+ 			if (pAttacker->getPlot().isRiverCrossing(
+ 				directionXY(pAttacker->getPlot(), *pAttackedPlot)))
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=27716

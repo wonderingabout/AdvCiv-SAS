@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 365
+# Commit: 5dc0ad28676fbf3aeb3e52d551fb20a28a275dbb
+# History segment: K-Mod history
+# Parent used for diff: 8c65e4c36768b9de94a0c3a67b6bbb0bf01f82f6
+# Title: Fixed a rare bug which could potentially cause the auto-production governor to crash the game.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	11	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index dd36867d7..48faccd89 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11245,19 +11245,22 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 				{
+ 					const CvUnitInfo& kUnit = GC.getUnitInfo(eBestUnit);
+ 
+-					BuildingTypes eExperienceBuilding = AI_bestBuildingThreshold(BUILDINGFOCUS_EXPERIENCE);
+-
+-					if (eExperienceBuilding != NO_BUILDING)
++					if (kUnit.getUnitCombatType() != NO_UNITCOMBAT)
+ 					{
+-						const CvBuildingInfo& kBuilding = GC.getBuildingInfo(eExperienceBuilding);
+-						if (kBuilding.getFreeExperience() > 0 ||
+-							kBuilding.getUnitCombatFreeExperience(kUnit.getUnitCombatType()) > 0 ||
+-							kBuilding.getDomainFreeExperience(kUnit.getDomainType()) > 0)
++						BuildingTypes eExperienceBuilding = AI_bestBuildingThreshold(BUILDINGFOCUS_EXPERIENCE);
++
++						if (eExperienceBuilding != NO_BUILDING)
+ 						{
+-							// This building helps the unit we want
+-							// ...so do the building first.
+-							pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
+-							return;
++							const CvBuildingInfo& kBuilding = GC.getBuildingInfo(eExperienceBuilding);
++							if (kBuilding.getFreeExperience() > 0 ||
++								kBuilding.getUnitCombatFreeExperience(kUnit.getUnitCombatType()) > 0 ||
++								kBuilding.getDomainFreeExperience(kUnit.getDomainType()) > 0)
++							{
++								// This building helps the unit we want
++								// ...so do the building first.
++								pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++								return;
++							}
+ 						}
+ 					}
+ 					// otherwise, we're ready to build the unit
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1684

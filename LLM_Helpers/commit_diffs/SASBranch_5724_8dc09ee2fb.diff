@@ -1,0 +1,392 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5724
+# Commit: 8dc09ee2fbb8554de738b260fb19e3610dad0a23
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5e3ef99bf4b158a5b6266ed68a8075d720200c99
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+1	1	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+1	1	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+3	3	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+2	2	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+2	2	Long_Comments/Long_Comments_XML.txt
+39	28	_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+-	-	_1_AdvCiv-SAS/Images/misc_0.x/{0.950_download-zip-github.png => 0.250_download-zip-github.png}
+-	-	_1_AdvCiv-SAS/Images/misc_0.x/{0.960_windows_shortcut_example.PNG => 0.260_windows_shortcut_example.PNG}
+-	-	_1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png
+3	3	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+ rename _1_AdvCiv-SAS/Images/misc_0.x/{0.950_download-zip-github.png => 0.250_download-zip-github.png} (100%)
+ rename _1_AdvCiv-SAS/Images/misc_0.x/{0.960_windows_shortcut_example.PNG => 0.260_windows_shortcut_example.PNG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index b772e4833..3a78d315e 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -271,7 +271,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
+ 		return adjusted_rand, adjusted_delay, force_zero_adjusted_values
+ 
+ 	else:
+-		# <!-- custom: the higher the delay the worse/lower the contact prob (example gandhi's data/values vs montezuma so we (should i think anyways) invert both)-->
++		# <!-- custom: the higher the delay the worse/lower the contact prob (example gandhi's data/values vs montezuma so we should (i think) invert both) -->
+ 		adjusted_delay = contact_delay_raw
+ 		if is_debug:
+ 			print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw, forced to zero aggregation has yet to be determined. Values of these are contact_delay_raw=%d, adjusted_delay=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values)))
+@@ -287,7 +287,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
+ 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
+ 
+ 		else:
+-			# <!-- custom: (and else,), if both delay and rand are compatible with havig a scaling and acutal contact probability (that we can compute too maybe here indeed), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we (should i think anyways) invert both)-->
++			# <!-- custom: (and else,), if both delay and rand are compatible with havig a scaling and acutal contact probability (that we can compute too maybe here indeed), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we should (i think) invert both) -->
+ 			adjusted_rand = contact_rand_raw
+ 			force_zero_adjusted_values = False # Normal aggregation
+ 			if is_debug:
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 28e60a9e3..98c8bda00 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1883,7 +1883,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+ 		</InterfaceArtInfo>
+-		<!-- ❌ emoji from emojiterra (red (base) version: Noto Color Emoji 17.0)-->
++		<!-- ❌ emoji from emojiterra (red (base) version: Google Noto Color Emoji 17.0) -->
+ 		<InterfaceArtInfo>
+ 			<Type>SAS_EMOJI_CROSS_MARK</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds</Path>
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 198ade335..2a9d0b1a1 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -12,7 +12,7 @@
+ 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
+ 			<Civilopedia>TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR</Civilopedia>
+ 		</NewConceptInfo>
+-		<!-- custom: new base AdvCiv non-exhaustive change listing (from base AdvCiv's manual.pdf or similar format or possibly other docs or sources if i find relevant info there and want to display it as well)-->
++		<!-- custom: new base AdvCiv non-exhaustive change listing (from base AdvCiv's manual.pdf or similar format or possibly other docs or sources) -->
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_BASE_ADVCIV_SOME_CHANGES</Type>
+ 			<Description>TXT_KEY_BASE_ADVCIV_SOME_CHANGES</Description>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a430ba43c..fdba619b3 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1075,7 +1075,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>350</iDefineIntVal>
+ 	</Define>
+ 	<!-- Min base-hammers gate for wonders (used in CvCityAI::AI_buildingValue)
+-	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA)-->
++	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA) -->
+ 
+ 	<!-- custom: Long_Comments_XML.txt #102 -->
+ 	<Define>
+@@ -2024,7 +2024,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do any emergency defense building (as of now walls, castle) nor emergency unit (too low hammers or possibly isolated (generally these low hammer cities are watery or something) city to be useful, bet on economy rather)-->
++	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do any emergency defense building (as of now walls, castle) nor emergency unit (too low hammers or possibly isolated (generally these low hammer cities are watery or something) city to be useful, bet on economy rather) -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_BASE_THRESHOLD</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+@@ -2073,7 +2073,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: enable (1, recommended) / disable (0) to toggle advciv-sas smart unit promotions optimization (e.g. as of now pick city raider for UNITAI_ATTACK_CITY units first if not in danger or enemy is strong, or don't pick medic or woodsman promotions (inefficient), etc.)-->
++	<!-- custom: enable (1, recommended) / disable (0) to toggle advciv-sas smart unit promotions optimization (e.g. as of now pick city raider for UNITAI_ATTACK_CITY units first if not in danger or enemy is strong, or don't pick medic or woodsman promotions (inefficient), etc.) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_PROMOTION_VALUE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 9982fb48d..face810b9 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -740,7 +740,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
++	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
+ 		<English></English>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index f67937004..527d8ea9d 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -904,7 +904,7 @@ int AIFoundValue::evaluate()
+ 					{
+ 						iValue += iValueHomeFloodPlains;
+ 					}
+-					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it)-->
++					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it) -->
+ 					else 
+ 					{
+ 						if (pIsHills)
+@@ -3605,7 +3605,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
+ // 		} // </advc.031>
+ // 		// K-Mod.
+ 
+-// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar)--> 
++// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar) --> 
+ // 		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
+ // 			but don't encourage greater distances. */
+ // 		// if (iNearestDistance > iTargetRange +
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 65a185f4b..632c2b131 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1752,7 +1752,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 	// --- 2) SAS early far-barb rule (minimal) ---
+     if (!bBarbarian && !bEverOwned && bBarbCity /* <!-- custom: no need to care about these, raze regardless if not in our interest to keep the city --> !kCity.isHolyCity() && !kCity.hasActiveWorldWonder() */)
+     {
+-		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too as chatgpt 5 added here (but check if accurate)-->
++		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too as chatgpt 5 added here (but check if accurate) -->
+         if (bIsolated && bEarlyPhase)
+ 		{
+             bRaze = true;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index dff28e984..1d316108b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3381,7 +3381,7 @@ bool CvUnit::canScrap() const
+ 			(eUnitAI == UNITAI_ATTACK_CITY_LEMMING) ||
+ 			(eUnitAI == UNITAI_COUNTER) ||
+ 			(eUnitAI == UNITAI_CITY_COUNTER) ||
+-			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity)-->
++			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity) -->
+ 			//
+ 			(eUnitAI == UNITAI_CITY_DEFENSE) ||
+ 			(eUnitAI == UNITAI_CITY_SPECIAL) ||
+@@ -3661,7 +3661,7 @@ bool CvUnit::canScrap() const
+ 			return false;
+ 		}
+ 
+-		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases)-->
++		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases) -->
+ 		const bool bAirMissileUnitAIs = (
+ 			(eUnitAI == UNITAI_ICBM) ||
+ 			(eUnitAI == UNITAI_MISSILE_AIR)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index dabc5147b..9b2e45f6f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1776,7 +1776,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				}
+ 				// <!-- custom: else nothing to do on flatland snow, that would raise our yields at all (we DON'T want forts...) -->
+ 			}
+-			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all to be fair but it seems to function as such ingame)-->
++			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all but it seems to function as such ingame) -->
+ 			else if (eTerrain == eTerrainDesert)
+ 			{
+ 				if (kPlot.isHills())
+
+diff --git a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+index 95ebe4525..5bb03987a 100644
+--- a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
++++ b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+@@ -37,7 +37,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<!-- The prospect of a speedy military victory incites us to wage war. This covers Domination, Conquest and Diplomatic victory; Diplo victory also factors into ILL_WILL. -->
+-		<!-- custom: slightly increase war propension if we are likely to win, but not increasing it a lot, as there is a risk too of going too soon to war (exposure to other rivals, risk if war fails, slower economy short term, was 100)-->
++		<!-- custom: slightly increase war propension if we are likely to win, but not increasing it a lot, as there is a risk too of going too soon to war (exposure to other rivals, risk if war fails, slower economy short term, was 100) -->
+ 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
+ 		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index e414bd788..5bc850ca2 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -4719,7 +4719,7 @@ and gold or religion or culture or such or growth or science or other would not
+ 				</Building>
+ 				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help thanks -->
+ 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this way so they can focus more on producing units. -->
+-				<!-- custom: (Normal Buildings)-->
++				<!-- custom: (Normal Buildings) -->
+ 
+ ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+ ----- Comment #347 -----
+@@ -4729,7 +4729,7 @@ and gold or religion or culture or such or growth or science or other would not
+ 					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+-				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless)-->
++				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless) -->
+ 
+ ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+ ----- Comment #348 -----
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+index ea2ef3c1d..68ae4b251 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+@@ -9,16 +9,17 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
+ &emsp;[Stable Version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#stable-version)  
+ &emsp;[Development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version)  
+ &emsp;[Any version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#any-version)  
+-[Extract the mod to your civ4 folder](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#extract-the-mod-to-your-civ4-folder)  
++[Extract the mod to your civ4 BTS/BTS/Mods folder](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#extract-the-mod-to-your-civ4-btsbtsmods-folder)  
+ [Place a shortcut of the mod on your desktop](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop)  
+-[Version number](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#version-number)  
+-[Upgrading/Downgrading version of the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#upgradingdowngrading-version-of-the-mod)  
+-[If you have trouble downloading/installing/using/upgrading/downgrading the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-you-have-trouble-downloadinginstallingusingupgradingdowngrading-the-mod)  
+-&emsp;[Full Development version (to modify it yourself)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#full-development-version-to-modify-it-yourself)  
+-[Configure your game](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-your-game)  
++[If nothing happens when launching the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-nothing-happens-when-launching-the-mod)  
++[Configure the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-the-mod)  
+ &emsp;[General ideas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#general-ideas)  
+ &emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)  
+-[Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-skip-this-section-if-only-playing-without-wanting-extra-details)  
++&emsp;[Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-skip-this-section-if-only-playing-without-wanting-extra-details)  
++[Mod Version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#mod-version)  
++&emsp;[Upgrading/Downgrading version of the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#upgradingdowngrading-version-of-the-mod)  
++&emsp;[If you have trouble downloading/installing/using/upgrading/downgrading the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-you-have-trouble-downloadinginstallingusingupgradingdowngrading-the-mod)  
++[Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version)  
+ [Where to download more/other mods](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#where-to-download-moreother-mods)  
+ 
+ ## Install Civilization 4 Beyond the Sword (skip if already done)
+@@ -47,17 +48,17 @@ To download the development version, go to the [mod's github main page](https://
+ 
+ (example of how to do it in the screenshot below, click to view it full screen)
+ 
+-<img src="../Images/misc_0.x/0.950_download-zip-github.png" alt="0.950_download-zip-github.png" width="250"></img>
++<img src="../Images/misc_0.x/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
+ 
+ Note: the 48 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the default 18 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
+ 
+-Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Full Development version (to modify it yourself)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#full-development-version-to-modify-it-yourself) for details.
++Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version) for details.
+ 
+ ### Any version
+ 
+ With github you can actually download the mod at any version/commit if i'm not mistaken, but it is a bit less intuitive how to do it if you don't know how, todo write.
+ 
+-## Extract the mod to your civ4 folder
++## Extract the mod to your civ4 BTS/BTS/Mods folder
+ 
+ Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-5030" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
+ 
+@@ -77,7 +78,7 @@ For convenience i have also provided a steam shortcut of this same link just abo
+ 
+ Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
+ 
+-<img src="../Images/misc_0.x/0.960_windows_shortcut_example.PNG" alt="0.960_windows_shortcut_example.PNG" width="250"></img>
++<img src="../Images/misc_0.x/0.260_windows_shortcut_example.PNG" alt="0.260_windows_shortcut_example.PNG" width="250"></img>
+ 
+ If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
+ 
+@@ -85,25 +86,15 @@ If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS,
+ 
+ Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+ 
+-## Version number
++## If nothing happens when launching the mod
+ 
+-See [/README.md#version-number](/README.md#version-number)
++Disclaimer: try at your own risk.
+ 
+-## Upgrading/Downgrading version of the mod
++Sometimes, rarely, when launching the mod nothing happens (i.e. the mod does not start as usual). I don't know the cause, but empirically i have found that going to Windows Task Manager, right click on civ4 process, kill it, then launch the mod again fixes it.
+ 
+-If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same), delete the entire mod folder and put instead your new version of AdvCiv-SAS (deleting it does not delete savegames as they are not located in this mod folder anyway if i'm not mistaken) (or make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it if you want to)).
+-
+-## If you have trouble downloading/installing/using/upgrading/downgrading the mod
+-
+-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
+-
+-### Full Development version (to modify it yourself)
+-
+-If you want to modify AdvCiv-SAS, the player "download ZIP" options do not include all files (images, some texts, etc.) as they are not needed just to play yet take significant size needlessly.
+-
+-You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](../../.gitattributes) is not applied.
++<img src="../Images/misc_0.x/0.270_kill_civ4_process.png" alt="0.270_kill_civ4_process.png" width="250"></img>
+ 
+-## Configure your game
++## Configure the mod
+ 
+ ### General ideas
+ 
+@@ -126,13 +117,33 @@ Then in BUG Menu options i also use this for example hehe but do as you prefer a
+ 
+ Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
+ 
+-## Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)
++### Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)
+ 
+ (skip this section if only playing without wanting extra details)
+ 
+ If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most likely want to enable debug mode as well as do autoplay runs yourself. See [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view) for details on how to do it and such.
+ 
+-Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
++Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing.
++
++## Mod Version
++
++### Version number
++
++See [/README.md (Version number)](/README.md#version-number).
++
++### Upgrading/Downgrading version of the mod
++
++If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same), delete the entire mod folder and put instead your new version of AdvCiv-SAS (deleting it does not delete savegames as they are not located in this mod folder anyway if i'm not mistaken) (or make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it if you want to)).
++
++### If you have trouble downloading/installing/using/upgrading/downgrading the mod
++
++Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
++
++## Modify AdvCiv-SAS (its development version)
++
++If you want to modify AdvCiv-SAS, the player "download ZIP" options do not include all files (images, some texts, etc.) as they are not needed just to play yet take significant size needlessly.
++
++You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](../../.gitattributes) is not applied.
+ 
+ ## Where to download more/other mods
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.950_download-zip-github.png b/_1_AdvCiv-SAS/Images/misc_0.x/0.250_download-zip-github.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.950_download-zip-github.png
+rename to _1_AdvCiv-SAS/Images/misc_0.x/0.250_download-zip-github.png
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG b/_1_AdvCiv-SAS/Images/misc_0.x/0.260_windows_shortcut_example.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG
+rename to _1_AdvCiv-SAS/Images/misc_0.x/0.260_windows_shortcut_example.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png b/_1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png
+new file mode 100644
+index 000000000..8bddf25d9
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=6 bytes=6265
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=31320

@@ -1,0 +1,173 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2144
+# Commit: e487a760c727626ad97c850dafb56085614fdd85
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8957be4bc131cb5e138dc96d393deb4891176487
+# Title: Fix GP birth odds
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+57	24	CvGameCoreDLL/CvCity.cpp
+8	5	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0be093a7c..d79c088b5 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4576,7 +4576,7 @@ int CvCity::getTotalGreatPeopleRateModifier() const
+ 		iModifier += iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER;
+ 	}
+ 
+-	return std::max(0, (iModifier + 100));
++	return std::max(0, iModifier + 100);
+ }
+ 
+ 
+@@ -5184,28 +5184,50 @@ int CvCity::GPTurnsLeft() const
+ 
+ void CvCity::GPProjection(std::vector<std::pair<UnitTypes,int> >& r) const
+ {
+-	int iTurnsLeft = GPTurnsLeft();
+-	int iTotalTruncated = 0;
+-	/*  This should be kOwner.greatPeopleThreshold(false), but I don't want to
+-		predict GPP overflow here. */
+-	int iTarget = std::max(1, getGreatPeopleProgress() + iTurnsLeft *
+-			getGreatPeopleRate());
++	CvCivilization const& kCiv = getCivilization();
++	int const iTurnsLeft = GPTurnsLeft();
++	/*  (advc.001c: Can't use getGreatPeopleProgress() b/c the
++		per-unit progress values won't add up to that in old saves.) */
++	int iTotalUnitProgress = 0;
++	for (int i = 0; i < kCiv.getNumUnits(); i++)
++		iTotalUnitProgress += getGreatPeopleUnitProgress(kCiv.unitAt(i));
++	/*	GPP total of the city on the turn that the GP will be born.
++		(Usually greater than GET_PLAYER(getOwner()).greatPeopleThreshold().) */
++	int iProjectedTotal = iTotalUnitProgress + iTurnsLeft * getGreatPeopleRate();
++	int iRoundedPercentages = 0;
+ 	FOR_EACH_ENUM(Unit)
+ 	{
+-		int iProgress = getGreatPeopleUnitProgress(eLoopUnit) +
+-				(iTurnsLeft * getGreatPeopleUnitRate(eLoopUnit) *
+-				getTotalGreatPeopleRateModifier()) / 100;
+-		iProgress *= 100;
+-		iProgress /= iTarget;
+-		//int iProgress = (city.getGreatPeopleUnitProgress(eLoopUnit) * 100) / iTotalGreatPeopleUnitProgress; // BtS
+-		if(iProgress > 0)
++		scaled rShare = (getGreatPeopleUnitProgress(eLoopUnit) +
++				per100(iTurnsLeft * getGreatPeopleUnitRate(eLoopUnit) *
++				getTotalGreatPeopleRateModifier())) / iProjectedTotal;
++		if (rShare > 0)
++		{
++			int iPercent = rShare.getPercent();
++			iRoundedPercentages += iPercent;
++			r.push_back(std::make_pair(eLoopUnit, iPercent));
++		}
++	}
++	if (!r.empty())
++	{
++		int iTotalError = 100 - iRoundedPercentages;
++		if (iTotalError >= 2)
+ 		{
+-			iTotalTruncated += iProgress;
+-			r.push_back(std::make_pair(eLoopUnit, iProgress));
++			FAssert(abs(iTotalError) == 2);
++			/*	I'm too lazy to handle that error properly. Adding up to 99% is OK.
++				Otherwise add 1 to the GP with the highest share. */
++			size_t iArgmax = 0;
++			int iMax = 0;
++			for (size_t i = 0; i < r.size(); i++)
++			{
++				if(r[i].second > iMax)
++				{
++					iMax = r[i].second;
++					iArgmax = i;
++				}
++			}
++			r[iArgmax].second += iTotalError - 1;
+ 		}
+ 	}
+-	if(iTotalTruncated < 100 && !r.empty())
+-		r[0].second += 100 - iTotalTruncated;
+ } // </advc.001c>
+ 
+ 
+@@ -10684,16 +10706,27 @@ void CvCity::doGreatPeople()
+ 	CvCivilization const& kCiv = getCivilization(); // advc.003w
+ 
+ 	changeGreatPeopleProgress(getGreatPeopleRate());
+-	// advc.051: Verify that GreatPeopleRate is the sum of the GreatPeopleUnitRates
+-	int iTotalUnitRate = 0;
++	// <advc> Verify that GreatPeopleRate is the sum of the GreatPeopleUnitRates
++	#ifdef FASSERT_ENABLE
++		int iTotalUnitRate = 0;
++	#endif // </advc>
++	/*	(advc.001c: Don't check the same for Progress values b/c it won't be true
++		for old saves) */
++	int const iTotalGreatPeopleRateModifier = getTotalGreatPeopleRateModifier(); // advc.001c
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 	{
+ 		UnitTypes eUnit = kCiv.unitAt(i);
+-		int iUnitRate = getGreatPeopleUnitRate(eUnit); // advc.051
+-		changeGreatPeopleUnitProgress(eUnit, iUnitRate);
+-		iTotalUnitRate += iUnitRate; // advc.051
++		int iUnitRate = getGreatPeopleUnitRate(eUnit); // advc
++		changeGreatPeopleUnitProgress(eUnit, iUnitRate *
++				/*	advc.001c: Seems like an oversight - per-unit progress
++					should include modifiers. */
++				iTotalGreatPeopleRateModifier);
++		// <advc>
++		#ifdef FASSERT_ENABLE
++			iTotalUnitRate += iUnitRate;
++		#endif // </advc>
+ 	}
+-	FAssert(iTotalUnitRate == getBaseGreatPeopleRate()); // advc.051
++	FAssert(iTotalUnitRate == getBaseGreatPeopleRate()); // advc
+ 	if (getGreatPeopleProgress() >= GET_PLAYER(getOwner()).greatPeopleThreshold())
+ 	{
+ 		int iTotalGreatPeopleUnitProgress = 0;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e158434be..b16047ac6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18128,9 +18128,13 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
+ 
+ 	szBuffer.append(SEPARATOR);
+ 	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_GREATPEOPLE_BASE_RATE", kCity.getBaseGreatPeopleRate()));
+-	szBuffer.append(NEWLINE);
+-
++	// <advc.004> Skip base rate if final rate will be the same
++	int const iTotalGreatPeopleRateModifier = kCity.getTotalGreatPeopleRateModifier();
++	if (iTotalGreatPeopleRateModifier != 100) // </advc.004>
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_GREATPEOPLE_BASE_RATE", kCity.getBaseGreatPeopleRate()));
++		szBuffer.append(NEWLINE);
++	}
+ 	int iModifier = 100;
+ 
+ 	// Buildings
+@@ -18215,9 +18219,8 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
+ 			iModifier += iGoldenAgeMod;
+ 		}
+ 	}
+-
++	FAssert(iModifier == iTotalGreatPeopleRateModifier); // advc
+ 	int iModGreatPeople = (iModifier * kCity.getBaseGreatPeopleRate()) / 100;
+-
+ 	FAssertMsg(iModGreatPeople == kCity.getGreatPeopleRate(), "Great person rate does not match actual value");
+ 
+ 	szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_GREATPEOPLE_FINAL", iModGreatPeople));
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5648

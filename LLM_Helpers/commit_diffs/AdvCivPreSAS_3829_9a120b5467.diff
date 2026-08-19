@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3829
+# Commit: 9a120b54670130a74faa954db8b974b97e96c2e8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b1ceab39d1ec87c502c836ae2ca398bf02575e12
+# Title: Fix garbled "right-click to maximize commerce rate" hint
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index b4a3d39ec..3ae20c13d 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3425,8 +3425,9 @@ void CvDLLWidgetData::parseChangePercentHelp(CvWidgetDataStruct &widgetDataStruc
+ 	// <advc.004> Hint about right-click behavior
+ 	if (!BUGOption::isEnabled("MainInterface__MinMax_Commerce", false))
+ 	{
+-		szBuffer.append(iChange > 0 ?
+-				"TXT_KEY_MISC_INCREASE_RATE_HINT" : "TXT_KEY_MISC_DECREASE_RATE_HINT");
++		szBuffer.append(gDLL->getText(iChange > 0 ?
++				"TXT_KEY_MISC_INCREASE_RATE_HINT" :
++				"TXT_KEY_MISC_DECREASE_RATE_HINT"));
+ 	} // </advc.004>
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=683

@@ -1,0 +1,770 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1953
+# Commit: f0551b743bd82d3c92fbf1ea405a566ef3d2e6b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ecde65ee11b704af94e03faae4e0d1ac1ad8fc69
+# Title: Inlined getUnit(IDInfo), getCity(IDInfo)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvArea.cpp
+7	0	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+11	4	CvGameCoreDLL/CvCityAI.cpp
+3	1	CvGameCoreDLL/CvCityAI.h
+2	4	CvGameCoreDLL/CvDllPythonEvents.cpp
+6	5	CvGameCoreDLL/CvGame.cpp
+0	26	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	5	CvGameCoreDLL/CvGameCoreUtils.h
+3	10	CvGameCoreDLL/CvPlayer.cpp
+13	0	CvGameCoreDLL/CvPlayer.h
+14	2	CvGameCoreDLL/CvPlayerAI.h
+39	0	CvGameCoreDLL/CvPlot.cpp
+6	26	CvGameCoreDLL/CvPlot.h
+3	3	CvGameCoreDLL/CvPythonCaller.cpp
+1	0	CvGameCoreDLL/CvSelectionGroupAI.cpp
+11	0	CvGameCoreDLL/CvStructs.cpp
+12	2	CvGameCoreDLL/CvStructs.h
+15	0	CvGameCoreDLL/CvUnit.cpp
+3	2	CvGameCoreDLL/CvUnit.h
+6	0	CvGameCoreDLL/CvUnitAI.cpp
+2	0	CvGameCoreDLL/CvUnitAI.h
+1	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+3	2	CvGameCoreDLL/CyGameCoreUtils.cpp
+1	3	CvGameCoreDLL/FFreeListTrashArray.h
+2	2	CvGameCoreDLL/Shelf.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 292009aa8..9e1c26af5 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -7,6 +7,7 @@
+ #include "CvUnitList.h"
+ #include "CvMap.h"
+ #include "CvGamePlay.h"
++#include "CvPlayerAI.h"
+ #include "CvInfo_Terrain.h"
+ 
+ 
+@@ -766,6 +767,7 @@ void CvArea::read(FDataStreamBase* pStream)
+ 	{
+ 		pStream->Read((int*)&m_aTargetCities[i].eOwner);
+ 		pStream->Read(&m_aTargetCities[i].iID);
++		m_aTargetCities[i].validateOwner(); // advc.opt
+ 	}
+ 
+ 	m_aaiYieldRateModifier.Read(pStream, uiFlag < 2);
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 260a5465b..9dae29ef5 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4275,6 +4275,12 @@ int CvCity::getCorporationCount() const
+ 	return iCount;
+ }
+ 
++// advc:
++CvCity* CvCity::fromIDInfo(IDInfo id)
++{
++	return ::getCity(id);
++}
++
+ 
+ void CvCity::setID(int iID)
+ {
+@@ -10997,6 +11003,7 @@ void CvCity::read(FDataStreamBase* pStream)
+ 	{
+ 		pStream->Read((int*)&m_aTradeCities[i].eOwner);
+ 		pStream->Read(&m_aTradeCities[i].iID);
++		m_aTradeCities[i].validateOwner(); // advc.opt
+ 	}
+ 
+ 	m_orderQueue.Read(pStream);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index a8cb92680..051af390e 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -294,6 +294,7 @@ public:
+ 
+ 	int getReligionCount() const;																				// Exposed to Python
+ 	int getCorporationCount() const;																			// Exposed to Python
++	static CvCity* fromIDInfo(IDInfo id); // advc
+ 	// <advc.inl>
+ 	DllExport inline int getID() const { return m_iID; }														// Exposed to Python
+ 	inline int getIndex() const { return (getID() & FLTA_INDEX_MASK); }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index fb8a4bcd7..50785808e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12767,6 +12767,12 @@ BuildingTypes CvCityAI::AI_bestAdvancedStartBuilding(int iPass) /* advc: */ cons
+ 	return AI_bestBuildingThreshold(iFocusFlags, 0, std::max(0, 20 - iPass * 5));
+ }
+ 
++// K-Mod.
++void CvCityAI::AI_ClearConstructionValueCache()
++{
++	m_aiConstructionValue.assign(GC.getNumBuildingClassInfos(), -1);
++} // K-Mod end
++
+ 
+ void CvCityAI::read(FDataStreamBase* pStream)
+ {
+@@ -12788,6 +12794,7 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read((int*)&m_routeToCity.eOwner);
+ 	pStream->Read(&m_routeToCity.iID);
++	m_routeToCity.validateOwner(); // advc.opt
+ 
+ 	pStream->Read(NUM_YIELD_TYPES, m_aiEmphasizeYieldCount);
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiEmphasizeCommerceCount);
+@@ -12873,8 +12880,8 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	// K-Mod end
+ }
+ 
+-// K-Mod.
+-void CvCityAI::AI_ClearConstructionValueCache()
++// advc:
++CvCityAI* CvCityAI::fromIDInfo(IDInfo id)
+ {
+-	m_aiConstructionValue.assign(GC.getNumBuildingClassInfos(), -1);
+-} // K-Mod end
++	return ::AI_getCity(id);
++}
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index a30006fb9..c9afcb35a 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -151,10 +151,12 @@ public:
+ 	void AI_changeWorkersHave(int iChange);
+ 	BuildingTypes AI_bestAdvancedStartBuilding(int iPass) const;
+ 
++	void AI_ClearConstructionValueCache(); // K-Mod
++
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+ 
+-	void AI_ClearConstructionValueCache(); // K-Mod
++	static CvCityAI* fromIDInfo(IDInfo id); // advc
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index dc2eaf43c..2b624f9e5 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -622,16 +622,14 @@ void CvDllPythonEvents::reportSelectionGroupPushMission(CvSelectionGroup* pSelec
+ 		CLLNode<IDInfo> const* pUnitNode = pSelectionGroup->headUnitNode();
+ 		for (int i = 0; pUnitNode != NULL; i++)
+ 		{
+-			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			CvUnit* pLoopUnit = CvUnit::fromIDInfo(pUnitNode->m_data);
+ 			pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode);
+ 			aiUnitIds[i] = pLoopUnit->getID();
+ 			FAssert(i < iNumUnits);
+ 		}
+ 
+-		if (aiUnitIds)
+-		{
++		if (aiUnitIds != NULL)
+ 			eventData.add(aiUnitIds, iNumUnits);
+-		}
+ 
+ 		postEvent(eventData);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 571ad38e9..8ddde3859 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -822,8 +822,10 @@ void CvGame::initFreeState()
+ 	initGameHandicap(); // advc.127
+ 	// <advc.250b>
+ 	if(!isOption(GAMEOPTION_ADVANCED_START) ||
+-			PlayerIter<HUMAN>::count() == PlayerIter<CIV_ALIVE>::count())
++		PlayerIter<HUMAN>::count() == PlayerIter<CIV_ALIVE>::count())
++	{
+ 		setOption(GAMEOPTION_SPAH, false);
++	}
+ 	if(isOption(GAMEOPTION_SPAH))
+ 		// Reassigns start plots and start points
+ 		m_pSpah->setInitialItems(); // </advc.250b>
+@@ -6036,11 +6038,8 @@ bool CvGame::isInAdvancedStart() const
+ void CvGame::setVoteChosen(int iSelection, int iVoteId)
+ {
+ 	VoteSelectionData* pVoteSelectionData = getVoteSelection(iVoteId);
+-	if (NULL != pVoteSelectionData)
+-	{
++	if (pVoteSelectionData != NULL)
+ 		addVoteTriggered(*pVoteSelectionData, iSelection);
+-	}
+-
+ 	deleteVoteSelection(iVoteId);
+ }
+ 
+@@ -8949,11 +8948,13 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	{
+ 		pStream->Read((int*)&m_paHolyCity[eLoopReligion].eOwner);
+ 		pStream->Read(&m_paHolyCity[eLoopReligion].iID);
++		m_paHolyCity[eLoopReligion].validateOwner(); // advc.opt
+ 	}
+ 	FOR_EACH_ENUM(Corporation)
+ 	{
+ 		pStream->Read((int*)&m_paHeadquarters[eLoopCorporation].eOwner);
+ 		pStream->Read(&m_paHeadquarters[eLoopCorporation].iID);
++		m_paHeadquarters[eLoopCorporation].validateOwner();
+ 	}
+ 
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index ad1e1afa8..ff0ef467c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -302,32 +302,6 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
+ 	return GET_TEAM(eOurTeam).AI_mayAttack(eTheirTeam);
+ }*/
+ 
+-CvCityAI* AI_getCity(IDInfo city) // advc.003u: Return CvCityAI*
+-{
+-	if (city.eOwner >= 0 && city.eOwner < MAX_PLAYERS)
+-		return (GET_PLAYER((PlayerTypes)city.eOwner).AI_getCity(city.iID));
+-
+-	return NULL;
+-}
+-
+-CvUnitAI* AI_getUnit(IDInfo unit) // advc.003u: Return CvUnitAI*
+-{
+-	if (unit.eOwner >= 0 && unit.eOwner < MAX_PLAYERS)
+-		return (GET_PLAYER((PlayerTypes)unit.eOwner).AI_getUnit(unit.iID));
+-
+-	return NULL;
+-}
+-// <advc.003u>
+-CvCity* getCity(IDInfo city)
+-{
+-	return AI_getCity(city);
+-}
+-
+-CvUnit* getUnit(IDInfo unit)
+-{
+-	return AI_getUnit(unit);
+-} // </advc.003u>
+-
+ // FUNCTION: getBinomialCoefficient
+ // Needed for getCombatOdds
+ // Returns int value, being the possible number of combinations
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 1d1d7bbc9..b64aa15ec 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -159,11 +159,8 @@ DllExport float directionAngle(DirectionTypes eDirection);
+ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);										// Exposed to Python
+ //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
+ 
+-// <advc.003u>
+-CvCityAI* AI_getCity(IDInfo city);
+-CvUnitAI* AI_getUnit(IDInfo unit); // </advc.003u>
+-DllExport CvCity* getCity(IDInfo city);												// Exposed to Python
+-DllExport CvUnit* getUnit(IDInfo unit);												// Exposed to Python
++/*	(advc.opt: getCity, getUnit moved to CvPlayer.h. CvCity::fromIDInfo and
++	CvUnit::fromIDInfo as alternatives in files that don't include CvPlayer.h.)
+ 
+ // (advc: unit cycling functions moved to CvSelectionGroup, CvUnit)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2d3494d19..46e6f510d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7149,13 +7149,9 @@ void CvPlayer::convert(ReligionTypes eReligion, /* <advc.001v> */ bool bForce)
+ 
+ bool CvPlayer::hasHolyCity(ReligionTypes eReligion) const
+ {
+-	FAssertMsg(eReligion != NO_RELIGION, "Religion is not assigned a valid value");
+-
+ 	CvCity* pHolyCity = GC.getGame().getHolyCity(eReligion);
+ 	if (pHolyCity != NULL)
+-	{
+ 		return (pHolyCity->getOwner() == getID());
+-	}
+ 	return false;
+ }
+ 
+@@ -7163,14 +7159,11 @@ bool CvPlayer::hasHolyCity(ReligionTypes eReligion) const
+ int CvPlayer::countHolyCities() const
+ {
+ 	int iCount = 0;
+-	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++	FOR_EACH_ENUM(Religion)
+ 	{
+-		if (hasHolyCity((ReligionTypes)iI))
+-		{
++		if (hasHolyCity(eLoopReligion))
+ 			iCount++;
+-		}
+ 	}
+-
+ 	return iCount;
+ }
+ 
+@@ -12532,7 +12525,7 @@ CvSelectionGroup* CvPlayer::addSelectionGroup()
+ 	// K-Mod. Make sure that every time we add a group, it also gets added to the group cycle list.
+ 	// (we can update the specific position in the cycle list later; but it's important it gets into the list.)
+ 	CvSelectionGroupAI* pGroup = m_selectionGroups->add();
+-	if (pGroup)
++	if (pGroup != NULL)
+ 		m_groupCycle.insertAtEnd(pGroup->getID());
+ 	return pGroup;
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index ae1eb1d11..141f84043 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1574,4 +1574,17 @@ private:
+ 	virtual void writeExternal(FDataStreamBase* pStream);
+ };
+ 
++/*	<advc.opt> Moved from CvGameCoreUtils fo inlining.
++	NO_PLAYER checks removed (cf. IDInfo constructor). */
++DllExport inline CvCity* getCity(IDInfo city)												// Exposed to Python
++{
++	FAssertBounds(0, MAX_PLAYERS, city.eOwner);
++	return GET_PLAYER(city.eOwner).getCity(city.iID);
++}
++DllExport inline CvUnit* getUnit(IDInfo unit)												// Exposed to Python
++{
++	FAssertBounds(0, MAX_PLAYERS, unit.eOwner);
++	return GET_PLAYER(unit.eOwner).getUnit(unit.iID);
++} // </advc.opt>
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 92e6b09b6..350cf3db8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -13,11 +13,11 @@
+ 
+ class CvDeal;
+ 
+-/*  <advc.003u> Overwrite definition in CvPlayer.h (should perhaps instead define a
++/*	<advc.003u> Overwrite definition in CvPlayer.h (should perhaps instead define a
+ 	new macro "PLAYERAI" - a lot of call locations to change though ...) */
+ #undef GET_PLAYER
+ #define GET_PLAYER(x) CvPlayerAI::AI_getPlayer(x)
+-// // </advc.003u>
++// </advc.003u>
+ 
+ class CvPlayerAI : public CvPlayer
+ {
+@@ -812,4 +812,16 @@ protected:
+ 	friend class CvPlayer; // advc.003u: So that protected functions can be called through CvPlayer::AI
+ };
+ 
++// <advc.003u> (Counterparts to global functions in CvPlayer.h)
++inline CvCityAI* AI_getCity(IDInfo city)
++{
++	FAssertBounds(0, MAX_PLAYERS, city.eOwner);
++	return GET_PLAYER(city.eOwner).AI_getCity(city.iID);
++}
++inline CvUnitAI* AI_getUnit(IDInfo unit)
++{
++	FAssertBounds(0, MAX_PLAYERS, unit.eOwner);
++	return GET_PLAYER(unit.eOwner).AI_getUnit(unit.iID);
++} // </advc.003u>
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 128d0a428..5fae36aab 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4820,6 +4820,18 @@ void CvPlot::updateCityRoute(bool bUpdatePlotGroup)  // advc: some style changes
+ }
+ 
+ 
++CvCity* CvPlot::getPlotCity() const
++{
++	return ::getCity(m_plotCity);
++}
++
++// <advc.003u>
++CvCityAI* CvPlot::AI_getPlotCity() const
++{
++	return ::AI_getCity(m_plotCity);
++} // </advc.003u>
++
++
+ void CvPlot::setPlotCity(CvCity* pNewValue)  // advc: style changes
+ {
+ 	if(getPlotCity() == pNewValue)
+@@ -4892,6 +4904,29 @@ const wchar* CvPlot::getRuinsName() const
+ } // </advc.005c>
+ 
+ 
++CvCity* CvPlot::getWorkingCity() const																																				// Exposed to Python
++{
++	return ::getCity(m_workingCity);
++}
++
++
++CvCity* CvPlot::getWorkingCityOverride() const																															// Exposed to Python
++{
++	return ::getCity(m_workingCityOverride);
++}
++
++// <advc.003u>
++CvCityAI* CvPlot::AI_getWorkingCity() const
++{
++	return ::AI_getCity(m_workingCity);
++}
++
++
++CvCityAI* CvPlot::AI_getWorkingCityOverrideAI() const
++{
++	return ::AI_getCity(m_workingCityOverride);
++} // </advc.003u>
++
+ void CvPlot::updateWorkingCity()
+ {
+ 	CvCity* pBestCity = getPlotCity();
+@@ -7145,6 +7180,10 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_workingCity.iID);
+ 	pStream->Read((int*)&m_workingCityOverride.eOwner);
+ 	pStream->Read(&m_workingCityOverride.iID);
++	// <advc.opt>
++	m_plotCity.validateOwner();
++	m_workingCity.validateOwner();
++	m_workingCityOverride.validateOwner(); // </advc.opt>
+ 
+ 	m_aiYield.Read(pStream, false, uiFlag < 5);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 11524b695..06cb9d753 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -445,38 +445,18 @@ public:
+ 	void setRouteType(RouteTypes eNewValue, bool bUpdatePlotGroup);																															// Exposed to Python
+ 	void updateCityRoute(bool bUpdatePlotGroup);
+ 
+-	DllExport inline CvCity* getPlotCity() const // advc.inl																												// Exposed to Python
+-	{
+-		return ::getCity(m_plotCity);
+-	}
+-	// <advc.003u>
+-	inline CvCityAI* AI_getPlotCity() const
+-	{
+-		return ::AI_getCity(m_plotCity);
+-	} // </advc.003u>
++	DllExport CvCity* getPlotCity() const;																												// Exposed to Python
++	CvCityAI* AI_getPlotCity() const;
+ 	void setPlotCity(CvCity* pNewValue);
+ 	void setRuinsName(const CvWString& szName); // advc.005c
+ 	const wchar* getRuinsName() const; // advc.005c
+-	// advc.inl
+-	inline CvCity* getWorkingCity() const																																				// Exposed to Python
+-	{
+-		return ::getCity(m_workingCity);
+-	}
++	CvCity* getWorkingCity() const;																														// Exposed to Python
+ 	void updateWorkingCity();
+-	CvCity* getWorkingCityOverride() const																															// Exposed to Python
+-	{	// advc.inl:
+-		return ::getCity(m_workingCityOverride);
+-	}
++	CvCity* getWorkingCityOverride() const;																								// Exposed to Python
+ 	void setWorkingCityOverride(const CvCity* pNewValue);
+ 	// <advc.003u>
+-	CvCityAI* AI_getWorkingCity() const
+-	{
+-		return ::AI_getCity(m_workingCity);
+-	}
+-	CvCityAI* AI_getWorkingCityOverrideAI() const
+-	{
+-		return ::AI_getCity(m_workingCityOverride);
+-	} // </advc.003u>
++	CvCityAI* AI_getWorkingCity() const;
++	CvCityAI* AI_getWorkingCityOverrideAI() const; // </advc.003u>
+ 
+ 	int getRiverID() const;																																							// Exposed to Python
+ 	void setRiverID(int iNewValue);																																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index cac2bbd20..8daeb2826 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -484,12 +484,12 @@ bool CvPythonCaller::doEventTrigger(PlayerTypes ePlayer, EventTriggeredData cons
+ 	if (lResult == 0)
+ 		return false;
+ 	// Python may have changed kTriggered
+-	pCity = ::getCity(IDInfo(ePlayer, kTriggered.m_iCityId));
++	pCity = CvCity::fromIDInfo(IDInfo(ePlayer, kTriggered.m_iCityId));
+ 	pPlot = GC.getMap().plot(kTriggered.m_iPlotX, kTriggered.m_iPlotY);
+-	pUnit = ::getUnit(IDInfo(ePlayer, kTriggered.m_iUnitId));
++	pUnit = CvUnit::fromIDInfo(IDInfo(ePlayer, kTriggered.m_iUnitId));
+ 	eOtherPlayer = kTriggered.m_eOtherPlayer;
+ 	if (eOtherPlayer != NO_PLAYER)
+-		pOtherPlayerCity = ::getCity(IDInfo(eOtherPlayer, kTriggered.m_iOtherPlayerCityId));
++		pOtherPlayerCity = CvCity::fromIDInfo(IDInfo(eOtherPlayer, kTriggered.m_iOtherPlayerCityId));
+ 	eReligion = kTriggered.m_eReligion;
+ 	eCorporation = kTriggered.m_eCorporation;
+ 	eBuilding = kTriggered.m_eBuilding;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 829adb568..a1281eee3 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -882,6 +882,7 @@ void CvSelectionGroupAI::read(FDataStreamBase* pStream)
+ 	pStream->Read((int*)&m_eMissionAIType);
+ 
+ 	pStream->Read((int*)&m_missionAIUnit.eOwner);
++	m_missionAIUnit.validateOwner(); // advc.opt
+ 	pStream->Read(&m_missionAIUnit.iID);
+ 
+ 	pStream->Read(&m_bGroupAttack);
+
+diff --git a/CvGameCoreDLL/CvStructs.cpp b/CvGameCoreDLL/CvStructs.cpp
+index 8ceb5a45e..966bfee5d 100644
+--- a/CvGameCoreDLL/CvStructs.cpp
++++ b/CvGameCoreDLL/CvStructs.cpp
+@@ -16,6 +16,17 @@
+ #include "CvUnit.h"
+ #include "CvPlot.h" // advc.071
+ 
++// advc.opt: For reading legacy savegames
++void IDInfo::validateOwner()
++{
++	if (eOwner == NO_PLAYER)
++	{
++		if (iID == FFreeList::INVALID_INDEX)
++			eOwner = BARBARIAN_PLAYER;
++		else FAssert(iID == FFreeList::INVALID_INDEX);
++	}
++}
++
+ int EventTriggeredData::getID() const
+ {
+ 	return m_iId;
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index deeacae40..73e92b144 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -28,7 +28,16 @@ struct XYCoords
+ 
+ struct IDInfo
+ {
+-	IDInfo(PlayerTypes eOwner=NO_PLAYER, int iID=FFreeList::INVALID_INDEX) : eOwner(eOwner), iID(iID) {}
++	/*	advc.opt: Default owner changed from NO_PLAYER to Barbarians so that
++		the owner doesn't need to be checked before calling FFreeListTrashArray::getAt. */
++	// advc.inl: inline keyword just to make sure
++	inline IDInfo(PlayerTypes eOwner = BARBARIAN_PLAYER, int iID = FFreeList::INVALID_INDEX) :
++		eOwner(eOwner), iID(iID)
++	{
++		FAssert(iID != FFreeList::INVALID_INDEX || eOwner == BARBARIAN_PLAYER); // advc.test
++	}
++	void validateOwner(); // advc.opt
++
+ 	PlayerTypes eOwner;
+ 	int iID;
+ 
+@@ -47,7 +56,8 @@ struct IDInfo
+ 
+ 	void reset()
+ 	{
+-		eOwner = NO_PLAYER;
++		//eOwner = NO_PLAYER;
++		eOwner = BARBARIAN_PLAYER; // advc.opt
+ 		iID = FFreeList::INVALID_INDEX;
+ 	}
+ };
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index cb887d52d..61826f528 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7930,6 +7930,12 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
+ 	return iCount;
+ }
+ 
++// advc:
++CvUnit* CvUnit::fromIDInfo(IDInfo id)
++{
++	return ::getUnit(id);
++}
++
+ 
+ void CvUnit::setID(int iID)
+ {
+@@ -9565,6 +9571,12 @@ bool CvUnit::showSiegeTower(CvUnit* pDefender) const
+ } // K-Mod end
+ 
+ 
++CvUnit* CvUnit::getTransportUnit() const
++{
++	return getUnit(m_transportUnit);
++}
++
++
+ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
+ {
+ 	CvUnit* pOldTransportUnit = getTransportUnit();
+@@ -10073,6 +10085,9 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_combatUnit.iID);
+ 	pStream->Read((int*)&m_transportUnit.eOwner);
+ 	pStream->Read(&m_transportUnit.iID);
++	// <advc.opt>
++	m_combatUnit.validateOwner();
++	m_transportUnit.validateOwner(); // </advc.opt>
+ 
+ 	m_aiExtraDomainModifier.Read(pStream);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 1ac945231..3e66fdff1 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -566,6 +566,7 @@ public:
+ 			CvArea const& kArea) const;
+ 	int getUnitAICargo(UnitAITypes eUnitAI) const;															// Exposed to Python
+ 
++	static CvUnit* fromIDInfo(IDInfo id); // advc
+ 	DllExport inline int getID() const { return m_iID; }																					// Exposed to Python
+ 	int getIndex() const { return (getID() & FLTA_INDEX_MASK); }
+ 	DllExport IDInfo getIDInfo() const { return IDInfo(getOwner(), getID()); }
+@@ -832,8 +833,8 @@ public:
+ 	void setCombatUnit(CvUnit* pUnit, bool bAttacking = false);
+ 	bool showSiegeTower(CvUnit* pDefender) const; // K-Mod
+ 
+-	CvUnit* getTransportUnit() const { return getUnit(m_transportUnit); }									// Exposed to Python
+-	// advc.103f: inlined for CvArea::canBeEntered
++	CvUnit* getTransportUnit() const;																		// Exposed to Python
++	// advc.103f: Force-inlined for CvArea::canBeEntered
+ 	__forceinline bool isCargo() const																		// Exposed to Python
+ 	{	// advc.test: (Should perhaps simply turn m_transportUnit into a CvUnit pointer.)
+ 		FAssert((getTransportUnit() == NULL) == (m_transportUnit.iID == NO_PLAYER));
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index cf9fa3d2d..ef89bb3f9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21799,3 +21799,9 @@ void CvUnitAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eUnitAIType);
+ 	pStream->Write(m_iAutomatedAbortTurn);
+ }
++
++// advc:
++CvUnitAI* CvUnitAI::fromIDInfo(IDInfo id)
++{
++	return AI_getUnit(id);
++}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 26ef74693..53909b3b0 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -60,6 +60,8 @@ public:
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+ 
++	static CvUnitAI* fromIDInfo(IDInfo id); // advc
++
+ protected:
+ 
+ 	void finalizeInit(); // advc.003u: override
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 0b8904034..f3635e3c7 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1725,7 +1725,7 @@ void CvXMLLoadUtility::SetVariableListTagPair(int **ppiList, const TCHAR* szRoot
+ 							int iIndexVal = FindInInfoClass(szTextVal);
+ 							if (iIndexVal != -1)
+ 							{
+-								int iOldVal = piList[iIndexVal]; // advc.003t
++								int const iOldVal = piList[iIndexVal]; // advc.003t
+ 								GetNextXmlVal(piList[iIndexVal]);
+ 								// <advc.003t>
+ 								if (iOldVal != piList[iIndexVal])
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.cpp b/CvGameCoreDLL/CyGameCoreUtils.cpp
+index 795667918..f36eae0ad 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtils.cpp
+@@ -6,6 +6,7 @@
+ #include "CvCity.h" // </advc.make>
+ // <advc>
+ #include "CvTeam.h" // (Would be nicer to expose getEspionageModifier through CyTeam)
++#include "CvPlayer.h" // for getCity, getUnit
+ // For functions moved from CvGameCoreUtils to CvInfos
+ #include "CvInfo_Unit.h"
+ #include "CvInfo_Building.h"
+@@ -128,12 +129,12 @@ bool cyAtWar(int /*TeamTypes*/ eTeamA, int /*TeamTypes*/ eTeamB)
+ 
+ CyCity* cyGetCity(IDInfo city)
+ {
+-	return new CyCity(getCity(city));
++	return new CyCity(::getCity(city));
+ }
+ 
+ CyUnit* cyGetUnit(IDInfo unit)
+ {
+-	return new CyUnit(getUnit(unit));
++	return new CyUnit(::getUnit(unit));
+ }
+ 
+ // advc: No longer exposed to Python. Tbd. (perhaps): Expose them through CyGame.
+
+diff --git a/CvGameCoreDLL/FFreeListTrashArray.h b/CvGameCoreDLL/FFreeListTrashArray.h
+index dacbf8e4f..a1a3cd941 100644
+--- a/CvGameCoreDLL/FFreeListTrashArray.h
++++ b/CvGameCoreDLL/FFreeListTrashArray.h
+@@ -251,10 +251,8 @@ T* FFreeListTrashArray<T>::getAt(int iID) const
+ {
+ 	int iIndex;
+ 
+-	if ((iID == FFreeList::INVALID_INDEX) || (m_pArray == NULL))
+-	{
++	if (iID == FFreeList::INVALID_INDEX /*|| m_pArray == NULL*/) // advc.opt
+ 		return NULL;
+-	}
+ 
+ 	iIndex = (iID & FLTA_INDEX_MASK);
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 979a8fd46..dabe3ea34 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -79,7 +79,7 @@ int Shelf::countBarbarians() const
+ 		CLLNode<IDInfo>* unitNode = plot->headUnitNode();
+ 		if(unitNode == NULL)
+ 			continue;
+-		CvUnit* anyUnit = ::getUnit(unitNode->m_data);
++		CvUnit* anyUnit = CvUnit::fromIDInfo(unitNode->m_data);
+ 		if(anyUnit != NULL && anyUnit->isBarbarian())
+ 			r += plot->getNumUnits();
+ 	}
+@@ -95,7 +95,7 @@ bool Shelf::killBarbarian()
+ 		CLLNode<IDInfo>* unitNode = plot->headUnitNode();
+ 		if(unitNode == NULL)
+ 			continue;
+-		CvUnit* anyUnit = ::getUnit(unitNode->m_data);
++		CvUnit* anyUnit = CvUnit::fromIDInfo(unitNode->m_data);
+ 		if(anyUnit != NULL && anyUnit->isBarbarian() &&
+ 			anyUnit->getUnitCombatType() != NO_UNITCOMBAT)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=26 omittedFiles=0 embeddedPatchBytes=23598

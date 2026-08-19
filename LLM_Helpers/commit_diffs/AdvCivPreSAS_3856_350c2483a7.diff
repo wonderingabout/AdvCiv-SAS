@@ -1,0 +1,391 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3856
+# Commit: 350c2483a7ea68ef52d267357bdb1f5c135f549b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c0c468256a958395e93850de7642b130e14e3098
+# Title: Partly restore BtS behavior for choice of "center unit"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	9	CvGameCoreDLL/CvGameTextMgr.cpp
+71	58	CvGameCoreDLL/CvPlot.cpp
+40	16	CvGameCoreDLL/CvPlot.h
+2	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b866df2da..df40dd048 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2619,13 +2619,15 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	if (pAttacker == NULL)
+ 		return false;
+ 
+-	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(),
+-			pAttacker, !bForceHostile);
++	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER,
++			pAttacker->getOwner(), pAttacker, !bForceHostile);
+ 	// <advc.089>
+ 	if (pDefender == NULL)
+ 	{
+-		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker,
+-				!bForceHostile, false, false, false);
++		CvPlot::DefenderFilters defFilters(pAttacker->getOwner(), pAttacker,
++				!bForceHostile);
++		defFilters.m_bTestCanAttack = false;
++		pDefender = pPlot->getBestDefender(NO_PLAYER, defFilters);
+ 		if (pDefender != NULL)
+ 		{
+ 			setCannotAttackHelp(szString, *pAttacker, *pDefender);
+@@ -2636,7 +2638,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	bool bCaptureHelpOnly = false;
+ 	if (pDefender == NULL)
+ 	{
+-		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker, false);
++		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker);
+ 		if (pDefender != NULL)
+ 			bCaptureHelpOnly = true;
+ 		else return false;
+@@ -2687,19 +2689,19 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		return false; // </advc.010>
+ 	// <advc.048>
+ 	bool bBestOddsHelp = false;
+-	if(!bMaxSurvival && GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0)
++	if (!bMaxSurvival && GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0)
+ 	{
+ 		CvUnit* pBestOddsAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOddsDummy,
+ 				false, false, false, true);
+-		if(pBestOddsAttacker == NULL)
++		if (pBestOddsAttacker == NULL)
+ 		{
+ 			pBestOddsAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOddsDummy,
+ 					true, false, false, true);
+ 		}
+-		if(pBestOddsAttacker != pAttacker)
++		if (pBestOddsAttacker != pAttacker)
+ 			bBestOddsHelp = true;
+ 	}
+-	if(!ACO_enabled && bBestOddsHelp)
++	if (!ACO_enabled && bBestOddsHelp)
+ 	{
+ 		szString.append(gDLL->getText("TXT_KEY_GROUP_ATTACK_BEST_ODDS_HELP"));
+ 		szString.append(NEWLINE);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index dede5aae9..0610fefb1 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -631,46 +631,53 @@ void CvPlot::updateCenterUnit()
+ 		return;
+ 	}
+ 
+-	setCenterUnit(getSelectedUnit());
+-
+-	/*if (getCenterUnit() == NULL) {
+-		setCenterUnit(getBestDefender(getActivePlayer(), NO_PLAYER,
+-				NULL, false, false, true));
+-	}*/
+-	PlayerTypes eActivePlayer = getActivePlayer();
+-	if (getCenterUnit() == NULL)
+-		setCenterUnit(getBestDefender(eActivePlayer));
++	if (setCenterUnit(getSelectedUnit()))
++		return;
+ 
+-	if (getCenterUnit() == NULL)
+-	{	// <advc.028>
+-		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
+-				gDLL->UI().getHeadSelectedUnit(), true,
+-				false, true); // advc.061
+-		if(pBestDef != NULL)
+-			setCenterUnit(pBestDef); // </advc.028>
+-	} // disabled by K-Mod. I don't think it's relevant whether or not the best defender can move.
+-	/*  advc.001: Enabled again, instead disabled the one with bTestCanMove=true --
+-		I think that's the one karadoc had meant to disable. */
++	PlayerTypes const eActivePlayer = getActivePlayer();
+ 
+-	if (getCenterUnit() == NULL)
++	//setCenterUnit(getBestDefender(eActivePlayer, NO_PLAYER, NULL, false, false, true))
++	/*	advc.001: karadoc had meant to disable this (see K-Mod comment below).
++		Perhaps he wasn't aware that the center unit is also the unit that gets
++		selected when the active player clicks on a tile. I am disabling the
++		code during AI turns (when the active player can't select units). */
++	if (!GC.getGame().isInBetweenTurns())
+ 	{
+-		//setCenterUnit(getBestDefender(NO_PLAYER, getActivePlayer(), gDLL->UI().getHeadSelectedUnit()));
+-		// <advc.028> Replacing the above
+-		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
+-				gDLL->UI().getHeadSelectedUnit(), false,
+-				false, true); // advc.061
+-		if(pBestDef != NULL)
+-			setCenterUnit(pBestDef); // </advc.028>
++		DefenderFilters defFilters;
++		defFilters.m_bTestCanMove = true;
++		if (setCenterUnit(getBestDefender(eActivePlayer, defFilters)))
++			return;
++	}
++	if (setCenterUnit(getBestDefender(eActivePlayer)))
++		return;
++	{
++		//setCenterUnit(getBestDefender(NO_PLAYER, eActivePlayer, gDLL->UI().getHeadSelectedUnit(), true));
++		/*	disabled by K-Mod. I don't think it's relevant
++			whether or not the best defender can move. */
++		/*	advc.001: Restored the code (with some changes for advc.028).
++			This is not the code that karadoc had meant to disable. */
++		// <advc.028>
++		DefenderFilters defFilters(eActivePlayer, gDLL->UI().getHeadSelectedUnit(),
++				true);
++		defFilters.m_bTestVisible = true; // advc.061
++		if (setCenterUnit(getBestDefender(NO_PLAYER, defFilters)))
++			return; // </advc.028>
++	}
++	{
++		//setCenterUnit(getBestDefender(NO_PLAYER, eActivePlayer, gDLL->UI().getHeadSelectedUnit()));
++		// <advc.028>
++		DefenderFilters defFilters(eActivePlayer, gDLL->UI().getHeadSelectedUnit());
++		defFilters.m_bTestVisible = true; // advc.061
++		if (setCenterUnit(getBestDefender(NO_PLAYER, defFilters)))
++			return; // </advc.028>
+ 	}
+-
+-	if (getCenterUnit() == NULL)
+ 	{
+-		//setCenterUnit(getBestDefender(NO_PLAYER, getActivePlayer()));
+-		// <advc.028> Replacing the above
+-		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer, NULL, false,
+-				false, true); // advc.061
+-		if(pBestDef != NULL)
+-			setCenterUnit(pBestDef); // </advc.028>
++		//setCenterUnit(getBestDefender(NO_PLAYER, eActivePlayer));
++		// <advc.028>
++		DefenderFilters defFilters(eActivePlayer);
++		defFilters.m_bTestVisible = true; // advc.061
++		if (setCenterUnit(getBestDefender(NO_PLAYER, defFilters)))
++			return; // </advc.028>
+ 	}
+ }
+ 
+@@ -2483,19 +2490,17 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
+ }
+ 
+ 
+-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
+-	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy,
+-	/* advc.028: */ bool bTestVisible,
+-	bool bTestCanAttack, bool bTestAny) const // advc: new params (for CvPlot::hasDefender)
++CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner,
++	/* <advc> */ DefenderFilters& kFilters) const
+ {
+-	// <advc> Ensure consistency of parameters
+-	if (pAttacker != NULL)
++	// Ensure consistency of parameters
++	if (kFilters.m_pAttacker != NULL)
+ 	{
+-		FAssert(pAttacker->getOwner() == eAttackingPlayer);
+-		eAttackingPlayer = pAttacker->getOwner();
++		FAssert(kFilters.m_pAttacker->getOwner() == kFilters.m_eAttackingPlayer);
++		kFilters.m_eAttackingPlayer = kFilters.m_pAttacker->getOwner();
+ 	}
+ 	// isEnemy implies isPotentialEnemy
+-	FAssert(!bTestEnemy || !bTestPotentialEnemy); // </advc>
++	FAssert(!kFilters.m_bTestEnemy || !kFilters.m_bTestPotentialEnemy); // </advc>
+ 	// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000
+ 	int iBestUnitRank = -1;
+ 	CvUnit* pBestUnit = NULL;
+@@ -2504,18 +2509,22 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 		CvUnit& kUnit = *pLoopUnit;
+ 		if (eOwner != NO_PLAYER && kUnit.getOwner() != eOwner)
+ 			continue;
+-		if (kUnit.isCargo()) // advc: Was previously only checked with bTestCanMove - i.e. never.
++		if (kUnit.isCargo()) // advc: Was previously only checked with TestCanMove
++			continue;
++		if (kFilters.m_bTestCanMove && !kUnit.canMove())
+ 			continue;
+ 		// <advc> Moved the other conditions into CvUnit::canBeAttackedBy (new function)
+-		if(eAttackingPlayer == NO_PLAYER || kUnit.canBeAttackedBy(eAttackingPlayer,
+-			pAttacker, bTestEnemy, bTestPotentialEnemy, /* advc.028: */ bTestVisible,
+-			bTestCanAttack))
++		if (kFilters.m_eAttackingPlayer == NO_PLAYER ||
++			kUnit.canBeAttackedBy(kFilters.m_eAttackingPlayer,
++			kFilters.m_pAttacker, kFilters.m_bTestEnemy, kFilters.m_bTestPotentialEnemy,
++			kFilters.m_bTestVisible, // advc.028
++			kFilters.m_bTestCanAttack))
+ 		{
+-			if (bTestAny)
++			if (kFilters.m_bTestAny)
+ 				return &kUnit; // </advc>
+-			if (kUnit.isBetterDefenderThan(pBestUnit, pAttacker,
++			if (kUnit.isBetterDefenderThan(pBestUnit, kFilters.m_pAttacker,
+ 				&iBestUnitRank, // UncutDragon
+-				bTestVisible)) // advc.061
++				kFilters.m_bTestVisible)) // advc.061
+ 			{
+ 				pBestUnit = &kUnit;
+ 			}
+@@ -6672,18 +6681,21 @@ CvUnit* CvPlot::getDebugCenterUnit() const
+ 	return pCenterUnit;
+ }
+ 
+-
+-void CvPlot::setCenterUnit(CvUnit* pNewValue)
++/*	advc: Return false if center unit set to NULL, true otherwise.
++	This is convenient for updateCenterUnit. */
++bool CvPlot::setCenterUnit(CvUnit* pNewValue)
+ {
++	bool bRet = (pNewValue != NULL);
+ 	CvUnit* pOldValue = getCenterUnit();
+ 	if (pOldValue == pNewValue)
+-		return; // advc
++		return bRet;
+ 
+ 	m_pCenterUnit = pNewValue;
+ 	updateMinimapColor();
+ 	setFlagDirty(true);
+ 	if (getCenterUnit() != NULL)
+ 		getCenterUnit()->setInfoBarDirty(true);
++	return bRet;
+ }
+ 
+ 
+@@ -8341,15 +8353,16 @@ void CvPlot::killRandomUnit(PlayerTypes eOwner, DomainTypes eDomain)
+ }
+ 
+ 
+-// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000: START
++// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+ bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
+ 	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy) const
+ {
+ 	/*  advc: BBAI had repeated parts of getBestDefender here. To avoid that, I've moved
+ 		bTestAttack into getBestDefender and gave that function a "bTestAny" param. */
+-	return (getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestEnemy,
+-			bTestPotentialEnemy, false, bTestCanAttack, /*bTestAny=*/true) != NULL);
+-} // BETTER_BTS_AI_MOD: END
++	CvPlot::DefenderFilters defFilters(eAttackingPlayer, pAttacker, bTestEnemy,
++			bTestPotentialEnemy, false, bTestCanAttack, /*bTestAny=*/true);
++	return (getBestDefender(eOwner, defFilters) != NULL);
++}
+ 
+ // <advc.500a>
+ #if 0 // disabled for now
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 31446e03c..5dcadfd98 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -136,21 +136,45 @@ public:
+ 			CvPlot const* pCityPlot = NULL, PlayerTypes eCityOwner = NO_PLAYER) const; // advc.031
+ 
+ 	DllExport CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER,	// Exposed to Python
+-		const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false,
+-		/*  advc.028: Replacing unused bTestCanMove. False by default b/c invisible units are
+-			generally able to defend - they just choose not to (CvUnit::isBetterDefenderThan). */
+-		bool bTestVisible = false) const  // <advc> Need some more params
+-	{
+-		return getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestAtWar,
+-				bTestPotentialEnemy, bTestVisible,
+-				// advc.089: bTestCanAttack=true by default
+-				true, false);
+-	}
+-	CvUnit* getBestDefender(PlayerTypes eOwner,
+-			PlayerTypes eAttackingPlayer, CvUnit const* pAttacker,
+-			bool bTestEnemy, bool bTestPotentialEnemy,
+-			bool bTestVisible, // advc.028
+-			bool bTestCanAttack, bool bTestAny = false) const; // </advc>
++		CvUnit const* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false,
++		/*  advc.028: Replacing bTestCanMove. False by default b/c invisible units are generally
++			able to defend - they just choose not to (CvUnit::isBetterDefenderThan). */
++		bool bTestVisible = false) const
++	// <advc> Need some more params
++	{
++		DefenderFilters defFilters(eAttackingPlayer, pAttacker,
++				bTestAtWar, bTestPotentialEnemy,
++				bTestVisible); // advc.028
++		return getBestDefender(eOwner, defFilters);
++	}
++	struct DefenderFilters
++	{
++		DefenderFilters(
++			PlayerTypes eAttackingPlayer = NO_PLAYER, CvUnit const* pAttacker = NULL,
++			bool bTestEnemy = false, bool bTestPotentialEnemy = false,
++			bool bTestVisible = false, // advc.028
++			/*	advc: New params to allow hasDefender checks.
++				advc.089: bTestCanAttack=true by default. */
++			bool bTestCanAttack = true, bool bTestAny = false,
++			/*	(Ideally, this should be swapped with bTestVisible to stay closer
++				to the original code. bTestCanMove had been unused for a while.
++				Not going to change this now, too error-prone.) */
++			bool bTestCanMove = false)
++		:	m_eAttackingPlayer(eAttackingPlayer), m_pAttacker(pAttacker),
++			m_bTestEnemy(bTestEnemy), m_bTestPotentialEnemy(bTestPotentialEnemy),
++			m_bTestVisible(bTestVisible), // advc.028
++			m_bTestCanAttack(bTestCanAttack), m_bTestAny(bTestAny), // advc
++			m_bTestCanMove(bTestCanMove)
++		{}
++		PlayerTypes m_eAttackingPlayer;
++		CvUnit const* m_pAttacker;
++		bool m_bTestEnemy, m_bTestPotentialEnemy,
++			 m_bTestVisible, // advc.028
++			 m_bTestCanAttack, m_bTestAny, // advc
++			 m_bTestCanMove;
++	};
++	CvUnit* getBestDefender(PlayerTypes eOwner, DefenderFilters& kFilters) const;
++	// </advc>
+ 	// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+ 	bool hasDefender(bool bTestCanAttack, PlayerTypes eOwner,
+ 			PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL,
+@@ -690,7 +714,7 @@ public:
+ 
+ 	DllExport CvUnit* getCenterUnit() const { return m_pCenterUnit; }
+ 	DllExport CvUnit* getDebugCenterUnit() const;
+-	void setCenterUnit(CvUnit* pNewValue);
++	bool setCenterUnit(CvUnit* pNewValue);
+ 
+ 	int getCultureRangeCities(PlayerTypes eOwnerIndex,												// Exposed to Python
+ 		CultureLevelTypes eRangeIndex) const // advc.enum
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 7143c6342..6fdeee6c2 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -306,9 +306,10 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
+ 	CvUnitAI const* pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
+ 	if (pAttacker == NULL)
+ 		return 0;
+-	CvUnit const* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), pAttacker,
++	CvPlot::DefenderFilters defFilters(getOwner(), pAttacker,
+ 			!bPotentialEnemy, bPotentialEnemy,
+ 			true, false); // advc.028, advc.089 (same as in CvUnitAI::AI_attackOdds)
++	CvUnit const* pDefender = pPlot->getBestDefender(NO_PLAYER, defFilters);
+ 	if (pDefender == NULL)
+ 		return 100;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 076563133..1dfa00a16 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -657,11 +657,11 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), this,
++	CvPlot::DefenderFilters defFilters(getOwner(), this,
+ 			!bPotentialEnemy, bPotentialEnemy,
+ 			true, // advc.028: bTestVisible
+ 			false); // advc.089: bTestCanAttack - attack isn't necessarily imminent here
+-
++	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, defFilters); 
+ 	if (pDefender == NULL)
+ 		return 100;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=15245

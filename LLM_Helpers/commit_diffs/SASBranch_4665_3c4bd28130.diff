@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4665
+# Commit: 3c4bd28130b7d3564dd7859dd3fa492f5c8a411e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 95aa7ee6e6a46b43630cb49c5563c407a18dbe24
+# Title: rename promotion_range to promotion_air_range
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Events/CIV4EventInfos.xml
+7	1	Assets/XML/Text/CIV4GameText_Custom.xml
+3	3	Assets/XML/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index f7b9da3ca..b0a4feb53 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -13052,7 +13052,7 @@
+ 			<UnitClassPromotions>
+ 				<UnitClassPromotion>
+ 					<UnitClass>UNITCLASS_FIGHTER</UnitClass>
+-					<UnitPromotion>PROMOTION_RANGE1</UnitPromotion>
++					<UnitPromotion>PROMOTION_AIR_RANGE1</UnitPromotion>
+ 				</UnitClassPromotion>
+ 			</UnitClassPromotions>
+ 			<BuildingClass>NONE</BuildingClass>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index fb4cd5288..7ec827e3c 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -20,7 +20,13 @@
+ 	<!-- custom: do not rename the tag itself as we would have to recompile
+ 	and may break compatibility with other mods, we mostly (just or not)
+ 	wanted to rename the tag of promotioninfo itself that is much more used
+-	and prone to confusing those who read it maybe, at least me, anyways,
++	and prone to confusing those who read it maybe, at least me, anyways.
++	We may also have to change it in a lot more places that we would want
++	to or need to, for other promotions with a similar case of renaming.
++	
++	So focus mostly/only on the most import change, which is here is to add
++	"Air" explicitly in the text to clarify	it is about air units, may or not
++	do similarly for such other or similar or not texts.
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 69ce619e2..c141cffee 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -4578,7 +4578,7 @@ full order to take from for quick editing or/and copy/paste:
+ 		worth it if more visible especially to new(er) players, i think,
+ 		but even experienced ones. -->
+ 		<PromotionInfo>
+-			<Type>PROMOTION_RANGE1</Type>
++			<Type>PROMOTION_AIR_RANGE1</Type>
+ 			<Description>TXT_KEY_PROMOTION_RANGE1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+@@ -4649,11 +4649,11 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,15</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+-			<Type>PROMOTION_RANGE2</Type>
++			<Type>PROMOTION_AIR_RANGE2</Type>
+ 			<Description>TXT_KEY_PROMOTION_RANGE2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>PROMOTION_RANGE1</PromotionPrereq>
++			<PromotionPrereq>PROMOTION_AIR_RANGE1</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+ 			<TechPrereq>TECH_FLIGHT</TechPrereq>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2917

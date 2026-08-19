@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2233
+# Commit: ce3ef2e1d648712c1c6daaf6ca1bd832c7ed60ae
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b77ff7ab25be79143bbd5a3a32b38eca2af95c20
+# Title: Barbarians: treat Plains, Tundra Hill as "habitable"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+86	11	CvGameCoreDLL/CvCity.cpp
+5	2	CvGameCoreDLL/CvCity.h
+12	11	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 365b449d9..4ddc4d6e8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10102,7 +10102,7 @@ void CvCity::setWallOverridePoints(const std::vector< std::pair<float, float> >&
+ }
+ 
+ // <advc.310>
+-void CvCity::addGreatWall()
++void CvCity::addGreatWall(int iAttempt)
+ {
+ 	if (GC.getDefineINT("GREAT_WALL_GRAPHIC_MODE") != 1)
+ 	{
+@@ -10111,32 +10111,72 @@ void CvCity::addGreatWall()
+ 	}
+ 	// All plots orthogonally adjacent to a (desired) wall segment
+ 	std::set<int> aiWallPlots;
++	/*	To determine if we have enough segments in the end.
++		But I think it's better to place too few segments than
++		to relax the placement rules arbitrarily ... */
++	/*int iInside = 0;
++	int iOutside = 0;*/
+ 	CvMap& kMap = GC.getMap();
+ 	for (int i = 0; i < kMap.numPlots(); i++)
+ 	{
+-		CvPlot* p = kMap.plotByIndex(i);
+-		if(!isArea(p->getArea()) || p->getOwner() != getOwner() || // as in BtS
+-			p->isImpassable()) // new: don't wall off peaks
++		CvPlot const& kInside = kMap.getPlotByIndex(i);
++		if(!isArea(kInside.getArea()) || kInside.getOwner() != getOwner() || // as in BtS
++			kInside.isImpassable()) // new: don't wall off peaks
+ 		{
+ 			continue;
+ 		}
++		/*	Add kInside if we find an adjacent pOutside such that the two should
++			be separated by a segment */
+ 		bool bFound = false;
+-		// Add p if we find an adjacent q such that (p, q) should have a segment in between
+ 		FOR_EACH_ENUM(CardinalDirection)
+ 		{
+-			CvPlot* q = ::plotCardinalDirection(p->getX(), p->getY(), eLoopCardinalDirection);
+-			if(q == NULL || !isArea(q->getArea()) || q->isImpassable())
++			CvPlot const* pOutside = plotCardinalDirection(kInside.getX(), kInside.getY(),
++					eLoopCardinalDirection);
++			if (pOutside == NULL)
+ 				continue;
+-			PlayerTypes eOwner = q->getOwner();
+-			if(eOwner == NO_PLAYER || eOwner == BARBARIAN_PLAYER) // Not: any civ
++			bool bValid = needsGreatWallSegment(kInside, *pOutside, iAttempt);
++			if (!bValid && pOutside->sameArea(kInside) && !pOutside->isImpassable()
++				/*	Commenting this condition out extends the wall by 1 tile into
++					unhabitable terrain. Otherwise, it looks like Barbarians could just
++					slip around the margins. */
++				/*&& pOutside->isHabitable()*/)
++			{
++				/*	Also try the two plots that are orthogonally adjacent to pOutside
++					and diagonally adjacent to kInside. The segment will still go between
++					kInside and pOutside b/c there are no diagonal segments.
++					(But never if pOutside is water or impassable; see checks above.) */
++				FOR_EACH_ENUM2(CardinalDirection, eDir)
++				{
++					CvPlot const* pAdj = plotCardinalDirection(
++							pOutside->getX(), pOutside->getY(), eDir);
++					if (pAdj == NULL)
++						continue;
++					if (stepDistance(pAdj, &kInside) == 1 &&
++						needsGreatWallSegment(kInside, *pAdj, iAttempt))
++					{
++						bValid = true;
++						break;
++					}
++				}
++			}
++			if (bValid)
+ 			{
+-				aiWallPlots.insert(kMap.plotNum(*q));
++				aiWallPlots.insert(kMap.plotNum(*pOutside));
+ 				bFound = true;
++				//iOutside++;
+ 			}
+ 		}
+ 		if(bFound)
+-			aiWallPlots.insert(kMap.plotNum(*p));
++		{
++			aiWallPlots.insert(kMap.plotNum(kInside));
++			//iInside++;
++		}
+ 	}
++	/*if (iAttempt == 0 && std::min(iInside, iOutside) <= 2)
++	{
++		addGreatWall(iAttempt + 1);
++		return;
++	}*/
+ 	/*  Hack: Use a dummy CvArea object to prevent CvEngine from placing segments
+ 		along plots not in aiWallPlots. */
+ 	CvArea* pTmpArea = kMap.addArea();
+@@ -10151,6 +10191,41 @@ void CvCity::addGreatWall()
+ 	for(std::set<int>::iterator it = aiWallPlots.begin(); it != aiWallPlots.end(); it++)
+ 		kMap.plotByIndex(*it)->setArea(area(), false);
+ 	kMap.deleteArea(pTmpArea->getID());
++}
++
++// Helper function for placing Great Wall segments
++bool CvCity::needsGreatWallSegment(CvPlot const& kInside, CvPlot const& kOutside,
++	int iAttempt) const
++{
++	if(!isArea(kOutside.getArea()) || kOutside.isImpassable() ||
++		!kOutside.isHabitable(true))
++	{
++		return false;
++	}
++	PlayerTypes eOutsideOwner = kOutside.getOwner();
++	if(eOutsideOwner != NO_PLAYER && eOutsideOwner != BARBARIAN_PLAYER) // Not: any civ
++		return false;
++	if (iAttempt > 0)
++		return true;
++	/*	To avoid creating a Gaza strip, require a third plot that must be habitable,
++		adjacent to the outside plot but not adjacent to our territory. */
++	FOR_EACH_ENUM(Direction)
++	{
++		CvPlot const* pThird = ::plotDirection(kOutside.getX(), kOutside.getY(),
++				eLoopDirection);
++		if(pThird == NULL || !isArea(pThird->getArea()) ||
++			pThird->isImpassable() || !pThird->isHabitable(true))
++		{
++			continue;
++		}
++		PlayerTypes eThirdOwner = pThird->getOwner();
++		if((eThirdOwner == NO_PLAYER || eThirdOwner == BARBARIAN_PLAYER) &&
++			!pThird->isAdjacentPlayer(getOwner(), true))
++		{
++			return true;
++		}
++	}
++	return false;
+ } // </advc.310>
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index b715af2b7..e7d9dcdaf 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -672,7 +672,6 @@ public:
+ 	// allows you to programmatically specify a cities walls rather than having them be generated automagically
+ 	DllExport bool isWallOverride() const;
+ 	void setWallOverride(bool bOverride);
+-	void addGreatWall(); // advc.310: Wrapper for CvEngine::AddGreatWall
+ 
+ 	DllExport bool isInfoDirty() const;
+ 	DllExport void setInfoDirty(bool bNewValue);
+@@ -1507,7 +1506,11 @@ protected:
+ 	int getHurryGold(HurryTypes eHurry, int iHurryCost) const;
+ 	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
+ 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
+-
++	// <advc.310>
++	void addGreatWall(int iAttempt = 0); // Wrapper for CvEngine::AddGreatWall
++	bool needsGreatWallSegment(CvPlot const& kInside, CvPlot const& kOutside,
++			int iAttempt) const;
++	// </advc.310>
+ 	void updateBuildingDefense(); // advc.004c
+ 	double defensiveGarrison(double stopCountingAt = -1) const; // advc.500b
+ 	//int calculateMaintenanceDistance() const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e213b7cb8..ef3484902 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5056,7 +5056,7 @@ void CvPlot::changeRiverCrossingCount(int iChange)
+ 
+ bool CvPlot::isHabitable(bool bIgnoreSea) const
+ {
+-	if(getYield(YIELD_FOOD) == 0)
++	if(calculateNatureYield(YIELD_FOOD, NO_TEAM, false, true) <= 0)
+ 		return false;
+ 	if(!isWater() || isLake())
+ 		return true;
+@@ -5079,7 +5079,8 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const
+ }
+ 
+ 
+-int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature) const
++int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature,
++	bool bIgnoreHills) const // advc.300
+ {
+ 	// advc.016: Cut from calculateYield
+ 	int iYield = GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
+@@ -5091,7 +5092,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
+ 		return iYield;
+ 	}
+ 	iYield += GC.getInfo(getTerrainType()).getYield(eYield);
+-	if (isHills())
++	bool const bHills = (isHills() /* advc.300 */ && !bIgnoreHills);
++	if (bHills)
+ 		iYield += GC.getInfo(eYield).getHillsChange();
+ 	else if (isPeak())
+ 		iYield += GC.getInfo(eYield).getPeakChange();
+@@ -5111,12 +5113,12 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
+ 				GC.getInfo(getTerrainType()).getRiverYieldChange(eYield) :
+ 				GC.getInfo(getFeatureType()).getRiverYieldChange(eYield));
+ 		int iRivers = 1;
+-		if(isConnectRiverSegments())
+-			iRivers++;
++		/*if(isConnectRiverSegments()) // Disabled for now
++			iRivers++;*/
+ 		iYield += iRivers * iYieldPerRiver; // </advc.500a>
+ 	}
+ 
+-	if (isHills())
++	if (bHills)
+ 	{
+ 		iYield += ((bIgnoreFeature || !isFeature()) ?
+ 				GC.getInfo(getTerrainType()).getHillsYieldChange(eYield) :
+@@ -8260,11 +8262,9 @@ bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eA
+ } // BETTER_BTS_AI_MOD: END
+ 
+ // <advc.500a>
++#if 0 // disabled for now
+ bool CvPlot::isConnectRiverSegments() const
+ {
+-#if 1
+-	return false; // disabled for now
+-#else
+ 	bool cr[NUM_DIRECTION_TYPES];
+ 	for(int i = 0; i < NUM_DIRECTION_TYPES; i++) {
+ 		DirectionTypes dir = (DirectionTypes)i;
+@@ -8290,8 +8290,9 @@ bool CvPlot::isConnectRiverSegments() const
+ 				!cr[DIRECTION_SOUTH] && !cr[DIRECTION_NORTH]) ||
+ 		   (cr[DIRECTION_SOUTHEAST] && cr[DIRECTION_NORTHEAST] &&
+ 				!cr[DIRECTION_EAST] && !cr[DIRECTION_WEST]));
+-#endif
+-} // </advc.500a>
++
++}
++#endif // </advc.500a>
+ 
+ // <advc.121>
+ bool CvPlot::isConnectSea() const
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 09429d6df..ae97f0be2 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -478,7 +478,8 @@ public:
+ 	{
+ 		return m_aiYield.get(eIndex);
+ 	}
+-	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false) const;		// Exposed to Python
++	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam /* advc: */ = NO_TEAM,						// Exposed to Python
++			bool bIgnoreFeature = false, /* advc.300: */ bool bIgnoreHills = false) const;
+ 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;															// Exposed to Python
+ 	int calculateTotalBestNatureYield(TeamTypes eTeam) const;																						// Exposed to Python
+ 	// BETTER_BTS_AI_MOD, City AI, 10/06/09, jdog5000:
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9409

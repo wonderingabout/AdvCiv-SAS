@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 992
+# Commit: 51882ef5cc2b78d0a0abc3733751bb9484acb084
+# History segment: K-Mod history
+# Parent used for diff: 8618facaace9b9e23fe4d5085c7c55a4f25abe48
+# Title: Adjusted the AI_buildingValue evaluation of maintenance reduction.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	9	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cd0654537..5326b7d0e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4009,14 +4009,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				int iBaseMaintenance = getMaintenanceTimes100();
+ 				int iExistingUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier())) / 100;
+ 				int iNewUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier() + kBuilding.getMaintenanceModifier())) / 100;
+-				*/
+-				// K-Mod, bugfix. getMaintenanceTimes100 is the total, with modifiers already applied.
+-				// (note. ideally we'd use "calculateBaseMaintenanceTimes100", and that would avoid problem caused by "we love the X day".
+-				// but doing it this way is slightly faster.)
+-				int iExistingUpkeep = getMaintenanceTimes100();
+-				int iBaseMaintenance = 100 * iExistingUpkeep / std::max(1, 100 + getMaintenanceModifier());
+-				int iNewUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier() + kBuilding.getMaintenanceModifier())) / 100;
+-				// K-Mod end
+ 
+ 				int iTempValue = (iExistingUpkeep - iNewUpkeep) / 16;
+ 
+@@ -4026,6 +4018,27 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				}
+ 
+ 				iValue += iTempValue;
++				*/
++				// K-Mod, bugfix. getMaintenanceTimes100 is the total, with modifiers already applied.
++				// (note. ideally we'd use "calculateBaseMaintenanceTimes100", and that would a avoid problem caused by "we love the X day".
++				// but doing it this way is slightly faster.)
++				if (kBuilding.getMaintenanceModifier())
++				{
++					int iExistingUpkeep = getMaintenanceTimes100();
++					int iBaseMaintenance = 100 * iExistingUpkeep / std::max(1, 100 + getMaintenanceModifier());
++					int iNewUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier() + kBuilding.getMaintenanceModifier())) / 100;
++
++					int iTempValue = (iExistingUpkeep - iNewUpkeep) / 22; // slightly more then 4x savings, just to acomodate growth.
++
++					/* iTempValue *= kOwner.AI_commerceWeight(COMMERCE_GOLD, 0); // (note, not just for this particular city - because this isn't direct gold production)
++					iTempValue /= 100; */
++
++					if (bFinancialTrouble)
++						iTempValue = iTempValue*2;
++
++					iValue += iTempValue;
++				}
++				// K-Mod end
+ 			}
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_SPECIALIST) || (iPass > 0))
+@@ -4243,7 +4256,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					/* original bts code
+ 					iValue += ((calculateDistanceMaintenance() - 3) * iNumCitiesInArea); */
+ 					// K-mod. More bonus for colonies, because it reduces that extra maintenance too.
+-					int iTempValue = (calculateDistanceMaintenance() - 3) * iNumCitiesInArea;
++					int iTempValue = 2*(calculateDistanceMaintenance() - 2) * iNumCitiesInArea;
+ 					const CvCity* pCapitalCity = kOwner.getCapitalCity();
+ 					if (pCapitalCity == NULL || pCapitalCity->area() != area())
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3047

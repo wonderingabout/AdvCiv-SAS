@@ -1,0 +1,706 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4418
+# Commit: 29ee6579b2d248f4ef66dc98a6ac5aaed20f971a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 18da01619fb1017c4384e1314d874d5931868b07
+# Title: add Kingdom of Benin Civilization And many other changes related. For the actual civlization to be in the game i would need to actually implement it in the X...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+-	-	New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+-	-	New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+-	-	New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+-	-	New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+110	0	New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+77	0	New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+118	0	New_Content/Civs/Kingdom_Of_Benin/README.md
+-	-	Techtree_modified.png => New_Content/Docs_And_Appendixes/0.30 Techtree_modified.png
+-	-	advciv-mod-difficulties_summary-htm-A3.pdf => New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf
+-	-	advciv-mod-difficulties_summary.ods => New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+-	-	0.10 - data about civs default.png => New_Content/Docs_And_Appendixes/civ4 civs default.png
+90	7	notes_about_civs_and_terrain_design => New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+0	0	notes_about_game_design_choices => New_Content/Docs_And_Appendixes/notes_about_game_design_choices
+0	0	notes_about_some_assets_content => New_Content/Docs_And_Appendixes/notes_about_some_assets_content
+0	0	notes_about_tech_design_choices => New_Content/Docs_And_Appendixes/notes_about_tech_design_choices
+-	-	New_Content/Docs_And_Appendixes/world map_with_countries.png
+-	-	0.20 - world_map_terrain_empty.png => New_Content/Docs_And_Appendixes/world_map_terrain_empty_20.png
+-	-	0.21 - world_map_terrain_with_civs.png => New_Content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+-	-	0.22 - world_map_terrain_with_new_civs.png => New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+14	0	New_Content/Lists/Special_Units_List
+45	0	New_Content/Lists/Wonders_List
+5	0	New_Content/README.md
+0	0	README.md
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+ create mode 100644 New_Content/Civs/Kingdom_Of_Benin/README.md
+ rename Techtree_modified.png => New_Content/Docs_And_Appendixes/0.30 Techtree_modified.png (100%)
+ rename advciv-mod-difficulties_summary-htm-A3.pdf => New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf (100%)
+ rename advciv-mod-difficulties_summary.ods => New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods (100%)
+ rename 0.10 - data about civs default.png => New_Content/Docs_And_Appendixes/civ4 civs default.png (100%)
+ rename notes_about_civs_and_terrain_design => New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design (59%)
+ rename notes_about_game_design_choices => New_Content/Docs_And_Appendixes/notes_about_game_design_choices (100%)
+ rename notes_about_some_assets_content => New_Content/Docs_And_Appendixes/notes_about_some_assets_content (100%)
+ rename notes_about_tech_design_choices => New_Content/Docs_And_Appendixes/notes_about_tech_design_choices (100%)
+ create mode 100644 New_Content/Docs_And_Appendixes/world map_with_countries.png
+ rename 0.20 - world_map_terrain_empty.png => New_Content/Docs_And_Appendixes/world_map_terrain_empty_20.png (100%)
+ rename 0.21 - world_map_terrain_with_civs.png => New_Content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png (100%)
+ rename 0.22 - world_map_terrain_with_new_civs.png => New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png (59%)
+ create mode 100644 New_Content/Lists/Special_Units_List
+ create mode 100644 New_Content/Lists/Wonders_List
+ create mode 100644 New_Content/README.md
+ create mode 100644 README.md
+
+[PATCHES]
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg b/New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+new file mode 100644
+index 000000000..b392fc21d
+Binary files /dev/null and b/New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg differ
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+new file mode 100644
+index 000000000..a0e8c2938
+Binary files /dev/null and b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png differ
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+new file mode 100644
+index 000000000..70207abc5
+Binary files /dev/null and b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp differ
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+new file mode 100644
+index 000000000..8d5987adb
+Binary files /dev/null and b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba differ
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+new file mode 100644
+index 000000000..6ac9af6ad
+Binary files /dev/null and b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png differ
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+new file mode 100644
+index 000000000..b453a8023
+--- /dev/null
++++ b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+@@ -0,0 +1,110 @@
++Kingdom of Benin (Nigeria)
++note: has nothing in common with modern benin, do not confuse
++https://en.wikipedia.org/wiki/Kingdom_of_Benin 
++
++- character: Ogiso Igodo (900 AD)
++- favourite civic: slavery, hereditary rule
++- favourite religion: paganism
++- great wonder: The walls of Bening (see here https://thinkafrica.net/walls-of-benin/
++why i chose it over the great wall of China)
++- traits: protective, financial (or organized? or charismatic?)
++- special unit: Disciplined Crossbowman: see file for detail (desert, plains (is same as
++savanna?), jungle, forest bonus)
++- model: will tyr to 'steal" from some other mods even if not so cool of me to say if i may say
++but is as is maybe or not or yes i mean anywaysn else i could duplicate a crossbowman i ma
++anywaysfirt starting to mek the unit work if i may say i meean anyways
++- special building: impluvium (based on aquaduct),
++desert tiles +2 food + 4 commerce,
++plain tiles + 2 food and 1 commerce
++jungle tiles + 1 food + 1 hammer
++credit for the image: https://fr.pinterest.com/pin/412290540863776580/
++(- prefered terrain: jungle, savanna)
++- relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened, contact with Jao's portugal traders i mean, good contact with dutch travelevers too
++- based on: Zara Yaqob seems to fit quite well from the little i know i mean anywyas, and i could
++tweak it from there if i may say i mean anyways
++- music diplomacy:
++source:https://www.youtube.com/watch?v=YtrouhSprzA&list=RDQMsP4ztQIr7S4&start_radio=1
++downloaded with yt-dlp (but currently not working so did from another website in this
++case i mean anyways)
++cut video with (todo cut a shorter verison of this? todo____)
++- picture: 
++full: https://www.google.com/imgres?q=Ogiso%20Igodo&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3285326410148945280&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&docid=q7Q1Dp0uU2tR_M&tbnid=PY9QsZmqx6syPM&vet=12ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA..i&w=673&h=673&hcb=2&ved=2ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA#imgrc=PY9QsZmqx6syPM&imgdii=CJTvEIPbz2mqNM
++- map of the (old kingdom) kingdom provided: https://thinkafrica.net/walls-of-benin/
++- cities: Edo (capital), todo____
++- associated great wonder: The Ancient Walls of Benin (16,000 Kilometres (800AD-14th Century)),
++source: https://thinkafrica.net/walls-of-benin/
++-banner/flag: 
++source: https://en.wikipedia.org/wiki/Unidentified_flag_from_the_Kingdom_of_Benin
++
++- great wonder sevopedia text:
++
++quote from same source (https://thinkafrica.net/walls-of-benin/)
++-
++The walls of Benin Kingdom compared to the Great Wall of China is arguably a much grander project and strongly reflects the collective will of a people. This is because unlike the walls of China, the Great walls of Benin were started with a clear intention and goal from the onset. The Edo people had an unwavering focus; generations after generations worked on steadily for over 500 years and were goal oriented until the project was completed. This was no mean feat.
++
++The china wall on the other hand was one half the length of the Benin walls and had no moats, although it was very much wider; wide enough to serve as a transportation corridor, was a combination of several walls built at different times by different groups of Chinese dynasties and nobles for different occasions. Between the 8th and 5th centuries BC, the Chinese were in a warring states period and the major states of Qin, Wei, Qi, Yan, and Zhongshan all built huge fortifications or walls to defend themselves and secure their borders. King Zheng of Qin conquered the other states, became the first emperor of China and was referred to as Emperor Quin Shin Huang. He united China and from BC220-206 connected all the walls and made them bigger and stronger. These newly built walls that connected the entire kingdom became very popular and is being referred to today as the Great Wall of China.
++
++The Great China wall became famous when China opened its borders for merchants and foreigners after its defeat in the Opium wars. The wall became the main attraction for tourists, and its popularity was further magnified by the travelogues of the later 19th century.
++
++The Great Wall of China in 2010 attracted an approximate 24 million people and generated about $3 billion in revenues. The Benin walls, on the other hand, had no such opportunity; rather sections of it were destroyed during the British punitive expedition. In present-day Benin, ruins of this grand structure remains scattered all over Edo Lands, locals use them as a source for obtaining building resources while some parts of it are gradually torn down by real estate developers. Today sadly, barely any trace of this structural phenomenon exists.
++
++One can only imagine if this magnificent relic from such a rich history were in places like England, USA, Germany, or even India. It would have been the most visited place in the world and a tourist haven for many millions of people from all over the world. It would be a money spinner generating billions in annual tourist revenue. Sadly one would have to resort to a visit to the British Museum in London to get a glimpse and feel of this glorious past.
++
++-
++end of quote
++
++
++(desert and wet forest would work very well i think), they have forest defense too very good
++i mean anyways for terrain balance
++
++- general characteristics: human sacrifices to the gods, state religion, Ogiuwu god
++worshipped at a special altar, hereditary monarchy, benin river, trying to attract
++european trade early leaders if i'm not mistaken, later leaders very rich thanks to
++european trade, mother separated from son early, mother had considerable power,special place Uselu,
++son is divine ruler, impluvium building to store rain water, trade in palm oil,
++britain tried to make it a colony in 1800s AD but failed, benin kingdom had monopoly in trade
++which irked britain meerchants, negociation to become their protectorate failed,
++britain tried to send a diplomatic delegation without much weaponry, but the oba
++(benin) retaliated with military unilaterally (as they were perceiving this to
++be an attack), iron crafting and carved ivory (benin bronzes) taken as "war" bounty
++and taken in british museums, successfully defended against invaders earlier
++in history, eventually became colonial nigeria, britain makes them have forced
++labour, some rebels resist and then britain starves them and burns (their?)
++farms, annual rituals of human sacrifices, strong city walls (always at war against
++rivals but wins captives, known by portugal and europeans in 1500 AD (?)),
++well trained disciplined force of the military of kingdom of benin
++quote: "Foreign observers often commented favorably on Benin's discipline and organization as
++"better disciplined than any other Guinea nation"" end quote, unlike their slacker neighbours
++of gold coast according to wikipedia,
++weapons are spear, short sword, bow well organized tactics
++quote "Before the coming of the gun, guilds of blacksmiths were charged with war
++production—particularly swords and iron spearheads. In addition, crossbowmen formed a
++specialized unit of the Benin army. Archers and crossbowmen were trained in target and
++field archery" end of quote
++for details about the military, see: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military ,
++quote also "Fortifications were important in the region and numerous military campaigns fought by
++Benin's soldiers revolved around sieges." end of quote
++they called european mercenaries to help them on some sieges, for example in 1600 AD
++approximately, Another Dutch traveler, David van Nyendael, visited Benin in 1699:
++quote
++"The inhabitants of the Benin are in general a kind and polite people, of whom one with kindness
++might get everything he desires. Whatever might be offered to them out of politeness, will always
++be doubled in return. However, they want their politeness to be returned with likewise courtesy as
++well, without the appearance of any disappointment or rudeness, and rightly so. To be sure, trying
++to take anything from them with force or violence, would be as if one tries to reach out to the Moon
++and will never be left unreckoned. When it comes to trade, they are very strict and will not suffer
++the slightest infringement of their customs, not even a iota can be changed. Though, when one is
++willing to accept these customs, they are very easy-going and will cooperate in every way possible
++to reach an agreement."end of quote
++Many sacrifices (europeans were horrified by many men with ears cut)
++Scientific analysis of the brass (or "bronze") used to make the famous Benin plaques and other
++sculptures found that, beginning in the late 15th century, the metal (previously thought to have
++come from the Netherlands) began to derive from the Rhineland region of Germany. At that time, the
++brass was exported from Germany in the form of ring-shaped ingots which were used as currency in the
++trans-Atlantic slave trade (bought from the Portuguese and incorporated by the people in Benin as a
++metal source in sculpture), and subsequently melted down in Benin to produce Benin Bronzes.
++
++- notable figures/characters: a wife of oba, a trader, a queen (sacrifice herself as a sacrificial
++lamb for the welfare of her husband after the oracle told her to do so to appease the gods), a
++general, a chief warrior who is blacksmith and sculptor
++(https://en.wikipedia.org/wiki/Kingdom_of_Benin#Notable_figures)
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+new file mode 100644
+index 000000000..81dcb50c4
+--- /dev/null
++++ b/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+@@ -0,0 +1,77 @@
++Kingdom of Benin (Nigeria)
++note: has nothing in common with modern benin, do not confuse
++https://en.wikipedia.org/wiki/Kingdom_of_Benin 
++
++- character: Ogiso Igodo (900 AD)
++- favourite civic: slavery, hereditary rule
++- favourite religion: paganism
++- traits: protective, financial (or organized? or charismatic?)
++- special unit: Disciplined Crossbowman: see file for detail (desert, plains (is same as savanna?), jungle, forest bonus)
++- special building: impluvium (based on aquaduct), desert tiles +2 food + 4 commerce, plain tiles + 2 food and 1 commerce
++credit for the image: https://fr.pinterest.com/pin/412290540863776580/
++jungle tiles + 1 food + 1 hammer
++(- prefered terrain: jungle, savanna)
++- relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened, contact with Jao's portugal traders i mean, good contact with dutch travelevers too
++- based on: Zara Yaqob seems to fit quite well from the little i know i mean anywyas, and i could
++tweak it from there if i may say i mean anyways
++- music diplomacy
++- picture: 
++full: https://www.google.com/imgres?q=Ogiso%20Igodo&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3285326410148945280&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&docid=q7Q1Dp0uU2tR_M&tbnid=PY9QsZmqx6syPM&vet=12ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA..i&w=673&h=673&hcb=2&ved=2ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA#imgrc=PY9QsZmqx6syPM&imgdii=CJTvEIPbz2mqNM
++blurred: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&psig=AOvVaw3wj2E7lnIop9ohNWLE-nZm&ust=1743213907216000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKDw-b_Zq4wDFQAAAAAdAAAAABAQ
++- cities: Edo (capital), 
++
++
++(desert and wet forest would work very well i think), they have forest defense too very good
++i mean anyways for terrain balance
++
++- general characteristics: human sacrifices to the gods, state religion, Ogiuwu god
++worshipped at a special altar, hereditary monarchy, benin river, trying to attract
++european trade early leaders if i'm not mistaken, later leaders very rich thanks to
++european trade, mother separated from son early, mother had considerable power,special place Uselu,
++son is divine ruler, impluvium building to store rain water, trade in palm oil,
++britain tried to make it a colony in 1800s AD but failed, benin kingdom had monopoly in trade
++which irked britain meerchants, negociation to become their protectorate failed,
++britain tried to send a diplomatic delegation without much weaponry, but the oba
++(benin) retaliated with military unilaterally (as they were perceiving this to
++be an attack), iron crafting and carved ivory (benin bronzes) taken as "war" bounty
++and taken in british museums, successfully defended against invaders earlier
++in history, eventually became colonial nigeria, britain makes them have forced
++labour, some rebels resist and then britain starves them and burns (their?)
++farms, annual rituals of human sacrifices, strong city walls (always at war against
++rivals but wins captives, known by portugal and europeans in 1500 AD (?)),
++well trained disciplined force of the military of kingdom of benin
++quote: "Foreign observers often commented favorably on Benin's discipline and organization as
++"better disciplined than any other Guinea nation"" end quote, unlike their slacker neighbours
++of gold coast according to wikipedia,
++weapons are spear, short sword, bow well organized tactics
++quote "Before the coming of the gun, guilds of blacksmiths were charged with war
++production—particularly swords and iron spearheads. In addition, crossbowmen formed a
++specialized unit of the Benin army. Archers and crossbowmen were trained in target and
++field archery" end of quote
++for details about the military, see: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military ,
++quote also "Fortifications were important in the region and numerous military campaigns fought by
++Benin's soldiers revolved around sieges." end of quote
++they called european mercenaries to help them on some sieges, for example in 1600 AD
++approximately, Another Dutch traveler, David van Nyendael, visited Benin in 1699:
++quote
++"The inhabitants of the Benin are in general a kind and polite people, of whom one with kindness
++might get everything he desires. Whatever might be offered to them out of politeness, will always
++be doubled in return. However, they want their politeness to be returned with likewise courtesy as
++well, without the appearance of any disappointment or rudeness, and rightly so. To be sure, trying
++to take anything from them with force or violence, would be as if one tries to reach out to the Moon
++and will never be left unreckoned. When it comes to trade, they are very strict and will not suffer
++the slightest infringement of their customs, not even a iota can be changed. Though, when one is
++willing to accept these customs, they are very easy-going and will cooperate in every way possible
++to reach an agreement."end of quote
++Many sacrifices (europeans were horrified by many men with ears cut)
++Scientific analysis of the brass (or "bronze") used to make the famous Benin plaques and other
++sculptures found that, beginning in the late 15th century, the metal (previously thought to have
++come from the Netherlands) began to derive from the Rhineland region of Germany. At that time, the
++brass was exported from Germany in the form of ring-shaped ingots which were used as currency in the
++trans-Atlantic slave trade (bought from the Portuguese and incorporated by the people in Benin as a
++metal source in sculpture), and subsequently melted down in Benin to produce Benin Bronzes.
++
++- notable figures/characters: a wife of oba, a trader, a queen (sacrifice herself as a sacrificial
++lamb for the welfare of her husband after the oracle told her to do so to appease the gods), a
++general, a chief warrior who is blacksmith and sculptor
++(https://en.wikipedia.org/wiki/Kingdom_of_Benin#Notable_figures)
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/README.md b/New_Content/Civs/Kingdom_Of_Benin/README.md
+new file mode 100644
+index 000000000..085a5a7f2
+--- /dev/null
++++ b/New_Content/Civs/Kingdom_Of_Benin/README.md
+@@ -0,0 +1,118 @@
++# AdvCiv mods
++Todo write in detail
++
++I intend to do 3 mods built on top of each other.
++
++The purpose is for players interested to use them in advciv base or
++maybe other mods too.
++
++Each mod has a different goal, and they are gradual in their changes,
++the first mods are the most conservatives, while the later ones go
++(much) more in depth.
++
++Note that this is a work in progress so it would not be ready too soon,
++at least not the higher "levels" of the mod as they are more complex i
++mean.
++
++## Mod 1: AdvCiv SBAI
++
++SBAI stands for Stricter Balancing AI
++
++Here are the main changes one may expect:
++- balancing the handicap (which is the difficulty settings), so that
++they are more challenging at lower difficulties, while being less of
++a grind at higher difficulties (even though they would be hard but not)
++in a grind way. The games will feel even at all difficulties even though
++each step should be harder hopefully.
++- stricter policy: the AI is more opportunistic too, will careless about
++roleplaying (meaning it will do whatever it takes to win), not be baited
++into wars, avoid strongly multi wars, focus on efficiency and economy, but
++attack as soon as someone overplays and is low on defense (but not
++overcommitting that would slow their economy). It could be assumed to be a
++(more) merciless AI, that would be more challenging hopefully and enjoyable,
++while feeling more like a human player (as much as possible)
++- Quality of life changes: not all changes are harsher, some are meant to
++have the human player an easier experience, at no change, changes include
++or planned to include fixed costs (tech, city production, unit maintenance
++quotas costs, etc), while only the AI's settings ones vary. This means for
++example that techs will always cost the same price at all difficulties,
++making it easier for the human player to adjust to newer difficulties
++and reusing strategies, counting costs and doing strategy hopefully too, only
++the AI would be faster or slower at it (but intends to be less of a grind
++in many ways possible, having an even or close to even game against AI even
++at most high difficulties, that would still be harder, is the goal i mean
++anyways). Some bugfixes or maybe rather tweaks (for example the icon
++of the cavalry in tech tree view is weirdly at military tradition (same as
++the cuirassier) and not at rifling)
++- some new mechanics, even though this mod 1 is conservative, there are still
++things i consider suboptimal. For example, players will be able to build
++research at writing not alphabet, and building culture at mysticism (much sooner),
++which is historically (i think) more realistic, on top of allowing more diverse
++strategies. Culture may help against revolts for example, and even in ancient
++times rulers would try (i think) to appease their people by any cultural means
++they would have.. For even deeper changes, i would encourage you to try the following
++versions (see below)
++
++
++## Mod 2: SBAIMTO (SBAI + Military and Terrain Overhaul)
++- Military overhaul: most units have been completely reworked to be a lot more
++versatile, which i think is realistic. For example, scouts and explorers can
++attack, even workers should be able to defend cities (even though very weak),
++but this is still in development. These changes intend to make it more
++immersive, balanced in case some units are op while others are not and too weak,
++and more challenging, as startegy will play a bigger role, with more ways to be
++punished if doing mistakes i mean anyways.
++- MiTerrain Overhaul: now all military units all have terrain specific defenses and
++bonuses. This is a very different experience than civ4 or base advciv, as good as
++they are, my goals and view are different in this case at least i mean. It would
++be possible to settle your cities on peaks, as well as walk on them, but i did not
++try it yet so i don't know if will be possible for sure i mean so not guaranteed.
++More changes too not listed here. For more changes, including more terrain changes,
++you may try the next "level" of this mod i am uploading i mean.
++
++## Mod 3: SBAIMTOCO (SBAI + MTO + Complete Overhaul)
++- Religion overhaul: Religion is now completely changed, it's not just a bunch of
++(politically correct i think) stats, but each religion has its specific bonuses,
++also AIs will be much more sensitive to it, it should play a huge role at all stages
++of the game so requiring absolute strategy or at least carefulness if i may say.
++- New ressources, removed older ones, in a way that makes historically more sense
++too hopefully or/and has more gameplay depth maybe i mean
++- New Buildings (and units too most likely)
++- Removed small wonders, replaced with other changes, great wonders having a special
++perk and limited to min and max one per cit in the wonders available i mean, so Rome
++cannot have 5 wonders (example, i don't know if this number is accurate is just to
++illustrate i mean) while other rivals have at best only one wonder related to their
++historical real past, it should make a stronger incentive to build or protect or
++conquer wonders maybe, at least for the human player hopefully i mean in this case.
++- Completely reworked tech tree to be historically as accurate as possible while
++being efficient
++- New Civlizations, while some civs have less leaders now (the ones with 3 leaders).
++Be warned though that most likely their portait will not be animated unless i find
++how, this is somehow i am not too good at i mean
++- many changes, unlisted and still undone, so far this project is in the very early
++stages, so i cannot make the mods available too soon, most other changes not even
++started at all, but i have an idea i mean, except a quite very long time maybe if
++i still wantt to do this mod i mean anyway, thanks
++
++You can follow the progress in particular in the specific folder (subfolder of this
++bigger project i mean): 
++
++# Credits
++
++To write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
++from Civ4, and it's maintainer is very open to feedback at least in my
++exchanges/experiences during these times i mean anyways.
++
++# Sources
++
++A few useful links :
++- todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
++be needed if you only modify XML files if i am not mistaken i mean anyways)
++- ressources that mention XML files and tags, useful if you'd want to get started
++doing your own mod. Civ4 allows to do a lot of things with just XML, which
++surprised me a lot in a way that pleased me i mean anyways.
++So far i have not touched the deeper code such as C++ and Python, maybe i will
++not need at all but not sure, is as it would be:
++todo add links
++- drive: you can find some previews [here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=drive_link), under the high-medium-low-very
++low priority branch of examples i submitted to adv city maintainer i mean anyways
+
+diff --git a/Techtree_modified.png b/New_Content/Docs_And_Appendixes/0.30 Techtree_modified.png
+similarity index 100%
+rename from Techtree_modified.png
+rename to New_Content/Docs_And_Appendixes/0.30 Techtree_modified.png
+
+[PATCH OMITTED] file=a/advciv-mod-difficulties_summary-htm-A3.pdf b/New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf reason=binary/generated-file changedLines=0 bytes=294
+
+diff --git a/advciv-mod-difficulties_summary.ods b/New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+similarity index 100%
+rename from advciv-mod-difficulties_summary.ods
+rename to New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+
+diff --git a/0.10 - data about civs default.png b/New_Content/Docs_And_Appendixes/civ4 civs default.png
+similarity index 100%
+rename from 0.10 - data about civs default.png
+rename to New_Content/Docs_And_Appendixes/civ4 civs default.png
+
+diff --git a/notes_about_civs_and_terrain_design b/New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+similarity index 59%
+rename from notes_about_civs_and_terrain_design
+rename to New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+index 738756899..18fe6ff73 100644
+--- a/notes_about_civs_and_terrain_design
++++ b/New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+@@ -14,16 +14,88 @@ lands maybe i mean anyways.
+ - i would also want the civs to be more spread i mean as i may say in other
+ place(s) of this document or not i mean anyways
+ 
++- trying to make them anime looking for immersion, is ok if it's not the exact
++correct leader too (or maybe i could use AI but i don't know i mean anyways, may
++be more fun with characters from anime?), i think a real picture like in some
++other mods liek realism invictus, not to criticize negatively i mean anyways, would
++not fit me well, not enjoyable or immersive, so going with the 
++
+ The ideas (of civs to add i mean anyways) i have or am considering so far are:
++note: this world map (appended in this git) also helps get ideas maybe i mean anyways:
++https://www.mapsofworld.com/
++(note: about traits, i may rework traits later so this is experimental rather not
++certain in this case i mean anyways)
++
++0.1) new civ see specific text file in new content folders:
++
++Kingdom of Benin (Nigeria)
++https://en.wikipedia.org/wiki/Kingdom_of_Benin 
++(desert and wet forest would
++work very well i think), they have forest defense too very good i mean anyways for terrain
++balance
++- general characteristics: human sacrifices to the gods, state religion, Ogiuwu god
++worshipped at a special altar, hereditary monarchy, benin river, trying to attract
++european trade early leaders if i'm not mistaken, later leaders very rich thanks to
++european trade, mother separated from son early, mother had considerable power,special place Uselu,
++son is divine ruler, impluvium building to store rain water, trade in palm oil,
++britain tried to make it a colony in 1800s AD but failed, benin kingdom had monopoly in trade
++which irked britain meerchants, negociation to become their protectorate failed,
++britain tried to send a diplomatic delegation without much weaponry, but the oba
++(benin) retaliated with military unilaterally (as they were perceiving this to
++be an attack), iron crafting and carved ivory (benin bronzes) taken as "war" bounty
++and taken in british museums, successfully defended against invaders earlier
++in history, eventually became colonial nigeria, britain makes them have forced
++labour, some rebels resist and then britain starves them and burns (their?)
++farms, annual rituals of human sacrifices, strong city walls (always at war against
++rivals but wins captives, known by portugal and europeans in 1500 AD (?)),
++well trained disciplined force of the military of kingdom of benin
++quote: "Foreign observers often commented favorably on Benin's discipline and organization as
++"better disciplined than any other Guinea nation"" end quote, unlike their slacker neighbours
++of gold coast according to wikipedia,
++weapons are spear, short sword, bow well organized tactics
++quote "Before the coming of the gun, guilds of blacksmiths were charged with war
++production—particularly swords and iron spearheads. In addition, crossbowmen formed a
++specialized unit of the Benin army. Archers and crossbowmen were trained in target and
++field archery" end of quote
++for details about the military, see: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military ,
++quote also "Fortifications were important in the region and numerous military campaigns fought by
++Benin's soldiers revolved around sieges." end of quote
++they called european mercenaries to help them on some sieges, for example in 1600 AD
++approximately
++
++- notable figures/characters: a wife of oba, a trader, a queen (sacrifice herself as a sacrificial lamb for the welfare of her husband after the oracle told her to do so to appease the gods), a general, a chief warrior who is blacksmith and sculptor (https://en.wikipedia.org/wiki/Kingdom_of_Benin#Notable_figures)
++- character: Ogiso Igodo (900 AD)
++- favourite civic: slavery, hereditary rule
++- traits: protective, financial (or organized?)
++- special unit: Disciplined Crossbowman: see file for detail (desert, plains (is same as savanna?), jungle, forest bonus)
++- special building: impluvium (based on aquaduct), desert tiles +2 food + 2 commerce, plain tiles + 2 food and 2 commerce
++credit for the image: https://fr.pinterest.com/pin/412290540863776580/
++jungle tiles + 1 food + 1 hammer
++(- preffered terrain: jungle, savanna)
++- relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened
++- based on: Zara Yaqob seems to fit quite well from the little i know i mean anywyas, and i could
++tweak it from there if i may say i mean anyways
+ 
+ 1) Canada:
+-2) 
+-3)Central Asia: some civ uses camels, there is also tundra not far so even beter i mean anyways
++2) Iceland: 
++3) Alaska?: https://en.wikipedia.org/wiki/History_of_Alaska
++4) Greenland
++5) Tundra Asia
++6) Central Asia: some civ uses camels, there is also tundra not far so even beter i mean anyways
+ (maybe some building related to snow i mean anyways)?
+-4) Australia? But i want snow first if possible more interesting as more widespread though
++13) add some autonomous countries of russia? Chukotka or others? Etc
++7) Australia? But i want snow first if possible more interesting as more widespread though
+ i mean anyways
+-5) one desertic civ that could use camel or other special desert boosts (but there are many
++8) one desertic civ that could use camel or other special desert boosts (but there are many
+ desertic ones already)
++9) 1-2 jungle civs, in south america or somewhere? Could help boosting this terrain and not
++grassland i mean anyways: Brazil?
++10) 1-3 civs in africa it's so unbalanced i mean: https://www.google.com/search?q=most+influential+african+ancient+civilizations&oq=most+influential+african+ancient+civilizations&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTExMjE1ajBqMagCALACAA&sourceid=chrome&ie=UTF-8
++
++12) Indonesia?
++11) Congo?
++
++
+ 
+ Also, some civs have 3 leaders, while others have only 1, it's blatantly assymetrical enough
+ when looking at the map i sent (which makes me quite angry liek half+ of the world does not
+@@ -41,7 +113,7 @@ with low number in this case i mean anyways.
+ 3) unfinished
+ 
+ I want to change these civilizations:
+-1) Arbia: special unit is now the assassin (see below or ctrl+f if i may say i mean anyways)
++1) Arabia: special unit is now the assassin (see below or ctrl+f if i may say i mean anyways)
+ 2)
+ 
+ 
+@@ -150,11 +222,21 @@ if/when i want or ot to do, is in this case is also what i want to say i mean an
+ For water in desert and plains which conditions? rework the well so that it can be used much
+ earlier in the game in more tiles, maybe it can buff desert or plains in some conditions in
+ particular?
++7) I want something similar to the well in snow: sauna? Are said to be healthy in particular
++at cold temperatures (but i don't know i mean anyways not responsible), may buff desert too,
++reuse the hammam for that? Rework the hammam? Rename it sauna?
++Or add a sauna? But is inefficient i think (or hammam replaces sauna? A bit far fetched but may
++work maybe?)
+ 3) Winery->Garden? make it a "garden" improvement? What would be the requirement then? Make it
+ for cotton plant or something?
+ 4) Winery->Garden too for cotton plants, or perhaps other plants to harvest
+-5) Plantation->Coffee+/-Tea
+-6) Garden/Plantation->Pavot (makes opium?)
++5) Plantation->Coffee+/-Tea (may boost american civs? (other than the US?), link it with some
++medieval renaissance trade tech like triangulary commerce or something? That would give slavery
++even more bonuses? Not cool maybe but i want my game to be realistic and enjoyable (no maluses,
++only lost opportunities if not taken in the game i mean anyways in this case i mean anyways))
++6) Garden/Plantation->Papapver (makes opium?)
++7) Preserve forest: i want to be able to use it much sooner in history in the game i mean
++anyways
+ 
+ - with more textile based things, i could throw in a tech too about clothing or something
+ maybe i mean anyways, with culture or military effects i mean anyways?
+@@ -170,3 +252,4 @@ I want to buff these ressources:
+ I want to modify these terrains:
+ 1) Snow/Ice: give bonus with christmas tech or build or ressource or civ
+ 
++- buff forest taiga (which is tundra forest if i'm not mistaken i mean anyways) ?
+\ No newline at end of file
+
+diff --git a/notes_about_game_design_choices b/New_Content/Docs_And_Appendixes/notes_about_game_design_choices
+similarity index 100%
+rename from notes_about_game_design_choices
+rename to New_Content/Docs_And_Appendixes/notes_about_game_design_choices
+
+diff --git a/notes_about_some_assets_content b/New_Content/Docs_And_Appendixes/notes_about_some_assets_content
+similarity index 100%
+rename from notes_about_some_assets_content
+rename to New_Content/Docs_And_Appendixes/notes_about_some_assets_content
+
+diff --git a/notes_about_tech_design_choices b/New_Content/Docs_And_Appendixes/notes_about_tech_design_choices
+similarity index 100%
+rename from notes_about_tech_design_choices
+rename to New_Content/Docs_And_Appendixes/notes_about_tech_design_choices
+
+diff --git a/New_Content/Docs_And_Appendixes/world map_with_countries.png b/New_Content/Docs_And_Appendixes/world map_with_countries.png
+new file mode 100644
+index 000000000..9e3a29488
+Binary files /dev/null and b/New_Content/Docs_And_Appendixes/world map_with_countries.png differ
+
+diff --git a/0.20 - world_map_terrain_empty.png b/New_Content/Docs_And_Appendixes/world_map_terrain_empty_20.png
+similarity index 100%
+rename from 0.20 - world_map_terrain_empty.png
+rename to New_Content/Docs_And_Appendixes/world_map_terrain_empty_20.png
+
+diff --git a/0.21 - world_map_terrain_with_civs.png b/New_Content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+similarity index 100%
+rename from 0.21 - world_map_terrain_with_civs.png
+rename to New_Content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+
+diff --git a/0.22 - world_map_terrain_with_new_civs.png b/New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+similarity index 59%
+rename from 0.22 - world_map_terrain_with_new_civs.png
+rename to New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+index 95f24e7c2..80961c325 100644
+Binary files a/0.22 - world_map_terrain_with_new_civs.png and b/New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png differ
+
+diff --git a/New_Content/Lists/Special_Units_List b/New_Content/Lists/Special_Units_List
+new file mode 100644
+index 000000000..56a093fa0
+--- /dev/null
++++ b/New_Content/Lists/Special_Units_List
+@@ -0,0 +1,14 @@
++In this mod, each civ only has one special unit (same as civ4 bts
++or/and base advciv 1.12 if i'm not mistaken i mean anwyays).
++
++Forexhaustiveness and clarity, here they are:
++
++- Kingdom Of Benin: Disciplined Crossbowman
++
++- China: todo___
++
++- The USA: todo___
++
++todo___
++
++todo the rest in this game i mean anyways
+\ No newline at end of file
+
+diff --git a/New_Content/Lists/Wonders_List b/New_Content/Lists/Wonders_List
+new file mode 100644
+index 000000000..0a7ab0a9c
+--- /dev/null
++++ b/New_Content/Lists/Wonders_List
+@@ -0,0 +1,45 @@
++List of all civs's great wonders.
++
++In this mod each civ can have, and must have, 1 and only 1 great wonder,
++and same for the small wonders, i mean anyways.
++
++Building the civ's specific great wonder before the other rivals will
++trigger a special effect.
++
++Small wonders have been removed from this mod, there are none, no one
++can build them, some will be recycled as great wonders though.
++This intends  to put more more emphasis on wonder building (and making
++them stronger too, to have a more tense and interesting game exciting
++too maybe, also avoid the nonsense of having many moai statues, etc,
++not immersive (about same as having many stonehedges, even though
++may exist i don't know, but i would prefer only one in the world).
++Human players need to pay more attention about wonder building now,
++still optional but the rewards are bigger.
++AI will be adjusted (as much as possible i mean anyways)).
++On a smaller side, small wonders are not kept after conquest, so less
++interesting (and immersive) this way too even though more of a minor
++point, but it is really unrealistic if i think about it if i may say
++i mean anyways.
++For some small wonders, there will be ways in how the game is reworked
++that allow to gain yields or other advantages without having to build
++said wonders, which i think is a much better design (how do moai statues
++increase production only on water tiles, aren't there just rocks? Why not
++on all tiles increase or none, if it's part of folkore then is not so
++well designed maybe in this case i mean anyways, i want to support culture
++but when it comes to gameplay i prefer an efficient, clean and efficient
++design i mean anyways, that i can /then detail i mean anyways in depth
++but within a simple frame i mean anyways if possible that i want or/and
++do it this way i mean anyways)
++
++Current list as of now: updating this as i advance in it if i may say i
++mean anyways:
++
++- Kingdom Of Benin: The Ancient Walls of Benin
++Perk if built first by this civ: _____ todo
++
++- China: todo___now empty
++Perk if built first by this civ: _____ todo
++
++- The USA: Apollo Programm (Space Victory is disabled now for all
++players, the space wonder gives a perk, costs much less)
++Perk if built first by this civ: Space victory
+
+diff --git a/New_Content/README.md b/New_Content/README.md
+new file mode 100644
+index 000000000..0fc531449
+--- /dev/null
++++ b/New_Content/README.md
+@@ -0,0 +1,5 @@
++This folder gathers all the data that is part of this mod that i imported
++and that is not part of an asset i mean anyways?
++
++Will update the readme at a later date if i wish or possible or want, but
++is as i wish prefer i mean anyways.
+\ No newline at end of file
+
+diff --git a/README.md b/README.md
+new file mode 100644
+index 000000000..e69de29bb
+
+[PATCH COVERAGE]
+patchFiles=24 embeddedFiles=23 omittedFiles=1 embeddedPatchBytes=39925

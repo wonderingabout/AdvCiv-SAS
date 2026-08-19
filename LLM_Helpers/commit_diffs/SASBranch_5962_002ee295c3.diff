@@ -1,0 +1,1107 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5962
+# Commit: 002ee295c3dd57ce178c9cbf1d9f6c660df2a8d0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5fd781386a146933c8d478cb6ddb4678cd3baf0e
+# Title: Add make_light_source_zip.py (make an easily light exportable mod repo ZIP (e.g., for ChatGPT); add SAS_BBAI_WORKER_LOG_LEVEL and SAS_BBAI_WORKER_SEA_LOG_LEVEL
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	.github/workflows/build/bbai_log.py
+2	0	.gitignore
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+15	1	CvGameCoreDLL/BBAILog.cpp
+4	0	CvGameCoreDLL/BBAILog.h
+28	24	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+27	25	CvGameCoreDLL/CvUnitAI.cpp
+39	0	LLM_Helpers/README.md
+345	0	LLM_Helpers/make_light_source_zip.py
+2	0	README.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 LLM_Helpers/make_light_source_zip.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/build/bbai_log.py b/.github/workflows/build/bbai_log.py
+index f57a54bcb..7ac043c04 100644
+--- a/.github/workflows/build/bbai_log.py
++++ b/.github/workflows/build/bbai_log.py
+@@ -19,6 +19,10 @@ EXPECTED_DISABLED_BBAI_DEFINES = {
+ 	"SAS_BBAI_TEAM_LOG_LEVEL": 0,
+ 	"SAS_BBAI_CITY_LOG_LEVEL": 0,
+ 	"SAS_BBAI_UNIT_LOG_LEVEL": 0,
++	# <!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
++	"SAS_BBAI_WORKER_LOG_LEVEL": 0,
++	# <!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
++	"SAS_BBAI_WORKER_SEA_LOG_LEVEL": 0,
+ 	"SAS_BBAI_MAP_LOG_LEVEL": 0,
+ 	"SAS_BBAI_FOUND_LOG_LEVEL": 0,
+ 	"SAS_BBAI_DEAL_CANCEL_LOG_LEVEL": 0,
+
+diff --git a/.gitignore b/.gitignore
+index 30761b07c..648beab97 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -23,6 +23,8 @@
+ *.vcxproj.user
+ *.opensdf
+ __pycache__
++/.agents/
++/.ruff_cache/
+ /Logs/
+ /Assets/CvGameCoreDLL_d.dll
+ /LLM_Helpers/outputs/
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6e5324481..c430742e3 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1171,6 +1171,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
++	<Define>
++		<DefineName>SAS_BBAI_WORKER_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
++	<Define>
++		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 7ec34277d..46a40f61e 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -21,7 +21,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
+ // <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
+ bool isSASBBAILogEnabled()
+ {
+-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0));
++	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0));
+ 	return bEnabled;
+ }
+ 
+@@ -55,6 +55,20 @@ int getSASBBAIUnitLogLevel()
+ 	return iLevel;
+ }
+ 
++// <!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
++int getSASBBAIWorkerLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_WORKER_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
++// <!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
++int getSASBBAIWorkerSeaLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_WORKER_SEA_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
+ int getSASBBAIMapLogLevel()
+ {
+ 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_MAP_LOG_LEVEL") : 0);
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index 98c2e370b..307c9ca38 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -19,6 +19,8 @@ int getSASBBAIPlayerLogLevel();
+ int getSASBBAITeamLogLevel();
+ int getSASBBAICityLogLevel();
+ int getSASBBAIUnitLogLevel();
++int getSASBBAIWorkerLogLevel();
++int getSASBBAIWorkerSeaLogLevel();
+ int getSASBBAIMapLogLevel();
+ int getSASBBAIFoundLogLevel();
+ int getSASBBAIDealCancelLogLevel();
+@@ -30,6 +32,8 @@ int getSASBBAIScoreLogInterval();
+ #define gTeamLogLevel getSASBBAITeamLogLevel()
+ #define gCityLogLevel getSASBBAICityLogLevel()
+ #define gUnitLogLevel getSASBBAIUnitLogLevel()
++#define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
++#define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+ #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
+ #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
+ #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 62198829a..166fe07af 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12,9 +12,11 @@
+ #include "CvInfo_Civics.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 
+-// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact sea-worker target bonuses when city logging is high. No behavior change. See KI#157. (GPT-5.5) -->
++// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
+ static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
+ {
++	if (gWorkerSeaLogLevel < 2)
++		return;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+ 	CvArea const* pCityWaterArea = kCity.waterArea(true);
+ 	CvArea const* pSecondWaterArea = kCity.secondWaterArea();
+@@ -48,6 +50,8 @@ static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot cons
+ 
+ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pWaterArea, char const* szAreaLabel)
+ {
++	if (gWorkerSeaLogLevel < 3)
++		return;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+ 	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
+ 	int iLoggedTargets = 0;
+@@ -1011,7 +1015,7 @@ void CvCityAI::AI_chooseProduction()
+ 	{
+ 		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
+ 		{
+-			if (gCityLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
++			if (gWorkerLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
+ 			return;
+ 		}
+ 	}
+@@ -1131,7 +1135,7 @@ void CvCityAI::AI_chooseProduction()
+ 			// Build Work Boat first since it doesn't stop growth
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 				return;
+ 			}
+ 		}
+@@ -1141,7 +1145,7 @@ void CvCityAI::AI_chooseProduction()
+ 		{
+ 			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 			{
+-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 1a", sCityName);
++				if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 1a", sCityName);
+ 				return;
+ 			}
+ 			bChooseWorker = true;
+@@ -1164,7 +1168,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 1", sCityName);
++					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 1", sCityName);
+ 					return;
+ 				}
+ 				bChooseWorker = true;
+@@ -1174,7 +1178,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 				{
+-					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 					return;
+ 				}
+ 			}
+@@ -1183,7 +1187,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 2", sCityName);
++					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 2", sCityName);
+ 					return;
+ 				}
+ 				bChooseWorker = true;
+@@ -1247,7 +1251,7 @@ void CvCityAI::AI_chooseProduction()
+ 	} // </advc.124>
+ 
+ 	// <!-- custom: BBAI Work Boat audit found a real under-prioritization case after the overqueue fixes: Konya had a buildable/reachable BFC Whale with 0 Work Boats assigned or queued, but chose an early sea explorer Galleon first. Give actionable unmet seafood a narrow priority before early sea explore/settler-sea choices, while keeping the water-danger, financial-trouble, and already-available Work Boat guards. (GPT-5.5 + ChatGPT-5.5) -->
+-	if (gCityLogLevel >= 2 && iNeededSeaWorkers > iAvailableSeaWorkers)
++	if (gWorkerSeaLogLevel >= 2 && iNeededSeaWorkers > iAvailableSeaWorkers)
+ 	{
+ 		logBBAI("      WORKER_SEA_PRIORITY_CHECK turn=%d player=%d %S city=%S cityId=%d needed=%d available=%d pop=%d waterDanger=%d financialTrouble=%d defenseWar=%d warSuccess=%d danger=%d",
+ 			GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededSeaWorkers, iAvailableSeaWorkers, iCityPopulation, bWaterDanger, bFinancialTrouble, bDefenseWar, iWarSuccessRating, bDanger);
+@@ -1257,7 +1261,7 @@ void CvCityAI::AI_chooseProduction()
+ 	{
+ 		if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 		{
+-			if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before early sea", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before early sea", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 			return;
+ 		}
+ 	}
+@@ -1384,7 +1388,7 @@ void CvCityAI::AI_chooseProduction()
+ 			if ((iExistingWorkers < ((iNeededWorkers + 1) / 2))) {
+ 				if (iCityPopulation > 3 || (iProductionRank < (iNumCities + 1) / 2)) {
+ 					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER)) {
+-						if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 3", sCityName);
++						if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 3", sCityName);
+ 						return;
+ 					}
+ 					bChooseWorker = true;
+@@ -1424,7 +1428,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 6", sCityName);
++					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 6", sCityName);
+ 					return;
+ 				}
+ 				bChooseWorker = true;
+@@ -1530,7 +1534,7 @@ void CvCityAI::AI_chooseProduction()
+ 					(bPrimaryArea || SyncRandSuccess100(15 * iMissingWorkers)) &&
+ 					AI_chooseUnit(UNITAI_WORKER))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 4", sCityName);
++					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 4", sCityName);
+ 					return;
+ 				}
+ 				bChooseWorker = true;
+@@ -1554,7 +1558,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI(" 	 City %S uses choose worker 5", sCityName);
++					if (gWorkerLogLevel >= 2) logBBAI(" 	 City %S uses choose worker 5", sCityName);
+ 					return;
+ 				}
+ 				bChooseWorker = true;
+@@ -1565,7 +1569,7 @@ void CvCityAI::AI_chooseProduction()
+ 				if (AI_chooseUnit(UNITAI_WORKER_SEA,
+ 					60)) // advc.131: From MNAI; was -1.
+ 				{
+-					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 2", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 2", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 					return;
+ 				}
+ 			}
+@@ -1578,7 +1582,7 @@ void CvCityAI::AI_chooseProduction()
+ 		{
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 3", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
++				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 3", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 				return;
+ 			}
+ 		}
+@@ -2087,7 +2091,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 				else if (bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
+ 				{
+-					if (gCityLogLevel >= 2)
++					if (gWorkerLogLevel >= 2)
+ 						logBBAI("      City %S replaces Settler 1 with Worker", sCityName);
+ 					return;
+ 				}
+@@ -3047,7 +3051,7 @@ void CvCityAI::AI_chooseProduction()
+ 				// <!-- custom: also add a barbarian check here (with also our worker replaces settler new logic too) as our logic doesn't apply to barbarians as well at least not as of now-->
+ 				else if (!isBarbarian() && bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
+ 				{
+-					if (gCityLogLevel >= 2)
++					if (gWorkerLogLevel >= 2)
+ 						logBBAI("      City %S replaces Settler 2 with Worker", sCityName);
+ 					return;
+ 				}
+@@ -9203,7 +9207,7 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
+ 		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pSecondWaterArea, plot(), iLookAhead); // advc.042
+ 	}
+ 	// BETTER_BTS_AI_MOD: END
+-	if (gCityLogLevel >= 3 && iNeededSeaWorkers > 0)
++	if (gWorkerSeaLogLevel >= 3 && iNeededSeaWorkers > 0)
+ 	{
+ 		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 		logBBAI("      WORKER_SEA_NEEDED_SUMMARY turn=%d player=%d %S city=%S cityId=%d needed=%d primaryWaterArea=%d secondWaterArea=%d primaryExisting=%d secondExisting=%d primaryTrain=%d secondTrain=%d",
+@@ -12848,7 +12852,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						if (pSecondSeaWorkerArea != NULL && pSecondSeaWorkerArea != pPrimarySeaWorkerArea) iLocalAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondSeaWorkerArea, UNITAI_WORKER_SEA);
+ 						int const iLocalNeededSeaWorkers = AI_neededSeaWorkers();
+ 						bool const bLocalSeaWorkerDeficit = (iLocalNeededSeaWorkers > iLocalAvailableSeaWorkers);
+-						if (gCityLogLevel >= 2 && iTotalUnitAIs >= iMaxUnits && bLocalSeaWorkerDeficit)
++						if (gWorkerSeaLogLevel >= 2 && iTotalUnitAIs >= iMaxUnits && bLocalSeaWorkerDeficit)
+ 							logBBAI("      WORKER_SEA_CAP_BYPASS turn=%d player=%d %S city=%S cityId=%d total=%d cap=%d localNeeded=%d localAvailable=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iTotalUnitAIs, iMaxUnits, iLocalNeededSeaWorkers, iLocalAvailableSeaWorkers);
+ 						if (iTotalUnitAIs >= iMaxUnits && !bLocalSeaWorkerDeficit)
+ 						{
+@@ -13132,7 +13136,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
+ 		{
+-			if (gCityLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
++			if (gWorkerSeaLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
+ 			{
+ 				CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 				CvArea const* pWaterArea = waterArea(true);
+@@ -16088,7 +16092,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 			iOdds /= 50 + (bLocalResource ? 3 : 5) * iBestBuildingValue;
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
+ 			{
+-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("governor worker sea", *this, pWaterArea, getPopulation(), AI_neededSeaWorkers(), kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA), bDanger, kOwner.AI_isFinancialTrouble());
++				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("governor worker sea", *this, pWaterArea, getPopulation(), AI_neededSeaWorkers(), kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA), bDanger, kOwner.AI_isFinancialTrouble());
+ 				return;
+ 			}
+ 		}
+@@ -16342,7 +16346,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 		{
+ 			if (AI_chooseUnit(UNITAI_WORKER))
+ 			{
+-				if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose worker 1", sCityName);
++				if (gWorkerLogLevel >= 2) logBBAI("      City %S uses barb choose worker 1", sCityName);
+ 				return;
+ 			}
+ 		}
+@@ -16359,7 +16363,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 		{
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("barb choose worker sea 1", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, kPlayer.AI_isFinancialTrouble());
++				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("barb choose worker sea 1", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, kPlayer.AI_isFinancialTrouble());
+ 				return;
+ 			}
+ 		}
+@@ -16458,7 +16462,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 			{
+ 				if (AI_chooseUnit(UNITAI_WORKER))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose worker 2", sCityName);
++					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses barb choose worker 2", sCityName);
+ 					return;
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b43873ef8..a1213ef78 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -453,7 +453,7 @@ void CvPlayerAI::AI_doTurnPost()
+ 	}
+ 	if (isHuman())
+ 		return;
+-	if (gCityLogLevel >= 3)
++	if (gWorkerSeaLogLevel >= 3)
+ 		AI_logWorkerSeaAudit();
+ 	AI_updateExpansionistHate(); // advc.130w (also updates our attitude cache)
+ 	// </advc.001>
+@@ -15552,7 +15552,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
+ void CvPlayerAI::AI_logWorkerSeaAudit() const
+ {
+ 	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
+-	if (isHuman() || isBarbarian())
++	if (isHuman() || isBarbarian() || gWorkerSeaLogLevel < 3)
+ 		return;
+ 
+ 	int const iTurn = GC.getGame().getGameTurn();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a033b1986..b57b54601 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4750,7 +4750,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) /
+ 	}
+ 
+ 	// <!-- custom: Diagnostic-only log for repeated Work Boat replacement. BBAI logs showed Work Boats successfully improving the same seafood multiple times, then cities later counting the target as unimproved again; log when an owned water bonus loses a connecting sea improvement so we can distinguish pillage/destruction/ownership churn from production overqueue. No behavior change. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+-	if ((gCityLogLevel >= 2 || gUnitLogLevel >= 2) && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
++	if (gWorkerSeaLogLevel >= 2 && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
+ 	{
+ 		CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 		BonusTypes const eBonus = getNonObsoleteBonusType(kOwner.getTeam());
+@@ -6365,7 +6365,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
+ 		// <!-- custom: Log completed worker builds that replace one improvement with another.
+ 		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5.  (GPT-5.5 review) -->
+ 		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
+-		if (gUnitLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement)
++		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement)
+ 		{
+ 			logBBAI("    WORKER-IMPROVEMENT overwrite: turn=%d elapsed=%d player=%S plot=%d,%d old=%S new=%S build=%S owner=%d bonus=%S route=%S",
+ 					GC.getGame().getGameTurn(),
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5e0eedae3..decac7aa5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -35,6 +35,8 @@ CvUnitAI::~CvUnitAI()
+ // <!-- custom: Diagnostic-only Work Boat movement logging to pair with CvCityAI worker-sea production logs. Production logs showed many completed Work Boats while the same sea bonuses stayed unimproved, so record whether UNITAI_WORKER_SEA units improve, retreat, seek safety, or idle. No behavior change. See KI#157. (GPT-5.5) -->
+ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
+ {
++	if (gWorkerSeaLogLevel < 2)
++		return;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
+ 	CvPlot const& kPlot = kUnit.getPlot();
+ 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+@@ -1900,7 +1902,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				candidatePlot.eBuild = eBuildFarm;
+ 				if (candidatePlot.iValue > 0)
+ 				{
+-					if (gUnitLogLevel >= 3)
++					if (gWorkerLogLevel >= 3)
+ 						logBBAI("    %S worker considers irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kConnectorPlot.getX(), kConnectorPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(), candidatePlot.iValue, iChainStepDistance, bTargetDryFarm, iConnectorOverwritePenalty, iCityFoodSupportPressure);
+ 					candidatePlots.push_back(candidatePlot);
+ 				}
+@@ -2440,7 +2442,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 			if (bReserveForIrrigationFarm)
+ 			{
+ 				// <!-- custom: this fires 20k+ times so log level 3 -->
+-				if (gUnitLogLevel >= 3)
++				if (gWorkerLogLevel >= 3)
+ 				{
+ 					wchar const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(ePlotCurrentImprovement).getDescription());
+ 					logBBAI("    %S worker skips non-farm build on future irrigation-farm plot for city %S: plot=(%d,%d) build=%S improvement=%S currentImprovement=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), GC.getInfo(eBestSupposedBuild).getDescription(), GC.getInfo(eSupposedImprovement).getDescription(), szCurrentImprovement);
+@@ -2460,7 +2462,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 			int const iReplacementFoodDelta = iSupposedImprovementFood - iCurrentImprovementFood;
+ 			if (iReplacementFoodDelta < 0)
+ 			{
+-				if (gUnitLogLevel >= 3)
++				if (gWorkerLogLevel >= 3)
+ 				{
+ 					logBBAI("    %S worker skips lower-food replacement for city %S: turn=%d plot=(%d,%d) current=%S food=%d proposed=%S food=%d replacementFoodDelta=%d build=%S value=%d",
+ 						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), GC.getInfo(ePlotCurrentImprovement).getDescription(), iCurrentImprovementFood, GC.getInfo(eSupposedImprovement).getDescription(), iSupposedImprovementFood, iReplacementFoodDelta, GC.getInfo(eBestSupposedBuild).getDescription(), iValue);
+@@ -2511,7 +2513,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 	// This logs the candidate layer, not only the final chosen mission. It helps distinguish:
+ 	// city not selected, blank BFC plot not considered, blank plot considered but losing, replacement skipped,
+ 	// path failure, or plot reservation. Keep this temporary while testing Beijing-style unimproved large-city cases. (ChatGPT-5.5) -->
+-	if (gUnitLogLevel >= 3 && iCityPopulation >= 6)
++	if (gWorkerLogLevel >= 3 && iCityPopulation >= 6)
+ 	{
+ 		int iUnimprovedImprovementCandidates = 0;
+ 		int iReplacementImprovementCandidates = 0;
+@@ -2655,7 +2657,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 			if (bNormalReplacementWhileBlankBFCRemains)
+ 			{
+ 				iDiagnosticReplacementSkipRejects++;
+-				if (gUnitLogLevel >= 2)
++				if (gWorkerLogLevel >= 2)
+ 				{
+ 					logBBAI("    %S worker skips replacement while unimproved BFC plot remains for city %S: plot=(%d,%d) build=%S current=%S candidate=%S value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), GC.getInfo(eCurrentImprovement).getDescription(), GC.getInfo(eCandidateImprovement).getDescription(), candidatePlots[i].iValue);
+ 				}
+@@ -2713,7 +2715,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				pBestPlot  = pB;
+ 				eBestBuild = eB;
+ 				bFound     = true;
+-				if (gUnitLogLevel >= 2 && iCityPopulation >= 6)
++				if (gWorkerLogLevel >= 2 && iCityPopulation >= 6)
+ 				{
+ 					int const iDiagnosticPathTurns = pathFinder.getPathTurns();
+ 					ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
+@@ -2723,7 +2725,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 					logBBAI("    %S worker accepts city-build candidate for city %S: plot=(%d,%d) build=%S current=%S improvement=%S value=%d pathTurns=%d reserved=%d/%d",
+ 						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue, iDiagnosticPathTurns, iReservedPlot, iMaxWorkers);
+ 				}
+-				if (gUnitLogLevel >= 2 && candidatePlots[i].ePlot == NO_CITYPLOT && eB == eBuildFarm)
++				if (gWorkerLogLevel >= 2 && candidatePlots[i].ePlot == NO_CITYPLOT && eB == eBuildFarm)
+ 					logBBAI("    %S worker chooses irrigation-chain step at (%d,%d), value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pB->getX(), pB->getY(), candidatePlots[i].iValue);
+ 				break;
+ 			}
+@@ -2751,7 +2753,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 	// return (eBestBuild != NO_BUILD);
+ 
+ 	// Ensure outputs are consistent no matter how we exit
+-	if (!bFound && gUnitLogLevel >= 3 && iCityPopulation >= 6 && !candidatePlots.empty())
++	if (!bFound && gWorkerLogLevel >= 3 && iCityPopulation >= 6 && !candidatePlots.empty())
+ 	{
+ 		CvPlot* pTopCandidatePlot = candidatePlots[0].pPlot;
+ 		BuildTypes const eTopCandidateBuild = candidatePlots[0].eBuild;
+@@ -4221,7 +4223,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 			}
+ 			if (bKeepCurrentUnimprovedBFCPlot)
+ 			{
+-				if (gUnitLogLevel >= 2)
++				if (gWorkerLogLevel >= 2)
+ 				{
+ 					CvPlot const& kWorkerPlot = getPlot();
+ 					logBBAI("    %S worker stays in small improved-enough city %S to handle current useful BFC plot: pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION, kWorkerPlot.getX(), kWorkerPlot.getY(), GC.getInfo(eKeepCurrentBuild).getDescription());
+@@ -4229,7 +4231,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 			}
+ 			else
+ 			{
+-				if (gUnitLogLevel >= 2)
++				if (gWorkerLogLevel >= 2)
+ 				{
+ 					logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION);
+ 				}
+@@ -8663,7 +8665,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 		{
+ 			if (AI_retreatToCity())
+ 			{
+-				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
++				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
+ 				return;
+ 			}
+ 		}
+@@ -8677,7 +8679,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 
+ 	if (AI_improveBonus())
+ 	{
+-		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
++		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
+ 		return;
+ 	}
+ 
+@@ -8689,7 +8691,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 			if (getPlot().getOwner() == getOwner() || !getPlot().isOwned())
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP);
+-				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
++				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
+ 				return;
+ 			}
+ 		}
+@@ -8701,7 +8703,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 				if (isRevealedValidDomain(*pAdj)) // advc
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP);
+-					if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
++					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
+ 					return;
+ 				}
+ 			}
+@@ -8735,18 +8737,18 @@ void CvUnitAI::AI_workerSeaMove()
+ 
+ 	if (AI_retreatToCity())
+ 	{
+-		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
++		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
+ 		return;
+ 	}
+ 
+ 	if (AI_safety())
+ 	{
+-		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
++		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
+ 		return;
+ 	}
+ 
+ 	getGroup()->pushMission(MISSION_SKIP);
+-	if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
++	if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
+ }
+ 
+ 
+@@ -20653,7 +20655,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
+         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+         {
+-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation());
+             continue; // nothing useful to do in this city right now
+         }
+@@ -20661,7 +20663,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
+ 		if (pPlot == NULL || eBuild == NO_BUILD)
+ 		{
+-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
+ 			continue;
+ 		}
+@@ -20675,7 +20677,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
+         if (iReservedCityTargetPlot >= iMaxWorkers)
+         {
+-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected reserved plot=(%d,%d) build=%S reserved=%d/%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), iReservedCityTargetPlot, iMaxWorkers);
+             continue;
+         }
+@@ -20683,7 +20685,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
+         if (!pf.generatePath(*pPlot))
+         {
+-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+ 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected no path plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription());
+             continue;
+ 		}
+@@ -20701,7 +20703,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			bSelfImprovable = true;
+ 			pSelfPlot  = pPlot;
+ 			eSelfBuild = eBuild;
+-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+ 				logBBAI("    %S worker city-target scan: self city=%S pop=%d stored fallback plot=(%d,%d) build=%S pathTurns=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), pf.getPathTurns());
+ 			continue; // still let the loop look for better (other-city) jobs
+ 		}
+@@ -20739,7 +20741,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 		const int q = score / 1000, r = score - q * 1000;
+ 		score = q * factorPermille + (r * factorPermille) / 1000;
+ 
+-        if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
++        if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+         {
+ 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
+ 			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
+@@ -20796,7 +20798,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	// if (!canBuild(*pBestPlot, eBestBuild))
+ 	// 	return false;
+ 	FAssertEnumBounds(eBestBuild);
+-	if (gUnitLogLevel >= 2)
++	if (gWorkerLogLevel >= 2)
+ 	{
+ 		CvCity const* pChosenWorkingCity = pBestPlot->getWorkingCity();
+ 		logBBAI("    %S worker next-city chosen: from=(%d,%d) targetCity=%S plot=(%d,%d) build=%S selfFallback=%d bestScore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(), (pChosenWorkingCity == NULL ? L"-" : pChosenWorkingCity->getName().GetCString()), pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), (pBestPlot == pSelfPlot && eBestBuild == eSelfBuild), bestScore);
+@@ -21001,7 +21003,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+ 	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
+ 	{
+-		if (gUnitLogLevel >= 2)
++		if (gWorkerLogLevel >= 2)
+ 			logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
+ 		return false;
+ 	}
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 13fccff3e..87e8fc9b6 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -44,6 +44,8 @@ Always review diffs before committing generated source changes.
+   - [`audit_define_keys.py`](#audit_define_keyspy)
+   - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+ - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
++- [Source packaging helper](#source-packaging-helper)
++  - [`make_light_source_zip.py`](#make_light_source_zippy)
+ - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
+ - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
+ 
+@@ -867,6 +869,43 @@ This legacy scanner notably helped inspire and calibrate the newer `.github/work
+ 
+ In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
+ 
++## Source packaging helper
++
++### `make_light_source_zip.py`
++
++- Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
++- Uses repo-relative archive paths and `ZIP_STORED` / no compression. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review.
++- Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
++- Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
++- Includes small source/data/docs folders useful for review: root lone files, selected `Assets` folders, root helper/doc/config folders, top-level `CvGameCoreDLL` files, and top-level `CvGameCoreDLL/Project` files under 1 MB, plus `_1_AdvCiv-SAS/Docs` and `_1_AdvCiv-SAS/git_logs`.
++- Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
++- Skips generated/helper outputs by default, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
++- Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
++- Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP.
++- Created/refined with help of ChatGPT-5.5 and Codex.
++
++Tools like here WizTree helped find which folders/files are heavy to exclude.
++
++Example to write to Downloads (Git Bash):
++
++```bash
++cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
++```
++
++Example of output (Git Bash):
++
++```text
++Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-
++SAS
++Mod name:  AdvCiv-SAS
++Prefix:    AdvCiv-SAS_light_source
++Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260620T124720.zip
++Files:     944
++Size:      43,264,448 bytes before ZIP container overhead
++Mode:      ZIP_STORED / no compression
++Wrote:     944 file(s)
++```
++
+ ## Workflow rule for timeline tuning
+ 
+ - Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
+
+diff --git a/LLM_Helpers/make_light_source_zip.py b/LLM_Helpers/make_light_source_zip.py
+new file mode 100644
+index 000000000..b0a1251f6
+--- /dev/null
++++ b/LLM_Helpers/make_light_source_zip.py
+@@ -0,0 +1,345 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout (see Authors in root README.md)
++#
++# <!-- custom: Create a timestamped Civ4 mod light source ZIP for quick local/LLM review handoffs.
++# Store repo-relative paths with ZIP_STORED/no compression so creation is fast and the archive remains easy to inspect.
++# Refined with ChatGPT-5.5 and Codex. -->
++# Create a timestamped, no-compression light source ZIP for a Civ4 mod.
++
++from __future__ import annotations
++
++import argparse
++import re
++from datetime import datetime
++from pathlib import Path
++from typing import Iterable, Iterator
++from zipfile import ZIP_STORED, ZipFile
++
++
++ASSET_SUBDIRS = (
++    "Assets/Python",
++    "Assets/Config",
++    "Assets/res",
++    "Assets/XML",
++)
++
++ROOT_SUBDIRS = (
++    "PrivateMaps",
++    ".claude",
++    ".github",
++    "Long_Comments",
++    "_0_Common_Docs",
++    "LLM_Helpers",
++    "Resource",
++    "Settings",
++    ".vscode",
++)
++
++EXTRA_SUBDIRS = (
++    "_1_AdvCiv-SAS/Docs",
++    "_1_AdvCiv-SAS/git_logs",
++)
++
++DLL_TOP_LEVEL_DIR = "CvGameCoreDLL"
++DLL_PROJECT_DIR = "CvGameCoreDLL/Project"
++DLL_PROJECT_MAX_BYTES = 1 * 1024 * 1024
++DEFAULT_OUTPUT_DIR = "."
++DEFAULT_MOD_NAME = "UnspecifiedModName"
++ARCHIVE_LABEL = "light_source"
++DEFAULT_ARCHIVE_PREFIX = None
++GENERATED_ARCHIVE_MARKER = "_light_source_"
++
++# Skip Python bytecode/cache folders anywhere in the tree. They are generated,
++# can be heavy, and confuse LLM/code-agent reviews with stale duplicate code.
++SKIP_DIR_NAMES = {".git", "__pycache__"}
++
++# Skip whole folders that are included through a parent folder but do not help
++# compact LLM/code-agent review. Civ4 cursor assets are visual/binary UI files
++# and are usually noise for source/debugging tasks.
++SKIP_REL_DIRS = {"assets/res/cursors"}
++
++# Skip generated/binary payloads that are too heavy or not useful for compact
++# ChatGPT/code-agent source review. FPK art packs and DLL binaries should be
++# shared separately only when specifically needed.
++SKIP_SUFFIXES = {".pyc", ".pyo", ".dll", ".fpk", ".tga"}
++
++# Visual Studio database files can be very large and are regenerated locally.
++# Other small lone project files are useful enough to keep.
++DLL_PROJECT_SKIP_SUFFIXES = {".sdf"}
++
++# Skip original manuals because converted text copies are easier to grep and
++# enough for compact LLM/code-agent review.
++SKIP_FILE_NAMES = {"manual.pdf", "manual.odt"}
++
++# Do not exclude common readable image files globally. Small previews/screenshots
++# can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image
++# folders by not adding those folders to the include lists instead. TGA is
++# excluded above because ChatGPT/code-agent review generally cannot inspect it
++# usefully in this compact source archive.
++
++
++def parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser(
++        description="Create a timestamped Civ4 mod light source ZIP with no compression."
++    )
++    parser.add_argument(
++        "--repo-root",
++        default=None,
++        help="Path to the mod/repo root. Defaults to auto-detection from cwd/script path.",
++    )
++    parser.add_argument(
++        "--output-dir",
++        default=DEFAULT_OUTPUT_DIR,
++        help=(
++            "Output directory, relative to the mod/repo root unless absolute. "
++            f"Default: {DEFAULT_OUTPUT_DIR}"
++        ),
++    )
++    parser.add_argument(
++        "--mod-name",
++        default=None,
++        help=(
++            "Archive filename mod name. Defaults to the detected mod folder name, "
++            f"with an {DEFAULT_MOD_NAME} fallback."
++        ),
++    )
++    parser.add_argument(
++        "--prefix",
++        default=DEFAULT_ARCHIVE_PREFIX,
++        help=(
++            "Full archive filename prefix before the timestamp. Defaults to "
++            "<mod-name>_light_source. Use this only for manual labels or old naming."
++        ),
++    )
++    parser.add_argument(
++        "--include-helper-outputs",
++        action="store_true",
++        help="Include LLM_Helpers/outputs. By default it is skipped to avoid bundling generated reports/ZIPs.",
++    )
++    parser.add_argument(
++        "--dry-run",
++        action="store_true",
++        help="Print what would be archived without writing the ZIP.",
++    )
++    return parser.parse_args()
++
++
++def find_repo_root(repo_root_arg: str | None) -> Path:
++    if repo_root_arg:
++        root = Path(repo_root_arg).expanduser().resolve()
++        if not root.is_dir():
++            raise SystemExit(f"Repo root does not exist or is not a directory: {root}")
++        return root
++
++    candidates: list[Path] = []
++    try:
++        candidates.append(Path.cwd().resolve())
++    except OSError:
++        pass
++
++    script_path = Path(__file__).resolve()
++    candidates.extend([script_path.parent, *script_path.parents])
++
++    seen: set[Path] = set()
++    for candidate in candidates:
++        if candidate in seen:
++            continue
++        seen.add(candidate)
++        if (candidate / "Assets").is_dir() or (candidate / DLL_TOP_LEVEL_DIR).is_dir():
++            return candidate
++
++    raise SystemExit("Could not auto-detect mod/repo root. Run from the mod root or pass --repo-root.")
++
++
++def safe_filename_part(text: str | None, fallback: str) -> str:
++    if text is None:
++        return fallback
++    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", text.strip()).strip("._-")
++    return cleaned or fallback
++
++
++def derive_mod_name(repo_root: Path, mod_name_arg: str | None) -> str:
++    """Return the filename-safe mod name used in the output archive name."""
++    # Normally this comes from the mod folder itself, e.g. .../Mods/AdvCiv-SAS
++    # -> AdvCiv-SAS. --mod-name exists only for unusual folder names or manual labels.
++    return safe_filename_part(mod_name_arg or repo_root.name, DEFAULT_MOD_NAME)
++
++
++def archive_prefix(mod_name: str, prefix_arg: str | None) -> str:
++    """Return the filename-safe archive prefix before the timestamp."""
++    if prefix_arg:
++        return safe_filename_part(prefix_arg, f"{mod_name}_{ARCHIVE_LABEL}")
++    return f"{mod_name}_{ARCHIVE_LABEL}"
++
++
++def output_path(repo_root: Path, output_dir_arg: str, prefix: str, create_dir: bool) -> Path:
++    out_dir = Path(output_dir_arg).expanduser()
++    if not out_dir.is_absolute():
++        out_dir = repo_root / out_dir
++    if create_dir:
++        out_dir.mkdir(parents=True, exist_ok=True)
++    stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
++    return out_dir / f"{prefix}_{stamp}.zip"
++
++
++def rel_for_message(path: Path, repo_root: Path) -> str:
++    try:
++        return path.relative_to(repo_root).as_posix()
++    except ValueError:
++        return str(path)
++
++
++def should_skip_dir(path: Path, repo_root: Path, include_helper_outputs: bool) -> bool:
++    if path.name in SKIP_DIR_NAMES:
++        return True
++    rel = rel_for_message(path, repo_root).lower()
++    if rel in SKIP_REL_DIRS:
++        return True
++    if not include_helper_outputs:
++        if rel == "llm_helpers/outputs" or rel.startswith("llm_helpers/outputs/"):
++            return True
++    return False
++
++
++def should_skip_file(path: Path) -> bool:
++    name = path.name.lower()
++    if name in SKIP_FILE_NAMES:
++        return True
++    if path.suffix.lower() in SKIP_SUFFIXES:
++        return True
++    # Avoid recursively bundling earlier archives created by this script when
++    # the default output folder is the mod root.
++    if path.suffix.lower() == ".zip" and GENERATED_ARCHIVE_MARKER in name:
++        return True
++    return False
++
++
++def iter_tree_files(root: Path, repo_root: Path, include_helper_outputs: bool) -> Iterator[Path]:
++    if not root.exists():
++        print(f"Warning: missing folder skipped: {rel_for_message(root, repo_root)}")
++        return
++    if not root.is_dir():
++        print(f"Warning: not a folder, skipped: {rel_for_message(root, repo_root)}")
++        return
++
++    for child in sorted(root.iterdir(), key=lambda p: p.name.lower()):
++        if child.is_dir():
++            if should_skip_dir(child, repo_root, include_helper_outputs):
++                continue
++            yield from iter_tree_files(child, repo_root, include_helper_outputs)
++        elif child.is_file() and not should_skip_file(child):
++            yield child
++
++
++def iter_root_files(repo_root: Path) -> Iterator[Path]:
++    for child in sorted(repo_root.iterdir(), key=lambda p: p.name.lower()):
++        if child.is_file() and not should_skip_file(child):
++            yield child
++
++
++def iter_dll_top_level_files(repo_root: Path) -> Iterator[Path]:
++    dll_dir = repo_root / DLL_TOP_LEVEL_DIR
++    if not dll_dir.is_dir():
++        print(f"Warning: missing folder skipped: {DLL_TOP_LEVEL_DIR}")
++        return
++    for child in sorted(dll_dir.iterdir(), key=lambda p: p.name.lower()):
++        if child.is_file() and not should_skip_file(child):
++            yield child
++
++
++def iter_dll_project_top_level_files(repo_root: Path) -> Iterator[Path]:
++    project_dir = repo_root / DLL_PROJECT_DIR
++    if not project_dir.is_dir():
++        print(f"Warning: missing folder skipped: {DLL_PROJECT_DIR}")
++        return
++    for child in sorted(project_dir.iterdir(), key=lambda p: p.name.lower()):
++        if not child.is_file() or should_skip_file(child):
++            continue
++        if child.suffix.lower() in DLL_PROJECT_SKIP_SUFFIXES:
++            continue
++        size = child.stat().st_size
++        if size >= DLL_PROJECT_MAX_BYTES:
++            print(
++                "Warning: DLL project file over 1 MB skipped: "
++                f"{rel_for_message(child, repo_root)} ({size:,} bytes)"
++            )
++            continue
++        yield child
++
++
++def collect_files(repo_root: Path, include_helper_outputs: bool) -> list[Path]:
++    files: list[Path] = []
++    seen: set[str] = set()
++
++    def add(paths: Iterable[Path]) -> None:
++        for path in paths:
++            rel = path.relative_to(repo_root).as_posix()
++            if rel not in seen:
++                seen.add(rel)
++                files.append(path)
++
++    add(iter_root_files(repo_root))
++
++    for rel_dir in ASSET_SUBDIRS:
++        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
++
++    for rel_dir in ROOT_SUBDIRS:
++        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
++
++    add(iter_dll_top_level_files(repo_root))
++    add(iter_dll_project_top_level_files(repo_root))
++
++    for rel_dir in EXTRA_SUBDIRS:
++        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
++
++    return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
++
++
++def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path]) -> int:
++    count = 0
++    temp_path = zip_path.with_suffix(zip_path.suffix + ".tmp")
++    if temp_path.exists():
++        temp_path.unlink()
++
++    with ZipFile(temp_path, "w", compression=ZIP_STORED, allowZip64=True) as archive:
++        for path in files:
++            rel = path.relative_to(repo_root).as_posix()
++            archive.write(path, rel)
++            count += 1
++
++    temp_path.replace(zip_path)
++    return count
++
++
++def main() -> int:
++    args = parse_args()
++    repo_root = find_repo_root(args.repo_root)
++    mod_name = derive_mod_name(repo_root, args.mod_name)
++    prefix = archive_prefix(mod_name, args.prefix)
++    zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
++    files = collect_files(repo_root, args.include_helper_outputs)
++    total_bytes = sum(path.stat().st_size for path in files)
++
++    print(f"Repo root: {repo_root}")
++    print(f"Mod name:  {mod_name}")
++    print(f"Prefix:    {prefix}")
++    print(f"Archive:   {zip_path}")
++    print(f"Files:     {len(files)}")
++    print(f"Size:      {total_bytes:,} bytes before ZIP container overhead")
++    print("Mode:      ZIP_STORED / no compression")
++
++    if args.dry_run:
++        for path in files:
++            print(path.relative_to(repo_root).as_posix())
++        print("Dry run only; no archive written.")
++        return 0
++
++    count = write_zip(zip_path, repo_root, files)
++    print(f"Wrote:     {count} file(s)")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+
+diff --git a/README.md b/README.md
+index b3d3d301d..3996566dd 100644
+--- a/README.md
++++ b/README.md
+@@ -881,6 +881,8 @@ For modders: i have made several scripts with AI assistance. We don't use them a
+ 
+ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+ 
++Or notably also [`make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time, of the core/most useful files/folders, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder).
++
+ GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ 
+ This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)). This also helped spot and fix [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index db5ca188a..d9bbd72f6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -117,6 +117,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5961+) **C++ inline-return cleanup:** collapsed simple inline DLL header functions whose bodies were exactly one `return` statement to one physical line, making trivial getters/wrappers easier to grep and compare. Done with the help of [`collapse_cpp_inline_returns.py`](/LLM_Helpers/README.md#collapse_cpp_inline_returnspy), a conservative mechanical helper that skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and overlong results. For example, `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`, instead of its old four-line equivalent.
+ - (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ - Other examples: (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
++- (Requires AdvCiv-SAS 5962+) **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped no-compression AdvCiv-SAS source/data/docs archive under `LLM_Helpers/outputs` or a chosen output folder. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder), when sharing compact mod context with local tools or LLMs.
+ - (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+@@ -145,6 +146,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
++- (Requires AdvCiv-SAS 5962+) **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - (Requires AdvCiv-SAS 5925+) **BBAI log files timestamped name**: Optionally log BBAI to a **new file each time** Civ4 launch/session with a **new UTC-timestamp** in filename such as (e.g., `BBAI_20260608T065231Z.log`) instead of repeatedly appending to `BBAI.log`. This **avoids previous tedious manual clearing** `BBAI.log` before restarting Civ4, prevents one **massive mixed log from accumulating** across many test runs, and makes the **relevant log easier to identify, store, or upload** for review.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=13 omittedFiles=1 embeddedPatchBytes=68443

@@ -1,0 +1,900 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1466
+# Commit: 4da54ee51c258cd8bb16c6171e22634e0aa8a91e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1e107b2c01f79eca77c363287362969920c635e6
+# Title: BS1: Added Nightingale's makefile 2.5 (supports parallel builds by using jom) and custom VS2017 solution\project files.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	0	CvGameCoreDLL/Project/AdvCiv.sln
+395	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+383	0	CvGameCoreDLL/Project/Makefile
+4	0	CvGameCoreDLL/Project/Makefile.project
+4	0	CvGameCoreDLL/Project/Makefile.settings
+-	-	CvGameCoreDLL/Project/bin/fastdep.exe
+-	-	CvGameCoreDLL/Project/bin/jom.exe
+ create mode 100644 CvGameCoreDLL/Project/AdvCiv.sln
+ create mode 100644 CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/Project/Makefile
+ create mode 100644 CvGameCoreDLL/Project/Makefile.project
+ create mode 100644 CvGameCoreDLL/Project/Makefile.settings
+ create mode 100644 CvGameCoreDLL/Project/bin/fastdep.exe
+ create mode 100644 CvGameCoreDLL/Project/bin/jom.exe
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.sln b/CvGameCoreDLL/Project/AdvCiv.sln
+new file mode 100644
+index 000000000..3f0999bd4
+--- /dev/null
++++ b/CvGameCoreDLL/Project/AdvCiv.sln
+@@ -0,0 +1,37 @@
++﻿
++Microsoft Visual Studio Solution File, Format Version 12.00
++# Visual Studio 15
++VisualStudioVersion = 15.0.28010.2036
++MinimumVisualStudioVersion = 10.0.40219.1
++Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AdvCiv", "AdvCiv.vcxproj", "{3021AF0E-699D-4232-86F6-FC374A0C9957}"
++EndProject
++Global
++	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Assert|Win32 = Assert|Win32
++		Assert-fast|Win32 = Assert-fast|Win32
++		Debug|Win32 = Debug|Win32
++		Profile|Win32 = Profile|Win32
++		Release|Win32 = Release|Win32
++		Release-fast|Win32 = Release-fast|Win32
++	EndGlobalSection
++	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert|Win32.ActiveCfg = Assert|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert|Win32.Build.0 = Assert|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert-fast|Win32.ActiveCfg = Assert-fast|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert-fast|Win32.Build.0 = Assert-fast|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.ActiveCfg = Debug|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.Build.0 = Debug|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.ActiveCfg = Profile|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.Build.0 = Profile|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release|Win32.ActiveCfg = Release|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release|Win32.Build.0 = Release|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release-fast|Win32.ActiveCfg = Release-fast|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release-fast|Win32.Build.0 = Release-fast|Win32
++	EndGlobalSection
++	GlobalSection(SolutionProperties) = preSolution
++		HideSolutionNode = FALSE
++	EndGlobalSection
++	GlobalSection(ExtensibilityGlobals) = postSolution
++		SolutionGuid = {886B8394-6690-4605-8600-4B0B2EE1B1CC}
++	EndGlobalSection
++EndGlobal
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+new file mode 100644
+index 000000000..4008033fd
+--- /dev/null
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -0,0 +1,395 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Assert-fast|Win32">
++      <Configuration>Assert-fast</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Assert|Win32">
++      <Configuration>Assert</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Profile|Win32">
++      <Configuration>Profile</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release-fast|Win32">
++      <Configuration>Release-fast</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="..\BetterBTSAI.cpp" />
++    <ClCompile Include="..\CvArea.cpp" />
++    <ClCompile Include="..\CvArtFileMgr.cpp" />
++    <ClCompile Include="..\CvBugOptions.cpp" />
++    <ClCompile Include="..\CvCity.cpp" />
++    <ClCompile Include="..\CvCityAI.cpp" />
++    <ClCompile Include="..\CvDeal.cpp" />
++    <ClCompile Include="..\CvDiploParameters.cpp" />
++    <ClCompile Include="..\CvDLLButtonPopup.cpp" />
++    <ClCompile Include="..\CvDLLEntity.cpp" />
++    <ClCompile Include="..\CvDLLPython.cpp" />
++    <ClCompile Include="..\CvDllPythonEvents.cpp" />
++    <ClCompile Include="..\CvDllTranslator.cpp" />
++    <ClCompile Include="..\CvDLLWidgetData.cpp" />
++    <ClCompile Include="..\CvEventReporter.cpp" />
++    <ClCompile Include="..\CvFractal.cpp" />
++    <ClCompile Include="..\CvGame.cpp" />
++    <ClCompile Include="..\CvGameAI.cpp" />
++    <ClCompile Include="..\CvGameCoreDLL.cpp" />
++    <ClCompile Include="..\CvGameCoreUtils.cpp" />
++    <ClCompile Include="..\CvGameInterface.cpp" />
++    <ClCompile Include="..\CvGameTextMgr.cpp" />
++    <ClCompile Include="..\CvGlobals.cpp" />
++    <ClCompile Include="..\CvHallOfFameInfo.cpp" />
++    <ClCompile Include="..\CvInfos.cpp" />
++    <ClCompile Include="..\CvInfoWater.cpp" />
++    <ClCompile Include="..\CvInitCore.cpp" />
++    <ClCompile Include="..\CvMap.cpp" />
++    <ClCompile Include="..\CvMapGenerator.cpp" />
++    <ClCompile Include="..\CvMessageControl.cpp" />
++    <ClCompile Include="..\CvMessageData.cpp" />
++    <ClCompile Include="..\CvPlayer.cpp" />
++    <ClCompile Include="..\CvPlayerAI.cpp" />
++    <ClCompile Include="..\CvPlot.cpp" />
++    <ClCompile Include="..\CvPlotGroup.cpp" />
++    <ClCompile Include="..\CvPopupInfo.cpp" />
++    <ClCompile Include="..\CvPopupReturn.cpp" />
++    <ClCompile Include="..\CvRandom.cpp" />
++    <ClCompile Include="..\CvReplayInfo.cpp" />
++    <ClCompile Include="..\CvReplayMessage.cpp" />
++    <ClCompile Include="..\CvSelectionGroup.cpp" />
++    <ClCompile Include="..\CvSelectionGroupAI.cpp" />
++    <ClCompile Include="..\CvStatistics.cpp" />
++    <ClCompile Include="..\CvStructs.cpp" />
++    <ClCompile Include="..\CvTalkingHeadMessage.cpp" />
++    <ClCompile Include="..\CvTeam.cpp" />
++    <ClCompile Include="..\CvTeamAI.cpp" />
++    <ClCompile Include="..\CvUnit.cpp" />
++    <ClCompile Include="..\CvUnitAI.cpp" />
++    <ClCompile Include="..\CvXMLLoadUtility.cpp" />
++    <ClCompile Include="..\CvXMLLoadUtilityGet.cpp" />
++    <ClCompile Include="..\CvXMLLoadUtilityInit.cpp" />
++    <ClCompile Include="..\CvXMLLoadUtilitySet.cpp" />
++    <ClCompile Include="..\CyArea.cpp" />
++    <ClCompile Include="..\CyAreaInterface.cpp" />
++    <ClCompile Include="..\CyArgsList.cpp" />
++    <ClCompile Include="..\CyArtFileMgr.cpp" />
++    <ClCompile Include="..\CyArtFileMgrInterface.cpp" />
++    <ClCompile Include="..\CyCity.cpp" />
++    <ClCompile Include="..\CyCityInterface1.cpp" />
++    <ClCompile Include="..\CyDeal.cpp" />
++    <ClCompile Include="..\CyEnumsInterface.cpp" />
++    <ClCompile Include="..\CyGame.cpp" />
++    <ClCompile Include="..\CyGameCoreUtils.cpp" />
++    <ClCompile Include="..\CyGameCoreUtilsInterface.cpp" />
++    <ClCompile Include="..\CyGameInterface.cpp" />
++    <ClCompile Include="..\CyGameTextMgr.cpp" />
++    <ClCompile Include="..\CyGameTextMgrInterface.cpp" />
++    <ClCompile Include="..\CyGlobalContext.cpp" />
++    <ClCompile Include="..\CyGlobalContextInterface1.cpp" />
++    <ClCompile Include="..\CyGlobalContextInterface2.cpp" />
++    <ClCompile Include="..\CyGlobalContextInterface3.cpp" />
++    <ClCompile Include="..\CyGlobalContextInterface4.cpp" />
++    <ClCompile Include="..\CyHallOfFameInfo.cpp" />
++    <ClCompile Include="..\CyHallOfFameInterface.cpp" />
++    <ClCompile Include="..\CyInfoInterface1.cpp" />
++    <ClCompile Include="..\CyInfoInterface2.cpp" />
++    <ClCompile Include="..\CyInfoInterface3.cpp" />
++    <ClCompile Include="..\CyMap.cpp" />
++    <ClCompile Include="..\CyMapGenerator.cpp" />
++    <ClCompile Include="..\CyMapGeneratorInterface.cpp" />
++    <ClCompile Include="..\CyMapInterface.cpp" />
++    <ClCompile Include="..\CyMessageControl.cpp" />
++    <ClCompile Include="..\CyMessageControlInterface.cpp" />
++    <ClCompile Include="..\CyPlayer.cpp" />
++    <ClCompile Include="..\CyPlayerInterface1.cpp" />
++    <ClCompile Include="..\CyPlayerInterface2.cpp" />
++    <ClCompile Include="..\CyPlot.cpp" />
++    <ClCompile Include="..\CyPlotInterface1.cpp" />
++    <ClCompile Include="..\CyRandomInterface.cpp" />
++    <ClCompile Include="..\CyReplayInfo.cpp" />
++    <ClCompile Include="..\CySelectionGroup.cpp" />
++    <ClCompile Include="..\CySelectionGroupInterface.cpp" />
++    <ClCompile Include="..\CyStructsInterface1.cpp" />
++    <ClCompile Include="..\CyTeam.cpp" />
++    <ClCompile Include="..\CyTeamInterface.cpp" />
++    <ClCompile Include="..\CyUnit.cpp" />
++    <ClCompile Include="..\CyUnitInterface1.cpp" />
++    <ClCompile Include="..\FDialogTemplate.cpp" />
++    <ClCompile Include="..\KmodPathFinder.cpp" />
++    <ClCompile Include="..\FAssert.cpp" />
++    <ClCompile Include="..\_precompile.cpp" />
++  </ItemGroup>
++  <ItemGroup>
++    <ClInclude Include="..\AI_Defines.h" />
++    <ClInclude Include="..\BetterBTSAI.h" />
++    <ClInclude Include="..\CvArea.h" />
++    <ClInclude Include="..\CvArtFileMgr.h" />
++    <ClInclude Include="..\CvBugOptions.h" />
++    <ClInclude Include="..\CvCity.h" />
++    <ClInclude Include="..\CvCityAI.h" />
++    <ClInclude Include="..\CvDeal.h" />
++    <ClInclude Include="..\CvDefines.h" />
++    <ClInclude Include="..\CvDiploParameters.h" />
++    <ClInclude Include="..\CvDLLButtonPopup.h" />
++    <ClInclude Include="..\CvDLLDataStreamIFaceBase.h" />
++    <ClInclude Include="..\CvDLLEngineIFaceBase.h" />
++    <ClInclude Include="..\CvDLLEntity.h" />
++    <ClInclude Include="..\CvDLLEntityIFaceBase.h" />
++    <ClInclude Include="..\CvDLLEventReporterIFaceBase.h" />
++    <ClInclude Include="..\CvDLLFAStarIFaceBase.h" />
++    <ClInclude Include="..\CvDLLFlagEntityIFaceBase.h" />
++    <ClInclude Include="..\CvDLLIniParserIFaceBase.h" />
++    <ClInclude Include="..\CvDLLInterfaceIFaceBase.h" />
++    <ClInclude Include="..\CvDLLPlotBuilderIFaceBase.h" />
++    <ClInclude Include="..\CvDllPythonEvents.h" />
++    <ClInclude Include="..\CvDLLPythonIFaceBase.h" />
++    <ClInclude Include="..\CvDLLSymbolIFaceBase.h" />
++    <ClInclude Include="..\CvDllTranslator.h" />
++    <ClInclude Include="..\CvDLLUtilityIFaceBase.h" />
++    <ClInclude Include="..\CvDLLWidgetData.h" />
++    <ClInclude Include="..\CvDLLXMLIFaceBase.h" />
++    <ClInclude Include="..\CvEnums.h" />
++    <ClInclude Include="..\CvEventReporter.h" />
++    <ClInclude Include="..\CvFractal.h" />
++    <ClInclude Include="..\CvGame.h" />
++    <ClInclude Include="..\CvGameAI.h" />
++    <ClInclude Include="..\CvGameCoreDLL.h" />
++    <ClInclude Include="..\CvGameCoreDLLDefNew.h" />
++    <ClInclude Include="..\CvGameCoreDLLUndefNew.h" />
++    <ClInclude Include="..\CvGameCoreUtils.h" />
++    <ClInclude Include="..\CvGameTextMgr.h" />
++    <ClInclude Include="..\CvGlobals.h" />
++    <ClInclude Include="..\CvHallOfFameInfo.h" />
++    <ClInclude Include="..\CvInfos.h" />
++    <ClInclude Include="..\CvInfoWater.h" />
++    <ClInclude Include="..\CvInitCore.h" />
++    <ClInclude Include="..\CvMap.h" />
++    <ClInclude Include="..\CvMapGenerator.h" />
++    <ClInclude Include="..\CvMessageControl.h" />
++    <ClInclude Include="..\CvMessageData.h" />
++    <ClInclude Include="..\CvPlayer.h" />
++    <ClInclude Include="..\CvPlayerAI.h" />
++    <ClInclude Include="..\CvPlot.h" />
++    <ClInclude Include="..\CvPlotGroup.h" />
++    <ClInclude Include="..\CvPopupInfo.h" />
++    <ClInclude Include="..\CvPopupReturn.h" />
++    <ClInclude Include="..\CvRandom.h" />
++    <ClInclude Include="..\CvReplayInfo.h" />
++    <ClInclude Include="..\CvReplayMessage.h" />
++    <ClInclude Include="..\CvSelectionGroup.h" />
++    <ClInclude Include="..\CvSelectionGroupAI.h" />
++    <ClInclude Include="..\CvStatistics.h" />
++    <ClInclude Include="..\CvString.h" />
++    <ClInclude Include="..\CvStructs.h" />
++    <ClInclude Include="..\CvTalkingHeadMessage.h" />
++    <ClInclude Include="..\CvTeam.h" />
++    <ClInclude Include="..\CvTeamAI.h" />
++    <ClInclude Include="..\CvUnit.h" />
++    <ClInclude Include="..\CvUnitAI.h" />
++    <ClInclude Include="..\CvXMLLoadUtility.h" />
++    <ClInclude Include="..\CyArea.h" />
++    <ClInclude Include="..\CyArgsList.h" />
++    <ClInclude Include="..\CyArtFileMgr.h" />
++    <ClInclude Include="..\CyCity.h" />
++    <ClInclude Include="..\CyDeal.h" />
++    <ClInclude Include="..\CyGame.h" />
++    <ClInclude Include="..\CyGameCoreUtils.h" />
++    <ClInclude Include="..\CyGameTextMgr.h" />
++    <ClInclude Include="..\CyGlobalContext.h" />
++    <ClInclude Include="..\CyHallOfFameInfo.h" />
++    <ClInclude Include="..\CyMap.h" />
++    <ClInclude Include="..\CyMapGenerator.h" />
++    <ClInclude Include="..\CyMessageControl.h" />
++    <ClInclude Include="..\CyPlayer.h" />
++    <ClInclude Include="..\CyPlot.h" />
++    <ClInclude Include="..\CyReplayInfo.h" />
++    <ClInclude Include="..\CySelectionGroup.h" />
++    <ClInclude Include="..\CyTeam.h" />
++    <ClInclude Include="..\CyUnit.h" />
++    <ClInclude Include="..\FAssert.h" />
++    <ClInclude Include="..\FAStarNode.h" />
++    <ClInclude Include="..\FDataStreamBase.h" />
++    <ClInclude Include="..\FDialogTemplate.h" />
++    <ClInclude Include="..\FFreeListArray.h" />
++    <ClInclude Include="..\FFreeListArrayBase.h" />
++    <ClInclude Include="..\FFreeListTrashArray.h" />
++    <ClInclude Include="..\FInputDevice.h" />
++    <ClInclude Include="..\FProfiler.h" />
++    <ClInclude Include="..\FVariableSystem.h" />
++    <ClInclude Include="..\KmodPathFinder.h" />
++    <ClInclude Include="..\LinkedList.h" />
++    <ClInclude Include="..\resource.h" />
++  </ItemGroup>
++  <ItemGroup>
++    <None Include="..\FVariableSystem.inl" />
++    <None Include="..\interfaceDirtyBits.inl" />
++  </ItemGroup>
++  <ItemGroup>
++    <ResourceCompile Include="..\CvGameCoreDLL.rc" />
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectGuid>{3021AF0E-699D-4232-86F6-FC374A0C9957}</ProjectGuid>
++    <Keyword>MakeFileProj</Keyword>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <CLRSupport>true</CLRSupport>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <CLRSupport>true</CLRSupport>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <CLRSupport>true</CLRSupport>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <CLRSupport>true</CLRSupport>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Debug
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll  /NOLOGO</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Debug
++nmake clean  /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Debug
++nmake clean  /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /D_DEBUG /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Profile
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Profile
++nmake clean /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Profile
++nmake clean  /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Release
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Release
++nmake clean /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Release
++nmake clean /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Assert
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Assert
++nmake clean /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake dll /NOLOGO</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Assert
++nmake clean /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Release
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile  /NOLOGO
++bin\jom build</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Release
++nmake clean /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile  /NOLOGO
++bin\jom build</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Release
++nmake clean /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Assert
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile  /NOLOGO
++bin\jom build</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Assert
++nmake clean  /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile  /NOLOGO
++bin\jom build</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Assert
++nmake clean /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /DUSE_DATA_DIR</AdditionalOptions>
++  </PropertyGroup>
++  <ItemDefinitionGroup>
++  </ItemDefinitionGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
++</Project>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+new file mode 100644
+index 000000000..f51a554a3
+--- /dev/null
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -0,0 +1,383 @@
++#### Civilization 4 SDK Makefile 2.5 ####
++####  Copyright 2015 Nightinggale    ####
++#########################################
++#### Civilization 4 SDK Makefile 2.0 ####
++####  Copyright 2013 Nightinggale    ####
++#########################################
++#### Civilization 4 SDK Makefile 1.0 ####
++####  Copyright 2010 Danny Daemonic  ####
++#########################################
++
++
++## User setup
++##
++## Any setting here can be overwritten by assigning a new value to the variables in Makefile.settings
++##  Makefile.settings is made automatically if it is missing whenever the project is build or cleaned
++##
++## Not touching the makefile itself can be beneficial if the makefile is committed to svn/git
++## Makefile.settings can also accept CUSTOM_CFLAGS and CUSTOM_LDFLAGS if you want to ADD additional flags
++##   the custom flags will not overwrite any flags the makefile sets itself
++##   An example could be you want to define ENABLE_MY_DEBUG_OUTPUT in C+, then you write
++##     CUSTOM_CFLAGS -DENABLE_MY_DEBUG_OUTPUT
++##     in Makefile.settings and it will be defined for you without the risk of committing active debug output to other people
++##
++##     You can write whatever you want after -D and it will work like you write #DEFINE in C++
++## 
++
++
++#### Paths ####
++#
++# Note: Edit Makefile.settings instead and add it to .gitignore
++# Note: $(PROGRAMFILES) converts to "C:\Program Files", "C:\Program Files (x86)" or whatever fits your system.
++# run "nmake.exe /P" in cmd.exe to see what it is on your system
++#TOOLKIT=$(PROGRAMFILES)\Microsoft Visual C++ Toolkit 2003
++#PSDK=$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A
++## Uncomment to have newly compiled dlls copied to your mod's Assets directory
++#YOURMOD=..
++
++## Civ install path
++## Path to the directory where boost and python is stored
++## Overwritten by enviroment variable CIV4_LIB_INSTALL_PATH
++#CIV4_PATH=$(PROGRAMFILES)\2K Games\Firaxis Games\Sid Meier's Civilization IV Colonization\CvGameCoreDLL
++
++#### Tools ####
++CC="$(TOOLKIT)\bin\cl.exe"
++CPP="$(TOOLKIT)\bin\cl.exe"
++LD="$(TOOLKIT)\bin\link.exe"
++RC="$(PSDK)\bin\rc.exe"
++## Uncomment to build dependencies using fastdep
++## Overwritten by enviroment variable FASTDEP_FULL_PATH
++FD="bin\fastdep.exe"
++
++#### BLACKLIST ####
++## Uncomment to block CvTextScreen (accidentally included by Firaxis)
++BLACKLIST=CvTextScreens
++
++#### DEFINES ####
++## copy the following lines into "Additional options" in NMAKE properties
++## This will make VC++ aware of what is defined and what isn't, which affects the help popup and red lines
++## Use Release_DEFINES for all targets except debug
++## Assert adds /DFASSERT_ENABLE, which should be added to additional options too, if you care.
++## However you will only be able to tell a difference if you do something with asserts other than FAssert() or FAssertMsg()
++
++Debug_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /D_DEBUG
++Release_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE
++
++#### You shouldn't need to modify anything beyond this point ####
++#################################################################
++
++TEMP_FILE_DIR = temp_files
++CUSTOM_CFLAGS  =
++CUSTOM_LDFLAGS =
++
++
++
++!IF [IF NOT EXIST Makefile.settings EXIT 1] != 0
++!IF [ECHO CUSTOM_CFLAGS = > Makefile.settings]
++!ENDIF
++!ENDIF
++!include Makefile.settings
++
++PRECOMPILE_DEPENDENCIES =
++PROJECT_CFLAGS =
++PROJECT_LDFLAGS =
++SOURCE_DIR =
++
++SUBDIRPATH1 = ../
++SUBDIRPATH2 = ../
++SUBDIRPATH3 = ../
++SUBDIRPATH4 = ../
++SUBDIRPATH5 = ../
++SUBDIRPATH6 = ../
++SUBDIRPATH7 = ../
++SUBDIRPATH8 = ../
++SUBDIRPATH9 = ../
++SUBDIRPATH10 = ../
++SUBDIRPATH11 = ../
++SUBDIRPATH12 = ../
++SUBDIRPATH13 = ../
++SUBDIRPATH14 = ../
++SUBDIRPATH15 = ../
++
++!IF [IF NOT EXIST Makefile.project EXIT 1] != 0
++!IF [ECHO SOURCE_DIR = .>> Makefile.project]
++!ENDIF
++!IF [ECHO PROJECT_CFLAGS = >> Makefile.project]
++!ENDIF
++!IF [ECHO PROJECT_LDFLAGS = >> Makefile.project]
++!ENDIF
++!IF [ECHO PRECOMPILE_DEPENDENCIES = >> Makefile.project]
++!ENDIF
++!ENDIF
++!include Makefile.project
++
++SUBDIRS = . $(SUBDIR1) $(SUBDIR2) $(SUBDIR3) $(SUBDIR4) $(SUBDIR5) $(SUBDIR6) $(SUBDIR7) $(SUBDIR8) $(SUBDIR9) $(SUBDIR10) $(SUBDIR11) $(SUBDIR12) $(SUBDIR13) $(SUBDIR14) $(SUBDIR15)
++
++TEMP_TARGET_FILES = $(TEMP_FILE_DIR)\$(TARGET)
++
++## Environmental path overwrite
++!IFDEF CIV4_LIB_INSTALL_PATH
++CIV4_PATH=$(CIV4_LIB_INSTALL_PATH)
++!ENDIF
++
++!IFDEF FASTDEP_FULL_PATH
++FD=$(FASTDEP_FULL_PATH)
++!ENDIF
++
++#### Target Files ####
++Target_BIN=$(TARGET)\CvGameCoreDLL.dll
++Target_BIN_TEMP=$(TEMP_TARGET_FILES)\CvGameCoreDLL.dll
++
++!IF [IF NOT EXIST CvGameCoreDLL.rc EXIT 1] == 0
++Target_RESOURCE=$(TEMP_TARGET_FILES)\CvGameCoreDLL.res
++!ENDIF
++
++Target_STATICLIB=$(TEMP_TARGET_FILES)\CvGameCoreDLL.lib
++
++Target_LIBDEF=$(TEMP_TARGET_FILES)\CvGameCoreDLL.def
++
++Target_PCH=$(TEMP_TARGET_FILES)\CvGameCoreDLL.pch
++
++Target_PDB=$(TEMP_TARGET_FILES)\CvGameCoreDLL.pdb
++
++Target_OTHER=$(TEMP_TARGET_FILES)\CvGameCoreDLL.exp
++
++!IFDEF IGNORE_CUSTOM
++CUSTOM_CFLAGS  =
++CUSTOM_LDFLAGS =
++!ENDIF
++
++FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
++
++#### CFLAGS ####
++GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
++Debug_CFLAGS=/MD /Zi /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
++Release_CFLAGS= /MD /O2 /Oy /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
++
++PRECOMPILE_CFLAGS1 = /Yu"
++PRECOMPILE_CFLAGS2 = CvGameCoreDLL.h" /Fp"$(Target_PCH)"
++
++#### LDFLAGS ####
++GLOBAL_LDFLAGS=/DLL /NOLOGO /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /TLBID:1 /PDB:"$(Target_PDB)" $(CUSTOM_LDFLAGS) $(PROJECT_LDFLAGS)
++Debug_LDFLAGS=/INCREMENTAL /DEBUG /IMPLIB:"$(Target_STATICLIB)" $(GLOBAL_LDFLAGS)
++Release_LDFLAGS=/INCREMENTAL:NO /OPT:REF /OPT:ICF $(GLOBAL_LDFLAGS)
++
++#### INCLUDES ####
++GLOBAL_INCS=/I"$(TOOLKIT)/include" /I"$(PSDK)/Include" /I"$(PSDK)/Include/mfc"
++
++#### boost and python ####
++
++BOOST_LIB_PATH =
++!IF [IF NOT EXIST "$(BOOST_LIB_PATH)Boost-1.32.0\libs\boost_python-vc71-mt-gd-1_32.lib" EXIT 1] != 0
++BOOST_LIB_PATH = $(SOURCE_DIR)
++!IF [IF NOT EXIST "$(BOOST_LIB_PATH)Boost-1.32.0\libs\boost_python-vc71-mt-gd-1_32.lib" EXIT 1] != 0
++BOOST_LIB_PATH=$(CIV4_PATH)/
++!IF [IF NOT EXIST "$(BOOST_LIB_PATH)Boost-1.32.0\libs\boost_python-vc71-mt-gd-1_32.lib" EXIT 1] != 0
++BOOST_LIB_PATH=$(CIV4_LIB_INSTALL_PATH)/
++!IF [IF NOT EXIST "$(BOOST_LIB_PATH)Boost-1.32.0\libs\boost_python-vc71-mt-gd-1_32.lib" EXIT 1] != 0
++!MESSAGE FATAL ERROR: Failed to locate boost and python
++!ENDIF
++!ENDIF
++!ENDIF
++!ENDIF
++
++PROJECT_INCS=/I"$(BOOST_LIB_PATH)Boost-1.32.0/include" /I"$(BOOST_LIB_PATH)Python24/include"
++PROJECT_LIBS=/LIBPATH:"$(BOOST_LIB_PATH)Python24/libs" /LIBPATH:"$(BOOST_LIB_PATH)boost-1.32.0/libs/" boost_python-vc71-mt-1_32.lib
++
++INCS = $(PROJECT_INCS) $(GLOBAL_INCS)
++
++#### LIBS ####
++GLOBAL_LIBS=/LIBPATH:"$(TOOLKIT)/lib" /LIBPATH:"$(PSDK)/Lib" winmm.lib user32.lib
++LIBS = $(PROJECT_LIBS) $(GLOBAL_LIBS)
++
++
++!IF "$(TARGET)" == "Debug"
++!IFNDEF _NMAKE_VER
++!ERROR Jom can't be used on Debug builds
++!ENDIF
++CFLAGS  = $(Debug_CFLAGS)
++LDFLAGS = $(Debug_LDFLAGS)
++LIBS    = $(LIBS) msvcprt.lib
++!ENDIF
++!IF "$(TARGET)" == "Release"
++CFLAGS  = $(Release_CFLAGS)
++LDFLAGS = $(Release_LDFLAGS)
++!ENDIF
++!IF "$(TARGET)" == "Assert"
++CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE
++LDFLAGS = $(Release_LDFLAGS)
++!ENDIF
++!IF "$(TARGET)" == "Profile"
++!IFNDEF _NMAKE_VER
++!ERROR Jom can't be used on profile builds
++!ENDIF
++CFLAGS  = $(Release_CFLAGS) /Zi
++LDFLAGS = $(Debug_LDFLAGS)
++!ENDIF
++
++!IFNDEF CFLAGS
++!ERROR Target "$(TARGET)" not supported. Supported targets: Debug Release Assert Profile
++!ENDIF
++
++!IF EXIST ($(FILE_DEPENDS))
++!INCLUDE $(FILE_DEPENDS)
++!ENDIF
++
++#### Targets ####
++#################
++
++.PHONY: all clean build precompile Make_Dir fastdep source_list
++
++all: Precompile build
++
++dll: all
++
++clean:
++	@IF EXIST "$(TEMP_TARGET_FILES)" RMDIR /s /q "$(TEMP_TARGET_FILES)"
++	@FOR %i IN ($(Target_BIN) $(Target_STATICLIB) $(Target_LIBDEF) $(Target_RESOURCE) \
++		$(Target_PCH) $(Target_PDB) $(Target_OTHER)) DO @IF EXIST "%i" DEL "%i"
++
++$(Target_BIN): $(Target_BIN_TEMP)
++	-COPY "$(Target_BIN_TEMP)" "$(Target_BIN)"
++
++		
++build: $(Target_BIN)
++!IFDEF YOURMOD
++	-COPY "$(Target_BIN)" "$(YOURMOD)\Assets\."
++!ENDIF
++
++precompile: Make_Dir Target_unfinished $(Target_PCH)
++
++source_list: Make_Dir
++	@ECHO Building source list
++	@ECHO SOURCES= \> $(FILE_DEPENDS)
++	@FOR %j in ($(SUBDIRS)) DO @(FOR %i IN ($(SOURCE_DIR)\%j\*.cpp) DO @ECHO %i \>> $(FILE_DEPENDS))
++    @ECHO.>> $(FILE_DEPENDS)
++	@ECHO OBJS= \>> $(FILE_DEPENDS)
++    @FOR %j in ($(SUBDIRS)) DO @(FOR /F "delims=." %i IN ('dir /b $(SOURCE_DIR)\%j\*.cpp') DO @ECHO. $(TEMP_TARGET_FILES)\%j\%i.obj \>> $(FILE_DEPENDS))
++    @ECHO.>> $(FILE_DEPENDS)
++
++fastdep:
++	@ECHO Running fastdep
++	@$(FD) --objectextension=pch -q --removepath=$(SOURCE_DIR)\ -O $(TEMP_TARGET_FILES) $(SOURCE_DIR)\CvGameCoreDLL.cpp >> $(FILE_DEPENDS)
++    @$(FD) --objectextension=obj -q --removepath=$(SOURCE_DIR)\ -O $(TEMP_TARGET_FILES) $(SOURCES) >> $(FILE_DEPENDS)
++
++Make_Dir:
++	@FOR %j in ($(SUBDIRS)) DO @(IF NOT EXIST "$(TEMP_TARGET_FILES)\%j\." MKDIR "$(TEMP_TARGET_FILES)\%j")
++	@IF NOT EXIST "$(TARGET)\." MKDIR $(TARGET)
++
++Target_unfinished:
++	@ECHO.>$(TEMP_TARGET_FILES)\unfinished.@
++	@FOR /F "delims=@" %i IN ('dir /b $(TEMP_TARGET_FILES)\*.@') DO \
++		@IF EXIST "$(TEMP_TARGET_FILES)\%i" DEL "$(TEMP_TARGET_FILES)\%i"
++	@FOR /F %i IN ('dir /b $(TEMP_TARGET_FILES)\*.@') DO \
++		@IF EXIST "$(TEMP_TARGET_FILES)\%i" DEL "$(TEMP_TARGET_FILES)\%i"
++
++$(Target_BIN_TEMP): $(OBJS) $(Target_RESOURCE)
++	@ECHO.Linking DLL
++	@$(LD) /out:$(Target_BIN_TEMP) $(LDFLAGS) $(LIBS) $(OBJS) $(Target_RESOURCE)
++
++{$(SOURCE_DIR)\.}.cpp{$(TEMP_TARGET_FILES)\.}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++	
++{$(SOURCE_DIR)\$(SUBDIR1)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR1)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH1)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR2)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR2)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH2)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR3)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR3)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH3)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR4)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR4)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH4)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++	
++{$(SOURCE_DIR)\$(SUBDIR5)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR5)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH5)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR6)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR6)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH6)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR7)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR7)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH7)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR8)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR8)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH8)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++	
++{$(SOURCE_DIR)\$(SUBDIR9)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR9)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH9)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR10)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR10)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH10)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR11)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR11)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH11)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR12)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR12)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH12)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR13)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR13)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH13)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR14)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR14)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH14)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++
++{$(SOURCE_DIR)\$(SUBDIR15)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR15)}.obj:
++	@ECHO.>"$*.obj.@"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH15)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
++	@DEL "$*.obj.@"
++	
++
++$(Target_PCH) $(TEMP_TARGET_FILES)\_precompile.obj: $(PRECOMPILE_DEPENDENCIES)
++	@ECHO.>"$(Target_PCH).@"
++	@ECHO.>"$(TEMP_TARGET_FILES)\_precompile.obj.@"
++	@FOR %i IN ($(TEMP_TARGET_FILES)\*.obj) DO @IF EXIST "%i" DEL "%i"
++    @$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(PRECOMPILE_CFLAGS2) $(INCS) /YcCvGameCoreDLL.h /Fo"$(TEMP_TARGET_FILES)\_precompile.obj" /c $(SOURCE_DIR)\_precompile.cpp
++	@DEL "$(Target_PCH).@"
++	@DEL "$(TEMP_TARGET_FILES)\_precompile.obj.@"
++
++.rc{$(TEMP_TARGET_FILES)}.res:
++	@ECHO.>"$*.res.@"
++	$(RC) /Fo$@ $(INCS) $<
++	@DEL "$*.res.@"
++
++!IFDEF BLACKLIST
++$(TEMP_TARGET_FILES)\$(BLACKLIST).obj: $(BLACKLIST).cpp
++	@ECHO.>"$*.obj.@"
++	@ECHO.>"$*-dummy.cpp"
++	@$(CPP) /nologo $(Release_CFLAGS) $(Release_INCS) /Y- /Fo$@ /c "$*-dummy.cpp"
++	@DEL "$*-dummy.cpp"
++	@DEL "$*.obj.@"
++
++!ENDIF
++
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+new file mode 100644
+index 000000000..7a8b6e902
+--- /dev/null
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -0,0 +1,4 @@
++SOURCE_DIR = ..
++PROJECT_CFLAGS = 
++PROJECT_LDFLAGS = 
++PRECOMPILE_DEPENDENCIES =
+
+diff --git a/CvGameCoreDLL/Project/Makefile.settings b/CvGameCoreDLL/Project/Makefile.settings
+new file mode 100644
+index 000000000..8acc6f47c
+--- /dev/null
++++ b/CvGameCoreDLL/Project/Makefile.settings
+@@ -0,0 +1,4 @@
++TOOLKIT=
++PSDK=
++YOURMOD=
++CIV4_PATH=
+\ No newline at end of file
+
+[PATCH OMITTED] file=a/CvGameCoreDLL/Project/bin/fastdep.exe b/CvGameCoreDLL/Project/bin/fastdep.exe reason=binary/generated-file changedLines=0 bytes=212
+
+[PATCH OMITTED] file=a/CvGameCoreDLL/Project/bin/jom.exe b/CvGameCoreDLL/Project/bin/jom.exe reason=binary/generated-file changedLines=0 bytes=200
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=5 omittedFiles=2 embeddedPatchBytes=36946

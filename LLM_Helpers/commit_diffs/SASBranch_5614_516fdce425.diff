@@ -1,0 +1,219 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5614
+# Commit: 516fdce4259a3adc268d826bd327394f4f40854a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 31de1f5929199743284eab395c8c3d722c26fde1
+# Title: add new rows (Bonuses Generated, Yields Generated), and add first column descriptions for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+70	18	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+17	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index 79dd3b544..a5781c972 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -149,6 +149,10 @@ class CvPolicyAdvisorScreen:
+ 		self.CORPORATION_AREA1_ID = "CorporationAreaWidget1"
+ 		self.CORPORATION_AREA2_ID = "CorporationAreaWidget2"
+ 		self.CORPORATION_PANEL_ID = "CorporationPanel"
++		self.CORPORATION_HEADER_BUILT_BY_ID = "CorporationHelpBuiltByHeader"
++		self.CORPORATION_HEADER_GENERATES_ID = "CorporationHelpGeneratesHeader"
++		self.CORPORATION_HEADER_GENERATES_YIELDS_ID = "CorporationHelpGeneratesYieldsHeader"
++		self.CORPORATION_HEADER_CONSUMES_ID = "CorporationHelpConsumesHeader"
+ 		self.CORPORATION_HEADER_FOUNDED_ID = "CorporationHelpFoundedHeader"
+ 		self.CORPORATION_HEADER_HEADQUARTERS_ID = "CorporationHelpHeadquartersHeader"
+ 		self.NUM_CORPORATION_PREREQ_BONUSES = None
+@@ -159,16 +163,18 @@ class CvPolicyAdvisorScreen:
+ 		self.DX_CORPORATION = 116
+ 		self.Y_CORPORATION_BUTTONS = 35
+ 		self.Y_CORPORATION_GREAT_PERSON = 57
+-		self.Y_CORPORATION_BONUSES = 77
+-		self.Y_CORPORATION_FOUNDED = 102
+-		self.Y_CORPORATION_HEADQUARTERS = 127
+-		# <!-- custom: Corporation tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
++		self.Y_CORPORATION_CONSUMES = 77
++		self.Y_CORPORATION_GENERATES_BONUS = 97
++		self.Y_CORPORATION_GENERATES = 117
++		self.Y_CORPORATION_FOUNDED = 137
++		self.Y_CORPORATION_HEADQUARTERS = 157
++		# <!-- custom: Corporations tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
+ 		self.CORPORATION_AREA_MARGIN_X = 45
+ 		self.CORPORATION_PANEL_Y = 84
+-		# <!-- custom: bonuses are now single-line; reduce top panel height and give reclaimed space to bottom city panels. (GPT-5.3-Codex) -->
+-		self.CORPORATION_PANEL_H = 165
++		# <!-- custom: top panel height expanded to fit Built by + Consumes + Generates + Founded + Headquarters rows in one panel without overlaps. (GPT-5.3-Codex) -->
++		self.CORPORATION_PANEL_H = 190
+ 		self.CORPORATION_CITY_TOP_GAP = 18
+-		# <!-- custom: empirically keep corporation tab outer margins consistent; bottom margin matches side margin. (GPT-5.3-Codex) -->
++		# <!-- custom: empirically keep corporations tab outer margins consistent; bottom margin matches side margin. (GPT-5.3-Codex) -->
+ 		self.CORPORATION_CITY_BOTTOM_GAP = 29
+ 		self.iCorporationSelected = -1
+ 
+@@ -235,7 +241,7 @@ class CvPolicyAdvisorScreen:
+ 			self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - (self.Y_CITY_AREA + self.H_CITY_AREA + self.RELIGION_STATUS_TOP_GAP) - self.RELIGION_STATUS_BOTTOM_GAP
+ 		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA - self.H_RELIGION_STATUS
+ 
+-		# <!-- custom: Corporation tab layout follows runtime Policy advisor bounds so the integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
++		# <!-- custom: Corporations tab layout follows runtime Policy advisor bounds so the integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
+ 		self.X_CORPORATION_AREA = self.CORPORATION_AREA_MARGIN_X
+ 		self.W_CORPORATION_AREA = self.W_SCREEN - 2 * self.X_CORPORATION_AREA
+ 		iCorporationColumns = gc.getNumCorporationInfos()
+@@ -372,6 +378,10 @@ class CvPolicyAdvisorScreen:
+ 		# <!-- custom: fix observed tab-switch leak from Corporation second-panel multiline entries ("Child..."); remove them explicitly when leaving the tab. (GPT-5.3-Codex) -->
+ 		screen.deleteWidget("Child" + self.CORPORATION_AREA1_ID)
+ 		screen.deleteWidget("Child" + self.CORPORATION_AREA2_ID)
++		screen.deleteWidget(self.CORPORATION_HEADER_BUILT_BY_ID)
++		screen.deleteWidget(self.CORPORATION_HEADER_GENERATES_ID)
++		screen.deleteWidget(self.CORPORATION_HEADER_GENERATES_YIELDS_ID)
++		screen.deleteWidget(self.CORPORATION_HEADER_CONSUMES_ID)
+ 		screen.deleteWidget(self.CORPORATION_HEADER_FOUNDED_ID)
+ 		screen.deleteWidget(self.CORPORATION_HEADER_HEADQUARTERS_ID)
+ 		# <!-- custom: also clear dynamic top-panel corporation labels so no stale text survives cross-tab redraws. (GPT-5.3-Codex) -->
+@@ -380,6 +390,9 @@ class CvPolicyAdvisorScreen:
+ 			screen.deleteWidget(self.getCorporationButtonName(iCorp))
+ 			screen.deleteWidget(self.getCorporationTextName(iCorp))
+ 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GreatPerson")
++			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Generates")
++			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GeneratesYields")
++			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Consumes")
+ 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "BonusList")
+ 			# <!-- custom: legacy cleanup for old wrapped bonus row widgets kept for one-way compatibility with earlier UI iterations. (GPT-5.3-Codex) -->
+ 			for iRow in range(iMaxBonusRows + 1):
+@@ -1074,7 +1087,8 @@ class CvPolicyAdvisorScreen:
+ 		iButtonOffset = self.CORPORATION_BUTTON_SIZE / 2
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+ 			szButtonName = self.getCorporationButtonName(iCorp)
+-			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, gc.getCorporationInfo(iCorp).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++			kCorpInfo = gc.getCorporationInfo(iCorp)
++			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, kCorpInfo.getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 			xLoop += self.DX_CORPORATION
+ 
+ 		xLoop = self.X_CORPORATION_START
+@@ -1092,17 +1106,18 @@ class CvPolicyAdvisorScreen:
+ 
+ 		xLoop = self.X_CORPORATION_START
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+-			szBonuses = u""
+-			for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
+-				eBonus = gc.getCorporationInfo(iCorp).getPrereqBonus(iRequired)
+-				if -1 != eBonus:
+-					if len(szBonuses) > 0:
+-						szBonuses += u", "
+-					szBonuses += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
+-			# <!-- custom: keep corporation bonuses as one natural comma-separated line (no wrapped row splitting). (GPT-5.3-Codex); done since there is enough space after expanding the Policy Advisor and it is more readable -->
+-			screen.setLabelAt(self.getCorporationTextName(iCorp) + "BonusList", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szBonuses + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_BONUSES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			# <!-- custom: cache corporation info once per column and reuse across all row renderers to avoid repeated lookups in the same draw pass. (GPT-5.3-Codex) -->
++			kCorpInfo = gc.getCorporationInfo(iCorp)
++			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Consumes", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + self.getCorporationConsumedText(kCorpInfo) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Generates", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + self.getCorporationGeneratedBonusText(kCorpInfo) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GeneratesYields", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + self.getCorporationGeneratedText(kCorpInfo) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_CORPORATION
+ 
++		# <!-- custom: explicit row labels for corporation effects to keep top-panel semantics clear after tab integration and row reordering. (GPT-5.3-Codex) -->
++		screen.setLabelAt(self.CORPORATION_HEADER_BUILT_BY_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_BUILT_BY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_CONSUMES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_CONSUMES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_YIELDS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES_2", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLoop = self.X_CORPORATION_START
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+@@ -1126,6 +1141,43 @@ class CvPolicyAdvisorScreen:
+ 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + pHeadquarters.getName() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS - 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_CORPORATION
+ 
++	def getCorporationGeneratedText(self, kCorpInfo):
++		szText = u""
++		for iYield in range(YieldTypes.NUM_YIELD_TYPES):
++			iValue = kCorpInfo.getYieldProduced(iYield)
++			if iValue != 0:
++				if len(szText) > 0:
++					szText += u", "
++				szText += u"%d%c" % (iValue, gc.getYieldInfo(iYield).getChar())
++		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
++			iValue = kCorpInfo.getCommerceProduced(iCommerce)
++			if iValue != 0:
++				if len(szText) > 0:
++					szText += u", "
++				szText += u"%d%c" % (iValue, gc.getCommerceInfo(iCommerce).getChar())
++		if len(szText) <= 0:
++			return u"-"
++		return szText
++
++	def getCorporationConsumedText(self, kCorpInfo):
++		# <!-- custom: keep consumed prerequisites as a single natural comma-separated bonus-char list; no row splitting needed at current panel width. (GPT-5.3-Codex) -->
++		szText = u""
++		for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
++			eBonus = kCorpInfo.getPrereqBonus(iRequired)
++			if eBonus != -1:
++				if len(szText) > 0:
++					szText += u", "
++				szText += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
++		if len(szText) <= 0:
++			return u"-"
++		return szText
++
++	def getCorporationGeneratedBonusText(self, kCorpInfo):
++		eBonus = kCorpInfo.getBonusProduced()
++		if eBonus == -1:
++			return u"-"
++		return u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
++
+ 	def drawCorporationCityInfo(self, iCorporation):
+ 		screen = self.getScreen()
+ 		screen.deleteWidget(self.CORPORATION_AREA1_ID)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index f078d2749..5f225b7ee 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -477,6 +477,23 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_POLICY_TAB_CORPORATIONS</Tag>
+ 		<English>Corporations</English>
+ 	</TEXT>
++	<!-- custom: Corporation row labels for Policy advisor integrated corporations tab. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_POLICY_CORP_ROW_BUILT_BY</Tag>
++		<English>Built by:</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POLICY_CORP_ROW_CONSUMES</Tag>
++		<English>Consumes:</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES</Tag>
++		<English>Generates:</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES_2</Tag>
++		<English>Generates 2:</English>
++	</TEXT>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b7c2a1fd3..e153fb5a7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -328,7 +328,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor**, and **merged the Economic Advisor's Finance Tab into the Domestic Advisor**, the **Economic Advisor's Environment Tab into the Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now tabs of these instead (deleted the old now obsolete lone advisor .py files). (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text (e.g., move Victory screen to F9 and Info Screen to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors).
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+-- (Requires AdvCiv-SAS 5522+) **Beautified** the **Policy Advisor**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline wrapped bonuses** splitting logic in the Corporation tab: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
++- (Requires AdvCiv-SAS 5522+) **Beautified** the **Policy Advisor**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with **Unit Combat and Units buttons** (i.e. icons).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=18774

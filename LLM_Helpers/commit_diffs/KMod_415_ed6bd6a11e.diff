@@ -1,0 +1,257 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 415
+# Commit: ed6bd6a11e48c757e9ec86982231c5d22063c9d4
+# History segment: K-Mod history
+# Parent used for diff: 4733a19e22a30fc3eb222efeb7b7f7084d4ab544
+# Title: Made several changes the the behaviour of UNITAI_ATTACK in AI_moveAttack. Fixed a minor problem in the original BtS code for CvUnit::setTransportUnit.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+2	0	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvUnit.cpp
+53	21	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 89d210135..b60da3cca 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1268,7 +1268,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 						}
+ 					}
+ 
+-					if( pHeadGroup->isStranded() )
++					if (!pHeadGroup->isHuman() && pHeadGroup->isStranded())
+ 					{
+ 						szString.append(CvWString::format(SETCOLR L"\n***STRANDED***" ENDCOLR, TEXT_COLOR("COLOR_RED")));
+ 					}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 886ac3b5f..73c9f27c2 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3019,6 +3019,8 @@ bool CvSelectionGroup::calculateIsStranded()
+ {
+ 	PROFILE_FUNC();
+ 
++	FAssert(!isHuman()); // K-Mod
++
+ 	if( getNumUnits() <= 0 )
+ 	{
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8fa1215b2..f4a1b5d90 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11477,7 +11477,8 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
+ 		{
+ 			m_transportUnit.reset();
+ 
+-			getGroup()->setActivityType(ACTIVITY_AWAKE);
++			if (getGroup()->getActivityType() != ACTIVITY_MISSION) // K-Mod. (the unit might be trying to walk somewhere.)
++				getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 		}
+ 
+ #ifdef _DEBUG
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8048954c2..559da7fee 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2238,10 +2238,14 @@ void CvUnitAI::AI_attackMove()
+ 	if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() && bDanger )
+ 	{
+ 		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
++		if (AI_anyAttack(1, 65, 0, 2))
++			return;
++
++		if (AI_leaveAttack(3, 50, 130))
++			return;
+ 		// K-Mod end
+ 
++		/* bbai code
+ 		if( iOurDefense < 3*iEnemyOffense )
+ 		{
+ 			if (AI_guardCity(true))
+@@ -2250,27 +2254,19 @@ void CvUnitAI::AI_attackMove()
+ 			}
+ 		}
+ 
+-		/* bbai code
+ 		if( iOurDefense > 2*iEnemyOffense )
+ 		{
+ 			if (AI_anyAttack(2, 55))
+ 			{
+ 				return;
+ 			}
+-		} */
+-		// K-Mod
+-		if (AI_anyAttack(1, 60, 0, 2))
+-			return;
+-		if (iOurDefense > iEnemyOffense && AI_anyAttack(2, 51))
+-			return;
+-		// K-Mod end
++		}
+ 
+ 		//if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, false))
+-		/*if (AI_omniGroup(UNITAI_ATTACK, 3, -1, false, 0, 1))
++		if (AI_omniGroup(UNITAI_ATTACK, 3, -1, false, 0, 1))
+ 		{
+ 			return;
+-		} */ // I fixed this, but I don't think it's really a helpful thing to do anyway.
+-		// Perhaps I should put in something like AI_defensiveCollateral. That function is pretty good...
++		} // K-Mod: I fixed this, but I don't think it's really a helpful thing to do anyway.
+ 
+ 		if( iOurDefense > 2*iEnemyOffense )
+ 		{
+@@ -2278,7 +2274,8 @@ void CvUnitAI::AI_attackMove()
+ 			{
+ 				return;
+ 			}
+-		}
++		}*/
++		// Perhaps I should put in something like AI_defensiveCollateral. That function is pretty good...
+ 	}
+ 
+ 	{
+@@ -2372,6 +2369,12 @@ void CvUnitAI::AI_attackMove()
+ 		
+ 		if (bDanger)
+ 		{
++			// K-Mod
++			if (getGroup()->getNumUnits() > 1 && AI_stackVsStack(3, 110, 65, 0))
++				return;
++			// K-Mod end
++
++			/* original bts code
+ 			if (AI_cityAttack(1, 55))
+ 			{
+ 				return;
+@@ -2380,7 +2383,7 @@ void CvUnitAI::AI_attackMove()
+ 			if (AI_anyAttack(1, 65))
+ 			{
+ 				return;
+-			}
++			} */
+ 
+ 			if (collateralDamage() > 0)
+ 			{
+@@ -2390,6 +2393,12 @@ void CvUnitAI::AI_attackMove()
+ 				}
+ 			}
+ 		}
++		// K-Mod (moved from below, and replacing the disabled stuff above)
++		if (AI_anyAttack(1, 70))
++		{
++			return;
++		}
++		// K-Mod end
+ 
+ 		if (!noDefensiveBonus())
+ 		{
+@@ -2459,10 +2468,11 @@ void CvUnitAI::AI_attackMove()
+ 			return;
+ 		}
+ 
++		/* moved up
+ 		if (AI_anyAttack(1, 70))
+ 		{
+ 			return;
+-		}
++		} */
+ 	}
+ 
+ 	{
+@@ -2470,26 +2480,43 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (bDanger)
+ 		{
+-			if (AI_pillageRange(1, 20))
++			// K-Mod - slightly more reckless than last time
++			if (getGroup()->getNumUnits() > 1 && AI_stackVsStack(3, 90, 40, 0))
++				return;
++			// K-Mod end
++
++			if (AI_pillageRange(1, 10)) // was 20
+ 			{
+ 				return;
+ 			}
+ 
++			/* original bts code
+ 			if (AI_cityAttack(1, 35))
+ 			{
+ 				return;
+-			}
++			}*/
+ 
++			// K-Mod
++			if (plot()->getTeam() == getTeam())
++			{
++				if (AI_defendTeritory(50, 0, 2))
++				{
++					return;
++				}
++			}
++			else
++			// K-Mod end
+ 			if (AI_anyAttack(1, 45))
+ 			{
+ 				return;
+ 			}
+ 
+-			if (AI_pillageRange(3, 20))
++			if (AI_pillageRange(3, 10)) // was 20
+ 			{
+ 				return;
+ 			}
+ 
++
+ 			if( getGroup()->getNumUnits() < 4 )
+ 			{
+ 				if (AI_choke(1))
+@@ -2498,6 +2525,7 @@ void CvUnitAI::AI_attackMove()
+ 				}
+ 			}
+ 
++			/* original bts code
+ 			if (AI_cityAttack(4, 30))
+ 			{
+ 				return;
+@@ -2506,7 +2534,11 @@ void CvUnitAI::AI_attackMove()
+ 			if (AI_anyAttack(2, 40))
+ 			{
+ 				return;
+-			}
++			} */
++			// K-Mod
++			if (AI_anyAttack(3, 40))
++				return;
++			// K-Mod end
+ 		}
+ 
+ 		if (!isEnemy(plot()->getTeam()))
+@@ -2613,7 +2645,7 @@ void CvUnitAI::AI_attackMove()
+ 		}
+ 
+ 		//if (AI_protect(35, 5))
+-		if (AI_defendTeritory(45, 0, 5)) // K-Mod
++		if (AI_defendTeritory(45, 0, 7)) // K-Mod
+ 		{
+ 			return;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5384

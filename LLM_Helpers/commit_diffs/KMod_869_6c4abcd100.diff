@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 869
+# Commit: 6c4abcd100e607cd29c1e6a85292649b887ca970
+# History segment: K-Mod history
+# Parent used for diff: f5d3e2bbfb1765adda009662ba24365ea2193f7c
+# Title: Fixed a grammar mistake in the original BtS text for flanking kills.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 762b1ce56..f8636058a 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -68,6 +68,15 @@
+ 		<Italian>Trasferimento dati</Italian>
+ 		<Spanish>Transfiriendo datos de la partida</Spanish>
+ 	</TEXT>
++	<!-- added missing "has", and changed "from" to "by" in the english version -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_YOUR_UNIT_DIED_BY_FLANKING</Tag>
++		<English>Your %s1_UnitName has been killed by a %s3_civilization %s2_EnUName flank attack</English>
++		<French>Votre unit&#233; [NUM2:de:d':] %s1_UnitName a &#233;t&#233; tu&#233;e suite &#224; une attaque de flanc lanc&#233;e par les %s2_EnUName (%s3_civilization)</French>
++		<German>Eure Einheit %s1_UnitName ist bei einem Flankenangriff der %s3:2_civilization Einheit %s2_EnUName umgekommen</German>
++		<Italian>La tua unit&#224; %s1_UnitName &#232; stata distrutta dall'attacco ai fianchi dell'unit&#224; %s2_EnUName %s3:2_civilization</Italian>
++		<Spanish>Un flanqueo [NUM2:del:de la:de los:de las] %s2_EnUName de la civilizaci&#243;n %s3:2_civilization ha destruido [NUM1:vuestro:vuestra:vuestros:vuestras] %s1_UnitName</Spanish>
++	</TEXT>
+ 	<!-- a couple of minor language adjustments to the unit cost text -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FINANCE_ADVISOR_UNIT_COST</Tag>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1367

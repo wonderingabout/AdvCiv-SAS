@@ -1,0 +1,677 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5485
+# Commit: 34d4d7d39242f5824ea69f7524c6995b0901bc76
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 923840f152dc0045b696f0993f8dbf0bc3301308
+# Title: Add multiple main menu music random selection (shuffle-bag) - **Randomized Opening menu music:** opening-menu soundtrack now supports **randomized playback**...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-3-471137.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3
+-	-	Assets/CvGameCoreDLL.dll
+84	3	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+161	0	Assets/XML/Audio/Audio2DScripts.xml
+49	0	Assets/XML/Audio/AudioDefines.xml
+50	0	Assets/XML/GlobalDefines_advciv_sas.xml
+54	1	CvGameCoreDLL/CvInfo_Misc.cpp
+9	1	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+7	1	_1_AdvCiv-SAS/Docs/README_References.md
+1	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-3-471137.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-3-471137.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-3-471137.mp3
+new file mode 100644
+index 000000000..5b313351f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-3-471137.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3
+new file mode 100644
+index 000000000..b3cb87b9d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784.mp3
+new file mode 100644
+index 000000000..d7d6ba281
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3
+new file mode 100644
+index 000000000..bbc839711
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3
+new file mode 100644
+index 000000000..6fd77495f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3
+new file mode 100644
+index 000000000..546d525b9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3
+new file mode 100644
+index 000000000..0beebcf9a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3 differ
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index f3dbb3b78..de3d7ff75 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -20,11 +20,77 @@
+ 
+ from CvPythonExtensions import *
+ from _sevopedia_helpers import *
++import os
+ 
+ 
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
++# <!-- custom: toggle verbose Sevopedia music path/count debug prints in PythonDbg.log; keep disabled by default to avoid log clutter, but retain for future diagnosis of mod-vs-base audio XML resolution issues. (GPT-5.3-Codex) -->
++SAS_SEVO_MUSIC_DEBUG_ENABLE = False
++
++
++def _SAS_findAssetXmlPath(szFileName, szSubDir):
++	# <!-- custom: build absolute candidate paths and prefer the mod copy; for Audio2DScripts specifically, pick the candidate that contains AS2D_OPENING_MENU_01 so Sevopedia grouping uses AdvCiv-SAS variants instead of base BTS opening entries. (GPT-5.3-Codex) -->
++	def _SAS_addCandidate(cands, szPath):
++		if not szPath:
++			return
++		try:
++			szNorm = os.path.normpath(os.path.abspath(szPath))
++		except:
++			szNorm = szPath
++		if os.path.isfile(szNorm) and (szNorm not in cands):
++			cands.append(szNorm)
++
++	def _SAS_fileContains(szPath, szNeedle):
++		try:
++			f = open(szPath, "r")
++			for line in f:
++				if szNeedle in line:
++					f.close()
++					return True
++			f.close()
++		except:
++			pass
++		return False
++
++	candidates = []
++	try:
++		szHere = os.path.dirname(__file__)
++		_SAS_addCandidate(candidates, os.path.join(szHere, "..", "..", "..", szSubDir, szFileName))
++	except:
++		pass
++
++	try:
++		import BugPath
++		try:
++			_SAS_addCandidate(candidates, os.path.join(BugPath.getModDir(), "Assets", szSubDir, szFileName))
++		except:
++			pass
++		try:
++			szAppDir = BugPath.getAppDir()
++			szModName = BugPath.getModName()
++			if szAppDir and szModName:
++				_SAS_addCandidate(candidates, os.path.join(szAppDir, "Mods", szModName, "Assets", szSubDir, szFileName))
++		except:
++			pass
++		try:
++			_SAS_addCandidate(candidates, BugPath.findAssetFile(szFileName, szSubDir))
++		except:
++			pass
++	except:
++		pass
++
++	_SAS_addCandidate(candidates, os.path.join("Assets", szSubDir, szFileName))
++
++	if szFileName == "Audio2DScripts.xml":
++		for szPath in candidates:
++			if _SAS_fileContains(szPath, "AS2D_OPENING_MENU_01"):
++				return szPath
++
++	if len(candidates) > 0:
++		return candidates[0]
++	return os.path.join("Assets", szSubDir, szFileName)
+ 
+ 
+ 
+@@ -1603,8 +1669,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 	szScript = None
+ 	szSound = None
+ 	labelSeenCounts = {}
++	iOpeningCount = 0
++	iSongCount = 0
++	szAudio2DPath = _SAS_findAssetXmlPath("Audio2DScripts.xml", os.path.join("XML", "Audio"))
+ 	try:
+-		f = open("Assets/XML/Audio/Audio2DScripts.xml", "r")
++		f = open(szAudio2DPath, "r")
+ 		for line in f:
+ 			if "<ScriptID>" in line:
+ 				szScript = _SAS_extractTagValue(line, "ScriptID")
+@@ -1612,10 +1681,13 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				szSound = _SAS_extractTagValue(line, "SoundID")
+ 			elif "</Script2DSound>" in line:
+ 				if szScript and szSound:
+-					if szSound.startswith("SONG_OPENING"):
++					# <!-- custom: classify opening tracks by either SoundID (SONG_OPENING*) or ScriptID (AS2D_OPENING_MENU*), so custom opening variants still appear in the Opening grouping even when SoundID naming differs. (GPT-5.3-Codex) -->
++					if szSound.startswith("SONG_OPENING") or szScript.startswith("AS2D_OPENING_MENU"):
+ 						szGroup = _SCRIPT_2D_OPENING
++						iOpeningCount += 1
+ 					elif szSound.startswith("SONG_"):
+ 						szGroup = _SCRIPT_2D_SONGS
++						iSongCount += 1
+ 					elif szSound.startswith("DIPLO_") or szScript.startswith("AS2D_DIPLO_"):
+ 						szGroup = _SCRIPT_2D_DIPLO
+ 					elif szSound.startswith("SND_TECH"):
+@@ -1668,7 +1740,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				szScript = None
+ 				szSound = None
+ 		f.close()
++		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
++			print("SAS_SEVO_MUSIC_2D_PATH=%s OPENING=%d SONGS=%d") % (szAudio2DPath, iOpeningCount, iSongCount)
+ 	except:
++		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
++			print("SAS_SEVO_MUSIC_2D_PARSE_FAILED path=%s") % (szAudio2DPath,)
+ 		scriptGroups = {}
+ 
+ 	for szHeader in (
+@@ -1701,8 +1777,9 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 	szScript3D = None
+ 	szSound3D = None
+ 	labelSeenCounts3D = {}
++	szAudio3DPath = _SAS_findAssetXmlPath("Audio3DScripts.xml", os.path.join("XML", "Audio"))
+ 	try:
+-		f3 = open("Assets/XML/Audio/Audio3DScripts.xml", "r")
++		f3 = open(szAudio3DPath, "r")
+ 		for line in f3:
+ 			if "<ScriptID>" in line:
+ 				szScript3D = _SAS_extractTagValue(line, "ScriptID")
+@@ -1740,7 +1817,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				szScript3D = None
+ 				szSound3D = None
+ 		f3.close()
++		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
++			print("SAS_SEVO_MUSIC_3D_PATH=%s") % (szAudio3DPath,)
+ 	except:
++		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
++			print("SAS_SEVO_MUSIC_3D_PARSE_FAILED path=%s") % (szAudio3DPath,)
+ 		script3DGroups = {}
+ 
+ 	firstCivScript3DKey = -1
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index b88429259..d1b0d2811 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -44,6 +44,167 @@
+ 		<ScriptID>AS2D_OPENING_MENU</ScriptID>
+ 		<SoundID>SONG_OPENING_MENU</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>80</iMinVolume>
++		<iMaxVolume>80</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_01</ScriptID>
++		<SoundID>SONG_OPENING_MENU_01</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_02</ScriptID>
++		<SoundID>SONG_OPENING_MENU_02</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_03</ScriptID>
++		<SoundID>SONG_OPENING_MENU_03</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_04</ScriptID>
++		<SoundID>SONG_OPENING_MENU_04</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_05</ScriptID>
++		<SoundID>SONG_OPENING_MENU_05</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_06</ScriptID>
++		<SoundID>SONG_OPENING_MENU_06</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>65</iMinVolume>
++		<iMaxVolume>65</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_OPENING_MENU_07</ScriptID>
++		<SoundID>SONG_OPENING_MENU_07</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>60</iMinVolume>
+ 		<iMaxVolume>60</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 4010b29f1..97a32f1b6 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -25,11 +25,60 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_OPENING_MENU</SoundID>
++			<Filename>Sounds/Soundtrack/OpeningMenu</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_01</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Main_Menu/music/lofi-song-330550</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_02</SoundID>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-3-471137</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_03</SoundID>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_04</SoundID>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_05</SoundID>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_06</SoundID>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_OPENING_MENU_07</SoundID>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_OPENING_MENU_VANILLA</SoundID>
+ 			<Filename>Sounds/Soundtrack/OpeningMenuCiv4</Filename>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 9a55657cf..16c6ae577 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -6,6 +6,56 @@ Created as part of AdvCiv-SAS improvements
+ -->
+ <!-- custom: Long_Comments_XML.txt #131, #195 -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
++	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled). No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: only randomize when the selected main menu soundtrack script matches this trigger script ID. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU</DefineTextVal>
++	</Define>
++	<!-- custom: opening menu script shuffle pool entries (ScriptID values from Audio2DScripts.xml); set unused slots to NONE. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_1</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_01</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_2</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_02</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_03</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_04</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_05</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_06</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7</DefineName>
++		<DefineTextVal>AS2D_OPENING_MENU_07</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8</DefineName>
++		<DefineTextVal>NONE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_9</DefineName>
++		<DefineTextVal>NONE</DefineTextVal>
++	</Define>
++
++
++
+ 	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_LAUNCH_GUARD_TEST_INT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.cpp b/CvGameCoreDLL/CvInfo_Misc.cpp
+index 16383b0b7..d6adfcfc3 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.cpp
++++ b/CvGameCoreDLL/CvInfo_Misc.cpp
+@@ -1838,7 +1838,60 @@ std::string CvMainMenuInfo::getSceneNoShader() const
+ 
+ std::string CvMainMenuInfo::getSoundtrack() const
+ {
+-	return m_szSoundtrack;
++	// <!-- custom: opening-menu music shuffle toggle; if disabled, preserve vanilla behavior and return XML soundtrack as-is. (GPT-5.3-Codex) -->
++	static const bool bSASMainMenuOpeningMusicShuffleEnable = GC.getDefineBOOL("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE");
++	if (!bSASMainMenuOpeningMusicShuffleEnable)
++		return m_szSoundtrack;
++
++	// <!-- custom: only randomize for the configured trigger script (e.g. AS2D_OPENING_MENU), so other menu profiles keep their own soundtrack untouched. (GPT-5.3-Codex) -->
++	static const CvString szSASMainMenuOpeningMusicShuffleTriggerScript = GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT");
++	if (m_szSoundtrack != szSASMainMenuOpeningMusicShuffleTriggerScript.c_str())
++		return m_szSoundtrack;
++
++	// <!-- custom: shuffle-bag state: aszAllScripts = configured pool, aszRemainingScripts = not yet played in current cycle. (GPT-5.3-Codex) -->
++	static bool bInit = false;
++	static std::vector<CvString> aszAllScripts;
++	static std::vector<CvString> aszRemainingScripts;
++	if (!bInit)
++	{
++		const CvString aszCandidates[] =
++		{
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_1"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_2"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8"),
++			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_9")
++		};
++		for (size_t i = 0; i < sizeof(aszCandidates) / sizeof(aszCandidates[0]); i++)
++		{
++			if (aszCandidates[i].empty() ||
++				aszCandidates[i].CompareNoCase("NONE") == 0)
++			{
++				continue;
++			}
++			aszAllScripts.push_back(aszCandidates[i]);
++		}
++		// <!-- custom: safety fallback: if all configured slots are NONE/empty, use trigger script so opening menu still has music. (GPT-5.3-Codex) -->
++		if (aszAllScripts.empty())
++			aszAllScripts.push_back(szSASMainMenuOpeningMusicShuffleTriggerScript);
++		aszRemainingScripts = aszAllScripts;
++		bInit = true;
++	}
++	// <!-- custom: refill bag only after all tracks were consumed once; this prevents repeats within a cycle. (GPT-5.3-Codex) -->
++	if (aszRemainingScripts.empty())
++		aszRemainingScripts = aszAllScripts;
++
++	// <!-- custom: pick uniformly from remaining bag, then erase picked script; this implements non-repeating random order per cycle. (GPT-5.3-Codex) -->
++	int const iPick = GC.getASyncRand().get(
++			static_cast<int>(aszRemainingScripts.size()),
++			"SAS main menu opening music shuffle ASYNC");
++	CvString const szPickedScript = aszRemainingScripts[iPick];
++	aszRemainingScripts.erase(aszRemainingScripts.begin() + iPick);
++	return szPickedScript;
+ }
+ 
+ std::string CvMainMenuInfo::getLoading() const
+
+diff --git a/README.md b/README.md
+index a2f7d7f14..d5ffce212 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
+ 
+@@ -139,6 +139,14 @@ Edited the .thm files so the main menu's home page feels more modern and utlizes
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG" alt="0.300_main_menu_home (2).JPG" width="250"></img>
+ 
++### Multiple random Main Menu Musics
++
++AdvCiv-SAS now supports randomized main menu music among a tunable list of many scripts, using the shuffle-bag approach: each time a save is loaded (a random music among those not played once yet) or game is exited (any music), a new music is played.
++
++These music scripts are playable via Sevopedia Music and the Sevopedia Media Player.
++
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
++
+ ### Simple Game rework
+ 
+ Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3478ef9cb..e0ebec1fd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -270,6 +270,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Main Menu)
+ 
++- (Requires AdvCiv-SAS 5485+) **Randomized Opening menu music:** opening-menu soundtrack now supports **randomized playback** from a **tunable** pool of multiple main menu scripts, using the **shuffle-bag** approach (i.e. **no repeat until all have been played**); once all configured entries have been played once, the **pool refills and shuffles again**. Change in `CvMainMenuInfo::getSoundtrack` in [CvInfo_Misc.cpp](/CvGameCoreDLL/CvInfo_Misc.cpp).
+ - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+ - Beautified the Main Menu's **Simple Game screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Simple Game rework)](/README.md#simple-game-rework).
+ - Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in Simple Game use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index 4b226a4df..8083781ad 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -44,7 +44,13 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ 
+ ### Main Menu
+ 
+-- `SONG_OPENING_MENU`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-song-330550/). Note: for an easy ctrl+f since not mentioned in asset name, the name from url is beats-lofi-song-330550, check to be sure.
++- `SONG_OPENING_MENU_01`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-song-330550/). Note: for an easy ctrl+f since not mentioned in asset name, the name from url is beats-lofi-song-330550, check to be sure.
++- `SONG_OPENING_MENU_02`: Background Music 3 - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=471137">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=471137">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/electronic-background-music-3-471137/).
++- `SONG_OPENING_MENU_03`: Background Music - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483780">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483780">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-background-music-483780/).
++- `SONG_OPENING_MENU_04`: Lofi - Lofi Chill - Lofi Girl Study - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483784">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483784">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-lofi-chill-lofi-girl-study-483784/).
++- `SONG_OPENING_MENU_05`: Lofi Music HipHop Chill - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-music-hiphop-chill-300736/).
++- `SONG_OPENING_MENU_06`: Midnight Drive: A Funky Synthwave Instrumental - Music by <a href="https://pixabay.com/users/nickpanekaiassets-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Nicholas Panek</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/synthwave-midnight-drive-a-funky-synthwave-instrumental-403041/).
++- `SONG_OPENING_MENU_07`: Funk Funky - Music by <a href="https://pixabay.com/users/prettyjohn1-54616349/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">prettyjohn1</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/funk-funk-funky-483396/).
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 4e24356cd..a76f5e16f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -253,6 +253,7 @@ The implementation still needs some minor polish, but it is as of now entirely f
+ <img src="../Images/sevopedia/0.830_sevopedia_music (2).JPG" alt="0.830_sevopedia_music (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
+ 
+ ## Sevopedia Pages individual reworks
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG
+new file mode 100644
+index 000000000..9e8f92661
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=17 omittedFiles=1 embeddedPatchBytes=33559

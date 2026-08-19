@@ -1,0 +1,290 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5798
+# Commit: 88a768728de4cdee4e34e701b1408eceea402ba9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 97e1fbe82725695da18192f7d798cf4834754ed8
+# Title: add UP/DOWN navigation support for sevopedia index too (but with select row and then highlight text for the cell instead for this multi column table, to work...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+66	21	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+10	4	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	2	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+3	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index b098dfd6f..fe0fab38b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -187,6 +187,10 @@ class SevoPediaIndex:
+ 		# without needing any category-specific branching. (Claude code Opus 4.7) -->
+ 		self.top.SAS_syncSearchPanel()
+ 		self.top.SAS_activeListRefresher = self.placeIndex
++		# <!-- custom: register Index's own arrow-key navigator and reset the cell list / cursor. UP/DOWN steps cell-by-cell in reading order (left->right, top->bottom) by re-rendering the previous and current cells with text highlight; the widget has no per-cell focus API. (Claude code Opus 4.7 + GPT-5.5) -->
++		self.top.SAS_activeKeyNavigator = self.SAS_navigateIndexTable
++		self.SAS_indexCells = []
++		self.SAS_indexCursorPos = -1
+ 
+ 		nColumns = 3
+ 		self.tableName = self.top.getNextWidgetName()
+@@ -251,62 +255,103 @@ class SevoPediaIndex:
+ 			sText = sasFontTagLabel + item[0] + SAS_FONT_TAG_CLOSE
+ 			iData1 = item[1]
+ 			iData2 = 1
++			# <!-- custom: setTableText calls now go through _SAS_indexPlaceCell so cell args are also recorded for arrow-key cursor re-render. (Claude code Opus 4.7) -->
+ 			if (type == "Tech"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTechInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTechInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iData1, iData2)
+ 			elif (type == "Unit"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getUnitInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getUnitInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iData1, iData2)
+ 			elif (type == "UnitCombat"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getUnitCombatInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getUnitCombatInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iData1, iData2)
+ 			elif (type == "Promo"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getPromotionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getPromotionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iData1, iData2)
+ 
+ 			elif (type == "Building"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2)
+ 			elif (type == "Wonder"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2)
+ 			elif (type == "Project"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getProjectInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getProjectInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iData1, iData2)
+ 			elif (type == "Specialist"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getSpecialistInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getSpecialistInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iData1, iData2)
+ 
+ 			elif (type == "Terrain"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTerrainInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTerrainInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iData1, iData2)
+ 			elif (type == "Feature"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getFeatureInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getFeatureInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iData1, iData2)
+ 			elif (type == "Bonus"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2)
+ 			elif (type == "Improv"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2)
+ 			# <!-- custom: Build rows use the normal table cell (icon + text) and rely on table selection to trigger pediaJump.
+ 			# This avoids overlay widgets that don't scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+ 			elif (type == "Build"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iData1).getTechPrereq(), iData1, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iData1).getTechPrereq(), iData1)
+ 				self.SAS_rowToBuild[iRow] = iData1
+ 
+ 			elif (type == "Civ"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2)
+ 			elif (type == "Leader"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2)
+ 			# <!-- custom: Trait rows use WIDGET_GENERAL and row-to-trait mapping like Builds. (Claude Opus 4.5) -->
+ 			elif (type == "Trait"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				self.SAS_rowToTrait[iRow] = iData1
+ 
+ 			elif (type == "Civic"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2)
+ 			elif (type == "Religion"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2)
+ 			# <!-- custom: base AdvCiv bugfix GPT-5.2-Codex found thanks, was gc.getReligionInfo(iData1).getButton() -->
+ 			elif (type == "Corporation"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2)
+ 
+ 			elif (type == "Concept"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1)
+ 			elif (type == "NewConcept"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1, CvUtil.FONT_LEFT_JUSTIFY)
++				self._SAS_indexPlaceCell(screen, iRow, iColumn, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1)
+ 		
+ 		self.iLastRow = iRow
+ 
++	# <!-- custom: helper used during placeIndex so every cell's args are remembered for arrow-key re-render. Keeps the placement loop one-line-per-type while ensuring SAS_indexCells stays in sync with what's actually drawn. (Claude code Opus 4.7) -->
++	def _SAS_indexPlaceCell(self, screen, iRow, iColumn, sText, sButton, eWidget, iData1, iData2):
++		screen.setTableText(self.tableName, iColumn, iRow, sText, sButton, eWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++		self.SAS_indexCells.append((iRow, iColumn, sText, sButton, eWidget, iData1, iData2))
++
++	# <!-- custom: cell-by-cell UP/DOWN navigation in reading order across the 3-column table. The widget has no per-cell highlight API, so the "cursor" is drawn by re-rendering the previous and current cells via setTableText with COLOR_HIGHLIGHT_TEXT (the same color the items list uses elsewhere). selectRow is called too, and the table is refocused first so its built-in row-selection visual can paint if the search bar had stolen focus. (Claude code Opus 4.7) -->
++	def SAS_navigateIndexTable(self, iDirection):
++		if not self.SAS_indexCells:
++			return False
++		iLast = len(self.SAS_indexCells) - 1
++		if self.SAS_indexCursorPos < 0:
++			if iDirection > 0:
++				iNewPos = 0
++			else:
++				iNewPos = iLast
++		else:
++			iNewPos = self.SAS_indexCursorPos + iDirection
++			if iNewPos < 0:
++				iNewPos = 0
++			elif iNewPos > iLast:
++				iNewPos = iLast
++		if iNewPos == self.SAS_indexCursorPos:
++			return False
++		screen = self.top.getScreen()
++		new = self.SAS_indexCells[iNewPos]
++		# <!-- custom: row-level visual = native blue via selectRow (deselect-prev-then-select-new, same call pattern SevoPediaMain.placeItems uses; this is the only call sequence that empirically paints addTableControlGFC selections in this widget). Cell-level visual = re-render previous cell with its original text and current cell wrapped in COLOR_HIGHLIGHT_TEXT, since selectRow has no per-cell granularity. Refocus the table first because the search bar steals focus on typing. (Claude code Opus 4.7 + GPT-5.5) -->
++		screen.setFocus(self.tableName)
++		screen.enableSelect(self.tableName, True)
++		if self.SAS_indexCursorPos >= 0:
++			prev = self.SAS_indexCells[self.SAS_indexCursorPos]
++			screen.selectRow(self.tableName, prev[0], False)
++			# Re-render the previous cell with its original (uncolored) text.
++			screen.setTableText(self.tableName, prev[1], prev[0], prev[2], prev[3], prev[4], prev[5], prev[6], CvUtil.FONT_LEFT_JUSTIFY)
++		screen.selectRow(self.tableName, new[0], True)
++		# Re-render the new cell wrapped in COLOR_HIGHLIGHT_TEXT to mark which of the row's cells is "current".
++		sHighlighted = localText.changeTextColor(new[2], self.top.COLOR_HIGHLIGHT_TEXT)
++		screen.setTableText(self.tableName, new[1], new[0], sHighlighted, new[3], new[4], new[5], new[6], CvUtil.FONT_LEFT_JUSTIFY)
++		self.SAS_indexCursorPos = iNewPos
++		return True
++
+ 	def handleInput (self, inputClass):
+ 		BugUtil.debugInput(inputClass)
+ 		# <!-- custom: search typing + CLEAR live in SevoPediaMain.handleInput; this method only
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index b3b1e7d9d..d01118fbc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -299,6 +299,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# placeItems for regular listbox categories, SevoPediaIndex.placeIndex for the Index 3-column
+ 		# table. Search handlers just invoke whichever is registered, no per-category branching. (Claude code Opus 4.7) -->
+ 		self.SAS_activeListRefresher = None
++		# <!-- custom: each searchable page also registers its UP/DOWN arrow navigator here. Normal one-column pages register SAS_navigateItemList; Index registers its own table-aware navigator. Avoids special-casing isIndexShowing() in handleInput. (Claude code Opus 4.7) -->
++		self.SAS_activeKeyNavigator = None
+ 
+ 		# <!-- custom: debounce for search bar to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
+ 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
+@@ -979,6 +981,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.SAS_lastItemsWidget = None
+ 			self.SAS_lastItemsInfo = None
+ 			self.SAS_activeListRefresher = None
++			self.SAS_activeKeyNavigator = None
+ 			if (not self.isContentsShowing()) or (self.iCategory != iCategory):
+ 				self.SAS_szSearchString = u""
+ 				# <!-- custom: reset debounce state when search is reset (chatgpt 5.2 + claude opus 4.5) -->
+@@ -1027,6 +1030,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_lastItemsWidget = None
+ 		self.SAS_lastItemsInfo = None
+ 		self.SAS_activeListRefresher = None
++		self.SAS_activeKeyNavigator = None
+ 		self.SAS_szSearchString = u""
+ 		self.SAS_keyDebounceByKey = {}
+ 		self.SAS_deleteSearchWidgets(screen)
+@@ -2285,6 +2289,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_lastItemsInfo = info
+ 		# <!-- custom: register self as the active refresher; see SAS_activeListRefresher comment. (Claude code Opus 4.7) -->
+ 		self.SAS_activeListRefresher = self._SAS_refreshLastItems
++		self.SAS_activeKeyNavigator = self.SAS_navigateItemList
+ 
+ 		# <!-- custom: search bar (top of item list) (chatgpt 5.2 + claude opus 4.5) -->
+ 		self.SAS_syncSearchPanel()
+@@ -2647,13 +2652,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 							return 1
+ 					# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+ 					# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
+-					# Handle UP arrow to navigate to previous item
++					# <!-- custom: later refactored from a direct SAS_navigateItemList call into a dispatcher that invokes whichever navigator the active page registered (SAS_navigateItemList for normal pages, SAS_navigateIndexTable for Index). (Claude code Opus 4.7) -->
+ 					elif iKey == int(InputTypes.KB_UP):
+-						if self.SAS_navigateItemList(-1):
++						nav = self.SAS_activeKeyNavigator
++						if nav is not None and nav(-1):
+ 							return 1
+-					# Handle DOWN arrow to navigate to next item
+ 					elif iKey == int(InputTypes.KB_DOWN):
+-						if self.SAS_navigateItemList(1):
++						nav = self.SAS_activeKeyNavigator
++						if nav is not None and nav(1):
+ 							return 1
+ 					# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+
+diff --git a/README.md b/README.md
+index 1cf15687e..3ac7644a0 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+ Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Battles Tab, Score tab, and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+@@ -368,7 +368,7 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
+ 
+ See also [example 0.1: added a search bar. Used in several Sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages) or the main changes guide.
+ 
+-#### Keyboard Navigation with the UP/DOWN arrows
++#### Keyboard Navigation with the UP/DOWN and LEFT/RIGHT arrows
+ 
+ Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN and LEFT/RIGHT) navigation support](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-and-leftright-navigation-support-used-in-several-sevopedia-pages).
+ 
+@@ -376,6 +376,8 @@ Update: since then, with the very nice help of GPT-5.5, added support for the LE
+ 
+ Note: as of now, as a side effect UP/DOWN scrolling is lost in tree pages (Promotions Tree and Units Tree) (due to as of now changing `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)` to `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)`) but this is a minor drawback in comparison to being able to have a smooth BACK/NEXT history instead.
+ 
++Note 2: in the Sevopedia Index, UP/DOWN moves through entries in reading order, using row selection plus text highlight for the current cell because Civ4 tables seemingly do not expose clean per-cell selection.
++
+ #### Index As Category
+ 
+ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved with GPT-5.2-Codex's big help the index from being a tab to being its own category. This should increase ease-of-access and make it better integrated with the other categories (no need to go back and forth to other pages, etc.). Note that it also implements a Sevopedia Search Bar.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 463cb10c9..c8b3c624f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -307,7 +307,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Add **Search Bar**: shared by eligible Sevopedia categories (i.e. that have an item list, including Sevopedia Index); it allows to **search** for entries using the **keyboard**. (Requires AdvCiv-SAS 5761+) **Special characters** (`()_/*+-=[]'#&~;,:!?.@\|<>`) are **supported** are supported for keyboard input with a **best-effort QWERTY/physical-key mapping** (e.g., `1` inputs `1`, and `Shift + 1` inputs `!`) because they are rarely used in Civ4 item names. An optional **clickable special-character visual keyboard** (with a `KEYS` **toggle link to hide it**) is also available. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See also [README.md (search bar)](/README.md#search-bar).
+-- Add **Keyboard Navigation**: **keyboard UP/DOWN arrow keys** allow browsing Sevopedia items in categories with item lists (e.g., Units: Axeman, Swordsman, Legionary, Worker); (Requires AdvCiv-SAS 5795+) **keyboard LEFT/RIGHT arrow keys** allow browsing previous and next pages recorded in Sevopedia history, including category pages and item pages in the same category. This matches the BACK/NEXT footer links without having to tediously move the mouse and click their positions every time. Note: Tree category pages (e.g., Promotions Tree, Units Tree) no longer use UP/DOWN arrow-key scrolling so LEFT/RIGHT Back/Next works correctly there too. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN and LEFT/RIGHT) navigation support](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-and-leftright-navigation-support-used-in-several-sevopedia-pages).
++- Add **Keyboard Navigation**: **keyboard UP/DOWN arrow keys** allow browsing Sevopedia items in categories with item lists (e.g., Units: Axeman, Swordsman, Legionary, Worker) (Requires AdvCiv-SAS 5795+) (note: in the Sevopedia Index, UP/DOWN moves through entries in reading order, using row selection plus text highlight for the current cell because Civ4 tables seemingly do not expose clean per-cell selection). **keyboard LEFT/RIGHT arrow keys** allow browsing previous and next pages recorded in Sevopedia history, including category pages and item pages in the same category. This matches the BACK/NEXT footer links without having to tediously move the mouse and click their positions every time. Note: Tree category pages (e.g., Promotions Tree, Units Tree) no longer use UP/DOWN arrow-key scrolling so LEFT/RIGHT Back/Next works correctly there too. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN and LEFT/RIGHT) navigation support](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-and-leftright-navigation-support-used-in-several-sevopedia-pages).
+ - (Requires AdvCiv-SAS 5678+) **Fix empty pages** in Sevopedia **category opening flow:** opening a category now jumps **directly to the first real entry (if any)** instead of landing on a **blank header/spacer** row first; this makes **navigation easier** and avoids **needless and disruptive BACK/NEXT history pollution**. See [KI#119](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history).
+ - (Requires AdvCiv-SAS 5729+) **Fix BACK/NEXT navigation history being lost on sevopedia exit** (e.g., to revisit AI Personality Panel pages during a game, or other categories previously visited): now **persists** during the entire **gaming session**. Added a **CLEAR** link to clear history. See [KI#125](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit).
+ - (Requires AdvCiv-SAS 5731+) Make **BACK**, **NEXT**, and **CLEAR** links **greyed** when they have **no effect** (e.g., clicking NEXT when current page is already last visited, or BACK on first page visited since last clear). This was especially confusing before the navigation history persistence fix, when after reopening sevopedia after last sevopedia exit, BACK and NEXT links would be there but produce no effect at all (previous history was lost) (links are greyed now making such absence of effect clear). Note: Legend link is not greyed but instead is hidden if a category has no legend link (if there is a legend it is always active, and if there is none is it never active, so no need for a grey link). See [KI#126](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 1cdff45c3..1072d75a7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -100,7 +100,9 @@ Note: history handling (i.e. not remembering all visited pages with the arrows i
+ 
+ Update: since then, many changes or tweaks or such have been, but notably recently we added support for LEFT/RIGHT arrows for BACK/NEXT sevopedia actions: with the very nice help of GPT-5.5, added support for the LEFT/RIGHT keyboard arrows to do BACK/NEXT Sevopedia page visited action: manually moving the mouse to BACK and NEXT footer links each time is tedious, and the LEFT/RIGHT arrows were not used anyway, so use them for this.
+ 
+-Note: as of now, as a side effect UP/DOWN scrolling is lost in tree pages (Promotions Tree and Units Tree) (due to as of now changing `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)` to `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)`) but this is a minor drawback in comparison to being able to have a smooth BACK/NEXT history instead.
++Note 2: as of now, as a side effect UP/DOWN scrolling is lost in tree pages (Promotions Tree and Units Tree) (due to as of now changing `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)` to `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)`) but this is a minor drawback in comparison to being able to have a smooth BACK/NEXT history instead.
++
++Note 3: in the Sevopedia Index, UP/DOWN moves through entries in reading order, using row selection plus text highlight for the current cell because Civ4 tables seemingly do not expose clean per-cell selection.
+ 
+ ### example 0.3: Index As Category
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG
+index 3f3db4857..077ca2659 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=28715

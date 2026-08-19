@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3686
+# Commit: 4119bd773b7dbcb099f399d8b5871fc0c70d6194
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cda7244c47431f1865963a6fa49ddff8396ce727
+# Title: Can't nuke own units and cities
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	Assets/XML/Text/CIV4GameText_advc.xml
+5	2	CvGameCoreDLL/CvGameTextMgr.cpp
+10	2	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index f97da01fd..a6a9a6514 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5456,13 +5456,21 @@
+ 	<!-- kekm.7 (advc): From CIV4GameText_BTS.xml. Was "Cannot Nuke Friendly
+ 		 Territory or Units" - that's still true, but units don't prevent
+ 		 players from firing nukes, which is what matters in this context.
+-		 And "friendly" isn't the right term. Strictly speaking, unclaimed
+-		 territory is also allowed, but I think it's OK to omit that here. -->
++		 FIS translations left unchanged. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CANT_NUKE_FRIENDS</Tag>
+-		<English>[COLOR_WARNING_TEXT]Must strike only enemy territory[COLOR_REVERT]</English>
++		<English>[COLOR_WARNING_TEXT]Cannot Strike Neutral Territory[COLOR_REVERT]</English>
+ 		<French>[COLOR_WARNING_TEXT]Impossible de lancer le missile nucl&#233;aire sur des unit&#233;s ou un territoire amis[COLOR_REVERT]</French>
+-		<German>[COLOR_WARNING_TEXT]Nur feindliches Gebiet darf getroffen werden[COLOR_REVERT]</German>
++		<German>[COLOR_WARNING_TEXT]Neutrales Gebiet darf nicht getroffen werden[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Impossibile colpire con armi nucleari il territorio e le unit&#224; amiche[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]No se pueden hacer bombardeos nucleares contra los territorios o unidades amigos[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- Also can't nuke own team's units and cities now -->
++	<TEXT>
++		<Tag>TXT_KEY_CANT_NUKE_OWN_TEAM</Tag>
++		<English>[COLOR_WARNING_TEXT]Cannot Strike Own Units and Cities[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Impossible de lancer le missile nucl&#233;aire sur des unit&#233;s ou un territoire amis[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Eigene Einheiten und St�dte d�rfen nicht getroffen werden[COLOR_REVERT]</German>
+ 		<Italian>[COLOR_WARNING_TEXT]Impossibile colpire con armi nucleari il territorio e le unit&#224; amiche[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]No se pueden hacer bombardeos nucleares contra los territorios o unidades amigos[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 5d4861efb..b1dca11c3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20371,7 +20371,10 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 		TeamTypes const eVictimTeam = it->getID();
+ 		if (kHeadSelectedUnit.isNukeVictim(&kPlot, eVictimTeam) &&
+ 			!kHeadSelectedUnit.isEnemy(eVictimTeam))
+-		{	// advc.130q: No newline
++		{	// <kekm.7> (advc)
++			if (eVictimTeam == kHeadSelectedUnit.getTeam())
++				szHelp.append(gDLL->getText("TXT_KEY_CANT_NUKE_OWN_TEAM"));
++			else // </kekm.7>
+ 			szHelp.append(gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS"));
+ 			break;
+ 		}
+@@ -20391,7 +20394,7 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 					GET_TEAM(eInterceptTeam).getName().c_str(), iInterceptChance));
+ 		}
+ 	} // </advc.650>
+-	szHelp += NEWLINE; // advc.130q
++	szHelp += NEWLINE; // kekm.7
+ }
+ 
+ /*	advc.004c: (Beginning based on getNukePlotHelp; the defense damage part is akin
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 91e10df71..2a7cf1de6 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3697,14 +3697,22 @@ bool CvUnit::airlift(int iX, int iY)
+ // advc (comment): Says whether eTeam is a victim of this (nuke) unit if it nukes pPlot
+ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
+ {
+-	if(!GET_TEAM(eTeam).isAlive() || eTeam == getTeam())
++	// kekm.7 (advc): Not OK to nuke our own cities or units
++	if (!GET_TEAM(eTeam).isAlive()/* || eTeam == getTeam()*/)
+ 		return false;
+ 
+ 	for (SquareIter it(*pPlot, nukeRange()); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& kLoopPlot	= *it;
+-		if (kLoopPlot.getTeam() == eTeam)
++		if (kLoopPlot.getTeam() == eTeam &&
++			// kekm.7 (advc): OK to nuke our own land
++			(eTeam != getTeam() || kLoopPlot.isCity()))
++		{
+ 			return true;
++		}
++		// <kekm.7> (advc): Not OK to nuke our own units
++		if (eTeam == getTeam() && kLoopPlot.plotCheck(NULL, -1, -1, NO_PLAYER, getTeam()))
++			return true; // </kekm.7>
+ 		if (kLoopPlot.plotCheck(PUF_isCombatTeam, eTeam, getTeam()) != NULL &&
+ 			isEnemy(eTeam)) // kekm.7
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4393

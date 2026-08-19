@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 960
+# Commit: c4a6ecbc7a104dbf02e92e51f2b9064c245276d9
+# History segment: K-Mod history
+# Parent used for diff: 0f1551160c3a099913333121ea2882a9ad1f3b77
+# Title: Made some adjustments the AI's espionage evaluations.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	10	CvGameCoreDLL/CvPlayerAI.cpp
+3	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 69f6d1961..cfb5bc7af 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14552,9 +14552,14 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 							// K-Mod
+ 							// Note: I'm not allowing recursion in the building evaluation.
+ 							// This may cause the cached value to be inaccurate, but it doesn't really matter, because the building is already built!
+-							iValue += 2 * pCity->AI_buildingValue((BuildingTypes)iData, 0, 0, false, false);
++							// (first attempt)
++							/* iValue += 2 * pCity->AI_buildingValue((BuildingTypes)iData, 0, 0, false, false);
+ 							iValue *= 60 + kBuilding.getProductionCost();
+-							iValue /= 100;
++							iValue /= 100; */
++							// (second attempt) - recall that AI_buildingValue gives units of 4x commerce/turn
++							iValue += kBuilding.getProductionCost() / 2;
++							iValue += (2 + pCity->getProductionTurnsLeft((BuildingTypes)iData, 1)) * pCity->AI_buildingValue((BuildingTypes)iData, 0, 0, false, false) / 4;
++							// K-Mod end
+ 						}
+ 					}
+ 				}
+@@ -14691,8 +14696,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 					{
+ 						iValue += iCultureAmount * 3;
+ 					}*/
+-					// K-Mod - defensive use of spread culture mission. (The first "if" is really just for effeciency.)
+-					if (pCity->calculateCulturePercent(getID()) > 10)
++					// K-Mod - both offensive & defensive use of spread culture mission. (The first "if" is really just for effeciency.)
++					if (pCity->calculateCulturePercent(getID()) >= 8)
+ 					{
+ 						const CvCity* pOurClosestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), getID());
+ 						if (pOurClosestCity != NULL)
+@@ -14700,7 +14705,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 							int iDistance = pCity->cultureDistance(xDistance(pPlot->getX(), pOurClosestCity->getX()), yDistance(pPlot->getY(), pOurClosestCity->getY()));
+ 							if (iDistance < 6)
+ 							{
+-								int iMultiplier = std::min(2, (6 - iDistance) * pOurClosestCity->culturePressureFactor() / 600);
++								int iPressure = std::max(pCity->culturePressureFactor() - 100, pOurClosestCity->culturePressureFactor());
++								int iMultiplier = std::min(2, (6 - iDistance) * iPressure / 500);
+ 								iValue += iCultureAmount * iMultiplier;
+ 							}
+ 						}
+@@ -14734,15 +14740,13 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				{
+ 					iValue += 8 * iAvgFoodShortage * iAvgFoodShortage;
+ 				}*/
+-				int iAvgFoodShortage = std::max(0, iBaseUnhealth - iCityHealth) - pCity->foodDifference();
+-				iAvgFoodShortage += std::max(0, -iCityHealth) - pCity->foodDifference();
++				int iAvgFoodShortage = (std::max(0, iBaseUnhealth - iCityHealth) + std::max(0, -iCityHealth))/2 - pCity->foodDifference(true, true);
+ 
+-				iAvgFoodShortage /= 2;
+-				
+-				if( iAvgFoodShortage > 0 )
++				if (iAvgFoodShortage > 0)
+ 				{
+ 					iValue += 3 * iAvgFoodShortage * iBaseUnhealth;
+ 				}
++				// K-Mod end
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d9566c5a5..f970d3951 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -23543,6 +23543,9 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 	}
+ 	if (gUnitLogLevel > 2 && eBestMission != NO_ESPIONAGEMISSION)
+ 	{
++		// The following assert isn't a problem or a bug. I just want to know when it happens, for testing purposes.
++		FAssertMsg(!kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || GC.getEspionageMissionInfo(eBestMission).getBuyTechCostFactor() > 0 || GC.getEspionageMissionInfo(eBestMission).getDestroyProjectCostFactor() > 0, "Potentially wasteful AI use of espionage.");
++		//
+ 		logBBAI("      %S chooses %S as their best%s espionage mission (value: %d, cost: %d).", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), GC.getEspionageMissionInfo(eBestMission).getText(), bBigEspionage?" (big)":"", iBestValue, kPlayer.getEspionageMissionCost(eBestMission, eTargetPlayer, pPlot, iData, this));
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4204

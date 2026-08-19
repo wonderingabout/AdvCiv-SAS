@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3411
+# Commit: 52202ea4da499e4a34187d78f13a2a3d1ecf31a1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2c598475a0bd10f9a9463097872f3f15a7428429
+# Title: Hint and more helpful help text for Revolt spy mission
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/GameInfo/CIV4Hints.xml
+11	0	Assets/XML/Text/CIV4GameText_advc.xml
+18	0	Assets/XML/Text/CIV4GameText_advc_hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 353f81e02..f608108df 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -692,6 +692,10 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_51</Description>
+ 		</HintInfo>
++		<!-- Skip 52 -->
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_53</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -837,5 +841,11 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_51</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_52</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_53</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 802da00c8..a847781b7 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7092,5 +7092,16 @@
+ 		<Italian>[NEWLINE][SPACE][SPACE][ICON_BULLET]+1%F1_yield su caselle con %d2%F3_yield</Italian>
+ 		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]+1 %F1_yield en las casillas con %d2 %F3_yield</Spanish>
+ 	</TEXT>
++	<!-- advc.023: Originally in CIV4GameText_BTS_FourthRoundTranslation.xml.
++		 Occupation may last longer than 1 turn now. And don't use the
++		 term revolt b/c it doesn't count toward flipping the city. -->
++	<TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_HELP_REVOLT</Tag>
++		<English>Causes at least %d2 [NUM2:turn:turns] of disorder in %s1_city (setting its defenses to 0)</English>
++		<French>Provoquer la r&#233;volte de la ville : %s1_city pendant %d2 [NUM2:tour:tours]</French>
++		<German>Verursacht %d2 [NUM2:Runde:Runden] Aufruhr in %s1_city (setzt den Verteidigungs-Modifikator auf 0)</German>
++		<Italian>Provoca una rivolta a %s1_city per %d2 [NUM2:turno:turni]</Italian>
++		<Spanish>Provocar en %s1_city una revuelta durante %d2 [NUM2:turno:turnos]</Spanish>
++	</TEXT>
+ 
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index da52f5205..fc5f30ed5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -959,4 +959,22 @@
+ 	<German>(AdvCiv) Ein Paar von Atomsprengk�pfen sollte etwa 4 von 5 betroffenen Einheiten zerst�ren, ein einzlner weniger als 2 in 5. Doppelt h�lt immer noch besser, aber mit dem Original-Schadenswurf war der Unterschied noch deutlich gr��er.</German>
+ </TEXT>
+ 
++<!-- Adding to the (few) espionage hints in CIV4GameText_BTS.xml -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_52</Tag>
++	<English>When the defensive modifier of an enemy city looks formidable, consider using spies to support a city revolt just before your attack. Note, however, that such a revolt does not count toward flipping the city peacefully.</English>
++	<German>Anstatt eine stark befestigte Stadt endlos zu bombardieren, kann es sich lohnen, durch Spione eine Revolte anzuzetteln. Dadurch sinkt der Verteidigungsmodifikator kurzzeitig auf 0. Eine solche Revolte kann allerdings nicht zur friedlichen �bernehme einer Stadt beitragen.</German>
++</TEXT>
++<!-- "Usually" - if the player loses a long-held city through conquest,
++	 Spread Culture can help flip it back. Would also be nice to mention that
++	 K-Mod blocks the "espionage victory" (by not adding city culture, just
++	 tile culture based on total city culture), but I hope that espionage victory
++	 not being mentioned at all will at least make players suspect that it might
++	 no longer work. -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_53</Tag>
++	<English>Letting spies spread your culture in a foreign city can be a way of alleviating culture pressure on your nearby cities, but it's usually not effective at flipping a foreign city where your culture is already dominant.</English>
++	<German>Lassen Sie Spione Ihre Kultur in gegnerischen St�dten verbreiten, um Ihren kulturellen Einfluss dort und im Umland zu st�rken. Falls allerdings Ihre Kultur bereits vorherrschend ist, werden Sie damit - in der Regel - nicht erreichen, dass gegnerische St�dte zu Ihnen �berlaufen.</German>
++</TEXT>
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4215

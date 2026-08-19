@@ -1,0 +1,798 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4622
+# Commit: 87752f9b47f6e74151e30ec0019073dc9fd8503f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 09492e268e2ff476293870a2e4395e9cc40ef582
+# Title: rename and rework (buff) medic promotions ("I"->"1"), add new "Medic 4", rename March to "Medic (Ambulatory)" rework it too, add music promotion up links (do...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+91	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+263	160	Assets/XML/Units/CIV4PromotionInfos.xml
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+19	0	_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+ create mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index e3b8b2fb8..6794efc89 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -27707,10 +27707,9 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- K-Mod: was REFRIGERATION -->
+ 			<PrereqTech>TECH_MEDICINE</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 6624eb1b1..aa3e4b9c4 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -1029,4 +1029,95 @@
+ 			<Plural>1</Plural>
+ 		</Spanish>
+ 	</TEXT>
++
++
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_MEDIC1</Tag>
++		<English>Medic 1</English>
++		<French>
++			<Text>Medic 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Medic 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Medic 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Medic 1</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_MEDIC2</Tag>
++		<English>Medic 2</English>
++		<French>
++			<Text>Medic 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Medic 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Medic 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Medic 2</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- custom: from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_MEDIC3</Tag>
++		<English>Medic 3</English>
++		<French>Medic 3</French>
++		<German>Medic 3</German>
++		<Italian>Medic 3</Italian>
++		<Spanish>Medic 3</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_MEDIC4</Tag>
++		<English>Medic 4</English>
++		<French>Medic 4</French>
++		<German>Medic 4</German>
++		<Italian>Medic 4</Italian>
++		<Spanish>Medic 4</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_MARCH</Tag>
++		<English>Medic (Ambulatory)</English>
++		<French>
++			<Text>Medic (Ambulatory)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Medic (Ambulatory)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Medic (Ambulatory)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Medic (Ambulatory)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 0063b9da7..9df76fabc 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -54,6 +54,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 
+ -->
+@@ -1225,23 +1229,112 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Button>,Art/Interface/Buttons/Promotions/Amphibious.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,1</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+-			<Type>PROMOTION_MARCH</Type>
+-			<Description>TXT_KEY_PROMOTION_MARCH</Description>
++			<Type>PROMOTION_BLITZ</Type>
++			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
++			<Sound>AS2D_IF_LEVELUP</Sound>
++			<LayerAnimationPath>NONE</LayerAnimationPath>
++			<!-- custom: -->
++			<PromotionPrereq>PROMOTION_DRILL1</PromotionPrereq>
++			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
++			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
++			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
++			<!-- custom: reduce tech prerequirement, was TECH_MILITARY_SCIENCE -->
++			<TechPrereq>TECH_ENGINEERING</TechPrereq>
++			<StateReligionPrereq>NONE</StateReligionPrereq>
++			<bLeader>0</bLeader>
++			<!-- advc.164: No change to the value. 1 means 1 extra attack now;
++				 higher numbers work also. Set to -1 for BtS behavior
++				 (unlimited attacks). -->
++			<iBlitz>1</iBlitz>
++			<bAmphib>0</bAmphib>
++			<bRiver>0</bRiver>
++			<bEnemyRoute>0</bEnemyRoute>
++			<bAlwaysHeal>0</bAlwaysHeal>
++			<bHillsDoubleMove>0</bHillsDoubleMove>
++			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
++			<iVisibilityChange>0</iVisibilityChange>
++			<iMovesChange>0</iMovesChange>
++			<iMoveDiscountChange>0</iMoveDiscountChange>
++			<iAirRangeChange>0</iAirRangeChange>
++			<iInterceptChange>0</iInterceptChange>
++			<iEvasionChange>0</iEvasionChange>
++			<iWithdrawalChange>0</iWithdrawalChange>
++			<iCargoChange>0</iCargoChange>
++			<iCollateralDamageChange>0</iCollateralDamageChange>
++			<iBombardRateChange>0</iBombardRateChange>
++			<iFirstStrikesChange>0</iFirstStrikesChange>
++			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
++			<iEnemyHealChange>0</iEnemyHealChange>
++			<iNeutralHealChange>0</iNeutralHealChange>
++			<iFriendlyHealChange>0</iFriendlyHealChange>
++			<iSameTileHealChange>0</iSameTileHealChange>
++			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
++			<iCombatPercent>0</iCombatPercent>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<iKamikazePercent>0</iKamikazePercent>
++			<iRevoltProtection>0</iRevoltProtection>
++			<iCollateralDamageProtection>0</iCollateralDamageProtection>
++			<iPillageChange>0</iPillageChange>
++			<iUpgradeDiscount>0</iUpgradeDiscount>
++			<iExperiencePercent>0</iExperiencePercent>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitCombatMods/>
++			<DomainMods/>
++			<TerrainDoubleMoves/>
++			<FeatureDoubleMoves/>
++			<UnitCombats>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++			</UnitCombats>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<Button>,Art/Interface/Buttons/Promotions/Blitz.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,1</Button>
++		</PromotionInfo>
++		<PromotionInfo>
++			<Type>PROMOTION_COMMANDO</Type>
++			<Description>TXT_KEY_PROMOTION_COMMANDO</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>PROMOTION_COMBAT3</PromotionPrereqOr2>
+-			<!-- advc.200: was PROMOTION_DRILL3 in K-Mod; reverted -->
+-			<PromotionPrereqOr3>NONE</PromotionPrereqOr3>
+-			<TechPrereq>NONE</TechPrereq>
++			<!-- custom: reduce prerequirement, was PROMOTION_COMBAT4-->
++			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
++			<!-- advc.200: was PROMOTION_DRILL4 in K-Mod; reverted -->
++			<!-- custom: extend eligible prerequired promotions, was NONE -->
++			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
++			<!-- custom: no reason to go so far in tech tree to require it,
++			make it to the wheel for example, where roads are discovered,
++			may make more sense, was TECH_MILITARY_SCIENCE-->
++			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+-			<bEnemyRoute>0</bEnemyRoute>
+-			<bAlwaysHeal>1</bAlwaysHeal>
++			<bEnemyRoute>1</bEnemyRoute>
++			<bAlwaysHeal>0</bAlwaysHeal>
+ 			<bHillsDoubleMove>0</bHillsDoubleMove>
+ 			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
+ 			<iVisibilityChange>0</iVisibilityChange>
+@@ -1294,44 +1387,40 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/March.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,4</Button>
++			<Button>,Art/Interface/Buttons/Promotions/Commando.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,3</Button>
+ 		</PromotionInfo>
++
++
++
+ 		<PromotionInfo>
+-			<Type>PROMOTION_BLITZ</Type>
+-			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
++			<Type>PROMOTION_MEDIC1</Type>
++			<Description>TXT_KEY_PROMOTION_MEDIC1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<!-- custom: -->
+-			<PromotionPrereq>PROMOTION_DRILL1</PromotionPrereq>
+-			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
+-			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
+-			<!-- custom: reduce tech prerequirement, was TECH_MILITARY_SCIENCE -->
+-			<TechPrereq>TECH_ENGINEERING</TechPrereq>
++			<PromotionPrereq>NONE</PromotionPrereq>
++			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
++			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
++			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<!-- advc.164: No change to the value. 1 means 1 extra attack now;
+-				 higher numbers work also. Set to -1 for BtS behavior
+-				 (unlimited attacks). -->
+-			<iBlitz>1</iBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1353,7 +1442,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iEnemyHealChange>0</iEnemyHealChange>
+ 			<iNeutralHealChange>0</iNeutralHealChange>
+ 			<iFriendlyHealChange>0</iFriendlyHealChange>
+-			<iSameTileHealChange>0</iSameTileHealChange>
++			<iSameTileHealChange>10</iSameTileHealChange>
+ 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+@@ -1376,11 +1465,23 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1388,7 +1489,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -1397,29 +1498,23 @@ full order to take from for quick editing or/and copy/paste:
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Blitz.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,1</Button>
++			<Button>,Art/Interface/Buttons/Promotions/Medic1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,4</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+-			<Type>PROMOTION_COMMANDO</Type>
+-			<Description>TXT_KEY_PROMOTION_COMMANDO</Description>
++			<Type>PROMOTION_MEDIC2</Type>
++			<Description>TXT_KEY_PROMOTION_MEDIC2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>NONE</PromotionPrereq>
+-			<!-- custom: reduce prerequirement, was PROMOTION_COMBAT4-->
+-			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+-			<!-- advc.200: was PROMOTION_DRILL4 in K-Mod; reverted -->
+-			<!-- custom: extend eligible prerequired promotions, was NONE -->
+-			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
+-			<!-- custom: no reason to go so far in tech tree to require it,
+-			make it to the wheel for example, where roads are discovered,
+-			may make more sense, was TECH_MILITARY_SCIENCE-->
+-			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
++			<PromotionPrereq>PROMOTION_MEDIC1</PromotionPrereq>
++			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
++			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
++			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+-			<bEnemyRoute>1</bEnemyRoute>
++			<bEnemyRoute>0</bEnemyRoute>
+ 			<bAlwaysHeal>0</bAlwaysHeal>
+ 			<bHillsDoubleMove>0</bHillsDoubleMove>
+ 			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
+@@ -1439,7 +1534,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iNeutralHealChange>0</iNeutralHealChange>
+ 			<iFriendlyHealChange>0</iFriendlyHealChange>
+ 			<iSameTileHealChange>0</iSameTileHealChange>
+-			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
++			<iAdjacentTileHealChange>10</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+@@ -1473,11 +1568,15 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1490,17 +1589,17 @@ full order to take from for quick editing or/and copy/paste:
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Commando.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,3</Button>
++			<Button>,Art/Interface/Buttons/Promotions/Medic2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,4</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+-			<Type>PROMOTION_MEDIC1</Type>
+-			<Description>TXT_KEY_PROMOTION_MEDIC1</Description>
++			<Type>PROMOTION_MEDIC3</Type>
++			<Description>TXT_KEY_PROMOTION_MEDIC3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>PROMOTION_DRILL1</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<PromotionPrereq>PROMOTION_MEDIC2</PromotionPrereq>
++			<PromotionPrereqOr1>PROMOTION_MARCH</PromotionPrereqOr1>
++			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
++			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -1526,7 +1625,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iNeutralHealChange>0</iNeutralHealChange>
+ 			<iFriendlyHealChange>0</iFriendlyHealChange>
+ 			<iSameTileHealChange>10</iSameTileHealChange>
+-			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
++			<iAdjacentTileHealChange>10</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+@@ -1564,15 +1663,15 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -1581,17 +1680,17 @@ full order to take from for quick editing or/and copy/paste:
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Medic1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,4</Button>
++			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+-			<Type>PROMOTION_MEDIC2</Type>
+-			<Description>TXT_KEY_PROMOTION_MEDIC2</Description>
++			<Type>PROMOTION_MEDIC4</Type>
++			<Description>TXT_KEY_PROMOTION_MEDIC4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
++			<PromotionPrereq>PROMOTION_MEDIC3</PromotionPrereq>
++			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -1616,7 +1715,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iEnemyHealChange>0</iEnemyHealChange>
+ 			<iNeutralHealChange>0</iNeutralHealChange>
+ 			<iFriendlyHealChange>0</iFriendlyHealChange>
+-			<iSameTileHealChange>0</iSameTileHealChange>
++			<iSameTileHealChange>10</iSameTileHealChange>
+ 			<iAdjacentTileHealChange>10</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+@@ -1655,15 +1754,107 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++			</UnitCombats>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
++		</PromotionInfo>
++		<PromotionInfo>
++			<Type>PROMOTION_MARCH</Type>
++			<Description>TXT_KEY_PROMOTION_MARCH</Description>
++			<Sound>AS2D_IF_LEVELUP</Sound>
++			<LayerAnimationPath>NONE</LayerAnimationPath>
++			<PromotionPrereq>NONE</PromotionPrereq>
++			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
++			<PromotionPrereqOr2>PROMOTION_COMMANDO</PromotionPrereqOr2>
++			<PromotionPrereqOr3>NONE</PromotionPrereqOr3>
++			<TechPrereq>TECH_MEDICINE</TechPrereq>
++			<StateReligionPrereq>NONE</StateReligionPrereq>
++			<bLeader>0</bLeader>
++			<iBlitz>0</iBlitz>
++			<bAmphib>0</bAmphib>
++			<bRiver>0</bRiver>
++			<bEnemyRoute>0</bEnemyRoute>
++			<bAlwaysHeal>1</bAlwaysHeal>
++			<bHillsDoubleMove>0</bHillsDoubleMove>
++			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
++			<iVisibilityChange>0</iVisibilityChange>
++			<iMovesChange>0</iMovesChange>
++			<iMoveDiscountChange>0</iMoveDiscountChange>
++			<iAirRangeChange>0</iAirRangeChange>
++			<iInterceptChange>0</iInterceptChange>
++			<iEvasionChange>0</iEvasionChange>
++			<iWithdrawalChange>0</iWithdrawalChange>
++			<iCargoChange>0</iCargoChange>
++			<iCollateralDamageChange>0</iCollateralDamageChange>
++			<iBombardRateChange>0</iBombardRateChange>
++			<iFirstStrikesChange>0</iFirstStrikesChange>
++			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
++			<iEnemyHealChange>0</iEnemyHealChange>
++			<iNeutralHealChange>0</iNeutralHealChange>
++			<iFriendlyHealChange>0</iFriendlyHealChange>
++			<iSameTileHealChange>0</iSameTileHealChange>
++			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
++			<iCombatPercent>0</iCombatPercent>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<iKamikazePercent>0</iKamikazePercent>
++			<iRevoltProtection>0</iRevoltProtection>
++			<iCollateralDamageProtection>0</iCollateralDamageProtection>
++			<iPillageChange>0</iPillageChange>
++			<iUpgradeDiscount>0</iUpgradeDiscount>
++			<iExperiencePercent>0</iExperiencePercent>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitCombatMods/>
++			<DomainMods/>
++			<TerrainDoubleMoves/>
++			<FeatureDoubleMoves/>
++			<UnitCombats>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -1672,8 +1863,11 @@ full order to take from for quick editing or/and copy/paste:
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Medic2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,4</Button>
++			<Button>,Art/Interface/Buttons/Promotions/March.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,4</Button>
+ 		</PromotionInfo>
++
++
++
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_GUERILLA1</Type>
+ 			<Description>TXT_KEY_PROMOTION_GUERILLA1</Description>
+@@ -4377,97 +4571,6 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,16</Button>
+ 		</PromotionInfo>
+-		<PromotionInfo>
+-			<Type>PROMOTION_MEDIC3</Type>
+-			<Description>TXT_KEY_PROMOTION_MEDIC3</Description>
+-			<Sound>AS2D_IF_LEVELUP</Sound>
+-			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_MEDIC2</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
+-			<StateReligionPrereq>NONE</StateReligionPrereq>
+-			<bLeader>0</bLeader>
+-			<iBlitz>0</iBlitz>
+-			<bAmphib>0</bAmphib>
+-			<bRiver>0</bRiver>
+-			<bEnemyRoute>0</bEnemyRoute>
+-			<bAlwaysHeal>0</bAlwaysHeal>
+-			<bHillsDoubleMove>0</bHillsDoubleMove>
+-			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
+-			<iVisibilityChange>0</iVisibilityChange>
+-			<iMovesChange>0</iMovesChange>
+-			<iMoveDiscountChange>0</iMoveDiscountChange>
+-			<iAirRangeChange>0</iAirRangeChange>
+-			<iInterceptChange>0</iInterceptChange>
+-			<iEvasionChange>0</iEvasionChange>
+-			<iWithdrawalChange>0</iWithdrawalChange>
+-			<iCargoChange>0</iCargoChange>
+-			<iCollateralDamageChange>0</iCollateralDamageChange>
+-			<iBombardRateChange>0</iBombardRateChange>
+-			<iFirstStrikesChange>0</iFirstStrikesChange>
+-			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+-			<iEnemyHealChange>0</iEnemyHealChange>
+-			<iNeutralHealChange>0</iNeutralHealChange>
+-			<iFriendlyHealChange>0</iFriendlyHealChange>
+-			<iSameTileHealChange>15</iSameTileHealChange>
+-			<iAdjacentTileHealChange>15</iAdjacentTileHealChange>
+-			<iCombatPercent>0</iCombatPercent>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<iKamikazePercent>0</iKamikazePercent>
+-			<iRevoltProtection>0</iRevoltProtection>
+-			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+-			<iPillageChange>0</iPillageChange>
+-			<iUpgradeDiscount>0</iUpgradeDiscount>
+-			<iExperiencePercent>0</iExperiencePercent>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitCombatMods/>
+-			<DomainMods/>
+-			<TerrainDoubleMoves/>
+-			<FeatureDoubleMoves/>
+-			<UnitCombats>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-			</UnitCombats>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
+-		</PromotionInfo>
+ 		<!-- custom: may seem useless to put tech flight everytime since
+ 		we don't get air units before air flight, but may help the AI not
+ 		pick this promotion too soon for gun units. Also maybe helps to
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+index b2ba2b0af..e5b220118 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+@@ -103,3 +103,7 @@ bridge building at construction, to also gain amphibious there.
+ Amphibious promotion is also buffed "in exchange", it was
+ too weak and i wanted to buff it, added a tech requirement to prevent it.
+ Still not a big buff but should help hopefully maybe
++
++- medic is not related to combat, separating these logics while also buffing
++medic promotions. Disallow it on non-living units, which may or not get their
++specific promotion (Mechanic for example if i were to implement it)
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing b/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+new file mode 100644
+index 000000000..550325a95
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+@@ -0,0 +1,19 @@
++promotion up:
++- medic/march: harp https://www.youtube.com/watch?v=-wpL091Z7K0 or harp 2 https://www.youtube.com/watch?v=IelwVLr6T9I
++- naval: ship bell https://www.youtube.com/watch?v=nBlOblwqce4 or ship bell 2 https://www.youtube.com/watch?v=vvMK6ThY1Ss (cut at last sound until end) or/and fog horn https://www.youtube.com/shorts/vkh6kLnMGsA
++- siege promo up: boom/explosion soft sound https://www.youtube.com/watch?v=UUU8w5cV0xQ
++- mounted horse a bit loud https://www.youtube.com/watch?v=8H299dMuZ8M or/and gallop https://www.youtube.com/shorts/gd6XuhYbv1g or whispering https://www.youtube.com/watch?v=69L9NMP47CU
++- archer sound effect https://www.youtube.com/watch?v=fWGdG_NL0cU
++- air sound effect https://www.youtube.com/shorts/NDqoTQcP0I8
++- helicopter https://www.youtube.com/watch?v=QlGzLhnwJX4
++-sword: https://www.youtube.com/watch?v=E8Ced6hW45k
++- crossbow (but neeed edit it to remove first hit sound): https://www.youtube.com/watch?v=cP6OKIUtzVE
++- spear: https://www.youtube.com/watch?v=meRwEzTTneI
++- axe: https://www.youtube.com/watch?v=AGYu1za41hk
++- mace: https://www.youtube.com/watch?v=Ea_oSCknnoA
++- camel: https://www.youtube.com/shorts/fh41rEfVfDA
++- elephant: https://www.youtube.com/watch?v=Y1Y47Rz9r40
++- gun (single shot maybe or multi): https://www.youtube.com/watch?v=L44qI6vPJaw
++- gun bomber https://www.youtube.com/watch?v=cyIMrDRki4c or 
++- gun sniper https://www.youtube.com/shorts/ff-rtjpmNBU
++- explorer: default or some other sound?
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=30831

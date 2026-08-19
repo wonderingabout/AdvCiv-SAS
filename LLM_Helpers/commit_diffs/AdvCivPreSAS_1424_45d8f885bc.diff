@@ -1,0 +1,220 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1424
+# Commit: 45d8f885bc84ff60f169f178bb32115ddfaf589c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9ef6229f10327587b713afaacc0ee689c1b11b4a
+# Title: Wake up cargo when a ship reaches land
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvEnums.h
+1	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+55	6	CvGameCoreDLL/CvSelectionGroup.cpp
+7	2	CvGameCoreDLL/CvSelectionGroup.h
+2	1	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 6df21e396..e0cafd8eb 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1391,6 +1391,7 @@ enum ActivityTypes			// Exposed to Python
+ 	ACTIVITY_MISSION,
+ 	ACTIVITY_PATROL,
+ 	ACTIVITY_PLUNDER,
++	ACTIVITY_BOARDED, // advc.075
+ 
+ #ifdef _USRDLL
+ 	NUM_ACTIVITY_TYPES
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index f29fa6fdf..aff0b6efb 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -3089,6 +3089,7 @@ void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType)
+ 	case ACTIVITY_PATROL: szString = L"PATROL"; break;
+ 	case ACTIVITY_PLUNDER: szString = L"PLUNDER"; break;
+ 	// </advc.007>
++	case ACTIVITY_BOARDED: szString = L"BOARDED"; break; // advc.075
+ 	default: szString = CvWString::format(L"UNKNOWN_ACTIVITY(%d)", eActivityType); break;
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 8cc0b309d..1cc5511b4 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1571,6 +1571,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 				if (at(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
+ 				{
+ 					bDone = true;
++					handleBoarded(); // advc.075
+ 				}
+ 				break;
+ 
+@@ -2286,7 +2287,7 @@ bool CvSelectionGroup::isFull()
+ 	if(getNumUnits() <= 0)
+ 		return false;
+ 
+-	// do two passes, the first pass, we ignore units with speical cargo
++	// do two passes, the first pass, we ignore units with special cargo
+ 	int iSpecialCargoCount = 0;
+ 	int iCargoCount = 0;
+ 
+@@ -2537,8 +2538,8 @@ bool CvSelectionGroup::canMoveInto(CvPlot* pPlot, bool bAttack)
+ }
+ 
+ 
+-//bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar)
+-bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool bCheckMoves, bool bAssumeVisible) // K-Mod
++bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar,
++		bool bCheckMoves, bool bAssumeVisible) const // K-Mod
+ {
+ 	if(getNumUnits() <= 0)
+ 		return false;
+@@ -4510,6 +4511,7 @@ CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
+ 		case ACTIVITY_INTERCEPT:
+ 		case ACTIVITY_PATROL:
+ 		case ACTIVITY_PLUNDER:
++		case ACTIVITY_BOARDED: // advc.075
+ 			break;
+ 		default:
+ 			setActivityType(ACTIVITY_AWAKE);
+@@ -5037,9 +5039,7 @@ int CvSelectionGroup::getMissionData1(int iNode) const
+ int CvSelectionGroup::getMissionData2(int iNode) const
+ {
+ 	int iCount = 0;
+-	CLLNode<MissionData>* pMissionNode;
+-
+-	pMissionNode = headMissionQueueNode();
++	CLLNode<MissionData>* pMissionNode = headMissionQueueNode();
+ 
+ 	while (pMissionNode != NULL)
+ 	{
+@@ -5056,6 +5056,55 @@ int CvSelectionGroup::getMissionData2(int iNode) const
+ 	return -1;
+ }
+ 
++// <advc.075>
++void CvSelectionGroup::handleBoarded() {
++
++	if(!isHuman() || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
++		return;
++	CLLNode<MissionData>* pMissionNode = headMissionQueueNode();
++	if(pMissionNode == NULL) {
++		FAssert(pMissionNode != NULL); // MOVE_TO mission should still be queued
++		return;
++	}
++	if(nextMissionQueueNode(pMissionNode) != NULL)
++		return;
++	if(movesLeft() || !hasMoved())
++		return;
++	if(plot()->isWater() && !plot()->isAdjacentToLand())
++		return;
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
++	while(pUnitNode != NULL) {
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++		if(pLoopUnit->domainCargo() == DOMAIN_LAND && pLoopUnit->hasCargo()) {
++			std::vector<CvUnit*> aCargo;
++			pLoopUnit->getCargoUnits(aCargo);
++			for(size_t i = 0; i < aCargo.size(); i++) {
++				CvSelectionGroup* gr = aCargo[i]->getGroup();
++				if(gr == NULL) {
++					FAssert(gr != NULL);
++					continue;
++				}
++				if(gr->getActivityType() == ACTIVITY_BOARDED && gr->canDisembark())
++					gr->setActivityType(ACTIVITY_AWAKE);
++			}
++		}
++	}
++}
++
++
++bool CvSelectionGroup::canDisembark() const {
++
++	if(!plot()->isWater() && movesLeft())
++		return true;
++	for(int i = 0; i < NUM_DIRECTION_TYPES; i++) {
++		CvPlot* pAdj = plotDirection(getX(), getY(), (DirectionTypes)i);
++		if(pAdj != NULL && canMoveOrAttackInto(pAdj, false, true, false))
++			return true;
++	}
++	return false;
++} // </advc.075>
++
+ 
+ void CvSelectionGroup::read(FDataStreamBase* pStream)
+ {
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index f34da405e..070ab15c6 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -81,8 +81,10 @@ public:
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false);																		// Exposed to Python
+-	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false) { return canMoveOrAttackInto(pPlot, bDeclareWar, false); } // Exposed to Python
+-	bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool bCheckMoves/* = false (see above) */, bool bAssumeVisible = true); // K-Mod. (hack to avoid breaking the DllExport)
++	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false) {					 // Exposed to Python
++		return canMoveOrAttackInto(pPlot, bDeclareWar, false);
++	} // K-Mod. (hack to avoid breaking the DllExport)			advc.003: const
++	bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool bCheckMoves/* = false (see above) */, bool bAssumeVisible = true) const;
+ 	bool canMoveThrough(CvPlot* pPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // Exposed to Python, K-Mod added bDeclareWar and bAssumeVisible
+ 	bool canFight();																																										// Exposed to Python 
+ 	bool canDefend();																																										// Exposed to Python
+@@ -211,6 +213,9 @@ public:
+ 	int getMissionType(int iNode) const;																														// Exposed to Python
+ 	int getMissionData1(int iNode) const;																														// Exposed to Python
+ 	int getMissionData2(int iNode) const;																														// Exposed to Python
++	// <advc.075>
++	void handleBoarded();
++	bool canDisembark() const; // </advc.075>
+ 
+ 	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7148ee2a0..35d40de4e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12080,7 +12080,8 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
+ 
+ 			if (getDomainType() != DOMAIN_AIR)
+ 			{
+-				getGroup()->setActivityType(ACTIVITY_SLEEP);
++				//getGroup()->setActivityType(ACTIVITY_SLEEP);
++				getGroup()->setActivityType(ACTIVITY_BOARDED); // advc.075
+ 			}
+ 
+ 			if (GC.getGameINLINE().isFinalInitialized())
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 09433fd3d..517550c36 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1004,6 +1004,7 @@ void CyEnumsPythonInterface()
+ 		.value("ACTIVITY_MISSION", ACTIVITY_MISSION)
+ 		.value("ACTIVITY_PATROL", ACTIVITY_PATROL)
+ 		.value("ACTIVITY_PLUNDER", ACTIVITY_PLUNDER)
++		.value("ACTIVITY_BOARDED", ACTIVITY_BOARDED) // advc.075
+ 		.value("NUM_ACTIVITY_TYPES", NUM_ACTIVITY_TYPES)
+ 		;
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=7480

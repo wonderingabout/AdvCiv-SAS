@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4015
+# Commit: bd1cf3d799160a6e39cc53f359dbee92de617caa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2a99ee3a5f9bcb8f64bc03d83dbe4912a10bb3c5
+# Title: Minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlotGroup.cpp
+5	8	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/GroupPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index b6228ab47..02f138afd 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -140,7 +140,7 @@ void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
+ 			int const iOldCount = getLengthPlots();
+ 			CvPlot& kPlot = GC.getMap().getPlot(
+ 					pPlotNode->m_data.iX, pPlotNode->m_data.iY);
+-			int iCount;/*= 0;
++			/*int iCount= 0;
+ 			gDLL->getFAStarIFace()->SetData(&GC.getPlotGroupFinder(), &iCount);
+ 			gDLL->getFAStarIFace()->GeneratePath(&GC.getPlotGroupFinder(),
+ 					kPlot.getX(), kPlot.getY(), -1, -1, false, eOwner);*/
+@@ -153,7 +153,7 @@ void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
+ 			static CvPlotGroupSizeCheck check;
+ 			check.reset(GET_PLAYER(eOwner), iOldCount + 1);
+ 			DepthFirstPlotSearch<CvPlotGroupSizeCheck> dfs(kPlot, check);
+-			iCount = check.getCount();
++			int iCount = check.getCount();
+ 			FAssert(iCount <= iOldCount); // </advc.pf>
+ 			if (iCount == iOldCount)
+ 				return;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f45c12698..249cee91e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13112,10 +13112,10 @@ bool CvUnitAI::AI_exploreRange(int iRange)
+ 	CvPlot* pBestExplorePlot = NULL;
+ 
+ 	bool const bAnyImpassable = GET_PLAYER(getOwner()).AI_isAnyImpassable(getUnitType());
+-	CvTeam const& kTeam = GET_TEAM(getTeam()); // K-Mod
+-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // advc
++	CvTeamAI const& kTeam = GET_TEAM(getTeam()); // K-Mod
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	CvMap const& kMap = GC.getMap();
+-
++	MovementFlags const eFlags = MOVE_NO_ENEMY_TERRITORY;
+ 	int const iSearchRange = AI_searchRange(iRange);
+ 	for (SquareIter it(*this, iSearchRange, false); it.hasNext(); ++it)
+ 	{
+@@ -13169,11 +13169,8 @@ bool CvUnitAI::AI_exploreRange(int iRange)
+ 		{
+ 			int iPathTurns;
+ 			PROFILE("AI_exploreRange Path");
+-			if (!generatePath(p,
+-				MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns, iRange))
+-			{
++			if (!generatePath(p, eFlags, true, &iPathTurns, iRange))
+ 				continue;
+-			}
+ 			if (iPathTurns > iRange)
+ 				continue;
+ 		}
+@@ -13247,7 +13244,7 @@ bool CvUnitAI::AI_exploreRange(int iRange)
+ 	if (pBestPlot != NULL && pBestExplorePlot != NULL)
+ 	{
+ 		PROFILE("AI_exploreRange push");
+-		pushGroupMoveTo(*pBestPlot, MOVE_NO_ENEMY_TERRITORY, false, false,
++		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
+ 				MISSIONAI_EXPLORE, pBestExplorePlot);
+ 		return true;
+ 	}
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 27253fd4b..84f3f8d54 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -503,7 +503,7 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 		FOR_EACH_UNIT_IN(pGroupUnit, kGroup)
+ 		{
+ 			if (!pGroupUnit->canFight())
+-				continue; // advc
++				continue;
+ 			iDefenceCount++;
+ 			if (pGroupUnit->canDefend(&kTo))
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3025

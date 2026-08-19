@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3471
+# Commit: 6308fed687991481f695dc2844ba61b4dc8e67db
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ae1d0c2c460a660016961792e1d8d6d865033a69
+# Title: AI doesn't liberate cities when that'll hurt culture wars
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	13	CvGameCoreDLL/CvCity.cpp
+11	1	CvGameCoreDLL/CvCity.h
+39	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 526c4e131..4382084c2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10373,18 +10373,6 @@ void CvCity::doCulture()
+ 	changeCultureTimes100(getOwner(), getCommerceRateTimes100(COMMERCE_CULTURE), false, true);
+ }
+ 
+-// advc: Replacing local variable in doPlotCultureTimes100
+-namespace
+-{
+-	int iPLOT_CULTURE_EXTRA_RANGE = 3;
+-}
+-
+-// advc: Was 10 as a local variable. Should still be 10.
+-int CvCity::plotCultureScale()
+-{	
+-	return GC.getNumCultureLevelInfos() + iPLOT_CULTURE_EXTRA_RANGE;
+-}
+-
+ /*	This function has essentially been rewritten for K-Mod.
+ 	(and it used to not be 'times 100') */
+ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+@@ -10405,7 +10393,7 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+ 	/*	(iScale-1)(iDistance - iRange)^2/(iRange^2) + 1
+ 		This approximates the exponential pretty well */
+ 	int const iScale = plotCultureScale();
+-	int const iCultureRange = eCultureLevel + iPLOT_CULTURE_EXTRA_RANGE;
++	int const iCultureRange = eCultureLevel + plotCultureExtraRange();
+ 
+ 	if (bCityCulture)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 1fb828988..7369cc248 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -27,7 +27,17 @@ public:
+ 	/*	K-Mod. public for the "insert culture" espionage mission.
+ 		(I've also changed the functionality of it quite a bit.) */
+ 	void doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture);
+-	static int plotCultureScale(); // advc.120j
++	/*	advc.120j: Was 10 as a local variable (doPlotCultureTimes100).
++		Should still be 10. */
++	static int plotCultureScale()
++	{
++		return GC.getNumCultureLevelInfos() + plotCultureExtraRange();
++	}
++	// advc.ctr: Replacing local variable in doPlotCultureTimes100
++	static int plotCultureExtraRange()
++	{
++		return 3;
++	}
+ 
+ 	bool isCitySelected();
+ 	DllExport bool canBeSelected() const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 61c953387..9f917bd0e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22059,7 +22059,8 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 			!GET_TEAM(kToPlayer.getTeam()).isVassal(getTeam()));
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+ 	CvTeam const& kToTeam = GET_TEAM(eToPlayer);
+-	bool const bNonColonialVassal = (kToTeam.isVassal(getTeam()) &&
++	bool const bToVassal = kToTeam.isVassal(kOurTeam.getID());
++	bool const bNonColonialVassal = (bToVassal &&
+ 			!kOurTeam.isParent(kToTeam.getID()));
+ 	if (bNonColonialVassal && kToTeam.isCapitulated() &&
+ 		/*	Even if they pay for the city, it's probably not worth letting a
+@@ -22156,6 +22157,41 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 						scaled(TeamIter<EVER_ALIVE>::count()).sqrt();
+ 				rEnemyTradeFactor = (rEnemyTradeFactor + fixp(5/3.)) / fixp(8/3.); // dilute
+ 			}
++			// Don't sabotage ourselves in nearby border conflicts
++			scaled rPlotCultureFactor = 1;
++			int const iOurCultureLevel = kCity.getCultureLevel();
++			int const iTheirCultureLevel = kCity.calculateCultureLevel(eToPlayer);
++			int const iRange = std::max(iOurCultureLevel, iTheirCultureLevel) +
++					/*	Stop one short of the full culture range; culture spread
++						to the final ring should be pretty insignificant. */
++					CvCity::plotCultureExtraRange() - 1;
++			if (iRange > GC.getDefineINT(CvGlobals::MIN_CITY_RANGE))
++			{
++				bool const bToTrustedVassal = (bToVassal &&
++						(kToPlayer.getParent() == getID() || kToTeam.isCapitulated()));
++				for (PlotCircleIter itPlot(kCity.getPlot(), iRange, false);
++					itPlot.hasNext(); ++itPlot)
++				{
++					if (!itPlot->isCity() ||
++						itPlot->getPlotCity()->getOwner() != getID())
++					{
++						continue;
++					}
++					scaled rOurCulture = per100(
++							itPlot->calculateCulturePercent(getID()));
++					if (rOurCulture < fixp(0.58))
++					{
++						rPlotCultureFactor += scaled(3, itPlot.currPlotDist()) *
++						// (Doesn't really matter just how little culture we have)
++								(fixp(0.4) * std::max(iOurCultureLevel, 1) +
++								(bToTrustedVassal ? 0 :
++								per100(itPlot->calculateCulturePercent(eToPlayer)) *
++								std::max(iTheirCultureLevel, 1)));
++						if (rPlotCultureFactor > fixp(8/3.))
++							return false;
++					}
++				}
++			}
+ 			// City mustn't be too valuable to us
+ 			{
+ 				scaled rSizeDiffFactor = 1;
+@@ -22168,8 +22204,8 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 					rSizeDiffFactor = scaled::min(rTheirPopToOurs + fixp(0.375), 1);
+ 				}
+ 				scaled rTotalYieldVal = AI_totalYieldVal();
+-				if (iKeepVal * rEnemyTradeFactor > rSizeDiffFactor * rTotalYieldVal /
+-					(18 - iAttitudeLevel))
++				if (iKeepVal * rEnemyTradeFactor * rPlotCultureFactor >
++					rSizeDiffFactor * rTotalYieldVal / (18 - iAttitudeLevel))
+ 				{
+ 					return false;
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5035

@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2267
+# Commit: 782c875a7793de2db2295968192c7012d93bce4f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d23bbc7c8701658504cc1f4034b862746019ff96
+# Title: ScaledNum: Minor amendments to the prev. 2 commits
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/ScaledNum.h
+3	3	CvGameCoreDLL/ScaledNumTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index de42f26ca..99e1fa81d 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -145,7 +145,7 @@ public:
+ 	static IntType MAX() { return INTMAX / SCALE; }
+ 	static IntType MIN() { return INTMIN / SCALE; }
+ 
+-	/*	Factory function for creating fractions (with wrapper macros per100).
++	/*	Factory function for creating fractions (with wrapper macro 'fixp').
+ 		Numerator and denominator as template parameters ensure
+ 		that the conversion to SCALE happens at compile time, so that
+ 		floating-point math can be used for maximal accuracy. */
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index 1212b6f98..5ba39c4de 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -17,7 +17,7 @@ TYPEDEF_SCALED_ENUM(1024,int,CurrCombatStr)
+ 	at compile time.) */
+ void TestScaledNum()
+ {
+-#ifndef SCALED_INT_TEST
++#ifndef SCALED_NUM_TEST
+ 	return;
+ #else
+ 
+@@ -368,7 +368,7 @@ void TestScaledNum()
+ 	{
+ 		for (int i = 0; i < 10; i++)
+ 		{
+-			//	Result: 2087 cycles on average (scaled_int w/ MulDiv).
++			//	Result: 2087 cycles on average (scaled w/ MulDiv).
+ 			//	672 for scaled_uint, 579 for scaled_uint w/o overflow handling.
+ 			//	394 if the per100 arguments are also cast to uint.
+ 			//TSC_PROFILE("CONST_MODIFIERS_SCALED");
+@@ -436,5 +436,5 @@ void TestScaledNum()
+ 		FAssert(false);
+ 		CvGlobals::getInstance().getLogging() = true;
+ 	}
+-#endif // SCALED_INT_TEST
++#endif // SCALED_NUM_TEST
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1540

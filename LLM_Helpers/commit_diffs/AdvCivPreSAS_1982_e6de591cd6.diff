@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1982
+# Commit: e6de591cd6db2cc89e64b8e536203dad1d71bd4a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8672396f414d621e4a72d35fadd0d0ec9b014066
+# Title: Some minor changes to the project setup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+6	0	CvGameCoreDLL/CvGameCoreDLL.h
+0	2	CvGameCoreDLL/CvPlayerAI.cpp
+0	2	CvGameCoreDLL/CvTeam.h
+0	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	1	CvGameCoreDLL/Project/Makefile
+1	1	CvGameCoreDLL/Project/Makefile.project
+5	5	CvGameCoreDLL/ScaledInt.h
+0	1	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 748193ccf..2515405df 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -9,7 +9,6 @@
+ #include "CvCity.h"
+ #include "RiseFall.h" // advc.706
+ #include "UWAIAgent.h" // advc.ctr
+-#include <iterator>
+ 
+ using std::set;
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 9a77cb02a..5fbe83d86 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -14,6 +14,10 @@
+ #pragma warning( disable: 4530 )	// C++ exception handler used, but unwind semantics are not enabled
+ 
+ #define WIN32_LEAN_AND_MEAN
++// <advc.fract> Otherwise, classes in the PCH can't have members named "max" and "min".
++#ifndef NOMINMAX
++	#define NOMINMAX
++#endif // </advc.fract>
+ #include <windows.h>
+ #include <MMSystem.h>
+ #if defined _DEBUG && !defined USE_MEMMANAGER
+@@ -28,10 +32,12 @@
+ #include <assert.h>
+ #include <map>
+ #include <hash_map>
++#include <iterator> // advc
+ // K-Mod
+ #include <set>
+ #include <utility>
+ #include <algorithm>
++#include <queue> // k146
+ // K-Mod end
+ 
+ #define DllExport   __declspec( dllexport )
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 86d812378..3f69b4e7a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20,8 +20,6 @@
+ #include "BBAILog.h"
+ #include "CvPopupInfo.h"
+ #include "FAStarNode.h"
+-#include <iterator> // advc.036
+-#include <queue> // k146
+ 
+ //#define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY			(20) // was 25
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 05455fc41..63869a349 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -5,8 +5,6 @@
+ #ifndef CIV4_TEAM_H
+ #define CIV4_TEAM_H
+ 
+-#include <queue> // dlph.26
+-
+ class CvArea;
+ 
+ class CvTeam /* advc.003e: */ : private boost::noncopyable
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index e1a71bc42..c1cda1038 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -8,7 +8,6 @@
+ #include "CoreAI.h"
+ #include "CvCity.h"
+ #include "CvInfo_GameOption.h"
+-#include <iterator>
+ 
+ using std::ostringstream;
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 8f6f911a6..3c615c982 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -28,7 +28,7 @@
+ #   FINAL_RELEASE, which merely disables the OutputDebugString function from
+ #   debugapi.h. That's used for all non-debug builds.]
+ # CvGameCoreDLL.rc used only for final release.
+-# Use /arch:SSE2 for all release builds (Erik had added it only final releases).
++# Use /arch:SSE2 for all release builds.
+ 
+ ## User setup
+ ##
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index 32c46c0ad..8118bd8a4 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -6,7 +6,7 @@ PROJECT_Debug_CFLAGS = /Ob1
+ PROJECT_DebugOpt_CFLAGS = /DFASSERT_ENABLE
+ # DLL-internal profiler: /DUSE_INTERNAL_PROFILER
+ # Time Stamp Counter profiler: /DUSE_TSC_PROFILER
+-# External profiler, e.g. Very Sleepy: /Z7 (for debugging symbols)
++# External profiler, e.g. Very Sleepy: No profile flags needed; profile builds always use Z7.
+ # Standard Firaxis profiler (not sure if this can work w/o access to the EXE): /DFP_PROFILE_ENABLE
+ PROJECT_Profile_CFLAGS = /DUSE_INTERNAL_PROFILER
+ PROJECT_LDFLAGS = /DEF:CvGameCoreDLL.def
+
+diff --git a/CvGameCoreDLL/ScaledInt.h b/CvGameCoreDLL/ScaledInt.h
+index 05945c56f..4a3a3dee3 100644
+--- a/CvGameCoreDLL/ScaledInt.h
++++ b/CvGameCoreDLL/ScaledInt.h
+@@ -56,10 +56,6 @@ class ScaledInt
+ public:
+ 	static INT const MAX;
+ 	static INT const MIN;
+-	/*	MAX and MIN aren't compile-time constants (they would be in C++11).
+-		We also don't have SIZE_MAX (cstdint) and
+-		no boost::integer_traits<INT>::const_max. */
+-	//BOOST_STATIC_ASSERT(SCALE*SCALE < MAX);
+ 
+ 	/*	Factory function for creating fractions (with wrapper macros per100).
+ 		Numerator and denominator as template parameters ensure
+@@ -558,7 +554,7 @@ private:
+ 		if (m_i < SCALE / 64)
+ 			return 0;
+ 		/*	Recall that: If x=y+z, then b^x=(b^y)*(b^z).
+-						 If b=a*c, then b^z=(a^z)*(c^z). */
++						 If b=a*c, then b^x=(a^x)*(c^x). */
+ 		// Split rExp into the sum of an integer and a (scaled) fraction between 0 and 1
+ 		// Running example: 5.2^2.1 at SCALE 1024, i.e. (5325/1024)^(2150/1024)
+ 		INT expInt = rExp.m_i / SCALE; // 2 in the example
+@@ -621,6 +617,10 @@ template<int SCALE, class INT>
+ INT const ScaledInt<SCALE,INT>::MAX = std::numeric_limits<INT>::max();
+ template<int SCALE, class INT>
+ INT const ScaledInt<SCALE,INT>::MIN = std::numeric_limits<INT>::min();
++/*	MAX and MIN aren't compile-time constants (they would be in C++11).
++	We also don't have SIZE_MAX (cstdint) and
++	no boost::integer_traits<INT>::const_max. */
++//BOOST_STATIC_ASSERT(SCALE*SCALE < MAX);
+ 
+ template<int SCALE, class INT>
+ char ScaledInt<SCALE,INT>::szBuf[] = {};
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 265b2fb31..581028e28 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -14,7 +14,6 @@
+ #include "CvMap.h"
+ #include "CvArea.h"
+ #include "RiseFall.h" // advc.705
+-#include <iterator>
+ 
+ using std::vector;
+ using std::set;
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=5401

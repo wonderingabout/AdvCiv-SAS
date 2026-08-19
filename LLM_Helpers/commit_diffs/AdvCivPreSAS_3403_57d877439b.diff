@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3403
+# Commit: 57d877439bf0b979d2965e8d145c5a1cfb9ceb38
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9ee37b3ca563cdbf1a1908fe0cea53caee6bcb6a
+# Title: Reduce cap for cities counted for maintenance
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/GlobalDefines_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index da0b5fe02..178b38fe3 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1199,14 +1199,14 @@
+ 		 the player's city count (including half the number of vassal cities)
+ 		 gets capped at an upper bound equal to MAX_CITY_COUNT_FOR_MAINTENANCE
+ 		 divided by (100+iNumCitiesMaintenancePercent); see Civ4WorldInfo
+-		 about the divisor. Recommended: 51, which results in a cap of 42 on
+-		 Huge maps. Not tested much.
++		 about the divisor. Recommended: 31, which results in a cap of 25 on
++		 Huge maps.
+ 		 BtS behavior (a cap between 4 and 8) can be restored through
+ 		 Civ4HandicapInfos.xml and MAX_CITY_COUNT_FOR_MAINTENANCE > 7.
+ 		 Use a very high value, say, 1000, for K-Mod behavior (no cap). -->
+ 	<Define>
+ 		<DefineName>MAX_CITY_COUNT_FOR_MAINTENANCE</DefineName>
+-		<iDefineIntVal>51</iDefineIntVal>
++		<iDefineIntVal>31</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.190c: This concerns the probability distribution for civs and
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1061

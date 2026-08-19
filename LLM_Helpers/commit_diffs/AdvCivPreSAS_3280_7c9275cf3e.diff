@@ -1,0 +1,86 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3280
+# Commit: 7c9275cf3eba138545a83e2062d2c120cc15e9e2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ecfa02402afa8dc2b3d790579239b6958afa05af
+# Title: R&F: Reset decaying city production upon human takeover
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	0	CvGameCoreDLL/RiseFall.cpp
+1	0	CvGameCoreDLL/RiseFall.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index c24923486..4bda5db80 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -551,6 +551,7 @@ void RiseFall::welcomeToNextChapter(int pos) {
+ 	setPlayerName();
+ 	CvPlayer& p = GET_PLAYER(ch.getCiv());
+ 	p.verifyCivics();
++	resetProductionDecay(p.getID());
+ 	// Doing this in setUIHidden has no effect
+ 	if(gDLL->getEngineIFace()->isGlobeviewUp())
+ 		gDLL->getEngineIFace()->toggleGlobeview();
+@@ -563,6 +564,35 @@ void RiseFall::welcomeToNextChapter(int pos) {
+ 	updateOffLimits();
+ }
+ 
++void RiseFall::resetProductionDecay(PlayerTypes civId) {
++
++	/*	Production decay affects only humans, so the AI ignores it.
++		Don't want human to suffer for that after assuming control.
++		Well, mainly, I don't want humans to be distracted by (BULL) decay warnings.
++		I'm setting the accumulated production to 0 iff decay has already started.
++		Either way, the decay timer gets reset to 0. */
++	int iBuildingThresh = GC.getDefineINT(CvGlobals::BUILDING_PRODUCTION_DECAY_TIME) *
++			GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent();
++	int iUnitThresh = GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_TIME) *
++			GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
++	FOR_EACH_CITY_VAR(pCity, GET_PLAYER(civId)) {
++		FOR_EACH_ENUM(Building) {
++			if (pCity->getBuildingProduction(eLoopBuilding) <= 0)
++				continue;
++			if (pCity->getBuildingProductionTime(eLoopBuilding) * 100 > iBuildingThresh)
++				pCity->setBuildingProduction(eLoopBuilding, 0);
++			pCity->setBuildingProductionTime(eLoopBuilding, 0);
++		}
++		FOR_EACH_ENUM(Unit) {
++			if (pCity->getUnitProduction(eLoopUnit) <= 0)
++				continue;
++			if (pCity->getUnitProductionTime(eLoopUnit) * 100 > iUnitThresh)
++				pCity->setUnitProduction(eLoopUnit, 0);
++			pCity->setUnitProductionTime(eLoopUnit, 0);
++		}
++	}
++}
++
+ void RiseFall::centerCamera(PlayerTypes civId) {
+ 
+ 	if(GET_PLAYER(civId).hasCapital()) {
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index a29438f25..0fecf651d 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -88,6 +88,7 @@ private:
+ 	PlayerTypes nextCivAlive(PlayerTypes startExcluded) const;
+ 	void setPlayerControl(PlayerTypes civId, bool b);
+ 	void welcomeToNextChapter(int pos);
++	void resetProductionDecay(PlayerTypes civId);
+ 	void centerCamera(PlayerTypes civId);
+ 	void showDoW();
+ 	void showQuests();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2445

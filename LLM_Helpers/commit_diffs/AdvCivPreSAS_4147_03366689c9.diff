@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4147
+# Commit: 03366689c93022857d8f77229fe8a2bbd8fd2b49
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 85514a8a969f7fbc52b22fd0e3f554717c4bd291
+# Title: Minor refactor
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+31	31	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2983f3cf7..3d8d71ce7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11541,7 +11541,7 @@ void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildType
+ 								{
+ 									/*	could use more sophisticated logic
+ 										however this would rely on things like 
+-										mart irrigation chaining of out-of-city plots */
++										smart irrigation chaining of out-of-city plots */
+ 									eBestIrrigationPlot = pDistTwoPlot;
+ 									break;
+ 								}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index edc1dd0e6..18f0c57b6 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -10804,38 +10804,38 @@ void CvUnit::collateralCombat(CvPlot const* pPlot, CvUnit const* pSkipUnit)
+ 	for (int i = 0; i < iPossibleTargets; i++)
+ 	{
+ 		CvUnit& kTargetUnit = *::getUnit(aTargetUnits[i].second);
+-
+-		if (getUnitCombatType() == NO_UNITCOMBAT ||
+-			!kTargetUnit.m_pUnitInfo->getUnitCombatCollateralImmune(getUnitCombatType()))
+-		{
+-			int iTheirStrength = kTargetUnit.baseCombatStr();
+-			int iStrengthFactor = ((iCollateralStrength + iTheirStrength + 1) / 2);
+-			/*	advc (note): This makes the damage proportional to (3*r + 1) / (3 + r)
+-				where r is the ratio of the attacker's to the defender's base combat str.
+-				This ratio is used again a few lines below in the iMaxDamage formula. */
+-			int iCollateralDamage = (GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE) *
+-					(iCollateralStrength + iStrengthFactor)) /
+-					(iTheirStrength + iStrengthFactor);
+-			iCollateralDamage *= 100 + getExtraCollateralDamage();
+-			iCollateralDamage *= std::max(0, 100 - kTargetUnit.getCollateralDamageProtection());
++		if (getUnitCombatType() != NO_UNITCOMBAT &&
++			kTargetUnit.m_pUnitInfo->getUnitCombatCollateralImmune(getUnitCombatType()))
++		{
++			continue;
++		}
++		int iTheirStrength = kTargetUnit.baseCombatStr();
++		int iStrengthFactor = ((iCollateralStrength + iTheirStrength + 1) / 2);
++		/*	advc (note): This makes the damage proportional to (3*r + 1) / (3 + r)
++			where r is the ratio of the attacker's to the defender's base combat str.
++			This ratio is used again a few lines below in the iMaxDamage formula. */
++		int iCollateralDamage = (GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE) *
++				(iCollateralStrength + iStrengthFactor)) /
++				(iTheirStrength + iStrengthFactor);
++		iCollateralDamage *= 100 + getExtraCollateralDamage();
++		iCollateralDamage *= std::max(0, 100 - kTargetUnit.getCollateralDamageProtection());
++		iCollateralDamage /= 100;
++		if (pCity != NULL)
++		{
++			iCollateralDamage *= 100 + pCity->getAirModifier();
+ 			iCollateralDamage /= 100;
+-			if (pCity != NULL)
+-			{
+-				iCollateralDamage *= 100 + pCity->getAirModifier();
+-				iCollateralDamage /= 100;
+-			}
+-			iCollateralDamage = std::max(0, iCollateralDamage/100);
+-			int iMaxDamage = std::min(collateralDamageLimit(),
+-					(collateralDamageLimit() *
+-					(iCollateralStrength + iStrengthFactor)) /
+-					(iTheirStrength + iStrengthFactor));
+-			int iUnitDamage = std::max(kTargetUnit.getDamage(),
+-					std::min(kTargetUnit.getDamage() + iCollateralDamage, iMaxDamage));
+-			if (kTargetUnit.getDamage() != iUnitDamage)
+-			{
+-				kTargetUnit.setDamage(iUnitDamage, getOwner());
+-				iDamageCount++;
+-			}
++		}
++		iCollateralDamage = std::max(0, iCollateralDamage/100);
++		int iMaxDamage = std::min(collateralDamageLimit(),
++				(collateralDamageLimit() *
++				(iCollateralStrength + iStrengthFactor)) /
++				(iTheirStrength + iStrengthFactor));
++		int iUnitDamage = std::max(kTargetUnit.getDamage(),
++				std::min(kTargetUnit.getDamage() + iCollateralDamage, iMaxDamage));
++		if (kTargetUnit.getDamage() != iUnitDamage)
++		{
++			kTargetUnit.setDamage(iUnitDamage, getOwner());
++			iDamageCount++;
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3874

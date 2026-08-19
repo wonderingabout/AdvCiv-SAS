@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1813
+# Commit: 4a0813590b1e7df8ac866d12c49a6a7d7e2e1034
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1abeeb7564d95a52116b389017de6376e4064198
+# Title: Fix recently introduced crash
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 90539c65d..359da7ce4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10731,7 +10731,8 @@ bool CvUnitAI::AI_barbAmphibiousCapture()
+ 	for(int i = 0; i < GC.getNumDirections(); i++)
+ 	{
+ 		CvPlot* pPlot = plotDirection(plot()->getX(), plot()->getY(), (DirectionTypes)i);
+-		// <advc.306>
++		if (pPlot == NULL)
++			continue;		// <advc.306>
+ 		if(pPlot->getTeam() != NO_TEAM && pPlot->area()->isBorderObstacle(pPlot->getTeam()))
+ 			continue; // </advc.306>
+ 		/*  Undefended city (perhaps unnecessary; not sure if the assault routine
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=634

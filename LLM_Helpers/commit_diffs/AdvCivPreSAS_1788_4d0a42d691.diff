@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1788
+# Commit: 4d0a42d6918ac9ba808e67ac0ed72ce801d465cf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9bfd09a5337d5703c82a887d15077ebd5e1a533d
+# Title: Don't "force" on-screen messages when in Globe view
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	7	CvGameCoreDLL/CvDLLInterfaceIBase.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIBase.cpp b/CvGameCoreDLL/CvDLLInterfaceIBase.cpp
+index f55f31797..393b8df2a 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIBase.cpp
++++ b/CvGameCoreDLL/CvDLLInterfaceIBase.cpp
+@@ -22,9 +22,10 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
+ 		!kPlayer.isHumanDisabled() &&
+ 		GC.getGame().getRiseFall().isDeliverMessages(ePlayer)))
+ 	{	// </advc.700>
+-		addMessageExternal(ePlayer, bForce, iLength, szString, pszSound, eType,
+-				pszIcon, eFlashColor, iFlashX, iFlashY, bShowOffScreenArrows,
+-				bShowOnScreenArrows);
++		addMessageExternal(ePlayer, bForce
++				&& !gDLL->getEngineIFace()->isGlobeviewUp(), // advc.106
++				iLength, szString, pszSound, eType, pszIcon, eFlashColor, iFlashX, iFlashY,
++				bShowOffScreenArrows, bShowOnScreenArrows);
+ 	}
+ 	//else if (GC.getGame().getActivePlayer() == ePlayer)
+ 	// advc.700: Replacing the above
+@@ -35,10 +36,8 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
+ 				eType == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY) // advc.106b
+ 		{
+ 			addMessageExternal(ePlayer,
+-				/*  advc.127: bForce=true causes the event to be announced
+-					immediately, whereas bForce=false seems to delay the
+-					announcement until the start of the next turn (until the
+-					preceding event has been on display long enough?).
++				/*  advc.127: bForce=true causes the event to be announced immediately,
++					whereas bForce=false delays the announcement until the start of the next turn.
+ 					bForce=true should make Auto Play easier to follow.
+ 					Also set pszSound to NULL; no sounds during Auto Play. */
+ 					true, iLength, szString, NULL, eType, NULL,
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1681

@@ -1,0 +1,543 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5502
+# Commit: 4a0682c481e5665aea90836b19d173da1839d208
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 886d38063156406ddb5c55b06e4e357dbd8e9d2a
+# Title: add leader attitude and action buttons in sevopedia leader import from AdvCiv-SAS-NIF-Gallery
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds
+173	19	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+11	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+21	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+3	3	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+4	4	Assets/XML/Text/AdvCiv-SAS_Core.xml
+2	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds
+new file mode 100644
+index 000000000..9a4aeb4ba
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds
+new file mode 100644
+index 000000000..40d2a18f6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds
+new file mode 100644
+index 000000000..dca621fbb
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds
+new file mode 100644
+index 000000000..23481234e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds
+new file mode 100644
+index 000000000..c7be44874
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 3fdc0fa4d..1458ff1fa 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -40,6 +40,22 @@ localText = CyTranslator()
+ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
+ IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
++IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
++SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
++SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
++SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
++	AttitudeTypes.ATTITUDE_FURIOUS,
++	AttitudeTypes.ATTITUDE_ANNOYED,
++	AttitudeTypes.ATTITUDE_CAUTIOUS,
++	AttitudeTypes.ATTITUDE_PLEASED,
++	AttitudeTypes.ATTITUDE_FRIENDLY,
++)
++SAS_LEADER_ACTION_PREVIEW_ORDER = (
++	(LeaderheadAction.NO_LEADERANIM, u"no"),
++	(LeaderheadAction.LEADERANIM_GREETING, u"gr"),
++	(LeaderheadAction.LEADERANIM_AGREE, u"ag"),
++	(LeaderheadAction.LEADERANIM_DISAGREE, u"dg"),
++)
+ 
+ # <!-- custom: keep debug flag available in this module for existing debug print sites. -->
+ IS_DEBUG_LEADER = _SAS_LeaderAIPValues.IS_DEBUG_LEADER
+@@ -63,6 +79,28 @@ class SevoPediaLeader:
+ 	def __init__(self, main):
+ 		self.iLeader = -1
+ 		self.top = main
++		self.iSelectedAttitude = AttitudeTypes.ATTITUDE_PLEASED
++		self.ATTITUDE_SELECTED_EMOJI_SIZE = 24
++		self.ATTITUDE_UNSELECTED_EMOJI_SIZE = 12
++		self.attitudeButtonLabelCache = {}
++		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_FURIOUS] = (u"fu", u"FU")
++		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_ANNOYED] = (u"an", u"AN")
++		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_CAUTIOUS] = (u"ca", u"CA")
++		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_PLEASED] = (u"pl", u"PL")
++		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_FRIENDLY] = (u"fr", u"FR")
++		self.attitudeSelectedEmojiPathByAttitude = {}
++		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_FURIOUS] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_FURIOUS").getPath()
++		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_ANNOYED] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_ANNOYED").getPath()
++		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_CAUTIOUS] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_CAUTIOUS").getPath()
++		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_PLEASED] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_PLEASED").getPath()
++		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_FRIENDLY] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_FRIENDLY").getPath()
++		self.ATTITUDES_PANEL_ID = "SevoPediaLeaderAttitudesPanel"
++		self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE = {}
++		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
++			self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude] = "SevoPediaLeaderAttitudeBtn%d" % iAttitude
++		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
++		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
++			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
+ 
+ 		self.X_LEADERHEAD_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_LEADERHEAD_PANE = self.top.Y_PEDIA_PAGE
+@@ -85,8 +123,8 @@ class SevoPediaLeader:
+ 		
+ 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.N_AI_TABLE_NUM = 3
+-		self.AI_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_AI_PERSONALITY_LEGEND")
+-		self.AI_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
++		self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
++		self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
+ 
+ 		# <!-- custom: 2) (most) relative dimensions or positions then -->
+ 
+@@ -116,6 +154,10 @@ class SevoPediaLeader:
+ 		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_MUSIC
+ 		self.Y_MUSIC = self.Y_FAVORITES
+ 		self.H_MUSIC = self.H_FAVORITES
++		self.X_ATTITUDES = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
++		self.Y_ATTITUDES = self.Y_FAVORITES
++		self.W_ATTITUDES = self.X_MUSIC - self.X_ATTITUDES - self.SMALL_MARGIN
++		self.H_ATTITUDES = self.H_FAVORITES
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
+@@ -157,11 +199,11 @@ class SevoPediaLeader:
+ 		self.placeLeaderHeadPane()
+ 		self.placeFavorites()
+ 		self.placeMusic()
++		self.placeAttitudes()
+ 		self.placeHistory()
+ 		self.placeCiv()
+ 		self.placeTraits()
+-		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+-			self.placeAILegendLink()
++		self.placeLegendLink()
+ 
+ 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
+ 		#
+@@ -179,7 +221,7 @@ class SevoPediaLeader:
+ 		leaderPanelWidget = self.top.getNextWidgetName()
+ 		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		self.leaderWidget = self.top.getNextWidgetName()
+-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 
+ 
+@@ -222,17 +264,113 @@ class SevoPediaLeader:
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+ 
+ 
++	def placeAttitudes(self):
++		if self.W_ATTITUDES <= 0:
++			return
++
++		screen = self.top.getScreen()
++		self.deleteAttitudeWidgets(screen)
++		# <!-- custom: add direct mood buttons in the center gap (between Favorites and Music) so clicking previews leader attitude animations without keyboard-only hotkeys. (GPT-5.3-Codex) -->
++		screen.addPanel(self.ATTITUDES_PANEL_ID, "", "", False, True, self.X_ATTITUDES, self.Y_ATTITUDES, self.W_ATTITUDES, self.H_ATTITUDES, PanelStyles.PANEL_STYLE_BLUE50)
++
++		iRowGap = 4
++		iTopPadding = 8
++		iBottomPadding = 8
++		# <!-- custom: simple manual Y nudge for the two attitude/action rows as one block; increase to move both rows lower. (GPT-5.3-Codex) -->
++		iVerticalNudgeY = 3
++		iButtonH = (self.H_ATTITUDES - iTopPadding - iBottomPadding - iRowGap) / 2
++		if iButtonH < 16:
++			iButtonH = 16
++
++		attitudeOrder = SAS_LEADER_ATTITUDE_PREVIEW_ORDER
++		iAttitudeCount = len(attitudeOrder)
++		iAttitudeSpacing = 3
++		iAttitudePadding = 6
++		iAttitudeButtonW = (self.W_ATTITUDES - 2 * iAttitudePadding - iAttitudeSpacing * (iAttitudeCount - 1)) / iAttitudeCount
++		if iAttitudeButtonW < 16:
++			iAttitudeSpacing = 2
++			iAttitudePadding = 4
++			iAttitudeButtonW = (self.W_ATTITUDES - 2 * iAttitudePadding - iAttitudeSpacing * (iAttitudeCount - 1)) / iAttitudeCount
++		if iAttitudeButtonW < 14:
++			iAttitudeButtonW = 14
++		iAttitudeTotalW = iAttitudeCount * iAttitudeButtonW + (iAttitudeCount - 1) * iAttitudeSpacing
++		iAttitudeX = self.X_ATTITUDES + (self.W_ATTITUDES - iAttitudeTotalW) / 2
++		iAttitudeY = self.Y_ATTITUDES + iTopPadding + iVerticalNudgeY
++		iSelectedEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
++		iUnselectedEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
++
++		# <!-- custom: We tested the city-screen filter-style GFC checkbox DDS route here (similar to CvMainInterface building filter buttons),
++		# but icon sizing could not be controlled independently enough in this attitude row. Keeping inline <img> gives reliable per-button size
++		# control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
++		for iAttitude in attitudeOrder:
++			szWidget = self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude]
++			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
++				szEmojiPath = self.attitudeSelectedEmojiPathByAttitude[iAttitude]
++				iEmojiSize = iUnselectedEmojiSize
++				if iAttitude == self.iSelectedAttitude:
++					iEmojiSize = iSelectedEmojiSize
++				szLabel = u"<img=%s size=%d></img>" % (szEmojiPath, iEmojiSize)
++				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
++			else:
++				szLabel = self.getAttitudeButtonLabel(iAttitude)
++				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
++			iAttitudeX += iAttitudeButtonW + iAttitudeSpacing
++
++		iActionCount = len(SAS_LEADER_ACTION_PREVIEW_ORDER)
++		iActionSpacing = 3
++		iActionPadding = 6
++		iActionButtonW = (self.W_ATTITUDES - 2 * iActionPadding - iActionSpacing * (iActionCount - 1)) / iActionCount
++		if iActionButtonW < 16:
++			iActionSpacing = 2
++			iActionPadding = 4
++			iActionButtonW = (self.W_ATTITUDES - 2 * iActionPadding - iActionSpacing * (iActionCount - 1)) / iActionCount
++		if iActionButtonW < 14:
++			iActionButtonW = 14
++		iActionTotalW = iActionCount * iActionButtonW + (iActionCount - 1) * iActionSpacing
++		iActionX = self.X_ATTITUDES + (self.W_ATTITUDES - iActionTotalW) / 2
++		iActionY = iAttitudeY + iButtonH + iRowGap
++
++		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
++			szWidget = self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction]
++			screen.setButtonGFC(szWidget, szLabel, "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
++			iActionX += iActionButtonW + iActionSpacing
++
++
++	def deleteAttitudeWidgets(self, screen):
++		screen.deleteWidget(self.ATTITUDES_PANEL_ID)
++		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
++			screen.deleteWidget(self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude])
++		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
++			screen.deleteWidget(self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction])
++
++
++	def getAttitudeButtonLabel(self, iAttitude):
++		szLabelLower, szLabelUpper = self.attitudeButtonLabelCache[iAttitude]
++		if iAttitude == self.iSelectedAttitude:
++			return szLabelUpper
++		return szLabelLower
++
++
++	def refreshLeaderheadWidget(self):
++		if self.iLeader < 0:
++			return 0
++		screen = self.top.getScreen()
++		screen.deleteWidget(self.leaderWidget)
++		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		return 1
++
+ 
+-	def placeAILegendLink(self):
++
++	def placeLegendLink(self):
+ 		if not IS_SAS_SHOW_LEGEND_LINK:
+ 			return
+-		if self.AI_LEGEND_NEW_CONCEPT_ID < 0:
++		if self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID < 0:
+ 			return
+ 		screen = self.top.getScreen()
+ 		screen.setText(
+ 			self.top.getNextWidgetName(),
+ 			"Background",
+-			self.AI_LEGEND_LINK_TEXT,
++			self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT,
+ 			CvUtil.FONT_LEFT_JUSTIFY,
+ 			self.top.X_TOC,
+ 			self.top.Y_BOT_PANEL + 16,
+@@ -240,7 +378,7 @@ class SevoPediaLeader:
+ 			FontTypes.TITLE_FONT,
+ 			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+ 			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+-			self.AI_LEGEND_NEW_CONCEPT_ID
++			self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID
+ 		)
+ 
+ 
+@@ -383,6 +521,12 @@ class SevoPediaLeader:
+ 
+ 
+ 	def handleInput (self, inputClass):
++		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
++			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
++				return self.applyLeaderAttitude(inputClass.getData2())
++			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ACTION:
++				return self.applyLeaderAction(inputClass.getData2())
++
+ 		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
+ 		# consider removing or remapping here. (GPT-5.2-Codex) -->
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
+@@ -393,20 +537,30 @@ class SevoPediaLeader:
+ 			elif (inputClass.getData() == int(InputTypes.KB_7)):
+ 				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.LEADERANIM_AGREE)
+ 			elif (inputClass.getData() == int(InputTypes.KB_1)):
+-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_FRIENDLY)
+-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
++				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_FRIENDLY)
+ 			elif (inputClass.getData() == int(InputTypes.KB_2)):
+-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_PLEASED)
+-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
++				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_PLEASED)
+ 			elif (inputClass.getData() == int(InputTypes.KB_3)):
+-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_CAUTIOUS)
+-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
++				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_CAUTIOUS)
+ 			elif (inputClass.getData() == int(InputTypes.KB_4)):
+-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_ANNOYED)
+-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
++				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_ANNOYED)
+ 			elif (inputClass.getData() == int(InputTypes.KB_5)):
+-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_FURIOUS)
+-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
++				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_FURIOUS)
+ 			else:
+ 				self.top.getScreen().leaderheadKeyInput(self.leaderWidget, inputClass.getData())
+ 		return 0
++
++
++	def applyLeaderAttitude(self, iAttitude):
++		if iAttitude not in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
++			return 0
++		self.iSelectedAttitude = iAttitude
++		# <!-- custom: force-refresh the leaderhead widget so attitude changes show immediately on click; mood-only updates can be visually ignored while another anim is still running. (GPT-5.3-Codex) -->
++		self.refreshLeaderheadWidget()
++		self.placeAttitudes()
++		return 1
++
++
++	def applyLeaderAction(self, iAction):
++		self.top.getScreen().performLeaderheadAction(self.leaderWidget, iAction)
++		return 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index ddc935b44..9be301600 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -2190,6 +2190,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
+ 					self.pediaEraChart.dumpCsvLog()
+ 					return 1
++			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
++			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
++			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
++				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
++					return self.pediaLeader.applyLeaderAttitude(iData2)
++			# <!-- custom: route Sevopedia leader action preview buttons (no/greeting/agree/disagree) here as the same fallback path used for attitude buttons. (GPT-5.3-Codex) -->
++			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ACTION:
++				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
++					return self.pediaLeader.applyLeaderAction(iData2)
+ 
+ 		return 0
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+@@ -2206,6 +2215,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def deleteAllWidgets(self):
+ 		screen = self.getScreen()
++		# <!-- custom: SevoPediaLeader attitude preview widgets use fixed IDs, so they are not covered by the sequential getNextWidgetName deletion loop; remove them explicitly to prevent persistence across category changes. (GPT-5.3-Codex) -->
++		self.pediaLeader.deleteAttitudeWidgets(screen)
+ 		iNumWidgets = self.nWidgetCount
+ 		self.nWidgetCount = 0
+ 		for i in range(iNumWidgets):
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 4bf48a37b..bb46dee7a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1884,5 +1884,26 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- custom: extracted from GameFont_75.tga that had them with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf (since we couldn't insert them in sevopedia leader attitude buttons easily) to .PNG and then converted to .dds with Paint.NET -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_ATTITUDE_FURIOUS</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_ATTITUDE_ANNOYED</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_ATTITUDE_CAUTIOUS</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_ATTITUDE_PLEASED</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_ATTITUDE_FRIENDLY</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds</Path>
++		</InterfaceArtInfo>
+ 	</InterfaceArtInfos>
+ </Civ4ArtDefines>
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 1899fa645..21a41b0c3 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -24,9 +24,9 @@
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+ 		<NewConceptInfo>
+-			<Type>CONCEPT_SAS_AI_PERSONALITY_LEGEND</Type>
+-			<Description>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND_PEDIA</Civilopedia>
++			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 930cec021..c920a66ac 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -81,6 +81,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Sevopedia Leader attitude button style; 1 = show emojis on all attitude buttons (selected/unselected sizes differ in Python), 0 = text labels with uppercase selected fallback (FU/AN/CA/PL/FR). (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: master toggle for Sevopedia Leader AI personality feature; 0 disables both cache computation and panel/legend display, 1 enables them. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE</DefineName>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 86f88b83b..90d181ef1 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -133,11 +133,11 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND</Tag>
+-		<English>AI Personality Legend</English>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Tag>
++		<English>Sevopedia Leader Legend</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND_PEDIA</Tag>
+-		<English>[H1]AI Personality Legend[\H1][PARAGRAPH:2]- 1st column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W on Fr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))[PARAGRAPH:2]- 2nd column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.[PARAGRAPH:2]- 3rd column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50)))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read.[PARAGRAPH:2]See docs for details about the AI Personality Panel, notably _1_AdvCiv-SAS\Docs\README_AI_Personality_Panel.md. </English>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Tag>
++		<English>[H1]Sevopedia Leader Legend[\H1][PARAGRAPH:2][H2]Attitude / Action Buttons[\H2][PARAGRAPH:2]- Attitude buttons row (top): pick the leader mood preview shown in the 3D leaderhead. Emoji mode uses icons (furious, annoyed, cautious, pleased, friendly); text mode uses FU/AN/CA/PL/FR.[PARAGRAPH:2]- Action buttons row (bottom): trigger animation preview (no/idle reset, greeting, agree, disagree) for the selected leader.[PARAGRAPH:2][H2]AI Personality Panel Legend[\H2][PARAGRAPH:2]- 1st column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W on Fr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))[PARAGRAPH:2]- 2nd column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.[PARAGRAPH:2]- 3rd column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50)))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read.[PARAGRAPH:2]See docs for details about the AI Personality Panel, notably _1_AdvCiv-SAS\Docs\README_AI_Personality_Panel.md. </English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 6f33030e8..2b7175c5d 100644
+--- a/README.md
++++ b/README.md
+@@ -392,6 +392,8 @@ Another significant contribution from our AI helpers is the new Traits Charts, t
+ 
+ Based on it, we notably also made, in Sevopedia Improvement, a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement.
+ 
++Another notable addition is the new sevopedia leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
++
+ Here is below a sample of the example screenshots showing the AI Personality panel, Traits Charts, and the many other reworks we did in Sevopedia in AdvCiv-SAS:
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b2b7a55ad..c438e089b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -307,7 +307,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Civilizations: Add **cities panel**. Add optional **grouping by Art style** (e.g. European, Asian).
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). Also added a clickable **"Legend"** (can be hidden) link that **redirects** to Sevopedia Concepts' corresponding legend. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. Also added a clickable **"Legend"** (can be hidden) link that **redirects** to Sevopedia Concepts' corresponding legend. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+ - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. See [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 1594559b5..adebd62e3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -275,6 +275,8 @@ More recently, we also added linking from the traits panel's textual description
+ 
+ More recently, added optional grouping by civilization with a civilization icon, with the help of GPT-5.3-Codex thanks.
+ 
++More recently, added leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
++
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index cf1235bc4..3955c9cff 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+index c492b9e30..df7c03261 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+index e0611963e..70c066c53 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (2).JPG
+index 99625d2fc..38591842e 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (3).JPG
+index 38591842e..99625d2fc 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG
+index 4c6b8f4bd..19de3f6a5 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG
+index edc460202..07ff92bc8 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=21 omittedFiles=0 embeddedPatchBytes=41990

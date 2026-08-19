@@ -1,0 +1,66 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4646
+# Commit: f9d9c595d730a65f200b82eabb2a17df497b1b4a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ac4bc48449d2104e20c89480ddb83140b3cdae9a
+# Title: minor beautify center further icons in Unit Chart header labels
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 42e5821c4..706480518 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -143,15 +143,15 @@ class SevoPediaUnitChart:
+ 			szAirRange = u"Air Range"
+ 			
+ 			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
+-			screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szAirEvasion + u" </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 9, u"<font=2>        " + szCost + u"        </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 9, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
+ 
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				UnitInfo = gc.getUnitInfo(iUnit)
+@@ -171,13 +171,13 @@ class SevoPediaUnitChart:
+ 
+ 		else:
+ 			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
+-			screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
+ 			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdraw + u" </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", self.W_NUM)
++			screen.setTableColumnHeader(table, 7, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
+ 
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				UnitInfo = gc.getUnitInfo(iUnit)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3292

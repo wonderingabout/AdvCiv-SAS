@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1885
+# Commit: 3c99f281643deb793534c983d463d7c009aae181
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e400b5183ec979e233a9735ddb1950395d6bbfd3
+# Title: Fix some assertions on player death
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	CvGameCoreDLL/CvDeal.cpp
+2	4	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 0a99969f9..dfc4e2109 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -1007,6 +1007,11 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 	PlayerTypes eCancelPlayer) // advc.130p  advc: refactored
+ {
+ 	bool bTeamTradeEnded = false; // advc.133
++	/*	<advc> Skip some steps when a trade ends throgh the defeat of one party -
++		to avoid failed assertions */
++	bool bAlive = (GET_PLAYER(eFromPlayer).isAlive() && GET_PLAYER(eToPlayer).isAlive());
++	if (!bAlive)
++		bUpdateAttitude = false; // </advc>
+ 	switch(trade.m_eItemType)
+ 	{
+ 	case TRADE_RESOURCES:
+@@ -1023,6 +1028,8 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 	case TRADE_VASSAL:
+ 	case TRADE_SURRENDER:
+ 	{
++		if (!bAlive)
++			break;
+ 		bool bSurrender = (trade.m_eItemType == TRADE_SURRENDER);
+ 		// Canceled b/c of failure to protect vassal?
+ 		bool bDeniedHelp = false;
+@@ -1068,7 +1075,8 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 			/*if(eCancelPlayer == NULL || GET_TEAM(eCancelPlayer).AI_openBordersTrade(
+ 					TEAMID(eCancelPlayer == eToPlayer ? eFromPlayer : eToPlayer)) !=
+ 					DENIAL_NO_GAIN)*/
+-			addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_OPEN_BORDERS);
++			if (bAlive)
++				addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_OPEN_BORDERS);
+ 			/* (This class really shouldn't be adding cancellation
+ 				memory as this is an AI thing; but BtS does it that way too.) */
+ 			// </advc.130p>
+@@ -1081,8 +1089,8 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 		{
+ 			endTeamTrade(TRADE_DEFENSIVE_PACT, TEAMID(eFromPlayer), TEAMID(eToPlayer));
+ 			bTeamTradeEnded = true; // advc.133
+-			// advc.130p:
+-			addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_DEFENSIVE_PACT);
++			if (bAlive)  // advc.130p:
++				addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_DEFENSIVE_PACT);
+ 		}
+ 		break;
+ 
+@@ -1098,7 +1106,7 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 	// </advc.034>
+ 	default: FAssert(false);
+ 	} // <advc.036>
+-	if(!bUpdateAttitude)
++	if (!bUpdateAttitude)
+ 		return; // </advc.036>
+ 	// <advc.133> (I think this is needed even w/o change 133 canceling more deals)
+ 	if(!bTeamTradeEnded)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7aef6df04..ac94484a0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11155,12 +11155,10 @@ void CvPlayer::changeGoldPerTurnByPlayer(PlayerTypes eIndex, int iChange)
+ 		m_aiGoldPerTurnByPlayer[eIndex] = (m_aiGoldPerTurnByPlayer[eIndex] + iChange);
+ 
+ 		if (getID() == GC.getGame().getActivePlayer())
+-		{
+ 			gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+-		}
+ 
+-		if (!isHuman())
+-		{
++		if (!isHuman() /* advc: */ && isAlive())
++		{			// ^Can get called while canceling deals of a dying player
+ 			AI().AI_doCommerce();
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2917

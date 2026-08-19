@@ -1,0 +1,593 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3156
+# Commit: 0c4bd84a716240c6c6889acaa15b51a1d9ce5105
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 50b2b7ecfab37ab87349a773d39e2d2ffbc5b528
+# Title: Production decay warnings from BULL
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	6	Assets/Config/BUG City Screen.xml
+6	2	Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+4	4	Assets/Python/Screens/CvMainInterface.py
+20	9	Assets/XML/Text/BUG City Screen Options.xml
+13	9	Assets/XML/Text/BULL_CIV4GameText.xml
+43	4	CvGameCoreDLL/CvCity.cpp
+13	6	CvGameCoreDLL/CvCity.h
+62	2	CvGameCoreDLL/CvGameTextMgr.cpp
+2	0	CvGameCoreDLL/CvGameTextMgr.h
+6	0	CvGameCoreDLL/CvGlobals.h
+36	0	CvGameCoreDLL/CyCity.cpp
+9	0	CvGameCoreDLL/CyCity.h
+9	0	CvGameCoreDLL/CyCityInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index f1ecf7c77..472e6d7be 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -108,23 +108,25 @@
+ 			
+ 			<!-- Production Decay by EmperorFool [BULL] -->
+ 			<!-- Queue -->
+-			<option id="ProductionDecayQueue" key="Production Decay Queue" dll="1" 
+-					type="boolean" default="True" dirtyBit="InfoPane" get="isShowProductionDecayQueue"/>
+-			<list   id="ProductionDecayQueueBuildingThreshold" key="Production Decay Queue Building Threshold" dll="1" 
++			<!-- advc.094: dll=1 attributes removed; default was True. -->
++			<option id="ProductionDecayQueue" key="Production Decay Queue"
++					type="boolean" default="False" dirtyBit="InfoPane" get="isShowProductionDecayQueue"/>
++			<list   id="ProductionDecayQueueBuildingThreshold" key="Production Decay Queue Building Threshold"
+ 					type="int" default="10" dirtyBit="InfoPane"
+ 					values="0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50"/>
+-			<list   id="ProductionDecayQueueUnitThreshold" key="Production Decay Queue Unit Threshold" dll="1" 
++			<list   id="ProductionDecayQueueUnitThreshold" key="Production Decay Queue Unit Threshold" 
+ 					type="int" default="5" dirtyBit="InfoPane"
+ 					values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"/>
+ 			<!-- Hover -->
+-			<option id="ProductionDecayHover" key="Production Decay Hover" dll="1" 
++			<!-- advc.094: Not making hover text optional -->
++			<!--option id="ProductionDecayHover" key="Production Decay Hover" dll="1" 
+ 					type="boolean" default="True" get="isShowProductionDecayHover"/>
+ 			<list   id="ProductionDecayHoverBuildingThreshold" key="Production Decay Hover Building Threshold" dll="1" 
+ 					type="int" default="20"
+ 					values="0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50"/>
+ 			<list   id="ProductionDecayHoverUnitThreshold" key="Production Decay Hover Unit Threshold" dll="1" 
+ 					type="int" default="5"
+-					values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"/>
++					values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"/-->
+ 			
+ 			<!-- Production Popup by EmperorFool -->
+ 			<option id="ProductionPopupTrainCivilianUnitsForever" key="Production Popup Train Civilian Units Forever" dll="1"
+
+diff --git a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+index 5e458bf59..8f1f2a805 100644
+--- a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+@@ -86,14 +86,18 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 	def createProductionQueuePanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "ProductionQueue", "Production Queue:")
+ 		self.addCheckbox(screen, panel, "CityScreen__ProductionStarted")
++		# <advc.094> BULL production decay options now available - but no separate option for hover text. Hence also no need for a 3-column layout.
++		self.addCheckbox(screen, panel, "CityScreen__ProductionDecayQueue")
++		left, right = self.addTwoColumnLayout(screen, panel, "ProductionDecay")
+ 		#left, center, right = self.addThreeColumnLayout(screen, panel, "ProductionDecay")
+ 		#self.addLabel(screen, left, "ProductionDecay", "Decay:")
+ 		#self.addCheckbox(screen, center, "CityScreen__ProductionDecayQueue")
+ 		#self.addCheckbox(screen, right, "CityScreen__ProductionDecayHover")
+-		#self.addIntDropdown(screen, left, center, "CityScreen__ProductionDecayQueueUnitThreshold", True)
+-		#self.addIntDropdown(screen, left, center, "CityScreen__ProductionDecayQueueBuildingThreshold", True)
++		self.addIntDropdown(screen, left, right, "CityScreen__ProductionDecayQueueUnitThreshold", True)
++		self.addIntDropdown(screen, left, right, "CityScreen__ProductionDecayQueueBuildingThreshold", True)
+ 		#self.addIntDropdown(screen, None, right, "CityScreen__ProductionDecayHoverUnitThreshold")
+ 		#self.addIntDropdown(screen, None, right, "CityScreen__ProductionDecayHoverBuildingThreshold")
++		# </advc.094>
+ 		
+ 	#def createCityBarPanel(self, screen, panel):
+ 		#self.addLabel(screen, panel, "CitybarHover", "City Bar Hover:")
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 490dc02d2..37add877d 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -4857,8 +4857,8 @@ class CvMainInterface:
+ 							szRightBuffer = BugUtil.colorText(szRightBuffer, "COLOR_CYAN")
+ # BUG - Production Started - end
+ 					
+-# BUG - Production Decay - start
+-					if BugDll.isPresent() and CityScreenOpt.isShowProductionDecayQueue():
++# BUG - Production Decay - start  # advc.094: BugDll.isPresent check removed
++					if CityScreenOpt.isShowProductionDecayQueue():
+ 						eUnit = CyInterface().getOrderNodeData1(i)
+ 						if pHeadSelectedCity.getUnitProduction(eUnit) > 0:
+ 							if pHeadSelectedCity.isUnitProductionDecay(eUnit):
+@@ -4882,8 +4882,8 @@ class CvMainInterface:
+ 							szRightBuffer = BugUtil.colorText(szRightBuffer, "COLOR_CYAN")
+ # BUG - Production Started - end
+ 
+-# BUG - Production Decay - start
+-					if BugDll.isPresent() and CityScreenOpt.isShowProductionDecayQueue():
++# BUG - Production Decay - start  # advc.094: BugDll.isPresent check removed
++					if CityScreenOpt.isShowProductionDecayQueue():
+ 						eBuilding = CyInterface().getOrderNodeData1(i)
+ 						if pHeadSelectedCity.getBuildingProduction(eBuilding) > 0:
+ 							if pHeadSelectedCity.isBuildingProductionDecay(eBuilding):
+
+diff --git a/Assets/XML/Text/BUG City Screen Options.xml b/Assets/XML/Text/BUG City Screen Options.xml
+index 145c8b284..1e5b8da85 100644
+--- a/Assets/XML/Text/BUG City Screen Options.xml	
++++ b/Assets/XML/Text/BUG City Screen Options.xml	
+@@ -265,18 +265,27 @@
+ 		<Spanish>Si se activa, usa el color cyan para proyectos que ya han sido comenzados.</Spanish>
+ 	</TEXT>
+ 
+-	<TEXT>
++	<!-- BUG Production Decay -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>
+ 		<English>Queue</English>
+ 		<French>Queue</French>
+ 		<German>Produktionsliste</German>
+ 		<Italian>Coda</Italian>
+ 		<Spanish>Avisos</Spanish>
++	</TEXT-->
++	<!-- advc.094: Now refers to both queue and hover text -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>
++		<English>Production Decay Warning</English>
++		<German>Warne vor verfallender Produktion</German>
+ 	</TEXT>
++	<!-- advc.094: Some minor changes (English, German).
++		 (One could probably phrase this in less convoluted ways ...) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_HOVER</Tag>
+-		<English>When checked, displays a yellow exclamation point (!) next to items in the build queue that are close to decaying from being left in the queue without adding [ICON_PRODUCTION] for too long. Two red exclamation points signify that the item will decay this turn if it is not first in the queue.</English>
+-		<German>Zeigt ein gelbes Ausrufezeichen (!) bei Projekten in der Produktionsliste an, deren Produktionsfortschritt demn�chst verf�llt, da sie zu lange in der Liste stehen, ohne dass weitere [ICON_PRODUCTION] auf sie verwendet wurden. Zwei rote Ausrufezeichen (!!) zeigen an, dass der Produktionsfortschritt eines Projekts in dieser Runde verf�llt, falls es nicht weiter produziert wird</German>
++		<English>When checked, displays a yellow exclamation point ([COLOR_YELLOW][BOLD]![\BOLD][COLOR_REVERT]) next to orders in the production queue that are close to decaying due to having been left in the queue without adding [ICON_PRODUCTION] for too long. Two red exclamation points ([COLOR_WARNING_TEXT][BOLD]!![\BOLD][COLOR_REVERT]) signify that the order will decay this turn if it is not first in the queue.</English>
++		<German>Zeigt ein gelbes Ausrufezeichen ([COLOR_YELLOW][BOLD]![\BOLD][COLOR_REVERT]) bei Auftr�gen in der Produktionsliste an, deren Produktionsfortschritt demn�chst verf�llt, da sie zu lange in der Liste stehen, ohne dass weitere [ICON_PRODUCTION] auf sie verwendet wurde. Zwei rote Ausrufezeichen ([COLOR_WARNING_TEXT][BOLD]!![\BOLD][COLOR_REVERT]) zeigen an, dass der Produktionsfortschritt eines Auftrags in dieser Runde verf�llt, falls es nicht weiter produziert wird.</German>
+ 		<Italian>Quando � selezionato, mostra un punto esclamativo (!) giallo per gli oggetti nella coda di produzione che sono prossimi a perdere la produzione accumulata a causa della eccessiva permanenza nella coda senza ulteriore aggiunta di [ICON_PRODUCTION]. Due punti esclamativi rossi indicano che l'oggetto nella coda perder� la produzione accumulata nel turno in corso a meno che non venga posizionato in testa alla coda produttiva.</Italian>
+ 		<Spanish>Muestra una exclamaci�n amarilla (!) al lado de los objetos de la cola que est�n a punto de perder producci�n por ser dejados demasiado tiempos en la cola sin a�adir [ICON_PRODUCTION]. Dos exclamaciones rojas significan que el objeto empezar� a decaer este mismo turno si no es colocado en primer lugar de la cola.</Spanish>
+ 	</TEXT>
+@@ -287,10 +296,11 @@
+ 		<Italian>Avviso per le Unit&#224;</Italian>
+ 		<Spanish>Aviso Unidades</Spanish>
+ 	</TEXT>
++	<!-- advc.094: Rephrased a bit; color added (English, German). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUEUNITTHRESHOLD_HOVER</Tag>
+-		<English>Select the number of turns before a unit will decay at which time a yellow exclamation mark is shown. Units decay after being in the queue without adding [ICON_PRODUCTION] for 10 turns.</English>
+-		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt einer produzierten Einheit verf�llt und ein gelbes Ausrufezeichen angezeigt wird (Produktionsfortschritte bei Einheiten verfallen, wenn sie 10 Runden in der Liste stehen, ohne dass weitere [ICON_PRODUCTION] auf sie verwendet wurden)</German>
++		<English>Show the yellow exclamation point this many turns before a [COLOR_UNIT_TEXT]unit[COLOR_REVERT] order will decay. (Units decay after being in the queue without adding [ICON_PRODUCTION] for 10 turns.)</English>
++		<German>Anzahl von Runden w�hrend derer ein gelbes Ausrufezeichen angezeigt wird, wenn der Produktionsverfall einer [COLOR_UNIT_TEXT]Einheit[COLOR_REVERT] in der Produktionsliste bevorsteht. (Produktionsfortschritte bei Einheiten verfallen, wenn sie 10 Runden in der Liste stehen, ohne dass weitere [ICON_PRODUCTION] auf sie verwendet wurde.)</German>
+ 		<Italian>Inserisci il numero di turni prima che una Unit� in coda perda la produzione accumulata mancanti i quali verr� visualizzato il punto esclamativo giallo di avvertimento. Le Unit� perdono la produzione accumulata dopo essere state nella coda di produzione per 10 turni senza aggiunte di [ICON_PRODUCTION].</Italian>
+ 		<Spanish>Selecciona el n�mero de turnos a esperar antes de mostrar la exclamaci�n para una unidad cuya producci�n est� decayendo. Una unidad empieza a decaer tras estar en la cola sin a�adir [ICON_PRODUCTION] durante 10 turnos.</Spanish>
+ 	</TEXT>
+@@ -303,12 +313,13 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUEBUILDINGTHRESHOLD_HOVER</Tag>
+-		<English>Select the number of turns before a building will decay at which time a yellow exclamation mark is shown. Buildings decay after being in the queue without adding [ICON_PRODUCTION] for 50 turns. Projects never decay.</English>
+-		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt eines produzierten Geb�udes verf�llt und ein gelbes Ausrufezeichen angezeigt wird (Produktionsfortschritte bei Geb�uden verfallen, wenn sie 50 Runden in der Liste stehen, ohne dass weitere [ICON_PRODUCTION] auf sie verwendet wurden; bei Projekten geschieht dies nie)</German>
++		<English>Show the yellow exclamation point this many turns before a [COLOR_BUILDING_TEXT]building[COLOR_REVERT] order will decay. (Buildings decay after being in the queue without adding [ICON_PRODUCTION] for 50 turns; [COLOR_PROJECT_TEXT]projects[COLOR_REVERT] never decay.)</English>
++		<German>Anzahl von Runden w�hrend derer ein gelbes Ausrufezeichen angezeigt wird, wenn der Produktionsverfall eines [COLOR_BUILDING_TEXT]Geb�udes[COLOR_REVERT] in der Produktionsliste bevorsteht. (Produktionsfortschritte bei Geb�uden verfallen, wenn sie 50 Runden in der Liste stehen, ohne dass weitere [ICON_PRODUCTION] auf sie verwendet wurde; bei [COLOR_PROJECT_TEXT]Projekten[COLOR_REVERT] geschieht dies nie.)</German>
+ 		<Italian>Inserisci il numero di turni prima che un Edificio in coda perda la produzione accumulata mancanti i quali verr� visualizzato il punto esclamativo giallo di avvertimento. Gli Edifici perdono la produzione accumulata dopo essere state nella coda di produzione per 50 turni senza aggiunte di [ICON_PRODUCTION]; i Progetti invece non perdono mai la produzione accumulata.</Italian>
+ 		<Spanish>Selecciona el n�mero de turnos a esperar antes de mostrar la exclamaci�n para un edificio cuya producci�n est� decayendo. Un edificio empieza a decaer tras estar en la cola sin a�adir [ICON_PRODUCTION] durante 50 turnos. Los Proyectos nunca decaen.</Spanish>
+ 	</TEXT>
+-	<TEXT>
++	<!-- advc.094: Not going to use these -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_TEXT</Tag>
+ 		<English>Hover</English>
+ 		<German>Tooltip</German>
+@@ -349,7 +360,7 @@
+ 		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt eines produzierten Geb�udes verf�llt und ein gelbes Ausrufezeichen angezeigt wird</German>
+ 		<Italian>Inserisci il numero di turni prima che un Edificio in coda perda la produzione accumulata mancanti i quali verranno visualizzate per la prima volta le informazioni relative.</Italian>
+ 		<Spanish>Selecciona el n�mero de turnos a esperar antes de mostrar informaci�n de decaimiento.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONPOPUPTRAINCIVILIANUNITSFOREVER_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index 51bb32db3..61ecb3d58 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -157,6 +157,10 @@
+ 	</TEXT>
+ 
+ <!-- Production Decay -->
++	<!-- advc.094: Would be nice to use colors matching the exclamation marks;
++		 and the all-red text is kind of difficult to read. But I won't experiment
++		 with that now. Only changed it so that the darker shade of red gets used
++		 (consistently) for imminent decay. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PRODUCTION_DECAY</Tag>
+ 		<English>[COLOR_NEGATIVE_TEXT]Will lose %d1[ICON_PRODUCTION] this turn[COLOR_REVERT]</English>
+@@ -166,23 +170,23 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PRODUCTION_DECAY_PRODUCING</Tag>
+-		<English>[COLOR_WARNING_TEXT]Will lose %d1[ICON_PRODUCTION] if not produced this turn[COLOR_REVERT]</English>
+-		<German>[COLOR_WARNING_TEXT]%d1[ICON_PRODUCTION] gehen verloren, falls nicht in dieser Runde produziert wird[COLOR_REVERT]</German>
+-		<Italian>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] se non viene prodotto questo turno [COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] si no se activa este turno[COLOR_REVERT]</Spanish>
++		<English>[COLOR_NEGATIVE_TEXT]Will lose %d1[ICON_PRODUCTION] if not produced this turn[COLOR_REVERT]</English>
++		<German>[COLOR_NEGATIVE_TEXT]%d1[ICON_PRODUCTION] gehen verloren, falls nicht in dieser Runde produziert wird[COLOR_REVERT]</German>
++		<Italian>[COLOR_NEGATIVE_TEXT]Perder� %d1[ICON_PRODUCTION] se non viene prodotto questo turno [COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_NEGATIVE_TEXT]Perder� %d1[ICON_PRODUCTION] si no se activa este turno[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PRODUCTION_DECAY_TURNS</Tag>
+-		<English>[COLOR_NEGATIVE_TEXT]Will lose %d1[ICON_PRODUCTION] in %d2 [NUM2:turn:turns][COLOR_REVERT]</English>
+-		<German>[COLOR_NEGATIVE_TEXT]%d1[ICON_PRODUCTION] gehen in %d2 [NUM2:Runde:Runden] verloren[COLOR_REVERT]</German>
+-		<Italian>[COLOR_NEGATIVE_TEXT]Perder� %d1[ICON_PRODUCTION] in %d2 [NUM2:turno:turni][COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_NEGATIVE_TEXT]Perder� %d1[ICON_PRODUCTION] en %d2 [NUM2:turno:turnos][COLOR_REVERT]</Spanish>
++		<English>[COLOR_WARNING_TEXT]Will lose %d1[ICON_PRODUCTION] in %d2 [NUM2:turn:turns][COLOR_REVERT]</English>
++		<German>[COLOR_WARNING_TEXT]%d1[ICON_PRODUCTION] gehen in %d2 [NUM2:Runde:Runden] verloren[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] in %d2 [NUM2:turno:turni][COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] en %d2 [NUM2:turno:turnos][COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PRODUCTION_DECAY_TURNS_PRODUCING</Tag>
+ 		<English>[COLOR_WARNING_TEXT]Will lose %d1[ICON_PRODUCTION] if not produced for %d2 [NUM2:turn:turns][COLOR_REVERT]</English>
+ 		<German>[COLOR_WARNING_TEXT]%d1[ICON_PRODUCTION] gehen verloren, falls f�r %d2 [NUM2:Runde:Runden] nicht produziert wird[COLOR_REVERT]</German>
+-		<Italian>[COLOR_WARNING_TEXT]Perder�  %d1[ICON_PRODUCTION] se non viene prodotto per %d2 [NUM2:turno:turni][COLOR_REVERT]</Italian>
++		<Italian>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] se non viene prodotto per %d2 [NUM2:turno:turni][COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] si no se activa durante %d2 [NUM2:turn:turns][COLOR_REVERT]</Spanish>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a846b007e..72c99d854 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8421,6 +8421,45 @@ void CvCity::changeUnitProductionTime(UnitTypes eUnit, int iChange)
+ 	setUnitProductionTime(eUnit, getUnitProductionTime(eUnit) + iChange);
+ }
+ 
++// BULL - Production Decay - start
++/*	advc.094: Using the preprocessor is less bad than keeping two copies
++	of this moderately complex code */
++#define IMPLEMENT_BUG_PRODUCTION_DECAY_GETTERS(ORDER, Order, Verb) \
++/* Returns true if the given order will decay this turn */ \
++bool CvCity::is##Order##ProductionDecay(Order##Types e##Order) const \
++{ \
++	return (/*isHuman() &&*/ /* advc.094: Not the place to check this */ \
++			getProduction##Order() != e##Order && \
++			get##Order##Production(e##Order) > 0 && \
++			100 * get##Order##ProductionTime(e##Order) >= \
++			GC.getDefineINT(CvGlobals::ORDER##_PRODUCTION_DECAY_TIME) * \
++			GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).get##Verb##Percent()); \
++} \
++\
++/*	Returns the amount by which the given order will decay once it reaches the limit. */ \
++/*	Ignores whether or not the order will actually decay this turn. */ \
++int CvCity::get##Order##ProductionDecay(Order##Types e##Order) const \
++{ \
++	int const iProduction = get##Order##Production(e##Order); \
++	return iProduction - \
++			(iProduction * \
++			GC.getDefineINT(CvGlobals::ORDER##_PRODUCTION_DECAY_PERCENT)) / 100; \
++} \
++\
++/* Returns the number of turns left before the given order will decay */ \
++int CvCity::get##Order##ProductionDecayTurns(Order##Types e##Order) const \
++{ \
++	return 1 + std::max(0, \
++			intdiv::uceil( \
++			GC.getDefineINT(CvGlobals::ORDER##_PRODUCTION_DECAY_TIME) * \
++			GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).get##Verb##Percent(), \
++			100) \
++			- get##Order##ProductionTime(e##Order)); \
++}
++IMPLEMENT_BUG_PRODUCTION_DECAY_GETTERS(BUILDING, Building, Construct)
++IMPLEMENT_BUG_PRODUCTION_DECAY_GETTERS(UNIT, Unit, Train)
++// BULL - Production Decay - end
++
+ // advc.opt: Taking advantage of EnumMap.hasContent
+ bool CvCity::isAnyProductionProgress(OrderTypes eOrder) const
+ {
+@@ -10592,10 +10631,10 @@ void CvCity::doDecay()
+ 				int const iGameSpeedPercent = GC.getInfo(GC.getGame().
+ 						getGameSpeedType()). getConstructPercent();
+ 				if (100 * getBuildingProductionTime(eLoopBuilding) >
+-					GC.getDefineINT("BUILDING_PRODUCTION_DECAY_TIME") * iGameSpeedPercent)
++					GC.getDefineINT(CvGlobals::BUILDING_PRODUCTION_DECAY_TIME) * iGameSpeedPercent)
+ 				{
+ 					int iProduction = getBuildingProduction(eLoopBuilding);
+-					int const iDecayPercent = GC.getDefineINT("BUILDING_PRODUCTION_DECAY_PERCENT");
++					int const iDecayPercent = GC.getDefineINT(CvGlobals::BUILDING_PRODUCTION_DECAY_PERCENT);
+ 					setBuildingProduction(eLoopBuilding, iProduction -
+ 							(iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) /
+ 							iGameSpeedPercent);
+@@ -10617,10 +10656,10 @@ void CvCity::doDecay()
+ 					int const iGameSpeedPercent = GC.getInfo(GC.getGame().
+ 							getGameSpeedType()).getTrainPercent();
+ 					if (100 * getUnitProductionTime(eLoopUnit) >
+-						GC.getDefineINT("UNIT_PRODUCTION_DECAY_TIME") * iGameSpeedPercent)
++						GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_TIME) * iGameSpeedPercent)
+ 					{
+ 						int iProduction = getUnitProduction(eLoopUnit);
+-						int const iDecayPercent = GC.getDefineINT("UNIT_PRODUCTION_DECAY_PERCENT");
++						int const iDecayPercent = GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_PERCENT);
+ 						setUnitProduction(eLoopUnit, iProduction -
+ 								(iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) /
+ 								iGameSpeedPercent);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index b570d16ee..e6e9caf27 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -972,8 +972,8 @@ public:
+ 	{
+ 		return m_aiProjectProduction.get(eProject);
+ 	}
+-	void setProjectProduction(ProjectTypes eProject, int iNewValue);											// Exposed to Python
+-	void changeProjectProduction(ProjectTypes eProject, int iChange);											// Exposed to Python
++	void setProjectProduction(ProjectTypes eProject, int iNewValue);
++	void changeProjectProduction(ProjectTypes eProject, int iChange);
+ 
+ 	PlayerTypes getBuildingOriginalOwner(BuildingTypes eBuilding) const											// Exposed to Python
+ 	{
+@@ -991,13 +991,20 @@ public:
+ 	void setUnitProduction(UnitTypes eUnit, int iNewValue);														// Exposed to Python
+ 	void changeUnitProduction(UnitTypes eUnit, int iChange);													// Exposed to Python
+ 
+-	int getUnitProductionTime(UnitTypes eUnit) const															// Exposed to Python
++	int getUnitProductionTime(UnitTypes eUnit) const								// Exposed to Python (for BULL - Production Decay)
+ 	{
+ 		return m_aiUnitProductionTime.get(eUnit);
+ 	}
+-	void setUnitProductionTime(UnitTypes eUnit, int iNewValue);													// Exposed to Python
+-	void changeUnitProductionTime(UnitTypes eUnit, int iChange);												// Exposed to Python
+-
++	void setUnitProductionTime(UnitTypes eUnit, int iNewValue);
++	void changeUnitProductionTime(UnitTypes eUnit, int iChange);
++	// BULL - Production Decay - start (advc.094)
++	bool isBuildingProductionDecay(BuildingTypes eBuilding) const;												// Exposed to Python
++	int getBuildingProductionDecay(BuildingTypes eBuilding) const;												// Exposed to Python
++	int getBuildingProductionDecayTurns(BuildingTypes eBuilding) const;											// Exposed to Python
++	bool isUnitProductionDecay(UnitTypes eUnit) const;															// Exposed to Python
++	int getUnitProductionDecay(UnitTypes eUnit) const;															// Exposed to Python
++	int getUnitProductionDecayTurns(UnitTypes eUnit) const;														// Exposed to Python
++	// BULL - Production Decay - end
+ 	bool isAnyProductionProgress(OrderTypes eOrder) const; // advc.opt
+ 
+ 	int getGreatPeopleUnitRate(UnitTypes eUnit) const															// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 43d6083ef..b2ebda94b 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9655,7 +9655,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 		szBuffer.append(NEWLINE);
+ 		int iTurns = pCity->getProductionTurnsLeft(eUnit,
+ 				(GC.ctrlKey() || !GC.shiftKey()) ? 0 : pCity->getOrderQueueLength());
+-		if(iTurns < MAX_INT) // advc.004x
++		if (iTurns < MAX_INT) // advc.004x
+ 		{
+ 			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TURNS", iTurns));
+ 				// advc: TXT_KEY_UNIT_TURNS takes only one argument
+@@ -9669,6 +9669,15 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 					pCity->getProductionNeeded(eUnit),
+ 					GC.getInfo(YIELD_PRODUCTION).getChar());
+ 			szBuffer.append(szTempBuffer);
++			// BULL - Production Decay - start
++			// advc.094: No separate ProductionDecayHover option
++			if (BUGOption::isEnabled("CityScreen__ProductionDecayQueue", false))
++			{
++				setProductionDecayHelp(szBuffer, pCity->getUnitProductionDecayTurns(eUnit),
++						// advc.094: No separate ProductionDecayHoverUnitThreshold option
++						BUGOption::getValue("CityScreen__ProductionDecayQueueUnitThreshold", 5),
++						pCity->getUnitProductionDecay(eUnit), pCity->getProductionUnit() == eUnit);
++			} // BULL - Production Decay - end
+ 		}
+ 		else
+ 		{
+@@ -11290,7 +11299,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 			szBuffer.append(NEWLINE);
+ 			int iTurns = pCity->getProductionTurnsLeft(eBuilding,
+ 					(GC.ctrlKey() || !GC.shiftKey()) ? 0 : pCity->getOrderQueueLength());
+-			if(iTurns < MAX_INT) // advc.004x
++			if (iTurns < MAX_INT) // advc.004x
+ 			{
+ 				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUM_TURNS", iTurns));
+ 				szBuffer.append(L" - "); // advc.004x: Moved up
+@@ -11310,6 +11319,17 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 						GC.getInfo(YIELD_PRODUCTION).getChar());
+ 				szBuffer.append(szTempBuffer);
+ 			}
++			// BULL - Production Decay - start
++			// advc.094: No separate ProductionDecayHover option
++			if (BUGOption::isEnabled("CityScreen__ProductionDecayQueue", false))
++			{
++				setProductionDecayHelp(szBuffer,
++						pCity->getBuildingProductionDecayTurns(eBuilding),
++						// advc.094: No separate ProductionDecayHoverBuildingtThreshold option
++						BUGOption::getValue("CityScreen__ProductionDecayQueueBuildingThreshold", 10),
++						pCity->getBuildingProductionDecay(eBuilding),
++						pCity->getProductionBuilding() == eBuilding);
++			} // BULL - Production Decay - end
+ 		}
+ 		// <advc.004w> BonusProductionModifier moved into subroutine
+ 		if(!bCivilopediaText)
+@@ -12192,6 +12212,46 @@ void CvGameTextMgr::setProcessHelp(CvWStringBuffer &szBuffer, ProcessTypes eProc
+ 	}
+ }
+ 
++// BULL - Production Decay: (advc.094)
++void CvGameTextMgr::setProductionDecayHelp(CvWStringBuffer &szBuffer,
++	int iTurnsLeft, int iThreshold, int iDecay, bool bProducing)
++{
++	if (iTurnsLeft <= 1)
++	{
++		if (bProducing)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_PRODUCTION_DECAY_PRODUCING",
++					iDecay));
++		}
++		else
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_PRODUCTION_DECAY",
++					iDecay));
++		}
++	}
++	else
++	{
++		if (iTurnsLeft <= iThreshold)
++		{
++			if (bProducing)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_PRODUCTION_DECAY_TURNS_PRODUCING",
++						iDecay, iTurnsLeft));
++			}
++			else
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_PRODUCTION_DECAY_TURNS",
++						iDecay, iTurnsLeft));
++			}
++		}
++	}
++}
++
++
+ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ {
+ 	if(city.badHealth() <= 0)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 27c68e968..20894efeb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -113,6 +113,8 @@ public:
+ // BUG - Building Additional Happiness - end
+ 	void setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject, bool bCivilopediaText = false, CvCity* pCity = NULL);
+ 	void setProcessHelp(CvWStringBuffer &szBuffer, ProcessTypes eProcess);
++	// BULL - Production Decay: (advc.094)
++	void setProductionDecayHelp(CvWStringBuffer &szBuffer, int iTurnsLeft, int iThreshold, int iDecay, bool bProducing);
+ 	void setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity& city);
+ 	void setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity& city);
+ // BUG - Building Additional Health - start
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 9f96955b5..62d77941c 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -457,6 +457,12 @@ public:
+ 		DO(NATIVE_CITY_CULTURE_THRESH) /* </advc.ctr> */ \
+ 		DO(TREAT_REVEALED_BUILDINGS_AS_VISIBLE) /* advc.045 */ \
+ 		DO(DOUBLE_OBSOLETE_BUILDING_COMMERCE) /* advc.098 */ \
++		/* <advc.094> */ \
++		DO(BUILDING_PRODUCTION_DECAY_TIME) \
++		DO(BUILDING_PRODUCTION_DECAY_PERCENT) \
++		DO(UNIT_PRODUCTION_DECAY_TIME) \
++		DO(UNIT_PRODUCTION_DECAY_PERCENT) \
++		/* </advc.094> */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 3ea079a20..7731b7082 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -1943,6 +1943,42 @@ void CyCity::changeUnitProduction(int /*UnitTypes*/ iIndex, int iChange)
+ 		m_pCity->changeUnitProduction((UnitTypes) iIndex, iChange);
+ }
+ 
++// BULL - Production Decay - start (advc.094)
++int CyCity::getUnitProductionTime(int /*UnitTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->getUnitProductionTime((UnitTypes)eIndex) : -1;
++}
++
++bool CyCity::isBuildingProductionDecay(int /*BuildingTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->isBuildingProductionDecay((BuildingTypes)eIndex) : false;
++}
++
++int CyCity::getBuildingProductionDecay(int /*BuildingTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->getBuildingProductionDecay((BuildingTypes)eIndex) : 0;
++}
++
++int CyCity::getBuildingProductionDecayTurns(int /*BuildingTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->getBuildingProductionDecayTurns((BuildingTypes)eIndex) : 0;
++}
++
++bool CyCity::isUnitProductionDecay(int /*UnitTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->isUnitProductionDecay((UnitTypes)eIndex) : false;
++}
++
++int CyCity::getUnitProductionDecay(int /*UnitTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->getUnitProductionDecay((UnitTypes)eIndex) : 0;
++}
++
++int CyCity::getUnitProductionDecayTurns(int /*UnitTypes*/ eIndex)
++{
++	return m_pCity ? m_pCity->getUnitProductionDecayTurns((UnitTypes)eIndex) : 0;
++} // BULL - Production Decay - end
++
+ int CyCity::getGreatPeopleUnitRate(int /*UnitTypes*/ iIndex)
+ {
+ 	return m_pCity ? m_pCity->getGreatPeopleUnitRate((UnitTypes) iIndex) : -1;
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index c89ad66bb..ddfb4dc91 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -412,6 +412,15 @@ public:
+ 	int getUnitProduction(int iIndex);
+ 	void setUnitProduction(int iIndex, int iNewValue);
+ 	void changeUnitProduction(int /*UnitTypes*/ iIndex, int iChange);
++	// BULL - Production Decay - start (advc.094)
++	int getUnitProductionTime(int /*UnitTypes*/ eIndex);
++	bool isBuildingProductionDecay(int /*BuildingTypes*/ eIndex);
++	int getBuildingProductionDecay(int /*BuildingTypes*/ eIndex);
++	int getBuildingProductionDecayTurns(int /*BuildingTypes*/ eIndex);
++	bool isUnitProductionDecay(int /*UnitTypes*/ eIndex);
++	int getUnitProductionDecay(int /*UnitTypes*/ eIndex);
++	int getUnitProductionDecayTurns(int /*UnitTypes*/ eIndex);
++	// BULL - Production Decay - end
+ 	int getGreatPeopleUnitRate(int /*UnitTypes*/ iIndex);
+ 	int getGreatPeopleUnitProgress(int /*UnitTypes*/ iIndex);
+ 	void setGreatPeopleUnitProgress(int /*UnitTypes*/ iIndex, int iNewValue);
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 19b05ee51..ca8df1e95 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -401,6 +401,15 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getUnitProduction", &CyCity::getUnitProduction, "int (UnitID) - gets current production towards UnitID")
+ 		.def("setUnitProduction", &CyCity::setUnitProduction, "void (UnitID, iNewValue) - sets production towards UnitID as iNewValue")
+ 		.def("changeUnitProduction", &CyCity::changeUnitProduction, "void (UnitID, iChange) - adjusts production towards UnitID by iChange")
++		// BULL - Production Decay - start (advc.094)
++		.def("getUnitProductionTime", &CyCity::getUnitProductionTime, "int (int /*UnitTypes*/ eIndex)")
++		.def("isBuildingProductionDecay", &CyCity::isBuildingProductionDecay, "bool (int /*BuildingTypes*/ eIndex)")
++		.def("getBuildingProductionDecay", &CyCity::getBuildingProductionDecay, "int (int /*BuildingTypes*/ eIndex)")
++		.def("getBuildingProductionDecayTurns", &CyCity::getBuildingProductionDecayTurns, "int (int /*BuildingTypes*/ eIndex)")
++		.def("isUnitProductionDecay", &CyCity::isUnitProductionDecay, "bool (int /*UnitTypes*/ eIndex)")
++		.def("getUnitProductionDecay", &CyCity::getUnitProductionDecay, "int (int /*UnitTypes*/ eIndex)")
++		.def("getUnitProductionDecayTurns", &CyCity::getUnitProductionDecayTurns, "int (int /*UnitTypes*/ eIndex)")
++		// BULL - Production Decay - end
+ 
+ 		.def("getReligionInfluence", &CyCity::getReligionInfluence, "int (ReligionID) - value of influence from ReligionID")
+ 		.def("changeReligionInfluence", &CyCity::changeReligionInfluence, "void (ReligionID, iChange) - adjust ReligionID influence by iChange")
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=33125

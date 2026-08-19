@@ -1,0 +1,135 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3006
+# Commit: 152a457bb8e4f6633237d5f4c0a83745f2efcdf3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 893bff5eb16c5220a19f0a71b5b0c5db09d9bee0
+# Title: Tweaks to anger timer on city screen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Python/Screens/CvMainInterface.py
+4	3	Assets/XML/Text/BUG City Screen Options.xml
+27	0	Assets/XML/Text/CIV4GameText_advc.xml
+6	3	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 28403bc46..c3bfc487e 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3923,6 +3923,8 @@ class CvMainInterface:
+ 					and (pHeadSelectedCity.getTeam() == gc.getGame().getActiveTeam()
+ 					or gc.getGame().isDebugMode())): # K-Mod
+ 						iAngerTimer = max(pHeadSelectedCity.getHurryAngerTimer(), pHeadSelectedCity.getConscriptAngerTimer())
++						# advc.188: Cover all temporary unhappiness (but not getHappinessTimer)
++						iAngerTimer = max(iAngerTimer, pHeadSelectedCity.getDefyResolutionAngerTimer())
+ 						if iAngerTimer > 0:
+ 							szBuffer += u" (%i)" % iAngerTimer
+ # BUG - Anger Display - end
+
+diff --git a/Assets/XML/Text/BUG City Screen Options.xml b/Assets/XML/Text/BUG City Screen Options.xml
+index 29f919b8c..145c8b284 100644
+--- a/Assets/XML/Text/BUG City Screen Options.xml	
++++ b/Assets/XML/Text/BUG City Screen Options.xml	
+@@ -173,12 +173,13 @@
+ 		<Spanish>Contador Infelicidad</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: English rewritten, German revised -->
++	<!-- advc.188: Now affects all temporary unhappiness -
++		 and [advc.186] the city bar. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ANGER_COUNTER_HOVER</Tag>
+-		<English>When checked, the remaining duration of anger from "cruel oppression" is shown next to the happiness display.</English>
++		<English>When checked, the remaining duration of temporary anger is shown next to the happiness display on the city screen and when hovering over the city bar on the main screen.</English>
+ 		<French>En activant, montre un compteur de col�re sur l'�cran de ville.</French>
+-		<German>Zeigt einen Countdown an (neben der Zufriedenheitsanzeige), der die Anzahl der Runden angibt, bis die Unzufriedenheit �ber Zwangsarbeit ("Eure grausame Tyrannei") verflogen ist.</German>
++		<German>Die Restdauer vorr�bergehender Unzufriedenheit wird neben der Zufriedenheitsanzeige auf dem Stadtbildschirm und im Stadt-Hilfetext auf dem Hauptbildschirm angezeigt.</German>
+ 		<Italian>Quando � selezionato, nella Schermata Cittadina viene visualizzato un contatore dei turni di Infelicit� da sacrifici.</Italian>
+ 		<Spanish>Si est� activa, muestra un contador de infelicidad en la pantalla de la ciudad.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 8c938bd52..2fd4923a8 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6676,5 +6676,32 @@
+ 		<Italian>non cumulativo con altre [ICON_RELIGION]</Italian>
+ 		<Spanish>no se acumula con otras [ICON_RELIGION]</Spanish>
+ 	</TEXT>
++	<!-- advc.188: From CIV4GameTextInfos.xml. Add remaining duration to make
++		 the anger countdown (BUG option) easier to understand. -->
++	<TEXT>
++		<Tag>TXT_KEY_ANGER_OPPRESSION</Tag>
++		<English>+%d1_Change[ICON_UNHAPPY]: "We cannot forget your cruel oppression!" (%d2 [NUM2:Turn:Turns])</English>
++		<French>+%d1_Change[ICON_UNHAPPY] : "Nous n'oublierons jamais votre oppression cruelle !" (%d2 [NUM2:tour:tours])</French>
++		<German>+%d1_Change[ICON_UNHAPPY]: "Wir k&#246;nnen Eure grausame Tyrannei nicht ertragen!" (%d2 [NUM2:Runde:Runden])</German>
++		<Italian>+%d1_Change[ICON_UNHAPPY]: "Non possiamo dimenticare la tua crudele oppressione!" (%d2 [NUM2:turno:turni])</Italian>
++		<Spanish>+%d1_Change [ICON_UNHAPPY]: "&#161;No olvidaremos vuestra cruel opresi&#243;n!" (%d2 [NUM2:turno:turnos])</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ANGER_DRAFT</Tag>
++		<English>+%d1_Change[ICON_UNHAPPY]: "Hell NO, we won't GO!" (%d2 [NUM2:Turn:Turns])</English>
++		<French>+%d1_Change[ICON_UNHAPPY] : "Pas question, nous n'irons PAS !" (%d2 [NUM2:tour:tours])</French>
++		<German>+%d1_Change[ICON_UNHAPPY]: "Zur H&#246;lle, NEIN, wir werden NICHT gehen!" (%d2 [NUM2:Runde:Runden])</German>
++		<Italian>+%d1_Change[ICON_UNHAPPY]: "NO! Non partiremo!" (%d2 [NUM2:turno:turni])</Italian>
++		<Spanish>+%d1_Change [ICON_UNHAPPY]: "&#161;No pensamos ir, pu&#241;etas!" (%d2 [NUM2:turno:turnos])</Spanish>
++	</TEXT>
++	<!-- From CIV4GameText_BTS.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_ANGER_DEFY_RESOLUTION</Tag>
++		<English>+%d1_Change[ICON_UNHAPPY]: "The world considers you a villain!" (%d2 [NUM2:Turn:Turns])</English>
++		<French>+%d1_Change[ICON_UNHAPPY] : " Le monde vous consid&#232;re comme une crapule ! " (%d2 [NUM2:tour:tours])</French>
++		<German>+%d1_Change[ICON_UNHAPPY]: "Die Welt h&#228;lt Euch f&#252;r einen Verbrecher!" (%d2 [NUM2:Runde:Runden])</German>
++		<Italian>+%d1_Change[ICON_UNHAPPY]: "Il mondo ti considera un malvagio!" (%d2 [NUM2:turno:turni])</Italian>
++		<Spanish>+%d1_Change [ICON_UNHAPPY]: "&#161;El mundo os considera un ser vil!" (%d2 [NUM2:turno:turnos])</Spanish>
++	</TEXT>
+ 
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c0465af51..1d90a621c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -12149,7 +12149,8 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
+ 		if (iAnger > 0)
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_OPPRESSION", iAnger));
++			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_OPPRESSION", iAnger,
++					kCity.getHurryAngerTimer())); // advc.188
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+@@ -12162,7 +12163,8 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
+ 		if (iAnger > 0)
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DRAFT", iAnger));
++			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DRAFT", iAnger,
++					kCity.getConscriptAngerTimer())); // advc.188
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+@@ -12175,7 +12177,8 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
+ 		if (iAnger > 0)
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DEFY_RESOLUTION", iAnger));
++			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DEFY_RESOLUTION", iAnger,
++					kCity.getDefyResolutionAngerTimer())); // advc.188
+ 			szBuffer.append(NEWLINE);
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6313

@@ -1,0 +1,532 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6033
+# Commit: d8bdd0602e765b4d945e6a4e25f447415b074241
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 85918612d1872b181517e8159719bf0e993be016
+# Title: Enhance SASGameSummary and add /LLM_Helpers to GitHub download ZIP (.gitattributes) - Make SASGameSummary free-text fields parser-safe (e.g., key="my city na...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	.gitattributes
+-	-	Assets/CvGameCoreDLL.dll
+4	0	CvGameCoreDLL/CvGame.cpp
+6	0	CvGameCoreDLL/CvPlayer.cpp
+171	19	CvGameCoreDLL/SASGameSummaryLog.cpp
+4	0	CvGameCoreDLL/SASGameSummaryLog.h
+2	2	LLM_Helpers/README.md
+11	4	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index d336d6030..4baa431df 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -40,8 +40,7 @@
+ /.markdownlint.jsonc  export-ignore
+ /ruff.toml            export-ignore
+ 
+-# <!-- custom: LLM helpers are not needed in released archives of the mod -->
+-/LLM_Helpers/         export-ignore
++# <!-- custom: Keep LLM_Helpers in GitHub/source ZIP downloads because it contains compact review/tuning scripts and docs, notably make_light_source_zip.py, that help LLM/code-agent analysis. Generated LLM_Helpers/outputs files stay out through .gitignore. (GPT-5.5) -->
+ 
+ # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+ /.github/             export-ignore
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1474e8236..81f51295f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4692,7 +4692,11 @@ void CvGame::initScoreCalculation()
+ 
+ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus)
+ {
++	int const iOldAIAutoPlay = std::max(0, m_iAIAutoPlay);
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
++	// <!-- custom: SAS game-summary logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
++	if (gGameSummaryLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
++		logSASGameSummaryAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus);
+ 	if (!bChangePlayerStatus)
+ 		return; // </advc.127>
+ 	// Erik <BM1>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dc313029e..8cdf25e60 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9052,6 +9052,9 @@ void CvPlayer::setAlive(bool bNewValue)
+ 			m_bEverAlive = true;
+ 			GET_TEAM(getTeam()).changeEverAliveCount(1);
+ 		}
++		// <!-- custom: Initial slots are already described by GAME_SUMMARY_PLAYER_SETUP; log later alive transitions explicitly so colonies, revivals, or unusual player appearances are visible instead of only changing alive/ever-alive counts. (GPT-5.5) -->
++		if (gGameSummaryLogLevel >= 2 && !isBarbarian() && (bEverAlive || kGame.getElapsedGameTurns() > 0))
++			logSASGameSummaryPlayerAliveChanged(getID(), bEverAlive);
+ 		if (getNumCities() <= 0)
+ 			setFoundedFirstCity(false);
+ 		updatePlotGroups();
+@@ -9085,6 +9088,9 @@ void CvPlayer::setAlive(bool bNewValue)
+ 		//killUnits(); // advc.003m: Moved up
+ 		killCities();
+ 		killAllDeals();
++		// <!-- custom: SAS game-summary logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
++		if (gGameSummaryLogLevel >= 2 && bEverAlive && !isBarbarian())
++			logSASGameSummaryPlayerEliminated(getID());
+ 
+ 		setTurnActive(false);
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.cpp b/CvGameCoreDLL/SASGameSummaryLog.cpp
+index e35fc6dd0..522a91519 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.cpp
++++ b/CvGameCoreDLL/SASGameSummaryLog.cpp
+@@ -150,6 +150,60 @@ void logSASGameSummary(TCHAR* format, ... )
+ 	va_end(args);
+ }
+ 
++// <!-- custom: Quote free-text game-summary values so simple key=value parsers do not split names such as "New York" or "De Gaulle" on spaces. Keep XML enum/type tags unquoted. Escape quotes, backslashes, and line separators so one log row remains one parseable row. (GPT-5.5) -->
++static CvString getSASGameSummaryQuoted(char const* szValue)
++{
++	if (szValue == NULL)
++		return "-";
++	CvString szQuoted = "\"";
++	for (int iI = 0; szValue[iI] != '\0'; iI++)
++	{
++		const char c = szValue[iI];
++		if (c == '\\')
++			szQuoted += "\\\\";
++		else if (c == '"')
++			szQuoted += "\\\"";
++		else if (c == '\n')
++			szQuoted += "\\n";
++		else if (c == '\r')
++			szQuoted += "\\r";
++		else if (c == '\t')
++			szQuoted += "\\t";
++		else szQuoted += c;
++	}
++	szQuoted += "\"";
++	return szQuoted;
++}
++
++static CvWString getSASGameSummaryQuoted(wchar const* szValue)
++{
++	if (szValue == NULL)
++		return L"-";
++	CvWString szQuoted = L"\"";
++	for (int iI = 0; szValue[iI] != L'\0'; iI++)
++	{
++		const wchar c = szValue[iI];
++		if (c == L'\\')
++			szQuoted += L"\\\\";
++		else if (c == L'"')
++			szQuoted += L"\\\"";
++		else if (c == L'\n')
++			szQuoted += L"\\n";
++		else if (c == L'\r')
++			szQuoted += L"\\r";
++		else if (c == L'\t')
++			szQuoted += L"\\t";
++		else szQuoted += c;
++	}
++	szQuoted += L"\"";
++	return szQuoted;
++}
++
++static CvWString getSASGameSummaryQuotedCityName(CvCity const* pCity)
++{
++	return pCity == NULL ? L"-" : getSASGameSummaryQuoted(pCity->getName().GetCString());
++}
++
+ // <!-- custom: Use "row" wording for generic SAS game-summary row prefixes because Civ4 also has EventInfo/random events. Keep GAME_SUMMARY_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+ static void logSASGameSummaryGameState(const char* szRowType)
+ {
+@@ -179,9 +233,9 @@ static void logSASGameSummaryGameState(const char* szRowType)
+ 		szGameOptions = "-";
+ 	const CvString szLogName = getSASGameSummaryLogName();
+ 	logSASGameSummary("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+-			szRowType, getSASGameSummaryLogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
++			szRowType, getSASGameSummaryLogTimestamp().GetCString(), getSASGameSummaryQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+ 	logSASGameSummary("GAME_SUMMARY_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
+-			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
++			getSASGameSummaryQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
+ }
+ 
+@@ -198,7 +252,7 @@ void startSASGameSummaryLogForNewGame()
+ {
+ 	rollSASGameSummaryLog("new");
+ 	resetSASGameSummaryState();
+-	logSASGameSummary("GAME_SUMMARY_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameSummaryLogTimestamp().GetCString(), getSASGameSummaryLogName().GetCString());
++	logSASGameSummary("GAME_SUMMARY_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameSummaryLogTimestamp().GetCString(), getSASGameSummaryQuoted(getSASGameSummaryLogName().GetCString()).GetCString());
+ 	logSASGameSummaryLogSettings();
+ }
+ 
+@@ -559,7 +613,7 @@ void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, Bo
+ 	CvCity const* pPlotCity = pPlot->getPlotCity();
+ 	// <!-- custom: Reproducible T129 crash dumps after adding this row failed in msvcr71!_output/_vsnprintf with an invalid read at 0x000003fc. The original argument for area=%d was pPlot->getArea(), but CvPlot::getArea returns CvArea&, not an integer; passing that object reference through varargs corrupted the following formatter reads. Logging the area ID explicitly fixed the crash in the next test run. (GPT-5.5) -->
+ 	logSASGameSummary("GAME_SUMMARY_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
+-			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(), getSASGameSummaryBonusType(eOldBonus), getSASGameSummaryBonusType(eNewBonus), getSASGameSummaryTerrainType(pPlot->getTerrainType()), getSASGameSummaryFeatureType(pPlot->getFeatureType()), getSASGameSummaryImprovementType(pPlot->getImprovementType()), getSASGameSummaryRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(), (pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), (pPlotCity == NULL ? L"-" : pPlotCity->getName().GetCString()), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
++			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(), getSASGameSummaryBonusType(eOldBonus), getSASGameSummaryBonusType(eNewBonus), getSASGameSummaryTerrainType(pPlot->getTerrainType()), getSASGameSummaryFeatureType(pPlot->getFeatureType()), getSASGameSummaryImprovementType(pPlot->getImprovementType()), getSASGameSummaryRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(), getSASGameSummaryQuotedCityName(pWorkingCity).GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), getSASGameSummaryQuotedCityName(pPlotCity).GetCString(), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
+ }
+ 
+ static const char* getSASGameSummaryCommerceType(CommerceTypes eCommerce)
+@@ -793,7 +847,7 @@ static void logSASGameSummaryCityBFC(CvCity const& kCity, const char* szReason)
+ 	}
+ 	getSASGameSummaryPlotCompositionTypes(kComposition, szTerrains, szFeatures, szBonuses, szImprovements, szRoutes);
+ 	logSASGameSummary("GAME_SUMMARY_CITY_BFC turn=%d reason=%s player=%d cityId=%d city=%S x=%d y=%d plots=%d owned=%d land=%d water=%d hills=%d peaks=%d riverSide=%d freshWater=%d coastal=%d improved=%d unimprovedLand=%d roaded=%d bonusImproved=%d bonusUnimproved=%d worked=%d workedImproved=%d workedUnimproved=%d natureFood=%d natureProd=%d natureCommerce=%d currentFood=%d currentProd=%d currentCommerce=%d terrains=%s features=%s bonuses=%s improvements=%s routes=%s",
+-			GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kComposition.iPlots, iOwned, kComposition.iLand, kComposition.iWater, kComposition.iHills, kComposition.iPeaks, kComposition.iRiverSide, kComposition.iFreshWater, kComposition.iCoastal, kComposition.iImproved, kComposition.iUnimprovedLand, kComposition.iRoaded, kComposition.iBonusImproved, kComposition.iBonusUnimproved, kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce, kComposition.iCurrentFood, kComposition.iCurrentProduction, kComposition.iCurrentCommerce, getSASGameSummaryOrDash(szTerrains).GetCString(), getSASGameSummaryOrDash(szFeatures).GetCString(), getSASGameSummaryOrDash(szBonuses).GetCString(), getSASGameSummaryOrDash(szImprovements).GetCString(), getSASGameSummaryOrDash(szRoutes).GetCString());
++			GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), getSASGameSummaryQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kComposition.iPlots, iOwned, kComposition.iLand, kComposition.iWater, kComposition.iHills, kComposition.iPeaks, kComposition.iRiverSide, kComposition.iFreshWater, kComposition.iCoastal, kComposition.iImproved, kComposition.iUnimprovedLand, kComposition.iRoaded, kComposition.iBonusImproved, kComposition.iBonusUnimproved, kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce, kComposition.iCurrentFood, kComposition.iCurrentProduction, kComposition.iCurrentCommerce, getSASGameSummaryOrDash(szTerrains).GetCString(), getSASGameSummaryOrDash(szFeatures).GetCString(), getSASGameSummaryOrDash(szBonuses).GetCString(), getSASGameSummaryOrDash(szImprovements).GetCString(), getSASGameSummaryOrDash(szRoutes).GetCString());
+ }
+ 
+ static SASGameSummaryPlotComposition getSASGameSummaryWorkedPlotComposition(CvCity const& kCity)
+@@ -868,7 +922,7 @@ static void logSASGameSummaryPlayerSetup(PlayerTypes ePlayer)
+ 	const char* szLeaderType = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
+ 	const wchar* szLeaderName = (kPlayer.getLeaderType() == NO_LEADER ? L"-" : GC.getInfo(kPlayer.getLeaderType()).getDescription());
+ 	logSASGameSummary("GAME_SUMMARY_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S favoriteCivic=%s handicap=%s",
+-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), kPlayer.isHuman(), kInitCore.getSlotStatus(ePlayer), kPlayer.getName(0), szCivType, kPlayer.getCivilizationDescription(0), kPlayer.getCivilizationShortDescription(0), szLeaderType, szLeaderName, getSASGameSummaryCivicType(kPlayer.getFavoriteCivic()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
++			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), kPlayer.isHuman(), kInitCore.getSlotStatus(ePlayer), getSASGameSummaryQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameSummaryQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameSummaryQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameSummaryQuoted(szLeaderName).GetCString(), getSASGameSummaryCivicType(kPlayer.getFavoriteCivic()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+ }
+ 
+ static void logSASGameSummaryAttitudeLegend()
+@@ -1127,6 +1181,70 @@ static void logSASGameSummaryStatistics(PlayerTypes ePlayer, int iGameTurn)
+ 			iGameTurn, ePlayer, kPlayer.getNumCities(), iCitiesBuilt, iCitiesRazed, g_aiSASGameSummaryCitiesAcquired[ePlayer], g_aiSASGameSummaryCitiesLost[ePlayer], g_aiSASGameSummaryCitiesConquered[ePlayer], g_aiSASGameSummaryCitiesLostByConquest[ePlayer], g_aiSASGameSummaryCitiesTradedIn[ePlayer], g_aiSASGameSummaryCitiesTradedOut[ePlayer], g_aiSASGameSummaryCitiesAcquired[ePlayer] - g_aiSASGameSummaryCitiesLost[ePlayer], g_aiSASGameSummaryTotalBattleWins[ePlayer], g_aiSASGameSummaryTotalBattleLosses[ePlayer], g_aiSASGameSummaryTotalCityBattleWins[ePlayer], g_aiSASGameSummaryTotalCityBattleLosses[ePlayer], g_aiSASGameSummaryTotalBattleWins[ePlayer] - g_aiSASGameSummaryTotalBattleLosses[ePlayer]);
+ }
+ 
++static CvString getSASGameSummaryEliminatedPlayers()
++{
++	CvString szList;
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
++		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
++		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isAlive() && !kLoopPlayer.isBarbarian())
++			appendSASGameSummaryIntList(szList, eLoopPlayer);
++	}
++	return getSASGameSummaryOrDash(szList);
++}
++
++static PlayerTypes getSASGameSummaryTopScorePlayer()
++{
++	PlayerTypes eBestPlayer = NO_PLAYER;
++	int iBestScore = MIN_INT;
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
++		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
++		if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian())
++			continue;
++		int const iScore = kLoopPlayer.calculateScore();
++		if (eBestPlayer == NO_PLAYER || iScore > iBestScore)
++		{
++			eBestPlayer = eLoopPlayer;
++			iBestScore = iScore;
++		}
++	}
++	return eBestPlayer;
++}
++
++static PlayerTypes getSASGameSummaryTopPowerPlayer()
++{
++	PlayerTypes eBestPlayer = NO_PLAYER;
++	int iBestPower = MIN_INT;
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
++		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
++		if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian())
++			continue;
++		int const iPower = kLoopPlayer.getPower();
++		if (eBestPlayer == NO_PLAYER || iPower > iBestPower)
++		{
++			eBestPlayer = eLoopPlayer;
++			iBestPower = iPower;
++		}
++	}
++	return eBestPlayer;
++}
++
++void logSASGameSummaryRunStatus(char const* szReason)
++{
++	// <!-- custom: CvGame::getNumHumanPlayers is not const in the Civ4 SDK headers, so this local game reference cannot be const. (GPT-5.5) -->
++	CvGame& kGame = GC.getGame();
++	PlayerTypes const eTopScorePlayer = getSASGameSummaryTopScorePlayer();
++	PlayerTypes const eTopPowerPlayer = getSASGameSummaryTopPowerPlayer();
++	// <!-- custom: Compact run-status row gives autoplay/LLM review a single parse-friendly checkpoint for who is alive, eliminated, leading by score, and leading by power. Victory already has its own action row; this row also works for ordinary stopped autoplays where no victory event fires. (GPT-5.5) -->
++	logSASGameSummary("GAME_SUMMARY_RUN_STATUS turn=%d reason=%s elapsed=%d year=%d winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d playersEverAlive=%d humans=%d eliminatedPlayers=%s topScorePlayer=%d topScore=%d topPowerPlayer=%d topPower=%d totalCities=%d totalPopulation=%d",
++			kGame.getGameTurn(), szReason == NULL ? "-" : szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.getWinner(), kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers(), getSASGameSummaryEliminatedPlayers().GetCString(), eTopScorePlayer, eTopScorePlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopScorePlayer).calculateScore(), eTopPowerPlayer, eTopPowerPlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopPowerPlayer).getPower(), kGame.getNumCities(), kGame.getTotalPopulation());
++}
++
+ static void logSASGameSummaryDemographics(PlayerTypes ePlayer, int iGameTurn)
+ {
+ 	CvGame const& kGame = GC.getGame();
+@@ -1319,7 +1437,7 @@ static void logSASGameSummaryVoteSources(int iGameTurn)
+ 		if (pSourceCity == NULL && eReligion == NO_RELIGION && eSecretary == NO_TEAM && szVotingTeams.empty() && szVictoryVotes.empty())
+ 			continue;
+ 		logSASGameSummary("GAME_SUMMARY_DIPLO_VOTE_SOURCE turn=%d source=%s secretaryTeam=%d secretaryTimer=%d voteTimer=%d religion=%s sourceOwner=%d sourceCityId=%d sourceCity=%S sourceX=%d sourceY=%d votingTeams=%s fullTeams=%s votes=%s victoryVotes=%s",
+-				iGameTurn, getSASGameSummaryVoteSourceType(eLoopVoteSource), eSecretary, kGame.getSecretaryGeneralTimer(eLoopVoteSource), kGame.getVoteTimer(eLoopVoteSource), getSASGameSummaryReligionType(eReligion), pSourceCity == NULL ? -1 : pSourceCity->getOwner(), pSourceCity == NULL ? -1 : pSourceCity->getID(), pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString(), pSourceCity == NULL ? -1 : pSourceCity->getX(), pSourceCity == NULL ? -1 : pSourceCity->getY(), getSASGameSummaryOrDash(szVotingTeams).GetCString(), getSASGameSummaryOrDash(szFullTeams).GetCString(), getSASGameSummaryOrDash(szVotes).GetCString(), getSASGameSummaryOrDash(szVictoryVotes).GetCString());
++				iGameTurn, getSASGameSummaryVoteSourceType(eLoopVoteSource), eSecretary, kGame.getSecretaryGeneralTimer(eLoopVoteSource), kGame.getVoteTimer(eLoopVoteSource), getSASGameSummaryReligionType(eReligion), pSourceCity == NULL ? -1 : pSourceCity->getOwner(), pSourceCity == NULL ? -1 : pSourceCity->getID(), getSASGameSummaryQuotedCityName(pSourceCity).GetCString(), pSourceCity == NULL ? -1 : pSourceCity->getX(), pSourceCity == NULL ? -1 : pSourceCity->getY(), getSASGameSummaryOrDash(szVotingTeams).GetCString(), getSASGameSummaryOrDash(szFullTeams).GetCString(), getSASGameSummaryOrDash(szVotes).GetCString(), getSASGameSummaryOrDash(szVictoryVotes).GetCString());
+ 	}
+ }
+ 
+@@ -1751,7 +1869,7 @@ static void logSASGameSummarySettlers(PlayerTypes ePlayer, int iGameTurn)
+ 			CvCity const* pNearestCity = GC.getMap().findCity(pLoopUnit->getX(), pLoopUnit->getY(), ePlayer, NO_TEAM, false);
+ 			const int iNearestDistance = pNearestCity == NULL ? -1 : plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pNearestCity->getX(), pNearestCity->getY());
+ 			logSASGameSummary("GAME_SUMMARY_SETTLER turn=%d player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d mission=%s plotOwner=%d plotTerrain=%s plotFeature=%s plotBonus=%s plotImprovement=%s plotRoute=%s guarded=%d threatened=%d nearestCityId=%d nearestCity=%S nearestCityDistance=%d",
+-					iGameTurn, ePlayer, pLoopUnit->getID(), getSASGameSummaryUnitType(pLoopUnit->getUnitType()), getSASGameSummaryUnitAIType(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getX(), pLoopUnit->getY(), getSASGameSummaryMissionType(eMission), pPlot->getOwner(), getSASGameSummaryTerrainType(pPlot->getTerrainType()), getSASGameSummaryFeatureType(pPlot->getFeatureType()), getSASGameSummaryBonusType(pPlot->getBonusType(pLoopUnit->getTeam())), getSASGameSummaryImprovementType(pPlot->getImprovementType()), getSASGameSummaryRouteType(pPlot->getRouteType()), isSASGameSummaryUnitGuarded(*pLoopUnit), isSASGameSummaryUnitThreatened(*pLoopUnit), pNearestCity == NULL ? -1 : pNearestCity->getID(), pNearestCity == NULL ? L"-" : pNearestCity->getName().GetCString(), iNearestDistance);
++					iGameTurn, ePlayer, pLoopUnit->getID(), getSASGameSummaryUnitType(pLoopUnit->getUnitType()), getSASGameSummaryUnitAIType(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getX(), pLoopUnit->getY(), getSASGameSummaryMissionType(eMission), pPlot->getOwner(), getSASGameSummaryTerrainType(pPlot->getTerrainType()), getSASGameSummaryFeatureType(pPlot->getFeatureType()), getSASGameSummaryBonusType(pPlot->getBonusType(pLoopUnit->getTeam())), getSASGameSummaryImprovementType(pPlot->getImprovementType()), getSASGameSummaryRouteType(pPlot->getRouteType()), isSASGameSummaryUnitGuarded(*pLoopUnit), isSASGameSummaryUnitThreatened(*pLoopUnit), pNearestCity == NULL ? -1 : pNearestCity->getID(), getSASGameSummaryQuotedCityName(pNearestCity).GetCString(), iNearestDistance);
+ 		}
+ 	}
+ 	logSASGameSummary("GAME_SUMMARY_SETTLERS turn=%d player=%d settlers=%d foundMission=%d moving=%d idle=%d waiting=%d ownTerritory=%d enemyTerritory=%d neutralTerritory=%d guarded=%d unguarded=%d threatened=%d",
+@@ -1919,7 +2037,7 @@ static CvString getSASGameSummaryCityTradePartners(CvCity const& kCity)
+ 		szItem.Format(szList.empty() ? "%d:%d:%S" : ",%d:%d:%S", pTradeCity->getOwner(), pTradeCity->getID(), pTradeCity->getName().GetCString());
+ 		szList += szItem;
+ 	}
+-	return getSASGameSummaryOrDash(szList);
++	return szList.empty() ? "-" : getSASGameSummaryQuoted(szList.GetCString());
+ }
+ 
+ // <!-- custom: Settler unit-state helpers for event-based expansion diagnostics. Keep game-summary rows descriptive: raw unit counts, visible enemy counts and combat/founding context, while BBAI logs carry the heavier AI-decision reasons. No gameplay behavior change. (ChatGPT-5.5) -->
+@@ -2009,7 +2127,7 @@ static void logSASGameSummaryCityDetail(CvCity const& kCity, int iGameTurn)
+ 	SASGameSummaryPlotUnitCounts kCityUnits;
+ 	collectSASGameSummaryPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
+ 	logSASGameSummary("GAME_SUMMARY_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers, kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
++			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameSummaryQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers, kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
+ 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(), getSASGameSummaryCityHappySources(kCity).GetCString(), getSASGameSummaryCityFlatUnhappySources(kCity).GetCString(), getSASGameSummaryCityAngerPercentSources(kCity).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d healthySources=%s unhealthySources=%s",
+@@ -2135,7 +2253,7 @@ static void logSASGameSummaryCities(PlayerTypes ePlayer, int iGameTurn)
+ 		if (gGameSummaryLogLevel >= 3) logSASGameSummaryCityDetail(*pLoopCity, iGameTurn);
+ 	}
+ 	logSASGameSummary("GAME_SUMMARY_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
+-			iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), pCapital == NULL ? L"-" : pCapital->getName().GetCString(), iConnectedToCapital, iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iSpecialists, iFreeSpecialists, iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities, pNextGPCity == NULL ? -1 : pNextGPCity->getID(), pNextGPCity == NULL ? L"-" : pNextGPCity->getName().GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(), iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
++			iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), getSASGameSummaryQuotedCityName(pCapital).GetCString(), iConnectedToCapital, iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iSpecialists, iFreeSpecialists, iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities, pNextGPCity == NULL ? -1 : pNextGPCity->getID(), getSASGameSummaryQuotedCityName(pNextGPCity).GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(), iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
+ 	logSASGameSummary("GAME_SUMMARY_CITIES_DELTAS turn=%d player=%d deltaValid=%d citiesDelta=%+d connectedToCapitalDelta=%+d totalFoodSurplusDelta=%+d totalHappySurplusDelta=%+d totalHealthSurplusDelta=%+d totalFoodDelta=%+d totalProdDelta=%+d totalCommerceDelta=%+d tradeRoutesDelta=%+d tradeCommerceDelta=%+d specialistsDelta=%+d freeSpecialistsDelta=%+d garrisonDelta=%+d",
+ 			iGameTurn, ePlayer, kPrevious.bValid, getSASGameSummaryDelta(kPrevious.bValid, iCities, kPrevious.iCityCount), getSASGameSummaryDelta(kPrevious.bValid, iConnectedToCapital, kPrevious.iCityConnectedToCapital), getSASGameSummaryDelta(kPrevious.bValid, iTotalFoodSurplus, kPrevious.iCityFoodSurplus), getSASGameSummaryDelta(kPrevious.bValid, iTotalHappySurplus, kPrevious.iCityHappySurplus), getSASGameSummaryDelta(kPrevious.bValid, iTotalHealthSurplus, kPrevious.iCityHealthSurplus), getSASGameSummaryDelta(kPrevious.bValid, iTotalFoodYield, kPrevious.iCityFood), getSASGameSummaryDelta(kPrevious.bValid, iTotalProductionYield, kPrevious.iCityProduction), getSASGameSummaryDelta(kPrevious.bValid, iTotalCommerceYield, kPrevious.iCityCommerce), getSASGameSummaryDelta(kPrevious.bValid, iTotalTradeRoutes, kPrevious.iCityTradeRoutes), getSASGameSummaryDelta(kPrevious.bValid, iTradeCommerce, kPrevious.iCityTradeCommerce), getSASGameSummaryDelta(kPrevious.bValid, iSpecialists, kPrevious.iCitySpecialists), getSASGameSummaryDelta(kPrevious.bValid, iFreeSpecialists, kPrevious.iCityFreeSpecialists), getSASGameSummaryDelta(kPrevious.bValid, iGarrison, kPrevious.iCityGarrison));
+ 	kPrevious.iCityCount = iCities;
+@@ -2249,6 +2367,7 @@ void logSASGameSummaryTurn(int iGameTurn)
+ 	CvGame const& kGame = GC.getGame();
+ 	logSASGameSummary("GAME_SUMMARY_TURN_BEGIN turn=%d elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
+ 			iGameTurn, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
++	logSASGameSummaryRunStatus("snapshot");
+ 	if (gGameSummaryLogLevel >= 2)
+ 	{
+ 		logSASGameSummaryMapBonusTotals(iGameTurn);
+@@ -2342,7 +2461,7 @@ static void logSASGameSummaryCityUnits(CvCity const& kCity, char const* szReason
+ 		}
+ 	}
+ 	logSASGameSummary("GAME_SUMMARY_CITY_UNITS turn=%d reason=%s player=%d cityId=%d city=%S x=%d y=%d pop=%d ownerUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d bestDefenderId=%d bestDefenderUnit=%s bestDefenderAI=%s bestDefenderDamage=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d nearestOtherOwnCityId=%d nearestOtherOwnCity=%S nearestOtherOwnCityDistance=%d",
+-		GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWoundedDefenders, kCounts.iSettlers, kCounts.iWorkers, kCounts.iAttackers, (kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getID()), (kCounts.pBestDefender == NULL ? "-" : getSASGameSummaryUnitType(kCounts.pBestDefender->getUnitType())), (kCounts.pBestDefender == NULL ? "-" : getSASGameSummaryUnitAIType(kCounts.pBestDefender->AI_getUnitAIType())), (kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getDamage()), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : getSASGameSummaryUnitType(pNearestEnemy->getUnitType())), iNearestEnemyDistance, (pNearestOtherOwnCity == NULL ? -1 : pNearestOtherOwnCity->getID()), (pNearestOtherOwnCity == NULL ? L"-" : pNearestOtherOwnCity->getName().GetCString()), iNearestOtherOwnCityDistance);
++		GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), getSASGameSummaryQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWoundedDefenders, kCounts.iSettlers, kCounts.iWorkers, kCounts.iAttackers, (kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getID()), (kCounts.pBestDefender == NULL ? "-" : getSASGameSummaryUnitType(kCounts.pBestDefender->getUnitType())), (kCounts.pBestDefender == NULL ? "-" : getSASGameSummaryUnitAIType(kCounts.pBestDefender->AI_getUnitAIType())), (kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getDamage()), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : getSASGameSummaryUnitType(pNearestEnemy->getUnitType())), iNearestEnemyDistance, (pNearestOtherOwnCity == NULL ? -1 : pNearestOtherOwnCity->getID()), getSASGameSummaryQuotedCityName(pNearestOtherOwnCity).GetCString(), iNearestOtherOwnCityDistance);
+ }
+ 
+ static bool logSASGameSummarySettlerCombatForPlot(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pPlot, PlayerTypes eSettlerOwner, bool bLoserWasSettler, bool bWinnerWasSettler)
+@@ -2400,7 +2519,7 @@ void logSASGameSummaryCityBuilt(CvCity const* pCity)
+ 	if (pCity == NULL)
+ 		return;
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=CITY_BUILT player=%d cityId=%d city=%S x=%d y=%d pop=%d",
+-			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
++			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
+ 	if (gGameSummaryLogLevel >= 2)
+ 	{
+ 		logSASGameSummaryCityBFC(*pCity, "built");
+@@ -2413,7 +2532,7 @@ void logSASGameSummaryCityRazed(CvCity const* pCity, PlayerTypes ePlayer)
+ 	if (pCity == NULL)
+ 		return;
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=CITY_RAZED player=%d oldOwner=%d cityId=%d city=%S x=%d y=%d pop=%d",
+-			GC.getGame().getGameTurn(), ePlayer, pCity->getOwner(), pCity->getID(), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
++			GC.getGame().getGameTurn(), ePlayer, pCity->getOwner(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
+ }
+ 
+ void logSASGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade)
+@@ -2437,7 +2556,7 @@ void logSASGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner,
+ 			g_aiSASGameSummaryCitiesTradedOut[eOldOwner]++;
+ 	}
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
+-			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
++			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
+ 	if (gGameSummaryLogLevel >= 2)
+ 	{
+ 		logSASGameSummaryCityBFC(*pCity, "acquired");
+@@ -2501,14 +2620,14 @@ void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding
+ {
+ 	if (pCity == NULL || eBuilding == NO_BUILDING || !GC.getInfo(eBuilding).isLimited())
+ 		return;
+-	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), pCity->getName().GetCString(), getSASGameSummaryBuildingType(eBuilding));
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), getSASGameSummaryBuildingType(eBuilding));
+ }
+ 
+ void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
+ {
+ 	if (pCity == NULL)
+ 		return;
+-	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), pCity->getName().GetCString(), getSASGameSummaryProjectType(eProject));
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), getSASGameSummaryProjectType(eProject));
+ }
+ 
+ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
+@@ -2519,12 +2638,45 @@ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVa
+ void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory)
+ {
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=VICTORY team=%d victory=%s", GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
++	logSASGameSummaryRunStatus("victory");
++}
++
++void logSASGameSummaryPlayerEliminated(PlayerTypes ePlayer)
++{
++	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
++		return;
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=PLAYER_ELIMINATED player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d eliminatedPlayers=%s",
++			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(), kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), getSASGameSummaryEliminatedPlayers().GetCString());
++	logSASGameSummaryRunStatus("playerEliminated");
++}
++
++void logSASGameSummaryPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
++{
++	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
++		return;
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d playersEverAlive=%d",
++			GC.getGame().getGameTurn(), bRevived ? "PLAYER_REVIVED" : "PLAYER_APPEARED", ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(), kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), GC.getGame().countCivPlayersEverAlive());
++	logSASGameSummaryRunStatus(bRevived ? "playerRevived" : "playerAppeared");
++}
++
++void logSASGameSummaryAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus)
++{
++	if (iOldValue == iNewValue)
++		return;
++	CvGame const& kGame = GC.getGame();
++	const char* szAction = (iOldValue <= 0 && iNewValue > 0 ? "AUTOPLAY_STARTED" : (iOldValue > 0 && iNewValue <= 0 ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
++	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d",
++			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus);
++	logSASGameSummaryRunStatus(szAction);
+ }
+ 
+ void logSASGameSummaryGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity)
+ {
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_BORN player=%d cityId=%d city=%S unit=%s combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d",
+-			GC.getGame().getGameTurn(), ePlayer, pCity == NULL ? -1 : pCity->getID(), pCity == NULL ? L"-" : pCity->getName().GetCString(), pUnit == NULL ? "-" : getSASGameSummaryUnitType(pUnit->getUnitType()), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getCombatExperience(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatPeopleCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatGeneralsCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).greatPeopleThreshold(true));
++			GC.getGame().getGameTurn(), ePlayer, pCity == NULL ? -1 : pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), pUnit == NULL ? "-" : getSASGameSummaryUnitType(pUnit->getUnitType()), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getCombatExperience(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatPeopleCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatGeneralsCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).greatPeopleThreshold(true));
+ }
+ 
+ void logSASGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist)
+@@ -2532,7 +2684,7 @@ void logSASGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity
+ 	if (pUnit == NULL || pCity == NULL)
+ 		return;
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_JOINED_CITY player=%d unitId=%d unit=%s cityId=%d city=%S specialist=%s freeSpecialists=%d",
+-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getID(), pCity->getName().GetCString(), eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType(), pCity->getFreeSpecialistCount(eSpecialist));
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType(), pCity->getFreeSpecialistCount(eSpecialist));
+ }
+ 
+ void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion)
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.h b/CvGameCoreDLL/SASGameSummaryLog.h
+index fccd0aee8..40cfb3943 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.h
++++ b/CvGameCoreDLL/SASGameSummaryLog.h
+@@ -32,6 +32,10 @@ void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding
+ void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
+ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
+ void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory);
++void logSASGameSummaryRunStatus(char const* szReason);
++void logSASGameSummaryPlayerEliminated(PlayerTypes ePlayer);
++void logSASGameSummaryPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
++void logSASGameSummaryAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus);
+ void logSASGameSummaryGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);
+ void logSASGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist);
+ void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion);
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 36f95321a..954cc7b43 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -907,7 +907,7 @@ In short: this script is kept as a historical and practical discovery helper, wh
+ - Uses repo-relative archive paths and `ZIP_STORED` / no compression. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review.
+ - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
+ - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
+-- Includes small source/data/docs folders useful for review: root lone files, selected `Assets` folders, root helper/doc/config folders, top-level `CvGameCoreDLL` files, top-level `CvGameCoreDLL/Project` files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus `_1_AdvCiv-SAS/Docs` and `_1_AdvCiv-SAS/git_logs`.
++- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/) and [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/).
+ - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
+ - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+ - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+@@ -916,7 +916,7 @@ In short: this script is kept as a historical and practical discovery helper, wh
+ 
+ Tools like here WizTree helped find which folders/files are heavy to exclude.
+ 
+-Example to write to Downloads (Git Bash):
++Example of creating a light source ZIP in Downloads folder (Git Bash):
+ 
+ ```bash
+ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
+
+diff --git a/README.md b/README.md
+index def0d3b59..1a684c324 100644
+--- a/README.md
++++ b/README.md
+@@ -888,7 +888,7 @@ For modders: i have made several scripts with AI assistance. We don't use them a
+ 
+ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+ 
+-Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time, of the core/most useful files/folders, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder).
++Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time. It includes the core useful source/data/docs/helper files, including [LLM_Helpers](/LLM_Helpers/) itself, while leaving out generated or too-heavy files/folders (e.g., as of now no `LLM_Helpers/outputs`, .fpk, .tga, .dll, pycache folders, or art assets folder).
+ 
+ GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
+ 
+@@ -923,17 +923,24 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SAS game summary log
+ 
+-`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, worked plots, unit composition, diplomacy, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
++`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++
++Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
++
++For better LLM analysis, also provide mod context when possible. For example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
+ 
+ See also [ChatGPT-5.6-Sol SASGameSummary analysis example](/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_summary_example.md) for an example of an external LLM using the summary log to review an autoplay run.
+ 
+ For example, `SASGameSummary_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
+ 
+ ```log
+-GAME_SUMMARY_SAVE_LOADED utc=20260710T064839Z logFile=SASGameSummary_20260710T064839Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+-GAME_SUMMARY_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
++GAME_SUMMARY_SAVE_LOADED utc=20260710T064839Z logFile="SASGameSummary_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
++GAME_SUMMARY_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
++GAME_SUMMARY_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=200 activePlayer=0 changePlayerStatus=1
++GAME_SUMMARY_RUN_STATUS turn=190 reason=snapshot elapsed=190 year=1260 winnerTeam=-1 victory=- playersAlive=10 teamsAlive=10 playersEverAlive=11 humans=1 eliminatedPlayers=9 topScorePlayer=3 topScore=1964 topPowerPlayer=10 topPower=456000 totalCities=63 totalPopulation=702
+ GAME_SUMMARY_STATISTICS turn=190 player=9 currentCities=1 persistentCitiesBuilt=4 persistentCitiesRazed=0 loggedCitiesAcquired=0 loggedCitiesLost=3 loggedCitiesConquered=0 loggedCitiesLostByConquest=3 loggedCitiesTradedIn=0 loggedCitiesTradedOut=0 loggedCityNet=-3 loggedBattleWins=16 loggedBattleLosses=38 loggedCityBattleWins=0 loggedCityBattleLosses=8 loggedBattleNet=-22
+ GAME_SUMMARY_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSKETMAN:7,UNIT_RIFLEMAN:4,UNIT_CANNON:2 unitAI=UNITAI_WORKER:1,UNITAI_ATTACK:2,UNITAI_CITY_DEFENSE:11 unitCombat=UNITCOMBAT_GUN:11,UNITCOMBAT_SIEGE:2
++GAME_SUMMARY_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
+ ```
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_summary_log_example.PNG" alt="sas_game_summary_log_example.PNG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 53e6d7d9f..63782f0c9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -153,7 +153,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+-- (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. See also [README.md (DLL Logging)](/README.md#dll-logging).
++- (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly.
++- Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact mod context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+ - (Requires AdvCiv-SAS 6031+) **Great General BBAI diagnostics:** added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs. This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=64743

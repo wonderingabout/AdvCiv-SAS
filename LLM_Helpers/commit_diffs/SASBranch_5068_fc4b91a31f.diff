@@ -1,0 +1,273 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5068
+# Commit: fc4b91a31f5d27a6485480f3ba81479d06ae5625
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8a12b125dd634ab11ab5535fccddb39c451ac9d2
+# Title: (Tremendously Improved) Force emergency buildingclass_harbor if city is coastal (ocean) and low food per turn (tunable in sas defines anyways etc) The same 2...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	0	Assets/XML/Buildings/CIV4BuildingInfos.xml
+19	1	Assets/XML/GlobalDefines_advciv_sas.xml
+62	4	CvGameCoreDLL/CvCity.cpp
+5	4	CvGameCoreDLL/CvCityAI.cpp
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index ee8ccc3f7..1da363d6a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -288,6 +288,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
+ 
+ 
++
+ 	def get_positive_or_negative_memory_indexes(is_positive):
+ 		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs, see generate_leaders_data.py code or/and code comments for details anyways etc -->
+ 		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them if i am not mistaken in my understanding anyways etc -->
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 8e88ff0c6..12bac6ebb 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -5092,6 +5092,7 @@
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty anyways etc -->
++			<!-- custom: see related info and define to configure at SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME but anyways etc -->
+ 			<SeaPlotYieldChanges>
+ 				<iYield>1</iYield>
+ 			</SeaPlotYieldChanges>
+@@ -5288,6 +5289,7 @@
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty anyways etc -->
++			<!-- custom: see related info and define to configure at SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME but anyways etc -->
+ 			<SeaPlotYieldChanges>
+ 				<iYield>1</iYield>
+ 			</SeaPlotYieldChanges>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5ebe31240..a82c58743 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -838,7 +838,7 @@
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledging") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture if i'm not mistaken but anyways etc), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check i mean but anyways etc), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC but anyways etc) -->
++	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture if i'm not mistaken but anyways etc), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check i mean but anyways etc), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC but anyways etc) -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+@@ -846,4 +846,22 @@
+ 
+ 
+ 
++	<!-- custom: water food building (as of now building_harbor anyways etc) emergency/force anyways etc production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is anyways etc)), 0 to disable it -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: if food per turn in city is <= 1 food per turn and city is coastal, then force harbor as we would stagnate soon anyway -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to anyways etc) -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
++		<DefineTextVal>BUILDINGCLASS_HARBOR</DefineTextVal>
++	</Define>
++
++
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a2cdd9514..274180566 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -569,13 +569,71 @@ void CvCity::doTurn()
+ 
+ 	doProduction(!bForceProduction);
+ 
++	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
++	const bool bHuman = isHuman();
++	bool const bDanger  = AI().AI_isDanger();	// method lives on CvCityAI
++	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
++	bool bEmergencyBuilding = false;
++
++	// <!-- custom: emergency harbor (or whatever the water food building is in your mod anyways etc) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments anyways etc and/or such, check if accurate anyways etc -->
++	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
++	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
++
++	// Optional (recommended) war–danger gate
++	// So you don’t cancel a critical unit in a besieged city:
++	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bDanger)
++	{
++		// The low-food gate matches your original intent (fix tundra coasts that stagnate), while leaving healthy coastals alone.
++		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
++		const bool bOceanCoastal = isCoastal(iOceanThresh); // excludes lakes
++
++		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most if i'm not mistaken but is just a guess so check to be sure anyways etc. -->
++		if (bOceanCoastal && !isFoodProduction())
++		{
++			// Threshold: 1 = low food or worse.
++			static const int iFoodThresh = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD"); // e.g. 1
++			const int iFoodDiff = foodDifference();
++			const bool bLowFood = (iFoodDiff <= iFoodThresh);
++
++			if (bLowFood)
++			{
++				// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value anyways etc. -->
++				static const BuildingClassTypes eWaterFoodBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME"));
++				BuildingTypes eWaterFoodBuilding = NO_BUILDING;
++				if (eWaterFoodBuildingClass != NO_BUILDINGCLASS)
++				{
++					eWaterFoodBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eWaterFoodBuildingClass);
++				}
++
++				if ((eWaterFoodBuilding != NO_BUILDING) &&
++					getNumActiveBuilding(eWaterFoodBuilding) == 0 &&
++					canConstruct(eWaterFoodBuilding, false, false, true))
++				{
++					// if already building Harbor, let it finish
++					if (getProductionBuilding() == eWaterFoodBuilding)
++					{
++						bEmergencyBuilding = true;	// <!-- custom: don't overwrite urgent building anyways etc -->
++					}
++					else
++					{
++						clearOrderQueue();                       		// hard override
++						pushOrder(ORDER_CONSTRUCT, eWaterFoodBuilding);	// put Harbor at head
++						setChooseProductionDirty(false);         		// don't clear it next turn
++						bEmergencyBuilding = true;						// done
++					}
++				}
++			}
++		}
++	}
++	// --- end SAS rule ---
++
+ 	// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd if i may say but anyways etc) (or maybe not something else? In this case i mean but anyways etc) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below but anyways etc with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+ 	// --- BEGIN: hard safety net for AI production ---
+ 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
+ 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
+ 	static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
+ 
+-	if (!isHuman() && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
++	if (!bEmergencyBuilding && !bHuman && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
+ 	{
+ 		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
+ 		//const bool bNeedFallback = !isProduction();
+@@ -661,7 +719,7 @@ void CvCity::doTurn()
+ 			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+ 			// change to:
+ 			bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
+-			bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
++			// bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
+ 			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+ 			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+ 			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+@@ -1054,7 +1112,7 @@ void CvCity::doTurn()
+ 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
+ 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
+ 	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
+-	if (!isHuman() && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
++	if (!bHuman && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+ 	{
+ 		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
+ 
+@@ -1093,7 +1151,7 @@ void CvCity::doTurn()
+ 	}  // <advc.004x>
+ 	else
+ 	{
+-		if(isHuman() && !isProduction() && !isProductionAutomated() &&
++		if(bHuman && !isProduction() && !isProductionAutomated() &&
+ 			kOwner.getAnarchyTurns() == 1 &&
+ 			GC.getGame().getGameState() != GAMESTATE_EXTENDED)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3373d991a..c706483a6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3305,9 +3305,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
+ 				// if (pWaterArea != NULL)
+ 				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+-				static const int iMinWaterSizeForOcean = GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN");
++				const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
++				const bool bOceanCoastal = isCoastal(iOceanThresh);
+ 
+-				if (pWaterArea != NULL && isCoastal(iMinWaterSizeForOcean))
++				if (pWaterArea != NULL && bOceanCoastal)
+ 				{
+ 					// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc -->
+ 					const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
+@@ -13953,12 +13954,12 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 		static const SpecialistTypes eSpecialistArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+ 
+-		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE && (eSpecialistArtist != NO_SPECIALIST));
++		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
+ 
+ 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+ 		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+ 
+-		if (!bWantBFCArtist)
++		if (!bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
+ 		{
+ 			const int iCityPopulation = getPopulation();
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 5337d6445..257b2e330 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -179,7 +179,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### City Production (AI)
+ 
+-- massively patched / worked around and seemingly fixed the major base advciv +/- civ4 issue of AI cities being in a no production state (they don't produce anything at all, there is a "no entry" like button as chatgpt 5 describe it xd but anyways etc), not even a unit like a warrior / ancient maceman or such which would absolutely be free and better than litteral nothing. This wastes a lot of hammers, and happens in quite a few cities, not just during one turn. The very effective work around was to add another fallback of "produce most expensive (unless price is extremely and unusually high then cheapest among them instead anyways etc) unit that suits us" (a land unit of offense or defense, not civilian like a scout for example anyways etc). So now cities don't have no production at all anymore, and produce for example an archer instead in the ancient era as of now but anyways etc. See for details with screenshots and such anyways etc [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Thanks to the increase in AI efficiency and hammer use due to now using hammer instead of "passing" turns but anyways etc, i have reduced handicap settings a bit more to accomodate that (and so AIs don't go bankrupt, as well as human players having a more even game without excessive penalties too ideally so hopefully for the best in all at least to me if i may say but anyways etc). AI should be quite a bit stronger thanks to this change but anyways etc. Update: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
++- massively patched / worked around and seemingly fixed the major base advciv +/- civ4 issue of AI cities being in a no production state (they don't produce anything at all, there is a "no entry" like button as chatgpt 5 describe it xd but anyways etc), not even a unit like a warrior / ancient maceman or such which would absolutely be free and better than litteral nothing. This wastes a lot of hammers, and happens in quite a few cities, not just during one turn. The very effective work around was to add another fallback of "produce most expensive (unless price is extremely and unusually high then cheapest among them instead anyways etc) unit that suits us" (a land unit of offense or defense, not civilian like a scout for example anyways etc). So now cities don't have no production at all anymore, and produce for example an archer instead in the ancient era as of now but anyways etc. Added in `CvCity::AI_doTurn`. See for details with screenshots and such anyways etc [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc).Thanks to the increase in AI efficiency and hammer use due to now using hammer instead of "passing" turns but anyways etc, i have reduced handicap settings a bit more to accomodate that (and so AIs don't go bankrupt, as well as human players having a more even game without excessive penalties too ideally so hopefully for the best in all at least to me if i may say but anyways etc). AI should be quite a bit stronger thanks to this change but anyways etc. Update: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
++- (Requires AdvCiv-SAS 5068+) before that no production fix/patch is applied, also added an emergency/force water food building class (as of now it is the harbor buildings in advciv-sas (buildings that give +1 food on water tiles anyways etc)) logic that takes precedence: if we are low on food and city is coastal (connected to an ocean), force a harbor type of building (or their civ-specific variants anyways etc) so that we don't get stagnant while a harbor could help us grow our pop. Tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml), including in case you change the building(s) that give food yield in your mod anyways etc, see defines for details anyways etc.
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 309580e82..d5b7ab9cf 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -164,11 +164,12 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`.
+ - Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc).
+-- (Requires AdvCiv-SAS 5067+) exception to the previous rule, and AI enhancement: If a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
++- (Requires AdvCiv-SAS 5067+) Exception to the previous rule, and AI enhancement: If a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+ 
+ #### City Production (AI)
+ 
+-- **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to “any suitable land unit” if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
++- **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to “any suitable land unit” if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
++- (Requires AdvCiv-SAS 5068+) **Emergency water-food building (pre-fallback):** Before the “no-production” fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. Runs first in `CvCity::AI_doTurn`. Tunables—including which buildings count—live in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ #### Leaders (AI)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=28063

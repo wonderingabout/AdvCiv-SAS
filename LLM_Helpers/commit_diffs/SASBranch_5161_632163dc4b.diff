@@ -1,0 +1,525 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5161
+# Commit: 632163dc4b360293e2cf7eaf389bacc843bc44e1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c
+# Title: (Tremendously Improved) Trade more aggressively and much cheaper any tech once 1+ rivals also discover it - **Aggressive tech trade discounts for widely know...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	8	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+36	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/ActualQuotesText_Custom.xml
+135	84	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+18	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+1	1	handicap_info_to_csv_advciv-sas.csv
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 137d1200f..eff54fe36 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -180,7 +180,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt) anyways etc -->
+ 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
+-			<iAIResearchPercent>124</iAIResearchPercent>
++			<iAIResearchPercent>118</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+ 			<iAITrainPercent>115</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+@@ -308,7 +308,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- was 130 -->
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
+ 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+-			<iAIResearchPercent>116</iAIResearchPercent>
++			<iAIResearchPercent>112</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+ 			<iAITrainPercent>110</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+@@ -436,7 +436,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>108</iAIResearchPercent>
++			<iAIResearchPercent>106</iAIResearchPercent>
+ 			<iAITrainPercent>105</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>105</iAIConstructPercent>
+@@ -701,7 +701,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>92</iAIResearchPercent>
++			<iAIResearchPercent>94</iAIResearchPercent>
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>95</iAIConstructPercent>
+@@ -839,7 +839,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+-			<iAIResearchPercent>84</iAIResearchPercent>
++			<iAIResearchPercent>88</iAIResearchPercent>
+ 			<!-- was 90 -->
+ 			<iAITrainPercent>90</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -977,7 +977,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>76</iAIResearchPercent>
++			<iAIResearchPercent>82</iAIResearchPercent>
+ 			<!-- was 85 -->
+ 			<iAITrainPercent>85</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1124,7 +1124,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>68</iAIResearchPercent>
++			<iAIResearchPercent>76</iAIResearchPercent>
+ 			<!-- was 80 -->
+ 			<iAITrainPercent>80</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1274,7 +1274,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>60</iAIResearchPercent>
++			<iAIResearchPercent>70</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>75</iAITrainPercent>
+ 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8a061cedb..776b488b3 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1168,6 +1168,42 @@
+ 
+ 
+ 
++	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate anyways etc. -->
++	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<Define>
++		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- 1. Apply Aggressive Discount
++	Reduces value to a percentage defined in XML (e.g., 25% of original).
++	This encourages the AI to sell "common knowledge" rather than hoarding it. -->
++	<Define>
++		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++	<!-- 2. Calculate Minimum Gold Floor
++	Formula: (GameTurn * MULT + ADD) / DIV
++	Example (Mult=10, Add=0, Div=20): (GameTurn * 10) / 20  -> GameTurn / 2.
++	This ensures late-game techs aren't sold for 1 gold; the price floor scales with the era. -->
++	<Define>
++		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<!-- 3. Enforce the Floor
++	We take the HIGHER of the discounted value and the minimum floor.
++	Explanation: If the 25% discount drops the price to 10 gold, but the floor is 50 gold, we must charge at least 50 gold. We don't want to sell for practically nothing. -->
++
++
++
+ 	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really if i may say i mean but anyways etc; also i mean check if accurate and thanks for help i mean too but anyways etc. -->
+ 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
+ 	<Define>
+
+diff --git a/Assets/XML/Text/ActualQuotesText_Custom.xml b/Assets/XML/Text/ActualQuotesText_Custom.xml
+index 931b49307..83557e7ec 100644
+--- a/Assets/XML/Text/ActualQuotesText_Custom.xml
++++ b/Assets/XML/Text/ActualQuotesText_Custom.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+ <!-- custom: adding some extra files after our asset renames such as the old "montezuma"->"moctezuma" missing after our changes so need to add them anyways etc. -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA" so add now missing corresponding assets in this mod anyways etc. -->
++	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets in this mod anyways etc. -->
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Tag>
+ 		<English>I am pleased to meet you, [CT_NAME]! Let us each slaughter fifty thousand slaves to celebrate this auspicious occasion.</English>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 59c368595..5a18bbd2c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9644,93 +9644,144 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const&
+ 		}
+ 		switch(eItemType) // </advc.130p>
+ 		{
+-		case TRADE_TECHNOLOGIES:
+-			iValue += kOurTeam.AI_techTradeVal((TechTypes)pItem->m_iData, eFromTeam,
+-					bIgnoreDiscount); // advc.550a
+-			break;
+-		case TRADE_RESOURCES:
+-		{	// <advc.036>
+-			BonusTypes eBonus = (BonusTypes)pItem->m_iData;
+-			CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+-			if(kBonus.getHappiness() > 0)
+-				iHappyBonuses += iChange;
+-			if(kBonus.getHealth() > 0)
+-				iHealthBonuses += iChange; // </advc.036>
+-			iValue += AI_bonusTradeVal(eBonus, eFromPlayer, iChange,
+-					// <advc.036>
+-					(std::abs(iHappyBonuses) > 1 && kBonus.getHappiness() > 0) ||
+-					(std::abs(iHealthBonuses) > 1 && kBonus.getHealth() > 0));
+-					// </advc.036>
+-			break;
+-		}
+-		case TRADE_CITIES:
+-		{
+-			CvCityAI const* pCity = kFromPlayer.AI_getCity(pItem->m_iData);
+-			if (pCity != NULL)
++			// <!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate anyways etc. -->
++			// Explanation of the Logic
++			// 	- kGame.countKnownTechNumTeams(eTech) > 2: This checks if the tech is known by the owner plus at least two other teams. This satisfies your condition "as long as more than one rival has it". If you strictly meant "at least one rival" (so 2 teams total including us), change > 2 to > 1 (or >= 2).
++			// 	- iTechVal * 25 / 100: This acts as the "aggressive" modifier, reducing the tech's perceived value by 75%, making the AI willing to trade it for much less gold.
++			// 	- iMinGold: Implements your specific formula (10 gold per 20 game turns). This ensures the AI doesn't give away late-game techs for literally 1 gold just because they are widely known; it maintains a sensible economic floor.
++			case TRADE_TECHNOLOGIES:
++				// iValue += kOurTeam.AI_techTradeVal((TechTypes)pItem->m_iData, eFromTeam,
++				// 		bIgnoreDiscount); // advc.550a
++				// break;
++			{
++				CvGame const& kGame = GC.getGame();
++				const TechTypes eTech = (TechTypes)pItem->m_iData;
++
++				// Capture the original value calculated by the AI
++				int iTechVal = kOurTeam.AI_techTradeVal(eTech, eFromTeam, bIgnoreDiscount);
++
++				// Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap.
++				// We check if the tech is widely known. 'countKnownTechNumTeams' includes the owner.
++				// If we are selling it, we know it. If 1 rival knows it, count is 2, so we check for count >= 2.
++				static const bool bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE");
++				if (bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE && kGame.countKnownTechNumTeams(eTech) >= 2) 
++				{
++					// 1. Apply Aggressive Discount
++                    // Reduces value to a percentage defined in XML (e.g., 25% of original).
++                    // This encourages the AI to sell "common knowledge" rather than hoarding it.
++					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT");
++					int iDiscountedVal = iTechVal * iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT / 100; 
++
++					// 2. Calculate Minimum Gold Floor
++                    // Formula: (GameTurn * MULT + ADD) / DIV
++                    // Example (Mult=10, Add=0, Div=20): (GameTurn * 10) / 20  -> GameTurn / 2.
++                    // This ensures late-game techs aren't sold for 1 gold; the price floor scales with the era.
++					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT = GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT");
++					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD = GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD");
++					static const int iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV = std::max(1, GC.getDefineINT("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV"));
++					const int iMinGold = ((kGame.getGameTurn() * iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT) + iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD) / iSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV;
++
++					// 3. Enforce the Floor
++                    // We take the HIGHER of the discounted value and the minimum floor.
++                    // Explanation: If the 25% discount drops the price to 10 gold, but the floor is 50 gold, we must charge at least 50 gold. We don't want to sell for practically nothing.
++					if (iDiscountedVal < iMinGold)
++					{
++						iDiscountedVal = iMinGold;
++					}
++
++					// 4. Apply the new value (only if it is actually cheaper than the standard AI valuation)
++					if (iDiscountedVal < iTechVal)
++					{
++						iTechVal = iDiscountedVal;
++					}
++				}
++
++				iValue += iTechVal;
++				break;
++			}	
++			case TRADE_RESOURCES:
++			{	// <advc.036>
++				BonusTypes eBonus = (BonusTypes)pItem->m_iData;
++				CvBonusInfo const& kBonus = GC.getInfo(eBonus);
++				if(kBonus.getHappiness() > 0)
++					iHappyBonuses += iChange;
++				if(kBonus.getHealth() > 0)
++					iHealthBonuses += iChange; // </advc.036>
++				iValue += AI_bonusTradeVal(eBonus, eFromPlayer, iChange,
++						// <advc.036>
++						(std::abs(iHappyBonuses) > 1 && kBonus.getHappiness() > 0) ||
++						(std::abs(iHealthBonuses) > 1 && kBonus.getHealth() > 0));
++						// </advc.036>
++				break;
++			}
++			case TRADE_CITIES:
+ 			{
+-				iValue += AI_cityTradeVal(*pCity,
+-						// <advc.ctr>
+-						NO_PLAYER, bCountLiberation ?
+-						(bDiploVal ? LIBERATION_WEIGHT_FULL : LIBERATION_WEIGHT_REDUCED) :
+-						LIBERATION_WEIGHT_ZERO,
+-						false, bAIRequest, bDiploVal); // </advc.ctr>
++				CvCityAI const* pCity = kFromPlayer.AI_getCity(pItem->m_iData);
++				if (pCity != NULL)
++				{
++					iValue += AI_cityTradeVal(*pCity,
++							// <advc.ctr>
++							NO_PLAYER, bCountLiberation ?
++							(bDiploVal ? LIBERATION_WEIGHT_FULL : LIBERATION_WEIGHT_REDUCED) :
++							LIBERATION_WEIGHT_ZERO,
++							false, bAIRequest, bDiploVal); // </advc.ctr>
++				}
++				break;
+ 			}
+-			break;
+-		}
+-		case TRADE_GOLD:
+-		{
+-			/*	<advc.026> Treat human gold as a multiple of 5 in order to
+-				make AI trade acceptance (AI_considerOffer) consistent with
+-				AI trade proposals (AI_balanceDeal). */
+-			int iGold = pItem->m_iData;
+-			if (iGold >= CvGlobals::DIPLOMACY_VALUE_REMAINDER && kFromPlayer.isHuman())
++			case TRADE_GOLD:
+ 			{
+-				if (iGold % GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) != 0)
+-					AI_roundTradeVal(iGold);
+-			} // </advc.026>
+-			iValue += (iGold * AI_goldTradeValuePercent()) / 100;
+-			break;
+-		}
+-		case TRADE_GOLD_PER_TURN:
+-			iValue += AI_goldPerTurnTradeVal(pItem->m_iData);
+-			break;
+-		case TRADE_MAPS:
+-			iValue += kOurTeam.AI_mapTradeVal(eFromTeam);
+-			break;
+-		case TRADE_SURRENDER:
+-			iValue += kOurTeam.AI_surrenderTradeVal(eFromTeam);
+-			break;
+-		case TRADE_VASSAL:
+-			iValue += kOurTeam.AI_vassalTradeVal(eFromTeam);
+-			break;
+-		case TRADE_OPEN_BORDERS:
+-			iValue += kOurTeam.AI_openBordersTradeVal(eFromTeam);
+-			break;
+-		case TRADE_DEFENSIVE_PACT:
+-			iValue += kOurTeam.AI_defensivePactTradeVal(eFromTeam);
+-			break;
+-		case TRADE_PEACE:
+-			iValue += kOurTeam.AI_makePeaceTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
+-			break;
+-		case TRADE_WAR:
+-			// <advc.104o>
+-			if(getUWAI().isEnabled())
+-			{
+-				iWars++;
+-				if(iWars > 1)
+-					iValue += 1000000; // More than they can pay
+-			} // </advc.104o>
+-			iValue += kOurTeam.AI_declareWarTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
+-			break;
+-		case TRADE_EMBARGO:
+-			iValue += AI_stopTradingTradeVal((TeamTypes)pItem->m_iData, eFromPlayer);
+-			break;
+-		case TRADE_CIVIC:
+-			iValue += AI_civicTradeVal((CivicTypes)pItem->m_iData, eFromPlayer);
+-			break;
+-		case TRADE_RELIGION:
+-			iValue += AI_religionTradeVal((ReligionTypes)pItem->m_iData, eFromPlayer);
+-			break;
++				/*	<advc.026> Treat human gold as a multiple of 5 in order to
++					make AI trade acceptance (AI_considerOffer) consistent with
++					AI trade proposals (AI_balanceDeal). */
++				int iGold = pItem->m_iData;
++				if (iGold >= CvGlobals::DIPLOMACY_VALUE_REMAINDER && kFromPlayer.isHuman())
++				{
++					if (iGold % GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER) != 0)
++						AI_roundTradeVal(iGold);
++				} // </advc.026>
++				iValue += (iGold * AI_goldTradeValuePercent()) / 100;
++				break;
++			}
++			case TRADE_GOLD_PER_TURN:
++				iValue += AI_goldPerTurnTradeVal(pItem->m_iData);
++				break;
++			case TRADE_MAPS:
++				iValue += kOurTeam.AI_mapTradeVal(eFromTeam);
++				break;
++			case TRADE_SURRENDER:
++				iValue += kOurTeam.AI_surrenderTradeVal(eFromTeam);
++				break;
++			case TRADE_VASSAL:
++				iValue += kOurTeam.AI_vassalTradeVal(eFromTeam);
++				break;
++			case TRADE_OPEN_BORDERS:
++				iValue += kOurTeam.AI_openBordersTradeVal(eFromTeam);
++				break;
++			case TRADE_DEFENSIVE_PACT:
++				iValue += kOurTeam.AI_defensivePactTradeVal(eFromTeam);
++				break;
++			case TRADE_PEACE:
++				iValue += kOurTeam.AI_makePeaceTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
++				break;
++			case TRADE_WAR:
++				// <advc.104o>
++				if(getUWAI().isEnabled())
++				{
++					iWars++;
++					if(iWars > 1)
++						iValue += 1000000; // More than they can pay
++				} // </advc.104o>
++				iValue += kOurTeam.AI_declareWarTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
++				break;
++			case TRADE_EMBARGO:
++				iValue += AI_stopTradingTradeVal((TeamTypes)pItem->m_iData, eFromPlayer);
++				break;
++			case TRADE_CIVIC:
++				iValue += AI_civicTradeVal((CivicTypes)pItem->m_iData, eFromPlayer);
++				break;
++			case TRADE_RELIGION:
++				iValue += AI_religionTradeVal((ReligionTypes)pItem->m_iData, eFromPlayer);
++				break;
+ 		}
+ 	}
+
+diff --git a/README.md b/README.md
+index 40f4bac86..5564f0390 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # AdvCiv-SAS (Simple Advanced Strategy)
+ 
+-This mod (AdvCiv-SAS (Simple Advanced Strategy)) is based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest [AdvCiv (CFC forum/post link)](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
++This mod (AdvCiv-SAS (Simple Advanced Strategy)) ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the [latest AdvCiv](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
+ 
+ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
+ 
+@@ -294,7 +294,7 @@ Still, in the game where i tried it, it was gradually faster as more and more pl
+ 
+ All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
+ 
+-Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/ecb69d193b4b0b496a963d994c22d18038dca4df/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
++Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+ 
+ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 558d12e8f..f8f3b90b8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -245,7 +245,7 @@ git fetch origin
+ # choose names
+ # new tag
+ TAG=5160
+-SHA=e9026bd93bc511ecd1f81b45f586712bb24a0116  # <- the TAG commit
++SHA=2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c  # <- the TAG commit
+ OLDNAME="AdvCiv-SAS 5082"                     # quote because of spaces
+ BASE=37615028018c14723ab4598cf095c39604f2a002 # <- the OLDNAME commit
+ WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index a43863900..bba94abc2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -197,7 +197,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### Technologies (AI)
+ 
+-- overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 (not viewed as a military tech anymore), TECH_CIVIL_SERVICE 3->8 (viewed much more as a military tech, which matches our tech tree changes but also more generally should be more in line with its important military role anyways etc.))
++- overhaul `FLAVOR_MILITARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 (not viewed as a military tech anymore), TECH_CIVIL_SERVICE 3->8 (viewed much more as a military tech, which matches our tech tree changes but also more generally should be more in line with its important military role anyways etc.))
+ - devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue`. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc. Update: also added vassal<->vassal(s) siblings devaluation to self research logic (if any of our sibling vassal(s) has the tech, devalue researching it ourselves).
+ - value researching key military techs (high `FLAVOR_MILITARY`) much more when we are weaker, as economy or such techs are useless at best, or at worst we'd just be researching them for our ennemies after they conquer us. Change in `CvPlayerAI::AI_techValue`. In autoplay, this seemingly results in Ewuare not being able to sustain his early lead anymore. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc.
+ 
+@@ -228,6 +228,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather than easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
+ - Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
+ - Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen for example that don't require any bonus, and cannons only requiring iron as of now but anyways etc). Similarly, elephants bonus is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc. Update: now does not apply anymore to trades between members of the same master-vassal(s) locus (as it is in their interest to be mutually stronger anyways etc.).
++- (Requires AdvCiv-SAS 5161+) **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower difficulties). See for details [KI#83](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
+ - Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this seemingly leads to better tech sharing between vassal(s) and their master (a vassal was mostly way ahead in tech and now the master has more techs). Added a second parameter to `AI_contactRoll(CONTACT_TRADE_TECH` (was using a default of 1 in the header file anyways etc.) so that tech trading is now more dynamic and not passively based only on personality anyways etc. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc). Update: also added vassal<->vassal siblings extra tech trading chance similarly, which leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
+ - If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier in `CvPlayerAI::AI_doDiplo`, so that we have a higher chance to trade with militarily weaker players to us (safer, less likely to backstab us) and a lower chance for stronger players to us (more likely to become our ennemies or to bite us back in some way). In autoplay, seemingly results in much closer game, where the runaway Ewuare is now regularly and repeatedly caught up by other rivals and vice versa when these take the lead as well, until late in the game where game ends at turn 419 vs 288 before and was close until the last few or such dozen turns. See for details [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index fe2213dc8..f9bca4f77 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -118,6 +118,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [80 - (Tremendously Improved) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
+ [81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker)  
+ [82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
++[83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -3109,3 +3110,20 @@ Note added by chatgpt 5.1 about the scope of this change as i asked it about it
+ >- Indirectly, the evaluation of state-religion-dependent civics via AI_bestReligion.
+ >
+ >Which means your power-weighted change is now shaping both their self-religion choice and how they respond to external pressure.
++
++## 83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1h3puw0vWwDHkhgydMGN6PXcl3BXkFeoH?usp=sharing) anyways etc.
++
++This is one of the key issues the AI had in base advciv as well, of not trading oppornutistically way more cheaply when other rivals also discover the tech and could beat us to the sale. Even if the tech was worth say 200 gold, it's better to have 20-30 gold off (or of? Or something else? Anyways etc.) it rather than 0 (no advantage in keeping the tech since other rivals can profit, better sell it then).
++
++Added such a change with the help of gemini 3 pro, in `CvPlayerAI::AI_dealVal`.
++
++Results ingame are very good, with all players having a significantly higher score at turn 100 and 200 vs before, and most players having a faster to more or less much faster tech pace.
++
++It seems that untradeable techs help pacing not go too crazy, and maybe in later game (untested) the no AI gradual multipliers per turn or/and era or such not being in our mod helps control AI pace better so no need to overcorrect it just quite a bit it seems, and as gemini 3 pro suggested as well thanks but anyways etc.
++
++I adjusted `iAIResearchPercent` to match these changes:
++iAIResearchPercent,124,116,108,100 (noble),92,84,76,68,60
++->
++iAIResearchPercent,118,112,106,100 (noble),94,88,82,76,70
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 77b23cbbb..946a69327 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -218,6 +218,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)**.
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+ - **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. **Update:** this adjustment no longer applies to trades *within* the same master–vassal(s) locus, since it is generally in their shared interest to strengthen each other.
++- (Requires AdvCiv-SAS 5161+) **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower difficulties). See [KI#83](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
+ - **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier “devalue techs your master/vassal already knows” change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this *seemed* to **reduce tech overlap** and **improve sharing** between vassals (who had many more techs) and their master (who now picks up more of them). Also updated `AI_contactRoll(CONTACT_TRADE_TECH` to pass an explicit probability multiplier (rather than relying on the default of 1), making tech-trade frequency more dynamic and tunable instead of solely personality-driven. See [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc). **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades.
+ - **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - **Master–vassal(s) locus first for tech trades:** Whenever the AI wants to contact other players for a tech trade in `CvPlayerAI::AI_doDiplo`, it now **first checks** whether the desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index 29a882793..0e941fd4f 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -11,7 +11,7 @@ iAIGPThresholdPercent,115,110,105,100,95,90,85,80,75
+ iAIGrowthPercent,115,110,105,100,95,90,85,80,75
+ iAIHandicapIncrementTurns,0,0,0,0,0,0,0,0,0
+ iAIInflationPercent,115,110,105,100,95,90,85,80,75
+-iAIResearchPercent,124,116,108,100,92,84,76,68,60
++iAIResearchPercent,118,112,106,100,94,88,82,76,70
+ iAIStartingDefenseUnits,1,1,1,1,1,1,1,1,1
+ iAIStartingExploreUnits,0,0,0,0,0,0,0,0,0
+ iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=48639

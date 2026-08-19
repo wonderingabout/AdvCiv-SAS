@@ -1,0 +1,355 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1540
+# Commit: 21612f26e1c1bd75a5bbecf2367a0f2de2e98b70
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b2c2504c3e00b6eafdcf1119392c26b658aa62d1
+# Title: XML option for Dawn-of-Man after map-regen added
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	Assets/XML/GlobalDefines_advc.xml
+74	45	CvGameCoreDLL/CvGame.cpp
+17	7	CvGameCoreDLL/CvGame.h
+2	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 6ebd89355..f87ea0acc 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -367,6 +367,15 @@
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- [advc.004j]
++		 If set to 1, the "Dawn of Civilization" popup (formerly "Dawn of Man")
++		 is shown again after regenerating the map. If set to 0 (BtS behavior),
++		 the popup is only shown after generating the initial map. -->
++	<Define>
++		<DefineName>SHOW_DAWN_AFTER_REGEN</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ 	<!-- [advc.004m]
+ 	     No clue how this is measured. Original value is 2200
+ 		 (GlobalDefines.xml), recommended: 4600. -->
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 66efe2d90..630330fca 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -402,27 +402,36 @@ void CvGame::regenerateMap()
+ 	gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+ 
+ 	cycleSelectionGroups_delayed(1, false);
++	// <advc.004j>
++	bool bShowDawn = (GC.getDefineINT("SHOW_DAWN_AFTER_REGEN") > 0 &&
++			// Somehow doesn't work with Adv. Start; Dawn screen doesn't appear.
++			(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH)));
++	// </advc.004j>
+ 	// <advc.700>
+ 	if(isOption(GAMEOPTION_RISE_FALL)) {
+ 		m_pRiseFall->reset();
+ 		m_pRiseFall->init();
++		bShowDawn = false;
+ 	}
+ 	else { // </advc.700>
+ 		autoSave(true); // advc.106l
+-		// <advc.004j> Somehow doesn't work with Adv. Start; DoM screen doesn't appear.
+-		if(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH))
+-			showDawnOfMan();
+-	} // </advc.004j>
++	} // <advc.004j>
++	if(bShowDawn)
++		showDawnOfMan(); // </advc.004j>
+ 	if (NO_PLAYER != getActivePlayer())
+ 	{
+ 		CvPlot* pPlot = GET_PLAYER(getActivePlayer()).getStartingPlot();
+ 		if (NULL != pPlot)
+ 		{
+-			/*  advc (comment): This appears to have no effect. Perhaps the
+-				camera can't be moved at this point. Would have to be done at some
+-				later point I guess. Setting SelectionCamera_DIRTY_BIT doesn't
+-				seem to help either. */
+-			gDLL->getInterfaceIFace()->lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
++			//gDLL->getInterfaceIFace()->lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
++			/*  <advc.004j> ^Comment by EmperorFool (from BULL):
++				"This doesn't work until after the game has had time to update.
++				 Centering on the starting location is now done by MapFinder using
++				 BugUtil.delayCall()."
++				I'm going to use setUpdateTimer instead. Unless the Dawn screen
++				is shown b/c that focuses the camera anyway. */
++			if(!bShowDawn)
++				setUpdateTimer(UPDATE_LOOK_AT_STARTING_PLOT, 5); // </advc.004j>
+ 		}
+ 	}
+ }
+@@ -759,8 +768,9 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
+ 	b_mFPTestDone = false; // advc.003g
+-	m_iFocusUpdateTimer = -1; // advc.001w
+-	m_iScoreboardDirtyTimer = -1; // advc.085
++	// <advc.003r>
++	for(int i = 0; i < NUM_UPDATE_TIMER_TYPES; i++)
++		m_aiUpdateTimers[i] = -1; // </advc.003r>
+ }
+ 
+ 
+@@ -2435,29 +2445,15 @@ void CvGame::update()
+ 			the update when R&F is enabled. */
+ 		if(!isAITurn()) {
+ 			CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+-			// <advc.085> See CvPlayer::setScoreboardExpanded
+-			if(m_iScoreboardDirtyTimer >= 0) {
+-				if(m_iScoreboardDirtyTimer == 0) {
+-					gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+-					/*  For some strange reason, the HUD retains mouse focus after
+-						expanding the scoreboard, and this is the only remedy I was
+-						able to find (apart from CvInterface::makeInterfaceDirty,
+-						which results in flickering). */
+-					gDLL->getInterfaceIFace()->makeSelectionListDirty();
+-				}
+-				m_iScoreboardDirtyTimer--;
+-			} // </advc.085>
+-			// <advc.001w>
+-			if(m_iFocusUpdateTimer >= 0) {
+-				if(m_iFocusUpdateTimer == 0)
+-					gDLL->getInterfaceIFace()->makeSelectionListDirty();
+-				m_iFocusUpdateTimer--;
+-			} // </advc.001w>
++			// <advc.003r>
++			for(int i = 0; i < NUM_UPDATE_TIMER_TYPES; i++)
++				handleUpdateTimer((UpdateTimerTypes)i); // </advc.003r>
+ 		}
+ 		if (getTurnSlice() == 0)
+ 		{	// <advc.700> Delay initial auto-save until RiseFall is initialized
+ 			bool bStartTurn = (getGameTurn() == getStartTurn()); // advc.004m
+ 			// I guess TurnSlice==0 already implies that it's the start turn (?)
++			FAssert(bStartTurn);
+ 			if((!bStartTurn || !isOption(GAMEOPTION_RISE_FALL)) // </advc.700>
+ 					&& m_iTurnLoadedFromSave != m_iElapsedGameTurns) // advc.044
+ 				autoSave(true); // advc.106l
+@@ -2467,7 +2463,6 @@ void CvGame::update()
+ 				gDLL->getEngineIFace()->setResourceLayer(true);
+ 			// </advc.004m>
+ 		}
+-
+ 		if (getNumGameTurnActive() == 0)
+ 		{
+ 			if (!isPbem() || !getPbemTurnSent())
+@@ -4688,20 +4683,15 @@ void CvGame::setScoreDirty(bool bNewValue)
+ 	m_bScoreDirty = bNewValue;
+ }
+ 
+-// <advc.085>
+-void CvGame::setScoreboardDirtyTimer(int iDelay) {
+-
+-	m_iScoreboardDirtyTimer = iDelay;
+-} // </advc.085>
+-
+-// <advc.001w>
+-void CvGame::setFocusUpdateTimer(int iDelay) {
+-
+-	// No need for this hack when there is no unit-cycling delay
+-	if(getBugOptionBOOL("MainInterface__RapidUnitCycling", false))
+-		m_iFocusUpdateTimer = -1;
+-	else m_iFocusUpdateTimer = iDelay;
+-} // </advc.001w>
++// <advc.003r>
++void CvGame::setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay) {
++	// <advc.001w>
++	if(eTimerType == UPDATE_MOUSE_FOCUS && getBugOptionBOOL("MainInterface__RapidUnitCycling", false)) {
++		// No need for this hack when there is no unit-cycling delay
++		iDelay = -1;
++	} // </advc.001w>
++	m_aiUpdateTimers[eTimerType] = iDelay;
++} // </advc.003r>
+ 
+ 
+ bool CvGame::isCircumnavigated() const
+@@ -7457,7 +7447,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent) {
+ 		}
+ 		if(!bCivArea) {
+ 			/*  BtS triples iTargetCities here. Want to make it era-based.
+-				Important that the multiplier is small in the first four eras
++				Important that the multiplier is rather small in the first four eras
+ 				so that civs get a chance to settle small landmasses before
+ 				Barbarians appear there. Once there is a Barbarian city on a
+ 				small landmass, there may not be room for another city, and a
+@@ -9064,6 +9054,39 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer) {
+ 			(ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+ } // </advc.003g
+ 
++// <advc.003r>
++void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType) {
++
++	if(m_aiUpdateTimers[eTimerType] < 0)
++		return;
++
++	if(m_aiUpdateTimers[eTimerType] == 0) {
++		switch(eTimerType) {
++		// <advc.085> See CvPlayer::setScoreboardExpanded
++		case UPDATE_SCORE_BOARD_DIRTY:
++			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++			/*  For some strange reason, the HUD retains mouse focus after expanding
++				the scoreboard, and this is the only remedy I was able to find
++				(apart from CvInterface::makeInterfaceDirty, which results in flickering). */
++			gDLL->getInterfaceIFace()->makeSelectionListDirty();
++			break; // </advc.085>
++		// <advc.001w>
++		case UPDATE_MOUSE_FOCUS:
++			gDLL->getInterfaceIFace()->makeSelectionListDirty();
++			break; // </advc.001w>
++		// <advc.004j>
++		case UPDATE_LOOK_AT_STARTING_PLOT: {
++			CvPlot* pStartingPlot = GET_PLAYER(getActivePlayer()).getStartingPlot();
++			if(pStartingPlot != NULL)
++				gDLL->getInterfaceIFace()->lookAt(pStartingPlot->getPoint(), CAMERALOOKAT_NORMAL);
++			break;
++			} // </advc.004j>
++		default: FAssertMsg(false, "Unknown update timer type");
++		}
++	}
++	m_aiUpdateTimers[eTimerType]--;
++} // </advc.003r>
++
+ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString pszText, int iPlotX, int iPlotY, ColorTypes eColor)
+ {
+ 	int iGameTurn = getGameTurn();
+@@ -11182,3 +11205,9 @@ void CvGame::setHallOfFame(CvHallOfFameInfo* pHallOfFame) {
+ 
+ 	m_pHallOfFame = pHallOfFame;
+ } // </advc.106i>
++
++// <advc.003>
++std::set<int>& CvGame::getActivePlayerCycledGroups() {
++
++	return m_ActivePlayerCycledGroups; // Was public; now protected.
++} // </advc.003>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 34fb128b1..28c6d4334 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -283,8 +283,14 @@ public:
+ 
+ 	bool isScoreDirty() const;																							// Exposed to Python
+ 	void setScoreDirty(bool bNewValue);																			// Exposed to Python
+-	void setScoreboardDirtyTimer(int iDelay); // advc.085
+-	void setFocusUpdateTimer(int iDelay); // advc.001w
++	// <advc.003r> Akin to deferCall in BugUtil.py
++	enum UpdateTimerTypes {
++		UPDATE_SCORE_BOARD_DIRTY, // advc.085
++		UPDATE_MOUSE_FOCUS, // advc.001w
++		UPDATE_LOOK_AT_STARTING_PLOT, // advc.004j
++		NUM_UPDATE_TIMER_TYPES
++	};
++	void setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay); // </advc.003r>
+ 
+ 	bool isCircumnavigated() const;																// Exposed to Python
+ 	void makeCircumnavigated();																		// Exposed to Python
+@@ -634,9 +640,7 @@ public:
+ 	DllExport void handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+ 	DllExport void handleMiddleMouse(bool bCtrl, bool bAlt, bool bShift);
+ 	DllExport void handleDiplomacySetAIComment(DiploCommentTypes eComment) const;
+-	/*  K-Mod. This is used to track which groups have been cycled through in the current turn.
+-		Note: it does not need to be kept in sync for multiplayer games. */
+-	std::set<int> m_ActivePlayerCycledGroups;
++
+ 	double goodyHutEffectFactor(bool bSpeedAdjust = true) const; // advc.314
+ 	// <advc.004m>
+ 	GlobeLayerTypes getCurrentLayer() const;
+@@ -666,6 +670,7 @@ public:
+ 	RiseFall& getRiseFall();
+ 	// </advc.703>
+ 	void setHallOfFame(CvHallOfFameInfo* pHallOfFame); // advc.106i
++	std::set<int>& getActivePlayerCycledGroups(); // advc.003
+ 
+ protected:
+ 	int m_iElapsedGameTurns;
+@@ -698,8 +703,6 @@ protected:
+ 	int m_iCivPlayersEverAlive;
+ 	int m_iCivTeamsEverAlive;
+ 	// </advc.003b>
+-	int m_iScoreboardDirtyTimer; // advc.085
+-	int m_iFocusUpdateTimer; // advc.001w
+ 	unsigned int m_uiInitialTime;
+ 
+ 	bool m_bScoreDirty;
+@@ -733,6 +736,8 @@ protected:
+ 
+ 	CvString m_szScriptData;
+ 
++	int m_aiUpdateTimers[NUM_UPDATE_TIMER_TYPES]; // advc.003r
++	
+ 	int* m_aiRankPlayer;        // Ordered by rank...
+ 	int* m_aiPlayerRank;        // Ordered by player ID...
+ 	int* m_aiPlayerScore;       // Ordered by player ID...
+@@ -786,6 +791,10 @@ protected:
+ 	stdext::hash_map<VoteSourceTypes, ReligionTypes> m_mapVoteSourceReligions;
+ 	std::vector<EventTriggerTypes> m_aeInactiveTriggers;
+ 
++	/*  K-Mod. This is used to track which groups have been cycled through in the current turn.
++		Note: it does not need to be kept in sync for multiplayer games. */
++	std::set<int> m_ActivePlayerCycledGroups; // advc.003: Was public; public getter added.
++
+ 	// CACHE: cache frequently used values
+ 	int		m_iShrineBuildingCount;
+ 	int*	m_aiShrineBuilding;
+@@ -846,6 +855,7 @@ protected:
+ 	void testAlive();
+ 	void testVictory();
+ 	int FPChecksum() const; // advc.003g
++	void handleUpdateTimer(UpdateTimerTypes eTimerType); // advc.003r
+ 
+ 	void processVote(const VoteTriggeredData& kData, int iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 645e56796..7b06c5d3a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2622,7 +2622,7 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 	bool bDummy;
+ 	// this means we can just use bWrap directly and it will update *pbWrap if need be.
+ 	bool& bWrap = pbWrap ? *pbWrap : bDummy;
+-	std::set<int>& cycled_groups = GC.getGameINLINE().m_ActivePlayerCycledGroups; // for convenience
++	std::set<int>& cycled_groups = GC.getGameINLINE().getActivePlayerCycledGroups();
+ 	// K-Mod end
+ 
+ 	/* if (pbWrap != NULL)
+@@ -22399,7 +22399,7 @@ void CvPlayer::setScoreboardExpanded(bool b) {
+ 			moved away. Can't click buttons that way. A higher delay than 1
+ 			(1/4 second) shouldn't be necessary. */
+ 		int const iDelay = 1;
+-		GC.getGameINLINE().setScoreboardDirtyTimer(iDelay);
++		GC.getGameINLINE().setUpdateTimer(CvGame::UPDATE_SCORE_BOARD_DIRTY, iDelay);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 43a84bef3..adb18fc87 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -554,7 +554,7 @@ void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2
+ 			gDLL->getInterfaceIFace()->setHasMovedUnit(true);
+ 			/*  advc.001w: Prevent help text and mouse focus from lingering after
+ 				a command button is clicked */
+-			GC.getGameINLINE().setFocusUpdateTimer(2);
++			GC.getGameINLINE().setUpdateTimer(CvGame::UPDATE_MOUSE_FOCUS, 2);
+ 		}
+ 
+ 		CvEventReporter::getInstance().selectionGroupPushMission(this, eMission);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=12911

@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4053
+# Commit: d0bf14f320edf57f12ab6c758f9cd42d3d3ddd6b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b10de73bb6f3505efb8e88c2a6997b82bdb82e77
+# Title: Tweak to HUD scaling fix
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 8c9541238..2be4bc6a3 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1358,12 +1358,15 @@ class CvMainInterface:
+ 
+ 	def setCityBonusRects(self):
+ 		iMaxRMargin = gRect("Top").xRight() - gRect("CityRightPanelContents").x()
++		iBonusBackrOverhang = min(VSPACE(16),
++				gRect("SpecialistLabelBackground").height())
+ 		gSetRect("BonusPane0", "CityRightPanelContents",
+ 				0, 0,
+ 				# advc.004: Was 57; don't need quite this much space.
+ 				HLEN(53),
+ 				-(gRect("CityRightPanelContents").yBottom() -
+-				gRect("SpecialistLabelBackground").y()))
++				(gRect("SpecialistLabelBackground").yBottom() -
++				iBonusBackrOverhang)))
+ 		gSetRect("BonusBack0", "CityRightPanelContents",
+ 				0, 0,
+ 				# Width was 157 in BtS. Perhaps the idea was to get all the scrollbars
+@@ -1374,7 +1377,8 @@ class CvMainInterface:
+ 				# Scrolling is only relevant when the height is insufficient for the
+ 				# list of bonus resources. That should never be the case with the
+ 				# BtS/AdvCiv rules, even at the lowest resolution.
+-				iMaxRMargin, gRect("BonusPane0").height() + VSPACE(16))
++				iMaxRMargin,
++				gRect("BonusPane0").height() + iBonusBackrOverhang)
+ 		gSetRect("BonusPane1", "CityRightPanelContents",
+ 				gRect("BonusPane0").width(), 0,
+ 				# advc.002b: Was 68 in BtS; need less space in the third col now
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1467

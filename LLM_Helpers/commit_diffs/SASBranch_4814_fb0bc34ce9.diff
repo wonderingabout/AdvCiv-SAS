@@ -1,0 +1,222 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4814
+# Commit: fb0bc34ce99726ea5aa39c3b9b78f7344da45764
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1933f996360d9161e5e0c1367bdf915d5975c171
+# Title: flatten_leaders_data_to_csv.py tweaks, update docs, anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	README.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG
+31	16	flatten_leaders_data_to_csv.py
+1	1	leaders_data_to_csv_advciv-sas.csv
+10	10	leaders_data_to_csv_legend_advciv-sas.md
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 83a307c9b..3ad7afbac 100644
+--- a/README.md
++++ b/README.md
+@@ -114,7 +114,7 @@ note: legend is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_t
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+ 
+ ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 672be0840..8b77a1cfa 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -301,11 +301,13 @@ output example with github web viewer (recommended):
+ 
+ <img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+ <img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
++<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
+ 
+ output example with libre office:
+ 
+ <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
+ 
+ See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG
+new file mode 100644
+index 000000000..4558c443d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG differ
+
+diff --git a/flatten_leaders_data_to_csv.py b/flatten_leaders_data_to_csv.py
+index 8368f49ed..f90235b8d 100644
+--- a/flatten_leaders_data_to_csv.py
++++ b/flatten_leaders_data_to_csv.py
+@@ -32,7 +32,7 @@ def flatten_leaders_data(leaders_data):
+ 		flat_data[key] = str(value) if isinstance(value, (dict, list)) else value
+ 	return flat_data
+ 
+-# --- Step 4: Collect relevant fields ---
++# --- Step 4.1: Collect relevant fields ---
+ all_columns = set()
+ flattened_leader_data = {}
+ 
+@@ -64,29 +64,44 @@ numeric_fields = list(dict.fromkeys(numeric_fields))
+ non_numeric_fields = list(dict.fromkeys(non_numeric_fields))
+ columns = ["Leader"] + numeric_fields + non_numeric_fields
+ 
+-# --- Abbreviate headers ---
++# --- <!-- custom: Step 4.2: anyways etc --> Abbreviate headers ---
++abbrev_map = {"Leader": "Leader"}
++abbrev_count = defaultdict(int)
++abbrev_usage = defaultdict(list)
++
++# Step 4.2.1: Collect how many fields want to use each base abbreviation
+ def make_abbreviation(field):
+-	# Strip 'i' if present (as per your convention)
++	# Strip 'i' prefix for consistency (e.g., iFavoriteCivic → FavoriteCivic)
+ 	base = field[1:] if field.startswith("i") else field
++	# Abbreviation = all uppercase letters (e.g., FavoriteCivic → FC)
+ 	return ''.join(c for c in base if c.isupper())
+ 
+-abbrev_map = {"Leader": "Leader"}
+-abbrev_count = defaultdict(int)
+-
+ for field in columns:
+ 	if field == "Leader":
+ 		continue
+-	base_abbr = make_abbreviation(field)
+-	count = abbrev_count[base_abbr]
+-	if count == 0:
+-		abbr = base_abbr
++	if field in numeric_fields:
++		base_abbr = make_abbreviation(field)
++		abbrev_usage[base_abbr].append(field)
+ 	else:
+-		if count < 10:
+-			abbr = f"{base_abbr}{count}"
+-		else:
+-			abbr = f"{base_abbr}{chr(ord('a') + (count - 10))}"
+-	abbrev_map[field] = abbr
+-	abbrev_count[base_abbr] += 1
++		# Non-numeric fields are not abbreviated
++		abbrev_map[field] = field
++
++# Step 4.2.2: Assign abbreviations with forced 0 suffix if needed
++for base_abbr, fields in abbrev_usage.items():
++	if len(fields) == 1:
++		# No duplicates — use plain base abbreviation <!-- custom: for example FC if i am not mistaken, anyways etc -->
++		abbrev_map[fields[0]] = base_abbr
++	else:
++		# Multiple fields — assign FC0, FC1, ..., FCa, FCb, ...
++		for i, field in enumerate(fields):
++			if i < 10:
++				abbr = f"{base_abbr}{i}"
++			else:
++				# After 10, switch to letters: a = 10, b = 11, ..., z = 35
++				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say or not or yes or and other or and not or etc anyways etc anyways etc anyways etc...) -->
++				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
++			abbrev_map[field] = abbr
++
+ 
+ # --- Step 5: Assemble cleaned, sorted rows ---
+ def strip_leader_prefix(leader_id):
+
+diff --git a/leaders_data_to_csv_advciv-sas.csv b/leaders_data_to_csv_advciv-sas.csv
+index 24de393a2..06c6dc073 100644
+--- a/leaders_data_to_csv_advciv-sas.csv
++++ b/leaders_data_to_csv_advciv-sas.csv
+@@ -1,4 +1,4 @@
+-Leader,ACRAT,ACAFHP,ACCPP,ACDPP,ACDTP,ACGHP,ACJWP,ACOBP,ACPTP,ACPAP,ACRPP,ACSTP,ACTBP,ACTMP,ACTTP,ANMCVAA,ANMCVAR,ANMDWA,ANMDWOFA,ANMDWOFR,ANMDWRA,ANMDWRR,ANMDWR,ANMDCA,ANMDCR,ANMDJWA,ANMDJWR,ANMDRA,ANMDRR,ANMDSTA,ANMDSTR,ANMEBTUA,ANMEBTUR,ANMHTEA,ANMHTER,ANMHWAA,ANMHWAR,ANMMDA,ANMMDR,ANMNFA,ANMNFR,ANMNUA,ANMNUR,ANMRCA,ANMRCR,ANMRHCA,ANMRHCR,ANMRHA,ANMRHR,ANMRDA,ANMRDR,ANMSCA,ANMSCR,ANMSTA,ANMSTR,ANMVAUA,ANMVAUR,APMADA,APMADR,APMACA,APMACR,APMAJWA,APMAJWR,APMARA,APMARR,APMASTA,APMASTR,APMEGTUA,APMEGTUR,APMGHA,APMGHR,APMIA,APMIR,APMLCA,APMLCR,APMTTTUA,APMTTTUR,APMVFUA,APMVFUR,APACL,APAD,AWACL,AWAD,AOCR,BAOC,BA,BPW,BRDAC,BTACL,BTAD,BUP,CRAT,CBAC,CVW,CAFHDR,CAFHRR,CCPDR,CCPRR,CDPDR,CDPRR,CDTDR,CDTRR,CGHDR,CGHRR,CJWDR,CJWRR,COBDR,COBRR,CPTDR,CPTRR,CPADR,CPARR,CRPDR,CRPRR,CSTDR,CSTRR,CTBDR,CTBRR,CTMDR,CTMRR,CTTDR,CTTRR,CRRAT,CVW1,DWRAT,DWTRAT,DWTR,DPACL,DPAD,DPRAT,DRSP,DRWP,DTAT,DRAC,DRACL,DRAD,DVW,DWR,DVW1,EW,FCAC,FCACL,FCAD,FC,FE,FG,FG1,FM,FP,FR,FS,FA,HBRAT,HBRAT1,LWPR,LWR,LWAC,LOP,MPR,MRAT,MGPTTP,MGTP,MWDPR,MWMALP,MWNPR,MWR,NCRAT,NMACVAR,NMADWOFR,NMADWR,NMADWRR,NMADCR,NMADJWR,NMADRR,NMADSTR,NMAEBTUR,NMAHTER,NMAHWAR,NMAMDR,NMANFR,NMANUR,NMARCR,NMARHCR,NMARHR,NMARDR,NMASCR,NMASTR,NMAVAUR,NMDCVAR,NMDDWOFR,NMDDWR,NMDDWRR,NMDDCR,NMDDJWR,NMDDRR,NMDDSTR,NMDEBTUR,NMDHTER,NMDHWAR,NMDMDR,NMDNFR,NMDNUR,NMDRCR,NMDRHCR,NMDRHR,NMDRDR,NMDSCR,NMDSTR,NMDVAUR,NGHAT,NTTT,NWAPA,NWAPC,NWAPF,NWAPF1,NWAPP,OBACL,OBAD,OBRAT,PWR,PARAT,PMAADR,PMAACR,PMAAJWR,PMAARR,PMAASTR,PMAEGTUR,PMAGHR,PMAIR,PMALCR,PMATTTUR,PMAVFUR,PMDADR,PMDACR,PMDAJWR,PMDARR,PMDASTR,PMDEGTUR,PMDGHR,PMDIR,PMDLCR,PMDTTTUR,PMDVFUR,RCP,RTTWT,SRAC,SRACL,SRAD,SWAC,SWACL,SWAD,SVW,STRAT,STTRAT,SBRAT,TRAT,TTKP,VPM,VRAT,WR,WCR,WRDAC,FC1,FR1,IWM,T,UAIWM
++Leader,ACRAT,ACAFHP,ACCPP,ACDPP,ACDTP,ACGHP,ACJWP,ACOBP,ACPTP,ACPAP,ACRPP,ACSTP,ACTBP,ACTMP,ACTTP,ANMCVAA,ANMCVAR,ANMDWA,ANMDWOFA,ANMDWOFR,ANMDWRA,ANMDWRR,ANMDWR,ANMDCA,ANMDCR,ANMDJWA,ANMDJWR,ANMDRA,ANMDRR,ANMDSTA,ANMDSTR,ANMEBTUA,ANMEBTUR,ANMHTEA,ANMHTER,ANMHWAA,ANMHWAR,ANMMDA,ANMMDR,ANMNFA,ANMNFR,ANMNUA,ANMNUR,ANMRCA,ANMRCR,ANMRHCA,ANMRHCR,ANMRHA,ANMRHR,ANMRDA,ANMRDR,ANMSCA,ANMSCR,ANMSTA,ANMSTR,ANMVAUA,ANMVAUR,APMADA,APMADR,APMACA,APMACR,APMAJWA,APMAJWR,APMARA,APMARR,APMASTA,APMASTR,APMEGTUA,APMEGTUR,APMGHA,APMGHR,APMIA,APMIR,APMLCA,APMLCR,APMTTTUA,APMTTTUR,APMVFUA,APMVFUR,APACL,APAD,AWACL,AWAD,AOCR,BAOC,BA,BPW,BRDAC,BTACL,BTAD,BUP,CRAT,CBAC,CVW0,CAFHDR,CAFHRR,CCPDR,CCPRR,CDPDR,CDPRR,CDTDR,CDTRR,CGHDR,CGHRR,CJWDR,CJWRR,COBDR,COBRR,CPTDR,CPTRR,CPADR,CPARR,CRPDR,CRPRR,CSTDR,CSTRR,CTBDR,CTBRR,CTMDR,CTMRR,CTTDR,CTTRR,CRRAT,CVW1,DWRAT,DWTRAT,DWTR,DPACL,DPAD,DPRAT,DRSP,DRWP,DTAT,DRAC,DRACL,DRAD,DVW0,DWR,DVW1,EW,FCAC,FCACL,FCAD,FC,FE,FG0,FG1,FM,FP,FR,FS,FA,HBRAT0,HBRAT1,LWPR,LWR,LWAC,LOP,MPR,MRAT,MGPTTP,MGTP,MWDPR,MWMALP,MWNPR,MWR,NCRAT,NMACVAR,NMADWOFR,NMADWR,NMADWRR,NMADCR,NMADJWR,NMADRR,NMADSTR,NMAEBTUR,NMAHTER,NMAHWAR,NMAMDR,NMANFR,NMANUR,NMARCR,NMARHCR,NMARHR,NMARDR,NMASCR,NMASTR,NMAVAUR,NMDCVAR,NMDDWOFR,NMDDWR,NMDDWRR,NMDDCR,NMDDJWR,NMDDRR,NMDDSTR,NMDEBTUR,NMDHTER,NMDHWAR,NMDMDR,NMDNFR,NMDNUR,NMDRCR,NMDRHCR,NMDRHR,NMDRDR,NMDSCR,NMDSTR,NMDVAUR,NGHAT,NTTT,NWAPA,NWAPC,NWAPF0,NWAPF1,NWAPP,OBACL,OBAD,OBRAT,PWR,PARAT,PMAADR,PMAACR,PMAAJWR,PMAARR,PMAASTR,PMAEGTUR,PMAGHR,PMAIR,PMALCR,PMATTTUR,PMAVFUR,PMDADR,PMDACR,PMDAJWR,PMDARR,PMDASTR,PMDEGTUR,PMDGHR,PMDIR,PMDLCR,PMDTTTUR,PMDVFUR,RCP,RTTWT,SRAC,SRACL,SRAD,SWAC,SWACL,SWAD,SVW,STRAT,STTRAT,SBRAT,TRAT,TTKP,VPM,VRAT,WR,WCR,WRDAC,FavoriteCivic,FavoriteReligion,ImprovementWeightModifiers,Traits,UnitAIWeightModifiers
+ ALEXANDER,1,77,55,50,89,78,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,1,60,5,-5,8,4,0,0,0,2,50,35,0,-4,35,50,250,50,1000,20,80,50,250,50,500,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,25,-1,1,40,2,12,1,40,25,0,-1,-1,-15,0,50,65,100,1,2,10,0,0,0,2,5,0,0,0,10,-1,-1,130,40,-1,0,40,1,10,5,70,0,90,50,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,0,20,80,0,80,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,8,1,4,10,1,4,8,25,0,0,0,-1,30,20,1,2,20,-2,VASSALAGE,PAGANISM,MINE: 30,"PHILOSOPHICAL, AGGRESSIVE","SETTLE: 25, COLLATERAL: 25"
+ ASOKA,0,92,79,50,54,96,0,50,84,50,95,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,1,60,5,-5,8,0,1,8,3,2,50,20,-1,-2,25,50,100,50,500,20,80,50,1000,50,100,20,20,40,10,10,12,20,80,50,100,20,50,20,2,50,20,30,2,0,15,0,0,40,2,12,1,0,20,0,-1,0,-15,20,50,30,90,1,3,10,0,0,0,0,0,0,5,2,10,-2,-2,110,120,-1,0,10,-1,10,10,60,0,90,200,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,10,20,70,100,0,100,2,25,-2,3,1,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,6,1,6,10,1,2,8,60,1,-1,-1,-1,20,0,0,0,40,0,FREE_RELIGION,BUDDHISM,"TOWN: 20, FOREST_PRESERVE: 20","SPIRITUAL, ORGANIZED","PILLAGE: 25, CITY_DEFENSE: 25"
+ AUGUSTUS,0,77,91,50,54,96,0,50,50,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,1,60,5,-5,8,0,0,8,1,2,50,25,0,-4,20,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,15,20,80,50,250,20,50,20,5,50,20,30,5,0,55,1,0,40,2,12,1,60,25,0,-1,0,-15,5,100,50,100,1,3,10,0,0,0,0,2,5,0,0,10,-2,-2,100,100,-1,0,40,-1,10,10,50,1,100,200,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,15,20,70,100,0,100,2,25,-2,3,1,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,8,1,3,10,1,3,8,20,0,-1,-1,-1,40,20,1,1,40,-1,REPRESENTATION,PAGANISM,"TOWN: 20, MINE: 20","IMPERIALIST, INDUSTRIOUS","ATTACK_CITY: 25, EXPLORE: 25"
+
+diff --git a/leaders_data_to_csv_legend_advciv-sas.md b/leaders_data_to_csv_legend_advciv-sas.md
+index 445c87afd..7234228a3 100644
+--- a/leaders_data_to_csv_legend_advciv-sas.md
++++ b/leaders_data_to_csv_legend_advciv-sas.md
+@@ -122,7 +122,7 @@
+ - **CTMRR**: `iContactTradeMapRandRaw`
+ - **CTTDR**: `iContactTradeTechDelayRaw`
+ - **CTTRR**: `iContactTradeTechRandRaw`
+-- **CVW**: `iConquestVictoryWeight`
++- **CVW0**: `iConquestVictoryWeight`
+ - **CVW1**: `iCultureVictoryWeight`
+ - **DPACL**: `iDefensivePactAttitudeChangeLimit`
+ - **DPAD**: `iDefensivePactAttitudeDivisor`
+@@ -133,7 +133,7 @@
+ - **DRSP**: `iDemandRebukedSneakProb`
+ - **DRWP**: `iDemandRebukedWarProb`
+ - **DTAT**: `iDemandTributeAttitudeThreshold`
+-- **DVW**: `iDiplomacyVictoryWeight`
++- **DVW0**: `iDiplomacyVictoryWeight`
+ - **DVW1**: `iDominationVictoryWeight`
+ - **DWR**: `iDogpileWarRand`
+ - **DWRAT**: `iDeclareWarRefuseAttitudeThreshold`
+@@ -142,21 +142,21 @@
+ - **EW**: `iEspionageWeight`
+ - **FA**: `iFreedomAppreciation`
+ - **FC**: `iFlavorCulture`
+-- **FC1**: `FavoriteCivic`
+ - **FCAC**: `iFavoriteCivicAttitudeChange`
+ - **FCACL**: `iFavoriteCivicAttitudeChangeLimit`
+ - **FCAD**: `iFavoriteCivicAttitudeDivisor`
+ - **FE**: `iFlavorEspionage`
+-- **FG**: `iFlavorGold`
++- **FG0**: `iFlavorGold`
+ - **FG1**: `iFlavorGrowth`
+ - **FM**: `iFlavorMilitary`
+ - **FP**: `iFlavorProduction`
+ - **FR**: `iFlavorReligion`
+-- **FR1**: `FavoriteReligion`
+ - **FS**: `iFlavorScience`
+-- **HBRAT**: `iHappinessBonusRefuseAttitudeThreshold`
++- **FavoriteCivic**: `FavoriteCivic`
++- **FavoriteReligion**: `FavoriteReligion`
++- **HBRAT0**: `iHappinessBonusRefuseAttitudeThreshold`
+ - **HBRAT1**: `iHealthBonusRefuseAttitudeThreshold`
+-- **IWM**: `ImprovementWeightModifiers`
++- **ImprovementWeightModifiers**: `ImprovementWeightModifiers`
+ - **LOP**: `iLoveOfPeace`
+ - **LWAC**: `iLostWarAttitudeChange`
+ - **LWPR**: `iLimitedWarPowerRatio`
+@@ -216,7 +216,7 @@
+ - **NTTT**: `iNoTechTradeThreshold`
+ - **NWAPA**: `iNoWarAttitudeProbAnnoyed`
+ - **NWAPC**: `iNoWarAttitudeProbCautious`
+-- **NWAPF**: `iNoWarAttitudeProbFriendly`
++- **NWAPF0**: `iNoWarAttitudeProbFriendly`
+ - **NWAPF1**: `iNoWarAttitudeProbFurious`
+ - **NWAPP**: `iNoWarAttitudeProbPleased`
+ - **OBACL**: `iOpenBordersAttitudeChangeLimit`
+@@ -258,10 +258,10 @@
+ - **SWAC**: `iShareWarAttitudeChange`
+ - **SWACL**: `iShareWarAttitudeChangeLimit`
+ - **SWAD**: `iShareWarAttitudeDivisor`
+-- **T**: `Traits`
+ - **TRAT**: `iTechRefuseAttitudeThreshold`
+ - **TTKP**: `iTechTradeKnownPercent`
+-- **UAIWM**: `UnitAIWeightModifiers`
++- **Traits**: `Traits`
++- **UnitAIWeightModifiers**: `UnitAIWeightModifiers`
+ - **VPM**: `iVassalPowerModifier`
+ - **VRAT**: `iVassalRefuseAttitudeThreshold`
+ - **WCR**: `iWonderConstructRand`
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=14697

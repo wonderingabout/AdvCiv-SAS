@@ -1,0 +1,247 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6028
+# Commit: 1275684c8dbbced6498279ad6442f5f157531a4a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 63764fc572061f25bf12793c8ffa1018750be02b
+# Title: (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+9	0	Assets/XML/GlobalDefines_advciv_sas.xml
+97	2	CvGameCoreDLL/CvUnitAI.cpp
+23	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8b559c026..16e769145 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1231,6 +1231,15 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
++	<!-- custom: When a Settler is already standing on a foundable city site, do not immediately found if another reachable city site is clearly better by raw found value. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already saw a much better reachable site. This prevents that direct-found valid-tile trap without chasing tiny differences. Set either threshold very high to effectively disable that part of the check. See KI#180 for info about a related fix too. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF</DefineName>
++		<iDefineIntVal>8</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1460124cd..114c1d3bc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -345,6 +345,45 @@ static bool SAS_shouldBlockExposedUnescortedSettler(CvUnitAI const& kSettler, Cv
+ 	return kTargetPlot.getOwner() != kSettler.getOwner();
+ }
+ 
++// <!-- custom: Avoid direct founding on a merely valid current plot when the current city-site list already contains a clearly better reachable site. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already reported a much better reachable site.
++// Direct-found blocking alone made the Settler flip-flop between the poor current plot and its neighbor because path-discounted scoring kept pulling it back; use the same raw-value threshold in AI_found candidate selection so a very-near weak site does not beat a clearly stronger reachable site by path cost alone. Follow-up T130 testing then founded stronger Zulu cities and Shaka reached rank 2. See KI#180. (GPT-5.5) -->
++static bool SAS_isFoundValueClearlyBetter(int iCurrentFoundValue, int iBetterFoundValue)
++{
++	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF");
++	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF");
++	if (iCurrentFoundValue <= 0 || (iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF <= 0 && iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF <= 0))
++		return false;
++	int const iValueDiff = iBetterFoundValue - iCurrentFoundValue;
++	return iValueDiff >= iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF;
++}
++
++static bool SAS_shouldDelayFoundInPlaceForBetterReachableSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kCurrentPlot, int iCurrentFoundValue, CvPlot const*& pBetterFoundPlot, int& iBetterFoundValue, int& iBetterPathTurns)
++{
++	pBetterFoundPlot = NULL;
++	iBetterFoundValue = 0;
++	iBetterPathTurns = -1;
++	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
++	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
++	{
++		CvPlot& kSite = kOwner.AI_getCitySite(i);
++		if (&kSite == &kCurrentPlot || !kSettler.canFound(&kSite) || (!kSite.isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain()) || kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_FOUND, kSettler.getGroup()))
++			continue;
++		int iPathTurns = -1;
++		if (!kSettler.generatePath(kSite, eMoveFlags, true, &iPathTurns))
++			continue;
++		int const iValue = kSite.getFoundValue(kSettler.getOwner());
++		if (iValue > iBetterFoundValue)
++		{
++			pBetterFoundPlot = &kSite;
++			iBetterFoundValue = iValue;
++			iBetterPathTurns = iPathTurns;
++		}
++	}
++	if (pBetterFoundPlot == NULL)
++		return false;
++	return SAS_isFoundValueClearlyBetter(iCurrentFoundValue, iBetterFoundValue);
++}
++
+ static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& kSettler, CvPlot const* pTargetPlot, CvPlot const* pEndTurnPlot, int iFoundValue, int iPathTurns, char const* szReason)
+ {
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+@@ -3652,10 +3691,19 @@ void CvUnitAI::AI_settleMove()
+ 				}
+ 				else
+ 				{
++					CvPlot const* pBetterFoundPlot = NULL;
++					int iBetterFoundValue = 0;
++					int iBetterPathTurns = -1;
++					int const iCurrentFoundValue = getPlot().getFoundValue(getOwner());
++					if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, eMoveFlags, getPlot(), iCurrentFoundValue, pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
++					{
++						if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("DELAY_FOUND_IN_PLACE_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
++						continue;
++					}
+ 					if (gSettlerLogLevel >= 2)
+ 					{
+ 						logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
+-						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_SETTLE_MOVE_AT_SITE");
++						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "AI_SETTLE_MOVE_AT_SITE");
+ 					}
+ 					getGroup()->pushMission(MISSION_FOUND);
+ 					return;
+@@ -19004,6 +19052,28 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 
+ 	// <!-- custom: Remove the old AdvCiv-SAS empirical early-city bSafe override; exposed expansion now depends on a defended group, an existing guard-city mission, or a local escort attached above. Save-file 450 BBAI testing showed the old override could produce an empty Nobamba razed by Barbarians; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
+ 	bool const bSafe = (getGroup()->canDefend() || getInvisibleType() != NO_INVISIBLE); // advc.057b
++	// <!-- custom: Precompute the best reachable raw city-site value before path-discounted selection. Without this, blocking direct founding on weak (10,47) made the Zulu Settler step away, then `AI_found` immediately chose (10,47) again because it was only one turn away; filtering later candidates against this raw-value winner fixed that flip-flop. See KI#180. (GPT-5.5) -->
++	CvPlot const* pBestReachableRawFoundPlot = NULL;
++	int iBestReachableRawFoundValue = 0;
++	int iBestReachableRawPathTurns = -1;
++	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
++	{
++		CvPlot& kSite = kOwner.AI_getCitySite(i);
++		if ((AI_canEnterByLand(kSite.getArea()) || canMoveAllTerrain()) && canFound(&kSite) && !kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_FOUND, getGroup()))
++		{
++			int iPathTurns = -1;
++			if (generatePath(kSite, eFlags, true, &iPathTurns) && (!kSite.isVisible(getTeam()) || !kSite.isVisibleEnemyUnit(this) || (iPathTurns > 1 && bSafe)))
++			{
++				int const iRawValue = kSite.getFoundValue(getOwner());
++				if (iRawValue > iBestReachableRawFoundValue)
++				{
++					pBestReachableRawFoundPlot = &kSite;
++					iBestReachableRawFoundValue = iRawValue;
++					iBestReachableRawPathTurns = iPathTurns;
++				}
++			}
++		}
++	}
+ 	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+ 	{
+ 		CvPlot& kSite = kOwner.AI_getCitySite(i);
+@@ -19033,6 +19103,22 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 										scaled::hash(m_iBirthmark);
+ 								iValue = (iValue * rRandMult).round();
+ 							} // </advc.052>
++							if (pBestReachableRawFoundPlot != NULL && pBestReachableRawFoundPlot != &kSite && SAS_isFoundValueClearlyBetter(kSite.getFoundValue(getOwner()), iBestReachableRawFoundValue))
++							{
++								if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("SKIP_PATH_NEAR_SITE_BETTER_RAW_SITE", *this, pBestReachableRawFoundPlot, &getPathEndTurnPlot(), iBestReachableRawFoundValue, iBestReachableRawPathTurns, "BETTER_REACHABLE_SITE");
++								continue;
++							}
++							if (at(kSite))
++							{
++								CvPlot const* pBetterFoundPlot = NULL;
++								int iBetterFoundValue = 0;
++								int iBetterPathTurns = -1;
++								if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, eFlags, kSite, kSite.getFoundValue(getOwner()), pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
++								{
++									if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("SKIP_AI_FOUND_CURRENT_SITE_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
++									continue;
++								}
++							}
+ 							iValue *= 1000;
+ 							//iValue /= (iPathTurns + 1);
+ 							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
+@@ -19095,10 +19181,19 @@ bool CvUnitAI::AI_foundFollow()
+ 			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
+ 			return false;
+ 		}
++		CvPlot const* pBetterFoundPlot = NULL;
++		int iBetterFoundValue = 0;
++		int iBetterPathTurns = -1;
++		int const iCurrentFoundValue = getPlot().getFoundValue(getOwner());
++		if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, NO_MOVEMENT_FLAGS, getPlot(), iCurrentFoundValue, pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
++		{
++			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("DELAY_FOLLOW_FOUND_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
++			return false;
++		}
+ 		if (gSettlerLogLevel >= 2)
+ 		{
+ 			logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
+-			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_FOUND_FOLLOW");
++			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "AI_FOUND_FOLLOW");
+ 		}
+ 		getGroup()->pushMission(MISSION_FOUND);
+ 		return true;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 47538ebbf..38cc8696e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -218,6 +218,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites)\
+ [178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)\
+ [179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
++[180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6606,3 +6607,25 @@ Remaining risk:
+ This intentionally makes some expansion more conservative. Some Settlers can still park for a long time when no valid reachable city site exists, especially under `SCRAP_NO_VALID_CITY_SITE` or similar no-found-action paths. That appears to be a separate city-site / stale-Settler issue rather than the exposed unescorted-founding issue tracked here; the new parking and city-unit logs should make that follow-up easier to diagnose.
+ 
+ Fixed/improved with the help of ChatGPT-5.5 and GPT-5.5 (on ChatGPT Codex) thanks.
++
++## 180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1bEgmCksDoryWsY0KiOrRXJZ65V05b6HG?usp=sharing).
++
++Save-file 450 KI#179 exposed-Settler safety problem follow-up testing exposed a separate city-site movement issue: after a nearby Barbarian city spawned, the original Zulu target area became much poorer and smaller, but Zulu city 3 still founded weak tundra-heavy Nobamba at `(10,47)` even while the found-value logger saw a better reachable site:
++
++```log
++SETTLER_MISSION_DECISION turn=59 player=7 Zulu Empire action=PUSH_FOUND_IN_PLACE ... target=(10,47) ... targetFoundValue=1990
++Next best site compared with selected (10,47): selected=1990 next=2830 delta=+840 (12,39)
++```
++
++The first attempted fix blocked direct founding on a clearly inferior current plot, but BBAI testing then showed a flip-flop: the Settler moved from `(10,47)` to a neighboring plot toward the better site, then path-discounted `AI_found` scoring pulled it back to the very near weak `(10,47)` because it was only one turn away. This was not Barbarian-territory fear; it was ordinary path-cost scoring overpowering clearly better raw city-site value after the direct-found guard rejected the weak plot.
++
++The fix now has two parts:
++
++- direct found-in-place and follow-found shortcuts do not found the current plot when another reachable site is clearly better by tunable raw found-value thresholds;
++- `AI_found` candidate selection also skips a very-near weak site when a clearly stronger reachable site exists, so path-cost scoring cannot pull the Settler back into the rejected weak site.
++
++Follow-up T130 testing (`BBAI_20260711T180850Z_load1.log` and `SASGameSummary_20260711T180850Z_load1.log`) then founded stronger Zulu cities: Nobamba at `(13,35)`, Bulawayo at `(10,41)`, and later captured Barbarian Aryan at `(7,45)` with Horse, Deer, and Silver; Shaka reached rank 2 by turn 130 in that run.
++
++Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 680be9772..826a2206f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -330,6 +330,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Optional naval-heavy-map coastal settling bias:** Naval-heavy maps can now add a tunable first-city or later-city preference for coastal settling in naval-heavy maps. This should be more useful and strategically stronger in such maps, notably for coastal access, work boats, scouting/contact, trade, first galleys, Moai, or other water-focused strategies. However, following the [KI#173](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings) and related AI settler/found scoring changes, BBAI logging showed even a value of `0` correctly selects the strong Cuzco coastal site in save file 420, while Japan no longer favors the old tundra-heavy candidates that motivated this new feature. So use only a fairly small naval settling bias positive value for additional strategic coastal preference. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
+ - **Parking addressed (early game):** Reduced cases of Settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` so AIs would found sooner when conditions allowed. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (Settler production varies somehow, but we move much sooner after we have it now). Update: however, (Requires AdvCiv-SAS 6027+) save file 450 BBAI testing showed that this old blind "go settle anyway" safety override solved one-city stagnation too bluntly: it could also allow exposed post-capital cities to be founded without escorts and then razed. Exposed post-capital Settlers now wait, retreat, or require an existing guard-city mission instead of leaving/founding alone. See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found) and [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
+ - (Requires AdvCiv-SAS 6027+) **Settler city-escort reassignment:** to avoid merely restoring old Settler parking, an unescorted Settler parked in one of its own cities can reassign one healthy local defender as escort when the donor city keeps enough healthy defenders behind. With the default tunable value of as of now at least 2 remaining healthy defenders after giving one to the Settler, a city with 3 healthy defenders can reassign 1 escort and still keep 2, which is safe enough, so the Settler should not keep waiting; delaying expansion can lose contested city sites and early growth snowball. Save file 450 follow-up logs showed exposed Settlers waiting when no safe escort was available, then moving once guarded, while later Nobamba persisted with defenders instead of repeating the earlier empty-city Barbarian razing pattern. See [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
++- (Requires AdvCiv-SAS 6028+) **Settler valid-tile trap avoided:** a Settler already standing on a foundable plot no longer immediately settles there when another reachable city site is clearly better. Save file 450 BBAI testing showed that after a `(7,45)` Barbarian city spawned, the planned Zulu city 3 space became much smaller and poorer; the AI Settler still founded weak tundra-heavy `(10,47)` anyway, despite a much better reachable `(10,41)` site with unowned Sheep plains and Hill Grass. It now travels to and tries to settle this stronger site instead. See [KI#180](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed).
++- (Requires AdvCiv-SAS 6028+) **Settler no longer bounces back to a near weak site:** the first direct-found guard fixed the bad `(10,47)` founding, but revealed that the existing `AI_found` movement scoring could still pull the Settler back to the same near weak site because it was only one turn away, causing back-and-forth movement without settling for 10-20+ turns. Fix: the same raw-value check now also prevents a very near but much weaker city site from winning for travel-distance reasons. As a result, the confirming run shows Zulu city 3 is founded quickly at the `(10,41)` unowned Sheep plains and Hill Grass site; Zulu AI then conquers the strong nearby `(7,45)` Barbarian city, which has unowned Horse, unowned Deer, and unowned Silver, instead of settling a useless cramped tundra city near it; and by ~T131 becomes top 2 player, and the strongest from ~T140 to T200 miltiarily and in score, instead of being among the weakest due to loss of early momentum and bad early cities. See [KI#180](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed).
+ 
+ ##### Workers (AI)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=21328

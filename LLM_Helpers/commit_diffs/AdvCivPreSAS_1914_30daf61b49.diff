@@ -1,0 +1,347 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1914
+# Commit: 30daf61b49dcecf01df73b0d1b5661357772a988
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 47db295431d76be5a03d4876072b9069ce2ecfa5
+# Title: Rename the "loadUnit" functions to "loadOnto"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	9	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvUnit.h
+67	75	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.h
+1	1	CvGameCoreDLL/CyUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3f4a957ac..86737f57b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2042,7 +2042,7 @@ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2,
+ 	case COMMAND_LOAD_UNIT:
+ 	{
+ 		CvUnit* pUnit = ::getUnit(IDInfo(((PlayerTypes)iData1), iData2));
+-		if (pUnit != NULL && canLoadUnit(pUnit, plot()))
++		if (pUnit != NULL && canLoadOnto(pUnit, plot()))
+ 			return true;
+ 		break;
+ 	}
+@@ -2128,7 +2128,7 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
+ 			CvUnit* pUnit = ::getUnit(IDInfo(((PlayerTypes)iData1), iData2));
+ 			if (pUnit != NULL)
+ 			{
+-				loadUnit(pUnit);
++				loadOnto(pUnit);
+ 				bCycle = true;
+ 			}
+ 			break;
+@@ -3188,8 +3188,8 @@ void CvUnit::gift(bool bTestTransport)
+ 	CvEventReporter::getInstance().unitGifted(pGiftUnit, getOwner(), plot());
+ }
+ 
+-
+-bool CvUnit::canLoadUnit(const CvUnit* pUnit, const CvPlot* pPlot,
++// advc: Renamed from canLoadUnit
++bool CvUnit::canLoadOnto(const CvUnit* pUnit, const CvPlot* pPlot,
+ 	bool bCheckMoves) const // advc.123c
+ {
+ 	FAssert(pUnit != NULL);
+@@ -3234,10 +3234,10 @@ bool CvUnit::canLoadUnit(const CvUnit* pUnit, const CvPlot* pPlot,
+ 	return true;
+ }
+ 
+-
+-void CvUnit::loadUnit(CvUnit* pUnit)
++// advc: Renamed from loadUnit
++void CvUnit::loadOnto(CvUnit* pUnit)
+ {
+-	if (!canLoadUnit(pUnit, plot()))
++	if (!canLoadOnto(pUnit, plot()))
+ 		return;
+ 	setTransportUnit(pUnit);
+ }
+@@ -3287,7 +3287,7 @@ bool CvUnit::canLoad(const CvPlot* pPlot, /* advc.123c: */ bool bCheckMoves) con
+ 		pUnitNode != NULL; pUnitNode = pPlot->nextUnitNode(pUnitNode))
+ 	{
+ 		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		if(canLoadUnit(pLoopUnit, pPlot, /* advc.123c: */ bCheckMoves))
++		if(canLoadOnto(pLoopUnit, pPlot, /* advc.123c: */ bCheckMoves))
+ 			return true;
+ 	}
+ 	return false;
+@@ -3307,7 +3307,7 @@ void CvUnit::load()
+ 		{
+ 			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
+-			if (canLoadUnit(pLoopUnit, pPlot))
++			if (canLoadOnto(pLoopUnit, pPlot))
+ 			{
+ 				if (iPass == 0 ? (pLoopUnit->getOwner() == getOwner()) : (pLoopUnit->getTeam() == getTeam()))
+ 				{
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index f80ea0995..58bfe94a0 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -81,9 +81,9 @@ public:
+ 	bool canGift(bool bTestVisible = false, bool bTestTransport = true) const;																											// Exposed to Python
+ 	void gift(bool bTestTransport = true);
+ 
+-	bool canLoadUnit(const CvUnit* pUnit, const CvPlot* pPlot, 															// Exposed to Python
++	bool canLoadOnto(const CvUnit* pUnit, const CvPlot* pPlot, 															// Exposed to Python
+ 			bool bCheckMoves = false) const; // advc.123c
+-	void loadUnit(CvUnit* pUnit);
++	void loadOnto(CvUnit* pUnit);
+ 	bool canLoad(const CvPlot* pPlot,																											// Exposed to Python
+ 			bool bCheckMoves = false) const; // advc.123c
+ 	void load();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 37536907b..20572ece8 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -9870,7 +9870,7 @@ bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBigg
+ 	(the bulk of this function was moved straight out of AI_load.
+ 	I've fixed it up a bit, but I didn't write most of it.) */
+ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath,
+-	UnitAITypes eTransportedUnitAI, int iMinCargo, int iMinCargoSpace,
++	UnitAITypes ePassengerAI, int iMinCargo, int iMinCargoSpace,
+ 	int iMaxCargoSpace, int iMaxCargoOurUnitAI)
+ {
+ 	PROFILE_FUNC(); // advc.opt
+@@ -9892,61 +9892,65 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath
+ 			MISSIONAI_LOAD_SPECIAL, MISSIONAI_ATTACK_SPY };
+ 	int iCurrentGroupSize = getGroup()->getNumUnits();
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+-	FOR_EACH_UNITAI_VAR(pLoopUnit, kOwner)
++	FOR_EACH_UNITAI_VAR(pTransport, kOwner)
+ 	{	// <K-Mod>
+-		if (pLoopUnit->cargoSpace() <= 0 || (!sameArea(*pLoopUnit) &&
+-			!pLoopUnit->plot()->isAdjacentToArea(getArea())) ||
+-			!canLoadUnit(pLoopUnit, pLoopUnit->plot()))
++		if (pTransport->cargoSpace() <= 0 || (!sameArea(*pTransport) &&
++			!pTransport->plot()->isAdjacentToArea(getArea())) ||
++			!canLoadOnto(pTransport, pTransport->plot()))
+ 		{
+ 			continue;
+ 		} // </K-Mod>
+-		UnitAITypes eLoopUnitAI = pLoopUnit->AI_getUnitAIType();
+-		if (eUnitAI == NO_UNITAI || eLoopUnitAI == eUnitAI)
+-		{
+-			int iCargoSpaceAvailable = pLoopUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType());
+-			iCargoSpaceAvailable -= kOwner.AI_unitTargetMissionAIs(pLoopUnit,
+-					aeLoadMissionAI, iLoadMissionAICount, getGroup());
+-			if (iCargoSpaceAvailable > 0)
+-			{
+-				if ((eTransportedUnitAI == NO_UNITAI ||
+-						pLoopUnit->getUnitAICargo(eTransportedUnitAI) > 0) &&
+-						(iMinCargo == -1 || pLoopUnit->getCargo() >= iMinCargo))
+-				{	// <advc.040> Leave space for Settler and protection
+-					if(eLoopUnitAI == UNITAI_SETTLER_SEA && eUnitAI == UNITAI_SETTLER_SEA &&
+-							(eTransportedUnitAI == UNITAI_WORKER ||
+-							AI_getUnitAIType() == UNITAI_WORKER) &&
+-							pLoopUnit->cargoSpace() -
+-							pLoopUnit->getUnitAICargo(UNITAI_WORKER) <= 2)
++		UnitAITypes eTransportAI = pTransport->AI_getUnitAIType();
++		if (eUnitAI != NO_UNITAI && eTransportAI != eUnitAI)
++			continue; // advc
++
++		int const iCargoSpaceAvailable =
++				pTransport->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) -
++				kOwner.AI_unitTargetMissionAIs(pTransport, aeLoadMissionAI,
++				iLoadMissionAICount, getGroup());
++		if (iCargoSpaceAvailable <= 0)
++			continue; // advc
++		if ((ePassengerAI == NO_UNITAI ||
++			pTransport->getUnitAICargo(eTransportAI) > 0) &&
++			(iMinCargo == -1 || pTransport->getCargo() >= iMinCargo))
++		{	// <advc.040> Leave space for Settler and protection
++			if(eTransportAI == UNITAI_SETTLER_SEA && eUnitAI == UNITAI_SETTLER_SEA &&
++				(eTransportAI == UNITAI_WORKER ||
++				AI_getUnitAIType() == UNITAI_WORKER) &&
++				pTransport->cargoSpace() -
++				pTransport->getUnitAICargo(UNITAI_WORKER) <= 2)
++			{
++				continue;
++			} // </advc.040>
++			// Use existing count of cargo space available
++			if ((iMinCargoSpace == -1 || iCargoSpaceAvailable >= iMinCargoSpace) &&
++				(iMaxCargoSpace == -1 || iCargoSpaceAvailable <= iMaxCargoSpace))
++			{
++				if (iMaxCargoOurUnitAI == -1 ||
++					pTransport->getUnitAICargo(AI_getUnitAIType()) <= iMaxCargoOurUnitAI)
++				{	// <advc.046> Don't join a pickup-stranded mission
++					CvUnit* u = pTransport->AI_getGroup()->AI_getMissionAIUnit();
++					if(u != NULL && u->plot()->getTeam() != getTeam() &&
++						u->plot() != plot())
++					{
+ 						continue;
+-					// </advc.040>
+-					// Use existing count of cargo space available
+-					if ((iMinCargoSpace == -1 || iCargoSpaceAvailable >= iMinCargoSpace) &&
+-						(iMaxCargoSpace == -1 || iCargoSpaceAvailable <= iMaxCargoSpace))
++					} // </advc.046>
++					//if (!pLoopUnit->plot()->isVisibleEnemyUnit(this)) { // advc.opt: It's our unit; enemies can't coexist.
++					CvPlot* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
++					if (pUnitTargetPlot == NULL || pUnitTargetPlot->getTeam() == getTeam() ||
++						(!pUnitTargetPlot->isOwned() ||
++						!isPotentialEnemy(pUnitTargetPlot->getTeam(), pUnitTargetPlot)))
+ 					{
+-						if (iMaxCargoOurUnitAI == -1 ||
+-							pLoopUnit->getUnitAICargo(AI_getUnitAIType()) <= iMaxCargoOurUnitAI)
+-						{	// <advc.046> Don't join a pickup-stranded mission
+-							CvUnit* u = pLoopUnit->AI_getGroup()->AI_getMissionAIUnit();
+-							if(u != NULL && u->plot()->getTeam() != getTeam() &&
+-									u->plot() != plot())
+-								continue; // </advc.046>
+-							//if (!pLoopUnit->plot()->isVisibleEnemyUnit(this)) { // advc.opt: It's our unit; enemies can't coexist.
+-							CvPlot* pUnitTargetPlot = pLoopUnit->AI_getGroup()->AI_getMissionAIPlot();
+-							if (pUnitTargetPlot == NULL || pUnitTargetPlot->getTeam() == getTeam() ||
+-								(!pUnitTargetPlot->isOwned() ||
+-								!isPotentialEnemy(pUnitTargetPlot->getTeam(), pUnitTargetPlot)))
++						int iPathTurns = 0;
++						if (atPlot(pTransport->plot()) ||
++							generatePath(pTransport->plot(), iFlags, true, &iPathTurns, iMaxPath))
++						{
++							// prefer a transport that can hold as much of our group as possible
++							int iValue = 5*std::max(0, iCurrentGroupSize - iCargoSpaceAvailable) + iPathTurns;
++							if (iValue < iBestValue)
+ 							{
+-								int iPathTurns = 0;
+-								if (atPlot(pLoopUnit->plot()) || generatePath(pLoopUnit->plot(), iFlags, true, &iPathTurns, iMaxPath))
+-								{
+-									// prefer a transport that can hold as much of our group as possible
+-									int iValue = 5*std::max(0, iCurrentGroupSize - iCargoSpaceAvailable) + iPathTurns;
+-									if (iValue < iBestValue)
+-									{
+-										iBestValue = iValue;
+-										pBestUnit = pLoopUnit;
+-									}
+-								}
++								iBestValue = iValue;
++								pBestUnit = pTransport;
+ 							}
+ 						}
+ 					}
+@@ -9955,8 +9959,7 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath
+ 		}
+ 	}
+ 	return pBestUnit;
+-}
+-// K-Mod end
++} // K-Mod end
+ 
+ // Returns true if we loaded onto a transport or a mission was pushed...
+ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI,
+@@ -19332,7 +19335,7 @@ bool CvUnitAI::AI_airCarrier()
+ 	CvUnit* pBestUnit = NULL;
+ 	FOR_EACH_UNIT_VAR(pLoopUnit, kOwner)
+ 	{
+-		if (canLoadUnit(pLoopUnit, pLoopUnit->plot()))
++		if (canLoadOnto(pLoopUnit, pLoopUnit->plot()))
+ 		{
+ 			int iValue = 10;
+ 
+@@ -19373,7 +19376,7 @@ bool CvUnitAI::AI_airCarrier()
+ }
+ 
+ 
+-bool CvUnitAI::AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI, bool bStealthOnly)
++bool CvUnitAI::AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI, bool bStealthOnly)  // advc: some style changes
+ {
+ 	//PROFILE_FUNC();
+ 
+@@ -19382,31 +19385,22 @@ bool CvUnitAI::AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI, bool
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 	FOR_EACH_UNIT_VAR(pLoopUnit, kOwner)
+ 	{
+-		if (!bStealthOnly || pLoopUnit->getInvisibleType() != NO_INVISIBLE)
++		if (!bStealthOnly || pLoopUnit->getInvisibleType() != NO_INVISIBLE &&
++			pLoopUnit->AI_getUnitAIType() == eTargetUnitAI &&
++			(iMaxOwnUnitAI == -1 ||
++			pLoopUnit->getUnitAICargo(AI_getUnitAIType()) <= iMaxOwnUnitAI) &&
++			canLoadOnto(pLoopUnit, pLoopUnit->plot()))
+ 		{
+-			if (pLoopUnit->AI_getUnitAIType() == eTargetUnitAI)
++			int iValue = 100;
++			iValue += GC.getGame().getSorenRandNum(100, "AI missile load");
++			iValue *= 1 + pLoopUnit->getCargo();
++			if (iValue > iBestValue)
+ 			{
+-				if (iMaxOwnUnitAI == -1 || pLoopUnit->getUnitAICargo(AI_getUnitAIType()) <= iMaxOwnUnitAI)
+-				{
+-					if (canLoadUnit(pLoopUnit, pLoopUnit->plot()))
+-					{
+-						int iValue = 100;
+-
+-						iValue += GC.getGame().getSorenRandNum(100, "AI missile load");
+-
+-						iValue *= 1 + pLoopUnit->getCargo();
+-
+-						if (iValue > iBestValue)
+-						{
+-							iBestValue = iValue;
+-							pBestUnit = pLoopUnit;
+-						}
+-					}
+-				}
++				iBestValue = iValue;
++				pBestUnit = pLoopUnit;
+ 			}
+ 		}
+ 	}
+-
+ 	if (pBestUnit != NULL)
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+@@ -19421,9 +19415,7 @@ bool CvUnitAI::AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI, bool
+ 			return true;
+ 		}
+ 	}
+-
+ 	return false;
+-
+ }
+ 
+ // BETTER_BTS_AI_MOD, Air AI, 9/16/08, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index eb38b509b..92b63d13d 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -70,7 +70,7 @@ protected:
+ 	bool AI_considerPathDOW(CvPlot const& kPlot, int iFlags); // K-Mod
+ 	// K-Mod
+ 	CvUnit* AI_findTransport(UnitAITypes eUnitAI, int iFlags = 0,
+-			int iMaxPath = MAX_INT, UnitAITypes eTransportedUnitAI = NO_UNITAI,
++			int iMaxPath = MAX_INT, UnitAITypes ePassengerAI = NO_UNITAI,
+ 			int iMinCargo = -1, int iMinCargoSpace = -1, int iMaxCargoSpace = -1,
+ 			int iMaxCargoOurUnitAI = -1);
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 04a3ff585..bd86ca313 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -122,7 +122,7 @@ bool CyUnit::canGift(bool bTestVisible)
+ 
+ bool CyUnit::canLoadUnit(CyUnit* pUnit, CyPlot* pPlot)
+ {
+-	return m_pUnit ? m_pUnit->canLoadUnit(pUnit->getUnit(), pPlot->getPlot()) : false;
++	return m_pUnit ? m_pUnit->canLoadOnto(pUnit->getUnit(), pPlot->getPlot()) : false;
+ }
+ 
+ bool CyUnit::canLoad(CyPlot* pPlot)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=12641

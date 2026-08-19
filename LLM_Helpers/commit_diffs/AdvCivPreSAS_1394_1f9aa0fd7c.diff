@@ -1,0 +1,2474 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1394
+# Commit: 1f9aa0fd7ce432cb37574dcf975249952b9ed4a4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b62c4000571695a9d6ccc5c462fd606f4f172d33
+# Title: Help text for listing the units in a tile rewritten
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	Assets/Config/BUG Main Interface.xml
+2	0	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+2	1	Assets/Python/Screens/CvMainInterface.py
+20	1	Assets/xml/Text/BUG Main Interface Options.xml
+44	0	Assets/xml/Text/CIV4GameText_advc.xml
+18	0	CvGameCoreDLL/CvGame.cpp
+6	1	CvGameCoreDLL/CvGame.h
+9	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+1033	503	CvGameCoreDLL/CvGameTextMgr.cpp
+28	9	CvGameCoreDLL/CvGameTextMgr.h
+5	3	CvGameCoreDLL/CvMap.cpp
+2	1	CvGameCoreDLL/CvMap.h
+2	5	CvGameCoreDLL/CvPlayer.cpp
+7	3	CvGameCoreDLL/CvPlayer.h
+28	17	CvGameCoreDLL/CvPlot.cpp
+12	2	CvGameCoreDLL/CvPlot.h
+50	12	CvGameCoreDLL/CvUnit.cpp
+4	1	CvGameCoreDLL/CvUnit.h
+6	0	CvGameCoreDLL/CyGame.cpp
+1	1	CvGameCoreDLL/CyGame.h
+2	1	CvGameCoreDLL/CyGameInterface.cpp
+2	0	CvGameCoreDLL/RiseFall.cpp
+-	-	manual_0.94b.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index b1e6c59b1..02370ea32 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -106,6 +106,13 @@
+ 					type="color" default="COLOR_MAGENTA"
+ 					get="getStackPromotionColorAll" dirtyBit="InfoPane"/>
+ 
++			<!-- advc.061 -->
++			<option id="ListUnitsPerOwner" key="List Units Per Owner" 
++					type="boolean" default="True" 
++					get="isListUnitsPerOwner"/>
++			<!-- dirtyBit: Would like to redraw the unit layer indicators, but
++				 I don't think that's possible through a dirty-bit. -->
++
+ 			<!-- Build/Action Icon Size by EmperorFool -->
+ 			<list   id="BuildIconSize" key="Build Icon Size" 
+ 					type="int" default="1" listType="string"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index 3acc63b70..fee650804 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -86,6 +86,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, left, "MainInterface__StackPromotionCounts", True)
+ 		self.addColorDropdown(screen, center, right, "MainInterface__StackPromotionColor", False)
+ 		self.addColorDropdown(screen, center, right, "MainInterface__StackPromotionColorAll", False)
++		# advc.061:
++		self.addCheckbox(screen, panel, "MainInterface__ListUnitsPerOwner")
+ 		
+ 	def createMiscellaneousPanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "Misc", "Misc:")
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 7e3f5089a..e4eaeab85 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -331,7 +331,8 @@ class CvMainInterface:
+ 			screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
+ 		self.xResolution = screen.getXResolution()
+ 		self.yResolution = screen.getYResolution()
+-		
++		# advc.061:
++		gc.getGame().setScreenDimensions(self.xResolution, self.yResolution)
+ # BUG - Raw Yields - begin
+ 		global g_bYieldView
+ 		global g_iYieldType
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index 62199c7d6..7af09985a 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -5,6 +5,7 @@
+ 
+ 	Copyright (c) 2009 The BUG Mod.
+ -->
++<!-- advc: Some of the Romance-language translations are from www.deepl.com -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_TEXT</Tag>
+@@ -180,7 +181,7 @@
+ 		<English>Remember Field of View</English>
+ 		<French>Remember Field of View</French>
+ 		<German>FOV-Einstellung merken</German>
+-		<Italian>Conseva il Campo visuale</Italian>
++		<Italian>Conserva il Campo visuale</Italian>
+ 		<Spanish>Recordar Campo de Visi�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -306,6 +307,24 @@
+ 		<Spanish>Muestra el n�mero de unidades del grupo que poseen una determinada promoci�n, en el caso de que haya m�s de una.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.061 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__LISTUNITSPEROWNER_TEXT</Tag>
++		<English>List Units per Owner</English>
++		<French>Grouper les unit�s par propri�taire</French>
++		<German>Einheiten nach Besitzer gruppieren</German>
++		<Italian>Elenca unit� per proprietario</Italian>
++		<Spanish>Agrupar unidades por propietario</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__LISTUNITSPEROWNER_HOVER</Tag>
++		<English>When checked, help text lists the units in a tile grouped by owner and shows the total unit count per owner.</English>
++		<French>En activant, le texte d'aide �num�re les unit�s d'une case group�es par propri�taire et affiche le nombre total d'unit�s par propri�taire.</French>
++		<German>Im Hilfstext werden Einheiten eines Feldes nach Besitzer gruppiert aufgef�hrt und die Einheitenzahl pro Besitzer wird angegeben.</German>
++		<Italian>Quando � selezionato, il testo di aiuto elenca le unit� in una casella raggruppate per proprietario e mostra il conteggio totale delle unit� per proprietario.</Italian>
++		<Spanish>Si se activa, el texto de ayuda lista las unidades en una casilla agrupadas por propietario y muestra el n�mero total de unidades por propietario.</Spanish>
++	</TEXT>
++
+ 	<!-- 002b: This option column gets a bit too wide with the larger fonts.
+ 		 Also, "Action button" is clearer than "Build/Action Icon".
+ 		 I didn't change the Romanic translations. -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 336b1191b..53b136185 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4152,4 +4152,48 @@
+ 		<Spanish>Todas las civilizaciones quedar&#225;n bloqueadas en guerra o en paz hasta que acabe la partida.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.061: Would prefer game terms like "Military", but space is
++		 limited and the important distinctions are between military land units,
++		 military sea units and civilians/ air units (a single category for
++		 these is OK). -->
++	<!-- Translation based on TXT_KEY_CONCEPT_AIR_UNITS_PEDIA in
++		 CIV4GameText_Civilopedia_Concepts.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_ARMY</Tag>
++		<English>army</English>
++		<French>arm�e</French>
++		<German>Armee</German>
++		<Italian>esercito</Italian>
++		<Spanish>ej�rcito</Spanish>
++	</TEXT>
++	<!-- Translation based on TXT_KEY_SEALEVEL_HIGH_HELP in
++		 CIV4GameText_Help.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NAVY</Tag>
++		<English>navy</English>
++		<French>flotte</French>
++		<German>Flotte</German>
++		<Italian>flotta</Italian>
++		<Spanish>armada</Spanish>
++	</TEXT>
++	<!-- Like TXT_KEY_OPTIONS_SCREEN_OTHER in CIV4GameText_Misc1.xml,
++		 but non-capitalized -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_OTHER</Tag>
++		<English>other</English>
++		<French>autre</French>
++		<German>Sonstige</German>
++		<Italian>altro</Italian>
++		<Spanish>otros</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NOT_ENOUGH_SPACE</Tag>
++		<English>Not enough space to display!</English>
++		<French>Espace insuffisant pour l'afficher !</French>
++		<German>Zu wenig Platz zum Anzeigen!</German>
++		<Italian>Spazio insufficiente!</Italian>
++		<Spanish>�No hay suficiente espacio!</Spanish>
++	</TEXT>
++	
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b58425933..2fb7a54a3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -621,6 +621,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bHotPbemBetweenTurns = false;
+ 	m_bPlayerOptionsSent = false;
+ 	m_bNukesValid = false;
++	m_iScreenWidth = m_iScreenHeight = 0; // advc.061
+ 
+ 	m_eHandicap = eHandicap;
+ 	// advc.127: (XML not loaded when constructor called)
+@@ -5361,6 +5362,23 @@ void CvGame::setFinalInitialized(bool bNewValue)
+ 	}
+ }
+ 
++// <advc.061>
++void CvGame::setScreenDimensions(int x, int y) {
++
++	m_iScreenWidth = x;
++	m_iScreenHeight = y;
++}
++
++int CvGame::getScreenWidth() const {
++
++	return m_iScreenWidth;
++}
++
++int CvGame::getScreenHeight() const {
++
++	return m_iScreenHeight;
++} // </advc.061>
++
+ 
+ bool CvGame::getPbemTurnSent() const
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 91b7fde4d..05ef4e554 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -303,7 +303,11 @@ public:
+ 
+ 	DllExport bool isFinalInitialized() const;																		// Exposed to Python
+ 	DllExport void setFinalInitialized(bool bNewValue);
+-
++	// <advc.061>
++	void setScreenDimensions(int x, int y); // (exposed to Python)
++	int getScreenWidth() const;
++	int getScreenHeight() const;
++	// </advc.061>
+ 	bool getPbemTurnSent() const;
+ 	DllExport void setPbemTurnSent(bool bNewValue);
+ 
+@@ -682,6 +686,7 @@ protected:
+ 	bool m_bHotPbemBetweenTurns;
+ 	bool m_bPlayerOptionsSent;
+ 	bool m_bNukesValid;
++	int m_iScreenWidth, m_iScreenHeight; // advc.061
+ 	bool m_bAITurn; // advc.106b
+ 	bool m_bResourceLayer; // advc.004m
+ 	bool m_bResourceLayerSet; // advc.003d
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 5ee47f93f..96cdbcfe2 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1392,7 +1392,15 @@ bool PUF_isGroupHead(const CvUnit* pUnit, int iData1, int iData2)
+ bool PUF_isPlayer(const CvUnit* pUnit, int iData1, int iData2)
+ {
+ 	FAssertMsg(iData1 != -1, "Invalid data argument, should be >= 0");
+-	return (pUnit->getOwnerINLINE() == iData1);
++	// <advc.061>
++	TeamTypes eForTeam = (TeamTypes)iData2;
++	PlayerTypes eOwner = (PlayerTypes)iData1;
++	if(eForTeam == NO_TEAM || eOwner == NO_PLAYER || eForTeam == TEAMID(eOwner)) {
++		// </advc.061>
++		return (pUnit->getOwnerINLINE() == iData1);
++	} // <advc.061>
++	return (pUnit->getOwnerINLINE() == iData1 && !pUnit->isInvisible(eForTeam, false) &&
++			!pUnit->getUnitInfo().isHiddenNationality()); // </advc.061>
+ }
+ 
+ bool PUF_isTeam(const CvUnit* pUnit, int iData1, int iData2)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d6f350001..dd12ecdd4 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -452,25 +452,26 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
+ 
+ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		bool bOneLine, bool bShort,
+-		bool bColorHostile) { // advc.048
++		bool bColorHostile, // advc.048
++		bool bOmitOwner, // advc.061
++		bool bIndicator) {
+ 
+ 	PROFILE_FUNC();
+ 
+ 	CvWString szTempBuffer;
+-	BuildTypes eBuild;
+-	int iCurrMoves;
+-	int iI;
+-	bool bFirst;
++	// <advc.003> Other declarations moved
++	int iI=-1;
++	CvGame const& g = GC.getGameINLINE(); // </advc.003>
++	bool bDebugMode = (g.isDebugMode() && !bIndicator); // advc.007
+ 	bool bShift = GC.shiftKey();
+ 	bool bAlt = GC.altKey();
+-
+ 	// <advc.007> Make info more compact in debug mode
+-	if(GC.getGameINLINE().isDebugMode() && bOneLine)
++	if(bDebugMode && bOneLine)
+ 		bShort = true; // </advc.007>
+ 	// <advc.048>
+ 	char const* szColTag = "COLOR_UNIT_TEXT";
+ 	if(bColorHostile) {
+-		szColTag = (pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
++		szColTag = (pUnit->isEnemy(g.getActiveTeam()) ?
+ 				"COLOR_WARNING_TEXT" : "COLOR_POSITIVE_TEXT");
+ 	} // </advc.048>
+ 	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(
+@@ -519,8 +520,8 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		}
+ 	}
+ 
+-	iCurrMoves = ((pUnit->movesLeft() / GC.getMOVE_DENOMINATOR()) + (((pUnit->movesLeft() % GC.getMOVE_DENOMINATOR()) > 0) ? 1 : 0));
+-	if ((pUnit->baseMoves() == iCurrMoves) || (pUnit->getTeam() != GC.getGameINLINE().getActiveTeam()))
++	int iCurrMoves = ((pUnit->movesLeft() / GC.getMOVE_DENOMINATOR()) + (((pUnit->movesLeft() % GC.getMOVE_DENOMINATOR()) > 0) ? 1 : 0));
++	if ((pUnit->baseMoves() == iCurrMoves) || (pUnit->getTeam() != g.getActiveTeam()))
+ 	{
+ 		szTempBuffer.Format(L"%d%c", pUnit->baseMoves(), gDLL->getSymbolID(MOVES_CHAR));
+ 	}
+@@ -535,7 +536,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		szString.append(gDLL->getText("TXT_KEY_UNIT_HELP_AIR_RANGE", pUnit->airRange()));
+ 	}
+ 
+-	eBuild = pUnit->getBuildType();
++	BuildTypes eBuild = pUnit->getBuildType();
+ 
+ 	if (eBuild != NO_BUILD)
+ 	{
+@@ -559,18 +560,16 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		}
+ 	}*/
+ 	
+-	if (GC.getGameINLINE().isDebugMode() && !bAlt && !bShift
+-			&& false // advc.007: Can alway press Ctrl+Alt for this info
+-		)
++	if (bDebugMode && !bAlt && !bShift
++			&& false) // advc.007: Can alway press Ctrl+Alt for this info
+ 	{
+ 		FAssertMsg(pUnit->AI_getUnitAIType() != NO_UNITAI, "pUnit's AI type expected to != NO_UNITAI");
+ 		szTempBuffer.Format(L" (%s)", GC.getUnitAIInfo(pUnit->AI_getUnitAIType()).getDescription());
+ 		szString.append(szTempBuffer);
+ 	}
+ 
+-	if ((pUnit->getTeam() == GC.getGameINLINE().getActiveTeam()) || (GC.getGameINLINE().isDebugMode()
+-			&& !bOneLine // advc.007
+-		))
++	if ((pUnit->getTeam() == g.getActiveTeam()) || (bDebugMode
++			&& !bOneLine)) // advc.007
+ 	{
+ 		if ((pUnit->getExperience() > 0) && !(pUnit->isFighting()))
+ 		{
+@@ -578,7 +577,8 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		}
+ 	}
+ 
+-	if (pUnit->getOwnerINLINE() != GC.getGameINLINE().getActivePlayer() && !pUnit->isAnimal() && !pUnit->getUnitInfo().isHiddenNationality())
++	//if (pUnit->getOwnerINLINE() != GC.getGameINLINE().getActivePlayer() && !pUnit->isAnimal() && !pUnit->getUnitInfo().isHiddenNationality())
++	if(!bOmitOwner && !pUnit->isUnowned()) // advc.061: Replacing the above
+ 	{
+ 		szString.append(L", ");
+ 		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorA(), GET_PLAYER(pUnit->getOwnerINLINE()).getName());
+@@ -594,7 +594,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		}
+ 	}
+     if (bAlt && //(gDLL->getChtLvl() > 0))
+-			GC.getGameINLINE().isDebugMode()) // advc.135c
++			bDebugMode) // advc.135c
+     {
+ 		CvSelectionGroup* eGroup = pUnit->getGroup();
+ 		if (eGroup != NULL)
+@@ -615,7 +615,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 
+ 		if (pUnit->cargoSpace() > 0)
+ 		{
+-			if (pUnit->getTeam() == GC.getGameINLINE().getActiveTeam())
++			if (pUnit->getTeam() == g.getActiveTeam())
+ 			{
+ 				szTempBuffer = NEWLINE + gDLL->getText("TXT_KEY_UNIT_HELP_CARGO_SPACE", pUnit->getCargo(), pUnit->cargoSpace());
+ 			}
+@@ -1062,7 +1062,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		}
+ 
+ 		szTempBuffer.clear();
+-		bFirst = true;
++		bool bFirst = true;
+ 		for (iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
+ 		{
+ 			if (pUnit->getUnitInfo().getTargetUnitClass(iI))
+@@ -1219,7 +1219,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 		}
+ 
+         if (bShift && //(gDLL->getChtLvl() > 0))
+-				GC.getGameINLINE().isDebugMode()) // advc.135c
++				bDebugMode) // advc.135c
+         {
+             szTempBuffer.Format(L"\nUnitAI Type = %s.", GC.getUnitAIInfo(pUnit->AI_getUnitAIType()).getDescription());
+             szString.append(szTempBuffer);
+@@ -1229,461 +1229,530 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 	}
+ }
+ 
++// <advc.061>
++bool CvGameTextMgr::listFirstUnitBeforeSecond(CvUnit const* pFirst,
++		CvUnit const* pSecond) {
+ 
+-void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort)
+-{
+-	PROFILE_FUNC();
+-
+-	int numPromotionInfos = GC.getNumPromotionInfos();
+-	
+-	// if cheatmode and ctrl, display grouping info instead
+-	if (//(gDLL->getChtLvl() > 0)
+-			GC.getGameINLINE().isDebugMode() // advvc.135c
+-			&& GC.ctrlKey())
+-	{
+-		if (pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), true))
+-		{
+-			CvWString szTempString;
+-
+-			CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
+-			while(pUnitNode != NULL)
+-			{
+-				CvUnit* pHeadUnit = ::getUnit(pUnitNode->m_data);
+-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+-
+-				// is this unit the head of a group, not cargo, and visible?
+-				if (pHeadUnit && pHeadUnit->isGroupHead() && !pHeadUnit->isCargo() && !pHeadUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+-				{
+-					// head unit name and unitai
+-					szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR, 255,190,0,255, pHeadUnit->getName().GetCString()));
+-					szString.append(CvWString::format(L" (%d)", shortenID(pHeadUnit->getID())));
+-					getUnitAIString(szTempString, pHeadUnit->AI_getUnitAIType());
+-					szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString()));
+-
+-					// promotion icons
+-					for (int iPromotionIndex = 0; iPromotionIndex < numPromotionInfos; iPromotionIndex++)
+-					{
+-						PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
+-						if (pHeadUnit->isHasPromotion(ePromotion))
+-						{
+-							szString.append(CvWString::format(L"<img=%S size=16 />", GC.getPromotionInfo(ePromotion).getButton()));
+-						}
+-					}
+-
+-					// group
+-					CvSelectionGroup* pHeadGroup = pHeadUnit->getGroup();
+-					FAssertMsg(pHeadGroup != NULL, "unit has NULL group");
+-					if (pHeadGroup->getNumUnits() > 1)
+-					{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      07/17/09                                jdog5000      */
+-/*                                                                                              */
+-/* DEBUG                                                                                        */
+-/************************************************************************************************/
+-						szString.append(CvWString::format(L"\nGroup:%d [%d units", shortenID(pHeadGroup->getID()), pHeadGroup->getNumUnits()));
+-						if( pHeadGroup->getCargo() > 0 )
+-						{
+-							szString.append(CvWString::format(L" + %d cargo", pHeadGroup->getCargo()));
+-						}
+-						szString.append(CvWString::format(L"]"));
+-
+-						// get average damage
+-						int iAverageDamage = 0;
+-						CLLNode<IDInfo>* pUnitNode = pHeadGroup->headUnitNode();
+-						while (pUnitNode != NULL)
+-						{
+-							CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-							pUnitNode = pHeadGroup->nextUnitNode(pUnitNode);
+-
+-							iAverageDamage += (pLoopUnit->getDamage() * pLoopUnit->maxHitPoints()) / 100;
+-						}
+-						iAverageDamage /= pHeadGroup->getNumUnits();
+-						if (iAverageDamage > 0)
+-						{
+-							szString.append(CvWString::format(L" %d%%", 100 - iAverageDamage));
+-						}
+-					}
+-
+-					if (!pHeadGroup->isHuman() && pHeadGroup->isStranded())
+-					{
+-						szString.append(CvWString::format(SETCOLR L"\n***STRANDED***" ENDCOLR, TEXT_COLOR("COLOR_RED")));
+-					}
+-
+-					if( !GC.altKey() )
+-					{
+-						// mission ai
+-						MissionAITypes eMissionAI = pHeadGroup->AI_getMissionAIType();
+-						if (eMissionAI != NO_MISSIONAI)
+-						{
+-							getMissionAIString(szTempString, eMissionAI);
+-							szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
+-						}
+-
+-						// mission
+-						MissionTypes eMissionType = (MissionTypes) pHeadGroup->getMissionType(0);
+-						if (eMissionType != NO_MISSION)
+-						{
+-							getMissionTypeString(szTempString, eMissionType);
+-							szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
+-						}
+-
+-						// mission unit
+-						CvUnit* pMissionUnit = pHeadGroup->AI_getMissionAIUnit();
+-						if (pMissionUnit != NULL && (eMissionAI != NO_MISSIONAI || eMissionType != NO_MISSION))
+-						{
+-							// mission unit
+-							szString.append(L"\n to ");
+-							szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), pMissionUnit->getName().GetCString()));
+-							szString.append(CvWString::format(L"(%d) G:%d", shortenID(pMissionUnit->getID()), shortenID(pMissionUnit->getGroupID())));
+-							getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
+-							szString.append(CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString()));
+-						}
+-						
+-						// mission plot
+-						if (eMissionAI != NO_MISSIONAI || eMissionType != NO_MISSION)
+-						{
+-							// first try the plot from the missionAI
+-							CvPlot* pMissionPlot = pHeadGroup->AI_getMissionAIPlot();
+-							
+-							// if MissionAI does not have a plot, get one from the mission itself
+-							if (pMissionPlot == NULL && eMissionType != NO_MISSION)
+-							{
+-								switch (eMissionType)
+-								{
+-								case MISSION_MOVE_TO:
+-								case MISSION_ROUTE_TO:
+-									pMissionPlot =  GC.getMapINLINE().plotINLINE(pHeadGroup->getMissionData1(0), pHeadGroup->getMissionData2(0));
+-									break;
+-
+-								case MISSION_MOVE_TO_UNIT:
+-									if (pMissionUnit != NULL)
+-									{
+-										pMissionPlot = pMissionUnit->plot();
+-									}
+-									break;
+-								}
+-							}
+-
+-							if (pMissionPlot != NULL)
+-							{
+-								szString.append(CvWString::format(L"\n [%d,%d]", pMissionPlot->getX_INLINE(), pMissionPlot->getY_INLINE()));
+-								
+-								CvCity* pCity = pMissionPlot->getWorkingCity();
+-								if (pCity != NULL)
+-								{
+-									szString.append(L" (");
+-
+-									if (!pMissionPlot->isCity())
+-									{
+-										DirectionTypes eDirection = estimateDirection(dxWrap(pMissionPlot->getX_INLINE() - pCity->plot()->getX_INLINE()), dyWrap(pMissionPlot->getY_INLINE() - pCity->plot()->getY_INLINE()));
+-
+-										getDirectionTypeString(szTempString, eDirection);
+-										szString.append(CvWString::format(L"%s of ", szTempString.GetCString()));
+-									}
+-
+-									szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR L")", GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCity->getOwnerINLINE()).getPlayerTextColorA(), pCity->getName().GetCString()));
+-								}
+-								else
+-								{
+-									if (pMissionPlot != pPlot)
+-									{
+-										DirectionTypes eDirection = estimateDirection(dxWrap(pMissionPlot->getX_INLINE() - pPlot->getX_INLINE()), dyWrap(pMissionPlot->getY_INLINE() - pPlot->getY_INLINE()));
+-
+-										getDirectionTypeString(szTempString, eDirection);
+-										szString.append(CvWString::format(L" (%s)", szTempString.GetCString()));
+-									}
+-
+-									PlayerTypes eMissionPlotOwner = pMissionPlot->getOwnerINLINE();
+-									if (eMissionPlotOwner != NO_PLAYER)
+-									{
+-										szString.append(CvWString::format(L", " SETCOLR L"%s" ENDCOLR, GET_PLAYER(eMissionPlotOwner).getPlayerTextColorR(), GET_PLAYER(eMissionPlotOwner).getPlayerTextColorG(), GET_PLAYER(eMissionPlotOwner).getPlayerTextColorB(), GET_PLAYER(eMissionPlotOwner).getPlayerTextColorA(), GET_PLAYER(eMissionPlotOwner).getName()));
+-									}
+-								}
+-							}
+-						}
+-
+-						// activity
+-						ActivityTypes eActivityType = (ActivityTypes) pHeadGroup->getActivityType();
+-						if (eActivityType != NO_ACTIVITY)
+-						{
+-							getActivityTypeString(szTempString, eActivityType);
+-							szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
+-						}
+-					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// Top priority: cargo - but only if owned by active team
++	TeamTypes eTeam = pFirst->getTeam(); // Caller ensures that both have same owner
++	// ... which also means that these ids are unique:
++	int iFirstID = pFirst->getID();
++	int iSecondID = pSecond->getID();
++	FAssert(pFirst != pSecond && iFirstID != iSecondID);
++	CvGame const& g = GC.getGameINLINE();
++	if(eTeam == g.getActiveTeam() || g.isDebugMode()) {
++		bool bFirstCargo = (pFirst->getCargo() > 0);
++		bool bSecondCargo = (pSecond->getCargo() > 0);
++		CvUnit const* pFirstTransport = (bFirstCargo ? pFirst :
++				pFirst->getTransportUnit());
++		CvUnit const* pSecondTransport = (bSecondCargo ? pSecond :
++				pSecond->getTransportUnit());
++		bool bFirstTransport = (pFirstTransport != NULL);
++		bool bSecondTransport = (pSecondTransport != NULL);
++		if(bFirstTransport != bSecondTransport)
++			return bFirstTransport;
++		if(bFirstTransport) { // I.e. they're both involved with cargo
++			UnitTypes eFirstTransportType = pFirstTransport->getUnitType();
++			UnitTypes eSecondTransportType = pSecondTransport->getUnitType();
++			if(eFirstTransportType != eSecondTransportType) {
++				return listFirstUnitTypeBeforeSecond(eFirstTransportType,
++						eSecondTransportType);
++			}
++			int iFirstCargo = pFirstTransport->getCargo();
++			int iSecondCargo = pSecondTransport->getCargo();
++			if(iFirstCargo != iSecondCargo)
++				return (iFirstCargo > iSecondCargo);
++			// Use transport id to keep transport and cargo together
++			int iFirstTransportID = pFirstTransport->getID();
++			int iSecondTransportID = pSecondTransport->getID();
++			if(iFirstTransportID != iSecondTransportID)
++				return (iFirstTransportID < iSecondTransportID);
++			// Only transport and its cargo left. Transport goes first.
++			if(bFirstCargo != bSecondCargo)
++				return bFirstCargo;
++			/*  Now we know that pFirst and pSecond are loaded in the same transport.
++				Let the non-transport code below determine their order. */
++		}
++	}
++	UnitTypes eFirst = pFirst->getUnitType();
++	UnitTypes eSecond = pSecond->getUnitType();
++	if(eFirst == eSecond) {
++		// Make the order stable
++		return (iFirstID < iSecondID);
++	}
++	return listFirstUnitTypeBeforeSecond(eFirst, eSecond);
++}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      06/10/08                                jdog5000      */
+-/*                                                                                              */
+-/* DEBUG                                                                                        */
+-/************************************************************************************************/
+-					if( !GC.altKey() && !GC.shiftKey() )
+-					{
+-						// display cargo for head unit
+-						std::vector<CvUnit*> aCargoUnits;
+-						pHeadUnit->getCargoUnits(aCargoUnits);
+-						for (uint i = 0; i < aCargoUnits.size(); ++i)
+-						{
+-							CvUnit* pCargoUnit = aCargoUnits[i];
+-							if (!pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+-							{
+-								// name and unitai
+-								szString.append(CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString()));
+-								szString.append(CvWString::format(L"(%d)", shortenID(pCargoUnit->getID())));
+-								getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
+-								szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString()));
+-
+-								// promotion icons
+-								for (int iPromotionIndex = 0; iPromotionIndex < numPromotionInfos; iPromotionIndex++)
+-								{
+-									PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
+-									if (pCargoUnit->isHasPromotion(ePromotion))
+-									{
+-										szString.append(CvWString::format(L"<img=%S size=16 />", GC.getPromotionInfo(ePromotion).getButton()));
+-									}
+-								}
+-							}
+-						}
++CvPlot const* CvGameTextMgr::m_pHelpPlot = NULL;
++
++bool CvGameTextMgr::listFirstUnitTypeBeforeSecond(UnitTypes eFirst, UnitTypes eSecond) {
++
++	CvUnit* pCenter = (m_pHelpPlot == NULL ? NULL : m_pHelpPlot->getCenterUnit());
++	UnitTypes eCenterType = (pCenter == NULL ? NO_UNIT :
++			pCenter->getUnitType());
++	FAssert(eCenterType != NO_UNIT);
++	if(eFirst != eSecond) {
++		if(eFirst == eCenterType)
++			return true;
++		if(eSecond == eCenterType)
++			return false;
++	}
++	CvUnitInfo const& u1 = GC.getUnitInfo(eFirst);
++	CvUnitInfo const& u2 = GC.getUnitInfo(eSecond);
++	int iFirstCombat = u1.getCombat();
++	int iSecondCombat = u2.getCombat();
++	if((iFirstCombat > 0) != (iSecondCombat > 0))
++		return (iFirstCombat > 0);
++	int iFirstDomain = u1.getDomainType();
++	int iSecondDomain = u2.getDomainType();
++	if(iFirstDomain != iSecondDomain) {
++		DomainTypes eCenterDomain = (pCenter == NULL ? NO_DOMAIN :
++				pCenter->getDomainType());
++		FAssert(eCenterDomain != NO_DOMAIN);
++		if(iFirstDomain == eCenterDomain)
++			return true;
++		if(iSecondDomain == eCenterDomain)
++			return false;
++		return (iFirstDomain > iSecondDomain);
++	}
++	if(iFirstCombat != iSecondCombat)
++		return (iFirstCombat > iSecondCombat);
++	return eFirst > eSecond;
++}
+ 
+-						// display grouped units
+-						CLLNode<IDInfo>* pUnitNode3 = pPlot->headUnitNode();
+-						while(pUnitNode3 != NULL)
+-						{
+-							CvUnit* pUnit = ::getUnit(pUnitNode3->m_data);
+-							pUnitNode3 = pPlot->nextUnitNode(pUnitNode3);
++void CvGameTextMgr::appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerTypes eOwner,
++		int iArmy, int iNavy, int iAir, int iTotal, bool bCollapsed) {
+ 
+-							// is this unit not head, in head's group and visible?
+-							if (pUnit && (pUnit != pHeadUnit) && (pUnit->getGroupID() == pHeadUnit->getGroupID()) && !pUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+-							{
+-								FAssertMsg(!pUnit->isCargo(), "unit is cargo but head unit is not cargo");
+-								// name and unitai
+-								szString.append(CvWString::format(SETCOLR L"\n-%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString()));
+-								szString.append(CvWString::format(L" (%d)", shortenID(pUnit->getID())));
+-								getUnitAIString(szTempString, pUnit->AI_getUnitAIType());
+-								szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString()));
+-
+-								// promotion icons
+-								for (int iPromotionIndex = 0; iPromotionIndex < numPromotionInfos; iPromotionIndex++)
+-								{
+-									PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
+-									if (pUnit->isHasPromotion(ePromotion))
+-									{
+-										szString.append(CvWString::format(L"<img=%S size=16 />", GC.getPromotionInfo(ePromotion).getButton()));
+-									}
+-								}
++	int iOther = iTotal - iArmy - iNavy; // Don't display iAir separately for now
++	// Don't distinguish categories when there are few units in each
++	if(iArmy < 5 && iNavy < 5 && iOther < 5 && !bCollapsed) {
++		iOther = iTotal;
++		iArmy = 0;
++		iNavy = 0;
++	}
++	FAssert(iOther >= 0);
++	if(!szString.isEmpty()) // No newline when PlotListHelp starts with a heading
++		szString.append(NEWLINE);
++	CvPlayer const& kOwner = GET_PLAYER(eOwner);
++	szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++			kOwner.getPlayerTextColorR(), kOwner.getPlayerTextColorG(),
++			kOwner.getPlayerTextColorB(), kOwner.getPlayerTextColorA(),
++			kOwner.getName()));
++	CvWString szCounts; 
++	if(iArmy >= iTotal || iNavy >= iTotal || iOther >= iTotal) {
++		szCounts = CvWString::format(L" (%d %s)", iTotal,
++				gDLL->getText("TXT_KEY_WB_UNITS").c_str());
++	}
++	else {
++		szCounts = L" (";
++		bool bFirst = true;
++		if(iArmy > 0) {
++			if(!bFirst)
++				szCounts += L", ";
++			bFirst = false;
++			szCounts += CvWString::format(L"%d %s", iArmy,
++					gDLL->getText("TXT_KEY_MISC_ARMY").c_str());
++		}
++		if(iNavy > 0) {
++			if(!bFirst)
++				szCounts += L", ";
++			bFirst = false;
++			szCounts += CvWString::format(L"%d %s", iNavy,
++					gDLL->getText("TXT_KEY_MISC_NAVY").c_str());
++		}
++		if(iOther > 0) {
++			szCounts += L", ";
++			szCounts += CvWString::format(L"%d %s", iOther,
++					gDLL->getText("TXT_KEY_MISC_OTHER").c_str());
++		}
++		szCounts += L")";
++	}
++	szString.append(szCounts);
++	szString.append(L":");
++}
+ 
+-								// display cargo for loop unit
+-								std::vector<CvUnit*> aLoopCargoUnits;
+-								pUnit->getCargoUnits(aLoopCargoUnits);
+-								for (uint i = 0; i < aLoopCargoUnits.size(); ++i)
+-								{
+-									CvUnit* pCargoUnit = aLoopCargoUnits[i];
+-									if (!pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+-									{
+-										// name and unitai
+-										szString.append(CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString()));
+-										szString.append(CvWString::format(L"(%d)", shortenID(pCargoUnit->getID())));
+-										getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
+-										szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString()));
+-
+-										// promotion icons
+-										for (int iPromotionIndex = 0; iPromotionIndex < numPromotionInfos; iPromotionIndex++)
+-										{
+-											PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
+-											if (pCargoUnit->isHasPromotion(ePromotion))
+-											{
+-												szString.append(CvWString::format(L"<img=%S size=16 />", GC.getPromotionInfo(ePromotion).getButton()));
+-											}
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
++// Reuses bits and pieces from setPlotListHelp
++void CvGameTextMgr::appendUnitTypeAggregated(CvWStringBuffer& szString,
++		std::vector<CvUnit const*> const& ownerUnits, UnitTypes eUnit,
++		CvPlot const& kPlot, bool bIndicator) { // advc.007
+ 
+-					if( !GC.altKey() )
+-					{
+-						if( pPlot->getTeam() == NO_TEAM || GET_TEAM(pHeadGroup->getTeam()).isAtWar(pPlot->getTeam()) )
+-						{
+-							szString.append(NEWLINE);
+-							CvWString szTempBuffer;
++	CvUnit* pCenterUnit = kPlot.getCenterUnit();
++	int iCount = 0;
++	// These sums are computed as in BtS
++	int iSumStrengthTimes100 = 0;
++	int iSumMaxStrengthTimes100 = 0;
++	std::vector<CvUnit const*> warlords;
++	int const iPromotions = GC.getNumPromotionInfos();
++	std::vector<int> promotionCounts(iPromotions, 0);
++	for(size_t i = 0; i < ownerUnits.size(); i++) {
++		CvUnit const* pUnit = ownerUnits[i];
++		if(pUnit == NULL) {
++			FAssert(pUnit != NULL);
++			continue;
++		}
++		if(pUnit == pCenterUnit) // Already handled by caller
++			continue;
++		if(pUnit->getUnitType() != eUnit)
++			continue;
++		if(pUnit->getLeaderUnitType() != NO_UNIT) {
++			warlords.push_back(pUnit);
++			// These go on a separate line each
++			continue;
++		}
++		iCount++;
++		for(int j = 0; j < iPromotions; j++) {
++			if(pUnit->isHasPromotion((PromotionTypes)j))
++				promotionCounts[j]++;
++		}
++		if(pUnit->maxHitPoints() <= 0)
++			continue;
++		int iBase = (pUnit->getDomainType() == DOMAIN_AIR ?
++				pUnit->airBaseCombatStr() : pUnit->baseCombatStr());
++		if(iBase > 0) {
++			iSumStrengthTimes100 += (100 * iBase * pUnit->currHitPoints()) /
++					pUnit->maxHitPoints();
++			iSumMaxStrengthTimes100 += 100 * iBase;
++		}
++	}
++	if(iCount > 0) {
++		szString.append(NEWLINE);
++		CvUnitInfo const& u = GC.getUnitInfo(eUnit);
++		szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++				TEXT_COLOR("COLOR_UNIT_TEXT"), u.getDescription()));
++		appendAverageStrength(szString, iSumMaxStrengthTimes100,
++				iSumStrengthTimes100, iCount);
++		// Just like in setPlotListHelp (but with a vector)
++		for(int j = 0; j < iPromotions; j++) {
++			if(promotionCounts[j] > 0) {
++				szString.append(CvWString::format(L"%d<img=%S size=16 />",
++						promotionCounts[j],
++						GC.getPromotionInfo((PromotionTypes)j).getButton()));
++			}
++		}
++	}
++	for(size_t i = 0; i < warlords.size(); i++) {
++		szString.append(NEWLINE);
++		setUnitHelp(szString, warlords[i], true, true, false, true,
++				bIndicator); // advc.007
++	}
++}
+ 
+-							//AI strategies
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+-							{
+-								szTempBuffer.Format(L"Dagger, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+-							{
+-								szTempBuffer.Format(L"Crush, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ALERT1))
+-							{
+-								szTempBuffer.Format(L"Alert1, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ALERT2))
+-							{
+-								szTempBuffer.Format(L"Alert2, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_TURTLE))
+-							{
+-								szTempBuffer.Format(L"Turtle, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
+-							{
+-								szTempBuffer.Format(L"Last Stand, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
+-							{
+-								szTempBuffer.Format(L"FinalWar, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
+-							{
+-								szTempBuffer.Format(L"GetBetterUnits, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_FASTMOVERS))
+-							{
+-								szTempBuffer.Format(L"FastMovers, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ))
+-							{
+-								szTempBuffer.Format(L"LandBlitz, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
+-							{
+-								szTempBuffer.Format(L"AirBlitz, ");
+-								szString.append(szTempBuffer);
+-							}
+- 							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_OWABWNW))
+-							{
+-								szTempBuffer.Format(L"OWABWNW, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
+-							{
+-								szTempBuffer.Format(L"Production, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
+-							{
+-								szTempBuffer.Format(L"Missionary, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+-							{
+-								szTempBuffer.Format(L"BigEspionage, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS)) // K-Mod
+-							{
+-								szTempBuffer.Format(L"EconomyFocus, ");
+-								szString.append(szTempBuffer);
+-							}
+-							if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)) // K-Mod
+-							{
+-								szTempBuffer.Format(L"EspionageEconomy, ");
+-								szString.append(szTempBuffer);
+-							}
++// Cut and pasted (and refactored) from setPlotListHelp
++void CvGameTextMgr::appendAverageStrength(CvWStringBuffer& szString,
++		int iSumMaxStrengthTimes100, int iSumStrengthTimes100, int iUnits) {
+ 
+-							//Area battle plans.
+-							if (pPlot->area()->getAreaAIType(pHeadGroup->getTeam()) == AREAAI_OFFENSIVE)
+-							{
+-								szTempBuffer.Format(L"\n Area AI = OFFENSIVE");
+-							}
+-							else if (pPlot->area()->getAreaAIType(pHeadGroup->getTeam()) == AREAAI_DEFENSIVE)
+-							{
+-								szTempBuffer.Format(L"\n Area AI = DEFENSIVE");
+-							}
+-							else if (pPlot->area()->getAreaAIType(pHeadGroup->getTeam()) == AREAAI_MASSING)
+-							{
+-								szTempBuffer.Format(L"\n Area AI = MASSING");
+-							}
+-							else if (pPlot->area()->getAreaAIType(pHeadGroup->getTeam()) == AREAAI_ASSAULT)
+-							{
+-								szTempBuffer.Format(L"\n Area AI = ASSAULT");
+-							}
+-							else if (pPlot->area()->getAreaAIType(pHeadGroup->getTeam()) == AREAAI_ASSAULT_MASSING)
+-							{
+-								szTempBuffer.Format(L"\n Area AI = ASSAULT_MASSING");
+-							}
+-							else if (pPlot->area()->getAreaAIType(pHeadGroup->getTeam()) == AREAAI_NEUTRAL)
+-							{
+-								szTempBuffer.Format(L"\n Area AI = NEUTRAL");
+-							}
++	if(iUnits > 1) // advc: This condition is new
++		szString.append(CvWString::format(L" (%d)", iUnits));
++	if(iSumMaxStrengthTimes100 <= 0)
++		return;
++	int iBase = (iSumMaxStrengthTimes100 / iUnits) / 100;
++	int iCurrent = (iSumStrengthTimes100 / iUnits) / 100;
++	int iCurrentRemainder = (iSumStrengthTimes100 / iUnits) % 100;
++	if(iCurrentRemainder <= 0) {
++		if(iBase == iCurrent)
++			szString.append(CvWString::format(L" %d", iBase));
++		else szString.append(CvWString::format(L" %d/%d", iCurrent, iBase));
++	}
++	else {
++		szString.append(CvWString::format(L" %d.%02d/%d",
++				iCurrent, iCurrentRemainder, iBase));
++	}
++	szString.append(CvWString::format(L"%c", gDLL->getSymbolID(STRENGTH_CHAR)));
++}
+ 
+-							CvCity* pTargetCity = pPlot->area()->getTargetCity(pHeadGroup->getOwner());
+-							if( pTargetCity )
+-							{
+-								szString.append(CvWString::format(L"\nTarget City: %s (%d)", pTargetCity->getName().c_str(), pTargetCity->getOwner()));
+-							}
+-							else
+-							{
+-								szString.append(CvWString::format(L"\nTarget City: None"));
+-							}
+ 
+-							if( GC.shiftKey() )
+-							{
+-								CvCity* pLoopCity;
+-								int iLoop = 0;
+-								int iBestTargetValue = (pTargetCity != NULL ? GET_PLAYER(pHeadGroup->getOwner()).AI_targetCityValue(pTargetCity,false,true) : 0);
+-								int iTargetValue = 0;
+-								szString.append(CvWString::format(L"\n\nTarget City values:\n"));
+-								for( int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++ )
+-								{
+-									if( GET_TEAM(pHeadGroup->getTeam()).AI_getWarPlan(GET_PLAYER((PlayerTypes)iPlayer).getTeam()) != NO_WARPLAN )
+-									{
+-										if( pPlot->area()->getCitiesPerPlayer((PlayerTypes)iPlayer) > 0 )
+-										{
+-											for (pLoopCity = GET_PLAYER((PlayerTypes)iPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iPlayer).nextCity(&iLoop))
+-											{
+-												if( pLoopCity->area() == pPlot->area() )
+-												{
+-													iTargetValue = GET_PLAYER(pHeadGroup->getOwner()).AI_targetCityValue(pLoopCity,false,true);
+-
+-													if( (GC.getMapINLINE().calculatePathDistance(pPlot, pLoopCity->plot()) < 20))
+-													{
+-														szString.append(CvWString::format(L"\n%s : %d + rand %d", pLoopCity->getName().c_str(), iTargetValue, (pLoopCity->getPopulation() / 2)));
+-													}
+-												}
+-											}
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
++		CvPlot const& kPlot, bool bIndicator, bool bShort) {
+ 
+-					// double space non-empty groups
+-					if (pHeadGroup->getNumUnits() > 1 || pHeadUnit->hasCargo())
+-					{
+-						szString.append(NEWLINE);
++	if(kPlot.getCenterUnit() == NULL)
++		return;
++	double fontFactor = 1;
++	CvArtInfoMisc const* pTheme = ARTFILEMGR.getMiscArtInfo("DEFAULT_THEME_NAME");
++	if(pTheme != NULL && pTheme->getPath() != NULL) {
++		CvString szThemePath(pTheme->getPath());
++		/*  Don't know how to look up the font size. Would perhaps have to
++			(re-)parse the theme files (no, thanks).
++			Only check if the AdvCiv theme has been removed: */
++		if(szThemePath.find("AdvCiv") == CvString::npos)
++			fontFactor = 14 / 12.0;
++	}
++	CvGame const& g = GC.getGameINLINE();
++	int iScreenHeight = g.getScreenHeight();
++	int iLineLimit = (iScreenHeight == 0 ? 25 :
++			std::max(::round(32 * fontFactor * g.getScreenHeight() / 1000.0 - 5), 15));
++	/*  When hovering over an indicator bubble (unit layer), only info about units
++		in kPlot is shown. This means more space. Same when hovering over a flag
++		(bShort). */
++	if(bIndicator || bShort)
++		iLineLimit += 4;
++	TeamTypes eActiveTeam = g.getActiveTeam();
++	PlayerTypes eActivePlayer = g.getActivePlayer();
++	/*  BtS shows no owner for Privateers and Animals (but it does for Barbarians);
++		I'm calling units without a visible owner "rogue" units and they get their
++		own entries in the perOwner vector. I'm also treating Barbarians inside
++		cities that way (b/c only Barbarian units can exist there).
++		These distinctions are implemented in CvUnit::isUnowned b/c I also want
++		rogues to be preferred as the center unit -- this makes sure that the
++		center unit can be listed first w/o the need for a heading.
++		(That said, I'm also revealing the owner of Privateers when they're stacked
++		with non-Privateers, meaning that such Privateers aren't rogues and that
++		rogues really can't be stacked with non-rogues, so that change to the
++		center unit is arguably obsolete.) */
++	int const iRogueIndex = MAX_PLAYERS;
++	int const ARMY = 0;
++	int const NAVY = 1;
++	int const AIR = 2;
++	int const OTHER = 3;
++	int const ALL = 4;
++	std::vector<CvUnit const*> perOwner[iRogueIndex + 1][ALL+1];
++	CLLNode<IDInfo>* pNode = kPlot.headUnitNode();
++	while(pNode != NULL) {
++		CvUnit* pUnit = ::getUnit(pNode->m_data);
++		pNode = kPlot.nextUnitNode(pNode);
++		if(pUnit == NULL) {
++			FAssert(pUnit != NULL);
++			continue;
++		}
++		if(pUnit->isInvisible(eActiveTeam, true))
++			continue;
++		PlayerTypes eVisualOwner = pUnit->getVisualOwner(eActiveTeam);
++		if(eVisualOwner == NO_PLAYER) {
++			FAssert(eVisualOwner != NO_PLAYER);
++			continue;
++		}
++		int iType = OTHER;
++		if(pUnit->baseCombatStr() > 0) {
++			DomainTypes eDomain = pUnit->getDomainType();
++			if(eDomain == DOMAIN_LAND)
++				iType = ARMY;
++			else if(eDomain == DOMAIN_SEA)
++				iType = NAVY;
++			else if(eDomain == DOMAIN_AIR)
++				iType = AIR;
++		}
++		if(pUnit->isUnowned()) {
++			perOwner[iRogueIndex][iType].push_back(pUnit);
++			perOwner[iRogueIndex][ALL].push_back(pUnit);
++		}
++		else {
++			perOwner[eVisualOwner][iType].push_back(pUnit);
++			perOwner[eVisualOwner][ALL].push_back(pUnit);
++		}
++	}
++	int iHeadings = 0;
++	uint uTotal = perOwner[iRogueIndex][ALL].size();
++	for(int i = 0; i < iRogueIndex; i++) { // Rogue units don't get a heading
++		int iSize = perOwner[i][ALL].size();
++		if(iSize > 0) {
++			uTotal += perOwner[i][ALL].size();
++			if(iSize > 1)
++				iHeadings++;
++		}
++	}
++	int iTotal = (int)uTotal;
++	CvUnit const& kCenterUnit = *kPlot.getCenterUnit();
++	PlayerTypes eCenterOwner = kCenterUnit.getVisualOwner();
++	int iCenterOwner = eCenterOwner;
++	if(kCenterUnit.isUnowned())
++		iCenterOwner = iRogueIndex;
++	/*  First heading, unless rogue or a small number of units of only the active player,
++		or a single unit of any player as the center unit. */
++	else if((iTotal >= 5 || iHeadings > 1 || eCenterOwner != eActivePlayer) &&
++			perOwner[iCenterOwner][ALL].size() > 1) {
++		appendUnitOwnerHeading(szString, eCenterOwner, (int)perOwner[eCenterOwner][ARMY].size(),
++				(int)perOwner[eCenterOwner][NAVY].size(), (int)perOwner[eCenterOwner][AIR].size(),
++				(int)perOwner[eCenterOwner][ALL].size());
++	}
++	// Lines required for the center unit
++	int iLinesCenter = 1;
++	int iLinesCenterShort = 1;
++	{
++		CvWStringBuffer szTempBuffer;
++		setUnitHelp(szTempBuffer, &kCenterUnit, false, false, false, true,
++				bIndicator); // advc.007
++		CvWString szTemp(szTempBuffer.getCString());
++		iLinesCenter += (int)std::count(szTemp.begin(), szTemp.end(), L'\n');
++		szTempBuffer.clear();
++		setUnitHelp(szTempBuffer, &kCenterUnit, false, true, false, true,
++				bIndicator); // advc.007
++		szTemp = szTempBuffer.getCString();
++		iLinesCenterShort += (int)std::count(szTemp.begin(), szTemp.end(), L'\n');
++	}
++	if(!szString.isEmpty()) // No newline at the start of PlotListHelp
++		szString.append(NEWLINE);
++	int iLinesUsed = 1;
++	bool bOmitOwner = (iTotal > 1);
++	if(iTotal + iHeadings + iLinesCenter <= iLineLimit) {
++		setUnitHelp(szString, &kCenterUnit, false, false, false, bOmitOwner,
++				bIndicator); // advc.007
++		iLinesUsed = iLinesCenter;
++	}
++	else if(iTotal + iHeadings + iLinesCenterShort <= iLineLimit) {
++		setUnitHelp(szString, &kCenterUnit, false, true, false, bOmitOwner,
++				bIndicator); // advc.007
++		iLinesUsed = iLinesCenterShort;
++	}
++	else {
++		setUnitHelp(szString, &kCenterUnit, true, true, false, bOmitOwner,
++				bIndicator); // advc.007
++	}
++	// Show each unit on a separate line (don't aggregate) if there is enough space
++	bool bAggregate = false;
++	std::set<UnitTypes> perOwnerUnitTypes[iRogueIndex + 1];
++	/*  There may not even be enough space for the aggregated info; may have to
++		show only a heading with unit counts for some owners. */
++	bool abCollapse[iRogueIndex + 1] = { false };
++	if(iTotal + iHeadings + iLinesUsed > iLineLimit) {
++		bAggregate = true;
++		int uTotalAggregated = 0;
++		for(int i = 0; i <= iRogueIndex; i++) {
++			for(size_t j = 0; j < perOwner[i][ALL].size(); j++) {
++				if(perOwner[i][ALL][j] != &kCenterUnit)
++					perOwnerUnitTypes[i].insert(perOwner[i][ALL][j]->getUnitType());
++			}
++			uTotalAggregated += perOwnerUnitTypes[i].size();
++		}
++		int iTotalAggregated = (int)uTotalAggregated;
++		FAssert(iTotalAggregated <= iTotal);
++		/*  Select the owner with the smallest number of units (but not the active
++			player or rogue) and mark it as collapsed until the (estimated)
++			iTotalAggregated is small enough. (implicit selection sort) */
++		while(iTotalAggregated + iHeadings + iLinesUsed > iLineLimit +
++			/* This may result in some overlap with the sliders, but at least
++				the player can then tell that it's actually necessary to omit
++				info. But if the resolution is low, the LineLimit may already
++				be too generous. */
++				(iScreenHeight > 900 ? 3 : 0)) {
++			int iCollapseIndex = -1;
++			uint iMin = MAX_INT;
++			for(int i = 0; i < iRogueIndex; i++) {
++				if(abCollapse[i] || // Important for loop termination
++						i == eActivePlayer || i == eCenterOwner)
++					continue;
++				uint iUnits = perOwner[i][ALL].size();
++				// Else too little to be gained by collapsing
++				if(iUnits >= 4 && perOwnerUnitTypes[i].size() >= 3) {
++					if(iUnits < iMin) {
++						iMin = iUnits;
++						iCollapseIndex = i;
+ 					}
+-
++				}
++			}
++			if(iCollapseIndex < 0) {
++				// Space may still be insufficient, but this can't be helped.
++				break;
++			}
++			abCollapse[iCollapseIndex] = true;
++			iTotalAggregated += 1 - (int)perOwnerUnitTypes[iCollapseIndex].size();
++		}
++	}
++	/*  Another selection sort by the number of units per owner. Add a heading
++		for each owner and list its units. Special treatment for the owner of the
++		center unit (heading already added). */
++	bool abDone[iRogueIndex + 1] = { false };
++	bool bFirstCollapse = true;
++	do {
++		int iNextIndex = -1;
++		if(!abDone[iCenterOwner])
++			iNextIndex = iCenterOwner;
++		else {
++			int iMaxPriority = INT_MIN;
++			for(int i = 0; i <= iRogueIndex; i++) {
++				if(abDone[i])
++					continue;
++				int iPriority = (int)perOwner[i][ALL].size();
++				if(iPriority <= 0)
++					continue;
++				if(abCollapse[i]) // Show collapsed entries last
++					iPriority -= 10000;
++				if(iPriority > iMaxPriority) {
++					iMaxPriority = iPriority;
++					iNextIndex = i;
++				}
++			}
++		}
++		if(iNextIndex < 0)
++			break;
++		abDone[iNextIndex] = true;
++		// If it's just one unit, show the owner on the same line.
++		if(perOwner[iNextIndex][ALL].size() == 1) {
++			if(iNextIndex != iCenterOwner) { // Center unit already listed
++				if(!szString.isEmpty())
++					szString.append(NEWLINE);
++				setUnitHelp(szString, perOwner[iNextIndex][ALL][0], true, true,
++						false, false, bIndicator); // advc.007
++			}
++			continue;
++		}
++		if(iNextIndex != iCenterOwner) {
++			FAssert(iNextIndex <= BARBARIAN_PLAYER);
++			appendUnitOwnerHeading(szString, (PlayerTypes)iNextIndex,
++					(int)perOwner[iNextIndex][ARMY].size(), (int)perOwner[iNextIndex][NAVY].size(),
++					(int)perOwner[iNextIndex][AIR].size(), (int)perOwner[iNextIndex][ALL].size(),
++					abCollapse[iNextIndex]);
++		}
++		if(abCollapse[iNextIndex]) {
++			// Still on the same line as the heading
++			if(bFirstCollapse) {
++				szString.append(NEWLINE);
++				szString.append(gDLL->getText("TXT_KEY_MISC_NOT_ENOUGH_SPACE").c_str());
++			}
++			else szString.append(L"...");
++			bFirstCollapse = false;
++			continue;
++		}
++		m_pHelpPlot = &kPlot;
++		if(bAggregate) {
++			std::vector<UnitTypes> unitTypes(perOwnerUnitTypes[iNextIndex].begin(),
++					perOwnerUnitTypes[iNextIndex].end());
++			std::sort(unitTypes.begin(), unitTypes.end(), listFirstUnitTypeBeforeSecond);
++			for(size_t i = 0; i < unitTypes.size(); i++) {
++				appendUnitTypeAggregated(szString, perOwner[iNextIndex][ALL],
++					unitTypes[i], kPlot, bIndicator);
++			}
++		}
++		else {
++			std::vector<CvUnit const*>& units = perOwner[iNextIndex][ALL];
++			std::sort(units.begin(), units.end(), listFirstUnitBeforeSecond);
++			for(size_t i = 0; i < units.size(); i++) {
++				if(units[i] != &kCenterUnit) {
+ 					szString.append(NEWLINE);
++					setUnitHelp(szString, units[i], true, true, false, true,
++							bIndicator); // advc.007
+ 				}
+ 			}
+ 		}
++	} while(true);
++} // </advc.061>
+ 
++
++void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot,
++		bool bOneLine, bool bShort,
++		bool bIndicator) // advc.061, advc.007
++{
++	PROFILE_FUNC();
++	// <advc.003b>
++	if(!pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), true))
++		return; // </advc.003b>
++	
++	if (//(gDLL->getChtLvl() > 0)
++			GC.getGameINLINE().isDebugMode() // advc.135c
++			// advc.007: Don't attach debug info to indicator bubbles
++			&& !bIndicator
++			&& GC.ctrlKey()) {
++		/*  advc.003: Moved into subroutine. (Note: bShort and bOneLine are unused
++			in BtS; advc.061 gives bShort a minor use.) */
++		setPlotListHelpDebug(szString, *pPlot); // display grouping info
+ 		return;
+ 	}
++	// <advc.061>
++	if(getBugOptionBOOL("MainInterface__ListUnitsPerOwner", false,
++			"MainInterface_LIST_UNITS_PER_OWNER")) {
++		setPlotListHelpPerOwner(szString, *pPlot, bIndicator, bShort);
++		return;
++	} // </advc.061>
+ 
+-
+-	CvUnit* pLoopUnit;
++	int numPromotionInfos = GC.getNumPromotionInfos();
+ 	/*  advc.002b: Was 15; sometimes takes up a bit too much space with increased
+ 		font size. */
+ 	static const uint iMaxNumUnits = 12;
+@@ -1742,7 +1811,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 	int iCount = 0;
+ 	for (int iI = iMaxNumUnits; iI < iNumVisibleUnits && iI < (int) plotUnits.size(); ++iI)
+ 	{
+-		pLoopUnit = plotUnits[iI];
++		CvUnit* pLoopUnit = plotUnits[iI];
+ 
+ 		if (pLoopUnit != NULL && pLoopUnit != pPlot->getCenterUnit())
+ 		{
+@@ -1757,7 +1826,8 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 				}
+ 				++aiUnitNumbers[iIndex];
+ 
+-				int iBase = (DOMAIN_AIR == pLoopUnit->getDomainType() ? pLoopUnit->airBaseCombatStr() : pLoopUnit->baseCombatStr());
++				int iBase = (DOMAIN_AIR == pLoopUnit->getDomainType() ?
++						pLoopUnit->airBaseCombatStr() : pLoopUnit->baseCombatStr());
+ 				if (iBase > 0 && pLoopUnit->maxHitPoints() > 0)
+ 				{
+ 					aiUnitMaxStrength[iIndex] += 100 * iBase;
+@@ -1780,85 +1850,544 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 	{
+ 		if (pPlot->getCenterUnit())
+ 		{
+-			setUnitHelp(szString, pPlot->getCenterUnit(), iNumVisibleUnits > iMaxNumUnits, true);
++			setUnitHelp(szString, pPlot->getCenterUnit(), iNumVisibleUnits > iMaxNumUnits, true,
++					false, false, bIndicator); // advc.007
+ 		}
+-
+ 		uint iNumShown = std::min<uint>(iMaxNumUnits, iNumVisibleUnits);
+-		for (uint iI = 0; iI < iNumShown && iI < (int) plotUnits.size(); ++iI)
++		for (uint iI = 0; iI < iNumShown && iI < (int) plotUnits.size(); iI++)
+ 		{
+ 			CvUnit* pLoopUnit = plotUnits[iI];
+ 			if (pLoopUnit != pPlot->getCenterUnit())
+ 			{
+ 				szString.append(NEWLINE);
+-				setUnitHelp(szString, pLoopUnit, true, true);
++				setUnitHelp(szString, pLoopUnit, true, true,
++						false, false, bIndicator); // advc.007
+ 			}
+ 		}
+-
+-		bool bFirst = true;
+-		if (iNumVisibleUnits > iMaxNumUnits)
++		if(iNumVisibleUnits > iMaxNumUnits)
+ 		{
+-			for (int iI = 0; iI < GC.getNumUnitInfos(); ++iI)
++			bool bFirst = true;
++			for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+ 			{
+ 				for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+ 				{
+ 					int iIndex = iI * MAX_PLAYERS + iJ;
++					// <advc.003>
++					if (aiUnitNumbers[iIndex] <= 0)
++						continue; // </advc.003>
++					//if (iCount < 5 || bFirst) // advc.002b
++					{
++						szString.append(NEWLINE);
++						bFirst = false;
++					}
++					//else szString.append(L", "); // advc.002b
++					szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++							TEXT_COLOR("COLOR_UNIT_TEXT"),
++							GC.getUnitInfo((UnitTypes)iI).getDescription()));
++					// <advc.061> Code moved into a subroutine
++					appendAverageStrength(szString, aiUnitMaxStrength[iIndex],
++							aiUnitStrength[iIndex], aiUnitNumbers[iIndex]);
++					// </advc.061>
++					for(int iK = 0; iK < numPromotionInfos; iK++)
++					{
++						if(m_apbPromotion[iIndex][iK] > 0) {
++							szString.append(CvWString::format(L"%d<img=%S size=16 />",
++									m_apbPromotion[iIndex][iK],
++									GC.getPromotionInfo((PromotionTypes)iK).getButton()));
++						}
++					}
++					if (iJ != GC.getGameINLINE().getActivePlayer() &&
++							!GC.getUnitInfo((UnitTypes)iI).isAnimal() &&
++							!GC.getUnitInfo((UnitTypes)iI).isHiddenNationality())
++					{
++						szString.append(L", ");
++						CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
++						szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++								kLoopPlayer.getPlayerTextColorR(), kLoopPlayer.getPlayerTextColorG(),
++								kLoopPlayer.getPlayerTextColorB(), kLoopPlayer.getPlayerTextColorA(),
++								kLoopPlayer.getName()));
++					}
++				}
++			}
++		}
++	}
++}
++
++// advc.003: Cut and pasted from setPlotListHelp, and refactored.
++void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const& kPlot) {
++
++	CLLNode<IDInfo>* pUnitNode = kPlot.headUnitNode();
++	while(pUnitNode != NULL) {
++		CvUnit* pHeadUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = kPlot.nextUnitNode(pUnitNode);
++		// is this unit the head of a group, not cargo, and visible?
++		if(pHeadUnit == NULL || !pHeadUnit->isGroupHead() || pHeadUnit->isCargo())
++			continue;
++		CvGame const& g = GC.getGameINLINE();
++		TeamTypes eActiveTeam = g.getActiveTeam();
++		if(pHeadUnit->isInvisible(eActiveTeam, true))
++			continue;
++		CvMap const& m = GC.getMapINLINE();
++		CvWString szTempString;
++		int const iPromotions = GC.getNumPromotionInfos();
++		// head unit name and unitai
++		szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR, 255,190,0,255,
++				pHeadUnit->getName().GetCString()));
++		szString.append(CvWString::format(L" (%d)", shortenID(pHeadUnit->getID())));
++		getUnitAIString(szTempString, pHeadUnit->AI_getUnitAIType());
++		CvPlayer const& kHeadOwner = GET_PLAYER(pHeadUnit->getOwnerINLINE());
++		szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
++				kHeadOwner.getPlayerTextColorR(), kHeadOwner.getPlayerTextColorG(),
++				kHeadOwner.getPlayerTextColorB(), kHeadOwner.getPlayerTextColorA(),
++				szTempString.GetCString()));
++
++		// promotion icons
++		for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
++		{
++			PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++			if (pHeadUnit->isHasPromotion(ePromotion))
++			{
++				szString.append(CvWString::format(L"<img=%S size=16 />",
++						GC.getPromotionInfo(ePromotion).getButton()));
++			}
++		}
++
++		// group
++		CvSelectionGroup* pHeadGroup = pHeadUnit->getGroup();
++		FAssertMsg(pHeadGroup != NULL, "unit has NULL group");
++		if (pHeadGroup->getNumUnits() > 1)
++		{	/************************************************************************************************/
++			/* BETTER_BTS_AI_MOD                      07/17/09                                jdog5000      */
++			/* DEBUG                                                                                        */
++			/************************************************************************************************/
++			szString.append(CvWString::format(L"\nGroup:%d [%d units",
++					shortenID(pHeadGroup->getID()), pHeadGroup->getNumUnits()));
++			if( pHeadGroup->getCargo() > 0 )
++			{
++				szString.append(CvWString::format(L" + %d cargo", pHeadGroup->getCargo()));
++			}
++			szString.append(CvWString::format(L"]"));
+ 
+-					if (aiUnitNumbers[iIndex] > 0)
++			// get average damage
++			int iAverageDamage = 0;
++			CLLNode<IDInfo>* pUnitNode = pHeadGroup->headUnitNode();
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pHeadGroup->nextUnitNode(pUnitNode);
++				iAverageDamage += (pLoopUnit->getDamage() * pLoopUnit->maxHitPoints()) / 100;
++			}
++			iAverageDamage /= pHeadGroup->getNumUnits();
++			if (iAverageDamage > 0)
++			{
++				szString.append(CvWString::format(L" %d%%", 100 - iAverageDamage));
++			}
++		}
++
++		if (!pHeadGroup->isHuman() && pHeadGroup->isStranded())
++		{
++			szString.append(CvWString::format(SETCOLR L"\n***STRANDED***" ENDCOLR,
++					TEXT_COLOR("COLOR_RED")));
++		}
++
++		if( !GC.altKey() )
++		{
++			// mission ai
++			MissionAITypes eMissionAI = pHeadGroup->AI_getMissionAIType();
++			if (eMissionAI != NO_MISSIONAI)
++			{
++				getMissionAIString(szTempString, eMissionAI);
++				szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR,
++						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
++			}
++
++			// mission
++			MissionTypes eMissionType = (MissionTypes) pHeadGroup->getMissionType(0);
++			if (eMissionType != NO_MISSION)
++			{
++				getMissionTypeString(szTempString, eMissionType);
++				szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR,
++						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
++			}
++
++			// mission unit
++			CvUnit* pMissionUnit = pHeadGroup->AI_getMissionAIUnit();
++			if (pMissionUnit != NULL && (eMissionAI != NO_MISSIONAI || eMissionType != NO_MISSION))
++			{
++				// mission unit
++				szString.append(L"\n to ");
++				CvPlayer const& kMissionPlayer = GET_PLAYER(pMissionUnit->getOwnerINLINE());
++				szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
++						kMissionPlayer.getPlayerTextColorR(), kMissionPlayer.getPlayerTextColorG(),
++						kMissionPlayer.getPlayerTextColorB(), kMissionPlayer.getPlayerTextColorA(),
++						pMissionUnit->getName().GetCString()));
++				szString.append(CvWString::format(L"(%d) G:%d", shortenID(pMissionUnit->getID()),
++						shortenID(pMissionUnit->getGroupID())));
++				getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
++				szString.append(CvWString::format(SETCOLR L" %s" ENDCOLR,
++						kMissionPlayer.getPlayerTextColorR(), kMissionPlayer.getPlayerTextColorG(),
++						kMissionPlayer.getPlayerTextColorB(), kMissionPlayer.getPlayerTextColorA(),
++						szTempString.GetCString()));
++			}
++
++			// mission plot
++			if (eMissionAI != NO_MISSIONAI || eMissionType != NO_MISSION)
++			{
++				// first try the plot from the missionAI
++				CvPlot* pMissionPlot = pHeadGroup->AI_getMissionAIPlot();
++
++				// if MissionAI does not have a plot, get one from the mission itself
++				if (pMissionPlot == NULL && eMissionType != NO_MISSION)
++				{
++					switch (eMissionType)
+ 					{
+-						if (iCount < 5 || bFirst)
++					case MISSION_MOVE_TO:
++					case MISSION_ROUTE_TO:
++						pMissionPlot =  m.plotINLINE(pHeadGroup->getMissionData1(0),
++								pHeadGroup->getMissionData2(0));
++						break;
++
++					case MISSION_MOVE_TO_UNIT:
++						if (pMissionUnit != NULL)
+ 						{
+-							szString.append(NEWLINE);
+-							bFirst = false;
++							pMissionPlot = pMissionUnit->plot();
+ 						}
+-						else
++						break;
++					}
++				}
++
++				if (pMissionPlot != NULL)
++				{
++					szString.append(CvWString::format(L"\n [%d,%d]",
++							pMissionPlot->getX_INLINE(), pMissionPlot->getY_INLINE()));
++
++					CvCity* pCity = pMissionPlot->getWorkingCity();
++					if (pCity != NULL)
++					{
++						szString.append(L" (");
++
++						if (!pMissionPlot->isCity())
++						{
++							DirectionTypes eDirection = estimateDirection(
++									dxWrap(pMissionPlot->getX_INLINE() -
++									pCity->plot()->getX_INLINE()),
++									dyWrap(pMissionPlot->getY_INLINE() -
++									pCity->plot()->getY_INLINE()));
++							getDirectionTypeString(szTempString, eDirection);
++							szString.append(CvWString::format(L"%s of ",
++									szTempString.GetCString()));
++						}
++						CvPlayer const& kCityOwner = GET_PLAYER(pCity->getOwnerINLINE());
++						szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR L")",
++								kCityOwner.getPlayerTextColorR(), kCityOwner.getPlayerTextColorG(),
++								kCityOwner.getPlayerTextColorB(), kCityOwner.getPlayerTextColorA(),
++								pCity->getName().GetCString()));
++					}
++					else
++					{
++						if (pMissionPlot != &kPlot)
+ 						{
+-							szString.append(L", ");
++							DirectionTypes eDirection = estimateDirection(
++									dxWrap(pMissionPlot->getX_INLINE() -
++									kPlot.getX_INLINE()),
++									dyWrap(pMissionPlot->getY_INLINE() -
++									kPlot.getY_INLINE()));
++							getDirectionTypeString(szTempString, eDirection);
++							szString.append(CvWString::format(L" (%s)", szTempString.GetCString()));
+ 						}
+-						szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), GC.getUnitInfo((UnitTypes)iI).getDescription()));
+ 
+-						szString.append(CvWString::format(L" (%d)", aiUnitNumbers[iIndex]));
++						PlayerTypes eMissionPlotOwner = pMissionPlot->getOwnerINLINE();
++						if (eMissionPlotOwner != NO_PLAYER)
++						{
++							szString.append(CvWString::format(L", " SETCOLR L"%s" ENDCOLR,
++									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorR(),
++									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorG(),
++									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorB(),
++									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorA(),
++									GET_PLAYER(eMissionPlotOwner).getName()));
++						}
++					}
++				}
++			}
++
++			// activity
++			ActivityTypes eActivityType = (ActivityTypes)pHeadGroup->getActivityType();
++			if (eActivityType != NO_ACTIVITY)
++			{
++				getActivityTypeString(szTempString, eActivityType);
++				szString.append(CvWString::format(SETCOLR L"\n%s" ENDCOLR,
++						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szTempString.GetCString()));
++			}
++		}
++		/************************************************************************************************/
++		/* BETTER_BTS_AI_MOD                       END                                                  */
++		/************************************************************************************************/
++		/************************************************************************************************/
++		/* BETTER_BTS_AI_MOD                      06/10/08                                jdog5000      */
++		/* DEBUG                                                                                        */
++		/************************************************************************************************/
++		if(!GC.altKey() && !GC.shiftKey())
++		{
++			// display cargo for head unit
++			std::vector<CvUnit*> aCargoUnits;
++			pHeadUnit->getCargoUnits(aCargoUnits);
++			for (uint i = 0; i < aCargoUnits.size(); ++i)
++			{
++				CvUnit* pCargoUnit = aCargoUnits[i];
++				if (!pCargoUnit->isInvisible(eActiveTeam, true))
++				{
++					// name and unitai
++					szString.append(CvWString::format(SETCOLR L"\n %s" ENDCOLR,
++							TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
++							pCargoUnit->getName().GetCString()));
++					szString.append(CvWString::format(L"(%d)", shortenID(pCargoUnit->getID())));
++					getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
++					CvPlayer const& kCargoOwner = GET_PLAYER(pCargoUnit->getOwnerINLINE());
++					szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
++							kCargoOwner.getPlayerTextColorR(), kCargoOwner.getPlayerTextColorG(),
++							kCargoOwner.getPlayerTextColorB(), kCargoOwner.getPlayerTextColorA(),
++							szTempString.GetCString()));
+ 
+-						if (aiUnitMaxStrength[iIndex] > 0)
++					// promotion icons
++					for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
++					{
++						PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++						if (pCargoUnit->isHasPromotion(ePromotion))
+ 						{
+-							int iBase = (aiUnitMaxStrength[iIndex] / aiUnitNumbers[iIndex]) / 100;
+-							int iCurrent = (aiUnitStrength[iIndex] / aiUnitNumbers[iIndex]) / 100;
+-							int iCurrent100 = (aiUnitStrength[iIndex] / aiUnitNumbers[iIndex]) % 100;
+-							if (0 == iCurrent100)
+-							{
+-								if (iBase == iCurrent)
+-								{
+-									szString.append(CvWString::format(L" %d", iBase));
+-								}
+-								else
+-								{
+-									szString.append(CvWString::format(L" %d/%d", iCurrent, iBase));
+-								}
+-							}
+-							else
+-							{
+-								szString.append(CvWString::format(L" %d.%02d/%d", iCurrent, iCurrent100, iBase));
+-							}
+-							szString.append(CvWString::format(L"%c", gDLL->getSymbolID(STRENGTH_CHAR)));
++							szString.append(CvWString::format(L"<img=%S size=16 />",
++									GC.getPromotionInfo(ePromotion).getButton()));
+ 						}
++					}
++				}
++			}
++
++			// display grouped units
++			CLLNode<IDInfo>* pUnitNode3 = kPlot.headUnitNode();
++			while(pUnitNode3 != NULL)
++			{
++				CvUnit* pUnit = ::getUnit(pUnitNode3->m_data);
++				pUnitNode3 = kPlot.nextUnitNode(pUnitNode3);
+ 
++				// is this unit not head, in head's group and visible?
++				if (pUnit && pUnit != pHeadUnit && pUnit->getGroupID() == pHeadUnit->getGroupID() &&
++						!pUnit->isInvisible(eActiveTeam, true))
++				{
++					FAssertMsg(!pUnit->isCargo(), "unit is cargo but head unit is not cargo");
++					// name and unitai
++					szString.append(CvWString::format(SETCOLR L"\n-%s" ENDCOLR,
++							TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString()));
++					szString.append(CvWString::format(L" (%d)", shortenID(pUnit->getID())));
++					getUnitAIString(szTempString, pUnit->AI_getUnitAIType());
++					CvPlayer const& kUnitOwner = GET_PLAYER(pUnit->getOwnerINLINE());
++					szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
++							kUnitOwner.getPlayerTextColorR(), kUnitOwner.getPlayerTextColorG(),
++							kUnitOwner.getPlayerTextColorB(), kUnitOwner.getPlayerTextColorA(),
++							szTempString.GetCString()));
+ 
+-						for (int iK = 0; iK < numPromotionInfos; iK++)
++					// promotion icons
++					for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
++					{
++						PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++						if (pUnit->isHasPromotion(ePromotion))
+ 						{
+-							if (m_apbPromotion[iIndex][iK] > 0)
++							szString.append(CvWString::format(L"<img=%S size=16 />",
++									GC.getPromotionInfo(ePromotion).getButton()));
++						}
++					}
++
++					// display cargo for loop unit
++					std::vector<CvUnit*> aLoopCargoUnits;
++					pUnit->getCargoUnits(aLoopCargoUnits);
++					for (uint i = 0; i < aLoopCargoUnits.size(); i++)
++					{
++						CvUnit* pCargoUnit = aLoopCargoUnits[i];
++						if (!pCargoUnit->isInvisible(eActiveTeam, true))
++						{
++							// name and unitai
++							szString.append(CvWString::format(SETCOLR L"\n %s" ENDCOLR,
++									TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"),
++									pCargoUnit->getName().GetCString()));
++							szString.append(CvWString::format(L"(%d)",
++									shortenID(pCargoUnit->getID())));
++							getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
++							CvPlayer const& kCargoOwner = GET_PLAYER(pCargoUnit->getOwnerINLINE());
++							szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
++									kCargoOwner.getPlayerTextColorR(), kCargoOwner.getPlayerTextColorG(),
++									kCargoOwner.getPlayerTextColorB(), kCargoOwner.getPlayerTextColorA(),
++									szTempString.GetCString()));
++
++							// promotion icons
++							for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
+ 							{
+-								szString.append(CvWString::format(L"%d<img=%S size=16 />", m_apbPromotion[iIndex][iK], GC.getPromotionInfo((PromotionTypes)iK).getButton()));
++								PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++								if (pCargoUnit->isHasPromotion(ePromotion))
++								{
++									szString.append(CvWString::format(L"<img=%S size=16 />", 
++											GC.getPromotionInfo(ePromotion).getButton()));
++								}
+ 							}
+ 						}
++					}
++				}
++			}
++		}
++
++		if(!GC.altKey() && (kPlot.getTeam() == NO_TEAM ||
++				GET_TEAM(pHeadGroup->getTeam()).isAtWar(kPlot.getTeam())))
++		{
++			szString.append(NEWLINE);
++			CvWString szTempBuffer;
+ 
+-						if (iJ != GC.getGameINLINE().getActivePlayer() && !GC.getUnitInfo((UnitTypes)iI).isAnimal() && !GC.getUnitInfo((UnitTypes)iI).isHiddenNationality())
++			//AI strategies
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
++			{
++				szTempBuffer.Format(L"Dagger, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
++			{
++				szTempBuffer.Format(L"Crush, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ALERT1))
++			{
++				szTempBuffer.Format(L"Alert1, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ALERT2))
++			{
++				szTempBuffer.Format(L"Alert2, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_TURTLE))
++			{
++				szTempBuffer.Format(L"Turtle, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
++			{
++				szTempBuffer.Format(L"Last Stand, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++			{
++				szTempBuffer.Format(L"FinalWar, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++			{
++				szTempBuffer.Format(L"GetBetterUnits, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_FASTMOVERS))
++			{
++				szTempBuffer.Format(L"FastMovers, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ))
++			{
++				szTempBuffer.Format(L"LandBlitz, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
++			{
++				szTempBuffer.Format(L"AirBlitz, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_OWABWNW))
++			{
++				szTempBuffer.Format(L"OWABWNW, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++			{
++				szTempBuffer.Format(L"Production, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
++			{
++				szTempBuffer.Format(L"Missionary, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
++			{
++				szTempBuffer.Format(L"BigEspionage, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS)) // K-Mod
++			{
++				szTempBuffer.Format(L"EconomyFocus, ");
++				szString.append(szTempBuffer);
++			}
++			if (GET_PLAYER(pHeadGroup->getOwner()).AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)) // K-Mod
++			{
++				szTempBuffer.Format(L"EspionageEconomy, ");
++				szString.append(szTempBuffer);
++			}
++			CvArea const& kArea = *kPlot.area();
++			//Area battle plans.
++			switch(kArea.getAreaAIType(pHeadGroup->getTeam())) {
++			case AREAAI_OFFENSIVE:
++				szTempBuffer.Format(L"\n Area AI = OFFENSIVE"); break;
++			case AREAAI_DEFENSIVE:
++				szTempBuffer.Format(L"\n Area AI = DEFENSIVE"); break;
++			case AREAAI_MASSING:
++				szTempBuffer.Format(L"\n Area AI = MASSING"); break;
++			case AREAAI_ASSAULT:
++				szTempBuffer.Format(L"\n Area AI = ASSAULT"); break;
++			case AREAAI_ASSAULT_MASSING:
++				szTempBuffer.Format(L"\n Area AI = ASSAULT_MASSING"); break;
++			case AREAAI_NEUTRAL:
++				szTempBuffer.Format(L"\n Area AI = NEUTRAL"); break;
++			default: szTempBuffer.Format(L"\n Unknown Area AI type"); break;
++			}
++			CvCity* pTargetCity = kArea.getTargetCity(pHeadGroup->getOwner());
++			if(pTargetCity != NULL) {
++				szString.append(CvWString::format(L"\nTarget City: %s (%d)",
++						pTargetCity->getName().c_str(), pTargetCity->getOwner()));
++			}
++			else szString.append(CvWString::format(L"\nTarget City: None"));
++
++			if(GC.shiftKey())
++			{
++				int iBestTargetValue = (pTargetCity != NULL ?
++						GET_PLAYER(pHeadGroup->getOwner()).
++						AI_targetCityValue(pTargetCity,false,true) : 0);
++				szString.append(CvWString::format(L"\n\nTarget City values:\n"));
++				for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
++				{
++					CvPlayer const& pl = GET_PLAYER((PlayerTypes)iPlayer);
++					if(GET_TEAM(pHeadGroup->getTeam()).AI_getWarPlan(pl.getTeam()) == NO_WARPLAN )
++						continue;
++					if(kArea.getCitiesPerPlayer((PlayerTypes)iPlayer) <= 0)
++						continue;
++					int iLoop = -1;
++					for(CvCity* pLoopCity = pl.firstCity(&iLoop); pLoopCity != NULL;
++							pLoopCity = pl.nextCity(&iLoop))
++					{
++						if(pLoopCity->area() == &kArea)
+ 						{
+-							szString.append(L", ");
+-							szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR, GET_PLAYER((PlayerTypes)iJ).getPlayerTextColorR(), GET_PLAYER((PlayerTypes)iJ).getPlayerTextColorG(), GET_PLAYER((PlayerTypes)iJ).getPlayerTextColorB(), GET_PLAYER((PlayerTypes)iJ).getPlayerTextColorA(), GET_PLAYER((PlayerTypes)iJ).getName()));
++							int iTargetValue = GET_PLAYER(pHeadGroup->getOwner()).
++									AI_targetCityValue(pLoopCity,false,true);
++							if((m.calculatePathDistance(&kPlot, pLoopCity->plot()) < 20)) {
++								szString.append(CvWString::format(L"\n%s : %d + rand %d",
++										pLoopCity->getName().c_str(), iTargetValue,
++										pLoopCity->getPopulation() / 2));
++							}
+ 						}
+ 					}
+ 				}
+ 			}
+ 		}
++		/************************************************************************************************/
++		/* BETTER_BTS_AI_MOD                       END                                                  */
++		/************************************************************************************************/
++		// double space non-empty groups
++		if (pHeadGroup->getNumUnits() > 1 || pHeadUnit->hasCargo())
++		{
++			szString.append(NEWLINE);
++		}
++		szString.append(NEWLINE);
+ 	}
+ }
+ 
+@@ -3899,8 +4428,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			}
+ 		}
+ 	}
+-
+-	if (pPlot->hasYield())
++	/*  advc.001w: hasYield is based on getYield, which is not always consistent
++		with calculateYield. */
++	//if (pPlot->hasYield())
+ 	{
+ 		for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 94c73491b..a13f17854 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -56,17 +56,13 @@ public:
+ 
+ 	void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 			bool bOneLine = false, bool bShort = false,
+-			bool bColorHostile = false); // advc.048
+-	void setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort);
++			bool bColorHostile = false, // advc.048
++			bool bOmitOwner = false, // advc.061
++			bool bIndicator = false); // advc.007
++	void setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort,
++			bool bIndicator = false); // advc.061
+ 	bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+ 	void setPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+-	// <advc.135c>
+-	void setPlotHelpDebug(CvWStringBuffer& szString, CvPlot const& kPlot);
+-	void setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot const& kPlot);
+-	void setPlotHelpDebug_ShiftOnly(CvWStringBuffer& szString, CvPlot const& kPlot);
+-	void setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot const& kPlot);
+-	void setPlotHelpDebug_ShiftAltOnly(CvWStringBuffer& szString, CvPlot const& kPlot);
+-	// </advc.135c>
+ 	void setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity);
+ 	void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);
+ 
+@@ -273,7 +269,30 @@ private:
+ 			CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot);
+ 	void appendPositiveModifiers(CvWStringBuffer& szString,
+ 			CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot);
++	void setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const& kPlot);
+ 	// </advc.003>
++	// <advc.135c>
++	void setPlotHelpDebug(CvWStringBuffer& szString, CvPlot const& kPlot);
++	void setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot const& kPlot);
++	void setPlotHelpDebug_ShiftOnly(CvWStringBuffer& szString, CvPlot const& kPlot);
++	void setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot const& kPlot);
++	void setPlotHelpDebug_ShiftAltOnly(CvWStringBuffer& szString, CvPlot const& kPlot);
++	// </advc.135c>
++	// <advc.061>
++	void setPlotListHelpPerOwner(CvWStringBuffer& szString, CvPlot const& kPlot,
++			bool bIndicator, bool bShort);
++	void appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerTypes eOwner,
++			int iArmy, int iNavy, int iAir, int iTotal, bool bCollapsed = false);
++	void appendUnitTypeAggregated(CvWStringBuffer& szString,
++			std::vector<CvUnit const*> const& ownerUnits,
++			UnitTypes eUnit, CvPlot const& kPlot, bool bIndicator);
++	void appendAverageStrength(CvWStringBuffer& szString, int iSumMaxStrengthTimes100,
++			int iSumStrengthTimes100, int iUnits);
++	// For std::sort
++	  static CvPlot const* m_pHelpPlot;
++	  static bool listFirstUnitBeforeSecond(CvUnit const* pFirst, CvUnit const* pSecond);
++	  static bool listFirstUnitTypeBeforeSecond(UnitTypes eFirst, UnitTypes eSecond);
++	// </advc.061>
+ };
+ 
+ // Singleton Accessor
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index ab2042baf..75f12292f 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1278,8 +1278,8 @@ void CvMap::resetPathDistance()
+ 	gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());
+ }
+ 
+-
+-int CvMap::calculatePathDistance(CvPlot *pSource, CvPlot *pDest)
++// advc.003: 3x const
++int CvMap::calculatePathDistance(CvPlot const* pSource, CvPlot const* pDest) const
+ {
+ 	FAStarNode* pNode;
+ 
+@@ -1288,7 +1288,9 @@ int CvMap::calculatePathDistance(CvPlot *pSource, CvPlot *pDest)
+ 		return -1;
+ 	}
+ 
+-	if (gDLL->getFAStarIFace()->GeneratePath(&GC.getStepFinder(), pSource->getX_INLINE(), pSource->getY_INLINE(), pDest->getX_INLINE(), pDest->getY_INLINE(), false, 0, true))
++	if (gDLL->getFAStarIFace()->GeneratePath(&GC.getStepFinder(),
++			pSource->getX_INLINE(), pSource->getY_INLINE(),
++			pDest->getX_INLINE(), pDest->getY_INLINE(), false, 0, true))
+ 	{
+ 		pNode = gDLL->getFAStarIFace()->GetLastNode(&GC.getStepFinder());
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 3f238a4ff..b8b2d8d17 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -276,7 +276,8 @@ public:
+ 	void recalculateAreas();																		// Exposed to Python
+ 
+ 	void resetPathDistance();																		// Exposed to Python
+-	int calculatePathDistance(CvPlot *pSource, CvPlot *pDest);	// Exposed to Python
++		// advc.003: 3x const
++	int calculatePathDistance(CvPlot const* pSource, CvPlot const* pDest) const;					// Exposed to Python
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      08/21/09                                jdog5000      */
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index aff7f83ca..870752831 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -24476,11 +24476,8 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 							const NiColorA& kColor = GC.getColorInfo((ColorTypes) GC.getPlayerColorInfo(eUnitColor).getColorTypePrimary()).getColor();
+ 
+ 							szBuffer.clear();
+-						/*  advc.007 (fixme): In Debug mode, if Ctrl, Shift or Alt
+-							is held down while switching eOption,
+-							kIndicator.m_strHelpText is going to show debug info,
+-							which is unexpected. */
+-							GAMETEXT.setPlotListHelp(szBuffer, pLoopPlot, true, true);
++							GAMETEXT.setPlotListHelp(szBuffer, pLoopPlot, true, true,
++									true); // advc.061, advc.007
+ 
+ 							CvPlotIndicatorData kIndicator;
+ 							kIndicator.m_pUnit = pUnit;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 45e689805..8cc2610af 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -120,10 +120,14 @@ public:
+ 	DllExport void updateHuman();
+ 	DllExport bool isBarbarian() const;																																					// Exposed to Python						
+ 
+-	// K-Mod note: I've changed getName, getCivilizationDescription, and getCivilizationShortDescription to only give accurate information if the active player has met this player.
+-	// The "key" versions of those functions are unchanged. This is important because getNameKey and so on are used to create messages for the replay.
++	/*  K-Mod note: I've changed getName, getCivilizationDescription,
++		and getCivilizationShortDescription to only give accurate information
++		if the active player has met this player.
++		The "key" versions of those functions are unchanged. This is important
++		because getNameKey and so on are used to create messages for the replay. */
+ 	DllExport const wchar* getName(uint uiForm = 0) const;																											// Exposed to Python
+-	const wchar* getReplayName(uint uiForm = 0) const; // K-Mod. Player name to be used in replay
++	// K-Mod. Player name to be used in replay
++	const wchar* getReplayName(uint uiForm = 0) const;
+ 	DllExport const wchar* getNameKey() const;																																	// Exposed to Python
+ 	DllExport const wchar* getCivilizationDescription(uint uiForm = 0) const;																		// Exposed to Python
+ 	DllExport const wchar* getCivilizationDescriptionKey() const;																								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 8913af882..26edeab65 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -627,6 +627,7 @@ void CvPlot::updateVisibility()
+ 	{
+ 		pCity->updateVisibility();
+ 	}
++	updateCenterUnit(); // advc.061, advc.001w
+ }
+ 
+ 
+@@ -797,30 +798,33 @@ void CvPlot::updateCenterUnit()
+ 	if (getCenterUnit() == NULL)
+ 	{	// <advc.028>
+ 		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
+-				gDLL->getInterfaceIFace()->getHeadSelectedUnit(), true);
+-		if(pBestDef != NULL && !pBestDef->isInvisible(TEAMID(eActivePlayer), true))
++				gDLL->getInterfaceIFace()->getHeadSelectedUnit(), true,
++				false, false, true); // advc.061
++		if(pBestDef != NULL)
+ 			setCenterUnit(pBestDef); // </advc.028>
+ 	} // disabled by K-Mod. I don't think it's relevant whether or not the best defender can move.
+ 	/*  advc.001: Enabled again, instead disabled the one with bTestCanMove=true --
+ 		I think that's the one karadoc had meant to disable. */
+ 
+ 	if (getCenterUnit() == NULL)
+-	{	// <advc.028>
+-		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
+-				gDLL->getInterfaceIFace()->getHeadSelectedUnit());
+-		if(pBestDef != NULL && !pBestDef->isInvisible(TEAMID(eActivePlayer), true))
+-			setCenterUnit(pBestDef);
++	{
+ 		//setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit()));
+-		// (Replaced by the above) // </advc.028>
++		// <advc.028> Replacing the above
++		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer,
++				gDLL->getInterfaceIFace()->getHeadSelectedUnit(), false,
++				false, false, true); // advc.061
++		if(pBestDef != NULL)
++			setCenterUnit(pBestDef); // </advc.028>
+ 	}
+ 
+ 	if (getCenterUnit() == NULL)
+-	{	// <advc.028>
+-		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer);
+-		if(pBestDef != NULL && !pBestDef->isInvisible(TEAMID(eActivePlayer), true))
+-			setCenterUnit(pBestDef);
++	{
+ 		//setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer()));
+-		// (Replaced by the above) // </advc.028>
++		// <advc.028> Replacing the above
++		CvUnit* pBestDef = getBestDefender(NO_PLAYER, eActivePlayer, NULL, false,
++				false, false, true); // advc.061
++		if(pBestDef != NULL)
++			setCenterUnit(pBestDef); // </advc.028>
+ 	}
+ }
+ 
+@@ -2742,7 +2746,9 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
+ }
+ 
+ 
+-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove) const
++CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
++		CvUnit const* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy,
++		bool bTestCanMove, bool bVisible /* advc.028 */) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -2765,8 +2771,11 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 		pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 		if ((eOwner == NO_PLAYER) || (pLoopUnit->getOwnerINLINE() == eOwner))
+-		{	// advc.028: Invisibility handled by CvUnit::isBetterDefenderThan now
+-			//if ((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
++		{
++			if(!bVisible || // advc.028
++					eAttackingPlayer == NO_PLAYER ||
++					!pLoopUnit->isInvisible(TEAMID(eAttackingPlayer),
++					true)) // advc.028
+ 			{
+ 				if (!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwnerINLINE()).getTeam(), this)))
+ 				{
+@@ -2780,7 +2789,9 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 								// original
+ 								//if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
+ 								// modified (added extra parameter)
+-								if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker, &iBestUnitRank))
++								if (pLoopUnit->isBetterDefenderThan(pBestUnit,
++										pAttacker, &iBestUnitRank,
++										bVisible)) // advc.061
+ 								// /UncutDragon
+ 								{
+ 									pBestUnit = pLoopUnit;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 21b71dac2..ed9dc9298 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -128,8 +128,18 @@ public:
+ 	int getBuildTurnsLeft(BuildTypes eBuild, int iNowExtra, int iThenExtra) const;																			// Exposed to Python
+ 	int getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity) const;																// Exposed to Python
+ 
+-	DllExport CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false) const;		// Exposed to Python
+-	//int AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, DomainTypes eDomainType = NO_DOMAIN, bool bDefensiveBonuses = true, bool bTestAtWar = false, bool bTestPotentialEnemy = false) const; // disabled by K-Mod
++	DllExport CvUnit* getBestDefender(PlayerTypes eOwner,								// Exposed to Python
++			PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL,
++			bool bTestAtWar = false, bool bTestPotentialEnemy = false,
++			bool bTestCanMove = false) const { // <advc.028>
++		return getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestAtWar,
++				bTestPotentialEnemy, bTestCanMove, false); }
++	CvUnit* getBestDefender(PlayerTypes eOwner,
++			PlayerTypes eAttackingPlayer, CvUnit const* pAttacker,
++			bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove,
++			bool bVisible) const; // </advc.028>
++	// disabled by K-Mod:
++	//int AI_sumStrength(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, DomainTypes eDomainType = NO_DOMAIN, bool bDefensiveBonuses = true, bool bTestAtWar = false, bool bTestPotentialEnemy = false) const;
+ 	CvUnit* getSelectedUnit() const;																																// Exposed to Python
+ 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;																					// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 0fe2f7a21..dcf04cf84 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2120,7 +2120,9 @@ void CvUnit::updateFoundingBorder() const {
+ // original
+ //bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const
+ // modified (with extra parameter)
+-bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const
++bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
++		int* pBestDefenderRank,
++		bool bPreferUnowned) const // advc.061
+ {
+ 	int iOurDefense;
+ 	int iTheirDefense;
+@@ -2132,22 +2134,22 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	}
+ 
+ 	// <advc.028>
+-	bool invisible = (eAttackerTeam != NO_TEAM && isInvisible(eAttackerTeam, false));
++	bool bInvisible = (eAttackerTeam != NO_TEAM && isInvisible(eAttackerTeam, false));
+ 	// Only pick invisible unit as defender once attack is underway ...
+-	if(invisible && pAttacker->getAttackPlot() == NULL)
++	if(bInvisible && pAttacker->getAttackPlot() == NULL)
+ 		return false;
+ 	/*  and if there is some visible team unit that could get attacked otherwise
+ 		(better: check if our team has the best visible defender; tbd.): */
+-	if(invisible) {
+-		bool found = false;
++	if(bInvisible) {
++		bool bFound = false;
+ 		CLLNode<IDInfo>* node = plot()->headUnitNode();
+ 		while(node != NULL) {
+ 			CvUnit* u = ::getUnit(node->m_data);
+ 			node = plot()->nextUnitNode(node);
+ 			if(u->getTeam() == getTeam() && !u->isInvisible(eAttackerTeam, false))
+-				found = true;
++				bFound = true;
+ 		}
+-		if(!found)
++		if(!bFound)
+ 			return false;
+ 	}
+ 	// Moved down: // </advc.028>
+@@ -2156,7 +2158,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 		return true;
+ 	}
+ 	// <advc.028>
+-	if(pDefender->getTeam() != getTeam() && invisible)
++	if(pDefender->getTeam() != getTeam() && bInvisible)
+ 		return false; // </advc.028>
+ 	if (canCoexistWithEnemyUnit(eAttackerTeam))
+ 	{
+@@ -2168,11 +2170,18 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 		return false;
+ 	}
+ 
+-	if (canDefend() && !(pDefender->canDefend()))
++	if (canDefend() && !pDefender->canDefend())
+ 	{
+ 		return true;
+ 	}
+ 
++	// <advc.061>
++	if(bPreferUnowned) {
++		bool bUnowned = isUnowned();
++		if(bUnowned != pDefender->isUnowned())
++			return bUnowned;
++	} // </advc.061>
++
+ 	if (pAttacker)
+ 	{
+ 		if (isTargetOf(*pAttacker) && !pDefender->isTargetOf(*pAttacker))
+@@ -2311,6 +2320,26 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	return (iOurDefense > iTheirDefense);
+ }
+ 
++/*  <advc.061> See comment at call location in CvGameTextMgr::setPlotListHelpPerOwner.
++	Doesn't check isVisible. */
++bool CvUnit::isUnowned() const {
++
++	TeamTypes eActiveTeam = GC.getGameINLINE().getActiveTeam();
++	PlayerTypes eVisualOwner = getVisualOwner(eActiveTeam);
++	if(eVisualOwner == NO_PLAYER) {
++		FAssert(eVisualOwner != NO_PLAYER);
++		return true;
++	}
++	if(eVisualOwner != BARBARIAN_PLAYER)
++		return false;
++	if(isAnimal() || m_pUnitInfo->isHiddenNationality())
++		return true;
++	CvCity* pPlotCity = plot()->getPlotCity();
++	if(pPlotCity != NULL && pPlotCity->isBarbarian())
++		return true;
++	return false;
++} // </advc.061>
++
+ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bTestBusy)
+ {
+ 	CvUnit* pUnit;
+@@ -11876,20 +11905,29 @@ PlayerTypes CvUnit::getVisualOwner(TeamTypes eForTeam) const
+ 	{
+ 		eForTeam = GC.getGameINLINE().getActiveTeam();
+ 	}
+-
++	PlayerTypes r = getOwnerINLINE(); // advc.061
+ 	if (getTeam() != eForTeam && eForTeam != BARBARIAN_TEAM)
+ 	{
+ 		if (m_pUnitInfo->isHiddenNationality()
+ 				&& !GC.getGameINLINE().isDebugMode()) // advc.007
+ 		{
+-			if (!plot()->isCity(true, getTeam()))
++			//if( !plot()->isCity(true, getTeam()))
++			// <advc.061> Replacing the above
++			if(!m_pUnitInfo->isAlwaysHostile() || isFighting() ||
++					/* If it's in the same tile as a revealed unit and it's always
++						hostile, then the nationality is obvious. (A teammate could
++						be the owner, but that wouldn't make a big difference.) */
++					//TEAMREF(r).getNumMembers() > 1 ||
++					(!plot()->isCity(true, getTeam())
++					&& plot()->plotCheck(PUF_isPlayer, r, eForTeam) == NULL))
++			// </advc.061>
+ 			{
+ 				return BARBARIAN_PLAYER;
+ 			}
+ 		}
+ 	}
+ 
+-	return getOwnerINLINE();
++	return r;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 5cd4aedce..2bd3d8f13 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -94,6 +94,7 @@ public:
+ 	void updateFoundingBorder() const; // advc.004h
+ 
+ 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;						// Exposed to Python 
++	bool isUnowned() const; // advc.061
+ 
+ 	bool canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible = false, bool bTestBusy = true);	// Exposed to Python
+ 	void doCommand(CommandTypes eCommand, int iData1, int iData2);																// Exposed to Python
+@@ -919,7 +920,9 @@ protected:
+ 
+ // Lead From Behind by UncutDragon. Edited for K-Mod
+ public:
+-	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
++	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
++			int* pBestDefenderRank,
++			bool bPreferUnowned = false) const; // advc.061
+ 	virtual void LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) = 0;
+ 	int LFBgetAttackerRank(const CvUnit* pDefender, int& iUnadjustedRank) const;
+ 	int LFBgetDefenderRank(const CvUnit* pAttacker) const;
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index bd5fac46f..1018cd9a4 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -672,6 +672,12 @@ bool CyGame::isFinalInitialized()
+ {
+ 	return m_pGame ? m_pGame->isFinalInitialized() : false;
+ }
++// <advc.061>
++void CyGame::setScreenDimensions(int x, int y)
++{
++	if(m_pGame != NULL)
++		m_pGame->setScreenDimensions(x, y);
++} // </advc.061>
+ 
+ int /*PlayerTypes*/ CyGame::getActivePlayer() 
+ {
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index e34a3fa0d..89a0f968c 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -166,7 +166,7 @@ public:
+ 	bool isSimultaneousTeamTurns();
+ 
+ 	bool isFinalInitialized();
+-
++	void setScreenDimensions(int x, int y); // advc.061
+ 	int /*PlayerTypes*/ getActivePlayer();
+ 	void setActivePlayer(int /*PlayerTypes*/ eNewValue, bool bForceHotSeat);
+ 	int getPausePlayer();
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 9b02acdd2..7e4921863 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -156,7 +156,8 @@ void CyGamePythonInterface()
+ 		.def("isSimultaneousTeamTurns", &CyGame::isSimultaneousTeamTurns, "bool ()")
+ 
+ 		.def("isFinalInitialized", &CyGame::isFinalInitialized, "bool () - Returns whether or not the game initialization process has ended (game has started)")
+-
++		// advc.061:
++		.def("setScreenDimensions", &CyGame::setScreenDimensions)
+ 		.def("getActivePlayer", &CyGame::getActivePlayer, "returns index of the active player")
+ 		.def("setActivePlayer", &CyGame::setActivePlayer, "void (int /*PlayerTypes*/ eNewValue, bool bForceHotSeat)")
+ 		.def("getPausePlayer", &CyGame::getPausePlayer, "int () - will get who paused us")
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 66a61d267..db0edb156 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -630,6 +630,8 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
+ 		// Without this, units outside owner's borders don't appear on the main interface.
+ 		if(gr->plot()->getOwnerINLINE() != civId)
+ 			gr->plot()->updateCenterUnit();
++		/* ^Perhaps no longer needed due to a change in CvPlot::updateVisibility
++			(advc.061). Should test this some time. */
+ 	}
+ 	// Set research slider to a balanced-budget position
+ 	int incr = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+
+[PATCH OMITTED] file=a/manual_0.94b.odt b/manual_0.94b.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=22 omittedFiles=1 embeddedPatchBytes=101720

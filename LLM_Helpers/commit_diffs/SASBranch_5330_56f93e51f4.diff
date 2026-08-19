@@ -1,0 +1,146 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5330
+# Commit: 56f93e51f4be43ec91f7518fd7912eeb47cfc9b1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8fb9a5bb93f12db06c5be9a9b1961ce72597f6d9
+# Title: make scrapping optional, and add extra units before scrapping gates for AIs - Add **extra units not to scrap beyond unit support costs** (we expect to lose a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+14	0	Assets/XML/GlobalDefines_advciv_sas.xml
+18	3	CvGameCoreDLL/CvPlayerAI.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index cf43f4ba6..a990ea261 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -110,6 +110,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When doing performance optimizations, a good trick that may help find many entries fairly cheaply is to append `.` or `)` or ` ` or `,`, etc., to what we want to simplify. For example `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
+ - When doing performance optimizations, also optimize commented-out code for exhaustiveness.
+ - When doing performance optimizations, if there are returns and they don't use our cached variable, cache after them.
++- Use `static const` for our defines whenever possible and relevant for computational efficiency (value is always the same, quick check it rather). Example `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
+ 
+ ### Docs
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a0909bfc8..31ac93531 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -969,6 +969,20 @@
+ 		<DefineName>SAS_CAN_SCRAP_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: set to 1 to allow scrapping units just because their ObsoleteTech is known; 0 ignores ObsoleteTech as a scrap trigger. (GPT-5.2-Codex) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_TECH</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = 1 at ancient, 4 + 1 = 5 at classical, (4 * 2) + 1 = 9 at medieval. -->
++	<Define>
++		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
++		<iDefineIntVal>4</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: turn until which we won't scrap at all, adjusted to game speed. E.g. turn 150 at gamespeed_normal would be turn (150 * 150 / 100) = turn 225 at gamespeed epic, or turn (150 * 200) / 100 = turn 300 at gamespeed marathon, etc. -->
+ 	<Define>
+ 		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bdd70cfc7..acb810518 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20680,9 +20680,22 @@ void CvPlayerAI::AI_doMilitary()
+ 	{
+ 		// <!-- custom: only disband while over budget; stop once back in budget, so obsolete units are not mass-scrapped immediately. (GPT-5.2-Codex) -->
+ 		int iCost = AI_unitCostPerMil();
+-		int const iMaxCost = AI_maxUnitCostPerMil() -
++		int iMaxCost = AI_maxUnitCostPerMil() -
+ 				// advc.110: Increase iMaxCost when war success rating negative
+ 				range(2 * GET_TEAM(getTeam()).AI_getWarSuccessRating(), -100, 0);
++		// <!-- custom: allow extra-unit tolerance beyond unit support costs before disbanding; scale by era: mult * (era + 1) + add. (GPT-5.2-Codex) -->
++		static const int iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT = GC.getDefineINT("SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT");
++		static const int iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD = GC.getDefineINT("SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD");
++		int const iExtraUnits = std::max(0, (iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT * (getCurrentEra() + 1)) + iSAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD);
++		if (iExtraUnits > 0)
++		{
++			int const iUnitCount = getNumUnits();
++			if (iUnitCount > 0 && iCost > 0)
++			{
++				int const iPerUnitCostPerMil = std::max(1, iCost / iUnitCount);
++				iMaxCost += iExtraUnits * iPerUnitCostPerMil;
++			}
++		}
+ 		if (iCost > 0 && (iCost > iMaxCost || calculateGoldRate() < 0))
+ 		{
+ 			std::vector<std::pair<int, int> > unit_values; // <value, id>
+@@ -30141,8 +30154,10 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
+ 		iValue /= kUnit.getUnitInfo().getExtraCost() + 1;
+ 	}
+ 
+-	// <!-- custom: add scrapping support for units that have a tech in their ObsoleteTech XML field -->
+-	if (kUnit.getUnitInfo().getObsoleteTech() != NO_TECH &&
++	// <!-- custom: add scrapping support for units that have a tech in their ObsoleteTech XML field (toggleable). (GPT-5.2-Codex) -->
++	static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
++	if (bSAS_CAN_SCRAP_OBSOLETE_TECH &&
++		kUnit.getUnitInfo().getObsoleteTech() != NO_TECH &&
+ 		GET_TEAM(getTeam()).isHasTech(kUnit.getUnitInfo().getObsoleteTech()))
+ 	{
+ 		iValue /= 4;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9fad32fa2..8100cfaa5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3279,9 +3279,10 @@ bool CvUnit::canScrap() const
+ 		const UnitAITypes eUnitAI = AI_getUnitAIType();
+ 		const CvUnitInfo& kUnitInfo = getUnitInfo();
+ 
+-		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently while keeping anti-scrap gates for useful ones; avoids per-unit logic and keeps AI hammer efficiency gains. (GPT-5.2-Codex) -->
++		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
++		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
+ 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
+-		if (eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
++		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+ 		{
+ 			return true;
+ 		}
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 55ba081e8..e96763d9d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -487,6 +487,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ### Units (Common)
+ 
+ - (Requires AdvCiv-SAS 5317+) New **optional XML field**: `ObsoleteTech` **for units**: if set, this unit **can no longer be produced once we have discovered this tech** (e.g. Ancient Maceman (`UNIT_WARRIOR`) obsolete at `TECH_BRONZE_WORKING`). This XML field is **optional**: if **not set** (`<ObsoleteTech>NONE</ObsoleteTech>`, e.g. for the `UNIT_SETTLER`) or missing entirely (better **inter-mod portability**), a **fallback default of `NONE`** is provided anyway, so the unit is never obsolete, meaning no tech discovery will stop allowing to produce it (base AdvCiv/Civ4 behaviour). This new XML field allows to **avoid unit clutter in later eras** (no more **abherrent obsolete units in later eras** (e.g. Ancient Maceman produced in Medieval Era; Pikemen in Industrial Era)) being **produced** or shown in the **Production Chooser Bar**. **AI** becomes **naturally stronger** as a result of these changes. Additionally, this also helps set **clean scrapping rules** to computationally cheaply detect and remove old units for the AI's military compostion, or **further enhancements**. **Sevopedia** Blurbs with links fully implemented in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). See [README: New optional XML fields](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units). See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping).
++- (Requires AdvCiv-SAS 5330+) Add **extra units not to scrap beyond unit support costs** (we expect to lose a few during war; it is good to keep a few extra so we don't become weaker than our rivals) using a formula of `mult * (era + 1) + add` extra units.
+ - **Build timing** tweaks for some units for historical pacing; see Tech Tree.
+ 
+ ### Civilian Units
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG b/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+index 2ad4e9a6b..b7ae451e0 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG and b/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=8706

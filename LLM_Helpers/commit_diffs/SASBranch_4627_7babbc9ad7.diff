@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4627
+# Commit: 7babbc9ad7b71cfd29bb963180d1bcdd5bb9bc22
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2640080673fcfcba90f29d8ded82facfd73041de
+# Title: add AdvCiv-SAS Core Changes sevopedia page
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+21	5	Assets/XML/Text/CIV4GameText_Custom.xml
+14	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index af23e0c31..23ab383be 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -21,6 +21,12 @@
+ 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
+ 			<Civilopedia>TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR</Civilopedia>
+ 		</NewConceptInfo>
++		<!-- custom: new AdvCiv-SAS-specific core changes listing -->
++		<NewConceptInfo>
++			<Type>CONCEPT_ADVCIV_SAS_CORE_CHANGES</Type>
++			<Description>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Description>
++			<Civilopedia>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Civilopedia>
++		</NewConceptInfo>
+ 
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 60e66daeb..8901b1d30 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -9,11 +9,27 @@
+ 	<!-- custom: moved to file with similar filename than in civ4 bts -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
+-		<English>BtS Rules Changes</English>
+-		<French>R&#232;gles modifi&#233;es de BtS</French>
+-		<German>BtS-Regel&#228;nderungen</German>
+-		<Italian>Cambiamenti delle regole di BtS</Italian>
+-		<Spanish>Cambios en las reglas de "BtS"</Spanish>
++		<English>0_BtS Rules Changes</English>
++		<French>0_R&#232;gles modifi&#233;es de BtS</French>
++		<German>0_BtS-Regel&#228;nderungen</German>
++		<Italian>0_Cambiamenti delle regole di BtS</Italian>
++		<Spanish>0_Cambios en las reglas de "BtS"</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
++		<English>3_AdvCiv-SAS Core Changes</English>
++		<French>3_AdvCiv-SAS Core Changes</French>
++		<German>3_AdvCiv-SAS Core Changes</German>
++		<Italian>3_AdvCiv-SAS Core Changes</Italian>
++		<Spanish>3_AdvCiv-SAS Core Changes</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
++		<English>AdvCiv-SAS Core Changes</English>
++		<French>AdvCiv-SAS Core Changes</French>
++		<German>AdvCiv-SAS Core Changes</German>
++		<Italian>AdvCiv-SAS Core Changes</Italian>
++		<Spanish>AdvCiv-SAS Core Changes</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 0e037336a..4dd0dc6df 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -89,4 +89,18 @@ AdvCiv or/and other mods, at least it's cleanly separated -->
+ 		<Italian>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1][TAB]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</Italian>
+ 		<Spanish>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1][TAB]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</Spanish>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/</English>
++		<French></French>
++		<German></German>
++		<Italian></Italian>
++		<Spanish></Spanish>
++	</TEXT>
++
++
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7128

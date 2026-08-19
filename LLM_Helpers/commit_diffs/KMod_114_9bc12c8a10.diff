@@ -1,0 +1,281 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 114
+# Commit: 9bc12c8a10bb6ca62c402ac8c08a79a14bcd1204
+# History segment: K-Mod history
+# Parent used for diff: bffed4837f1a581e6f7a1e25afca838f1a71baef
+# Title: The AI will now avoid building limited buildings in cities which value the building at less than 80% of the other possible cities. Fixed some bugs in the att...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+70	8	CvGameCoreDLL/CvCityAI.cpp
+9	4	CvGameCoreDLL/CvPlayer.cpp
+5	2	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.h
+34	0	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e173bafdf..7468070d4 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3480,7 +3480,9 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 	int iBestValue;
+ 	int iI, iJ;
+ 
+-	bAreaAlone = GET_PLAYER(getOwnerINLINE()).AI_isAreaAlone(area());
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwner()); // K-Mod (and I've replaced all other GET_PLAYER calls in this function)
++
++	bAreaAlone = kOwner.AI_isAreaAlone(area());
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 
+@@ -3520,7 +3522,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 	{
+-		if (!(GET_PLAYER(getOwnerINLINE()).isBuildingClassMaxedOut(((BuildingClassTypes)iI), GC.getBuildingClassInfo((BuildingClassTypes)iI).getExtraPlayerInstances())))
++		if (!(kOwner.isBuildingClassMaxedOut(((BuildingClassTypes)iI), GC.getBuildingClassInfo((BuildingClassTypes)iI).getExtraPlayerInstances())))
+ 		{
+ 			eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)));
+ 
+@@ -3560,7 +3562,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 								BuildingTypes eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass());
+ 								if (NO_BUILDING != eFreeBuilding)
+ 								{
+-									iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags) * (GET_PLAYER(getOwnerINLINE()).getNumCities() - GET_PLAYER(getOwnerINLINE()).getBuildingClassCountPlusMaking((BuildingClassTypes)GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass())));
++									iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags) * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass())));
+ 								}
+ 							}
+ 							if (isProductionAutomated())
+@@ -3575,14 +3577,77 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 								}
+ 							}
+ 
+-
+ 							if (iValue > 0)
+ 							{
+ 								iTurnsLeft = getProductionTurnsLeft(eLoopBuilding, 0);
+ 
++								// K-Mod
++								// Block construction of limited buildings in bad places
++								// (the value check is just for efficiency. 1250 takes into account the possible +25 random boost)
++								if (iFocusFlags == 0 && iValue * 1250 / std::max(1, iTurnsLeft + 3) >= iBestValue)
++								{
++									int iLimit = limitedWonderClassLimit((BuildingClassTypes)iI);
++									if (iLimit == -1)
++									{
++										// We're not out of the woods yet. Check for prereq buildings.
++										for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
++										{
++											if (GC.getBuildingInfo(eLoopBuilding).getPrereqNumOfBuildingClass(iJ) > 0)
++											{
++												// I wish this was easier to calculate...
++												int iBuilt = kOwner.getBuildingClassCount((BuildingClassTypes)iI);
++												int iBuilding = kOwner.getBuildingClassMaking((BuildingClassTypes)iI);
++												int iPrereqEach = kOwner.getBuildingClassPrereqBuilding(eLoopBuilding, (BuildingClassTypes)iJ, -iBuilt);
++												int iPrereqBuilt = kOwner.getBuildingClassCount((BuildingClassTypes)iJ);
++												FAssert(iPrereqEach > 0);
++												iLimit = iPrereqBuilt / iPrereqEach - iBuilt - iBuilding;
++												FAssert(iLimit > 0);
++												break;
++											}
++										}
++									}
++									if (iLimit != -1)
++									{
++										const int iMaxNumWonders = (GC.getGameINLINE().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()) ? GC.getDefineINT("MAX_NATIONAL_WONDERS_PER_CITY_FOR_OCC") : GC.getDefineINT("MAX_NATIONAL_WONDERS_PER_CITY");
++										int iRelativeValue = iValue;
++
++										if (isNationalWonderClass((BuildingClassTypes)iI) && iMaxNumWonders != -1)
++										{
++											iRelativeValue *= iMaxNumWonders + 2 - getNumNationalWonders();
++											iRelativeValue /= iMaxNumWonders + 2;
++										}
++
++										int iLoop;
++										for (CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
++										{
++											if (pLoopCity->canConstruct(eLoopBuilding))
++											{
++												int iLoopValue = static_cast<CvCityAI*>(pLoopCity)->AI_buildingValueThreshold(eLoopBuilding);
++												if (isNationalWonderClass((BuildingClassTypes)iI) && iMaxNumWonders != -1)
++												{
++													iLoopValue *= iMaxNumWonders + 2 - pLoopCity->getNumNationalWonders();
++													iLoopValue /= iMaxNumWonders + 2;
++												}
++												if (80 * iLoopValue > 100 * iRelativeValue)
++												{
++													if (--iLimit <= 0)
++													{
++														iValue = 0;
++														break;
++													}
++												}
++											}
++										}
++										// Subtract some points from wonder value, just to stop us from wasting it
++										if (isNationalWonderClass((BuildingClassTypes)iI))
++											iValue -= 20;
++									}
++								}
++								// K-Mod end
++
+ 								if (isWorldWonderClass((BuildingClassTypes)iI))
+ 								{
+-									if (iProductionRank <= std::min(3, ((GET_PLAYER(getOwnerINLINE()).getNumCities() + 2) / 3)))
++									if (iProductionRank <= std::min(3, ((kOwner.getNumCities() + 2) / 3)))
+ 									{
+ 										if (bAsync)
+ 										{
+@@ -4918,9 +4983,6 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 								else
+ 								{
+ 									iCommerceMultiplierValue /= 30;
+-									// K-Mod. If we're serious about a cultural victory, then we /really/ don't want to waste this building.
+-									if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) && iCountBuilt < iCulturalVictoryNumCultureCities)
+-										iCommerceMultiplierValue = 0;
+ 								}
+ 							}
+ 						}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 12d2baeb3..8fe28d72e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -22166,11 +22166,16 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 		case TRADE_CITIES:
+ 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 			{
+-				setTradeItem(&item, TRADE_CITIES, pLoopCity->getID());
+-				if (canTradeItem(eOtherPlayer, item))
++				// K-Mod
++				if (AI_cityTrade(pLoopCity, eOtherPlayer) != DENIAL_NEVER)
++				// K-Mod end
+ 				{
+-					bFoundItemUs = true;
+-					ourList.insertAtEnd(item);
++					setTradeItem(&item, TRADE_CITIES, pLoopCity->getID());
++					if (canTradeItem(eOtherPlayer, item))
++					{
++						bFoundItemUs = true;
++						ourList.insertAtEnd(item);
++					}
+ 				}
+ 			}
+ 			break;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 88f0cb6d4..0abc8fc6e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13249,6 +13249,8 @@ void CvPlayerAI::AI_changePeacetimeGrantValue(PlayerTypes eIndex, int iChange)
+ 		m_aiPeacetimeGrantValue[eIndex] = (m_aiPeacetimeGrantValue[eIndex] + iChange);
+ 		FAssert(AI_getPeacetimeGrantValue(eIndex) >= 0);
+ 
++		AI_invalidateAttitudeCache(eIndex); // K-Mod. (missing from CAR mod)
++
+ 		FAssert(iChange > 0);
+ 
+ 		if (iChange > 0)
+@@ -13397,6 +13399,7 @@ void CvPlayerAI::AI_changeMemoryCount(PlayerTypes eIndex1, MemoryTypes eIndex2,
+ 	FAssertMsg(eIndex2 < NUM_MEMORY_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+ 	m_aaiMemoryCount[eIndex1][eIndex2] += iChange;
+ 	FAssert(AI_getMemoryCount(eIndex1, eIndex2) >= 0);
++	AI_invalidateAttitudeCache(eIndex1); // K-Mod. (missing from CAR mod)
+ }
+ 
+ int CvPlayerAI::AI_calculateGoldenAgeValue() const
+@@ -21926,12 +21929,12 @@ bool CvPlayerAI::AI_isFirstTech(TechTypes eTech) const
+ /************************************************************************************************/
+ // From Sanguo Mod Performance, ie the CAR Mod
+ // Attitude cache
+-void CvPlayerAI::AI_invalidateAttitudeCache(PlayerTypes ePlayer)
++void CvPlayerAI::AI_invalidateAttitudeCache(PlayerTypes ePlayer) const
+ {
+ 	m_aiAttitudeCache[ePlayer] = MAX_INT;
+ }
+ 
+-void CvPlayerAI::AI_invalidateAttitudeCache()
++void CvPlayerAI::AI_invalidateAttitudeCache() const
+ {
+ 	for( int iI = 0; iI < MAX_PLAYERS; iI++ )
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index a6cd334e8..312485594 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -407,8 +407,8 @@ public:
+ /************************************************************************************************/
+ 	// From Sanguo Mod Performance, ie the CAR Mod
+ 	// Attitude cache
+-	void AI_invalidateAttitudeCache(PlayerTypes ePlayer);
+-	void AI_invalidateAttitudeCache();
++	void AI_invalidateAttitudeCache(PlayerTypes ePlayer) const;
++	void AI_invalidateAttitudeCache() const;
+ 	void AI_ClearConstructionValueCache(); // K-Mod
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 6f1d3865c..3dbafd2e9 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3638,6 +3638,23 @@ void CvTeamAI::AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue)
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	m_aiEnemyPeacetimeTradeValue[eIndex] = iNewValue;
+ 	FAssert(AI_getEnemyPeacetimeTradeValue(eIndex) >= 0);
++	// K-Mod. bug fix for the CAR mod. (a mod which makes me sad, let me just say once.)
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		CvPlayerAI& kIPlayer = GET_PLAYER((PlayerTypes)iI);
++		if (kIPlayer.getTeam() == getID())
++		{
++			for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++			{
++				CvPlayer& kJPlayer = GET_PLAYER((PlayerTypes)iJ);
++				if (kJPlayer.getTeam() == eIndex)
++				{
++					kIPlayer.AI_invalidateAttitudeCache((PlayerTypes)iJ);
++				}
++			}
++		}
++	}
++	// K-Mod end
+ }
+ 
+ 
+@@ -3661,6 +3678,23 @@ void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue)
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	m_aiEnemyPeacetimeGrantValue[eIndex] = iNewValue;
+ 	FAssert(AI_getEnemyPeacetimeGrantValue(eIndex) >= 0);
++	// K-Mod. bug fix for the CAR mod. (a mod which makes me sad, let me just say once.)
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		CvPlayerAI& kIPlayer = GET_PLAYER((PlayerTypes)iI);
++		if (kIPlayer.getTeam() == getID())
++		{
++			for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++			{
++				CvPlayer& kJPlayer = GET_PLAYER((PlayerTypes)iJ);
++				if (kJPlayer.getTeam() == eIndex)
++				{
++					kIPlayer.AI_invalidateAttitudeCache((PlayerTypes)iJ);
++				}
++			}
++		}
++	}
++	// K-Mod end
+ }
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=10968

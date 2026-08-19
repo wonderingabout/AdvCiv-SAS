@@ -1,0 +1,737 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5466
+# Commit: 10fd09db5ceaf778b963a27da2baba4ed17d1835
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 20989cf63ffdfc44db2ed249b5ce7c80d7f5ef43
+# Title: make BUILDING_IRELAND_SCRIPTORIUM unviersity based todo later move to tech_paper if we implement it
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	AGENTS.md
+11	11	Assets/XML/Art/CIV4ArtDefines_Building.xml
+131	127	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+2	2	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 343b30fcf..85d4b5c6a 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -12,10 +12,14 @@ This is the general guidelines to follow for this repo of our mod AdvCiv-SAS tha
+ 
+ You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
+ 
+-Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
++## git, GitHub, and git diff info
++
++Our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS).
+ 
+ Locally our project is a git repo too, generally with a fresh commit for each new main task, so feel free to git diff while doing your tasks to see your progress and analyze or such.
+ 
++Important git-diff caution: moving/reordering large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed. Example: moving `BUILDING_IRELAND_SCRIPTORIUM` in `CIV4BuildingInfos.xml` from around the Library area to under the last civ-specific University block makes it seem like generic university, university madrassa, university salon were modified, but they were not and are still the same as before. In this case, let the user handle a separate commit for the move/reorder first, then continue with gameplay/stat edits afterward (then user will ammend commit later after second-step modifications are reviewed).
++
+ ## Information Fetching from other known helpful mods
+ 
+ If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+@@ -177,6 +181,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ ## XML
+ 
+ - Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) and only in `<English>`. Move the ones we modify in other files to our files too and remove other languages while doing so.
++- Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
+ 
+ ## C++
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 6770a7dfe..6c75f41bc 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -422,17 +422,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: art from the Civ Gold 5.2 mod thanks -->
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</Type>
+-			<LSystem>LSYSTEM_4x2</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.1</fScale>
+-			<fInterfaceScale>0.8</fInterfaceScale>
+-			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif</NIF>
+-			<KFM/>
+-			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
+ 			<LSystem>LSYSTEM_2x2</LSystem>
+@@ -473,6 +462,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Observatory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,2</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: art from the Civ Gold 5.2 mod thanks -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</Type>
++			<LSystem>LSYSTEM_4x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.1</fScale>
++			<fInterfaceScale>0.8</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_LABORATORY</Type>
+ 			<LSystem>LSYSTEM_2x2</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d8e22415c..a6f8d1899 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -9946,15 +9946,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_IRELAND_SCRIPTORIUM -->
+-			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+-			<Type>BUILDING_IRELAND_SCRIPTORIUM</Type>
++		<BuildingInfo> <!-- custom: class: university, type: university -->
++			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
++			<Type>BUILDING_UNIVERSITY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_UNIVERSITY</Description>
++			<Civilopedia>TXT_KEY_BUILDING_UNIVERSITY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_UNIVERSITY</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -9966,20 +9966,20 @@
+ 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
++			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_WRITING</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits>
+-				<HappinessTrait>
+-					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+-					<iHappinessTrait>1</iHappinessTrait>
+-				</HappinessTrait>
+-			</HappinessTraits>
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_PHILOSOPHICAL</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
++			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -9987,8 +9987,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+ 			<bTeamShare>0</bTeamShare>
+@@ -10012,7 +10012,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>80</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10068,7 +10068,7 @@
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>3</iAsset>
++			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+@@ -10076,6 +10076,7 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
++			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 3 -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -10095,20 +10096,11 @@
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>1</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
++			<SpecialistCounts/>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_LIBRARY</ConstructSound>
++			<ConstructSound>AS2D_BUILD_UNIVERSITY</ConstructSound>
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+@@ -10117,27 +10109,20 @@
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
++			<BuildingClassNeededs>
++				<BuildingClassNeeded>
++					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
++					<bNeededInCity>1</bNeededInCity>
++				</BuildingClassNeeded>
++			</BuildingClassNeededs>
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: was science 10 culture 2 in base library -->
++			<!-- custom: was science 10, reduce a bit, doesn't seem so strong scientifically but still quite strong though -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>4</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -10146,15 +10131,16 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: university, type: university -->
++		<!-- custom: arabian library effects were too op, while thematically fits better around islamic/medieval time. University is no longer op with such effects -->
++		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+-			<Type>BUILDING_UNIVERSITY</Type>
++			<Type>BUILDING_ARABIAN_MADRASSA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_UNIVERSITY</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_UNIVERSITY_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_ARABIAN_MADRASSA</Description>
++			<Civilopedia>TXT_KEY_BUILDING_ARABIAN_MADRASSA_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_UNIVERSITY</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_ARABIAN_MADRASSA</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10166,16 +10152,18 @@
+ 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
++			<!-- custom: was ERA_RENAISSANCE -->
++			<!-- advc.126: was ERA_MODERN -->
++			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
++			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_PHILOSOPHICAL</ProductionTraitType>
++					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+@@ -10212,6 +10200,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: see code comment at as of now the korean civ-specific university. -->
+ 			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10268,7 +10257,7 @@
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>4</iAsset>
++			<iAsset>5</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+@@ -10276,11 +10265,12 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 3 -->
++			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 4 -->
++			<!-- advc.200: K-Mod had reduced this to 3 -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<iCommerce>3</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -10290,13 +10280,23 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>25</iCommerce>
++				<iCommerce>25</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts/>
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+@@ -10309,20 +10309,20 @@
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs>
+-				<BuildingClassNeeded>
+-					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+-					<bNeededInCity>1</bNeededInCity>
+-				</BuildingClassNeeded>
+-			</BuildingClassNeededs>
++			<BuildingClassNeededs/>
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: was science 10, reduce a bit, doesn't seem so strong scientifically but still quite strong though -->
++			<!-- custom: was 8 Science and 6 culture -->
++			<!-- advc.020: was 10 Science -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -10331,16 +10331,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<!-- custom: basing it (madrassa) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or from memory that they are religous, thus islamic buildings mostly if not only), this is also good because now i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it) -->
+-		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa -->
++		<BuildingInfo> <!-- custom: class: university, type: korean_seowon -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+-			<Type>BUILDING_ARABIAN_MADRASSA</Type>
++			<Type>BUILDING_KOREAN_SEOWON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_ARABIAN_MADRASSA</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_ARABIAN_MADRASSA_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_KOREAN_SEOWON</Description>
++			<Civilopedia>TXT_KEY_BUILDING_KOREAN_SEOWON_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_ARABIAN_MADRASSA</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_KOREAN_SEOWON</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10352,18 +10351,16 @@
+ 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+-			<!-- custom: was ERA_RENAISSANCE -->
+-			<!-- advc.126: was ERA_MODERN -->
+-			<FreeStartEra>ERA_MODERN</FreeStartEra>
++			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
++					<ProductionTraitType>TRAIT_PHILOSOPHICAL</ProductionTraitType>
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+@@ -10400,7 +10397,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: see code comment at as of now the korean civ-specific university. -->
++			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at leas cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones, nerf them rather than in increase their cost if have to, maybe not too bad as such -->
+ 			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10457,7 +10454,7 @@
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>5</iAsset>
++			<iAsset>6</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+@@ -10465,12 +10462,11 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 4 -->
+-			<!-- advc.200: K-Mod had reduced this to 3 -->
++			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 3 -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>3</iCommerce>
++				<iCommerce>2</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -10479,24 +10475,14 @@
+ 			</CommerceChangeDoubleTimes>
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
+-				<iCommerce>25</iCommerce>
++				<iCommerce>50</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
++			<SpecialistCounts/>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+@@ -10509,20 +10495,19 @@
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
++			<BuildingClassNeededs>
++				<BuildingClassNeeded>
++					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
++					<bNeededInCity>1</bNeededInCity>
++				</BuildingClassNeeded>
++			</BuildingClassNeededs>
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: was 8 Science and 6 culture -->
+-			<!-- advc.020: was 10 Science -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -10531,15 +10516,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: university, type: korean_seowon -->
++		<BuildingInfo> <!-- custom: class: university, type: french_salon -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+-			<Type>BUILDING_KOREAN_SEOWON</Type>
++			<Type>BUILDING_FRENCH_SALON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_KOREAN_SEOWON</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_KOREAN_SEOWON_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_FRENCH_SALON</Description>
++			<Civilopedia>TXT_KEY_BUILDING_FRENCH_SALON_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_KOREAN_SEOWON</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_FRENCH_SALON</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10597,7 +10582,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at leas cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones, nerf them rather than in increase their cost if have to, maybe not too bad as such -->
++			<!-- custom: see code comment at as of now the korean civ-specific university. -->
+ 			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10609,7 +10594,8 @@
+ 			<iLevelPrereq>0</iLevelPrereq>
+ 			<iMinLatitude>0</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings, now synergy also with oxford_university, add great people change here at 50 for the french_salon -->
++			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+@@ -10654,7 +10640,7 @@
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>6</iAsset>
++			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+@@ -10662,11 +10648,11 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 3 -->
++			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it, since we reworked the building to be such and the thematic theme fits the extra culture (same as how it fits the madrassa), use a bit higher value than the base university but i think is good for balance and variety of gameplay or and such -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<iCommerce>3</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -10675,7 +10661,7 @@
+ 			</CommerceChangeDoubleTimes>
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>50</iCommerce>
++				<iCommerce>25</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -10704,9 +10690,14 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe assumed flavor_growth by myself too (quite proudly but...), was science 10 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+@@ -10716,15 +10707,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: university, type: french_salon -->
++		<BuildingInfo> <!-- custom: class: university, type: ireland_scriptorium -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+-			<Type>BUILDING_FRENCH_SALON</Type>
++			<Type>BUILDING_IRELAND_SCRIPTORIUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_FRENCH_SALON</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_FRENCH_SALON_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Description>
++			<Civilopedia>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_FRENCH_SALON</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10757,8 +10748,9 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<!-- custom: Scriptorium adds +1 GP (Great Scientist points) over base University. (GPT-5.3-Codex) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+ 			<bTeamShare>0</bTeamShare>
+@@ -10782,7 +10774,6 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: see code comment at as of now the korean civ-specific university. -->
+ 			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10794,8 +10785,7 @@
+ 			<iLevelPrereq>0</iLevelPrereq>
+ 			<iMinLatitude>0</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+-			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings, now synergy also with oxford_university, add great people change here at 50 for the french_salon -->
+-			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+@@ -10848,7 +10838,7 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it, since we reworked the building to be such and the thematic theme fits the extra culture (same as how it fits the madrassa), use a bit higher value than the base university but i think is good for balance and variety of gameplay or and such -->
++			<!-- custom: Scriptorium adds +1 culture over base University (2 -> 3). (GPT-5.3-Codex) -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -10868,7 +10858,13 @@
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts/>
++			<!-- custom: Scriptorium adds +1 Priest slot over base University. (GPT-5.3-Codex) -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
++					<iSpecialistCount>1</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+@@ -10890,15 +10886,23 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe assumed flavor_growth by myself too (quite proudly but...), was science 10 -->
++			<!-- custom: Scriptorium uses a broader flavor profile than base University. (GPT-5.3-Codex) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 8afe1d766..13976a38e 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1293,7 +1293,7 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+ 					<BuildingType>BUILDING_IRELAND_SCRIPTORIUM</BuildingType>
+ 				</Building>
+ 			</Buildings>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 2e5f4cd67..a0c682464 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -128,7 +128,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ | --- | --- | --- | --- |
+ | America | Mall (Supermarket) | **Keep** (Keep) | |
+ | Arabia | Madrassa (Library) | **Keep** (University) | Thematic fit, more balanced than op library. |
+-| Aztec | Sacrificial Altar (Courthouse) | ***Keep** (Monument) | Much stronger than late courthouse. Fits aztec early slaving profile |
++| Aztec | Sacrificial Altar (Courthouse) | **Keep** (Monument) | Much stronger than late courthouse. Fits aztec early slaving profile |
+ | Babylon | Garden (Colosseum) | **Keep** (Keep) | |
+ | Byzantium | Hippodrome (Theatre) | **Keep** (Keep) | |
+ | Carthage | Cothon (Harbor) | **Keep** (Port) | Port is the new AdvCiv-SAS stronger water classical production building |
+@@ -147,7 +147,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ | India | Mausoleum (Jail) | **Keep** (Keep) | Jail is moved to late Classical so fine as such |
+ | Japan | Shale Plant (Factory) | **Doujou** (Jail) | Late/weak building; replaced with an early impactful one; thematic fit and boosts Tokugawa/Japan's isolationist profile by strengthening its espionage and military independence potential |
+ | Khmer | Baray (Aqueduct) | **Keep** (Keep) | |
+-| Korea | Seowon (University) | **Gyeongdang** (University) | Keep University class but use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. |
++| Korea | Seowon (University) | **Gyeongdang** (Library) | Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Thematically fits the ancient history/civilization of Korea theme as well. |
+ | Mali | Mint (Forge) | **Keep** (Keep) | |
+ | Maya | Ball Court (Colosseum) | **Keep** (Keep) | |
+ | Mongol | Ger (Stable) | **Keep** (Keep) | |
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=33809

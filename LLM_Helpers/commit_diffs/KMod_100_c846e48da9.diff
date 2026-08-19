@@ -1,0 +1,750 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 100
+# Commit: c846e48da9af8bd52ee68987b1dc7caabcbf495e
+# History segment: K-Mod history
+# Parent used for diff: 470c1cfd4ace29fb1985e260e1efebd58ed3477b
+# Title: Spies will not longer target bonues without improvements. Adjusted the way the AI choses units when in "total war". Adjusted the way the AI assigns espionage...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/units/ironclad/ironclad_md_strikea.kf
+51	33	CvGameCoreDLL/CvCityAI.cpp
+3	0	CvGameCoreDLL/CvPlayer.cpp
+95	92	CvGameCoreDLL/CvPlayerAI.cpp
+0	9	CvGameCoreDLL/CvPlayerAI.h
+10	1	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+25	30	CvGameCoreDLL/CvUnitAI.cpp
+ create mode 100644 Assets/Art/units/ironclad/ironclad_md_strikea.kf
+
+[PATCHES]
+
+diff --git a/Assets/Art/units/ironclad/ironclad_md_strikea.kf b/Assets/Art/units/ironclad/ironclad_md_strikea.kf
+new file mode 100644
+index 000000000..e77782978
+Binary files /dev/null and b/Assets/Art/units/ironclad/ironclad_md_strikea.kf differ
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cd0f7d878..4c7edc142 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -735,11 +735,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist)
+ 	return iValue;
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/22/09                                jdog5000      */
+-/*                                                                                              */
+-/* City AI, War Strategy AI                                                                     */
+-/************************************************************************************************/
++// Heavily edited by BBAI and K-Mod
+ void CvCityAI::AI_chooseProduction()
+ {
+ 	PROFILE_FUNC();
+@@ -858,6 +854,7 @@ void CvCityAI::AI_chooseProduction()
+ 	bLandWar = ((pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (pArea->getAreaAIType(getTeam()) == AREAAI_MASSING));
+ 	bDefenseWar = (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 	bool bAssaultAssist = (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_ASSIST);
++	bool bTotalWar = GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL, true); // K-Mod
+ 	bAssault = bAssaultAssist || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT) || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING);
+ 	bPrimaryArea = kPlayer.AI_isPrimaryArea(pArea);
+ 	bFinancialTrouble = kPlayer.AI_isFinancialTrouble();
+@@ -1912,7 +1909,9 @@ void CvCityAI::AI_chooseProduction()
+ 	//also very good for giving cultural cities first dibs on wonders
+     if (bImportantCity && (iCultureRateRank <= iCulturalVictoryNumCultureCities))
+     {
+-        if (iCultureRateRank == iCulturalVictoryNumCultureCities)
++		int iWarScore = (bLandWar? 4: 0) + (bTotalWar? 4: 0) + (bDefenseWar? 4: 0);
++        //if (iCultureRateRank == iCulturalVictoryNumCultureCities)
++		if (iCultureRateRank == iCulturalVictoryNumCultureCities && GC.getGameINLINE().getSorenRandNum(10, "AI Build up Culture") >= iWarScore)
+         {
+             if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE | BUILDINGFOCUS_WONDEROK, 40))
+             {
+@@ -1920,7 +1919,8 @@ void CvCityAI::AI_chooseProduction()
+                 return;
+             }
+ 		}
+-        else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 + (bLandWar ? 5 : 0), "AI Build up Culture") < iCultureRateRank)
++        //else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 + (bLandWar ? 5 : 0), "AI Build up Culture") < iCultureRateRank)
++		else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 + iWarScore, "AI Build up Culture") < iCultureRateRank)
+         {
+             if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE | BUILDINGFOCUS_WONDEROK, (bLandWar ? 20 : 40)))
+             {
+@@ -1981,7 +1981,7 @@ void CvCityAI::AI_chooseProduction()
+ 	if (!bDanger && (!hasActiveWorldWonder() || (kPlayer.getNumCities() > 3)))
+ 	{
+ 		// For civ at war, don't build wonders if losing
+-		if( !bLandWar || (iWarSuccessRatio > -30) )
++		if (!bTotalWar && (!bLandWar || iWarSuccessRatio > -30))
+ 		{	
+ 			int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 			iWonderTime /= 5;
+@@ -2626,8 +2626,9 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 	
+-	if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+-		&& (getPopulation() > 3))
++	//if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
++	// Ideally we'd look at relative production, not just rank.
++	if (iProductionRank <= kPlayer.getNumCities()/9 + 2	&& getPopulation() > 3)
+ 	{
+ 		int iWonderRand = 8 + GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 		
+@@ -2654,6 +2655,12 @@ void CvCityAI::AI_chooseProduction()
+ 			iWonderRand /= 3;
+ 		}
+ 
++		if (bLandWar && bTotalWar)
++		{
++			iWonderRand *= 2;
++			iWonderRand /= 3;
++		}
++		
+ 		int iWonderRoll = GC.getGameINLINE().getSorenRandNum(100, "Wonder Build Rand");
+ 		
+ 		if (iProductionRank == 1)
+@@ -2754,6 +2761,10 @@ void CvCityAI::AI_chooseProduction()
+ 	    }
+ 	}
+ 
++	// K-Mod. I'm disabling a few of these "choose building" checks.
++	// I suspect they do very little other than use CPU time.
++	// If the building is good enough, it will get chosen by the general chooseBuilding function.
++
+ 	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20, 4))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 2", getName().GetCString());
+@@ -2761,20 +2772,20 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 	
+ 	//20 means 5g or ~2 happiness...
+-	if (AI_chooseBuilding(iEconomyFlags, 15, 20))
++	/*if (AI_chooseBuilding(iEconomyFlags, 15, 20))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 2", getName().GetCString());
+ 		return;
+-	}
++	}*/ // K-Mod
+ 
+ 
+ 	if (!bLandWar)
+ 	{
+-		if (AI_chooseBuilding(iEconomyFlags, 40, 8))
++		/*if (AI_chooseBuilding(iEconomyFlags, 40, 8))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 3", getName().GetCString());
+ 			return;
+-		}
++		}*/ // K-Mod
+ 
+ 		if (iCulturePressure > 50)
+ 		{
+@@ -2799,14 +2810,14 @@ void CvCityAI::AI_chooseProduction()
+ 			}
+ 		}
+ 
+-		if (getBaseYieldRate(YIELD_PRODUCTION) >= 8)
++		/*if (getBaseYieldRate(YIELD_PRODUCTION) >= 8)
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 80))
+ 			{
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 3", getName().GetCString());
+ 				return;
+ 			}
+-		}
++		}*/ // K-Mod
+ 	}
+ 
+ 	if (!bUnitExempt && plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_COUNTER, -1, getOwnerINLINE()) == NULL)
+@@ -2817,8 +2828,9 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	// we do a similar check lower, in the landwar case
+-	if (!bLandWar && bFinancialTrouble)
++	// we do a similar check lower, in the landwar case. (umm. no you don't. I'm changing this.)
++	//if (!bLandWar && bFinancialTrouble)
++	if (bFinancialTrouble)
+ 	{
+ 		if (AI_chooseBuilding(BUILDINGFOCUS_GOLD))
+ 		{
+@@ -2845,20 +2857,16 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	// BBAI TODO: Temporary for testing
+-	//if( getOwnerINLINE()%2 == 1 )
+-	//{
+-		// Only cities with reasonable production
+-		if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
++	// Only cities with reasonable production
++	if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+ 		&& (getPopulation() > 3))
++	{
++		if (AI_chooseProject())
+ 		{
+-			if (AI_chooseProject())
+-			{
+-				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 2", getName().GetCString());
+-				return;
+-			}
++			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 2", getName().GetCString());
++			return;
+ 		}
+-	//}
++	}
+ 
+ 	if (AI_chooseBuilding())
+ 	{
+@@ -2879,10 +2887,6 @@ void CvCityAI::AI_chooseProduction()
+ 		return;
+ 	}
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 
+ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAITypes* peBestUnitAI)
+ {
+@@ -3055,6 +3059,20 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 					}
+ 				}
+ 			}
++			// K-Mod
++			if (bLandWar && !bDefense && GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL, true))
++			{
++				// if we're winning, then focus on capturing cities.
++				int iSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
++				if (iSuccessRatio > 0)
++				{
++					aiUnitAIVal[UNITAI_ATTACK] += iSuccessRatio * iMilitaryWeight / 1200;
++					aiUnitAIVal[UNITAI_ATTACK_CITY] += iSuccessRatio * iMilitaryWeight / 600;
++					aiUnitAIVal[UNITAI_COUNTER] += iSuccessRatio * iMilitaryWeight / 1200;
++					aiUnitAIVal[UNITAI_PARADROP] += iSuccessRatio * iMilitaryWeight / 600;
++				}
++			}
++			// K-Mod end
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6058466aa..1fa4575f6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14353,6 +14353,9 @@ int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerType
+ 
+ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
+ {
++	if (eMission == NO_ESPIONAGEMISSION) // K-Mod
++		return -1;
++
+ 	CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
+ 	int iBaseMissionCost = kMission.getCost();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ebb432924..1ee14444f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2408,15 +2408,20 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity) const
+ 
+ 					int iTheirPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
+ 					int iOurPoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
++					int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
++					iTheirPoints -= (iTheirPoints*iAttitude)/(2*12);
++
+ 					if (iTheirPoints > iOurPoints)
+ 					{
+ 						iEspBehindWeight += 1;
+-						if (kLoopTeam.AI_getAttitude(getTeam()) <= ATTITUDE_CAUTIOUS)
++						if (kLoopTeam.AI_getAttitude(getTeam()) <= ATTITUDE_CAUTIOUS
++							&& GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+ 						{
+ 							iEspBehindWeight += 1;
+ 						}
+ 					}
+-					if (GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_ANNOYED
++					if ((GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_ANNOYED
++						&& GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+ 						|| GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
+ 					{
+ 						iEspAttackWeight += 1;
+@@ -13640,8 +13645,6 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 			iIdealPercent /= getNumCities();
+ 
+-			iIdealPercent -= (iIdealPercent % GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+-
+ 			// K-Mod
+ 			int iCap = 20;
+ 			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
+@@ -13654,6 +13657,7 @@ void CvPlayerAI::AI_doCommerce()
+ 				iIdealPercent+=5;
+ 				iCap += 20;
+ 			}
++			iIdealPercent -= (iIdealPercent % GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+ 			//iIdealPercent = std::min(iIdealPercent, 20);
+ 			iIdealPercent = std::min(iIdealPercent, iCap);
+ 			// K-Mod end
+@@ -13766,6 +13770,29 @@ void CvPlayerAI::AI_doCommerce()
+ 		int iApproxTechCost = 0;
+ 		TeamTypes eMinModTeam = NO_TEAM;
+ 
++		// For this part of the AI, I will assume there is only mission for each purpose.
++		EspionageMissionTypes eSeeDemographicsMission = NO_ESPIONAGEMISSION;
++		EspionageMissionTypes eSeeResearchMission = NO_ESPIONAGEMISSION;
++		EspionageMissionTypes eStealTechMission = NO_ESPIONAGEMISSION;
++		EspionageMissionTypes eCityRevoltMission = NO_ESPIONAGEMISSION; // Not used yet.
++
++		for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++		{
++			CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++				
++			if (kMissionInfo.isSeeDemographics())
++				eSeeDemographicsMission = (EspionageMissionTypes)iMission;
++
++			if (kMissionInfo.isSeeResearch())
++				eSeeResearchMission = (EspionageMissionTypes)iMission;
++
++			if (kMissionInfo.getBuyTechCostFactor() != 0)
++				eStealTechMission = (EspionageMissionTypes)iMission;
++
++			if (kMissionInfo.getCityRevoltCounter() > 0)
++				eCityRevoltMission = (EspionageMissionTypes)iMission;
++		}
++
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+ 			aiTarget[iTeam] = 0;
+@@ -13781,31 +13808,22 @@ void CvPlayerAI::AI_doCommerce()
+ 				int iTheirEspPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
+ 				int iOurEspPoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
+ 				int iDesiredMissionPoints = 0;
+-				int iDesiredEspPoints = 0;
++				int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
+ 
+ 				aiWeight[iTeam] = 6;
+ 				int iRateDivisor = 12;
+ 
+-				if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
++				if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
+ 				{
+ 					iTheirEspPoints *= 3;
+ 					iTheirEspPoints /= 2;
+ 
+-					for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++					int iMissionCost = std::max(getEspionageMissionCost(eSeeResearchMission, kLoopTeam.getLeaderID()), getEspionageMissionCost(eSeeDemographicsMission, kLoopTeam.getLeaderID()));
++					iMissionCost *= 12;
++					iMissionCost /= 10;
++					if (iDesiredMissionPoints < iMissionCost)
+ 					{
+-						CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+-							
+-						if( kMissionInfo.isPassive() )
+-						{
+-							if( kMissionInfo.isSeeDemographics() || kMissionInfo.isSeeResearch() )
+-							{
+-								int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
+-								if( iDesiredMissionPoints < iMissionCost )
+-								{
+-									iDesiredMissionPoints = iMissionCost;
+-								}
+-							}
+-						}
++						iDesiredMissionPoints = iMissionCost;
+ 					}
+ 
+ 					iRateDivisor -= 2;
+@@ -13814,56 +13832,37 @@ void CvPlayerAI::AI_doCommerce()
+ 				}
+ 				else
+ 				{
+-					int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
+-
+ 					iTheirEspPoints -= (iTheirEspPoints*iAttitude)/(2*12);
+ 
+-					if( iAttitude <= -3 )
++					if (iAttitude <= -3)
+ 					{
+-						for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++						int iMissionCost = std::max(getEspionageMissionCost(eSeeResearchMission, kLoopTeam.getLeaderID()), getEspionageMissionCost(eSeeDemographicsMission, kLoopTeam.getLeaderID()));
++						iMissionCost *= 11;
++						iMissionCost /= 10;
++						if( iDesiredMissionPoints < iMissionCost )
+ 						{
+-							CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+-								
+-							if( kMissionInfo.isPassive() )
+-							{
+-								if( kMissionInfo.isSeeDemographics() || kMissionInfo.isSeeResearch() )
+-								{
+-									int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
+-									if( iDesiredMissionPoints < iMissionCost )
+-									{
+-										iDesiredMissionPoints = iMissionCost;
+-									}
+-								}
+-							}
++							iDesiredMissionPoints = iMissionCost;
+ 						}
+ 					}
+-					else if( iAttitude < 3 )
++					else if (iAttitude < 3)
+ 					{
+-						for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++						int iMissionCost = getEspionageMissionCost(eSeeDemographicsMission, kLoopTeam.getLeaderID());
++						iMissionCost *= 11;
++						iMissionCost /= 10;
++						if( iDesiredMissionPoints < iMissionCost )
+ 						{
+-							CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+-								
+-							if( kMissionInfo.isPassive() )
+-							{
+-								if( kMissionInfo.isSeeDemographics() )
+-								{
+-									int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
+-									if( iDesiredMissionPoints < iMissionCost )
+-									{
+-										iDesiredMissionPoints = iMissionCost;
+-									}
+-								}
+-							}
++							iDesiredMissionPoints = iMissionCost;
+ 						}
+ 					}
+-
+-					iRateDivisor += (iAttitude/5);
+-					aiWeight[iTeam] -= (iAttitude/3);
+ 				}
+-				if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
++
++				iRateDivisor += (iAttitude/5);
++				aiWeight[iTeam] -= (iAttitude/3);
++				if (GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+ 				{
+-					aiWeight[iTeam] += 6;
+-					iRateDivisor -= 2;
++					aiWeight[iTeam] *= 2;
++					aiWeight[iTeam] = std::max(0, aiWeight[iTeam]);
++					iRateDivisor -= 3;
+ 				}
+ 
+ 				// Individual player targeting
+@@ -13880,10 +13879,10 @@ void CvPlayerAI::AI_doCommerce()
+ 							int iTargetCities = 0;
+ 							for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 							{
+-								if (pLoopCity->area() != NULL && pLoopCity->area()->getCitiesPerPlayer(getID()) > 2)
++								if (pLoopCity->area() != NULL && AI_isPrimaryArea(pLoopCity->area()))
+ 								{
+ 									iTargetCities++;
+-									iModifier += getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, kLoopTeam.getLeaderID(), pLoopCity->plot());
++									iModifier += getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot());
+ 								}
+ 							}
+ 							if (iTargetCities > 0)
+@@ -13891,7 +13890,7 @@ void CvPlayerAI::AI_doCommerce()
+ 								iModifier /= iTargetCities; // average modifier of targetable cities
+ 
+ 								if (iModifier < iMinModifier ||
+-									(iModifier == iMinModifier && GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam) < GET_TEAM(getTeam()).AI_getAttitudeVal(eMinModTeam)))
++									(iModifier == iMinModifier && iAttitude < GET_TEAM(getTeam()).AI_getAttitudeVal(eMinModTeam)))
+ 								{
+ 									// do they have any techs we can steal?
+ 									bool bValid = false;
+@@ -13915,10 +13914,20 @@ void CvPlayerAI::AI_doCommerce()
+ 						}
+ 					}
+ 				}
++				if (iTheirEspPoints > iDesiredMissionPoints
++					&& GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_CAUTIOUS)
++				{
++					iRateDivisor += 1;
++					// scale by esp points ever, so that we don't fall over ourselves trying to catch up with
++					// a civ that happens to be running an espionage economy.
++					int iOurTotal = GET_TEAM(getTeam()).getEspionagePointsEver();
++					int iTheirTotal = kLoopTeam.getEspionagePointsEver();
++					iTheirEspPoints *= iOurTotal;
++					iTheirEspPoints /= std::max(1, iTheirTotal);
++					iDesiredMissionPoints = std::max(iTheirEspPoints, iDesiredMissionPoints);
++				}
+ 
+-				iDesiredEspPoints = std::max(iTheirEspPoints,iDesiredMissionPoints);
+-
+-				aiTarget[iTeam] = (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
++				aiTarget[iTeam] = (iDesiredMissionPoints - iOurEspPoints)/std::max(6,iRateDivisor);
+ 
+ 				if( aiTarget[iTeam] > 0 )
+ 				{
+@@ -13931,50 +13940,44 @@ void CvPlayerAI::AI_doCommerce()
+ 		bool bCheapTechSteal = false;
+ 		if (eMinModTeam != NO_TEAM && !AI_avoidScience() && !isNoResearchAvailable())
+ 		{
+-			iMinModifier *= 100 - GC.getDefineINT("MAX_FORTIFY_TURNS") * GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+-			iMinModifier /= 100;
+-			int iStealMod = 100000; // arbitrary large number - until we find the real modifier.
+-			for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++			if (eStealTechMission != NO_ESPIONAGEMISSION)
+ 			{
+-				CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+-				if (kMissionInfo.getBuyTechCostFactor() != 0)
++				iMinModifier *= 100 - GC.getDefineINT("MAX_FORTIFY_TURNS") * GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
++				iMinModifier /= 100;
++				iMinModifier *= 100 + GC.getEspionageMissionInfo(eStealTechMission).getBuyTechCostFactor();
++				iMinModifier /= 100;
++				// This is the espionage cost modifier for stealing techs.
++
++				// lets say "cheap" means 70% of the research cost.
++				bCheapTechSteal = (7000 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
++				if (bCheapTechSteal)
+ 				{
+-					if (kMissionInfo.getBuyTechCostFactor() < iStealMod)
+-					{
+-						iStealMod = kMissionInfo.getBuyTechCostFactor();
+-					}
++					aiTarget[eMinModTeam] += iApproxTechCost / 10;
++					iEspionageTargetRate += iApproxTechCost / 10;
++					// I'm just using iApproxTechCost to get a rough sense of scale.
++					// cf. (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
+ 				}
+ 			}
+-			iMinModifier *= 100 + iStealMod;
+-			iMinModifier /= 100;
+-			// This is the espionage cost modifier for stealing techs.
+-
+-			// lets say "cheap" means 70% of the research cost.
+-			bCheapTechSteal = (7000 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
+-			if (bCheapTechSteal)
+-			{
+-				aiTarget[iTeam] += iApproxTechCost / 10;
+-				iEspionageTargetRate += iApproxTechCost / 10;
+-				// I'm just using iApproxTechCost to get a rough sense of scale.
+-				// cf. (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
+-			}
+ 		}
+ 
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+-			if( aiTarget[iTeam] > 0 )
++			if (aiTarget[iTeam] > 0)
+ 			{
+ 				//aiWeight[iTeam] += (150*aiTarget[iTeam])/std::max(4,iEspionageTargetRate);
+ 				aiWeight[iTeam] += (100*aiTarget[iTeam])/std::max(4,iEspionageTargetRate);
+ 			}
+-			else if( aiTarget[iTeam] < 0 )
++			else if (aiTarget[iTeam] < 0)
+ 			{
+-				aiWeight[iTeam] += 2*aiTarget[iTeam];
++				if (iTeam != eMinModTeam &&
++					(!isMaliciousEspionageTarget(GET_TEAM((TeamTypes)iTeam).getLeaderID()) || !GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam)))
++					aiWeight[iTeam] = 0;
+ 			}
+ 			if (iTeam == eMinModTeam)
+ 			{
+-				aiWeight[iTeam]++;
++				aiWeight[iTeam] *= 3;
++				aiWeight[iTeam] /= 2;
+ 			}
+ 			else if (eMinModTeam != NO_TEAM && bCheapTechSteal)
+ 			{
+@@ -18595,7 +18598,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 							iWarCount++;
+ 						}
+ 
+-						// K-Mod. (if we attack with our defenders, would they be beat their defenders?)
++						// K-Mod. (if we attack with our defenders, would they beat their defenders?)
+ 						if (100*iTypicalDefence >= 110 * GET_TEAM((TeamTypes)iI).getTypicalUnitValue(UNITAI_CITY_DEFENSE))
+ 						{
+ 							iCrushValue += 2;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 45f20beee..a6cd334e8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -114,15 +114,6 @@ public:
+ 	void AI_chooseFreeTech();
+ 	void AI_chooseResearch();
+ 
+-/*
+-** K-Mod, 1/mar/11, karadoc
+-** experimental AI functions
+-*/
+-	//int KAI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const;
+-/*
+-** K-Mod end
+-*/
+-
+ 	DllExport DiploCommentTypes AI_getGreeting(PlayerTypes ePlayer) const;
+ 	bool AI_isWillingToTalk(PlayerTypes ePlayer) const;
+ 	bool AI_demandRebukedSneak(PlayerTypes ePlayer) const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 76adcbf58..82ff39879 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5602,7 +5602,7 @@ BonusTypes CvPlot::getBonusType(TeamTypes eTeam) const
+ }
+ 
+ 
+-BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam) const
++BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckImprovement) const // K-Mod added bCheckImprovement
+ {
+ 	FAssert(eTeam != NO_TEAM);
+ 
+@@ -5613,6 +5613,15 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam) const
+ 		{
+ 			return NO_BONUS;
+ 		}
++		// K-Mod
++		if (bCheckImprovement)
++		{
++			if (getImprovementType() == NO_IMPROVEMENT || !GC.getImprovementInfo(getImprovementType()).isImprovementBonusTrade(eBonus))
++			{
++				return NO_BONUS;
++			}
++		}
++		// K-Mod end
+ 	}
+ 
+ 	return eBonus;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 66bf99ea2..0088d0a70 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -339,7 +339,7 @@ public:
+ 	DllExport void resetFeatureModel();
+ 
+ 	DllExport BonusTypes getBonusType(TeamTypes eTeam = NO_TEAM) const;																							// Exposed to Python
+-	BonusTypes getNonObsoleteBonusType(TeamTypes eTeam = NO_TEAM) const;																	// Exposed to Python
++	BonusTypes getNonObsoleteBonusType(TeamTypes eTeam = NO_TEAM, bool bCheckImprovement = false) const;																	// Exposed to Python
+ 	void setBonusType(BonusTypes eNewValue);																															// Exposed to Python
+ 
+ 	DllExport ImprovementTypes getImprovementType() const;																													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 666e1c7f5..1d41ea868 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5511,7 +5511,7 @@ void CvUnitAI::AI_spyMove()
+ 		}
+ 	}
+ 	
+-	if (iSpontaneousChance > 0 && (plot()->isCity() || (plot()->getNonObsoleteBonusType(getTeam()) != NO_BONUS)))
++	if (iSpontaneousChance > 0 && (plot()->isCity() || plot()->getNonObsoleteBonusType(getTeam(), true) != NO_BONUS))
+ 	{
+ 		if (GC.getGame().getSorenRandNum(7, "AI Spy Skip Turn") > 0)
+ 		{
+@@ -11159,7 +11159,7 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 	CvPlot* pLoopPlot;
+ 	CvPlot* pBestPlot;
+ 	CvPlot* pBestGuardPlot;
+-	ImprovementTypes eImprovement;
++	//ImprovementTypes eImprovement; // K-Mod made this obsolete
+ 	BonusTypes eNonObsoleteBonus;
+ 	int iPathTurns;
+ 	int iValue;
+@@ -11178,42 +11178,37 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 		{
+ 			if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE())
+ 			{
+-				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
++				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam(), true);
+ 
+ 				if (eNonObsoleteBonus != NO_BONUS)
+ 				{
+-					eImprovement = pLoopPlot->getImprovementType();
+-
+-					if ((eImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+-					{
+-						iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
++					iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
+ 
+-						iValue += std::max(0, 200 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
++					iValue += std::max(0, 200 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
+ 
+-						if (pLoopPlot->getPlotGroupConnectedBonus(getOwnerINLINE(), eNonObsoleteBonus) == 1)
+-						{
+-							iValue *= 2;
+-						}
++					if (pLoopPlot->getPlotGroupConnectedBonus(getOwnerINLINE(), eNonObsoleteBonus) == 1)
++					{
++						iValue *= 2;
++					}
+ 
+-						if (iValue > iMinValue)
++					if (iValue > iMinValue)
++					{
++						if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+ 						{
+-							if (!(pLoopPlot->isVisibleEnemyUnit(this)))
++							// BBAI TODO: Multiple defenders for higher value resources?
++							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_BONUS, getGroup()) == 0)
+ 							{
+-								// BBAI TODO: Multiple defenders for higher value resources?
+-								if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_BONUS, getGroup()) == 0)
++								if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 								{
+-									if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+-									{
+-										iValue *= 1000;
++									iValue *= 1000;
+ 
+-										iValue /= (iPathTurns + 1);
++									iValue /= (iPathTurns + 1);
+ 
+-										if (iValue > iBestValue)
+-										{
+-											iBestValue = iValue;
+-											pBestPlot = getPathEndTurnPlot();
+-											pBestGuardPlot = pLoopPlot;
+-										}
++									if (iValue > iBestValue)
++									{
++										iBestValue = iValue;
++										pBestPlot = getPathEndTurnPlot();
++										pBestGuardPlot = pLoopPlot;
+ 									}
+ 								}
+ 							}
+@@ -22179,7 +22174,7 @@ int CvUnitAI::AI_getEspionageTargetValue(CvPlot* pPlot, int iMaxPath)
+ 			}
+ 			else
+ 			{
+-				BonusTypes eBonus = pPlot->getNonObsoleteBonusType(getTeam());
++				BonusTypes eBonus = pPlot->getNonObsoleteBonusType(getTeam(), true);
+ 				if (eBonus != NO_BONUS)
+ 				{
+ 					iValue += GET_PLAYER(pPlot->getOwnerINLINE()).AI_baseBonusVal(eBonus) - 10;
+@@ -22326,7 +22321,7 @@ bool CvUnitAI::AI_bonusOffenseSpy(int iRange)
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iX, iY);
+ 
+-			if (NULL != pLoopPlot && pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
++			if (NULL != pLoopPlot && pLoopPlot->getNonObsoleteBonusType(getTeam(), true) != NO_BONUS)
+ 			{
+ 				if( pLoopPlot->isOwned() && pLoopPlot->getTeam() != getTeam() )
+ 				{
+@@ -22865,7 +22860,7 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 	}
+ 	
+ 	iBonusValue = 0;
+-	eNonObsoleteBonus = pPlot->getNonObsoleteBonusType(pPlot->getTeam());
++	eNonObsoleteBonus = pPlot->getNonObsoleteBonusType(pPlot->getTeam(), true);
+ 	if (eNonObsoleteBonus != NO_BONUS)
+ 	{
+ 		iBonusValue = (GET_PLAYER(pPlot->getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus));
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=29489

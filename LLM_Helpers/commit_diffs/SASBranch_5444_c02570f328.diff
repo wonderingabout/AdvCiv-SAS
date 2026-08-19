@@ -1,0 +1,267 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5444
+# Commit: c02570f3289a562e51fc6efaddcf155ab9003031
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b90811a0d3b108ac8dfb2e1b38a4578c2ba3c047
+# Title: add Deer percentage map option in arboria and boreal - **Deer percentage:** added a Deer percentage tuning **option** (e.g., `0/25/50/75/100`) for [Arboria.p...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+53	13	PrivateMaps/Arboria.py
+53	13	PrivateMaps/Boreal.py
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index eef5e0bb9..ee7aa18df 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -38,39 +38,76 @@ def isSeaLevelMap():
+ 	return 0
+ 
+ def getNumCustomMapOptions():
+-	return 1
++	return 2
+ 
+ def getNumHiddenCustomMapOptions():
+ 	return 1
+ 
+ def getCustomMapOptionName(argsList):
+-	translated_text = unicode(CyTranslator().getText("TXT_KEY_MAP_WORLD_WRAP", ()))
++	[iOption] = argsList
++	option_names = {
++		0: "Deer Percentage",
++		1: "TXT_KEY_MAP_WORLD_WRAP"
++	}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+ def getNumCustomMapOptionValues(argsList):
+-	return 3
++	[iOption] = argsList
++	option_values = {
++		0: 6,
++		1: 3
++	}
++	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+-	iSelection = argsList[1]
+-	selection_names = ["TXT_KEY_MAP_WRAP_FLAT",
+-	                   "TXT_KEY_MAP_WRAP_CYLINDER",
+-	                   "TXT_KEY_MAP_WRAP_TOROID"]
+-	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0: {
++			0: "0%",
++			1: "10%",
++			2: "25%",
++			3: "50% (recommended)",
++			4: "75%",
++			5: "100%"
++		},
++		1: {
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++		}
++	}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+ 	
+ def getCustomMapOptionDefault(argsList):
+-	return 1
++	[iOption] = argsList
++	option_defaults = {
++		0: 3, # 50%
++		1: 1
++	}
++	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+-	return false
++	[iOption] = argsList
++	option_random = {
++		0: false,
++		1: false
++	}
++	return option_random[iOption]
+ 
+ def getWrapX():
+ 	map = CyMap()
+-	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
++	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
+ 	
+ def getWrapY():
+ 	map = CyMap()
+-	return (map.getCustomMapOption(0) == 2)
++	return (map.getCustomMapOption(1) == 2)
++
++def getDeerPercent():
++	map = CyMap()
++	deer_percents = (0, 10, 25, 50, 75, 100)
++	return deer_percents[map.getCustomMapOption(0)]
+ 
+ def getTopLatitude():
+ 	return 50
+@@ -295,6 +332,7 @@ def addBonusType(argsList):
+ 			print('---', type_string, '---')
+ 			NiTextOut("Placing forest resources (Python Arboria) ...")
+ 			featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++			iDeerPercent = getDeerPercent()
+ 			iSilverBottom = food.getHeightFromPercent(10)
+ 			iSilverTop = food.getHeightFromPercent(15)
+ 			iDeerBottom1 = food.getHeightFromPercent(24)
+@@ -313,7 +351,9 @@ def addBonusType(argsList):
+ 						foodVal = food.getHeight(x,y)
+ 						if (type_string in deer):
+ 							if pPlot.getFeatureType() == featureForest and pPlot.isFlatlands():
+-								if (foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3):
++								if iDeerPercent > 0 and ((foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3)):
++									if dice.get(100, "Arboria Deer Density PYTHON") >= iDeerPercent:
++										continue
+ 									map.plot(x,y).setBonusType(iBonusType)
+ 						if (type_string in silver):
+ 							if pPlot.isHills():
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index e9decc19b..b67f04e27 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -39,39 +39,76 @@ def isSeaLevelMap():
+ 	return 0
+ 
+ def getNumCustomMapOptions():
+-	return 1
++	return 2
+ 
+ def getNumHiddenCustomMapOptions():
+ 	return 1
+ 
+ def getCustomMapOptionName(argsList):
+-	translated_text = unicode(CyTranslator().getText("TXT_KEY_MAP_WORLD_WRAP", ()))
++	[iOption] = argsList
++	option_names = {
++		0: "Deer Percentage",
++		1: "TXT_KEY_MAP_WORLD_WRAP"
++	}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+ def getNumCustomMapOptionValues(argsList):
+-	return 3
++	[iOption] = argsList
++	option_values = {
++		0: 6,
++		1: 3
++	}
++	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+-	iSelection = argsList[1]
+-	selection_names = ["TXT_KEY_MAP_WRAP_FLAT",
+-	                   "TXT_KEY_MAP_WRAP_CYLINDER",
+-	                   "TXT_KEY_MAP_WRAP_TOROID"]
+-	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0: {
++			0: "0%",
++			1: "10%",
++			2: "25%",
++			3: "50%",
++			4: "75% (recommended)",
++			5: "100%"
++		},
++		1: {
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++		}
++	}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+ 	
+ def getCustomMapOptionDefault(argsList):
+-	return 0
++	[iOption] = argsList
++	option_defaults = {
++		0: 4, # 75%
++		1: 0
++	}
++	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+-	return false
++	[iOption] = argsList
++	option_random = {
++		0: false,
++		1: false
++	}
++	return option_random[iOption]
+ 
+ def getWrapX():
+ 	map = CyMap()
+-	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
++	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
+ 	
+ def getWrapY():
+ 	map = CyMap()
+-	return (map.getCustomMapOption(0) == 2)
++	return (map.getCustomMapOption(1) == 2)
++
++def getDeerPercent():
++	map = CyMap()
++	deer_percents = (0, 10, 25, 50, 75, 100)
++	return deer_percents[map.getCustomMapOption(0)]
+ 
+ def getTopLatitude():
+ 	return 90
+@@ -597,6 +634,7 @@ def addBonusType(argsList):
+ 			iDeerTop2 = food.getHeightFromPercent(52)
+ 			iDeerBottom3 = food.getHeightFromPercent(73)
+ 			iDeerTop3 = food.getHeightFromPercent(77)
++			iDeerPercent = getDeerPercent()
+ 
+ 			for y in range(iH):
+ 				for x in range(iW):
+@@ -609,7 +647,9 @@ def addBonusType(argsList):
+ 						foodVal = food.getHeight(x,y)
+ 						if (type_string in deer):
+ 							if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isFlatlands():
+-								if (foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3):
++								if iDeerPercent > 0 and ((foodVal >= iDeerBottom1 and foodVal <= iDeerTop1) or (foodVal >= iDeerBottom2 and foodVal <= iDeerTop2) or (foodVal >= iDeerBottom3 and foodVal <= iDeerTop3)):
++									if dice.get(100, "Boreal Deer Density PYTHON") >= iDeerPercent:
++										continue
+ 									map.plot(x,y).setBonusType(iBonusType)
+ 						if (type_string in gems):
+ 							if pPlot.isHills():
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d73a956f3..68a100a63 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -345,8 +345,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Maps
+ 
+-- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps).
++- (Requires AdvCiv-SAS 5444+) **Deer percentage:** added a Deer percentage tuning **option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**.
++- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+ - (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+ - (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9285

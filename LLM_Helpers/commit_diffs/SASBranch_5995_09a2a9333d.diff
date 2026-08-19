@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5995
+# Commit: 09a2a9333d64c1255923fc529ef2cfd2233597ea
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 08b51062869d340dbc37df3596cc0bd9cb461d28
+# Title: Expand K-Mod AI citizen fallback to apply context-approved modest food trades
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	3	CvGameCoreDLL/CvCityAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 39ff280d9..ef8c85305 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13995,8 +13995,9 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 
+ 		// <!-- custom: If K-Mod's fast approximate prefilter gives up, try one guarded direct plot-to-plot fallback.
+ 		// The raw 3F + 2H + 1C diagnostic proved too naive for final behavior, but it is useful as a cheap suspicion filter.
+-		// Only plot pairs that are strict yield upgrades, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
++		// Only plot pairs that are strict yield upgrades, modest food gains with tightly limited production/commerce losses, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
+ 		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
++		// <!-- custom: Map 428 still logged 3,702 plot-to-plot contextual-miss records; recurring high-value cases worked 2F/1H/1C instead of 3F/0H/1C or 3F/1H/1C instead of 4F/0H/1C because the approximate prefilter undervalued one additional food. Test the narrow at-least +1F for at most -1H/-2C pattern here, but require the full city-aware comparison below to approve it. (GPT-5.5) -->
+ 		// <!-- custom: Human cities reach AI_juggleCitizens only while citizen automation is enabled; optionally share this safe fallback without changing manual citizen assignments. (GPT-5.5) -->
+ 		static bool const bHumanCitizenPlotFallback = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE");
+ 		if (!bTakeNewJob && (!isHuman() || bHumanCitizenPlotFallback))
+@@ -14022,9 +14023,10 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 					int const iCommerceDelta = kUnworkedPlot.getYield(YIELD_COMMERCE) - kWorkedPlot.getYield(YIELD_COMMERCE);
+ 					bool const bStrictYieldUpgrade = (iFoodDelta >= 0 && iProductionDelta >= 0 && iCommerceDelta >= 0 && (iFoodDelta > 0 || iProductionDelta > 0 || iCommerceDelta > 0));
+ 					int const iRaw321Delta = 3 * iFoodDelta + 2 * iProductionDelta + iCommerceDelta;
++					bool const bModestFoodTrade = (iFoodDelta >= 1 && iProductionDelta >= -1 && iCommerceDelta >= -2);
+ 					bool const bLargeFoodCommerceGain = (iFoodDelta >= 2 && iCommerceDelta >= 3 && iProductionDelta >= -3);
+ 					bool const bLargeRawGainWithoutFoodLoss = (iFoodDelta >= 0 && iProductionDelta >= -2 && iRaw321Delta >= 4);
+-					if (!bStrictYieldUpgrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
++					if (!bStrictYieldUpgrade && !bModestFoodTrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
+ 						continue;
+ 
+ 					if (iFoodPerTurn + kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD) + iStarvingAllowance < 0)
+@@ -14039,7 +14041,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 						if (bLogCitizenFallback)
+ 						{
+ 							iBestFallbackRaw321Delta = iRaw321Delta;
+-							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS"));
++							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bModestFoodTrade ? "MODEST_FOOD_TRADE" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS")));
+ 						}
+ 						bestFallbackWorked = workedFallback;
+ 						bestFallbackUnworked = unworkedFallback;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 0de7cdc94..f487ba7da 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -194,6 +194,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - If happiness room is **high**, push growth harder: favor food tiles more, deemphasize hammers (unless **food is currently production**). See [KI#40](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2-if-we-are-high-in-happiness-favour-food-tiles-much-more-and-hammer-tiles-much-less-if-happiness-is-really-high-favour-growth-dynamically-and-plot-allocation-of-these-the-more-we-can-afford-it-even-if-production-is-slightly-reduced-short-term-as-a-result-it-auto-corrects-at-high-happiness-with-seemingly-much-stronger-ai-and-developped-cities-as-a-result-excluded-if-food-is-production-eg-worker-settler-etc-if-i-am-not-mistaken-but).
+ - (Requires AdvCiv-SAS 5927+) Update: now mitigated/halted by **high food loss from unhealthiness**, where it is inefficient to grow more (e.g., York size 25 with 25 health 36 unhealth (-11 food) and 39 happy 27 unhappy, +3 food per turn still, should not grow more and work specialists or other yields than food rather to increase efficiency).
+ - (Requires AdvCiv-SAS 5989+) **Recheck and reassign citizens to safe, clearly better unworked plots:** K-Mod could keep a weaker worked (i.e. assigned to one population in city) plot because its quick initial estimate overlooked another plot that its full city-aware comparison considered better. If ordinary citizen allocation finds no change, the **AI now rechecks plots that improve at least one yield without reducing any**, **trade some production for a large food/commerce gain**, or otherwise **offer a substantial overall gain without losing food**. It switches **only when** the full city-aware valuation confirms the change is **beneficial**, never when the swap would cause starvation, and does not immediately reverse a plot assigned earlier in the same update. The newly added `SAS_BBAI_CITIZEN_LOG_LEVEL` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target. (Requires AdvCiv-SAS 5990+) Note: for convenience, human cities use the same fallback by default (tunable) through `SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE`, but only while citizen automation is enabled; manual citizen assignments remain untouched.
++- (Requires AdvCiv-SAS 5995+) **Recheck modest food trades missed by K-Mod's quick plot estimate:** Additionally to the previous change, BBAI logging still found recurring high-value cases such as working **2 food / 1 hammer / 1 commerce** instead of **3 food / 0 hammers / 1 commerce**, or **3 food / 1 hammer / 1 commerce** instead of **4 food / 0 hammers / 1 commerce**. The fallback now also considers an unworked plot that provides at least **+1 food** while losing no more than **1 hammer and 2 commerce**, but reassigns the population only when the full city-aware comparison confirms that the trade is beneficial and the existing starvation/stability safeguards pass. Across directionally comparable but diverging map-428 BBAI runs through turn 348, this made 780 approved modest-food trades; unresolved records matching the new pattern fell from 1,460 to 0, all remaining plot-to-plot contextual-miss records fell from 3,702 to 2,404, and those valued above 1,000 fell from 762 to 162.
+ 
+ #### City Production (AI)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=7544

@@ -1,0 +1,148 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1261
+# Commit: d0a846bce6e73d5208181ba36db38f688a6a6467
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ccf5d7b95d5a7878f05f56e91ba8aac57a9599d2
+# Title: v0.84: 2 serious bugs fixed * Bugfix concerning change 028 (submarines as escorts). The bug had given away the positions of foreign invisible units to the pl...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+4	4	Assets/xml/Text/CIV4GameText_advc.008d.xml
+22	13	CvGameCoreDLL/CvPlayerAI.cpp
+12	4	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvTeam.cpp
+-	-	manual_0.83.pdf
+-	-	manual_0.84.pdf
+ delete mode 100644 manual_0.83.pdf
+ create mode 100644 manual_0.84.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 3eeb7d353..32eeb82ab 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -124,11 +124,11 @@
+ <!-- advc.310 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_2</Tag>
+-	<English>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT].</English>
+-	<French>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT].</French>
++	<English>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with Raging Barbarians.</English>
++	<French>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with Raging Barbarians.</French>
+ 	<German>(AdvCiv) Durch ihre Handelsrouten-F�higkeit ist die Gro�e (Chinesische) Mauer auch in Spielen ohne Barbaren erw�genswert. Bei Einstellung "W�tende Barbaren" hat die Mauer diese F�higkeit allerdings nicht.</German>
+-	<Italian>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT].</Italian>
+-	<Spanish>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT].</Spanish>
++	<Italian>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with Raging Barbarians.</Italian>
++	<Spanish>(AdvCiv) The trade route ability of the [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] should make it worth considering even in games without Barbarians. It does not have this ability, though, in games with Raging Barbarians.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.306 -->
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5e6bd6cd9..1f6296916 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4727,19 +4727,28 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves
+ 								break;
+ 							}
+ 						}
+-
+-						if (pLoopUnit->isEnemy(eTeam))
+-						{
+-							if (pLoopUnit->canAttack())
+-							{
+-								if (!(pLoopUnit->isInvisible(eTeam, false)))
+-								{
+-								    if (pLoopUnit->canMoveOrAttackInto(pPlot))
+-								    {	// <advc.104>
+-										if(enemyId == NO_PLAYER || pLoopUnit->getOwnerINLINE() == enemyId)
+-											plotUnits.push_back(pLoopUnit);
+-									}
+-								}
++						// <advc.003> Some indentation removed
++						if (pLoopUnit->isEnemy(eTeam) && pLoopUnit->canAttack() &&
++								!pLoopUnit->isInvisible(eTeam, false)) {
++							// </advc.003>
++							/*  <advc.001> AI_getPlotDanger gets called during our
++								turn, and we want to know if the hostile pLoopUnit
++								will be able to attack on its owner's next turn.
++								Therefore, shouldn't check isMadeAttack, but
++								that's what canMoveOrAttackInto does. The only
++								useful thing it does is check impassable terrain
++								(though only for pPlot, not even the path), which
++								could be helpful for sea units. Therefore keep
++								the check for non-land units (despite the
++								potential problem with isMadeAttack).
++								Fwiw, Warlords didn't have this check at all;
++								added in BtS. */
++						if((pLoopUnit->getDomainType() == DOMAIN_LAND &&
++								!pPlot->isWater()) || // </advc.001>
++								pLoopUnit->canMoveOrAttackInto(pPlot))
++							{	// <advc.104>
++								if(enemyId == NO_PLAYER || pLoopUnit->getOwnerINLINE() == enemyId)
++									plotUnits.push_back(pLoopUnit);
+ 							}
+ 						}
+ 					}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9c1d1dce6..090f3c5bf 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -783,13 +783,21 @@ void CvPlot::updateCenterUnit()
+ 	} */ // disabled by K-Mod. I don't think its relevent whether or not the best defender can move.
+ 
+ 	if (getCenterUnit() == NULL)
+-	{
+-		setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit()));
++	{	// <advc.028>
++		CvUnit* bestDef = getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit());
++		if(bestDef != NULL && !bestDef->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
++			setCenterUnit(bestDef);
++		//setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit()));
++		// (Replaced by the above) // </advc.028>
+ 	}
+ 
+ 	if (getCenterUnit() == NULL)
+-	{
+-		setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer()));
++	{	// <advc.028>
++		CvUnit* bestDef = getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer());
++		if(bestDef != NULL && !bestDef->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
++			setCenterUnit(bestDef);
++		//setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer()));
++		// (Replaced by the above) // </advc.028>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 047dc44be..5782a9ee3 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4452,6 +4452,7 @@ int CvTeam::turnsOfForcedPeaceRemaining(TeamTypes tId) const {
+ 		TeamTypes two = TEAMREF(d->getSecondPlayer()).getMasterTeam();
+ 		if(((one == ourMasterId && two == theirMasterId) ||
+ 				(one == theirMasterId && two == ourMasterId)) &&
++				d->headFirstTradesNode() != NULL &&
+ 				d->headFirstTradesNode()->m_data.m_eItemType == TRADE_PEACE_TREATY)
+ 			r = std::max(r, d->turnsToCancel());
+ 	}
+
+[PATCH OMITTED] file=a/manual_0.83.pdf b/manual_0.83.pdf reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH OMITTED] file=a/manual_0.84.pdf b/manual_0.84.pdf reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=4 omittedFiles=3 embeddedPatchBytes=6537

@@ -1,0 +1,130 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5631
+# Commit: b2c5c93edd1504e38dd16109bbd476bb5788380a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e27ca537c77fc8f95cb301d6b52dbb0b9bc5a367
+# Title: minor comment upscaling changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/BUG/Scoreboard.py
+6	0	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+1	0	Assets/Python/Screens/CvDomesticAdvisor.py
+1	0	Assets/Python/Screens/CvForeignAdvisor.py
+1	0	Assets/Python/Screens/CvInfoScreen.py
+1	0	Assets/Python/Screens/CvTechChooser.py
+1	0	Assets/Python/Screens/CvVictoryScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index f27641d13..ca6d2e6a1 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -24,6 +24,7 @@ import MonkeyTools # advc.085: For checking Ctrl key
+ import LayoutDict # advc.092
+ import CvScreensInterface # advc.092
+ from SASFontUtils import *
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ 
+ # Globals
+ ScoreOpt = BugCore.game.Scores
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index 7d125bfd7..e26303c69 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -50,6 +50,11 @@
+ #  THIS MATERIAL IS NOT MADE, GUARANTEED OR SUPPORTED BY THE PUBLISHER OF THE SOFTWARE OR ITS AFFILIATES. THIS MATERIAL IS RELEASED AS-IS. IN NO EVENT WILL THE AUTHOR BE LIABLE FOR SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES RESULTING FROM POSSESSION, USE OR MALFUNCTION OF THE SOFTWARE, INCLUDING DAMAGES TO PROPERTY, LOSS OF GOODWILL, COMPUTER FAILURE OR MALFUNCTION AND, TO THE EXTENT PERMITTED BY LAW, DAMAGES FOR PERSONAL INJURIES, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE AUTHOR'S LIABILITY SHALL NOT EXCEED THE ACTUAL PRICE PAID FOR USE OF THE MATERIAL. SOME STATES/COUNTRIES DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS AND/OR THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATIONS AND/OR EXCLUSION OR LIMITATION OF LIABILITY MAY NOT APPLY TO YOU. THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND YOU MAY HAVE OTHER RIGHTS THAT VARY FROM JURISDICTION TO JURISDICTION.
+ #
+ ###############################################################################################################
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
+ 
+ from CvPythonExtensions import *
+ 
+@@ -57,6 +62,7 @@ import PyHelpers
+ import CvUtil
+ import CvScreenEnums
+ from SASFontUtils import *
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base text tag (instead of BODY) in upscaled customizable-domestic UI text where feasible. (GPT-5.3-Codex) -->
+ import CvEventInterface
+ import Popup as PyPopup
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 38ca62270..3a97f5fab 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -9,6 +9,7 @@ import PlayerUtil
+ import TradeUtil
+ from SASFontUtils import *
+ from SASUtils import *
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base domestic-advisor text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ 
+ #	IMPORTANT INFORMATION
+ #
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index e8bac4fda..80907fba5 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -19,6 +19,7 @@ import CvScreenEnums
+ import math
+ from SASUtils import *
+ from SASFontUtils import *
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base advisor text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ 
+ ############################################
+ ### BEGIN CHANGES ENHANCED INTERFACE MOD ###
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 8728a5553..cfe23c1e3 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -24,6 +24,7 @@ from PyHelpers import PyPlayer
+ from SASUtils import *
+ from SASFontUtils import *
+ import SASTextScale
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base info-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ 
+ # <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
+ import Scoreboard
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 57d17a70b..3a60e8963 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -11,6 +11,7 @@ import ScreenInput
+ import CvScreenEnums
+ from SASFontUtils import *
+ from SASUtils import *
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base tech-chooser text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ import CvScreensInterface
+ 
+ TEXTURE_SIZE = 24
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 9e466ef73..8903fae00 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -23,6 +23,7 @@ import TechUtil
+ from SASFontUtils import *
+ import SASTextScale
+ from SASUtils import *
++# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base victory-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
+ import TraitUtil
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=5325

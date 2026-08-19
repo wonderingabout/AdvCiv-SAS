@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2700
+# Commit: a090097a024ae006630c62dcefa6cb7bab5fa102
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bf40bf8747f926ecce4bd58f2518072172e5bdf4
+# Title: Tweak MinDistanceFactor in starting site evaluation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	Assets/XML/GlobalDefines_advc.xml
+8	2	CvGameCoreDLL/CitySiteEvaluator.cpp
+13	2	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index c7a11ad6f..703a06da3 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -255,6 +255,13 @@
+         <iDefineIntVal>1</iDefineIntVal>
+     </Define>
+ 
++	<!-- advc.137: 12 in BtS. Recommended: 10 to match the
++		 higher default player counts in AdvCiv. -->
++	<Define>
++		<DefineName>STARTING_DISTANCE_PERCENT</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++
+ 	<!-- [advc.108]
+ 		 If set to 1 or greater, starting plots are improved ("normalized") as
+ 		 aggressively as in BtS. 0 or less (recommended) means that normalization
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index d87168246..01701530c 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2472,9 +2472,15 @@ int AIFoundValue::adjustToStartingSurroundings(int iValue) const
+ 		//this is too close so penalize again.
+ 		iR *= iMinDistanceFactor;
+ 		iR /= 1000;
+-		iR *= iMinDistanceFactor;
+-		iR /= 1000;
++		/*iR *= iMinDistanceFactor;
++		iR /= 1000;*/
++		// <advc.031> Squaring the iMinDistanceFactor/1000 ratio is too drastic
+ 	}
++	if (iMinDistanceFactor < 666)
++	{
++		iR *= iMinDistanceFactor;
++		iR /= 666;
++	} // </advc.031>
+ 	IFLOG logBBAI("%d from distance to other players", iR - iTempValue);
+ 	return iR;
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 475960bb9..abdf98111 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2493,10 +2493,21 @@ void CvGame::updateStartingPlotRange() const
+ 	iRange *= GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+ 	iRange /= 100;
+ 	int const iAlive = countCivPlayersAlive();
+-	iRange *= kMap.getLandPlots() / (std::max(GC.getInfo(kMap.getWorldSize()).
++	int const iLand = kMap.getLandPlots();
++	iRange *= iLand / (std::max(GC.getInfo(kMap.getWorldSize()).
+ 			getTargetNumCities(), 1) * iAlive);
+ 	iRange /= NUM_CITY_PLOTS;
+-	iRange += std::min((kMap.getNumAreas() + 1) / 2, iAlive);
++	// <advc.031> Replacing kMap.getNumAreas(). Tiny islands shouldn't matter.
++	int iMajorAreas = 0;
++	FOR_EACH_AREA(pArea)
++	{
++		if (pArea->getNumTiles() * iAlive > iLand)
++			iMajorAreas++;
++	}
++	if (iMajorAreas == 0)
++		iMajorAreas = iAlive;
++	// </advc.031>
++	iRange += std::min((iMajorAreas + 1) / 2, iAlive);
+ 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
+ 	iRange /= 100;
+ 	m_iStartingPlotRange = std::max(iRange, GC.getDefineINT("MIN_CIV_STARTING_DISTANCE"));
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2545

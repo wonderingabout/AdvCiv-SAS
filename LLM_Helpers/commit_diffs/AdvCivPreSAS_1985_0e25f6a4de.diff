@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1985
+# Commit: 0e25f6a4debbf77141a8c60545dde7c966818328
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 358a0ca8f3e9bcd2d96614364736bf3bb138ec38
+# Title: Fix recently introduced bug in FFreeListTrashArray::uninit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/FFreeListTrashArray.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/FFreeListTrashArray.cpp b/CvGameCoreDLL/FFreeListTrashArray.cpp
+index 66c5537e6..9fa0f37f0 100644
+--- a/CvGameCoreDLL/FFreeListTrashArray.cpp
++++ b/CvGameCoreDLL/FFreeListTrashArray.cpp
+@@ -85,7 +85,7 @@ void FFreeListTrashArray<T,AIType>::uninit()
+ 	if (m_pArray != NULL)
+ 	{
+ 		removeAll();
+-		delete[] m_pArray;
++		SAFE_DELETE_ARRAY(m_pArray);
+ 	}
+ 	// advc: Seems necessary. Don't know why it worked w/o this before the merge w/ FFreeListArrayBase.
+ 	m_iNumSlots = 0;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=498

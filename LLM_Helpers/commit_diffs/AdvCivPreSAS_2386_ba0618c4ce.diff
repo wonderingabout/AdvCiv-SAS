@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2386
+# Commit: ba0618c4ce0363142251c9fb417e8cec5c0ac3ee
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4e792b63c243c8b7b744a886ed2794bbf8ae02f8
+# Title: Slightly increase default frequency of Forest
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/CvMapGeneratorUtil.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 24b921c15..3dbb2c5ee 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -1230,7 +1230,8 @@ class TerrainGenerator:
+ 	# </advc.129c>
+ 	
+ class FeatureGenerator:
+-	def __init__(self, iJunglePercent=80, iForestPercent=60,
++	# advc.108: Default iForestPercent lowered from 60 - to compensate for fewer forests placed during normalization. (Smaller percentage leads to more forests.)
++	def __init__(self, iJunglePercent=80, iForestPercent=57,
+ 				 jungle_grain=5, forest_grain=6, 
+ 				 fracXExp=-1, fracYExp=-1):
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=645

@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3050
+# Commit: f0152a7f6c4420e02f9dc2bc54b67996a051cf36
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d8e42892d2c17f53e802dbc54da7c0a3906cf434
+# Title: Fix compilation errors in XML cache code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	CvGameCoreDLL/CvGlobals.cpp
+20	4	CvGameCoreDLL/CvInfo_Base.cpp
+2	2	CvGameCoreDLL/CvInfo_Civics.cpp
+13	7	CvGameCoreDLL/CvInfo_Civilization.cpp
+8	10	CvGameCoreDLL/CvInfo_Civilization.h
+2	2	CvGameCoreDLL/CvInfo_Tech.cpp
+9	2	CvGameCoreDLL/CvInfo_Terrain.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 5fd76362b..706c40ae2 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -1059,7 +1059,9 @@ namespace // advc
+ 		for (std::vector<T*>::iterator it = array.begin(); it != array.end(); ++it)
+ 		{
+ 			(*it)->read(pStream);
+-			setInfoTypeFromString((*it)->getType(), iIndex);
++			/*	advc (note): This function should be a CvGlobals member instead of
++				accessing the singleton instance. Well, this stuff is unused anyway. */
++			CvGlobals::getInstance().setInfoTypeFromString((*it)->getType(), iIndex);
+ 			++iIndex;
+ 		}
+ 
+@@ -1191,6 +1193,9 @@ bool CvGlobals::readDiplomacyInfoArray(FDataStreamBase* pStream)
+ 
+ void CvGlobals::writeDiplomacyInfoArray(FDataStreamBase* pStream)
+ {
++	/*	advc.003i (note): I don't see DiplomacyInfos in the files cached by BtS;
++		it might be that the EXE discards them. (For mods, I can't get the cache
++		to do anything anyway.) */
+ 	writeInfoArray(pStream, m_paDiplomacyInfo);
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 01691a46b..d5b5753d6 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -504,14 +504,30 @@ bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ void CvXMLInfo::read(FDataStreamBase* pStream)
+ {
+ 	CvInfoBase::read(pStream);
+-	pStream->Read((int)m_aiData.size(), m_aiData.data());
+-	pStream->Read((int)m_abData.size(), m_abData.data());
++	for (size_t i = 0; i < m_aiData.size(); i++)
++	{
++		short iVal;
++		pStream->Read(&iVal);
++		m_aiData[i] = iVal;
++	}
++	for (size_t i = 0; i < m_abData.size(); i++)
++	{
++		bool bVal;
++		pStream->Read(&bVal);
++		m_abData[i] = bVal;
++	}
+ }
+ 
+ void CvXMLInfo::write(FDataStreamBase* pStream)
+ {
+ 	CvInfoBase::write(pStream);
+-	pStream->Write((int)m_aiData.size(), m_aiData.data());
+-	pStream->Write((int)m_abData.size(), m_abData.data());
++	for (size_t i = 0; i < m_aiData.size(); i++)
++	{
++		pStream->Write(m_aiData[i]);
++	}
++	for (size_t i = 0; i < m_abData.size(); i++)
++	{
++		pStream->Write(m_abData[i]);
++	}
+ }
+ #endif // </advc.tag>
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index 9b4cd140c..ce7efd07e 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -212,7 +212,7 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+-	stream->Read(&m_eCivicOptionType);
++	stream->Read((int*)&m_eCivicOptionType);
+ 	stream->Read(&m_iAnarchyLength);
+ 	stream->Read(&m_iUpkeep);
+ 	stream->Read(&m_iAIWeight);
+@@ -252,7 +252,7 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iWarWearinessModifier);
+ 	stream->Read(&m_iFreeSpecialist);
+ 	stream->Read(&m_iTradeRoutes);
+-	stream->Read(&m_eTechPrereq);
++	stream->Read((int*)&m_eTechPrereq);
+ 	stream->Read(&m_iCivicPercentAnger);
+ 	stream->Read(&m_iMaxConscript);
+ 	stream->Read(&m_iStateReligionHappiness);
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 180b96e06..953e78beb 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -280,6 +280,7 @@ void CvCivilizationInfo::write(FDataStreamBase* stream)
+ 	stream->WriteString(m_iNumCityNames, m_paszCityNames);
+ }
+ #endif
++
+ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvInfoBase::read(pXML))
+@@ -661,6 +662,7 @@ const TCHAR* CvLeaderHeadInfo::getLeaderHead() const
+ 
+ 	return NULL;
+ }
++
+ #if ENABLE_XML_FILE_CACHE
+ void CvLeaderHeadInfo::read(FDataStreamBase* stream)
+ {
+@@ -913,6 +915,7 @@ void CvLeaderHeadInfo::write(FDataStreamBase* stream)
+ 	stream->Write(GC.getNumEraInfos(), m_piDiploWarMusicScriptIds);
+ }
+ #endif
++
+ const CvArtInfoLeaderhead* CvLeaderHeadInfo::getArtInfo() const
+ {
+ 	return ARTFILEMGR.getLeaderheadArtInfo( getArtDefineTag());
+@@ -1390,7 +1393,8 @@ void CvDiplomacyResponse::setDiplomacyText(int i, CvString szText)
+ 	FAssertBounds(0, getNumDiplomacyText(), i);
+ 	m_paszDiplomacyText[i] = szText;
+ }
+-/*#if ENABLE_XML_FILE_CACHE
++
++#if ENABLE_XML_FILE_CACHE
+ void CvDiplomacyResponse::read(FDataStreamBase* stream)
+ {
+ 	uint uiFlag=0;
+@@ -1425,8 +1429,9 @@ void CvDiplomacyResponse::write(FDataStreamBase* stream)
+ 	stream->Write(NUM_ATTITUDE_TYPES, m_pbAttitudeTypes);
+ 	stream->Write(NUM_DIPLOMACYPOWER_TYPES, m_pbDiplomacyPowerTypes);
+ 	stream->WriteString(m_iNumDiplomacyText, m_paszDiplomacyText);
+-}*/
+-//#endif
++}
++#endif
++
+ bool CvDiplomacyResponse::read(CvXMLLoadUtility* pXML)
+ {
+ 	pXML->SetVariableListTagPair(&m_pbCivilizationTypes, "Civilizations", GC.getNumCivilizationInfos());
+@@ -1504,8 +1509,9 @@ const TCHAR* CvDiplomacyInfo::getDiplomacyText(int i, int j) const
+ 	FAssertBounds(0, getNumDiplomacyText(i), j);
+ 	return m_pResponses[i]->getDiplomacyText(j);
+ }
+-//#if ENABLE_XML_FILE_CACHE
+-/*void CvDiplomacyInfo::read(FDataStreamBase* stream)
++
++#if ENABLE_XML_FILE_CACHE
++void CvDiplomacyInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+ 	uint uiFlag=0;
+@@ -1531,8 +1537,8 @@ void CvDiplomacyInfo::write(FDataStreamBase* stream)
+ 	stream->Write(iNumResponses);
+ 	for (int uiIndex = 0; uiIndex < iNumResponses; ++uiIndex)
+ 		m_pResponses[uiIndex]->write(stream);
+-}*/
+-//#endif
++}
++#endif
+ bool CvDiplomacyInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvInfoBase::read(pXML))
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 572e1782f..1b7c65351 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -433,11 +433,10 @@ public: // advc: All the const functions are exposed to Python (some const quali
+ 	const TCHAR* getDiplomacyText(int i) const;
+ 	const CvString* getDiplomacyText() const;
+ 	void setDiplomacyText(int i, CvString szText);
+-	// advc.003i: I don't think these were actually included in the XML cache
+-	//#if ENABLE_XML_FILE_CACHE
+-	/*void read(FDataStreamBase* stream);
+-	void write(FDataStreamBase* stream);*/
+-	//#endif
++	#if ENABLE_XML_FILE_CACHE
++	void read(FDataStreamBase* stream);
++	void write(FDataStreamBase* stream);
++	#endif
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
+@@ -472,11 +471,10 @@ public: // advc: All the const functions are exposed to Python
+ 	int getNumDiplomacyText(int i) const;
+ 
+ 	const TCHAR* getDiplomacyText(int i, int j) const;
+-	// advc.003i: I don't think these were actually included in the XML cache
+-	//#if ENABLE_XML_FILE_CACHE
+-	/*void read(FDataStreamBase* stream);
+-	void write(FDataStreamBase* stream);*/
+-	//#endif
++	#if ENABLE_XML_FILE_CACHE
++	void read(FDataStreamBase* stream);
++	void write(FDataStreamBase* stream);
++	#endif
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index 48b6ecf26..cdbdbfe21 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -264,13 +264,13 @@ void CvTechInfo::write(FDataStreamBase* stream)
+ 		int iOrTechPrereqs = getNumOrTechPrereqs();
+ 		stream->Write(iOrTechPrereqs);
+ 		if (iOrTechPrereqs > 0)
+-			stream->Write(iOrTechPrereqs, &m_aePrereqOrTechs[0]);
++			stream->Write(iOrTechPrereqs, (int*)&m_aePrereqOrTechs[0]);
+ 	}
+ 	{
+ 		int iAndTechPrereqs = getNumAndTechPrereqs();
+ 		stream->Write(iAndTechPrereqs);
+ 		if (iAndTechPrereqs > 0)
+-			stream->Write(iAndTechPrereqs, &m_aePrereqAndTechs[0]);
++			stream->Write(iAndTechPrereqs, (int*)&m_aePrereqAndTechs[0]);
+ 	} // </advc.003t>
+ 	stream->Write(NUM_COMMERCE_TYPES, m_piSpecialistExtraCommerce); // K-Mod
+ 	stream->Write(NUM_COMMERCE_TYPES, m_pbCommerceFlexible);
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 4e1315ca8..4a0fb5c2d 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -623,7 +623,11 @@ void CvBonusInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&uiFlag);
+ 
+ 	stream->Read((int*)&m_eBonusClassType);
+-	stream->Read(&m_iChar);
++	{
++		int iSymbol;
++		stream->Read(&iSymbol);
++		m_wcSymbol = toWChar(iSymbol);
++	}
+ 	stream->Read((int*)&m_eTechReveal);
+ 	stream->Read((int*)&m_eTechCityTrade);
+ 	stream->Read((int*)&m_eTechObsolete);
+@@ -673,7 +677,10 @@ void CvBonusInfo::write(FDataStreamBase* stream)
+ 	stream->Write(uiFlag);
+ 
+ 	stream->Write(m_eBonusClassType);
+-	stream->Write(m_iChar);
++	{
++		int iSymbol = m_wcSymbol;
++		stream->Write(iSymbol);
++	}
+ 	stream->Write(m_eTechReveal);
+ 	stream->Write(m_eTechCityTrade);
+ 	stream->Write(m_eTechObsolete);
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=8442

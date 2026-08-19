@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 439
+# Commit: b9679361a0653aebd5788d071750d938875cc458
+# History segment: K-Mod history
+# Parent used for diff: 80e49a59e1c98a691f429a3dee399e9b778e162d
+# Title: Move commands are now automatically canceled when the move reveals an obstacle which will increase the moves required to reach the destination.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	4	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 1a9de7d11..20058a66f 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3725,8 +3725,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ // Returns true if move was made...
+ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ {
+-	CvPlot* pDestPlot;
+-	CvPlot* pPathPlot;
++	KmodPathFinder final_path; // K-Mod
+ 
+ 	if (at(iX, iY))
+ 	{
+@@ -3737,11 +3736,13 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 	FAssert(headMissionQueueNode() != NULL);
+ 
+-	pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
++	CvPlot* pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+ 	FAssertMsg(canAllMove(), "canAllMove is expected to be true");
+ 
++	CvPlot* pPathPlot;
++
+ 	if (getDomainType() == DOMAIN_AIR)
+ 	{
+ 		if (!canMoveInto(pDestPlot))
+@@ -3763,7 +3764,6 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 		// K-Mod. I've added & ~MOVE_DECLARE_WAR so that if we need to declare war at this point, and haven't yet done so,
+ 		// the move will fail here rather than splitting the group inside groupMove.
+ 		// Also, I've change it to use a different pathfinder, to avoid clearing the path data - and to avoid OOS errors.
+-		KmodPathFinder final_path;
+ 		final_path.SetSettings(this, iFlags & ~MOVE_DECLARE_WAR);
+ 		if (!final_path.GeneratePath(pDestPlot))
+ 		{
+@@ -3798,6 +3798,20 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 
+ 	groupMove(pPathPlot, iFlags & MOVE_THROUGH_ENEMY, NULL, bEndMove);
+ 
++	// K-Mod. If the step we just took will make us change our path to something longer, then cancel the move.
++	// This prevents units from wasting all their moves by trying to walk around enemy units.
++	if (isHuman() && !bEndMove)
++	{
++		FAssert(final_path.GetEndNode());
++		std::pair<int, int> old_moves = std::make_pair(final_path.GetEndNode()->m_iData2, -final_path.GetEndNode()->m_iData1);
++		if (!final_path.GeneratePath(pDestPlot)
++			|| std::make_pair(final_path.GetEndNode()->m_iData2, -final_path.GetEndNode()->m_iData1) > old_moves)
++		{
++			clearMissionQueue();
++		}
++	}
++	// K-Mod end
++
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 2689ada20..061d815a8 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -130,7 +130,7 @@ bool KmodPathFinder::GeneratePath(const CvPlot* pToPlot)
+ int KmodPathFinder::GetPathTurns() const
+ {
+ 	FAssert(end_node);
+-	return end_node->m_iData2;
++	return end_node ? end_node->m_iData2 : 0;
+ }
+ 
+ CvPlot* KmodPathFinder::GetPathFirstPlot() const
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2816

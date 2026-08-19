@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 799
+# Commit: 209efdc6b1c9170265cdd436b1b2c30b203faf30
+# History segment: K-Mod history
+# Parent used for diff: 3a93b4111242e3bb4838f7bead33f3f6a33cbbb5
+# Title: Ship of the Line now can be built with copper as well as with iron.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	2	Assets/xml/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index 8ebba8203..4d905b5da 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -18563,8 +18563,13 @@
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_IRON</BonusType>
+-			<PrereqBonuses/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>BONUS_COPPER</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=658

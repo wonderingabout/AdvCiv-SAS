@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2941
+# Commit: ba0cdf6c2cef550d4a5245c303bcc79d6fd18eaf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 48a5528964624c17f25e830d016ba94dd4056a3c
+# Title: Let UWAI use team's average MakePeaceRand for peace threshold
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	4	CvGameCoreDLL/UWAIAgent.cpp
+4	3	CvGameCoreDLL/UWAIAgent.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index eb828d064..826fd15e2 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1071,7 +1071,7 @@ int UWAI::Team::peaceThreshold(TeamTypes targetId) const {
+ 	if(!target.AI_isChosenWar(agentId))
+ 		r -= 5;
+ 	// This puts the term between -30 and 10
+-	r += (1 - leaderUWAI().prideRating()) * 40 - 30;
++	r += (1 - leaderUWAI().prideRating(agent.AI_makePeaceRand())) * 40 - 30;
+ 	r += std::min(15.0, (agent.AI_getWarSuccess(targetId) +
+ 				2 * target.AI_getWarSuccess(agentId)) /
+ 				(0.5 * GC.getWAR_SUCCESS_CITY_CAPTURING()) +
+@@ -2652,12 +2652,15 @@ double UWAI::Civ::diploWeight() const {
+ 	return 0.25;
+ }
+ 
+-double UWAI::Civ::prideRating() const {
++double UWAI::Civ::prideRating(int makePeaceRand) const {
+ 
+ 	// Fixme: Should be a Team function and call CvTeamAI::AI_makePeaceRand
+ 	CvPlayerAI const& we = GET_PLAYER(weId);
+ 	if(we.isHuman())
+ 		return 0;
+-	CvLeaderHeadInfo& lh = GC.getInfo(we.getPersonalityType());
+-	return ::dRange(lh.getMakePeaceRand() / 110.0 - 0.09, 0.0, 1.0);
++	if (makePeaceRand < 0) {
++		CvLeaderHeadInfo& lh = GC.getInfo(we.getPersonalityType());
++		makePeaceRand = lh.getMakePeaceRand();
++	}
++	return ::dRange(makePeaceRand / 110.0 - 0.09, 0.0, 1.0);
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index 7e590bc48..452710de1 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -232,9 +232,10 @@ public:
+ 	/*  Between 0.25 (Tokugawa) and 1.75 (Mansa Musa, Zara Yaqob). A measure
+ 		of how much a leader cares about being generally liked in the world. */
+ 	double diploWeight() const;
+-	/*  Between 0 (Pacal and several others) and 1 (Sitting Bull). How much a
+-		leader insists on reparations to end a war. Based on MakePeaceRand. */
+-	double prideRating() const;
++	/*	Between 0 (Pacal and several others) and 1 (Sitting Bull). How much a
++		leader insists on reparations to end a war. Based on MakePeaceRand
++		(from our leader's personality unless another value is given by the caller). */
++	double prideRating(int makePeaceRand = -1) const;
+ 
+ private:
+ 	// Probability assumed by the AI if this civ is human
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2186

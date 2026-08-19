@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2440
+# Commit: 36c163aa61dc7abd22666e4d3b63d9f67e04599c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cae95c07f255996ef0cd34a7009742ae22ce6093
+# Title: Discourage starting sites near land-land area boundaries
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	0	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	0	CvGameCoreDLL/CitySiteEvaluator.h
+1	0	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index ababaa453..ce6f889f7 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -723,6 +723,8 @@ short AIFoundValue::evaluate()
+ 		iValue /= 100;
+ 		IFLOG if(iModifier!=100) logBBAI("Times %d percent for starting on a resource", iModifier);
+ 	}
++	if (kSet.isStartingLoc())
++		iValue = adjustToLandAreaBoundary(iValue);
+ 	if (kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing())
+ 	{	// <advc.027
+ 		if (kSet.isIgnoreStartingSurroundings())
+@@ -2315,6 +2317,48 @@ int AIFoundValue::evaluateGoodies(int iGoodies) const
+ 	return iGoodies * 50;
+ }
+ 
++/*	advc.027: Starting near a mountain chain that separates a landmass
++	into two sizable areas is bad b/c normalization may (or may not)
++	remove that obstacle; makes the site difficult to evaluate. */
++int AIFoundValue::adjustToLandAreaBoundary(int iValue) const
++{
++	std::set<int> otherLandAreas;
++	bool bFoundImpassable = false;
++	int const iReprArea = kArea.getRepresentativeArea();
++	/*	Range corresponds to CvGame::normalizeRemovePeaks. Need to go one farther
++		b/c the boundary itself takes up one tile and could belong to kArea. */
++	int const iPeakRemovalRange = 3;
++	for (SquareIter itPlot(kPlot, iPeakRemovalRange + 1); itPlot.hasNext(); ++itPlot)
++	{
++		if (!itPlot->isArea(kArea) &&
++			itPlot->getArea().getRepresentativeArea() == iReprArea)
++		{
++			otherLandAreas.insert(itPlot->getArea().getID());
++		}
++		if (itPlot->isImpassable() && itPlot.currStepDist() <= iPeakRemovalRange)
++			bFoundImpassable = true;
++	}
++	if (!bFoundImpassable)
++		return iValue;
++	int iOtherLandAreaSize = 0;
++	for (std::set<int>::const_iterator it = otherLandAreas.begin();
++		it != otherLandAreas.end(); ++it)
++	{
++		iOtherLandAreaSize += GC.getMap().getArea(*it)->getNumTiles();
++	}
++	if (iOtherLandAreaSize <= 0)
++		return iValue;
++	int iAreaSize = kArea.getNumTiles();
++	scaled rAdjust;
++	if (iOtherLandAreaSize >= iAreaSize)
++	{
++		rAdjust = scaled(iAreaSize, iOtherLandAreaSize);
++		rAdjust.increaseTo(fixp(1/4.));
++	}
++	else rAdjust = 1 - scaled(iOtherLandAreaSize, 2 * iAreaSize);
++	return (iValue * rAdjust).round();
++}
++
+ // Taking into account tiles beyond the city radius
+ int AIFoundValue::adjustToStartingSurroundings(int iValue) const
+ {
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index cf0480fb7..a44a8ae4f 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -184,6 +184,7 @@ private:
+ 			int iLandTiles) const;
+ 	int evaluateDefense() const;
+ 	int evaluateGoodies(int iGoodies) const;
++	int adjustToLandAreaBoundary(int iValue) const;
+ 	int adjustToStartingSurroundings(int iValue) const;
+ 	int adjustToStartingChoices(int iValue) const;
+ 	int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 34bb6a099..080078315 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1484,6 +1484,7 @@ void CvGame::normalizeRemovePeaks()  // advc: refactored
+ 		CvPlot* pStartingPlot = itPlayer->getStartingPlot();
+ 		if (pStartingPlot == NULL)
+ 			continue;
++		// advc 027 (note): Range corresponds to AIFoundValue::adjustToLandAreaBoundary
+ 		for (SquareIter itPlot(*pStartingPlot, 3); itPlot.hasNext(); ++itPlot)
+ 		{
+ 			if (itPlot->isPeak() &&
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3416

@@ -1,0 +1,1501 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5284
+# Commit: 8d9804971fa35265a5ba64874831d4db765101f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6b0135ca12d140d406e2fb336560f5f97017b41d
+# Title: GPT-Codex-5.2: summarize some .py comments
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	.gitattributes
+1	1	Assets/Python/BUG/AttitudeUtil.py
+1	1	Assets/Python/BUG/BugPath.py
+1	1	Assets/Python/BUG/BugUtil.py
+1	1	Assets/Python/BUG/Scoreboard.py
+1	1	Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
+3	3	Assets/Python/BUG/TraitUtil.py
+2	2	Assets/Python/BUG/configobj.py
+1	1	Assets/Python/Contrib/Civ4lerts.py
+1	1	Assets/Python/Contrib/CvModName.py
+3	3	Assets/Python/Contrib/EventSigns.py
+1	1	Assets/Python/Contrib/FavoriteCivicDetector.py
+2	2	Assets/Python/Contrib/RandomNameUtils.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+2	1	Assets/Python/Contrib/StatusDumpEventManager.py
+1	1	Assets/Python/Contrib/TechWindow.py
+1	1	Assets/Python/Contrib/UnitUpgradesGraph.py
+4	3	Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+11	11	Assets/Python/EntryPoints/CvRandomEventInterface.py
+6	6	Assets/Python/Screens/CvDomesticAdvisor.py
+7	7	Assets/Python/Screens/CvInfoScreen.py
+6	6	Assets/Python/Screens/CvMainInterface.py
+16	19	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	1	Assets/Python/Screens/CvPediaBonus.py
+1	1	Assets/Python/Screens/CvReligionScreen.py
+18	18	Assets/Python/Screens/CvTechChooser.py
+4	4	Assets/Python/Screens/PLE.py
+20	0	LLM-guidelines.md
+23	11	README.md
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG
+16	19	flatten_handicap_info_to_csv_and_md.py
+9	9	flatten_leaders_data_to_csv.py
+38	41	generate_leaders_data.py
+ create mode 100644 LLM-guidelines.md
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index abcec0bd4..2614027a7 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -29,6 +29,13 @@
+ *.pdn  export-ignore
+ *.PDN  export-ignore
+ 
++# <!-- custom: LLM info -->
++/LLM-guidelines.md  export-ignore
++
++/flatten_leaders_data_to_csv.py
++/leaders_data_to_csv_legend_advciv-sas.md
++/leaders_data_to_csv_advciv-sas.csv
++
+ /scan_xml_duplicates-3.3.py                                             export-ignore
+ /Long_Comments/CIV4BuildingInf_os_Doto_mod.txt                          export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
+
+diff --git a/Assets/Python/BUG/AttitudeUtil.py b/Assets/Python/BUG/AttitudeUtil.py
+index 984fbea9a..72d869754 100644
+--- a/Assets/Python/BUG/AttitudeUtil.py
++++ b/Assets/Python/BUG/AttitudeUtil.py
+@@ -134,7 +134,7 @@ def getAttitudeIcon (nPlayer, nTarget):
+ def getAttitudeCount (nPlayer, nTarget):
+ 	# Returns the total attitude modifiers nPlayer has toward nTarget.
+ 	sAttStr = getAttitudeString(nPlayer, nTarget)
+-	# <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt's answer and my idea too anyways etc -->
++	# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 	if sAttStr is None:
+ 		#return
+ 		return 0 # advc.001 (from Inthegrave's mod, fixed by Toffer)
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index 00cd6236c..b8829d903 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -79,7 +79,7 @@ import shutil
+ 
+ DATA_FOLDER = "Data"
+ SETTINGS_FOLDER = "Settings"
+-# <!-- custom: not sure this refers to same folder where i moved the info to, but renamed BUG Doc to BUG_Doc for easy linking as nicely recommended by chatgpt 5.1 thanks and also for consistency anyways etc. -->
++# <!-- custom: renamed BUG Doc to BUG_Doc for consistent naming/easy linking; verify it matches the folder. Credit: ChatGPT 5.1. (GPT-5.2-Codex (summarized)) -->
+ INFO_FOLDER = "BUG_Doc" # advc.009: was "Info", but it's only about BUG
+ 
+ MODS_FOLDER = "Mods"
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index ea8566488..e33cfacbe 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -814,7 +814,7 @@ def onSwitchHotSeatPlayer(argsList):
+ def isNoEspionage():
+ 	# Returns True if using at least 3.17 and the 'No Espionage' option is enabled.
+ 	#
+-	# Depre<!-- custom: c anyways etc... -->ated: Use GameUtil.isEspionage() instead.
++	# Deprecated: Use GameUtil.isEspionage() instead. (GPT-5.2-Codex (summarized)) -->
+ 	#
+ 	try:
+ 		return gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE)
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index b36d2dac2..a8afce72d 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -508,7 +508,7 @@ class Scoreboard:
+ 			if k == '-':
+ 				spacing = 0
+ 				continue
+-			# <!-- custom: no need to import string just to have the string of numbers, as explained to me by chatgpt, use a string directly instead anyways etc, was as below anyways etc -->
++			# <!-- custom: avoid importing string just for digits; use a literal instead (was string.digits). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 			#if k[0] in string.digits or k[0] == '-':
+ 			if k[0] in "0123456789" or k[0] == '-':
+ 				spacing = int(k)
+
+diff --git a/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py b/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
+index 1ea9f869d..a70450e4f 100644
+--- a/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
+@@ -25,7 +25,7 @@ class BugUnitNameOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, center, "MiscHover__UpdateUnitNameOnUpgrade")
+ 		self.addCheckbox(screen, right, "UnitNaming__UseAdvanced")
+ 
+-		# <!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
++		# <!-- custom: add or modify unit combat types. (GPT-5.2-Codex (summarized)) -->
+ 		columnL, columnR = self.addTwoColumnLayout(screen, column, "UnitNaming")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Default")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_AIR_BOMBER")
+
+diff --git a/Assets/Python/BUG/TraitUtil.py b/Assets/Python/BUG/TraitUtil.py
+index 4cbf94242..538a49e31 100644
+--- a/Assets/Python/BUG/TraitUtil.py
++++ b/Assets/Python/BUG/TraitUtil.py
+@@ -28,14 +28,14 @@ def init():
+ 	addTrait("AGGRESSIVE", game.getSymbolID(FontSymbols.STRENGTH_CHAR), "Art/Interface/Buttons/Promotions/Combat1.dds")
+ 	addTrait("CHARISMATIC", game.getSymbolID(FontSymbols.HAPPY_CHAR), "Art/Interface/Buttons/TechTree/MassMedia.dds")
+ 	addTrait("CREATIVE", gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar(), "Art/Interface/Buttons/TechTree/Music.dds")
+-	# <!-- custom: TRAIT_EXPANSIVE is now removed so disabled this but anyways etc -->
++	# <!-- custom: TRAIT_EXPANSIVE removed; keep entry disabled. (GPT-5.2-Codex (summarized)) -->
+ 	#addTrait("EXPANSIVE", game.getSymbolID(FontSymbols.HEALTHY_CHAR), "Art/Interface/Buttons/Actions/Heal.dds")
+ 	addTrait("FINANCIAL", gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), "Art/Interface/Buttons/TechTree/Banking.dds")
+-	# <!-- custom: change trait char, was as commented out below anyways etc -->
++	# <!-- custom: change trait char (previous value below). (GPT-5.2-Codex (summarized)) -->
+ 	#addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
+ 	addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
+ 	addTrait("INDUSTRIOUS", gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), "Art/Interface/Buttons/TechTree/Industrialism.dds")
+-	# <!-- custom: change trait char, was as commented out below anyways etc -->
++	# <!-- custom: change trait char (previous value below). (GPT-5.2-Codex (summarized)) -->
+ 	#addTrait("ORGANIZED", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
+ 	addTrait("ORGANIZED", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
+ 	addTrait("PHILOSOPHICAL", game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), "Art/Interface/Buttons/TechTree/Philosophy.dds")
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 07be7ae4b..648e64d49 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -19,8 +19,8 @@
+ # advc: One bugfix (see next advc comment). Unsure if the BUG devs had modified
+ # this module at all.
+ #
+-# <!-- custom: commenting out the test docstrings if i am not mistaken that they are such as per / based on my understanding of chatgpt's explanation anyways etc, causes errors ingame, so only commenting out textual info rather when seems fine to do so (counter example may be expected indents if class is empty or such if i am not mistaken which has a VS Code warning and possibly ingame related error too if i remember correctly but didn't check in detail was quick glance of it in this case but anyways etc, then not commenting out anyways etc) -->
+-# <!-- custom: long changelog notes in particular giant docstring moved to (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\configobj_changelog_py_notes.txt , see there for details or/and the file content anyways etc -->
++# <!-- custom: commenting out test docstrings causes in-game errors; only remove textual info when safe, and keep docstrings if an empty class would need indentation. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
++# <!-- custom: long changelog docstring moved to (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\configobj_changelog_py_notes.txt . (GPT-5.2-Codex (summarized)) -->
+ 
+ from __future__ import generators
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 9c2a380fd..4f4676b0c 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -17,7 +17,7 @@
+ ## Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ ## 02110-1301 USA
+ ## advc (note): The license is in the BUG Doc folder.
+-## <!-- custom: not sure this refers to same folder where i moved the info to, but renamed BUG Doc to BUG_Doc for easy linking as nicely recommended by chatgpt 5.1 thanks and also for consistency anyways etc. -->
++## <!-- custom: renamed BUG Doc to BUG_Doc for consistent naming/easy linking; verify it matches the folder. Credit: ChatGPT 5.1. (GPT-5.2-Codex (summarized)) -->
+ 
+ __version__ = "$Revision: 1.2 $"
+
+diff --git a/Assets/Python/Contrib/CvModName.py b/Assets/Python/Contrib/CvModName.py
+index 03e7df750..73e99c89d 100644
+--- a/Assets/Python/Contrib/CvModName.py
++++ b/Assets/Python/Contrib/CvModName.py
+@@ -1,6 +1,6 @@
+ #CvModName.py
+ 
+-# <!-- custom: change mod name displayed ingame from "AdvCiv Mod" to as of now "AdvCiv-SAS Mod", so that it now also appears as such in the "Settings" ingame menu (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
++# <!-- custom: change the in-game mod name from "AdvCiv Mod" to "AdvCiv-SAS Mod" so it shows up in the Settings panel too. (GPT-5.2-Codex (summarized)) -->
+ modName = "AdvCiv-SAS" # advc.009
+ displayName = "AdvCiv-SAS" #advc.009
+ modVersion = ""
+
+diff --git a/Assets/Python/Contrib/EventSigns.py b/Assets/Python/Contrib/EventSigns.py
+index 7d234d311..2bad62b7e 100644
+--- a/Assets/Python/Contrib/EventSigns.py
++++ b/Assets/Python/Contrib/EventSigns.py
+@@ -278,7 +278,7 @@ class MapSigns:
+ 		if not thisKey:
+ 			BugUtil.warn("MapSigns.storeSign() could not determine valid keyname for Plot %s." % (str(pPlot)))
+ 			return False
+-		# <!-- custom: fix ruff rule as per chatgpt's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
++		# <!-- custom: ruff E713: use "key not in x" instead of "not key in x". Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 		if thisKey not in self.plotDict:
+ 			self.plotDict[thisKey] = PlotSigns(pPlot)
+ 		self.plotDict[thisKey].setSign(ePlayer, szCaption)
+@@ -304,7 +304,7 @@ class MapSigns:
+ 			BugUtil.debug("MapSigns.displaySign() could not show sign; no caption found for player %d on plot %s" % (ePlayer, str(thisKey)))
+ 			return False
+ 		if ePlayer == -1:
+-			# <!-- custom: fixing ruff rule F507 (2 placeholders but 3 subsitutions by adding full debug instead to be safe as i don't know for sure or easily +/- reliably which are which so putting full debug just in case in this case anyways etc -->
++			# <!-- custom: ruff F507: 2 placeholders vs 3 substitutions; log full args to match. (GPT-5.2-Codex (summarized)) -->
+ 			BugUtil.debug("MapSigns.displaySign() landmark shown on plot. (szCaption=%s, ePlayer=%d, str(thisKey)=%s)" % (szCaption, ePlayer, str(thisKey)))
+ 			engine.addLandmark(pPlot, szCaption.encode('latin_1'))
+ 		else:
+@@ -513,7 +513,7 @@ class EventSignsEventHandler:
+ 		g_bForceUpdate = True
+ 
+ 	def onPreSave(self, argsList):
+-		# <!-- custom: keep the docstring here else function is empty and we get the expected indented block error at next function if i am not mistaken which causes multiple errors ingame anyways etc -->
++		# <!-- custom: keep the docstring so the function isn't empty and doesn't raise an indented-block error. (GPT-5.2-Codex (summarized)) -->
+ 		""" Called before a game is actually saved """
+ 		#BugUtil.debug("EventSignsEventHandler.onPreSave()")
+ 		#if (gSavedSigns and (not gSavedSigns.isEmpty())):
+
+diff --git a/Assets/Python/Contrib/FavoriteCivicDetector.py b/Assets/Python/Contrib/FavoriteCivicDetector.py
+index b92fdc87b..cbb2b2e6a 100644
+--- a/Assets/Python/Contrib/FavoriteCivicDetector.py
++++ b/Assets/Python/Contrib/FavoriteCivicDetector.py
+@@ -60,7 +60,7 @@ def getFavoriteCivicInfo (iPlayer):
+ 	return favorite
+ 
+ def doUpdate ():
+-	# <!-- custom: follow ruff rule E714 similarly, not "not x is none" but instead "x is not none" if i am not mistaken in my understanding of it anyways etc -->
++	# <!-- custom: ruff E714: use "x is not None" instead of "not x is None". (GPT-5.2-Codex (summarized)) -->
+ 	# Goes through the current diplomacy situation to determine potential favorite civics for each civ.
+ 	#
+ 	# advc.009b: None check added
+
+diff --git a/Assets/Python/Contrib/RandomNameUtils.py b/Assets/Python/Contrib/RandomNameUtils.py
+index eca59f3b7..1fad9a929 100644
+--- a/Assets/Python/Contrib/RandomNameUtils.py
++++ b/Assets/Python/Contrib/RandomNameUtils.py
+@@ -232,10 +232,10 @@ def generateCivilizationName(iCivilizationType):
+ 	if(len(civilizationNameHash[strCivilizationType]["END"]) > 0):	
+ 		strEnd = civilizationNameHash[strCivilizationType]["END"][random.get(len(civilizationNameHash[strCivilizationType]["END"]), "Random Name")]	
+ 	
+-	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings as explained to me by chatgpt, use capitalize directly instead anyways etc, was as below anyways etc -->
++	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings; use capitalize directly. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 	#strName = string.capwords(strPre+strMid+strEnd)
+ 	#strName = (strPre+strMid+strEnd).capitalize()
+-	# <!-- custom: to cover an edge case as chatgpt said "If you do rely on PRE, MID, or END having spaces and want to capitalize each word, then you can inline the logic of capwords", so using this code below as follows instead of the one i used first by chatgpt too, just to be safe, anyways etc -->
++	# <!-- custom: cover the PRE/MID/END-with-spaces edge case by inlining capwords logic. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 	strName = " ".join(w.capitalize() for w in (strPre + strMid + strEnd).split())
+ 	
+ 	return strName
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 4a6705daf..fe25614c4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -38,7 +38,7 @@ class SevoPediaTrait:
+ 		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
+ 		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+-		# <!-- custom: add more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
++		# <!-- custom: add more room so content fits; was 150. (GPT-5.2-Codex (summarized)) -->
+ 		self.H_SPECIAL = 300
+ 
+ 		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
+@@ -136,7 +136,7 @@ class SevoPediaTrait:
+ 							szSpecial += "\n"
+ 						szSpecial += line[2:]  # strip first two spaces
+ 			if bFound:
+-				# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain anyways etc -->
++				# <!-- custom: leave top padding, based on Sevopedia terrain placeSpecial. (GPT-5.2-Codex (summarized)) -->
+ 				#screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+27, self.W_SPECIAL-10, self.H_SPECIAL-32, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-32, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 8e77edc4d..314e847b2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -30,7 +30,7 @@ class SevoPediaUnitChart:
+ 		self.MARGIN = 20
+ 		self.N_COLUMNS = 0
+ 		self.W_NAME = 270
+-		# <!-- custom: 129 is enough but just in case some numerical chars are longer, add a bit extra margin if i may say (i don't know if accurate, may or may not be so, but if it is, this avoids the display from being truncated due to too short row width although maybe a bit less pretty even if a tiny bit as a result if i may due to display being larger in this case if i may say but anyways etc) -->
++		# <!-- custom: 129 is enough, but add a bit more margin to avoid truncation if digits are wider. (GPT-5.2-Codex (summarized)) -->
+ 		self.W_NUM = 130
+ 		
+ 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
+@@ -47,7 +47,7 @@ class SevoPediaUnitChart:
+ 	# <!-- custom: i did not know about this ChatGPT told me about this or made me understand it and solve it, so adding this explanation in case it helps others or/and me:
+ 	# in python, here for placeUnitTable function, when we call it using self.placeUnitTable(), self is passed automatically as an argument so no need to write it (else there would be 2 arguments) at function.
+ 	# However, in function definition, self is not known, so it needs to be defined as a parameter. This is why there is an apparent mismatch in the number of parameters vs arguments in placeUnitTable(self) vs self.placeUnitTable(), but this is how it should be done else it does not work.
+-	# Thanks to ChatGPT for pointing me quite strongly to the right direction until i could solve it myself after tries and such and understand ChatGPT's explanation too now, and thanks to me for doing it too, anyways, adding this here in case it helps me or/and others. -->
++	# Thanks to ChatGPT for the guidance; adding this in case it helps others. (GPT-5.2-Codex (summarized)) -->
+ 	def placeUnitTable(self):
+ 		screen = self.top.getScreen()
+ 		table = self.top.getNextWidgetName()
+@@ -199,7 +199,7 @@ class SevoPediaUnitChart:
+ 		# First Strikes
+ 		if UnitInfo.getFirstStrikes() > 0:
+ 			szFirstStrikesNum = u"%d" % UnitInfo.getFirstStrikes()
+-		# <!-- custom: keeping this beautification as it is a lot more useful/readable than having tons of 0s, anyways -->
++		# <!-- custom: keep this beautification; it's more readable than many 0s. (GPT-5.2-Codex (summarized)) -->
+ 		else:
+ 			szFirstStrikesNum = u""
+
+diff --git a/Assets/Python/Contrib/StatusDumpEventManager.py b/Assets/Python/Contrib/StatusDumpEventManager.py
+index 865117266..a82cc199a 100644
+--- a/Assets/Python/Contrib/StatusDumpEventManager.py
++++ b/Assets/Python/Contrib/StatusDumpEventManager.py
+@@ -10,7 +10,8 @@ import BugCore
+ import BugUtil
+ import CvModName
+ import TradeUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
++# <!-- custom: remove/comment unused or duplicated imports. (GPT-5.2-Codex (summarized)) -->
++#import string
+ import BugFile
+ 
+ gc = CyGlobalContext()
+
+diff --git a/Assets/Python/Contrib/TechWindow.py b/Assets/Python/Contrib/TechWindow.py
+index 00c32f1e1..cbc1d1394 100644
+--- a/Assets/Python/Contrib/TechWindow.py
++++ b/Assets/Python/Contrib/TechWindow.py
+@@ -237,7 +237,7 @@ class CvTechSplashScreen:
+ 		for j in range(CyGlobalContext().getNumTechInfos()):
+ 			for k in range(CyGlobalContext().getDefineINT("NUM_OR_TECH_PREREQS")):
+ 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqOrTechs(k)
+-				# <!-- custom: weird extra indentation, plus inconsistent use of tabs and spaces pylance or/and ruff errors/warnings in several places in this file as well, fixing these anyways etc -->
++				# <!-- custom: fix weird indentation and tabs/spaces issues that trigger Pylance/Ruff warnings. (GPT-5.2-Codex (summarized)) -->
+ 				if (iPrereq == self.iTech):
+ 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
+ 			for k in range(CyGlobalContext().getDefineINT("NUM_AND_TECH_PREREQS")):
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index 9083bc113..f8606d96b 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -388,7 +388,7 @@ class UnitUpgradesGraph:
+ 								if (medB == -1 and medA >= y):
+ 									self.swap(mGraph, x, y-1, y)
+ 									doneB = False
+-							# <!-- custom: do not use "==" when comparing to False as per ruff rule and chatgpt's answer to it and my prompt etc similarly too anyways etc -->
++							# <!-- custom: ruff: avoid "== False"; use "is False". Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 							if not doneB:
+ 								doneA = False
+ 						doneB = False
+
+diff --git a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+index 7ed876f67..7f026c671 100644
+--- a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
++++ b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+@@ -1,8 +1,9 @@
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+ from CvPythonExtensions import *
+ import CvScreensInterface
+ import Popup as PyPopup
+ import CvUtil
++# <!-- custom: remove/comment unused or duplicated imports. (GPT-5.2-Codex (summarized)) -->
++#import string
+ 
+ localText = CyTranslator()
+ UserProfile = CyUserProfile()
+@@ -40,9 +41,9 @@ def restartPopup(bForceShowing = False):
+ 		popup.launch()
+ 
+ def isNumber(s):
+-	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from a quick ctrl+f in this file, after asking chatgpt also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said; check if accurate and to be sure. -->
++	# <!-- custom: ruff E741: "l" is ambiguous; use "char" instead (per ChatGPT). (GPT-5.2-Codex (summarized)) -->
+ 	for char in s:
+-		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt's explanation first too i mean and my understanding of it too i mean anyways etc; check if accurate and to be sure; anyways etc. -->
++		# <!-- custom: use a literal digits string instead of string.digits; remove string import. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 		if char not in "0123456789":
+ 			return False
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index e8b63c2a9..47d6c01ba 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -70,7 +70,7 @@ def canTriggerBlessedSea(argsList):
+ 
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEY')) == 0:
+-		# <!-- custom: caravel removed, comment-out this line and unindent following block anyways etc -->
++		# <!-- custom: caravel removed; comment out this line and unindent the block. (GPT-5.2-Codex (summarized)) -->
+ 		#if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')) == 0:
+ 		#	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
+ 		#		return false
+@@ -1386,11 +1386,11 @@ def getHelpWiningMonks2(argsList):
+ 
+ ######## INDEPENDENTFILMS ###########
+ 
+-# <!-- custom: similarly remove old bonus_movies related canTriggerIndependentFilms entirely if i am not mistaken too anyways etc -->
++# <!-- custom: remove old bonus_movies canTriggerIndependentFilms code. (GPT-5.2-Codex (summarized)) -->
+ 
+-# <!-- custom: similarly remove old bonus_movies related doIndependentFilms entirely if i am not mistaken too anyways etc -->
++# <!-- custom: remove old bonus_movies doIndependentFilms code. (GPT-5.2-Codex (summarized)) -->
+ 
+-# <!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so removing old getHelpIndependentFilms movies related code entirely anyways etc -->
++# <!-- custom: BONUS_MOVIES replaced with BONUS_CAMEL; remove old movies help code. (GPT-5.2-Codex (summarized)) -->
+ 
+ ######## ANCIENT OLYMPICS ###########
+ 
+@@ -1526,7 +1526,7 @@ def canApplyEarthDay2(argsList):
+ 	
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC anyways etc -->
++	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
+ 	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
+ 	
+ 	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):			
+@@ -1548,7 +1548,7 @@ def applyEarthDay2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC anyways etc -->
++	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
+ 	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
+ 	iCivicOption = CvUtil.findInfoTypeNum(gc.getCivicOptionInfo,gc.getNumCivicOptionInfos(),'CIVICOPTION_ECONOMY')
+ 	
+@@ -2089,7 +2089,7 @@ def applyThePhilistines1(argsList):
+ ######## THE_VEDIC_ARYANS ###########
+ 
+ def canTriggerTheVedicAryans(argsList):
+-	# <-- custom: TECH_PRIESTHOOD removed, replaced this entry with TECH_POLYTHEISM anyways etc, also TECH_ARCHERY is now removed as well but anyways etc so replaced with TECH_MASONRY, hopefully walls help defend against that as well maybe if i may say but anyways etc -->
++	# <-- custom: TECH_PRIESTHOOD removed -> TECH_POLYTHEISM; TECH_ARCHERY removed -> TECH_MASONRY (walls help defend). (GPT-5.2-Codex (summarized)) -->
+ 	# advc.311: Moved into new function; replace Polytheism with Priesthood (from BUFFY 3.19.003).
+ 	return canTriggerUprising(argsList[0].ePlayer, 'TECH_POLYTHEISM', 'TECH_MASONRY', 'UNITCLASS_ARCHER')
+ 
+@@ -2151,7 +2151,7 @@ def canTriggerTea(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	# <!-- custom: replace the old CIVIC_MERCANTILISM with CIVIC_PROTECTIONISM anyways etc -->
++	# <!-- custom: replace the old CIVIC_MERCANTILISM with CIVIC_PROTECTIONISM. (GPT-5.2-Codex (summarized)) -->
+ 	if player.isCivic(CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_PROTECTIONISM')):
+ 		return false
+ 
+@@ -2231,7 +2231,7 @@ def getHelpHarbormaster1(argsList):
+ 	kTriggeredData = argsList[1]
+ 		
+ 	iHarborsRequired = worldSizeTarget()
+-	# <!-- custom: caravel removed, put a dummy value instead just so the code works-functions hopefully not too bad this way but anyways etc... -->
++	# <!-- custom: caravel removed; use a dummy value so the code still runs. (GPT-5.2-Codex (summarized)) -->
+ 	#iCaravelsRequired = iHarborsRequired / 2 + 1
+ 	iCaravelsRequired = 0
+ 
+@@ -2273,7 +2273,7 @@ def canTriggerHarbormasterDone(argsList):
+ 	if iHarborsRequired > player.getBuildingClassCount(iHarbor):
+ 		return false
+ 
+-	# <!-- custom: caravel removed, comment-out this block anyways etc -->
++	# <!-- custom: caravel removed; comment out this block. (GPT-5.2-Codex (summarized)) -->
+ 	#iCaravel = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')
+ 	#iCaravelsRequired = iHarborsRequired / 2 + 1
+ 	#if iCaravelsRequired > player.getUnitClassCount(iCaravel):
+@@ -3337,7 +3337,7 @@ def canTriggerNobleKnightsDone(argsList):
+ 	iUnitHorseClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_KNIGHT')
+ 	iUnitCamelClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CAMEL_KNIGHT')
+ 
+-	# <!-- custom: add camel knight units to this event anyways etc -->
++	# <!-- custom: include camel knight units in this event. (GPT-5.2-Codex (summarized)) -->
+ 	#if player.getUnitClassCount(iUnitHorseClassType) < iNumUnits:
+ 	if (player.getUnitClassCount(iUnitHorseClassType) < iNumUnits) and (player.getUnitClassCount(iUnitCamelClassType) < iNumUnits):
+ 		return false
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 457f3d87d..8822c17bc 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -34,13 +34,13 @@ class CvDomesticAdvisor:
+ 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+ 
+-		# <!-- custom: further beautify: expand to all width (remove the - 30) with the help of gemini 3 pro thanks anyways etc. -->
+-		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
++		# <!-- custom: further beautify: expand to all width (remove the - 30). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: update: empty left/right edges remain at full resolution and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
+ 		# self.iExtraWidth = 0
+ 		self.iExtraWidth = 4
+ 		self.nScreenWidth = screen.getXResolution() + (2 * self.iExtraWidth)
+ 		# advc.120c: Was -250. Need a little more space for the HUD.
+-		# <!-- custom: further beautify: after our changes, reduce height a bit so we can see more of the selected unit row(s) and of the HUD (should be fine i think but anyways etc. as we don't have that many cities that it would critically change things if i'm not mistaken in my thinking but anyways etc.) (was - 255) with the help of gemini 3 pro thanks anyways etc. -->
++		# <!-- custom: further beautify: reduce height so more selected unit rows/HUD show (was - 255). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		self.nScreenHeight = screen.getYResolution() - 305
+ 		self.nTableWidth = self.nScreenWidth - 35
+ 		self.nTableHeight = self.nScreenHeight - 85
+@@ -64,9 +64,9 @@ class CvDomesticAdvisor:
+ 
+ 		screen.setRenderInterfaceOnly(True)
+ 		# advc.120c: y position changed from 100 to 85 so that the unit icons aren't obscured. The espionage slider isn't normally visible anyway.
+-		# <!-- custom: further beautify: expand to all width (and so remove the extra X starting position anyways etc.), and also move the screen lower so we can see the espionage slider as well (before that change only the first 2 sliders were visible) with the help of gemini 3 pro thanks anyways etc. -->
++		# <!-- custom: further beautify: expand to full width by removing the extra X starting position; also move the screen lower so the espionage slider shows. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
+-		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
++		# <!-- custom: update: empty left/right edges remain and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
+ 		screen.setDimensions(-self.iExtraWidth, 105, self.nScreenWidth, self.nScreenHeight)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 	
+@@ -326,7 +326,7 @@ class CvDomesticAdvisor:
+ 		if iProductionTurns > 0: # advc.004x
+ 			szProducing += " (" + str(iProductionTurns) + ")"
+ 
+-		# <!-- custom: also show the button of the current thing we are building. Done with the help of gemini 3 pro thanks anyways etc. -->
++		# <!-- custom: also show the button of the current thing we are building. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# add the button (icon) to the "Producing" column.
+ 		# Get the button art for the current item
+ 		szButton = ""
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 6015cb844..5cf118b73 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -69,21 +69,21 @@ class CvInfoScreen:
+ 		self.DZ = -0.2
+ 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
+ 
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
++		# <!-- custom: in the foreign advisor and similar screens, too many players do not fit in one view, and the window does not use the full game window space. Make it larger like Sevopedia to reduce scrolling. Credit: Gemini 3 Pro; fixes reviewed by Claude Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
+ 		# self.X_SCREEN = 0
+ 		# self.Y_SCREEN = 0
+ 		# self.W_SCREEN = 1024
+ 		# self.H_SCREEN = 768
+-		# <!-- custom: note: screen is not available at init it seems unlike in the way it is done as of now in CvTechChooser where self.X_SCREEN and such are initialized in interfaceScreen that already has a screen variable. I tried adding screen in init in the foreign advisor but it lead to crashes, so using hardcoded values of 1920 and 1080 to avoid that, and is done as per gemini 3 pro's recommendation as well (check if accurate especially as i don't know too much about these but it seems to be so empircially but check to be sure anyways etc.) -->
++		# <!-- custom: screen is not available at init, unlike CvTechChooser where self.X_SCREEN/etc. are set in interfaceScreen with a screen variable. Adding screen in the foreign advisor init caused crashes, so hardcode 1920x1080; per Gemini 3 Pro recommendation and empirical checks. (GPT-5.2-Codex (summarized)) -->
+ 		xHardcodedResolution = 1920
+ 		yHardcodedResolution = 1080
+ 
+-		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.) -->
+-		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
++		# <!-- custom: deduce x position so it is dynamically centered; ensure right panel info (including power ratios) stays visible. (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: update: do not center here. For foreign relations, the right side (scoreboard, map) matters more; the left panel is largely unused, so keep it uncentered to maximize screen usage while preserving the scoreboard. (GPT-5.2-Codex (summarized)) -->
+ 
+ 		wLeftSpaceForCommerceSliders = 172
+ 		self.X_SCREEN = wLeftSpaceForCommerceSliders
+-		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
++		# <!-- custom: wide enough to preserve the right panel (scoreboard, map, etc.); less conservative on the left so it is not centered and sits closer to the left. (GPT-5.2-Codex (summarized)) -->
+ 		wRightSpaceForScoreBoard = 390
+ 		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
+ 
+@@ -807,14 +807,14 @@ class CvInfoScreen:
+ 		# Set the background widget and exit button
+ 		screen.addDDSGFC("DemographicsScreenBackground", ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
++		# <!-- custom: in the foreign advisor and similar screens, too many players do not fit in one view, and the window does not use the full game window space. Make it larger like Sevopedia to reduce scrolling. Credit: Gemini 3 Pro; fixes reviewed by Claude Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
+ 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+ 		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		# screen.showWindowBackground( False )
+ 		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.H_SCREEN - 55, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		screen.showWindowBackground( False )
+ 
+-		# <!-- custom: here, in this code that reuses the foreign advisor changes, there is a difference, here it seems that we need to actually change the center settings else the screen stays at the center, and now changing it as as of now below we can freely move the military advisor screen around the window as we want anyways etc, as per a similar suggestion of gemini 3 pro thanks but anyways etc. -->
++		# <!-- custom: unlike the foreign advisor reuse, we must change the center settings here or the screen stays centered. With this change we can move the military advisor screen around the window. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# screen.setDimensions(screen.centerX(self.X_SCREEN), screen.centerY(self.Y_SCREEN), self.W_SCREEN, self.H_SCREEN)
+ 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index c972cdaa7..4a0b5b231 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -439,22 +439,22 @@ class CvMainInterface:
+ 		self.iFoVPos_Prev = -1 # advc.090
+ # BUG - field of view slider - end
+ 
+-		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
+-		# <!-- custom: enlarge beyond the current inner edge of the bottom panels so we can display the bonus panels entirely (currently with even column display there is some text overlapping onto another which is not ideal anyways etc. Ideally would increase said panel's width as well, but not sure how easy it is, starting from first place needing the change anyways etc.)
++				# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: extend past the current inner edge of the bottom panels so the bonus panels fit; even columns were overlapping text. Ideally also widen that panel, but start here. (GPT-5.2-Codex (summarized)) -->
+ 		# self.SIDE_PANELS_WIDTH = 297
+ 		self.SIDE_PANELS_WIDTH = 341
+ 
+-		# <!-- custom: fetch the define once may be computaitonally cheaper (i think but not sure anyways etc.) -->
++		# <!-- custom: fetching the define once may be cheaper (not sure). (GPT-5.2-Codex (summarized)) -->
+ 		# <!-- custom: initialize cheaply once. -->
+-		# <!-- custom: note: for some reason, unlike what we could do in other files, it seems setting this as a global variable and fetching from gc in the global scope there does not seem to work (regardless of our value in sas defines the extra rows of the city screen's production chooser bar are always disabled ingame), so doing it as such is maybe fine and cheaper than fetching gc at each call maybe (check if accurate as just a guess of mine but i guess so (but i don't know too much about these to tell precisely i mean if i may say but anyways etc.)) -->
++		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here; might also be cheaper than fetching gc each call (not sure). (GPT-5.2-Codex (summarized)) -->
+ 		self.iBarExtraRows = None
+ 		self.iBarExtraRowsExtraManualAdjust = None
+-		# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
++		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
+ 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+ 		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
+ 		# 1) Add a pinned-row member (once)
+ 		self.iCityBuildBarPinnedRow = None
+-		# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 anyways etc. -->
++		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
+ 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 458b09f53..a495a0efd 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -44,40 +44,39 @@ class CvMilitaryAdvisor:
+ 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
+ 		self.DZ = -0.2
+ 
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
++		# <!-- custom: expand the screen like Foreign Advisor/Sevopedia so crowded player lists require less scrolling. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
+ 		# self.X_SCREEN = 500
+ 		# self.Y_SCREEN = 396
+ 		# self.W_SCREEN = 1024
+ 		# self.H_SCREEN = 768
+-		# <!-- custom: note: screen is not available at init it seems unlike in the way it is done as of now in CvTechChooser where self.X_SCREEN and such are initialized in interfaceScreen that already has a screen variable. I tried adding screen in init in the foreign advisor but it lead to crashes, so using hardcoded values of 1920 and 1080 to avoid that, and is done as per gemini 3 pro's recommendation as well (check if accurate especially as i don't know too much about these but it seems to be so empircially but check to be sure anyways etc.) -->
++		# <!-- custom: screen isn't available in __init__ (unlike CvTechChooser); using hardcoded 1920x1080 avoids crashes, but verify on other resolutions. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		xHardcodedResolution = 1920
+ 		yHardcodedResolution = 1080
+ 
+-		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.) -->
+-		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
++		# <!-- custom: keep the panel uncentered so the right side (scoreboard/map) stays visible; left panel is less important. (GPT-5.2-Codex (summarized)) -->
+ 
+ 		wLeftSpaceForCommerceSliders = 172
+ 		self.X_SCREEN = wLeftSpaceForCommerceSliders
+-		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
++		# <!-- custom: preserve right-side scoreboard/map while letting the left side be tighter. (GPT-5.2-Codex (summarized)) -->
+ 		wRightSpaceForScoreBoard = 390
+ 		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
+ 
+ 		hTopSpaceForTechBar = 28
+ 		self.Y_SCREEN = hTopSpaceForTechBar
+ 		hBottomSpace = 0
+-		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
++		# <!-- custom: compute remaining height so the panel fits to the bottom edge. (GPT-5.2-Codex (summarized)) -->
+ 		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
+ 
+-		# <!-- custom: add new self.X_TITLE so we can properly center it or put it where we want in the X axis, after our changes the title is too much on the left side and not centered -->
++		# <!-- custom: add X_TITLE so the title can be centered after resizing. (GPT-5.2-Codex (summarized)) -->
+ 		# screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		# <!-- custom: add new self.X_TITLE so we can properly center it or put it where we want in the X axis, after our changes the title is too much on the left side and not centered. Note: this is starting from the screen's X edge, not from the window's edge anyways etc. -->
++		# <!-- custom: X_TITLE is relative to the screen's X origin, not the window edge. (GPT-5.2-Codex (summarized)) -->
+ 		self.X_TITLE = self.W_SCREEN / 2
+ 		self.Y_TITLE = 8
+ 
+ 		self.BORDER_WIDTH = 4
+ 		self.W_HELP_AREA = 200
+ 
+-		# <!-- custom: now that we expanded the screen, move this to the bottom and make it dynamically follow / depend on the screen's size, as we did similarly for the legend in the foreign advisor's web's below corresponding legend but anyways etc; code added with the help of gemini 3 pro thanks anyways etc. -->
++		# <!-- custom: reposition the exit button based on the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# self.X_EXIT = 994
+ 		# self.Y_EXIT = 726
+ 		# Exit Button (Bottom Right)
+@@ -92,7 +91,7 @@ class CvMilitaryAdvisor:
+ 		self.selectedGroupList = []
+ 		self.selectedUnitList = []
+ 
+-		# <!-- custom: now that we expanded the screen, move or/and adjust the size of the great general bar or other similar elements of the military advisor so they use more of the expanded space available, and so they dynamically follow / depend on the screen's size, as we did similarly for the legend in the foreign advisor's web's below corresponding legend but anyways etc; code added with the help of gemini 3 pro thanks anyways etc. -->
++		# <!-- custom: expand/layout elements (e.g., great general bar) to use the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		self.SIDE_MARGIN = 40
+ 
+ 		# --- A. Leaders Panel (Top - Full Width) ---
+@@ -128,7 +127,7 @@ class CvMilitaryAdvisor:
+ 		# Map takes available width minus the text panel and a gap
+ 		self.W_MAP = self.X_TEXT - self.X_MAP - 14
+ 		self.H_MAP_MAX = self.H_TEXT
+-		# <!-- custom: renamed self.MAP_MARGIN to self.MAP_MARGIN_WRAP for clarity about the fact that this is the blue outside cover of the panel all around it, not an empty margin or something else anyways etc. -->
++		# <!-- custom: MAP_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
+ 		self.MAP_MARGIN = 20
+ 
+ 		# --- D. Great General Bar (Moved to Bottom Left)
+@@ -162,7 +161,7 @@ class CvMilitaryAdvisor:
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 
+-		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
++		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
+ 		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS is None:
+ 			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
+ 
+@@ -172,16 +171,14 @@ class CvMilitaryAdvisor:
+ 		self.nWidgetCount = 0
+ 	
+ 		# Set the background and exit button, and show the screen
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
+-		# <!-- custom: see also related change that was needed it seems as well in CvExoticForeignAdvisor.py anyways etc. -->
+-		# <!-- custom: update: reverting this change we added, as it doesn't seem necessary for our change to still be effective anyways etc. -->
++		# <!-- custom: resize the window (see also CvExoticForeignAdvisor); centering was reverted. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
+ 		#screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+-		# <!-- custom: here, in this code that reuses the foreign advisor changes, there is a difference, here it seems that we need to actually change the center settings else the screen stays at the center, and now changing it as as of now below we can freely move the military advisor screen around the window as we want anyways etc, as per a similar suggestion of gemini 3 pro thanks but anyways etc. -->
++		# <!-- custom: unlike Foreign Advisor, we must set X/Y directly or the screen stays centered. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+ 
+ 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia anyways etc., so that we don't have to scroll or less so anyways etc. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks anyways etc.; check if accurate anyways etc. -->
++		# <!-- custom: update panel positions to match the expanded screen size. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
+ 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+ 		# screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+@@ -333,8 +330,8 @@ class CvMilitaryAdvisor:
+ 			self.selectedUnitList.append(selectedUnit)
+ 		self.refreshUnitSelection(false)		
+ 	
+-	# <!-- custom: refactor old code for this function while preserving behaviour otherwise as it is, with the help of chatgpt 5.2 Old code was shit in terms of redundance or such, is much much cleaner although i didn't look in detail to tell. Reviewed by gemini 3 pro which confirms it is nice anyways etc. -->
+-	# <!-- custom: added icon buttons overlaid on listbox rows with indent - claude opus 4.5 -->
++	# <!-- custom: refactor refreshUnitSelection to reduce redundancy while preserving behavior. Credit: ChatGPT 5.2; Gemini 3 Pro review. (GPT-5.2-Codex (summarized)) -->
++	# <!-- custom: add icon overlays on listbox rows with indent. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
+ 	def refreshUnitSelection(self, bReload):
+ 		screen = self.getScreen()
+
+diff --git a/Assets/Python/Screens/CvPediaBonus.py b/Assets/Python/Screens/CvPediaBonus.py
+index c6d1a5920..6afe67b29 100644
+--- a/Assets/Python/Screens/CvPediaBonus.py
++++ b/Assets/Python/Screens/CvPediaBonus.py
+@@ -195,7 +195,7 @@ class CvPediaBonus:
+ 		
+ 		# original code
+ 		#szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
+-		# <!-- custom: note, if you want to uncomment this code that was commented out before this current comment anyways etc, use native code no need to use string module just to split a string similarly as in other parts of the code where i made the change as per chatgpt's advice. -->
++		# <!-- custom: if you uncomment this code, use native code (no string module) as in other parts; per ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 		#splitText = string.split( szSpecialText, "\n" )
+ 		#for special in splitText:
+ 		#	if len( special ) != 0:
+
+diff --git a/Assets/Python/Screens/CvReligionScreen.py b/Assets/Python/Screens/CvReligionScreen.py
+index 12c143200..e0f9e62c6 100644
+--- a/Assets/Python/Screens/CvReligionScreen.py
++++ b/Assets/Python/Screens/CvReligionScreen.py
+@@ -658,7 +658,7 @@ class CvReligionScreen:
+ 				CyInterface().selectCity(pCity, true)
+ 
+ 		elif (self.ReligionScreenInputMap.has_key(inputClass.getFunctionName())):
+-			# <!-- custom: replace lone string litteral with proper comment out, confirmed safe after asking chatgpt even though it can be mistaken sometimes and i can be too maybe in some cases here it seems safe to remove and replace instead with a proper comment anyways etc -->
++			# <!-- custom: replace the lone string literal with a proper comment; confirmed safe via ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 			# Calls function mapped in ReligionScreenInputMap
+ 			#
+ 			# only get from the map if it has the key
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index d455a809e..cc6709dfc 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -32,7 +32,7 @@ import BugUtil
+ PREF_ICON_SIZE = 24
+ #PREF_ICON_TOP = 168
+ # <advc.004a>
+-# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height as found gemini pro 3 found nicely thanks but anyways etc. -->
++# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ # PREF_ICON_BOTTOM = 738
+ PREF_ICON_BOTTOM = 926
+ PREF_ICON_LEFT = 40 # was a bit farther left (10)
+@@ -158,12 +158,12 @@ class CvTechChooser:
+ 
+ 		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = None
+ 		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
+-		# <!-- custom: parametrize properly the X starting position of the first column thanks to gemini 3 pro's help anyways etc (value was hardcoded repeatedly without a variable previously anyways etc.). -->
++		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
+ 		self.iX_LEFT_START = 30
+ 		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
+ 		self.iX_LEFT_START_OR_PREREQS = 24
+-		# <!-- custom: adjust tech bulbing left starting position depending on our setting so we align vertically with where first tech button starts anyways etc. -->
++		# <!-- custom: adjust tech bulbing left starting position so we align vertically with the first tech button. (GPT-5.2-Codex (summarized)) -->
+ 		self.PREF_ICON_LEFT = PREF_ICON_LEFT
+ 
+ 	def getScreen(self):
+@@ -187,28 +187,28 @@ class CvTechChooser:
+ 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
+ 		screen = self.getScreen()
+ 
+-		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
++		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
+ 		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH is None:
+ 			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH")
+ 		
+ 		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
+ 		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH <= 0:
+ 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
+-			# <!-- custom: move bulbing indicators more to the left anyways etc. -->
++			# <!-- custom: move bulbing indicators more to the left. (GPT-5.2-Codex (summarized)) -->
+ 			self.PREF_ICON_LEFT = 10
+-			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still a bit too much to the right as compared to the tech bulbing position ingame, if they use the same value; plus, we need the space on the right edge to display last column properly ideally since it is almost so. So reduce this value a bit more to accomodate for that but anyways etc. -->
++			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still too far right vs bulbing in-game; reduce to fit the last column. (GPT-5.2-Codex (summarized)) -->
+ 			extraXAdjust = -5
+ 			self.iX_LEFT_START = 10 + extraXAdjust
+ 			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
+ 		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 1:
+ 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
+-			# <!-- custom: other variables unchanged anyways etc. -->
++			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+ 		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 2:
+ 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
+-			# <!-- custom: other variables unchanged anyways etc. -->
++			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+ 		else:
+ 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
+-			# <!-- custom: other variables unchanged anyways etc. -->
++			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+ 		
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+@@ -261,23 +261,23 @@ class CvTechChooser:
+ 
+ # BUG - Tech Screen Resolution - start
+ 		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
+-		# <!-- custom: simplify but also rework this as well anyways etc. -->
++		# <!-- custom: simplify and rework the old wide-screen sizing logic. (GPT-5.2-Codex (summarized)) -->
+ 		# if screen.getXResolution() > 1024:
+ 		# 	xPanelWidth = screen.getXResolution() - 60 - 500
+ 		# else:
+ 		# 	xPanelWidth = 1024
+ 		# yPanelHeight = 768
+-		# <!-- custom: preserve key display (commerce sliders, scoreboard if we do as well, or/and other things or not but anyways etc.) and otherwise maximize game window usage anyways etc. -->
++		# <!-- custom: preserve key display (commerce sliders, scoreboard, etc.) while maximizing game window usage. (GPT-5.2-Codex (summarized)) -->
+ 		
+-		# <!-- custom: since in this file unlike in the foreign advisor or similar files, the screen x y w and h (i.e. self.X_SCREEN and co anyways etc.) are initialized in interfaceScreen and not in init, we can use the real game windows's resolution so it fully dynamic. I tried making it so in the foreign advisor and such other files but it lead to issues and all, so left as is there with hard coded values of as of now 1920x1080 minutes gaps we want to leave unused by the panel, however in this file as of now CvTechChooser we can use the available screen variable to make it fully dynamic seemingly (check if accurate as i don't know too much about these but it seems ot be as such empirically and it is also as gemini 3 pro advised while debugging the related errors in particular but anyways etc.). -->
++		# <!-- custom: unlike in the foreign advisor and similar files, self.X_SCREEN/self.Y_SCREEN/etc. are initialized in interfaceScreen, so we can use the real screen resolution here. In those files, screen wasn't available in init and trying it caused crashes, so they keep hardcoded 1920x1080 minus gaps. This uses the available screen var to stay fully dynamic; per Gemini 3 Pro advice and empirical checks. (GPT-5.2-Codex (summarized)) -->
+ 
+ 		wLeftSpace = 0
+ 		self.X_SCREEN = wLeftSpace
+-		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
++		# <!-- custom: wide enough to preserve the right panel (scoreboard, map, etc.); less conservative on the left so it is not centered and sits closer to the left. (GPT-5.2-Codex (summarized)) -->
+ 		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
+ 		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
+ 
+-		# <!-- custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
++		# <!-- custom: 115 or higher adds an annoying vertical scrolling arrow on the right; 114 still shows the commerce sliders, so use 114. (GPT-5.2-Codex (summarized)) -->
+ 		hTopSpaceForCommerceSliders = 114
+ 		self.Y_SCREEN = hTopSpaceForCommerceSliders
+ 		hBottomSpace = 0
+@@ -289,7 +289,7 @@ class CvTechChooser:
+ 
+ 		screen.showWindowBackground( False )
+ 	
+-		# <!-- custom: no longer center it and adjust dimensions similarly to how we did for the military advisor and other related reworks anyways etc. -->
++		# <!-- custom: no longer center it; adjust dimensions like the military advisor and related reworks. (GPT-5.2-Codex (summarized)) -->
+ 		# screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
+ 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, xPanelWidth, yPanelHeight)
+ # BUG - Tech Screen Resolution - end
+@@ -306,7 +306,7 @@ class CvTechChooser:
+ 		szText = szText + u"</font>"
+ 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-		# <!-- custom: simplify code since this was disabled anyway anyways etc. -->
++		# <!-- custom: simplify code since this was disabled anyway. (GPT-5.2-Codex (summarized)) -->
+ 		# # Make the scrollable area for the city list...
+ 		# # advc.004a: What cities? Anyway, no scrollable area needed.
+ 		# if False and BugOpt.isShowGPTechPrefs():
+@@ -404,8 +404,8 @@ class CvTechChooser:
+ 		self.drawArrows(screen, sPanel, bANDPreReq, bORPreReq)
+ 
+ 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
+-		# <!-- custom: note: trying to comment out the turn > 0 check below but anyways etc. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
+-		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
++		# <!-- custom: tried removing the turn > 0 guard to show indicators at turn 0, but it does error. The base AdvCiv comment seems slightly mistaken: I reproduced the issue on a new game (Noble, Pangaea, Normal, Standard). Gemini 3 Pro confirmed the cause, so we keep base AdvCiv behavior. I wanted the BUG bulbing indicators noted for players; see known issue 85. (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: keeping this feature disabled is safer; turn 0 bulbing indicators are not critical, so revert to base AdvCiv behavior. (GPT-5.2-Codex (summarized)) -->
+ 		if CyGame().getElapsedGameTurns() > 0:
+ 			self.updateTechPrefs()
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index de401dc96..0de91a985 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -7,7 +7,7 @@ import CvEventInterface
+ from AStarTools import *
+ import MonkeyTools as mt
+ import UnitUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
++# <!-- custom: remove/comment unused or duplicated imports. (GPT-5.2-Codex (summarized)) -->
+ #import string
+ 
+ import PyHelpers 
+@@ -1031,7 +1031,7 @@ class PLE:
+ 		# hides all promotion and upgrade button objects
+ 		for nCol in range(self.getMaxCol()+1):
+ 			for nRow in range(self.getMaxRow()+1):
+-				# <!-- custom: note replace string module with native code, as advised by chatgpt (as it said/explained by it anyways etc: "Yes, you can safely remove the string module again here — even in Python 2.4 — by replacing: string.zfill(str(nRow), 2) with: str(nRow).zfill(2) ✅ str.zfill(width) has been available since Python 2.2, so it's fully compatible with Python 2.4."), for example string.zfill(str(nRow), 2) is now str(nRow).zfill(2) then we don't need the python import anyways etc -->
++				# <!-- custom: replace string.zfill(...) with str(...).zfill(...); compatible with Python 2.4 (str.zfill since 2.2), so string import isn't needed. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 				# 
+ 				szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + str(nRow).zfill(2) + str(nCol).zfill(2)
+ 				screen.hide( szStringUnitPromo )
+@@ -1712,7 +1712,7 @@ class PLE:
+ 			else:
+ 				iP = nRow
+ 			iPromo = lPromos[i]
+-			# <!-- custom: similarly here remove old string.zfill(str(iU), 2) in favour of str(iU).zfill(2) anyways etc -->
++			# <!-- custom: replace string.zfill(str(iU), 2) with str(iU).zfill(2). (GPT-5.2-Codex (summarized)) -->
+ 			sID = str(iU).zfill(2) + str(iP).zfill(2)
+ 			szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + sID
+ 			szFileNamePromo = gc.getPromotionInfo(iPromo).getButton()
+@@ -1762,7 +1762,7 @@ class PLE:
+ 				iP = nRow
+ 			iUnitIndex = lUpgrades[i]
+ 			lUnits.append(iUnitIndex)
+-			# <!-- custom: similarly here remove old string.zfill(str(iU), 2) in favour of str(iU).zfill(2) anyways etc -->
++			# <!-- custom: replace string.zfill(str(iU), 2) with str(iU).zfill(2). (GPT-5.2-Codex (summarized)) -->
+ 			sID = str(iU).zfill(2) + str(iP).zfill(2)
+ 			szStringUnitUpgrade = self.PLOT_LIST_UPGRADE_NAME + sID
+ 			szFileNameUpgrade = gc.getUnitInfo(iUnitIndex).getButton()
+
+diff --git a/LLM-guidelines.md b/LLM-guidelines.md
+new file mode 100644
+index 000000000..ab1f891ee
+--- /dev/null
++++ b/LLM-guidelines.md
+@@ -0,0 +1,20 @@
++﻿# GPT-Codex Guidelines
++
++These rules apply to me now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.
++
++## Comment Editing Rules (for me, now and later)
++
++- Simplify verbose comments without changing meaning or technical details.
++- Do not requalify subjective wording (e.g., keep "nicer display" instead of rephrasing as "tighter look") to avoid misinterpreting meaning.
++- Keep credits (e.g., "with help of Gemini 3 Pro/Claude/ChatGPT") and preserve them when rewriting.
++- Preserve important technical specifics verbatim (e.g., "0 / 0 / 0 / 0 / 100", "2 placeholders vs 3 substitutions", "remove the extra X starting position").
++- Preserve specific scope qualifiers in technical details; avoid vague rewrites that drop precise context (e.g., keep "tech advisor screen height" rather than just "screen height").
++- Keep exact technical phrasing; avoid substituting terms like "starting position" -> "start" or dropping modifiers like "vertically".
++- Preserve exact spacing/formatting in technical details (e.g., "- 30" vs "-30").
++- Preserve exact counts/quantities when they are mentioned (e.g., "3 strings").
++- Preserve rationales (e.g., "it is distracting") when they explain why a change was made.
++- Preserve rationale clauses about why something is unnecessary (e.g., "we don't need to show beyond BFC").
++- Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
++- Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
++- Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->`.
++- When user feedback adds a new rule, update this file proactively.
+
+diff --git a/README.md b/README.md
+index 938ece907..e7e4dd886 100644
+--- a/README.md
++++ b/README.md
+@@ -452,7 +452,7 @@ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Se
+ 
+ ## Long Comments Archive
+ 
+-Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
++Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
+ Note: we try to balance comment cleanup with keeping concise technical explanations in code when they help maintainers.
+ 
+ ## External file access in Civ4 ingame (on Windows)
+@@ -674,7 +674,7 @@ A significant contribution i made there in particular is the list of things i'd
+ 
+ Then (as) for the second author of AdvCiv-SAS, i proudly present xd:
+ 
+-### chatgpt
++### chatgpt web
+ 
+ #### 4o
+ 
+@@ -707,13 +707,23 @@ Helped me nicely fix or enhance things, although i didn't test it too much yet b
+ 
+ #### 5.2
+ 
+-##### ChatGPT Web
+-
+ Also helped me nicely fix python issues very effectively thanks, i didn't test it yet as well to have a more elaborate opinion or such but it helped me lot thanks but anyways etc.
+ 
+-##### GPT-5.2-Codex (VS Code extension)
++### GPT-Codex (VS Code extension)
++
++Note: see also [LLM-guidelines.md](/LLM-guidelines.md).
++
++GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
+ 
+-Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG" alt="gpt_codex (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG" alt="gpt_codex (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG" alt="gpt_codex (3).PNG" width="250"></img>
++
++Another example of code comments summarizing (from  [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
++
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG" alt="codex_ gpt_5.2_comments_correct (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG" alt="codex_ gpt_5.2_comments_correct (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG" alt="codex_ gpt_5.2_comments_correct (3).PNG" width="250"></img>
+ 
+ ### Claude AI
+ 
+@@ -729,16 +739,18 @@ In particular as well, Claude opus 4.5 also helped add buttons (i.e. icons) to t
+ 
+ #### Claude code (VS Code extension)
+ 
++Note: see also [LLM-guidelines.md](/LLM-guidelines.md).
++
+ ##### CuCuGS implementation
+ 
+-More recently, i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach. See [CuCuGS](/README.md#cucugs).
++After having used other LLMs mostly via web chat (i.e. using the web browser), more recently i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach. See [CuCuGS](/README.md#cucugs).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+ 
+ ##### Other tasks: e.g. performance optimizations
+ 
+-Just like [GPT-Codex](/README.md#gpt-52-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
++Just like [GPT-Codex (VS Code extension)](/README.md#gpt-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
+@@ -785,14 +797,14 @@ Note: asking it more complex tasks like adding links as i didn't know how to, it
+ 
+ Helped me attempt to solve using its deep think mode an issue by stealing one of its lines in a very lengthy solutions it provided (crediting it ofc i mean if i may say but anyways etc), even though i had to reverse the change in the end, it was a quite good idea if i may say otherwise thanks (even though i don't know too much about these but anyways etc), see update 2 at [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc) for details anyways etc
+ 
+-#### Grok 4 (Expert)
++### Grok AI
+ 
+-Helped me among the various AIs i tried get a better idea of how to solve [KI#56](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code) (i.e. of the turn 156 crash anyways etc).
++I also tried Grok 4 (Expert) which helped me among the various AIs i tried get a better idea of how to solve [KI#56](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code) (i.e. of the turn 156 crash anyways etc).
+ 
+ In the end i solved it myself by emprirically disabling code until i found the culprit (see link of the known issue for details anyways etc), but its analysis was very sharp among the other AIs i asked (not counting chatgpt 5 which helped me through the whole thing but anyways etc).
+ 
+ I added some of its thoughts as of now after the issue was solved hehe to summarize it in the .cpp code but anyways etc.
+ 
+-#### Kimi K2
++### Kimi AI
+ 
+ I tested Kimi K2 and it looks very fun! Although i barely tested it yet to have an extensive opinion or experience or such i mean if i may say but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG
+new file mode 100644
+index 000000000..573aced43
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG
+new file mode 100644
+index 000000000..c7eacbe38
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG
+new file mode 100644
+index 000000000..dd48d1c77
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG differ
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index 4dbabcb62..a4cfb3a95 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -41,7 +41,7 @@ import re
+ XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
+ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+ table_csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
+-# <!-- custom: md version of the table disabled by default as less advanced and suited for our needs in advciv-sas, kept there if need(ed?) but anyways etc -->
++# <!-- custom: .md table output is disabled by default; CSV/legend is preferred but the option is kept. (GPT-5.2-Codex (summarized)) -->
+ #table_md_filename = f"handicap_info_to_md_{timestamp}.md"
+ legend_md_filename = f"handicap_info_legend_{timestamp}.md"
+ 
+@@ -55,22 +55,19 @@ handicap_infos = root.find('ns:HandicapInfos', namespace)
+ all_fields = set()
+ parsed_data = {}
+ 
+-# <!-- custom: generated by chatgpt thanks to my prompt too as is for all this script anyways etc, but here anyways etc also source is https://gforestshade.github.io/kujira/post/keyichiran/#%E9%83%A8%E6%97%8F%E9%9B%86%E8%90%BD (translated to English with web browser page view right click in context menu translate to english anyways etc), which says
+-# Tribal settlement type key		event
+-# GOODY_LOW_GOLD						Gold (small)
+-# GOODY_HIGH_GOLD						Gold (many)
+-# GOODY_MAP							map
+-# GOODY_SETTLER						開拓者
+-# GOODY_WARRIOR						Warrior
+-# GOODY_SCOUT							Scout
+-# GOODY_WORKER						laborer
+-# GOODY_EXPERIENCE					Experience Points
+-# GOODY_HEALING						recovery
+-# GOODY_TECH							技術
+-# GOODY_BARBARIANS_WEAK				Weak Hostile
+-# GOODY_BARBARIANS_STRONG				Hostile (Strong)
+-
+-# anyways etc -->
++# <!-- custom: Goody type meanings from https://gforestshade.github.io/kujira/post/keyichiran/#%E9%83%A8%E6%97%8F%E9%9B%86%E8%90%BD (translated). Credit: ChatGPT. Mapping:
++# GOODY_LOW_GOLD -> Gold (small)
++# GOODY_HIGH_GOLD -> Gold (many)
++# GOODY_MAP -> Map
++# GOODY_SETTLER -> Settler
++# GOODY_WARRIOR -> Warrior
++# GOODY_SCOUT -> Scout
++# GOODY_WORKER -> Laborer
++# GOODY_EXPERIENCE -> Experience Points
++# GOODY_HEALING -> Recovery
++# GOODY_TECH -> Tech
++# GOODY_BARBARIANS_WEAK -> Hostile (weak)
++# GOODY_BARBARIANS_STRONG -> Hostile (strong). (GPT-5.2-Codex (summarized)) -->
+ ALL_GOODY_TYPES = (
+ 	"GOODY_LOW_GOLD",
+ 	"GOODY_HIGH_GOLD",
+@@ -312,7 +309,7 @@ with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
+ 
+ 	# Write a fully padded [LEGEND] header row
+ 	# Determine where actual legend columns begin (e.g., skip the 'Field' column)
+-	# <!-- custom: shift the entire display of the "[LEGEND]" items's line one column to the right ( [""] ) if i am not mistaken anyways etc -->
++	# <!-- custom: shift the "[LEGEND]" line one column right by inserting an empty cell. (GPT-5.2-Codex (summarized)) -->
+ 	legend_header_row = [""] + ["[LEGEND]"] * (NUM_COLUMNS - 1)
+ 	legend_csv.writerow(legend_header_row)
+ 
+@@ -352,7 +349,7 @@ with open(legend_md_filename, "w", encoding="utf-8") as md:
+ 
+ print(f"→ Legend saved as: {legend_md_filename}")
+ 
+-# <!-- custom: commented-out table to .md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
++# <!-- custom: .md table output is unused in AdvCiv-SAS; uncomment if needed. (GPT-5.2-Codex (summarized)) -->
+ # --- Step 8: Write Markdown table ---
+ # with open(table_md_filename, "w", encoding="utf-8") as md:
+ # 	# Header
+
+diff --git a/flatten_leaders_data_to_csv.py b/flatten_leaders_data_to_csv.py
+index b05e2dc03..e01710ee1 100644
+--- a/flatten_leaders_data_to_csv.py
++++ b/flatten_leaders_data_to_csv.py
+@@ -59,7 +59,7 @@ from datetime import datetime
+ import ast
+ from collections import defaultdict
+ 
+-# <!-- custom: this flatten_leaders_data_to_csv.py script requires leaders_data.py to be in same folder than this flatten_leaders_data_to_csv.py script anyways etc -->
++# <!-- custom: requires leaders_data.py in the same folder. (GPT-5.2-Codex (summarized)) -->
+ from leaders_data import *
+ 
+ # --- Step 1: Setup timestamped output ---
+@@ -130,7 +130,7 @@ numerical_attitude_threshold = []
+ numerical_no_war_attitude_prob = []
+ numerical_contact_rand_raw = []
+ numerical_contact_delay_raw = []
+-# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
++# <!-- custom: raw attitude %/decay are displayed the same for pos/neg and affection/resentment, so store one set (e.g., iMemoryAttitudePercentDeclaredWar) like the XML structure. (GPT-5.2-Codex (summarized)) -->
+ numerical_memory_attitude_percent_raw = []
+ numerical_memory_decay_raw = []
+ numerical_aggregated_contact_prob = []
+@@ -141,8 +141,8 @@ numerical_aggregated_negative_memory_resentment = []
+ non_numeric = []
+ 
+ for field in numeric_fields:
+-	# <!-- custom: some fields such as "MaxWarRand" in leaders_data.py are parsed (in generate_leaders_data.py) with a "get" prefix (for example "getMaxWarRand") instead of an "i" (not "iMaxWarRand" like the XML but as said before is "getMaxWarRand") prefix in leaders_data.py for consistency with the not interacting with but using same key names independently anyways etc sevopedia leader AI personality panel code), see generate_leaders_data.py generic and attitude threshold for example (at least as of now these are the only fields we parse with a "get" prefix anyways etc) field parsing code or/and code comments for details anyways etc ; here we want to display attitude thresholds in columns one next to the other too/as well i mean so separate them from generic getter fields anyways etc) -->
+-	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
++	# <!-- custom: fields like MaxWarRand are stored with a "get" prefix for consistency with Sevopedia leader keys; keep attitude thresholds separate so they can be grouped. (GPT-5.2-Codex (summarized)) -->
++	# <!-- custom: filter by startswith first, then endswith, to avoid overlaps. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 	if field.startswith("get") and (not field.endswith("AttitudeThreshold")):
+ 		numerical_generic.append(field)
+ 	elif field.startswith("iFlavor"):
+@@ -174,7 +174,7 @@ for field in numeric_fields:
+ 		else:
+ 			raise KeyError(f"[KEY ERROR] Unknown or missing aggregated negative memory suffix, or/and unknown negative memory field format in field={field}, please update your XML field formats or this code to accomodate them.")
+ 
+-	# <!-- custom: if i am not mistaken only after the startswith fields (except startswith fields (for example "iAggregatedPositiveMemory") that can be subfiltered with another inner startswith or endswith (for example subfiltered with an endswith("Affection") anyways etc) or anything else too if i am not mistaken anyways etc) do we do the endswith fields anyways etc -->
++	# <!-- custom: handle endswith cases after startswith cases (including subfilters) to avoid misclassification. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 	elif field.endswith("AttitudeChange"):
+ 		numerical_attitude_change.append(field)
+ 	elif field.endswith("AttitudeDivisor"):
+@@ -192,7 +192,7 @@ for field in all_columns:
+ 	if field not in leader_column + numeric_fields:
+ 		non_numeric.append(field)
+ 
+-# <!-- custom: here is where we actually order the columns if i am not mistaken anyways etc -->
++# <!-- custom: column order is assembled here. (GPT-5.2-Codex (summarized)) -->
+ columns = (
+ 	leader_column +
+ 	numerical_generic +
+@@ -216,7 +216,7 @@ columns = (
+ 	non_numeric
+ )
+ 
+-# --- <!-- custom: Step 4.3: anyways etc --> Abbreviate headers ---
++# --- <!-- custom: Step 4.3: abbreviate headers. (GPT-5.2-Codex (summarized)) -->
+ abbrev_map = {"Leader": "Leader"}
+ abbrev_count = defaultdict(int)
+ abbrev_usage = defaultdict(list)
+@@ -241,7 +241,7 @@ for field in columns:
+ # Step 4.3.2: Assign abbreviations with forced 0 suffix if needed
+ for base_abbr, fields in abbrev_usage.items():
+ 	if len(fields) == 1:
+-		# No duplicates — use plain base abbreviation <!-- custom: for example FC if i am not mistaken, anyways etc -->
++		# No duplicates — use the base abbreviation (e.g., FC). (GPT-5.2-Codex (summarized)) -->
+ 		abbrev_map[fields[0]] = base_abbr
+ 	else:
+ 		# Multiple fields — assign FC0, FC1, ..., FCa, FCb, ...
+@@ -250,7 +250,7 @@ for base_abbr, fields in abbrev_usage.items():
+ 				abbr = f"{base_abbr}{i}"
+ 			else:
+ 				# After 10, switch to letters: a = 10, b = 11, ..., z = 35
+-				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say anyways etc.) -->
++				# <!-- custom: use lowercase letters (e.g., 'a') to distinguish from real uppercase abbreviations (e.g., 'A'). (GPT-5.2-Codex (summarized)) -->
+ 				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
+ 			abbrev_map[field] = abbr
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index b7889308d..dc358a35c 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -13,7 +13,7 @@
+ #		(b) The placeholder is explicitly marked and **guaranteed** unused in any scoring, logic, or AI behavior
+ #			(e.g., in SevoPedia UI rows for disabled leaders).
+ #		(c) All restoration or recovery attempts (e.g., merging from LEADER_DEFAULTS) have failed and the value is necessary to preserve structure or parsing flow. This must be logged and justified.
+-#		(d) <!-- custom: the placeholder is otherwise necessary as part of the logic and/or such, and not simply used to hide a "i don't have a value please don't crash please" error hehe anyways etc anyways -->
++#		(d) <!-- custom: placeholder is required by the logic, not to hide missing data. (GPT-5.2-Codex (summarized)) -->
+ #	Such values are not "defaults" but valid design elements and must never be used to mask missing data.
+ #
+ # 🐛 Lesson Learned:
+@@ -26,8 +26,8 @@
+ # 🛠️ Usage:
+ #   - Run externally (e.g., Python 3.x via Windows CMD).
+ #   - Generates a `leaders_data_*.py` file <!-- custom: based on the mod's CIV4LeaderHeadInfos.xml -->
+-#   - <!-- custom: Output file is used for external to Civ4 leaders data analysis and display, for example a .csv comparing all leaders's values table generated by flatten_leaders_data_to_csv.py (with a corresponding .md legend as well at least as of now anyways etc) -->
+-#   - The --notesting flag skips test validation. <!-- custom: Mostly useful --> when adapting to other mods (e.g., AdvCiv) <!-- custom: or if it is extremely tedious to update tests, but as they make sure we didn't do a mistake anywhere, i'd recommend always manually updating tests then trying to regnerate a leaders_data.py that passes the test, else do so knowingly i mean if is what you want i mean you can too as you prefer/want anyways etc. --> Ensure you validate the new output manually before trusting it.
++#   - <!-- custom: output file is used for external analysis/display (e.g., CSV/MD legend from flatten_leaders_data_to_csv.py). (GPT-5.2-Codex (summarized)) -->
++#   - The --notesting flag skips test validation. <!-- custom: useful when adapting to other mods or when updating tests is too tedious; prefer updating tests and rerunning unless you intentionally skip, and always validate output manually. (GPT-5.2-Codex (summarized)) --> Ensure you validate the new output manually before trusting it.
+ #
+ # ✨ Note:
+ #   - Dedicated to friendship, recursion, and the gentle joy of debugging together.
+@@ -42,7 +42,7 @@ import json
+ from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import *
+ 
+ # --- Command-line arguments ---
+-# <!-- custom: useful for example to skip testing where/when/for other mods who'd want to run our generate_leaders_data.py script for example, but don't have an updated test in expected output, or even if they had it their expected output may be greatly or still a bit but enough sadly or not to make test fail hehe if i may say but anyways etc... rather than add and tediously update the expected output, just to use the leaders_data.py for other external scripts that depend on leaders_data.py such as flatten_leaders_data_to_csv.py, perhaps not even for the AI Personality Panel in sevopedia leader, it would be too tedious, purposeless, meritless gainless perhaps if i may say but anyways etc..., and not worth it to go through all that hassle, so provide the option to skip testing altogether by command line argv instead as i did in past project(s) hehe if i may say, without understanding much, now i may not know much of the theory behind it but it's fun to implement such an idea myself hehe when relevant and as i thought to do so, in this case for the flatten leaders data to csv and such script. -->
++# <!-- custom: --notesting helps when running this for other mods without updated expected output; avoids tedious updates when you only need leaders_data.py for external scripts (e.g., flatten_leaders_data_to_csv.py). Still validate manually. (GPT-5.2-Codex (summarized)) -->
+ ARGV_NO_TESTING = "--notesting" in sys.argv
+ 
+ if not ARGV_NO_TESTING:
+@@ -56,10 +56,10 @@ else:
+ 	print("[WARNING] Skipping get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE import due to --notesting flag.")
+ 
+ EXPECTED_OUTPUT_LEADERS_TO_TEST = (
+-	# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/>. -->
++	# <!-- custom: include BARBARIAN/DEFAULTS for edge cases (e.g., <NoWarAttitudeProbs/>, <Flavors/>) and parsing sanity checks. (GPT-5.2-Codex (summarized)) -->
+ 	"LEADER_BARBARIAN",
+ 	"LEADER_DEFAULTS",
+-	# <!-- custom: then the rest of the batch/crew or staff xd is here actually i said it now even though is not professional team but anyways etc. -->
++	# <!-- custom: remaining entries are sample leaders for tests. (GPT-5.2-Codex (summarized)) -->
+ 	"LEADER_ALEXANDER",
+ 	"LEADER_CATHERINE",
+ 	"LEADER_GANDHI",
+@@ -104,22 +104,21 @@ EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
+ 	"LEADER_BARBARIAN",
+ )
+ 
+-# <-- custom: unused in the excluded leaders from aggregation, still respects stucture as they have a value in these agggegated attributes fields too, and also a negative normalized value would guarantee a crash/error in sevopedia leader if it wee to be used (i.e. if leader_barabrian and/or leader_defaults were not excluded from real sevoepdia leader output anyways etc) -->
++# <-- custom: sentinel for excluded leaders; keeps structure, and prevents negative normalized values that would crash Sevopedia if used. (GPT-5.2-Codex (summarized)) -->
+ SENTINEL_AGGREGATED_DUMMY_VALUE = -999
+ 
+ # set to False if you want to turn it off
+ DEBUG_CONTACT_FLATTENING = False  
+ DEBUG_MEMORY_FLATTENING = False
+ B_WARN = True
+-# <!-- custom: reference point to debug as she has many memory attirbutes for example but not all unless i'm mistaken anyways etc -->
++# <!-- custom: debug reference leader with many memory attributes. (GPT-5.2-Codex (summarized)) -->
+ IS_INSPECT_DEBUG_LEADER = True
+ LEADER_TO_INSPECT_IN_DEBUG_OUTPUT = "LEADER_CATHERINE"
+ 
+ # --- Mappings ---
+ 
+-# <!-- custom: match sevopedia leader gc getter naming for consistency with key names we use in sevopedia leader, for example rename "iMaxWarRand" to "getMaxWarRand".
+-# The generate leaders_data.py is not used (anymore) as an XML fetching tool ingame at all, but (now anyways etc) only as an external to civ4 leader info xml parsing tool, so doing this key name renaming in generate_leaders_data.py is not strictly needed, but it may be clearer to use same key names as in sevopedia leader code and also easier if we were to handle these in other ways in the future maybe. See also sevopedia leader py file's code for details and possible explanations it has of why we name keys with getters. In short as of now it is because we summon the field with gc getter name call, however later no need to rename getter so use getter as a key name for example LEADERS_INFO_CACHED["getMaxWarRand"] (unrelated to generate_leaders_data.py as we don't have at all a LEADERS_INFO_CACHED in generate_leaders_data.py but it is to explain why we rename them as such anyways etc) even though it is not a method any more and cannot be called like a function/method, just a key name like LEADERS_INFO_CACHED["iFlavorMilitary"] would be. We chose in AdvCiv-SAS at least anyways etc to rename the fields we parse ingame (not related to this script but for consistency using same key naming as in sevopedia leader, also in this script key names anyways etc) as "iFieldName" vs "getFieldName" for the generic ones that we display that use a gc getter name without additional parsing (for example Flavors are nested so even though they use a quite straightforward gc getter, we parse them as "i" key name prefix, similar principle/concept/idea for contact probs, refuse atittude thresholds and others if any. -->
+-# <!-- custom: note: iLoveOfPeace not here since not used in AdvCiv hence not in AdvCiv-SAS too anyways etc ; similarly or/and also as well, fields we don't use or parse in a specific way or at all in sevopedia leader keep their generic XML parsed tag name in generate_leaders_data.py, even though we could rename them if we want since this script is not related/does not interact to the AI personality panel of/in sevopedia leader, but doing so for consistency of naming. -->
++# <!-- custom: rename fields to match Sevopedia leader getter-style keys (e.g., iMaxWarRand -> getMaxWarRand) for consistency with in-game code, even though this script runs externally. (GPT-5.2-Codex (summarized)) -->
++# <!-- custom: fields not used in Sevopedia (e.g., iLoveOfPeace) keep their XML tag names. (GPT-5.2-Codex (summarized)) -->
+ GENERIC_RENAMED_FIELDS = (
+ 	"iWonderConstructRand",
+ 	"iBaseAttitude",
+@@ -187,26 +186,26 @@ GENERIC_RENAMED_FIELDS = (
+ )
+ 
+ ATTITUDE_MAP = {
+-	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps. -->
++	# <!-- custom: based on https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/ and judgment, "NONE" is more permissive than furious; map to -1..4 (none..friendly) to better match DLL/Sevopedia behavior. (GPT-5.2-Codex (summarized)) -->
+ 	"NONE": -1,
+ 	"ATTITUDE_FURIOUS": 0,
+ 	"ATTITUDE_ANNOYED": 1,
+ 	"ATTITUDE_CAUTIOUS": 2,
+ 	"ATTITUDE_PLEASED": 3,
+ 	"ATTITUDE_FRIENDLY": 4,
+-	# <!-- custom: disabled field in generate_leaders_data as XML does not have a higher than friendly attitude unlike DLL that seems to ingame alter some values to 5 like map attitude thing anyways etc if i am not mistaken anyways etc trading map or such thing indeed from my memory but anyways etc
++	# <!-- custom: XML has no attitude higher than Friendly; DLL may use 5 (e.g., map trade), so keep disabled here. (GPT-5.2-Codex (summarized)) -->
+ 	# "ALWAYS??": 5,
+ }
+ 
+-# <!-- custom: note: similarly to GENERIC_RENAMED_FIELDS, these attitude threshold fields are renamed to/using a "get" prefix not an "i" prefix even though we parse their data as numerical anyways etc -->
++# <!-- custom: like GENERIC_RENAMED_FIELDS, these attitude thresholds use a "get" prefix key even though values are numeric. (GPT-5.2-Codex (summarized)) -->
+ REFUSE_ATTITUDE_FIELDS = {
+ 	"DemandTributeAttitudeThreshold",
+ 	"NoGiveHelpAttitudeThreshold",
+ 	"TechRefuseAttitudeThreshold",
+-	# <!-- custom: base advciv specific new or similar kind of non-civ4 supported attitude threshold fields if i am not mistaken (didn't check, anyways etc) -->
++	# <!-- custom: base AdvCiv-specific attitude thresholds (not in vanilla Civ4). (GPT-5.2-Codex (summarized)) -->
+ 	"CityRefuseAttitudeThreshold",
+ 	"NativeCityRefuseAttitudeThreshold",
+-	# <!-- custom: end of base advciv new addition if i am not mistaken (didnt check same code comment i mean similarly but or not but anyways etc -->
++	# <!-- custom: end of base AdvCiv-specific additions. (GPT-5.2-Codex (summarized)) -->
+ 	"StrategicBonusRefuseAttitudeThreshold",
+ 	"HappinessBonusRefuseAttitudeThreshold",
+ 	"HealthBonusRefuseAttitudeThreshold",
+@@ -273,7 +272,7 @@ POSITIVE_MEMORY_TYPES = tuple(get_positive_memory_indexes_to_types().values())
+ NEGATIVE_MEMORY_TYPES = tuple(get_negative_memory_indexes_to_types().values())
+ ALL_MEMORY_TYPES = tuple(POSITIVE_MEMORY_TYPES + NEGATIVE_MEMORY_TYPES)
+ 
+-# <!-- custom: allow an exception for this MEMORY_RECEIVED_TECH_FROM_ANY memory type only, as it seems to not be strictly a negative or positive memory type, and its memory attitude percent value is missing, still is displayed as 0 it seems for example for leader gandhi in debug output in sevopedia (see _sevopedia_helpers.py for details), so just skip the error in this case, i assume it would default to 0 as is displayed in game coincidentally and as we want it too but anyways etc ; similar reasoning for MEMORY_STOPPED_TRADING_RECENT not having any memory attitude percent value (only a memory decay value) in leader_defaults, and not memory attitude percent value in any leader (debug for leader gandhi in sevopedia ingame from gc shows this "Memory 21 (MEMORY_STOPPED_TRADING_RECENT): Attitude 0, Decay 18" ; value of 0 so probably fine if i am not mistaken to also skip it in our leaders_data if i am not mistaken anyways) so skipping it as well anyways etc -->
++# <!-- custom: allow exceptions for MEMORY_RECEIVED_TECH_FROM_ANY and MEMORY_STOPPED_TRADING_RECENT: they lack attitude % values but show 0 in Sevopedia debug (e.g., Gandhi), so skip errors and treat as 0. (GPT-5.2-Codex (summarized)) -->
+ MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS = (
+ 	"MEMORY_RECEIVED_TECH_FROM_ANY",
+ 	"MEMORY_STOPPED_TRADING_RECENT",
+@@ -309,7 +308,7 @@ def infer_type(tag):
+ 	return TYPE_HINTS.get(tag, int if tag.startswith("i") else str)
+ 
+ def parse_generic_renamed_fields(tag, text, leader, leader_data):
+-	# <!-- custom: for example "iMaxWarRand" -> "getMaxWarRand" anyways etc -->
++	# <!-- custom: e.g., "iMaxWarRand" -> "getMaxWarRand". (GPT-5.2-Codex (summarized)) -->
+ 	attr_name = f"get{tag[1:]}"
+ 	leader_data[attr_name] = text
+ 
+@@ -317,7 +316,7 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
+ 	if text not in ATTITUDE_MAP:
+ 		raise ValueError(f"[FATAL] Unknown attitude text '{text}' for tag '{tag}' at refuse atttitude thresholds parsing stage in leader {leader}.")
+ 
+-	# <!-- custom: for example "DemandTributeAttitudeThreshold" -> "getDemandTributeAttitudeThreshold" anyways etc -->
++	# <!-- custom: e.g., "DemandTributeAttitudeThreshold" -> "getDemandTributeAttitudeThreshold". (GPT-5.2-Codex (summarized)) -->
+ 	attr_name = f"get{tag}"
+ 	leader_data[attr_name] = ATTITUDE_MAP[text]
+ 
+@@ -341,7 +340,7 @@ def parse_no_war_attitude_probs_inline(child, leader_data, leader_type):
+ 				raise ValueError(f"[WARNING] Non-integer NoWarProb for {leader_type} attitude_type {attitude_type}: '{value}'")
+ 
+ 	# Now apply monotonicity with a "first-found" flag
+-	# <!-- custom: this is needed in case defaults are for example 0 / 0 / 0 / 0 / 100 , and leader_barbarian has for example (or other leaders similarly or in another way related anyways etc) missing / missing / missing / missing / missing, then do not apply max_so_far 0 until a real first value has been found, else keep applying missing as the max i.e. keep missing, until then i.e. until if/when we find a real value to be a max_so_far can the max_so_far logic apply, else if we don't do that we'd get barbarian leader data as 0 / 0 / 0 / 0 / 0 instead of missing / missing / missing / missing / missing, which would then prevent defaults from being injected later, as a value of 0 was already applied everywhere, so the 100 at friendly would not be applied by defaults ; so adding in short or long or anyways etc the found_first logic also allows to keep using the max_so_far logic as we want, but only when relevant, i.e. only when/after/if the first occurence of a real value has been found, else keep assigning missing values no max_so_far_logic to ensure defaults cover us later nicely and accurately/reliably too if i may say but anyways etc -->
++	# <!-- custom: if defaults are 0 / 0 / 0 / 0 / 100 and leader_barbarian is missing / missing / missing / missing / missing, don't apply max_so_far=0 before the first real value; otherwise you'd get 0 / 0 / 0 / 0 / 0 and block defaults (100 at friendly). "found_first" keeps missing values until a real value appears. (GPT-5.2-Codex (summarized)) -->
+ 	found_first = False
+ 	# Apply monotonicity rule to existing values
+ 	# (e.g., Alexander: missing/missing/20/80/missing -> missing/missing/20/80/80)
+@@ -366,7 +365,7 @@ def parse_no_war_attitude_probs_inline(child, leader_data, leader_type):
+ 			max_so_far = value
+ 			found_first = True
+ 
+-# Fetch from defaults <!-- custom:'s real leaders_data, not XML, much easier this way so we can handle the max so far logic already processed in defaults, for example a default of 0 / 0 / 88 / 0 / 0  would be maxed so far as 0 / 0 / 88 / 88 / 88 rather than 0 / 0 / 88 / 88 / 88, much easier if i am not mistaken too anyways etc, and no need to max from defaults again since we already did anyways etc -->
++# Fetch from defaults <!-- custom: use defaults leaders_data (not XML) so max_so_far is already applied; no need to recompute. (GPT-5.2-Codex (summarized)) -->
+ def ensure_complete_no_war_attitude_probs(leaders_data, leader_defaults_data):
+ 	for leader_type, leader_data in leaders_data.items():
+ 		if leader_type == "LEADER_DEFAULTS":
+@@ -412,7 +411,7 @@ def parse_flavors_inline(child, leader_data, leader_type):
+ 						print(f"[WARNING] Non-integer Flavor for {leader_type} flavor {flavor}: '{value}'")
+ 						leader_data[field_name] = 0
+ 
+-# <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors's no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now):
++# <!-- custom: fix missing flavor defaults injection (e.g., keep leader military=10 while filling missing religion from defaults). Credit: Claude AI. (GPT-5.2-Codex (summarized)) -->
+ # [TEST FAILED] Parsed sample does not match expected!
+ #
+ # --- Mismatches for LEADER_ALEXANDER ---
+@@ -426,7 +425,7 @@ def parse_flavors_inline(child, leader_data, leader_type):
+ # - Field 'iFlavorReligion' mismatch: expected '0', got '123'
+ # [EXIT] Leader sample test failed. File not written.
+ #
+-# which indicates that this is now fixed, thanks to Claude AI and my prompt too hehe anyways etc -->
++# which indicates that this is now fixed. Credit: Claude AI. (GPT-5.2-Codex (summarized)) -->
+ def ensure_complete_flavors(leaders_data):
+ 	# Ensure all leaders have all flavor fields, setting missing ones to 0.
+ 	# This should be called after defaults injection.
+@@ -717,7 +716,7 @@ def flatten_all_contacts(leaders_data):
+ 			adjusted_value_delay_norm_score_3 = normalize_to_100(delay_3, min_delay_3, max_delay_3, B_WARN, b_invert_delay_3, "delay")
+ 			aggregated_raw_contact_score_from_adjusted_values_3 = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_norm_score_3, adjusted_value_delay_norm_score_3, force_zero_adjusted_values_3)
+ 
+-			# <!-- custom: raw aggregated key will be removed later after normalization of aggregated memory fields anyways etc -->
++			# <!-- custom: raw aggregated keys are removed after normalization. (GPT-5.2-Codex (summarized)) -->
+ 			leader_data_3[aggregated_raw_field_name_3] = aggregated_raw_contact_score_from_adjusted_values_3
+ 			aggregated_contact_score_raw_from_adjusted_values_by_type[contact_type_3].append(aggregated_raw_contact_score_from_adjusted_values_3)
+ 
+@@ -777,7 +776,7 @@ def remove_intermediate_contact_fields(leaders_data):
+ 			for leader_data in leaders_data.values():
+ 				leader_data.pop(field_name, None)
+ 
+-# <!-- custom: this is not in ai_utils_shared_with_civ4.py as for the sevopedia leader part of fetching, we get already adjusted values from the DLL (unlike what is a bit different for the contact code where we get already DLL adjusted values anyways etc -->
++# <!-- custom: not in ai_utils_shared_with_civ4.py; Sevopedia gets adjusted values from the DLL (unlike contact code). (GPT-5.2-Codex (summarized)) -->
+ def get_pre_adjusted_raw_memory_values(raw_attitude_percent, raw_decay, mem_type, is_positive):
+ 	# Adjusts memory attitude percent and decay values according to standard rules.
+ 	# Returns: (adjusted_attitude, adjusted_decay)
+@@ -863,11 +862,11 @@ def flatten_all_memories(leaders_data, is_positive, is_affection):
+ 			if parsed_name_decay_1 not in leader_data_1:
+ 				leader_data_1[parsed_name_decay_1] = decay_raw_1
+ 
+-			# <!-- custom: pre adjust values (for memory fields specifically unlike contact fields anyways etc), clearer to separate it this way and so we can reuse the common adjust logic both in generate_leaders_data.py and sevopedia leader too anyways etc -->
++			# <!-- custom: pre-adjust memory values so we can reuse the adjust logic here and in Sevopedia. (GPT-5.2-Codex (summarized)) -->
+ 			pre_adjusted_raw_attitude_percent_1, pre_adjusted_raw_decay_1 = get_pre_adjusted_raw_memory_values(attitude_percent_raw_1, decay_raw_1, mem_type_1, is_positive)
+ 			# Adjust values
+ 			attitude_percent_adjusted_1, decay_adjusted_1, force_zero_adjusted_affection_or_resentment_1 = get_adjusted_memory_values(pre_adjusted_raw_attitude_percent_1, pre_adjusted_raw_decay_1, is_affection, DEBUG_MEMORY_FLATTENING, mem_type_1)
+-			# <!-- custom: adjustment depends only on is_affection, not dependent on is_positive regardless of its value, so no need to store the 4 combinations, store only 2 (i.e. only positive and negative (i.e. all anyways etc) adjusted memory affections, and similarly positive and negative (i.e. all anyways etc) memory decays) out of the 4 positive-negative and affection-resentment combination for adjusted raw fields anyways etc, same for force zero (field, even though it is temporary too (i.e. that we don't store permanently nor display but is used as part of computations anyways etc)) anyways etc -->
++			# <!-- custom: adjustment depends only on is_affection, so store 2 combos (affection/resentment) instead of 4; force_zero is temporary. (GPT-5.2-Codex (summarized)) -->
+ 			leader_data_1[f"iAdjustedMemoryAttitudePercent{short_name_1}{affection_resentment}"] = attitude_percent_adjusted_1
+ 			leader_data_1[f"iAdjustedMemoryDecay{short_name_1}{affection_resentment}"] = decay_adjusted_1
+ 			leader_data_1[f"bForceZeroMemory{short_name_1}{affection_resentment}"] = force_zero_adjusted_affection_or_resentment_1
+@@ -919,7 +918,7 @@ def flatten_all_memories(leaders_data, is_positive, is_affection):
+ 			decay_adjusted_norm_3 = normalize_to_100(decay_adjusted_3, min_dec_3, max_dec_3, B_WARN, b_invert_decay_3, "dec")
+ 			aggregated_raw_memory_score_from_adjusted_values_3 = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(attitude_percent_adjusted_norm_3, decay_adjusted_norm_3, force_zero_adjusted_affection_or_resentment_3)
+ 
+-			# <!-- custom: raw aggregated key will be removed later after normalization of aggregated memory fields anyways etc -->
++			# <!-- custom: raw aggregated keys are removed after normalization. (GPT-5.2-Codex (summarized)) -->
+ 			leader_data_3[aggregated_raw_field_name_3] = aggregated_raw_memory_score_from_adjusted_values_3
+ 			aggregated_raw_scores_by_type[mem_type_3].append(aggregated_raw_memory_score_from_adjusted_values_3)
+ 
+@@ -954,7 +953,7 @@ def flatten_all_memories(leaders_data, is_positive, is_affection):
+ def prune_nested_memory_lists_if_flattened(leaders_data):
+ 	# Removes 'MemoryAttitudePercents' and 'MemoryDecays' if all memory fields have been flattened.
+ 
+-	# <!-- custom: we parse only 1 of the 4 combinations possible of possible of positive-negative memory affection-resentment, same as in XML structure, so just called or rather named it anyways etc for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc ; so here there is only one kind of parsed name field to check before pruning nested old parsed fields if i may say anyways etc -->
++	# <!-- custom: parse only 1 of 4 memory combinations for raw fields (e.g., iMemoryAttitudePercentDeclaredWar) to match XML; use this to prune nested fields. (GPT-5.2-Codex (summarized)) -->
+ 	for leader_data in leaders_data.values():
+ 		has_all_flat = all(
+ 			f"iMemoryAttitudePercent{get_pascal_case_suffix(mem_type)}" in leader_data and
+@@ -982,9 +981,9 @@ def remove_intermediate_memory_fields(leaders_data):
+ 	# - Because the final aggregate scores are meant to be displayed in the Sevopedia UI.
+ 	# - These `Positive` and `Negative` variants are the *output* of the flattening process, not intermediate data.
+ 	#
+-	# Therefore, <!-- custom: anyways etc `Positive` or `Negative` are also --> intentionally not part of the cleanup pattern. <!-- custom: as adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only clean affection and resentment versions of the adjusted temporary data we used to calculate raw aggregated positive and negative memory affections and resentments if i am not mistaken. -->
++	# Therefore, <!-- custom: `Positive`/`Negative` are intentionally not in the cleanup pattern since adjusted fields don't split by sign; only affection/resentment vary. (GPT-5.2-Codex (summarized)) -->
+ 
+-	# <!-- custom: in short if i am not mistaken anyways etc here 2 of 4 combinations to clean for adjusted fields, so alll (positive and negative) affections, and all (positive and negative) resentments anyways etc, so loop overall all memory types not just positive or negative ones only/restricetedly anyways etc -->
++	# <!-- custom: clean 2 of 4 combinations (all affections, all resentments) across all memory types. (GPT-5.2-Codex (summarized)) -->
+ 	# --- Memory fields ---
+ 	for is_affection in (True, False):
+ 		affection_resentment = get_affection_resentment(is_affection)
+@@ -1043,7 +1042,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
+ 		seen_tags.add(tag)
+ 		expected = infer_type(tag)
+ 
+-		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
++		# <!-- custom: handle nested fields first so <Flavors/> with empty lists yields 0s instead of skipping; avoids treating nested fields as scalar. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ 		# --- always handle known nested tags first — even if empty
+ 		if tag == "NoWarAttitudeProbs":
+ 			parse_no_war_attitude_probs_inline(child, leader_data, leader_type)
+@@ -1058,7 +1057,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
+ 		elif tag == "MemoryDecays":
+ 			leader_data["MemoryDecays"] = parse_memory_decays_inline(child)
+ 
+-		# <!-- custom: only then (i.e. only after specifically to parse nested (i.e. only those in NESTED_FIELDS_TO_SPECIFICALLY_PARSE anyways etc) do we handle --> scalar fields <!-- custom: anyways etc... -->
++		# <!-- custom: after nested fields, handle scalar fields. (GPT-5.2-Codex (summarized)) -->
+ 		elif len(child) == 0:
+ 			if tag in GENERIC_RENAMED_FIELDS:
+ 				parse_generic_renamed_fields(tag, text, leader, leader_data)
+@@ -1075,7 +1074,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
+ 					errors.append(f"[TYPE WARNING] Leader {leader_type}: Expected string for <{tag}>, got numeric '{text}'")
+ 				leader_data[tag] = text
+ 
+-		# <!-- custom: nested fields not handled in a specific way (i.e. those not in NESTED_FIELDS_TO_SPECIFICALLY_PARSE anyways etc) --> like <Traits>, <UnitAIWeightModifiers>, etc. (just parse all as a JSON-like object, we don't use these fields in the AI Personality Panel anyway) -->
++		# <!-- custom: other nested fields (e.g., <Traits>, <UnitAIWeightModifiers>) are parsed as JSON-like objects; not used in the AI panel. (GPT-5.2-Codex (summarized)) -->
+ 		# These are allowed and will be treated as list-of-dicts if present
+ 		else:
+ 			sub_entries = [
+@@ -1090,7 +1089,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
+ # <!-- custom: before parsing any leader is done, make sure our normalize_to_100 shifting works as expected -->
+ test_expected_shifting_pre_normalize_to_100()
+ 
+-# <!-- custom: leader_defaults_data block as highlighted by chatgpt to me so adding this info anyways -->
++# <!-- custom: leader_defaults_data block (highlighted by ChatGPT). (GPT-5.2-Codex (summarized)) -->
+ # 1. Parse LEADER_DEFAULTS (this fills leader_defaults_data)
+ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
+ 	type_tag = leader.find("civ4:Type", ns)
+@@ -1123,7 +1122,7 @@ for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
+ 			"iMemoryAttitudePercent": 0
+ 		})
+ 
+-# <!-- custom: ideally should also do the same for memoryDecays indeed too if i may say as chatgpt suggests and i adjusted value weirdly from 100 it said to 0 maybe fits better for missing or and is the default if empty in leader_defaults but anyways etc ; it seems leader_defaults has all fields already but in case one were to be missing like a few memory atittude percent fields do but anyways etc, then these/those memory decay fields would default to 0 if i am not mistaken, so handle them if any are missing as such (i.e. as 0 if i am not mistaken but anyways etc) so our data displays/handle it accurately anyways etc -->
++# <!-- custom: handle missing memoryDecays by injecting 0 (matches LEADER_DEFAULTS behavior); suggestion from ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ if "MemoryDecays" not in leader_defaults_data:
+ 	leader_defaults_data["MemoryDecays"] = []
+ 
+@@ -1141,7 +1140,7 @@ for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
+ 			"iMemoryDecayRand": 0
+ 		})
+ 
+-# <!-- custom: leader_data block as highlighted by chatgpt to me so adding this info anyways -->
++# <!-- custom: leader_data block (highlighted by ChatGPT). (GPT-5.2-Codex (summarized)) -->
+ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
+ 	type_tag = leader.find("civ4:Type", ns)
+ 	if type_tag is None or not type_tag.text:
+@@ -1196,7 +1195,7 @@ prune_nested_flavors_if_flattened(leaders_data)
+ prune_nested_contact_lists_if_flattened(leaders_data)
+ prune_nested_memory_lists_if_flattened(leaders_data)
+ 
+-# <!-- custom: safer to do the cleanup only after all parsing is done if i am not mistaken, to make sure data is not used in other places before that if i'm not mistaken and based on my understanding of chatgpt's answer and response and suggestion to me etc anyways -->
++# <!-- custom: run cleanup only after all parsing so intermediate data isn't needed elsewhere. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+ # --- Cleanup remaining unused legacy fields if not already done ---
+ if IS_INSPECT_DEBUG_LEADER:
+ 	print("4 - Before any remove_intermediate functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
+@@ -1256,9 +1255,7 @@ if not ARGV_NO_TESTING:
+ 		else:
+ 			print("[TEST PASSED] Parsed sample matches expected sample!")
+ 
+-	# <!-- custom: tip: use the command-line argument --notesting to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in mind is faster and for convenience, anwyays)) ;
+-	# 
+-	# but be very careful following that advice!! You can (at least i did) very easily miss mismatched values, so use it as easy copy paste rather than skip meticulous verify, rest is up to you though in all cases, at least i warned maybe, hopefully helps though as information not warn strictly or yes or etc but anyways -->
++	# <!-- custom: tip: use --notesting to generate output faster, then update expected output; be careful, it's easy to miss mismatches?verify thoroughly. (GPT-5.2-Codex (summarized)) -->
+ 	check_errors_and_tests()
+ 
+ else:
+
+[PATCH COVERAGE]
+patchFiles=36 embeddedFiles=36 omittedFiles=0 embeddedPatchBytes=122841

@@ -1,0 +1,459 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5765
+# Commit: 254194766d386cafbad9fb5029047de0e90bb101
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1763ecf09433b9b221e64e01e21d5e2b888d8184
+# Title: add support for unit capture (type and count) in dll and ui for battles tab
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	7	Assets/Python/BUG/BugEventManager.py
+8	4	Assets/Python/CvEventManager.py
+53	0	Assets/Python/SASBattleHistory.py
+52	10	Assets/Python/Screens/CvMilitaryAdvisor.py
+4	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+17	0	CvGameCoreDLL/CvDllPythonEvents.cpp
+2	0	CvGameCoreDLL/CvDllPythonEvents.h
+6	0	CvGameCoreDLL/CvEventReporter.cpp
+2	0	CvGameCoreDLL/CvEventReporter.h
+4	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 53cc8b40e..bba57feed 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -106,6 +106,7 @@ import InputUtil
+ import types
+ import SASDefineGuard
+ import SASBillboardScale
++import SASBattleHistory
+ # <advc.007b>
+ import CvUtil
+ import CvScreensInterface
+@@ -199,13 +200,9 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		# (K-Mod has moved these into the "configure" fu<!-- custom: nc-->tion)
+ 
+ 		# BULL events
+-		self.addEvent("unitUpgraded")
+-		self.addEvent("unitCaptured")
+-		self.addEvent("combatWithdrawal")
+-		self.addEvent("combatRetreat")
+-		self.addEvent("combatLogCollateral")
+-		self.addEvent("combatLogFlanking")
+-		self.addEvent("playerRevolution")
++		for szBullEvent in ("unitUpgraded", "unitCaptured", "combatWithdrawal", "combatRetreat", "combatLogCollateral", "combatLogFlanking", "playerRevolution"):
++			if not self.hasEvent(szBullEvent):
++				self.addEvent(szBullEvent)
+ 	
+ 	def setLogging(self, logging):
+ 		if logging is not None:
+@@ -569,6 +566,8 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		BugUtil.debug("%s %s captured as %s by %s",
+ 				gc.getPlayer(eOwner).getName(), gc.getUnitInfo(eUnitType).getDescription(),
+ 				pNewUnit.getName(), gc.getPlayer(pNewUnit.getOwner()).getName())
++		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude Code Opus 4.7 investigation. (GPT-5.5) -->
++		SASBattleHistory.recordUnitCaptured(eOwner, eUnitType, pNewUnit)
+ 	
+ 	def onCombatWithdrawal(self, argsList):
+ 		# Fired when a unit withdraws from combat after doing maximum damage.
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index 9f7fc6931..b3b50c179 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -142,6 +142,7 @@ class CvEventManager:
+ 			'unitBuilt' 			: self.onUnitBuilt,
+ 			'unitKilled'			: self.onUnitKilled,
+ 			'unitLost'				: self.onUnitLost,
++			'unitCaptured'			: self.onUnitCaptured,
+ 			'unitPromoted'			: self.onUnitPromoted,
+ 			'unitSelected'			: self.onUnitSelected, 
+ 			'UnitRename'				: self.onUnitRename,
+@@ -367,7 +368,7 @@ class CvEventManager:
+ 	def onCombatResult(self, argsList):
+ 		'Combat Result'
+ 		pWinner,pLoser = argsList
+-		# <!-- custom: record battle rows at the event source so the Military Advisor can show a save-persistent battle timeline without DLL changes. (GPT-5.5) -->
++		# <!-- custom: record battle rows at the event source so the Military Advisor can show a save-persistent battle timeline; capture details are patched later by unitCaptured because combatResult fires before capture is decided. (GPT-5.5) -->
+ 		SASBattleHistory.recordCombatResult(pWinner, pLoser)
+ 		playerX = PyPlayer(pWinner.getOwner())
+ 		unitX = PyInfo.UnitInfo(pWinner.getUnitType())
+@@ -378,9 +379,12 @@ class CvEventManager:
+ 		#if playerX and playerX and unitX and playerY:
+ 		# advc.001: The above looks like a copy-paste error
+ 		if playerX and playerY and unitX and unitY:
+-			CvUtil.pyPrint('Player %d Civilization %s Unit %s has defeated Player %d Civilization %s Unit %s' 
+-				%(playerX.getID(), playerX.getCivilizationName(), unitX.getDescription(), 
+-				playerY.getID(), playerY.getCivilizationName(), unitY.getDescription()))
++			CvUtil.pyPrint('Player %d Civilization %s Unit %s has defeated Player %d Civilization %s Unit %s' % (playerX.getID(), playerX.getCivilizationName(), unitX.getDescription(), playerY.getID(), playerY.getCivilizationName(), unitY.getDescription()))
++
++	def onUnitCaptured(self, argsList):
++		# <!-- custom: added for SAS Military Advisor Battles tab capture counts; this parent handler is a fallback because the live BUG event manager shadows it and records the same data in BugEventManager.onUnitCaptured. (GPT-5.5) -->
++		iOldOwner, iOldUnitType, pNewUnit = argsList
++		SASBattleHistory.recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit)
+ 
+ 	def onCombatLogCalc(self, argsList):
+ 		'Combat Result'
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index 049be5074..ea6bb08fc 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -12,6 +12,7 @@ _TABLE_ID = "AdvCivSASBattleHistory"
+ _ENTRIES_KEY = "entries"
+ _MAX_ENTRIES = None
+ _PENDING_COMBAT_ACTORS = None
++_CAPTURE_DATA_START = 13
+ 
+ # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
+ 
+@@ -74,6 +75,40 @@ def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
+ 	entriesByPlayer[szPlayer] = entries
+ 
+ 
++def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
++	# <!-- custom: capture info is stored after the combat-log strength block; pad rare/no-strength rows so older tuple parsing keeps its fixed offsets. (GPT-5.5) -->
++	aEntry = list(entry)
++	while len(aEntry) < _CAPTURE_DATA_START:
++		aEntry.append(0)
++	if len(aEntry) >= _CAPTURE_DATA_START + 3:
++		if aEntry[_CAPTURE_DATA_START] == iCapturingPlayer and aEntry[_CAPTURE_DATA_START + 1] == iCapturedUnitType:
++			aEntry[_CAPTURE_DATA_START + 2] += 1
++		else:
++			aEntry[_CAPTURE_DATA_START] = iCapturingPlayer
++			aEntry[_CAPTURE_DATA_START + 1] = iCapturedUnitType
++			aEntry[_CAPTURE_DATA_START + 2] = 1
++	else:
++		aEntry.extend([iCapturingPlayer, iCapturedUnitType, 1])
++	return tuple(aEntry)
++
++
++def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iOldUnitType):
++	if len(entry) < 7:
++		return False
++	# <!-- custom: don't require plot equality here; combatResult may record the winner's pre-advance plot, while unitCaptured fires after the captured unit is created on the loser's plot. Scan newest-first within the same turn instead. (GPT-5.5) -->
++	return (entry[0] == CyGame().getGameTurn() and entry[1] == iCapturingPlayer and entry[2] == iOldOwner and entry[4] == iOldUnitType)
++
++
++def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
++	iIndex = len(entries) - 1
++	while iIndex >= 0:
++		if _matchesCapturedBattle(entries[iIndex], iCapturingPlayer, iOldOwner, iOldUnitType):
++			entries[iIndex] = _getEntryWithCapture(entries[iIndex], iCapturingPlayer, iCapturedUnitType)
++			return True
++		iIndex -= 1
++	return False
++
++
+ def noteCombatActors(cdAttacker, cdDefender):
+ 	global _PENDING_COMBAT_ACTORS
+ 	_PENDING_COMBAT_ACTORS = (
+@@ -117,6 +152,24 @@ def recordCombatResult(pWinner, pLoser):
+ 	_saveEntriesByPlayer(entriesByPlayer)
+ 
+ 
++def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
++	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude Code Opus 4.7) -->
++	iOldOwner = int(iOldOwner)
++	iOldUnitType = int(iOldUnitType)
++	iCapturingPlayer = int(pNewUnit.getOwner())
++	iCapturedUnitType = int(pNewUnit.getUnitType())
++	entriesByPlayer = _getEntriesByPlayer()
++	bChanged = False
++	for iPlayer in (iCapturingPlayer, iOldOwner):
++		szPlayer = str(iPlayer)
++		entries = entriesByPlayer.get(szPlayer, [])
++		if _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
++			entriesByPlayer[szPlayer] = entries
++			bChanged = True
++	if bChanged:
++		_saveEntriesByPlayer(entriesByPlayer)
++
++
+ def getEntriesForPlayer(iPlayer):
+ 	entriesByPlayer = _getEntriesByPlayer()
+ 	entries = entriesByPlayer.get(str(iPlayer), [])
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 149b31c9f..7337b110d 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -51,7 +51,7 @@ class CvMilitaryAdvisor:
+ 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
+ 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
+ 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
+-		self.BATTLE_PLOT_COL_ID = 15
++		self.BATTLE_PLOT_COL_ID = 17
+ 		self.PAGE_UNITS = 0
+ 		self.PAGE_BATTLES = 1
+ 		self.iActivePage = self.PAGE_UNITS
+@@ -141,6 +141,7 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_BATTLE_ROLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE", ())
+ 		self.TEXT_BATTLE_OUR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_OUR_UNIT", ())
+ 		self.TEXT_BATTLE_THEIR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT", ())
++		self.TEXT_BATTLE_CAPTURE_COUNT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT", ())
+ 		self.TEXT_BATTLE_PID = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID", ())
+ 		self.TEXT_BATTLE_PLOT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT", ())
+ 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+@@ -351,14 +352,44 @@ class CvMilitaryAdvisor:
+ 			iOurRole = -1
+ 			if bRoleKnown:
+ 				iOurRole = 1
+-			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY)
++			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
+ 		if iDefender == self.iActivePlayer:
+ 			iOurRole = -1
+ 			if bRoleKnown:
+ 				iOurRole = 0
+-			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iX, iY)
++			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
+ 		return None
+ 
++	def getBattleCapturePerspective(self, entry):
++		if len(entry) < 16:
++			return (0, -1)
++		iCapturingPlayer = entry[13]
++		iCapturedUnit = entry[14]
++		iCapturedCount = entry[15]
++		if iCapturedCount <= 0 or iCapturedUnit < 0 or iCapturedUnit >= gc.getNumUnitInfos():
++			return (0, -1)
++		if iCapturingPlayer == self.iActivePlayer:
++			return (iCapturedCount, iCapturedUnit)
++		return (-iCapturedCount, iCapturedUnit)
++
++	def getBattleCaptureCountText(self, iCapturedCount):
++		if iCapturedCount == 0:
++			return u""
++		szText = unicode(abs(iCapturedCount))
++		if iCapturedCount > 0:
++			return localText.changeTextColor(szText, self.COLOR_GREEN)
++		return localText.changeTextColor(szText, self.COLOR_RED)
++
++	def getBattleCaptureUnitText(self, iCapturedCount, iCapturedUnit):
++		if iCapturedCount == 0 or iCapturedUnit < 0:
++			return u""
++		return gc.getUnitInfo(iCapturedUnit).getDescription()
++
++	def getBattleCaptureUnitButton(self, iCapturedCount, iCapturedUnit):
++		if iCapturedCount == 0 or iCapturedUnit < 0:
++			return ""
++		return gc.getUnitInfo(iCapturedUnit).getButton()
++
+ 	def getBattleCurrentStrengthText(self, iCurrentStrength, iMaxStrength):
+ 		szText = self.getBattleStoredStrengthText(iCurrentStrength)
+ 		if not szText or iMaxStrength <= 0:
+@@ -398,18 +429,19 @@ class CvMilitaryAdvisor:
+ 		iTableW = iW - 2 * self.MAP_MARGIN
+ 		iTableH = iH - 2 * self.MAP_MARGIN
+ 		self.BATTLE_ROW_PLOTS = {}
+-		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 16, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 18, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(self.BATTLE_TABLE_ID)
+ 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, 105)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 2, self.TEXT_BATTLE_RESULT, 80)
+ 		iPlotColW = 35
+-		iTableSlackW = 24
+ 		iRoleColW = 35
+ 		iBaseColW = 45
+ 		iPIDColW = 38
+-		iUnitColW = max(128, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - 78 - 78 - 35 - 35 - iPIDColW - iBaseColW - 78 - 78 - iPlotColW - iTableSlackW) / 2)
++		iCaptureCountColW = iPIDColW
++		iCaptureUnitColW = 35
++		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - 78 - 78 - 35 - 35 - iPIDColW - iBaseColW - 78 - 78 - iCaptureCountColW - iCaptureUnitColW - iPlotColW) / 2)
+ 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left, opponent identity stays on the right, and our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_ROLE, iRoleColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.STRENGTH_CHAR + u"b", iBaseColW)
+@@ -423,6 +455,9 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 12, self.STRENGTH_CHAR + u"c", 78)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 13, self.STRENGTH_CHAR + u"m", 78)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 14, self.TEXT_BATTLE_THEIR_UNIT, iUnitColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 15, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
++		# <!-- custom: show captured unit type as a compact pedia icon rather than text. The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 16, "", iCaptureUnitColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
+ 		screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+@@ -437,12 +472,15 @@ class CvMilitaryAdvisor:
+ 		tColumns = self.getBattlePerspectiveColumns(entry)
+ 		if tColumns is None:
+ 			return
+-		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY = tColumns
++		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
+ 		iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
+ 		self.BATTLE_ROW_PLOTS[iRow] = (iX, iY)
+ 		kTheirPlayer = gc.getPlayer(iTheirPlayer)
+ 		iTheirCiv = kTheirPlayer.getCivilizationType()
+ 		iTheirLeader = kTheirPlayer.getLeaderType()
++		eCapturedUnitWidget = WidgetTypes.WIDGET_GENERAL
++		if iCapturedUnit >= 0:
++			eCapturedUnitWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 0, iRow, str(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.getTurnDate(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, localText.changeTextColor(szResult, iColor), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+@@ -458,6 +496,8 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 12, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 13, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, gc.getUnitInfo(iTheirUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTheirUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 	def dbgLogBattleHistory(self):
+@@ -468,13 +508,13 @@ class CvMilitaryAdvisor:
+ 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
+ 		self.dbgLogBattleHistoryPerspectivePlayer()
+ 		self.dbgLogBattleHistoryPlayers(aEntries)
+-		print("Turn | Year | Result | Role | OurStrB | OurStrC | OurStrM | OurUnit | TheirPID | TheirStrB | TheirStrC | TheirStrM | TheirUnit | X | Y")
++		print("Turn | Year | Result | Role | OurStrB | OurStrC | OurStrM | OurUnit | TheirPID | TheirStrB | TheirStrC | TheirStrM | TheirUnit | Cap# | CapUnit | X | Y")
+ 		for entry in aEntries:
+ 			tColumns = self.getBattlePerspectiveColumns(entry)
+ 			if tColumns is None:
+ 				continue
+-			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY = tColumns
+-			print("%d | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %d | %d" % (
++			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
++			print("%d | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %d | %s | %d | %d" % (
+ 				iTurn,
+ 				self.getTurnDate(iTurn),
+ 				szResult,
+@@ -488,6 +528,8 @@ class CvMilitaryAdvisor:
+ 				self.getBattleStoredStrengthText(iTheirCurrStr),
+ 				self.getBattleStoredStrengthText(iTheirMaxStr),
+ 				gc.getUnitInfo(iTheirUnit).getDescription(),
++				iCapturedCount,
++				self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit),
+ 				iX,
+ 				iY,
+ 			))
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 3cffe9720..b22a5993e 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -80,6 +80,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT</Tag>
+ 		<English>Their Unit</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT</Tag>
++		<English>Cap#</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID</Tag>
+ 		<English>PID</English>
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index b027e90ec..6c10fbe9b 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -752,6 +752,23 @@ void CvDllPythonEvents::reportUnitLost(CvUnit* pUnit)
+ 	}
+ }
+ 
++void CvDllPythonEvents::reportUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
++{
++	// <!-- custom: include old owner/type plus the new captured unit; Python uses this to patch the matching Military Advisor battle row with Cap# and unit icon. (GPT-5.5) -->
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitCaptured");
++		eventData.add(eOldOwner);
++		eventData.add(eOldUnitType);
++
++		CyUnit* pyu = new CyUnit(pNewUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
+ void CvDllPythonEvents::reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromotion)
+ {
+ 	if (preEvent())
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.h b/CvGameCoreDLL/CvDllPythonEvents.h
+index 87bc2da86..001e718e7 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.h
++++ b/CvGameCoreDLL/CvDllPythonEvents.h
+@@ -62,6 +62,8 @@ public:
+ 	void reportUnitBuilt(CvCity *pCity, CvUnit *pUnit);
+ 	void reportUnitKilled(CvUnit *pUnit, PlayerTypes eAttacker);
+ 	void reportUnitLost(CvUnit *pUnit);
++	// <!-- custom: Python event for save-persistent Military Advisor battle-history capture counts. (GPT-5.5) -->
++	void reportUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit);
+ 	void reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromotion);
+ 	void reportUnitSelected(CvUnit *pUnit);
+ 	void reportUnitRename(CvUnit *pUnit);
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 9f7e4bd5c..d9352d830 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -276,6 +276,12 @@ void CvEventReporter::unitLost(CvUnit *pUnit)
+ 	m_kPythonEventMgr.reportUnitLost(pUnit);
+ }
+ 
++void CvEventReporter::unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
++{
++	// <!-- custom: forward actual capture creation to Python so battle history records captured workers/civilians instead of inferring from the earlier combatResult. (GPT-5.5) -->
++	m_kPythonEventMgr.reportUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
++}
++
+ void CvEventReporter::unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion)
+ {
+ 	m_kPythonEventMgr.reportUnitPromoted(pUnit, ePromotion);
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index f6c04fa0e..0b7ba2ed3 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -91,6 +91,8 @@ public:
+ 	void unitBuilt(CvCity *pCity, CvUnit *pUnit);
+ 	void unitKilled(CvUnit *pUnit, PlayerTypes eAttacker);
+ 	void unitLost(CvUnit *pUnit);
++	// <!-- custom: expose actual unit-capture creation for the Military Advisor Battles tab; combatResult fires too early to know whether workers/civilians were captured or destroyed. (GPT-5.5) -->
++	void unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit);
+ 	void unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion);
+ 	DllExport void unitSelected(CvUnit *pUnit);
+ 	void unitRename(CvUnit* pUnit);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 1d316108b..510bf30c6 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -578,6 +578,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 	kOwner.uwai().getCache().reportUnitDestroyed(getUnitType());
+ 
+ 	kOwner.AI_changeNumAIUnits(AI_getUnitAIType(), -1);
++	PlayerTypes const eLostOwner = getOwner();
++	UnitTypes const eLostUnitType = getUnitType();
+ 	PlayerTypes const eCapturingPlayer = getCapturingPlayer();
+ 	UnitTypes const eCaptureUnitType = (eCapturingPlayer == NO_PLAYER ? NO_UNIT :
+ 			getCaptureUnitType(GET_PLAYER(eCapturingPlayer).getCivilizationType()));
+@@ -603,6 +605,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 					eCaptureUnitType, kPlot.getX(), kPlot.getY());
+ 			if (pCapturedUnit != NULL)
+ 			{
++				// <!-- custom: combatResult fires before capture is decided, so report the actual captured unit here after initUnit succeeds; Python patches the matching Military Advisor battle row numerically instead of guessing from unit XML. (GPT-5.5) -->
++				CvEventReporter::getInstance().unitCaptured(eLostOwner, eLostUnitType, pCapturedUnit);
+ 				CvWString szBuffer;
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CAPTURED_UNIT",
+ 						GC.getInfo(eCaptureUnitType).getTextKeyWide());
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=24015

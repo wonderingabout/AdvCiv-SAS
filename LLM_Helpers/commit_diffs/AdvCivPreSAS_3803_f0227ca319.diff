@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3803
+# Commit: f0227ca3194f263480ab14a49393d1df1ce5357f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fe72cec49d4c29890fde736235429f296e2fa921
+# Title: Cleaner implementation of wide city bars option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+29	0	CvGameCoreDLL/CvArtFileMgr.cpp
+8	2	CvGameCoreDLL/CvArtFileMgr.h
+3	46	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 673649498..498646e05 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -354,6 +354,23 @@
+ 			<Type>INTERFACE_CITY_BAR_REGULAR_TEXTURE</Type>
+ 			<Path>Art/Interface/CityBar/CityBar_Circle.tga</Path>
+ 		</InterfaceArtInfo>
++		<!-- advc.095: The DLL will swap these three paths with their narrow
++			 counterparts above when the Wide City Bars option is toggled.
++			 (Because the EXE will always use the type strings above to locate
++			 the path.) -->
++		<InterfaceArtInfo>
++			<Type>INTERFACE_WIDE_CITY_BAR_CAPITAL_GLOW</Type>
++			<Path>Art/Interface/CityBar/WideCityBar_Glow.dds</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>INTERFACE_WIDE_CITY_BAR_REGULAR_GLOW</Type>
++			<Path>Art/Interface/CityBar/WideCityBar_Glow_no_star.dds</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>INTERFACE_WIDE_CITY_BAR_MODEL</Type>
++			<Path>Art/Interface/CityBar/WideCityBar.nif</Path>
++		</InterfaceArtInfo>
++		<!-- (advc.095 end) -->
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_CITY_PANEL</Type>
+ 			<Path>Art/Interface/MainScreen/CityScreen/PanelBG.dds</Path>
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index 0e667d7f5..1047b8528 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -172,3 +172,32 @@ void CvArtFileMgr::buildArtFileInfoMaps()
+ 	for(size_t i = 0; i < m_artInfoItems.size(); i++)
+ 		m_artInfoItems[i]->buildMap();
+ }
++
++// advc.095: Hack for getting the EXE to switch between wide and narrow city bars
++void CvArtFileMgr::swapCityBarPaths()
++{
++	m_bCityBarPathsSwapped = !m_bCityBarPathsSwapped;
++	char const* aaszCityBarTags[][2] =
++	{
++		{ "INTERFACE_CITY_BAR_MODEL", "INTERFACE_WIDE_CITY_BAR_MODEL" },
++		{ "INTERFACE_CITY_BAR_REGULAR_GLOW", "INTERFACE_WIDE_CITY_BAR_REGULAR_GLOW" },
++		{ "INTERFACE_CITY_BAR_CAPITAL_GLOW", "INTERFACE_WIDE_CITY_BAR_CAPITAL_GLOW" }
++	};
++	int const iCityBarTags = ARRAYSIZE(aaszCityBarTags);
++	CvArtInfoInterface* aapCityBarArtInfos[iCityBarTags][2];
++	for (int i = 0; i < iCityBarTags; i++)
++	{
++		for (int j = 0; j < 2; j++)
++		{
++			aapCityBarArtInfos[i][j] = getInterfaceArtInfo(aaszCityBarTags[i][j]);
++			if (aapCityBarArtInfos[i][j] == NULL)
++				return; // Art file manager not ready (or tags missing in XML)
++		}
++	}
++	for (int i = 0; i < iCityBarTags; i++)
++	{
++		CvString sTmp(aapCityBarArtInfos[i][0]->getPath());
++		aapCityBarArtInfos[i][0]->setPath(aapCityBarArtInfos[i][1]->getPath());
++		aapCityBarArtInfos[i][1]->setPath(sTmp);
++	}
++}
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.h b/CvGameCoreDLL/CvArtFileMgr.h
+index a5edbee25..7457c8808 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.h
++++ b/CvGameCoreDLL/CvArtFileMgr.h
+@@ -71,8 +71,10 @@ public:
+ 	// singleton accessor
+ 	DllExport static CvArtFileMgr& GetInstance();
+ 
+-	CvArtFileMgr() {};
+-	virtual ~CvArtFileMgr() {};
++	CvArtFileMgr()
++	:	m_bCityBarPathsSwapped(false) // advc.095
++	{}
++	virtual ~CvArtFileMgr() {}
+ 
+ 	DllExport void Init();
+ 	DllExport void DeInit();
+@@ -86,6 +88,9 @@ public:
+ 
+ 	// Adds an Art File List
+ 	void addArtInfoItem(CvArtFileMgr::ArtInfoItem* item) { m_artInfoItems.push_back(item); }
++	// <advc.095>
++	bool isCityBarPathsSwapped() const { return m_bCityBarPathsSwapped; }
++	void swapCityBarPaths(); // </advc.095>
+ private:
+ 	struct ltstr
+ 	{
+@@ -109,6 +114,7 @@ private:
+ 	ART_INFO_DECL(Interface);
+ 
+ 	std::vector<ArtInfoItem*> m_artInfoItems;
++	bool m_bCityBarPathsSwapped; // advc.095
+ };
+ 
+ // Singleton Accessor
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 558b0a5e7..25046d283 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2646,52 +2646,9 @@ EndTurnButtonStates CvGame::getEndTurnState() const
+ // advc.095:
+ void CvGame::setCityBarWidth(bool bWide)
+ {
+-	// The three art define tags that we have wider graphics for
+-	TCHAR const* aszCityBarTags[] =
+-	{
+-		"INTERFACE_CITY_BAR_MODEL",
+-		"INTERFACE_CITY_BAR_REGULAR_GLOW",
+-		"INTERFACE_CITY_BAR_CAPITAL_GLOW"
+-	};
+-	int const iCityBarTags = ARRAYSIZE(aszCityBarTags);
+-	CvArtInfoInterface* apCityBarArtInfos[iCityBarTags];
+-	for (int i = 0; i < iCityBarTags; i++)
+-	{
+-		apCityBarArtInfos[i] = ARTFILEMGR.getInterfaceArtInfo(aszCityBarTags[i]);
+-		if (apCityBarArtInfos[i] == NULL)
+-			return; // Art file manager not ready (or tags missing in XML)
+-	}
+-	CvString const szPattern(bWide ? "CityBar" : "WideCityBar");
+-	CvString const szPatternLC(bWide ? "citybar" : "widecitybar");
+-	CvString const szReplacement(!bWide ? "CityBar" : "WideCityBar");
+-	CvString const szReplacementLC(!bWide ? "citybar" : "widecitybar");
+-	for (int i = 0; i < iCityBarTags; i++)
+-	{
+-		CvString szPath(apCityBarArtInfos[i]->getPath());
+-		size_t iPos = szPath.rfind(szPattern);
+-		if (iPos != CvString::npos &&
+-			// Don't replace a CityBar directory name
+-			iPos < szPath.length() - 1 && szPath.at(iPos + 1) != '/')
+-		{
+-			szPath.replace(iPos, szPattern.length(), szReplacement);
+-		}
+-		else
+-		{
+-			// Try lower case (though AdvCiv uses mixed case)
+-			iPos = szPath.rfind(szPatternLC);
+-			if (iPos != CvString::npos &&
+-				iPos < szPath.length() - 1 && szPath.at(iPos + 1) != '/')
+-			{
+-				szPath.replace(iPos, szPatternLC.length(), szReplacementLC);
+-			}
+-			else
+-			{
+-				FAssert(i == 0);
+-				return; // Apparently the width is already according to bWidth
+-			}
+-		}
+-		apCityBarArtInfos[i]->setPath(szPath);
+-	}
++	if (ARTFILEMGR.isCityBarPathsSwapped() == bWide)
++		return;
++	ARTFILEMGR.swapCityBarPaths();
+ 	for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+ 		FOR_EACH_CITY_VAR(pCity, *itPlayer)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5757

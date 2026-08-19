@@ -1,0 +1,311 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4081
+# Commit: 767984dc68972dc41e0b301a7034965fe0c1c1b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fab0881ce0bca5ee7a495a0eae93cb6675603ca1
+# Title: Replace a few deprecated get...Info calls
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+4	4	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGameInterface.cpp
+4	4	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvInitCore.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/CyGlobalContext.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 96885743b..adb973608 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -200,7 +200,7 @@ scaled CitySiteEvaluator::evaluateWorkablePlot(CvPlot const& kPlot) const
+ 		{
+ 			if (it->isCoastalLand(-1))
+ 				iScore += 2;
+-			if (GC.getTerrainInfo(it->getTerrainType()).getYield(YIELD_FOOD) > 0)
++			if (GC.getInfo(it->getTerrainType()).getYield(YIELD_FOOD) > 0)
+ 				iScore++;
+ 		}
+ 		else
+@@ -1250,7 +1250,7 @@ bool AIFoundValue::isRemovableFeature(CvPlot const& p, bool& bPersistent,
+ 	bPersistent = true;
+ 	FOR_EACH_ENUM(Build)
+ 	{
+-		CvBuildInfo const& kLoopBuild = GC.getBuildInfo (eLoopBuild);
++		CvBuildInfo const& kLoopBuild = GC.getInfo (eLoopBuild);
+ 		if (!kLoopBuild.isFeatureRemove(eFeature))
+ 			continue;
+ 
+@@ -1522,7 +1522,7 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
+ 			advc.045 hides foreign buildings, but it should, in theory, be possible
+ 			to infer culture buildings from visible tile culture percentages.
+ 			But will then also have to predict our own culture rate. */
+-		static BuildingTypes const eCapitalBuilding = GC.getCivilizationInfo(
++		static BuildingTypes const eCapitalBuilding = GC.getInfo(
+ 				pForeignCity->getCivilizationType()).
+ 				getCivilizationBuildings(GC.getDefineINT("CAPITAL_BUILDINGCLASS"));
+ 		if (eCapitalBuilding != NO_BUILDING)
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 038ec5a7a..3bba9f857 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8466,7 +8466,7 @@ bool CvCity::is##Order##ProductionDecay(Order##Types e##Order) const \
+ 			get##Order##Production(e##Order) > 0 && \
+ 			100 * get##Order##ProductionTime(e##Order) >= \
+ 			GC.getDefineINT(CvGlobals::ORDER##_PRODUCTION_DECAY_TIME) * \
+-			GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).get##Verb##Percent()); \
++			GC.getInfo(GC.getGame().getGameSpeedType()).get##Verb##Percent()); \
+ } \
+ \
+ /*	Returns the amount by which the given order will decay once it reaches the limit. */ \
+@@ -8485,7 +8485,7 @@ int CvCity::get##Order##ProductionDecayTurns(Order##Types e##Order) const \
+ 	return 1 + std::max(0, \
+ 			intdiv::uceil( \
+ 			GC.getDefineINT(CvGlobals::ORDER##_PRODUCTION_DECAY_TIME) * \
+-			GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).get##Verb##Percent(), \
++			GC.getInfo(GC.getGame().getGameSpeedType()).get##Verb##Percent(), \
+ 			100) \
+ 			- get##Order##ProductionTime(e##Order)); \
+ }
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index bd14b88c5..7692f99a8 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2620,7 +2620,7 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 			kTrigger.getEvent(i), *pTriggeredData))
+ 		{
+ 			m_kUI.popupAddGenericButton(pPopup,
+-					GC.getEventInfo((EventTypes)kTrigger.getEvent(i)).getDescription(),
++					GC.getInfo((EventTypes)kTrigger.getEvent(i)).getDescription(),
+ 					GC.getInfo((EventTypes)kTrigger.getEvent(i)).getButton(),
+ 					kTrigger.getEvent(i), WIDGET_CHOOSE_EVENT, kTrigger.getEvent(i), info.getData1());
+ 			bEventAvailable = true;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 751169216..ebaac5b10 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -681,7 +681,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		break;
+ 	// K-Mod. Global commerce modifiers, extra specialist commerce
+ 	case WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER:
+-		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_IN_ALL_CITIES").GetCString(), GC.getTechInfo((TechTypes)(widgetDataStruct.m_iData1)).getCommerceModifierArray(), true, false);
++		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_IN_ALL_CITIES").GetCString(), GC.getInfo((TechTypes)(widgetDataStruct.m_iData1)).getCommerceModifierArray(), true, false);
+ 		break;
+ 	case WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE:
+ 		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_PER_SPECIALIST").GetCString(), GC.getInfo((TechTypes)(widgetDataStruct.m_iData1)).getSpecialistExtraCommerceArray(), false, false);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 477b38d36..8dfecdbed 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2364,7 +2364,7 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 		{
+ 			if (itPlot->isFeature())
+ 			{
+-				CvFeatureInfo const& kFeature = GC.getFeatureInfo(itPlot->getFeatureType());
++				CvFeatureInfo const& kFeature = GC.getInfo(itPlot->getFeatureType());
+ 				if (kFeature.getYieldChange(YIELD_FOOD) > 0)
+ 					iFoodFeatures++;
+ 				if (kFeature.getYieldChange(YIELD_PRODUCTION) > 0)
+@@ -2532,9 +2532,9 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 						if (p.isFeature() &&
+ 							//iFeatureCount > 4 &&
+ 							// <advc.108> Don't clear food features
+-							GC.getFeatureInfo(p.getFeatureType()).
++							GC.getInfo(p.getFeatureType()).
+ 							getYieldChange(YIELD_FOOD) <= 0 &&
+-							(GC.getFeatureInfo(p.getFeatureType()).
++							(GC.getInfo(p.getFeatureType()).
+ 							getYieldChange(YIELD_PRODUCTION) <= 0 ||
+ 							// Don't clear production features if they're scarce
+ 							iProductionFeatures >= 4) && // </advc.108>
+@@ -2572,7 +2572,7 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
+ 				if (!p.canHaveFeature(eLoopFeature))
+ 					continue;
+ 				// <advc.108> (Similar to the first place-feature loop)
+-				CvFeatureInfo const& kFeature = GC.getFeatureInfo(eLoopFeature);
++				CvFeatureInfo const& kFeature = GC.getInfo(eLoopFeature);
+ 				bool bFood = (kFeature.getYieldChange(YIELD_FOOD) > 0);
+ 				bool bProduction = (kFeature.getYieldChange(YIELD_PRODUCTION) > 0);
+ 				if ((!bFood && !bProduction) ||
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 741a79fe0..7a7cd19e7 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2245,8 +2245,8 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
+ 		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
+ 		{
+ 			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
+-					GC.getColorInfo(GC.getInfoTypeForString("COLOR_CITY_BLUE")).getColor(),
+-					AREA_BORDER_LAYER_PATROLLED);
++					GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE")).
++					getColor(), AREA_BORDER_LAYER_PATROLLED);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f05166193..e525fffed 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5782,7 +5782,7 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCit
+ 				FAssert(eMode == DISPLAY_ICONS);
+ 				// BULL - Building Icons - start (advc: BULL had used size 24)
+ 				szTempBuffer.Format(L"<img=%S size=32></img>",
+-						GC.getBuildingInfo(aszeBuildingsByName[i].second).getButton());
++						GC.getInfo(aszeBuildingsByName[i].second).getButton());
+ 				setListHelp(szString, NEWLINE, szTempBuffer, L"", bFirst);
+ 				// BULL - Building Icons - end
+ 			}
+@@ -7124,7 +7124,7 @@ void CvGameTextMgr::parseSingleCivicRevealHelp(CvWStringBuffer& szBuffer, CivicT
+ {
+ 	szBuffer.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
+ 			TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+-			GC.getCivicInfo(eCivic).getDescription()));
++			GC.getInfo(eCivic).getDescription()));
+ 	CvWStringBuffer szCivicHelp;
+ 	GAMETEXT.parseCivicInfo(szCivicHelp, eCivic,
+ 			true, true, true); // bCiviliopedia=true to hide tech prereq
+@@ -18071,7 +18071,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
+ 			{
+ 				iRate += (kCity.getSpecialistCount(eLoopSpecialist) +
+ 						kCity.getFreeSpecialistCount(eLoopSpecialist)) *
+-						GC.getSpecialistInfo(eLoopSpecialist).getGreatPeopleRateChange();
++						GC.getInfo(eLoopSpecialist).getGreatPeopleRateChange();
+ 			}
+ 			if (iRate > 0)
+ 			{
+@@ -18095,7 +18095,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
+ 					!GET_TEAM(kCity.getTeam()).isObsoleteBuilding(eBuilding))
+ 				{
+ 					iRate += kCity.getNumBuilding(eBuilding) *
+-							GC.getBuildingInfo(eBuilding).getGreatPeopleRateChange();
++							GC.getInfo(eBuilding).getGreatPeopleRateChange();
+ 				}
+ 			}
+ 			if (iRate > 0)
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 44cbf4213..7bcc8d030 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1739,7 +1739,7 @@ void CvInitCore::reRandomizeCivsAndLeaders()
+ 		bool bPlayable = false;
+ 		FOR_EACH_ENUM2(Civilization, eCiv)
+ 		{
+-			if (GC.getCivilizationInfo(eCiv).isLeaders(eLeader) &&
++			if (GC.getInfo(eCiv).isLeaders(eLeader) &&
+ 				GC.getInfo(eCiv).isPlayable())
+ 			{
+ 				leadersPerCiv[eCiv].push_back(eLeader);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5e9f4e7a6..0f5fd8951 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -713,7 +713,7 @@ void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader,
+ 	GC.getInitCore().setLeader(getID(), eNewLeader);
+ 	// <advc.tsl>
+ 	if (bChangeName && (!isHuman() || // Preserve human custom name
+-		wcscmp(getName(), GC.getLeaderHeadInfo(eOldLeader).getDescription()) == 0))
++		wcscmp(getName(), GC.getInfo(eOldLeader).getDescription()) == 0))
+ 	{
+ 		CvWString szEmpty; // Means that leaderhead description gets used
+ 		GC.getInitCore().setLeaderName(getID(), szEmpty);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 47e3b8dd6..60c600051 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15918,7 +15918,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation,
+ // advc.121:
+ void CvPlayerAI::AI_processNewBuild(BuildTypes eBuild)
+ {
+-	bool const bRoute = (GC.getBuildInfo(eBuild).getRoute() != NO_ROUTE);
++	bool const bRoute = (GC.getInfo(eBuild).getRoute() != NO_ROUTE);
+ 	FOR_EACH_CITYAI_VAR(pCity, *this)
+ 	{
+ 		pCity->AI_updateBestBuild();
+@@ -22827,7 +22827,7 @@ scaled CvPlayerAI::AI_targetAmortizationTurns() const
+ 			kStartEra.getConstructPercent() +
+ 			kStartEra.getTrainPercent(), 400);
+ 	{
+-		CvHandicapInfo const& kHandicap = GC.getHandicapInfo(getHandicapType());
++		CvHandicapInfo const& kHandicap = GC.getInfo(getHandicapType());
+ 		r *= scaled(kHandicap.getResearchPercent() +
+ 			kHandicap.getConstructPercent() +
+ 			kHandicap.getTrainPercent(), 300);
+@@ -25124,7 +25124,7 @@ bool CvPlayerAI::AI_isDoStrategy(AIStrategy eStrategy, /* advc.007: */ bool bDeb
+ // advc.erai: Cached for performance
+ void CvPlayerAI::AI_updateEraFactor()
+ {
+-	m_rCurrEraFactor = per100(GC.getEraInfo(getCurrentEra()).get(CvEraInfo::AIEraFactor));
++	m_rCurrEraFactor = per100(GC.getInfo(getCurrentEra()).get(CvEraInfo::AIEraFactor));
+ }
+ 
+ // K-Mod. Macros to help log changes in the AI strategy.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f163473d1..44855cbfc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -450,7 +450,7 @@ void CvUnitAI::AI_upgrade()
+ 
+ 	if (eBestUnit != NO_UNIT)
+ 	{
+-		if (gUnitLogLevel > 0) logBBAI("    %S (unit %d - %S) upgrading to %S (value: %d)", getName().GetCString(), getID(), GC.getUnitAIInfo(AI_getUnitAIType()).getDescription(), GC.getUnitInfo(eBestUnit).getDescription(), iBestValue); // advc.mnai
++		if (gUnitLogLevel > 0) logBBAI("    %S (unit %d - %S) upgrading to %S (value: %d)", getName().GetCString(), getID(), GC.getUnitAIInfo(AI_getUnitAIType()).getDescription(), GC.getInfo(eBestUnit).getDescription(), iBestValue); // advc.mnai
+ 		/*upgrade(eBestUnit);
+ 		doDelayedDeath(); */ // BtS
+ 		// K-Mod. Ungroup the unit, so that we don't cause the whole group to miss their turn.
+@@ -19699,7 +19699,7 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 			{	/*	(isRevealedCityHeal would use the same team
+ 					for the heal and visibility checks) */
+ 				ImprovementTypes eImprov = kPlot.getRevealedImprovementType(getTeam());
+-				if (eImprov != NO_IMPROVEMENT && GC.getImprovementInfo(eImprov).isActsAsCity())
++				if (eImprov != NO_IMPROVEMENT && GC.getInfo(eImprov).isActsAsCity())
+ 				{	// </advc>
+ 					iStrikeValue *= 3;
+ 					iStrikeValue /= 4;
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index de64d3588..1529fe435 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -432,13 +432,13 @@ CvMainMenuInfo* CyGlobalContext::getMainMenus(int i) const
+ 
+ CvVoteSourceInfo* CyGlobalContext::getVoteSourceInfo(int i) const
+ {
+-	return ((i >= 0 && i < GC.getNumVoteSourceInfos()) ? &GC.getVoteSourceInfo((VoteSourceTypes)i) : NULL);
++	return ((i >= 0 && i < GC.getNumVoteSourceInfos()) ? &GC.getInfo((VoteSourceTypes)i) : NULL);
+ }
+ 
+ 
+ CvInfoBase* CyGlobalContext::getInvisibleInfo(int i) const
+ {
+-	return ((i >= 0 && i < GC.getNumInvisibleInfos()) ? &GC.getInvisibleInfo((InvisibleTypes)i) : NULL);
++	return ((i >= 0 && i < GC.getNumInvisibleInfos()) ? &GC.getInfo((InvisibleTypes)i) : NULL);
+ }
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=13409

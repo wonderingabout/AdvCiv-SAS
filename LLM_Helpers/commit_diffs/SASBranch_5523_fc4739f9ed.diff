@@ -1,0 +1,152 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5523
+# Commit: fc4739f9ed7e95454ed3f03d93a45e365c94ff9a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b6e9e354b093eac8e641e28d1112a3ff1c487b81
+# Title: upscale chart categories
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	6	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+2	7	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+1	6	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+1	6	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+3	2	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index aff874841..a576185ab 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -54,12 +54,7 @@ class SevoPediaEraChart:
+ 
+ 		data = self._getTableData()
+ 		if not data:
+-			screen.setLabel(self.top.getNextWidgetName(), "Background",
+-					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
+-					CvUtil.FONT_LEFT_JUSTIFY, x + self.MARGIN, y + self.MARGIN + 4, 0, FontTypes.GAME_FONT,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			return
+-
++			raise RuntimeError("[FATAL] SevoPediaEraChart received no table data; this should never happen.")
+ 		header = data[0]
+ 		rows = data[1:]
+ 		nCols = len(header)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index 8db87543d..af80e045e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -54,12 +54,7 @@ class SevoPediaGameSpeedChart:
+ 
+ 		data = self._getTableData()
+ 		if not data:
+-			screen.setLabel(self.top.getNextWidgetName(), "Background",
+-					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
+-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			return
+-
++			raise RuntimeError("[FATAL] SevoPediaGameSpeedChart received no table data; this should never happen.")
+ 		header = data[0]
+ 		rows = data[1:]
+ 		nCols = len(header)
+@@ -452,7 +447,7 @@ class SevoPediaGameSpeedChart:
+ 		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+ 			header.append("")
+ 		for sz in speed_labels:
+-			header.append(sz)
++			header.append(chart_font2(sz))
+ 		table.append(header)
+ 
+ 		row_index = 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index c4c523bd7..77f730792 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -57,12 +57,7 @@ class SevoPediaHandicapChart:
+ 
+ 		data = self._getTableData()
+ 		if not data:
+-			screen.setLabel(self.top.getNextWidgetName(), "Background",
+-					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
+-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			return
+-
++			raise RuntimeError("[FATAL] SevoPediaHandicapChart received no table data; this should never happen.")
+ 		header = data[0]
+ 		rows = data[1:]
+ 		nCols = len(header)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index 1b387cae6..71f2fabee 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -54,12 +54,7 @@ class SevoPediaWorldSizeChart:
+ 
+ 		data = self._getTableData()
+ 		if not data:
+-			screen.setLabel(self.top.getNextWidgetName(), "Background",
+-					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
+-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			return
+-
++			raise RuntimeError("[FATAL] SevoPediaWorldSizeChart received no table data; this should never happen.")
+ 		header = data[0]
+ 		rows = data[1:]
+ 		nCols = len(header)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index bb5da1659..bcb46ec89 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -8,6 +8,7 @@ from CvPythonExtensions import *
+ 
+ import CvUtil
+ import re
++from SASFontUtils import *
+ 
+ 
+ 
+@@ -406,8 +407,8 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX,
+ 
+ 
+ def chart_font2(szText):
+-	# Wrap text in <font=2> tags for chart table cells.
+-	return u"<font=2>%s</font>" % unicode(szText)  # noqa: F821
++	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
++	return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index c69b321a5..a46a770ce 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -242,10 +242,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
+ 		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
+ 	</Define>
+-	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
++	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accomodate font size 4 (was 65). -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
+-		<iDefineIntVal>65</iDefineIntVal>
++		<iDefineIntVal>71</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
+ 	<Define>
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5646

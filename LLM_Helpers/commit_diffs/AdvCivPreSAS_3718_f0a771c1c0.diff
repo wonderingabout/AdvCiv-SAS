@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3718
+# Commit: f0a771c1c0fc4b00f86f24aa1207832b5f2c9d48
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c4b2548b9e599a3556b0f8e545b86eb5540f3153
+# Title: Slightly decrease default top and bottom latitude
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/CvMapGeneratorUtil.py
+2	1	CvGameCoreDLL/CvMap.h
+5	2	PrivateMaps/Tectonics.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 63c27c894..bd5dcbfc9 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -257,7 +257,7 @@ class FractalWorld:
+ 		bSparseEquator = (CyGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS) and
+ 				# Better not mess with maps that have strange latitude settings
+ 				self.map.getTopLatitude() == -self.map.getBottomLatitude() and
+-				self.map.getTopLatitude() == 90)
++				self.map.getTopLatitude() <= 90 and self.map.getTopLatitude() >= 80)
+ 		if bSparseEquator:
+ 			sparseEquatorFractal = ExplicitFractal(self.continentsFrac, self.map)
+ 			sparseEquatorFractal.decreaseNearMiddle(self.map.isWrapX() or not self.map.isWrapY(), 0.15)
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index cc6d5bb45..4d80959f4 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -26,7 +26,8 @@ struct CvMapInitData // holds initialization info
+ 	bool m_bWrapY;
+ 
+ 	CvMapInitData(int iGridW = 0, int iGridH = 0,
+-		int iTopLatitude = 90, int iBottomLatitude = -90,
++		// advc.129: was +/-90
++		int iTopLatitude = 87, int iBottomLatitude = -87,
+ 		bool bWrapX = false, bool bWrapY = false)
+ 	:	m_iGridH(iGridH), m_iGridW(iGridW),
+ 		m_iTopLatitude(iTopLatitude), m_iBottomLatitude(iBottomLatitude),
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index 4a0d42584..8e7d3c31c 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -134,11 +134,14 @@ def getWrapY():
+ def getTopLatitude():
+ 	if (6 == CyMap().getCustomMapOption(0)): # advc.021a: was 5==...
+ 		return 65
+-	return 90
++	#return 90
++	CyPythonMgr().allowDefaultImpl() # advc.129
++
+ def getBottomLatitude():
+ 	if (6 == CyMap().getCustomMapOption(0)): # advc.021a: was 5==...
+ 		return 25
+-	return -90
++	#return -90
++	CyPythonMgr().allowDefaultImpl() # advc.129
+ 	
+ def getCustomMapOptionDescAt(argsList):
+ 	iOption = argsList[0]
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1958

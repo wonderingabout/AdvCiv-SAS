@@ -1,0 +1,470 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1516
+# Commit: cffaedc8bf5134b2d5bcad7f805c63982c235a7a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 81a087ff947be4209b9be953897d089da7d3c16f
+# Title: Some changes to Sevopedia (change id [advc.004y])
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+5	2	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+11	4	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+10	9	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+28	7	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+8	6	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index ce967f2f3..d02d3ca08 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index a6910a291..17805d410 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 339cea80e..4a7da55d9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 75d7a3b8d..a01e29d0a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+@@ -51,7 +50,11 @@ class SevoPediaCivilization:
+ 
+ 		self.X_BUILDING = self.X_MAIN_PANE
+ 		self.Y_BUILDING = self.Y_LEADER + self.H_LEADER + 10
+-		self.W_BUILDING = 130
++		# <advc.004y> was 130
++		self.W_BUILDING = self.W_MAIN_PANE
++		# This would split the space evenly between UU and UB
++		#self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - 10) // 2
++		# </advc.004y>
+ 		self.H_BUILDING = 110
+ 
+ 		self.X_UNIT = self.X_BUILDING + self.W_BUILDING + 10
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index ea10ae10e..d1b009f29 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 5bb28c7be..e03fdb0b6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+index de91be9f2..5dc108a2b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 0b8b28162..165811ca9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index e61ba29b8..e2a2b51b5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index eabe07688..3d232293f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -7,7 +7,7 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose, EmperorFool
+-# see ReadMe for details
++# see ReadMe [advc: BUG help file] for details
+ #
+ 
+ from CvPythonExtensions import *
+@@ -78,9 +78,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.W_SCREEN = 1024
+ 		# <advc.004y>
+ 		self.bWideScreen = True
+-		self.H_MARGIN = 30
++		self.HORIZONTAL_MARGIN = 30
+ 		if self.bWideScreen:
+-			self.W_SCREEN = max(self.W_SCREEN, self.getScreen().getXResolution() - 2 * self.H_MARGIN)
++			self.W_SCREEN = max(self.W_SCREEN, self.getScreen().getXResolution() - 2 * self.HORIZONTAL_MARGIN)
+ 			if self.W_SCREEN <= 1024:
+ 				self.bWideScreen = False
+ 		#self.X_SCREEN = 500 # now unused
+@@ -430,7 +430,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen.addPanel(self.TOP_PANEL_ID, u"", u"", True, False, self.X_TOP_PANEL, self.Y_TOP_PANEL, self.W_TOP_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_TOPBAR)
+ 		screen.addPanel(self.BOT_PANEL_ID, u"", u"", True, False, self.X_BOT_PANEL, self.Y_BOT_PANEL, self.W_BOT_PANEL, self.H_BOT_PANEL, PanelStyles.PANEL_STYLE_BOTTOMBAR)
+ 		# <advc.004y>
+-		X_SCREEN = self.H_MARGIN
++		X_SCREEN = self.HORIZONTAL_MARGIN
+ 		if not self.bWideScreen:
+ 			X_SCREEN = screen.centerX(0) # </advc.004y>
+ 		screen.setDimensions(X_SCREEN, screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index a124dc6f7..b7212fcc1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index fda2f8691..e07f71fd8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index b13f846da..b4f139ab4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index b7cac36ff..cf4910467 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 28887e807..2c158c124 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+@@ -103,14 +102,22 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	def placeCivilizations(self):
++		# <advc.004y> Show the box only for starting techs
++		civs = []
++		for iCiv in range(gc.getNumCivilizationInfos()):
++			if gc.getCivilizationInfo(iCiv).isCivilizationFreeTechs(self.iTech):
++				civs.append(iCiv)
++		if len(civs) <= 0:
++			return
++		# </advc.004y>
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_CIV", ()), "", False, True, self.X_CIVS, self.Y_CIVS, self.W_CIVS, self.H_CIVS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+-		for iCiv in range(gc.getNumCivilizationInfos()):
++		for iCiv in civs: # advc.004y: Use the list computed above
+ 			civ = gc.getCivilizationInfo(iCiv)
+-			if civ.isCivilizationFreeTechs(self.iTech):
+-				screen.attachImageButton(panelName, "", civ.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1, False)
++			#if civ.isCivilizationFreeTechs(self.iTech):
++			screen.attachImageButton(panelName, "", civ.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 7ee3a3f5e..b73ef02d6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 56596dddd..e2618c6b2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -24,13 +24,15 @@ class SevoPediaTrait:
+ 		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_MAIN_PANE = 200
+ 
+-		self.X_LEADERS = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
++		#self.X_LEADERS = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
++		self.X_LEADERS = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
+ 		self.Y_LEADERS = self.Y_MAIN_PANE
+ 		self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
+ 		self.H_LEADERS = 110
+ 
+ 		# lines are 22 pixels high using WB font -- no idea about normal font
+-		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
++		#self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
++		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
+ 		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+ 		self.H_SPECIAL = 150
+@@ -57,16 +59,15 @@ class SevoPediaTrait:
+ 		sKey = info.getType()
+ 		sKey = sKey[sKey.find("TRAIT_"):]
+ 		self.iTrait = gc.getInfoTypeForString(sKey)
+-		
+-		screen = self.top.getScreen()
+-
+-		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), TraitUtil.getButton(self.iTrait), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		# advc.004y: Commented out. No made-up trait icons.
++		#screen = self.top.getScreen()
++		#screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
++		#screen.addDDSGFC(self.top.getNextWidgetName(), TraitUtil.getButton(self.iTrait), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		self.placeLeaders()
+ 		self.placeSpecial()
+-		self.placeText()
++		#self.placeText() # advc.004y: Disable text box
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index eb09a9bd8..2a8570b79 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+@@ -24,21 +23,35 @@ class SevoPediaUnit:
+ 	def __init__(self, main):
+ 		self.iUnit = -1
+ 		self.top = main
+-		
++		# <advc.004y>
++		bWideScreen = self.top.bWideScreen
++		X_RESOLUTION = screen = self.top.getScreen().getXResolution()
++		# </advc.004y>
+ 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_UNIT_PANE = 325
++		# <advc.004y>
++		if bWideScreen:
++			self.W_UNIT_PANE = (self.W_UNIT_PANE * X_RESOLUTION) // 1024
++		# </advc.004y>
+ 		self.H_UNIT_PANE = 145
+ 	
+-		self.W_ICON = 100
+-		self.H_ICON = 100
+-		self.X_ICON = self.X_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
+-		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
+-
++		# advc.004y: Move the button and icon size settings up
+ 		self.ICON_SIZE = 64
++		# <advc.004y> Perhaps better not to enlarge the icon; use one size everyhwere in the game.
++		#if bWideScreen:
++		#	self.ICON_SIZE = 96 # </advc.004y>
+ 		self.BUTTON_SIZE = 64
+ 		self.PROMOTION_ICON_SIZE = 32
+ 	
++		# <advc.004y> ICON_SIZE as lower bound for icon frame
++		iIconFrameSize = max(100, self.ICON_SIZE)
++		self.W_ICON = iIconFrameSize # was 100
++		self.H_ICON = iIconFrameSize # was 100
++		# </advc.004y>
++		self.X_ICON = self.X_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
++		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
++
+ 		self.X_STATS_PANE = self.X_UNIT_PANE + 130
+ 		self.Y_STATS_PANE = self.Y_UNIT_PANE + 42
+ 		self.W_STATS_PANE = 250
+@@ -55,6 +68,10 @@ class SevoPediaUnit:
+ 		self.X_PREREQ_PANE = self.X_UNIT_PANE
+ 		self.Y_PREREQ_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + 10
+ 		self.W_PREREQ_PANE = 280
++		# <advc.004y> Same split between PREREQ_PANE and UPGRADES_TO_PANE as between UNIT_PANE and UNIT_ANIMATION
++		if bWideScreen:
++			self.W_PREREQ_PANE = self.W_UNIT_PANE
++		# </advc.004y>
+ 		self.H_PREREQ_PANE = 110
+ 
+ 		self.X_UPGRADES_TO_PANE = self.X_PREREQ_PANE + self.W_PREREQ_PANE + 10
+@@ -65,6 +82,10 @@ class SevoPediaUnit:
+ 		self.X_SPECIAL_PANE = self.X_UNIT_PANE
+ 		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + 10
+ 		self.W_SPECIAL_PANE = 280
++		# <advc.004y>
++		if bWideScreen:
++			self.W_SPECIAL_PANE = self.W_UNIT_PANE
++		# </advc.004y>
+ 		self.H_SPECIAL_PANE = 175
+ 
+ 		self.X_PROMO_PANE = self.X_SPECIAL_PANE + self.W_SPECIAL_PANE + 10
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index d645d6a71..83e099aed 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -7,7 +7,6 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-# see ReadMe for details
+ #
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 4bc8f4f9c..8ed4a51df 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1461,15 +1461,17 @@ class CvMainInterface:
+ 		if ( CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY  and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_ADVANCED_START):
+ 			self.updateGreatPersonBar(screen)
+ # BUG - Great Person Bar - end
+-
+-		if ( CyInterface().shouldDisplayFlag() and CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW ):
+-			screen.show( "CivilizationFlag" )
++		#CyInterface().shouldDisplayFlag() and # advc.004y: Don't check this for the Civilopedia button
++		if CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW:
++			if CyInterface().shouldDisplayFlag(): # advc.004y
++				screen.show( "CivilizationFlag" )
++				screen.show( "MainMenuButton" )
++			else: # advc.004y
++				screen.hide( "CivilizationFlag" )
++				screen.hide( "MainMenuButton" )
+ 			screen.show( "InterfaceHelpButton" )
+-			screen.show( "MainMenuButton" )
+ 		else:
+-			screen.hide( "CivilizationFlag" )
+ 			screen.hide( "InterfaceHelpButton" )
+-			screen.hide( "MainMenuButton" )
+ 
+ 		if ( CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_MINIMAP_ONLY ):
+ 			screen.hide( "InterfaceLeftBackgroundWidget" )
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=17601

@@ -1,0 +1,257 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2957
+# Commit: 222b7f6f15777ad91ffbc65b8ba99ddcae22be76
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c3f17c48b6097ca65a3fd3e7172c67d7b789737b
+# Title: Fix compilation errors
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CvCity.h
+2	2	CvGameCoreDLL/CvGameCoreDLL.h
+30	30	CvGameCoreDLL/MilitaryAnalyst.cpp
+0	2	CvGameCoreDLL/MilitaryAnalyst.h
+1	1	CvGameCoreDLL/MilitaryBranch.cpp
+8	8	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 0557238fb..990392423 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -448,8 +448,8 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 			rBranchPortions[FLEET] = std::min(fixp(0.35),
+ 					fixp(0.08) + rCoastPortion / fixp(2.8));
+ 		}
+-		scaled rTypicalCargo = m_kMilitary[LOGISTICS]->getTypicalPower(
+-				m_kMA.getAgent());
++		TeamTypes const eAgentTeam = TEAMID(m_kMA.getAgentPlayer());
++		scaled rTypicalCargo = m_kMilitary[LOGISTICS]->getTypicalPower(eAgentTeam);
+ 		if (rTypicalCargo > 0 && m_kMilitary[LOGISTICS]->getTypicalUnit() != NO_UNIT)
+ 		{
+ 			rBranchPortions[LOGISTICS] = std::min(rBranchPortions[FLEET],
+@@ -466,8 +466,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 				rMultCargo.clamp(1, fixp(1.5));
+ 				rMultCargo = (rMultCargo + 1) / 2; // dilute
+ 				rBranchPortions[LOGISTICS] *= rMultCargo;
+-				scaled rTypicalFleetPow = m_kMilitary[FLEET]->getTypicalPower(
+-						m_kMA.getAgent());
++				scaled rTypicalFleetPow = m_kMilitary[FLEET]->getTypicalPower(eAgentTeam);
+ 				if (rTypicalFleetPow > 0)
+ 				{
+ 					scaled rMultFleet = 2 -
+@@ -591,13 +590,14 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 
+ 	// Increase military power
+ 	//m_kReport.log("\nbq."); // Textile block quote (takes up too much space)
++	TeamTypes const eAgentTeam = TEAMID(m_kMA.getAgentPlayer());
+ 	for (int i = 0; i < NUM_BRANCHES; i++)
+ 	{
+ 		MilitaryBranch& kBranch = *m_kMilitary[i];
+-		scaled const rTypicalCost = kBranch.getTypicalCost(m_MA.getAgent());
++		scaled const rTypicalCost = kBranch.getTypicalCost(eAgentTeam);
+ 		if (rTypicalCost <= 0)
+ 			continue;
+-		scaled const rTypicalPower = kBranch.getTypicalPower(m_MA.getAgent());
++		scaled const rTypicalPower = kBranch.getTypicalPower(eAgentTeam);
+ 		scaled rIncrease = rBranchPortions[i] * rTotalProductionForBuildUp *
+ 				rTypicalPower / rTypicalCost;
+ 		kBranch.changePower(rIncrease);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 81f643240..50936a4e5 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -311,7 +311,7 @@ public:
+ 	DllExport inline IDInfo getIDInfo() const { return IDInfo(getOwner(), getID()); }
+ 	// </advc.inl>
+ 	void setID(int iID);
+-	inline int plotNum() const { return m_ePlot; } // advc.104
++	inline PlotNumTypes plotNum() const { return m_ePlot; } // advc.104
+ 
+ 	int getXExternal() const; // advc.inl: Exported through .def file											// Exposed to Python
+ 	inline int getX() const { return m_iX; } // advc.inl: Renamed from getX_INLINE
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index fb2222ed1..eb7d16268 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -106,15 +106,15 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvStructs.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ 
+-//jason tests (advc.make: removed most of these)
++//jason tests (advc.make: removed most of those)
+ #include "CvRandom.h"
++#include "FProfiler.h"
+ #include "CvGameCoreUtils.h"
+ #include "ScaledNum.h"
+ #include "CvGlobals.h"
+ #include "EnumMap2D.h" // advc.enum: Includes EnumMap.h
+ #include "CvPythonCaller.h" // advc.003y
+ #include "CvDLLLogger.h" // advc.003t
+-#include "FProfiler.h"
+ // <advc.003x> Include only parts of the old CvInfos.h (caveat: the order of these matters)
+ #include "CvInfo_Base.h"
+ #include "CvInfo_Asset.h"
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 53d8c86ed..daa364a37 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -14,6 +14,35 @@ using std::ostringstream;
+ CitySet MilitaryAnalyst::m_emptyCitySet;
+ PlyrSet MilitaryAnalyst::m_emptyPlayerSet;
+ 
++namespace
++{
++	scaled nukeChanceToHit(TeamTypes eTeam)
++	{
++		scaled const rInterceptionProb = per100(std::max(
++				GET_TEAM(eTeam).getNukeInterception(),
++				// advc.143b:
++				GET_TEAM(GET_TEAM(eTeam).getMasterTeam()).getNukeInterception()));
++		scaled const rEvasionProb = fixp(0.5); // Fixme: Shouldn't hardcode this
++		// Percentage of Tactical Nukes
++		scaled rTactRatio = (GET_TEAM(eTeam).isHuman() ? fixp(0.5) : fixp(1/3.));
++		scaled rHitProb = 1 - (rInterceptionProb *
++				((1 - rTactRatio) + rTactRatio * (1 - rEvasionProb)));
++		rHitProb.clamp(0, 1);
++		return rHitProb;
++	}
++
++	// Known to be at war with anyone. If no observer, all wars are checked.
++	bool isKnownToBeAtWar(TeamTypes eTeam, TeamTypes eObserver)
++	{
++		for (TeamIter<MAJOR_CIV,ENEMY_OF> it(eTeam); it.hasNext(); ++it)
++		{
++			if (eObserver == NO_TEAM || GET_TEAM(eObserver).isHasMet(it->getID()))
++				return true;
++		}
++		return false;
++	}
++}
++
+ 
+ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer,
+ 	WarEvalParameters& kWarEvalParams, bool bPeaceScenario)
+@@ -325,7 +354,7 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 			rOurVassalMult /= 2;
+ 		scaled rEnemyVassalMult = 1;
+ 		if (kAgent.isAVassal())
+-			rEnemyVassalMult = /= 2;
++			rEnemyVassalMult /= 2;
+ 		scaled rEnemyTargets;
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+@@ -366,35 +395,6 @@ void MilitaryAnalyst::simulateNuclearWar()
+ 	}
+ }
+ 
+-namespace
+-{
+-	scaled nukeChanceToHit(TeamTypes eTeam)
+-	{
+-		scaled const rInterceptionProb = per100(std::max(
+-				GET_TEAM(eTeam).getNukeInterception(),
+-				// advc.143b:
+-				GET_TEAM(GET_TEAM(eTeam).getMasterTeam()).getNukeInterception()));
+-		scaled const rEvasionProb = fixp(0.5); // Fixme: Shouldn't hardcode this
+-		// Percentage of Tactical Nukes
+-		scaled rTactRatio = (GET_TEAM(eTeam).isHuman() ? fixp(0.5) : fixp(1/3.));
+-		scaled rHitProb = 1 - (rInterceptionProb *
+-				((1 - rTactRatio) + rTactRatio * (1 - rEvasionProb)));
+-		r.clamp(0, 1);
+-		return rHitProb;
+-	}
+-
+-
+-	bool isKnownToBeAtWar(TeamTypes eTeam, TeamTypes eObserver) const
+-	{
+-		for (TeamIter<MAJOR_CIV,ENEMY_OF> it(eTeam); it.hasNext(); ++it)
+-		{
+-			if (eObserver == NO_TEAM || GET_TEAM(eObserver).isHasMet(it->getID()))
+-				return true;
+-		}
+-		return false;
+-	}
+-}
+-
+ 
+ bool MilitaryAnalyst::isDefactoDefensivePact(TeamTypes eFirst, TeamTypes eSecond) const
+ {
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.h b/CvGameCoreDLL/MilitaryAnalyst.h
+index e701ef7d5..7ea1a1095 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.h
++++ b/CvGameCoreDLL/MilitaryAnalyst.h
+@@ -189,8 +189,6 @@ private:
+ 	bool doWePlanToDeclWar(PlayerTypes ePlayer) const;
+ 	void prepareResults();
+ 	void simulateNuclearWar();
+-	// Known to be at war with anyone. If no observer, all wars are checked.
+-	bool isKnownToBeAtWar(TeamTypes eTeam, TeamTypes eObserver = NO_TEAM) const;
+ 	/*  Also checks vassal agreements, including other vassals of
+ 		the same master. */
+ 	bool isDefactoDefensivePact(TeamTypes eFirst, TeamTypes eSecond) const;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index c0198a0cc..ebc0d0d41 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -158,7 +158,7 @@ void MilitaryBranch::NuclearArsenal::updateTypicalUnit()
+ 		if (!kOwner.getCapitalCity()->canTrain(eUnit))
+ 			continue;
+ 		scaled const rPow = unitPower(eUnit, true);
+-		if (rUnitPow <= 0)
++		if (rPow <= 0)
+ 			continue;
+ 		scaled rUtility = unitUtility(eUnit, rPow);
+ 		scaled rProductionCost = estimateProductionCost(eUnit);
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 65bc4a562..d504f8c1e 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -210,10 +210,10 @@ namespace
+ 		:	iU(iU), eTarget(eTarget), iPrepTurns(iPrepTurns), bNaval(bNaval)
+ 		{}
+ 		inline bool operator<(PlanData const& kOther) { return iU < kOther.iU; }
+-		int const iU;
+-		TeamTypes const eTarget;
+-		int const iPrepTurns;
+-		bool const bNaval;
++		int iU;
++		TeamTypes eTarget;
++		int iPrepTurns;
++		bool bNaval;
+ 	};
+ }
+ 
+@@ -1342,10 +1342,10 @@ namespace
+ 		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), iU(iU)
+ 		{}
+ 		inline bool operator<(TargetData const& kOther) { return rDrive < kOther.rDrive; }
+-		scaled const rDrive;
+-		TeamTypes const eTeam;
+-		bool const bTotal;
+-		int comst iU;
++		scaled rDrive;
++		TeamTypes eTeam;
++		bool bTotal;
++		int iU;
+ 	};
+ }
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=8320

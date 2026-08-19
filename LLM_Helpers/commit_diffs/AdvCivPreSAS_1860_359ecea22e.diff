@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1860
+# Commit: 359ecea22e02eabd0a63242978d8ddf942f88ff4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f1b70ac27666620d4589fec6646b88064a92e557
+# Title: Fix animations lag caused by fly-out scoreboard
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	Assets/Python/BUG/Scoreboard.py
+22	7	CvGameCoreDLL/CvGame.cpp
+10	2	CvGameCoreDLL/CvGame.h
+32	12	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 307ef69e9..58881a408 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -417,7 +417,6 @@ class Scoreboard:
+ 		# <advc.085>
+ 		bExpanded = False
+ 		if gc.getPlayer(self._activePlayer).isScoreboardExpanded():
+-			gc.getPlayer(self._activePlayer).setScoreboardExpanded(False)
+ 			bExpanded = True
+ 		else: # Take out the keys preceded by an underscore
+ 			stringsToRemove = []
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 36a3143d9..47fe34016 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4614,12 +4614,21 @@ void CvGame::setScoreDirty(bool bNewValue)
+ 
+ // <advc.003r>
+ void CvGame::setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay)
+-{	// <advc.001w>
++{
++	FAssertBounds(0, NUM_UPDATE_TIMER_TYPES, eTimerType);
++	// <advc.001w>
+ 	if(eTimerType == UPDATE_MOUSE_FOCUS && BUGOption::isEnabled("MainInterface__RapidUnitCycling", false)) {
+ 		// No need for this hack when there is no unit-cycling delay
+ 		iDelay = -1;
+ 	} // </advc.001w>
+ 	m_aiUpdateTimers[eTimerType] = iDelay;
++}
++
++
++int CvGame::getUpdateTimer(UpdateTimerTypes eTimerType) const
++{
++	FAssertBounds(0, NUM_UPDATE_TIMER_TYPES, eTimerType);
++	return m_aiUpdateTimers[eTimerType];
+ } // </advc.003r>
+ 
+ 
+@@ -8689,13 +8698,12 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 	{
+ 		switch(eTimerType)
+ 		{
+-		// <advc.085> See CvPlayer::setScoreboardExpanded
+-		case UPDATE_SCORE_BOARD_DIRTY:
++		// <advc.085>
++		case UPDATE_COLLAPSE_SCORE_BOARD:
++			GET_PLAYER(getActivePlayer()).setScoreboardExpanded(false);
++			break;
++		case UPDATE_DIRTY_SCORE_BOARD:
+ 			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+-			/*  For some strange reason, the HUD retains mouse focus after expanding
+-				the scoreboard, and this is the only remedy I was able to find
+-				(apart from CvInterface::makeInterfaceDirty, which results in flickering). */
+-			gDLL->getInterfaceIFace()->makeSelectionListDirty();
+ 			break; // </advc.085>
+ 		// <advc.001w>
+ 		case UPDATE_MOUSE_FOCUS:
+@@ -8717,6 +8725,7 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 	m_aiUpdateTimers[eTimerType]--;
+ } // </advc.003r>
+ 
++
+ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString pszText, int iPlotX, int iPlotY, ColorTypes eColor)
+ {
+ 	int iGameTurn = getGameTurn();
+@@ -8732,6 +8741,7 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvW
+ 	}
+ }
+ 
++
+ void CvGame::clearReplayMessageMap()
+ {
+ 	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); itList++)
+@@ -8756,6 +8766,7 @@ int CvGame::getReplayMessageTurn(uint i) const
+ 	return pMessage->getTurn();
+ }
+ 
++
+ ReplayMessageTypes CvGame::getReplayMessageType(uint i) const
+ {
+ 	if (i >= m_listReplayMessages.size())
+@@ -8784,6 +8795,7 @@ int CvGame::getReplayMessagePlotX(uint i) const
+ 	return pMessage->getPlotX();
+ }
+ 
++
+ int CvGame::getReplayMessagePlotY(uint i) const
+ {
+ 	if (i >= m_listReplayMessages.size())
+@@ -8798,6 +8810,7 @@ int CvGame::getReplayMessagePlotY(uint i) const
+ 	return pMessage->getPlotY();
+ }
+ 
++
+ PlayerTypes CvGame::getReplayMessagePlayer(uint i) const
+ {
+ 	if (i >= m_listReplayMessages.size())
+@@ -8812,6 +8825,7 @@ PlayerTypes CvGame::getReplayMessagePlayer(uint i) const
+ 	return pMessage->getPlayer();
+ }
+ 
++
+ LPCWSTR CvGame::getReplayMessageText(uint i) const
+ {
+ 	if (i >= m_listReplayMessages.size())
+@@ -8826,6 +8840,7 @@ LPCWSTR CvGame::getReplayMessageText(uint i) const
+ 	return pMessage->getText().GetCString();
+ }
+ 
++
+ ColorTypes CvGame::getReplayMessageColor(uint i) const
+ {
+ 	if (i >= m_listReplayMessages.size())
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index a17bc066e..025536b30 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -322,13 +322,21 @@ public:
+ 	void setScoreDirty(bool bNewValue);																			// Exposed to Python
+ 	// <advc.003r> Akin to deferCall in BugUtil.py
+ 	enum UpdateTimerTypes {
+-		UPDATE_SCORE_BOARD_DIRTY, // advc.085
++		UPDATE_COLLAPSE_SCORE_BOARD, // advc.085
++		UPDATE_DIRTY_SCORE_BOARD, // advc.085
+ 		UPDATE_MOUSE_FOCUS, // advc.001w
+ 		UPDATE_LOOK_AT_STARTING_PLOT, // advc.004j
+ 		UPDATE_STORE_REPLAY_TEXTURE, // advc.106n
+ 		NUM_UPDATE_TIMER_TYPES
+ 	};
+-	void setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay); // </advc.003r>
++	void setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay);
++	// Unused so far (x3)
++	void cancelUpdateTimer(UpdateTimerTypes eTimerType) { setUpdateTimer(eTimerType, -1); }
++	int getUpdateTimer(UpdateTimerTypes eTimerType) const;
++	bool isUpdatePending(UpdateTimerTypes eTimerType) const
++	{
++		return (getUpdateTimer(eTimerType) >= 0);
++	} // </advc.003r>
+ 
+ 	bool isCircumnavigated() const;																// Exposed to Python
+ 	void makeCircumnavigated();																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 061900f23..ec9fa2e21 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -21078,23 +21078,43 @@ void CvPlayer::calculateTradeTotals(YieldTypes eIndex,
+ // <advc.085>
+ void CvPlayer::setScoreboardExpanded(bool b)
+ {
+-	m_bScoreboardExpanded = b;
+-	if(b)
++	if (b)
+ 	{
+ 		FAssert(BUGOption::isEnabled("Scores__AlignIcons", true, false));
+-		if(BUGOption::isEnabled("Scores__ExpandOnHover", false, false))
+-			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		if (BUGOption::isEnabled("Scores__ExpandOnHover", false, false))
++		{
++			/*  A delay of 1 means that the scoreboard collapses after
++				two game updates (250 ms) */
++			int const iDelay = 1;
++			CvGame& kGame = GC.getGame();
++			/*  So long as the mouse hovers over a scoreboard widget,
++				setScoreboardExpanded(true) keeps getting called and
++				the collapse timer keeps getting reset. */
++			kGame.setUpdateTimer(CvGame::UPDATE_COLLAPSE_SCORE_BOARD, iDelay);
++			// Scoreboard needs to be redrawn when expanding
++			if (!isScoreboardExpanded())
++				gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++			/*  The EXE calls CvDLLWidgetData::parseHelp when the cursor is moved
++				onto a widget - but not while the cursor rests there. Workaround:
++				Redraw the scoreboard and its widgets. That also causes a parseHelp
++				call (if the cursor is on a widget). Must still allow game updates
++				in between though (otherwise, e.g. animations will start lagging).
++				Therefore, don't set the dirty bit until the next game update. */
++			else kGame.setUpdateTimer(CvGame::UPDATE_DIRTY_SCORE_BOARD, iDelay - 1);
++			m_bScoreboardExpanded = true;
++		}
+ 		else m_bScoreboardExpanded = false;
++		return;
+ 	}
+-	/*  If !b, then it doesn't help to dirty it b/c the update is still in progress
+-		(when called from Python). */
+-	else
++	// Collapse callback from CvGame
++	if (isScoreboardExpanded())
+ 	{
+-		/*  0 would make the scoreboard collapse almost instantly when the mouse is
+-			moved away. Can't click buttons that way. A higher delay than 1
+-			(1/4 second) shouldn't be necessary. */
+-		int const iDelay = 1;
+-		GC.getGame().setUpdateTimer(CvGame::UPDATE_SCORE_BOARD_DIRTY, iDelay);
++		m_bScoreboardExpanded = false;
++		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		/*  For some strange reason, the HUD retains mouse focus after expanding
++			the scoreboard, and this is the only remedy I was able to find
++			(apart from CvInterface::makeInterfaceDirty, which is far costlier). */
++		gDLL->getInterfaceIFace()->makeSelectionListDirty();
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7627

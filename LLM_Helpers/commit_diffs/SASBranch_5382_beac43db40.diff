@@ -1,0 +1,1341 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5382
+# Commit: beac43db401678c9f5b25557b797632aa0a56eb0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5102770120052fdc9fdb9280d988cf0caecc26d6
+# Title: Add new History Tab in the Info Screen; update 48 civs DLL - Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	.claude/settings.local.json
+3	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL_48_civs_DLL.dll
+273	38	Assets/Python/Screens/CvInfoScreen.py
+17	5	Assets/XML/GlobalDefines_advciv_sas.xml
+19	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+36	49	Assets/XML/Units/CIV4UnitInfos.xml
+95	2	Long_Comments/Long_Comments_XML.txt
+17	0	Long_Comments/Long_Comments_py.txt
+22	14	README.md
+4	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG
+-	-	_1_AdvCiv-SAS/Images/advisors/button_log_info_screen_dbg_log.JPG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/button_log_info_screen_dbg_log.JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG
+
+[PATCHES]
+
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index 052fa8765..fa4bbd259 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -9,7 +9,8 @@
+       "Bash(xargs sed:*)",
+       "Bash(python -m py_compile:*)",
+       "Read(//c/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/**)",
+-      "Read(//c/Users/PC/Documents/My Games/beyond the sword/Logs/**)"
++      "Read(//c/Users/PC/Documents/My Games/beyond the sword/Logs/**)",
++      "Bash(find:*)"
+     ]
+   }
+ }
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 1ace8e7d0..ca2702e21 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -140,7 +140,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+ - When doing performance optimizations, checking only, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
+ - When doing performance optimizations, use local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+-- Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
++- Use specific t names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.asse
+ - Avoid fluff like `================`, keep it nice and simple and clean.
+ 
+ ### Python (Civ4)
+@@ -159,6 +159,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ 
+ ## XML
+ 
++- Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) and only in `<English>`. Move the ones we modify in other files to our files too and remove other languages while doing so.
++
+ ## C++
+ 
+ - Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_48_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 20c205cd7..e45e99d21 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -18,6 +18,7 @@ import CvScreenEnums
+ #import time
+ import math
+ import copy # advc.091
++import re
+ 
+ from PyHelpers import PyPlayer
+ 
+@@ -117,12 +118,14 @@ class CvInfoScreen:
+ 
+ 		self.PAGE_NAME_LIST = [
+ 			"TXT_KEY_INFO_GRAPH",
++			"TXT_KEY_INFO_HISTORY",
+ 			"TXT_KEY_DEMO_SCREEN_TITLE",
+ 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
+ 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
+ 			]
+ 		self.PAGE_DRAW_LIST = [
+ 			self.drawGraphTab,
++			self.drawHistoryTab,
+ 			self.drawDemographicsTab,
+ 			self.drawTopCitiesTab,
+ 			self.drawStatsTab,
+@@ -142,9 +145,10 @@ class CvInfoScreen:
+ 		self.iNumWondersPermanentWidgets = 0
+ 
+ 		self.iGraphID			= 0
+-		self.iDemographicsID	= 1
+-		self.iTopCitiesID		= 2
+-		self.iStatsID			= 3
++		self.iHistoryID			= 1
++		self.iDemographicsID	= 2
++		self.iTopCitiesID		= 3
++		self.iStatsID			= 4
+ 
+ 		self.iActiveTab = -1
+ #		self.iActiveTab = self.iGraphID
+@@ -168,6 +172,16 @@ class CvInfoScreen:
+ 		for t in self.RANGE_SCORES:
+ 			self.scoreCache.append(None)
+ 
++		# <!-- custom: History tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
++		self.RE_COLOR_OPEN = re.compile(r"<color=.*?>")
++		self.RE_COLOR_CLOSE = re.compile(r"</color>")
++
++		# <!-- custom: History tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
++		self.historyCacheEntries = None  # List of formatted display strings
++		self.historyCacheActivePlayer = -1
++		self.historyCacheBRevealAll = False
++		self.historyCacheNumMessages = 0
++
+ 		self.GRAPH_H_LINE = "GraphHLine"
+ 		self.GRAPH_V_LINE = "GraphVLine"
+ 
+@@ -176,6 +190,7 @@ class CvInfoScreen:
+ 
+ 		self.graphLeftButtonID = ""
+ 		self.graphRightButtonID = ""
++		self.szHistoryDbgLogPrettySummaryButton = ""
+ 
+ 		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
+ 		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
+@@ -183,7 +198,7 @@ class CvInfoScreen:
+ 		self.Y_MARGIN = 80
+ 		self.SMALL_MARGIN = 20
+ 
+-################################################## GRAPH ###################################################
++# GRAPH
+ 
+ 		# <!-- custom: add "_GRAPH_" to the name to not confuse it with the "_WONDERS_" dropdown and avoid future mistakes if i'm not mistaken. -->
+ 		self.H_GRAPH_DROPDOWN = 35
+@@ -209,6 +224,29 @@ class CvInfoScreen:
+ 		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
+ 		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
+ 
++		# History tab layout - vertically centered between header and footer panels
++		# Shared panel height (used by TechTopPanel and TechBottomPanel, both are 55px)
++		self.PANEL_HEIGHT = 55
++
++		# Content area boundaries (between the two panels)
++		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
++		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
++
++		# Gap from panel edges to table (same for top and bottom = symmetric)
++		self.HISTORY_TABLE_VERTICAL_GAP = 28
++
++		# Table positioning - truly centered
++		self.X_HISTORY_TABLE = self.X_MARGIN
++		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
++		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
++		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
++
++		# LOG button - positioned in top header bar (0-55px height)
++		self.W_HISTORY_TABLE_LOG_BUTTON = 48
++		self.H_HISTORY_TABLE_LOG_BUTTON = 28
++		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
++		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
++
+ 		self.W_LEFT_BUTTON = 20
+ 		self.H_LEFT_BUTTON = 20
+ 		self.X_LEFT_BUTTON = self.X_GRAPH
+@@ -264,7 +302,7 @@ class CvInfoScreen:
+ 		self.Y_3_IN_1_CHART_ADJ = [0, 0, 1]
+ #BUG: Change Graphs - end
+ 
+-############################################### DEMOGRAPHICS ###############################################
++		# DEMOGRAPHICS
+ 
+ 		# <!-- custom: rename self.X_CHART and such to self.X_DEMOGRAPHICS_CHART and such for clarity and most importantly to avoid future errors. -->
+ 		# <!-- custom: note: deleted seemingly unused self.BUTTON_SIZE if i'm not mistaken. -->
+@@ -314,7 +352,7 @@ class CvInfoScreen:
+ 		self.iShowingPlayer = -1
+ 		self.aiDropdownPlayerIDs = []
+ 
+-############################################### TOP CITIES ###############################################
++		# TOP CITIES
+ 
+ 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
+ 		self.W_WONDERS_RIGHT_PANE = 640
+@@ -390,7 +428,7 @@ class CvInfoScreen:
+ 		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
+ 		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
+ 
+-############################################### WONDERS ###############################################
++		# WONDERS
+ 
+ 		# <!-- custom: in many of these variable names, add "_WONDERS_" or "_WONDER_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
+ 		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
+@@ -489,10 +527,7 @@ class CvInfoScreen:
+ 		self.iWonderID = -1 			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
+ 		self.iActiveWonderCounter = 0	# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
+ 
+-############################################### STATISTICS ###############################################
+-
+-		# STATISTICS TAB
+-
++		# STATISTICS
+ 		# <!-- custom: moved from drawStatsTab to init for consistency/clarity. -->
+ 		# Bottom Chart
+ 		#BUG: improvements - start
+@@ -586,6 +621,9 @@ class CvInfoScreen:
+ 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
+ 		
+ 		self.TEXT_ENTIRE_HISTORY = localText.getText("TXT_KEY_INFO_ENTIRE_HISTORY", ())
++		self.TEXT_HISTORY_EMPTY = localText.getText("TXT_KEY_INFO_HISTORY_EMPTY", ())
++		self.TEXT_HISTORY_UNKNOWN_CITY = localText.getText("TXT_KEY_INFO_HISTORY_UNKNOWN_CITY", ())
++		self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ())
+ 		
+ 		self.TEXT_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ())
+ 		self.TEXT_POWER = localText.getText("TXT_KEY_POWER", ())
+@@ -738,6 +776,11 @@ class CvInfoScreen:
+ 		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"
+ 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
+ 
++		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
++		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
++		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
++		self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE") > 0)
++
+ 	def reset(self):
+ 
+ 		# City Members
+@@ -847,7 +890,6 @@ class CvInfoScreen:
+ 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 		self.iActiveTeam = self.pActivePlayer.getTeam()
+ 		self.pActiveTeam = gc.getTeam(self.iActiveTeam)
+-
+ 		# advc.007: Don't reveal all when perspective switched (I guess this is possible when the game ends while in Debug mode)	
+ 		self.bRevealAll = (self.iActiveTeam == gc.getGame().getActiveTeam() and (CyGame().isDebugMode() or CyGame().getGameState() == GameStateTypes.GAMESTATE_OVER)) # advc.077
+ 
+@@ -901,9 +943,7 @@ class CvInfoScreen:
+ 			self.PAGE_DRAW_LIST[self.iActiveTab]()
+ 		#
+ 
+-#############################################################################################################
+-#################################################### GRAPH ##################################################
+-#############################################################################################################
++	# GRAPH
+ 
+ 	def drawGraphTab(self):
+ 
+@@ -918,6 +958,207 @@ class CvInfoScreen:
+ 		self.drawPermanentGraphWidgets()
+ 		self.drawGraphs()
+ 
++	# HISTORY
++
++	# <!-- custom: History cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
++	def buildHistoryCache(self, bForceRebuild = False):
++		replayInfo = CyGame().getReplayInfo()
++		if replayInfo.isNone():
++			replayInfo = CyReplayInfo()
++			replayInfo.createInfo(self.iActivePlayer)
++
++		iNumMessages = replayInfo.getNumReplayMessages()
++
++		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
++			# Check if cache is still valid
++			if (not bForceRebuild and
++				self.historyCacheEntries is not None and
++				self.historyCacheActivePlayer == self.iActivePlayer and
++				self.historyCacheBRevealAll == self.bRevealAll and
++				self.historyCacheNumMessages == iNumMessages):
++				# Cache is valid, no rebuild needed
++				return self.historyCacheEntries
++
++		# Rebuild cache
++		entries = []
++
++		if iNumMessages <= 0:
++			if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
++				self.historyCacheEntries = entries
++				self.historyCacheActivePlayer = self.iActivePlayer
++				self.historyCacheBRevealAll = self.bRevealAll
++				self.historyCacheNumMessages = iNumMessages
++			return entries
++
++		# Build unknown colors dict once
++		dUnknownColors = {}
++		if not self.bRevealAll:
++			for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++				pLoopPlayer = gc.getPlayer(iPlayer)
++				if pLoopPlayer.isEverAlive():
++					if not self.pActiveTeam.isHasMet(pLoopPlayer.getTeam()):
++						eColor = replayInfo.getColor(iPlayer)
++						if eColor != -1:
++							dUnknownColors[eColor] = True
++
++		# Cache game text manager and map references
++		gameTextMgr = CyGameTextMgr()
++		cyMap = CyMap()
++		iCalendar = replayInfo.getCalendar()
++		iStartYear = replayInfo.getStartYear()
++		iGameSpeed = replayInfo.getGameSpeed()
++		iBarbarianPlayer = gc.getBARBARIAN_PLAYER()
++		iCityFoundedMessage = getattr(ReplayMessageTypes, "REPLAY_MESSAGE_CITY_FOUNDED", -1)
++		iReligionFoundedMessage = getattr(ReplayMessageTypes, "REPLAY_MESSAGE_RELIGION_FOUNDED", -1)
++
++		# Iterate backwards (newest first) so no reverse needed later
++		for iMessage in range(iNumMessages - 1, -1, -1):
++			iPlayer = replayInfo.getReplayMessagePlayer(iMessage)
++			iX = replayInfo.getReplayMessagePlotX(iMessage)
++			iY = replayInfo.getReplayMessagePlotY(iMessage)
++			eColor = replayInfo.getReplayMessageColor(iMessage)
++			eMessageType = replayInfo.getReplayMessageType(iMessage)
++			bAllowHiddenPlotMessage = (eMessageType == iReligionFoundedMessage)
++			szText = None
++			szTextNoColor = None
++
++			bPlotHidden = False
++			pPlot = None
++			if iX > -1 and iY > -1:
++				pPlot = cyMap.plot(iX, iY)
++				if pPlot is not None:
++					if not pPlot.isRevealed(self.iActiveTeam, False):
++						bPlotHidden = True
++
++			bHideCityFounded = False
++			if eMessageType == iCityFoundedMessage:
++				if iX == -1 or iY == -1 or pPlot is None:
++					bHideCityFounded = True
++				else:
++					iRevealedOwner = pPlot.getRevealedOwner(self.iActiveTeam, False)
++					if iRevealedOwner != iPlayer:
++						bHideCityFounded = True
++			# <!-- custom: hide "city founded" unless revealed owner matches the replay message player; this avoids barbarian spoilers when the plot is revealed but ownership is not. Finding a reliable barbarian hide required checking revealed owner rather than plot visibility alone; optional debug line left for future verification, not tested with this exact code path. (GPT-5.2-Codex); Long_Comments_py.txt #13 -->
++			if (not bAllowHiddenPlotMessage and
++				not self.bRevealAll and
++				(bPlotHidden or eColor in dUnknownColors)):
++				szText = replayInfo.getReplayMessageText(iMessage)
++				if szText:
++					szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
++					if " has been founded in " in szTextNoColor.lower():
++						bAllowHiddenPlotMessage = True
++
++			bHide = False
++			if not self.bRevealAll:
++				if bHideCityFounded:
++					bHide = True
++				if (not bAllowHiddenPlotMessage and iPlayer == iBarbarianPlayer and (bPlotHidden or iX == -1 or iY == -1)):
++					bHide = True
++				if not bAllowHiddenPlotMessage and bPlotHidden:
++					bHide = True
++				if iPlayer != -1:
++					pLoopPlayer = gc.getPlayer(iPlayer)
++					if pLoopPlayer.isEverAlive():
++						if not self.pActiveTeam.isHasMet(pLoopPlayer.getTeam()):
++							bHide = True
++				if not bHide and iX > -1 and iY > -1:
++					iOwner = pPlot.getOwner()
++					if iOwner != -1:
++						pOwner = gc.getPlayer(iOwner)
++						if pOwner.isEverAlive():
++							if not self.pActiveTeam.isHasMet(pOwner.getTeam()):
++								bHide = True
++				if not bHide and eColor in dUnknownColors and not bAllowHiddenPlotMessage:
++					bHide = True
++
++			if bHide:
++				continue
++
++			if szText is None:
++				szText = replayInfo.getReplayMessageText(iMessage)
++			if szText == "":
++				continue
++
++			iTurnMsg = replayInfo.getReplayMessageTurn(iMessage)
++			szEventDate = gameTextMgr.getDateStr(iTurnMsg, False, iCalendar, iStartYear, iGameSpeed)
++
++			# Use precompiled regex patterns
++			if szTextNoColor is None:
++				szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
++			szText = szTextNoColor
++
++			if not self.bRevealAll and pPlot is not None:
++				pCity = pPlot.getPlotCity()
++				if pCity is not None:
++					bCityOwnerMet = False
++					iCityOwner = pCity.getOwner()
++					if iCityOwner != -1:
++						pCityOwner = gc.getPlayer(iCityOwner)
++						if pCityOwner.isEverAlive():
++							if self.pActiveTeam.isHasMet(pCityOwner.getTeam()):
++								bCityOwnerMet = True
++					if not bCityOwnerMet or bPlotHidden:
++						szCityName = pCity.getName()
++						if szCityName:
++							szText = szText.replace(szCityName, self.TEXT_HISTORY_UNKNOWN_CITY)
++
++			szFormattedText = localText.changeTextColor(u"<font=2>" + szEventDate + u": " + szText + u"</font>", eColor)
++			entries.append(szFormattedText)
++
++		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
++			# Store in instance vars (faster than dict)
++			self.historyCacheEntries = entries
++			self.historyCacheActivePlayer = self.iActivePlayer
++			self.historyCacheBRevealAll = self.bRevealAll
++			self.historyCacheNumMessages = iNumMessages
++		return entries
++
++	def drawHistoryTab(self):
++		screen = self.getScreen()
++		self.szHistoryList = self.getNextWidgetName()
++		screen.addListBoxGFC(self.szHistoryList, "", self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSelect(self.szHistoryList, False)
++
++		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
++			self.szHistoryDbgLogPrettySummaryButton = self.getNextWidgetName()
++			szLabel = u"<font=2>" + self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + u"</font>"
++			screen.setButtonGFC(self.szHistoryDbgLogPrettySummaryButton, szLabel, "", self.X_HISTORY_TABLE_LOG_BUTTON, self.Y_HISTORY_TABLE_LOG_BUTTON, self.W_HISTORY_TABLE_LOG_BUTTON, self.H_HISTORY_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++
++		# Build or reuse cache
++		aEntries = self.buildHistoryCache(not self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE)
++
++		if not aEntries:
++			szText = u"<font=2>" + self.TEXT_HISTORY_EMPTY + u"</font>"
++			screen.appendListBoxString(self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			return
++
++		# Cache is already in display order (newest first) - use append which is O(1)
++		# Local reference to method avoids repeated attribute lookup
++		fnAppend = screen.appendListBoxString
++		szWidget = self.szHistoryList
++		for szFormattedText in aEntries:
++			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++	def dbgLogPrettySummary(self):
++		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
++			aEntries = self.historyCacheEntries
++		else:
++			aEntries = self.buildHistoryCache(True)
++		if not aEntries:
++			print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_EMPTY")
++			return
++		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_BEGIN")
++		# Strip font/color tags from cached display strings for clean log output
++		# Entries are newest-first, reverse for chronological log output
++		reFont = re.compile(r"</?font[^>]*>")
++		reColor = re.compile(r"</?color[^>]*>")
++		aLines = []
++		for szEntry in reversed(aEntries):
++			szClean = reFont.sub("", szEntry)
++			szClean = reColor.sub("", szClean)
++			aLines.append(u"- " + szClean)
++		print("\n".join(aLines))
++		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_END")
++
+ 	def drawPermanentGraphWidgets(self):
+ 
+ 		screen = self.getScreen()
+@@ -1631,9 +1872,7 @@ class CvInfoScreen:
+ 	def showTotalScoreGraph(self, iPlayer):
+ 		return ((gc.getGame().getGameTurn() - self.pActiveTeam.getHasMetTurn(gc.getPlayer(iPlayer).getTeam()) >= 5 and AdvisorOpt.isPartialScoreGraphs()) or self.pActivePlayer.hasEverSeenDemographics(iPlayer))
+ 
+-#############################################################################################################
+-################################################# DEMOGRAPHICS ##############################################
+-#############################################################################################################
++	# DEMOGRAPHICS
+ 
+ 	def drawDemographicsTab(self):
+ 		self.drawTextChart()
+@@ -2211,9 +2450,7 @@ class CvInfoScreen:
+ 		# </advc.077>
+ 		return
+ 
+-#############################################################################################################
+-################################################## TOP CITIES ###############################################
+-#############################################################################################################
++	# TOP CITIES
+ 
+ 	def drawTopCitiesTab(self):
+ 
+@@ -2439,9 +2676,7 @@ class CvInfoScreen:
+ 
+ 		return
+ 
+-#############################################################################################################
+-################################################### WONDERS #################################################
+-#############################################################################################################
++	# WONDERS
+ 
+ 	def drawWondersTab(self):
+ 		screen = self.getScreen()
+@@ -2618,7 +2853,7 @@ class CvInfoScreen:
+ 		panelName = self.getNextWidgetName()
+ 		screen.addPanel( panelName, "", "", true, true, self.X_WONDERS_STATS_PANE, self.Y_WONDERS_STATS_PANE, self.W_WONDERS_STATS_PANE, self.H_WONDERS_STATS_PANE, PanelStyles.PANEL_STYLE_IN )
+ 
+-############################################### DISPLAY SINGLE WONDER ###############################################
++		# DISPLAY SINGLE WONDER
+ 
+ 		# Set default wonder if any exist in this list
+ 		if (len(self.aiWonderListBoxIDs) > 0 and self.iWonderID == -1):
+@@ -2627,7 +2862,7 @@ class CvInfoScreen:
+ 		# Only display/do the following if a wonder is actively being displayed
+ 		if (self.iWonderID > -1):
+ 
+-############################################### DISPLAY PROJECT MODE ###############################################
++		# DISPLAY PROJECT MODE
+ 
+ 			if (self.szWonderDisplayMode == self.szWDM_Project):
+ 
+@@ -2701,7 +2936,7 @@ class CvInfoScreen:
+ 
+ 			else:
+ 
+-	############################################### DISPLAY WONDER MODE ###############################################
++	# DISPLAY WONDER MODE
+ 
+ 				pWonderInfo = gc.getBuildingInfo(self.iWonderID)
+ 
+@@ -3201,9 +3436,7 @@ class CvInfoScreen:
+ 				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+-#############################################################################################################
+-################################################## STATISTICS ###############################################
+-#############################################################################################################
++	# STATISTICS
+ 
+ 	def drawStatsTab(self):
+ 		screen = self.getScreen()
+@@ -3220,7 +3453,7 @@ class CvInfoScreen:
+ 		self.iNumBuildingStatsChartRows = iNumBuildings
+ 		self.iNumImprovementStatsChartRows = iNumImprovements
+ 
+-################################################### CALCULATE STATS ###################################################
++# CALCULATE STATS
+ 
+ 		iMinutesPlayed = CyGame().getMinutesPlayed()
+ 		iHoursPlayed = iMinutesPlayed / 60
+@@ -3283,7 +3516,7 @@ class CvInfoScreen:
+ 					if (iType != ImprovementTypes.NO_IMPROVEMENT):
+ 						aiImprovementsCurrent[iType] += 1
+ 
+-################################################### TOP PANEL ###################################################
++		# TOP PANEL
+ 
+ 		# Add Panel
+ 		szTopPanelWidget = self.getNextWidgetName()
+@@ -3380,7 +3613,7 @@ class CvInfoScreen:
+ 		screen.setTableText(szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# K-Mod end
+ 
+-################################################### BOTTOM PANEL ###################################################
++		# BOTTOM PANEL
+ 
+ 		# Create Tables
+ 		szUnitsTable = self.getNextWidgetName()
+@@ -3556,9 +3789,7 @@ class CvInfoScreen:
+ 				iRow += 1
+ #BUG: improvements - end
+ 
+-#############################################################################################################
+-##################################################### OTHER #################################################
+-#############################################################################################################
++	# OTHER
+ 
+ 	def drawLine (self, screen, canvas, x0, y0, x1, y1, color, bThreeLines):
+ 		if bThreeLines:
+@@ -3666,7 +3897,7 @@ class CvInfoScreen:
+ 			iSelected = inputClass.getData()
+ #			print("iSelected : %d" %(iSelected))
+ 
+-############################### WONDERS / TOP CITIES TAB ###############################
++			# WONDERS / TOP CITIES TAB
+ 
+ 			if (self.iActiveTab == self.iTopCitiesID):
+ 
+@@ -3697,7 +3928,7 @@ class CvInfoScreen:
+ 
+ 
+ 
+-################################## GRAPH TAB ###################################
++			# GRAPH TAB
+ 
+ 			elif (self.iActiveTab == self.iGraphID):
+ 
+@@ -3753,6 +3984,10 @@ class CvInfoScreen:
+ 
+ 			######## Screen 'Tabs' for Navigation ########
+ 
++			if self.iActiveTab == self.iHistoryID and szWidgetName == self.szHistoryDbgLogPrettySummaryButton and code == NotifyCode.NOTIFY_CLICKED:
++				self.dbgLogPrettySummary()
++				return 0
++
+ 			# (K-Mod version)
+ 			if (inputClass.getButtonType() == WidgetTypes.WIDGET_GENERAL):
+ 				iData1 = inputClass.getData1()
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5e1b4538e..c0246e607 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -212,6 +212,19 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
++	<Define>
++		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: History tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
+@@ -243,7 +256,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: Long_Comments_XML.txt #213 -->
++	<!-- custom: Enable/Disable e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc: Long_Comments_XML.txt #213 -->
+ 	<Define>
+ 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1163,8 +1176,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- (1) Master: devalue techs that our vassals already know -->
+-	<!-- custom: e.g. if value is 25 then this means that if one of our vassals has the tech, we only value the tech iValue * 25 / 100 = 25% of its value (meaning we value it a lot less as it lost 75% of its value (since we can get it from our vassal if needed. I assume this means we'd be much less inclined to research it or to buy it at a high price at trading with rivals but i don't know exactly how this value is used and i didn't check too much so check to be sure and for exhaustiveness) -->
++	<!-- (1) Master: devalue techs that our vassals already know; Long_Comments_XML.txt #339 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
+ 		<iDefineIntVal>25</iDefineIntVal>
+@@ -1490,7 +1502,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess (more or less 10 total culture), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC) -->
++	<!-- custom: Long_Comments_XML.txt #337 -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+@@ -1500,7 +1512,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick) and we still didn't unassign the artist, then do it for the human player ourselves -->
++	<!-- custom: Long_Comments_XML.txt #338 -->
+ 	<Define>
+ 		<DefineName>SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index d9cf92a32..738bbab5d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3191,4 +3191,23 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_MAIN_CITY_DEFENSE</Tag>
+ 		<English>%F1: %D2%%</English>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_INFO_HISTORY</Tag>
++		<English>History</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_INFO_HISTORY_EMPTY</Tag>
++		<English>No history entries yet.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON</Tag>
++		<English>Log</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_INFO_HISTORY_UNKNOWN_CITY</Tag>
++		<English>an unknown city</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 4b323fbd2..0e0ad3983 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -8031,7 +8031,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in eastern europe and asia, see code comment at the german_hussar about the Köppen climate classification map for details. -->
++			<!-- custom: see code comment at the UNIT_GERMAN_HUSSAR -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -9395,9 +9395,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: changed and separated from as of noww medieval mounted units as nicely recommended by chatgpt 5.1 thanks. From a balance standpoint helps nicely balance out tech as of now chivalry so it is no longer op or a mandatory/one-sidedmilitary path which should help versatility, was TECH_ENGINEERING -->
+-			<!-- Optional clean-up (if you want even sharper flavor):
+-			Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: “Feudal order gives you both noble courts and organized infantry.” -->
++			<!-- custom: Long_Comments_XML.txt #322 -->
+ 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+ 			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			<TechTypes>
+@@ -9589,8 +9587,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks especially with our changes; see also code comment note at UNIT_ARCHER -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+@@ -9830,8 +9827,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks especially with our changes; see also code comment note at UNIT_ARCHER -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+@@ -9872,7 +9868,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 					<UnitAIType>UNITAI_SPY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: we tend to overproduce longbowmen and they are not that good for city attacks, make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it -->
++				<!-- custom: they are not that good for city attacks, and we tend to overproduce them; Long_Comments_XML.txt #323 -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -10065,8 +10061,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks especially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE; see also code comment note at UNIT_ARCHER -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+@@ -10329,8 +10324,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacksespecially with our changes; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: see code comment note at UNIT_LONGBOWMAN -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+@@ -10587,8 +10581,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending; see also code comment note at UNIT_ARCHER -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -10788,8 +10781,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending; see also code comment note at UNIT_ARCHER -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -10828,8 +10820,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<!-- custom: add bonus_copper to as of now civ-specific crossbowman units for which it is relevant (i.e. as of now excluding the yeoman_archer as it does not use any metal), as confirmed to be accurate / relevant enough by chatgpt 5 after asking it, was BONUS_IRON. -->
+-			<!-- yes—adding Copper as an OR-resource (Copper OR Iron) for your UU crossbows makes both historical and gameplay sense. Crossbows (Benin, China): the bow arms are wood/laminate; the metal is mainly in the prod/trigger, stirrup, bolts, armor bits. Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel). Iron isn’t strictly required. -->
++			<!-- custom: add bonus_copper to as of now civ-specific crossbowman units for which it is relevant (i.e. as of now excluding the yeoman_archer as it does not use any metal); Long_Comments_XML.txt #324 -->
+ 			<BonusType>NONE</BonusType>
+ 			<!-- custom: was empty. -->
+ 			<PrereqBonuses>
+@@ -11024,8 +11015,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
++			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending; see also code comment note at UNIT_ARCHER -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -11064,8 +11054,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<!-- custom: add bonus_copper to as of now civ-specific crossbowman units for which it is relevant (i.e. as of now excluding the yeoman_archer as it does not use any metal), as confirmed to be accurate / relevant enough by chatgpt 5 after asking it, was BONUS_IRON. -->
+-			<!-- yes—adding Copper as an OR-resource (Copper OR Iron) for your UU crossbows makes both historical and gameplay sense. Crossbows (Benin, China): the bow arms are wood/laminate; the metal is mainly in the prod/trigger, stirrup, bolts, armor bits. Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel). Iron isn’t strictly required. -->
++			<!-- custom: see code comment at UNIT_CHINA_ZHUGE_NU -->
+ 			<BonusType>NONE</BonusType>
+ 			<!-- custom: was empty. -->
+ 			<PrereqBonuses>
+@@ -11260,9 +11249,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending -->
+-			<!-- custom: note: after the changes in known issue as of now 53.2, it is recommended to keep the UNITAI_COUNTER for longbowmen type of units or defensive similar units (pikemen, etc), because not only as was before this change, in our mod longbowmen could work quite well as support offense units and are more versatile, plus after our changes we now switch the UnitAI of defenders to an eligible offensive or versatile one, one of which is UNITAI_COUNTER as of now for the longbowman for example as below -->
+-			<!-- custom: this civ-specific variant is also a solid defensive choice unlike the generic crossbowman as of now; very hammer efficient and with a stronger focus on defense. With the no bonus requirement, it's a nice alternative for the english empire if they don't have bonuses, or simply to better fit their more defensive profile so added as of now defensive unitais, and removed very offensive onesand as chatgpt 5 recommends as well (check if accurate) in my thinking (check too or not maybe)-->
++			<!-- custom: more versatile unit, can definitely be used for attack i think but avoid city attack as melee units are less likely to be there defending; see also code comment note at UNIT_ARCHER -->
++			<!-- custom: this civ-specific variant is also a solid defensive choice unlike the generic crossbowman as of now; very hammer efficient and with a stronger focus on defense. With the no bonus requirement, it's a nice alternative for the english empire if they don't have bonuses, or simply to better fit their more defensive profile so added as of now defensive unitais, and removed very offensive ones and as chatgpt 5 recommends as well -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+@@ -12603,7 +12591,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units, was TECH_FIREARMS with techTypes empty -->
++			<!-- custom: see code comment at UNIT_RIFLEMAN -->
+ 			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+@@ -12744,7 +12732,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: according to the wikipedia description, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or a related to this unit code comment or similar other place(s if any other or not) -->
++			<!-- custom: Long_Comments_XML.txt #326 -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+@@ -12804,7 +12792,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: add marines as an upgrade now of the ww1 infantry, and remove defensive gun unit path (so here the UNITCLASS_SAM_INFANTRY) from this seemingly offensive type of unit, this should mostly help the AI so they don't waste their precious infantry units just to build SAM, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit or much less valuable than foot gun infantry, may also be fine for human players if they don't want a sam from an infantry as well); also add the UNITCLASS_PARATROOPER so that it appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY -->
++			<!-- custom: add marines as an upgrade now of the ww1 infantry, and remove defensive gun unit path; Long_Comments_XML.txt #325 -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_MODERN_INFANTRY</UnitClassUpgradeType>
+@@ -15017,7 +15005,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: remove unitai_pillage, see other code comments for details -->
+-			<!-- custom: remove unitai_counter as it is not strong enough of a defender (doesn't receive defensive effects, plus takes a longbowman slot inefficiently as well i mean), and wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly). For chariot class units in particular, it may have made sense when longbows were available much later, but now in our modthey are available at about same time in tech as axeman class units, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities) -->
++			<!-- custom: remove unitai_counter as it is not strong enough of a defender; Long_Comments_XML.txt #327 -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -15287,7 +15275,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iGreatWorkCulture>0</iGreatWorkCulture>
+ 			<iEspionagePoints>0</iEspionagePoints>
+ 			<TerrainImpassables/>
+-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
++			<!-- custom: see code comment at UNIT_CHARIOT -->
+ 			<FeatureImpassables>
+ 				<FeatureImpassable>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+@@ -15371,8 +15359,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game -->
+-			<!-- custom: see related comments at the generic spearman or such other related comments -->
++			<!-- custom: see code comment at UNIT_CHARIOT -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+@@ -15566,7 +15553,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<!-- custom: do/give milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry, was empty -->
++			<!-- custom: give milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged; Long_Comments_XML.txt #328 -->
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+@@ -16011,7 +15998,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least -->
++			<!-- custom: see code comment at UNIT_HAJJAN -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -17372,7 +17359,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least -->
++			<!-- custom: see code comment at UNIT_HAJJAN -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -17601,7 +17588,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features, quite little bonus for the arabian civilization's civ-specific unit as they are a desertic civilzation so more accustomed/knowledgeable in this case to this; note: made defense not too op for balance, else no point to build defensive units (ideally would increase defense a bit more but hopefully fine as such) or such, also maybe thematically accurate how arabs expanded quite heavily so hopefully fine to have higher attack for that purpose as well -->
++			<!-- custom: make camel units better/stronger in desert and similar but not too op; Long_Comments_XML.txt #329 -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -17659,7 +17646,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: according to quick read somewhere, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework) while being balanced. -->
++			<!-- custom: Long_Comments_XML.txt #330 -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+@@ -18270,7 +18257,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least -->
++			<!-- custom: see code comment at UNIT_HAJJAN -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -18927,7 +18914,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw, but eastern europe is cold, so symbolize as having if relevant enough a bit of tundra in civ4 terms (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details) -->
++			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout; Long_Comments_XML.txt #331 -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -19084,7 +19071,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<StateReligion>NONE</StateReligion>
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
++			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but check to be sure; Long_Comments_XML.txt #332, was NONE -->
+ 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
+ 			<!-- custom: was TECH_ASSEMBLY_LINE -->
+ 			<ObsoleteTech>TECH_COMPOSITES</ObsoleteTech>
+@@ -19281,7 +19268,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<StateReligion>NONE</StateReligion>
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
++			<!-- custom: see code comment at UNIT_TANK, was NONE -->
+ 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
+ 			<ObsoleteTech>TECH_FUSION</ObsoleteTech>
+ 			<PrereqTech>TECH_COMPOSITES</PrereqTech>
+@@ -19476,7 +19463,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<StateReligion>NONE</StateReligion>
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+-			<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->
++			<!-- custom: see code comment at UNIT_TANK, was NONE -->
+ 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
+ 			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+@@ -19712,7 +19699,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iGreatWorkCulture>0</iGreatWorkCulture>
+ 			<iEspionagePoints>0</iEspionagePoints>
+ 			<TerrainImpassables/>
+-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
++			<!-- custom: see code comment at UNIT_CHARIOT -->
+ 			<FeatureImpassables>
+ 				<FeatureImpassable>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+@@ -19880,7 +19867,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
+-			<!-- custom: added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see known issue as of now 53.3 for details -->
++			<!-- custom: Long_Comments_XML.txt #333 -->
+ 			<NotUnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+@@ -19952,7 +19939,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iGreatWorkCulture>0</iGreatWorkCulture>
+ 			<iEspionagePoints>0</iEspionagePoints>
+ 			<TerrainImpassables/>
+-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
++			<!-- custom: see code comment at UNIT_CHARIOT -->
+ 			<FeatureImpassables>
+ 				<FeatureImpassable>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+@@ -21127,7 +21114,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
++			<!-- custom: Long_Comments_XML.txt #334 -->
+ 			<bCanMoveImpassable>1</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+@@ -24863,7 +24850,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: now requires only tech_flight, removed tech_radio, doesn't seem critically necessary historically and in terms of timeline from very quick glances of/about it and vs first fighters (again didn't look in depth), from gameplay standpoint they can be used sooner and tech_flight is now stronger, while tech_radio is now weaker as the main path -->
++			<!-- custom: Long_Comments_XML.txt #335 -->
+ 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+ 			<PrereqTech>TECH_FLIGHT</PrereqTech>
+ 			<TechTypes/>
+@@ -27122,7 +27109,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now... -->
++			<!-- custom: Long_Comments_XML.txt #336 -->
+ 			<UnitAIs>
+ 				<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
+ 				<UnitAI>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 266d3fbc5..17b902f37 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -2463,7 +2463,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
+ ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+ ----- Comment #113 -----
+ 
+-			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now... -->
++			<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in instead of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file)) -->
+ 			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
+ 
+ ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+@@ -3459,7 +3459,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #213 -----
+ 
+-<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
++<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). Use this to enable/disable. Added with the help of chatgpt 5.2 thanks -->
+ 	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
+ 
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+@@ -4593,3 +4593,96 @@ since we can build libraries with writing, it would not be too weird if research
+ 			- All >1y steps are integers; sub-year steps are 6 months.
+ 			- Same historical pivots as your Normal/Epic (e.g., 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
+ 			-->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #322 -----
++
++<!-- custom: changed and separated from as of now medieval mounted units as nicely recommended by chatgpt 5.1 thanks. From a balance standpoint helps nicely balance out tech as of now chivalry so it is no longer op or a mandatory/one-sidedmilitary path which should help versatility, was TECH_ENGINEERING -->
++			<!-- Optional clean-up (if you want even sharper flavor):
++			Move Pikeman here instead of on Chivalry. Pikes historically are mass infantry / town militias / Swiss etc., raised under feudal lords but not part of the knightly code. Mechanically it also says: �Feudal order gives you both noble courts and organized infantry.� -->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #323 -----
++
++longbowmen, so make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentioned there, which is still too much when we are stronger but already better, so kept as such; note: also, i removed UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #324 -----
++
++, as confirmed to be accurate / relevant enough by chatgpt 5 after asking it, was BONUS_IRON. -->
++			<!-- yes�adding Copper as an OR-resource (Copper OR Iron) for your UU crossbows makes both historical and gameplay sense. Crossbows (Benin, China): the bow arms are wood/laminate; the metal is mainly in the prod/trigger, stirrup, bolts, armor bits. Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel). Iron isn�t strictly required.
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #325 -----
++
++ (so here the UNITCLASS_SAM_INFANTRY) from this seemingly offensive type of unit, this should mostly help the AI so they don't waste their precious infantry units just to build SAM, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit or much less valuable than foot gun infantry, may also be fine for human players if they don't want a sam from an infantry as well); also add the UNITCLASS_PARATROOPER so that it appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #326 -----
++
++<!-- custom: according to the wikipedia description, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or a related to this unit code comment or similar other place(s if any other or not) -->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #327 -----
++
++ (doesn't receive defensive effects, plus takes a longbowman slot inefficiently as well i mean), and wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly). For chariot class units in particular, it may have made sense when longbows were available much later, but now in our modthey are available at about same time in tech as axeman class units, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities)
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #328 -----
++
++, but may have trouble to take cover or navigate the terrain still or may find it hard to hide or protect their heavy in size in this case mount so more targetable by ennemies, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry, was empty
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #329 -----
++
++terrain +/- features, quite little bonus for the arabian civilization's civ-specific unit as they are a desertic civilzation so more accustomed/knowledgeable in this case to this; note: made defense not too op for balance, else no point to build defensive units (ideally would increase defense a bit more but hopefully fine as such) or such, also maybe thematically accurate how arabs expanded quite heavily so hopefully fine to have higher attack for that purpose as well
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #330 -----
++
++<!-- custom: according to quick read somewhere, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework) while being balanced. -->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #331 -----
++
++, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw, but eastern europe is cold, so symbolize as having if relevant enough a bit of tundra in civ4 terms (see for example this K�ppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details)
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #332 -----
++
++, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later)
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #333 -----
++
++added most unitai types that are not pure city attack type of, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify), see known issue as of now 53.3 for details
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #334 -----
++
++<!-- custom: same as the scout and as a continuation of FIELD_GUN -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton would be far harder to achieve on water (actually asked autogpt chatgpt 4o but should be about the same), this is also convenient as it walking on water tiles may confuse the AI possibly or be tedious or super hassle to maintian or simply implement with all the unitAIs or such, warfare should be more efficient as such, it behaves like as of now scouts and such. -->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #335 -----
++
++<!-- custom: now requires only tech_flight, removed tech_radio, doesn't seem critically necessary historically and in terms of timeline from very quick glances of/about it and vs first fighters (again didn't look in depth), from gameplay standpoint they can be used sooner and tech_flight is now stronger, while tech_radio is now weaker as the main path -->
++
++===== \Assets/XML/Units/CIV4UnitInfos.xml =====
++----- Comment #336 -----
++
++<!-- custom: should have been before my fix UNITAI_MERCHANT and not UNITAI_GREAT_MERCHANT as it didn't exist, and now UNITAI_GREAT_MERCHANT exists indeed in instead of the confusing UNITAI_MERCHANT, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file)) -->
++
++===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #337 -----
++
++<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess (more or less 10 total culture), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC) -->
++
++===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #338 -----
++
++<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick) and we still didn't unassign the artist, then do it for the human player ourselves -->
++
++===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #339 -----
++
++<!-- custom: e.g. if value is 25 then this means that if one of our vassals has the tech, we only value the tech iValue * 25 / 100 = 25% of its value (meaning we value it a lot less as it lost 75% of its value (since we can get it from our vassal if needed. I assume this means we'd be much less inclined to research it or to buy it at a high price at trading with rivals but i don't know exactly how this value is used and i didn't check too much so check to be sure and for exhaustiveness) -->
+
+diff --git a/Long_Comments/Long_Comments_py.txt b/Long_Comments/Long_Comments_py.txt
+index 606eb9905..b96f70d09 100644
+--- a/Long_Comments/Long_Comments_py.txt
++++ b/Long_Comments/Long_Comments_py.txt
+@@ -800,3 +800,20 @@ and undoing it as it told me later solved the error. So i think or at least it s
+ # - If you change emoji settings or leader XML, you need to re-dump
+ # - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+ # === Cache dump/load config and helpers ===
++
++===== \Assets\Python\Screens\CvInfoScreen.py =====
++----- Comment #13 -----
++
++			# print("InfoScreenHistory cityFounded hide=%d player=%d revealedOwner=%d plot=%d,%d" % (bHideCityFounded, iPlayer, (pPlot is not None and pPlot.getRevealedOwner(self.iActiveTeam, False) or -1), iX, iY))
++			# <!-- custom: this was very hard to solve, countless AIs faield to do so xd, despite early previous success before caching. The key point is barbarian cities like "Hun" and "Cimmerian" were founded, we explored the plot, left, they spawned, but we didn't revisit since then, nor do we have vision, so on our map we see no city at all in this area, and it's not full flag unexplored either.
++			# Lines like:
++			# InfoScreenHistory show msg=556 player=11 type=1 color=53 plot=42,19 hiddenPlot=0 text=u'Cimmerian is founded.'
++			# Or:
++			# InfoScreenHistory show msg=605 player=11 type=1 color=53 plot=41,13 hiddenPlot=0 text=u'Hun is founded.'
++			# helped us solve it, added for reference, but we didn't test these debug lines with new code, just we could now successfully write a fix with it. GPT-5.2-Codex's comment below thanks a lot:
++			# I changed the approach to hide city‑founded messages unless the plot’s revealed owner matches the message’s player. This should hide barbarian city spawns when you don’t see barbarian culture, while still allowing founded messages for cities you can legitimately see.
++			# Change in CvInfoScreen.py:
++			# Added iCityFoundedMessage and a bHideCityFounded gate using pPlot.getRevealedOwner(self.iActiveTeam, False).
++			# If revealed owner doesn’t match the message’s player (or coords missing), the city‑founded line is hidden.
++			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild” toggle for testing.
++			# -->
+
+diff --git a/README.md b/README.md
+index 85179fbc8..9c5427933 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (item grouping, new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel and other in-category charts, Movies (with audio support), Music with the ~1750 audio scripts of AdvCiv-SAS that can be listened to), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+ 
+-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
++Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc); new Advisor screens (e.g. History Tab in the Info Screen Advisor).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+@@ -31,7 +31,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Home page](/README.md#home-page)  
+ &emsp;["Play Now" rework](/README.md#play-now-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+-&emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
++&emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[City Screen rework](/README.md#city-screen-rework)  
+@@ -148,16 +148,32 @@ Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge,
+ 
+ ## UI (Ingame)
+ 
+-### Main Advisors reworks
++### Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)
+ 
+ Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.).
+ 
++#### New Advisors (e.g. History Tab in the Info Screen Advisor)
++
++We added in AdvCiv-SAS a new History Tab in the Info Screen:
++
++- shows a spoiler-free (religion founded by an unknown city, city founded but unexplored, etc.) if not known (not in debug, not yet revealed, etc.) account (based on the replay screen's data (except you don't need to retire to see it now), notably keeping its colored text for each player, but filtered) of the key moments that happened each turn.
++- unlike the Event Log (which was cumbersome to open and maximize as well btw), information is preserved on save reload.
++- has an optional "LOG" button you can click on ingame to optionally export to `PythonDbg.log` text file the output
++- added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
++- Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
++
++Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG" alt="0.5160_info_screen_history (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG" alt="0.5160_info_screen_history (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG" alt="0.5161_info_screen_history_dbg_log.PNG" width="250"></img>
++
++#### Advisor reworks
++
+ For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it. Notably, it also features the new "Remove Jungle" and "Chop Down a Forest" buttons (from the Middle-Earth mod thanks!).
+ 
+ Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
+ 
+-Some examples below:
+-
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.514_foreign_advisor_relations.JPG" alt="0.514_foreign_advisor_relations.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor_bonuses.JPG" alt="0.510_foreign_advisor_bonuses.JPG" width="250"></img>
+@@ -166,9 +182,9 @@ Some examples below:
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG" alt="0.516_info_screen (5).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
+@@ -769,14 +785,6 @@ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG" alt="gpt_codex_summarizing (2).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG" alt="gpt_codex_summarizing (3).PNG" width="250"></img>
+ 
+-#### code comments summarizing
+-
+-Another example of code comments summarizing (from [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
+-
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG" alt="codex_ gpt_5.2_comments_correct (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG" alt="codex_ gpt_5.2_comments_correct (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG" alt="codex_ gpt_5.2_comments_correct (3).PNG" width="250"></img>
+-
+ ### Claude AI
+ 
+ #### Claude (web chat)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c9ce2d651..8e046031b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -264,7 +264,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ### UI (Common)
+ 
+ - Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
+-- Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+ - (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
+ - (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
+@@ -272,9 +272,10 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ### UI (In-game)
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor).
++- **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+ - Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
++- (Requires AdvCiv-SAS 5382+) Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and (Requires AdvCiv-SAS 5361+) **optionally hide the unit bar** (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG
+new file mode 100644
+index 000000000..f1c6141fa
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG
+new file mode 100644
+index 000000000..2f764715b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.5160_info_screen_history (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG b/_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG
+new file mode 100644
+index 000000000..803afbf78
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.5161_info_screen_history_dbg_log.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/button_log_info_screen_dbg_log.JPG b/_1_AdvCiv-SAS/Images/advisors/button_log_info_screen_dbg_log.JPG
+new file mode 100644
+index 000000000..303fc5d68
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/button_log_info_screen_dbg_log.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG
+deleted file mode 100644
+index 573aced43..000000000
+Binary files a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG
+deleted file mode 100644
+index c7eacbe38..000000000
+Binary files a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG
+deleted file mode 100644
+index dd48d1c77..000000000
+Binary files a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (3).PNG and /dev/null differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=2 bytes=2162
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=17 omittedFiles=2 embeddedPatchBytes=105631

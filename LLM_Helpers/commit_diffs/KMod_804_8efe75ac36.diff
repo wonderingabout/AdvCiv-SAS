@@ -1,0 +1,203 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 804
+# Commit: 8efe75ac36463d4eb87f973b569cb0d13cf55810
+# History segment: K-Mod history
+# Parent used for diff: fa56e1116cf2476583fd73a2399fd43f70e04226
+# Title: Rearranged calls to CvTeam::doTurn to fix a balance problem.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvDeal.cpp
+15	26	CvGameCoreDLL/CvGame.cpp
+23	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.cpp
+15	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 6bc7936b4..a3cd64249 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -346,7 +346,9 @@ void CvDeal::doTurn()
+ 				GET_PLAYER(getSecondPlayer()).AI_changePeacetimeGrantValue(getFirstPlayer(), iValue);
+ 			}
+ 		}
+-		// K-Mod note: no need to update attitude here, because this does not happen mid-turn.
++		// K-Mod note: for balance reasons this function should probably be called at the boundry of some particular player's turn,
++		// rather than at the turn boundry of the game itself. -- Unfortunately, the game currently doesn't work like this.
++		// Also, note that we do not update attitudes of particular players here, but instead update all of them at the game turn boundry.
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 7b71f4e35..fefe64dfc 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5908,24 +5908,14 @@ void CvGame::doTurn()
+ 
+ 	doDeals();
+ 
++	/* original bts code
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+ 			GET_TEAM((TeamTypes)iI).doTurn();
+ 		}
+-	}
+-	// K-Mod. Attitude cache. (Note: CvTeamAI::AI_doCounter has some things which affect attitude, so this update should be done after that function is called.)
+-	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
+-	{
+-		CvPlayerAI& kLoopPlayer = GET_PLAYER(i);
+-		if (kLoopPlayer.isAlive())
+-		{
+-			GET_PLAYER(i).AI_updateCloseBorderAttitudeCache();
+-			GET_PLAYER(i).AI_updateAttitudeCache();
+-		}
+-	}
+-	//
++	} */ // disabled by K-Mod. CvTeam::doTurn is now called at the the same time as CvPlayer::doTurn, to fix certain turn-order imbalances.
+ 
+ 	GC.getMapINLINE().doTurn();
+ 
+@@ -5982,22 +5972,8 @@ void CvGame::doTurn()
+ 			{
+ 				kTeam.setTurnActive(true);
+ 				FAssert(getNumGameTurnActive() == kTeam.getAliveCount());
+-/*************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       06/10/10                       snarko & jdog5000       */
+-/*                                                                                               */
+-/* Bugfix                                                                                        */
+-/*************************************************************************************************/
+-/* original bts code
+-			}
+-
+-			break;
+-*/
+-				// Break only after first found alive player
+ 				break;
+ 			}
+-/*************************************************************************************************/
+-/* UNOFFICIAL_PATCH                         END                                                  */
+-/*************************************************************************************************/
+ 		}
+ 	}
+ 	else
+@@ -6050,10 +6026,23 @@ void CvGame::doDeals()
+ 
+ 	verifyDeals();
+ 
++	std::set<PlayerTypes> trade_players; // K-Mod. List of players involved in trades.
+ 	for(pLoopDeal = firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = nextDeal(&iLoop))
+ 	{
++		// K-Mod
++		trade_players.insert(pLoopDeal->getFirstPlayer());
++		trade_players.insert(pLoopDeal->getSecondPlayer());
++		// K-Mod end
+ 		pLoopDeal->doTurn();
+ 	}
++
++	// K-Mod. Update the attitude cache for all trade players
++	for (std::set<PlayerTypes>::iterator it = trade_players.begin(); it != trade_players.end(); ++it)
++	{
++		FAssert(*it != NO_PLAYER);
++		GET_PLAYER(*it).AI_updateAttitudeCache();
++	}
++	// K-Mod end
+ }
+ 
+ /*
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8078110e9..76602c841 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11126,6 +11126,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 					{
+ 						if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+ 						{
++							// K-Mod. Call CvTeam::doTurn at the start of this team's turn. ie. when the leader's turn is activated.
++							if (GET_TEAM(getTeam()).getLeaderID() == getID())
++								GET_TEAM(getTeam()).doTurn();
++							// K-Mod end
+ 							doTurn();
+ 						}
+ 
+@@ -11192,6 +11196,25 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 					if (isAlive())
+ 					{
+ 						doTurn();
++						// K-Mod. Call CvTeam::doTurn when all members of this team have finished their turn.
++						if (GC.getGameINLINE().isSimultaneousTeamTurns())
++						{
++							if (!GET_TEAM(getTeam()).isTurnActive())
++								GET_TEAM(getTeam()).doTurn();
++						}
++						else
++						{
++							bool bMoreTeammates = false;
++							for (PlayerTypes i = (PlayerTypes)(getID() + 1); !bMoreTeammates && i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
++							{
++								const CvPlayer& kLoopPlayer = GET_PLAYER(i);
++								if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == getTeam())
++									bMoreTeammates = true;
++							}
++							if (!bMoreTeammates)
++								GET_TEAM(getTeam()).doTurn();
++						}
++						// K-Mod end
+ 					}
+ 
+ 					if ((GC.getGameINLINE().isPbem() || GC.getGameINLINE().isHotSeat()) && isHuman() && GC.getGameINLINE().countHumanPlayersAlive() > 1)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f013ff64d..77d8cf2c6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -355,6 +355,7 @@ void CvPlayerAI::AI_doTurnPre()
+ 	AI_doCounter();
+ 
+ 	// K-Mod note: attitude cache is not refreshed here because there are still some attitude-affecting changes to come, in CvTeamAI::AI_doCounter
++	//   for efficiency, I've put AI_updateCloseBorderAttitudeCache in CvTeam::doTurn rather than here.
+ 
+ 	AI_updateBonusValue();
+ 	// K-Mod. GP weights can take a little bit of time, so lets only do it once every 3 turns.
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index fbe67c4c6..96fd94207 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -172,7 +172,21 @@ void CvTeamAI::AI_doTurnPre()
+ 
+ void CvTeamAI::AI_doTurnPost()
+ {
+-	AI_updateStrengthMemory(); // K-Mod
++	// K-Mod
++	AI_updateStrengthMemory();
++
++	// update the attitude cache for all team members.
++	// (Note: attitude use to be updated near the start of CvGame::doTurn. I've moved it here for various reasons.)
++	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
++	{
++		CvPlayerAI& kLoopPlayer = GET_PLAYER(i);
++		if (kLoopPlayer.getTeam() == getID() && kLoopPlayer.isAlive())
++		{
++			GET_PLAYER(i).AI_updateCloseBorderAttitudeCache();
++			GET_PLAYER(i).AI_updateAttitudeCache();
++		}
++	}
++	// K-Mod end
+ 
+ 	AI_updateWorstEnemy();
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6578

@@ -1,0 +1,215 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1502
+# Commit: 4cc57d3760ec54748f3a340488a712ffd44fc2f8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 72eb8cc66b8939503fd0205b9cbf0d72b6ea7b3e
+# Title: Fixed some minor issues
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/Text/CIV4GameText_advc.008d.xml
+2	2	Assets/xml/Text/Shortcuts_CIV4GameText.xml
+3	0	CvGameCoreDLL/CvGameCoreDLL.cpp
+10	2	CvGameCoreDLL/CvGameTextMgr.cpp
+1	2	CvGameCoreDLL/CvInitCore.h
+8	8	CvGameCoreDLL/CvPlayerAI.cpp
+5	10	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+-	-	manual_0.95d.odt
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 801b2ea4b..7fa32bf95 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -994,7 +994,7 @@
+ 
+ <!-- advc.130f -->
+ <TEXT>
+-	<Tag>TXT_KEY_ADVC_HINT_38</Tag>
++	<Tag>TXT_KEY_ADVC_HINT_39</Tag>
+ 	<English>(AdvCiv) Your AI rivals will not consider proposals for a trade embargo so long as you have trades with the target of the embargo. In contrast, you can always tell your vassals to stop trading with any target.</English>
+ 	<French>(AdvCiv) Your AI rivals will not consider proposals for a trade embargo so long as you have trades with the target of the embargo. In contrast, you can always tell your vassals to stop trading with any target.</French>
+ 	<German>(AdvCiv) Ihre KI-Gegner lassem sich nicht von einem Handelsembargo �berzeugen, solange Sie selbst mit dem Ziel des Embargos Handel treiben. Ihre Vasallen k�nnen Sie allerdings jederzeit anweisen, den Handel mit einem Gegner einzustellen.</German>
+
+diff --git a/Assets/xml/Text/Shortcuts_CIV4GameText.xml b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+index 8d5ec225a..87f26b9ec 100644
+--- a/Assets/xml/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+@@ -106,10 +106,10 @@
+ 		<Italian>[H1]Consiglieri[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere interno[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere economico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere politico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere estero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere militare[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere tecnologico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere religioso[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Consigliere corporativo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consigliere spionistico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Condizioni di vittoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Demografica[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capitale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Vista globale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Civilopedia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+H[COLOR_REVERT][\BOLD][TAB]Hall of Fame[NEWLINE][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Libera Colonia[NEWLINE]</Italian>
+ 		<Spanish>[H1]Consejeros[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Interior[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB]Separar Colonias[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero Financiero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Principios[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Asuntos Exteriores[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero Militar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Tecnolog�a[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Religi�n[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Consejero de Corporaciones[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB]Consejero de Espionaje[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Condiciones de Victoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Poblaci�n[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Ciudad Capital[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Vista Global[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Civilopedia[NEWLINE]</Spanish>
+ 	</TEXT>
+-
++	<!-- advc.004: Ctrl+A added -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_UNITS_PEDIA</Tag>
+-		<English>[H1]All Units[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Bombard[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build City (Settler)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Center on unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Explore[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Fortify[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Go-to mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Intercept[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Load (onto ship)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sentry (wake for enemy)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Unload (from ship)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Wait (move later in turn)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click[COLOR_REVERT][\BOLD][TAB][TAB]Group all units together[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB]Bind selected group or unit to number[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click[COLOR_REVERT][\BOLD][TAB][TAB]Group same type together[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click[COLOR_REVERT][\BOLD][TAB][TAB]Tile context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Pillage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Space[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Skip turn for unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Delete[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Delete unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM 5[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center on unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM arrows[COLOR_REVERT][\BOLD][TAB]Use numpad to move units[NEWLINE][NEWLINE][H1]Air Units[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Air bomb mode (cities/tiles)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Recon mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Air strike mode (enemy units)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Rebase[NEWLINE][NEWLINE][H1]Work Boats[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build fishing nets[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build offshore platform[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Build whaling boats[NEWLINE][NEWLINE][H1]Workers[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Automate[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build camp[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build farm (irrigate)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build workshop[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build lumbermill[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build mine[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build trade network[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build quarry[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build road/railroad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build cottage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove forest/jungle[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Road-to mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build fort[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Ctrl+C[COLOR_REVERT][\BOLD][TAB]Improve nearest city[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build pasture/plantation[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Build watermill, windmill, winery, well[NEWLINE]</English>
++		<English>[H1]All Units[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Bombard[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build City (Settler)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Center on unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Explore[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Fortify[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Go-to mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Intercept[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Load (onto ship)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sentry (wake for enemy)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Unload (from ship)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Wait (move later in turn)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click[COLOR_REVERT][\BOLD][TAB][TAB]Group all units together[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB]Bind selected group or unit to number[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click[COLOR_REVERT][\BOLD][TAB][TAB]Group same type together[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click[COLOR_REVERT][\BOLD][TAB][TAB]Tile context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Pillage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+A[COLOR_REVERT][\BOLD][TAB][TAB][TAB]All units with orders move[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Space[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Skip turn for unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Delete[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Delete unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM 5[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center on unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM arrows[COLOR_REVERT][\BOLD][TAB]Use numpad to move units[NEWLINE][NEWLINE][H1]Air Units[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Air bomb mode (cities/tiles)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Recon mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Air strike mode (enemy units)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Rebase[NEWLINE][NEWLINE][H1]Work Boats[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build fishing nets[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build offshore platform[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Build whaling boats[NEWLINE][NEWLINE][H1]Workers[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Automate[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build camp[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build farm (irrigate)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build workshop[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build lumbermill[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build mine[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build trade network[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build quarry[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build road/railroad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Build cottage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove forest/jungle[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Road-to mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build fort[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Ctrl+C[COLOR_REVERT][\BOLD][TAB]Improve nearest city[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build pasture/plantation[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Build watermill, windmill, winery, well[NEWLINE]</English>
+ 		<French>[H1]Units[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Bombard[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build City (Settler)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center on unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Explore[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Fortify[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Go-to mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Intercept[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Load (onto ship)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sentry (wake for enemy)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Unload (from ship)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Wait (move later in turn)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click[COLOR_REVERT][\BOLD][TAB][TAB]Group all units together[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB]Bind selected group or unit to number[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click[COLOR_REVERT][\BOLD][TAB][TAB]Group same type together[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click[COLOR_REVERT][\BOLD][TAB]Tile context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Pillage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Space[COLOR_REVERT][\BOLD][TAB][TAB]Skip turn for unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Delete[COLOR_REVERT][\BOLD][TAB][TAB]Delete unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Numpad 5[COLOR_REVERT][\BOLD][TAB][TAB]Center on unit[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Numpad arrows[COLOR_REVERT][\BOLD][TAB]Use numpad to move units[NEWLINE][NEWLINE][H1]Air Units[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB]Air bomb mode (cities/tiles)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB]Recon mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB]Air strike mode (enemy units)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB]Rebase[NEWLINE][NEWLINE][H1]Work Boats[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB]Build fishing nets[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB]Build offshore platform[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB]Build whaling boats[NEWLINE][NEWLINE][H1]Workers[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Automate[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build camp[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build farm (irrigate)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build workshop[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build lumbermill[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build mine[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build trade network[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build quarry[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build road/railroad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Build cottage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB]Remove forest/jungle[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB]Road-to mode[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+F[COLOR_REVERT][\BOLD][TAB][TAB]Build fort[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Ctrl+C[COLOR_REVERT][\BOLD][TAB]Improve nearest city[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Build pasture/plantation[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Build watermill (river), windmill (hill), winery (wine), well (oil)[NEWLINE]</French>
+ 		<German>[H1]Einheiten[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Zifferntasten[COLOR_REVERT][\BOLD][TAB][TAB]Einheit fortbewegen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Bombardieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Stadt bauen (mit Siedler)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C, ZB-5[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Auf Einheit zentrieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Mit Einheit erkunden (automatisch)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Verschanzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Gehe-zu-Modus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Schiff beladen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Wache[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Schiff entladen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Warten[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Alle Einheiten auf einem Feld gruppieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Zifferntaste[COLOR_REVERT][\BOLD][TAB]Ausgew�hlter Einheit oder Gruppe eine Zifferntaste zuweisen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick[COLOR_REVERT][\BOLD][TAB][TAB]Alle Einheiten desselben Typs auf einem Feld gruppieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick[COLOR_REVERT][\BOLD][TAB][TAB]Kontextmen� des Gel�ndefeldes[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+P[COLOR_REVERT][\BOLD][TAB][TAB]Pl�nderung[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Leertaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Runde �berspringen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Entf[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Einheit l�schen[NEWLINE][NEWLINE][H1]Lufteinheiten[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Luftbombardierungsmodus (feindliche St�dte/Felder)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Aufkl�rungsmodus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Luftangriffsmodus (feindliche Einheiten)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Stellungswechselmodus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Abfangmodus[NEWLINE][NEWLINE][H1]Arbeitsboote[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Fischerboote bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Bohrinsel bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+W[COLOR_REVERT][\BOLD][TAB][TAB]Walf�nger bauen[NEWLINE][NEWLINE][H1]Bautrupps[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Modernisierungen bauen (automatisch)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Lager bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Bauernhof bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Werkstatt bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]S�gewerk bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Mine bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Handelsnetz bauen (automatisch)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Steinbruch bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Stra�e/Eisenbahn bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]H�tte bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Wald oder Dschungel roden[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Stra�e-nach-Modus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Festung bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Strg+C[COLOR_REVERT][\BOLD][TAB]N�chste Stadt modernisieren (automatisch)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+P[COLOR_REVERT][\BOLD][TAB][TAB]Weide/Plantage bauen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+W[COLOR_REVERT][\BOLD][TAB][TAB]Wasserm�hle (auf Fluss)/Windm�hle (auf H�gel)/Weingut (auf [NEWLINE][TAB][TAB][TAB][TAB]Wein)/Quelle (auf �l) bauen[NEWLINE]</German>
+ 		<Italian>[H1]Unit�[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Bombarda (Artiglieria) o Costruisci una Citt� (Colono)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Centra la visuale sull'Unit� selezionata[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Esplora automaticamente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Fortifica[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Vai ad una data destinazione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Imbarca[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Saccheggia (solo Unit� Militari)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sentinella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sbarca[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Attendi (rimanda l'azione nel turno)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Spazio[COLOR_REVERT][\BOLD][TAB][TAB]Salta il turno per l'Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorre le Unit� attive[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorre i Lavoratori attivi[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT],[COLOR_REVERT] e [COLOR_HIGHLIGHT_TEXT].[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorrono le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Canc[COLOR_REVERT][\BOLD][TAB][TAB]Elimina l'Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+C[COLOR_REVERT][\BOLD][TAB][TAB]Attiva tutte le Unit� dello stesso tipo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+H[COLOR_REVERT][\BOLD][TAB][TAB]Seleziona tutte le unit� ferite nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click[COLOR_REVERT][\BOLD][TAB]Raggruppa tutte le unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB]Assegna le unit� selezionate al gruppo n� (#)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click[COLOR_REVERT][\BOLD][TAB]Raggruppa le unit� dello stesso tipo[NEWLINE][NEWLINE][H1]Unit� aeree[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Bombardamento aereo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Volo di Intercettazione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Volo di Ricognizione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Attacco aereo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB]Ristanziamento (cambio di Base Aerea)[NEWLINE][NEWLINE][H1]Chiatte[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Rete da pesca[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Piattaforma petrolifera[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci una Baleniera[NEWLINE][NEWLINE][H1]Lavoratori[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci automaticamente i miglioramenti[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Pianta una Foresta[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci un Campo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Fattoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Bottega[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Segheria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]M[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Miniera[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci automaticamente una rete commerciale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Cava[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Strada o una Ferrovia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Costruisci una Villetta[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+C[COLOR_REVERT][\BOLD][TAB][TAB]Disbosca una Foresta o Bonifica una Giungla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+R[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci una Strada fino ad una data destinazione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+F[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci una Fortezza[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+C[COLOR_REVERT][\BOLD][TAB]Costruisci automaticamente miglioramenti per la Citt� pi� vicina[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+P[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci un Pascolo o una Piantagione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+W[COLOR_REVERT][\BOLD][TAB][TAB]Costruisci un Mulino ad acqua (in riva ad un Fiume), un Mulino a vento (in Collina), una Azienda vinicola (sul Vino) o un Pozzo petrolifero (sul Petrolio)[NEWLINE]</Italian>
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 7292981ce..7aba5faec 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -2,6 +2,9 @@
+ #include "CvGameCoreDLLUndefNew.h"
+ #include <new>
+ #include "CvDLLInterfaceIFaceBase.h"
++#ifdef USE_INTERNAL_PROFILER
++#include "CvDLLPythonIFaceBase.h"
++#endif
+ 
+ #include <psapi.h>
+ /*  advc.mak: This fixes a linker error related to psapi. One can probably also
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f882932e3..75473ccc2 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16854,8 +16854,16 @@ void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer,
+ 		{	// <advc.087>
+ 			if(bExludeDual) {
+ 				bool bDual = true;
+-				for(CLLNode<TradeData>* pNode = pDeal->headFirstTradesNode();
+-						pNode != NULL; pNode = pDeal->nextFirstTradesNode(pNode)) {
++				CLLNode<TradeData>* pNode;
++				for(pNode = pDeal->headFirstTradesNode(); pNode != NULL;
++						pNode = pDeal->nextFirstTradesNode(pNode)) {
++					if(!CvDeal::isDual(pNode->m_data.m_eItemType)) {
++						bDual = false;
++						break;
++					}
++				}
++				for(pNode = pDeal->headSecondTradesNode(); pNode != NULL;
++						pNode = pDeal->nextSecondTradesNode(pNode)) {
+ 					if(!CvDeal::isDual(pNode->m_data.m_eItemType)) {
+ 						bDual = false;
+ 						break;
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index 60115685b..c26483871 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -147,8 +147,7 @@ public:
+ 	DllExport bool getForceControl(ForceControlTypes eIndex) const;
+ 	DllExport void setForceControl(ForceControlTypes eIndex, bool bForceControl);
+ 
+-
+-	int getGameTurn() const	{ return m_iGameTurn; }
++	inline int getGameTurn() const	{ return m_iGameTurn; } // advc.003b
+ 	void setGameTurn(int iGameTurn)	{ m_iGameTurn = iGameTurn; }
+ 
+ 	int getMaxTurns() const	{ return m_iMaxTurns; }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 40ae917f1..29f8e913b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10539,7 +10539,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 					if (NO_PLAYER != kVoteData.eOtherPlayer && kVoteData.eOtherPlayer != pCity->getOwnerINLINE())
+ 					{
+ 						// BETTER_BTS_AI_MOD, Diplomacy AI, 10/03/09, jdog5000: START
+-						if ((!bPropose && eSecretaryGeneral == getTeam()) || GET_PLAYER(kVoteData.eOtherPlayer).getTeam() == getTeam())
++						if (!bPropose && eSecretaryGeneral == getTeam() || GET_PLAYER(kVoteData.eOtherPlayer).getTeam() == getTeam())
+ 						{
+ 							bValid = true;
+ 						}
+@@ -10547,10 +10547,10 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 						{
+ 							bValid = false;
+ 							// BBAI TODO: Wonders, holy city, aggressive AI?
+-							if (g.getSorenRandNum(3, "AI Erratic Defiance (Assign City)") == 0)
+-							{
++							// advc.118:
++							if ((kPlayer.getNumCities() <= 1 && kPlayer.getID() == getID()) ||
++									g.getSorenRandNum(3, "AI Erratic Defiance (Assign City)") == 0)
+ 								bDefy = true;
+-							}
+ 						}
+ 						else
+ 						{
+@@ -10987,10 +10987,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 					iThreshold *= 3;
+ 				iThreshold *= (TEAMREF(ePlayer).getPower(false) + 100);
+ 				iThreshold /= (kOurTeam.getPower(false) + 100);
+-			} // <advc.155>
+-			int iRandExtra = ::round((::hash(g.getGameTurn(), getID()) - 0.5) *
+-					iThreshold * 0.2);
+-			iThreshold += iRandExtra; // </advc.155>
++			} // <advc.144>
++			int iRandExtra = ::round((::hash(g.gameTurn(), getID()) - 0.5) *
++					iThreshold * (bVassal ? 0.1 : 0.2));
++			iThreshold += iRandExtra; // </advc.144>
+ 			iThreshold -= kPlayer.AI_getPeacetimeGrantValue(getID());
+ 			bAccept = (iTheyReceive < iThreshold); // advc.130o: Don't return yet
+ 			// <advc.144>
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index c517ef5a3..50856c8d5 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -872,8 +872,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* pszVal, const TCHAR* szName,
+ 	}*/ // <advc.006b> Replacing the asserts above (which were already commented out)
+ 	/*  If pszDefault was set by the caller, we assume that it's OK to fall back
+ 		on pszDefault. Otherwise warn. */
+-	if(pszDefault == NULL && m_bAssertMandatory)
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	FAssertMsg(pszDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006b>
+ }
+ 
+@@ -926,8 +925,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(char* pszVal, const TCHAR* szName, c
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	if(pszDefault == NULL && m_bAssertMandatory)
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	FAssertMsg(pszDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006>
+ }
+ 
+@@ -981,8 +979,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::string& pszVal, const TCHAR* sz
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	if(pszDefault == NULL && m_bAssertMandatory)
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	FAssertMsg(pszDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006>
+ }
+ 
+@@ -1028,8 +1025,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& pszVal, const TCHAR* s
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	if(pszDefault == NULL && m_bAssertMandatory)
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	FAssertMsg(pszDefault != NULL || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006>
+ }
+ 
+@@ -1190,8 +1186,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(bool* pbVal, const TCHAR* szName,
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+-	if(bMandatory && m_bAssertMandatory)
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	FAssertMsg(!bMandatory || !m_bAssertMandatory, (szAssertMsg + szName).c_str());
+ 	return false; // </advc.006b>
+ }
+
+[PATCH OMITTED] file=a/manual_0.95d.odt b/manual_0.95d.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=33242

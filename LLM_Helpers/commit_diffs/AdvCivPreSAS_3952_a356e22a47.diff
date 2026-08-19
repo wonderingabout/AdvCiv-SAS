@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3952
+# Commit: a356e22a47969394182caf0436b80f7bfd1a64c8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 63c6e6ef53d4f0a13a9f0f9af9ded46495acdcdd
+# Title: Make /Z7 the default option for debug info
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/Project/Makefile
+5	3	CvGameCoreDLL/Project/Makefile.project
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 48ad737f8..bb8bc2ea2 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -20,8 +20,8 @@
+ #   difficult to associate error messages with a translation unit; but don't need
+ #   a slow version of every config.]
+ # YOURMOD2 and YOURLOGS (see under "Paths").
+-# /Z option for debug builds obtained from Makefile.project, the default being /Zd.
+-#   This precludes expression evaluation at runtime, but links much faster than /Z7.
++# /Z option for debug builds obtained from Makefile.project, the default being /Z7.
++#   To make it easier to switch, temporarily, to /Zd, which links much faster.
+ # PROJECT_Profile_CFLAGS, PROJECT_Debug_CFLAGS, PROJECT_DebugOpt_CFLAGS added to Makefile.project.
+ # For selecting a profiler and for balancing speed vs. fidelity of debug builds.
+ # Removed unused /DCVGAMECOREDLL_EXPORTS from Debug_DEFINES
+@@ -143,7 +143,7 @@ SUBDIRPATH15 = ../
+ !ENDIF
+ !IF [ECHO PROJECT_Profile_CFLAGS = >> Makefile.project]
+ !ENDIF
+-!IF [ECHO PROJECT_Debug_CFLAGS = /Zd >> Makefile.project]
++!IF [ECHO PROJECT_Debug_CFLAGS = /Z7 >> Makefile.project]
+ !ENDIF
+ !IF [ECHO PROJECT_DebugOpt_CFLAGS = /Z7 >> Makefile.project]
+ !ENDIF
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index 6840bcbcc..be3c53514 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -4,11 +4,13 @@ SOURCE_DIR = ..
+ PROJECT_CFLAGS = /WX /W4
+ 
+ # Ob1: Allow inline expansion of functions with an inline keyword even for debug builds
+-# Replace Zd with Z7 to include symbolic debugging info in object files, which allows
+-#   expression evaluation at runtime but takes much longer to link.
++# Replace Z7 with Zd for faster linking - at the expense of having only line numbers
++#   and call stack when debugging, no debug symbols. It's not clear if a full rebuild
++#	is needed when switching between Z7 and Zd; linking object files with inconsistent
++#	debug info might cause issues(?).
+ # Zi (symbols in pdb file) also links fast but can't be used with the parallelized
+ #   Debug-fast config.
+-PROJECT_Debug_CFLAGS = /Ob1 /Zd
++PROJECT_Debug_CFLAGS = /Ob1 /Z7
+ 
+ # Should use the extra flags for debugging optimized builds (i.e. when debugging
+ # errors that aren't reproducible with non-optimizing debug builds). Replacing /O2
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2417

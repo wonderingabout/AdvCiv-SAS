@@ -1,0 +1,782 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5859
+# Commit: f2ca08ee131cd52941d4685aba919e88ecb8e266
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c0af31da65b039f74aca96a3b65d716ae462f58d
+# Title: speed up battles/timeline tabs reopen (unless history/layout state changes); preserve advisor perspective as per and based on GPT-5.5's message thanks: - pre...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	AGENTS.md
+2	4	Assets/Python/BUG/InputUtil.py
+1	2	Assets/Python/BUG/Scoreboard.py
+8	10	Assets/Python/Contrib/Civ4lerts.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+4	10	Assets/Python/CvDiplomacy.py
+2	4	Assets/Python/CvMapGeneratorUtil.py
+1	1	Assets/Python/SASUtils.py
+2	2	Assets/Python/Screens/CvForeignAdvisor.py
+57	20	Assets/Python/Screens/CvInfoScreen.py
+54	9	Assets/Python/Screens/CvMilitaryAdvisor.py
+2	1	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+6	4	Assets/Python/Screens/CvTechChooser.py
+22	7	Assets/Python/Screens/CvVictoryScreen.py
+1	2	Assets/Python/Screens/RectLayout.py
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 0afc07230..f538871ee 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -96,8 +96,11 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Preserve rationales (e.g., "it is distracting") when they explain why a change was made.
+ - Preserve rationale clauses about why something is unnecessary (e.g., "we don't need to show beyond BFC").
+ - Be more verbose when explaining rationales - it's important to capture the intent behind the change while summarizing. The "why" is critical, so preserve problem descriptions, observed behavior, and intended fixes more fully than other commentary.
+-- Do not soften observed or unknown or unclear behavior into hypothetical wording. For example, if a bug was empirically reproduced, say what happened rather than "could/may/might". Example bad: `<!-- custom: use navigation-specific debounce because Back/Next can redraw another category, and category redraws reset search debounce state. (GPT-5.5) -->`. Example good: `# <!-- custom: Left/Right Back/Next worked one item at a time within the same category, but crossing back to another category jumped twice from one keypress. Category redraws reset search debounce state; keeping navigation debounce separate fixed this. (GPT-5.5) -->`.
+-- When a change empirically fixes an issue, include in the comment that this change fixed the issue; see the good Left/Right Back/Next example above.
++- Do not soften observed or unknown or unclear behavior into hypothetical wording. For example, if a bug was empirically reproduced, say what happened rather than "could/may/might".
++- When a change empirically fixes an issue, include in the comment that this change fixed the issue.
++- For the above 2 bullets: Example bad: `<!-- custom: use navigation-specific debounce because Back/Next can redraw another category, and category redraws reset search debounce state. (GPT-5.5) -->`. Example good: `# <!-- custom: Left/Right Back/Next worked one item at a time within the same category, but crossing back to another category jumped twice from one keypress. Category redraws reset search debounce state; keeping navigation debounce separate fixed this. (GPT-5.5) -->`.
++- Also, our inferred theory can be wrong or not relevant, or unneeded, and we may just not have found the solution yet, so omit theoretical inference rationales unless clearly obvious and stick to observed data and results rather generally.
++- For the above bullet: Example bad: `# <!-- custom: Late-game Battles tab is slow because the EXE rebuilds many table rows/cells. Data-layer and row-payload caching were tested first and did not significantly help; preserve the built table widget while this advisor stays open, then rebuild only when player/history/layout signature changes. (GPT-5.5) -->`. Example good: `# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget made same-advisor tab switches almost instant, and making the screen persistent preserves it across close/reopen too. Rebuild when player/history/layout signature changes. (GPT-5.5) -->`.
+ - Appendix for uncertainty in comments: omit uncertain explanations by default rather than writing something that could be wrong. Include uncertainty only when it is useful technical context, and then state the uncertainty directly (e.g., "not yet tested after changing screen resolution in-session") instead of implying a guessed mechanism.
+ - Generally comment from the old/base AdvCiv perspective to explain what we changed. Some code we change is already AdvCiv-SAS custom code; when that is clear, try to convey it briefly so the comment stays accurate and shows the logic behind the change (e.g., `# <!-- custom: Manually positioning the mouse on footer Back/Next for each pedia link is tedious. After we added Up/Down item-list navigation, map Left/Right arrows to Sevopedia Back/Next history as the natural keyboard counterpart. (GPT-5.5) -->`). Tracing code origin is hard though and not critical, so do not overthink it; leave it to the user if in doubt.
+ - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index 65c06f7af..d538b794d 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -163,14 +163,12 @@ class Keystroke:
+ 	def __eq__(self, other):
+ 		if not isinstance(other, Keystroke):
+ 			return NotImplemented
+-		return (self.code == other.code and self.alt == other.alt and
+-			    self.control == other.control and self.shift == other.shift)
++		return (self.code == other.code and self.alt == other.alt and self.control == other.control and self.shift == other.shift)
+ 	
+ 	def __ne__(self, other):
+ 		if not isinstance(other, Keystroke):
+ 			return NotImplemented
+-		return (self.code != other.code or self.alt != other.alt or
+-			    self.control != other.control or self.shift != other.shift)
++		return (self.code != other.code or self.alt != other.alt or self.control != other.control or self.shift != other.shift)
+ 
+ def init():
+ 	for k, c in InputTypes.__dict__.iteritems():
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 46654a69d..94c57af14 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -411,8 +411,7 @@ class Scoreboard:
+ 	@staticmethod
+ 	def isShowPlayerScore(iPlayer):
+ 		p = gc.getPlayer(iPlayer)
+-		if (CyInterface().isScoresMinimized() and
+-				gc.getGame().getActivePlayer() != iPlayer):
++		if (CyInterface().isScoresMinimized() and gc.getGame().getActivePlayer() != iPlayer):
+ 			return False
+ 		# BUG - Dead Civs:
+ 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 3aecdfa8d..8928269ea 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -17,6 +17,12 @@
+ ## Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ ## 02110-1301 USA
+ ## advc (note): The license is in the BUG Doc folder.
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG/Civ4lerts file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ ## <!-- custom: renamed BUG Doc to BUG_Doc for consistent naming/easy linking; verify it matches the folder. Credit: ChatGPT 5.1. (GPT-5.2-Codex (summarized)) -->
+ 
+ __version__ = "$Revision: 1.2 $"
+@@ -66,12 +72,6 @@ __version__ = "$Revision: 1.2 $"
+ ## 
+ ## Other:
+ ## City is under cultural pressure
+-#
+-# AI, UI, or other modifications
+-# Created as part of AdvCiv-SAS improvements
+-# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-#
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG/Civ4lerts file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ from SASUtils import getInfoTypeOrFail
+@@ -931,11 +931,9 @@ class RefusesToTalk(AbstractStatefulAlert):
+ 		bIsWar, eTeam, eRivalTeam = argsList
+ 		# <advc.001> (from Taurus) Barbarian wars can cause problems
+ 		# b/c CvGame::initDiplomacy happens so early
+-		if (eTeam != TeamTypes.NO_TEAM and
+-			(gc.getTeam(eTeam).isBarbarian() or gc.getTeam(eTeam).isMinorCiv())):
++		if (eTeam != TeamTypes.NO_TEAM and (gc.getTeam(eTeam).isBarbarian() or gc.getTeam(eTeam).isMinorCiv())):
+ 			return
+-		if (eRivalTeam != TeamTypes.NO_TEAM and
+-			(gc.getTeam(eRivalTeam).isBarbarian() or gc.getTeam(eRivalTeam).isMinorCiv())):
++		if (eRivalTeam != TeamTypes.NO_TEAM and (gc.getTeam(eRivalTeam).isBarbarian() or gc.getTeam(eRivalTeam).isMinorCiv())):
+ 			return
+ 		# </advc.001>
+ 		self.checkIfIsAnyOrHasMetAllTeams(eTeam, eRivalTeam)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 17da53449..e0a62587f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -156,8 +156,8 @@ class SevoPediaCivilization:
+ 			iUniqueBuilding = gc.getCivilizationInfo(self.iCivilization).getCivilizationBuildings(iBuilding)
+ 			iDefaultBuilding = gc.getBuildingClassInfo(iBuilding).getDefaultBuildingIndex()
+ 			# advc.003l: Allow uniques w/o a default unit. Based on a change by Toffer90 in Inthegrave's mod.
+-			if (#iDefaultBuilding > -1 and
+-				iUniqueBuilding > -1 and iDefaultBuilding != iUniqueBuilding):
++			#iDefaultBuilding > -1 and
++			if (iUniqueBuilding > -1 and iDefaultBuilding != iUniqueBuilding):
+ 				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iUniqueBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iUniqueBuilding, 1, False)
+ 
+ 	def placeUnit(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 064474b69..429eec130 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1552,8 +1552,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			#info = gc.getCivilizationInfo(i)
+ 			#if not info.isPlayable():
+ 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
+-			#	if (iCapitalBuildingClass >= 0 and
+-			#	info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
++			#	if (iCapitalBuildingClass >= 0 and info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
+ 			#		continue
+ 			r.append((descr,i))
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index f9428bfc5..21c46e613 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -367,8 +367,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		civs = []
+ 		for iCiv in range(gc.getNumCivilizationInfos()):
+ 			civ = gc.getCivilizationInfo(iCiv)
+-			if (civ.isCivilizationFreeTechs(self.iTech) and
+-					(civ.isPlayable() or civ.isAIPlayable())): # Exclude Minor civ
++			if (civ.isCivilizationFreeTechs(self.iTech) and (civ.isPlayable() or civ.isAIPlayable())): # Exclude Minor civ
+ 				civs.append(iCiv)
+ 		if len(civs) <= 0:
+ 			return
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index c30f00bca..52fda586f 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -418,7 +418,7 @@ def place_new_concept_legend_link(top, new_concept_type):
+ 	if iConcept < 0:
+ 		return
+ 	screen = top.getScreen()
+-	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and it matches the footer text, so it reads as page chrome rather than shouting. In an in-game HUD context (e.g. an advisor's score tab), currently prefer a smaller sasFontTagLabel instead, so a legend link doesn't distract from the data. (Claude code Opus 4.7) -->
++	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and the link sits with other footer/header page chrome. (Claude code Opus 4.7) -->
+ 	szLegendText = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
+ 	screen.setText(top.getNextWidgetName(), "Background", szLegendText, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index 1650ded6e..b58f1750e 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -268,10 +268,7 @@ class CvDiplomacy:
+ 
+ 			#if (gc.getTeam(gc.getGame().getActiveTeam()).AI_shareWar(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam())):
+ 			# K-Mod. The AI should not just accept target requests from anyone...
+-			if (gc.getTeam(gc.getGame().getActiveTeam()).AI_shareWar(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()) and
+-				(gc.getPlayer(self.diploScreen.getWhoTradingWith()).AI_getAttitude(gc.getGame().getActivePlayer()) >= AttitudeTypes.ATTITUDE_PLEASED or
+-				gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam() or
+-				gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()))):
++			if (gc.getTeam(gc.getGame().getActiveTeam()).AI_shareWar(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()) and (gc.getPlayer(self.diploScreen.getWhoTradingWith()).AI_getAttitude(gc.getGame().getActivePlayer()) >= AttitudeTypes.ATTITUDE_PLEASED or gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam() or gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()))):
+ 			# K-Mod end
+ 				self.addUserComment("USER_DIPLOCOMMENT_TARGET", -1, -1)
+ 
+@@ -523,13 +520,11 @@ class CvDiplomacy:
+ 					continue
+ 			
+ 			# check civ type
+-			if (self.isUsed(diploInfo.getCivilizationTypes, i, gc.getNumCivilizationInfos()) and
+-				not diploInfo.getCivilizationTypes(i, theirPlayer.getCivilizationType())):
++			if (self.isUsed(diploInfo.getCivilizationTypes, i, gc.getNumCivilizationInfos()) and not diploInfo.getCivilizationTypes(i, theirPlayer.getCivilizationType())):
+ 				continue
+ 				
+ 			# check leader type
+-			if (self.isUsed(diploInfo.getLeaderHeadTypes, i, gc.getNumLeaderHeadInfos()) and
+-				not diploInfo.getLeaderHeadTypes(i, theirPlayer.getLeaderType())):
++			if (self.isUsed(diploInfo.getLeaderHeadTypes, i, gc.getNumLeaderHeadInfos()) and not diploInfo.getLeaderHeadTypes(i, theirPlayer.getLeaderType())):
+ 				continue
+ 
+ 			# check power type
+@@ -846,8 +841,7 @@ class CvDiplomacy:
+ 			eItem = self.diploScreen.getTheirTradeOffer(0).ItemType
+ 		except:
+ 			return False
+-		if (eItem != TradeableItems.TRADE_VASSAL and
+-			eItem != TradeableItems.TRADE_SURRENDER):
++		if (eItem != TradeableItems.TRADE_VASSAL and eItem != TradeableItems.TRADE_SURRENDER):
+ 			return False
+ 		try:
+ 			eSecondItem = self.diploScreen.getTheirTradeOffer(1).ItemType
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 2be914481..976c3c908 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -263,10 +263,8 @@ class FractalWorld:
+ 
+ 		iWaterThreshold = self.continentsFrac.getHeightFromPercent(water_percent)
+ 		# <advc.tsl>
+-		bSparseEquator = (CyGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS) and
+-				# Better not mess with maps that have strange latitude settings
+-				self.map.getTopLatitude() == -self.map.getBottomLatitude() and
+-				self.map.getTopLatitude() <= 90 and self.map.getTopLatitude() >= 80)
++		# Better not mess with maps that have strange latitude settings
++		bSparseEquator = (CyGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS) and self.map.getTopLatitude() == -self.map.getBottomLatitude() and self.map.getTopLatitude() <= 90 and self.map.getTopLatitude() >= 80)
+ 		if bSparseEquator:
+ 			sparseEquatorFractal = ExplicitFractal(self.continentsFrac, self.map)
+ 			sparseEquatorFractal.decreaseNearMiddle(self.map.isWrapX() or not self.map.isWrapY(), 0.15)
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 2f65fb84b..5d3cd636f 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -156,7 +156,7 @@ def getNewConceptID(szConceptType):
+ 			return i
+ 	return -1
+ 
+-# <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call. Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords. Skips silently when the SAS_SHOW_LEGEND_LINK GlobalDefine is off or the concept is missing. setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7) -->
++# <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call. Advisor legend links use smaller sasFontTagLabel rather than Sevopedia's footer-sized sasFontTagTitle because an in-game screen link should stay quiet. Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords. Skips silently when the SAS_SHOW_LEGEND_LINK GlobalDefine is off or the concept is missing. setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7 + GPT-5.5) -->
+ def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):
+ 	if not _isLegendLinkEnabled():
+ 		return
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 96770c601..ebe58e27b 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -562,7 +562,8 @@ class CvForeignAdvisor:
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 	
+-		self.iActiveLeader = CyGame().getActivePlayer()
++		# <!-- custom: preserve the selected debug perspective when reopening Foreign Advisor; base code reset to the active player every open. (GPT-5.5) -->
++		self.iActiveLeader = getAdvisorValidPerspectivePlayer(self.iActiveLeader)
+ 		self.iSelectedLeader = self.iActiveLeader
+ 		self.listSelectedLeaders = []
+ 		#self.listSelectedLeaders.append(self.iSelectedLeader)
+@@ -3081,4 +3082,3 @@ def smallText(text):
+ 
+ def smallSymbol(symbol):
+ 	return smallText(FontUtil.getChar(symbol))
+-
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index acdf024d9..30b96576d 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -258,6 +258,9 @@ class CvInfoScreen:
+ 		self.timelineCacheActivePlayer = -1
+ 		self.timelineCacheBRevealAll = False
+ 		self.timelineCacheNumMessages = 0
++		self.timelineCacheGameTurn = -1
++		self.TIMELINE_TABLE_ID = "InfoScreenTimelineTable"
++		self.TIMELINE_TABLE_CACHE_KEY = None
+ 
+ 		self.GRAPH_H_LINE = "GraphHLine"
+ 		self.GRAPH_V_LINE = "GraphVLine"
+@@ -580,7 +583,7 @@ class CvInfoScreen:
+ 			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
+ 			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
+ 		else:
+-			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
++			self.W_TIMELINE_TABLE_LOG_BUTTON = 50
+ 			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
+ 
+ 		# LOG button - positioned in top header bar (0-55px height)
+@@ -773,6 +776,8 @@ class CvInfoScreen:
+ 		# Create a new screen
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
++		# <!-- custom: Match Tech Chooser/Military Advisor persistent-screen pattern so heavy widgets such as the Timeline table can survive Info Screen close/reopen. (GPT-5.5) -->
++		screen.setPersistent(True)
+ 
+ 		self.reset()
+ 
+@@ -807,7 +812,8 @@ class CvInfoScreen:
+ 		if not hasattr(self, "iActivePlayer"):
+ 			self.iActivePlayer = CyGame().getActivePlayer()
+ 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
+-		if not addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False, bAllowVassalPerspective=True): # advc.007: was MAX_PLAYERS
++		# <!-- custom: preserve the selected debug/vassal perspective when reopening the advisor; bSelectActive=False rebuilt the dropdown with no selected row in debug mode. (GPT-5.5) -->
++		if not addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bAllowVassalPerspective=True): # advc.007: was MAX_PLAYERS
+ 			self.DEBUG_DROPDOWN_ID = ""
+ 
+ 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
+@@ -892,14 +898,12 @@ class CvInfoScreen:
+ 			replayInfo.createInfo(self.iActivePlayer)
+ 
+ 		iNumMessages = replayInfo.getNumReplayMessages()
++		iGameTurn = CyGame().getGameTurn()
+ 
+ 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+ 			# Check if cache is still valid
+-			if (not bForceRebuild and
+-				self.timelineCacheEntries is not None and
+-				self.timelineCacheActivePlayer == self.iActivePlayer and
+-				self.timelineCacheBRevealAll == self.bRevealAll and
+-				self.timelineCacheNumMessages == iNumMessages):
++			# <!-- custom: Include game turn so spoiler-filtered Timeline entries can refresh later even when replay-message count is unchanged; tested from turn 0, where "founded in an unknown city" later updated to a known city name, while same-turn reuse remains intact. (GPT-5.5) -->
++			if not bForceRebuild and self.timelineCacheEntries is not None and self.timelineCacheActivePlayer == self.iActivePlayer and self.timelineCacheBRevealAll == self.bRevealAll and self.timelineCacheNumMessages == iNumMessages and self.timelineCacheGameTurn == iGameTurn:
+ 				# Cache is valid, no rebuild needed
+ 				return self.timelineCacheEntries
+ 
+@@ -912,6 +916,7 @@ class CvInfoScreen:
+ 				self.timelineCacheActivePlayer = self.iActivePlayer
+ 				self.timelineCacheBRevealAll = self.bRevealAll
+ 				self.timelineCacheNumMessages = iNumMessages
++				self.timelineCacheGameTurn = iGameTurn
+ 			return entries
+ 
+ 		# Build unknown colors dict once
+@@ -963,9 +968,7 @@ class CvInfoScreen:
+ 					if iRevealedOwner != iPlayer:
+ 						bHideCityFounded = True
+ 			# <!-- custom: hide "city founded" unless revealed owner matches the replay message player; this avoids barbarian spoilers when the plot is revealed but ownership is not. Finding a reliable barbarian hide required checking revealed owner rather than plot visibility alone; optional debug line left for future verification, not tested with this exact code path. (GPT-5.2-Codex); Long_Comments_py.txt #13 -->
+-			if (not bAllowHiddenPlotMessage and
+-				not self.bRevealAll and
+-				(bPlotHidden or eColor in dUnknownColors)):
++			if (not bAllowHiddenPlotMessage and not self.bRevealAll and (bPlotHidden or eColor in dUnknownColors)):
+ 				szText = replayInfo.getReplayMessageText(iMessage)
+ 				if szText:
+ 					szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
+@@ -1035,33 +1038,63 @@ class CvInfoScreen:
+ 			self.timelineCacheActivePlayer = self.iActivePlayer
+ 			self.timelineCacheBRevealAll = self.bRevealAll
+ 			self.timelineCacheNumMessages = iNumMessages
++			self.timelineCacheGameTurn = iGameTurn
+ 		return entries
+ 
+ 	def drawTimelineTab(self):
+ 		screen = self.getScreen()
+-		self.szTimelineList = self.getNextWidgetName()
+-		screen.addListBoxGFC(self.szTimelineList, "", self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, TableStyles.TABLE_STYLE_STANDARD)
+-		screen.enableSelect(self.szTimelineList, False)
++		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
++		timelineTableCacheKey = self.getTimelineTableCacheKey(aEntries)
+ 
+ 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
+ 			self.szTimelineDbgLogPrettySummaryButton = self.getNextWidgetName()
+ 			szLabel = sasFontTagLabel + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
+ 			screen.setButtonGFC(self.szTimelineDbgLogPrettySummaryButton, szLabel, "", self.X_TIMELINE_TABLE_LOG_BUTTON, self.Y_TIMELINE_TABLE_LOG_BUTTON, self.W_TIMELINE_TABLE_LOG_BUTTON, self.H_TIMELINE_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 
+-		# Build or reuse cache
+-		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
++		# <!-- custom: Timeline entry caching avoids replay parsing, but rebuilding hundreds of rows was still slow. Preserving the old ListBox helped tab switches, but not Info Screen close/reopen; convert it to a one-column table so we can verify/reuse it with getTableNumRows like Military Advisor's Battles table. Rebuild when player/reveal/turn/language/layout/history signature changes so spoiler filtering can refresh at turn boundaries. (GPT-5.5) -->
++		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE and self.TIMELINE_TABLE_CACHE_KEY == timelineTableCacheKey and self.canReuseTimelineTableWidget(screen, aEntries):
++			screen.show(self.TIMELINE_TABLE_ID)
++			screen.moveToFront(self.TIMELINE_TABLE_ID)
++			return
++		screen.deleteWidget(self.TIMELINE_TABLE_ID)
++		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
++			self.TIMELINE_TABLE_CACHE_KEY = timelineTableCacheKey
++		else:
++			self.TIMELINE_TABLE_CACHE_KEY = None
++		self.szTimelineList = self.TIMELINE_TABLE_ID
++		screen.addTableControlGFC(self.szTimelineList, 1, self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, False, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
++		screen.setTableColumnHeader(self.szTimelineList, 0, u"", self.W_TIMELINE_TABLE)
+ 
+ 		if not aEntries:
+ 			szText = sasFontTagLabel + self.TEXT_TIMELINE_EMPTY + SAS_FONT_TAG_CLOSE
+-			SASTextScale.appendListBoxStringLabel(screen, self.szTimelineList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iRow = screen.appendTableRow(self.szTimelineList)
++			SASTextScale.setTableTextLabel(screen, self.szTimelineList, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			return
+ 
+-		# Cache is already in display order (newest first) - use append which is O(1)
+-		# Local reference to method avoids repeated attribute lookup
+-		fnAppend = screen.appendListBoxString
++		# Cache is already in display order (newest first).
++		fnAppendRow = screen.appendTableRow
++		fnSetText = SASTextScale.setTableTextLabel
+ 		szWidget = self.szTimelineList
+ 		for szFormattedText in aEntries:
+-			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iRow = fnAppendRow(szWidget)
++			fnSetText(screen, szWidget, 0, iRow, szFormattedText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++	def canReuseTimelineTableWidget(self, screen, aEntries):
++		iExpectedRows = len(aEntries)
++		if iExpectedRows < 1:
++			iExpectedRows = 1
++		try:
++			return screen.getTableNumRows(self.TIMELINE_TABLE_ID) >= iExpectedRows
++		except:
++			return False
++
++	def getTimelineTableCacheKey(self, aEntries):
++		szFirstEntry = None
++		szLastEntry = None
++		if aEntries:
++			szFirstEntry = aEntries[0]
++			szLastEntry = aEntries[-1]
++		return (self.iActivePlayer, self.bRevealAll, CyGame().getGameTurn(), CyGame().getCurrentLanguage(), self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, len(aEntries), szFirstEntry, szLastEntry)
+ 
+ 	# <!-- custom: Score tab renderer (scoreboard-style sortable matrix for all visible players). (GPT-5.3-Codex) -->
+ 	def drawScoreTab(self):
+@@ -4121,6 +4154,10 @@ class CvInfoScreen:
+ 	def deleteAllWidgets(self, iNumPermanentWidgets = 0):
+ 		self.deleteAllLines()
+ 		screen = self.getScreen()
++		if self.TIMELINE_TABLE_CACHE_KEY is None:
++			screen.deleteWidget(self.TIMELINE_TABLE_ID)
++		else:
++			screen.hide(self.TIMELINE_TABLE_ID)
+ 		i = self.nWidgetCount - 1
+ 		while (i >= iNumPermanentWidgets):
+ 			self.nWidgetCount = i
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index cf3d6001b..51f77b6e6 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -66,6 +66,7 @@ class CvMilitaryAdvisor:
+ 		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
+ 		self.COMPOSITION_COMBATS_TABLE_ID = "MilitaryAdvisorCompositionCombatsTable"
+ 		self.BATTLE_ROW_PLOTS = {}
++		self.BATTLE_TABLE_CACHE_KEY = None
+ 
+ 		self.Z_BACKGROUND = -2.1
+ 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
+@@ -85,6 +86,7 @@ class CvMilitaryAdvisor:
+ 		self.nRefreshWidgetCount = 0
+ 		self.nAttachedWidgetCount = 0
+ 		self.iActivePlayer = -1
++		self.iAdvisorPerspectivePlayer = -1
+ 		self.selectedPlayerList = []
+ 		self.selectedGroupList = []
+ 		self.selectedUnitList = []
+@@ -434,8 +436,12 @@ class CvMilitaryAdvisor:
+ 			screen.deleteWidget(self.getNextWidgetName())
+ 		self.nWidgetCount = 0
+ 		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Map tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
+-		for szWidget in (self.UNIT_PANEL_ID, self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID, self.LEADER_PANEL_ID, self.UNIT_LIST_ID, self.GREAT_GENERAL_BAR_ID, self.GREAT_GENERAL_LABEL_ID, self.DEBUG_DROPDOWN_ID, self.BATTLE_TABLE_ID, self.BATTLE_LOG_BUTTON_ID, self.COMPOSITION_UNITS_TABLE_ID, self.COMPOSITION_PROMOTIONS_TABLE_ID, self.COMPOSITION_COMBATS_TABLE_ID, self.SUMMARY_PANEL_ID):
++		for szWidget in (self.UNIT_PANEL_ID, self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID, self.LEADER_PANEL_ID, self.UNIT_LIST_ID, self.GREAT_GENERAL_BAR_ID, self.GREAT_GENERAL_LABEL_ID, self.DEBUG_DROPDOWN_ID, self.BATTLE_LOG_BUTTON_ID, self.COMPOSITION_UNITS_TABLE_ID, self.COMPOSITION_PROMOTIONS_TABLE_ID, self.COMPOSITION_COMBATS_TABLE_ID, self.SUMMARY_PANEL_ID):
+ 			screen.deleteWidget(szWidget)
++		if self.BATTLE_TABLE_CACHE_KEY is None:
++			screen.deleteWidget(self.BATTLE_TABLE_ID)
++		else:
++			screen.hide(self.BATTLE_TABLE_ID)
+ 		for iPlayer in range(gc.getMAX_PLAYERS()):
+ 			screen.deleteWidget(self.getLeaderButton(iPlayer))
+ 										
+@@ -448,6 +454,8 @@ class CvMilitaryAdvisor:
+ 			return
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
++		# <!-- custom: Match Tech Chooser's persistent-screen pattern so heavy widgets such as the Battles table can survive advisor close/reopen instead of only same-screen tab switches. (GPT-5.5) -->
++		screen.setPersistent(True)
+ 
+ 		self.initDefines()
+ 		self.initText()
+@@ -479,25 +487,34 @@ class CvMilitaryAdvisor:
+ 		self.getScreen().setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		self.drawActivePage()
+ 
++	def restoreAdvisorPerspectivePlayer(self):
++		# <!-- custom: Map tab uses iActivePlayer for its unit-map/minimap perspective and resets it to the real active player. Keep the dropdown perspective for Summary/Battles/Composition separately so selecting an AI or vassal is not lost after visiting Map or reopening this persistent advisor. (GPT-5.5) -->
++		if self.iAdvisorPerspectivePlayer >= 0:
++			self.iActivePlayer = self.iAdvisorPerspectivePlayer
++		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
++		self.iAdvisorPerspectivePlayer = self.iActivePlayer
++
+ 	def drawActivePage(self):
+ 		screen = self.getScreen()
+ 		self.drawTabs()
+ 
+ 		if self.iActivePage == self.PAGE_SUMMARY:
+-			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
++			self.restoreAdvisorPerspectivePlayer()
+ 			self.drawSummary()
+ 			return
+ 
+ 		if self.iActivePage == self.PAGE_BATTLES:
+-			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
++			self.restoreAdvisorPerspectivePlayer()
+ 			self.drawBattleHistory()
+ 			return
+ 
+ 		if self.iActivePage == self.PAGE_COMPOSITION:
+-			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
++			self.restoreAdvisorPerspectivePlayer()
+ 			self.drawComposition()
+ 			return
+ 
++		if self.iAdvisorPerspectivePlayer < 0:
++			self.restoreAdvisorPerspectivePlayer()
+ 		self.iActivePlayer = gc.getGame().getActivePlayer()
+ 
+ 		# Minimap initialization
+@@ -761,12 +778,42 @@ class CvMilitaryAdvisor:
+ 			return u"A"
+ 		return u""
+ 
++	def getBattleTableCacheKey(self, aEntries, iTableX, iTableY, iTableW, iTableH):
++		entryFirst = None
++		entryLast = None
++		if aEntries:
++			entryFirst = aEntries[0]
++			entryLast = aEntries[-1]
++		return (self.iActivePlayer, CyGame().getCurrentLanguage(), self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, len(aEntries), entryFirst, entryLast)
++
++	def canReuseBattleTableWidget(self, screen, aEntries):
++		# <!-- custom: Cache keys can survive Military Advisor close/reopen even when the table widget is gone; verify the preserved table still has enough rows before using the fast show/moveToFront path. (GPT-5.5) -->
++		iExpectedRows = len(aEntries)
++		if iExpectedRows < 1:
++			iExpectedRows = 1
++		try:
++			return screen.getTableNumRows(self.BATTLE_TABLE_ID) >= iExpectedRows
++		except:
++			return False
++
+ 	def drawBattleHistory(self):
+ 		screen = self.getScreen()
+ 		# <!-- custom: Map tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
+ 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
+ 		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
++		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
++		battleTableCacheKey = self.getBattleTableCacheKey(aEntries, iTableX, iTableY, iTableW, iTableH)
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
++			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
++		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget made same-advisor tab switches almost instant, and making the screen persistent preserves it across close/reopen too. Rebuild when player/history/layout signature changes. (GPT-5.5) -->
++		if self.BATTLE_TABLE_CACHE_KEY == battleTableCacheKey and self.canReuseBattleTableWidget(screen, aEntries):
++			screen.show(self.BATTLE_TABLE_ID)
++			screen.moveToFront(self.BATTLE_TABLE_ID)
++			return
++		screen.deleteWidget(self.BATTLE_TABLE_ID)
++		self.BATTLE_TABLE_CACHE_KEY = battleTableCacheKey
+ 		self.BATTLE_ROW_PLOTS = {}
+ 		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(self.BATTLE_TABLE_ID)
+@@ -823,10 +870,6 @@ class CvMilitaryAdvisor:
+ 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
+ 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
+-		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
+-			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+-		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
+-		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+ 		if not aEntries:
+ 			iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
+ 			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.TEXT_BATTLES_EMPTY, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -913,7 +956,8 @@ class CvMilitaryAdvisor:
+ 			tColumns = self.getBattlePerspectiveColumns(entry)
+ 			if tColumns is None:
+ 				continue
+-			iTheirPlayer = tColumns[8]
++			# <!-- custom: Opponent PID is column 10 in getBattlePerspectiveColumns; using column 8 (our XP) made the LOG button call gc.getPlayer(XP), causing a None player and Python error on high-XP rows. (GPT-5.5) -->
++			iTheirPlayer = tColumns[10]
+ 			if iTheirPlayer not in aiPlayers:
+ 				aiPlayers.append(iTheirPlayer)
+ 		aiPlayers.sort()
+@@ -1972,6 +2016,7 @@ class CvMilitaryAdvisor:
+ 	def handleInput (self, inputClass):
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
+ 			self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), self.DEBUG_DROPDOWN_ID)
++			self.iAdvisorPerspectivePlayer = self.iActivePlayer
+ 			self.redrawContents()
+ 			return 1
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.BATTLE_LOG_BUTTON_ID:
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index d0efc894c..2c41b2cfa 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -354,7 +354,8 @@ class CvPolicyAdvisorScreen:
+ 		self.setActivePlayer(getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True))
+ 
+ 		self.szDropdownName = self.DEBUG_DROPDOWN_ID
+-		addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bSelectActive=False, bAllowVassalPerspective=True)
++		# <!-- custom: preserve the selected debug/vassal perspective when reopening the advisor; bSelectActive=False rebuilt the dropdown with no selected row in debug mode. (GPT-5.5) -->
++		addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 
+ 		# Draw Contents
+ 		self.drawContents()
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index c774fedea..ac216f5fb 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -132,7 +132,7 @@ class CvTechChooser:
+ 
+ 	def __init__(self):
+ 		self.nWidgetCount = 0
+-		self.iCivSelected = 0
++		self.iCivSelected = -1
+ 		self.aiCurrentState = []
+ 
+ 		# Advanced Start
+@@ -283,17 +283,18 @@ class CvTechChooser:
+ 		screen.hide("SelectedTechLabel")
+ 		self.initText()
+ 
++		self.iCivSelected = getAdvisorValidPerspectivePlayer(self.iCivSelected)
+ 		if ( CyGame().isDebugMode() ):
+ 			screen.addDropDownBoxGFC( "CivDropDown", 22, 12, 192, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.SMALL_FONT )
+ 			screen.setActivation( "CivDropDown", ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
+ 			for j in range(gc.getMAX_PLAYERS()):
+ 				if (gc.getPlayer(j).isAlive()):
+-					screen.addPullDownString( "CivDropDown", gc.getPlayer(j).getName(), j, j, False )
++					screen.addPullDownString( "CivDropDown", gc.getPlayer(j).getName(), j, j, j == self.iCivSelected )
+ 		else:
+ 			screen.hide( "CivDropDown" )
+ 
+ 		# advc.068: Dirty-bit check added
+-		if screen.isPersistent() and self.iCivSelected == gc.getGame().getActivePlayer() and not CyInterface().isDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT):
++		if screen.isPersistent() and not CyInterface().isDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT):
+ 			self.updateTechRecords(false)
+ 			return
+ 		# advc.068: Dirty no more
+@@ -302,7 +303,8 @@ class CvTechChooser:
+ 		self.nWidgetCount = 0
+ 		self.sWidgets = []
+ 
+-		self.iCivSelected = gc.getGame().getActivePlayer()
++		# <!-- custom: preserve the selected debug perspective when reopening Tech Chooser; base code reset to the active player during full rebuild, unlike the persistent shortcut path. (GPT-5.5) -->
++		self.iCivSelected = getAdvisorValidPerspectivePlayer(self.iCivSelected)
+ 		self.aiCurrentState = []
+ 		screen.setPersistent( True )
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index d9cc502d9..d66cecc1e 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -319,7 +319,8 @@ class CvVictoryScreen:
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 		self.updateRuntimeLayout(screen)
+ 
+-		self.iActivePlayer = CyGame().getActivePlayer()
++		# <!-- custom: preserve the selected debug/vassal perspective when reopening Victory screen; base code reset to the active player every open. (GPT-5.5) -->
++		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
+ 		if self.iScreen == -1:
+ 			self.iScreen = VICTORY_CONDITION_SCREEN
+ 
+@@ -347,6 +348,18 @@ class CvVictoryScreen:
+ 			self.showRiseFall()
+ 		# </advc.703>
+ 
++	def redrawActiveTab(self):
++		if self.iScreen == VICTORY_CONDITION_SCREEN:
++			self.showVictoryConditionScreen()
++		elif self.iScreen == GAME_SETTINGS_SCREEN:
++			self.showGameSettingsScreen()
++		elif self.iScreen == UN_RESOLUTION_SCREEN:
++			self.showVotingScreen()
++		elif self.iScreen == UN_MEMBERS_SCREEN:
++			self.showMembersScreen()
++		elif self.iScreen == RF_SCORE_SCREEN:
++			self.showRiseFall()
++
+ 	def drawTabs(self):
+ 		screen = self.getScreen()
+ 
+@@ -1207,7 +1220,9 @@ class CvVictoryScreen:
+ 		self.deleteAllWidgets()	
+ 		screen = self.getScreen()
+ 
+-		activePlayer = gc.getPlayer(self.iActivePlayer)
++		# <!-- custom: Victory-condition tabs support debug/vassal perspective, but Game Settings describe the actual player's game setup; keep this tab anchored to the real active player. (GPT-5.5) -->
++		iSettingsPlayer = gc.getGame().getActivePlayer()
++		activePlayer = gc.getPlayer(iSettingsPlayer)
+ 
+ 		szSettingsPanel = self.getNextWidgetName()
+ 		screen.addPanel(szSettingsPanel, "", "", True, True, self.SETTINGS_PANEL_X1, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+@@ -1224,11 +1239,11 @@ class CvVictoryScreen:
+ 
+ #			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <!-- custom: add leader icon to active player name -->
+-		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(self.iActivePlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
++		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(iSettingsPlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+-		szTraitIcons = self.getTraitIconsString(self.iActivePlayer)
++		szTraitIcons = self.getTraitIconsString(iSettingsPlayer)
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		g = gc.getGame() # advc
+@@ -2118,7 +2133,7 @@ class CvVictoryScreen:
+ 		# civ picker dropdown
+ 		if (CyGame().isDebugMode()):
+ 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
+-			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False) # advc.007: barbs excluded
++			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bAllowVassalPerspective=True) # advc.007: barbs excluded
+ 		
+ 		self.drawTabs()
+ 
+@@ -2350,8 +2365,8 @@ class CvVictoryScreen:
+ 			if (sWidget == self.DEBUG_DROPDOWN_ID):
+ 				szName = self.DEBUG_DROPDOWN_ID
+ 				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
+-				self.iScreen = VICTORY_CONDITION_SCREEN
+-				self.showVictoryConditionScreen()
++				# <!-- custom: preserve the current Victory sub-tab when changing debug/vassal perspective; old code forced the first Victories tab. (GPT-5.5) -->
++				self.redrawActiveTab()
+ 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+ 			if (sWidget == self.VC_TAB_ID):
+ 				self.iScreen = VICTORY_CONDITION_SCREEN
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 0290e9f0f..95cb461bc 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -152,8 +152,7 @@ class RectLayout(object):
+ 	def height(self):
+ 		return int(round(self.fHeight))
+ 	def encloses(self, lOther):
+-		return (self.x() <= lOther.x() and self.xRight() >= lOther.xRight() and
+-				self.y() <= lOther.y() and self.yBottom() >= lOther.yBottom())
++		return (self.x() <= lOther.x() and self.xRight() >= lOther.xRight() and self.y() <= lOther.y() and self.yBottom() >= lOther.yBottom())
+ 	def __str__(self):
+ 		return ( "Rect(" + str(self.fX) + ", " + str(self.fY) + ", " + str(self.fWidth) + ", " + str(self.fHeight) + ")" )
+ 	@staticmethod
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 2adc5d1dc..1ebfa83d7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -354,7 +354,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, moved away the **Environment Tab** from the former **Economic Advisor** (now removed), the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - (Requires AdvCiv-SAS 5754+) Add **debug mode support** (for player selection) in the Domestic Advisor. Add **Barbarian** to **selectable leaders** in debug mode in advisors where it is relevant: Domestic Advisor, Policy Advisor, World Advisor, and Info Screen.
++- (Requires AdvCiv-SAS 5859+) Preserve **selected debug/vassal perspective** when reopening or switching tabs in supported advisors where the selected player is meaningful (all supported advisors except for the Victory Screen's **Settings tab**: it intentionally stays anchored to the **real active player**, because it describes that player's game setup rather than a selected rival's victory progress).
+ - (Requires AdvCiv-SAS 5755) Allow the **current active player**'s (i.e. the human player or whichever player is active if cheats are enabled) to **select and view its alive vassals' information** in advisors' **player selection dropdown** even outside debug mode. This follows the active player (vassals are subordinate enough to make their domestic/world/policy state relevant). This **does not reveal unrelated players or hidden map** data as debug mode would.
++- (Requires AdvCiv-SAS 5859+) Preserve built heavy **advisor tables** across same-advisor **tab switches** and screen **close/reopen** where worthwhile: Military Advisor's **Battles** table and Info Screen's **Timeline** table. This especially improves loading when hundreds of rows are stored. Rebuild when player/history/language/layout or relevant display settings change. This is partly based on the **Technology Advisor's persistent-screen pattern**, which notably preserves scroll position on reopen.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen).
+ - (Requires AdvCiv-SAS 5771+) Make some of the data-dense advisors use using a **higher constrast background theme** so text is **more readable** (e.g. plain dark grayish in Overview tabs (Domestic Advisor), plain dark brownish in the Score tab (Info screen), plain blue in the Battles tab (Military Advisor)).
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=52020

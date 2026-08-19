@@ -1,0 +1,664 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5156
+# Commit: 993b57644ebe456bf17c02f8baeb61373bf51980
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 684dcd64d6294c68052fb73be9ea87850ded1fe9
+# Title: add favourite religions notes and table in assets rebalancing + update docs anyways etc. with the help of chatgpt 5.1 thanks but anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	README.md
+145	95	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+48	49	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+46	47	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index d4d73c404..761e3e1b9 100644
+--- a/README.md
++++ b/README.md
+@@ -346,9 +346,9 @@ the finished version.
+ 
+ ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
+ 
+-See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
++See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details.
+ 
+-Note: this also includes fixes/fixed issues as well for those of these we solved anyways etc
++Note: this also includes fixes/fixed issues as well for those of these we solved anyways etc.
+ 
+ Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) for details or/and additional info. If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+index dd6736e63..264a9fc8a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+@@ -6,9 +6,15 @@ Some of the asset rebalancing is shown here (not exhaustive)
+ 
+ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
+ 
++[How to](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#how-to)  
+ [Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework)  
+ [Leaders' traits rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-traits-rework)  
+ [Leaders' favourite civics rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-favourite-civics-rework)  
++[Leaders' Favourite religions rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-favourite-religions-rework)  
++
++## How to
++
++A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc) anyways etc.) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me, hopefully helpful but anyways etc.
+ 
+ ## Starting techs rework
+ 
+@@ -20,45 +26,7 @@ As it is too lengthy to put in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS
+ 
+ Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
+ 
+-| Civ                      | Lines       | FreeTechs                               | Allowed-only? |
+-|--------------------------|-------------|------------------------------------------|---------------|
+-| America                  | 9–142       | 109→Fishing, 113→Agriculture             | ❌            |
+-| Arabia                   | 143–244     | 219→The Wheel, 223→Mysticism             | ❌            |
+-| Aztec                    | 245–346     | 321→Mysticism, 325→Hunting               | ✅            |
+-| Babylon                  | 347–452     | 427→Agriculture, 431→The Wheel           | ❌            |
+-| Byzantium                | 453–562     | 537→The Wheel, 541→Mysticism             | ❌            |
+-| Carthage                 | 563–669     | 644→Fishing, 648→Mining                  | ✅            |
+-| Celt                     | 670–784     | 755→Hunting, 759→Mysticism               | ✅            |
+-| China                    | 785–898     | 869→Agriculture, 873→Mining              | ❌            |
+-| Egypt                    | 899–1024    | 995→The Wheel, 999→Agriculture           | ❌            |
+-| England                  | 1025–1136   | 1103→Fishing, 1107→Mining                | ✅            |
+-| Ethiopia                 | 1137–1256   | 1215→Hunting, 1219→Mining                | ✅            |
+-| Kingdom of Benin         | 1257–1366   | 1341→Mysticism, 1345→Fishing             | ✅            |
+-| France                   | 1367–1480   | 1447→The Wheel, 1451→Agriculture         | ❌            |
+-| Germany                  | 1481–1603   | 1574→Pottery, 1578→Mining                | ✅            |
+-| Greece                   | 1604–1718   | 1689→Fishing, 1693→Hunting               | ✅            |
+-| Holy Roman               | 1719–1830   | 1805→Mysticism, 1809→Hunting             | ✅            |
+-| Inca                     | 1831–1931   | 1906→Agriculture, 1910→Mysticism         | ❌            |
+-| India                    | 1932–2098   | 2069→Mysticism, 2073→Mining              | ✅            |
+-| Japan                    | 2099–2199   | 2174→Fishing, 2178→The Wheel             | ❌            |
+-| Khmer                    | 2200–2307   | 2282→Hunting, 2286→Mining                | ✅            |
+-| Korea                    | 2308–2404   | 2379→Mining, 2383→Mysticism              | ✅            |
+-| Mali                     | 2405–2500   | 2475→The Wheel, 2479→Mining              | ❌            |
+-| Maya                     | 2501–2610   | 2585→Mining, 2589→Mysticism              | ✅            |
+-| Mongol                   | 2611–2713   | 2684→The Wheel, 2688→Hunting             | ❌            |
+-| Native America           | 2714–2829   | 2804→Agriculture, 2808→Fishing           | ❌            |
+-| Netherlands              | 2830–2942   | 2917→Agriculture, 2921→Fishing           | ❌            |
+-| Ottoman                  | 2943–3048   | 3019→The Wheel, 3023→Agriculture         | ❌            |
+-| Persia                   | 3049–3183   | 3154→Agriculture, 3158→Hunting           | ❌            |
+-| Portugal                 | 3184–3294   | 3269→Fishing, 3273→Mining                | ✅            |
+-| Rome                     | 3295–3419   | 3390→Fishing, 3394→Mining                | ✅            |
+-| Russia                   | 3420–3531   | 3498→Hunting, 3502→Mining                | ✅            |
+-| Spain                    | 3532–3638   | 3613→Fishing, 3617→Mysticism             | ✅            |
+-| Sumeria                  | 3639–3742   | 3716→Mysticism, 3720→Pottery             | ✅            |
+-| Scandinavia              | 3743–3847   | 3822→Fishing, 3826→Hunting               | ✅            |
+-| Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
+-| Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
+-| Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
++See below in the main table after changes as it includes the before values as well but anyways etc.
+ 
+ #### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
+ 
+@@ -164,61 +132,7 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
+ 
+ #### main table before changes to traits anyways etc
+ 
+-| Leader | Traits |
+-|---|---|
+-| Alexander | Philosophical, Aggressive |
+-| Asoka | Spiritual, Organized |
+-| Augustus | Imperialist, Industrious |
+-| Bismarck | Expansive, Industrious |
+-| Boudica | Charismatic, Aggressive |
+-| Brennus | Spiritual, Charismatic |
+-| Catherine | Creative, Imperialist |
+-| Charlemagne | Imperialist, Protective |
+-| Churchill | Charismatic, Protective |
+-| Cyrus | Charismatic, Imperialist |
+-| Darius | Organized, Financial |
+-| De Gaulle | Industrious, Charismatic |
+-| Elizabeth | Philosophical, Financial |
+-| Ewuare | Imperialist, Spiritual |
+-| Frederick | Philosophical, Organized |
+-| Gandhi | Spiritual, Philosophical |
+-| Genghis Khan | Aggressive, Imperialist |
+-| Gilgamesh | Protective, Creative |
+-| Hammurabi | Organized, Aggressive |
+-| Hannibal | Financial, Charismatic |
+-| Hatshepsut | Spiritual, Creative |
+-| Huayna Capac | Industrious, Financial |
+-| Isabella | Spiritual, Expansive |
+-| Joao | Imperialist, Expansive |
+-| Julius Caesar | Organized, Imperialist |
+-| Justinian | Spiritual, Imperialist |
+-| Kublai Khan | Aggressive, Creative |
+-| Lincoln | Philosophical, Charismatic |
+-| Louis XIV | Industrious, Creative |
+-| Mansa Musa | Spiritual, Financial |
+-| Mao Zedong | Expansive, Protective |
+-| Mehmed | Expansive, Organized |
+-| Moctezuma | Aggressive, Spiritual |
+-| Napoleon | Organized, Charismatic |
+-| Pacal | Financial, Expansive |
+-| Pericles | Philosophical, Creative |
+-| Peter | Philosophical, Expansive |
+-| Qin Shi Huang | Industrious, Protective |
+-| Ragnar | Financial, Aggressive |
+-| Ramesses | Spiritual, Industrious |
+-| Roosevelt | Industrious, Organized |
+-| Saladin | Protective, Spiritual |
+-| Shaka | Aggressive, Expansive |
+-| Sitting Bull | Philosophical, Protective |
+-| Stalin | Industrious, Aggressive |
+-| Suleiman | Imperialist, Philosophical |
+-| Suryavarman | Expansive, Creative |
+-| Tokugawa | Protective, Aggressive |
+-| Victoria | Imperialist, Financial |
+-| Wang Kon | Financial, Protective |
+-| Washington | Expansive, Charismatic |
+-| Willem van Oranje | Creative, Financial |
+-| Zara Yaqob | Creative, Organized |
++See below in the main table after changes as it includes the before values as well but anyways etc.
+ 
+ #### raw traits assignment count
+ 
+@@ -429,7 +343,7 @@ Goal is to make it more historically accurate, balanced in gameplay, and more or
+ 
+ ### before changes favourite civics per leader anyways etc
+ 
+-(see below at the after changes since it lists them as well anyways etc)
++See below in the main table after changes as it includes the before values as well but anyways etc.
+ 
+ ### before changes favourite civics count per civic anyways etc
+ 
+@@ -566,3 +480,139 @@ Also i added this info from chatgpt 5.1's thoughts as i found it very accurate a
+ | Tribalism            | 0                  |
+ 
+ Sanity: total favourites across all civics = 53 (one per leader, matches leader count).
++
++## Leaders' Favourite religions rework
++
++This is the oldest rework i made and which i had made without AI if i remember it correctly at least at that time, unlike how i did it later as of now for the other reworks in this doc.
++
++Since its structure and way of doing it was quite differently done (not using chatgpt or such to web search info but digging myself if i remember it correctly but anyways etc.) (note: chatgpt 5.1 helped me a bit to find some typoes or such here and then as of now to format and summarize the already existing data into a table and/or such but anyways etc.), adding them here in the doc after these other reworks but anyways etc.
++
++### notes_about_religious_design
++
++#### Brennus
++
++According to this document [https://boutique.tropismes.com/bonus/extrait/9782812148347](https://boutique.tropismes.com/bonus/extrait/9782812148347), page 29, Gaul leaders/chiefs (maybe that includes brennus of the Gaul too?) did not exert a strong religious pressure on their people as they were driven by freedom if i understand it correctly.
++
++If this accurate and reliable, i may want/have/need to change brennus's xml to focus less on religion and more on civis, perhaps even boudica's but there may be more data on her since she is more recent, and i didn't look yet anyways etc (at least not in detail, only that she was seemingly more religious at least than what i know now of brenus if this doc is accurate, but it was quick glance too on boudica anyways so may look later or maybe not though, anyways etc.), so may apply this to brennus only or/and other similar leaders or not anyways etc.
++
++Note: in advciv-sas as of now confucianism has been removed and replaced with paganism religion anyways etc.
++
++#### Churchill
++
++From a quick search not detailed but anyways etc., churchill didn't seem to have a strong preference for it or any religion, so is none now, allows also to declutter christianity that was bloated.
++
++#### Cyrus
++
++cyrus seems to not be strongly religious and quite open too in/from [https://en.wikipedia.org/wiki/Cyrus_the_Great#Religion_and_philosophy](https://en.wikipedia.org/wiki/Cyrus_the_Great#Religion_and_philosophy) if i am not mistaken anyways etc.
++
++#### Darius
++
++it seems darius is a bit more religious though (at least than cyrus), in these sources:
++
++- [http://www.teheran.ir/spip.php?article2533#gsc.tab=0](http://www.teheran.ir/spip.php?article2533#gsc.tab=0)
++- [https://en.wikipedia.org/wiki/Religion_in_the_Achaemenid_Empire](https://en.wikipedia.org/wiki/Religion_in_the_Achaemenid_Empire)
++
++#### Ewuare
++
++as for Ewuare (kingdom of benin), christianity seems to be an important part of the kingdom, but the beninese also have their own kind of or own religion with human sacrifices ([https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice](https://en.wikipedia.org/wiki/Kingdom_of_Benin#Human_sacrifice)) and/or such but anyways etc., plus their benin bronzes and such; makes me more lean (if i am not mistaken) towards the fact that (THEY) they were more pagans, so going with that instead but anyways etc.
++
++#### Frederick
++
++frederick seems to be agnostic (quite strongly xd from the very little read i had here (in french) which is quite funny, the ironic pleasantry/plaisanterie in his letter anyways etc.): [https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)](https://fr.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_II_(roi_de_Prusse)); but i read little about it and this page seems enough to say he is agnostic indeed maybe anyways etc, but seems a bit enough.
++
++update: since i can't find what this refers to at a quick glance, i now asked chatgpt 5.1 about it still no luck xd i mean but anyways etc. My best guess is in one of his correspondances with someone else he noted how something is ironic or/and paradoxical, this is how i remember it but nothing specific, maybe i should have written it or maybe not since i didn't, but anyways etc. At least i tried xd maybe i mean if i may say but anyways etc.
++
++#### Genghis Khan
++
++genghis khan seems to have been tengrist something i mean anyways, but according to a quick search, it seems he had great respect for daoism: [https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme](https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme)
++
++>Bien que Gengis Khan ait été avant tout tengriste, il manifesta un grand respect à l'égard du dirigeant de la secte taoïste Quanzhen, Qiu Chuji, lorsque celui-ci lui rendit visite dans l'Hindou Kouch, à Kaboul, en 1222, à son invitation, et prédit la conquête de la Chine par les Mongols. En retour, Gengis Khan lui donna d'importants pouvoirs politiques et religieux. Il fut exempté de taxes, et depuis Pékin, sa secte fut la plus favorisée de l'Empire Mongol. Il défendit la liberté d'autogestion des autres sectes, auprès du khagan, qu'il s'agisse des taoïstes, des bouddhistes, des chrétiens nestoriens ou des musulmans[18].
++
++therefore, it is not incorrect to say, among civ4 advciv-sas's religions in particular, hat his favourite religion, if he had to choose one, is not none but maybe rather indeed daoism, is also quie convenient even though was not main goal that this is not filled, anyways etc., one leader can have a favourite religion even though not having said religion themselves; this is perhaps an important distinction i should add in changelogs and added now anyways etc.
++
++#### Lincoln
++
++as for lincoln, according to sources i read, lincoln was not christian, not strongly enough at all at least, here are a few sources i read:
++
++- [https://en.wikipedia.org/wiki/Religious_views_of_Abraham_Lincoln#:~:text=Although%20Lincoln%20never%20made%20an,Christ%20in%20the%20religious%20sense](https://en.wikipedia.org/wiki/Religious_views_of_Abraham_Lincoln#:~:text=Although%20Lincoln%20never%20made%20an,Christ%20in%20the%20religious%20sense)
++- [https://apps.legislature.ky.gov/LegislativeMoments/moments09RS/web/Lincoln%20moments%206.pdf](https://apps.legislature.ky.gov/LegislativeMoments/moments09RS/web/Lincoln%20moments%206.pdf)
++- [https://www.thegospelcoalition.org/blogs/justin-taylor/was-abraham-lincoln-a-christian/](https://www.thegospelcoalition.org/blogs/justin-taylor/was-abraham-lincoln-a-christian/)
++- [https://www.reddit.com/r/todayilearned/comments/llardq/til_that_abraham_lincolns_religious_views_are/](https://www.reddit.com/r/todayilearned/comments/llardq/til_that_abraham_lincolns_religious_views_are/)
++
++i did not look at them in (long) detail, but i think in detail enough hopefully but anyways etc. that i can assert quite faithfully/strongly but anways maybe that he was definitely leaning more agnostic than christian, reddit comments also lean in that direction, was not christian even though had a strong christian education. Lincoln seems more agnostic or not strongly favouring a religion, so for civ4 i changed it to none rather than christianity, he seems to be a free person rather which i like i mean if i may say but anyways etc. (But also even if he were not such free man and really christian, he is free to do so to (else it would defeat the purpose xd i mean if i may say but anyways etc.)).
++
++#### Pericles
++
++pericles prefers religion according to [https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la](https://ehne.fr/fr/eduscol/pericles-est-il-vraiment-le-grand-homme-de-la-democratie-athenienne#:~:text=Enfin%2C%20P%C3%A9ricl%C3%A8s%20s'est%20appuy%C3%A9,ont%20beaucoup%20fait%20pour%20la) so going with religion paganism hopefully accurate enough anyways etc.
++
++#### Wang Kon
++
++for wang kon, according to civ4 wiki (in [https://civilization.fandom.com/wiki/Wang_Kon_(Civ4)](https://civilization.fandom.com/wiki/Wang_Kon_(Civ4))):
++
++>During his reign Wang Kon promoted Buddhism as the state religion, and oversaw the conquest of northern Korea and parts of Manchuria. When dealing with local clans,
++
++if i am not mistaken, he promoted buddhism as the state religion; i don't know why his preferred religion was confucianism, but since there is no confucianism anymore now in advciv-sas, he leans closer (i think) to buddhism based on this maybe anyways etc. than say paganism or none religion (favourite), is convenient to increase buddhism leader count that is really low and not increase paganism leader count that is high enough (a bit too high but historically fine and matching christinaity so maybe fine too anyways etc); Hopefully fine enough and accurate enough even though not exhaustive but anyways etc.
++
++### Other leaders
++
++Not documented in my old notes, but many leaders have also been changed, mostly if not only to paganism.
++
++### Summary of the favourite religion leaders' changes in advciv-sas anyways etc
++
++A summary of my previous notes with the help of chatgpt 5.1 (check if accurate anyways etc.) anyways etc, showing base advciv's (except for some leader(s) like Ewuare since they didn't exist in base advciv but anyways etc.) favourite religion vs advciv-sas.
++
++| Leader             | Base         | New              | Rationale |
++| ------------------ | ------------ | ---------------- | --------- |
++| Alexander          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Asoka              | Buddhism     | Keep             |           |
++| Augustus           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Bismarck           | Christianity | Keep             |           |
++| Boudica            | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Brennus            | None         | Keep             | Already had no favourite religion; the Brennus note mainly informed other XML tweaks (less religious emphasis, more civics focus), not a favourite religion change. |
++| Catherine          | Christianity | Keep             |           |
++| Charlemagne        | Christianity | Keep             |           |
++| Churchill          | Christianity | **None**         | Biographical sketches don’t show a strong personal attachment to any one faith; dropping his Christian favourite both matches that and helps reduce Christianity’s over-representation in the roster. |
++| Cyrus              | None         | Keep             | After a quick read of his religious views, Cyrus looks relatively open and not strongly attached to a single faith, so leaving his favourite religion as None still fits. |
++| Darius             | None         | **Paganism**     | Darius appears more overtly religious than Cyrus in the sources; giving him a specific favourite religion in-game (Paganism as generic Achaemenid state cult) reflects that. |
++| De Gaulle          | Christianity | Keep             |           |
++| Elizabeth          | Christianity | Keep             |           |
++| Ewuare             |              | **Paganism**     | New leader in AdvCiv-SAS; for the Kingdom of Benin, Christianity appears late and local religion (including human sacrifice and royal ritual) is central, so Ewuare uses Paganism as favourite religion. |
++| Frederick          | Christianity | **None**         | French and other sources often describe Frederick II as deist/agnostic; his favourite religion is changed from Christianity to None to reflect that more sceptical stance. |
++| Gandhi             | Hinduism     | Keep             |           |
++| Genghis Khan       | None         | **Daoism**       | Historically tengrist but showed particular respect for the Quanzhen Taoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
++| Gilgamesh          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Hammurabi          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Hannibal           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Hatshepsut         | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Huayna Capac       | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Isabella           | Christianity | Keep             |           |
++| Joao               | Christianity | Keep             |           |
++| Julius Caesar      | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Justinian          | Christianity | Keep             |           |
++| Kublai Khan        | Buddhism     | Keep             |           |
++| Lincoln            | Christianity | **None**         | Sources generally paint Lincoln as religiously complex / sceptical rather than a clear Christian partisan; treating him as effectively agnostic and removing his Christian favourite keeps him more neutral. |
++| Louis XIV          | Christianity | Keep             |           |
++| Mansa Musa         | Christianity | **Islam**        | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Mao Zedong         | Hinduism     | **None**         | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Mehmed             | Islam        | Keep             |           |
++| Moctezuma          | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Napoleon           | Christianity | Keep             |           |
++| Pacal              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Pericles           | None         | **Paganism**     | Pericles leans heavily on civic religion, festivals and public cult; giving him Paganism as a favourite ties him to the generic “classical city cults” bucket instead of leaving him without any religious preference. |
++| Peter              | None         | **Christianity** | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Qin Shi Huang      | Taoism       | **Daoism**       | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Ragnar             | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Ramesses           | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Roosevelt          | Christianity | Keep             |           |
++| Saladin            | Islam        | Keep             |           |
++| Shaka              | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Sitting Bull       | None         | **Paganism**     | Undocumented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#notes_about_religious_design). |
++| Stalin             | None         | Keep             |           |
++| Suleiman           | Islam        | Keep             |           |
++| Suryavarman        | Hinduism     | Keep             |           |
++| Tokugawa           | Buddhism     | Keep             |           |
++| Victoria           | Christianity | Keep             |           |
++| Wang Kon           | Confucianism | **Buddhism**     | As founder of Goryeo he promoted Buddhism as state religion; with Confucianism removed from AdvCiv-SAS, switching his favourite to Buddhism keeps him anchored to an organised religion that matches the history better than Paganism or None. |
++| Washington         | Christianity | Keep             |           |
++| Willem van Oranje  | Christianity | Keep             |           |
++| Zara Yaqob         | Christianity | Keep             |           |
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 5d3521d44..a0f6b0182 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -25,9 +25,9 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#city-plots-ai)  
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#city-production-ai)  
+ &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-ai)  
++&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-ai)  
+ &emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#leaders-ai)  
+-&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#buildings-ai)  
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-ai)  
+@@ -37,17 +37,17 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;[Bonuses (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#bonuses-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Improvements and worker builds (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#improvements-and-worker-builds-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Specialists (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-non-exhaustive-see-sevopedia-orand-xml-for-details)  
++&emsp;[Traits (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#traits-non-exhaustive-see-sevopedia-orand-xml-for-details)  
++&emsp;[Civics (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Technologies (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#eras)  
++&emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#culture)  
++&emsp;[Religions (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#religions-non-exhaustive-see-sevopedia-orand-xml-for-details)  
++&emsp;[Corporations (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#corporations-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Civilizations (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civilizations-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Leaders (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#leaders-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Barbarians (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#barbarians-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+-&emsp;[Traits (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#traits-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+-&emsp;[Civics (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Buildings (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#buildings-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+-&emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#culture)  
+-&emsp;[Religions (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#religions-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+-&emsp;[Corporations (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#corporations-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civilian-units)  
+ &emsp;[Military and some civilian units related info (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ [Fixes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#fixes)  
+@@ -186,6 +186,13 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - since then, added a few extra sanity rules as of now in `CvCityAI::AI_jobChangeValue` for assigning specialists for AI players, such as no specialist in low pop cities (favour growth, as there were quite a few size 2 cities stagnating with food available and all for growth due to too early specialist). After cities are bigger than this size if i may say in this case but anyways etc, all cities, with extra conditions such as having enough food to grow and extra happiness to accomodate it, will now not assign ever a specialist until they can grow no more. This is because even at size 11, some cities would still stagnate when they could have grown more before assigning a specialist and stagnating. And finally, for barbarians, on top of these rules, also never allow any specialist other than the scientist. Hopefully these sanity rules, added with the help of chatgpt 5 too but anyways etc, help AI be stronger and more reliable in its specialist or rather maybe non-specialist choices in most cases especially those that had these major issues, while also not killing versatility while doing so if i am not mistaken but anyways etc. See [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc) for details anyways etc.
+ - exception to the above and additional AI enhancement: if we don't have our BFC, force assign one and only one artist until we do, in `CvCity::AI_doTurn`.
+ 
++#### Civics (AI)
++
++- (Requires AdvCiv-SAS 5103+) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs). Now replaced with opportunistic current unhappiness per city-based logic if it benefits us (only pick such a civic if enough of our cities that are unhappy because of the anger civic effect would gain happiness from it). Change in `CvPlayerAI::AI_civicValue`. Hopefully makes stronger civic choices thanks to this changes as appears to be so in autoplay before vs after change. See for details [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
++- (Requires AdvCiv-SAS 5106+) Fix the issue of AIs almost always picking civic_caste_system and then sticking to it no matter what: rewrote the unlimited specialist old logic in `CvPlayerAI::AI_civicValue` that would only value culture specialists, which seemingly led to civic_wage_labor (as of now unlimited engineers, see latest sevopedia/xml for updated values and details anyways etc) never being picked, even when AIs would much benefit from it, including when our ennemies are stronger than us (no point to run a scientist and then die, better capitalize on engineers or serfdom or such but anyways etc). Now we value unlimited specialists' yields (food, hammer, gold) and commerce (beakers, gold, culture, espionage) hierarchically (e.g. higher value per yield for food vs hammer, higher value per yield for beakers vs culture, etc.), so that we value unlimited specialists strategically on a per yield base. Also added high need logic (higher culture value per yield if culture win rush or BFC need quite similarly to old code, and now also higher hammer value per yield for engineers if our ennemies are strong (see code for latest settings anyways etc)). Results in autoplay are very good, we now switch back and forth between civic_slavery and civic_caste_system early (no longer perma caste system), and then later civic_wage_labor is much more popular among AIs. Civic_serfdom is also sometimes switched to late in the game. So the spread overall is much more even of unlimited specialist civics amongs AIs, which is fine and good as it suits their strategical needs much more if i may say but anyways etc. Added anarchy counting logic to devalue civics (less attractive if costly in turns, but still as attractive if no anarchy cost (traits, golden age, wonders, etc. (at least in theory i mean but check to be sure but anyways etc))), but it looks we still switch a bit too much still so may need some tweaking, but even as is should lead to much stronger and responsive AI hopefully, especially following future civic reworks. See for details with screenshots and such [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue).
++- (Requires AdvCiv-SAS 5108+) Reduce excessive civics change oscillation (was partially masked by civic_caste_system being almost always picked it seems based on autoplay testing, now more prevalent after our civic valuation changes that also value other civics depending on the player's strategic needs but anyways) by adding an additional percent slack new logic (and rewriting the old logic as well) in `CvPlayerAI::AI_doCivics` so that for example a new civic needs to be at least 10% higher valuated to be chosen/switched to (tunable). Note: If percent slack is set too high, it may cause AIs to switch too rarely and react more slowly, but if too low it may be inefficient especially for players that have anarchy turns on civic change—adjust to taste. Note 2: for some reason as of now in some cases bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc.
++- (Requires AdvCiv-SAS 5110+) Fix the issue of civics that give specialist extra commerce (as of now civic_representation giving beakers, gold, culture) being almost never picked during the entire game (vs for example civic_heridetary_rule), even though the extra commerce per specialist should be quite attractive and strong especially if it applies to many specialists. Tweaked the commerce calculation formula in `CvPlayerAI::AI_civicValue` so it uses stronger advciv-sas's custom commerce weights, and stronger commerce multipliers derived from the SAS weights (both being tunable). Results in autoplay in much more prevalent as of now civic_representation picks especially in the mid/late game, with still some civic_heridetary_rule and civic_universal_suffrage picks and back and forth as well so hopefully balanced and should lead to stronger AI as the yields are overall stronger and economically more efficient generally but anyways etc.
++
+ #### Technologies (AI)
+ 
+ - (Requires AdvCiv-SAS 5141+) overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 (not viewed as a military tech anymore), TECH_CIVIL_SERVICE 3->8 (viewed much more as a military tech, which matches our tech tree changes but also more generally should be more in line with its important military role anyways etc.))
+@@ -196,14 +203,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case anyways etc i know about the topic and quite cautiously and bit more if deemed necessary after double check with web search or and such or and comparing with other leaders anyways etc, for example increased as of now julius caesar's buildunitprob from 30 to 40, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, ramesses 2 from 20 to 25 which means they should build relatively quite if not quite bit lot but anyways etc more units than buildings/wonders if i am not mistaken anyways etc; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example anyways etc, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see Sevopedia/XML for details or/and updated values (altered slightly by DLL so small difference between XML and Sevopedia, but Sevopedia (i.e. after game start) value is the one applicable ingame) anyways etc.
+ - additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc
+-- fixed many religious inaccuracies in leaders, at least some or those i could spot with (being) enough certainty (certain enough) anyways etc, for example frederick the great was agnostic not christian, brennus seems to have leaned more towards no religion in gaul than paganism (not an accuracy just did not make him auto pagan) if i am not mistaken, cyrus not religious pagan but darius is, seemingly, chruchill not being so and really christian that he would (strongly (enough)) prefer it over other religions, (if i am not mistaken about these or/and others) anyways etc, see notes_about_religious_design.txt in the mod's google drive for details. For now only changed favourite religions and such. Did not change XML religious values of leaders even though ideally a todo, but since fits here better put it here than in todoes for exhaustiveness if i may say even though inconsistent with other todoes not being here but anyways etc
+-
+-#### Civics (AI)
+-
+-- (Requires AdvCiv-SAS 5103+) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs). Now replaced with opportunistic current unhappiness per city-based logic if it benefits us (only pick such a civic if enough of our cities that are unhappy because of the anger civic effect would gain happiness from it). Change in `CvPlayerAI::AI_civicValue`. Hopefully makes stronger civic choices thanks to this changes as appears to be so in autoplay before vs after change. See for details [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+-- (Requires AdvCiv-SAS 5106+) Fix the issue of AIs almost always picking civic_caste_system and then sticking to it no matter what: rewrote the unlimited specialist old logic in `CvPlayerAI::AI_civicValue` that would only value culture specialists, which seemingly led to civic_wage_labor (as of now unlimited engineers, see latest sevopedia/xml for updated values and details anyways etc) never being picked, even when AIs would much benefit from it, including when our ennemies are stronger than us (no point to run a scientist and then die, better capitalize on engineers or serfdom or such but anyways etc). Now we value unlimited specialists' yields (food, hammer, gold) and commerce (beakers, gold, culture, espionage) hierarchically (e.g. higher value per yield for food vs hammer, higher value per yield for beakers vs culture, etc.), so that we value unlimited specialists strategically on a per yield base. Also added high need logic (higher culture value per yield if culture win rush or BFC need quite similarly to old code, and now also higher hammer value per yield for engineers if our ennemies are strong (see code for latest settings anyways etc)). Results in autoplay are very good, we now switch back and forth between civic_slavery and civic_caste_system early (no longer perma caste system), and then later civic_wage_labor is much more popular among AIs. Civic_serfdom is also sometimes switched to late in the game. So the spread overall is much more even of unlimited specialist civics amongs AIs, which is fine and good as it suits their strategical needs much more if i may say but anyways etc. Added anarchy counting logic to devalue civics (less attractive if costly in turns, but still as attractive if no anarchy cost (traits, golden age, wonders, etc. (at least in theory i mean but check to be sure but anyways etc))), but it looks we still switch a bit too much still so may need some tweaking, but even as is should lead to much stronger and responsive AI hopefully, especially following future civic reworks. See for details with screenshots and such [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue).
+-- (Requires AdvCiv-SAS 5108+) Reduce excessive civics change oscillation (was partially masked by civic_caste_system being almost always picked it seems based on autoplay testing, now more prevalent after our civic valuation changes that also value other civics depending on the player's strategic needs but anyways) by adding an additional percent slack new logic (and rewriting the old logic as well) in `CvPlayerAI::AI_doCivics` so that for example a new civic needs to be at least 10% higher valuated to be chosen/switched to (tunable). Note: If percent slack is set too high, it may cause AIs to switch too rarely and react more slowly, but if too low it may be inefficient especially for players that have anarchy turns on civic change—adjust to taste. Note 2: for some reason as of now in some cases bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc.
+-- (Requires AdvCiv-SAS 5110+) Fix the issue of civics that give specialist extra commerce (as of now civic_representation giving beakers, gold, culture) being almost never picked during the entire game (vs for example civic_heridetary_rule), even though the extra commerce per specialist should be quite attractive and strong especially if it applies to many specialists. Tweaked the commerce calculation formula in `CvPlayerAI::AI_civicValue` so it uses stronger advciv-sas's custom commerce weights, and stronger commerce multipliers derived from the SAS weights (both being tunable). Results in autoplay in much more prevalent as of now civic_representation picks especially in the mid/late game, with still some civic_heridetary_rule and civic_universal_suffrage picks and back and forth as well so hopefully balanced and should lead to stronger AI as the yields are overall stronger and economically more efficient generally but anyways etc.
++- (Requires AdvCiv-SAS 5122+) Overhauled favourite civics for each leader as they were sometimes to quite often historically or/and thematically very inaccurate but anyways etc, or/and to match our civic changes in advciv-sas anyways etc. Done with the help of chatgpt 5.1 and other ais for review or/and such (check if accurate anyways etc). For example, changed julius caesar's favourite civic from representation to police state (he wasn't exactly the democratic guy xd although i don't know too much about him to tell (check if accurate anyways etc)), gandhi from universal suffrage to pacifism, boudica from universal suffrage to nationhood ("Historically she leads a revolt framed as defending “the people” and their land against Rome"), darius from free religion to bureaucracy (Darius is the system-builder), elizabeth from free religion to free market (more commerce leaning than secular religion leaning), huayna capac from hereditary rule to state property (incan economy was state controlled, no generic hereditary rule), napoleon from representation to nationhood ("Napoleon is the poster child for levée en masse and national armies fighting for “la nation”"), or pacal 2 from hereditary rule to caste system ("Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles" + "closer abstraction than a generic monarchy favourite"). Some civics remain at 0 leader favouring it as not thematical nor historical. See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc) but anyways etc.
++- fixed many favourite religion inaccuracies, at least some or those i could spot with (being) enough certainty (certain enough) anyways etc, for example frederick the great was agnostic not christian, brennus seems to have leaned more towards no religion in gaul than paganism (not an accuracy just did not make him auto pagan) if i am not mistaken, cyrus not religious pagan but darius is, seemingly, chruchill not being so and really christian that he would (strongly (enough)) prefer it over other religions, (if i am not mistaken about these or/and others) anyways etc., see [Assets Rebalancing table (Favourite religions)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#summary-of-the-favourite-religion-leaders-changes-in-advciv-sas-anyways-etc). For now only changed favourite religions and such. Did not change XML religious values of leaders even though ideally a todo, but since fits here better put it here than in todoes for exhaustiveness if i may say even though inconsistent with other todoes not being here but anyways etc. Note: an important nuance, is that a leader can prefer a religion without having said religion himself/herself/itself, for example genghis khan seems to have been tengrist something if i am not mistaken anyways etc, but (see notes linked above for details) still seems to have had a quite strong liking/preference for daoism, especially if he had to choose a religion among those in civ4, including none or daoism, if i am not mistaken about the recollection and analysis i read, so is just my opinion not necessarily accurate but convenient to fill daoism if accurate enough, and maybe accurate too in general anyways etc
+ 
+ #### Buildings (AI)
+ 
+@@ -336,6 +337,20 @@ Note: please see note here as well in this custom main changes guide about the .
+ - (Requires AdvCiv-SAS 5131+) add an option (default and recommended: enabled) to disable auto-citizen specialist auto assignments for the human player as well for convenience, as they are annoying to check in every city every turn, and this is still often a very inefficient specialist to choose unless absolutely necessary (no other plot nor good enough specialist but anyways etc, etc.). Code added in `CvCityAI::AI_jobChangeValue`. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it anyways etc.).
+ - (Requires AdvCiv-SAS 5132+) similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchants, auto priests, but not auto spies nor auto artists (as long as this is not overriden by external pieces of logic such as the forced artist until we have BFC or/and such)) for the human player as well for convenience. Code added in `CvCityAI::AI_jobChangeValue`(see as of now `CONVENIENCE_HUMAN` options to enable/disable them anyways etc.).
+ 
++### Traits (non-exhaustive, see sevopedia or/and xml for details)
++
++- traits have been reworked, some weak traits have been buffed or/and modified, while some other op traits may have been modified (not necessarily nerfed). For example, the protective trait has been buffed, as i had found it too weak or/and not relevant enough, and the industrious trait has been reworked (wonder building is ridiculous and op or not balanced, instead give worker and similar production based effect instead as of now (from expansive trait as of now that is reworked as well as of now anyways etc)). This is not necessarily for all traits but should still be for most. Please look at the Sevopedia "Traits" entries to have the latest updated version of the traits effects.
++- in particular, removed trait_expansive: was overlapping with our more general trait_protective (does not just protect defensively in our mod but also more generally protects health too and also has no anarchy (protects political stability more or less anyways etc)) and empire-expansion related trait_imperalist (settler discount same, but also trade route based scaling yield modifiers), so trait_expansive was redundant. Also, it was among weakest (flat health not so helpful) and hardest to balance (most often weak or some (very in this case i mean but anyways etc) rare times op) so removed.
++- removed trait_expansive related building modifiers (they were the granary and harbor in advciv-sas before, removed as too generic and op plus no good/relevant candidate to replace them in a balanced way but anyways etc)
++- changed imperialistic and organized trait char (the "logo"/"icon" in sevopedia traits if not in other places or not or yes or etc but anyways etc (done in [/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py) but anyways etc)), commented-out (i.e. disabled but anyways etc) the old trait_expansive info as we don't use it anymore as of now but anyways etc
++
++### Civics (non-exhaustive, see sevopedia or/and xml for details)
++
++- (Requires AdvCiv-SAS 5103+) some civics have been rebalanced. For example for CIVIC_REPRESENTATION, it was mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc (also upkeep changed from medium to high to match/counter-balance per specialist scaling and thematically to justify strong apparatus needed to maintian these systems anyways etc), or CIVIC_SLAVERY has been buffed (upkeep changed from medium to low to make it relevant longer as well as in the early game vs other civics for versatility), or CIVIC_CASTE_SYSTEM has been nerfed (as of now changed upkeep from medium to high, was too op (now is strong but requires some foundation to leverage it i mean but anyways etc)). Also for example buff CIVIC_VASSALAGE (change upkeep from UPKEEP_HIGH to UPKEEP_MEDIUM), and other changes
++- (Requires AdvCiv-SAS 5104+ to 5123+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game (note: in particular, the new civic_theocracy `iCivicPercentAnger` effect (a part of this civic's rework) uses a lower value of 200 instead of the value of 400 the former civic_emancipation had (note 1.2: value info added to sevopedia and civics advisor anyways etc)). Economy civics are also more specialized/distinct, and in particular the old environmentalism civic has been replaced with CIVIC_TRADE_BLOC (had nothing to do with economy and very poorly framed in civ4 just like tech_ecology's pedia entry was; now replaced with a regional union trade/league civic instead relevant much earlier in the game as well anyways etc); or CIVIC_PROTECTIONISM is now about having less trade not no trade (not isolationism); or CIVIC_STATE_PROPERTY that now restributes wealth (symbolized by some yields anyways etc): e.g. -20% hammer in capital and +10% in all cities is effectively only -20 + 10 = -10% in capital vs +10% in all other cities. These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc) that now and other reworks such as for CIVIC_NATIONHOOD.
++- some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
++- (Requires AdvCiv-SAS 5105+) Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Caste System is before Vassalage not after, Pacifism is before Theocracy not after) but anyways etc.
++
+ ### Technologies (non-exhaustive, see sevopedia or/and tech advisor or/and xml for details)
+ 
+ - tech tree is vastly reordered for historical accuracy (for example pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly. Total number of techs is same as in base advciv +/- civ4 too (didn't check how it was in civ4 exactly i mean but i assume so if i am not mistaken but anyways etc), due to the few assessed as inefficient techs removed in advciv-sas, there are now enough techs so that advciv-sas can now have a future era with several / a few techs, all announced by default civ4 announcer with some swapping so that the quote and corresponding audio fits quite well if i may say and if i am not mistaken but anyways etc anyways etc anyways etc.
+@@ -356,6 +371,23 @@ Note: please see note here as well in this custom main changes guide about the .
+ - similarly increased `iBuildPercent` and `iImprovementPercent` from 100/100/100/90/80/70/60 to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was but anyways etc.
+ - also increased `iCulturePercent` from 100/100/80/70/60/50/50 to 100 at all eras. I don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc).
+ 
++### Culture
++
++- rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 18 per turn anyways etc
++
++### Religions (non-exhaustive, see sevopedia or/and xml for details)
++
++- one new religion, paganism is added, confucianism is removed, maybe more early wars, also historically more relevant +/- accurate too i think, it also has much few adepts if i may say so makes sense to remove this one rather anyways etc. As for judaism, a similar reasoning could have been applied ideally, but it is significant due to preceding the other abrahamic based following religions so serves quite well as the first monotheistic instance representative in the game if i may say anyways etc (i don't know if another monotheistic religion existed before judaism (most likely, but from a quick search lat time i looked i mean anyways etc i didn't find any occurence or result, but i'd expect monotheism to be much older than judaism but is just a guess could or could not be mistaken ideally i'd research more into it if i want (but maybe not too important of a topic at least to me even though maybe "good" to know for general info but anyways etc) but anyways etc)) so keep it maybe as is both simple and nicely representating this part of religious history while keeping a low number of religions for efficiency as well as i seem to have read that 7 was deemed the efficient number firaxis or civ4 devs assessed to be if i am not mistaken in remembering this but anyways etc hopefully helpful or and informative this info and all i added and all or not or yes or other but anyways etc
++- missionaries have their cost significantly reduced
++- simplified monasteries rework: now a espionage with low great person modifier rate too, also does not obsolete / is not obsolete anymore at any tech i mean anyways etc, and before that does not give science which doesn't/didn't make sense at least to me, as religion drives further away from science not the opposite, plus was not balanced with other science buildings with this being a weird mix, hopefully clearer or more interesting this way if i may say or not or yes but anyways etc, see sevopedia ingame or and xml for details and/or updated values anyways etc
++- shrines now require a religion to be built, for example the daoist shrine now (also) requires to have the daoism religion, and not just own the holy city, this way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)), but also seems to make more sense unless i am mistaken or/and it (may?) create other issues possibly or maybe not, then (i'd) try it and see, this means for example conquerring a city is now not enough to build a shrine, you need the specific religion for it, which again seems to make more sense to me too so maybe an all in all better change, unless i am mistaken, but try and see, maybe works well or maybe not or yes or other, anyways etc
++- shrines now also require a tech to be built, which is their religion's tech requirement. This allows to make shrines to also appear in tech tree, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it (in tech tree display, also about the conquest thing or similar or other issues or examples of what may happen but anyways etc as these are world wonders unlike the temple, the monastery, and the cathedral), tech prerequirement for shrines was NONE. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc) for details if any more than this are there anyways such as the/some anyways etc screenshots or and such or and not anyways etc
++
++### Corporations (non-exhaustive, see sevopedia or/and xml for details)
++
++- corporation executives have their cost significantly reduced
++- have greater variety in great person type, one great person type per corporation type without overlap anyways etc, see xml or sevopedia for updated values anyways etc
++
+ ### Civilizations (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - new civilizations, for example as of now only the kingdom of benin anyways etc. See also world map with civilizations in this advciv-sas mod if i may say but anyways etc here [README.md#world-map-with-civs](/README.md#world-map-with-civs)
+@@ -363,6 +395,8 @@ Note: please see note here as well in this custom main changes guide about the .
+ ### Leaders (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - give each leader its own specific if i may say anyways etc music (for example cyrus and darius, or boudica and brennus for example anyways etc would share same music unlike most civ4 leader, now fixed/addressed if i may say anyways etc), see [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) for details
++- in addition to the above, overhauled all traits with a focus on historical accuracy most importantly, but also gameplay relevance (+/- civ-specific building and unit timing and effects as well but anyways etc) and overall civ theme to a lesser extent, with the help of chatgpt 5 and multiple rounds of review, +/- other AIs or not so much or yes in this case i mean but anyways etc. For example, julius caesar has been changed from organized + imperialist to aggressive + imperialist (war theme and strength), hammurabi has been changed from organized + aggressive to organized + protective (more of an administrator + defensive civ overall if i'm not mistaken but anyways etc), saladin has been changed from protective + spiritual to spiritual + charismatic (more of warmonger in civ4 + historical warmonger and charisma), isabella has been changed from spiritual + expansive to spiritual + aggressive (very ruthless campaigns), charlemagne has been changed from imperialistic + protective to aggressive + organized (more controversial according to chatgpt 5 but he was focused on conquest and doing admin of his empire. He seems to perform nice in some games so i hope this helps mesh better with his more aggressive overall civ4 profile if i'm not mistaken but anyways etc), or hatshepsut has been changed from spiritual + creative to spiritual + financial (historically more accurate according to chatgpt 5, plus will most likely buff her if i'm not mistaken, which is nice i think if i may say but anyways etc). See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc) but anyways etc. Note: as of now leaders' flavors unchanged for simplicity vs base advciv but anyways etc
++- the barbarian leader now has a distinct button (i.e. mini-image / "icon" (even though icons in civ4 are more like textual characters not mages if i am not mistaken but is to explain if i may say but anyways etc)) to make it distinct from genghis khan as was very inaccurately shown, visible in sevopedia civilization category mostly but also sevopedia leaders category to a esser extent if i may say in this case but anyways etc, button import from ri mod thanks anways etc thanks anyways etc
+ 
+ ### Barbarians (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -370,23 +404,6 @@ Note: please see note here as well in this custom main changes guide about the .
+ - added a code in `CvCityAI::AI_chooseBuilding` so barbarians don't waste hammer attempting to or building world wonders, which they sometimes could successfully do before other players due to their economic strength improvement. I suspect/assume issue was also in base advciv, and they just are now able to actually complete them before other players, unless some other xml change i did somehow triggered this, but most likely not and it was already there although i am not 100% sure but anyways etc. As a result of this no world wonder for barbarians change, barbarians may be more efficient with their hammers if they sank some of these in base advciv into attempting to build world wonders rather than say units but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc) for details anyways etc
+ - the barbarian workers are now a civ-specific unit that cannot be captured (this avoids worker farming abuse and is perhaps thematically relevant as well anyways etc), see sevopedia unit where this info has now been added, or `<Capture>` in XML for updated values anyways etc. (Note: the barbarian workboat is a civ-specific unit as of now but only for balance and lower costs purpose to help barbarians catch up, as of now no special effect otherwise from the base workboat if i'm not mistaken, check if accurate, anyways etc)
+ - Barbarian civ-specific buildings can be captured (`iConquestProb`) with half the chance of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
+-- the barbarian leader now has a distinct button (i.e. mini-image / "icon" (even though icons in civ4 are more like textual characters not mages if i am not mistaken but is to explain if i may say but anyways etc)) to make it distinct from genghis khan as was very inaccurately shown, visible in sevopedia civilization category mostly but also sevopedia leaders category to a esser extent if i may say in this case but anyways etc, button import from ri mod thanks anways etc thanks anyways etc
+-
+-### Traits (non-exhaustive, see sevopedia or/and xml for details)
+-
+-- traits have been reworked, some weak traits have been buffed or/and modified, while some other op traits may have been modified (not necessarily nerfed). For example, the protective trait has been buffed, as i had found it too weak or/and not relevant enough, and the industrious trait has been reworked (wonder building is ridiculous and op or not balanced, instead give worker and similar production based effect instead as of now (from expansive trait as of now that is reworked as well as of now anyways etc)). This is not necessarily for all traits but should still be for most. Please look at the Sevopedia "Traits" entries to have the latest updated version of the traits effects.
+-- in particular, removed trait_expansive: was overlapping with our more general trait_protective (does not just protect defensively in our mod but also more generally protects health too and also has no anarchy (protects political stability more or less anyways etc)) and empire-expansion related trait_imperalist (settler discount same, but also trade route based scaling yield modifiers), so trait_expansive was redundant. Also, it was among weakest (flat health not so helpful) and hardest to balance (most often weak or some (very in this case i mean but anyways etc) rare times op) so removed.
+-- in addition to the above, overhauled all traits with a focus on historical accuracy most importantly, but also gameplay relevance (+/- civ-specific building and unit timing and effects as well but anyways etc) and overall civ theme to a lesser extent, with the help of chatgpt 5 and multiple rounds of review, +/- other AIs or not so much or yes in this case i mean but anyways etc. For example, julius caesar has been changed from organized + imperialist to aggressive + imperialist (war theme and strength), hammurabi has been changed from organized + aggressive to organized + protective (more of an administrator + defensive civ overall if i'm not mistaken but anyways etc), saladin has been changed from protective + spiritual to spiritual + charismatic (more of warmonger in civ4 + historical warmonger and charisma), isabella has been changed from spiritual + expansive to spiritual + aggressive (very ruthless campaigns), charlemagne has been changed from imperialistic + protective to aggressive + organized (more controversial according to chatgpt 5 but he was focused on conquest and doing admin of his empire. He seems to perform nice in some games so i hope this helps mesh better with his more aggressive overall civ4 profile if i'm not mistaken but anyways etc), or hatshepsut has been changed from spiritual + creative to spiritual + financial (historically more accurate according to chatgpt 5, plus will most likely buff her if i'm not mistaken, which is nice i think if i may say but anyways etc). See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc) but anyways etc. Note: as of now leaders' flavors unchanged for simplicity vs base advciv but anyways etc
+-- removed trait_expansive related building modifiers (they were the granary and harbor in advciv-sas before, removed as too generic and op plus no good/relevant candidate to replace them in a balanced way but anyways etc)
+-- changed imperialistic and organized trait char (the "logo"/"icon" in sevopedia traits if not in other places or not or yes or etc but anyways etc (done in [/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py) but anyways etc)), commented-out (i.e. disabled but anyways etc) the old trait_expansive info as we don't use it anymore as of now but anyways etc
+-
+-### Civics (non-exhaustive, see sevopedia or/and xml for details)
+-
+-- (Requires AdvCiv-SAS 5103+) some civics have been rebalanced. For example for CIVIC_REPRESENTATION, it was mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc (also upkeep changed from medium to high to match/counter-balance per specialist scaling and thematically to justify strong apparatus needed to maintian these systems anyways etc), or CIVIC_SLAVERY has been buffed (upkeep changed from medium to low to make it relevant longer as well as in the early game vs other civics for versatility), or CIVIC_CASTE_SYSTEM has been nerfed (as of now changed upkeep from medium to high, was too op (now is strong but requires some foundation to leverage it i mean but anyways etc)). Also for example buff CIVIC_VASSALAGE (change upkeep from UPKEEP_HIGH to UPKEEP_MEDIUM), and other changes
+-- (Requires AdvCiv-SAS 5104+ to 5123+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game (note: in particular, the new civic_theocracy `iCivicPercentAnger` effect (a part of this civic's rework) uses a lower value of 200 instead of the value of 400 the former civic_emancipation had (note 1.2: value info added to sevopedia and civics advisor anyways etc)). Economy civics are also more specialized/distinct, and in particular the old environmentalism civic has been replaced with CIVIC_TRADE_BLOC (had nothing to do with economy and very poorly framed in civ4 just like tech_ecology's pedia entry was; now replaced with a regional union trade/league civic instead relevant much earlier in the game as well anyways etc); or CIVIC_PROTECTIONISM is now about having less trade not no trade (not isolationism); or CIVIC_STATE_PROPERTY that now restributes wealth (symbolized by some yields anyways etc): e.g. -20% hammer in capital and +10% in all cities is effectively only -20 + 10 = -10% in capital vs +10% in all other cities. These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc) that now and other reworks such as for CIVIC_NATIONHOOD.
+-- some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
+-- (Requires AdvCiv-SAS 5105+) Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Caste System is before Vassalage not after, Pacifism is before Theocracy not after) but anyways etc.
+-- (Requires AdvCiv-SAS 5122+) Overhauled favourite civics for each leader as they were sometimes to quite often historically or/and thematically very inaccurate but anyways etc, or/and to match our civic changes in advciv-sas anyways etc. Done with the help of chatgpt 5.1 and other ais for review or/and such (check if accurate anyways etc). For example, changed julius caesar's favourite civic from representation to police state (he wasn't exactly the democratic guy xd although i don't know too much about him to tell (check if accurate anyways etc)), gandhi from universal suffrage to pacifism, boudica from universal suffrage to nationhood ("Historically she leads a revolt framed as defending “the people” and their land against Rome"), darius from free religion to bureaucracy (Darius is the system-builder), elizabeth from free religion to free market (more commerce leaning than secular religion leaning), huayna capac from hereditary rule to state property (incan economy was state controlled, no generic hereditary rule), napoleon from representation to nationhood ("Napoleon is the poster child for levée en masse and national armies fighting for “la nation”"), or pacal 2 from hereditary rule to caste system ("Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles" + "closer abstraction than a generic monarchy favourite"). Some civics remain at 0 leader favouring it as not thematical nor historical. See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc) but anyways etc.
+ 
+ ### Buildings (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -403,24 +420,6 @@ Note: please see note here as well in this custom main changes guide about the .
+ - add `BuildingClassNeededs` (i.e. building classes required in city in order to be able to build this building if i am not mistaken but anyways etc) to some buildings so that AIs build them less and focus more on production of military units or wonders or any generally if not in most cases but anyways etc more relevant efficient thing to build if i may say but anyways etc. Is also culturally or thematically more consistent. For example, the drydock, a naval unit production boosting for most but anyways etc building now requires the building_port (see water tiles or such change or sevopedia ingame about this new as of now production-based building for details anyways etc) to be built in the city anyways etc. I tried to limit these new additions to buildings where it is relevant and does not cripple or needlessly slow the game or make building buildings (no pun but anyways etc...) tedious or painful or not worth it economically in this case i mean as well but anyways etc.
+ - adjusted culture of some buildings, in particular science buildings which are op enough already and have good science benefits/modifiers already as now now have reduced culture, for example from as of now +2 to +1 for the library, and done similarly for not purely cultural national wonders for balance as well as they are a bit op already (as of now the heroic epic, national epic, forbidden palace). Hopefully more balanced this way, plus indirectly makes culture buildings more valuable; also since everyone builds libraries and such, not much point gaiing free culture for all players this way, also thematically makes more sense if actual cultural buildings give more culture if i may say but anyways etc. Buffed and reworked culture-specific buildings such as of now as the colosseum and its civ-specific variants to make them more relevant and strengthen the culture path anyways etc.
+ 
+-### Culture
+-
+-- rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 18 per turn anyways etc
+-
+-### Religions (non-exhaustive, see sevopedia or/and xml for details)
+-
+-- one new religion, paganism is added, confucianism is removed, maybe more early wars, also historically more relevant +/- accurate too i think, it also has much few adepts if i may say so makes sense to remove this one rather anyways etc. As for judaism, a similar reasoning could have been applied ideally, but it is significant due to preceding the other abrahamic based following religions so serves quite well as the first monotheistic instance representative in the game if i may say anyways etc (i don't know if another monotheistic religion existed before judaism (most likely, but from a quick search lat time i looked i mean anyways etc i didn't find any occurence or result, but i'd expect monotheism to be much older than judaism but is just a guess could or could not be mistaken ideally i'd research more into it if i want (but maybe not too important of a topic at least to me even though maybe "good" to know for general info but anyways etc) but anyways etc)) so keep it maybe as is both simple and nicely representating this part of religious history while keeping a low number of religions for efficiency as well as i seem to have read that 7 was deemed the efficient number firaxis or civ4 devs assessed to be if i am not mistaken in remembering this but anyways etc hopefully helpful or and informative this info and all i added and all or not or yes or other but anyways etc
+-- missionaries have their cost significantly reduced
+-- simplified monasteries rework: now a espionage with low great person modifier rate too, also does not obsolete / is not obsolete anymore at any tech i mean anyways etc, and before that does not give science which doesn't/didn't make sense at least to me, as religion drives further away from science not the opposite, plus was not balanced with other science buildings with this being a weird mix, hopefully clearer or more interesting this way if i may say or not or yes but anyways etc, see sevopedia ingame or and xml for details and/or updated values anyways etc
+-- shrines now require a religion to be built, for example the daoist shrine now (also) requires to have the daoism religion, and not just own the holy city, this way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)), but also seems to make more sense unless i am mistaken or/and it (may?) create other issues possibly or maybe not, then (i'd) try it and see, this means for example conquerring a city is now not enough to build a shrine, you need the specific religion for it, which again seems to make more sense to me too so maybe an all in all better change, unless i am mistaken, but try and see, maybe works well or maybe not or yes or other, anyways etc
+-- shrines now also require a tech to be built, which is their religion's tech requirement. This allows to make shrines to also appear in tech tree, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it (in tech tree display, also about the conquest thing or similar or other issues or examples of what may happen but anyways etc as these are world wonders unlike the temple, the monastery, and the cathedral), tech prerequirement for shrines was NONE. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc) for details if any more than this are there anyways such as the/some anyways etc screenshots or and such or and not anyways etc
+-- in particular, an important nuance, is that a leader can prefer a religion without having said religion himself/herself/itself, for example genghis khan seems to have been tengrist something if i am not mistaken anyways etc, but (see notes linked above for details) still seems to have had a quite strong liking/preference for daoism, especially if he had to choose a religion among those in civ4, including none or daoism, if i am not mistaken about the recollection and analysis i read, so is just my opinion not necessarily accurate but convenient to fill daoism if accurate enough, and maybe accurate too in general anyways etc
+-
+-### Corporations (non-exhaustive, see sevopedia or/and xml for details)
+-
+-- corporation executives have their cost significantly reduced
+-- have greater variety in great person type, one great person type per corporation type without overlap anyways etc, see xml or sevopedia for updated values anyways etc
+-
+ ### Civilian Units
+ 
+ - increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anyways etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 006a88191..a11e1cb79 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -24,9 +24,9 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ &emsp;&emsp;[City Plots (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#city-plots-ai)  
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#city-production-ai)  
+ &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-ai)  
++&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-ai)  
+ &emsp;&emsp;[Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#leaders-ai)  
+-&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#buildings-ai)  
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#military-ai)  
+@@ -36,17 +36,17 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ &emsp;[Bonuses (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#bonuses-non-exhaustive)  
+ &emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#improvements--worker-builds-non-exhaustive)  
+ &emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#specialists-non-exhaustive)  
++&emsp;[Traits (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#traits-non-exhaustive)  
++&emsp;[Civics (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-non-exhaustive)  
+ &emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#eras)  
++&emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#culture)  
++&emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#religions-non-exhaustive)  
++&emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#corporations-non-exhaustive)  
+ &emsp;[Civilizations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civilizations-non-exhaustive)  
+ &emsp;[Leaders (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#leaders-non-exhaustive)  
+ &emsp;[Barbarians (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#barbarians-non-exhaustive)  
+-&emsp;[Traits (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#traits-non-exhaustive)  
+-&emsp;[Civics (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-non-exhaustive)  
+ &emsp;[Buildings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#buildings-non-exhaustive)  
+-&emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#culture)  
+-&emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#religions-non-exhaustive)  
+-&emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#corporations-non-exhaustive)  
+ &emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civilian-units)  
+ &emsp;[Military & related units (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#military--related-units-non-exhaustive)  
+ [Fixes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#fixes)  
+@@ -176,6 +176,13 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc).
+ - Exception to the previous rule, and AI enhancement: If a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+ 
++#### Civics (AI)
++
++- (Requires AdvCiv-SAS 5103+) **Civic “Percent Anger” logic (rework):** Fixed the AI tendency to adopt any civic with `iCivicPercentAnger` (e.g. the former CIVIC_EMANCIPATION) just because rivals have it, regardless of its actual value. Replaced with an **opportunistic per-city check**: only consider such civics when enough of our cities would directly **lose anger** from the switch. Implemented in `CvPlayerAI::AI_civicValue`. In autoplay before/after tests, civic choices appeared **stronger**. See [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
++- (Requires AdvCiv-SAS 5106+) **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers = Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added “high-need” boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery↔Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
++- (Requires AdvCiv-SAS 5108+) **Civic-switch damping (anti-oscillation):** Reworked `CvPlayerAI::AI_doCivics` to add a **percent-slack** gate: a new civic must outscore the current one by **~10%** to trigger a switch. Goal: reduce rapid flip-flopping exposed after the broader civic valuation work. *Note:* If the slack is too high, AIs switch **too rarely** and **react more slowly**; if too low, oscillation returns and players with **anarchy-on-switch** waste turns. *Note 2:* in some cases bypassed/ignored by AIs entirely for some reason.
++- (Requires AdvCiv-SAS 5110+) **Civic valuation — specialist commerce accounted for:** Civics that grant **extra commerce per specialist** (e.g., `CIVIC_REPRESENTATION` → beakers/gold/culture) were undervalued and thus rarely chosen. Updated `CvPlayerAI::AI_civicValue` to apply SAS **commerce weights** and stronger **derived multipliers**, so large specialist counts are priced properly. *Observed in autoplay:* more Representation picks in mid/late game, with continued Hereditary Rule/Universal Suffrage variation. Adjust to taste.
++
+ #### Technologies (AI)
+ 
+ - (Requires AdvCiv-SAS 5141+) **Tech military flavor overhaul:** Retuned `FLAVOR_MILITARY` on many techs so the AI better recognizes their true military importance (e.g. `TECH_CORPORATION` **3 → 0** — no longer treated as a military tech; `TECH_CIVIL_SERVICE` **3 → 8** — now strongly flagged as military to better match its role in the reworked tree and its general impact).
+@@ -186,14 +193,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - **Leaders — targeted `iBuildUnitProb` edits:** Julius Caesar 30→40; Augustus Caesar 25→30; Qin Shi Huang 20→30; Genghis Khan 35→40; Alexander 35→40; Tokugawa 30→35; Stalin 30→35; Brennus 30→35; Boudica 30→35; Catherine 25→30; Mao Zedong 25→35; Isabella 25→30; Kublai Khan 25→30; Ramesses II 20→25. Reductions: Willem van Oranje 25→20; Justinian I 35→30; Sitting Bull 35→30; Zara Yaqob 30→25; Mansa Musa 25→20.
+ - **Global change:** +10 to `iBuildUnitProb` for **all leaders** (applied on top of the per-leader edits).
+-- Corrected favorite religions where historical support was weak or inaccurate; scope limited to “favorite religion” for now (see your notes file for sources).
+-
+-#### Civics (AI)
+-
+-- (Requires AdvCiv-SAS 5103+) **Civic “Percent Anger” logic (rework):** Fixed the AI tendency to adopt any civic with `iCivicPercentAnger` (e.g. the former CIVIC_EMANCIPATION) just because rivals have it, regardless of its actual value. Replaced with an **opportunistic per-city check**: only consider such civics when enough of our cities would directly **lose anger** from the switch. Implemented in `CvPlayerAI::AI_civicValue`. In autoplay before/after tests, civic choices appeared **stronger**. See [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+-- (Requires AdvCiv-SAS 5106+) **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers = Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added “high-need” boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery↔Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
+-- (Requires AdvCiv-SAS 5108+) **Civic-switch damping (anti-oscillation):** Reworked `CvPlayerAI::AI_doCivics` to add a **percent-slack** gate: a new civic must outscore the current one by **~10%** to trigger a switch. Goal: reduce rapid flip-flopping exposed after the broader civic valuation work. *Note:* If the slack is too high, AIs switch **too rarely** and **react more slowly**; if too low, oscillation returns and players with **anarchy-on-switch** waste turns. *Note 2:* in some cases bypassed/ignored by AIs entirely for some reason.
+-- (Requires AdvCiv-SAS 5110+) **Civic valuation — specialist commerce accounted for:** Civics that grant **extra commerce per specialist** (e.g., `CIVIC_REPRESENTATION` → beakers/gold/culture) were undervalued and thus rarely chosen. Updated `CvPlayerAI::AI_civicValue` to apply SAS **commerce weights** and stronger **derived multipliers**, so large specialist counts are priced properly. *Observed in autoplay:* more Representation picks in mid/late game, with continued Hereditary Rule/Universal Suffrage variation. Adjust to taste.
++- (Requires AdvCiv-SAS 5122+) **Favourite civics rework (leader-specific):** Reassigned each leader’s favourite civic for better historical or/and thematic fit and to align with AdvCiv-SAS civic changes, using ChatGPT 5.1 + other AIs and manual review. Examples: Julius Caesar — Representation → Police State (authoritarian strongman rather than democrat); Gandhi — Universal Suffrage → Pacifism; Boudica — Universal Suffrage → Nationhood (“defending the people and their land” against Rome); Darius — Free Religion → Bureaucracy (imperial system-builder); Elizabeth — Free Religion → Free Market (commerce-focused); Huayna Capac — Hereditary Rule → State Property (state-controlled Incan economy); Napoleon — Representation → Nationhood (levée en masse, national armies); Pacal II — Hereditary Rule → Caste System (highly stratified Classic Maya society). Some civics are left with **no** favourite leader when no clear historical match exists. Full before/after with rationale: [Assets Rebalancing table (Favourite civics)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc).
++- **Religious flavor clean-up (leaders):** Adjusted favourite religions / religious preferences where they looked clearly off or overstated, based on a conservative reading of sources (see [Assets Rebalancing table (Favourite religions)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#summary-of-the-favourite-religion-leaders-changes-in-advciv-sas-anyways-etc)). **Examples**: Frederick no longer treated as strongly Christian (leaning more agnostic); Brennus no longer hard-coded as “always Pagan”; Cyrus toned down as explicitly Pagan while Darius remains more strongly religious; Churchill no longer modeled as a strong Christian preference; and Genghis Khan is set to *favour* Daoism while personally remaining Tengrist in spirit—illustrating that **a leader can mechanically prefer a religion without “having” it** in-universe. For now this is limited to favourite-religion–style fields; numeric XML religion weights are unchanged.
+ 
+ #### Buildings (AI)
+ 
+@@ -317,6 +318,19 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - (Requires AdvCiv-SAS 5131+) Add an option (default/recommended: **enabled**) to disable **auto-Citizen specialist** assignments for the **human** player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
+ - (Requires AdvCiv-SAS 5132+) Add a similar option (default **disabled**) to restrict **other auto-specialist** assignments for the **human** player (e.g. allow auto-Scientists/Engineers/Merchants/Priests, but block auto-Spies and auto-Artists), for players who prefer tighter manual control. Does not override explicit helper logic such as the “force one Artist until BFC” rule. Implemented in `CvCityAI::AI_jobChangeValue`. Tunable via `CONVENIENCE_HUMAN` defines.
+ 
++### Traits (non-exhaustive)
++
++- Several traits reworked. Weaker ones are buffed/modified; some previously OP ones are adjusted. Example: **Protective** is stronger; **Industrious** shifts away from “wonders faster” toward **worker/production-oriented** effects (elements formerly in Expansive). See in-game Sevopedia → Traits for current effects (+x culture / +x hammer / +x commerce as listed there).
++- **Removed trait — Expansive:** In AdvCiv-SAS, **Protective** is broadened from “just city defense” to an empire-wide protection theme: it now also covers health and no anarchy (political stability), and with **Imperialist** already handling expansion (settler discount + now also trade-route–scaled yields), **Expansive** no longer had a distinct role, was overlapping with the former, and was weak/volatile to balance → removed.
++- **Expansive trait clean-up:** Removed its building modifiers (**Granary**, **Harbor**)—too generic/OP and no balanced replacements.
++- **Trait icons (UI) & cleanup:** Updated the Sevopedia “char” (glyph/logo) for **Imperialist** and **Organized** traits; commented out the obsolete **Expansive** trait entries now that the trait is removed. Implemented in [/Assets/Python/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py).
++
++### Civics (non-exhaustive)
++
++- (Requires AdvCiv-SAS 5103+) **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing; **Upkeep: Medium → High** to counter-balance its per-specialist scaling and thematically reflect the heavier apparatus needed to sustain such systems); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
++- (Requires AdvCiv-SAS 5104+ to 5123+) **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation) (value info added to Sevopedia and Civics Advisor); economy civics are also more specialized/distinct, e.g. the old Environmentalism civic is replaced with `CIVIC_TRADE_BLOC` (earlier regional union/league-style trade civic); `CIVIC_PROTECTIONISM` is now about having **less trade**, not **no trade** (not isolationism); and `CIVIC_STATE_PROPERTY` now redistributes wealth via yield shifts (e.g. −20% hammers in the capital, +10% in all cities → effectively -20 + 10 = −10% in the capital, vs +10% in all other cities); plus other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
++- (Requires AdvCiv-SAS 5105+) **Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Caste System** before **Vassalage**; **Pacifism** before **Theocracy**.
++
+ ### Technologies (non-exhaustive)
+ 
+ - **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
+@@ -337,6 +351,22 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**. The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
+ - **Eras — culture scaling flattened**: set `iCulturePercent` from **100/100/80/70/60/50/50 → 100** at **all eras**. Removes late-era culture acceleration so culture growth stays **consistent** and driven by **commerce/buildings**, not hidden era multipliers. In **AdvCiv-SAS**, if we ever want modern (or ancient) culture to weigh differently, we prefer adjusting the **explicit culture values on buildings/units** rather than reintroducing era-wide modifiers.
+ 
++### Culture
++
++- **Great Artist** rework: instant culture bomb **reduced** (e.g., **700 → 500** per era), culture **per turn increased** (e.g., **12 → 18** culture/turn). This strengthens long-term culture play while toning down early spikes.
++
++### Religions (non-exhaustive)
++
++- **Religions roster**: added **Paganism**; removed **Confucianism** (chosen partly because it has **fewer adherents** in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
++- **Missionaries:** significantly **cheaper**.
++- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer).
++- **Shrines** now **require their religion in the city and the religion’s tech** (so they appear in the tech tree and can’t be built just by conquest). See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion) and [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree).
++
++### Corporations (non-exhaustive)
++
++- **Executives:** significantly **cheaper**.
++- Each corporation now uses **one distinct Great Person** type (no overlaps).
++
+ ### Civilizations (non-exhaustive)
+ 
+ - New civs added (e.g., **Kingdom of Benin**). See [World map with civs](/README.md#world-map-with-civs).
+@@ -344,6 +374,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Leaders (non-exhaustive)
+ 
+ - Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer).
++- **Trait overhaul (leader assignments):** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*; Charlemagne — Imperialistic + Protective → Aggressive + Organized *(although it is historically debatable, he emphasized conquest and administration; meshes with his more forceful Civ IV profile)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale: [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc). *Note: leader “flavors” unchanged.*
++- Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s). See XML for the new button source credit.
+ 
+ ### Barbarians (non-exhaustive)
+ 
+@@ -352,22 +384,6 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
+ - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).
+ - Barbarian **workboat** is civ-specific mainly for cost/balance.
+-- Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s). See XML for the new button source credit.
+-
+-### Traits (non-exhaustive)
+-
+-- Several traits reworked. Weaker ones are buffed/modified; some previously OP ones are adjusted. Example: **Protective** is stronger; **Industrious** shifts away from “wonders faster” toward **worker/production-oriented** effects (elements formerly in Expansive). See in-game Sevopedia → Traits for current effects (+x culture / +x hammer / +x commerce as listed there).
+-- **Removed trait — Expansive:** In AdvCiv-SAS, **Protective** is broadened from “just city defense” to an empire-wide protection theme: it now also covers health and no anarchy (political stability), and with **Imperialist** already handling expansion (settler discount + now also trade-route–scaled yields), **Expansive** no longer had a distinct role, was overlapping with the former, and was weak/volatile to balance → removed.
+-- **Trait overhaul (leader assignments):** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*; Charlemagne — Imperialistic + Protective → Aggressive + Organized *(although it is historically debatable, he emphasized conquest and administration; meshes with his more forceful Civ IV profile)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale: [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc). *Note: leader “flavors” unchanged.*
+-- **Expansive trait clean-up:** Removed its building modifiers (**Granary**, **Harbor**)—too generic/OP and no balanced replacements.
+-- **Trait icons (UI) & cleanup:** Updated the Sevopedia “char” (glyph/logo) for **Imperialist** and **Organized** traits; commented out the obsolete **Expansive** trait entries now that the trait is removed. Implemented in [/Assets/Python/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py).
+-
+-### Civics (non-exhaustive)
+-
+-- (Requires AdvCiv-SAS 5103+) **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing; **Upkeep: Medium → High** to counter-balance its per-specialist scaling and thematically reflect the heavier apparatus needed to sustain such systems); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
+-- (Requires AdvCiv-SAS 5104+ to 5123+) **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation) (value info added to Sevopedia and Civics Advisor); economy civics are also more specialized/distinct, e.g. the old Environmentalism civic is replaced with `CIVIC_TRADE_BLOC` (earlier regional union/league-style trade civic); `CIVIC_PROTECTIONISM` is now about having **less trade**, not **no trade** (not isolationism); and `CIVIC_STATE_PROPERTY` now redistributes wealth via yield shifts (e.g. −20% hammers in the capital, +10% in all cities → effectively -20 + 10 = −10% in the capital, vs +10% in all other cities); plus other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
+-- (Requires AdvCiv-SAS 5105+) **Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Caste System** before **Vassalage**; **Pacifism** before **Theocracy**.
+-- (Requires AdvCiv-SAS 5122+) **Favourite civics rework (leader-specific):** Reassigned each leader’s favourite civic for better historical or/and thematic fit and to align with AdvCiv-SAS civic changes, using ChatGPT 5.1 + other AIs and manual review. Examples: Julius Caesar — Representation → Police State (authoritarian strongman rather than democrat); Gandhi — Universal Suffrage → Pacifism; Boudica — Universal Suffrage → Nationhood (“defending the people and their land” against Rome); Darius — Free Religion → Bureaucracy (imperial system-builder); Elizabeth — Free Religion → Free Market (commerce-focused); Huayna Capac — Hereditary Rule → State Property (state-controlled Incan economy); Napoleon — Representation → Nationhood (levée en masse, national armies); Pacal II — Hereditary Rule → Caste System (highly stratified Classic Maya society). Some civics are left with **no** favourite leader when no clear historical match exists. Full before/after with rationale: [Assets Rebalancing table (Favourite civics)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-changes-favourite-civics-per-leader-anyways-etc).
+ 
+ ### Buildings (non-exhaustive)
+ 
+@@ -389,23 +405,6 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
+ - **Culture rebalance:** Trimmed incidental culture from science buildings (e.g., **Library: +2 → +1**) and from some non-purely-cultural national wonders (**Heroic Epic**, **National Epic**, **Forbidden Palace**). In exchange, **buffed/reworked culture-focused buildings** (e.g., **Colosseum** and civ variants) to keep the culture path meaningful.
+ 
+-### Culture
+-
+-- **Great Artist** rework: instant culture bomb **reduced** (e.g., **700 → 500** per era), culture **per turn increased** (e.g., **12 → 18** culture/turn). This strengthens long-term culture play while toning down early spikes.
+-
+-### Religions (non-exhaustive)
+-
+-- **Religions roster**: added **Paganism**; removed **Confucianism** (chosen partly because it has **fewer adherents** in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
+-- **Missionaries:** significantly **cheaper**.
+-- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer).
+-- **Shrines** now **require their religion in the city and the religion’s tech** (so they appear in the tech tree and can’t be built just by conquest). See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion) and [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree).
+-- **Note on leader preferences:** a leader may **prefer** a religion without adopting it (role-play nuance; see your notes linked from the KI entries).
+-
+-### Corporations (non-exhaustive)
+-
+-- **Executives:** significantly **cheaper**.
+-- Each corporation now uses **one distinct Great Person** type (no overlaps).
+-
+ ### Civilian Units
+ 
+ - `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=123654

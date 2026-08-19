@@ -1,0 +1,546 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 248
+# Commit: bdd0f0ffd474fd59c601f487541595c9d5cae931
+# History segment: K-Mod history
+# Parent used for diff: 9610793f7f71314dd5ce5f222c61cbe7ae949cbf
+# Title: Fixed some problems with the AI_airStrike, which were preventing it from fully fulfilling it's new role. Tweaked the condition for AI spies using city revolt...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	4	CvGameCoreDLL/CvCityAI.cpp
+4	1	CvGameCoreDLL/CvPlayer.cpp
+62	14	CvGameCoreDLL/CvPlayerAI.cpp
+20	2	CvGameCoreDLL/CvTeamAI.cpp
+79	93	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e27e4cb56..6793bd2dd 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5451,10 +5451,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 							iHqValue *= getTotalCommerceRateModifier((CommerceTypes)iI);
+ 							iHqValue *= kOwner.AI_commerceWeight((CommerceTypes)iI, this);
+ 							iHqValue /= 10000;
+-							// use rank as a tie-breaker
++							// use rank as a tie-breaker... with number of national wonders thrown in to,
++							// (I'm trying to boost the chance that the AI will put wallstreet with its corp HQs.)
+ 							if (iHqValue > 0)
+ 							{
+-								iHqValue *= 3*iNumCities - findCommerceRateRank((CommerceTypes)iI);
++								iHqValue *= 3*iNumCities - findCommerceRateRank((CommerceTypes)iI) - getNumNationalWonders();
+ 								iHqValue /= 2*iNumCities;
+ 							}
+ 							iCorpValue += iHqValue;
+@@ -8307,7 +8308,8 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 
+ 				if (eProductionBuilding != NO_BUILDING)
+ 				{
+-					int iValuePerTurn = AI_buildingValue(eProductionBuilding, BUILDINGFOCUS_GOLD | BUILDINGFOCUS_MAINTENANCE | BUILDINGFOCUS_PRODUCTION);
++					//int iValuePerTurn = AI_buildingValue(eProductionBuilding, BUILDINGFOCUS_GOLD | BUILDINGFOCUS_MAINTENANCE | BUILDINGFOCUS_PRODUCTION);
++					int iValuePerTurn = AI_buildingValue(eProductionBuilding); // K-Mod
+ 					
+ 					iValuePerTurn /= 3;
+ 					
+@@ -9696,7 +9698,7 @@ void CvCityAI::AI_juggleCitizens()
+ 		if (iCycles > getPopulation() + iTotalFreeSpecialists)
+ 		{
+ 			// This isn't a serious problem. I just want to know how offen it happens.
+-			FAssertMsg(false, "juggle citizens failed to find a stable solution.");
++			//FAssertMsg(false, "juggle citizens failed to find a stable solution.");
+ 			break;
+ 		}
+ 		iCycles++;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 108cc7684..a4adb7e22 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -17223,6 +17223,8 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_bExtendedGame);
+ 	pStream->Read(&m_bFoundedFirstCity);
+ 	pStream->Read(&m_bStrike);
++	if (uiFlag >= 2)
++		pStream->Read(&m_bChoosingFreeTech); // K-Mod
+ 
+ 	pStream->Read((int*)&m_eID);
+ 	pStream->Read((int*)&m_ePersonalityType);
+@@ -17581,7 +17583,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+ 
+-	uint uiFlag = 1;
++	uint uiFlag = 2;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iStartingX);
+@@ -17688,6 +17690,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_bExtendedGame);
+ 	pStream->Write(m_bFoundedFirstCity);
+ 	pStream->Write(m_bStrike);
++	pStream->Write(m_bChoosingFreeTech); // K-Mod (uiFlag >= 2)
+ 
+ 	pStream->Write(m_eID);
+ 	pStream->Write(m_ePersonalityType);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8ba6e5d8e..948c09717 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4657,8 +4657,10 @@ int CvPlayerAI::AI_goldTarget() const
+ 			iGold *= 10;
+ 		}
+ 
+-		iGold += (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
++		//iGold += (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
++		iGold += AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 3); // K-Mod
+ 
++		/* original bts code
+ 		CorporationTypes eActiveCorporation = NO_CORPORATION;
+ 		for (int iI = 0; iI < GC.getNumCorporationInfos(); iI++)
+ 		{
+@@ -4673,7 +4675,27 @@ int CvPlayerAI::AI_goldTarget() const
+ 			int iSpreadCost = std::max(0, GC.getCorporationInfo(eActiveCorporation).getSpreadCost() * (100 + calculateInflationRate()));
+ 			iSpreadCost /= 50;
+ 			iGold += iSpreadCost;
++		} */
++		// K-Mod
++		int iSpreadCost = 0;
++
++		if (!isNoCorporations())
++		{
++			for (int iI = 0; iI < GC.getNumCorporationInfos(); iI++)
++			{
++				if (getHasCorporationCount((CorporationTypes)iI) > 0)
++				{
++					iSpreadCost = std::max(iSpreadCost, GC.getCorporationInfo((CorporationTypes)iI).getSpreadCost());
++				}
++			}
+ 		}
++		if (iSpreadCost > 0)
++		{
++			iSpreadCost *= 100 + calculateInflationRate();
++			iSpreadCost /= 50;
++			iGold += iSpreadCost;
++		}
++		// K-Mod end
+ 	}
+ 
+ 	return iGold + AI_getExtraGoldTarget();
+@@ -5875,7 +5897,12 @@ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bE
+ 	{
+ 		eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)));
+ 
+-		if (eLoopBuilding != NO_BUILDING)
++		//if (eLoopBuilding != NO_BUILDING)
++		// K-Mod. don't count corp hq, academies, or another buildings that require a great person.
++		// (it's not that these buildings don't deserve to be counted; but rather that this function isn't
++		// smart enough to properly account for their rarity. I'm not a fan of this function...)
++		if (eLoopBuilding != NO_BUILDING && GC.getBuildingInfo(eLoopBuilding).getProductionCost() > 0)
++		// K-Mod end
+ 		{
+ 			CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+ 			if (isTechRequiredForBuilding((eTech), eLoopBuilding))
+@@ -5990,9 +6017,13 @@ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bE
+ 
+ 									if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1))
+ 									{
+-										if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) >= 3 || 
++										/*if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) >= 3 || 
+ 											kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) >= 3 ||
+-											kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) >= 10)
++											kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) >= 10)*/
++										// K-Mod. Lets not fall over ourselves to get a small-culture wonder.
++										if (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) +
++											kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) >= 4 ||
++											kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) >= 20)
+ 										{
+ 											iValue += 400;
+ 										}
+@@ -6774,9 +6805,11 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 	FAssertMsg(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 
++	const CvTeamAI& kOurTeam = GET_TEAM(getTeam()); // K-Mod
++
+ 	if (GET_PLAYER(ePlayer).getTeam() == getTeam()
+ 		|| GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam())
+-		|| GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()))
++		|| kOurTeam.isVassal(GET_PLAYER(ePlayer).getTeam()))
+ 	{
+ 		return true;
+ 	}
+@@ -6790,12 +6823,25 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 	{
+ 		// K-Mod
+-		if (GET_TEAM(getTeam()).isHuman())
++		if (kOurTeam.isHuman())
+ 			return false;
++
++		if (kOurTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
++			(kOurTeam.AI_isChosenWar(GET_PLAYER(ePlayer).getTeam()) || kOurTeam.getAtWarCount(true, true) == 1) &&
++			kOurTeam.AI_getWarSuccessCapitulationRatio() > 0)
++		{
++			return false;
++		}
+ 		// K-Mod end
+-		int iRefuseDuration = (GC.getLeaderHeadInfo(getPersonalityType()).getRefuseToTalkWarThreshold() * ((GET_TEAM(getTeam()).AI_isChosenWar(GET_PLAYER(ePlayer).getTeam())) ? 2 : 1));
+ 
+-		int iOurSuccess = 1 + GET_TEAM(getTeam()).AI_getWarSuccess(GET_PLAYER(ePlayer).getTeam());
++		if (kOurTeam.isAVassal())
++		{
++			return false;
++		}
++
++		int iRefuseDuration = (GC.getLeaderHeadInfo(getPersonalityType()).getRefuseToTalkWarThreshold() * ((kOurTeam.AI_isChosenWar(GET_PLAYER(ePlayer).getTeam())) ? 2 : 1));
++		
++		int iOurSuccess = 1 + kOurTeam.AI_getWarSuccess(GET_PLAYER(ePlayer).getTeam());
+ 		int iTheirSuccess = 1 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_getWarSuccess(getTeam());
+ 		if (iTheirSuccess > iOurSuccess * 2)
+ 		{
+@@ -6803,12 +6849,7 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 			iRefuseDuration /= 100;
+ 		}
+ 
+-		if (GET_TEAM(getTeam()).AI_getAtWarCounter(GET_PLAYER(ePlayer).getTeam()) < iRefuseDuration)
+-		{
+-			return false;
+-		}
+-
+-		if (GET_TEAM(getTeam()).isAVassal())
++		if (kOurTeam.AI_getAtWarCounter(GET_PLAYER(ePlayer).getTeam()) < iRefuseDuration)
+ 		{
+ 			return false;
+ 		}
+@@ -20155,6 +20196,13 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 						bValid = false;
+ 					}
+ 				}
++				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_DEFENSE && GET_TEAM(getTeam()).getAtWarCount(true) > 0)
++				{
++					int iCityDefenders = pLoopUnit->plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getID());
++
++					if (iCityDefenders <= pLoopUnit->plot()->getPlotCity()->AI_minDefenders())
++						bValid = false;
++				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 9071b94ab..4fbba3bd9 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2571,6 +2571,7 @@ bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam )
+ 					{
+ 						if( (GET_TEAM(eSurrenderTeam).AI_getWarSuccess((TeamTypes)iI) + std::min(GET_TEAM(eSurrenderTeam).getNumCities(), 4) * GC.getWAR_SUCCESS_CITY_CAPTURING()) < GET_TEAM((TeamTypes)iI).AI_getWarSuccess(eSurrenderTeam))
+ 						{
++							// K-Mod todo: that's nothing like the capitulation condition. I'll have to come back and fix this later.
+ 							return true;
+ 						}
+ 					}
+@@ -2701,10 +2702,17 @@ bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam )
+ 	{
+ 		// Keep others from capturing spoils, but let it go if surrender civ is too small
+ 		// to care about
++		/* original BBAI code
+ 		if( 6*(iValuableCities + GET_TEAM(eSurrenderTeam).getNumCities()) > getNumCities() )
++		{
++			return true;
++		} */
++		// K-Mod. That looks like it's the opposite of what you said it should do.
++		if (6*(iValuableCities + GET_TEAM(eSurrenderTeam).getNumCities()) < getNumCities())
+ 		{
+ 			return true;
+ 		}
++		// K-Mod end
+ 	}
+ 
+ 	// If we're low on the totem poll, accept so enemies don't drag anyone else into war with us
+@@ -3058,7 +3066,7 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eTeam) c
+ 	} */
+ 	// K-Mod
+ 	if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
+-		(AI_isChosenWar(eTeam) || getAtWarCount(true, true) == 1) &&
++		(AI_isChosenWar(ePeaceTeam) || getAtWarCount(true, true) == 1) &&
+ 		AI_getWarSuccessCapitulationRatio() > 0)
+ 	{
+ 		return DENIAL_VICTORY;
+@@ -4497,8 +4505,18 @@ void CvTeamAI::AI_doWar()
+ 						iTimeModifier *= iEnemyPowerPercent;
+ 						iTimeModifier /= iThreshold;
+ 					}
+-					// K-Mod. with crush strategy, use just 2/3 of the prep time.
++					// K-Mod
++					// intercontinental wars need more prep time
++					if (!AI_hasCitiesInPrimaryArea((TeamTypes)iI))
++					{
++						iTimeModifier *= 5;
++						iTimeModifier /= 4;
++						// maybe in the future I'll count the number of local cities and the number of overseas cities
++						// and use it to make a more appropriate modifier... but not now.
++					}
++					else
+ 					{
++						//with crush strategy, use just 2/3 of the prep time.
+ 						int iCrushMembers = AI_countMembersWithStrategy(AI_STRATEGY_CRUSH);
+ 						iTimeModifier *= 3 * (getNumMembers()-iCrushMembers) + 2 * iCrushMembers;
+ 						iTimeModifier /= 3;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8e20d4284..4b795f950 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5647,10 +5647,10 @@ void CvUnitAI::AI_spyMove()
+ 				}
+ 				break;
+ 			case MISSIONAI_EXPLORE:
+-				if (atPlot(pMissionPlot))
++				/*if (atPlot(pMissionPlot))
+ 				{
+ 					getGroup()->AI_setMissionAI(NO_MISSIONAI, 0, 0);
+-				}
++				}*/
+ 			default:
+ 				break;
+ 			}
+@@ -5706,9 +5706,17 @@ void CvUnitAI::AI_spyMove()
+ 
+ 			// would we have more power if enemy defenses were down?
+ 			int iOurPower = kOwner.AI_getOurPlotStrength(plot(),1,false,true);
+-			int iEnemyPower = kOwner.AI_getEnemyPlotStrength(plot(),0,false,false);
+-
+-			if( 5*iOurPower > 6*iEnemyPower && eWarPlan != NO_WARPLAN )
++			// int iEnemyPower = kOwner.AI_getEnemyPlotStrength(plot(),0,false,false); // original BBAI code
++			// K-Mod note: telling AI_getEnemyPlotStrength to not count defensive bonuses is not what we want.
++			// That would make it not count hills and city defence promotions; and instead count collateral damage power.
++			// Instead, I'm going to count the defensive bonuses, and then try to approximately remove the city part.
++			int iEnemyPower = kOwner.AI_getEnemyPlotStrength(plot(), 0, true, false);
++			iEnemyPower *= 200 - plot()->getPlotCity()->getDefenseModifier(false);
++			iEnemyPower /= 200;
++			// cf. approximation used in AI_attackCityMove.
++
++			//if( 5*iOurPower > 6*iEnemyPower && eWarPlan != NO_WARPLAN )
++			if (100*iOurPower > GC.getBBAI_SKIP_BOMBARD_BASE_STACK_RATIO()*iEnemyPower && eWarPlan != NO_WARPLAN)
+ 			{
+ 				bTargetCity = true;
+ 
+@@ -21407,38 +21415,23 @@ bool CvUnitAI::AI_airStrike()
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
++				int iStrikeValue = 0;
++				int iBombValue = 0;
++				int iPotentialAttackers = 0; // (only count adjacent units if we can air-strike)
++				if (pLoopPlot->isCity())
++					iPotentialAttackers += GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ASSAULT, getGroup(), 1) * 2;							
++
++				// air strike (damage)
+ 				if (canMoveInto(pLoopPlot, true))
+ 				{
+-					int iStrikeValue = 0; // use to be just "iValue"
+-					int iBombValue = 0; // K-Mod
+-					int iPotentialAttackers = GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pLoopPlot);
+-					if (pLoopPlot->isCity())
+-					{
+-						iPotentialAttackers += GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ASSAULT, getGroup(), 1) * 2;							
+-					}
+-					/********************************************************************************/
+-					/* 	BETTER_BTS_AI_MOD						10/13/08		jdog5000		*/
+-					/* 																			*/
+-					/* 	Air AI																	*/
+-					/********************************************************************************/
+-					/* original BTS code
+-					if (pLoopPlot->isWater() || (iPotentialAttackers > 0) || pLoopPlot->isAdjacentTeam(getTeam()))
+-					*/
+-					// Bombers will always consider striking units adjacent to this team's territory
+-					// to soften them up for potential attack.  This situation doesn't apply if this team's adjacent
+-					// territory is water, land units won't be able to reach easily for attack
+-					if (pLoopPlot->isWater() || (iPotentialAttackers > 0) || pLoopPlot->isAdjacentTeam(getTeam(),true))
+-					/********************************************************************************/
+-					/* 	BETTER_BTS_AI_MOD						END								*/
+-					/********************************************************************************/
++					iPotentialAttackers += GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pLoopPlot);
++					//if (pLoopPlot->isWater() || (iPotentialAttackers > 0) || pLoopPlot->isAdjacentTeam(getTeam()))
+ 					{
+ 						CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
+ 
+ 						FAssert(pDefender != NULL);
+ 						FAssert(pDefender->canDefend());
+ 
+-						// XXX factor in air defenses...
+-
+ 						int iDamage = airCombatDamage(pDefender);
+ 
+ 						iStrikeValue = std::max(0, (std::min((pDefender->getDamage() + iDamage), airCombatLimit()) - pDefender->getDamage()));
+@@ -21446,86 +21439,73 @@ bool CvUnitAI::AI_airStrike()
+ 						iStrikeValue += ((((iDamage * collateralDamage()) / 100) * std::min((pLoopPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits())) / 2);
+ 
+ 						iStrikeValue *= (3 + iPotentialAttackers);
+-						iStrikeValue /= 4;
++						iStrikeValue /= iPotentialAttackers > 0 ? 4 : 6;
+ 
+-						// K-Mod
+-						if (pLoopPlot->isCity())
++						if (pLoopPlot->isCity(true, pDefender->getTeam()))
+ 						{
+-							// decrease value of collateral damage, because city units heal more easily
++							// units heal more easily in a city / fort
+ 							iStrikeValue *= 3;
+ 							iStrikeValue /= 4;
+-							// consider bombarding instead
+-							if (canAirBombAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
+-							{
+-								const CvCity* pCity = pLoopPlot->getPlotCity();
+-								iBombValue = std::max(0, std::min(pCity->getDefenseDamage() + airBombCurrRate(), GC.getMAX_CITY_DEFENSE_DAMAGE()) - pCity->getDefenseDamage());
+-								iBombValue *= 1 + iPotentialAttackers;
+-								iBombValue /= 2;
+-							}
+ 						}
+-						else
++						if (pLoopPlot->isWater() && (iPotentialAttackers > 0 || pLoopPlot->getTeam() == getTeam()))
++						{
++							iStrikeValue *= 3;
++						}
++						else if (pLoopPlot->isAdjacentTeam(getTeam())) // prefer defensive strikes
+ 						{
+-							BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam(), true);
+-							if (eBonus != NO_BONUS && canAirBombAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
+-								iBombValue = GET_PLAYER(pLoopPlot->getOwner()).AI_bonusVal(eBonus, -1) * 2;
++							iStrikeValue *= 2;
+ 						}
+-						// K-Mod end (apart from all the iBombValue / bBombard stuff)
+-
+-						/* original code
++					}
++				}
++				// bombard (destroy improvement / city defences)
++				if (canAirBombAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
++				{
++					if (pLoopPlot->isCity())
++					{
++						const CvCity* pCity = pLoopPlot->getPlotCity();
++						iBombValue = std::max(0, std::min(pCity->getDefenseDamage() + airBombCurrRate(), GC.getMAX_CITY_DEFENSE_DAMAGE()) - pCity->getDefenseDamage());
++						iBombValue *= iPotentialAttackers + (area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE ? 5 : 1);
++						iBombValue /= 2;
++					}
++					else
++					{
++						BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam(), true);
++						if (eBonus != NO_BONUS && canAirBombAt(plot(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()))
++							iBombValue = GET_PLAYER(pLoopPlot->getOwner()).AI_bonusVal(eBonus, -1) * 2;
++					}
++				}
++				// factor in air defenses but try to avoid using bestInterceptor, because that's a slow function.
++				if (iBombValue > iBestValue || iStrikeValue > iBestValue) // values only decreased from here on.
++				{
++					if (isSuicide())
++					{
++						iStrikeValue /= 2;
++						iBombValue /= 2;
++					}
++					else if (!canAirDefend()) // assume that air defenders are strong.. and that they are willing to fight
++					{
+ 						CvUnit* pInterceptor = bestInterceptor(pLoopPlot);
+ 
+ 						if (pInterceptor != NULL)
+ 						{
+-							int iInterceptProb = isSuicide() ? 100 : pInterceptor->currInterceptionProbability();
++							int iInterceptProb = pInterceptor->currInterceptionProbability();
+ 
+ 							iInterceptProb *= std::max(0, (100 - evasionProbability()));
+ 							iInterceptProb /= 100;
+ 
+-							iValue *= std::max(0, 100 - iInterceptProb / 2);
+-							iValue /= 100;
+-						} */
+-
+-						// K-Mod. Try to avoid using bestInterceptor... because that's a slow function.
+-						if (isSuicide())
+-						{
+-							iStrikeValue /= 2;
+-							iBombValue /= 2;
+-						}
+-						else if (!canAirDefend()) // assume that air defenders are strong.. and that they are willing to fight
+-						{
+-							CvUnit* pInterceptor = bestInterceptor(pLoopPlot);
+-
+-							if (pInterceptor != NULL)
+-							{
+-								int iInterceptProb = pInterceptor->currInterceptionProbability();
+-
+-								iInterceptProb *= std::max(0, (100 - evasionProbability()));
+-								iInterceptProb /= 100;
+-
+-								iStrikeValue *= std::max(0, 100 - iInterceptProb / 2);
+-								iStrikeValue /= 100;
+-								iBombValue *= std::max(0, 100 - iInterceptProb / 2);
+-								iBombValue /= 100;
+-							}
+-						}
+-						// K-Mod end
+-
+-						if (pLoopPlot->isWater())
+-						{
+-							iStrikeValue *= 3;
+-						}
+-						else if (pLoopPlot->getTeam() == getTeam()) // K-Mod. prefer defence
+-						{
+-							iStrikeValue *= 2;
++							iStrikeValue *= std::max(0, 100 - iInterceptProb / 2);
++							iStrikeValue /= 100;
++							iBombValue *= std::max(0, 100 - iInterceptProb / 2);
++							iBombValue /= 100;
+ 						}
++					}
+ 
+-						if (iStrikeValue > iBestValue || iBombValue > iBestValue)
+-						{
+-							bBombard = iBombValue > iStrikeValue;
+-							iBestValue = std::max(iBombValue, iStrikeValue);
+-							pBestPlot = pLoopPlot;
+-							FAssert(!atPlot(pBestPlot));
+-						}
++					if (iStrikeValue > iBestValue || iBombValue > iBestValue)
++					{
++						bBombard = iBombValue > iStrikeValue;
++						iBestValue = std::max(iBombValue, iStrikeValue);
++						pBestPlot = pLoopPlot;
++						FAssert(!atPlot(pBestPlot));
+ 					}
+ 				}
+ 			}
+@@ -22687,6 +22667,12 @@ bool CvUnitAI::AI_revoltCitySpy()
+ 		return false;
+ 	}
+ 
++	// K-Mod
++	if (100 * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDefenseDamage())/std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE()) < 20)
++		return false;
++	// K-Mod end
++
++	/* original BBAI code
+ 	int iOurPower = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),1,false,true);
+ 	int iEnemyDefensePower = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),0,true,false);
+ 	int iEnemyPostPower = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),0,false,false);
+@@ -22704,7 +22690,7 @@ bool CvUnitAI::AI_revoltCitySpy()
+ 	if( 10*iEnemyDefensePower < 11*iEnemyPostPower )
+ 	{
+ 		return false;
+-	}
++	} */ // Disabled by K-Mod. The power comparisons are done in AI_spyMove().
+ 
+ 	for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=21448

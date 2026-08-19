@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4584
+# Commit: 2be572deff89d8ea7104ad10206b9d7994369d5f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bfce59dbd5d994fb8abfdad8ff49d5c4b0c20c81
+# Title: minor note about maverick being M4A1 for counter strike fans (or/and others or not or yes etc i mean anywyas, thanks) as i was etc at least played about this...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 1415c1fbf..12b5d0fed 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -720,7 +720,7 @@ this way, as unfair as it is, it was very painful for me to see nature is cruel
+ and thought, most likely was protected from, but also sort of manipulated into doing things maybe that suit others or not and
+ not me, still i am happy to be who i am today nd it's maybe the most important, delete these notes too that are personal before merging this pr etc i mean anyways, thanks,
+ 
+-- for the offense gun 8 (atomic as currently is etc i mean anywyas, thanks), chose the AK-47, realism invictus has some nice models and detailed units for this period of history, so i am just shutting my brain off and taking whatever seems to suit/fit quite well here about this i mean anywyas, thanks, not detailed much either etc i mean anywyas, but for example this reminds me of my childhood of ak-47 terrorists vs counter terrorists maverick in counter stike, source in particular, which many who
++- for the offense gun 8 (atomic as currently is etc i mean anywyas, thanks), chose the AK-47, realism invictus has some nice models and detailed units for this period of history, so i am just shutting my brain off and taking whatever seems to suit/fit quite well here about this i mean anywyas, thanks, not detailed much either etc i mean anywyas, but for example this reminds me of my childhood of ak-47 terrorists vs counter terrorists maverick (M4A1) in counter stike, source in particular, which many who
+ played may relate, my favourite map was poolparty btw xd.. which i was was (quite) very good at it but anywyas, and my favourite
+ one was the arctic terrorist, wanted one for this unit but didnt find, chose the model (unit) that seemed to best fit the AK-47
+ model etc i mean anyways, not detailed much also bit zz or zzz but no i should delete this later etc i mean anywyas, thanks,
+@@ -734,7 +734,8 @@ new sort of future but anyways, is as it is etc maybe anyways, delete later i me
+ i mean anyways, thanks,
+ 
+ - about the modern ground gun infantry (offense), ican't mention the word terrorist directly sadly as it is a military regular
+-unit it seems, hopefully it is nostalgic enough to say AK-47, i'll force it xd push it bit more by saying maverick for the USA equivalent of gun defense now etc i mean anyways, to stir the nostalgia chord of the fans etc xd i mean anywyas, or/and
++unit it seems, hopefully it is nostalgic enough to say AK-47, i'll force it xd push it bit more by saying maverick (M4A1) for
++the USA equivalent of gun defense now etc i mean anyways, to stir the nostalgia chord of the fans etc xd i mean anywyas, or/and
+ curiosity or not of some etc i mena anyways todo delete later etc i mean anyways, but focus on myself i need it and need to etc
+ i mean anyways to not mislead etc i mean anyways todo delete later before merging this pr etc i mean anyways sorry if spammy
+ for those who read or not etc but i wanted to write this hopefully not mind but may bother anywyas etc i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 677d82705..5d2da641d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -515,7 +515,7 @@ gun defense units
+ gun offense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
+ gun offense 6: -
+ gun defense 7: - (machine gun -)
+-gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick)
++gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick M4A1)
+ gun defense 9: special infantry c2c
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3983

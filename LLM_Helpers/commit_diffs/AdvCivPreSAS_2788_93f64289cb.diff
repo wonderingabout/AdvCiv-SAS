@@ -1,0 +1,856 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2788
+# Commit: 93f64289cb75301ae1c512d2ed17cd76f377e2e5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: daa12d729114052706a483fb462a2e8461f8bbf6
+# Title: Some misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	2	CvGameCoreDLL/CvGameAI.cpp
+5	4	CvGameCoreDLL/CvGameCoreUtils.cpp
+228	229	CvGameCoreDLL/CvGameTextMgr.cpp
+0	2	CvGameCoreDLL/CvInitCore.cpp
+18	18	CvGameCoreDLL/CvSelectionGroup.cpp
+5	4	CvGameCoreDLL/CvUnit.cpp
+4	2	CvGameCoreDLL/CvUnit.h
+16	29	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index e05b0c5a7..e90dfb2c8 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -1,5 +1,3 @@
+-// gameAI.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvGameAI.h"
+ #include "CoreAI.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 4be633105..e0f1f4b5f 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -283,10 +283,11 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 	iDefenderStrength = pDefender->currCombatStr(pDefender->plot(), pAttacker);
+ 	iDefenderFirepower = pDefender->currFirepower(pDefender->plot(), pAttacker);
+ 
+-	FAssert((iAttackerStrength + iDefenderStrength) > 0);
+-	FAssert((iAttackerFirepower + iDefenderFirepower) > 0);
++	FAssert(iAttackerStrength + iDefenderStrength > 0);
++	FAssert(iAttackerFirepower + iDefenderFirepower > 0);
+ 
+-	iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
++	iDefenderOdds = (GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) /
++			(iAttackerStrength + iDefenderStrength);
+ 
+ 	if (iDefenderOdds == 0)
+ 	{
+@@ -946,7 +947,7 @@ void shuffleArray(int* piShuffle, int iNum, CvRandom& rand)
+ }
+ 
+ // advc.enum: Caller needs to set the vector size
+-void shuffleVector(std::vector<int>& aiIndices, CvRandom& rand)
++void shuffleVector(vector<int>& aiIndices, CvRandom& rand)
+ {
+ 	std11::iota(aiIndices.begin(), aiIndices.end(), 0);
+ 	int const iSize = (int)aiIndices.size();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 23d92e3d3..f68ce7e08 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2513,227 +2513,6 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 	}
+ }
+ 
+-/*	ADVANCED COMBAT ODDS v1.1, 11/7/09, PieceOfMind: START
+-	Calculates the probability of a particular combat outcome
+-	Returns a float value (between 0 and 1)
+-	Written by PieceOfMind
+-	n_A = hits taken by attacker, n_D = hits taken by defender.
+-	advc (note/ fixme): Seems to overlap a lot with code in
+-	setACOPlotHelp. */
+-namespace
+-{
+-float getCombatOddsSpecific(CvUnit const* pAttacker, CvUnit const* pDefender, int n_A, int n_D)
+-{
+-	int const iAttackerStrength  = pAttacker->currCombatStr(NULL, NULL);
+-	int const iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
+-	int const iDefenderStrength  = pDefender->currCombatStr(pDefender->plot(), pAttacker);
+-	int const iDefenderFirepower = pDefender->currFirepower(pDefender->plot(), pAttacker);
+-
+-	int const iStrengthFactor   = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
+-	int const iDamageToAttacker = std::max(1,
+-			(GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) /
+-			(iAttackerFirepower + iStrengthFactor));
+-	int iDamageToDefender = std::max(1,
+-			(GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) /
+-				(iDefenderFirepower + iStrengthFactor));
+-
+-	int iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) /
+-			(iAttackerStrength + iDefenderStrength));
+-	int iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;
+-	/*  advc.001: Replacing the check below. The BUG authors must've missed this
+-		one when they integrated ACO into BUG. */
+-	if(!BUGOption::isEnabled("ACO__IgnoreBarbFreeWins", false) &&
+-	//GC.getDefineINT("ACO_IgnoreBarbFreeWins")==0
+-		!GC.getGame().isOption(GAMEOPTION_SPAH)) // advc.250b
+-	{
+-		if (pDefender->isBarbarian())
+-		{
+-			//defender is barbarian
+-			if (!GET_PLAYER(pAttacker->getOwner()).isBarbarian() &&
+-				GET_PLAYER(pAttacker->getOwner()).getWinsVsBarbs() <
+-				GC.getInfo(GET_PLAYER(pAttacker->getOwner()).getHandicapType()).
+-				getFreeWinsVsBarbs())
+-			{
+-				//attacker is not barb and attacker player has free wins left
+-				//I have assumed in the following code only one of the units (attacker and defender) can be a barbarian
+-				iDefenderOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iDefenderOdds);
+-				iAttackerOdds = std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iAttackerOdds);
+-			}
+-		}
+-		else if (pAttacker->isBarbarian())
+-		{
+-			//attacker is barbarian
+-			if (!GET_PLAYER(pDefender->getOwner()).isBarbarian() &&
+-				GET_PLAYER(pDefender->getOwner()).getWinsVsBarbs() <
+-				GC.getInfo(GET_PLAYER(pDefender->getOwner()).getHandicapType()).
+-				getFreeWinsVsBarbs())
+-			{
+-				//defender is not barbarian and defender has free wins left and attacker is barbarian
+-				iAttackerOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iAttackerOdds);
+-				iDefenderOdds = std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iDefenderOdds);
+-			}
+-		}
+-	}
+-
+-	int const iDefenderHitLimit = pDefender->maxHitPoints() - pAttacker->combatLimit();
+-
+-	//iNeededRoundsAttacker = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) + iDamageToDefender - (((pAttacker->combatLimit())==GC.getMAX_HIT_POINTS())?1:0)) / iDamageToDefender;
+-	int const iNeededRoundsAttacker = 1 + (pDefender->currHitPoints() -
+-			pDefender->maxHitPoints() + pAttacker->combatLimit() -
+-			(pAttacker->combatLimit() == pDefender->maxHitPoints() ? 1 : 0)) /
+-			iDamageToDefender;
+-
+-	int const N_D = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) +
+-			iDamageToDefender -
+-			(pAttacker->combatLimit() == GC.getMAX_HIT_POINTS() ? 1: 0)) /
+-			iDamageToDefender;
+-
+-	//int N_A = (pAttacker->currHitPoints() + iDamageToAttacker - 1) / iDamageToAttacker;  //same as next line
+-	int const N_A = 1 + (pAttacker->currHitPoints() - 1) / iDamageToAttacker;
+-
+-	//int iRetreatOdds = std::max((pAttacker->withdrawalProbability()),100);
+-	float const fRetreatOdds = std::min(pAttacker->withdrawalProbability(), 100) / 100.0f ;
+-
+-	int const AttFSnet = (pDefender->immuneToFirstStrikes() ? 0 : pAttacker->firstStrikes()) -
+-			(pAttacker->immuneToFirstStrikes() ? 0 : pDefender->firstStrikes());
+-	int const AttFSC = (pDefender->immuneToFirstStrikes() ? 0 : pAttacker->chanceFirstStrikes());
+-	int const DefFSC = (pAttacker->immuneToFirstStrikes() ? 0 : pDefender->chanceFirstStrikes());
+-
+-	float const P_A = iAttackerOdds / (float)GC.getCOMBAT_DIE_SIDES();
+-	float const P_D = iDefenderOdds / (float)GC.getCOMBAT_DIE_SIDES();
+-	float answer = 0;
+-	if (n_A < N_A && n_D == iNeededRoundsAttacker)   // (1) Defender dies or is taken to combat limit
+-	{
+-		float sum1 = 0.0f;
+-		for (int i = (-AttFSnet-AttFSC<1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
+-		{
+-			for (int j = 0; j <= i; j++)
+-			{
+-				if (n_A >= j)
+-				{
+-					sum1 += (float)getBinomialCoefficient(i,j) * pow(P_A,(float)(i-j)) *
+-							getBinomialCoefficient(iNeededRoundsAttacker-1+n_A-j,iNeededRoundsAttacker-1);
+-
+-				} //if
+-			}//for j
+-		}//for i
+-		sum1 *= pow(P_D,(float)n_A)*pow(P_A,(float)iNeededRoundsAttacker);
+-		answer += sum1;
+-
+-		float sum2 = 0.0f;
+-
+-		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
+-		{
+-			for (int j = 0; j <= i; j++)
+-			{
+-				if (N_D > j)
+-				{
+-					sum2 = sum2 + getBinomialCoefficient(n_A+iNeededRoundsAttacker-j-1,n_A) *
+-							(float)getBinomialCoefficient(i,j) * pow(P_A,(float)iNeededRoundsAttacker) *
+-							pow(P_D,(float)(n_A+i-j));
+-				}
+-				else if (n_A == 0)
+-				{
+-					sum2 = sum2 + (float)getBinomialCoefficient(i,j) *
+-							pow(P_A,(float)j) * pow(P_D,(float)(i-j));
+-				}
+-				else sum2 = sum2 + 0.0f;
+-			}//for j
+-		}//for i
+-		answer += sum2;
+-	}
+-	else if (n_D < N_D && n_A == N_A)  // (2) Attacker dies!
+-	{
+-		float sum1 = 0.0f;
+-		for (int i = (-AttFSnet-AttFSC<1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
+-		{
+-			for (int j = 0; j <= i; j++)
+-			{
+-				if (N_A>j)
+-				{
+-					sum1 += getBinomialCoefficient(n_D+N_A-j-1,n_D) *
+-							(float)getBinomialCoefficient(i,j) *
+-							pow(P_D,(float)(N_A)) * pow(P_A,(float)(n_D+i-j));
+-				}
+-				else
+-				{
+-					if (n_D == 0)
+-					{
+-						sum1 += (float)getBinomialCoefficient(i,j) *
+-								pow(P_D,(float)(j)) * pow(P_A,(float)(i-j));
+-					}//if (inside if) else sum += 0
+-				}//if
+-			}//for j
+-		}//for i
+-		answer += sum1;
+-		float sum2 = 0.0f;
+-		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
+-		{
+-			for (int j = 0; j <= i; j++)
+-			{
+-				if (n_D >= j)
+-				{
+-					sum2 += (float)getBinomialCoefficient(i,j) * pow(P_D,(float)(i-j)) *
+-							getBinomialCoefficient(N_A-1+n_D-j,N_A-1);
+-				} //if
+-			}//for j
+-		}//for i
+-		sum2 *= pow(P_A,(float)(n_D))*pow(P_D,(float)(N_A));
+-		answer += sum2;
+-		answer = answer * (1.0f - fRetreatOdds);
+-	}
+-	else if (n_A == (N_A-1) && n_D < N_D)  // (3) Attacker retreats!
+-	{
+-		float sum1 = 0.0f;
+-		for (int i = (AttFSnet+AttFSC>-1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
+-		{
+-			for (int j = 0; j <= i; j++)
+-			{
+-				if (N_A>j)
+-				{
+-					sum1 += getBinomialCoefficient(n_D+N_A-j-1,n_D) *
+-							(float)getBinomialCoefficient(i,j) *
+-							pow(P_D,(float)(N_A)) * pow(P_A,(float)(n_D+i-j));
+-				}
+-				else
+-				{
+-					if (n_D == 0)
+-					{
+-						sum1 += (float)getBinomialCoefficient(i,j) *
+-								pow(P_D,(float)(j)) * pow(P_A,(float)(i-j));
+-					}//if (inside if) else sum += 0
+-				}//if
+-			}//for j
+-		}//for i
+-		answer += sum1;
+-
+-		float sum2 = 0.0f;
+-		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
+-		{
+-			for (int j = 0; j <= i; j++)
+-			{
+-				if (n_D >= j)
+-				{
+-					sum2 += (float)getBinomialCoefficient(i,j) *
+-							pow(P_D,(float)(i-j)) * getBinomialCoefficient(N_A-1+n_D-j,N_A-1);
+-				} //if
+-			}//for j
+-		}//for i
+-		sum2 *= pow(P_A,(float)(n_D))*pow(P_D,(float)(N_A));
+-		answer += sum2;
+-		answer = answer * fRetreatOdds;//
+-	}
+-	else
+-	{
+-		//Unexpected value.  Process should not reach here.
+-		FErrorMsg("unexpected value in getCombatOddsSpecific");
+-	}
+-
+-	answer = answer / (AttFSC+DefFSC + 1); // dividing by (t+w+1) as is necessary
+-	return answer;
+-}// getCombatOddsSpecific
+-} // ADVANCED COMBAT ODDS, 11/7/09, PieceOfMind: END
+-
+ // advc.004c:
+ namespace
+ {
+@@ -2795,13 +2574,6 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	bool const ACO_enabled = BUGOption::isEnabled("ACO__Enabled", false);
+ 	bool const bShift = GC.shiftKey();
+ 	bool const bForceHostile = GC.altKey();
+-	int iACOView = 0;
+-	if (ACO_enabled)
+-	{
+-		iACOView = (GC.shiftKey() ? 2 : 1);
+-		if (BUGOption::isEnabled("ACO__SwapViews", false))
+-			iACOView = 3 - iACOView; //swaps 1 and 2.
+-	}
+ 	// advc.048:
+ 	int iLengthSelectionList = gDLL->UI().getLengthSelectionList();
+ 	if (iLengthSelectionList <= 0)
+@@ -2898,7 +2670,13 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		setInterceptPlotHelp(*pPlot, *pAttacker, szInterceptHelp, false);
+ 		szString.append(szInterceptHelp);
+ 	} // <advc.004c>
+-
++	int iACOView = 0;
++	if (ACO_enabled)
++	{
++		iACOView = (GC.shiftKey() ? 2 : 1);
++		if (BUGOption::isEnabled("ACO__SwapViews", false))
++			iACOView = 3 - iACOView; //swaps 1 and 2.
++	}
+ 	if (pAttacker->getDomainType() != DOMAIN_AIR)
+ 	{
+ 		int const iCombatOdds = getCombatOdds(pAttacker, pDefender);
+@@ -3102,6 +2880,227 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	return true;
+ }
+ 
++/*	ADVANCED COMBAT ODDS v1.1, 11/7/09, PieceOfMind: START
++	Calculates the probability of a particular combat outcome
++	Returns a float value (between 0 and 1)
++	Written by PieceOfMind
++	n_A = hits taken by attacker, n_D = hits taken by defender.
++	advc (note/ fixme): Seems to overlap a lot with code in
++	setACOPlotHelp. */
++namespace
++{
++float getCombatOddsSpecific(CvUnit const* pAttacker, CvUnit const* pDefender, int n_A, int n_D)
++{
++	int const iAttackerStrength  = pAttacker->currCombatStr(NULL, NULL);
++	int const iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
++	int const iDefenderStrength  = pDefender->currCombatStr(pDefender->plot(), pAttacker);
++	int const iDefenderFirepower = pDefender->currFirepower(pDefender->plot(), pAttacker);
++
++	int const iStrengthFactor   = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
++	int const iDamageToAttacker = std::max(1,
++			(GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) /
++			(iAttackerFirepower + iStrengthFactor));
++	int iDamageToDefender = std::max(1,
++			(GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) /
++				(iDefenderFirepower + iStrengthFactor));
++
++	int iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) /
++			(iAttackerStrength + iDefenderStrength));
++	int iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;
++	/*  advc.001: Replacing the check below. The BUG authors must've missed this
++		one when they integrated ACO into BUG. */
++	if(!BUGOption::isEnabled("ACO__IgnoreBarbFreeWins", false) &&
++	//GC.getDefineINT("ACO_IgnoreBarbFreeWins")==0
++		!GC.getGame().isOption(GAMEOPTION_SPAH)) // advc.250b
++	{
++		if (pDefender->isBarbarian())
++		{
++			//defender is barbarian
++			if (!GET_PLAYER(pAttacker->getOwner()).isBarbarian() &&
++				GET_PLAYER(pAttacker->getOwner()).getWinsVsBarbs() <
++				GC.getInfo(GET_PLAYER(pAttacker->getOwner()).getHandicapType()).
++				getFreeWinsVsBarbs())
++			{
++				//attacker is not barb and attacker player has free wins left
++				//I have assumed in the following code only one of the units (attacker and defender) can be a barbarian
++				iDefenderOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iDefenderOdds);
++				iAttackerOdds = std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iAttackerOdds);
++			}
++		}
++		else if (pAttacker->isBarbarian())
++		{
++			//attacker is barbarian
++			if (!GET_PLAYER(pDefender->getOwner()).isBarbarian() &&
++				GET_PLAYER(pDefender->getOwner()).getWinsVsBarbs() <
++				GC.getInfo(GET_PLAYER(pDefender->getOwner()).getHandicapType()).
++				getFreeWinsVsBarbs())
++			{
++				//defender is not barbarian and defender has free wins left and attacker is barbarian
++				iAttackerOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iAttackerOdds);
++				iDefenderOdds = std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iDefenderOdds);
++			}
++		}
++	}
++
++	int const iDefenderHitLimit = pDefender->maxHitPoints() - pAttacker->combatLimit();
++
++	//iNeededRoundsAttacker = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) + iDamageToDefender - (((pAttacker->combatLimit())==GC.getMAX_HIT_POINTS())?1:0)) / iDamageToDefender;
++	int const iNeededRoundsAttacker = 1 + (pDefender->currHitPoints() -
++			pDefender->maxHitPoints() + pAttacker->combatLimit() -
++			(pAttacker->combatLimit() == pDefender->maxHitPoints() ? 1 : 0)) /
++			iDamageToDefender;
++
++	int const N_D = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) +
++			iDamageToDefender -
++			(pAttacker->combatLimit() == GC.getMAX_HIT_POINTS() ? 1: 0)) /
++			iDamageToDefender;
++
++	//int N_A = (pAttacker->currHitPoints() + iDamageToAttacker - 1) / iDamageToAttacker;  //same as next line
++	int const N_A = 1 + (pAttacker->currHitPoints() - 1) / iDamageToAttacker;
++
++	//int iRetreatOdds = std::max((pAttacker->withdrawalProbability()),100);
++	float const fRetreatOdds = std::min(pAttacker->withdrawalProbability(), 100) / 100.0f ;
++
++	int const AttFSnet = (pDefender->immuneToFirstStrikes() ? 0 : pAttacker->firstStrikes()) -
++			(pAttacker->immuneToFirstStrikes() ? 0 : pDefender->firstStrikes());
++	int const AttFSC = (pDefender->immuneToFirstStrikes() ? 0 : pAttacker->chanceFirstStrikes());
++	int const DefFSC = (pAttacker->immuneToFirstStrikes() ? 0 : pDefender->chanceFirstStrikes());
++
++	float const P_A = iAttackerOdds / (float)GC.getCOMBAT_DIE_SIDES();
++	float const P_D = iDefenderOdds / (float)GC.getCOMBAT_DIE_SIDES();
++	float answer = 0;
++	if (n_A < N_A && n_D == iNeededRoundsAttacker)   // (1) Defender dies or is taken to combat limit
++	{
++		float sum1 = 0.0f;
++		for (int i = (-AttFSnet-AttFSC<1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
++		{
++			for (int j = 0; j <= i; j++)
++			{
++				if (n_A >= j)
++				{
++					sum1 += (float)getBinomialCoefficient(i,j) * pow(P_A,(float)(i-j)) *
++							getBinomialCoefficient(iNeededRoundsAttacker-1+n_A-j,iNeededRoundsAttacker-1);
++
++				} //if
++			}//for j
++		}//for i
++		sum1 *= pow(P_D,(float)n_A)*pow(P_A,(float)iNeededRoundsAttacker);
++		answer += sum1;
++
++		float sum2 = 0.0f;
++
++		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
++		{
++			for (int j = 0; j <= i; j++)
++			{
++				if (N_D > j)
++				{
++					sum2 = sum2 + getBinomialCoefficient(n_A+iNeededRoundsAttacker-j-1,n_A) *
++							(float)getBinomialCoefficient(i,j) * pow(P_A,(float)iNeededRoundsAttacker) *
++							pow(P_D,(float)(n_A+i-j));
++				}
++				else if (n_A == 0)
++				{
++					sum2 = sum2 + (float)getBinomialCoefficient(i,j) *
++							pow(P_A,(float)j) * pow(P_D,(float)(i-j));
++				}
++				else sum2 = sum2 + 0.0f;
++			}//for j
++		}//for i
++		answer += sum2;
++	}
++	else if (n_D < N_D && n_A == N_A)  // (2) Attacker dies!
++	{
++		float sum1 = 0.0f;
++		for (int i = (-AttFSnet-AttFSC<1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
++		{
++			for (int j = 0; j <= i; j++)
++			{
++				if (N_A>j)
++				{
++					sum1 += getBinomialCoefficient(n_D+N_A-j-1,n_D) *
++							(float)getBinomialCoefficient(i,j) *
++							pow(P_D,(float)(N_A)) * pow(P_A,(float)(n_D+i-j));
++				}
++				else
++				{
++					if (n_D == 0)
++					{
++						sum1 += (float)getBinomialCoefficient(i,j) *
++								pow(P_D,(float)(j)) * pow(P_A,(float)(i-j));
++					}//if (inside if) else sum += 0
++				}//if
++			}//for j
++		}//for i
++		answer += sum1;
++		float sum2 = 0.0f;
++		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
++		{
++			for (int j = 0; j <= i; j++)
++			{
++				if (n_D >= j)
++				{
++					sum2 += (float)getBinomialCoefficient(i,j) * pow(P_D,(float)(i-j)) *
++							getBinomialCoefficient(N_A-1+n_D-j,N_A-1);
++				} //if
++			}//for j
++		}//for i
++		sum2 *= pow(P_A,(float)(n_D))*pow(P_D,(float)(N_A));
++		answer += sum2;
++		answer = answer * (1.0f - fRetreatOdds);
++	}
++	else if (n_A == (N_A-1) && n_D < N_D)  // (3) Attacker retreats!
++	{
++		float sum1 = 0.0f;
++		for (int i = (AttFSnet+AttFSC>-1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
++		{
++			for (int j = 0; j <= i; j++)
++			{
++				if (N_A>j)
++				{
++					sum1 += getBinomialCoefficient(n_D+N_A-j-1,n_D) *
++							(float)getBinomialCoefficient(i,j) *
++							pow(P_D,(float)(N_A)) * pow(P_A,(float)(n_D+i-j));
++				}
++				else
++				{
++					if (n_D == 0)
++					{
++						sum1 += (float)getBinomialCoefficient(i,j) *
++								pow(P_D,(float)(j)) * pow(P_A,(float)(i-j));
++					}//if (inside if) else sum += 0
++				}//if
++			}//for j
++		}//for i
++		answer += sum1;
++
++		float sum2 = 0.0f;
++		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
++		{
++			for (int j = 0; j <= i; j++)
++			{
++				if (n_D >= j)
++				{
++					sum2 += (float)getBinomialCoefficient(i,j) *
++							pow(P_D,(float)(i-j)) * getBinomialCoefficient(N_A-1+n_D-j,N_A-1);
++				} //if
++			}//for j
++		}//for i
++		sum2 *= pow(P_A,(float)(n_D))*pow(P_D,(float)(N_A));
++		answer += sum2;
++		answer = answer * fRetreatOdds;//
++	}
++	else
++	{
++		//Unexpected value.  Process should not reach here.
++		FErrorMsg("unexpected value in getCombatOddsSpecific");
++	}
++
++	answer = answer / (AttFSC+DefFSC + 1); // dividing by (t+w+1) as is necessary
++	return answer;
++}// getCombatOddsSpecific
++} // ADVANCED COMBAT ODDS, 11/7/09, PieceOfMind: END
++
+ // advc: Cut from setCombatPlotHelp
+ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	CvPlot const* pPlot, CvUnit const* pAttacker, CvUnit const* pDefender,
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index d2042cbdb..4217a9444 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1,5 +1,3 @@
+-// game.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvInitCore.h"
+ #include "CvPlayer.h"
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4da843e89..0b3e5e23d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2629,7 +2629,7 @@ RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
+ 
+ // Returns true if attack was made...
+ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
+-	bool& bFailedAlreadyFighting,
++	bool& bFailedAlreadyFighting, // advc (note): out-parameter
+ 	bool bMaxSurvival) // advc.048
+ {
+ 	PROFILE_FUNC();
+@@ -2640,8 +2640,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
+ 
+ 	// K-Mod. Rather than clearing the existing path data; use a temporary pathfinder.
+ 	//GroupPathFinder finalPath;
+-	GroupPathFinder& finalPath = getClearPathFinder(); // advc.opt
+-	finalPath.setGroup(*this, eFlags & ~MOVE_DECLARE_WAR);
++	GroupPathFinder& kFinalPath = getClearPathFinder(); // advc.opt
++	kFinalPath.setGroup(*this, eFlags & ~MOVE_DECLARE_WAR);
+ 	/*if (eFlags & MOVE_THROUGH_ENEMY) {
+ 		if (generatePath(plot(), pDestPlot, eFlags))
+ 			pDestPlot = getPathFirstPlot();
+@@ -2649,8 +2649,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
+ 	// K-Mod
+ 	if (eFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK) && !(eFlags & MOVE_DIRECT_ATTACK))
+ 	{
+-		if (finalPath.generatePath(*pDestPlot))
+-			pDestPlot = &finalPath.getPathFirstPlot();
++		if (kFinalPath.generatePath(*pDestPlot))
++			pDestPlot = &kFinalPath.getPathFirstPlot();
+ 	} // K-Mod end
+ 
+ 	if (getNumUnits() <= 0)
+@@ -2661,8 +2661,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
+ 	//if ((eFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (eFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, eFlags) && (getPathFirstPlot() == pDestPlot)))
+ 	// K-Mod.
+ 	if (eFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) ||
+-		getDomainType() == DOMAIN_AIR || (finalPath.generatePath(*pDestPlot) &&
+-		&finalPath.getPathFirstPlot() == pDestPlot)) // K-Mod end
++		getDomainType() == DOMAIN_AIR || (kFinalPath.generatePath(*pDestPlot) &&
++		&kFinalPath.getPathFirstPlot() == pDestPlot)) // K-Mod end
+ 	{
+ 		int iAttackOdds;
+ 		CvUnit* pBestAttackUnit = AI().AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+@@ -2740,7 +2740,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
+ 			if (bFailedAlreadyFighting || !bStack)
+ 			{
+ 				if (!isHuman() && getNumUnits() > 1 &&
+-					// K-Mod: if this is AI stack, follow through with the attack to the end
++					// K-Mod: AI stack: follow through with the attack to the end
+ 					!(eFlags & MOVE_SINGLE_ATTACK))
+ 				{	//AI_queueGroupAttack(iX, iY);
+ 					AI().AI_queueGroupAttack(pDestPlot->getX(), pDestPlot->getY()); // K-Mod
+@@ -2863,7 +2863,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ {
+ 	//GroupPathFinder finalPath; // K-Mod
+ 	// advc.opt: Avoid allocating new memory
+-	GroupPathFinder& finalPath = getClearPathFinder();
++	GroupPathFinder& kFinalPath = getClearPathFinder();
+ 	CvPlot const* pOriginPlot = plot(); // K-Mod
+ 
+ 	if (at(iX, iY))
+@@ -2895,11 +2895,11 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 			the move will fail here rather than splitting the group inside groupMove.
+ 			Also, I've changed it to use a different pathfinder,
+ 			to avoid clearing the path data - and to avoid OOS errors. */
+-		finalPath.setGroup(*this, eFlags & ~MOVE_DECLARE_WAR);
+-		if (!finalPath.generatePath(kDestPlot))
++		kFinalPath.setGroup(*this, eFlags & ~MOVE_DECLARE_WAR);
++		if (!kFinalPath.generatePath(kDestPlot))
+ 			return false;
+ 
+-		pPathPlot = &finalPath.getPathFirstPlot();
++		pPathPlot = &kFinalPath.getPathFirstPlot();
+ 		// K-Mod end
+ 		if (groupAmphibMove(*pPathPlot, eFlags))
+ 			return false;
+@@ -2928,11 +2928,11 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 		/*	If the step we just took will make us change our path to something longer,
+ 			then cancel the move. This prevents units from wasting all their moves by
+ 			trying to walk around enemy units. */
+-		FAssert(finalPath.isPathComplete());
+-		std::pair<int, int> old_moves = std::make_pair(
+-				finalPath.getPathTurns(), -finalPath.getFinalMoves());
+-		if (!finalPath.generatePath(kDestPlot) ||
+-			std::make_pair(finalPath.getPathTurns(), -finalPath.getFinalMoves()) > old_moves)
++		FAssert(kFinalPath.isPathComplete());
++		std::pair<int,int> iiOldMoves = std::make_pair(
++				kFinalPath.getPathTurns(), -kFinalPath.getFinalMoves());
++		if (!kFinalPath.generatePath(kDestPlot) || std::make_pair(
++			kFinalPath.getPathTurns(), -kFinalPath.getFinalMoves()) > iiOldMoves)
+ 		{
+ 			clearMissionQueue();
+ 		}
+@@ -2940,7 +2940,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 			it's probably because we've lost vision of a unit that was blocking the path.
+ 			Apply the MOVE_ASSUME_VISIBLE flag, so that we remember
+ 			to go the long way around. */
+-		else if (&finalPath.getPathFirstPlot() == pOriginPlot)
++		else if (&kFinalPath.getPathFirstPlot() == pOriginPlot)
+ 			headMissionQueueNode()->m_data.eFlags |= MOVE_ASSUME_VISIBLE;
+ 	}
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 99602de3d..8cacf42cd 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6031,7 +6031,7 @@ bool CvUnit::build(BuildTypes eBuild)
+ 
+ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
+ {
+-	if (iLeaderUnitId >= 0)
++	if (iLeaderUnitId /* advc (was >=0): */ != FFreeList::INVALID_INDEX)
+ 	{
+ 		if (iLeaderUnitId == getID())
+ 			return false;
+@@ -6074,7 +6074,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
+ 	bool bSound = true;
+ 	bool const bSelected = IsSelected();
+ 	// </advc.002l>
+-	if (iLeaderUnitId >= 0)
++	if (iLeaderUnitId /* advc (was >=0): */ != FFreeList::INVALID_INDEX)
+ 	{
+ 		CvUnit* pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
+ 		if (pWarlord != NULL)
+@@ -6313,7 +6313,8 @@ int CvUnit::upgradeXPChange(UnitTypes eUnit) const
+ }
+ 
+ 
+-bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount) const  // advc: style changes
++bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass,
++	int iCount) const
+ {
+ 	if (iCount > GC.getNumUnitClassInfos())
+ 		return false;
+@@ -7874,7 +7875,7 @@ int CvUnit::currInterceptionProbability() const
+ {
+ 	if (getDomainType() != DOMAIN_AIR)
+ 		return maxInterceptionProbability();
+-	return ((maxInterceptionProbability() * currHitPoints()) / maxHitPoints());
++	return (maxInterceptionProbability() * currHitPoints()) / maxHitPoints();
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 9cbd1a058..5a26129ec 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -242,8 +242,10 @@ public:
+ 	bool canBuild(CvPlot const& pPlot, BuildTypes eBuild, bool bTestVisible = false) const;					// Exposed to Python
+ 	bool build(BuildTypes eBuild);
+ 
+-	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;									// Exposed to Python
+-	void promote(PromotionTypes ePromotion, int iLeaderUnitId);												// Exposed to Python
++	bool canPromote(PromotionTypes ePromotion,																// Exposed to Python
++			int iLeaderUnitId /* advc: */ = FFreeList::INVALID_INDEX) const;
++	void promote(PromotionTypes ePromotion,																	// Exposed to Python
++			int iLeaderUnitId /* advc: */ = FFreeList::INVALID_INDEX);
+ 	int promotionHeal(PromotionTypes ePromotion = NO_PROMOTION) const; // advc
+ 
+ 	int canLead(const CvPlot* pPlot, int iUnitId) const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 07d79062d..2e9eda18d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1,5 +1,3 @@
+-// unitAI.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+@@ -530,27 +528,23 @@ void CvUnitAI::AI_promote()
+ 	if (!isPromotionReady())
+ 		return; // can't get any normal promotions. (see CvUnit::canPromote)
+ 	// K-Mod end
+-
+ 	int iBestValue = 0;
+ 	PromotionTypes eBestPromotion = NO_PROMOTION;
+-
+-	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
++	FOR_EACH_ENUM(Promotion)
+ 	{
+-		if (canPromote((PromotionTypes)iI, -1))
++		if (canPromote(eLoopPromotion))
+ 		{
+-			int iValue = AI_promotionValue((PromotionTypes)iI);
+-
++			int iValue = AI_promotionValue(eLoopPromotion);
+ 			if (iValue > iBestValue)
+ 			{
+ 				iBestValue = iValue;
+-				eBestPromotion = ((PromotionTypes)iI);
++				eBestPromotion = eLoopPromotion;
+ 			}
+ 		}
+ 	}
+-
+ 	if (eBestPromotion != NO_PROMOTION)
+ 	{
+-		promote(eBestPromotion, -1);
++		promote(eBestPromotion);
+ 		AI_promote();
+ 	}
+ }
+@@ -585,28 +579,18 @@ int CvUnitAI::AI_groupFirstVal() /* advc: */ const
+ 
+ 	case UNITAI_ATTACK:
+ 		if (collateralDamage() > 0)
+-		{
+ 			return 15; // was 17
+-		}
+ 		if (withdrawalProbability() > 0)
+-		{
+ 			return 14; // was 15
+-		}
+ 		return 13;
+ 
+ 	case UNITAI_ATTACK_CITY:
+ 		if (bombardRate() > 0)
+-		{
+ 			return 19;
+-		}
+ 		if (collateralDamage() > 0)
+-		{
+ 			return 18;
+-		}
+ 		if (withdrawalProbability() > 0)
+-		{
+ 			return 17; // was 16
+-		}
+ 		return 16; // was 14
+ 
+ 	case UNITAI_COLLATERAL:
+@@ -709,7 +693,7 @@ int CvUnitAI::AI_groupFirstVal() /* advc: */ const
+ 
+ int CvUnitAI::AI_groupSecondVal() /* advc: */ const
+ {
+-	return ((getDomainType() == DOMAIN_AIR) ? airBaseCombatStr() : baseCombatStr());
++	return (getDomainType() == DOMAIN_AIR ? airBaseCombatStr() : baseCombatStr());
+ }
+ 
+ /*	Returns attack odds out of 100 (the higher, the better...)
+@@ -739,9 +723,9 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 		return std::max(1, std::min(iOdds, 99));
+ 	}
+ 
+-	int iOurStrength = ((getDomainType() == DOMAIN_AIR) ?
++	int iOurStrength = (getDomainType() == DOMAIN_AIR ?
+ 			airCurrCombatStr(NULL) : currCombatStr(NULL, NULL));
+-	int iOurFirepower = ((getDomainType() == DOMAIN_AIR) ?
++	int iOurFirepower = (getDomainType() == DOMAIN_AIR ?
+ 			iOurStrength : currFirepower(NULL, NULL));
+ 
+ 	if (iOurStrength == 0)
+@@ -758,7 +742,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 	if (iBaseOdds == 0)
+ 		return 1;
+ 
+-	int iStrengthFactor = ((iOurFirepower + iTheirFirepower + 1) / 2);
++	int iStrengthFactor = (iOurFirepower + iTheirFirepower + 1) / 2;
+ 	int iDamageToUs = std::max(1, (GC.getCOMBAT_DAMAGE() *
+ 			(iTheirFirepower + iStrengthFactor)) /
+ 			(iOurFirepower + iStrengthFactor));
+@@ -12320,10 +12304,13 @@ bool CvUnitAI::AI_paradrop(int iRange)
+ 		/*if (NO_BONUS != p.getBonusType())
+ 			iValue += GET_PLAYER(eTargetPlayer).AI_bonusVal(p.getBonusType()) - 10;*/ // BtS
+ 		/*	UNOFFICIAL_PATCH, Bugfix, 08/01/08, jdog5000: START
+-			Bonus values for bonuses the AI has are less than 10 for non-strategic resources... since this is
+-			in the AI territory they probably have it */
+-		if (NO_BONUS != p.getNonObsoleteBonusType(getTeam()))
+-			iValue += std::max(1,GET_PLAYER(eTargetPlayer).AI_bonusVal(p.getBonusType(), 0) - 10);
++			Bonus values for bonuses the AI has are less than 10 for non-strategic resources.
++			Since this is in the AI territory they probably have it. */
++		if (p.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
++		{
++			iValue += std::max(1,GET_PLAYER(eTargetPlayer).AI_bonusVal(
++					p.getBonusType(), 0) - 10);
++		}
+ 		// UNOFFICIAL_PATCH: END
+ 		FOR_EACH_ADJ_PLOT(p)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=31327

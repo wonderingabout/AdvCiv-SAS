@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1246
+# Commit: 5711d114287911b1cb3573a82fad26e7d82b2ec7
+# History segment: K-Mod history
+# Parent used for diff: 103ef3477753a12f9364cb6a091e30d81e6e17a3
+# Title: Added function CvCityAI::AI_timeWeightedImprovementYields
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+51	0	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvCityAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2b798678c..2838e6716 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9867,6 +9867,57 @@ bool CvCityAI::AI_finalImprovementYieldDifference(CvPlot* pPlot, short* piYields
+ 	return bAnyChange;
+ }
+ 
++// For improvements which upgrade when worked, this function calculates a time-weighted average of their yields.
++// The average is calculated with continous weighting such that ~63% of the weight is in the time from now until 'time_scale' turns have past.
++// (More precisely, the weight drops exponentially w.r.t. the number of turns, decreasing by a factor of `e` for each `time_scale` turns.)
++bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const* pPlot, ImprovementTypes eImprovement, int time_scale, std::vector<float>& weighted_yields) const
++{
++	PROFILE_FUNC();
++
++	FAssert(pPlot);
++	FAssert(time_scale > 0);
++
++	// This is an experimental function, designed to be 'the right way' to evaluate improvements which upgrade over time, with no concern for calculation speed.
++	// If it isn't too slow, I'll use it for lots of things.
++	// weighted yield = integral from 0 to inf. of (yield(t) * e^(-t/scale)), w.r.t.  t
++
++	weighted_yields.assign(NUM_YIELD_TYPES, 0);
++	std::set<ImprovementTypes> cited_improvements;
++	int iTotalTurns = 0;
++
++	while (eImprovement != NO_IMPROVEMENT && cited_improvements.insert(eImprovement).second)
++	{
++		const CvImprovementInfo& kImprovement = GC.getImprovementInfo(eImprovement);
++
++		// piecewise integration
++		// each piece is exp(-t0/T) - exp(t1/T)
++		const float value_factor = exp(-(float)iTotalTurns/time_scale) - (kImprovement.getImprovementUpgrade() != NO_IMPROVEMENT ? exp(-(float)(iTotalTurns+kImprovement.getUpgradeTime())/time_scale) : 0);
++
++		for (YieldTypes i = (YieldTypes)0; i < NUM_YIELD_TYPES; i=(YieldTypes)(i+1))
++		{
++			int iYieldDiff = pPlot->calculateImprovementYieldChange(eImprovement, i, getOwnerINLINE());
++			//if (kOwner.getExtraYieldThreshold(i) > 0) // todo: Extra yield for finacial civs (see AI_finalImprovementYieldDifference for guidence.)
++				// ;
++
++			weighted_yields[i] += iYieldDiff * value_factor;
++		}
++
++		iTotalTurns += kImprovement.getUpgradeTime();
++		eImprovement = (ImprovementTypes)kImprovement.getImprovementUpgrade();
++	}
++
++	if (eImprovement != NO_IMPROVEMENT)
++	{
++		// If we didn't reach final improvemnet; normalise the yield values based on what we've got so far.
++		for (size_t i = 0; i < NUM_YIELD_TYPES; ++i)
++		{
++			weighted_yields[i] /= (1-exp(-(float)iTotalTurns/time_scale));
++		}
++	}
++
++	return cited_improvements.size() > 1; // return true if the improvement had any upgrades
++}
++
+ // K-Mod. Value for working a plot in addition to its yields.
+ // (Returns ~400x commerce per turn.)
+ int CvCityAI::AI_specialPlotImprovementValue(CvPlot* pPlot) const
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 983256559..df8c4432b 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -217,6 +217,7 @@ protected:
+ 	int AI_plotValue(CvPlot* pPlot, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const;
+ 	int AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, int> old_job, bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const; // value gained by swapping jobs. (bIsSpecialist, iIndex) pairs.
+ 	bool AI_finalImprovementYieldDifference(CvPlot* pPlot, short* piYields) const; // difference between current yields and yields after plot improvement reaches final upgrade.
++	bool AI_timeWeightedImprovementYields(CvPlot const* pPlot, ImprovementTypes eImprovement, int time_scale, std::vector<float>& weighted_yields) const; // time-weighted yields for improvements which have upgrades
+ 	int AI_specialPlotImprovementValue(CvPlot* pPlot) const; // value for working a plot in addition to its yields
+ 	int AI_growthValuePerFood() const;
+ 	// K-mod end
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3942

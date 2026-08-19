@@ -1,0 +1,775 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2826
+# Commit: b0a48122cc0e2ed68d7b75953d70cbcdb46fa6cf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 06769ace873feff656f1f24d432525a93fb76028
+# Title: Some minor misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/BUG Advisors Options.xml
+19	19	CvGameCoreDLL/CitySiteEvaluator.cpp
+5	5	CvGameCoreDLL/CvCity.cpp
+22	21	CvGameCoreDLL/CvCityAI.cpp
+3	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	1	CvGameCoreDLL/CvGame.h
+3	3	CvGameCoreDLL/CvGameInterface.cpp
+10	5	CvGameCoreDLL/CvGameTextMgr.cpp
+19	7	CvGameCoreDLL/CvInfoEnums.h
+0	1	CvGameCoreDLL/CvInfo_Build.h
+0	1	CvGameCoreDLL/CvInfo_Building.h
+10	14	CvGameCoreDLL/CvInfo_City.cpp
+8	4	CvGameCoreDLL/CvInfo_City.h
+1	6	CvGameCoreDLL/CvPlayer.cpp
+4	4	CvGameCoreDLL/CvPlayerAI.cpp
+7	7	CvGameCoreDLL/CvPlot.cpp
+2	2	CvGameCoreDLL/CvTeamAI.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CyInfoInterface3.cpp
+10	3	CvGameCoreDLL/CyInfoWrapper.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/BUG Advisors Options.xml b/Assets/XML/Text/BUG Advisors Options.xml
+index 5e0dc5022..9cc424897 100644
+--- a/Assets/XML/Text/BUG Advisors Options.xml	
++++ b/Assets/XML/Text/BUG Advisors Options.xml	
+@@ -14,7 +14,7 @@
+ 		<English>BUG Finance Advisor</English>
+ 		<French>BUG Finance Advisor</French>
+ 		<German>BUG Finanzberater</German>
+-		<Italian>Evoluto</Italian>
++		<Italian>BUG Finance Advisor</Italian>
+ 		<Spanish>Consejero Financiero BUG</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 81008761a..3b2ce0364 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -48,20 +48,20 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
+ 			if (!kPlayer.hasTrait(eLoopTrait))
+ 				continue;
+ 
+-			CvTraitInfo const& kTrait = GC.getInfo(eLoopTrait);
+-			if (kTrait.getCommerceChange(COMMERCE_CULTURE) > 0)
++			CvTraitInfo const& kLoopTrait = GC.getInfo(eLoopTrait);
++			if (kLoopTrait.getCommerceChange(COMMERCE_CULTURE) > 0)
+ 			{
+ 				m_bEasyCulture = true;
+ 				if (pPersonality != NULL && pPersonality->getBasePeaceWeight() <= 5)
+ 					m_bAmbitious = true;
+ 			}
+-			if (kTrait.getExtraYieldThreshold(YIELD_COMMERCE) > 0)
++			if (kLoopTrait.getExtraYieldThreshold(YIELD_COMMERCE) > 0)
+ 				m_bFinancial = true;
+-			if (kTrait.isAnyFreePromotion()) // advc.003t
++			if (kLoopTrait.isAnyFreePromotion()) // advc.003t
+ 			{
+ 				FOR_EACH_ENUM(Promotion)
+ 				{
+-					if (kTrait.isFreePromotion(eLoopPromotion))
++					if (kLoopTrait.isFreePromotion(eLoopPromotion))
+ 					{
+ 						// aggressive, protective... it doesn't really matter to me.
+ 						if (pPersonality != NULL && pPersonality->getBasePeaceWeight() >= 5)
+@@ -115,9 +115,9 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
+ 		{
+ 			FOR_EACH_ENUM(Process)
+ 			{
+-				CvProcessInfo const& kProcess = GC.getInfo(eLoopProcess);
+-				if (GET_TEAM(kPlayer.getTeam()).isHasTech((TechTypes)kProcess.getTechPrereq()) &&
+-					kProcess.getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
++				CvProcessInfo const& kLoopProcess = GC.getInfo(eLoopProcess);
++				if (GET_TEAM(kPlayer.getTeam()).isHasTech(kLoopProcess.getTechPrereq()) &&
++					kLoopProcess.getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
+ 				{
+ 					m_bEasyCulture = true;
+ 					break;
+@@ -1256,8 +1256,8 @@ bool AIFoundValue::isRemovableFeature(CvPlot const& p, bool& bPersistent,
+ 	bPersistent = true;
+ 	FOR_EACH_ENUM(Build)
+ 	{
+-		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+-		if (!kBuild.isFeatureRemove(eFeature))
++		CvBuildInfo const& kLoopBuild = GC.getBuildInfo (eLoopBuild);
++		if (!kLoopBuild.isFeatureRemove(eFeature))
+ 			continue;
+ 
+ 		bPersistent = false;
+@@ -1279,8 +1279,8 @@ bool AIFoundValue::isRemovableFeature(CvPlot const& p, bool& bPersistent,
+ 				iFeatureProduction /= 3; // Can already chop it
+ 		}
+ 		// CurrentResearch should be good enough
+-		TechTypes eTech1 = kBuild.getTechPrereq();
+-		TechTypes eTech2 = kBuild.getFeatureTech(eFeature);
++		TechTypes eTech1 = kLoopBuild.getTechPrereq();
++		TechTypes eTech2 = kLoopBuild.getFeatureTech(eFeature);
+ 		// </advc.031>
+ 		if (kTeam.isHasTech(eTech1) &&
+ 			kTeam.isHasTech(eTech2)) // advc.001: This check was missing
+@@ -1331,12 +1331,12 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
+ 	FeatureTypes const eFeature = p.getFeatureType();
+ 	FOR_EACH_ENUM(Build)
+ 	{
+-		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+-		ImprovementTypes eImprovement = kBuild.getImprovement();
++		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
++		ImprovementTypes eImprovement = kLoopBuild.getImprovement();
+ 		if (eImprovement == NO_IMPROVEMENT)
+ 			continue;
+ 		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+-		TechTypes const eBuildPrereq = kBuild.getTechPrereq();
++		TechTypes const eBuildPrereq = kLoopBuild.getTechPrereq();
+ 		if (!kImprovement.isImprovementBonusMakesValid(eBonus) ||
+ 			!kImprovement.isImprovementBonusTrade(eBonus) ||
+ 			!isNearTech(eBuildPrereq))
+@@ -1344,7 +1344,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
+ 			continue;
+ 		}
+ 		TechTypes const eFeaturePrereq = (eFeature == NO_FEATURE ? NO_TECH :
+-				kBuild.getFeatureTech(eFeature));
++				kLoopBuild.getFeatureTech(eFeature));
+ 		if (!isNearTech(eFeaturePrereq))
+ 			continue;
+ 		bCanTradeSoon = true;
+@@ -1357,7 +1357,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
+ 		else if (bCanTrade) // Prefer currently available build - regardless of yield
+ 			continue;
+ 		int iYieldValue = 0;
+-		bool bRemove = (eFeature != NO_FEATURE && kBuild.isFeatureRemove(eFeature));
++		bool bRemove = (eFeature != NO_FEATURE && kLoopBuild.isFeatureRemove(eFeature));
+ 		FOR_EACH_ENUM(Yield) // Make sure we're not picking Fort over a yield improvement
+ 		{
+ 			iYieldValue += kImprovement.getYieldChange(eLoopYield) +
+@@ -1556,9 +1556,9 @@ int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature,
+ 	bool bRemovableFeature, bool bBonus) const
+ {
+ 	int iR = 0;
++	CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+ 	FOR_EACH_ENUM(Yield)
+ 	{
+-		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+ 		if (bRemovableFeature)
+ 			iR += 10 * kFeature.getYieldChange(eLoopYield);
+ 		else if (kFeature.getYieldChange(eLoopYield) < 0)
+@@ -1612,7 +1612,7 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p,
+ 		// Not a perfectly safe way to check if we can build the improvement - but fast.
+ 		if (kPlayer.getImprovementCount(eLoopImprovement) <= 0)
+ 			continue;
+-		CvImprovementInfo& kLoopImprovement = GC.getInfo(eLoopImprovement);
++		CvImprovementInfo const& kLoopImprovement = GC.getInfo(eLoopImprovement);
+ 		int iYieldChange = kLoopImprovement.getYieldChange(YIELD_PRODUCTION) +
+ 				kTeam.getImprovementYieldChange(eLoopImprovement, YIELD_PRODUCTION);
+ 		// Will be less inclined to build improvement if it hurts other yields
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2ea5b8e37..a10ecaea2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -737,8 +737,8 @@ bool CvCity::canBeSelected() const  // advc: refactored
+ 
+ 	FOR_EACH_ENUM(EspionageMission)
+ 	{
+-		CvEspionageMissionInfo const& kMission = GC.getInfo(eLoopEspionageMission);
+-		if(kMission.isPassive() && kMission.isInvestigateCity() &&
++		if (GC.getInfo(eLoopEspionageMission).isPassive() &&
++			GC.getInfo(eLoopEspionageMission).isInvestigateCity() &&
+ 			GET_PLAYER(kGame.getActivePlayer()).canDoEspionageMission(
+ 			eLoopEspionageMission, getOwner(), plot()))
+ 		{
+@@ -3655,7 +3655,8 @@ int CvCity::totalFreeSpecialists() const
+ 		{
+ 			FOR_EACH_ENUM(Improvement)
+ 			{
+-				int iNumSpecialistsPerImprovement = getImprovementFreeSpecialists(eLoopImprovement);
++				int iNumSpecialistsPerImprovement = getImprovementFreeSpecialists(
++						eLoopImprovement);
+ 				if (iNumSpecialistsPerImprovement > 0)
+ 				{
+ 					iCount += iNumSpecialistsPerImprovement *
+@@ -6750,9 +6751,8 @@ int CvCity::getAdditionalBaseYieldRateByBuilding(YieldTypes eYield, BuildingType
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 	// <advc.179> Some overlap with code in CvGameTextMgr::buildBuildingReligionYieldString
+ 	CvCivilization const& kCiv = getCivilization();
+-	FOR_EACH_ENUM(VoteSource)
++	FOR_EACH_ENUM2(VoteSource, eVS)
+ 	{
+-		VoteSourceTypes const eVS = eLoopVoteSource;
+ 		if (eVS != kBuilding.getVoteSourceType())
+ 			continue;
+ 		CvVoteSourceInfo& kVS = GC.getInfo(eVS);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 33dbfd9a1..9ba89c9aa 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6261,9 +6261,7 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
+ 
+ 	// pop borders
+ 	if (getCultureLevel() <= 1)
+-	{
+ 		iValue += GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+-	}
+ 
+ 	int iAdjustFactor = 0;
+ 	FOR_EACH_ENUM(Commerce)
+@@ -8045,7 +8043,7 @@ void CvCityAI::AI_updateBestBuild()
+ 		// K-Mod, make some adjustments to our yield weights based on our new bestbuild
+ 		// [really we want (isWorking || was good plot), but that's harder and more expensive...]
+ 		if (m_aeBestBuild[ePlot] == eLastBestBuildType)
+-			continue; // advc
++			continue;
+ 
+ 		if (isWorkingPlot(ePlot)) // [or was 'good plot' with previous build]
+ 		{
+@@ -9811,44 +9809,48 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 	int iCommerceValue = 0;
+ 	ProcessTypes eProcess = getProductionProcess();
+ 
+-	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	FOR_EACH_ENUM2(Commerce, eCommerce)
+ 	{
+-		int iCommerceTimes100 = iCommerceYieldTimes100 * kOwner.getCommercePercent((CommerceTypes)iI) / 100;
++		int iCommerceTimes100 = iCommerceYieldTimes100 *
++				kOwner.getCommercePercent(eCommerce) / 100;
+ 		if (piCommerceYields != NULL)
+-		{
+-			iCommerceTimes100 += piCommerceYields[iI] * 100;
+-		}
++			iCommerceTimes100 += piCommerceYields[eCommerce] * 100;
+ 
+-		iCommerceTimes100 *= getTotalCommerceRateModifier((CommerceTypes)iI);
++		iCommerceTimes100 *= getTotalCommerceRateModifier(eCommerce);
+ 		iCommerceTimes100 /= 100;
+ 
+ 		//FAssert(iCommerceTimes100 >= 0);
+ 
+ 		if (eProcess != NO_PROCESS)
+-			iCommerceTimes100 += GC.getInfo(getProductionProcess()).getProductionToCommerceModifier(iI) * iProductionTimes100 / 100;
+-
++		{
++			iCommerceTimes100 += (GC.getInfo(getProductionProcess()).
++					getProductionToCommerceModifier(eCommerce) * iProductionTimes100) / 100;
++		}
+ 		if (iCommerceTimes100 != 0)
+ 		{
+-			int iCommerceWeight = kOwner.AI_commerceWeight((CommerceTypes)iI, this); // (Should we still use this with bWorkerOptimization?)
+-			if (AI_isEmphasizeCommerce((CommerceTypes)iI))
+-			{
++			// (Should we still use this with bWorkerOptimization?)
++			int iCommerceWeight = kOwner.AI_commerceWeight(eCommerce, this);
++			if (AI_isEmphasizeCommerce(eCommerce))
+ 				iCommerceWeight *= 2;
+-			}
+-			if (!bWorkerOptimization && iI == COMMERCE_CULTURE && getCultureLevel() <= (CultureLevelTypes)1)
++			if (!bWorkerOptimization && eCommerce == COMMERCE_CULTURE &&
++				getCultureLevel() <= (CultureLevelTypes)1)
+ 			{
+ 				// bring on the artists
+-				if (getCommerceRateTimes100(COMMERCE_CULTURE) - (bRemove ? iCommerceTimes100 : 0) < 100)
++				if (getCommerceRateTimes100(COMMERCE_CULTURE)
++					- (bRemove ? iCommerceTimes100 : 0) < 100)
+ 				{
+ 					iCommerceValue += 20 * (iCommerceTimes100 > 0 ? 1 : -1);
+ 				}
+ 				iCommerceWeight = std::max(iCommerceWeight, 200);
+ 			}
+ 
+-			//iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue * GET_PLAYER(getOwner()).AI_averageCommerceExchange((CommerceTypes)iI) / 1000000;
+-			iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue / 10000; // K-Mod. (averageCommerceExchange should be part of commerceWeight if we want it, and we probably don't want it anyway.)
++			iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue
++					//* GET_PLAYER(getOwner()).AI_averageCommerceExchange((CommerceTypes)iI) / 1000000;
++					/*	K-Mod. (averageCommerceExchange should be part of commerceWeight
++						if we want it, and we probably don't want it anyway.) */
++					/ 10000;
+ 		}
+ 	}
+-	//
+ 
+ 	// Production
+ 	int iProductionValue = 0;
+@@ -9889,7 +9891,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 			iProductionValue /= 2;
+ 		}
+ 	}
+-	//
+ 
+ 	int iSlaveryValue = 0;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index cf7139007..83f04d007 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2716,7 +2716,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 			}
+ 			if (kMissionPlot.isFeature())
+ 			{
+-				if (GC.getInfo(eBuild).isFeatureRemove(kMissionPlot.getFeatureType())) {
++				if (GC.getInfo(eBuild).isFeatureRemove(kMissionPlot.getFeatureType()))
++				{
+ 					iYield -= GC.getInfo(kMissionPlot.getFeatureType()).
+ 							getYieldChange(eYield);
+ 				}
+@@ -3230,7 +3231,7 @@ void CvDLLWidgetData::parseResearchHelp(CvWidgetDataStruct &widgetDataStruct, Cv
+ 	TechTypes eTech = (TechTypes)widgetDataStruct.m_iData1;
+ 	if (eTech == NO_TECH)
+ 	{
+-		TechTypes eCurrentResearch = GET_PLAYER(GC.getGame().getActivePlayer()).getCurrentResearch(); //advc
++		TechTypes eCurrentResearch = GET_PLAYER(GC.getGame().getActivePlayer()).getCurrentResearch();
+ 		if (eCurrentResearch != NO_TECH)
+ 		{
+ 			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CHANGE_RESEARCH"));
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 34b95fb5b..35883b05d 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -952,7 +952,8 @@ protected:
+ 	int* m_aiSecretaryGeneralTimer;
+ 	int* m_aiVoteTimer;
+ 	int* m_aiDiploVote;
+-
++	/*	advc (note): Used to be used for ICBM, unused since BtS.
++		SpecialBuildingValid is still used for Bomb Shelters. */
+ 	bool* m_pabSpecialUnitValid;
+ 	bool* m_pabSpecialBuildingValid;
+ 	bool* m_abReligionSlotTaken;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 6a7625bcf..29a37f54d 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -615,9 +615,9 @@ CvUnit* CvGame::getCycleButtonUnit(bool bForward, bool bWorkers) const
+ 			if (!pUnit->IsSelected() && pUnit->canMove() &&
+ 				/*	!bWorkers doesn't exclude all-worker groups, so we can only
+ 					_prefer_ selecting a non-worker. */
+-					/*	Actually, let's always prefer to select a worker. Don't want
+-						to show different icons on the two buttons if they refer
+-						to the same group. */
++				/*	Actually, let's always prefer to select a worker. Don't want
++					to show different icons on the two buttons if they refer
++					to the same group. */
+ 				(iPass == 1 || /*bWorkers == */pUnit->isWorker()))
+ 			{
+ 				return pUnit;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index eda7b718a..0aa0c684e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9442,13 +9442,15 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	{
+ 		if (eActivePlayer == NO_PLAYER)
+ 		{
+-			szTempBuffer.Format(L"\n%d%c", GC.getInfo(eTech).getResearchCost(),
++			szTempBuffer.Format(L"\n%d%c",
++					GC.getInfo(eTech).getResearchCost(),
+ 					GC.getInfo(COMMERCE_RESEARCH).getChar());
+ 			szBuffer.append(szTempBuffer);
+ 		}
+ 		else if (GET_TEAM(eActiveTeam).isHasTech(eTech))
+ 		{
+-			szTempBuffer.Format(L"\n%d%c", GET_TEAM(eActiveTeam).getResearchCost(eTech),
++			szTempBuffer.Format(L"\n%d%c",
++					GET_TEAM(eActiveTeam).getResearchCost(eTech),
+ 					GC.getInfo(COMMERCE_RESEARCH).getChar());
+ 			szBuffer.append(szTempBuffer);
+ 		}
+@@ -13357,12 +13359,15 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ void CvGameTextMgr::setProcessHelp(CvWStringBuffer &szBuffer, ProcessTypes eProcess)
+ {
+ 	szBuffer.append(GC.getInfo(eProcess).getDescription());
+-	for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
++	FOR_EACH_ENUM(Commerce)
+ 	{
+-		if (GC.getInfo(eProcess).getProductionToCommerceModifier(iI) != 0)
++		if (GC.getInfo(eProcess).getProductionToCommerceModifier(eLoopCommerce) != 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_PROCESS_CONVERTS", GC.getInfo(eProcess).getProductionToCommerceModifier(iI), GC.getInfo(YIELD_PRODUCTION).getChar(), GC.getInfo((CommerceTypes) iI).getChar()));
++			szBuffer.append(gDLL->getText("TXT_KEY_PROCESS_CONVERTS",
++					GC.getInfo(eProcess).getProductionToCommerceModifier(eLoopCommerce),
++					GC.getInfo(YIELD_PRODUCTION).getChar(),
++					GC.getInfo(eLoopCommerce).getChar()));
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index 116c2db83..8ccd1b52d 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -86,14 +86,16 @@ static inline T operator-(T minuend, T subtrahend)
+ 	for (TypeName##Types eLoop##TypeName = (TypeName##Types)(getEnumLength(((TypeName##Types)0)) - 1); \
+ 			eLoop##TypeName >= 0; \
+ 			eLoop##TypeName = (TypeName##Types)(eLoop##TypeName - 1))
+-/*	For accessing an info object in a loop over an info enum. Tentative and unused.
+-	Will make more sense if I add getInfoUnsafe functions that don't assert array bounds
+-	to the MAKE_INFO_ACCESSORS... macros (tbd.?). Then SET_LOOP_INFO could avoid the
+-	bounds checks (which are unnecessary in a FOR_EACH_ENUM loop) and getInfoUnsafe
+-	would probably get inlined in Ob1-debug builds, meaning that one could
+-	no longer accidentally step into the getter while debugging. */
++/*	To be used only in the body of a FOR_EACH_ENUM loop. Don't need to assert
++	array bounds then. Not really feasible though to replace all the
++	CvGlobals::getInfo calls, so ... */
++/*#define LOOP_INFO(TypeName) \
++	GC.getLoopInfo(eLoop##TypeName)
+ #define SET_LOOP_INFO(TypeName) \
+-	Cv##TypeName##Info const& kLoop##TypeName = GC.getInfo(eLoop##TypeName)
++	Cv##TypeName##Info const& kLoop##TypeName = LOOP_INFO(TypeName)
++// To go with FOR_EACH_ENUM2
++#define SET_LOOP_INFO2(TypeName, kVar) \
++	Cv##TypeName##Info const& kVar = LOOP_INFO(TypeName)*/
+ 
+ // Type lists ...
+ 
+@@ -324,6 +326,11 @@ namespace info_enum_detail
+ 		FAssertBounds(0, getNum##Name##Infos(), e##Name); \
+ 		return *m_pa##Name##Info[e##Name]; \
+ 	} \
++	/* (See SET_LOOP_INFO) */ \
++	/*inline Cv##Name##Info& getLoopInfo(Name##Types e##Name) const*/ \
++	/*{*/ \
++	/*	return *m_pa##Name##Info[e##Name];*/ \
++	/*}*/ \
+ 	/* Deprecated: */ \
+ 	inline Cv##Name##Info& get##Name##Info(Name##Types e##Name) const \
+ 	{ \
+@@ -345,6 +352,11 @@ namespace info_enum_detail
+ 		FAssertBounds(0, NUM_ENUM_TYPES(INFIX), e##Name); \
+ 		return *m_pa##Name##Info[e##Name]; \
+ 	} \
++	/* (See SET_LOOP_INFO) */ \
++	/*inline Cv##Name##Info& getLoopInfo(Name##Types e##Name) const*/ \
++	/*{*/ \
++	/*	return *m_pa##Name##Info[e##Name];*/ \
++	/*}*/ \
+ 	/* Deprecated: */ \
+ 	inline Cv##Name##Info& get##Name##Info(Name##Types e##Name) const \
+ 	{ \
+
+diff --git a/CvGameCoreDLL/CvInfo_Build.h b/CvGameCoreDLL/CvInfo_Build.h
+index 6fc5ddff2..4fd2ffc67 100644
+--- a/CvGameCoreDLL/CvInfo_Build.h
++++ b/CvGameCoreDLL/CvInfo_Build.h
+@@ -31,7 +31,6 @@ public: /*	All the const functions are exposed to Python. advc.inl: inlined most
+ 	int getFeatureProduction(FeatureTypes eFeature) const;
+ 	bool isFeatureRemove(FeatureTypes eFeature) const;
+ 
+-	friend void CyInfoPythonInterface2(); // advc.003x
+ 	iPY_WRAP(FeatureTech, Feature)
+ 	iPY_WRAP(FeatureTime, Feature)
+ 	iPY_WRAP(FeatureProduction, Feature)
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index 8695bbd19..1c8482636 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -252,7 +252,6 @@ public: /*	All the const functions are exposed to Python. advc.inl: Inlined most
+ 	const TCHAR* getMovieDefineTag() const;
+ 
+ 	// Array access:
+-	friend void CyInfoPythonInterface1(); // advc.003x
+ 
+ 	int getYieldChange(YieldTypes eYield) const;
+ 	iPY_WRAP(YieldChange, Yield)
+
+diff --git a/CvGameCoreDLL/CvInfo_City.cpp b/CvGameCoreDLL/CvInfo_City.cpp
+index 0b591417f..e8bec8dfc 100644
+--- a/CvGameCoreDLL/CvInfo_City.cpp
++++ b/CvGameCoreDLL/CvInfo_City.cpp
+@@ -7,24 +7,20 @@
+ 
+ 
+ CvProcessInfo::CvProcessInfo() :
+-m_iTechPrereq(NO_TECH),
+-m_paiProductionToCommerceModifier(NULL)
++m_eTechPrereq(NO_TECH),
++m_aiProductionToCommerceModifier(NULL)
+ {}
+ 
+ CvProcessInfo::~CvProcessInfo()
+ {
+-	SAFE_DELETE_ARRAY(m_paiProductionToCommerceModifier);
++	SAFE_DELETE_ARRAY(m_aiProductionToCommerceModifier);
+ }
+ 
+-int CvProcessInfo::getTechPrereq() const
++int CvProcessInfo::getProductionToCommerceModifier(CommerceTypes eCommerce) const
+ {
+-	return m_iTechPrereq;
+-}
+-
+-int CvProcessInfo::getProductionToCommerceModifier(int i) const
+-{
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, i);
+-	return m_paiProductionToCommerceModifier ? m_paiProductionToCommerceModifier[i] : 0; // advc.003t
++	FAssertEnumBounds(eCommerce);
++	return (m_aiProductionToCommerceModifier == NULL ? 0 : // advc.003t
++			m_aiProductionToCommerceModifier[eCommerce]);
+ }
+ 
+ bool CvProcessInfo::read(CvXMLLoadUtility* pXML)
+@@ -32,14 +28,14 @@ bool CvProcessInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereq, "TechPrereq");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechPrereq, "TechPrereq");
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"ProductionToCommerceModifiers"))
+ 	{
+-		pXML->SetCommerce(&m_paiProductionToCommerceModifier);
++		pXML->SetCommerce(&m_aiProductionToCommerceModifier);
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
+-	else pXML->InitList(&m_paiProductionToCommerceModifier, NUM_COMMERCE_TYPES);
++	else pXML->InitList(&m_aiProductionToCommerceModifier, NUM_COMMERCE_TYPES);
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_City.h b/CvGameCoreDLL/CvInfo_City.h
+index 656635e41..9460edda7 100644
+--- a/CvGameCoreDLL/CvInfo_City.h
++++ b/CvGameCoreDLL/CvInfo_City.h
+@@ -19,13 +19,17 @@ public:
+ 	CvProcessInfo();
+ 	~CvProcessInfo();
+ 
+-	int getTechPrereq() const; // Exposed to Python
+-	int getProductionToCommerceModifier(int i) const; // Exposed to Python
++	TechTypes getTechPrereq() const // Exposed to Python
++	{
++		return m_eTechPrereq;
++	}
++	int getProductionToCommerceModifier(CommerceTypes eCommerce) const; // Exposed to Python
++	iPY_WRAP(ProductionToCommerceModifier, Commerce);
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
+-	int m_iTechPrereq;
+-	int* m_paiProductionToCommerceModifier;
++	TechTypes m_eTechPrereq;
++	int* m_aiProductionToCommerceModifier;
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 11e65e0ff..9d8728676 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5245,12 +5245,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
+ 
+ bool CvPlayer::canMaintain(ProcessTypes eProcess, bool bContinue) const
+ {
+-	if (!GET_TEAM(getTeam()).isHasTech((TechTypes)
+-		GC.getInfo(eProcess).getTechPrereq()))
+-	{
+-		return false;
+-	}
+-	return true;
++	return GET_TEAM(getTeam()).isHasTech(GC.getInfo(eProcess).getTechPrereq());
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b4703fe19..1e586c3f7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5321,7 +5321,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		FOR_EACH_ENUM(Process)
+ 		{
+ 			CvProcessInfo const& kLoopProcess = GC.getInfo(eLoopProcess);
+-			if (kTeam.isHasTech((TechTypes)kLoopProcess.getTechPrereq()))
++			if (kTeam.isHasTech(kLoopProcess.getTechPrereq()))
+ 			{
+ 				bHaveGoodProcess = (kLoopProcess.getProductionToCommerceModifier(COMMERCE_GOLD) +
+ 						kLoopProcess.getProductionToCommerceModifier(COMMERCE_RESEARCH) > 0);
+@@ -12893,7 +12893,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
+ 
+ 	FAssert(eUnit != NO_UNIT);
+ 	FAssert(eUnitAI != NO_UNITAI);
+-	CvUnitInfo const& u = GC.getInfo(eUnit); // advc
++	CvUnitInfo const& u = GC.getInfo(eUnit);
+ 	if (u.getDomainType() != AI_unitAIDomainType(eUnitAI))
+ 	{
+ 		if (eUnitAI != UNITAI_ICBM)//XXX
+@@ -26855,7 +26855,7 @@ int CvPlayerAI::AI_getUnitCombatWeight(UnitCombatTypes eUnitCombat) const
+ 
+ void CvPlayerAI::AI_doEnemyUnitData()
+ {
+-	PROFILE_FUNC(); // advc.test: To be profiled
++	PROFILE_FUNC(); // advc: Entirely harmless so far wrt. performance
+ 
+ 	std::vector<int> aiUnitCounts(GC.getNumUnitInfos(), 0);
+ 	std::vector<int> aiDomainSums(NUM_DOMAIN_TYPES, 0);
+@@ -27747,7 +27747,7 @@ bool CvPlayerAI::AI_isPiracyTarget(PlayerTypes eTarget) const
+ // advc.124:
+ bool CvPlayerAI::AI_isUnitNeedingOpenBorders(TeamTypes eTarget) const
+ {
+-	PROFILE_FUNC(); // advc.test: To be profiled
++	PROFILE_FUNC(); // Hardly has gotten called in profiler tests so far
+ 	FOR_EACH_GROUP(pGroup, *this)
+ 	{
+ 		CvPlot const* pPlot = pGroup->plot();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 459536b19..beac92f57 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -410,7 +410,7 @@ void CvPlot::doImprovement()
+ 
+ void CvPlot::updateCulture(bool bBumpUnits, bool bUpdatePlotGroups)
+ {
+-	PROFILE_FUNC(); // advc
++	PROFILE_FUNC(); // advc (There's a plot group update when the owner changes)
+ 
+ 	if(isCity())
+ 		return;
+@@ -1890,7 +1890,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ 	{
+ 		FOR_EACH_ENUM(Build)
+ 		{
+-			CvBuildInfo& kLoopBuild = GC.getInfo(eLoopBuild);
++			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+ 			if (kLoopBuild.getImprovement() == eImprovement)
+ 			{
+ 				bBuildable = true;
+@@ -3740,7 +3740,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 	PROFILE_FUNC();
+ 
+ 	if(getOwner() == eNewValue)
+-		return; // advc
++		return;
+ 	PlayerTypes eOldOwner = getOwner(); // advc.ctr
+ 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, (char*)NULL, getX(), getY());
+ 
+@@ -6594,7 +6594,7 @@ void CvPlot::doCulture()
+ 	updateCulture(true, true);
+ }
+ 
+-// <advc.099b>
++// advc.099b:
+ void CvPlot::doCultureDecay()
+ {
+ 	PROFILE_FUNC();
+@@ -6659,9 +6659,9 @@ void CvPlot::doCultureDecay()
+ 		iCulture -= (iCulture * iDecayPerMill) / 1000;
+ 		setCulture(civId, iCulture, false, false);
+ 	}
+-} // </advc.099b>
++}
+ 
+-/*  <advc.099b>
++/*	advc.099b:
+ 	 0: city tile belonging to ePlayer
+ 	-1: Not in the exclusive radius of ePlayer. I.e. not in the radius of any
+ 		ePlayer city or also in the radius of another player's city.
+@@ -6687,7 +6687,7 @@ int CvPlot::exclusiveRadius(PlayerTypes ePlayer) const
+ 		else return -1;
+ 	}
+ 	return r;
+-} // </advc.099b>
++}
+ 
+ /*	advc: Replacing the old getArea function. Not public b/c CvAreas shouldn't be
+ 	routinely passed and accessed by id. */
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index e80cdd276..3f4db6a9d 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1908,7 +1908,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 	bool bIgnoreDiscount, // advc.550a
+ 	bool bPeaceDeal) const // advc.140h
+ {
+-	PROFILE_FUNC(); // advc.test: To be profiled
++	PROFILE_FUNC(); // advc.550: Still seems completely harmless wrt. performance
+ 	FAssert(eFromTeam != getID());
+ 
+ 	CvTechInfo const& kTech = GC.getInfo(eTech);
+@@ -3916,7 +3916,7 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eWithTeam) const
+ // advc.124:
+ bool CvTeamAI::AI_isTerritoryAccessible(TeamTypes eOwner) const
+ {
+-	PROFILE_FUNC(); // advc.test: To be profiled
++	PROFILE_FUNC(); // Hardly has gotten called in profiler tests so far
+ 	bool bLandFound = false;
+ 	// Check cities first in order to save time
+ 	for (MemberIter itOwnerMember(eOwner); itOwnerMember.hasNext(); ++itOwnerMember)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 28e65de32..3c6963044 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7665,8 +7665,8 @@ int CvUnit::rangeCombatDamage(const CvUnit* pDefender) const
+ CvUnit* CvUnit::bestInterceptor(CvPlot const& kPlot,
+ 	bool bOdds) const // advc.004c
+ {
+-	/*	advc.test: (Could do this through a plot range, or at least go through
+-		selection groups before individual units.) */
++	/*	advc: (Could do this through a plot range, or at least go through
++		selection groups before individual units. But seems to be a nonissue.) */
+ 	PROFILE_FUNC();
+ 	TeamTypes const eOurTeam = getTeam(); // advc.004c
+ 	CvUnit* pBestUnit = NULL;
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index 772416444..56b61fedb 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -136,7 +136,7 @@ void CyInfoPythonInterface3()
+ 
+ 		// Arrays
+ 
+-		.def("getProductionToCommerceModifier", &CvProcessInfo::getProductionToCommerceModifier, "int (int i)")
++		.def("getProductionToCommerceModifier", &CvProcessInfo::py_getProductionToCommerceModifier, "int (int i)")
+ 		;
+ 
+ 	python::class_<CvVoteInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvVoteInfo")
+
+diff --git a/CvGameCoreDLL/CyInfoWrapper.h b/CvGameCoreDLL/CyInfoWrapper.h
+index 971caf10b..9f5bddfe6 100644
+--- a/CvGameCoreDLL/CyInfoWrapper.h
++++ b/CvGameCoreDLL/CyInfoWrapper.h
+@@ -10,9 +10,12 @@
+ 	member function. It defines an in-line wrapper with private accessibility.
+ 	A pointer to the wrapper needs to be inserted into the proper .def call in
+ 	CyInfoInterface[1-4].cpp. That's just a matter of prepending 'py_' to the existing
+-	call argument. Additionally, the CvInfo class needs to declare the (global)
+-	CyInfoPythonInterface[1-4] function that contains the def call as a friend, e.g.:
+-		friend void CyInfoPythonInterface1();
++	call argument.
++
++	Additionally, the CvInfo class needs to declare the global
++	CyInfoPythonInterface[1-4] function that contains the def call as a friend.
++	^Actually, let's just insert that into the macro; redundant declarations do no harm.
++
+ 	For convenience, there are macros that take fewer parameters:
+ 	iPY_WRAP: Takes the name of an XML tag and prepends "get" to generate the
+ 			function name. Return type is 'int'.
+@@ -20,6 +23,10 @@
+ 
+ #define PY_WRAP(ReturnType, fnName, enumName) \
+ 	private: \
++		friend void CyInfoPythonInterface1(); \
++		friend void CyInfoPythonInterface2(); \
++		friend void CyInfoPythonInterface3(); \
++		friend void CyInfoPythonInterface4(); \
+ 		ReturnType py_##fnName(int i) const \
+ 		{ \
+ 			return fnName((enumName##Types)i); \
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=29803

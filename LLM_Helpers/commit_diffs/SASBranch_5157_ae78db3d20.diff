@@ -1,0 +1,257 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5157
+# Commit: ae78db3d20579b2247734b723f2326c76fada6f4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 993b57644ebe456bf17c02f8baeb61373bf51980
+# Title: Even AI and human upgrade costs (iAIUnitUpgradePercent:50->100); reduce both human and AI upgrade costs to 75% of old human cost (tunable) - Upgrade costs re...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+18	9	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+11	0	Assets/XML/GlobalDefines_advciv_sas.xml
+5	0	CvGameCoreDLL/CvUnit.cpp
+6	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+12	11	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+1	1	handicap_info_to_csv_advciv-sas.csv
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index f80e7dd81..a4d9bbdf0 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -192,7 +192,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>118</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>115</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>118</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+@@ -318,7 +319,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>112</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>110</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>112</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+@@ -442,7 +444,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>106</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>105</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>106</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+@@ -571,7 +574,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>100</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
+ 			<!-- advc.251: renamed -->
+@@ -703,7 +707,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>94</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>95</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>94</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 1 per era. -->
+@@ -845,7 +850,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>88</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>90</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 2 per era. -->
+@@ -981,7 +987,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>82</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>85</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>82</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 3 per era. -->
+@@ -1125,7 +1132,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAICivicUpkeepPercent>76</iAICivicUpkeepPercent>
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>76</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 4 per era. -->
+@@ -1278,7 +1286,8 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+ 			<!-- advc.251 (end) -->
+ 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
+-			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
++			<!-- custom: was 50 -->
++			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>75</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
+ 			<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 88fe45332..9e60ceedb 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -39,6 +39,17 @@
+ 
+ 
+ 
++	<!-- custom: use this to tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
++	<!-- custom: e.g. with a value of 75, if the upgrade cost was 120 gold, now it would be 120 * 75 / 100 = 90 gold -->
++	<!-- custom: note 2: set to 100 to disable (since 100 percent = 1 = same value but anyways etc.) -->
++	<!-- 75% of current cost for both human & AI -->
++	<Define>
++		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
+ 
+ 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 4aaf1eaef..17309f4c3 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7045,6 +7045,11 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
+ 		/*iPrice *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * GET_PLAYER(getOwner()).getCurrentEra()) + 100));
+ 		iPrice /= 100;*/
+ 	}
++
++	// <!-- custom: tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
++	static const int iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT = std::max(0, GC.getDefineINT("SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT"));
++	iPrice = (iPrice * iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT) / 100;
++
+ 	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
+ 
+ 	return std::max(0, iPrice); // advc.mnai: max (future-proofing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index a0f6b0182..c04d90b2f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -432,9 +432,13 @@ Note: please see note here as well in this custom main changes guide about the .
+ - in particular, split unitcombat_melee units into unitcombat_melee_polearm (i.e. using a lance (melee but from some distance), e.g. spearman, pikeman, etc if any more anyways etc) and unitcombat_melee_shock (i.e. close range / contact / brawl anyways etc, e.g. ancient maceman, axeman, swordsman, maceman, etc if any more anyways etc). For example, after this change, axemen now are still good against polearm units (they crush spears xd anyways etc) but they are now barely stronger than swords (just a bit as of now anyways etc); also, crossbows are still strong vs medieval macemen (unitcombat_melee_shock) but now useless vs pikes (unitcombat_melee_polearm anyways etc). This fixes the issue of bronze units like the axeman being stronger than medieval pikes which was non-sensical considering the age (in this case i mean but anyways etc) and cost difference anyways etc, or if not this one of any unit we'd want to add or rework. Also, some civ-specific variants like as of now the persia_immortal (swordsman based) are now correctly typed as melee_polearm since they are holding a lance, which means their modifier vs melee_shock makes them bit stronger than other swords (which makes sense since they have a lance and fight from a distance vs them anyways etc), while their overall kit remains good enough to withstand well enough axes as we intend too anyways etc. Also allows for more fine tuning for example with the as of now babylonian bowman, or the generic crossbow, now being strong specifically against melee_shock and not vs melee_polearm (in other words crossbows and such are useless against pikes (since they are armor as in heavy defensive generally units or/and use a metaphorical or real shield but anyways etc) as we intend anyways etc). General idea for mounted units: Spearman > Chariot (UNITCOMBAT_MOUNTED_MELEE); generic Horse/Camel Archer (UNITCOMBAT_MOUNTED_RANGED) > Spearman; generic Horse/Camel Knights (UNITCOMBAT_MOUNTED_MELEE) < Pikemen (UNITCOMBAT_MELEE_POLEARM); generic Horse/Camel Cuirassiers > Pikemen (UNITCOMBAT_MELEE_POLEARM). See sevopedia or/and xml for details anyways etc.
+ - some units are now in another combat type, for example as of now the mechanized_infantry is now in armored units, not in gun units anymore.
+ - This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken. Also for example the anti tank infantry and the gunship would now be strong against mechanized infantry if i am not mistaken for example too as of now at least it would be so if i am not mistaken anyways etc. The airship is now a recon unit, not an air unit anymore, meant to be a defensive more effective recon unit than the explorer (also note: the airship as of now cannot see submarines anymore unlike later recon unit(s), see sevopedia unit chart and sevopedia unit of the corresponding units for details), see sevopedia unit for updated values anyways etc.
+-- new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
+ - fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions but anyways etc, but we (i.e. me but anyways etc xd if i may say but anyways etc...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well if i am not mistaken but anyways etc); also as a result and in line/following this change but anyways etc, as of now collateral damage 1 and 2 promotions are available to all eligible units (which should be all or almost all, see sevopedia promotion or sevopedia unit for details); hopefully i am not mistaken in doing so or/and it is helpful or not or yes or etc but anyways etc)
++- (Requires AdvCiv-SAS 5157+) Upgrade costs rework: AIs no longer have cheaper upgrade costs than human players (increased `iAIUnitUpgradePercent` from 50 to 100 (see xml for updated values anyways etc.)). Additionally, reduced upgrade costs for both human and AI players, in `CvUnit::upgradePrice`, to as of now 75% (tunable). So unlike in base advciv where AI paid half cost (too easily upgrade / too cheap but anyways etc.) and humans payed full cost (which btw felt too expensive ingame to me at least but anyways etc.), now both human and AI players pay the same upgrade cost, which is as of now 75% of what humans used to pay for unit upgrades.
++- for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, and pikemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, dragoon units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
++- similarly, also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc
++- new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
++- relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires iron as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc); similarly also for civ-specific variants of the crossbowman class (UNIT_CHINA_ZHUGE_NU and UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN) as it is relevant enough (according to chatgpt 5 and as i asked it as well i mean for the benin bronzes but anyways etc: "Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel)") and they were a bit too weak otherwise so hopefully helps buff them as well but anyways etc. The Holy Roman Houfnice can as well for example (historically plausible bronze artillery). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
+ - rebalanced the warrior / ancient maceman in particular so it gives more base strength but less city combat, as well as now having animal combat modifier as well, and slightly higher cost.
+ - barracks in particular now require as of now tech_hunting. Hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting) anyways etc.
+@@ -450,11 +454,8 @@ Note: please see note here as well in this custom main changes guide about the .
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech, and the french_musketeer has 1 move not 2 anymore but instead has as of now now anti mounted and small collateral kit which is much stronger and relevant for renaissance plus anyways etc, which is nice as the unit was way too weak and underwhelming if i may say but anyways etc.
+ - military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and dragoons are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (dragoon based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (cannon-based, better match with holy roman empire's aggressive profile, medieval window was too tight, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+-- some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+-- for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, and pikemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, dragoon units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
+-- similarly, also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc
+-- relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires iron as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc); similarly also for civ-specific variants of the crossbowman class (UNIT_CHINA_ZHUGE_NU and UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN) as it is relevant enough (according to chatgpt 5 and as i asked it as well i mean for the benin bronzes but anyways etc: "Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel)") and they were a bit too weak otherwise so hopefully helps buff them as well but anyways etc. The Holy Roman Houfnice can as well for example (historically plausible bronze artillery). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
++- some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - in [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml), disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire, and them merging with the empire, becoming its citizens, something to pay attention to maybe in particular if you don't want it to happen to other rivals anyways etc anyways etc
+ - move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non- military techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index a11e1cb79..b37f1bd67 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -418,6 +418,14 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Reassignments:** e.g., **Mechanized Infantry** counts as **Armored** (not “Gun”) for counter logic.
+ - **City defenses** affect all units, including gunpowder and later. See `bIgnoreBuildingDefense` in `CIV4UnitInfos.xml`.
+ - **Collateral** values normalized (fixed cases like **Stealth Bomber** having higher base collateral than its limit). Most units now show a **collateral damage limit** (starting at 0 for many). **Collateral promotions 1/2** are broadly available where eligible. Info shown in Sevopedia (Unit chart/Special Abilities) and unit hover panels.
++- (Requires AdvCiv-SAS 5157+) **Unit upgrade costs — aligned and reduced.** Increased `iAIUnitUpgradePercent` from **50 → 100**, so AIs now use the **same handicap upgrade multiplier** as humans (no more half-cost AI upgrades). In parallel, `CvUnit::upgradePrice` applies a global **modifier** (current value: **75%**, tunable), because the old human rate felt too expensive in play. Net effect: in base AdvCiv the AI paid **50%** and the human **100%** of the base upgrade cost; in AdvCiv-SAS, **both now pay 75%** of that cost.
++- **Upgrade paths** simplified and made more sensible:
++  - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
++  - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
++  - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
++  - **Dragoons → Tanks** now.
++- **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
++- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
+ - **Build timing** tweaks for some units for historical pacing; see Tech Tree.
+ - **Warrior / “Ancient Maceman”** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
+ - **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability).
+@@ -436,20 +444,13 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+   - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman **Landsknecht** → **Houfnice** — cannon-based aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)).
+   - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
+   - **Air** unit costs generally increased.
+-- **Upgrade paths** simplified and made more sensible:
+-  - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+-  - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
+-  - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+-  - **Dragoons → Tanks** now.
+-- **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
+-- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
+-- `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
+-- **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
+-- **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
+-- **Costs:** some late/mechanical/robotic units have **no support cost**; **Privateer** now **has support** (was free).
+ - **Stealth** removed where it didn’t make sense (kept for subs, spies, stealth bombers).
+ - **Caravel** removed (privileged border passing felt wrong); shift that niche to **Privateer** (buffed) and streamline the era’s naval roster.
+ - **Nuclear Submarine** removed (under-impactful relative to complexity).
++- `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
++- **Support costs:** some late/mechanical/robotic units have **no support cost**; **Privateer** now **has support** (was free).
++- **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
++- **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
+ 
+ ## Fixes
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index 90beab095..1686197d4 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -19,7 +19,7 @@ iAIStartingWorkerUnits,0,0,0,0,0,0,0,0,0
+ iAITrainPercent,115,110,105,100,95,90,85,80,75
+ iAIUnitCostPercent,100,100,100,100,100,100,100,100,100
+ iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
+-iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50
++iAIUnitUpgradePercent,100,100,100,100,100,100,100,100,100
+ iAIWarWearinessPercent,118,112,106,100,94,88,82,76,70
+ iAIWorkRateModifier,0,0,0,0,0,0,0,0,0
+ iAIWorldConstructPercent,100,100,100,100,100,100,100,100,100
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=41526

@@ -1,0 +1,330 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4888
+# Commit: 9fcf571e9ab16b6ea0839ee8e651f236fcdc4115
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 96aa082a991bea20941d4dd9e5f602d26590effa
+# Title: add terrains (as of now minus some plot types but anyways etc) and features information in sevopedia bonus with chatgpt's help and my help/thoughts/idea/adju...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+134	3	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+4	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+3	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 37b57c7fa..f98edb2ab 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -14,18 +14,22 @@
+ # -->
+ #
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+ # <!-- custom: remove or comment out unused imports -->
+ #import ScreenInput
+ #import SevoScreenEnums
+ 
+-from _sevopedia_helpers import check_icon_size_fits_within_icon_frame_size
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaBonus:
+ 
+ 	def __init__(self, main):
+@@ -87,8 +91,18 @@ class SevoPediaBonus:
+ 		self.W_BUILDINGS_AND_PROJECTS = self.W_UNITS
+ 		self.H_BUILDINGS_AND_PROJECTS = self.H_UNITS
+ 
++		self.X_TERRAINS = self.X_BONUS_PANE
++		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
++		self.W_TERRAINS = self.W_IMPROVEMENTS
++		self.H_TERRAINS = self.H_BUILDINGS_AND_PROJECTS
++
++		self.X_FEATURES = self.X_BONUS_PANE + self.W_TERRAINS + self.SMALL_MARGIN
++		self.Y_FEATURES = self.Y_TERRAINS
++		self.W_FEATURES = self.W_IMPROVEMENTS
++		self.H_FEATURES = self.H_TERRAINS
++
+ 		self.X_SPECIAL = self.X_BONUS_PANE
+-		self.Y_SPECIAL = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BONUS_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+@@ -122,7 +136,7 @@ class SevoPediaBonus:
+ 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
+ 		self.X_HISTORY = self.X_BONUS_ANIMATION
+-		self.Y_HISTORY = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
+ 		self.W_HISTORY = self.W_BONUS_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+@@ -138,6 +152,8 @@ class SevoPediaBonus:
+ 		self.placeImprovements()
+ 		self.placeUnits()
+ 		self.placeBuildingsAndProjects()
++		self.placeTerrains()
++		self.placeFeatures()
+ 		self.placeSpecial()
+ 		# <!-- custom: split the former/old placeRequires, into 2 functions/methods now instead, placeRevealedBy and placeTradeableSince (which is hopefully more accurate this way too), anyways etc -->
+ 		self.placeRevealedBy()
+@@ -363,6 +379,121 @@ class SevoPediaBonus:
+ 
+ 
+ 
++	# <!-- custom: add some terrains (as of now minus some plot types anyways etc), and features information anyways etc, code based on multilist code in sevopedia religion that we also use in several places in other sevopedia classes as well in advciv-sas but or not but or yes but but anyways etc anyways etc anyways etc -->
++	def placeTerrains(self):
++		xPanel = self.X_TERRAINS
++		yPanel = self.Y_TERRAINS
++		wPanel = self.W_TERRAINS
++		hPanel = self.H_TERRAINS
++
++		txtKeyPanel = "TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES"
++
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++
++		# Create panel with proper styling
++		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
++		# Additional left side padding for the button(s)
++		#screen.attachLabel(panelName, "", "  ")
++
++		rowListName = self.top.getNextWidgetName()
++
++		BUTTON_SIZE = 64 # Size of each button
++
++		# Create the MultiList control
++		# Constants for button display
++		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		isButtonFound = False
++		#iButtonIndex = 0
++
++		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
++		for iTerrain in xrange(gc.getNumTerrainInfos()):
++			# Check if bonus can appear on this terrain
++			if gc.getBonusInfo(self.iBonus).isTerrain(iTerrain):
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
++
++				isButtonFound = True
++				#iButtonIndex += 1
++		
++		if not isButtonFound:
++			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def placeFeatures(self):
++		xPanel = self.X_FEATURES
++		yPanel = self.Y_FEATURES
++		wPanel = self.W_FEATURES
++		hPanel = self.H_FEATURES
++
++		txtKeyPanel = "TXT_KEY_MISC_FEATURES"
++
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++
++		# Create panel with proper styling
++		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
++		# Additional left side padding for the button(s)
++		#screen.attachLabel(panelName, "", "  ")
++
++		rowListName = self.top.getNextWidgetName()
++
++		BUTTON_SIZE = 64 # Size of each button
++
++		# Create the MultiList control
++		# Constants for button display
++		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		isButtonFound = False
++		#iButtonIndex = 0
++
++		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
++		for iFeature in xrange(gc.getNumFeatureInfos()):
++			# Check if bonus can appear on this <!-- custom: feature but anyways etc anyways etc anyways etc -->
++			if gc.getBonusInfo(self.iBonus).isFeature(iFeature):
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
++
++				isButtonFound = True
++				#iButtonIndex += 1
++
++		if not isButtonFound:
++			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index b62ff5fa6..1a06ae8de 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -148,6 +148,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaBuilding:
+ 
+ 	def __init__(self, main):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 2cf88eb7d..4cb50127c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -51,6 +51,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ # <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
+ # 🌟🛠️ CUSTOMIZATION: Toggle emoji buttons in AI category headers!
+ # 🎨 Set to True to enable emoji icons (like ⚔️, 🏆, 💰) in the AI Personality panel headers.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 3e9dbbffe..a88534e8f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -10,6 +10,8 @@
+ # see ReadMe [advc: BUG help file] for details
+ #
+ 
++
++
+ # <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+ from CvPythonExtensions import *
+ 
+@@ -53,6 +55,8 @@ AdvisorOpt = BugCore.game.Advisors
+ 
+ g_TraitUtilInitDone = False
+ 
++
++
+ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def __init__(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 08eef9d8c..8ef255039 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -32,6 +32,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaReligion:
+ 
+ 	def __init__(self, main):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 7c6fc7933..ae6b64a75 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -33,6 +33,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaUnit:
+ 
+ 	def __init__(self, main):
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 833a08d3e..5654c9457 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -51,8 +51,11 @@ Mostly my own modding and first attemps at deciphering civ4's python, not inordi
+ 
+ after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) (anyways etc), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech anyways etc) anyways etc anyways etc anyways etc. Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements ; although code is maybe a bit shaky and not too optimal or not or yes or other but anyways etc, it does seem to work-function well for a small number of improvements (didn't test for more how it would display) so i wanted to show it here as well as part of the changes but anyways etc.
+ 
++More recently, also added thanks to bit of chatgpt's help too hehe even though mostly me but it helped too but anyways etc the terrain (as of now minus some plot types (see sevopedia terrain readme section information or/and quick start guide or/and code comments anyways etc)) and feature info, hopefully helpful or/and (more at least or maybe simply exhaustive or more but anyways etc...) exhaustive but anyways etc
++
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG" alt="0.650_sevopedia_bonuses_sample (3).JPG" width="250"></img>
+ 
+ ## example 5: religion category
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+index 89207a774..f210a53c6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+index b764210a8..b628b5d02 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+new file mode 100644
+index 000000000..7acce88ec
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=14614

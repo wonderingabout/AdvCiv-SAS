@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 980
+# Commit: 96f84d74a3d3288880e88feca0a158f6e258650e
+# History segment: K-Mod history
+# Parent used for diff: 2e1ff51fcc7c4543876eec7bfd14a38e27b5b458
+# Title: Celtic Dun: replaced the guerilla promotion with a melee xp bonus.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+7	2	Assets/xml/buildings/CIV4BuildingInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index a1febdc37..94dd61736 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -139,6 +139,16 @@
+ 		<Italian>Le [COLOR_BUILDING_TEXT]biblioteche[COLOR_REVERT] aumentano la ricerca e la cultura delle citt&#224;. Sono necessarie per la realizzazione di [COLOR_BUILDING_TEXT]universit&#224;[COLOR_REVERT], della Meraviglia [COLOR_BUILDING_TEXT]Grande Biblioteca[COLOR_REVERT] e delle Meraviglia Nazionali [COLOR_BUILDING_TEXT]Poema Patriottico[COLOR_REVERT].</Italian>
+ 		<Spanish>Las [COLOR_BUILDING_TEXT]Bibliotecas[COLOR_REVERT] impulsan la investigaci&#243;n de las ciudades y proporcionan cultura. Son necesarias para construir [COLOR_BUILDING_TEXT]Universidades[COLOR_REVERT], la maravilla de la [COLOR_BUILDING_TEXT]Gran Biblioteca[COLOR_REVERT] y las maravilla nacionales de la [COLOR_BUILDING_TEXT]Epopeya nacional[COLOR_REVERT].</Spanish>
+ 	</TEXT>
++	<!-- Replacement 'strategy' text for Celtic Dun, changed to reflect the K-Mod balance changes. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CELTIC_DUN_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Duns[COLOR_REVERT], the Celtic replacements for [COLOR_BUILDING_TEXT]Walls[COLOR_REVERT], increase a city's defenses against pre-gunpowder units and gives an experience bonus to all melee units built in the city.</English>
++		<French>L'[COLOR_BUILDING_TEXT]oppida[COLOR_REVERT], version celte des [COLOR_BUILDING_TEXT]murailles[COLOR_REVERT], augmente la d&#233;fense des villes contre les unit&#233;s datant d'avant l'invention de la poudre &#224; canon. Il fournit aussi un bonus d'exp�rience � toutes les unit�s de m�l�e construits dans la ville.</French>
++		<German>Die keltischen [COLOR_BUILDING_TEXT]Duns[COLOR_REVERT] ersetzen die [COLOR_BUILDING_TEXT]Mauern[COLOR_REVERT]. Sie verbessern den Verteidigungswert einer Stadt gegen Einheiten ohne Schusswaffen und geben eine Erfahrung Bonus auf Nahkampf-Einheiten in der Stadt gebaut.</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]dun[COLOR_REVERT], l'equivalente celtico delle [COLOR_BUILDING_TEXT]mura[COLOR_REVERT], potenzia le difese della citt&#224; contro le unit&#224; precedenti alla polvere da sparo e dare un bonus esperienza per le unit� da mischia costruite in citt�.</Italian>
++		<Spanish>Los [COLOR_BUILDING_TEXT]Duns[COLOR_REVERT], los equivalentes celtas de las [COLOR_BUILDING_TEXT]Murallas[COLOR_REVERT], aumentan las defensas de una ciudad contra unidades anteriores a las armas de p&#243;lvora y dar una bonificaci�n de experiencia a las unidades de cuerpo a cuerpo construido en la ciudad.</Spanish>
++	</TEXT>
++
+ 
+ 	<!-- "-X% strength to opposing city defenders"?
+ 	<TEXT>
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/xml/buildings/CIV4BuildingInfos.xml
+index 659e5c394..eb0cc894a 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/xml/buildings/CIV4BuildingInfos.xml
+@@ -750,7 +750,7 @@
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+ 			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>PROMOTION_GUERILLA1</FreePromotion>
++			<FreePromotion/>
+ 			<CivicOption>NONE</CivicOption>
+ 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+@@ -862,7 +862,12 @@
+ 					<iProductonModifier>100</iProductonModifier>
+ 				</BonusProductionModifier>
+ 			</BonusProductionModifiers>
+-			<UnitCombatFreeExperiences/>
++			<UnitCombatFreeExperiences>
++				<UnitCombatFreeExperience>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iExperience>2</iExperience>
++				</UnitCombatFreeExperience>
++			</UnitCombatFreeExperiences>
+ 			<DomainFreeExperiences/>
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3821

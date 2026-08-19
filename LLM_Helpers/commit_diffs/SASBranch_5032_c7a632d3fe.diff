@@ -1,0 +1,780 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5032
+# Commit: c7a632d3fede902bffaca13ec592f850b9136e34
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 09f8a1b3175131ced24551c3ae4408513579aae1
+# Title: balances fixes and tweaks, performance optimizations (cache mapname is landheavy or navalheavy once per map load (new game, load save, etc. if any more hopef...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	0	Assets/XML/GlobalDefines_advciv_sas.xml
+29	17	Assets/XML/Units/CIV4UnitInfos.xml
+12	11	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	2	CvGameCoreDLL/CvCity.cpp
+42	66	CvGameCoreDLL/CvCityAI.cpp
+52	2	CvGameCoreDLL/CvGame.cpp
+20	0	CvGameCoreDLL/CvGame.h
+1	1	CvGameCoreDLL/CvUnit.cpp
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index be5c3e62a..f7cf536ac 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -4171,7 +4171,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>80</iCost>
++			<!-- custom: was 100 -->
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 549fe5cb8..18ff303af 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -279,6 +279,7 @@
+ 
+ 
+ 	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
++	<!-- custom: note: very low food tiles like flatland desert, hill desert, snow, and including peak for example count double (2 low food tiles), whie high food tiles like flood plains or oasis count -1 as they give food. Note: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much if i am not mistaken but anyways etc -->
+ 	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_TILES</DefineName>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 7b1f09384..15f562085 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7310,7 +7310,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate anyways etc; see also code comment at the generic axeman for details and additional/related info anyways etc, was empty in the generic swordsman anyways etc; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such anyways etc -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -7527,17 +7537,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate anyways etc; see also code comment at the generic axeman for details and additional/related info anyways etc, was empty in the generic swordsman anyways etc; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such anyways etc -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>10</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+-					<iUnitCombatMod>10</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -8126,7 +8126,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 70 -->
+-			<iCost>60</iCost>
++			<iCost>65</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -8165,7 +8165,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<!-- custom: was 10 -->
+-			<iCityAttack>25</iCityAttack>
++			<iCityAttack>20</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -9016,7 +9016,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, but don't allow city_defense itself but most defense roles otherwise if i'm not mistaken anyways etc -->
++			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular, but longbows are more versatile against melee units for example (especially axemen which counter spears as of now if i'm not mistaken but anyways etc), so see code comment below and where the below one links to but anyways etc for details anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -9034,6 +9034,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: not the primary role but good enough at it, see code comment at iCityDefense for details anyways etc -->
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -9098,7 +9103,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
++			<!-- custom: was 0 in the base advciv-sas spearman, according to chatgpt 5 it "represents shield wall in streets/gates", check if accurate anyways etc. As for balance we could be countered by axes, however considering the cost difference vs a longbow as of now which is significantly more expensive, we can consider this unit for unitai_city_defense role now with this but anyways etc -->
++			<iCityDefense>10</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<!-- custom: same as generic spearman in our mod anyways etc -->
+ 			<iHillsAttack>10</iHillsAttack>
+@@ -9151,7 +9157,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+-			<UnitCombatCollateralImmunes/>
++			<!-- custom: add this as recommended by chatgpt 5 (nice idea but anyways etc) to buff the hoplite a bit anyways etc i like it very much thanks but anyways etc; however the hoplite window is a bit before these, so we need another buff -->
++			<UnitCombatCollateralImmunes>
++				<UnitCombatCollateralImmune>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<iUnitCombatCollateralImmune>1</iUnitCombatCollateralImmune>
++				</UnitCombatCollateralImmune>
++			</UnitCombatCollateralImmunes>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+ 			<iBombRate>0</iBombRate>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index bd12bc66a..df3ac0832 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -547,19 +547,20 @@ short AIFoundValue::evaluate()
+ 				iGoody++;
+ 			}
+ 
+-			// <!-- custom: regardless of coastal status if i am not mistaken and if i may say but anyways etc if starting site, we want land tiles, not water tiles, as they we can work them and ahve better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details but anyways etc -->
++			// <!-- custom: regardless of coastal status if i am not mistaken and if i may say but anyways etc if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details but anyways etc -->
+ 			const bool bHomePlot = isHome(*pLoopPlot);
+-			const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
+-
+-			TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
+-			FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
+-
+-			// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
+-			const bool pLoopPlotIsHills = pLoopPlot->isHills();
+-			const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
+ 
+ 			if (!bHomePlot)
+ 			{
++				const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
++
++				TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
++				FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
++
++				// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
++				const bool pLoopPlotIsHills = pLoopPlot->isHills();
++				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
++
+ 				if (!pLoopPlot->isWater())
+ 				{
+ 					if (!pLoopPlotIsPeak)
+@@ -604,7 +605,7 @@ short AIFoundValue::evaluate()
+ 					// }
+ 				}
+ 
+-				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/found cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
++				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/founding cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
+ 				if ((eTerrainPlot == eTerrainPlains) || (eTerrainPlot == eTerrainTundra))
+ 				{
+ 					if (pLoopPlotIsHills)
+@@ -819,7 +820,7 @@ short AIFoundValue::evaluate()
+ 					hImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
+ 					cImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
+ 
+-					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i udnerstood got the idea to do of it too i mean if i may say but anyways etc -->
++					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean if i may say but anyways etc -->
+ 					if (fImp >= iMinOnBonusFoodImproveWorth)
+ 					{
+ 						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7dc1fe3e4..9a9851efc 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -676,7 +676,7 @@ void CvCity::doTurn()
+ 					}
+ 				}
+ 
+-				// <!-- custom are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
++				// <!-- custom: if they are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
+ 				// track cheapest overall as fallback-of-fallback
+ 				if ((iLoopCost < iCheapestOverallCost) || (iLoopCost == iCheapestOverallCost && iLoopScore > iCheapestOverallScore))
+ 				{
+@@ -701,7 +701,7 @@ void CvCity::doTurn()
+ 				}
+ 			}
+ 
+-			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unliekly but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc -->
++			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unlikely but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc -->
+ 			// if nothing within cap, use the cheapest overall trainable option
+ 			if ((eBestFallbackUnit == NO_UNIT) && (eCheapestOverallUnit != NO_UNIT) && (eCheapestOverallFallbackUnitUnitAI != NO_UNITAI))
+ 			{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 40f6278e0..401251cdf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3065,32 +3065,6 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ }
+ 
+-// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details too, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; hopefully helpful or not or yes or etc but anyways etc ; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc -->
+-static bool isLandHeavyMap(const CvWString& mapName)
+-{
+-    return (
+-        mapName == L"Pangaea" ||
+-        mapName == L"Continents" ||
+-        mapName == L"Custom_Continents" ||
+-        mapName == L"Terra" ||
+-        mapName == L"Great_Plains" ||
+-        mapName == L"Highlands" ||
+-        mapName == L"Inland_Sea" ||
+-        mapName == L"Oasis" ||
+-        mapName == L"Fantasy_Realm" ||
+-        mapName == L"Balanced"
+-    );
+-}
+-
+-static bool isNavalHeavyMap(const CvWString& mapName)
+-{
+-    return (
+-        mapName == L"Archipelago" ||
+-        mapName == L"Islands" ||
+-        mapName == L"Ring"
+-    );
+-}
+-
+ 
+ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAITypes* peBestUnitAI) /* advc: */ const
+ {
+@@ -3487,14 +3461,12 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
+ 
+ 		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+-		// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+-		const CvWString& mapName = GC.getInitCore().getMapScriptName();
+-
+-		bool const bLandHeavyMap = isLandHeavyMap(mapName);
+-		bool bNavalHeavyMap = false;
+-		if (!bLandHeavyMap)
++		// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
++		bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
++		bool bNavalHeavyMapname = false;
++		if (!bLandHeavyMapname)
+ 		{
+-			bNavalHeavyMap = isNavalHeavyMap(mapName);
++			bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+ 		}
+ 
+ 		// <!-- custom: war strategy, first the offense block: favour offensive unitAI types, like attack_city, etc, avoid defensive ones as well anyways etc. Also as a general rule for war best units: no naval units (favour land warfare for better or worse is more efficient anyways etc, no civilian units (no settler, no worker, etc if any more), allow air since it's so late anyway, i didn't play long enough in late game to know if air units are strong or not, but as a general rule we'll deprioritize them while not strictly forbidding them -->
+@@ -3515,7 +3487,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 			// <!-- custom: in land heavy maps, no time or hammer for naval units for most: favour land warfare the most, we are about to enter war if not already in one, and want max power/hammer anyways etc in achieving that or trying to in this case i mean anyways etc ; if not on pangea, apply a milder reduction. Deprioritizing as such military sea units attempts to fix the issue of AI building them too much and then its cities having its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
+ 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+-			if (bLandHeavyMap)
++			if (bLandHeavyMapname)
+ 			{
+ 				aiUnitAIVal[UNITAI_ATTACK] *= 3;
+ 				aiUnitAIVal[UNITAI_ATTACK_CITY] *= 3;
+@@ -3545,7 +3517,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
+ 			}
+ 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were to be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or computational performance as well if i am not mistaken but anyways etc) -->
+-			else if (bNavalHeavyMap)
++			else if (bNavalHeavyMapname)
+ 			{
+ 				// <!-- custom: note by chatgpt 5 on percentage reductions (check if accurate anyways etc) -->
+ 				// "In Civ4 code, aiUnitAIVal[] is an int in many places, so 0.2 will truncate to 0 unless it’s cast to float earlier.
+@@ -3637,7 +3609,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			aiUnitAIVal[UNITAI_PARADROP] = 0;
+ 
+ 			// <!-- custom: same or equivalent anyways etc -->
+-			if (bLandHeavyMap)
++			if (bLandHeavyMapname)
+ 			{
+ 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
+ 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 50;
+@@ -3662,7 +3634,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
+ 			}
+ 			// <!-- custom: same or equivalent anyways etc -->
+-			else if (bNavalHeavyMap)
++			else if (bNavalHeavyMapname)
+ 			{
+ 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
+ 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 5;
+@@ -4717,10 +4689,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			if (bNavalUnitsBuilding)
+ 			{
+ 				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map if i am not mistaken but check to be sure, anyways etc -->
+-				const CvWString mapName = GC.getInitCore().getMapScriptName();
+-				const bool bLandHeavyMap = isLandHeavyMap(mapName);
++				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
++				bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
++				// bool bNavalHeavyMapname = false;
++				// if (!bLandHeavyMapname)
++				// {
++				// 	bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
++				// }
+ 
+-				if (bLandHeavyMap)
++				if (bLandHeavyMapname)
+ 				{
+ 					// <!-- custom: a coastal check as originally done by chatgpt 5 but anyways etc may cause weird issues with maps that are only coast separated from other land parts/pieces but anyways etc, but we still want to block lake drydocks as they should be quite pointless, unless weird map with giant lake. Take a probability approach, let's build it even in lakes to cover most cases, especially giant lakes xd if i may say but anyways etc, as for coastal check i assume/hope the function or something handles it so we don't build an impossible building somehow, as for us just skip this check, if i am not mistaken, check if accurate as this is just a guess from me and is also to simplify if i may say, as we cover enough edge cases below to save hammer in most cases anyway, leave some leeway otherwise in this case i mean but anyways etc -->
+ 
+@@ -11521,13 +11498,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 			}
+ 
+ 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+-			// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+-			const CvWString& mapName = GC.getInitCore().getMapScriptName();
+-			bool const bLandHeavyMap = isLandHeavyMap(mapName);
+-			bool bNavalHeavyMap = false;
+-			if (!bLandHeavyMap)
++			// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
++			bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
++			bool bNavalHeavyMapname = false;
++			if (!bLandHeavyMapname)
+ 			{
+-				bNavalHeavyMap = isNavalHeavyMap(mapName);
++				bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+ 			}
+ 
+ 			// Early-game window (scaled by game speed TrainPercent)
+@@ -11729,7 +11705,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 								// preconditions already true: bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI
+ 								// and we're in the strict-defender branch
+ 
+-								// <!-- custom: maybe (hypothetically/guessedly of me but i ahve no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
++								// <!-- custom: maybe (hypothetically/guessedly of me but i have no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
+ 								// Prefer COUNTER, then ATTACK, then ATTACK_CITY.
+ 								if (pUnitInfo->getUnitAIType(UNITAI_COUNTER))
+ 								{
+@@ -11764,7 +11740,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				}
+ 			}
+ 
+-			// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most liekly to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely sugegsted thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
++			// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most likely to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely sugegsted thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
+ 
+ 			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
+ 
+@@ -11811,7 +11787,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						{
+ 							// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
+ 							// Style caps (independent of current era)
+-							iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMap ? EX_ANC_NAV : EX_ANC_LAND);
++							iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
+ 
+ 							// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
+ 							static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
+@@ -11846,13 +11822,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 			}
+ 
+ 			// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
+-			if (!bNavalHeavyMap && bAllHandledNavalUnitAIs)
++			if (!bNavalHeavyMapname && bAllHandledNavalUnitAIs)
+ 			{
+ 				if (bNavalFrontLineUnitAIs)
+ 				{
+ 					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
+ 					int iMaxUnits = iNumCities;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = 2 * iNumCities;
+ 					// }
+@@ -11883,7 +11859,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+ 					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+ 					// }
+@@ -11905,7 +11881,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+ 					int iMaxUnits = iNumCities;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = 2 * iNumCities;
+ 					// }
+@@ -11936,7 +11912,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+ 					int iMaxUnits = iNumCities;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = 2 * iNumCities;
+ 					// }
+@@ -11958,7 +11934,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
+ 					int iMaxUnits = iNumCities;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = 2 * iNumCities;
+ 					// }
+@@ -11984,7 +11960,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
+ 					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+ 					// }
+@@ -11992,7 +11968,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
+ 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+ 					{
+-						// if (bNavalHeavyMap)
++						// if (bNavalHeavyMapname)
+ 						// {
+ 						// 	iMaxUnits = 1;
+ 						// }
+@@ -12018,7 +11994,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					if (!bEraRenaissanceOrAfter)
+ 					{
+ 						iMaxUnits = iNumCities;
+-						// if (bNavalHeavyMap)
++						// if (bNavalHeavyMapname)
+ 						// {
+ 						// 	iMaxUnits = 2 * iNumCities;
+ 						// }
+@@ -12026,7 +12002,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					else
+ 					{
+ 						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+-						// if (bNavalHeavyMap)
++						// if (bNavalHeavyMapname)
+ 						// {
+ 						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+ 						// }
+@@ -12048,7 +12024,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					if (!bEraRenaissanceOrAfter)
+ 					{
+ 						iMaxUnits = iNumCities;
+-						// if (bNavalHeavyMap)
++						// if (bNavalHeavyMapname)
+ 						// {
+ 						// 	iMaxUnits = 2 * iNumCities;
+ 						// }
+@@ -12056,7 +12032,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					else
+ 					{
+ 						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+-						// if (bNavalHeavyMap)
++						// if (bNavalHeavyMapname)
+ 						// {
+ 						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+ 						// }
+@@ -12080,7 +12056,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+ 					int iMaxUnits = iNumCities;
+-					// if (bNavalHeavyMap)
++					// if (bNavalHeavyMapname)
+ 					// {
+ 					// 	iMaxUnits = (iNumCities * 3) / 2;
+ 					// }
+@@ -12092,7 +12068,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					}
+ 					else if (bWarPlan)
+ 					{
+-						if (!bNavalHeavyMap)
++						if (!bNavalHeavyMapname)
+ 						{
+ 							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+ 							return false;
+@@ -12144,7 +12120,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+ 					int iMaxUnits = 2;
+-					if (bNavalHeavyMap)
++					if (bNavalHeavyMapname)
+ 					{
+ 						iMaxUnits = 1;
+ 					}
+@@ -12247,7 +12223,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				{
+ 					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+ 					int iMaxUnits = iNumCities;
+-					if (bNavalHeavyMap)
++					if (bNavalHeavyMapname)
+ 					{
+ 						iMaxUnits = (iNumCities * 3) / 2;
+ 					}
+@@ -12260,7 +12236,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such but anyways etc -->
+ 					else if (bWarPlan)
+ 					{
+-						if (!bNavalHeavyMap)
++						if (!bNavalHeavyMapname)
+ 						{
+ 							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+ 							return false;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 54e8af6d8..7f149565c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -266,6 +266,36 @@ void CvGame::setInitialItems()
+ 		regenerateMap(true); // </advc.tsl>
+ }
+ 
++// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details too, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; hopefully helpful or not or yes or etc but anyways etc ; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc -->
++// CvGame.cpp — the “braindead” recompute (just ==)
++void CvGame::recomputeMapnameHeaviness()
++{
++    const CvWString name = GC.getInitCore().getMapScriptName(); // whatever you already use
++
++    // land-heavy – your exact list
++    m_bLandHeavyMapname =
++        (name == L"Pangaea") ||
++        (name == L"Continents") ||
++        (name == L"Custom_Continents") ||
++        (name == L"Terra") ||
++        (name == L"Great_Plains") ||
++        (name == L"Highlands") ||
++        (name == L"Inland_Sea") ||
++        (name == L"Oasis") ||
++        (name == L"Fantasy_Realm") ||
++        (name == L"Balanced");
++
++    // naval-heavy – your exact list
++    m_bNavalHeavyMapname =
++        (name == L"Archipelago") ||
++        (name == L"Islands") ||
++        (name == L"Ring");
++
++    // tie-break (just in case you add overlapping names later)
++    if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
++        m_bLandHeavyMapname = false; // prefer naval if ambiguous
++}
++
+ 
+ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ {
+@@ -322,6 +352,11 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ 	CvMapGenerator::GetInstance().generateRandomMap();
+ 	CvMapGenerator::GetInstance().addGameElements();
+ 
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	// 5) Call sites (in CvGame.cpp) — recap
++	// After regenerating map: right after addGameElements() in regenerateMap(...)
++	recomputeMapnameHeaviness();
++	
+ 	gDLL->getEngineIFace()->RebuildAllPlots();
+ 	/*	<advc.001> Even if we call CvMap::setupGraphical before RebuildAllPlots,
+ 		there are still artifacts in texture surfaces. I guess we need to give
+@@ -330,8 +365,8 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ 	setUpdateTimer(UPDATE_REBUILD_PLOTS, 1);
+ 	// Fix dark lines running through Flood Plains
+ 	{
+-		FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString(
+-				"FEATURE_FLOOD_PLAINS");
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+ 		FOR_EACH_ENUM(PlotNum)
+ 		{
+ 			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
+@@ -568,6 +603,11 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_eNormalizationLevel = NORMALIZE_DEFAULT; // advc.108
+ 	m_szScriptData = "";
+ 
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	// In your CvGame::reset body where all the other members get defaults, set:
++	m_bLandHeavyMapname  = false;
++	m_bNavalHeavyMapname = false;
++
+ 	if (!bConstructorCall)
+ 	{
+ 		m_aeRankPlayer.reset();
+@@ -687,6 +727,11 @@ void CvGame::initDiplomacy()
+ 			}
+ 		}
+ 	}
++
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	// 5) Call sites (in CvGame.cpp) — recap
++	// After map exists for new/scenario games: end of CvGame::initDiplomacy()
++	recomputeMapnameHeaviness();
+ }
+ 
+ /*	advc.002i: Assign unique player colors in games where multiple players
+@@ -9030,6 +9075,11 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
+ 	applyOptionEffects(); // advc.310
+ 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
++
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	// 5) Call sites (in CvGame.cpp) — recap
++	// After loading a save: end of CvGame::read(FDataStreamBase*)
++	recomputeMapnameHeaviness();
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 89c618069..873b23baf 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -203,6 +203,17 @@ public:
+ 	int getImprovementUpgradeTime(ImprovementTypes eImprovement) const;									// Exposed to Python
+ 	int getSpeedPercent() const; // advc.252
+ 
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	// Fast, cached answers computed once per map/load
++	bool isLandHeavyMapnameCached() const
++	{
++		return m_bLandHeavyMapname;
++	}
++	bool isNavalHeavyMapnameCached() const
++	{
++		return m_bNavalHeavyMapname;
++	}
++
+ 	bool canTrainNukes() const;																			// Exposed to Python
+ 	EraTypes getCurrentEra() const;																		// Exposed to Python
+ 	EraTypes getHighestEra() const; // advc
+@@ -969,6 +980,12 @@ public:
+ 	// </advc.004m>  <advc.052>
+ 	bool isScenario() const { return m_bScenario; }			// (exposed to Python)
+ 	void setScenario(bool b);
++
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	// Add these two bools in the protected data block, next to the other booleans (a natural spot is right after m_bScenario / m_bAllGameDataRead group):
++	bool m_bLandHeavyMapname;   // computed once after map gen / on load
++	bool m_bNavalHeavyMapname;  // same
++
+ 	// </advc.052>  <advc.127b>
+ 	/*  Returns (-1,-1) if 'vs' doesn't exist in any city or (eObserver!=NO_TEAM)
+ 		isn't revealed to eObserver */
+@@ -1161,6 +1178,9 @@ protected:
+ 	void setStartTurnYear(int iTurn = 0); // advc.250c
+ 	void initScenario(); // advc.051
+ 
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
++	void recomputeMapnameHeaviness();
++
+ 	void setPlayerColors(); // advc.002i
+ 	void initGameHandicap(); // advc.127
+ 	void initFreeState();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 980a1fe5c..257f7e417 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3244,7 +3244,7 @@ void CvUnit::automate(AutomateTypes eAutomate)
+ 
+ 
+ // <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50 but anyways etc, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change but anyways etc, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate, anyways etc -->
+-// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem to clean but great way to solve it xd thanks! But anyways etc), implementing our logic here as well, check if accurate anyways etc -->
++// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks! But anyways etc), implementing our logic here as well, check if accurate anyways etc -->
+ // Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
+ // <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run abnkrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these but anyways etc, see known issue mentionned here in these code comments for details but anyways etc, and we otherwise kept function the same anyways etc -->
+ bool CvUnit::canScrap() const
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 1df8f12cd..78975c9fd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -805,7 +805,7 @@ Update 2: see below for the fix.
+ 
+ While testing an autoplay before comitting latest changes, i have noticed a barbarian city in a lone island gets stuck producing a 1 hammer barbarian workboat. I have given save files at turn 0, 50, and 100 if one wants to try to reproduce it in this case i mean but anyways etc.
+ 
+-It seems that the issue was resolved after say 30 turns, but then after a unit or such hte barbarian city tried to produce another barbarian workboat and got stuck again for a dozen if not more turns until and including when autoplay ended.
++It seems that the issue was resolved after say 30 turns, but then after a unit or such the barbarian city tried to produce another barbarian workboat and got stuck again for a dozen if not more turns until and including when autoplay ended.
+ 
+ This is not efficient nor ideal, i don't know what the cause is, if it's because the barbarian city is on a lone island, or if it is because the 1 hammer cost of the barbarian workboat somehow creates a bug with overflow, or/and if the issue is something else, but so far AI performs well both barbarians and AI players and i would like to keep improving their efficiency ideally as long as i develop this advciv-sas mod at least if not playing it too or such but anyways etc.
+ 
+@@ -1385,6 +1385,8 @@ Here are the things i changed:
+ - free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefully AI would react better to these.
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far ; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, just to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimemd through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
+ 
++Update: now caching mapname is landheavy or mapname is navalheavy info as boolean only once per map load (new game, load save, etc if anymore we hopefully handle but anyways etc, see the new `CvGame::recomputeMapnameHeaviness` we added for details and their corresponding new `m_bLandHeavyMapname` and `m_bNavalHeavyMapname` if i'm not mistaken (check if accurate as i don't know too much about these, done with the help of chatgpt 5, anyways etc). Seems to be behaving as intended though from quick testing if i'm not mistaken in autoplay (as much land units in land maps with low naval units as intended, and many naval units in naval heavy maps, so hopefully safe enough or safe and working as intended i mean if i may say but check to be sure anyways etc)
++
+ ## 43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites, and other related changes
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1TTw-Ya5yHNh3iuXgGWw-9vw_E6ykdps8?usp=sharing).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d3c74ad4e..a563ea188 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -114,7 +114,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ## Code/Performance optimizations
+ 
+-- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
++- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
+ 
+ ## 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index 82b83d6b2..5153012fc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -34,7 +34,7 @@ With github you can actually download the mod at any version/commit if i'm not m
+ 
+ ## Extract the mod to your civ4 folder
+ 
+-Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-4986" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
++Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-5030" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
+ 
+ ```C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\```
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index c847383dd..548137861 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -105,7 +105,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### Code/Performance optimizations
+ 
+-- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring; cached hot values via `static const`/hoisting; normalized inconsistent asset names) plus feature-level caching (AI Personality Panel). See (examples; not exhaustive): [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
++- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring; cached hot values via `static const`/hoisting; normalized inconsistent asset names), plus **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), plus **feature-level caching** (AI Personality Panel). See (examples; not exhaustive): [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=13 omittedFiles=1 embeddedPatchBytes=69295

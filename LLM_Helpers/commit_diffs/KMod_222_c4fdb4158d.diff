@@ -1,0 +1,307 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 222
+# Commit: c4fdb4158d3bb83de4d89a7afc2365f215879737
+# History segment: K-Mod history
+# Parent used for diff: 077a0694e0280ee95781128073f1d405b0614379
+# Title: Fixed a bug in my new choose produce condition for choosing a culture building first - I didn't check eBestBuilding != NO_BUILDING. Fixed a possible overflow...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	33	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+9	5	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/CvPlot.cpp
+4	3	CvGameCoreDLL/CvPlot.h
+7	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c1501c48c..051616552 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1212,7 +1212,7 @@ void CvCityAI::AI_chooseProduction()
+ 	if ((iTargetCulturePerTurn > 0) && (getCultureLevel() <= (CultureLevelTypes) 1))
+ 	{
+ 		// K-Mod. If our best building is a cultural building, just start building it.
+-		if (AI_countGoodTiles(true, false) > 0)
++		if (eBestBuilding != NO_BUILDING && AI_countGoodTiles(true, false) > 0)
+ 		{
+ 			const CvBuildingInfo& kBestBuilding = GC.getBuildingInfo(eBestBuilding);
+ 			if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
+@@ -9583,31 +9583,7 @@ void CvCityAI::AI_juggleCitizens()
+ 		//
+ 		if (std::max(iUnworkedPlotValue, iUnworkedSpecValue) > std::min(iWorkedPlotValue, iWorkedSpecValue))
+ 		{
+-			// remove lowest value job
+-			if (iWorkedPlotValue < iWorkedSpecValue)
+-			{
+-				FAssert(iWorkedPlot != -1);
+-				setWorkingPlot(iWorkedPlot, false);
+-			}
+-			else
+-			{
+-				FAssert(eWorkedSpecialist != NO_SPECIALIST);
+-				changeSpecialistCount(eWorkedSpecialist, -1);
+-			}
+-
+-			// assign highest value job
+-			if (iUnworkedPlotValue > iUnworkedSpecValue)
+-			{
+-				FAssert(iUnworkedPlot != -1);
+-				setWorkingPlot(iUnworkedPlot, true);
+-			}
+-			else
+-			{
+-				FAssert(eUnworkedSpecialist != NO_SPECIALIST);
+-				changeSpecialistCount(eUnworkedSpecialist, 1);
+-			}
+-
+-			// check to see if we just removed the same job we more recently assigned
++			// check to see if we're trying to remove the same job we most recently assigned
+ 			if (iWorkedPlotValue < iWorkedSpecValue ? iWorkedPlot == iLatestPlot : eWorkedSpecialist == eLatestSpecialist)
+ 			{
+ 				// ... that suggests we should break now to avoid getting into an endless loop.
+@@ -9616,13 +9592,13 @@ void CvCityAI::AI_juggleCitizens()
+ 				// ie. if AI_yieldValue thinks our current foodDifference is ok, then we should break here.
+ 				if (foodDifference() >= 0 ||
+ 					(2*getFood() >= growthThreshold() && (bAvoidGrowth || happyLevel() - unhappyLevel() < 1 || goodHealth() - badHealth() < 1)))
+-					bDone = true;
++					break;
+ 				// K-Mod note: what tends to happen is that when the city evaluates stopping work on a 2-food tile,
+ 				// it assumes that the citizen will go on to work some other 2-food plot.
+ 				// That's usually a fair assumption; except when the citizen instead becomes a specialist... that screws it up.
+ 			}
+ 
+-			// remember which job we just assigned, to use in the above check on the next cycle.
++			// remember which job we are assigning, to use in the above check on the next cycle.
+ 			if (iUnworkedPlotValue > iUnworkedSpecValue)
+ 			{
+ 				iLatestPlot = iUnworkedPlot;
+@@ -9633,6 +9609,30 @@ void CvCityAI::AI_juggleCitizens()
+ 				iLatestPlot = -1;
+ 				eLatestSpecialist = eUnworkedSpecialist;
+ 			}
++
++			// remove lowest value job
++			if (iWorkedPlotValue < iWorkedSpecValue)
++			{
++				FAssert(iWorkedPlot != -1);
++				setWorkingPlot(iWorkedPlot, false);
++			}
++			else
++			{
++				FAssert(eWorkedSpecialist != NO_SPECIALIST);
++				changeSpecialistCount(eWorkedSpecialist, -1);
++			}
++
++			// assign highest value job
++			if (iUnworkedPlotValue > iUnworkedSpecValue)
++			{
++				FAssert(iUnworkedPlot != -1);
++				setWorkingPlot(iUnworkedPlot, true);
++			}
++			else
++			{
++				FAssert(eUnworkedSpecialist != NO_SPECIALIST);
++				changeSpecialistCount(eUnworkedSpecialist, 1);
++			}
+ 		}
+ 		else
+ 			bDone = true;
+@@ -10990,12 +10990,15 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+     // pop borders
+ 	if (getCultureLevel() <= (CultureLevelTypes)1 && getCommerceRate(COMMERCE_CULTURE) < 2)
+ 	{
+-		const CvBuildingInfo& kBestBuilding = GC.getBuildingInfo(eBestBuilding);
+-		if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
+-			&& (GC.getNumCultureLevelInfos() < 2 || getProductionTurnsLeft(eBestBuilding, 0) <= GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
++		if (eBestBuilding != NO_BUILDING && AI_countGoodTiles(true, false) > 0)
+ 		{
+-			pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
+-			return;
++			const CvBuildingInfo& kBestBuilding = GC.getBuildingInfo(eBestBuilding);
++			if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
++				&& (GC.getNumCultureLevelInfos() < 2 || getProductionTurnsLeft(eBestBuilding, 0) <= GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
++			{
++				pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++				return;
++			}
+ 		}
+ 		if (AI_chooseProcess(COMMERCE_CULTURE))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 16596dacb..c703407c2 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1067,7 +1067,7 @@ public:
+ 	virtual void AI_updateAssignWork() = 0;
+ 	virtual void AI_makeProductionDirty() = 0;
+ 	virtual void AI_conquerCity(CvCity* pCity) = 0;
+-	virtual int AI_foundValue(int iX, int iY, int iMinUnitRange = -1, bool bStartingLoc = false) const = 0; // Exposed to Python
++	virtual short AI_foundValue(int iX, int iY, int iMinUnitRange = -1, bool bStartingLoc = false) const = 0; // Exposed to Python. K-Mod changed return value from int to short
+ 	virtual bool AI_isCommercePlot(CvPlot* pPlot) const = 0;
+ 	virtual int AI_getPlotDanger(CvPlot* pPlot, int iRange = -1, bool bTestMoves = true) const = 0;
+ 	virtual bool AI_isFinancialTrouble() const = 0;																											// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 86147d943..5aac6427c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1145,7 +1145,8 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc) const
+ 					iValue = AI_foundValueBulk(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), kFoundSet); // K-Mod
+ 				}
+ 
+-				pLoopPlot->setFoundValue(getID(), iValue);
++				iValue = std::min((long)MAX_SHORT, iValue); // K-Mod
++				pLoopPlot->setFoundValue(getID(), (short)iValue);
+ 
+ 				if (iValue > pLoopPlot->area()->getBestFoundValue(getID()))
+ 				{
+@@ -2573,7 +2574,7 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ }
+ 
+ // K-Mod: I've moved the bulk of this function into AI_foundValueBulk...
+-int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc) const
++short CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc) const
+ {
+ 	CvFoundSettings kSet(*this, bStartingLoc);
+ 	kSet.iMinRivalRange = iMinRivalRange;
+@@ -2731,7 +2732,7 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ // Heavily edited for K-Mod (some changes marked, others not.)
+ // note, this function is called for every revealed plot for every player at the start of every turn.
+ // try to not make it too slow!
+-int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) const
++short CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) const
+ {
+ 	CvCity* pNearestCity;
+ 	bool bHasGoodBonus;
+@@ -4007,6 +4008,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
++	iValue = std::min((int)MAX_SHORT, iValue); // K-Mod
+ 	return iValue;
+ }
+ 
+@@ -21369,7 +21371,7 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
+ {
+ 	CvPlot* pLoopPlot;
+ 	int iLoopX, iLoopY;
+-	int iValue;
++	//int iValue;
+ 	
+ 	for (iLoopX = -iOuterRadius; iLoopX <= iOuterRadius; iLoopX++)
+ 	{
+@@ -21399,13 +21401,15 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
+ 							gDLL->getPythonIFace()->callFunction(PYGameModule, "getCityFoundValue", argsList.makeFunctionArgs(), &lResult);
+ 						}
+ 
++						short iValue; // K-Mod
+ 						if (lResult == -1)
+ 						{
+ 							iValue = AI_foundValue(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+ 						}
+ 						else
+ 						{
+-							iValue = lResult;
++							//iValue = lResult;
++							iValue = (short)std::min((long)MAX_SHORT, lResult); // K-Mod
+ 						}
+ 
+ 						pLoopPlot->setFoundValue(getID(), iValue);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 40aa1f34e..c6cfb2515 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -72,8 +72,8 @@ public:
+ 	int AI_yieldWeight(YieldTypes eYield, const CvCity* pCity = 0) const; // K-Mod added city argument
+ 	int AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity = NULL) const;
+ 
+-	int AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false) const;
+-	// K-Mod
++	short AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false) const;
++	// K-Mod. (note, I also changed AI_foundValue to return short instead of int)
+ 	struct CvFoundSettings
+ 	{
+ 		CvFoundSettings(const CvPlayerAI& kPlayer, bool bStartingLoc);
+@@ -90,7 +90,7 @@ public:
+ 		bool bSeafaring; // special affection for coast cities due to unique building or unit.
+ 		bool bAllSeeing; // doesn't need vision of a plot to know what's there.
+ 	};
+-	int AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) const;
++	short AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) const;
+ 	// K-Mod end
+ 
+ 	bool AI_isAreaAlone(CvArea* pArea) const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a41a5e076..d0d94e460 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6753,7 +6753,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
+ }
+ 
+ 
+-void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
++void CvPlot::setFoundValue(PlayerTypes eIndex, short iNewValue)
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 0088d0a70..d659c6e21 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -412,9 +412,10 @@ public:
+ /* 	BETTER_BTS_AI_MOD						END								*/
+ /********************************************************************************/
+ 
+-	int getFoundValue(PlayerTypes eIndex);																															// Exposed to Python
+-	bool isBestAdjacentFound(PlayerTypes eIndex);																												// Exposed to Python
+-	void setFoundValue(PlayerTypes eIndex, int iNewValue);
++	int getFoundValue(PlayerTypes eIndex);							// Exposed to Python
++	bool isBestAdjacentFound(PlayerTypes eIndex);						// Exposed to Python
++	void setFoundValue(PlayerTypes eIndex, short iNewValue);
++	// K-Mod: I've changed iNewValue to be 'short' instead of 'int', so that it matches the cache.
+ 
+ 	int getPlayerCityRadiusCount(PlayerTypes eIndex) const;																							// Exposed to Python
+ 	bool isPlayerCityRadius(PlayerTypes eIndex) const;																									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f16c67a64..bc27c1adb 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11148,11 +11148,17 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 								{
+ 									int iValue = (iDefendersNeed - iDefendersHave) * 20;
+ 									iValue += iDefendersHave == 0 ? 20 : 0; // K-Mod
++									/* original bts code
+ 									iValue += 2 * std::min(15, iCurrentTurn - pLoopCity->getGameTurnAcquired());
+ 									if (pLoopCity->isOccupation())
+ 									{
+ 										iValue += 5;
+-									}
++									} */
++									// K-Mod
++									iValue += 3 * pLoopCity->getCultureLevel();
++									iValue += pLoopCity->getPopulation() / 2;
++									iValue += pLoopCity->isOccupation() ? 10 : 0;
++									// K-Mod end
+ 									iValue -= iPathTurns;
+ 
+ 									if (iValue > iBestValue)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=12091

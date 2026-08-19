@@ -1,0 +1,271 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 396
+# Commit: 275ed551c6213a3dd102e0d41fc4f3ddac88a512
+# History segment: K-Mod history
+# Parent used for diff: 18bfc84e95ae234b79c1754192d85cf3eed7903b
+# Title: Fixed another case of AI oscillation in AI_attackCityMove - this time by allowing pillage before the defensive choke test. Fixed an original BtS bug in AI_pi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	1	CvGameCoreDLL/CvPlayerAI.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+39	28	CvGameCoreDLL/CvUnitAI.cpp
+1	9	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 445d277d4..f798d9382 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23001,10 +23001,18 @@ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 								int iPathTurns = 0;
+ 								if (bTestMoves)
+ 								{
++									/* original bts code
+ 									if (!pLoopUnit->getGroup()->generatePath(pLoopPlot, pPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, false, &iPathTurns))
+ 									{
+ 										iPathTurns = MAX_INT;
+-									}
++									}*/
++
++									// K-Mod. Use a temp pathfinder, so as not to interfere with the normal one.
++									KmodPathFinder temp_finder;
++									temp_finder.SetSettings(pLoopUnit->getGroup(), MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, 1, GC.getMOVE_DENOMINATOR());
++									if (temp_finder.GeneratePath(pPlot))
++										iPathTurns = 1;
++									// K-Mod end
+ 								}
+ 
+ 								if (iPathTurns <= 1)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index f9d31b58f..b3578ae27 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -13638,7 +13638,7 @@ int CvUnit::LFBgetRelativeValueRating() const
+ 	if (GC.getLFBBasedOnExperience() > 0)
+ 	{
+ 		//int iTier = 10;
+-		int iTier = 1;
++		int iTier = getLevel();
+ 		//while (getExperience() >= iTier)
+ 		while (getExperience() >= iTier*iTier+1)
+ 		{
+@@ -13646,7 +13646,8 @@ int CvUnit::LFBgetRelativeValueRating() const
+ 			//iTier *= 2;
+ 			iTier++;
+ 		}
+-		iValueRating += std::max(getLevel(), iTier) * GC.getLFBBasedOnExperience();
++		//iValueRating += std::max(getLevel(), iTier) * GC.getLFBBasedOnExperience();
++		iValueRating += iTier * GC.getLFBBasedOnExperience();
+ 	}
+ 
+ 	// Check if unit is limited in how many can exist
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d1e827a6b..a33a9ad8a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3040,16 +3040,21 @@ void CvUnitAI::AI_attackCityMove()
+ 				if( 4*iOurOffense < 3*iEnemyOffense )
+ 				{
+ 					// K-Mod
+-					if (iAttackRatio/2 > iComparePostBombard && 2*iEnemyOffense/3 > kOwner.AI_localDefenceStrength(plot(), getTeam()))
++					if (iAttackRatio/2 > iComparePostBombard && 4*iEnemyOffense/5 > kOwner.AI_localDefenceStrength(plot(), getTeam()))
+ 					{
+ 						// we don't have anywhere near enough attack power, and we are in serious danger.
+ 						// unfortunately, if we are "bReadyToAttack", we'll probably end up coming straight back here...
+ 						if (!bReadyToAttack && AI_retreatToCity())
+ 							return;
+ 					}
++					if (getGroup()->AI_getMissionAIType() == MISSIONAI_PILLAGE && plot()->defenseModifier(getTeam(), false) > 0)
++					{
++						if (AI_pillageRange(0, 0, iMoveFlags))
++							return;
++					}
+ 					// K-Mod end
+ 
+-					if( AI_choke(1, true) )
++					if( AI_choke(1, true, iMoveFlags) )
+ 					{
+ 						return;
+ 					}
+@@ -3225,7 +3230,7 @@ void CvUnitAI::AI_attackCityMove()
+ 		}
+ 
+ 		// choke the city.
+-		if (iStepDistToTarget <= 2 && AI_choke(1))
++		if (iStepDistToTarget <= 2 && AI_choke(1, false, iMoveFlags))
+ 			return;
+ 	}
+ 
+@@ -12424,7 +12429,8 @@ bool CvUnitAI::AI_chokeDefend()
+ 
+ 					if (iPlotDanger <= 4)
+ 					{
+-						if (AI_anyAttack(1, 65, 0, std::max(0, (iPlotDanger - 1))))
++						//if (AI_anyAttack(1, 65, 0, std::max(0, (iPlotDanger - 1))))
++						if (AI_anyAttack(1, 65, 0, iPlotDanger > 1 ? 2 : 0)) // K-Mod
+ 						{
+ 							return true;
+ 						}
+@@ -23758,7 +23764,6 @@ bool CvUnitAI::AI_defendPlot(CvPlot* pPlot)
+ 	return false;
+ }
+ 
+-
+ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ {
+ 	CvPlot* pAdjacentPlot;
+@@ -23780,7 +23785,8 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 	eNonObsoleteBonus = pPlot->getNonObsoleteBonusType(pPlot->getTeam(), true);
+ 	if (eNonObsoleteBonus != NO_BONUS)
+ 	{
+-		iBonusValue = (GET_PLAYER(pPlot->getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus));
++		//iBonusValue = (GET_PLAYER(pPlot->getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus));
++		iBonusValue = (GET_PLAYER(pPlot->getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus, 0)); // K-Mod
+ 	}
+ 	
+ 	if (iBonusValueThreshold > 0)
+@@ -23804,7 +23810,8 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 			iValue++;
+ 			if (eNonObsoleteBonus != NO_BONUS)
+ 			{
+-				iValue += iBonusValue * 4;
++				//iValue += iBonusValue * 4;
++				iValue += iBonusValue; // K-Mod. (many more iBonusValues will be added again later anyway)
+ 			}
+ 
+ 			for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+@@ -24572,28 +24579,25 @@ bool CvUnitAI::AI_poach()
+ 	return false;
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/31/10                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+-bool CvUnitAI::AI_choke(int iRange, bool bDefensive)
++// edited by bbai and K-Mod. (I've undone a lot of the bbai code, because it was wrong.)
++bool CvUnitAI::AI_choke(int iRange, bool bDefensive, int iFlags)
+ {
+ 	PROFILE_FUNC();
+ 
+-	bool bNoDefensiveBonus = noDefensiveBonus();
+-	if( getGroup()->getNumUnits() > 1 )
++	int iPercentDefensive;
+ 	{
++		int iDefCount = 0;
+ 		CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+ 		CvUnit* pLoopUnit = NULL;
+ 
+-		while( pUnitNode != NULL )
++		while (pUnitNode != NULL)
+ 		{
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			bNoDefensiveBonus = (bNoDefensiveBonus && pLoopUnit->noDefensiveBonus());
++			iDefCount += pLoopUnit->noDefensiveBonus() ? 0 : 1;
+ 
+ 			pUnitNode = getGroup()->nextUnitNode(pUnitNode);
+ 		}
++		iPercentDefensive = 100 * iDefCount / getGroup()->getNumUnits();
+ 	}
+ 
+ 	CvPlot* pBestPlot = NULL;
+@@ -24610,34 +24614,44 @@ bool CvUnitAI::AI_choke(int iRange, bool bDefensive)
+ 					CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+ 					if ((pWorkingCity != NULL) && (pWorkingCity->getTeam() == pLoopPlot->getTeam()))
+ 					{
+-						int iValue = (bDefensive ? pLoopPlot->defenseModifier(getTeam(), false) : -15);
++						//int iValue = (bDefensive ? pLoopPlot->defenseModifier(getTeam(), false) : -15);
++						int iValue = bDefensive ? pLoopPlot->defenseModifier(getTeam(), false) - 15 : 0; // K-Mod
+ 						if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 						{
+-							iValue += GET_PLAYER(pLoopPlot->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(), 0);
++							iValue = GET_PLAYER(pLoopPlot->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(), 0);
+ 						}
+ 						
+-						iValue += pLoopPlot->getYield(YIELD_PRODUCTION) * 10;
+-						iValue += pLoopPlot->getYield(YIELD_FOOD) * 10;
++						iValue += pLoopPlot->getYield(YIELD_PRODUCTION) * 9; // was 10
++						iValue += pLoopPlot->getYield(YIELD_FOOD) * 12; // was 10
+ 						iValue += pLoopPlot->getYield(YIELD_COMMERCE) * 5;
+ 
+-						if (bNoDefensiveBonus)
++						// K-Mod
++						if (atPlot(pLoopPlot) && canPillage(pLoopPlot))
++						{
++							iValue += AI_pillageValue(pLoopPlot, 0) / (bDefensive ? 2 : 1);
++						}
++						// K-Mod end
++						
++						/*if (bNoDefensiveBonus)
+ 						{
+ 							iValue *= std::max(0, ((baseCombatStr() * 120) - GC.getGame().getBestLandUnitCombat()));
+ 						}
+ 						else
+ 						{
+ 							iValue *= pLoopPlot->defenseModifier(getTeam(), false);
+-						}
++						}*/
++						iValue *= (bDefensive ? 25 : 50) + iPercentDefensive * pLoopPlot->defenseModifier(getTeam(), false) / 100;
+ 						
+ 						if (iValue > 0)
+ 						{
+-							if( !bDefensive )
++							if (!bDefensive)
+ 							{
+ 								iValue *= 10;
+ 								iValue /= std::max(1, (pLoopPlot->getNumDefenders(getOwnerINLINE()) + ((pLoopPlot == plot()) ? 0 : getGroup()->getNumUnits())));
+ 							}
+ 
+-							if (generatePath(pLoopPlot))
++							//if (generatePath(pLoopPlot))
++							if (generatePath(pLoopPlot, iFlags, true, 0, iRange)) // K-Mod
+ 							{
+ 								pBestPlot = getPathEndTurnPlot();
+ 								iBestValue = iValue;
+@@ -24672,9 +24686,6 @@ bool CvUnitAI::AI_choke(int iRange, bool bDefensive)
+ 	
+ 	return false;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
+ {
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 7f5a388fc..c928e0296 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -323,15 +323,7 @@ protected:
+ 	bool AI_artistCultureVictoryMove();
+ 
+ 	bool AI_poach();
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/31/10                              jdog5000        */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+-	bool AI_choke(int iRange = 1, bool bDefensive = false);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	bool AI_choke(int iRange = 1, bool bDefensive = false, int iFlags = 0);
+ 
+ 	bool AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9912

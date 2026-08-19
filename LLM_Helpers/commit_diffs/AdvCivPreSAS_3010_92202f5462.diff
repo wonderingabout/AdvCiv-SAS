@@ -1,0 +1,1120 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3010
+# Commit: 92202f546295e43857d6172e1b9c6665446e68a5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bdf207ce1a4556187441b9d7ffe128c6944c1886
+# Title: Overhaul city bar hover text (based on BULL)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	4	Assets/Config/BULL City Bar.xml
+4	0	Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+6	0	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+6	0	Assets/XML/GameInfo/CIV4Hints.xml
+67	30	Assets/XML/Text/BULL City Bar Options.xml
+4	5	Assets/XML/Text/BULL Misc Hovers Options.xml
+13	14	Assets/XML/Text/BULL_CIV4GameText.xml
+119	15	Assets/XML/Text/CIV4GameText_advc.xml
+7	0	Assets/XML/Text/CIV4GameText_advc_hints.xml
+367	72	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BULL City Bar.xml b/Assets/Config/BULL City Bar.xml
+index df8cb252a..e606ec42d 100644
+--- a/Assets/Config/BULL City Bar.xml	
++++ b/Assets/Config/BULL City Bar.xml	
+@@ -4,6 +4,7 @@
+ 	by EmperorFool
+ 	
+ 	Copyright (c) 2009 The BUG Mod.
++	advc: Don't require dll=1
+ -->
+ <mod id="CityBar" 
+ 	 name="BULL City Bar" 
+@@ -11,7 +12,7 @@
+ 	 version="1.0" 
+ 	 date="04/20/2009"
+ 	 url="http://forums.civfanatics.com/showthread.php?t=307951"
+-	 dll="1">
++	 dll="0">
+ 	 
+ 	<options id="CityBar" file="BUG City Bar.ini">
+ 		
+@@ -53,9 +54,6 @@
+ 			<option id="Commerce" key="Commerce" 
+ 					type="boolean" default="False"/>
+ 					
+-			<option id="BuildingIcons" key="BuildingIcons" 
+-					type="boolean" default="False"/>
+-					
+ 			<option id="CultureTurns" key="Culture Turns" 
+ 					type="boolean" default="False"/>
+ 			<option id="GreatPersonTurns" key="Great Person Turns" 
+@@ -66,8 +64,23 @@
+ 			<option id="RevoltChance" key="Revolt Chance" 
+ 					type="boolean" default="False"/>
+ 
++			<option id="BuildingIcons" key="BuildingIcons" 
++					type="boolean" default="False"/>
+ 			<option id="HideInstructions" key="Hide Instructions" 
+ 					type="boolean" default="True"/>
++
++			<!-- advc.186 (Note that AdvCiv uses none of the options above.)
++				 The order of the choices needs to correspond to the order
++				 assumed in the DLL. -->
++			<list   id="BuildingDisplay" key="Building Display" 
++					type="int" default="1" listType="string" 
++					values="None|Icons|Names">
++				<choice id="None"/>
++				<choice id="Icons"/>
++				<choice id="Names"/>
++			</list>
++			<option id="SelectionHelp" key="Selection Help" 
++					type="boolean" default="True"/>
+ 		</section>
+ 	</options>
+ </mod>
+
+diff --git a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+index 66aa363e6..5e458bf59 100644
+--- a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+@@ -99,6 +99,7 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addLabel(screen, panel, "CitybarHover", "City Bar Hover:")
+ 		#left, right = self.addTwoColumnLayout(screen, panel, "CityBarHover", False)
+ 
++		# advc.186 (note): Mostly implemented, but not optional in AdvCiv.
+ 		#self.addCheckbox(screen, left, "CityBar__BaseValues")
+ 		#self.addCheckbox(screen, left, "CityBar__Health")
+ 		#self.addCheckbox(screen, left, "CityBar__Happiness")
+@@ -109,6 +110,7 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, left, "CityBar__CultureTurns")
+ 		#self.addCheckbox(screen, left, "CityBar__GreatPersonTurns")
+ 
++		# advc.186 (note): These are now tied to CityScreen__Anger_Counter
+ 		#self.addLabel(screen, right, "Cityanger", "City Anger:")
+ 		#self.addCheckbox(screen, right, "CityBar__HurryAnger")
+ 		#self.addCheckbox(screen, right, "CityBar__DraftAnger")
+@@ -117,7 +119,9 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, right, "CityBar__BuildingActualEffects")
+ 		#self.addCheckbox(screen, right, "CityBar__BuildingIcons")
+ 		#self.addCheckbox(screen, right, "CityBar__Specialists")
++		# Handled by advc.101 (non-optional)
+ 		#self.addCheckbox(screen, right, "CityBar__RevoltChance")
++		# advc.186: Replaced on the Map tab
+ 		#self.addCheckbox(screen, right, "CityBar__HideInstructions")
+ 		# EF: Airport Icons option is on Map tab
+ 		###self.addCheckbox(screen, right, "CityBar__AirportIcons")
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index 1eec878ac..7b7af42c8 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -77,6 +77,12 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, centerR, "MainInterface__NoBadHealthIcon")
+ 		# </advc.002f>
+ 		self.addCheckbox(screen, centerL, "MainInterface__RevoltChanceIcon") # advc.101
++		# <advc.186>
++		# Moved from City Screen tab. But let's disable it entirely.
++		#self.addCheckbox(screen, centerR, "CityBar__SelectionHelp")
++		self.addSpacer(screen, centerR, "SelectionHelp")
++		self.addTextDropdown(screen, centerL, centerR, "CityBar__BuildingDisplay")
++		# </advc.186>
+ 		self.addLabel(screen, right, "Camera", "Camera:") # advc.004m
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView")
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView_Remember", True)
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 5d7eef690..7dd280d6c 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -683,6 +683,9 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_48</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_50</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -822,5 +825,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_49</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_50</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/XML/Text/BULL City Bar Options.xml b/Assets/XML/Text/BULL City Bar Options.xml
+index af6945584..0f37b7a9f 100644
+--- a/Assets/XML/Text/BULL City Bar Options.xml	
++++ b/Assets/XML/Text/BULL City Bar Options.xml	
+@@ -36,9 +36,10 @@
+ 		<German>Zeigt an, in wie vielen Runden eine Stadt einen B�rger verliert, falls ihre Bev�lkerung schrumpft</German>
+ 		<Italian>When checked, shows how many turns until a city will lose population if it is shrinking.</Italian>
+ 		<Spanish>Muestra cu�ntos turnos faltan para que una ciudad pierda poblaci�n.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+-	<TEXT>
++	<!-- advc.186: Not making these optional -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_TEXT</Tag>
+ 		<English>Health</English>
+ 		<German>Gesundheit</German>
+@@ -65,9 +66,10 @@
+ 		<German>Zeigt die derzeitige Zufriedenheit ([ICON_HAPPY] oder [ICON_UNHAPPY]) einer Stadt an</German>
+ 		<Italian>Quando � selezionato, mostra la felicit� risultante ([ICON_HAPPY] o [ICON_UNHAPPY]) per la citt�.</Italian>
+ 		<Spanish>Permite mostrar los iconos de felicidad ([ICON_HAPPY] o [ICON_UNHAPPY]) para la ciudad.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+-	<TEXT>
++	<!-- advc.186: Tied to CityScreen__Anger_Counter now -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HURRYANGER_TEXT</Tag>
+ 		<English>Hurry Anger</English>
+ 		<German>Zwangsarbeit</German>
+@@ -93,9 +95,9 @@
+ 		<English>When checked, shows the number of angry population ([ICON_ANGRYPOP]) due to drafting and the number of turns left on the timer.</English>
+ 		<German>Zeigt die Anzahl der wegen Zwangsrekrutierung unzufriedenen B�rger ([ICON_ANGRYPOP]) und die Anzahl der verbleibenden Runden an, bis diese sich wieder beruhigt haben</German>
+ 		<Spanish>Muestra la cantidad de poblaci�n enfadada ([ICON_ANGRYPOP]) debido al reclutamiento y el n�mero de turnos restantes de la misma.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+-	<!-- advc.189: Partially merged, non-optional, no intention to merge fully. -->
++	<!-- advc.186, advc.189: Partially merged, non-optional, no intention to merge fully. -->
+ 	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__FOODASSIST_TEXT</Tag>
+ 		<English>Growth Detail</English>
+@@ -109,7 +111,7 @@
+ 		<German>Zeigt detailliertere Informationen �ber das Wachstum einer Stadt an (Zunahme, Abnahme, Hungersnot, Stagnation).</German>
+ 		<Italian>Quando � selezionato, mostra pi� dettagli sulla crescita (crescita, decrescita, carestia, stagnazione).</Italian>
+ 		<Spanish>Si se activa, muestra informaci�n detallada sobre el crecimiento (creciendo, reduci�ndose, hambruna, detenido).</Spanish>
+-	</TEXT-->
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BASEVALUES_TEXT</Tag>
+ 		<English>Base Values</English>
+@@ -137,7 +139,7 @@
+ 		<German>Zeigt die Grundproduktion (ohne �berschuss, Zwangsarbeit und Waldrodung) zus�tzlich zur Produktion der derzeitigen Runde an</German>
+ 		<Italian>Quando � selezionato, mostra la produzione base (escluse le quote da surplus, sacrifici e abbattimento alberi) come aggiunta alla produzione del turno corrente.</Italian>
+ 		<Spanish>Muestra la producci�n base (excluyendo excedentes, sacrificios y tala) adem�s de la producci�n del turno actual.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGACTUALEFFECTS_TEXT</Tag>
+ 		<English>Building Actual Effects</English>
+@@ -152,7 +154,8 @@
+ 		<Spanish>Si se activa y una ciudad est� construyendo un edificio, se muestran los beneficios reales esperados de [ICON_COMMERCE], [ICON_HAPPY], [ICON_HEALTHY], and [ICON_GREATPEOPLE] que produzca.</Spanish>
+ 	</TEXT>
+ 
+-	<TEXT>
++	<!-- advc.186: Tied to CityScreen__WhipAssist now -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HURRYASSIST_TEXT</Tag>
+ 		<English>City Bar</English>
+ 		<German>Stadtbalken</German>
+@@ -179,9 +182,10 @@
+ 		<German>Bezieht [ICON_PRODUCTION] einer Stadt aus der aktuellen Runde in die Berechnung des Produktions�berschusses ([ICON_PRODUCTION] und/oder [ICON_GOLD]) ein, der aus der Produktionsbeschleunigung durch Zwangsarbeit entsteht</German>
+ 		<Italian>Quando � selezionato, include il turno corrente quando calcola il surplus ([ICON_PRODUCTION] e/o [ICON_GOLD]) per l'accelerazione da sacrifici.</Italian>
+ 		<Spanish>Si se activa, incluye la producci�n del turno actual cuando se calcule el excedente ([ICON_PRODUCTION] y/o [ICON_GOLD]) de apresurar construcci�n mediante sacrificio.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+-	<TEXT>
++	<!-- advc.186: Don't need options for this -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__TRADEDETAIL_TEXT</Tag>
+ 		<English>Trade</English>
+ 		<German>Handel</German>
+@@ -208,9 +212,10 @@
+ 		<German>Zeigt das gesamte Wirtschaftseinkommen ([ICON_COMMERCE]) vor den einzelnen Einkommensarten ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE] und [ICON_ESPIONAGE]) an</German>
+ 		<Italian>Quando � selezionato, mostra l'oro totale ([ICON_COMMERCE]) prima dei singoli tipi ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE], e [ICON_ESPIONAGE]).</Italian>
+ 		<Spanish>Muestra el comercio total ([ICON_COMMERCE]) delante de cada uno de los tipos de comercio individuales  ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE], y [ICON_ESPIONAGE]).</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+-	<TEXT>
++	<!-- advc.186: Replaced by the options below -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGICONS_TEXT</Tag>
+ 		<English>Building Icons</English>
+ 		<German>Geb�ude-Symbole</German>
+@@ -224,8 +229,55 @@
+ 		<Italian>Quando � selezionato, la lista degli edifici viene visualizzata con le rispettive icone invece dei nomi.</Italian>
+ 		<Spanish>Si se activa, se muestra la lista de edificios empleando iconos en lugar de nombres.</Spanish>
+ 	</TEXT>
+-	
+ 	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HIDEINSTRUCTIONS_TEXT</Tag>
++		<English>Hide Instructions</English>
++		<German>Hinweise verbergen</German>
++		<Italian>Nascondi Istruzioni</Italian>
++		<Spanish>Ocultar Instrucciones</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HIDEINSTRUCTIONS_HOVER</Tag>
++		<English>When checked, hides the instructions for selecting cities and showing base values to make room for the new information.</English>
++		<German>Verbirgt die Hinweise zur Auswahl von St�dten und zur Anzeige der Basiswerte, um Platz f�r die neuen Informationen zu schaffen</German>
++		<Italian>Quando � selezionato, nasconde le istruzioni per la selezione delle Citt� e mostra i valori base per fare posto alle nuove informazioni.</Italian>
++		<Spanish>Si se activa, se ocultan las instrucciones para seleccionar ciudades y mostrar valores base para hacer sitio a m�s informaci�n.</Spanish>
++	</TEXT-->
++	<!-- advc.186 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGDISPLAY_TEXT</Tag>
++		<English>Building List</English>
++		<German>Geb�ude-Liste</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGDISPLAY_HOVER</Tag>
++		<English>Whether and how to list buildings when hovering over a city bar. Note: Free buildings like the [COLOR_BUILDING_TEXT]Stonehenge Monuments[COLOR_REVERT] are never listed.</English>
++		<German>Wie und ob im Hilfetext von St�dte-Balken Geb�ude aufgef�hrt werden sollen. Bemerkung: Gratis-Geb�ude wie etwa die [COLOR_BUILDING_TEXT]Stonehenge-Monumente[COLOR_REVERT] werden nicht aufgef�hrt.</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGDISPLAY_LIST</Tag>
++		<English>None|Icons|Names</English>
++		<German>Keine|Symbole|Namen</German>
++	</TEXT>
++	<!-- Unused (but might want to use it again).
++		 (Sp., It. translations are partial and based on the BULL texts above.) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__SELECTIONHELP_TEXT</Tag>
++		<English>Selection Help</English>
++		<German>Hinweistext</German>
++		<Italian>Istruzioni</Italian>
++		<Spanish>Instrucciones</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYBAR__SELECTIONHELP_HOVER</Tag>
++		<English>When checked, a (BtS) hint about selecting cities through left-click is shown at the end of the city bar hover text.</English>
++		<German>Zeigt als Teil des Hilfetextes zu den St�dte-Balken einen (BtS)-Hinweis an, der erkl�rt, dass St�dte per Mausklick ausgew�hlt werden k�nnen.</German>
++		<Italian>Quando � selezionato, mostra le istruzioni per la selezione delle Citt�.</Italian>
++		<Spanish>Si se activa, mostrar las instrucciones para seleccionar ciudades.</Spanish>
++	</TEXT>
++
++	<!-- advc.186: Don't need options for this -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__CULTURETURNS_TEXT</Tag>
+ 		<English>Culture Turns</English>
+ 		<German>Kultur</German>
+@@ -252,7 +304,7 @@
+ 		<German>Zeigt die Anzahl der Runden an, bis eine Stadt eine Gro�e Pers�nlichkeit ([ICON_GREATPEOPLE]) hervorbringt</German>
+ 		<Italian>Quando � selezionato, mostra il numero di turni necessario perch� la citt� generi il successivo Grande Personaggio([ICON_GREATPEOPLE]).</Italian>
+ 		<Spanish>Si se activa, muestra el n�mero de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__SPECIALISTS_TEXT</Tag>
+@@ -284,19 +336,4 @@
+ 		<Spanish>Si se activa, muestra las probabilidades de que tenga lugar una revuelta en la ciudad debido a la presi�n cultural.</Spanish>
+ 	</TEXT-->
+ 
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HIDEINSTRUCTIONS_TEXT</Tag>
+-		<English>Hide Instructions</English>
+-		<German>Hinweise verbergen</German>
+-		<Italian>Nascondi Istruzioni</Italian>
+-		<Spanish>Ocultar Instrucciones</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HIDEINSTRUCTIONS_HOVER</Tag>
+-		<English>When checked, hides the instructions for selecting cities and showing base values to make room for the new information.</English>
+-		<German>Verbirgt die Hinweise zur Auswahl von St�dten und zur Anzeige der Basiswerte, um Platz f�r die neuen Informationen zu schaffen</German>
+-		<Italian>Quando � selezionato, nasconde le istruzioni per la selezione delle Citt� e mostra i valori base per fare posto alle nuove informazioni.</Italian>
+-		<Spanish>Si se activa, se ocultan las instrucciones para seleccionar ciudades y mostrar valores base para hacer sitio a m�s informaci�n.</Spanish>
+-	</TEXT>
+-
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/BULL Misc Hovers Options.xml b/Assets/XML/Text/BULL Misc Hovers Options.xml
+index 8539c35d2..7b973471e 100644
+--- a/Assets/XML/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/XML/Text/BULL Misc Hovers Options.xml	
+@@ -510,13 +510,12 @@
+ 		<Spanish>Barra de Producci�n</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.064: Moved from 'BUG City Screen Options.xml'
+-		 and made some changes. [ICON_CITIZEN] apparently can't be used in
+-		 help text. -->
++	<!-- advc.064: Moved from 'BUG City Screen Options.xml' and made some changes.
++		 advc.186: Also affects city bars now. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__WHIPASSIST_HOVER</Tag>
+-		<English>When checked, the production bar shows the [ICON_CITIZEN] or [ICON_GOLD] cost and [ICON_PRODUCTION]/[ICON_GOLD] overflow caused by hurrying the city's current production order.</English>
+-		<German>Zeigt im Produktionsbalken die [ICON_CITIZEN]- oder [ICON_GOLD]-Kosten und den [ICON_PRODUCTION]/[ICON_GOLD]-�berschuss, die eine Beschleunigung des derzeitigen Produktionsauftrags verursachen w�rde.</German>
++		<English>When checked, the production bar shows the [ICON_CITIZEN] or [ICON_GOLD] cost and [ICON_PRODUCTION]/[ICON_GOLD] overflow caused by hurrying the city's current production order. Additionally, this information gets shown when hovering over the city bar on the main screen.</English>
++		<German>Zeigt im Produktionsbalken die [ICON_CITIZEN]- oder [ICON_GOLD]-Kosten und den [ICON_PRODUCTION]/[ICON_GOLD]-�berschuss, die eine Beschleunigung des derzeitigen Produktionsauftrags verursachen w�rde. Zeigt dieselben Informationen au�erdem im Hilfetext des Stadtbalkens auf dem Hauptbilschirm an.</German>
+ 		<Italian>Quando � selezionato, la Barra della Pruduzione della Schermata Cittadina mostra il costo in popolazione ed il surplus di produzione per l'accelerazione di produzione mediante sacrifici e il costo in oro per l'accelerazione di produzione mediante pagamenti relativi all'oggetto attualmente costruito.</Italian>
+ 		<Spanish>Si se activa, muestra el coste en poblaci�n y el excedente de [ICON_PRODUCTION]/[ICON_GOLD] por usar sacrificios y/o el coste en [ICON_GOLD] por comprar la producci�n mostrada en la barra de producci�n.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index 158ef35dd..51bb32db3 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -8,14 +8,6 @@
+ 
+ <!-- City Bar Hover -->
+ 	
+-	<TEXT>
+-		<Tag>TXT_KEY_CITY_BAR_CTRL_BASE_VALUES</Tag>
+-		<English>[NEWLINE]Hold &lt;CTRL&gt; to see base values.</English>
+-		<German>[NEWLINE][BOLD]&lt;STRG&gt;[\BOLD] dr�cken, um die Basiswerte zu sehen</German>
+-		<Italian>[NEWLINE]Tieni premuto &lt;CTRL&gt; per visualizzare i valori base.</Italian>
+-		<Spanish>[NEWLINE]Pulsa &lt;CTRL&gt; para ver los valores base.</Spanish>
+-	</TEXT>
+-	
+ 	<!-- Food Assist -->
+ 	<!-- advc.189: Handled through (less verbose) text in Civ4GameText_advc.xml -->
+ 	<!--TEXT>
+@@ -52,6 +44,13 @@
+ 	</TEXT-->
+ 	
+ 	<!-- Base Production -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_CTRL_BASE_VALUES</Tag>
++		<English>[NEWLINE]Hold &lt;CTRL&gt; to see base values.</English>
++		<German>[NEWLINE][BOLD]&lt;STRG&gt;[\BOLD] dr�cken, um die Basiswerte zu sehen</German>
++		<Italian>[NEWLINE]Tieni premuto &lt;CTRL&gt; per visualizzare i valori base.</Italian>
++		<Spanish>[NEWLINE]Pulsa &lt;CTRL&gt; para ver los valores base.</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_HAMMER_PRODUCTION_WITH_BASE</Tag>
+ 		<English>[NEWLINE]%d1 [ICON_PRODUCTION]/Turn (%d6 [ICON_PRODUCTION]/Turn)[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION] (%d5 [NUM5:Turn:Turns])</English>
+@@ -85,14 +84,14 @@
+ 		<Spanish>[NEWLINE]%d1 [ICON_PRODUCTION] (%d2 [ICON_PRODUCTION]/turno)</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- Culture Turns -->
++	<!-- Culture Turns --> <!-- advc.186: NEWLINE removed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_CULTURE_NO_LEVEL</Tag>
+-		<English>[NEWLINE][ICON_CULTURE]: %d1/%d2</English>
+-		<French>[NEWLINE][ICON_CULTURE] : %d1/%d2</French>
+-		<German>[NEWLINE][ICON_CULTURE]: %d1/%d2</German>
+-		<Italian>[NEWLINE][ICON_CULTURE]: %d1/%d2</Italian>
+-		<Spanish>[NEWLINE][ICON_CULTURE]: %d1/%d2</Spanish>
++		<English>[ICON_CULTURE]: %d1/%d2</English>
++		<French>[ICON_CULTURE] : %d1/%d2</French>
++		<German>[ICON_CULTURE]: %d1/%d2</German>
++		<Italian>[ICON_CULTURE]: %d1/%d2</Italian>
++		<Spanish>[ICON_CULTURE]: %d1/%d2</Spanish>
+ 	</TEXT>
+ 	
+ <!-- Finance Advisor -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 87c466a36..0656e756f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5779,23 +5779,67 @@
+ 	</TEXT>
+ 	
+ 	<!-- advc.004x: Based on TXT_KEY_CITY_BAR_HAMMER_PRODUCTION and
+-		 TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION in
+-		 CIV4GameTextInfos.xml. Removed the production turns in parentheses. -->
++		 TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION (CIV4GameTextInfos.xml). -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CITY_BAR_HAMMER_NO_PRODUCTION</Tag>
+-		<English>[NEWLINE]%d1 [ICON_PRODUCTION]/Turn[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</English>
+-		<French>[NEWLINE]%d1 [ICON_PRODUCTION]/tour[NEWLINE]%s2 : %d3/%d4 [ICON_PRODUCTION]</French>
+-		<German>[NEWLINE]%d1 [ICON_PRODUCTION]/Runde[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</German>
+-		<Italian>[NEWLINE]%d1 [ICON_PRODUCTION]/Turno[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</Italian>
+-		<Spanish>[NEWLINE]%d1 [ICON_PRODUCTION]/turno[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</Spanish>
++		<Tag>TXT_KEY_CITY_BAR_PRODUCTION_PER_TURN</Tag>
++		<English>%d1[ICON_PRODUCTION]/Turn</English>
++		<French>%d1[ICON_PRODUCTION]/tour</French>
++		<German>%d1[ICON_PRODUCTION]/Runde</German>
++		<Italian>%d1[ICON_PRODUCTION]/Turno</Italian>
++		<Spanish>%d1[ICON_PRODUCTION]/turno</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CITY_BAR_FOOD_HAMMER_NO_PRODUCTION</Tag>
+-		<English>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/Turn[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</English>
+-		<French>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/tour[NEWLINE]%s3 : %d4/%d5 [ICON_PRODUCTION]</French>
+-		<German>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/Runde[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</German>
+-		<Italian>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/Turno[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</Italian>
+-		<Spanish>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/turno[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</Spanish>
++		<Tag>TXT_KEY_CITY_BAR_FOOD_PRODUCTION_PER_TURN</Tag>
++		<English>%d1[ICON_FOOD] + %d2[ICON_PRODUCTION]/Turn</English>
++		<French>%d1[ICON_FOOD] + %d2[ICON_PRODUCTION]/tour</French>
++		<German>%d1[ICON_FOOD] + %d2[ICON_PRODUCTION]/Runde</German>
++		<Italian>%d1[ICON_FOOD] + %d2[ICON_PRODUCTION]/Turno</Italian>
++		<Spanish>%d1[ICON_FOOD] + %d2[ICON_PRODUCTION]/turno</Spanish>
++	</TEXT>
++	<!-- Cut from TXT_KEY_CITY_BAR_HAMMER_PRODUCTION -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_PRODUCTION_TURNS</Tag>
++		<English>[SPACE](%d1 [NUM1:Turn:Turns])</English>
++		<French>[SPACE](%d1 [NUM1:tour:tours])</French>
++		<German>[SPACE](%d1 [NUM1:Runde:Runden])</German>
++		<Italian>[SPACE](%d1 [NUM1:turno:turni])</Italian>
++		<Spanish>[SPACE](%d1 [NUM1:turno:turnos])</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_ONE_TIME_PRODUCTION</Tag>
++		<English>[SPACE]+ %d1[ICON_PRODUCTION] this Turn</English>
++		<French>[SPACE]+ %d1[ICON_PRODUCTION] ce tour</French>
++		<German>[SPACE]+ %d1[ICON_PRODUCTION] diese Runde</German>
++		<Italian>[SPACE]+ %d1[ICON_PRODUCTION] questo turno</Italian>
++		<Spanish>[SPACE]+ %d1[ICON_PRODUCTION] este turno</Spanish>
++	</TEXT>
++	<!-- "This turn" won't work when maintaining a production process.
++		 Don't want to coin a new game term, but e.g. "waiting"
++		 isn't clear enough. -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_STORED_PRODUCTION</Tag>
++		<English>%d1[ICON_PRODUCTION] Stored</English>
++		<French>%d1[ICON_PRODUCTION] r�cup�rable</French>
++		<German>%d1[ICON_PRODUCTION] abrufbar</German>
++		<Italian>%d1[ICON_PRODUCTION] conservato</Italian>
++		<Spanish>%d1[ICON_PRODUCTION] almacenado</Spanish>
++	</TEXT>
++	<!-- advc.186 -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_HAMMER_PROCESS</Tag>
++		<English>[NEWLINE]%d1[ICON_PRODUCTION]/Turn[NEWLINE]Converting to %s2/Turn</English>
++		<French>[NEWLINE]%d1[ICON_PRODUCTION]/tour[NEWLINE]Transform� en %s2/tour</French>
++		<German>[NEWLINE]%d1[ICON_PRODUCTION]/Runde[NEWLINE]Umgewandelt zu %s2/Runde</German>
++		<Italian>[NEWLINE]%d1[ICON_PRODUCTION]/Turno[NEWLINE]Trasformato in %s2/Turno</Italian>
++		<Spanish>[NEWLINE]%d1[ICON_PRODUCTION]/turno[NEWLINE]Convertido en %s2/turno</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_PRODUCTION_PROCESS</Tag>
++		<English>Converting to %s1/Turn</English>
++		<French>Transform� en %s1/tour</French>
++		<German>Umgewandelt zu %s1/Runde</German>
++		<Italian>Trasformato in %s1/Turno</Italian>
++		<Spanish>Convertido en %s1/turno</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.251 -->
+@@ -6676,6 +6720,15 @@
+ 		<Italian>non cumulativo con altre [ICON_RELIGION]</Italian>
+ 		<Spanish>no se acumula con otras [ICON_RELIGION]</Spanish>
+ 	</TEXT>
++	<!-- advc.186 -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_ANGER_TIMER</Tag>
++		<English>-%d1[ICON_UNHAPPY] in %d2 [NUM2:Turn:Turns]</English>
++		<French>-%d1[ICON_UNHAPPY] pour %d2 %d1 [NUM2:tour:tours]</French>
++		<German>-%d1[ICON_UNHAPPY] dans %d2 [NUM2:Runde:Runden]</German>
++		<Italian>-%d1[ICON_UNHAPPY] tra %d2 [NUM2:turno:turni]</Italian>
++		<Spanish>-%d1[ICON_UNHAPPY] en %d2 [NUM2:turno:turnos]</Spanish>
++	</TEXT>
+ 	<!-- advc.188: From CIV4GameTextInfos.xml. Add remaining duration to make
+ 		 the anger countdown (BUG option) easier to understand. -->
+ 	<TEXT>
+@@ -6703,7 +6756,58 @@
+ 		<Italian>+%d1_Change[ICON_UNHAPPY]: "Il mondo ti considera un malvagio!" (%d2 [NUM2:turno:turni])</Italian>
+ 		<Spanish>+%d1_Change [ICON_UNHAPPY]: "&#161;El mundo os considera un ser vil!" (%d2 [NUM2:turno:turnos])</Spanish>
+ 	</TEXT>
+-
++	<!-- advc.186 -->
++	<!-- Based on TXT_KEY_MISC_HURRY_PROD (Civ4GameTextInfos.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_HURRY_HEADING</Tag>
++		<English>Hurry:[SPACE]</English>
++		<French>Acc&#233;l&#233;rer :[SPACE]</French>
++		<German>Beschleunigen: [SPACE]</German>
++		<Italian>Accelera: [SPACE]</Italian>
++		<Spanish>Acelerar: [SPACE]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_FROM_TR</Tag>
++		<English>%d1[ICON_COMMERCE] from [ICON_TRADE]</English>
++		<French>%d1[ICON_COMMERCE] par [ICON_TRADE]</French>
++		<German>%d1[ICON_COMMERCE] durch [ICON_TRADE]</German>
++		<Italian>%d1[ICON_COMMERCE] dalle [ICON_TRADE]</Italian>
++		<Spanish>%d1[ICON_COMMERCE] por [ICON_TRADE]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_ALL_DOMESTIC</Tag>
++		<English>all domestic</English>
++		<French>toutes domestiques</French>
++		<German>alle inl�ndisch</German>
++		<Italian>tutte domestiche</Italian>
++		<Spanish>todas dom�sticas</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_ALL_FOREIGN</Tag>
++		<English>all foreign</English>
++		<French>toutes �trang�res</French>
++		<German>alle ausl�ndisch</German>
++		<Italian>tutte estere</Italian>
++		<Spanish>todas extranjeras</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_FOREIGN_TR_COMMERCE</Tag>
++		<English>foreign: %d1[ICON_COMMERCE]</English>
++		<French>&#233;trang&#232;res : %d1[ICON_COMMERCE]</French>
++		<German>Au�enhandel: %d1[ICON_COMMERCE]</German>
++		<Italian>estere: %d1[ICON_COMMERCE]</Italian>
++		<Spanish>extranjeras : %d1[ICON_COMMERCE]</Spanish>
++	</TEXT>
++	<!-- From CIV4GameTextInfos.xml. NEWLINE removed.
++		 (Key unused now, but might want to use it again.) -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_CULTURE</Tag>
++		<English>[ICON_CULTURE]: %d1/%d2 (%s3)</English>
++		<French>[ICON_CULTURE] : %d1/%d2 (%s3)</French>
++		<German>[ICON_CULTURE]: %d1/%d2 (%s3)</German>
++		<Italian>[ICON_CULTURE]: %d1/%d2 (%s3)</Italian>
++		<Spanish>[ICON_CULTURE]: %d1/%d2 (%s3)</Spanish>
++	</TEXT>
+ 	<!-- advc.187: From CIV4GameText_BTS.xml. Use BULL's airport icon
+ 		 (which AdvCiv adds to GameFont_75.tga for this purpose). -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 1264abc25..a74eddb82 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -939,4 +939,11 @@
+ 	<German>(AdvCiv) Wenn in einer Stadt [COLOR_HIGHLIGHT_TEXT]Wachstum vermeiden[COLOR_REVERT] aktiviert ist, erscheint (optional) zur Erinnerung ein Symbol �ber dem Stadtnamen auf der Hauptkarte. �brigens: Wenn der KI-Gouverneur beim Vermeiden von Wachstum andere Ertr�ge maximieren soll, muss auch die B�rgerautomatisierung aktiv sein.</German>
+ </TEXT>
+ 
++<!-- advc.186 -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_50</Tag>
++	<English>To change the production order of a city, it suffices to select the city's billboard on the main screen; opening the city screen isn't necessary. Essential city statistics are shown in hover text.</English>
++	<German>Um einer Stadt einen neuen Produktionsauftrag zu erteilen gen�gt es, den Stadtbalken per Klick auszuw�hlen; es ist nicht notwendig, den Stadtbildschirm zu �ffnen. Der Hilfetext des Stadtbalkens liefert einen Kompakt-�berblick.</German>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 92f936fa9..e2d5b5709 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5216,6 +5216,7 @@ void CvGameTextMgr::setYieldValueString(CvWStringBuffer &szString,
+ 	else szString.append(CvWString::format(L"           " ENDCOLR));
+ }
+ 
++
+ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCity)
+ {
+ 	PROFILE_FUNC();
+@@ -5229,6 +5230,64 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCit
+ 	} // </advc.186b>
+ 	szString.append(szTempBuffer);
+ 	PlayerTypes const eOwner = kCity.getOwner();
++	// <advc.186>
++	// BULL - Health - start
++	//if (BUGOption::isEnabled("CityBar__Health", true))
++	{
++		int iHealth = kCity.goodHealth() - kCity.badHealth();
++		szTempBuffer.Format(L", %d%c", abs(iHealth),
++				gDLL->getSymbolID(iHealth >= 0 ? HEALTHY_CHAR : UNHEALTHY_CHAR));
++		szString.append(szTempBuffer);
++	} // BULL - Health - end
++	// BULL - Happiness - start
++	//if (BUGOption::isEnabled("CityBar__Happiness", true))
++	{
++		if (kCity.isDisorder())
++		{
++			int iAngryPop = kCity.angryPopulation();
++			if (iAngryPop > 0)
++			{
++				szTempBuffer.Format(L", %d%c", iAngryPop,
++						gDLL->getSymbolID(ANGRY_POP_CHAR));
++				szString.append(szTempBuffer);
++			}
++		}
++		else
++		{
++			int iHappy = kCity.happyLevel() - kCity.unhappyLevel();
++			szTempBuffer.Format(L", %d%c", abs(iHappy),
++					gDLL->getSymbolID(iHappy >= 0 ? HAPPY_CHAR : UNHAPPY_CHAR));
++			szString.append(szTempBuffer);
++		}
++	} // BULL - Happiness - end
++	// Based on BULL code ("Hurry Anger Turns")
++	if (eOwner == GC.getGame().getActivePlayer() &&
++		//BUGOption::isEnabled("CityBar__HurryAnger", true))
++		BUGOption::isEnabled("CityScreen__Anger_Counter", true))
++	{
++		int iAngerTimer = std::max(kCity.getHurryAngerTimer(), kCity.getConscriptAngerTimer());
++		// As in CvMainInterface.updateCityScreen
++		iAngerTimer = std::max(iAngerTimer, kCity.getDefyResolutionAngerTimer());
++		if (iAngerTimer > 0)
++		{
++			// No happiness is displayed in disorder
++			bool const bParentheses = !kCity.isDisorder();
++			if (bParentheses)
++				szString.append(L"(");
++			else szString.append(L", ");
++			// (BULL had largely duplicated the CvCity::get...PercentAnger functions)
++			int iPercentAnger = std::max(kCity.getHurryPercentAnger(),
++					kCity.getConscriptPercentAnger());
++			iPercentAnger = std::max(iPercentAnger,
++					kCity.getDefyResolutionPercentAnger());
++			int iAngryPop = (iPercentAnger * kCity.getPopulation()) /
++					GC.getPERCENT_ANGER_DIVISOR();
++			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_ANGER_TIMER",
++					iAngryPop, iAngerTimer));
++			if (bParentheses)
++				szString.append(L")");
++		}
++	} // </advc.186>
+ 	// <advc.101>
+ 	if (!BUGOption::isEnabled("MainInterface__RevoltHelp", true))
+ 	{
+@@ -5239,12 +5298,15 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCit
+ 			szString.append(NEWLINE);
+ 			szString.append(szRevoltHelp.getCString());
+ 		}
+-	} // </advc.101>		// advc.002f:
+-		bool const bAvoidGrowth = pCity->AI().AI_isEmphasizeAvoidGrowth();
++	} // </advc.101>
++	{
++		int const iFoodDifference = kCity.foodDifference();
++		// advc.002f:
++		bool const bAvoidGrowth = kCity.AI().AI_isEmphasizeAvoidGrowth();
+ 		if (iFoodDifference == 0) // advc.004: was <=
+ 		{
+ 			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GROWTH",
+-					pCity->getFood(), pCity->growthThreshold()));
++					kCity.getFood(), kCity.growthThreshold()));
+ 		}
+ 		else
+ 		{
+@@ -5269,106 +5331,332 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCit
+ 			szString.append(szTempBuffer);
+ 		} // </advc.002f>
+ 	}
+-	if (pCity->getProductionNeeded() != MAX_INT)
+ 	{
+-		int iProductionDiffNoFood = pCity->getCurrentProductionDifference(true, true);
+-		int iProductionDiffJustFood = (pCity->getCurrentProductionDifference(false, true) -
+-				iProductionDiffNoFood);
+-		int iTurns = pCity->getProductionTurnsLeft(); // advc.004x
++		int iProductionDiffNoFood = kCity.getCurrentProductionDifference(true,
++				false, true); // advc.186
++		int iProductionDiffJustFood = (kCity.getCurrentProductionDifference(false,
++				false, true) // advc.186
++				- iProductionDiffNoFood);
++		// <advc.186>
++		int iStoredProduction = kCity.getCurrentProductionDifference(
++				true, true, false, true, true); // </advc.186>
++		if (iProductionDiffNoFood + iProductionDiffJustFood + iStoredProduction > 0)
++			szString.append(NEWLINE);
+ 		if (iProductionDiffJustFood > 0)
+-		{	// <advc.004x>
+-			if(iTurns == MAX_INT)
++		{
++			szString.append(gDLL->getText(
++					"TXT_KEY_CITY_BAR_FOOD_PRODUCTION_PER_TURN",
++					iProductionDiffJustFood, iProductionDiffNoFood));
++		}
++		else if (iProductionDiffNoFood > 0)
++		{
++			szString.append(gDLL->getText(
++					"TXT_KEY_CITY_BAR_PRODUCTION_PER_TURN",
++					iProductionDiffNoFood));
++		}
++		int const iProductionTurns = kCity.getProductionTurnsLeft();
++		if (iStoredProduction > 0)
++		{
++			if (iProductionTurns != MAX_INT)
+ 			{
+-				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_HAMMER_NO_PRODUCTION",
+-						iProductionDiffJustFood, iProductionDiffNoFood,
+-						pCity->getProductionName(), pCity->getProduction(),
+-						pCity->getProductionNeeded()));
++				szString.append(gDLL->getText(
++						"TXT_KEY_CITY_BAR_ONE_TIME_PRODUCTION",
++						iStoredProduction));
+ 			}
+-			else // </advc.004x>
++			else
+ 			{
+-				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION",
+-						iProductionDiffJustFood, iProductionDiffNoFood,
+-						pCity->getProductionName(), pCity->getProduction(),
+-						pCity->getProductionNeeded(), iTurns));
++				if (iProductionDiffNoFood + iProductionDiffJustFood > 0)
++					szString.append(L", ");
++				szString.append(gDLL->getText(
++						"TXT_KEY_CITY_BAR_STORED_PRODUCTION",
++						iStoredProduction));
+ 			}
+ 		}
+-		else if (iProductionDiffNoFood > 0)
+-		{	// <advc.004x>
+-			if(iTurns == MAX_INT)
++		if (kCity.getProductionNeeded() != MAX_INT)
++		{
++			// <advc.004x>
++			szString.append(gDLL->getText(
++					"TXT_KEY_CITY_BAR_PRODUCTION", // (NB: starts with a linebreak)
++					kCity.getProductionName(), kCity.getProduction(),
++					kCity.getProductionNeeded()));
++			if (iProductionTurns != MAX_INT) // </advc.004x>
+ 			{
+-				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_HAMMER_NO_PRODUCTION",
+-						iProductionDiffNoFood, pCity->getProductionName(),
+-						pCity->getProduction(), pCity->getProductionNeeded()));
++				szString.append(gDLL->getText(
++						"TXT_KEY_CITY_BAR_PRODUCTION_TURNS",
++						iProductionTurns));
+ 			}
+-			else // </advc.004x>
++
++		}
++		// <advc.186>
++		else if (!kCity.isDisorder())
++		{
++			CvWString szProcessCommerce;
++			bool bFirst = true;
++			FOR_EACH_ENUM(Commerce)
+ 			{
+-				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_HAMMER_PRODUCTION",
+-						iProductionDiffNoFood, pCity->getProductionName(),
+-						pCity->getProduction(), pCity->getProductionNeeded(),
+-						iTurns));
++				// Akin to code in SetCommerceHelp
++				int iRate = kCity.getProductionToCommerceModifier(eLoopCommerce) *
++						kCity.getYieldRate(YIELD_PRODUCTION);
++				if (iRate == 0)
++					continue;
++				wchar cIcon = GC.getInfo(eLoopCommerce).getChar();
++				setListHelp(szProcessCommerce, L"", iRate % 100 == 0 ?
++						CvWString::format(L"%d%c", iRate / 100, cIcon) :
++						CvWString::format(L"%.2f%c", iRate / 100.f, cIcon),
++						L", ", bFirst);
+ 			}
+-		}
+-		else
++			if (!szProcessCommerce.empty())
++			{
++				szString.append(NEWLINE);
++				szString.append(gDLL->getText(
++						"TXT_KEY_CITY_BAR_PRODUCTION_PROCESS",
++						szProcessCommerce.c_str()));
++			}
++		} // </advc.186>
++	}
++	// BULL - Hurry Assist - start (advc.186)
++	if (eOwner == GC.getGame().getActivePlayer() &&
++		BUGOption::isEnabled("CityScreen__WhipAssist", true))
++	{
++		bool bFirstHurry = true;
++		FOR_EACH_ENUM(Hurry)
+ 		{
+-			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_PRODUCTION",
+-					pCity->getProductionName(), pCity->getProduction(),
+-					pCity->getProductionNeeded()));
++			if (!kCity.canHurry(eLoopHurry))
++				continue;
++			CvWString szHurryHelp;
++			bool bFirstDetail = true;
++			int iPopulation = kCity.hurryPopulation(eLoopHurry);
++			if (iPopulation > 0)
++			{
++				szTempBuffer.Format(L"%d%c", -iPopulation,
++						gDLL->getSymbolID(CITIZEN_CHAR));
++				setListHelp(szHurryHelp, L"", szTempBuffer, L", ", bFirstDetail);
++			}
++			int iGold = kCity.hurryGold(eLoopHurry);
++			if (iGold > 0)
++			{
++				szTempBuffer.Format(L"%d%c", -iGold,
++						GC.getInfo(COMMERCE_GOLD).getChar());
++				setListHelp(szHurryHelp, L"", szTempBuffer, L", ", bFirstDetail);
++			}
++			int iOverflowProduction = 0;
++			int iOverflowGold = 0;
++			if (kCity.hurryOverflow(eLoopHurry, &iOverflowProduction, &iOverflowGold,
++				BUGOption::isEnabled("CityScreen__WhipAssistOverflowCountCurrentProduction", false)))
++			{
++				if (iOverflowProduction > 0)
++				{
++					szTempBuffer.Format(L"+%d%c", iOverflowProduction,
++							GC.getInfo(YIELD_PRODUCTION).getChar());
++					setListHelp(szHurryHelp, L"", szTempBuffer, L", ", bFirstDetail);
++				}
++				if (iOverflowGold > 0)
++				{
++					szTempBuffer.Format(L"+%d%c", iOverflowGold,
++							GC.getInfo(COMMERCE_GOLD).getChar());
++					setListHelp(szHurryHelp, L"", szTempBuffer, L", ", bFirstDetail);
++				}
++			}
++			if (!bFirstDetail)
++			{
++				szString.append(NEWLINE);
++				setListHelp(szString, gDLL->getText("TXT_KEY_CITY_BAR_HURRY_HEADING"),
++						szHurryHelp, gDLL->getText("TXT_KEY_OR"), bFirstHurry);
++			}
+ 		}
+-	}
++	} // BULL - Hurry Assist - end
++	// BULL - Commerce - start
++	/*	advc.186: Show raw commerce in the trade-routes line;
++		not enough room in the commerce line (due to advc.002b),
++		and also a bit confusing there. */
++	//if (BUGOption::isEnabled("CityBar__Commerce", true)) {
++	int const iCommerceRate = kCity.getYieldRate(YIELD_COMMERCE);
++	if (iCommerceRate != 0)
++	{
++		szString.append(NEWLINE);
++		szTempBuffer.Format(L"%d%c", iCommerceRate,
++				GC.getInfo(YIELD_COMMERCE).getChar());
++		szString.append(szTempBuffer);
++		szString.append(gDLL->getText("TXT_KEY_PER_TURN"));
++	} // BULL - Commerce - end
++	// BULL - Trade Detail - start (advc.186; fractional TR code removed)
++	//if (BUGOption::isEnabled("CityBar__TradeDetail", true))
++	{
++		int iDomesticTrade = 0;
++		int iDomesticRoutes = 0;
++		int iForeignTrade = 0;
++		int iForeignRoutes = 0;
++		kCity.calculateTradeTotals(YIELD_COMMERCE, iDomesticTrade, iDomesticRoutes,
++				iForeignTrade, iForeignRoutes);
++		int const iTotalTrade = iDomesticTrade + iForeignTrade;
++		if (iTotalTrade > 0)
++		{
++			FAssert(iCommerceRate > 0);
++			szString.append(L", ");
++			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FROM_TR", iTotalTrade));
++			szString.append(L" (");
++			if (iTotalTrade == iDomesticTrade)
++				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_ALL_DOMESTIC"));
++			else if (iTotalTrade == iForeignTrade)
++				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_ALL_FOREIGN"));
++			else szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOREIGN_TR_COMMERCE", iForeignTrade));
++			szString.append(L")");
++		}
++	} // BULL - Trade Detail - end
+ 	{
+ 		bool bFirst = true;
+ 		FOR_EACH_ENUM(Commerce)
+ 		{
+-			int iRate = pCity->getCommerceRateTimes100(eLoopCommerce);
++			int iRate = kCity.getCommerceRateTimes100(eLoopCommerce);
+ 			if (iRate != 0)
+ 			{
+-				szTempBuffer.Format(L"%d.%02d %c", iRate/100, iRate%100,
+-						GC.getInfo(eLoopCommerce).getChar());
++				wchar const cIcon = GC.getInfo(eLoopCommerce).getChar();
++				/*	<advc.002b> Can probably fit all rates in one line by omitting
++					trailing zeros */
++				if (iRate % 100 == 0)
++					szTempBuffer.Format(L"%d%c", iRate / 100, cIcon);
++				else if (iRate % 10 == 0)
++					szTempBuffer.Format(L"%d.%d%c", iRate / 100, (iRate % 100) / 10, cIcon);
++				// </advc.002b>
++				else szTempBuffer.Format(L"%d.%02d%c", iRate / 100, iRate % 100, cIcon);
+ 				setListHelp(szString, NEWLINE, szTempBuffer, L", ", bFirst);
+ 			}
+ 		}
+-		int iRate = pCity->getGreatPeopleRate();
++		if (!bFirst)
++			szString.append(gDLL->getText("TXT_KEY_PER_TURN"));
++	}
++	// advc.186: Culture moved up; and CULTURELEVEL_NONE has id NO_CULTURELEVEL+1
++	if (kCity.getCultureLevel() > NO_CULTURELEVEL + 1)
++	{
++		szString.append(NEWLINE);
++		// advc.186: Don't name the culture level
++		/*szString.append(gDLL->getText("TXT_KEY_CITY_BAR_CULTURE",
++				kCity.getCulture(eOwner), kCity.getCultureThreshold(),
++				GC.getInfo(kCity.getCultureLevel()).getTextKeyWide()));*/
++		// BULL - Culture Turns - start
++		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_CULTURE_NO_LEVEL",
++				kCity.getCulture(eOwner), kCity.getCultureThreshold()));
++		int iCultureRate = kCity.getCommerceRateTimes100(COMMERCE_CULTURE);
++		if (iCultureRate > 0)
++		{
++			int iCulture = kCity.getCultureTimes100(eOwner);
++			int iCultureLeft = 100 * kCity.getCultureThreshold() - iCulture;
++			if (iCultureLeft > 0) // (Inspired by Dawn of Civilization mod)
++			{
++				szString.append(L" ");
++				szString.append(gDLL->getText("INTERFACE_CITY_TURNS",
++						intdiv::uceil(iCultureLeft, iCultureRate)));
++			}
++		} // BULL - Culture Turns - end
++	}
++	// <advc.186> Separate line for GP rate
++	{
++		bool bNewlineNeeded = true;
++		int iRate = kCity.getGreatPeopleRate();
+ 		if (iRate != 0)
+ 		{
++			szString.append(NEWLINE);
++			bNewlineNeeded = false;
+ 			szTempBuffer.Format(L"%d%c", iRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR));
+-			setListHelp(szString, NEWLINE, szTempBuffer, L", ", bFirst);
+-		}
+-		if (!bFirst)
++			szString.append(szTempBuffer);
+ 			szString.append(gDLL->getText("TXT_KEY_PER_TURN"));
++		}
++		// City specialist (based on BULL)
++		//if (BUGOption::isEnabled("CityBar__Specialists", true))
++		std::vector<SpecialistTypes> aeSpecialists;
++		FOR_EACH_ENUM(Specialist)
++		{
++			for (int i = 0; i < kCity.getSpecialistCount(eLoopSpecialist); i++)
++				aeSpecialists.push_back(eLoopSpecialist);
++		}
++		// Free specialists last
++		FOR_EACH_ENUM(Specialist)
++		{
++			for (int i = 0; i < kCity.getFreeSpecialistCount(eLoopSpecialist); i++)
++			{
++				aeSpecialists.push_back(eLoopSpecialist);
++			}
++		}
++		if (!aeSpecialists.empty())
++		{
++			if (bNewlineNeeded)
++				szString.append(NEWLINE);
++			//bNewlineNeeded = false;
++			bool bFirst = true;
++			for (size_t i = 0; i < aeSpecialists.size(); i++)
++			{	// (was size 24 in BULL)
++				szTempBuffer.Format(L"<img=%S size=20></img>",
++						GC.getInfo(aeSpecialists[i]).getButton());
++				setListHelp(szString, L" ", szTempBuffer, L"", bFirst);
++			}
++		}
+ 	}
+-	szString.append(NEWLINE);
+-	szString.append(gDLL->getText("INTERFACE_CITY_MAINTENANCE"));
++	// Hide when 0 rate and no substantial progress
++	if (kCity.getGreatPeopleRate() > 0 ||
++		kCity.getGreatPeopleProgress() * 25 >
++		GET_PLAYER(eOwner).greatPeopleThreshold())
++	{	// <BtS>
++		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GREAT_PEOPLE",
++				kCity.getGreatPeopleProgress(),
++				GET_PLAYER(eOwner).greatPeopleThreshold(false))); // </BtS>
++		// (based on BULL's "Great Person Turns")
++		int iTurnsLeft = kCity.GPTurnsLeft();
++		if (iTurnsLeft >= 0)
++		{
++			szString.append(L" ");
++			szString.append(gDLL->getText("INTERFACE_CITY_TURNS", iTurnsLeft));
++		}
++	}
++	if (!kCity.isDisorder())// </advc.186>
+ 	{
+-		int iMaintenance = pCity->getMaintenanceTimes100() *
+-				(100 + GET_PLAYER(pCity->getOwner()).calculateInflationRate()) / 100; // K-Mod
+-		szString.append(CvWString::format(L" -%d.%02d %c",
+-				iMaintenance/100, iMaintenance%100,
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("INTERFACE_CITY_MAINTENANCE"));
++		int iMaintenance = kCity.getMaintenanceTimes100() *
++				// K-Mod:
++				(100 + GET_PLAYER(kCity.getOwner()).calculateInflationRate()) / 100;
++		szString.append(CvWString::format(L" -%d.%02d%c",
++				iMaintenance / 100, iMaintenance % 100,
+ 				GC.getInfo(COMMERCE_GOLD).getChar()));
+ 	}
++	// <advc.186>
+ 	{
++		enum BuildingDisplayMode { DISPLAY_NONE, DISPLAY_ICONS, DISPLAY_NAMES };
++		BuildingDisplayMode const eMode = (BuildingDisplayMode)BUGOption::getValue(
++				"CityBar__BuildingDisplay", DISPLAY_ICONS);
++		std::vector<std::pair<CvWString,BuildingTypes> > aszeBuildingsByName;
++		if (eMode != DISPLAY_NONE)
++		{
++			CvCivilization const& kCiv = GET_PLAYER(eOwner).getCivilization();
++			for (int i = 0; i < kCiv.getNumBuildings(); i++)
++			{
++				BuildingTypes eBuilding = kCiv.buildingAt(i);
++				if (kCity.getNumRealBuilding(eBuilding) > 0)
++				{
++					aszeBuildingsByName.push_back(std::make_pair(
++						GC.getInfo(eBuilding).getDescription(), eBuilding));
++				}
++			}
++			std::sort(aszeBuildingsByName.begin(), aszeBuildingsByName.end());
++		}
+ 		bool bFirst = true;
+-		FOR_EACH_ENUM(Building)
++		for (size_t i = 0; i < aszeBuildingsByName.size(); i++)
+ 		{
+-			if (pCity->getNumRealBuilding(eLoopBuilding) > 0)
++			if (eMode == DISPLAY_NAMES)
++			{	// <BtS>
++				setListHelp(szString, NEWLINE, aszeBuildingsByName[i].first,
++						L", ", bFirst); // </BtS>
++			}
++			else
+ 			{
+-				setListHelp(szString, NEWLINE,
+-						GC.getInfo(eLoopBuilding).getDescription(), L", ", bFirst);
++				FAssert(eMode == DISPLAY_ICONS);
++				// BULL - Building Icons - start (advc: BULL had used size 24)
++				szTempBuffer.Format(L"<img=%S size=32></img>",
++						GC.getBuildingInfo(aszeBuildingsByName[i].second).getButton());
++				setListHelp(szString, NEWLINE, szTempBuffer, L"", bFirst);
++				// BULL - Building Icons - end
+ 			}
+ 		}
+-	}
+-	if (pCity->getCultureLevel() != NO_CULTURELEVEL)
+-	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_CULTURE",
+-				pCity->getCulture(pCity->getOwner()),
+-				pCity->getCultureThreshold(),
+-				GC.getInfo(pCity->getCultureLevel()).getTextKeyWide()));
+-	}
+-	if (pCity->getGreatPeopleProgress() > 0)
+-	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GREAT_PEOPLE",
+-				pCity->getGreatPeopleProgress(),
+-				GET_PLAYER(pCity->getOwner()).greatPeopleThreshold(false)));
+-	}
++	} // </advc.186>
+ 	{
+ 		TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+ 		int iAirUnits = kCity.getPlot().countNumAirUnits(eActiveTeam);
+@@ -5381,11 +5669,18 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCit
+ 					iAirUnits, kCity.getAirUnitCapacity(eActiveTeam)));
+ 		}
+ 	}
+-	szString.append(NEWLINE);
+-
+-	szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT", pCity->getNameKey()));
+-	szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT_CTRL"));
+-	szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT_ALT"));
++	/*	<advc.186> Even as a single line, the hint is distracting. An option
++		only makes sense if it's enabled by default. */
++	#if 0
++	if (bPopup || !BUGOption::isEnabled("CityBar__SelectionHelp", false))
++		return; 
++	//szString.append(NEWLINE);
++	szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT", kCity.getNameKey()));
++	// Takes up too much space
++	/*szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT_CTRL"));
++	szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT_ALT"));*/
++	#endif
++	// </advc.186>
+ }
+ 
+ /*  advc.101: Similar to code added in CvDLLWidgetData::parseNationalityHelp;
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=47745

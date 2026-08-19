@@ -1,0 +1,1070 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5372
+# Commit: 6facedf5ddfbb54107afb7833b092305649a83de
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3d62f3ca63834384eeff68e5d2af74e51ea21810
+# Title: improve mouse and keyboard behaviour when playing media - click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu - f...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/Python/Contrib/GameFontDisplay.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+40	10	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+21	0	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+21	0	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/Python/Contrib/TechWindow.py
+1	1	Assets/Python/Contrib/TechWindowWide.py
+2	2	Assets/Python/Screens/CvDawnOfMan.py
+1	1	Assets/Python/Screens/CvEspionageAdvisor.py
+2	2	Assets/Python/Screens/CvExoticForeignAdvisor.py
+4	4	Assets/Python/Screens/CvForeignAdvisor.py
+1	1	Assets/Python/Screens/CvHallOfFameScreen.py
+3	3	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/Python/Screens/CvReligionScreen.py
+4	4	Assets/Python/Screens/CvTechChooser.py
+5	5	Assets/Python/Screens/IconGrid_BUG.py
+4	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+1	1	Assets/XML/Misc/CIV4RouteInfos.xml
+2	2	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Terrain/CIV4BonusInfos.xml
+2	2	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+4	4	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvInfo_TrueStarts.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+18	18	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+3	3	CvGameCoreDLL/KmodPathFinderLegacy.cpp
+1	1	Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+2	2	Long_Comments/GlobalDefines_advc_for_comments.xml
+2	2	Long_Comments/Long_Comments_XML.txt
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+3	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/GameFontDisplay.py b/Assets/Python/Contrib/GameFontDisplay.py
+index 70380e2f5..0693a664c 100644
+--- a/Assets/Python/Contrib/GameFontDisplay.py
++++ b/Assets/Python/Contrib/GameFontDisplay.py
+@@ -38,21 +38,21 @@ class GameFontDisplay:
+ 			if iID > 280:
+ 				iID += 8193 # was +8483 </advc>
+ 			screen.appendTableRow(szTableName)
+-			screen.setTableInt(szTableName, 0, iLine , "<font=2>" + unicode(iID) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-			screen.setTableInt(szTableName, 1, iLine , "<font=2>" + (u" %c" %  (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-			screen.setTableInt(szTableName, 2, iLine , "<font=4>" + (u" %c" %  (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			screen.setTableInt(szTableName, 0, iLine, "<font=2>" + unicode(iID) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			screen.setTableInt(szTableName, 1, iLine, "<font=2>" + (u" %c" %  (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			screen.setTableInt(szTableName, 2, iLine, "<font=4>" + (u" %c" %  (iID)) + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 			infoPointer = self.getInfoPointerFromGameFont(iID)
+ 
+ 			if infoPointer is not None:
+ 				if isinstance(infoPointer, str):
+-					screen.setTableInt(szTableName, 4, iLine , "<font=2>" + infoPointer + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++					screen.setTableInt(szTableName, 4, iLine, "<font=2>" + infoPointer + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 				else:
+ 					szButton = infoPointer.getButton()
+ 					if szButton != "" and szButton != "Art/Interface/Buttons/Buildings/BombShelters.dds":
+ 						screen.setTableRowHeight(szTableName, iLine, iButtonSize)
+ 						screen.setTableText(szTableName, 3, iLine, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					screen.setTableInt(szTableName, 4, iLine , "<font=2>" + infoPointer.getType() + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++					screen.setTableInt(szTableName, 4, iLine, "<font=2>" + infoPointer.getType() + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 4d0c4ea9f..36889d835 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -216,7 +216,7 @@ class SevoPediaCivic:
+ 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
+ 		# </advc.004y>
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index bf924ca89..028cc8b19 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -206,7 +206,7 @@ class SevoPediaCivilization:
+ 		szText = gc.getCivilizationInfo(self.iCivilization).getCivilopedia()
+ 		# <!-- custom: similar fix as in placeHistory of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding, about all these elements, see SevoPediaCivic.py for potentially additional information -->
+ 		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 4afa2e25f..d123d7f12 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -220,7 +220,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.pediaFuture = []
+ 		self.SAS_lastPediaJump = None
+ 
+-		# <!-- custom: compute once to be computationally more efficient , and added with the help of chatgpt 5.2 thanks. -->
++		# <!-- custom: compute once to be computationally more efficient, and added with the help of chatgpt 5.2 thanks. -->
+ 		self.SAS_cacheCivicsTuple = None
+ 		self.SAS_cacheTechsTuple = None
+ 		self.SAS_cacheRegularBuildingsTuple = None
+@@ -1887,26 +1887,56 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def handleInput (self, inputClass):
+ 		if self.pediaMusic.isMusicPlayerOpen():
+-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+-				if inputClass.getData() == int(InputTypes.KB_ESCAPE):
++			# <!-- custom: While the full-screen music player overlay is open, consume input here so
++			# Civ4 does not treat ESC/ENTER as "close civilopedia" and bounce to the main menu. (ChatGPT-5.2 Thinking) -->
++			iNotify = inputClass.getNotifyCode()
++
++			if iNotify == NotifyCode.NOTIFY_CHARACTER:
++				iKey = inputClass.getData()
++				if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
+ 					self.pediaMusic.closeMusicPlayer()
+ 					return 1
+-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+-				if inputClass.getFunctionName() == self.pediaMusic.MUSIC_PLAYER_EXIT_ID:
++				# Some keyboards send a distinct numpad enter key code.
++				try:
++					if iKey == int(InputTypes.KB_NUMPADENTER):
++						self.pediaMusic.closeMusicPlayer()
++						return 1
++				except:
++					pass
++
++			if iNotify == NotifyCode.NOTIFY_CLICKED:
++				szName = inputClass.getFunctionName()
++				# Exit button, or click anywhere on the overlay (image/title/background) to close.
++				if szName == self.pediaMusic.MUSIC_PLAYER_EXIT_ID or szName.startswith("MusicPlayer"):
+ 					self.pediaMusic.closeMusicPlayer()
+ 					return 1
+ 			return 1
+ 
+ 		if self.pediaMovies.isMoviePlayerOpen():
+-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_MOVIE_DONE:
++			# Same idea as music: keep ESC/ENTER/clicks inside the overlay so we return to the
++			# same SevoPedia entry instead of exiting SevoPedia (or bouncing to the main menu).
++			iNotify = inputClass.getNotifyCode()
++
++			if iNotify == NotifyCode.NOTIFY_MOVIE_DONE:
+ 				self.pediaMovies.closeMoviePlayer()
+ 				return 1
+-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+-				if inputClass.getData() == int(InputTypes.KB_ESCAPE):
++
++			if iNotify == NotifyCode.NOTIFY_CHARACTER:
++				iKey = inputClass.getData()
++				if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
+ 					self.pediaMovies.closeMoviePlayer()
+ 					return 1
+-			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+-				if inputClass.getFunctionName() == self.pediaMovies.MOVIE_PLAYER_EXIT_ID:
++				try:
++					if iKey == int(InputTypes.KB_NUMPADENTER):
++						self.pediaMovies.closeMoviePlayer()
++						return 1
++				except:
++					pass
++
++			if iNotify == NotifyCode.NOTIFY_CLICKED:
++				szName = inputClass.getFunctionName()
++				# Exit button, or click anywhere on the overlay (movie/nif/dds/title/background) to close.
++				if szName == self.pediaMovies.MOVIE_PLAYER_EXIT_ID or szName.startswith("MoviePlayer"):
+ 					self.pediaMovies.closeMoviePlayer()
+ 					return 1
+ 			return 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 7cc848299..9e3550244 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -134,6 +134,17 @@ class SevoPediaMovie:
+ 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
+ 
+ 		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
++
++		# <!-- custom: (ChatGPT-5.2 Thinking) -->
++		try:
++			screen.enableWorldSounds(True)
++		except:
++			pass
++		try:
++			screen.setScreenGroup(1)
++		except:
++			pass
++
+ 		self.SAS_isMoviePlayerOpen = True
+ 
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+@@ -177,6 +188,16 @@ class SevoPediaMovie:
+ 
+ 		screen.setButtonGFC(self.MOVIE_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 
++		# <!-- custom: (ChatGPT-5.2 Thinking) -->
++		try:
++			screen.setEscapeKey(self.MOVIE_PLAYER_EXIT_ID)
++		except:
++			pass
++		try:
++			screen.setReturnKey(self.MOVIE_PLAYER_EXIT_ID)
++		except:
++			pass
++
+ 
+ 
+ 	def closeMoviePlayer(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index e900cf4a6..d3a720a5e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -182,6 +182,17 @@ class SevoPediaMusic:
+ 			szSoundScript = ""
+ 
+ 		screen = CyGInterfaceScreen(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC)
++
++		# <!-- custom: (ChatGPT-5.2 Thinking) -->
++		try:
++			screen.enableWorldSounds(True)
++		except:
++			pass
++		try:
++			screen.setScreenGroup(1)
++		except:
++			pass
++
+ 		self.SAS_isMusicPlayerOpen = True
+ 
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+@@ -230,6 +241,16 @@ class SevoPediaMusic:
+ 
+ 		screen.setButtonGFC(self.MUSIC_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 
++		# <!-- custom: (ChatGPT-5.2 Thinking) -->
++		try:
++			screen.setEscapeKey(self.MUSIC_PLAYER_EXIT_ID)
++		except:
++			pass
++		try:
++			screen.setReturnKey(self.MUSIC_PLAYER_EXIT_ID)
++		except:
++			pass
++
+ 
+ 
+ 	def closeMusicPlayer(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index dbbcb9cbd..8bfcb0294 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -259,7 +259,7 @@ class SevoPediaSpecialist:
+ 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
+ 		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
+ 		panelTopPadding = 40
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 0a61bc77a..0561635cd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -970,7 +970,7 @@ class SevoPediaUnit:
+ 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
+ 		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
+ 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index f00dc1ea3..08fc09e6f 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -16,7 +16,7 @@ localText = CyTranslator()
+ 
+ 
+ #
+-# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
++# <!-- custom: constants useful for numTxt under button placement in a grid-like manner, i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
+ #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
+ #HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+
+diff --git a/Assets/Python/Contrib/TechWindow.py b/Assets/Python/Contrib/TechWindow.py
+index cbc1d1394..75c4c143c 100644
+--- a/Assets/Python/Contrib/TechWindow.py
++++ b/Assets/Python/Contrib/TechWindow.py
+@@ -162,7 +162,7 @@ class CvTechSplashScreen:
+ 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
+ 		
+ 		# Exit Button
+-		screen.setButtonGFC("Exit", localText.getText("TXT_KEY_SCREEN_CONTINUE", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT , self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
++		screen.setButtonGFC("Exit", localText.getText("TXT_KEY_SCREEN_CONTINUE", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+ 		
+ 		# Special Panel
+ 		szSpecialPanel = "TechSplashSpecialPanel"
+
+diff --git a/Assets/Python/Contrib/TechWindowWide.py b/Assets/Python/Contrib/TechWindowWide.py
+index 3ae147684..0d9e87391 100644
+--- a/Assets/Python/Contrib/TechWindowWide.py
++++ b/Assets/Python/Contrib/TechWindowWide.py
+@@ -167,7 +167,7 @@ class CvTechSplashScreen:
+ 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
+ 		
+ 		# Exit Button
+-		screen.setButtonGFC("Exit", localText.getText("TXT_KEY_SCREEN_CONTINUE", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT , self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
++		screen.setButtonGFC("Exit", localText.getText("TXT_KEY_SCREEN_CONTINUE", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+ 		
+ 		# Special Panel
+ 		szSpecialPanel = "TechSplashSpecialPanel"
+
+diff --git a/Assets/Python/Screens/CvDawnOfMan.py b/Assets/Python/Screens/CvDawnOfMan.py
+index 086e2f8af..615cd1f13 100644
+--- a/Assets/Python/Screens/CvDawnOfMan.py
++++ b/Assets/Python/Screens/CvDawnOfMan.py
+@@ -147,8 +147,8 @@ class CvDawnOfMan:
+ 		screen.addMultilineText( "HeaderText4", self.Text_BoxText, self.X_STATS_TEXT, self.Y_STATS_TEXT+30+self.H_TECH, self.W_STATS_TEXT - (self.iMarginSpace * 3), self.H_STATS_TEXT - (self.iMarginSpace * 4), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							
+ 		# Fancy icon things
+-		screen.addDDSGFC( "IconLeft", ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.player.getCivilizationType()).getArtDefineTag()).getButton(), self.X_FANCY_ICON1 , self.Y_FANCY_ICON , self.WH_FANCY_ICON, self.WH_FANCY_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.addDDSGFC( "IconRight", ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.player.getCivilizationType()).getArtDefineTag()).getButton(), self.X_FANCY_ICON2 , self.Y_FANCY_ICON , self.WH_FANCY_ICON, self.WH_FANCY_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC( "IconLeft", ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.player.getCivilizationType()).getArtDefineTag()).getButton(), self.X_FANCY_ICON1, self.Y_FANCY_ICON, self.WH_FANCY_ICON, self.WH_FANCY_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC( "IconRight", ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.player.getCivilizationType()).getArtDefineTag()).getButton(), self.X_FANCY_ICON2, self.Y_FANCY_ICON, self.WH_FANCY_ICON, self.WH_FANCY_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		# Main Body text
+ 		if not isLaterEraStart: # advc.250c
+
+diff --git a/Assets/Python/Screens/CvEspionageAdvisor.py b/Assets/Python/Screens/CvEspionageAdvisor.py
+index 0190bbc99..f40301b27 100644
+--- a/Assets/Python/Screens/CvEspionageAdvisor.py
++++ b/Assets/Python/Screens/CvEspionageAdvisor.py
+@@ -275,7 +275,7 @@ class CvEspionageAdvisor:
+ 				self.aszLeaderImages.append(szName)
+ 
+ 				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
+-					iX +21 , iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
++					iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				if (self.iTargetPlayer == iPlayerID):
+ 					screen.setState(szName, true)
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 4f07d40d8..ba659c183 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -401,7 +401,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		##########################################
+ 
+ 		# Set the background and exit button, and show the screen
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
++		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+ 		# # RJG Start - following line added as per RJG (http://forums.civfanatics.com/showpost.php?p=6996936&postcount=15)
+ 		# # K-Mod, undone
+ 		# screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+@@ -578,7 +578,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		#self.W_SCREEN = screen.getXResolution() - 40
+ 		#self.X_SCREEN = (screen.getXResolution() - 24) / 2
+ 
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
++		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+ 		# self.X_LEADER_CIRCLE_TOP = self.X_SCREEN
+ 		# --- FIX: Center the web in the middle of the screen ---
+ 		# We take the full screen width and divide by 2 to find the center pixel
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 300fba3f8..c3b144328 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -32,7 +32,7 @@ class CvForeignAdvisor:
+ 		self.EXIT_ID = "ForeignAdvisorExitWidget"
+ 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
+ 
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
++		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+ 		# self.X_SCREEN = 500
+ 		# self.Y_SCREEN = 396
+ 		# self.W_SCREEN = 1024
+@@ -67,7 +67,7 @@ class CvForeignAdvisor:
+ 		self.DX_LINK = 220
+ 		self.Y_LINK = 726
+ 		
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
++		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+ 		# <!-- custom: make it more dynamic depending on panel size, as as of now its position is fixed and around the center-left side of the panel, even though it should be at the bottom of it, as gemini 3 pro showed where to thanks -->
+ 		self.H_LEGEND = 180
+ 		self.W_LEGEND = 160
+@@ -128,7 +128,7 @@ class CvForeignAdvisor:
+ 		#self.listSelectedLeaders.append(self.iSelectedLeader)
+ 
+ 		# Set the background and exit button, and show the screen
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
++		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+ 		# <!-- custom: see also related change that was needed it seems as well in CvExoticForeignAdvisor.py -->
+ 		# <!-- custom: update: reverting this change we added, as it doesn't seem necessary for our change to still be effective -->
+ 		#screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+@@ -136,7 +136,7 @@ class CvForeignAdvisor:
+ 
+ 		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia , so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
++		# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
+ 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+ 		# screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		# screen.addPanel( "BottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 79e54b813..39627a844 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -279,7 +279,7 @@ class CvHallOfFameScreen:
+ 		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_STARTING_ERA", ()), 100)
+ 		iColumn += 1
+ 		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_GAME_SPEED", ()), 105)
+-#		screen.setTableColumnHeader(self.TABLE_ID, , "", 73)
++#		screen.setTableColumnHeader(self.TABLE_ID,, "", 73)
+ 
+ 		# count the filtered replays
+ 		iNumGames = 0
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index d27b11da8..86b3d5d97 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -3190,15 +3190,15 @@ class CvInfoScreen:
+ 			screen.appendTableRow(self.szWondersTable)
+ 			# if bKnown and bRevealed:
+ 			# 	screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+-			screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, ""             , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, ""            , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			screen.setTableText(self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			screen.setTableInt (self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			screen.setTableText(self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			if bKnown and bRevealed:
+-				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName , "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 			else:
+-				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName , "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ #############################################################################################################
+
+diff --git a/Assets/Python/Screens/CvReligionScreen.py b/Assets/Python/Screens/CvReligionScreen.py
+index e5ca64476..aba1a6608 100644
+--- a/Assets/Python/Screens/CvReligionScreen.py
++++ b/Assets/Python/Screens/CvReligionScreen.py
+@@ -497,7 +497,7 @@ class CvReligionScreen:
+ 				pLoopCity = cityList[iCity]
+ 
+ 				screen.appendTableRow(self.TABLE_ID)
+-				screen.setTableText(self.TABLE_ID, self.COL_ZOOM_CITY, iCity, "" , self.zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(self.TABLE_ID, self.COL_ZOOM_CITY, iCity, "", self.zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 				screen.setTableText(self.TABLE_ID, self.COL_CITY_NAME, iCity, pLoopCity.getName(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 				lHolyCity = pLoopCity.getHolyCity()
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 8d263cfb7..71c0766ec 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -771,7 +771,7 @@ class CvTechChooser:
+ 		# Open Borders
+ 		if ( gc.getTechInfo(i).isOpenBordersTrading() ):
+ 			szOpenBordersButton = self.getNextWidgetName("OpenBorders")
+-			screen.addDDSGFCAt( szOpenBordersButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, i, -1, False )
++			screen.addDDSGFCAt( szOpenBordersButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -780,7 +780,7 @@ class CvTechChooser:
+ 		# Defensive Pact
+ 		if ( gc.getTechInfo(i).isDefensivePactTrading() ):
+ 			szDefensivePactButton = self.getNextWidgetName("DefensivePact")
+-			screen.addDDSGFCAt( szDefensivePactButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, i, -1, False )
++			screen.addDDSGFCAt( szDefensivePactButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -789,7 +789,7 @@ class CvTechChooser:
+ 		# Permanent Alliance
+ 		if ( gc.getTechInfo(i).isPermanentAllianceTrading() ):
+ 			szPermanentAllianceButton = self.getNextWidgetName("PermanentAlliance")
+-			screen.addDDSGFCAt( szPermanentAllianceButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, i, -1, False )
++			screen.addDDSGFCAt( szPermanentAllianceButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -798,7 +798,7 @@ class CvTechChooser:
+ 		# Vassal States
+ 		if ( gc.getTechInfo(i).isVassalStateTrading() ):
+ 			szVassalStateButton = self.getNextWidgetName("VassalState")
+-			screen.addDDSGFCAt( szVassalStateButton , szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_VASSAL_STATE, i, -1, False )
++			screen.addDDSGFCAt( szVassalStateButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_VASSAL_STATE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index f519b4539..b7d4b6c00 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -412,7 +412,7 @@ class IconGrid_BUG:
+ 						widgetData1 = rowData.cells[startIndex + offset].textWidgetData1
+ 						widgetData2 = rowData.cells[startIndex + offset].textWidgetData2
+ 						# (could use setText here for a clickable widget) </advc>
+-						self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "" , text, CvUtil.FONT_LEFT_JUSTIFY, currentX + 6, textY, 0, FontTypes.GAME_FONT, widgetType, widgetData1, widgetData2)
++						self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "", text, CvUtil.FONT_LEFT_JUSTIFY, currentX + 6, textY, 0, FontTypes.GAME_FONT, widgetType, widgetData1, widgetData2)
+ 						currentX += self.textColWidth[startIndex + offset] + self.colSpace
+ 					# <advc.ctr>
+ 					elif self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN:
+@@ -421,7 +421,7 @@ class IconGrid_BUG:
+ 							textY += self.rowHeaderHeight
+ 						# Clear all lines
+ 						for iLine in range(MULTI_TEXT_MAX_LINES * 2):
+-							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "" , "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "", "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 						iCount = 0
+ 						for textData in rowData.cells[startIndex + offset].multiText:
+ 							text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, textData.text)
+@@ -430,7 +430,7 @@ class IconGrid_BUG:
+ 							if iCount >= MULTI_TEXT_MAX_LINES:
+ 								offsetX = self.textColWidth[startIndex + offset] / 2
+ 							offsetY = (iCount % MULTI_TEXT_MAX_LINES) * MULTI_TEXT_LINE_HEIGHT
+-							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "" , text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
++							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "", text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
+ 							iCount += 1
+ 							if iCount > MULTI_TEXT_MAX_LINES * 2:
+ 								break
+@@ -516,7 +516,7 @@ class IconGrid_BUG:
+ 					textY = self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex + 8
+ 					# Clear all lines
+ 					for iLine in range(MULTI_TEXT_MAX_LINES * 2):
+-						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "" , "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iLine), "", "", CvUtil.FONT_LEFT_JUSTIFY, currentX, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 					iCount = 0
+ 					for textData in rowData.cells[startIndex + offset].multiText:
+ 						text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, textData.text)
+@@ -525,7 +525,7 @@ class IconGrid_BUG:
+ 						if iCount >= MULTI_TEXT_MAX_LINES:
+ 							offsetX = self.textColWidth[startIndex + offset] / 2
+ 						offsetY = (iCount % MULTI_TEXT_MAX_LINES) * MULTI_TEXT_LINE_HEIGHT
+-						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "" , text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
++						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "", text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
+ 						iCount += 1
+ 						if iCount > MULTI_TEXT_MAX_LINES * 2:
+ 							break
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index aae8cab83..61acf0bb8 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -9607,7 +9607,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: change tech prereq so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone; , was NONE. -->
++			<!-- custom: change tech prereq so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone;, was NONE. -->
+ 			<PrereqTech>TECH_LITERATURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -26279,7 +26279,7 @@
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/ , i don't know a lot about this and didn't know at all hehe if i may say anyways, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built. The building itself (probably) needs to be reworked or removed, for now changing its effects a bit or more than bit -->
++			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/, i don't know a lot about this and didn't know at all hehe if i may say anyways, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built. The building itself (probably) needs to be reworked or removed, for now changing its effects a bit or more than bit -->
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+@@ -29362,7 +29362,7 @@
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+ 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+-			<!-- custom: now a world wonder, increase effect... , was 1 -->
++			<!-- custom: now a world wonder, increase effect..., was 1 -->
+ 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -30464,7 +30464,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 -->
+-			<!-- custom: changed to another tech to accomodate reworked tech tree changes , was the now removed TECH_RAILROAD -->
++			<!-- custom: changed to another tech to accomodate reworked tech tree changes, was the now removed TECH_RAILROAD -->
+ 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+index 38bf64299..bdd9626a0 100644
+--- a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+@@ -167,7 +167,7 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- custom: events are annoying and it's tedious to go to a custom game just to disable them, set up all players, etc., so make it the default to be no event: players can add events if they want to via a custom game instead, as recommended by chatgpt 5.2 thanks , was bDefault 0 -->
++		<!-- custom: events are annoying and it's tedious to go to a custom game just to disable them, set up all players, etc., so make it the default to be no event: players can add events if they want to via a custom game instead, as recommended by chatgpt 5.2 thanks, was bDefault 0 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_NO_EVENTS</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_NO_EVENTS</Description>
+
+diff --git a/Assets/XML/Misc/CIV4RouteInfos.xml b/Assets/XML/Misc/CIV4RouteInfos.xml
+index d3c479896..9fd3cfcc8 100644
+--- a/Assets/XML/Misc/CIV4RouteInfos.xml
++++ b/Assets/XML/Misc/CIV4RouteInfos.xml
+@@ -4,7 +4,7 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Route Infos -->
+-<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml , so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->
++<!-- custom: note: we have also added them as conceptinfos entries in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml, so that we can redirect to them and show their tool tip without implementing them exhaustively, in sevopedia improvement (similar approach although unrelated as of now in sevopedia unit's concept_cities), see these places's code or code comments for details -->
+ <Civ4RouteInfos xmlns="x-schema:CIV4MiscSchema.xml">
+ 	<RouteInfos>
+ 		<RouteInfo>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index c0cda0706..12ec4ff60 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -2298,7 +2298,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<!-- advc.131b -->
+ 			<!-- custom: if AIs want to get an early lighthouse or moai or galleys, it may not be so useless in some contexts
+-			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example) , was -100 -->
++			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example), was -100 -->
+ 			<iAIWeight>-20</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.301 -->
+@@ -3397,7 +3397,7 @@
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<!-- custom: was 0 -->
+ 			<bIrrigation>1</bIrrigation>
+-			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC. +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example , was 0 -->
++			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC. +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example, was 0 -->
+ 			<bIgnoreIrrigation>1</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>8</iGridX>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 0ea1e42fe..49e067cab 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -701,7 +701,7 @@
+ 			<iPlacementOrder>6</iPlacementOrder>
+ 			<iConstAppearance>50</iConstAppearance>
+ 			<iMinAreaSize>10</iMinAreaSize>
+-			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/ , and as part of renaming clam to the more general molluscs, then now using as a base for molluscs now; Long_Comments_XML.txt #301, was 0/50 -->
++			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/, and as part of renaming clam to the more general molluscs, then now using as a base for molluscs now; Long_Comments_XML.txt #301, was 0/50 -->
+ 			<iMinLatitude>0</iMinLatitude>
+ 			<iMaxLatitude>80</iMaxLatitude>
+ 			<Rands>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 67dfd33d4..4c0f84884 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -322,7 +322,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: pedia entry based on https://en.wikipedia.org/wiki/Unmanned_surveillance_and_reconnaissance_aerial_vehicle as advised/linked by chatgpt as i couldn't find any source, thanks a lot; and then also based on the , and then adjusted or not for advciv-sas -->
++	<!-- custom: pedia entry based on https://en.wikipedia.org/wiki/Unmanned_surveillance_and_reconnaissance_aerial_vehicle as advised/linked by chatgpt as i couldn't find any source, thanks a lot; and then also based on the, and then adjusted or not for advciv-sas -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE_PEDIA</Tag>
+ 		<English>[TAB]An unmanned surveillance and reconnaissance aerial vehicle, is an unarmed military UAV that is used for intelligence, surveillance, target acquisition, and reconnaissance (ISTAR). Unlike unmanned combat aerial vehicle (UCAV), this type of system is not designed to carry aircraft ordnance such as missiles, ATGMs, or bombs for drone strikes. The main purpose is to provide battlefield intelligence. Small sized short-range man-portable unmanned aerial vehicles are called miniature UAV also used for battlefield intelligence.[PARAGRAPH:2]Military robots are autonomous robots or remote-controlled mobile robots designed for military applications, from transport to search and rescue and attack.[PARAGRAPH:1]Some such systems are currently in use, and many are under development. The difference between military robots and military drones is unclear as of 2025: some say that lethal autonomous weapons are robots whereas others describe "fully autonomous military drones".[PARAGRAPH:2]Autonomous robotics would save and preserve soldiers' lives by removing serving soldiers, who might otherwise be killed, from the battlefield. Lt. Gen. Richard Lynch of the United States Army Installation Management Command and assistant Army chief of staff for installation stated at a 2011 conference:[PARAGRAPH:1]"As I think about what's happening on the battlefield today ... I contend there are things we could do to improve the survivability of our service members. And you all know that's true."[PARAGRAPH:1]Major Kenneth Rose of the US Army's Training and Doctrine Command outlined some of the advantages of robotic technology in warfare:[PARAGRAPH:1]"Machines don't get tired. They don't close their eyes. They don't hide under trees when it rains and they don't talk to their friends ... A human's attention to detail on guard duty drops dramatically in the first 30 minutes ... Machines know no fear."[PARAGRAPH:1]Increasing attention is also paid to how to make the robots more autonomous, with a view of eventually allowing them to operate on their own for extended periods of time, possibly behind enemy lines. For such functions, systems like the Energetically Autonomous Tactical Robot are being tried, which is intended to gain its own energy by foraging for plant matter. The majority of military robots are tele-operated and not equipped with weapons; they are used for reconnaissance, surveillance, sniper detection, neutralizing explosive devices, etc. Current robots that are equipped with weapons are tele-operated so they are not capable of taking lives autonomously. Advantages regarding the lack of emotion and passion in robotic combat is also taken into consideration as a beneficial factor in significantly reducing instances of unethical behavior in wartime. Autonomous machines are created not to be "truly 'ethical' robots", yet ones that comply with the laws of war (LOW) and rules of engagement (ROE). Hence the fatigue, stress, emotion, adrenaline, etc. that affect a human soldier's rash decisions are removed; there will be no effect on the battlefield caused by the decisions made by the individual.[PARAGRAPH:2]Human rights groups and NGOs such as Human Rights Watch and the Campaign to Stop Killer Robots have started urging governments and the United Nations to issue policy to outlaw the development of so-called "lethal autonomous weapons systems" (LAWS). The United Kingdom opposed such campaigns, with the Foreign Office declaring that "international humanitarian law already provides sufficient regulation for this area".[PARAGRAPH:1]In July 2015, over 1,000 experts in artificial intelligence signed a letter calling for a ban on autonomous weapons. The letter was presented in Buenos Aires at the 24th International Joint Conference on Artificial Intelligence (IJCAI-15) and was co-signed by Stephen Hawking, Elon Musk, Steve Wozniak, Noam Chomsky, Skype co-founder Jaan Tallinn and Google DeepMind co-founder Demis Hassabis, among others.</English>
+@@ -675,7 +675,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, also pedia based on https://en.wikipedia.org/wiki/Mounted_infantry#History and https://en.wikipedia.org/wiki/Camel_cavalry and https://en.wikipedia.org/wiki/War_elephant#:~:text=The%20practice%20of%20riding%20on,when%20they%20were%20in%20India. similarly -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_PEDIA</Tag>
+-		<English>[TAB]The origins of mounted infantry go back to at least the beginnings of organised warfare. With the weight of ancient bronze armor, the opposing champions would travel to battle on chariots before dismounting to fight. With the evolution of hoplite warfare, some hoplites would travel to battle on horseback, before dismounting to take their place in the phalanx. The early pre-Marian Roman military had units consisting of infantrymen clinging to the saddles of the cavalry to take them to battle and then dismounting to fight. Gallic and Germanic warbands were reported to use double-riders, with a second warrior joining a horseman only for a short distance before dismounting to fight on foot. The Han dynasty also extensively used mounted infantry in their campaigns against the Xiongnu confederation. During many of the Han campaigns, the vast majority of the army rode on horseback; either as mounted cavalry or mounted infantry who fought dismounted.[PARAGRAPH:1]Camel cavalry, or camelry (French: m�haristes, pronounced [mea_ist]), is a generic designation for armed forces using camels as a means of transportation. Sometimes warriors or soldiers of this type also fought from camel-back with spears, bows, or firearms.[PARAGRAPH:1]Camel cavalry was a common element in desert warfare throughout history in the Middle East, due in part to the animals' high level of adaptability. They were better suited to working and surviving in arid environments than the horses of conventional cavalry. The smell of the camel, according to Herodotus, alarmed and disoriented horses, making camels an effective anti-cavalry weapon of the Achaemenid Persians in the Battle of Thymbra.[PARAGRAPH:1]The Arabs, during their campaigns in the deserts of Mesopotamia and Syria against the Byzantines and Sassanids, used camels to enhance their mobility, marking a stark contrast to their enemies, especially in the desert environment. The Carolingians under Charlemagne also used horses as transport for the bulk of their army, and special care was taken to ensure the health, fodder, and availability of horses on-campaign. Other notable infantry to use horses to enhance their mobility include the Genoese crossbowmen, and Viking raiders who would gather all the horses they could find in the vicinity of their landings.[PARAGRAPH:1]War elephants played a critical role in several key battles in antiquity, especially in ancient India. While seeing limited and periodic use in Ancient China, they became a permanent fixture in armies of historical kingdoms in Southeast Asia. During classical antiquity they were also used in ancient Persia and in the Mediterranean world within armies of Macedon, Hellenistic Greek states, the Roman Republic and later Empire, and Ancient Carthage in North Africa. In some regions they maintained a firm presence on the battlefield throughout the Medieval era. However, their use declined with the spread of firearms and other gunpowder weaponry in early modern warfare. After this, war elephants became restricted to non-combat engineering and labour roles, as well as being used for minor ceremonial uses.[PARAGRAPH:2]Dragoons originally were mounted infantry, who were trained in horse riding as well as infantry fighting skills. However, usage altered over time and during the 18th century, dragoons evolved into conventional light cavalry units and personnel. Dragoon regiments were established in most European armies during the late 17th century and early 18th century.[PARAGRAPH:1]The name is possibly derived from a type of firearm (called a dragon) carried by dragoons of the French Army. There is no distinction between the words dragon and dragoon in French.[PARAGRAPH:1]The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.[PARAGRAPH:2]With the invention of accurate and quick firing repeating pistols and rifles in the mid-19th century, cavalry started to become increasingly vulnerable. Many armies started to use troops which could either fight on horseback or on foot as circumstances dictated. Fighting on horseback with swords and lances would allow rapid movement without cover from enemy fire, whilst fighting on foot with pistols and rifles allowed them to make use of cover and to form defensive lines.[PARAGRAPH:1]The first mounted infantry units were raised during the Mexican-American War (as the Regiment of Mounted Riflemen, but redesignated Third Cavalry Regiment in 1861), and others followed, for example in Australia in the 1880s. Terms such as "mounted rifles" or "Light Horse" were often used.[PARAGRAPH:1]The French Foreign Legion used mule-mounted companies from the 1880s. Each mule was shared by two legionnaires, who took turns in riding it. This arrangement allowed faster and more prolonged marches that could cover 60 mi (97 km) in one day.[PARAGRAPH:1]In the Western Theater of the American Civil War, several infantry regiments were converted to mounted infantry and armed with repeating rifles. The Lightning Brigade at the Battle of Chickamauga was an example of these Union mounted infantry units.[PARAGRAPH:1]In the British Army, infantry units in some parts of the British Empire had a mounted platoon for scouting and skirmishing. In addition, many locally raised units such as the Ceylon Mounted Rifles, Cape Mounted Rifles, Natal Carbineers, and Marshall's Horse fought as mounted infantry.[PARAGRAPH:1]In the Second Boer War, the British copied the Boers and raised large forces of their own mounted infantry. Among various ad hoc formations, the Imperial Yeomanry was raised from volunteers in Britain between 1900 and 1901. Many of the contingents from Australia, Canada, and New Zealand (e.g. the Australian Light Horse and the Canadian Mounted Rifles) were MI (mounted infantry), as well as locally raised irregulars like the Imperial Light Horse and South African Light Horse. As artillery was of limited use against scattered Boer guerrilla bands later in the war, the mounted personnel of Royal Artillery units were formed into Royal Artillery Mounted Rifles.[PARAGRAPH:1]As part of the lessons learned from that war, British regular cavalry regiments were armed with the same rifle as the infantry and became well-trained in dismounted tactics. A version of the standard infantry rifle, the shorter-barreled LEC or "Lee-Enfield Cavalry Carbine Mark I" had been introduced in 1896.[PARAGRAPH:2]Napoleon employed a camel corps for the French invasion of Egypt and Syria. During the late 19th and much of the 20th centuries, camel troops were used for desert policing and patrol work in the British, French, German, Spanish, and Italian colonial armies. Descendants of such units still form part of the modern Moroccan and Egyptian armies and the paramilitary Indian Border Security Force.[PARAGRAPH:1]The British-officered Egyptian Camel Corps played a significant role in the 1898 Battle of Omdurman; one of the few occasions during this period when this class of mounted troops took part in substantial numbers in a set-piece battle. The Ottoman Army maintained camel companies as part of its Yemen and Hejaz Corps, both before and during World War I.[PARAGRAPH:1]The Italians used Dubat camel troops in Italian Somaliland, mainly for frontier patrol during the 1920s and 1930s. These Dubats participated in the Italian conquest of the Ogaden in 1935-1936 during the Second Italo-Ethiopian War.[PARAGRAPH:1]Colonial authorities in the Spanish protectorate in Morocco used locally recruited camel troops in the northern part of the protectorate, mainly for frontier patrol work from the 1930s until 1956. Forming part of the Tropas Nomades del Sahara, these camel-mounted units had a limited local role in the Spanish Civil War during 1936-1939.[PARAGRAPH:1]The Jordanian Desert Patrol still uses camels.[PARAGRAPH:1]Bikaner State (now Bikaner, Rajasthan) maintained a unit called the Bikaner Camel Corps that fought in China during the Boxer Rebellion in 1900, in Somaliland from 1902 to 1904 during the Somaliland Campaign, in Egypt during the Middle Eastern theatre of World War I in 1915 where they destroyed the Turkish forces during the Raid on the Suez Canal with a camel cavalry charge and in the Mediterranean and Middle East theatre of World War II.[PARAGRAPH:1]The auxiliary defense forces of the Kingdom of Jaisalmer, which had by then become a part of India, also established a camel-mounted defense battalion in 1948. They were used for transportation purposes during the Indo-Pakistani War of 1947-1948. Both the camelry units were handed over to the Indian Army's Grenadiers Regiment during the 1951 merger of the local Rajasthani armies with the Grenadiers. They were incorporated into the regiment as its 13th battalion. The Grenadiers used them for both transportation and fighting during the Indo-Pakistani War of 1965 where they prevented Pakistani forces from infiltrating and capturing territory intended to be used as negotiating chips in the Bikaner and Jaisalmer sectors both before and after the ceasefire. Major Jai Singh carried out a camel-mounted raid inside the Pakistani post of Ghoriwala. Another camel-assisted Indian attack at Tanot led to the deaths of 102 Pakistani soldiers, including two officers, and successfully regained a large amount of Indian territory. Many Indian Army camels were also given to the Border Security Force (BSF) upon its conception in the aftermath of the 1965 war.[PARAGRAPH:1]In 1966, the Grenadiers added another camelry battalion, the 17th battalion led by Lieutenant Colonel KS Harihar Singh.In 1967, a camel artillery regiment, the 185 Light Regiment (Pack), was also raised. The 185 Light Regiment (Pack) gave away its camels to the Border Security Force in 1971 on the insistence of Major General J. F. R. Jacob, the then-commander of the army's Eastern Command and a major advocate for mobile warfare who found camels to be too old fashioned for modern military use and had them replaced with gun-towing vehicles, however the 13th and 17th Grenadier battalions and the Border Security Force continued to use camels for infantry purposes. In the same year, camels were once again used in the Indo-Pakistani War of 1971 by both the grenadiers as well as the BSF, who fought alongside the army in the Eastern Theatre. The 13 and the 17th camel-mounted Grenadier battalions fought in the Bikaner and Gadra sectors where they captured a significant amount of territory. Five BSF camels were killed in the Battle of Longewala, one of the most significant battles of the war. The Indian Army finally stopped using camels in 1975. A local officer rejected a subsequent attempt to convert the 13th Grenadiers battalion and the 24th Rajput battalions into camel-mounted units.[PARAGRAPH:1]Camels are still used by the Border Security Force for patrolling the remote areas of the Thar Desert lying along the India-Pakistan border in Rajasthan. Camels are purchased between ages five and six and trained at the Camel Training Centre at the BSF Frontier Headquarters at Jodhpur. They serve for 15-16 years and are retired from service at the age of 21. The camels used by the BSF are from three different breeds. The Jaisalmeris and the Bikaneris are used for border patrol, while the Nachnas are used for ceremonial duties. The BSF is also known for the yearly participation of its camel contingent in the Delhi Parade for the occasion of the Indian Republic Day since 1976. Inspector General KS Rathore is credited with enhancing the band's capabilities during his years as an inspector general from 1986 to 1989. The camel contingent has two groups, one consisting of camels ridden by border guards and the other being Border Security Force Camel Band, consisting of camels walking along with musicians who march on foot. Both of these elements perform together during the march of the camel contingent. The contingent generally consists of 90 camels.[PARAGRAPH:1]During the 2011 Egyptian revolution on February 2 , 2011 pro government Baltagiya riding camels and horses using swords and machetes attacked protesters in Tahrir Square in a medieval-like cavalry charge, it the last record use of camel cavalry in an attack.[PARAGRAPH:2]Many European armies also used bicycle infantry in a similar way that mounted infantry used horses. However they were handicapped by the need for proper roads.[PARAGRAPH:1]The Australian 4th Light Horse Brigade which took part in the cavalry charge in the Battle of Beersheba (1917) during World War I are labelled as mounted infantry brigade in popular media; however, they were in fact mounted rifles as were the New Zealand Mounted Rifles Brigade which also took part in this battle. Mounted rifles regiments lack the mass of a mounted infantry battalions, as a light horse brigade could only muster as many rifles in the line as a single battalion. Consequently, their employment reflected this lack of mass, with the tactics seeking to harness greater mobility and fire to overcome opposition, rather than echeloned mass attacks.[PARAGRAPH:1]Mounted infantry began to disappear with the shift from horses to motor vehicles in the 1920s and 1930s. Germany deployed a few horse-mounted infantry units on the Russian Front during the Second World War, and cyclist units on both fronts as well, and both Germany and Britain (which had used cyclist battalions in the First World War) experimented with motorcycle battalions. Germany also utilized organic horse and bicycle mounted troops within infantry formations throughout World War Two, although bicycle use increased as Germany retreated into its own territory. Japan deployed cyclists to great effect in its 1941 to 1942 campaign in Malaya and drive on Singapore during World War II. A horsed cavalry regiment of the Philippine Scouts assisted in the defense of the Philippines at the onset of World War II. The 10th Mountain Division of the U.S. Army also maintained a mounted reconnaissance troop throughout World War Two, which saw service in Italy and Austria during the war.[PARAGRAPH:1]Countries with entrenched military traditions, such as Switzerland, retained horse-mounted troops well into the Cold War, while Sweden kept much of its infantry on bicycles during the snow-free months.</English>
++		<English>[TAB]The origins of mounted infantry go back to at least the beginnings of organised warfare. With the weight of ancient bronze armor, the opposing champions would travel to battle on chariots before dismounting to fight. With the evolution of hoplite warfare, some hoplites would travel to battle on horseback, before dismounting to take their place in the phalanx. The early pre-Marian Roman military had units consisting of infantrymen clinging to the saddles of the cavalry to take them to battle and then dismounting to fight. Gallic and Germanic warbands were reported to use double-riders, with a second warrior joining a horseman only for a short distance before dismounting to fight on foot. The Han dynasty also extensively used mounted infantry in their campaigns against the Xiongnu confederation. During many of the Han campaigns, the vast majority of the army rode on horseback; either as mounted cavalry or mounted infantry who fought dismounted.[PARAGRAPH:1]Camel cavalry, or camelry (French: m�haristes, pronounced [mea_ist]), is a generic designation for armed forces using camels as a means of transportation. Sometimes warriors or soldiers of this type also fought from camel-back with spears, bows, or firearms.[PARAGRAPH:1]Camel cavalry was a common element in desert warfare throughout history in the Middle East, due in part to the animals' high level of adaptability. They were better suited to working and surviving in arid environments than the horses of conventional cavalry. The smell of the camel, according to Herodotus, alarmed and disoriented horses, making camels an effective anti-cavalry weapon of the Achaemenid Persians in the Battle of Thymbra.[PARAGRAPH:1]The Arabs, during their campaigns in the deserts of Mesopotamia and Syria against the Byzantines and Sassanids, used camels to enhance their mobility, marking a stark contrast to their enemies, especially in the desert environment. The Carolingians under Charlemagne also used horses as transport for the bulk of their army, and special care was taken to ensure the health, fodder, and availability of horses on-campaign. Other notable infantry to use horses to enhance their mobility include the Genoese crossbowmen, and Viking raiders who would gather all the horses they could find in the vicinity of their landings.[PARAGRAPH:1]War elephants played a critical role in several key battles in antiquity, especially in ancient India. While seeing limited and periodic use in Ancient China, they became a permanent fixture in armies of historical kingdoms in Southeast Asia. During classical antiquity they were also used in ancient Persia and in the Mediterranean world within armies of Macedon, Hellenistic Greek states, the Roman Republic and later Empire, and Ancient Carthage in North Africa. In some regions they maintained a firm presence on the battlefield throughout the Medieval era. However, their use declined with the spread of firearms and other gunpowder weaponry in early modern warfare. After this, war elephants became restricted to non-combat engineering and labour roles, as well as being used for minor ceremonial uses.[PARAGRAPH:2]Dragoons originally were mounted infantry, who were trained in horse riding as well as infantry fighting skills. However, usage altered over time and during the 18th century, dragoons evolved into conventional light cavalry units and personnel. Dragoon regiments were established in most European armies during the late 17th century and early 18th century.[PARAGRAPH:1]The name is possibly derived from a type of firearm (called a dragon) carried by dragoons of the French Army. There is no distinction between the words dragon and dragoon in French.[PARAGRAPH:1]The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.[PARAGRAPH:2]With the invention of accurate and quick firing repeating pistols and rifles in the mid-19th century, cavalry started to become increasingly vulnerable. Many armies started to use troops which could either fight on horseback or on foot as circumstances dictated. Fighting on horseback with swords and lances would allow rapid movement without cover from enemy fire, whilst fighting on foot with pistols and rifles allowed them to make use of cover and to form defensive lines.[PARAGRAPH:1]The first mounted infantry units were raised during the Mexican-American War (as the Regiment of Mounted Riflemen, but redesignated Third Cavalry Regiment in 1861), and others followed, for example in Australia in the 1880s. Terms such as "mounted rifles" or "Light Horse" were often used.[PARAGRAPH:1]The French Foreign Legion used mule-mounted companies from the 1880s. Each mule was shared by two legionnaires, who took turns in riding it. This arrangement allowed faster and more prolonged marches that could cover 60 mi (97 km) in one day.[PARAGRAPH:1]In the Western Theater of the American Civil War, several infantry regiments were converted to mounted infantry and armed with repeating rifles. The Lightning Brigade at the Battle of Chickamauga was an example of these Union mounted infantry units.[PARAGRAPH:1]In the British Army, infantry units in some parts of the British Empire had a mounted platoon for scouting and skirmishing. In addition, many locally raised units such as the Ceylon Mounted Rifles, Cape Mounted Rifles, Natal Carbineers, and Marshall's Horse fought as mounted infantry.[PARAGRAPH:1]In the Second Boer War, the British copied the Boers and raised large forces of their own mounted infantry. Among various ad hoc formations, the Imperial Yeomanry was raised from volunteers in Britain between 1900 and 1901. Many of the contingents from Australia, Canada, and New Zealand (e.g. the Australian Light Horse and the Canadian Mounted Rifles) were MI (mounted infantry), as well as locally raised irregulars like the Imperial Light Horse and South African Light Horse. As artillery was of limited use against scattered Boer guerrilla bands later in the war, the mounted personnel of Royal Artillery units were formed into Royal Artillery Mounted Rifles.[PARAGRAPH:1]As part of the lessons learned from that war, British regular cavalry regiments were armed with the same rifle as the infantry and became well-trained in dismounted tactics. A version of the standard infantry rifle, the shorter-barreled LEC or "Lee-Enfield Cavalry Carbine Mark I" had been introduced in 1896.[PARAGRAPH:2]Napoleon employed a camel corps for the French invasion of Egypt and Syria. During the late 19th and much of the 20th centuries, camel troops were used for desert policing and patrol work in the British, French, German, Spanish, and Italian colonial armies. Descendants of such units still form part of the modern Moroccan and Egyptian armies and the paramilitary Indian Border Security Force.[PARAGRAPH:1]The British-officered Egyptian Camel Corps played a significant role in the 1898 Battle of Omdurman; one of the few occasions during this period when this class of mounted troops took part in substantial numbers in a set-piece battle. The Ottoman Army maintained camel companies as part of its Yemen and Hejaz Corps, both before and during World War I.[PARAGRAPH:1]The Italians used Dubat camel troops in Italian Somaliland, mainly for frontier patrol during the 1920s and 1930s. These Dubats participated in the Italian conquest of the Ogaden in 1935-1936 during the Second Italo-Ethiopian War.[PARAGRAPH:1]Colonial authorities in the Spanish protectorate in Morocco used locally recruited camel troops in the northern part of the protectorate, mainly for frontier patrol work from the 1930s until 1956. Forming part of the Tropas Nomades del Sahara, these camel-mounted units had a limited local role in the Spanish Civil War during 1936-1939.[PARAGRAPH:1]The Jordanian Desert Patrol still uses camels.[PARAGRAPH:1]Bikaner State (now Bikaner, Rajasthan) maintained a unit called the Bikaner Camel Corps that fought in China during the Boxer Rebellion in 1900, in Somaliland from 1902 to 1904 during the Somaliland Campaign, in Egypt during the Middle Eastern theatre of World War I in 1915 where they destroyed the Turkish forces during the Raid on the Suez Canal with a camel cavalry charge and in the Mediterranean and Middle East theatre of World War II.[PARAGRAPH:1]The auxiliary defense forces of the Kingdom of Jaisalmer, which had by then become a part of India, also established a camel-mounted defense battalion in 1948. They were used for transportation purposes during the Indo-Pakistani War of 1947-1948. Both the camelry units were handed over to the Indian Army's Grenadiers Regiment during the 1951 merger of the local Rajasthani armies with the Grenadiers. They were incorporated into the regiment as its 13th battalion. The Grenadiers used them for both transportation and fighting during the Indo-Pakistani War of 1965 where they prevented Pakistani forces from infiltrating and capturing territory intended to be used as negotiating chips in the Bikaner and Jaisalmer sectors both before and after the ceasefire. Major Jai Singh carried out a camel-mounted raid inside the Pakistani post of Ghoriwala. Another camel-assisted Indian attack at Tanot led to the deaths of 102 Pakistani soldiers, including two officers, and successfully regained a large amount of Indian territory. Many Indian Army camels were also given to the Border Security Force (BSF) upon its conception in the aftermath of the 1965 war.[PARAGRAPH:1]In 1966, the Grenadiers added another camelry battalion, the 17th battalion led by Lieutenant Colonel KS Harihar Singh.In 1967, a camel artillery regiment, the 185 Light Regiment (Pack), was also raised. The 185 Light Regiment (Pack) gave away its camels to the Border Security Force in 1971 on the insistence of Major General J. F. R. Jacob, the then-commander of the army's Eastern Command and a major advocate for mobile warfare who found camels to be too old fashioned for modern military use and had them replaced with gun-towing vehicles, however the 13th and 17th Grenadier battalions and the Border Security Force continued to use camels for infantry purposes. In the same year, camels were once again used in the Indo-Pakistani War of 1971 by both the grenadiers as well as the BSF, who fought alongside the army in the Eastern Theatre. The 13 and the 17th camel-mounted Grenadier battalions fought in the Bikaner and Gadra sectors where they captured a significant amount of territory. Five BSF camels were killed in the Battle of Longewala, one of the most significant battles of the war. The Indian Army finally stopped using camels in 1975. A local officer rejected a subsequent attempt to convert the 13th Grenadiers battalion and the 24th Rajput battalions into camel-mounted units.[PARAGRAPH:1]Camels are still used by the Border Security Force for patrolling the remote areas of the Thar Desert lying along the India-Pakistan border in Rajasthan. Camels are purchased between ages five and six and trained at the Camel Training Centre at the BSF Frontier Headquarters at Jodhpur. They serve for 15-16 years and are retired from service at the age of 21. The camels used by the BSF are from three different breeds. The Jaisalmeris and the Bikaneris are used for border patrol, while the Nachnas are used for ceremonial duties. The BSF is also known for the yearly participation of its camel contingent in the Delhi Parade for the occasion of the Indian Republic Day since 1976. Inspector General KS Rathore is credited with enhancing the band's capabilities during his years as an inspector general from 1986 to 1989. The camel contingent has two groups, one consisting of camels ridden by border guards and the other being Border Security Force Camel Band, consisting of camels walking along with musicians who march on foot. Both of these elements perform together during the march of the camel contingent. The contingent generally consists of 90 camels.[PARAGRAPH:1]During the 2011 Egyptian revolution on February, , 2011 pro government Baltagiya riding camels and horses using swords and machetes attacked protesters in Tahrir Square in a medieval-like cavalry charge, it the last record use of camel cavalry in an attack.[PARAGRAPH:2]Many European armies also used bicycle infantry in a similar way that mounted infantry used horses. However they were handicapped by the need for proper roads.[PARAGRAPH:1]The Australian 4th Light Horse Brigade which took part in the cavalry charge in the Battle of Beersheba (1917) during World War I are labelled as mounted infantry brigade in popular media; however, they were in fact mounted rifles as were the New Zealand Mounted Rifles Brigade which also took part in this battle. Mounted rifles regiments lack the mass of a mounted infantry battalions, as a light horse brigade could only muster as many rifles in the line as a single battalion. Consequently, their employment reflected this lack of mass, with the tactics seeking to harness greater mobility and fire to overcome opposition, rather than echeloned mass attacks.[PARAGRAPH:1]Mounted infantry began to disappear with the shift from horses to motor vehicles in the 1920s and 1930s. Germany deployed a few horse-mounted infantry units on the Russian Front during the Second World War, and cyclist units on both fronts as well, and both Germany and Britain (which had used cyclist battalions in the First World War) experimented with motorcycle battalions. Germany also utilized organic horse and bicycle mounted troops within infantry formations throughout World War Two, although bicycle use increased as Germany retreated into its own territory. Japan deployed cyclists to great effect in its 1941 to 1942 campaign in Malaya and drive on Singapore during World War II. A horsed cavalry regiment of the Philippine Scouts assisted in the defense of the Philippines at the onset of World War II. The 10th Mountain Division of the U.S. Army also maintained a mounted reconnaissance troop throughout World War Two, which saw service in Italy and Austria during the war.[PARAGRAPH:1]Countries with entrenched military traditions, such as Switzerland, retained horse-mounted troops well into the Cold War, while Sweden kept much of its infantry on bicycles during the snow-free months.</English>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 251a1f58f..add8a1a34 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1355,7 +1355,7 @@ void CvCityAI::AI_chooseProduction()
+ 	floatingDefenderWeight.set(UNITAI_CITY_COUNTER, 100);
+ 	//floatingDefenderWeight.set(UNITAI_CITY_SPECIAL, 0);
+ 	floatingDefenderWeight.set(UNITAI_RESERVE, 100);
+-	// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too for details for details or additional/related info -->
++	// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit, bestunitai, and this function too for details for details or additional/related info -->
+ 	if (bMinor || bBarbarian)
+ 	{
+ 		floatingDefenderWeight.set(UNITAI_COLLATERAL, 80); // K-Mod, down from 100.
+@@ -1391,7 +1391,7 @@ void CvCityAI::AI_chooseProduction()
+ 		defensiveWeight.set(UNITAI_ATTACK, 100);
+ 		defensiveWeight.set(UNITAI_RESERVE, 60);
+ 		//defensiveWeight.push_back(std::make_pair(UNITAI_COLLATERAL, 60));
+-		// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too for details for details or additional/related info -->
++		// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit, bestunitai, and this function too for details for details or additional/related info -->
+ 		if (bMinor || bBarbarian)
+ 		{
+ 			defensiveWeight.set(UNITAI_COLLATERAL, 80);
+@@ -2066,7 +2066,7 @@ void CvCityAI::AI_chooseProduction()
+ 			UnitAIWeightMap panicDefenderWeight; // advc: Was vector of pairs "defensiveTypes"
+ 			panicDefenderWeight.set(UNITAI_RESERVE, 100);
+ 			panicDefenderWeight.set(UNITAI_COUNTER, 100);
+-			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit( , bestunitai( , and this function too for details for details or additional/related info -->
++			// <!-- custom: stop bypassing our code ffs if i may say xd...; also specifically for this unitai, we don't want it anymore, see code comments at bestunit, bestunitai, and this function too for details for details or additional/related info -->
+ 			if (bMinor || bBarbarian)
+ 			{
+ 				panicDefenderWeight.set(UNITAI_COLLATERAL, 100);
+@@ -3938,7 +3938,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 	PROFILE_FUNC();
+ 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
+ 
+-	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit( , and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way) -->
++	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit, and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way) -->
+ 
+ 	// <!-- custom: old code now commented out -->
+ 	// bool bGrowMore = false;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 1b446a36b..9aa349240 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2071,7 +2071,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ {
+ 	CvWString szTemp;
+ 	CvActionInfo const& kAction = GC.getActionInfo(widgetDataStruct.m_iData1);
+-	szTemp.Format(SETCOLR L"%s" ENDCOLR , TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++	szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+ 			kAction.getHotKeyDescription().c_str());
+ 	szBuffer.assign(szTemp);
+ 	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace();
+
+diff --git a/CvGameCoreDLL/CvInfo_TrueStarts.cpp b/CvGameCoreDLL/CvInfo_TrueStarts.cpp
+index 9d827be6d..6ef3e1d02 100644
+--- a/CvGameCoreDLL/CvInfo_TrueStarts.cpp
++++ b/CvGameCoreDLL/CvInfo_TrueStarts.cpp
+@@ -10,7 +10,7 @@ bool CvTruCivInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!base_t::read(pXML))
+ 		return false;
+ 	FAssertBounds(minLatitude(), maxLatitude() + 1, get(CvTruCivInfo::LatitudeTimes10));
+-	FAssertBounds(minLongitude(), maxLongitude() + 1 , get(CvTruCivInfo::LongitudeTimes10));
++	FAssertBounds(minLongitude(), maxLongitude() + 1, get(CvTruCivInfo::LongitudeTimes10));
+ 	FAssertBounds(-1, 20000, get(CvTruCivInfo::Precipitation));
+ 	FAssertBounds(-1, 101, get(CvTruCivInfo::ClimateVariation));
+ 	FAssertBounds(-1, 101, get(CvTruCivInfo::Oceanity));
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 67e2e073b..f90598bf1 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -6248,7 +6248,7 @@ void CvTeamAI::AI_doWar()
+ 					// advc: Took these inequations times 2 to reduce rounding errors
+ 					if (2 * iOurValue > iTheirValue && 2 * iTheirValue > iOurValue)
+ 					{
+-						if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) making peace due to time and endWarVal %d vs their %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) , iOurValue, iTheirValue);
++						if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) making peace due to time and endWarVal %d vs their %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iOurValue, iTheirValue);
+ 						makePeace(eEnemy);
+ 						continue;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3c0aff74a..94cfd83c8 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -23733,7 +23733,7 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
+ 	// {
+ 	// 	iDefenseValue = 0;
+ 	// } // </advc.035>
+-	// <!-- custom: No!!! De!!! prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time , so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
++	// <!-- custom: No!!! De!!! prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time, so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
+ 	/*  Prioritize Forts on tiles with high natural defense and on important
+ 		resources that may later be guarded. */
+ 	// if(iDefenseValue > 0)
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index db2d2f35b..0ba9dbede 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -114,7 +114,7 @@ bool CvXMLLoadUtility::GetXmlVal(char* r, char const* szDefault)
+ 		return true;
+ 	}
+ 	// otherwise we can't find a non-comment node on this level
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -129,7 +129,7 @@ bool CvXMLLoadUtility::GetXmlVal(wchar* r, wchar const* szDefault)
+ 		return true;
+ 	}
+ 	// otherwise we can't find a non-comment node on this level
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -139,7 +139,7 @@ bool CvXMLLoadUtility::GetXmlVal(std::string& r, char const* szDefault)
+ 	assignDefault(r, szDefault);
+ 	if (SkipToNextVal())
+ 		return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -149,7 +149,7 @@ bool CvXMLLoadUtility::GetXmlVal(std::wstring& r, wchar const* szDefault)
+ 	assignDefault(r, szDefault);
+ 	if (SkipToNextVal())
+ 		return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -159,7 +159,7 @@ bool CvXMLLoadUtility::GetXmlVal(int& r, int iDefault)
+ 	assignDefault(r, iDefault);
+ 	if (SkipToNextVal())
+ 		return SafeGetLastNodeValue(m_pFXml, r, iDefault); // advc.006d
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -169,7 +169,7 @@ bool CvXMLLoadUtility::GetXmlVal(float& r, float fDefault)
+ 	assignDefault(r, fDefault);
+ 	if (SkipToNextVal())
+ 		return SafeGetLastNodeValue(m_pFXml, r, fDefault); // advc.006d
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -179,7 +179,7 @@ bool CvXMLLoadUtility::GetXmlVal(bool& r, bool bDefault)
+ 	assignDefault(r, bDefault);
+ 	if (SkipToNextVal())
+ 		return SafeGetLastNodeValue(m_pFXml, r, bDefault); // advc.006d
+-	FAssertMsg(false , "Error in GetXmlVal function, unable to find the next non-comment node");
++	FAssertMsg(false, "Error in GetXmlVal function, unable to find the next non-comment node");
+ 	return false;
+ }
+ 
+@@ -236,7 +236,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(char* r, char const* szDefault)
+ 			return true;
+ 		}
+ 		// otherwise we can't find a non-comment node on this level
+-		FAssertMsg(false , "Error in GetNextXmlVal function, unable to find the next non-comment node");
++		FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 		return false;
+ 	}
+ 	return false; // no more sibling nodes
+@@ -384,11 +384,11 @@ bool CvXMLLoadUtility::GetChildXmlVal(std::string& r, char const* szDefault)
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+ 		// otherwise we can't find a non-comment node on this level
+-		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+-	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
++	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+ 
+@@ -402,11 +402,11 @@ bool CvXMLLoadUtility::GetChildXmlVal(std::wstring& r, wchar const* szDefault)
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+ 		// otherwise we can't find a non-comment node on this level
+-		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+-	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
++	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+ 
+@@ -424,11 +424,11 @@ bool CvXMLLoadUtility::GetChildXmlVal(char* r, char const* szDefault)
+ 			return true;
+ 		}
+ 		// otherwise we can't find a non-comment node on this level
+-		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+-	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
++	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+ 
+@@ -446,11 +446,11 @@ bool CvXMLLoadUtility::GetChildXmlVal(wchar* r, wchar const* szDefault)
+ 			return true;
+ 		}
+ 		// otherwise we can't find a non-comment node on this level
+-		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+-	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
++	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+ 
+@@ -464,11 +464,11 @@ bool CvXMLLoadUtility::GetChildXmlVal(int& r, int iDefault)
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, iDefault); // advc.006d
+ 		// otherwise we can't find a non-comment node on this level
+-		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+-	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
++	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+
+diff --git a/CvGameCoreDLL/KmodPathFinderLegacy.cpp b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+index af84dacd6..85df055eb 100644
+--- a/CvGameCoreDLL/KmodPathFinderLegacy.cpp
++++ b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+@@ -66,9 +66,9 @@ bool KmodPathFinderLegacy::GeneratePath(int x1, int y1, int x2, int y2)
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssertBounds(0, kMap.getGridWidth() , x1);
++	FAssertBounds(0, kMap.getGridWidth(), x1);
+ 	FAssertBounds(0, kMap.getGridHeight(), y1);
+-	FAssertBounds(0, kMap.getGridWidth() , x2);
++	FAssertBounds(0, kMap.getGridWidth(), x2);
+ 	FAssertBounds(0, kMap.getGridHeight(), y2);
+ 
+ 	end_node = NULL;
+@@ -266,7 +266,7 @@ void KmodPathFinderLegacy::Reset()
+ 
+ void KmodPathFinderLegacy::AddStartNode()
+ {
+-	/*FAssertBounds(0, map_width , start_x);
++	/*FAssertBounds(0, map_width, start_x);
+ 	FAssertBounds(0, map_height, start_y);*/ // Now sufficiently safe
+ 
+ 	// add initial node.
+
+diff --git a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+index 0a705dfea..31d2e3fbc 100644
+--- a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
++++ b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+@@ -297,7 +297,7 @@ Created as part of AdvCiv-SAS improvements
+     <Define>
+ 		<!-- When computing per-civ power values (which play an important role in decisions on war and peace), the power value of each individual unit is raised to the power of (i.e. exponentiated by) POWER_CORRECTION. For example, if POWER_CORRECTION is 200%, per-unit power values are squared. POWER_CORRECTION = 100% is the BtS behavior; power values then typically equal unit strength, e.g. two Warriors are as good as one Spearman. When squaring, one Spearman is as good as four Warriors. (That seems too much.) Recommended: 166%; one Spearman then corresponds to 3.15 Warriors. -->
+ 		<!-- advc.159: A fraction (3/4) of this value is also used for some tactical decisions outside the UWAI component. -->
+-		<!-- custom: Extra checking the AdvCiv's value: 2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected, as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value (very slightly different due to rounding so 3.15 becomes 3.16), so my math is hopefully correct.-->
++		<!-- custom: Extra checking the AdvCiv's value: 2^1.66 = 3.160 and 4^1.66 = 9.987, so one spearman is as strong, corrected, as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value (very slightly different due to rounding so 3.15 becomes 3.16), so my math is hopefully correct.-->
+ 		<!-- custom: Now changing it to a maybe more fit for my purpose value or how i think it may fit better the game: 2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063 approximately so a spearman (basing myself on base BTS/AdvCiv strength for example) is closer to 3 (9.063 / 3.010 = 3.011, to be more exact warriors now, so maybe this is good enough odds to consider attacking
+ 		with the 3 warriors now? May also help AI stacks not stare at each other too long and start city attacks sooner? -->
+ 		<!-- custom: Increased it to 160 to be safer (than 159), so one warrior is 2^1.6 = 3.031 corrected strength now and one spearman is 4^1.6 = 9.190 corrected strength now, and so one spearman is now as worth as 9.190 / 3.031 = 3.032 warriors, which is maybe a bit safer, was 166 -->
+
+diff --git a/Long_Comments/GlobalDefines_advc_for_comments.xml b/Long_Comments/GlobalDefines_advc_for_comments.xml
+index 64b4cf2ab..afbb1d8fc 100644
+--- a/Long_Comments/GlobalDefines_advc_for_comments.xml
++++ b/Long_Comments/GlobalDefines_advc_for_comments.xml
+@@ -1247,7 +1247,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.005f] If set to 1 , change 005f (see manual) is enabled. 0
++	<!-- [advc.005f] If set to 1, change 005f (see manual) is enabled. 0
+ 		 disables the change (recommended). -->
+ 	<Define>
+ 		<DefineName>ENABLE_005F</DefineName>
+@@ -1532,7 +1532,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1000</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
++	<!-- custom: first tried -100 000, now reduced to -50 000 since we have less early start games if i may say or if accurate, see also (adjust to your mod path) CIV4GameSpeedInfo.xml for details -->
+ 	<Define>
+ 		<DefineName>START_YEAR</DefineName>
+ 		<iDefineIntVal>-50000</iDefineIntVal>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 1e894a640..d5311940f 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -3230,7 +3230,7 @@ After we have implemented a tentative fix to this, now also encourage vassal(s)<
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #179 -----
+ 
+- , moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable.
++, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable.
+ 
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #180 -----
+@@ -3326,7 +3326,7 @@ Set to 0 if you always want to compute despite it being more costly (for modding
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #193 -----
+ 
+-, useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
++, useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such, then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
+ 
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #194 -----
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 28297817e..6fa835649 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -296,7 +296,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support).
++- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. Click on "OK" or Right-click to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support).
+ - (Requires AdvCiv-SAS 5359+) New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index e9d4677bd..cadb98858 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -216,17 +216,18 @@ Note: some sounds appear twice such as Tech, Leader, Era sounds. This is because
+ 
+ Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
+ 
++As of now, click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
++
+ The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
+ 
+ - In Sevopedia Music, make leaders and such buttons hoverable and clickable with a redirect like tech buttons.
+ - In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
+ - Add a custom dds or nif (liek leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+-- Search Bar desyncs when we exit an audio file playing, we as of now need to click around the top of the page so that search br is functional again. Note: for non-dds and non-nif movies or musics, is minor since click successfully returns to same entry's page it seems, but ideally to fix. Else to fix as well with a higher priority. OK button works fine though but still would be nice to fix it.
++- Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
+ - Maybe generalize script name for other things than era tracks
+ - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
+ - in header add music id / total (liek total 1759)
+ - In Sevopedia Leader, Civilization, and Eras (to first era sound), redirect to the real track item not just to sevopedia Music page
+-- Escape key sends us back to main menu instead of same sevopdeia entry and category, same for movies (OK button works fine though)
+ 
+ <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=2 bytes=3290
+
+[PATCH COVERAGE]
+patchFiles=39 embeddedFiles=38 omittedFiles=1 embeddedPatchBytes=110766

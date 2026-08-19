@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1355
+# Commit: dd0a25eca147c1737d085785798d3b427d031310
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6de61ea758866b0413a63f32a2277ab772b317c5
+# Title: Fixed a memory error in change advc.034.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5451364f8..8ff6f4693 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4563,14 +4563,14 @@ void CvTeam::setOpenBorders(TeamTypes eIndex, bool bNewValue)
+ // <advc.034>
+ bool CvTeam::isDisengage(TeamTypes eIndex) const {
+ 
+-	if(eIndex >= MAX_CIV_PLAYERS || eIndex < 0)
++	if(eIndex >= MAX_CIV_TEAMS || eIndex < 0)
+ 		return false;
+ 	return m_abDisengage[eIndex];
+ }
+ 
+ void CvTeam::setDisengage(TeamTypes eIndex, bool bNewValue) {
+ 
+-	if(eIndex >= MAX_CIV_PLAYERS || eIndex < 0)
++	if(eIndex >= MAX_CIV_TEAMS || eIndex < 0)
+ 		return;
+ 	m_abDisengage[eIndex] = bNewValue;
+ 	if(!bNewValue && !isFriendlyTerritory(eIndex) && !isAtWar(eIndex))
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index a91b7537b..e7f46958a 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -511,7 +511,7 @@ protected:
+ 	bool* m_abHasSeen; // K-Mod
+ 	bool* m_abPermanentWarPeace;
+ 	bool* m_abOpenBorders;
+-	bool m_abDisengage[MAX_CIV_PLAYERS]; // advc.034
++	bool m_abDisengage[MAX_TEAMS];
+ 	bool* m_abDefensivePact;
+ 	bool* m_abForcePeace;
+ 	bool* m_abVassal;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1155

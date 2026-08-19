@@ -1,0 +1,380 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5720
+# Commit: 87e5d7097aa571cc885a0ba8789954813f811a43
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bd7c56a32b6f4e89a24fe5ffb4a89e482708c432
+# Title: split terrains and features in territory tab, adjust totals (e.g., do not count hill since it overlaps with terrains) and other adjustments
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+62	59	Assets/Python/Screens/CvWorldAdvisorScreen.py
+1	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+6	6	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	Long_Comments/Long_Comments_py.txt
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 6580570f2..a98ff63af 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -129,8 +129,10 @@ class CvWorldAdvisorScreen:
+ 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+ 		self.ART_POPUPS_BACKGROUND_TRANSPARENT = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
+ 		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+-		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_PEAK")).getButton()
+-		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_HILL")).getButton()
++		self.iTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
++		self.iTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
++		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(self.iTerrainPeak).getButton()
++		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(self.iTerrainHill).getButton()
+ 		# <!-- custom: River has no terrain type (it's a plot-edge property), so reuse the WorldBuilder river-placement art.
+ 		# Lake intentionally stays text-only because BTS represents lakes as coast-type water plots and TERRAIN_COAST's icon is already used for Coast, making the Lake column misleading. Coastal Land has no canonical art so it stays text-only like Land/Water/Flat. (Claude code Opus 4.7; summarized GPT-5.5) -->
+ 		self.BUTTON_RIVER = ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath()
+@@ -139,7 +141,6 @@ class CvWorldAdvisorScreen:
+ 		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
+ 		self.TEXT_CITY = localText.getText("TXT_KEY_WORLD_ADVISOR_CITY", ())
+ 		self.TEXT_BFC = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_SHORT", ())
+-		self.TEXT_LAND = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAND", ())
+ 		self.TEXT_WATER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_WATER", ())
+ 		self.TEXT_PEAK = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_PEAK", ())
+ 		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
+@@ -157,7 +158,8 @@ class CvWorldAdvisorScreen:
+ 
+ 		# Territory
+ 		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
+-		self.TEXT_TERRITORY_TERRAIN_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES", ())
++		self.TEXT_TERRITORY_TERRAIN = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN", ())
++		self.TEXT_TERRITORY_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_FEATURES", ())
+ 		self.TEXT_TERRITORY_BONUSES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES", ())
+ 		self.TEXT_TERRITORY_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
+ 		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
+@@ -249,14 +251,11 @@ class CvWorldAdvisorScreen:
+ 		elif self.iActiveTab == self.iEnvironmentID:
+ 			self.drawEnvironmentTab()
+ 
+-	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC 1 is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
+-	# <!-- custom: BFC 1 tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition); ; Long_Comments_py.txt #17
+-	# Resolution: keep icons-in-headers (readable, sortable). Now that the Territory tab natively supports hover + pedia redirect on every entry (it renders rows, not column headers, so widgets just work), it covers the icon-identification need for the whole World Advisor — so BFC 1 / BFC 2 don't need hover on headers either. Prioritize header clarity for icon recognition and clean left-click sort over re-attempting any hover-on-header workaround. (Claude code Opus 4.7; summarized GPT-5.5) -->
+ 	# BFC 1
++	# <!-- custom: Long_Comments_py.txt #17 -->
+ 	def drawBFC1Tab(self):
+-		# <!-- custom: routes (path/road/railroad) live in BFC 2's improvements table — they are man-made infrastructure rather than geography. (Claude code Opus 4.7) -->
+ 		aszTableRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals = self.collectBFC1Data()
+-		aiTerrainColumns = range(gc.getNumTerrainInfos())
++		aiTerrainColumns = self.getTerrainColumnsWithoutPlotShapes()
+ 		aiFeatureColumns = range(gc.getNumFeatureInfos())
+ 
+ 		self.drawBFC1PlotTable(aszTableRows, aiPlotTotals)
+@@ -266,14 +265,14 @@ class CvWorldAdvisorScreen:
+ 		player = gc.getPlayer(self.iActivePlayer)
+ 		bDebug = CyGame().isDebugMode()
+ 		aszRows = []
+-		# Plot count slots: 0=Total 1=Land 2=Water 3=Peak 4=Hill 5=Flat 6=River 7=Lake 8=Coastal
+-		aiPlotTotals = [0, 0, 0, 0, 0, 0, 0, 0, 0]
++		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
++		aiPlotTotals = [0, 0, 0, 0, 0, 0, 0, 0]
+ 		aaiTerrainTotals = []
+ 		aaiFeatureTotals = []
+ 
+ 		(pCity, iter) = player.firstCity(False)
+ 		while pCity and not pCity.isNone():
+-			aiPlotCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0]
++			aiPlotCounts = [0, 0, 0, 0, 0, 0, 0, 0]
+ 			aiTerrainCounts = [0] * gc.getNumTerrainInfos()
+ 			aiFeatureCounts = [0] * gc.getNumFeatureInfos()
+ 
+@@ -282,21 +281,20 @@ class CvWorldAdvisorScreen:
+ 				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
+ 					aiPlotCounts[0] += 1
+ 					if pPlot.isWater():
+-						aiPlotCounts[2] += 1
++						aiPlotCounts[1] += 1
+ 						if pPlot.isLake():
+-							aiPlotCounts[7] += 1
++							aiPlotCounts[6] += 1
+ 					else:
+-						aiPlotCounts[1] += 1
+ 						if pPlot.isPeak():
+-							aiPlotCounts[3] += 1
++							aiPlotCounts[2] += 1
+ 						elif pPlot.isHills():
+-							aiPlotCounts[4] += 1
++							aiPlotCounts[3] += 1
+ 						else:
+-							aiPlotCounts[5] += 1
++							aiPlotCounts[4] += 1
+ 						if pPlot.isCoastalLand():
+-							aiPlotCounts[8] += 1
++							aiPlotCounts[7] += 1
+ 					if pPlot.isRiverSide():
+-						aiPlotCounts[6] += 1
++						aiPlotCounts[5] += 1
+ 
+ 					iTerrain = pPlot.getTerrainType()
+ 					if iTerrain >= 0:
+@@ -318,7 +316,7 @@ class CvWorldAdvisorScreen:
+ 	def drawBFC1PlotTable(self, aszRows, aiPlotTotals):
+ 		screen = self.getScreen()
+ 		szTable = self.getNextWidgetName()
+-		iNumCols = 13
++		iNumCols = 12
+ 		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, self.BFC_Y_PLOT_TABLE, self.BFC_W_TABLE, self.BFC_H_PLOT_TABLE, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(szTable)
+ 		iCityW = self.BFC_CITY_COL_WIDTH
+@@ -328,15 +326,14 @@ class CvWorldAdvisorScreen:
+ 		screen.setTableColumnHeader(szTable, 2, SAS_FONT_TAG_LABEL + self.TEXT_POP + SAS_FONT_TAG_CLOSE, iDataW)
+ 		screen.setTableColumnHeader(szTable, 3, SAS_FONT_TAG_LABEL + self.TEXT_YEAR + SAS_FONT_TAG_CLOSE, iDataW)
+ 		screen.setTableColumnHeader(szTable, 4, SAS_FONT_TAG_LABEL + self.TEXT_BFC + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 5, SAS_FONT_TAG_LABEL + self.TEXT_LAND + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 6, SAS_FONT_TAG_LABEL + self.TEXT_WATER + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 5, SAS_FONT_TAG_LABEL + self.TEXT_WATER + SAS_FONT_TAG_CLOSE, iDataW)
+ 		# <!-- custom: Plot-type columns have room for icon + text; Peak and Hill buttons are visually similar, so labels avoid ambiguity. (GPT-5.5) -->
+-		screen.setTableColumnHeader(szTable, 7, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK) + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 8, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL) + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 10, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_RIVER, self.BFC_ICON_SIZE, self.TEXT_RIVER) + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 11, SAS_FONT_TAG_LABEL + self.TEXT_LAKE + SAS_FONT_TAG_CLOSE, iDataW)
+-		screen.setTableColumnHeader(szTable, 12, SAS_FONT_TAG_LABEL + self.TEXT_COASTAL + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 6, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK) + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 7, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL) + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 8, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_RIVER, self.BFC_ICON_SIZE, self.TEXT_RIVER) + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 10, SAS_FONT_TAG_LABEL + self.TEXT_LAKE + SAS_FONT_TAG_CLOSE, iDataW)
++		screen.setTableColumnHeader(szTable, 11, SAS_FONT_TAG_LABEL + self.TEXT_COASTAL + SAS_FONT_TAG_CLOSE, iDataW)
+ 
+ 		for iRow in range(len(aszRows)):
+ 			self.appendBFC1PlotRow(screen, szTable, iRow, aszRows[iRow][0], aszRows[iRow][1], aszRows[iRow][2], aszRows[iRow][3], aszRows[iRow][4], aszRows[iRow][5])
+@@ -413,7 +410,6 @@ class CvWorldAdvisorScreen:
+ 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[7][iFeature])
+ 			iCol += 1
+ 
+-	# <!-- custom: BFC 2 tab — bonuses (top) and worker-built infrastructure (bottom: improvements + routes), icon-headered like BFC 1's terrain table. Bonuses are filtered to placeable types (PlacementOrder >= 0); abstract bonuses can't appear in any BFC. Routes (path/road/railroad) live here rather than BFC 1 because they are man-made infrastructure, matching the same routes-with-improvements grouping in the Territory tab. See drawBFC1Tab above for the full design rationale (why icons live in the header, why hover-on-header was abandoned). (Claude code Opus 4.7) -->
+ 	def drawBFC2Tab(self):
+ 		aiBonusColumns = []
+ 		for iBonus in range(gc.getNumBonusInfos()):
+@@ -507,21 +503,21 @@ class CvWorldAdvisorScreen:
+ 				iColIdx += 1
+ 
+ 	# TERRITORY
+-	# <!-- custom: Territory and BFC tabs are live snapshots of current map state (plot iteration), NOT save-persistent counters. They are the canonical home for "what's on my plots right now" — empire totals (Territory: BFC vs Suburbs) and per-city detail (BFC 1 / BFC 2). Better fit than the previously-redundant "Improvements Current" column in CvInfoScreen's Stats tab (now removed): more exhaustive (terrain/feature/route/bonus/improvement, not just improvements) and thematically grouped with other current-geography views, instead of sitting alone next to history counters (Built/Killed/Lost from CyStatistics). (Claude code Opus 4.7) -->
+ 	def drawTerritoryTab(self):
+-		aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
++		aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
+ 		iGap = 14
+ 		iTableW = (self.BFC_W_TABLE - 3 * iGap) / 4
+ 		iY = self.BFC_Y_PLOT_TABLE
+ 		iH = self.CONTENT_Y_BOTTOM - iY - 18
++		iHalfH = (iH - iGap) / 2
++		iX2 = self.BFC_X_TABLE + iTableW + iGap
+ 		self.drawTerritoryCountTable(aPlotRows, self.TEXT_TERRITORY_PLOTS, self.BFC_X_TABLE, iY, iTableW, iH)
+-		self.drawTerritoryCountTable(aTerrainFeatureRows, self.TEXT_TERRITORY_TERRAIN_FEATURES, self.BFC_X_TABLE + iTableW + iGap, iY, iTableW, iH)
++		self.drawTerritoryCountTable(aTerrainRows, self.TEXT_TERRITORY_TERRAIN, iX2, iY, iTableW, iHalfH)
++		self.drawTerritoryCountTable(aFeatureRows, self.TEXT_TERRITORY_FEATURES, iX2, iY + iHalfH + iGap, iTableW, iHalfH)
+ 		self.drawTerritoryCountTable(aBonusRows, self.TEXT_TERRITORY_BONUSES, self.BFC_X_TABLE + 2 * (iTableW + iGap), iY, iTableW, iH)
+ 		self.drawTerritoryCountTable(aImprovementRows, self.TEXT_TERRITORY_IMPROVEMENTS, self.BFC_X_TABLE + 3 * (iTableW + iGap), iY, self.BFC_W_TABLE - 3 * (iTableW + iGap), iH)
+ 		self.drawTerritoryLegendLink()
+ 
+-	# <!-- custom: Territory uses compact BFC/Sub/Tot headers to fit four side-by-side tables, so keep the column meanings
+-	# in a Sevopedia legend link instead of expanding the headers. (GPT-5.5) -->
+ 	def drawTerritoryLegendLink(self):
+ 		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
+ 		iY = self.Y_TITLE
+@@ -529,8 +525,8 @@ class CvWorldAdvisorScreen:
+ 
+ 	def collectTerritoryData(self):
+ 		aiBFCPlots = self.getTerritoryBFCPlotSet()
+-		# Plot count slots: 0=Total 1=Land 2=Water 3=Peak 4=Hill 5=Flat 6=River 7=Lake 8=Coastal
+-		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
++		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
++		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+ 		aaiTerrainCounts = []
+ 		aaiFeatureCounts = []
+ 		aaiRouteCounts = []
+@@ -557,21 +553,20 @@ class CvWorldAdvisorScreen:
+ 					iBucket = 0
+ 				aiPlotCounts[0][iBucket] += 1
+ 				if pPlot.isWater():
+-					aiPlotCounts[2][iBucket] += 1
++					aiPlotCounts[1][iBucket] += 1
+ 					if pPlot.isLake():
+-						aiPlotCounts[7][iBucket] += 1
++						aiPlotCounts[6][iBucket] += 1
+ 				else:
+-					aiPlotCounts[1][iBucket] += 1
+ 					if pPlot.isPeak():
+-						aiPlotCounts[3][iBucket] += 1
++						aiPlotCounts[2][iBucket] += 1
+ 					elif pPlot.isHills():
+-						aiPlotCounts[4][iBucket] += 1
++						aiPlotCounts[3][iBucket] += 1
+ 					else:
+-						aiPlotCounts[5][iBucket] += 1
++						aiPlotCounts[4][iBucket] += 1
+ 					if pPlot.isCoastalLand():
+-						aiPlotCounts[8][iBucket] += 1
++						aiPlotCounts[7][iBucket] += 1
+ 				if pPlot.isRiverSide():
+-					aiPlotCounts[6][iBucket] += 1
++					aiPlotCounts[5][iBucket] += 1
+ 
+ 				iTerrain = pPlot.getTerrainType()
+ 				if iTerrain >= 0:
+@@ -589,23 +584,24 @@ class CvWorldAdvisorScreen:
+ 				if iImprovement >= 0:
+ 					aaiImprovementCounts[iImprovement][iBucket] += 1
+ 
+-		# <!-- custom: Note: Plots Total can't be auto-summed by drawTerritoryCountTable because Land/Water/Peak/... overlap (Peak is also Land, etc.) — the pre-built row stays. (Claude code Opus 4.7) -->
+ 		aPlotRows = [
+-			[self.TEXT_LAND, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
+-			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
+-			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
+-			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
+-			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
+-			[self.TEXT_RIVER, self.BUTTON_RIVER, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1]],
+-			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1]],
+-			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[8][0], aiPlotCounts[8][1]],
++			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
++			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
++			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
++			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
++			[self.TEXT_RIVER, self.BUTTON_RIVER, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
++			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1]],
++			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1]],
+ 			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1]],
+ 			]
+-		aTerrainFeatureRows = []
+-		for iTerrain in range(gc.getNumTerrainInfos()):
+-			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
++		# <!-- custom: Peak and Hill are plot-shape categories, not real terrain here: e.g. a Grassland Hill still has
++		# Grassland as getTerrainType(). Keep them in Plots, not Terrain. (GPT-5.5) -->
++		aTerrainRows = []
++		for iTerrain in self.getTerrainColumnsWithoutPlotShapes():
++			self.appendTerritoryInfoRow(aTerrainRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
++		aFeatureRows = []
+ 		for iFeature in range(gc.getNumFeatureInfos()):
+-			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
++			self.appendTerritoryInfoRow(aFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
+ 		aBonusRows = []
+ 		for iBonus in range(gc.getNumBonusInfos()):
+ 			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
+@@ -615,7 +611,14 @@ class CvWorldAdvisorScreen:
+ 			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
+ 		for iRoute in range(gc.getNumRouteInfos()):
+ 			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
+-		return aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows
++		return aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows
++
++	def getTerrainColumnsWithoutPlotShapes(self):
++		aiTerrainColumns = []
++		for iTerrain in range(gc.getNumTerrainInfos()):
++			if iTerrain != self.iTerrainPeak and iTerrain != self.iTerrainHill:
++				aiTerrainColumns.append(iTerrain)
++		return aiTerrainColumns
+ 
+ 	def getTerritoryBFCPlotSet(self):
+ 		aiBFCPlots = {}
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 9b233a366..f3ff84f41 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -138,7 +138,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND_PEDIA</Tag>
+-		<English>[H1]World Advisor Territory Legend[\H1][PARAGRAPH:2]The Territory tab counts plots and map assets owned by the selected player. It separates plots inside city big fat crosses from the rest of the player's owned land so empire-wide resources can be read without losing city-workable context.[NEWLINE][NEWLINE][ICON_BULLET]BFC: owned plots that are inside at least one selected-player city's big fat cross.[NEWLINE][ICON_BULLET]Sub: suburbs; owned plots outside all selected-player city big fat crosses. These plots are controlled territory, but no selected-player city can work them directly unless a city is founded, captured or culturally expanded differently later.[NEWLINE][ICON_BULLET]Tot: total owned plots or assets, equal to BFC plus Sub.[NEWLINE][NEWLINE]Some plot rows overlap because they describe different properties of the same plots. For example, a Peak is also Land, and a riverside Grassland is both River and Grassland. Therefore the Plots table's Total row is a real plot count, not the sum of every visible row.[NEWLINE][NEWLINE]The World Advisor respects normal map knowledge: hidden or unexplored plots and bonuses stay hidden unless debug mode is active. More entries can therefore appear as territory and city BFCs become fully explored, or when debug mode lets you inspect another player.[NEWLINE][NEWLINE]Hover over a row icon for the usual tooltip, or click it to open the corresponding Sevopedia entry when one exists.</English>
++		<English>[H1]World Advisor Territory Legend[\H1][PARAGRAPH:2]The Territory tab counts plots and map assets owned by the selected player.[NEWLINE][NEWLINE][ICON_BULLET]BFC: owned plots inside at least one selected-player city BFC.[NEWLINE][ICON_BULLET]Sub: suburbs; owned plots outside all selected-player city BFCs.[NEWLINE][ICON_BULLET]Tot: BFC plus Sub.[NEWLINE][NEWLINE]In Plots, Water, Peak, Hill and Flat partition all owned plots, so Total is their real plot count. River, Lake and Coastal overlap those rows; for example, a riverside Grassland Hill is both Hill and River. Terrain and Features are split because every plot has one terrain, while only some have a feature.[NEWLINE][NEWLINE]Hidden or unexplored plots and bonuses stay hidden unless debug mode is active. Hover row icons for tooltips, or click them to open Sevopedia entries when available.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 72ecb2a8c..3898d7eba 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3760,10 +3760,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_SHORT</Tag>
+ 		<English>BFC</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_LAND</Tag>
+-		<English>Land</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_WATER</Tag>
+ 		<English>Water</English>
+@@ -3797,8 +3793,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Plots</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES</Tag>
+-		<English>Map</English>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN</Tag>
++		<English>Terrain</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_FEATURES</Tag>
++		<English>Features</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES</Tag>
+
+diff --git a/Long_Comments/Long_Comments_py.txt b/Long_Comments/Long_Comments_py.txt
+index d988caeb8..0f502794f 100644
+--- a/Long_Comments/Long_Comments_py.txt
++++ b/Long_Comments/Long_Comments_py.txt
+@@ -939,4 +939,4 @@ v. 0.41
+ 	# We tried two alternatives and rejected both:
+ 	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
+ 	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
+-	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.
++	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant. (Claude code Opus 4.7; summarized GPT-5.5) -->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 902b5a45c..43c6ee9a5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -350,7 +350,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+-- (Requires AdvCiv-SAS 5718+) New **World Advisor**: shows **detailed BFC, suburbs, and territory geography** information as **sortable tables**. BFC tabs show **counts per city (rows) and per field (columns)**, and have a **click to enter city button** (similar to the Info Screen's Wonders tab). The BFC1 tab shows mostly **plot type** (Peak, Hill, Water, Land) and other information (**River, Lake, Coastal Land, sortable City found year and population**) and **Terrains/Features** information; the BFC2 tab shows mostly **Bonuses** and **Improvements** with other information (**Routes**). The Territory tab shows a **condensed summary** with 4 tables of the former BFC tabs, with a BFC, suburbs (i.e. plots outside BFC) and **Total counts (columns)** for each field (rows), with **hover support** and **pedia redirect on click** (if a corresponding pedia page exists), and a legend link. Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill can be on same plot). The **environment tab** is now part of the World advisor (better thematic fit).
++- (Requires AdvCiv-SAS 5718+) New **World Advisor**: shows **detailed BFC, suburbs, and territory geography** information as **sortable tables**. BFC tabs show **counts per city (rows) and per field (columns)**, and have a **click to enter city button** (similar to the Info Screen's Wonders tab). The BFC1 tab shows mostly **plot type** (Peak, Hill, Water, Land) and other information (**River, Lake, Coastal Land, sortable City found year and population**) and **Terrains/Features** information; the BFC2 tab shows mostly **Bonuses** and **Improvements** with other information (**Routes**). The Territory tab shows a **condensed count summary** with 4 tables of the former BFC tabs, with a BFC, suburbs (i.e. plots outside BFC), and **total columns** for each field (rows), **total fields (rows)** for each table, **hover support** and **pedia redirect on click** (if a corresponding pedia page exists), and a legend link. Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill). The **environment tab** is now part of the World advisor (better thematic fit).
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab). (Requires AdvCiv-SAS 5718+) **Removed** the **Improvements table** from the Statistics tab, because it was **inconsistent** with how Units and Buidings show all-time total **built**, Improvements would only show **current** possession (e.g., building a farm, replacing it with a cottage, then replacing it again with a farm would be Current 1 farm, not total built 2 farms), plus the World Advisor is a **better thematic fit**.
+ - Additionally, added in the **Info Screen** a new **Timeline Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Timeline Tab](/README.md#timeline-tab-in-the-info-screen-advisor).
+ - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), (Requires AdvCiv-SAS 5532+) Traits (T1 and T2) as **icon chars**, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M, Tech (total techs). Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+@@ -545,7 +545,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ## Leaders
+ 
+ - New leaders: **Ewuare**; **Grace O'Malley**, **Michael Collins**.
+-- (Requires AdvCiv-SAS 5685+): Add optional **leaderhead art per era** with the new `EraArtDefineTags` and `EraArtDefineTag` XML fields; e.g., Gandhi's appearance and button changing at Ancient, Classical, Medieval, etc. Currently only a few leaders have such per-era alternative art; the feature **is technically functional** but leaderhead era **art for each leader is added gradually**. Note: This is **per-player** not human-centered; e.g. even if the human player is at Medieval Era, if the rival Gandhi is still at Classical Era then Gandhi will use the Classical Era (if set). If none is set or disabled in SAS defines, the art defaults to the base `ArtDefineTag`. Note 2: due to a Civ4 limitation, if a leader (e.g., Gandhi) is used by several players (e.g., in Custom Game), only the first of these leaders' current era is used to select the art for all instances of that leader regardless of their own progress (e.g., if Gandhi 1 is at Medieval and Gandhi 2 and 3 are still at Classical, then Gandhi 2 and 3 will use Gandhi 1's Medieval art). See [README.md (EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art) and [KI#120](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players).
++- (Requires AdvCiv-SAS 5685+): Add optional **leaderhead art per era** with the new `EraArtDefineTags` and `EraArtDefineTag` XML fields; e.g., Gandhi's appearance and button changing at Ancient, Classical, Medieval, etc. The feature **is technically functional**, but **currently no leaderhead era art has been added**. Note: This is **per-player** not human-centered; e.g. even if the human player is at Medieval Era, if the rival Gandhi is still at Classical Era then Gandhi will use the Classical Era (if set). If none is set or disabled in SAS defines, the art defaults to the base `ArtDefineTag`. Note 2: due to a Civ4 limitation, if a leader (e.g., Gandhi) is used by several players (e.g., in Custom Game), only the first of these leaders' current era is used to select the art for all instances of that leader regardless of their own progress (e.g., if Gandhi 1 is at Medieval and Gandhi 2 and 3 are still at Classical, then Gandhi 2 and 3 will use Gandhi 1's Medieval art). See [README.md (EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art) and [KI#120](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players).
+ - Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer). Note: switched **De Gaulle** from Louis' music in Base AdvCiv to Base Civ4's Napoleon's music, and added an AdvCiv-SAS specific new music for Napoleon so each leader has its own specific music, see [KI#98](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon).
+ - **Trait overhaul:** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*; Charlemagne — Imperialistic + Protective → Aggressive + Organized *(although it is historically debatable, he emphasized conquest and administration; meshes with his more forceful Civ IV profile)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale in  [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework), or the values and rankings only in the new **Sevopedia Traits' Charts**. *Note: leader "flavors" unchanged.*
+ - Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (1).JPG
+index c101bfe8b..767aa0f28 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (1).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (2).JPG
+index b5c1eddd8..cc4f63521 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (2).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (3).JPG
+index 9a92903c9..01f892c1a 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (3).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=35632

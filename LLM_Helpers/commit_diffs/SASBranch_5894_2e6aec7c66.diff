@@ -1,0 +1,385 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5894
+# Commit: 2e6aec7c6616f7c517a743a7fe91d3433bac52c4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b35304c05b2d310f76a6a774051e4f030c8e757c
+# Title: Fix Sevopedia 3D audio previews via DLL reverse lookup - Sevopedia 3D sound previews, notably tested civilization Select/Order sounds, played fine from main...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_18_civs_DLL.dll
+25	3	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+42	0	CvGameCoreDLL/CyGlobalContext.cpp
+3	0	CvGameCoreDLL/CyGlobalContext.h
+3	0	CvGameCoreDLL/CyGlobalContextInterface1.cpp
+177	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_18_civs_DLL.dll b/Assets/CvGameCoreDLL_18_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index 4d6d02f8b..dba07e1c4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -11,6 +11,15 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++def _SAS_getAudio3DScriptName(iSoundId):
++	# <!-- custom: The fix is only for Sevopedia's media player. The observed problem was that civilization Select/Order sounds previewed correctly from the main menu, but after entering a game the same Sevopedia previews became much quieter; returning to the main menu did not fix them, and the game had to be restarted.
++	# For 3D sounds, iSoundId is a 3D script index, not a normal 2D/general sound ID. CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0) plays the right 3D script but very quietly, while CyInterface().playGeneralSoundByID(iSoundId) plays the wrong sound because that ID belongs to a different audio namespace. Resolving the ID back to the script name, e.g. AS3D_AMERICA_SELECT, and calling CyInterface().playGeneralSound("AS3D_AMERICA_SELECT") fixed the volume.
++	# AdvCiv-SAS DLL exposes gc.getAudio3DScriptName(iSoundId), which caches Audio3DScripts.xml once in the DLL and returns the AS3D_... script name for any 3D script ID. If the helper is unavailable or returns empty, playSound falls back to the old quiet 3D path. See KI#141. (GPT-5.5?) -->
++	try:
++		return gc.getAudio3DScriptName(iSoundId)
++	except:
++		return ""
++
+ class SevoPediaMediaPlayer:
+ 
+ 	def __init__(self, screenId, screenEnum, exitId, clickPrefix):
+@@ -365,15 +374,28 @@ class SevoPediaMediaPlayer:
+ 		try:
+ 			if iSoundId != -1:
+ 				if bForce3D:
++					sz3DScript = _SAS_getAudio3DScriptName(iSoundId)
++					if sz3DScript:
++						CyInterface().playGeneralSound(sz3DScript)
++						# <!-- custom: playGeneralSound does not return a CyAudioGame sound handle, and the script has already been played.
++						# Return here so the generic fallback below does not replay szSoundScript / retry another audio path. See also KI#141. (GPT-5.5-Thinking + GPT-5.5?) -->
++						self.soundId = None
++						self.is3DSound = False
++						return
+ 					self.soundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
+ 					self.is3DSound = True
++					return
+ 				else:
+ 					self.soundId = CyAudioGame().Play2DSoundWithId(iSoundId)
+ 			else:
+ 				if szSoundScript.startswith("AS3D_"):
+-					# 3D scripts need Play3DSound
+-					self.soundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
+-					self.is3DSound = True
++					# self.soundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
++					# self.is3DSound = True
++					CyInterface().playGeneralSound(szSoundScript)
++					self.soundId = None
++					# <!-- custom: AS3D_ script-name playback is complete here; do not fall through to the generic fallback or it can play the same script twice. See also KI#141. (GPT-5.5-Thinking + GPT-5.5?) -->
++					self.is3DSound = False
++					return
+ 				else:
+ 					self.soundId = CyAudioGame().Play2DSound(szSoundScript)
+ 		except:
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 1529fe435..57054da42 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -12,6 +12,9 @@
+ #include "CyMap.h"
+ #include "CyTeam.h"
+ #include "CyArtFileMgr.h"
++// <!-- custom: begin - getAudio3DScriptName uses FXml/CvDLLXmlIFaceBase to build the 3D audio script reverse lookup for Sevopedia previews. See KI#141. (GPT-5.5?) -->
++#include "CvDLLXMLIFaceBase.h"
++// <!-- custom: end - See KI#141. (GPT-5.5?) -->
+ 
+ CyGlobalContext::CyGlobalContext() :
+ 	kGlobals(CvGlobals::getInstance()) // advc.003t
+@@ -411,6 +414,45 @@ int CyGlobalContext::getTypesEnum(const char* szType) const
+ 	return GC.getTypesEnum(szType, /* advc.006: */ false, true);
+ }
+ 
++// <!-- custom: begin - Python can receive 3D audio script IDs, but older exposed APIs had no reverse lookup.
++// Cache Audio3DScripts.xml once so Python can resolve any 3D script ID back to AS3D_... and play Sevopedia previews
++// through CyInterface().playGeneralSound at normal volume. See KI#141. (GPT-5.5?) -->
++const char* CyGlobalContext::getAudio3DScriptName(int iScriptId) const
++{
++	static std::vector<CvString> aszAudio3DScripts;
++	static bool bLoaded = false;
++	static CvString szEmpty;
++	if (!bLoaded)
++	{
++		bLoaded = true;
++		FXml* pXml = gDLL->getXMLIFace()->CreateFXml();
++		CvString szPath = "XML\\Audio\\Audio3DScripts.xml";
++		if (!gDLL->fileManagerEnabled())
++			szPath = "Assets//" + szPath;
++		if (pXml != NULL && gDLL->getXMLIFace()->LoadXml(pXml, szPath))
++		{
++			if (gDLL->getXMLIFace()->LocateNode(pXml, "Script3DSounds") && gDLL->getXMLIFace()->SetToChild(pXml))
++			{
++				do
++				{
++					CvString szScriptId;
++					if (gDLL->getXMLIFace()->SetToChildByTagName(pXml, "ScriptID"))
++					{
++						gDLL->getXMLIFace()->GetLastNodeValue(pXml, szScriptId);
++						gDLL->getXMLIFace()->SetToParent(pXml);
++					}
++					aszAudio3DScripts.push_back(szScriptId);
++				} while (gDLL->getXMLIFace()->NextSibling(pXml));
++			}
++		}
++		if (pXml != NULL)
++			gDLL->getXMLIFace()->DestroyFXml(pXml);
++	}
++	if (iScriptId < 0 || iScriptId >= (int)aszAudio3DScripts.size())
++		return szEmpty.c_str();
++	return aszAudio3DScripts[iScriptId].c_str();
++}
++// <!-- custom: end - See KI#141. (GPT-5.5?) -->
+ 
+ CvPlayerColorInfo* CyGlobalContext::getPlayerColorInfo(int i) const
+ {
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.h b/CvGameCoreDLL/CyGlobalContext.h
+index 78335a022..76dfd2018 100644
+--- a/CvGameCoreDLL/CyGlobalContext.h
++++ b/CvGameCoreDLL/CyGlobalContext.h
+@@ -97,6 +97,9 @@ public:
+ 
+ 	int getInfoTypeForString(const char* szInfoType) const;
+ 	int getTypesEnum(const char* szType) const;
++	// <!-- custom: begin - expose 3D audio script ID -> AS3D_... reverse lookup to Python for Sevopedia media previews. See KI#141. (GPT-5.5?) -->
++	const char* getAudio3DScriptName(int iScriptId) const;
++	// <!-- custom: end - See KI#141. (GPT-5.5?) -->
+ 
+ 	int getNumPlayerColorInfos() const { return kGlobals.getNumPlayerColorInfos(); }
+ 	CvPlayerColorInfo* getPlayerColorInfo(int i) const;
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface1.cpp b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+index 8f68e6270..3bb59cbca 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface1.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+@@ -23,6 +23,9 @@ void CyGlobalContextPythonInterface1(python::class_<CyGlobalContext>& x)
+ 		.def("getActivePlayer", &CyGlobalContext::getCyActivePlayer, python::return_value_policy<python::reference_existing_object>(), "() - active player instance")
+ 		.def("getASyncRand", &CyGlobalContext::getCyASyncRand, python::return_value_policy<python::reference_existing_object>(), "Non-Synch'd random #")
+ 		.def("getTeam", &CyGlobalContext::getCyTeam, python::return_value_policy<python::reference_existing_object>(), "(iTeam) - iTeam instance")
++		// <!-- custom: begin - expose getAudio3DScriptName so Python can play 3D audio previews by script name instead of quiet positional playback. See KI#141. (GPT-5.5?) -->
++		.def("getAudio3DScriptName", &CyGlobalContext::getAudio3DScriptName, "string (int iScriptId)")
++		// <!-- custom: end - See KI#141. (GPT-5.5?) -->
+ 		// <kekm.27>
+ 		.def("isLogging", &CyGlobalContext::isLogging, "bool () - returns true iff logging is enabled in the INI")
+ 		.def("isRandLogging", &CyGlobalContext::isRandLogging, "bool () - returns true iff rand logging (MPLog) is enabled in the INI")
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 9fc48c0aa..91d51e2f7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -176,6 +176,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [138 - (Fixed) Base AdvCiv issue: Global Highlands map sizes were too large](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#138---fixed-base-advciv-issue-global-highlands-map-sizes-were-too-large)  
+ [139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#139---fixed-base-advciv-issue-foreign-advisor-bug-menu-made-glance-attitude-dropdown-look-attached-to-enhanced-info-tab)  
+ [140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells)  
++[141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5089,3 +5090,179 @@ Fix applied:
+ File changed:
+ 
+ - [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
++
++## 141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19fxsbguuB2uZBY9rfeiXfcSzSaPN591z?usp=sharing).
++
++Observed issue:
++
++- Sevopedia Media Player civilization Select/Order sounds previewed correctly from the main menu.
++- After entering a game, the same Sevopedia previews became much quieter.
++- Returning to the main menu did not fix the volume; restarting the game was required.
++- Normal in-game unit/civilization select/order sounds were not tested but are believed to have been working before, so this was treated as a Sevopedia preview problem rather than a gameplay sound problem.
++
++Investigation:
++
++- `CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)` (original implementation before the fix) played the right 3D script, but very quietly.
++- `CyInterface().playGeneralSoundByID(iSoundId)` played sound at the right volume ingame (loud enough), but it was the wrong sound because 3D script IDs are not the same namespace as general/2D sound IDs.
++- `CyInterface().playGeneralSound("AS3D_...")` played the right sound at normal volume when given the actual script string. The problem was that the Sevopedia civilization Select/Order entries only had the integer 3D script ID from APIs such as `getSelectionSoundScriptId()` / `getActionSoundScriptId()`. Calling `CyInterface().playGeneralSoundByID(iSoundId)` with that integer did not work because it interpreted the same number in the general/2D sound namespace and therefore played the wrong sound.
++
++Fix applied:
++
++- Initial implementation: python-only solution:
++
++```python
++from _sevopedia_main_groupings import _SAS_findAssetXmlPath, _SAS_extractTagValue
++
++SAS_AUDIO_3D_SCRIPTS_BY_ID = None
++
++def _SAS_getAudio3DScriptsById():
++	global SAS_AUDIO_3D_SCRIPTS_BY_ID
++	if SAS_AUDIO_3D_SCRIPTS_BY_ID is not None:
++		return SAS_AUDIO_3D_SCRIPTS_BY_ID
++	SAS_AUDIO_3D_SCRIPTS_BY_ID = {}
++	szScript = None
++	iScriptId = 0
++	szAudio3DPath = _SAS_findAssetXmlPath("Audio3DScripts.xml", "XML\\Audio")
++	try:
++		f3 = open(szAudio3DPath, "r")
++		for line in f3:
++			if "<ScriptID>" in line:
++				szScript = _SAS_extractTagValue(line, "ScriptID")
++			elif "</Script3DSound>" in line:
++				if szScript:
++					SAS_AUDIO_3D_SCRIPTS_BY_ID[iScriptId] = szScript
++				iScriptId += 1
++				szScript = None
++		f3.close()
++	except:
++		SAS_AUDIO_3D_SCRIPTS_BY_ID = {}
++	return SAS_AUDIO_3D_SCRIPTS_BY_ID
++```
++
++The Python-only implementation rebuilt the missing reverse lookup from `Audio3DScripts.xml`: first `Script3DSound` entry became ID `0`, second became ID `1`, and so on. This matched the 3D script IDs returned by the existing Python APIs, so Sevopedia could resolve `iSoundId -> AS3D_...` and then call `CyInterface().playGeneralSound(sz3DScript)`. The `playSound` method was changed from this:
++
++```python
++	def playSound(self, szSoundScript, iSoundId, bForce3D):
++		self.soundId = None
++		self.is3DSound = False
++
++		if (not szSoundScript) and iSoundId == -1:
++			return
++
++		try:
++			if iSoundId != -1:
++				if bForce3D:
++					self.soundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
++					self.is3DSound = True
++				else:
++					self.soundId = CyAudioGame().Play2DSoundWithId(iSoundId)
++			else:
++				if szSoundScript.startswith("AS3D_"):
++					# 3D scripts need Play3DSound
++					self.soundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
++					self.is3DSound = True
++				else:
++					self.soundId = CyAudioGame().Play2DSound(szSoundScript)
++		except:
++			self.soundId = None
++
++		if self.soundId is None or self.soundId == -1:
++			if szSoundScript:
++				CyInterface().playGeneralSound(szSoundScript)
++			self.soundId = None
++			self.is3DSound = False
++```
++
++to this:
++
++```python
++	def playSound(self, szSoundScript, iSoundId, bForce3D):
++		self.soundId = None
++		self.is3DSound = False
++
++		if (not szSoundScript) and iSoundId == -1:
++			return
++
++		try:
++			if iSoundId != -1:
++				if bForce3D:
++					# self.soundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
++					# self.is3DSound = True
++					# <!-- custom: The fix is only for Sevopedia's media player. The observed problem was that civilization Select/Order sounds previewed correctly from the main menu, but after entering a game the same Sevopedia previews became much quieter; returning to the main menu did not fix them, and the game had to be restarted. What the fix does:
++					#
++					# Some Sevopedia music entries store iSoundId, which for 3D sounds is a 3D script index, not a normal 2D/general sound ID.
++					# Calling CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0) plays the right 3D script but very quietly.
++					# Calling CyInterface().playGeneralSoundByID(iSoundId) played the wrong sound, because that ID belongs to a different audio namespace.
++					# So the code maps iSoundId back to the actual script name, e.g. AS3D_AMERICA_SELECT.
++					# Then it calls CyInterface().playGeneralSound("AS3D_AMERICA_SELECT"), which plays the right sound at good volume.
++					# Why parse XML again?
++					#
++					# Because Python gets only the integer from civInfo.getSelectionSoundScriptId() / getActionSoundScriptId(). It does not expose the original XML string AS3D_AMERICA_SELECT.
++					#
++					# The DLL knows the mapping internally because XML loading did:
++					#
++					# gDLL->getAudioTagIndex("AS3D_AMERICA_SELECT", AUDIOTAG_3DSCRIPT)
++					# but Python only receives the resulting index. The current Python API does not expose a reverse lookup like:
++					#
++					# gc.getAudio3DScriptName(iSoundId)
++					# A DLL helper could be added, but for this Sevopedia-only fix it would need extra DLL work for the same
++					# reverse-map purpose. So we rebuild that reverse lookup from Audio3DScripts.xml:
++					#
++					# 0 -> AS3D_...
++					# 1 -> AS3D_...
++					# ...
++					# iSoundId -> AS3D_AMERICA_SELECT
++					# We cache it in SAS_AUDIO_3D_SCRIPTS_BY_ID, so XML is parsed only once per Python session, not every playback.
++					#
++					# In short: we parse XML because Python knows the ID but not the script string, and the string is the only form that plays correctly through CyInterface().playGeneralSound(...). (GPT-5.5?) -->
++					sz3DScript = _SAS_getAudio3DScriptsById().get(iSoundId, "")
++					if sz3DScript:
++						CyInterface().playGeneralSound(sz3DScript)
++					else:
++						self.soundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
++						self.is3DSound = True
++						return
++					self.soundId = None
++				else:
++					self.soundId = CyAudioGame().Play2DSoundWithId(iSoundId)
++			else:
++				if szSoundScript.startswith("AS3D_"):
++					# self.soundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
++					# self.is3DSound = True
++					CyInterface().playGeneralSound(szSoundScript)
++					self.soundId = None
++				else:
++					self.soundId = CyAudioGame().Play2DSound(szSoundScript)
++		except:
++			self.soundId = None
++
++		if self.soundId is None or self.soundId == -1:
++			if szSoundScript:
++				CyInterface().playGeneralSound(szSoundScript)
++			self.soundId = None
++			self.is3DSound = False
++```
++
++Works, but not preferred because:
++
++- It made Sevopedia parse audio XML to recover data that conceptually belongs to the DLL/audio-loading layer.
++- It was less reusable: any other Python code with a 3D script ID would need to copy or import the same helper.
++- It duplicated the same reverse-map purpose that the DLL can expose once as a general API.
++- A C++ implementation may also possibly be better than a Python-only implementation in terms of performance.
++
++Final solution:
++
++- Added DLL/Python API `gc.getAudio3DScriptName(iSoundId)` to resolve any 3D audio script ID back to its `AS3D_...` script name.
++- The DLL caches `Audio3DScripts.xml` once and exposes the reverse lookup to Python.
++- Sevopedia uses the script name with `CyInterface().playGeneralSound(...)` for 3D previews and falls back to the old 3D playback path only if the helper is unavailable or returns empty.
++
++Note: untested, but as a side-effect might have also fixed some 3D sounds not playing correctly that now seemingly do (would need to check).
++
++Files changed:
++
++- [CvGameCoreDLL/CyGlobalContext.cpp](/CvGameCoreDLL/CyGlobalContext.cpp)
++- [CvGameCoreDLL/CyGlobalContext.h](/CvGameCoreDLL/CyGlobalContext.h)
++- [CvGameCoreDLL/CyGlobalContextInterface1.cpp](/CvGameCoreDLL/CyGlobalContextInterface1.cpp)
++- [Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 61c9487b8..f59033dff 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -330,7 +330,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. Also added **analysis rows** (e.g., `Summary 08 (40%)` with `T200=+1400 (120)`; `Increments Years 02` with `750, 500, 250`; `Increments Months 02` with `9000, 6000, 3000`). See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
++- New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player). (Requires AdvCiv-SAS 5894+) See also [KI#141](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, **Corporations** (if any; as of now in base AdvCiv there are none), and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared across all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **text color**, **background**, and **panel styles**, with `+` and `-` button to swap them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`,  `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=6 omittedFiles=2 embeddedPatchBytes=23903

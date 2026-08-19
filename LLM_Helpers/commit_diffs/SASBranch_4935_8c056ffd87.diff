@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4935
+# Commit: 8c056ffd877f29d7c1bb29f9f4711be0cbf11f78
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 56bd62671a75a75513b26f1e726e595a7a14c204
+# Title: fix menus by undoing my fake as in faulty assumpted whatever that means xd assumption but anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index ce187cb01..a83a5b108 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -6,6 +6,25 @@ This is a non-exhaustive page containing some ressources i found helpful.
+ 
+ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc ; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short) but i d as i want too heheif i may say hopefully helpful or not or yes or etc but anyways etc
+ 
++Note: do not remove the 2 spaces at the end of the link, or do so at your own risk xd (is as you want though i mean if i may say in this case i mean but anyways etc) i have warned you xd if i may say but anyways etc.
++
++<details>
++<summary>Spoiler: if you want to know why xd click here but anyways etc</summary>
++
++Nothing bad or dramatic would happen, but text will become like this
++[myLink1](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
++[myLink2](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
++[myLink3](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
++etc.
++
++Instead of:
++
++[myLink1](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)  
++[myLink2](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)  
++[myLink3](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)  
++</details>
++<br>
++
+ [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-disclaimer-and-general-information)  
+ 
+ [A few useful tips](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-tips)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2566

@@ -1,0 +1,520 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2677
+# Commit: baded464a01cefe9efb720e3f73e653d34696768
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 96c6996a71eeef103f2a7895347afad913a09d53
+# Title: Mostly whitespace, comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	10	CvGameCoreDLL/CvGameCoreUtils.h
+94	39	CvGameCoreDLL/CvGameTextMgr.cpp
+9	8	CvGameCoreDLL/CvPlayerAI.cpp
+1	2	CvGameCoreDLL/CvTeam.cpp
+6	6	CvGameCoreDLL/CvTeamAI.cpp
+32	23	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 769383b9f..5044a71aa 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -150,10 +150,11 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
+ 	std::set<T> aeTmp(v.begin(), v.end());
+ 	v.assign(aeTmp.begin(), aeTmp.end());
+ } // </advc.130h>
++
+ // <advc>
+-// Erik: "Back-ported" from C++11
+ namespace std11
+ {
++// Erik: "Back-ported" from C++11
+ template<class ForwardIt, class T>
+ void iota(ForwardIt first, ForwardIt last, T value)
+ {
+@@ -172,7 +173,7 @@ void narrowUnsafe(CvWString const& szWideString, CvString& szNarowString); // ad
+ 
+ inline int range(int iNum, int iLow, int iHigh)
+ {
+-	FAssertMsg(iHigh >= iLow, "High should be higher than low");
++	FAssert(iHigh >= iLow);
+ 
+ 	if (iNum < iLow)
+ 		return iLow;
+@@ -183,7 +184,7 @@ inline int range(int iNum, int iLow, int iHigh)
+ 
+ inline float range(float fNum, float fLow, float fHigh)
+ {
+-	FAssertMsg(fHigh >= fLow, "High should be higher than low");
++	FAssert(fHigh >= fLow);
+ 
+ 	if (fNum < fLow)
+ 		return fLow;
+@@ -192,8 +193,7 @@ inline float range(float fNum, float fLow, float fHigh)
+ 	else return fNum;
+ }
+ 
+-/*  <advc.003g> Don't want to work with float in places where memory usage isn't a
+-	concern. */
++// advc.003g:
+ inline double dRange(double d, double low, double high)
+ {
+ 	if(d < low)
+@@ -201,16 +201,15 @@ inline double dRange(double d, double low, double high)
+ 	if(d > high)
+ 		return high;
+ 	return d;
+-} // </advc.003g>
++}
+ 
+-// advc: Body cut from CvUnitAI::AI_sacrificeValue. (K-Mod had used long -> int.)
++// advc: Body cut from CvUnitAI::AI_sacrificeValue
+ inline int longLongToInt(long long x)
+ {
+ 	FAssert(x <= MAX_INT && x >= MIN_INT);
+ 	//return std::min((long)MAX_INT, iValue); // K-Mod
+-	/*  Erik (BUG1): We cannot change the signature [of AI_sacrificeValue] due to
+-		the virtual specifier so we have to truncate the final value to an int. */
+-	/*	Igor: if iValue is greater than MAX_INT, std::min<long long> ensures that it is truncated to MAX_INT, which makes sense logically.
++	/*	Igor: if iValue is greater than MAX_INT, std::min<long long> ensures that
++		it is truncated to MAX_INT, which makes sense logically.
+ 		static_cast<int>(iValue) doesn't guarantee that and the resulting value is implementation-defined. */
+ 	//return static_cast<int>(std::min(static_cast<long long>(MAX_INT), x));
+ 	/*  advc: Can't use std::min as above here, probably b/c of a conflicting definition
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 17e179892..99d71b1df 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6057,23 +6057,28 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 	if (kPlot.isOwned())
+ 	{
+ 		CvPlayerAI const& kOwner = GET_PLAYER(kPlot.getOwner()); // advc
+-		szTempBuffer.Format(L"\nThis player has %d area cities", kPlot.getArea().getCitiesPerPlayer(kOwner.getID()));
++		szTempBuffer.Format(L"\nThis player has %d area cities",
++				kPlot.getArea().getCitiesPerPlayer(kOwner.getID()));
+ 		szString.append(szTempBuffer);
+-		for (int iI = 0; iI < GC.getNumReligionInfos(); ++iI)
++		FOR_EACH_ENUM(Religion)
+ 		{
+-			int iNeededMissionaries = kOwner.AI_neededMissionaries(kPlot.getArea(), (ReligionTypes)iI);
++			int iNeededMissionaries = kOwner.AI_neededMissionaries(
++					kPlot.getArea(), eLoopReligion);
+ 			if (iNeededMissionaries > 0)
+ 			{
+-				szTempBuffer.Format(L"\nNeeded %c missionaries = %d", GC.getInfo((ReligionTypes)iI).getChar(), iNeededMissionaries);
++				szTempBuffer.Format(L"\nNeeded %c missionaries = %d",
++						GC.getInfo(eLoopReligion).getChar(), iNeededMissionaries);
+ 				szString.append(szTempBuffer);
+ 			}
+ 		}
+ 
+-		int iOurDefense = kOwner.AI_localDefenceStrength(&kPlot, kPlot.getTeam(), DOMAIN_LAND, 0, true, false, true);
++		int iOurDefense = kOwner.AI_localDefenceStrength(&kPlot, kPlot.getTeam(), DOMAIN_LAND, 0,
++				true, false, true);
+ 		int iEnemyOffense = kOwner.AI_localAttackStrength(&kPlot, NO_TEAM);
+ 		if (iEnemyOffense > 0)
+ 		{
+-			szString.append(CvWString::format(SETCOLR L"\nDanger: %.2f (%d/%d)" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
++			szString.append(CvWString::format(SETCOLR L"\nDanger: %.2f (%d/%d)" ENDCOLR,
++				TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
+ 				(iEnemyOffense * 1.0f) / std::max(1, iOurDefense), iEnemyOffense, iOurDefense));
+ 		}
+ 
+@@ -6083,7 +6088,8 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 			/* szTempBuffer.Format(L"\n\nCulture Pressure Value = %d (%d)", pCity->AI_calculateCulturePressure(), pCity->culturePressureFactor());
+ 			szString.append(szTempBuffer); */
+ 
+-			szTempBuffer.Format(L"\nWater World Percent = %d", pCity->AI_calculateWaterWorldPercent());
++			szTempBuffer.Format(L"\nWater World Percent = %d",
++					pCity->AI_calculateWaterWorldPercent());
+ 			szString.append(szTempBuffer);
+ 
+ 			CvPlayerAI& kCityOwner = GET_PLAYER(pCity->getOwner());
+@@ -6094,24 +6100,31 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 			// K-Mod
+ 			int iBuildUnitProb = pCity->AI_buildUnitProb(); // advc (cast)
+ 			szString.append(CvWString::format(L"\nUnit Cost: %d (max: %d)",
+-					kCityOwner.AI_unitCostPerMil(), kCityOwner.AI_maxUnitCostPerMil(pCity->area(), iBuildUnitProb)));
++					kCityOwner.AI_unitCostPerMil(),
++					kCityOwner.AI_maxUnitCostPerMil(pCity->area(), iBuildUnitProb)));
+ 			// K-Mod end
+ 
+-			szString.append(CvWString::format(L"\nUpgrade all units: %d gold", kCityOwner.AI_getGoldToUpgradeAllUnits()));
++			szString.append(CvWString::format(L"\nUpgrade all units: %d gold",
++					kCityOwner.AI_getGoldToUpgradeAllUnits()));
+ 			// K-Mod
+ 			{
+ 				int iValue = 0;
+-				for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-					iValue += kCityOwner.getCommerceRate((CommerceTypes)iI) * kCityOwner.AI_commerceWeight((CommerceTypes)iI)/100;
++				FOR_EACH_ENUM(Commerce)
++				{
++					iValue += (kCityOwner.getCommerceRate(eLoopCommerce) *
++							kCityOwner.AI_commerceWeight(eLoopCommerce)) / 100;
++				}
+ 				FOR_EACH_CITY(pLoopCity, kCityOwner)
+ 					iValue += 2*pLoopCity->getYieldRate(YIELD_PRODUCTION);
+ 				iValue /= kCityOwner.getTotalPopulation();
+ 				szString.append(CvWString::format(L"\nAverage citizen value: %d", iValue));
+ 
+ 				//
+-				szString.append(CvWString::format(L"\nBuild unit prob: %d%%", iBuildUnitProb));
+-				BuildingTypes eBestBuilding = pCity->AI_bestBuildingThreshold(0, 0, 0, true); // advc (cast)
+-				int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : pCity->AI_buildingValue(eBestBuilding, 0, 0, true);
++				szString.append(CvWString::format(L"\nBuild unit prob: %d%%",
++						iBuildUnitProb));
++				BuildingTypes eBestBuilding = pCity->AI_bestBuildingThreshold(0, 0, 0, true);
++				int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 :
++						pCity->AI_buildingValue(eBestBuilding, 0, 0, true);
+ 
+ 				// Note. cf. adjustments made in AI_chooseProduction
+ 				if (GC.getNumEraInfos() > 1)
+@@ -6139,15 +6152,25 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 			// K-Mod end
+ 
+ 			szString.append(CvWString::format(L"\n\nRanks:"));
+-			szString.append(CvWString::format(L"\nPopulation:%d", pCity->findPopulationRank()));
+-
+-			szString.append(CvWString::format(L"\nFood:%d(%d), ", pCity->findYieldRateRank(YIELD_FOOD), pCity->findBaseYieldRateRank(YIELD_FOOD)));
+-			szString.append(CvWString::format(L"Prod:%d(%d), ", pCity->findYieldRateRank(YIELD_PRODUCTION), pCity->findBaseYieldRateRank(YIELD_PRODUCTION)));
+-			szString.append(CvWString::format(L"Commerce:%d(%d)", pCity->findYieldRateRank(YIELD_COMMERCE), pCity->findBaseYieldRateRank(YIELD_COMMERCE)));
+-
+-			szString.append(CvWString::format(L"\nGold:%d, ", pCity->findCommerceRateRank(COMMERCE_GOLD)));
+-			szString.append(CvWString::format(L"Research:%d, ", pCity->findCommerceRateRank(COMMERCE_RESEARCH)));
+-			szString.append(CvWString::format(L"Culture:%d", pCity->findCommerceRateRank(COMMERCE_CULTURE)));
++			szString.append(CvWString::format(L"\nPopulation:%d",
++					pCity->findPopulationRank()));
++
++			szString.append(CvWString::format(L"\nFood:%d(%d), ",
++					pCity->findYieldRateRank(YIELD_FOOD),
++					pCity->findBaseYieldRateRank(YIELD_FOOD)));
++			szString.append(CvWString::format(L"Prod:%d(%d), ",
++					pCity->findYieldRateRank(YIELD_PRODUCTION),
++					pCity->findBaseYieldRateRank(YIELD_PRODUCTION)));
++			szString.append(CvWString::format(L"Commerce:%d(%d)",
++					pCity->findYieldRateRank(YIELD_COMMERCE),
++					pCity->findBaseYieldRateRank(YIELD_COMMERCE)));
++
++			szString.append(CvWString::format(L"\nGold:%d, ",
++					pCity->findCommerceRateRank(COMMERCE_GOLD)));
++			szString.append(CvWString::format(L"Research:%d, ",
++					pCity->findCommerceRateRank(COMMERCE_RESEARCH)));
++			szString.append(CvWString::format(L"Culture:%d",
++					pCity->findCommerceRateRank(COMMERCE_CULTURE)));
+ 		}
+ 		szString.append(NEWLINE);
+ 
+@@ -6263,7 +6286,9 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 
+ 		szString.append(szTempBuffer);
+ 		CvTeamAI const& kPlotTeam = GET_TEAM(kPlot.getTeam()); // advc
+-		szString.append(CvWString::format(L"\n\nNum Wars: %d + %d minor", kPlotTeam.getNumWars(), kPlotTeam.getNumWars(false) - kPlotTeam.getNumWars()));
++		szString.append(CvWString::format(L"\n\nNum Wars: %d + %d minor",
++				kPlotTeam.getNumWars(),
++				kPlotTeam.getNumWars(false) - kPlotTeam.getNumWars()));
+ 		szString.append(CvWString::format(L"\nWarplans:"));
+ 		for (int iK = 0; iK < MAX_TEAMS; ++iK)
+ 		{
+@@ -6273,24 +6298,41 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 			{
+ 				WarPlanTypes eWarPlan = kPlotTeam.AI_getWarPlan(eTeam);
+ 				switch(eWarPlan) { // advc: if-else replaced with switch
+-				case WARPLAN_ATTACKED: szString.append(CvWString::format(L"\n%s: ATTACKED", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_ATTACKED:
++					szString.append(CvWString::format(L"\n%s: ATTACKED",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+-				case WARPLAN_ATTACKED_RECENT: szString.append(CvWString::format(L"\n%s: ATTACKED_RECENT", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_ATTACKED_RECENT:
++					szString.append(CvWString::format(L"\n%s: ATTACKED_RECENT",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+-				case WARPLAN_PREPARING_LIMITED: szString.append(CvWString::format(L"\n%s: PREP_LIM", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_PREPARING_LIMITED:
++					szString.append(CvWString::format(L"\n%s: PREP_LIM",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+-				case WARPLAN_PREPARING_TOTAL: szString.append(CvWString::format(L"\n%s: PREP_TOTAL", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_PREPARING_TOTAL:
++					szString.append(CvWString::format(L"\n%s: PREP_TOTAL",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+-				case WARPLAN_LIMITED: szString.append(CvWString::format(L"\n%s: LIMITED", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_LIMITED:
++					szString.append(CvWString::format(L"\n%s: LIMITED",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+-				case WARPLAN_TOTAL: szString.append(CvWString::format(L"\n%s: TOTAL", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_TOTAL:
++					szString.append(CvWString::format(L"\n%s: TOTAL",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+-				case WARPLAN_DOGPILE: szString.append(CvWString::format(L"\n%s: DOGPILE", GET_TEAM(eTeam).getName().c_str()));
++				case WARPLAN_DOGPILE:
++					szString.append(CvWString::format(L"\n%s: DOGPILE",
++							GET_TEAM(eTeam).getName().c_str()));
+ 					break;
+ 				default:
+ 					if (kPlotTeam.isAtWar(eTeam))
+ 					{
+-						szString.append(CvWString::format(SETCOLR L"\n%s: NO_WARPLAN!" ENDCOLR, TEXT_COLOR("COLOR_WARNING_TEXT"), GET_TEAM(eTeam).getName().c_str()));
++						szString.append(CvWString::format(
++								SETCOLR L"\n%s: NO_WARPLAN!" ENDCOLR,
++								TEXT_COLOR("COLOR_WARNING_TEXT"),
++								GET_TEAM(eTeam).getName().c_str()));
+ 					}
+ 				}
+ 			}
+@@ -6299,7 +6341,10 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 			{
+ 				if (kPlot.getTeam() != eTeam && !kPlotTeam.isAtWar(eTeam))
+ 				{
+-					szString.append(CvWString::format(SETCOLR L"\n%s: minor/barb not at war!" ENDCOLR, TEXT_COLOR("COLOR_WARNING_TEXT"), GET_TEAM(eTeam).getName().c_str()));
++					szString.append(CvWString::format(
++							SETCOLR L"\n%s: minor/barb not at war!" ENDCOLR,
++							TEXT_COLOR("COLOR_WARNING_TEXT"),
++							GET_TEAM(eTeam).getName().c_str()));
+ 				}
+ 			}
+ 		}
+@@ -6307,7 +6352,8 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 		CvCity const* pTargetCity = kPlot.getArea().AI_getTargetCity(kPlot.getOwner());
+ 		if (pTargetCity != NULL)
+ 		{
+-			szString.append(CvWString::format(L"\nTarget City: %s", pTargetCity->getName().c_str()));
++			szString.append(CvWString::format(L"\nTarget City: %s",
++					pTargetCity->getName().c_str()));
+ 		}
+ 		else szString.append(CvWString::format(L"\nTarget City: None"));
+ 		// BETTER_BTS_AI_MOD: END
+@@ -6340,20 +6386,27 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 					//=kPlayer.AI_foundValue(x, y, -1, true);
+ 			int iBestAreaFoundValue = kPlot.getArea().getBestFoundValue(ePlayer);
+ 			int iCitySiteBestValue=-1;
+-			int iNumAreaCitySites = kLoopPlayer.AI_getNumAreaCitySites(kPlot.getArea(), iCitySiteBestValue);
++			int iNumAreaCitySites = kLoopPlayer.AI_getNumAreaCitySites(
++					kPlot.getArea(), iCitySiteBestValue);
+ 
+ 			if (iActualFoundValue > 0 || iCalcFoundValue > 0 || iStartingFoundValue > 0 ||
+ 				(kPlot.getOwner() == iI && iBestAreaFoundValue > 0))
+ 			{
+ 				if (bFirst)
+ 				{
+-					szString.append(CvWString::format(SETCOLR L"\nFound Values:" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT")));
++					szString.append(CvWString::format(
++							SETCOLR L"\nFound Values:" ENDCOLR,
++							TEXT_COLOR("COLOR_UNIT_TEXT")));
+ 					bFirst = false;
+ 				}
+ 
+ 				szString.append(NEWLINE);
+ 
+-				szString.append(CvWString::format(SETCOLR, TEXT_COLOR(bRevealed ? (((iActualFoundValue > 0) && (iActualFoundValue == iBestAreaFoundValue)) ? "COLOR_UNIT_TEXT" : "COLOR_ALT_HIGHLIGHT_TEXT") : "COLOR_HIGHLIGHT_TEXT")));
++				szString.append(CvWString::format(
++						SETCOLR, TEXT_COLOR(bRevealed ?
++						((iActualFoundValue > 0 && iActualFoundValue == iBestAreaFoundValue) ?
++						"COLOR_UNIT_TEXT" : "COLOR_ALT_HIGHLIGHT_TEXT") :
++						"COLOR_HIGHLIGHT_TEXT")));
+ 
+ 				//if (!bRevealed) // advc.007
+ 				{
+@@ -6388,7 +6441,8 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 
+ 				if (kLoopPlayer.AI_isPlotCitySite(kPlot))
+ 				{
+-					szTempBuffer.Format(L", " SETCOLR L"X" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"));
++					szTempBuffer.Format(L", " SETCOLR L"X" ENDCOLR,
++							TEXT_COLOR("COLOR_UNIT_TEXT"));
+ 					szString.append(szTempBuffer);
+ 				}
+ 
+@@ -6396,7 +6450,8 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 				{
+ 					int iBestFoundValue = kLoopPlayer.findBestFoundValue();
+ 
+-					szTempBuffer.Format(L"\n  Area Best = %d, Best = %d, Sites = %d", iBestAreaFoundValue, iBestFoundValue, iNumAreaCitySites);
++					szTempBuffer.Format(L"\n  Area Best = %d, Best = %d, Sites = %d",
++							iBestAreaFoundValue, iBestFoundValue, iNumAreaCitySites);
+ 					szString.append(szTempBuffer);
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 44dc07153..fbd5623f3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14834,7 +14834,7 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeM
+ /*  advc.159 (note): This is not simply the sum of the relevant combat strength values.
+ 	The result should only be compared with AI_localAttackStrength, AI_localDefenceStrength,
+ 	AI_cityTargetStrengthByPath or CvSelectionGroupAI::AI_sumStrength. */
+-int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam,  // advc: some style changes in the body
++int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam,
+ 	DomainTypes eDomainType, int iRange, /* advc: renamed from "bAtTarget" */ bool bMoveToTarget,
+ 	bool bCheckMoves, bool bNoCache,
+ 	bool bPredictPromotions) const // advc.139
+@@ -14913,17 +14913,18 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 	return iTotal;
+ }
+ 
+-// Total attack strength of units that can move iRange steps to reach pAttackPlot
+-// advc.159: See note above AI_localDefenceStrength  
+-int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAttackTeam,  // advc: some style changes in the body
+-	DomainTypes eDomainType, int iRange, bool bUseTarget, bool bCheckMoves, bool bCheckCanAttack,
++/*	Total attack strength of units that can move iRange steps to reach pAttackPlot
++	advc.159: See note above AI_localDefenceStrength */
++int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot,
++	TeamTypes eAttackTeam, DomainTypes eDomainType, int iRange, bool bUseTarget,
++	bool bCheckMoves, bool bCheckCanAttack,
+ 	int* piAttackerCount) const // advc.139
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iBaseCollateral = bUseTarget
+-		? estimateCollateralWeight(pTargetPlot, getTeam())
+-		: estimateCollateralWeight(0, getTeam());
++	int const iBaseCollateral = (bUseTarget ?
++			estimateCollateralWeight(pTargetPlot, getTeam()) :
++			estimateCollateralWeight(0, getTeam()));
+ 
+ 	int	iTotal = 0;
+ 	// <advc.139>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e6c5b166b..8b9ca7a2f 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2374,9 +2374,8 @@ void CvTeam::changeAliveCount(int iChange)
+ 			// </advc.003m>  <advc.opt> Also keep WarPlanCounts updated
+ 			kLoopTeam.AI_setWarPlanNoUpdate(getID(), NO_WARPLAN);
+ 			AI().AI_setWarPlanNoUpdate(kLoopTeam.getID(), NO_WARPLAN);
+-			// </advc.opt>
+ 		}
+-	}  // <advc.opt>
++	}
+ 	if (!isBarbarian() && m_iAliveCount - iChange <= 0 && m_iAliveCount > 0 && !bEverAlive)
+ 		GC.getGame().changeCivTeamsEverAlive(1); // </advc.opt>
+ 	// <advc.104> Can't do this in AI_init because alive status isn't yet set at that point
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0f6401374..8598db050 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -125,6 +125,9 @@ void CvTeamAI::AI_doTurnPost()
+ 
+ 	if(isMajorCiv()) // advc.003n
+ 	{
++		/*	K-Mod. Update the attitude cache for all team members.
++			(Note: attitude use to be updated near the start of CvGame::doTurn.
++			I've moved it here for various reasons.) */
+ 		for (MemberIter it(getID()); it.hasNext(); ++it)
+ 		{
+ 			it->AI_updateCloseBorderAttitude();
+@@ -144,13 +147,10 @@ void CvTeamAI::AI_doTurnPost()
+ 
+ 	AI_updateAreaStrategies(false);
+ 
+-	/* if (isHuman())
+-		return;
+-	if (isBarbarian())
+-		return;
+-	if (isMinorCiv())
++	/* if (isHuman() || !isMajorCiv())
+ 		return;*/
+-	// disabled by K-Mod. There are some basic things inside AI_doWar which are important for all players.
++	/*	disabled by K-Mod. There are some basic things inside AI_doWar
++		which are important for all players. */
+ 
+ 	AI_doWar();
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a168afbda..68661b98d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14993,9 +14993,9 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 	... // advc: Body deleted
+ }*/ // BtS - disabled by K-Mod
+ 
+-// K-Mod: this function simply checks if we are standing at our target destination
+-// and if we are, we issue the found command and return true.
+-// I've disabled (badly flawed) AI_foundRange, which was previously used for 'follow' AI.
++/*	K-Mod: this function simply checks if we are standing at our target destination
++	and if we are, we issue the found command and return true.
++	I've disabled (badly flawed) AI_foundRange, which was previously used for 'follow' AI. */
+ bool CvUnitAI::AI_foundFollow()
+ {
+ 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
+@@ -15009,31 +15009,40 @@ bool CvUnitAI::AI_foundFollow()
+ 	return false;
+ }
+ 
+-// K-Mod. helper function for AI_assaultSeaTransport. (just to avoid code duplication)
+-static int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCity, std::map<CvCityAI const*, int>& city_defence_cache) // advc.003u: CvCityAI const*
++namespace
+ {
+-	// calculate the city's defences, or read from the cache if we've already done it.
+-	std::map<CvCityAI const*, int>::iterator city_it = city_defence_cache.find(pCity);
+-	int iDefenceStrength = -1;
+-	if (city_it == city_defence_cache.end())
++	// K-Mod. helper function for AI_assaultSeaTransport. (just to avoid code duplication)
++	int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCity, // advc.003u: was CvCity*
++		std::map<CvCityAI const*, int>& city_defence_cache)
+ 	{
+-		if (pCity->getPlot().isVisible(kPlayer.getTeam()))
+-			iDefenceStrength = kPlayer.AI_localDefenceStrength(pCity->plot(), NO_TEAM);
++		// calculate the city's defences, or read from the cache if we've already done it.
++		std::map<CvCityAI const*,int>::iterator city_it = city_defence_cache.find(pCity);
++		int iDefenceStrength = -1;
++		if (city_it == city_defence_cache.end())
++		{
++			if (pCity->getPlot().isVisible(kPlayer.getTeam()))
++				iDefenceStrength = kPlayer.AI_localDefenceStrength(pCity->plot(), NO_TEAM);
++			else
++			{
++				/*	If we don't have vision of the city, we should try to
++					estimate its strength based the expected number of defenders. */
++				int iUnitStr = GET_PLAYER(pCity->getOwner()).
++						getTypicalUnitValue(UNITAI_CITY_DEFENSE, DOMAIN_LAND) *
++						GC.getGame().getBestLandUnitCombat() / 100;
++				iDefenceStrength = std::max(GET_TEAM(kPlayer.getTeam()).
++						AI_strengthMemory().get(pCity->getPlot()),
++						pCity->AI_neededDefenders()*iUnitStr);
++			}
++			city_defence_cache[pCity] = iDefenceStrength;
++		}
+ 		else
+ 		{
+-			// If we don't have vision of the city, we should try to estimate its strength based the expected number of defenders.
+-			int iUnitStr = GET_PLAYER(pCity->getOwner()).getTypicalUnitValue(UNITAI_CITY_DEFENSE, DOMAIN_LAND) * GC.getGame().getBestLandUnitCombat() / 100;
+-			iDefenceStrength = std::max(GET_TEAM(kPlayer.getTeam()).AI_getStrengthMemory(pCity->plot()), pCity->AI_neededDefenders()*iUnitStr);
++			// use the cached value
++			iDefenceStrength = city_it->second;
+ 		}
+-		city_defence_cache[pCity] = iDefenceStrength;
+-	}
+-	else
+-	{
+-		// use the cached value
+-		iDefenceStrength = city_it->second;
+-	}
+-	return iDefenceStrength;
+-} // K-Mod end
++		return iDefenceStrength;
++	} // K-Mod end
++}
+ 
+ // This function has been mostly rewritten for K-Mod.
+ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal,
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=22988

@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 841
+# Commit: 67ab7133449862af04f8c0a1cd7e818a138099cd
+# History segment: K-Mod history
+# Parent used for diff: 3f2a8764d26141245bc40d58574aad9d9d01849c
+# Title: Renamed MISSIONAI_JOIN and fixed a minor problem in AI_barbAttackSeaMove
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvEnums.h
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 1bbc574b7..1cc49d5f9 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1465,7 +1465,7 @@ enum MissionAITypes		// Exposed to Python
+ 	MISSIONAI_RECON_SPY, // K-Mod
+ 	MISSIONAI_SPREAD,
+ 	MISSIONAI_SPREAD_CORPORATION,
+-	MISSIONAI_JOIN, // K-Mod
++	MISSIONAI_JOIN_CITY, // K-Mod
+ 	MISSIONAI_CONSTRUCT,
+ 	MISSIONAI_HURRY,
+ 	MISSIONAI_TRADE, // K-Mod
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index b88f3a04c..c26d876c9 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2701,7 +2701,7 @@ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI)
+ 	mission_string(MISSIONAI_GUARD_COAST)
+ 	mission_string(MISSIONAI_SPREAD_CORPORATION)
+ 	mission_string(MISSIONAI_RECON_SPY)
+-	mission_string(MISSIONAI_JOIN)
++	mission_string(MISSIONAI_JOIN_CITY)
+ 	mission_string(MISSIONAI_TRADE)
+ 	mission_string(MISSIONAI_INFILTRATE)
+ 	mission_string(MISSIONAI_CHOKE)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ea7e9194d..0a26e4d58 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5701,7 +5701,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 			{
+ 				if (eBestSpecialist != NO_SPECIALIST)
+ 				{
+-					if (gUnitLogLevel > 2) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
++					if (gUnitLogLevel > 2) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
+ 					if (atPlot(pBestPlot))
+ 					{
+ 						getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+@@ -5709,7 +5709,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 					}
+ 					else
+ 					{
+-						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), alwaysInvisible() ? 0 : MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_JOIN);
++						getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), alwaysInvisible() ? 0 : MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_JOIN_CITY);
+ 						return true;
+ 					}
+ 				}
+@@ -6398,6 +6398,7 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 		if( bScrap )
+ 		{
+ 			scrap();
++			return;
+ 		}
+ 	}
+ 	// K-Mod / BBAI end
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2591

@@ -1,0 +1,236 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 203
+# Commit: 62926cab9ce3331a6eb4a465ca5308e9b43b3573
+# History segment: K-Mod history
+# Parent used for diff: 60857a6a781ebfc669f0a48336f6b0945b34c119
+# Title: Fixed some original BtS city site placement bugs and problems. In particular, abCitySiteRadius vector was not being set correctly because of an incorrect "br...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+68	32	CvGameCoreDLL/CvPlayerAI.cpp
+4	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c99297274..6ef36c09d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7192,7 +7192,7 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 		iCommerceMultiplier = 10000 / (200 - iCommerceMultiplier);
+ 	}
+ 
+-	/* original bts code (this seems like a good way to screw up your tile improvement at the drop of a hat...)
++	/* original bts code (this seems like a good way to screw up your tile improvements at the drop of a hat...)
+ 	if (angryPopulation(1) > 0)
+ 	{
+ 		iFoodMultiplier /= 2;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9c7a904f2..ec9439e7a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1120,7 +1120,8 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc) const
+ 
+ 		if (!isBarbarian())
+ 		{
+-			AI_invalidateCitySites(AI_getMinFoundValue());
++			//AI_invalidateCitySites(AI_getMinFoundValue());
++			AI_invalidateCitySites(-1); // K-Mod
+ 		}
+ 		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 		{
+@@ -2866,37 +2867,31 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 			}
+ 		}
+ 	}*/
+-	// K-Mod
++	// K-Mod. bug fixes etc.
+ 	if (!kSet.bStartingLoc)
+ 	{
+-		if (!AI_isPlotCitySite(pPlot))
++		for (int iJ = 0; iJ < AI_getNumCitySites(); iJ++)
+ 		{
+-			for (int iJ = 0; iJ < AI_getNumCitySites(); iJ++)
++			CvPlot* pCitySitePlot = AI_getCitySite(iJ);
++			if (pCitySitePlot == pPlot)
++				continue;
++			FAssert(pCitySitePlot != NULL);
++
++			if (plotDistance(iX, iY, pCitySitePlot->getX_INLINE(), pCitySitePlot->getY_INLINE()) <= GC.getMIN_CITY_RANGE() &&
++				pPlot->area() == pCitySitePlot->area())
+ 			{
+-				CvPlot* pCitySitePlot = AI_getCitySite(iJ);
+-				if (pCitySitePlot == NULL)
+-				{
+-					// I don't think this can happen, but it's not a big deal.
+-					FAssert(false);
+-					continue;
+-				}
+-				if (plotDistance(iX, iY, pCitySitePlot->getX_INLINE(), pCitySitePlot->getY_INLINE()) <= GC.getMIN_CITY_RANGE() &&
+-					pPlot->area() == pCitySitePlot->area())
+-				{
+-					// this tile is too close to one of the sites we've already chosen.
+-					return 0; // we can't settle here.
+-				}
+-				for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
++				// this tile is too close to one of the sites we've already chosen.
++				return 0; // we can't settle here.
++			}
++			for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
++			{
++				CvPlot* pLoopPlot = plotCity(iX, iY, iI);
++				if (pLoopPlot != NULL)
+ 				{
+-					CvPlot* pLoopPlot = plotCity(iX, iY, iI);
+-					if (pLoopPlot != NULL)
++					if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pCitySitePlot->getX_INLINE(), pCitySitePlot->getY_INLINE()) <= CITY_PLOTS_RADIUS)
+ 					{
+-						if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pCitySitePlot->getX_INLINE(), pCitySitePlot->getY_INLINE()) <= CITY_PLOTS_RADIUS)
+-						{
+-							//Plot is inside the radius of a city site
+-							abCitySiteRadius[iI] = true;
+-							break;
+-						}
++						//Plot is inside the radius of a city site
++						abCitySiteRadius[iI] = true;
+ 					}
+ 				}
+ 			}
+@@ -2904,12 +2899,14 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 	}
+ 	// K-Mod end
+ 
++	/* original bts code
+ 	std::vector<int> paiBonusCount;
+ 
+     for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+     {
+         paiBonusCount.push_back(0);
+-    }
++    } */
++	std::vector<int> paiBonusCount(GC.getNumBonusInfos(), 0); // K-Mod
+ 
+ 	iBadTile = 0;
+ 
+@@ -2923,6 +2920,7 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 			{
+ 				iBadTile += 2;
+ 			}
++			/* original bts code
+ 			else if (!(pLoopPlot->isFreshWater()) && !(pLoopPlot->isHills()))
+ 			{
+ 				if ((pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) == 0) || (pLoopPlot->calculateTotalBestNatureYield(getTeam()) <= 1))
+@@ -2943,7 +2941,30 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+                         iBadTile += bAdvancedStart ? 2 : 1;
+                     }
+                 }
+-            }
++            } */
++			// K-Mod
++			else if (!pLoopPlot->isFreshWater() && !pLoopPlot->isHills() &&
++				(pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) == 0 || pLoopPlot->calculateTotalBestNatureYield(getTeam()) <= 1))
++			{
++				iBadTile += 2;
++			}
++			else if (pLoopPlot->isWater() && !bIsCoastal && pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) <= 1)
++			{
++				iBadTile++;
++			}
++			else if (pLoopPlot->isOwned())
++			{
++				if (pLoopPlot->getTeam() != getTeam() || pLoopPlot->isBeingWorked())
++				{
++					iBadTile++;
++				}
++				// note: this final condition is... not something I intend to keep permanently.
++				else if (pLoopPlot->isCityRadius() || abCitySiteRadius[iI])
++				{
++					iBadTile++;
++				}
++			}
++			// K-Mod end
+ 		}
+ 	}
+ 
+@@ -2965,7 +2986,8 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 					{
+ 						if (pLoopPlot->isWater() || (pLoopPlot->area() == pArea) || (pLoopPlot->area()->getCitiesPerPlayer(getID()) > 0))
+ 						{
+-							BonusTypes eBonus = pLoopPlot->getBonusType(getTeam());
++							//BonusTypes eBonus = pLoopPlot->getBonusType(getTeam());
++							BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam()); // K-Mod
+ 
+ 							if (eBonus != NO_BONUS)
+ 							{
+@@ -3612,10 +3634,11 @@ int CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) c
+ 		    {
+ 		    	iValue -= (iDistance - 5) * 500;		    	
+ 		    }
+-		    else if (iDistance < 4)
++		    /* original bts code
++			else if (iDistance < 4)
+ 		    {
+ 		    	iValue -= (4 - iDistance) * 2000;
+-		    }
++		    } */ // disabled by K-Mod. (close cities and penalised in other ways)
+ 			iValue *= (8 + iNumCities * 4);
+ 			iValue /= (2 + (iNumCities * 4) + iDistance);
+ 			if (pNearestCity->isCapital())
+@@ -21445,7 +21468,20 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 
+ void CvPlayerAI::AI_invalidateCitySites(int iMinFoundValueThreshold) const
+ {
+-	m_aiAICitySites.clear();
++	/* original bts code
++	m_aiAICitySites.clear(); */
++	// K-Mod. note: this clear-by-value stuff isn't actually used yet... but at least it works now.
++	std::vector<int> keptSites;
++	if (iMinFoundValueThreshold > 0) // less than zero means clear all.
++	{
++		for (size_t iI = 0; iI < m_aiAICitySites.size(); iI++)
++		{
++			if (GC.getMapINLINE().plotByIndexINLINE(m_aiAICitySites[iI])->getFoundValue(getID()) >= iMinFoundValueThreshold)
++				keptSites.push_back(m_aiAICitySites[iI]);
++		}
++	}
++	m_aiAICitySites.swap(keptSites);
++	// K-Mod end
+ }
+ 
+ int CvPlayerAI::AI_getNumCitySites() const
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 1a072488f..7a1c449d6 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4550,13 +4550,16 @@ void CvTeamAI::AI_doWar()
+ 
+ 									AreaAITypes eAreaAI = AI_calculateAreaAIType(pLoopArea, true);
+ 
++									/* original bts code
+ 									if ( eAreaAI == AREAAI_DEFENSIVE)
+ 									{
+ 										bAreaValid = false;
+ 									}
+-									else if( eAreaAI == AREAAI_OFFENSIVE )
++									else */ // disabled by K-Mod. Doing it that way means the order the areas are checked is somehow important...
++									if( eAreaAI == AREAAI_OFFENSIVE )
+ 									{
+ 										bAreaValid = true;
++										break; // K-Mod: we now have all we need to know.
+ 									}
+ 								}
+ 							}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7545

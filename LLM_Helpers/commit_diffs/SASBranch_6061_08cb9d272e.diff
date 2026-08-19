@@ -1,0 +1,292 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6061
+# Commit: 08cb9d272ef47302e74c6dc795acdbde707e6ff0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 71ff2a0ba7aa32853bf0e62f691d4817edc34b9b
+# Title: (Fixed/Improved) Deliver exact Worker demand and recover Workers from completed secondary landmasses (KI#192 follow-up)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+4	1	CvGameCoreDLL/CvPlayerAI.cpp
+68	12	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.h
+4	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a8e8857bd..11fd8b08a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16142,6 +16142,9 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
+ 	/*  advc.113: To account for future tasks other than new cities:
+ 		population growth and new techs, and try to err on the side of too
+ 		many Workers (b/c the AI is pretty bad at sharing them between cities). */
++	// <!-- custom: A Worker that had legitimately developed a secondary landmass remained there forever after completing every useful task because Base AdvCiv forced every revealed area above 3 tiles to retain one Worker.
++	// Preserve that reserve in the primary area, but let a secondary area reach zero demand when its cities, bonuses, routes, and prospective city sites provide no work. Production and transport demand rise again if new work appears. See KI#192. (GPT-5.6-Sol) -->
++	bool const bKeepAreaWorkerReserve = (AI_isPrimaryArea(kArea) || iCount > 0);
+ 	iCount = (iCount * (100 + GC.getDefineINT(CvGlobals::WORKER_RESERVE_PERCENT))) / 100;
+ 	iCount += 1;
+ 	iCount /= 3;
+@@ -16151,7 +16154,7 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
+ 	iCount = std::min(iCount, (iCities <= 1 && getCurrentEra() > 0) ? 3 :
+ 			(fixp(2.15) * iCities).round());
+ 	// Lower bound was 1 flat. Allow small islands to require 0 workers.
+-	int iNeededWorkers = std::max(kArea.getNumRevealedTiles(getTeam()) > 3 ? 1 : 0, iCount);
++	int iNeededWorkers = std::max(kArea.getNumRevealedTiles(getTeam()) > 3 && bKeepAreaWorkerReserve ? 1 : 0, iCount);
+ 	// <!-- custom: Several independent production paths deferred to AI_neededWorkers but could still choose a second Worker while the one-city capital was population 1, halting growth. Keep this as the shared source of truth: until the capital has ever reached the tunable population, the empire needs at most 1 land Worker; normal demand resumes afterward, and losing that Worker still creates a deficit. (GPT-5.5) -->
+ 	static const int iAdditionalWorkerMinHighestPopulation = std::max(0, GC.getDefineINT("SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION"));
+ 	CvCity const* pCapital = getCapital();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1af903989..fdcdde3f6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5429,6 +5429,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 				into transports.) */
+ 			int const iAreaWorkers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
+ 			int const iAreaCities = getArea().getCitiesPerPlayer(getOwner());
++			// <!-- custom: The collision rule excluded the only Worker in an owned area, so a Worker that had finished developing a secondary island could never request transport home.
++			// Zero calculated demand now identifies that completed area. Let its lone Worker seek a Settler transport deterministically, while retaining the old probabilistic redistribution elsewhere. See KI#192. (GPT-5.6-Sol) -->
++			bool const bEvacuateCompletedArea = (iAreaCities > 0 && iNeededWorkersInArea <= 0 && iAreaWorkers > 0);
++			int const iWorkerArea = (gWorkerLogLevel >= 3 && bEvacuateCompletedArea ? getArea().getID() : -1);
+ 			rLoadProb = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
+ 			if (pCity != NULL)
+ 			{
+@@ -5436,7 +5440,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 				if (iLocalMissing > 0)
+ 					rLoadProb /= 1 + iLocalMissing;
+ 			}
+-			if (iAreaCities <= 0 ||
++			if (iAreaCities <= 0 || bEvacuateCompletedArea ||
+ 				(iMissingWorkersInArea <= 0 && iAreaWorkers > 1 &&
+ 				SyncRandSuccess(rLoadProb)))
+ 			{ // </advc.113>
+@@ -5447,14 +5451,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 					UNITAI_WORKER, // Fill up boats which already have workers
+ 					-1, -1, -1, -1, MOVE_SAFE_TERRITORY))
+ 				{
++					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
+ 					return;
+ 				}
+ 				// Avoid filling a galley which has just a settler in it, reduce chances for other ships
+ 				if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI,
+ 					-1, 2, -1, -1, MOVE_SAFE_TERRITORY))
+ 				{
++					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
+ 					return;
+ 				} // BETTER_BTS_AI_MOD: END
++				if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
+ 				rLoadProb = 0; // advc.113: OK to scrap
+ 			}
+ 		}
+@@ -21221,28 +21228,58 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ }
+ 
+ // <!-- custom: New destination-aware cargo helper because Base AdvCiv Settler transports unloaded accompanying Workers even when the destination landmass had no Worker demand. In save file 450, a Worker accompanied the Settler to Thapsus's island and remained idle there for 93 turns because none of its plots could be improved.
+-// Before departure (`bAtDestination == false`), leave an unnecessary Worker in the origin city. At the destination (`true`), retain it aboard so the transport can ferry it elsewhere. Unload the Settler and defenders normally. See KI#192. (GPT-5.6-Sol) -->
++// At the beginning of a founding voyage, leave Workers beyond the destination's exact deficit in the origin city. At the destination, unload only that deficit and retain any excess aboard for reuse elsewhere. Unload the Settler and defenders normally. See KI#192. (GPT-5.6-Sol) -->
+ void CvUnitAI::AI_unloadSettlerCargoForDestination(CvArea const& kDestinationArea, bool bAtDestination)
+ {
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	int const iWorkersNeeded = kOwner.AI_neededWorkers(kDestinationArea);
+-	int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+-	bool const bWorkerUseful = (iWorkersNeeded > iWorkersExisting);
+ 	std::vector<CvUnit*> aCargoUnits;
+ 	getCargoUnits(aCargoUnits);
++	// <!-- custom: Cargo Workers may already be included in the destination-area count when the transport reaches its city. Count them separately so the exact shortage below can exclude them. (GPT-5.6-Sol) -->
++	int iCargoWorkers = 0;
++	for (size_t i = 0; i < aCargoUnits.size(); i++)
++	{
++		if (aCargoUnits[i]->AI_getUnitAIType() == UNITAI_WORKER)
++			iCargoWorkers++;
++	}
++	int iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
++	if (bAtDestination && getPlot().isArea(kDestinationArea))
++		iWorkersExisting = std::max(0, iWorkersExisting - iCargoWorkers);
++	int iWorkersStillNeeded = std::max(0, iWorkersNeeded - iWorkersExisting);
++	// <!-- custom: An underway founding voyage can be reconsidered in an intermediate friendly city. Only its initial non-FOUND assignment may leave excess Workers behind, so they cannot be dumped on that unrelated landmass. (GPT-5.6-Sol) -->
++	bool const bMayLeaveAtOrigin = (!bAtDestination && getPlot().isCity() && getPlot().getOwner() == getOwner() && AI_getGroup()->AI_getMissionAIType() != MISSIONAI_FOUND);
+ 	int iWorkersLeftAboardOrAtHome = 0;
+ 	for (size_t i = 0; i < aCargoUnits.size(); i++)
+ 	{
+ 		CvUnit* pCargo = aCargoUnits[i];
+ 		bool const bWorker = (pCargo->AI_getUnitAIType() == UNITAI_WORKER);
+-		if ((bAtDestination && (!bWorker || bWorkerUseful)) || (!bAtDestination && bWorker && !bWorkerUseful))
++		if (!bWorker)
++		{
++			if (bAtDestination)
++				pCargo->unload();
++			continue;
++		}
++		if (bAtDestination)
++		{
++			if (iWorkersStillNeeded > 0)
++			{
++				pCargo->unload();
++				if (pCargo->getTransportUnit() == NULL)
++					iWorkersStillNeeded--;
++			}
++			else iWorkersLeftAboardOrAtHome++;
++		}
++		else if (bMayLeaveAtOrigin)
+ 		{
+-			pCargo->unload();
+-			if (bWorker && !bWorkerUseful && pCargo->getTransportUnit() == NULL)
+-				iWorkersLeftAboardOrAtHome++;
++			if (iWorkersStillNeeded > 0)
++				iWorkersStillNeeded--;
++			else
++			{
++				pCargo->unload();
++				if (pCargo->getTransportUnit() == NULL)
++					iWorkersLeftAboardOrAtHome++;
++			}
+ 		}
+-		else if (bAtDestination && bWorker && !bWorkerUseful)
+-			iWorkersLeftAboardOrAtHome++;
+ 	}
+ 	if (gUnitLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+ }
+@@ -23789,6 +23826,10 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 		return false;
+ 
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
++	// <!-- custom: AI_workerMove reaches this function only after every productive local Worker action has failed. Base AdvCiv considered a unit able to reach one of its owner's cities non-stranded, so a Worker on a completed owned island never advertised itself to the existing naval rescue system.
++	// Treat zero-demand Workers as stranded here, but preserve the earlier Settler-plus-city-site exception because that Worker can soon serve the new city. Empty Settler transports can then collect the Worker through AI_pickupStranded without interrupting an active settlement mission. See KI#192. (GPT-5.6-Sol) -->
++	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER &&
++		getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
+ 
+ 	// return false if the group is not stranded.
+ 	int iDummy=-1;
+@@ -23804,12 +23845,12 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 		/*  advc.046: Don't see what good ownership of a teammate will do.
+ 			Really need a path to one of our own cities. But, to save time,
+ 			let's check (though rival borders could block the path): */
+-		if (getPlot().getOwner() == getOwner() &&
++		if (!bCompletedAreaWorker && getPlot().getOwner() == getOwner() &&
+ 			getArea().getCitiesPerPlayer(getOwner()) > 0)
+ 		{
+ 			return false;
+ 		}
+-		if (AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
++		if (!bCompletedAreaWorker && AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
+ 			return false;
+ 		if ((canFight() || isSpy()) &&
+ 			AI_getGroup()->AI_isHasPathToAreaEnemyCity(true, eFlags))
+@@ -23871,6 +23912,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 
+ 		if (pMissionPlot != NULL)
+ 		{
++			if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
+ 			pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
+ 					MISSIONAI_STRANDED, pMissionPlot);
+ 			return true;
+@@ -23889,13 +23931,17 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 			/*	ok. there is something we can load into - but lets use the
+ 				(slow) official function to actually issue the load command. */
+ 			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, eFlags, 1))
++			{
++				if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
+ 				return true;
++			}
+ 			else // if that didn't do it, nothing will
+ 				break;
+ 		}
+ 	}
+ 
+ 	// raise the 'stranded' flag, and wait to be rescued.
++	if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
+ 	getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+ 			false, false, MISSIONAI_STRANDED, plot());
+ 	return true;
+@@ -24100,6 +24146,11 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 
+ 		if (eUnitAI != NO_UNITAI && pHeadUnit->AI_getUnitAIType() != eUnitAI)
+ 			continue;
++		// <!-- custom: The first confirming completed-area evacuation run sometimes dispatched two empty Settler transports to the same individual Worker.
++		// Preserve Base AdvCiv's capacity-based coordination for ordinary stranded groups, but one transport assignment is sufficient for a zero-demand Worker group. Other completed-area Workers advertise their own groups separately. (GPT-5.6-Sol) -->
++		bool const bCompletedAreaWorker = (pHeadUnit->AI_getUnitAIType() == UNITAI_WORKER && pHeadUnit->getArea().getCitiesPerPlayer(getOwner()) > 0 && kPlayer.AI_neededWorkers(pHeadUnit->getArea()) <= 0);
++		if (bCompletedAreaWorker && kPlayer.AI_isAnyUnitTargetMissionAI(*pHeadUnit, MISSIONAI_PICKUP, getGroup()))
++			continue;
+ 
+ 		//pLoopPlot = pHeadUnit->plot();
+ 		CvPlot* pPickupPlot = pLoopGroup->AI_getMissionAIPlot(); // K-Mod
+@@ -24176,6 +24227,11 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 		if(getGroup()->hasCargo())
+ 			return false;
+ 	} // </advc.046>
++	if (gWorkerLogLevel >= 3 && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
++		GET_PLAYER(pBestUnit->getOwner()).AI_neededWorkers(pBestUnit->getArea()) <= 0)
++	{
++		logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)", GC.getGame().getGameTurn(), pBestUnit->getOwner(), GET_PLAYER(pBestUnit->getOwner()).getCivilizationDescription(0), pBestUnit->getID(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getArea().getID(), GET_PLAYER(pBestUnit->getOwner()).AI_totalAreaUnitAIs(pBestUnit->getArea(), UNITAI_WORKER), getID(), getX(), getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY());
++	}
+ 	if (at(*pEndTurnPlot))
+ 	{
+ 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 49afca462..a3a87885a 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -217,7 +217,7 @@ protected:
+ 	bool AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot, MovementFlags eFlags, MissionAITypes eMissionAI); // </K-Mod>
+ 
+ 	bool AI_settlerSeaTransport();
+-	// <!-- custom: New destination-aware cargo helper: leave unnecessary Workers on the origin landmass before departure, or retain them aboard at the destination for reuse elsewhere. (GPT-5.6-Sol) -->
++	// <!-- custom: New destination-aware cargo helper: at the initial departure, leave Workers beyond the destination's exact deficit in the origin city; at the destination, retain any remaining excess aboard for reuse elsewhere. (GPT-5.6-Sol) -->
+ 	void AI_unloadSettlerCargoForDestination(CvArea const& kDestinationArea, bool bAtDestination);
+ 	bool AI_ferryWorkers();
+ 	bool AI_specialSeaTransportMissionary();
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 2a363531a..bea69cf52 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -7227,12 +7227,14 @@ Save-file 450 screenshots and SASGameSummary logging exposed land civilian units
+ 
+ The inherited Worker handling had several separate causes. A Settler transport unloaded accompanying Workers at the destination without checking whether that landmass needed any. `AI_ferryWorkers` could keep selecting a small island city after enough Workers were already there. The Base AdvCiv Worker reserve calculation also rounded an extra future Worker contribution upward even when the city had no unimproved same-landmass plot that a Worker could improve. Finally, higher-level production normally checked local demand, but different production routes and substitutions did not share one final area-usefulness veto.
+ 
+-The cure now checks the destination landmass's unmet Worker demand before unloading founding cargo: an unnecessary Worker remains in the origin city before departure, or stays aboard at the destination so the transport can use it elsewhere. A Worker left on its origin landmass also refuses to reboard the same founding transport while it still targets that no-demand landmass. Worker ferrying treats the destination landmass's calculated need as a hard capacity, and the reserve calculation applies only when at least one real future improvement task exists. These checks compare current need with the current Worker count, so production and delivery become eligible again if losses leave the landmass short or new work raises its need.
++The cure now checks the destination landmass's exact unmet Worker demand before unloading founding cargo. At the initial departure, Workers beyond that shortage remain in the origin city; at the destination, only the required number unload and any excess stays aboard for reuse elsewhere. As a safety guard, origin unloading is allowed only before the founding mission begins, so reconsidering the voyage in another friendly city cannot leave Workers there without evaluating that city's needs. A Worker left on its origin landmass refuses to reboard the same founding transport while it still targets that no-demand landmass. Worker ferrying treats the destination landmass's calculated need as a hard capacity. These checks compare current need with the current Worker count, so production and delivery become eligible again if losses leave the landmass short or new work raises its need.
+ 
+ Immediately before ordinary AI unit production is committed, `CvCityAI::AI_chooseUnit` now applies one central area-usefulness gate after all substitutions have resolved the final `UnitAI`. It refuses a land Worker when the landmass already has enough Workers, a land Explorer when existing Explorers meet the remaining exploration need, and a land Spy in a secondary isolated colony with neither a known rival city on that landmass nor an adjacent Spy transport. The primary landmass remains allowed to produce Spies so an overseas empire can still create Spies and their transports. Free or scripted units and the human production governor remain separate because this is an AI strategic production decision rather than a game-rule restriction.
+ 
+ The first therapeutic run confirmed that our initial cure correctly made founding transports leave unnecessary Workers on their large origin landmass, but also revealed the remaining layers: general Worker logic kept loading one of those Workers back onto its island-bound Settler transport, causing the transport to unload the same Worker onto the origin landmass 14 times. Even after that loop was stopped, a separate Worker-ferry routine continued sending extra Workers to islands that already had enough, accumulating 1 Worker on Bactra's one-tile landmass, 5 on Sardis's two-tile landmass and 2 on Ergili's three-tile landmass, where most had no useful work. After correcting the reserve, reboarding and ferry-cap paths, the final `BBAI_20260720T103610Z_load1.log` recorded only one Worker left on its origin landmass: its destination needed 1 Worker but already had 3, so this was correct. It never reboarded. No invalid Worker, Explorer or Spy request reached the central gate in that run because the corrected demand logic prevented those candidates earlier; the central gate remains the final protection for unusual production paths.
+ 
+-This does not yet solve every late-game idle Worker. A Worker sent to a genuinely useful small landmass can finish its real improvements and later become idle there. Returning, reassigning or retiring such a Worker after its work is complete is a separate mobility/cleanup issue to investigate later; it should not be mixed into this confirmed production-and-delivery cure.
++The follow-up cure also addresses Workers that were genuinely needed when delivered but later completed every useful task. Base AdvCiv forced every revealed landmass above 3 tiles to retain at least 1 Worker, so a completed secondary island never reached zero demand; owned cities also caused the stranded-unit logic to reject its Worker from naval rescue. The primary landmass still keeps this reserve, but a completed secondary landmass can now reach zero Worker demand. Only after ordinary Worker logic finds no productive local action, the Worker moves to a suitable coast, advertises itself for pickup and waits there. An available empty Settler transport can collect it without interrupting an active founding mission. The first transport assignment reserves that individual Worker so additional ships remain available for other duties or other completed-area Workers.
++
++The confirming `BBAI_20260720T150846Z_load1.log` recorded 14 completed-area Worker boardings. Persia recovered all 5 Workers from its completed islands on turn 226, including 2 that boarded available transports directly and 3 collected through the stranded-unit pickup path. No two distinct transports targeted the same Worker during the same turn after the coordination guard. If no empty transport is available, the Worker waits rather than forcing the AI to build a ship or divert one carrying useful cargo solely for that rescue. Worker demand rises normally again if losses, new technology, expansion or other changes create useful work on the landmass.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e5a567047..64459f989 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -358,7 +358,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - **Reliable Worker availability without early overproduction:** AI cities rebuild enough Workers for each land area before other production priorities can leave them short indefinitely, without producing more than the AI calculates it needs. Maintaining enough Workers throughout the game lets the AI improve food/production/commerce, connect resources and routes, repair pillaging, and develop new or underdeveloped cities sooner, especially after Worker losses or earlier underproduction. This normally aims for 1 Worker per city plus a capital-area reserve. As a refinement, a one-city empire needs at most 1 land Worker until its capital has ever reached a tunable population (5 by default), avoiding early double-Worker production and the resulting halted growth; normal demand resumes after the capital matures or another city is founded. Ordinary Worker choices, cases where a blocked Settler choice falls back to a Worker, general unit selection, and Worker scrapping now use the same centralized target. Four BBAI test runs then completed exactly 1 early Worker per empire, with the only later automatic second Worker beginning when its capital reached population 5.
+-- (Requires AdvCiv-SAS 6060+) **Workers are no longer delivered to landmasses that already have enough:** in save file 450, BBAI logging showed a Worker accompanying the Settler to the island where Thapsus was founded, then remaining idle there for 93 turns because none of its plots could be improved. Our first attempt at this fix correctly left an unnecessary Worker on the large landmass (i.e. home) instead of sending it to the small unimprovable island, but exposed a separate problem: general Worker logic kept loading the Worker back onto the island-bound Settler transport, so our early fix had to unload the same Worker back onto the large landmass 14 times. After our second version correctly stopped that loop, testing exposed a third failure: a separate Worker-ferry routine still kept sending extra Workers to islands that already had enough, eventually crowding 5 Workers onto Sardis's two-tile landmass and 2 onto Ergili's three-tile landmass, where most had no useful work. To fix this, Settler transports now leave unnecessary Workers on their origin landmass or keep them aboard for another destination; Workers cannot repeatedly reboard the same transport after being left behind, and later Worker ferries now stop once the destination landmass has enough. These checks use current need and current Worker count, so delivery becomes eligible again if losses leave the landmass short or new work requires workers again. In the confirming run, the AI correctly left a Worker on its origin landmass because the destination needed 1 but already had 3. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
++- (Requires AdvCiv-SAS 6060+) **Workers are no longer delivered to landmasses that already have enough:** in save file 450, BBAI logging showed a Worker accompanying the Settler to the island where Thapsus was founded, then remaining idle there for 93 turns because none of its plots could be improved. Our first attempt at this fix correctly left an unnecessary Worker on the large landmass (i.e. home) instead of sending it to the small unimprovable island, but exposed a separate problem: general Worker logic kept loading the Worker back onto the island-bound Settler transport, so our early fix had to unload the same Worker back onto the large landmass 14 times. After our second version correctly stopped that loop, testing exposed a third failure: a separate Worker-ferry routine still kept sending extra Workers to islands that already had enough, eventually crowding 5 Workers onto Sardis's two-tile landmass and 2 onto Ergili's three-tile landmass, where most had no useful work. To fix this, Settler transports now leave Workers beyond the destination's exact shortage in their original city, unload only the required number at the destination, and keep any excess aboard for another destination. Workers cannot repeatedly reboard the same transport after being left behind, and later Worker ferries now stop once the destination landmass has enough. These checks use current need and current Worker count, so delivery becomes eligible again if losses leave the landmass short or new work requires workers again. In the confirming run, the AI correctly left a Worker on its origin landmass because the destination needed 1 but already had 3. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
++- (Requires AdvCiv-SAS 6061+) **Workers are brought home after finishing every useful task on a secondary landmass:** Base AdvCiv forced most landmasses to retain at least 1 Worker forever, even after a Worker had legitimately finished developing a small island and could contribute elsewhere. Secondary landmasses can now reach zero Worker demand when no useful task remains. Their finished Workers move to the coast and request pickup; one available Settler transport collects each Worker for reuse elsewhere, rather than several ships pursuing the same rescue. The primary landmass keeps its Worker reserve, and demand on a secondary landmass automatically returns if losses or new work require another Worker. In the confirming save file 450 run, Persia recovered all 5 Workers from its completed islands on the same turn, and 14 completed-area Worker boardings were recorded across the game. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
+ - **Yield-first build execution:** workers build the exact improvement selected through the full city/plot evaluation instead of letting the older `AI_betterPlotBuild` postprocessing replace a scored Chop, Mine, Farm, etc. with an unrelated Road. Roads/routes remain strongly de-prioritized early unless they are truly the best move, while important connectable bonuses are still connected. See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+ - **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, **more aggressive early slaving**, or **specialist economies**; concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield (**Reserve** likely irrigation/farm connector plots **from non-farm builds** to reduce AI worker farm/non-farm oscillation).
+ - **Worker lower-food replacement guard:** from a **tunable era onward** (default as of now: Medieval), AI workers no longer replace existing **no-bonus** improvements with lower-food alternatives. This targets **repeated food-threshold oscillation** such as **Farm → Cottage → Farm → Cottage** or **Mine → Windmill → Mine** after the city briefly looks food-safe. It still allows equal-food retools, food-restoration changes such as Cottage → Farm, and cleanup of City Ruins or obsolete/non-active improvements. In the tested BBAI log, the worst Mali farm/cottage loops reached Farm again and then skipped later Farm → Cottage attempts from about T128/T130 onward. This change is because before this era, cities are often small or health/happiness-capped (extra/excess food may not necessarily help or could be inefficient early) and early cottages still have time to mature, but later, cities are usually larger, health sources are generally multiple, and specialist yields are stronger than plot yields (so any food can be used and is generally strong/stronger), and cottages/growth improvements have less time to grow and pay back, so preserving food support is usually stronger.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=32919

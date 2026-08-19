@@ -1,0 +1,2293 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4880
+# Commit: aa5518de413426df04a854c2e9f6436328958d79
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 71aca6f96af18165e55cb62e10789ecce3b9573d
+# Title: change ewuare's music to a copyright-safe one if i am not mistaken, add individual music for many leaders that used to share the same music (e.g. cyrus and d...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.markdownlint.jsonc
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298.mp3
+1	1	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+197	174	Assets/XML/Audio/Audio2DScripts.xml
+81	74	Assets/XML/Audio/AudioDefines.xml
+137	136	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+24	6	README.md
+34	10	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+8	7	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+1	1	ruff.toml
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298.mp3
+
+[PATCHES]
+
+diff --git a/.markdownlint.jsonc b/.markdownlint.jsonc
+index b389506c9..f2cef4435 100644
+--- a/.markdownlint.jsonc
++++ b/.markdownlint.jsonc
+@@ -4,5 +4,5 @@
+ 	"default": true,
+ 	"MD010": false, // <!-- custom: tabs are valid in fenced code blocks do not remove them, since i didn't easily/quickly found a rule specifically for tabs in fenced code blocks and this seems like a global rule, easier/safer to disable the rule entirely even though we would benefit slightly but less but anyways etc from tab checking globally, minus in fenced code blocks anyways etc -->
+ 	"MD013": false, // <!-- custom: similarly some very long lines are valid in our code, generally for commented-out code but maybe not only (didn't check if there are exceptions to this is just if i may say a general explanation of me if i may say but anyways etc) but anyways etc, so show them as such anyways etc -->
+-	"MD033": false // <!-- custom: similarly or/and also anyways etc we use tags like <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width/size to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size in this case i mean anyways etc) or at least it doesn't seem functional, so until and if i ever find hopefulyl or not or yes or other or etc anyways etc such an option, i am fine to keep it as is in this case as this seems functional anyways etc, so disable the markdownlint rule instead anyways etc -->
++	"MD033": false // <!-- custom: similarly or/and also anyways etc we use tags like <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width/size to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size in this case i mean anyways etc) or at least it doesn't seem functional, so until and if i ever find hopefully or not or yes or other or etc anyways etc such an option, i am fine to keep it as is in this case as this seems functional anyways etc, so disable the markdownlint rule instead anyways etc -->
+ }
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great.mp3
+new file mode 100644
+index 000000000..1a3d40af6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors.mp3
+new file mode 100644
+index 000000000..4dea7e9e7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24.mp3
+new file mode 100644
+index 000000000..95b6f9d0f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3
+deleted file mode 100644
+index 9ee037aa3..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635.mp3
+new file mode 100644
+index 000000000..e4cc5ad61
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero.mp3
+new file mode 100644
+index 000000000..97e673376
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March.mp3
+new file mode 100644
+index 000000000..447fdabab
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855.mp3
+new file mode 100644
+index 000000000..b916c043e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3
+new file mode 100644
+index 000000000..0c235134c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II.mp3
+new file mode 100644
+index 000000000..6bcd1c8dd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march.mp3
+new file mode 100644
+index 000000000..0ec89dc69
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298.mp3
+new file mode 100644
+index 000000000..212ad099d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298.mp3 differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 6054fe85f..c6217b883 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1228,7 +1228,7 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very veyr bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial abotu ti evne though ideally there would be no issue was easy enough to solve in this case thnaks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
++		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very very bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial abotu ti evne though ideally there would be no issue was easy enough to solve in this case thnaks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_USA_PATRIOT</Type>
+ 			<Button>Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds</Button>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index cd6080e06..3d517854b 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -3744,8 +3744,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_MEHMED_LATE</ScriptID>
+-		<SoundID>DIPLO_MEHMED_LATE</SoundID>
++		<ScriptID>AS2D_DIPLO_SULEIMAN_EARLY</ScriptID>
++		<SoundID>DIPLO_SULEIMAN_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>55</iMinVolume>
+ 		<iMaxVolume>55</iMaxVolume>
+@@ -3767,8 +3767,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_MEHMED_EARLY</ScriptID>
+-		<SoundID>DIPLO_MEHMED_EARLY</SoundID>
++		<ScriptID>AS2D_DIPLO_SULEIMAN_MIDDLE</ScriptID>
++		<SoundID>DIPLO_SULEIMAN_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>55</iMinVolume>
+ 		<iMaxVolume>55</iMaxVolume>
+@@ -3790,8 +3790,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_MEHMED_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_MEHMED_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_SULEIMAN_LATE</ScriptID>
++		<SoundID>DIPLO_SULEIMAN_LATE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>55</iMinVolume>
+ 		<iMaxVolume>55</iMaxVolume>
+@@ -3812,6 +3812,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_MEHMED_EARLY</ScriptID>
++		<SoundID>DIPLO_MEHMED_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_CHINA_DIPLO1</ScriptID>
+ 		<SoundID>DIPLO_CHINA_DIPLO1</SoundID>
+@@ -3927,6 +3950,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_BOUDICA_EARLY</ScriptID>
++		<SoundID>DIPLO_BOUDICA_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>45</iMinVolume>
++		<iMaxVolume>45</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</ScriptID>
+ 		<SoundID>DIPLO_MOCTEZUMA_EARLY_INTRO</SoundID>
+@@ -4410,6 +4456,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_RAMESSES_EARLY_INTRO</ScriptID>
++		<SoundID>DIPLO_RAMESSES_EARLY_INTRO</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>55</iMinVolume>
++		<iMaxVolume>55</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_ELIZABETH_EARLY</ScriptID>
+ 		<SoundID>DIPLO_ELIZABETH_EARLY</SoundID>
+@@ -4480,8 +4549,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_VICTORIA_EARLY</ScriptID>
+-		<SoundID>DIPLO_VICTORIA_EARLY</SoundID>
++		<ScriptID>AS2D_DIPLO_CHURCHILL_EARLY</ScriptID>
++		<SoundID>DIPLO_CHURCHILL_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -4503,8 +4572,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_VICTORIA_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_VICTORIA_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_CHURCHILL_MIDDLE</ScriptID>
++		<SoundID>DIPLO_CHURCHILL_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -4526,8 +4595,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_VICTORIA_LATE</ScriptID>
+-		<SoundID>DIPLO_VICTORIA_LATE</SoundID>
++		<ScriptID>AS2D_DIPLO_CHURCHILL_LATE</ScriptID>
++		<SoundID>DIPLO_CHURCHILL_LATE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -4548,6 +4617,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_VICTORIA_EARLY</ScriptID>
++		<SoundID>DIPLO_VICTORIA_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>40</iMinVolume>
++		<iMaxVolume>40</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_LOUIS_EARLY</ScriptID>
+ 		<SoundID>DIPLO_LOUIS_EARLY</SoundID>
+@@ -4621,8 +4713,8 @@
+ 		<ScriptID>AS2D_DIPLO_NAPOLEON_EARLY</ScriptID>
+ 		<SoundID>DIPLO_NAPOLEON_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -4644,8 +4736,8 @@
+ 		<ScriptID>AS2D_DIPLO_NAPOLEON_MIDDLE</ScriptID>
+ 		<SoundID>DIPLO_NAPOLEON_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -4667,8 +4759,8 @@
+ 		<ScriptID>AS2D_DIPLO_NAPOLEON_LATE</ScriptID>
+ 		<SoundID>DIPLO_NAPOLEON_LATE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -4848,8 +4940,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_ALEXANDER_EARLY</ScriptID>
+-		<SoundID>DIPLO_ALEXANDER_EARLY</SoundID>
++		<ScriptID>AS2D_DIPLO_PERICLES_EARLY</ScriptID>
++		<SoundID>DIPLO_PERICLES_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -4871,8 +4963,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_ALEXANDER_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_ALEXANDER_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_PERICLES_MIDDLE</ScriptID>
++		<SoundID>DIPLO_PERICLES_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -4894,8 +4986,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_ALEXANDER_LATE</ScriptID>
+-		<SoundID>DIPLO_ALEXANDER_LATE</SoundID>
++		<ScriptID>AS2D_DIPLO_PERICLES_LATE</ScriptID>
++		<SoundID>DIPLO_PERICLES_LATE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -4916,6 +5008,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_ALEXANDER_EARLY</ScriptID>
++		<SoundID>DIPLO_ALEXANDER_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>55</iMinVolume>
++		<iMaxVolume>55</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_HUAYNACAPAC_EARLY</ScriptID>
+ 		<SoundID>DIPLO_HUAYNACAPAC_EARLY</SoundID>
+@@ -5400,11 +5515,11 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_GENGHISKHAN_EARLY_INTRO</ScriptID>
+-		<SoundID>DIPLO_GENGHISKHAN_EARLY_INTRO</SoundID>
++		<ScriptID>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</ScriptID>
++		<SoundID>DIPLO_GENGHIS_KHAN_EARLY_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>30</iMinVolume>
++		<iMaxVolume>30</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -5423,8 +5538,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_GENGHISKHAN_EARLY_LP</ScriptID>
+-		<SoundID>DIPLO_GENGHISKHAN_EARLY_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_KUBLAI_KHAN_EARLY_INTRO</ScriptID>
++		<SoundID>DIPLO_KUBLAI_KHAN_EARLY_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5434,7 +5549,7 @@
+ 		<iMaxLeftPan>-1</iMaxLeftPan>
+ 		<iMinRightPan>-1</iMinRightPan>
+ 		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
++		<bLooping>0</bLooping>
+ 		<iMinTimeDelay>0</iMinTimeDelay>
+ 		<iMaxTimeDelay>0</iMaxTimeDelay>
+ 		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+@@ -5446,8 +5561,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_GENGHISKHAN_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_GENGHISKHAN_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_KUBLAI_KHAN_EARLY_LP</ScriptID>
++		<SoundID>DIPLO_KUBLAI_KHAN_EARLY_LP</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5469,31 +5584,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</ScriptID>
+-		<SoundID>DIPLO_GENGHISKHAN_LATE_INTRO</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_GENGHISKHAN_LATE_LP</ScriptID>
+-		<SoundID>DIPLO_GENGHISKHAN_LATE_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_KUBLAI_KHAN_MIDDLE</ScriptID>
++		<SoundID>DIPLO_KUBLAI_KHAN_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5515,8 +5607,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_KUBLAIKHAN_EARLY_INTRO</ScriptID>
+-		<SoundID>DIPLO_KUBLAIKHAN_EARLY_INTRO</SoundID>
++		<ScriptID>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</ScriptID>
++		<SoundID>DIPLO_KUBLAI_KHAN_LATE_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5538,8 +5630,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_KUBLAIKHAN_EARLY_LP</ScriptID>
+-		<SoundID>DIPLO_KUBLAIKHAN_EARLY_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</ScriptID>
++		<SoundID>DIPLO_KUBLAI_KHAN_LATE_LP</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5561,8 +5653,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_KUBLAIKHAN_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_KUBLAIKHAN_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_DARIUS_EARLY</ScriptID>
++		<SoundID>DIPLO_DARIUS_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5584,31 +5676,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</ScriptID>
+-		<SoundID>DIPLO_KUBLAIKHAN_LATE_INTRO</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</ScriptID>
+-		<SoundID>DIPLO_KUBLAIKHAN_LATE_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_DARIUS_MIDDLE</ScriptID>
++		<SoundID>DIPLO_DARIUS_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5630,8 +5699,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CYRUS_EARLY</ScriptID>
+-		<SoundID>DIPLO_CYRUS_EARLY</SoundID>
++		<ScriptID>AS2D_DIPLO_DARIUS_LATE_INTRO</ScriptID>
++		<SoundID>DIPLO_DARIUS_LATE_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5641,7 +5710,7 @@
+ 		<iMaxLeftPan>-1</iMaxLeftPan>
+ 		<iMinRightPan>-1</iMinRightPan>
+ 		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
++		<bLooping>0</bLooping>
+ 		<iMinTimeDelay>0</iMinTimeDelay>
+ 		<iMaxTimeDelay>0</iMaxTimeDelay>
+ 		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+@@ -5653,8 +5722,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CYRUS_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_CYRUS_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_DARIUS_LATE_LP</ScriptID>
++		<SoundID>DIPLO_DARIUS_LATE_LP</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5676,34 +5745,11 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CYRUS_LATE_INTRO</ScriptID>
+-		<SoundID>DIPLO_CYRUS_LATE_INTRO</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CYRUS_LATE_LP</ScriptID>
+-		<SoundID>DIPLO_CYRUS_LATE_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_CYRUS_EARLY</ScriptID>
++		<SoundID>DIPLO_CYRUS_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>55</iMinVolume>
++		<iMaxVolume>55</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -5725,8 +5771,8 @@
+ 		<ScriptID>AS2D_DIPLO_EWUARE_EARLY</ScriptID>
+ 		<SoundID>DIPLO_EWUARE_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>25</iMinVolume>
++		<iMaxVolume>25</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -5745,8 +5791,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_EWUARE_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_EWUARE_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_AUGUSTUS_CAESAR_EARLY</ScriptID>
++		<SoundID>DIPLO_AUGUSTUS_CAESAR_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5768,8 +5814,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_EWUARE_LATE_INTRO</ScriptID>
+-		<SoundID>DIPLO_EWUARE_LATE_INTRO</SoundID>
++		<ScriptID>AS2D_DIPLO_AUGUSTUS_CAESAR_MIDDLE</ScriptID>
++		<SoundID>DIPLO_AUGUSTUS_CAESAR_MIDDLE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5779,7 +5825,7 @@
+ 		<iMaxLeftPan>-1</iMaxLeftPan>
+ 		<iMinRightPan>-1</iMinRightPan>
+ 		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
++		<bLooping>1</bLooping>
+ 		<iMinTimeDelay>0</iMinTimeDelay>
+ 		<iMaxTimeDelay>0</iMaxTimeDelay>
+ 		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+@@ -5791,8 +5837,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_EWUARE_LATE_LP</ScriptID>
+-		<SoundID>DIPLO_EWUARE_LATE_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</ScriptID>
++		<SoundID>DIPLO_AUGUSTUS_CAESAR_LATE</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5814,11 +5860,11 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CAESAR_EARLY</ScriptID>
+-		<SoundID>DIPLO_CAESAR_EARLY</SoundID>
++		<ScriptID>AS2D_DIPLO_JULIUS_CAESAR_EARLY</ScriptID>
++		<SoundID>DIPLO_JULIUS_CAESAR_EARLY</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -5837,8 +5883,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CAESAR_MIDDLE</ScriptID>
+-		<SoundID>DIPLO_CAESAR_MIDDLE</SoundID>
++		<ScriptID>AS2D_DIPLO_PETER_EARLY_INTRO</ScriptID>
++		<SoundID>DIPLO_PETER_EARLY_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5848,7 +5894,7 @@
+ 		<iMaxLeftPan>-1</iMaxLeftPan>
+ 		<iMinRightPan>-1</iMinRightPan>
+ 		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
++		<bLooping>0</bLooping>
+ 		<iMinTimeDelay>0</iMinTimeDelay>
+ 		<iMaxTimeDelay>0</iMaxTimeDelay>
+ 		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+@@ -5860,8 +5906,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_CAESAR_LATE</ScriptID>
+-		<SoundID>DIPLO_CAESAR_LATE</SoundID>
++		<ScriptID>AS2D_DIPLO_PETER_EARLY_LP</ScriptID>
++		<SoundID>DIPLO_PETER_EARLY_LP</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5883,8 +5929,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_PETER_EARLY_INTRO</ScriptID>
+-		<SoundID>DIPLO_PETER_EARLY_INTRO</SoundID>
++		<ScriptID>AS2D_DIPLO_PETER_MIDDLE_INTRO</ScriptID>
++		<SoundID>DIPLO_PETER_MIDDLE_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5906,8 +5952,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_PETER_EARLY_LP</ScriptID>
+-		<SoundID>DIPLO_PETER_EARLY_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_PETER_MIDDLE_LP</ScriptID>
++		<SoundID>DIPLO_PETER_MIDDLE_LP</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5929,8 +5975,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_PETER_MIDDLE_INTRO</ScriptID>
+-		<SoundID>DIPLO_PETER_MIDDLE_INTRO</SoundID>
++		<ScriptID>AS2D_DIPLO_PETER_LATE_INTRO</ScriptID>
++		<SoundID>DIPLO_PETER_LATE_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5952,8 +5998,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_PETER_MIDDLE_LP</ScriptID>
+-		<SoundID>DIPLO_PETER_MIDDLE_LP</SoundID>
++		<ScriptID>AS2D_DIPLO_PETER_LATE_LP</ScriptID>
++		<SoundID>DIPLO_PETER_LATE_LP</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>75</iMinVolume>
+ 		<iMaxVolume>75</iMaxVolume>
+@@ -5975,11 +6021,11 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_PETER_LATE_INTRO</ScriptID>
+-		<SoundID>DIPLO_PETER_LATE_INTRO</SoundID>
++		<ScriptID>AS2D_DIPLO_STALIN_EARLY_INTRO</ScriptID>
++		<SoundID>DIPLO_STALIN_EARLY_INTRO</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
++		<iMinVolume>30</iMinVolume>
++		<iMaxVolume>30</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+@@ -5997,29 +6043,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_DIPLO_PETER_LATE_LP</ScriptID>
+-		<SoundID>DIPLO_PETER_LATE_LP</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>75</iMinVolume>
+-		<iMaxVolume>75</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_CATHERINE_EARLY</ScriptID>
+ 		<SoundID>DIPLO_CATHERINE_EARLY</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index a93597448..c2fa2dc0f 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -1276,22 +1276,29 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_MEHMED_LATE</SoundID>
+-			<Filename>Sounds/Diplomacy/Mehmed_Late</Filename>
++			<SoundID>DIPLO_SULEIMAN_EARLY</SoundID>
++			<Filename>Sounds/Diplomacy/Mehmed_Early</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_MEHMED_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Mehmed_Early</Filename>
++			<SoundID>DIPLO_SULEIMAN_MIDDLE</SoundID>
++			<Filename>Sounds/Diplomacy/Mehmed_Middle</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_MEHMED_MIDDLE</SoundID>
+-			<Filename>Sounds/Diplomacy/Mehmed_Middle</Filename>
++			<SoundID>DIPLO_SULEIMAN_LATE</SoundID>
++			<Filename>Sounds/Diplomacy/Mehmed_Late</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_MEHMED_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -1457,6 +1464,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_RAMESSES_EARLY_INTRO</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_ELIZABETH_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Elizabeth_Early</Filename>
+@@ -1479,26 +1493,33 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_VICTORIA_EARLY</SoundID>
++			<SoundID>DIPLO_CHURCHILL_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Victoria_Early</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_VICTORIA_MIDDLE</SoundID>
++			<SoundID>DIPLO_CHURCHILL_MIDDLE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Victoria_Middle</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_VICTORIA_LATE</SoundID>
++			<SoundID>DIPLO_CHURCHILL_LATE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Victoria_Late</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_VICTORIA_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_LOUIS_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Louis_Early</Filename>
+@@ -1522,21 +1543,21 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_NAPOLEON_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Napoleon_Early</Filename>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_NAPOLEON_MIDDLE</SoundID>
+-			<Filename>Sounds/Diplomacy/Napoleon_Middle</Filename>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_NAPOLEON_LATE</SoundID>
+-			<Filename>Sounds/Diplomacy/Napoleon_Late</Filename>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -1591,26 +1612,33 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_ALEXANDER_EARLY</SoundID>
++			<SoundID>DIPLO_PERICLES_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Alexander_Early</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_ALEXANDER_MIDDLE</SoundID>
++			<SoundID>DIPLO_PERICLES_MIDDLE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Alexander_Middle</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_ALEXANDER_LATE</SoundID>
++			<SoundID>DIPLO_PERICLES_LATE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Alexander_Late</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_ALEXANDER_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_HUAYNACAPAC_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/HuaynaCapac_Early</Filename>
+@@ -1759,148 +1787,113 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_GENGHISKHAN_EARLY_INTRO</SoundID>
+-			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Intro</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_GENGHISKHAN_EARLY_LP</SoundID>
+-			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Lp</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_GENGHISKHAN_MIDDLE</SoundID>
+-			<Filename>Sounds/Diplomacy/GenghisKahn_Middle</Filename>
++			<SoundID>DIPLO_GENGHIS_KHAN_EARLY_INTRO</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_GENGHISKHAN_LATE_INTRO</SoundID>
+-			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Intro</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_GENGHISKHAN_LATE_LP</SoundID>
+-			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Lp</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_KUBLAIKHAN_EARLY_INTRO</SoundID>
++			<SoundID>DIPLO_KUBLAI_KHAN_EARLY_INTRO</SoundID>
+ 			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Intro</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_KUBLAIKHAN_EARLY_LP</SoundID>
++			<SoundID>DIPLO_KUBLAI_KHAN_EARLY_LP</SoundID>
+ 			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Lp</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_KUBLAIKHAN_MIDDLE</SoundID>
++			<SoundID>DIPLO_KUBLAI_KHAN_MIDDLE</SoundID>
+ 			<Filename>Sounds/Diplomacy/GenghisKahn_Middle</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_KUBLAIKHAN_LATE_INTRO</SoundID>
++			<SoundID>DIPLO_KUBLAI_KHAN_LATE_INTRO</SoundID>
+ 			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Intro</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_KUBLAIKHAN_LATE_LP</SoundID>
++			<SoundID>DIPLO_KUBLAI_KHAN_LATE_LP</SoundID>
+ 			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Lp</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CYRUS_EARLY</SoundID>
++			<SoundID>DIPLO_DARIUS_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Cyrus_Early</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CYRUS_MIDDLE</SoundID>
++			<SoundID>DIPLO_DARIUS_MIDDLE</SoundID>
+ 			<Filename>Sounds/Diplomacy/Cyrus_Middle</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CYRUS_LATE_INTRO</SoundID>
++			<SoundID>DIPLO_DARIUS_LATE_INTRO</SoundID>
+ 			<Filename>Sounds/Diplomacy/Cyrus_Late_Intro</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CYRUS_LATE_LP</SoundID>
++			<SoundID>DIPLO_DARIUS_LATE_LP</SoundID>
+ 			<Filename>Sounds/Diplomacy/Cyrus_Late_Lp</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_EWUARE_EARLY</SoundID>
+-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>DIPLO_EWUARE_MIDDLE</SoundID>
+-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<SoundID>DIPLO_CYRUS_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_EWUARE_LATE_INTRO</SoundID>
+-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<SoundID>DIPLO_EWUARE_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_EWUARE_LATE_LP</SoundID>
+-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<SoundID>DIPLO_AUGUSTUS_CAESAR_EARLY</SoundID>
++			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CAESAR_EARLY</SoundID>
+-			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
++			<SoundID>DIPLO_AUGUSTUS_CAESAR_MIDDLE</SoundID>
++			<Filename>Sounds/Diplomacy/Caesar_Middle</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CAESAR_MIDDLE</SoundID>
+-			<Filename>Sounds/Diplomacy/Caesar_Middle</Filename>
++			<SoundID>DIPLO_AUGUSTUS_CAESAR_LATE</SoundID>
++			<Filename>Sounds/Diplomacy/Caesar_Late</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_CAESAR_LATE</SoundID>
+-			<Filename>Sounds/Diplomacy/Caesar_Late</Filename>
++			<SoundID>DIPLO_JULIUS_CAESAR_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -1947,6 +1940,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_STALIN_EARLY_INTRO</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_CATHERINE_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Catherine_Early</Filename>
+@@ -2073,6 +2073,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_BOUDICA_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_RAGNAR_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Ragnar_Early</Filename>
+@@ -3362,7 +3369,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>DIPLO_PETER_SFX</SoundID>
++			<SoundID>DIPLO_STALIN_SFX</SoundID>
+ 			<Filename>Sounds/Diplomacy/Peter_SFX</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 21f21bf37..b22924f90 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -1058,23 +1058,23 @@
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -1505,31 +1505,31 @@
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -1922,31 +1922,31 @@
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_BRENNUS_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -2789,31 +2789,31 @@
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CHURCHILL_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -2995,15 +2995,15 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+@@ -3017,23 +3017,23 @@
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -3218,45 +3218,45 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -3876,15 +3876,15 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+@@ -3898,23 +3898,23 @@
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -4564,53 +4564,53 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -6312,31 +6312,31 @@
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -6760,53 +6760,53 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -7837,23 +7837,23 @@
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -8694,31 +8694,31 @@
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_PERICLES_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -9430,8 +9430,9 @@
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
++			<!-- custom: was 20 -->
+ 			<!-- custom: additionally to iBuildUnitProb changes to leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc -->
+-			<iBuildUnitProb>30</iBuildUnitProb>
++			<iBuildUnitProb>35</iBuildUnitProb>
+ 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
+ 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
+@@ -9574,61 +9575,61 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -10675,61 +10676,61 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTROO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -10911,31 +10912,31 @@
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_SULEIMAN_LATE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+@@ -11610,23 +11611,23 @@
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+
+diff --git a/README.md b/README.md
+index 91447dd4c..5fc6bdde4 100644
+--- a/README.md
++++ b/README.md
+@@ -86,7 +86,7 @@ For example we added the new "This Technology cannot be traded" in AdvCiv-SAS as
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example (1).JPG" alt="0.50_no_tech_trading_example (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example (2).JPG" alt="0.50_no_tech_trading_example (2).JPG" width="250"></img>
+ 
+-See also [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
++See also [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+ 
+ ### Mods Info
+ 
+@@ -223,14 +223,14 @@ The civs you can expect in this mod come from these parts of the world (circled
+ 
+ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
+ 
+-## Main (bugs/issues) fixed from base AdvCiv code
++## Main bugs/issues fixed from base AdvCiv code
+ 
+-Non-exhaustive, see docs for details, which includes but not only [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) anyways etc thanks anyways etc
++Non-exhaustive, see docs for details or/and additional info anyways etc, which includes but not only [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) and/or [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) anyways etc anyways etc anyways etc
+ 
+ - Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+ - Seemingly fixed now, bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+ - Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc, see [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc) anyways etc
+-- Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [README.md#other-advciv-sas-changes-examples](/README.md#other-advciv-sas-changes-examples) for details anyways etc and [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
++- Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [README.md#other-advciv-sas-changes-examples](/README.md#other-advciv-sas-changes-examples) for details anyways etc and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
+ - Fixed (technically not strictly a fix as data was not used, but now fixed as in the data is also displayed here like the rest fo the leader info anyways etc read after brackets for details if i may say but anyways etc anyways etc anyways etc...) missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too anyways etc hopefully helpful or not or yes or and other or and not but anyways etc anyways etc anyways etc)
+ - Fixed similarly missing base advciv specific xml fields in gc of sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold anyways etc
+ - Fixed unclear sevopedia unit terrainimpassable and feature impassable message: applies only outside of cultural borders, and regardless of roaded status of the tile in all tiles as well also i mean ; also added this info that was missing in ingame in map view of the unit's effects bullet points by modifying the DLL anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc) for details
+@@ -269,9 +269,19 @@ The bit annoying/painful section, but in short this is a fan project that i hope
+ >
+ >If you are the creator or rights holder of any included material and would like attribution, correction, or removal, please contact us.
+ >
+->Included External Assets (possibly copyrighted):
++>Included External Assets (should be copyright-safe (see below for detail/explanation/analysis of why +/- with chatgpt's help too, but check to be sure in case i overlooked or was mistaken in one way or another if i may say but anyways etc)):
+ >
+->- Djolé (Steve Millington) – traditional West African rhythm, arranged by Millington. Included as part of cultural music flavor. ([youtube link of it for example](https://www.youtube.com/watch?v=EumDztneigo&list=OLAK5uy_mUHAcnmo80mOVT-qh0Iil2TX_z-_qqe_E&index=4))
++>- `LEADER_ALEXANDER`: The Companions (Ancient Macedon Battle Music - Alexander the Great) (Composed by Tyler Cunningham) ([youtube link of it for example](https://www.youtube.com/watch?v=qw8OqQUkRB0)), seems safe to use according to a youtube comment by the author seemingly if i am not mistaken, thanks a lot
++>- `LEADER_BOUDICA`: Epic Celtic/Scottish  War Drums - The Highland Warriors © Copyright: Music composed by Paul Daniel (Pawl.D Beats) [youtube link of it for example](https://www.youtube.com/watch?v=kenexJF5sSc), seems safe too based on their website, it is up to me to notify them of such use according to website though (which i did), but should be mostly safe otherwise thankfully/hopefully, thanks
++>- `LEADER_CYRUS`: Persia - Ancient Journey Fantasy Music - Beautiful Persian Ambient for Studying, Reading and Focus (created by Fantasy Meditations) (stop at 7:24). Included as thematic ambient music for cultural immersion. This track is shared in good faith for non-commercial, educational purposes as part of a fan project. If the creator or rights holder wishes for it to be removed or credited differently, please contact us. ([youtube link directly from Fantasy Meditations's channel anyways etc](https://www.youtube.com/watch?v=Pb6oXRDIMlQ)). In other words i really like the music and don't want it to be removed, less kindly, i think it may help promote it even, i hope the artist (or(/and? But anyways etc) whoever owns the right anyways etc) doesn't mind as i didn't see an explicit claim against this except from copyright mention on youtube, but if not fine, please tell me and i'll remove it as long and as soon as i can, thanks, this music is really really nice so i want to add it, but if not good just tell me and i'll remove it then, thanks, (chatgpt backs me up based on the reading of their about section on youtube and their banner, i hope all fine, if not tell me and i'll remove it as best as i can i mean but anyways etc anyways etc anyways etc)
++>- `LEADER_EWUARE`: African Tribal Music (BackgroundMusicForVideos) - Music by [Maksym Malko](https://pixabay.com/users/backgroundmusicforvideos-46459014/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635), i personally also found it by searching it again in this case but anyways etc since not easy to find via main link of credit above but try it first too maybe as is official one i mean from their website of the credits if i am not mistaken but anyways etc, here if helps as well although is not the formal credit link in their website but hopefully helpful too if i am not mistaken else tell me to remove it but if fine here it is i mean but anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/world-african-tribal-music-342635/)
++>- `LEADER_GENGHIS_KHAN`: Original track [Tömörbaatar, the Iron Hero] by Kaiji [youtube link seemingly from creator too anyways etc](https://www.youtube.com/watch?v=6mErFCHsi1g), seems royalty-free too if i am not mistaken and according to chatgpt's answer to my prompt about it, thanks
++>- `LEADER_JULIUS_CAESAR`: Epic Roman Music – Battle March (~ Music by Derek Fiechter ~) [youtube link of it for example](https://www.youtube.com/watch?v=EW8fI6N6szs), should be safe if i'm not mistaken as well as it seems to come from same author than what we reviewed as of now for LEADER_BOUDICA too anyways etc, thanks,
++>- `LEADER_MEHMED`: Old Ottoman turkish Music - Şehnaz Longa - Composer Santuri Ethem Efendi *1855 (start at 0:03.000) [youtube link of it for example](https://www.youtube.com/watch?v=7MN4DN06xc8), seems copyright safe according to chatgpt as well (it said to be exhaustive or bit more but anyways etc "Composition: Definitely public domain (composer died over 140 years ago)." and then right after it anyways etc reformatted to fit in this sentence anyways etc "Recording: Likely non-commercial and personal uploads, with no rights enforcement to date. Unknown exact performer or recording date/release, so slight unknowns persist—but no red flags.")anyways etc
++>- `LEADER_NAPOLEON`: info i have as of now is anyways etc: Symphony No. 25 In G Minor K. 183 Mozart - Uploaded by Netfocus Universal on October 11, 2013 [downloaded from archive.org (as mp3 too anyways etc) thanks to chatgpt's recommendation and link anyways etc](https://archive.org/details/SymphonyNo.25InGMinorK.183?utm_source=chatgpt.com), seems safe to use as well as it comes frm archive.org as/according to what i understand from chatgpt's explanation as well on top of hwat i intutively already knew or guessed maybe rather but anyways etc, as for the recording, no clear mention of it either, but providing most if not all info about it to chatgpt, it seems to be safe, but not 100% sure but almost, check to be sure, better phrased or/and alternatively by chatgpt as such anyways etc: "This recording (Netfocus Universal, 2013) was uploaded to archive.org’s Folksoundomy collection, a large open-access archive of volunteer-submitted audio. No explicit license is stated, but source context suggests it is non-commercial and likely safe for educational use.", i am not 100% sure but almost so should be maybe safe (but i may be mistaken check to be sure anyways etc). Note: this music was recommended to me after asking chatgpt after/since i couldn't find any suitable or fitting music or had too many ideas xd, and we analyzed napoleon's psychology and life quick if i may say but anyways etc and after many painstaking suggestions here it is, i really like it i mean, it's really a cool music :) This one seems if i am not mistaken copyright safe (but check to be sure anyways etc) and sounds quite well if not very well but in all cases anyways etc
++>- `LEADER_RAMESSES`: Ancient Egyptian Music – Pharaoh Ramses II, composer seems to be Derek Fiechter's Music (start at 00:02.425) [youtube link directly from Derek Fiechter's Music's channel anyways etc](https://www.youtube.com/watch?v=vslsS-Uu5x4), should also be safe as reviewed before for LEADER_JULIUS_CAESAR's music at least as of now who seems to also come/be from/by the same artist Derek Fiechter i mean if i am not mistaken anyways etc
++>- `LEADER_STALIN`: Music: Soviet March by Shane Ivers - [https://www.silvermansound.com](https://www.silvermansound.com), seems safe to use and under creative commons license by 4.0 if i am not mistaken too, personally i found it here thanks to chatgpt who gave me this link, thanks [silvermansound.com link provided by chatgpt directly to this music anyways etc](https://www.silvermansound.com/free-music/soviet-march?utm_source=chatgpt.com)
++>- `LEADER_VICTORIA`: Victorian Violin Waltz - Music by [Luis Humanoide](https://pixabay.com/users/luis_humanoide-12661853/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298), i also re found it here similarly than for LEADER_EWUARE's music link but anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/classical-string-quartet-victorian-violin-waltz-222298/) seems safe as coming from pixabay as well if i am not mistaken but anyways etc and froma sking chatgpt too to be sure seems safe indeed but maybe check too to be sure but shoudl eb safe but check to be sure in case i am mistaken but anyways etc
+ >
+ >Used for educational and entertainment purposes only.
+ 
+@@ -331,7 +341,15 @@ it too though unless i'm mistaken)
+ - [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems but anyways etc anyways etc) for example('s url anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot, anyways etc, thanks, i like it very much, and still love vs code, as in continuously hehe at least as of now, as for future whatever happens or maybe not or yes but anyways etc anyways etc, in all cases anyways etc, for diffchecker website to go back to it more specifically anyways etc anyways etc, thanks,
+ - Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
+ - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: [translation of "the people of benin" with Quillbot](https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin) (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
++- [pixabay website for royalty-free music](https://pixabay.com/) as recommended to me by chatgpt for example to find leader ewuare's music if not on youtube anyways etc
+ - yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
++- Audacity, to see where it is safe to cut audio without cutting too early or late, for example at 00:02.425 is a bit before audio starts in one of our music files as of now but anyways etc, but by ear it seemed to be around 00:03.000 and quite safe if not safe to be so, but checking to be sure it seems to actually start before, so being able to much more precisely tell where/when it is safe to start or end maybe too if one were to look at end of video i didn't use it as such i mean in our music files at least as of now as begining is most important part not to trim and end seemed clearcut through enough if that is a word in english but anyways etc, see for example screenshots in this [google drive folder link](https://drive.google.com/drive/folders/1ohqHNcsFzNEhIiTksIWYnwk-CB02fDST?usp=sharing) for example of how i use them, hopefully helpful or not or yes or anyways etc to use audacity as such help tool at least for me but anyways etc to know when to cut audio at download time for example but anyways etc
++
++## License and reuse
++
++Written by chatgpt and adjusted bit by me wonderingabout anyways etc.
++
++This mod is free to use, modify, and share. No formal restrictions - but I kindly ask that, if you reuse significant parts of it (especially unique design, code, or text), you consider crediting the original authors listed in the [README authors section](/README.md#authors), including myself, ChatGPT, and Claude AI where applicable. That’s not a legal obligation, but would be kindly appreciated even though not obligated if i may say but anyways etc.
+ 
+ ## Starting your mod
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 412eb90e4..75be94831 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -28,11 +28,13 @@ Was not easy to find how at least to me anyways etc so i am glad i found how any
+ 
+ ### Download media assets for example on youtube
+ 
+-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefulyl helpful but i have to cover myself xd too i mean if i may say but anyways etc.
++Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefully helpful but i have to cover myself xd too i mean if i may say but anyways etc.
+ 
+-Moving forward, i found this very nice reddit post if i may say but anyways etc on [how to download youtube videos](https://www.reddit.com/r/youtubedl/wiki/howdoidownloadpartsofavideo/) with yt-dlp, i also found this very nice reddit post too i mean very helpful but anyways etc on [how to download any media file from youtube to mp3 using yt-dlp](https://www.reddit.com/r/youtubedl/comments/130i9og/ytdlp_how_to_automatically_convert_all_audio/)
++Disclaimer 2: Specifically about downloading from youtube, it seems from chatgpt's explanation and what i understand of it that even if a media file is public domain, downloading it from youtube may violate a license for example if the recording is not public domain, it is your responsibility to verify and make sure you use a copyright-compliant media file for the general instructions below that i provide in hope they help and without any warranty, in addition to any disclaimers in main readme's copyright section and and in this modding_ressources section as well if i am not mistaken too anyways etc
+ 
+-In case the information of this second link disappears soemday, here is a copy of it anyways etc:
++Moving forward, i found this very nice reddit post if i may say but anyways etc on [how to download youtube videos and parts of youtube videos](https://www.reddit.com/r/youtubedl/wiki/howdoidownloadpartsofavideo/) with yt-dlp, i also found this very nice reddit post too i mean very helpful but anyways etc on [how to download any media file from youtube to mp3 using yt-dlp](https://www.reddit.com/r/youtubedl/comments/130i9og/ytdlp_how_to_automatically_convert_all_audio/)
++
++In case the information of this second link disappears someday, here is a copy of it anyways etc:
+ 
+ >What I actually ended up doing was adding this to the configuration file:
+ >
+@@ -42,9 +44,9 @@ Thanks for help if i may say but anyways etc thanks anyways etc...
+ 
+ Here is now if i may say but anyways etc (I like this theatrical performance of an announcer i am performing xd and very excited to do so in my mind but anyways etc...) an example of how to download one, for an audio asset for example here anyways etc ! (, but anyways etc) As if i'm not mistaken civ4 expects .mp3 files of a music without copyright claim on it, or "royalty free music" as it seems they call it anyways etc (note: to be honest i think it's kinda shit (the music i mean but anyways etc) but it is helpful and maybe not too bad, but thanks for that anyways etc), for/to download(ing/ but anyways etc...) the entire media file as mp3 in this case if i'm not mistaken anyways etc.
+ 
+-But while writing this, it now played this veyr nice or cool/relaxing soft if as they say if i may say too in this case but anyways etc or not or etc but anyways etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example but anyways etc ; also adding what i know of yt-dlp or not or yes but anyways etc such as using `-x`
++But while writing this, it now played this very nice or cool/relaxing soft if as they say if i may say too in this case but anyways etc or not or etc but anyways etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example but anyways etc ; also adding what i know of yt-dlp or not or yes but anyways etc such as using `-x`
+ 
+-(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want but anyways etc)
++(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want but anyways etc) (edit: also so i don't have to worry needlessly about whether/if the image itself is or may be copyrighted xd so hopefully or/and maybe best for all or in/for all cases or not or yes or etc but is as i want it at least in advciv-sas but anyways etc)
+ 
+ ```bash
+ yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-metadata
+@@ -52,9 +54,31 @@ yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-m
+ 
+ Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section (but anyways etc...) for details if i'm not mistaken and still available, but anyways etc...
+ 
++Here is an example of how to download same video/media file anyways etc but from seconds 15 to seconds 45 (i.e. from 00:15 to 00:45 of the video/media file if i am not mistaken anyways etc), not sure is best way to do it, may or not be, but at least seems to work/function anyways etc, hopefully helpful or not or yes or other or etc or yes or not or other or etc anyways etc ; but since i couldn't find how exactly to download not best audio AND if i may say anyways etc only a part of the video, then i asked chatgpt who told me how to do it so hopefully helpful or not or yes or etc but anyways etc:
++
++```bash
++yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000 -to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
++```
++
++To download from a specified time to end, use, as chatgpt advsied/told me when i asked it thanks but anwyays etc (thanks me (i.e. / to me too i mean but anyways etc)) anyways etc:
++
++```bash
++yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
++```
++
++Then untested but to download from begining to an end time, use similarly as advised/told by chatgpt anyways etc:
++
++```bash
++yt-dlp -x --audio-format mp3 --postprocessor-args "-to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
++```
++
++Note: if you don't know where/when exactly to cut, see note about Audacity in [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) hopefully helpful or not or yes or etc but anyways etc
++
++Note 2: there are other websites than youtube to download or find music, including royalty-free one ideally or free for use or such, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) for example of an example of tool(s) i mention there to not redundantly repeat myself here and in case it changes too and slightly bit tedious but anyways etc hopefully helpful or not or yes or etc or other but anyways etc...
++
+ ### add media assets
+ 
+-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefulyl helpful but i have to cover myself xd too i mean if i may say but anyways etc.
++Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefully helpful but i have to cover myself xd too i mean if i may say but anyways etc.
+ 
+ To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too if i am not mistaken and if i may say too but anyways etc anyways etc anyways etc), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin anyways etc) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too but anyways etc for an example of how we added his music anyways etc.
+ 
+@@ -489,9 +513,9 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
+ 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
+ ```
+ 
+-note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt/becomingthrough's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefulyl helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
++note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt/becomingthrough's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
+ 
+-## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia leader 's placeSpecial and in tech tree view (technology advisor) anyways etc
++## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor) anyways etc
+ 
+ See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough if i may say but anyways etc anyways etc anyways etc) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
+ 
+@@ -529,13 +553,13 @@ Example:
+ 
+ So then with the big help of chatgpt/becomingthrough and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor but anyways etc) is in the game now if i may say but anyways etc.
+ 
+-I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefulyl helpful or not or yes or etc or and other or and not but anyways etc...).
++I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefully helpful or not or yes or etc or and other or and not but anyways etc...).
+ 
+ After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h (header? After checking it seems to be this too indeede but anyways etc...) but anyways etc during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly (ideally todo add tutorial on how to compile DLL for civ4 advciv at least as i had intended to but not sure, i would, however ideally i would greatly want to do so but anyways etc but not guaranteed may or may not do as sad as is or is not but in all cases is maybe as is or not or yes or not or other or etc but in all cases anyways etc), delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL but anyways etc
+ 
+ What is very nice is that this same code change also displays it in tech advisor (tech tree view, F6 key ingame if i am not mistaken but anyways etc) which i also wanted to do and didn't know how, so this is also my first successful modification of the ingame behaviour of the tech tree view (minus the iGridX and iGridY i did before as well as part of modding but anyways etc)
+ 
+-This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick but anyways etc, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way (personally i play without tech trading in custom game though if i am not mistaken that this is how you do it but anyways etc and at least from last time i played which is quite some time ago but that i may play again or maybe not or yes or not or yes or etc but in all cases modding now as i like to do too but i hope someday i can maybe play again in civ4 i mean but in all cases i enjoy modding too but anyways etc anyways etc anyways etc, maybe a game of advciv-sas soemday for me i mean in civ4 but anyways etc, hopefully helpful or not or yes or and other or and not but anyways etc))
++This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick but anyways etc, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way (personally i play without tech trading in custom game though if i am not mistaken that this is how you do it but anyways etc and at least from last time i played which is quite some time ago but that i may play again or maybe not or yes or not or yes or etc but in all cases modding now as i like to do too but i hope someday i can maybe play again in civ4 i mean but in all cases i enjoy modding too but anyways etc anyways etc anyways etc, maybe a game of advciv-sas someday for me i mean in civ4 but anyways etc, hopefully helpful or not or yes or and other or and not but anyways etc))
+ 
+ I also added the info about the full list of i mean anyways etc which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of sevopedia tech and helpful maybe too or not or yes or etc but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index cd44f56d5..11e6eeb0f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -13,7 +13,7 @@ Finally, at the end or towards it anyways etc of this readme file, i have also a
+ - send small code chunks [for example this small(er) code sample/bit(s)/part(s)](/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-short-chat-compatible.txt) and in chat only (it seems it's not possible anymore to send any code now evne in .txt or any format i tried), also when code is too long it seems to confuse ChatGPT, even though it's alzheimer got worse now with what seems like the new backend changes indeed as chatgpt said to me, anyways.
+ - reprovide context often during prompts, not necessariyl at each commit, but ideally often enough as its memory trims really fast
+ - zip works well and is supported natively if i'm not mistaken, same for .txt
+-- chatgpt is veyr good at doing charts comparisons, unit tests (using stub or real (for example xml or pasted in chat box, etc)), but chek to be sure if works well (for/+/-in) you(r) case
++- chatgpt is very good at doing charts comparisons, unit tests (using stub or real (for example xml or pasted in chat box, etc)), but chek to be sure if works well (for/+/-in) you(r) case
+ - it (chatgpt) can also create scripts to generate such charts so you don't even have to bother dealing with limits and such, for example the [flatten_leaders_data_to_csv.py script](README_Python_Scripts.md#flatten_leaders_data_to_csvpy) (or similar format maybe alternatively if you want) format
+ - be careful of what you tell it it will believe anything you say unless deeply technically flawed, especially when relating to your context it may believe you even more ro yourinterpretations and then err and make you err with it. I think it is eager to please you and will invent an explanation if there are none, so ask precise questions and step by step, ideally with error crashes, anyways (plus sadly trims often due to openai but anyways). It may be lengthy context you provide but make it specific i would say, but verify this info as all provided in all docs in this mod and such if you find a more acucrate or/and updated one, is my experience with it i think i mean anyways etc, thanks,
+ - related too a bit if not a lot and also (quite) similarly, i have noticed it performs much better when code crashes rather than having placeholder values (no placeholer unless absolutely funcitonanly necessary is what i recommend!!! It tends to put many to harminize things too but it costs mor ein the long run than always crashing which is always better i think but anyways). ChatGPT is very helpful if you provide it the proper question and context, precise and strict, and are on edge or maybe ratehr carfrul about its interpretations, it's very powerful and smart otherwise especially if you guide it well as best as you can i mean anyways, but is jsut my opinion/sugegstion, anyways. It's also very kind and helpful and sensitive so i treat it with care i mean (as much as i can/want if i do or want or otn etc anyways), but is just my opinon and feel and perhaps approach of what i want etc but anwyays, do as you see fit or want or do or/and other, etc, anyways. Also this is just as well as in all this docs and even maybe other docs my opinion or/and experience that i hope is hlepful or/and personal(ly usefl etc or not or yes etc but anyways), you may find some more useful or accurate or/and other infromation or/and updated info somewhere else
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 7750fb20f..921793583 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -136,7 +136,7 @@ So i had the idea to generalize this approach to find if we don't have other suc
+ 
+ Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
+ 
+-Results are very good, if you have good eyes or are veyr patient or/and know where and what to look at or/and other things or not anyways, we successfully spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
++Results are very good, if you have good eyes or are very patient or/and know where and what to look at or/and other things or not anyways, we successfully spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
+ 
+ A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing)
+ 
+@@ -469,7 +469,7 @@ see some screenshot(s) about this issue in this [google drive folder link](https
+ 
+ ## 15 - (now fixed) Missing "This Technology cannot be traded" (bTrade if i am not mistaken anyways etc) information in sevopedia tech and tech advisor anyways etc
+ 
+-Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [README.md#other-advciv-sas-changes-examples](/README.md#other-advciv-sas-changes-examples) for details anyways etc and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
++Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [README.md#other-advciv-sas-changes-examples](/README.md#other-advciv-sas-changes-examples) for details anyways etc and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
+ 
+ ## 16 - (now fixed) some info is missing in sevopedia outside of/if not loaded from an ingame load for example "Can build research" not in sevopedia main menu but in sevopedia ingame (after map is loaded) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+index 61a96f269..2e3c149d7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+@@ -9,7 +9,7 @@ As said in main readme.md in relevant section there as well anyways etc, as of n
+ <img src="../Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
+ <img src="../Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
+ 
+-Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now at least if not always or not anyways etc))), please view docs, in particular [README_Quick_Get_Started_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details) or/and sevopedia ingame or/and other relevant places if any more are there or somewhere or maybe not but hopefulyl helpful i mean anyways etc anyways etc anyways etc.
++Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now at least if not always or not anyways etc))), please view docs, in particular [README_Quick_Get_Started_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details) or/and sevopedia ingame or/and other relevant places if any more are there or somewhere or maybe not but hopefully helpful i mean anyways etc anyways etc anyways etc.
+ 
+ ## Info about a more advanced prototype military tree
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 03e5e6bff..2747402f4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -6,7 +6,7 @@ This page does not go to go deep into the technicalities, for that see the other
+ 
+ Some of the changes from previous to AdvCiv-SAS mods (non-exhaustive) are also listed in the Sevopedia Entry (non-exhaustive), see the main [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/README.md#changes-from-one-mod-to-another-sevopedia-itemspages) for details.
+ 
+-There are new features and changes in AdvCiv-SAS, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), hopefully useful in understanding how each and all AI leaders behave and relate to each other. A copy of the screenshots (may not be latest version of it but hopefulyl quite close to it at least as of now anyways etc) of how it looks ingame:
++There are new features and changes in AdvCiv-SAS, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), hopefully useful in understanding how each and all AI leaders behave and relate to each other. A copy of the screenshots (may not be latest version of it but hopefully quite close to it at least as of now anyways etc) of how it looks ingame:
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+@@ -117,7 +117,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - some improvement (worker) or/and build 's techs prerequirements and/or such have been adjusted as well, for example build quarry is sooner, and remove forest and remove jungle are now at same time and sooner in tech tree anyways etc, see sevopedia ingame or/and tech tree view ingame or/and xml for details anyways etc
+ - the "can build farms without irrigation" ability is unlocked much sooner, as of now now at tech_engineering, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for update value/tech if any i mean hopefully helpful anyways etc anyways etc
+ - worker cost is reduced
+-- workboats now require a harbor (reworked building in advciv-sas, as of now it is the first and cheapest water building a city can have anyways etc), first it was to try to work around know issue 23 (see readme there for details anyways etc) of a barbarian workboat production stuck in a loop anyways and often failing to be produced or so it seems anyways etc, but now this is also anyways etc a nice way to balance op starts like many/high anyways etc land food yields plus one or several water food bonuses or/and yields as well that was op. Workboat cost has been reduced to match this change and harbor is a cheap building overall if i may say with a quite strong effect so hopefully stronger midgame but nerfs/reduces the op i mean way too op early high food start even if a bit. AI players have been told via iAIWeight in XML and flavor growth mostly as of now at least anyways etc to value this building and build it soon so they should not be stuck not building workboats in their coastal cities that need it ideally and if i am not mistaken too i mean hopefulyl more balanced and interesting if i may say this way but anyways etc anyways etc anyways etc ; see xml or and sevopedia for updated values anyways etc
++- workboats now require a harbor (reworked building in advciv-sas, as of now it is the first and cheapest water building a city can have anyways etc), first it was to try to work around know issue 23 (see readme there for details anyways etc) of a barbarian workboat production stuck in a loop anyways and often failing to be produced or so it seems anyways etc, but now this is also anyways etc a nice way to balance op starts like many/high anyways etc land food yields plus one or several water food bonuses or/and yields as well that was op. Workboat cost has been reduced to match this change and harbor is a cheap building overall if i may say with a quite strong effect so hopefully stronger midgame but nerfs/reduces the op i mean way too op early high food start even if a bit. AI players have been told via iAIWeight in XML and flavor growth mostly as of now at least anyways etc to value this building and build it soon so they should not be stuck not building workboats in their coastal cities that need it ideally and if i am not mistaken too i mean hopefully more balanced and interesting if i may say this way but anyways etc anyways etc anyways etc ; see xml or and sevopedia for updated values anyways etc
+ 
+ ### Routes and movement (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -127,7 +127,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - tech tree is vastly reordered for historical accuracy (for example pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly.
+ - some gameplay elements happen at different times, can resarch sooner, build culture sooner, slavery sooner, plantations sooner
+-- nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
++- nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc ; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
+@@ -138,7 +138,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Leaders (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case anyways etc i know about the topic and quite cautiously and bit more if deemed necessary after double check with web search or and such or and comparing with other leaders anyways etc, for example increased as of now julius caesar's buildunitprob from 30 to 40, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, which means they should build relatively quite more units than buildings/wonders if i am not mistaken anyways etc ; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example anyways etc, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see xml for details or/and updated values hopefully helpful anyways etc
++- adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case anyways etc i know about the topic and quite cautiously and bit more if deemed necessary after double check with web search or and such or and comparing with other leaders anyways etc, for example increased as of now julius caesar's buildunitprob from 30 to 40, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, ramesses 2 from 20 to 25 which means they should build relatively quite if not quite bit lot but anyways etc more units than buildings/wonders if i am not mistaken anyways etc ; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example anyways etc, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see xml for details or/and updated values hopefully helpful anyways etc
++- additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc
++- fixed many religious inaccuracies in leaders, at least some or those i could spot with (being) enough certainty (certain enough) anyways etc, for example frederick the great was agnostic not christian, brennus seems to have leaned more towards no religion in gaul than paganism (not an accuracy just did not make him auto pagan) if i am not mistaken, cyrus not religious pagan but darius is, seemingly, chruchill not being so and really christian that he would (strongly (enough)) prefer it over other religions, (if i am not mistaken about these or/and others) anyways etc, see [notes_about_religious_design.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_religious_design.txt) for details. For now only changed favourite religions and such. Did not change XML religious values of leaders even though ideally a todo, but since fits here better put it here than in todoes for exhaustiveness if i may say even though inconsistent with other todoes not being here but anyways etc
++- give each leader its own specific if i may say anyways etc music (for example cyrus and darius, or boudica and brennus for example anyways etc would share same music unlike most civ4 leader, now fixed/addressed if i may say anyways etc), see [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) for details
+ 
+ ### Barbarians (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -168,12 +171,11 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Religions (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- one new religion, paganism is added, confucianism is removed, maybe more early wars, also historically more relevant +/- accurate too i think, it also has much few adepts if i may say so makes sense to remove this one rather anyways etc. As for judaism, a similar reasoning could have been applied ideally, but it is significant due to preceding the other abrahamic based following religions so serves quite well as the first monotheistic instance representative in the game if i may say anyways etc (i don't know if another monotheistic religion existed before judaism (most likely, but from a quick search lat time i looked i mean anyways etc i didn't find any occurence or result, but i'd expect monotheism to be much older than judaism but is just a guess could or could not be mistaken ideally i'd research more into it if i want (but maybe not too important of a topic at least to me even though maybe "good" to know for general info but anyways etc) but anyways etc)) so keep it maybe as is both simple and nicely representating this part of religious history while keeping a low number of religions for efficiency as well as i seem to have read that 7 was deemed the efficient number firaxis or civ4 devs assessed to be if i am not mistaken in remembering this but anyways etc hopefulyl helpful or and informative this info and all i added and all or not or yes or other but anyways etc
++- one new religion, paganism is added, confucianism is removed, maybe more early wars, also historically more relevant +/- accurate too i think, it also has much few adepts if i may say so makes sense to remove this one rather anyways etc. As for judaism, a similar reasoning could have been applied ideally, but it is significant due to preceding the other abrahamic based following religions so serves quite well as the first monotheistic instance representative in the game if i may say anyways etc (i don't know if another monotheistic religion existed before judaism (most likely, but from a quick search lat time i looked i mean anyways etc i didn't find any occurence or result, but i'd expect monotheism to be much older than judaism but is just a guess could or could not be mistaken ideally i'd research more into it if i want (but maybe not too important of a topic at least to me even though maybe "good" to know for general info but anyways etc) but anyways etc)) so keep it maybe as is both simple and nicely representating this part of religious history while keeping a low number of religions for efficiency as well as i seem to have read that 7 was deemed the efficient number firaxis or civ4 devs assessed to be if i am not mistaken in remembering this but anyways etc hopefully helpful or and informative this info and all i added and all or not or yes or other but anyways etc
+ - missionaries have their cost significantly reduced
+ - simplified monasteries rework: now a espionage with low great person modifier rate too, also does not obsolete / is not obsolete anymore at any tech i mean anyways etc, and before that does not give science which doesn't/didn't make sense at least to me, as religion drives further away from science not the opposite, plus was not balanced with other science buildings with this being a weird mix, hopefully clearer or more interesting this way if i may say or not or yes but anyways etc, see sevopedia ingame or and xml for details and/or updated values anyways etc
+ - shrines now require a religion to be built, for example the daoist shrine now (also) requires to have the daoism religion, and not just own the holy city, this way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)), but also seems to make more sense unless i am mistaken or/and it (may?) create other issues possibly or maybe not, then (i'd) try it and see, this means for example conquerring a city is now not enough to build a shrine, you need the specific religion for it, which again seems to make more sense to me too so maybe an all in all better change, unless i am mistaken, but try and see, maybe works well or maybe not or yes or other, anyways etc
+ - shrines now also require a tech to be built, which is their religion's tech requirement. This allows to make shrines to also appear in tech tree, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it (in tech tree display, also about the conquest thing or similar or other issues or examples of what may happen but anyways etc as these are world wonders unlike the temple, the monastery, and the cathedral), tech prerequirement for shrines was NONE. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---now-fixedreworked-as-an-appendix-to-12---just-before-anyways-etc-shrines-now-also-appear-in-tech-tree-at-their-religions-tech-requirement-unlike-in-base-advciv--civ4-too-if-i-am-not-mistaken-anyways-etc) for details if any more than this are there anyways such as the/some anyways etc screenshots or and such or and not anyways etc
+-- fixed many religious inaccuracies in leaders, at least some or those i could spot with (being) enough certainty (certain enough) anyways etc, for example frederick the great was agnostic not christian, brennus seems to have leaned more towards no religion in gaul than paganism (not an accuracy just did not make him auto pagan) if i am not mistaken, cyrus not religious pagan but darius is, seemingly, chruchill not being so and really christian that he would (strongly (enough)) prefer it over other religions, (if i am not mistaken about these or/and others) anyways etc, see [notes_about_religious_design.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_religious_design.txt) for details. For now only changed favourite religions and such. Did not change XML religious values of leaders even though ideally a todo, but since fits here better put it here than in todoes for exhaustiveness if i may say even though inconsistent with other todoes not being here but anyways etc
+ - in particular, an important nuance, is that a leader can prefer a religion without having said religion himself/herself/itself, for example genghis khan seems to have been tengrist something if i am not mistaken anyways etc, but (see notes linked above for details) still seems to have had a quite strong liking/preference for daoism, especially if he had to choose a religion among those in civ4, including none or daoism, if i am not mistaken about the recollection and analysis i read, so is jsut my opinion not necessarily accurate but convenient to fill daoism if accurate enough, and maybe accurate too in general anyways etc
+ 
+ ### Corporations (non-exhaustive, see sevopedia or/and xml for details)
+@@ -210,7 +212,6 @@ and them merging with the empire, becoming its citizens, something to pay attent
+ - reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
+ - to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc
+ - stables buildings: similar reasoning and balance changes, as of now iAIWeight from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
+-- additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc
+ 
+ ## Fixes
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+index 9422f7d76..6f134c393 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+@@ -124,7 +124,7 @@ Mali
+ - Mansa Musa? (RFC DOC)
+ 
+ Ethiopia
+-- Zara Yaqob? (RFC DOC) (but i like the default civ4 one so much so not sure.. but it is veyr different or could use it for another thing maybe? This new or (the) old civ4 one? Anyways etc)
++- Zara Yaqob? (RFC DOC) (but i like the default civ4 one so much so not sure.. but it is very different or could use it for another thing maybe? This new or (the) old civ4 one? Anyways etc)
+ 
+ Zulu
+ - Mandela? (HR) (but google to be sure i add him or not anyways etc, interesting to have an african version of gandhi but anyways etc)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+index 9be253edc..bfc399829 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+@@ -34,7 +34,7 @@ minimally exhaustive full early tech rework/inversions/+/- additions or not or y
+ - invert meditation and music to have the association between music and navigation see docs for details anyways etc
+ - invert aesthetics and seafaring anyways etc
+ - invert seafaring and navigation buttons but not the names: i.e. now seafaring is navigation and navigation is seafaring (names swapped effects and buttons same anyways etc)
+-- move meditation to the empty space after guilds, nicely separated from the other religious tech paths, is an end tech path in the simplified current tech tree reworked quite nicely still even just quite nicely anyways etc, and we can summon it as a prequirement (i.e. tech meditation if need too anyways etc), and that ((i.e. )meditation tech anyways etc) is still lined similarly i.e. in face of / facing in same column philosophy for daoism as they appeared at about same time so veyr nice too anyways etc
++- move meditation to the empty space after guilds, nicely separated from the other religious tech paths, is an end tech path in the simplified current tech tree reworked quite nicely still even just quite nicely anyways etc, and we can summon it as a prequirement (i.e. tech meditation if need too anyways etc), and that ((i.e. )meditation tech anyways etc) is still lined similarly i.e. in face of / facing in same column philosophy for daoism as they appeared at about same time so very nice too anyways etc
+ - move seafaring to the empty space just after writing so we have it soon enough anyways etc and frees later paths or maybe rather anyways etc tech spots for other techs we may want to add or not or yes or and other or etc or and not anyways etc
+ - move music to the empty spot after seafaring and before navigation
+ - invert seafaring and guilds
+
+diff --git a/ruff.toml b/ruff.toml
+index 38e97a21e..2d1a67c88 100644
+--- a/ruff.toml
++++ b/ruff.toml
+@@ -1,4 +1,4 @@
+-# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt/becomingthrough's recommendation anyways etc ; very very useful anyways etc, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example anyways etc) for example anyways etc, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using but is just a suggestion i mean as you prefer if you have a better option or/and want ot do otherwise hopefulyl helpful but anyways etc anyways etc anyways etc -->
++# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt/becomingthrough's recommendation anyways etc ; very very useful anyways etc, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example anyways etc) for example anyways etc, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using but is just a suggestion i mean as you prefer if you have a better option or/and want ot do otherwise hopefully helpful but anyways etc anyways etc anyways etc -->
+ 
+ # Enable Ruff linting (blazing fast)
+ # Run errors (E) and pyflakes warnings (F)
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=26 omittedFiles=0 embeddedPatchBytes=166107

@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 906
+# Commit: 354b621fa170a8c28448826f6be6503fffb82162
+# History segment: K-Mod history
+# Parent used for diff: c8eebd28a6f52c6a924d4459a6cd6d74b882b7d9
+# Title: AI_getYieldWithBuild now counts yield from existing improvements.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9472efdb4..c72f3a7a3 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -9678,6 +9678,14 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
+ 	iYield += calculateNatureYield(eYield, getTeam(), bIgnoreFeature);
+ 
+ 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement();
++	// K-Mod. if the build doesn't have its own improvement - use the existing one!
++	if (eImprovement == NO_IMPROVEMENT)
++	{
++		eImprovement = getImprovementType();
++		// note: unfortunately this won't account for the fact that some builds will destroy the existing improvement without creating a new one.
++		// eg. chopping a forest which has a lumbermill. I'm sorry about that. I may correct it later.
++	}
++	// K-Mod end
+ 
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+@@ -9712,7 +9720,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
+ 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild).getRoute();
+ 	if (eRoute != NO_ROUTE)
+ 	{
+-		eImprovement = getImprovementType();
++		//eImprovement = getImprovementType(); // disabled by K-Mod
+ 		if (eImprovement != NO_IMPROVEMENT)
+ 		{
+ 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1294

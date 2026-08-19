@@ -1,0 +1,561 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1370
+# Commit: c4605a683335cde0c00f12f7abd949ec2d496a0b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 349186581e3cef4b660a0bbb382876d494d282f3
+# Title: v0.94rc (release candidate): DLL
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	1	Assets/Python/Screens/CvMainInterface.py
+3	4	Assets/xml/GlobalDefines_advc.xml
+12	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+2	23	Assets/xml/Text/CIV4GameText_advc.xml
+4	32	CvGameCoreDLL/CvDLLButtonPopup.cpp
+6	6	CvGameCoreDLL/CvGameTextMgr.cpp
+63	112	CvGameCoreDLL/CvMapGenerator.cpp
+10	5	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvTeamAI.cpp
+-	-	manual_0.93b.odt => manual_0.94.odt
+ rename manual_0.93b.odt => manual_0.94.odt (63%)
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index be0bb11ad..c0ceb7784 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1118,7 +1118,8 @@ class CvMainInterface:
+ 			else:
+ 				# Flash select messages if no popups are present
+ 				if ( CyInterface().shouldDisplayReturn() ):
+-					acOutput = localText.getText("SYSTEM_RETURN", ())
++					# advc.004t: Disable flashing "Press Esc to return"
++					acOutput = ""#localText.getText("SYSTEM_RETURN", ())
+ 					#screen.modifyLabel( "EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY )
+ 					screen.setEndTurnState( "EndTurnText", acOutput )
+ 					bShow = True
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 600542b83..608792557 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -776,11 +776,10 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.004t] Set to 0 to enable change 004t (not recommended; see
+-		 manual). -->
++	<!-- [advc.004t] Copied from BtS GlobalDefines.xml where it's set to 1. -->
+ 	<Define>
+-		<DefineName>ENABLE_POPUP_RECOMMENDATIONS</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<DefineName>CITY_SCREEN_CLICK_WILL_EXIT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
+ 	<!-- [advc.700] Rise & Fall parameters. The first four are applied at game
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 70b4eff96..e4eae9172 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -460,4 +460,16 @@
+ 	<Spanish>Most announcements can be located on the map by opening the Event Log [Ctrl+Tab] and clicking on the announcement text.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: Was "Snacks are good in moderation" - the joke got old.
++	 It also works in the tech tree; however, right-click in the tech tree also
++	 sets a research target, so this is not recommendable. -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_35</Tag>
++	<English>In the city screen, a right-click on a production button opens the Civilopedia. The Civilopedia can also be accessed via right-click from the tech-chooser and the civics screen.</English>
++	<French>In the city screen, a right-click on a production button opens the Civilopedia. The Civilopedia can also be accessed via right-click from the tech-chooser and the civics screen.</French>
++	<German>Ein Rechtsklick auf eine Einheiten- oder Geb�ude-Schaltfl�che im Stadtbildschirm �ffnet die Zivilop�die. Auch von der Technologieauswahl und dem Staatsform-Bildschirm aus ist die Zivilop�die per Rechtsklick erreichbar.</German>
++	<Italian>In the city screen, a right-click on a production button opens the Civilopedia. The Civilopedia can also be accessed via right-click from the tech-chooser and the civics screen.</Italian>
++	<Spanish>In the city screen, a right-click on a production button opens the Civilopedia. The Civilopedia can also be accessed via right-click from the tech-chooser and the civics screen.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 06d1227fa..234d56b66 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -118,7 +118,7 @@
+ 		 in Civ4\Assets\CIV4GameTextInfos.xml. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_AGGRESSIVE_AI</Tag>
+-		<English>Aggressive AI (K-Mod)</English>
++		<English>Aggressive AI (Legacy)</English>
+ 		<French>IA agressive (K-Mod)</French>
+ 		<German>Aggressive KI (K-Mod)</German>
+ 		<Italian>IA aggressiva (K-Mod)</Italian>
+@@ -129,7 +129,7 @@
+ 		 CIV4GameText_Misc1.xml. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_AGGRESSIVE_AI_HELP</Tag>
+-		<English>Use the K-Mod AI for decisions on war and peace (instead of the newer and less aggressive AdvCiv AI). </English>
++		<English>Use the older K-Mod AI for decisions on war and peace instead of the newer and less aggressive AdvCiv AI. </English>
+ 		<French>Emploie l'IA agressive de K-Mod pour les d&#233;cisions de guerre et paix.</French>
+ 		<German>Verwende die K-Mod-KI f&#252;r Entscheidungen &#252;ber Krieg und Frieden (anstatt der neueren und weniger aggressiven AdvCiv-KI).</German>
+ 		<Italian>Usa l'IA aggressiva di K-Mod per le decisioni di guerra e pace.</Italian>
+@@ -2571,27 +2571,6 @@
+ 		<Spanish>[ICON_BULLET]Almacena el %d1_Mod%% de los [ICON_FOOD] tras el crecimiento o inanici�n.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.104t: Warning hopefully no longer needed -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_GAME_OPTION_PERMANENT_ALLIANCES_HELP</Tag>
+-		<English>(WARNING: This option hasn't been tested with the AdvCiv mod.) Two civilizations can form a Permanent Alliance which lasts the rest of the game.</English>
+-		<French>(WARNING: This option hasn't been tested with the AdvCiv mod.) Deux civilisations peuvent former une alliance permanente qui dure jusqu'&#224; la fin du jeu.</French>
+-		<German>(WARNING: This option hasn't been tested with the AdvCiv mod.) Zwei Zivilisationen k&#246;nnen eine Allianz schlie&#223;en, die die restliche Spielzeit &#252;berdauert.</German>
+-		<Italian>(WARNING: This option hasn't been tested with the AdvCiv mod.) Due civilt&#224; possono formare una alleanza permanente che duri fino alla fine della partita.</Italian>
+-		<Spanish>(WARNING: This option hasn't been tested with the AdvCiv mod.) Dos civilizaciones pueden formar una alianza permanente que dure hasta que acabe la partida.</Spanish>
+-	</TEXT-->
+-	
+-	<!-- advc.004t: Shortened version of TXT_KEY_POPUP_RECOMMENDED in
+-		 CIV4GameTextInfos.xml. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_POPUP_NO_RECOMMENDATION</Tag>
+-		<English>%s1_ProdName (%d2_NumTurns)</English>
+-		<French>%s1_ProdName (%d2_NumTurns) </French>
+-		<German>%s1_ProdName (%d2_NumTurns)</German>
+-		<Italian>%s1_ProdName (%d2_NumTurns)</Italian>
+-		<Spanish>%s1_ProdName (%d2_NumTurns [NUM2:turno:turnos])</Spanish>
+-	</TEXT>
+-
+ 	<!-- advc.004u: Originally in CIV4GameText_Warlords.xml without the Civ
+ 		 variables. -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index cb4efdc90..03e3c1bda 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1193,19 +1193,11 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	{
+ 		eProductionBuilding = pCity->AI_bestBuilding(0, 50, true, ((eProductionUnit != NO_UNIT) ? ((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())) : NO_ADVISOR));
+ 	}
+-	// <advc.004t>
+-	bool recommend = GC.getDefineINT("ENABLE_POPUP_RECOMMENDATIONS") > 0 ||
+-			GET_PLAYER(pCity->getOwnerINLINE()).isOption(PLAYEROPTION_ADVISOR_HELP);
+-			// </advc.004t>
++
+ 	if (eProductionUnit != NO_UNIT)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionUnit, 0);
+-		// <advc.004t>
+-		if(!recommend) {
+-			szBuffer = gDLL->getText("TXT_KEY_POPUP_NO_RECOMMENDATION",
+-					GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns);
+-		} else // </advc.004t>
+-			szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())).getTextKeyWide());
++		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())).getTextKeyWide());
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GET_PLAYER(pCity->getOwnerINLINE()).getUnitButton(eProductionUnit), GC.getUnitInfo(eProductionUnit).getUnitClassType(), WIDGET_TRAIN, GC.getUnitInfo(eProductionUnit).getUnitClassType(), pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+ 	}
+@@ -1213,12 +1205,6 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	if (eProductionBuilding != NO_BUILDING)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionBuilding, 0);
+-		// <advc.004t>
+-		if(!recommend) {
+-			szBuffer = gDLL->getText("TXT_KEY_POPUP_NO_RECOMMENDATION",
+-					GC.getBuildingInfo(eProductionBuilding).getTextKeyWide(),
+-					iTurns);
+-		} else // </advc.004t>
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getBuildingInfo(eProductionBuilding).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getBuildingInfo(eProductionBuilding).getAdvisorType())).getTextKeyWide());
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getBuildingInfo(eProductionBuilding).getButton(), GC.getBuildingInfo(eProductionBuilding).getBuildingClassType(), WIDGET_CONSTRUCT, GC.getBuildingInfo(eProductionBuilding).getBuildingClassType(), pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+@@ -1227,12 +1213,6 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	if (eProductionProject != NO_PROJECT)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionProject, 0);
+-		// <advc.004t>
+-		if(!recommend) {
+-			szBuffer = gDLL->getText("TXT_KEY_POPUP_NO_RECOMMENDATION",
+-					GC.getProjectInfo(eProductionProject).getTextKeyWide(),
+-					iTurns);
+-		} else // </advc.004t>
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV", GC.getProjectInfo(eProductionProject).getTextKeyWide(), iTurns);
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProjectInfo(eProductionProject).getButton(), eProductionProject, WIDGET_CREATE, eProductionProject, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+@@ -1240,11 +1220,6 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 
+ 	if (eProductionProcess != NO_PROCESS)
+ 	{
+-		// <advc.004t>
+-		if(!recommend) {
+-			szBuffer = CvWString::format(GC.getProjectInfo(eProductionProject).
+-					getTextKeyWide());
+-		} else // </advc.004t>
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV_OR_TURNS", GC.getProcessInfo(eProductionProcess).getTextKeyWide());
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProcessInfo(eProductionProcess).getButton(), eProductionProcess, WIDGET_MAINTAIN, eProductionProcess, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+@@ -1634,11 +1609,8 @@ bool CvDLLButtonPopup::launchChooseTechPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 					szBuffer.Format(L"%s (%d)", GC.getTechInfo((TechTypes)iI).getDescription(), ((iDiscover > 0) ? 0 : player.getResearchTurnsLeft(((TechTypes)iI), true)));
+ 
+ 					if ((iI == eBestTech) || (iI == eNextBestTech))
+-					{	// <advc.004t>
+-						if(GC.getDefineINT("ENABLE_POPUP_RECOMMENDATIONS") > 0 ||
+-								player.isOption(PLAYEROPTION_ADVISOR_HELP))
+-								// </advc.004t>
+-							szBuffer += gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_ONLY_ADV", GC.getAdvisorInfo((AdvisorTypes)(GC.getTechInfo((TechTypes)iI).getAdvisorType())).getTextKeyWide());
++					{
++						szBuffer += gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_ONLY_ADV", GC.getAdvisorInfo((AdvisorTypes)(GC.getTechInfo((TechTypes)iI).getAdvisorType())).getTextKeyWide());
+ 					}
+ 
+ 					CvString szButton = GC.getTechInfo((TechTypes) iI).getButton();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 707d25243..a1b438279 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14541,19 +14541,19 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 		if(g.isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !g.isDebugMode())
+ 			continue;
+ 		iAttitudeChange = kPlayer.AI_getRankDifferenceAttitude(eTargetPlayer);
++		CvWString szRankText = gDLL->getText((g.getPlayerRank(ePlayer) <
++				g.getPlayerRank(eTargetPlayer) ?
++				"TXT_KEY_MISC_ATTITUDE_BETTER_RANK" :
++				"TXT_KEY_MISC_ATTITUDE_WORSE_RANK"), iAttitudeChange);
+ 		if(iAttitudeChange > 0 && iPass == 0) {
+ 			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+-					TEXT_COLOR("COLOR_POSITIVE_TEXT"),
+-					gDLL->getText("TXT_KEY_MISC_ATTITUDE_BETTER_RANK",
+-					iAttitudeChange).GetCString());
++					TEXT_COLOR("COLOR_POSITIVE_TEXT"), szRankText.GetCString());
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(szTempBuffer);
+ 		}
+ 		if(iAttitudeChange < 0 && iPass != 0) {
+ 			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+-					TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
+-					gDLL->getText("TXT_KEY_MISC_ATTITUDE_WORSE_RANK",
+-					iAttitudeChange).GetCString());
++					TEXT_COLOR("COLOR_NEGATIVE_TEXT"), szRankText.GetCString());
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(szTempBuffer);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index a61c5691f..e26defb18 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -42,131 +42,81 @@ CvMapGenerator::~CvMapGenerator()
+ {
+ }
+ 
+-
++// advc.003: Refactored
+ bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY, bool bIgnoreLatitude)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvArea* pArea;
+-	CvPlot* pPlot;
+-	CvPlot* pLoopPlot;
+-	int iRange;
+-	int iDX, iDY;
+-	int iI;
+-
+-	pPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+-	pArea = pPlot->area();
++	CvPlot* pLoopPlot=NULL;
++	int iDX, iDY, iI;
++	iI=iDX=iDY=-1;
++	CvMap& m = GC.getMapINLINE();
++	CvPlot* pPlot = m.plotINLINE(iX, iY);
++	if(pPlot == NULL)
++		return false;
++	CvArea* pArea = pPlot->area();
+ 
+-	if (!(pPlot->canHaveBonus(eBonus, bIgnoreLatitude)))
+-	{
++	if(!pPlot->canHaveBonus(eBonus, bIgnoreLatitude))
+ 		return false;
+-	}
+ 
+ 	long result = 0;
+ 	CyPlot kPlot = CyPlot(pPlot);
+ 	CyArgsList argsList;
+ 	argsList.add(gDLL->getPythonIFace()->makePythonObject(&kPlot));
+-	if (gDLL->getPythonIFace()->callFunction(gDLL->getPythonIFace()->getMapScriptModule(), "canPlaceBonusAt", argsList.makeFunctionArgs(), &result))
+-	{
+-		if (!gDLL->getPythonIFace()->pythonUsingDefaultImpl())
+-		{
+-			if (result >= 0)
+-			{
++	if(gDLL->getPythonIFace()->callFunction(gDLL->getPythonIFace()->getMapScriptModule(), "canPlaceBonusAt", argsList.makeFunctionArgs(), &result)) {
++		if(!gDLL->getPythonIFace()->pythonUsingDefaultImpl()) {
++			if(result >= 0)
+ 				return result;
+-			}
+-			else
+-			{
+-				FAssertMsg(false, "canPlaceBonusAt() must return >= 0");
+-			}
++			else FAssertMsg(false, "canPlaceBonusAt() must return >= 0");
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-	{
++	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++) {
+ 		pLoopPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
+-
+-		if (pLoopPlot != NULL)
+-		{
+-			if ((pLoopPlot->getBonusType() != NO_BONUS) && (pLoopPlot->getBonusType() != eBonus))
+-			{
+-				return false;
+-			}
+-		}
++		if(pLoopPlot == NULL)
++			continue;
++		BonusTypes eLoopBonus = pLoopPlot->getBonusType();
++		if(eLoopBonus != NO_BONUS && eLoopBonus != eBonus)
++			return false;
+ 	}
+ 
+ 	CvBonusInfo& pInfo = GC.getBonusInfo(eBonus);
+-	CvBonusClassInfo& pClassInfo = GC.getBonusClassInfo((BonusClassTypes) pInfo.getBonusClassType());
++	CvBonusClassInfo& pClassInfo = GC.getBonusClassInfo((BonusClassTypes)
++			pInfo.getBonusClassType());
+ 
+-	if (pPlot->isWater())
+-	{
+-		if (((GC.getMapINLINE().getNumBonusesOnLand(eBonus) * 100) / (GC.getMapINLINE().getNumBonuses(eBonus) + 1)) < pInfo.getMinLandPercent())
+-		{
++	if(pPlot->isWater()) {
++		if(((m.getNumBonusesOnLand(eBonus) * 100) / (m.getNumBonuses(eBonus) + 1)) <
++				pInfo.getMinLandPercent())
+ 			return false;
+-		}
+-	}
+-
+-	// Make sure there are no bonuses of the same class (but a different type) nearby:
+-
+-	iRange = pClassInfo.getUniqueRange();
+-
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
+-	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
+-		{
+-			pLoopPlot	= plotXY(iX, iY, iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (pLoopPlot->area() == pArea)
+-				{
+-					if (plotDistance(iX, iY, pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= iRange)
+-					{
+-						BonusTypes eOtherBonus = pLoopPlot->getBonusType();
+-						if (eOtherBonus != NO_BONUS)
+-						{
+-							if (GC.getBonusInfo(eOtherBonus).getBonusClassType() == pInfo.getBonusClassType())
+-							{
+-								return false;
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+ 	}
+ 
+-	// Make sure there are none of the same bonus nearby:
+-
+-	iRange = pInfo.getUniqueRange();
+-
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
+-	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
+-		{
+-			pLoopPlot	= plotXY(iX, iY, iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (pLoopPlot->area() == pArea)
+-				{
+-					if (plotDistance(iX, iY, pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= iRange)
+-					{
+-						if (pLoopPlot->getBonusType() == eBonus)
+-						{
+-							return false;
+-						}
+-					}
+-				}
+-			}
++	int const iRange = pClassInfo.getUniqueRange();
++	for (iDX = -iRange; iDX <= iRange; iDX++)
++	for (iDY = -iRange; iDY <= iRange; iDY++) {
++		pLoopPlot = plotXY(iX, iY, iDX, iDY);
++		if(pLoopPlot == NULL || pLoopPlot->area() != pArea)
++			continue;
++		if (plotDistance(iX, iY, pLoopPlot->getX_INLINE(),
++				pLoopPlot->getY_INLINE()) <= iRange) {
++			BonusTypes eOtherBonus = pLoopPlot->getBonusType();
++			if(eOtherBonus == NO_BONUS)
++				continue;
++			// Make sure there are none of the same bonus nearby:
++			if(eBonus == eOtherBonus)
++				return false;
++			// Make sure there are no bonuses of the same class nearby:
++			if(GC.getBonusInfo(eOtherBonus).getBonusClassType() ==
++					pInfo.getBonusClassType())
++				return false;
+ 		}
+ 	}
+-
+-	// <advc.129> Also prevent more than one adjacent copy regardless of range.
++	// <advc.129> Prevent more than one adjacent copy regardless of range.
+ 	int nFound = 0;
+ 	for(int i = 0; i < NUM_DIRECTION_TYPES; i++) {
+ 		CvPlot* pp = plotDirection(iX, iY, (DirectionTypes)i);
+ 		if(pp == NULL) continue; CvPlot const& p = *pp;
+-		if(p.area() != pArea) continue;
++		if(p.area() != pArea)
++			continue;
+ 		if(p.getBonusType() == eBonus) {
+ 			nFound++;
+ 			if(nFound >= 2)
+@@ -819,7 +769,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonusType)
+ 						bool skip = false;
+ 						/*  Can't use pClassInfo.getUniqueRange() b/c this has to be
+ 							0 for bonuses that appear in clusters. 5 hardcoded. */
+-						int dist = 5;
++						int const dist = 5;
+ 						CvPlot const& randPlot = *pPlot;
+ 						int const x = randPlot.getX_INLINE();
+ 						int const y = randPlot.getY_INLINE();
+@@ -1290,23 +1240,24 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonusType)
+ 			}
+ 		}
+ 		// <advc.129>
+-		int subtrahend = pBonusInfo.getTilesPer(); // Typically 16 or 32
+-		int remainder = iNumPossible;
+-		int result = 0;
+-		/* Place one for the first, say, 16 tiles, the next after 17, then 18 ...
+-		   i.e. number of resources placed grows sublinearly with the number of
+-		   eligible plots. */
+-		while(true) {
+-			remainder -= subtrahend;
+-			if(remainder < 0)
+-				break;
+-			result++;
+-			subtrahend++;
+-		}
+-		if(GC.getDefineINT("SUBLINEAR_BONUS_QUANTITIES") > 0)
++		if(GC.getDefineINT("SUBLINEAR_BONUS_QUANTITIES") > 0) {
++			int subtrahend = pBonusInfo.getTilesPer(); // Typically 16 or 32
++			int remainder = iNumPossible;
++			int result = 0;
++			/* Place one for the first, say, 16 tiles, the next after 17, then 18 ...
++			   i.e. number of resources placed grows sublinearly with the number of
++			   eligible plots. */
++			while(true) {
++				remainder -= subtrahend;
++				if(remainder < 0)
++					break;
++				result++;
++				subtrahend++;
++			}
+ 			iLandTiles += result;
++		}
+ 		else // </advc.129>
+-		iLandTiles += (iNumPossible / pBonusInfo.getTilesPer());
++			iLandTiles += (iNumPossible / pBonusInfo.getTilesPer());
+ 	}
+ 
+ 	int iPlayers = (GC.getGameINLINE().countCivPlayersAlive() * pBonusInfo.getPercentPerPlayer()) / 100;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 04890ea3c..287ce8583 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9615,7 +9615,7 @@ int CvPlayerAI::AI_getWarAttitude(PlayerTypes ePlayer,
+ 		iAttitudeChange = (GET_TEAM(getTeam()).AI_getAtWarCounter(GET_PLAYER(ePlayer).getTeam()) / GC.getLeaderHeadInfo(getPersonalityType()).getAtWarAttitudeDivisor());
+ 		// <advc.sha> Factor war success into WarAttitude
+ 		iAttitudeChange = ((-iAttitudeChange) +
+-				// Mean of time based penalty and a penalty based on success and era
++				// Mean of time-based penalty and a penalty based on success and era
+ 				TEAMREF(ePlayer).AI_getWarSuccess(getTeam()) /
+ 				warSuccessAttitudeDivisor()) / -2; // </advc.sha>
+ 		int limit = abs(GC.getLeaderHeadInfo(getPersonalityType()).
+@@ -9917,7 +9917,7 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 	int div = lh.getShareWarAttitudeDivisor();
+ 	if(div == 0)
+ 		return 0;
+-	bool isShare = ourTeam.AI_shareWar(GET_PLAYER(ePlayer).getTeam());
++	bool isShare = ourTeam.AI_shareWar(TEAMID(ePlayer));
+ 	if(!isShare && ourTeam.getAtWarCount() > 0) {
+ 		/*  Only suspend the relations bonus from past shared war if the current war
+ 			is at least 5 turns old, and only if we could use help. */
+@@ -9928,7 +9928,9 @@ int CvPlayerAI::AI_getShareWarAttitude(PlayerTypes ePlayer) const
+ 				AtWarCounter is the number of turns we've been at war. Oh my! */
+ 			if(t.isAlive() && !t.isMinorCiv() &&
+ 					ourTeam.AI_getAtWarCounter(t.getID()) >= 5 &&
+-					ourTeam.AI_getWarSuccessRating() < 80 &&
++					ourTeam.AI_getWarSuccess(t.getID()) +
++					t.AI_getWarSuccess(ourTeam.getID()) > wsThresh &&
++					ourTeam.AI_getWarSuccessRating() < 25 &&
+ 					(ourTeam.AI_getWarPlan(t.getID()) != WARPLAN_DOGPILE ||
+ 					ourTeam.AI_getAtWarCounter(t.getID()) >= 15))
+ 				return 0;
+@@ -10255,6 +10257,9 @@ int CvPlayerAI::knownRankDifference(PlayerTypes otherId) const {
+ 		PlayerTypes thirdId = (PlayerTypes)i;
+ 		CvPlayer const& thirdCiv = GET_PLAYER(thirdId);
+ 		if(!thirdCiv.isAlive() || thirdCiv.isBarbarian() || thirdCiv.isMinorCiv() ||
++				/*  This would deny otherId info about civs that we have met and they
++					haven't -- not crucial I think. */
++				//!TEAMREF(otherId).isHasMet(TEAMID(thirdId))
+ 				!GET_TEAM(getTeam()).isHasMet(TEAMID(thirdId)))
+ 			continue;
+ 		int thirdRank = g.getPlayerRank(thirdId);
+@@ -28777,8 +28782,8 @@ bool CvPlayerAI::atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked) c
+ 	return false;
+ } // </advc.130r>
+ 
+-/*  Only a CvPlayer-level function b/c I want to call atWarWithPartner
+-	(which should probably be at CvTeamAI -- tbd.) */
++/*  Not a CvTeamAI function b/c I want to call atWarWithPartner, which I'd rather
++	keep at CvPlayerAI. */
+ bool CvPlayerAI::disapprovesOfDoW(TeamTypes aggressorId, TeamTypes victimId) const {
+ 
+ 	if(!isAlive() || isBarbarian() || isMinorCiv() || aggressorId == getID() ||
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index ae1e719fc..6a05fb71b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5000,9 +5000,9 @@ void CvTeamAI::reportSharedWarSuccess(int intensity, TeamTypes agentId,
+ 			std::max(1, GET_TEAM(agentId).getNumCities()));
+ 	FAssert(newValue >= oldValue);
+ 	setSharedWarSuccess(agentId, newValue);
+-	/*  Would prefer to just record 'intensity' and do the rest when computing the
+-		our attitude. However, I want to factor in the number of cities at the
+-		moment that the war success occurs; and our distress will become 0 once the
++	/*  Would prefer to just record 'intensity' and do the rest when computing
++		our attitude. However, I want to count the number of cities at the moment
++		that the war success occurs; and our distress will become 0 once the
+ 		shared war ends, whereas SharedWarSuccess should still be remembered
+ 		after the war has ended. Could track numbers of cities and distress
+ 		separately, but this would be less efficient and more work to implement. */
+
+[PATCH OMITTED] file=a/manual_0.93b.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=218
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=9 omittedFiles=2 embeddedPatchBytes=23811

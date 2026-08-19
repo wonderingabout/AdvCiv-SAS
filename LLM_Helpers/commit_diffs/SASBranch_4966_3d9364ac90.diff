@@ -1,0 +1,399 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4966
+# Commit: 3d9364ac907b93dcdad3492e030dd38830b816b2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c5ed88db27cb2bf47b7f1897c64d4e7b5f5f8dc2
+# Title: add new tech buttons pre part of the tech rework, adjust ancient macemen unitais and not unitais anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds
+15	15	Assets/XML/Audio/AudioDefines.xml
+17	17	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+8	5	Assets/XML/Technologies/CIV4TechInfos.xml
+6	1	Assets/XML/Text/CIV4GameText_Custom.xml
+0	8	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+25	7	Assets/XML/Units/CIV4UnitInfos.xml
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds b/Assets/Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds
+new file mode 100644
+index 000000000..8a05fc9f7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds b/Assets/Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds
+new file mode 100644
+index 000000000..a038d5c68
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds b/Assets/Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds
+new file mode 100644
+index 000000000..4afbb29fa
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds b/Assets/Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds
+new file mode 100644
+index 000000000..c4a0e3c0b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds differ
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index c138e1fe6..c402e7ba6 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8698,6 +8698,13 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_BIOLOGY</SoundID>
++			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Biology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8766,13 +8773,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_FUSION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Fusion</Filename>
+@@ -9340,13 +9340,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TECH_MP_BIOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Biology</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MEDICINE</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Medicine</Filename>
+@@ -9411,12 +9404,19 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
++			<SoundID>SND_TECH_MP_BIOLOGY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_Biology</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_FUSION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Fusion</Filename>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index a2198046b..1303103bd 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -109,9 +109,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 50 -->
+-			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 55 -->
+-			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -70 -->
+ 			<iAnimalBonus>-30</iAnimalBonus>
+@@ -237,9 +237,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>125</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 45 -->
+-			<iBarbarianCreationTurnsElapsed>38</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 50 -->
+-			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -60 -->
+ 			<iAnimalBonus>-20</iAnimalBonus>
+@@ -363,9 +363,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
+-			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>31</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 45 -->
+-			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -50 -->
+ 			<iAnimalBonus>-10</iAnimalBonus>
+@@ -491,9 +491,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>115</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 35 -->
+-			<iBarbarianCreationTurnsElapsed>34</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 40 -->
+-			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -40 -->
+ 			<iAnimalBonus>0</iAnimalBonus>
+@@ -619,9 +619,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 30 -->
+-			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>29</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 35 -->
+-			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -30 -->
+ 			<iAnimalBonus>0</iAnimalBonus>
+@@ -755,9 +755,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>105</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 25 -->
+-			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 30 -->
+-			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
+ 			<!-- advc.313: start -->
+ 			<!-- was -20 -->
+@@ -890,9 +890,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 20 -->
+-			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 25 -->
+-			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<!-- advc.313: start -->
+@@ -1034,7 +1034,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.300: was 15 -->
+ 			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 20 -->
+-			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<!-- advc.313: start -->
+@@ -1175,9 +1175,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 10 -->
+-			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>25</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 15 -->
+-			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>31</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<iBarbarianBonus>0</iBarbarianBonus>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 7f7c5aec6..b15182405 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -287,8 +287,8 @@
+ 			<Quote>TXT_KEY_TECH_PRIESTHOOD_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_PRIESTHOOD</Sound>
+ 			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
+-			<!-- custom: old button was <Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button> -->
+-			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,6</Button>
++			<!-- custom: button import from c2c mod anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MONOTHEISM</Type>
+@@ -1077,7 +1077,8 @@
+ 			<Quote>TXT_KEY_TECH_GUILDS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_GUILDS</Sound>
+ 			<SoundMP>AS2D_TECH_MP_GUILDS</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Guilds.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,4</Button>
++			<!-- custom: button import from m-e mod anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_LATER_ABRAHAMISM</Type>
+@@ -3436,7 +3437,8 @@
+ 			<Quote>TXT_KEY_TECH_SCIENTIFIC_METHOD_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_SCIMETHOD</Sound>
+ 			<SoundMP>AS2D_TECH_MP_SCIMETHOD</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Scientific Method.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,7</Button>
++			<!-- custom: button import from c2c mod anyways etc, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks if i may say but anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_PHYSICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PHYSICS</Type>
+@@ -4693,7 +4695,8 @@
+ 			<Quote>TXT_KEY_TECH_ARCHERY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ARCHERY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_ARCHERY</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Archery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,1</Button>
++			<!-- custom: button import from c2c mod anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_MASONRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MASONRY</Type>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 24c49d580..d4dc58f9e 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -304,9 +304,14 @@
+ 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
+ 		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
+ 	</TEXT>
+-	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc -->
++	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio if i am not mistaken anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
++		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
++	</TEXT>
++	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
+ 		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
+ 	</TEXT>
+ 	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 86ff564e4..bb4d12726 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3086,14 +3086,6 @@
+ 		<Italian>"Un uomo non rischia la vita per pochi soldi o per promozioni insignificanti. Per infervorarlo, bisogna parlare alla sua anima." - Napoleone Bonaparte</Italian>
+ 		<Spanish>"Un hombre no est&#225; dispuesto a morir por medio penique al d&#237;a ni por un qu&#237;tame all&#225; esas penas. Debes hablarle al alma para conmoverlo." - Napole&#243;n Bonaparte</Spanish>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
+-		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
+-		<French>"Ce n'est pas l'esp&#232;ce la plus puissante qui survit mais celle qui s'adapte le mieux au changement." - Charles Darwin</French>
+-		<German>"Nicht die st&#228;rksten Spezies werden &#252;berleben, sondern jene, die sich Ver&#228;nderungen am besten anpassen k&#246;nnen." - frei nach Charles Darwin</German>
+-		<Italian>"Non sopravvive la specie pi&#249; forte, ma quella pi&#249; adatta al cambiamento." - Charles Darwin</Italian>
+-		<Spanish>"No sobrevive la especie m&#225;s fuerte, sino la m&#225;s adaptable al cambio." - Charles Darwin</Spanish>
+-	</TEXT>
+ 	<!-- Earliest known source appears to be Wendell Berry. "Native American
+ 		 song" smells like a romanticization. -->
+ 	<TEXT> <!-- redefine -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index eca3eb91a..4db9b1f9d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -708,7 +708,7 @@
+ 
+ 
+ 
+-	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc, also pedia entry from https://en.wikipedia.org/wiki/Evolution similarly, modified or not for advciv-sas anyways etc -->
++	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also pedia entry from https://en.wikipedia.org/wiki/Evolution similarly, modified or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_PEDIA</Tag>
+ 		<English>[TAB]Evolution is the change in the heritable characteristics of biological populations over successive generations. It occurs when evolutionary processes such as natural selection and genetic drift act on genetic variation, resulting in certain characteristics becoming more or less common within a population over successive generations. The process of evolution has given rise to biodiversity at every level of biological organisation.[PARAGRAPH:1]The scientific theory of evolution by natural selection was conceived independently by two British naturalists, Charles Darwin and Alfred Russel Wallace, in the mid-19th century as an explanation for why organisms are adapted to their physical and biological environments. The theory was first set out in detail in Darwin's book On the Origin of Species. Evolution by natural selection is established by observable facts about living organisms: (1) more offspring are often produced than can possibly survive; (2) traits vary among individuals with respect to their morphology, physiology, and behaviour; (3) different traits confer different rates of survival and reproduction (differential fitness); and (4) traits can be passed from generation to generation (heritability of fitness). In successive generations, members of a population are therefore more likely to be replaced by the offspring of parents with favourable characteristics for that environment.[PARAGRAPH:1]In the early 20th century, competing ideas of evolution were refuted and evolution was combined with Mendelian inheritance and population genetics to give rise to modern evolutionary theory. In this synthesis the basis for heredity is in DNA molecules that pass information from generation to generation. The processes that change DNA in a population include natural selection, genetic drift, mutation, and gene flow.[PARAGRAPH:1]All life on Earth - including humanity - shares a last universal common ancestor (LUCA), which lived approximately 3.5-3.8 billion years ago. The fossil record includes a progression from early biogenic graphite to microbial mat fossils to fossilised multicellular organisms. Existing patterns of biodiversity have been shaped by repeated formations of new species (speciation), changes within species (anagenesis), and loss of species (extinction) throughout the evolutionary history of life on Earth. Morphological and biochemical traits tend to be more similar among species that share a more recent common ancestor, which historically was used to reconstruct phylogenetic trees, although direct comparison of genetic sequences is a more common method today.[PARAGRAPH:1]Evolutionary biologists have continued to study various aspects of evolution by forming and testing hypotheses as well as constructing theories based on evidence from the field or laboratory and on data generated by the methods of mathematical and theoretical biology. Their discoveries have influenced not just the development of biology but also other fields including agriculture, medicine, and computer science.</English>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index d49188c4b..a50204a6a 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5416,13 +5416,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: make them default to defenders for safer AI early, see code comments at unitAIs for details of this or of other related units anyways etc -->
+-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
++			<!-- custom: see code comment at UnitAIs anyways etc, trying to not make them too aggressive and maybe keep defensive role to some extent while still not staying parked in cities ideally if i'm not mistaken but anyways etc, was UNITAI_ATTACK -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
+ 			<Civilopedia>TXT_KEY_UNIT_WARRIOR_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_WARRIOR_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -5473,18 +5473,36 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- custom: i would want ancient macemen / warriors to be flexible versatile units, but they are now bad at city combat, so make them roam more, plus with our AI efficiency enhancements but anyways etc AI tend to overproduce them and keep them long which may take a lot of unit costs; also since archers are as of now now available sooner, no need to rely on ancient macemen too much to fill that void, but AIs may be vulnerable to early rushes in the first turns if warriors/ancient macemen don't defend cities at all maybe, so try to give them more unit combat roles instead +/- change default one or such anyways etc, was UNITAI_ATTACK -->
+ 			<UnitAIs>
+-				<!-- custom: warriors are valuable as city defenders too for AI players, but attempt to favour mobility so reserve role rather than city_defense in an attempt to better spread our defenses between early cities and avoid early barbarian captures that are very detrimental, perhaps early rushes to a lesser extent, if i am not mistaken anyways etc, so removed the city_defense role i had added despite it being quite effective for defending our capital early, but maybe not flexible enough, testing this to be sure and seeing what happens, hopefully helps in this case i mean but anyways etc but testing it anyways etc -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: was UNITAI_CITY_DEFENSE -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=23631

@@ -1,0 +1,40 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3166
+# Commit: 51eea34f4dcc50938d5f2e93264f3b2f58f97dfa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5ddbf1f768ded72204875b62d546c474b7767acf
+# Title: Small tweak to AI choice of tile to guard near city site
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 25d26940e..cf91becee 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10775,6 +10775,11 @@ bool CvUnitAI::AI_guardCitySite()
+ 			if(!pAdj->isRevealed(getTeam()))
+ 				continue;
+ 			int iGuardValue = pAdj->defenseModifier(getTeam(), true);
++			if (noDefensiveBonus())
++			{	// Still useful to deny approaching enemies a defensive bonus
++				iGuardValue *= 3;
++				iGuardValue /= 5;
++			}
+ 			iGuardValue += pAdj->seeFromLevel(getTeam()) * 30;
+ 			if(at(*pAdj))
+ 				iGuardValue += 3; // inertia
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=596

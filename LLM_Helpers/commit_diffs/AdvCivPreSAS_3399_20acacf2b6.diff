@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3399
+# Commit: 20acacf2b6be2da5ac1c36bac6726168b22145ab
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e6d126342797914a4f7f84bd169ae96cf749ab0b
+# Title: Worst enemy requires -3 relations or worse
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	Assets/XML/GlobalDefines_advc.xml
+1	0	CvGameCoreDLL/CvGlobals.h
+5	3	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 84fb57e47..da0b5fe02 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1165,6 +1165,13 @@
+ 		<DefineName>RELATIONS_THRESH_FURIOUS</DefineName>
+ 		<iDefineIntVal>-9</iDefineIntVal>
+ 	</Define>
++	<!-- Relations need to be this bad or worse (or must be at war) to qualify
++		 as a potential worst enemy.
++		 Recommended: -3, i.e. 1 worse than Annoyed. -->
++	<Define>
++		<DefineName>RELATIONS_THRESH_WORST_ENEMY</DefineName>
++		<iDefineIntVal>-3</iDefineIntVal>
++	</Define>
+ 
+ 	<!-- advc.001b: 1 means that the production of air units is interrupted
+ 		 when the unit would exceed the city's air unit capacity.
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index b8560c78e..e58800892 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -445,6 +445,7 @@ public:
+ 		DO(RELATIONS_THRESH_PLEASED) \
+ 		DO(RELATIONS_THRESH_FURIOUS) \
+ 		DO(RELATIONS_THRESH_ANNOYED) \
++		DO(RELATIONS_THRESH_WORST_ENEMY) \
+ 		/* </advc.148> */ \
+ 		DO(MINIMAP_RENDER_SIZE) /* advc.106m */ \
+ 		DO(CAN_TRAIN_CHECKS_AIR_UNIT_CAP) /* advc.001b */ \
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 926cd5cf7..005f49dc9 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4262,10 +4262,12 @@ int CvTeamAI::AI_enmityValue(TeamTypes eEnemy) const
+ 		return 0;
+ 	CvTeam const& kEnemy = GET_TEAM(eEnemy);
+ 	FAssert(eEnemy != getID() && !kEnemy.isMinorCiv() && kEnemy.isHasMet(getID()));
+-	if(!kEnemy.isAlive() ||
++	// advc.148: Rather than RELATIONS_THRESH_ANNOYED
++	int const iAttitudeThresh = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_WORST_ENEMY);
++	if (!kEnemy.isAlive() ||
+ 		kEnemy.isCapitulated() || // advc.130d
+-		((AI_getAttitude(eEnemy) >= ATTITUDE_CAUTIOUS ||
+-		AI_getAttitude(eEnemy, false) >= ATTITUDE_CAUTIOUS) && // advc.130d
++		((AI_getAttitudeVal(eEnemy) > iAttitudeThresh ||
++		AI_getAttitudeVal(eEnemy, false) > iAttitudeThresh) && // advc.130d
+ 		!isAtWar(eEnemy)))
+ 	{
+ 		return 0;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2094

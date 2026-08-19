@@ -1,0 +1,316 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 371
+# Commit: 93ef8e7bc278d940b0d80bded9945496d979c836
+# History segment: K-Mod history
+# Parent used for diff: 5bdf0b7eef9ee6f1fcc29cecb25630f71e7287eb
+# Title: Fixed a problem from the original BtS code which caused the AI to delete units more often than it should. For example, it would delete all the defenders in a...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	12	CvGameCoreDLL/CvCityAI.cpp
+2	3	CvGameCoreDLL/CvGameTextMgr.cpp
+106	13	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 48faccd89..31c5d5deb 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -921,7 +921,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	/* original bts code
+ 	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / std::max(1, kPlayer.calculatePreInflatedCosts()); */
+-	int iUnitSpending = kPlayer.AI_unitCostPerMil() / 3; // K-Mod
++	int iUnitSpending = kPlayer.AI_unitCostPerMil(); // K-Mod. (note, this is around 3x bigger than the original formula)
+ 	int iWaterPercent = AI_calculateWaterWorldPercent();
+ 	
+ 	int iBuildUnitProb = AI_buildUnitProb();
+@@ -2204,8 +2204,8 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	//int iMaxUnitSpending = (bAggressiveAI ? 6 : 3) + iBuildUnitProb / 3;
+-	int iMaxUnitSpending = (bAggressiveAI ? 8 : 4) + iBuildUnitProb / 3; // K-Mod. (unit spending is not what it use to be)
++	/* original bts / bbai code
++	int iMaxUnitSpending = (bAggressiveAI ? 6 : 3) + iBuildUnitProb / 3;
+ 
+ 	if( kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4) )
+ 	{
+@@ -2263,12 +2263,13 @@ void CvCityAI::AI_chooseProduction()
+ 			default:
+ 				FAssert(false);
+ 		}
+-	}
++	} */
++	int iMaxUnitSpending = kPlayer.AI_maxUnitCostPerMil(area(), iBuildUnitProb); // K-Mod
+ 
+ 	int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
+ 	
+ 	// Revamped logic for production for invasions
+-    if (iUnitSpending < (iMaxUnitSpending + 10))
++	if (iUnitSpending < iMaxUnitSpending + 25) // was + 10 (new unit spending metric)
+ 	{
+ 		bool bBuildAssault = bAssault;
+ 		CvArea* pAssaultWaterArea = NULL;
+@@ -2516,7 +2517,7 @@ void CvCityAI::AI_chooseProduction()
+     UnitTypes eBestAttackAircraft = NO_UNIT;
+     UnitTypes eBestMissile = NO_UNIT;
+     
+-	if (iUnitSpending < (iMaxUnitSpending + 4) && (!bImportantCity || bDefenseWar) )
++	if (iUnitSpending < (iMaxUnitSpending + 12) && (!bImportantCity || bDefenseWar) ) // K-Mod. was +4, now +12 for the new unit spending metric
+ 	{
+ 		if( bLandWar || bAssault || (iFreeAirExperience > 0) || (GC.getGame().getSorenRandNum(3, "AI train air") == 0) )
+ 		{
+@@ -2874,7 +2875,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 	
+-	if (iUnitSpending < iMaxUnitSpending + 4 && !bFinancialTrouble)
++	if (iUnitSpending < iMaxUnitSpending + 12 && !bFinancialTrouble) // was +4 (new metric)
+ 	{
+ 		if ((iAircraftHave * 2 >= iAircraftNeed) && (iAircraftHave < iAircraftNeed))
+ 		{
+@@ -3040,7 +3041,7 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	bChooseUnit = false;
+-	if (iUnitSpending < iMaxUnitSpending + 5)
++	if (iUnitSpending < iMaxUnitSpending + 15) // was +5 (new metric)
+ 	{
+ 		// K-Mod
+ 		iBuildUnitProb *= (250 + iBestBuildingValue);
+@@ -8099,9 +8100,11 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 			}
+ 			bool bLandWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
+ 			bool bDanger = (!AI_isDefended() && AI_isDanger());
++			int iUnitCostPerMil = kOwner.AI_unitCostPerMil(); // K-Mod
+ 
+ 			// Don't go broke from drafting
+-			if( !bDanger && kOwner.AI_isFinancialTrouble() )
++			//if( !bDanger && kOwner.AI_isFinancialTrouble() )
++			if (!bDanger && iUnitCostPerMil > kOwner.AI_maxUnitCostPerMil(area(), AI_buildUnitProb())) // K-Mod
+ 			{
+ 				return;
+ 			}
+@@ -8118,7 +8121,7 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 			// one more thing... it's not "good value" if we already have too many troops.
+ 			if (!bLandWar && bGoodValue)
+ 			{
+-				bGoodValue = kOwner.AI_unitCostPerMil() <= 30 + kOwner.AI_getFlavorValue(FLAVOR_MILITARY);
++				bGoodValue = iUnitCostPerMil <= kOwner.AI_maxUnitCostPerMil(area(), AI_buildUnitProb()/2) + kOwner.AI_getFlavorValue(FLAVOR_MILITARY);
+ 			}
+ 			// K-Mod end - although, I've put a bunch of 'bGoodValue' conditions in all through the rest of this function.
+ 
+@@ -10537,8 +10540,6 @@ int CvCityAI::AI_buildUnitProb()
+ 	return std::min(100, iProb); // experimental (K-Mod)
+ }
+ 
+-
+-// Improved worker AI provided by Blake - thank you!
+ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iFoodChange)
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 6cdb50941..764d9deb0 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4796,8 +4796,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				int iUnitCostPercentage = (iUnitCost * 100) / std::max(1, iTotalCosts);
+ 				szString.append(CvWString::format(L"\nUnit cost percentage: %d (%d / %d)", iUnitCostPercentage, iUnitCost, iTotalCosts)); */
+ 				// K-Mod
+-				int iUnitCostPerMil = kPlayer.AI_unitCostPerMil();
+-				szString.append(CvWString::format(L"\nUnit Cost: %d (old: %d%%)", iUnitCostPerMil/3, (kPlayer.calculateUnitCost() * 100) / std::max(1, kPlayer.calculatePreInflatedCosts())));
++				int iBuildUnitProb = static_cast<CvCityAI*>(pCity)->AI_buildUnitProb();
++				szString.append(CvWString::format(L"\nUnit Cost: %d (max: %d)", kPlayer.AI_unitCostPerMil(), kPlayer.AI_maxUnitCostPerMil(pCity->area(), iBuildUnitProb)));
+ 				// K-Mod end
+ 
+ 				szString.append(CvWString::format(L"\nUpgrade all units: %d gold", kPlayer.AI_getGoldToUpgradeAllUnits()));
+@@ -4817,7 +4817,6 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					szString.append(CvWString::format(L"\nAverage citizen value: %d", iValue));
+ 
+ 					//
+-					int iBuildUnitProb = static_cast<CvCityAI*>(pCity)->AI_buildUnitProb();
+ 					szString.append(CvWString::format(L"\nBuild unit prob: %d%%", iBuildUnitProb));
+ 					BuildingTypes eBestBuilding = static_cast<CvCityAI*>(pCity)->AI_bestBuildingThreshold(0, 0, 0, true);
+ 					int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : pCity->AI_buildingValue(eBestBuilding, 0, 0, true);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 893fd4568..c7c4a8710 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -552,6 +552,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	int iUpgradeBudget = (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
+ 	iUpgradeBudget = std::min(iUpgradeBudget, iStartingGold - ((iTargetGold > iUpgradeBudget) ? (iTargetGold - iUpgradeBudget) : iStartingGold/2)); */
+ 	// K-Mod. Note: AI_getGoldToUpgradeAllUnits() is actually one of the components of AI_goldTarget()
++	int iCostPerMil = AI_unitCostPerMil(); // used for scrap decisions.
+ 	int iUpgradeBudget = 0;
+ 	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0)
+ 	{
+@@ -656,28 +657,38 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 							iCityExp += pPlotCity->getUnitCombatFreeExperience(pLoopUnit->getUnitCombatType());
+ 							if (iCityExp > 0)
+ 							{
+-								if ((iExp == 0) || (iExp < (iCityExp + 1) / 2))
++								/*if ((iExp == 0) || (iExp < (iCityExp + 1) / 2))
+ 								{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI, Efficiency    (and fixed by K-Mod. -- jdog5000, you forgot the "not")               */
+-/************************************************************************************************/
++									/* original bts code
+ 									if ((pLoopUnit->getDomainType() != DOMAIN_LAND) || pLoopUnit->plot()->plotCount(PUF_isMilitaryHappiness, -1, -1, getID()) > 1)
+ 									{
+-										//if ((calculateUnitCost() > 0) && (AI_getPlotDanger( pLoopUnit->plot(), 2, false) == 0))
+-										if (calculateUnitCost() > 0 && !AI_getAnyPlotDanger( pLoopUnit->plot(), 2, false))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/	
++										if ((calculateUnitCost() > 0) && (AI_getPlotDanger( pLoopUnit->plot(), 2, false) == 0))
++										{										
++											pLoopUnit->kill(false);
++											bKilled = true;
++											pLastUpgradePlot = NULL;
++										}
++									}
++								} */
++								// K-Mod
++								if (iExp < iCityExp)
++								{
++									int iDefenders = pLoopUnit->plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getID(), NO_TEAM, PUF_isCityAIType);
++									if (iDefenders > pPlotCity->AI_minDefenders() && !AI_getAnyPlotDanger(pLoopUnit->plot(), 2, false))
++									{
++										if (iCostPerMil > AI_maxUnitCostPerMil(pLoopUnit->area()) + 2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders))
+ 										{
+-											//pLoopUnit->kill(false); // original code
+-											pLoopUnit->scrap(); // K-Mod
++											if (gUnitLogLevel > 2)
++												logBBAI("    %S scraps %S, with %d exp, and %d / %d spending.", getCivilizationDescription(0), pLoopUnit->getName(0).GetCString(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area()));
++											pLoopUnit->scrap();
++											pLoopUnit->doDelayedDeath(); // I could have just done kill(), but who know what extra work scrap() wants to do for us?
+ 											bKilled = true;
+ 											pLastUpgradePlot = NULL;
++											iCostPerMil = AI_unitCostPerMil(); // recalculate
+ 										}
+ 									}
+ 								}
++								// K-Mod end
+ 							}
+ 						}
+ 					}
+@@ -11551,6 +11562,88 @@ int CvPlayerAI::AI_unitCostPerMil() const
+ 	iFunds += getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
+ 	return std::max(0, calculateUnitCost()-getNumCities()/2) * 1000 / std::max(1, iFunds); // # cities is there to offset early-game distortion.
+ }
++
++// This function gives an approximate / recommended maximum on our unit spending. Note though that it isn't a hard cap.
++// we might go as high has 20 point above the "maximum"; and of course, the maximum might later go down.
++// So this should only be used as a guide.
++int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
++{
++	if (isBarbarian())
++		return 500;
++
++	if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE))
++		return 20; // ??
++
++	if (iBuildProb < 0)
++		iBuildProb = GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + 6; // a rough estimate.
++
++	bool bTotalWar = GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL, true);
++	bool bAggressiveAI = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
++
++	int iMaxUnitSpending = (bAggressiveAI ? 24 : 12) + iBuildProb;
++
++	if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4))
++	{
++		iMaxUnitSpending += 20;
++	}
++	else if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3 | AI_VICTORY_DOMINATION3))
++	{
++		iMaxUnitSpending += 10;
++	}
++	else if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST1))
++	{
++		iMaxUnitSpending += 5;
++	}
++
++	if (AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++	{
++		iMaxUnitSpending += 200;
++	}
++	else
++	{
++		iMaxUnitSpending += bTotalWar ? 10 + iBuildProb / 2 : 0;
++		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 10 + AI_getFlavorValue(FLAVOR_MILITARY) : 0;
++		if (pArea)
++		{
++			switch (pArea->getAreaAIType(getTeam()))
++			{
++			case AREAAI_OFFENSIVE:
++				iMaxUnitSpending += 20;
++				break;
++
++			case AREAAI_DEFENSIVE:
++				iMaxUnitSpending += 35;
++				break;
++
++			case AREAAI_MASSING:
++				iMaxUnitSpending += 40;
++				break;
++
++			case AREAAI_ASSAULT:
++				iMaxUnitSpending += 25;
++				break;
++
++			case AREAAI_ASSAULT_MASSING:
++				iMaxUnitSpending += 40;
++				break;
++
++			case AREAAI_ASSAULT_ASSIST:
++				iMaxUnitSpending += 15;
++				break;
++
++			case AREAAI_NEUTRAL:
++				break;
++			default:
++				FAssert(false);
++			}
++		}
++		else
++		{
++			iMaxUnitSpending += GET_TEAM(getTeam()).getAnyWarPlanCount(true) ? 25 : 0;
++		}
++	}
++	return iMaxUnitSpending;
++}
+ // K-Mod end
+ 
+ int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot* pPlot, bool bTestCanMove) const
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 041a3c826..096b6b3f4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -210,6 +210,7 @@ public:
+ 	int AI_neededMissionaries(CvArea* pArea, ReligionTypes eReligion) const;
+ 	int AI_neededExecutives(CvArea* pArea, CorporationTypes eCorporation) const;
+ 	int AI_unitCostPerMil() const; // K-Mod
++	int AI_maxUnitCostPerMil(CvArea* pArea = 0, int iBuildProb = -1) const; // K-Mod
+ 	
+ 	int AI_missionaryValue(CvArea* pArea, ReligionTypes eReligion, PlayerTypes* peBestPlayer = NULL) const;
+ 	int AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation, PlayerTypes* peBestPlayer = NULL, bool bSpreadOnly = false) const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12914

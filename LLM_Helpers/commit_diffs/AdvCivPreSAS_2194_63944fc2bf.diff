@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2194
+# Commit: 63944fc2bf42e4ece60246ff2c8029a248c2dfe8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2e4d924a5f5aac626ccb86e41e57967e6959f54c
+# Title: Move sstream into PCH
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/CvDLLLogger.cpp
+6	3	CvGameCoreDLL/CvGameCoreDLL.h
+1	3	CvGameCoreDLL/CvGameTextMgr.cpp
+0	1	CvGameCoreDLL/CvPlot.cpp
+0	1	CvGameCoreDLL/InvasionGraph.cpp
+0	1	CvGameCoreDLL/MilitaryBranch.h
+0	2	CvGameCoreDLL/StartPointsAsHandicap.cpp
+0	2	CvGameCoreDLL/TSCProfiler.cpp
+0	1	CvGameCoreDLL/UWAIReport.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 90b745a75..070d20d09 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -9,7 +9,6 @@
+ #include "CvMap.h"
+ #include "CvArea.h"
+ #include "CvInfo_Terrain.h"
+-#include <sstream>
+ // </advc.mapstat>
+ 
+ CvDLLLogger::CvDLLLogger(bool bEnabled, bool bRandEnabled)
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index cc866eea1..7d0510e01 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -31,11 +31,14 @@
+ #include <list>
+ #include <tchar.h>
+ //#include <math.h>
+-#include <cmath> // advc
+-#include <assert.h>
++//#include <assert.h>
++// <advc>
++#include <cmath>
++#include <cassert>
++#include <iterator>
++#include <sstream> // </advc>
+ #include <map>
+ #include <hash_map>
+-#include <iterator> // advc
+ // K-Mod
+ #include <set>
+ #include <utility>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b2643066b..9433c4791 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -17,7 +17,6 @@
+ #include "CvPopupInfo.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvDLLSymbolIFaceBase.h"
+-#include <sstream> // advc.050
+ 
+ 
+ // For displaying Asserts and error messages
+@@ -16121,8 +16120,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 	bool bSHowHiddenAttitude = (GC.getDefineBOOL("SHOW_HIDDEN_ATTITUDE") || g.isDebugMode());
+ 	// <advc.004q>
+ 	bool bObscurePersonality = (g.isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !g.isDebugMode());
+-
+-	// advc.004q: ATTITUDE_TOWARDS moved to the end of this function
++	// ATTITUDE_TOWARDS moved to the end of this function // </advc.004q>
+ 	// (K-Mod note: vassal information has been moved from here to a new function)
+ 
+ 	// Attitude breakdown ...
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 636a623ac..20c69370b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -16,7 +16,6 @@
+ #include "CvDLLSymbolIFaceBase.h"
+ #include "CvDLLPlotBuilderIFaceBase.h"
+ #include "CvDLLFlagEntityIFaceBase.h"
+-#include <sstream> // advc.031c
+ 
+ #define STANDARD_MINIMAP_ALPHA		(0.75f) // advc.002a: was 0.6
+ bool CvPlot::m_bAllFog = false; // advc.706
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 459e3530d..26af8053a 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -11,7 +11,6 @@
+ #include "CvPlot.h"
+ #include "CvArea.h"
+ #include "CvInfo_Unit.h"
+-#include <sstream>
+ 
+ using std::ostringstream;
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.h b/CvGameCoreDLL/MilitaryBranch.h
+index de64a4ae3..9f5a2e002 100644
+--- a/CvGameCoreDLL/MilitaryBranch.h
++++ b/CvGameCoreDLL/MilitaryBranch.h
+@@ -3,7 +3,6 @@
+ #ifndef MILITARY_BRANCH_H
+ #define MILITARY_BRANCH_H
+ 
+-#include <sstream>
+ 
+ /*  advc.104: New class hierarchy. Breaking military power values down into
+ 	branches such as Army and Fleet helps the AI analyze its military prospects. */
+
+diff --git a/CvGameCoreDLL/StartPointsAsHandicap.cpp b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+index d262e7e2a..fee82dc9d 100644
+--- a/CvGameCoreDLL/StartPointsAsHandicap.cpp
++++ b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+@@ -5,8 +5,6 @@
+ #include "CvGame.h"
+ #include "CvPlayer.h"
+ #include "CvMap.h"
+-#include <cmath>
+-#include <sstream>
+ 
+ /*  advc (note): This was the first class added by AdvCiv and, apart from the
+ 	includes above, it hasn't been looked at for the past few years, so there are
+
+diff --git a/CvGameCoreDLL/TSCProfiler.cpp b/CvGameCoreDLL/TSCProfiler.cpp
+index 7ca45f984..a05a768d9 100644
+--- a/CvGameCoreDLL/TSCProfiler.cpp
++++ b/CvGameCoreDLL/TSCProfiler.cpp
+@@ -3,8 +3,6 @@
+ 
+ // advc.003o: Adopted from "We the People"; see comment in header file.
+ 
+-#include <sstream> // advc.003o: Will use this instead of fprintf
+-
+ static __declspec(naked)unsigned __int64 __cdecl RDTSC(void)
+ {
+ 	__asm
+
+diff --git a/CvGameCoreDLL/UWAIReport.cpp b/CvGameCoreDLL/UWAIReport.cpp
+index aa9dd454b..061c85d3b 100644
+--- a/CvGameCoreDLL/UWAIReport.cpp
++++ b/CvGameCoreDLL/UWAIReport.cpp
+@@ -4,7 +4,6 @@
+ #include "UWAIReport.h"
+ #include "CvGamePlay.h"
+ #include "CvCity.h"
+-#include <sstream>
+ 
+ using std::ostringstream;
+ using std::string;
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=4317

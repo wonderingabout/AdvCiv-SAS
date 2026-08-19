@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3238
+# Commit: e397ad6890a8e5d65a854da0019603203442b1a9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8c1183922380ed32f6c5e3a606a8ad067175d652
+# Title: Tiny bit of refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvCityAI.cpp
+1	5	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 57d2694a4..0bff1fea2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10584,9 +10584,9 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 		if (old_job.second >= 0)
+ 		{
+-		iYield -= old_job.first ?
+-				kOwner.specialistYield((SpecialistTypes)old_job.second, eLoopYield) :
+-				getCityIndexPlot((CityPlotTypes)old_job.second)->getYield(eLoopYield);
++			iYield -= old_job.first ?
++					kOwner.specialistYield((SpecialistTypes)old_job.second, eLoopYield) :
++					getCityIndexPlot((CityPlotTypes)old_job.second)->getYield(eLoopYield);
+ 		}
+ 
+ 		if (iYield >= 0)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index dde5edad9..0d2180054 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -98,12 +98,8 @@ void CvTeamAI::AI_reset(bool bConstructor)
+ void CvTeamAI::AI_doTurnPre()
+ {
+ 	AI_doCounter();
+-
+-	/*if (isHuman() || isBarbarian() || isMinorCiv()) // advc: Caller handles these
+-		return;*/
+ 	// <advc.104>
+-	if ((getUWAI().isEnabled() || getUWAI().isEnabled(true)) && !isBarbarian() &&
+-		!isMinorCiv() && isAlive())
++	if ((getUWAI().isEnabled() || getUWAI().isEnabled(true)) && isMajorCiv())
+ 	{
+ 		/*  Calls turnPre on the team members, i.e. UWAI::Civ::turnPre
+ 			happens before CvPlayerAI::AI_turnPre. Needs to be this way b/c
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1418

@@ -1,0 +1,199 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4162
+# Commit: 16c2fc9ae8cd3f2aaeb4423da2c8452968ef793c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 74bc800cf68b6b0af8f9461b783ec6d2e05ef595
+# Title: A few comment, whitespace changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/ActualQuotesText.xml
+2	1	CvGameCoreDLL/CvMap.cpp
+17	16	CvGameCoreDLL/CvPlayer.cpp
+2	4	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/ActualQuotesText.xml b/Assets/XML/Text/ActualQuotesText.xml
+index ff04253a3..2729831e1 100644
+--- a/Assets/XML/Text/ActualQuotesText.xml
++++ b/Assets/XML/Text/ActualQuotesText.xml
+@@ -2106,7 +2106,7 @@
+ 		<Italian>Attenzione, le nostre parole sono supportate da armi nucleari!</Italian>
+ 		<Spanish>&#161;Cuidado, respaldamos nuestras palabras con armas nucleares!</Spanish>
+ 	</TEXT>
+-	<!-- Replacing "watch out for your worst enemy" -->
++	<!-- Replacing "watch out for our worst enemy" -->
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_WORST_ENEMY_1</Tag>
+ 		<English>[OUR_WORST_ENEMY] is a scheming, lying murderer. Beware!</English>
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index f39d8c446..bfd4211b5 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1134,8 +1134,9 @@ void CvMap::resetPathDistance()
+ 
+ int CvMap::calculatePathDistance(CvPlot const* pSource, CvPlot const* pDest) const
+ {
+-	if(pSource == NULL || pDest == NULL)
++	if (pSource == NULL || pDest == NULL)
+ 		return -1;
++	// advc.pf (tbd.): Replace with TeamPathFinder for better performance?
+ 	if (gDLL->getFAStarIFace()->GeneratePath(&GC.getStepFinder(),
+ 		pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), false, 0, true))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7e3c39e67..6adf32e12 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3265,12 +3265,12 @@ bool CvPlayer::hasBusyUnit() const
+ 
+ void CvPlayer::chooseTech(int iDiscover, CvWString szText, bool bFront)
+ {
+-	// K-Mod
++	// <K-Mod> (based on UNOFFICIAL_PATCH, Free Tech Popup Fix, 12/07/09, EmperorFool)
+ 	FAssert(isHuman());
+ 	if (iDiscover > 0)
+-	{	// note: if iDiscover is > 1, this function will be called again with iDiscover-=1
++	{	// (K-Mod note: if iDiscover is > 1, this function will be called again with iDiscover-=1)
+ 		changeChoosingFreeTechCount(1);
+-	} // K-Mod end
++	} // </K-Mod>
+ 
+ 	CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CHOOSETECH);
+ 	if (pInfo != NULL)
+@@ -6921,7 +6921,8 @@ void CvPlayer::convert(ReligionTypes eReligion, /* <advc.001v> */ bool bForce)
+ 	if (isActive())
+ 	{
+ 		killAll(BUTTONPOPUP_CHANGERELIGION);
+-		if(iAnarchyLength > 0) {
++		if (iAnarchyLength > 0)
++		{
+ 			killAll(BUTTONPOPUP_CHOOSEPRODUCTION);
+ 			killAll(BUTTONPOPUP_CHOOSETECH);
+ 		}
+@@ -10981,7 +10982,7 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
+ {
+ 	// <advc.706> Remove messages arriving during interlude from display immediately
+ 	CvGame const& kGame = GC.getGame();
+-	if(kGame.isOption(GAMEOPTION_RISE_FALL) && isActive() &&
++	if (kGame.isOption(GAMEOPTION_RISE_FALL) && isActive() &&
+ 		kGame.getRiseFall().getInterludeCountdown() >= 0)
+ 	{
+ 		gDLL->UI().clearEventMessages();
+@@ -10989,14 +10990,14 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
+ 	m_listGameMessages.push_back(kMessage);
+ 	// <advc.106b>
+ 	// Special treatment only for events in other civs' turns.
+-	if(!kGame.isInBetweenTurns() && isActive())
++	if (!kGame.isInBetweenTurns() && isActive())
+ 		return;
+ 	/* DISPLAY_ONLY, COMBAT, CHAT, QUEST don't show up on the Event tab
+ 	   of the Turn Log, and therefore shouldn't count.
+ 	   (That is assuming that quests also send INFO messages, which I haven't
+ 	   verified - tbd.) */
+ 	InterfaceMessageTypes eMessage = kMessage.getMessageType();
+-	if(eMessage == MESSAGE_TYPE_INFO || eMessage == MESSAGE_TYPE_MINOR_EVENT ||
++	if (eMessage == MESSAGE_TYPE_INFO || eMessage == MESSAGE_TYPE_MINOR_EVENT ||
+ 		eMessage == MESSAGE_TYPE_MAJOR_EVENT || eMessage == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY)
+ 	{
+ 		m_iNewMessages++; // See comment in postProcessBeginTurnEvents
+@@ -11035,33 +11036,33 @@ void CvPlayer::postProcessMessages()
+ 	   b/c of the splash screen. Don't want to suppress it b/c it should go
+ 	   into the log, but don't count it when deciding whether to open the log
+ 	   b/c the tech finished message doesn't take up much attention. */
+-	if(getCurrentResearch() == NO_TECH)
++	if (getCurrentResearch() == NO_TECH)
+ 		m_iNewMessages--;
+ 	// Don't open the Turn Log when there's only first-contact diplo
+ 	bool bRelevantDiplo = false;
+-	if(!m_listDiplomacy.empty() && m_iNewMessages > 0)
++	if (!m_listDiplomacy.empty() && m_iNewMessages > 0)
+ 	{
+ 		TCHAR const* aszRelevantNonOffers[] = { "CANCEL_DEAL", "RELIGION_PRESSURE",
+ 			"CIVIC_PRESSURE", "JOIN_WAR", "STOP_TRADING",
+ 		};
+-		for(CvDiploQueue::const_iterator it = m_listDiplomacy.begin(); it !=
++		for (CvDiploQueue::const_iterator it = m_listDiplomacy.begin(); it !=
+ 			m_listDiplomacy.end(); ++it)
+ 		{
+ 			CvDiploParameters* dp = *it;
+-			if(dp == NULL)
++			if (dp == NULL)
+ 			{
+ 				FAssert(dp != NULL);
+ 				continue;
+ 			}
+-			if(dp->getHumanDiplo() || dp->getOurOfferList().getLength() > 0 ||
++			if (dp->getHumanDiplo() || dp->getOurOfferList().getLength() > 0 ||
+ 				dp->getTheirOfferList().getLength() > 0)
+ 			{
+ 				bRelevantDiplo = true;
+ 				break;
+ 			}
+-			for(int i = 0; i < ARRAYSIZE(aszRelevantNonOffers); i++)
++			for (int i = 0; i < ARRAYSIZE(aszRelevantNonOffers); i++)
+ 			{
+-				if(dp->getDiploComment() == GC.getAIDiploCommentType(aszRelevantNonOffers[i]))
++				if (dp->getDiploComment() == GC.getAIDiploCommentType(aszRelevantNonOffers[i]))
+ 				{
+ 					bRelevantDiplo = true;
+ 					break;
+@@ -11096,10 +11097,10 @@ void CvPlayer::postProcessMessages()
+ 
+ int CvPlayer::getStartOfTurnMessageLimit() const
+ {
+-	if(!BUGOption::isEnabled("MainInterface__AutoOpenEventLog", true))
++	if (!BUGOption::isEnabled("MainInterface__AutoOpenEventLog", true))
+ 		return -1;
+ 	int iR = BUGOption::getValue("MainInterface__MessageLimit", 3);
+-	if(!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
++	if (!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
+ 		GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
+ 	{
+ 		return -1;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 44bdd1bf8..8d7cd0a6f 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -197,10 +197,8 @@ public:
+ 	bool hasAutoUnit() const;
+ 	DllExport bool hasBusyUnit() const;
+ 
+-	// K-Mod
+-	bool isChoosingFreeTech() const { return m_iChoosingFreeTechCount > 0; }
+-	void changeChoosingFreeTechCount(int iChange) { m_iChoosingFreeTechCount += iChange; }
+-	// K-Mod end
++	bool isChoosingFreeTech() const { return m_iChoosingFreeTechCount > 0; } // K-Mod
++	void changeChoosingFreeTechCount(int iChange) { m_iChoosingFreeTechCount += iChange; } // K-Mod
+ 
+ 	void chooseTech(int iDiscover = 0, CvWString szText = "", bool bFront = false);									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index dccea3e1b..2d0e94def 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -58,7 +58,7 @@ public:
+ 		m_iPathLength = iPathLength;
+ 	}
+ protected:
+-	CvPlot* m_pPlot; // FAStarNode::m_iX, m_iY in K-MMod
++	CvPlot* m_pPlot; // FAStarNode::m_iX, m_iY in K-Mod
+ 	int m_iPathLength; // FAStarNode::m_iData2 in K-Mod
+ public: // Keeping these public (for now) for interchangeability with FAStarNode
+ 	// Path costs need to have a fairly high resolution; short int won't do.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7141

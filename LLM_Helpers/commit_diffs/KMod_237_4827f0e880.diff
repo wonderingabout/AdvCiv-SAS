@@ -1,0 +1,453 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 237
+# Commit: 4827f0e880fa9989496a1e57091b6f1a45d0e0d7
+# History segment: K-Mod history
+# Parent used for diff: 1d46ac8f93a776071e485f251727a53d68fb45e4
+# Title: Fixed a group pathfinding bug in the original bts code. Added a notification message for when a religion is removed. Made some minor adjustments to AI_yieldV...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/EntryPoints/CvRandomEventInterface.py
+8	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+13	4	CvGameCoreDLL/CvCity.cpp
+19	14	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvDefines.h
+27	116	CvGameCoreDLL/CvGameCoreUtils.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 290c45323..a00b7978e 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -820,7 +820,7 @@ def applyVolcano1(argsList):
+ 	for iDX in range(-1, 2):
+ 		for iDY in range(-1, 2):
+ 			loopPlot = plotXY(kTriggeredData.iPlotX, kTriggeredData.iPlotY, iDX, iDY)
+-			if not loopPlot.isNone():
++			if not loopPlot.isNone() and not loopPlot.isWater():
+ 				if (iDX != 0 or iDY != 0):
+ 					if gc.getGame().getPlotExtraYield(loopPlot.getX(), loopPlot.getY(), YieldTypes.YIELD_FOOD) == 0:
+ 						listPlots.append(loopPlot)
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index fd6843440..754d4f84c 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -21,6 +21,14 @@
+ 		<Italian>[ICON_BULLET]Pu&#242; creare una Grande Opera (%D1_Change[ICON_CULTURE] per era)</Italian>
+ 		<Spanish>[ICON_BULLET]Puede crear una gran obra (%D1_Change [ICON_CULTURE] por &#233;poca)</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_RELIGION_REMOVE</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] has died out in %s2_CityName.</English>
++		<French>Cette religion ([COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT]) s'est &#233;teinte &#224; %s2_CityName.</French>
++		<German>Die Religion [COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] hat aus %s2_CityName entfernt worden.</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] ha [NUM1:lasciato:lasciata] %s2_CityName</Italian>
++		<Spanish>El [COLOR_HIGHLIGHT_TEXT]%s1_RelName[COLOR_REVERT] ha dejado %s2_CityName.</Spanish>
++	</TEXT>
+ 	<!-- K-Mod trade culture -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_TRADE_CULTURE</Tag>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c810b4420..10c4b13e8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10921,6 +10921,16 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 				}
+ 			}
+ 		}
++		// K-Mod
++		else // religion removed
++		{
++			if (bAnnounce)
++			{
++				CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_REMOVE", GC.getReligionInfo(eIndex).getTextKeyWide(), getNameKey());
++				gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, "AS2D_BLIGHT", MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX_INLINE(), getY_INLINE(), bArrows, bArrows);
++			}
++		}
++		// K-Mod end
+ 
+ 		if (bNewValue)
+ 		{
+@@ -12644,17 +12654,16 @@ void CvCity::doReligion()
+ 
+ 			if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("RELIGION_SPREAD_RAND"), "Religion Spread") < iRandThreshold)
+ 			{
++				setHasReligion(eStrongestReligion, true, true, true);
+ 				if (eWeakestReligion != NO_RELIGION && iWeakestGrip < iStrongestGrip)
+ 				{
+-					// If the weakest religion is only has half the strength of the new releigion,
+-					// then it deserves to go. sorry.
+-					int iOdds = 200*(iStrongestGrip - iWeakestGrip) / std::max(1, iStrongestGrip);
++					// If the existing religion is weak compared to the new religion, the existing religion can get removed.
++					int iOdds = getReligionCount()*100*(iStrongestGrip - iWeakestGrip) / std::max(1, iStrongestGrip);
+ 					if (GC.getGameINLINE().getSorenRandNum(100, "Religion departure") < iOdds)
+ 					{
+ 						setHasReligion(eWeakestReligion, false, true, true);
+ 					}
+ 				}
+-				setHasReligion(eStrongestReligion, true, true, true);
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 076a6e7ca..e27e4cb56 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9928,15 +9928,11 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 		int iHealthLevel = goodHealth() - badHealth();
+ 		int iHappinessLevel = (isNoUnhappiness() ? std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+ 		int iPopulation = getPopulation();
+-		int iExtraPopulationThatCanWork = std::min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + std::min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + (bRemove ? 1 : 0);
+-		//int iExtraPopulationThatCanWork = std::min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + std::min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation();
++		//int iExtraPopulationThatCanWork = std::min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + std::min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + (bRemove ? 1 : 0);
++		int iExtraPopulationThatCanWork = std::max(NUM_CITY_PLOTS, std::max(0, extraPopulation()+(bRemove?1:0))) - getWorkingPopulation();
+ 
+ 		int iAdjustedFoodDifference = getYieldRate(YIELD_FOOD) - (bRemove? iFoodYield : 0) + std::min(0, iHealthLevel) - (iPopulation + std::min(0, iHappinessLevel)) * iConsumtionPerPop;
+ 
+-		// approximate the food that can be gained by working other plots (and refund the food removed at the start)
+-		iFoodPerTurn += iExtraPopulationThatCanWork * std::min(iConsumtionPerPop, iFoodYield);
+-		iAdjustedFoodDifference += iExtraPopulationThatCanWork * std::min(iConsumtionPerPop, iFoodYield);
+-
+ 		// if we not human, allow us to starve to half full if avoiding growth
+ 		if (!bIgnoreStarvation)
+ 		{
+@@ -9952,10 +9948,10 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 			}
+ 
+ 			// if still starving
+-			if ((iFoodPerTurn + iStarvingAllowance) < 0)
++			if (iFoodPerTurn + (bRemove ? std::min(iFoodYield, iConsumtionPerPop) : 0) + iStarvingAllowance < 0)
+ 			{
+ 				// if working plots all like this one will save us from starving
+-				if (std::max(0, iExtraPopulationThatCanWork * (iFoodYield-std::min(iConsumtionPerPop, iFoodYield)) + iFoodYield * std::max(0, getSpecialistPopulation() - totalFreeSpecialists())) >= -iFoodPerTurn)
++				if ((iExtraPopulationThatCanWork+std::max(0, getSpecialistPopulation() - totalFreeSpecialists())) * iFoodYield >= -iFoodPerTurn)
+ 				{
+ 					// if this is high food, then we want to pick it first, this will allow us to pick some great non-food later
+ 					int iHighFoodThreshold = std::min(getBestYieldAvailable(YIELD_FOOD), iConsumtionPerPop + 1);				
+@@ -10015,7 +10011,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 						// K-Mod.
+ 						if (iHappinessLevel + kMaxHappyIncrease > 0)
+ 						{
+-							int iNewFoodPerTurn = iFoodPerTurn + iFoodYield - (bRemove ? std::min(iConsumtionPerPop, iFoodYield) : 0);
++							int iNewFoodPerTurn = iFoodPerTurn + iFoodYield;
+ 							int iApproxTurnsToGrow = (iNewFoodPerTurn > 0) ? ((iFoodToGrow - iFoodLevel + iNewFoodPerTurn-1) / iNewFoodPerTurn) : MAX_INT;
+ 						// K-Mod end
+ 
+@@ -10067,6 +10063,10 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 						iHappinessLevel += 2;
+ 					}
+ 
++					// approximate the food that can be gained by working other plots (and refund the food removed at the start)
++					iFoodPerTurn += iExtraPopulationThatCanWork * std::min(iConsumtionPerPop, iFoodYield);
++					iAdjustedFoodDifference += iExtraPopulationThatCanWork * std::min(iConsumtionPerPop, iFoodYield);
++
+ 					bool bBarFull = (iFoodLevel + iFoodPerTurn /*+ aiYields[YIELD_FOOD]*/ > ((90 * iFoodToGrow) / 100));
+ 
+ 					int iPopToGrow = std::max(0, iHappinessLevel);
+@@ -10106,10 +10106,10 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 						
+ 						// will multiply this by factors
+ 						iFoodGrowthValue = iFoodYield;
+-						if (iHealthLevel < (bFillingBar ? 0 : 1))
++						/*if (iHealthLevel < (bFillingBar ? 0 : 1))
+ 						{
+ 							iFoodGrowthValue--;
+-						}
++						}*/ // moved lower.
+ 
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+ 						// factor goes up like this: 0:1, 1:8, 2:9, 3:10, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+@@ -10124,11 +10124,16 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 							iFactorPopToGrow = 41; */
+ 						// K-Mod, reduced the scale to match the building evaluation code.
+ 						if (bFillingBar)
+-							iFactorPopToGrow = 9 * iFoodToGrow / std::max(1, iFoodToGrow + iFoodLevel + iFoodPerTurn);
++							iFactorPopToGrow = 11 * iFoodToGrow / std::max(1, iFoodToGrow + iFoodLevel + iFoodPerTurn);
+ 						else if (iPopToGrow < 6)
+-							iFactorPopToGrow = 9 + 2 * iPopToGrow;
++							iFactorPopToGrow = 11 + 2 * iPopToGrow;
+ 						else
+-							iFactorPopToGrow = 21;
++							iFactorPopToGrow = 23;
++
++						if (iHealthLevel < (bFillingBar ? 0 : 1))
++						{
++							iFactorPopToGrow = iFactorPopToGrow * iFoodYield / (iFoodYield + 1);
++						}
+ 						// K-Mod end
+ 
+ 						iFoodGrowthValue *= iFactorPopToGrow;
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 759aaa4a0..da0f1e447 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -26,6 +26,7 @@
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
++#define MOVE_ATTACK_STACK									(0x00000200) // K-Mod.. allow the path to fight through enemy defences, but prefer not to.
+ 
+ /*
+ ** K-Mod, 18/dec/10, karadoc
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index bde73c1e0..04ab75c07 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1486,10 +1486,13 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 
+-	iWorstCost = MAX_INT;
++	//iWorstCost = MAX_INT;
++	iWorstCost = 0; // K-Mod
+ 	iWorstMovesLeft = MAX_INT;
+ 	iWorstMax = MAX_INT;
+ 
++	int iFlags = gDLL->getFAStarIFace()->GetInfo(finder); // K-Mod
++
+ 	pUnitNode = pSelectionGroup->headUnitNode();
+ 
+ 	while (pUnitNode != NULL)
+@@ -1540,45 +1543,19 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      04/03/09                                jdog5000      */
+ /*                                                                                              */
+-/* General AI                                                                                   */
++/* General AI       (edited by K-Mod)                                                           */
+ /************************************************************************************************/
+ 					// Add additional cost for ending turn in or adjacent to enemy territory based on flags
+-					if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_AVOID_ENEMY_WEIGHT_3)
+-					{
+-						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+-						{
+-							iCost *= 3;
+-						}
+-						else
+-						{
+-							CvPlot* pAdjacentPlot;
+-							int iI;
+-							for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-							{
+-								pAdjacentPlot = plotDirection(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), ((DirectionTypes)iI));
+-
+-								if( pAdjacentPlot != NULL )
+-								{
+-									if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
+-									{
+-										iCost *= 3;
+-										iCost /= 2;
+-									}
+-								}
+-							}
+-						}
+-					}
+-					else if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_AVOID_ENEMY_WEIGHT_2)
++					if (iFlags & (MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_AVOID_ENEMY_WEIGHT_3))
+ 					{
+ 						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+ 						{
+-							iCost *= 2;
++							iCost *= (iFlags & MOVE_AVOID_ENEMY_WEIGHT_3) ? 3 : 2;
+ 						}
+ 						else
+ 						{
+ 							CvPlot* pAdjacentPlot;
+-							int iI;
+-							for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++							for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 							{
+ 								pAdjacentPlot = plotDirection(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), ((DirectionTypes)iI));
+ 
+@@ -1586,8 +1563,16 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 								{
+ 									if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
+ 									{
+-										iCost *= 4;
+-										iCost /= 3;
++										if (iFlags & MOVE_AVOID_ENEMY_WEIGHT_3)
++										{
++											iCost *= 3;
++											iCost /= 2;
++										}
++										else
++										{
++											iCost *= 4;
++											iCost /= 3;
++										}
+ 									}
+ 								}
+ 							}
+@@ -1600,66 +1585,6 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 				else
+ 				{
+ 					iCost = (PATH_MOVEMENT_WEIGHT * iCost);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/03/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-/*					// Add additional cost for movement in or adjacent to enemy territory based on flags
+-					if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_AVOID_ENEMY_WEIGHT_3)
+-					{
+-						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+-						{
+-							iCost *= 2;
+-						}
+-						else
+-						{
+-							CvPlot* pAdjacentPlot;
+-							int iI;
+-							for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-							{
+-								pAdjacentPlot = plotDirection(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), ((DirectionTypes)iI));
+-
+-								if( pAdjacentPlot != NULL )
+-								{
+-									if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
+-									{
+-										iCost *= 4;
+-										iCost /= 3;
+-									}
+-								}
+-							}
+-						}
+-					}
+-					else if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_AVOID_ENEMY_WEIGHT_2)
+-					{
+-						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+-						{
+-							iCost *= 3;
+-							iCost /= 2;
+-						}
+-						else
+-						{
+-							CvPlot* pAdjacentPlot;
+-							int iI;
+-							for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-							{
+-								pAdjacentPlot = plotDirection(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), ((DirectionTypes)iI));
+-								
+-								if( pAdjacentPlot != NULL )
+-								{
+-									if (pAdjacentPlot->isOwned() && (atWar(pAdjacentPlot->getTeam(), pSelectionGroup->getHeadTeam()) || (pAdjacentPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pAdjacentPlot))))
+-									{
+-										iCost *= 6;
+-										iCost /= 5;
+-									}
+-								}
+-							}
+-						}
+-					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 				}
+ 
+ 				if (pLoopUnit->canFight())
+@@ -1698,7 +1623,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 					}
+ 				}
+ 
+-				if (iCost < iWorstCost)
++				//if (iCost < iWorstCost)
++				if (iCost > iWorstCost) // K-Mod. (no comment)
+ 				{
+ 					iWorstCost = iCost;
+ 					iWorstMovesLeft = iMovesLeft;
+@@ -1708,7 +1634,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		}
+ 	}
+ 
+-	FAssert(iWorstCost != MAX_INT);
++	//FAssert(iWorstCost != MAX_INT);
+ 
+ 	iWorstCost += PATH_STEP_WEIGHT;
+ 
+@@ -1725,17 +1651,13 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ int pathValidInternal(FAStarNode* parent, CvPlot* pFromPlot, int data, CvSelectionGroup* pSelectionGroup, FAStar* finder)
+ {
+ 	bool bAIControl;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/03/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+ 	if (pSelectionGroup->atPlot(pFromPlot))
+ 	{
+ 		return TRUE;
+ 	}
+ 
+-	if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_SAFE_TERRITORY)
++	int iFlags = gDLL->getFAStarIFace()->GetInfo(finder); // K-Mod. (and now used throughout this function)
++	if (iFlags & MOVE_SAFE_TERRITORY)
+ 	{
+ 		PROFILE("pathValid move save");
+ 
+@@ -1753,7 +1675,7 @@ int pathValidInternal(FAStarNode* parent, CvPlot* pFromPlot, int data, CvSelecti
+ 		}
+ 	}
+ 
+-	if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_NO_ENEMY_TERRITORY)
++	if (iFlags & MOVE_NO_ENEMY_TERRITORY)
+ 	{
+ 		PROFILE("pathValid no enemy");
+ 
+@@ -1773,20 +1695,11 @@ int pathValidInternal(FAStarNode* parent, CvPlot* pFromPlot, int data, CvSelecti
+ 		PROFILE("pathValid danger & invisible");
+ 		if ((parent->m_iData2 > 1) || (parent->m_iData1 == 0))
+ 		{
+-			if (!(gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_IGNORE_DANGER))
++			if (!(iFlags & MOVE_IGNORE_DANGER))
+ 			{
+ 				if (!(pSelectionGroup->canFight()) && !(pSelectionGroup->alwaysInvisible()))
+ 				{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI, Efficiency                                                                          */
+-/************************************************************************************************/
+-					//if (GET_PLAYER(pSelectionGroup->getHeadOwner()).AI_getPlotDanger(pFromPlot) > 0)
+ 					if (GET_PLAYER(pSelectionGroup->getHeadOwner()).AI_getAnyPlotDanger(pFromPlot))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 					{
+ 						return FALSE;
+ 					}
+@@ -1799,7 +1712,8 @@ int pathValidInternal(FAStarNode* parent, CvPlot* pFromPlot, int data, CvSelecti
+ 	{
+ 		PROFILE("pathValid move through");
+ 
+-		if (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_THROUGH_ENEMY)
++		//if (iFlags & MOVE_THROUGH_ENEMY)
++		if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK)) // K-Mod
+ 		{
+ 			if (!(pSelectionGroup->canMoveOrAttackInto(pFromPlot)))
+ 			{
+@@ -1814,9 +1728,6 @@ int pathValidInternal(FAStarNode* parent, CvPlot* pFromPlot, int data, CvSelecti
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	return TRUE;
+ }
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=20527

@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1157
+# Commit: d81e0985209040b77afc387002bfb45035449710
+# History segment: K-Mod history
+# Parent used for diff: 71988831326f9e0ad11fcf0c835821c322caa97b
+# Title: Fixed some minor problems in AI_load.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a76c52e33..d8b5efac6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11073,10 +11073,9 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITyp
+ 		getGroup()->pushMission(MISSION_SKIP);
+ 		return true;
+ 	}
+-	// K-Mod
+-	CvUnit* pBestUnit = AI_findTransport(eUnitAI, iFlags, iMaxPath, eTransportedUnitAI, iMinCargo, iMinCargoSpace, iMaxCargoSpace, iMaxCargoOurUnitAI);
+-	// K-Mod end
+-	if( pBestUnit != NULL && iMaxTransportPath < MAX_INT )
++	CvUnit* pBestUnit = AI_findTransport(eUnitAI, iFlags, iMaxPath, eTransportedUnitAI, iMinCargo, iMinCargoSpace, iMaxCargoSpace, iMaxCargoOurUnitAI); // K-Mod
++	//if( pBestUnit != NULL && iMaxTransportPath < MAX_INT )
++	if (pBestUnit != NULL && iMaxTransportPath < MAX_INT && (eUnitAI == UNITAI_ASSAULT_SEA || eUnitAI == UNITAI_SPY_SEA)) // K-Mod
+ 	{
+ 		// Can transport reach enemy in requested time
+ 		bool bFoundEnemyPlotInRange = false;
+@@ -11092,7 +11091,8 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITyp
+ 		{
+ 			for( int iDY = -iRange; (iDY <= iRange && !bFoundEnemyPlotInRange); iDY++ )
+ 			{
+-				CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++				//CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++				CvPlot* pLoopPlot = plotXY(pBestUnit->getX_INLINE(), pBestUnit->getY_INLINE(), iDX, iDY); // K-Mod
+ 
+ 				if( pLoopPlot != NULL )
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1496

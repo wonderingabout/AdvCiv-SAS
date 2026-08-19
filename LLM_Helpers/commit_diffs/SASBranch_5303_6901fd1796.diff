@@ -1,0 +1,220 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5303
+# Commit: 6901fd17969c00abada610fbfd2bdf6bf1fc01ea
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fd1e7dda818350d7cb03f9f5d3546459bf9bfc0a
+# Title: Fix base AdvCiv incorrect defaults for iExtraFreeOutsideUnits of 100 vs 0 at faster than marathon game speeds, plus added the XML fields (`iExtraFreeOutsideU...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+34	3	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+5	1	CvGameCoreDLL/CvInfo_GameOption.h
+1	0	_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+13	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 929f5c986..b14f3d8fe 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -14,6 +14,12 @@
+ 	- 780 months = 65y
+ 	and adjust iTurnsPerIncrement to keep the same segment endpoints and total turns.
+ 	Sub-year steps (<12 months) are kept as separate rows (e.g., 6/3/2 months) for clarity. (ChatGPT 5.2) -->
++<!-- custom: note: iExtraFreeOutsideUnits is an OPTIONAL tag (schema minOccurs=0), but the DLL default was 100 (percent-style fallback).
++     That default is wrong for this field because it is a UNIT COUNT added to INITIAL_FREE_OUTSIDE_UNITS, not a percent.
++     Result: speeds missing the tag display/behave like "100" (see SevoPedia Game Speed Chart), while slower speeds explicitly set "1".
++     We now set this tag explicitly for ALL game speeds (usually 0) to avoid hidden fallback values and keep behavior consistent.
++     0 means "no extra free outside units beyond INITIAL_FREE_OUTSIDE_UNITS" and preserves the intended baseline on normal speeds (ChatGPT 5.2). See known issue as of now 92 for details. -->
++<!-- custom: also added iUnitCostPercent that was missing in some game speeds too. See known issue as of now 92 for details. -->
+ <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameSpeedInfos>
+ 
+@@ -57,6 +63,10 @@
+ 			<iInflationPercent>90</iInflationPercent>
+ 			<iInflationOffset>-30</iInflationOffset>
+ 
++			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<iUnitCostPercent>100</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
++
+ 			<iVictoryDelayPercent>60</iVictoryDelayPercent>
+ 
+ 			<iAIMemoryRandPercent>60</iAIMemoryRandPercent>
+@@ -164,6 +174,10 @@
+ 			<iInflationPercent>60</iInflationPercent>
+ 			<iInflationOffset>-45</iInflationOffset>
+ 
++			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<iUnitCostPercent>100</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
++
+ 			<!-- These are absent on Normal (defaults=100), but present on other speeds. Keep them in the "not as compressed as core" spirit. -->
+ 			<iVictoryDelayPercent>70</iVictoryDelayPercent>
+ 
+@@ -261,6 +275,11 @@
+ 			<iHurryConscriptAngerPercent>67</iHurryConscriptAngerPercent>
+ 			<iInflationPercent>45</iInflationPercent>
+ 			<iInflationOffset>-60</iInflationOffset>
++
++			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<iUnitCostPercent>100</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
++
+ 			<!-- advc.252: was 67 -->
+ 			<iVictoryDelayPercent>80</iVictoryDelayPercent>
+ 			<!-- advc.130r: start -->
+@@ -371,6 +390,11 @@
+ 			<iHurryConscriptAngerPercent>100</iHurryConscriptAngerPercent>
+ 			<iInflationPercent>30</iInflationPercent>
+ 			<iInflationOffset>-90</iInflationOffset>
++
++			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<iUnitCostPercent>100</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
++
+ 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
+ 			<!-- advc.910: Changed all of the turn counts -->
+ 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #19 -->
+@@ -473,6 +497,11 @@
+ 			<iHurryConscriptAngerPercent>150</iHurryConscriptAngerPercent>
+ 			<iInflationPercent>20</iInflationPercent>
+ 			<iInflationOffset>-135</iInflationOffset>
++
++			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<iUnitCostPercent>100</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
++
+ 			<!-- advc.252: was 150 -->
+ 			<iVictoryDelayPercent>125</iVictoryDelayPercent>
+ 			<!-- advc.130r: start -->
+@@ -604,10 +633,12 @@
+ 			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case anyways etc, was -225 -->
+ 			<!-- was -270 -->
+ 			<iInflationOffset>-180</iInflationOffset>
+-			<!-- custom: not sure if we should change it but aim for exact double just in case anyways etc, was 85 -->
++
++			<!-- custom: not sure if we should change it but aim for exact double just in case. See also known issue as of now 92 for related info; was 85 -->
+ 			<!-- Reduce unit expenses ... -->
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
++
+ 			<!-- was 300 -->
+ 			<iVictoryDelayPercent>200</iVictoryDelayPercent>
+ 			<!-- advc.252: end -->
+@@ -726,7 +757,7 @@
+ 			<iInflationPercent>10</iInflationPercent>
+ 			<iInflationOffset>-270</iInflationOffset>
+ 
+-			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). -->
++			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). See also known issue as of now 92 for related info -->
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
+ 
+@@ -839,7 +870,7 @@
+ 			<iInflationPercent>5</iInflationPercent>
+ 			<iInflationOffset>-360</iInflationOffset>
+ 
+-			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). -->
++			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). See also known issue as of now 92 for related info. -->
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 9f25b360b..29deaafbe 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -260,7 +260,11 @@ protected:
+ 		kElements.addInt(EventRollSidesPercent, "EventRollSidesPercent", 100);
+ 		kElements.addInt(VoteIntervalPercent, "VoteIntervalPercent", 100);
+ 		kElements.addInt(UnitCostPercent, "UnitCostPercent", 100);
+-		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 100);
++
++		// <!-- custom: ExtraFreeOutsideUnits is a UNIT COUNT (added to INITIAL_FREE_OUTSIDE_UNITS in CvPlayer::calculateUnitSupply), not a percent. The XML schema allows the tag to be omitted (minOccurs=0), so the default matters.
++		// It was previously defaulted to 100 (copied from percent-style fields), which effectively means "+100 free outside units" on any game speed missing <iExtraFreeOutsideUnits>, causing confusing mismatches (spotted via the SevoPedia Game Speed Chart). Defaulting to 0 makes "tag missing" behave like "no extra", which matches intent and avoids accidental huge free allowances. (ChatGPT 5.2). See known issue as of now 92 for details. -->
++		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 0);
++
+ 		// </advc.252>
+ 	}
+ public:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+index d08b853d2..728adb4d1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+@@ -304,6 +304,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ 
+ - (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
+ - (Requires AdvCiv-SAS 5296+) **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
++- (Requires AdvCiv-SAS 5303+) **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
+ - i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments quite fast early on (5 000 per turn at normal speed) then gradually less, so after a few dozen turns approximately at normal speed more or less you should be around the bronze age (see full game speed details in the **new Sevopedia Speeds category**.), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages), and ends at 2105 AD (turn 500 at normal gamespeed). Note: i did the `GAMESPEED_NORMAL` timeline myself; as for, the other other game speeds they are done by chatgpt 5 based on my timeline, check if accurate and see info about them in the xml file as well (in code comments for details, it even commented them nicely as a timeline in years without me asking, thanks a lot chatgpt 5! Check if accurate anyways etc) anyways etc.
+ - reduced `GAMESPEED_MARATHON` from 1250 in base advciv if i'm not mistaken to now 1000 turns so it is more affordable and less of a grind / too long. Adjusted modifiers so they match closer to this new setting anyways etc.
+ - (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index aa75cb6da..0166ab6fc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -125,6 +125,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
+ [90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
+ [91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
++[92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4019,3 +4020,15 @@ If your goal is “difficulty comes from the AI, not hidden human penalties”,
+ - Rebuild AI curves deliberately (like we did for GP), *but be careful with growth* because `iAIGrowthPercent` is a stronger lever than GP threshold (it can inflate AI cities across the whole game, not just GP timing).
+ 
+ If you want, paste your current **AI** growth-related rows (or just confirm you still have that “settler cost adjusts from growth threshold” code enabled), and I’ll recommend a specific `iAIGrowthPercent` curve that fits your current AIResearchPercent curve and your worker/production tuning.
++
++## 92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pIXiY183a1NpEBSxr5zFUtcg56rwAXwV?usp=sharing).
++
++I noticed these in the new Sevopedia Game speed that below Marathon values were way to high vs what marathon had (100 vs 1).
++
++Now fixed with code comments, and added the `iExtraFreeOutsideUnits` (plus `iUnitCostPercent`) fields that were missing in XML too instead of relying on DLL defaults.
++
++Gameplay change doesn't seem too significant at a glance, check screenshots and save file provided for comparison.
++
++See commit: todo add.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 231689719..b111c50da 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -300,6 +300,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ - (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
+ - (Requires AdvCiv-SAS 5296+) **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
++- (Requires AdvCiv-SAS 5303+) **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
+ - **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; on **Normal**, early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See full game speed details in the **new Sevopedia Speeds category**.
+ - `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
+ - (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG
+index a987c3cf8..a97a7b9ab 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG
+index dbe0d9570..976136dad 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=17543

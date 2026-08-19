@@ -1,0 +1,1007 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 576
+# Commit: 7f52c723d2580572b6c53a04988f6f7d135bf36d
+# History segment: K-Mod history
+# Parent used for diff: 0e33ade4f79af97209f501b28af43e06fcffeed8
+# Title: Added new function, CvPlayer::doesImprovementConnectBonus, which is meant to be a definitive indicator of whether or not a particular improvement will give t...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	25	CvGameCoreDLL/CvCityAI.cpp
+1	9	CvGameCoreDLL/CvCityAI.h
+3	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+62	56	CvGameCoreDLL/CvGameTextMgr.cpp
+37	35	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+18	12	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+15	4	CvGameCoreDLL/CvSelectionGroup.cpp
+16	6	CvGameCoreDLL/CvUnit.cpp
+78	84	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3c2643dfd..94d30d6f6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7386,6 +7386,8 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 
+ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange, int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
+ {
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
++
+ 	// first check if the improvement is valid on this plot
+ 	// this also allows us work out whether or not the improvement will remove the plot feature...
+ 	int iBestTempBuildValue = 0;
+@@ -7409,7 +7411,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 
+ 			if (GC.getBuildInfo(eBuild).getImprovement() == eImprovement)
+ 			{
+-				if (GET_PLAYER(getOwnerINLINE()).canBuild(pPlot, eBuild, false))
++				if (kOwner.canBuild(pPlot, eBuild, false))
+ 				{
+ 					iValue = 10000;
+ 
+@@ -7440,7 +7442,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 					{
+ 						if (eNonObsoleteBonus == NO_BONUS)
+ 						{
+-							if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS))
++							if (kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS))
+ 							{
+ 								bValid = false;
+ 							}
+@@ -7448,7 +7450,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 							{
+ 								bValid = false;
+ 							}
+-							else if (GET_PLAYER(getOwnerINLINE()).getFeatureHappiness(pPlot->getFeatureType()) > 0)
++							else if (kOwner.getFeatureHappiness(pPlot->getFeatureType()) > 0)
+ 							{
+ 								bValid = false;
+ 							}
+@@ -7483,10 +7485,11 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 	{
+ 		if (eNonObsoleteBonus != NO_BONUS)
+ 		{
+-			if (GC.getImprovementInfo(eFinalImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++			//if (GC.getImprovementInfo(eFinalImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++			if (kOwner.doesImprovementConnectBonus(eFinalImprovement, eNonObsoleteBonus))
+ 			{
+ 				// K-Mod
+-				iValue += (GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus, 1) * 50);
++				iValue += (kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50);
+ 				iValue += 100;
+ 				// K-Mod end
+ 			}
+@@ -7494,11 +7497,10 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 			{
+ 				// K-Mod, bug fix. (original code deleted now.)
+ 				// Presumablly the original author wanted to subtract 1000 if eBestBuild would take away the bonus; not ... the nonsense they actually wrote.
+-				ImprovementTypes eCurrentImprovement = pPlot->getImprovementType();
+-				if (eCurrentImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eCurrentImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++				if (kOwner.doesImprovementConnectBonus(pPlot->getImprovementType(), eNonObsoleteBonus))
+ 				{
+ 					// By the way, AI_bonusVal is typically 10 for the first bonus, and 2 for subsequent.
+-					iValue -= (GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus, -1) * 50);
++					iValue -= (kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50);
+ 					iValue -= 100;
+ 				}
+ 			}
+@@ -7643,7 +7645,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 			{
+ 				if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3))
+ 				{
+-					if (iCorrectedFoodPriority < 100 || GET_PLAYER(getOwnerINLINE()).getCurrentEra() < 2)
++					if (iCorrectedFoodPriority < 100 || kOwner.getCurrentEra() < 2)
+ 					{
+ 						//value booster for mines on hills
+ 						iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
+@@ -7691,7 +7693,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 		}
+ 
+ 		int iHappiness = GC.getImprovementInfo(eFinalImprovement).getHappiness();
+-		if ((iHappiness != 0) && !(GET_PLAYER(getOwnerINLINE()).getAdvancedStartPoints() >= 0))
++		if ((iHappiness != 0) && !(kOwner.getAdvancedStartPoints() >= 0))
+ 		{
+ 			//int iHappyLevel = iHappyAdjust + (happyLevel() - unhappyLevel(0));
+ 			int iHappyLevel = happyLevel() - unhappyLevel(0); // iHappyAdjust isn't currently being used.
+@@ -7790,7 +7792,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 				}
+ 			}
+ 
+-			if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
++			if (kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION))
+ 			{
+ 				iValue /= 4;	//Greatly prefer builds which are legal.
+ 			}
+@@ -10403,6 +10405,7 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 	BonusTypes eBonus = pPlot->getBonusType(getTeam());
+ 	BonusTypes eNonObsoleteBonus = pPlot->getNonObsoleteBonusType(getTeam());
+ 
++	/* original code
+ 	bool bHasBonusImprovement = false;
+ 
+ 	if (eNonObsoleteBonus != NO_BONUS)
+@@ -10414,7 +10417,8 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 				bHasBonusImprovement = true;
+ 			}
+ 		}
+-	}
++	} */
++	bool bHasBonusImprovement = pPlot->getNonObsoleteBonusType(getTeam(), true) != NO_BONUS; // K-Mod
+ 
+ 	iBestValue = 0;
+ 	eBestBuild = NO_BUILD;
+@@ -11880,11 +11884,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bInc
+     
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
+-/*                                                                                              */
+-/* City AI                                                                                      */
+-/************************************************************************************************/
++// BBAI. K-Mod: I've rearranged some stuff and fixed some bugs.
+ int CvCityAI::AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExtraTech, bool bLand, bool bWater )
+ {
+ 	CvPlot* pLoopPlot;
+@@ -11900,19 +11900,18 @@ int CvCityAI::AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExt
+         	if ((bLand && pLoopPlot->area() == area()) || (bWater && pLoopPlot->isWater()))
+         	{
+ 				eLoopBonus = pLoopPlot->getBonusType(getTeam());
+-				if (eLoopBonus != NO_BONUS)
++				if (eLoopBonus != NO_BONUS && (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getBonusInfo(eLoopBonus).getTechCityTrade()) || GC.getBonusInfo(eLoopBonus).getTechCityTrade() == eExtraTech))
+ 				{
+ 					if ( ((pLoopPlot->getOwnerINLINE() == getOwnerINLINE()) && (pLoopPlot->getWorkingCity() == this)) || (bIncludeNeutral && (!pLoopPlot->isOwned())))
+ 					{
+ 						for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 						{
+ 							BuildTypes eBuild = ((BuildTypes)iJ);
++							ImprovementTypes eImp = (ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement();
+ 
+-							if( eBuild != NO_BUILD && pLoopPlot->canBuild(eBuild, getOwnerINLINE()) )
++							if (eImp != NO_IMPROVEMENT && pLoopPlot->canBuild(eBuild, getOwnerINLINE()))
+ 							{
+-								ImprovementTypes eImp = (ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement();
+-
+-								if( eImp != NO_IMPROVEMENT && GC.getImprovementInfo(eImp).isImprovementBonusTrade(eLoopBonus) )
++								if (GC.getImprovementInfo(eImp).isImprovementBonusTrade(eLoopBonus) || GC.getImprovementInfo(eImp).isActsAsCity())
+ 								{
+ 									if( GET_PLAYER(getOwnerINLINE()).canBuild(pLoopPlot, eBuild) )
+ 									{
+@@ -11939,9 +11938,7 @@ int CvCityAI::AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExt
+     
+     return iCount;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++// bbai / K-Mod end
+ 
+ int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance)
+ {
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index e19255e46..5050beefa 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -127,15 +127,7 @@ public:
+ 	int AI_specialYieldMultiplier(YieldTypes eYield) const;
+ 
+ 	int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
+-/*                                                                                              */
+-/* City AI                                                                                      */
+-/************************************************************************************************/
+-	int AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExtraTech = NO_TECH, bool bLand = true, bool bWater = false );
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	int AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExtraTech = NO_TECH, bool bLand = true, bool bWater = false ); // BBAI
+ 
+ 	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance);
+ 	bool AI_isFrontlineCity() const; // K-Mod
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 6855fdd84..978fe19aa 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2786,9 +2786,10 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
+ 				{
+ 					if (eBonus != NO_BONUS)
+ 					{
+-						if (!GET_TEAM(pHeadSelectedUnit->getTeam()).isBonusObsolete(eBonus))
++						//if (!GET_TEAM(pHeadSelectedUnit->getTeam()).isBonusObsolete(eBonus))
++						if (GET_PLAYER(pHeadSelectedUnit->getOwnerINLINE()).doesImprovementConnectBonus(eImprovement, eBonus)) // K-Mod
+ 						{
+-							if (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
++							//if (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
+ 							{
+ 								szBuffer.append(NEWLINE);
+ 								szBuffer.append(gDLL->getText("TXT_KEY_ACTION_PROVIDES_BONUS", GC.getBonusInfo(eBonus).getTextKeyWide()));
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a3c1355a8..be7432d85 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4363,7 +4363,6 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 							{
+ 								szString.append(CvWString::format(L"-]"));
+ 							}
+-							
+ 						}
+ 					}
+ /************************************************************************************************/
+@@ -4386,8 +4385,6 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 
+ 			szString.append(CvWString::format(L"\n\nArea Sites = %d (%d)", iNumAreaCitySites, iAreaSiteBestValue));
+ 			szString.append(CvWString::format(L"\nOther Sites = %d (%d)", iNumOtherCitySites, iOtherSiteBestValue));
+-			
+-			
+ 		}
+ 		else if (pPlot->getOwner() != NO_PLAYER)
+ 		{
+@@ -5131,7 +5128,6 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			// if we over the city, then do an array of all the plots
+ 			if (pPlot->getPlotCity() != NULL)
+ 			{
+-				
+ 				// check avoid growth
+ 				if (bAvoidGrowth || bIgnoreGrowth)
+ 				{
+@@ -5479,87 +5475,97 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			szString.append(NEWLINE);
+ 			szString.append(szTempBuffer);
+ 
+-			if (GC.getBonusInfo(eBonus).getHealth() != 0)
++			// K-Mod. I've rearranged and edited some of the code in this section to fix some bugs.
++			// (for example, obsolete bonuses shouldn't say "requires x improvement"; and neither should bonuses that are already connected with a fort.)
++			if (!GET_TEAM(GC.getGameINLINE().getActiveTeam()).isBonusObsolete(eBonus))
+ 			{
+-				szTempBuffer.Format(L", +%d%c", abs(GC.getBonusInfo(eBonus).getHealth()), ((GC.getBonusInfo(eBonus).getHealth() > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR)));
+-				szString.append(szTempBuffer);
+-			}
++				if (GC.getBonusInfo(eBonus).getHealth() != 0)
++				{
++					szTempBuffer.Format(L", +%d%c", abs(GC.getBonusInfo(eBonus).getHealth()), ((GC.getBonusInfo(eBonus).getHealth() > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR)));
++					szString.append(szTempBuffer);
++				}
+ 
+-			if (GC.getBonusInfo(eBonus).getHappiness() != 0)
+-			{
+-				szTempBuffer.Format(L", +%d%c", abs(GC.getBonusInfo(eBonus).getHappiness()), ((GC.getBonusInfo(eBonus).getHappiness() > 0) ? gDLL->getSymbolID(HAPPY_CHAR): gDLL->getSymbolID(UNHAPPY_CHAR)));
+-				szString.append(szTempBuffer);
+-			}
++				if (GC.getBonusInfo(eBonus).getHappiness() != 0)
++				{
++					szTempBuffer.Format(L", +%d%c", abs(GC.getBonusInfo(eBonus).getHappiness()), ((GC.getBonusInfo(eBonus).getHappiness() > 0) ? gDLL->getSymbolID(HAPPY_CHAR): gDLL->getSymbolID(UNHAPPY_CHAR)));
++					szString.append(szTempBuffer);
++				}
+ 
+-			if ((pPlot->getImprovementType() == NO_IMPROVEMENT) || !(GC.getImprovementInfo(pPlot->getImprovementType()).isImprovementBonusTrade(eBonus)))
+-			{
+ 				if (!(GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasTech((TechTypes)GC.getBonusInfo(eBonus).getTechCityTrade())))
+ 				{
+ 					szString.append(gDLL->getText("TXT_KEY_PLOT_RESEARCH", GC.getTechInfo((TechTypes) GC.getBonusInfo(eBonus).getTechCityTrade()).getTextKeyWide()));
+ 				}
+ 
++				ImprovementTypes ePlotImprovement = pPlot->getImprovementType();
++
+ 				if (!pPlot->isCity())
+ 				{
+-					for (iI = 0; iI < GC.getNumBuildInfos(); ++iI)
++					if (!GET_PLAYER(GC.getGameINLINE().getActivePlayer()).doesImprovementConnectBonus(pPlot->getImprovementType(), eBonus))
+ 					{
+-						if (GC.getBuildInfo((BuildTypes) iI).getImprovement() != NO_IMPROVEMENT)
++						// K-Mod note: unfortunately, the following code assumes that there is only one improvement marked "isImprovementBonusTrade" for each bonus.
++						for (iI = 0; iI < GC.getNumBuildInfos(); ++iI)
+ 						{
+-							CvImprovementInfo& kImprovementInfo = GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo((BuildTypes) iI).getImprovement());
+-							if (kImprovementInfo.isImprovementBonusTrade(eBonus))
++							if (GC.getBuildInfo((BuildTypes) iI).getImprovement() != NO_IMPROVEMENT)
+ 							{
+-								if (pPlot->canHaveImprovement(((ImprovementTypes)(GC.getBuildInfo((BuildTypes) iI).getImprovement())), GC.getGameINLINE().getActiveTeam(), true))
++								CvImprovementInfo& kImprovementInfo = GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo((BuildTypes) iI).getImprovement());
++								if (kImprovementInfo.isImprovementBonusTrade(eBonus))
+ 								{
+-									if (GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasTech((TechTypes)GC.getBuildInfo((BuildTypes) iI).getTechPrereq()))
+-									{
+-										szString.append(gDLL->getText("TXT_KEY_PLOT_REQUIRES", kImprovementInfo.getTextKeyWide()));
+-									}
+-									else if (GC.getBonusInfo(eBonus).getTechCityTrade() != GC.getBuildInfo((BuildTypes) iI).getTechPrereq())
++									if (pPlot->canHaveImprovement(((ImprovementTypes)(GC.getBuildInfo((BuildTypes) iI).getImprovement())), GC.getGameINLINE().getActiveTeam(), true))
+ 									{
+-										szString.append(gDLL->getText("TXT_KEY_PLOT_RESEARCH", GC.getTechInfo((TechTypes) GC.getBuildInfo((BuildTypes) iI).getTechPrereq()).getTextKeyWide()));
+-									}
++										if (GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasTech((TechTypes)GC.getBuildInfo((BuildTypes) iI).getTechPrereq()))
++										{
++											szString.append(gDLL->getText("TXT_KEY_PLOT_REQUIRES", kImprovementInfo.getTextKeyWide()));
++										}
++										else if (GC.getBonusInfo(eBonus).getTechCityTrade() != GC.getBuildInfo((BuildTypes) iI).getTechPrereq())
++										{
++											szString.append(gDLL->getText("TXT_KEY_PLOT_RESEARCH", GC.getTechInfo((TechTypes) GC.getBuildInfo((BuildTypes) iI).getTechPrereq()).getTextKeyWide()));
++										}
+ 
+-									bool bFirst = true;
++										bool bFirst = true;
+ 
+-									for (int k = 0; k < NUM_YIELD_TYPES; k++)
+-									{
+-										int iYieldChange = kImprovementInfo.getImprovementBonusYield(eBonus, k) + kImprovementInfo.getYieldChange(k);
+-										if (iYieldChange != 0)
++										for (int k = 0; k < NUM_YIELD_TYPES; k++)
+ 										{
+-											if (iYieldChange > 0)
++											int iYieldChange = kImprovementInfo.getImprovementBonusYield(eBonus, k) + kImprovementInfo.getYieldChange(k);
++											if (iYieldChange != 0)
+ 											{
+-												szTempBuffer.Format(L"+%d%c", iYieldChange, GC.getYieldInfo((YieldTypes)k).getChar());
+-											}
+-											else
+-											{
+-												szTempBuffer.Format(L"%d%c", iYieldChange, GC.getYieldInfo((YieldTypes)k).getChar());
++												if (iYieldChange > 0)
++												{
++													szTempBuffer.Format(L"+%d%c", iYieldChange, GC.getYieldInfo((YieldTypes)k).getChar());
++												}
++												else
++												{
++													szTempBuffer.Format(L"%d%c", iYieldChange, GC.getYieldInfo((YieldTypes)k).getChar());
++												}
++												setListHelp(szString, L"\n", szTempBuffer, L", ", bFirst);
++												bFirst = false;
+ 											}
+-											setListHelp(szString, L"\n", szTempBuffer, L", ", bFirst);
+-											bFirst = false;
+ 										}
+-									}
+ 
+-									if (!bFirst)
+-									{
+-										szString.append(gDLL->getText("TXT_KEY_BONUS_WITH_IMPROVEMENT", kImprovementInfo.getTextKeyWide()));
+-									}
++										if (!bFirst)
++										{
++											szString.append(gDLL->getText("TXT_KEY_BONUS_WITH_IMPROVEMENT", kImprovementInfo.getTextKeyWide()));
++										}
+ 
+-									break;
++										break;
++									}
+ 								}
+ 							}
+ 						}
+ 					}
++					if (!(pPlot->isBonusNetwork(GC.getGameINLINE().getActiveTeam())))
++					{
++						szString.append(gDLL->getText("TXT_KEY_PLOT_REQUIRES_ROUTE"));
++					}
+ 				}
+-			}
+-			else if (!(pPlot->isBonusNetwork(GC.getGameINLINE().getActiveTeam())))
+-			{
+-				szString.append(gDLL->getText("TXT_KEY_PLOT_REQUIRES_ROUTE"));
+-			}
+ 
+-			if (!CvWString(GC.getBonusInfo(eBonus).getHelp()).empty())
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(GC.getBonusInfo(eBonus).getHelp());
+-			}
++				// K-Mod note: I'm not sure whether or not the help should be displayed when the bonus is obsolete.
++				// The fact is, none of the bonuses have help text in K-Mod (or standard bts.)
++				if (!CvWString(GC.getBonusInfo(eBonus).getHelp()).empty())
++				{
++					szString.append(NEWLINE);
++					szString.append(GC.getBonusInfo(eBonus).getHelp());
++				}
++			} // end !isBonusObsolete
+ 		}
+ 
+ 		eImprovement = pPlot->getRevealedImprovementType(GC.getGameINLINE().getActiveTeam(), true);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 98d55ee2e..28b6b1f6c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4210,56 +4210,37 @@ int CvPlayer::countOwnedBonuses(BonusTypes eBonus) const
+ }
+ 
+ 
++// K-Mod. I've rearranged some stuff in this function to fix a couple of minor bugs; and to make the code neater and less error prone.
+ int CvPlayer::countUnimprovedBonuses(CvArea* pArea, CvPlot* pFromPlot) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-	ImprovementTypes eImprovement;
+-	BuildTypes eBuild;
+-	BonusTypes eNonObsoleteBonus;
+-	int iCount;
+-	int iI, iJ;
+-
+ 	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
+ 
+-	iCount = 0;
++	int iCount = 0;
+ 
+-	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+-		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		if (pLoopPlot->area() == pArea)
++		if (pLoopPlot->getOwnerINLINE() == getID() && pLoopPlot->area() == pArea && !pLoopPlot->isCity())
+ 		{
+-			if (pLoopPlot->getOwnerINLINE() == getID())
++			BonusTypes eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
++
++			if (eNonObsoleteBonus != NO_BONUS)
+ 			{
+-				if (!(pLoopPlot->isCity()))
++				if (!doesImprovementConnectBonus(pLoopPlot->getImprovementType(), eNonObsoleteBonus))
+ 				{
+-					eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+-
+-					if (eNonObsoleteBonus != NO_BONUS)
++					if ((pFromPlot == NULL) || gDLL->getFAStarIFace()->GeneratePath(&GC.getBorderFinder(), pFromPlot->getX_INLINE(), pFromPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), false, getID(), true))
+ 					{
+-						eImprovement = pLoopPlot->getImprovementType();
+-
+-						if ((eImprovement == NO_IMPROVEMENT) || !(GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++						for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 						{
+-							if ((pFromPlot == NULL) || gDLL->getFAStarIFace()->GeneratePath(&GC.getBorderFinder(), pFromPlot->getX_INLINE(), pFromPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), false, getID(), true))
+-							{
+-								for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+-								{
+-									eBuild = ((BuildTypes)iJ);
++							BuildTypes eBuild = ((BuildTypes)iJ);
+ 
+-									if (GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT)
+-									{
+-										if (GC.getImprovementInfo((ImprovementTypes)(GC.getBuildInfo(eBuild).getImprovement())).isImprovementBonusTrade(eNonObsoleteBonus))
+-										{
+-											if (canBuild(pLoopPlot, eBuild))
+-											{
+-												iCount++;
+-											}
+-										}
+-									}
+-								}
++							if (doesImprovementConnectBonus((ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement(), eNonObsoleteBonus) && canBuild(pLoopPlot, eBuild))
++							{
++								iCount++;
++								break; // K-Mod!
+ 							}
+ 						}
+ 					}
+@@ -4420,6 +4401,27 @@ int CvPlayer::countPotentialForeignTradeCitiesConnected() const
+ 	return iCount;
+ }
+ 
++// K-Mod. In the original code, there seems to be a lot of confusion about what the exact conditions are for a bonus being connected.
++// There were heaps of bugs where CvImprovementInfo::isImprovementBonusTrade was mistakenly used as the sole condition for a bonus being connected or not.
++// I created this function to make the situation a bit more clear...
++bool CvPlayer::doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const
++{
++	FAssert(eImprovement <= GC.getNumImprovementInfos());
++	FAssert(eBonus <= GC.getNumBonusInfos());
++
++	if (eImprovement == NO_IMPROVEMENT || eBonus == NO_BONUS)
++		return false;
++
++	const CvImprovementInfo& kImprovementInfo = GC.getImprovementInfo(eImprovement);
++	const CvBonusInfo& kBonusInfo = GC.getBonusInfo(eBonus);
++	const CvTeam& kTeam = GET_TEAM(getTeam());
++
++	if (!kTeam.isHasTech((TechTypes)kBonusInfo.getTechCityTrade()) || (kBonusInfo.getTechObsolete() != NO_TECH && kTeam.isHasTech((TechTypes)kBonusInfo.getTechObsolete())))
++		return false;
++
++	return kImprovementInfo.isImprovementBonusTrade(eBonus) || kImprovementInfo.isActsAsCity();
++}
++// K-Mod end
+ 
+ 
+ bool CvPlayer::canContact(PlayerTypes ePlayer) const
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 8c5ef93b9..08fa274a6 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -200,6 +200,7 @@ public:
+ 	DllExport int countNumCitiesConnectedToCapital() const;																								// Exposed to Python
+ 	int countPotentialForeignTradeCities(CvArea* pIgnoreArea = NULL) const;																// Exposed to Python
+ 	int countPotentialForeignTradeCitiesConnected() const;																								// Exposed to Python
++	bool doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const; // K-Mod
+ 
+ 	DllExport bool canContact(PlayerTypes ePlayer) const;																									// Exposed to Python
+ 	DllExport bool canContactAndTalk(PlayerTypes ePlayer) const; // K-Mod. this checks willingness to talk on both sides
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4e89ca87a..da88e6adc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -21830,7 +21830,8 @@ void CvPlayerAI::AI_advancedStartRouteTerritory()
+ 				BonusTypes eBonus = pLoopPlot->getBonusType(getTeam());
+ 				if (eBonus != NO_BONUS)
+ 				{
+-					if (GC.getImprovementInfo(pLoopPlot->getImprovementType()).isImprovementBonusTrade(eBonus))
++					//if (GC.getImprovementInfo(pLoopPlot->getImprovementType()).isImprovementBonusTrade(eBonus))
++					if (doesImprovementConnectBonus(pLoopPlot->getImprovementType(), eBonus))
+ 					{
+ 						int iBonusValue = AI_bonusVal(eBonus, 1, true);
+ 						if (iBonusValue > 9)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 25b0b03c0..dede81b87 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1166,25 +1166,20 @@ void CvPlot::updatePlotGroupBonus(bool bAdd)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvCity* pPlotCity;
+-	CvPlotGroup* pPlotGroup;
+-	BonusTypes eNonObsoleteBonus;
+-	int iI;
+-
+ 	if (!isOwned())
+ 	{
+ 		return;
+ 	}
+ 
+-	pPlotGroup = getPlotGroup(getOwnerINLINE());
++	CvPlotGroup* pPlotGroup = getPlotGroup(getOwnerINLINE());
+ 
+ 	if (pPlotGroup != NULL)
+ 	{
+-		pPlotCity = getPlotCity();
++		CvCity* pPlotCity = getPlotCity();
+ 
+ 		if (pPlotCity != NULL)
+ 		{
+-			for (iI = 0; iI < GC.getNumBonusInfos(); ++iI)
++			for (int iI = 0; iI < GC.getNumBonusInfos(); ++iI)
+ 			{
+ 				if (!GET_TEAM(getTeam()).isBonusObsolete((BonusTypes)iI))
+ 				{
+@@ -1194,7 +1189,7 @@ void CvPlot::updatePlotGroupBonus(bool bAdd)
+ 
+ 			if (pPlotCity->isCapital())
+ 			{
+-				for (iI = 0; iI < GC.getNumBonusInfos(); ++iI)
++				for (int iI = 0; iI < GC.getNumBonusInfos(); ++iI)
+ 				{
+ 					pPlotGroup->changeNumBonuses(((BonusTypes)iI), (GET_PLAYER(getOwnerINLINE()).getBonusExport((BonusTypes)iI) * ((bAdd) ? -1 : 1)));
+ 					pPlotGroup->changeNumBonuses(((BonusTypes)iI), (GET_PLAYER(getOwnerINLINE()).getBonusImport((BonusTypes)iI) * ((bAdd) ? 1 : -1)));
+@@ -1202,6 +1197,7 @@ void CvPlot::updatePlotGroupBonus(bool bAdd)
+ 			}
+ 		}
+ 
++		/* original code
+ 		eNonObsoleteBonus = getNonObsoleteBonusType(getTeam());
+ 
+ 		if (eNonObsoleteBonus != NO_BONUS)
+@@ -1217,7 +1213,14 @@ void CvPlot::updatePlotGroupBonus(bool bAdd)
+ 					}
+ 				}
+ 			}
++		} */
++		// K-Mod. I'm just trying to standardize the code to reduce the potential for mistakes. There are no functionality changes here.
++		BonusTypes eBonus = getNonObsoleteBonusType(getTeam(), true);
++		if (eBonus != NO_BONUS && pPlotGroup && isBonusNetwork(getTeam()))
++		{
++			pPlotGroup->changeNumBonuses(eBonus, bAdd ? 1 : -1);
+ 		}
++		// K-Mod end
+ 	}
+ }
+ 
+@@ -5594,9 +5597,10 @@ BonusTypes CvPlot::getBonusType(TeamTypes eTeam) const
+ }
+ 
+ 
+-BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckImprovement) const // K-Mod added bCheckImprovement
++BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected) const // K-Mod added bCheckConnected
+ {
+ 	FAssert(eTeam != NO_TEAM);
++	FAssert(GET_TEAM(eTeam).isAlive()); // K-Mod
+ 
+ 	BonusTypes eBonus = getBonusType(eTeam);
+ 	if (eBonus != NO_BONUS)
+@@ -5606,12 +5610,14 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckImproveme
+ 			return NO_BONUS;
+ 		}
+ 		// K-Mod
+-		if (bCheckImprovement)
++		if (bCheckConnected)
+ 		{
+-			if (getImprovementType() == NO_IMPROVEMENT || !GC.getImprovementInfo(getImprovementType()).isImprovementBonusTrade(eBonus))
++			if (!isCity(true, eTeam) && (getImprovementType() == NO_IMPROVEMENT || !GC.getImprovementInfo(getImprovementType()).isImprovementBonusTrade(eBonus)))
+ 			{
++				FAssert(!GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).doesImprovementConnectBonus(getImprovementType(), eBonus));
+ 				return NO_BONUS;
+ 			}
++			FAssert(isCity() || GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).doesImprovementConnectBonus(getImprovementType(), eBonus));
+ 		}
+ 		// K-Mod end
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 687546397..c716160a1 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -339,7 +339,7 @@ public:
+ 	DllExport void resetFeatureModel();
+ 
+ 	DllExport BonusTypes getBonusType(TeamTypes eTeam = NO_TEAM) const;																							// Exposed to Python
+-	BonusTypes getNonObsoleteBonusType(TeamTypes eTeam = NO_TEAM, bool bCheckImprovement = false) const;																	// Exposed to Python
++	BonusTypes getNonObsoleteBonusType(TeamTypes eTeam = NO_TEAM, bool bCheckConnected = false) const;																	// Exposed to Python
+ 	void setBonusType(BonusTypes eNewValue);																															// Exposed to Python
+ 
+ 	DllExport ImprovementTypes getImprovementType() const;																													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index a60364ed7..d4584c6a8 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3610,14 +3610,25 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild)
+ 			{
+ 				if ((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != (ImprovementTypes)(GC.getDefineINT("RUINS_IMPROVEMENT"))))
+ 				{
+-				    BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(GET_PLAYER(getOwnerINLINE()).getTeam());
+-				    if ((eBonus == NO_BONUS) || !GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
++					BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(GET_PLAYER(getOwnerINLINE()).getTeam());
++				    /* original bts code
++					if ((eBonus == NO_BONUS) || !GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
+ 				    {
+-                        if (GC.getImprovementInfo(eImprovement).getImprovementPillage() != NO_IMPROVEMENT)
++                         if (GC.getImprovementInfo(eImprovement).getImprovementPillage() != NO_IMPROVEMENT)
+                         {
+                             return false;
+                         }
+-				    }
++				    } */
++					// K-Mod
++					if (eBonus == NO_BONUS ||
++						GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(pPlot->getImprovementType(), eBonus) ||
++						!GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(eImprovement, eBonus))
++					{
++						// (I don't understand the point of checking "getImprovementPillage() != NO_IMPROVEMENT")
++						return false;
++					}
++					// K-Mod end.
++
+ 				}
+ 			}
+ //
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 24da3a5c9..133633490 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1744,22 +1744,32 @@ bool CvUnit::isActionRecommended(int iAction)
+ 
+ 					if (eImprovement != NO_IMPROVEMENT)
+ 					{
++						/* original code
+ 						if (eBonus != NO_BONUS)
+ 						{
+ 							if (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
+ 							{
+ 								return true;
+ 							}
+-						}
++						} */
++
+ 						// K-Mod
+-						if (pPlot->getImprovementType() == NO_IMPROVEMENT && pWorkingCity == NULL)
++						if (eBonus != NO_BONUS &&
++							!GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(pPlot->getImprovementType(), eBonus) &&
++							GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(eImprovement, eBonus))
+ 						{
+-							if (!(pPlot->isIrrigated()) && pPlot->isIrrigationAvailable(true))
++							return true;
++						}
++
++						if (pPlot->getImprovementType() == NO_IMPROVEMENT && eBonus == NO_BONUS && pWorkingCity == NULL)
++						{
++							if (pPlot->getFeatureType() == NO_FEATURE || !GC.getBuildInfo(eBuild).isFeatureRemove((FeatureTypes)pPlot->getFeatureType()))
+ 							{
+-								if (GC.getImprovementInfo(eImprovement).isCarriesIrrigation())
+-								{
++								if (GC.getImprovementInfo(eImprovement).isCarriesIrrigation() && !pPlot->isIrrigated() && pPlot->isIrrigationAvailable(true))
++									return true;
++
++								if (pPlot->getFeatureType() != NO_FEATURE && GC.getImprovementInfo(eImprovement).getFeatureGrowthProbability() > 0)
+ 									return true;
+-								}
+ 							}
+ 						}
+ 						// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 88f8e180a..853dbd714 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1683,7 +1683,8 @@ void CvUnitAI::AI_workerMove()
+ 				if (!(plot()->isConnectedToCapital()))
+ 				{
+ 					ImprovementTypes eImprovement = plot()->getImprovementType();
+-					if (NO_IMPROVEMENT != eImprovement && GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++					//if (NO_IMPROVEMENT != eImprovement && GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++					if (kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+ 					{
+ 						if (AI_connectPlot(plot()))
+ 						{
+@@ -19567,7 +19568,8 @@ bool CvUnitAI::AI_irrigateTerritory()
+ 						{
+ 							eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+ 
+-							if ((eImprovement == NO_IMPROVEMENT) || (eNonObsoleteBonus == NO_BONUS) || !(GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++							//if ((eImprovement == NO_IMPROVEMENT) || (eNonObsoleteBonus == NO_BONUS) || !(GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++							if (eImprovement == NO_IMPROVEMENT || eNonObsoleteBonus == NO_BONUS || !GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+ 							{
+ 								if (pLoopPlot->isIrrigationAvailable(true))
+ 								{
+@@ -19804,34 +19806,20 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-	CvPlot* pBestPlot;
+-	ImprovementTypes eImprovement;
+-	BuildTypes eBuild;
+-	BuildTypes eBestBuild;
+-	BuildTypes eBestTempBuild;
+-	BonusTypes eNonObsoleteBonus;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iBestTempBuildValue;
+-	int iBestResourceValue;
+-	int iI, iJ;
+-	bool bBestBuildIsRoute = false;
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 
+-	bool bCanRoute;
+-	bool bIsConnected;
++	bool bBestBuildIsRoute = false;
+ 
+-	iBestValue = 0;
+-	iBestResourceValue = 0;
+-	eBestBuild = NO_BUILD;
+-	pBestPlot = NULL;
++	int iBestValue = 0;
++	int iBestResourceValue = 0;
++	BuildTypes eBestBuild = NO_BUILD;
++	CvPlot* pBestPlot = NULL;
+ 
+-	bCanRoute = canBuildRoute();
++	bool bCanRoute = canBuildRoute();
+ 
+-	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+-		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+ 		if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE() && AI_plotValid(pLoopPlot))
+ 		{
+@@ -19846,58 +19834,60 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 
+ 			if (bCanImprove)
+ 			{
+-				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
++				BonusTypes eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+ 
+ 				if (eNonObsoleteBonus != NO_BONUS)
+ 				{
+-				    bIsConnected = pLoopPlot->isConnectedToCapital(getOwnerINLINE());
+-                    if ((pLoopPlot->getWorkingCity() != NULL) || (bIsConnected || bCanRoute))
+-                    {
+-                        eImprovement = pLoopPlot->getImprovementType();
++					bool bIsConnected = pLoopPlot->isConnectedToCapital(getOwnerINLINE());
++					if ((pLoopPlot->getWorkingCity() != NULL) || (bIsConnected || bCanRoute))
++					{
++						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+ 
+-                        bool bDoImprove = false;
++						bool bDoImprove = false;
+ 
+-                        if (eImprovement == NO_IMPROVEMENT)
+-                        {
+-                            bDoImprove = true;
+-                        }
+-                        else if (GC.getImprovementInfo(eImprovement).isActsAsCity() || GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+-                        {
+-                        	bDoImprove = false;
+-                        }
+-                        else if (eImprovement == (ImprovementTypes)(GC.getDefineINT("RUINS_IMPROVEMENT")))
+-                        {
+-                            bDoImprove = true;
+-                        }
+-                        /* else if (!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
++						if (eImprovement == NO_IMPROVEMENT)
++						{
++							bDoImprove = true;
++						}
++						//else if (GC.getImprovementInfo(eImprovement).isActsAsCity() || GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++						else if (kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus)) // K-Mod
++						{
++							bDoImprove = false;
++						}
++						else if (eImprovement == (ImprovementTypes)(GC.getDefineINT("RUINS_IMPROVEMENT")))
++						{
++							bDoImprove = true;
++						}
++						/* else if (!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
+                         {
+                         	bDoImprove = true;
+                         } */
+ 						// K-Mod. Let "best build" handle improvement replacements near cities.
+-						else if (pLoopPlot->getWorkingCity() == NULL && !GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
++						else if (pLoopPlot->getWorkingCity() == NULL && !kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION))
+ 						{
+ 							bDoImprove = true;
+ 						}
+ 						// K-Mod end
+ 
+-                        iBestTempBuildValue = MAX_INT;
+-                        eBestTempBuild = NO_BUILD;
++						int iBestTempBuildValue = MAX_INT;
++						BuildTypes eBestTempBuild = NO_BUILD;
+ 
+-                        if (bDoImprove)
+-                        {
+-                            for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+-                            {
+-                                eBuild = ((BuildTypes)iJ);
++						if (bDoImprove)
++						{
++							for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
++							{
++								BuildTypes eBuild = ((BuildTypes)iJ);
+ 
+-                                if (GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT)
+-                                {
+-                                    if (GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBuild).getImprovement()).isImprovementBonusTrade(eNonObsoleteBonus) || (!pLoopPlot->isCityRadius() && GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBuild).getImprovement()).isActsAsCity()))
+-                                    {
+-                                        if (canBuild(pLoopPlot, eBuild))
+-                                        {
+-                                        	if ((pLoopPlot->getFeatureType() == NO_FEATURE) || !GC.getBuildInfo(eBuild).isFeatureRemove(pLoopPlot->getFeatureType()) || !GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS))
+-                                        	{
+-												iValue = 10000;
++								//if (GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT)
++								{
++									//if (GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBuild).getImprovement()).isImprovementBonusTrade(eNonObsoleteBonus) || (!pLoopPlot->isCityRadius() && GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBuild).getImprovement()).isActsAsCity()))
++									if (kOwner.doesImprovementConnectBonus((ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement(), eNonObsoleteBonus)) // K-Mod
++									{
++										if (canBuild(pLoopPlot, eBuild))
++										{
++											if ((pLoopPlot->getFeatureType() == NO_FEATURE) || !GC.getBuildInfo(eBuild).isFeatureRemove(pLoopPlot->getFeatureType()) || !kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS))
++											{
++												int iValue = 10000;
+ 
+ 												iValue /= (GC.getBuildInfo(eBuild).getTime() + 1);
+ 
+@@ -19908,22 +19898,23 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 													iBestTempBuildValue = iValue;
+ 													eBestTempBuild = eBuild;
+ 												}
+-                                        	}
+-                                        }
+-                                    }
+-                                }
+-                            }
+-                        }
+-                        if (eBestTempBuild == NO_BUILD)
+-                        {
+-                        	bDoImprove = false;
+-                        }
++											}
++										}
++									}
++								}
++							}
++						}
++						if (eBestTempBuild == NO_BUILD)
++						{
++							bDoImprove = false;
++						}
+ 
+-                        if ((eBestTempBuild != NO_BUILD) || (bCanRoute && !bIsConnected))
+-                        {
+-                        	if (generatePath(pLoopPlot, 0, true, &iPathTurns))
++						if ((eBestTempBuild != NO_BUILD) || (bCanRoute && !bIsConnected))
++						{
++							int iPathTurns;
++							if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 							{
+-								iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus, 1);
++								int iValue = kOwner.AI_bonusVal(eNonObsoleteBonus, 1);
+ 
+ 								if (bDoImprove)
+ 								{
+@@ -19936,7 +19927,7 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 
+ 								iValue += std::max(0, 100 * GC.getBonusInfo(eNonObsoleteBonus).getAIObjective());
+ 
+-								if (GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0)
++								if (kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0)
+ 								{
+ 									iValue *= 2;
+ 								}
+@@ -19948,11 +19939,11 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 									iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBestTempBuild);
+ 									if (getPathLastNode()->m_iData1 == 0)
+ 									{
+-										iMaxWorkers = std::min((iMaxWorkers + 1) / 2, 1 + GET_PLAYER(getOwnerINLINE()).AI_baseBonusVal(eNonObsoleteBonus) / 20);
++										iMaxWorkers = std::min((iMaxWorkers + 1) / 2, 1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
+ 									}
+ 								}
+ 
+-								if ((GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
++								if ((kOwner.AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
+ 									&& (!bDoImprove || (pLoopPlot->getBuildTurnsLeft(eBestTempBuild, 0, 0) > (iPathTurns * 2 - 1))))
+ 								{
+ 									if (bDoImprove)
+@@ -19984,7 +19975,8 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 									{
+ 										FAssert(bCanRoute && !bIsConnected);
+ 										eImprovement = pLoopPlot->getImprovementType();
+-										if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++										//if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++										if (kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+ 										{
+ 											iValue *= 1000;
+ 											iValue /= (iPathTurns + 1);
+@@ -19999,9 +19991,9 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 										}
+ 									}
+ 								}
+-                        	}
+-                        }
+-                    }
++							}
++						}
++					}
+ 				}
+ 			}
+ 		}
+@@ -20302,7 +20294,8 @@ bool CvUnitAI::AI_connectBonus(bool bTestTrade)
+ 				{
+ 					if (!(pLoopPlot->isConnectedToCapital()))
+ 					{
+-						if (!bTestTrade || ((pLoopPlot->getImprovementType() != NO_IMPROVEMENT) && (GC.getImprovementInfo(pLoopPlot->getImprovementType()).isImprovementBonusTrade(eNonObsoleteBonus))))
++						//if (!bTestTrade || ((pLoopPlot->getImprovementType() != NO_IMPROVEMENT) && (GC.getImprovementInfo(pLoopPlot->getImprovementType()).isImprovementBonusTrade(eNonObsoleteBonus))))
++						if (!bTestTrade || GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(pLoopPlot->getImprovementType(), eNonObsoleteBonus))
+ 						{
+ 							if (AI_connectPlot(pLoopPlot))
+ 							{
+@@ -24163,7 +24156,8 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 
+ 		if (eNonObsoleteBonus != NO_BONUS)
+ 		{
+-			if (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++			//if (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++			if (GET_PLAYER(pPlot->getOwnerINLINE()).doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus)) // K-Mod
+ 			{
+ 				int iTempValue = iBonusValue * 4;
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=44852

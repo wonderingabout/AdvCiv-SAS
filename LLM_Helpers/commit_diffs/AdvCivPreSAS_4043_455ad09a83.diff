@@ -1,0 +1,182 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4043
+# Commit: 455ad09a832871f7991298b18edb1ee23ba88cd1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3ed5134cfe9f278b531681aeaa49926040376289
+# Title: Make it easier to restore the BtS Marathon modifiers
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+66	26	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index ce908a110..4b3b01234 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -11,7 +11,9 @@
+ 			<Type>GAMESPEED_MARATHON</Type>
+ 			<Description>TXT_KEY_GAMESPEED_MARATHON</Description>
+ 			<Help>TXT_KEY_GAMESPEED_MARATHON_HELP</Help>
+-			<!-- advc.252: all 300 percentages reduced to 250 -->
++			<!-- advc.252: all 300 percentages reduced to 250. (To revert this
++				 change, the GAMESPEED_MARATHON element below this one can be
++				 uncommented.) -->
+ 			<iGrowthPercent>250</iGrowthPercent>
+ 			<iTrainPercent>200</iTrainPercent>
+ 			<iConstructPercent>250</iConstructPercent>
+@@ -64,79 +66,117 @@
+ 			<!-- advc.252: start -->
+ 			<iEventRollSidesPercent>200</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>250</iVoteIntervalPercent>
+-			<!-- advc.252: end -->
+-			<!-- advc.910: Changed all of the turn counts -->
+-			<!-- advc.252: Progression for 1500 game turns - kept in case that
+-				 the 300% modifiers need to be restored. -->
+-			<!--GameTurnInfos>
++			<GameTurnInfos>
+ 				<GameTurnInfo>
+-					<iMonthIncrement>180</iMonthIncrement>
+-					<iTurnsPerIncrement>150</iTurnsPerIncrement>
++					<iMonthIncrement>240</iMonthIncrement>
++					<iTurnsPerIncrement>130</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>120</iMonthIncrement>
+-					<iTurnsPerIncrement>210</iTurnsPerIncrement>
++					<iTurnsPerIncrement>235</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>240</iTurnsPerIncrement>
++					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>100</iTurnsPerIncrement>
++					<iTurnsPerIncrement>65</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>12</iMonthIncrement>
+-					<iTurnsPerIncrement>110</iTurnsPerIncrement>
++					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>6</iMonthIncrement>
+-					<iTurnsPerIncrement>190</iTurnsPerIncrement>
++					<iTurnsPerIncrement>140</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>3</iMonthIncrement>
+-					<iTurnsPerIncrement>320</iTurnsPerIncrement>
++					<iTurnsPerIncrement>160</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>1</iMonthIncrement>
+-					<iTurnsPerIncrement>180</iTurnsPerIncrement>
++					<iTurnsPerIncrement>240</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+-			</GameTurnInfos-->
++			</GameTurnInfos>
++			<!-- advc.252: end -->
++		</GameSpeedInfo>
++		<!-- advc.252: Can uncomment this (and delete the one above)
++			 to restore, by and large, the BtS Marathon modifiers.
++			 May then also want to increase the threshold for Legendary culture
++			 in Civ4CultureLevelInfos.xml. -->
++		<!--GameSpeedInfo>
++			<Type>GAMESPEED_MARATHON</Type>
++			<Description>TXT_KEY_GAMESPEED_MARATHON</Description>
++			<Help>TXT_KEY_GAMESPEED_MARATHON_HELP</Help>
++			<iGrowthPercent>300</iGrowthPercent>
++			<iTrainPercent>200</iTrainPercent>
++			<iConstructPercent>300</iConstructPercent>
++			<iCreatePercent>300</iCreatePercent>
++			<iResearchPercent>300</iResearchPercent>
++			<iBuildPercent>300</iBuildPercent>
++			<iImprovementPercent>300</iImprovementPercent>
++			<iGreatPeoplePercent>300</iGreatPeoplePercent>
++			<iCulturePercent>200</iCulturePercent>
++			<iAnarchyPercent>200</iAnarchyPercent>
++			<iBarbPercent>250</iBarbPercent>
++			<iFeatureProductionPercent>300</iFeatureProductionPercent>
++			<iUnitDiscoverPercent>300</iUnitDiscoverPercent>
++			<iUnitHurryPercent>300</iUnitHurryPercent>
++			<iUnitTradePercent>300</iUnitTradePercent>
++			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
++			<iGoldenAgePercent>200</iGoldenAgePercent>
++			<iHurryPercent>33</iHurryPercent>
++			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
++			<iInflationPercent>10</iInflationPercent>
++			<iInflationOffset>-270</iInflationOffset>
++			<iUnitCostPercent>80</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
++			<iVictoryDelayPercent>200</iVictoryDelayPercent>
++			<iAIMemoryRandPercent>200</iAIMemoryRandPercent>
++			<iAIContactRandPercent>167</iAIContactRandPercent>
++			<iAIContactDelayPercent>200</iAIContactDelayPercent>
++			<iFullTradeCreditPercent>200</iFullTradeCreditPercent>
++			<iRevoltDivPercent>200</iRevoltDivPercent>
++			<iReligionSpreadDivPercent>300</iReligionSpreadDivPercent>
++			<iEventRollSidesPercent>200</iEventRollSidesPercent>
++			<iVoteIntervalPercent>300</iVoteIntervalPercent>
+ 			<GameTurnInfos>
+ 				<GameTurnInfo>
+-					<iMonthIncrement>240</iMonthIncrement>
+-					<iTurnsPerIncrement>130</iTurnsPerIncrement>
++					<iMonthIncrement>180</iMonthIncrement>
++					<iTurnsPerIncrement>150</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>120</iMonthIncrement>
+-					<iTurnsPerIncrement>235</iTurnsPerIncrement>
++					<iTurnsPerIncrement>210</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>60</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
++					<iTurnsPerIncrement>240</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>24</iMonthIncrement>
+-					<iTurnsPerIncrement>65</iTurnsPerIncrement>
++					<iTurnsPerIncrement>100</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>12</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
++					<iTurnsPerIncrement>110</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>6</iMonthIncrement>
+-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
++					<iTurnsPerIncrement>190</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>3</iMonthIncrement>
+-					<iTurnsPerIncrement>160</iTurnsPerIncrement>
++					<iTurnsPerIncrement>320</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>1</iMonthIncrement>
+-					<iTurnsPerIncrement>240</iTurnsPerIncrement>
++					<iTurnsPerIncrement>180</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 			</GameTurnInfos>
+-		</GameSpeedInfo>
++		</GameSpeedInfo-->
+ 		<GameSpeedInfo>
+ 			<Type>GAMESPEED_EPIC</Type>
+ 			<Description>TXT_KEY_GAMESPEED_EPIC</Description>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=6479

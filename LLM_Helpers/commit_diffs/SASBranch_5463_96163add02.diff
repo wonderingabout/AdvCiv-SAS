@@ -1,0 +1,2511 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5463
+# Commit: 96163add021444bd883ee28b51ea646db7505ec8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d191fe898b3ac9b2dd8830ff55a029294b404f3b
+# Title: Fix inaccurate game speed timelines so they are much closer to Normal game speed; add LOG button; add Summary, Increments rows; add LLM_Helpers LLM_Helpers/a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	.gitattributes
+1	0	.gitignore
+2	0	AGENTS.md
+12	1	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+195	10	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+12	1	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+31	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+12	1	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+72	12	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+233	339	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+51	0	LLM_Helpers/README.md
+541	0	LLM_Helpers/autotune_speed_from_xml.py
+334	0	LLM_Helpers/compare_speed_summaries.py
+19	0	Long_Comments/Long_Comments_XML.txt
+22	2	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+8	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG
+ create mode 100644 LLM_Helpers/README.md
+ create mode 100644 LLM_Helpers/autotune_speed_from_xml.py
+ create mode 100644 LLM_Helpers/compare_speed_summaries.py
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 7a3ddf13c..13e3eec07 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -40,6 +40,9 @@
+ /.claude/             export-ignore
+ /AGENTS.md            export-ignore
+ 
++# <!-- custom: LLM helpers are not needed in released archives of the mod -->
++/LLM_Helpers/         export-ignore
++
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                export-ignore
+ /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/  export-ignore
+
+diff --git a/.gitignore b/.gitignore
+index 471e999d3..22a7f19c2 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -25,3 +25,4 @@
+ __pycache__
+ /Logs/
+ /Assets/CvGameCoreDLL_d.dll
++/LLM_Helpers/outputs/
+
+diff --git a/AGENTS.md b/AGENTS.md
+index f636a0106..87afcf0d4 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -14,6 +14,8 @@ You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
+ 
+ Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
+ 
++Locally our project is a git repo too, generally with a fresh commit for each new main task, so feel free to git diff while doing your tasks to see your progress and analyze or such.
++
+ ## Information Fetching from other known helpful mods
+ 
+ If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index 1843f6e95..aff874841 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -22,6 +22,7 @@ class SevoPediaEraChart:
+ 	def __init__(self, main):
+ 		self.top = main
+ 		self._cachedTable = None
++		self.szCsvLogButton = ""
+ 
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+@@ -49,6 +50,7 @@ class SevoPediaEraChart:
+ 
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
+ 
+ 		data = self._getTableData()
+ 		if not data:
+@@ -123,7 +125,7 @@ class SevoPediaEraChart:
+ 		tableH = h - (self.MARGIN * 2) - buttonRowH - 4
+ 
+ 		table = self.top.getNextWidgetName()
+-		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
+ 		screen.enableSort(table)
+ 
+ 		# Minor Python-level micro-opt: bind methods used in hot loops.
+@@ -168,6 +170,15 @@ class SevoPediaEraChart:
+ 				else:
+ 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
++	def handleInput(self, inputClass):
++		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
++			chart_dump_table_csv("SAS_SEVOPEDIA_ERA_CHART", self._getTableData())
++			return 1
++		return 0
++
++	def dumpCsvLog(self):
++		chart_dump_table_csv("SAS_SEVOPEDIA_ERA_CHART", self._getTableData())
++
+ 	def _getTableData(self):
+ 		if self._cachedTable is not None:
+ 			return self._cachedTable
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index b7c0582aa..8db87543d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -21,6 +21,7 @@ class SevoPediaGameSpeedChart:
+ 	def __init__(self, main):
+ 		self.top = main
+ 		self._cachedTable = None
++		self.szCsvLogButton = ""
+ 
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+@@ -43,6 +44,7 @@ class SevoPediaGameSpeedChart:
+ 
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
+ 
+ 		table = self.top.getNextWidgetName()
+ 		tableX = x + self.MARGIN
+@@ -76,7 +78,7 @@ class SevoPediaGameSpeedChart:
+ 		else:
+ 			wNum = 0
+ 
+-		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
+ 		screen.enableSort(table)
+ 
+ 		# Minor Python-level micro-opt: bind methods used in hot loops.
+@@ -121,6 +123,15 @@ class SevoPediaGameSpeedChart:
+ 				else:
+ 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
++	def handleInput(self, inputClass):
++		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
++			chart_dump_table_csv("SAS_SEVOPEDIA_GAME_SPEED_CHART", self._getTableData())
++			return 1
++		return 0
++
++	def dumpCsvLog(self):
++		chart_dump_table_csv("SAS_SEVOPEDIA_GAME_SPEED_CHART", self._getTableData())
++
+ 	def _getTableData(self):
+ 		if self._cachedTable is not None:
+ 			return self._cachedTable
+@@ -231,6 +242,7 @@ class SevoPediaGameSpeedChart:
+ 			("research",     (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))),
+ 			("culture",      (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()))),
+ 			("happy",        (u"%c" % (game.getSymbolID(FontSymbols.HAPPY_CHAR)))),
++			("defense",      (u"%c" % (game.getSymbolID(FontSymbols.DEFENSE_CHAR)))),
+ 			("citizen",      (u"%c" % (game.getSymbolID(FontSymbols.CITIZEN_CHAR)))),
+ 			("great_people", (u"%c" % (game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)))),
+ 			("golden_age",   (u"%c" % (game.getSymbolID(getattr(FontSymbols, "GOLDEN_AGE_CHAR", FontSymbols.GREAT_PEOPLE_CHAR))))),
+@@ -250,6 +262,10 @@ class SevoPediaGameSpeedChart:
+ 			# Calendar rows are derived fields and not part of row_specs: treat them consistently.
+ 			if key.startswith("Calendar_"):
+ 				icon_spec = ("btn", "hourglass")
++			if key.startswith("Summary_"):
++				icon_spec = ("glyph", "defense")
++			if key.startswith("IncrementsYears_") or key.startswith("IncrementsMonths_"):
++				icon_spec = ("btn", "hourglass")
+ 
+ 			if not icon_spec:
+ 				# No icon: still return a stable, invisible tie-breaker so sorting can't shuffle.
+@@ -299,6 +315,7 @@ class SevoPediaGameSpeedChart:
+ 		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
+ 		start_year = gc.getDefineINT("START_YEAR")
+ 		max_increments = 0
++		total_turns_by_speed = {}
+ 
+ 		for i in xrange(gc.getNumGameSpeedInfos()):
+ 			info = gc.getGameSpeedInfo(i)
+@@ -313,6 +330,48 @@ class SevoPediaGameSpeedChart:
+ 			for iInc in xrange(iNumInc):
+ 				iTotal += info.getGameTurnInfo(iInc).iNumGameTurnsPerIncrement
+ 			parsed_data[speed_type]["TotalTurns"] = str(iTotal)
++			total_turns_by_speed[speed_type] = iTotal
++
++		years_chunk_size = 3
++		months_chunk_size = 3
++		years_chunk_count = (max_increments + years_chunk_size - 1) / years_chunk_size
++		months_chunk_count = (max_increments + months_chunk_size - 1) / months_chunk_size
++
++		years_increment_fields = []
++		months_increment_fields = []
++		display_label_by_field = {}
++		for iChunk in xrange(years_chunk_count):
++			szField = "IncrementsYears_%02d" % (iChunk + 1)
++			years_increment_fields.append(szField)
++			display_label_by_field[szField] = "Increments Years %02d" % (iChunk + 1)
++		for iChunk in xrange(months_chunk_count):
++			szField = "IncrementsMonths_%02d" % (iChunk + 1)
++			months_increment_fields.append(szField)
++			display_label_by_field[szField] = "Increments Months %02d" % (iChunk + 1)
++
++		# Additional derived increment rows split across chunks for readability.
++		for i in xrange(gc.getNumGameSpeedInfos()):
++			info = gc.getGameSpeedInfo(i)
++			speed_type = info.getType()
++			iNumInc = info.getNumTurnIncrements()
++			compact_incs = []
++			raw_incs = []
++			for iInc in xrange(iNumInc):
++				turn_info = info.getGameTurnInfo(iInc)
++				iMonthInc = turn_info.iMonthIncrement
++				compact_incs.append(self._format_increment_compact(iMonthInc))
++				raw_incs.append(str(iMonthInc))
++
++			for iChunk in xrange(years_chunk_count):
++				iStart = iChunk * years_chunk_size
++				iEnd = iStart + years_chunk_size
++				szField = years_increment_fields[iChunk]
++				parsed_data[speed_type][szField] = ", ".join(compact_incs[iStart:iEnd])
++			for iChunk in xrange(months_chunk_count):
++				iStart = iChunk * months_chunk_size
++				iEnd = iStart + months_chunk_size
++				szField = months_increment_fields[iChunk]
++				parsed_data[speed_type][szField] = ", ".join(raw_incs[iStart:iEnd])
+ 
+ 		# Calendar rows: Calendar_01 .. Calendar_NN
+ 		calendar_fields = []
+@@ -348,14 +407,44 @@ class SevoPediaGameSpeedChart:
+ 				if iEndYear >= 0:
+ 					bReachedAD = True
+ 
++		summary_step_percent = 5
++		summary_percents = []
++		iPct = summary_step_percent
++		while iPct <= 100:
++			summary_percents.append(iPct)
++			iPct += summary_step_percent
++		if not summary_percents or summary_percents[-1] != 100:
++			summary_percents.append(100)
++
++		summary_fields = []
++		for iSummary in xrange(len(summary_percents)):
++			iPercent = summary_percents[iSummary]
++			szField = "Summary_%02d" % (iSummary + 1)
++			summary_fields.append(szField)
++			display_label_by_field[szField] = "Summary %02d (%d%%)" % (iSummary + 1, iPercent)
++
++		for i in xrange(gc.getNumGameSpeedInfos()):
++			info = gc.getGameSpeedInfo(i)
++			speed_type = info.getType()
++			iTotalTurns = total_turns_by_speed.get(speed_type, 0)
++			for iSummary in xrange(len(summary_percents)):
++				iPercent = summary_percents[iSummary]
++				szField = summary_fields[iSummary]
++				iTargetTurn = self._percent_to_turn(iTotalTurns, iPercent)
++				(iYear, iMonth, iMonthInc) = self._turn_to_date_with_increment(info, start_year, iTargetTurn)
++				parsed_data[speed_type][szField] = self._format_summary_cell(iTargetTurn, iYear, iMonth, iMonthInc)
++
+ 		# Display order:
+ 		# - base rows (row_specs order)
+ 		# - calendar rows appended right after TotalTurns
+ 		field_order = []
+ 		for (k, _getter, _icon_spec) in row_specs:
+-			field_order.append(k)
+-			if k == "TotalTurns":
+-				field_order.extend(calendar_fields)
++				field_order.append(k)
++				if k == "TotalTurns":
++					field_order.extend(years_increment_fields)
++					field_order.extend(months_increment_fields)
++					field_order.extend(calendar_fields)
++					field_order.extend(summary_fields)
+ 
+ 		# Build table
+ 		table = []
+@@ -368,7 +457,7 @@ class SevoPediaGameSpeedChart:
+ 
+ 		row_index = 0
+ 		for field in field_order:
+-			szFieldName = chart_beautify_field_name(field)
++			szFieldName = display_label_by_field.get(field, chart_beautify_field_name(field))
+ 			if derived_field_keys.get(field):
+ 				szFieldName += u"*"
+ 
+@@ -419,9 +508,8 @@ class SevoPediaGameSpeedChart:
+ 
+ 	def _format_date_label(self, iYear, iMonth):
+ 		# Date label: <year>[m2..m12]
+-		# Month is shown only when it adds information.
+-		# We omit m1 (January) for concision, but we KEEP m12 (December)
+-		# because <year>m12 is not the same as <year+1>.
++		# <!-- custom: hide m1 so January matches in-game year display, but keep m2..m12
++		# visible to diagnose calendar drift. (GPT-5.3-Codex) -->
+ 		sz = self._format_year_label(iYear)
+ 		if iMonth == 1:
+ 			return sz
+@@ -457,6 +545,17 @@ class SevoPediaGameSpeedChart:
+ 		szYears = self._format_years_per_turn(years_per_turn)
+ 		return ("*", "%sm%d" % (szYears, rem_months))
+ 
++	def _format_increment_compact(self, month_inc):
++		if month_inc <= 0:
++			return "0"
++		if month_inc < 12:
++			return "m%d" % month_inc
++		if (month_inc % 12) == 0:
++			return self._format_years_per_turn(month_inc / 12)
++		iYears = month_inc / 12
++		iRemMonths = month_inc % 12
++		return "%sm%d" % (self._format_years_per_turn(iYears), iRemMonths)
++
+ 	def _format_calendar_segment(self, end_year, end_month, turns, month_inc, bEraFlip):
+ 		# Calendar cell format is intentionally compact:
+ 		#   "+<turns>*<rate><sep><endDate>"
+@@ -471,8 +570,7 @@ class SevoPediaGameSpeedChart:
+ 		#   (This is also where years are shortest, so the marker doesn't bloat the row.)
+ 		#
+ 		# Month handling:
+-		# - Month suffix is shown for m2..m12 (omit m1 only).
+-		#   We keep m12 (December) because it is meaningfully different from <year+1>.
++		# - Month suffix is shown for m2..m12; m1 is hidden so January matches in-game year display.
+ 		#
+ 		# Examples:
+ 		# - "+2*10k=30k"              (still BC; era implied)
+@@ -486,3 +584,90 @@ class SevoPediaGameSpeedChart:
+ 		else:
+ 			szSep = "="
+ 		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
++
++	def _percent_to_turn(self, iTotalTurns, iPercent):
++		if iTotalTurns <= 0:
++			return 0
++		if iPercent <= 0:
++			return 0
++		if iPercent >= 100:
++			return iTotalTurns
++		iTarget = (iTotalTurns * iPercent + 99) / 100
++		if iTarget < 1:
++			return 1
++		if iTarget > iTotalTurns:
++			return iTotalTurns
++		return iTarget
++
++	def _turn_to_date(self, info, iStartYear, iTurn):
++		if iTurn <= 0:
++			return (iStartYear, 1)
++
++		iRemainingTurns = iTurn
++		iTotalMonths = 0
++		for iInc in xrange(info.getNumTurnIncrements()):
++			turn_info = info.getGameTurnInfo(iInc)
++			iTurnsInInc = turn_info.iNumGameTurnsPerIncrement
++			iMonthInc = turn_info.iMonthIncrement
++
++			if iRemainingTurns <= iTurnsInInc:
++				iTotalMonths += iRemainingTurns * iMonthInc
++				break
++
++			iTotalMonths += iTurnsInInc * iMonthInc
++			iRemainingTurns -= iTurnsInInc
++
++		iYear = iStartYear + (iTotalMonths / 12)
++		iMonth = (iTotalMonths % 12) + 1
++		return (iYear, iMonth)
++
++	def _turn_to_date_with_increment(self, info, iStartYear, iTurn):
++		if iTurn <= 0:
++			return (iStartYear, 1, 0)
++
++		iRemainingTurns = iTurn
++		iTotalMonths = 0
++		iCurrentMonthInc = 0
++		for iInc in xrange(info.getNumTurnIncrements()):
++			turn_info = info.getGameTurnInfo(iInc)
++			iTurnsInInc = turn_info.iNumGameTurnsPerIncrement
++			iMonthInc = turn_info.iMonthIncrement
++
++			if iRemainingTurns <= iTurnsInInc:
++				iTotalMonths += iRemainingTurns * iMonthInc
++				iCurrentMonthInc = iMonthInc
++				break
++
++			iTotalMonths += iTurnsInInc * iMonthInc
++			iRemainingTurns -= iTurnsInInc
++			iCurrentMonthInc = iMonthInc
++
++		iYear = iStartYear + (iTotalMonths / 12)
++		iMonth = (iTotalMonths % 12) + 1
++		return (iYear, iMonth, iCurrentMonthInc)
++
++	def _format_summary_cell(self, iTurn, iYear, iMonth, iMonthInc):
++		# <!-- custom: use signed year (+/-) plus active month increment to make checkpoint
++		# tuning easier across speeds while keeping cells compact. (GPT-5.3-Codex) -->
++		return "T%d=%s (%d)" % (iTurn, self._format_date_label_signed(iYear, iMonth), iMonthInc)
++
++	def _format_date_label_signed(self, iYear, iMonth):
++		if iYear < 0:
++			szYear = "-" + self._format_year_magnitude(-iYear)
++		else:
++			szYear = "+" + self._format_year_magnitude(iYear)
++		if iMonth != 1:
++			szYear = "%sm%d" % (szYear, iMonth)
++		return szYear
++
++	def _format_date_label_with_era(self, iYear, iMonth):
++		iAbsYear = iYear
++		szEra = "AD"
++		if iYear < 0:
++			iAbsYear = -iYear
++			szEra = "BC"
++
++		szYear = self._format_year_magnitude(iAbsYear)
++		if iMonth != 1:
++			szYear = "%sm%d" % (szYear, iMonth)
++		return "%s %s" % (szYear, szEra)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index e92c1a8f0..c4c523bd7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -24,6 +24,7 @@ class SevoPediaHandicapChart:
+ 	def __init__(self, main):
+ 		self.top = main
+ 		self._cachedTable = None
++		self.szCsvLogButton = ""
+ 
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+@@ -46,6 +47,7 @@ class SevoPediaHandicapChart:
+ 
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
+ 
+ 		table = self.top.getNextWidgetName()
+ 		tableX = x + self.MARGIN
+@@ -80,7 +82,7 @@ class SevoPediaHandicapChart:
+ 		else:
+ 			wNum = 0
+ 
+-		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
+ 		screen.enableSort(table)
+ 
+ 		# Minor Python-level micro-opt: bind methods used in hot loops.
+@@ -123,6 +125,15 @@ class SevoPediaHandicapChart:
+ 				else:
+ 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
++	def handleInput(self, inputClass):
++		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
++			chart_dump_table_csv("SAS_SEVOPEDIA_HANDICAP_CHART", self._getTableData())
++			return 1
++		return 0
++
++	def dumpCsvLog(self):
++		chart_dump_table_csv("SAS_SEVOPEDIA_HANDICAP_CHART", self._getTableData())
++
+ 	def _getTableData(self):
+ 		if self._cachedTable is not None:
+ 			return self._cachedTable
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 18a50c2e7..19574a710 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -111,6 +111,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_PYTHON_MOVIE_PLAY = 6801
+ 		self.SAS_PEDIA_PYTHON_MUSIC_ENTRY = 6802
+ 		self.SAS_PEDIA_PYTHON_MUSIC_PLAY = 6803
++		self.SAS_PEDIA_PYTHON_CHART_LOG = 6804
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -2004,6 +2005,22 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# Forward to leader page (existing behavior).
+ 		if (inputClass.getPythonFile() == SevoScreenEnums.PEDIA_LEADERS):
+ 			return self.pediaLeader.handleInput(inputClass)
++		if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
++			iHandled = self.pediaHandicapChart.handleInput(inputClass)
++			if iHandled:
++				return iHandled
++		if self.iCategory == SevoScreenEnums.PEDIA_GAME_SPEED_CHART:
++			iHandled = self.pediaGameSpeedChart.handleInput(inputClass)
++			if iHandled:
++				return iHandled
++		if self.iCategory == SevoScreenEnums.PEDIA_WORLD_SIZE_CHART:
++			iHandled = self.pediaWorldSizeChart.handleInput(inputClass)
++			if iHandled:
++				return iHandled
++		if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
++			iHandled = self.pediaEraChart.handleInput(inputClass)
++			if iHandled:
++				return iHandled
+ 
+ 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+ 		# Index has its own input (existing behavior).
+@@ -2135,6 +2152,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if iData1 == self.SAS_PEDIA_PYTHON_MUSIC_PLAY:
+ 				self.pediaMusic.playMusic(iData2)
+ 				return 1
++			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
++				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
++					self.pediaHandicapChart.dumpCsvLog()
++					return 1
++				if self.iCategory == SevoScreenEnums.PEDIA_GAME_SPEED_CHART:
++					self.pediaGameSpeedChart.dumpCsvLog()
++					return 1
++				if self.iCategory == SevoScreenEnums.PEDIA_WORLD_SIZE_CHART:
++					self.pediaWorldSizeChart.dumpCsvLog()
++					return 1
++				if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
++					self.pediaEraChart.dumpCsvLog()
++					return 1
+ 
+ 		return 0
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index 68fc411d7..1b387cae6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -21,6 +21,7 @@ class SevoPediaWorldSizeChart:
+ 	def __init__(self, main):
+ 		self.top = main
+ 		self._cachedTable = None
++		self.szCsvLogButton = ""
+ 
+ 		self.MARGIN = CHART_TABLE_MARGIN
+ 		self.ROW_H = CHART_TABLE_ROW_H
+@@ -43,6 +44,7 @@ class SevoPediaWorldSizeChart:
+ 
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
+ 
+ 		table = self.top.getNextWidgetName()
+ 		tableX = x + self.MARGIN
+@@ -76,7 +78,7 @@ class SevoPediaWorldSizeChart:
+ 		else:
+ 			wNum = 0
+ 
+-		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
+ 		screen.enableSort(table)
+ 
+ 		# Minor Python-level micro-opt: bind methods used in hot loops.
+@@ -121,6 +123,15 @@ class SevoPediaWorldSizeChart:
+ 				else:
+ 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
++	def handleInput(self, inputClass):
++		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
++			chart_dump_table_csv("SAS_SEVOPEDIA_WORLD_SIZE_CHART", self._getTableData())
++			return 1
++		return 0
++
++	def dumpCsvLog(self):
++		chart_dump_table_csv("SAS_SEVOPEDIA_WORLD_SIZE_CHART", self._getTableData())
++
+ 	def _getTableData(self):
+ 		if self._cachedTable is not None:
+ 			return self._cachedTable
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index a90163105..bb5da1659 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -14,6 +14,7 @@ import re
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
++IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+ 
+ 
+ 
+@@ -31,9 +32,6 @@ HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
+ HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
+ # <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
+ NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
+-# <!-- custom: backward-compatibility aliases for existing callers; prefer NON_MULTILIST names in new code. (GPT-5.3-Codex) -->
+-HYPOTHESIZED_NORMAL_PANEL_EDGE_PADDING = HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING
+-HYPOTHESIZED_NORMAL_PANEL_INTER_BUTTON_SPACING = HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING
+ 
+ 
+ 
+@@ -76,12 +74,6 @@ def get_multilist_panel_width_for_buttons(iNumButtons, iButtonSize, iLeftEdgePad
+ 		raise ValueError("get_multilist_panel_width_for_buttons requires iNumButtons > 0, got %d" % iNumButtons)
+ 	return (iNumButtons * iButtonSize) + iLeftEdgePadding + iRightEdgePadding + ((iNumButtons - 1) * iInterButtonSpacing)
+ 
+-
+-# <!-- custom: shared multilist width used by leader panels in Civic/Religion/Trait.
+-# Kept as a compatibility constant; prefer get_multilist_panel_width_for_buttons in callers for easy n-button tuning. (GPT-5.3-Codex) -->
+-MULTILIST_PANEL_WIDTH_4_BUTTONS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+-
+-
+ def get_panel_width_for_buttons(iNumButtons, iButtonSize, iEdgePadding, iInterButtonSpacing):
+ 	# <!-- custom: width formula for a horizontal single-row button panel:
+ 	# width = (n * buttonSize) + (2 * edgePadding) + ((n - 1) * interSpacing)
+@@ -114,6 +106,7 @@ FAVORITE_LEADER_TYPE_CIVIC = 1
+ CHART_TABLE_MARGIN = 4
+ CHART_TABLE_ROW_H = 15
+ CHART_TABLE_W_ICON = 24
++CHART_TABLE_STYLE = TableStyles.TABLE_STYLE_STANDARD
+ # <!-- custom: All known enum prefixes to strip. Grouped here for simplicity across all charts. -->
+ CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WORLDSIZE_")
+ # <!-- custom: # Stable icon sorting (fixes "emoji order changes / ties shuffle")
+@@ -127,9 +120,6 @@ CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WO
+ # Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
+ # and safe to include in Civ4's UI strings. (GPT-5.2-Codex + ChatGPT-5.2 Thinking) -->
+ CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
+-
+-
+-
+ def get_leaders_index_to_type_map():
+ 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
+ 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
+@@ -516,6 +506,76 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
+ 	return ", ".join(out)
+ 
+ 
++def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
++	if not IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE:
++		return ""
++
++	chart_log_button_w = 48
++	chart_log_button_h = 28
++	chart_log_button_margin_x = 10
++	chart_log_button_margin_y = 8
++	chart_log_button_footer_bottom_padding = 9
++
++	widget = top.getNextWidgetName()
++	label = u"<font=2>" + localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ()).upper() + u"</font>"
++	if xPos is None:
++		if hasattr(top, "X_EXIT"):
++			xPos = top.X_EXIT - chart_log_button_w - 90
++		else:
++			xPos = x + w - chart_log_button_w - chart_log_button_margin_x
++	if yPos is None:
++		if hasattr(top, "Y_BOT_PANEL") and hasattr(top, "H_BOT_PANEL"):
++			yPos = top.Y_BOT_PANEL + top.H_BOT_PANEL - chart_log_button_h - chart_log_button_footer_bottom_padding
++		else:
++			yPos = y + chart_log_button_margin_y
++	# <!-- custom: use WIDGET_PYTHON + data1 routing for chart log clicks because function-name matching can fail on generated widget IDs in Sevopedia; this mirrors the robust Music/Movie click pattern in SevoPediaMain.handleInput. (GPT-5.3-Codex) -->
++	if hasattr(top, "SAS_PEDIA_PYTHON_CHART_LOG"):
++		screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_CHART_LOG, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++	else:
++		screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++	return widget
++
++
++def chart_dump_table_csv(log_tag, table_data):
++	if not table_data:
++		print("%s_BEGIN" % log_tag)
++		print("%s_EMPTY" % log_tag)
++		print("%s_END" % log_tag)
++		return
++
++	print("%s_BEGIN" % log_tag)
++	for row in table_data:
++		cells = []
++		for cell in row:
++			cells.append(_chart_to_csv_cell(_chart_clean_cell_text(cell)))
++		print(u",".join(cells).encode("latin-1", "replace"))
++	print("%s_END" % log_tag)
++
++
++def _chart_clean_cell_text(cell):
++	if isinstance(cell, tuple):
++		text = cell[0]
++	else:
++		text = cell
++	if text is None:
++		text = u""
++	text = unicode(text)  # noqa: F821
++	text = re.sub(r"</?font[^>]*>", u"", text)
++	text = re.sub(r"</?color[^>]*>", u"", text)
++	for digit in CHART_SORT_DIGITS:
++		text = text.replace(digit, u"")
++	text = text.replace(u"\r", u" ").replace(u"\n", u" ")
++	return text.strip()
++
++
++def _chart_to_csv_cell(text):
++	if text.find(u'"') != -1:
++		text = text.replace(u'"', u'""')
++	if text.find(u",") != -1 or text.find(u'"') != -1 or text.find(u"\n") != -1:
++		return '"' + text + '"'
++	return text
++
++
+ 
+ # <!-- custom: In-Category Chart Helpers (InChart) - shared across Traits, Tech, Improvement charts.
+ # These are charts that appear WITHIN a category item page (e.g. leader pairing table in Traits),
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 23c86693d..43f1329e0 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -5,8 +5,8 @@
+ <!-- -->
+ <!-- Game Speed -->
+ <!-- NOTE: If you remove any of these you need to update GameInfo/CultureLevelInfos.xml. Also you will need to update the GlobalDefines.xml if you remove GAMESPEED_STANDARD -->
+-<!-- custom: Long_Comments_XML.txt #138 -->
+-<!-- custom: note to agents: if you want to modify this file, please also read the Long Comments mentioned here, as they should provide useful design information. Removed for concision from this doc. -->
++<!-- custom: Long_Comments_XML.txt #138, #358 -->
++<!-- custom: note to agents: if you want to modify this file, read the Long Comments referenced above first; they contain key design rationale used by the timelines below. Removed here for concision. -->
+ <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameSpeedInfos>
+ 
+@@ -67,57 +67,39 @@
+ 			<iEventRollSidesPercent>60</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>33</iVoteIntervalPercent>
+ 
+-			<!-- NITRO (165 turns). Clean integer years/turn throughout (>=1y). End year 2105 preserved. -->
++			<!-- custom: NITRO (165 turns). Exact 2:1 compression of QUICK: pair each 2 consecutive Quick turns into 1 Nitro turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Quick at all 5% checkpoints to within ±45y (idx 3-20), ±750y prehistoric. End year 2105. (Claude Opus 4.6) -->
+ 			<GameTurnInfos>
+-				<!-- -50,000 to -30,000 (20,000y) -> 2 turns @ 10,000 y/turn (120,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) -> 2 turns @ 5,000 y/turn (60,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) -> 2 turns @ 2,500 y/turn (30,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) -> 2 turns @ 1,500 y/turn (18,000 mo/turn) -->
++				<!-- -50,000 to -7,250: prehistoric (9 turns) -->
++				<GameTurnInfo><iMonthIncrement>108000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>36000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>21000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) -> 3 turns @ 1,500 y/turn (18,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) -> 2 turns @ 1,500 y/turn (18,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) -> 2 turns @ 750 y/turn (9,000 mo/turn) -->
++				<!-- -7,250 to -2,810: ancient (8 turns) -->
++				<GameTurnInfo><iMonthIncrement>13500</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -3,000 to -2,200 (800y) -> 2 turns @ 400 y/turn (4,800 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>4800</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) -> 4 turns @ 180 y/turn (2,160 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) -> 6 turns @ 80 y/turn (960 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -1,000 to 500 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1500 (1,000y) -> 40 turns @ 25 y/turn (300 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1500 to 1750 (250y) -> 10 turns @ 25 y/turn (300 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1750 to 1790 (40y) -> 4 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1790 to 1880 (90y) -> 9 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1880 to 1900 (20y) -> 2 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1900 to 1980 (80y) -> 8 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1980 to 1990 (10y) -> 1 turn @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1990 to 2040 (50y) -> 5 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2040 to 2070 (30y) -> 3 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2070 to 2080 (10y) -> 1 turn @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2080 to 2105 (25y) -> 5 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6420</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3840</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -2,810 to +625: classical-medieval (34 turns) -->
++				<GameTurnInfo><iMonthIncrement>1440</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1260</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1080</iMonthIncrement><iTurnsPerIncrement>21</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +625 to +1,315: late medieval to renaissance (12 turns) -->
++				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,315 to +1,755: early modern (19 turns) -->
++				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,755 to +1,963: industrial (26 turns @ 8y/turn) -->
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>26</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,963 to +2,043: modern (20 turns @ 4y/turn) -->
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +2,043 to +2,105: contemporary (31 turns @ 2y/turn) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>31</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+ 
+@@ -179,57 +161,37 @@
+ 			<iEventRollSidesPercent>70</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>50</iVoteIntervalPercent>
+ 
+-			<!-- TURBO (250 turns). Clean integer years/turn throughout (>=1y). End year 2105 preserved. -->
++			<!-- custom: TURBO (250 turns). Exact 2:1 compression of NORMAL: pair each 2 consecutive Normal turns into 1 Turbo turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Normal at all 5% checkpoints. End year 2105. (Claude Opus 4.6) -->
+ 			<GameTurnInfos>
+-				<!-- -50,000 to -30,000 (20,000y) -> 2 turns @ 10,000 y/turn (120,000 mo/turn) -->
++				<!-- -50,000 to -7,500: prehistoric (13 turns) -->
+ 				<GameTurnInfo><iMonthIncrement>120000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) -> 1 turn @ 10,000 y/turn (120,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) -> 2 turns @ 2,500 y/turn (30,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) -> 2 turns @ 1,500 y/turn (18,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) -> 3 turns @ 1,500 y/turn (18,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) -> 4 turns @ 750 y/turn (9,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) -> 3 turns @ 500 y/turn (6,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -3,000 to -2,200 (800y) -> 4 turns @ 200 y/turn (2,400 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) -> 8 turns @ 90 y/turn (1,080 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1080</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) -> 15 turns @ 32 y/turn (384 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>384</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -1,000 to 500 (1,500y) -> 60 turns @ 25 y/turn (300 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1500 (1,000y) -> 50 turns @ 20 y/turn (240 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1500 to 1750 (250y) -> 25 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1750 to 1790 (40y) -> 8 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1790 to 1880 (90y) -> 18 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1880 to 1900 (20y) -> 4 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1900 to 1980 (80y) -> 16 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1980 to 1990 (10y) -> 2 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1990 to 2040 (50y) -> 10 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2040 to 2070 (30y) -> 6 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2070 to 2080 (10y) -> 2 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2080 to 2105 (25y) -> 5 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>21000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -3,000: ancient (12 turns) -->
++				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -3,000 to -1,480: classical (17 turns) -->
++				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to +1,300: medieval (53 turns) -->
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>33</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,300 to +1,750: renaissance (30 turns) -->
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,750 to +1,880: early modern (20 turns) -->
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,880 to +1,980: industrial (25 turns @ 4y/turn) -->
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,980 to +2,070: modern (45 turns @ 2y/turn) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +2,070 to +2,105: contemporary (35 turns @ 1y/turn) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+ 
+@@ -285,56 +247,36 @@
+ 			<iVoteIntervalPercent>67</iVoteIntervalPercent>
+ 			<!-- advc.252: end -->
+ 			<!-- custom: Long_Comments_XML.txt #319 -->
+-			<!-- QUICK (330 turns). All month increments are multiples of 12. Years/turn never increase over time. -->
++			<!-- custom: QUICK (330 turns). Keep cleaner Normal-like bands and avoid early sub-year tails by using whole-year-friendly 360/240 instead of 320 in the mid band; compensate late with a tiny 48->12 shift to keep endpoint pacing stable. (GPT-5.3-Codex) -->
+ 			<GameTurnInfos>
+-				<!-- -50,000 to -30,000 (20,000y) → 5 turns @ 4,000 y/turn (48,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>48000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) → 4 turns @ 2,500 y/turn (30,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) → 4 turns @ 1,250 y/turn (15,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) → 3 turns @ 1,000 y/turn (12,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) → 6 turns @ 750 y/turn (9,000 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>54000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) → 8 turns @ 375 y/turn (4,500 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>4500</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) → 10 turns @ 150 y/turn (1,800 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -3,000 to -2,200 (800y) → 16 turns @ 50 y/turn (600 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) → 24 turns @ 30 y/turn (360 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) → 20 turns @ 24 y/turn (288 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>288</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -1,000 to 500 (1,500y) → 30 turns @ 50 y/turn (600 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1500 (1,000y) → 25 turns @ 40 y/turn (480 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1500 to 1750 (250y) → 25 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1750 to 1790 (40y) → 10 turns @ 4 y/turn (48 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1790 to 1880 (90y) → 15 turns @ 6 y/turn (72 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1880 to 1900 (20y) → 10 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1900 to 1980 (80y) → 40 turns @ 2 y/turn (24 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>4500</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1920</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: reshape the 600-year plateau into 720/480 (same total months, same turns) to speed up summary 03/04 drift without moving the final endpoint. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>420</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>22</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>14</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: +1 year endpoint correction without adding turns: convert one late 48-month turn into 60 months. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: compensate the stronger 07 nerf in the late tail (48->24->12), keeping monotonic order and total months unchanged. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1980 to 1990 (10y) → 5 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1990 to 2040 (50y) → 25 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2040 to 2070 (30y) → 15 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2070 to 2080 (10y) → 5 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2080 to 2105 (25y) → 25 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>62</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+ 
+@@ -488,57 +430,49 @@
+ 			<!-- advc.252: start -->
+ 			<iEventRollSidesPercent>125</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>150</iVoteIntervalPercent>
+-			<!-- custom: new timeline with the help of chatgpt 5 thanks replaces the old one entirely; Long_Comments_XML.txt #320 -->
+-			<!-- EPIC (750 turns). Early steps mirror Normal (fast fade), all ≥1y steps are integers, months/turn are multiples of 12. Only the last two bands use 0.5y/turn (6 months). Total = 750 turns. -->
++			<!-- custom: timeline rebalanced by Claude Opus 4.6; Long_Comments_XML.txt #320 -->
++			<!-- custom: EPIC (750 turns). Finer early increments than Normal to track Normal's % milestones. All >=1y steps are whole years (div 12). Non-increasing. End year 2105. (Claude Opus 4.6 v4) -->
+ 			<GameTurnInfos>
+-				<!-- -50,000 to -30,000 (20,000y) → 4 turns @ 5,000 y/turn (60,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) → 4 turns @ 2,500 y/turn (30,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) → 5 turns @ 1,000 y/turn (12,000 mo/turn) -->
++				<!-- -50,000 to -8,500: prehistoric (37 turns, finer ladder than Normal) -->
++				<GameTurnInfo><iMonthIncrement>36000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) → 4 turns @ 750 y/turn (9,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) → 9 turns @ 500 y/turn (6,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) → 12 turns @ 250 y/turn (3,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) → 12 turns @ 125 y/turn (1,500 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- -3,000 to -2,200 (800y) → 20 turns @ 40 y/turn (480 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) → 48 turns @ 15 y/turn (180 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) → 32 turns @ 15 y/turn (180 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>32</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -8,500 to -2,900: ancient (38 turns) -->
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -2,900 to -1,900: classical transition (30 turns) -->
++				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- -1,000 to 500 (1,500y) → 100 turns @ 15 y/turn (180 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1500 (1,000y) → 125 turns @ 8 y/turn (96 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>125</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,900 to +780: medieval (134 turns @ 20y/turn) -->
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>134</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- 1500 to 1750 (250y) → 50 turns @ 5 y/turn (60 mo/turn) -->
++				<!-- +780 to +1,410: late medieval to renaissance (63 turns @ 10y/turn) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>67</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- +1,410 to +1,800: early modern -->
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1750 to 1790 (40y) → 20 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1790 to 1880 (90y) → 45 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1880 to 1900 (20y) → 20 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- 1900 to 1980 (80y) → 80 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1980 to 1990 (10y) → 10 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1990 to 2040 (50y) → 50 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2040 to 2070 (30y) → 30 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2070 to 2080 (10y) → 20 turns @ 0.5 y/turn (6 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2080 to 2105 (25y) → 50 turns @ 0.5 y/turn (6 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- +1,800 to +1,850: modern transition -->
++				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>34</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>46</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- +1,850 to +2,010: industrial to modern -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>130</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- +2,010 to +2,105: contemporary -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>140</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: shift a small late chunk to m3 to offset the extra m12 pace and keep Epic ending at 2105 while improving idx16+ alignment. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>44</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 			<!-- custom: old base advciv code comments kept for reference or info but this is a new timeline based as of now on the new gamespeed_normal one in our mod -->
+ 			<!-- advc.252: end -->
+@@ -623,52 +557,42 @@
+ 			<!-- custom: not sure if we should change it too much but aim for exact double just in case, was 250 -->
+ 			<iVoteIntervalPercent>200</iVoteIntervalPercent>
+ 			<!-- custom: Long_Comments_XML.txt #321 -->
+-			<!-- MARATHON (1000 turns) — clean integers for years/turn; sub-year = 6 months only -->
+ 			<GameTurnInfos>
+-				<!-- -50,000 to -30,000 (20,000y) — 2,000y/turn (24,000m), 10 turns -->
+ 				<GameTurnInfo><iMonthIncrement>24000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) — 1,000y/turn (12,000m), 10 turns -->
+ 				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) — 500y/turn (6,000m), 10 turns -->
+-				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) — 300y/turn (3,600m), 10 turns -->
++				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) — 150y/turn (1,800m), 30 turns -->
+ 				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) — 100y/turn (1,200m), 30 turns -->
+-				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) — 100y/turn (1,200m), 15 turns -->
+-				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -3,000 to -2,200 (800y) — 20y/turn (240m), 40 turns -->
+-				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) — 15y/turn (180m), 48 turns -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) — 15y/turn (180m), 32 turns -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>32</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,000 to 500 (1,500y) — 15y/turn (180m), 100 turns -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1500 (1,000y) — 5y/turn (60m), 200 turns -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1500 to 1750 (250y) — 5y/turn (60m), 50 turns -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1750 to 1790 (40y) — 2y/turn (24m), 20 turns -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1790 to 1880 (90y) — 2y/turn (24m), 45 turns -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1880 to 1900 (20y) — 1y/turn (12m), 20 turns -->
++				<GameTurnInfo><iMonthIncrement>840</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: keep the early-mid Marathon ladder readable (60 -> 30 -> 25 -> 20 -> 18) while preserving total months. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>23</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>216</iMonthIncrement><iTurnsPerIncrement>17</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>192</iMonthIncrement><iTurnsPerIncrement>28</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>66</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>63</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>14</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>13</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>55</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1900 to 1980 (80y) — 1y/turn (12m), 80 turns -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1980 to 1990 (10y) — 0.5y/turn (6m), 20 turns -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1990 to 2040 (50y) — 0.5y/turn (6m), 100 turns -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2040 to 2070 (30y) — 0.5y/turn (6m), 60 turns -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2070 to 2080 (10y) — 0.5y/turn (6m), 20 turns -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2080 to 2105 (25y) — 0.5y/turn (6m), 50 turns -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>5</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 			<!-- advc.252: end -->
+ 		</GameSpeedInfo>
+@@ -699,7 +623,7 @@
+ 			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
+ 			<iGoldenAgePercent>300</iGoldenAgePercent>
+ 
+-			<!-- Keep hurry “inverse-scaled” like the other speeds (Quick=150, Epic=66, Marathon=50). -->
++			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>33</iHurryPercent>
+ 
+ 			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
+@@ -726,62 +650,53 @@
+ 			<iVoteIntervalPercent>300</iVoteIntervalPercent>
+ 
+ 			<GameTurnInfos>
+-				<!-- -50,000 to -30,000 (20,000y) -> 16 turns @ 1,250 y/turn (15,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) -> 16 turns @ 625 y/turn (7,500 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) -> 20 turns @ 250 y/turn (3,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) -> 12 turns @ 250 y/turn (3,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -12,000 to -7,500 (4,500y) -> 25 turns @ 180 y/turn (2,160 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) -> 40 turns @ 75 y/turn (900 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) -> 30 turns @ 50 y/turn (600 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: smooth the early-mid curve with intermediate bands to avoid a hard cliff, while keeping total turns stable (Normal remains the checkpoint reference).
++				     Prefer round, human-readable year bands where possible (e.g. 250/200/150/75/40/30/15 years) and use finer odd bands only when strictly needed. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- -3,000 to -2,200 (800y) -> 40 turns @ 20 y/turn (240 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) -> 48 turns @ 15 y/turn (180 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) -> 48 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -1,000 to 500 (1,500y) -> 150 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1,300 (800y) -> 160 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,300 to 1,400 (100y) -> 20 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,400 to 1,600 (200y) -> 40 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,600 to 1,750 (150y) -> 75 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>75</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,750 to 1,790 (40y) -> 20 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,790 to 1,880 (90y) -> 90 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,880 to 1,900 (20y) -> 20 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,900 to 1,980 (80y) -> 80 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>14</iTurnsPerIncrement></GameTurnInfo>
++				<!-- custom: hold 75 years/turn longer before dropping to 60 to avoid a tiny 75 -> 70 step. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- 1,980 to 1,990 (10y) -> 20 turns @ 0.5 y/turn (6 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>195</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>91</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>55</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- 1,990 to 2,040 (50y) -> 200 turns @ 0.25 y/turn (3 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,040 to 2,070 (30y) -> 120 turns @ 0.25 y/turn (3 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>69</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- 2,070 to 2,080 (10y) -> 60 turns @ 0.167 y/turn (2 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,080 to 2,105 (25y) -> 150 turns @ 0.167 y/turn (2 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>71</iTurnsPerIncrement></GameTurnInfo>
++
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
++
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>17</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>84</iTurnsPerIncrement></GameTurnInfo>
++
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>82</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>43</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>33</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>51</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>96</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+ 
+@@ -812,7 +727,7 @@
+ 			<iUnitGreatWorkPercent>400</iUnitGreatWorkPercent>
+ 			<iGoldenAgePercent>400</iGoldenAgePercent>
+ 
+-			<!-- Keep hurry “inverse-scaled” like the other speeds (Quick=150, Epic=66, Marathon=50). -->
++			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>25</iHurryPercent>
+ 
+ 			<iHurryConscriptAngerPercent>400</iHurryConscriptAngerPercent>
+@@ -840,69 +755,48 @@
+ 			<iVoteIntervalPercent>400</iVoteIntervalPercent>
+ 
+ 			<GameTurnInfos>
+-				<!-- custom: prefer round whole-year increments (multiple of 12 months) in early/mid game; months are used mainly late-game for fine granularity. -->
+-
+-				<!-- -50,000 to -30,000 (20,000y) -> 16 turns @ 1,250 y/turn (15,000 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -30,000 to -20,000 (10,000y) -> 16 turns @ 625 y/turn (7,500 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -20,000 to -15,000 (5,000y) -> 20 turns @ 250 y/turn (3,000 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>13500</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) -> 20 turns @ 150 y/turn (1,800 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) -> 36 turns @ 125 y/turn (1,500 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) -> 50 turns @ 60 y/turn (720 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -3,000 to -2,200 (800y) -> 80 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) -> 72 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) -> 60 turns @ 8 y/turn (96 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- -1,000 to 500 (1,500y) -> 150 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 500 to 1,300 (800y) -> 160 turns @ 5 y/turn (60 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,300 to 1,400 (100y) -> 50 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,400 to 1,600 (200y) -> 100 turns @ 2 y/turn (24 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,600 to 1,750 (150y) -> 150 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,750 to 1,790 (40y) -> 40 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,790 to 1,880 (90y) -> 90 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,880 to 1,900 (20y) -> 40 turns @ 0.5 y/turn (6 mo/turn) -->
++				<!-- custom: same smoothing philosophy as Marathon/Slow: prefer round-ish bands and gradual transitions before fine month-phase tuning.
++				     For slower speeds we allow more intermediate bands than Normal, but still keep them monotonic and readable for players. (GPT-5.3-Codex) -->
++				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>22</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>22</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>168</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>144</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>132</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>108</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>56</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>66</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>84</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>84</iMonthIncrement><iTurnsPerIncrement>66</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>126</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>28</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>84</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>110</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>70</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,900 to 1,980 (80y) -> 160 turns @ 0.5 y/turn (6 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,980 to 1,990 (10y) -> 40 turns @ 0.25 y/turn (3 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,990 to 2,040 (50y) -> 200 turns @ 0.25 y/turn (3 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,040 to 2,070 (30y) -> 120 turns @ 0.25 y/turn (3 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- custom: normal would imply 1.5 mo/turn here; we split into 2 mo + 1 mo rows to keep integer month increments. -->
+-				<!-- 2,070 to 2,076 (+6y8m) -> 40 turns @ 0.167 y/turn (2 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,076 (+8m) to 2,080 -> 40 turns @ 0.083 y/turn (1 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 2,080 to 2,096 (+16y8m) -> 100 turns @ 0.167 y/turn (2 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,096 (+8m) to 2,105 -> 100 turns @ 0.083 y/turn (1 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
++				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+new file mode 100644
+index 000000000..fa56bd97f
+--- /dev/null
++++ b/LLM_Helpers/README.md
+@@ -0,0 +1,51 @@
++﻿# External helper tools for timeline tuning
++
++This folder contains external Python 3 scripts for balancing workflows outside Civ4's embedded Python 2.4 runtime.
++
++- `compare_speed_summaries.py`
++  - Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
++  - Compares `Normal` vs one selected speed across summary rows.
++  - Also compares flattened increment sequences (Years and Months) index by index.
++  - Can focus summaries to one index (`--summary`), while still printing increment comparison.
++  - Automatically writes a timestamped `.txt` file.
++  - Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
++
++- `autotune_speed_from_xml.py`
++  - Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml` (no `PythonDbg.log` needed).
++  - Can print XML-based `Normal` vs selected speed comparison.
++  - Optional draft autoloop mode for `GAMESPEED_SLOW`: iterates candidate timeline tweaks and reports best-scoring result.
++  - Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
++
++Examples (PowerShell from mod root):
++
++```powershell
++python LLM_Helpers\compare_speed_summaries.py --speed slow
++python LLM_Helpers\compare_speed_summaries.py --speed marathon --summary 6
++python LLM_Helpers\compare_speed_summaries.py --log "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log" --speed veryslow
++```
++
++Auto-save with timestamp under `LLM_Helpers\outputs` (git-ignored):
++
++```powershell
++python LLM_Helpers\compare_speed_summaries.py --speed slow
++python LLM_Helpers\compare_speed_summaries.py --speed slow --summary 6
++python LLM_Helpers\compare_speed_summaries.py --speed slow --output-dir LLM_Helpers\outputs
++```
++
++XML-native comparison and draft autoloop:
++
++```powershell
++python LLM_Helpers\autotune_speed_from_xml.py --speed slow
++python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 50
++python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 --focus-start-pct 20 --focus-end-pct 80
++python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
++```
++
++Workflow rule for timeline tuning:
++
++- Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
++- Do not rely only on focused slices (`--focus-start-pct/--focus-end-pct`) when evaluating a candidate.
++- After each local tweak, re-check the full 5% table to catch late drift and endpoint issues early.
++- After each accepted candidate edit, generate a fresh human-readable review file with:
++  - `python LLM_Helpers\compare_speed_summaries.py --speed <speed>`
++  - Use this `slow_*.txt`/`marathon_*.txt` style output as the primary review artifact for discussion.
+
+diff --git a/LLM_Helpers/autotune_speed_from_xml.py b/LLM_Helpers/autotune_speed_from_xml.py
+new file mode 100644
+index 000000000..c84c090cf
+--- /dev/null
++++ b/LLM_Helpers/autotune_speed_from_xml.py
+@@ -0,0 +1,541 @@
++#!/usr/bin/env python3
++import argparse
++import io
++import os
++import random
++import re
++from datetime import datetime, timezone
++import xml.etree.ElementTree as ET
++
++
++START_YEAR = -50000
++SUMMARY_STEPS = 20
++PREFERRED_LADDER = [3000, 2400, 1800, 1500, 1200, 900, 720, 600, 480, 360, 300, 240, 180, 144, 120, 108, 96, 84, 72, 60, 48, 36, 24, 12]
++INVALID_SCORE = 10 ** 12
++
++
++def _local_name(tag):
++    return tag.split("}", 1)[-1]
++
++
++def _normalize_speed_name(name):
++    s = name.strip().lower()
++    s = re.sub(r"^gamespeed_", "", s)
++    s = s.replace("_", "")
++    s = s.replace(" ", "")
++    return s
++
++
++def _display_speed_name(speed_type):
++    raw = re.sub(r"^GAMESPEED_", "", speed_type)
++    raw = raw.replace("_", " ").strip().title()
++    return raw
++
++
++def _make_slug(name):
++    s = _normalize_speed_name(name)
++    s = re.sub(r"[^a-z0-9_]+", "_", s)
++    return s.strip("_") or "speed"
++
++
++def _year_month_to_total_months(year, month):
++    return year * 12 + (month - 1)
++
++
++def _format_delta_months(delta_months):
++    sign = "+" if delta_months >= 0 else "-"
++    v = abs(delta_months)
++    return "%s%dy%dm" % (sign, v // 12, v % 12)
++
++
++def _format_delta_vs_increment(delta_months, increment_months):
++    if increment_months <= 0:
++        return "n/a", "n/a"
++    ratio = float(delta_months) / float(increment_months)
++    return "%+.2f" % ratio, "%+.1f%%" % (ratio * 100.0)
++
++
++def parse_xml_speeds(xml_path):
++    root = ET.parse(xml_path).getroot()
++    speeds = {}
++
++    for node in root.iter():
++        if _local_name(node.tag) != "GameSpeedInfo":
++            continue
++
++        speed_type = None
++        num_turns = None
++        rows = []
++
++        for ch in node:
++            n = _local_name(ch.tag)
++            if n == "Type":
++                speed_type = (ch.text or "").strip()
++            elif n == "iNumTurns":
++                num_turns = int((ch.text or "0").strip())
++            elif n == "GameTurnInfos":
++                for r in ch:
++                    if _local_name(r.tag) != "GameTurnInfo":
++                        continue
++                    inc = None
++                    turns = None
++                    for x in r:
++                        xn = _local_name(x.tag)
++                        if xn == "iMonthIncrement":
++                            inc = int((x.text or "0").strip())
++                        elif xn == "iTurnsPerIncrement":
++                            turns = int((x.text or "0").strip())
++                    if inc is not None and turns is not None:
++                        rows.append((inc, turns))
++
++        if speed_type and rows:
++            if not num_turns:
++                num_turns = sum(n for (_m, n) in rows)
++            speeds[speed_type] = {"type": speed_type, "num_turns": num_turns, "rows": rows}
++
++    return speeds
++
++
++def resolve_speed_type(speeds, requested_name):
++    want = _normalize_speed_name(requested_name)
++    items = []
++    for speed_type in speeds:
++        norm = _normalize_speed_name(speed_type)
++        disp = _normalize_speed_name(_display_speed_name(speed_type))
++        items.append((speed_type, norm, disp))
++
++    exact = [it[0] for it in items if it[1] == want or it[2] == want]
++    if exact:
++        return exact[0]
++
++    starts = [it[0] for it in items if it[1].startswith(want) or it[2].startswith(want)]
++    if len(starts) == 1:
++        return starts[0]
++
++    contains = [it[0] for it in items if want in it[1] or want in it[2]]
++    if len(contains) == 1:
++        return contains[0]
++
++    return None
++
++
++def get_date_at_turn(rows, turn, start_year=START_YEAR):
++    elapsed_turns = 0
++    elapsed_months = 0
++    current_increment = 0
++
++    for inc, span in rows:
++        if elapsed_turns >= turn:
++            break
++        take = min(span, turn - elapsed_turns)
++        elapsed_months += take * inc
++        elapsed_turns += take
++        current_increment = inc
++
++    total_months = start_year * 12 + elapsed_months
++    year = total_months // 12
++    month = (total_months % 12) + 1
++    return {"turn": turn, "year": year, "month": month, "inc": current_increment, "total_months": total_months}
++
++
++def build_summary_rows(speed_data, summary_steps=SUMMARY_STEPS):
++    out = []
++    num_turns = speed_data["num_turns"]
++    rows = speed_data["rows"]
++    step_turn = num_turns // summary_steps
++    for i in range(1, summary_steps + 1):
++        turn = step_turn * i
++        pct = int(round((100.0 * i) / float(summary_steps)))
++        out.append((i, pct, get_date_at_turn(rows, turn)))
++    return out
++
++
++def compare_from_xml(xml_path, normal_speed_name, target_speed_name, summary_steps=SUMMARY_STEPS):
++    speeds = parse_xml_speeds(xml_path)
++    normal_type = resolve_speed_type(speeds, normal_speed_name)
++    target_type = resolve_speed_type(speeds, target_speed_name)
++    if normal_type is None:
++        raise SystemExit("Could not resolve normal speed: %s" % normal_speed_name)
++    if target_type is None:
++        raise SystemExit("Could not resolve target speed: %s" % target_speed_name)
++
++    normal_data = speeds[normal_type]
++    target_data = speeds[target_type]
++    normal_summary = build_summary_rows(normal_data, summary_steps)
++    target_summary = build_summary_rows(target_data, summary_steps)
++
++    parsed = []
++    for (idx, pct, n), (_idx2, _pct2, t) in zip(normal_summary, target_summary):
++        parsed.append((idx, pct, n, t, t["total_months"] - n["total_months"]))
++
++    return {
++        "normal_type": normal_type,
++        "target_type": target_type,
++        "normal_name": _display_speed_name(normal_type),
++        "target_name": _display_speed_name(target_type),
++        "normal_data": normal_data,
++        "target_data": target_data,
++        "parsed": parsed,
++    }
++
++
++def score_alignment(parsed):
++    # Weight the difficult early-mid zone where we tune the most.
++    weights = {1: 1.0, 2: 1.5, 3: 2.5, 4: 5.0, 5: 5.0, 6: 5.0, 7: 4.0, 8: 4.5, 9: 3.0, 10: 2.0, 11: 2.0, 12: 2.0}
++    score = 0.0
++    for idx, _pct, _n, _t, delta_months in parsed:
++        w = weights.get(idx, 1.0)
++        years = delta_months / 12.0
++        score += w * (years * years)
++    return score
++
++
++def score_alignment_slow(parsed):
++    # Style-first: keep close enough to Normal, but prioritize smooth shape over exactness.
++    score = 0.0
++
++    delta_years = {}
++    delta_ratio = {}
++    for idx, _pct, _n, _t, delta_months in parsed:
++        delta_years[idx] = delta_months / 12.0
++        inc = _t.get("inc", 0)
++        if inc <= 0:
++            return INVALID_SCORE
++        delta_ratio[idx] = float(delta_months) / float(inc)
++
++    # Hard acceptance bands (ratio in "increments", i.e. Delta/Inc).
++    # Tight early, medium mid, looser later because increments become tiny.
++    for idx in range(1, SUMMARY_STEPS + 1):
++        r = abs(delta_ratio.get(idx, 0.0))
++        if idx <= 3 and r > 2.5:
++            return INVALID_SCORE
++        if 4 <= idx <= 8 and r > 3.5:
++            return INVALID_SCORE
++        if 9 <= idx <= 12 and r > 40.0:
++            return INVALID_SCORE
++
++    # Light alignment pressure.
++    for idx in range(1, SUMMARY_STEPS + 1):
++        y = abs(delta_years.get(idx, 0.0))
++        w = 0.6
++        if 3 <= idx <= 12:
++            w = 1.0
++        score += w * y
++
++    # Strongly avoid cliffs/overshoot in the key zone.
++    for idx in [4, 5, 6]:
++        y = delta_years.get(idx, 0.0)
++        if y < -30:
++            score += (abs(y + 30) * 80.0)
++    y7 = delta_years.get(7, 0.0)
++    if y7 > 8:
++        score += (y7 - 8) * 140.0
++    if y7 < -12:
++        score += (abs(y7 + 12) * 80.0)
++
++    # Smoothness in 3..10.
++    for idx in range(3, 10):
++        jump = abs(delta_years.get(idx + 1, 0.0) - delta_years.get(idx, 0.0))
++        if jump > 18:
++            score += (jump - 18) * 25.0
++
++    return score
++
++
++def _style_penalty_rows(rows):
++    penalty = 0.0
++    prev = None
++    for inc, _turns in rows:
++        if prev is not None:
++            if inc > prev:
++                penalty += 1000000.0
++            if prev >= 120 and inc >= 120:
++                ratio = float(prev) / float(inc)
++                if ratio > 2.0:
++                    penalty += (ratio - 2.0) * 2000.0
++        if inc >= 120 and inc not in PREFERRED_LADDER:
++            penalty += 800.0
++        prev = inc
++    return penalty
++
++
++def _nearest_ladder_value(value, max_allowed):
++    candidates = [v for v in PREFERRED_LADDER if v <= max_allowed]
++    if not candidates:
++        return min(max_allowed, value)
++    return min(candidates, key=lambda v: abs(v - value))
++
++
++def _has_non_increasing_increments(rows):
++    prev = None
++    for inc, _turns in rows:
++        if prev is not None and inc > prev:
++            return False
++        prev = inc
++    return True
++
++
++def _emit_report(compare_result, title, meta_lines=None):
++    parsed = compare_result["parsed"]
++    focus_start = compare_result.get("focus_start_pct")
++    focus_end = compare_result.get("focus_end_pct")
++    if focus_start is not None and focus_end is not None:
++        parsed = [row for row in parsed if focus_start <= row[1] <= focus_end]
++        if not parsed:
++            raise SystemExit("No summary rows left after focus filter: %d-%d%%" % (focus_start, focus_end))
++    lines = []
++    lines.append(title)
++    lines.append("Compare: %s vs %s" % (compare_result["target_name"], compare_result["normal_name"]))
++    if meta_lines:
++        lines.extend(meta_lines)
++    lines.append("")
++    lines.append("Idx  Pct  Normal                Target                Delta     Delta/Inc    d(Inc)  Delta%Inc")
++    lines.append("---  ---  --------------------  --------------------  --------  ---------  --------  ---------")
++    prev_ratio = None
++    for idx, pct, n, t, d in parsed:
++        ns = "T%d=%+dm%d (%d)" % (n["turn"], n["year"], n["month"], n["inc"])
++        ts = "T%d=%+dm%d (%d)" % (t["turn"], t["year"], t["month"], t["inc"])
++        ratio_text, pct_text = _format_delta_vs_increment(d, t["inc"])
++        ratio_val = None
++        if t["inc"] > 0:
++            ratio_val = float(d) / float(t["inc"])
++        d_ratio_text = "n/a"
++        if ratio_val is not None and prev_ratio is not None:
++            d_ratio_text = "%+.2f" % (ratio_val - prev_ratio)
++        lines.append("%3d  %3d  %-20s  %-20s  %-8s  %9s  %8s  %9s" % (idx, pct, ns, ts, _format_delta_months(d), ratio_text, d_ratio_text, pct_text))
++        if ratio_val is not None:
++            prev_ratio = ratio_val
++    lines.append("")
++    lines.append("Score: %f" % score_alignment(parsed))
++    return "\n".join(lines)
++
++
++def _slow_autoloop_candidate_rows(base_rows, rng):
++    # Row indices are 0-based in GameTurnInfos list for GAMESPEED_SLOW.
++    # Tune only a narrow section to keep behavior interpretable.
++    rows = [list(r) for r in base_rows]
++
++    # Build a strictly non-increasing, human-readable sequence for rows 5..16 (indices 4..15).
++    prev = rows[3][0]
++    for idx in range(4, 16):
++        base_inc = rows[idx][0]
++        target = _nearest_ladder_value(base_inc, prev)
++        options = sorted([v for v in PREFERRED_LADDER if v <= prev], reverse=True)
++        if not options:
++            return None
++        pos = options.index(target) if target in options else 0
++        delta = rng.choice([-1, 0, 1])
++        pos2 = min(max(0, pos + delta), len(options) - 1)
++        rows[idx][0] = options[pos2]
++        prev = rows[idx][0]
++
++    # Move turns around early-mid boundaries to smooth summary 4-8.
++    d0 = rng.randint(-3, 3)
++    if rows[4][1] + d0 < 1 or rows[5][1] - d0 < 1:
++        return None
++    rows[4][1] += d0
++    rows[5][1] -= d0
++
++    d1 = rng.randint(-4, 4)
++    if rows[11][1] + d1 < 1 or rows[12][1] - d1 < 1:
++        return None
++    rows[11][1] += d1
++    rows[12][1] -= d1
++
++    d2 = rng.randint(-6, 6)
++    if rows[13][1] + d2 < 1 or rows[14][1] - d2 < 1:
++        return None
++    rows[13][1] += d2
++    rows[14][1] -= d2
++
++    # Hard global rule: no yoyo, increments must be non-increasing.
++    if not _has_non_increasing_increments([(m, n) for (m, n) in rows]):
++        return None
++
++    # Preserve total months by compensating on late rows.
++    base_total = sum(m * n for m, n in base_rows)
++    new_total = sum(m * n for m, n in rows)
++    delta = new_total - base_total
++    if delta % 2 != 0:
++        return None
++    shift = delta // 2
++    if abs(shift) > 180:
++        return None
++    # +shift means move turns 6m -> 4m; -shift means reverse.
++    if shift > 0:
++        # donors: rows 24,23,22 (indices 23,22,21), recipient row 26.
++        for donor in [23, 22, 21]:
++            if shift <= 0:
++                break
++            take = min(shift, rows[donor][1] - 1)
++            rows[donor][1] -= take
++            rows[25][1] += take
++            shift -= take
++    elif shift < 0:
++        need = -shift
++        # donor row 26 -> recipient row24 first.
++        take = min(need, rows[25][1] - 1)
++        rows[25][1] -= take
++        rows[23][1] += take
++        need -= take
++        if need > 0:
++            return None
++    if shift > 0:
++        return None
++
++    if sum(n for _m, n in rows) != sum(n for _m, n in base_rows):
++        return None
++    # Keep late-zone turn counts within sane range to avoid pathological tails.
++    if rows[22][1] < 100 or rows[22][1] > 320:
++        return None
++    if rows[23][1] < 100 or rows[23][1] > 320:
++        return None
++    if rows[25][1] < 60 or rows[25][1] > 260:
++        return None
++    return [(m, n) for (m, n) in rows]
++
++
++def run_autoloop(xml_path, target_speed, normal_speed, iterations, seed):
++    speeds = parse_xml_speeds(xml_path)
++    target_type = resolve_speed_type(speeds, target_speed)
++    normal_type = resolve_speed_type(speeds, normal_speed)
++    if target_type is None or normal_type is None:
++        raise SystemExit("Could not resolve speed types for autoloop.")
++    if target_type != "GAMESPEED_SLOW":
++        raise SystemExit("Autoloop draft currently targets only GAMESPEED_SLOW.")
++
++    base = speeds[target_type]
++    base_rows = base["rows"]
++    rng = random.Random(seed)
++
++    # Baseline compare
++    baseline = compare_from_xml(xml_path, normal_speed, target_speed, SUMMARY_STEPS)
++    best_rows = base_rows
++    best_score = score_alignment_slow(baseline["parsed"])
++    if not _has_non_increasing_increments(best_rows) or best_score >= INVALID_SCORE:
++        best_score = 10 ** 18
++
++    for _ in range(iterations):
++        candidate_rows = _slow_autoloop_candidate_rows(base_rows, rng)
++        if candidate_rows is None:
++            continue
++
++        # Evaluate candidate quickly by replacing target rows in-memory.
++        speeds[target_type]["rows"] = candidate_rows
++        target_summary = build_summary_rows(speeds[target_type], SUMMARY_STEPS)
++        normal_summary = build_summary_rows(speeds[normal_type], SUMMARY_STEPS)
++        parsed = []
++        for (idx, pct, n), (_i2, _p2, t) in zip(normal_summary, target_summary):
++            parsed.append((idx, pct, n, t, t["total_months"] - n["total_months"]))
++        sc = score_alignment_slow(parsed)
++        sc += _style_penalty_rows(candidate_rows)
++
++        # Human-readable preference in tuned section:
++        # favor year steps like 10/9/8/7/6/5/4/3/2/1 years (x12 months).
++        preferred = set([12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 144, 180, 240, 300, 360, 480, 600, 720, 900, 1200, 1500, 1800, 2400, 3000])
++        for idx in range(4, 16):
++            inc = candidate_rows[idx][0]
++            if inc >= 120 and inc not in preferred:
++                sc += 800.0
++
++        # Extra guard: reject any candidate that violates global monotonic increments.
++        if not _has_non_increasing_increments(candidate_rows):
++            continue
++
++        # Keep late compensation close to baseline profile.
++        baseline_late = [base_rows[22][1], base_rows[23][1], base_rows[25][1]]
++        cand_late = [candidate_rows[22][1], candidate_rows[23][1], candidate_rows[25][1]]
++        for b, c in zip(baseline_late, cand_late):
++            sc += abs(c - b) * 3.0
++
++        if sc >= INVALID_SCORE:
++            continue
++        if sc < best_score:
++            best_score = sc
++            best_rows = candidate_rows
++
++    # Restore and build final report data
++    speeds[target_type]["rows"] = best_rows
++    final_target_summary = build_summary_rows(speeds[target_type], SUMMARY_STEPS)
++    final_normal_summary = build_summary_rows(speeds[normal_type], SUMMARY_STEPS)
++    final_parsed = []
++    for (idx, pct, n), (_i2, _p2, t) in zip(final_normal_summary, final_target_summary):
++        final_parsed.append((idx, pct, n, t, t["total_months"] - n["total_months"]))
++
++    return {
++        "normal_type": normal_type,
++        "target_type": target_type,
++        "normal_name": _display_speed_name(normal_type),
++        "target_name": _display_speed_name(target_type),
++        "parsed": final_parsed,
++        "score": best_score,
++        "rows": best_rows,
++        "iterations": iterations,
++        "seed": seed,
++        "found_valid": best_score < INVALID_SCORE,
++    }
++
++
++def main():
++    parser = argparse.ArgumentParser(description="XML-based summary compare and draft autoloop tuner.")
++    parser.add_argument("--xml", default=os.path.join("Assets", "XML", "GameInfo", "CIV4GameSpeedInfo.xml"))
++    parser.add_argument("--speed", default="slow")
++    parser.add_argument("--normal-speed", default="normal")
++    parser.add_argument("--output-dir", default=os.path.join("LLM_Helpers", "outputs"))
++    parser.add_argument("--autoloop", action="store_true", help="Run draft autoloop tuner (currently for slow).")
++    parser.add_argument("--iterations", type=int, default=4000)
++    parser.add_argument("--seed", type=int, default=1)
++    parser.add_argument("--summary-steps", type=int, default=SUMMARY_STEPS, help="Number of summary checkpoints (20=5%%, 50=2%%).")
++    parser.add_argument("--focus-start-pct", type=int, default=0, help="Only print/check rows with pct >= this value.")
++    parser.add_argument("--focus-end-pct", type=int, default=100, help="Only print/check rows with pct <= this value.")
++    args = parser.parse_args()
++    if args.focus_start_pct < 0 or args.focus_end_pct > 100 or args.focus_start_pct > args.focus_end_pct:
++        raise SystemExit("Invalid focus range: %d-%d%%" % (args.focus_start_pct, args.focus_end_pct))
++
++    if args.autoloop:
++        if args.summary_steps != SUMMARY_STEPS:
++            raise SystemExit("--autoloop currently requires --summary-steps=%d" % SUMMARY_STEPS)
++        result = run_autoloop(args.xml, args.speed, args.normal_speed, args.iterations, args.seed)
++        meta = [
++            "Mode: XML autoloop draft",
++            "Iterations: %d" % result["iterations"],
++            "Seed: %d" % result["seed"],
++            "Best score: %f" % result["score"],
++        ]
++        if not result["found_valid"]:
++            meta.append("Status: no valid decremental candidate found under current local move constraints")
++        compare_result = {
++            "normal_name": result["normal_name"],
++            "target_name": result["target_name"],
++            "parsed": result["parsed"],
++            "focus_start_pct": args.focus_start_pct,
++            "focus_end_pct": args.focus_end_pct,
++        }
++        text = _emit_report(compare_result, "Source: %s" % args.xml, meta)
++        if result["found_valid"]:
++            text += "\n\nSuggested %s rows (iMonthIncrement x iTurnsPerIncrement):\n" % result["target_type"]
++            for i, (m, n) in enumerate(result["rows"], 1):
++                text += "%2d: %d x %d\n" % (i, m, n)
++    else:
++        compare_result = compare_from_xml(args.xml, args.normal_speed, args.speed, args.summary_steps)
++        compare_result["focus_start_pct"] = args.focus_start_pct
++        compare_result["focus_end_pct"] = args.focus_end_pct
++        text = _emit_report(compare_result, "Source: %s" % args.xml)
++
++    print(text)
++
++    if not os.path.isdir(args.output_dir):
++        os.makedirs(args.output_dir)
++    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
++    mode = "autoloop" if args.autoloop else "xml"
++    name = "%s_%s_%s.txt" % (ts, _make_slug(args.speed), mode)
++    out_path = os.path.join(args.output_dir, name)
++    with io.open(out_path, "w", encoding="utf-8") as f:
++        f.write(text)
++        f.write("\n")
++    print("")
++    print("Saved: %s" % out_path)
++
++
++if __name__ == "__main__":
++    main()
+
+diff --git a/LLM_Helpers/compare_speed_summaries.py b/LLM_Helpers/compare_speed_summaries.py
+new file mode 100644
+index 000000000..3b80f5ca9
+--- /dev/null
++++ b/LLM_Helpers/compare_speed_summaries.py
+@@ -0,0 +1,334 @@
++﻿#!/usr/bin/env python3
++import argparse
++import csv
++import io
++import os
++import re
++from datetime import datetime, timezone
++
++HEADER_FIELD = "Field"
++SUMMARY_PREFIX = "Summary "
++INCREMENTS_YEARS_PREFIX = "Increments Years "
++INCREMENTS_MONTHS_PREFIX = "Increments Months "
++CHART_END_MARKER = "SAS_SEVOPEDIA_GAME_SPEED_CHART_END"
++FALLBACK_SPEED_ORDER = [
++    "Nitro",
++    "Turbo",
++    "Quick",
++    "Normal",
++    "Epic",
++    "Marathon",
++    "Slow",
++    "Very Slow",
++]
++CELL_RE = re.compile(r"^T(?P<turn>\d+)=(?P<year>[+-]?\d+)(?:m(?P<month>\d+))?\s*\((?P<inc>\d+)\)$")
++SUMMARY_RE = re.compile(r"^Summary\s+(?P<idx>\d+)\s*\((?P<pct>\d+)\)")
++INCREMENTS_RE = re.compile(r"^Increments\s+(?P<kind>Years|Months)\s+(?P<idx>\d+)")
++
++
++def normalize_speed_name(name):
++    base = name.split("(", 1)[0]
++    base = base.strip().lower()
++    return re.sub(r"\s+", "", base)
++
++
++def parse_csv_line(line):
++    try:
++        return next(csv.reader(io.StringIO(line), skipinitialspace=True))
++    except Exception:
++        return None
++
++
++def parse_summary_cell(cell):
++    m = CELL_RE.match(cell.strip())
++    if not m:
++        return None
++    turn = int(m.group("turn"))
++    year = int(m.group("year"))
++    month = int(m.group("month") or "1")
++    inc = int(m.group("inc"))
++    total_months = year * 12 + (month - 1)
++    return {"turn": turn, "year": year, "month": month, "inc": inc, "total_months": total_months}
++
++
++def parse_summary_label(label):
++    m = SUMMARY_RE.match(label.strip())
++    if not m:
++        return None
++    return int(m.group("idx")), int(m.group("pct"))
++
++
++def parse_increments_label(label):
++    m = INCREMENTS_RE.match(label.strip())
++    if not m:
++        return None
++    return m.group("kind"), int(m.group("idx"))
++
++
++def _finalize_block(rows):
++    if not rows:
++        return None
++
++    header = None
++    for row in rows:
++        second = row[1].strip() if len(row) > 1 else ""
++        if second == HEADER_FIELD:
++            header = row
++            break
++
++    if header is None:
++        # Fallback for log formats that omit the explicit CSV header row.
++        # Use standard speed ordering and size from first data row.
++        width = len(rows[0])
++        header = ["", HEADER_FIELD]
++        for i in range(2, width):
++            j = i - 2
++            if j < len(FALLBACK_SPEED_ORDER):
++                header.append(FALLBACK_SPEED_ORDER[j])
++            else:
++                header.append("Speed%d" % (j + 1))
++
++    summaries = []
++    increments = []
++    for row in rows:
++        second = row[1].strip() if len(row) > 1 else ""
++        if second.startswith(SUMMARY_PREFIX):
++            summaries.append(row)
++        if second.startswith(INCREMENTS_YEARS_PREFIX) or second.startswith(INCREMENTS_MONTHS_PREFIX):
++            increments.append(row)
++
++    if not summaries:
++        return None
++    return {"headers": header, "summaries": summaries, "increments": increments}
++
++
++def extract_latest_summary_block(log_path):
++    latest = None
++    current_rows = []
++
++    with io.open(log_path, "r", encoding="utf-8", errors="replace") as f:
++        for raw in f:
++            line = raw.rstrip("\r\n")
++
++            if CHART_END_MARKER in line:
++                block = _finalize_block(current_rows)
++                if block:
++                    latest = block
++                current_rows = []
++                continue
++
++            row = parse_csv_line(line)
++            if not row or len(row) < 3:
++                continue
++            current_rows.append(row)
++
++    if latest is None:
++        block = _finalize_block(current_rows)
++        if block:
++            latest = block
++    return latest
++
++
++def resolve_speed_column(headers, requested_name):
++    requested = normalize_speed_name(requested_name)
++    candidates = []
++    for i in range(2, len(headers)):
++        raw = headers[i].strip()
++        norm = normalize_speed_name(raw)
++        candidates.append((i, raw, norm))
++
++    exact = [c for c in candidates if c[2] == requested]
++    if exact:
++        return exact[0][0], exact[0][1]
++
++    starts = [c for c in candidates if c[2].startswith(requested)]
++    if len(starts) == 1:
++        return starts[0][0], starts[0][1]
++
++    contains = [c for c in candidates if requested in c[2]]
++    if len(contains) == 1:
++        return contains[0][0], contains[0][1]
++
++    return None, None
++
++
++def format_delta_months(delta_months):
++    sign = "+" if delta_months >= 0 else "-"
++    v = abs(delta_months)
++    return "%s%dy%dm" % (sign, v // 12, v % 12)
++
++
++def format_delta_vs_increment(delta_months, increment_months):
++    if increment_months <= 0:
++        return "n/a", "n/a"
++    ratio = float(delta_months) / float(increment_months)
++    return "%+.2f" % ratio, "%+.1f%%" % (ratio * 100.0)
++
++
++def split_tokens(cell):
++    text = cell.strip()
++    if not text:
++        return []
++    parts = [p.strip() for p in text.split(",")]
++    return [p for p in parts if p]
++
++
++def flatten_increments(rows, col, kind):
++    picked = []
++    for row in rows:
++        label = row[1].strip() if len(row) > 1 else ""
++        info = parse_increments_label(label)
++        if not info:
++            continue
++        row_kind, idx = info
++        if row_kind != kind:
++            continue
++        if len(row) <= col:
++            continue
++        picked.append((idx, split_tokens(row[col])))
++    picked.sort(key=lambda x: x[0])
++    out = []
++    for _idx, tokens in picked:
++        out.extend(tokens)
++    return out
++
++
++def make_slug(name):
++    s = normalize_speed_name(name)
++    s = re.sub(r"[^a-z0-9_]+", "_", s)
++    return s.strip("_") or "speed"
++
++
++def run(args):
++    if not os.path.isfile(args.log):
++        raise SystemExit("Log file not found: %s" % args.log)
++
++    block = extract_latest_summary_block(args.log)
++    if not block:
++        raise SystemExit("No Sevopedia game speed summary block found in log.")
++
++    headers = block["headers"]
++    rows = block["summaries"]
++    increments_rows = block.get("increments", [])
++
++    normal_col, normal_name = resolve_speed_column(headers, args.normal_speed)
++    target_col, target_name = resolve_speed_column(headers, args.speed)
++
++    if normal_col is None:
++        raise SystemExit("Could not resolve normal speed column: %s" % args.normal_speed)
++    if target_col is None:
++        raise SystemExit("Could not resolve target speed column: %s" % args.speed)
++
++    parsed = []
++    for row in rows:
++        if len(row) <= max(normal_col, target_col):
++            continue
++
++        info = parse_summary_label(row[1].strip())
++        if not info:
++            continue
++        idx, pct = info
++        if args.summary is not None and idx != args.summary:
++            continue
++
++        norm = parse_summary_cell(row[normal_col])
++        targ = parse_summary_cell(row[target_col])
++        if not norm or not targ:
++            continue
++
++        parsed.append((idx, pct, norm, targ, targ["total_months"] - norm["total_months"]))
++
++    if not parsed:
++        raise SystemExit("No matching summary rows found.")
++
++    lines = []
++    lines.append("Log: %s" % args.log)
++    lines.append("Compare: %s vs %s" % (target_name, normal_name))
++    lines.append("")
++    lines.append("Idx  Pct  Normal                Target                Delta     Delta/Inc    d(Inc)  Delta%Inc")
++    lines.append("---  ---  --------------------  --------------------  --------  ---------  --------  ---------")
++
++    prev_ratio = None
++    for idx, pct, norm, targ, d in parsed:
++        n = "T%d=%+dm%d (%d)" % (norm["turn"], norm["year"], norm["month"], norm["inc"])
++        t = "T%d=%+dm%d (%d)" % (targ["turn"], targ["year"], targ["month"], targ["inc"])
++        ratio_text, pct_text = format_delta_vs_increment(d, targ["inc"])
++        ratio_val = None
++        if targ["inc"] > 0:
++            ratio_val = float(d) / float(targ["inc"])
++        d_ratio_text = "n/a"
++        if ratio_val is not None and prev_ratio is not None:
++            d_ratio_text = "%+.2f" % (ratio_val - prev_ratio)
++        lines.append(
++            "%3d  %3d  %-20s  %-20s  %-8s  %9s  %8s  %9s"
++            % (idx, pct, n, t, format_delta_months(d), ratio_text, d_ratio_text, pct_text)
++        )
++        if ratio_val is not None:
++            prev_ratio = ratio_val
++
++    # Increment comparison section
++    n_years = flatten_increments(increments_rows, normal_col, "Years")
++    t_years = flatten_increments(increments_rows, target_col, "Years")
++    n_months = flatten_increments(increments_rows, normal_col, "Months")
++    t_months = flatten_increments(increments_rows, target_col, "Months")
++
++    def append_increment_section(title, left, right):
++        lines.append("")
++        lines.append("%s" % title)
++        lines.append("Idx  Normal    Target    Eq")
++        lines.append("---  --------  --------  --")
++        max_len = max(len(left), len(right))
++        for i in range(max_len):
++            lv = left[i] if i < len(left) else "-"
++            rv = right[i] if i < len(right) else "-"
++            eq = "==" if lv == rv else "!="
++            lines.append("%3d  %-8s  %-8s  %s" % (i + 1, lv, rv, eq))
++
++    append_increment_section("Increments Years (flattened)", n_years, t_years)
++    append_increment_section("Increments Months (flattened)", n_months, t_months)
++
++    output_text = "\n".join(lines)
++    print(output_text)
++
++    out_dir = args.output_dir
++    if not os.path.isdir(out_dir):
++        os.makedirs(out_dir)
++    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
++    summary_suffix = ""
++    if args.summary is not None:
++        summary_suffix = "_s%02d" % args.summary
++    fname = "%s_%s%s.txt" % (timestamp, make_slug(target_name), summary_suffix)
++    out_path = os.path.join(out_dir, fname)
++    with io.open(out_path, "w", encoding="utf-8") as f:
++        f.write(output_text)
++        f.write("\n")
++    print("")
++    print("Saved: %s" % out_path)
++
++
++def main():
++    default_log = os.path.join(
++        os.path.expanduser("~"),
++        "Documents",
++        "My Games",
++        "beyond the sword",
++        "Logs",
++        "PythonDbg.log",
++    )
++
++    parser = argparse.ArgumentParser(description="Compare Sevopedia summary rows between Normal and a selected speed")
++    parser.add_argument("--log", default=default_log, help="Path to PythonDbg.log")
++    parser.add_argument("--speed", default="slow", help="Target speed name (e.g. slow, marathon, veryslow)")
++    parser.add_argument("--normal-speed", default="normal", help="Reference speed name")
++    parser.add_argument("--summary", type=int, help="Optional summary index (1-20)")
++    parser.add_argument(
++        "--output-dir",
++        default=os.path.join("LLM_Helpers", "outputs"),
++        help="Output directory for timestamped .txt output",
++    )
++
++    run(parser.parse_args())
++
++
++if __name__ == "__main__":
++    main()
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 66c682b0d..b033c6074 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -4823,3 +4823,22 @@ change from (translate to english with web browser or such) https://gforestshade
+      IMPORTANT: the order of <Size> entries must match the WorldInfo order; if you reorder
+      CIV4WorldInfo.xml (e.g. to keep Arena first in the world-size list), reorder <Sizes> too. (ChatGPT-5.2 Thinking) -->
+ <!-- custom: WorldPickerInfo blocks are kept alphabetical for file clarity, but this does not control full in-game map ordering (e.g. non-PrivateMaps entries). Keep DefaultWorldPicker as the first block so unknown/unmapped scripts fall back to the dark globe instead of bright decals. (GPT-5.3-Codex) -->
++
++===== /Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
++----- Comment #358 -----
++
++<!-- custom: timeline rebalance guidelines (shared by Marathon/Slow/Very Slow). (GPT-5.3-Codex) -->
++<!-- custom: 0) Normal is the style baseline: big round year-steps first (5k/2.5k/1k/750/500/250/125 ...), then smaller whole-year bands, and only a late month-phase (m6) near the end. (GPT-5.3-Codex) -->
++<!-- custom: 0b) This creates an immersive, natural-feeling calendar instead of noisy precision early on. (GPT-5.3-Codex) -->
++<!-- custom: 1) Before entering the sub-year phase (<= 12 months/turn), increments should stay divisible by 12 so checkpoint dates remain on whole years; e.g. 60 is valid (5 years/turn), because 60 % 12 == 0. (GPT-5.3-Codex) -->
++<!-- custom: 2) Prefer round, human-readable year bands first (e.g. 2000, 1000, 500, 300, 150, 75, 60, 40, 20, 10), then finer odd-year tuning only when necessary. (GPT-5.3-Codex) -->
++<!-- custom: 3) When using 5-based year steps (e.g. 75/25/15/5), prefer even turn counts or matching follow-up bands so boundary years still land on clean trailing digits (..0/..5), avoiding ugly drift patterns like ..5 -> ..3 -> ..1 -> ..9. (GPT-5.3-Codex) -->
++<!-- custom: 4) Avoid yo-yo sequences (e.g. 2->1->2->1) and abrupt cliffs by adding intermediate steps when needed so the curve feels gradual to players. (GPT-5.3-Codex) -->
++<!-- custom: 5) Target close-enough alignment to Normal, not exact matching, when exactness conflicts with cleaner/natural-looking progression. (GPT-5.3-Codex) -->
++<!-- custom: 6) For slower speeds, choose a readable increment ladder first (e.g. 3000/2400/1800/1200/900/600/480/360/240/180/144/120/96/84/72/60...), then tune counts; avoid hard drops like ~3000 -> 360 without intermediate bands. (GPT-5.3-Codex) -->
++<!-- custom: 7) If one increment band consumes too much of the timeline, split it into smaller adjacent bands (e.g. 360 -> 240 -> 120 instead of a long 360 block) to improve pacing control and avoid late overcorrection. (GPT-5.3-Codex) -->
++<!-- custom: 8) When a band overshoots/overcompensates, redistribute excess to nearby bands instead of forcing distant corrections (e.g. reduce 360 turns and increase 240 turns, or vice versa), so pacing stays local and smooth. (GPT-5.3-Codex) -->
++<!-- custom: 9) Outside Normal, exact "beautiful key dates" (e.g. precise 1400/1900 anchors) are a soft preference, not a hard rule; prioritize close pace and readable enough increments. (GPT-5.3-Codex) -->
++<!-- custom: 10) Prefer swap-friendly neighboring increments when practical (e.g. 120<->60, 12<->6, 3<->1) because integer redistribution is easier and cleaner (1x120 = 2x60, 1x3 = 3x1), which helps absorb local overshoot without yo-yo. (GPT-5.3-Codex) -->
++<!-- custom: 11) Keep timeline length anchored when tuning: compensate month adds with equivalent month removes (example: +1 turn at m12 must be offset by -2 turns at m6 somewhere else, and still keep total turn count 1500 via late-band redistribution such as m4<->m3). (GPT-5.3-Codex) -->
++<!-- custom: 12) Avoid "ugly" standalone year bands like 220y when nearby round bands can express the same region more naturally; prefer local mixes of pretty steps (e.g. 300/250/200/180 years) over a long single 220y block, as long as total turns/months and checkpoint pacing remain controlled. (GPT-5.3-Codex) -->
+
+diff --git a/README.md b/README.md
+index cd2a16b9e..68dbb517e 100644
+--- a/README.md
++++ b/README.md
+@@ -330,7 +330,13 @@ New Sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart
+ 
+ They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
+-They notably feature additional fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity.
++We notably also added in game speeds chart extra analysis rows like `Summary 08 (40%)` with values like `T200=+1400 (120)`, or `Increments Years 02` with values like `750, 500, 250`, or `Increments Months 02` with values like `9000, 6000, 3000`.
++
++Also added a new "LOG" buttonto print to `PythonDbg.log` the tables output, and this is done to other charts too.
++
++Also Added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning.
++
++Charts overall also notably add fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity.
+ 
+ Also, the Eras Chart page also features optional era buttons.
+ 
+@@ -824,12 +830,20 @@ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments
+ 
+ I used GPT-5.3-Codex for a lot of tasks too and so far it brought me a lot of satisfaction!
+ 
++##### add Irish Empire end to end (with Youtube video)
++
+ Notably, i used it to add the new Civilization ireland with new leaders, assets, etc. Plan done with the help of GPT-5.2-Thinking to save tokens and think more too xd thanks.
+ 
+ I made a YouTube demo to show how it works and how impressive and useful Codex can be. It is very autonomous, follows instructions very well, and code just worked (i only had to fix one bug of not adding comments in an art file, else it just worked). The recording with OBS is a bit laggy for some reason but it works smoothly in VS Code! Thanks a lot GPT-5.3-Codex :)
+ 
+ <a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+ 
++##### add and use LLM_Helpers for speeds calibration and autotuning
++
++See [/LLM_Helpers/](/LLM_Helpers/).
++
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG" alt="gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
++
+ ### Claude AI
+ 
+ #### Claude (web chat)
+@@ -848,11 +862,17 @@ Note: see also [AGENTS.md](/AGENTS.md).
+ 
+ ##### CuCuGS implementation
+ 
+-After having used other LLMs mostly via web chat (i.e. using the web browser), more recently i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach. See [CuCuGS](/README.md#cucugs).
++After having used other LLMs mostly via web chat (i.e. using the web browser), more recently i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach, with claude code Sonnet 4.5. See [CuCuGS](/README.md#cucugs).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+ 
++##### Speeds calibration (with autotuner and compare scripts)
++
++Done with the help of Claude code Opus 4.6 whic was god-like precise. See [/LLM_Helpers/](/LLM_Helpers/).
++
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG" alt="claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
++
+ ##### Other tasks: e.g. performance optimizations
+ 
+ Just like [GPT-Codex (VS Code extension)](/README.md#gpt-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index bc909830f..686586363 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -287,8 +287,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - **Beautify** Sevopedia Main: **Reorder categories** and **change category icon characters**. See [Sevopedia reworks (Main Refactor)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
++- (Requires AdvCiv-SAS 5463+) **Chart categories (common)**: added a **"LOG" button** to print to `PythonDbg.log`.
+ - **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. (Requires AdvCiv-SAS 5463+) Also added **analysis rows** (e.g., `Summary 08 (40%)` with `T200=+1400 (120)`; `Increments Years 02` with `750, 500, 250`; `Increments Months 02` with `9000, 6000, 3000`). See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 9b26b24f3..4f03f122c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -133,6 +133,10 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
+ 
+ ### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
+ 
++Also added a new "LOG" buttonto print to `PythonDbg.log` the tables output, and this is done to other charts too.
++
++Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor) we added in AdvCiv-SAS.
++
+ #### example 0.5: Handicap Chart category
+ 
+ New Sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
+@@ -159,6 +163,10 @@ Note: computed or manually added fields such as `Total Turns*` (e.g. "165" (turn
+ 
+ Note 2 : similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+ 
++Since then, we notably also added in game speeds chart extra analysis rows like `Summary 08 (40%)` with values like `T200=+1400 (120)`, or `Increments Years 02` with values like `750, 500, 250`, or `Increments Months 02` with values like `9000, 6000, 3000`, with the very nice help of GPT-5.3-Codex and claude code Opus 4.6.
++
++Also added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning. See also [/LLM_Helpers/](/LLM_Helpers/).
++
+ <img src="../Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG" alt="0.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG
+new file mode 100644
+index 000000000..90c7b81d3
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG
+new file mode 100644
+index 000000000..dfbead004
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG
+index b7a6d1ca5..0d5c3270c 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG
+index cae4f066e..26e3cb286 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG
+new file mode 100644
+index 000000000..237a3cdde
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG
+new file mode 100644
+index 000000000..fd72cd0e8
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=142550

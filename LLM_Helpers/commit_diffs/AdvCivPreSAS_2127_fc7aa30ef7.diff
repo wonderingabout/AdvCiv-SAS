@@ -1,0 +1,614 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2127
+# Commit: fc7aa30ef7a882c7f77b21afef3e4a90962487b5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bb7ceafed329563942c0fb548289c51e7c280ead
+# Title: When printing to VS console, also print to stdout.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CvGameCoreDLL.cpp
+13	20	CvGameCoreDLL/CvGameCoreDLL.h
+1	1	CvGameCoreDLL/CvMap.cpp
+11	0	CvGameCoreDLL/CvMap.h
+9	9	CvGameCoreDLL/CvMemoryManager.cpp
+2	0	CvGameCoreDLL/CvXMLLoadUtility.cpp
+1	1	CvGameCoreDLL/CyAreaInterface.cpp
+1	1	CvGameCoreDLL/CyArtFileMgrInterface.cpp
+1	1	CvGameCoreDLL/CyCityInterface1.cpp
+1	1	CvGameCoreDLL/CyCityInterface2.cpp
+1	1	CvGameCoreDLL/CyEnumsInterface.cpp
+1	1	CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+1	1	CvGameCoreDLL/CyGameInterface.cpp
+1	1	CvGameCoreDLL/CyGameTextMgrInterface.cpp
+1	1	CvGameCoreDLL/CyGlobalContextInterface1.cpp
+1	1	CvGameCoreDLL/CyGlobalContextInterface2.cpp
+1	1	CvGameCoreDLL/CyGlobalContextInterface3.cpp
+1	1	CvGameCoreDLL/CyGlobalContextInterface4.cpp
+1	1	CvGameCoreDLL/CyHallOfFameInterface.cpp
+1	1	CvGameCoreDLL/CyInfoInterface1.cpp
+1	1	CvGameCoreDLL/CyInfoInterface2.cpp
+1	1	CvGameCoreDLL/CyInfoInterface3.cpp
+1	1	CvGameCoreDLL/CyMapGeneratorInterface.cpp
+1	1	CvGameCoreDLL/CyMapInterface.cpp
+1	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+1	1	CvGameCoreDLL/CyPlayerInterface2.cpp
+1	1	CvGameCoreDLL/CyPlotInterface1.cpp
+1	1	CvGameCoreDLL/CyRandomInterface.cpp
+1	1	CvGameCoreDLL/CySelectionGroupInterface.cpp
+1	1	CvGameCoreDLL/CyStructsInterface1.cpp
+1	1	CvGameCoreDLL/CyTeamInterface.cpp
+1	1	CvGameCoreDLL/CyUnitInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 899eadc3c..e7ac2e19c 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -13,7 +13,7 @@ BOOL APIENTRY DllMain(HANDLE hModule,
+ 	case DLL_PROCESS_ATTACH:
+ 		{
+ 		// The DLL is being loaded into the virtual address space of the current process as a result of the process starting up
+-		OutputDebugString("DLL_PROCESS_ATTACH\n");
++		printToConsole("DLL_PROCESS_ATTACH\n");
+ 
+ 		// set timer precision
+ 		MMRESULT iTimeSet = timeBeginPeriod(1);		// set timeGetTime and sleep resolution to 1 ms, otherwise it's 10-16ms
+@@ -21,14 +21,14 @@ BOOL APIENTRY DllMain(HANDLE hModule,
+ 		}
+ 		break;
+ 	case DLL_THREAD_ATTACH:
+-		// OutputDebugString("DLL_THREAD_ATTACH\n");
++		// printToConsole("DLL_THREAD_ATTACH\n");
+ 		break;
+ 	case DLL_THREAD_DETACH:
+-		// OutputDebugString("DLL_THREAD_DETACH\n");
++		// printToConsole("DLL_THREAD_DETACH\n");
+ 		break;
+ 	case DLL_PROCESS_DETACH:
+ 
+-		OutputDebugString("DLL_PROCESS_DETACH\n");
++		printToConsole("DLL_PROCESS_DETACH\n");
+ 		timeEndPeriod(1);
+ 		break;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index bbe02372d..cc866eea1 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -19,6 +19,9 @@
+ 	#define NOMINMAX
+ #endif // </advc.fract>
+ #include <windows.h>
++// advc.fract: Commented out, originally in CvGameCoreUtils.h.
++//#undef max
++//#undef min
+ #include <MMSystem.h>
+ #if defined _DEBUG && !defined USE_MEMMANAGER
+ 	#define USE_MEMMANAGER
+@@ -305,26 +308,16 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CyPlot.h"
+ #include "CyUnit.h"
+ 
+-#ifdef FINAL_RELEASE
+ // Undefine OutputDebugString in final release builds
+-#undef OutputDebugString
+-#define OutputDebugString(x)
+-#endif //FINAL_RELEASE
+-
+-/*  <advc.make> Cut from CvGameCoreUtils.h. The undefs make more sense to me here b/c
+-	this is the file that includes windows.h, which contains the bothersome min/max defines. */
+-#undef max
+-#undef min
+-#ifndef _USRDLL
+-// use non inline functions when not in the dll  advc.inl: Renamed all these
+-#define getMap	getMapExternal
+-#define getGridHeight	getGridHeightExternal
+-#define getGridWidth	getGridWidthExternal
+-#define isWrapY	isWrapYExternal
+-#define isWrapX	isWrapXExternal
+-#define plot	plotExternal
+-#define getX	getXExternal
+-#define getY	getYExternal
+-#endif // </advc.make>
++#ifdef FINAL_RELEASE
++/*	<advc.wine> Wrap a macro around OutputDebugString that prints to both the VS console
++	(as before through WinBase.h) and to a regular console e.g. for Wine. */
++	#define printToConsole(szMsg)
++#else
++	// Caveat: szMsg has to be 0-terminated -- no fixed-size char buffers!
++	#define printToConsole(szMsg) \
++		OutputDebugString(szMsg); \
++		printf("OutputDebugString: %s", szMsg);
++#endif // </advc.wine>
+ 
+ #endif	// CvGameCoreDLL_h
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index c5cb73593..dc392df1e 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -234,7 +234,7 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
+ 	gDLL->getEngineIFace()->SetDirty(GlobeTexture_DIRTY_BIT, true);
+ 
+ 	//float endTime = (float) timeGetTime();
+-	//OutputDebugString(CvString::format("[Jason] setAllPlotTypes: %f\n", endTime - startTime).c_str());
++	//printToConsole(CvString::format("[Jason] setAllPlotTypes: %f\n", endTime - startTime).c_str());
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index f4031eb68..fc7da5dea 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -549,5 +549,16 @@ inline CityPlotTypes plotCityXY(int iCityX, int iCityY, CvPlot const& kPlot) {
+ inline bool adjacentOrSame(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot) { // advc
+ 	return GC.getMap().adjacentOrSame(kFirstPlot, kSecondPlot);
+ }
++// (Moved from CvGameCoreUtils.h)
++#ifndef _USRDLL // use non inline functions when not in the dll
++	#define getMap	getMapExternal
++	#define getGridHeight	getGridHeightExternal
++	#define getGridWidth	getGridWidthExternal
++	#define isWrapY	isWrapYExternal
++	#define isWrapX	isWrapXExternal
++	#define plot	plotExternal
++	#define getX	getXExternal
++	#define getY	getYExternal
++#endif
+ // </advc.make>
+ #endif
+
+diff --git a/CvGameCoreDLL/CvMemoryManager.cpp b/CvGameCoreDLL/CvMemoryManager.cpp
+index 3a3f1c2b7..5fa2e5711 100644
+--- a/CvGameCoreDLL/CvMemoryManager.cpp
++++ b/CvGameCoreDLL/CvMemoryManager.cpp
+@@ -46,7 +46,7 @@ void DumpMemUsage(const char* fn, int line)
+ //
+ void *__cdecl operator new(size_t size)
+ {
+-	if (gDLL)
++	if (gDLL != NULL)
+ 	{
+ 		void* result = NULL;
+ 
+@@ -60,20 +60,20 @@ void *__cdecl operator new(size_t size)
+ 		}
+ 		catch(std::exception const&) // advc: Better to catch it by reference
+ 		{
+-			OutputDebugString("Allocation failure\n");
++			printToConsole("Allocation failure\n");
+ 		}
+ 
+ 		return result;
+ 	}
+ 
+-	//::MessageBoxA(NULL,"UNsafe alloc","CvGameCore",MB_OK); // disabled by K-Mod, for now.
+-	//OutputDebugString("Alloc [unsafe]"); // advc.make: Don't need this either, do we?
++	//::MessageBoxA(NULL,"Unsafe alloc","CvGameCore",MB_OK); // disabled by K-Mod, for now.
++	//printToConsole("Alloc [unsafe]"); // advc.make: Don't need this either, do we?
+ 	return malloc(size);
+ }
+ 
+ void __cdecl operator delete (void *p)
+ {
+-	if (gDLL)
++	if (gDLL != NULL)
+ 	{
+ 		PROFILE_TRACK_DEALLOC(p);
+ 		gDLL->delMem(p, __FILE__, __LINE__);
+@@ -83,22 +83,22 @@ void __cdecl operator delete (void *p)
+ 
+ void* operator new[](size_t size)
+ {
+-	if (gDLL)
++	if (gDLL != NULL)
+ 	{
+-		//OutputDebugString("Alloc [safe]");
++		//printToConsole("Alloc [safe]");
+ 		void* result = gDLL->newMemArray(size, __FILE__, __LINE__);
+ 		memset(result, 0xDA, size); // advc.make
+ 		return result;
+ 	}
+ 
+-	OutputDebugString("Alloc [unsafe]");
++	printToConsole("Alloc [unsafe]");
+ 	::MessageBoxA(NULL,"Unsafe alloc","CvGameCore",MB_OK);
+ 	return malloc(size);
+ }
+ 
+ void operator delete[](void* pvMem)
+ {
+-	if (gDLL)
++	if (gDLL != NULL)
+ 		gDLL->delMemArray(pvMem, __FILE__, __LINE__);
+ 	else free(pvMem);
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 9d7028eb3..5ac4609b2 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -301,6 +301,8 @@ bool CvXMLLoadUtility::LoadCivXml(FXml* pFXml, const TCHAR* szFilename)
+ 	PROFILE(szLog);
+ 	OutputDebugString(szLog);
+ 	OutputDebugString("\n");
++	// advc.wine: (printToConsole can't handle a char[])
++	printf("LoadCivXml (%s)\n", szFilename);
+ 
+ 	CvString szPath = szFilename;
+ 	if (!gDLL->fileManagerEnabled())
+
+diff --git a/CvGameCoreDLL/CyAreaInterface.cpp b/CvGameCoreDLL/CyAreaInterface.cpp
+index 5b7cb6cc4..b1e6a1989 100644
+--- a/CvGameCoreDLL/CyAreaInterface.cpp
++++ b/CvGameCoreDLL/CyAreaInterface.cpp
+@@ -6,7 +6,7 @@
+ 
+ void CyAreaPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyAreaPythonInterface\n");
++	printToConsole("Python Extension Module - CyAreaPythonInterface\n");
+ 
+ 	python::class_<CyArea>("CyArea")
+ 		.def("isNone", &CyArea::isNone, "bool () - Returns whether the pointer points to a real Area")
+
+diff --git a/CvGameCoreDLL/CyArtFileMgrInterface.cpp b/CvGameCoreDLL/CyArtFileMgrInterface.cpp
+index 5ec9d12d4..502d3ac2d 100644
+--- a/CvGameCoreDLL/CyArtFileMgrInterface.cpp
++++ b/CvGameCoreDLL/CyArtFileMgrInterface.cpp
+@@ -7,7 +7,7 @@
+ 
+ void CyArtFileMgrPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyArtFileMgrPythonInterface\n");
++	printToConsole("Python Extension Module - CyArtFileMgrPythonInterface\n");
+ 
+ 	python::class_<CyArtFileMgr>("CyArtFileMgr")
+ 		.def("isNone", &CyArtFileMgr::isNone, "bool () - Checks to see if pointer points to a real object")
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index e6c5bfa80..263fff2fd 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -10,7 +10,7 @@
+ 
+ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyCityPythonInterface1\n");
++	printToConsole("Python Extension Module - CyCityPythonInterface1\n");
+ 
+ 	x
+ 		.def("isNone", &CyCity::isNone, "void () - is the instance valid?")
+
+diff --git a/CvGameCoreDLL/CyCityInterface2.cpp b/CvGameCoreDLL/CyCityInterface2.cpp
+index f0cecc33c..2ff7a91b4 100644
+--- a/CvGameCoreDLL/CyCityInterface2.cpp
++++ b/CvGameCoreDLL/CyCityInterface2.cpp
+@@ -4,7 +4,7 @@
+ 
+ void CyCityPythonInterface2(python::class_<CyCity>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyCityPythonInterface2\n");
++	printToConsole("Python Extension Module - CyCityPythonInterface2\n");
+ 
+ 	x	/*  advc: Arbitrarily moved these from CyCityInterface1.cpp so
+ 			that nothing breaks if a few more functions are added there. */
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index f6033f0b5..24256ba15 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -11,7 +11,7 @@
+ 
+ void CyEnumsPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyEnumsPythonInterface\n");
++	printToConsole("Python Extension Module - CyEnumsPythonInterface\n");
+ 
+ 	python::enum_<GameStateTypes>("GameStateTypes")
+ 		.value("GAMESTATE_ON", GAMESTATE_ON)
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp b/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+index 3202ad508..af7cda24f 100644
+--- a/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+@@ -7,7 +7,7 @@
+ 
+ void CyGameCoreUtilsPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyGameCoreUtilsPythonInterface\n");
++	printToConsole("Python Extension Module - CyGameCoreUtilsPythonInterface\n");
+ 
+ 	python::def("cyIntRange", cyIntRange,"int (int iNum, int iLow, int iHigh)");
+ 	python::def("cyFloatRange", cyFloatRange,"float (float fNum, float fLow, float fHigh)");
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 628568322..3624de306 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -9,7 +9,7 @@
+ 
+ void CyGamePythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyGamePythonInterface\n");
++	printToConsole("Python Extension Module - CyGamePythonInterface\n");
+ 
+ 	python::class_<CyGame>("CyGame")
+ 		.def("isNone", &CyGame::isNone, "CyGame* () - is the instance valid?")
+
+diff --git a/CvGameCoreDLL/CyGameTextMgrInterface.cpp b/CvGameCoreDLL/CyGameTextMgrInterface.cpp
+index c1c1a2010..660d865d5 100644
+--- a/CvGameCoreDLL/CyGameTextMgrInterface.cpp
++++ b/CvGameCoreDLL/CyGameTextMgrInterface.cpp
+@@ -7,7 +7,7 @@
+ 
+ void CyGameTextMgrInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyTextMgr\n");
++	printToConsole("Python Extension Module - CyTextMgr\n");
+ 
+ 	python::class_<CyGameTextMgr>("CyGameTextMgr")
+ 		.def("isNone", &CyGameTextMgr::isNone, "bool () - Checks to see if pointer points to a real object")
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface1.cpp b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+index 5881983b0..44dd0aa03 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface1.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+@@ -13,7 +13,7 @@
+ 
+ void CyGlobalContextPythonInterface1(python::class_<CyGlobalContext>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyGlobalContextPythonInterface1\n");
++	printToConsole("Python Extension Module - CyGlobalContextPythonInterface1\n");
+ 
+ 	x
+ 		.def("isDebugBuild", &CyGlobalContext::isDebugBuild, "() - returns true if running a debug build")
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface2.cpp b/CvGameCoreDLL/CyGlobalContextInterface2.cpp
+index 8eef98c5a..975eab8fd 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface2.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface2.cpp
+@@ -12,7 +12,7 @@
+ 
+ void CyGlobalContextPythonInterface2(python::class_<CyGlobalContext>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyGlobalContextPythonInterface2\n");
++	printToConsole("Python Extension Module - CyGlobalContextPythonInterface2\n");
+ 
+ 	x
+ 		// global defines.xml
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface3.cpp b/CvGameCoreDLL/CyGlobalContextInterface3.cpp
+index 24953d1dc..22c2a45a3 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface3.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface3.cpp
+@@ -11,7 +11,7 @@
+ 
+ void CyGlobalContextPythonInterface3(python::class_<CyGlobalContext>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyGlobalContextPythonInterface3\n");
++	printToConsole("Python Extension Module - CyGlobalContextPythonInterface3\n");
+ 
+ 	x
+ 		.def("getAttitudeInfo", &CyGlobalContext::getAttitudeInfo, python::return_value_policy<python::reference_existing_object>(), "AttitudeInfo (int id)")
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface4.cpp b/CvGameCoreDLL/CyGlobalContextInterface4.cpp
+index 8c3663657..8e85875e6 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface4.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface4.cpp
+@@ -13,7 +13,7 @@
+ 
+ void CyGlobalContextPythonInterface4(python::class_<CyGlobalContext>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyGlobalContextPythonInterface1\n");
++	printToConsole("Python Extension Module - CyGlobalContextPythonInterface1\n");
+ 
+ 	x
+ 		.def("getNumMissionInfos", &CyGlobalContext::getNumMissionInfos, "() - Total Mission Infos XML\\Units\\CIV4MissionInfos.xml")
+
+diff --git a/CvGameCoreDLL/CyHallOfFameInterface.cpp b/CvGameCoreDLL/CyHallOfFameInterface.cpp
+index 84372cbee..9093929e5 100644
+--- a/CvGameCoreDLL/CyHallOfFameInterface.cpp
++++ b/CvGameCoreDLL/CyHallOfFameInterface.cpp
+@@ -9,7 +9,7 @@
+ 
+ void CyHallOfFameInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyReplayInterface\n");
++	printToConsole("Python Extension Module - CyReplayInterface\n");
+ 
+ 	python::class_<CyReplayInfo>("CyReplayInfo")
+ 		.def("isNone", &CyReplayInfo::isNone, "bool () - Returns whether or not this is a valid object")
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index ac6e1de8b..937818565 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -8,7 +8,7 @@
+ // advc.003e: Added template parameters 'boost::noncopyable'
+ void CyInfoPythonInterface1()
+ {
+-	OutputDebugString("Python Extension Module - CyInfoPythonInterface1\n");
++	printToConsole("Python Extension Module - CyInfoPythonInterface1\n");
+ 
+ 	python::class_<CvInfoBase, boost::noncopyable>("CvInfoBase")
+
+diff --git a/CvGameCoreDLL/CyInfoInterface2.cpp b/CvGameCoreDLL/CyInfoInterface2.cpp
+index 6c48b4046..31bf2212c 100644
+--- a/CvGameCoreDLL/CyInfoInterface2.cpp
++++ b/CvGameCoreDLL/CyInfoInterface2.cpp
+@@ -8,7 +8,7 @@
+ // advc.003e: Added template parameters 'boost::noncopyable'
+ void CyInfoPythonInterface2()
+ {
+-	OutputDebugString("Python Extension Module - CyInfoPythonInterface2\n");
++	printToConsole("Python Extension Module - CyInfoPythonInterface2\n");
+ 	python::class_<CvBuildingClassInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvBuildingClassInfo")
+ 		.def("getMaxGlobalInstances", &CvBuildingClassInfo::getMaxGlobalInstances, "int ()")
+ 		.def("getMaxTeamInstances", &CvBuildingClassInfo::getMaxTeamInstances, "int ()")
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index d75a398da..d58aafcf5 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -8,7 +8,7 @@
+ // advc.003e: Added template parameters 'boost::noncopyable'
+ void CyInfoPythonInterface3()
+ {
+-	OutputDebugString("Python Extension Module - CyInfoPythonInterface3\n");
++	printToConsole("Python Extension Module - CyInfoPythonInterface3\n");
+ 
+ 	// advc: CvYieldInfo and CvTerrainInfo interface moved to CyInfoInterface2.cpp
+
+diff --git a/CvGameCoreDLL/CyMapGeneratorInterface.cpp b/CvGameCoreDLL/CyMapGeneratorInterface.cpp
+index b6550bb22..56992c557 100644
+--- a/CvGameCoreDLL/CyMapGeneratorInterface.cpp
++++ b/CvGameCoreDLL/CyMapGeneratorInterface.cpp
+@@ -9,7 +9,7 @@
+ 
+ void CyMapGeneratorPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyMapGeneratorPythonInterface\n");
++	printToConsole("Python Extension Module - CyMapGeneratorPythonInterface\n");
+ 
+ 	python::class_<CyMapGenerator>("CyMapGenerator")
+ 		.def("isNone", &CyMapGenerator::isNone, "bool () - valid CyMapGenerator() interface")
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index 050126067..0d371d67f 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -11,7 +11,7 @@
+ 
+ void CyMapPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyMapPythonInterface\n");
++	printToConsole("Python Extension Module - CyMapPythonInterface\n");
+ 
+ 	python::class_<CyMap>("CyMap")
+ 		.def("isNone", &CyMap::isNone, "bool () - valid CyMap() interface")
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index fb1172ad3..45c91ce84 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -12,7 +12,7 @@
+ 
+ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyPlayerPythonInterface1\n");
++	printToConsole("Python Extension Module - CyPlayerPythonInterface1\n");
+ 
+ 	// set the docstring of the current module scope
+ 	python::scope().attr("__doc__") = "Civilization IV Player Class";
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index 0bef708d5..fb452683c 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -12,7 +12,7 @@
+ 
+ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyPlayerPythonInterface2\n");
++	printToConsole("Python Extension Module - CyPlayerPythonInterface2\n");
+ 
+ 	// set the docstring of the current module scope
+ 	python::scope().attr("__doc__") = "Civilization IV Player Class";
+
+diff --git a/CvGameCoreDLL/CyPlotInterface1.cpp b/CvGameCoreDLL/CyPlotInterface1.cpp
+index 09401d18e..fd129321b 100644
+--- a/CvGameCoreDLL/CyPlotInterface1.cpp
++++ b/CvGameCoreDLL/CyPlotInterface1.cpp
+@@ -10,7 +10,7 @@
+ 
+ void CyPlotPythonInterface1(python::class_<CyPlot>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyPlotPythonInterface1\n");
++	printToConsole("Python Extension Module - CyPlotPythonInterface1\n");
+ 
+ 	x
+ 		.def("isNone", &CyPlot::isNone, "bool ()")
+
+diff --git a/CvGameCoreDLL/CyRandomInterface.cpp b/CvGameCoreDLL/CyRandomInterface.cpp
+index b62f52bbf..49d3f6cdd 100644
+--- a/CvGameCoreDLL/CyRandomInterface.cpp
++++ b/CvGameCoreDLL/CyRandomInterface.cpp
+@@ -9,7 +9,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(CvRandom_get_overloads, CvRandom::get, 2,
+ //
+ void CyRandomPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyRandomPythonInterface\n");
++	printToConsole("Python Extension Module - CyRandomPythonInterface\n");
+ 
+ 	python::class_<CvRandom>("CyRandom")
+ 		.def("get", &CvRandom::get, CvRandom_get_overloads( args("usNum", "pszLog"), "returns a random number"))
+
+diff --git a/CvGameCoreDLL/CySelectionGroupInterface.cpp b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+index c39b32877..72533e46a 100644
+--- a/CvGameCoreDLL/CySelectionGroupInterface.cpp
++++ b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+@@ -10,7 +10,7 @@
+ 
+ void CySelectionGroupInterface()
+ {
+-	OutputDebugString("Python Extension Module - CySelectionGroupInterface\n");
++	printToConsole("Python Extension Module - CySelectionGroupInterface\n");
+ 
+ 	python::class_<CySelectionGroup>("CySelectionGroup")
+ 		.def("isNone", &CySelectionGroup::isNone, "bool () - is this CySelectionGroup instance valid?")
+
+diff --git a/CvGameCoreDLL/CyStructsInterface1.cpp b/CvGameCoreDLL/CyStructsInterface1.cpp
+index 65e2cfb89..32dacbb85 100644
+--- a/CvGameCoreDLL/CyStructsInterface1.cpp
++++ b/CvGameCoreDLL/CyStructsInterface1.cpp
+@@ -9,7 +9,7 @@
+ 
+ void CyStructsPythonInterface1()
+ {
+-	OutputDebugString("Python Extension Module - CyStructsPythonInterface1\n");
++	printToConsole("Python Extension Module - CyStructsPythonInterface1\n");
+ 
+ 	python::class_<NiPoint3>("NiPoint3")
+ 		.def(python::init<float, float, float>())	// ctor which takes 3 floats
+
+diff --git a/CvGameCoreDLL/CyTeamInterface.cpp b/CvGameCoreDLL/CyTeamInterface.cpp
+index 69f51fefd..3e12910e5 100644
+--- a/CvGameCoreDLL/CyTeamInterface.cpp
++++ b/CvGameCoreDLL/CyTeamInterface.cpp
+@@ -8,7 +8,7 @@
+ 
+ void CyTeamPythonInterface()
+ {
+-	OutputDebugString("Python Extension Module - CyTeamPythonInterface\n");
++	printToConsole("Python Extension Module - CyTeamPythonInterface\n");
+ 
+ 	python::class_<CyTeam>("CyTeam")
+ 		.def("isNone", &CyTeam::isNone, "bool () - is this instance valid?")
+
+diff --git a/CvGameCoreDLL/CyUnitInterface1.cpp b/CvGameCoreDLL/CyUnitInterface1.cpp
+index cf7e1a788..c0e8b4562 100644
+--- a/CvGameCoreDLL/CyUnitInterface1.cpp
++++ b/CvGameCoreDLL/CyUnitInterface1.cpp
+@@ -12,7 +12,7 @@
+ 
+ void CyUnitPythonInterface1(python::class_<CyUnit>& x)
+ {
+-	OutputDebugString("Python Extension Module - CyUnitPythonInterface1\n");
++	printToConsole("Python Extension Module - CyUnitPythonInterface1\n");
+ 
+ 	x
+ 		.def("isNone", &CyUnit::isNone, "bool () - Is this a valid unit instance?")
+
+[PATCH COVERAGE]
+patchFiles=32 embeddedFiles=32 omittedFiles=0 embeddedPatchBytes=21214

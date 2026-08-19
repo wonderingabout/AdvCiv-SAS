@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1135
+# Commit: 300532663d710af4d2bd1ea5fde666f9eba214a7
+# History segment: K-Mod history
+# Parent used for diff: 5ffb99b6e2ee25c3e506827f562b0110edf9a6e6
+# Title: Fixed OOS bugs in some random events.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	4	Assets/Python/EntryPoints/CvRandomEventInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 293c324b8..573842d4b 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -12,6 +12,7 @@
+ import CvUtil
+ from CvPythonExtensions import *
+ from EventSigns import placeLandmark # K-Mod
++from operator import itemgetter # K-Mod (used to avoid OOS when sorting)
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+@@ -984,7 +985,8 @@ def applySaltpeter(argsList):
+ 			if iDistance > 0:
+ 				listPlots.append((iDistance, loopPlot))
+ 
+-	listPlots.sort()
++	#listPlots.sort()
++	listPlots.sort(key=itemgetter(0)) # K-Mod. Sorting by pointers can cause OOS.
+ 
+ 	iCount = getSaltpeterNumExtraPlots()
+ 	for loopPlot in listPlots:
+@@ -1158,7 +1160,8 @@ def applyInfluenza2(argsList):
+ 				listCities.append((iDistance, loopCity))
+ 		(loopCity, iter) = player.nextCity(iter, false)
+ 
+-	listCities.sort()
++	#listCities.sort()
++	listCities.sort(key=itemgetter(0)) # K-Mod. Sorting by pointers can cause OOS.
+ 
+ 	if iNumCities > len(listCities): 
+ 		iNumCities = len(listCities)
+@@ -1575,7 +1578,8 @@ def applyEarthDay2(argsList):
+ 					if (loopPlayer.getTradeDenial(kTriggeredData.ePlayer, tradeData) == DenialTypes.NO_DENIAL):
+ 						listPlayers.append((-loopPlayer.AI_civicValue(iCivic), iPlayer))
+ 
+-	listPlayers.sort()	
++	#listPlayers.sort()
++	listPlayers.sort(key=itemgetter(0)) # K-Mod. For consistent usage of 'sort', ignore the player id.
+ 
+ 	if len(listPlayers) > 3:
+ 		listPlayers = listPlayers[:2]
+@@ -3120,7 +3124,8 @@ def applyCrusadeDone3(argsList):
+ 
+ 				(loopCity, iter) = loopPlayer.nextCity(iter, false)
+ 
+-	listCities.sort()
++	#listCities.sort()
++	listCities.sort(key=itemgetter(0)) # K-Mod. Sorting by pointers can cause OOS.
+ 
+ 	iNumCities = min(gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers(), len(listCities))
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1933

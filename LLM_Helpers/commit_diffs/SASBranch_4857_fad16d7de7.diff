@@ -1,0 +1,2624 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4857
+# Commit: fad16d7de79bff6851dd164cad53744ef369275b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8a59fc3ca4821594f1bdd1d9da91c40a17fbdb4e
+# Title: replace _STEEL with _MARINE_TECHNOLOGY, TECH_PAPER with TECH_THEORY_OF_EVOLUTION, _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, _ALPHABET with _NA...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_1024.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_164.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_256.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_48.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_512.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_64.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_96.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/archer_2_ChatGPT Image Apr 11, 2025, 09_26_31 PM.png
+0	2	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+92	92	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+9	0	Assets/Res/Fonts/README.md
+-	-	Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+-	-	Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+-	-	Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_hr_mod_tga.bmp
+-	-	Assets/Res/Fonts/norm_rfc_doc_mod.bmp
+-	-	Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp
+-	-	Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_ri_mod_tga.bmp
+70	70	Assets/XML/Audio/Audio2DScripts.xml
+34	34	Assets/XML/Audio/AudioDefines.xml
+37	25	Assets/XML/Buildings/CIV4BuildingInfos.xml
+31	26	Assets/XML/Events/CIV4EventTriggerInfos.xml
+1	1	Assets/XML/GameInfo/CIV4ProcessInfo.xml
+4	4	Assets/XML/GlobalDefines_advc.xml
+89	70	Assets/XML/Technologies/CIV4TechInfos.xml
+4	2	Assets/XML/Terrain/CIV4BonusInfos.xml
+3	3	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+20	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+20	0	Assets/XML/Text/CIV4GameText_Custom.xml
+0	8	Assets/XML/Text/CIV4GameText_advc.xml
+32	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Units/CIV4BuildInfos.xml
+56	26	Assets/XML/Units/CIV4UnitInfos.xml
+15	14	README.md
+217	0	_0_Common_Docs/git_log_anonymized_email.txt
+21	3	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+3	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+23	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png
+0	3	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png
+-	-	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png
+0	5	_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/u-full filenames.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30_tech_tree_mini.jpg
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43 military tree_modified.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_1024.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_128.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_164.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_256.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_48.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_512.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_64.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_96.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/archer_2_ChatGPT Image Apr 11, 2025, 09_26_31 PM.png
+ create mode 100644 Assets/Res/Fonts/README.md
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_hr_mod_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_rfc_doc_mod.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_ri_mod_tga.bmp
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/README.md
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/u-full filenames.txt
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30_tech_tree_mini.jpg
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43 military tree_modified.png
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds b/Assets/Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds
+new file mode 100644
+index 000000000..b462f7eab
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds b/Assets/Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds
+new file mode 100644
+index 000000000..385ff9e37
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds b/Assets/Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds
+new file mode 100644
+index 000000000..09812f5bc
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_1024.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_1024.dds
+deleted file mode 100644
+index 54a874915..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_1024.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_128.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_128.dds
+deleted file mode 100644
+index 7832b4e0f..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_128.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_164.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_164.dds
+deleted file mode 100644
+index e56506d91..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_164.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_256.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_256.dds
+deleted file mode 100644
+index efef8960f..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_256.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_48.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_48.dds
+deleted file mode 100644
+index 1fc387e0e..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_48.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_512.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_512.dds
+deleted file mode 100644
+index 5e45d4975..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_512.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_64.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_64.dds
+deleted file mode 100644
+index c48396122..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_64.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds
+deleted file mode 100644
+index 4a07fceaf..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_96.dds b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_96.dds
+deleted file mode 100644
+index 5a4f6d446..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_96.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/archer_2_ChatGPT Image Apr 11, 2025, 09_26_31 PM.png b/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/archer_2_ChatGPT Image Apr 11, 2025, 09_26_31 PM.png
+deleted file mode 100644
+index 4d43a413b..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/archer_2_ChatGPT Image Apr 11, 2025, 09_26_31 PM.png and /dev/null differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 94ace4535..0f0e37249 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -1448,8 +1448,6 @@ class SevoPediaLeader:
+ 	def interfaceScreen(self, iLeader):
+ 		self.iLeader = iLeader
+ 
+-		debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc)
+-
+ 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
+ 		self.placeLeaderHeadPane()
+ 		self.placeFavorites()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 63da8e560..1203eaf17 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -21,6 +21,98 @@ def printObjAttrs(obj):
+ 
+ 
+ 
++def get_leaders_index_to_type_map(gc):
++	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
++	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
++
++	leaders_indexes_to_types = {}
++	for iLeader in range(gc.getNumLeaderHeadInfos()):
++		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
++		leaders_indexes_to_types[iLeader] = leader_type
++	return leaders_indexes_to_types
++
++
++
++def get_dll_existing_excluded_leader_types():
++# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
++    return (
++        "LEADER_BARBARIAN",
++    )
++
++
++
++def get_leader_index_from_type(leader_type, gc):
++	# Given a leader_type string (e.g. "LEADER_ALEXANDER"), return its iLeader index.
++	# Raises ValueError if not found. Compatible with Python 2.4 and Civ4 DLL.
++	# <!-- custom: note: LEADER_DEFAULTS doesn't seem to have a leader index at all, so don't use it for this function -->
++
++	for iLeader in range(gc.getNumLeaderHeadInfos()):
++		current_leader_type = gc.getLeaderHeadInfo(iLeader).getType()
++		if current_leader_type == leader_type:
++			return iLeader
++
++	raise ValueError("[FATAL] leader_type=%s not found in gc.getLeaderHeadInfo list. Note: this can also happen but not only in particular with LEADER_DEFAULTS, which does not seem to have a leader index at all in gc of base advciv code if i am not mistaken, that we use as well in our/this mod very similarly if not identically but anyways etc, so make sure to adress the edge case of LEADER_DEFAULTS in another way to not get caught/stuck in this edge case error message in particular, possibly for other leaders as well, anyways etc." % leader_type)
++
++
++
++def get_leader_indexes_from_leader_types(leader_types, gc):
++    # Given a list/tuple of leader types (e.g. ('LEADER_BARBARIAN', <!-- custom:, but also 'LEADER_ASOKA', etc, any leader if i am not mistaken anyways etc -->)), return a tuple of corresponding leader indexes (iLeader) (e.g. <!-- custom: (0, 2, etc.) -->).
++
++    leader_indexes_list = []
++
++    for leader_type in leader_types:
++        leader_index = get_leader_index_from_type(leader_type, gc)
++        leader_indexes_list.append(leader_index)
++    
++    leader_indexes_tuple = tuple(leader_indexes_list)
++
++    return leader_indexes_tuple
++
++
++
++def get_leader_type_from_leader_index(iLeader, gc):
++	# Given an iLeader index (e.g. 1), return the leader_type string (e.g. "LEADER_ALEXANDER").
++	# Raises IndexError if the index is out of bounds.
++	# Compatible with Python 2.4 and Civ4 DLL.
++	# <!-- custom: some entries like LEADER_DEFAULTS may not exist at any valid iLeader index and must be handled elsewhere -->
++
++	if iLeader < 0 or iLeader >= gc.getNumLeaderHeadInfos():
++		raise IndexError("[FATAL] iLeader=%d is out of bounds for gc.getNumLeaderHeadInfos()=%d. This might indicate a misindexed value or mod bug." % (iLeader, gc.getNumLeaderHeadInfos()))
++
++	return gc.getLeaderHeadInfo(iLeader).getType()
++
++
++
++def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name, gc):
++	leaders_dict_keys = leaders_dict.keys()
++
++	for excluded_leader_index in excluded_leaders_indexes_from_calculations:
++		if (excluded_leader_index in leaders_dict_keys):
++			excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index, gc)
++			raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
++
++
++
++def check_leaders_dict_only_has_leader_index_keys(leaders_dict, leaders_dict_name):
++	for key in leaders_dict.keys():
++		if not isinstance(key, int):
++			key_name = repr(key)
++			key_type_name = str(type(key))
++			raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
++
++
++
++def check_overlapping_keys_between_dicts(d1, d2):
++	# Raises ValueError if any key exists in both d1 and d2.
++	overlap = []
++	for k in d1:
++		if k in d2:
++			overlap.append(k)
++	if overlap:
++		raise ValueError("Overlapping keys between dictionaries: %s" % str(overlap))
++
++
++
+ # <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt / becomingthrough thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt / becomingthrough an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
+ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+     # <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
+@@ -532,98 +624,6 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 
+ 
+ 
+-def get_leaders_index_to_type_map(gc):
+-	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
+-	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
+-
+-	leaders_indexes_to_types = {}
+-	for iLeader in range(gc.getNumLeaderHeadInfos()):
+-		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+-		leaders_indexes_to_types[iLeader] = leader_type
+-	return leaders_indexes_to_types
+-
+-
+-
+-def get_dll_existing_excluded_leader_types():
+-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
+-    return (
+-        "LEADER_BARBARIAN",
+-    )
+-
+-
+-
+-def get_leader_index_from_type(leader_type, gc):
+-	# Given a leader_type string (e.g. "LEADER_ALEXANDER"), return its iLeader index.
+-	# Raises ValueError if not found. Compatible with Python 2.4 and Civ4 DLL.
+-	# <!-- custom: note: LEADER_DEFAULTS doesn't seem to have a leader index at all, so don't use it for this function -->
+-
+-	for iLeader in range(gc.getNumLeaderHeadInfos()):
+-		current_leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+-		if current_leader_type == leader_type:
+-			return iLeader
+-
+-	raise ValueError("[FATAL] leader_type=%s not found in gc.getLeaderHeadInfo list. Note: this can also happen but not only in particular with LEADER_DEFAULTS, which does not seem to have a leader index at all in gc of base advciv code if i am not mistaken, that we use as well in our/this mod very similarly if not identically but anyways etc, so make sure to adress the edge case of LEADER_DEFAULTS in another way to not get caught/stuck in this edge case error message in particular, possibly for other leaders as well, anyways etc." % leader_type)
+-
+-
+-
+-def get_leader_indexes_from_leader_types(leader_types, gc):
+-    # Given a list/tuple of leader types (e.g. ('LEADER_BARBARIAN', <!-- custom:, but also 'LEADER_ASOKA', etc, any leader if i am not mistaken anyways etc -->)), return a tuple of corresponding leader indexes (iLeader) (e.g. <!-- custom: (0, 2, etc.) -->).
+-
+-    leader_indexes_list = []
+-
+-    for leader_type in leader_types:
+-        leader_index = get_leader_index_from_type(leader_type, gc)
+-        leader_indexes_list.append(leader_index)
+-    
+-    leader_indexes_tuple = tuple(leader_indexes_list)
+-
+-    return leader_indexes_tuple
+-
+-
+-
+-def get_leader_type_from_leader_index(iLeader, gc):
+-	# Given an iLeader index (e.g. 1), return the leader_type string (e.g. "LEADER_ALEXANDER").
+-	# Raises IndexError if the index is out of bounds.
+-	# Compatible with Python 2.4 and Civ4 DLL.
+-	# <!-- custom: some entries like LEADER_DEFAULTS may not exist at any valid iLeader index and must be handled elsewhere -->
+-
+-	if iLeader < 0 or iLeader >= gc.getNumLeaderHeadInfos():
+-		raise IndexError("[FATAL] iLeader=%d is out of bounds for gc.getNumLeaderHeadInfos()=%d. This might indicate a misindexed value or mod bug." % (iLeader, gc.getNumLeaderHeadInfos()))
+-
+-	return gc.getLeaderHeadInfo(iLeader).getType()
+-
+-
+-
+-def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name, gc):
+-	leaders_dict_keys = leaders_dict.keys()
+-
+-	for excluded_leader_index in excluded_leaders_indexes_from_calculations:
+-		if (excluded_leader_index in leaders_dict_keys):
+-			excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index, gc)
+-			raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
+-
+-
+-
+-def check_leaders_dict_only_has_leader_index_keys(leaders_dict, leaders_dict_name):
+-	for key in leaders_dict.keys():
+-		if not isinstance(key, int):
+-			key_name = repr(key)
+-			key_type_name = str(type(key))
+-			raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
+-
+-
+-
+-def check_overlapping_keys_between_dicts(d1, d2):
+-	# Raises ValueError if any key exists in both d1 and d2.
+-	overlap = []
+-	for k in d1:
+-		if k in d2:
+-			overlap.append(k)
+-	if overlap:
+-		raise ValueError("Overlapping keys between dictionaries: %s" % str(overlap))
+-
+-
+-
+ def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
+ 	if resolvedButtonPath == configButtonPathSTxtKey:
+ 		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_ImagesAsButtons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes anyways etc) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
+
+diff --git a/Assets/Res/Fonts/README.md b/Assets/Res/Fonts/README.md
+new file mode 100644
+index 000000000..b51a04e7e
+--- /dev/null
++++ b/Assets/Res/Fonts/README.md
+@@ -0,0 +1,9 @@
++# Fonts of all mods information
++
++url to view or/and download them directly there in [this google drive folder](https://drive.google.com/drive/folders/17NrnJHVR1fzopLaG_CzxcB6fcZSdP2PI?usp=sharing)
++
++I have moved them there as they are quite heavy and not diretly needed for playing, making mod lighter by moving them to a drive rather. Still, it was more convenient to have them stored locally, but perhaps they'll also be more visible there but anyways etc.
++
++Useful for visualizing which icons we may want to add in the future and easily import without tediously doing it with DXTBmp.
++
++As for me personally i am keeping a local copy of them as well but in another folder than the drive as easier to manage as such, anyways etc. Is a bit more tedious now as i need to maintain/update the google drive folder as well if i want it to be updated and not do changes twice and such, so hopefully i don't forget, but still in all cases is preferable to remove them from here for efficiency so doing as such even if a bit less convenient, we don't access them too often and there are some plus sides if i may say anyways etc in doing so as well, hopefully helpful or/and exhaustive/informative at least to me maybe to those who read this doc i mean if you find it useful too but anyways etc anyways etc anyways etc
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+deleted file mode 100644
+index 971e7dc4f..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+deleted file mode 100644
+index ed0baee69..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+deleted file mode 100644
+index b51021f8a..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+deleted file mode 100644
+index 6a57bd296..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp b/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+deleted file mode 100644
+index 603865554..000000000
+Binary files a/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_c2c_mod_tga.bmp b/Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+deleted file mode 100644
+index 64d17fa63..000000000
+Binary files a/Assets/Res/Fonts/norm_c2c_mod_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp b/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+deleted file mode 100644
+index fb4330823..000000000
+Binary files a/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_hr_mod_tga.bmp b/Assets/Res/Fonts/norm_hr_mod_tga.bmp
+deleted file mode 100644
+index 8a9f1b989..000000000
+Binary files a/Assets/Res/Fonts/norm_hr_mod_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_rfc_doc_mod.bmp b/Assets/Res/Fonts/norm_rfc_doc_mod.bmp
+deleted file mode 100644
+index 227a2a658..000000000
+Binary files a/Assets/Res/Fonts/norm_rfc_doc_mod.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp b/Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp
+deleted file mode 100644
+index d5e706b1c..000000000
+Binary files a/Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp b/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+deleted file mode 100644
+index 785d40144..000000000
+Binary files a/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_ri_mod_tga.bmp b/Assets/Res/Fonts/norm_ri_mod_tga.bmp
+deleted file mode 100644
+index 0bbe23bc4..000000000
+Binary files a/Assets/Res/Fonts/norm_ri_mod_tga.bmp and /dev/null differ
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index b56228b42..bdcff9b2b 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12369,8 +12369,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_ALPHABET</ScriptID>
+-		<SoundID>SND_TECH_ALPHABET</SoundID>
++		<ScriptID>AS2D_TECH_NATURALISM</ScriptID>
++		<SoundID>SND_TECH_NATURALISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -12483,29 +12483,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_TECH_PAPER</ScriptID>
+-		<SoundID>SND_TECH_PAPER</SoundID>
+-		<SoundType>GAME_SPEECH</SoundType>
+-		<iMinVolume>100</iMinVolume>
+-		<iMaxVolume>100</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_TECH_BANKING</ScriptID>
+ 		<SoundID>SND_TECH_BANKING</SoundID>
+@@ -12897,6 +12874,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_TECH_THEORY_OF_EVOLUTION</ScriptID>
++		<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
++		<SoundType>GAME_SPEECH</SoundType>
++		<iMinVolume>100</iMinVolume>
++		<iMaxVolume>100</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_TECH_FUSION</ScriptID>
+ 		<SoundID>SND_TECH_FUSION</SoundID>
+@@ -13289,8 +13289,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_REPLACE_PARTS</ScriptID>
+-		<SoundID>SND_TECH_REPLACE_PARTS</SoundID>
++		<ScriptID>AS2D_TECH_RIFLING</ScriptID>
++		<SoundID>SND_TECH_RIFLING</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -13312,8 +13312,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_RIFLING</ScriptID>
+-		<SoundID>SND_TECH_RIFLING</SoundID>
++		<ScriptID>AS2D_TECH_STEAMPOWER</ScriptID>
++		<SoundID>SND_TECH_STEAMPOWER</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -13335,8 +13335,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_STEAMPOWER</ScriptID>
+-		<SoundID>SND_TECH_STEAMPOWER</SoundID>
++		<ScriptID>AS2D_TECH_MARINE_TECHNOLOGY</ScriptID>
++		<SoundID>SND_TECH_MARINE_TECHNOLOGY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -13358,8 +13358,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_STEEL</ScriptID>
+-		<SoundID>SND_TECH_STEEL</SoundID>
++		<ScriptID>AS2D_TECH_RAILROAD</ScriptID>
++		<SoundID>SND_TECH_RAILROAD</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -13381,8 +13381,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_RAILROAD</ScriptID>
+-		<SoundID>SND_TECH_RAILROAD</SoundID>
++		<ScriptID>AS2D_TECH_GAME_THEORY</ScriptID>
++		<SoundID>SND_TECH_GAME_THEORY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14485,8 +14485,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_ALPHABET</ScriptID>
+-		<SoundID>SND_TECH_MP_ALPHABET</SoundID>
++		<ScriptID>AS2D_TECH_MP_NATURALISM</ScriptID>
++		<SoundID>SND_TECH_MP_NATURALISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14599,29 +14599,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_PAPER</ScriptID>
+-		<SoundID>SND_TECH_MP_PAPER</SoundID>
+-		<SoundType>GAME_SPEECH</SoundType>
+-		<iMinVolume>100</iMinVolume>
+-		<iMaxVolume>100</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_TECH_MP_BANKING</ScriptID>
+ 		<SoundID>SND_TECH_MP_BANKING</SoundID>
+@@ -15013,6 +14990,29 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_TECH_MP_THEORY_OF_EVOLUTION</ScriptID>
++		<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
++		<SoundType>GAME_SPEECH</SoundType>
++		<iMinVolume>100</iMinVolume>
++		<iMaxVolume>100</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_TECH_MP_FUSION</ScriptID>
+ 		<SoundID>SND_TECH_MP_FUSION</SoundID>
+@@ -15405,8 +15405,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_REPLACE_PARTS</ScriptID>
+-		<SoundID>SND_TECH_MP_REPLACE_PARTS</SoundID>
++		<ScriptID>AS2D_TECH_MP_RIFLING</ScriptID>
++		<SoundID>SND_TECH_MP_RIFLING</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15428,8 +15428,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_RIFLING</ScriptID>
+-		<SoundID>SND_TECH_MP_RIFLING</SoundID>
++		<ScriptID>AS2D_TECH_MP_STEAMPOWER</ScriptID>
++		<SoundID>SND_TECH_MP_STEAMPOWER</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15451,8 +15451,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_STEAMPOWER</ScriptID>
+-		<SoundID>SND_TECH_MP_STEAMPOWER</SoundID>
++		<ScriptID>AS2D_TECH_MP_MARINE_TECHNOLOGY</ScriptID>
++		<SoundID>SND_TECH_MP_MARINE_TECHNOLOGY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15474,8 +15474,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_STEEL</ScriptID>
+-		<SoundID>SND_TECH_MP_STEEL</SoundID>
++		<ScriptID>AS2D_TECH_MP_RAILROAD</ScriptID>
++		<SoundID>SND_TECH_MP_RAILROAD</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15497,8 +15497,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_RAILROAD</ScriptID>
+-		<SoundID>SND_TECH_MP_RAILROAD</SoundID>
++		<ScriptID>AS2D_TECH_MP_GAME_THEORY</ScriptID>
++		<SoundID>SND_TECH_MP_GAME_THEORY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index fbdabcf58..7923dceed 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8493,8 +8493,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_ALPHABET</SoundID>
+-			<Filename>Sounds/Tech/Tech_Alphabet</Filename>
++			<SoundID>SND_TECH_NATURALISM</SoundID>
++			<Filename>Sounds/Tech/Tech_NATURALISM</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8527,13 +8527,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TECH_PAPER</SoundID>
+-			<Filename>Sounds/Tech/Tech_Paper</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_BANKING</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Banking</Filename>
+@@ -8653,6 +8646,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
++			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_FUSION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Fusion</Filename>
+@@ -8772,13 +8772,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TECH_REPLACE_PARTS</SoundID>
+-			<Filename>Sounds/Tech/Tech_ReplaceableParts</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_RIFLING</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Rifling</Filename>
+@@ -8794,7 +8787,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_STEEL</SoundID>
++			<SoundID>SND_TECH_MARINE_TECHNOLOGY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Steel</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8807,6 +8800,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SND_TECH_GAME_THEORY</SoundID>
++			<Filename>Sounds/Tech/Tech_Railroad</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_ARTILLERY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Artillery</Filename>
+@@ -9137,8 +9137,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_ALPHABET</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Alphabet</Filename>
++			<SoundID>SND_TECH_MP_NATURALISM</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_NATURALISM</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9171,13 +9171,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TECH_MP_PAPER</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Paper</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_BANKING</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Banking</Filename>
+@@ -9297,6 +9290,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_FUSION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Fusion</Filename>
+@@ -9416,13 +9416,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_TECH_MP_REPLACE_PARTS</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_ReplaceableParts</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_RIFLING</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Rifling</Filename>
+@@ -9438,7 +9431,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_STEEL</SoundID>
++			<SoundID>SND_TECH_MP_MARINE_TECHNOLOGY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Steel</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9451,6 +9444,13 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SND_TECH_MP_GAME_THEORY</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_Railroad</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_ARTILLERY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Artillery</Filename>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 23fb3cdf8..10d4099d9 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6697,7 +6697,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such anyways etc, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first anyways etc, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe anyways etc, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe anyways etc, was TECH_STEEL -->
++			<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such anyways etc, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first anyways etc, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe anyways etc, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe anyways etc, was TECH_MARINE_TECHNOLOGY -->
+ 			<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -7987,7 +7987,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was TECH_PLASTICS -->
+-			<PrereqTech>TECH_STEEL</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -12401,7 +12401,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
++			<!-- custom: was TECH_MASS_MEDIA -->
++			<PrereqTech>TECH_RADIO</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -12445,7 +12446,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 175 -->
+-			<iCost>225</iCost>
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12521,18 +12522,16 @@
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
++			<!-- custom: was 0 / 0 / 10 -->
+ 			<CommerceHappinesses>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
++				<iCommerce>3</iCommerce>
++				<iCommerce>4</iCommerce>
++				<iCommerce>10</iCommerce>
+ 				<iCommerce>10</iCommerce>
+ 			</CommerceHappinesses>
+ 			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
++			<!-- custom: was SPECIALIST_ARTIST 2 -->
++			<SpecialistCounts/>
+ 			<!-- custom: rework broadcast_tower, (and also anyways etc) gives a free artist now anyways etc, also remove hit bonuses too else(where) in the xml anyways etc, was empty -->
+ 			<FreeSpecialistCounts>
+ 				<FreeSpecialistCount>
+@@ -12555,11 +12554,20 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: building reworked as a hybrid broadcasting building if i may say anyways etc, adjust flavors to match these changes, was flavors culture 9 growth 5 -->
+ 			<!-- advc.020: was 10 Culture, but also helpful for Growth -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>9</iFlavor>
++					<iFlavor>7</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+@@ -21570,7 +21578,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sens emroe in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era anyways etc at least in terms of civ4 gameplay in our mod advciv-sas or and other or and not, also boosting culture path and wonders by building them sooner indirectly but anyways etc anyways etc, was TECH_NATIONALISM -->
+-			<PrereqTech>TECH_ALPHABET</PrereqTech>
++			<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -21923,7 +21931,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case anyways etc on wikipedia or such similar anyways etc i glanced of it, was TECH_STEEL -->
++			<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case anyways etc on wikipedia or such similar anyways etc i glanced of it, was TECH_MARINE_TECHNOLOGY -->
+ 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -26420,7 +26428,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_ELECTRICITY -->
+-			<PrereqTech>TECH_ALPHABET</PrereqTech>
++			<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -27854,7 +27862,7 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<!-- custom: was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_PAPER -->
++			<!-- custom: was TECH_THEORY_OF_EVOLUTION -->
+ 			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -29665,7 +29673,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
++			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -30001,7 +30010,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_STEEL -->
++			<!-- custom: was TECH_MARINE_TECHNOLOGY -->
+ 			<!-- K-Mod: was COMBUSTION -->
+ 			<PrereqTech>TECH_RADIO</PrereqTech>
+ 			<TechTypes>
+@@ -30020,7 +30029,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
++			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -30180,7 +30190,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: tech_railroad now removed or todo to be removed if i am not mistaken and (if i anyways etc) will not change this plan i mean anyways etc, was TECH_RAILROAD -->
+-			<PrereqTech>TECH_STEEL</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -30374,7 +30384,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
++			<!-- custom: was UNITCLASS_GREAT_SCIENTIST -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_GENERAL</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -30535,7 +30546,7 @@
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_CORPORATION only anyways etc -->
+ 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
+-			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
++			<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -30552,7 +30563,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
++			<!-- custom: have greater variety in great person type, one great person type per corporation type without overlap anyways etc, was UNITCLASS_GREAT_ARTIST -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -30688,7 +30700,7 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: corporation_8, type: corporation_8 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_APOSTOLIC_PALACE, type: BUILDING_APOSTOLIC_PALACE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClass>
+ 			<Type>BUILDING_APOSTOLIC_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index e77097bd1..577eb294d 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -288,10 +288,10 @@
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>1</bRecurring>
+@@ -6073,10 +6073,10 @@
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -7540,8 +7540,9 @@
+ 				<Event>EVENT_ANCIENTOLYMPICS_2</Event>
+ 			</PrereqEvents>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD has been moved in tech tree anyways etc -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -8054,10 +8055,11 @@
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
++				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -8230,7 +8232,7 @@
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -8311,9 +8313,10 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs/>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute here TECH_CHEMISTRY -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_RIFLING</PrereqTech>
+-				<PrereqTech>TECH_STEEL</PrereqTech>
++				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+@@ -8573,10 +8576,10 @@
+ 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -9097,10 +9100,10 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+-				<PrereqTech>TECH_STEEL</PrereqTech>
+-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -9897,7 +9900,6 @@
+ 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>TECH_MONARCHY</PrereqTech>
+-				<PrereqTech>TECH_ALPHABET</PrereqTech>
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+@@ -10428,8 +10430,9 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, but since it was the only tech, use TECH_COMBUSTION as a substitute anyways etc -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_STEEL</PrereqTech>
++				<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -10769,8 +10772,9 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: use a closer tech instead in our reworked tech tree anyways etc, was TECH_SCIENTIFIC_METHOD -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++				<PrereqTech>TECH_ECONOMICS</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -11391,10 +11395,10 @@
+ 				<PrereqTech>TECH_NAVIGATION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
++			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well if i am not mistaken anyways -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -11482,10 +11486,10 @@
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
++			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well if i am not mistaken anyways -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -12606,10 +12610,10 @@
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitue that seems relevant in tech position at least if i may say anyways etc in our reworked tech tree if not in theme too or not or yes or other or etc but anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+@@ -14150,13 +14154,13 @@
+ 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
++			<!-- custom: remove TECH_ALPHABET as it has been removed from our tech tree (replaced in fact with TECH_NATURALISM but it is much later so tech requirements would not apply similarly to the previous TECH_ALPHABET so replace with a substitute or remove entirely TECH_ALPHABET anyways etc) -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_MONARCHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_LITERATURE</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CODE_OF_LAWS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
+-				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+ 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+@@ -14249,7 +14253,6 @@
+ 				<ObsoleteTech>TECH_CODE_OF_LAWS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
+-				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+ 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+@@ -15938,8 +15941,9 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 			</AndPreReqs>
++			<!-- custom: replace TECH_SCIENTIFIC_METHOD now that it has a reworked position in tech tree anyways etc with TECH_THEORY_OF_EVOLUTION -->
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++				<ObsoleteTech>TECH_THEORY_OF_EVOLUTION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -16532,8 +16536,9 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs/>
++			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION anyways etc, use another relevant tech or/and around this tech time of previous tech if i am not mistaken instead in our reworked tech tree anyways etc anyways etc anyways etc -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_PAPER</PrereqTech>
++				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProcessInfo.xml b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+index de636ff95..e6bfc5402 100644
+--- a/Assets/XML/GameInfo/CIV4ProcessInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+@@ -22,7 +22,7 @@
+ 			<Type>PROCESS_RESEARCH</Type>
+ 			<Description>TXT_KEY_PROCESS_RESEARCH</Description>
+ 			<Strategy>TXT_KEY_PROCESS_RESEARCH_STRATEGY</Strategy>
+-			<!-- custom: since we can build libraries with writing, it would not be too weird if research could be built from that time/tech too. Maybe would allow more strategic diversity/depth especially at higher levels. Would need testing to see how AIs would handle it but is maybe fine (would need to test to see / be sure). Plus, we have removed alphabet from our new tech tree now (as is an inefficient tech, and replaced it much later with tech naturalism todo see dcs for details, anyways etc), was TECH_ALPHABET -->
++			<!-- custom: since we can build libraries with writing, it would not be too weird if research could be built from that time/tech too. Maybe would allow more strategic diversity/depth especially at higher levels. Would need testing to see how AIs would handle it but is maybe fine (would need to test to see / be sure). Plus, we have removed alphabet from our new tech tree now (as is an inefficient tech, and replaced it much later with tech naturalism todo see dcs for details, anyways etc), was TECH_NATURALISM -->
+ 			<TechPrereq>TECH_WRITING</TechPrereq>
+ 			<ProductionToCommerceModifiers>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index e86644a48..7d9d13344 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -906,7 +906,7 @@
+ 		 The BtS routine for protecting noncombatants isn't affected by
+ 		 this. Set to 0 or less for BtS behavior: combat units never
+ 		 evacuate. -->
+-	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or/and be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe anyways etc, so reduce it a bit to evacuate sooner but not too much to not over evacuate i mean anyways etc, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least anyways etc, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
++	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or/and be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive that is high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe anyways etc, so reduce it a bit to evacuate sooner but not too much to not over evacuate i mean anyways etc, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least anyways etc, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
+     <Define>
+         <DefineName>AI_EVACUATION_THRESH</DefineName>
+         <iDefineIntVal>138</iDefineIntVal>
+@@ -971,7 +971,7 @@
+ 		 If set to 0 or less, the turn number is only determined by the
+ 		 start era (0 in Ancient era) as in BtS.
+ 		 Recommended: 1 -->
+-	<!-- custom: no freebies for the human player, hard is hard, if too hard adjust handicap settings directly rather, either by palying at lower difficulty or reducing the handicap settings if deity or immortal or such are really too hard and out of reach, i would want game to be balanced and reliable at all difficulties, plus we don't have free techs anymore in advciv-sas, so maybe these restrictions apply less now and are less relevant, in all cases i'd want reliable settings so disable this anyways etc, was 1 -->
++	<!-- custom: no freebies for the human player, hard is hard, if too hard adjust handicap settings directly rather, either by playing at a lower difficulty anyways etc or by reducing the handicap settings if deity or immortal or such are really too hard and out of reach, i would want game to be balanced and reliable at all difficulties, plus we don't have free techs anymore in advciv-sas, so maybe these restrictions apply less now and are less relevant, in all cases i'd want reliable settings so disable this anyways etc, was 1 -->
+ 	<Define>
+ 		<DefineName>INCREASE_START_TURN</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -1045,7 +1045,7 @@
+ 		 0 or less means that MADE_DEMAND_RECENT remains unchanged (but won't
+ 		 fully restore the BtS behavior).
+ 		 Recommended: 8 (for an expected 80 turns of rejection) -->
+-	<!-- custom: this is interesting, but it would make sense for AI to be more bitter of haing being declared war on despite the tribute being paid to the human player, increase this more anyways etc ; but if they are just weaker it is just their fault maybe and they can blame only themselves as sad and unfair it is for being treated as such, so maybe do not increase it too much as it may be a bit unrealistic to best preserve the AI's interests anyways etc, was 8 -->
++	<!-- custom: this is interesting, but it would make sense for AI to be more bitter of having being declared war on despite the tribute being paid to the human player, increase this more anyways etc ; but if they are just weaker it is just their fault maybe and they can blame only themselves as sad and unfair it is for being treated as such, so maybe do not increase it too much as it may be a bit unrealistic to best preserve the AI's interests anyways etc, was 8 -->
+ 	<Define>
+ 		<DefineName>WAR_DESPITE_TRIBUTE_MEMORY</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+@@ -1082,7 +1082,7 @@
+ 	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one if i am not mistaken too to be part of their empire anyways etc), plus it would be too easy of a way to gain culture through military/conquest if i am not mistaken too anyways etc, but no need to make it too drastic either as some culture is most likely transfered as well if i am not mistaken anyways etc, was 50 -->
+ 	<Define>
+ 		<DefineName>CAPITULATED_TO_MASTER_CULTURE_PERCENT</DefineName>
+-		<iDefineIntVal>40</iDefineIntVal>
++		<iDefineIntVal>30</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.026] When the AI offers a trade to a human player, it's willing
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index a49c09995..51e18eec2 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1172,7 +1172,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<!-- custom: see code comment at TECH_GAME_THEORY for details, was NONE -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_GENERAL</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -1572,7 +1573,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
++			<iGridX>13</iGridX>
+ 			<iGridY>14</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1620,7 +1621,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_GENERAL</FirstFreeUnitClass>
++			<!-- custom: see code comment at TECH_GAME_THEORY for details, was UNITCLASS_GREAT_GENERAL -->
++			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -1641,7 +1643,8 @@
+ 			<bGoldTrading>0</bGoldTrading>
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+-			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
++			<!-- custom: was 1 -->
++			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+@@ -1700,7 +1703,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
++			<!-- custom: see code comment at TECH_GAME_THEORY for details, was UNITCLASS_GREAT_SPY -->
++			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -1721,7 +1725,8 @@
+ 			<bGoldTrading>0</bGoldTrading>
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+-			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
++			<!-- custom: was 1 -->
++			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+@@ -1878,7 +1883,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
++			<iGridX>14</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -2515,12 +2520,12 @@
+ 			<SoundMP>AS2D_TECH_MP_MATHEMATICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Mathematics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,5</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_ALPHABET (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_ALPHABET</Type>
+-			<Description>TXT_KEY_TECH_ALPHABET</Description>
+-			<Civilopedia>TXT_KEY_TECH_ALPHABET_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_NATURALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_NATURALISM</Type>
++			<Description>TXT_KEY_TECH_NATURALISM</Description>
++			<Civilopedia>TXT_KEY_TECH_NATURALISM_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_ALPHABET_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -2560,35 +2565,40 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>11</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: was 0 / 0 / 0 / 1 -->
+ 			<!-- advc.120g -->
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was flavors religion 2 science 8 gold 4 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_ALPHABET_QUOTE</Quote>
+-			<Sound>AS2D_TECH_ALPHABET</Sound>
+-			<SoundMP>AS2D_TECH_MP_ALPHABET</SoundMP>
+-			<!-- custom: as this will be tech_naturalism if we rework it as intended or not or etc but anyways etc, changing button, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
++			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
++			<Sound>AS2D_TECH_NATURALISM</Sound>
++			<SoundMP>AS2D_TECH_MP_NATURALISM</SoundMP>
++			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
+ 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -2737,7 +2747,7 @@
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+-				<PrereqTech>TECH_ALPHABET</PrereqTech>
++				<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_CURRENCY_QUOTE</Quote>
+@@ -2817,12 +2827,12 @@
+ 			<SoundMP>AS2D_TECH_MP_PHILOSOPHY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Philosophy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,6</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_PAPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_PAPER</Type>
+-			<Description>TXT_KEY_TECH_PAPER</Description>
+-			<Civilopedia>TXT_KEY_TECH_PAPER_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_THEORY_OF_EVOLUTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_THEORY_OF_EVOLUTION</Type>
++			<Description>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Description>
++			<Civilopedia>TXT_KEY_TECH_THEORY_OF_EVOLUTION_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_PAPER_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -2887,10 +2897,11 @@
+ 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_PAPER_QUOTE</Quote>
+-			<Sound>AS2D_TECH_PAPER</Sound>
+-			<SoundMP>AS2D_TECH_MP_PAPER</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</Button>
++			<Quote>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Quote>
++			<Sound>AS2D_TECH_THEORY_OF_EVOLUTION</Sound>
++			<SoundMP>AS2D_TECH_MP_THEORY_OF_EVOLUTION</SoundMP>
++			<!-- custom: button from ai-generated images by chatgpt thanks to my prompt too as (i.e. that anyways etc) was done in the past i mean anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_BANKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_BANKING</Type>
+@@ -3002,7 +3013,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>10</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3022,7 +3033,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_PAPER</PrereqTech>
++				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_EDUCATION_QUOTE</Quote>
+@@ -3071,7 +3082,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>10</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>10</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3095,11 +3106,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_PAPER</PrereqTech>
++				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_MACHINERY</PrereqTech>
+-				<PrereqTech>TECH_ALPHABET</PrereqTech>
++				<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_PRINTING_PRESS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_PRINTPRESS</Sound>
+@@ -3425,7 +3436,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
++			<!-- custom: was UNITCLASS_GREAT_SCIENTIST -->
++			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -3679,7 +3691,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>13</iGridX>
+-			<iGridY>2</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4223,7 +4235,8 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>3</iHealth>
++			<!-- custom: was 3 -->
++			<iHealth>2</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+@@ -4246,7 +4259,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>19</iGridX>
++			<iGridX>16</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4357,7 +4370,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
++			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
++			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -5572,12 +5586,12 @@
+ 			<SoundMP>AS2D_TECH_MP_GUNPOWDER</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Gunpowder.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,4</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_REPLACEABLE_PARTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_REPLACEABLE_PARTS</Type>
+-			<Description>TXT_KEY_TECH_REPLACEABLE_PARTS</Description>
+-			<Civilopedia>TXT_KEY_TECH_REPLACEABLE_PARTS_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_GAME_THEORY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_GAME_THEORY</Type>
++			<Description>TXT_KEY_TECH_GAME_THEORY</Description>
++			<Civilopedia>TXT_KEY_TECH_GAME_THEORY_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_REPLACEABLE_PARTS_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -5585,7 +5599,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<!-- custom: _COMMUNISM effect seems more relevant here anways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from tech_communism anyways etc -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -5642,10 +5657,11 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_BANKING</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_REPLACEABLE_PARTS_QUOTE</Quote>
+-			<Sound>AS2D_TECH_REPLACE_PARTS</Sound>
+-			<SoundMP>AS2D_TECH_MP_REPLACE_PARTS</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Replaceable Parts.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,7</Button>
++			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
++			<Sound>AS2D_TECH_GAME_THEORY</Sound>
++			<SoundMP>AS2D_TECH_MP_GAME_THEORY</SoundMP>
++			<!-- custom: art button import from c2c mod's TECH_BINARY_SUBCONSCIOUSNESS anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_MILITARY_SCIENCE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MILITARY_SCIENCE</Type>
+@@ -5776,7 +5792,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
++				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+@@ -5856,7 +5872,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
++				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+@@ -5866,12 +5882,12 @@
+ 			<SoundMP>AS2D_TECH_MP_STEAMPOWER</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Steam Power.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,12</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_STEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_STEEL</Type>
+-			<Description>TXT_KEY_TECH_STEEL</Description>
+-			<Civilopedia>TXT_KEY_TECH_STEEL_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_MARINE_TECHNOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_MARINE_TECHNOLOGY</Type>
++			<Description>TXT_KEY_TECH_MARINE_TECHNOLOGY</Description>
++			<Civilopedia>TXT_KEY_TECH_MARINE_TECHNOLOGY_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_STEEL_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+@@ -5937,10 +5953,11 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_STEEL_QUOTE</Quote>
+-			<Sound>AS2D_TECH_STEEL</Sound>
+-			<SoundMP>AS2D_TECH_MP_STEEL</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Steel.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,12</Button>
++			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
++			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
++			<SoundMP>AS2D_TECH_MP_MARINE_TECHNOLOGY</SoundMP>
++			<!-- custom: button import from NW mod's very very nice one in all or all in one rather but anyways etc.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if nee(ed?) but anyways etc)), is based on NW mod's TECH_HEAVY_WATER button anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ASSEMBLY_LINE</Type>
+@@ -6083,7 +6100,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_STEEL</PrereqTech>
++				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+@@ -6127,7 +6144,8 @@
+ 			<bGoldTrading>0</bGoldTrading>
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+-			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
++			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, even though this makes military artillery selectively stronger now as a tech anyways etc but should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-directly miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc ; maybe this makes more sense in terms of theme too, as such powerful weapons make leaders consider more seriously permanent alliances rather than solo war if i may say in this case but anyways etc, even though they existed before, but perhaps they are bit stronger if not lot now at artillery tech maybe or yes or not or yes or and other or etc anyways etc anyways etc anyways etc, was 0 -->
++			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+@@ -6154,7 +6172,7 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PHYSICS</PrereqTech>
+-				<PrereqTech>TECH_STEEL</PrereqTech>
++				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ARTILLERY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ARTILLERY</Sound>
+@@ -6250,7 +6268,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<!-- custom: see code comment at TECH_GAME_THEORY for details, was NONE -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_PROPHET</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -6346,8 +6365,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>14</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridX>13</iGridX>
++			<iGridY>1</iGridY>
+ 			<!-- custom: was DOMAIN_SEA 1 -->
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6486,7 +6505,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>17</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -6771,7 +6790,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>18</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index be743f984..ae2491e70 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1555,7 +1555,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<ArtDefineTag>ART_DEF_BONUS_ELEPHANTS</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
+-			<TechObsolete>TECH_ECOLOGY</TechObsolete>
++			<!-- custom: was TECH_INDUSTRIALISM -->
++			<TechObsolete>TECH_MASS_MEDIA</TechObsolete>
+ 			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
+ 			<YieldChanges>
+ 				<iYieldChange>1</iYieldChange>
+@@ -1935,7 +1936,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<ArtDefineTag>ART_DEF_BONUS_WHALE</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_SEAFARING</TechCityTrade>
+-			<TechObsolete>TECH_ECOLOGY</TechObsolete>
++			<!-- custom: was TECH_COMBUSTION -->
++			<TechObsolete>TECH_MASS_MEDIA</TechObsolete>
+ 			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps anyways etc anyways etc anyways etc -->
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 2980d5340..c1c3cd399 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -691,7 +691,7 @@
+ 			</FeatureMakesValids>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<!-- custom: seems more historically accurate and meshes quite well with our reworked tech tree to buff it at tech_steam_power instead, see also BUILD_LUMBERMILL code comment as well for additional info anyways etc if any are there anyways etc, was TECH_REPLACEABLE_PARTS -->
++			<!-- custom: seems more historically accurate and meshes quite well with our reworked tech tree to buff it at tech_steam_power instead, see also BUILD_LUMBERMILL code comment as well for additional info anyways etc if any are there anyways etc, was TECH_GAME_THEORY -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+ 					<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+@@ -752,7 +752,7 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<!-- custom: seems more historically accurate or/and anyways etc making sense for our reworked tech tree of our mod advciv-sas anyways etc at least anyways etc if not others or not or yes or not or yes or other or etc anyways etc, was TECH_REPLACEABLE_PARTS -->
++			<!-- custom: seems more historically accurate or/and anyways etc making sense for our reworked tech tree of our mod advciv-sas anyways etc at least anyways etc if not others or not or yes or not or yes or other or etc anyways etc, was TECH_GAME_THEORY -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+ 					<PrereqTech>TECH_PHYSICS</PrereqTech>
+@@ -813,7 +813,7 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant if i may say anyways etc, was TECH_REPLACEABLE_PARTS -->
++			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant if i may say anyways etc, was TECH_GAME_THEORY -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+ 					<PrereqTech>TECH_MACHINERY</PrereqTech>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 9c37ac891..e1c687257 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -586,4 +586,24 @@
+ 		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
+ 		<English>Navigation</English>
+ 	</TEXT>
++	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_NATURALISM</Tag>
++		<English>Naturalism</English>
++	</TEXT>
++	<!-- custom: rename _STEEL to _MARINE_TECHNOLOGY anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY</Tag>
++		<English>Marine Technology</English>
++	</TEXT>
++	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Tag>
++		<English>Theory of Evolution</English>
++	</TEXT>
++	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_GAME_THEORY</Tag>
++		<English>Game Theory</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index ce4a5e5f9..f2ce66522 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -263,4 +263,24 @@
+ 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
+ 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
+ 	</TEXT>
++	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
++		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
++	</TEXT>
++	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
++		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
++	</TEXT>
++	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
++		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
++	</TEXT>
++	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
++		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index a4a773c54..57b2e2ee4 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3079,14 +3079,6 @@
+ 		<Italian>"L'interesse composto &#232; la forza pi&#249; potente dell'universo." - Albert Einstein</Italian>
+ 		<Spanish>"El inter&#233;s compuesto es la fuerza m&#225;s poderosa de la galaxia." - Albert Einstein</Spanish>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_TECH_ALPHABET_QUOTE</Tag>
+-		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+-		<French>"Les mots ont le pouvoir de d&#233;truire et de soigner. Lorsqu'ils sont justes et g&#233;n&#233;reux, ils peuvent changer le monde." - Bouddha</French>
+-		<German>"Worte haben die Kraft zu zerst&#246;ren oder zu heilen. Wenn Worte wahr und zugleich g&#252;tig sind, k&#246;nnen sie unsere Welt ver&#228;ndern." - Buddha (zugeschrieben)</German>
+-		<Italian>"Le parole hanno il potere di distruggere e di creare. Quando le parole sono sincere e gentili, possono cambiare il mondo." - Budda</Italian>
+-		<Spanish>"Las palabras tienen el poder de destruir y sanar. Cuando las palabras son buenas y sinceras tienen el poder de cambiar el mundo." - Buda</Spanish>
+-	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_TECH_PHILOSOPHY_QUOTE</Tag>
+ 		<English>"I have gained this by philosophy: that I do without being commanded what others do only from fear of the law." - ascribed to Aristotle</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index a68f72252..94b11522f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -537,4 +537,36 @@
+ 		<Tag>TXT_KEY_TECH_NAVIGATION_PEDIA</Tag>
+ 		<English>[TAB]Navigation in the Indo-Pacific began with the maritime migrations of the Austronesians from Taiwan who spread southwards into Island Southeast Asia and Island Melanesia during a period between 3000 and 1000 BC. Their first long-distance voyaging was the colonization of Micronesia from the Philippines at around 1500 BC. By about 900 BC their descendants had spread more than 6,000 kilometers across the Pacific, reaching Tonga and Samoa. In this region, a distinctive Polynesian culture developed. Within the next few centuries Polynesians reached Hawaii, New Zealand, Easter Island and possibly South America. Polynesian navigators used a range of tools and methods, including observation of birds, star navigation, and use of waves and swells to detect nearby land. Songs, mythological stories, and star charts were used to help people remember important navigational information. Meanwhile, Austronesians in Island Southeast Asia began the first true maritime trade networks by about 1000 BC, linking China, southern India, the Middle East, and coastal eastern Africa. Settlers from Borneo reached Madagascar by the early 1st millennium AD and colonized it by AD 500.[PARAGRAPH:2]Sailors navigating in the Mediterranean made use of several techniques to determine their location, including staying in sight of land and understanding of the winds and their tendencies. Minoans of Crete are an example of an early Western civilization that used celestial navigation. Their palaces and mountaintop sanctuaries exhibit architectural features that align with the rising sun on the equinoxes, as well as the rising and setting of particular stars. The Minoans made sea voyages to the island of Thera and to Egypt. Both of these trips would have taken more than a day's sail for the Minoans and would have left them traveling by night across open water. Here the sailors would use the locations of particular stars, especially those of the constellation Ursa Major, to orient the ship in the correct direction.[PARAGRAPH:1]Written records of navigation using stars, or celestial navigation, go back to Homer's Odyssey where Calypso tells Odysseus to keep the Bear (Ursa Major) on his left hand side and at the same time to observe the position of the Pleiades, the late-setting Bo�tes and the Orion as he sailed eastward from her island Ogygia traversing the Ocean. The Greek poet Aratus wrote in his Phainomena in the third century BC detailed positions of the constellations as written by Eudoxos. The positions described do not match the locations of the stars during Aratus' or Eudoxos' time for the Greek mainland, but some argue that they match the sky from Crete during the Bronze Age. This change in the position of the stars is due to the wobble of the Earth on its axis which affects primarily the pole stars. Around 1000 BC the constellation Draco would have been closer to the North Pole than Polaris. The pole stars were used to navigate because they did not disappear below the horizon and could be seen consistently throughout the night.[PARAGRAPH:1]By the third century BC the Greeks had begun to use the Little Bear, Ursa Minor, to navigate. In the mid-1st century AD Lucan writes of Pompey who questions a sailor about the use of stars in navigation. The sailor replies with his description of the use of circumpolar stars to navigate by. To navigate along a degree of latitude a sailor would have needed to find a circumpolar star above that degree in the sky. For example, Apollonius would have used ? Draconis to navigate as he traveled west from the mouth of the Alpheus River to Syracuse.[PARAGRAPH:1]The voyage of the Greek navigator Pytheas of Massalia is a particularly notable example of a very long, early voyage. A competent astronomer and geographer, Pytheas ventured from Greece through the strait of Gibraltar to Western Europe and the British Isles. Pytheas is the first known person to describe the Midnight Sun, polar ice, Germanic tribes and possibly Stonehenge. Pytheas also introduced the idea of distant "Thule" to the geographic imagination and his account is the earliest to state that the Moon is the cause of the tides.[PARAGRAPH:1]Nearchos's celebrated voyage from India to Susa after Alexander's expedition in India is preserved in Arrian's account, the Indica. Greek navigator Eudoxus of Cyzicus explored the Arabian Sea for Ptolemy VIII, king of the Hellenistic Ptolemaic dynasty in Egypt. According to Poseidonius, later reported in Strabo's Geography, the monsoon wind system of the Indian Ocean was first sailed by Eudoxus of Cyzicus in 118 or 116 BC.[PARAGRAPH:1]Nautical charts and textual descriptions known as sailing directions have been in use in one form or another since the sixth century BC. Nautical charts using stereographic and orthographic projections date back to the second century BC.[PARAGRAPH:1]In 1900, the Antikythera mechanism was recovered from Antikythera wreck. This mechanism was built around 1st century BC.[PARAGRAPH:2]The Phoenicians and their successors, the Carthaginians, were particularly adept sailors and learned to voyage further and further away from the coast in order to reach destinations faster. One tool that helped them was the sounding weight. This tool was bell shaped, made from stone or lead, with tallow inside attached to a very long rope. When out to sea, sailors could lower the sounding weight in order to determine how deep the waters were, and therefore estimate how far they were from land. Also, the tallow picked up sediments from the bottom which expert sailors could examine to determine exactly where they were. The Carthaginian Hanno the Navigator is known to have sailed through the Strait of Gibraltar c. 500 BC and explored the Atlantic coast of Africa. There is general consensus that the expedition reached at least as far as Senegal. There is a lack of agreement whether the furthest limit of Hanno's explorations was Mount Cameroon or Guinea's 890-metre (2910-foot) Mount Kakulima. Nonetheless, Hanno's maritime travels limit may have been further north, as there are well documented difficulties with the return travel from the regions south of cape Chaunar, which, up to the early 15th century, "had hitherto been the non plus ultra or impassable limit of European navigation"</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc, also pedia entry from: https://en.wikipedia.org/wiki/Naturalism_(philosophy) and https://en.wikipedia.org/wiki/Naturalism_(literature) and https://en.wikipedia.org/wiki/Naturalism_(theatre) quite similarly anyways etc, modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_NATURALISM_PEDIA</Tag>
++		<English>[TAB]In philosophy, naturalism is the idea that only natural laws and forces (as opposed to supernatural ones) operate in the universe. In its primary sense, it is also known as ontological naturalism, metaphysical naturalism, pure naturalism, philosophical naturalism and antisupernaturalism. "Ontological" refers to ontology, the philosophical study of what exists. Philosophers often treat naturalism as equivalent to materialism, but there are important distinctions between the philosophies.[PARAGRAPH:1]For example, philosopher Paul Kurtz argued that nature is best accounted for by reference to material principles. These principles include mass, energy, and other physical and chemical properties accepted by the scientific community. Further, this sense of naturalism holds that spirits, deities, and ghosts are not real and that there is no "purpose" in nature. This stronger formulation of naturalism is commonly referred to as metaphysical naturalism. On the other hand, the more moderate view that naturalism should be assumed in one's working methods as the current paradigm, without any further consideration of whether naturalism is true in the robust metaphysical sense, is called methodological naturalism.[PARAGRAPH:1]With the exception of pantheists - who believe that nature is identical with divinity while not recognizing a distinct personal anthropomorphic god - theists challenge the idea that nature contains all of reality. According to some theists, natural laws may be viewed as secondary causes of God(s).[PARAGRAPH:1]In the 20th century, Willard Van Orman Quine, George Santayana, and other philosophers argued that the success of naturalism in science meant that scientific methods should also be used in philosophy. According to this view, science and philosophy are not always distinct from one another, but instead form a continuum.[PARAGRAPH:1]"Naturalism is not so much a special system as a point of view or tendency common to a number of philosophical and religious systems; not so much a well-defined set of positive and negative doctrines as an attitude or spirit pervading and influencing many doctrines. As the name implies, this tendency consists essentially in looking upon nature as the one original and fundamental source of all that exists, and in attempting to explain everything in terms of nature. Either the limits of nature are also the limits of existing reality, or at least the first cause, if its existence is found necessary, has nothing to do with the working of natural agencies. All events, therefore, find their adequate explanation within nature itself. But, as the terms nature and natural are themselves used in more than one sense, the term naturalism is also far from having one fixed meaning". - Dubray 1911[PARAGRAPH:2]In literature, naturalism is a literary movement beginning in the late nineteenth century, similar to literary realism in its rejection of Romanticism, but distinct in its embrace of determinism, detachment, scientific objectivism, and social commentary. Literary naturalism emphasizes observation and the scientific method in the fictional portrayal of reality. Naturalism includes detachment, in which the author maintains an impersonal tone and disinterested point of view; determinism, which is defined as the opposite of free will, in which a character's fate has been decided, even predetermined, by impersonal forces of nature beyond human control; and a sense that the universe itself is indifferent to human life. The novel would be an experiment where the author could discover and analyze the forces, or scientific laws, that influenced behavior, and these included emotion, heredity, and environment. The movement largely traces to the theories of French author �mile Zola.[PARAGRAPH:2]In theatre, naturalism is a movement in European drama and theatre that developed in the late 19th and early 20th centuries. It refers to theatre that attempts to create an illusion of reality through a range of dramatic and theatrical strategies. Interest in naturalism especially flourished with the French playwrights of the time, but the most successful example is Strindberg's play Miss Julie, which was written with the intention to abide by both his own particular version of naturalism, and also the version described by the French novelist and literary theoretician, Emile Zola.[PARAGRAPH:1]Zola's term for naturalism is la nouvelle formule. The three primary principles of naturalism (faire vrai, faire grand and faire simple) are first, that the play should be realistic, and the result of a careful study of human behaviour and psychology. The characters should be flesh and blood; their motivations and actions should be grounded in their heredity and environment. The presentation of a naturalistic play, in terms of the setting and performances, should be realistic and not flamboyant or theatrical. The single setting of Miss Julie, for example, is a kitchen. Second, the conflicts in the play should be issues of meaningful, life-altering significance - not small or petty. And third, the play should be simple - not cluttered with complicated sub-plots or lengthy expositions.[PARAGRAPH:1]Darwinism pervades naturalistic plays, especially in the determining role of the environment on character, and as motivation for behavior. Naturalism emphasizes everyday speech forms; plausibility in the writing (no ghosts, spirits or gods intervening in the human action); a choice of subjects that are contemporary and reasonable (no exotic, otherworldly or fantastic locales, nor historical or mythic time-periods); an extension of the social range of characters portrayed (not only the aristocrats of classical drama but also bourgeois and working-class protagonists) and social conflicts; and a style of acting that attempts to recreate the impression of reality.[PARAGRAPH:1]Naturalism was first advocated explicitly by �mile Zola in his 1880 essay entitled Naturalism on the Stage.</English>
++	</TEXT>
++
++
++
++	<!-- custom: replace _STEEL with _MARINE_TECHNOLOGY, also pedia entry from: https://en.wikipedia.org/wiki/Marine_technology similarly, modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_PEDIA</Tag>
++		<English>[TAB]Marine technology is defined by WEGEMT (a European association of 40 universities in 17 countries) as "technologies for the safe use, exploitation, protection of, and intervention in, the marine environment." In this regard, according to WEGEMT, the technologies involved in marine technology are the following: naval architecture, marine engineering, ship design, ship building and ship operations; oil and gas exploration, exploitation, and production; hydrodynamics, navigation, sea surface and sub-surface support, underwater technology and engineering; marine resources (including both renewable and non-renewable marine resources); transport logistics and economics; inland, coastal, short sea and deep sea shipping; protection of the marine environment; leisure and safety.[PARAGRAPH:2]According to the Cape Fear Community College of Wilmington, North Carolina, the curriculum for a marine technology program provides practical skills and academic background that are essential in succeeding in the area of marine scientific support. Through a marine technology program, students aspiring to become marine technologists will become proficient in the knowledge and skills required of scientific support technicians.[PARAGRAPH:1]The educational preparation includes classroom instructions and practical training aboard ships, such as how to use and maintain electronic navigation devices, physical and chemical measuring instruments, sampling devices, and data acquisition and reduction systems aboard ocean-going and smaller vessels, among other advanced equipment.[PARAGRAPH:1]As far as marine technician programs are concerned, students learn hands-on to trouble shoot, service and repair four- and two-stroke outboards, stern drive, rigging, fuel and lube systems, electrical including diesel engines.[PARAGRAPH:2]Marine technology is related to the marine science and technology industry, also known as maritime commerce. The Executive Office of Housing and Economic Development (EOHED) of the government of Massachusetts in the United States defined marine science and technology industry as any business that deals primarily with or relates to the sea. A marine science industry includes businesses and technologies, research facilities, and higher education learning institutions. Companies and businesses involved in marine science and industry produce products such as ropes used for commercial fishing, undersea robotics, and stabilized sensor systems. The marine science industry has five sub-sectors, namely marine instrumentation and equipment, marine services, marine research and education, marine materials and supply, and shipbuilding and design.</English>
++	</TEXT>
++
++
++
++	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc, also pedia entry from: https://en.wikipedia.org/wiki/Evolution similarly, modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_PEDIA</Tag>
++		<English>[TAB]Evolution is the change in the heritable characteristics of biological populations over successive generations. It occurs when evolutionary processes such as natural selection and genetic drift act on genetic variation, resulting in certain characteristics becoming more or less common within a population over successive generations. The process of evolution has given rise to biodiversity at every level of biological organisation.[PARAGRAPH:1]The scientific theory of evolution by natural selection was conceived independently by two British naturalists, Charles Darwin and Alfred Russel Wallace, in the mid-19th century as an explanation for why organisms are adapted to their physical and biological environments. The theory was first set out in detail in Darwin's book On the Origin of Species. Evolution by natural selection is established by observable facts about living organisms: (1) more offspring are often produced than can possibly survive; (2) traits vary among individuals with respect to their morphology, physiology, and behaviour; (3) different traits confer different rates of survival and reproduction (differential fitness); and (4) traits can be passed from generation to generation (heritability of fitness). In successive generations, members of a population are therefore more likely to be replaced by the offspring of parents with favourable characteristics for that environment.[PARAGRAPH:1]In the early 20th century, competing ideas of evolution were refuted and evolution was combined with Mendelian inheritance and population genetics to give rise to modern evolutionary theory. In this synthesis the basis for heredity is in DNA molecules that pass information from generation to generation. The processes that change DNA in a population include natural selection, genetic drift, mutation, and gene flow.[PARAGRAPH:1]All life on Earth - including humanity - shares a last universal common ancestor (LUCA), which lived approximately 3.5-3.8 billion years ago. The fossil record includes a progression from early biogenic graphite to microbial mat fossils to fossilised multicellular organisms. Existing patterns of biodiversity have been shaped by repeated formations of new species (speciation), changes within species (anagenesis), and loss of species (extinction) throughout the evolutionary history of life on Earth. Morphological and biochemical traits tend to be more similar among species that share a more recent common ancestor, which historically was used to reconstruct phylogenetic trees, although direct comparison of genetic sequences is a more common method today.[PARAGRAPH:1]Evolutionary biologists have continued to study various aspects of evolution by forming and testing hypotheses as well as constructing theories based on evidence from the field or laboratory and on data generated by the methods of mathematical and theoretical biology. Their discoveries have influenced not just the development of biology but also other fields including agriculture, medicine, and computer science.</English>
++	</TEXT>
++
++
++
++	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc, also pedia entry from: https://en.wikipedia.org/wiki/Game_theory similarly, modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_GAME_THEORY_PEDIA</Tag>
++		<English>[TAB]Game theory is the study of mathematical models of strategic interactions. It has applications in many fields of social science, and is used extensively in economics, logic, systems science and computer science. Initially, game theory addressed two-person zero-sum games, in which a participant's gains or losses are exactly balanced by the losses and gains of the other participant. In the 1950s, it was extended to the study of non zero-sum games, and was eventually applied to a wide range of behavioral relations. It is now an umbrella term for the science of rational decision making in humans, animals, and computers.[PARAGRAPH:1]Modern game theory began with the idea of mixed-strategy equilibria in two-person zero-sum games and its proof by John von Neumann. Von Neumann's original proof used the Brouwer fixed-point theorem on continuous mappings into compact convex sets, which became a standard method in game theory and mathematical economics. His paper was followed by Theory of Games and Economic Behavior (1944), co-written with Oskar Morgenstern, which considered cooperative games of several players. The second edition provided an axiomatic theory of expected utility, which allowed mathematical statisticians and economists to treat decision-making under uncertainty.[PARAGRAPH:1]Game theory was developed extensively in the 1950s, and was explicitly applied to evolution in the 1970s, although similar developments go back at least as far as the 1930s. Game theory has been widely recognized as an important tool in many fields. John Maynard Smith was awarded the Crafoord Prize for his application of evolutionary game theory in 1999, and fifteen game theorists have won the Nobel Prize in economics as of 2020, including most recently Paul Milgrom and Robert B. Wilson.[PARAGRAPH:2]In 1713, a letter attributed to Charles Waldegrave, an active Jacobite and uncle to British diplomat James Waldegrave, analyzed a game called "le her". Waldegrave provided a minimax mixed strategy solution to a two-person version of the card game, and the problem is now known as the Waldegrave problem.[PARAGRAPH:1]In 1838, Antoine Augustin Cournot provided a model of competition in oligopolies. Though he did not refer to it as such, he presented a solution that is the Nash equilibrium of the game in his Recherches sur les principes math�matiques de la th�orie des richesses (Researches into the Mathematical Principles of the Theory of Wealth). In 1883, Joseph Bertrand critiqued Cournot's model as unrealistic, providing an alternative model of price competition which would later be formalized by Francis Ysidro Edgeworth.[PARAGRAPH:1]In 1913, Ernst Zermelo published �ber eine Anwendung der Mengenlehre auf die Theorie des Schachspiels (On an Application of Set Theory to the Theory of the Game of Chess), which proved that the optimal chess strategy is strictly determined.[PARAGRAPH:2]The work of John von Neumann established game theory as its own independent field in the early-to-mid 20th century, with von Neumann publishing his paper On the Theory of Games of Strategy in 1928. Von Neumann's original proof used Brouwer's fixed-point theorem on continuous mappings into compact convex sets, which became a standard method in game theory and mathematical economics. Von Neumann's work in game theory culminated in his 1944 book Theory of Games and Economic Behavior, co-authored with Oskar Morgenstern. The second edition of this book provided an axiomatic theory of utility, which reincarnated Daniel Bernoulli's old theory of utility (of money) as an independent discipline. This foundational work contains the method for finding mutually consistent solutions for two-person zero-sum games. Subsequent work focused primarily on cooperative game theory, which analyzes optimal strategies for groups of individuals, presuming that they can enforce agreements between them about proper strategies.[PARAGRAPH:1]In his 1938 book Applications aux Jeux de Hasard and earlier notes, �mile Borel proved a minimax theorem for two-person zero-sum matrix games only when the pay-off matrix is symmetric and provided a solution to a non-trivial infinite game (known in English as Blotto game). Borel conjectured the non-existence of mixed-strategy equilibria in finite two-person zero-sum games, a conjecture that was proved false by von Neumann.[PARAGRAPH:1]In 1950, John Nash developed a criterion for mutual consistency of players' strategies known as the Nash equilibrium, applicable to a wider variety of games than the criterion proposed by von Neumann and Morgenstern. Nash proved that every finite n-player, non-zero-sum (not just two-player zero-sum) non-cooperative game has what is now known as a Nash equilibrium in mixed strategies.[PARAGRAPH:1]Game theory experienced a flurry of activity in the 1950s, during which the concepts of the core, the extensive form game, fictitious play, repeated games, and the Shapley value were developed. The 1950s also saw the first applications of game theory to philosophy and political science. The first mathematical discussion of the prisoner's dilemma appeared, and an experiment was undertaken by mathematicians Merrill M. Flood and Melvin Dresher, as part of the RAND Corporation's investigations into game theory. RAND pursued the studies because of possible applications to global nuclear strategy.[PARAGRAPH:2]In 1965, Reinhard Selten introduced his solution concept of subgame perfect equilibria, which further refined the Nash equilibrium. Later he would introduce trembling hand perfection as well. In 1994 Nash, Selten and Harsanyi became Economics Nobel Laureates for their contributions to economic game theory.[PARAGRAPH:1]In the 1970s, game theory was extensively applied in biology, largely as a result of the work of John Maynard Smith and his evolutionarily stable strategy. In addition, the concepts of correlated equilibrium, trembling hand perfection and common knowledge were introduced and analyzed.[PARAGRAPH:1]In 1994, John Nash was awarded the Nobel Memorial Prize in the Economic Sciences for his contribution to game theory. Nash's most famous contribution to game theory is the concept of the Nash equilibrium, which is a solution concept for non-cooperative games, published in 1951. A Nash equilibrium is a set of strategies, one for each player, such that no player can improve their payoff by unilaterally changing their strategy.[PARAGRAPH:1]In 2005, game theorists Thomas Schelling and Robert Aumann followed Nash, Selten, and Harsanyi as Nobel Laureates. Schelling worked on dynamic models, early examples of evolutionary game theory. Aumann contributed more to the equilibrium school, introducing equilibrium coarsening and correlated equilibria, and developing an extensive formal analysis of the assumption of common knowledge and of its consequences.[PARAGRAPH:1]In 2007, Leonid Hurwicz, Eric Maskin, and Roger Myerson were awarded the Nobel Prize in Economics "for having laid the foundations of mechanism design theory". Myerson's contributions include the notion of proper equilibrium, and an important graduate text: Game Theory, Analysis of Conflict. Hurwicz introduced and formalized the concept of incentive compatibility.[PARAGRAPH:1]In 2012, Alvin E. Roth and Lloyd S. Shapley were awarded the Nobel Prize in Economics "for the theory of stable allocations and the practice of market design". In 2014, the Nobel went to game theorist Jean Tirole.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index fb5bd9a3c..9653375e9 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -519,7 +519,7 @@
+ 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
+ 			<Help/>
+ 			<!-- custom: was TECH_PLASTICS -->
+-			<PrereqTech>TECH_STEEL</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<iTime>0</iTime>
+ 			<iCost>0</iCost>
+ 			<bKill>1</bKill>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 8fc147960..5b8b4b42b 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2423,7 +2423,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: no more old TECH_ALPHABET now for tech tree efficiency and faster early game if i may say too indeed but anyways etc, advance it to a sooner tech or/and alternative one, was TECH_ALPHABET -->
++			<!-- custom: no more old TECH_ALPHABET now replaced with TECH_NATURALISM now for tech tree efficiency and faster early game if i may say too indeed but anyways etc, advance it to a sooner tech or/and alternative one, was TECH_NATURALISM -->
+ 			<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -8960,7 +8960,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>9</iCombat>
++			<!-- custom: was 9 -->
++			<iCombat>10</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -9000,7 +9001,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>7</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<iPower>9</iPower>
++			<!-- custom: was 9 -->
++			<iPower>10</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -9323,7 +9325,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>9</iCombat>
++			<!-- custom: was 9 -->
++			<iCombat>10</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -9363,7 +9366,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>7</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<iPower>9</iPower>
++			<!-- custom: was 9 -->
++			<iPower>10</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10290,7 +10294,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<!-- custom: was 100 -->
++			<iCost>95</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10314,7 +10319,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>12</iCombat>
++			<!-- custom: was 12 -->
++			<iCombat>11</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10360,7 +10366,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>7</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<iPower>12</iPower>
++			<!-- custom: was 12 -->
++			<iPower>11</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10621,7 +10628,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: add marines as an upgrade now of the ww1 infantry anyways etc -->
+ 			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MARINE</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_SAM_INFANTRY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+@@ -10678,7 +10690,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>140</iCost>
++			<!-- custom: was 140 -->
++			<iCost>130</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10702,7 +10715,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>20</iCombat>
++			<!-- custom: was 20 -->
++			<iCombat>18</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10748,8 +10762,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<!-- advc.131: was 3 -->
+ 			<iAsset>4</iAsset>
++			<!-- custom: was 22 -->
+ 			<!-- advc.104e: was 20 -->
+-			<iPower>22</iPower>
++			<iPower>18</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11234,7 +11249,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>160</iCost>
++			<!-- custom: was 160 -->
++			<iCost>145</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11258,7 +11274,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>24</iCombat>
++			<!-- custom: was 24 -->
++			<iCombat>22</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -11283,18 +11300,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
++			<!-- custom: was UNITCLASS_MACHINE_GUN 50 and UNITCLASS_ARTILLERY 50 -->
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_MACHINE_GUN</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
++					<iUnitClassMod>25</iUnitClassMod>
+ 				</UnitClassAttackMod>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_ARTILLERY</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
++					<iUnitClassMod>25</iUnitClassMod>
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -11307,7 +11331,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>12</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>4</iAsset>
+-			<iPower>28</iPower>
++			<!-- custom: was 28 -->
++			<iPower>22</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11601,7 +11626,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>200</iCost>
++			<!-- custom: was 200 -->
++			<iCost>220</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17014,7 +17040,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>180</iCost>
++			<!-- custom: was 180 -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17202,7 +17229,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>240</iCost>
++			<!-- custom: was 240 -->
++			<iCost>250</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -18228,7 +18256,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_STEEL -->
++			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
+ 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>BONUS_IRON</BonusType>
+@@ -18423,7 +18451,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>125</iCost>
++			<!-- custom: was 125 -->
++			<iCost>130</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -18800,7 +18829,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>200</iCost>
++			<!-- custom: was 200 -->
++			<iCost>220</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -21129,7 +21159,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_COMBUSTION -->
+-			<PrereqTech>TECH_STEEL</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses>
+@@ -21319,7 +21349,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: move it sooner in tech, seems historically accurate from tiny bits i read of the sevopedia description (declines during world war 2, so build it sooner anyways etc), plus tech_industrialism is bloated and too strong anyways etc, was TECH_INDUSTRIALISM -->
+-			<PrereqTech>TECH_STEEL</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses>
+@@ -21693,7 +21723,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- advc.906: was ROCKETRY plus RADIO and COMBUSTION -->
+-			<PrereqTech>TECH_STEEL</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_RADIO</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+
+diff --git a/README.md b/README.md
+index 8fb557f7c..e6a94b961 100644
+--- a/README.md
++++ b/README.md
+@@ -38,7 +38,7 @@ If you just want to play and do not need all the project bigger details, i added
+ 
+ note: it is recommended to read this (quick get started guide) part even if you want to know the deeper changes. There are stuff and things/information i added only recently in it, which may not be available in the longer docs.
+ 
+-I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s)if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there. But i would move them to the bottom so you don't have to reread all ideally but not sure i would do that though so and anyways as is or not anyways etc anyways etc hopefully helpful enough this way if this way is the way maybe (or not but in all cases anyways etc anyways etc) but anyways etc...
++I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s) if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there. But i would move them to the bottom so you don't have to reread all ideally but not sure i would do that though so and anyways as is or not anyways etc anyways etc hopefully helpful enough this way if this way is the way maybe (or not but in all cases anyways etc anyways etc) but anyways etc...
+ 
+ ## Important Sevopedia reworks (click on the images below to view them full size)
+ 
+@@ -142,24 +142,24 @@ See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appe
+ 
+ One of the unexpected things that popped up while exploring unit naming in/for anyways etc advciv-sas anyways etc and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
+ 
+-I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing) (click on the images below to view them in full size).
++I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or/and more images, please ideally visit this google drive folder link rather.
+ 
+-You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
++You can find below an example of preview for the lancer medium 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png" alt="lance_light_2.png" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png" alt="longbow_3.png" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png" alt="sword_light_4.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" alt="lance_medium_2.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" alt="longbow_3.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" alt="sword_light_4.png" width="150"></img>
+ 
+ Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png" alt="gord.png" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png" alt="impluvium_west_african.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" alt="impluvium_west_african.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
+ 
+ Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png" alt="theory_of_evolution.png" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png" alt="mounted_tech.png" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png" alt="mounted_tech_edited.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" alt="theory_of_evolution.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" alt="mounted_tech.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
+ 
+ People or/and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+ 
+@@ -213,7 +213,7 @@ the finished version.
+ 
+ The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
+ 
+-![img_world_map_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
++![0.22_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
+ 
+ ## More exhaustive military tree (unlikely but also here in this readme i mean for exhaustiveness if i may say anyways etc anyways etc)
+ 
+@@ -288,14 +288,15 @@ See also [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/READM
+ ## Credits
+ 
+ - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times
+-- Cavemen2Cosmos (also know as C2C): i took quite a lot of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc), thanks
+-- Realism Invictus (also know as RI): i took quite a bit content from there, thanks, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc...
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+ too too, thanks,
+ - Middle-earth (that i may call M-E sometimes maybe or not anyways etc): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me (but) anyways etc anyways etc, thanks a lot, etc anyways anyways etc, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+ - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
+ - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot! ; update: i must revise my judgment/opinion (rereading myself after writing next part of the sentence here anyways etc, their content is even more amazing for the parts i need or among the ones i looked at i mean anyways etc!!! Thanks a lot!!! As explained after brackets anyways etc... anyways etc!!! Anyways etc :) anyways etc...), their FPKs are incredibly tidy and nicely ordered and efficient and work at first try!!! For example i could get the camel_rider's art assets all very easily with one extract with dragon unpacker and it just worked :) works-functions anyways etc :) Also no hardcoded paths that i didn't bother sadly or not updating fixing so far, just put assets and it works, so nice, thanks a lot!!!
++- Neoteric World (that i may call NW sometimes anyways etc): i imported some content such as tech buttons (for example of the marine technology advciv-sas tech, based on their heavy water tech if i am not mistaken anyways etc), and their fpk is incredibly nice!!! It's all All in one rather but anyways etc.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting (i.e. one wrapping folder anyways etc) fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if nee(ed?) but anyways etc))
++- Realism Invictus (also know as RI): i took quite a lot content from there, thanks, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc...
++- Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc), thanks
+ - Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks
+ - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_log_anonymized_email.txt b/_0_Common_Docs/git_log_anonymized_email.txt reason=known-generated/noisy-history changedLines=217 bytes=42978
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index ad122b638..f7733d00f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -18,7 +18,23 @@ Else or additionally, you may find more help asking your question(s) directly on
+ 
+ ## A few useful tips
+ 
+-### full git log with anonymized email
++### google drive image link in html tag if i am not mistaken anyways etc
++
++Was not easy to find how, but [this stackoverflow answer](https://stackoverflow.com/a/52067077) shows how to do it successfully, ai-generated images as of now in our advciv-sas mod anyways etc use this successfully as well anyways etc, see also the implementation in the main README.md at [README.md#ai-generated-images](/README.md#ai-generated-images) for example of how it is done successfully at least as of now if it helps anyways etc.
++
++To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view` has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas i mean anwyays etc anyways etc, moved them to the drive or fetched them for there directly if already there anwyays etc)
++
++Was not easy to find how at least to me anyways etc so i am glad i found how anyways etc and so i mean anyways etc i hope these instructions help i mean at least as of now, anyways etc anyways etc anyways etc.
++
++### write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc
++
++I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance but anyways etc) as bullet points or such as you prefer anyways etc.
++
++Personally i do so in Notepad++ where i also store notes of ideas of things to add or not for example if i may say anyways etc. I may often not look at it for a long time, and spend bit of time then sorting the ideas and organizing them or not but is very helpful so i would recommend this as well as part or and on top of in this case anyways etc writing commit message notes in a .txt, i'd also recommend writing your ideas in another or same .txt if tidy or readable to you or some similar or as you prefer solution/idea anyways etc.
++
++I started this habit somewhere in this advciv-sas mod development i mean but is very helpful anyways etc, so adding mention of it if helps but anyways etc anyways etc anyways etc.
++
++### full git log with anonymized email in a .txt
+ 
+ Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
+ 
+@@ -30,6 +46,8 @@ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
+ 
+ For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder for example [/_0_Common_Docs/git_log_anonymized_email.txt](/_0_Common_Docs/git_log_anonymized_email.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
+ 
++note: it should be possible to create erase in one command the old git log but for now at least anyways etc i prefer to manually copy paste, even though risk is low thanks to git commit versioning and having a github backup or such other files or not anyways etc, still for now doing as such but this command may be optimized/enhanced perhaps rather by having it copy it there directly and overwrite old file, which should be quite safe considering it is a rarely used and not actively written on file only a log if i may say as chatgpt would recommend to me about other topics or files when evaluating safety of a change or/and discuss it suggest it with me in this case i mean but anyways etc if i may say or talking about it with it but anyways etc.
++
+ ### manual(s) and docs in .txt
+ 
+ Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [AdvCiv base docs](/_0_Common_Docs/AdvCiv%20(Base)%20Doc) in particular the [manual in .txt](/_0_Common_Docs/AdvCiv%20(Base)%20Doc/manual.txt)
+@@ -445,8 +463,8 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully
+ 
+ Small sample below /example too but anyways etc:
+ 
+-![img_notech_trading_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
+-![img_notech_trading_2](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(2).JPG)
++![0.50_no_tech_trading_example (1).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
++![0.50_no_tech_trading_example (2).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(2).JPG)
+ 
+ This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
+index f0035ef22..394580666 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
+@@ -8,7 +8,7 @@ Lower size may result in smaller file size, perhaps even performance increase (b
+ 
+ Similarly, too high image size such as 1024 seems to result in a too pixelated image.
+ 
+-Full images used in the below experiment/analysis are available in this [.dds comparison and analysis Google Drive folder link](https://drive.google.com/drive/folders/1_ACul0v892_wqODLBhjYdEoSobhvGiHZ?usp=sharing)
++All image and .dds files at different sizes used in the below experiment/analysis are available in this [.dds comparison and analysis Google Drive folder link](https://drive.google.com/drive/folders/1_ACul0v892_wqODLBhjYdEoSobhvGiHZ?usp=sharing)
+ 
+ I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't (couldn't? Or not or yes or and other or and not or etc anyways etc) make the connection at that time that these are those, anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+index 2ed330c68..fcb03bf0f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+@@ -1,10 +1,12 @@
+ # More exhaustive military
+ 
++If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing) anyways etc.
++
+ Unlikely to be implemented as such because actually too tedious not only in terms of implementing it i mean but also mostly in terms of gameplay, it is most likely better as in in terms of gameplay and AI efficiency and reliability and balance (since AI upgrade units cheaper even though it can be changed anyways etc), to have a clean and simple straighforward military tree.
+ 
+ Still i had made this one before, and have also found some info like which buttons (image of the unit ingame (not its animation but the sort of icon even though icons in civ4 are something different i mean (the smaller textual images anyways etc))), so here is the military tree that was originally planned in AdvCiv-SAS. While making it, i had tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay diversity.
+ 
+-![img_military_tree_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png)
++![0.43 military tree_modified.png](https://drive.google.com/thumbnail?id=1jewdORGIHYA6--M8_y_1DpAt-agf9n0l&sz=w2000)
+ 
+ Drawbacks of not implementing it is some inconsistencies like the new advciv-sas i mean immortal (imported from other mods but implemented in our own way in advciv-sas and unlike in base advciv and civ4 i mean anyways etc i mean too anyways etc anyways etc anyways etc) having a spear despite being a swordsman, because there are no classical/iron age spearmen, ideally something i would change but military upgrade costs would skyrocket xd if i may say even though stillodl era but for all eras too anyways etc, plus i am not sure such an exhaustive design is better as in more enjoyable and or relevant in terms of gameplay, especially considering how fast the tech tree moves, so units would change too often, most likely better or/and how i'd want it in base advciv/civ4, or something closer to it anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 3b3fea921..140a4255b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -124,7 +124,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ Example of cmd processing for Steam users (adjust paths and/or such similar things anyways if not steam user):
+ 
+-![img1](/_1_AdvCiv-SAS/Images_In_General/scripts/python_success_generate_leaders_data.PNG)
++![python_success_generate_leaders_data.PNG](/_1_AdvCiv-SAS/Images_In_General/scripts/python_success_generate_leaders_data.PNG)
+ 
+ Example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 6f4da1e68..f9a1ec925 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -111,6 +111,7 @@ Be warned though it can be very lengthy, so read below if you want (some of the)
+ - nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt/becomingthrough but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
++- reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example a great spy at the new tech game theory anyways etc) anyways etc ; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details anyways etc
+ 
+ ### Civilizations (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -155,6 +156,7 @@ Be warned though it can be very lengthy, so read below if you want (some of the)
+ ### Corporations (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - corporation executives have their cost significantly reduced
++- have greater variety in great person type, one great person type per corporation type without overlap anyways etc, see xml or sevopedia for updated values anyways etc
+ 
+ ### Military (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -184,6 +186,7 @@ see below), or "Logistics" (named "Commando" before) is now accessible after Com
+ - in BBAI_Game_Options_GlobalDefines.xml, disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire,
+ and them merging with the empire, becoming its citizens, something to pay attention to maybe in particular if you don't want it to happen to other rivals anyways etc anyways etc
++- move permanent alliance ability a bit out of the main military tech (was in both tech communism and tech fascism) path to make it relatively weaker and reward relatively more alternate paths, even though this makes military artillery selectively stronger now as a tech anyways etc but should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-directly miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc ; maybe this makes more sense in terms of theme too, as such powerful weapons make leaders consider more seriously permanent alliances rather than solo war if i may say in this case but anyways etc, even though they existed before, but perhaps they are bit stronger if not lot now at artillery tech maybe or yes or not or yes or and other or etc anyways etc anyways etc anyways etc
+ 
+ ## Fixes
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index 0b513ed3c..8ca2a9a1d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -2,6 +2,8 @@
+ 
+ Below are the details on how the tech tree was made in/for AdvCiv-SAS as well as links to other related docs in AdvCiv-SAS or/and external sources as well if any anyways etc.
+ 
++If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing) anyways etc.
++
+ ## Current Tech Tree ingame
+ 
+ <img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img>
+@@ -32,6 +34,26 @@ These files include (may not be exhaustive in case i forgot some or maybe i didn
+ 
+ ## Abstract timeline tech tree
+ 
+-![img1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png)
++(click on google drive link at top of this readme to view it on google drive rather at full size anyways etc)
++
++![0.33_Techtree_modified.png](https://drive.google.com/thumbnail?id=1XZqhjw0PFoBR2YY0M7uhtddSeo2kinWo&sz=w4000)
+ 
+ As explained in the [README_Tech_Tree.md#more-info-on-notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#more-info-on-notes) section just above, there are more details there (i.e. in these notes anyways etc about why and how the tech tree was made as such anyways etc)
++
++## Earlier prototype / alternative version
++
++Very early before starting to develop this advciv-sas mod (not long before it), i had made this prototype reworked tech tree that is done only by swapping techs (click on google drive link at top of this readme to view it on google drive rather at full size anyways etc)
++
++(click on google drive link at top of this readme to view it on google drive rather at full size anyways etc)
++
++![0.30_tech_tree_mini.jpg](https://drive.google.com/thumbnail?id=1ySmVauqYXmBKJhHKwLMFGvnoVaVkmpXL&sz=w4000)
++
++It is actually what motivated me to start the mod, at least one of the reasons, along with sadly not being able to change easily enough base advciv with my contributions/suggestions (see [/README.md#authors](/README.md#authors) for bit more details anyways etc) and realizing with my exchanges or not with @f1rpo main advciv maintainer that indeed i could do it in my own mod rather and not be limited rather than force myself to align with base advciv enough, and also being dependent on them/the base advciv mod being responsive enough as i'd want and was ready and motivated for in this case at least but anyways etc.
++
++It is also painful times as this project could not be implemented and i had to abandon it, but it was not lost if i may say as a lot of the new reworked tech tree took inspiration on this original idea even though i changed it quite a bit since then, it was also a lot of fun to do and very challenging as i did it all in one day i mean anyways etc with no other modification allowed than swapping and replacing techs (total num the same i mean anyways etc). More details as well here in [AdvCiv/pull/10](https://github.com/f1rpo/AdvCiv/pull/10) even though is bit painful to remember sharing for exhaustiveness and as something to look back on for me at least and in this case anyways etc. Actually quite lto painful not sure if i'll keep it longterm in the readme, maybe will or maybe not if too tedious to remember to remove will see but anyways etc, but for now i want to add this, anyways etc, is also good opportunity to make mod lighter by removing such heavy unnecessary images since we dont use them as much but helpful to reference to everywhile if i am reworking the tech tree maybe or not if i may say but anyways etc (i could have directly removed them entirely but useful at least for now to have them here if not for always or maybe not, but is as it is for now at least regardless of how it will be or not in the future, hopefully helpful and informative at least to me even though bit painful but anyways etc.)
++
++## Earlier but much later version
++
++Then if i am not mistaken much later i did this swapping based version but that was based or/and closer (i don't remember exactly but i think it was as such anyways etc) on the abstract time line that is shown in this section as well, if i am not mistaken, i thought i could gain some benefits from representing the tech tree in real civ4 design before reworking it, which i think helped to more easily visualize how techs could fit and their effects and such (even though it's essentially the same info dispalyed in another way, it helped to organize it and such as well and reflect on it if i remember or/and guess how it went correctly anyways etc, it may have also helped to visualize a bit too even if less and was not too long considering it was mostly matching previous prototype and abstract timeline if i am not mistaken from my memories of it i mean but anyways etc anyways etc anyways etc), before we used the real ingame reworked tech tree as in docs, if i am not mistaken this is how it went i mean and why, not 100% sure but quite close in this case i mean but anyways etc.
++
++![0.30b_tech_tree_mini_temp.png](https://drive.google.com/thumbnail?id=1e42RDsufVEuBpY9ZVii2uFC65wXP-wnt&sz=w4000)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png
+deleted file mode 100644
+index a9cc8220e..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png
+deleted file mode 100644
+index e46fa3369..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/README.md b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/README.md
+deleted file mode 100644
+index c192726e9..000000000
+--- a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/README.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# AI-generated_images_samples
+-
+-see [AI-generated image's main README's category](/README.md#ai-generated-images)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png
+deleted file mode 100644
+index 86ab9ae16..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png
+deleted file mode 100644
+index 8187bb76c..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png
+deleted file mode 100644
+index 28fa6ac6e..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png
+deleted file mode 100644
+index 38e09c6d4..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png
+deleted file mode 100644
+index 47253183e..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png
+deleted file mode 100644
+index 999e7e94e..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/u-full filenames.txt b/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/u-full filenames.txt
+deleted file mode 100644
+index c07240701..000000000
+--- a/_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/u-full filenames.txt	
++++ /dev/null
+@@ -1,5 +0,0 @@
+-full filenames as was too long - for git - anyways etc:
+-
+-lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM
+-longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM
+-sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30_tech_tree_mini.jpg b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30_tech_tree_mini.jpg
+deleted file mode 100644
+index 62a4044d8..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30_tech_tree_mini.jpg and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png
+deleted file mode 100644
+index 91cd60633..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png
+deleted file mode 100644
+index c833b13f1..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+deleted file mode 100644
+index 1542ea1d1..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 17de88de6..4960cc83d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 6b2108133..d278acedc 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index f31a278d9..c5b914b1c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 1ff6773b4..740442df5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43 military tree_modified.png
+deleted file mode 100644
+index 277cb281d..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43 military tree_modified.png and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=70 embeddedFiles=69 omittedFiles=1 embeddedPatchBytes=178687

@@ -1,0 +1,332 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5004
+# Commit: 8b4761f1120cd330b25a1fa66627a5997757cc03
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a114d635668f7647aecc25003e26c050371ba506
+# Title: removed `UNITAI_CITY_COUNTER` from non-versatile enough units such as the UNIT_MACEMAN, as they are not versatile enough to be reliable city defenders while...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	69	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 84848c8b8..d965b67cb 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5688,6 +5688,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -5902,6 +5903,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6116,6 +6118,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6349,6 +6352,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6572,10 +6576,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -6757,10 +6757,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -6975,10 +6971,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -7201,10 +7193,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -7413,10 +7401,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -7626,6 +7610,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: by that time and as of now longbowmen or such are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
++			<!-- custom: removed UNITAI_CITY_COUNTER from here as macemen are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places anyways etc). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles if i am not mistaken but anyways etc. -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -7639,10 +7624,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -7841,10 +7822,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -8068,10 +8045,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -9790,10 +9763,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs>
+ 				<!-- custom: this seems to be specifically against city attack suicides which i want to explicitly disable for most units, i don't know if
+@@ -10034,10 +10003,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs>
+ 				<!-- custom: this seems to be specifically against city attack suicides which i want to explicitly disable for most units, i don't know if
+@@ -10060,6 +10025,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_SPY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: we tend to overproduce longbowmen and they are not that good for city attacks, make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details anyways etc, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentionned there, which is still too much when we are stronger but already better, so kept as such anyways etc; note: also, i removed if i may say but anyways etc UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it anyways etc -->
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+@@ -10771,6 +10741,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: can be useful for versatile defense, and possibly offense as well if i am not mistaken but anyways etc, against melee units maybe if i am not mistaken in my guess but anyways etc -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -13767,6 +13738,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: maybe good against riflemen or such while still being quite useful at offense with collateral damage effect as of now if i am not mistaken but anyways etc -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -19751,11 +19723,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion ; and remove unitai_pillage, see other code comments for details anyways etc -->
+ 			<NotUnitAIs>
+@@ -20213,11 +20180,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
+ 			<NotUnitAIs>
+@@ -20406,11 +20368,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
+ 			<NotUnitAIs>
+@@ -20620,11 +20577,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
+ 			<NotUnitAIs>
+@@ -20817,11 +20769,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
+ 			<NotUnitAIs>
+@@ -21016,10 +20963,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
+ 			<NotUnitAIs>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index d41df6f36..080ca3fc6 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1132,7 +1132,7 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
+ 	case WIDGET_HELP_YIELD_CHANGE:
+ 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
+ 		break;
+-	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel at tech_animal_husbandry anyways etc generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only anyways etc; result: fixed the issue it seems! So left as such anyways etc. -->
++	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only anyways etc; result: fixed the issue it seems! So left as such anyways etc. -->
+ 	case WIDGET_HELP_BONUS_REVEAL:
+ 		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
+ 		break;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 05331e147..db1ca0777 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -781,7 +781,7 @@ Still, adding a fallback iItem (for example of 1 anyways etc) if iItem is -1 see
+ 
+ update: now fixed: the issue/bug/error anyways etc was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again but anyways etc) and not `widgetDataStruct.m_iData2` at the line after line `case WIDGET_HELP_OBSOLETE_BONUS:` (repetition of me but anyways etc...), which fixed it now if i am not mistaken anyways etc, see also screenshots for details in the google drive anyways etc. So removed previous workaround of using a fallback as well as debug lines as they are not needed anymore now that issue is identified and solved if i am not mistaken anyways etc hopefully helpful or not or yes or etc but anyways etc.
+ 
+-Update: although we fixed the obsolete bonus button in tech advisor, i noticed much later that now the non-obsolete bonus buttons (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) trigger the same error now, which they didn't before, so i partially reverted this fix, so that it still applies to `case WIDGET_HELP_OBSOLETE_BONUS:` as we want to fix the issue, but not anymore to `case WIDGET_HELP_BONUS_REVEAL:` which doesn't use same code as the former but its own code, based on the old base advciv's code which seemignly nicely fixes this issue as well anyways etc.
++Update: although we fixed the obsolete bonus button in tech advisor, i noticed much later that now the non-obsolete bonus buttons (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) trigger the same error now, which they didn't before, so i partially reverted this fix, so that it still applies to `case WIDGET_HELP_OBSOLETE_BONUS:` as we want to fix the issue, but not anymore to `case WIDGET_HELP_BONUS_REVEAL:` which now doesn't use same code anymore as the former, but instead the old base advciv's code if i'm not mistaken, which seemignly nicely fixes this issue as well if i'm not mistaken too but anyways etc.
+ 
+ ## 22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index fb33cb368..15478985e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -212,6 +212,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - tweaked and enhanced old razing logic so we that we (i.e. AI (excluding the barbarian player itself, but as for cities applies more or less to all cities even non-barbarian ones if i'm not mistaken anyways et) players but anyways etc) now raze cities in the early (as of now first 120 turns adjusted to game speed anyways etc) game if they are not close enough to make it worth the early investment. This helps not spread our military forces (which was a major issue in base advciv when it happened, often with most troops being in the new captured faraway city while core ones would be less defended, hopefully much saner and stronger razing now if i'm not mistaken but anyways etc) and scrace economy ressources (city maintenance would be increased per city, pop is generally low in these cities plus the time to build improvements or/and culture or such there, plus the city maintenance in the city itself, etc) so that they stay focused. Indirectly, it may often lead to less fog busting so more barbarians, which is good since it's far from us so will weaken our rivals if i'm not mistaken but anyways etc. As a result of this, AI should be much stronger in the early game, and hopefully no longer split in two making it much easier to defeat (especially if most forces are in the new city). See [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc) for details anyways etc.
+ - Fixed and enhanced the issue of AI overbuilding units with defender UNITAIs when it has few cities for the current stage of the game (so no need to defend that hard, build attackers to expand rather to save on unit cost and leverage unit count advantage + make up for being boxed in or other causes for having low cities anyways etc) or simply already a majority of units with a defender UNITAI (for example joao ai had 36 longbowmen at turn 130, almost all with UNITAI_CITY_DEFENSE but only 3 cities, very very bad and inefficient, causing his downfall due to not devleopping enough and preparing for war instead by having a more versatile UNITAI composition anyways etc), results may have been much better if some of these units were attacker UNITAI units or versatile UNITAI units rather anyways etc. To address this, we now hijack the UnitAI of next units we produce onwards in `CvCityAI::AI_chooseUnit` if we are not in danger (`!bDanger` anyways etc) and these criterion are met, i.e. for relevant AI players if i am not mistaken anyways etc, and make them offense or versatile UNITAIs based on luck and if unit is eligible (for example Joao AI had many longbowmen with UNITAI_COUNTER, still defending cities if i'm not mistaken but ready to be used as a roaming or offensive stack maybe if i'm not mistaken anyways etc; or justinian AI had 19 longbowmen, but many in a roaming stack with UNITAI_COUNTER, and both these AIs that had low cities or/and exess longbowmen now have a much better middle game, not collapsing to bigger rivals that were a bit thin, but instead making military gains due to better pre-middle game preparation). Note: active only in the early game as is when most expansion happens and cities are weakest, then later on we don't use this logic anymore to not alter gameplay too much or cause issues, plus cities are defended and handled well enough hopefully by then to not need our management and early correction if i'm not mistaken but anyways etc. See for details [53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) anyways etc.
+ - Tremendously improved AI overbuilding trebuchets in particular but more generally siege units, especially when it is bad like being weaker (trebuchets are useless and very hammer inefficient if not strictly to attack city tiles, catapults or cannons or such are also not too versatile or/and used correctly by AI to defend for example). Used various conditions in `CvCityAI::AI_chooseUnit` to try to make siege units production as minimal as possible, up to none at all if needed, but if other conditions are met but anyways etc hopefully not too low (a bit low as of now but much better than before when it was too strong). As a result, AIs should have a more varied offensive stack composition, as well as being better at defense when weaker, as seems the case in autoplay test i ran at a glance but anyways etc. See for details [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
++- removed `UNITAI_CITY_COUNTER` from non-versatile enough units such as the UNIT_MACEMAN, as they are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places anyways etc). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles if i am not mistaken but anyways etc, and same for other units if any have that issue as well anyways etc.
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 3dd09e760..67bd1228c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -200,6 +200,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer “split in two” empires). See [KI#64](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc).
+ - **Stop overbuilding pure defenders (early UnitAI rebalance).** In `CvCityAI::AI_chooseUnit`, if a civ has **too few cities for the current stage of the game** (early-phase threshold) or its army is already **defender-heavy**, we **hijack the chosen UnitAI** for upcoming builds and reassign eligible units to **offensive/versatile roles** (e.g., `UNITAI_ATTACK`, `UNITAI_COUNTER`, small RNG). **Scope:** early game only. **Effect:** fewer idle city defenders, more roaming stacks, better expansion/survival (e.g., no more **36 longbowmen** at **turn 130** with only **3 cities**—previously almost all `UNITAI_CITY_DEFENSE`/`UNITAI_CITY_COUNTER`; now many are produced as longbowmen with `UNITAI_COUNTER`, acting as versatile defenders or roaming support units). See **[KI#53.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc)**.
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
++- **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=28793

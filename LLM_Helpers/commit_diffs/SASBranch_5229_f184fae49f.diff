@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5229
+# Commit: f184fae49f00cb9a5630b3fe0bcc0c9dd7ecc194
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1894f822cd704e71325ca1b40a288a1bd9ffa65b
+# Title: properly add hill and peak "terrains" (no more hardcoded id injection), add grouping by land/water with subgroups as well thanks to the very nice help of cha...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+76	13	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 630468468..a77fc9b01 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -192,6 +192,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheSpecialistsTuple = None
+ 		self.SAS_cacheBonusesTuple = None
+ 		self.SAS_cacheImprovementsTuple = None
++		self.SAS_cacheTerrainsTuple = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -288,7 +289,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
+-		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc ; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
++		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
+ 		bAddToHistory = False
+ 		if (not self.pediaHistory):
+ 			bAddToHistory = True
+@@ -411,6 +412,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
++
++		# These are terrain TYPES that should be classified under the "Land (High)" header rather than "Land (Flat)". This is purely a UI grouping choice.
++		self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -539,7 +544,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getTechList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
+ 
+-		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc ; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
++		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
+ 		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
+ 			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
+ 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
+@@ -1031,20 +1036,71 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getTerrainList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, gc.getTerrainInfo)
+ 
+-	def getTerrainList(self):
+-		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
+-		terrainsList = self.getSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
++	def SAS_getTerrainsGroupedByLandWater_fromBaseList(self, baseList):
++		r = []
++		landFlat = []
++		landHigh = []
++		water = []
++
++		# Terrain IDs considered "high land" purely for UI grouping (e.g. Hills/Peaks).
++		highIds = []
++		for szType in self.SAS_SEVOPEDIA_TERRAIN_LAND_HIGH_TYPES:
++			iT = gc.getInfoTypeForString(szType)
++			if iT >= 0:
++				highIds.append(iT)
++
++		for (szName, iTerrain) in baseList:
++			info = gc.getTerrainInfo(iTerrain)
++
++			# IMPORTANT:
++			# In your CIV4TerrainInfos.xml, TERRAIN_HILL and TERRAIN_PEAK have <bWater>1</bWater>.
++			# Therefore info.isWater() returns True for them.
++			# For Sevopedia grouping we still want them under Land (High), so we treat LAND_HIGH as a deliberate UI override.
++			if iTerrain in highIds:
++				landHigh.append((szName, iTerrain))
++			elif info and info.isWater():
++				water.append((szName, iTerrain))
++			else:
++				landFlat.append((szName, iTerrain))
++
++		if self.isSortLists():
++			landFlat.sort()
++			landHigh.sort()
++			water.sort()
++
++		if landFlat:
++			r.append(("Land (Flat)", -1))
++			for x in landFlat:
++				r.append(x)
++
++		if landFlat and landHigh:
++			r.append(("", -1))
++
++		if landHigh:
++			r.append(("Land (High)", -1))
++			for x in landHigh:
++				r.append(x)
+ 
+-		# Add Hill as a pseudo-entry
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+-		terrainsList.append((gc.getTerrainInfo(iHill).getDescription(), iHill))
++		if (landFlat or landHigh) and water:
++			r.append(("", -1))
+ 
+-		# Add Peak as a pseudo-entry
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-		terrainsList.append((gc.getTerrainInfo(iPeak).getDescription(), iPeak))
++		if water:
++			r.append(("Water", -1))
++			for x in water:
++				r.append(x)
+ 
+-		return terrainsList
++		return r
+ 
++	def getTerrainList(self):
++		if self.SAS_cacheTerrainsTuple is None:
++			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such anyways etc. -->
++			# Note: TERRAIN_HILL and TERRAIN_PEAK already exist in CIV4TerrainInfos.xml, but have <bGraphicalOnly>1</bGraphicalOnly>, so they are hidden by the normal list. For Sevopedia, we want them visible, so we include GraphicalOnly here.
++			baseList = self.getUnfilteredSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
++			if self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER:
++				self.SAS_cacheTerrainsTuple = tuple(self.SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList))
++			else:
++				self.SAS_cacheTerrainsTuple = tuple(baseList)
++		return self.SAS_cacheTerrainsTuple
+ 
+ 	def placeFeatures(self):
+ 		self.list = self.getFeatureList()
+@@ -1348,7 +1404,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getLeaderList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
+ 
+-		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt, it advised me to do this here anyways etc ; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
++		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt, it advised me to do this here anyways etc; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
+ 		if not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT:
+ 			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
+ 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
+@@ -1890,3 +1946,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.isSortLists() and not noSort:
+ 			list.sort()
+ 		return list
++	
++	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly but anyways etc., TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list anyways etc. At least we have all the terrains we need now anyways etc. -->
++	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for but anyways etc.) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList anyways etc, should be safer or cleaner for performance too if i'm not mistaken as chatgpt 5.2 noted if i understood it correctly anyways etc. It would also allow to add new entries in the future in an easier and cleaner way as well if i'm not mistaken i mean if i may say but anyways etc. -->
++	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries (“Unfiltered” here specifically means “don’t filter GraphicalOnly”.).
++	# Useful for categories where GraphicalOnly infos are still meaningful in Sevopedia (e.g. terrains like TERRAIN_HILL / TERRAIN_PEAK in our CIV4TerrainInfos.xml).
++	def getUnfilteredSortedList(self, numInfos, getInfo, noSort=False, bCheckGraphicalOnly=False):
++		return self.getSortedList(numInfos, getInfo, noSort, bCheckGraphicalOnly)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 011998086..98bc4e8f1 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -88,6 +88,10 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 92fada0d6..7a7d3b1cf 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -129,6 +129,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - added the "Cannot be traded" tooltip in sevopedia tech as well as the list of all untradeable techs in any untradeable tech's sevopedia tech entry. Also added the "Can be researched multiple times" tooltip. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 29a4e7ba9..6258227b9 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -123,6 +123,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+ - Sevopedia — Techs: added a "Cannot be traded" tooltip to relevant entries and added the list of all untradeable techs in any such entry. Also added a "Can be researched multiple times" tooltip. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ 
+ ### Code/Performance optimizations
+ 
+@@ -300,8 +301,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ - Overall: **snow**, **desert**, and **water** tiles strengthened mainly via bonus/building changes (see Bonus/Buildings sections).
+ - **Floodplains persist after raze**: destroying a city does not remove Flood Plains, so previously-developed land can still stay profitable.
+-- **Ground explore/recon units**: can move through **all land terrains** from game start (including **peaks**) via `bCanMoveImpassable` (no water tiles). They also **ignore terrain movement costs** (not just the Renaissance Explorer). See **Sevopedia Terrain: Peak** (new entry; [example-9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)) or XML for details.
+-- **Other units** (example: Quechua Warrior): some specific units also have `bCanMoveImpassable` for **all land terrains**; see **Sevopedia Terrain Peak/Hill** entries (part of the terrain-category rework) or XML/docs for per-unit details.
++- **Ground explore/recon units**: can move through **all land terrains** from game start (including **peaks**) via `bCanMoveImpassable` (no water tiles). They also **ignore terrain movement costs** (not just the Renaissance Explorer). See **Sevopedia Terrain: Peak** or XML for details.
++- **Other units** (example: Quechua Warrior): some specific units also have `bCanMoveImpassable` for **all land terrains**; see **Sevopedia Terrain Peak/Hill** entries or XML/docs for per-unit details.
+ - **Air explore/recon and land-air units**: the **Airship** (see its Sevopedia entry or this guide's military section) and **Gunship** can move through **all terrains, including peaks and water tiles** using `bCanMoveImpassable` and `bCanMoveAllTerrain`.
+ - **Movement restrictions (outside cultural borders)**: some units (e.g. chariots, some siege) **cannot enter forest/jungle** feature tiles outside borders. This restriction still applies even if the tile is roaded (base Civ4/AdvCiv logic reused). See Sevopedia Feature entries and the feature-category rework ([example-3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)) and/or unit pages for the exact list.
+ - **Forest/jungle combat penalties**: some units (notably UNITCOMBAT_MOUNTED_MELEE) now get forest/jungle penalties; UNITCOMBAT_MOUNTED_RANGED penalties are milder/limited (defense-only). See Sevopedia Feature entries ([example-3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)) and unit pages for the exact modifiers.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index da1a7e38a..29bab426f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -156,6 +156,8 @@ This code uses our latest as of now refactor that uses the multilist code as was
+ 
+ Also more recently added as well but anyways etc the featureterrainbooleans (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details) additionally to what was in rfc doc mod's code/logic, as a separate with clarified explicitly headers now in advciv-sas if may say but their code helped lot too especially at the time xd thanks really if i may say but anyways etc, hopefully helpful or not or yes or etc anyways etc
+ 
++Update: i have recently found with the help of chatgpt 5.2 that these `TERRAIN_HILL` and `TERRAIN_PEAK` already existed, but they were hidden in Base AdvCiv in `getSortedList` in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). Some info about them is incorrect like them having the `<bWater>1</bWater>` property (even though it is incorrect; they are not watery, but we don't need to change it, only reveal the entry for our needs, without affecting or bothering how the other entries work fine as they are i mean but anyways etc.), but the entry is still useful, so as we did keep it displayed in sevopedia terrain, but now no longer do hardcoded index additions, just unreveal it specifically in sevopedia terrain and handle the grouping as of now in the "Land (High)" subgroup with the help of chatgpt 5.2, the rest remaining the same if i'm not mistaken i mean if i may say but anyways etc.
++
+ <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG" alt="0.700_sevopedia_terrains_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG" alt="0.700_sevopedia_terrains_sample (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 7691423ca..098467de4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 3a207be7f..27e784526 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 291224880..fcfba46e1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=23645

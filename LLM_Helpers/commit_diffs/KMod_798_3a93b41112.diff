@@ -1,0 +1,198 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 798
+# Commit: 3a93b4111242e3bb4838f7bead33f3f6a33cbbb5
+# History segment: K-Mod history
+# Parent used for diff: 61eb6f46c86ca722b215a8791a912b4ed28bac01
+# Title: Made several adjustments to AI_warCommitmentCost.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+1	12	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+40	14	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 925036c11..ce966b87c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9497,7 +9497,7 @@ void CvPlayer::changeFreeMilitaryUnitsPopulationPercent(int iChange)
+ }
+ 
+ // K-Mod
+-int CvPlayer::getTypicalUnitValue(UnitAITypes eUnitAI) const
++int CvPlayer::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
+ {
+ 	//UnitTypes eBestUnit = NO_UNIT;
+ 	int iHighestValue = 0;
+@@ -9506,7 +9506,10 @@ int CvPlayer::getTypicalUnitValue(UnitAITypes eUnitAI) const
+ 	{
+ 		UnitTypes eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+ 
+-		if (eLoopUnit != NO_UNIT && GC.getUnitInfo(eLoopUnit).getUnitAIType(eUnitAI) && canTrain(eLoopUnit))
++		if (eLoopUnit != NO_UNIT &&
++			(eUnitAI == NO_UNITAI || GC.getUnitInfo(eLoopUnit).getUnitAIType(eUnitAI)) &&
++			(eDomain == NO_DOMAIN || GC.getUnitInfo(eLoopUnit).getDomainType() == eDomain) &&
++			canTrain(eLoopUnit))
+ 		{
+ 			int iValue = GC.getGameINLINE().AI_combatValue(eLoopUnit);
+ 			if (iValue > iHighestValue)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 7bfbaf120..6c16f9e63 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -482,7 +482,7 @@ public:
+ 	int getFreeMilitaryUnitsPopulationPercent() const;																										// Exposed to Python
+ 	void changeFreeMilitaryUnitsPopulationPercent(int iChange);											
+ 
+-	int getTypicalUnitValue(UnitAITypes eUnitAI) const; // K-Mod
++	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const; // K-Mod
+ 
+ 	// K-Mod note: GoldPerUnit and GoldPerMilitaryUnit are now in units of 1/100 gold.
+ 	int getGoldPerUnit() const;																																								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 39ff7d1ef..603a8121c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23044,18 +23044,7 @@ int CvPlayerAI::AI_calculateUnitAIViability(UnitAITypes eUnitAI, DomainTypes eDo
+ 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+ 		UnitTypes eLoopUnit = (UnitTypes)GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex();
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       01/15/09                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* original BTS code
+-		CvUnitInfo& kUnitInfo = GC.getUnitInfo((UnitTypes)iI);
+-*/
+-		CvUnitInfo& kUnitInfo = GC.getUnitInfo(eLoopUnit);
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++		const CvUnitInfo& kUnitInfo = GC.getUnitInfo(eLoopUnit);
+ 		if (kUnitInfo.getDomainType() == eDomain)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e17bc14fc..c72dc02c5 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2756,7 +2756,7 @@ int CvTeam::countEnemyDangerByArea(CvArea* pArea, TeamTypes eEnemyTeam ) const
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ // K-Mod
+-int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI) const
++int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
+ {
+ 	int iMax = 0;
+ 	for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index b32e4fabc..79ab15580 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -118,7 +118,7 @@ public:
+ /************************************************************************************************/
+ 
+ 	// K-Mod
+-	int getTypicalUnitValue(UnitAITypes eUnitAI) const;
++	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const;
+ 
+ 	int getResearchCost(TechTypes eTech, bool bGlobalModifiers = true) const; // (K-Mod added bGlobalModifiers) Exposed to Python
+ 	int getResearchLeft(TechTypes eTech) const;																// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 7c351c3d9..55359c464 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1540,7 +1540,8 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan) con
+ 			}
+ 			//
+ 
+-			iCommitmentPerMil = iCommitmentPerMil * (100 * iEnemyRelativeStrength) / std::max(1, iOurRelativeStrength * (100+iWarSuccessRating/2));
++			//iCommitmentPerMil = iCommitmentPerMil * (100 * iEnemyRelativeStrength) / std::max(1, iOurRelativeStrength * (100+iWarSuccessRating/2));
++			iCommitmentPerMil = iCommitmentPerMil * iEnemyRelativeStrength / std::max(1, iOurRelativeStrength);
+ 		}
+ 
+ 		// scale based on the relative size of our civilizations.
+@@ -1549,25 +1550,50 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan) con
+ 		iCommitmentPerMil *= 5 * iTheirProduction + iOurProduction;
+ 		iCommitmentPerMil /= std::max(1, iTheirProduction + 5 * iOurProduction);
+ 
+-		// scale based on the relative strengths of our units
+-		int iEnemyScale = 30 + std::max(30, std::max(kTargetTeam.getTypicalUnitValue(UNITAI_ATTACK), kTargetTeam.getTypicalUnitValue(UNITAI_CITY_DEFENSE)));
+-		int iOurAttackUnit = std::max(30, getTypicalUnitValue(UNITAI_ATTACK));
+-		int iOurDefenceUnit = std::max(30, getTypicalUnitValue(UNITAI_CITY_DEFENSE));
+-		int iHighScale = 40 + std::max(iOurAttackUnit, iOurDefenceUnit);
+-		int iLowScale = 30 + std::min(iOurAttackUnit, iOurDefenceUnit);
++		// Adjust for overseas wars
++		if (!AI_hasSharedPrimaryArea(eTarget))
++		{
++			int iOurNavy = getTypicalUnitValue(NO_UNITAI, DOMAIN_SEA);
++			int iEnemyNavy = kTargetTeam.getTypicalUnitValue(NO_UNITAI, DOMAIN_SEA);
++
++			// rescale (unused)
++			/* {
++				int x = std::max(2, iOurNavy + iEnemyNavy) / 2;
++				iOurNavy = iOurNavy * 100 / x;
++				iEnemyNavy = iEnemyNavy * 100 / x;
++			} */
++
++			if (bTotalWar)
++			{
++				iCommitmentPerMil = iCommitmentPerMil * (4*iOurNavy + 5*iEnemyNavy) / (8*iOurNavy + 1*iEnemyNavy);
++				iCommitmentPerMil = iCommitmentPerMil * 5/4;
++			}
++			else
++				iCommitmentPerMil = iCommitmentPerMil * (1*iOurNavy + 4*iEnemyNavy) / (4*iOurNavy + 1*iEnemyNavy);
++		}
+ 
+-		iCommitmentPerMil = std::min(iCommitmentPerMil, 300) * iEnemyScale / iHighScale + std::max(0, iCommitmentPerMil - 300) * iEnemyScale / iLowScale;
++		// scale based on the relative strengths of our units
++		{
++			int iEnemyUnit = std::max(30, kTargetTeam.getTypicalUnitValue(NO_UNITAI, DOMAIN_LAND));
++			int iOurAttackUnit = std::max(30, getTypicalUnitValue(UNITAI_ATTACK, DOMAIN_LAND));
++			int iOurDefenceUnit = std::max(30, getTypicalUnitValue(UNITAI_CITY_DEFENSE, DOMAIN_LAND));
++			int iHighScale = 30 + 70 * std::max(iOurAttackUnit, iOurDefenceUnit) / iEnemyUnit;
++			int iLowScale = 10 + 90 * std::min(iOurAttackUnit, iOurDefenceUnit) / iEnemyUnit;
+ 
+-		// Scale up for distant wars
+-		if (bTotalWar && !AI_hasSharedPrimaryArea(eTarget))
+-			iCommitmentPerMil = iCommitmentPerMil * 4/3;
++			iCommitmentPerMil = std::min(iCommitmentPerMil, 300) * 100 / iHighScale + std::max(0, iCommitmentPerMil - 300) * 100 / iLowScale;
++		}
+ 
++		// increase the cost for distant targets...
+ 		if (AI_teamCloseness(eTarget) == 0)
+ 		{
+-			// especially in the early game.
++			// ... in the early game.
+ 			if (getNumCities() < GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities() * getAliveCount())
+-				iCommitmentPerMil *= 2;
+-			else
++				iCommitmentPerMil = iCommitmentPerMil * 3/2;
++			/* else
++				iCommitmentPerMil = iCommitmentPerMil * 5/4; */
++
++			// ... and for total war
++			if (bTotalWar)
+ 				iCommitmentPerMil = iCommitmentPerMil * 5/4;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=8272

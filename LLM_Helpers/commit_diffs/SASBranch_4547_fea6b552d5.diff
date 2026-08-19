@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4547
+# Commit: fea6b552d5d9c8fa9dd8c0218a797da5f25ec351
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8ea8599d50b75a69a577d81216915e05e0856a31
+# Title: unit fixes or/and tweaks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+11	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+5	6	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index d4ac174dd..6d3b0f38c 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index ac3ef8b6e..a2f118808 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -444,3 +444,14 @@ that being said, i mean i wanted to say this before continuing:
+ - why does cavalry evolve in gunship??? I didn't know this!!! Not played much if at all
+ games so late in the stage/era i mean anyways, of course i have to remove this, it is
+ completely nonsensical i think, will try to find better link in upgrade else do none.
++
++- more info on artillery: https://en.wikipedia.org/wiki/Artillery#Invention_of_gunpowder
++It seems artillery was quite stagnant from gunpowder discovery in end of medieval era
++to napoleonic wars time which i classify i mean as industrial age from the little i
++know (yet) about this era i mean anyways, but i want to show some progression and to
++have units available so the AI can upgrade them, perhaps the human player too. And
++some technological advancements were made or must have been made, i think after
++some researches, the (armstrong) rifled cannon from realism invictus (that i had found
++myself somehow before researching but anyways i mean anyways, thanks,), and the armstrong
++(heavy) cannon (using the base bts one for that as it fits quite well too i think i mean
++anyways, thanks,) for the heavy artillery, may fit quite well.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index cb520d7e1..d26995438 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -14,7 +14,6 @@ pikeman (not useful about this i mean anyways, thanks)
+ chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+ swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
+ catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
+-cannon (not accurate enough or visibly clear enough for my needs in this mod i mean)
+ 
+ 
+ _________________________________________________________________________
+@@ -366,7 +365,7 @@ soft siege 3: early catapult _ catapult (mangonel) realism invictus
+ soft siege 4: medieval catapult _ catapult (hu dan pao) realism invictus
+ soft siege 5: culverin c2c
+ soft siege 6: rifled cannon (agyu) realism invictus
+-soft siege 7: -
++soft siege 7: atomic age artillery _ -
+ soft siege 8: ?
+ 
+ 
+@@ -375,10 +374,10 @@ heavy siege units
+ -
+ heavy siege 3: early trebuchet _ -
+ heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
+-heavy siege 5: bombard (mortar c2c)
+-heavy siege 6: great bombard c2c
+-
+-
++heavy siege 5: great bombard c2c
++heavy siege 6: armstrong heavy cannon: -
++heave siege 7: howitzer realism invictus
++heavy siege 8: ?
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3478

@@ -1,0 +1,956 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1798
+# Commit: 6253ccc3b6687047e3a24be0de950bab7f913e02
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b513eb97b484d6fd5741aedc2a01689cb9184a64
+# Title: Some misc. code changes (mostly style)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+54	127	CvGameCoreDLL/CvCity.cpp
+3	0	CvGameCoreDLL/CvDLLLogger.cpp
+9	6	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlotGroup.cpp
+30	59	CvGameCoreDLL/CvTeamAI.cpp
+119	151	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 37c553ca2..5fa011fbb 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3380,7 +3380,6 @@ void CvCity::processBonus(BonusTypes eBonus, int iChange)
+ 
+ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolete)
+ {
+-	PROFILE_FUNC(); // advc
+ 	int iI, iJ;
+ 	// <advc>
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+@@ -4912,36 +4911,24 @@ CvArea* CvCity::secondWaterArea() const
+ CvArea* CvCity::sharedWaterArea(CvCity* pOtherCity) const
+ {
+ 	CvArea* pWaterArea = waterArea(true);
+-	if (pWaterArea != NULL)
++	if (pWaterArea == NULL)
++		return NULL; // advc
++
++	CvArea* pOtherWaterArea = pOtherCity->waterArea(true);
++	if (pOtherWaterArea != NULL)
+ 	{
+-		CvArea* pOtherWaterArea = pOtherCity->waterArea(true);
+-		if (pOtherWaterArea != NULL)
+-		{
+-			if (pWaterArea == pOtherWaterArea)
+-			{
+-				return pWaterArea;
+-			}
+-			else
+-			{
+-				CvArea* pSecondWaterArea = secondWaterArea();
+-				CvArea* pOtherSecondWaterArea = pOtherCity->secondWaterArea();
++		if (pWaterArea == pOtherWaterArea)
++			return pWaterArea;
+ 
+-				if (pSecondWaterArea != NULL && pSecondWaterArea == pOtherWaterArea)
+-				{
+-					return pSecondWaterArea;
+-				}
+-				else if (pOtherSecondWaterArea != NULL && pWaterArea == pOtherSecondWaterArea)
+-				{
+-					return pWaterArea;
+-				}
+-				else if (pSecondWaterArea != NULL && pOtherSecondWaterArea != NULL && pSecondWaterArea == pOtherSecondWaterArea)
+-				{
+-					return pSecondWaterArea;
+-				}
+-			}
+-		}
++		CvArea* pSecondWaterArea = secondWaterArea();
++		CvArea* pOtherSecondWaterArea = pOtherCity->secondWaterArea();
++		if (pSecondWaterArea != NULL && pSecondWaterArea == pOtherWaterArea)
++			return pSecondWaterArea;
++		else if (pOtherSecondWaterArea != NULL && pWaterArea == pOtherSecondWaterArea)
++			return pWaterArea;
++		else if (pSecondWaterArea != NULL && pOtherSecondWaterArea != NULL && pSecondWaterArea == pOtherSecondWaterArea)
++			return pSecondWaterArea;
+ 	}
+-
+ 	return NULL;
+ }
+ 
+@@ -4951,7 +4938,6 @@ bool CvCity::isBlockaded() const
+ 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 	{
+ 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+-
+ 		if (pAdjacentPlot != NULL)
+ 		{
+ 			if (pAdjacentPlot->getBlockadedCount(getTeam()) > 0)
+@@ -4960,7 +4946,6 @@ bool CvCity::isBlockaded() const
+ 			}
+ 		}
+ 	}
+-
+ 	return false;
+ } // BETTER_BTS_AI_MOD: END
+ 
+@@ -4987,9 +4972,7 @@ void CvCity::setRallyPlot(CvPlot* pPlot)
+ 		}
+ 
+ 		if (isCitySelected())
+-		{
+ 			gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+-		}
+ 	}
+ }
+ 
+@@ -5034,33 +5017,24 @@ int CvCity::getPopulation() const
+ void CvCity::setPopulation(int iNewValue)
+ {
+ 	int iOldPopulation = getPopulation();
+-
+ 	if (iOldPopulation != iNewValue)
+ 	{
+ 		m_iPopulation = iNewValue;
+-
+ 		FAssert(getPopulation() >= 0);
+-
+ 		GET_PLAYER(getOwner()).invalidatePopulationRankCache();
+-
+ 		if (getPopulation() > getHighestPopulation())
+-		{
+ 			setHighestPopulation(getPopulation());
+-		}
+ 
+-		area()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
++		CvArea& kArea = *area(); // advc
++		kArea.changePopulationPerPlayer(getOwner(), getPopulation() - iOldPopulation);
+ 		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
+ 		GET_TEAM(getTeam()).changeTotalPopulation(getPopulation() - iOldPopulation);
+ 		GC.getGame().changeTotalPopulation(getPopulation() - iOldPopulation);
+ 
+ 		if (iOldPopulation > 0)
+-		{
+-			area()->changePower(getOwner(), -(getPopulationPower(iOldPopulation)));
+-		}
++			kArea.changePower(getOwner(), -getPopulationPower(iOldPopulation));
+ 		if (getPopulation() > 0)
+-		{
+-			area()->changePower(getOwner(), getPopulationPower(getPopulation()));
+-		}
++			kArea.changePower(getOwner(), getPopulationPower(getPopulation()));
+ 
+ 		plot()->updateYield();
+ 
+@@ -5177,29 +5151,24 @@ int CvCity::getBaseGreatPeopleRate() const
+ int CvCity::getGreatPeopleRate() const
+ {
+ 	if (isDisorder())
+-	{
+ 		return 0;
+-	}
+-
+-	return ((getBaseGreatPeopleRate() * getTotalGreatPeopleRateModifier()) / 100);
++	return (getBaseGreatPeopleRate() * getTotalGreatPeopleRateModifier()) / 100;
+ }
+ 
+ 
+ int CvCity::getTotalGreatPeopleRateModifier() const
+ {
+ 	int iModifier = getGreatPeopleRateModifier();
+-
+ 	iModifier += GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
+ 
+-	if (GET_PLAYER(getOwner()).getStateReligion() != NO_RELIGION)
++	CvPlayer const& kOwner = GET_PLAYER(getOwner());
++	if (kOwner.getStateReligion() != NO_RELIGION)
+ 	{
+-		if (isHasReligion(GET_PLAYER(getOwner()).getStateReligion()))
+-		{
+-			iModifier += GET_PLAYER(getOwner()).getStateReligionGreatPeopleRateModifier();
+-		}
++		if (isHasReligion(kOwner.getStateReligion()))
++			iModifier += kOwner.getStateReligionGreatPeopleRateModifier();
+ 	}
+ 
+-	if (GET_PLAYER(getOwner()).isGoldenAge())
++	if (kOwner.isGoldenAge())
+ 	{
+ 		static int const iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER = GC.getDefineINT("GOLDEN_AGE_GREAT_PEOPLE_MODIFIER"); // advc.opt
+ 		iModifier += iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER;
+@@ -5228,16 +5197,10 @@ void CvCity::changeGreatPeopleRateModifier(int iChange)
+ }
+ 
+ // BUG - Building Additional Great People - start
+-/*
+- * Returns the total additional great people rate that adding one of the given buildings will provide.
+- *
+- * Doesn't check if the building can be constructed in this city.
+- */
++/*  Returns the total additional great people rate that adding one of the given buildings will provide.
++	Doesn't check if the building can be constructed in this city. */
+ int CvCity::getAdditionalGreatPeopleRateByBuilding(BuildingTypes eBuilding) const
+ {
+-	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+-	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+-
+ 	int iRate = getBaseGreatPeopleRate();
+ 	int iModifier = getTotalGreatPeopleRateModifier();
+ 	int iExtra = ((iRate + getAdditionalBaseGreatPeopleRateByBuilding(eBuilding)) * (iModifier + getAdditionalGreatPeopleRateModifierByBuilding(eBuilding)) / 100) - (iRate * iModifier / 100);
+@@ -5245,53 +5208,33 @@ int CvCity::getAdditionalGreatPeopleRateByBuilding(BuildingTypes eBuilding) cons
+ 	return iExtra;
+ }
+ 
+-/*
+- * Returns the additional great people rate that adding one of the given buildings will provide.
+- *
+- * Doesn't check if the building can be constructed in this city.
+- */
++/*  Returns the additional great people rate that adding one of the given buildings will provide.
++	Doesn't check if the building can be constructed in this city. */
+ int CvCity::getAdditionalBaseGreatPeopleRateByBuilding(BuildingTypes eBuilding) const
+ {
+-	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+-	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+-
+ 	CvBuildingInfo& kBuilding = GC.getInfo(eBuilding);
+-	bool bObsolete = GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding);
+-	int iExtraRate = 0;
+-
+-	iExtraRate += kBuilding.getGreatPeopleRateChange();
+-
+-	// Specialists
+-	if (!bObsolete)
++	int iExtraRate = kBuilding.getGreatPeopleRateChange();
++	if (!GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
+ 	{
+-		for (int iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
++		FOR_EACH_ENUM(Specialist)
+ 		{
+-			if (kBuilding.getFreeSpecialistCount((SpecialistTypes)iI) != 0)
++			if (kBuilding.getFreeSpecialistCount(eLoopSpecialist) != 0)
+ 			{
+-				iExtraRate += getAdditionalBaseGreatPeopleRateBySpecialist((SpecialistTypes)iI, kBuilding.getFreeSpecialistCount((SpecialistTypes)iI));
++				iExtraRate += getAdditionalBaseGreatPeopleRateBySpecialist(eLoopSpecialist,
++						kBuilding.getFreeSpecialistCount(eLoopSpecialist));
+ 			}
+ 		}
+ 	}
+-
+ 	return iExtraRate;
+ }
+ 
+-/*
+- * Returns the additional great people rate modifier that adding one of the given buildings will provide.
+- *
+- * Doesn't check if the building can be constructed in this city.
+- */
++// Doesn't check if the building can be constructed in this city.
+ int CvCity::getAdditionalGreatPeopleRateModifierByBuilding(BuildingTypes eBuilding) const
+ {
+-	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+-	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+-
+-	CvBuildingInfo& kBuilding = GC.getInfo(eBuilding);
+-	bool bObsolete = GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding);
+ 	int iExtraModifier = 0;
+-
+-	if (!bObsolete)
++	if (!GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
+ 	{
++		CvBuildingInfo& kBuilding = GC.getInfo(eBuilding);
+ 		iExtraModifier += kBuilding.getGreatPeopleRateModifier();
+ 		iExtraModifier += kBuilding.getGlobalGreatPeopleRateModifier();
+ 	}
+@@ -5302,28 +5245,21 @@ int CvCity::getAdditionalGreatPeopleRateModifierByBuilding(BuildingTypes eBuildi
+ 
+ 
+ // BUG - Specialist Additional Great People - start
+-/*
+- * Returns the total additional great people rate that changing the number of the given specialist will provide/remove.
+- */
++/*  Returns the total additional great people rate that
++	changing the number of the given specialist will provide/remove. */
+ int CvCity::getAdditionalGreatPeopleRateBySpecialist(SpecialistTypes eSpecialist, int iChange) const
+ {
+ 	int iRate = getBaseGreatPeopleRate();
+ 	int iModifier = getTotalGreatPeopleRateModifier();
+ 	int iExtraRate = getAdditionalBaseGreatPeopleRateBySpecialist(eSpecialist, iChange);
+-
+ 	int iExtra = ((iRate + iExtraRate) * iModifier / 100) - (iRate * iModifier / 100);
+-
+ 	return iExtra;
+ }
+ 
+-/*
+- * Returns the additional great people rate that changing the number of the given specialist will provide/remove.
+- */
++/*  Returns the additional great people rate that
++	changing the number of the given specialist will provide/remove. */
+ int CvCity::getAdditionalBaseGreatPeopleRateBySpecialist(SpecialistTypes eSpecialist, int iChange) const
+ {
+-	FAssertMsg(eSpecialist >= 0, "eSpecialist expected to be >= 0");
+-	FAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist expected to be < GC.getNumSpecialistInfos()");
+-
+ 	return iChange * GC.getInfo(eSpecialist).getGreatPeopleRateChange();
+ }
+ // BUG - Specialist Additional Great People - end
+@@ -5422,25 +5358,19 @@ void CvCity::changeGovernmentCenterCount(int iChange)
+ 
+ 
+ // BUG - Building Saved Maintenance - start
+-/*
+- * Returns the total additional gold from saved maintenance times 100 that adding one of the given buildings will provide.
+- *
+- * Doesn't check if the building can be constructed in this city.
+- */
++/*  Returns the total additional gold from saved maintenance times 100 that adding one of the given buildings will provide.
++	Doesn't check if the building can be constructed in this city. */
+ int CvCity::getSavedMaintenanceTimes100ByBuilding(BuildingTypes eBuilding) const
+ {
+-	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+-	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+-
+ 	CvBuildingInfo& kBuilding = GC.getInfo(eBuilding);
+ 	int iModifier = kBuilding.getMaintenanceModifier();
+-	if (iModifier != 0 && !isDisorder() && !isWeLoveTheKingDay() && (getPopulation() > 0))
++	if (iModifier != 0 && !isDisorder() && !isWeLoveTheKingDay() && getPopulation() > 0)
+ 	{
+-		int iNewMaintenance = calculateBaseMaintenanceTimes100() * std::max(0, getMaintenanceModifier() + iModifier + 100) / 100;
+-		//return getMaintenanceTimes100() - iNewMaintenance;
+-		return ROUND_DIVIDE((getMaintenanceTimes100() - iNewMaintenance)*(100+GET_PLAYER(getOwner()).calculateInflationRate()), 100); // K-Mod
++		int iNewMaintenance = calculateBaseMaintenanceTimes100() *
++				std::max(0, getMaintenanceModifier() + iModifier + 100) / 100;
++		return ROUND_DIVIDE((getMaintenanceTimes100() - iNewMaintenance) *
++				(100 + GET_PLAYER(getOwner()).calculateInflationRate()), 100); // K-Mod
+ 	}
+-
+ 	return 0;
+ }
+ // BUG - Building Saved Maintenance - end
+@@ -5460,16 +5390,13 @@ void CvCity::updateMaintenance()
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iOldMaintenance;
+-	int iNewMaintenance;
+-
+-	iOldMaintenance = getMaintenanceTimes100();
+-
+-	iNewMaintenance = 0;
++	int iOldMaintenance = getMaintenanceTimes100();
++	int iNewMaintenance = 0;
+ 
+-	if (!isDisorder() && !isWeLoveTheKingDay() && (getPopulation() > 0))
++	if (!isDisorder() && !isWeLoveTheKingDay() && getPopulation() > 0)
+ 	{
+-		iNewMaintenance = (calculateBaseMaintenanceTimes100() * std::max(0, (getMaintenanceModifier() + 100))) / 100;
++		iNewMaintenance = (calculateBaseMaintenanceTimes100() *
++				std::max(0, getMaintenanceModifier() + 100)) / 100;
+ 	}
+ 
+ 	if (iOldMaintenance != iNewMaintenance)
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index e2fd8e765..f08d5235d 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -103,6 +103,8 @@ void CvDLLLogger::logUnitStuck(CvUnit const& kUnit)
+ 
+ // <advc.mapstat>
+ // Don't really want to include sstream in the header. Hence free functions.
++namespace
++{
+ void appendPercentage(std::ostringstream& os, char const* szLabel, int iAbsolute, int iTotal)
+ {
+ 	FAssert(iAbsolute <= iTotal);
+@@ -120,6 +122,7 @@ void appendPercentage(std::ostringstream& os, wchar const* szLabel, int iAbsolut
+ 	::narrowUnsafe(szWide, szNarrow);
+ 	appendPercentage(os, szNarrow.c_str(), iAbsolute, iTotal);
+ }
++}
+ 
+ void CvDLLLogger::logMapStats()
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a3c1a3b0d..34340fe63 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2601,7 +2601,7 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ 	bDefensive = false;
+ 	bSeafaring = false;
+ 	bExpansive = false;
+-	bAllSeeing = bStartingLoc || kPlayer.isBarbarian();
++	bAllSeeing = (bStartingLoc || kPlayer.isBarbarian());
+ 	iBarbDiscouragedRange = 8; // advc.303
+ 	bDebug = false; // advc.007
+ 
+@@ -4677,8 +4677,8 @@ int CvPlayerAI::AI_targetCityValue(CvCity const* pCity, bool bRandomize, bool bI
+ 			continue;
+ 		if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 		{
+-			iValue += std::max(1, AI_bonusVal(pLoopPlot->getBonusType(
+-					getTeam()), 1, true) / 5);
++			iValue += std::max(1, AI_bonusVal(pLoopPlot->getBonusType(getTeam()),
++					1, true) / 5);
+ 		}
+ 		if (pLoopPlot->getOwner() == getID())
+ 			iValue++;
+@@ -4722,9 +4722,8 @@ int CvPlayerAI::AI_targetCityValue(CvCity const* pCity, bool bRandomize, bool bI
+ 			}
+ 		} // <advc.104d> Against Space3, taking any high-production cities helps.
+ 		else if(!kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) &&
+-				!AI_isDoVictoryStrategyLevel4() &&
+-				pCity->findYieldRateRank(YIELD_PRODUCTION) <
+-				std::min(5, kOwner.getNumCities() / 4))
++			!AI_isDoVictoryStrategyLevel4() &&
++			pCity->findYieldRateRank(YIELD_PRODUCTION) < std::min(5, kOwner.getNumCities() / 4))
+ 		{
+ 			iValue += 3;
+ 			bThwartVictory = true;
+@@ -16303,7 +16302,11 @@ void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
+ 			{
+ 				CvCityAI& kCity = *pPlot->AI_getPlotCity();
+ 				if (!kCity.AI_isSafe()) // It's only going to get safer
++				{
++					// advc.test:
++					FAssertMsg(false, "Only to see how frequently this happens (or rather: just how rarely)");
+ 					kCity.AI_updateSafety();
++				}
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index 73f1c6536..6c9f6c9ba 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -210,7 +210,7 @@ void CvPlotGroup::changeNumBonuses(BonusTypes eBonus, int iChange)
+ // <advc.064d>
+ void CvPlotGroup::verifyCityProduction()
+ {
+-	PROFILE_FUNC(); // About 1 permille of the runtime [upd.: should be less now b/c CvCity::verifyProduction no longer calls doCheckProduction]
++	PROFILE_FUNC(); // About 1 permille of the runtime
+ 	if (m_iRecalculating > 0)
+ 		return;
+ 	CvMap const& m = GC.getMap();
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 9714cba07..dee72fac2 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -214,13 +214,10 @@ void CvTeamAI::AI_makeAssignWorkDirty()
+ {
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+-			{
+-				GET_PLAYER((PlayerTypes)iI).AI_makeAssignWorkDirty();
+-			}
+-		}
++		CvPlayer& kMember = GET_PLAYER((PlayerTypes)iI);
++		if (!kMember.isAlive() || kMember.getTeam() != getID())
++			continue;
++		kMember.AI_makeAssignWorkDirty();
+ 	}
+ }
+ 
+@@ -243,14 +240,11 @@ void CvTeamAI::AI_updateAreaTargets()
+ {
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI); // K-Mod
+-		if (kLoopPlayer.isAlive())
+-		{
+-			if (kLoopPlayer.getTeam() == getID() && kLoopPlayer.AI_getCityTargetTimer() == 0) // K-Mod added timer check.
+-			{
+-				kLoopPlayer.AI_updateAreaTargets();
+-			}
+-		}
++		CvPlayerAI& kMember = GET_PLAYER((PlayerTypes)iI);
++		if (!kMember.isAlive() || kMember.getTeam() != getID())
++			continue;
++		if (kMember.AI_getCityTargetTimer() == 0) // K-Mod added timer check.
++			kMember.AI_updateAreaTargets();
+ 	}
+ }
+ 
+@@ -260,16 +254,11 @@ int CvTeamAI::AI_countFinancialTrouble() const
+ 	int iCount = 0;
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).AI_isFinancialTrouble())
+-				{
+-					iCount++;
+-				}
+-			}
+-		}
++		CvPlayerAI const& kMember = GET_PLAYER((PlayerTypes)iI);
++		if (!kMember.isAlive() || kMember.getTeam() != getID())
++			continue;
++		if (kMember.AI_isFinancialTrouble())
++			iCount++;
+ 	}
+ 	return iCount;
+ }
+@@ -280,13 +269,10 @@ int CvTeamAI::AI_countMilitaryWeight(CvArea* pArea) const
+ 	int iCount = 0;
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+-			{
+-				iCount += GET_PLAYER((PlayerTypes)iI).AI_militaryWeight(pArea);
+-			}
+-		}
++		CvPlayerAI const& kMember = GET_PLAYER((PlayerTypes)iI);
++		if (!kMember.isAlive() || kMember.getTeam() != getID())
++			continue;
++		iCount += kMember.AI_militaryWeight(pArea);
+ 	}
+ 	return iCount;
+ }
+@@ -362,12 +348,10 @@ bool CvTeamAI::AI_deduceCitySite(const CvCity* pCity) const
+ 				continue;
+ 
+ 			CvPlot* pLoopPlot = plotXY(pCity->getX(), pCity->getY(), iDX, iDY);
+-
+ 			if (pLoopPlot && pLoopPlot->getRevealedOwner(getID()) == pCity->getOwner())
+ 			{
+ 				// if multiple cities have their plot in their range, then that will make it harder to deduce the precise city location.
+ 				iPoints += 1 + std::max(0, iLevel - iDist - pLoopPlot->getNumCultureRangeCities(pCity->getOwner())+1);
+-
+ 				if (iPoints > iLevel)
+ 					return true;
+ 			}
+@@ -381,18 +365,12 @@ bool CvTeamAI::AI_isAnyCapitalAreaAlone() const
+ {
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).AI_isCapitalAreaAlone())
+-				{
+-					return true;
+-				}
+-			}
+-		}
++		CvPlayerAI const& kMember = GET_PLAYER((PlayerTypes)iI);
++		if (!kMember.isAlive() || kMember.getTeam() != getID())
++			continue;
++		if (kMember.AI_isCapitalAreaAlone())
++			return true;
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -401,18 +379,12 @@ bool CvTeamAI::AI_isPrimaryArea(CvArea* pArea) const
+ {
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).AI_isPrimaryArea(pArea))
+-				{
+-					return true;
+-				}
+-			}
+-		}
++		CvPlayerAI const& kMember = GET_PLAYER((PlayerTypes)iI);
++		if (!kMember.isAlive() || kMember.getTeam() != getID())
++			continue;
++		if (kMember.AI_isPrimaryArea(pArea))
++			return true;
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -436,15 +408,14 @@ bool CvTeamAI::AI_hasSharedPrimaryArea(TeamTypes eTeam) const
+ {
+ 	FAssert(eTeam != getID());
+ 
+-	const CvTeamAI& kTeam = GET_TEAM(eTeam);
++	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+ 	FOR_EACH_AREA_VAR(pLoopArea)
+ 	{
+ 		if (AI_isPrimaryArea(pLoopArea) && kTeam.AI_isPrimaryArea(pLoopArea))
+ 			return true;
+ 	}
+ 	return false;
+-}
+-// K-Mod end
++} // K-Mod end
+ 
+ /*  advc.104s (note): If UWAI is enabled, AI_doWar may adjust (i.e. overwrite) the
+ 	result of this calculation through WarAndPeaceAgent::Team::alignAreaAI. */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 63ff50179..796367fd2 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2955,9 +2955,7 @@ void CvUnitAI::AI_attackCityMove()
+ 
+ 	CvCity* pTargetCity = NULL;
+ 	if (isBarbarian())
+-	{
+ 		pTargetCity = AI_pickTargetCity(iMoveFlags, 10); // was 12 (K-Mod)
+-	}
+ 	else
+ 	{
+ 		//pTargetCity = AI_pickTargetCity(iMoveFlags, MAX_INT, bHuntBarbs);
+@@ -2977,9 +2975,7 @@ void CvUnitAI::AI_attackCityMove()
+ 
+ 		// K-Mod - I'm going to scale the attack ratio based on our war strategy
+ 		if (isBarbarian())
+-		{
+ 			iAttackRatio = 80;
+-		}
+ 		else
+ 		{
+ 			int iAdjustment = 5;
+@@ -13417,159 +13413,143 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 					}
+ 				}
+ 
+-				if (iPathTurns < iMaxPathTurns)
+-				{
+-					// If city is visible and our force already in position is dominantly powerful or we have a huge force
+-					// already on the way, pick a different target
+-					int iEnemyDefence = -1; // used later.
+-					int iOffenceEnRoute = kOwner.AI_cityTargetStrengthByPath(
+-							pLoopCity, getGroup(), iPathTurns);
+-					if (pLoopCity->isVisible(getTeam(), false))
+-					{
+-						iEnemyDefence = kOwner.AI_localDefenceStrength(
+-								pLoopCity->plot(), NO_TEAM, DOMAIN_LAND, true,
+-								iPathTurns > 1 ? 2 : 0);
+-						if (iPathTurns > 2)
+-						{
+-							int iAttackRatio = ((GC.getMAX_CITY_DEFENSE_DAMAGE() -
+-									pLoopCity->getDefenseDamage()) *
+-									GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) +
+-									pLoopCity->getDefenseDamage() *
+-									GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_MIN_STACK_RATIO)) /
+-									std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
+-							if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
+-								continue;
+-						}
+-					}
+-					if (iOurOffence == -1)
++				if (iPathTurns >= iMaxPathTurns)
++					continue; // advc
++				// If city is visible and our force already in position is dominantly powerful or we have a huge force
++				// already on the way, pick a different target
++				int iEnemyDefence = -1; // used later.
++				int iOffenceEnRoute = kOwner.AI_cityTargetStrengthByPath(
++						pLoopCity, getGroup(), iPathTurns);
++				if (pLoopCity->isVisible(getTeam(), false))
++				{
++					iEnemyDefence = kOwner.AI_localDefenceStrength(pLoopCity->plot(),
++							NO_TEAM, DOMAIN_LAND, true, iPathTurns > 1 ? 2 : 0);
++					if (iPathTurns > 2)
+ 					{
+-						/*  note: with bCheckCanAttack == false, AI_sumStrength should be
+-							roughly the same regardless of which city we are targeting.
+-							... except if lots of our units have a hills-attack promotion
+-							or something like that. */
+-						iOurOffence = AI_getGroup()->AI_sumStrength(pLoopCity->plot());
++						int iAttackRatio = ((GC.getMAX_CITY_DEFENSE_DAMAGE() -
++								pLoopCity->getDefenseDamage()) *
++								GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) +
++								pLoopCity->getDefenseDamage() *
++								GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_MIN_STACK_RATIO)) /
++								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
++						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
++							continue;
+ 					}
+-					FAssert(iOurOffence > 0);
+-					int iTotalOffence = iOurOffence + iOffenceEnRoute;
++				}
++				if (iOurOffence == -1)
++				{
++					/*  note: with bCheckCanAttack == false, AI_sumStrength should be
++						roughly the same regardless of which city we are targeting.
++						... except if lots of our units have a hills-attack promotion
++						or something like that. */
++					iOurOffence = AI_getGroup()->AI_sumStrength(pLoopCity->plot());
++				}
++				FAssert(iOurOffence > 0);
++				int iTotalOffence = iOurOffence + iOffenceEnRoute;
+ 
+-					int iValue = 0;
+-					if (AI_getUnitAIType() == UNITAI_ATTACK_CITY) //lemming?
+-					{
+-						iValue = kOwner.AI_targetCityValue(pLoopCity, false, false);
+-					}
+-					else
+-					{
+-						iValue = kOwner.AI_targetCityValue(pLoopCity, true, true);
+-					}
+-					// adjust value based on defensive bonuses
+-					{
+-						int iMod =
+-								std::min(8, getGroup()->getBombardTurns(pLoopCity)) *
+-								pLoopCity->getDefenseModifier(false) / 8
+-								+ (pLoopCity->plot()->isHills() ?
+-								GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE) : 0);
+-						iValue *= std::max(25, 125 - iMod);
+-						iValue /= 25; // the denominator is arbitrary, and unimportant.
+-						/*  note: the value reduction from high defences which are bombardable should not
+-							be more than the value reduction from simply having higher iPathTurns. */
+-					}
+-					// prefer cities which are close to the main target.
+-					if (pLoopCity == pTargetCity)
+-					{
+-						iValue *= 2;
+-					}
+-					else if (pTargetCity != NULL)
+-					{
+-						int iStepsFromTarget = stepDistance(
+-							pLoopCity->getX(), pLoopCity->getY(),
++				int iValue = 0;
++				if (AI_getUnitAIType() == UNITAI_ATTACK_CITY) //lemming?
++					iValue = kOwner.AI_targetCityValue(pLoopCity, false, false);
++				else iValue = kOwner.AI_targetCityValue(pLoopCity, true, true);
++				// adjust value based on defensive bonuses
++				{
++					int iMod = std::min(8, getGroup()->getBombardTurns(pLoopCity)) *
++							pLoopCity->getDefenseModifier(false) / 8
++							+ (pLoopCity->plot()->isHills() ?
++							GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE) : 0);
++					iValue *= std::max(25, 125 - iMod);
++					iValue /= 25; // the denominator is arbitrary, and unimportant.
++					/*  note: the value reduction from high defences which are bombardable should not
++						be more than the value reduction from simply having higher iPathTurns. */
++				}
++				// prefer cities which are close to the main target.
++				if (pLoopCity == pTargetCity)
++					iValue *= 2;
++				else if (pTargetCity != NULL)
++				{
++					int iStepsFromTarget = stepDistance(pLoopCity->getX(), pLoopCity->getY(),
+ 							pTargetCity->getX(), pTargetCity->getY());
+-
+-						iValue *= 124 - 2*std::min(12, iStepsFromTarget);
+-						iValue /= 100;
+-					}
+-
+-					if (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
+-					{
+-						iValue *= 100 + pLoopCity->calculateCulturePercent(getOwner()); // was 50
+-						iValue /= 125; // was 50 (unimportant)
+-					}
+-
+-					/*  boost value if we can see that the city is poorly defended,
+-						or if our existing armies need help there */
+-					if (pLoopCity->isVisible(getTeam(), false) && iPathTurns < 6)
++					iValue *= 124 - 2*std::min(12, iStepsFromTarget);
++					iValue /= 100;
++				}
++				if (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++				{
++					iValue *= 100 + pLoopCity->calculateCulturePercent(getOwner()); // was 50
++					iValue /= 125; // was 50 (unimportant)
++				}
++				/*  boost value if we can see that the city is poorly defended,
++					or if our existing armies need help there */
++				if (pLoopCity->isVisible(getTeam(), false) && iPathTurns < 6)
++				{
++					FAssert(iEnemyDefence != -1);
++					if (iOffenceEnRoute > iEnemyDefence/3 && iOffenceEnRoute < iEnemyDefence)
+ 					{
+-						FAssert(iEnemyDefence != -1);
+-						if (iOffenceEnRoute > iEnemyDefence/3 && iOffenceEnRoute < iEnemyDefence)
+-						{
+-							iValue *= 100 + (9 * iTotalOffence > 10 * iEnemyDefence ? 30 : 15);
+-							iValue /= 100;
+-						}
+-						else if (iOurOffence > iEnemyDefence)
+-						{
+-							// don't boost it by too much, otherwise human players will exploit us. :(
+-							int iCap = 100 + 100 * (6 - iPathTurns) / 5;
+-							iValue *= std::min(iCap, 100 * iOurOffence / std::max(1, iEnemyDefence));
+-							iValue /= 100;
+-							// an additional bonus if we're already adjacent
+-							// (we can afford to be generous with this bonus, because the enemy has no time to bring in reinforcements)
+-							if (iPathTurns <= 1)
+-							{
+-								iValue *= std::min(300, 150 * iOurOffence / std::max(1, iEnemyDefence));
+-								iValue /= 100;
+-							}
+-						}
++						iValue *= 100 + (9 * iTotalOffence > 10 * iEnemyDefence ? 30 : 15);
++						iValue /= 100;
+ 					}
+-					// Reduce the value if we can see, or remember, that the city is well defended.
+-					// Note. This adjustment can be more heavy handed because it is harder to feign strong defence than weak defence.
+-					iEnemyDefence = GET_TEAM(getTeam()).AI_getStrengthMemory(pLoopCity->plot());
+-					if (iEnemyDefence > iTotalOffence)
++					else if (iOurOffence > iEnemyDefence)
+ 					{
+-						// a more sensitive adjustment than usual (w/ modifier on the denominator), so as not to be too deterred before bombarding.
+-						iEnemyDefence *= 130;
+-						iEnemyDefence /= 130 + (bombardRate() > 0 ? pLoopCity->getDefenseModifier(false) : 0);
+-						WarPlanTypes eWarPlan = GET_TEAM(kOwner.getTeam()).AI_getWarPlan(pLoopCity->getTeam());
+-						// If we aren't fully committed to the war, then focus on taking easy cities - but try not to be completely predictable.
+-						bool bCherryPick = eWarPlan == WARPLAN_LIMITED || eWarPlan == WARPLAN_PREPARING_LIMITED || eWarPlan == WARPLAN_DOGPILE;
+-						bCherryPick = bCherryPick && (AI_unitBirthmarkHash(GC.getGame().getElapsedGameTurns()/4) % 4);
+-
+-						int iBase = bCherryPick ? 100 : 110;
+-						if (100 * iEnemyDefence > iBase * iTotalOffence) // an uneven comparison, just in case we can get some air support or other help somehow.
++						// don't boost it by too much, otherwise human players will exploit us. :(
++						int iCap = 100 + 100 * (6 - iPathTurns) / 5;
++						iValue *= std::min(iCap, 100 * iOurOffence / std::max(1, iEnemyDefence));
++						iValue /= 100;
++						// an additional bonus if we're already adjacent
++						// (we can afford to be generous with this bonus, because the enemy has no time to bring in reinforcements)
++						if (iPathTurns <= 1)
+ 						{
+-							iValue *= bCherryPick ?
+-									std::max(20, (3 * iBase * iTotalOffence - iEnemyDefence) / (2*iEnemyDefence)) :
+-									std::max(33, iBase * iTotalOffence / iEnemyDefence);
++							iValue *= std::min(300, 150 * iOurOffence / std::max(1, iEnemyDefence));
+ 							iValue /= 100;
+ 						}
+ 					}
+-					// A const-random component, so that the AI doesn't always go for the same city.
+-					iValue *= 80 + AI_unitPlotHash(pLoopCity->plot()) % 41;
+-					iValue /= 100;
+-
+-					iValue *= 1000;
+-
+-					// If city is minor civ, less interesting
+-					if (GET_PLAYER(pLoopCity->getOwner()).isMinorCiv() || GET_PLAYER(pLoopCity->getOwner()).isBarbarian())
++				}
++				// Reduce the value if we can see, or remember, that the city is well defended.
++				// Note. This adjustment can be more heavy handed because it is harder to feign strong defence than weak defence.
++				iEnemyDefence = GET_TEAM(getTeam()).AI_getStrengthMemory(pLoopCity->plot());
++				if (iEnemyDefence > iTotalOffence)
++				{
++					// a more sensitive adjustment than usual (w/ modifier on the denominator), so as not to be too deterred before bombarding.
++					iEnemyDefence *= 130;
++					iEnemyDefence /= 130 + (bombardRate() > 0 ? pLoopCity->getDefenseModifier(false) : 0);
++					WarPlanTypes eWarPlan = GET_TEAM(kOwner.getTeam()).AI_getWarPlan(pLoopCity->getTeam());
++					// If we aren't fully committed to the war, then focus on taking easy cities - but try not to be completely predictable.
++					bool bCherryPick = (eWarPlan == WARPLAN_LIMITED || eWarPlan == WARPLAN_PREPARING_LIMITED || eWarPlan == WARPLAN_DOGPILE);
++					bCherryPick = bCherryPick && (AI_unitBirthmarkHash(GC.getGame().getElapsedGameTurns()/4) % 4);
++
++					int iBase = bCherryPick ? 100 : 110;
++					if (100 * iEnemyDefence > iBase * iTotalOffence) // an uneven comparison, just in case we can get some air support or other help somehow.
+ 					{
+-						//iValue /= 2;
+-						iValue /= 3; // K-Mod
++						iValue *= bCherryPick ?
++								std::max(20, (3 * iBase * iTotalOffence - iEnemyDefence) / (2*iEnemyDefence)) :
++								std::max(33, iBase * iTotalOffence / iEnemyDefence);
++						iValue /= 100;
+ 					}
+-					// If stack has poor bombard, direct towards lower defense cities
+-					//iPathTurns += std::min(12, getGroup()->getBombardTurns(pLoopCity)/4);
+-					//iPathTurns += bombardRate() > 0 ? std::min(5, getGroup()->getBombardTurns(pLoopCity)/3) : 0; // K-Mod
+-					// (already taken into account.)
+-
+-					iValue /= 8 + iPathTurns*iPathTurns; // was 4+
++				}
++				// A const-random component, so that the AI doesn't always go for the same city.
++				iValue *= 80 + AI_unitPlotHash(pLoopCity->plot()) % 41;
++				iValue /= 100;
++				iValue *= 1000;
++				// If city is minor civ, less interesting
++				if (GET_PLAYER(pLoopCity->getOwner()).isMinorCiv() ||
++					GET_PLAYER(pLoopCity->getOwner()).isBarbarian())
++				{
++					//iValue /= 2;
++					iValue /= 3; // K-Mod
++				}
++				// If stack has poor bombard, direct towards lower defense cities
++				//iPathTurns += std::min(12, getGroup()->getBombardTurns(pLoopCity)/4);
++				//iPathTurns += bombardRate() > 0 ? std::min(5, getGroup()->getBombardTurns(pLoopCity)/3) : 0; // K-Mod
++				// (already taken into account.)
+ 
+-					if (iValue > iBestValue)
+-					{
+-						iBestValue = iValue;
+-						pBestCity = pLoopCity;
+-					}
++				iValue /= 8 + iPathTurns*iPathTurns; // was 4+
++				if (iValue > iBestValue)
++				{
++					iBestValue = iValue;
++					pBestCity = pLoopCity;
+ 				}
+ 			} // end if revealed.
+ 			// K-Mod. If no city in the area is revealed,
+ 			// then assume the AI is able to deduce the position of the closest city.
+-			else if (iBestValue == 0 && !pLoopCity->isBarbarian() && (!pBestCity ||
++			else if (iBestValue == 0 && !pLoopCity->isBarbarian() && (pBestCity == NULL ||
+ 				stepDistance(getX(), getY(), pBestCity->getX(), pBestCity->getY()) >
+ 				stepDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY())))
+ 			{
+@@ -22329,29 +22309,19 @@ bool CvUnitAI::AI_allowGroup(CvUnitAI const& kUnit, UnitAITypes eUnitAI) const /
+ 	CvPlot* pPlot = kUnit.plot();
+ 
+ 	if (&kUnit == this)
+-	{
+ 		return false;
+-	}
+ 
+ 	if (!kUnit.isGroupHead())
+-	{
+ 		return false;
+-	}
+ 
+ 	if (pGroup == getGroup())
+-	{
+ 		return false;
+-	}
+ 
+ 	if (kUnit.isCargo())
+-	{
+ 		return false;
+-	}
+ 
+ 	if (kUnit.AI_getUnitAIType() != eUnitAI)
+-	{
+ 		return false;
+-	}
+ 
+ 	switch (pGroup->AI_getMissionAIType())
+ 	{
+@@ -22376,9 +22346,7 @@ bool CvUnitAI::AI_allowGroup(CvUnitAI const& kUnit, UnitAITypes eUnitAI) const /
+ 	}
+ 
+ 	if (!canJoinGroup(pPlot, pGroup))
+-	{
+ 		return false;
+-	}
+ 
+ 	if (eUnitAI == UNITAI_SETTLE)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=34796

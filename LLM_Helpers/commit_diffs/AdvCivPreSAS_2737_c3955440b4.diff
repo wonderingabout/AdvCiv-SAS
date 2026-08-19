@@ -1,0 +1,97 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2737
+# Commit: c3955440b4b8c741979f4c4bd6cdc9e022cde639
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5400034c26acbcab11845eb44c1063e83778c56e
+# Title: Show BULL option for net effects of specialists
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+1	1	Assets/XML/Text/BUG Options Screen.xml
+23	1	Assets/XML/Text/BULL Misc Hovers Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+index 0576b385f..d4156cc05 100644
+--- a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+@@ -68,7 +68,9 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingAdditionalProduction")
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingAdditionalCommerce")
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingSavedMaintenance")
+-		self.addSpacer(screen, right, "CityScreen2a")
++		#self.addSpacer(screen, right, "CityScreen2a")
++		# advc.063 (instead of the spacer):
++		self.addCheckbox(screen, right, "MiscHover__SpecialistActualEffects")
+ 		self.addCheckbox(screen, right, "MiscHover__BuildingAdditionalHealth")
+ 		self.addCheckbox(screen, right, "MiscHover__BuildingAdditionalHappiness")
+ 		self.addCheckbox(screen, right, "MiscHover__BuildingAdditionalGreatPeople")
+
+diff --git a/Assets/XML/Text/BUG Options Screen.xml b/Assets/XML/Text/BUG Options Screen.xml
+index d76062a77..8d5d90190 100644
+--- a/Assets/XML/Text/BUG Options Screen.xml	
++++ b/Assets/XML/Text/BUG Options Screen.xml	
+@@ -386,7 +386,7 @@
+ 		<Spanish>Barra Grandes Personajes:</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: The English name of the mod component is arguably too
++	<!-- advc.063: The English name of the mod component is arguably too
+ 		 established to be changed, but can at least change it in German. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_BUILDINGEFFECTS</Tag>
+
+diff --git a/Assets/XML/Text/BULL Misc Hovers Options.xml b/Assets/XML/Text/BULL Misc Hovers Options.xml
+index dcb93c3f7..357d80465 100644
+--- a/Assets/XML/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/XML/Text/BULL Misc Hovers Options.xml	
+@@ -195,7 +195,8 @@
+ 		<Italian>Edifici</Italian>
+ 		<Spanish>Edificios</Spanish>
+ 	</TEXT>
+-	<!-- advc.063: Info about Alt key added. -->
++	<!-- advc.063: start -->
++	<!-- Info about Alt key added -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGACTUALEFFECTS_HOVER</Tag>
+ 		<English>If checked, the city screen shows the predicted absolute change in [ICON_PRODUCTION], [ICON_COMMERCE], [ICON_FOOD], [ICON_HAPPY], [ICON_HEALTHY], [ICON_GREATPEOPLE] and [ICON_DEFENSE] of a building when hovering over a construct button or the production queue. Absolute effects are also shown when hovering over a specialist or an action button of a Great Person unit. All the info displayed by the Actual Effects mod can alternatively be accessed by holding down the Alt key while hovering.</English>
+@@ -204,6 +205,27 @@
+ 		<Italian>Quando � selezionato, nel testo a comparsa degli Edifici della Citt� viene mostrata la resa effettiva in [ICON_COMMERCE], [ICON_HAPPY], [ICON_HEALTHY], [ICON_GREATPEOPLE] e [ICON_DEFENSE] prodotta dagli edifici stessi.</Italian>
+ 		<Spanish>Si se activa, se muestran los beneficios reales de [ICON_COMMERCE], [ICON_HAPPY], [ICON_HEALTHY], [ICON_GREATPEOPLE], y [ICON_DEFENSE] que el edificio produce en su texto flotante.</Spanish>
+ 	</TEXT>
++	<!-- This option was implemented only on the DLL-side.
++		 So this is new help text. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPECIALISTACTUALEFFECTS_TEXT</Tag>
++		<English>Specialists</English>
++		<French>Specialists</French>
++		<German>Spezialisten</German>
++		<Italian>Specialists</Italian>
++		<Spanish>Specialists</Spanish>
++	</TEXT>
++	<!-- Might be nice to mention explicitly that net effects are displayed also
++		 in hover text of the Join City button of a GP. Too complicated to convey ... -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPECIALISTACTUALEFFECTS_HOVER</Tag>
++		<English>If checked, the specialist display shows the total yield, commerce and [ICON_GREATPEOPLE] points generated by each type of specialist. Those totals include modifiers from the city's buildings.</English>
++		<French>If checked, the specialist display shows the total yield, commerce and [ICON_GREATPEOPLE] points generated by each type of specialist. Those totals include modifiers from the city's buildings.</French>
++		<German>Erg�nzt die Spezialistenanzeige um Gesamtwerte, die Ertrags-, Wirtschafts- und [ICON_GREATPEOPLE]-Modifikatoren einbeziehen.</German>
++		<Italian>If checked, the specialist display shows the total yield, commerce and [ICON_GREATPEOPLE] points generated by each type of specialist. Those totals include modifiers from the city's buildings.</Italian>
++		<Spanish>If checked, the specialist display shows the total yield, commerce and [ICON_GREATPEOPLE] points generated by each type of specialist. Those totals include modifiers from the city's buildings.</Spanish>
++	</TEXT>
++	<!-- advc.063: end -->
+ 
+ <!-- Tech -->
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4741

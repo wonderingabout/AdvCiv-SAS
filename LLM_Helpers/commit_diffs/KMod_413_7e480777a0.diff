@@ -1,0 +1,184 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 413
+# Commit: 7e480777a0bfccb89ac4c32b9f2c019083f3b6d7
+# History segment: K-Mod history
+# Parent used for diff: 58faf9a7a5a6186c496a594969ac6d2a740872e6
+# Title: Tweaked a several different AI values. In particular, the value of culture. (Base culture value slightly decreased; value with culture victory strategies inc...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GameInfo/CIV4CommerceInfo.xml
+3	3	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+23	25	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CommerceInfo.xml b/Assets/xml/GameInfo/CIV4CommerceInfo.xml
+index ebc2673de..41d81030d 100644
+--- a/Assets/xml/GameInfo/CIV4CommerceInfo.xml
++++ b/Assets/xml/GameInfo/CIV4CommerceInfo.xml
+@@ -29,7 +29,7 @@
+ 			<Description>TXT_KEY_COMMERCE_CULTURE</Description>
+ 			<iInitialPercent>0</iInitialPercent>
+ 			<iInitialHappiness>10</iInitialHappiness>
+-			<iAIWeightPercent>33</iAIWeightPercent>
++			<iAIWeightPercent>30</iAIWeightPercent>
+ 			<bFlexiblePercent>0</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessCulture.dds</Button>
+ 		</CommerceInfo>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 6ccc39062..e32b851a0 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5001,7 +5001,7 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ int CvCity::culturePressureFactor() const
+ {
+ 	int iAnswer = 0;
+-	const int iDivisor = 60;
++	const int iDivisor = 62;
+ 
+ 	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+@@ -5029,7 +5029,7 @@ int CvCity::culturePressureFactor() const
+ 	iAnswer *= GC.getNumEraInfos();
+ 	iAnswer /= GET_PLAYER(getOwnerINLINE()).getCurrentEra() + GC.getNumEraInfos();
+ 
+-	return std::min(500, 100 + iAnswer / iDivisor); // max of 500. Any more than that just distorts building values too much
++	return std::min(400, 100 + iAnswer / iDivisor); // capped to avoid overly distorting the value of buildings and great people points.
+ }
+ 
+ int CvCity::getNumBuilding(BuildingTypes eIndex) const
+@@ -12589,7 +12589,7 @@ void CvCity::doReligion()
+ 
+ 	// K-Mod
+ 	// gives some of the top religions a shot at spreading to the city.
+-	int iChances = 2 + getPopulation() / 10 - getReligionCount();
++	int iChances = 2 + getPopulation() / 12 - getReligionCount();
+ 
+ 	if (iChances <= 0)
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ff91c488c..6fddbd0da 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -787,7 +787,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 		{
+ 			iTempValue += 100 * iExperience *  4;
+ 		}
+-		iTempValue += (getMilitaryProductionModifier() * iExperience * 8);
++		iTempValue += (getMilitaryProductionModifier() * iExperience * 6); // was * 8
+ 
+ 		iTempValue *= 100;
+ 		iTempValue /= (100+15*(getFreeExperience()/5));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f71bb8d82..20b73b730 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2430,30 +2430,37 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 				iWeight /= 50;
+ 			}
+ 			// Slider check works for detection of whether human player is going for cultural victory
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) >= 90 )
++			// (all weights changed for K-Mod)
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 70)
+ 			{
+ 				int iCultureRateRank = pCity->findCommerceRateRank(COMMERCE_CULTURE);
+ 				int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++				bool bC3 = AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE); // K-Mod
+ 				
+-				// if one of the currently best cities, then focus hard, *4 or more
++				// if one of the currently best cities, then focus hard
+ 				if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
+ 				{
+-					iWeight *= (3 + iCultureRateRank);
++					if (bC3)
++					{
++						// culture3
++						iWeight *= 4 + iCultureRateRank;
++					}
++					else
++					{
++						// culture2
++						iWeight *= 9 + iCultureRateRank;
++						iWeight /= 3;
++					}
+ 				}
+ 				// if one of the 3 close to the top, then still emphasize culture some, *2
+ 				else if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 3)
+ 				{
+-					iWeight *= 2;
++					iWeight *= bC3 ? 4 : 3;
+ 				}
+-				else if (isHuman())
++				else
+ 				{
+ 					iWeight *= 2;
+ 				}
+-
+-			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 70)
+-			{
+-				iWeight *= 3;
+ 			}
+ 			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 50)
+ 			{
+@@ -2480,25 +2487,15 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 			// weight multiplier changed for K-Mod
+ 			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) >=90 )
+ 			{
+-				//iWeight *= 3;
+-				//iWeight /= 4;
+-				iWeight *= 3;
++				iWeight *= 4;
+ 			}
+ 			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 70 )
+ 			{
+-				//iWeight *= 2;
+-				//iWeight /= 3;
+-				iWeight *= 2;
+-			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 50 )
+-			{
+-				//iWeight /= 2;
+ 				iWeight *= 3;
+-				iWeight /= 2;
+ 			}
+-			else 
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 50 )
+ 			{
+-				//iWeight /= 3;
++				iWeight *= 2;
+ 			}
+ 			// K-Mod
+ 			iWeight *= AI_averageCulturePressure();
+@@ -20314,12 +20311,13 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 	int iMean = iSum / std::max(1, (int)m_GreatPersonWeights.size());
+ 	iSum = 0;
+ 
+-	// scale the values so that they are between 50 and 400, with the mean value translating to 100.
++	// scale the values so that they are between 50 and 500, with the mean value translating to 100.
++	// (note: I don't expect it to get anywhere near the maximum. The maximum only occurs when the value is infinite!)
+ 	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
+ 	{
+ 		int iValue = it->second;
+ 		iValue = 100 * iValue / std::max(1, iMean);
+-		iValue = (30000 + 400 * iValue) / (600 + iValue);
++		iValue = (40000 + 500 * iValue) / (800 + iValue);
+ 		it->second = iValue;
+ 		iSum += iValue;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5981

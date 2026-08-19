@@ -1,0 +1,2311 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5639
+# Commit: 2128dee8c776186775239b5491df03cafd57712a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7f14d9f875ea82837d40e584922c19aa8b58c60d
+# Title: refactor move shared safe font upscaling to label to helper file
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	12	Assets/Python/BUG/Scoreboard.py
+21	0	Assets/Python/SASTextScale.py
+47	79	Assets/Python/Screens/CvForeignAdvisor.py
+210	228	Assets/Python/Screens/CvInfoScreen.py
+157	166	Assets/Python/Screens/CvVictoryScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index ca6d2e6a1..ebe8bd8ee 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -23,7 +23,7 @@ import re
+ import MonkeyTools # advc.085: For checking Ctrl key
+ import LayoutDict # advc.092
+ import CvScreensInterface # advc.092
+-from SASFontUtils import *
++import SASTextScale
+ # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ 
+ # Globals
+@@ -152,19 +152,12 @@ def init():
+ 	ANARCHY_ICON = smallSymbol(FontSymbols.BAD_GOLD_CHAR) # </advc.085>
+ 
+ def smallText(text):
+-	return scaleScoreboardText(u"%s" % text)
++	return SASTextScale.labelText(u"%s" % text)
+ 
+ def smallSymbol(symbol):
+ 	return smallText(FontUtil.getChar(symbol))
+ 
+ 
+-def scaleScoreboardText(text):
+-	if text is None:
+-		return text
+-	if text.find("<font=") != -1:
+-		return text
+-	return SAS_FONT_TAG_LABEL + text + SAS_FONT_TAG_CLOSE
+-
+ def onDealCanceled(argsList):
+ 	# Sets the scoreboard dirty bit so it will redraw.
+ 	#
+@@ -550,7 +543,7 @@ class Scoreboard:
+ 			elif (type == FIXED):
+ 				width = column.width
+ 				value = column.text
+-				displayValue = scaleScoreboardText(value)
++				displayValue = SASTextScale.labelText(value)
+ 				x -= spacing
+ 				for p, playerScore in enumerate(self._playerScores):
+ 					# advc.085: Moved up, insert player ID (not _playerScores index)
+@@ -596,7 +589,7 @@ class Scoreboard:
+ 								value = VASSAL_PREFIX + value
+ 							else:
+ 								value += VASSAL_POSTFIX
+-						newWidth = CyInterface().determineWidth(scaleScoreboardText(value))
++						newWidth = CyInterface().determineWidth(SASTextScale.labelText(value))
+ 						if (newWidth > width):
+ 							width = newWidth
+ 				if (width == 0):
+@@ -613,7 +606,7 @@ class Scoreboard:
+ 								value = VASSAL_PREFIX + value
+ 							else:
+ 								value += VASSAL_POSTFIX
+-						displayValue = scaleScoreboardText(value)
++						displayValue = SASTextScale.labelText(value)
+ 						align = CvUtil.FONT_RIGHT_JUSTIFY
+ 						adjustX = 0
+ 						if (c == NAME):
+
+diff --git a/Assets/Python/SASTextScale.py b/Assets/Python/SASTextScale.py
+index a189f1fe0..ee8a485d3 100644
+--- a/Assets/Python/SASTextScale.py
++++ b/Assets/Python/SASTextScale.py
+@@ -27,6 +27,7 @@ def applyFontTag(szText, szTag):
+ 		return szText
+ 	# <!-- custom: usage rule: always try bodyText/labelText first (simple path). If text already contains <font=...>, leave it unchanged here to avoid double-wrapping.
+ 	# Escalate to normalize* only after reproducing a real failure with simple wrapping in that exact caller/data path.
++	# Note: this guidance was established while working on Sevopedia paths. Advisors/other UI also use this helper, but they were not necessarily migrated under the same strict "escalate to normalize* only after failure" rule.
+ 	# Current empirical examples: ConceptInfo/NewConceptInfo and Sevopedia Leader Civilopedia text need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) often work with simple bodyText/labelText. (GPT-5.3-Codex) -->
+ 	if szUnicode.find(u"<font=") != -1:
+ 		return szUnicode
+@@ -90,3 +91,23 @@ def appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1,
+ 
+ def appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, szTag):
+ 	screen.appendListBoxStringNoUpdate(szWidgetName, applyFontTag(szText, szTag), eWidgetType, iData1, iData2, eJustify)
++
++
++def setTableTextLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
++	setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
++
++
++def setTableIntLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
++	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
++
++
++def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):
++	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_LABEL)
++
++
++def appendListBoxStringLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
++	appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
++
++
++def appendListBoxStringNoUpdateLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
++	appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 1154656ee..2f9662c60 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -42,6 +42,7 @@ import DiplomacyUtil
+ import FavoriteCivicDetector
+ import FontUtil
+ import TradeUtil
++from SASTextScale import labelText, appendListBoxStringLabel, setTableTextLabel
+ 
+ # globals
+ gc = CyGlobalContext()
+@@ -814,7 +815,7 @@ class CvForeignAdvisor:
+ 							iTurns = DealUtil.Deal(deal).turnsToCancel(self.iActiveLeader)
+ 							if iTurns > 0:
+ 								szDealText += u" %s" % BugUtil.getText("INTERFACE_CITY_TURNS", (iTurns,))
+-					self.appendListBoxStringScaled(screen, dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
++					screen.appendListBoxString(dealPanelName, labelText(szDealText), WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 	def drawEspionage(self, bInitial):
+ 		# <!-- custom: render Espionage directly as a native Foreign Advisor tab (no helper wrapper object). (GPT-5.3-Codex) -->
+@@ -851,21 +852,6 @@ class CvForeignAdvisor:
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_ADVISOR)
+ 
+-	def scaleBodyText(self, szText):
+-		if szText is None:
+-			return szText
+-		if szText == "":
+-			return szText
+-		try:
+-			if szText.find("<font=") != -1:
+-				return szText
+-		except:
+-			return szText
+-		return SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
+-
+-	def appendListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+-		screen.appendListBoxString(szWidgetName, self.scaleBodyText(szText), eWidgetType, iData1, iData2, eJustify)
+-
+ 	def drawRelationsBase(self, bInitial):
+ 	
+ 		if self.iShiftKeyDown == 1:
+@@ -985,7 +971,7 @@ class CvForeignAdvisor:
+ 				szText += gc.getAttitudeInfo(playerActive.AI_getAttitude(iBaseLeader)).getDescription()
+ 			if szText != "":
+ 				szText = " (" + szText + ")"
+-		screen.setLabel(szName, "", self.scaleBodyText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		# K-Mod end
+ 				
+ 		# angle increment in radians (180 degree range)
+@@ -1028,7 +1014,7 @@ class CvForeignAdvisor:
+ 					szText += gc.getAttitudeInfo(gc.getPlayer(iPlayer).AI_getAttitude(iBaseLeader)).getDescription()
+ 				if szText != "":
+ 					szText = " (" + szText + ")"
+-			screen.setLabel(szName, "", self.scaleBodyText(szText), CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(szName, "", labelText(szText), CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			
+ 		# draw lines
+ 		for iSelectedLeader in range(gc.getMAX_PLAYERS()):
+@@ -1246,11 +1232,11 @@ class CvForeignAdvisor:
+ 					elif objReligion:
+ 						szPlayerReligion = u"%c" %(objReligion.getChar())
+ 
+-				screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(szPlayerReligion), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.attachTextGFC(infoPanelName, "", labelText(szPlayerReligion), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				# advc.004: BULL widget help enabled
+-				screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], ))), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
++				screen.attachTextGFC(infoPanelName, "", labelText(localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], ))), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 
+-				screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(szCivicsPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.attachTextGFC(infoPanelName, "", labelText(szCivicsPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 				for nCivicOption in ltCivicOptions:
+ 					nCivic = objLoopPlayer.getCivics (nCivicOption)
+@@ -1264,7 +1250,7 @@ class CvForeignAdvisor:
+ 				hasFavoriteReligion = (nFavoriteReligion != -1)
+ 
+ 				if (hasFavoriteCivic or hasFavoriteReligion):
+-					screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(szFavoritesPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					screen.attachTextGFC(infoPanelName, "", labelText(szFavoritesPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 					if hasFavoriteCivic:
+ 						objCivicInfo = gc.getCivicInfo(nFavoriteCivic)
+@@ -1307,7 +1293,7 @@ class CvForeignAdvisor:
+ 		
+ 		for headerText in self.headerTexts:
+ 			itemName = self.getNextWidgetName()
+-			screen.attachTextGFC(headerPanelName, itemName, self.scaleBodyText(headerText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.attachTextGFC(headerPanelName, itemName, labelText(headerText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
+ 			iOffset = iOffset + 65
+ 
+@@ -1435,9 +1421,9 @@ class CvForeignAdvisor:
+ 				szTradeRoutes = u"-"
+ 			itemName = self.getNextWidgetName()
+ 			# advc.004: BULL widget help enabled (2x)
+-			screen.attachTextGFC(infoPanelName, itemName, self.scaleBodyText(szTradeRoutes), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
++			screen.attachTextGFC(infoPanelName, itemName, labelText(szTradeRoutes), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 			itemName = self.getNextWidgetName()
+-			screen.attachTextGFC(infoPanelName, itemName, self.scaleBodyText(szTradeYield), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
++			screen.attachTextGFC(infoPanelName, itemName, labelText(szTradeYield), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 
+ 			# Civics
+ 			for nCivicOption in range (gc.getNumCivicOptionInfos()):
+@@ -1691,7 +1677,7 @@ class CvForeignAdvisor:
+ 							widgType = WidgetTypes.WIDGET_LH_GLANCE
+ 						# </advc.152>
+ 						# <!-- custom: when trailing status icons >= 2 (e.g., +11 or -8 with WE + war/peace/war-trade icons), keep that trailing icon run at fixed font=2 to avoid last-glyph clipping at larger label-font scales (this was observed to also happen for single-digit attitudes, so we do not gate on the number of attitude digits). Keep the rest of the cell text at scaled label font. See KI#116. (GPT-5.3-Codex) -->
+-						szDisplayText = self.scaleBodyText(szText)
++						szDisplayText = labelText(szText)
+ 						if szText:
+ 							iLastSpace = szText.rfind(u" ")
+ 							if iLastSpace != -1:
+@@ -1783,30 +1769,30 @@ class CvForeignAdvisor:
+ 		self.payingCol = 8
+ 		
+ 		# <!-- custom: use cached text values for performance (claude code sonnet 4.5) -->
+-		self.resIconGrid.setHeader( self.leaderCol, self.scaleBodyText(self.TEXT_LEADER) )
++		self.resIconGrid.setHeader( self.leaderCol, labelText(self.TEXT_LEADER) )
+ 		# <advc.073>
+ 		# txt keys were TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2
+ 		# was surplusCol
+-		self.resIconGrid.setHeader( self.willImportCol, self.scaleBodyText(self.TEXT_WILL_IMPORT) )
++		self.resIconGrid.setHeader( self.willImportCol, labelText(self.TEXT_WILL_IMPORT) )
+ 		# Moved up
+-		self.resIconGrid.setHeader( self.canPayCol, self.scaleBodyText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
++		self.resIconGrid.setHeader( self.canPayCol, labelText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 		self.resIconGrid.setTextColWidth(self.canPayCol, self.RES_GOLD_COL_WIDTH)
+ 		# Replaced with noNeedCol below
+ 		#self.resIconGrid.setHeader( self.usedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_IMPORT", ()) )
+ 		# was willTradeCol
+-		self.resIconGrid.setHeader( self.willExportCol, self.scaleBodyText(self.TEXT_WILL_EXPORT) )
++		self.resIconGrid.setHeader( self.willExportCol, labelText(self.TEXT_WILL_EXPORT) )
+ 		# was wontTradeCol
+-		self.resIconGrid.setHeader( self.wontExportCol, self.scaleBodyText(self.TEXT_WILL_NOT_EXPORT) )
++		self.resIconGrid.setHeader( self.wontExportCol, labelText(self.TEXT_WILL_NOT_EXPORT) )
+ 		# New column that takes over most of the wontTradeCol resources
+-		self.resIconGrid.setHeader( self.noNeedCol, self.scaleBodyText(self.TEXT_NO_NEED) )
++		self.resIconGrid.setHeader( self.noNeedCol, labelText(self.TEXT_NO_NEED) )
+ 		# </advc.073>
+ 		
+ 		if (self.RES_SHOW_ACTIVE_TRADE):
+ 			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_EXPORT. Now all the headings take the perspective of the foreign leader (except noNeed)
+-			self.resIconGrid.setHeader( self.activeExportCol, self.scaleBodyText(self.TEXT_IMPORTING) )
++			self.resIconGrid.setHeader( self.activeExportCol, labelText(self.TEXT_IMPORTING) )
+ 			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_IMPORT
+-			self.resIconGrid.setHeader( self.activeImportCol, self.scaleBodyText(self.TEXT_EXPORTING) )
+-			self.resIconGrid.setHeader( self.payingCol, self.scaleBodyText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
++			self.resIconGrid.setHeader( self.activeImportCol, labelText(self.TEXT_EXPORTING) )
++			self.resIconGrid.setHeader( self.payingCol, labelText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 			self.resIconGrid.setTextColWidth(self.payingCol, self.RES_GOLD_COL_WIDTH)
+ 
+ 		if (self.RES_SHOW_IMPORT_EXPORT_HEADER):
+@@ -1967,7 +1953,7 @@ class CvForeignAdvisor:
+ 				if ( not activePlayer.canTradeNetworkWith(iLoopPlayer) ):
+ 					message = self.TEXT_NOT_CONNECTED
+ 				
+-				self.resIconGrid.appendRow(self.scaleBodyText(currentPlayer.getName()), self.scaleBodyText(message))
++				self.resIconGrid.appendRow(labelText(currentPlayer.getName()), labelText(message))
+ 				self.resIconGrid.addIcon( currentRow, self.leaderCol
+ 										, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
+ 										, 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+@@ -1978,7 +1964,7 @@ class CvForeignAdvisor:
+ 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
+ 					# <!-- custom: looks like gc.getPlayer(iLoopPlayer) could be optimized with the cached currentPlayer variable so did as such -->
+ 					sAmount = str(currentPlayer.AI_maxGoldPerTurnTrade(self.iActiveLeader))
+-					self.resIconGrid.setText(currentRow, self.canPayCol, self.scaleBodyText(sAmount))
++					self.resIconGrid.setText(currentRow, self.canPayCol, labelText(sAmount))
+ 				
+ 				# bonuses
+ 				importFromPlayer = [] # advc.036
+@@ -2064,7 +2050,7 @@ class CvForeignAdvisor:
+ 										self.resIconGrid.addIcon( currentRow, self.activeImportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, -1)
+ 						# BUG - Kill Deal - end
+ 					if (amount != 0):
+-						self.resIconGrid.setText(currentRow, self.payingCol, self.scaleBodyText(str(amount)))
++						self.resIconGrid.setText(currentRow, self.payingCol, labelText(str(amount)))
+ 				currentRow += 1
+ 		self.resIconGrid.refresh()
+ 	
+@@ -2129,7 +2115,7 @@ class CvForeignAdvisor:
+ 				# advc.120d: Make sure that Tech tab is consistent with Espionage screen
+ 				if not activePlayer.canSeeTech(iLoopPlayer):
+ 					message = self.TEXT_NO_TECH_TRADING
+-				self.techIconGrid.appendRow(self.scaleBodyText(currentPlayer.getName()), self.scaleBodyText(message))
++				self.techIconGrid.appendRow(labelText(currentPlayer.getName()), labelText(message))
+ 				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+ 
+ 				# BUG - AI status - start
+@@ -2142,14 +2128,14 @@ class CvForeignAdvisor:
+ 				elif (currentTeam.isForcePeace(iActiveTeam)):
+ 					zsStatus += self.PEACE_ICON
+ 
+-				self.techIconGrid.setText(currentRow, iTechColStatus, self.scaleBodyText(zsStatus))
++				self.techIconGrid.setText(currentRow, iTechColStatus, labelText(zsStatus))
+ 				# BUG - AI status - end
+ 				# advc.036:
+ 				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
+ 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
+ 					# <!-- custom: looks like gc.getPlayer(iLoopPlayer) could be optimized with the cached currentPlayer variable so did as such -->
+ 					sAmount = str(currentPlayer.AI_maxGoldTrade(self.iActiveLeader))
+-					self.techIconGrid.setText(currentRow, iTechColGold, self.scaleBodyText(sAmount))
++					self.techIconGrid.setText(currentRow, iTechColGold, labelText(sAmount))
+ 
+ 				#if (gc.getTeam(activePlayer.getTeam()).isTechTrading() or gc.getTeam(currentPlayer.getTeam()).isTechTrading() ):
+ 				if activePlayer.canSeeTech(iLoopPlayer): # advc.120d
+@@ -2171,7 +2157,7 @@ class CvForeignAdvisor:
+ 							# <advc.550i> If tech trading disabled, show a hint about that only once (in row 0).
+ 							if currentRow == 0 and gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
+ 								message = gc.getGameOptionInfo(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING).getDescription()
+-								self.techIconGrid.setText(currentRow, iTechColWill, self.scaleBodyText(message))
++								self.techIconGrid.setText(currentRow, iTechColWill, labelText(message))
+ 							# </advc.550i>
+ 							if (gc.getTeam(currentPlayer.getTeam()).isHasTech(iLoopTech) and activePlayer.canResearch(iLoopTech, False)):
+ 								self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+@@ -2229,20 +2215,20 @@ class CvForeignAdvisor:
+ 		# self.techIconGrid.setHeader( iTechColStatus, "" )
+ 		self.techIconGrid.setTextColWidth( iTechColStatus, self.TECH_STATUS_COL_WIDTH )
+ 		# <!-- custom: use cached text values for performance (claude code sonnet 4.5) -->
+-		self.techIconGrid.setHeader( iTechColWants, self.scaleBodyText(self.TEXT_WANTS) )
++		self.techIconGrid.setHeader( iTechColWants, labelText(self.TEXT_WANTS) )
+ 		# advc.004g: was TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
+-		self.techIconGrid.setHeader( iTechColCantYou, self.scaleBodyText(self.TEXT_CANT_RECEIVE) )
+-		self.techIconGrid.setHeader( iTechColResearch, self.scaleBodyText(self.TEXT_CAN_RESEARCH) )
+-		self.techIconGrid.setHeader( iTechColGold, self.scaleBodyText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
++		self.techIconGrid.setHeader( iTechColCantYou, labelText(self.TEXT_CANT_RECEIVE) )
++		self.techIconGrid.setHeader( iTechColResearch, labelText(self.TEXT_CAN_RESEARCH) )
++		self.techIconGrid.setHeader( iTechColGold, labelText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 		self.techIconGrid.setTextColWidth( iTechColGold, self.TECH_GOLD_COL_WIDTH )
+ 
+-		self.techIconGrid.setHeader( iTechColWill, self.scaleBodyText(self.TEXT_FOR_TRADE) )
++		self.techIconGrid.setHeader( iTechColWill, labelText(self.TEXT_FOR_TRADE) )
+ 		# <advc.550i>
+ 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
+ 			self.techIconGrid.setTextColWidth(iTechColWill, 2 * self.TECH_GOLD_COL_WIDTH) # </advc.550i>
+ 
+-		self.techIconGrid.setHeader( iTechColWont, self.scaleBodyText(self.TEXT_NOT_FOR_TRADE) )
+-		self.techIconGrid.setHeader( iTechColCantThem, self.scaleBodyText(self.TEXT_CANT_TRADE) )
++		self.techIconGrid.setHeader( iTechColWont, labelText(self.TEXT_NOT_FOR_TRADE) )
++		self.techIconGrid.setHeader( iTechColCantThem, labelText(self.TEXT_CANT_TRADE) )
+ 
+ 		# <!-- custom: fit more information in each row so we don't have to scroll to see extra techs. Change with the help of gemini 3 pro -->
+ 		# Based on your screenshots (specifically Civ4ScreenShot0084.jpg) and the code provided, the issue is not the column width variables (TECH_STATUS_COL_WIDTH).
+@@ -2290,11 +2276,11 @@ class CvForeignAdvisor:
+ 		iconGrid.setTextColWidth(iCityColWillCede, iCityColWidth)
+ 		iconGrid.setTextColWidth(iCityColWontCede, iCityColWidth)
+ 
+-		iconGrid.setHeader(iCityColWants, self.scaleBodyText(self.TEXT_WANTS))
++		iconGrid.setHeader(iCityColWants, labelText(self.TEXT_WANTS))
+ 		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
+-		iconGrid.setHeader(iCityColRejects, self.scaleBodyText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)))
+-		iconGrid.setHeader(iCityColWillCede, self.scaleBodyText(self.TEXT_WILL_CEDE))
+-		iconGrid.setHeader(iCityColWontCede, self.scaleBodyText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)))
++		iconGrid.setHeader(iCityColRejects, labelText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)))
++		iconGrid.setHeader(iCityColWillCede, labelText(self.TEXT_WILL_CEDE))
++		iconGrid.setHeader(iCityColWontCede, labelText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)))
+ 
+ 		gridWidth = iconGrid.getPrefferedWidth()
+ 		gridHeight = iconGrid.getPrefferedHeight()
+@@ -2349,7 +2335,7 @@ class CvForeignAdvisor:
+ 			if not currentPlayer.isAlive() or currentPlayer.isMinorCiv() or not currentTeam.isHasMet(iActiveTeam) or iCurrentPlayer == iActivePlayer:
+ 				continue
+ 
+-			iconGrid.appendRow(self.scaleBodyText(currentPlayer.getName()), "")
++			iconGrid.appendRow(labelText(currentPlayer.getName()), "")
+ 
+ 			iconGrid.addIcon(currentRow, iCityColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iCurrentPlayer, iActivePlayer)
+ 			# BUG - AI status - start
+@@ -2360,7 +2346,7 @@ class CvForeignAdvisor:
+ 				szStatus += self.WAR_ICON
+ 			elif currentTeam.isForcePeace(iActiveTeam):
+ 				szStatus += self.PEACE_ICON
+-			iconGrid.setText(currentRow, iCityColStatus, self.scaleBodyText(szStatus))
++			iconGrid.setText(currentRow, iCityColStatus, labelText(szStatus))
+ 			# BUG - AI status - end
+ 			# Precompute the contents of each cell in order to shorten the city strings as necessary
+ 			iLiberate = iCityColWontCede + 1 # Pseudo-column for sorting
+@@ -2411,7 +2397,7 @@ class CvForeignAdvisor:
+ 						widgetData1 = (widgetData1 + 1) * 100
+ 					else:
+ 						szCity = self.getCityText(city, iCol == iLiberate, bGrayOut, iCities > 3)
+-					iconGrid.addText(currentRow, iDisplayCol, self.scaleBodyText(szCity), widgetType, widgetData1, widgetData2)
++					iconGrid.addText(currentRow, iDisplayCol, labelText(szCity), widgetType, widgetData1, widgetData2)
+ 					iAdded += 1
+ 					if iAdded >= 6:
+ 						break
+@@ -2504,24 +2490,6 @@ class CvForeignAdvisor:
+ 	# <!-- custom: Espionage tab logic integrated directly into CvForeignAdvisor (no helper class/wrapper object). Kept existing Espionage comments unless obsolete. (GPT-5.3-Codex) -->
+ 
+ 
+-	def scaleEspionageBodyText(self, szText):
+-		if szText is None:
+-			return szText
+-		if szText == "":
+-			return szText
+-		try:
+-			if szText.find("<font=") != -1:
+-				return szText
+-		except:
+-			return szText
+-		return SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
+-
+-	def appendEspionageListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+-		screen.appendListBoxString(szWidgetName, self.scaleEspionageBodyText(szText), eWidgetType, iData1, iData2, eJustify)
+-
+-	def setEspionageTableTextScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+-		screen.setTableText(szTable, iCol, iRow, self.scaleEspionageBodyText(szText), szIcon, eWidgetType, iData1, iData2, eJustify)
+-
+ 	def drawEspionageContents(self):
+ 
+ 		self.deleteAllEspionageWidgets()
+@@ -2795,7 +2763,7 @@ class CvForeignAdvisor:
+ 					pCity = pyCity.GetCy()
+ 
+ 					if (pCity.isRevealed(pActivePlayer.getTeam(), false)):
+-						self.appendEspionageListBoxStringScaled(screen, self.ESP_szCityListBox, pCity.getName(), WidgetTypes.WIDGET_GENERAL, pCity.getID(), 0, CvUtil.FONT_LEFT_JUSTIFY)
++						appendListBoxStringLabel(screen, self.ESP_szCityListBox, pCity.getName(), WidgetTypes.WIDGET_GENERAL, pCity.getID(), 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						if (self.ESP_iActiveCityID == -1 or pTargetPlayer.getCity(self.ESP_iActiveCityID).isNone()):
+ 							self.ESP_iActiveCityID = pCity.getID()
+@@ -2880,8 +2848,8 @@ class CvForeignAdvisor:
+ 									costStr = localText.changeTextColor(costStr, self.COLOR_GREEN)
+ 								# </advc.120d>
+ 								iRow = screen.appendTableRow(szEffectsTable)
+-								self.setEspionageTableTextScaled(screen, szEffectsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-								self.setEspionageTableTextScaled(screen, szEffectsTable, 2, iRow, costStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++								setTableTextLabel(screen, szEffectsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								setTableTextLabel(screen, szEffectsTable, 2, iRow, costStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 						# Active Mission
+ 						else:
+@@ -2941,9 +2909,9 @@ class CvForeignAdvisor:
+ 								else: # Don't give away AI gold if the player can't actually steal gold
+ 									costStr = "?"
+ 							iRow = screen.appendTableRow(szMissionsTable)
+-							self.setEspionageTableTextScaled(screen, szMissionsTable, 2, iRow, costStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++							setTableTextLabel(screen, szMissionsTable, 2, iRow, costStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 							# The line below: Moved down </advc.120d>
+-							self.setEspionageTableTextScaled(screen, szMissionsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							setTableTextLabel(screen, szMissionsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		return 0
+ 
+ 	# returns a unique ID for a widget in this screen
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index cfe23c1e3..c73e9603b 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -577,24 +577,6 @@ class CvInfoScreen:
+ 		screen = self.getScreen()
+ 		screen.hideScreen()
+ 
+-	def scaleBodyText(self, szText):
+-		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_LABEL)
+-
+-	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+-		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+-
+-	def setTableIntScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+-		SASTextScale.setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+-
+-	def setTableColumnHeaderScaled(self, screen, szTable, iCol, szText, iWidth):
+-		SASTextScale.setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_LABEL)
+-
+-	def appendListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+-		SASTextScale.appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+-
+-	def appendListBoxStringNoUpdateScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+-		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+-
+ 	def updateRuntimeLayout(self, screen):
+ 		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
+ 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+@@ -1130,7 +1112,7 @@ class CvInfoScreen:
+ 
+ 		if not aEntries:
+ 			szText = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_EMPTY + SAS_FONT_TAG_CLOSE
+-			self.appendListBoxStringScaled(screen, self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringLabel(screen, self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			return
+ 
+ 		# Cache is already in display order (newest first) - use append which is O(1)
+@@ -1255,33 +1237,33 @@ class CvInfoScreen:
+ 			iDeficit -= iNameShrink
+ 			iVMW -= iDeficit
+ 
+-		self.setTableColumnHeaderScaled(screen, szTable, iColLeader, u"", iIconW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColCiv, u"", iIconW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColColor, u"Col", iColorW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColPid, u"ID", iPidW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColName, u"Leader", iNameW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColAttitude, u"Att", iAttW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColAttitudeNum, u"Att#", iAttNumW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColScore, self.TEXT_SCORE, iScoreW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColDelta, u"dSc", iDeltaW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColLeader, u"", iIconW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColCiv, u"", iIconW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColColor, u"Col", iColorW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColPid, u"ID", iPidW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColName, u"Leader", iNameW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColAttitude, u"Att", iAttW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColAttitudeNum, u"Att#", iAttNumW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColScore, self.TEXT_SCORE, iScoreW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColDelta, u"dSc", iDeltaW)
+ 		# <!-- custom: rank column removed because this table is already score-ordered by construction, so Rank duplicated the same ordering signal and added noise. (GPT-5.3-Codex) -->
+-		self.setTableColumnHeaderScaled(screen, szTable, iColPower, u"PowR", iPowerW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColPowerAbs, u"PowT", iPowerAbsW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColCities, u"Cit", iCitiesW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColPowerPerCity, u"PoT/C", iPowerPerCityW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColLandPct, u"Land%", iLandPctW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColVM, u"V/M", iVMW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColTrade, u"Trd", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColBorders, u"OB", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColPact, u"DP", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColReligion, u"Rel", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColWarPeace, u"Dip", iDipW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColWontTalk, u"WT", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColWorstEnemy, u"WE", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColGoldenAge, u"GA", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColEspionage, u"Esp", iFlagW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColResearch, u"Res", iResearchW)
+-		self.setTableColumnHeaderScaled(screen, szTable, iColResearchPct, u"%", iResearchPctW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColPower, u"PowR", iPowerW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColPowerAbs, u"PowT", iPowerAbsW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColCities, u"Cit", iCitiesW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColPowerPerCity, u"PoT/C", iPowerPerCityW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColLandPct, u"Land%", iLandPctW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColVM, u"V/M", iVMW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColTrade, u"Trd", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColBorders, u"OB", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColPact, u"DP", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColReligion, u"Rel", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColWarPeace, u"Dip", iDipW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColWontTalk, u"WT", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColWorstEnemy, u"WE", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColGoldenAge, u"GA", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColEspionage, u"Esp", iFlagW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColResearch, u"Res", iResearchW)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColResearchPct, u"%", iResearchPctW)
+ 
+ 		# <!-- custom: perf pass - hoist stable lookups/options used in the per-player loop. (GPT-5.3-Codex) -->
+ 		bDebugMode = game.isDebugMode()
+@@ -1337,21 +1319,21 @@ class CvInfoScreen:
+ 			iRow = screen.getTableNumRows(szTable) - 1
+ 
+ 			# Leader/Civ icons: click opens diplomacy/contact context.
+-			self.setTableTextScaled(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableTextScaled(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 			szColor = self.SCORETAB_COLOR_MARKER
+ 			ePlayerColor = pPlayer.getPlayerColor()
+ 			if ePlayerColor > -1:
+ 				kPlayerColor = gc.getPlayerColorInfo(ePlayerColor)
+ 				if kPlayerColor is not None:
+ 					szColor = localText.changeTextColor(self.SCORETAB_COLOR_MARKER, kPlayerColor.getTextColorType())
+-			self.setTableTextScaled(screen, szTable, iColColor, iRow, szColor, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-			self.setTableIntScaled(screen, szTable, iColPid, iRow, str(ePlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColColor, iRow, szColor, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableIntLabel(screen, szTable, iColPid, iRow, str(ePlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			szName = pPlayer.getName()
+ 			if not bMet:
+ 				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+-			self.setTableTextScaled(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			iScore = game.getPlayerScore(ePlayer)
+ 			eScoreWidget = WidgetTypes.WIDGET_GENERAL
+@@ -1360,7 +1342,7 @@ class CvInfoScreen:
+ 			# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically
+ 			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric,
+ 			# while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
+-			self.setTableIntScaled(screen, szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableIntLabel(screen, szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			iGameTurn = iActiveGameTurn
+ 			if ePlayer >= eActivePlayer:
+@@ -1383,14 +1365,14 @@ class CvInfoScreen:
+ 				szScoreDelta = localText.changeTextColor(szScoreDelta, self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT)
+ 			elif iScoreDelta < 0:
+ 				szScoreDelta = localText.changeTextColor(szScoreDelta, self.SCORETAB_COLOR_RED)
+-			self.setTableIntScaled(screen, szTable, iColDelta, iRow, szScoreDelta, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableIntLabel(screen, szTable, iColDelta, iRow, szScoreDelta, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			szWarPeace = u""
+ 			if pTeam.isAtWar(eActiveTeam):
+ 				szWarPeace = self.SCORETAB_WAR_CHAR
+ 			elif pActiveTeam.isForcePeace(eTeam):
+ 				szWarPeace = self.SCORETAB_PEACE_CHAR
+-			self.setTableTextScaled(screen, szTable, iColWarPeace, iRow, szWarPeace, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColWarPeace, iRow, szWarPeace, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szPower = u""
+ 			szPowerAbs = u""
+@@ -1423,32 +1405,32 @@ class CvInfoScreen:
+ 						iPowerColorForWidget = iPowerColor
+ 					if iPowerColorForWidget > 0:
+ 						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
+-			self.setTableTextScaled(screen, szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			if iTheirPower > -1:
+-				self.setTableIntScaled(screen, szTable, iColPowerAbs, iRow, str(iTheirPower), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableIntLabel(screen, szTable, iColPowerAbs, iRow, str(iTheirPower), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			else:
+-				self.setTableTextScaled(screen, szTable, iColPowerAbs, iRow, szPowerAbs, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, iColPowerAbs, iRow, szPowerAbs, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			if bDebugMode:
+ 				iCities = pPlayer.getNumCities()
+ 			else:
+ 				iCities = PlayerUtil.getNumRevealedCities(ePlayer)
+-			self.setTableIntScaled(screen, szTable, iColCities, iRow, str(iCities), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableIntLabel(screen, szTable, iColCities, iRow, str(iCities), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			iPowerPerCity = -1
+ 			if iTheirPower > -1 and iCities > 0:
+ 				# <!-- custom: PowT/C must be comparable across rows, so compute it from absolute power (PowT / Cit) for everyone. (GPT-5.3-Codex) -->
+ 				iPowerPerCity = iTheirPower / iCities
+ 			if iPowerPerCity > -1:
+-				self.setTableIntScaled(screen, szTable, iColPowerPerCity, iRow, str(iPowerPerCity), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableIntLabel(screen, szTable, iColPowerPerCity, iRow, str(iPowerPerCity), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			else:
+-				self.setTableTextScaled(screen, szTable, iColPowerPerCity, iRow, szPowerPerCity, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, iColPowerPerCity, iRow, szPowerPerCity, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			szLandPct = u""
+ 			if bMet:
+ 				if iLandPlots > 0:
+ 					iLandPctTimes100 = (10000 * pPlayer.getTotalLand()) / iLandPlots
+ 					szLandPct = u"%d.%02d" % (iLandPctTimes100 / 100, iLandPctTimes100 % 100)
+-			self.setTableTextScaled(screen, szTable, iColLandPct, iRow, szLandPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColLandPct, iRow, szLandPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			szVM = u""
+ 			if bMet:
+@@ -1465,7 +1447,7 @@ class CvInfoScreen:
+ 						for eVassalPlayer in visiblePlayersByTeam.get(eVassalTeam, []):
+ 							asVM.append(u"," + str(eVassalPlayer))
+ 				szVM = u"".join(asVM)
+-			self.setTableTextScaled(screen, szTable, iColVM, iRow, szVM, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColVM, iRow, szVM, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			eCurrentResearch = pPlayer.getCurrentResearch()
+ 			szResearchButton = ""
+@@ -1480,30 +1462,30 @@ class CvInfoScreen:
+ 						iProgressPct = pTeam.getResearchProgress(eCurrentResearch) * 100 / iResearchCost
+ 						iProgressPct = max(0, min(99, iProgressPct))
+ 						szResearchPct = str(iProgressPct)
+-			self.setTableTextScaled(screen, szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 			if iProgressPct > -1:
+-				self.setTableIntScaled(screen, szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableIntLabel(screen, szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			else:
+-				self.setTableTextScaled(screen, szTable, iColResearchPct, iRow, szResearchPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, iColResearchPct, iRow, szResearchPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			szEsp = u""
+ 			if bMet and bUseEspionage and pActivePlayer.getEspionageSpendingWeightAgainstTeam(eTeam) > 0:
+ 				szEsp = self.SCORETAB_ESPIONAGE_CHAR
+-			self.setTableTextScaled(screen, szTable, iColEspionage, iRow, szEsp, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColEspionage, iRow, szEsp, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 			szTrade = u""
+ 			if bMet and ePlayer != eActivePlayer and pPlayer.canTradeNetworkWith(eActivePlayer):
+ 				szTrade = self.SCORETAB_TRADE_CHAR
+-			self.setTableTextScaled(screen, szTable, iColTrade, iRow, szTrade, "", WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, eActivePlayer, ePlayer, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColTrade, iRow, szTrade, "", WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, eActivePlayer, ePlayer, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szBorders = u""
+ 			if bMet and pTeam.isOpenBorders(eActiveTeam):
+ 				szBorders = self.SCORETAB_BORDERS_CHAR
+-			self.setTableTextScaled(screen, szTable, iColBorders, iRow, szBorders, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColBorders, iRow, szBorders, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szPact = u""
+ 			if bMet and pTeam.isDefensivePact(eActiveTeam):
+ 				szPact = self.SCORETAB_PACT_CHAR
+-			self.setTableTextScaled(screen, szTable, iColPact, iRow, szPact, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColPact, iRow, szPact, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szReligion = u""
+ 			eStateReligion = pPlayer.getStateReligion()
+@@ -1513,7 +1495,7 @@ class CvInfoScreen:
+ 					szReligion = u"%c" % kReligion.getHolyCityChar()
+ 				else:
+ 					szReligion = u"%c" % kReligion.getChar()
+-			self.setTableTextScaled(screen, szTable, iColReligion, iRow, szReligion, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColReligion, iRow, szReligion, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szAttitude = u""
+ 			szAttitudeNum = u""
+@@ -1528,21 +1510,21 @@ class CvInfoScreen:
+ 				if iAttColor >= 0:
+ 					szAttitudeNum = localText.changeTextColor(szAttitudeNum, iAttColor)
+ 				bHasAttitudeNum = True
+-			self.setTableTextScaled(screen, szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 			if bHasAttitudeNum:
+-				self.setTableIntScaled(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableIntLabel(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			else:
+-				self.setTableTextScaled(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			szWontTalk = u""
+ 			if bMet and not DiplomacyUtil.isWillingToTalk(ePlayer, eActivePlayer):
+ 				szWontTalk = u"!"
+-			self.setTableTextScaled(screen, szTable, iColWontTalk, iRow, szWontTalk, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColWontTalk, iRow, szWontTalk, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szWorstEnemy = u""
+ 			if bMet and AttitudeUtil.isWorstEnemy(ePlayer, eActivePlayer):
+ 				szWorstEnemy = self.SCORETAB_WORST_ENEMY_CHAR
+-			self.setTableTextScaled(screen, szTable, iColWorstEnemy, iRow, szWorstEnemy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColWorstEnemy, iRow, szWorstEnemy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			szGoldenAge = u""
+ 			bGoldenAge = pPlayer.isGoldenAge()
+@@ -1552,7 +1534,7 @@ class CvInfoScreen:
+ 					szGoldenAge = self.SCORETAB_ANARCHY_CHAR
+ 				else:
+ 					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
+-			self.setTableTextScaled(screen, szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
+ 			szLegendLinkName = self.getNextWidgetName()
+@@ -2671,13 +2653,13 @@ class CvInfoScreen:
+ 		szTable = self.getNextWidgetName()
+ 		# advc.077: iColumns instead of 6
+ 		screen.addTableControlGFC(szTable, iColumns, self.X_DEMOGRAPHICS_CHART, self.Y_DEMOGRAPHICS_CHART, self.W_DEMOGRAPHICS_CHART, self.H_DEMOGRAPHICS_CHART, true, true, self.W_DEMOGRAPHICS_BUTTON_SIZE, self.H_DEMOGRAPHICS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+-		#self.setTableColumnHeaderScaled(screen, szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
++		#SASTextScale.setTableColumnHeaderLabel(screen, szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
+ 		# <advc.077> Changes throughout the rest of this function
+ 		# Replacing literals
+ 		iNextCol = 0
+ 		iTitleCol = iNextCol # </advc.077>
+ 		# 20 added to column width
+-		self.setTableColumnHeaderScaled(screen, szTable, iTitleCol, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), self.W_DEMOGRAPHICS_COL_DEM) # K-Mod
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iTitleCol, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), self.W_DEMOGRAPHICS_COL_DEM) # K-Mod
+ 		# <!-- custom: note: removed the iBestWorstExtraWidt part of the code to simplify this and as we have the extra room now anyway: it added needless complication. -->
+ 
+ 		# Move rank up
+@@ -2685,32 +2667,32 @@ class CvInfoScreen:
+ 		if not self.bRankInValueColumn:
+ 			iNextCol += 1
+ 			iRankCol = iNextCol 
+-			self.setTableColumnHeaderScaled(screen, szTable, iRankCol, self.TEXT_RANK, self.W_DEMOGRAPHICS_COL_VALUE)
++			SASTextScale.setTableColumnHeaderLabel(screen, szTable, iRankCol, self.TEXT_RANK, self.W_DEMOGRAPHICS_COL_VALUE)
+ 		iNextCol += 1
+ 		iValueCol = iNextCol
+ 		
+ 		szValueHead = self.TEXT_VALUE
+ 		if self.bRankInValueColumn:
+ 			szValueHead += "/ " + self.TEXT_RANK
+-		self.setTableColumnHeaderScaled(screen, szTable, iValueCol, szValueHead, self.W_DEMOGRAPHICS_COL_RANK)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iValueCol, szValueHead, self.W_DEMOGRAPHICS_COL_RANK)
+ 		iBestCol = -1
+ 		if True:#bShowBest: # Actually, show the header always. So that the player might guess that there is more info to come later in the game.
+ 			iNextCol += 1
+ 			iBestCol = iNextCol
+-			self.setTableColumnHeaderScaled(screen, szTable, iBestCol, self.TEXT_BEST, self.W_DEMOGRAPHICS_COL_RIVAL_BEST)
++			SASTextScale.setTableColumnHeaderLabel(screen, szTable, iBestCol, self.TEXT_BEST, self.W_DEMOGRAPHICS_COL_RIVAL_BEST)
+ 		# Worst col moved before avg col
+ 		iWorstCol = -1
+ 		if bShowWorst:
+ 			iNextCol += 1
+ 			iWorstCol = iNextCol
+ 			# Column width was 155
+-			self.setTableColumnHeaderScaled(screen, szTable, iWorstCol, self.TEXT_WORST, self.W_DEMOGRAPHICS_COL_RIVAL_WORST)
++			SASTextScale.setTableColumnHeaderLabel(screen, szTable, iWorstCol, self.TEXT_WORST, self.W_DEMOGRAPHICS_COL_RIVAL_WORST)
+ 		iAvgCol = -1
+ 		if bShowAvg:
+ 			iNextCol += 1
+ 			iAvgCol = iNextCol
+ 			# Column width was 155
+-			self.setTableColumnHeaderScaled(screen, szTable, iAvgCol, self.TEXT_AVERAGE, self.W_DEMOGRAPHICS_COL_RIVAL_AVG)
++			SASTextScale.setTableColumnHeaderLabel(screen, szTable, iAvgCol, self.TEXT_AVERAGE, self.W_DEMOGRAPHICS_COL_RIVAL_AVG)
+ 		#iTargetRows = 18 + 5 # 18 normal items + 5 lines for spacing
+ 		# Replacing the above
+ 		iTargetRows = 8 * 3
+@@ -2729,134 +2711,134 @@ class CvInfoScreen:
+ 		chartRowFont = CvUtil.FONT_LEFT_JUSTIFY
+ 
+ 		# Row numbers after 12 changed; now evenly distributed.
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 0, self.szEconomyTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		#self.setTableTextScaled(screen, szTable, iTitleCol, 1, self.TEXT_ECONOMY_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 3, self.szIndustryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		#self.setTableTextScaled(screen, szTable, iTitleCol, 4, self.TEXT_INDUSTRY_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 6, self.szAgricultureTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		#self.setTableTextScaled(screen, szTable, iTitleCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 9, self.szMilitaryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 0, self.szEconomyTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		#SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 1, self.TEXT_ECONOMY_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 3, self.szIndustryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		#SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 4, self.TEXT_INDUSTRY_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 6, self.szAgricultureTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		#SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 9, self.szMilitaryTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		# <!-- custom add char icons there with claude opus 4.5's help thanks. -->
+ 		# row was 11 - Land Area with map icon
+ 
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 12, self.szLandAreaTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		#self.setTableTextScaled(screen, szTable, iTitleCol, 12, self.TEXT_LAND_AREA_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 12, self.szLandAreaTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		#SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 12, self.TEXT_LAND_AREA_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 14 - Population with citizen icon
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 15, self.szPopulationTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 15, self.szPopulationTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		# row was 16
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 18, self.szHappinessTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 18, self.szHappinessTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 18
+-		self.setTableTextScaled(screen, szTable, iTitleCol, 21, self.szHealthTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		#self.setTableTextScaled(screen, szTable, iTitleCol, 19, self.TEXT_HEALTH_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 21, self.szHealthTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		#SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 19, self.TEXT_HEALTH_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		if self.bShowExports:
+ 			# row was 21
+-			self.setTableTextScaled(screen, szTable, iTitleCol, 24, self.szExpTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			#self.setTableTextScaled(screen, szTable, iTitleCol, 22, self.TEXT_EXP_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 24, self.szExpTitle, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			#SASTextScale.setTableTextLabel(screen, szTable, iTitleCol, 22, self.TEXT_EXP_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		#iCol = 1
+ 		# Decimal separators added. In the best/worst columns, it's easiest to do this for all values, so do it for all values here too.
+-		self.setTableTextScaled(screen, szTable, iValueCol, 0, self.separateThousands(iEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iValueCol, 3, self.separateThousands(iIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iValueCol, 6, self.separateThousands(iAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iValueCol, 9, self.separateThousands(iMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 0, self.separateThousands(iEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 3, self.separateThousands(iIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 6, self.separateThousands(iAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 9, self.separateThousands(iMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 11
+-		self.setTableTextScaled(screen, szTable, iValueCol, 12, self.separateThousands(iLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 12, self.separateThousands(iLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 14
+-		self.setTableTextScaled(screen, szTable, iValueCol, 15, self.separateThousands(iPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 15, self.separateThousands(iPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 16
+-		self.setTableTextScaled(screen, szTable, iValueCol, 18, self.separateThousands(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 18, self.separateThousands(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 18
+-		self.setTableTextScaled(screen, szTable, iValueCol, 21, self.separateThousands(iHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 21, self.separateThousands(iHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		if self.bShowExports:
+ 			# row was 21
+-			self.setTableTextScaled(screen, szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		# <!-- custom: add buttons in the demographics tab with the help of claude opus 4.5 thanks. Old code removed or commented-out for readability and concision. -->
+ 		#iCol = 2
+ 		if bShowBest:
+ 			# Replaced str(i...GameBest) with getPlayerStr and getValueStr, and put them in separate rows.
+-			self.setTableTextScaled(screen, szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), self.getPlayerButton(economyGameBest, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), self.getPlayerButton(industryGameBest, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 7, self.getPlayerStr(agricultureGameBest, aiGroupAgriculture), self.getPlayerButton(agricultureGameBest, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), self.getPlayerButton(militaryGameBest, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), self.getPlayerButton(economyGameBest, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), self.getPlayerButton(industryGameBest, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 7, self.getPlayerStr(agricultureGameBest, aiGroupAgriculture), self.getPlayerButton(agricultureGameBest, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), self.getPlayerButton(militaryGameBest, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 12
+-			self.setTableTextScaled(screen, szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), self.getPlayerButton(landAreaGameBest, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), self.getPlayerButton(landAreaGameBest, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 11
+-			self.setTableTextScaled(screen, szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 15
+-			self.setTableTextScaled(screen, szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), self.getPlayerButton(populationGameBest, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), self.getPlayerButton(populationGameBest, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 14
+-			self.setTableTextScaled(screen, szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 17
+-			self.setTableTextScaled(screen, szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), self.getPlayerButton(happinessGameBest, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), self.getPlayerButton(happinessGameBest, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 16
+-			self.setTableTextScaled(screen, szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 19
+-			self.setTableTextScaled(screen, szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), self.getPlayerButton(healthGameBest, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), self.getPlayerButton(healthGameBest, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 18
+-			self.setTableTextScaled(screen, szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			if self.bShowExports:
+ 				# row was 22
+-				self.setTableTextScaled(screen, szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), self.getPlayerButton(netTradeGameBest, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-				self.setTableTextScaled(screen, szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), self.getPlayerButton(netTradeGameBest, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				SASTextScale.setTableTextLabel(screen, szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		#iCol = 3
+ 		if bShowAvg:
+ 			# Decimal separators added
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 0, self.separateThousands(iEconomyGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 3, self.separateThousands(iIndustryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 6, self.separateThousands(iAgricultureGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 9, self.separateThousands(iMilitaryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 0, self.separateThousands(iEconomyGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 3, self.separateThousands(iIndustryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 6, self.separateThousands(iAgricultureGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 9, self.separateThousands(iMilitaryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 11
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 12, self.separateThousands(iLandAreaGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 12, self.separateThousands(iLandAreaGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 14
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 15, self.separateThousands(iPopulationGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 15, self.separateThousands(iPopulationGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 16
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 18, self.separateThousands(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 18, self.separateThousands(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 18
+-			self.setTableTextScaled(screen, szTable, iAvgCol, 21, self.separateThousands(iHealthGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 21, self.separateThousands(iHealthGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			if self.bShowExports:
+ 				# row was 21
+-				self.setTableTextScaled(screen, szTable, iAvgCol, 24, self.separateThousands(iNetTradeGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 24, self.separateThousands(iNetTradeGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		#iCol = 4
+ 		if bShowWorst:
+ 			# Replaced str(i...GameWorst) with getPlayerStr and getValueStr, and put them in a separate rows.
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), self.getPlayerButton(economyGameWorst, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), self.getPlayerButton(industryGameWorst, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), self.getPlayerButton(agricultureGameWorst, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), self.getPlayerButton(militaryGameWorst, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), self.getPlayerButton(economyGameWorst, aiGroupEconomy), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), self.getPlayerButton(industryGameWorst, aiGroupIndustry), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), self.getPlayerButton(agricultureGameWorst, aiGroupAgriculture), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), self.getPlayerButton(militaryGameWorst, aiGroupMilitary), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 12
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), self.getPlayerButton(landAreaGameWorst, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), self.getPlayerButton(landAreaGameWorst, aiGroupLandArea), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 11
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 15
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), self.getPlayerButton(populationGameWorst, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), self.getPlayerButton(populationGameWorst, aiGroupPopulation), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 14
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 17
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), self.getPlayerButton(happinessGameWorst, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), self.getPlayerButton(happinessGameWorst, aiGroupHappiness), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 16
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 19
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), self.getPlayerButton(healthGameWorst, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), self.getPlayerButton(healthGameWorst, aiGroupHealth), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			# row was 18
+-			self.setTableTextScaled(screen, szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 			if self.bShowExports:
+ 				# row was 22
+-				self.setTableTextScaled(screen, szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), self.getPlayerButton(netTradeGameWorst, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), self.getPlayerButton(netTradeGameWorst, aiGroupNetTrade), chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 				# row was 21
+-				self.setTableTextScaled(screen, szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++				SASTextScale.setTableTextLabel(screen, szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 
+ 		#iCol = 5
+ 		# Put it in iValueCol if that option is set
+@@ -2866,21 +2848,21 @@ class CvInfoScreen:
+ 			iCol = iValueCol
+ 			iOffset = 1
+ 		# <!-- custom: use getRankStr to show medal icons for ranks 1-3, added with claude opus 4.5's help thanks. -->
+-		self.setTableTextScaled(screen, szTable, iCol, 0 + iOffset, self.getRankStr(iEconomyRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iCol, 3 + iOffset, self.getRankStr(iIndustryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iCol, 6 + iOffset, self.getRankStr(iAgricultureRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+-		self.setTableTextScaled(screen, szTable, iCol, 9 + iOffset, self.getRankStr(iMilitaryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 0 + iOffset, self.getRankStr(iEconomyRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 3 + iOffset, self.getRankStr(iIndustryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 6 + iOffset, self.getRankStr(iAgricultureRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 9 + iOffset, self.getRankStr(iMilitaryRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 11
+-		self.setTableTextScaled(screen, szTable, iCol, 12 + iOffset, self.getRankStr(iLandAreaRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 12 + iOffset, self.getRankStr(iLandAreaRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 14
+-		self.setTableTextScaled(screen, szTable, iCol, 15 + iOffset, self.getRankStr(iPopulationRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 15 + iOffset, self.getRankStr(iPopulationRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 16
+-		self.setTableTextScaled(screen, szTable, iCol, 18 + iOffset, self.getRankStr(iHappinessRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 18 + iOffset, self.getRankStr(iHappinessRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# row was 18
+-		self.setTableTextScaled(screen, szTable, iCol, 21 + iOffset, self.getRankStr(iHealthRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++		SASTextScale.setTableTextLabel(screen, szTable, iCol, 21 + iOffset, self.getRankStr(iHealthRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		if self.bShowExports:
+ 			# row was 21
+-			self.setTableTextScaled(screen, szTable, iCol, 24 + iOffset, self.getRankStr(iNetTradeRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
++			SASTextScale.setTableTextLabel(screen, szTable, iCol, 24 + iOffset, self.getRankStr(iNetTradeRank), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+ 		# </advc.077>
+ 		return
+ 
+@@ -3214,7 +3196,7 @@ class CvInfoScreen:
+ 				szWonderCity = ""
+ 				self.aszWonderCity.append(szWonderCity)
+ 
+-				self.appendListBoxStringScaled(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 			for iWonderLoop in range(self.iNumWonders):
+ 
+@@ -3229,7 +3211,7 @@ class CvInfoScreen:
+ 				szWonderCity = self.aaWondersBuilt[iWonderLoop][3]
+ 				self.aszWonderCity.append(szWonderCity)
+ 
+-				self.appendListBoxStringScaled(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szProjectName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		else:
+ 
+@@ -3248,7 +3230,7 @@ class CvInfoScreen:
+ 				szWonderCity = ""
+ 				self.aszWonderCity.append(szWonderCity)
+ 
+-				self.appendListBoxStringScaled(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 			for iWonderLoop in range(self.iNumWonders):
+ 
+@@ -3263,7 +3245,7 @@ class CvInfoScreen:
+ 				szWonderCity = self.aaWondersBuilt[iWonderLoop][3]
+ 				self.aszWonderCity.append(szWonderCity)
+ 
+-				self.appendListBoxStringScaled(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++				SASTextScale.appendListBoxStringLabel(screen,  self.szWondersListBox, szWonderName + " (" + szWonderBuiltBy + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 	def drawWondersList(self):
+ 
+@@ -3366,7 +3348,7 @@ class CvInfoScreen:
+ 				splitText = szSpecialText.split("\n")
+ 				for special in splitText:
+ 					if len( special ) != 0:
+-						self.appendListBoxStringScaled(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++						SASTextScale.appendListBoxStringLabel(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 			else:
+ 
+@@ -3466,7 +3448,7 @@ class CvInfoScreen:
+ 				splitText = szSpecialText.split("\n")
+ 				for special in splitText:
+ 					if len( special ) != 0:
+-						self.appendListBoxStringScaled(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++						SASTextScale.appendListBoxStringLabel(screen,  listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 	def calculateWondersList(self):
+ 
+@@ -3758,11 +3740,11 @@ class CvInfoScreen:
+ 
+ 		# <!-- custom: old zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath() declaration no longer needed after our change to the columns as per claude opus 4.5's review (see comments at self.WONDERS_COL_MOVE_TO_CITY_ID). -->
+ 
+-		self.setTableColumnHeaderScaled(screen, self.szWondersTable, 0, "", self.W_WONDERS_CHART_COL_BUTTON)
+-		self.setTableColumnHeaderScaled(screen, self.szWondersTable, 1, self.sNameWonders, self.W_WONDERS_CHART_COL_NAME)
+-		self.setTableColumnHeaderScaled(screen, self.szWondersTable, 2, self.sDateWonders, self.W_WONDERS_CHART_COL_DATE)
+-		self.setTableColumnHeaderScaled(screen, self.szWondersTable, 3, self.sOwnerWonders, self.W_WONDERS_CHART_COL_OWNER)
+-		self.setTableColumnHeaderScaled(screen, self.szWondersTable, self.WONDERS_COL_MOVE_TO_CITY_ID, self.sCityWonders, self.W_WONDERS_CHART_COL_CITY)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.szWondersTable, 0, "", self.W_WONDERS_CHART_COL_BUTTON)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.szWondersTable, 1, self.sNameWonders, self.W_WONDERS_CHART_COL_NAME)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.szWondersTable, 2, self.sDateWonders, self.W_WONDERS_CHART_COL_DATE)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.szWondersTable, 3, self.sOwnerWonders, self.W_WONDERS_CHART_COL_OWNER)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.szWondersTable, self.WONDERS_COL_MOVE_TO_CITY_ID, self.sCityWonders, self.W_WONDERS_CHART_COL_CITY)
+ 
+ 		iWBB = len(self.aaWondersBeingBuilt_BUG)
+ 
+@@ -3805,13 +3787,13 @@ class CvInfoScreen:
+ 				szCityName = localText.changeTextColor(szCityName, color)
+ 
+ 			screen.appendTableRow(self.szWondersTable)
+-			# self.setTableTextScaled(screen, self.szWondersTable, 0, iWonderLoop, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 0, iWonderLoop, "", pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 1, iWonderLoop, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableIntScaled(screen, self.szWondersTable, 2, iWonderLoop, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 3, iWonderLoop, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			# self.setTableTextScaled(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++			# SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop, "", pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 1, iWonderLoop, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableIntLabel(screen, self.szWondersTable, 2, iWonderLoop, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 3, iWonderLoop, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		for iWonderLoop in range(self.iNumWonders):
+ #			self.aaWondersBuilt_BUG contains the following:
+@@ -3858,16 +3840,16 @@ class CvInfoScreen:
+ 
+ 			screen.appendTableRow(self.szWondersTable)
+ 			# if bKnown and bRevealed:
+-			# 	self.setTableTextScaled(screen, self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 0, iWonderLoop+iWBB, ""            , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			self.setTableIntScaled(screen, self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-			self.setTableTextScaled(screen, self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			# self.setTableTextScaled(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# 	SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 0, iWonderLoop+iWBB, ""            , pWonderInfo.getButton(), iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName, "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableIntLabel(screen, self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			if bKnown and bRevealed:
+-				self.setTableTextScaled(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 			else:
+-				self.setTableTextScaled(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 	# STATISTICS
+@@ -3973,8 +3955,8 @@ class CvInfoScreen:
+ 		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART, False, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Add Columns
+-		self.setTableColumnHeaderScaled(screen, szTopChart, 0, "", self.STATS_TOP_CHART_W_COL_0)
+-		self.setTableColumnHeaderScaled(screen, szTopChart, 1, "", self.STATS_TOP_CHART_W_COL_1)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTopChart, 0, "", self.STATS_TOP_CHART_W_COL_0)
++		SASTextScale.setTableColumnHeaderLabel(screen, szTopChart, 1, "", self.STATS_TOP_CHART_W_COL_1)
+ 
+ 		# Add Rows
+ 		# for i in range(self.iNumTopChartRows - 1):
+@@ -3994,9 +3976,9 @@ class CvInfoScreen:
+ 		# Time Played - using gear as a "game mechanics" metaphor, or add a clock emoji later
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, szTimeString, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, szTimeString, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+ 		# K-Mod.
+ 		iNumCitiesCurrent = gc.getPlayer(self.iActivePlayer).getNumCities()
+@@ -4006,34 +3988,34 @@ class CvInfoScreen:
+ 		iRow += 1
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, self.szCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, self.TEXT_CITIES_CURRENT, self.szCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, str(iNumCitiesCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# K-Mod end
+ 		# advc.004:
+ 		# if iNumCitiesBuilt != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+ 		iRow += 1
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, self.szFoundCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, self.TEXT_CITIES_BUILT, self.szFoundCityIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, str(iNumCitiesBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# advc.004:
+ 		# if iNumCitiesRazed != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+ 		iRow += 1
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, self.szRazeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, self.TEXT_CITIES_RAZED, self.szRazeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, str(iNumCitiesRazed), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# advc.004:
+ 		# if iNumReligionsFounded != 0:# or not AdvisorOpt.isNonZeroStatsOnly():
+ 		iRow += 1
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, self.szReligionIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, self.TEXT_NUM_RELIGIONS_FOUNDED, self.szReligionIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, str(iNumReligionsFounded), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+ 		# K-Mod.
+ 		iNumGoldenAges = CyStatistics().getPlayerNumGoldenAges(self.iActivePlayer)
+@@ -4042,9 +4024,9 @@ class CvInfoScreen:
+ 		iRow += 1
+ 		screen.appendTableRow(szTopChart)
+ 		iCol = 0
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, self.szGoldenAgeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, self.TEXT_NUM_GOLDEN_AGES, self.szGoldenAgeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		iCol = 1
+-		self.setTableTextScaled(screen, szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++		SASTextScale.setTableTextLabel(screen, szTopChart, iCol, iRow, str(iNumGoldenAges), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 		# K-Mod end
+ 
+ 		# BOTTOM PANEL
+@@ -4074,41 +4056,41 @@ class CvInfoScreen:
+ 
+ 			# Add Columns
+ 			iColWidth = int((iChartWidth / 16 * 3))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
+ 			iColWidth = int((iChartWidth / 16 * 3))
+-			self.setTableColumnHeaderScaled(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 1))
+-			self.setTableColumnHeaderScaled(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 2))
+-			self.setTableColumnHeaderScaled(screen, szImprovementsTable, 0, self.TEXT_IMPROVEMENTS, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szImprovementsTable, 0, self.TEXT_IMPROVEMENTS, iColWidth)
+ 			iColWidth = int((iChartWidth / 14 * 1))
+-			self.setTableColumnHeaderScaled(screen, szImprovementsTable, 1, self.TEXT_CURRENT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szImprovementsTable, 1, self.TEXT_CURRENT, iColWidth)
+ 		else:
+ 			iChartWidth = self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS - 24
+ 
+ 			# Add Columns
+ 			iColWidth = int((iChartWidth / 12 * 3))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
+ 			iColWidth = int((iChartWidth / 12 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
+ 			iColWidth = int((iChartWidth / 12 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
+ 			iColWidth = int((iChartWidth / 12 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
+ 			iColWidth = int((iChartWidth / 12 * 1))
+-			self.setTableColumnHeaderScaled(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
+ 			iColWidth = int((iChartWidth / 12 * 4))
+-			self.setTableColumnHeaderScaled(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
+ 			iColWidth = int((iChartWidth / 12 * 1))
+-			self.setTableColumnHeaderScaled(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
++			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
+ #BUG: improvements - end
+ 
+ # K-Mod: I've disabled this pre-appending of rows code - because it messes up my other stuff.
+@@ -4150,25 +4132,25 @@ class CvInfoScreen:
+ 			iCol = 0
+ 
+ 			# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
+-			#self.setTableTextScaled(screen, szUnitsTable, iCol, iRow, szUnitName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			#SASTextScale.setTableTextLabel(screen, szUnitsTable, iCol, iRow, szUnitName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			szUnitButton = gc.getUnitInfo(iUnitLoop).getButton()
+-			self.setTableTextScaled(screen, szUnitsTable, iCol, iRow, szUnitName, szUnitButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnitLoop, -1, statsRowFont)
++			SASTextScale.setTableTextLabel(screen, szUnitsTable, iCol, iRow, szUnitName, szUnitButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnitLoop, -1, statsRowFont)
+ 
+ 			iCol = 1
+ 			iNumUnitsCurrent = aiUnitsCurrent[iUnitLoop]
+-			self.setTableIntScaled(screen, szUnitsTable, iCol, iRow, str(iNumUnitsCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			SASTextScale.setTableIntLabel(screen, szUnitsTable, iCol, iRow, str(iNumUnitsCurrent), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+ 			iCol = 2
+ 			iNumUnitsBuilt = aiUnitsBuilt[iUnitLoop]
+-			self.setTableIntScaled(screen, szUnitsTable, iCol, iRow, str(iNumUnitsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			SASTextScale.setTableIntLabel(screen, szUnitsTable, iCol, iRow, str(iNumUnitsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+ 			iCol = 3
+ 			iNumUnitsKilled = aiUnitsKilled[iUnitLoop]
+-			self.setTableIntScaled(screen, szUnitsTable, iCol, iRow, str(iNumUnitsKilled), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			SASTextScale.setTableIntLabel(screen, szUnitsTable, iCol, iRow, str(iNumUnitsKilled), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 
+ 			iCol = 4
+ 			iNumUnitsLost = aiUnitsLost[iUnitLoop]
+-			self.setTableIntScaled(screen, szUnitsTable, iCol, iRow, str(iNumUnitsLost), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			SASTextScale.setTableIntLabel(screen, szUnitsTable, iCol, iRow, str(iNumUnitsLost), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iRow += 1 # K-Mod
+ 
+ 		# Add Buildings to table
+@@ -4190,13 +4172,13 @@ class CvInfoScreen:
+ 			szBuildingName = gc.getBuildingInfo(iBuildingLoop).getDescription()
+ 
+ 			# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
+-			# self.setTableTextScaled(screen, szBuildingsTable, iCol, iRow, szBuildingName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			# SASTextScale.setTableTextLabel(screen, szBuildingsTable, iCol, iRow, szBuildingName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			szBuildingButton = gc.getBuildingInfo(iBuildingLoop).getButton()
+-			self.setTableTextScaled(screen, szBuildingsTable, iCol, iRow, szBuildingName, szBuildingButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, statsRowFont)
++			SASTextScale.setTableTextLabel(screen, szBuildingsTable, iCol, iRow, szBuildingName, szBuildingButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, statsRowFont)
+ 
+ 			iCol = 1
+ 			iNumBuildingsBuilt = aiBuildingsBuilt[iBuildingLoop]
+-			self.setTableIntScaled(screen, szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++			SASTextScale.setTableIntLabel(screen, szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 			iRow += 1 # K-Mod
+ 
+ #BUG: improvements - start
+@@ -4217,12 +4199,12 @@ class CvInfoScreen:
+ 				iCol = 0
+ 
+ 				# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
+-				# self.setTableTextScaled(screen, szImprovementsTable, iCol, iRow, szImprovementName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++				# SASTextScale.setTableTextLabel(screen, szImprovementsTable, iCol, iRow, szImprovementName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 				szImprovementButton = gc.getImprovementInfo(iImprovementLoop).getButton()
+-				self.setTableTextScaled(screen, szImprovementsTable, iCol, iRow, szImprovementName, szImprovementButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovementLoop, -1, statsRowFont)
++				SASTextScale.setTableTextLabel(screen, szImprovementsTable, iCol, iRow, szImprovementName, szImprovementButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovementLoop, -1, statsRowFont)
+ 
+ 				iCol = 1
+-				self.setTableIntScaled(screen, szImprovementsTable, iCol, iRow, str(aiImprovementsCurrent[iImprovementLoop]), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
++				SASTextScale.setTableIntLabel(screen, szImprovementsTable, iCol, iRow, str(aiImprovementsCurrent[iImprovementLoop]), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+ 				iRow += 1
+ #BUG: improvements - end
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 8903fae00..f3e83ea1d 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -315,15 +315,6 @@ class CvVictoryScreen:
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+ 
+-	def scaleLabelText(self, szText):
+-		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_LABEL)
+-
+-	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify):
+-		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+-
+-	def appendListBoxStringNoUpdateScaled(self, screen, szTable, szText, eWidget, iData1, iData2, eJustify):
+-		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szTable, szText, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+-
+ 	def hideScreen(self):
+ 		screen = self.getScreen()
+ 		screen.hideScreen()
+@@ -416,7 +407,7 @@ class CvVictoryScreen:
+ 
+ 		# <!-- custom: shared fallback table for empty vote-source tabs (Voting/Members). Keep exhaustive tab navigation, show caller-specific intro text, and list required vote wonders with built/active state. (GPT-5.3-Codex) -->
+ 		iRow = screen.appendTableRow(szTable)
+-		self.setTableTextScaled(screen, szTable, 0, iRow, szIntroText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szIntroText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		dRequirements = {}
+ 		for (iVoteSource, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
+@@ -447,7 +438,7 @@ class CvVictoryScreen:
+ 			szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+ 			szSource = gc.getVoteSourceInfo(iVoteSource).getDescription()
+ 			iRow = screen.appendTableRow(szTable)
+-			self.setTableTextScaled(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			if gc.getGame().isDiploVote(iVoteSource):
+ 				if iUNTeam != -1:
+ 					if bUnknown:
+@@ -459,7 +450,7 @@ class CvVictoryScreen:
+ 					szStatus = self.TEXT_NOT_YET_BUILT
+ 			else:
+ 				szStatus = self.TEXT_NOT_ACTIVE_SHORT
+-			self.setTableTextScaled(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		self.drawTabs()
+ 
+@@ -501,15 +492,15 @@ class CvVictoryScreen:
+ 
+ 		# for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
+ 			# iRow = screen.appendTableRow(szTable)
+-			# self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# if (iUNTeam != -1):
+ 				# if bUnknown:
+ 					# szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+ 				# else:
+ 					# szName = gc.getTeam(iUNTeam).getName()
+-				# self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				# SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# else:
+-				# self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				# SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		#for i in range(gc.getNumVoteSourceInfos()):
+ 		bHasVotingRows = false
+@@ -524,13 +515,13 @@ class CvVictoryScreen:
+ 				iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
+ 				szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+ 				szHeaderText = SAS_FONT_TAG_TITLE_BOLD + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+-				self.setTableTextScaled(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				if (gc.getGame().getVoteSourceReligion(i) != -1):
+ 					# <!-- custom: add religion icon (claude opus 4.5) -->
+ 					iReligion = gc.getGame().getVoteSourceReligion(i)
+ 					szReligionButton = gc.getReligionInfo(iReligion).getButton()
+ 					szReligionName = gc.getReligionInfo(iReligion).getDescription()
+-					self.setTableTextScaled(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				# K-Mod end
+ 
+ 				#if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
+@@ -539,7 +530,7 @@ class CvVictoryScreen:
+ 
+ 					# <!-- custom: add star icon to Secretary General / AP Resident row (claude opus 4.5) -->
+ 					szSecGenText = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
+-					self.setTableTextScaled(screen, szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
+ 					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
+ 					szSecGenName = gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName()
+@@ -547,7 +538,7 @@ class CvVictoryScreen:
+ 					if iSecGenPlayer >= 0:
+ 						szSecGenName = gc.getPlayer(iSecGenPlayer).getName()
+ 						szSecGenButton = self.getLeaderButton(iSecGenPlayer)
+-					self.setTableTextScaled(screen, szTable, 1, iRow, szSecGenName, szSecGenButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szSecGenName, szSecGenButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 				# K-Mod
+ 				# vote timing
+@@ -557,13 +548,13 @@ class CvVictoryScreen:
+ 					sString = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (iVoteTimer,) )
+ 					#sString = u"<font=2b>" + sString + "</font>"
+ 					sString = BugUtil.colorText(sString, "COLOR_YELLOW")
+-					self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					iSecGenTimer = gc.getGame().getSecretaryGeneralTimer(i)
+ 					sString = localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (iSecGenTimer,) )
+ 					#sString = u"<font=2b>" + sString + "</font>"
+ 					sString = BugUtil.colorText(sString, "COLOR_YELLOW")
+-					self.setTableTextScaled(screen, szTable, 1, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				# K-Mod end
+ 
+ 				for iLoop in range(gc.getNumVoteInfos()):
+@@ -575,14 +566,14 @@ class CvVictoryScreen:
+ 
+ 							# <!-- custom: add bullet icon to resolution rows (claude opus 4.5) -->
+ 							szResText = u"%c %s" % (self.iBulletIcon, info.getDescription())
+-							self.setTableTextScaled(screen, szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 							if gc.getGame().isVotePassed(iLoop):
+-								self.setTableTextScaled(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							else:
+ 								# <!-- custom: use a dedicated key without the optional leading placeholder because this row only shows "(Requires X of Y total votes)" and should not depend on trimming localized text at runtime. (GPT-5.3-Codex) -->
+ 								szVoteReqText = localText.getText("TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY", (gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i)))
+-								self.setTableTextScaled(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				iRow = screen.appendTableRow(szTable) # empty row between vote sources. (K-Mod)
+ 		# Remove the final empty row (K-Mod)
+ 		if screen.getTableNumRows(szTable) > 0:
+@@ -686,7 +677,7 @@ class CvVictoryScreen:
+ 		if (gc.getGame().getVoteSourceReligion(iActiveVote) != -1):
+ 			sTableHeader += " (" + gc.getReligionInfo(gc.getGame().getVoteSourceReligion(iActiveVote)).getDescription() + ")"
+ 
+-		self.setTableTextScaled(screen, szHeading, 0, iRow, sTableHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szHeading, 0, iRow, sTableHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# determine the two candidates, add to header
+ 		iCandTeam1 = -1
+@@ -711,8 +702,8 @@ class CvVictoryScreen:
+ 		iCand1Known, sCand1Name = self.getCandStatusName(iCandTeam1)
+ 		iCand2Known, sCand2Name = self.getCandStatusName(iCandTeam2)
+ 
+-		self.setTableTextScaled(screen, szHeading, 1, iRow, sCand1Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-		self.setTableTextScaled(screen, szHeading, 2, iRow, sCand2Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szHeading, 1, iRow, sCand1Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szHeading, 2, iRow, sCand2Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 		# set up the member table
+ 		szTable = self.getNextWidgetName()
+@@ -815,7 +806,7 @@ class CvVictoryScreen:
+ 				szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (lMemberVotes, iActiveVote), )
+ 
+ 			iRow = screen.appendTableRow(szTable)
+-			self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			if iMember != self.iActivePlayer:
+ 				# player attitude to candidate #1
+@@ -823,14 +814,14 @@ class CvVictoryScreen:
+ 				if (szText != None
+ 				and iCand1Known == 1
+ 				and bKnown):
+-					self.setTableTextScaled(screen, szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				# player attitude to candidate #2
+ 				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer2, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
+ 				if (szText != None
+ 				and iCand2Known == 1
+ 				and bKnown):
+-					self.setTableTextScaled(screen, szTable, 3, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer2, CvUtil.FONT_CENTER_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer2, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			iVote = self.getVotesForWhichCandidate(iMember, iCandTeam1, iCandTeam2, self.VoteType)
+ 			iVote_Column = -1
+@@ -843,17 +834,17 @@ class CvVictoryScreen:
+ 				if (iVote == 1
+ 				and lMemberVotes > 0
+ 				and iCand1Known == 1):
+-					self.setTableTextScaled(screen, szTable, 2, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				# number of votes for Candidate #2
+ 				if (iVote == 2
+ 				and lMemberVotes > 0
+ 				and iCand2Known == 1):
+-					self.setTableTextScaled(screen, szTable, 4, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			# player status
+ 			if bKnown:
+-				self.setTableTextScaled(screen, szTable, 5, iRow, lMemberLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, lMemberLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			# store the candidates own votes
+ 			if (iCandTeam1 == gc.getPlayer(iMember).getTeam()
+@@ -877,7 +868,7 @@ class CvVictoryScreen:
+ 		if (iCand1Known != 0
+ 		and iCand2Known != 0):
+ 			sString +=  localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
+-		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		if iCand1Known == 1:
+ 			# color code the totals
+@@ -885,14 +876,14 @@ class CvVictoryScreen:
+ 			iColor = self.getVoteTotalColor(iVoteReq, iVoteTotal[0], iVoteCand[0], iVoteTotal[0] > iVoteTotal[1], self.VoteType == 2)
+ 			if iColor != -1:
+ 				sVoteTotal = localText.changeTextColor(sVoteTotal, iColor)
+-			self.setTableTextScaled(screen, szTable, 2, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 		if iCand2Known == 1:
+ 			sVoteTotal = str(iVoteTotal[1])
+ 			iColor = self.getVoteTotalColor(iVoteReq, iVoteTotal[1], iVoteCand[1], iVoteTotal[1] > iVoteTotal[0], self.VoteType == 2)
+ 			if iColor != -1:
+ 				sVoteTotal = localText.changeTextColor(sVoteTotal, iColor)
+-			self.setTableTextScaled(screen, szTable, 4, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 		# add a blank row
+ 		iRow = screen.appendTableRow(szTable)
+@@ -919,17 +910,17 @@ class CvVictoryScreen:
+ 		and iCand2Known != 0):
+ 			sString = sSecGen + ":"
+ 			iRow = screen.appendTableRow(szTable)
+-			self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			sString = "     " + localText.getText("TXT_KEY_BUG_VICTORY_BUG_POLL_RESULT", (sWin, self.formatPercent(fVotePercent), self.formatPercent(fMargin)))
+ 			iRow = screen.appendTableRow(szTable)
+-			self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			# BUG Poll statistical error
+ 			iRandError = 3.5 + gc.getASyncRand().get(10, "Election Results Statistical Error") / 10.0
+ 			sString = localText.getText("TXT_KEY_BUG_VICTORY_BUG_POLL_ERROR", (self.formatPercent(iRandError), ))
+ 			iRow = screen.appendTableRow(szTable)
+-			self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		iRow = screen.appendTableRow(szTable)
+ 
+@@ -938,13 +929,13 @@ class CvVictoryScreen:
+ 		iVoteTimer = gc.getGame().getVoteTimer(iActiveVote)
+ 		sString = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (iVoteTimer,) )
+ 		sString = SAS_FONT_TAG_LABEL + sString + SAS_FONT_TAG_CLOSE
+-		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		iRow = screen.appendTableRow(szTable)
+ 		iSecGenTimer = gc.getGame().getSecretaryGeneralTimer(iActiveVote)
+ 		sString = localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (iSecGenTimer,) )
+ 		sString = SAS_FONT_TAG_LABEL + sString + SAS_FONT_TAG_CLOSE
+-		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 	# <advc.703> Now shared by showVotes and showMembersScreen_NonBUG
+ 	# (I don't think the BUG version can be enabled in K-Mod)
+@@ -964,13 +955,13 @@ class CvVictoryScreen:
+ 						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
+ 						szHeaderText = SAS_FONT_TAG_TITLE_BOLD + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 						break
+-				self.setTableTextScaled(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				if (gc.getGame().getVoteSourceReligion(i) != -1):
+ 					# <!-- custom: add religion icon (claude opus 4.5) -->
+ 					iReligion = gc.getGame().getVoteSourceReligion(i)
+ 					szReligionButton = gc.getReligionInfo(iReligion).getButton()
+ 					szReligionName = gc.getReligionInfo(iReligion).getDescription()
+-					self.setTableTextScaled(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 				iSecretaryGeneralVote = -1
+ 				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
+@@ -995,17 +986,17 @@ class CvVictoryScreen:
+ 						# <!-- custom: add icons to membership status (claude opus 4.5) -->
+ 						if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) == gc.getPlayer(j).getTeam()):
+ 							iRow = screen.appendTableRow(szTable)
+-							self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							szStatusText = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
+-							self.setTableTextScaled(screen, szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						elif (gc.getPlayer(j).isFullMember(i)):
+ 							iRow = screen.appendTableRow(szTable)
+-							self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-							self.setTableTextScaled(screen, szTable, 1, iRow, self.szFullMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.szFullMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						elif (gc.getPlayer(j).isVotingMember(i)):
+ 							iRow = screen.appendTableRow(szTable)
+-							self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-							self.setTableTextScaled(screen, szTable, 1, iRow, self.szVotingMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.szVotingMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 				iRow = screen.appendTableRow(szTable)
+ 		# Remove the final empty row (K-Mod)
+@@ -1047,7 +1038,7 @@ class CvVictoryScreen:
+ 		iNumRows = screen.getTableNumRows(szTable)
+ 		iTitleRow = iNumRows - 1
+ 		szHeading = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_RF_CHAPTER_PLURAL", ()) + SAS_FONT_TAG_CLOSE
+-		self.setTableTextScaled(screen, szTable, 0, iTitleRow, szHeading, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 0, iTitleRow, szHeading, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		partialScore = 0
+ 		allScored = true
+ 		extGame = gc.getGame().getGameState() == GameStateTypes.GAMESTATE_EXTENDED
+@@ -1067,7 +1058,7 @@ class CvVictoryScreen:
+ 			if ongoing:
+ 				s = self.highlight(s)
+ 			s = "  " + s # Don't want this to align exactly with the heading
+-			self.setTableTextScaled(screen, szTable, 0, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# [1] Civ description
+ 			chapterCiv = gc.getGame().getChapterCiv(i)
+ 			activeCiv = gc.getGame().getActivePlayer()
+@@ -1076,7 +1067,7 @@ class CvVictoryScreen:
+ 				s = gc.getPlayer(chapterCiv).getCivilizationShortDescription(0)
+ 				if ongoing and not extChapter:
+ 					s = self.highlight(s)
+-			self.setTableTextScaled(screen, szTable, 1, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# [2] Start/end turn
+ 			s = localText.getText("TXT_KEY_RF_CHAPTER_INTERVAL", (startTurn, endTurn))
+ 			if endTurn < 0:
+@@ -1085,7 +1076,7 @@ class CvVictoryScreen:
+ 				s = self.highlight(s)
+ 			if endTurn >= 0: # Don't highlight this part
+ 				s += " (" + BugUtil.getDisplayYear(gc.getGame().getTurnYear(endTurn)) + ")"
+-			self.setTableTextScaled(screen, szTable, 2, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# [3] Points
+ 			chapterScore = gc.getGame().getChapterScore(i)
+ 			scoreTurn = gc.getGame().getChapterScoreTurn(i)
+@@ -1112,7 +1103,7 @@ class CvVictoryScreen:
+ 				s = "-"
+ 			else:
+ 				partialScore += chapterScore
+-			self.setTableTextScaled(screen, szTable, 3, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# [4] Scoring turn
+ 			s = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_TURN", (scoreTurn,))
+ 			if i == maxChapters - 1 and scoreTurn < 0:
+@@ -1120,7 +1111,7 @@ class CvVictoryScreen:
+ 			elif currentTurn >= scoreTurn:
+ 				s = self.highlight(s)
+ 			if not extGame or currentTurn >= scoreTurn:
+-				self.setTableTextScaled(screen, szTable, 4, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			if extChapter:
+ 				break # The remaining chapters will never happen
+ 		iRow = screen.appendTableRow(szTable)
+@@ -1129,8 +1120,8 @@ class CvVictoryScreen:
+ 		if allScored: # Only relevant when the game is over
+ 			s1 = self.highlight(localText.getText("TXT_KEY_RF_TOTAL", ()))
+ 			s2 = self.highlight(s2)
+-		self.setTableTextScaled(screen, szTable, 2, iRow, s1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		self.setTableTextScaled(screen, szTable, 3, iRow, s2, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, s1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, s2, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# The panels in the lower half are based on CvReligionScreen
+ 		# By default, let them take up the bottom half of the screen. But if there isn't enough room for the chapters in the upper part ...
+ 		iExcessChapters = min(maxChapters - 10, 3)
+@@ -1246,14 +1237,14 @@ class CvVictoryScreen:
+ #			failedHOFChecks = True
+ #			showHOFSettingChecks = False
+ 
+-#			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++#			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <!-- custom: add leader icon to active player name -->
+ 		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(self.iActivePlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+ 		szTraitIcons = self.getTraitIconsString(self.iActivePlayer)
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		g = gc.getGame() # advc
+ 		m = gc.getMap() # advc
+@@ -1288,21 +1279,21 @@ class CvVictoryScreen:
+ 				szActivePlayerChoice += localText.getText("TXT_KEY_RANDOM_LEADER", (szCivDesc,))
+ 			else:
+ 				szActivePlayerChoice += localText.getText("TXT_KEY_MANUALLY_CHOSEN", ())
+-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szActivePlayerChoice, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerChoice, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.190c>
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+-		#self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		#SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod. In multiplayer games, show both the game difficulty and the player difficulty
+ 		if activePlayer.getHandicapType() == g.getHandicapType():
+-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.708>
+ 		elif g.isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+ 			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS",
+ 					(gc.getHandicapInfo(g.getHandicapType()).getTextKey(),
+ 					gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(),
+ 					gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
+-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szBuffer,
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer,
+ 					WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.708>
+ 		else:
+@@ -1314,21 +1305,21 @@ class CvVictoryScreen:
+ 					# advc.076: Was TXT_KEY_OPTIONS_GAME - which no longer just says "Game".
+ 					# But this BUG text key does.
+ 					localText.getText("TXT_KEY_SHORTCUTS_GAME", ()))
+-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod end
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.190b>
+ 		for i in range(m.getNumCustomMapOptions()):
+ 			# Don't know how to call map script functions in Python, so I've implemented that in the DLL.
+ 			szDesc = m.getNonDefaultCustomMapOptionDesc(i)
+ 			if len(szDesc) <= 0: # Meaning that the option is set to its default value
+ 				continue
+-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # </advc.190b>
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # </advc.190b>
+ 		# <advc.190c>
+ 		szPlayerCountText = str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ())
+ 		if bAllRandom:
+@@ -1339,19 +1330,19 @@ class CvVictoryScreen:
+ 			szPlayerCountText += " ("
+ 			szPlayerCountText += localText.getText("TXT_KEY_NONE_AT_RANDOM", ())
+ 			szPlayerCountText += ")"
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szPlayerCountText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szPlayerCountText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.190c>
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.251>
+ 		iStartTurn = g.getStartTurn()
+ 		if iStartTurn != 0:
+ 			szTurnDate = CyGameTextMgr().getDateStr(iStartTurn, False, g.getCalendar(), g.getStartYear(), g.getGameSpeedType())
+-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# </advc.251>
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# advc.190a:
+-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		screen.updateListBox(szSettingsTable)
+ 
+@@ -1385,11 +1376,11 @@ class CvVictoryScreen:
+ 						szDescr += localText.getText("TXT_KEY_BARB_START", ())
+ 						szDescr += " " + str(iBarbarianStartTurn) + ")"
+ 				# </advc.300>
+-				self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szDescr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szDescr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# <advc.190a> Disabled victory conditions. Some overlap with CvReplayInfo::addSettingsMsg
+ 		for i in range(gc.getNumVictoryInfos()):
+ 			if not g.isVictoryValid(i):
+-				self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.190a>
+ 
+ 		# <advc.104> AI settings
+@@ -1400,7 +1391,7 @@ class CvVictoryScreen:
+ 		elif bLegacyAI: # Only possible if Aggressive AI disabled through XML
+ 			szAIOption = "Non-Aggressive AI"
+ 		if not szAIOption is None:
+-			self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szAIOption, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szAIOption, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.104>
+ 
+ 		if (g.isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START)):
+@@ -1411,12 +1402,12 @@ class CvVictoryScreen:
+ 				# Could be done directly in Python, but I also need it for advc.106i
+ 				szNumPoints = g.SPaHPointsForSettingsScreen()
+ 			# </advc.250b>
+-			self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		if g.isGameMultiPlayer():
+ 			for i in range(gc.getNumMPOptionInfos()):
+ 				if (g.isMPOption(i)):
+-					self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, gc.getMPOptionInfo(i).getDescription(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, gc.getMPOptionInfo(i).getDescription(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			if g.getMaxTurns() > 0:
+ 				# <advc.135d> Based on code in CvGame::setStartTurnYear
+@@ -1426,14 +1417,14 @@ class CvVictoryScreen:
+ 				if g.getMaxTurns() != iDefaultEndTurn:
+ 				# </advc.135d>
+ 					szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), g.getMaxTurns())
+-					self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			if (g.getMaxCityElimination() > 0):
+ 				szMaxCityElimination = u"%s %d" % (localText.getText("TXT_KEY_CITY_ELIM_TAG", ()), g.getMaxCityElimination())
+-				self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szMaxCityElimination, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szMaxCityElimination, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		if (g.hasSkippedSaveChecksum()):
+-			self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, localText.getText("TXT_KEY_BUFFYWARNING_CHECKSUM_SKIPPED", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, localText.getText("TXT_KEY_BUFFYWARNING_CHECKSUM_SKIPPED", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		screen.updateListBox(szOptionsTable)
+ 
+@@ -1470,13 +1461,13 @@ class CvVictoryScreen:
+ 		for p in rivalsMet: # </advc.190c>
+ 			# <!-- custom: add leader icon to player names in Other Players panel (claude opus 4.5) -->
+ 			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
+-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+ 			szTraitIcons = self.getTraitIconsString(p.getID())
+-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# <advc.190c>
+ 		for p in knownRivalsNotMet:
+ 			# Don't call CvPlayer functions here. Use XML data b/c that's what appears during game setup.
+@@ -1494,7 +1485,7 @@ class CvVictoryScreen:
+ 				# <!-- custom: add leader icon when only leader is known (claude opus 4.5) -->
+ 				szRivalInfo += u"%s %s" % (self.getLeaderIconTag(p.getID()), szLeader)
+ 
+-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, szRivalInfo, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szRivalInfo, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			if not p.wasLeaderRandomlyChosen():
+ 				# (Not relevant for the trait string, but let's pass a proper argument anyway.)
+ 				eCiv = CivilizationTypes.NO_CIVILIZATION
+@@ -1502,14 +1493,14 @@ class CvVictoryScreen:
+ 					eCiv = p.getCivilizationType()
+ 				# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
+ 				szTraitIcons = self.getTraitIconsString(p.getID())
+-				self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
+ 		if iUnknownRivals > 0:
+ 			szUnknown = localText.getText("TXT_KEY_UNKNOWN_RIVALS", (iUnknownRivals,))
+ 			if iUnknownRivals == 1:
+ 				szUnknown = localText.getText("TXT_KEY_ONE_UNKNOWN_RIVAL", ())
+-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, szUnknown, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szUnknown, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# </advc.190c>
+ 
+ 		screen.updateListBox(szCivsTable)
+@@ -1665,7 +1656,7 @@ class CvVictoryScreen:
+ 					szVictoryType += u"    " + SAS_FONT_TAG_LABEL + u"(" + szTurnsLeft + u")" + SAS_FONT_TAG_CLOSE
+ 
+ 				iVictoryTitleRow = iNumRows - 1
+-				self.setTableTextScaled(screen, szTable, 0, iVictoryTitleRow, szVictoryType, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				SASTextScale.setTableTextLabel(screen, szTable, 0, iVictoryTitleRow, szVictoryType, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				bSpaceshipFound = False
+ 
+ 				bEntriesFound = False
+@@ -1675,12 +1666,12 @@ class CvVictoryScreen:
+ 				if (victory.isTargetScore() and iTargetScore != 0):
+ 
+ 					iRow = screen.appendTableRow(szTable)
+-					self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestScoreTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1691,9 +1682,9 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 							szBestButton = self.getLeaderButton(iBestPlayer)
+-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+-						self.setTableTextScaled(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+@@ -1704,11 +1695,11 @@ class CvVictoryScreen:
+ 					iRow = screen.appendTableRow(szTable)
+ 					# <!-- custom: add trophy icon to Highest Score row (claude opus 4.5) -->
+ 					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
+-					self.setTableTextScaled(screen, szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestScoreTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1719,10 +1710,10 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 							szBestButton = self.getLeaderButton(iBestPlayer)
+-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+-						self.setTableTextScaled(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+@@ -1730,19 +1721,19 @@ class CvVictoryScreen:
+ 					iRow = screen.appendTableRow(szTable)
+ 
+ 					# <!-- custom: add strength icon to Conquest row (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 0, iRow, self.szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					self.setTableTextScaled(screen, szTable, 2, iRow, self.TEXT_RIVALS_LEFT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, self.szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, self.TEXT_RIVALS_LEFT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-					self.setTableTextScaled(screen, szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					bEntriesFound = True
+ # BUG Additions Start
+ 					if AdvisorOpt.isVictories():
+ 						if nVassaled != 0:
+ 							sString = localText.getText("TXT_KEY_BUG_VICTORY_VASSALED", (nVassaled, ))
+-							self.setTableTextScaled(screen, szTable, 4, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						if nRivals - nknown != 0:
+ 							sString = localText.getText("TXT_KEY_BUG_VICTORY_UNKNOWN", (nRivals - nknown, ))
+-							self.setTableTextScaled(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions End
+ 
+ 				# <!-- custom: cache adjusted population percent to avoid duplicate call (claude opus 4.5) -->
+@@ -1752,11 +1743,11 @@ class CvVictoryScreen:
+ 
+ 					# <!-- custom: add population icon (claude opus 4.5) -->
+ 					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (iAdjustedPopPercent, )))
+-					self.setTableTextScaled(screen, szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					self.setTableTextScaled(screen, szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestPopTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1766,8 +1757,8 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 							szBestButton = self.getLeaderButton(iBestPlayer)
+-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+@@ -1778,11 +1769,11 @@ class CvVictoryScreen:
+ 					iRow = screen.appendTableRow(szTable)
+ 					# <!-- custom: add map icon (claude opus 4.5) -->
+ 					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (iAdjustedLandPercent, )))
+-					self.setTableTextScaled(screen, szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					self.setTableTextScaled(screen, szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestLandTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1792,23 +1783,23 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 							szBestButton = self.getLeaderButton(iBestPlayer)
+-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+ 				if (victory.getReligionPercent() > 0):
+ 					iRow = screen.appendTableRow(szTable)
+-					self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_RELIGION", (victory.getReligionPercent(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_RELIGION", (victory.getReligionPercent(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					if (iOurReligion != -1):
+-						self.setTableTextScaled(screen, szTable, 2, iRow, gc.getReligionInfo(iOurReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 3, iRow, (u"%d%%" % ourReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, gc.getReligionInfo(iOurReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%d%%" % ourReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					else:
+-						self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					if (iBestReligion != -1):
+-						self.setTableTextScaled(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 5, iRow, (u"%d%%" % religionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % religionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					bEntriesFound = True
+ 
+ 				if (victory.getTotalCultureRatio() > 0):
+@@ -1828,9 +1819,9 @@ class CvVictoryScreen:
+ 					#iCulturePercent = int((100.0 * bestCulture) / victory.getTotalCultureRatio())
+ 					# advc.004: The above is neither helpful nor really a percentage. Let's simply show the target ratio for now. What's really needed is, I think, the ratio of bestCulture to secondBestCulture, where secondBestCulture is computed w/o checking isHasMet. Or possibly that ratio divided by victory.getTotalCultureRatio (meaning that 100% is needed for victory). 
+ 					iCulturePercent = victory.getTotalCultureRatio()
+-					self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (iCulturePercent, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					self.setTableTextScaled(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (iCulturePercent, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestLandTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1840,8 +1831,8 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 							szBestButton = self.getLeaderButton(iBestPlayer)
+-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 5, iRow, unicode(bestCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, unicode(bestCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+@@ -1862,9 +1853,9 @@ class CvVictoryScreen:
+ 					if (gc.getBuildingClassInfo(i).getVictoryThreshold(iLoopVC) > 0):
+ 						iRow = screen.appendTableRow(szTable)
+ 						szNumber = unicode(gc.getBuildingClassInfo(i).getVictoryThreshold(iLoopVC))
+-						self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 3, iRow, activePlayer.getTeam().getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, activePlayer.getTeam().getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						if (iBestBuildingTeam != -1):
+ 							# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1874,8 +1865,8 @@ class CvVictoryScreen:
+ 							if iBestPlayer >= 0:
+ 								szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 								szBestButton = self.getLeaderButton(iBestPlayer)
+-							self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-							self.setTableTextScaled(screen, szTable, 5, iRow, gc.getTeam(iBestBuildingTeam).getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, gc.getTeam(iBestBuildingTeam).getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						bEntriesFound = True
+ 
+@@ -1901,25 +1892,25 @@ class CvVictoryScreen:
+ 						if (gc.getProjectInfo(i).getVictoryThreshold(iLoopVC) > 0):
+ 							if not self.isApolloBuilt():
+ 								iRow = screen.appendTableRow(szTable)
+-								self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-								self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-								self.setTableTextScaled(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 								bEntriesFound = True
+ 								break
+ 							else:
+ 								if not bApolloShown:
+ 									bApolloShown = True
+ 									iRow = screen.appendTableRow(szTable)
+-									self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++									SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 									if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
+-										self.setTableTextScaled(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (activePlayer.getTeam().getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (activePlayer.getTeam().getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 									else:
+-										self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-										self.setTableTextScaled(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++										SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 									if (iBestProjectTeam != -1):
+-										self.setTableTextScaled(screen, szTable, 4, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (gc.getTeam(iBestProjectTeam).getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++										SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (gc.getTeam(iBestProjectTeam).getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 								iRow = screen.appendTableRow(szTable)
+ 								iReqTech = gc.getProjectInfo(i).getTechPrereq()
+@@ -1932,7 +1923,7 @@ class CvVictoryScreen:
+ 								# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
+ 								szProjectButton = gc.getProjectInfo(i).getButton()
+ 								sSSPart = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
+-								self.setTableTextScaled(screen, szTable, 0, iRow, sSSPart, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sSSPart, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 								if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
+ 
+@@ -1952,9 +1943,9 @@ class CvVictoryScreen:
+ 										sSSPlayer = localText.changeTextColor(sSSPlayer, iSSColor)
+ 										sSSCount = localText.changeTextColor(sSSCount, iSSColor)
+ 
+-									self.setTableTextScaled(screen, szTable, 2, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++									SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 									if bHasTech:
+-										self.setTableTextScaled(screen, szTable, 3, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++										SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 									#check if spaceship
+ 									if (gc.getProjectInfo(i).isSpaceship()):
+@@ -1982,8 +1973,8 @@ class CvVictoryScreen:
+ 										sSSPlayer = localText.changeTextColor(sSSPlayer, iSSColor)
+ 										sSSCount = localText.changeTextColor(sSSCount, iSSColor)
+ 
+-									self.setTableTextScaled(screen, szTable, 4, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-									self.setTableTextScaled(screen, szTable, 5, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++									SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++									SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 								bEntriesFound = True
+ 
+@@ -1999,12 +1990,12 @@ class CvVictoryScreen:
+ 							# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
+ 							szProjectButton = gc.getProjectInfo(i).getButton()
+ 							szProjectText = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
+-							self.setTableTextScaled(screen, szTable, 0, iRow, szProjectText, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szProjectText, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 							szActivePlayerName = activePlayer.getName() + ":"
+ 
+-							self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerName, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-							self.setTableTextScaled(screen, szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerName, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							
+ 							#check if spaceship
+ 							if (gc.getProjectInfo(i).isSpaceship()):
+@@ -2018,8 +2009,8 @@ class CvVictoryScreen:
+ 								if iBestPlayer >= 0:
+ 									szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
+ 									szBestButton = self.getLeaderButton(iBestPlayer)
+-								self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-								self.setTableTextScaled(screen, szTable, 5, iRow, unicode(gc.getTeam(iBestProjectTeam).getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, unicode(gc.getTeam(iBestProjectTeam).getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 							bEntriesFound = True
+ # BUG Additions End
+@@ -2032,10 +2023,10 @@ class CvVictoryScreen:
+ 					victoryDelay = gc.getTeam(iActiveTeam).getVictoryCountdown(iLoopVC)
+ 					if((victoryDelay > 0) and (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_EXTENDED)):
+ 						victoryDate = CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn() + victoryDelay, False)
+-						self.setTableTextScaled(screen, szTable, 2, iVictoryTitleRow, localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ARRIVAL", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 3, iVictoryTitleRow, victoryDate, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 4, iVictoryTitleRow, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						self.setTableTextScaled(screen, szTable, 5, iVictoryTitleRow, str(victoryDelay), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 2, iVictoryTitleRow, localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ARRIVAL", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 3, iVictoryTitleRow, victoryDate, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 4, iVictoryTitleRow, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 5, iVictoryTitleRow, str(victoryDelay), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						
+ 				if (victory.isDiploVote()):
+ 					for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
+@@ -2044,7 +2035,7 @@ class CvVictoryScreen:
+ 						iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
+ 						szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+ 						szElectionText = localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), ))
+-						self.setTableTextScaled(screen, szTable, 0, iRow, szElectionText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szElectionText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						if (iUNTeam != -1):
+ 							if bUnknown:
+@@ -2058,10 +2049,10 @@ class CvVictoryScreen:
+ 								if iUNPlayer >= 0:
+ 									szName = gc.getPlayer(iUNPlayer).getName()
+ 									szNameButton = self.getLeaderButton(iUNPlayer)
+-							self.setTableTextScaled(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), szNameButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), szNameButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						else:
+-							self.setTableTextScaled(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						bEntriesFound = True
+ 					
+ 				if (victory.getCityCulture() != CultureLevelTypes.NO_CULTURELEVEL and victory.getNumCultureCities() > 0):
+@@ -2102,11 +2093,11 @@ class CvVictoryScreen:
+ 					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
+ 					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
+ 					szCultureVictoryText = u"%c %d %s (%s)" % (self.iCultureIcon, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, self.separateThousands(iCultureThresh))
+-					self.setTableTextScaled(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					for i in range(victory.getNumCultureCities()):
+ 						if (len(ourBestCities) > i):
+-							self.setTableTextScaled(screen, szTable, 2, iRow, ourBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, ourBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions Start
+ 							# <!-- custom: add thousand separator and percentage to culture values (claude opus 4.5) -->
+ 							iCultureValue = ourBestCities[i][0]
+@@ -2115,11 +2106,11 @@ class CvVictoryScreen:
+ 								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
+ 							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
+ 
+-							self.setTableTextScaled(screen, szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions End
+ 
+ 						if (len(theirBestCities) > i):
+-							self.setTableTextScaled(screen, szTable, 4, iRow, theirBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, theirBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ # BUG Additions Start
+ 							# <!-- custom: add thousand separator and percentage to rival culture values (claude opus 4.5) -->
+@@ -2133,7 +2124,7 @@ class CvVictoryScreen:
+ 								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
+ 							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
+ 
+-							self.setTableTextScaled(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions End
+ 
+ 						if (i < victory.getNumCultureCities()-1):
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=185441

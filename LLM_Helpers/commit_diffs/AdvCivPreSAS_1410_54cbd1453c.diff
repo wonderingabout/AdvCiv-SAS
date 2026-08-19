@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1410
+# Commit: 54cbd1453cba15b0f876a847e506fe1663b293c2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 66c00fd402cfadd3845f449300eb56850fdff077
+# Title: UWAI affection cost tweaked
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	3	Assets/XML/AI_Variables_GlobalDefines.xml
+21	8	CvGameCoreDLL/WarUtilityAspect.cpp
+2	0	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 74546f03b..fa5ea352c 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -144,10 +144,9 @@
+ 	<Define>
+ 		<!-- Don't want to plan war against civs that we like. This is only
+ 			 role-playing; ILL_WILL handles the rational reasons for not
+-			 attacking partners.
+-			 v0.90: Let's try 90. -->
++			 attacking partners. -->
+ 		<DefineName>UWAI_WEIGHT_AFFECTION</DefineName>
+-		<iDefineIntVal>90</iDefineIntVal>
++		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Distractions from fighting multiple wars are already covered by
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 894a7c000..08ea6aafb 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2892,7 +2892,10 @@ void IllWill::evalAngeredPartners() {
+ char const* IllWill::aspectName() const { return "Ill Will"; }
+ int IllWill::xmlId() const { return 17; }
+ 
+-Affection::Affection(WarEvalParameters& params) : WarUtilityAspect(params) {}
++Affection::Affection(WarEvalParameters& params) : WarUtilityAspect(params) {
++
++	gameProgressFactor = 1 - 0.2 * GC.getGameINLINE().gameTurnProgress();
++}
+ 
+ void Affection::evaluate() {
+ 
+@@ -2900,11 +2903,19 @@ void Affection::evaluate() {
+ 	if(we->isHuman() || agent.isCapitulated() || TEAMREF(theyId).isCapitulated() ||
+ 			!m->isWar(weId, theyId) || agent.AI_getWorstEnemy() == TEAMID(theyId))
+ 		return;
++	double directPlanFactor = 1;
+ 	WarPlanTypes wp = agent.AI_getWarPlan(TEAMID(theyId));
+-	// Once we've adopted a direct warplan, affection can't stay our hand
++	/*  Once we've adopted a direct warplan, affection is greatly reduced -- a civ
++		that will only please us when it sees our soldiers approach isn't a true friend. */
+ 	if(wp != WARPLAN_PREPARING_LIMITED && wp != WARPLAN_PREPARING_TOTAL &&
+-			wp != NO_WARPLAN)
+-		return;
++			wp != NO_WARPLAN) {
++		directPlanFactor = 0.1 * std::max(0,
++				/*  If war stays imminent for a long time, and relations remain good,
++					affection should matter again. */
++				agent.AI_getWarPlanStateCounter(TEAMID(theyId)) - 3);
++		if(directPlanFactor < 0.01)
++			return;
++	}
+ 	// We're not fully responsible for wars triggered by our DoW
+ 	double linkedWarFactor = 0;
+ 	if(m->getWarsDeclaredBy(weId).count(theyId) > 0) {
+@@ -2918,7 +2929,7 @@ void Affection::evaluate() {
+ 		(all other DoW on us are unforeseen). */
+ 	if(m->getWarsDeclaredBy(theyId).count(weId) > 0)
+ 		linkedWarFactor = 0.4;
+-	if(linkedWarFactor <= 0)
++	if(linkedWarFactor < 0.01)
+ 		return;
+ 	int noWarPercent = agent.AI_noWarProbAdjusted(TEAMID(theyId));
+ 	/*  Capitulated vassals don't interest us, but a voluntary vassal can reduce
+@@ -2964,7 +2975,7 @@ void Affection::evaluate() {
+ 			ignDistr));
+ 	if(hiredAgainstFriend)
+ 		uMinus = 50;
+-	uMinus *= linkedWarFactor;
++	uMinus *= linkedWarFactor * directPlanFactor * gameProgressFactor;
+ 	// When there's supposed to be uncertainty
+ 	if(!ignDistr && ((noWarPercent > 0 && noWarPercent < 100) || hiredAgainstFriend)) {
+ 		vector<long> hashInputs;
+@@ -2987,8 +2998,10 @@ void Affection::evaluate() {
+ 	if(agent.getNumMembers() > 1)
+ 		uMinus = normalizeUtility(uMinus) * agent.getNumMembers() * 2/3.0;
+ 	if(uMinus > 0.5) {
+-		log("NoWarAttProb: %d percent, our attitude: %d, for linked war: %d percent",
+-				::round(100 * pr), towardsThem, ::round(100 * linkedWarFactor));
++		log("NoWarAttProb: %d percent, our attitude: %d, for linked war: %d percent,"
++				" for direct war plan: %d percent, for game turn: %d percent",
++				::round(100 * pr), towardsThem, ::round(100 * linkedWarFactor),
++				::round(100 * directPlanFactor), ::round(100 * gameProgressFactor));
+ 		u -= ::round(uMinus);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 523c138a3..d23ff0f7a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -355,6 +355,8 @@ public:
+ 	void evaluate();
+ 	char const* aspectName() const;
+ 	int xmlId() const;
++private:
++	double gameProgressFactor;
+ };
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4159

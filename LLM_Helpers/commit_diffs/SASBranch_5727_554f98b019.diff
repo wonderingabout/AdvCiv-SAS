@@ -1,0 +1,228 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5727
+# Commit: 554f98b0194b5d2f4e89c20b678472d7330b42f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0ca00a40d02703932832a595ddf2f60b8e9f30a1
+# Title: make unit bar (plotlistpanel) x, y, and width tunable - fix overflow of unit bar into scoreboard when unit bar is full - rename coll. damage to shorter to pr...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+39	10	Assets/Python/Screens/CvMainInterface.py
+18	3	Assets/XML/GlobalDefines_advciv_sas.xml
+2	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+25	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 4bbb9b678..f73ebaf94 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -678,7 +678,12 @@ class CvMainInterface:
+ 		self.iBarExtraHeightExtraManualAdjust = None
+ 		self.iCityScreenBlueRibbonExtraLift = None
+ 		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
+-		self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = None
++		self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = None
++		# <!-- custom: cached resolution-scaled offsets for the map-view unit selection bar (PlotListPanel). (Claude code Opus 4.7) -->
++		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = None
++		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = None
++		# <!-- custom: cached HARD-px width adjustment for the unit bar's available row width; negative shrinks (fewer buttons per row, avoids overflow into scoreboard / off-screen). (Claude code Opus 4.7) -->
++		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT = None
+ 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
+ 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+ 		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
+@@ -1229,18 +1234,23 @@ class CvMainInterface:
+ 		self.setBuildingListRects()
+ 
+ 		iPlotListUnitBtnSz = self.plotListUnitButtonSize()
++		# <!-- custom: lazy-cache HARD-px unit-bar width adjustment; no resolution scaling because scoreboard width is font-driven, not resolution-scaled. Negative shrinks row (fewer buttons per row), helping avoid scoreboard / off-screen overflow on multi-row stacks. See KI#124. (Claude code Opus 4.7) -->
++		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT is None:
++			self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT")
+ 		self.m_iNumPlotListButtonsPerRow = (
+-				(gRect("BottomButtonMaxSpace").width() - 2 * iPlotListUnitBtnSz) /
++				(gRect("BottomButtonMaxSpace").width()
++				+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT
++				- 2 * iPlotListUnitBtnSz) /
+ 				iPlotListUnitBtnSz)
+ 		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
+-		if self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT is None:
+-			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT")
++		if self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT is None:
++			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT")
+ 			if iHelpAreaWidthAdjustRaw > 0:
+-				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = HLEN(iHelpAreaWidthAdjustRaw)
++				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = HLEN(iHelpAreaWidthAdjustRaw)
+ 			elif iHelpAreaWidthAdjustRaw < 0:
+-				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = -HLEN(-iHelpAreaWidthAdjustRaw)
++				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = -HLEN(-iHelpAreaWidthAdjustRaw)
+ 			else:
+-				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = 0
++				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = 0
+ 		# (Also used for the PLE Info Pane)
+ 		gSetRect("DefaultHelpArea", "Top",
+ 				HSPACE(7),
+@@ -1258,7 +1268,7 @@ class CvMainInterface:
+ 				# The help text really doesn't use that much width; it's been kept short
+ 				# with the original width in mind. So ...
+ 				gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width()))
+-				+ self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT,
++				+ self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT,
+ 				0)
+ 		gSetRect("DefaultHelpAreaMin", "Top",
+ 				HSPACE(7),
+@@ -2675,15 +2685,34 @@ class CvMainInterface:
+ 		iBtnSize = self.plotListUnitButtonSize()
+ 		iRows = self.numPlotListRows()
+ 		iCols = self.numPlotListButtonsPerRow()
++		# <!-- custom: lazy-cache resolution-scaled unit-bar offsets; HLEN/VLEN assert on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
++		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET is None:
++			iRawPLPX = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET")
++			if iRawPLPX > 0:
++				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = HLEN(iRawPLPX)
++			elif iRawPLPX < 0:
++				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = -HLEN(-iRawPLPX)
++			else:
++				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = 0
++		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET is None:
++			iRawPLPY = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET")
++			if iRawPLPY > 0:
++				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = VLEN(iRawPLPY)
++			elif iRawPLPY < 0:
++				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = -VLEN(-iRawPLPY)
++			else:
++				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = 0
+ 		for j in range(iRows):
+ 			szPanelName = "PlotListPanel" + str(j)
+ 			# <!-- custom: move unit bar ("PlotListPanel") more to the left so it is as of now aligned with where production chooser buttons start. Done with the help of GPT-5.2-Codex thanks a lot, was 6 -->
+ 			plotListPanelWGap = 0
+ 			gSetRect(szPanelName, "Top",
+ 					# (Don't want these margins to scale fully)
+-					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap,
++					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap
++					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET,
+ 					gRect("CenterBottomPanel").y() - VSPACE(2) - 4
+-					+ (j - iRows) * iBtnSize,
++					+ (j - iRows) * iBtnSize
++					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET,
+ 					iCols * iBtnSize + HSPACE(3),
+ 					iBtnSize + VSPACE(1))
+ 			self.addPanel(szPanelName, PanelStyles.PANEL_STYLE_EMPTY)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index eab349a29..896a2b0cb 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -532,10 +532,25 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: width adjustment (resolution-scaled pixels) for the left-side default help text area used in the map view (unit hover info, plot/unit-list selection details). Positive (e.g., 100) widens the box rightward into the map; negative (e.g., -50) narrows it. (Claude code Opus 4.7). Note: Extreme values (e.g., -1000, 2000) can produce the opposite effect so use moderate values to produce the intended effect. (Base AdvCiv value: 0) -->
++	<!-- custom: width adjustment (resolution-scaled (HLEN/VLEN) pixels) for the left-side default help text area used in the map view (unit hover info, plot/unit-list selection details). Positive (e.g., 100) widens the box rightward into the map; negative (e.g., -50) narrows it. (Claude code Opus 4.7). Note: Extreme values (e.g., -1000, 2000) can produce the opposite effect so use moderate values to produce the intended effect. (Base AdvCiv value: 0) -->
+ 	<Define>
+-		<DefineName>SAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT</DefineName>
+-		<iDefineIntVal>26</iDefineIntVal>
++		<DefineName>SAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++	<!-- custom: shift the map-view unit bar horizontally (resolution-scaled pixels). Positive = right, negative = left. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: shift the map-view unit bar vertically (resolution-scaled pixels). Positive = down, negative = up. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: hard-pixel width tweak for the unit bar (not resolution-scaled). Negative shrinks rows = fewer buttons per row, useful when an expanded scoreboard or an X/Y offset pushes the bar into other UI / off-screen. Granularity is one button width: e.g. -100 vs -110 may behave the same, then -120 drops one column. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT</DefineName>
++		<iDefineIntVal>-120</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
+ 	<Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index face810b9..972332c86 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1606,9 +1606,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
+ 		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+ 	</TEXT>
++	<!-- custom: abbreviated collateral damage to avoid having to have a 2nd line for siege or such units (that have a base of e.g., 100 (instead of 0 or a 2 digit value) that can cause to require one more new line so we trim it to try to avoid that) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
+-		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
++		<English>[ICON_BULLET]Coll. D. (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+ 	</TEXT>
+ 	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage i guess, adding the word "extra" -->
+ 	<TEXT>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 55df9b269..530f19431 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -159,6 +159,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array)  
+ [122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)  
+ [123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
++[124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4664,3 +4665,27 @@ ERR: Python function showDomesticAdvisor failed, module CvScreensInterface
+ File changed:
+ 
+ - [Assets/Python/EntryPoints/CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py)
++
++## 124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VRXC3ke-rHgnlevnY7BIazvHDCTcseU6?usp=sharing).
++
++Observed issue:
++
++- A full row of the unit bar (any row count, even just one) extends behind the scoreboard when the scoreboard is hovered/expanded to its widest.
++
++Not tested in base AdvCiv only in AdvCiv-SAS, but it likely happens there too.
++
++Fix:
++
++- Added SAS defines to shrink the unit bar's width (fewer buttons per row before wrapping) (as part of the broader change that allows to shift the unit bar horizontally / vertically), letting the user trim it back from the scoreboard.
++
++Note:
++
++- The width knob is hard-pixel (not resolution-scaled) on purpose, since what it compensates for (scoreboard width) is also font-driven.
++- Width adjustment granularity is one button width: small steps may have no effect until a column drops.
++
++File changed:
++
++- [Assets/Python/Screens/CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)
++- [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e7656a35d..b29c527f4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -358,7 +358,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (on the left side) optionally **width adjustment** (negative value shrinks it). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations).
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optionally **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resoution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations).
+ - (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=22307

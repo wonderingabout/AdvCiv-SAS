@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 961
+# Commit: 497fb82dc172cbf4914728706bc99166760e2692
+# History segment: K-Mod history
+# Parent used for diff: c4a6ecbc7a104dbf02e92e51f2b9064c245276d9
+# Title: Simplified the implementation of AI_isDoVictoryStrategyLevel3 & 4.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	52	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index cfb5bc7af..50912fc62 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19521,64 +19521,17 @@ bool CvPlayerAI::AI_isDoVictoryStrategy(int iVictoryStrategy) const
+     return (iVictoryStrategy & AI_getVictoryStrategyHash());
+ }
+ 
++// K-Mod note. The bbai version of this function checked each victory type one at a time.
++// I've changed it to test them all at once. This is possible since it's a bitfield.
+ bool CvPlayerAI::AI_isDoVictoryStrategyLevel4() const
+ {
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY4) )
+-	{
+-		return true;
+-	}
+-
+-	return false;
++	return AI_isDoVictoryStrategy(AI_VICTORY_SPACE4 | AI_VICTORY_CONQUEST4 | AI_VICTORY_CULTURE4 | AI_VICTORY_DOMINATION4 | AI_VICTORY_DIPLOMACY4);
+ }
+ 
++// (same)
+ bool CvPlayerAI::AI_isDoVictoryStrategyLevel3() const
+ {
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3) )
+-	{
+-		return true;
+-	}
+-
+-	if( AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY3) )
+-	{
+-		return true;
+-	}
+-
+-	return false;
++	return AI_isDoVictoryStrategy(AI_VICTORY_SPACE3 | AI_VICTORY_CONQUEST3 | AI_VICTORY_CULTURE3 | AI_VICTORY_DOMINATION3 | AI_VICTORY_DIPLOMACY3);
+ }
+ 
+ void CvPlayerAI::AI_updateVictoryStrategyHash()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1812

@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 999
+# Commit: c79bbe5edd1d47fd7a91213ca082f00ef5db9cba
+# History segment: K-Mod history
+# Parent used for diff: 16233059bc8499691adbdbb9878ba9d28bf15389
+# Title: Changed the format of the mouseover text for limited units.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+39	3	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 2a3e94389..2a92f87b8 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -120,6 +120,31 @@
+ 		<Italian>Stanchezza della guerra</Italian>
+ 		<Spanish>Hast&#237;o b&#233;lico</Spanish>
+ 	</TEXT>
++	<!-- removed leading [SPACE] in unit limit messages -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_WORLD_UNIT_LEFT</Tag>
++		<English>World Unit: %d1_Num Left</English>
++		<French>Unit&#233; mondiale : reste %d1_Num</French>
++		<German>Welteinheit: %d1_Num &#252;brig</German>
++		<Italian>Unit&#224; mondiale: %d1_Num [NUM1:rimanente:rimanenti]</Italian>
++		<Spanish>Unidad mundial: %d1_Num [NUM1:restante:restantes]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_TEAM_UNIT_LEFT</Tag>
++		<English>Team Unit: %d1_Num Left</English>
++		<French>Unit&#233; d'&#233;quipe : reste %d1_Num</French>
++		<German>Teameinheit: %d1_Num &#252;brig</German>
++		<Italian>Unit&#224; di squadra: %d1_Num [NUM1:rimanente:rimanenti]</Italian>
++		<Spanish>Unidad de equipo: %d1_Num [NUM1:restante:restantes]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_NATIONAL_UNIT_LEFT</Tag>
++		<English>National Unit: %d1_Num Left</English>
++		<French>Unit&#233; nationale : reste %d1_Num</French>
++		<German>Nationale Einheit: %d1_Num &#252;brig</German>
++		<Italian>Unit&#224; nazionale: %d1_Num [NUM1:rimanente:rimanenti]</Italian>
++		<Spanish>Unidad nacional: %d1_Num [NUM1:restante:restantes]</Spanish>
++	</TEXT>
+ 	<!-- highlight leader name in the contact string -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CONTACT_LEADER</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 155fae3ec..c55bf6c3e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8816,7 +8816,19 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 		}
+ 		else
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_WORLD_UNIT_LEFT", (GC.getUnitClassInfo(eUnitClass).getMaxGlobalInstances() - (ePlayer != NO_PLAYER ? GC.getGameINLINE().getUnitClassCreatedCount(eUnitClass) + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getUnitClassMaking(eUnitClass) : 0))));
++			//szBuffer.append(gDLL->getText("TXT_KEY_UNIT_WORLD_UNIT_LEFT", (GC.getUnitClassInfo(eUnitClass).getMaxGlobalInstances() - (ePlayer != NO_PLAYER ? GC.getGameINLINE().getUnitClassCreatedCount(eUnitClass) + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getUnitClassMaking(eUnitClass) : 0))));
++			// K-Mod
++			int iRemaining = std::max(0, GC.getUnitClassInfo(eUnitClass).getMaxGlobalInstances() - (ePlayer != NO_PLAYER ? GC.getGameINLINE().getUnitClassCreatedCount(eUnitClass) + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getUnitClassMaking(eUnitClass) : 0));
++			szBuffer.append(NEWLINE);
++
++			if (iRemaining <= 0)
++				szBuffer.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_WARNING_TEXT")));
++
++			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_WORLD_UNIT_LEFT", iRemaining));
++
++			if (iRemaining <= 0)
++				szBuffer.append(ENDCOLR);
++			// K-Mod end
+ 		}
+ 	}
+ 
+@@ -8829,7 +8841,19 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 		}
+ 		else
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TEAM_UNIT_LEFT", (GC.getUnitClassInfo(eUnitClass).getMaxTeamInstances() - (ePlayer != NO_PLAYER ? GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getUnitClassCountPlusMaking(eUnitClass) : 0))));
++			//szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TEAM_UNIT_LEFT", (GC.getUnitClassInfo(eUnitClass).getMaxTeamInstances() - (ePlayer != NO_PLAYER ? GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getUnitClassCountPlusMaking(eUnitClass) : 0))));
++			// K-Mod
++			int iRemaining = std::max(0, GC.getUnitClassInfo(eUnitClass).getMaxTeamInstances() - (ePlayer != NO_PLAYER ? GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getUnitClassCountPlusMaking(eUnitClass) : 0));
++			szBuffer.append(NEWLINE);
++
++			if (iRemaining <= 0)
++				szBuffer.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_WARNING_TEXT")));
++
++			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TEAM_UNIT_LEFT", iRemaining));
++
++			if (iRemaining <= 0)
++				szBuffer.append(ENDCOLR);
++			// K-Mod end
+ 		}
+ 	}
+ 
+@@ -8842,7 +8866,19 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 		}
+ 		else
+ 		{
+-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_NATIONAL_UNIT_LEFT", (GC.getUnitClassInfo(eUnitClass).getMaxPlayerInstances() - (ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getUnitClassCountPlusMaking(eUnitClass) : 0))));
++			//szBuffer.append(gDLL->getText("TXT_KEY_UNIT_NATIONAL_UNIT_LEFT", (GC.getUnitClassInfo(eUnitClass).getMaxPlayerInstances() - (ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getUnitClassCountPlusMaking(eUnitClass) : 0))));
++			// K-Mod
++			int iRemaining = std::max(0, GC.getUnitClassInfo(eUnitClass).getMaxPlayerInstances() - (ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getUnitClassCountPlusMaking(eUnitClass) : 0));
++			szBuffer.append(NEWLINE);
++
++			if (iRemaining <= 0)
++				szBuffer.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_WARNING_TEXT")));
++
++			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_NATIONAL_UNIT_LEFT", iRemaining));
++
++			if (iRemaining <= 0)
++				szBuffer.append(ENDCOLR);
++			// K-Mod end
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5271

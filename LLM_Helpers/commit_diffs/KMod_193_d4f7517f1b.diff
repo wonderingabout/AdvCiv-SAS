@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 193
+# Commit: d4f7517f1b0174e96a14ae4fd51955490f3bbc98
+# History segment: K-Mod history
+# Parent used for diff: 82e4aef6d861fcd10fe1512045353d249e7c4625
+# Title: Reverted my change to the default range for AI_plotTargetMissionAIs. I misunderstood what the range was for... and my change was completely wrong. Fixed an o...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GlobalDefinesAlt.xml
+0	2	CvGameCoreDLL/CvCityAI.cpp
+5	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	7	CvGameCoreDLL/CvPlayerAI.h
+5	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 726b377dd..c212cbae0 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -123,7 +123,7 @@
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_SHRINE_WEIGHT</DefineName>
+-		<iDefineIntVal>20</iDefineIntVal>
++		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_STATE_RELIGION_WEIGHT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3b68be81f..8800ee901 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11811,8 +11811,6 @@ void CvCityAI::AI_updateWorkersNeededHere()
+ 		{
+ 			if (pLoopPlot->getArea() == getArea())
+ 			{
+-				// BBAI TODO: Check late game slowness 
+-
+ 				//How slow is this? It could be almost NUM_CITY_PLOT times faster
+ 				//by iterating groups and seeing if the plot target lands in this city
+ 				//but since this is only called once/turn i'm not sure it matters.
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index d117bb7ad..aefee090f 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1259,7 +1259,11 @@ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iData1, int iData2)
+ 
+ bool PUF_isNoMission(const CvUnit* pUnit, int iData1, int iData2)
+ {
+-	return (pUnit->getGroup()->getActivityType() != ACTIVITY_MISSION);
++	/* original bts code
++	return (pUnit->getGroup()->getActivityType() != ACTIVITY_MISSION); */
++	// K-Mod
++	return (pUnit->getGroup()->AI_getMissionAIType() == NO_MISSIONAI);
++	// K-Mod end
+ }
+ 
+ bool PUF_isFiniteRange(const CvUnit* pUnit, int iData1, int iData2)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index ecf714f02..4df2de8e7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -215,15 +215,9 @@ public:
+ 	int AI_adjacentPotentialAttackers(CvPlot* pPlot, bool bTestCanMove = false) const;
+ 	int AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_areaMissionAIs(CvArea* pArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	/* original bts code
+ 	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;
+ 	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;
+-	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;*/
+-	// K-Mod. I'm pretty sure the default range should be INT_MAX. (note. I haven't changed it in CvPlayer.h)
+-	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = INT_MAX) const;
+-	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = INT_MAX) const;
+-	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = INT_MAX) const;
+-	// K-Mod end
++	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c292ac55f..bed5ab63d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1623,7 +1623,11 @@ void CvUnitAI::AI_workerMove()
+ //	}
+ 	if (pCity != NULL)
+ 	{
+-		if ((pCity->AI_getWorkersNeeded() > 0) && (plot()->isCity() || (pCity->AI_getWorkersNeeded() < ((1 + pCity->AI_getWorkersHave() * 2) / 3))))
++		/* original bts code (is it just me, or did they get this backwards?)
++		if ((pCity->AI_getWorkersNeeded() > 0) && (plot()->isCity() || (pCity->AI_getWorkersNeeded() < ((1 + pCity->AI_getWorkersHave() * 2) / 3)))) */
++		// K-Mod
++		if (pCity->AI_getWorkersNeeded() > 0 && (plot()->isCity() || pCity->AI_getWorkersHave() < (1 + pCity->AI_getWorkersNeeded() * 2) / 3))
++		// K-Mod end
+ 		{
+ 			if (AI_improveCity(pCity))
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4770

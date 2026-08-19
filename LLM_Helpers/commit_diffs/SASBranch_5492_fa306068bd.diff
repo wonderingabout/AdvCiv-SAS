@@ -1,0 +1,246 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5492
+# Commit: fa306068bd6fc931a667ac6a06a5dcc84e42eebf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4432f06c23921efdd38bd81feed6015cbc4c84b8
+# Title: optionally expand score tab if full and hide legend link - optionally hide legend link in sevopedia leader too
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+46	18	Assets/Python/Screens/CvInfoScreen.py
+13	0	Assets/XML/GlobalDefines_advciv_sas.xml
+4	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index a6194bccc..aa39bbae7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -38,6 +38,7 @@ localText = CyTranslator()
+ 
+ # <!-- custom: Leader page display toggle (not part of AI cache module). -->
+ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
++IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ 
+ # <!-- custom: keep debug flag available in this module for existing debug print sites. -->
+ IS_DEBUG_LEADER = _SAS_LeaderAIPValues.IS_DEBUG_LEADER
+@@ -221,6 +222,8 @@ class SevoPediaLeader:
+ 
+ 
+ 	def placeAILegendLink(self):
++		if not IS_SAS_SHOW_LEGEND_LINK:
++			return
+ 		if self.AI_LEGEND_NEW_CONCEPT_ID < 0:
+ 			return
+ 		screen = self.top.getScreen()
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 11b72b406..a5cdcba78 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -813,6 +813,8 @@ class CvInfoScreen:
+ 		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+ 		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+ 		self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE") > 0)
++		self.IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
++		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
+ 
+ 	def reset(self):
+ 
+@@ -1182,8 +1184,37 @@ class CvInfoScreen:
+ 		eActiveTeam = self.iActiveTeam
+ 		pActiveTeam = self.pActiveTeam
+ 
++		visiblePlayers = []
++		for j in range(gc.getMAX_CIV_PLAYERS()):
++			ePlayer = game.getRankPlayer(j)
++			if ePlayer < 0:
++				continue
++			pPlayer = gc.getPlayer(ePlayer)
++			if not pPlayer.isEverAlive():
++				continue
++			if not Scoreboard.Scoreboard.isShowTeamScore(pPlayer.getTeam()):
++				continue
++			if not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer):
++				continue
++			visiblePlayers.append(ePlayer)
++
++		# <!-- custom: only widen the score table when player count reaches the threshold; keep normal layout otherwise. (GPT-5.3-Codex) -->
++		bUseMaxScoreTabSpace = (len(visiblePlayers) >= self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD)
++		if bUseMaxScoreTabSpace:
++			# <!-- custom: expand max-render table equally upward and downward to fit ~2 extra rows while keeping vertical centering. (GPT-5.3-Codex) -->
++			iMaxRenderVerticalExpandPx = 24
++			iTableX = self.SMALL_MARGIN
++			iTableY = self.Y_HISTORY_TABLE - iMaxRenderVerticalExpandPx
++			iTableW = self.W_SCREEN - (2 * self.SMALL_MARGIN)
++			iTableH = self.H_HISTORY_TABLE + (2 * iMaxRenderVerticalExpandPx)
++		else:
++			iTableX = self.X_HISTORY_TABLE
++			iTableY = self.Y_HISTORY_TABLE
++			iTableW = self.W_HISTORY_TABLE
++			iTableH = self.H_HISTORY_TABLE
++
+ 		szTable = self.getNextWidgetName()
+-		screen.addTableControlGFC(szTable, 25, self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(szTable, 25, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(szTable)
+ 
+ 		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
+@@ -1213,7 +1244,12 @@ class CvInfoScreen:
+ 		iColResearch = 23
+ 		iColResearchPct = 24
+ 
+-		iW = self.W_HISTORY_TABLE
++		# <!-- custom: in max-render mode, reserve width for the table's right-side scrollbar gutter
++		# so text does not clip/overflow under it; this budget is absorbed by the flexible V/M column via width balancing. (GPT-5.3-Codex) -->
++		iMaxRenderWidthReservePx = 0
++		if bUseMaxScoreTabSpace:
++			iMaxRenderWidthReservePx = 14
++		iW = iTableW - iMaxRenderWidthReservePx
+ 		iIconW = 28
+ 		iMinColW = 42
+ 		iFlagW = iMinColW
+@@ -1313,19 +1349,6 @@ class CvInfoScreen:
+ 						teamVassalTeams[iOwnerTeam].append(iTeam)
+ 						break
+ 
+-		visiblePlayers = []
+-		for j in range(gc.getMAX_CIV_PLAYERS()):
+-			ePlayer = game.getRankPlayer(j)
+-			if ePlayer < 0:
+-				continue
+-			pPlayer = gc.getPlayer(ePlayer)
+-			if not pPlayer.isEverAlive():
+-				continue
+-			if not Scoreboard.Scoreboard.isShowTeamScore(pPlayer.getTeam()):
+-				continue
+-			if not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer):
+-				continue
+-			visiblePlayers.append(ePlayer)
+ 		visiblePlayersByTeam = {}
+ 		for eLoopPlayer in visiblePlayers:
+ 			eLoopTeam = gc.getPlayer(eLoopPlayer).getTeam()
+@@ -1535,15 +1558,20 @@ class CvInfoScreen:
+ 					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
+ 			screen.setTableText(szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-		if self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
++		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
+ 			szLegendLinkName = self.getNextWidgetName()
++			iLegendX = self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6
++			iLegendY = self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6
++			if bUseMaxScoreTabSpace:
++				iLegendX = iTableX + iTableW - 6
++				iLegendY = self.Y_HISTORY_TABLE_LOG_BUTTON + 3
+ 			screen.setText(
+ 				szLegendLinkName,
+ 				"Background",
+ 				self.SCORETAB_LEGEND_LINK_TEXT,
+ 				CvUtil.FONT_RIGHT_JUSTIFY,
+-				self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6,
+-				self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6,
++				iLegendX,
++				iLegendY,
+ 				self.Z_CONTROLS,
+ 				FontTypes.TITLE_FONT,
+ 				WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 01cba32cd..6cb58afdd 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -68,6 +68,14 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
+@@ -284,6 +292,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: widen the Info Screen Score tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD</DefineName>
++		<iDefineIntVal>36</iDefineIntVal>
++	</Define>
+
+diff --git a/README.md b/README.md
+index 7ae7e74e2..9ff678762 100644
+--- a/README.md
++++ b/README.md
+@@ -187,7 +187,7 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
+ Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG" alt="0.516_info_screen (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG" alt="0.516_info_screen (8).JPG" width="250"></img>
+ 
+ ##### Score Tab (in the Info Screen Advisor)
+ 
+@@ -195,9 +195,12 @@ A new advisor we added in the info screen is the score Tab, showing a sortable (
+ 
+ Added a clickable "Legend" text that redirects to Sevopedia Concepts' "Score Tab Columns" page that shows the legend.
+ 
++It optionally expands and Legend link moves to top right if table has more than max rows (else legend link stays bottom right so it is not distracting, and table is not expanded).
++
+ Added with the very nice help of GPT-5.3-Codex thanks.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG" alt="0.516_info_screen (7).JPG" width="250"></img>
+ 
+ #### Advisor reworks
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4e67986be..caf9d164f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -321,7 +321,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+ - Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons ((Requires AdvCiv-SAS 5480+) plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
+-- (Requires AdvCiv-SAS 5483+) Added in the **Info Screen** (F9 key) a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
++- (Requires AdvCiv-SAS 5483+) Added in the **Info Screen** (F9 key) a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. If table has more than max rows, table expands and Legend link moves to top right. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - (Requires AdvCiv-SAS 5479+) Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG
+index 8fc27b129..d9ab2296c 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG
+index d9ab2296c..8d930623c 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG
+new file mode 100644
+index 000000000..8fc27b129
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=14364

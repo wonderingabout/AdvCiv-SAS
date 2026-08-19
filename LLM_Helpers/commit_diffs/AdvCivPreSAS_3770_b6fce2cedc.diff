@@ -1,0 +1,266 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3770
+# Commit: b6fce2cedca0f66e226c10bad755f8ff248e88e5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4eb90fb38eb82d25b5895153e19a82d3726ab026
+# Title: Can't nuke cities with >=10% friendly nationality
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/GlobalDefines_advc.xml
+9	0	Assets/XML/Text/CIV4GameText_advc.xml
+54	21	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.h
+1	0	CvGameCoreDLL/CvGlobals.h
+15	0	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+9	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 16b3e53c1..cb2d9c8ce 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -918,6 +918,16 @@
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc (for kekm.7): Can't nuke a city if the nationality percentage
++		 of the nuke owner is at least this high.
++		 Recommended: Same as CITY_TRADE_CULTURE_THRESH,
++		 use 101 (or a higher value) for BtS behavior. Still won't be able to
++		 nuke any cities owned politically by the nuke owner. -->
++	<Define>
++		<DefineName>CITY_NUKE_CULTURE_THRESH</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++
+ 	<!-- [advc.030] Set this to 1 or greater (recommended) to treat plot groups
+ 		 that are separated by mountain peaks or shelf ice as separate map
+ 		 areas. 0 or less for BtS behavior (only land/water partition the map).
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index fa3200f50..cd858fe65 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -4942,6 +4942,15 @@
+ 		<Italian>[COLOR_WARNING_TEXT]Impossibile colpire con armi nucleari il territorio e le unit&#224; amiche[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]No se pueden hacer bombardeos nucleares contra los territorios o unidades amigos[COLOR_REVERT]</Spanish>
+ 	</TEXT>
++	<!--- ... nor own population in enemy cities. -->
++	<TEXT>
++		<Tag>TXT_KEY_CANT_NUKE_OWN_POP</Tag>
++		<English>[COLOR_WARNING_TEXT]Cannot Strike Cities with %d1_Thresh%% or more Friendly Nationality[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Impossible de lancer le missile nucl&#233;aire sur des cit&#233;s avec %d1_Thresh%%  de nationalit� amie[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]St�dte mit %d1_Thresh%% befreundeter Nationalit�t d�rfen nicht getroffen werden[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Impossibile colpire con armi nucleari le citt&#224; con il %d1_Thresh%% di nazionalit� amica[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]No se pueden hacer bombardeos nucleares contra las ciudades con un %d1_Thresh%% de nacionalidad amiga[COLOR_REVERT]</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.072: Based on TXT_KEY_TRADE_PEACE_TREATY_STRING in
+ 		 CIV4GameTextInfos.xml -->
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4c7d2d133..ce5b28b3d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20325,6 +20325,7 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
+ 					break;
+ 				case INTERFACEMODE_NUKE:
+ 					getNukePlotHelp(*pMouseOverPlot, *pHeadSelectedUnit, szTempBuffer);
++					szTempBuffer.append(NEWLINE); // kekm.7
+ 					break;
+ 				// <advc.004c>
+ 				case INTERFACEMODE_AIRBOMB:
+@@ -20368,27 +20369,12 @@ void CvGameTextMgr::getRebasePlotHelp(CvPlot const& kPlot,
+ }
+ 
+ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+-	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
++	CvUnit& kNuke, CvWString& szHelp)
+ {
+-	for (TeamIter<ALIVE> it; it.hasNext(); ++it)
+-	{
+-		TeamTypes const eVictimTeam = it->getID();
+-		if (kHeadSelectedUnit.isNukeVictim(&kPlot, eVictimTeam) &&
+-			!kHeadSelectedUnit.isEnemy(eVictimTeam))
+-		{	// <kekm.7> (advc)
+-			if (eVictimTeam == kHeadSelectedUnit.getTeam())
+-				szHelp.append(gDLL->getText("TXT_KEY_CANT_NUKE_OWN_TEAM"));
+-			else // </kekm.7>
+-			szHelp.append(gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS"));
+-			break;
+-		}
+-	}
+-	// <advc.650>
+-	if (kHeadSelectedUnit.canNukeAt(
+-		kHeadSelectedUnit.getPlot(), kPlot.getX(), kPlot.getY()))
+-	{
++	if (kNuke.canNukeAt(kNuke.getPlot(), kPlot.getX(), kPlot.getY()))
++	{	// <advc.650>
+ 		TeamTypes eInterceptTeam=NO_TEAM;
+-		int iInterceptChance = kHeadSelectedUnit.nukeInterceptionChance(
++		int iInterceptChance = kNuke.nukeInterceptionChance(
+ 				kPlot, &eInterceptTeam);
+ 		if (eInterceptTeam != NO_TEAM)
+ 		{
+@@ -20396,9 +20382,56 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 			szHelp.append(gDLL->getText("TXT_KEY_NUKE_INTERCEPT_CHANCE",
+ 					// Should perhaps show the team only when its not directly affected?
+ 					GET_TEAM(eInterceptTeam).getName().c_str(), iInterceptChance));
++		} // </advc.650>
++		return; // advc
++	}
++	// <kekm.7> (advc): Prioritize the explanations
++	CvWString szExplain;
++	for (int iPass = 0; iPass < 3 && szExplain.empty(); iPass++) // </kekm.7>
++	{
++		for (TeamIter<ALIVE> it; it.hasNext(); ++it)
++		{
++			TeamTypes const eVictimTeam = it->getID();
++			if (!kNuke.isNukeVictim(&kPlot, eVictimTeam))
++				continue;
++			// <kekm.7> (advc)
++			if (kNuke.isEnemy(eVictimTeam))
++			{
++				if (iPass == 0)
++				{
++					bool bCityFound = false;
++					for (SquareIter it(kPlot, kNuke.nukeRange()); it.hasNext(); ++it)
++					{
++						if (it->isCity() && kNuke.isEnemy(it->getTeam()) &&
++							it->calculateFriendlyCulturePercent(kNuke.getTeam()) >=
++							GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH))
++						{
++							bCityFound = true;
++							break;
++						}
++					}
++					if (bCityFound)
++					{
++						szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_OWN_POP",
++								GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)));
++						break;
++					}
++				}
++			}
++			else
++			{
++				if (eVictimTeam == kNuke.getTeam())
++				{
++					if (iPass == 2)
++						szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_OWN_TEAM"));
++				}
++				else if (iPass == 1) // </kekm.7>
++					szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS"));
++				break;
++			}
+ 		}
+-	} // </advc.650>
+-	szHelp += NEWLINE; // kekm.7
++	}
++	szHelp.append(szExplain);
+ }
+ 
+ /*	advc.004c: (Beginning based on getNukePlotHelp; the defense damage part is akin
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 1961b6559..64c1b4e26 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -306,7 +306,7 @@ public:
+ 
+ 	DllExport void getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp);
+ 	void getRebasePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp);
+-	void getNukePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp);
++	void getNukePlotHelp(CvPlot const& kPlot, CvUnit& kNuke, CvWString& szHelp);
+ 	// <advc.004c>
+ 	void getAirBombPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp);
+ 	void getAirStrikePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp);
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 6fbbfac7c..c6f5fd3fd 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -458,6 +458,7 @@ public:
+ 		/* <advc.ctr> */ \
+ 		DO(CITY_TRADE_CULTURE_THRESH) \
+ 		DO(NATIVE_CITY_CULTURE_THRESH) /* </advc.ctr> */ \
++		DO(CITY_NUKE_CULTURE_THRESH) /* advc (for kekm.7) */ \
+ 		DO(TREAT_REVEALED_BUILDINGS_AS_VISIBLE) /* advc.045 */ \
+ 		DO(DOUBLE_OBSOLETE_BUILDING_COMMERCE) /* advc.098 */ \
+ 		/* <advc.094> */ \
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 204b200b3..b8f95a6e3 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5478,6 +5478,21 @@ int CvPlot::calculateTeamCulturePercent(TeamTypes eTeam) const
+ 	return iTeamCulturePercent;
+ }
+ 
++// kekm.7 (advc): Including vassals or master
++int CvPlot::calculateFriendlyCulturePercent(TeamTypes eTeam) const
++{
++	// Dead teams don't have vassal/ master relationships
++	if (!GET_TEAM(eTeam).isAlive())
++		return calculateTeamCulturePercent(eTeam);
++	int iR = 0;
++	for (PlayerIter<ALIVE,NOT_A_RIVAL_OF> itPlayer(eTeam);
++		itPlayer.hasNext(); ++itPlayer)
++	{
++		iR += calculateCulturePercent(itPlayer->getID());
++	}
++	return iR;
++}
++
+ 
+ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate,
+ 	bool bUpdatePlotGroups)
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 3487b87e6..31446e03c 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -545,6 +545,7 @@ public:
+ 			bool bAlive = false) const; // advc.035
+ 	int calculateCulturePercent(PlayerTypes ePlayer) const;											// Exposed to Python
+ 	int calculateTeamCulturePercent(TeamTypes eTeam) const;											// Exposed to Python
++	int calculateFriendlyCulturePercent(TeamTypes eTeam) const; // advc (for kekm.7)
+ 	void setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate,								// Exposed to Python
+ 			bool bUpdatePlotGroups);
+ 	void changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate);								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7cf9cb26c..9c0c7411c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3710,7 +3710,15 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
+ 		{
+ 			return true;
+ 		}
+-		// <kekm.7> (advc): Not OK to nuke our own units
++		// <kekm.7> (advc)
++		// Can't nuke culturally owned population
++		if (kLoopPlot.isCity() &&
++			kLoopPlot.calculateFriendlyCulturePercent(eTeam) >=
++			GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH))
++		{
++			return true;
++		}
++		// Not OK to nuke our own units
+ 		if (eTeam == getTeam() && kLoopPlot.plotCheck(NULL, -1, -1, NO_PLAYER, getTeam()))
+ 			return true; // </kekm.7>
+ 		if (kLoopPlot.plotCheck(PUF_isCombatTeam, eTeam, getTeam()) != NULL &&
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=9376

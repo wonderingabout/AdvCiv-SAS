@@ -1,0 +1,132 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5165
+# Commit: ceb7306d3c5978731877b68339ee6a426c93696e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 735354daab11f474ac265381cf26a89ebc085246
+# Title: excenter foreign advisors screen to the left (scoreboard and map are important to keep/show, not most left side info) - also reduce techs per row and other t...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	6	Assets/Python/Screens/CvExoticForeignAdvisor.py
+5	2	Assets/Python/Screens/CvForeignAdvisor.py
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_foreign_advisor_info.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_foreign_advisor_techs.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 7f46a15a9..b58fc1ee7 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -107,13 +107,14 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		# Minimum space at the top and bottom of the screen.
+ 		# <!-- custom: after our changes, blue panel is overfilling on top and bottom, adjusted with the help of gemini 3 pro thanks anyways etc. -->
+ 		# The blue panel is overflowing because MIN_TOP_BOTTOM_SPACE is set to 30, but the Civ4 top/bottom UI bars are 55 pixels tall. We need to increase the margin so the panel clears those bars.
++		# <!-- custom: update: with 55 we have some yellow uneeded margins a slightly lower value seems to work much better at removing these, but a too low one creates an unwanted display somehow, adjusted as such based on a similar suggestion of gemini 3 pro thanks but anyways etc. -->
+ 		# self.MIN_TOP_BOTTOM_SPACE = 30 # advc.073: was 60
+-		self.MIN_TOP_BOTTOM_SPACE = 55
++		self.MIN_TOP_BOTTOM_SPACE = 45
+ 		
+ 		# Minimum space at the left and right end of the screen.
+ 		# <!-- custom: reduce this as we don't need so much space on the sides, and we need the space to show more info anyways etc as per gemini 3 pro's solution thanks but anyways etc. -->
+ 		# self.MIN_LEFT_RIGHT_SPACE = 25
+-		self.MIN_LEFT_RIGHT_SPACE = 10
++		self.MIN_LEFT_RIGHT_SPACE = 0
+ 		
+ 		# Extra border at the left and right ends of the column groups (import/export)
+ 		self.GROUP_BORDER = 8
+@@ -1380,15 +1381,19 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 	def initTechTable(self):
+ 		screen = self.getScreen()
+ 		
+-		# 1. Define the full screen size (This is perfect, keep it)
++		# 1. Define the full screen
++		# <!-- custom: note: this is the starting position of the grid/table, not of the blue panel anyways etc. -->
++		# <!-- custom: note: for example gridX moves the grid's starting position more to the left or right (for example so we use what used to be the yellow empty space on the left (and also on the right) if needed anyways etc.) -->
+ 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
+ 		gridY = self.MIN_TOP_BOTTOM_SPACE + 10
++
+ 		# <!-- custom: no need for the right side edge/margin in the blue panel, use this space or shrink the screen by this size if we don't need it in any other foreign advisor screen anyways etc. -->
+ 		# gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
++		# <!-- custom: we don't need margins in these areas, maximize space anyways etc. -->
++		# <!-- custom: also widen X since we removed the yellow edges that were uneeded, fill this space with our grid as we want to use it not leave it blue with our grid ending before it, anyways etc. -->
++		gridWidth = self.W_SCREEN + 10
++		# <!-- custom: trim bottom part of the grid else it overfills below the bottom end of the blue panel, which is not what we need nor want but anyways etc. -->
+ 		# gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
+-		# <!-- custom: for some reason the panel is asymetrically more left-leaning than right leaning; add some width so that this shifts panel more to the right instead of having dead space / margin in the blue panel, not perfect but a workaround against whatever is causing it i guess but anyways etc. -->
+-		gridWidthRightExtraCorrection = 7
+-		gridWidth = self.W_SCREEN - (self.MIN_LEFT_RIGHT_SPACE * 2) + gridWidthRightExtraCorrection
+ 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2
+ 
+ 		# 2. Setup the columns
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 3473f1a7b..8eefd407c 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -38,8 +38,11 @@ class CvForeignAdvisor:
+ 		# self.W_SCREEN = 1024
+ 		# self.H_SCREEN = 768
+ 		# <!-- custom: deduce x position so that it is dynamically centered (note: manually making sure we see all right panel info including power ratios anyways etc.), assuming a 1920 x 1080 display -->
+-		self.W_SCREEN = 1570
+-		self.X_SCREEN = (1920 - self.W_SCREEN) / 2
++		# <!-- custom: update: we don't need to center here: for foreign relations, the right side with the scoreboard and map is more important to always look at ideally; as for the left panel, it is largely uneeded, so be uncentered to maximize screen usage while still trying to preserve the scoreboard display or/and such but anyways etc. -->
++		# self.X_SCREEN = (1920 - self.W_SCREEN) / 2
++		self.X_SCREEN = 172
++		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
++		self.W_SCREEN = 1530 - self.X_SCREEN
+ 		self.Y_SCREEN = 28
+ 		# <!-- custom: assuming 1920 x 1080 display, if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. 1080 - 100 = 980). -->
+ 		self.H_SCREEN = 1080 - self.Y_SCREEN
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index a0d694362..bbe656870 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -120,7 +120,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5162+) Enlarged the foreign Advisors screen and beautified its panels so that we cleanly see the info of all 12 players without needing to scroll. Refactored the code so that if the advisor's screen dimensions are changed in their respective python file, the rest of the display dynamically follows and some info don't get stuck at old position. Change in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). See for details and examples [README.md#other-advisors-rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5162+) Enlarged the foreign Advisors screen and beautified its panels so that we cleanly see the info of all 12 players without needing to scroll at least not as much but anyways etc. Refactored the code so that if the advisor's screen dimensions are changed in their respective python file, the rest of the display dynamically follows and some info don't get stuck at old position. Change in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). See for details and examples [README.md#other-advisors-rework](/README.md#other-advisors-rework).
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index a18de2b0a..ebc99abd1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -113,7 +113,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ - Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5162+) Enlarged the Foreign Advisor screen and refined the panels to display up to 12 players without scrolling. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py) (see [Other advisors' rework](/README.md#other-advisors-rework)).
++- (Requires AdvCiv-SAS 5162+) Enlarged the Foreign Advisor screen and refined the panels to display up to 12 players so less scrolling is needed. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py) (see [Other advisors' rework](/README.md#other-advisors-rework)).
+ 
+ ### Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+index 4ac5637d7..0e31ffafd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_foreign_advisor_info.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_foreign_advisor_info.JPG
+index 9b44731d8..e39fd8edb 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_foreign_advisor_info.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_foreign_advisor_info.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_foreign_advisor_techs.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_foreign_advisor_techs.JPG
+index f3131dc0e..9dbc27fdd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_foreign_advisor_techs.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_foreign_advisor_techs.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=13721

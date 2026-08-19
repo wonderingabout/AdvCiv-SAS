@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2896
+# Commit: c93532452cbf631f08d9337ed570c10c517d3ab6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 267679a0be90bb74ed3c21aa8760c720e7221de4
+# Title: Amend AI air power estimate
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 90cf12b47..9f6555de2 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3036,7 +3036,7 @@ int CvTeamAI::AI_getRivalAirPower() const
+ 		{
+ 			CvTeamAI const& kRival = *it;
+ 			// <advc.131>
+-			if (kRival.AI_isAvoidWar(getID()))
++			if (!isBarbarian() && kRival.AI_isAvoidWar(getID()))
+ 				continue; // </advc.131>
+ 			int iUnitPower = kUnit.getPowerValue() *
+ 					// advc (note): This is cheating
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=499

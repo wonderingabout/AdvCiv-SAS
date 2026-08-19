@@ -1,0 +1,406 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6094
+# Commit: 8227c7d3284e3dd3ebe4a8e30901f79c0495ba38
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b3b83cf78fc58a509bc639573445452f0903e9b1
+# Title: Tune AI offensive military production / economy maximizing tradeoff closer to a middle ground and more military leaning; improve war-target reach, and make r...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+14	8	Assets/XML/GlobalDefines_advciv_sas.xml
+55	0	CvGameCoreDLL/CvCityAI.cpp
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+39	0	CvGameCoreDLL/CvSelectionGroupAI.cpp
+13	9	CvGameCoreDLL/UWAIAgent.cpp
+23	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 478fad245..0076622ce 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1518,15 +1518,15 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
+ 		<iDefineIntVal>8</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Minimum standing land-Worker force on the AI primary area, expressed as a percentage of cities before the separate reserve below is added. 100 means 1 Worker per city and 200 means 2. Values below the inherited city-local baseline do not reduce that baseline. The one-city early-growth safeguard still limits the first capital to 1 Worker until its population threshold is reached, and secondary areas remain demand-driven so completed islands can still reach zero. This minimum is shared by production and Worker-scrapping safeguards. See KI#198. (GPT-5.6 Thinking) -->
++	<!-- custom: Minimum standing land-Worker force on the AI primary area, expressed as a percentage of cities before the signed reserve adjustment below is applied. 100 means 1 Worker per city and 200 means 2. The primary-area result never falls below the ordinary one-Worker-per-city baseline. Secondary areas remain demand-driven so completed islands can still reach zero. This minimum is shared by production and Worker-scrapping safeguards. See KI#198. (GPT-5.6 Thinking) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY</DefineName>
+ 		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Additional standing land Workers kept on the AI primary area after the per-city minimum above is calculated. This provides a small shared reserve for travel, newly grown tiles and newly available jobs instead of requiring every Worker to be tied to one city. Set to 0 for no extra reserve. See KI#198. (GPT-5.6 Thinking) -->
++	<!-- custom: Signed Worker reserve added to the primary-area percentage floor. Positive values add Workers, 0 leaves the percentage floor unchanged and negative values reduce it, while the final primary-area floor still cannot fall below 1 Worker per city. With 200% above and -1 here, the standing floor is 1 Worker at 1 city, 3 at 2 cities, 5 at 3 cities, etc.; set to +1 to restore an extra reserve instead. See KI#198. (GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_RESERVE</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_RESERVE</DefineName>
++		<iDefineIntVal>-1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Minimum highest-ever capital population before a one-city empire may need more than 1 land Worker. BBAI logs showed several production paths repeatedly choosing a second Worker at population 1, halting early growth. Centralizing the limit in AI_neededWorkers lets the minimum floor, normal demand logic, and stagnant-city Worker substitutions share the same answer instead of duplicating the gate. Highest-ever population keeps the limit stable after whipping or starvation. Set to 0 to disable this early one-Worker limit. (GPT-5.5) -->
+ 	<Define>
+@@ -2194,6 +2194,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Minimum percentage of the AI empire's current base-production capacity that should be committed to UNITAI_ATTACK / UNITAI_ATTACK_CITY production before optional wonders and the broad later building shortcuts are considered. This is a production-share floor, not a unit-count target or upkeep budget: high-production cities contribute more than weak new settlements and the target scales naturally with empire development. Existing Worker, Settler, explorer, panic-defense, culture-victory, financial-trouble, wait-for-better-units, and other earlier priority logic remains intact. 0 disables. Current default 40 significantly raises military pressure while preserving more infrastructure/economic scaling; repeated same-save 0/40/100 testing showed that 100 could overcommit production without consistently producing more late-game combat units. See KI#197.9. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT</DefineName>
++		<iDefineIntVal>40</iDefineIntVal>
++	</Define>
++
+ 	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units. 100 means BuildUnitProb 80 reduces this gate's base odds by 80%; the inherited production-progress preference inside AI_chooseBuilding remains unchanged, and 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds. See KI#197.7. (GPT-5.6 Thinking) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>
+@@ -3248,15 +3254,15 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI rejects a prospective war. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. 3 preserves the earlier fixed AdvCiv-SAS limit. (GPT-5.6-Sol) -->
++	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI hard-rejects a prospective war. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. Current default 15 is intentionally much wider than the old 3-turn limit, which could reject otherwise worthwhile reachable wars before normal UWAI power/utility/diplomacy evaluation. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
+ 	<Define>
+ 		<DefineName>SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS</DefineName>
+-		<iDefineIntVal>3</iDefineIntVal>
++		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum approximate path turns to the nearest target city when naval transport is actually required. 12 preserves the earlier fixed AdvCiv-SAS limit. (GPT-5.6-Sol) -->
++	<!-- custom: Maximum approximate path turns to the nearest target city when naval transport is actually required. Current default 20 gives genuinely naval wars more travel tolerance than land wars while still retaining a high outer sanity bound for exceptionally remote targets. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
+ 	<Define>
+ 		<DefineName>SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS</DefineName>
+-		<iDefineIntVal>12</iDefineIntVal>
++		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Extra cached path turns tolerated after a war plan has already started. This prevents a single pillaged route or border fluctuation from canceling an otherwise profitable mobilization, while new targets still obey the strict land or sea contact limit above. Save-file 450 reproduced a direct Holy Roman plan changing from 3 to 4 turns and being canceled immediately; 1 narrowly covers that fluctuation without broadening initial target selection. (GPT-5.6-Sol) -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 469331b50..ba060c9d9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -86,6 +86,31 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
+ }
+ 
+ 
++// <!-- custom: Measure currently committed offensive production by base hammers rather than city count, unit count, era, or the inherited upkeep recommendation. A 40-hammer military city therefore matters far more than a 2-hammer new settlement, and the signal scales automatically with empire size and production development. (GPT-5.6 Thinking) -->
++static bool SAS_isOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_ATTACK_CITY); }
++
++static int SAS_getOffensiveProductionCapacityPercent(CvPlayerAI const& kPlayer, int& iOffensiveBaseProduction, int& iTotalBaseProduction, int& iOffensiveCities, int& iProductiveCities)
++{
++	iOffensiveBaseProduction = 0;
++	iTotalBaseProduction = 0;
++	iOffensiveCities = 0;
++	iProductiveCities = 0;
++	int iLoop = 0;
++	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
++	{
++		int const iBaseProduction = std::max(0, pLoopCity->getBaseYieldRate(YIELD_PRODUCTION));
++		if (iBaseProduction <= 0) continue;
++		iProductiveCities++;
++		iTotalBaseProduction += iBaseProduction;
++		if (pLoopCity->getProductionUnit() != NO_UNIT && SAS_isOffensiveProductionAI(pLoopCity->getProductionUnitAI()))
++		{
++			iOffensiveCities++;
++			iOffensiveBaseProduction += iBaseProduction;
++		}
++	}
++	return (iTotalBaseProduction <= 0 ? 0 : (iOffensiveBaseProduction * 100) / iTotalBaseProduction);
++}
++
+ static int SAS_getDangerAdjustedMinFoundValue(CvPlayerAI const& kPlayer, bool bDanger)
+ {
+ 	int iMinFoundValue = kPlayer.AI_getMinFoundValue();
+@@ -2900,6 +2925,36 @@ void CvCityAI::AI_chooseProduction()
+ 		return;
+ 	}*/ // BtS
+ 
++	// <!-- custom: Keep a configurable minimum share of healthy empire production committed to offensive units, measured by base-production capacity rather than unit count or the inherited military-upkeep recommendation. This fires only after the existing Worker/Settler/explorer/panic and other earlier essential/foundational production branches, but before opportunistic wonders and the broad later building shortcuts. It therefore lets the AI keep compounding its economy while preventing a mature healthy empire from assigning nearly every productive city to another optional building at once. 0 disables through XML. (GPT-5.6 Thinking) -->
++	static const int iSASMinOffensiveProductionCapacityPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT")));
++	int iOffensiveBaseProduction = 0;
++	int iTotalBaseProduction = 0;
++	int iOffensiveProductionCities = 0;
++	int iProductiveCities = 0;
++	int iOffensiveProductionCapacityPercent = 0;
++	bool const bOffensiveProductionCapacityContextEligible = (iSASMinOffensiveProductionCapacityPercent > 0 && bPrimaryArea && !bFinancialTrouble && !bDanger && !bAlwaysPeace && !bGetBetterUnits && !bCultureCity && !bUnitExempt);
++	if (bOffensiveProductionCapacityContextEligible || bLogDetailedMilitaryProduction) iOffensiveProductionCapacityPercent = SAS_getOffensiveProductionCapacityPercent(kPlayer, iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities);
++	bool const bOffensiveProductionCapacityEligible = (bOffensiveProductionCapacityContextEligible && iOffensiveProductionCapacityPercent < iSASMinOffensiveProductionCapacityPercent);
++	bool bOffensiveProductionCapacityChosen = false;
++	if (bOffensiveProductionCapacityEligible)
++	{
++		UnitAIWeightMap offensiveProductionWeight;
++		offensiveProductionWeight.set(UNITAI_ATTACK, 100);
++		offensiveProductionWeight.set(UNITAI_ATTACK_CITY, 100);
++		bOffensiveProductionCapacityChosen = AI_chooseLeastRepresentedUnit(offensiveProductionWeight);
++	}
++	if (bLogDetailedMilitaryProduction)
++	{
++		logBBAI("MILITARY_PRODUCTION_CAPACITY_FLOOR turn=%d player=%d %S city=%S cityId=%d targetPercent=%d currentPercent=%d offensiveBaseProduction=%d totalBaseProduction=%d offensiveCities=%d productiveCities=%d primaryArea=%d financialTrouble=%d danger=%d alwaysPeace=%d getBetterUnits=%d cultureCity=%d unitExempt=%d eligible=%d chosen=%d",
++			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iSASMinOffensiveProductionCapacityPercent, iOffensiveProductionCapacityPercent,
++			iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities, bPrimaryArea, bFinancialTrouble, bDanger, bAlwaysPeace, bGetBetterUnits, bCultureCity, bUnitExempt, bOffensiveProductionCapacityEligible, bOffensiveProductionCapacityChosen);
++	}
++	if (bOffensiveProductionCapacityChosen)
++	{
++		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S fills offensive production-capacity floor (%d%% < %d%%)", sCityName, iOffensiveProductionCapacityPercent, iSASMinOffensiveProductionCapacityPercent);
++		return;
++	}
++
+ 	//opportunistic wonder build
+ 	if (!bDanger && (!hasActiveWorldWonder() || iNumCities > 3))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9f6a04fe9..4645fc99f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16100,7 +16100,7 @@ int CvPlayerAI::AI_countCityFeatures(FeatureTypes eFeature) const
+ }
+ 
+ 
+-// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping; the primary area may use an XML-tunable workers-per-city floor plus a small standing reserve. See KI#198. (GPT-5.6 Thinking) -->
++// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping; the primary area uses an XML-tunable workers-per-city floor plus a signed reserve adjustment so current tuning can reduce the first-city floor without baking that direction into the define. See KI#198. (GPT-5.6 Thinking) -->
+ static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& kArea)
+ {
+ 	int const iCities = kArea.getCitiesPerPlayer(kPlayer.getID());
+@@ -16109,9 +16109,10 @@ static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& k
+ 	if (kPlayer.AI_isPrimaryArea(kArea) && iCities > 0)
+ 	{
+ 		static const int iPrimaryAreaMinimumPercentPerCity = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY"));
+-		static const int iPrimaryAreaMinimumReserve = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_RESERVE"));
+-		int const iPrimaryFloor = (iCities * iPrimaryAreaMinimumPercentPerCity + 99) / 100 + iPrimaryAreaMinimumReserve;
+-		iFloor = std::max(iFloor, iPrimaryFloor);
++		static const int iPrimaryAreaReserve = GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_RESERVE");
++		int const iPrimaryFloor = std::max(1, (iCities * iPrimaryAreaMinimumPercentPerCity + 99) / 100 + iPrimaryAreaReserve);
++		// The primary-area percentage plus signed reserve replaces the inherited extra capital-area Worker; keep at least the ordinary one-Worker-per-city baseline when tuned lower.
++		iFloor = std::max(iCities, iPrimaryFloor);
+ 	}
+ 	return iFloor;
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index fba91ec47..f44e9488e 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -1,4 +1,5 @@
+ #include "CvGameCoreDLL.h"
++#include "CvGame.h" // <!-- custom: WAR_ATTACK_ORDER diagnostics need CvGame::getGameTurn for unit-age logging. (GPT-5.6 Thinking) -->
+ #include "CvSelectionGroupAI.h"
+ #include "CvUnitAI.h"
+ // <advc.004c> for AI_bestUnitForMission
+@@ -8,6 +9,7 @@
+ #include "CvTeamAI.h"
+ #include "AgentIterator.h"
+ #include "CvMap.h"
++#include "BBAILog.h" // <!-- custom: WAR_ATTACK_ORDER diagnostics log the selected and final stack attacker. (GPT-5.6 Thinking) -->
+ 
+ 
+ CvSelectionGroupAI::CvSelectionGroupAI()
+@@ -555,6 +557,8 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool
+ 		}
+ 		// BETTER_BTS_AI_MOD: END
+ 	}
++	CvUnitAI* const pLowPowerSelected = (bUseLowPower ? pBestUnit : NULL);
++	int const iLowPowerSelectedOdds = (bUseLowPower ? iBestOdds : -1);
+ 	iUnitOdds = iBestOdds;
+ 	// <advc.048> Cut from CvSelectionGroup::groupAttack
+ 	if(bSacrifice && iUnitOdds < iOddsThresh)
+@@ -569,6 +573,41 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool
+ 			iUnitOdds = -1;
+ 		}
+ 	} // </advc.048>
++	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering actually spends old/obsolete units when they are present and whether the inherited sacrifice fallback replaces that choice. Age is intentionally logged rather than used for selection; the active behavior still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
++	if (bUseLowPower && gWarLogLevel >= 3 && pLowPowerSelected != NULL && pBestUnit != NULL)
++	{
++		int iEligibleAttackers = 0;
++		int iObsoleteEligible = 0;
++		int iOldestAge = -1;
++		CvUnitAI const* pOldestEligible = NULL;
++		for (CLLNode<IDInfo> const* pLogNode = headUnitNode(); pLogNode != NULL; pLogNode = nextUnitNode(pLogNode))
++		{
++			CvUnitAI const& kLogUnit = *::AI_getUnit(pLogNode->m_data);
++			if (kLogUnit.isDead()) continue;
++			bool bCanAttack = (kLogUnit.getDomainType() == DOMAIN_AIR ? kLogUnit.canAirAttack() : kLogUnit.canAttack());
++			if (bCanAttack && kLogUnit.getDomainType() != DOMAIN_AIR && bNoBlitz && kLogUnit.isBlitz() && kLogUnit.isMadeAttack()) bCanAttack = false;
++			if (!bCanAttack || (!bForce && !kLogUnit.canMove()) || (!bForce && !kLogUnit.canMoveInto(*pPlot, true, bPotentialEnemy))) continue;
++			iEligibleAttackers++;
++			TechTypes const eObsoleteTech = kLogUnit.getUnitInfo().getObsoleteTech();
++			if (eObsoleteTech != NO_TECH && GET_TEAM(kLogUnit.getTeam()).isHasTech(eObsoleteTech)) iObsoleteEligible++;
++			int const iAge = GC.getGame().getGameTurn() - kLogUnit.getGameTurnCreated();
++			if (iAge > iOldestAge)
++			{
++				iOldestAge = iAge;
++				pOldestEligible = &kLogUnit;
++			}
++		}
++		int const iLowPowerHealth = (100 * (std::max(1, pLowPowerSelected->maxHitPoints()) - pLowPowerSelected->getDamage())) / std::max(1, pLowPowerSelected->maxHitPoints());
++		int const iFinalHealth = (100 * (std::max(1, pBestUnit->maxHitPoints()) - pBestUnit->getDamage())) / std::max(1, pBestUnit->maxHitPoints());
++		TechTypes const eLowPowerObsoleteTech = pLowPowerSelected->getUnitInfo().getObsoleteTech();
++		TechTypes const eFinalObsoleteTech = pBestUnit->getUnitInfo().getObsoleteTech();
++		bool const bLowPowerObsolete = (eLowPowerObsoleteTech != NO_TECH && GET_TEAM(pLowPowerSelected->getTeam()).isHasTech(eLowPowerObsoleteTech));
++		bool const bFinalObsolete = (eFinalObsoleteTech != NO_TECH && GET_TEAM(pBestUnit->getTeam()).isHasTech(eFinalObsoleteTech));
++		logBBAI("WAR_ATTACK_ORDER turn=%d player=%d group=%d target=(%d,%d) eligible=%d obsoleteEligible=%d lowPowerUnit=%s lowPowerUnitAI=%d lowPowerAge=%d lowPowerXP=%d lowPowerHealth=%d lowPowerOdds=%d lowPowerObsolete=%d finalUnit=%s finalUnitAI=%d finalAge=%d finalXP=%d finalHealth=%d finalOdds=%d finalObsolete=%d sacrificeOverride=%d oldestUnit=%s oldestUnitAI=%d oldestAge=%d oldestXP=%d oldestObsolete=%d",
++			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible, GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->AI_getUnitAIType(), GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth, iLowPowerSelectedOdds, bLowPowerObsolete,
++			GC.getInfo(pBestUnit->getUnitType()).getType(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(), pBestUnit->getExperience(), iFinalHealth, iUnitOdds, bFinalObsolete, pBestUnit != pLowPowerSelected,
++			(pOldestEligible == NULL ? "-" : GC.getInfo(pOldestEligible->getUnitType()).getType()), (pOldestEligible == NULL ? NO_UNITAI : pOldestEligible->AI_getUnitAIType()), iOldestAge, (pOldestEligible == NULL ? -1 : pOldestEligible->getExperience()), (pOldestEligible == NULL ? 0 : (pOldestEligible->getUnitInfo().getObsoleteTech() != NO_TECH && GET_TEAM(pOldestEligible->getTeam()).isHasTech(pOldestEligible->getUnitInfo().getObsoleteTech()))));
++	}
+ 	return pBestUnit;
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index b5065184c..3ee394b62 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -159,7 +159,7 @@ namespace
+ 	}
+ 
+ 	// <!-- custom: A rival can be an attractive target because its power is spread across too many cities or because its army is committed to another war. Count that context only inside WAR level-2 diagnostics so testing can measure these opportunities before changing UWAI target valuation. Reuse SASGameRecord's military-unit definition for consistent comparison. (GPT-5.6-Sol) -->
+-	void getSASBBAITargetMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
++	void getSASBBAITeamMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
+ 	{
+ 		iMilitary = 0;
+ 		iOwnTerritory = 0;
+@@ -202,11 +202,13 @@ namespace
+ 		const int iTargetTotalPower = kTarget.getPower(true);
+ 		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
+ 		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
++		int iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities;
+ 		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
+-		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+-		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWars=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d",
++		getSASBBAITeamMilitaryPosture(kAgent.getID(), iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities);
++		getSASBBAITeamMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
++		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWars=%d targetWars=%d targetEnemyPowerPercent=%d ourMilitary=%d ourMilitaryOwnTerritory=%d ourMilitaryOutsideOwnTerritory=%d ourMilitaryEnemyTerritory=%d ourMilitaryInCities=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d",
+ 				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetTotalPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(),
+-				(100 * iOurPower) / std::max(1, kAgent.getNumCities()), (100 * iTargetTotalPower) / std::max(1, kTarget.getNumCities()), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
++				(100 * iOurPower) / std::max(1, kAgent.getNumCities()), (100 * iTargetTotalPower) / std::max(1, kTarget.getNumCities()), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+ 		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "EVAL", eWarPlan, iUtility, -1, -1, -1, bBackground);
+ 	}
+ 
+@@ -824,7 +826,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
+ 		const int iOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
+ 		const int iTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
+ 		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
+-		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
++		getSASBBAITeamMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+ 		logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d emergencyPeaceMode=%d preferredEmergencyPeaceTarget=%d emergencyPeace=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWarSuccess=%d targetWarSuccess=%d warSuccessDelta=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d nearestCityDistance=%d attitude=%d attitudeValue=%d",
+ 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, bEmergencyPeaceMode, ePreferredEmergencyPeaceTarget, bEmergencyPeace,
+ 				iOurPower, iTargetTotalPower, iTargetDefensivePower, (100 * iTargetDefensivePower) / iOurPower, iOurCities, iTargetCities, (100 * iOurPower) / std::max(1, iOurCities), (100 * iTargetTotalPower) / std::max(1, iTargetCities), iOurWarSuccess, iTargetWarSuccess, iOurWarSuccess - iTargetWarSuccess, kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
+@@ -1925,10 +1927,12 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ 					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)));
+ 			continue;
+ 		}
+-		if (!canSchemeAgainst(eTarget, true, false))
+-			kCache.setCanBeHiredAgainst(eTarget, false);
+-		if (!canSchemeAgainst(eTarget, false))
+-			continue;
++		bool const bCanSchemeIgnoringPlanAndDP = canSchemeAgainst(eTarget, true, false);
++		bool const bCanSchemeNow = canSchemeAgainst(eTarget, false);
++		if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_SCHEME_GATE turn=%d background=%d agentTeam=%d targetTeam=%d canSchemeIgnoringPlanAndDP=%d canSchemeNow=%d existingWarPlan=%s canEventuallyDeclare=%d canDeclareNow=%d forcedPeaceTurns=%d avoidWar=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourPower=%d targetPower=%d ourCities=%d targetCities=%d targetVassal=%d",
++			GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, bCanSchemeIgnoringPlanAndDP, bCanSchemeNow, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), kAgent.canEventuallyDeclareWar(eTarget), kAgent.canDeclareWar(eTarget), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_isAvoidWar(eTarget, true), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getPower(true), GET_TEAM(eTarget).getDefensivePower(kAgent.getID()), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), GET_TEAM(eTarget).isAVassal());
++		if (!bCanSchemeIgnoringPlanAndDP) kCache.setCanBeHiredAgainst(eTarget, false);
++		if (!bCanSchemeNow) continue;
+ 		m_pReport->log("Scheming against %s", m_pReport->teamName(eTarget));
+ 		bool bShortWork = kAgent.AI_isPushover(eTarget);
+ 		if (bShortWork)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 306259429..bd7f072f6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -254,6 +254,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [197.6 - (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1976---fixedimproved-base-advcivk-mod-naval-trade-sea-explorer-fallback-could-ignore-dockedqueued-ships-and-keep-producing-explorers-after-the-relevant-water-area-was-fully-revealed)\
+ [197.7 - (Fixed/Improved) Base AdvCiv/K-Mod early building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 1) ignored BuildUnitProb and could start fresh infrastructure despite maximum military-production pressure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1977---fixedimproved-base-advcivk-mod-early-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-1-ignored-buildunitprob-and-could-start-fresh-infrastructure-despite-maximum-military-production-pressure)\
+ [197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1978---improved-under-strength-military-production-could-still-react-too-weakly-for-low-buildunitprob-personalities-because-the-relative-power-catch-up-was-only-multiplicative-even-when-more-units-were-affordable)\
++[197.9 - (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes)\
+ [198 - (Fixed/Improved) Likely Base AdvCiv Worker/land-development underperformance, compounded by an AdvCiv-SAS Worker-demand regression and too-low minimum, could leave mature AI cities badly unimproved](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#198---fixedimproved-likely-base-advciv-workerland-development-underperformance-compounded-by-an-advciv-sas-worker-demand-regression-and-too-low-minimum-could-leave-mature-ai-cities-badly-unimproved)\
+ [199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#199---fixedimproved-base-advcivk-mod-generic-unitai-fallback-could-use-dedicated-land-anti-air-units-as-ordinary-attackers-or-reserves)\
+ 
+@@ -2697,6 +2698,10 @@ As for us, what matters is AIs don't get baited as much if at all now at least o
+ 
+ As results seem very good, i added this change now. As for the don't invade small islands in one landmass-like maps, i'll try to implement it in next knwon issues (not guaranteed, i may or may not do so).
+ 
++Later KI#197.9 military-production diagnostics showed that the original 3-turn land-contact hard reject had become too restrictive as a general pre-war sanity gate. In one run Spain had 178 military units with 172 still in its own territory and almost twice Mali's power, but Mali was rejected only because estimated contact was 4 turns; Byzantium similarly had 182 military units with 172 at home and roughly four times another target's power, but an 8-turn estimate was rejected. When a separate victory-denial path bypassed the contact limit later in the same game, those large armies immediately selected farther targets and converted the wars into city captures. The problem was therefore not that approximate travel time has no strategic value, but that 3 turns made it an overriding veto before normal UWAI could weigh power, utility, closeness, diplomacy and the rest of the war context.
++
++The XML-tunable defaults are therefore now widened to 15 approximate path turns for land-reachable targets (`SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS`) and 20 when naval transport is genuinely required (`SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS`). This keeps a high outer sanity bound for exceptionally remote targets while allowing ordinary reachable wars to reach UWAI evaluation. The change is intentionally still a distance guard rather than deleting the safeguard entirely; future autoplay can lower or widen the values if the AI again shows either overextension or excessive reluctance.
++
+ ## 62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/11XgIjY6H8xp3nOHU7Qrn_bQxixzVaKVZ?usp=sharing)
+@@ -7537,6 +7542,22 @@ The change improves military catch-up but intentionally does not attempt to make
+ 
+ Improved with the help of GPT-5.6 Thinking thanks.
+ 
++## 197.9 - (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1yeTrh38UwYFQDL5c-R6zDii0E4zjtDNI?usp=sharing).
++
++The continued KI#197 investigation showed that the preceding BuildUnitProb, building-gate and affordability fixes improved military catch-up but still did not guarantee that a healthy mature empire actually converted enough of its productive capacity into offensive units. Several experiments also showed why the existing military-upkeep recommendation was a poor direct target: an AI could already be far above `AI_maxUnitCostPerMil()` with only a modest army, while another economically strong empire could have large spending headroom yet continue choosing infrastructure. Fixed era/city unit quotas, simply multiplying the upkeep budget and a hard post-choice 100% unit override were therefore discarded; the latter could even replace foundational early infrastructure and weaken the economy that should support the later army.
++
++AdvCiv-SAS now instead has an XML-tunable **offensive production-capacity floor** through `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT`. It measures the share of the empire's current **base production** assigned to `UNITAI_ATTACK` and `UNITAI_ATTACK_CITY` production, so a strong hammer city contributes more than a weak new settlement and the rule scales naturally with empire size, map, era and production. The check runs only after the existing earlier Worker, Settler, explorer, panic/defense and other foundational branches, and it is disabled for financial trouble, immediate city danger, Always Peace, `AI_STRATEGY_GET_BETTER_UNITS`, culture-victory cities, non-primary areas and the existing unit-exempt cases. When the eligible empire is below the configured share, the city tries a least-represented ATTACK/ATTACK_CITY unit before opportunistic wonders and the broad later building shortcuts. Setting the define to 0 disables the feature.
++
++The initial 40% test was the first recent experiment to produce a clear broad military increase without the early-game self-sabotage of the discarded hard override. A later 100% run produced a spectacular high-pressure result, including roughly 180 combat units for both Spain and Byzantium around turn 300, but repeated testing showed that this was not a reliable scaling result. A controlled save-file 460 comparison using the same starting game at 0%, 40% and 100% showed a large improvement from 0% to 40%, but almost no additional aggregate direct combat-unit production from 40% to 100% by turn 300 (about 987 at 0%, 1340 at 40% and 1340 at 100%, excluding Barbarians and non-combat units). The 100% branch also tended to sacrifice more infrastructure/economic compounding, so stronger nominal military pressure could leave weaker production bases and did not consistently create larger late-game armies. The current default is therefore 40% as the better observed balance between military pressure and the economy that has to sustain and replace the army; 100 remains available as an intentionally extreme tuning value, while 0 disables the feature. The mechanism still does not consistently recreate the exceptional AdvCiv-SAS 5055 military-production curve, so the remaining limitation is considered a follow-up rather than hidden by an excessive default.
++
++The dedicated diagnostics added for this investigation are intentionally retained behind the existing BBAI log levels. `WAR_TARGET_SCHEME_GATE` / expanded `WAR_TARGET_EVAL` record whether a rival reaches war evaluation together with power, distance and where each side's military is located; `WAR_ATTACK_ORDER` records the low-power attacker chosen by the SAS stack-order logic and the final attacker after inherited sacrifice selection. These logs exposed that the inherited KI#61 pre-war contact limit had become too restrictive: Spain could have almost twice Mali's power with nearly all of its army at home and still hard-reject the war because estimated contact was 4 turns against a 3-turn land cap, while Byzantium could reject a much weaker target at 8 turns for the same reason. The existing victory-denial bypass demonstrated that once this hard veto was removed, the same large armies could rapidly convert into captured cities. The XML defaults are therefore now widened from 3 to 15 approximate land-contact turns and from 12 to 20 genuinely naval-contact turns. This does not force a declaration; it lets reachable targets within the wider sanity bounds proceed to normal UWAI power, utility, diplomacy, closeness and war-state evaluation. A later 40% save-file 454 test ended in a turn-342 Domination victory; the winning autoplay empire already had 106 combat units at turn 250 and 189 at turn 300, supporting the combination of stronger-but-not-maximal production pressure and fewer artificial war-opportunity vetoes.
++
++The attack-order trace still exposes a smaller separate follow-up: the SAS low-power selector can correctly choose an old/obsolete expendable unit, but inherited `AI_getBestGroupSacrifice()` may subsequently replace it. In one direct example, a 136-turn-old obsolete 0-XP Archer selected at 10% odds was replaced by a 5-turn-old 8-XP Horse Archer; across the diagnostic run, 189 logged attacks replaced an obsolete SAS-selected attacker with a non-obsolete final attacker, all through the sacrifice override. This issue remains unfixed for now and can be revisited after the broader production/war-opportunity behavior has stabilized.
++
++Improved/investigated with the help of GPT-5.6 Thinking thanks.
++
+ ## 198 - (Fixed/Improved) Likely Base AdvCiv Worker/land-development underperformance, compounded by an AdvCiv-SAS Worker-demand regression and too-low minimum, could leave mature AI cities badly unimproved
+ 
+ Primary empirical reproduction and validation in AdvCiv-SAS: save file 459.
+@@ -7551,9 +7572,9 @@ To fix that mismatch without creating a second improvement-selection system, cur
+ 
+ That regression fix was meaningful but exposed a separate and broader weakness in Worker policy. In the first corrected save-file 459 rerun, Russia improved from 39 to 26 unimproved worked plots on turn 150 and from 58 to 24 on turn 200, but it still had only 7 Workers for 6 cities on turn 200. Inspection showed that this was not another failed production gate: the old AdvCiv-SAS guaranteed primary-area minimum was effectively only 1 Worker per city plus 1 reserve for the capital area. The larger approximately 2.5 Workers-per-city formula elsewhere in Base AdvCiv was only a maximum production cap (and decayed by era), not a target or minimum. Russia reaching exactly 7 Workers for 6 primary-area cities therefore meant the old floor was being enforced; the floor itself was simply much too conservative for the importance of land development.
+ 
+-The primary-area standing minimum is therefore now shared and XML-tunable through `SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY` and `SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_RESERVE`, defaulting to 200% per city plus 1 reserve (e.g. 5 cities -> 11 Workers, 6 cities -> 13 Workers). `AI_neededWorkers`, the relevant production ceilings and Worker-scrapping safeguards all respect the same minimum so one subsystem does not immediately undo another. The existing one-city early-growth protection remains: a tiny first capital is not allowed to chain-build the full multi-Worker floor before it has grown enough. Secondary areas also remain demand-driven rather than inheriting the primary-area standing force.
++The primary-area standing minimum is therefore now shared and XML-tunable through `SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY` and the signed `SAS_AI_WORKER_PRIMARY_AREA_RESERVE`. The initial tuning used 200% per city plus 1 reserve, but a follow-up autoplay exposed the opposite early-game problem: once the one-city growth safeguard expired, the capital could target 3 Workers before the second Settler and delay expansion. The reserve is therefore currently -1 rather than encoding that tuning direction in the define name: positive values add Workers, 0 leaves the percentage floor unchanged and negative values reduce it. With the current defaults of 200% and -1 reserve, the standing floor is 1 Worker at 1 city, 3 at 2 cities, 5 at 3 cities, 7 at 4 cities, 9 at 5 cities and 11 at 6 cities; each additional city adds the full 2-Worker ratio without forcing a lone growing capital to carry it immediately. `AI_neededWorkers`, the relevant production ceilings and Worker-scrapping safeguards all respect the same minimum so one subsystem does not immediately undo another. The existing one-city early-growth protection remains as an additional guard against ordinary demand logic exceeding 1 Worker before the capital reaches its population threshold. Secondary areas also remain demand-driven rather than inheriting the primary-area standing force. A later full test directly confirmed the intended early progression: Russia still had only 1 Worker with 1 city on turn 30, while Sitting Bull had 3 Workers after reaching 2 cities by turn 50.
+ 
+-The final save-file 459 validation showed a much stronger development pattern. Russia had 9 Workers for 4 cities by turn 100 and 11 Workers for 5 cities by turn 150. At turn 150, 47 of 54 worked plots were improved (only 7 unimproved), and Moscow had all 16 currently worked plots improved. By turn 200, Russia still had 11 Workers for 5 cities and 61 of 79 worked plots were improved, with Moscow at 17 of 19. The autoplay branches naturally diverged after the behavior change, so these are diagnostic comparisons rather than identical-game snapshots, but the Worker-count floor itself is directly visible and the reduction in under-improved worked land is large.
++The confirming (with the plus 1 reserve) save-file 459 run development pattern. Russia had 9 Workers for 4 cities by turn 100 and 11 Workers for 5 cities by turn 150. At turn 150, 47 of 54 worked plots were improved (only 7 unimproved), and Moscow had all 16 currently worked plots improved. By turn 200, Russia still had 11 Workers for 5 cities and 61 of 79 worked plots were improved, with Moscow at 17 of 19. The autoplay branches naturally diverged after the behavior change, so these are diagnostic comparisons rather than identical-game snapshots, but the Worker-count floor itself is directly visible and the reduction in under-improved worked land is large.
+ 
+ This is therefore both a regression fix and a deliberate AI-strength enhancement, while also addressing a broader symptom that appears to have existed in Base AdvCiv already. Workers convert population and territory into food, production, commerce, routes and cleared terrain, so chronically running near one Worker per city can leave otherwise strong AI empires unable to exploit their own land. Further reserve/ratio tuning can still be revisited empirically, but the previous pathological shortage is considered fixed/improved for now.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 491d5da07..281ba9219 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -370,7 +370,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - **Reliable Worker availability without early overproduction:** AI cities rebuild enough Workers for each land area before other production priorities can leave them short indefinitely, without producing more than the AI calculates it needs. Maintaining enough Workers throughout the game lets the AI improve food/production/commerce, connect bonuses and routes, repair pillaging, and develop new or underdeveloped cities sooner, especially after Worker losses or earlier underproduction. This originally aimed for 1 Worker per city plus a capital-area reserve. As a refinement, a one-city empire needs at most 1 land Worker until its capital has ever reached a tunable population (5 by default), avoiding early double-Worker production and the resulting halted growth; normal demand resumes after the capital matures or another city is founded. Ordinary Worker choices, cases where a blocked Settler choice falls back to a Worker, general unit selection, and Worker scrapping now use the same centralized target. Four BBAI test runs then completed exactly 1 early Worker per empire, with the only later automatic second Worker beginning when its capital reached population 5.
+-- (Requires AdvCiv-SAS 6093+) Update: **AI Worker availability and land development substantially strengthened:** a closely matching under-improved-city symptom had already been recorded as high priority in a [Base AdvCiv test report](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814), where example 208 noted Shanghai was still almost unimproved in 325 AD despite being founded in 2320 BC. Much later, now in AdvCiv-SAS, Save file 459 then exposed both a separate AdvCiv-SAS Worker-demand fairly minor regression and a broader more impactful too-low standing minimum: Russia stayed at only 3 land Workers through turn 220 despite 6 cities; on turn 150, 39 of 62 worked plots were unimproved, rising to 58 of 91 by turn 200. To fix this, the AI now lets currently worked featureless land contribute Worker demand even though ordinary land improvement choice deliberately bypasses the legacy city best-build cache. More importantly, the primary-area standing minimum is now XML-tunable and as of now defaults to 2 Workers per city plus 1 shared reserve. Demand, production ceilings and Worker-scrapping safeguards use the same minimum, while the one-city early-growth safeguard and demand-driven secondary areas remain. In the final save-file 459 branch, Russia had 9 Workers for 4 cities by turn 100 and 11 Workers for 5 cities by turn 150; only 7 of 54 worked plots were then unimproved and Moscow had all 16 worked plots improved. The historical Base AdvCiv symptom may have had additional causes; the exact `AI_getBestBuild` mismatch fixed here is SAS-specific. See [KI#198](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#198---fixedimproved-likely-base-advciv-workerland-development-underperformance-compounded-by-an-advciv-sas-worker-demand-regression-and-too-low-minimum-could-leave-mature-ai-cities-badly-unimproved).
++- (Requires AdvCiv-SAS 6093+) Update: **AI Worker availability and land development substantially strengthened:** a closely matching under-improved-city symptom had already been recorded as high priority in a [Base AdvCiv test report](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814), where example 208 noted Shanghai was still almost unimproved in 325 AD despite being founded in 2320 BC. Much later, now in AdvCiv-SAS, Save file 459 then exposed both a separate AdvCiv-SAS Worker-demand fairly minor regression and a broader more impactful too-low standing minimum: Russia stayed at only 3 land Workers through turn 220 despite 6 cities; on turn 150, 39 of 62 worked plots were unimproved, rising to 58 of 91 by turn 200. To fix this, the AI now lets currently worked featureless land contribute Worker demand even though ordinary land improvement choice deliberately bypasses the legacy city best-build cache. More importantly, the primary-area standing minimum is XML-tunable through a percentage per city plus a **signed reserve**. The current 200% and -1 tuning gives a standing floor of 1 Worker at 1 city, 3 at 2 cities, 5 at 3, 7 at 4, etc.; positive reserve values add Workers, 0 leaves the percentage floor unchanged, and negative values reduce it while the final floor cannot fall below 1 Worker per city. This follow-up avoids the earlier 3-Worker one-city capital case that could delay the second Settler while retaining the stronger multi-city coverage. Demand, production ceilings and Worker-scrapping safeguards use the same minimum, while the one-city early-growth safeguard and demand-driven secondary areas remain. In the final save-file 459 branch, Russia had 9 Workers for 4 cities by turn 100 and 11 Workers for 5 cities by turn 150; only 7 of 54 worked plots were then unimproved and Moscow had all 16 worked plots improved. A later 100%-military test run also showed the intended early floor directly: Russia still had only 1 Worker at 1 city on turn 30, while Sitting Bull had 3 Workers after reaching 2 cities by turn 50. The historical Base AdvCiv symptom may have had additional causes; the exact `AI_getBestBuild` mismatch fixed here is SAS-specific. See [KI#198](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#198---fixedimproved-likely-base-advciv-workerland-development-underperformance-compounded-by-an-advciv-sas-worker-demand-regression-and-too-low-minimum-could-leave-mature-ai-cities-badly-unimproved).
+ - (Requires AdvCiv-SAS 6060+) **Workers are no longer delivered to landmasses that already have enough:** in save file 450, BBAI logging showed a Worker accompanying the Settler to the island where Thapsus was founded, then remaining idle there for 93 turns because none of its plots could be improved. Our first attempt at this fix correctly left an unnecessary Worker on the large landmass (i.e. home) instead of sending it to the small unimprovable island, but exposed a separate problem: general Worker logic kept loading the Worker back onto the island-bound Settler transport, so our early fix had to unload the same Worker back onto the large landmass 14 times. After our second version correctly stopped that loop, testing exposed a third failure: a separate Worker-ferry routine still kept sending extra Workers to islands that already had enough, eventually crowding 5 Workers onto Sardis's two-tile landmass and 2 onto Ergili's three-tile landmass, where most had no useful work. To fix this, Settler transports now leave Workers beyond the destination's exact shortage in their original city, unload only the required number at the destination, and keep any excess aboard for another destination. Workers cannot repeatedly reboard the same transport after being left behind, and later Worker ferries now stop once the destination landmass has enough. These checks use current need and current Worker count, so delivery becomes eligible again if losses leave the landmass short or new work requires workers again. In the confirming run, the AI correctly left a Worker on its origin landmass because the destination needed 1 but already had 3. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
+ - (Requires AdvCiv-SAS 6061+) **Workers are brought home after finishing every useful task on a secondary landmass:** Base AdvCiv forced most landmasses to retain at least 1 Worker forever, even after a Worker had legitimately finished developing a small island and could contribute elsewhere. Secondary landmasses can now reach zero Worker demand when no useful task remains. Their finished Workers move to the coast and request pickup; one available Settler transport collects each Worker for reuse elsewhere, rather than several ships pursuing the same rescue. The primary landmass keeps its Worker reserve, and demand on a secondary landmass automatically returns if losses or new work require another Worker. In the confirming save file 450 run, Persia recovered all 5 Workers from its completed islands on the same turn, and 14 completed-area Worker boardings were recorded across the game. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
+ - (Requires AdvCiv-SAS 6062+) Note: the above zero-demand and pickup rule above does not apply to the Barbarian player, as Barbarian city improvement planning can report no local jobs until a Worker already exists, and Barbarians do not use the ordinary civilization system to transport and reassign finished Workers between separate landmasses; therefore each isolated Barbarian island keeps local Worker demand (else no Worker is built and Barbarian cities are not improved at all).
+@@ -410,6 +410,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) and [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject no longer applies to the recursive peace scenario; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6052+) Update 2 : later BBAI logging showed that the guard was too invasive after war had already begun. In save file 450, it forced Sumer to make peace after only 2 turns despite capturing New York with twice Lincoln's power, merely because the next enemy city was beyond the distance limit. It is now restricted to pre-war evaluations, leaving normal UWAI logic to decide when an ongoing war should end.
++- (Requires AdvCiv-SAS 6094+) Update 3: the pre-war contact-distance guard is now substantially less restrictive and XML-tunable at a current, to address the issue, for example in save file 459, AIs having an overwhelming military advantage but not attacking much weaker rivals. The previous `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer. To fix this, `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS` / `SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS` are now changed to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 (vs 12 before to match this change too) for genuinely naval wars. The wider limits preserve a sanity bound for very remote targets while allowing ordinary UWAI power, utility, diplomacy, closeness and war-state logic to decide whether a reachable target is actually worth attacking. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+ - (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive; With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment, in `CvPlayerAI::AI_conquerCity`. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer "split in two" empires). See [KI#64](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity).
+ - (Requires AdvCiv-SAS 6042+) **Captured-city razing avoids destroy-then-resettle waste:** BBAI testing in save file 450 showed AIs repeatedly destroy a city and then soon spend a Settler to rebuild on the exact same `(38,50)` plot: Ur was razed, Tours was founded there and razed, then HRE founded Augsburg there only four turns later and eventually razed it too. This wasted population, buildings, Settlers, regrowth, and military effort. The cause was Base AdvCiv's `AI_isAwfulSite`, which misevaluated and judged existing cities through a separate crude terrain veto that could conflict with how Settlers valued the same site. AdvCiv-SAS replaces it with `AI_isSASCityLikelyToBenefitUsLongTerm`, whose intrinsic-quality component reuses the shared SAS low-food and potential-yield helpers: close cities with enough long-term food or workable potential can be kept even without standout bonuses. In the confirming run, HRE kept Ur when it captured the city at population 3; Ur later reached population 13, built a corporation building, and generated a Great Engineer, supporting a stronger AI outcome instead of another wasteful raze/resettle cycle. See [KI#186](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings).
+@@ -438,6 +439,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ #### Military - Land (AI)
+ 
++- (Requires AdvCiv-SAS 6094+) **Optionally increase tradeoff between offensive unit production maximizing (but too undevelope to scale militarily or economically into late game) and economy maximizing (but militarily weak and likely to die or lose later) trade-off so it is broadly closer to an efficient middle-ground:** the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally focused more and preferred economic efficiency instead, which however produced substantially fewer military units and could also make games less threatening and easier to win, especially late game. To address this, offensive military production is now broadly tunable through `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT`, which sets the minimum share of the empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** before opportunistic wonders and the broader later building choices, but after existing Worker, Settler, Explorer, panic, financial, culture and other earlier priority logic (so essential economic and survival production can still take precedence, even if set to max `100`): `0` disables the feature; the current middle-ground default of `40` significantly increases offensive production while still leaving enough room for infrastructure and economic growth to scale the empire; values up to `100` apply stronger military-production pressure, but can overcommit production to units and therefore do not necessarily produce a larger or stronger late-game army (possibly even less due to lower production or economy scaling late game). A same-start save file 460 BBAI and SASGameRecord logging comparison illustrates the trade-off: with `0` / `40` / `100`, the 11 civilizations (excluding Barbarians) had built 737 / 952 / 985 combat units by turn 250, and 987 / 1,340 / 1,340 by turn 300, so `40` captured nearly all of the additional military output of `100` while leaving substantially more room for infrastructure and economic scaling. The target deliberately uses **production capacity rather than a fixed unit count, era quota or military-upkeep target**, so high-production cities contribute proportionally more and the system naturally scales with the empire. The current feature improves military output significantly especially late game where it was too low, but does not reproduce the exceptionally high AdvCiv-SAS 5055 military-production levels (usually of ~200 units by T250-T300 and ~300 units by T300-T400) in amount or in consistency, so further AI-production tuning may continue. See [KI#197.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes).
+ - **Barracks**: lower `FLAVOR_MILITARY` (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
+ - **Stables**: similarly increase `iAIWeight` (e.g., 0 → 75) so they’re pursued when relevant.
+ - Early **siege**: adjust UnitAIs so early siege doesn’t get baited away from core attack/defense purposes.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=67543

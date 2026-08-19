@@ -1,0 +1,106 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3190
+# Commit: 31bc0c51ddcc5e482f3d8d7da6da6f44fa4bb58c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 245e47f1901984a7c51f3b5684274ae3e0ffa2d9
+# Title: Amend enum map premature allocation commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	11	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 5e0c723a8..c0507ffcb 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -106,8 +106,7 @@ template<class Dummy>
+ class EnumMapNonTempl
+ {
+ protected:
+-	/*	A kind of /dev/null for assignments without any effect.
+-		Never read. */
++	// A kind of /dev/null for assignments without any effect
+ 	static long long m_lDummy;
+ };
+ template<class Dummy>
+@@ -791,13 +790,24 @@ public:
+ 		FAssertMsg(getLength() > 4, "Should use an array enum map instead");
+ 		// Serialization is a good opportunity to clean out default values
+ 		pStream->Write(m_iNonDefault);
+-		if (numNonDefault() <= 0)
++		if (m_iNonDefault <= 0)
+ 			return;
++	#ifdef FASSERT_ENABLE
++		int iWritten = 0;
++	#endif
+ 		for (short i = 0; i < m_iSize; i++)
+ 		{
+ 			if (m_aValues[i] != cvDEFAULT)
++			{
++			#ifdef FASSERT_ENABLE
++				iWritten++;
++			#endif
+ 				pStream->Write(m_aKeys[i]);
++			}
+ 		}
++	#ifdef FASSERT_ENABLE
++		FAssert(iWritten == m_iNonDefault);
++	#endif
+ 		for (short i = 0; i < m_iSize; i++)
+ 		{
+ 			if (m_aValues[i] != cvDEFAULT)
+@@ -966,11 +976,9 @@ protected:
+ 	template<>
+ 	void processValueChange<CompactV>(CompactV cvOld, CompactV cvNew)
+ 	{
+-		if (cvNew == cvOld)
+-			return;
+-		if (cvOld == cvDEFAULT)
++		if (cvNew != cvDEFAULT)
+ 			m_iNonDefault++;
+-		else
++		if (cvOld != cvDEFAULT)
+ 		{
+ 			if ((--m_iNonDefault) == 0 &&
+ 				/*	Otherwise not worth the risk of having to reallocate later.
+@@ -1337,7 +1345,7 @@ public:
+ 	{	/*	Can only implement this when V and CompactV coincide
+ 			(unless we want to return CompactV - but I want that type to be used
+ 			only internally). */
+-		return randAccess<is_same_type<V,CompactV>::value>(eKey);
++		return subscript<is_same_type<V,CompactV>::value>(eKey);
+ 	}
+ 	V operator[](E eKey) const
+ 	{	// (I don't think we can unhide this through a using declaration)
+@@ -1468,15 +1476,15 @@ protected:
+ 			pDest[i] = pSource[i];
+ 	}
+ 	template<bool bVALID>
+-	V& randAccess(E);
++	V& subscript(E);
+ 	template<>
+-	V& randAccess<false>(E)
++	V& subscript<false>(E)
+ 	{	// No V instances exist in this map, only CompactV.
+ 		BOOST_STATIC_ASSERT(false);
+ 		return vDummy();
+ 	}
+ 	template<>
+-	V& randAccess<true>(E eKey) // When V and CompactV coincide
++	V& subscript<true>(E eKey) // When V and CompactV coincide
+ 	{
+ 		return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0);
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2377

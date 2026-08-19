@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3030
+# Commit: 71088e67feaedfc616f2f178b3a429475d54c445
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4326e232ad4ab309bd717e3e7e16d46d23c136c7
+# Title: Replace memset calls with ZeroMemory from WinBase.h
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvUnit.h
+1	1	CvGameCoreDLL/KmodPathFinder.h
+1	1	CvGameCoreDLL/ReproTest.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 8828dcd9c..3be0ec0db 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1252,7 +1252,7 @@ struct CombatDetails											// Exposed to Python
+ 	// advc:
+ 	void reset(PlayerTypes eOwner, PlayerTypes eVisualOwner, std::wstring sUnitName)
+ 	{
+-		memset(this, 0, sizeof(*this));
++		ZeroMemory(this, sizeof(*this));
+ 		this->eOwner = eOwner;
+ 		this->eVisualOwner = eVisualOwner;
+ 		this->sUnitName = sUnitName;
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 7a3d81118..c360d68d6 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -314,7 +314,7 @@ protected:
+ 				There's a section "Beating memset" by Dan Higgins in the book
+ 				that's credited at the start of FAStarNode.h. */
+ 				PROFILE("NodeMap::reset - memset");
+-				memset(m_data, 0, numBytes());
++				ZeroMemory(m_data, numBytes());
+ 			}
+ 			m_bDirty = false;
+ 		}
+
+diff --git a/CvGameCoreDLL/ReproTest.h b/CvGameCoreDLL/ReproTest.h
+index 2f2c18cc9..e7924c387 100644
+--- a/CvGameCoreDLL/ReproTest.h
++++ b/CvGameCoreDLL/ReproTest.h
+@@ -33,7 +33,7 @@
+ 		if (ReproTest::getInstance() != NULL) \
+ 			ReproTest::getInstance()->endWrite(true);
+ 	#define INIT_STRUCT_PADDING_INL() \
+-		memset(this, 0, sizeof(*this))
++		SecureZeroMemory(this, sizeof(*this))
+ 	#define INIT_STRUCT_PADDING(StructName) \
+ 		StructName() { INIT_STRUCT_PADDING_INL(); }
+ #else
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1456

@@ -1,0 +1,921 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5191
+# Commit: 1aeb7b55b9081b84da3248b4c481991eb1a522c0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 67fa5064a87eea57965b9d68c9588dda546d6cc9
+# Title: Revert turn 0 bulbing indicators to base advciv code, Beautify with 4 possible values in sas defines tech advisor's width - depending on how large they want...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+51	17	Assets/Python/Screens/CvTechChooser.py
+16	0	Assets/XML/GlobalDefines_advciv_sas.xml
+52	52	Assets/XML/Technologies/CIV4TechInfos.xml
+2	3	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+51	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+22	8	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 798ec3ef0..d3ca652f7 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -36,9 +36,7 @@ PREF_ICON_SIZE = 24
+ # <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height as found gemini pro 3 found nicely thanks but anyways etc. -->
+ # PREF_ICON_BOTTOM = 738
+ PREF_ICON_BOTTOM = 926
+-# <!-- custom: move it more to the left anyways etc. -->
+-# PREF_ICON_LEFT = 40 # was a bit farther left (10)
+-PREF_ICON_LEFT = 10
++PREF_ICON_LEFT = 40 # was a bit farther left (10)
+ # </advc.004a>
+ FLAVORS = [
+ 	TechPrefs.FLAVOR_PRODUCTION,
+@@ -159,6 +157,16 @@ class CvTechChooser:
+ 		self.BOX_INCREMENT_Y_SPACING = 6 #Should be a multiple of 3...
+ 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
+ 
++		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = None
++		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
++		# <!-- custom: parametrize properly the X starting position of the first column thanks to gemini 3 pro's help anyways etc (value was hardcoded repeatedly without a variable previously anyways etc.). -->
++		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
++		self.iX_LEFT_START = 30
++		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
++		self.iX_LEFT_START_OR_PREREQS = 24
++		# <!-- custom: adjust tech bulbing left starting position depending on our setting so we align vertically with where first tech button starts anyways etc. -->
++		self.PREF_ICON_LEFT = PREF_ICON_LEFT
++
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen( "TechChooser", CvScreenEnums.TECH_CHOOSER )
+ 
+@@ -179,6 +187,30 @@ class CvTechChooser:
+ 
+ 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
+ 		screen = self.getScreen()
++
++		# <!-- custom: compute cheaply once if i am not mistaken that fetching the define once is cheaper but anyways etc. -->
++		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH is None:
++			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH")
++		
++		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
++		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH <= 0:
++			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
++			# <!-- custom: move bulbing indicators more to the left anyways etc. -->
++			self.PREF_ICON_LEFT = 10
++			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still a bit too much to the right as compared to the tech bulbing position ingame, if they use the same value; plus, we need the space on the right edge to display last column properly ideally since it is almost so. So reduce this value a bit more to accomodate for that but anyways etc. -->
++			extraXAdjust = -5
++			self.iX_LEFT_START = 10 + extraXAdjust
++			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
++		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 1:
++			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
++			# <!-- custom: other variables unchanged anyways etc. -->
++		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH == 2:
++			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
++			# <!-- custom: other variables unchanged anyways etc. -->
++		else:
++			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
++			# <!-- custom: other variables unchanged anyways etc. -->
++		
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 
+@@ -243,10 +275,11 @@ class CvTechChooser:
+ 		wLeftSpace = 0
+ 		self.X_SCREEN = wLeftSpace
+ 		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
+-		wRightSpaceForTechPartOfTheScoreBoard = 206
+-		self.W_SCREEN = screen.getXResolution() - wRightSpaceForTechPartOfTheScoreBoard - wLeftSpace
++		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
++		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
+ 
+-		hTopSpaceForCommerceSliders = 118
++		# <!--  custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
++		hTopSpaceForCommerceSliders = 114
+ 		self.Y_SCREEN = hTopSpaceForCommerceSliders
+ 		hBottomSpace = 0
+ 		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
+@@ -370,11 +403,12 @@ class CvTechChooser:
+ 
+ 		# Draw the arrows
+ 		self.drawArrows(screen, sPanel, bANDPreReq, bORPreReq)
++
+ 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
+-		# <!-- custom: make it available since turn 0 for clarity and as advised by chatgpt 5.2 thanks but anyways etc. -->
+-		# if CyGame().getElapsedGameTurns() > 0:
+-		# 	self.updateTechPrefs()
+-		self.updateTechPrefs()
++		# <!-- custom: note: trying to comment out the above to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
++		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
++		if CyGame().getElapsedGameTurns() > 0:
++			self.updateTechPrefs()
+ 
+ 		screen.moveToFront( "CivDropDown" )
+ 
+@@ -401,7 +435,7 @@ class CvTechChooser:
+ 		for i in range(gc.getNumTechInfos()):
+ 
+ 			# Create and place a tech in its proper location
+-			iX = 30 + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
++			iX = self.iX_LEFT_START + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+ 			iY = ( gc.getTechInfo(i).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
+ 			szTechRecord = sPanelWidget + "TechRecord" + str(i)
+ 
+@@ -1036,7 +1070,7 @@ class CvTechChooser:
+ 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
+ 					szTechString = szTechString + unicode(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
+ 
+-				iX = 30 + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
++				iX = self.iX_LEFT_START + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+ 				iY = ( gc.getTechInfo(i).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
+ 
+ 				if bTechName:
+@@ -1101,7 +1135,7 @@ class CvTechChooser:
+ 					eTech = gc.getTechInfo(i).getPrereqAndTechs(j)
+ 					if ( eTech > -1 ):
+ 						fX = fX - X_INCREMENT
+-						iX = 30 + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
++						iX = self.iX_LEFT_START + ( (gc.getTechInfo(i).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+ 						iY = ( gc.getTechInfo(i).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
+ 
+ 						szTechPrereqID = "TechPrereqID" + str((i * 1000) + j)
+@@ -1116,7 +1150,7 @@ class CvTechChooser:
+ 				for j in range( gc.getNUM_OR_TECH_PREREQS() ):
+ 					eTech = gc.getTechInfo(i).getPrereqOrTechs(j)
+ 					if ( eTech > -1 ):
+-						iX = 24 + ( (gc.getTechInfo(eTech).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
++						iX = self.iX_LEFT_START_OR_PREREQS + ( (gc.getTechInfo(eTech).getGridX() - 1) * ( ( self.BOX_INCREMENT_X_SPACING + self.BOX_INCREMENT_WIDTH ) * self.PIXEL_INCREMENT ) )
+ 						iY = ( gc.getTechInfo(eTech).getGridY() - 1 ) * ( self.BOX_INCREMENT_Y_SPACING * self.PIXEL_INCREMENT ) + 5
+ 
+ 						# j is the pre-req, i is the tech...
+@@ -1208,7 +1242,7 @@ class CvTechChooser:
+ 				self.bPrefsShowing = False
+ 			return
+ 		# <advc.004a>
+-		iX = PREF_ICON_LEFT 
++		iX = self.PREF_ICON_LEFT 
+ 		iY = PREF_ICON_BOTTOM
+ 		# </advc.004a>
+ 
+@@ -1220,7 +1254,7 @@ class CvTechChooser:
+ 		if bShowIconHeading: 
+ 			iIconSize = 36 # was 48 </advc.004a>
+ 			# advc.004a: Position handled above
+-			#iX = PREF_ICON_LEFT + 5 * PREF_ICON_SIZE / 4 - iIconSize / 2
++			#iX = self.PREF_ICON_LEFT + 5 * PREF_ICON_SIZE / 4 - iIconSize / 2
+ 			#iY = PREF_ICON_TOP - iIconSize - 40
+ 			# advc.004a: WIDGET added
+ 			screen.addDDSGFC( "GreatPersonHeading", ArtFileMgr.getInterfaceArtInfo("DISCOVER_TECHNOLOGY_BUTTON").getPath(), iX, iY-iIconSize/5, iIconSize, iIconSize, WidgetTypes.WIDGET_TECH_PREFS_HEADING, -1, -1 )
+@@ -1232,7 +1266,7 @@ class CvTechChooser:
+ 		#	iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
+ 		#	iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
+ 		#	pUnitInfo = gc.getUnitInfo(iUnitType)
+-		#	iX = PREF_ICON_LEFT
++		#	iX = self.PREF_ICON_LEFT
+ 		#	iY = PREF_ICON_TOP + 4 * i * PREF_ICON_SIZE
+ 		#	screen.addDDSGFC( "GreatPerson" + str(f), pUnitInfo.getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_ALL, f, -1 )
+ 		self.bPrefsShowing = True
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6e790af2a..6107aaee0 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -39,6 +39,22 @@
+ 
+ 
+ 
++	<!-- custom: choose how wide the tech tree should be horizontally:
++		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
++
++		-> 1: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about half of the scoreboard on the right: we see about half of the player names on the scoreboard unless theirs is extremely short (e.g. "Joao II" not visible, most are visible partially), plus the tech they are researching (if we know it), their tech %.
++
++		-> 2: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about 2 thirds of the scoreboard on the right: we don't see player names on the scoreboard anymore, but we see the tech players are researching (if we know it) and their tech %.
++
++		-> 3: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to the rightmost part of the screen on the right: it provides maximum immersion visually as potentially distracting info is removed, but we don't know anymore their tech (and the world map is now hidden as well).
++	-->
++	<Define>
++		<DefineName>SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks anyways etc. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index ae2103bd9..62454ecc4 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -49,7 +49,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>1</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -192,7 +192,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>2</iGridX>
+-			<iGridY>11</iGridY>
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -259,7 +259,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>22</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -332,7 +332,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>6</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -404,7 +404,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>3</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: was empty -->
+ 			<CommerceFlexible>
+@@ -561,7 +561,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>5</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -721,7 +721,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>9</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -795,7 +795,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>8</iGridX>
+-			<iGridY>11</iGridY>
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1150,7 +1150,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2100</iCost>
++			<iCost>2050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1237,7 +1237,7 @@
+ 			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
+ 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1343,7 +1343,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>8</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1388,7 +1388,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 1400 -->
+-			<iCost>1800</iCost>
++			<iCost>1700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1422,7 +1422,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>13</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1494,7 +1494,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>12</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1529,7 +1529,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2100</iCost>
++			<iCost>2050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -1562,7 +1562,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>15</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1720,7 +1720,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>16</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1838,7 +1838,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2100</iCost>
++			<iCost>2050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: ERA_MODERN -->
+@@ -1871,7 +1871,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>15</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2243,7 +2243,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>7</iGridX>
+-			<iGridY>11</iGridY>
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks but anyways etc, was empty anyways etc -->
+ 			<CommerceFlexible>
+@@ -2558,7 +2558,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>12</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old TECH_SCIENTIFIC_METHOD (now removed anyways etc) but anyways etc)) -->
+ 			<SpecialistExtraCommerces>
+@@ -2645,7 +2645,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>2</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2727,7 +2727,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>4</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2799,7 +2799,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>7</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2870,7 +2870,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>16</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2942,7 +2942,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>11</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3010,7 +3010,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>10</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3125,7 +3125,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3158,7 +3158,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>14</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3440,7 +3440,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1800</iCost>
++			<iCost>1700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3514,7 +3514,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 3600 -->
+-			<iCost>1950</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -3547,7 +3547,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>14</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3619,7 +3619,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>9</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4061,7 +4061,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>21</iGridX>
+-			<iGridY>8</iGridY>
++			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4196,7 +4196,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>24</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4213,9 +4213,9 @@
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
++				<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
+ 				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Quote>
+@@ -4268,7 +4268,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>19</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4341,7 +4341,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>22</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4570,7 +4570,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>1</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4870,7 +4870,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>4</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5034,7 +5034,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>6</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5112,7 +5112,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>3</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5665,7 +5665,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>18</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5708,7 +5708,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 0 -->
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5850,7 +5850,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1950</iCost>
++			<iCost>1900</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -6005,7 +6005,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>2100</iCost>
++			<iCost>2050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_INDUSTRIAL</Era>
+@@ -6142,7 +6142,7 @@
+ 				<PrereqTech>TECH_FUSION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
++				<PrereqTech>TECH_AI</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_QUANTUM_MECHANICS</Sound>
+@@ -6373,7 +6373,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2100</iCost>
++			<iCost>2050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_MODERN -->
+@@ -6543,7 +6543,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>20</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -6641,7 +6641,7 @@
+ 				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
++				<PrereqTech>TECH_AI</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_TERRAFORMING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_TERRAFORMING</Sound>
+@@ -6832,7 +6832,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -6906,7 +6906,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+
+diff --git a/README.md b/README.md
+index 8304531d6..5a963b520 100644
+--- a/README.md
++++ b/README.md
+@@ -124,7 +124,7 @@ This is the original, extensive and verbose version of the main change from base
+ 
+ ### Main Advisors reworks
+ 
+-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
++Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
+ 
+ Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or/and so it is easier to change an advisor's screen dimensions if desired later but anyways etc.
+ 
+@@ -137,7 +137,6 @@ Some examples below:
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG" alt="0.515_technology_advisor.JPG" width="250"></img>
+ 
+ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
+ 
+@@ -153,7 +152,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
+ 
+ Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering. Also removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either; this allows to now display much more information and reduces the need for scrolling anyways etc. Also beautified several other things, such as enlarging side panels to display more info and be prettier, making bonuses columns even in width, making some hardcoded values now dynamically adjust depending on the side width we set, etc. if any more anyways etc.
+ 
+-Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
++Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG" alt="0.401_city_screen.JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 354ff1807..c1696c310 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -111,7 +111,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+-- (Requires AdvCiv-SAS 5187+) Make the **BUG's Tech Bulbing Indicators** in the Tech Advisor visible since turn 0 (no longer since turn 1 or higher) to highlight this feature's existence (AdvCiv disbled it due to issues with very large maps, revert the change there if needed). Change in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See also [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
++- (Requires AdvCiv-SAS 5191+) Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed) (Note 2: may be disabled at turn 0, see [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)).
+ 
+ ### UI (Sevopedia reworks & related)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 766cd1c7f..98810071b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -118,6 +118,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [82 - (Tremendously Improved) AI not adopting the popular religion among strong rivals, thus being hated and more likely to lose](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#82---tremendously-improved-ai-not-adopting-the-popular-religion-among-strong-rivals-thus-being-hated-and-more-likely-to-lose)  
+ [83 - (Tremendously Improved) AIs not trading techs more aggressively and cheaply when rivals discover them too and there is a risk they will beat us to the sale, leaving us with nothing rather than little gold or such which would have been much better](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better)  
+ [84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc)  
++[85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -3144,3 +3145,53 @@ And now also using our own advciv-sas save file (see drive link for details anyw
+ Trick: autoplay on settler we are more likely to be stronger and thus to have rivals, helped quickly get a save file sample for screenshots and testing i mean but anyways etc.
+ 
+ Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) to avoid reuse and as is cleaner as such i mean if i may say, with gemini 3 pro's help as well thanks but anyways etc.
++
++## 85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1cg05BVD4Jrs4hnbaaniNpitdgRIrfSHL?usp=sharing) anyways etc.
++
++In [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py), base advciv disables the BUG's tech bulbing indicators (that come from RFC DOC's mod btw according to base advciv comments as well if i understood it correctly, and if there weren't, i was going to take them from RFC DOC as well as they look nice there as well thanks! I mean if i may say but anyways etc.) at turn 0 with the following rationale:
++
++```py
++		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
++		if CyGame().getElapsedGameTurns() > 0:
++			self.updateTechPrefs()
++```
++
++I tried disabling it to see to players that the feature exists since turn 0 in case they don't see it, and i myself didn't even know about it so i wanted to share it i mean but anyways etc., however eventually got a crash as base advciv's note says, so i disabled it again, now only active from turn 1 or higher.
++
++However, there is a mistake in base advciv's comment if i'm not mistaken which is that it also happens in smaller sized maps, for example i could reproduce this if i remember it correctly but anyways etc. while creating a new game pangea noble standard size map normal game speed.
++
++Based on gemini 3 pro's comment, the error message (see drive link above anyways etc or excerpt below but anyways etc.) was indeed caused by this code i had commented out, and not by another change i made (check if accurate but anyways etc.).
++
++For concision, i put the rationale here since the issue is solved, no need to clutter the code there, and it is also more easily visible for modders or such as well hopefully maybe i mean as well but in all cases anyways etc.
++
++```py
++		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
++		# <!-- custom: note: trying to comment out the above to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it but anyways etc.; i hope the note helps in our various docs mentionning this but anyways etc.)). See for details known issue as of now 85 anyways etc. -->
++		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was anyways etc. -->
++		# 
++		# The error AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor' occurs because the game attempts to update the Tech Preferences during the initialization phase (preGameStart), before the necessary data (like the Active Player's tech state) is fully ready.
++		# The code you uncommented to enable "Turn 0" support removes the safety guard if CyGame().getElapsedGameTurns() > 0:. Without this guard, updateTechPrefs runs too early during map generation and crashes because the TechPrefs object is created incomplete (missing lTechsByFlavor).
++		# To fix this while keeping the Turn 0 feature, you should add a safety check inside updateTechPrefs to abort gracefully if TechPrefs is broken, rather than crashing.
++		#
++		if CyGame().getElapsedGameTurns() > 0:
++			self.updateTechPrefs()
++		#
++		# Traceback (most recent call last):
++		# File "BugUtil", line 677, in <lambda>
++		# File "BugEventManager", line 668, in preGameStart
++		# File "CvAppInterface", line 70, in preGameStart
++		# File "CvScreensInterface", line 94, in showTechChooser
++		# File "CvTechChooser", line 354, in interfaceScreen
++		# File "CvTechChooser", line 366, in ConstructTabs
++		# File "CvTechChooser", line 411, in DrawTechChooser
++		# File "CvTechChooser", line 1296, in updateTechPrefs
++		# File "TechPrefs", line 181, in getNextResearchableFlavorTech
++		# AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor'
++		# ERR: Python function preGameStart failed, module CvAppInterface
++```
++
++Hopefully regardless of which, this helps document and confirm the issue, as well as giving players info in other related docs on the existence of the BUG tech bulbing indicators and how to enable them, in case they didn't know about them, but anyways etc.
++
++Update: somehow sometimes they appear at turn 0 and sometimes not, what matters is we reverted to base advciv code as the key information there i mean if i may say but anyways etc. and that code seemingly no longer crashes now. It also did happen on a standard size map if i remember it correctly not just very large ones, and works fine as is now so leaving it as is but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 617b6209e..624e776b7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -108,7 +108,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+-- (Requires AdvCiv-SAS 5187+) Make the **BUG's Tech Bulbing Indicators** in the Tech Advisor visible since turn 0 (no longer since turn 1 or higher) to highlight this feature's existence (AdvCiv disbled it due to issues with very large maps, revert the change there if needed). Change in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See also [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
++- (Requires AdvCiv-SAS 5191+) Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed) (Note 2: may be disabled at turn 0, see [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)).
+ 
+ ### UI (Sevopedia reworks & related)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index 21272b8be..db86820cb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -1,4 +1,4 @@
+-# README_Sevopedia_Reworks.md
++# README_Tech_Tree.md
+ 
+ Below are the details on how the tech tree was made in/for AdvCiv-SAS as well as links to other related docs in AdvCiv-SAS or/and external sources as well if any anyways etc.
+ 
+@@ -6,13 +6,14 @@ If any images below in this readme mention a google drive link, you can access i
+ 
+ ## Menu
+ 
+-[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#current-tech-tree-ingame)  
+-[Additional info about the tech tree anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#additional-info-about-the-tech-tree-anyways-etc)  
+-[More info on notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#more-info-on-notes)  
+-[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#abstract-timeline-tech-tree)  
+-[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#earlier-prototype--alternative-version)  
+-[Earlier but much later version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#earlier-but-much-later-version)  
+-[Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#starting-techs-rework)  
++[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#current-tech-tree-ingame)  
++[Additional info about the tech tree anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#additional-info-about-the-tech-tree-anyways-etc)  
++[More info on notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#more-info-on-notes)  
++[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#abstract-timeline-tech-tree)  
++[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#earlier-prototype--alternative-version)  
++[Earlier but much later version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#earlier-but-much-later-version)  
++[Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework)  
++[Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width)  
+ 
+ ## Current Tech Tree ingame
+ 
+@@ -73,3 +74,16 @@ Then if i am not mistaken much later i did this swapping based version but that
+ ## Starting techs rework
+ 
+ After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework) for details/results but anyways etc.
++
++## Customizable technology advisor width
++
++Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 3 (4 different options possible in total) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH` there anyways etc.).
++
++Visual comparison of how each looks below.
++
++<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG" alt="0.5150_technology_advisor_customizable_width (1).JPG" width="250"></img>
++<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG" alt="0.5150_technology_advisor_customizable_width (2).JPG" width="250"></img>
++<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG" alt="0.5150_technology_advisor_customizable_width (3).JPG" width="250"></img>
++<img src="../Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG" alt="0.5150_technology_advisor_customizable_width (4).JPG" width="250"></img>
++
++See also [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG
+new file mode 100644
+index 000000000..742bc28f4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG
+new file mode 100644
+index 000000000..3cf4596b2
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG
+new file mode 100644
+index 000000000..8c4c82e1d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG
+new file mode 100644
+index 000000000..8ba65cc23
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5150_technology_advisor_customizable_width (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG
+deleted file mode 100644
+index 2a0927505..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 10646bcee..bf0b6fb14 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 3ae359bd6..4b2068e4f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 028f26d3e..bc427093a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 353460c75..0b9a02065 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=57405

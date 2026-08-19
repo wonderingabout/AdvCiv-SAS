@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4399
+# Commit: 30d8c34b80cd4ed808489ee2cc6d5d0780717dd7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7f966ec9fbddb45bd41f99596b34aec3d7cca464
+# Title: Fix Always-War coop willingness to talk
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL[1.12].dll
+4	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL[1.12].dll b/Assets/CvGameCoreDLL[1.12].dll reason=binary/generated-file changedLines=0 bytes=200
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 40f0acceb..7c119e2db 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7466,8 +7466,11 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool b
+ 			and some of the new code (isPeaceDealPossible) is expensive. */
+ 		if (gDLL->getDiplomacyPlayer() == getID())
+ 			return true;
+-		if (GET_TEAM(ePlayer).isAlwaysWar() || GET_TEAM(getTeam()).isAlwaysWar())
++		if (TEAMID(ePlayer) != getTeam() &&
++			(GET_TEAM(ePlayer).isAlwaysWar() || GET_TEAM(getTeam()).isAlwaysWar()))
++		{
+ 			return false;
++		}
+ 	} // </advc.104i>
+ 
+ 	// <advc.003n> In particular, don't call AI_surrenderTrade on non-major civs.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=733

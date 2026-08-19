@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 314
+# Commit: 8a28d3a73c26a3259f874808c8db2b02599418fb
+# History segment: K-Mod history
+# Parent used for diff: 43dc2a823905dc28409cd8785ae9f4c084f586ae
+# Title: Fixed some "const-correctness" in the original BtS code. Note: I have changed the signature of AI_updateFoundValues, which is a virtual function in CvPlayer....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvPlayer.h
+7	7	CvGameCoreDLL/CvPlayerAI.cpp
+5	5	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 1f76668e9..e4549cca9 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1063,7 +1063,8 @@ public:
+ 	virtual void AI_doTurnPost() = 0;
+ 	virtual void AI_doTurnUnitsPre() = 0;
+ 	virtual void AI_doTurnUnitsPost() = 0;
+-	virtual void AI_updateFoundValues(bool bStartingLoc = false) const = 0;
++	//virtual void AI_updateFoundValues(bool bStartingLoc = false) const = 0;
++	virtual void AI_updateFoundValues(bool bStartingLoc = false) = 0; // K-Mod. (Can I fix the const-correctness without breaking compatibility? No problems so far...)
+ 	virtual void AI_unitUpdate() = 0;
+ 	virtual void AI_makeAssignWorkDirty() = 0;
+ 	virtual void AI_assignWorkingPlots() = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 03a328548..284b4f630 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1054,7 +1054,7 @@ void CvPlayerAI::AI_doPeace()
+ }
+ 
+ 
+-void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc) const
++void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -20981,7 +20981,7 @@ UnitTypes CvPlayerAI::AI_bestAdvancedStartUnitAI(CvPlot* pPlot, UnitAITypes eUni
+ 	return eBestUnit;
+ }
+ 
+-CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot() const
++CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()
+ {
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = -1;
+@@ -21975,7 +21975,7 @@ int CvPlayerAI::AI_getMinFoundValue() const
+ 	return iValue;
+ }
+ 	
+-void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites) const
++void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ {
+ 	std::vector<int>::iterator it;
+ 	int iValue;
+@@ -22022,7 +22022,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 	}
+ }
+ 
+-void CvPlayerAI::AI_invalidateCitySites(int iMinFoundValueThreshold) const
++void CvPlayerAI::AI_invalidateCitySites(int iMinFoundValueThreshold)
+ {
+ 	/* original bts code
+ 	m_aiAICitySites.clear(); */
+@@ -22047,7 +22047,7 @@ int CvPlayerAI::AI_getNumCitySites() const
+ 
+ bool CvPlayerAI::AI_isPlotCitySite(CvPlot* pPlot) const
+ {
+-	std::vector<int>::iterator it;
++	std::vector<int>::const_iterator it;
+ 	int iPlotIndex = GC.getMapINLINE().plotNumINLINE(pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 	
+ 	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); it++)
+@@ -22062,7 +22062,7 @@ bool CvPlayerAI::AI_isPlotCitySite(CvPlot* pPlot) const
+ 
+ int CvPlayerAI::AI_getNumAreaCitySites(int iAreaID, int& iBestValue) const
+ {
+-	std::vector<int>::iterator it;
++	std::vector<int>::const_iterator it;
+ 	int iCount = 0;
+ 	iBestValue = 0;
+ 	
+@@ -22080,7 +22080,7 @@ int CvPlayerAI::AI_getNumAreaCitySites(int iAreaID, int& iBestValue) const
+ 
+ int CvPlayerAI::AI_getNumAdjacentAreaCitySites(int iWaterAreaID, int iExcludeArea, int& iBestValue) const
+ {
+-	std::vector<int>::iterator it;	
++	std::vector<int>::const_iterator it;
+ 	int iCount = 0;
+ 	iBestValue = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index c87ac6f47..d14aac099 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -48,7 +48,7 @@ public:
+ 
+ 	void AI_doPeace();
+ 
+-	void AI_updateFoundValues(bool bStartingLoc = false) const;
++	void AI_updateFoundValues(bool bStartingLoc = false);
+ 	void AI_updateAreaTargets();
+ 
+ 	int AI_movementPriority(CvSelectionGroup* pGroup) const;
+@@ -386,7 +386,7 @@ public:
+ 
+ 	RouteTypes AI_bestAdvancedStartRoute(CvPlot* pPlot, int* piYieldValue = NULL) const;
+ 	UnitTypes AI_bestAdvancedStartUnitAI(CvPlot* pPlot, UnitAITypes eUnitAI) const;
+-	CvPlot* AI_advancedStartFindCapitalPlot() const;
++	CvPlot* AI_advancedStartFindCapitalPlot();
+ 	
+ 	bool AI_advancedStartPlaceExploreUnits(bool bLand);
+ 	void AI_advancedStartRevealRadius(CvPlot* pPlot, int iRadius);
+@@ -399,8 +399,8 @@ public:
+ 	
+ 	void AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int iOuterRadius) const;
+ 	
+-	void AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites) const;
+-	void AI_invalidateCitySites(int iMinFoundValueThreshold) const;
++	void AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites);
++	void AI_invalidateCitySites(int iMinFoundValueThreshold);
+ 	bool AI_isPlotCitySite(CvPlot* pPlot) const;
+ 	int AI_getNumAreaCitySites(int iAreaID, int& iBestValue) const;
+ 	int AI_getNumAdjacentAreaCitySites(int iWaterAreaID, int iExcludeArea, int& iBestValue) const;
+@@ -528,7 +528,7 @@ protected:
+ 	int** m_aaiContactTimer;
+ 	int** m_aaiMemoryCount;
+ 	
+-	mutable std::vector<int> m_aiAICitySites;
++	std::vector<int> m_aiAICitySites;
+ 	
+ 	bool m_bWasFinancialTrouble;
+ 	int m_iTurnLastProductionDirty;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4707

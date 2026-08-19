@@ -1,0 +1,200 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1859
+# Commit: f1b70ac27666620d4589fec6646b88064a92e557
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6d7e0c1ce3909def3281a865abde0fea0d3e10e9
+# Title: Revise forbidden enum comparison operators
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+27	12	CvGameCoreDLL/CvEnums.h
+17	15	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index f5f76c7c5..601555066 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5685,7 +5685,7 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	case CIVILOPEDIA_PAGE_CONCEPT:
+ 		{
+ 			ConceptTypes eConcept = (ConceptTypes)widgetDataStruct.m_iData2;
+-			if (NO_NEW_CONCEPT != eConcept)
++			if (NO_CONCEPT != eConcept)
+ 			{
+ 				szBuffer.assign(GC.getInfo(eConcept).getDescription());
+ 			}
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 00b2440c6..efa56ae77 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2276,27 +2276,42 @@ ENUM_END(CityPlot, CITYPLOT)*/
+ 	DO(Project,Unit) \
+ 	DO(Project,UnitClass) \
+ 	DO(Event,EventTrigger) \
++	DO(Concept,NewConcept) \
+ 	DO(Mission,EspionageMission)
+ 
+-#define FORBID_COMPARISON_OPERATORS(EnumPrefix1, EnumPrefix2) \
+-	bool operator==(EnumPrefix1##Types, EnumPrefix2##Types); \
+-	bool operator!=(EnumPrefix1##Types, EnumPrefix2##Types); \
+-	bool operator>(EnumPrefix1##Types, EnumPrefix2##Types); \
+-	bool operator<(EnumPrefix1##Types, EnumPrefix2##Types); \
+-	bool operator>=(EnumPrefix1##Types, EnumPrefix2##Types); \
+-	bool operator<=(EnumPrefix1##Types, EnumPrefix2##Types);
++#define FORBID_COMPARISON_OPERATORS(Type1, Type2) \
++	bool operator==(Type1, Type2); \
++	bool operator!=(Type1, Type2); \
++	bool operator>(Type1, Type2); \
++	bool operator<(Type1, Type2); \
++	bool operator>=(Type1, Type2); \
++	bool operator<=(Type1, Type2);
+ /*  ^No definition - so that these comparisons result in a linker error.
+ 	The linker error will say in which function the offending call occurs.
+ 	A compiler error would also provide a line number, but the compiler
+ 	can't tell if a global function has any call locations. */
+ 
+-DO_FOR_EACH_FALSE_FRIEND(FORBID_COMPARISON_OPERATORS);
+-#define FORBID_COMPARISON_OPERATORS_SWAPPED(EnumPrefix1, EnumPrefix2) \
+-		FORBID_COMPARISON_OPERATORS(EnumPrefix2, EnumPrefix1)
+-DO_FOR_EACH_FALSE_FRIEND(FORBID_COMPARISON_OPERATORS_SWAPPED);
++#define FORBID_ENUM_COMPARISON_OPERATORS(EnumPrefix1, EnumPrefix2) \
++	FORBID_COMPARISON_OPERATORS(EnumPrefix1##Types, EnumPrefix2##Types) \
++	FORBID_COMPARISON_OPERATORS(EnumPrefix2##Types, EnumPrefix1##Types)
++
++DO_FOR_EACH_FALSE_FRIEND(FORBID_ENUM_COMPARISON_OPERATORS);
++
++/*  advc: NO_... is easily confused with NULL, but prohibiting
++	enum-int comparisons isn't currently feasible. Perhaps if and when
++	the return types of functions like CvUnitInfo::getPrereqAndBonus
++	are changed to enum types. */
++/*#define FORBID_INT_EQUALITY_TEST(EnumPrefix, Dummy) \
++	bool operator==(EnumPrefix##Types, int); \
++	bool operator==(int, EnumPrefix##Types); \
++	bool operator!=(EnumPrefix##Types, int); \
++	bool operator!=(int, EnumPrefix##Types);
++DO_FOR_EACH_DYN_INFO_TYPE(FORBID_INT_EQUALITY_TEST)
++DO_FOR_EACH_STATIC_INFO_TYPE(FORBID_INT_EQUALITY_TEST)
++#undef FORBID_INT_EQUALITY_TEST*/
+ 
+ #undef DO_FOR_EACH_FALSE_FRIEND
+ #undef FORBID_COMPARISON_OPERATORS
+-#undef FORBID_COMPARISON_OPERATORS_SWAPPED
++#undef FORBID_ENUM_COMPARISON_OPERATORS
+ // </advc.enum>
+ #endif	// CVENUMS_h
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 372f3c096..c75c89bdc 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4744,14 +4744,13 @@ void CvPlot::resetFeatureModel()
+ 
+ BonusTypes CvPlot::getBonusType(TeamTypes eTeam) const
+ {
+-	if (eTeam != NO_TEAM && m_eBonusType != NO_BONUS)
++	BonusTypes r = (BonusTypes)m_eBonusType; // advc
++	if (eTeam != NO_TEAM && r != NO_BONUS)
+ 	{
+-		//if (!GET_TEAM(eTeam).isHasTech((TechTypes)(GC.getInfo((BonusTypes)m_eBonusType).getTechReveal())) && !GET_TEAM(eTeam).isForceRevealedBonus((BonusTypes)m_eBonusType))
+-		if (!GET_TEAM(eTeam).isBonusRevealed((BonusTypes)m_eBonusType)) // K-Mod
++		if (!GET_TEAM(eTeam).isBonusRevealed(r)) // K-Mod: moved into helper function
+ 			return NO_BONUS;
+ 	}
+-
+-	return (BonusTypes)m_eBonusType;
++	return r;
+ }
+ 
+ 
+@@ -4995,7 +4994,6 @@ void CvPlot::setPlotCity(CvCity* pNewValue)  // advc: style changes
+ 		CvPlotGroup* pPlotGroup = getPlotGroup(getOwner());
+ 		if (pPlotGroup != NULL)
+ 		{
+-			FAssertMsg((0 < GC.getNumBonusInfos()), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlot::setPlotCity");
+ 			for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 			{
+ 				BonusTypes eLoopBonus = (BonusTypes)iI;
+@@ -5058,7 +5056,7 @@ void CvPlot::updateWorkingCity()
+ 	if (pBestCity == NULL)
+ 	{
+ 		pBestCity = getWorkingCityOverride();
+-		FAssertMsg(pBestCity == NULL || pBestCity->getOwner() == getOwner(), "pBest city is expected to either be NULL or the current plot instance's");
++		FAssert(pBestCity == NULL || pBestCity->getOwner() == getOwner());
+ 	}
+ 
+ 	if (pBestCity == NULL && isOwned())
+@@ -5099,8 +5097,8 @@ void CvPlot::updateWorkingCity()
+ 
+ 	if (pBestCity != NULL)
+ 	{
+-		FAssertMsg(isOwned(), "isOwned is expected to be true");
+-		FAssertMsg(!isBeingWorked(), "isBeingWorked did not return false as expected");
++		FAssert(isOwned());
++		FAssert(!isBeingWorked());
+ 		m_workingCity = pBestCity->getIDInfo();
+ 	}
+ 	else m_workingCity.reset();
+@@ -5141,7 +5139,7 @@ void CvPlot::setWorkingCityOverride( const CvCity* pNewValue)
+ 
+ 	if (pNewValue != NULL)
+ 	{
+-		FAssertMsg(pNewValue->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
++		FAssert(pNewValue->getOwner() == getOwner());
+ 		m_workingCityOverride = pNewValue->getIDInfo();
+ 	}
+ 	else m_workingCityOverride.reset();
+@@ -5200,8 +5198,8 @@ void CvPlot::changeRiverCrossingCount(int iChange)
+ }
+ 
+ 
+-bool CvPlot::isHabitable(bool bIgnoreSea) const {
+-
++bool CvPlot::isHabitable(bool bIgnoreSea) const
++{
+ 	if(getYield(YIELD_FOOD) == 0)
+ 		return false;
+ 	if(!isWater() || isLake())
+@@ -5210,7 +5208,8 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const {
+ 		return false;
+ 	// Count shelf as habitable, but not arctic shelf or adj. only to one land corner.
+ 	int iAdjHabitableLand = 0;
+-	for(int i = 0; i < GC.getNumDirections(); i++) {
++	for(int i = 0; i < GC.getNumDirections(); i++)
++	{
+ 		DirectionTypes dir = (DirectionTypes)i;
+ 		CvPlot* pAdj = plotDirection(getX(), getY(), dir);
+ 		if(pAdj == NULL)
+@@ -5280,13 +5279,16 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
+ 
+ int CvPlot::calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const
+ {
+-	return std::max(calculateNatureYield(eIndex, eTeam, false), calculateNatureYield(eIndex, eTeam, true));
++	return std::max(calculateNatureYield(eIndex, eTeam, false),
++			calculateNatureYield(eIndex, eTeam, true));
+ }
+ 
+ 
+ int CvPlot::calculateTotalBestNatureYield(TeamTypes eTeam) const
+ {
+-	return (calculateBestNatureYield(YIELD_FOOD, eTeam) + calculateBestNatureYield(YIELD_PRODUCTION, eTeam) + calculateBestNatureYield(YIELD_COMMERCE, eTeam));
++	return calculateBestNatureYield(YIELD_FOOD, eTeam) +
++			calculateBestNatureYield(YIELD_PRODUCTION, eTeam) +
++			calculateBestNatureYield(YIELD_COMMERCE, eTeam);
+ }
+ 
+ // BETTER_BTS_AI_MOD, City AI, 10/06/09, jdog5000: START
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7153

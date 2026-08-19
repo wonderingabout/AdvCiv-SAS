@@ -1,0 +1,1773 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1720
+# Commit: 4527519ab57990ff79b80e6006748032cdaacea7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7bc68e5a42b54474b646a84cb64d5077bab8f9b6
+# Title: AI denial conditions for city trades revised
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+134	0	Assets/XML/BasicInfos/CIV4DenialInfos.xml
+12	0	Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+212	0	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+5	2	Assets/XML/GlobalDefines_advc.xml
+12	1	Assets/XML/Text/CIV4GameText_advc.xml
+1	0	CvGameCoreDLL/AdvCiv4lerts.h
+5	6	CvGameCoreDLL/CvCity.cpp
+11	6	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvEnums.h
+10	10	CvGameCoreDLL/CvGameInterface.cpp
+2	0	CvGameCoreDLL/CvGlobals.h
+42	15	CvGameCoreDLL/CvInfo_Civilization.cpp
+6	0	CvGameCoreDLL/CvInfo_Civilization.h
+61	36	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+181	71	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/CvPlot.cpp
+7	6	CvGameCoreDLL/CvTeam.cpp
+ create mode 100644 Assets/XML/BasicInfos/CIV4DenialInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4DenialInfos.xml b/Assets/XML/BasicInfos/CIV4DenialInfos.xml
+new file mode 100644
+index 000000000..131c2b290
+--- /dev/null
++++ b/Assets/XML/BasicInfos/CIV4DenialInfos.xml
+@@ -0,0 +1,134 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++
++<!-- advc.130v: Copied from BtS in order to add DENIAL_TRUE_ATTITUDE (when
++	 the true attitude of a vassal causes an attitude test to fail and the
++	 forced attitude would've passed) -->
++
++<!-- Basic Infos -->
++<Civ4DenialInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
++	<DenialInfos>
++		<DenialInfo>
++			<Type>DENIAL_UNKNOWN</Type>
++			<Description>TXT_KEY_DENIAL_UNKNOWN</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_NEVER</Type>
++			<Description>TXT_KEY_DENIAL_NEVER</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_TOO_MUCH</Type>
++			<Description>TXT_KEY_DENIAL_TOO_MUCH</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_MYSTERY</Type>
++			<Description>TXT_KEY_DENIAL_MYSTERY</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_JOKING</Type>
++			<Description>TXT_KEY_DENIAL_JOKING</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_ANGER_CIVIC</Type>
++			<Description>TXT_KEY_DENIAL_ANGER_CIVIC</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_FAVORITE_CIVIC</Type>
++			<Description>TXT_KEY_DENIAL_FAVORITE_CIVIC</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_MINORITY_RELIGION</Type>
++			<Description>TXT_KEY_DENIAL_MINORITY_RELIGION</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_CONTACT_THEM</Type>
++			<Description>TXT_KEY_DENIAL_CONTACT_THEM</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_VICTORY</Type>
++			<Description>TXT_KEY_DENIAL_VICTORY</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_ATTITUDE</Type>
++			<Description>TXT_KEY_DENIAL_ATTITUDE</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_ATTITUDE_THEM</Type>
++			<Description>TXT_KEY_DENIAL_ATTITUDE_THEM</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_TECH_WHORE</Type>
++			<Description>TXT_KEY_DENIAL_TECH_WHORE</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_TECH_MONOPOLY</Type>
++			<Description>TXT_KEY_DENIAL_TECH_MONOPOLY</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_POWER_US</Type>
++			<Description>TXT_KEY_DENIAL_POWER_US</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_POWER_YOU</Type>
++			<Description>TXT_KEY_DENIAL_POWER_YOU</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_POWER_THEM</Type>
++			<Description>TXT_KEY_DENIAL_POWER_THEM</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_TOO_MANY_WARS</Type>
++			<Description>TXT_KEY_DENIAL_TOO_MANY_WARS</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_NO_GAIN</Type>
++			<Description>TXT_KEY_DENIAL_NO_GAIN</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_NOT_ALLIED</Type>
++			<Description>TXT_KEY_DENIAL_NOT_ALLIED</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_RECENT_CANCEL</Type>
++			<Description>TXT_KEY_DENIAL_RECENT_CANCEL</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_WORST_ENEMY</Type>
++			<Description>TXT_KEY_DENIAL_WORST_ENEMY</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_POWER_YOUR_ENEMIES</Type>
++			<Description>TXT_KEY_DENIAL_POWER_YOUR_ENEMIES</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_TOO_FAR</Type>
++			<Description>TXT_KEY_DENIAL_TOO_FAR</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_VASSAL</Type>
++			<Description>TXT_KEY_DENIAL_VASSAL</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_WAR_NOT_POSSIBLE_US</Type>
++			<Description>TXT_KEY_DENIAL_WAR_NOT_POSSIBLE_US</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_WAR_NOT_POSSIBLE_YOU</Type>
++			<Description>TXT_KEY_DENIAL_WAR_NOT_POSSIBLE_YOU</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_PEACE_NOT_POSSIBLE_US</Type>
++			<Description>TXT_KEY_DENIAL_PEACE_NOT_POSSIBLE_US</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_PEACE_NOT_POSSIBLE_YOU</Type>
++			<Description>TXT_KEY_DENIAL_PEACE_NOT_POSSIBLE_YOU</Description>
++		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_TRUE_ATTITUDE</Type>
++			<Description>TXT_KEY_DENIAL_TRUE_ATTITUDE</Description>
++		</DenialInfo>
++	</DenialInfos>
++</Civ4DenialInfos>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+index 4c18d3a42..61579ac1e 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+@@ -70,6 +70,12 @@
+ 	<ElementType name="DemandTributeAttitudeThreshold" content="textOnly"/>
+ 	<ElementType name="NoGiveHelpAttitudeThreshold" content="textOnly"/>
+ 	<ElementType name="TechRefuseAttitudeThreshold" content="textOnly"/>
++	<!-- advc.ctr (start): As usual the attitude level needs to be one better
++		 than this to make the AI willing to trade. I.e. Friendly means that
++		 the AI will never trade. -->
++	<ElementType name="CityRefuseAttitudeThreshold" content="textOnly"/>
++	<ElementType name="NativeCityRefuseAttitudeThreshold" content="textOnly"/>
++	<!-- advc.ctr: end -->
+ 	<ElementType name="StrategicBonusRefuseAttitudeThreshold" content="textOnly"/>
+ 	<ElementType name="HappinessBonusRefuseAttitudeThreshold" content="textOnly"/>
+ 	<ElementType name="HealthBonusRefuseAttitudeThreshold" content="textOnly"/>
+@@ -256,6 +262,12 @@
+ 		<element type="DemandTributeAttitudeThreshold"/>
+ 		<element type="NoGiveHelpAttitudeThreshold"/>
+ 		<element type="TechRefuseAttitudeThreshold"/>
++		<!-- advc.ctr (start): These are optional. As default values, the DLL
++			 (CvGlobals constructor) assigns ATTITUDE_CAUTIOUS to the first and
++			 ATTITUDE_PLEASED to the second. -->
++		<element type="CityRefuseAttitudeThreshold" minOccurs="0"/>
++		<element type="NativeCityRefuseAttitudeThreshold" minOccurs="0"/>
++		<!-- advc.ctr: end -->
+ 		<element type="StrategicBonusRefuseAttitudeThreshold"/>
+ 		<element type="HappinessBonusRefuseAttitudeThreshold"/>
+ 		<element type="HealthBonusRefuseAttitudeThreshold"/>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 550c23e35..4296a6f88 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -75,6 +75,10 @@
+ 			<DemandTributeAttitudeThreshold>NONE</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>NONE</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>NONE</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>NONE</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>NONE</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>NONE</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>NONE</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>NONE</HealthBonusRefuseAttitudeThreshold>
+@@ -276,6 +280,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -922,6 +930,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -1583,6 +1595,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -2240,6 +2256,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -2891,6 +2911,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -3537,6 +3561,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -4185,6 +4213,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>NONE</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -4831,6 +4863,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -5480,6 +5516,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -6134,6 +6174,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -6785,6 +6829,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -7438,6 +7486,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -8093,6 +8145,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -8747,6 +8803,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -9394,6 +9454,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>NONE</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>NONE</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>NONE</HealthBonusRefuseAttitudeThreshold>
+@@ -10016,6 +10080,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -10662,6 +10730,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -11308,6 +11380,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -11950,6 +12026,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -12600,6 +12680,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -13257,6 +13341,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -13913,6 +14001,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -14573,6 +14665,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -15222,6 +15318,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -15871,6 +15971,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -16523,6 +16627,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -17176,6 +17284,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -17825,6 +17937,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -18471,6 +18587,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>NONE</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>NONE</HealthBonusRefuseAttitudeThreshold>
+@@ -19118,6 +19238,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -19767,6 +19891,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -20413,6 +20541,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -21062,6 +21194,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -21716,6 +21852,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -22368,6 +22508,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -23021,6 +23165,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -23683,6 +23831,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -24334,6 +24486,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -24989,6 +25145,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_PLEASED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_PLEASED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -25637,6 +25797,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -26297,6 +26461,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -26953,6 +27121,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -27592,6 +27764,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -28240,6 +28416,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -28899,6 +29079,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -29552,6 +29736,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -30203,6 +30391,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_PLEASED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -30861,6 +31053,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_ANNOYED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -31502,6 +31698,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -32158,6 +32358,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+@@ -32826,6 +33030,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+@@ -33481,6 +33689,10 @@
+ 			<DemandTributeAttitudeThreshold>ATTITUDE_CAUTIOUS</DemandTributeAttitudeThreshold>
+ 			<NoGiveHelpAttitudeThreshold>ATTITUDE_CAUTIOUS</NoGiveHelpAttitudeThreshold>
+ 			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
+ 			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
+ 			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+ 			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index bc6c0e828..8d7e6a6b9 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -852,8 +852,11 @@
+ 	</Define>
+ 
+ 	<!-- advc.ctr: To receive a city through trade, a civ needs to have at
+-		 least this percentage of tile culture in the city tile.
+-		 0 for BtS behavior; recommended: 10. -->
++		 least this percentage of tile culture in the city tile. Moreover,
++		 an AI civ applies a stricter attitude threshold when it has this much or
++		 more culture in a city and needs to decide whether to trade (not
++		 liberate) the city to another civ.
++		 Recommended: 10 -->
+ 	<Define>
+ 		<DefineName>CITY_TRADE_CULTURE_THRESH</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index f3450b5cc..4f021675b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2598,8 +2598,19 @@
+ 		<Italian>Vassallo (volontario) di %s1_CivDesc</Italian>
+ 		<Spanish>Vasallo (volontario) del %s1_CivDesc</Spanish>
+ 	</TEXT>
++	<!-- Based on TXT_KEY_DENIAL_ATTITUDE (CIV4GameTextInfos.xml); kept all the
++		 translations from there. -->
++	<TEXT>
++		<Tag>TXT_KEY_DENIAL_TRUE_ATTITUDE</Tag>
++		<English>"We don't truly like you that much."</English>
++		<French>"Nous ne vous appr&#233;cions pas suffisamment."</French>
++		<German>"Ganz so nah stehen wir Euch dann eigentlich doch nicht."</German>
++		<Italian>"Non ci piaci abbastanza."</Italian>
++		<Spanish>"No nos ca&#233;is lo bastante bien."</Spanish>
++	</TEXT>
++	
+ 
+-	<!-- advc.130w] Explanation text for new diplo modifier -->
++	<!-- advc.130w: Explanation text for new diplo modifier -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_ATTITUDE_EXPANSIONIST</Tag>
+ 		<English>%D1: "We oppose your ruthless expansionism!"</English>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.h b/CvGameCoreDLL/AdvCiv4lerts.h
+index 3ea1f0a31..c7b7663bd 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.h
++++ b/CvGameCoreDLL/AdvCiv4lerts.h
+@@ -11,6 +11,7 @@ class AdvCiv4lert {
+ 
+ public:
+ 	AdvCiv4lert(PlayerTypes eOwner);
++	virtual ~AdvCiv4lert() {}
+ 	// Silent calls are for initializing data after loading a savegame
+ 	void check(bool silent);
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c46061a34..a54bc2f00 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -14953,16 +14953,15 @@ PlayerTypes CvCity::getLiberationPlayer(bool bConquest, /* advc.ctr: */ TeamType
+ 	{
+ 		if (kOwner.getID() == eBestPlayer)
+ 			return NO_PLAYER;
+-
+-		for (int iPlot = 0; iPlot < NUM_CITY_PLOTS; ++iPlot)
+-		{
++		// advc.ctr: Now handled by denial check (CvPlayerAI::AI_cityTrade)
++		/*for (int iPlot = 0; iPlot < NUM_CITY_PLOTS; ++iPlot) {
+ 			CvPlot* pLoopPlot = ::plotCity(getX(), getY(), iPlot);
+-			if (pLoopPlot != NULL)
+-			{	// advc.ctr: was VisibleEnemyUnit; and eWarTeam added.
++			if (pLoopPlot != NULL) {
++				// advc.ctr: was VisibleEnemyUnit; and eWarTeam added.
+ 				if (pLoopPlot->isVisibleEnemyCityAttacker(eBestPlayer, eWarTeam))
+ 					return NO_PLAYER;
+ 			}
+-		}
++		}*/
+ 	}
+ 
+ 	return eBestPlayer;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 80154af27..45611efe1 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4791,14 +4791,19 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 								kBrother.getStateReligion() != eStateReligion ||
+ 								!GET_TEAM(kOwner.getTeam()).isHasMet(kBrother.getTeam()))
+ 							continue;
+-						AttitudeTypes eTowardThem = kOwner.AI_getAttitude(kBrother.getID());
+-						if(kBrother.isMinorCiv())
+-							eTowardThem = ATTITUDE_FURIOUS;
+-						if(GET_TEAM(getTeam()).AI_getWarPlan(kBrother.getTeam()) != NO_WARPLAN)
++						AttitudeTypes eTowardThem;
++						if (!isHuman())
+ 						{
+-							eTowardThem = (AttitudeTypes)std::min((int)eTowardThem,
+-									(int)ATTITUDE_ANNOYED);
++							eTowardThem = kOwner.AI_getAttitude(kBrother.getID());
++							if(GET_TEAM(getTeam()).AI_getWarPlan(kBrother.getTeam()) != NO_WARPLAN)
++							{
++								eTowardThem = (AttitudeTypes)std::min((int)eTowardThem,
++										(int)ATTITUDE_ANNOYED);
++							}
+ 						}
++						else eTowardThem = kOwner.AI_getAttitude(kBrother.getID(), true, false);
++						if(kBrother.isMinorCiv())
++							eTowardThem = ATTITUDE_FURIOUS;
+ 						bool bTheyAhead = (g.getPlayerRank(kBrother.getID()) <
+ 								std::min(g.getPlayerRank(kOwner.getID()),
+ 								iEverAlive / 2));
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 7b1ba9fc1..5ed4d38a8 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1288,7 +1288,8 @@ enum DenialTypes				// Exposed to Python
+ 	DENIAL_WAR_NOT_POSSIBLE_US,
+ 	DENIAL_WAR_NOT_POSSIBLE_YOU,
+ 	DENIAL_PEACE_NOT_POSSIBLE_US,
+-	DENIAL_PEACE_NOT_POSSIBLE_YOU
++	DENIAL_PEACE_NOT_POSSIBLE_YOU,
++	DENIAL_TRUE_ATTITUDE, // advc.130v
+ };
+ 
+ enum DomainTypes			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 343f1c48d..cd3045ec8 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2451,20 +2451,20 @@ void CvGame::nextActivePlayer(bool bForward)
+ 	for (int i = 1; i < MAX_PLAYERS; ++i)
+ 	{
+ 		if (bForward)
+-		{
+ 			iNewPlayer += 1;
+-		}
+-		else
+-		{
+-			iNewPlayer += MAX_PLAYERS - 1;
+-		}
++		else iNewPlayer += MAX_PLAYERS - 1;
+ 		iNewPlayer %= MAX_PLAYERS;
+ 
+-		PlayerTypes eNewPlayer = (PlayerTypes) iNewPlayer;
+-		if (GET_PLAYER(eNewPlayer).isAlive() && !(GET_PLAYER(eNewPlayer).isBarbarian()))
++		PlayerTypes eNewPlayer = (PlayerTypes)iNewPlayer;
++		if (GET_PLAYER(eNewPlayer).isAlive() && !GET_PLAYER(eNewPlayer).isBarbarian())
+ 		{
+-			GC.getInitCore().setSlotStatus(getActivePlayer(), SS_COMPUTER);
+-			GC.getInitCore().setSlotStatus(eNewPlayer, SS_TAKEN);
++			/*GC.getInitCore().setSlotStatus(getActivePlayer(), SS_COMPUTER);
++			GC.getInitCore().setSlotStatus(eNewPlayer, SS_TAKEN);*/
++			/*  <advc.210> The CHANGE_PLAYER component added a wrapper for that
++				(which now also initializes alerts) */
++			GET_PLAYER(getActivePlayer()).setIsHuman(false);
++			GET_PLAYER(eNewPlayer).setIsHuman(true);
++			// </advc.210>
+ 			GET_PLAYER(getActivePlayer()).setTurnActive(false, false);
+ 			GET_PLAYER(eNewPlayer).setTurnActive(true, false);
+ 			setActivePlayer(eNewPlayer, true);
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 49b5b7e7d..6d412e23a 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -1411,6 +1411,8 @@ public:
+ 		DO(SHIP_BLOCKADE_RANGE) \
+ 		DO(MAX_TRADE_ROUTES) \
+ 		DO(ENABLE_DEBUG_TOOLS_MULTIPLAYER) \
++		DO(FREE_VASSAL_LAND_PERCENT) \
++		DO(FREE_VASSAL_POPULATION_PERCENT) \
+ 		/* </advc.opt> */ \
+ 		DO(PATH_DAMAGE_WEIGHT) \
+ 		DO(HILLS_EXTRA_DEFENSE) \
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 6a387b27b..caeacce27 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -476,6 +476,9 @@ m_iFavoriteCivicAttitudeChangeLimit(0),
+ m_iDemandTributeAttitudeThreshold(NO_ATTITUDE),
+ m_iNoGiveHelpAttitudeThreshold(NO_ATTITUDE),
+ m_iTechRefuseAttitudeThreshold(NO_ATTITUDE),
++// <advc.ctr> Default values
++m_iCityRefuseAttitudeThreshold(ATTITUDE_CAUTIOUS),
++m_iNativeCityRefuseAttitudeThreshold(ATTITUDE_PLEASED), // </advc.ctr>
+ m_iStrategicBonusRefuseAttitudeThreshold(NO_ATTITUDE),
+ m_iHappinessBonusRefuseAttitudeThreshold(NO_ATTITUDE),
+ m_iHealthBonusRefuseAttitudeThreshold(NO_ATTITUDE),
+@@ -830,6 +833,16 @@ int CvLeaderHeadInfo::getTechRefuseAttitudeThreshold() const
+ {
+ 	return m_iTechRefuseAttitudeThreshold;
+ }
++// <advc.ctr>
++int CvLeaderHeadInfo::getCityRefuseAttitudeThreshold() const
++{
++	return m_iCityRefuseAttitudeThreshold;
++}
++
++int CvLeaderHeadInfo::getNativeCityRefuseAttitudeThreshold() const
++{
++	return m_iNativeCityRefuseAttitudeThreshold;
++} // </advc.ctr>
+ 
+ int CvLeaderHeadInfo::getStrategicBonusRefuseAttitudeThreshold() const
+ {
+@@ -1097,6 +1110,9 @@ void CvLeaderHeadInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iDemandTributeAttitudeThreshold);
+ 	stream->Read(&m_iNoGiveHelpAttitudeThreshold);
+ 	stream->Read(&m_iTechRefuseAttitudeThreshold);
++	// <advc.ctr>
++	stream->Read(&m_iCityRefuseAttitudeThreshold);
++	stream->Read(&m_iNativeCityRefuseAttitudeThreshold); // </advc.ctr>
+ 	stream->Read(&m_iStrategicBonusRefuseAttitudeThreshold);
+ 	stream->Read(&m_iHappinessBonusRefuseAttitudeThreshold);
+ 	stream->Read(&m_iHealthBonusRefuseAttitudeThreshold);
+@@ -1233,6 +1249,9 @@ void CvLeaderHeadInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iDemandTributeAttitudeThreshold);
+ 	stream->Write(m_iNoGiveHelpAttitudeThreshold);
+ 	stream->Write(m_iTechRefuseAttitudeThreshold);
++	// <advc.ctr>
++	stream->Write(m_iCityRefuseAttitudeThreshold);
++	stream->Write(m_iNativeCityRefuseAttitudeThreshold); // </advc.ctr>
+ 	stream->Write(m_iStrategicBonusRefuseAttitudeThreshold);
+ 	stream->Write(m_iHappinessBonusRefuseAttitudeThreshold);
+ 	stream->Write(m_iHealthBonusRefuseAttitudeThreshold);
+@@ -1345,14 +1364,22 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iFreedomAppreciation, "iFreedomAppreciation");
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "DemandTributeAttitudeThreshold");
+-	m_iDemandTributeAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iDemandTributeAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "NoGiveHelpAttitudeThreshold");
+-	m_iNoGiveHelpAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iNoGiveHelpAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "TechRefuseAttitudeThreshold");
+ 	m_iTechRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+-
++	// <advc.ctr>
++	pXML->GetChildXmlValByName(szTextVal, "CityRefuseAttitudeThreshold", "");
++	if (!szTextVal.empty())
++		m_iCityRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
++	// (Keep initial value otherwise)
++	pXML->GetChildXmlValByName(szTextVal, "NativeCityRefuseAttitudeThreshold", "");
++	if (!szTextVal.empty())
++		m_iNativeCityRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
++	// </advc.ctr>
+ 	pXML->GetChildXmlValByName(szTextVal, "StrategicBonusRefuseAttitudeThreshold");
+ 	m_iStrategicBonusRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+@@ -1360,40 +1387,40 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
+ 	m_iHappinessBonusRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "HealthBonusRefuseAttitudeThreshold");
+-	m_iHealthBonusRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iHealthBonusRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "MapRefuseAttitudeThreshold");
+-	m_iMapRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iMapRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "DeclareWarRefuseAttitudeThreshold");
+-	m_iDeclareWarRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iDeclareWarRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "DeclareWarThemRefuseAttitudeThreshold");
+-	m_iDeclareWarThemRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iDeclareWarThemRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "StopTradingRefuseAttitudeThreshold");
+-	m_iStopTradingRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iStopTradingRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "StopTradingThemRefuseAttitudeThreshold");
+-	m_iStopTradingThemRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iStopTradingThemRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "AdoptCivicRefuseAttitudeThreshold");
+-	m_iAdoptCivicRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iAdoptCivicRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "ConvertReligionRefuseAttitudeThreshold");
+-	m_iConvertReligionRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iConvertReligionRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "OpenBordersRefuseAttitudeThreshold");
+-	m_iOpenBordersRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iOpenBordersRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "DefensivePactRefuseAttitudeThreshold");
+-	m_iDefensivePactRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iDefensivePactRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "PermanentAllianceRefuseAttitudeThreshold");
+-	m_iPermanentAllianceRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iPermanentAllianceRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "VassalRefuseAttitudeThreshold");
+-	m_iVassalRefuseAttitudeThreshold = pXML->FindInInfoClass( szTextVal);
++	m_iVassalRefuseAttitudeThreshold = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "FavoriteCivic");
+ 	m_iFavoriteCivic = pXML->FindInInfoClass(szTextVal);
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 561495df2..88095c104 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -176,6 +176,9 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	int getDemandTributeAttitudeThreshold() const;
+ 	int getNoGiveHelpAttitudeThreshold() const;
+ 	int getTechRefuseAttitudeThreshold() const;
++	// <advc.ctr>
++	int getCityRefuseAttitudeThreshold() const;
++	int getNativeCityRefuseAttitudeThreshold() const; // </advc.ctr>
+ 	int getStrategicBonusRefuseAttitudeThreshold() const;
+ 	int getHappinessBonusRefuseAttitudeThreshold() const;
+ 	int getHealthBonusRefuseAttitudeThreshold() const;
+@@ -288,6 +291,9 @@ protected:
+ 	int m_iDemandTributeAttitudeThreshold;
+ 	int m_iNoGiveHelpAttitudeThreshold;
+ 	int m_iTechRefuseAttitudeThreshold;
++	// <advc.ctr>
++	int m_iCityRefuseAttitudeThreshold;
++	int m_iNativeCityRefuseAttitudeThreshold; // </advc.ctr>
+ 	int m_iStrategicBonusRefuseAttitudeThreshold;
+ 	int m_iHappinessBonusRefuseAttitudeThreshold;
+ 	int m_iHealthBonusRefuseAttitudeThreshold;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b3b085e91..148cd7281 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -316,7 +316,7 @@ void CvPlayer::initInGame(PlayerTypes eID)
+ }
+ 
+ // <advc.210>
+-void CvPlayer::initAlerts()
++void CvPlayer::initAlerts(bool bSilentCheck)
+ {
+ 	if (!m_paAlerts.empty())
+ 	{
+@@ -329,6 +329,11 @@ void CvPlayer::initAlerts()
+ 	m_paAlerts.push_back(new RevoltAlert(getID())); // advc.210b
+ 	m_paAlerts.push_back(new BonusThirdPartiesAlert(getID())); // advc.210d
+ 	m_paAlerts.push_back(new CityTradeAlert(getID())); // advc.ctr
++	if (bSilentCheck)
++	{
++		for (size_t i = 0; i < m_paAlerts.size(); i++)
++			checkAlert(i, true);
++	}
+ }
+ 
+ 
+@@ -1008,7 +1013,11 @@ void CvPlayer::setIsHuman(bool bNewValue)
+ 			SS_COMPUTER); // or SS_OPEN for multiplayer?
+ 	// <advc.210> Only human players need alerts
+ 	if (bNewValue)
+-		initAlerts();
++	{
++		/*  Tbd. (advc.106c): The Python Civ4lerts should also do a silent check
++			here; to avoid alerts right after assuming control of the player. */
++		initAlerts(true);
++	}
+ 	else uninitAlerts(); // </advc.210>
+ }
+ // CHANGE_PLAYER: END
+@@ -1928,14 +1937,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 			int iDist = ::plotDistance(pPlot, &kCityPlot);
+ 			CvCity* pWorkingCity = pPlot->getWorkingCity();
+ 			/*  Always reduce eOldOwner culture in the inner circle. Outer circle:
+-				Only if tiles not worked by other cities of eOldOwner. */
++				Only if tiles not assigned to other cities of eOldOwner. */
+ 			if(iDist > 1 && pWorkingCity != NULL && pWorkingCity->plot() != &kCityPlot &&
+ 					pWorkingCity->getOwner() != eOldOwner)
+ 				continue;
+-			int convertedCulture = std::min(pPlot->getCulture(eOldOwner) / 2,
++			int iConvertedCulture = std::min(pPlot->getCulture(eOldOwner) / 2,
+ 					2 * pPlot->getCulture(getID()));
+-			pPlot->changeCulture(eOldOwner, -convertedCulture, false);
+-			pPlot->changeCulture(getID(), convertedCulture, false);
++			pPlot->changeCulture(eOldOwner, -iConvertedCulture, false);
++			pPlot->changeCulture(getID(), iConvertedCulture, false);
+ 		}
+ 		// BtS code replaced by the loop above // </advc.ctr>
+ 		/*for (int iDX = -1; iDX <= 1; iDX++) {
+@@ -4115,20 +4124,21 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 				break;
+ 		}
+ 		CvPlot const& kCityPlot = *kCity.plot();
+-		// Can't trade an endangered city to a third party
+ 		if (!kToTeam.isAtWar(getTeam()) && kCityPlot.isVisibleEnemyCityAttacker(getID()))
+-			break;
++			break; // Can't trade an endangered city to a third party
+ 		if (kCityPlot.calculateCulturePercent(eWhoTo) < GC.getDefineINT(CvGlobals::CITY_TRADE_CULTURE_THRESH))
+ 			break;
+-		if (!kOurTeam.isAtWar(TEAMID(eWhoTo)) && 2 * kCityPlot.getCulture(eWhoTo) <= kCityPlot.getCulture(getID()))
++		if (!kOurTeam.isAtWar(TEAMID(eWhoTo)) &&
++			// Prevent back-and-forth trades between humans
++			(kCity.isEverOwned(eWhoTo) && isHuman() && GET_PLAYER(eWhoTo).isHuman() ? 1 : 2) * 
++			kCityPlot.getCulture(eWhoTo) <= kCityPlot.getCulture(getID()))
++		{
+ 			break;
+-		// The BtS condition:
+-		if ((!kOurTeam.isAVassal() && !kToTeam.isVassal(getTeam())) ||
+-				// Alternative condition:
+-				(kToTeam.isVassal(getTeam()) &&
+-				// Tile culture, not city culture.
+-				kCityPlot.getCulture(eWhoTo) > kCityPlot.getCulture(getID())))
+-			return true;
++		}
++		if (kToTeam.isVassal(getTeam()) &&
++				kCityPlot.getCulture(eWhoTo) <= kCityPlot.getCulture(getID()))
++			break;
++		return true;
+ 		// </advc.ctr>
+ 		break;
+ 	}
+@@ -4242,9 +4252,7 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 	case TRADE_RESOURCES: return canTradeNetworkWith(eWhoTo);
+ 	case TRADE_CITIES:
+ 		return (GET_PLAYER(eWhoTo).canReceiveTradeCity() &&
+-				GC.getGame().getMaxCityElimination() <= 0 &&
+-				// advc.ctr: Can't buy cities from rival-capitulated vassals
+-				(!kOurTeam.isCapitulated() || kOurTeam.isVassal(kToTeam.getID())));
++				GC.getGame().getMaxCityElimination() <= 0);
+ 	case TRADE_GOLD:
+ 	case TRADE_GOLD_PER_TURN:
+ 		return (kOurTeam.isGoldTrading() || kToTeam.isGoldTrading());
+@@ -21504,12 +21512,21 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 			FOR_EACH_CITY(pLoopCity, *this)
+ 			{
+ 				//if (AI_cityTrade(pLoopCity, eOtherPlayer) != DENIAL_NEVER) // K-Mod
+-				/*  advc.opt: Replace the above b/c TradeDenial tests are slower
+-					than canTradeItem (though in this case the difference should be negligible). */
+ 				setTradeItem(&item, TRADE_CITIES, pLoopCity->getID());
+ 				if (canTradeItem(eOtherPlayer, item))
+-				{	// advc.opt:
+-					if(!bOtherHuman || getTradeDenial(eOtherPlayer, item) != DENIAL_NEVER)
++				{
++					/*  advc.ctr: If "never" cities are excluded, then "too much"
++						should be excluded as well and the check should be done
++						after the faster canTradeItem check. But I don't want to
++						exclude either anymore. */
++					/*bool bValid = !bOtherHuman;
++					if (!bValid) 
++					{
++						DenialTypes eDenial = getTradeDenial(eOtherPlayer, item);
++						if (eDenial != DENIAL_NEVER && eDenial != DENIAL_TOO_MUCH)
++							bValid = true;
++					}
++					if (bValid)*/
+ 					{
+ 						bFoundItemUs = true;
+ 						ourList.insertAtEnd(item);
+@@ -21846,7 +21863,8 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 	return true;
+ }
+ 
+-void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourInventory, const CLinkList<TradeData>& ourOffer, const CLinkList<TradeData>& theirOffer) const
++void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourInventory,
++	const CLinkList<TradeData>& ourOffer, const CLinkList<TradeData>& theirOffer) const
+ {
+ 	for (CLLNode<TradeData>* pNode = ourInventory.head(); pNode != NULL; pNode = ourInventory.next(pNode))
+ 	{
+@@ -21855,14 +21873,15 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 		// Don't show peace treaties when not at war
+ 		if (!::atWar(getTeam(), GET_PLAYER(eOtherPlayer).getTeam()))
+ 		{
+-			if (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY || pNode->m_data.m_eItemType == TRADE_SURRENDER)
++			if (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY ||
++				pNode->m_data.m_eItemType == TRADE_SURRENDER)
+ 			{
+ 				pNode->m_data.m_bHidden = true;
+ 			}
+ 		}
+-
+ 		// Don't show technologies with no tech trading game option
+-		if (GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && pNode->m_data.m_eItemType == TRADE_TECHNOLOGIES)
++		if (GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) &&
++			pNode->m_data.m_eItemType == TRADE_TECHNOLOGIES)
+ 		{
+ 			pNode->m_data.m_bHidden = true;
+ 		}
+@@ -21908,8 +21927,21 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 				}
+ 			}
+ 			break;
+-		default:
+-			break;
++		/*// <advc.004> Only one side can pay gold [better keep gold on display I guess]
++		case TRADE_GOLD:
++		case TRADE_GOLD_PER_TURN:
++			// Perhaps better to keep AI gold on display (human treasury is always visible anyway)
++			if (isHuman())
++			{
++				for (CLLNode<TradeData>* pOfferNode = theirOffer.head(); pOfferNode != NULL;
++					pOfferNode = theirOffer.next(pOfferNode))
++				{
++					TradeableItems eItemType = pOfferNode->m_data.m_eItemType;
++					if (eItemType == TRADE_GOLD || eItemType == TRADE_GOLD_PER_TURN)
++						pNode->m_data.m_bHidden = true;
++				}
++				break;
++			} // </advc.004>*/
+ 		}
+ 	}
+ 
+@@ -21917,10 +21949,7 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 	{
+ 		CLLNode<TradeData>* pFirstOffer = ourOffer.head();
+ 		if (pFirstOffer == NULL)
+-		{
+ 			pFirstOffer = theirOffer.head();
+-		}
+-
+ 		if (pFirstOffer != NULL)
+ 		{
+ 			//if (!CvDeal::isEndWar(pFirstOffer->m_data.m_eItemType) || !::atWar(getTeam(), GET_PLAYER(eOtherPlayer).getTeam()))
+@@ -21931,12 +21960,8 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 					/*if (pFirstOffer->m_data.m_eItemType == TRADE_CITIES || pNode->m_data.m_eItemType == TRADE_CITIES)
+ 						pNode->m_data.m_bHidden = true;
+ 					else*/
+-// advc.tmp:
+-if(pFirstOffer->m_data.m_eItemType == TRADE_CITIES || pNode->m_data.m_eItemType == TRADE_CITIES) pNode->m_data.m_bHidden = true; else
+ 					if (CvDeal::isAnnual(pFirstOffer->m_data.m_eItemType) != CvDeal::isAnnual(pNode->m_data.m_eItemType))
+-					{
+ 						pNode->m_data.m_bHidden = true;
+-					}
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 3a8f21757..bf0f11786 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1180,7 +1180,7 @@ public:
+ 	} // </advc.003u>	
+ 
+ protected:  // <advc.210>
+-	void initAlerts();
++	void initAlerts(bool bSilentCheck = false);
+ 	void uninitAlerts(); // </advc.210>
+ 
+ 	PlayerTypes m_eID; // advc: Moved up for easier access in the debugger
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d514fab92..4988c6180 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10587,7 +10587,7 @@ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pLis
+ 		{
+ 			CvCityAI* pCity = GET_PLAYER(ePlayer).AI_getCity(pNode->m_data.m_iData);
+ 			if (pCity != NULL)
+-				iValue += AI_cityTradeVal(*pCity);
++				iValue += AI_cityTradeVal(*pCity, /* advc.ctr: */ getID());
+ 			break;
+ 		}
+ 		case TRADE_GOLD:
+@@ -13162,21 +13162,38 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 	return NO_DENIAL;
+ }
+ 
+-// K-Mod note: the way this function is currently used is that it actually represents
+-// how much the current owner values _not giving the city to this player_.
+-//
+-// For example, if this player currently controls most of the city's culture,
+-// the value should be _lower_ rather than higher, so that the current owner
+-// is more likely to give up the city.
+-//
+-// Ideally the value of receiving the city and the cost of giving the city away would be
+-// separate things; but that's currently not how trades are made.
+-int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity) const  // advc.003u: param was CvCity*
+-{	// <advc>
+-	CvGame const& g = GC.getGame();
+-	PlayerTypes const eOwner = kCity.getOwner(); // </advc>
+-	FAssert(eOwner != getID());
+-
++/*  K-Mod note: the way this function is currently used is that it actually represents
++	how much the current owner values _not giving the city to this player_.
++	For example, if this player currently controls most of the city's culture,
++	the value should be _lower_ rather than higher, so that the current owner
++	is more likely to give up the city.
++	Ideally the value of receiving the city and the cost of giving the city away would be
++	separate things; but that's currently not how trades are made. */
++/*  advc.ctr: Now this function computes three different things depending on the
++	parameters.
++	1)  If eToPlayer is this player: How much this player values acquiring kCity
++		from its current owner.
++	2)  If eToPlayer is a different player: How much this player values holding
++		onto kCity and not giving it to eToPlayer.
++	3)	If eToPlayer is NO_PLAYER: The sum of 1) and 2). That's useful for
++		balancing out trade deals - which is the main purpose of this function.
++	I'm keeping it in one function b/c all three require similar computations. */
++int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity, // advc.003u: param was CvCity*
++	// <advc.ctr>
++	PlayerTypes eToPlayer) const
++{
++	PROFILE_FUNC(); // (to be profiled)
++	if (eToPlayer == NO_PLAYER)
++	{
++		return AI_cityTradeVal(kCity, getID()) +
++				GET_PLAYER(kCity.getOwner()).AI_cityTradeVal(kCity, getID());
++	}
++	PlayerTypes const eOwner = kCity.getOwner();
++	FAssert(eToPlayer != eOwner);
++	CvPlayerAI const& kToPlayer = GET_PLAYER(eToPlayer);
++	//bool bKeep = (eToPlayer != getID()); // Case 2) in the comment on top
++	// </advc.ctr>
++	CvGame const& g = GC.getGame(); // advc
+ 	int iValue = 300;
+ 
+ 	//iValue += (kCity.getPopulation() * 50); // advc: Call this iPopValue
+@@ -13189,7 +13206,7 @@ int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity) const  // advc.003u: para
+ 			/*  advc.001: I think karadoc's intention was to add at most
+ 				200 * CultureLevel, namely when the city owner has 0 culture,
+ 				but without the addition below, the increment would actually be
+-				200 * CultureLevel * this player's city culture, i.e. millions. */
++				200 * CultureLevel * this player's city culture -- way too much. */
+ 			+ kCity.getCulture(getID()));
+ 
+ 	//iValue += (((((kCity.getPopulation() * 50) + g.getElapsedGameTurns() + 100) * 4) * kCity.plot()->calculateCulturePercent(eOwner)) / 100);
+@@ -13199,7 +13216,8 @@ int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity) const  // advc.003u: para
+ 	iCityTurns = iCityTurns * GC.getGameSpeedInfo(g.getGameSpeedType()).
+ 			getVictoryDelayPercent() / 100;
+ 	iValue += ((iPopValue + iCityTurns * 3 / 2 + 80) * 4 * (kCity.plot()->
+-			calculateCulturePercent(eOwner) + 10)) / 110;
++			calculateCulturePercent(/*eOwner*/eToPlayer) // advc.ctr
++			+ 10)) / 110;
+ 	// K-Mod end
+ 
+ 	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+@@ -13213,12 +13231,15 @@ int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity) const  // advc.003u: para
+ 			// K-Mod. Use average of our value for gaining the bonus, and their value for losing it.
+ 			int iBonusValue = 0;
+ 			if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+-				iBonusValue += AI_bonusVal(pLoopPlot->getBonusType(getTeam()), 1, true);
+-			if (pLoopPlot->getBonusType(TEAMID(eOwner)) != NO_BONUS)
+ 			{
++				iBonusValue += /* advc.ctr: */ kToPlayer.
++						AI_bonusVal(pLoopPlot->getBonusType(getTeam()), 1, true);
++			}
++			// advc.ctr: That's (mostly) handled by the recursive call upfront now
++			/*if (pLoopPlot->getBonusType(TEAMID(eOwner)) != NO_BONUS) {
+ 				iBonusValue += GET_PLAYER(eOwner).AI_bonusVal(
+ 						pLoopPlot->getBonusType(TEAMID(eOwner)), -1, true);
+-			}
++			}*/
+ 			iBonusValue *= plotDistance(pLoopPlot, kCity.plot()) <= 1 ? 5 : 4;
+ 			iValue += iBonusValue;
+ 			// K-Mod end
+@@ -13241,73 +13262,161 @@ int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity) const  // advc.003u: para
+ }
+ 
+ 
+-DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes ePlayer) const // advc: refactored; advc.003u: param was CvCity*
++DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlayer) const // advc: refactored; advc.003u: param was CvCity*
+ {
++	PROFILE_FUNC(); // advc.ctr (to be profiled)
+ 	FAssert(kCity.getOwner() == getID());
+-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+-	CvPlot const& p = *kCity.plot();
++	CvPlayerAI const& kToPlayer = GET_PLAYER(eToPlayer); // advc: Renamed from kPlayer/ ePlayer
++	CvPlot const& kCityPlot = *kCity.plot();
+ 	/*if(pCity->getLiberationPlayer(false) == ePlayer)
+ 		return NO_DENIAL;*/
+ 	// advc.ctr: Not so fast
+-	bool const bLib = kCity.getLiberationPlayer(false, getTeam()) == ePlayer;
+-	if(!bLib && !kPlayer.isHuman() && kPlayer.getTeam() != getTeam() &&
+-		!kCity.isEverOwned(ePlayer))
++	bool const bLib = (kCity.getLiberationPlayer(false, getTeam()) == eToPlayer);
++	if (!bLib && !kToPlayer.isHuman() && kToPlayer.getTeam() != getTeam() &&
++		!kCity.isEverOwned(eToPlayer))
+ 	{
+ 		// <advc.ctr> "We don't want to trade this" seems appropriate
+-		if(GET_PLAYER(ePlayer).AI_isAwfulSite(kCity))
++		if(GET_PLAYER(eToPlayer).AI_isAwfulSite(kCity)) // Tbd.: AI_cityTradeVal should handle this
+ 			return DENIAL_UNKNOWN; // </advc.ctr>
+-		if(kPlayer.getNumCities() > 3 &&
+-			/*  advc.ctr (comment): Now covered by CvPlayer::canTradeItem,
+-				but threshold there can be disabled through XML. */
+-			p.calculateCulturePercent(ePlayer) == 0)
+-		{
++		// advc.ctr: Now covered by CvPlayer::canTradeItem
++		/*if(kCityPlot.calculateCulturePercent(ePlayer) <= 0 && kPlayer.getNumCities() > 3) {
+ 			if(kPlayer.AI_isFinancialTrouble())
+ 				return DENIAL_UNKNOWN;
+-			CvCity* pNearestCity = GC.getMap().findCity(
+-					p.getX(), p.getY(), ePlayer, NO_TEAM, true, false,
+-					NO_TEAM, NO_DIRECTION, &kCity);
+-			if(pNearestCity == NULL || plotDistance(p.getX(), p.getY(),
++			CvCity* pNearestCity = GC.getMap().findCity(kCityPlot.getX(), kCityPlot.getY(), ePlayer,
++					NO_TEAM, true, false, NO_TEAM, NO_DIRECTION, &kCity);
++			if(pNearestCity == NULL || plotDistance(kCityPlot.getX(), kCityPlot.getY(),
+ 					pNearestCity->getX(), pNearestCity->getY()) > 9)
+ 				return DENIAL_UNKNOWN;
+-		}
++		}*/
+ 	}
+-	if(isHuman() || atWar(getTeam(), kPlayer.getTeam()))
++	if (isHuman())
+ 		return NO_DENIAL;
++
+ 	/*if(kPlayer.getTeam() == getTeam()) {
+ 		if(pCity->calculateCulturePercent(getID()) > 50)
+ 			return DENIAL_TOO_MUCH;
+ 		return NO_DENIAL;
+-	}*/
+-	// <advc.ctr> work in progress
+-	CvPlot const& kCityPlot = *kCity.plot();
+-	if(kCityPlot.getCulture(getID()) > kCityPlot.getCulture(ePlayer))
+-		return DENIAL_NEVER; // Tbd.: This condition is too coarse
+-// <advc.tmp>
+-if(kPlayer.getTeam() == getTeam() || bLib)
+-	return NO_DENIAL;
+-return DENIAL_NEVER;
+-// </advc.tmp>
+-	/*  TOO_MUCH would be nicer than NEVER if on the same team, but these cities
+-		are hidden by CvPlayer::buildTradeTable anyway. */
+-	if(kCity.isCapital())
+-		return DENIAL_NEVER;
+-	/*  Tbd.: Other major cities, DENIAL_VICTORY, vassal-related clauses,
+-		DENIAL_RECENT_CANCEL if recently acquired. */
+-	AttitudeTypes eTowardThem = AI_getAttitude(ePlayer, false);
+-	if(eTowardThem < ATTITUDE_ANNOYED) // Liberation threshold
+-		return DENIAL_ATTITUDE;
+-	// Tbd.: Make these thresholds personality-based
+-	if(!bLib && eTowardThem < ATTITUDE_PLEASED)
+-		return DENIAL_ATTITUDE;
+-	if(!bLib && kCity.plot()->calculateCulturePercent(getID()) >
+-			// Tbd.: Mention this use of the threshold in a comment in GlobalDefines
+-			GC.getDefineINT(CvGlobals::CITY_TRADE_CULTURE_THRESH) &&
+-			eTowardThem < ATTITUDE_FRIENDLY)
++	}*/ // <advc.ctr> No special treatment for same team
++	// Vassal-related conditions
++	CvTeam const& kToTeam = GET_TEAM(kToPlayer.getTeam());
++	CvTeam const& kOurTeam = GET_TEAM(getTeam());
++	int const iFREE_VASSAL_POPULATION_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT);
++	if (kOurTeam.isCapitulated())
++	{
++		if (getMasterTeam() != kToPlayer.getTeam())
++			return DENIAL_VASSAL;
++		if (!bLib && iFREE_VASSAL_POPULATION_PERCENT > 0)
++		{
++			// Make sure not to ruin our chances of breaking away (don't bother checking getTotalLand)
++			int iMasterPop = (kOurTeam.isVassal(kToTeam.getID()) ?
++					kToTeam.getTotalPopulation(false) + kCity.getPopulation() :
++					GET_TEAM(getMasterTeam()).getTotalPopulation(false));
++			if ((kOurTeam.getTotalPopulation(false) - kCity.getPopulation()) * 100 < iMasterPop)
++				return DENIAL_TOO_MUCH;
++		}
++	}
++	if (kToTeam.isCapitulated() && kToTeam.getMasterTeam() == getMasterTeam() &&
++		iFREE_VASSAL_POPULATION_PERCENT > 0)
++	{	// Don't (somehow) accidentally help free a non-rival capitulated vassal
++		int iMasterPop = (kToTeam.isVassal(getTeam()) ?
++				kOurTeam.getTotalPopulation(false) - kCity.getPopulation() :
++				GET_TEAM(kToTeam.getMasterTeam()).getTotalPopulation(false));
++		if ((kToTeam.getTotalPopulation(false) + kCity.getPopulation()) * 100 >= iMasterPop)
++			return DENIAL_POWER_YOU;
++	}
++
++	bool const bWar = ::atWar(getTeam(), kToPlayer.getTeam());
++
++	// Trade value conditions
++	if (!bLib)
++	{
++		// Be more polite to non-rivals
++		DenialTypes eNever = (getMasterTeam() == kToPlayer.getMasterTeam() ?
++				DENIAL_TOO_MUCH : DENIAL_NEVER);
++		int const iKeepCityVal = AI_cityTradeVal(kCity, eToPlayer);
++		// This could lead to trouble when the capital is in disorder. Alternatives?
++		int const iReferenceVal = AI_cityTradeVal(getCapitalCity()->AI(), eToPlayer);
++		if (!bWar && 7 * iKeepCityVal > 4 * iReferenceVal)
++			return eNever;
++		if (getTeam() != kToPlayer.getTeam())
++		{
++			if (iKeepCityVal < 0)
++				return DENIAL_UNKNOWN;
++		}
++	}
++
++	if (bWar)
++		return NO_DENIAL;
++
++	// Don't delay victory
++	if (getTeam() != kToPlayer.getTeam())
++	{
++		if (AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3))
++			return DENIAL_VICTORY;
++		if ((AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) && kCity.isProductionProject()) ||
++				// In part, to avoid revealing all the project sites in the endgame.
++				(AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) &&
++				4 * kCity.getYieldRate(YIELD_PRODUCTION) > getCapitalCity()->getYieldRate(YIELD_PRODUCTION)))
++			return DENIAL_VICTORY;
++	}
++
++	// Attitude-based conditions
++	if (GET_TEAM(getTeam()).AI_getWorstEnemy() == kToPlayer.getTeam())
++		return DENIAL_WORST_ENEMY;
++	int iAttitudeThresh = AI_cityTradeAttitudeThresh(kCity, eToPlayer, bLib);
++	int iForcedAttitude = AI_getAttitude(eToPlayer, true, false);
++	/*  <advc.130v> Use the true attitude of capitulated vassals - unless its higher
++		than the forced attitude. Not sure if capitulated vassals would otherwise
++		give away cities. Not to rivals certainly - that's already addressed above.  */
++	int iAttitude = std::min((int)AI_getAttitude(eToPlayer, false, false), iForcedAttitude);
++	// Let the player know when displayed (forced) attitude is misleading
++	if (iAttitude <= iAttitudeThresh && iForcedAttitude > iAttitudeThresh)
++		return DENIAL_TRUE_ATTITUDE; // </advc.130v>
++	else if (iAttitudeThresh >= ATTITUDE_FRIENDLY)
++	{	// Trade with non-rivals if Friendly
++		if (getMasterTeam() == kToTeam.getMasterTeam())
++			iAttitudeThresh = ATTITUDE_PLEASED;
++		else return DENIAL_NEVER;
++	}
++	if (iAttitude <= iAttitudeThresh)
+ 		return DENIAL_ATTITUDE;
+-	return NO_DENIAL;
++
++	// Temporary obstacles
++	if (!kToPlayer.isHuman())
++	{
++		// Don't accept cities with resistance from third-party culture
++		if (!bLib && kCity.isOccupation() && kCity.plot()->findHighestCulturePlayer() != eToPlayer)
++			return DENIAL_RECENT_CANCEL;
++		/*  Should perhaps instead check if there is _any_ danger; not sure how
++			likely it is that the new owner has defensive units nearby ... */
++		int iThirdPartyAttack = kToPlayer.AI_localAttackStrength(&kCityPlot, NO_TEAM);
++		if (iThirdPartyAttack > 0)
++		{
++			int iToPlayerDefense = kToPlayer.AI_localDefenceStrength(&kCityPlot,
++					kToPlayer.getTeam(), DOMAIN_LAND, 1);
++			if (iToPlayerDefense < 2 * iThirdPartyAttack)
++				return DENIAL_POWER_THEM;
++		}
++	}
+ 	// </advc.ctr>
++	return NO_DENIAL;
+ }
+ 
++/*  <advc.ctr> For ceding kCity to eToPlayer, the attitude level of this AI player
++	needs to greater than the return value. */
++AttitudeTypes CvPlayerAI::AI_cityTradeAttitudeThresh(CvCity const& kCity,
++	PlayerTypes eToPlayer, bool bLiberate) const
++{
++	if (bLiberate)
++		return ATTITUDE_FURIOUS;
++	CvLeaderHeadInfo const& kPersonality = GC.getLeaderHeadInfo(getPersonalityType());
++	int r = (kCity.plot()->calculateCulturePercent(getID()) >=
++			GC.getDefineINT(CvGlobals::CITY_TRADE_CULTURE_THRESH) ? 
++			kPersonality.getNativeCityRefuseAttitudeThreshold() :
++			kPersonality.getCityRefuseAttitudeThreshold());
++	return (AttitudeTypes)r;
++} // </advc.ctr>
++
+ /*  advc (comment): This player pays for the embargo and ePlayer stops trading
+ 	with eTradeTeam. */
+ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer,
+@@ -17562,7 +17671,7 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
+ 			iTotalCivs += 2;
+ 			if (kLoopPlayer.getStateReligion() == eReligion)
+ 			{
+-				AttitudeTypes eAttitude = AI_getAttitude((PlayerTypes)i, false);
++				AttitudeTypes eAttitude = AI_getAttitude((PlayerTypes)i, false, false);
+ 				if (eAttitude >= ATTITUDE_PLEASED)
+ 				{
+ 					iLikedReligionCivs++;
+@@ -17762,7 +17871,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 	{
+ 		if (pCity != NULL)
+ 		{
+-			iValue += AI_cityTradeVal(*pCity);
++			iValue += AI_cityTradeVal(*pCity, /* advc.ctr: */ getID());
+ 		}
+ 	}
+ 
+@@ -26740,8 +26849,9 @@ bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity) const
+ 		if(p.getPlayerCityRadiusCount(kCity.getOwner()) > 1 || p.isImpassable())
+ 			continue;
+ 		// Third-party culture
+-		PlayerTypes eCulturalOwner = p.calculateCulturalOwner(true);
+-		if(eCulturalOwner != getID() && eCulturalOwner != kCity.getOwner())
++		PlayerTypes eCulturalOwner = p.calculateCulturalOwner();
++		if(eCulturalOwner != NO_PLAYER && eCulturalOwner != getID() &&
++				eCulturalOwner != kCity.getOwner())
+ 			continue;
+ 		// Flood plains, oases
+ 		if(p.calculateNatureYield(YIELD_FOOD, getTeam()) >= 3)
+@@ -27897,7 +28007,7 @@ bool CvPlayerAI::AI_atWarWithPartner(TeamTypes eOtherTeam, bool bCheckPartnerAtt
+ 		CvPlayer const& kPartner = GET_PLAYER((PlayerTypes)i);
+ 		if(kPartner.isAlive() && kPartner.getTeam() != getTeam() &&
+ 			!kPartner.isMinorCiv() && GET_TEAM(eOtherTeam).isAtWar(kPartner.getTeam()) &&
+-			AI_getAttitude(kPartner.getID()) >= ATTITUDE_PLEASED)
++			AI_getAttitude(kPartner.getID(), true, false) >= ATTITUDE_PLEASED)
+ 		{
+ 			if(!bCheckPartnerAttacked)
+ 				return true;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 160f2ad73..f3b25a9ff 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -287,7 +287,7 @@ public:
+ 	int AI_corporationBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade = false) const;
+ 	int AI_goldForBonus(BonusTypes eBonus, PlayerTypes eBonusOwner) const; // advc.036
+ 
+-	int AI_cityTradeVal(CvCityAI const& kCity) const;
++	int AI_cityTradeVal(CvCityAI const& kCity, /* advc.ctr: */ PlayerTypes eToPlayer = NO_PLAYER) const;
+ 	DenialTypes AI_cityTrade(CvCityAI const& kCity, PlayerTypes ePlayer) const;
+ 
+ 	int AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer,
+@@ -616,6 +616,8 @@ public:
+ 	void write(FDataStreamBase* pStream);
+ 
+ protected:
++	// advc.ctr:
++	AttitudeTypes AI_cityTradeAttitudeThresh(CvCity const& kCity, PlayerTypes eToPlayer, bool bLiberate) const;
+ 
+ 	int m_iPeaceWeight;
+ 	int m_iEspionageWeight;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9e6aac190..ec2b6a12e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2670,7 +2670,7 @@ void CvPlot::invalidateBorderDangerCache()
+ // K-Mod end
+ 
+ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange,
+-		bool bOwnExclusiveRadius) const // advc.035
++	bool bOwnExclusiveRadius) const // advc.035
+ {
+ 	PROFILE_FUNC();
+ 	int iI;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 31622b0ce..84cf89613 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2267,15 +2267,16 @@ bool CvTeam::canVassalRevolt(TeamTypes eMaster) const
+ 	if(isLossesAllowRevolt(eMaster))
+ 		return true; // </advc.112>
+ 
+-	if (GC.getDefineINT("FREE_VASSAL_LAND_PERCENT") < 0 ||
+-			100 * std::max(10, getTotalLand(false)) < // advc.112: Lower bound added
+-			kMaster.getTotalLand(false) * GC.getDefineINT("FREE_VASSAL_LAND_PERCENT"))
++	int const iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT); // advc
++	if (iFREE_VASSAL_LAND_PERCENT < 0 ||
++		100 * std::max(10, getTotalLand(false)) < // advc.112: Lower bound added
++		kMaster.getTotalLand(false) * iFREE_VASSAL_LAND_PERCENT)
+ 	{
+ 		return false;
+ 	}
+-
+-	if (GC.getDefineINT("FREE_VASSAL_POPULATION_PERCENT") < 0 ||
+-		100 * getTotalPopulation(false) < kMaster.getTotalPopulation(false) * GC.getDefineINT("FREE_VASSAL_POPULATION_PERCENT"))
++	int const iFREE_VASSAL_POPULATION_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT); // advc
++	if (iFREE_VASSAL_POPULATION_PERCENT < 0 || 100 * getTotalPopulation(false) <
++		kMaster.getTotalPopulation(false) * iFREE_VASSAL_POPULATION_PERCENT)
+ 	{
+ 		return false;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=90874

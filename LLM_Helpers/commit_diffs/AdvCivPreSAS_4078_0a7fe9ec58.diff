@@ -1,0 +1,200 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4078
+# Commit: 0a7fe9ec5867a575a813ba0bc0b6305d037c71d0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 12287ad37d6083547fb5c301b8063909d1dffbc4
+# Title: AI evaluates impact of anger from defying force-civic votes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+32	6	CvGameCoreDLL/CvCityAI.cpp
+2	0	CvGameCoreDLL/CvCityAI.h
+2	1	CvGameCoreDLL/CvGlobals.h
+16	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a731d304e..038ec5a7a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3520,9 +3520,9 @@ int CvCity::getDefyResolutionPercentAnger(int iExtra) const
+ 	if (getDefyResolutionAngerTimer() == 0)
+ 		return 0;
+ 	// advc.opt:
+-	static int const iDEFY_RESOLUTION_POP_ANGER = GC.getDefineINT("DEFY_RESOLUTION_POP_ANGER");
+ 	return 1 + (((((getDefyResolutionAngerTimer() - 1) / flatDefyResolutionAngerLength()) + 1) *
+-			iDEFY_RESOLUTION_POP_ANGER * GC.getPERCENT_ANGER_DIVISOR()) /
++			GC.getDefineINT(CvGlobals::DEFY_RESOLUTION_POP_ANGER) *
++			GC.getPERCENT_ANGER_DIVISOR()) /
+ 			std::max(1, getPopulation() + iExtra));
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 50ffa7dc4..e950cb6f8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3731,10 +3731,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+ 	CvGame const& kGame = GC.getGame();
+ 	int const iOwnerEra = kOwner.getCurrentEra();
+-	/*	advc: K-Mod formula that was used in two places. advc.erai (comment):
+-		Kek-Mod normalizes the era here, but I don't think we should assume (implicitly)
+-		that mods with fewer eras have more perks (like extra tile yields) per era. */
+-	int const iCitizenValue = 6 + iOwnerEra;
++	int const iCitizenValue = AI_citizenValue(); // advc
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
+ 	int const iLimitedWonderLimit = GC.getInfo(eBuildingClass).getLimit();
+@@ -9926,7 +9923,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ #endif
+ }
+ 
+-/*	K-Mod. Estimate the cost of recovery after losing iQuantity number of citizens
++/*	K-Mod: Estimate the cost of recovery after losing iQuantity number of citizens
+ 	in this city. (units of 4x commerce.) Replacing AI_citizenLossCost in BtS. */
+ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAnger, int iAngerTimer)
+ {
+@@ -10121,7 +10118,17 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 	}
+ 
+ 	return iCost;
+-} // K-Mod end
++}
++
++/*	advc: K-Mod formula that was used in two places. I also want to use it in a
++	third place. */
++int CvCityAI::AI_citizenValue() const
++{
++	/*	advc.erai (note): Kek-Mod normalizes the era here, but
++		I don't think we should assume (implicitly) that mods with fewer eras
++		have more perks (like extra tile yields) per era. */
++	return 6 + GET_PLAYER(getOwner()).getCurrentEra();
++}
+ 
+ //  advc.enum: Param was a pointer to a CvPlot member array of yields.
+ //	Replaced all uses of that param with kPlot.getYield(YieldTypes), which,
+@@ -13263,6 +13270,25 @@ int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValu
+ 	return std::min(100, iPriority);
+ }
+ 
++// advc.118b (see comments about the corresponding CvPlayerAI function)
++int CvCityAI::AI_defianceAngerCost(ReligionTypes eVSReligion) const
++{
++	if (eVSReligion != NO_RELIGION && !isHasReligion(eVSReligion))
++		return 0;
++	/*	(For a more sophisticated calculation, CvPlayerAI::AI_getHappinessWeight
++		should be split up between CvPlayerAI and CvCityAI.) */
++	if (isNoUnhappiness())
++		return 0;
++	int const iHappy = happyLevel();
++	int const iUnhappy = unhappyLevel();
++	int const iUnhappyIncr = std::max(0,
++			GC.getDefineINT(CvGlobals::DEFY_RESOLUTION_POP_ANGER) +
++			iUnhappy - iHappy) - std::max(0, iUnhappy - iHappy);
++	return iUnhappyIncr * AI_citizenValue() *
++			// Discourage repeated denial
++			(getDefyResolutionAngerTimer() > 0 ? 2 : 1);
++}
++
+ //Workers have/needed is not intended to be a strict
+ //target but rather an indication.
+ //if needed is at least 1 that means a worker
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 35f8c928c..f989ecbb3 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -158,6 +158,7 @@ public:
+ 	//bool AI_isFrontlineCity() const; // K-Mod // advc.003j: unused
+ 	int AI_calculateMilitaryOutput() const; // K-Mod
+ 	int AI_cityThreat(/*bool bDangerPercent = false*/) const; // advc: param was (and has always been) unused
++	int AI_defianceAngerCost(ReligionTypes eVSReligion) const; // advc.118b
+ 
+ 	int AI_getWorkersHave() const;
+ 	int AI_getWorkersNeeded() const;
+@@ -232,6 +233,7 @@ protected:
+ 	bool AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist = NO_SPECIALIST);
+ 	void AI_juggleCitizens(/* advc.131d: */ bool bEmphasize = false);
+ 	int AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel = 0, int iNewAnger = 0, int iAngerTimer = 0); // K-Mod
++	int AI_citizenValue() const; // advc
+ 	// advc: Both unused
+ 	/*bool AI_potentialPlot(CvPlot const& kPlot) const; // advc.enum: param was 'short* piYields'
+ 	bool AI_foodAvailable(int iExtra = 0) const;*/
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 67b2d5f46..ba99f69bf 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -563,7 +563,8 @@ public:
+ 		DO(BASE_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
+ 		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
+ 		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */ \
+-		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */
++		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */ \
++		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */
+ 	#define MAKE_ENUMERATOR(VAR) VAR,
+ 	enum GlobalDefines
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ade6a13f4..47e3b8dd6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8776,7 +8776,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 			// Increase odds of defiance, particularly on AggressiveAI
+ 			if (iBestCivicValue * 100 >
+ 				iNewCivicValue * (140 + SyncRandNum(
+-				kGame.isOption(GAMEOPTION_AGGRESSIVE_AI) ? 60 : 80)))
++				kGame.isOption(GAMEOPTION_AGGRESSIVE_AI) ? 60 : 80)) &&
++				// advc.118b: The absolute difference should very much matter too
++				iBestCivicValue - iNewCivicValue > AI_defianceAngerCost(eVoteSource))
+ 			{	// BETTER_BTS_AI_MOD: END
+ 				bDefy = true;
+ 			}
+@@ -9395,6 +9397,19 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 	return (bValid ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
+ }
+ 
++/*	advc.118b: Ideally, all defiance decisions should take this into account.
++	So far, only used for forced civics. Scale: 1 gold per turn.
++	The calculation corresponds to CvPlayer::setDefiedResolution and
++	CvCity::getDefyResolutionPercentAnger. */
++int CvPlayerAI::AI_defianceAngerCost(VoteSourceTypes eVS) const
++{
++	ReligionTypes const eVSReligion = GC.getGame().getVoteSourceReligion(eVS);
++	int iTotalCost = 0;
++	FOR_EACH_CITYAI(pCity, *this)
++		iTotalCost += pCity->AI_defianceAngerCost(eVSReligion);
++	return iTotalCost;
++}
++
+ 
+ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& kList,
+ 	bool bIgnoreAnnual, int iChange,
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index fcd4ac6aa..f432b95b0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -926,6 +926,7 @@ protected:
+ 	void AI_foldDeals(CvDeal& d1, CvDeal& d2) const; // </advc.036>
+ 	scaled AI_bonusImportValue(PlayerTypes eFrom) const; // advc.149
+ 	int AI_anarchyTradeVal(CivicTypes eCivic = NO_CIVIC) const; // advc.132
++	int AI_defianceAngerCost(VoteSourceTypes eVS) const; // advc.118b
+ 
+ 	void AI_updateCacheData(); // K-Mod
+ 	int AI_calculateEspionageWeight() const; // advc.001
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7595

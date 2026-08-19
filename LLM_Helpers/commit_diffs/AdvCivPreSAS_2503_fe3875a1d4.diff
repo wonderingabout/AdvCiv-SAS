@@ -1,0 +1,2226 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2503
+# Commit: fe3875a1d4c5d436028a8ca3d80512a265d571eb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cbc25c22bd8bc60104fae262940ecd7d9515b1cf
+# Title: Replace FAssertMsg(false,"...") with FErrorMsg("...")
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/AgentIterator.cpp
+1	1	CvGameCoreDLL/AgentIterator.h
+1	1	CvGameCoreDLL/CvAgents.cpp
+1	1	CvGameCoreDLL/CvArtFileMgr.cpp
+19	19	CvGameCoreDLL/CvCity.cpp
+10	10	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvDLLButtonPopup.cpp
+25	25	CvGameCoreDLL/CvDLLEntityIFaceBase.h
+4	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	2	CvGameCoreDLL/CvDllTranslator.cpp
+3	3	CvGameCoreDLL/CvGame.cpp
+3	3	CvGameCoreDLL/CvGameInterface.cpp
+6	6	CvGameCoreDLL/CvGameTextMgr.cpp
+3	3	CvGameCoreDLL/CvGlobals.cpp
+4	4	CvGameCoreDLL/CvInfo_Asset.cpp
+2	2	CvGameCoreDLL/CvInfo_Asset.h
+3	3	CvGameCoreDLL/CvInfo_Base.cpp
+2	2	CvGameCoreDLL/CvInfo_Base.h
+5	5	CvGameCoreDLL/CvInfo_Misc.cpp
+1	1	CvGameCoreDLL/CvInfo_Symbol.cpp
+2	2	CvGameCoreDLL/CvInfo_Water.cpp
+1	1	CvGameCoreDLL/CvInitCore.cpp
+1	1	CvGameCoreDLL/CvMap.h
+3	3	CvGameCoreDLL/CvMapGenerator.cpp
+2	2	CvGameCoreDLL/CvMemoryManager.cpp
+1	1	CvGameCoreDLL/CvMessageData.cpp
+9	9	CvGameCoreDLL/CvPlayer.cpp
+22	22	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvPlot.cpp
+2	25	CvGameCoreDLL/CvPopupReturn.cpp
+4	4	CvGameCoreDLL/CvPythonCaller.cpp
+4	4	CvGameCoreDLL/CvReplayInfo.cpp
+3	3	CvGameCoreDLL/CvSelectionGroup.cpp
+5	5	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+15	15	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvVirtualWrappers.cpp
+3	3	CvGameCoreDLL/CvXMLLoadUtility.cpp
+34	34	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+2	2	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	1	CvGameCoreDLL/CyPlayer.cpp
+4	4	CvGameCoreDLL/EnumMap.h
+1	0	CvGameCoreDLL/FAssert.h
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.cpp
+1	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+3	3	CvGameCoreDLL/ReproTest.cpp
+2	2	CvGameCoreDLL/StartingPositionIteration.cpp
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+5	5	CvGameCoreDLL/UWAICache.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.cpp b/CvGameCoreDLL/AgentIterator.cpp
+index 4b3d1c85b..4bad3ee86 100644
+--- a/CvGameCoreDLL/AgentIterator.cpp
++++ b/CvGameCoreDLL/AgentIterator.cpp
+@@ -112,7 +112,7 @@ bool ExplicitAgentIterator<AgentType,eSTATUS,eRELATION>::passFilters(AgentType c
+ 			return false;
+ 		break;
+ 	default:
+-		FAssertMsg(false, "Unknown agent status type");
++		FErrorMsg("Unknown agent status type");
+ 		return false;
+ 	}
+ 	switch(eRELATION)
+@@ -138,7 +138,7 @@ bool ExplicitAgentIterator<AgentType,eSTATUS,eRELATION>::passFilters(AgentType c
+ 	case ENEMY_OF:
+ 		return GET_TEAM(getTeam(kAgent)).isAtWar(m_eTeam);
+ 	default:
+-		FAssertMsg(false, "Unknown agent relation type");
++		FErrorMsg("Unknown agent relation type");
+ 		return false;
+ 	}
+ 	#undef args
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index cffabe137..03c73050d 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -177,7 +177,7 @@ protected:
+ 
+ 	AgentIterator& operator++()
+ 	{
+-		FAssertMsg(false, "Derived classes should define their own operator++ function");
++		FErrorMsg("Derived classes should define their own operator++ function");
+ 		// This is what derived classes should do (force-inlined, arguably):
+ 		generateNext();
+ 		return *this;
+
+diff --git a/CvGameCoreDLL/CvAgents.cpp b/CvGameCoreDLL/CvAgents.cpp
+index a65d35ac1..34d9e3c14 100644
+--- a/CvGameCoreDLL/CvAgents.cpp
++++ b/CvGameCoreDLL/CvAgents.cpp
+@@ -233,7 +233,7 @@ void CvAgents::updateVassal(TeamTypes eVassal, TeamTypes eMaster, bool bVassal)
+ 
+ 
+ #define NO_GENERIC_IMPLEMENTATION() \
+-	FAssertMsg(false, "No generic implementation"); \
++	FErrorMsg("No generic implementation"); \
+ 	return NULL
+ 
+ template<class AgentType>
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index a4d27b955..565e00904 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -66,7 +66,7 @@ CvArtInfo##name##* CvArtFileMgr::get##name##ArtInfo( const char *szArtDefineTag
+ 	{\
+ 		char szErrorMsg[256]; \
+ 		sprintf(szErrorMsg, "get##name##ArtInfo: %s was not found", szArtDefineTag); \
+-		FAssertMsg(false, szErrorMsg ); \
++		FErrorMsg(szErrorMsg ); \
+ 		if ( 0 == strcmp(szArtDefineTag, "ERROR") ) \
+ 		{ \
+ 			return NULL; \
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b705b4137..c6819e445 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -881,7 +881,7 @@ void CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOption,
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "eTask failed to match a valid option");
++		FErrorMsg("eTask failed to match a valid option");
+ 	}
+ }
+ 
+@@ -1611,7 +1611,7 @@ bool CvCity::isProductionLimited() const
+ 			break;
+ 
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return false;
+@@ -1675,7 +1675,7 @@ bool CvCity::canContinueProduction(OrderData order)
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "order.eOrderType failed to match a valid option");
++		FErrorMsg("order.eOrderType failed to match a valid option");
+ 	}
+ 	return false;
+ }
+@@ -1748,7 +1748,7 @@ UnitTypes CvCity::getProductionUnit() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return NO_UNIT;
+@@ -1769,7 +1769,7 @@ UnitAITypes CvCity::getProductionUnitAI() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return NO_UNITAI;
+@@ -1791,7 +1791,7 @@ BuildingTypes CvCity::getProductionBuilding() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return NO_BUILDING;
+@@ -1813,7 +1813,7 @@ ProjectTypes CvCity::getProductionProject() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return NO_PROJECT;
+@@ -1834,7 +1834,7 @@ ProcessTypes CvCity::getProductionProcess() const
+ 		case ORDER_MAINTAIN:
+ 			return ((ProcessTypes)(pOrderNode->m_data.iData1));
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return NO_PROCESS;
+@@ -1857,7 +1857,7 @@ const wchar* CvCity::getProductionName() const
+ 		case ORDER_MAINTAIN:
+ 			return GC.getInfo((ProcessTypes) pOrderNode->m_data.iData1).getDescription();
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return L"";
+@@ -1880,7 +1880,7 @@ const wchar* CvCity::getProductionNameKey() const
+ 		case ORDER_MAINTAIN:
+ 			return GC.getInfo((ProcessTypes) pOrderNode->m_data.iData1).getTextKeyWide();
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return L"";
+@@ -1905,7 +1905,7 @@ bool CvCity::isFoodProduction() const
+ 			break;
+ 
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 			break;
+ 		}
+ 	}
+@@ -2014,7 +2014,7 @@ int CvCity::getProduction() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return 0;
+@@ -2037,7 +2037,7 @@ int CvCity::getProductionNeeded() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return MAX_INT;
+@@ -2091,7 +2091,7 @@ int CvCity::getProductionTurnsLeft() const  // advc: some style changes
+ 			return getProductionTurnsLeft((ProjectTypes)iData, 0);
+ 		case ORDER_MAINTAIN:
+ 			break;
+-		default: FAssertMsg(false, "Unknown order type");
++		default: FErrorMsg("Unknown order type");
+ 		}
+ 	}
+ 	return MAX_INT;
+@@ -2279,7 +2279,7 @@ int CvCity::getProductionModifier() const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType failed to match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType failed to match a valid option");
+ 		}
+ 	}
+ 	return 0;
+@@ -3860,7 +3860,7 @@ int CvCity::getHurryCostModifier(bool bIgnoreNew) const
+ 		case ORDER_MAINTAIN:
+ 			break;
+ 		default:
+-			FAssertMsg(false, "pOrderNode->m_data.eOrderType did not match a valid option");
++			FErrorMsg("pOrderNode->m_data.eOrderType did not match a valid option");
+ 		}
+ 	}
+ 	return iModifier;
+@@ -8459,7 +8459,7 @@ bool CvCity::isAnyProductionProgress(OrderTypes eOrder) const
+ 	case ORDER_CREATE:	return m_aiProjectProduction.hasContent();
+ 	case ORDER_MAINTAIN: return false; // Can't make progress on a process
+ 	case ORDER_TRAIN: return m_aiUnitProduction.hasContent();
+-	default: FAssertMsg(false, "Unknown type of production order");
++	default: FErrorMsg("Unknown type of production order");
+ 		return false;
+ 	}
+ }
+@@ -9618,7 +9618,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave,
+ 		break;
+ 	}
+ 	default:
+-		FAssertMsg(false, "iOrder did not match a valid option");
++		FErrorMsg("iOrder did not match a valid option");
+ 	}
+ 
+ 	if (!bValid)
+@@ -9898,7 +9898,7 @@ void CvCity::popOrder(int iNum, bool bFinish,
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "Unknown production order type");
++		FErrorMsg("Unknown production order type");
+ 		doPopOrder(pOrderNode); // advc.064d
+ 	}
+ 	/*  advc.064d: (BtS code moved into auxiliary function doPopOrder; called
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b552659f7..b197e6f77 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -158,7 +158,7 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	{
+ 		if (!AI_removeWorstCitizen())
+ 		{
+-			FAssertMsg(false, "failed to remove extra population");
++			FErrorMsg("failed to remove extra population");
+ 			break;
+ 		}
+ 	}
+@@ -213,7 +213,7 @@ void CvCityAI::AI_assignWorkingPlots()
+ 		{
+ 			if (!AI_removeWorstCitizen())
+ 			{
+-				FAssertMsg(false, "failed to remove extra population");
++				FErrorMsg("failed to remove extra population");
+ 				break;
+ 			}
+ 		}
+@@ -225,7 +225,7 @@ void CvCityAI::AI_assignWorkingPlots()
+ 		// (AI_addBestCitizen now handles forced specialist logic)
+ 		if (!AI_addBestCitizen(/*bWorkers*/ true, /*bSpecialists*/ true))
+ 		{
+-			FAssertMsg(false, "failed to assign extra population");
++			FErrorMsg("failed to assign extra population");
+ 			break;
+ 		}
+ 	}
+@@ -235,7 +235,7 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	{
+ 		if (!AI_addBestCitizen(/*bWorkers*/ false, /*bSpecialists*/ true))
+ 		{
+-			FAssertMsg(false, "failed to assign extra specialist");
++			FErrorMsg("failed to assign extra specialist");
+ 			break;
+ 		}
+ 	}
+@@ -1420,7 +1420,7 @@ void CvCityAI::AI_chooseProduction()
+ 					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 1", getName().GetCString());
+ 					return;
+ 				}
+-				FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
++				FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 			}
+ 		}
+ 	}
+@@ -1752,7 +1752,7 @@ void CvCityAI::AI_chooseProduction()
+ 				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 2", getName().GetCString());
+ 				return;
+ 			}
+-			FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
++			FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 		}
+ 	}
+ 
+@@ -2401,7 +2401,7 @@ void CvCityAI::AI_chooseProduction()
+ 			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 3", getName().GetCString());
+ 			return;
+ 		}
+-		FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
++		FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 	}
+ 
+ 	if (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders && (!bFinancialTrouble || bLandWar))
+@@ -9401,7 +9401,7 @@ void CvCityAI::AI_juggleCitizens()
+ 		if (iCycles > getPopulation() + iTotalFreeSpecialists)
+ 		{
+ 			// This isn't a serious problem. I just want to know how offen it happens.
+-			//FAssertMsg(false, "juggle citizens failed to find a stable solution.");
++			//FErrorMsg("juggle citizens failed to find a stable solution.");
+ 			PROFILE("juggle citizen failure");
+ 			bDone = true;
+ 		}
+@@ -9508,7 +9508,7 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 
+ 	if ((int)job_scores.size() < iCitLoss)
+ 	{
+-		FAssertMsg(false, "Not enough job data to calculate citizen loss cost.");
++		FErrorMsg("Not enough job data to calculate citizen loss cost.");
+ 		int iBogusData = (1+GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iYieldWeights[YIELD_FOOD];
+ 		job_scores.resize(iCitLoss, iBogusData);
+ 		iTotalScore += iBogusData;
+@@ -11429,7 +11429,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 				{
+ 					return;
+ 				}
+-				FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
++				FErrorMsg("AI_bestSpreadUnit should provide a valid unit when it returns true");
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index b83959a15..380231933 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -337,7 +337,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 					info.getData1(), info.getData2(), info.getData3()),
+ 					kGame.getActivePlayer(), false, true);
+ 			break;
+-		default: FAssertMsg(false, "Clicked button not recognized");
++		default: FErrorMsg("Clicked button not recognized");
+ 		}
+ 		break;
+ 	}
+@@ -2314,7 +2314,7 @@ bool CvDLLButtonPopup::launchConfirmMenu(CvPopup *pPopup, CvPopupInfo &info)
+ 				gDLL->getText("TXT_KEY_POPUP_ENTER_WB").c_str(), NULL, 0, WIDGET_GENERAL);
+ 		break;
+ 	default:
+-		FAssertMsg(false, "launchConfirmMenu called with unknown type");
++		FErrorMsg("launchConfirmMenu called with unknown type");
+ 		return false;
+ 	}
+ 	m_kUI.popupAddGenericButton(pPopup,
+
+diff --git a/CvGameCoreDLL/CvDLLEntityIFaceBase.h b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+index 97bf5710b..b462442ff 100644
+--- a/CvGameCoreDLL/CvDLLEntityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+@@ -19,33 +19,33 @@ class CvRiver;
+ class CvDLLEntityIFaceBase
+ {
+ public:
+-	virtual void removeEntity(CvEntity*)  { FAssertMsg(false, "can't get here"); }
+-	virtual void addEntity(CvEntity*, uint uiEntAddFlags)  { FAssertMsg(false, "can't get here"); }
+-	virtual void setup(CvEntity*)  { FAssertMsg(false, "can't get here"); }
+-	virtual void setVisible(CvEntity*, bool)  { FAssertMsg(false, "can't get here"); }
+-	virtual void createCityEntity(CvCity*)  { FAssertMsg(false, "can't get here"); }
+-	virtual void createUnitEntity(CvUnit*)  { FAssertMsg(false, "can't get here"); }
+-	virtual void destroyEntity(CvEntity*&, bool bSafeDelete=true)  { FAssertMsg(false, "can't get here"); }
+-	virtual void updatePosition(CvEntity *gameEntity)  { FAssertMsg(false, "can't get here"); }
+-	virtual void setupFloodPlains(CvRiver *river) { FAssertMsg(false, "can't get here"); }
++	virtual void removeEntity(CvEntity*)  { FErrorMsg("can't get here"); }
++	virtual void addEntity(CvEntity*, uint uiEntAddFlags)  { FErrorMsg("can't get here"); }
++	virtual void setup(CvEntity*)  { FErrorMsg("can't get here"); }
++	virtual void setVisible(CvEntity*, bool)  { FErrorMsg("can't get here"); }
++	virtual void createCityEntity(CvCity*)  { FErrorMsg("can't get here"); }
++	virtual void createUnitEntity(CvUnit*)  { FErrorMsg("can't get here"); }
++	virtual void destroyEntity(CvEntity*&, bool bSafeDelete=true)  { FErrorMsg("can't get here"); }
++	virtual void updatePosition(CvEntity *gameEntity)  { FErrorMsg("can't get here"); }
++	virtual void setupFloodPlains(CvRiver *river) { FErrorMsg("can't get here"); }
+ 
+ 	virtual bool IsSelected(const CvEntity*)  const { return false; }
+-	virtual void PlayAnimation(CvEntity*, AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false, int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f)  { FAssertMsg(false, "can't get here"); }
+-	virtual void StopAnimation(CvEntity*, AnimationTypes eAnim)  { FAssertMsg(false, "can't get here"); }
+-	virtual void StopAnimation(CvEntity *) { FAssertMsg(false, "can't get here");}
+-	virtual void NotifyEntity(CvUnitEntity*, MissionTypes eMission) { FAssertMsg( false, "can't get here"); }
+-	virtual void MoveTo(CvUnitEntity*, const CvPlot * pkPlot)  { FAssertMsg(false, "can't get here"); }
+-	virtual void QueueMove(CvUnitEntity*, const CvPlot * pkPlot)  { FAssertMsg(false, "can't get here"); }
+-	virtual void ExecuteMove(CvUnitEntity*, float fTimeToExecute, bool bCombat)  { FAssertMsg(false, "can't get here"); }
+-	virtual void SetPosition(CvUnitEntity* pEntity, const CvPlot * pkPlot)  { FAssertMsg(false, "can't get here"); }
+-	virtual void AddMission(const CvMissionDefinition* pDefinition) { FAssertMsg(false, "can't get here"); };
+-	virtual void RemoveUnitFromBattle(CvUnit* pUnit) { FAssertMsg(false, "can't get here"); };
+-	virtual void showPromotionGlow(CvUnitEntity* pEntity, bool show) { FAssertMsg(false, "can't get here"); };
+-	virtual void updateEnemyGlow(CvUnitEntity* pEntity) { FAssertMsg(false, "can't get here"); };
+-	virtual void updatePromotionLayers(CvUnitEntity* pEntity) { FAssertMsg(false, "can't get here"); };
+-	virtual void updateGraphicEra(CvUnitEntity* pEntity, EraTypes eOldEra = NO_ERA) { FAssertMsg(false, "can't get here"); };
+-	virtual void SetSiegeTower(CvUnitEntity *pEntity, bool show) { FAssertMsg(false, "can't get here"); };
+-	virtual bool GetSiegeTower(CvUnitEntity *pEntity) { FAssertMsg(false, "can't get here"); return false; };
++	virtual void PlayAnimation(CvEntity*, AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false, int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f)  { FErrorMsg("can't get here"); }
++	virtual void StopAnimation(CvEntity*, AnimationTypes eAnim)  { FErrorMsg("can't get here"); }
++	virtual void StopAnimation(CvEntity *) { FErrorMsg("can't get here");}
++	virtual void NotifyEntity(CvUnitEntity*, MissionTypes eMission) { FErrorMsg("can't get here"); }
++	virtual void MoveTo(CvUnitEntity*, const CvPlot * pkPlot)  { FErrorMsg("can't get here"); }
++	virtual void QueueMove(CvUnitEntity*, const CvPlot * pkPlot)  { FErrorMsg("can't get here"); }
++	virtual void ExecuteMove(CvUnitEntity*, float fTimeToExecute, bool bCombat)  { FErrorMsg("can't get here"); }
++	virtual void SetPosition(CvUnitEntity* pEntity, const CvPlot * pkPlot)  { FErrorMsg("can't get here"); }
++	virtual void AddMission(const CvMissionDefinition* pDefinition) { FErrorMsg("can't get here"); };
++	virtual void RemoveUnitFromBattle(CvUnit* pUnit) { FErrorMsg("can't get here"); };
++	virtual void showPromotionGlow(CvUnitEntity* pEntity, bool show) { FErrorMsg("can't get here"); };
++	virtual void updateEnemyGlow(CvUnitEntity* pEntity) { FErrorMsg("can't get here"); };
++	virtual void updatePromotionLayers(CvUnitEntity* pEntity) { FErrorMsg("can't get here"); };
++	virtual void updateGraphicEra(CvUnitEntity* pEntity, EraTypes eOldEra = NO_ERA) { FErrorMsg("can't get here"); };
++	virtual void SetSiegeTower(CvUnitEntity *pEntity, bool show) { FErrorMsg("can't get here"); };
++	virtual bool GetSiegeTower(CvUnitEntity *pEntity) { FErrorMsg("can't get here"); return false; };
+ };
+ 
+ #endif	// CvDLLEntityIFaceBase_h
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 1c79838a1..d0cec7c8b 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -48,7 +48,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 			(widgetDataStruct.m_iData1 <= NO_PLAYER ||
+ 			widgetDataStruct.m_iData1 >= MAX_PLAYERS))
+ 		{
+-			FAssertMsg(false, "Player id missing in widget data");
++			FErrorMsg("Player id missing in widget data");
+ 			return;
+ 		}
+ 	} // </advc.085>
+@@ -1409,7 +1409,7 @@ void CvDLLWidgetData::doResearch(CvWidgetDataStruct &widgetDataStruct)
+ 		{
+ 			gDLL->UI().addMessage(GC.getGame().getActivePlayer(), true, -1,
+ 					gDLL->getText("TXT_KEY_CHEATERS_NEVER_PROSPER"), NULL, MESSAGE_TYPE_MAJOR_EVENT);
+-			FAssertMsg(false, "doResearch called for free tech when !isChoosingFreeTech()");
++			FErrorMsg("doResearch called for free tech when !isChoosingFreeTech()");
+ 			return;
+ 		}
+ 		else kPlayer.changeChoosingFreeTechCount(-1);
+@@ -4962,7 +4962,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			case CvCity::GRIEVANCE_HURRY: szGrievanceKey += L"HURRY"; break;
+ 			case CvCity::GRIEVANCE_CONSCRIPT: szGrievanceKey += L"CONSCRIPT"; break;
+ 			case CvCity::GRIEVANCE_RELIGION: szGrievanceKey += L"RELIGION"; break;
+-			default: FAssertMsg(false, "Unknown grievance type");
++			default: FErrorMsg("Unknown grievance type");
+ 			}
+ 			szBuffer.append(gDLL->getText(szGrievanceKey.GetCString()));
+ 		}
+@@ -5125,7 +5125,7 @@ void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct,  /
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "eOrderType did not match valid options");
++		FErrorMsg("eOrderType did not match valid options");
+ 		break;
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvDllTranslator.cpp b/CvGameCoreDLL/CvDllTranslator.cpp
+index 7d5d21da2..76117a8fa 100644
+--- a/CvGameCoreDLL/CvDllTranslator.cpp
++++ b/CvGameCoreDLL/CvDllTranslator.cpp
+@@ -96,7 +96,7 @@ bool CvDllTranslator::replaceOur(const CvWString& szKey, int iForm, CvWString& s
+ 	}
+ 	else
+ 	{
+-		FAssertMsg(false, "Unknown Diplomacy String");
++		FErrorMsg("Unknown Diplomacy String");
+ 		return false;
+ 	}
+ 	return true;
+@@ -135,7 +135,7 @@ bool CvDllTranslator::replaceCt(const CvWString& szKey, int iForm, CvWString& sz
+ 	}
+ 	else
+ 	{
+-		FAssertMsg(false, "Unknown Diplomacy String");
++		FErrorMsg("Unknown Diplomacy String");
+ 		return false;
+ 	}
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 8aaf07172..4106eb582 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1205,7 +1205,7 @@ NormalizationTarget* CvGame::assignStartingPlots()
+ 					kPlayer.setStartingPlot(kPlayer.findStartingPlot(), true);
+ 				if(kPlayer.getStartingPlot() == NULL)
+ 				{
+-					FAssertMsg(false, "No starting plot found");
++					FErrorMsg("No starting plot found");
+ 					continue;
+ 				}
+ 				int iPos = ::range((iCivsAlive *
+@@ -2679,7 +2679,7 @@ int CvGame::getTeamClosenessScore(int** aaiDistances, int* aiStartingLocs)
+ 								}
+ 								else if (iPlayerStart == iOtherPlayerStart)
+ 								{
+-									FAssertMsg(false, "Two players are (hypothetically) assigned to the same starting location!");
++									FErrorMsg("Two players are (hypothetically) assigned to the same starting location!");
+ 								}
+ 								iTeamTotalDist += aaiDistances[iPlayerStart][iOtherPlayerStart];
+ 							}
+@@ -8877,7 +8877,7 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 		} // </advc.004j>
+ 		// advc.106n:
+ 		case UPDATE_STORE_REPLAY_TEXTURE: GC.getMap().updateReplayTexture(); break;
+-		default: FAssertMsg(false, "Unknown update timer type");
++		default: FErrorMsg("Unknown update timer type");
+ 		}
+ 	}
+ 	m_aiUpdateTimers[eTimerType]--;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 43112ab19..37d92a2cb 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1288,7 +1288,7 @@ bool CvGame::canDoControl(ControlTypes eControl) const
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "eControl did not match any valid options");
++		FErrorMsg("eControl did not match any valid options");
+ 	}
+ 
+ 	return false;
+@@ -1536,7 +1536,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 						break;
+ 					}
+ 				}
+-				FAssertMsg(false, "Failed to find quicksave");
++				FErrorMsg("Failed to find quicksave");
+ 			} // </advc.003d>
+ 			gDLL->QuickLoad();
+ 		}
+@@ -1694,7 +1694,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 			kUI.addPopup(pInfo);
+ 		break;
+ 	}
+-	default: FAssertMsg(false, "Unknown control type");
++	default: FErrorMsg("Unknown control type");
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index fefb2f1aa..d6b6d1bc9 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2686,7 +2686,7 @@ static float getCombatOddsSpecific(CvUnit* pAttacker, CvUnit* pDefender, int n_A
+ 	else
+ 	{
+ 		//Unexpected value.  Process should not reach here.
+-		FAssertMsg(false, "unexpected value in getCombatOddsSpecific");
++		FErrorMsg("unexpected value in getCombatOddsSpecific");
+ 	}
+ 
+ 	answer = answer / ((float)(AttFSC+DefFSC+1)); // dividing by (t+w+1) as is necessary
+@@ -16091,7 +16091,7 @@ void CvGameTextMgr::getDealString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer
+ {
+ 	if (NO_PLAYER == ePlayer1 || NO_PLAYER == ePlayer2)
+ 	{
+-		FAssertMsg(false, "Deal needs two parties");
++		FErrorMsg("Deal needs two parties");
+ 		return;
+ 	}
+ 
+@@ -16635,7 +16635,7 @@ void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes
+ 
+ void CvGameTextMgr::getEspionageString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer)
+ {
+-	FAssertMsg(false, "obsolete function. (getEspionageString)"); // K-Mod
++	FErrorMsg("obsolete function. (getEspionageString)"); // K-Mod
+ 	if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+@@ -16939,7 +16939,7 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST_3", iExtraCost));
+ 	if (iHandicap != 0)
+ 	{
+-		FAssertMsg(false, "not all unit costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
++		FErrorMsg("not all unit costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
+ 		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_HANDICAP_COST", iHandicap));
+ 		szBuffer.append(CvWString::format(L" (%+d%%)", GC.getInfo(kPlayer.getHandicapType()).getUnitCostPercent() - 100)); // K-Mod
+ 	}
+@@ -16967,7 +16967,7 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 	CvWString szHandicap;
+ 	if (iHandicap != 0)
+ 	{
+-		FAssertMsg(false, "not all supply costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
++		FErrorMsg("not all supply costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
+ 		szHandicap = gDLL->getText("TXT_KEY_FINANCE_ADVISOR_HANDICAP_COST", iHandicap);
+ 	}
+ 	CvWString szTmp; // advc.086
+@@ -17622,7 +17622,7 @@ void CvGameTextMgr::parseWarTradesHelp(CvWStringBuffer& szBuffer,
+ void CvGameTextMgr::parseLeaderLineHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+ {
+ 	// advc: This is apparently dead code
+-	FAssertMsg(false, "Just checking if this function is ever even called");
++	FErrorMsg("Just checking if this function is ever even called");
+ 	if (NO_PLAYER == eThisPlayer || NO_PLAYER == eOtherPlayer)
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 8afb57d73..3d9f41e3d 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -946,7 +946,7 @@ int CvGlobals::getTypesEnum(const char* szType,
+ 			gDLL->logMsg("xml.log", szError);
+ 		}
+ 		else szError.Format("type %s not found", szType); // advc.006
+-		FAssertMsg(false, szError.c_str());
++		FErrorMsg(szError.c_str());
+ 	}
+ 	return -1;
+ }
+@@ -997,7 +997,7 @@ void CvGlobals::setInfoTypeFromString(const char* szType, int idx)
+ 
+ void CvGlobals::infoTypeFromStringReset()
+ {
+-	FAssertMsg(false, "Just to see if and when CvGlobals::infoTypeFromStringReset is ever called"); // advc.test
++	FErrorMsg("Just to see if and when CvGlobals::infoTypeFromStringReset is ever called"); // advc.test
+ 	m_infosMap.clear();
+ }
+ 
+@@ -1291,7 +1291,7 @@ int CvGlobals::getNUM_LEADERANIM_TYPES() const
+ 
+ void CvGlobals::infosReset()
+ {
+-	FAssertMsg(false, "Just to see if and when CvGlobals::infosReset is ever called"); // advc.test
++	FErrorMsg("Just to see if and when CvGlobals::infosReset is ever called"); // advc.test
+ 	// <advc.enum> Replacing a loop through m_aInfoVectors (now deleted)
+ 	for (size_t i = 0; i < m_paWorldInfo.size(); i++)
+ 		m_paWorldInfo[i]->reset();
+
+diff --git a/CvGameCoreDLL/CvInfo_Asset.cpp b/CvGameCoreDLL/CvInfo_Asset.cpp
+index fe8252c33..777da0183 100644
+--- a/CvGameCoreDLL/CvInfo_Asset.cpp
++++ b/CvGameCoreDLL/CvInfo_Asset.cpp
+@@ -73,7 +73,7 @@ bool CvArtInfoAsset::read(CvXMLLoadUtility* pXML)
+ // advc.xmldefault:
+ CvArtInfoScalableAsset::CvArtInfoScalableAsset(CvArtInfoScalableAsset const& kOther)
+ {
+-	FAssertMsg(false, "No copy-ctor implemented");
++	FErrorMsg("No copy-ctor implemented");
+ }
+ 
+ bool CvArtInfoScalableAsset::read(CvXMLLoadUtility* pXML)
+@@ -601,7 +601,7 @@ bool CvArtInfoFeature::read(CvXMLLoadUtility* pXML)
+ 		m_eTileArtType = TILE_ART_TYPE_HALF_TILING;
+ 	else if(szTemp.CompareNoCase("TILE_ART_TYPE_PLOT_TILING") == 0)
+ 		m_eTileArtType = TILE_ART_TYPE_PLOT_TILING;
+-	else FAssertMsg(false, "[Jason] Unknown TileArtType.");
++	else FErrorMsg("[Jason] Unknown TileArtType.");
+ 
+ 	pXML->GetChildXmlValByName(szTemp, "LightType");
+ 	if(szTemp.CompareNoCase("LIGHT_TYPE_NONE") == 0)
+@@ -612,7 +612,7 @@ bool CvArtInfoFeature::read(CvXMLLoadUtility* pXML)
+ 		m_eLightType = LIGHT_TYPE_TERRAIN;
+ 	else if(szTemp.CompareNoCase("LIGHT_TYPE_UNIT") == 0)
+ 		m_eLightType = LIGHT_TYPE_UNIT;
+-	else FAssertMsg(false, "[Jason] Unknown LightType.");
++	else FErrorMsg("[Jason] Unknown LightType.");
+ 
+ 	//feature varieties
+ 	if(gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"FeatureVariety"))
+@@ -736,7 +736,7 @@ int CvArtInfoFeature::getConnectionMaskFromString(const CvString &connectionStri
+ 				connectionMask |= DIRECTION_SOUTHWEST_MASK;
+ 			else if(token.CompareNoCase("W") == 0)
+ 				connectionMask |= DIRECTION_WEST_MASK;
+-			else FAssertMsg(false, "[Jason] Invalid connection direction.");
++			else FErrorMsg("[Jason] Invalid connection direction.");
+ 		}
+ 
+ 		FAssertMsg(connectionMask > 0, "[Jason] Did not find feature connection mask.");
+
+diff --git a/CvGameCoreDLL/CvInfo_Asset.h b/CvGameCoreDLL/CvInfo_Asset.h
+index 47aed916b..802518ff7 100644
+--- a/CvGameCoreDLL/CvInfo_Asset.h
++++ b/CvGameCoreDLL/CvInfo_Asset.h
+@@ -386,7 +386,7 @@ public:
+ 				if(m_aFeatureArtPieces[i].getConnectionMask() == connectionMask)
+ 					return m_aFeatureArtPieces[i];
+ 
+-			FAssertMsg(false, "[Jason] Failed to find feature art piece with valid connection mask.");
++			FErrorMsg("[Jason] Failed to find feature art piece with valid connection mask.");
+ 			return m_aFeatureArtPieces[0];
+ 		}
+ 		const CvString getFeatureDummyNodeName(const CvString &tagName) const
+@@ -396,7 +396,7 @@ public:
+ 				if(m_aFeatureDummyNodes[i].getTagName().CompareNoCase(tagName) == 0)
+ 					return m_aFeatureDummyNodes[i].getNodeName();
+ 			}
+-			FAssertMsg(false, "[Jason] Failed to find dummy tag name.");
++			FErrorMsg("[Jason] Failed to find dummy tag name.");
+ 			return "";
+ 		}
+ 		const CvString getFeatureDummyTag(const CvString &nodeName) const
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 5b4a11e40..9e804be2b 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -9,7 +9,7 @@ CvInfoBase::CvInfoBase() : m_bGraphicalOnly(false) {}
+ // advc.xmldefault:
+ CvInfoBase::CvInfoBase(CvInfoBase const& kOther)
+ {
+-	FAssertMsg(false, "Copy-ctor not implemented");
++	FErrorMsg("Copy-ctor not implemented");
+ }
+ 
+ CvInfoBase::~CvInfoBase() {}
+@@ -443,7 +443,7 @@ bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ 			{
+ 			case INT_ELEMENT: iIntElements++; break;
+ 			case BOOL_ELEMENT: iBoolElements++; break;
+-			default: FAssertMsg(false, "Data type misses element counting code");
++			default: FErrorMsg("Data type misses element counting code");
+ 			}
+ 		}
+ 		m_aiData.resize(iIntElements);
+@@ -482,7 +482,7 @@ bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ 			FAssertBounds(0, m_abData.size(), iEnumValue);
+ 			m_abData[iEnumValue] = bTmp;
+ 			break;
+-		default: FAssertMsg(false, "Data type misses XML loading code");
++		default: FErrorMsg("Data type misses XML loading code");
+ 		}
+ 		delete &kElement;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 1a6e3b41e..0bd6db254 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -60,12 +60,12 @@ public: // All the const functions are exposed to Python
+ 	virtual bool read(CvXMLLoadUtility* pXML);
+ 	virtual bool readPass2(CvXMLLoadUtility* pXML)
+ 	{
+-		FAssertMsg(false, "readPass2 has not been overridden");
++		FErrorMsg("readPass2 has not been overridden");
+ 		return false;
+ 	}
+ 	virtual bool readPass3()
+ 	{
+-		FAssertMsg(false, "readPass3 has not been overridden");
++		FErrorMsg("readPass3 has not been overridden");
+ 		return false;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.cpp b/CvGameCoreDLL/CvInfo_Misc.cpp
+index 578778fbb..5cffd4ab9 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.cpp
++++ b/CvGameCoreDLL/CvInfo_Misc.cpp
+@@ -103,7 +103,7 @@ bool CvUnitFormationInfo::read(CvXMLLoadUtility* pXML)
+ 				m_vctGreatUnitEntries.push_back(unitEntry);
+ 			else if(szTextVal.CompareNoCase("Siege") == 0)
+ 				m_vctSiegeUnitEntries.push_back(unitEntry);
+-			else FAssertMsg(false, "[Jason] Unknown unit formation entry type.");
++			else FErrorMsg("[Jason] Unknown unit formation entry type.");
+ 		}
+ 		while (gDLL->getXMLIFace()->LocateNextSiblingNodeByTagName(pXML->GetXML(), "UnitEntry"));
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+@@ -689,7 +689,7 @@ bool CvSpaceShipInfo::read(CvXMLLoadUtility* pXML)
+ 		m_eCameraUpAxis = AXIS_Y;
+ 	else if(szTextVal.CompareNoCase("AXIS_Z") == 0)
+ 		m_eCameraUpAxis = AXIS_Z;
+-	else FAssertMsg(false, "[Jason] Unknown Axis Type.");
++	else FErrorMsg("[Jason] Unknown Axis Type.");
+ 
+ 	pXML->GetChildXmlValByName(&m_iPartNumber, "PartNumber");
+ 	pXML->GetChildXmlValByName(&m_iArtType, "ArtType");
+@@ -724,7 +724,7 @@ bool CvSpaceShipInfo::read(CvXMLLoadUtility* pXML)
+ 		m_eSpaceShipInfoType = SPACE_SHIP_INFO_TYPE_IN_SPACE_SMOKE_ON;
+ 	else if(szTextVal.CompareNoCase("SPACE_SHIP_INFO_TYPE_IN_GAME_SMOKE_ON") == 0)
+ 		m_eSpaceShipInfoType = SPACE_SHIP_INFO_TYPE_IN_GAME_SMOKE_ON;
+-	else FAssertMsg(false, "[Jason] Unknown SpaceShipInfoType.");
++	else FErrorMsg("[Jason] Unknown SpaceShipInfoType.");
+ 
+ 	return true;
+ }
+@@ -1417,7 +1417,7 @@ m_fProjectileArc(0.0f)
+ // advc.xmldefault:
+ CvEffectInfo::CvEffectInfo(CvEffectInfo const& kOther)
+ {
+-	FAssertMsg(false, "Copy-ctor not implemented");
++	FErrorMsg("Copy-ctor not implemented");
+ }
+ 
+ bool CvEffectInfo::read(CvXMLLoadUtility* pXML)
+@@ -1448,7 +1448,7 @@ CvAttachableInfo::CvAttachableInfo() : m_fUpdateRate(0.0f) {}
+ // advc.xmldefault:
+ CvAttachableInfo::CvAttachableInfo(CvAttachableInfo const& kOther)
+ {
+-	FAssertMsg(false, "Copy-ctor not implemented");
++	FErrorMsg("Copy-ctor not implemented");
+ }
+ 
+ bool CvAttachableInfo::read(CvXMLLoadUtility* pXML)
+
+diff --git a/CvGameCoreDLL/CvInfo_Symbol.cpp b/CvGameCoreDLL/CvInfo_Symbol.cpp
+index fa4484d15..071a43b14 100644
+--- a/CvGameCoreDLL/CvInfo_Symbol.cpp
++++ b/CvGameCoreDLL/CvInfo_Symbol.cpp
+@@ -49,7 +49,7 @@ const TCHAR* CvYieldInfo::getSymbolPath(int i) const
+ 	return m_paszSymbolPath ? m_paszSymbolPath[i] : -1;*/
+ 	/*  <advc.003j> This function is never called. The paths were unused, so
+ 		I'm no longer loading them. */
+-	FAssertMsg(false, "CvYieldInfo::m_paszSymbolPath not loaded (disabled by AdvCiv)");
++	FErrorMsg("CvYieldInfo::m_paszSymbolPath not loaded (disabled by AdvCiv)");
+ 	return NULL; // </advc.003j>
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Water.cpp b/CvGameCoreDLL/CvInfo_Water.cpp
+index 1cd3f021c..f49090cc7 100644
+--- a/CvGameCoreDLL/CvInfo_Water.cpp
++++ b/CvGameCoreDLL/CvInfo_Water.cpp
+@@ -227,7 +227,7 @@ bool CvTerrainPlaneInfo::read(CvXMLLoadUtility* pXML)
+ 		m_eFogType = FOG_TYPE_PROJECTED;
+ 	else
+ 	{
+-		FAssertMsg(false, "[Jason] Unknown fog type.");
++		FErrorMsg("[Jason] Unknown fog type.");
+ 		m_eFogType = FOG_TYPE_NONE;
+ 	}
+ 
+@@ -270,7 +270,7 @@ bool CvCameraOverlayInfo::read(CvXMLLoadUtility* pXML)
+ 		m_eCameraOverlayType = CAMERA_OVERLAY_ADDITIVE;
+ 	else
+ 	{
+-		FAssertMsg(false, "[Jason] Unknown camera overlay type.");
++		FErrorMsg("[Jason] Unknown camera overlay type.");
+ 		m_eCameraOverlayType = CAMERA_OVERLAY_DECAL;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 56cac665b..7ef869787 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1015,7 +1015,7 @@ void CvInitCore::setType(CvWString const& szType)
+ 		setType(GAME_SP_NEW);
+ 	else if (wcsicmp(szType.GetCString(), L"spload") == 0)
+ 		setType(GAME_SP_LOAD);
+-	//FAssertMsg(false, "Invalid game type in ini file!");
++	//FErrorMsg(false, "Invalid game type in ini file!");
+ 	setType(GAME_NONE);
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index c69769c79..dd164096e 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -141,7 +141,7 @@ public:
+ 		if (abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS)
+ 		{
+ 			// advc.test: (apparently not needed - remove it for next release)
+-			FAssertMsg(false, "Just to see if the DIRECTION_RADIUS<abs branch is needed");
++			FErrorMsg("Just to see if the DIRECTION_RADIUS<abs branch is needed");
+ 			return NO_DIRECTION;
+ 		}
+ 		return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index d685a9f7e..a1a500fb9 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -247,7 +247,7 @@ void CvMapGenerator::addRivers()  // advc: refactored
+ 				bValid = (p.getArea().getNumRiverEdges() < 1 +
+ 						p.getArea().getNumTiles() / iPlotsPerRiverEdge);
+ 				break;
+-			default: FAssertMsg(false, "Invalid iPass");
++			default: FErrorMsg("Invalid iPass");
+ 			}
+ 			if (!bValid)
+ 				continue;
+@@ -354,7 +354,7 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 	}
+ 	else
+ 	{
+-		//FAssertMsg(false, "Illegal direction type");
++		//FErrorMsg("Illegal direction type");
+ 		// River is starting here, set the direction in the next step
+ 		pRiverPlot = pStartPlot;
+ 
+@@ -488,7 +488,7 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 				break;
+ 
+ 			default:
+-				FAssertMsg(false, "invalid cardinal direction");
++				FErrorMsg("invalid cardinal direction");
+ 			}
+ 
+ 			if (pRiverPlot != NULL && !pRiverPlot->hasCoastAtSECorner())
+
+diff --git a/CvGameCoreDLL/CvMemoryManager.cpp b/CvGameCoreDLL/CvMemoryManager.cpp
+index ef81de591..92a061e48 100644
+--- a/CvGameCoreDLL/CvMemoryManager.cpp
++++ b/CvGameCoreDLL/CvMemoryManager.cpp
+@@ -112,7 +112,7 @@ void *__cdecl operator new(size_t size, char* pcFile, int iLine)
+ 
+ void *__cdecl operator new[](size_t size, char* pcFile, int iLine)
+ {
+-	FAssertMsg(false, "To check if operator new[](size_t*,char*,int) is ever used"); // advc.test
++	FErrorMsg("To check if operator new[](size_t*,char*,int) is ever used"); // advc.test
+ 	//void* result = gDLL->newMem(size, pcFile, iLine);
+ 	// advc.001: Looks like a copy-paste error
+ 	void* result = gDLL->newMemArray(size, pcFile, iLine);
+@@ -127,7 +127,7 @@ void __cdecl operator delete(void* pvMem, char* pcFile, int iLine)
+ 
+ void __cdecl operator delete[](void* pvMem, char* pcFile, int iLine)
+ {
+-	FAssertMsg(false, "To check if operator delete[](void*,char*,int) is ever used"); // advc.test
++	FErrorMsg("To check if operator delete[](void*,char*,int) is ever used"); // advc.test
+ 	//gDLL->delMem(pvMem, pcFile, iLine);
+ 	// advc.001: Looks like a copy-paste error
+ 	gDLL->delMemArray(pvMem, pcFile, iLine);
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index b37e820f1..935cab061 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -69,7 +69,7 @@ CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
+ 	case GAMEMESSAGE_FP_TEST:
+ 		return new CvNetFPTest(); // </advc.003g>
+ 	default:
+-		FAssertMsg(false, "Unknown message type");
++		FErrorMsg("Unknown message type");
+ 	}
+ 	return NULL;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 848a7f11d..0b457f13a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1369,7 +1369,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 		FAssertMsg(iPass != 0, "CvPlayer::findStartingPlot - could not find starting plot in first pass.");
+ 	}
+ 
+-	FAssertMsg(false, "Could not find starting plot.");
++	FErrorMsg("Could not find starting plot.");
+ 	return NULL;
+ }
+ 
+@@ -2632,7 +2632,7 @@ void CvPlayer::setFlagDecal(CvWString const& szFlagDecal, bool bUpdate)
+ 	gDLL->UI().setDirty(Flag_DIRTY_BIT, true);
+ 	if (isBarbarian())
+ 	{
+-		FAssertMsg(false, "CvPlot::clearFlagSymbol might not work correctly when"
++		FErrorMsg("CvPlot::clearFlagSymbol might not work correctly when"
+ 				" updating flag symbols after changing the Barbarian flag decal.");
+ 		return;
+ 	}
+@@ -3981,7 +3981,7 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 				kToTeam.isHasMet(getTeam()));
+ 	// </advc.034>
+ 	default:
+-		FAssertMsg(false, "Unknown trade item type");
++		FErrorMsg("Unknown trade item type");
+ 		return false;
+ 	}
+ }
+@@ -9516,7 +9516,7 @@ bool CvPlayer::setCommercePercent(CommerceTypes eCommerce, int iNewValue, bool b
+ {
+ 	if (!bForce && !isCommerceFlexible(eCommerce))
+ 	{
+-		FAssertMsg(false, "setCommercePercent called without permission.");
++		FErrorMsg("setCommercePercent called without permission.");
+ 		return false; // can't change percent
+ 	}
+ 
+@@ -10060,14 +10060,14 @@ void CvPlayer::changeHasCorporationCount(CorporationTypes eCorp, int iChange)
+ 
+ int CvPlayer::getUpkeepCount(UpkeepTypes eUpkeep) const
+ {
+-	FAssertMsg(false, "m_aiUpkeepCount not unused anymore?"); // advc.003j
++	FErrorMsg("m_aiUpkeepCount not unused anymore?"); // advc.003j
+ 	return m_aiUpkeepCount.get(eUpkeep);
+ }
+ 
+ 
+ void CvPlayer::changeUpkeepCount(UpkeepTypes eUpkeep, int iChange)
+ {
+-	FAssertMsg(false, "m_aiUpkeepCount not unused anymore?"); // advc.003j
++	FErrorMsg("m_aiUpkeepCount not unused anymore?"); // advc.003j
+ 	if (iChange != 0)
+ 	{
+ 		m_aiUpkeepCount.add(eUpkeep, iChange);
+@@ -18962,7 +18962,7 @@ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
+ 		getCultureLayerColors(aColors, aIndicators);
+ 		break;
+ 	default:
+-		FAssertMsg(false, "Unknown globe layer type");
++		FErrorMsg("Unknown globe layer type");
+ 	}
+ }
+ 
+@@ -19601,12 +19601,12 @@ void CvPlayer::checkAlert(int iAlertID, bool bSilent)
+ {
+ 	if (m_paAlerts.empty())
+ 	{
+-		FAssertMsg(false, "Alerts not initialized for this player");
++		FErrorMsg("Alerts not initialized for this player");
+ 		return;
+ 	}
+ 	if(iAlertID < 0 || iAlertID > (int)m_paAlerts.size())
+ 	{
+-		FAssertMsg(false, "Invalid alert");
++		FErrorMsg("Invalid alert");
+ 		return;
+ 	}
+ 	m_paAlerts[iAlertID]->check(bSilent);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5e436e5b5..5f7748f38 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -822,7 +822,7 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ 		pDiplo->setTheirOfferList(weGive);
+ 		gDLL->beginDiplomacy(pDiplo, eOther);
+ 		//advc.test, advc.134a:  (seems to work reliably now)
+-		//FAssertMsg(false, "AI sent peace offer; if it doesn't appear, it could be b/c of a change in circumstances, or advc.134a isn't working as intended");
++		//FErrorMsg("AI sent peace offer; if it doesn't appear, it could be b/c of a change in circumstances, or advc.134a isn't working as intended");
+ 	}
+ 	else GC.getGame().implementDeal(getID(), eOther, weGive, theyGive);
+ 	return true;
+@@ -954,7 +954,7 @@ void CvPlayerAI::AI_offerCapitulation(PlayerTypes eTo)
+ 	pDiplo->setTheirOfferList(ourList);
+ 	gDLL->beginDiplomacy(pDiplo, eTo);
+ 	//advc.test, advc.134a:
+-	/*FAssertMsg(false, "AI sent capitulation offer; if it doesn't appear, "
++	/*FErrorMsg("AI sent capitulation offer; if it doesn't appear, "
+ 			"it could be b/c of a change in circumstances, or advc.134a isn't working as intended");*/
+ }
+ // </advc.104h>
+@@ -1173,7 +1173,7 @@ int CvPlayerAI::AI_movementPriority(CvSelectionGroupAI const& kGroup) const // a
+ 			break;
+ 
+ 		case UNITAI_COLLATERAL:
+-			FAssertMsg(false, "AI_movementPriority: unit AI type doesn't seem to match traits.");
++			FErrorMsg("AI_movementPriority: unit AI type doesn't seem to match traits.");
+ 			break;
+ 
+ 		default:
+@@ -1977,7 +1977,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 					by recipient. Recipient has no choice here. */
+ 				AI_intendsToCede(kCity, eLiberationPlayer, true))
+ 			{
+-				FAssertMsg(false, "Just to test AI liberation upon conquest"); // advc.test
++				FErrorMsg("Just to test AI liberation upon conquest"); // advc.test
+ 				bool bLiberate = true;
+ 				/*	Don't liberate (not for free anyway) if they're
+ 					holding one of our cities hostage */
+@@ -4117,7 +4117,7 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 
+ 	if (best_path_it == tech_paths.end())
+ 	{
+-		FAssertMsg(0, "Failed to create a tech path");
++		FErrorMsg("Failed to create a tech path");
+ 		return NO_TECH;
+ 	}
+ 
+@@ -6135,7 +6135,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 					break;
+ 
+ 				default:
+-					FAssertMsg(false, "Missing UNITAI type in AI_techUnitValue");
++					FErrorMsg("Missing UNITAI type in AI_techUnitValue");
+ 					break;
+ 				}
+ 			}
+@@ -7823,7 +7823,7 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ 
+ int CvPlayerAI::AI_getLostWarAttitude(PlayerTypes ePlayer) const
+ {
+-	FAssertMsg(false, "this function is obsolete");
++	FErrorMsg("this function is obsolete");
+ 	if(GET_TEAM(ePlayer).AI_getWarSuccess(getTeam()) >
+ 			GET_TEAM(getTeam()).AI_getWarSuccess(TEAMID(ePlayer)))
+ 		return GC.getInfo(getPersonalityType()).getLostWarAttitudeChange();
+@@ -11882,7 +11882,7 @@ scaled CvPlayerAI::AI_peaceTreatyAversion(TeamTypes eTarget) const
+ 		CvTeam const& kTargetMaster = GET_TEAM(GET_TEAM(eTarget).getMasterTeam());
+ 		if (kMaster.isAVassal() || kTargetMaster.isAVassal())
+ 		{
+-			FAssertMsg(false, "Master is a vassal");
++			FErrorMsg("Master is a vassal");
+ 			return 0;
+ 		}
+ 		return kMaster.AI_peaceTreatyAversion(kTargetMaster.getID());
+@@ -17272,7 +17272,7 @@ void CvPlayerAI::AI_setFirstContact(PlayerTypes eIndex, bool bNewValue)
+ 		DIPLOEVENT_FAILED_CONTACT (CvPlayer::handleDiploEvent) and in CvTeam::declareWar,
+ 		but AI_isFirstContact was never called. Looks like these two functions were
+ 		superseded by the team-level functions meet/makeHasMet and isHasMet. */
+-	FAssertMsg(false, "m_abFirstContact is obsolete");
++	FErrorMsg("m_abFirstContact is obsolete");
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	m_abFirstContact[eIndex] = bNewValue;
+@@ -17281,7 +17281,7 @@ void CvPlayerAI::AI_setFirstContact(PlayerTypes eIndex, bool bNewValue)
+ 
+ bool CvPlayerAI::AI_isFirstContact(PlayerTypes eIndex) const
+ {
+-	FAssertMsg(false, "m_abFirstContact is obsolete"); // advc.003j
++	FErrorMsg("m_abFirstContact is obsolete"); // advc.003j
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 	return m_abFirstContact[eIndex];
+@@ -17421,7 +17421,7 @@ void CvPlayerAI::AI_rememberLiberation(CvCity const& kCity, bool bConquest)
+ {
+ 	if (!hasCapital())
+ 	{
+-		FAssertMsg(false, "City liberated to player with 0 cities?");
++		FErrorMsg("City liberated to player with 0 cities?");
+ 		return;
+ 	}
+ 	PlayerTypes const eOwner = kCity.getOwner();
+@@ -20046,7 +20046,7 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 				{
+ 					continue;
+ 				}
+-				FAssertMsg(false, "Just to verify that this line is reachable; hasn't come up in tests yet"); // advc.test
++				FErrorMsg("Just to verify that this line is reachable; hasn't come up in tests yet"); // advc.test
+ 				int iKeepVal = AI_cityTradeVal(*pCity, getID());
+ 				int iAcquireVal = kHireling.AI_cityTradeVal(*pCity, getID());
+ 				if (iAcquireVal <= 0) // (probably already ensured by trade denial check)
+@@ -20631,7 +20631,7 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
+ 		break;
+ 	} // </advc.ctr>
+ 	default:
+-		FAssertMsg(false, "Unknown AI demand type");
++		FErrorMsg("Unknown AI demand type");
+ 		return false;
+ 	}
+ 	if (humanGives.getLength() <= 0 ||
+@@ -20780,7 +20780,7 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
+ 		bool const bEvac = AI_getCity(aiiiCityPairs[i].second.first)->AI_isEvacuating();
+ 		if (aiiiCityPairs[i].second.second != -1)
+ 		{
+-			FAssertMsg(false, "To verify that a city-for-city trade ever happens"); // advc.test
++			FErrorMsg("To verify that a city-for-city trade ever happens"); // advc.test
+ 			theyGive.insertAtEnd(TradeData(TRADE_CITIES, aiiiCityPairs[i].second.second));
+ 		}
+ 		else
+@@ -20809,7 +20809,7 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
+ 			}
+ 			else
+ 			{
+-				FAssertMsg(false, "Just to verify that this branch is reachable; hasn't come p in tests yet."); // advc.test
++				FErrorMsg("Just to verify that this branch is reachable; hasn't come p in tests yet."); // advc.test
+ 				/*	Even if we think that gifting a city will benefit us more than them,
+ 					we're not going to pay a human extra to accept a free city. */
+ 				if (theyGive.getLength() <= 0 && kToPlayer.isHuman())
+@@ -20832,7 +20832,7 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
+ 		{
+ 			if (bEvac)
+ 			{
+-				FAssertMsg(false, "AI offers evacuating city to human; not tested, hope for the best."); // advc.test
++				FErrorMsg("AI offers evacuating city to human; not tested, hope for the best."); // advc.test
+ 				/*	(See comment at the start of this function.
+ 					advc.130r: Don't bother with game speed adjustment.) */
+ 				AI_changeContactTimer(eToPlayer, CONTACT_GIVE_HELP, 10);
+@@ -25164,7 +25164,7 @@ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc: style changes
+ 		CvPlot* pLoopPlot = kMember.getStartingPlot();
+ 		if (pLoopPlot == NULL)
+ 		{
+-			FAssertMsg(false, "StartingPlot for a live player is NULL!");
++			FErrorMsg("StartingPlot for a live player is NULL!");
+ 			continue;
+ 		}
+ 		if (getAdvancedStartCityCost(true, pLoopPlot) <= 0)
+@@ -25195,7 +25195,7 @@ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc: style changes
+ 	if (pBestPlot != NULL)
+ 		return pBestPlot;
+ 
+-	FAssertMsg(false, "AS: Failed to find a starting plot for a player");
++	FErrorMsg("AS: Failed to find a starting plot for a player");
+ 	//Execution should almost never reach here.
+ 
+ 	//Update found values just in case - particulary important for simultaneous turns.
+@@ -25231,7 +25231,7 @@ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc: style changes
+ 		return pBestPlot;
+ 
+ 	//Commence panic.
+-	FAssertMsg(false, "Failed to find an advanced start starting plot");
++	FErrorMsg("Failed to find an advanced start starting plot");
+ 	return NULL;
+ }
+ 
+@@ -25334,7 +25334,7 @@ bool CvPlayerAI::AI_advancedStartPlaceCity(CvPlot* pPlot)
+ 			/*	this should never happen since the cost for a city should be 0 if
+ 				the city can't be placed.
+ 				(It can happen if another player has placed a city in the fog) */
+-			FAssertMsg(false, "ADVANCEDSTARTACTION_CITY failed in unexpected way");
++			FErrorMsg("ADVANCEDSTARTACTION_CITY failed in unexpected way");
+ 			return false;
+ 		}
+ 	}
+@@ -25652,7 +25652,7 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
+ 			}
+ 			else
+ 			{	// advc: Assert added, BtS comment moved into message.
+-				FAssertMsg(false, "If this point is reached, the advanced start system is broken.");
++				FErrorMsg("If this point is reached, the advanced start system is broken.");
+ 				//Find a new starting plot for this player
+ 				setStartingPlot(findStartingPlot(false), true);
+ 				//Redo Starting visibility
+@@ -27703,7 +27703,7 @@ bool CvPlayerAI::isSafeRangeCacheValid() const
+ {
+ 	/*	advc: To turn the cache back on, the two call locations in AI_getPlotDanger
+ 		would have to be uncommented. */
+-	FAssertMsg(false, "SafeRangeCache is disabled");
++	FErrorMsg("SafeRangeCache is disabled");
+ 	return false; // K-Mod: Cache disabled. See comments above.
+ 	//return isTurnActive() && !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && GC.getGame().getNumGameTurnActive() == 1;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 8de5fa755..7e7e9ac0c 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3425,7 +3425,7 @@ void CvPlot::setLatitude(int iLatitude)
+ {
+ 	if (iLatitude < 0 || iLatitude > 90)
+ 	{
+-		FAssertMsg(false, "Latitude should be in the interval [0,90]");
++		FErrorMsg("Latitude should be in the interval [0,90]");
+ 		iLatitude = range(iLatitude, 0, 90);
+ 	}
+ 	m_iLatitude = iLatitude;
+@@ -5616,7 +5616,7 @@ bool CvPlot::canEverFound() const
+ 	{
+ 		if (GC.getPythonCaller()->canFoundWaterCity(*this))
+ 		{
+-			FAssertMsg(false, "The AdvCiv mod probably does not support cities on water"); // advc
++			FErrorMsg("The AdvCiv mod probably does not support cities on water"); // advc
+ 			return true;
+ 		}
+ 		return false; // advc.opt
+@@ -6002,7 +6002,7 @@ bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
+ {
+ 	if (eIndex == NO_DIRECTION)
+ 	{
+-		FAssertMsg(false, "Just to see if the NO_DIRECTION branch is needed"); // advc.test
++		FErrorMsg("Just to see if the NO_DIRECTION branch is needed"); // advc.test
+ 		return false;
+ 	}
+ 	return m_abRiverCrossing.get(eIndex);
+
+diff --git a/CvGameCoreDLL/CvPopupReturn.cpp b/CvGameCoreDLL/CvPopupReturn.cpp
+index 1d6e9de34..4d89585d3 100644
+--- a/CvGameCoreDLL/CvPopupReturn.cpp
++++ b/CvGameCoreDLL/CvPopupReturn.cpp
+@@ -8,48 +8,25 @@
+ PopupReturn::PopupReturn(const PopupReturn &popupReturn)
+ {
+ 	// advc: (and original code commented out)
+-	FAssertMsg(false, "PopupReturn copy-constructor not implemented");
++	FErrorMsg("PopupReturn copy-constructor not implemented");
+ 	/*int iI;
+ 
+ 	for (iI = 0; iI < popupReturn.getRadioButtonSize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aiSelectedRadioButton, iI, popupReturn.getSelectedRadioButton(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getCheckboxSize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aiBitField, iI, popupReturn.getCheckboxBitfield(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getEditboxSize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aszEditBoxString, iI, popupReturn.getEditBoxString(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getSpinnerWidsize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aiSpinnerWidgetValues, iI, popupReturn.getSpinnerWidgetValue(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getPulldownSize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aiPulldownID, iI, popupReturn.getSelectedPullDownValue(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getListBoxSize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aiListBoxID, iI, popupReturn.getSelectedListBoxValue(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getSpinBoxSize(); iI++)
+-	{
+ 		CvPopup_SetAtGrow(m_aiSpinBoxID, iI, popupReturn.getSpinnerWidgetValue(iI));
+-	}
+-
+ 	for (iI = 0; iI < popupReturn.getButtonSize(); iI++)
+-	{
+-		CvPopup_SetAtGrow(m_aiButtonID, iI, popupReturn.getButtonClicked(iI));
+-	}*/
++		CvPopup_SetAtGrow(m_aiButtonID, iI, popupReturn.getButtonClicked(iI));*/
+ }
+ 
+ // Assignment operator
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index c1e624ec3..6c999f400 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1323,12 +1323,12 @@ bool CvPythonCaller::generatePlotTypes(int* aiPlotTypes, size_t uiSize) const
+ 			"generatePlotTypes", NULL, &result);
+ 	if (!isOverride())
+ 	{
+-		FAssertMsg(false, "Map script has to override generatePlotTypes and mustn't call usingDefaultImpl");
++		FErrorMsg("Map script has to override generatePlotTypes and mustn't call usingDefaultImpl");
+ 		return false;
+ 	}
+ 	if (result.size() != uiSize)
+ 	{
+-		FAssertMsg(false, "Need to set a plot type for every plot");
++		FErrorMsg("Need to set a plot type for every plot");
+ 		return false;
+ 	}
+ 	for (size_t i = 0; i < uiSize; i++)
+@@ -1343,12 +1343,12 @@ bool CvPythonCaller::generateTerrainTypes(std::vector<int>& r, size_t uiTargetSi
+ 			"generateTerrainTypes", NULL, &r);
+ 	if (!isOverride())
+ 	{	// PlantGenerator seems to generate terrain in addFeatures, but that's highly irregular.
+-		FAssertMsg(false, "Map script has to override generateTerrainTypes and mustn't call usingDefaultImpl");
++		FErrorMsg("Map script has to override generateTerrainTypes and mustn't call usingDefaultImpl");
+ 		return false;
+ 	}
+ 	if (r.size() != uiTargetSize)
+ 	{
+-		FAssertMsg(false, "No terrain generated for some plots");
++		FErrorMsg("No terrain generated for some plots");
+ 		return false;
+ 	}
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 075bff575..39b828863 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -57,7 +57,7 @@ CvReplayInfo::CvReplayInfo() :
+ 	would seem undesirable. */
+ CvReplayInfo::CvReplayInfo(CvReplayInfo const&)
+ {
+-	FAssertMsg(false, "No copy-constructor implemented for CvReplayInfo");
++	FErrorMsg("No copy-constructor implemented for CvReplayInfo");
+ }
+ 
+ CvReplayInfo::~CvReplayInfo()
+@@ -848,7 +848,7 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 			}
+ 			catch(...)
+ 			{
+-				FAssertMsg(false, "Failed to read replay file");
++				FErrorMsg("Failed to read replay file");
+ 				return false;
+ 			}
+ 			if(m_szModName.empty())
+@@ -867,7 +867,7 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 	}
+ 	catch(...)
+ 	{
+-		FAssertMsg(false, "Failed to read replay file");
++		FErrorMsg("Failed to read replay file");
+ 		return false;
+ 	} // <advc.707>
+ 	if(m->iFinalScore == MIN_INT)
+@@ -969,7 +969,7 @@ void CvReplayInfo::setMinimapSizeFromXML()
+ 	if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) >= 10000)
+ 	{
+ 		// Not a reasonable resolution, and can't piggyback that safely into the replay file.
+-		FAssertMsg(false, "MINIMAP_RENDER_SIZE too large");
++		FErrorMsg("MINIMAP_RENDER_SIZE too large");
+ 		return;
+ 	}
+ 	m_iMinimapSize = GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 917d2179a..aa70f1cb3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3104,7 +3104,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
+ 		(!GC.getInfo(GC.getInfo(eBuild).getImprovement()).isActsAsCity() ||
+ 		pPlot->getWorkingCity() == NULL)) // </advc.121>
+ 	{
+-		FAssertMsg(false, "AI has issued an order which violates PLAYEROPTION_SAFE_AUTOMATION");
++		FErrorMsg("AI has issued an order which violates PLAYEROPTION_SAFE_AUTOMATION");
+ 		return false;
+ 	}
+ 	// K-Mod end
+@@ -4162,7 +4162,7 @@ CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadU
+ 
+ 	if (iSplitSize <= 0)
+ 	{
+-		FAssertMsg(false, "non-positive splitGroup size");
++		FErrorMsg("non-positive splitGroup size");
+ 		return NULL;
+ 	}
+ 
+@@ -4365,7 +4365,7 @@ CvUnit* CvSelectionGroup::getUnitAt(int index) const
+ 	int numUnits = getNumUnits();
+ 	if(index >= numUnits)
+ 	{
+-		FAssertMsg(false, "[Jason] Selectiongroup unit index out of bounds.");
++		FErrorMsg("[Jason] Selectiongroup unit index out of bounds.");
+ 		return NULL;
+ 	}
+ 	else
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index eb1001e21..230456613 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -245,7 +245,7 @@ int CvTeamAI::AI_estimateTotalYieldRate(YieldTypes eYield) const
+ 			case YIELD_FOOD:
+ 				p = kMember.getAgricultureHistory(iTurn - (j+1));
+ 				break;
+-			default: FAssertMsg(false, "unknown yield type");
++			default: FErrorMsg("unknown yield type");
+ 			}
+ 			if (p > 0)
+ 			{
+@@ -1538,7 +1538,7 @@ int CvTeamAI::AI_warDiplomacyCost(TeamTypes eTarget) const
+ {
+ 	if (isAtWar(eTarget))
+ 	{
+-		//FAssertMsg(false, "AI_warDiplomacyCost called when already at war."); // sometimes we call this function for debug purposes.
++		//FErrorMsg("AI_warDiplomacyCost called when already at war."); // sometimes we call this function for debug purposes.
+ 		return 0;
+ 	}
+ 
+@@ -3503,7 +3503,7 @@ int CvTeamAI::AI_declareWarTradeValLegacy(TeamTypes eWarTeam, TeamTypes eTeam) c
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "unknown attitude type");
++		FErrorMsg("unknown attitude type");
+ 	}
+ 
+ 	iValue *= std::max(0, (iModifier + 100));
+@@ -4884,7 +4884,7 @@ double CvTeamAI::AI_votesToGoForVictory(double* pVoteTarget, bool bForceUN) cons
+ 			CvVoteInfo& vote = GC.getInfo(eLoopVote);
+ 			if(vote.getStateReligionVotePercent() == 0 && vote.isVictory())
+ 			{
+-				FAssertMsg(false, "Could not determine vote threshold");
++				FErrorMsg("Could not determine vote threshold");
+ 				break;
+ 			}
+ 		}
+@@ -6093,7 +6093,7 @@ int CvTeamAI::AI_getAttitudeWeight(TeamTypes eTeam) const  // advc: refactored
+ 	case ATTITUDE_CAUTIOUS: return -5;
+ 	case ATTITUDE_PLEASED: return 50;
+ 	case ATTITUDE_FRIENDLY: return 100;
+-	default: FAssertMsg(false, "unknown attitude type"); return 0;
++	default: FErrorMsg("unknown attitude type"); return 0;
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 86337c08a..43979e3ac 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1337,7 +1337,7 @@ void CvUnit::updateCombat(bool bQuick)
+ 		// K-Mod
+ 		if (bFinish)
+ 		{
+-			FAssertMsg(false, "Cannot 'finish' combat with NULL defender");
++			FErrorMsg("Cannot 'finish' combat with NULL defender");
+ 			return;
+ 		}
+ 		else getGroup()->groupMove(pPlot, true, canAdvance(pPlot, 0) ? this : NULL, true);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index dd7c64917..e881ffaf0 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -375,7 +375,7 @@ bool CvUnitAI::AI_update()
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "Unknown Unit AI type");
++		FErrorMsg("Unknown Unit AI type");
+ 	}
+ 
+ 	return false;
+@@ -1322,7 +1322,7 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, int iFlags) // advc: 1st
+ 
+ 	if (!generatePath(&kPlot, iFlags, true))
+ 	{
+-		FAssertMsg(false, "AI_considerPathDOW didn't find a path.");
++		FErrorMsg("AI_considerPathDOW didn't find a path.");
+ 		return false;
+ 	}
+ 
+@@ -1468,7 +1468,7 @@ void CvUnitAI::AI_settleMove()
+ 				// BETTER_BTS_AI_MOD, Unit AI, 11/30/08, jdog5000: guard added
+ 				if (!kOwner.AI_isAnyUnitTargetMissionAI(*getGroup()->getHeadUnit(), MISSIONAI_PICKUP))
+ 				{
+-					//FAssertMsg(false, "advc.test: Just to see how frequently the AI scraps settlers"); // hardly ever
++					//FErrorMsg("advc.test: Just to see how frequently the AI scraps settlers"); // hardly ever
+ 					scrap(); //may seem wasteful, but settlers confuse the AI.
+ 					return;
+ 				}
+@@ -3475,7 +3475,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			int iPathTurns;
+ 			if (!generatePath(pTargetCity->plot(), iMoveFlags, true, &iPathTurns))
+ 			{	// AI_pickTargetCity now allows boat-only paths, so this assertion no longer holds.
+-				//FAssertMsg(false, "failed to find path to target city.");
++				//FErrorMsg("failed to find path to target city.");
+ 				iPathTurns = 100;
+ 			}
+ 			if (!pTargetCity->isBarbarian() ||
+@@ -3538,13 +3538,13 @@ void CvUnitAI::AI_attackCityMove()
+ 							until the preparations are through. Difficult to avoid the assertions below. */
+ 						/*  this is a last resort. I don't expect that we'll ever actually need it.
+ 							(it's a pretty ugly function, so I /hope/ we don't need it.) */
+-						FAssertMsg(false, "AI_attackCityMove is resorting to AI_solveBlockageProblem");
++						FErrorMsg("AI_attackCityMove is resorting to AI_solveBlockageProblem");
+ 						if (AI_solveBlockageProblem(pAreaTargetCity->plot(),
+ 							(GET_TEAM(getTeam()).getNumWars() <= 0)))
+ 						{
+ 							return;
+ 						}  // advc.006:
+-						FAssertMsg(false, "AI_solveBlockageProblem returned false");
++						FErrorMsg("AI_solveBlockageProblem returned false");
+ 					}
+ 				}
+ 			}
+@@ -5280,7 +5280,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 							}
+ 							else
+ 							{
+-								FAssertMsg(false, "great person cannot hurry what it intended to hurry.");
++								FErrorMsg("great person cannot hurry what it intended to hurry.");
+ 								break;
+ 							}
+ 						}
+@@ -5295,7 +5295,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 			}
+ 			break;
+ 		default:
+-			FAssertMsg(false, "Unhandled great person mission");
++			FErrorMsg("Unhandled great person mission");
+ 			break;
+ 		}
+ 		iChoice++;
+@@ -10276,7 +10276,7 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, int iFlags)
+ 	CvUnit* pEjectedUnit = AI_getGroup()->AI_ejectBestDefender(plot());
+ 	if (pEjectedUnit == NULL)
+ 	{
+-		FAssertMsg(false, "AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
++		FErrorMsg("AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
+ 		pEjectedUnit = this;
+ 		if (getGroup()->getNumUnits() > 0)
+ 			joinGroup(NULL);
+@@ -10780,7 +10780,7 @@ bool CvUnitAI::AI_guardFort(bool bSearch)
+ 	{
+ 		if (atPlot(pBestGuardPlot))
+ 		{
+-			FAssertMsg(false, "Current guard plot doesn't need defenders"); // advc
++			FErrorMsg("Current guard plot doesn't need defenders"); // advc
+ 			getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY :
+ 					MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot);
+ 			return true;
+@@ -11597,7 +11597,7 @@ bool CvUnitAI::AI_spreadCorporation()
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_SPREAD_CORPORATION, pBestSpreadPlot);
+ 				return true;
+ 			}
+-			// FAssertMsg(false, "AI_spreadCorporation has taken us to a bogus pBestSpreadPlot");
++			// FErrorMsg("AI_spreadCorporation has taken us to a bogus pBestSpreadPlot");
+ 			// this can happen from time to time. For example, when the player loses their only corp resources while the exec is en route.
+ 		}
+ 		else
+@@ -17610,7 +17610,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 		}
+ 		/*else {
+ 			// the plot may be connected, but not connected to capital, if capital is not on same area, or if civ has no capital (like barbarians)
+-			FAssertMsg(false, "Expected that a route could be built to eBestPlot");
++			FErrorMsg("Expected that a route could be built to eBestPlot");
+ 		}*/
+ 	}
+ 	else FAssert(false);
+@@ -18270,7 +18270,7 @@ bool CvUnitAI::AI_handleStranded(int iFlags)
+ 
+ 	if (isCargo())
+ 	{	// This is possible, in some rare cases, but I'm currently trying to pin down precisely what those cases are.
+-		//FAssertMsg(false, "AI_handleStranded: this unit is already cargo."); // advc.006
++		//FErrorMsg("AI_handleStranded: this unit is already cargo."); // advc.006
+ 		getGroup()->pushMission(MISSION_SKIP);
+ 		return true;
+ 	}
+@@ -20970,7 +20970,7 @@ int CvUnitAI::AI_nukeValue(CvPlot* pCenterPlot, int iSearchRange, CvPlot*& pBest
+ 								}
+ 							}
+ 							// kekm.7: Commented out
+-							//else FAssertMsg(false, "3rd party unit being considered for nuking.");
++							//else FErrorMsg("3rd party unit being considered for nuking.");
+ 						}
+ 					}
+ 				} // end unit loop
+@@ -21189,7 +21189,7 @@ bool CvUnitAI::AI_plotValid(CvPlot const* pPlot) /* advc: */ const
+ 		break;
+ 
+ 	default:
+-		FAssertMsg(false, "AI_plotValid is only for land and sea units"); // advc: msg added
++		FErrorMsg("AI_plotValid is only for land and sea units"); // advc: msg added
+ 	}
+ 	return false;
+ }
+
+diff --git a/CvGameCoreDLL/CvVirtualWrappers.cpp b/CvGameCoreDLL/CvVirtualWrappers.cpp
+index 7af7e86a8..44ca363cc 100644
+--- a/CvGameCoreDLL/CvVirtualWrappers.cpp
++++ b/CvGameCoreDLL/CvVirtualWrappers.cpp
+@@ -14,7 +14,7 @@
+ 	Generally helpful to know. Also looks like most/ all wrappers for
+ 	CvGame and CvSelectionGroup could be removed. (Not: CvTeam and CvPlayer;
+ 	those have the read/write functions at the end of the vtable.) */
+-#define reportCall FAssertMsg(false, "Call from the EXE");
++#define reportCall FErrorMsg("Call from the EXE");
+ 
+ // CvPlayer ...
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 5ac4609b2..1f2c23406 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -16,10 +16,10 @@ static const int kBufSize = 2048;
+ void CvXMLLoadUtility::errorMessage(char const* szMessage, XMLErrorTypes eErrType)
+ {
+ 	#ifdef _DEBUG
+-	FAssertMsg(false, szMessage);
++		FErrorMsg(szMessage);
+ 	#else
+-	gDLL->MessageBox(szMessage, eErrType == XML_LOAD_ERROR ?
+-			"XML Load Error" : "XML Error");
++		gDLL->MessageBox(szMessage, eErrType == XML_LOAD_ERROR ?
++				"XML Load Error" : "XML Error");
+ 	#endif
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index 851793f63..e1002b0ff 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -88,7 +88,7 @@ bool SafeGetLastNodeValue(FXml* pXml, T& r, T tDefault = false)
+ 	bool bSuccess = true;
+ 	if (gDLL->getXMLIFace()->GetLastNodeTextSize(pXml) == 0)
+ 	{
+-		FAssertMsg(false, "Empty element");
++		FErrorMsg("Empty element");
+ 		bSuccess = false;
+ 	}
+ 	if (bSuccess)
+@@ -199,7 +199,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(std::string& r, char const* szDefault)
+ 		}
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+@@ -220,7 +220,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(std::wstring& r, wchar const* szDefault)
+ 		}
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+@@ -264,7 +264,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(wchar* r, wchar const* szDefault)
+ 		}
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+@@ -282,7 +282,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(int& r, int iDefault)
+ 			return SafeGetLastNodeValue(m_pFXml, r, iDefault); // advc.006d
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+@@ -300,7 +300,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(float& r, float fDefault)
+ 			return SafeGetLastNodeValue(m_pFXml, r, fDefault); // advc.006d
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+@@ -318,7 +318,7 @@ bool CvXMLLoadUtility::GetNextXmlVal(bool& r, bool bDefault)
+ 			return SafeGetLastNodeValue(m_pFXml, r, bDefault); // advc.006d
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetNextXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+@@ -444,12 +444,12 @@ bool CvXMLLoadUtility::GetChildXmlVal(float& r, float fDefault)
+ 			return SafeGetLastNodeValue(m_pFXml, r, fDefault); // advc.006d
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them so.
+-	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
++	FErrorMsg("Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+ 
+@@ -464,12 +464,12 @@ bool CvXMLLoadUtility::GetChildXmlVal(bool& r, bool bDefault)
+ 			return SafeGetLastNodeValue(m_pFXml, r, bDefault); // advc.006d
+ 		else // otherwise we can't find a non-comment node on this level
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlVal function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlVal function, unable to find the next non-comment node");
+ 			return false;
+ 		}
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+-	FAssertMsg(false, "Error in GetChildXmlVal function, unable to find a child node");
++	FErrorMsg("Error in GetChildXmlVal function, unable to find a child node");
+ 	return false;
+ }
+ 
+@@ -504,17 +504,17 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b> Replacing the asserts above (which were already commented out)
+ 	/*  If pszDefault was set by the caller, we assume that it's OK to fall back
+@@ -547,17 +547,17 @@ bool CvXMLLoadUtility::GetChildXmlValByName(char* r, TCHAR const* szName, char c
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+ 	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+@@ -586,17 +586,17 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::string& r, TCHAR const* szName,
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+ 	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+@@ -625,17 +625,17 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& r, TCHAR const* szName
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+ 	FAssertMsg(szDefault != NULL || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+@@ -664,22 +664,22 @@ bool CvXMLLoadUtility::GetChildXmlValByName(int* r, TCHAR const* szName, int iDe
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+ 	if (*r == MIN_INT && m->bAssertMandatory)
+ 	{
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++		FErrorMsg((szAssertMsg + szName).c_str());
+ 		/*  Try to allow the caller to ignore the error by setting a
+ 			more sensible default than MIN_INT: */
+ 		*r = 0; // (0 is also the "default default" that was set in this function's declaration in BtS)
+@@ -709,22 +709,22 @@ bool CvXMLLoadUtility::GetChildXmlValByName(float* r, TCHAR const* szName, float
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+ 	if (*r == FLT_MIN && m->bAssertMandatory)
+ 	{
+-		FAssertMsg(false, (szAssertMsg + szName).c_str());
++		FErrorMsg((szAssertMsg + szName).c_str());
+ 		*r = 0; // See See GetChildXmlValByName(int*...)
+ 	}
+ 	return false; // </advc.006b>
+@@ -753,17 +753,17 @@ bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName,
+ 		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			FErrorMsg("Error in GetChildXmlValByName function, unable to find the next non-comment node");
+ 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+ 	/*else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	} }
+ 	else {
+-		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		//FErrorMsg("Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}*/ // <advc.006b>
+ 	FAssertMsg(!bMandatory || !m->bAssertMandatory, (szAssertMsg + szName).c_str());
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 851850c93..ea62a38dd 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -392,7 +392,7 @@ bool CvXMLLoadUtility::SetGlobalTypes()
+ // Creates a full list of Diplomacy Comments
+ void CvXMLLoadUtility::SetDiplomacyCommentTypes(CvString** ppszString, int* iNumVals)
+ {
+-	FAssertMsg(false, "should never get here");
++	FErrorMsg("should never get here");
+ }
+ 
+ // Initialize the appropriate variables at CvGlobals with the values in Terrain\Civ4TerrainInfos.xml
+@@ -1882,7 +1882,7 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, const TCHAR*
+ 								/*  For the primitive types, 0-entries in XML are usually
+ 									deliberate (for readability), but empty strings
+ 									would be strange. */
+-								else FAssertMsg(false, "Empty string in list of tag pairs");
++								else FErrorMsg("Empty string in list of tag pairs");
+ 								// </advc.003t>
+ 							}
+ 							gDLL->getXMLIFace()->SetToParent(m_pFXml);
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 5ca232831..86231ab4b 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -2138,7 +2138,7 @@ int CyPlayer::AI_foundValue(int iX, int iY, int iMinRivalRange/* = -1*/, bool bS
+ 			bStartingLoc = true;
+ 		else bNormalize = true;
+ 	} // </advc.031e>
+-	FAssertMsg(false, "Just to see if this works correctly if it ever happens");
++	FErrorMsg("Just to see if this works correctly if it ever happens");
+ 	return m_pPlayer->AI_foundValue(iX, iY, iMinRivalRange, bStartingLoc, bNormalize);
+ }
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index c1dde2648..45ad324ed 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -441,22 +441,22 @@ private:
+ 	/*template<>
+ 	void _allocate<true, ENUMMAP_SIZE_NATIVE>(T tValue)
+ 	{
+-		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++		FErrorMsg("EnumMap::_allocate shouldn't be called for classes with inline memory");
+ 	}*/ // advc.fract
+ 	template<>
+ 	void _allocate<true, ENUMMAP_SIZE_1_BYTE>(T tValue)
+ 	{
+-		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++		FErrorMsg("EnumMap::_allocate shouldn't be called for classes with inline memory");
+ 	}
+ 	template<>
+ 	void _allocate<true, ENUMMAP_SIZE_2_BYTE>(T tValue)
+ 	{
+-		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++		FErrorMsg("EnumMap::_allocate shouldn't be called for classes with inline memory");
+ 	}
+ 	template<>
+ 	void _allocate<true, ENUMMAP_SIZE_BOOL>(T tValue)
+ 	{
+-		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++		FErrorMsg("EnumMap::_allocate shouldn't be called for classes with inline memory");
+ 	}
+ 
+ 	////
+
+diff --git a/CvGameCoreDLL/FAssert.h b/CvGameCoreDLL/FAssert.h
+index ad5ad5949..e5288a5bb 100644
+--- a/CvGameCoreDLL/FAssert.h
++++ b/CvGameCoreDLL/FAssert.h
+@@ -94,5 +94,6 @@ bool FAssertDlg( const char*, const char*, const char*, unsigned int,
+ #define FAssertBounds(lower,upper,index) (void)0
+ 
+ #endif
++#define FErrorMsg(msg) FAssertMsg(false, msg) // advc.006i
+ 
+ #endif // FASSERT_H
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index acf3eb8ae..40757fda1 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1744,7 +1744,7 @@ double InvasionGraph::Node::clashDistance(InvasionGraph::Node const& other) cons
+ 	// Clash half-way in the middle
+ 	if(c1 != NULL && c2 != NULL)
+ 		return (c1->getDistance() + c2->getDistance()) / 2.0;
+-	FAssertMsg(false, "Shouldn't clash if not mutually reachable");
++	FErrorMsg("Shouldn't clash if not mutually reachable");
+ 	return -1;
+ }
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 592b72499..47f2ad2bb 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -234,7 +234,7 @@ void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
+ 	// whenever settings are changed, check that we have the right map size.
+ 	if (!ValidateNodeMap())
+ 	{
+-		FAssertMsg(false, "Failed to validate node map for pathfinder.");
++		FErrorMsg("Failed to validate node map for pathfinder.");
+ 		settings.pGroup = NULL;
+ 		return;
+ 	}
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 4bd24efea..c98c646d0 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -465,7 +465,7 @@ void MilitaryAnalyst::logResults(PlayerTypes civId) {
+ 	if(::round(militaryProduction(civId)) == 0)
+ 		return;
+ 	if(civId < 0 || civId > MAX_CIV_PLAYERS) {
+-		FAssertMsg(false, "civId out of bounds");
++		FErrorMsg("civId out of bounds");
+ 		return;
+ 	}
+ 	report.log("Results about %s", report.leaderName(civId));
+
+diff --git a/CvGameCoreDLL/ReproTest.cpp b/CvGameCoreDLL/ReproTest.cpp
+index 6181a3ce6..94757a524 100644
+--- a/CvGameCoreDLL/ReproTest.cpp
++++ b/CvGameCoreDLL/ReproTest.cpp
+@@ -21,7 +21,7 @@ ReproTest::ReproTest(int iTurns)
+ 	CvGame& kGame = GC.getGame();
+ 	if (!kGame.canDoControl(CONTROL_QUICK_SAVE))
+ 	{
+-		FAssertMsg(false, "Open widget blocks quick-save. Repro test canceled.");
++		FErrorMsg("Open widget blocks quick-save. Repro test canceled.");
+ 		return;
+ 	}
+ 	kGame.doControl(CONTROL_QUICK_SAVE);
+@@ -71,7 +71,7 @@ void ReproTest::endWrite(bool bFinal)
+ 		{
+ 			if (!kGame.canDoControl(CONTROL_QUICK_LOAD))
+ 			{
+-				FAssertMsg(false, "Open widget blocks quick-load. Repro test canceled.");
++				FErrorMsg("Open widget blocks quick-load. Repro test canceled.");
+ 				SAFE_DELETE(m_pReproTest);
+ 				return;
+ 			}
+@@ -124,7 +124,7 @@ void ReproTest::endWrite(bool bFinal)
+ 				for (size_t j = 0; j < i; j++)
+ 					szLoopMsg += CvString::format("%d.", m_aaSaveData[m_iPos][j]);
+ 			}
+-			FAssertMsg(false, szLoopMsg.GetCString());
++			FErrorMsg(szLoopMsg.GetCString());
+ 			bSame = false;
+ 			if (bCancelAfterFirstDifference)
+ 				break;
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 2262fcb68..5d55e8cd1 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -473,7 +473,7 @@ StartingPositionIteration::VoronoiCell* StartingPositionIteration::
+ 			find(eCurrSite);
+ 	if (pos == m_sitesClosestToCurrSite.end())
+ 	{
+-		FAssertMsg(false, "No current site found for given player");
++		FErrorMsg("No current site found for given player");
+ 		return NULL;
+ 	}
+ 	return pos->second;
+@@ -2010,7 +2010,7 @@ NormalizationTarget::StartValBreakdown const* NormalizationTarget::getBreakdown(
+ 	map<PlotNumTypes,StartValBreakdown>::const_iterator pos = m_startValData.find(ePlot);
+ 	if (pos == m_startValData.end())
+ 	{
+-		FAssertMsg(false, "Starting plot not found in normalization inputs");
++		FErrorMsg("Starting plot not found in normalization inputs");
+ 		return NULL;
+ 	}
+ 	return &pos->second;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 5bc792d4a..52e949180 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -828,7 +828,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes targetId, int u) {
+ 	case WARPLAN_TOTAL:
+ 		altWarPlan = WARPLAN_LIMITED;
+ 		break;
+-	default: FAssertMsg(false, "Unsuitable war plan type");
++	default: FErrorMsg("Unsuitable war plan type");
+ 	}
+ 	if(altWarPlan == NO_WARPLAN)
+ 		return true;
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index a6b43890d..0fcb2462a 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -524,7 +524,7 @@ void UWAICache::updateCanScrub() {
+ 		}
+ 	}
+ 	if(fallout == NO_FEATURE) {
+-		FAssertMsg(false, "Fallout feature not found; should have -50 health");
++		FErrorMsg("Fallout feature not found; should have -50 health");
+ 		return;
+ 	}
+ 	FOR_EACH_ENUM(Build) {
+@@ -628,25 +628,25 @@ UWAICache::City* UWAICache::lookupCity(CvCity const& cvCity) const {
+ 
+ void UWAICache::sortCitiesByOwnerAndDistance() {
+ 
+-	FAssertMsg(false, "function no longer used");
++	FErrorMsg("function no longer used");
+ 	sort(v.begin(), v.end(), City::byOwnerAndDistance);
+ }
+ 
+ void UWAICache::sortCitiesByOwnerAndTargetValue() {
+ 
+-	FAssertMsg(false, "function no longer used");
++	FErrorMsg("function no longer used");
+ 	sort(v.begin(), v.end(), City::byOwnerAndTargetValue);
+ }
+ 
+ void UWAICache::sortCitiesByDistance() {
+ 
+-	FAssertMsg(false, "function no longer used");
++	FErrorMsg("function no longer used");
+ 	sort(v.begin(), v.end(), City::byDistance);
+ }
+ 
+ void UWAICache::sortCitiesByTargetValue() {
+ 
+-	FAssertMsg(false, "function no longer used");
++	FErrorMsg("function no longer used");
+ 	sort(v.begin(), v.end(), City::byTargetValue);
+ }
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 319b594d5..859a78cb8 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1162,7 +1162,7 @@ void MilitaryVictory::evaluate() {
+ 		if(we->AI_atVictoryStage(AI_VICTORY_DIPLOMACY4))
+ 			voteCost += popLossRate * 40;
+ 		if(voteCost > 0.5) {
+-			FAssertMsg(false, "Just sth. to take a look at b/c it seems to come up"
++			FErrorMsg("Just sth. to take a look at b/c it seems to come up"
+ 					" very rarely if ever - diplo victory stage discouraging nuclear war");
+ 			log("Nuclear war jeopardizes diplo victory: %d "
+ 					"(%d percent population loss expected)",
+
+[PATCH COVERAGE]
+patchFiles=51 embeddedFiles=51 omittedFiles=0 embeddedPatchBytes=89588

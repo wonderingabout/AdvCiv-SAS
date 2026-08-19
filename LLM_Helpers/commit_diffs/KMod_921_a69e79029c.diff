@@ -1,0 +1,106 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 921
+# Commit: a69e79029c3b8ad6c4490ac72cb59d1f4aa6763e
+# History segment: K-Mod history
+# Parent used for diff: 520761b97d0d21f2b8030afc83dff25465b3401b
+# Title: Fixed some bugs which sometimes caused confusion in the sea-settler AI.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	CvGameCoreDLL/CvPlayerAI.cpp
+10	17	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 27bdd9c18..741dc0afa 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1061,6 +1061,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+ 					iValue = AI_foundValue_bulk(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), kFoundSet); // K-Mod
+ 				}
+ 
++				FAssert(iValue <= MAX_SHORT); // K-Mod. If this assert fails, the foundValue calculation may need to be changed.
+ 				iValue = std::min((long)MAX_SHORT, iValue); // K-Mod
+ 				pLoopPlot->setFoundValue(getID(), (short)iValue);
+ 
+@@ -1069,6 +1070,14 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+ 					pLoopPlot->area()->setBestFoundValue(getID(), iValue);
+ 				}
+ 			}
++			// K-Mod. Clear out any junk found values.
++			// (I've seen legacy AI code which makes use of the found values of unrevealed plots.
++			//  It shouldn't use those values at all, but if it does use them, I'd prefer them not to be junk!)
++			else
++			{
++				pLoopPlot->setFoundValue(getID(), 0);
++			}
++			// K-Mod end
+ 		}
+ 		if (!isBarbarian())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 62a55f45e..fad200065 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -18012,31 +18012,20 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 	int iOtherAreaBestFoundValue = 0;
+ 	CvPlot* pOtherAreaBestPlot = NULL;
+ 
++	KmodPathFinder land_path;
++	land_path.SetSettings(pSettlerUnit->getGroup(), MOVE_SAFE_TERRITORY);
++
+ 	for (iI = 0; iI < GET_PLAYER(getOwnerINLINE()).AI_getNumCitySites(); iI++)
+ 	{
+ 		CvPlot* pCitySitePlot = GET_PLAYER(getOwnerINLINE()).AI_getCitySite(iI);
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pCitySitePlot, MISSIONAI_FOUND, getGroup()) == 0)
+ 		{
+ 			iValue = pCitySitePlot->getFoundValue(getOwnerINLINE());
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/13/09                                jdog5000      */
+-/*                                                                                              */
+-/* Settler AI                                                                                   */
+-/************************************************************************************************/
+-/* original bts code
+-			if (pCitySitePlot->getArea() == getArea())
+-			{
+-				if (iValue > iAreaBestFoundValue)
+-				{
+-*/
+-			// Only count city sites we can get to
+-			if (pCitySitePlot->getArea() == getArea() && pSettlerUnit->generatePath(pCitySitePlot, MOVE_SAFE_TERRITORY, true))
++			//if (pCitySitePlot->getArea() == getArea())
++			if (pCitySitePlot->getArea() == getArea() && land_path.GeneratePath(pCitySitePlot)) // K-Mod
+ 			{
+ 				if (iValue > iAreaBestFoundValue)
+ 				{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 					iAreaBestFoundValue = iValue;
+ 					pAreaBestPlot = pCitySitePlot;
+ 				}
+@@ -18135,7 +18124,11 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 	{
+ 		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		if (pLoopPlot->isCoastalLand())
++		//if (pLoopPlot->isCoastalLand())
++		// K-Mod. Only consider areas we have explored, and only land if we know there is something we want to settle.
++		int iAreaBest; // (currently unused)
++		if (pLoopPlot->isCoastalLand() && pLoopPlot->isRevealed(getTeam(), false) && GET_PLAYER(getOwnerINLINE()).AI_getNumAreaCitySites(pLoopPlot->getArea(), iAreaBest) > 0)
++		// K-Mod end
+ 		{
+ 			iValue = pLoopPlot->getFoundValue(getOwnerINLINE());
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3823

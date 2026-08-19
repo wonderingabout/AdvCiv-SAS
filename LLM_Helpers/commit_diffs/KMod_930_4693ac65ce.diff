@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 930
+# Commit: 4693ac65cec3b0dfb3096e36cbdf0f3c4fd37b62
+# History segment: K-Mod history
+# Parent used for diff: 80840cfd546ee8daf61a12abb779506b4b8f2235
+# Title: AI explorers will now try to make contact with mapped but unmet players
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index fad200065..1f6b10917 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14837,6 +14837,7 @@ bool CvUnitAI::AI_explore()
+ 	pBestExplorePlot = NULL;
+ 	
+ 	bool bNoContact = (GC.getGameINLINE().countCivTeamsAlive() > GET_TEAM(getTeam()).getHasMetCivCount(true));
++	const CvTeam& kTeam = GET_TEAM(getTeam()); // K-Mod
+ 
+ 	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+@@ -14872,13 +14873,22 @@ bool CvUnitAI::AI_explore()
+ 						{
+ 							iValue += 1000;
+ 						}
++						/* original bts code
+ 						else if (bNoContact)
+ 						{
+ 							if (pAdjacentPlot->getRevealedTeam(getTeam(), false) != pAdjacentPlot->getTeam())
+ 							{
+ 								iValue += 100;
+ 							}
++						} */
++						// K-Mod. Not only is the original code cheating, it also doesn't help us meet anyone!
++						// The goal here is to try to meet teams which we have already seen through map trading.
++						if (bNoContact && pAdjacentPlot->getRevealedOwner(kTeam.getID(), false) != NO_PLAYER) // note: revealed team can be set before the plot is actually revealed.
++						{
++							if (!kTeam.isHasMet(pAdjacentPlot->getRevealedTeam(kTeam.getID(), false)))
++								iValue += 100;
+ 						}
++						// K-Mod end
+ 					}
+ 				}
+ 
+@@ -14953,6 +14963,8 @@ bool CvUnitAI::AI_exploreRange(int iRange)
+ 
+ 	int iImpassableCount = GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(getUnitType());
+ 
++	const CvTeam& kTeam = GET_TEAM(getTeam()); // K-Mod
++
+ 	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+ 	{
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+@@ -14977,6 +14989,11 @@ bool CvUnitAI::AI_exploreRange(int iRange)
+ 						iValue += 10000;
+ 					}
+ 
++					// K-Mod. Try to meet teams that we have seen through map trading
++					if (pLoopPlot->getRevealedOwner(kTeam.getID(), false) != NO_PLAYER && !kTeam.isHasMet(pLoopPlot->getRevealedTeam(kTeam.getID(), false)))
++						iValue += 1000;
++					// K-Mod end
++
+ 					for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 					{
+ 						PROFILE("AI_exploreRange 2");
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2103

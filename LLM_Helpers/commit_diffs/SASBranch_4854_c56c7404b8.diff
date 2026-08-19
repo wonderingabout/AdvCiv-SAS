@@ -1,0 +1,776 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4854
+# Commit: c56c7404b8950f9d37b1cb023a71408a669117bb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b9a7c4149ba5207a9a1430f6d72d8b520fc0bec8
+# Title: remove AI free techs and free techs entirely anyways etc hopefully more versatile games or and tech paths this way anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/AI_Variables_GlobalDefines.xml
+19	438	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+40	62	handicap_info_to_csv_advciv-sas.csv
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index a9f613874..e94aa64e8 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -362,8 +362,7 @@
+ 	<Define>
+ 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
+ 		<!-- custom: at first i thought some cities are not good enough but AI still settles them and cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't seem to do too much especially if increased too much. A very low value (around 300 for example) seemed to be mostly ignored too (except AI had more cities that were a bit too crammed. Trying other values, it seems 550 somehow, i don't know why, but consistently provides better city spots to the AI, would need more testing to make sure., was 600 -->
+-		<!-- custom: trying to increase this (again anyways etc) to see what happens, was 550 -->
+ 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
+-		<iDefineIntVal>580</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index cadaef3d8..2615b37df 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -150,8 +150,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt) anyways etc -->
+ 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
+-			<!-- Lower tech costs for the AI -->
+-			<iAIResearchPercent>95</iAIResearchPercent>
++			<iAIResearchPercent>127</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+ 			<iAITrainPercent>124</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+@@ -194,73 +193,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 			</Goodies>
+-			<FreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-					<FreeTech>
+-					<TechType>TECH_MINING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-					<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-					<FreeTech>
+-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-					<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-					<FreeTech>
+-					<TechType>TECH_IRON_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</FreeTechs>
+-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
+-			hopefully difficulty is more gradual with this now.
+-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
+-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
+-			often giving AIs free techs to increase their efficiency.
+-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
+-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
+-			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<!-- custom: remove Free Techs and AI Free Techs at all difficulties, hopefully this gives extra versatility in the game and AI tech path choices, reduce AI tech costs or whatever it is called to compensate anyways etc -->
++			<FreeTechs/>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>10</iDifficulty>
+ 		</HandicapInfo>
+@@ -342,7 +277,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- was 130 -->
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
+ 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+-			<iAIResearchPercent>100</iAIResearchPercent>
++			<iAIResearchPercent>118</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+ 			<iAITrainPercent>116</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+@@ -387,39 +322,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
+-			hopefully difficulty is more gradual with this now.
+-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
+-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
+-			often giving AIs free techs to increase their efficiency.
+-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
+-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
+-			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>20</iDifficulty>
+ 		</HandicapInfo>
+@@ -501,7 +404,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>100</iAIResearchPercent>
++			<iAIResearchPercent>109</iAIResearchPercent>
+ 			<iAITrainPercent>108</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>106</iAIConstructPercent>
+@@ -544,39 +447,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
+-			hopefully difficulty is more gradual with this now.
+-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
+-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
+-			often giving AIs free techs to increase their efficiency.
+-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
+-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
+-			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>30</iDifficulty>
+ 		</HandicapInfo>
+@@ -705,43 +576,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<!-- custom: make noble slightly harder than it was, should be quite easier than prince but not that much easier, hopefully
+-			difficulty is more gradual with this now.
+-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
+-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
+-			often giving AIs free techs to increase their efficiency.
+-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
+-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
+-			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MONARCHY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>40</iDifficulty>
+ 		</HandicapInfo>
+@@ -830,7 +665,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>92</iAIResearchPercent>
++			<iAIResearchPercent>91</iAIResearchPercent>
+ 			<iAITrainPercent>92</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>94</iAIConstructPercent>
+@@ -875,38 +710,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<!-- custom: make prince slightly harder than it was, should be quite easier than monarch but not that much easier, hopefully
+-			difficulty is more gradual with this now -->
+-			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MONARCHY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>50</iDifficulty>
+ 		</HandicapInfo>
+@@ -997,7 +801,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+-			<iAIResearchPercent>84</iAIResearchPercent>
++			<iAIResearchPercent>82</iAIResearchPercent>
+ 			<!-- was 90 -->
+ 			<iAITrainPercent>84</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1047,44 +851,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MONARCHY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_DRAMA</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_INDUSTRIALISM</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>60</iDifficulty>
+ 		</HandicapInfo>
+@@ -1170,7 +937,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>76</iAIResearchPercent>
++			<iAIResearchPercent>73</iAIResearchPercent>
+ 			<!-- was 85 -->
+ 			<iAITrainPercent>76</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1221,51 +988,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<AIFreeTechs>
+-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
+-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
+-				maybe too) -->
+-				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MONARCHY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_DRAMA</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_INDUSTRIALISM</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>70</iDifficulty>
+ 		</HandicapInfo>
+@@ -1354,7 +1077,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>68</iAIResearchPercent>
++			<iAIResearchPercent>64</iAIResearchPercent>
+ 			<!-- was 80 -->
+ 			<iAITrainPercent>68</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1403,53 +1126,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<AIFreeTechs>
+-				<!-- advc.250e -->
+-				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MONARCHY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_DRAMA</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_INDUSTRIALISM</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>80</iDifficulty>
+ 		</HandicapInfo>
+@@ -1540,7 +1217,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>60</iAIResearchPercent>
++			<iAIResearchPercent>55</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>60</iAITrainPercent>
+ 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+@@ -1595,103 +1272,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<AIFreeTechs>
+-				<!-- custom: the wheel doesn't seem such a critical tech to have, gives the human player a bit more
+-				breathing room if the AI has less early techs too, was TECH_THE_WHEEL -->
+-				<!-- advc.250e -->
+-				<!--FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech-->
+-				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
+-				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
+-				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
+-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
+-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
+-				maybe too)-->
+-				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+-				If AI wants to turtle later in the game, archers may be more relevant then.
+-				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
+-				<!--<FreeTech>
+-					<TechType>TECH_ARCHERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>-->
+-				<!-- custom: instead of archery, give them a tech that helps them expand more early -->
+-				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
+-				It may make the early game more gradual while still having the human not waste as much time on less rewarding techs.
+-				, was IRON_WORKING-->
+-				<FreeTech>
+-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_BRONZE_WORKING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+-				was TECH_MATHEMATICS -->
+-				<FreeTech>
+-					<TechType>TECH_CURRENCY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
+-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+-				was TECH_MACHINERY-->
+-				<FreeTech>
+-					<TechType>TECH_MONARCHY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+-				also may be more versatile than printing press, was PRINTING_PRESS-->
+-				<FreeTech>
+-					<TechType>TECH_NAVIGATION</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_DRAMA</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
+-				<FreeTech>
+-					<TechType>TECH_SAILING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: removed tech TECH_GUNPOWDER to give the human player more time/momentum to catch up maybe -->
+-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+-				<FreeTech>
+-					<TechType>TECH_CHEMISTRY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+-				<FreeTech>
+-					<TechType>TECH_INDUSTRIALISM</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
+-				<FreeTech>
+-					<TechType>TECH_BIOLOGY</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
+-				<FreeTech>
+-					<TechType>TECH_LASER</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</AIFreeTechs>
++			<AIFreeTechs/>
+ 			<!-- custom: adjusted slightly based on/with knowledge of the code sample in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\UWAIAgent.cpp as well as chatgpt's explanation of it anyways etc, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings anyways etc, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder anyways etc, was 85 -->
+ 			<!-- advc.250a -->
+ 			<iDifficulty>90</iDifficulty>
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index 3af839aff..fbc8608b5 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -3,16 +3,16 @@ iAIAdvancedStartPercent,67,75,90,100,125,145,175,210,270
+ iAIAnimalBonus,-30,-15,-20,0,0,0,0,0,0
+ iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
+ iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
+-iAICivicUpkeepPercent,100,100,100,100,95,90,85,80,75
+-iAIConstructPercent,106,104,102,100,98,96,94,92,90
+-iAICreatePercent,106,104,102,100,98,96,94,92,90
++iAICivicUpkeepPercent,118,112,106,100,94,88,82,76,70
++iAIConstructPercent,118,112,106,100,94,88,82,76,70
++iAICreatePercent,106,104,102,100,97,94,91,88,85
+ iAIDeclareWarProb,70,80,90,100,110,120,130,140,150
+-iAIGPThresholdPercent,125,120,110,100,100,95,90,85,80
+-iAIGrowthPercent,125,120,110,100,100,95,90,85,80
++iAIGPThresholdPercent,115,110,105,100,95,90,85,80,75
++iAIGrowthPercent,115,110,105,100,95,90,85,80,75
+ iAIHandicapIncrementTurns,0,0,0,0,100,50,33,25,20
+-iAIInflationPercent,100,90,80,80,80,80,80,80,80
+-iAIResearchPercent,95,100,100,100,104,108,112,116,120
+-iAIStartingDefenseUnits,1,1,1,2,2,3,3,4,4
++iAIInflationPercent,115,110,105,100,95,90,85,80,75
++iAIResearchPercent,127,118,109,100,91,82,73,64,55
++iAIStartingDefenseUnits,1,1,1,2,2,2,3,3,3
+ iAIStartingExploreUnits,0,0,0,0,1,1,1,1,1
+ iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
+ iAIStartingWorkerUnits,0,0,0,0,0,0,0,1,1
+@@ -20,56 +20,56 @@ iAITrainPercent,124,116,108,100,92,84,76,68,60
+ iAIUnitCostPercent,100,100,100,100,100,100,100,100,100
+ iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
+ iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50
+-iAIWarWearinessPercent,112,108,104,100,96,92,88,84,80
+-iAIWorkRateModifier,0,0,0,0,6,12,18,24,30
++iAIWarWearinessPercent,118,112,106,100,94,88,82,76,70
++iAIWorkRateModifier,0,0,0,0,10,20,30,40,50
+ iAIWorldConstructPercent,100,100,100,100,100,100,100,100,100
+ iAIWorldCreatePercent,100,100,100,100,100,100,100,100,100
+ iAIWorldTrainPercent,100,100,100,100,100,100,100,100,100
+ iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
+-iAnimalAttackProb,30,50,60,70,70,70,70,70,70
+-iAnimalBonus,-30,-25,-20,0,0,0,0,0,0
+-iAttitudeChange,2,1,0,0,0,0,0,0,0
+-iBarbarianBonus,-30,-25,0,0,0,0,0,0,0
++iAnimalAttackProb,10,20,30,40,50,60,70,80,90
++iAnimalBonus,-30,-20,-10,0,0,0,0,0,0
++iAttitudeChange,2,1,1,0,0,0,0,0,0
++iBarbarianBonus,-30,-15,0,0,0,0,0,0,0
+ iBarbarianCityAttackBonus,,,,,0,0,0,0,0
+ iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
+ iBarbarianCityCreationTurnsElapsed,46,44,42,40,38,36,34,32,30
+ iBarbarianCreationTurnsElapsed,40,38,36,34,32,30,28,26,24
+-iBarbarianDefenders,0,0,1,1,2,2,2,3,3
+-iBaseGrowthThresholdPercent,80,95,100,100,100,100,110,120,130
++iBarbarianDefenders,1,1,1,2,2,2,2,3,3
++iBaseGrowthThresholdPercent,85,90,95,100,105,110,115,120,125
+ iBuildTimePercent,100,100,100,100,100,100,100,100,100
+-iCivicUpkeepPercent,60,70,80,90,95,100,100,100,100
+-iColonyMaintenancePercent,60,80,90,100,105,110,115,120,130
+-iConstructPercent,85,95,100,100,100,100,105,110,115
+-iCorporationMaintenancePercent,60,80,90,100,105,110,115,120,130
+-iCreatePercent,70,80,90,100,100,100,100,110,120
+-iCultureLevelPercent,100,100,100,100,100,106,112,118,129
+-iDifficulty,0,10,20,30,40,50,60,70,85
+-iDistanceMaintenancePercent,50,60,70,80,85,90,95,100,100
+-iForeignCultureStrength,10,15,20,25,29,32,35,38,40
+-iFreeUnits,20,15,10,7,5,4,3,2,1
+-iFreeWinsVsBarbs,3,2,1,0,0,0,0,0,0
+-iGPThresholdPercent,80,95,100,100,100,100,110,120,130
++iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100
++iColonyMaintenancePercent,85,90,95,100,105,110,115,120,130
++iConstructPercent,100,100,100,100,100,100,100,100,100
++iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,130
++iCreatePercent,100,100,100,100,100,100,100,100,100
++iCultureLevelPercent,100,100,100,100,100,100,100,100,100
++iDifficulty,10,20,30,40,50,60,70,80,90
++iDistanceMaintenancePercent,50,65,70,75,80,85,90,95,100
++iForeignCultureStrength,11,14,17,20,23,26,29,32,35
++iFreeUnits,20,8,7,6,5,4,3,2,1
++iFreeWinsVsBarbs,2,1,0,0,0,0,0,0,0
++iGPThresholdPercent,85,90,95,100,105,110,115,120,125
+ iGold,0,0,0,0,0,0,0,0,0
+ iHappyBonus,5,5,4,4,4,4,4,4,4
+ iHealthBonus,3,3,2,2,2,2,2,2,2
+-iInflationPercent,60,70,80,90,95,100,100,100,100
++iInflationPercent,100,100,100,100,100,100,100,100,100
+ iMaxColonyMaintenance,200,200,200,200,200,200,200,200,200
+ iMaxNumCitiesMaintenance,4000,4000,5000,5000,6000,6000,7000,7000,8000
+-iNoTechTradeModifier,100,85,75,64,56,48,40,32,24
+-iNumCitiesMaintenancePercent,45,55,65,75,80,85,90,95,100
+-iResearchPercent,68,73,85,95,114,120,128,133,140
++iNoTechTradeModifier,80,72,66,60,54,48,42,36,30
++iNumCitiesMaintenancePercent,60,65,70,75,80,85,90,95,100
++iResearchPercent,100,100,100,100,100,100,100,100,100
+ iSeaBarbarianBonus,,,,,,,,,0
+ iSeaBarbarianExtraMoves,,,,,,,,,0
+-iStartingDefenseUnits,3,3,2,2,1,1,1,1,1
+-iStartingExploreUnits,1,0,0,0,0,0,0,0,0
++iStartingDefenseUnits,3,2,2,2,1,1,1,1,1
++iStartingExploreUnits,1,1,1,0,0,0,0,0,0
+ iStartingLocPercent,11,22,33,44,55,66,77,88,99
+ iStartingWorkerUnits,0,0,0,0,0,0,0,0,0
+-iTechTradeKnownModifier,-100,-50,-25,0,0,0,0,0,0
++iTechTradeKnownModifier,-30,-20,-10,0,0,0,0,0,0
+ iTrainPercent,100,100,100,100,100,100,100,100,100
+ iUnitCostPercent,100,100,100,100,100,100,100,100,100
+ iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
+ iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
+-iUnownedTilesPerGameAnimal,54,51,48,45,42,39,36,33,30
++iUnownedTilesPerGameAnimal,54,49,46,43,40,37,34,31,28
+ iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
+ GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,2,3,4
+ GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,3,3,3
+@@ -83,34 +83,12 @@ GOODY_SETTLER (*),1,1,0,0,0,0,0,0,0
+ GOODY_TECH (*),4,4,4,4,4,3,3,3,3
+ GOODY_WARRIOR (*),2,2,2,2,2,2,1,1,1
+ GOODY_WORKER (*),2,2,1,0,0,0,0,0,0
+-AIFreeTechs,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
+-FreeTechs,FT_0,,,,,,,,
++AIFreeTechs,,,,,,,,,
++FreeTechs,,,,,,,,,
+ 
+ 
+ 
+ 
+ ,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
+-,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
+-,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery
+-,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.
+-,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency
+-,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation
+-,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry
+-,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser
+-,-,-,-,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy
+-,-,-,-,-,-,Drama,Drama,Drama,Drama
+-,-,-,-,-,-,Industr.,Industr.,Industr.,Industr.
+-,-,-,-,-,-,-,Fishing,Fishing,Fishing
+-,-,-,-,-,-,-,-,Animal H.,Animal H.
+-,-,-,-,-,-,-,-,-,Mysticism
+-,-,-,-,-,-,-,-,-,Sailing
+-,-,-,-,-,-,-,-,-,Biology
+-,FT_0,-------,-------,-------,-------,-------,-------,-------,-------
+-,The Wheel,-,-,-,-,-,-,-,-
+-,Agriculture,-,-,-,-,-,-,-,-
+-,Hunting,-,-,-,-,-,-,-,-
+-,Mining,-,-,-,-,-,-,-,-
+-,Pottery,-,-,-,-,-,-,-,-
+-,Animal H.,-,-,-,-,-,-,-,-
+-,Bronze W.,-,-,-,-,-,-,-,-
+-,Iron W.,-,-,-,-,-,-,-,-
++,-------,-------,-------,-------,-------,-------,-------,-------,-------
++,-------,-------,-------,-------,-------,-------,-------,-------,-------
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=33112

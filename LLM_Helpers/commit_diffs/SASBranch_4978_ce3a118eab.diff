@@ -1,0 +1,209 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4978
+# Commit: ce3a118eab45a27b093739f745733da9829ca6b9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 62d7936a35d29a6a2722e996dcaeab1286d4b8db
+# Title: adjust starting techs of inca, maya, mongolia
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
+3	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+7	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+10	10	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index cb5f6355e..8f56380f0 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1904,7 +1904,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+@@ -2583,7 +2583,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+@@ -2686,7 +2686,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
+index 486868efd..3b05a7e7b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
+@@ -18,6 +18,8 @@ You can find below an example of preview for the lancer medium 2 (bronze age as
+ <img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" alt="longbow_3.png" width="150"></img>
+ <img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" alt="sword_light_4.png" width="150"></img>
+ 
++See also: [README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyways-etc-as-of-now-stale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyways-etc-as-of-now-stale)
++
+ ### Buildings buttons
+ 
+ Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b16dc5234..13a6aa6e2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -962,10 +962,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this
+ 
+ When adding our mod's custom wallpaper instead of default base advciv +/- civ4 one, one issue i encountered is that our image was stretched vertically, while some of the top of the image was entirely missing.
+ 
+-Note: i have used ri mod's very useful civ4mainmenubg.nif in particular since they use static images like for their wallpaper in main menu at least but anyways etc, see:
+-
+-- [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)
+-- [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files-anyways-etc)
++Note: i have used ri mod's very useful civ4mainmenubg.nif in particular since they use static images like for their wallpaper in main menu at least but anyways etc, see [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)
+ 
+ Note 2: in this example i am using a 1920 x 1080 image and game settings at 1920 x 1080 too if i am not mistaken. I assume a smaller or wider in this case but anyways etc image would be shrinked or stretched fine to fit the full screen, but when it comes to some portions of the image being ignored, it has nothing to do with the resolution itself (i.e 1024 x 1024 or 4096 x 2000 would be the same, but difference is aspect ratio (e.g. 16:9 vs 4:3 or such anyways etc)), so i hope these instructions or/and feedback help use the optimal ratio i have found that works-functions well with civ4 engine or so it seems at least with this nif, hopefully helpful anyways etc.
+ 
+@@ -1001,6 +998,8 @@ Note 4: i have noticed also we could create fake pixels on the sides too, althou
+ 
+ Again, screenshots of intermediate steps are also shown in the google drive link in this known issue number's section as well, hopefully helpful or not or yes or etc anyways etc anyways etc anyways etc...
+ 
++See also: [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files-anyways-etc)
++
+ ## 29 - (as of now with a workaround) clicking on a specific spot in tech advisor at tech transhumanism's blue box causes a crash
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+index 78ca65ac8..31bbda96d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+@@ -1,4 +1,4 @@
+-# Less Generic-neutral unit names or/and combat types and note about woman units
++# Less Generic-neutral unit names or/and combat types and note about women units
+ 
+ As this will be expanded later, moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hopefully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
+ 
+@@ -39,8 +39,12 @@ Not exhaustive or maybe is or not but or/and todo, anyways
+ 
+ May also apply to civ units or/and Buildings or not will see or not etc or not, anyways
+ 
+-## Note about women units anyways etc
++## Note about women units anyways etc (as of now stale)
+ 
+-I intend to add women in some of these units at least if the opportunity arises and it seems relvant and/or accurate anyways etc. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy as women are generally more agile, (some) bow units and maybe some light melee/sword units for example maybe, not following any specified pattern or ratios, as i prefer. Doing any more than this would be forcing my narrative and not being historically accurate, as let's be real, the tremendous majority of warfare from little or quite little or lot or bit or etc anyways etc has been fought by men/male soldiers anyways etc for better or worse (dying xd is not fun.. but anyways etc, especially for someone else as is sadly often the case in wars (forced and such anyways etc, very cruel world but anyways etc)).
++Update: as of now stale, units are fine as such and unlikely to change as of now in adviv-sas anyways etc.
++
++I had intended to add women in some of these units at least if the opportunity arises and it seems relvant and/or accurate anyways etc. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy as women are generally more agile, (some) bow units and maybe some light melee/sword units for example maybe, not following any specified pattern or ratios, as i prefer. Doing any more than this would be forcing my narrative and not being historically accurate, as let's be real, the tremendous majority of warfare from little or quite little or lot or bit or etc anyways etc has been fought by men/male soldiers anyways etc for better or worse (dying xd is not fun.. but anyways etc, especially for someone else as is sadly often the case in wars (forced and such anyways etc, very cruel world but anyways etc)).
+ 
+ If there is a good opportunity i find/deem if i may say worth anyways etc to add for example a woman unit where relevant, i would love to, but it can't be expected to be general rule in advciv-sas anyways etc.
++
++See also: [README_AI_Generated_Images.md#unit-buttons-as-of-now-stale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#unit-buttons-as-of-now-stale)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index dccc4d530..0210e802e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -276,7 +276,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc ; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
+-- reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tehc_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 5 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details also: [README_Tech_Tree.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework), and in particular the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unliek this message xd but that i hope is sitll helpful i mean but anyways etc)
++- reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tech_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 4 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details also: [README_Tech_Tree.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework), and in particular the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unliek this message xd but that i hope is sitll helpful i mean but anyways etc)
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index e7011619b..ad288da62 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -128,9 +128,9 @@ After a few or quite many back and forth and reviewing rounds with chatgpt 5 whi
+ 
+ #### main table (chatgpt 5 written with some tweaks from me but anyways etc)
+ 
+-> Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **minimize “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping a **few** for clear identity/variety.  
+-> Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it selectively.  
+-> **Balance status:** global totals are **14 each** (Fishing, Pottery, Mysticism, Hunting, Mining).
++Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **not too many “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping **quite a few enough** for clear identity/variety.
++
++Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without concern as long as there is not too much of it.
+ 
+ | Civ               | Old FreeTechs                 | New FreeTechs                 | Rationale |
+ |-------------------|-------------------------------|-------------------------------|-----------|
+@@ -150,14 +150,14 @@ After a few or quite many back and forth and reviewing rounds with chatgpt 5 whi
+ | Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+ | Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Frees a Mining slot; avoids Mining+Pottery/Hunting spikes. |
+ | Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
+-| Inca              | Agriculture, Mysticism        | **Mysticism, Pottery**        | Andean ritual + terrace/cottage econ; deliberately *avoids Mining* to keep starts fair. |
++| Inca              | Agriculture, Mysticism        | **Pottery, Mining**           | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Bronze Working** |
+ | India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
+ | Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+ | Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+ | Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
+ | Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+-| Maya              | Mining, Mysticism             | **Mining, Mysticism**         | Stonework/metals + religion/astronomy; avoids the “amazing” pairings. |
+-| Mongol            | The Wheel, Hunting            | **Hunting, Pottery**          | Steppe military + simple econ; *no Mining* to avoid rush/econ spikes. |
++| Maya              | Mining, Mysticism             | **Mysticism, Pottery**        | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
++| Mongol            | The Wheel, Hunting            | **Hunting, Mysticism**        | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
+ | Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+ | Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+ | Ottoman           | The Wheel, Agriculture        | **Fishing, Pottery**          | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
+@@ -184,16 +184,16 @@ After a few or quite many back and forth and reviewing rounds with chatgpt 5 whi
+ 
+ | Pair                   | Count |
+ |------------------------|-------|
+-| Mining + Mysticism     | 5     |
++| Mining + Mysticism     | 4     |
+ | Fishing + Hunting      | 4     |
+ | Fishing + Mysticism    | 4     |
+ | Fishing + Pottery      | 4     |
+ | Hunting + Mining       | 4     |
+-| Hunting + Pottery      | 4     |
++| Mining + Pottery       | 4     |
++| Hunting + Pottery      | 3     |
+ | Mysticism + Pottery    | 3     |
+-| Mining + Pottery       | 3     |
++| Hunting + Mysticism    | 3     |
+ | Fishing + Mining       | 2     |
+-| Hunting + Mysticism    | 2     |
+ 
+ **Sanity checks:**
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index fa8a74917..a172fbdca 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -239,7 +239,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See *GlobalDefines_advc.xml*.
+ - **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
+-- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **5** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework) • [civ list & rationale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
++- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework) • [civ list & rationale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
+ 
+ ### Eras
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=24430

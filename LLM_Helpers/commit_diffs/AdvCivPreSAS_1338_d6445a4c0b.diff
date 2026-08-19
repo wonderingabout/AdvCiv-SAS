@@ -1,0 +1,294 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1338
+# Commit: d6445a4c0ba8148e0b49c90fa63d7e596b161741
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fc4f4e1ed786bb3866575c6f09a63d2896acf6b1
+# Title: Release DLL for v0.92e; not properly tested.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	CvGameCoreDLL/CvPlayer.cpp
+65	46	CvGameCoreDLL/CvPlayerAI.cpp
+21	24	CvGameCoreDLL/CvPlot.cpp
+23	0	CvGameCoreDLL/CvTeam.cpp
+2	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 81506b1bf..47b5d0194 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9552,7 +9552,7 @@ int CvPlayer::getAveragePopulation() const
+ 	}
+ 
+ 	//return ((getTotalPopulation() / getNumCities()) + 1);
+-	// advc.131: TThe above is 100% off at the start of a game
++	// advc.131: The above is 100% off at the start of a game
+ 	return ::round(getTotalPopulation() / getNumCities());
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 192193a22..71e61c836 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7011,59 +7011,78 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 						: std::max(1, 2*getNumCities() / std::max(1, 3*iCityTarget)); // a guess
+ 
+ 					//iNumBonuses += std::max(0, (iCityTarget - iCityCount)*(kFinalImprovement.isWater() ? 2 : 3)/8); // future expansion
+-
+-					if (iNumBonuses > 0 && (bRevealed || kBonusInfo.getTechReveal() == eTech))
++					// <advc.003>
++					if (iNumBonuses <= 0 || (!bRevealed && kBonusInfo.getTechReveal() != eTech))
++						continue; // </advc.003>
++					int iBonusValue = 0;
++
++					TechTypes eConnectTech = (TechTypes)kBonusInfo.getTechCityTrade();
++					if((kTeam.isHasTech(eConnectTech) || eConnectTech == eTech) &&
++							!kTeam.isBonusObsolete((BonusTypes)iK) &&
++							kBonusInfo.getTechObsolete() != eTech) {
++						// note: this is in addition to the getTechCityTrade evaluation lower in this function.
++						iBonusValue += AI_bonusVal((BonusTypes)iK, 1, true) * iCityCount;
++						if (bRevealed)
++							iBonusValue += (iNumBonuses-1) * iBonusValue / 10;
++						else iBonusValue /= 2;
++					}
++					int iYieldValue = 0;
++					for (YieldTypes y = (YieldTypes)0; y < NUM_YIELD_TYPES; y=(YieldTypes)(y+1))
+ 					{
+-						int iBonusValue = 0;
++						int iTempValue = 0;
+ 
+-						TechTypes eConnectTech = (TechTypes)kBonusInfo.getTechCityTrade();
+-						if ((kTeam.isHasTech(eConnectTech) || eConnectTech == eTech) && !kTeam.isBonusObsolete((BonusTypes)iK) && kBonusInfo.getTechObsolete() != eTech)
+-						{
+-							// note: this is in addition to the getTechCityTrade evaluation lower in this function.
+-							iBonusValue += AI_bonusVal((BonusTypes)iK, 1, true) * iCityCount;
+-							if (bRevealed)
+-								iBonusValue += (iNumBonuses-1) * iBonusValue / 10;
+-							else
+-								iBonusValue /= 2;
+-						}
+-						int iYieldValue = 0;
+-						for (YieldTypes y = (YieldTypes)0; y < NUM_YIELD_TYPES; y=(YieldTypes)(y+1))
+-						{
+-							int iTempValue = 0;
++						iTempValue += kFinalImprovement.getImprovementBonusYield(iK, y) * 100;
++						iTempValue += kFinalImprovement.getIrrigatedYieldChange(y) * 75;
+ 
+-							iTempValue += kFinalImprovement.getImprovementBonusYield(iK, y) * 100;
+-							iTempValue += kFinalImprovement.getIrrigatedYieldChange(y) * 75;
++						iTempValue *= AI_yieldWeight(y);
++						iTempValue /= 100;
++						iTempValue *= AI_averageYieldMultiplier(y);
++						iTempValue /= 100;
+ 
+-							iTempValue *= AI_yieldWeight(y);
+-							iTempValue /= 100;
+-							iTempValue *= AI_averageYieldMultiplier(y);
+-							iTempValue /= 100;
++						iYieldValue += iTempValue;
++					}
++					// advc.036: Apply this to later-era start too
++					if (getCurrentEra() > 0)//GC.getGameINLINE().getStartEra())
++						iYieldValue -= 100; // compare to a hypothetical low-value improvement
+ 
+-							iYieldValue += iTempValue;
++					// Bonuses might be outside of our city borders.
++					iYieldValue *= 2*iNumBonuses;
++					iYieldValue /= (bRevealed ? 3 : 4);
++
++					if (kFinalImprovement.isWater())
++						iYieldValue = iYieldValue * 2/3;
++					/*  <advc.036> Since iBonusVal no longer overestimates
++						early-game health, high-yield tiles need to be
++						appreciated more. */
++					// This makes iYieldValue=225 a fixpoint
++					iYieldValue = ::round(std::pow((double)iYieldValue, 1.5) / 15);
++					/*  At the start of the game, extra yields are very important,
++						but we need to be sure that the tile isn't blocked by a
++						feature before increasing iYieldValue further. Will have
++						to check each tile -- OK, performance isn't an issue
++						this early on. */
++					if(pCapitalCity != NULL && getNumCities() == 1) {
++						bool bValid = false;
++						for(int i = 0; i < NUM_CITY_PLOTS; i++) {
++							if(i == CITY_HOME_PLOT)
++								continue;
++							CvPlot* p = ::plotCity(pCapitalCity->getX_INLINE(), pCapitalCity->getY_INLINE(), i);
++							if(p != NULL && p->getBonusType() == iK) {
++								FeatureTypes ft = p->getFeatureType();
++								if(ft == NO_FEATURE || GET_TEAM(getTeam()).
++										hasTechToClear(ft, eTech)) {
++									bValid = true;
++									break;
++								}
++							}
+ 						}
+-						// advc.036: Apply this to later-era start too
+-						if (getCurrentEra() > 0)//GC.getGameINLINE().getStartEra())
+-							iYieldValue -= 100; // compare to a hypothetical low-value improvement
+-
+-						// Bonuses might be outside of our city borders.
+-						iYieldValue *= 2*iNumBonuses;
+-						iYieldValue /= (bRevealed ? 3 : 4);
+-
+-						if (kFinalImprovement.isWater())
+-							iYieldValue = iYieldValue * 2/3;
+-						/*  <advc.036> Since iBonusVal no longer overestimates
+-							early-game health, high-yield tiles need to be
+-							appreciated more. */
+-						// iYieldValue=225 is a fixpoint in the Medieval era
+-						iYieldValue = ::round(std::pow((double)iYieldValue, 1.5)
+-							// Extra yields are very important in the early game
+-							  / (10 + 2.5 * getCurrentEra()));
+-						// </advc.036>
+-						// Convert to O(4)
+-						iYieldValue /= 25;
++						if(bValid)
++							iYieldValue = ::round(iYieldValue * 1.5);
++					} // </advc.036>
++					// Convert to O(4)
++					iYieldValue /= 25;
+ 
+-						iBuildValue += iBonusValue + std::max(0, iYieldValue);
+-					}
++					iBuildValue += iBonusValue + std::max(0, iYieldValue);
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index af1f4bf9b..8d48bd779 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4446,7 +4446,9 @@ CvArea* CvPlot::waterArea(bool bNoImpassable) const
+ 	{
+ 		pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), ((DirectionTypes)iI));
+ 
+-		if (pAdjacentPlot != NULL)
++		if (pAdjacentPlot != NULL
++				// advc.030b: Can be NULL while recalculating areas at game start
++				&& pAdjacentPlot->area() != NULL)
+ 		{
+ /********************************************************************************/
+ /* 	BETTER_BTS_AI_MOD						01/02/09		jdog5000		*/
+@@ -4524,30 +4526,19 @@ int CvPlot::getArea() const
+ 	return m_iArea;
+ }
+ 
++// advc.003: Refactored
++void CvPlot::setArea(int iNewValue) {
+ 
+-void CvPlot::setArea(int iNewValue)
+-{
+-	//bool bOldLake; // advc.003: is never read
+-
+-	if (getArea() != iNewValue)
+-	{
+-		//bOldLake = isLake(); // advc.003
+-
+-		if (area() != NULL)
+-		{
+-			processArea(area(), -1);
+-		}
+-
+-		m_iArea = iNewValue;
+-		m_pPlotArea = NULL;
+-
+-		if (area() != NULL)
+-		{
+-			processArea(area(), 1);
+-
+-			updateIrrigated();
+-			updateYield();
+-		}
++	if(getArea() == iNewValue)
++		return;
++	if(area() != NULL)
++		processArea(area(), -1);
++	m_iArea = iNewValue;
++	m_pPlotArea = NULL;
++	if(area() != NULL) {
++		processArea(area(), 1);
++		updateIrrigated();
++		updateYield();
+ 	}
+ }
+ 
+@@ -9312,6 +9303,12 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
+ 		pArea->changeCitiesPerPlayer(pCity->getOwnerINLINE(), iChange);
+ 		// <advc.030b>
+ 		CvArea* wa = waterArea(true);
++		/*  Fixme: During CvMap::recalculateAreas, for iChange=-1, the call above
++			could fail to locate an adjacent water area because the area of all
++			adjacent water tiles may already have been set to NULL. A subsequent
++			processArea call with iChange=1 would then lead to an incorrect
++			city count. I think this can only happen in a scenario with preplaced
++			cities though, and I'm not sure what to do about it. */
+ 		if(wa != NULL) {
+ 			if(iChange > 0 || (iChange < 0 &&
+ 					// See comment in CvCity::kill
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5aaf25da6..7a1a01bfc 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -7787,6 +7787,29 @@ bool CvTeam::hasLaunched() const
+ 	return false;
+ }
+ 
++// <advc.003>
++bool CvTeam::hasTechToClear(FeatureTypes ft, TechTypes currentResearch) const {
++
++	for(int i = 0; i < GC.getNumBuildInfos(); i++) {
++		CvBuildInfo const& bi = GC.getBuildInfo((BuildTypes)i);
++		if(bi.getFeatureTime(ft) <= 0)
++			continue;
++		TechTypes reqs[2] = { (TechTypes)bi.getTechPrereq(),
++							  (TechTypes)bi.getFeatureTech(ft) };
++		bool bValid = true;
++		for(int j = 0; j < 2; j++) {
++			if(reqs[j] != NO_TECH && currentResearch != reqs[j] &&
++					!isHasTech(reqs[j])) {
++				bValid = false;
++				break;
++			}
++		}
++		if(bValid)
++			return true;
++	}
++	return false;
++} // </advc.003>
++
+ // advc.004a
+ void CvTeam::setHasTechTemporarily(TechTypes tt, bool b) {
+ 	m_pabHasTech[tt] = b; }
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 89ebbf46c..2982e13b6 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -424,7 +424,8 @@ public:
+ 	DllExport void getCompletedSpaceshipProjects(std::map<ProjectTypes, int>& mapProjects) const;
+ 	DllExport int getProjectPartNumber(ProjectTypes projectType, bool bAssert) const;
+ 	DllExport bool hasLaunched() const;
+-
++	// advc.003:
++	bool hasTechToClear(FeatureTypes ft, TechTypes currentResearch = NO_TECH) const;
+ 	// advc.136a: Made public
+ 	void testCircumnavigated();
+ 	// <advc.127b> Both return -1 if no team member has a capital
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=9598

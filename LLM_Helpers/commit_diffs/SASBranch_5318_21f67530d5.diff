@@ -1,0 +1,99 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5318
+# Commit: 21f67530d536c6d93b42cf1223237b34e1ca7d0a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a134450486e0104df9473d46017ebc6e4d7bc553
+# Title: Fix Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited) Was happening in AdvCiv-S...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	3	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+11	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index c9dc9301d..be1701245 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -189,6 +189,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.iItemIndex = -1
+ 		self.pediaHistory = []
+ 		self.pediaFuture = []
++		self.SAS_lastPediaJump = None
+ 
+ 		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks. -->
+ 		self.SAS_cacheCivicsTuple = None
+@@ -498,11 +499,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			g_TraitUtilInitDone = True
+ 		self.iActivePlayer = gc.getGame().getActivePlayer()
+ 		self.iCategory = -1
+-		if (not self.pediaHistory):
++		if self.SAS_lastPediaJump is not None:
++			current = self.SAS_lastPediaJump
++		elif self.pediaHistory:
++			current = self.pediaHistory.pop()
++		else:
+ 			# <!-- custom: default to the first row in SAS_CATEGORY_DEFS, so the opening category always
+ 			# matches the current category order instead of being hardcoded to Techs. (GPT-5.2-Codex) -->
+-			self.pediaHistory.append((SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0]))
+-		current = self.pediaHistory.pop()
++			current = (SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0])
+ 		self.pediaFuture = []
+ 		self.pediaHistory = []
+ 		self.pediaJump(current[0], current[1], False, True)
+@@ -529,6 +533,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		if (iCategory == SevoScreenEnums.PEDIA_MAIN):
+ 			BugUtil.debug("Main link %d" % iItem)
++			self.SAS_lastPediaJump = (iCategory, iItem)
+ 			self.showContents(bIsLink, iItem)
+ 			iListIndex = self.SAS_categoryEnumToIndex.get(iItem, -1)
+ 			if iListIndex != -1:
+@@ -541,6 +546,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		elif (iCategory == SevoScreenEnums.PEDIA_BTS_CONCEPTS):
+ 			iCategory = self.determineNewConceptSubCategory(iItem)
+ 			BugUtil.debug("Switching to category %d" % iCategory)
++		self.SAS_lastPediaJump = (iCategory, iItem)
+ 		self.showContents(bIsLink, iCategory)
+ 		iListIndex = self.SAS_categoryEnumToIndex.get(iCategory, -1)
+ 		if iListIndex != -1:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 36c8ae730..6564244bc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -127,6 +127,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
+ [92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart)  
+ [93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping)  
++[94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4038,4 +4039,14 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
+ 
+ Not updating every issue here, but since then a much cleaner fix to abherrent obsolete unit production choices, and AI scrapping optimization that was hacky and overloaded, plus player UI enhancement (less crowded UI Production Chooser Bar with nonsensical obsolete units), is the additional of the `ObsoleteTech` field.
+ 
++Initial version at [commit/a134450486e0104df9473d46017ebc6e4d7bc553](https://github.com/wonderingabout/AdvCiv-SAS/commit/a134450486e0104df9473d46017ebc6e4d7bc553).
++
+ See details at [README.md#new-optional-xml-fields-eg-obsoletetech-for-units](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units)
++
++## 94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1OO1CkofepKXkzMKD00Gu_bb-kqd_MdCF?usp=sharing).
++
++Was happening in AdvCiv-SAS for other categories last visited like charts too, or Hints or such in base advciv too.
++
++See commit: todo add link.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5195

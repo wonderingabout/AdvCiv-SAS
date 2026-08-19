@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3533
+# Commit: 3aee8e1e3d023dc2d9c34a9099c94f60412d5776
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2e52ece88d0096c5066c616b886d6c786168169c
+# Title: PerfectMongoose: Center elevation map (shift water to margins)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+33	0	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 942f658fb..8add77a5d 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -1546,6 +1546,32 @@ class ElevationMap3(FloatMap):
+ 
+ e3 = ElevationMap3()
+ 
++# advc: Based on Totestra's "rotateMap" function
++def centerMap(heightMap, width, height, indexfunc):
++	minX = 0
++	minVal = 10000.0
++	# <advc>
++	extraRange = width // 50
++	#print("extraRange=" + str(extraRange)) # </advc>
++	for x in range(width):
++		val = 0.0
++		for y in range(height):
++			# advc: A wider ocean strip is better
++			for i in range(x - extraRange, x + extraRange + 1):
++				val += ( heightMap[indexfunc(#x, y)
++						i % width, y)] / (abs(x - i) + 1) ) # advc
++		#print "for x %d val is %f minVal %f" % (x,val,minVal)
++		if val < minVal:
++			minX = x
++			minVal = val
++	#print "minX is %d" % (minX) #DEBUG
++	for y in range(height):
++		tempRow = []
++		for x in range(width):
++			tempRow.append(heightMap[indexfunc(x, y)])
++		for x in range(width):
++			heightMap[indexfunc(x,y)] = tempRow[((x + minX) % width)]
++
+ 
+ ##############################################################################
+ ## PW2 Landmass Generator
+@@ -6293,6 +6319,13 @@ def generatePlotTypes():
+ 		em.FillInLakes()
+ 	if mc.maximumMeteorCount > 0: # advc
+ 		pb.breakPangaeas()
++	# <advc>
++	if mc.LandmassGenerator == 2:
++		centerMap(em.data, mc.hmWidth, mc.hmHeight, GetHmIndex)
++	else:
++		# (ElevationMap3 normally uses FloatMap.GetIndex, but the global function should be equivalent.)
++		centerMap(em.data, em.width, em.height, GetIndex)
++	# </advc>
+ 	if mc.ClimateSystem == 0:
+ 		c3.GenerateTemperatureMap()
+ 		c3.GenerateRainfallMap()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1692

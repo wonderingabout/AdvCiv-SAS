@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2336
+# Commit: 0b6f8dc336ef0c52d027acafad845728abf2e1e9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a0db13c5dd45a02af54ec7c874dfb9e25a9d8328
+# Title: Reduced probability of clusters of Silver and Gems
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	Assets/XML/Terrain/CIV4BonusInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 691f16b62..66f40f763 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1341,7 +1341,8 @@
+ 			<iMinLandPercent>0</iMinLandPercent>
+ 			<iUnique>0</iUnique>
+ 			<iGroupRange>1</iGroupRange>
+-			<iGroupRand>25</iGroupRand>
++			<!-- advc.129: was 25 -->
++			<iGroupRand>17</iGroupRand>
+ 			<!-- advc.129: was 1 -->
+ 			<bArea>0</bArea>
+ 			<bHills>1</bHills>
+@@ -1631,7 +1632,8 @@
+ 			<iMinLandPercent>0</iMinLandPercent>
+ 			<iUnique>0</iUnique>
+ 			<iGroupRange>1</iGroupRange>
+-			<iGroupRand>25</iGroupRand>
++			<!-- advc.129: was 25 -->
++			<iGroupRand>17</iGroupRand>
+ 			<!-- advc.129: was 1 -->
+ 			<bArea>0</bArea>
+ 			<bHills>1</bHills>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=788

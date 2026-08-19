@@ -1,0 +1,573 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6100
+# Commit: d24d15505cd41a53df3579aa9844c347cb618025
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fb9398af70651f8c92369e384fa81bfb44310601
+# Title: Expand SASGameRecord with compact production, military, and policy histories
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	2	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvEventReporter.cpp
+3	0	CvGameCoreDLL/CvPlayer.cpp
+3	0	CvGameCoreDLL/CvTeamAI.cpp
+259	10	CvGameCoreDLL/SASGameRecordLog.cpp
+5	0	CvGameCoreDLL/SASGameRecordLog.h
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d2fb359e3..7fb08481a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3463,6 +3463,7 @@ CvUnit* CvCity::initConscriptedUnit()
+ 	addProductionExperience(pUnit, true);
+ 	pUnit->setMoves(0);
+ 	// K-Mod, 26/Jun/2011: Conscription counts as building the unit
++	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, true);
+ 	CvEventReporter::getInstance().unitBuilt(this, pUnit);
+ 
+ 	return pUnit;
+@@ -10547,6 +10548,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 		CvUnit* pUnit = kOwner.initUnit(eTrainUnit, getX(), getY(), eTrainAIUnit);
+ 		pUnit->finishMoves();
+ 		addProductionExperience(pUnit);
++		// <!-- custom: Record completion before air-capacity relocation because a produced air unit with no valid destination can be destroyed below before the ordinary unitBuilt event fires. (GPT-5.6-Sol) -->
++		if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, false);
+ 		CvPlot* pRallyPlot = getRallyPlot(); // (advc.001b: moved up)
+ 		if (GC.getInfo(eTrainUnit).getDomainType() == DOMAIN_AIR &&
+ 			getPlot().countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
+@@ -10620,6 +10623,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 		{
+ 			iMaxedBuildingOrProject = eConstructBuilding;
+ 		} // </advc.123f>
++		// <!-- custom: buildingBuilt also fires when a unit constructs a building without city production. Aggregate production completions here, where ORDER_CONSTRUCT proves that the city spent its production. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
++		if (gGameRecordLogLevel >= 2) logSASGameRecordBuildingCompletedByProduction(this, eConstructBuilding);
+ 		CvEventReporter::getInstance().buildingBuilt(this, eConstructBuilding);
+ 		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 			logBBAI("    City %S finishes production of building %S", getName().GetCString(), GC.getInfo(eConstructBuilding).getDescription());
+@@ -13808,8 +13813,8 @@ void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderType
+ 	if(iOverflow <= 0)
+ 		return;
+ 	setOverflowProduction(iOverflow);
+-	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, while overflow capped into lost production or gold is strategically important. Record all nonzero completion overflow at summary level 3, and the rarer loss/gold cases at level 2. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
+-	if ((gGameRecordLogLevel >= 3 && iOverflow > 0) || (gGameRecordLogLevel >= 2 && (iLostProduction > 0 || iProductionGold > 0))) logSASGameRecordProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
++	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, so level 2 aggregates it into interval production-flow rows and level 3 also emits each exact action. Production loss or gold remains an exact level-2 action because it is strategically important. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2 && (iOverflow > 0 || iLostProduction > 0 || iProductionGold > 0)) logSASGameRecordProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
+ 	if(iProductionGold > 0 || iLostProduction > 0)
+ 		payOverflowGold(iLostProduction, iProductionGold);
+ }
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index ad75f7f2e..c6880a789 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -501,6 +501,7 @@ void CvEventReporter::setPlayerAlive(PlayerTypes ePlayerID, bool bNewValue)
+ 
+ void CvEventReporter::playerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion)
+ {
++	if (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized()) logSASGameRecordLastStateReligionChanged(ePlayerID, eOldReligion, eNewReligion);
+ 	m_kPythonEventMgr.reportPlayerChangeStateReligion(ePlayerID, eNewReligion, eOldReligion);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3c5a5216d..96cbda99c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10829,6 +10829,7 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
+ 	if(eOldCivic == eNewValue)
+ 		return;
+ 
++	ReligionTypes const eOldEffectiveStateReligion = getStateReligion();
+ 	bool const bWasStateReligion = isStateReligion(); // advc.106
+ 
+ 	m_aeCivics.set(eCivicOption, eNewValue);
+@@ -10843,6 +10844,8 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
+ 
+ 	if(!kGame.isFinalInitialized() || /* advc.003n: */ isBarbarian())
+ 		return;
++	// <!-- custom: Periodic policy snapshots can hide short-lived or between-interval civic switches. Record every post-initialization old/new transition, including effective state-religion changes caused by civics that allow or prohibit one, together with current anarchy turns. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
++	if (gGameRecordLogLevel >= 2) logSASGameRecordCivicChanged(getID(), eCivicOption, eOldCivic, eNewValue, eOldEffectiveStateReligion, getStateReligion());
+ 
+ 	if (getCivics(eCivicOption) != NO_CIVIC &&
+ 		/* BtS code (which erroneously blocked the message for certain civic switches)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 08dbf3825..b1603f0ab 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -11,6 +11,7 @@
+ #include "CvInfo_GameOption.h"
+ #include "BBAILog.h"
+ #include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
++#include "SASGameRecordLog.h" // <!-- custom: Record strategic war-plan transitions separately from detailed BBAI/UWAI evaluations. (GPT-5.6-Sol) -->
+ #include "UWAIAgent.h" // advc.104
+ #include <numeric> // K-Mod. used in AI_warSpoilsValue
+ 
+@@ -4903,6 +4904,8 @@ void CvTeamAI::AI_setWarPlan(TeamTypes eTarget, WarPlanTypes eNewValue, bool bWa
+ 		logBBAI("WAR_PLAN_CHANGE turn=%d team=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s bWar=%d atWar=%d stateCounter=%d ourWars=%d targetWars=%d",
+ 				GC.getGame().getGameTurn(), getID(), eTarget, getSASWarPlanType(eOldValue), getSASWarPlanType(eNewValue), bWar, isAtWar(eTarget), AI_getWarPlanStateCounter(eTarget), getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
+ 	}
++	// <!-- custom: The game record needs the strategic state transition and preparation duration, not UWAI's full target calculations. Log before resetting the state counter below. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized()) logSASGameRecordWarPlanChanged(getID(), eTarget, eOldValue, eNewValue, bWar, AI_getWarPlanStateCounter(eTarget));
+ 	AI_updateWarPlanCounts(eTarget, m_aeWarPlan.get(eTarget), eNewValue); // advc.opt
+ 	m_aeWarPlan.set(eTarget, eNewValue);
+ 	AI_setWarPlanStateCounter(eTarget, 0);
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 99492715c..40edfcc1a 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -41,7 +41,8 @@ static int getClampedSASGameRecordLogLevel(char const* szDefineName)
+ 	return iLevel;
+ }
+ 
+-// <!-- custom: Dedicated structured game-record log for autoplay comparison, general game analysis, and external LLM review. This is independent from SAS_BBAI_LOG_ENABLE because it is a run-report artifact rather than classic AI-decision diagnostics, and writes to SASGameRecord_*.log when enabled. Use ACTION rows rather than EVENT rows to avoid confusion with Civ4 random events. (ChatGPT-5.5 + GPT-5.5) -->
++// <!-- custom: Dedicated structured game-record log for autoplay comparison, general game analysis, and external LLM review. This is independent from SAS_BBAI_LOG_ENABLE because it is a run-report artifact rather than classic AI-decision diagnostics, and writes to SASGameRecord_*.log when enabled. Use ACTION rows rather than EVENT rows to avoid confusion with Civ4 random events.
++// Keep the recorder portable across Civ4 mods by enumerating the loaded XML and using generic field meanings rather than hardcoding AdvCiv-SAS types or copying the full XML. Mod-specific rules can still be named in comments as concrete examples: TECH_DEPOPULATION currently applies negative player-wide health and happiness in AdvCiv-SAS, but the recorder attributes health/happiness from every loaded trait, civic and technology dynamically. The record describes the current format; do not add schema-version maintenance unless independently evolving consumers later require it. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
+ int getSASGameRecordLogLevel()
+ {
+ 	static const int iLevel = getClampedSASGameRecordLogLevel("SAS_GAME_RECORD_LOG_LEVEL");
+@@ -310,6 +311,95 @@ static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
+ static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
+ static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
+ static int g_iSASGameRecordLastFullSnapshotTurn = -1;
++static int g_iSASGameRecordFlowStartTurn = 0;
++
++// <!-- custom: Level 3 preserves exact production, overflow and unit-lifecycle evidence, but thousands of routine rows can distract broad analysis. Accumulate the same strategic totals into one production and one military row per active player and snapshot interval for level 2+. Dynamic type buckets use the loaded mod's XML rather than fixed BTS categories.
++// `productionNeeded` is the loaded ruleset's production threshold at the action time, providing a consistent material-cost comparison; it is not a claim about raw hammers historically invested after production modifiers. (GPT-5.6-Sol) -->
++struct SASGameRecordPlayerFlow
++{
++	int iUnitsCompleted;
++	int iUnitsConscripted;
++	int iUnitProductionNeeded;
++	int iConscriptProductionNeeded;
++	int iBuildingsCompleted;
++	int iBuildingProductionNeeded;
++	int iProjectsCompleted;
++	int iProjectProductionNeeded;
++	int iOverflowActions;
++	int iRawModifiedOverflow;
++	int iUnmodifiedOverflow;
++	int iKeptOverflow;
++	int iLostProduction;
++	int iUnusedOverflowCapacity;
++	int iOverflowGold;
++	int iFailedInvestedProduction;
++	int iFailGold;
++	int iUpgrades;
++	int iUpgradeGold;
++	int iScrapped;
++	int iScrappedProductionNeeded;
++	int iCaptured;
++	int iCapturedProductionNeeded;
++	int iCombatWins;
++	int iCombatLosses;
++	int iCityPlotWins;
++	int iCityPlotLosses;
++	int iEnemyProductionNeededDestroyed;
++	int iOwnProductionNeededLost;
++	std::vector<int> aiUnitTypes;
++	std::vector<int> aiConscriptedUnitTypes;
++	std::vector<int> aiBuildingTypes;
++	std::vector<int> aiProjectTypes;
++
++	void reset()
++	{
++		iUnitsCompleted = 0;
++		iUnitsConscripted = 0;
++		iUnitProductionNeeded = 0;
++		iConscriptProductionNeeded = 0;
++		iBuildingsCompleted = 0;
++		iBuildingProductionNeeded = 0;
++		iProjectsCompleted = 0;
++		iProjectProductionNeeded = 0;
++		iOverflowActions = 0;
++		iRawModifiedOverflow = 0;
++		iUnmodifiedOverflow = 0;
++		iKeptOverflow = 0;
++		iLostProduction = 0;
++		iUnusedOverflowCapacity = 0;
++		iOverflowGold = 0;
++		iFailedInvestedProduction = 0;
++		iFailGold = 0;
++		iUpgrades = 0;
++		iUpgradeGold = 0;
++		iScrapped = 0;
++		iScrappedProductionNeeded = 0;
++		iCaptured = 0;
++		iCapturedProductionNeeded = 0;
++		iCombatWins = 0;
++		iCombatLosses = 0;
++		iCityPlotWins = 0;
++		iCityPlotLosses = 0;
++		iEnemyProductionNeededDestroyed = 0;
++		iOwnProductionNeededLost = 0;
++		aiUnitTypes.assign(GC.getNumUnitInfos(), 0);
++		aiConscriptedUnitTypes.assign(GC.getNumUnitInfos(), 0);
++		aiBuildingTypes.assign(GC.getNumBuildingInfos(), 0);
++		aiProjectTypes.assign(GC.getNumProjectInfos(), 0);
++	}
++
++	bool hasProduction() const
++	{
++		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0);
++	}
++
++	bool hasMilitary() const
++	{
++		return (iUpgrades > 0 || iScrapped > 0 || iCaptured > 0 || iCombatWins > 0 || iCombatLosses > 0);
++	}
++};
++
++static SASGameRecordPlayerFlow g_akSASGameRecordPlayerFlow[MAX_PLAYERS];
+ 
+ struct SASGameRecordPlotChangeGroup
+ {
+@@ -542,6 +632,7 @@ static void resetSASGameRecordState()
+ 		g_aiSASGameRecordCitiesLostByConquest[iI] = 0;
+ 		g_aiSASGameRecordCitiesTradedIn[iI] = 0;
+ 		g_aiSASGameRecordCitiesTradedOut[iI] = 0;
++		g_akSASGameRecordPlayerFlow[iI].reset();
+ 		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
+ 	}
+ 	for (int iI = 0; iI < MAX_TEAMS; iI++)
+@@ -551,6 +642,7 @@ static void resetSASGameRecordState()
+ 	}
+ 	g_kSASGameRecordGlobalPrevious.bValid = false;
+ 	g_iSASGameRecordLastFullSnapshotTurn = -1;
++	g_iSASGameRecordFlowStartTurn = GC.getGame().getGameTurn();
+ 	g_iSASGameRecordPendingPlotTurn = -1;
+ 	g_kSASGameRecordPendingCityBombard = SASGameRecordCityBombardPending();
+ 	g_aSASGameRecordPlotChanges.clear();
+@@ -2126,6 +2218,45 @@ static void logSASGameRecordBattleBuckets(int iGameTurn)
+ 	}
+ }
+ 
++static void logSASGameRecordFlowBuckets(int iGameTurn)
++{
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		PlayerTypes const ePlayer = (PlayerTypes)iI;
++		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
++		if (kFlow.hasProduction())
++		{
++			CvString szUnitTypes;
++			CvString szConscriptedUnitTypes;
++			CvString szBuildingTypes;
++			CvString szProjectTypes;
++			FOR_EACH_ENUM(Unit)
++			{
++				appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
++				appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
++			}
++			FOR_EACH_ENUM(Building)
++				appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
++			FOR_EACH_ENUM(Project)
++				appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
++			logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d",
++				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded, getSASGameRecordOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded, getSASGameRecordOrDash(szConscriptedUnitTypes).GetCString(),
++				kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded, getSASGameRecordOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded, getSASGameRecordOrDash(szProjectTypes).GetCString(),
++				kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold);
++		}
++		if (kFlow.hasMilitary())
++		{
++			logSASGameRecord("GAME_RECORD_MILITARY_FLOW turn=%d range=%d-%d player=%d combatWins=%d combatLosses=%d cityPlotWins=%d cityPlotLosses=%d enemyProductionNeededDestroyed=%d ownProductionNeededLost=%d upgrades=%d upgradeGold=%d scrapped=%d scrappedProductionNeeded=%d captured=%d capturedProductionNeeded=%d",
++				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iCombatWins, kFlow.iCombatLosses, kFlow.iCityPlotWins, kFlow.iCityPlotLosses, kFlow.iEnemyProductionNeededDestroyed, kFlow.iOwnProductionNeededLost,
++				kFlow.iUpgrades, kFlow.iUpgradeGold, kFlow.iScrapped, kFlow.iScrappedProductionNeeded, kFlow.iCaptured, kFlow.iCapturedProductionNeeded);
++		}
++		kFlow.reset();
++	}
++	for (int iI = MAX_CIV_PLAYERS; iI < MAX_PLAYERS; iI++)
++		g_akSASGameRecordPlayerFlow[iI].reset();
++	g_iSASGameRecordFlowStartTurn = iGameTurn + 1;
++}
++
+ // <!-- custom: Project completion rows did not show whether a project-based victory had its minimum/full component set or an active launch countdown. Build one compact shared state for periodic progress and the explicit launch action. (GPT-5.6-Sol) -->
+ static bool getSASGameRecordVictoryProjectState(TeamTypes eTeam, VictoryTypes eVictory, int& iPartsBuilt, int& iPartsMinimum, int& iPartsMaximum, bool& bMinimumComplete, CvString& szProjectParts)
+ {
+@@ -4014,7 +4145,11 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
+ 		if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
+ 			logSASGameRecordTeamSnapshot(eLoopTeam, iGameTurn);
+ 	}
+-	if (gGameRecordLogLevel >= 2) logSASGameRecordBattleBuckets(iGameTurn);
++	if (gGameRecordLogLevel >= 2)
++	{
++		logSASGameRecordBattleBuckets(iGameTurn);
++		logSASGameRecordFlowBuckets(iGameTurn);
++	}
+ 	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s", iGameTurn, szReason);
+ 	g_iSASGameRecordLastFullSnapshotTurn = iGameTurn;
+ }
+@@ -4146,6 +4281,34 @@ static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit
+ }
+ 
+ // <!-- custom: GAME_RECORD_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_RECORD_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->
++void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted)
++{
++	if (pCity == NULL || pUnit == NULL)
++		return;
++	PlayerTypes const ePlayer = pUnit->getOwner();
++	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
++		return;
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
++	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
++	if (bConscripted)
++	{
++		kFlow.iUnitsConscripted++;
++		kFlow.iConscriptProductionNeeded += iProductionNeeded;
++		kFlow.aiConscriptedUnitTypes[pUnit->getUnitType()]++;
++	}
++	else
++	{
++		kFlow.iUnitsCompleted++;
++		kFlow.iUnitProductionNeeded += iProductionNeeded;
++		kFlow.aiUnitTypes[pUnit->getUnitType()]++;
++	}
++	if (gGameRecordLogLevel >= 3)
++	{
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d",
++			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded);
++	}
++}
++
+ void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer)
+ {
+ 	CvTechInfo const& kTech = GC.getInfo(eType);
+@@ -4230,6 +4393,14 @@ void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam)
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_ENDED teamA=%d teamB=%d teamAWarsAfter=%d teamBWarsAfter=%d", GC.getGame().getGameTurn(), eTeam, eOtherTeam, GET_TEAM(eTeam).getNumWars(false), GET_TEAM(eOtherTeam).getNumWars(false));
+ }
+ 
++void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, bool bWar, int iOldStateCounter)
++{
++	if (eTeam < 0 || eTeam >= MAX_TEAMS || eTarget < 0 || eTarget >= MAX_TEAMS)
++		return;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_PLAN_CHANGED team=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s bWar=%d atWar=%d oldStateCounter=%d ourWars=%d targetWars=%d",
++		GC.getGame().getGameTurn(), eTeam, eTarget, getSASWarPlanType(eOldWarPlan), getSASWarPlanType(eNewWarPlan), bWar, GET_TEAM(eTeam).isAtWar(eTarget), iOldStateCounter, GET_TEAM(eTeam).getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
++}
++
+ void logSASGameRecordTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot)
+ {
+ 	const bool bMeetDataPlot1Valid = (iX1 >= 0 && iY1 >= 0 && iX1 < GC.getMap().getGridWidth() && iY1 < GC.getMap().getGridHeight());
+@@ -4277,6 +4448,38 @@ void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart)
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d anarchyTurns=%d totalAnarchyTurns=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d revolutionTimer=%d conversionTimer=%d", GC.getGame().getGameTurn(), bStart ? "ANARCHY_STARTED" : "ANARCHY_ENDED", ePlayer, kPlayer.getAnarchyTurns(), g_aiSASGameRecordTotalAnarchyTurns[ePlayer], kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer());
+ }
+ 
++void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, ReligionTypes eOldEffectiveStateReligion, ReligionTypes eNewEffectiveStateReligion)
++{
++	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || eCivicOption == NO_CIVICOPTION)
++		return;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CIVIC_CHANGED player=%d civicOption=%s oldCivic=%s newCivic=%s oldEffectiveStateReligion=%s newEffectiveStateReligion=%s anarchyTurns=%d",
++		GC.getGame().getGameTurn(), ePlayer, GC.getInfo(eCivicOption).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic), getSASGameRecordReligionType(eOldEffectiveStateReligion), getSASGameRecordReligionType(eNewEffectiveStateReligion), GET_PLAYER(ePlayer).getAnarchyTurns());
++}
++
++void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes eOldReligion, ReligionTypes eNewReligion)
++{
++	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
++		return;
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	ReligionTypes const eOldEffectiveReligion = (kPlayer.isStateReligion() ? eOldReligion : NO_RELIGION);
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=LAST_STATE_RELIGION_CHANGED player=%d oldLastStateReligion=%s newLastStateReligion=%s oldEffectiveStateReligion=%s newEffectiveStateReligion=%s anarchyTurns=%d",
++		GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eOldReligion), getSASGameRecordReligionType(eNewReligion), getSASGameRecordReligionType(eOldEffectiveReligion), getSASGameRecordReligionType(kPlayer.getStateReligion()), kPlayer.getAnarchyTurns());
++}
++
++void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding)
++{
++	if (pCity == NULL || eBuilding == NO_BUILDING)
++		return;
++	PlayerTypes const ePlayer = pCity->getOwner();
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
++	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(eBuilding);
++	kFlow.iBuildingsCompleted++;
++	kFlow.iBuildingProductionNeeded += iProductionNeeded;
++	kFlow.aiBuildingTypes[eBuilding]++;
++	if (gGameRecordLogLevel >= 3 && !GC.getInfo(eBuilding).isLimited())
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d", GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded);
++}
++
+ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
+ {
+ 	if (pCity == NULL || eBuilding == NO_BUILDING || !GC.getInfo(eBuilding).isLimited())
+@@ -4286,22 +4489,40 @@ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
+ 
+ void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
+ {
+-	if (pCity == NULL)
++	if (pCity == NULL || eProject == NO_PROJECT)
+ 		return;
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject));
++	PlayerTypes const ePlayer = pCity->getOwner();
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
++	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
++	kFlow.iProjectsCompleted++;
++	kFlow.iProjectProductionNeeded += iProductionNeeded;
++	kFlow.aiProjectTypes[eProject]++;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d", GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded);
+ }
+ 
+ void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold)
+ {
+ 	if (pCity == NULL)
+ 		return;
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
++	kFlow.iOverflowActions++;
++	kFlow.iRawModifiedOverflow += iRawModifiedOverflow;
++	kFlow.iUnmodifiedOverflow += iUnmodifiedOverflow;
++	kFlow.iKeptOverflow += iKeptOverflow;
++	kFlow.iLostProduction += iLostProduction;
++	kFlow.iUnusedOverflowCapacity += iUnusedCapacity;
++	kFlow.iOverflowGold += iGold;
++	if (gGameRecordLogLevel >= 3 || iLostProduction > 0 || iGold > 0)
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
+ }
+ 
+ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold)
+ {
+ 	if (pCity == NULL)
+ 		return;
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
++	kFlow.iFailedInvestedProduction += iInvestedProduction;
++	kFlow.iFailGold += iGold;
+ 	char const* szProduction = (bProject ? GC.getInfo((ProjectTypes)iOrderData).getType() : getSASGameRecordBuildingType((BuildingTypes)iOrderData));
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_FAILED_TO_GOLD player=%d cityId=%d city=%S productionKind=%s production=%s investedProduction=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), bProject ? "PROJECT" : "BUILDING", szProduction, iInvestedProduction, iGold);
+ }
+@@ -4564,24 +4785,43 @@ void logSASGameRecordUnitScrapped(CvUnit const* pUnit)
+ {
+ 	if (pUnit == NULL)
+ 		return;
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_SCRAPPED player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damage=%d xp=%d level=%d age=%d cargo=%d cargoSpace=%d",
+-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pUnit->getDamage(), pUnit->getExperience(), pUnit->getLevel(), GC.getGame().getGameTurn() - pUnit->getGameTurnCreated(), pUnit->getCargo(), pUnit->cargoSpace());
++	PlayerTypes const ePlayer = pUnit->getOwner();
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
++	kFlow.iScrapped++;
++	kFlow.iScrappedProductionNeeded += GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
++	if (gGameRecordLogLevel >= 3)
++	{
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_SCRAPPED player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damage=%d xp=%d level=%d age=%d cargo=%d cargoSpace=%d",
++			GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pUnit->getDamage(), pUnit->getExperience(), pUnit->getLevel(), GC.getGame().getGameTurn() - pUnit->getGameTurnCreated(), pUnit->getCargo(), pUnit->cargoSpace());
++	}
+ }
+ 
+ void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost)
+ {
+ 	if (pOldUnit == NULL || pNewUnit == NULL)
+ 		return;
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_UPGRADED player=%d oldUnitId=%d newUnitId=%d fromUnit=%s toUnit=%s unitAI=%s x=%d y=%d cost=%d oldXP=%d newXP=%d oldLevel=%d newLevel=%d",
+-			GC.getGame().getGameTurn(), pOldUnit->getOwner(), pOldUnit->getID(), pNewUnit->getID(), getSASGameRecordUnitType(pOldUnit->getUnitType()), getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY(), iCost, pOldUnit->getExperience(), pNewUnit->getExperience(), pOldUnit->getLevel(), pNewUnit->getLevel());
++	PlayerTypes const ePlayer = pNewUnit->getOwner();
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
++	kFlow.iUpgrades++;
++	kFlow.iUpgradeGold += iCost;
++	if (gGameRecordLogLevel >= 3)
++	{
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_UPGRADED player=%d oldUnitId=%d newUnitId=%d fromUnit=%s toUnit=%s unitAI=%s x=%d y=%d cost=%d oldXP=%d newXP=%d oldLevel=%d newLevel=%d",
++			GC.getGame().getGameTurn(), ePlayer, pOldUnit->getID(), pNewUnit->getID(), getSASGameRecordUnitType(pOldUnit->getUnitType()), getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY(), iCost, pOldUnit->getExperience(), pNewUnit->getExperience(), pOldUnit->getLevel(), pNewUnit->getLevel());
++	}
+ }
+ 
+ void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit)
+ {
+ 	if (pNewUnit == NULL)
+ 		return;
++	PlayerTypes const eNewOwner = pNewUnit->getOwner();
++	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[eNewOwner];
++	kFlow.iCaptured++;
++	kFlow.iCapturedProductionNeeded += GET_PLAYER(eNewOwner).getProductionNeeded(pNewUnit->getUnitType());
++	// <!-- custom: Captures are rare and strategically distinct, so retain the exact captured type and location at level 2 in addition to the interval aggregate. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_CAPTURED oldOwner=%d newOwner=%d oldUnit=%s newUnitId=%d newUnit=%s newUnitAI=%s x=%d y=%d",
+-			GC.getGame().getGameTurn(), eOldOwner, pNewUnit->getOwner(), getSASGameRecordUnitType(eOldUnitType), pNewUnit->getID(), getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY());
++		GC.getGame().getGameTurn(), eOldOwner, eNewOwner, getSASGameRecordUnitType(eOldUnitType), pNewUnit->getID(), getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY());
+ }
+ 
+ void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore)
+@@ -4659,20 +4899,29 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 	{
+ 		g_aiSASGameRecordBattleWins[eWinner]++;
+ 		g_aiSASGameRecordTotalBattleWins[eWinner]++;
++		SASGameRecordPlayerFlow& kWinnerFlow = g_akSASGameRecordPlayerFlow[eWinner];
++		kWinnerFlow.iCombatWins++;
++		if (eLoser >= 0 && eLoser < MAX_PLAYERS)
++			kWinnerFlow.iEnemyProductionNeededDestroyed += GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType());
+ 		if (bCityPlot)
+ 		{
+ 			g_aiSASGameRecordCityBattleWins[eWinner]++;
+ 			g_aiSASGameRecordTotalCityBattleWins[eWinner]++;
++			kWinnerFlow.iCityPlotWins++;
+ 		}
+ 	}
+ 	if (eLoser >= 0 && eLoser < MAX_PLAYERS)
+ 	{
+ 		g_aiSASGameRecordBattleLosses[eLoser]++;
+ 		g_aiSASGameRecordTotalBattleLosses[eLoser]++;
++		SASGameRecordPlayerFlow& kLoserFlow = g_akSASGameRecordPlayerFlow[eLoser];
++		kLoserFlow.iCombatLosses++;
++		kLoserFlow.iOwnProductionNeededLost += GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType());
+ 		if (bCityPlot)
+ 		{
+ 			g_aiSASGameRecordCityBattleLosses[eLoser]++;
+ 			g_aiSASGameRecordTotalCityBattleLosses[eLoser]++;
++			kLoserFlow.iCityPlotLosses++;
+ 		}
+ 	}
+ 	if (pLoser->getLeaderUnitType() != NO_UNIT)
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.h b/CvGameCoreDLL/SASGameRecordLog.h
+index 286b39703..aac0f77fd 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.h
++++ b/CvGameCoreDLL/SASGameRecordLog.h
+@@ -37,6 +37,7 @@ void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
+ void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
+ void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally);
+ void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer);
++void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted);
+ void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer);
+ void logSASGameRecordCityBuilt(CvCity const* pCity);
+ void logSASGameRecordCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
+@@ -50,6 +51,9 @@ void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTyp
+ void logSASGameRecordGoldenAge(PlayerTypes ePlayer, bool bStart);
+ void logSASGameRecordGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int iOldGoldenAgeTurns, int iNewGoldenAgeTurns);
+ void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart);
++void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, ReligionTypes eOldEffectiveStateReligion, ReligionTypes eNewEffectiveStateReligion);
++void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes eOldReligion, ReligionTypes eNewReligion);
++void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding);
+ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
+ void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
+ // <!-- custom: City snapshots already expose stored overflow. These action hooks preserve the transient completion result: newly kept overflow, production lost to the cap, overflow gold, and wonder/project fail gold. (GPT-5.6-Sol) -->
+@@ -82,6 +86,7 @@ void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit co
+ void logSASGameRecordUnitScrapped(CvUnit const* pUnit);
+ void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
+ void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit);
++void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, bool bWar, int iOldStateCounter);
+ // <!-- custom: Level-3 tactical rows complement periodic city defense and unit-composition snapshots: synthesize consecutive siege/naval/air city bombardment into compact sequences while recording actual air strikes, interception combat, and air bombing of plot structures, so external analysis can distinguish merely owning those units from using them effectively. (GPT-5.6 Thinking) -->
+ void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore);
+ void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter);
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a52f69ef2..325ce5a03 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -440,7 +440,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ #### Military - Land (AI)
+ 
+-- (Requires AdvCiv-SAS 6094+) **Optionally increase tradeoff between offensive unit production maximizing (but too undevelope to scale militarily or economically into late game) and economy maximizing (but militarily weak and likely to die or lose later) trade-off so it is broadly closer to an efficient middle-ground:** the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally focused more and preferred economic efficiency instead, which however produced substantially fewer military units and could also make games less threatening and easier to win, especially late game. To address this, offensive military production is now broadly tunable through `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT`, which sets the minimum share of the empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** before opportunistic wonders and the broader later building choices, but after existing Worker, Settler, Explorer, panic, financial, culture and other earlier priority logic (so essential economic and survival production can still take precedence, even if set to max `100`): `0` disables the feature; the current middle-ground default of `40` significantly increases offensive production while still leaving enough room for infrastructure and economic growth to scale the empire; values up to `100` apply stronger military-production pressure, but can overcommit production to units and therefore do not necessarily produce a larger or stronger late-game army (possibly even less due to lower production or economy scaling late game). A same-start save file 460 BBAI and SASGameRecord logging comparison illustrates the trade-off: with `0` / `40` / `100`, the 11 civilizations (excluding Barbarians) had built 737 / 952 / 985 combat units by turn 250, and 987 / 1,340 / 1,340 by turn 300, so `40` captured nearly all of the additional military output of `100` while leaving substantially more room for infrastructure and economic scaling. The target deliberately uses **production capacity rather than a fixed unit count, era quota or military-upkeep target**, so high-production cities contribute proportionally more and the system naturally scales with the empire. The current feature improves military output significantly especially late game where it was too low, but does not reproduce the exceptionally high AdvCiv-SAS 5055 military-production levels (usually of ~200 units by T250-T300 and ~300 units by T300-T400) in amount or in consistency, so further AI-production tuning may continue. See [KI#197.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes).
++- (Requires AdvCiv-SAS 6094+) **Optionally increase tradeoff between offensive unit production maximizing (but too undevelope to scale militarily or economically into late game) and economy maximizing (but militarily weak and likely to die or lose later) trade-off so it is broadly closer to an efficient middle-ground:** the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally focused more and preferred economic efficiency instead, which however produced substantially fewer military units and could also make games less threatening and easier to win, especially late game. To address this, offensive military production is now broadly tunable through `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT`, which sets the minimum share of the empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** before opportunistic wonders and the broader later building choices, but after existing Worker, Settler, Explorer, panic, financial, culture and other earlier priority logic (so essential economic and survival production can still take precedence, even if set to max `100`): `0` disables the feature; the current middle-ground default of `40` significantly increases offensive production while still leaving enough room for infrastructure and economic growth to scale the empire; values up to `100` apply stronger military-production pressure, but can overcommit production to units and therefore do not necessarily produce a larger or stronger late-game army (possibly even less due to lower production or economy scaling late game). A same-start save file 460 BBAI and SASGameRecord logging comparison illustrates the trade-off: with `0` / `40` / `100`, the 11 civilizations (excluding Barbarians) had built 737 / 952 / 985 combat units by turn 250, and 987 / 1,340 / 1,340 by turn 300, so `40` captured nearly all of the additional military output of `100` while leaving substantially more room for infrastructure and economic scaling. The target deliberately uses **production capacity rather than a fixed unit count, era quota or military-upkeep target**, so high-production cities contribute proportionally more and the system naturally scales with the empire. The current feature improves military output significantly especially late game where it was too low, but does not reproduce the exceptionally high AdvCiv-SAS 5055 military-production levels (usually of ~200 units by T250-T300 and ~300 units by T300-T400) in amount or in consistency, so further AI-production tuning may continue. Note: as of now the military production increases mostly effective mid-late game with a value of 40% vs before, which is when output was lowest so desired effect. See [KI#197.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes).
+ - (Requires AdvCiv-SAS 6097+) **Risky AI stack attacks can use obsolete units as expendables / cannon fodder before current units:** BBAI attack-order logging in save file 460 showed the SAS low-power selector could choose the first unit to attack to be obsolete unit, only for inherited Base AdvCiv/K-Mod sacrifice logic to replace it with a current unit first attacking instead; one sample had 189 obsolete-to-current replacements, including an obsolete Archer at 10% winning odds being replaced by a current (plus much stronger) Horse Archer. To fix this, when the current unit would already take a risky attack, the AI can instead spend a tactically suitable obsolete unit first as cannon fodder/expendable, potentially weakening the defender while preserving current stronger units for safer follow-up attacks. Very safe current attacks (90%+ as of now) remain untouched, and XML-tunable sacrifice-value, tactical-role and odds safeguards prevent blanket weakest-unit-first behavior. Confirming runs showed expendables often damaged defenders or withdrew; in one sequence, obsolete attackers improved a preserved Mechanized Infantry's odds from 36% to 99%, after which it won without damage. This also helps clear weak obsolete excess naturally instead of keeping it for unit support or often poor-value future upgrades. See [KI#200](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks).
+ - **Barracks**: lower `FLAVOR_MILITARY` (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
+ - **Stables**: similarly increase `iAIWeight` (e.g., 0 → 75) so they’re pursued when relevant.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=45110

@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 886
+# Commit: 5cceade9c2f57524dceb05b39c8136ad6114f9f5
+# History segment: K-Mod history
+# Parent used for diff: 49b250e819f326a633a9bb12be5f4be8f1978082
+# Title: CvTeam::getWarWeariness can now include the effect of enemy WW modifiers
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+4	2	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b161710f7..ee9dbdd14 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14195,9 +14195,9 @@ void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes
+ 	else
+ 	{
+ 		const CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
+-		if (atWar(kPlayer.getTeam(), kTargetPlayer.getTeam()) && (gDLL->getChtLvl() > 0 || GET_PLAYER(GC.getGameINLINE().getActivePlayer()).canSeeDemographics(ePlayer)))
++		if (atWar(kPlayer.getTeam(), kTargetPlayer.getTeam()) && (GC.getGameINLINE().isDebugMode() || GET_PLAYER(GC.getGameINLINE().getActivePlayer()).canSeeDemographics(ePlayer)))
+ 		{
+-			iWarWeariness = kPlayer.getModifiedWarWearinessPercentAnger(GET_TEAM(kPlayer.getTeam()).getWarWeariness(kTargetPlayer.getTeam()) * std::max(0, 100 + GET_TEAM(kTargetPlayer.getTeam()).getEnemyWarWearinessModifier())/10000);
++			iWarWeariness = kPlayer.getModifiedWarWearinessPercentAnger(GET_TEAM(kPlayer.getTeam()).getWarWeariness(kTargetPlayer.getTeam(), true)/100);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 09b441c15..50ecdffd0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9996,7 +9996,8 @@ void CvPlayer::updateWarWearinessPercentAnger()
+ 			{
+ 				if (kTeam.isAtWar(getTeam()))
+ 				{
+-					iNewWarWearinessPercentAnger += (GET_TEAM(getTeam()).getWarWeariness((TeamTypes)iI) * std::max(0, 100 + kTeam.getEnemyWarWearinessModifier())) / 10000;
++					//iNewWarWearinessPercentAnger += (GET_TEAM(getTeam()).getWarWeariness((TeamTypes)iI) * std::max(0, 100 + kTeam.getEnemyWarWearinessModifier())) / 10000;
++					iNewWarWearinessPercentAnger += GET_TEAM(getTeam()).getWarWeariness((TeamTypes)iI, true) / 100; // K-Mod
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e3f6eb238..554ee72e5 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -680,6 +680,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	{
+ 		if ((iI != getID()) && (iI != eTeam))
+ 		{
++			// K-Mod note: many of the things here have no effect; because the values have already been equalised by CvTeam::shareCounters.
+ 			GET_TEAM((TeamTypes)iI).setWarWeariness(getID(), ((GET_TEAM((TeamTypes)iI).getWarWeariness(getID()) + GET_TEAM((TeamTypes)iI).getWarWeariness(eTeam)) / 2));
+ 			GET_TEAM((TeamTypes)iI).setStolenVisibilityTimer(getID(), ((GET_TEAM((TeamTypes)iI).getStolenVisibilityTimer(getID()) + GET_TEAM((TeamTypes)iI).getStolenVisibilityTimer(eTeam)) / 2));
+ 			GET_TEAM((TeamTypes)iI).AI_setAtWarCounter(getID(), ((GET_TEAM((TeamTypes)iI).AI_getAtWarCounter(getID()) + GET_TEAM((TeamTypes)iI).AI_getAtWarCounter(eTeam)) / 2));
+@@ -3611,11 +3612,12 @@ void CvTeam::changeStolenVisibilityTimer(TeamTypes eIndex, int iChange)
+ 
+ 
+ // (K-Mod note: units are unhappiness per 100,000 population. ie. 1000 * percent unhappiness.)
+-int CvTeam::getWarWeariness(TeamTypes eIndex) const								 
++int CvTeam::getWarWeariness(TeamTypes eIndex, bool bUseEnemyModifer) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+-	return m_aiWarWeariness[eIndex];
++	//return m_aiWarWeariness[eIndex];
++	return bUseEnemyModifer ? m_aiWarWeariness[eIndex] * std::max(0, 100 + GET_TEAM(eIndex).getEnemyWarWearinessModifier())/100 : m_aiWarWeariness[eIndex]; // K-Mod
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 3287d5c6d..5f22dbb8a 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -230,7 +230,7 @@ public:
+ 	void setStolenVisibilityTimer(TeamTypes eIndex, int iNewValue);
+ 	void changeStolenVisibilityTimer(TeamTypes eIndex, int iChange);
+ 
+-	int getWarWeariness(TeamTypes eIndex) const;																				// Exposed to Python
++	int getWarWeariness(TeamTypes eIndex, bool bUseEnemyModifer = false) const; // Exposed to Python. K-Mod added bUseEnemyModifier.
+ 	void setWarWeariness(TeamTypes eIndex, int iNewValue);												// Exposed to Python
+ 	void changeWarWeariness(TeamTypes eIndex, int iChange);												// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4216

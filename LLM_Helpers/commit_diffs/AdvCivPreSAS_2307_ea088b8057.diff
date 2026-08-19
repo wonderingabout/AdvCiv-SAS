@@ -1,0 +1,173 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2307
+# Commit: ea088b8057ef71c629f9d5e0aa61d1f882e710b4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e7fd1154534d090461427c09763de37758ec7e45
+# Title: Cache improvement tech at CvBonusInfo
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+63	4	CvGameCoreDLL/CvInfo_Terrain.cpp
+4	1	CvGameCoreDLL/CvInfo_Terrain.h
+3	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 98eacd9d4..51dc320d4 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -396,6 +396,7 @@ m_iChar(0),
+ m_eTechReveal(NO_TECH),
+ m_eTechCityTrade(NO_TECH),
+ m_eTechObsolete(NO_TECH),
++m_eeTechImprove(std::make_pair(NO_TECH, NO_TECH)), // advc.003w
+ m_iAITradeModifier(0),
+ m_iAIObjective(0),
+ m_iHealth(0),
+@@ -760,6 +761,64 @@ bool CvBonusInfo::read(CvXMLLoadUtility* pXML)
+ 	return true;
+ }
+ 
++// <advc.003w>
++TechTypes CvBonusInfo::getTechImprove(bool bWater) const
++{
++	return (bWater ? m_eeTechImprove.second : m_eeTechImprove.first);
++}
++
++void CvBonusInfo::updateCache(BonusTypes eBonus)
++{
++	std::pair<int,int> iiLowestTechCost = std::make_pair(MAX_INT, MAX_INT);
++	FOR_EACH_ENUM2(Build, eBuild)
++	{
++		CvBuildInfo const& kBuild = GC.getInfo(eBuild);
++		TechTypes eBuildTech = kBuild.getTechPrereq();
++		if (eBuildTech == NO_TECH)
++			continue;
++		ImprovementTypes eImprov = kBuild.getImprovement();
++		if (eImprov == NO_IMPROVEMENT)
++			continue;
++		CvImprovementInfo const& kImprov = GC.getInfo(eImprov);
++		bool bAnyImprovYield = false;
++		FOR_EACH_ENUM(Yield)
++		{
++			if (kImprov.getImprovementBonusYield(eBonus,eLoopYield) > 0)
++			{
++				bAnyImprovYield = true;
++				break;
++			}
++		}
++		if (!bAnyImprovYield)
++			continue;
++		int iTechCost = GC.getInfo(eBuildTech).getResearchCost();
++		if (kImprov.isWater())
++		{
++			if (iTechCost < iiLowestTechCost.second)
++			{
++				iiLowestTechCost.second = iTechCost;
++				m_eeTechImprove.second = eBuildTech;
++			}
++		}
++		else
++		{
++			if (iTechCost < iiLowestTechCost.first)
++			{
++				iiLowestTechCost.first = iTechCost;
++				m_eeTechImprove.first = eBuildTech;
++			}
++		}
++	}
++	if (m_eTechReveal == NO_TECH)
++		return;
++	// Will have to reveal (but not trade) the resource in order to improve it
++	int iRevealTechCost = GC.getInfo(m_eTechReveal).getResearchCost();
++	if (m_eeTechImprove.first == NO_TECH || iRevealTechCost > iiLowestTechCost.first)
++		m_eeTechImprove.first = m_eTechReveal;
++	if (m_eeTechImprove.second == NO_TECH || iRevealTechCost > iiLowestTechCost.second)
++		m_eeTechImprove.second = m_eTechReveal;
++} // </advc.003w>
++
+ CvBonusClassInfo::CvBonusClassInfo() : m_iUniqueRange(0) {}
+ 
+ 
+@@ -1081,11 +1140,11 @@ int* CvImprovementInfo::getRouteYieldChangesArray(int i) const
+ 	return m_ppiRouteYieldChanges[i];
+ }
+ 
+-int CvImprovementInfo::getImprovementBonusYield(int i, int j) const
++int CvImprovementInfo::getImprovementBonusYield(int iBonus, int iYield) const
+ {
+-	FAssertBounds(0, GC.getNumBonusInfos(), i);
+-	FAssertBounds(0, NUM_YIELD_TYPES, j);
+-	return m_paImprovementBonus[i].m_piYieldChange ? m_paImprovementBonus[i].getYieldChange(j) : 0; // advc.003t
++	FAssertBounds(0, GC.getNumBonusInfos(), iBonus);
++	FAssertBounds(0, NUM_YIELD_TYPES, iYield);
++	return m_paImprovementBonus[iBonus].m_piYieldChange ? m_paImprovementBonus[iBonus].getYieldChange(iYield) : 0; // advc.003t
+ }
+ 
+ bool CvImprovementInfo::isImprovementBonusMakesValid(int i) const
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 417cef8e8..060dd304d 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -203,6 +203,7 @@ public: // All the const functions are exposed to Python
+ 	inline TechTypes getTechReveal() const { return m_eTechReveal; }
+ 	inline TechTypes getTechCityTrade() const { return m_eTechCityTrade; }
+ 	inline TechTypes getTechObsolete() const { return m_eTechObsolete; }
++	TechTypes getTechImprove(bool bWater) const; // advc.003w
+ 	int getAITradeModifier() const;
+ 	int getAIObjective() const;
+ 	inline int getHealth() const { return m_iHealth; }
+@@ -247,6 +248,7 @@ public: // All the const functions are exposed to Python
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+ 	bool read(CvXMLLoadUtility* pXML);
++	void updateCache(BonusTypes eBonus); // advc.003w
+ 
+ protected:
+ 	int m_iBonusClassType;
+@@ -254,6 +256,7 @@ protected:
+ 	TechTypes m_eTechReveal;
+ 	TechTypes m_eTechCityTrade;
+ 	TechTypes m_eTechObsolete;
++	std::pair<TechTypes,TechTypes> m_eeTechImprove; // advc.003w
+ 	int m_iAITradeModifier;
+ 	int m_iAIObjective;
+ 	int m_iHealth;
+@@ -431,7 +434,7 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	// For Moose - CvWidgetData XXX
+ 	int* getRouteYieldChangesArray(int i) /* advc: */ const;
+ 
+-	int getImprovementBonusYield(int i, int j) const;
++	int getImprovementBonusYield(int iBonus, int iYield) const;
+ 	bool isImprovementBonusMakesValid(int i) const;
+ 	bool isImprovementBonusTrade(int i) const;
+ 	int getImprovementBonusDiscoverRand(int i) const;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 8685fd8f9..55d588e6d 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -633,7 +633,9 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paEffectInfo, "CIV4EffectInfos", "Misc", "Civ4EffectInfos/EffectInfos/EffectInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paEntityEventInfo, "CIV4EntityEventInfos", "Units", "Civ4EntityEventInfos/EntityEventInfos/EntityEventInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paBuildInfo, "CIV4BuildInfos", "Units", "Civ4BuildInfos/BuildInfos/BuildInfo", false);
+-	LoadGlobalClassInfo(GC.m_paUnitInfo, "CIV4UnitInfos", "Units", "Civ4UnitInfos/UnitInfos/UnitInfo", false, &CvDLLUtilityIFaceBase::createUnitInfoCacheObject);
++	// <advc.003w>
++	FOR_EACH_ENUM(Bonus)
++		GC.getInfo(eLoopBonus).updateCache(eLoopBonus); // </advc.003w>	LoadGlobalClassInfo(GC.m_paUnitInfo, "CIV4UnitInfos", "Units", "Civ4UnitInfos/UnitInfos/UnitInfo", false, &CvDLLUtilityIFaceBase::createUnitInfoCacheObject);
+ 	for (int i=0; i < GC.getNumUnitClassInfos(); ++i)
+ 	{
+ 		GC.getInfo((UnitClassTypes)i).readPass3();
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5841

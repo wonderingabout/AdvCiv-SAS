@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1162
+# Commit: 41b90fdc860885d5c5857e0a18831d5d4f2ad491
+# History segment: K-Mod history
+# Parent used for diff: 951f9a81f93836683307fc2e8ab5f2a2ba6538c2
+# Title: Minor tweaks and comments.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvTeam.cpp
+1	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2a2359f2c..5489a2d1d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9911,7 +9911,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iValueForThem += (iGoldData * AI_goldTradeValuePercent()) / 100;
++					iValueForThem += (iGoldData * iGoldValuePercent) / 100;
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -11448,7 +11448,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 			{
+ 				if (!(GC.getUnitInfo(eUnit).isNoDefensiveBonus()))
+ 				{
+-					if (GC.getUnitInfo(eUnit).getCityDefenseModifier() > 0) // (K-Mod note: I'm considering removing this condition)
++					if (GC.getUnitInfo(eUnit).getCityDefenseModifier() > 0)
+ 					{
+ 						bValid = true;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index c0380e967..0707f9475 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2132,7 +2132,7 @@ int CvTeam::getAtWarCount(bool bIgnoreMinors, bool bIgnoreVassals) const
+ 					if (isAtWar((TeamTypes)iI))
+ 					{
+ 						FAssert(iI != getID());
+-						FAssert(!(AI_isSneakAttackPreparing((TeamTypes)iI)));
++						FAssert(!(AI_isSneakAttackPreparing((TeamTypes)iI))); // K-Mod note. This assert can fail when in the process of declaring war
+ 						iCount++;
+ 					}
+ 				}
+@@ -4428,7 +4428,7 @@ TeamTypes CvTeam::getMasterTeam() const
+ {
+ 	for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
+ 	{
+-		if (isVassal(i))
++		if (isVassal(i) && GET_TEAM(i).isAlive())
+ 			return i;
+ 	}
+ 	return getID();
+
+diff --git a/changelog.txt b/changelog.txt
+index a1064f06f..dd841facb 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1363,7 +1363,7 @@ v1.02 changelist
+ 
+ + Reduced the global warming defence of forests and jungles, from 20 to 15.
+ + Reduced the grip effect of religious shrines from 20 to 10. (This affects the probability that a religion will be bumped out of a city when a new missionary comes.)
+-+ Tech trades in which the receiving player is more than 2/3 of the way through researching the tech or when the tech is behind the 'game era' no longer count towards tech trade memory. ie. They don't contribute to causing "we fear you are becoming too advanced".
+++ Tech trades in which the receiving player is more than 2/3 of the way through researching the tech or when the tech is more than 1 era behind the 'game era' no longer count towards tech trade memory. ie. They don't contribute to causing "we fear you are becoming too advanced".
+ 
+ + Adjusted the AI's max unit spending formula so that it is very close to the original BtS formula, but without the BtS problems.
+ + The AI will now take obsoletion of buildings into account when evaluating techs.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2927

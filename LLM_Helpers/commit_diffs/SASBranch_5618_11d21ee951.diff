@@ -1,0 +1,356 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5618
+# Commit: 11d21ee951351b59c3b4e499dc0a084984e30904
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f21276c11ac7547c8b9db23202f76bd365f699d8
+# Title: further cache advisors
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	23	Assets/Python/Screens/CvForeignAdvisor.py
+6	3	Assets/Python/Screens/CvInfoScreen.py
+32	17	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+7	4	Assets/Python/Screens/CvVictoryScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index bccc569ac..a53cf69b0 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -339,8 +339,16 @@ class CvForeignAdvisor:
+ 		self.TEXT_ESPIONAGE_NO_SPY = localText.getText("TXT_KEY_ESPIONAGE_NO_SPY", ())
+ 		self.TEXT_MISC_THRESHOLD = localText.getText("TXT_KEY_MISC_THRESHOLD", ())
+ 		self.TEXT_CONCEPT_CITIES = localText.getText("TXT_KEY_CONCEPT_CITIES", ())
+-
+-		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
++		self.COLOR_WHITE = gc.getInfoTypeForString("COLOR_WHITE")
++		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
++		self.COLOR_BLUE = gc.getInfoTypeForString("COLOR_BLUE")
++		self.COLOR_CITY_GREEN = gc.getInfoTypeForString("COLOR_CITY_GREEN")
++		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.COLOR_CYAN = gc.getInfoTypeForString("COLOR_CYAN")
++		self.COLOR_LIGHT_GREY = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
++		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
++
++		eDenialColor = self.COLOR_WHITE
+ 		self.TEXT_REJECTS = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)
+ 		self.TEXT_WONT_CEDE = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)
+ 		# <!-- custom: messages (claude code sonnet 4.5) -->
+@@ -907,27 +915,27 @@ class CvForeignAdvisor:
+ 		y = self.Y_LEGEND + self.MARGIN_LEGEND
+ 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_REL_CONTACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_WHITE"))
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_WHITE)
+ 		y += 2 * self.MARGIN_LEGEND
+ 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_CONCEPT_WAR, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_RED"))
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_RED)
+ 		y += 2 * self.MARGIN_LEGEND
+ 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_DEFENSIVE_PACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_BLUE"))
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_BLUE)
+ 		y += 2 * self.MARGIN_LEGEND
+ 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_OPEN_BORDERS, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CITY_GREEN"))
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_CITY_GREEN)
+ 		y += 2 * self.MARGIN_LEGEND
+ 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_PITBOSS_TEAM, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_YELLOW"))
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_YELLOW)
+ 		y += 2 * self.MARGIN_LEGEND
+ 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_MISC_VASSAL_SHORT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CYAN"))
++		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_CYAN)
+ 	
+ 		# Our leader head
+ 
+@@ -1033,14 +1041,14 @@ class CvForeignAdvisor:
+ 					if (iSelectedLeader != iPlayer):
+ 						if (player.getTeam() == gc.getPlayer(iSelectedLeader).getTeam()):
+ 							szName = self.getNextLineName()
+-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_YELLOW") )						
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_YELLOW )						
+ 						elif (gc.getTeam(player.getTeam()).isVassal(gc.getPlayer(iSelectedLeader).getTeam()) or gc.getTeam(gc.getPlayer(iSelectedLeader).getTeam()).isVassal(player.getTeam())):
+ 							szName = self.getNextLineName()
+-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_CYAN") )						
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_CYAN )						
+ 						elif (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())):
+ 							if (gc.getTeam(player.getTeam()).isAtWar(gc.getPlayer(iSelectedLeader).getTeam())):
+ 								szName = self.getNextLineName()
+-								screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_RED") )
++								screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_RED )
+ 							else:
+ 								bJustPeace = True
+ 								if (gc.getTeam(player.getTeam()).isOpenBorders(gc.getPlayer(iSelectedLeader).getTeam())):
+@@ -1054,27 +1062,27 @@ class CvForeignAdvisor:
+ 									fSecondLineOffsetY = self.LINE_WIDTH * math.cos(fTheta)
+ 									fSecondLineOffsetX = -self.LINE_WIDTH * math.sin(fTheta)
+ 									szName = self.getNextLineName()
+-									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(fX + fSecondLineOffsetX), int(fY + fSecondLineOffsetY), gc.getInfoTypeForString("COLOR_CITY_GREEN") )
++									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(fX + fSecondLineOffsetX), int(fY + fSecondLineOffsetY), self.COLOR_CITY_GREEN )
+ 									bJustPeace = False
+ 								if (gc.getTeam(player.getTeam()).isDefensivePact(gc.getPlayer(iSelectedLeader).getTeam())):
+ 									szName = self.getNextLineName()
+-									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_BLUE") )
++									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_BLUE )
+ 									bJustPeace = False
+ 								if (bJustPeace):
+ 									szName = self.getNextLineName()
+-									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_WHITE") )
++									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_WHITE )
+ 
+ 				player = gc.getPlayer(self.iActiveLeader)
+ 				if (player.getTeam() == gc.getPlayer(iSelectedLeader).getTeam()):
+ 					szName = self.getNextLineName()
+-					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_YELLOW") )
++					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, self.COLOR_YELLOW )
+ 				elif (gc.getTeam(player.getTeam()).isVassal(gc.getPlayer(iSelectedLeader).getTeam()) or gc.getTeam(gc.getPlayer(iSelectedLeader).getTeam()).isVassal(player.getTeam())):
+ 					szName = self.getNextLineName()
+-					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_CYAN") )
++					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, self.COLOR_CYAN )
+ 				elif (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())):
+ 					if (gc.getTeam(player.getTeam()).isAtWar(gc.getPlayer(iSelectedLeader).getTeam())):
+ 						szName = self.getNextLineName()
+-						screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_RED") )
++						screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, self.COLOR_RED )
+ 					else:
+ 						bJustPeace = True
+ 						if (gc.getTeam(player.getTeam()).isOpenBorders(gc.getPlayer(iSelectedLeader).getTeam())):
+@@ -1088,15 +1096,15 @@ class CvForeignAdvisor:
+ 							fSecondLineOffsetY = self.LINE_WIDTH * math.cos(fTheta)
+ 							fSecondLineOffsetX = -self.LINE_WIDTH * math.sin(fTheta)
+ 							szName = self.getNextLineName()
+-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(self.X_LEADER_CIRCLE_TOP + fSecondLineOffsetX), int(fLeaderTop + iLeaderHeight/2 + fSecondLineOffsetY), gc.getInfoTypeForString("COLOR_CITY_GREEN") )
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(self.X_LEADER_CIRCLE_TOP + fSecondLineOffsetX), int(fLeaderTop + iLeaderHeight/2 + fSecondLineOffsetY), self.COLOR_CITY_GREEN )
+ 							bJustPeace = False
+ 						if (gc.getTeam(player.getTeam()).isDefensivePact(gc.getPlayer(iSelectedLeader).getTeam())):
+ 							szName = self.getNextLineName()
+-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), gc.getInfoTypeForString("COLOR_BLUE") )
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), self.COLOR_BLUE )
+ 							bJustPeace = False
+ 						if (bJustPeace):
+ 							szName = self.getNextLineName()
+-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), gc.getInfoTypeForString("COLOR_WHITE") )
++							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), self.COLOR_WHITE )
+ 
+ 															
+ 	def getNextWidgetName(self):
+@@ -2279,7 +2287,7 @@ class CvForeignAdvisor:
+ 
+ 	def drawCityDeals(self, bInitial): # Based on drawTechDeals
+ 		screen = self.getScreen()
+-		self.eDenialColor = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
++		self.eDenialColor = self.COLOR_LIGHT_GREY
+ 
+ 		iconGrid, PANEL_X, PANEL_Y = self.initCityTable()
+ 		PANEL_WIDTH = self.W_SCREEN - 2 * PANEL_X
+@@ -2841,7 +2849,7 @@ class CvForeignAdvisor:
+ 								# <advc.120d>
+ 								costStr = str(iCost)
+ 								if pActivePlayer.canDoEspionageMission(iMissionLoop, self.ESP_iTargetPlayer, pPlot, 0):
+-									costStr = localText.changeTextColor(costStr, gc.getInfoTypeForString("COLOR_GREEN"))
++									costStr = localText.changeTextColor(costStr, self.COLOR_GREEN)
+ 								# </advc.120d>
+ 								iRow = screen.appendTableRow(szEffectsTable)
+ 								self.setEspionageTableTextScaled(screen, szEffectsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -2885,7 +2893,7 @@ class CvForeignAdvisor:
+ 							if iCost > 0:
+ 								costStr = str(iCost)
+ 								if pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam) >= iCost:
+-									costStr = localText.changeTextColor(costStr, gc.getInfoTypeForString("COLOR_GREEN"))
++									costStr = localText.changeTextColor(costStr, self.COLOR_GREEN)
+ 							# Secret costs
+ 							if pMission.getBuyTechCostFactor() > 0 and not pActivePlayer.canSeeTech(self.ESP_iTargetPlayer):
+ 								# This can't happen so long as Alphabet enables both Spies and tech trading
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index ac8b18263..4ae3f1b79 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -523,6 +523,9 @@ class CvInfoScreen:
+ 		self.TEXT_ENV_EXPECTED_EVENTS = localText.getText("TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS", ())
+ 		self.TEXT_ENV_EVENT_TALLY = localText.getText("TXT_KEY_ENVIRONMENT_EVENT_TALLY", ())
+ 		self.TEXT_ENV_LOCAL_ANGER_LEVEL = localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL", ())
++		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
++		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+ 
+ 		self.LABEL_ENV_DOMESTIC = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.LABEL_ENV_GLOBAL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE
+@@ -4258,11 +4261,11 @@ class CvInfoScreen:
+ 		szText = self.TEXT_GW_SEVERITY_RATING + ": "
+ 		# advc.137: Better use separate keys
+ 		if iSeverityRating < 30:
+-			szText += localText.getColorText("TXT_KEY_LOW", (), gc.getInfoTypeForString("COLOR_GREEN")).upper()
++			szText += localText.getColorText("TXT_KEY_LOW", (), self.COLOR_GREEN).upper()
+ 		elif iSeverityRating < 75:
+-			szText += localText.getColorText("TXT_KEY_MEDIUM", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper()
++			szText += localText.getColorText("TXT_KEY_MEDIUM", (), self.COLOR_YELLOW).upper()
+ 		else:
+-			szText += localText.getColorText("TXT_KEY_HIGH", (), gc.getInfoTypeForString("COLOR_RED")).upper()
++			szText += localText.getColorText("TXT_KEY_HIGH", (), self.COLOR_RED).upper()
+ 		if CyGame().isDebugMode():
+ 			szText += u" (%d)" % iSeverityRating
+ 		screen.setLabel(self.getNextWidgetName(), szTopPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, self.Z_CONTROLS + self.DZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index 9ddc7f1ec..b2e4ddc16 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -219,6 +219,13 @@ class CvPolicyAdvisorScreen:
+ 		self.TEXT_CORP_ROW_FOUNDED = localText.getText("TXT_KEY_POLICY_CORP_ROW_FOUNDED", ())
+ 		self.TEXT_CORP_ROW_HQ_ID = localText.getText("TXT_KEY_POLICY_CORP_ROW_HQ_ID", ())
+ 		self.TEXT_NOT_FOUNDED = localText.getText("TXT_KEY_RELIGION_SCREEN_NOT_FOUNDED", ())
++		self.TEXT_NONE = localText.getText("TXT_KEY_NONE", ())
++		self.TEXT_UNKNOWN = localText.getText("TXT_KEY_UNKNOWN", ())
++		self.TEXT_BUG_RELIGIOUS_CITY = localText.getText("TXT_KEY_BUG_RELIGIOUS_CITY", ())
++		self.TEXT_BUG_RELIGIOUS_TEMPLE = localText.getText("TXT_KEY_BUG_RELIGIOUS_TEMPLE", ())
++		self.TEXT_BUG_RELIGIOUS_MONASTARY = localText.getText("TXT_KEY_BUG_RELIGIOUS_MONASTARY", ())
++		self.TEXT_BUG_RELIGIOUS_MISSIONARY = localText.getText("TXT_KEY_BUG_RELIGIOUS_MISSIONARY", ())
++		self.TEXT_WONDER_CITY = localText.getText("TXT_KEY_WONDER_CITY", ())
+ 		self.LABEL_RELIGION_NO_STATE = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_NO_STATE + SAS_FONT_TAG_CLOSE
+ 		self.LABEL_RELIGION_DATE_FOUNDED = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_DATE_FOUNDED + SAS_FONT_TAG_CLOSE
+ 		self.LABEL_RELIGION_HOLY_CITY = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_HOLY_CITY + SAS_FONT_TAG_CLOSE
+@@ -229,9 +236,17 @@ class CvPolicyAdvisorScreen:
+ 		self.LABEL_CORP_ROW_GENERATES_2 = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_GENERATES_2 + SAS_FONT_TAG_CLOSE
+ 		self.LABEL_CORP_ROW_FOUNDED = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_FOUNDED + SAS_FONT_TAG_CLOSE
+ 		self.LABEL_CORP_ROW_HQ_ID = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_HQ_ID + SAS_FONT_TAG_CLOSE
++		self.LABEL_NONE = SAS_FONT_TAG_LABEL + self.TEXT_NONE + SAS_FONT_TAG_CLOSE
++		self.LABEL_UNKNOWN = SAS_FONT_TAG_LABEL + self.TEXT_UNKNOWN + SAS_FONT_TAG_CLOSE
+ 		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
+ 		self.BUTTON_HILITE_SQUARE_ART = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
+ 		self.BACKGROUND_ART = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
++		self.ZOOM_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
++		self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
++		self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
++		self.COLOR_BLUE = getInfoTypeOrFail("COLOR_BLUE")
++		self.COLOR_WHITE = getInfoTypeOrFail("COLOR_WHITE")
++		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+@@ -782,11 +797,11 @@ class CvPolicyAdvisorScreen:
+ 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
+ 				pHolyCity = gc.getGame().getHolyCity(iRel)
+ 				if pHolyCity.isNone():
+-					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_NONE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_NONE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, self.LABEL_NONE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, self.LABEL_NONE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				elif not pHolyCity.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), True): # advc.001d
+-					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				else:
+ 					# <!-- custom: keep Holy City and Leader as separate rows so upscaled text stays readable; include player ID for precise debugging/reference in duplicate-civ setups. (GPT-5.3-Codex) -->
+ 					szHolyCityName = self.trimReligionColumnText(pHolyCity.getName(), self.RELIGION_HOLY_CITY_CITY_MAX_CHARS_NO_ID)
+@@ -880,18 +895,18 @@ class CvPolicyAdvisorScreen:
+ 		self.objectIsNotPresent = "-"
+ 		self.objectCanBeBuild = "o"
+ 		self.objectUnderConstruction = self.hammerIcon
+-		self.objectHave = localText.changeTextColor(self.objectIsPresent, gc.getInfoTypeForString("COLOR_GREEN"))
+-		self.objectNotPossible = localText.changeTextColor(self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_RED"))
+-		self.objectPossible = localText.changeTextColor(self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_BLUE"))
+-		self.objectHaveObsolete = localText.changeTextColor(self.objectIsPresent, gc.getInfoTypeForString("COLOR_WHITE"))
+-		self.objectNotPossibleConcurrent = localText.changeTextColor(self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_YELLOW"))
+-		self.objectPossibleConcurrent = localText.changeTextColor(self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_YELLOW"))
+-		self.szCities = localText.getText("TXT_KEY_BUG_RELIGIOUS_CITY", ())
+-		self.szTemples = localText.getText("TXT_KEY_BUG_RELIGIOUS_TEMPLE", ())
+-		self.szMonastaries = localText.getText("TXT_KEY_BUG_RELIGIOUS_MONASTARY", ())
+-		self.szMissionaries = localText.getText("TXT_KEY_BUG_RELIGIOUS_MISSIONARY", ())
+-		self.zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+-		self.sCity = localText.getText("TXT_KEY_WONDER_CITY", ())
++		self.objectHave = localText.changeTextColor(self.objectIsPresent, self.COLOR_GREEN)
++		self.objectNotPossible = localText.changeTextColor(self.objectIsNotPresent, self.COLOR_RED)
++		self.objectPossible = localText.changeTextColor(self.objectCanBeBuild, self.COLOR_BLUE)
++		self.objectHaveObsolete = localText.changeTextColor(self.objectIsPresent, self.COLOR_WHITE)
++		self.objectNotPossibleConcurrent = localText.changeTextColor(self.objectIsNotPresent, self.COLOR_YELLOW)
++		self.objectPossibleConcurrent = localText.changeTextColor(self.objectCanBeBuild, self.COLOR_YELLOW)
++		self.szCities = self.TEXT_BUG_RELIGIOUS_CITY
++		self.szTemples = self.TEXT_BUG_RELIGIOUS_TEMPLE
++		self.szMonastaries = self.TEXT_BUG_RELIGIOUS_MONASTARY
++		self.szMissionaries = self.TEXT_BUG_RELIGIOUS_MISSIONARY
++		self.zoomArt = self.ZOOM_ART
++		self.sCity = self.TEXT_WONDER_CITY
+ 
+ 	def drawCityInfo(self, iReligion):
+ 		screen = self.getScreen()
+@@ -1190,7 +1205,7 @@ class CvPolicyAdvisorScreen:
+ 			if pHeadquarters.isNone():
+ 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + u"-" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			elif not pHeadquarters.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), False):
+-				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			else:
+ 				iOwner = pHeadquarters.getOwner()
+ 				szHeadquarters = self.trimTextWithId(pHeadquarters.getName(), iOwner, self.CORPORATION_HQ_MAX_CHARS_WITH_ID)
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index c66a98723..18a2be429 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -249,6 +249,9 @@ class CvVictoryScreen:
+ 		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
+ 		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
+ 		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
++		self.TEXT_DIPLOMATIC = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
++		self.LABEL_SETTINGS_HEADER = SAS_FONT_TAG_LABEL_BOLD + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
++		self.LABEL_OPTIONS_HEADER = SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TAB_VICTORIES_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), self.COLOR_YELLOW).upper()
+ 		self.TAB_SETTINGS_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), self.COLOR_YELLOW).upper()
+ 		self.TAB_VOTING_ACTIVE = localText.getColorText("TXT_KEY_VOTING_TITLE", (), self.COLOR_YELLOW).upper()
+@@ -730,7 +733,7 @@ class CvVictoryScreen:
+ 		screen.setText(self.Vote_Pope_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		iX -= 10 + CyInterface().determineWidth(sText)
+-		sText = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
++		sText = self.TEXT_DIPLOMATIC
+ 		if self.VoteType == 2:
+ 			sText = BugUtil.colorText(sText, "COLOR_YELLOW")
+ 		screen.setText(self.Vote_DipVic_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -908,7 +911,7 @@ class CvVictoryScreen:
+ 		if self.VoteType == 1:
+ 			sSecGen = gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText()
+ 		else:
+-			sSecGen = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
++			sSecGen = self.TEXT_DIPLOMATIC
+ 
+ 		# display SecGen vote prediction
+ 		if (iCand1Known != 0
+@@ -1232,7 +1235,7 @@ class CvVictoryScreen:
+ 		szSettingsPanel = self.getNextWidgetName()
+ 		screen.addPanel(szSettingsPanel, "", "", True, True, self.SETTINGS_PANEL_X1, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+ 		szSettingsHeader = self.getNextWidgetName()
+-		screen.setLabel(szSettingsHeader, "Background", SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(szSettingsHeader, "Background", self.LABEL_SETTINGS_HEADER, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		szSettingsTable = self.getNextWidgetName()
+ 		screen.addListBoxGFC(szSettingsTable, "", self.SETTINGS_PANEL_X1 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(szSettingsTable, False)
+@@ -1354,7 +1357,7 @@ class CvVictoryScreen:
+ 		szOptionsPanel = self.getNextWidgetName()
+ 		screen.addPanel(szOptionsPanel, "", "", True, True, self.SETTINGS_PANEL_X2, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+ 		szOptionsHeader = self.getNextWidgetName()
+-		screen.setLabel(szOptionsHeader, "Background", SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(szOptionsHeader, "Background", self.LABEL_OPTIONS_HEADER, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		szOptionsTable = self.getNextWidgetName()
+ 		screen.addListBoxGFC(szOptionsTable, "", self.SETTINGS_PANEL_X2 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(szOptionsTable, False)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=28239

@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 655
+# Commit: 0b43a148d554558fb76f8a64e4af35bd6b02d346
+# History segment: K-Mod history
+# Parent used for diff: a1d8f605b98e2d2775e0e72be27c2eec69e56fc8
+# Title: Made some further adjustments to the value of drafting in AI_civicValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	5	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6840e2b86..2014b13c5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13382,8 +13382,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			{
+ 				int iTempValue = iCities + ((bWarPlan) ? 30 : 10);
+ 
+-				iTempValue *= range(kTeam.AI_getEnemyPowerPercent(), 50, 300);
+-				iTempValue /= 100;
++				/* iTempValue *= range(kTeam.AI_getEnemyPowerPercent(), 50, 300);
++				iTempValue /= 100; */ // disabled by K-Mod
+ 
+ 				iTempValue *= iCombatValue;
+ 				iTempValue /= 75;
+@@ -13394,11 +13394,13 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 					iTempValue *= 75 + range(-iWarSuccessRating, 25, 100);
+ 					iTempValue /= 100;
+ 				}
+-				// K-Mod (maybe I'll do some more tweaking later)
++				// K-Mod. (What's with all the "losing means we need drafting" mentality in the BBAI code? It's... not the right way to look at it.)
+ 				// (NOTE: "conscript_population_per_cost" is actually "production_per_conscript_population". The developers didn't know what "per" means.)
+ 				int iConscriptPop = std::max(1, GC.getUnitInfo(eConscript).getProductionCost() / GC.getDefineINT("CONSCRIPT_POPULATION_PER_COST"));
+-				iTempValue *= GC.getUnitInfo(eConscript).getProductionCost();
+-				iTempValue /= iConscriptPop * GC.getDefineINT("CONSCRIPT_POPULATION_PER_COST");
++				int iProductionFactor = 100 * GC.getUnitInfo(eConscript).getProductionCost();
++				iProductionFactor /= iConscriptPop * GC.getDefineINT("CONSCRIPT_POPULATION_PER_COST");
++				iTempValue *= iProductionFactor;
++				iTempValue /= 100;
+ 				iTempValue *= std::min(iCities, iMaxConscript*3);
+ 				iTempValue /= iMaxConscript*3;
+ 				// reduce the value if unit spending is already high.
+@@ -13408,6 +13410,12 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				{
+ 					iTempValue = std::max(0, iTempValue * (2 * iMaxSpending - iUnitSpending)/std::max(1, iMaxSpending));
+ 				}
++				else if (iProductionFactor >= 140) // cf. 'bGoodValue' in CvCityAI::AI_doDraft
++				{
++					iTempValue *= 2*iMaxSpending;
++					iTempValue /= std::max(1, iMaxSpending + iUnitSpending);
++				}
++				// todo. put in something to do with how much happiness we can afford to lose.. or something like that.
+ 				// K-Mod end
+ 
+ 				iValue += iTempValue;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2329

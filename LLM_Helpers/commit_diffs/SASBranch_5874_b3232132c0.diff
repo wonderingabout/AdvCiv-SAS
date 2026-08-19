@@ -1,0 +1,207 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5874
+# Commit: b3232132c072dfbade7cd5584e31747b43357cfd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 16ae7e31a685cc222189272061cd7d77bfcf2851
+# Title: fix ruff E701 - pass 6
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	PrivateMaps/Earth2.py
+8	4	PrivateMaps/Hub.py
+14	7	PrivateMaps/RandomScriptMap.py
+8	4	PrivateMaps/Ring.py
+8	4	PrivateMaps/Wheel.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index 96ec6e9e5..781751b7a 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -1180,8 +1180,10 @@ class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.mapRand = self.gc.getGame().getMapRand()
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.deserts=CyFractal()
+ 		self.plains=CyFractal()
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index bbd24be96..69ac4fa09 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -928,8 +928,10 @@ class HubTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.mapRand = self.gc.getGame().getMapRand()
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.main=CyFractal()
+ 		self.center=CyFractal()
+@@ -1018,8 +1020,10 @@ class HubFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		[self.cenWestX, self.cenEastX, self.cenSouthY, self.cenNorthY] = center_data
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.iGridW = self.map.getGridWidth()
+ 		self.iGridH = self.map.getGridHeight()
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index 7ecb3441b..bd632c418 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -283,49 +283,56 @@ def beforeGeneration():
+ 	# NOTE: Exclude overrides Favourite.
+ 	diceNumber = 0
+ 	fracWeight = c_fracWeight
+-	if( favMethod == MAP_FRACT ) : fracWeight += c_favWeight
++	if( favMethod == MAP_FRACT ):
++		fracWeight += c_favWeight
+ 	if( exclude1 != MAP_FRACT and
+ 	    exclude2 != MAP_FRACT and exclude3 != MAP_FRACT ) :
+ 		diceNumber += fracWeight
+ 	else:
+ 		fracWeight = 0
+ 	terraWeight = c_terraWeight
+-	if( favMethod == MAP_TERRA ) : terraWeight += c_favWeight	
++	if( favMethod == MAP_TERRA ):
++		terraWeight += c_favWeight	
+ 	if( exclude1 != MAP_TERRA and
+ 	    exclude2 != MAP_TERRA and exclude3 != MAP_TERRA ) :
+ 		diceNumber += terraWeight
+ 	else:
+ 		terraWeight = 0
+ 	hemiWeight = c_hemiWeight
+-	if( favMethod == MAP_HEMIS ) : hemiWeight += c_favWeight
++	if( favMethod == MAP_HEMIS ):
++		hemiWeight += c_favWeight
+ 	if( exclude1 != MAP_HEMIS and
+ 	    exclude2 != MAP_HEMIS and exclude3 != MAP_HEMIS ) :
+ 		diceNumber += hemiWeight
+ 	else:
+ 		hemiWeight = 0
+ 	bnsWeight = c_bnsWeight
+-	if( favMethod == MAP_BIGNS ) : bnsWeight += c_favWeight
++	if( favMethod == MAP_BIGNS ):
++		bnsWeight += c_favWeight
+ 	if( exclude1 != MAP_BIGNS and
+ 	    exclude2 != MAP_BIGNS and exclude3 != MAP_BIGNS ) :
+ 		diceNumber += bnsWeight
+ 	else:
+ 		bnsWeight = 0
+ 	mnsWeight = c_mnsWeight
+-	if( favMethod == MAP_MANDS ) : mnsWeight += c_favWeight
++	if( favMethod == MAP_MANDS ):
++		mnsWeight += c_favWeight
+ 	if( exclude1 != MAP_MANDS and
+ 	    exclude2 != MAP_MANDS and exclude3 != MAP_MANDS ) :
+ 		diceNumber += mnsWeight
+ 	else:
+ 		mnsWeight = 0
+ 	archiWeight = c_archiWeight
+-	if( favMethod == MAP_ARCHI ) : archiWeight += c_favWeight
++	if( favMethod == MAP_ARCHI ):
++		archiWeight += c_favWeight
+ 	if( exclude1 != MAP_ARCHI and
+ 	    exclude2 != MAP_ARCHI and exclude3 != MAP_ARCHI ) :
+ 		diceNumber += archiWeight
+ 	else:
+ 		archiWeight = 0	
+ 	pangWeight = c_pangWeight
+-	if( favMethod == MAP_PANGA ) : pangWeight += c_favWeight
++	if( favMethod == MAP_PANGA ):
++		pangWeight += c_favWeight
+ 	if( exclude1 != MAP_PANGA and
+ 	    exclude2 != MAP_PANGA and exclude3 != MAP_PANGA ) :
+ 		diceNumber += pangWeight
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index 1a5aa9186..a12d634e8 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -897,8 +897,10 @@ class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.mapRand = self.gc.getGame().getMapRand()
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.main=CyFractal()
+ 		self.center=CyFractal()
+@@ -987,8 +989,10 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		[self.cenWestX, self.cenEastX, self.cenSouthY, self.cenNorthY] = center_data
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.iGridW = self.map.getGridWidth()
+ 		self.iGridH = self.map.getGridHeight()
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index acac26696..e99922457 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -1092,8 +1092,10 @@ class WheelTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.mapRand = self.gc.getGame().getMapRand()
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.main=CyFractal()
+ 		self.center=CyFractal()
+@@ -1182,8 +1184,10 @@ class WheelFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		[self.cenWestX, self.cenEastX, self.cenSouthY, self.cenNorthY] = center_data
+ 		
+ 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
++		if self.map.isWrapX():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
++		if self.map.isWrapY():
++			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+ 
+ 		self.iGridW = self.map.getGridWidth()
+ 		self.iGridH = self.map.getGridHeight()
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7057

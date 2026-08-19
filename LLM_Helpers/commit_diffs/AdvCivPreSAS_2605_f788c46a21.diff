@@ -1,0 +1,1437 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2605
+# Commit: f788c46a21b1dfddbb24e07c8ff7d46d47b416d8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0866f78275e7ebac67b6c3b3f74322348b758c78
+# Title: Various optimizations for UWAICache
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	3	CvGameCoreDLL/ArmamentForecast.cpp
+3	3	CvGameCoreDLL/CitySiteEvaluator.cpp
+3	1	CvGameCoreDLL/CvCity.cpp
+9	8	CvGameCoreDLL/CvPlayer.cpp
+33	9	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvPlayerAI.h
+10	11	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.h
+4	4	CvGameCoreDLL/CvUnitAI.cpp
+21	35	CvGameCoreDLL/InvasionGraph.cpp
+4	5	CvGameCoreDLL/MilitaryAnalyst.cpp
+6	7	CvGameCoreDLL/UWAIAgent.cpp
+98	296	CvGameCoreDLL/UWAICache.cpp
+30	35	CvGameCoreDLL/UWAICache.h
+25	26	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index e32aa4a28..5c7942bdc 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -57,8 +57,6 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 	TeamTypes tId = TEAMID(civId);
+ 	CvTeamAI& t = GET_TEAM(tId);
+ 	PlayerTypes weId = m.ourId();
+-	// Expect caller to make sure of this
+-	FAssert(targetCity == NULL || targetCity->city() != NULL);
+ 	Intensity intensity = NORMAL;
+ 	if(civ.AI_isDoStrategy(AI_STRATEGY_ALERT1))
+ 		intensity = INCREASED;
+@@ -67,7 +65,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 		if(!targetCity->canReachByLand() ||
+ 				targetCity->getDistance() > getUWAI.maxLandDist())
+ 			navalArmament = true;
+-		report.log("Target city: %s%s", report.cityName(*targetCity->city()),
++		report.log("Target city: %s%s", report.cityName(targetCity->city()),
+ 				(navalArmament ? " (naval target)": ""));
+ 	}
+ 	/*  Much of this function could be written more concisely based on the
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index c7ec804bc..9f37f6200 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1189,7 +1189,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
+ 				better wait for borders to expand. */
+ 			return false;
+ 		}
+-		if (pOtherCity != NULL && (kTeam.AI_deduceCitySite(pOtherCity) ||
++		if (pOtherCity != NULL && (kTeam.AI_deduceCitySite(*pOtherCity) ||
+ 			/*  At the start of the game, a single revealed tile should
+ 				be enough to locate the city. */
+ 			iCities == 0))
+@@ -2605,7 +2605,7 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
+ 			if (pLoopCity->isArea(kArea))
+ 			{
+ 				// <advc.031> Don't cheat
+-				if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(pLoopCity))
++				if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pLoopCity))
+ 					continue; // </advc.031>
+ 				int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+ 				if (kOther.getID() == ePlayer && (pOurNearestCity == NULL ||
+@@ -2615,7 +2615,7 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
+ 					pOurNearestCity = pLoopCity;
+ 				}
+ 				int iCultureRange = pLoopCity->getCultureLevel() + 3;
+-				if (iDistance <= iCultureRange && kTeam.AI_deduceCitySite(pLoopCity))
++				if (iDistance <= iCultureRange && kTeam.AI_deduceCitySite(*pLoopCity))
+ 				{
+ 					// cf. culture distribution in CvCity::doPlotCultureTimes100
+ 					iProximity += 90*(iDistance-iCultureRange)*(iDistance-iCultureRange)/
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 20d36c4b8..de9a9656c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -365,7 +365,9 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 			}
+ 		}
+ 	} // UNOFFICIAL_PATCH: END
+-
++	// <advc.104>
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++		it->AI_cityKilled(*this); // </advc.104>
+ 	getArea().changeCitiesPerPlayer(getOwner(), -1);
+ 	// <advc.030b>
+ 	CvArea* pWaterArea = waterArea(true);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5d0f208c6..0dca2c486 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1660,7 +1660,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	CvCity* pNewCity = initCity(kCityPlot.getX(), kCityPlot.getY(), !bConquest, false,
+ 			// advc.ctr: Moved (way) up
+ 			(bTrade && !bRecapture) ? iOccupationTimer : 0);
+-	FAssert(pNewCity != NULL);
+ 	CvCityAI& kNewCity = pNewCity->AI(); // advc.003u
+ 
+ 	kNewCity.setPreviousOwner(eOldOwner);
+@@ -1817,14 +1816,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	if (bUpdatePlotGroups)
+ 		GC.getGame().updatePlotGroups();
+ 
+-	// Notify observers
++	// Notify observers ...
+ 	// <advc.104>
+-	if(getUWAI.isEnabled() || getUWAI.isEnabled(true))
+-	{
+-		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-			it->uwai().getCache().reportCityOwnerChanged(&kNewCity, eOldOwner);
+-	} // </advc.104>
+-
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++		it->AI_cityCreated(kNewCity); // </advc.104>
+ 	CvEventReporter::getInstance().cityAcquired(
+ 			eOldOwner, getID(), &kNewCity, bConquest, bTrade);
+ 	if (gPlayerLogLevel >= 1) logBBAI("  Player %d (%S) acquires city %S bConq %d bTrade %d", getID(), getCivilizationDescription(0), kNewCity.getName(0).GetCString(), bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+@@ -4938,6 +4933,12 @@ void CvPlayer::found(int iX, int iY)  // advc: some style changes
+ 			}
+ 		}
+ 	}
++	// <advc.104>
++	else
++	{
++		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++			it->AI_cityCreated(*pCity);
++	} // </advc.104>
+ 
+ 	if (isHuman())
+ 	{	// advc.001: Else branch shouldn't depend on advanced start (minor BtS bug)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d7268708b..e030c85e2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -21272,16 +21272,26 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	// <advc.104>
+ 	if(isMajorCiv() && (uiFlag < 15 ? isEverAlive() : isAlive()))
+ 		m_pUWAI->read(pStream); // </advc.104>
+-	// <advc.148>
+-	if(uiFlag < 9 && getID() == MAX_PLAYERS - 1)
++	if(getID() == MAX_PLAYERS - 1) // advc: After all players have been loaded ...
+ 	{
+-		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++		// <advc.148>
++		if(uiFlag < 9)
++		{
++			for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++			{
++				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
++				if(kPlayer.isAlive())
++					kPlayer.AI_updateAttitude();
++			}
++		} // </advc.148>
++		// <advc.104>
++		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		{
+ 			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+-			if(kPlayer.isAlive())
+-				kPlayer.AI_updateAttitude();
+-		}
+-	} // </advc.148>
++			if (kPlayer.isAlive() && kPlayer.isMajorCiv())
++				kPlayer.uwai().getCache().cacheCitiesAfterRead();
++		} // </advc.104>
++	}
+ }
+ 
+ // save object to a stream
+@@ -26247,10 +26257,24 @@ bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity, bool bConquest) const
+ 	return (rDecentPlots < 7);
+ }
+ 
++// advc.104:
++void CvPlayerAI::AI_cityKilled(CvCity const& kCity)
++{
++	if (getUWAI.isEnabled() || getUWAI.isEnabled(true))
++		uwai().getCache().reportCityDestroyed(kCity);
++}
++
++// advc.104:
++void CvPlayerAI::AI_cityCreated(CvCity& kCity)
++{
++	if (getUWAI.isEnabled() || getUWAI.isEnabled(true))
++		uwai().getCache().reportCityCreated(kCity);
++}
++
+ // K-Mod
+-bool CvPlayerAI::AI_deduceCitySite(const CvCity* pCity) const
++bool CvPlayerAI::AI_deduceCitySite(CvCity const& kCity) const
+ {
+-	return GET_TEAM(getTeam()).AI_deduceCitySite(pCity);
++	return GET_TEAM(getTeam()).AI_deduceCitySite(kCity);
+ }
+ 
+ /*	K-Mod. This function is essentially a merged version of two original bts functions:
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 0bce9d05b..1c7a6faf3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -604,7 +604,9 @@ public:
+ 	// advc.117, advc.121:
+ 	bool AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const;
+ 	bool AI_isAwfulSite(CvCity const& kCity, bool bConquest = false) const; // advc.ctr
+-	bool AI_deduceCitySite(const CvCity* pCity) const; // K-Mod
++	bool AI_deduceCitySite(CvCity const& pCity) const; // K-Mod
++	void AI_cityKilled(CvCity const& kCity); // advc.104
++	void AI_cityCreated(CvCity& kCity); // advc.104
+ 	// K-Mod:
+ 	int AI_countPotentialForeignTradeCities(bool bCheckConnected = true,
+ 			bool bCheckForeignTradePolicy = true, CvArea const* pIgnoreArea = 0) const;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index d334ed4bf..23b926ed0 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -259,19 +259,19 @@ int CvTeamAI::AI_estimateTotalYieldRate(YieldTypes eYield) const
+ 	return iTotal;
+ } // K-Mod end
+ 
+-// K-Mod. return true if is fair enough for the AI to know there is a city here
+-bool CvTeamAI::AI_deduceCitySite(const CvCity* pCity) const
++// K-Mod: return true if is fair enough for the AI to know there is a city here
++bool CvTeamAI::AI_deduceCitySite(CvCity const& kCity) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (pCity->isRevealed(getID()))
++	if (kCity.isRevealed(getID()))
+ 		return true;
+ 
+ 	// The rule is this:
+ 	// if we can see more than n plots of the nth culture ring, we can deduce where the city is.
+ 
+ 	int iPoints = 0;
+-	int iLevel = pCity->getCultureLevel();
++	int iLevel = kCity.getCultureLevel();
+ 	for (int iDX = -iLevel; iDX <= iLevel; iDX++)
+ 	{
+ 		for (int iDY = -iLevel; iDY <= iLevel; iDY++)
+@@ -279,9 +279,8 @@ bool CvTeamAI::AI_deduceCitySite(const CvCity* pCity) const
+ 			int iDist = CvCity::cultureDistance(iDX, iDY);
+ 			if (iDist > iLevel)
+ 				continue;
+-
+-			CvPlot* pLoopPlot = plotXY(pCity->getX(), pCity->getY(), iDX, iDY);
+-			if (pLoopPlot && pLoopPlot->getRevealedOwner(getID()) == pCity->getOwner())
++			CvPlot* pLoopPlot = plotXY(kCity.getX(), kCity.getY(), iDX, iDY);
++			if (pLoopPlot && pLoopPlot->getRevealedOwner(getID()) == kCity.getOwner())
+ 			{
+ 				/*	if multiple cities have their plot in their range,
+ 					then that will make it harder to deduce the precise city location. */
+@@ -293,7 +292,7 @@ bool CvTeamAI::AI_deduceCitySite(const CvCity* pCity) const
+ 		}
+ 	}
+ 	return false;
+-} // K-Mod end
++}
+ 
+ 
+ bool CvTeamAI::AI_isAnyCapitalAreaAlone() const
+@@ -608,7 +607,7 @@ bool CvTeamAI::AI_haveSeenCities(TeamTypes eTeam, bool bPrimaryAreaOnly, int iMi
+ 		CvPlayer const& kMember = *it;
+ 		FOR_EACH_CITY(pLoopCity, kMember)
+ 		{
+-			if (AI_deduceCitySite(pLoopCity))
++			if (AI_deduceCitySite(*pLoopCity))
+ 			{
+ 				if (!bPrimaryAreaOnly || AI_isPrimaryArea(pLoopCity->getArea()))
+ 				{
+@@ -1256,7 +1255,7 @@ int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan,
+ 		CvPlayerAI const& kLoopPlayer = *itMember;
+ 		FOR_EACH_CITYAI(pLoopCity, kLoopPlayer)
+ 		{
+-			if (!AI_deduceCitySite(pLoopCity))
++			if (!AI_deduceCitySite(*pLoopCity))
+ 				continue;
+ 
+ 			int iCityValue = pLoopCity->getPopulation();
+@@ -6428,7 +6427,7 @@ bool CvTeamAI::AI_isWaterAreaRelevant(CvArea const& kArea) const
+ 			if (!pLoopCity->getPlot().isAdjacentToArea(kArea))
+ 				continue;
+ 			// <advc.001> Don't cheat
+-			if (!AI_deduceCitySite(pLoopCity))
++			if (!AI_deduceCitySite(*pLoopCity))
+ 				continue; // </advc.001>
+ 			iOtherTeamCities++;
+ 			if (iOtherTeamCities >= iTargetCities)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 90b18c0eb..1b0cadc2c 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -55,7 +55,7 @@ public:
+ 
+ 	int AI_estimateTotalYieldRate(YieldTypes eYield) const; // K-Mod
+ 
+-	bool AI_deduceCitySite(const CvCity* pCity) const; // K-Mod
++	bool AI_deduceCitySite(CvCity const& kCity) const; // K-Mod
+ 
+ 	bool AI_isAnyCapitalAreaAlone() const;
+ 	bool AI_isPrimaryArea(CvArea const& kArea) const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5c6054caa..48ab26335 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11451,7 +11451,7 @@ bool CvUnitAI::AI_spreadReligion()
+ 				{
+ 					continue;
+ 				}
+-				if (!kOwner.AI_deduceCitySite(pLoopCity) || // K-Mod
++				if (!kOwner.AI_deduceCitySite(*pLoopCity) || // K-Mod
+ 					!canSpread(pLoopCity->plot(), eReligion) ||
+ 					pLoopCity->getPlot().isVisibleEnemyUnit(this) ||
+ 					kOwner.AI_isAnyPlotTargetMissionAI(
+@@ -11604,7 +11604,7 @@ bool CvUnitAI::AI_spreadCorporation()
+ 				{
+ 					if (AI_canEnterByLand(pLoopCity->getArea()) && // advc.030 (replacing same-area check)
+ 						//AI_plotValid(pLoopCity->plot()) && // advc.opt: Mostly redundant
+-						kOwner.AI_deduceCitySite(pLoopCity) &&
++						kOwner.AI_deduceCitySite(*pLoopCity) &&
+ 						canSpreadCorporation(pLoopCity->plot(), eCorporation) &&
+ 						!pLoopCity->getPlot().isVisibleEnemyUnit(this) &&
+ 						!kOwner.AI_isAnyPlotTargetMissionAI(
+@@ -13210,7 +13210,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				continue; // advc
+ 			if(!AI_mayAttack(kTargetPlayer.getTeam(), pLoopCity->getPlot()))
+ 				continue;
+-			if (kOwner.AI_deduceCitySite(pLoopCity))
++			if (kOwner.AI_deduceCitySite(*pLoopCity))
+ 			{
+ 				// K-Mod. Look for either a direct land path, or a sea transport path.
+ 				int iPathTurns = MAX_INT;
+@@ -20416,7 +20416,7 @@ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath, CvCity* pSkipCity)
+ 
+ 			FOR_EACH_CITY(pLoopCity, kLoopPlayer)
+ 			{
+-				if (pLoopCity == pSkipCity || !kOwner.AI_deduceCitySite(pLoopCity))
++				if (pLoopCity == pSkipCity || !kOwner.AI_deduceCitySite(*pLoopCity))
+ 					continue;
+ 
+ 				if (AI_canEnterByLand(pLoopCity->getArea())) // advc.030: Replacing same-area and canMoveAllTerrain check
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 0fdab50b4..256e7fb6a 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -360,14 +360,12 @@ PlayerTypes InvasionGraph::Node::findBestTarget(TeamTypes include) const {
+ 	int iMaxSkip = GET_PLAYER(id).getNumCities() / 2;
+ 	PlayerTypes bestTarget = NO_PLAYER;
+ 	for(int i = 0; i < cache.size(); i++) {
+-		UWAICache::City* city = cache.getCity(i);
+-		if(city == NULL)
+-			continue;
++		UWAICache::City& city = cache.cityAt(i);
+ 		// Because of ordering, first hit is best target (if any target is valid).
+-		if(!city->canReach() || city->isOwnCity())
++		if(!city.canReach() || city.isOwnTeamCity())
+ 			break;
+-		if(isValidTarget(*city, include)) {
+-			bestTarget = city->cityOwner();
++		if(isValidTarget(city, include)) {
++			bestTarget = city.city().getOwner();
+ 			if(bestTarget == weId || !bPessimistic || iSkipped >= iMaxSkip)
+ 				break;
+ 			iSkipped++;
+@@ -383,7 +381,7 @@ PlayerTypes InvasionGraph::Node::findBestTarget(TeamTypes include) const {
+ bool InvasionGraph::Node::isValidTarget(UWAICache::City const& c,
+ 		TeamTypes include) const {
+ 
+-	PlayerTypes const owner = c.cityOwner();
++	PlayerTypes const owner = c.city().getOwner();
+ 	return (isValidTarget(owner, include) &&
+ 			!outer.nodeMap[owner]->hasLost(c.id()));
+ }
+@@ -431,13 +429,13 @@ void InvasionGraph::Node::resolveLossesRec() {
+ void InvasionGraph::Node::addConquest(UWAICache::City const& c) {
+ 
+ 	report.log("*%s* (%s) assumed to be *conquered* by %s",
+-			report.cityName(*c.city()),
+-			report.leaderName(c.cityOwner()), report.leaderName(id));
++			report.cityName(c.city()),
++			report.leaderName(c.city().getOwner()), report.leaderName(id));
+ 	conquests.push_back(&c);
+ 	// Advance cache index past the city just conquered
+ 	while(cacheIndex < cache.size()) {
+-		 UWAICache::City* cacheCity = cache.getCity(cacheIndex);
+-		 if(cacheCity != NULL && cacheCity->id() == c.id())
++		 UWAICache::City& cacheCity = cache.cityAt(cacheIndex);
++		 if(cacheCity.id() == c.id())
+ 			break;
+ 		 cacheIndex++;
+ 	}
+@@ -529,9 +527,8 @@ double InvasionGraph::Node::productionPortion() const {
+ 
+ 	int lostPop = 0;
+ 	for(CitySetIter it = losses.begin(); it != losses.end(); ++it) {
+-		CvCity* c = UWAICache::City::cityById(*it);
+-		if(c != NULL)
+-			lostPop += c->getPopulation();
++		CvCity& c = UWAICache::cvCityById(*it);
++		lostPop += c.getPopulation();
+ 	}
+ 	int originalPop = GET_PLAYER(id).getTotalPopulation();
+ 	if(originalPop <= 0)
+@@ -559,11 +556,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 	UWAICache::City const* const c = (clashOnly ? NULL : targetCity());
+ 	if(c == NULL && !clashOnly)
+ 		return NULL;
+-	CvCity const* const cvCity = (c == NULL ? NULL : c->city());
+-	if(cvCity == NULL && !clashOnly) {
+-		FAssert(cvCity != NULL);
+-		return NULL;
+-	}
++	CvCity const* const cvCity = (c == NULL ? NULL : &c->city());
+ 	Node& defender = *primaryTarget;
+ 	int const defCities = GET_PLAYER(defender.id).getNumCities();
+ 	int const attCities = GET_PLAYER(id).getNumCities();
+@@ -781,7 +774,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		   actual game. Reduce distance for subsequent attacks a bit in order to
+ 		   match an average case. */
+ 		if(!conquests.empty()) {
+-			CvCity const& latestConq = *conquests[conquests.size() - 1]->city();
++			CvCity const& latestConq = conquests[conquests.size() - 1]->city();
+ 			if(latestConq.getOwner() == defender.id && cvCity->sameArea(latestConq)) {
+ 				deploymentDistAttacker *= 0.6;
+ 				// Will have to wait for some units to heal then though
+@@ -1460,8 +1453,7 @@ void InvasionGraph::Node::applyStep(SimulationStep const& step) {
+ 					GET_PLAYER(attacker.id).uwai().getDominationStage()) {
+ 				int nConqueredByAtt = 0;
+ 				for(size_t i = 0; i < attacker.conquests.size(); i++) {
+-					if(attacker.conquests[i] != NULL &&
+-							losses.count(attacker.conquests[i]->id()) > 0)
++					if(losses.count(attacker.conquests[i]->id()) > 0)
+ 						nConqueredByAtt++;
+ 				}
+ 				int nConqueredByOther = (int)losses.size() - nConqueredByAtt;
+@@ -1565,19 +1557,17 @@ UWAICache::City const* InvasionGraph::Node::targetCity(PlayerTypes owner) const
+ 	if(primaryTarget == NULL && owner == NO_PLAYER)
+ 		return NULL;
+ 	for(int i = cacheIndex; i < cache.size(); i++) {
+-		UWAICache::City* r = cache.getCity(i);
+-		if(r == NULL)
+-			continue;
+-		if(!r->canReach() || r->isOwnCity())
++		UWAICache::City& r = cache.cityAt(i);
++		if(!r.canReach() || r.isOwnTeamCity())
+ 			break; // Because of sorting, rest is also going to be invalid.
+-		PlayerTypes const cityOwner = r->cityOwner();
++		PlayerTypes const cityOwner = r.city().getOwner();
+ 		if((cityOwner == owner ||
+ 				(owner == NO_PLAYER && cityOwner == primaryTarget->getId())) &&
+ 				/* Target may also have conquered the city; however,
+ 				   cities being won and lost within one military analysis
+ 				   gets too complicated. */
+-				(primaryTarget == NULL || !primaryTarget->hasLost(r->id())))
+-			return r;
++				(primaryTarget == NULL || !primaryTarget->hasLost(r.id())))
++			return &r;
+ 	}
+ 	return NULL;
+ }
+@@ -1762,7 +1752,7 @@ bool InvasionGraph::Node::isSneakAttack(InvasionGraph::Node const& other,
+ 		return false;
+ 	if(!bClash) {
+ 		for(size_t i = 0; i < conquests.size(); i++)
+-			if(conquests[i]->cityOwner() == other.getId())
++			if(conquests[i]->city().getOwner() == other.getId())
+ 				return false;
+ 	}
+ 	WarEvalParameters const& params = outer.m.evaluationParameters();
+@@ -1777,12 +1767,8 @@ bool InvasionGraph::Node::isContinuedWar(Node const& other) const {
+ 
+ void InvasionGraph::Node::getConquests(CitySet& r) const {
+ 
+-	for(size_t i = 0; i < conquests.size(); i++) {
+-		 if(conquests[i] == NULL)
+-			 continue;
+-		 FAssert(conquests[i]->city() != NULL);
++	for(size_t i = 0; i < conquests.size(); i++)
+ 		 r.insert(conquests[i]->id());
+-	}
+ }
+ 
+ void InvasionGraph::Node::getLosses(CitySet& r) const {
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 8674f9e30..2e09ecc51 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -367,13 +367,13 @@ void MilitaryAnalyst::prepareResults() {
+ 		for(CitySetIter it = conq.begin(); it != conq.end(); ++it) {
+ 			UWAICache::City* c = ourCache.lookupCity(*it);
+ 			if(c == NULL) continue;
+-			popIncr += c->city()->getPopulation();
++			popIncr += c->city().getPopulation();
+ 		}
+ 		CitySet const& lost = lostCities(civId);
+ 		for(CitySetIter it = lost.begin(); it != lost.end(); ++it) {
+ 			UWAICache::City* c = ourCache.lookupCity(*it);
+ 			if(c == NULL) continue;
+-			popIncr -= c->city()->getPopulation();
++			popIncr -= c->city().getPopulation();
+ 		}
+ 		popIncr /= std::max(1, GET_PLAYER(civId).getTotalPopulation());
+ 		if(popIncr > 0.01) {
+@@ -489,9 +489,8 @@ void MilitaryAnalyst::logCities(PlayerTypes civId, bool conquests) {
+ 		return;
+ 	report.log("Cities %s:", conquests ? "conquered" : "lost");
+ 	for(CitySetIter it = cities.begin(); it != cities.end(); ++it) {
+-		CvCity* c = UWAICache::City::cityById(*it);
+-		if(c != NULL)
+-			report.log("%s", report.cityName(*c));
++		CvCity& c = UWAICache::cvCityById(*it);
++		report.log("%s", report.cityName(c));
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index e69c2820a..3d57925ee 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -353,7 +353,7 @@ void UWAI::Team::alignAreaAI(bool isNaval) {
+ 				bAlign = false;
+ 			else {
+ 				UWAICache::City* c = member.uwai().getCache().
+-						lookupCity(*targetCity);
++						lookupCity(targetCity->plotNum());
+ 				if(c == NULL || !c->canReachByLand())
+ 					bAlign = false;
+ 			}
+@@ -1861,15 +1861,14 @@ bool UWAI::Team::isLandTarget(TeamTypes theyId) const {
+ 		if(!cache.canTrainDeepSeaCargo())
+ 			distLimit = MAX_INT;
+ 		for(int j = 0; j < cache.size(); j++) {
+-			UWAICache::City* c = cache.getCity(j);
+-			if(c == NULL || c->city()->getTeam() != theyId ||
+-					!GET_TEAM(agentId).AI_deduceCitySite(c->city()))
++			UWAICache::City& c = cache.cityAt(j);
++			if(c.city().getTeam() != theyId)
+ 				continue;
+-			if(c->city()->isCoastal())
++			if(c.city().isCoastal())
+ 				hasCoastalCity = true;
+-			if(c->canReachByLand()) {
++			if(c.canReachByLand()) {
+ 				canReachAnyByLand = true;
+-				if(c->getDistance() <= distLimit)
++				if(c.getDistance() <= distLimit)
+ 					return true;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 0b892beda..5de6918d5 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -157,7 +157,7 @@ void UWAICache::read(FDataStreamBase* stream) {
+ 	int n=0;
+ 	stream->Read(&n);
+ 	for(int i = 0; i < n; i++) {
+-		v.push_back(new City(ownerId));
++		v.push_back(new City);
+ 		v[i]->read(stream);
+ 		cityMap.insert(std::make_pair(v[i]->id(), v[i]));
+ 	}
+@@ -237,10 +237,6 @@ void UWAICache::update() {
+ 		updateCities(it->getID());
+ 	sortCitiesByAttackPriority();
+ 	updateTotalAssetScore();
+-	/*  Disable latestTurnReachable fallback
+-		(The update is actually cheap, but I'm not sure about the very numerous
+-		getDistance calls.) */
+-	//updateLatestTurnReachableBySea();
+ 	updateTargetMissionCounts();
+ 	updateTypicalUnits();
+ 	updateThreatRatings();
+@@ -312,19 +308,54 @@ void UWAICache::add(City& c)
+ 		nReachableCities.add(cityOwnerId, 1);
+ }
+ 
++/*	Only for updates triggered by unit movement of other players.
++	Caller is assumed to check visibility and civ status
++	(the cache only covers major civs). */
++void UWAICache::add(CvCity& c) {
++
++	TeamPathFinders* pf = NULL;
++	if(c.getTeam() != TEAMID(ownerId))
++		pf = createTeamPathFinders(c.getTeam());
++	add(*new City(ownerId, c, pf));
++	if(pf != NULL)
++		deleteTeamPathFinders(*pf);
++}
++
++void UWAICache::remove(CvCity const& c) {
++
++	City* fromCache = NULL;
++	std::map<int,City*>::iterator mapPos = cityMap.find(c.plotNum());
++	if(mapPos != cityMap.end())
++		fromCache = mapPos->second;
++	if(fromCache == NULL) // OK, caller doesn't need to ensure this.
++		return;
++	PlayerTypes oldCityOwnerId = fromCache->city().getOwner();
++	if(TEAMID(oldCityOwnerId) != TEAMID(ownerId) && fromCache->canReach())
++		nReachableCities.add(oldCityOwnerId, -1);
++	cityMap.erase(mapPos);
++	std::vector<City*>::iterator vectorPos = std::find(
++			v.begin(), v.end(), fromCache);
++	if(vectorPos == v.end()) {
++		FAssert(vectorPos != v.end());
++		return;
++	}
++	delete *vectorPos;
++	v.erase(vectorPos);
++}
++
+ void UWAICache::updateTotalAssetScore() {
+ 
+ 	// For Palace; it's counted as a national wonder below, but it's worth another 5.
+ 	totalAssets = 5;
+ 	for(int i = size() - 1; i >= 0; i--) {
+-		City const& c = *getCity(i);
+-		if(!c.isOwnCity())
++		City const& c = cityAt(i);
++		if(!c.isOwnTeamCity())
+ 			break; // Sorted so that owner's cities are at the end
+-		CvCity* cp = c.city();
+-		if(cp != NULL && cp->getOwner() == ownerId)
++		CvCity& cvc = c.city();
++		if(cvc.getOwner() == ownerId)
+ 			/*  National wonders aren't included in the per-city asset score b/c
+ 				they shouldn't count for rival cities. */
+-			totalAssets += c.getAssetScore() + cp->getNumNationalWonders() * 4;
++			totalAssets += c.getAssetScore() + cvc.getNumNationalWonders() * 4;
+ 		/*  Cached cities have just been updated, so ownership info can't be
+ 			out of date. */
+ 		else FAssert(false);
+@@ -419,8 +450,8 @@ double UWAICache::goldPerProdSites() {
+ 		looking at some sample targetCityValues; let's hope these generalize. */
+ 	double const refVal = 50;
+ 	FOR_EACH_CITY(c, GET_PLAYER(BARBARIAN_PLAYER)) {
+-		if(GET_TEAM(owner.getTeam()).AI_deduceCitySite(c)) {
+-			int const targetVal = owner.AI_targetCityValue(c, false, true);
++		if(GET_TEAM(owner.getTeam()).AI_deduceCitySite(*c)) {
++			int const targetVal = owner.AI_targetCityValue(*c, false, true);
+ 			if (targetVal > 0)
+ 				sites += std::pow(std::min((double)targetVal, refVal) / refVal, 3.0);
+ 		}
+@@ -651,20 +682,6 @@ UWAICache& UWAICache::leaderCache() {
+ 	return GET_PLAYER(GET_TEAM(ownerId).getLeaderID()).uwai().getCache();
+ }
+ 
+-UWAICache::City* UWAICache::lookupCity(int plotIndex) const {
+-
+-	std::map<int,City*>::const_iterator pos = cityMap.find(plotIndex);
+-	// Verify that the city still exists
+-	if(pos == cityMap.end() || pos->second->city() == NULL)
+-		return NULL;
+-	return pos->second;
+-}
+-
+-UWAICache::City* UWAICache::lookupCity(CvCity const& cvCity) const {
+-
+-	return lookupCity(cvCity.plotNum());
+-}
+-
+ void UWAICache::sortCitiesByOwnerAndDistance() {
+ 
+ 	FErrorMsg("function no longer used");
+@@ -698,15 +715,14 @@ void UWAICache::sortCitiesByAttackPriority() {
+ 	for(int i = 0; i < ((int)v.size()) - 1; i++) {
+ 		CvCity* pPrevCity = NULL;
+ 		if(i > 0)
+-			pPrevCity = v[i - 1]->city();
++			pPrevCity = &v[i - 1]->city();
+ 		CvArea const* pPrevArea = (pPrevCity == NULL ? NULL :& pPrevCity->getArea());
+ 		double maxPriority = -100;
+ 		int iMax = -1;
+ 		for(size_t j = i; j < v.size(); j++) {
+-			CvCity const* pCity = v[j]->city();
+-			CvArea const* pArea = (pCity == NULL ? NULL : pCity->area());
+-			double priority = (pCity == NULL ? -100 : v[j]->attackPriority());
+-			if(i > 0 && pPrevArea != NULL && pPrevArea != pArea && priority > 0)
++			double priority = v[j]->attackPriority();
++			if(i > 0 && pPrevArea != NULL && pPrevArea != v[j]->city().area() &&
++					priority > 0)
+ 				priority /= 2;
+ 			if(priority > maxPriority) {
+ 				iMax = j;
+@@ -718,27 +734,14 @@ void UWAICache::sortCitiesByAttackPriority() {
+ 	}
+ }
+ 
+-int UWAICache::size() const {
+-
+-	return (int)v.size();
++CvCity& UWAICache::cvCityById(int plotIndex)
++{
++	return *GC.getMap().getPlotByIndex(plotIndex).getPlotCity();
+ }
+ 
+-void UWAICache::updateLatestTurnReachableBySea() {
++int UWAICache::size() const {
+ 
+-	PROFILE_FUNC();
+-	/*  LatestTurnReachable is a fallback for City::reachable and City::distance.
+-		Not really necessary anymore b/c City::measureDistance is more reliable
+-		now than it used to be, but still nice to have for dealing with temporary
+-		changes in city population or yield rate. (measureDistance may skip small
+-		and low-production cities.) */
+-	for(size_t i = 0; i < v.size(); i++) {
+-		City const& c = *v[i];
+-		// No pair means not reachable (by sea)
+-		if(!c.canCurrentlyReachBySea())
+-			continue;
+-		latestTurnReachableBySea[c.id()] = std::make_pair(GC.getGame().
+-				getGameTurn(), c.getDistance());
+-	}
++	return (int)v.size();
+ }
+ 
+ void UWAICache::updateTraits() {
+@@ -882,7 +885,7 @@ double UWAICache::calculateThreatRating(PlayerTypes civId) const {
+ 	CvCity* cc = GET_PLAYER(ownerId).getCapitalCity();
+ 	City* c = NULL;
+ 	if(cc != NULL)
+-		c = GET_PLAYER(civId).uwai().getCache().lookupCity(*cc);
++		c = GET_PLAYER(civId).uwai().getCache().lookupCity(cc->plotNum());
+ 	if(c != NULL && !c->canReach())
+ 		return 0;
+ 	double r = 0;
+@@ -984,6 +987,14 @@ void UWAICache::updateVassalScore(PlayerTypes civId) {
+ 			std::max(4, nMasterResources)));
+ }
+ 
++// Called once all CvCity objects have been loaded 
++void UWAICache::cacheCitiesAfterRead() {
++
++	for(int i = 0; i < size(); i++) {
++		cityAt(i).cacheCvCity();
++	}
++}
++
+ void UWAICache::reportUnitCreated(CvUnitInfo const& u) {
+ 
+ 	updateMilitaryPower(u, true);
+@@ -1069,48 +1080,22 @@ void UWAICache::reportWarEnding(TeamTypes enemyId,
+ 		pastWarScores.add(enemyId, -::round(100 * durationFactor));
+ }
+ 
+-void UWAICache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId) {
++/*	Note: City ownership changes result in the creation of a new city.
++	It's important that the cache keep up with ownership changes
++	so that the AI is aware of conquests made throughout a human turn.*/
++void UWAICache::reportCityCreated(CvCity& c) {
+ 
+-	if(!GET_TEAM(ownerId).AI_deduceCitySite(c) || c->getOwner() == BARBARIAN_PLAYER)
++	if(!GET_PLAYER(c.getOwner()).isMajorCiv())
+ 		return;
+-	/*  I didn't think I'd need to update the city cache during turns, so this
+-		is awkward to write ...
+-		Necessary though b/c the AI needs to stay up to date with human conquests. */
+-	int vIndex = -1;
+-	if(GET_PLAYER(oldOwnerId).isMajorCiv()) {
+-		City* fromCache = NULL;
+-		std::map<int,City*>::iterator pos = cityMap.find(c->plotNum());
+-		if(pos != cityMap.end())
+-			fromCache = pos->second;
+-		if(fromCache != NULL) {
+-			if(fromCache->canReach())
+-				nReachableCities.add(oldOwnerId, -1);
+-			cityMap.erase(pos);
+-			for(vIndex = 0; vIndex < (int)v.size(); vIndex++) {
+-				if(v[vIndex]->id() == fromCache->id()) {
+-					delete v[vIndex];
+-					v[vIndex] = NULL;
+-					break;
+-				}
+-			}
+-		}
+-	}
+-	/*	The insertion can't be conditional. If v[vIndex] has been deleted above,
+-		then some city has to be inserted there. Allowing NULL entries would make
+-		matters slower and more complicated elsewhere. */
+-	//if(GET_PLAYER(c->getOwner()).isMajorCiv())
+-	City* toCache = new City(ownerId, *c);
+-	if(vIndex < 0 || vIndex >= (int)v.size()) {
+-		v.push_back(toCache);
+-		// (c could also have become revealed through map trade)
+-		//FAssertMsg(oldOwnerId == BARBARIAN_PLAYER);
++	/*	If c was conquered from the cache owner and the cache owner is about to die,
++		then trying to add the city to the cache will lead to problems. */
++	if(GET_PLAYER(ownerId).getNumCities() <= 0)
++		return;
++	if(c.getTeam() == TEAMID(ownerId) ||
++			GET_TEAM(ownerId).AI_deduceCitySite(c)) {
++		add(c);
++		sortCitiesByAttackPriority();
+ 	}
+-	else v[vIndex] = toCache;
+-	cityMap.insert(std::make_pair(toCache->id(), toCache));
+-	if(toCache->canReach())
+-		nReachableCities.add(c->getOwner(), 1);
+-
+-	sortCitiesByAttackPriority();
+ }
+ 
+ void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& sponsorship,
+@@ -1220,6 +1205,7 @@ UWAICache::City::City(PlayerTypes cacheOwnerId, CvCity& c, TeamPathFinders* pf)
+ 
+ 	//descr = c.getName();
+ 	// Use plot index as city id (the pointer 'c' isn't serializable)
++	cvCity = &c;
+ 	plotIndex = c.plotNum();
+ 	updateDistance(c, pf, cacheOwnerId);
+ 	// AI_targetCityValue doesn't account for reachability (probably should)
+@@ -1227,93 +1213,30 @@ UWAICache::City::City(PlayerTypes cacheOwnerId, CvCity& c, TeamPathFinders* pf)
+ 		targetValue = -1;
+ 	else targetValue = GET_PLAYER(cacheOwnerId).AI_targetCityValue(
+ 			city(), false, true);
+-	updateAssetScore();
++	updateAssetScore(cacheOwnerId);
+ }
+ 
+-UWAICache::City::City(PlayerTypes cacheOwnerId)
+-		: cacheOwnerId(cacheOwnerId) {
++UWAICache::City::City() {
+ 
+-	plotIndex = assetScore = distance = targetValue = -1;
+-	reachByLand = reachBySea = canDeduce = false;
++	cvCity = NULL;
++	assetScore = distance = targetValue = plotIndex = -1;
++	reachByLand = reachBySea = false;
+ }
+ 
+-CvCity* UWAICache::City::city() const {
++void UWAICache::City::cacheCvCity() {
+ 
++	cvCity = NULL;
+ 	CvPlot* cityPlot = GC.getMap().plotByIndex(plotIndex);
+-	if(cityPlot == NULL)
+-		return NULL;
+-	return cityPlot->getPlotCity();
+-}
+-
+-int UWAICache::City::id() const {
+-
+-	return plotIndex;
+-}
+-
+-int UWAICache::City::getAssetScore() const {
+-
+-	return assetScore;
+-}
+-
+-bool UWAICache::City::canReach() const {
+-
+-	CvCity* const cp = city();
+-	if(cp == NULL ||
+-			// A bit slow:
+-			// !GET_TEAM(cacheOwnerId).AI_deduceCitySite(city())
+-			/*  Check isRevealed first b/c I'm only updating canDeduce
+-				once per turn */
+-			(!cp->isRevealed(TEAMID(cacheOwnerId)) &&
+-			!canDeduce))
+-		return false;
+-	if(distance >= 0)
+-		return true;
+-	return false; // Disable latestTurnReachable fallback
+-
+-	// Should perhaps pass outer object in constructor instead
+-	/*std::map<int,std::pair<int,int> > const& ltr = GET_PLAYER(cacheOwnerId).
+-			uwai().getCache().latestTurnReachableBySea;
+-	std::map<int,std::pair<int,int> >::const_iterator pos = ltr.find(plotIndex);
+-	if(pos == ltr.end())
+-		return false;
+-	int turnsUnreachable = GC.getGame().gameTurn() - pos->second.first;
+-	return (turnsUnreachable < 10);*/
+-	/*  If this isn't enough time for naval stacks to reach their target,
+-		consider adding a stackEnRoute flag to City that is updated in
+-		updateTargetMissionCount. Not sure if AI_getMissionAIPlot points directly
+-		to cities though. Could check adjacent tiles as well I guess. */
+-}
+-
+-int UWAICache::City::getDistance(bool forceCurrentVal) const {
+-
+-	/*if(distance < 0 && !forceCurrentVal && !reachByLand) { // latestTurnReachable is only for reachability via sea
+-		std::map<int,std::pair<int,int> > const& ltr = GET_PLAYER(cacheOwnerId).
+-			uwai().getCache().latestTurnReachableBySea;
+-		std::map<int,std::pair<int,int> >::const_iterator pos = ltr.find(plotIndex);
+-		if(pos != ltr.end())
+-			return pos->second.second;
+-	}*/  // Disable latestTurnReachable fallback
+-	return distance;
+-}
+-
+-int UWAICache::City::getTargetValue() const {
+-
+-	return targetValue;
+-}
+-
+-bool UWAICache::City::canReachByLand() const {
+-
+-	return reachByLand;
+-}
+-
+-bool UWAICache::City::canCurrentlyReachBySea() const {
+-
+-	return reachBySea;
++	if(cityPlot != NULL)
++		cvCity = cityPlot->getPlotCity();
++	FAssert(cvCity != NULL); // Must never be NULL past this point
+ }
+ 
+ void UWAICache::City::write(FDataStreamBase* stream) {
+ 
+-	int savegameVersion = 1;
++	int savegameVersion;
++	//savegameVersion = 1; // canDeduce
++	savegameVersion = 2; // take out can canDeduce again
+ 	stream->Write(plotIndex);
+ 	stream->Write(assetScore);
+ 	/*  I hadn't thought of a version number in the initial release.
+@@ -1326,7 +1249,6 @@ void UWAICache::City::write(FDataStreamBase* stream) {
+ 	stream->Write(targetValue);
+ 	stream->Write(reachByLand);
+ 	stream->Write(reachBySea);
+-	stream->Write(canDeduce);
+ }
+ 
+ void UWAICache::City::read(FDataStreamBase* stream) {
+@@ -1340,29 +1262,12 @@ void UWAICache::City::read(FDataStreamBase* stream) {
+ 	stream->Read(&targetValue);
+ 	stream->Read(&reachByLand);
+ 	stream->Read(&reachBySea);
+-	if(savegameVersion >= 1)
++	if(savegameVersion == 1) {
++		bool canDeduce; // discard
+ 		stream->Read(&canDeduce);
+-	else {
+-		/*  Can't call GET_TEAM(cacheOwnerId).AI_deduceCitySite(city()) here b/c
+-			City::city() calls CvPlot::getPlotCity, which requires the city owner
+-			(CvPlayer object) to be initialized. At this point, only the civs
+-			up to cacheOwnerId are initialized.
+-			canDeduce gets set properly on the next UWAICache::update. */
+-		CvPlot* cityPlot = GC.getMap().plotByIndex(plotIndex);
+-		if(cityPlot == NULL)
+-			canDeduce = false;
+-		else canDeduce = cityPlot->isRevealed(TEAMID(cacheOwnerId));
+ 	}
+ }
+ 
+-CvCity* UWAICache::City::cityById(int id) {
+-
+-	CvPlot* p = GC.getMap().plotByIndex(id);
+-	if(p == NULL)
+-		return NULL;
+-	return p->getPlotCity();
+-}
+-
+ bool UWAICache::City::byOwnerAndDistance(City* one, City* two) {
+ 
+ 	int cmp = byOwner(one, two);
+@@ -1419,7 +1324,7 @@ double UWAICache::City::attackPriority() const {
+ 
+ 	if(distance < 0)
+ 		return -1;
+-	if(isOwnCity())
++	else if(isOwnTeamCity())
+ 		return -2; // updateTotalAssetScore relies on own cities having minimal priority
+ 	/*  targetValue is something like 10 to 100, distance 1 to 20 perhaps.
+ 		Add 1000 b/c negative values should be reserved for error conditions. */
+@@ -1429,8 +1334,8 @@ double UWAICache::City::attackPriority() const {
+ 
+ int UWAICache::City::byOwner(City* one, City* two) {
+ 
+-	PlayerTypes owner1 = one->cityOwner(),
+-				owner2 = two->cityOwner();
++	PlayerTypes owner1 = one->city().getOwner(),
++				owner2 = two->city().getOwner();
+ 	if(owner1 < owner2)
+ 		return -1;
+ 	if(owner2 < owner1)
+@@ -1590,113 +1495,10 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 	//* std::max(1.0, 0.75 + mixedPath / ((double)pairwDistances.size() + mixedPath)));
+ }
+ 
++void UWAICache::City::updateAssetScore(PlayerTypes cacheOwnerId) {
+ 
+-double UWAICache::City::estimateMovementSpeed(PlayerTypes civId,
+-		DomainTypes dom, int dist) {
+-
+-	CvPlayerAI const& civ = GET_PLAYER(civId);
+-	if(dom != DOMAIN_LAND)
+-		return civ.uwai().shipSpeed();
+-	EraTypes const era = civ.getCurrentEra();
+-	EraTypes const gameEra = GC.getGame().getCurrentEra();
+-	double r = 1;
+-	if(era >= 6) // Future era; to account for very high mobility in endgame
+-		r++;
+-	/*  Difficult to account for routes; c could be a border city, but the
+-		route could still lead through friendly territory and the owner
+-		of that territory may or may not have Engineering or Railroad. */
+-		// 4 is Industrial era
+-	if((era >= 4 && gameEra >= 4) || era >= 5)
+-		r *= 4.5; // Railroads are faster than this, but don't expect them everywhere.
+-	/*  Some roads in Classical era; the longer the path, the higher the
+-		chance of it traversing unpaved ground. */
+-	else if(era >= 1) {
+-		r *= ::dRange((20.0 + 6 * gameEra) / (dist + 10), 1.0, 2.0);
+-		if(GET_TEAM(civId).uwai().isFastRoads())
+-			r *= 1.4;
+-	}
+-	return r;
+-}
+-
+-// <advc.104b>
+-bool UWAICache::City::measureDistance(PlayerTypes civId, DomainTypes dom,
+-		CvPlot const& start, CvPlot const& dest, int* r) {
+-
+-	PROFILE_FUNC();
+-	/*  Caveat: dom can be IMMOBILE, which means Galley. Should compare dom
+-		only with DOMAIN_LAND in this function, not DOMAIN_SEA. */
+-	if(dom == DOMAIN_LAND && !start.sameArea(dest))
+-		return false;
+-	// Can't plot mixed-domain paths
+-	if(dom != DOMAIN_LAND && !start.isCoastalLand(-1))
+-		return false;
+-	int maxDist = (dom == DOMAIN_LAND ? getUWAI.maxLandDist() :
+-			getUWAI.maxSeaDist());
+-	// AI needs to be able to target even very remote rivals eventually
+-	if(GET_PLAYER(civId).getCurrentEra() >= 4)
+-		maxDist = (4 * maxDist) / 3;
+-	/*  stepDistance sanity check to avoid costly distance measurement
+-		(::teamStepValid_advc now performs the same check through ::stepHeuristic,
+-		but still need stepDistance here for the speed estimate.) */
+-	int stepDist = ::stepDistance(&start, &dest);
+-	double speedEstimate = estimateMovementSpeed(civId, dom, stepDist);
+-	if(stepDist / speedEstimate > maxDist)
+-		return false;
+-	CvPlot const* newDest = &dest;
+-	if(dom != DOMAIN_LAND && !dest.isCoastalLand(-1)) {
+-		/*  A naval assault drops the units off on a tile adjacent to the city;
+-			try to find an adjacent coastal tile. */
+-		int x = dest.getX();
+-		int y = dest.getY();
+-		newDest = NULL;
+-		int shortestStepDist = MAX_INT;
+-		FOR_EACH_ENUM(Direction) {
+-			CvPlot* adj = ::plotDirection(x, y, eLoopDirection);
+-			if(adj != NULL && adj->isCoastalLand(-1)) {
+-				int d = ::stepDistance(&start, adj);
+-				if(d < shortestStepDist) {
+-					newDest = adj;
+-					shortestStepDist = d;
+-				}
+-			}
+-		}
+-		if(newDest == NULL)
+-			return false;
+-	}
+-	if(dom != DOMAIN_LAND) {
+-		// The transports move onto a water tile adjacent to the coastal tile
+-		int destx = newDest->getX();
+-		int desty = newDest->getY();
+-		int shortestStepDist = MAX_INT;
+-		FOR_EACH_ENUM(Direction) {
+-			CvPlot* adj = ::plotDirection(destx, desty, eLoopDirection);
+-			if(adj != NULL && adj->isWater()) {
+-				int d = ::stepDistance(&start, adj);
+-				if(d < shortestStepDist) {
+-					newDest = adj;
+-					shortestStepDist = d;
+-				}
+-			}
+-		}
+-	}
+-	/*  This covers pack ice too (due to change 030). The PathDistance below
+-		won't take detours around ice into account though. */
+-	if(dom != DOMAIN_LAND && !start.isAdjacentToArea(newDest->getArea()))
+-		return false;
+-	// The original dest is guaranteed to be owned
+-	*r = GC.getMap().calculateTeamPathDistance(start.getTeam(), start, *newDest,
+-			/*  Path distance counts each step as 1 move; upper bound needs to
+-				account for faster movement. */
+-			(int)::ceil(maxDist * speedEstimate), dest.getTeam(), dom);
+-	return (*r >= 0);
+-} // </advc.104b>
+-
+-void UWAICache::City::updateAssetScore() {
+-
+-	if(city() != NULL) {
+-		/*  Scale: Same as CvPlayerAI::AI_cityWonderVal, i.e. approx. 50% GPT.
+-			Would rather use 100% GPT, but war evaluation can't easily be
+-			adjusted to that. */
+-		assetScore = (GET_PLAYER(cacheOwnerId).AI_assetVal(city()->AI(), true) / 2).round();
+-	}
++	/*  Scale: Same as CvPlayerAI::AI_cityWonderVal, i.e. approx. 50% GPT.
++		Would rather use 100% GPT, but war evaluation can't easily be
++		adjusted to that. */
++	assetScore = (GET_PLAYER(cacheOwnerId).AI_assetVal(city().AI(), true) / 2).round();
+ }
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index 7675d609f..0e65ed271 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -56,15 +56,15 @@ public:
+ 	void sortCitiesByTargetValue();
+ 		public:
+ 	void sortCitiesByAttackPriority();
+-	City* getCity(int index) const {
+-		// Verify that the city still exists
+-		if(v[index]->city() == NULL)
+-			return NULL;
+-		return v[index];
+-	};
++	inline City& cityAt(int index) const { return *v[index]; };
+ 	// Use CvCity::plotNum for the plotIndex of a given CvCity
+-	City* lookupCity(int plotIndex) const;
+-	City* lookupCity(CvCity const& cvCity) const;
++	City* lookupCity(int plotIndex) const {
++		std::map<int,City*>::const_iterator pos = cityMap.find(plotIndex);
++		if(pos == cityMap.end())
++			return NULL;
++		return pos->second;
++	}
++	static CvCity& cvCityById(int plotIndex);
+ 	// Referring to cache owner
+ 	 /*	Any trait that gives free Combat I (or any other promotion that grants
+ 		an unconditional combat bonus). */
+@@ -112,11 +112,16 @@ public:
+ 		the war weariness against civId. */
+ 	double angerFromWarWeariness(PlayerTypes civId) const { return wwAnger.get(civId); }
+ 	double goldValueOfProduction() const { return goldPerProduction; }
++	void cacheCitiesAfterRead();
+ 	void reportUnitCreated(CvUnitInfo const& u);
+ 	void reportUnitDestroyed(CvUnitInfo const& u);
+ 	void reportWarEnding(TeamTypes enemyId, CLinkList<TradeData> const* weReceive = NULL,
+ 			CLinkList<TradeData> const* wePay = NULL);
+-	void reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId);
++	void reportCityCreated(CvCity& c);
++	void reportCityDestroyed(CvCity const& c)
++	{
++		remove(c); // No checks upfront; make sure we're not keeping any dangling pointer.
++	}
+ 	/*  Would prefer to pass a CvDeal object, but no suitable one is available
+ 		at the call location */
+ 	void reportSponsoredWar(CLinkList<TradeData> const& sponsorship,
+@@ -135,7 +140,9 @@ private:
+ 	// beforeUpdated: Only clear data that is recomputed in 'update'
+ 	void clear(bool beforeUpdate = false);
+ 	void updateCities(TeamTypes teamId);
++	void add(CvCity& c);
+ 	void add(City& c);
++	void remove(CvCity const& c);
+ 	TeamPathFinders* createTeamPathFinders(TeamTypes warTarget) const;
+ 	static void deleteTeamPathFinders(TeamPathFinders& pf);
+ 	void updateTraits();
+@@ -209,35 +216,23 @@ public:
+ 	class City {
+ 	public:
+ 		City(PlayerTypes cacheOwnerId, CvCity& c, TeamPathFinders* pf);
+-		City(PlayerTypes cacheOwnerId); // for reading from savegame
+-		PlayerTypes cityOwner() const;
+-		bool isOwnCity() const;
+-		int getAssetScore() const;
+-		bool canReach() const;
+-		/*  -1 if unreachable
+-			forceCurrentVal: Doesn't fall back on latestTurnReachable if not
+-			currently reachable. */
+-		int getDistance(bool forceCurrentVal = false) const;
+-		int getTargetValue() const;
++		City(); // for reading from savegame
++		inline bool isOwnTeamCity() const { return (distance == 0); }
++		inline int getAssetScore() const { return assetScore; }
++		inline bool canReach() const { return (distance >= 0); }
++		/*	-1 if unreachable, 0 for cities of the cache owner's team
++			(and never for cities of other teams). */
++		inline int getDistance() const { return distance; }
++		inline int getTargetValue() const { return targetValue; }
+ 		/* A mix of target value and distance. Target value alone would
+ 		   ignore opportunistic attacks. */
+ 		double attackPriority() const;
+-		bool canReachByLand() const;
+-		// Use canReachByLand instead for military analysis
+-		bool canCurrentlyReachBySea() const;
+-		/* CvCity doesn't have a proper ID. Use the plot number (index of
+-		   the linearized map) as an ID. It's unique (b/c there is at most
+-		   one city per plot), but not consecutive (most plots don't have a city). */
+-		int id() const;
+-		// NULL if the city no longer exists at the time of retrieval
+-		CvCity* city() const;
++		inline bool canReachByLand() const { return reachByLand; }
++		inline CvCity& city() const { return *cvCity; }
++		inline int id() const { return plotIndex; }
++		void cacheCvCity();
+ 		void write(FDataStreamBase* stream);
+ 		void read(FDataStreamBase* stream);
+-		static CvCity* cityById(int id);
+-		// Wrapper for CvUnit::generatePath
+-		static bool measureDistance(PlayerTypes civId, DomainTypes dom,
+-				CvPlot const& start, CvPlot const& dest, int* r);
+-		static double estimateMovementSpeed(PlayerTypes civId, DomainTypes dom, int dist);
+ 		/* For sorting cities. None of these are currently used, and I'm not
+ 			sure if they handle -1 distance/attackPriority/targetValue correctly. */
+ 		 /*	The ordering of owners is arbitrary, just ensures that each civ's cities
+@@ -256,13 +251,13 @@ public:
+ 		static int byOwner(City* one, City* two);
+ 		void updateDistance(CvCity const& targetCity, TeamPathFinders* pf,
+ 				PlayerTypes cacheOwnerId);
+-		void updateAssetScore();
++		void updateAssetScore(PlayerTypes cacheOwnerId);
+ 
+ 		int distance, targetValue, assetScore;
+ 		bool reachByLand;
+ 		bool reachBySea;
+-		bool canDeduce;
+ 		int plotIndex;
++		CvCity* cvCity; // Retrieving this based on plotIndex wastes too much time
+ 		//CvWString descr; // for debugging
+ 	};
+ };
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 22ddceafb..d98bae83c 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -174,19 +174,19 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 		whole cache. */
+ 	CitySet const& theyLose = m->lostCities(theyId);
+ 	FOR_EACH_CITY(cvCity, *they) {
+-		if(!agent.AI_deduceCitySite(cvCity))
++		if(!agent.AI_deduceCitySite(*cvCity))
+ 			continue;
+ 		City* cp = theyAI->getCache().lookupCity(cvCity->plotNum());
+ 		if(cp == NULL) continue; City const& c = *cp;
+ 		/*  Their cached value accounts for GP, but we're not supposed to see those.
+ 			(Their cache contains some other info we shouldn't see, but nothing
+ 			crucial.) */
+-		double sc = c.getAssetScore() - 4 * c.city()->getNumGreatPeople();
++		double sc = c.getAssetScore() - 4 * c.city().getNumGreatPeople();
+ 		if(theyLose.count(c.id()) > 0 &&
+ 				(to == NO_PLAYER || m->conqueredCities(to).count(c.id()) > 0)) {
+ 			r += sc;
+ 			// Losing the capital isn't so bad b/c the Palace respawns
+-			if(c.city()->isCapital())
++			if(c.city().isCapital())
+ 				r += 4;
+ 		}
+ 		else if(cvCity->isCapital())
+@@ -199,7 +199,7 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 		City* cp = theyAI->getCache().lookupCity(*it);
+ 		if(cp == NULL) continue; City const& c = *cp;
+ 		if((to == NO_PLAYER || m->lostCities(to).count(c.id()) > 0) &&
+-				c.city()->getTeam() != ignoreGains) {
++				c.city().getTeam() != ignoreGains) {
+ 			/*  Their cache doesn't account for GP settled in cities of a third
+ 				party (unless espionage visibility), so we don't subtract
+ 				NumGreatPeople.
+@@ -342,7 +342,7 @@ double WarUtilityAspect::conqAssetScore(bool mute) {
+ 		City* cp = ourCache->lookupCity(weConquerFromThem[i]);
+ 		if(cp == NULL) continue; City const& c = *cp;
+ 		// Capture gold negligible b/c it gets reduced if a city is young
+-		if(c.city()->isAutoRaze())
++		if(c.city().isAutoRaze())
+ 			continue;
+ 		r += c.getAssetScore();
+ 	}
+@@ -688,7 +688,7 @@ double GreedForAssets::threatToCities(PlayerTypes civId) {
+ 	if(civ.getTeam() == agentId || civ.getTeam() == TEAMID(theyId) ||
+ 			civ.isAVassal() || !agent.isHasMet(civ.getTeam()) ||
+ 			!we->hasCapital() || !civ.hasCapital() ||
+-			!we->AI_deduceCitySite(civ.getCapital()) ||
++			!we->AI_deduceCitySite(*civ.getCapital()) ||
+ 			(!civ.isHuman() && civ.AI_getAttitude(weId) >= ATTITUDE_FRIENDLY))
+ 		return 0;
+ 	/*  Use present power if civ not part of the analysis. Add a constant b/c
+@@ -801,13 +801,12 @@ void GreedForAssets::initCitiesPerArea() {
+ 	for(PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		citiesPerArea[it->getID()] = new map<int,int>();
+ 	for(int i = 0; i < ourCache->size(); i++) {
+-		City const* cp = ourCache->getCity(i);
+-		if(cp == NULL) continue; City const& c = *cp;
+-		PlayerTypes ownerId = c.city()->getOwner();
++		City const& c = ourCache->cityAt(i);
++		PlayerTypes ownerId = c.city().getOwner();
+ 		// City may have been conquered by barbarians since the last update
+ 		if(ownerId == BARBARIAN_PLAYER)
+ 			continue;
+-		int areaId = c.city()->getArea().getID();
++		int areaId = c.city().getArea().getID();
+ 		iiMapIt pos = citiesPerArea[ownerId]->find(areaId);
+ 		if(pos == citiesPerArea[ownerId]->end())
+ 			citiesPerArea[ownerId]->insert(pair<int,int>(areaId, 1));
+@@ -923,7 +922,7 @@ void GreedForSpace::evaluate() {
+ 	// Expect to raze only when we have to
+ 	for(size_t i = 0; i < weConquerFromThem.size(); i++) {
+ 		City* c = ourCache->lookupCity(weConquerFromThem[i]);
+-		if(c != NULL && c->city()->isAutoRaze())
++		if(c != NULL && c->city().isAutoRaze())
+ 			theirSites++;
+ 	}
+ 	/*  All sites could still be claimed by third parties or could be just barely
+@@ -1041,7 +1040,7 @@ double Loathing::lossRating() {
+ 			continue;
+ 		/*  Already included in theirLostScore, but count it once more for the
+ 			symbolic value. */
+-		if(c->city()->isCapital())
++		if(c->city().isCapital())
+ 			theirLostScore += 4;
+ 	}
+ 	double ourScore = std::max(1.0, ourCache->totalAssetScore());
+@@ -1248,7 +1247,7 @@ double MilitaryVictory::progressRatingDomination() {
+ 		if(cp == NULL) continue; City const& c = *cp;
+ 		/*  Minus 0.5 for pop lost upon conquest (not -1 b/c target decreases
+ 			as well) */
+-		popGained += c.city()->getPopulation() - 0.5;
++		popGained += c.city().getPopulation() - 0.5;
+ 		citiesGained = citiesGained + 1;
+ 	}
+ 	if(m->getCapitulationsAccepted(agentId).count(TEAMID(theyId)) > 0) {
+@@ -1259,7 +1258,7 @@ double MilitaryVictory::progressRatingDomination() {
+ 			City* cp = ourCache->lookupCity(*it);
+ 			if(cp == NULL)
+ 				continue;
+-			theirPopRemaining -= cp->city()->getPopulation();
++			theirPopRemaining -= cp->city().getPopulation();
+ 		}
+ 		if(theirCitiesRemaining > 0) {
+ 			log("%d vassal pop gained, and %d cities", theirPopRemaining,
+@@ -1366,8 +1365,8 @@ double MilitaryVictory::progressRatingDiplomacy() {
+ 		if(cp == NULL) continue; City const& c = *cp;
+ 		/*  Apply weight for new owner. -0.5 for population loss upon conquest
+ 			(not -1 b/c total decreases as well). */
+-		double pop = it->second * (c.city()->getPopulation() - 0.5);
+-		PlayerTypes cityOwnerId = c.city()->getOwner();
++		double pop = it->second * (c.city().getPopulation() - 0.5);
++		PlayerTypes cityOwnerId = c.city().getOwner();
+ 		// Weight for old owner
+ 		AttitudeTypes att = GET_PLAYER(cityOwnerId).AI_getAttitude(weId);
+ 		if(!GET_TEAM(cityOwnerId).isHuman() &&
+@@ -1379,9 +1378,9 @@ double MilitaryVictory::progressRatingDiplomacy() {
+ 			if(att == ATTITUDE_PLEASED)
+ 				pop = 2 * pop / 3;
+ 		}
+-		if(!isUN && !c.city()->isHasReligion(apRel))
++		if(!isUN && !c.city().isHasReligion(apRel))
+ 			pop *= 0.5; // Not 0 b/c religion can still be spread
+-		log("Votes expected from %s: %d", report.cityName(*c.city()), ::round(pop));
++		log("Votes expected from %s: %d", report.cityName(c.city()), ::round(pop));
+ 		popGained += pop;
+ 	}
+ 	if(m->getCapitulationsAccepted(agentId).count(TEAMID(theyId)) > 0) {
+@@ -1432,7 +1431,7 @@ void MilitaryVictory::addConquestsByPartner(map<int,double>& r,
+ 	for(CitySetIter it = theyConquer.begin(); it != theyConquer.end(); ++it) {
+ 		City* cp = ourCache->lookupCity(*it);
+ 		if(cp == NULL) continue; City const& c = *cp;
+-		PlayerTypes cityOwnerId = c.city()->getOwner();
++		PlayerTypes cityOwnerId = c.city().getOwner();
+ 		// Never good news when we lose cities
+ 		if(GET_PLAYER(cityOwnerId).getMasterTeam() == agent.getMasterTeam())
+ 			continue;
+@@ -1536,7 +1535,7 @@ void Reconquista::evaluate() {
+ 		if(m->lostCities(theyId).count(*it) <= 0)
+ 			continue;
+ 		City* cp = ourCache->lookupCity(*it);
+-		if(cp == NULL) continue; CvCity& c = *cp->city();
++		if(cp == NULL) continue; CvCity& c = cp->city();
+ 		if(!c.isEverOwned(weId))
+ 			continue;
+ 		/*  Lower the utility if our culture is small; suggests that we only
+@@ -1767,7 +1766,7 @@ void BorderDisputes::evaluate() {
+ 	CitySet const& theyLose = m->lostCities(theyId);
+ 	for(CitySetIter it = theyLose.begin(); it != theyLose.end(); ++it) {
+ 		City* cp = ourCache->lookupCity(*it); if(cp == NULL) continue;
+-		CvCity const& c = *cp->city();
++		CvCity const& c = cp->city();
+ 		int ourTileCulturePercent = c.getPlot().calculateCulturePercent(weId);
+ 		double newOwnerMultiplier = -1;
+ 		for(PlayerIter<MAJOR_CIV> conqIt; conqIt.hasNext(); ++conqIt) {
+@@ -1905,8 +1904,8 @@ void PreEmptiveWar::evaluate() {
+ 			if(targetId != NO_TEAM && targetId != TEAMID(theyId) && GET_TEAM(targetId).isHuman()) {
+ 				CitySet const& conq = m->conqueredCities(civ.getID());
+ 				for(CitySetIter it = conq.begin(); it != conq.end(); ++it) {
+-					CvCity* c = UWAICache::City::cityById(*it);
+-					if(c != NULL && c->getTeam() == targetId)
++					CvCity& c = *GC.getMap().getPlotByIndex(*it).getPlotCity();
++					if(c.getTeam() == targetId)
+ 						theirPredictedCities--;
+ 				}
+ 				FAssert(theirPredictedCities >= 0);
+@@ -2507,17 +2506,17 @@ void Risk::evaluate() {
+ 		if(c == NULL) continue;
+ 		double sc = c->getAssetScore();
+ 		if(bSpace4) {
+-			if(c->city()->isCapital() && we->AI_atVictoryStage(AI_VICTORY_SPACE4))
++			if(c->city().isCapital() && we->AI_atVictoryStage(AI_VICTORY_SPACE4))
+ 				sc += 15;
+ 		}
+ 		if(bCulture3) {
+-			CvCity const& cvc = *c->city();
++			CvCity const& cvc = c->city();
+ 			// Same condition as in CvPlayerAI::AI_conquerCity
+ 			if(2 * cvc.getCulture(cvc.getOwner()) >= cvc.getCultureThreshold(
+ 					game.culturalVictoryCultureLevel()))
+ 				sc += (bCulture4 ? 15 : 8);
+ 		}
+-		log("%s: %d lost assets%s", report.cityName(*c->city()), ::round(sc),
++		log("%s: %d lost assets%s", report.cityName(c->city()), ::round(sc),
+ 				(bCulture3 || bSpace4 ? " (important for victory)" : ""));
+ 		lostAssets += sc;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=54719

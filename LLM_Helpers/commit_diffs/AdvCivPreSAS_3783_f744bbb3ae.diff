@@ -1,0 +1,125 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3783
+# Commit: f744bbb3ae08f88b2cb212c7d530f983500eba1a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3d5f672ac165fbe34e7eda534d6540c144337b72
+# Title: A bit of minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+29	26	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index d5015418a..11b2c4f20 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -607,8 +607,7 @@
+ 				</EncouragedCiv>
+ 				<EncouragedCiv>
+ 					<!-- Alt. idea: Copper until ERA_MEDIEVAL. But having
+-						 Copper all the time can make their mounted UU feel
+-						 a little redundant. -->
++						 Copper all the time undercuts their UU. -->
+ 					<CivilizationType>CIVILIZATION_PERSIA</CivilizationType>
+ 					<UntilEra>ERA_MEDIEVAL</UntilEra>
+ 				</EncouragedCiv>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b919c55ea..942c68e5a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -371,36 +371,39 @@ void CvGameTextMgr::setMinimizePopupHelp(CvWString& szString, const CvPopupInfo
+ 	}
+ }
+ 
++// advc (note): This has been redundantly implemented in PLE.py (PLE.showUnitInfoPane)
+ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvUnit* pUnit)
+ {
+-	if (pUnit->isSpy())
++	if (!pUnit->isSpy())
++		return;
++	PlayerTypes const eOwner =  pUnit->getPlot().getOwner();
++	if (eOwner == NO_PLAYER || TEAMID(eOwner) == pUnit->getTeam())
++		return;
++	if (!pUnit->canEspionage(pUnit->plot()))
+ 	{
+-		PlayerTypes eOwner =  pUnit->getPlot().getOwner();
+-		if (NO_PLAYER != eOwner && GET_PLAYER(eOwner).getTeam() != pUnit->getTeam())
+-		{
+-			if (!pUnit->canEspionage(pUnit->plot()))
+-			{
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HELP_NO_ESPIONAGE"));
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HELP_NO_ESPIONAGE"));
+ 
+-				if (pUnit->hasMoved() || pUnit->isMadeAttack())
+-				{
+-					szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HELP_NO_ESPIONAGE_REASON_MOVED"));
+-				}
+-				else if (!pUnit->isInvisible(GET_PLAYER(eOwner).getTeam(), false))
+-				{
+-					szBuffer.append(gDLL->getText("TXT_KEY_UNIT_HELP_NO_ESPIONAGE_REASON_VISIBLE", GET_PLAYER(eOwner).getNameKey()));
+-				}
+-			}
+-			else if (pUnit->getFortifyTurns() > 0)
+-			{
+-				int iModifier = -(pUnit->getFortifyTurns() * GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE"));
+-				if (iModifier != 0)
+-				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_COST", iModifier));
+-				}
+-			}
++		if (pUnit->hasMoved() || pUnit->isMadeAttack())
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_UNIT_HELP_NO_ESPIONAGE_REASON_MOVED"));
++		}
++		else if (!pUnit->isInvisible(GET_PLAYER(eOwner).getTeam(), false))
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_UNIT_HELP_NO_ESPIONAGE_REASON_VISIBLE",
++					GET_PLAYER(eOwner).getNameKey()));
++		}
++	}
++	else if (pUnit->getFortifyTurns() > 0)
++	{
++		int iModifier = -pUnit->getFortifyTurns() *
++				GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
++		if (iModifier != 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_COST", iModifier));
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 5005e655e..c3916d1b1 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -187,7 +187,7 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("forceRandomWBStart", &CyPlayer::forceRandomWBStart, "void forceRandomWBStart()") // advc.027
+ 		.def("getTotalPopulation", &CyPlayer::getTotalPopulation, "int ()")
+ 		.def("getAveragePopulation", &CyPlayer::getAveragePopulation, "int ()")
+-		.def("getRealPopulation", &CyPlayer::getRealPopulation, "long int ()")
++		.def("getRealPopulation", &CyPlayer::getRealPopulation, "int ()") // advc: int, not long
+ 
+ 		.def("getTotalLand", &CyPlayer::getTotalLand, "int ()")
+ 		.def("getTotalLandScored", &CyPlayer::getTotalLandScored, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3913

@@ -1,0 +1,391 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4803
+# Commit: 34b60ccc647b0a7aef701e6228349003fde8e435
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 97b1f2f366d9079b5b533ca96b3507da8286e375
+# Title: adjust handicap settings so they are more gradual hopefully anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+60	60	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+9	9	handicap_data_to_csv_advciv-sas.csv
+9	9	handicap_data_to_md_advciv-sas.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index b886001ba..8bd30296a 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -114,15 +114,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>100</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-100</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 100 -->
+-			<iUnownedTilesPerGameAnimal>85</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>54</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 150 -->
+-			<iUnownedTilesPerBarbarianUnit>125</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>750</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>160</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianUnit>64</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 50 -->
+-			<iBarbarianCreationTurnsElapsed>45</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 55 -->
+-			<iBarbarianCityCreationTurnsElapsed>60</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>46</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -70 -->
+ 			<iAnimalBonus>-30</iAnimalBonus>
+@@ -138,7 +138,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>0</iBarbarianDefenders>
+-			<iAIDeclareWarProb>60</iAIDeclareWarProb>
++			<iAIDeclareWarProb>70</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 160 -->
+@@ -306,22 +306,22 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>85</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 80 -->
+-			<iUnownedTilesPerGameAnimal>70</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>51</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 100 -->
+-			<iUnownedTilesPerBarbarianUnit>80</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>600</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>150</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianUnit>61</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>125</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 45 -->
+-			<iBarbarianCreationTurnsElapsed>42</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>38</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 50 -->
+-			<iBarbarianCityCreationTurnsElapsed>55</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>44</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -60 -->
+ 			<iAnimalBonus>-25</iAnimalBonus>
+ 			<iBarbarianBonus>-25</iBarbarianBonus>
+ 			<!-- advc.313: was -40 -->
+-			<iAIAnimalBonus>-25</iAIAnimalBonus>
+-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<iAIAnimalBonus>-15</iAIAnimalBonus>
++			<iAIBarbarianBonus>-15</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+@@ -467,14 +467,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>75</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 60 -->
+-			<iUnownedTilesPerGameAnimal>62</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>48</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 80 -->
+-			<iUnownedTilesPerBarbarianUnit>66</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>550</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>140</iUnownedTilesPerBarbarianCity>
+-			<iBarbarianCreationTurnsElapsed>39</iBarbarianCreationTurnsElapsed>
++			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
++			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 45 -->
+-			<iBarbarianCityCreationTurnsElapsed>50</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>42</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -50 -->
+ 			<iAnimalBonus>-20</iAnimalBonus>
+@@ -490,7 +490,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIDeclareWarProb>90</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
+ 			<!-- advc.251 -->
+@@ -626,15 +626,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>64</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 50 -->
+-			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>45</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 60 -->
+-			<iUnownedTilesPerBarbarianUnit>56</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>500</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianUnit>55</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>115</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 35 -->
+-			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>34</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 40 -->
+-			<iBarbarianCityCreationTurnsElapsed>45</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -40 -->
+ 			<iAnimalBonus>0</iAnimalBonus>
+@@ -790,15 +790,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>56</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 40 -->
+-			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>42</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 50 -->
+-			<iUnownedTilesPerBarbarianUnit>48</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianUnit>52</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 30 -->
+-			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 35 -->
+-			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -30 -->
+ 			<iAnimalBonus>0</iAnimalBonus>
+@@ -818,7 +818,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>2</iBarbarianDefenders>
+-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIDeclareWarProb>110</iAIDeclareWarProb>
+ 			<!-- advc.251: was 10 -->
+ 			<iAIWorkRateModifier>6</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
+@@ -957,15 +957,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>48</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 35 -->
+-			<iUnownedTilesPerGameAnimal>44</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>39</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 40 -->
+-			<iUnownedTilesPerBarbarianUnit>42</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianUnit>49</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>105</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 25 -->
+ 			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 30 -->
+-			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
+ 			<!-- advc.313: start -->
+ 			<!-- was -20 -->
+@@ -986,7 +986,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>2</iBarbarianDefenders>
+-			<iAIDeclareWarProb>110</iAIDeclareWarProb>
++			<iAIDeclareWarProb>120</iAIDeclareWarProb>
+ 			<!-- advc.251: was 20 -->
+ 			<iAIWorkRateModifier>12</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>95</iAIGrowthPercent>
+@@ -1128,15 +1128,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>40</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 30 -->
+-			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>36</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 35 -->
+-			<iUnownedTilesPerBarbarianUnit>38</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianUnit>46</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 20 -->
+-			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 25 -->
+-			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<!-- advc.313: start -->
+@@ -1157,7 +1157,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>2</iBarbarianDefenders>
+-			<iAIDeclareWarProb>120</iAIDeclareWarProb>
++			<iAIDeclareWarProb>130</iAIDeclareWarProb>
+ 			<!-- advc.251: was 50 -->
+ 			<iAIWorkRateModifier>18</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
+@@ -1310,15 +1310,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>32</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 25 -->
+-			<iUnownedTilesPerGameAnimal>36</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>33</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 30 -->
+-			<iUnownedTilesPerBarbarianUnit>34</iUnownedTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianUnit>43</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianCity>95</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 15 -->
+-			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 20 -->
+-			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<!-- advc.313: start -->
+@@ -1341,7 +1341,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+-			<iAIDeclareWarProb>130</iAIDeclareWarProb>
++			<iAIDeclareWarProb>140</iAIDeclareWarProb>
+ 			<!-- advc.251: was 75 -->
+ 			<iAIWorkRateModifier>24</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>85</iAIGrowthPercent>
+@@ -1493,15 +1493,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iNoTechTradeModifier>24</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 20 -->
+-			<iUnownedTilesPerGameAnimal>32</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>30</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 25 -->
+-			<iUnownedTilesPerBarbarianUnit>30</iUnownedTilesPerBarbarianUnit>
+-			<iUnownedWaterTilesPerBarbarianUnit>250</iUnownedWaterTilesPerBarbarianUnit>
+-			<iUnownedTilesPerBarbarianCity>80</iUnownedTilesPerBarbarianCity>
++			<iUnownedTilesPerBarbarianUnit>40</iUnownedTilesPerBarbarianUnit>
++			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 10 -->
+-			<iBarbarianCreationTurnsElapsed>16</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 15 -->
+-			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<iBarbarianBonus>0</iBarbarianBonus>
+@@ -1526,7 +1526,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+-			<iAIDeclareWarProb>140</iAIDeclareWarProb>
++			<iAIDeclareWarProb>150</iAIDeclareWarProb>
+ 			<!-- advc.251: was 100 -->
+ 			<iAIWorkRateModifier>30</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>80</iAIGrowthPercent>
+
+diff --git a/handicap_data_to_csv_advciv-sas.csv b/handicap_data_to_csv_advciv-sas.csv
+index 493ec3814..0f621acad 100644
+--- a/handicap_data_to_csv_advciv-sas.csv
++++ b/handicap_data_to_csv_advciv-sas.csv
+@@ -1,12 +1,12 @@
+ Field,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity
+ iAIAdvancedStartPercent,67,75,90,100,125,145,175,210,270
+-iAIAnimalBonus,-30,-25,-20,0,0,0,0,0,0
++iAIAnimalBonus,-30,-15,-20,0,0,0,0,0,0
+ iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
+-iAIBarbarianBonus,-30,-25,0,0,0,0,0,0,0
++iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
+ iAICivicUpkeepPercent,100,100,100,100,95,90,85,80,75
+ iAIConstructPercent,106,104,102,100,98,96,94,92,90
+ iAICreatePercent,106,104,102,100,98,96,94,92,90
+-iAIDeclareWarProb,60,80,100,100,100,110,120,130,140
++iAIDeclareWarProb,70,80,90,100,110,120,130,140,150
+ iAIGPThresholdPercent,125,120,110,100,100,95,90,85,80
+ iAIGrowthPercent,125,120,110,100,100,95,90,85,80
+ iAIHandicapIncrementTurns,0,0,0,0,100,50,33,25,20
+@@ -32,8 +32,8 @@ iAttitudeChange,2,1,0,0,0,0,0,0,0
+ iBarbarianBonus,-30,-25,0,0,0,0,0,0,0
+ iBarbarianCityAttackBonus,,,,,0,0,0,0,0
+ iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
+-iBarbarianCityCreationTurnsElapsed,60,55,50,45,40,35,30,25,25
+-iBarbarianCreationTurnsElapsed,45,42,39,36,33,30,27,24,16
++iBarbarianCityCreationTurnsElapsed,46,44,42,40,38,36,34,32,30
++iBarbarianCreationTurnsElapsed,40,38,36,34,32,30,28,26,24
+ iBarbarianDefenders,0,0,1,1,2,2,2,3,3
+ iBaseGrowthThresholdPercent,80,95,100,100,100,100,110,120,130
+ iBuildTimePercent,100,100,100,100,100,100,110,115,120
+@@ -67,10 +67,10 @@ iStartingWorkerUnits,0,0,0,0,0,0,0,0,0
+ iTechTradeKnownModifier,-100,-50,-25,0,0,0,0,0,0
+ iTrainPercent,80,95,100,100,100,100,110,120,130
+ iUnitCostPercent,36,44,52,60,68,76,84,92,100
+-iUnownedTilesPerBarbarianCity,160,150,140,130,120,110,100,90,80
+-iUnownedTilesPerBarbarianUnit,125,80,66,56,48,42,38,34,30
+-iUnownedTilesPerGameAnimal,85,70,62,52,50,44,40,36,32
+-iUnownedWaterTilesPerBarbarianUnit,750,600,550,500,450,400,350,300,250
++iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
++iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
++iUnownedTilesPerGameAnimal,54,51,48,45,42,39,36,33,30
++iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
+ AIFreeTechs,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
+ FreeTechs,FT_0,,,,,,,,
+ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+
+diff --git a/handicap_data_to_md_advciv-sas.md b/handicap_data_to_md_advciv-sas.md
+index fb30601b4..6f63354ab 100644
+--- a/handicap_data_to_md_advciv-sas.md
++++ b/handicap_data_to_md_advciv-sas.md
+@@ -1,13 +1,13 @@
+ | Field | Settler | Chieftain | Warlord | Noble | Prince | Monarch | Emperor | Immortal | Deity |
+ |------|------|------|------|------|------|------|------|------|------|
+ | iAIAdvancedStartPercent | 67 | 75 | 90 | 100 | 125 | 145 | 175 | 210 | 270 |
+-| iAIAnimalBonus | -30 | -25 | -20 | 0 | 0 | 0 | 0 | 0 | 0 |
++| iAIAnimalBonus | -30 | -15 | -20 | 0 | 0 | 0 | 0 | 0 | 0 |
+ | iAIAttitudeChangePercent | 30 | 30 | 30 | 30 | 40 | 50 | 60 | 70 | 90 |
+-| iAIBarbarianBonus | -30 | -25 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++| iAIBarbarianBonus | -30 | -15 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+ | iAICivicUpkeepPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
+ | iAIConstructPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+ | iAICreatePercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+-| iAIDeclareWarProb | 60 | 80 | 100 | 100 | 100 | 110 | 120 | 130 | 140 |
++| iAIDeclareWarProb | 70 | 80 | 90 | 100 | 110 | 120 | 130 | 140 | 150 |
+ | iAIGPThresholdPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+ | iAIGrowthPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+ | iAIHandicapIncrementTurns | 0 | 0 | 0 | 0 | 100 | 50 | 33 | 25 | 20 |
+@@ -33,8 +33,8 @@
+ | iBarbarianBonus | -30 | -25 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+ | iBarbarianCityAttackBonus |  |  |  |  | 0 | 0 | 0 | 0 | 0 |
+ | iBarbarianCityCreationProb | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 |
+-| iBarbarianCityCreationTurnsElapsed | 60 | 55 | 50 | 45 | 40 | 35 | 30 | 25 | 25 |
+-| iBarbarianCreationTurnsElapsed | 45 | 42 | 39 | 36 | 33 | 30 | 27 | 24 | 16 |
++| iBarbarianCityCreationTurnsElapsed | 46 | 44 | 42 | 40 | 38 | 36 | 34 | 32 | 30 |
++| iBarbarianCreationTurnsElapsed | 40 | 38 | 36 | 34 | 32 | 30 | 28 | 26 | 24 |
+ | iBarbarianDefenders | 0 | 0 | 1 | 1 | 2 | 2 | 2 | 3 | 3 |
+ | iBaseGrowthThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+ | iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 110 | 115 | 120 |
+@@ -68,10 +68,10 @@
+ | iTechTradeKnownModifier | -100 | -50 | -25 | 0 | 0 | 0 | 0 | 0 | 0 |
+ | iTrainPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+ | iUnitCostPercent | 36 | 44 | 52 | 60 | 68 | 76 | 84 | 92 | 100 |
+-| iUnownedTilesPerBarbarianCity | 160 | 150 | 140 | 130 | 120 | 110 | 100 | 90 | 80 |
+-| iUnownedTilesPerBarbarianUnit | 125 | 80 | 66 | 56 | 48 | 42 | 38 | 34 | 30 |
+-| iUnownedTilesPerGameAnimal | 85 | 70 | 62 | 52 | 50 | 44 | 40 | 36 | 32 |
+-| iUnownedWaterTilesPerBarbarianUnit | 750 | 600 | 550 | 500 | 450 | 400 | 350 | 300 | 250 |
++| iUnownedTilesPerBarbarianCity | 130 | 125 | 120 | 115 | 110 | 105 | 100 | 95 | 90 |
++| iUnownedTilesPerBarbarianUnit | 64 | 61 | 58 | 55 | 52 | 49 | 46 | 43 | 40 |
++| iUnownedTilesPerGameAnimal | 54 | 51 | 48 | 45 | 42 | 39 | 36 | 33 | 30 |
++| iUnownedWaterTilesPerBarbarianUnit | 475 | 450 | 425 | 400 | 375 | 350 | 325 | 300 | 275 |
+ | AIFreeTechs | AIFT_0 | AIFT_1 | AIFT_2 | AIFT_3 | AIFT_4 | AIFT_5 | AIFT_6 | AIFT_7 | AIFT_8 |
+ | FreeTechs | FT_0 |  |  |  |  |  |  |  |  |
+ | Goodies | G_0 | G_1 | G_2 | G_3 | G_4 | G_5 | G_6 | G_7 | G_8 |
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=21394

@@ -1,0 +1,89 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3250
+# Commit: 52b66360d6afa35b7ba71586cad201bfa47fac9a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d5eae0ee9f5baa429c9d55167af680b844714f6a
+# Title: Tweak safety-seeking behavior of Barbarian Galleys
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	7	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d6d772667..85811694f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5936,12 +5936,33 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 	}
+ 	// K-Mod / BBAI end
+ 
+-	/*  <advc.306> Have ships retreat more often, so that they can receive cargo.
++	/*	<advc.306> Have ships retreat more often, so that they can receive cargo.
+ 		Should also resolve an issue where Barbarian ships are indefinitely stuck
+ 		patrolling an unowned stretch surrounded by borders. (Patrolling Barbarians
+-		never enter borders.) */
+-	if (getGroup()->getMissionType(0) == MISSION_MOVE_TO ||
+-		SyncRandSuccess100(20))
++		avoid borders.) */
++	bool const bMovingToSafety = (getGroup()->getMissionType(0) == MISSION_MOVE_TO);
++	bool bAwaitCargo = (!bMovingToSafety && getPlot().isWater() &&
++			!hasCargo() && !getPlot().isVisibleToCivTeam());
++	if (bAwaitCargo)
++	{
++		bAwaitCargo = false;
++		FOR_EACH_ADJ_PLOT(getPlot())
++		{
++			if (pAdj->isHabitable())
++			{
++				bAwaitCargo = true;
++				break;
++			}
++		}
++		/*	(Could consider suicide here if bAwaitCargo has become false.
++			Unlikely to ever receive cargo. But we should also make sure
++			that there are no resources we might want to go back to pillaging;
++			that's no so easy to check ...) */
++	}
++	if (bMovingToSafety ||
++		/*	May want to wait an extra turn or two if we think that we're
++			ready for cargo. AI_safety will then skip since we're already safe. */
++		SyncRandSuccess100(bAwaitCargo ? 53 : 24))
+ 	{
+ 		if (AI_safety())
+ 		{
+@@ -12606,9 +12627,11 @@ bool CvUnitAI::AI_safety()
+ 	CvPlot* pBestPlot = 0;
+ 	int iBestValue = 0;
+ 	bool bIgnoreDanger = false;
+-	int const iSearchRange = AI_searchRange(1);
++	// <advc.306>
++	bool const bBarbarianSeaUnit = (isBarbarian() && getDomainType() == DOMAIN_SEA);
++	int const iSearchTurns = (bBarbarianSeaUnit ? 3  : 1); // </advc.306>
++	int const iSearchRange = AI_searchRange(iSearchTurns);
+ 	bool const bEnemyTerritory = isEnemy(getPlot());
+-	bool const bBarbarianSeaUnit = (isBarbarian() && getDomainType() == DOMAIN_SEA); // advc.306
+ 	//for (iPass = 0; iPass < 2; iPass++)
+ 	do // K-Mod. What's the point of the first pass if it is just ignored? (see break condition at the end)
+ 	{
+@@ -12620,7 +12643,7 @@ bool CvUnitAI::AI_safety()
+ 			int iPathTurns;
+ 			if (!generatePath(p,
+ 				bIgnoreDanger ? MOVE_IGNORE_DANGER : NO_MOVEMENT_FLAGS,
+-				true, &iPathTurns, 1))
++				true, &iPathTurns, iSearchTurns))
+ 			{
+ 				continue;
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2515

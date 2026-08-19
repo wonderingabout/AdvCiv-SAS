@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2058
+# Commit: b97e745732ad276cf4d628af846d3548bc4115ee
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a9d968f4c2a7cb90db81e2af4df63903cd3f1ab3
+# Title: Convert culture after city trade based on default working city
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	9	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+8	4	CvGameCoreDLL/CvPlayerAI.cpp
+31	25	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1513ffb74..6f5d81277 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1905,7 +1905,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		// <advc.ctr>
+ 		for (CityPlotIter it(kCityPlot); it.hasNext(); ++it)
+ 		{
+-			int iConvertedCulture = cultureConvertedUponCityTrade(kCityPlot, *it, eOldOwner);
++			int iConvertedCulture = cultureConvertedUponCityTrade(
++					kCityPlot, *it, eOldOwner, getID());
+ 			it->changeCulture(eOldOwner, -iConvertedCulture, false);
+ 			it->changeCulture(getID(), iConvertedCulture, false);
+ 		}
+@@ -2212,16 +2213,25 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 
+ // advc.ctr:
+ int CvPlayer::cultureConvertedUponCityTrade(CvPlot const& kCityPlot, CvPlot const& kPlot,
+-	PlayerTypes eOldOwner) const
++	PlayerTypes eOldOwner, PlayerTypes eNewOwner, bool bIgnorePriority) const
+ {
+-	// Always convert culture in the inner radius
+-	bool bConvert = ::adjacentOrSame(kPlot, kCityPlot);
+-	if (!bConvert)
++	bool bConvert = false;
++	if (bIgnorePriority)
++		bConvert = (::plotDistance(&kCityPlot, &kPlot) <= 2);
++	else
+ 	{
+-		// Outer circle: Only if plot not assigned to another city of the current owner
+-		CvCity const* pWorkingCity = kPlot.getWorkingCity();
+-		bConvert = (pWorkingCity != NULL && !pWorkingCity->at(kCityPlot) &&
+-				pWorkingCity->getOwner() == eOldOwner);
++		// Always convert culture in the inner radius
++		bConvert = ::adjacentOrSame(kPlot, kCityPlot);
++		if (!bConvert)
++		{
++			// Outer circle: Based on plot priority when contested
++			CvCity const* pDefaultWorkingCity = kPlot.defaultWorkingCity();
++			bConvert = (pDefaultWorkingCity != NULL &&
++					/*	Plot has to be assigned to the traded city or to
++						a city of the new owner */
++					(pDefaultWorkingCity->at(kCityPlot) ||
++					pDefaultWorkingCity->getOwner() == eNewOwner));
++		}
+ 	}
+ 	if (!bConvert)
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index f5885725e..c03fce727 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1492,7 +1492,8 @@ protected:  // <advc.210>
+ 	void showForeignPromoGlow(bool b); // advc.002e
+ 	// <advc.ctr>
+ 	int cultureConvertedUponCityTrade(CvPlot const& kCityPlot, CvPlot const& kPlot,
+-			PlayerTypes eOldOwner) const; // </advc.ctr>
++			PlayerTypes eOldOwner, PlayerTypes eNewOwner,
++			bool bIgnorePriority = false) const; // </advc.ctr>
+ 	// <advc.314>
+ 	bool isGoodyTech(TechTypes techId, bool bProgress) const;
+ 	void addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c7b2da1be..a2b78f5a9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2829,7 +2829,9 @@ scaled CvPlayerAI::AI_assetVal(CvCity const& c, bool bConquest) const
+ 		CvPlot const& p = *it;
+ 		bool const bHome = (it.currID() == CITY_HOME_PLOT);
+ 		CvCity const* pWorkingCity = p.getWorkingCity();
+-		if (pWorkingCity != &c && !bHome &&
++		/*	Tile assignment may change when the owner changes, but it's too
++			complicated to anticipate that here. */
++		if (pWorkingCity != &c &&
+ 			pWorkingCity != NULL) // Should be able to get p by expanding borders
+ 		{
+ 			continue;
+@@ -2897,7 +2899,7 @@ scaled CvPlayerAI::AI_assetVal(CvCity const& c, bool bConquest) const
+ 		// Fall back on city plot for plot culture if p unrevealed
+ 		CvPlot const& kCulturePlot = (p.isRevealed(getTeam()) ? p : c.getPlot());
+ 		// Allow modifier above 1 in order to encourage conquest of contested cities
+-		scaled const rMaxCultureModifier = (bConquest ? fixp(1.5) : scaled(1));
++		scaled const rMaxCultureModifier = (bConquest ? fixp(4/3.) : scaled(1));
+ 		scaled rCultureModifier = 1;
+ 		CvGameAI const& kGame = GC.AI_getGame();
+ 		// Akin to CitySiteEvaluator::m_iClaimThreshold
+@@ -2921,7 +2923,8 @@ scaled CvPlayerAI::AI_assetVal(CvCity const& c, bool bConquest) const
+ 					kCulturePlot.getCulture(getID()) + rCulturePadding +
+ 					kCulturePlot.getCulture(BARBARIAN_PLAYER) +
+ 					(bOwn ? 0 :
+-					cultureConvertedUponCityTrade(c.getPlot(), kCulturePlot, c.getOwner()))
++					cultureConvertedUponCityTrade(
++					c.getPlot(), kCulturePlot, c.getOwner(), getID(), true))
+ 					) / (kCulturePlot.getTotalCulture() + rCulturePadding);
+ 			rCultureModifier.exponentiate(fixp(0.4)); // e.g. 50% plot culture -> 0.75
+ 		}
+@@ -11829,7 +11832,8 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
+ 		{
+ 			FAssertMsg(false, "Just to see how often DENIAL_MYSTERY comes up"); // advc.tmp
+ 			/*	This will give the war plan away. Should rarely happen.
+-				Still, would be better to show a special city trade alert (tbd.?). */
++				Still, would be better to show a special city trade alert (tbd.?).
++				Should add some randomness (hash value) in that case for uncertainty. */
+ 			return DENIAL_MYSTERY;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6ccb18c8c..b554af96b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4864,7 +4864,7 @@ CvCityAI* CvPlot::AI_getWorkingCityOverrideAI() const
+ 
+ void CvPlot::updateWorkingCity()
+ {
+-	CvCity* pBestCity = getPlotCity();
++	CvCity const* pBestCity = getPlotCity();
+ 	if (pBestCity == NULL)
+ 	{
+ 		pBestCity = getWorkingCityOverride();
+@@ -4872,30 +4872,7 @@ void CvPlot::updateWorkingCity()
+ 	}
+ 
+ 	if (pBestCity == NULL && isOwned())
+-	{
+-		CityPlotTypes eBestPlot = CITY_HOME_PLOT;
+-		for (CityPlotIter it(*this); it.hasNext(); ++it)
+-		{
+-			CvCity* pLoopCity = it->getPlotCity();
+-			if (pLoopCity == NULL)
+-				continue; // advc
+-			CityPlotTypes const ePlot = it.currID();
+-			if (pLoopCity->getOwner() == getOwner())
+-			{	// XXX use getGameTurnAcquired() instead???
+-				int const* pCityPriority = GC.getCityPlotPriority(); // advc
+-				if (pBestCity == NULL ||
+-					pCityPriority[ePlot] < pCityPriority[eBestPlot] ||
+-					(pCityPriority[ePlot] == pCityPriority[eBestPlot] &&
+-					(pLoopCity->getGameTurnFounded() < pBestCity->getGameTurnFounded() ||
+-					(pLoopCity->getGameTurnFounded() == pBestCity->getGameTurnFounded() &&
+-					pLoopCity->getID() < pBestCity->getID()))))
+-				{
+-					eBestPlot = ePlot;
+-					pBestCity = pLoopCity;
+-				}
+-			}
+-		}
+-	}
++		pBestCity = defaultWorkingCity(); // advc: Moved into new function
+ 
+ 	CvCity* pOldWorkingCity = getWorkingCity();
+ 	if (pOldWorkingCity == pBestCity)
+@@ -4934,6 +4911,35 @@ void CvPlot::updateWorkingCity()
+ 	}
+ }
+ 
++// advc: Cut from updateWorkingCity (for advc.ctr)
++CvCity const* CvPlot::defaultWorkingCity() const
++{
++	CvCity const* pR = NULL;
++	CityPlotTypes eBestPlot = CITY_HOME_PLOT;
++	for (CityPlotIter it(*this); it.hasNext(); ++it)
++	{
++		CvCity* pLoopCity = it->getPlotCity();
++		if (pLoopCity == NULL)
++			continue;
++		CityPlotTypes const ePlot = it.currID();
++		if (pLoopCity->getOwner() == getOwner())
++		{	// XXX use getGameTurnAcquired() instead???
++			int const* pCityPriority = GC.getCityPlotPriority();
++			if (pR == NULL ||
++				pCityPriority[ePlot] < pCityPriority[eBestPlot] ||
++				(pCityPriority[ePlot] == pCityPriority[eBestPlot] &&
++				(pLoopCity->getGameTurnFounded() < pR->getGameTurnFounded() ||
++				(pLoopCity->getGameTurnFounded() == pR->getGameTurnFounded() &&
++				pLoopCity->getID() < pR->getID()))))
++			{
++				eBestPlot = ePlot;
++				pR = pLoopCity;
++			}
++		}
++	}
++	return pR;
++}
++
+ 
+ void CvPlot::setWorkingCityOverride( const CvCity* pNewValue)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 9da5a85e4..3298b4300 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -451,6 +451,7 @@ public:
+ 	const wchar* getRuinsName() const; // advc.005c
+ 	CvCity* getWorkingCity() const;																														// Exposed to Python
+ 	void updateWorkingCity();
++	CvCity const* defaultWorkingCity() const; // advc
+ 	CvCity* getWorkingCityOverride() const;																								// Exposed to Python
+ 	void setWorkingCityOverride(const CvCity* pNewValue);
+ 	// <advc.003u>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8090

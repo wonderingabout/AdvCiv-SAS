@@ -1,0 +1,189 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6074
+# Commit: f03333ae1541517390a59da1afd60d73841f74da
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 85b38183171be32048dc4083025e379583eacf69
+# Title: (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats (KI#195)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+37	18	CvGameCoreDLL/CvCityAI.cpp
+4	1	CvGameCoreDLL/CvPlayerAI.cpp
+15	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index fbad16303..6047a65bb 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -31,7 +31,8 @@ static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kC
+ 		(pCityWaterArea == NULL ? -1 : pCityWaterArea->getID()), (pRelevantWaterArea == NULL ? -1 : pRelevantWaterArea->getID()), (pSecondWaterArea == NULL ? -1 : pSecondWaterArea->getID()), iCityWaterAreaTrain, iRelevantWaterAreaTrain, iSecondWaterAreaTrain, bWaterDanger, bFinancialTrouble);
+ }
+ 
+-static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot const& kPlot, CvPlot const& kFromPlot)
++// <!-- custom: Use the same exact buildability and reachability test for Work Boat diagnostics and city-local Barbarian demand. Callers reset the shared border finder before checking one or more plots. (GPT-5.6-Sol) -->
++static bool isSASUnimprovedSeaBonus(CvPlayerAI const& kPlayer, CvPlot const& kPlot, CvPlot const& kFromPlot)
+ {
+ 	if (kPlot.isCity())
+ 		return false;
+@@ -59,7 +60,7 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
+ 		CvPlot const& kPlot = kMap.getPlotByIndex(i);
+ 		if (kPlot.getOwner() != kCity.getOwner() || !kPlot.isArea(*pWaterArea))
+ 			continue;
+-		if (!isSASUnimprovedSeaBonusForLog(kPlayer, kPlot, kCity.getPlot()))
++		if (!isSASUnimprovedSeaBonus(kPlayer, kPlot, kCity.getPlot()))
+ 			continue;
+ 		BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kCity.getTeam());
+ 		ImprovementTypes const eImprovement = kPlot.getImprovementType();
+@@ -9811,24 +9812,38 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
+ {
+ 	int iNeededSeaWorkers = 0;
+ 
+-	/*  <advc.305> Normally counted per area, but a Barbarian city should only
+-		train workers for its own needs.
+-		(Partially based on code in CvPlayer::AI_countUnimprovedBonuses.) */
+-	if(isBarbarian())
++	// <!-- custom: Base AdvCiv's Barbarian branch checked only the eight adjacent plots. Save-file 450 therefore left 12 buildable and reachable seafood plots assigned to cities but located in the outer city radius unimproved for up to 163 turns, while the only two Work Boats produced immediately improved adjacent Molluscs.
++	// Preserve city-local demand because Barbarian cities do not coordinate Worker transport like ordinary civilizations, but count every owned water plot assigned to this city and exclude targets that no Work Boat can currently build or reach. See KI#195. (GPT-5.6-Sol) -->
++	// /*  <advc.305> Normally counted per area, but a Barbarian city should only
++	// 	train workers for its own needs.
++	// 	(Partially based on code in CvPlayer::AI_countUnimprovedBonuses.) */
++	// if(isBarbarian())
++	// {
++	// 	FOR_EACH_ADJ_PLOT(getPlot())
++	// 	{
++	// 		if(!pAdj->isWater())
++	// 			continue;
++	// 		BonusTypes eBonus = pAdj->getNonObsoleteBonusType(getTeam());
++	// 		if(eBonus != NO_BONUS && !GET_PLAYER(getOwner()).
++	// 			doesImprovementConnectBonus(pAdj->getImprovementType(), eBonus))
++	// 		{
++	// 			iNeededSeaWorkers++;
++	// 		}
++	// 	}
++	// 	return iNeededSeaWorkers;
++	// } // </advc.305>
++	if (isBarbarian())
+ 	{
+-		FOR_EACH_ADJ_PLOT(getPlot())
++		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++		gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
++		for (CityPlotIter it(*this); it.hasNext(); ++it)
+ 		{
+-			if(!pAdj->isWater())
+-				continue;
+-			BonusTypes eBonus = pAdj->getNonObsoleteBonusType(getTeam());
+-			if(eBonus != NO_BONUS && !GET_PLAYER(getOwner()).
+-				doesImprovementConnectBonus(pAdj->getImprovementType(), eBonus))
+-			{
++			CvPlot const& kPlot = *it;
++			if (kPlot.getOwner() == getOwner() && kPlot.getWorkingCity() == this && kPlot.isWater() && isSASUnimprovedSeaBonus(kOwner, kPlot, getPlot()))
+ 				iNeededSeaWorkers++;
+-			}
+ 		}
+ 		return iNeededSeaWorkers;
+-	} // </advc.305>
++	}
+ 
+ 	// <!-- custom: info by chatgpt 5, check if accurate, replace old values in the code below from 5 to 0 and refactor a bit to make it a iLookAhead variable and such if any other change; udpate: i showed AI_isUnimprovedBonus 's code and this function's code to claude ai as well which agrees with it if my understanding of it is not mistaken, so changing it from 5 to 0 as they both advise and see, we now have 1 extra workboat in city to ideally avoid producing, check if accurate still though their / these AIs info i mean (or my observation maybe too)-->
+ 	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later" style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
+@@ -17441,9 +17456,13 @@ void CvCityAI::AI_barbChooseProduction()
+ 		(getPopulation() > 1 || iCityAge >= 12)) // advc.305
+ 	{
+ 		// advc.opt: Sea worker counts moved down; only needed here.
+-		int iNeededSeaWorkers = (bMaybeWaterArea) ? AI_neededSeaWorkers() : 0;
+-		int iExistingSeaWorkers = (waterArea(true) != NULL) ?
+-				kPlayer.AI_totalWaterAreaUnitAIs(*waterArea(true), UNITAI_WORKER_SEA) : 0;
++		int const iNeededSeaWorkers = (bMaybeWaterArea ? AI_neededSeaWorkers() : 0);
++		// <!-- custom: AI_totalWaterAreaUnitAIs counts ships docked or being trained by iterating major-civilization cities, so Base AdvCiv's Barbarian production branch missed its own docked and queued Work Boats.
++		// After the full-city-radius cure exposed this, Hun repeatedly ordered another boat for the same target and Barbarians accumulated 20 at once.
++		// Count this city's boats separately; boats sailing in the water area remain covered below, while boats in unrelated Barbarian cities do not suppress local demand. See KI#195. (GPT-5.6-Sol) -->
++		CvArea const* const pProductionWaterArea = waterArea(true);
++		int const iWaterAreaSeaWorkers = (pProductionWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pProductionWaterArea, UNITAI_WORKER_SEA));
++		int const iExistingSeaWorkers = iWaterAreaSeaWorkers + kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER_SEA, -1, getOwner()) + getNumTrainUnitAI(UNITAI_WORKER_SEA);
+ 		if (iNeededSeaWorkers > 0 &&
+ 			iExistingSeaWorkers <= 0 )// advc.001: safer (as in AI_chooseProduction)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index eb075b072..332a3893e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -454,6 +454,9 @@ void CvPlayerAI::AI_doTurnPost()
+ 
+ 	if (isBarbarian())
+ 	{
++		// <!-- custom: Save-file 450 repeatedly showed Barbarian seafood remaining unimproved. Include Barbarians in the existing level-3 Work Boat audit before their shortened post-turn path returns, so production shortages can be distinguished from buildability, reachability, danger and mission-assignment failures. Diagnostic only. (GPT-5.6-Sol) -->
++		if (gWorkerSeaLogLevel >= 3)
++			AI_logWorkerSeaAudit();
+ 		AI_foldDeals(); // advc.036
+ 		return;
+ 	}
+@@ -15812,7 +15815,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
+ void CvPlayerAI::AI_logWorkerSeaAudit() const
+ {
+ 	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
+-	if (isHuman() || isBarbarian())
++	if (isHuman())
+ 		return;
+ 
+ 	int const iTurn = GC.getGame().getGameTurn();
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 584abe021..fd634261f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -243,6 +243,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#193---fixedimproved-base-advcivk-mod-generic-army-thresholds-could-make-loaded-assault-ships-wait-instead-of-taking-achievable-overseas-targets)\
+ [193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1932---fixedimproved-base-advcivk-mod-assault-transport-production-could-overlook-nearby-profitable-islands-when-land-armies-were-already-large-or-another-enemy-city-was-reachable-by-land)\
+ [194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#194---fixedimproved-advciv-sas-inland-capital-settler-production-gate-could-ignore-worthwhile-islands-that-existing-settler-transports-could-reach)\
++[195 - (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#195---fixedimproved-two-related-base-advciv-barbarian-work-boat-bugs-ignored-outer-city-radius-seafood-and-failed-to-count-docked-or-queued-boats)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7347,3 +7348,17 @@ The first confirming save-file 449 run logged the corrected decision on turn 119
+ That second Settler exposed the separate KI#179 follow-up described there: it reached a danger-free valid site but the existing escort safeguard prevented it from founding. After narrowing only direct danger-free founding, the final run founded Agra immediately on turn 144 instead of turn 257. Save file 450 then confirmed that the original dangerous-expansion protection remained guarded. Together, the tests show that the AI can exploit worthwhile islands from an inland capital without restoring reckless dangerous founding.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 195 - (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tchRI0bVg3IlT2n6BjyciLXnEW1JML4P?usp=sharing).
++
++Save-file 450 repeatedly showed Barbarian seafood remaining unimproved. The new level-3 Work Boat audit confirmed that this was primarily a production failure rather than a movement failure: Barbarians owned up to 11 seafood bonuses at once, and many safe, buildable and reachable targets remained unassigned for 100-163 turns. Across 22 distinct audited targets, 16 were assigned to Barbarian cities and 12 of those were in the outer city radius, yet Barbarians produced only 2 Work Boats. Both boats immediately improved their intended adjacent Molluscs, showing that their movement and improvement logic worked once a boat existed.
++
++Direct comparison with Base AdvCiv 1.12 confirmed the first cause in its `advc.305` Barbarian branch of `CvCityAI::AI_neededSeaWorkers`. Although the comment says each Barbarian city should train Work Boats for its own needs, `FOR_EACH_ADJ_PLOT` checked only the eight plots immediately beside the city. It therefore ignored the outer part of the normal workable city radius. AdvCiv-SAS preserves the useful city-local policy but checks every owned water plot assigned to that city, and counts it only when the appropriate sea improvement can currently be built and reached.
++
++The first confirming run improved 13 of 14 seafood targets assigned to a Barbarian city; the remaining city was conquered before completion. However, it also exposed a second related Base AdvCiv mismatch. `AI_totalWaterAreaUnitAIs` finds docked and queued ships by iterating major-civilization cities, so the Base Barbarian production branch did not count Work Boats waiting inside or being trained by Barbarian cities. Hun consequently ordered boats repeatedly for the same remaining targets, and Barbarians accumulated as many as 20 Work Boats at once.
++
++The final cure counts Work Boats already sailing in the relevant water area, plus those docked or being trained in the current Barbarian city. It does not let boats in unrelated Barbarian cities suppress valid local production. In the final confirming run, the peak fell from 20 Work Boats to 2 while 12 city-assigned seafood targets were improved. The other 3 assigned targets belonged to Shangian or Visigoth; both cities produced or assigned Work Boats but were conquered before the improvements could finish. Owned seafood outside every Barbarian city's workable assignment remains a separate possible policy enhancement rather than being included in this city-local fix.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7ecd0cc8f..b5de297b2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -278,6 +278,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - (Requires AdvCiv-SAS 6023+) **Barbarian global city spawning no longer applies normal-civilization distance shaping:** ordinary civilizations expand from their existing empire, while Barbarian cities are selected from a global map scan. In save file 450, this normal-civ distance rule could hard-reject locally strong Barbarian candidates such as `70,37`, so Barbarian placement now skips that rule. See [KI#177](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites).
+ - (Requires AdvCiv-SAS 6023+) **Rejected Barbarian sites stay rejected after area-priority adjustment:** in save file 450, the later area-priority adjustment could turn raw rejected sites such as `30,23` back into valid spawns. AdvCiv-SAS now skips raw rejected Barbarian candidates before area adjustment, and the BBAI diagnostics log raw, area-adjusted, and final chooser values so these cases are visible. See [KI#177](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites).
+ - (Requires AdvCiv-SAS 6025+) **Barbarian city sites now value bonus health/happiness too:** Base AdvCiv skipped Barbarian non-yield bonus value because Barbarians do not care about ordinary bonus trading. AdvCiv-SAS instead values Barbarian-founded cities as real long-term city sites: Barbarians benefit from better cities, and players often later capture them. In save file 450 BBAI testing, the Barbarian Hittite site at `(13,35)` now scored nearby Crab with explicit `happyHealth=300 buildingHappyHealth=150`, so seafood health and ordinary building effects help Barbarian placement too. See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
++- (Requires AdvCiv-SAS 6072+) **Barbarian cities improve seafood throughout their workable plots without flooding the map with Work Boats:** in save file 450, BBAI logging showed that Base AdvCiv checked only the eight plots immediately beside each Barbarian city when deciding whether it needed a Work Boat. As a result, seafood in the outer part of the normal workable city radius was ignored: Barbarians produced only 2 Work Boats while safe, buildable and reachable seafood remained unimproved for up to 163 turns. The AI now checks the full workable city radius while keeping each Barbarian city's needs separate. The first retest successfully improved 13 of 14 city-assigned targets, but exposed a second inherited bug: Base AdvCiv counted docked and queued ships only through major-civilization cities, so Hun repeatedly ordered another boat and Barbarians accumulated as many as 20 at once. The completed cure also counts Work Boats sailing in the relevant water area, docked in the current city, or being trained there. In the final confirming run, the peak fell from 20 Work Boats to 2 while 12 city-assigned seafood targets were improved; the other 3 targets belonged to cities conquered before their boats could finish. Note: owned seafood outside every Barbarian city's BFC remains unchanged, because deciding whether Barbarians should spend production connecting a bonus that no city can work is a separate policy choice. See [KI#195](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#195---fixedimproved-two-related-base-advciv-barbarian-work-boat-bugs-ignored-outer-city-radius-seafood-and-failed-to-count-docked-or-queued-boats).
+ 
+ #### Diplomacy (AI)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=17073

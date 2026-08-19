@@ -1,0 +1,272 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 179
+# Commit: 670e0acd662c8025c903b8d21aab3d6863d0b73a
+# History segment: K-Mod history
+# Parent used for diff: f9e250eaa6c4638d6fd0cac6ed54fdf61a3e0946
+# Title: Rewrote the decision code for bombarding / skipping bombard for city attack. Rewrote parts of the raze city decision code.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+51	7	CvGameCoreDLL/CvPlayerAI.cpp
+17	64	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml b/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+index 3e372d74a..0bc224789 100644
+--- a/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
++++ b/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+@@ -30,11 +30,11 @@
+ 		This ratio is reduced by the AI's best attacker odds and how long it will take to bombard the city.
+ 		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
+-		<iDefineIntVal>350</iDefineIntVal>
++		<iDefineIntVal>250</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
+-		<iDefineIntVal>150</iDefineIntVal>
++		<iDefineIntVal>140</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 10f23df41..b9ac8513e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1817,12 +1817,10 @@ void CvPlayerAI::AI_makeProductionDirty()
+ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ {
+ 	bool bRaze = false;
+-	int iRazeValue;
+-	int iI;
+ 
+ 	if (canRaze(pCity))
+ 	{
+-	    iRazeValue = 0;
++	    int iRazeValue = 0;
+ 		int iCloseness = pCity->AI_playerCloseness(getID());
+ 
+ 		// Reasons to always raze
+@@ -1881,7 +1879,9 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 				bool bFinancialTrouble = AI_isFinancialTrouble();
+ 				bool bBarbCity = (pCity->getPreviousOwner() == BARBARIAN_PLAYER) && (pCity->getOriginalOwner() == BARBARIAN_PLAYER);
+ 				bool bPrevOwnerBarb = (pCity->getPreviousOwner() == BARBARIAN_PLAYER);
++				bool bTotalWar = GET_TEAM(getTeam()).AI_getWarPlan(GET_PLAYER(pCity->getPreviousOwner()).getTeam()) == WARPLAN_TOTAL; // K-Mod
+ 				
++				/* original code
+ 				if (GET_TEAM(getTeam()).countNumCitiesByArea(pCity->area()) == 0)
+ 				{
+ 					// Conquered city in new continent/island
+@@ -1919,8 +1919,19 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 						}
+ 					}
+ 				}
+-				else
++				else */ // K-Mod disabled. I don't see the point treating the above as a special case.
+ 				{
++					// K-Mod (moved this from above)
++					int iUnused;
++
++					if (pCity->area()->getNumCities() == 1 && AI_getNumAreaCitySites(pCity->area()->getID(), iUnused) == 0)
++					{
++						// Probably small island
++						if (iCloseness == 0)
++							iRazeValue += 20;
++					}
++					// K-Mod end
++
+ 					// Distance related aspects
+ 					if (iCloseness > 0)
+ 					{
+@@ -1932,11 +1943,20 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 
+ 						CvCity* pNearestTeamAreaCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), NO_PLAYER, getTeam(), true, false, NO_TEAM, NO_DIRECTION, pCity);
+ 
+-						if( pNearestTeamAreaCity == NULL )
++						/*if( pNearestTeamAreaCity == NULL )
+ 						{
+ 							// Shouldn't happen
+ 							iRazeValue += 30;
++						} */
++						// K-Mod
++						if (pNearestTeamAreaCity == NULL)
++						{
++							if (bTotalWar && GET_TEAM(GET_PLAYER(pCity->getPreviousOwner()).getTeam()).AI_isPrimaryArea(pCity->area()))
++								iRazeValue += 5;
++							else
++								iRazeValue += 30;
+ 						}
++						// K-Mod end
+ 						else
+ 						{
+ 							int iDistance = plotDistance(pCity->getX_INLINE(), pCity->getY_INLINE(), pNearestTeamAreaCity->getX_INLINE(), pNearestTeamAreaCity->getY_INLINE());
+@@ -1975,6 +1995,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 					// Non-distance related aspects
+ 					iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
+ 
++					// K-Mod
++					iRazeValue -= AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION2) ? 20 : 0;
++					// K-Mod end
++		                
+ 					if (getStateReligion() != NO_RELIGION)
+ 					{
+ 						if (pCity->isHasReligion(getStateReligion()))
+@@ -1999,10 +2023,16 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 							}
+ 						}
+ 					}
++					// K-Mod
++					else
++					{
++						iRazeValue -= 5; // Free religion does not mean we hate everyone equally...
++					}
++					// K-Mod end
+ 				}
+ 
+ 
+-				for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
++				for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 				{
+ 					if (pCity->isHolyCity((ReligionTypes)iI))
+ 					{
+@@ -2018,10 +2048,24 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 					}
+ 				}
+ 
++				// K-Mod
++				// corp HQ value.
++				for (int iI = 0; iI < GC.getNumCorporationInfos(); iI++)
++				{
++					if (pCity->isHeadquarters((CorporationTypes)iI))
++					{
++						logBBAI("      Reduction for corp headquarters");
++						iRazeValue -= 10 + 100 * GC.getGameINLINE().countCorporationLevels((CorporationTypes)iI) / GC.getGameINLINE().getNumCities();
++					}
++				}
++				// great people
++				iRazeValue -= 2 * pCity->getNumGreatPeople();
++				// K-Mod end
++
+ 				iRazeValue -= 15 * pCity->getNumActiveWorldWonders();
+ 
+ 				CvPlot* pLoopPlot = NULL;
+-				for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++				for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 				{
+ 					pLoopPlot = plotCity(pCity->getX_INLINE(), pCity->getY_INLINE(), iI);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7527a4ca2..d711a0fa5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15284,78 +15284,31 @@ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshol
+ }
+ 
+ // Returns true if a mission was pushed...
++// This function has been completely rewriten (and greatly simplified) for K-Mod
+ bool CvUnitAI::AI_bombardCity()
+ {
+-	PROFILE_FUNC();
+-
+-	CvCity* pBombardCity;
+-
+-	if (canBombard(plot()))
+-	{
+-		pBombardCity = bombardTarget(plot());
+-		FAssertMsg(pBombardCity != NULL, "BombardCity is not assigned a valid value");
+-
+-		// do not bombard cities with no defenders
+-		int iDefenderStrength = pBombardCity->plot()->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), DOMAIN_LAND, /*bDefensiveBonuses*/ true, /*bTestAtWar*/ true, false);
+-		if (iDefenderStrength == 0)
+-		{
+-			return false;
+-		}
+-		
+-		// do not bombard cities if we have overwelming odds
+-		int iAttackOdds = getGroup()->AI_attackOdds(pBombardCity->plot(), /*bPotentialEnemy*/ true);
+-		if ( (iAttackOdds > 95) )
+-		{
+-			return false;
+-		}
+-
+-		// If we have reasonable odds, check for attacking without waiting for bombards
+-		if( (iAttackOdds >= GC.getBBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS()) )
+-		{
+-			int iBase = GC.getBBAI_SKIP_BOMBARD_BASE_STACK_RATIO();
+-			int iComparison = getGroup()->AI_compareStacks(pBombardCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ true, /*bCheckCanMove*/ true);
+-			
+-			// Big troop advantage plus pretty good starting odds, don't wait to allow reinforcements
+-			if( iComparison > (iBase - 4*iAttackOdds) )
+-			{
+-				if( gUnitLogLevel > 2 ) logBBAI("      Stack skipping bombard of %S with compare %d and starting odds %d", pBombardCity->getName().GetCString(), iComparison, iAttackOdds);
+-				return false;
+-			}
++	if (!canBombard(plot()))
++		return false;
+ 
+-			int iMin = GC.getBBAI_SKIP_BOMBARD_MIN_STACK_RATIO();
+-			bool bHasWaited = false;
+-			CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+-			while (pUnitNode != NULL)
+-			{
+-				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++	CvCity* pBombardCity = bombardTarget(plot());
+ 
+-				if( pLoopUnit->getFortifyTurns() > 0 )
+-				{
+-					bHasWaited = true;
+-					break;
+-				}
++	FAssertMsg(pBombardCity != NULL, "BombardCity is not assigned a valid value");
+ 
+-				pUnitNode = getGroup()->nextUnitNode(pUnitNode);
+-			}
++	int iAttackOdds = getGroup()->AI_attackOdds(pBombardCity->plot(), true);
++	int iBase = GC.getBBAI_SKIP_BOMBARD_BASE_STACK_RATIO();
++	int iMin = GC.getBBAI_SKIP_BOMBARD_MIN_STACK_RATIO();
++	int iBombardTurns = getGroup()->getBombardTurns(pBombardCity);
++	int iThreshold = (iBase * (100 - iAttackOdds) + (1 + iBombardTurns/2) * iMin * iAttackOdds) / (100 + (iBombardTurns/2) * iAttackOdds);
++	int iComparison = getGroup()->AI_compareStacks(pBombardCity->plot(), true, true, true);
+ 
+-			// Bombard at least one turn to allow bombers/ships to get some shots in too
+-			if( bHasWaited && (pBombardCity->getDefenseDamage() > 0) )
+-			{
+-				int iBombardTurns = getGroup()->getBombardTurns(pBombardCity);
+-				if( iComparison > std::max(iMin, iBase - 3*iAttackOdds - 3*iBombardTurns) )
+-				{
+-					if( gUnitLogLevel > 2 ) logBBAI("      Stack skipping bombard of %S with compare %d, starting odds %d, and bombard turns %d", pBombardCity->getName().GetCString(), iComparison, iAttackOdds, iBombardTurns);
+-					return false;
+-				}
+-			}
+-		}
+-
+-		//getGroup()->pushMission(MISSION_PILLAGE);
+-		getGroup()->pushMission(MISSION_BOMBARD);
+-		return true;
++	if (iComparison > iThreshold)
++	{
++		if( gUnitLogLevel > 2 ) logBBAI("      Stack skipping bombard of %S with compare %d, starting odds %d, bombard turns %d, threshold %d", pBombardCity->getName().GetCString(), iComparison, iAttackOdds, iBombardTurns, iThreshold);
++		return false;
+ 	}
+ 
+-	return false;
++	getGroup()->pushMission(MISSION_BOMBARD);
++	return true;
+ }
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9304

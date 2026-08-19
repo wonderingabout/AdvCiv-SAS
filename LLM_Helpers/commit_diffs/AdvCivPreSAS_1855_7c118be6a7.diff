@@ -1,0 +1,246 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1855
+# Commit: 7c118be6a7073a9347a69062b64e96d9c321c5f5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fe01357f55a1da247ca4a024bab5b622fa30ff27
+# Title: Prohibit comparisons between (certain) enum types
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/ArmamentForecast.cpp
+50	0	CvGameCoreDLL/CvEnums.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+4	9	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/RiseFall.cpp
+1	1	CvGameCoreDLL/UWAICache.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index d4ba18da3..683c447a9 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -95,7 +95,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 		bool peaceAssumedLoop = peaceScenario && ((m.isOnOurSide(tId) &&
+ 				m.isOnTheirSide(loopTeamId)) || (m.isOnOurSide(loopTeamId) &&
+ 				m.isOnTheirSide(tId))) &&
+-				(tId != weId || !noWarVsExtra || loopTeamId != params.targetId());
++				(tId != TEAMID(weId) || !noWarVsExtra || loopTeamId != params.targetId());
+ 		/* Important to check warplan (not just war) when
+ 		   second-guessing preparations underway */
+ 		if(peaceAssumedLoop && t.AI_getWarPlan(loopTeamId) != NO_WARPLAN)
+@@ -103,7 +103,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 		/* True if simulation assumes a war between loopTeam and t to have
+ 		   already started, or if simulation assumes a war plan.
+ 		   Not true if already at war in the actual game (outside the simulation).*/
+-		bool warAssumed = (allPartiesKnown || tId == weId) && (
++		bool warAssumed = (allPartiesKnown || tId == TEAMID(weId)) && (
+ 				(m.isOnOurSide(loopTeamId) && m.isOnTheirSide(tId, true)) ||
+ 				(m.isOnOurSide(tId) && m.isOnTheirSide(loopTeamId, true)));
+ 		if(peaceAssumedLoop || loopTeam.isAtWar(tId))
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 784be1189..00b2440c6 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2248,5 +2248,55 @@ enum CityPlotTypes
+ 	LAST_CITY_PLOT = 20,
+ ENUM_END(CityPlot, CITYPLOT)*/
+ #define NUM_CITY_PLOTS (int)NUM_CITYPLOT_TYPES
++
++#define DO_FOR_EACH_FALSE_FRIEND(DO) \
++	DO(Player,Team) \
++	DO(PlayerOption,GameOption) \
++	DO(GameOption,MPOption) \
++	DO(GraphicOption,PlayerOption) \
++	DO(Yield,Commerce) \
++	DO(Direction,CardinalDirection) \
++	DO(Vote,VoteSource) \
++	DO(Religion,Corporation) \
++	DO(Civic,CivicOption) \
++	DO(Color,PlayerColor) \
++	DO(Build,Improvement) \
++	DO(Bonus,BonusClass) \
++	DO(Building,BuildingClass) \
++	DO(Building,SpecialBuilding) \
++	DO(BuildingClass,SpecialBuilding) \
++	DO(Building,Unit) \
++	DO(Unit,UnitClass) \
++	DO(Unit,UnitAI) \
++	DO(SpecialUnit,Unit) \
++	DO(SpecialUnit,UnitClass) \
++	DO(BuildingClass,UnitClass) \
++	DO(Project,Building) \
++	DO(Project,BuildingClass) \
++	DO(Project,Unit) \
++	DO(Project,UnitClass) \
++	DO(Event,EventTrigger) \
++	DO(Mission,EspionageMission)
++
++#define FORBID_COMPARISON_OPERATORS(EnumPrefix1, EnumPrefix2) \
++	bool operator==(EnumPrefix1##Types, EnumPrefix2##Types); \
++	bool operator!=(EnumPrefix1##Types, EnumPrefix2##Types); \
++	bool operator>(EnumPrefix1##Types, EnumPrefix2##Types); \
++	bool operator<(EnumPrefix1##Types, EnumPrefix2##Types); \
++	bool operator>=(EnumPrefix1##Types, EnumPrefix2##Types); \
++	bool operator<=(EnumPrefix1##Types, EnumPrefix2##Types);
++/*  ^No definition - so that these comparisons result in a linker error.
++	The linker error will say in which function the offending call occurs.
++	A compiler error would also provide a line number, but the compiler
++	can't tell if a global function has any call locations. */
++
++DO_FOR_EACH_FALSE_FRIEND(FORBID_COMPARISON_OPERATORS);
++#define FORBID_COMPARISON_OPERATORS_SWAPPED(EnumPrefix1, EnumPrefix2) \
++		FORBID_COMPARISON_OPERATORS(EnumPrefix2, EnumPrefix1)
++DO_FOR_EACH_FALSE_FRIEND(FORBID_COMPARISON_OPERATORS_SWAPPED);
++
++#undef DO_FOR_EACH_FALSE_FRIEND
++#undef FORBID_COMPARISON_OPERATORS
++#undef FORBID_COMPARISON_OPERATORS_SWAPPED
+ // </advc.enum>
+ #endif	// CVENUMS_h
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e06f25446..1145cec66 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -630,7 +630,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 
+ 	if (!bOneLine)
+ 	{
+-		if (pUnit->getOwner() == g.getActiveTeam()) // advc.007: Don't show rival spy test in Debug mode
++		if (pUnit->getTeam() == g.getActiveTeam()) // advc.007: Don't show rival spy test in Debug mode
+ 			setEspionageMissionHelp(szString, pUnit);
+ 
+ 		if (pUnit->cargoSpace() > 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index eb244ef06..17a17e2f0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -20626,8 +20626,8 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 		FAssert(NO_PLAYER != kData.ePlayer);
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+ 
+-		if (!kOurTeam.isAtWar(kPlayer.getTeam())
+-				&& kOurTeam.isFullMember(eVoteSource)) // dlph.25/advc
++		if (!kOurTeam.isAtWar(kPlayer.getTeam()) &&
++			kOurTeam.isFullMember(eVoteSource)) // dlph.25/advc
+ 		{
+ 			TeamTypes eMaster = getTeam();
+ 			for (int iMaster = 0; iMaster < MAX_CIV_TEAMS; ++iMaster)
+@@ -20655,21 +20655,16 @@ bool CvPlayer::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionS
+ 		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+ 		/*  <advc.130f> Don't allow players to propose resolutions that would cancel
+ 			deals with turnsToCancel > 0 */
+-		if(g.getSecretaryGeneral(eVoteSource) == getID() &&
++		if(g.getSecretaryGeneral(eVoteSource) == getTeam() &&
+ 				isAnyDealTooRecentToCancel(kPlayer.getTeam()))
+ 			return false; // </advc.130f>
+ 		if (!canStopTradingWithTeam(kPlayer.getTeam(), true))
+-		{
+ 			return false;
+-		}
+-
+ 	}
+ 	else if (kVote.isAssignCity())
+ 	{
+-		if (GET_TEAM(GET_PLAYER(kData.eOtherPlayer).getTeam()).isVassal(GET_PLAYER(kData.ePlayer).getTeam()))
+-		{
++		if (GET_TEAM(kData.eOtherPlayer).isVassal(TEAMID(kData.ePlayer)))
+ 			return false;
+-		}
+ 	} // <advc.178>
+ 	else if(kVote.isVictory() && !GC.getGame().isDiploVictoryValid())
+ 		return false; // </advc.178>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d72c13b24..db7412414 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16264,7 +16264,7 @@ void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eIndex, int iChange,
+ 	{
+ 		CvTeamAI& t = GET_TEAM((TeamTypes)iI);
+ 		if(t.getID() != TEAMID(eIndex) && t.isAlive() &&
+-			(eMaster == NO_TEAM || t.getID() != TEAMID(eMaster)) &&
++			(eMaster == NO_PLAYER || t.getID() != TEAMID(eMaster)) &&
+ 			t.isHasMet(TEAMID(eIndex))) // unoffical patch bugfix, by Sephi.
+ 		{
+ 			// <advc.130p>
+@@ -25978,8 +25978,8 @@ bool CvPlayerAI::AI_atWarWithPartner(TeamTypes eOtherTeam, bool bCheckPartnerAtt
+ 	keep at CvPlayerAI. */
+ bool CvPlayerAI::AI_disapprovesOfDoW(TeamTypes eAggressor, TeamTypes eVictim) const
+ {
+-	if(!isAlive() || isBarbarian() || isMinorCiv() || eAggressor == getID() ||
+-			eVictim == getID())
++	if(!isAlive() || isBarbarian() || isMinorCiv() || eAggressor == getTeam() ||
++			eVictim == getTeam())
+ 		return false;
+ 	CvTeamAI const& kAggressor = GET_TEAM(eAggressor);
+ 	if(!kAggressor.isAlive() || kAggressor.isBarbarian() || kAggressor.isMinorCiv())
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 16c851614..c55968db5 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -903,7 +903,7 @@ void RiseFall::prepareForExtendedGame() {
+ 	}
+ 	else if(interludeCountdown < 0) {
+ 		// Score the current chapter b/c it's not counted under finished unscored
+-		if(g.getWinner() != chapters[pos]->getCiv())
++		if(g.getWinner() != TEAMID(chapters[pos]->getCiv()))
+ 			chapters[pos]->score();
+ 		riseScore.freezeTotal(chapters);
+ 		chapters[pos]->setEndless(true);
+@@ -1335,8 +1335,8 @@ bool RiseFall::isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const
+ 			node != NULL; node = humanReceives.next(node)) {
+ 		if(node->m_data.m_eItemType == TRADE_WAR) {
+ 			TeamTypes targetId = (TeamTypes)node->m_data.m_iData;
+-			if(targetId == NO_PLAYER) {
+-				FAssert(targetId != NO_PLAYER);
++			if(targetId == NO_TEAM) {
++				FAssert(targetId != NO_TEAM);
+ 				return false;
+ 			}
+ 			if(/*GET_TEAM(targetId).AI_getWarSuccess(human.getTeam()) >
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 1183acf80..4e943fdac 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1078,7 +1078,7 @@ void UWAICache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId) {
+ void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& sponsorship,
+ 		PlayerTypes sponsorId, TeamTypes targetId) {
+ 
+-	if(targetId == NO_TEAM || sponsorId == NO_TEAM) {
++	if(targetId == NO_TEAM || sponsorId == NO_PLAYER) {
+ 		FAssert(false);
+ 		return;
+ 	}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 1b2d91fbe..637c1e8dc 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1883,7 +1883,7 @@ void PreEmptiveWar::evaluate() {
+ 			/*  Ignore cities that their side gains from our human target
+ 				(to avoid dogpiling on human) */
+ 			TeamTypes targetId = params.targetId();
+-			if(targetId != NO_TEAM && targetId != theyId && GET_TEAM(targetId).isHuman()) {
++			if(targetId != NO_TEAM && targetId != TEAMID(theyId) && GET_TEAM(targetId).isHuman()) {
+ 				CitySet const& conq = m->conqueredCities(civ.getID());
+ 				for(CitySetIter it = conq.begin(); it != conq.end(); it++) {
+ 					CvCity* c = UWAICache::City::cityById(*it);
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=9263

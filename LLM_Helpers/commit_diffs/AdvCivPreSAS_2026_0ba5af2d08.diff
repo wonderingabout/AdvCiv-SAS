@@ -1,0 +1,829 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2026
+# Commit: 0ba5af2d0854d8a1692d577ac275eb701e87df3d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 781cf22c9a7117d9655e64708202a0c925bc5d37
+# Title: XML option for penalty on "ground-breaking" research
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+42	21	Assets/XML/GameInfo/CIV4EraInfos.xml
+16	4	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+28	0	Assets/XML/TechDiffusion_GlobalDefines.xml
+10	0	Assets/XML/Text/CIV4GameText_advc.xml
+15	6	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGame.h
+0	1	CvGameCoreDLL/CvGameAI.h
+1	0	CvGameCoreDLL/CvGameCoreDLL.h
+33	17	CvGameCoreDLL/CvGameTextMgr.cpp
+4	0	CvGameCoreDLL/CvGlobals.h
+11	2	CvGameCoreDLL/CvInfo_GameOption.cpp
+23	1	CvGameCoreDLL/CvInfo_GameOption.h
+1	1	CvGameCoreDLL/CvInfo_Tech.h
+64	60	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+3	2	CvGameCoreDLL/CvTeam.cpp
+0	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	2	CvGameCoreDLL/ScaledInt.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4EraInfos.xml b/Assets/XML/GameInfo/CIV4EraInfos.xml
+index f471d5970..0757eaedd 100644
+--- a/Assets/XML/GameInfo/CIV4EraInfos.xml
++++ b/Assets/XML/GameInfo/CIV4EraInfos.xml
+@@ -37,9 +37,11 @@
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iResearchPercent>100</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era. Default: 0 -->
++			<!-- BBAI: -->
+ 			<iTechCostModifier>0</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr (note): No point in a ground-breaking penalty
++				 for the Ancient era because the DLL doesn't apply it in
++				 the game's start era. -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+ 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+@@ -93,10 +95,12 @@
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iResearchPercent>90</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 0 -->
+-			<!-- advc.910 -->
++			<!-- advc.910: was 0 in K-Mod and BBAI -->
+ 			<iTechCostModifier>-11</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr: start -->
++			<iAIMaxGroundbreakingPenalty>0</iAIMaxGroundbreakingPenalty>
++			<iHumanMaxGroundbreakingPenalty>0</iHumanMaxGroundbreakingPenalty>
++			<!-- advc.groundbr: end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+ 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+@@ -167,10 +171,13 @@
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iResearchPercent>80</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 4 -->
+-			<!-- advc.910: was 6 in K-Mod -->
++			<!-- advc.910: Was 6 in K-Mod, 4 in BBAI. -->
+ 			<iTechCostModifier>-5</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr: start -->
++			<iAIMaxGroundbreakingPenalty>15</iAIMaxGroundbreakingPenalty>
++			<!-- 20 in DoC -->
++			<iHumanMaxGroundbreakingPenalty>15</iHumanMaxGroundbreakingPenalty>
++			<!-- advc.groundbr: end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+ 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+@@ -243,10 +250,13 @@
+ 			<iConstructPercent>90</iConstructPercent>
+ 			<iCreatePercent>90</iCreatePercent>
+ 			<iResearchPercent>70</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 9 -->
+-			<!-- advc.910: was 12 in K-Mod -->
++			<!-- advc.910: Was 12 in K-Mod, 9 in BBAI. -->
+ 			<iTechCostModifier>11</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr: start -->
++			<iAIMaxGroundbreakingPenalty>25</iAIMaxGroundbreakingPenalty>
++			<!-- as in DoC -->
++			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
++			<!-- advc.groundbr: end -->
+ 			<iBuildPercent>90</iBuildPercent>
+ 			<iImprovementPercent>90</iImprovementPercent>
+ 			<!-- advc.126: was 90 -->
+@@ -318,10 +328,13 @@
+ 			<iConstructPercent>80</iConstructPercent>
+ 			<iCreatePercent>80</iCreatePercent>
+ 			<iResearchPercent>60</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 14 -->
+-			<!-- advc.910: 16 in K-Mod -->
++			<!-- advc.910: Was 16 in K-Mod, 14 in BBAI. -->
+ 			<iTechCostModifier>14</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr: start -->
++			<iAIMaxGroundbreakingPenalty>35</iAIMaxGroundbreakingPenalty>
++			<!-- 30 in DoC -->
++			<iHumanMaxGroundbreakingPenalty>35</iHumanMaxGroundbreakingPenalty>
++			<!-- advc.groundbr: end -->
+ 			<iBuildPercent>80</iBuildPercent>
+ 			<iImprovementPercent>80</iImprovementPercent>
+ 			<!-- advc.126: was 80 -->
+@@ -390,10 +403,14 @@
+ 			<iConstructPercent>70</iConstructPercent>
+ 			<iCreatePercent>70</iCreatePercent>
+ 			<iResearchPercent>50</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
+-			<!-- advc.910: was 20 in K-Mod -->
++			<!-- advc.910: Was 20 in K-Mod, 18 in BBAI. -->
+ 			<iTechCostModifier>14</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr: start -->
++			<iAIMaxGroundbreakingPenalty>25</iAIMaxGroundbreakingPenalty>
++			<!-- 40 in DoC, but, that late in the game, aren't players
++				 supposed to get ahead? -->
++			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
++			<!-- advc.groundbr: end -->
+ 			<iBuildPercent>70</iBuildPercent>
+ 			<iImprovementPercent>70</iImprovementPercent>
+ 			<!-- advc.126: was 70 -->
+@@ -460,11 +477,15 @@
+ 			<iConstructPercent>60</iConstructPercent>
+ 			<iCreatePercent>60</iCreatePercent>
+ 			<iResearchPercent>40</iResearchPercent>
+-			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
+-			<!-- advc.910: 18 in K-Mod. The historical time line is less of a
+-				 concern here, and faster Space victory plays better. -->
++			<!-- advc.910: Was 18 in K-Mod and BBAI. The historical time line is
++				 less of a concern here, and faster Space victory plays better. -->
+ 			<iTechCostModifier>7</iTechCostModifier>
+-			<!-- BBAI end -->
++			<!-- advc.groundbr: start -->
++			<iAIMaxGroundbreakingPenalty>0</iAIMaxGroundbreakingPenalty>
++			<!-- 50 in DoC; perhaps that makes sense with DoC's additional;
++				 late-game content. -->
++			<iHumanMaxGroundbreakingPenalty>0</iHumanMaxGroundbreakingPenalty>
++			<!-- advc.groundbr: end -->
+ 			<iBuildPercent>60</iBuildPercent>
+ 			<iImprovementPercent>60</iImprovementPercent>
+ 			<!-- advc.126: was 60 -->
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index 9259d954a..51fb81051 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -17,9 +17,17 @@
+ 	<ElementType name="iTerrainGrainChange" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iFeatureGrainChange" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iResearchPercent" content="textOnly" dt:type="int"/>
+-	<!-- BBAI start: effectively modify cost for all techs from an era. -->
++	<!-- BBAI: effectively modify cost for all techs from an era. -->
+ 	<ElementType name="iTechCostModifier" content="textOnly" dt:type="int"/>
+-	<!-- BBAI end -->
++	<!-- advc.groundbr: start -->
++	<!-- Values less than 0 haven't been tested -->
++	<!-- No effect if AI_GROUNDBREAKING_PENALTY_ENABLE is set to 0 in
++		 TechDiffusion_GlobalDefines.xml -->
++	<ElementType name="iAIMaxGroundbreakingPenalty" content="textOnly" dt:type="int"/>
++	<!-- No effect if HUMAN_GROUNDBREAKING_PENALTY_ENABLE is set to 0 in
++		 TechDiffusion_GlobalDefines.xml -->
++	<ElementType name="iHumanMaxGroundbreakingPenalty" content="textOnly" dt:type="int"/>
++	<!-- advc.groundbr: end -->
+ 	<ElementType name="iTradeProfitPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDistanceMaintenancePercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iNumCitiesMaintenancePercent" content="textOnly" dt:type="int"/>
+@@ -1126,9 +1134,13 @@
+ 		<element type="iConstructPercent"/>
+ 		<element type="iCreatePercent"/>
+ 		<element type="iResearchPercent"/>
+-		<!-- BBAI start: effectively modify cost for all techs from an era. -->
++		<!-- BBAI: Set to 0 by default in the DLL -->
+ 		<element type="iTechCostModifier" minOccurs="0"/>
+-		<!-- BBAI end -->
++		<!-- advc.groundbr: start -->
++		<!-- Both optional; set to 0 by default in the DLL -->
++		<element type="iAIMaxGroundbreakingPenalty" minOccurs="0"/>
++		<element type="iHumanMaxGroundbreakingPenalty" minOccurs="0"/>
++		<!-- advc.groundbr: end -->
+ 		<element type="iBuildPercent"/>
+ 		<element type="iImprovementPercent"/>
+ 		<element type="iGreatPeoplePercent"/>
+
+diff --git a/Assets/XML/TechDiffusion_GlobalDefines.xml b/Assets/XML/TechDiffusion_GlobalDefines.xml
+index 89bc0091e..8604970fd 100644
+--- a/Assets/XML/TechDiffusion_GlobalDefines.xml
++++ b/Assets/XML/TechDiffusion_GlobalDefines.xml
+@@ -46,4 +46,32 @@
+ 		<DefineName>TECH_COST_MODIFIER</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++
++	<!-- advc.groundbr: start -->
++	<!-- These two options are independent of TECH_DIFFUSION_ENABLE.
++		 If set to 1, then a team's research rate is decreased if relatively
++		 few players have already discovered the tech being researched.
++		 Only non-capitulated major civs count. It doesn't matter whether
++		 the researching team has met them. If no player has the tech, the
++		 full era-specific penalty defined in Civ4EraInfos.xml gets applied.
++		 If at least a quarter of the players have the tech, no penalty
++		 applies. Otherwise, the penalty scales proportionally with he number
++		 of players that have the tech.
++		 0 (AdvCiv default) disables these ground-breaking penalties.
++		 Note: When a ground-breaking penalty coincides with a bonus from tech
++		 diffusion, only the sum of the two modifiers is shown by the UI. -->
++	<Define>
++		<!-- Groundbreaking penalties for AI teams.
++			 If enabled, the DLL will also apply an era-specific
++			 normalization factor (based on the penalty associated with the
++			 tech's era) to the tech costs of all teams. -->
++		<DefineName>AI_GROUNDBREAKING_PENALTY_ENABLE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<!-- Groundbreaking penalties for human teams -->
++		<DefineName>HUMAN_GROUNDBREAKING_PENALTY_ENABLE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- advc.groundbr: end -->
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index cb899818f..30a08c437 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5172,6 +5172,16 @@
+ 		<Spanish>por miembro del equipo con misma investigaci�n</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.groundbr -->
++	<TEXT>
++		<Tag>TXT_KEY_RESEARCH_MODIFIER_GROUNDBREAKING</Tag>
++		<English>from breaking new ground</English>
++		<French>from breaking new ground</French>
++		<German>durch technologisches Neuland</German>
++		<Italian>from breaking new ground</Italian>
++		<Spanish>from breaking new ground</Spanish>
++	</TEXT>
++
+ 	<!-- dlph.7 (advc): From CIV4GameText_BTS.xml. Was "Cannot Nuke Friendly
+ 		 Territory or Units" - that's still true, but units don't prevent
+ 		 players from firing nukes, which is what matters in this context.
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 7cd8f7ac1..c3515d68b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3588,9 +3588,7 @@ int CvGame::victoryDelay(VictoryTypes eVictory) const
+ 
+ int CvGame::getImprovementUpgradeTime(ImprovementTypes eImprovement) const
+ {
+-	int iTime;
+-
+-	iTime = GC.getInfo(eImprovement).getUpgradeTime();
++	int iTime = GC.getInfo(eImprovement).getUpgradeTime();
+ 
+ 	iTime *= GC.getInfo(getGameSpeedType()).getImprovementPercent();
+ 	iTime /= 100;
+@@ -3651,14 +3649,25 @@ EraTypes CvGame::getCurrentEra() const
+ 	return NO_ERA;
+ }
+ 
+-// <advc>
++// advc:
+ EraTypes CvGame::getHighestEra() const
+ {
+ 	EraTypes r = NO_ERA;
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		r = (EraTypes)std::max<int>(r, it->getCurrentEra());
+ 	return r;
+-} // </advc>
++}
++
++// advc.groundbr: Normalize tech costs when groundbreaking penalties are enabled
++scaled CvGame::groundbreakingNormalizationModifier(TechTypes eTech) const
++{
++	if (!GC.getDefineBOOL(CvGlobals::AI_GROUNDBREAKING_PENALTY_ENABLE))
++		return 0;
++	EraTypes const eTechEra = GC.getInfo(eTech).getEra();
++	if (eTechEra <= GC.getGame().getStartEra())
++		return 0;
++	return -per100(GC.getInfo(eTechEra).get(CvEraInfo::AIMaxGroundbreakingPenalty)) / 4;
++}
+ 
+ 
+ TeamTypes CvGame::getActiveTeam() const
+@@ -7642,7 +7651,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& a)
+ 		if (eAndTech != NO_TECH)
+ 			iUnitEra = GC.getInfo(eAndTech).getEra();
+ 		if (eAndBonusTech != NO_TECH)
+-			iUnitEra = std::max(iUnitEra, GC.getInfo(eAndBonusTech).getEra());
++			iUnitEra = std::max<int>(iUnitEra, GC.getInfo(eAndBonusTech).getEra());
+ 		if (iUnitEra + 1 < getCurrentEra())
+ 			continue; // </advc.301>
+ 		bool bFound = false;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index b21306a73..93c4d4a85 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -173,6 +173,7 @@ public:
+ 	bool canTrainNukes() const;																		// Exposed to Python
+ 	EraTypes getCurrentEra() const;														// Exposed to Python
+ 	EraTypes getHighestEra() const; // advc
++	scaled groundbreakingNormalizationModifier(TechTypes eTech) const; // advc.groundbr
+ 
+ 	DllExport TeamTypes getActiveTeam() const;																		// Exposed to Python
+ 	CivilizationTypes getActiveCivilizationType() const;								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameAI.h b/CvGameCoreDLL/CvGameAI.h
+index 4e8b4461f..fe4de9ea2 100644
+--- a/CvGameCoreDLL/CvGameAI.h
++++ b/CvGameCoreDLL/CvGameAI.h
+@@ -5,7 +5,6 @@
+ 
+ #include "CvGame.h"
+ #include "UWAI.h" // advc.104
+-#include "ScaledInt.h" // advc.tmp (Move to precompiled header eventually)
+ 
+ 
+ class CvGameAI : public CvGame
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index b87549535..bbe02372d 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -276,6 +276,7 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ // advc.make: Removed most of these. (Don't know what the comment above means.)
+ #include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
++#include "ScaledInt.h"
+ #include "CvGlobals.h"
+ #include "EnumMap2D.h" // advc.enum: Includes EnumMap.h, which includes BitUtil.h.
+ #include "CvPythonCaller.h" // advc.003y
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 170115abf..cadc25397 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9155,14 +9155,17 @@ void CvGameTextMgr::setResearchModifierHelp(CvWStringBuffer& szBuffer, TechTypes
+ 	iFromOtherKnown = iFromPaths = iFromTeam = 0;
+ 	int iMod = GET_PLAYER(GC.getGame().getActivePlayer()).
+ 			calculateResearchModifier(eTech, &iFromOtherKnown, &iFromPaths, &iFromTeam) - 100;
++	// <advc.groundbr>
++	int iFromGroundbreaking = -GET_PLAYER(GC.getGame().getActivePlayer()).
++			groundbreakingPenalty(eTech); // </advc.groundbr>
+ 	int iNonZero = 0;
+-	if(iFromOtherKnown != 0)
++	if (iFromOtherKnown != 0 || iFromGroundbreaking != 0)
+ 		iNonZero++;
+-	if(iFromPaths != 0)
++	if (iFromPaths != 0)
+ 		iNonZero++;
+-	if(iFromTeam != 0)
++	if (iFromTeam != 0)
+ 		iNonZero++;
+-	if(iNonZero > 0)
++	if (iNonZero > 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		char const* szPos = "COLOR_POSITIVE_TEXT";
+@@ -9171,22 +9174,35 @@ void CvGameTextMgr::setResearchModifierHelp(CvWStringBuffer& szBuffer, TechTypes
+ 		szBuffer.append(gDLL->getText("TXT_KEY_RESEARCH_MODIFIER"));
+ 		szBuffer.append(CvWString::format(L": " SETCOLR L"%s%d%%" ENDCOLR,
+ 				TEXT_COLOR(iMod > 0 ? szPos : szNeg), iMod > 0 ? L"+" : L"", iMod));
+-		if(iFromOtherKnown != 0)
++		// <advc.groundbr> Show only either tech diffusion or the ground-breaking penalty
++		if (iFromOtherKnown + iFromGroundbreaking != 0)
+ 		{
+-			if(iNonZero == 1)
++			bool const bShowOtherKnown = (iFromOtherKnown + iFromGroundbreaking > 0);
++			if (iNonZero == 1)
+ 				szBuffer.append(L" ");
+ 			else
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(CvWString::format(L"%c" SETCOLR L"%d%% " ENDCOLR,
+-					iBullet, TEXT_COLOR(iFromOtherKnown > 0 ? szPos : szNeg),
+-					iFromOtherKnown));
++				if (bShowOtherKnown)
++				{
++					szBuffer.append(CvWString::format(L"%c" SETCOLR L"%d%% " ENDCOLR,
++							iBullet, TEXT_COLOR(iFromOtherKnown > 0 ? szPos : szNeg),
++							iFromOtherKnown));
++				}
++				else
++				{
++					szBuffer.append(CvWString::format(L"%c" SETCOLR L"%d%% " ENDCOLR,
++							iBullet, TEXT_COLOR(iFromGroundbreaking > 0 ? szPos : szNeg),
++							iFromGroundbreaking));
++				}
+ 			}
+-			szBuffer.append(gDLL->getText("TXT_KEY_RESEARCH_MODIFIER_OTHER_KNOWN"));
+-		}
+-		if(iFromPaths != 0)
++			if (bShowOtherKnown)
++				szBuffer.append(gDLL->getText("TXT_KEY_RESEARCH_MODIFIER_OTHER_KNOWN"));
++			else szBuffer.append(gDLL->getText("TXT_KEY_RESEARCH_MODIFIER_GROUNDBREAKING"));
++		} // </advc.groundbr>
++		if (iFromPaths != 0)
+ 		{
+-			if(iNonZero == 1)
++			if (iNonZero == 1)
+ 				szBuffer.append(L" ");
+ 			else
+ 			{
+@@ -9197,9 +9213,9 @@ void CvGameTextMgr::setResearchModifierHelp(CvWStringBuffer& szBuffer, TechTypes
+ 			}
+ 			szBuffer.append(gDLL->getText("TXT_KEY_RESEARCH_MODIFIER_PATHS"));
+ 		}
+-		if(iFromTeam != 0)
++		if (iFromTeam != 0)
+ 		{
+-			if(iNonZero == 1)
++			if (iNonZero == 1)
+ 				szBuffer.append(L" ");
+ 			else
+ 			{
+@@ -9209,9 +9225,9 @@ void CvGameTextMgr::setResearchModifierHelp(CvWStringBuffer& szBuffer, TechTypes
+ 					iFromTeam));
+ 			}
+ 			szBuffer.append(gDLL->getText("TXT_KEY_RESEARCH_MODIFIER_TEAM"));
+-		}
++		} // </advc.910>
+ 	}
+-} // </advc.910>
++}
+ 
+ 
+ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText)
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 48b0959d4..425e22472 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -444,6 +444,10 @@ public:
+ 		/* </advc.148> */ \
+ 		DO(MINIMAP_RENDER_SIZE) /* advc.106m */ \
+ 		DO(CAN_TRAIN_CHECKS_AIR_UNIT_CAP) /* advc.001b */ \
++		/* <advc.groundbr> */ \
++		DO(AI_GROUNDBREAKING_PENALTY_ENABLE) \
++		DO(HUMAN_GROUNDBREAKING_PENALTY_ENABLE) \
++		/* </advc.groundbr> */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index f4fd708a6..6c0d74400 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -203,10 +203,19 @@ int CvEraInfo::getCitySoundscapeScriptId(int i) const
+ 	FAssertBounds(0, NUM_CITYSIZE_TYPES, i); // advc: Check for upper bound added
+ 	return m_paiCitySoundscapeScriptIds ? m_paiCitySoundscapeScriptIds[i] : 0; // advc.003t
+ }
++// <advc.tag>
++void CvEraInfo::addElements(std::vector<XMLElement*>& r) const
++{
++	CvXMLInfo::addElements(r);
++	// <advc.groundbr>
++	r.push_back(new IntElement(AIMaxGroundbreakingPenalty, "AIMaxGroundbreakingPenalty", 0));
++	r.push_back(new IntElement(HumanMaxGroundbreakingPenalty, "HumanMaxGroundbreakingPenalty", 0));
++	// </advc.groundbr>
++} // </advc.tag>
+ 
+ bool CvEraInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!CvXMLInfo::read(pXML))
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bNoGoodies, "bNoGoodies");
+@@ -227,7 +236,7 @@ bool CvEraInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iCreatePercent, "iCreatePercent");
+ 	pXML->GetChildXmlValByName(&m_iResearchPercent, "iResearchPercent");
+ 	// BETTER_BTS_AI_MOD, Tech Diffusion, 08/21/09, jdog5000:
+-	pXML->GetChildXmlValByName(&m_iTechCostModifier, "iTechCostModifier");
++	pXML->GetChildXmlValByName(&m_iTechCostModifier, "iTechCostModifier", 0);
+ 	pXML->GetChildXmlValByName(&m_iBuildPercent, "iBuildPercent");
+ 	pXML->GetChildXmlValByName(&m_iImprovementPercent, "iImprovementPercent");
+ 	pXML->GetChildXmlValByName(&m_iGreatPeoplePercent, "iGreatPeoplePercent");
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index fec9d915d..9b4c90dec 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -47,11 +47,31 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvEraInfo - Used to manage different types of Art Styles
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvEraInfo : public CvInfoBase
++class CvEraInfo :  /* advc.tag: */ public CvXMLInfo
+ {
+ public: // All the const functions are exposed to Python except those added by mods
+ 	CvEraInfo();
+ 	~CvEraInfo();
++	// <advc.tag>
++	enum IntElementTypes
++	{	// <advc.groundbr>
++		AIMaxGroundbreakingPenalty = CvXMLInfo::NUM_INT_ELEMENT_TYPES,
++		HumanMaxGroundbreakingPenalty, // </advc.groundbr>
++		NUM_INT_ELEMENT_TYPES
++	};
++	enum BoolElementTypes // unused so far
++	{
++		NUM_BOOL_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
++	};
++	using CvXMLInfo::get; // unhide
++	__forceinline int get(IntElementTypes e) const
++	{
++		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
++	}
++	__forceinline int get(BoolElementTypes e) const
++	{
++		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
++	} // </advc.tag>
+ 
+ 	int getStartingUnitMultiplier() const;
+ 	int getStartingDefenseUnits() const;
+@@ -125,6 +145,8 @@ protected:
+ 
+ 	int* m_paiSoundtracks;
+ 	int* m_paiCitySoundscapeScriptIds;
++
++	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index 019ef07ab..944c20036 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -18,7 +18,7 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	inline int getResearchCost() const { return m_iResearchCost; }
+ 	int getAdvancedStartCost() const;
+ 	int getAdvancedStartCostIncrease() const;
+-	inline int getEra() const { return m_iEra; }
++	inline EraTypes getEra() const { return (EraTypes)m_iEra; }
+ 	inline int getTradeRoutes() const { return m_iTradeRoutes; }
+ 	inline int getFeatureProductionModifier() const { return m_iFeatureProductionModifier; }
+ 	inline int getWorkerSpeedModifier() const { return m_iWorkerSpeedModifier; }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9d7eddea2..a31a7bb9e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6375,7 +6375,7 @@ int CvPlayer::calculateInflatedCosts() const
+ 	return iNetGold;
+ }*/
+ 
+-int CvPlayer::calculateResearchModifier(TechTypes eTech, // <advc.910>
++int CvPlayer::calculateResearchModifier(TechTypes eTech,  // <advc.910>
+ 		int* piFromOtherKnown, int* piFromPaths, int* piFromTeam) const
+ {
+ 	// So that the caller isn't required to provide the pointer params
+@@ -6396,71 +6396,48 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech, // <advc.910>
+ 	static bool const bTECH_DIFFUSION_ENABLE = GC.getDefineBOOL("TECH_DIFFUSION_ENABLE");
+ 	if (bTECH_DIFFUSION_ENABLE)
+ 	{
+-		double knownExp = 0.0;
++		scaled rKnownExp; // advc: BBAI had used floating-point math
+ 		// Tech flows better through open borders
+-		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		for (TeamIter<CIV_ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
+ 		{
+-			if (GET_TEAM((TeamTypes)iI).isAlive())
+-			{
+-				if (GET_TEAM((TeamTypes)iI).isHasTech(eTech))
+-				{
+-					if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
+-					{
+-						knownExp += 0.5;
+-
+-						if (GET_TEAM(getTeam()).isOpenBorders((TeamTypes)iI) || GET_TEAM((TeamTypes)iI).isVassal(getTeam()))
+-						{
+-							knownExp += 1.5;
+-						}
+-						else if (GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) || GET_TEAM(getTeam()).isVassal((TeamTypes)iI))
+-						{
+-							knownExp += 0.5;
+-						}
+-					}
+-				}
+-			}
++			CvTeam const& kTechTeam = *it;
++			if (!kTechTeam.isHasTech(eTech))
++				continue;
++			rKnownExp += fixp(0.5);
++			if (GET_TEAM(getTeam()).isFriendlyTerritory(kTechTeam.getID()))
++				rKnownExp += fixp(1.5);
++			else if (kTechTeam.isAtWar(getTeam()) || GET_TEAM(getTeam()).isVassal(kTechTeam.getID()))
++				rKnownExp += fixp(0.5);
+ 		}
+ 		static int const iTechDiffMod = GC.getDefineINT("TECH_DIFFUSION_KNOWN_TEAM_MODIFIER", 30);
+-		if (knownExp > 0.0)
++		if (rKnownExp > 0)
+ 		{
+ 			*piFromOtherKnown += // advc.910
+-					iTechDiffMod - (int)(iTechDiffMod * pow(0.85, knownExp) + 0.5);
++					iTechDiffMod - (iTechDiffMod * fixp(0.85).pow(rKnownExp)).round();
+ 		}
+ 		// Tech flows downhill to those who are far behind
+ 		int iTechScorePercent = GET_TEAM(getTeam()).getBestKnownTechScorePercent();
+ 		static int const iWelfareThreshold = GC.getDefineINT("TECH_DIFFUSION_WELFARE_THRESHOLD", 88);
+ 		if (iTechScorePercent < iWelfareThreshold)
+ 		{
+-			if (knownExp > 0.0)
++			if (rKnownExp > 0)
+ 			{
+ 				static int const iWelfareModifier = GC.getDefineINT("TECH_DIFFUSION_WELFARE_MODIFIER", 30);
+ 				*piFromOtherKnown += // advc.910
+ 						(iWelfareModifier * GC.getGame().getCurrentEra() *
+-						(iWelfareThreshold - iTechScorePercent))/200;
++						(iWelfareThreshold - iTechScorePercent)) / 200;
+ 			}
+ 		}
+ 	}
+ 	else
+-	{
+-		// Default BTS code
++	{	// BtS tech diffusion
+ 		int iKnownCount = 0;
+-		int iPossibleKnownCount = 0;
+-		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		for (TeamIter<CIV_ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
+ 		{
+-			if (GET_TEAM((TeamTypes)iI).isAlive())
+-			{
+-				if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
+-				{
+-					if (GET_TEAM((TeamTypes)iI).isHasTech(eTech))
+-					{
+-						iKnownCount++;
+-					}
+-				}
+-
+-				iPossibleKnownCount++;
+-			}
++			if (it->isHasTech(eTech))
++				iKnownCount++;
+ 		}
+-
++		int const iPossibleKnownCount = TeamIter<CIV_ALIVE>::count();
+ 		if (iPossibleKnownCount > 0)
+ 		{
+ 			static int iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER = GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER"); // advc.opt
+@@ -6472,40 +6449,32 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech, // <advc.910>
+ 
+ 	int iPossiblePaths = 0;
+ 	int iUnknownPaths = 0;
+-	for (int iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
+-	{	// advc:
+-		TechTypes eOrTech = (TechTypes)GC.getInfo(eTech).getPrereqOrTechs(iI);
++	for (int i = 0; i < GC.getNUM_OR_TECH_PREREQS(); i++)
++	{
++		TechTypes eOrTech = (TechTypes)GC.getInfo(eTech).getPrereqOrTechs(i); // advc
+ 		if (eOrTech != NO_TECH)
+ 		{
+ 			if (!GET_TEAM(getTeam()).isHasTech(eOrTech))
+-			{
+ 				iUnknownPaths++;
+-			}
+-
+ 			iPossiblePaths++;
+ 		}
+ 	}
+-
+-	FAssertMsg(iPossiblePaths >= iUnknownPaths, "The number of possible paths is expected to match or exceed the number of unknown ones");
+-
++	FAssert(iPossiblePaths >= iUnknownPaths);
+ 	if(iPossiblePaths > iUnknownPaths)
+ 	{
+ 		*piFromPaths += // advc.910
+ 				GC.getDefineINT(CvGlobals::TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER);
+ 		iPossiblePaths--;
+-		*piFromPaths +=
+-			(iPossiblePaths - iUnknownPaths) * GC.getDefineINT(CvGlobals::TECH_COST_KNOWN_PREREQ_MODIFIER);
++		*piFromPaths += (iPossiblePaths - iUnknownPaths) *
++				GC.getDefineINT(CvGlobals::TECH_COST_KNOWN_PREREQ_MODIFIER);
+ 	}
+ 	// BETTER_BTS_AI_MOD: END
+ 	iModifier += *piFromPaths;
+ 	// <advc.156>
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++	for (MemberIter it(getTeam()); it.hasNext(); ++it)
+ 	{
+-		if(i == getID())
+-			continue;
+-		CvPlayer const& kMember = GET_PLAYER((PlayerTypes)i);
+-		if(kMember.isAlive() && kMember.getTeam() == getTeam() &&
+-				kMember.getCurrentResearch() == eTech)
++		CvPlayer const& kMember = *it;
++		if (kMember.getID() != getID() && kMember.getCurrentResearch() == eTech)
+ 		{
+ 			*piFromTeam = // advc.910
+ 					GC.getDefineINT(CvGlobals::RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER); // advc.210
+@@ -6514,6 +6483,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech, // <advc.910>
+ 	}
+ 	iModifier += *piFromTeam; // advc.910
+ 	// </advc.156>
++	iModifier -= groundbreakingPenalty(eTech); // advc.groundbr
+ 	return iModifier;
+ }
+ 
+@@ -6525,6 +6495,40 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech, // <advc.910>
+ 	return (((GC.getDefineINT("BASE_RESEARCH_RATE") + getCommerceRate(COMMERCE_RESEARCH)) * calculateResearchModifier(eResearchTech)) / 100);
+ } */
+ 
++// advc.groundbr: Loosely based on CvTeam::getSpreadResearchModifier in DoC
++int CvPlayer::groundbreakingPenalty(TechTypes eTech) const
++{
++	bool const bAIEnable = GC.getDefineBOOL(CvGlobals::AI_GROUNDBREAKING_PENALTY_ENABLE);
++	bool const bHumanEnable = GC.getDefineBOOL(CvGlobals::HUMAN_GROUNDBREAKING_PENALTY_ENABLE);
++	if (isHuman() ? !bHumanEnable : !bAIEnable)
++		return 0;
++	EraTypes const eCurrentEra = getCurrentEra();
++	EraTypes const eStartEra = GC.getGame().getStartEra();
++	if (eCurrentEra <= eStartEra)
++		return 0;
++	int iMaxPenalty = GC.getInfo(eCurrentEra).get(isHuman() ?
++			CvEraInfo::HumanMaxGroundbreakingPenalty :
++			CvEraInfo::AIMaxGroundbreakingPenalty);
++	if (iMaxPenalty == 0)
++		return 0;
++	// For comments see TechDiffusion_GlobalDefines.xml or the original code (DoC mod)
++	int iTotal = 0;
++	int iHasTech = 0;
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	{
++		CvTeam const& kLoopTeam = GET_TEAM(it->getTeam());
++		if (kLoopTeam.isCapitulated())
++			continue;
++		iTotal++;
++		if (kLoopTeam.isHasTech(eTech))
++			iHasTech++;
++	}
++	scaled const rPercentile(iTotal, 4); // quartile
++	if (iHasTech >= rPercentile)
++		return 0;
++	return (iMaxPenalty * (rPercentile - iHasTech) / rPercentile).round();
++}
++
+ 
+ int CvPlayer::calculateGoldRate() const
+ {	/*int iRate = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 80515cf83..1a964df5a 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1512,6 +1512,7 @@ protected:  // <advc.210>
+ 
+ 	//void doUpdateCacheOnTurn(); // advc: unused
+ 	int getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const;
++	int groundbreakingPenalty(TechTypes eTech) const; // advc.groundbr
+ 
+ 	void getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;  // used by Globeview trade layer
+ 	void getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;  // used by Globeview unit layer
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a1a69c8aa..a82205ff3 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2112,10 +2112,11 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 	static int const iTECH_COST_MODIFIER = GC.getDefineINT("TECH_COST_MODIFIER");
+ 	rModifier += per100(iTECH_COST_MODIFIER);
+ 	// </advc.910>
++	rModifier += GC.getGame().groundbreakingNormalizationModifier(eTech); // advc.groundbr
+ 	if (bGlobalModifiers) // K-Mod
+-	{	// advc:
++	{
+ 		CvWorldInfo const& kWorld = GC.getInfo(GC.getMap().getWorldSize());
+-		if(eTechEra > 0) // advc.910
++		if (eTechEra > 0) // advc.910
+ 		{
+ 			rCost *= per100(kWorld.getResearchPercent());
+ 			// <advc.910>
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 3ada98a7f..030019402 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -9,7 +9,6 @@
+ #include "CvInfo_All.h"
+ #include "CvGameAI.h" // advc.104x
+ #include "FVariableSystem.h"
+-#include "ScaledInt.h" // advc.tmp: Move to precompiled header once the code has matured a bit
+ // <advc> Overwrite the definition in CvGlobals.h b/c a const GC is no use here
+ #undef GC
+ #define GC CvGlobals::getInstance() // </advc>
+
+diff --git a/CvGameCoreDLL/ScaledInt.h b/CvGameCoreDLL/ScaledInt.h
+index 4f293d114..1e7c28a56 100644
+--- a/CvGameCoreDLL/ScaledInt.h
++++ b/CvGameCoreDLL/ScaledInt.h
+@@ -6,8 +6,7 @@
+ /*	advc.fract: Header-only classes for fixed-point fractional numbers.
+ 	Working -- but still work in progress. */
+ 
+-// Large lookup table, but ScaledInt.h will eventually be precompiled.
+-#include "FixedPointPowTables.h"
++#include "FixedPointPowTables.h" // Large lookup table, but ScaledInt.h gets precompiled.
+ #include "TypeChoice.h"
+ /*	Other non-BtS dependencies: ROUND_DIVIDE and round in CvGameCoreUtils.h.
+ 	(Tbd.: Move those global functions here.)
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=31505

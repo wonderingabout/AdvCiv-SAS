@@ -1,0 +1,106 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2992
+# Commit: 0a5ce621be719262a56bf77347bd451e596ede44
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0e823295637834c629b7bafb96af393053b89e7d
+# Title: Fix Hurry button hover text during disorder
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/Text/CIV4GameText_advc.xml
+3	1	CvGameCoreDLL/CvCity.cpp
+9	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 059bdcf29..dcf935396 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5745,6 +5745,16 @@
+ 		<Italian>[COLOR_WARNING_TEXT]Non pu� velocizzare perch� c'� gi� abbastanza [ICON_PRODUCTION] per finire la produzione.[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]No se puede acelerar porque ya hay suficiente [ICON_PRODUCTION] para terminar la producci�n.[COLOR_REVERT]</Spanish>
+ 	</TEXT>
++	<!-- Translations based on TXT_KEY_EVENT_REVOLT_TURNS
++		 (Civ4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DISORDER_BLOCKS_HURRY</Tag>
++		<English>[COLOR_WARNING_TEXT]Can't hurry during disorder[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]On ne peut pas acc�l�rer pendant des �meutes[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Beschleunigung w�hrend Unruhen nicht m�glich[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Non pu� velocizzare durante i disordini[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]No se puede acelerar durante los des�rdenes[COLOR_REVERT]</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.004: From CIV4GameTextInfos.xml. The DLL passes the city name,
+ 		 but the Vanilla text didn't display it. -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2f81ebe2f..1f366becd 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2363,7 +2363,7 @@ int CvCity::getProductionDifference(int iProductionNeeded, int iProduction,
+ 	bool bIgnoreFeatureProd, bool bIgnoreYieldRate,
+ 	bool bForceFeatureProd, int* piFeatureProd) const // </advc.064bc>
+ {
+-	if (isDisorder())
++	if (isDisorder() /* advc.004x: */ && !bForceFeatureProd)
+ 		return 0;
+ 
+ 	int iFoodProduction = (bFoodProduction ?
+@@ -3923,6 +3923,8 @@ int CvCity::getHurryCost(bool bExtra, BuildingTypes eBuilding, bool bIgnoreNew)
+ int CvCity::getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, int iModifier) const
+ {
+ 	// <advc.064b>
++	if (iProductionLeft == MAX_INT)
++		return 0;
+ 	iProductionLeft -= getCurrentProductionDifference(bExtra, true, false, bExtra, true);
+ 	if(bExtra) // City yield rate uncertain if pop is sacrificed (bExtra) ...
+ 	{	// ... but city production is going to be at least 1
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 607356004..22f7872a4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1746,9 +1746,14 @@ void CvDLLWidgetData::parseHurryHelp(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ 	if (pHeadSelectedCity == NULL)
+ 		return;
+ 	CvCity const& kCity = *pHeadSelectedCity;
+-
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_MISC_HURRY_PROD", kCity.getProductionNameKey()));
+-
++	// <advc.064b>
++	if (kCity.isDisorder())
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_DISORDER_BLOCKS_HURRY"));
++		return;
++	} // </advc.064b>
+ 	HurryTypes eHurry = (HurryTypes)widgetDataStruct.m_iData1;
+ 	// advc.001: canHurry check in order to avoid (inconsequential) overflow
+ 	int const iHurryGold = (kCity.canHurry(eHurry, true) ? kCity.hurryGold(eHurry) : 0);
+@@ -1760,11 +1765,11 @@ void CvDLLWidgetData::parseHurryHelp(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ 	bool bReasonGiven = false; // advc.064b: Why we can't hurry
+ 	{
+ 		int iHurryPopulation = kCity.hurryPopulation(eHurry);
+-		if (iHurryPopulation > 0)
++		if (iHurryPopulation > 0 &&
++			kCity.hurryCost(false) > 0) // advc.004: Don't show hurry pop if no production chosen
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HURRY_POP", iHurryPopulation));
+-
+ 			if (iHurryPopulation > kCity.maxHurryPopulation())
+ 			{
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_MAX_POP_HURRY",
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3837

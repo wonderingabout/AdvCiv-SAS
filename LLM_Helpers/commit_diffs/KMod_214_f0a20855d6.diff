@@ -1,0 +1,163 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 214
+# Commit: f0a20855d672284412a5b542cb929894d6507264
+# History segment: K-Mod history
+# Parent used for diff: 5110f83b0e7b07a8c6fa53b2bc8ab84a413bdd12
+# Title: Adjusted city defender AI to further encourage the AI to send defenders to undefended cities. Added a couple of features to the city building governor. Reduc...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	15	CvGameCoreDLL/CvCityAI.cpp
+4	4	CvGameCoreDLL/CvPlayerAI.cpp
+5	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 17c20cf02..aaa16341d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10914,18 +10914,25 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 	bool bWasFoodProduction = isFoodProduction();
+ 	bool bDanger = AI_isDanger();
+ 
++	BuildingTypes eBestBuilding = AI_bestBuildingThreshold(); // go go value cache!
++	int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : AI_buildingValue(eBestBuilding);
++
+     // pop borders
+ 	if (getCultureLevel() <= (CultureLevelTypes)1 && getCommerceRate(COMMERCE_CULTURE) < 2)
+ 	{
++		const CvBuildingInfo& kBestBuilding = GC.getBuildingInfo(eBestBuilding);
++		if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0)
++		{
++			pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++			return;
++		}
++
+         if (AI_chooseProcess(COMMERCE_CULTURE))
+         {
+             return;
+         }
+ 	}
+ 	
+-	BuildingTypes eBestBuilding = AI_bestBuildingThreshold(); // go go value cache!
+-	int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : AI_buildingValue(eBestBuilding);
+-
+ 	//workboat
+ 	if (pWaterArea != NULL)
+ 	{
+@@ -10991,20 +10998,23 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		}
+ 
+ 		//spies
+-		int iNumSpies = kOwner.AI_totalAreaUnitAIs(area(), UNITAI_SPY) + kOwner.AI_getNumTrainAIUnits(UNITAI_SPY);
+-		int iNeededSpies = 2 + area()->getCitiesPerPlayer(kOwner.getID()) / 5;
+-		iNeededSpies += kOwner.getCommercePercent(COMMERCE_ESPIONAGE)/20;
+-
+-		if (iNumSpies < iNeededSpies)
++		if (!kOwner.AI_isAreaAlone(area()))
+ 		{
+-			int iOdds = 35;
+-			iOdds *= (40 + iBestBuildingValue);
+-			iOdds /= (20 + 3 * iBestBuildingValue);
+-			iOdds *= iNeededSpies;
+-			iOdds /= (4*iNumSpies+iNeededSpies);
+-			if (AI_chooseUnit(UNITAI_SPY, iOdds))
++			int iNumSpies = kOwner.AI_totalAreaUnitAIs(area(), UNITAI_SPY) + kOwner.AI_getNumTrainAIUnits(UNITAI_SPY);
++			int iNeededSpies = 2 + area()->getCitiesPerPlayer(kOwner.getID()) / 5;
++			iNeededSpies += kOwner.getCommercePercent(COMMERCE_ESPIONAGE)/20;
++
++			if (iNumSpies < iNeededSpies)
+ 			{
+-				return;
++				int iOdds = 35;
++				iOdds *= (40 + iBestBuildingValue);
++				iOdds /= (20 + 3 * iBestBuildingValue);
++				iOdds *= iNeededSpies;
++				iOdds /= (4*iNumSpies+iNeededSpies);
++				if (AI_chooseUnit(UNITAI_SPY, iOdds))
++				{
++					return;
++				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6ae8a5b51..b0324369d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6107,13 +6107,13 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 
+ 					case UNITAI_ATTACK:
+ 						iMilitaryValue += ((bWarPlan) ? 600 : 300);
+-						iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
++						iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 600 : 0); // was 800
+ 						iUnitValue += 100;
+ 						break;
+ 
+ 					case UNITAI_ATTACK_CITY:
+ 						iMilitaryValue += ((bWarPlan) ? 800 : 400);
+-						iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
++						iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 600 : 0); // was 800
+ 						if (kLoopUnit.getBombardRate() > 0)
+ 						{
+ 							iMilitaryValue += 200;
+@@ -6123,7 +6123,7 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 								iMilitaryValue += 800;
+ 								if (AI_isDoStrategy(AI_STRATEGY_DAGGER))
+ 								{
+-									iMilitaryValue += 1000;
++									iMilitaryValue += 400; // was 1000
+ 								}
+ 							}
+ 						}
+@@ -6144,7 +6144,7 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 
+ 					case UNITAI_COUNTER:
+ 						iMilitaryValue += ((bWarPlan) ? 600 : 300);
+-						iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 600 : 0);
++						iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 300 : 0); // was 600
+ 						break;
+ 
+ 					case UNITAI_PARADROP:
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f2e070973..600cefc1c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11095,7 +11095,8 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 		int iCityDefenderCount = pPlotCity->plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE());
+ 		if ((iCityDefenderCount - 1) < pPlotCity->AI_minDefenders())
+ 		{
+-			if ((iCityDefenderCount <= 2) || (GC.getGame().getSorenRandNum(5, "AI shuffle defender") != 0))
++			//if ((iCityDefenderCount <= 2) || (GC.getGame().getSorenRandNum(5, "AI shuffle defender") != 0))
++			if (iCityDefenderCount <= 1 || GC.getGame().getSorenRandNum(5, "AI shuffle defender") != 0) // K-mod
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+@@ -11140,11 +11141,13 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 						if (iDefendersHave < iDefendersNeed + 1)
+ 						{
+ 							int iPathTurns;
+-							if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
++							//if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
++							if (generatePath(pLoopCity->plot(), 0, true, &iPathTurns)) // K-Mod
+ 							{
+ 								if (iPathTurns <= 10)
+ 								{
+ 									int iValue = (iDefendersNeed - iDefendersHave) * 20;
++									iValue += iDefendersHave == 0 ? 20 : 0; // K-Mod
+ 									iValue += 2 * std::min(15, iCurrentTurn - pLoopCity->getGameTurnAcquired());
+ 									if (pLoopCity->isOccupation())
+ 									{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5639

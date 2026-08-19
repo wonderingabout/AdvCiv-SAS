@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2522
+# Commit: b30a7b658afb5fddf3443650631bba0ce4b07e85
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7e39cdb8d553ca828bda03bb76ccde7f0327a936
+# Title: Random Events again enabled by default
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+index e2aed0898..f7a875ac4 100644
+--- a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+@@ -171,12 +171,11 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc.104z: bDefault was 0 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_NO_EVENTS</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_NO_EVENTS</Description>
+ 			<Help>TXT_KEY_GAME_OPTION_NO_EVENTS_HELP</Help>
+-			<bDefault>1</bDefault>
++			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+ 		<GameOptionInfo>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=664

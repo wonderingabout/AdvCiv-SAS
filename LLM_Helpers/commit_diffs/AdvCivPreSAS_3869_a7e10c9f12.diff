@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3869
+# Commit: a7e10c9f12efa1958dc751309be16b33d99c1ba4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6aa60789733a074a2caa22067a688bad6f239050
+# Title: Two small changes to BUG menu help texts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/Text/BUG City Screen Options.xml
+2	2	Assets/XML/Text/BUG Main Interface Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/BUG City Screen Options.xml b/Assets/XML/Text/BUG City Screen Options.xml
+index e43322fd8..338c9bd62 100644
+--- a/Assets/XML/Text/BUG City Screen Options.xml	
++++ b/Assets/XML/Text/BUG City Screen Options.xml	
+@@ -93,8 +93,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__CITYSOUNDSCAPES_HOVER</Tag>
+-		<English>If checked, the music pauses while the city screen is open and urban sounds are played instead (as in BtS). If unchecked, the music continues and no urban sounds are played. However, the change in camera distance will affect the music volume. You may want to experiment with the [COLOR_HIGHLIGHT_TEXT]Default Distance[COLOR_REVERT] option and [COLOR_HIGHLIGHT_TEXT]Field of View[COLOR_REVERT] slider on the "Map" tab to get the volume right. Toggling this option doesn't take effect while the city screen is open.</English>
+-		<German>Erlaubt es, die Alltags-Ger�usche abzuschalten, die normalerweise auf dem Stadtbildschirm abgespielt werden. Stattdessen l�uft dann die Musik weiter. Allerdings wirkt sich der Kamera-Abstand auf die Musik-Lautst�rke aus; siehe dazu auch die Optionen [COLOR_HIGHLIGHT_TEXT]Standard-Abstand[COLOR_REVERT] und [COLOR_HIGHLIGHT_TEXT]Sichtfeld[COLOR_REVERT] unter dem Reiter "Karte". Das Ein- und Ausschalten von Stadt-Ger�uschen wirkt sich erst beim n�chsten �ffnen des Stadtbildschirms aus (also nicht bei bereits offenem Stadtbildschirm).</German>
++		<English>If checked, the music pauses while the city screen is open and urban sounds are played instead (as in BtS). If unchecked, the music continues and no urban sounds are played. However, the change in camera distance will affect the music volume. You may want to experiment with the [COLOR_HIGHLIGHT_TEXT]Default Distance[COLOR_REVERT] option on the "Map" tab to get the volume right. Toggling this option doesn't take effect while the city screen is open.</English>
++		<German>Erlaubt es, die Alltags-Ger�usche abzuschalten, die normalerweise auf dem Stadtbildschirm abgespielt werden. Stattdessen l�uft dann die Musik weiter. Allerdings wirkt sich der Kamera-Abstand auf die Musik-Lautst�rke aus; siehe dazu auch die Option [COLOR_HIGHLIGHT_TEXT]Standard-Abstand[COLOR_REVERT] unter dem Reiter "Karte". Das Ein- und Ausschalten von Stadt-Ger�uschen wirkt sich erst beim n�chsten �ffnen des Stadtbildschirms aus (also nicht bei bereits offenem Stadtbildschirm).</German>
+ 	</TEXT>
+ 	
+ 	<!-- advc.004: "Detailed food info" sounds a bit grand (as does "Food
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index b20d595f0..10102a807 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -341,8 +341,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER</Tag>
+-		<English>The camera distance at the start of a new game and after loading a savegame. Also affects the volume of music and sound effects.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Automatic[COLOR_REVERT] - Set the default distance based on the Field-of-View value. The greater the field of view, the smaller the default distance.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Close[COLOR_REVERT] - 2200 meters; as in the original game.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - 4100 meters[NEWLINE][COLOR_HIGHLIGHT_TEXT]Far[COLOR_REVERT] - 6000 meters; close to the Globe view boundary.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Custom[COLOR_REVERT] - Use the 'CAMERA_START_DISTANCE' value set in XML (GlobalDefines_advc.xml)</English>
+-		<German>Der Kameraabstand nach dem Erstellen oder Laden eines Spiels. Wirkt sich auch auf die Lautst�rke von Musik und Effekten aus.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Auto[COLOR_REVERT] - Entsprechend dem Sichtfeld-Wert. Je gr��er das Sichtfeld, desto kleiner der Standardabstand.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Nah[COLOR_REVERT] - 2200m; wie im Originalspiel.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mittel[COLOR_REVERT] - 4100m[NEWLINE][COLOR_HIGHLIGHT_TEXT]Weit[COLOR_REVERT] - 6000m; nahe am �bergang zur Weltansicht.[NEWLINE][COLOR_HIGHLIGHT_TEXT]XML-Wert[COLOR_REVERT] - Verwendet den 'CAMERA_START_DISTANCE'-Wert in GlobalDefines_advc.xml.</German>
++		<English>The camera distance at the start of a new game and after loading a savegame. Also affects the volume of music and sound effects.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Automatic[COLOR_REVERT] - Set the default distance based on the Field-of-View value. The greater the field of view, the smaller the default distance.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Close[COLOR_REVERT] - 2200 meters; as in the original game.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - 4100 meters[NEWLINE][COLOR_HIGHLIGHT_TEXT]Far[COLOR_REVERT] - 6000 meters; close to the Globe view boundary.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Custom[COLOR_REVERT] - Use the 'CAMERA_START_DISTANCE' value set in XML ([COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT])</English>
++		<German>Der Kameraabstand nach dem Erstellen oder Laden eines Spiels. Wirkt sich auch auf die Lautst�rke von Musik und Effekten aus.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Auto[COLOR_REVERT] - Entsprechend dem Sichtfeld-Wert. Je gr��er das Sichtfeld, desto kleiner der Standardabstand.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Nah[COLOR_REVERT] - 2200m; wie im Originalspiel.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mittel[COLOR_REVERT] - 4100m[NEWLINE][COLOR_HIGHLIGHT_TEXT]Weit[COLOR_REVERT] - 6000m; nahe am �bergang zur Weltansicht.[NEWLINE][COLOR_HIGHLIGHT_TEXT]XML-Wert[COLOR_REVERT] - Verwendet den 'CAMERA_START_DISTANCE'-Wert in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].</German>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_LIST</Tag>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5762

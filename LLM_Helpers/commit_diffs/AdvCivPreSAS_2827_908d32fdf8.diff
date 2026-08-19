@@ -1,0 +1,40 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2827
+# Commit: 908d32fdf8086a4102bc82c71b4285a059117ba6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b0a48122cc0e2ed68d7b75953d70cbcdb46fa6cf
+# Title: Fix unit cycling button in AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 29a37f54d..a15cb727b 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -602,6 +602,11 @@ CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
+ 	might want to be able to tell what the cycle button is showing. */
+ CvUnit* CvGame::getCycleButtonUnit(bool bForward, bool bWorkers) const
+ {
++	if (getActivePlayer() == NO_PLAYER ||
++		!GET_PLAYER(getActivePlayer()).isHuman()) // AI Auto Play
++	{
++		return NULL;
++	}
+ 	bool bDummy=false;
+ 	CvUnit* pDummy=NULL;
+ 	CvSelectionGroup* pNextGroup = GC.getGame().getNextGroupInCycle(
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=673

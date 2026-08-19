@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1515
+# Commit: 81a087ff947be4209b9be953897d089da7d3c16f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cb620c7571d4fe567a8695c8eab07e75a8d08065
+# Title: Better fix for mouse focus glitch
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	0	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvGame.h
+1	9	CvGameCoreDLL/CvGameInterface.cpp
+3	0	CvGameCoreDLL/CvSelectionGroup.cpp
+1	2	CvGameCoreDLL/CvSelectionGroup.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4204da2c9..2db534372 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -760,6 +760,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
+ 	b_mFPTestDone = false; // advc.003g
++	m_iFocusUpdateTimer = -1; // advc.001w
+ 	m_iScoreboardDirtyTimer = -1; // advc.085
+ }
+ 
+@@ -2446,6 +2447,12 @@ void CvGame::update()
+ 				}
+ 				m_iScoreboardDirtyTimer--;
+ 			} // </advc.085>
++			// <advc.001w>
++			if(m_iFocusUpdateTimer >= 0) {
++				if(m_iFocusUpdateTimer == 0)
++					gDLL->getInterfaceIFace()->makeSelectionListDirty();
++				m_iFocusUpdateTimer--;
++			} // </advc.001w>
+ 		}
+ 		if (getTurnSlice() == 0)
+ 		{	// <advc.700> Delay initial auto-save until RiseFall is initialized
+@@ -4678,6 +4685,14 @@ void CvGame::setScoreboardDirtyTimer(int iDelay) {
+ 	m_iScoreboardDirtyTimer = iDelay;
+ } // </advc.085>
+ 
++// <advc.001w>
++void CvGame::setFocusUpdateTimer(int iDelay) {
++
++	// No need for this hack when there is no unit-cycling delay
++	if(!getBugOptionBOOL("MainInterface__RapidUnitCycling", false))
++		m_iFocusUpdateTimer = iDelay;
++} // </advc.001w>
++
+ 
+ bool CvGame::isCircumnavigated() const
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 576060fbf..45f9f7613 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -284,6 +284,7 @@ public:
+ 	bool isScoreDirty() const;																							// Exposed to Python
+ 	void setScoreDirty(bool bNewValue);																			// Exposed to Python
+ 	void setScoreboardDirtyTimer(int iDelay); // advc.085
++	void setFocusUpdateTimer(int iDelay); // advc.001w
+ 
+ 	bool isCircumnavigated() const;																// Exposed to Python
+ 	void makeCircumnavigated();																		// Exposed to Python
+@@ -697,6 +698,7 @@ protected:
+ 	int m_iCivTeamsEverAlive;
+ 	// </advc.003b>
+ 	int m_iScoreboardDirtyTimer; // advc.085
++	int m_iFocusUpdateTimer; // advc.001w
+ 	unsigned int m_uiInitialTime;
+ 
+ 	bool m_bScoreDirty;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index ebc6d25ed..5bad7f8d0 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -453,7 +453,7 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ {
+ 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
+ 		return;
+-	static bool bFocusMaybeStuck = false; // advc.001
++
+ 	// <advc.003g>
+ 	if(!b_mFPTestDone)
+ 		CvMessageControl::getInstance().sendFPTest(FPChecksum()); // </advc.003g>
+@@ -465,13 +465,6 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ 	{
+ 		if (GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
+ 			gDLL->getInterfaceIFace()->setEndTurnMessage(false);
+-		// <advc.001>
+-		else if(bFocusMaybeStuck && gDLL->getInterfaceIFace()->getHeadSelectedUnit() == NULL) {
+-			// As a side-effect, this gives the focus to the main map.
+-			gDLL->getInterfaceIFace()->makeSelectionListDirty();
+-		}
+-		bFocusMaybeStuck = false;
+-		// </advc.001>
+ 		return;
+ 	}
+ 
+@@ -502,7 +495,6 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ 	if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_WAIT_END_TURN) || !gDLL->getInterfaceIFace()->isHasMovedUnit() || isHotSeat() || isPbem())
+ 	{
+ 		gDLL->getInterfaceIFace()->setEndTurnMessage(true);
+-		bFocusMaybeStuck = true; // advc.001
+ 		return;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 9ee5272d8..43a84bef3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -552,6 +552,9 @@ void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2
+ 			}
+ 
+ 			gDLL->getInterfaceIFace()->setHasMovedUnit(true);
++			/*  advc.001w: Prevent help text and mouse focus from lingering after
++				a command button is clicked */
++			GC.getGameINLINE().setFocusUpdateTimer(2);
+ 		}
+ 
+ 		CvEventReporter::getInstance().selectionGroupPushMission(this, eMission);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 09edd5833..0e0ede99b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -289,8 +289,7 @@ protected:
+ 	void resetBoarded();
+ 	void getLandCargoGroups(std::vector<CvSelectionGroup*>& r);
+ 	// </advc.075>
+-	bool sentryAlert(
+-			bool bUpdateKnownEnemies = false); // advc.004l
++	bool sentryAlert(/*  advc.004l: */ bool bUpdateKnownEnemies = false);
+ 
+ 	// <advc.003k>
+ 	class Data {
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4590

@@ -1,0 +1,93 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1511
+# Commit: 4433e8cc9b7538d7a2774d2e9bee487f1e3f3928
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c8495e3a582584085fc0726da7556104739651f1
+# Title: No Flood Plains after razing; extra checks for replay format
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	1	Assets/xml/GlobalDefines_advc.xml
+2	1	CvGameCoreDLL/CvCity.cpp
+5	1	CvGameCoreDLL/CvReplayInfo.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index c5f963c06..859eca816 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -44,7 +44,8 @@
+ 		 because BtS is unable to show replays that use unfamiliar color
+ 		 values. AdvCiv does not add such colors, but derived mods might.
+ 		 Additional map sizes, victory conditions, handicap or game speed
+-		 settings will also cause problems.
++		 settings will also cause problems, and therefore cause this option to be
++		 disabled.
+ 		 Mod-mods may also want to change TXT_KEY_REPLAY_PREFIX_ADVC in
+ 		 Civ4GameText_advc.xml. -->
+ 	<Define>
+@@ -344,6 +345,20 @@
+         <iDefineIntVal>1</iDefineIntVal>
+     </Define>
+ 
++	<!-- advc.129b: A value of 1 allows the Unofficial Patch to place a
++		 Flood Plains feature after razing a city on a tile that allows for
++		 such a terrain feature. (In AdvCiv, this is the case for flat riverside
++		 Desert tiles; see change 129b in Civ4FeatureInfos.xml. Originally,
++		 Flood Plains also occurred on river corners.)
++		 A value of 0 (BtS behavior) disables the placement of Flood Plains
++		 after razing.
++		 Either way, founding a city clears all terrain features in the
++		 city tile - at least temporarily. -->
++    <Define>
++        <DefineName>FLOODPLAIN_AFTER_RAZE</DefineName>
++        <iDefineIntVal>0</iDefineIntVal>
++    </Define>
++
+ 	<!-- [advc.002a]
+ 		 Determines the color of cultural borders of water tiles on the
+ 		 minimap.
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7ac7b6cca..62c5e4216 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -775,7 +775,8 @@ void CvCity::kill(bool bUpdatePlotGroups)
+ 	pPlot->setRuinsName(getName()); // advc.005c
+ 
+ 	// UNOFFICIAL_PATCH, replace floodplains after city is removed, 03/04/10, jdog5000: START
+-	if (pPlot->getBonusType() == NO_BONUS)
++	if (pPlot->getBonusType() == NO_BONUS
++			/* advc.129b: */ && GC.getDefineINT("FLOODPLAIN_AFTER_RAZE") > 0)
+ 	{
+ 		for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index b5ddf5e8e..26138ed97 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -44,7 +44,11 @@ CvReplayInfo::CvReplayInfo() :
+ 			(GC.getNumPlayerColorInfos() <= 44 ||
+ 			/*  If no colors are added beyond those in BtS, then the new
+ 				player colors are apparently all old colors; no problem then. */
+-			GC.getNumColorInfos() <= 127));
++			GC.getNumColorInfos() <= 127) &&
++			/*  This replay object may well not use any of the added world sizes etc.,
++				but I want the same replay format for all replays written by the mod. */
++			GC.getNumWorldInfos() <= 6 && GC.getNumVictoryInfos() >= 7 &&
++			GC.getNumHandicapInfos() >= 9 && GC.getNumGameSpeedInfos() >= 4);
+ 	// </advc.106i>
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2880

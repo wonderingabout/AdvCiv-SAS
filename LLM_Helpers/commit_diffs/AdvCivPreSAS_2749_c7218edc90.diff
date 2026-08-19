@@ -1,0 +1,359 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2749
+# Commit: c7218edc90e13737221fc765f3d0e00006ee84b0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5587d90f7448e2893d9245892b9cb1da16b3564e
+# Title: BUG option for wide city bars
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/Interface/CityBar/WideCityBar.nif
+-	-	Assets/Art/Interface/CityBar/WideCityBar_Glow.dds
+-	-	Assets/Art/Interface/CityBar/WideCityBar_Glow_no_star.dds
+5	0	Assets/Config/BUG Main Interface.xml
+7	7	Assets/Python/BUG/InputUtil.py
+3	1	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+18	0	Assets/XML/Text/BUG Main Interface Options.xml
+9	6	Assets/XML/Text/BUG Options Screen.xml
+10	0	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+2	0	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGame.h
+56	0	CvGameCoreDLL/CvGameInterface.cpp
+6	1	CvGameCoreDLL/CyGame.cpp
+2	1	CvGameCoreDLL/CyGame.h
+2	0	CvGameCoreDLL/CyGameInterface.cpp
+ create mode 100644 Assets/Art/Interface/CityBar/WideCityBar.nif
+ create mode 100644 Assets/Art/Interface/CityBar/WideCityBar_Glow.dds
+ create mode 100644 Assets/Art/Interface/CityBar/WideCityBar_Glow_no_star.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/Interface/CityBar/WideCityBar.nif b/Assets/Art/Interface/CityBar/WideCityBar.nif
+new file mode 100644
+index 000000000..a669b0061
+Binary files /dev/null and b/Assets/Art/Interface/CityBar/WideCityBar.nif differ
+
+diff --git a/Assets/Art/Interface/CityBar/WideCityBar_Glow.dds b/Assets/Art/Interface/CityBar/WideCityBar_Glow.dds
+new file mode 100644
+index 000000000..52aaa0313
+Binary files /dev/null and b/Assets/Art/Interface/CityBar/WideCityBar_Glow.dds differ
+
+diff --git a/Assets/Art/Interface/CityBar/WideCityBar_Glow_no_star.dds b/Assets/Art/Interface/CityBar/WideCityBar_Glow_no_star.dds
+new file mode 100644
+index 000000000..0cf658894
+Binary files /dev/null and b/Assets/Art/Interface/CityBar/WideCityBar_Glow_no_star.dds differ
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 7e8d3435b..0649389ae 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -252,6 +252,11 @@
+ 					type="boolean" default="False" dirtyBit="CityInfo"/>
+ 			<option id="AirportIcon" key="Airport Icon" 
+ 					type="boolean" default="True" dirtyBit="CityInfo"/>
++			<!-- advc.095 (should perhaps be in 'BULL City Bar.xml' instead) -->
++			<option id="WideCityBars" key="Wide City Bars" 
++					type="boolean" default="False">
++				<change module="InputUtil" function="updateCityBarWidth"/>
++			</option>
+ 		</section>
+ 	</options>
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index 439600468..79f041e67 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -234,19 +234,19 @@ def toggleShowFriendlyMoves(argsList=None):
+ 	# currentProfile.setPlayerOption(eFriendlyMoves, not bCurrentlyEnabled)
+ 	# So the toggling isn't going to be visible on the Options screen and will be lost upon exiting the game.
+ # </advc.102>
+-# <advc.135c>
++# advc.135c:
+ def toggleDebugMode(argsList=None): 
+ 	# The built-in shortcut (also Ctrl+Z) works iff ChtLvl>0. Let CvGame::toggleDebugMode decide whether ChtLvl should matter.
+ 	if getChtLvl() <= 0:
+ 		gc.getGame().toggleDebugMode()
+-# </advc.135c>
+-# <advc.088>
++# advc.088:
+ def unselectAll(argsList=None):
+ 	CyInterface().clearSelectionList()
+-# </advc.088>
+-
+-# <advc.004m> Called by BugOptions when dirty. Defining this handler directly in CvScreensInterface.py leads to problems when reloading scripts, specifically in ChangeHandler.handle (BugOptions.py).
++# advc.004m: Called by BugOptions when dirty. Defining this handler directly in CvScreensInterface.py leads to problems when reloading scripts, specifically in ChangeHandler.handle (BugOptions.py).
+ def updateDefaultCamDistance(option, value):
+ 	import CvScreensInterface
+ 	CvScreensInterface.updateCameraStartDistance()
+-# </advc.004m>
++
++# <advc.095:
++def updateCityBarWidth(option, value):
++	gc.getGame().setCityBarWidth(value)
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index 0db31f034..a9b1486fc 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -56,10 +56,12 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, center, "MiscHover__LatLongCoords")
+ 		#self.addCheckbox(screen, center, "MiscHover__PartialBuilds")
+ 		# <advc.002f>
+-		self.addLabel(screen, center, "CityIcons", "City Icons:")
++		self.addLabel(screen, center, "CityIcons", "City Billboards:")
+ 		self.addCheckbox(screen, center, "MainInterface__CityNetworkIcon")
+ 		self.addCheckbox(screen, center, "MainInterface__AirportIcon")
+ 		# </advc.002f>
++		# advc.095:
++		self.addCheckbox(screen, center, "MainInterface__WideCityBars")
+ 		self.addLabel(screen, right, "Camera", "Camera:") # advc.004m
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView")
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView_Remember", True)
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 9d7cc9075..daa6b94d5 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -903,4 +903,22 @@
+ 		<Spanish>Muestra el icono [ICON_AIRPORT] sobre las barras de ciudad que tengan un aeropuerto.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.095: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__WIDECITYBARS_TEXT</Tag>
++		<English>Wide City Bars</English>
++		<French>Wide City Bars</French>
++		<German>Breite Fortschrittsbalken</German>
++		<Italian>Wide City Bars</Italian>
++		<Spanish>Wide City Bars</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__WIDECITYBARS_HOVER</Tag>
++		<English>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</English>
++		<French>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</French>
++		<German>Zeigt die extra-breiten Stadtbalken aus der BUG-Mod auf der Hauptkarte an. (Die rechten H�lften dieser Balken lassen sich nicht anklicken - bekanntes Problem.)</German>
++		<Italian>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</Italian>
++		<Spanish>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/BUG Options Screen.xml b/Assets/XML/Text/BUG Options Screen.xml
+index 71ecf37b3..d3519d313 100644
+--- a/Assets/XML/Text/BUG Options Screen.xml	
++++ b/Assets/XML/Text/BUG Options Screen.xml	
+@@ -229,14 +229,17 @@
+ 		<Italian>Casella Selezionata:</Italian>
+ 		<Spanish>Texto Flotante Casilla:</Spanish>
+ 	</TEXT>
+-	<!-- advc.002f -->
++	<!-- advc.002f, advc.095: I had used "City Icons" at first,
++		 but now that I'm also placing city bar options here,
++		 I need a more generic term. "Billboard" is also used in
++		 CvCity::getCityBillboardSizeIconColors. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_CITYICONS</Tag>
+-		<English>City Icons:</English>
+-		<French>City Icons:</French>
+-		<German>St�dte-Symbole:</German>
+-		<Italian>City Icons:</Italian>
+-		<Spanish>City Icons:</Spanish>
++		<English>City Billboards:</English>
++		<French>City Billboards:</French>
++		<German>St�dte-Balken:</German>
++		<Italian>City Billboards:</Italian>
++		<Spanish>City Billboards:</Spanish>
+ 	</TEXT>
+ 	<!-- advc.009c: Commented out -->
+ 	<!--TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c8caca306..89139736e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -290,6 +290,16 @@ void CvCity::setupGraphical()
+ 	setLayoutDirty(true);
+ }
+ 
++// advc.095: Based on CvUnit::reloadEntity
++void CvCity::reloadEntity()
++{
++	FAssert(GC.IsGraphicsInitialized());
++	removeEntity();
++	destroyEntity();
++	createEntity(this);
++	setupGraphical();
++}
++
+ 
+ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index b2a85edc9..89798b4da 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -22,6 +22,7 @@ public:
+ 	virtual ~CvCity();
+ 
+ 	void setupGraphical();
++	void reloadEntity(); // advc.095
+ 	void kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits = true);									// Exposed to Python
+ 	void doTurn();
+ 	void doRevolt(); // advc: previously in CvPlot::doCulture
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 097d9bc22..cd337f58a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9568,6 +9568,8 @@ void CvGame::onAllGameDataRead()
+ 	(w/e that means exactly) */
+ void CvGame::onGraphicsInitialized()
+ {
++	// advc.095:
++	setCityBarWidth(BUGOption::isEnabled("MainInterface__WideCityBars", false));
+ 	/*	<advc.001> After loading, the camera tries to center on some unit
+ 		(apparently; I don't know where that's implemented). If there is
+ 		none, it seems to center on some random(?) unrevealed tile. */
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index c32ab2b55..5ad1f7aef 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -808,6 +808,7 @@ public:
+ 	DllExport bool shouldCenterMinimap() const;
+ 	DllExport EndTurnButtonStates getEndTurnState() const;
+ 
++	void setCityBarWidth(bool bWide); // advc.095 (exposed to Python)
+ 	DllExport void handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+ 	DllExport void handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+ 	DllExport void handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 4d5dd14b2..4bb75e38b 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2571,6 +2571,62 @@ EndTurnButtonStates CvGame::getEndTurnState() const
+ 	return eNewState;
+ }
+ 
++// advc.095:
++void CvGame::setCityBarWidth(bool bWide)
++{
++	// The three art define tags that we have wider graphics for
++	TCHAR const* aszCityBarTags[] =
++	{
++		"INTERFACE_CITY_BAR_MODEL",
++		"INTERFACE_CITY_BAR_REGULAR_GLOW",
++		"INTERFACE_CITY_BAR_CAPITAL_GLOW"
++	};
++	int const iCityBarTags = ARRAY_LENGTH(aszCityBarTags);
++	CvArtInfoInterface* apCityBarArtInfos[iCityBarTags];
++	for (int i = 0; i < iCityBarTags; i++)
++	{
++		apCityBarArtInfos[i] = ARTFILEMGR.getInterfaceArtInfo(aszCityBarTags[i]);
++		if (apCityBarArtInfos[i] == NULL)
++			return; // Art file manager not ready (or tags missing in XML)
++	}
++	CvString const szPattern(bWide ? "CityBar" : "WideCityBar");
++	CvString const szPatternLC(bWide ? "citybar" : "widecitybar");
++	CvString const szReplacement(!bWide ? "CityBar" : "WideCityBar");
++	CvString const szReplacementLC(!bWide ? "citybar" : "widecitybar");
++	for (int i = 0; i < iCityBarTags; i++)
++	{
++		CvString szPath(apCityBarArtInfos[i]->getPath());
++		size_t iPos = szPath.rfind(szPattern);
++		if (iPos != CvString::npos &&
++			// Don't replace a CityBar directory name
++			iPos < szPath.length() - 1 && szPath.at(iPos + 1) != '/')
++		{
++			szPath.replace(iPos, szPattern.length(), szReplacement);
++		}
++		else
++		{
++			// Try lower case (though AdvCiv uses mixed case)
++			iPos = szPath.rfind(szPatternLC);
++			if (iPos != CvString::npos &&
++				iPos < szPath.length() - 1 && szPath.at(iPos + 1) != '/')
++			{
++				szPath.replace(iPos, szPatternLC.length(), szReplacementLC);
++			}
++			else
++			{
++				FAssert(i == 0);
++				return; // Apparently the width is already according to bWidth
++			}
++		}
++		apCityBarArtInfos[i]->setPath(szPath);
++	}
++	for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		FOR_EACH_CITY_VAR(pCity, *itPlayer)
++			pCity->reloadEntity();
++	}
++}
++
+ void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
+ 	bool bAlt, bool bShift, bool bCtrl) const
+ {
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index c57318c4d..7935f9f8f 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1104,8 +1104,13 @@ void CyGame::doControl(int iControl)
+ {
+ 	m_kGame.doControl((ControlTypes) iControl);
+ }
++// advc.095:
++void CyGame::setCityBarWidth(bool bWide)
++{
++	m_kGame.setCityBarWidth(bWide);
++}
+ // BULL - AutoSave:
+-void CyGame::saveGame(std::string szFileName) const
++void CyGame::saveGame(std::string szFileName)
+ {
+ 	// <advc> The BULL code had instead cast szFileName to a CvString&
+ 	static CvString szTmp;
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index a8a0bf5c5..4259713ad 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -282,7 +282,8 @@ public:
+ 	bool isEventActive(int /*EventTriggerTypes*/ eTrigger);
+ 	void doControl(int iControl);
+ 
+-	void saveGame(std::string szFileName) const; // BULL - AutoSave
++	void setCityBarWidth(bool bWide); // advc.095
++	void saveGame(std::string szFileName); // BULL - AutoSave
+ 	bool useKModAI(); // advc.104
+ 	int getBarbarianStartTurn(); // advc.300
+ 	std::wstring SPaHPointsForSettingsScreen(); // advc.250b
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 6c7f70842..4663cf3f0 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -273,6 +273,8 @@ void CyGamePythonInterface()
+ 
+ 		.def("isEventActive", &CyGame::isEventActive, "bool (int /*EventTriggerTypes*/ eTrigger)")
+ 		.def("doControl", &CyGame::doControl, "void (int /*ControlTypes*/ iControl)")
++		// advc.095:
++		.def("setCityBarWidth", &CyGame::setCityBarWidth, "void (bool)")
+ 		// BULL - AutoSave:
+ 		.def("saveGame", &CyGame::saveGame, "void saveGame(string fullyQualifiedFileName)")
+ 		// advc.104:
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=12878

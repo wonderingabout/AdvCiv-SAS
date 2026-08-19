@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5084
+# Commit: c5e91acf2aa11db87a17b2c1cf5c2a8c997bf335
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 118d145c3019c7ece81a6476ed866de9316dfc9e
+# Title: more performance optimizations
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+4	0	Assets/XML/GlobalDefines_advciv_sas.xml
+21	7	CvGameCoreDLL/CvPlayerAI.cpp
+2	4	README.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 557089c45..ab935e289 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -277,6 +277,7 @@
+ 	</Define>
+ 
+ 
++
+ 	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
+ 	<!-- custom: note: very low food tiles like flatland desert, hill desert, snow, and including peak for example count double (2 low food tiles), whie high food tiles like flood plains or oasis count -1 as they give food. Note: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much if i am not mistaken but anyways etc -->
+ 	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
+@@ -834,6 +835,7 @@
+ 	</Define>
+ 
+ 
++
+ 	<!-- custom: note: as of now copper exception (alternative bonus to iron anyways etc) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future (ideally would but not guaranteed, i may or i may not but anyways etc) but anyways etc -->
+ 	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
+ 	<Define>
+@@ -1305,4 +1307,6 @@
+ 
+ 	<!-- // Add other bonus-specific mappings here as needed. -->
+ 
++
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 20734c38d..16ed2bbe9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20536,8 +20536,10 @@ void CvPlayerAI::AI_doCommerce()
+ 		{
+ 			if (eStealTechMission != NO_ESPIONAGEMISSION)
+ 			{
++				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++				static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+ 				iMinModifier *= 100 - GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) *
+-						GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
++						iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
+ 				iMinModifier /= 100;
+ 				iMinModifier *= 100 + GC.getInfo(eStealTechMission).getBuyTechCostFactor();
+ 				iMinModifier /= 100;
+@@ -20906,8 +20908,10 @@ void CvPlayerAI::AI_doReligion()
+ 		{
+ 			if (gPlayerLogLevel > 0) logBBAI("    %S decides to convert to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getInfo(eBestReligion).getDescription(0), eBestReligion == NO_RELIGION ? 0 : AI_religionValue(eBestReligion), getStateReligion() == NO_RELIGION ? 0 : AI_religionValue(getStateReligion()));
+ 			convert(eBestReligion);
++			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++			static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+ 			AI_setReligionTimer(getMaxAnarchyTurns() == 0 ?
+-					GC.getDefineINT("MIN_CONVERSION_TURNS") * 2 :
++					iMIN_CONVERSION_TURNS * 2 :
+ 					RELIGION_CHANGE_DELAY);
+ 		}
+ 	}
+@@ -25988,8 +25992,10 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		if (iWarSuccessRating < -50 ||
+ 			(iMaxWarCounter < 10 /* advc: */ && iMaxWarCounter > 0))
+ 		{
++			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++			static const int iBBAI_TURTLE_ENEMY_POWER_RATIO = GC.getDefineINT("BBAI_TURTLE_ENEMY_POWER_RATIO");
+ 			if (kTeam.AI_getEnemyPowerPercent(true) >
+-				std::max(150, GC.getDefineINT("BBAI_TURTLE_ENEMY_POWER_RATIO")) &&
++				std::max(150, iBBAI_TURTLE_ENEMY_POWER_RATIO) &&
+ 				// <advc.107>
+ 				getNumMilitaryUnits() <=
+ 				(5 + AI_getCurrEraFactor() * fixp(1.5)) * getNumCities()) // </advc.107>
+@@ -28064,11 +28070,14 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
+ 	}
+ 
+ 	int iStartingPoints = getAdvancedStartPoints();
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iADVANCED_START_VISIBILITY_COST = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST");
++	static const int iADVANCED_START_VISIBILITY_COST_INCREASE = GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE");
+ 	//int iRevealPoints = (iStartingPoints * 10) / 100;
+ 	// <advc.250c> Replacing the above
+ 	int iRevealPoints = ((fixp(1.5) *
+-			GC.getDefineINT("ADVANCED_START_VISIBILITY_COST") *
+-			GC.getDefineINT("ADVANCED_START_VISIBILITY_COST_INCREASE")) / 100).round();
++			iADVANCED_START_VISIBILITY_COST *
++			iADVANCED_START_VISIBILITY_COST_INCREASE) / 100).round();
+ 	// </advc.250c>
+ 	int iMilitaryPoints = (iStartingPoints * (isHuman() ? 17 :
+ 			(10 + (GC.getInfo(getPersonalityType()).getBuildUnitProb() / 3)))) / 100;
+@@ -28078,6 +28087,9 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
+ 		AI_advancedStartPlaceCity(getCapital()->plot());
+ 	else
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++		static const int iADVANCED_START_SIGHT_RANGE = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+ 		for (int iPass = 0; iPass < 2 &&
+ 			!hasCapital(); ++iPass)
+ 		{
+@@ -28101,7 +28113,7 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
+ 						CvPlot* pPlot = GC.getMap().plotByIndex(iPlotLoop);
+ 						if (plotDistance(pPlot->getX(), pPlot->getY(),
+ 							pStartingPlot->getX(), pStartingPlot->getY()) <=
+-							GC.getDefineINT("ADVANCED_START_SIGHT_RANGE"))
++							iADVANCED_START_SIGHT_RANGE)
+ 						{
+ 							pPlot->setRevealed(getTeam(), true, false, NO_TEAM, false);
+ 						}
+@@ -30165,8 +30177,10 @@ void CvPlayerAI::AI_setHuman(bool b)
+ // advc.031c:
+ void CvPlayerAI::logFoundValue(CvPlot const& kPlot, bool bStartingLoc) const
+ {
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iMIN_BARBARIAN_CITY_STARTING_DISTANCE = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
+ 	CitySiteEvaluator eval(*this, isBarbarian() ?
+-			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE") : -1, bStartingLoc);
++			iMIN_BARBARIAN_CITY_STARTING_DISTANCE : -1, bStartingLoc);
+ 	eval.log(kPlot);
+ }
+
+diff --git a/README.md b/README.md
+index 0e3c2e650..de5f095d9 100644
+--- a/README.md
++++ b/README.md
+@@ -298,11 +298,9 @@ Still, in the game where i tried it, it was gradually faster as more and more pl
+ 
+ All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
+ 
+-Note: if you already downloaded AdvCiv-4986 that didn't have that 48 civs DLL, you can download [the development version of AdvCiv-SAS](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version) instead that comes with a DLL. You could theoretically go back to commit where i released the 48 civs DLL and download it there, but if you pick latest 48 civs DLL, it may not be compatible with old AdvCiv-SAS 4986 other files, so i'd suggest for no tediousness to stick to development version, or alternatively if you know how and don't mind the tediousness, download the oldest 48 civs DLL to use with AdvCiv-SAS-4986, but again much simpler and new enhancements if you move over to dev version until next release.
++Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+ 
+-Note 2: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+-
+-Note 3: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
++Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
+ 
+ ## Autoplay test runs
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=10606

@@ -1,0 +1,738 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4769
+# Commit: 10b06b59d6a9fbca950e5eb2085d8707844ecf86
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ea75187aa49cfc5334737d432b9e5a3f829f3264
+# Title: renamed BONUS_WINE to BONUS_GRAPES, rework grapes, now based on IMPROVEMENT_FARM, removed IMPROVEMENT_WINERY, reworked BUILDING_GROCER('s) association with g...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine.dds
+-	-	Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds
+3	3	Assets/Python/EntryPoints/CvRandomEventInterface.py
+7	2	Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+1	9	Assets/XML/Art/CIV4ArtDefines_Improvement.xml
+24	18	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Events/CIV4EventInfos.xml
+0	2	Assets/XML/Events/CIV4EventTriggerInfos.xml
+7	6	Assets/XML/Terrain/CIV4BonusInfos.xml
+12	51	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+8	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+7	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+0	42	Assets/XML/Units/CIV4BuildInfos.xml
+0	12	Assets/XML/Units/CIV4UnitInfos.xml
+3	1	README.md
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (10).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (10).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine.dds b/Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine.dds
+new file mode 100644
+index 000000000..b01f3f8ea
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds b/Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds
+new file mode 100644
+index 000000000..0c17906dd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds differ
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index f819bd72b..1041c95bf 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -1353,7 +1353,7 @@ def canTriggerWiningMonks(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	if player.getNumAvailableBonuses(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_WINE')) > 0:
++	if player.getNumAvailableBonuses(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_GRAPES')) > 0:
+ 		return false
+ 				
+ 	return true
+@@ -1367,7 +1367,7 @@ def doWiningMonks2(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 	
+ 	if not plot.isNone():
+-		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_WINERY'))
++		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM'))
+ 	
+ 	return 1
+ 
+@@ -1375,7 +1375,7 @@ def getHelpWiningMonks2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 	
+-	iImp = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_WINERY')
++	iImp = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iImp).getTextKey(), ))
+ 
+ 	return szHelp
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+index c1b3d8192..173813a9b 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+@@ -191,13 +191,18 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
+ 			<FontButtonIndex>29</FontButtonIndex>
+ 		</BonusArtInfo>
++		<!-- custom: (wine now renamed to) grapes (anyways etc), imported from realism invictus mod in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface8.FPK" with dragon unpacker (only the .dds files for the button (since they seem to also put a higher resolution one than 64 x 64 anyways etc we/i anyways etc took it too just in case anyways etc))-->
++		<!-- custom: old base advciv button path was:
++		<Button>,Art/Interface/Buttons/WorldBuilder/Wine.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,16</Button>
++		Anyways etc
++		-->
+ 		<BonusArtInfo>
+-			<Type>ART_DEF_BONUS_WINE</Type>
++			<Type>ART_DEF_BONUS_GRAPES</Type>
+ 			<fScale>1.0</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Wine/Wine.nif</NIF>
+ 			<KFM>Art/Terrain/Resources/Wine/Wine.kfm</KFM>
+-			<Button>,Art/Interface/Buttons/WorldBuilder/Wine.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,16</Button>
++			<Button>Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds</Button>
+ 			<FontButtonIndex>30</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<BonusArtInfo>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Improvement.xml b/Assets/XML/Art/CIV4ArtDefines_Improvement.xml
+index 330496402..b63e3435f 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Improvement.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Improvement.xml
+@@ -43,6 +43,7 @@
+ 			<KFM>Art/Structures/Improvements/TribalVillage/TribalVillage.kfm</KFM>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildTribalVillage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,10</Button>
+ 		</ImprovementArtInfo>
++		<!-- custom: removed improvement_winery, now grapes (renamed from wine) is improved by improvement_farm, see docs or/and other code comments for details anyways etc -->
+ 		<ImprovementArtInfo>
+ 			<Type>ART_DEF_IMPROVEMENT_FARM</Type>
+ 			<bExtraAnimations>1</bExtraAnimations>
+@@ -169,15 +170,6 @@
+ 			<KFM>Art/Structures/Improvements/OilRig/OilRig.kfm</KFM>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
+ 		</ImprovementArtInfo>
+-		<ImprovementArtInfo>
+-			<Type>ART_DEF_IMPROVEMENT_WINERY</Type>
+-			<bExtraAnimations>0</bExtraAnimations>
+-			<fScale>1.0</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<NIF>Art/Structures/Improvements/Winery/Winery.nif</NIF>
+-			<KFM>Art/Structures/Improvements/Winery/Winery.kfm</KFM>
+-			<Button>,Art/Interface/Buttons/Builds/BuildWinery.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,8</Button>
+-		</ImprovementArtInfo>
+ 		<ImprovementArtInfo>
+ 			<Type>ART_DEF_IMPROVEMENT_COTTAGE</Type>
+ 			<bExtraAnimations>0</bExtraAnimations>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 4d9620111..7a2eb2eee 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -12571,20 +12571,23 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 					<BonusType>BONUS_SPICES</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_SUGAR</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_WINE</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+ 				<BonusHealthChange>
+ 					<BonusType>BONUS_BANANA</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+ 			</BonusHealthChanges>
+-			<BonusHappinessChanges/>
++			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
++			<!-- custom: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but anyways etc anyways etc anyways etc) depending on dosage if i may say and it is the accurate english word anyways etc anyways etc anyways etc...), but sure makes happy if i may say i mean anyways... so making it (i.e. sugar anyways etc) give happiness instead, buffing sugar at the same time which i think is cool/desirable if i may say at least in advciv-sas anyways etc as sugar is a bit weak otherwise anyways etc unlike its quite strong influence on population (how to live without sugar, but anyways etc.. not too much or not i am not responsible, only trying to represent the game as accurately and as i enjoy it to do hopefully enjoyable for others or and not anyways is what i want(ed) and want to do for sugar so anyways etc anyways etc anyways etc) -->
++			<BonusHappinessChanges>
++				<BonusHappinessChange>
++					<BonusType>BONUS_GRAPES</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_SUGAR</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++			</BonusHappinessChanges>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+@@ -12762,20 +12765,23 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 					<BonusType>BONUS_SPICES</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_SUGAR</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_WINE</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+ 				<BonusHealthChange>
+ 					<BonusType>BONUS_BANANA</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+ 			</BonusHealthChanges>
+-			<BonusHappinessChanges/>
++			<!-- custom: winery part of the grapes now handled by the grocer class buildings (make sure to reflect this change in all grocer class building types anyways etc) (improvement_winery has been removed, and wine bonus renamed to grapes bonus, see docs or/and other code comments for details) -->
++			<!-- custom: similarly, sugar is not (too) good for health (but is also not too bad either quite good even necessary if i am not mistaken (but anyways etc anyways etc anyways etc) depending on dosage if i may say and it is the accurate english word anyways etc anyways etc anyways etc...), but sure makes happy if i may say i mean anyways... so making it (i.e. sugar anyways etc) give happiness instead, buffing sugar at the same time which i think is cool/desirable if i may say at least in advciv-sas anyways etc as sugar is a bit weak otherwise anyways etc unlike its quite strong influence on population (how to live without sugar, but anyways etc.. not too much or not i am not responsible, only trying to represent the game as accurately and as i enjoy it to do hopefully enjoyable for others or and not anyways is what i want(ed) and want to do for sugar so anyways etc anyways etc anyways etc) -->
++			<BonusHappinessChanges>
++				<BonusHappinessChange>
++					<BonusType>BONUS_GRAPES</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_SUGAR</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++			</BonusHappinessChanges>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index 435dc490c..20ca6ee19 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -11577,7 +11577,7 @@
+ 			<iFeatureChange>0</iFeatureChange>
+ 			<ImprovementType>NONE</ImprovementType>
+ 			<iImprovementChange>0</iImprovementChange>
+-			<BonusType>BONUS_WINE</BonusType>
++			<BonusType>BONUS_GRAPES</BonusType>
+ 			<iBonusChange>1</iBonusChange>
+ 			<RouteType>NONE</RouteType>
+ 			<iRouteChange>0</iRouteChange>
+@@ -11658,7 +11658,7 @@
+ 			<iFeatureChange>0</iFeatureChange>
+ 			<ImprovementType>NONE</ImprovementType>
+ 			<iImprovementChange>1</iImprovementChange>
+-			<BonusType>BONUS_WINE</BonusType>
++			<BonusType>BONUS_GRAPES</BonusType>
+ 			<iBonusChange>1</iBonusChange>
+ 			<RouteType>ROUTE_ROAD</RouteType>
+ 			<iRouteChange>1</iRouteChange>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 976ffbf00..99431416c 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -2911,7 +2911,6 @@
+ 				<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
+-				<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+@@ -3721,7 +3720,6 @@
+ 				<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
+-				<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
+ 				<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 03e5b3b00..5c49e77b6 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1815,18 +1815,19 @@
+ 			</FeatureTerrainBooleans>
+ 		</BonusInfo>
+ 		<BonusInfo>
+-			<Type>BONUS_WINE</Type>
+-			<Description>TXT_KEY_BONUS_WINE</Description>
+-			<Civilopedia>TXT_KEY_BONUS_WINE_PEDIA</Civilopedia>
++			<Type>BONUS_GRAPES</Type>
++			<Description>TXT_KEY_BONUS_GRAPES</Description>
++			<Civilopedia>TXT_KEY_BONUS_GRAPES_PEDIA</Civilopedia>
+ 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
+-			<ArtDefineTag>ART_DEF_BONUS_WINE</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BONUS_GRAPES</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+-			<TechCityTrade>TECH_MONARCHY</TechCityTrade>
++			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
+ 			<TechObsolete>NONE</TechObsolete>
++			<!-- custom: now that this (grapes) is based on grapes not on wine anymore, it makes more sense to give food instead of gold, buffing wine (now grapes) at same that was/were bit weak anyways etc so wishable hopefully at least is what i want anyways etc for grapes i mean anyways etc -->
+ 			<YieldChanges>
++				<iYieldChange>1</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+-				<iYieldChange>1</iYieldChange>
+ 			</YieldChanges>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iAIObjective>0</iAIObjective>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 6d7ccad2e..60b8631da 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -236,6 +236,7 @@
+ 				</TerrainMakesValid>
+ 			</TerrainMakesValids>
+ 			<FeatureMakesValids/>
++			<!-- custom: removed improvement_winery, now grapes (wine renamed to this now anyways etc) are upgraded/improved by improvement_farm, see docs for details -->
+ 			<BonusTypeStructs>
+ 				<BonusTypeStruct>
+ 					<BonusType>BONUS_CORN</BonusType>
+@@ -270,6 +271,17 @@
+ 						<iYieldChange>0</iYieldChange>
+ 					</YieldChanges>
+ 				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_GRAPES</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
+ 			</BonusTypeStructs>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+@@ -1244,57 +1256,6 @@
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+-		<ImprovementInfo>
+-			<Type>IMPROVEMENT_WINERY</Type>
+-			<Description>TXT_KEY_IMPROVEMENT_WINERY</Description>
+-			<Civilopedia>TXT_KEY_IMPROVEMENT_WINERY_PEDIA</Civilopedia>
+-			<ArtDefineTag>ART_DEF_IMPROVEMENT_WINERY</ArtDefineTag>
+-			<bActsAsCity>0</bActsAsCity>
+-			<bHillsMakesValid>0</bHillsMakesValid>
+-			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
+-			<bRiverSideMakesValid>0</bRiverSideMakesValid>
+-			<bNoFreshWater>0</bNoFreshWater>
+-			<bRequiresFlatlands>0</bRequiresFlatlands>
+-			<bRequiresRiverSide>0</bRequiresRiverSide>
+-			<bRequiresIrrigation>0</bRequiresIrrigation>
+-			<bCarriesIrrigation>0</bCarriesIrrigation>
+-			<bRequiresFeature>0</bRequiresFeature>
+-			<bWater>0</bWater>
+-			<bGoody>0</bGoody>
+-			<bPermanent>0</bPermanent>
+-			<bUseLSystem>1</bUseLSystem>
+-			<iAdvancedStartCost>30</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iTilesPerGoody>0</iTilesPerGoody>
+-			<iGoodyRange>0</iGoodyRange>
+-			<iFeatureGrowth>0</iFeatureGrowth>
+-			<iUpgradeTime>0</iUpgradeTime>
+-			<iAirBombDefense>5</iAirBombDefense>
+-			<iDefenseModifier>0</iDefenseModifier>
+-			<iHappiness>0</iHappiness>
+-			<iPillageGold>10</iPillageGold>
+-			<bOutsideBorders>0</bOutsideBorders>
+-			<TerrainMakesValids/>
+-			<FeatureMakesValids/>
+-			<BonusTypeStructs>
+-				<BonusTypeStruct>
+-					<BonusType>BONUS_WINE</BonusType>
+-					<bBonusMakesValid>1</bBonusMakesValid>
+-					<bBonusTrade>1</bBonusTrade>
+-					<iDiscoverRand>0</iDiscoverRand>
+-					<YieldChanges>
+-						<iYieldChange>1</iYieldChange>
+-						<iYieldChange>0</iYieldChange>
+-						<iYieldChange>2</iYieldChange>
+-					</YieldChanges>
+-				</BonusTypeStruct>
+-			</BonusTypeStructs>
+-			<ImprovementPillage/>
+-			<ImprovementUpgrade/>
+-			<TechYieldChanges/>
+-			<RouteYieldChanges/>
+-			<bGraphicalOnly>0</bGraphicalOnly>
+-		</ImprovementInfo>
+ 		<ImprovementInfo>
+ 			<Type>IMPROVEMENT_COTTAGE</Type>
+ 			<Description>TXT_KEY_IMPROVEMENT_COTTAGE</Description>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index 68adc4603..c0d2109ef 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -121,7 +121,7 @@
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
+-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 120px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...</English>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed [LINK=BONUS_GRAPES]"Wine" (Bonus) to "Grapes"[\LINK], see below at "Balance" changes in AdvCiv-SAS for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource/Bonus) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- As part of renaming wine to grapes, additionally reworked grapes: now improved by [LINK=IMPROVEMENT_FARM]IMPROVEMENT_FARM[\LINK], not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the [LINK=BONUS_GRAPES]ingame sevopedia entry of the grapes[\LINK] with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc. [NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index c48706a0e..bf43b49ca 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -119,6 +119,8 @@
+ 		<English>Elephants</English>
+ 	</TEXT>
+ 
++
++
+ 	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
+ 	fit to me than "Cow".
+ 	Be careful, according to, for example:
+@@ -141,10 +143,16 @@
+ 		<English>Cattle</English>
+ 	</TEXT>
+ 
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_GEMSTONES</Tag>
+ 		<English>Gemstones</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
++		<English>Grapes</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index b2608fbb4..6d05b04f1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -18,7 +18,7 @@
+ 
+ 
+ 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Bonuses.xml (for languages we chose or didn't choose see AdvCiv-SAS core doc for details), description not changed otherwise as it correctly at least matching our new name so no change needed maybe fine as is or not or yes or other and or not and other or etc or other anyways etc -->
+-	<!-- custom: similarly done (in order?) for(/to?) renaming(rename?) _IVORY to _ELEPHANTS anyways etc anyways etc anyways etc... -->
++	<!-- custom: similarly done (in order?) for(/to?) renaming(rename?) _IVORY to _ELEPHANTS, anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_GEMSTONES_PEDIA</Tag>
+ 		<English>[TAB]Gemstones, treasured throughout time for their beauty and value, have always been a sought-after commodity. Most gemstones, such as diamonds, are mined in various areas throughout the world, most notably Africa. Some of the most notable gem deposits, however, have been found in archeological digs. The ruins of ancient civilizations in the jungles of Central and South America have sometimes been found to hide large quantities of precious and semi-precious gems, as well as gold and other items of value. The discovery of such a site can lead to an increase in trade in the areas surrounding the dig, as both professional and amateur treasure hunters swarm to the region to seek their fortune.</English>
+@@ -27,6 +27,12 @@
+ 		<Tag>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Tag>
+ 		<English>[TAB]Elephants are the largest living land mammals. At birth it is common for an elephant calf to weigh 225 pounds! In the wild, elephants exhibit complex social behavior and strong family bonds. Social hierarchy in calf-cow groups is based on size and age, with the largest and oldest at the top and the smallest and youngest last. Adolescent males determine their own ranking order through jousting contests using head and tusks. Elephants communicate with very low and long ranging subsonic tones. [PARAGRAPH:1]Elephant taming began in the Indus valley around 4000 years ago. The first military application of elephants dates from around 1100 BC and is mentioned in several Sanskrit hymns. From the east, war elephants migrated to the Persian Empire where they stood against Alexander the Great at the battle of Gaugamela. Though they did not play a significant role in the battle, Alexander saw their usefulness and began incorporating them into his army. Later the use spread throughout Europe and elephants were used in such famous campaigns as the Macedonian wars and by Hannibal during the Second Punic War.</English>
+ 	</TEXT>
++	<!-- custom: renamed _WINE to _GRAPES (but not _WINERY to _GRAPESRY, _WINERY is removed entirely as an improvement and replaced by _FARM, see docs for details, ... anyways etc...) ; (but) also (anyways etc) since wine can be made from other things than just grapes if i am not mistaken, and now this ressource/bonus is named grapes not wine anymore, this is not accurate, switching to a wiki based (from https://en.wikipedia.org/wiki/Grape anyways etc anyways etc anyways etc) description instead rather anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_GRAPES_PEDIA</Tag>
++		<English>[TAB]A grape is a fruit, botanically a berry, of the deciduous woody vines of the flowering plant genus Vitis. Grapes are a non-climacteric type of fruit, generally occurring in clusters.[PARAGRAPH:1]The cultivation of grapes began approximately 8,000 years ago, and the fruit has been used as human food throughout its history. Eaten fresh or in dried form (as raisins, currants and sultanas), grapes also hold cultural significance in many parts of the world, particularly for their role in winemaking. Other grape-derived products include various types of jam, juice, vinegar and oil.[PARAGRAPH:2]The Middle East is generally described as the homeland of grapes and the cultivation of this plant began there 6,000-8,000 years ago. Yeast, one of the earliest domesticated microorganisms, occurs naturally on the skins of grapes, leading to the discovery of alcoholic drinks such as wine. The earliest archeological evidence for a dominant position of wine-making in human culture dates from 8,000 years ago in Georgia.[PARAGRAPH:1]The oldest known winery, the Areni-1 winery, was found in Armenia and dates back to around 4000 BC. By the 9th century AD, the city of Shiraz was known to produce some of the finest wines in the Middle East. Thus it has been proposed that Syrah red wine is named after Shiraz, a city in Persia where the grape was used to make Shirazi wine.[PARAGRAPH:1]Ancient Egyptian hieroglyphics record the cultivation of purple grapes, and history attests to the ancient Greeks, Cypriots, Phoenicians, and Romans growing purple grapes for eating and wine production. The growing of grapes would later spread to other regions in Europe, North Africa, and eventually in North America.[PARAGRAPH:1]In 2005, a team of archaeologists concluded that Chalcolithic wine jars discovered in Cyprus in the 1930s dated back to 3500 BC, making them the oldest of their kind in the world. Commandaria, a sweet dessert wine from Cyprus, is the oldest manufactured wine in the world with origins as far back as 2000 BC.[PARAGRAPH:1]In North America, native grapes belonging to various species of the genus Vitis proliferate in the wild across the continent and were a part of the diet of many Native Americans, but early European colonists considered them to be unsuitable for wine. In the 19th century, Ephraim Bull of Concord, Massachusetts, cultivated seeds from wild Vitis labrusca vines to create the Concord grape, which would become an important agricultural crop in the United States.[PARAGRAPH:2]Grapes are a type of fruit that grow in clusters of 15 to 300 and can be crimson, black, dark blue, yellow, green, orange, and pink. "White" grapes are actually green in color and are evolutionarily derived from the purple grape. Mutations in two regulatory genes of white grapes turn off production of anthocyanins, which are responsible for the color of purple grapes. Anthocyanins and other pigment chemicals of the larger family of polyphenols in purple grapes are responsible for the varying shades of purple in red wines. Grapes are typically an ellipsoid shape resembling a prolate spheroid.</English>
++	</TEXT>
++
+ 
+ 
+ 	<!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the sevopedia unit ('s) history panel('s text), removing the H1, and adding info about how animals can't/cannot anyways etc anyways etc anyways etc be built by any civ, including barbarians if i am not mistaken, and how our new placeExclusiveCivs "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it hopefully well or not or yes or and other or and not or yes or and other or and not but anyways etc.
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index 1732c1a6f..0bca93a13 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -1098,8 +1098,8 @@
+ 			</DiscouragedCivs>
+ 		</TruBonusInfo>
+ 		<TruBonusInfo>
+-			<Type>TRU_WINE</Type>
+-			<BonusType>BONUS_WINE</BonusType>
++			<Type>TRU_GRAPES</Type>
++			<BonusType>BONUS_GRAPES</BonusType>
+ 			<!-- Don't discourage the Americas. Suitable vines did grow there,
+ 				 and it's not proven that they weren't fermented. -->
+ 			<DiscouragedCivs>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index 1857a9f53..d6fcc33ce 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -530,48 +530,6 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
+ 		</BuildInfo>
+-		<BuildInfo>
+-			<Type>BUILD_WINERY</Type>
+-			<Description>TXT_KEY_BUILD_WINERY</Description>
+-			<Help/>
+-			<PrereqTech>TECH_MONARCHY</PrereqTech>
+-			<iTime>500</iTime>
+-			<iCost>0</iCost>
+-			<bKill>0</bKill>
+-			<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
+-			<RouteType>NONE</RouteType>
+-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+-			<FeatureStructs>
+-				<FeatureStruct>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+-					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
+-					<bRemove>1</bRemove>
+-				</FeatureStruct>
+-				<FeatureStruct>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+-					<iTime>300</iTime>
+-					<iProduction>30</iProduction>
+-					<bRemove>1</bRemove>
+-				</FeatureStruct>
+-				<!-- kekm.9 -->
+-				<FeatureStruct>
+-					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+-					<iTime>600</iTime>
+-					<iProduction>0</iProduction>
+-					<bRemove>1</bRemove>
+-				</FeatureStruct>
+-			</FeatureStructs>
+-			<HotKey>KB_W</HotKey>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>1</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>1</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Builds/BuildWinery.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,8</Button>
+-		</BuildInfo>
+ 		<BuildInfo>
+ 			<Type>BUILD_COTTAGE</Type>
+ 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 7113e739c..b34155125 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1109,10 +1109,6 @@ then adjust maybe anyways):
+ 					<BuildType>BUILD_WELL</BuildType>
+ 					<bBuild>1</bBuild>
+ 				</Build>
+-				<Build>
+-					<BuildType>BUILD_WINERY</BuildType>
+-					<bBuild>1</bBuild>
+-				</Build>
+ 				<Build>
+ 					<BuildType>BUILD_COTTAGE</BuildType>
+ 					<bBuild>1</bBuild>
+@@ -1363,10 +1359,6 @@ then adjust maybe anyways):
+ 					<BuildType>BUILD_WELL</BuildType>
+ 					<bBuild>1</bBuild>
+ 				</Build>
+-				<Build>
+-					<BuildType>BUILD_WINERY</BuildType>
+-					<bBuild>1</bBuild>
+-				</Build>
+ 				<Build>
+ 					<BuildType>BUILD_COTTAGE</BuildType>
+ 					<bBuild>1</bBuild>
+@@ -1616,10 +1608,6 @@ then adjust maybe anyways):
+ 					<BuildType>BUILD_WELL</BuildType>
+ 					<bBuild>1</bBuild>
+ 				</Build>
+-				<Build>
+-					<BuildType>BUILD_WINERY</BuildType>
+-					<bBuild>1</bBuild>
+-				</Build>
+ 				<Build>
+ 					<BuildType>BUILD_COTTAGE</BuildType>
+ 					<bBuild>1</bBuild>
+
+diff --git a/README.md b/README.md
+index 962afcf9e..36cb27f20 100644
+--- a/README.md
++++ b/README.md
+@@ -42,7 +42,9 @@ This sevopedia category displays key information about AdvCiv-SAS (non-exhaustiv
+ 
+ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not eb updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG" width="250"></img>
+ 
+ note: this info is also available in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index 5344b4630..f23bcf0a9 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -2536,7 +2536,7 @@ p1011
+ I24
+ g969
+ tp1012
+-a(S'HAS_BONUS_WINE'
++a(S'HAS_BONUS_GRAPES'
+ p1013
+ I24
+ g969
+@@ -2753,7 +2753,7 @@ p1093
+ I60
+ g910
+ tp1094
+-a(S'BONUS_WINE'
++a(S'BONUS_GRAPES'
+ p1095
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 8f38b751f..291f1f859 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -2536,7 +2536,7 @@ p1011
+ I24
+ g969
+ tp1012
+-a(S'HAS_BONUS_WINE'
++a(S'HAS_BONUS_GRAPES'
+ p1013
+ I24
+ g969
+@@ -2753,7 +2753,7 @@ p1093
+ I60
+ g910
+ tp1094
+-a(S'BONUS_WINE'
++a(S'BONUS_GRAPES'
+ p1095
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index 3ec527277..1e92810c9 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -2280,7 +2280,7 @@ p914
+ I24
+ g872
+ tp915
+-a(S'HAS_BONUS_WINE'
++a(S'HAS_BONUS_GRAPES'
+ p916
+ I24
+ g872
+@@ -2504,7 +2504,7 @@ p997
+ I54
+ g816
+ tp998
+-a(S'BONUS_WINE'
++a(S'BONUS_GRAPES'
+ p999
+ I54
+ g816
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index e7c336c4e..fd37fbf5c 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -2394,7 +2394,7 @@ p950
+ I24
+ g908
+ tp951
+-a(S'HAS_BONUS_WINE'
++a(S'HAS_BONUS_GRAPES'
+ p952
+ I24
+ g908
+@@ -2619,7 +2619,7 @@ p1034
+ I100
+ g849
+ tp1035
+-a(S'BONUS_WINE'
++a(S'BONUS_GRAPES'
+ p1036
+ I55
+ g849
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 5b2447a90..2d157b26b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -14,7 +14,7 @@ Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
+ (click to view it full size) may not be updated, it is to give a preview/general
+ idea):
+ 
+-<img src="./Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
++<img src="./Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
+ 
+ There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
+ 
+@@ -287,6 +287,7 @@ instead i tried to put some nice images relatively as i thought would fit and i
+ like, took quite a lot from existing mods
+ - Some new ressources, for example camel and todo, some removed ressources, for
+ example wine and todo
++- Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc. 
+ - todo: space victory removed, it's too tedious to do, instead the USA is the
+ only civ who wins if they build the programme Appolo, make sure to keep them in
+ check
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index d2722f09f..670d2a224 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -50,6 +50,8 @@ after having written this first paragraph above in this same example 4, a more e
+ <img src="../Images_In_General/0.650_sevopedia_bonus_sample (7).JPG" width="250"></img>
+ <img src="../Images_In_General/0.650_sevopedia_bonus_sample (8).JPG" width="250"></img>
+ <img src="../Images_In_General/0.650_sevopedia_bonus_sample (9).JPG" width="250"></img>
++<img src="../Images_In_General/0.650_sevopedia_bonus_sample (10).JPG" width="250"></img>
++<img src="../Images_In_General/0.650_sevopedia_bonus_sample (11).JPG" width="250"></img>
+ 
+ ## example 5: religion category
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG
+new file mode 100644
+index 000000000..77f91320e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG b/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG
+new file mode 100644
+index 000000000..34850c2ff
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG
+new file mode 100644
+index 000000000..2e64d56be
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG b/_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG
+deleted file mode 100644
+index 33421fa98..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (10).JPG b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (10).JPG
+new file mode 100644
+index 000000000..f2ed82b7b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (10).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG
+new file mode 100644
+index 000000000..3fa449d87
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=29 embeddedFiles=29 omittedFiles=0 embeddedPatchBytes=66915

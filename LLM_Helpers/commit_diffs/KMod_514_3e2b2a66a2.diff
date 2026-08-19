@@ -1,0 +1,164 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 514
+# Commit: 3e2b2a66a26b5885a1bf5be2328cf7718c705ad3
+# History segment: K-Mod history
+# Parent used for diff: e1bf2b744db8421099a0265e0ca2ff3ca46638e4
+# Title: The AI will now delay having a revolution if they are currently research the prereq tech for a civic they want to use. Added some more AI flavour effects to...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCityAI.cpp
+48	19	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 51420a5e7..42bb80128 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9079,9 +9079,9 @@ int CvCityAI::AI_citizenLossCost(int iCitDelta, int iAnger)
+ 		// since the score estimate is very rough, I'm going to flatten it out a bit by combining it with the average score
+ 		iScoreLoss += (2*job_scores[i] + iAverageScore + 2)/3;
+ 
+-		//const int iGrowthWeight = kOwner.AI_getFlavorValue(FLAVOR_GROWTH) > 0 ? 112 + kOwner.AI_getFlavorValue(FLAVOR_GROWTH) : 105;
++		const int iGrowthWeight = kOwner.AI_getFlavorValue(FLAVOR_GROWTH) == 0 ? 110 : 118 + kOwner.AI_getFlavorValue(FLAVOR_GROWTH);
+ 
+-		int iFoodLoss = kOwner.getGrowthThreshold(getPopulation() - i - 1) * (110 - getMaxFoodKeptPercent()) / 100;
++		int iFoodLoss = kOwner.getGrowthThreshold(getPopulation() - i - 1) * (iGrowthWeight - getMaxFoodKeptPercent()) / 100;
+ 		int iFoodRate = iTotalFood - (iScoreLoss * AI_yieldMultiplier(YIELD_FOOD) * iYields[YIELD_FOOD] + iTotalScore*100-1)/std::max(1, iTotalScore * 100);
+ 		iFoodRate -= (getPopulation() - i - 1) * GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 		iFoodRate += std::max(iWastedFood, i+1);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 58c7d8611..afad0ae11 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -47,7 +47,7 @@
+ /************************************************************************************************/
+ 
+ #define GREATER_FOUND_RANGE			(5)
+-#define CIVIC_CHANGE_DELAY			(25)
++#define CIVIC_CHANGE_DELAY			(20) // was 25
+ #define RELIGION_CHANGE_DELAY		(15)
+ 
+ // statics
+@@ -15360,8 +15360,8 @@ void CvPlayerAI::AI_doCommerce()
+ 	verifyGoldCommercePercent();
+ }
+ 
+-// K-Mod had edited this function, based on edits from BBAI. I don't know what's original bts code and what's not.
+-// BBAI introduced some bugs, which is why I've rewritten parts.
++// K-Mod. I've rewriten most of this function, based on edits from BBAI. I don't know what's original bts code and what's not.
++// (the BBAI implementation had some bugs)
+ void CvPlayerAI::AI_doCivics()
+ {
+ 	FAssertMsg(!isHuman(), "isHuman did not return false as expected");
+@@ -15387,13 +15387,13 @@ void CvPlayerAI::AI_doCivics()
+ 
+ 	// FAssertMsg(AI_getCivicTimer() == 0, "AI Civic timer is expected to be 0"); // Disabled by K-Mod
+ 
+-	CivicTypes* paeBestCivic = new CivicTypes[GC.getNumCivicOptionInfos()];
+-	int* paiCurrentValue = new int[GC.getNumCivicOptionInfos()];
++	std::vector<CivicTypes> aeBestCivic(GC.getNumCivicOptionInfos());
++	std::vector<int> aiCurrentValue(GC.getNumCivicOptionInfos());
+ 
+ 	for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+ 	{
+-		paeBestCivic[iI] = getCivics((CivicOptionTypes)iI);
+-		paiCurrentValue[iI] = AI_civicValue(paeBestCivic[iI]);
++		aeBestCivic[iI] = getCivics((CivicOptionTypes)iI);
++		aiCurrentValue[iI] = AI_civicValue(aeBestCivic[iI]);
+ 	}
+ 
+ 	int iAnarchyLength = 0;
+@@ -15409,22 +15409,23 @@ void CvPlayerAI::AI_doCivics()
+ 			int iBestValue;
+ 			CivicTypes eNewCivic = AI_bestCivic((CivicOptionTypes)iI, &iBestValue);
+ 
+-			int iTestAnarchy = getCivicAnarchyLength(paeBestCivic);
++			int iTestAnarchy = getCivicAnarchyLength(&aeBestCivic[0]);
+ 			// using 20 percent as a rough estimate of revolution cost, and 2 percent just for a bit of inertia.
+ 			// reduced threshold if we are already going to have a revolution.
+ 			int iThreshold = (iTestAnarchy > iAnarchyLength ? (!bFirstPass | bWantSwitch ? 14 : 24) : 2);
+ 
+-			if (paeBestCivic[iI] != NO_CIVIC && 100*iBestValue > (100+iThreshold)*paiCurrentValue[iI])
++			if (100*iBestValue > (100+iThreshold)*aiCurrentValue[iI])
+ 			{
+-				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getCivicInfo(eNewCivic).getDescription(0), iBestValue, paiCurrentValue[iI], bFirstPass?"" :", on recheck");
++				FAssert(aeBestCivic[iI] != NO_CIVIC);
++				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getCivicInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue[iI], bFirstPass?"" :", on recheck");
+ 				iAnarchyLength = iTestAnarchy;
+-				paeBestCivic[iI] = eNewCivic;
+-				paiCurrentValue[iI] = iBestValue;
++				aeBestCivic[iI] = eNewCivic;
++				aiCurrentValue[iI] = iBestValue;
+ 				bWillSwitch = true;
+ 			}
+ 			else
+ 			{
+-				if (100*iBestValue > 114*paiCurrentValue[iI])
++				if (100*iBestValue > 114*aiCurrentValue[iI])
+ 					bWantSwitch = true;
+ 			}
+ 		}
+@@ -15433,15 +15434,43 @@ void CvPlayerAI::AI_doCivics()
+ 	// Recheck, just in case we can switch another good civic without adding more anarchy.
+ 
+ 
+-	// XXX AI skips revolution???
+-	if (canRevolution(paeBestCivic))
++	// finally, if our current research would give us a new civic, consider waiting for that.
++	if (iAnarchyLength > 0 && bWillSwitch)
+ 	{
+-		revolution(paeBestCivic);
+-		AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY);
++		TechTypes eResearch = getCurrentResearch();
++		int iResearchTurns;
++		if (eResearch != NO_TECH && (iResearchTurns = getResearchTurnsLeft(eResearch, true)) < 2*CIVIC_CHANGE_DELAY/3)
++		{
++			for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
++			{
++				const CvCivicInfo& kCivic = GC.getCivicInfo((CivicTypes)iI);
++				if (kCivic.getTechPrereq() == eResearch && !canDoCivics((CivicTypes)iI))
++				{
++					int iValue = AI_civicValue((CivicTypes)iI);
++					if (100 * iValue > (118+2*iResearchTurns) * aiCurrentValue[kCivic.getCivicOptionType()])
++					{
++						CivicTypes eOtherCivic = aeBestCivic[kCivic.getCivicOptionType()];
++						aeBestCivic[kCivic.getCivicOptionType()] = (CivicTypes)iI;
++						if (getCivicAnarchyLength(&aeBestCivic[0]) <= iAnarchyLength)
++						{
++							if (gPlayerLogLevel > 0)
++								logBBAI("    %S delays revolution to wait for %S (value: %d vs %d)", getCivilizationDescription(0), kCivic.getDescription(0), iValue, aiCurrentValue[kCivic.getCivicOptionType()]);
++							AI_setCivicTimer(iResearchTurns*2/3);
++							return;
++						}
++						aeBestCivic[kCivic.getCivicOptionType()] = eOtherCivic;
++					}
++				}
++			}
++		}
+ 	}
++	//
+ 
+-	SAFE_DELETE_ARRAY(paeBestCivic);
+-	SAFE_DELETE_ARRAY(paiCurrentValue);
++	if (canRevolution(&aeBestCivic[0]))
++	{
++		revolution(&aeBestCivic[0]);
++		AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY);
++	}
+ }
+ 
+ void CvPlayerAI::AI_doReligion()
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6537

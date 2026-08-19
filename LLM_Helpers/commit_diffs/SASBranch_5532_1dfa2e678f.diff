@@ -1,0 +1,101 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5532
+# Commit: 1dfa2e678f2b9298c099a0c47ff2cf90bd5b4298
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d2db8edf2245cb98334ae77e60d4130d0598e758
+# Title: Merge branch 'gp-bar-redirect-city-screen' of https://github.com/wonderingabout/AdvCiv-SAS into ui-font-scaling
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+13	7	Assets/Python/Screens/CvMainInterface.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 3454a948c..d7be760c9 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1206,9 +1206,10 @@ def SAS_getCivicsGroupedByCivicOption(bSortLists):
+ 		if not tmp:
+ 			continue
+ 
+-		# If BUG "Sort Lists" is ON, alphabetize within each option group
+-		if bSortLists:
+-			tmp.sort()
++		# <!-- custom: do not alphabetize civics inside each civic-option group; keep their CIV4CivicInfos.xml order so progression is consistent with XML/game design and easier to scan while still keeping option-type headers. (GPT-5.3-Codex (summarized)) -->
++		# # If BUG "Sort Lists" is ON, alphabetize within each option group
++		# if bSortLists:
++		# 	tmp.sort()
+ 
+ 		if civicsList:
+ 			civicsList.append(("", -1))  # spacer between groups
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 790f39460..38e332297 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -4920,9 +4920,10 @@ class CvMainInterface:
+ 		else:
+ 			iCityID = -1
+ # BUG - Bars on single line for higher resolution screens - start
++		# <!-- custom: attach displayed GP city id so clicking the GP text can open that exact city screen. (GPT-5.3-Codex) -->
+ 		self.setText("GreatPersonBarText", "Background", szText,
+ 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
+-				WidgetTypes.WIDGET_GP_PROGRESS_BAR)
++				WidgetTypes.WIDGET_GP_PROGRESS_BAR, iCityID, -1)
+ 		if not pGPCity:
+ 			screen.setHitTest("GreatPersonBarText", HitTestTypes.HITTEST_NOHIT)
+ 		screen.show("GreatPersonBarText")
+@@ -8010,16 +8011,21 @@ class CvMainInterface:
+ 		# <!-- custom: end - building filter button hover tooltips -->
+ 
+ # BUG - Great Person Bar - start
++		# <!-- custom: support GP bar clicks in both one-line/two-line layouts and on GP text itself. (GPT-5.3-Codex) -->
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and
+-				inputClass.getFunctionName().startswith("TwoLineGPBar")):
+-			# Zoom to next GP city
++				(inputClass.getFunctionName().startswith("TwoLineGPBar") or
++				inputClass.getFunctionName().startswith("OneLineGPBar") or
++				inputClass.getFunctionName().startswith("GreatPersonBarText"))):
+ 			iCity = inputClass.getData1()
+-			if (iCity == -1):
+-				pCity, _ = GPUtil.findNextCity()
+-			else:
++			# <!-- custom: prefer widget city id when available for direct city resolution. (GPT-5.3-Codex) -->
++			if (iCity != -1):
+ 				pCity = gc.getActivePlayer().getCity(iCity)
++			else:
++				# <!-- custom: fallback to the currently displayed GP city if widget data is missing. (GPT-5.3-Codex) -->
++				pCity, _ = GPUtil.getDisplayCity()
+ 			if pCity and not pCity.isNone():
+-				CyInterface().selectCity(pCity, False)
++				# <!-- custom: true opens the selected city's city screen from map view. (GPT-5.3-Codex) -->
++				CyInterface().selectCity(pCity, true)
+ 			return 1
+ # BUG - Great Person Bar - end
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c438e089b..134635415 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -330,7 +330,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit.
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width).
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religious Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7132

@@ -1,0 +1,293 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5172
+# Commit: 8cf11089499e0152e4b4664042e879a9262be019
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cc066d71c568e7de4fe5c98dee802a9327a2a563
+# Title: more more performance optimizations and code refactor + cleanup anyways etc; minor beuatify of the foreign advisor's active sub-screen anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	11	Assets/Python/Screens/CvExoticForeignAdvisor.py
+49	30	Assets/Python/Screens/CvForeignAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 53bb2979f..fbe090a15 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -404,8 +404,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
+ 		# <advc.066> Replacing the above (same as in drawInfoOriginal)
+-		leftRightMargin = 25
+-		topBottomMargin = 50
++		# <!-- custom: remove the margins same as in the other foreign advisor sub-screens after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
++		# leftRightMargin = 25
++		# topBottomMargin = 50
++		leftRightMargin = 0
++		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now but anyways etc. -->
++		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active sub-screen but doing as such for consistency as well as in base advciv code as well coincidentally i mean if i may say but anyways etc. -->
++		topBottomMargin = 42
+ 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
+ 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
+ 		if not gc.getGame().isDebugMode():
+@@ -513,11 +518,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 		screen = self.getScreen()
+ 
+-		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+-		objActivePlayer = gc.getPlayer(self.iActiveLeader)
+-
+ 		# Get the Players
+-		playerActive = objActivePlayer
++		playerActive = gc.getPlayer(self.iActiveLeader)
+ 					
+ 		# Put everything inside a main panel, so we get vertical scrolling
+ 		mainPanelName = self.getNextWidgetName()
+@@ -535,9 +537,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+ 		bDebugMode = gc.getGame().isDebugMode()
++		playerActiveTeam = playerActive.getTeam()
+ 
+ 		if not bDebugMode:
+-			hasMetCount = gc.getTeam(playerActive.getTeam()).getHasMetCivCount(True)
++			hasMetCount = gc.getTeam(playerActiveTeam).getHasMetCivCount(True)
+ 			if hasMetCount > 0: # 100 was just a guess, but it seems like this is the exact height of a row.
+ 				mainPanelHeight = min(mainPanelHeight, 100 * hasMetCount)
+ 		screen.addPanel(mainPanelName, "", "", True, True, leftRightMargin, topBottomMargin, mainPanelWidth, mainPanelHeight, PanelStyles.PANEL_STYLE_EMPTY)
+@@ -557,16 +560,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		# szFavoritesPreText = localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
+ 		szFavoritesPreText = szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":"
+ 
+-		# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+-		objActiveTeam = objActivePlayer.getTeam()
+-
+ 		# loop through all players and display leaderheads
+ 		# Their leaderheads		
+ 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+ 			# <!-- custom: hoist for performance optimization, done with the help of gemini 3 pro thanks anyways etc. -->
+ 			objLoopPlayer = gc.getPlayer(iLoopPlayer)
+ 
+-			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(objActiveTeam) or bDebugMode) and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv()):
++			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(playerActiveTeam) or bDebugMode) and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv()):
+ 
+ 				nPlayerReligion = objLoopPlayer.getStateReligion()
+ 				objReligion = gc.getReligionInfo (nPlayerReligion)
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 846cc4af0..2b25d52ff 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -217,8 +217,11 @@ class CvForeignAdvisor:
+ 		listPlayers = [(0,0)] * gc.getMAX_PLAYERS()
+ 		nNumPLayers = 0
+ 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+-			if (gc.getPlayer(iLoopPlayer).isAlive() and iLoopPlayer != self.iActiveLeader and not gc.getPlayer(iLoopPlayer).isBarbarian() and  not gc.getPlayer(iLoopPlayer).isMinorCiv()):
+-				if (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()):
++			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
++			objLoopPlayer = gc.getPlayer(iLoopPlayer)
++
++			if (objLoopPlayer.isAlive() and iLoopPlayer != self.iActiveLeader and not objLoopPlayer.isBarbarian() and  not objLoopPlayer.isMinorCiv()):
++				if (gc.getTeam(objLoopPlayer.getTeam()).isHasMet(playerActive.getTeam()) or gc.getGame().isDebugMode()):
+ 					nDeals = 0				
+ 					for i in range(gc.getGame().getIndexAfterLastDeal()):
+ 						deal = gc.getGame().getDeal(i)
+@@ -233,13 +236,17 @@ class CvForeignAdvisor:
+ 		for j in range (nNumPLayers):
+ 			iLoopPlayer = listPlayers[j][1]
+ 
++			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
++			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
++			objLoopPlayer2 = gc.getPlayer(iLoopPlayer)
++
+ 			# Player panel
+ 			playerPanelName = self.getNextWidgetName()
+-			screen.attachPanel(mainPanelName, playerPanelName, gc.getPlayer(iLoopPlayer).getName(), "", False, True, PanelStyles.PANEL_STYLE_MAIN)
++			screen.attachPanel(mainPanelName, playerPanelName, objLoopPlayer2.getName(), "", False, True, PanelStyles.PANEL_STYLE_MAIN)
+ 
+ 			screen.attachLabel(playerPanelName, "", "   ")
+ 
+-			screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, False)
++			screen.attachImageButton(playerPanelName, "", gc.getLeaderHeadInfo(objLoopPlayer2.getLeaderType()).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, False)
+ 						
+ 			innerPanelName = self.getNextWidgetName()
+ 			screen.attachPanel(playerPanelName, innerPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
+@@ -292,13 +299,17 @@ class CvForeignAdvisor:
+ 				if (self.iSelectedLeader == self.iActiveLeader):
+ 					# loop through all players and display resources that are available to trade to at least one leader
+ 					for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+-						if (gc.getPlayer(iLoopPlayer).isAlive() and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv() and gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())):
+-							if (iLoopPlayer != self.iActiveLeader and gc.getPlayer(self.iActiveLeader).canTradeItem(iLoopPlayer, tradeData, False)):
++						# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
++						objLoopPlayer = gc.getPlayer(iLoopPlayer)
++
++						# <!-- custom: replace gc.getPlayer(self.iActiveLeader) with existing playerActive variable anyways etc. Done similarly in various related places and uncommented anyways etc. -->
++						if (objLoopPlayer.isAlive() and not objLoopPlayer.isBarbarian() and not objLoopPlayer.isMinorCiv() and gc.getTeam(objLoopPlayer.getTeam()).isHasMet(playerActive.getTeam())):
++							if (iLoopPlayer != self.iActiveLeader and playerActive.canTradeItem(iLoopPlayer, tradeData, False)):
+ 								bTradeable = True
+ 								iLoopPlayer = gc.getMAX_PLAYERS() # exit for loop
+ 				else:
+ 					# display resources that you can trade to the selected leader
+-					bTradeable = gc.getPlayer(self.iActiveLeader).canTradeItem(self.iSelectedLeader, tradeData, False)
++					bTradeable = playerActive.canTradeItem(self.iSelectedLeader, tradeData, False)
+ 
+ 				if bTradeable:
+ 					for i in range(playerActive.getNumTradeableBonuses(iLoopBonus)):
+@@ -313,14 +324,18 @@ class CvForeignAdvisor:
+ 				if (self.iSelectedLeader == self.iActiveLeader):
+ 					# loop through all players and display techs that are available to trade to at least one leader
+ 					for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+-						if (gc.getPlayer(iLoopPlayer).isAlive() and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv() and gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())):
+-							if (iLoopPlayer != self.iActiveLeader and gc.getPlayer(self.iActiveLeader).canTradeItem(iLoopPlayer, tradeData, False)):
++						# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
++						# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
++						objLoopPlayer2 = gc.getPlayer(iLoopPlayer)
++
++						if (objLoopPlayer2.isAlive() and not objLoopPlayer2.isBarbarian() and not objLoopPlayer2.isMinorCiv() and gc.getTeam(objLoopPlayer2.getTeam()).isHasMet(playerActive.getTeam())):
++							if (iLoopPlayer != self.iActiveLeader and playerActive.canTradeItem(iLoopPlayer, tradeData, False)):
+ 								bTradeable = True
+ 								iLoopPlayer = gc.getMAX_PLAYERS() # exit for loop
+ 								
+ 				else:
+ 					# display techs that you can trade to the selected leader
+-					bTradeable = gc.getPlayer(self.iActiveLeader).canTradeItem(self.iSelectedLeader, tradeData, False)
++					bTradeable = playerActive.canTradeItem(self.iSelectedLeader, tradeData, False)
+ 					
+ 				if bTradeable:
+ 					screen.appendMultiListButton("Child" + activePlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
+@@ -328,7 +343,7 @@ class CvForeignAdvisor:
+ 		# Add active player leaderhead
+ 		screen.attachLabel(activePlayerPanelName, "", "   ")
+ 		szName = self.getNextWidgetName()			
+-		screen.addCheckBoxGFCAt(activePlayerPanelName, szName, gc.getLeaderHeadInfo(gc.getPlayer(self.iActiveLeader).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), 10, 0, self.W_LEADER, self.H_LEADER, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++		screen.addCheckBoxGFCAt(activePlayerPanelName, szName, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), 10, 0, self.W_LEADER, self.H_LEADER, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 		if (self.iSelectedLeader == self.iActiveLeader):
+ 			screen.setState(szName, True)
+ 		else:
+@@ -336,18 +351,22 @@ class CvForeignAdvisor:
+ 
+ 		# Their leaderheads		
+ 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+-			if (gc.getPlayer(iLoopPlayer).isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()) and not gc.getPlayer(iLoopPlayer).isBarbarian() and not gc.getPlayer(iLoopPlayer).isMinorCiv()):
++			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution but anyways etc. -->
++			# <!-- custom: note: increment variable naming to avoid weird python non-related scope inheritance/default/fallback or whatever it is called anyways etc. -->
++			objLoopPlayer3 = gc.getPlayer(iLoopPlayer)
++
++			if (objLoopPlayer3.isAlive() and iLoopPlayer != self.iActiveLeader and (gc.getTeam(objLoopPlayer3.getTeam()).isHasMet(playerActive.getTeam()) or gc.getGame().isDebugMode()) and not objLoopPlayer3.isBarbarian() and not objLoopPlayer3.isMinorCiv()):
+ 
+ 				currentPlayerPanelName = self.getNextWidgetName()
+-				szPlayerName = gc.getPlayer(iLoopPlayer).getName()
+-				if (gc.getTeam(playerActive.getTeam()).isGoldTrading() or gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isGoldTrading()):
++				szPlayerName = objLoopPlayer3.getName()
++				if (gc.getTeam(playerActive.getTeam()).isGoldTrading() or gc.getTeam(objLoopPlayer3.getTeam()).isGoldTrading()):
+ 					if (self.iScreen == FOREIGN_BONUS_SCREEN):
+-						szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_GOLD_PER_TURN_FOR_TRADE", (gc.getPlayer(iLoopPlayer).AI_maxGoldPerTurnTrade(self.iActiveLeader), ))
++						szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_GOLD_PER_TURN_FOR_TRADE", (objLoopPlayer3.AI_maxGoldPerTurnTrade(self.iActiveLeader), ))
+ 					elif (self.iScreen == FOREIGN_TECH_SCREEN):
+-						szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_GOLD_FOR_TRADE", (gc.getPlayer(iLoopPlayer).AI_maxGoldTrade(self.iActiveLeader), ))
++						szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_GOLD_FOR_TRADE", (objLoopPlayer3.AI_maxGoldTrade(self.iActiveLeader), ))
+ 				if (not playerActive.canTradeNetworkWith(iLoopPlayer) and self.iScreen == FOREIGN_BONUS_SCREEN):
+ 					szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_CONNECTED", ())
+-				elif (not gc.getTeam(playerActive.getTeam()).isTechTrading() and not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isTechTrading()):
++				elif (not gc.getTeam(playerActive.getTeam()).isTechTrading() and not gc.getTeam(objLoopPlayer3.getTeam()).isTechTrading()):
+ 					szPlayerName += u" : " + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
+ 				screen.attachPanel(mainPanelName, currentPlayerPanelName, szPlayerName, "", False, True, PanelStyles.PANEL_STYLE_EMPTY )				
+ 
+@@ -364,8 +383,8 @@ class CvForeignAdvisor:
+ 						tradeData.ItemType = TradeableItems.TRADE_RESOURCES
+ 						for iLoopBonus in range(gc.getNumBonusInfos()):
+ 							tradeData.iData = iLoopBonus
+-							if (gc.getPlayer(iLoopPlayer).canTradeItem(self.iActiveLeader, tradeData, False)):
+-								if (gc.getPlayer(iLoopPlayer).getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL):
++							if (objLoopPlayer3.canTradeItem(self.iActiveLeader, tradeData, False)):
++								if (objLoopPlayer3.getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL):
+ 									listTradeable.append(iLoopBonus)
+ 								else:
+ 									listUntradeable.append(iLoopBonus)
+@@ -385,7 +404,7 @@ class CvForeignAdvisor:
+ 							screen.appendMultiListButton("ChildNoTrade" + currentPlayerPanelName, gc.getBonusInfo(iLoopBonus).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus, -1, False)
+ 
+ 				elif (self.iScreen == FOREIGN_TECH_SCREEN):
+-					if (not gc.getTeam(playerActive.getTeam()).isTechTrading() and not gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isTechTrading() and not gc.getGame().isDebugMode()):
++					if (not gc.getTeam(playerActive.getTeam()).isTechTrading() and not gc.getTeam(objLoopPlayer3.getTeam()).isTechTrading() and not gc.getGame().isDebugMode()):
+ 						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 						screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath(), 0, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
+ 					else:
+@@ -396,12 +415,12 @@ class CvForeignAdvisor:
+ 						tradeData.ItemType = TradeableItems.TRADE_TECHNOLOGIES
+ 						for iLoopTech in range(gc.getNumTechInfos()):
+ 							tradeData.iData = iLoopTech
+-							if (gc.getPlayer(iLoopPlayer).canTradeItem(self.iActiveLeader, tradeData, False)):
+-								if (gc.getPlayer(iLoopPlayer).getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL):
++							if (objLoopPlayer3.canTradeItem(self.iActiveLeader, tradeData, False)):
++								if (objLoopPlayer3.getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL):
+ 									listTradeable.append(iLoopTech)
+ 								else:
+ 									listUntradeable.append(iLoopTech)
+-							elif (gc.getTeam(gc.getPlayer(iLoopPlayer).getTeam()).isHasTech(iLoopTech) and playerActive.canResearch(iLoopTech, False)):
++							elif (gc.getTeam(objLoopPlayer3.getTeam()).isHasTech(iLoopTech) and playerActive.canResearch(iLoopTech, False)):
+ 								listTradeNotAllowed.append(iLoopTech)
+ 										
+ 						if len(listTradeable) > 0:
+@@ -427,7 +446,7 @@ class CvForeignAdvisor:
+ 
+ 				screen.attachLabel(currentPlayerPanelName, "", "   ")
+ 				szName = self.getNextWidgetName()
+-				screen.addCheckBoxGFCAt(currentPlayerPanelName, szName, gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), 10, 0, self.W_LEADER, self.H_LEADER, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++				screen.addCheckBoxGFCAt(currentPlayerPanelName, szName, gc.getLeaderHeadInfo(objLoopPlayer3.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), 10, 0, self.W_LEADER, self.H_LEADER, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				if (self.iSelectedLeader == iLoopPlayer):
+ 					screen.setState(szName, True)
+ 				else:
+@@ -459,7 +478,7 @@ class CvForeignAdvisor:
+ 		# Count all other leaders
+ 		for iPlayer in range(gc.getMAX_PLAYERS()):
+ 			player = gc.getPlayer(iPlayer)
+-			if (player.isAlive() and iPlayer != self.iActiveLeader and (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()) and not player.isBarbarian() and not player.isMinorCiv()):
++			if (player.isAlive() and iPlayer != self.iActiveLeader and (gc.getTeam(player.getTeam()).isHasMet(playerActive.getTeam()) or gc.getGame().isDebugMode()) and not player.isBarbarian() and not player.isMinorCiv()):
+ 				leaderMap[iPlayer] = iCount
+ 				iCount = iCount + 1
+ 		fLeaderTop = self.Y_LEADER_CIRCLE_TOP
+@@ -519,8 +538,8 @@ class CvForeignAdvisor:
+ 		playerBase = gc.getPlayer(iBaseLeader)
+ 		# K-Mod end
+ 		szLeaderHead = self.getNextWidgetName()
+-		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(gc.getPlayer(self.iActiveLeader).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+-		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(gc.getPlayer(self.iActiveLeader).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
++		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
++		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
+ 		if (self.iActiveLeader in self.listSelectedLeaders):
+ 			screen.setState(szLeaderHead, True)
+ 		else:
+@@ -532,16 +551,16 @@ class CvForeignAdvisor:
+ 		# K-Mod. vassal / master label
+ 		szName = self.getNextWidgetName()
+ 		szText = u""
+-		player = gc.getPlayer(self.iActiveLeader)
++		player = playerActive
+ 		if iBaseLeader != self.iActiveLeader and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
+ 			if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
+ 				szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
+ 			elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
+ 				szText += localText.getText("TXT_KEY_MISC_MASTER", ())
+-			if not gc.getPlayer(self.iActiveLeader).isHuman():
++			if not playerActive.isHuman():
+ 				if szText != "":
+ 					szText += ", "
+-				szText += gc.getAttitudeInfo(gc.getPlayer(self.iActiveLeader).AI_getAttitude(iBaseLeader)).getDescription()
++				szText += gc.getAttitudeInfo(playerActive.AI_getAttitude(iBaseLeader)).getDescription()
+ 			if szText != "":
+ 				szText = " (" + szText + ")"
+ 		screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=21821

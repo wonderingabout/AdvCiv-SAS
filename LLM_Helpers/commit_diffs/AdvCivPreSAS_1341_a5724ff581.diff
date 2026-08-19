@@ -1,0 +1,324 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1341
+# Commit: a5724ff58159f2c073fe9b3b55ddcc30210dbf13
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b82da7f0e8c11ce51e9654daa0cc4d6e96aa0118
+# Title: Some small AI changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Misc/CIV4DetailManager.xml
+3	2	CvGameCoreDLL/ArmamentForecast.cpp
+15	11	CvGameCoreDLL/CvPlayerAI.cpp
+22	5	CvGameCoreDLL/InvasionGraph.cpp
+7	7	CvGameCoreDLL/InvasionGraph.h
+7	3	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	2	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 86cae6aba..59374015d 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -3,7 +3,7 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Detail Manager -->
+-<!-- Deines level-o-detail controllers or Cbiv4 graphical elements -->
++<!-- Defines level-of-detail controllers or Civ4 graphical elements -->
+ <!-- Useful hint: values in this file can be changed on the fly (i.e. effects will be noticeable w/o restarting the game) -->
+ <DetailManagerInfos xmlns="x-schema:CIV4DetailManagerSchema.xml">
+ 	<Fader>
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 575ad9649..7dd815cfc 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -554,11 +554,12 @@ double ArmamentForecast::productionFromUpgrades() {
+ 	/* 'civ' may not have the funds to make all the upgrades in the
+ 	   medium term. Think of a human player keeping stacks of Warriors around,
+ 	   or a vassal receiving tech quickly from its master.
+-	   Spend at most five turns worth of income on upgrades. The subtrahend
++	   Spend at most incomeTurns turns worth of income on upgrades. The subtrahend
+ 	   will be 0 during anarchy -- not a big problem I think. */
++	double const incomeTurns = 4;
+ 	double income = civ.estimateYieldRate(YIELD_COMMERCE, 3) -
+ 			civ.calculateInflatedCosts();
+-	double incomeBound = 5 * income;
++	double incomeBound = incomeTurns * income;
+ 	if(incomeBound < r)
+ 		report.log("Upgrades bounded by income (%d gpt)", ::round(income));
+ 	r = std::min(incomeBound, r);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 71e61c836..d8708809b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20721,13 +20721,18 @@ void CvPlayerAI::AI_doDiplo()
+ 						iRand *= std::max(1, iTechPerc - 60);
+ 						iRand /= 30; */
+ 						// K-Mod. not so extreme.
+-						iRand = (iRand * (10 + iTechPerc) + 50)/100;
++						//iRand = (iRand * (10 + iTechPerc) + 50)/100;
++						// advc.003: Equivalent I think, but easier to read.
++						iRand = ::round(iRand * (10 + iTechPerc) / 100.0);
+ 						// K-Mod end
+ 					}
+ 
+-					if( AI_isDoVictoryStrategy(AI_VICTORY_SPACE1) )
+-						iRand /= 2;
+-						
++					if( AI_isDoVictoryStrategy(AI_VICTORY_SPACE1) ) {
++						//iRand /= 2;
++						/*  advc.550a: That seems like a bit of an unfair advantage
++							for civs pursuing a Space victory. */
++						iRand = ::round(0.75 * iRand);
++					}
+ 					iRand = std::max(1, iRand);
+ 					if (g.getSorenRandNum(iRand, "AI Diplo Trade Tech") == 0)
+ /************************************************************************************************/
+@@ -21021,10 +21026,11 @@ void CvPlayerAI::AI_doDiplo()
+ 			//if(g.getSorenRandNum(iDeclareWarTradeRand, "AI Diplo Declare War Trade") != 0)
+ 			if(!::bernoulliSuccess(pr, "advc.104o"))
+ 				continue;
+-			int iBestTargetValue = 0; // </advc.104o>
++			int iBestTargetValue = 0;
++			int iBestTeamPrice = -1;
++			// </advc.104o>
+ 			iBestValue = 0;
+ 			eBestTeam = NO_TEAM;
+-
+ 			for (iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+ 			{
+ 				if(!GET_TEAM((TeamTypes)iJ).isAlive() ||
+@@ -21062,9 +21068,10 @@ void CvPlayerAI::AI_doDiplo()
+ 							target.getID(), civ.getTeam());
+ 					/*  Don't try to make the trade if the DoW by civId isn't
+ 						nearly as valuable to us as what they'll charge */
+-					if(iValue >= (3 * theirPrice) / 4) {
++					if(4 * iValue >= 3 * theirPrice) {
+ 						iBestTargetValue = iValue;
+ 						eBestTeam = target.getID();
++						iBestTeamPrice = theirPrice;
+ 					}
+ 				}
+ 				else // </advc.104o>
+@@ -21110,8 +21117,7 @@ void CvPlayerAI::AI_doDiplo()
+ 						}
+ 					}
+ 				}
+-
+-				iOurValue = ourTeam.AI_declareWarTradeVal(eBestTeam, civ.getTeam());
++				iOurValue = iBestTeamPrice;
+ 				if(eBestGiveTech != NO_TECH)
+ 					iTheirValue = TEAMREF(civId).AI_techTradeVal(eBestGiveTech, getTeam());
+ 				else iTheirValue = 0;
+@@ -21215,8 +21221,6 @@ void CvPlayerAI::AI_doDiplo()
+ 						setTradeItem(&item, TRADE_GOLD, iReceiveGold);
+ 						theirList.insertAtEnd(item);
+ 					}
+-// advc.tmp:
+-FAssertMsg(iMinAtWarCounter>0,"Help hired on the same turn as DoW - no problem, just want to see if this ever happens");
+ 					g.implementDeal(getID(), civId, &ourList, &theirList);
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 1cfab8d69..52c6d98bb 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -22,6 +22,7 @@ InvasionGraph::InvasionGraph(MilitaryAnalyst& m,
+ 
+ 	lossesDone = false;
+ 	allWarPartiesKnown = false;
++	firstSimulateCall = true;
+ 	timeLimit= -1;
+ 	weId = m.ourId();
+ 	report.log("Constructing invasion graph");
+@@ -711,6 +712,13 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 	bool attackerUnprepared = defender.isSneakAttack(*this);
+ 	double deploymentDistDefender = 0;
+ 	double deploymentDistAttacker;
++	double mwmalpFactor = 1;
++	if(id == weId) {
++		int mwmalp = GC.getLeaderHeadInfo(GET_PLAYER(id). // in the interval [0,4]
++				getPersonalityType()).getMaxWarMinAdjacentLandPercent();
++		mwmalpFactor = std::max(1, mwmalp + 5 - (mwmalp == 0 ? 1 : 0)) / 6.0;
++		// NB: mwmalp also factors into defensibilityCost (WarUtilityAspect::Greed)
++	}
+ 	int healDuration = 0;
+ 	/* The city-based distances are deliberately not updated upon the simulated
+ 	   conquest of a city -- a conquered city won't immediately start producing
+@@ -721,6 +729,8 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 			will ever happen, which is probably incorrect. Better to assume a
+ 			shorter distance in this case. */
+ 		deploymentDistAttacker = std::min(getWPAI.maxSeaDist(), c->getDistance());
++		deploymentDistAttacker *= mwmalpFactor; /* If this makes leaders with a
++			high mwmalp assume that they can't reach a very distant target -- OK. */
+ 		/* Often, the attacker can move from one conquered city to the next.
+ 		   Too complicated to do the distance measurements. The code above
+ 		   assumes that the attacking units always start at a city owned in the
+@@ -746,6 +756,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		// Can't rule out that both armies are eliminated at this point
+ 		if(armyPow + targetArmyPow > 1) {
+ 			deploymentDistAttacker *= armyPow / (armyPow + targetArmyPow);
++			deploymentDistAttacker *= mwmalpFactor;
+ 			deploymentDistDefender -= deploymentDistAttacker;
+ 		}
+ 	}
+@@ -766,7 +777,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		/* This often allows sneak attackers to attack a city before civs that
+ 		   have been at war for some time. These civs already get a chance to
+ 		   conquer cities during the simulation prolog. That said, no build-up
+-		   is assumed during the prolog, so, the sneak-attacking AI may over-
++		   is assumed during the prolog, so the sneak-attacking AI may over-
+ 		   estimate its chances when it comes to grabbing cities. The proper
+ 		   solution would be to interleave the simulation and build-up steps. */
+ 		deploymentDuration = 3;
+@@ -776,6 +787,10 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 			units are already being deployed then. */
+ 		deploymentDuration /= 2;
+ 	}
++	if(cavalryAttack) {
++		deploymentDuration = ::round(0.6 * deploymentDuration);
++		deploymentDistAttacker = ::round(0.75 * deploymentDistAttacker);
++	}
+ 	report.log("Deployment distances (%s/%s): %d/%d",
+ 				report.leaderName(getId()),
+ 				report.leaderName(defender.getId()),
+@@ -1029,9 +1044,10 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		}
+ 	}
+ 	else targetArmyPow /= defDeploymentMod; // Retreated army has depl. dist. 0
+-	// Attackers normally assumed to have city raider promotions; cavalry doesn't
++	/*  Attackers normally assumed to have city raider promotions;
++		cavalry doesn't, but might ignore first strikes. */
+ 	if(cavalryAttack) {
+-		armyModAtt -= 0.2;
++		armyModAtt -= 0.12;
+ 		armyModAttCorr = powerCorrect(1 + armyModAtt);
+ 	}
+ 	/* Needs to be updated in any case in order to take into account potential
+@@ -1804,7 +1820,9 @@ void InvasionGraph::simulate(int duration) {
+ 		}
+ 	}
+ 	report.log("Simulating initial build-up (%d turns)", t1);
+-	simulateArmament(t1);
++	// Assume that upgrades are done in the prolog, if any, and only in phase I.
++	simulateArmament(t1, !firstSimulateCall);
++	firstSimulateCall = false;
+ 	// Simulation of losses over the whole duration
+ 	timeLimit = duration;
+ 	simulateLosses();
+@@ -1814,7 +1832,6 @@ void InvasionGraph::simulate(int duration) {
+ 	   cities have been lost. */
+ 	report.log("Simulating concurrent build-up (%d turns)", t2);
+ 	report.setMute(true); // Some more build-up isn't very interesting
+-	// Assume that all upgrades were already done in phase I
+ 	simulateArmament(t2, true);
+ 	report.setMute(false);
+ }
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index 73abf3e83..ffb6d8eba 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -204,13 +204,12 @@ public:
+ 	/* Makes sure these (possibly uninvolved) parties have nodes in the graph
+ 	   (and ArmamentForecasts). */
+ 	void addUninvolvedParties(std::set<PlayerTypes> const& parties);
+-	/* Duration: Time horizon of the simulation. Affects the estimated military
+-	   armament (if addFutureWarParties is called beforehand). Not suitable
+-	   for long-term predictions (e.g. > 50 turns).
+-	   	   Simulation covers build-up and losses. 
+-	   No military build-up is assumed for the first phase.
+-	   Simulates conquests and unit losses (expressed as a loss of power).
+-	   These results are stored in the affected Nodes. */
++	/*  Duration: Time horizon of the simulation. Affects the estimated military
++		armament (if addFutureWarParties is called beforehand). Not suitable
++		for long-term predictions (e.g. > 50 turns).
++		No military build-up is assumed for the first phase.
++		Simulates conquests and unit losses (expressed as a loss of power).
++		These results are stored in the affected Nodes. */
+ 	void simulate(int duration);
+ 
+ private:
+@@ -223,6 +222,7 @@ private:
+ 	int timeLimit; // for simulateLosses
+ 	bool isPeaceScenario;
+ 	bool lossesDone; // for deciding on recentlyAttacked
++	bool firstSimulateCall;
+ 
+ 	void simulateArmament(int duration, bool noUpgrading = false);
+ 	void simulateLosses();
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index ab09c06cf..63a09fab4 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1292,6 +1292,10 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 		rep.log("%s is considering to declare war on %s at the request of %s",
+ 				rep.teamName(agentId), rep.teamName(targetId),
+ 				rep.teamName(sponsorId));
++		/*  Will see the above lines multiple times in the log when this team
++			agrees to declare war b/c CvGame::implementDeal causes the dealValue
++			to be recomputed twice for diplomatic consequences ("traded with enemy",
++			"fair and forthright"). */
+ 	}
+ 	CvTeamAI const& sponsor = GET_TEAM(sponsorId);
+ 	// Don't log details of war evaluation
+@@ -1341,7 +1345,7 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 	// 0.25 if pleased, 0.5 cautious, 1 furious
+ 	double attitudeModifier = (ATTITUDE_FRIENDLY - towardSponsor) /
+ 			(double)ATTITUDE_FRIENDLY;
+-	// Freundschaftspreis, but still obscured (!= 0)
++	// Mates' rates, but still obscured (!= 0).
+ 	if(towardSponsor == ATTITUDE_FRIENDLY)
+ 		attitudeModifier = -0.25;
+ 	/*  Put our money where our mouth is: discount for war on our worst enemy
+@@ -1352,7 +1356,7 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 		if(attitudeModifier == 0) // Avoid 0 for obscurity
+ 			attitudeModifier -= 0.25;
+ 	}
+-	double obscured = price + price * attitudeModifier * h;
++	double obscured = price + price * attitudeModifier * 0.6 * h;
+ 	int r = ::round(obscured);
+ 	rep.log("Obscured price: %d (attitude modifier: %d percent)\n", r,
+ 			::round(100 * attitudeModifier));
+@@ -2536,7 +2540,7 @@ double WarAndPeaceAI::Civ::protectiveInstinct() const {
+ 		common. Subtract WarMongerRespect to sort out the ones that just like
+ 		DP because they're fearful, e.g. Boudica or de Gaulle. */
+ 	CvLeaderHeadInfo& lh = GC.getLeaderHeadInfo(we.getPersonalityType());
+-	int dpVal = 2* (ATTITUDE_FRIENDLY - lh.getDefensivePactRefuseAttitudeThreshold());
++	int dpVal = 2 * (ATTITUDE_FRIENDLY - lh.getDefensivePactRefuseAttitudeThreshold());
+ 	int wmrVal = lh.getWarmongerRespect();
+ 	wmrVal *= wmrVal;
+ 	return 0.9 + (dpVal - wmrVal) / 10.0;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 343d16759..f10ca3f5b 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1599,8 +1599,8 @@ void Rebuke::evaluate() {
+ 		deny us end up paying more than was asked. */
+ 	double punishmentRatio = 0.5 * (theirLoss / theirTotal +
+ 			conqAssetScore() / std::max(10.0, ourCache->totalAssetScore()));
+-	if(punishmentRatio > 0) {
+-		log("Punishment ratio): %d percent, rebuke diplo: %d",
++	if(punishmentRatio > 0.001) {
++		log("Punishment ratio: %d percent, rebuke diplo: %d",
+ 				::round(100 * punishmentRatio), rebukeDiplo);
+ 		u += ::round(std::min(30.0, std::sqrt((double)rebukeDiplo)
+ 				* 100 * punishmentRatio));
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=13462

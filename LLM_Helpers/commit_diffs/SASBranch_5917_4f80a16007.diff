@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5917
+# Commit: 4f80a1600776cbf3af01333a56ac85a84c22d0d2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9f18ea297837942da844afac467278d9927d1dc7
+# Title: Disable AI outside-BFC fort-airbase worker path Add a SAS define to keep the old late-game fort-airbase/canal worker path disabled by default. BFC fort choic...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+13	5	CvGameCoreDLL/CvUnitAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6ec8c5874..286e927ef 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1116,6 +1116,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
+ 		<iDefineIntVal>8</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Enable old AI worker fort-airbase construction outside BFC-focused worker logic. Set to 0 to disable (default): BFC plots are already mostly protected by AdvCiv-SAS worker build logic, and outside-BFC forts usually spend worker turns for meagre defensive/airbase/canal utility the AI rarely uses well. They can also block future irrigation-chain paths; nearby cities usually serve aircraft better than scattered forts, and the fort canal/isthmus effect is rarely needed. Set to 1 to restore the Base AdvCiv late-game fort-airbase path for experiments. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_WORKER_FORT_AIRBASE_ENABLE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index cd29ca54e..1d2433099 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3373,8 +3373,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	/*	advc.001: The above tests !=0. Why should a Fort be given priority
+ 		80% of the time? */
+ 	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see the Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
++	// <!-- custom: Late-game AI workers still built forts outside BFC-focused worker logic. The active source appears to be the airbase branch below: once the AI has paradrop/air/missile units, AI_fortTerritory can choose outside-BFC fort-airbase plots even though BFC plots are already mostly protected by AdvCiv-SAS worker build logic. These forts usually spend worker turns for meagre defensive/airbase/canal benefits, can block future irrigation-chain paths, and cities usually serve aircraft better. Default-disable the old branch through the corresponding SAS define rather than just lowering its odds; if a future caller reaches AI_fortTerritory while the define is disabled, that function logs the attempted path. (GPT-5.5) -->
+ 	//if (SyncRandSuccess100(20))
+-	if (SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
++	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
++	if (bAllowFortAirbaseWorkers && SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
+ 	{
+ 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
+ 		/*	K-Mod. The current AI for canals doesn't work anyway;
+@@ -3464,10 +3466,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	{
+ 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
+ 		bool const bCanal = false; // K-Mod. The current AI for canals doesn't work anyway; so lets skip it to save time.
+-		bool bAirbase = false;
+-		bAirbase = (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) ||
+-				kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) ||
+-				kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
++		bool const bAirbase = (bAllowFortAirbaseWorkers && (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) || kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR))); // <!-- custom: Gate the second worker fallback through the corresponding SAS define too; see the earlier fort-airbase comment in this function. (GPT-5.5) -->
+ 		if (bCanal || bAirbase)
+ 		{
+ 			if (AI_fortTerritory(bCanal, bAirbase))
+@@ -19930,6 +19929,15 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ {
+ 	PROFILE_FUNC();
+ 
++	// <!-- custom: Keep AI fort construction disabled at the fort helper too when the corresponding SAS define is 0, not only at the worker-move callers. Late-game outside-BFC fort-airbase selection reappeared after more workers were available; if another path calls this helper while the define is disabled, log the attempted source instead of silently building forts that spend worker turns for weak practical value or block irrigation chains. (GPT-5.5) -->
++	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
++	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
++	{
++		if (gUnitLogLevel >= 2)
++			logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
++		return false;
++	}
++
+ 	/*	K-Mod. This function currently only handles canals and airbases.
+ 		So if we want neither, just abort. */
+ 	if (!bCanal && !bAirbase)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a9e3f2166..4a95f9778 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -180,6 +180,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ #### Workers (AI)
+ 
+ - Strongly discourage building **forts on bonuses** (very poor early yield/time trade). *(Mostly a guardrail now that worker logic is overhauled, but still helps prevent regressions.)* See [KI#24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-bonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive).
++- (Requires AdvCiv-SAS 5917+) **Outside-BFC fort-airbase path disabled by default:** AdvCiv-SAS worker logic already protects BFC plots from **fort** choices which are deemed **inefficient** so never chosen; this also optionally disables the old **late-game path** where workers could build **forts outside BFC for airbase/canal use**: we prefer **not risking future irrigation-chain paths** or spending worker turns on **rarely useful** defensive modifiers, scattered airbases, or fort canal/isthmus effects.
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - (Requires AdvCiv-SAS 5916+) **Minimum worker production floor**: AI cities now rebuild toward an area-local worker minimum (2 workers for the capital area, 1 per other city) before normal production priorities can keep winning indefinitely. This makes **early worker availability** much more reliable **after losses or underproduction**, **improving early development** because workers are **high-value relative to their cost**, especially when larger cities can produce them with **food + hammers**. The floor does not force only high-pop/capital cities to build workers, because weaker or stagnant cities can sometimes contribute without interrupting stronger cities' growth or key builds. This higher worker production is also beneficial throughout the game. Worker **scrapping** uses the same shared floor so later quota tuning cannot accidentally scrap below the rebuild minimum.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=8089

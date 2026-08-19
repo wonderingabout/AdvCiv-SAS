@@ -1,0 +1,362 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2218
+# Commit: 3966d23a04449a2bf5fc77f2288b06904f26a77a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6ac8ee70b1c2394531862ba5496284ea2772c462
+# Title: Some misc. refactoring, minor performance tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	10	CvGameCoreDLL/CvCityAI.cpp
+5	1	CvGameCoreDLL/CvCityAI.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+3	1	CvGameCoreDLL/CvUnit.h
+74	81	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 4d26ab7b8..798b2833e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5545,8 +5545,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		if (!isHuman())
+ 		{
+ 			iValue += kBuilding.getAIWeight();
+-			//if (iValue > 0)
+-			if (iValue > 0 && kBuilding.getProductionCost() > 0 && !bRemove) // K-Mod. Only use flavour adjustments for constructing ordinary buildings.
++			if (iValue > 0 &&
++				// K-Mod. Only use flavour adjustments for constructing ordinary buildings.
++				kBuilding.getProductionCost() > 0 && !bRemove)
+ 			{
+ 				int iFlavour = 0;
+ 				FOR_EACH_ENUM(Flavor)
+@@ -6855,14 +6856,6 @@ void CvCityAI::AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue)
+ }*/
+ 
+ 
+-int CvCityAI::AI_getBestBuildValue(CityPlotTypes ePlot) const // advc.enum: CityPlotTypes; const
+-{
+-	FAssert(ePlot >= 0);
+-	FAssert(ePlot < NUM_CITY_PLOTS);
+-	return m_aiBestBuildValue[ePlot];
+-}
+-
+-
+ int CvCityAI::AI_totalBestBuildValue(CvArea const& kArea) const // advc: style changes; const
+ {
+ 	int iTotalValue = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 4b98df844..d2e39a9f6 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -112,7 +112,11 @@ public:
+ 	void AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue);
+ 	//void AI_forceEmphasizeCulture(bool bNewValue); // advc.003j
+ 
+-	int AI_getBestBuildValue(CityPlotTypes ePlot) const;
++	int AI_getBestBuildValue(/* advc.enum: */ CityPlotTypes ePlot) const
++	{
++		FAssertBounds(0, NUM_CITY_PLOTS, ePlot);
++		return m_aiBestBuildValue[ePlot];
++	}
+ 	int AI_totalBestBuildValue(CvArea const& kArea) const;
+ 
+ 	int AI_clearFeatureValue(CityPlotTypes ePlot);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1baa09ff2..fa827b694 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6053,7 +6053,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
+ 	return true;
+ }
+ 
+-// Returns the cost
++
+ int CvPlayer::getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const
+ {
+ 	FAssert(eBuild >= 0 && eBuild < GC.getNumBuildInfos());
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a9f78fe29..e213b7cb8 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1970,7 +1970,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer)
+ 	if (isFeature())
+ 		iTime += GC.getInfo(eBuild).getFeatureTime(getFeatureType());
+ 
+-	iTime *= std::max(0, (GC.getInfo(getTerrainType()).getBuildModifier() + 100));
++	iTime *= std::max(0, GC.getInfo(getTerrainType()).getBuildModifier() + 100);
+ 	iTime /= 100;
+ 	// <advc.251>
+ 	iTime = (int)(GC.getInfo(GET_PLAYER(ePlayer).getHandicapType()).
+@@ -2019,7 +2019,7 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePl
+ 
+ 	iBuildLeft = std::max(0, iBuildLeft);
+ 
+-	int iTurnsLeft = (iBuildLeft / iThenBuildRate);
++	int iTurnsLeft = iBuildLeft / iThenBuildRate;
+ 	if (iTurnsLeft * iThenBuildRate < iBuildLeft)
+ 		iTurnsLeft++;
+ 	iTurnsLeft++;
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index efb40bd2d..bb39a8d46 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1100,7 +1100,9 @@ protected:
+ 
+ 	IDInfo m_combatUnit;
+ 	IDInfo m_transportUnit;
+-
++	/*	advc.opt (tbd.): These take up 28 byte each; replace with C strings!
++		May also want to replace most of the ints with short. That would cut
++		the total size of this class in half. */
+ 	CvWString m_szName;
+ 	CvString m_szScriptData;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index bf34f9bb3..dbcc8917b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -16760,83 +16760,78 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange) // advc: 1st para
+ 	if (!kPlot.isVisibleEnemyUnit(this))
+ 	{
+ 		if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
+-			kPlot, MISSIONAI_BUILD, getGroup(), iRange))
++			kPlot, MISSIONAI_BUILD, getGroup(), iRange) &&
++			generatePath(&kPlot, MOVE_SAFE_TERRITORY
++			/* <advc.pf> */ | MOVE_ROUTE_TO, /* </advc.pf> */ true))
+ 		{
+-			if (generatePath(&kPlot, MOVE_SAFE_TERRITORY
+-				/* <advc.pf> */ | MOVE_ROUTE_TO, /* </advc.pf> */ true))
++			/* <advc.300> Barbarian behavior should just be to put roads on the
++			  bonuses adjacent to their cities. */
++			if(isBarbarian())
+ 			{
+-				/* <advc.300> Barbarian behavior should just be to put roads on the
+-				   bonuses adjacent to their cities. */
+-				if(isBarbarian())
+-				{
+-					CvCity* c = kPlot.getWorkingCity();
+-					if(c == NULL || !at(kPlot) || kPlot.isConnectedTo(c))
+-						return false;
+-					getGroup()->pushMission(MISSION_ROUTE_TO, c->getX(), c->getY(),
+-							MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
+-					return true;
+-				} // </advc.300>
+-				FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner()))
++				CvCity* c = kPlot.getWorkingCity();
++				if(c == NULL || !at(kPlot) || kPlot.isConnectedTo(c))
++					return false;
++				getGroup()->pushMission(MISSION_ROUTE_TO, c->getX(), c->getY(),
++						MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
++				return true;
++			} // </advc.300>
++			FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner()))
++			{
++				if (!kPlot.isConnectedTo(pLoopCity))
+ 				{
+-					if (!kPlot.isConnectedTo(pLoopCity))
++					FAssert(kPlot.getPlotCity() != pLoopCity);
++					if (getPlot().isSamePlotGroup(*pLoopCity->plot(), getOwner()))
+ 					{
+-						FAssert(kPlot.getPlotCity() != pLoopCity);
+-						if (getPlot().isSamePlotGroup(*pLoopCity->plot(), getOwner()))
+-						{
+-							getGroup()->pushMission(MISSION_ROUTE_TO, kPlot.getX(), kPlot.getY(),
+-									MOVE_SAFE_TERRITORY
+-									| MOVE_ROUTE_TO, // advc.pf
+-									false, false, MISSIONAI_BUILD, &kPlot);
+-							return true;
+-						}
++						getGroup()->pushMission(MISSION_ROUTE_TO, kPlot.getX(), kPlot.getY(),
++								MOVE_SAFE_TERRITORY
++								| MOVE_ROUTE_TO, // advc.pf
++								false, false, MISSIONAI_BUILD, &kPlot);
++						return true;
+ 					}
+ 				}
+-				FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
++			}
++			FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
++			{
++				/*  BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/19/09, jdog5000: START
++					BBAI efficiency: check same area */
++				if (!pLoopCity->isArea(kPlot.getArea()))
++					continue; // advc
++				// BETTER_BTS_AI_MOD: END
++				if (kPlot.isConnectedTo(pLoopCity))
++					continue;
++				FAssert(kPlot.getPlotCity() != pLoopCity);
++				//if (!pLoopCity->getPlot().isVisibleEnemyUnit(this)) { // advc.opt: It's our city
++				// <advc.139>
++				if (pLoopCity->AI_isEvacuating())
++					continue; // </advc.139>
++				if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY
++					| MOVE_ROUTE_TO, // advc.pf
++					true))
+ 				{
+-					/*  BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/19/09, jdog5000: START
+-						BBAI efficiency: check same area */
+-					if (!pLoopCity->isArea(kPlot.getArea()))
+-						continue;
+-					// BETTER_BTS_AI_MOD: END
+-					if (!kPlot.isConnectedTo(pLoopCity))
++					if (at(kPlot)) // need to test before moving...
+ 					{
+-						FAssert(kPlot.getPlotCity() != pLoopCity);
+-						//if (!pLoopCity->getPlot().isVisibleEnemyUnit(this)) { // advc.opt: It's our city
+-						// <advc.139>
+-						if (pLoopCity->AI_isEvacuating())
+-							continue; // </advc.139>
+-						if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY
+-							| MOVE_ROUTE_TO, // advc.pf
+-							true))
+-						{
+-							if (at(kPlot)) // need to test before moving...
+-							{
+-								getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX(), pLoopCity->getY(),
+-										MOVE_SAFE_TERRITORY
+-										| MOVE_ROUTE_TO, // advc.pf
+-										false, false, MISSIONAI_BUILD, &kPlot);
+-							}
+-							else
+-							{
+-								getGroup()->pushMission(MISSION_ROUTE_TO,
+-										pLoopCity->getX(), pLoopCity->getY(),
+-										MOVE_SAFE_TERRITORY
+-										| MOVE_ROUTE_TO, // advc.pf
+-										false, false, MISSIONAI_BUILD, &kPlot);
+-								getGroup()->pushMission(MISSION_ROUTE_TO, kPlot.getX(), kPlot.getY(),
+-										MOVE_SAFE_TERRITORY
+-										| MOVE_ROUTE_TO, // advc.pf
+-										true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
+-							}
+-
+-							return true;
+-						}
++						getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX(), pLoopCity->getY(),
++								MOVE_SAFE_TERRITORY
++								| MOVE_ROUTE_TO, // advc.pf
++								false, false, MISSIONAI_BUILD, &kPlot);
+ 					}
++					else
++					{
++						getGroup()->pushMission(MISSION_ROUTE_TO,
++								pLoopCity->getX(), pLoopCity->getY(),
++								MOVE_SAFE_TERRITORY
++								| MOVE_ROUTE_TO, // advc.pf
++								false, false, MISSIONAI_BUILD, &kPlot);
++						getGroup()->pushMission(MISSION_ROUTE_TO, kPlot.getX(), kPlot.getY(),
++								MOVE_SAFE_TERRITORY
++								| MOVE_ROUTE_TO, // advc.pf
++								true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
++					}
++					return true;
+ 				}
+ 			}
+ 		}
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -16887,6 +16882,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity) // advc.003u: param was CvC
+ 	return true;
+ }
+ 
++
+ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // advc: const param
+ 	int iMissingWorkersInArea) // advc.117
+ {
+@@ -16916,11 +16912,11 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 				CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+ 				if (kBuild.getImprovement() != NO_IMPROVEMENT)
+ 					continue;
+-				if (!canBuild(&p, eLoopBuild))
+-					continue;
+ 				iValue = kBuild.getFeatureProduction(p.getFeatureType());
+ 				if (iValue <= iBestValue)
+ 					continue;
++				if (!canBuild(&p, eLoopBuild)) // (advc.opt: moved down)
++					continue;
+ 				int iPathTurns;
+ 				if (generatePath(&p, 0, true, &iPathTurns, 5))
+ 				{	/*  Doesn't need to be on the same scale as non-chop values;
+@@ -16956,23 +16952,21 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 		// K-Mod note. This was the original condition for the rest of the block:
+ 		//if ((NULL == pIgnoreCity || (pCity->AI_getWorkersNeeded() > 0 && (pCity->AI_getWorkersHave() < (1 + pCity->AI_getWorkersNeeded() * 2 / 3)))) && pCity->AI_getBestBuild(iIndex) != NO_BUILD)
+ 
++		/*if (bAllowed) {
++			if (p.isImproved() && GC.getInfo(pCity->AI_getBestBuild(iIndex)).getImprovement() != NO_IMPROVEMENT)
++				bAllowed = false;
++		} */ /* K-Mod. I don't think it's a good idea to disallow improvement changes here.
++				So I'm changing it to have a cutoff value instead. */
++		iValue = pCity->AI_getBestBuildValue(ePlot);
++		if (iValue <= 1) // (advc.opt: moved up)
++			continue;
+ 		if (!canBuild(&p, pCity->AI_getBestBuild(ePlot)))
+ 			continue;
+-
+ 		if (GET_PLAYER(getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) &&
+ 			p.isImproved() && p.getImprovementType() != GC.getRUINS_IMPROVEMENT())
+ 		{
+ 			continue;
+ 		}
+-		/*if (bAllowed) {
+-			if (p.isImproved() && GC.getInfo(pCity->AI_getBestBuild(iIndex)).getImprovement() != NO_IMPROVEMENT)
+-				bAllowed = false;
+-		} */ /* K-Mod. I don't think it's a good idea to disallow improvement changes here.
+-				So I'm changing it to have a cutoff value instead. */
+-		if (pCity->AI_getBestBuildValue(ePlot) <= 1)
+-			continue;
+-		// advc.117: iValue now declared earlier
+-		iValue = pCity->AI_getBestBuildValue(ePlot);
+ 
+ 		int iPathTurns;
+ 		if (generatePath(&p, 0, true, &iPathTurns))
+@@ -17006,8 +17000,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+-		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
+-		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
++		FAssertBounds(0, GC.getNumBuildInfos(), eBestBuild);
+ 		// advc.117: No longer guaranteed
+ 		//FAssert(pBestPlot->getWorkingCity() != NULL);
+ 		// advc.113b: Now handled by AI_workerMove
+@@ -17018,7 +17011,8 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 		}*/
+ 		MissionTypes eMission = MISSION_MOVE_TO;
+ 		int iPathTurns;
+-		if (generatePath(pBestPlot, 0, true, &iPathTurns) && getPathFinder().GetPathTurns() == 1 && getPathFinder().GetFinalMoves() == 0)
++		if (generatePath(pBestPlot, 0, true, &iPathTurns) &&
++			getPathFinder().GetPathTurns() == 1 && getPathFinder().GetFinalMoves() == 0)
+ 		{
+ 			if (pBestPlot->isRoute())
+ 				eMission = MISSION_ROUTE_TO;
+@@ -17120,8 +17114,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 
+ 	if (pBestPlot == NULL)
+ 		return false;
+-	FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
+-	FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
++	FAssertBounds(0, GC.getNumBuildInfos(), eBestBuild);
+ 	// advc.113b: Now handled by AI_workerMove
+ 	/*if (getPlot().getWorkingCity() != NULL)
+ 		getPlot().getWorkingCity()->AI_changeWorkersHave(-1);
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=12991

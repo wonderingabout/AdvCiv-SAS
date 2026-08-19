@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4682
+# Commit: a5ce9321f928fe78bb28c83f8396a2b0ea5b6cba
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3c1c8f674d282ccdc7b7778f8e32ea2ceb5209cf
+# Title: update docs and add a few modding ressources examples, anyways,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code open preview markdown so clicking on links works.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vscode open preview markdown  (.md files) example.PNG
+3	0	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code open preview markdown so clicking on links works.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vscode open preview markdown  (.md files) example.PNG
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code open preview markdown so clicking on links works.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code open preview markdown so clicking on links works.PNG
+new file mode 100644
+index 000000000..443bb4353
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code open preview markdown so clicking on links works.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vscode open preview markdown  (.md files) example.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vscode open preview markdown  (.md files) example.PNG
+new file mode 100644
+index 000000000..3664a68d4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vscode open preview markdown  (.md files) example.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 413949f41..b10f61801 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -16,6 +16,9 @@ idea):
+ 
+ <img src="./Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+ 
++For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), please
++visit [this page of the main README.md](/README.md#example-of-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)
++
+ ## Full exhaustive changes
+ 
+ If you want to see the full very exhaustive code changes between AdvCiv current
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1607

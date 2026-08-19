@@ -1,0 +1,423 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4908
+# Commit: 01a4d1bcbd005e80e7c6861ef0b2ad00b55f70c6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7a910521a853c49304fc72ff5598c760c4c1e4bd
+# Title: add info about hill and peak being exluded from display for some of their panels, refactor, fix/tweak impassable info in sevopedia terrain and sevopedia feat...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+117	35	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+3	3	Assets/XML/Technologies/CIV4TechInfos.xml
+5	2	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+17	0	Assets/XML/Text/RFC_DOC_Custom.xml
+2	2	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 3f946b654..6a21771ec 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -248,12 +248,12 @@ class SevoPediaFeature:
+ 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS", ()), "", False, True, self.X_BONUSES_ON_ANY_TERRAIN, self.Y_BONUSES_ON_ANY_TERRAIN, self.W_BONUSES_ON_ANY_TERRAIN, self.H_BONUSES_ON_ANY_TERRAIN, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+-		for iResource in xrange(gc.getNumBonusInfos()):
+-			ResourceInfo = gc.getBonusInfo(iResource)
+-			if ResourceInfo.isGraphicalOnly():
++		for iBonus in xrange(gc.getNumBonusInfos()):
++			bonusInfo = gc.getBonusInfo(iBonus)
++			if bonusInfo.isGraphicalOnly():
+ 				continue
+-			if ResourceInfo.isFeature(self.iFeature):
+-				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
++			if bonusInfo.isFeature(self.iFeature):
++				screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 3121b5504..7327aea1b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -120,11 +120,11 @@ class SevoPediaTerrain:
+ 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+ 
+ 		if self.iTerrain == iPeak or self.iTerrain == iHill or self.iTerrain == iOcean:
+-			txtKeyTerrainPlotType = localText.getText("TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM", ())
++			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM"
+ 		else:
+-			txtKeyTerrainPlotType = localText.getText("TXT_KEY_PEDIA_TERRAIN_CUSTOM", ())
++			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_TERRAIN_CUSTOM"
+ 
+-		screen.appendListBoxString(panel, txtKeyTerrainPlotType, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, localText.getText(txtKeyTerrainPlotTypeLabel, ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		if self.iTerrain == iHill:
+ 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
+@@ -141,17 +141,32 @@ class SevoPediaTerrain:
+ 
+ 
+ 	def placeSpecial(self):
++		xPanel = self.X_SPECIAL
++		yPanel = self.Y_SPECIAL
++		wPanel = self.W_SPECIAL
++		hPanel = self.H_SPECIAL
++
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 		text = self.top.getNextWidgetName()
+ 		info = gc.getTerrainInfo(self.iTerrain)
+ 
+-		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, "", "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
++		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+ 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+ 
+-		# <!-- custom: the entry seems garbage or info aobut terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc -->
+-		if self.iTerrain != iHill:
++		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc ; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so but anyways etc -->
++		if self.iTerrain == iPeak or self.iTerrain == iHill:
++			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoDisplay, ())
++			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun but anyways etc...) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess? That chatgpt seems to approve as well but could be mistaken too or maybe not but hopefully helpful or not or yes or etc, check if this info is accurate though (about line height not cleanly centered in this case but anyways etc...) to be sure anyways etc), so to solve this start a bit higher than the center instead anyways etc -->
++			#yPanelCenter = yPanel + (hPanel / 2)
++			yPanelCenter = yPanel + int(0.42 * hPanel)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		else:
+ 			szText = info.getHelp()
+ 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
+ 			szText = szText.replace("\n\n", "\n").strip()
+@@ -160,33 +175,63 @@ class SevoPediaTerrain:
+ 
+ 
+ 	def placeFeatures(self):
++		xPanel = self.X_FEATURES
++		yPanel = self.Y_FEATURES
++		wPanel = self.W_FEATURES
++		hPanel = self.H_FEATURES
++
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+-		for iFeature in xrange(gc.getNumFeatureInfos()):
+-			FeatureInfo = gc.getFeatureInfo(iFeature)
++		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or/and for consistency, also exclude from display here anyways etc -->
++		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
++		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++
++		if self.iTerrain == iPeak or self.iTerrain == iHill:
++			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoDisplay, ())
++			# <!-- custom: note: do not use yPanelCenter as this is a quite long text that fits in many line, so starting from center it would overfill, so to solve this start from top of the panel as default would be as advised by chatgpt to fix this thanks to my prompt too anyways etc -->
++			yPanelTop = yPanel + 34
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelTop, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			if FeatureInfo.isGraphicalOnly():
+-				continue
+-			elif FeatureInfo.isTerrain(self.iTerrain):
+-				screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
++		else:
++			for iFeature in xrange(gc.getNumFeatureInfos()):
++				FeatureInfo = gc.getFeatureInfo(iFeature)
++
++				if FeatureInfo.isGraphicalOnly():
++					continue
++				elif FeatureInfo.isTerrain(self.iTerrain):
++					screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+ 
+ 
+ 
+ 	def placeImprovements(self):
++		xPanel = self.X_IMPROVEMENTS
++		yPanel = self.Y_IMPROVEMENTS
++		wPanel = self.W_IMPROVEMENTS
++		hPanel = self.H_IMPROVEMENTS
++
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
++		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc, as for peak exclude it as well as it shouldn't have improvements at least as of now anyways etc -->
++		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+ 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++		if self.iTerrain == iPeak or self.iTerrain == iHill:
++			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoDisplay, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc -->
+-		if self.iTerrain != iHill:
++		else:
+ 			for iImprovement in xrange(gc.getNumImprovementInfos()):
+ 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
+ 				if ImprovementInfo.isGoody():
+@@ -200,42 +245,79 @@ class SevoPediaTerrain:
+ 
+ 
+ 	def placeBonusesWithNoFeature(self):
++		xPanel = self.X_BONUSES_WITH_NO_FEATURE
++		yPanel = self.Y_BONUSES_WITH_NO_FEATURE
++		wPanel = self.W_BONUSES_WITH_NO_FEATURE
++		hPanel = self.H_BONUSES_WITH_NO_FEATURE
++
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE", ()), "", False, True, self.X_BONUSES_WITH_NO_FEATURE, self.Y_BONUSES_WITH_NO_FEATURE, self.W_BONUSES_WITH_NO_FEATURE, self.H_BONUSES_WITH_NO_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: refactor/tweak/change anyways etc to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc, and or such other tweaks to rfc doc mod's code for peak anyways etc anyways etc anyways etc -->
++		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
++		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE"
++		if self.iTerrain == iPeak:
++			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE"
++		elif self.iTerrain == iHill:
++			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_HILL"
++
++		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+-		# <!-- custom: minor refactor to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc -->
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++		# <!-- custom: not applicable for this plot type / terrain if i am not mistaken, so show an alternative text instead anyways etc -->
++		if self.iTerrain == iPeak:
++			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoDisplay, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		for iResource in xrange(gc.getNumBonusInfos()):
+-			ResourceInfo = gc.getBonusInfo(iResource)
+-			if ResourceInfo.isGraphicalOnly():
+-				continue
+-			elif ResourceInfo.isTerrain(self.iTerrain):
+-				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
+-			elif self.iTerrain == iHill and ResourceInfo.isHills():
+-				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
++		else:
++			for iBonus in xrange(gc.getNumBonusInfos()):
++				bonusInfo = gc.getBonusInfo(iBonus)
++				if bonusInfo.isGraphicalOnly():
++					continue
++				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill anyways etc (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line if i may say but anyways etc...) but anyways etc...) but anyways etc...) -->
++				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == iHill and bonusInfo.isHills()):
++					screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+ 
+ 
+ 
+ 	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too but anyways etc -->
+ 	def placeBonusesOnlyWithFeature(self):
++		xPanel = self.X_BONUSES_ONLY_WITH_FEATURE
++		yPanel = self.Y_BONUSES_ONLY_WITH_FEATURE
++		wPanel = self.W_BONUSES_ONLY_WITH_FEATURE
++		hPanel = self.H_BONUSES_ONLY_WITH_FEATURE
++
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS", ()), "", False, True, self.X_BONUSES_ONLY_WITH_FEATURE, self.Y_BONUSES_ONLY_WITH_FEATURE, self.W_BONUSES_ONLY_WITH_FEATURE, self.H_BONUSES_ONLY_WITH_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
++		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
++		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS"
++		if self.iTerrain == iHill or self.iTerrain == iPeak:
++			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE"
++
++		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+-		for iBonus in xrange(gc.getNumBonusInfos()):
+-			BonusInfo = gc.getBonusInfo(iBonus)
+-			if BonusInfo.isGraphicalOnly():
+-				continue
++		if self.iTerrain == iHill or self.iTerrain == iPeak:
++			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoDisplay, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		else:
++			for iBonus in xrange(gc.getNumBonusInfos()):
++				BonusInfo = gc.getBonusInfo(iBonus)
++				if BonusInfo.isGraphicalOnly():
++					continue
+ 
+-			if BonusInfo.isFeatureTerrain(self.iTerrain):
+-				screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
+-										WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
++				if BonusInfo.isFeatureTerrain(self.iTerrain):
++					screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 88b443b97..80f7b6a42 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -543,9 +543,7 @@
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>16</iAsset>
+ 			<iPower>0</iPower>
+-			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
+ 			<bRepeat>0</bRepeat>
+-			<!-- custom: note: bTrade fields are now visible from the c++ code if i may say anyways etc through buildBTradeString, see there for details orand in our mod's docs or and such othe relevant place, hopefulyl helpful but or not but or yes but anyways etc-->
+ 			<bTrade>1</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>0</bGoodyTech>
+@@ -6623,7 +6621,9 @@
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>10</iPower>
+-			<bRepeat>1</bRepeat>
++			<!-- custom: note: bTrade fields are now visible from the c++ code if i may say anyways etc through buildBTradeString, see there for details orand in our mod's docs or and such other relevant place, hopefully helpful but or not but or yes but anyways etc-->
++			<bRepeat>0</bRepeat>
++			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
+ 			<bTrade>0</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>0</bGoodyTech>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index e7010c38d..9e7f29afa 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -95,8 +95,11 @@
+ 		<Tag>TXT_KEY_PLOT_IMPASSABLE</Tag>
+ 		<English>[COLOR_WARNING_TEXT]IMPASSABLE (except relevant units)[COLOR_REVERT]</English>
+ 	</TEXT>
+-
+-
++	<!-- custom: replace inaccurate info if i am not mistaken but anyways etc of "Impassable terrain" (that i saw in sevopedia feature for example but anyways etc) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions anyways etc), hinting at exceptions anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TERRAIN_IMPASSABLE</Tag>
++		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
++	</TEXT>
+ 
+     <!-- custom: rename Civilopedia to Sevopedia 
+     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
+
+diff --git a/Assets/XML/Text/RFC_DOC_Custom.xml b/Assets/XML/Text/RFC_DOC_Custom.xml
+index 48a07f93d..7b3210122 100644
+--- a/Assets/XML/Text/RFC_DOC_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Custom.xml
+@@ -43,6 +43,23 @@ and modified or not for our needs in advciv-sas anyways etc -->
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE</Tag>
+ 		<English>Bonuses in this terrain only if the terrain has no feature (see sevopedia bonus)</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_HILL</Tag>
++		<English>Bonuses in this plot type (bHills enabled in these bonuses's XML)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE</Tag>
++		<English>Bonuses (Not applicable for this plot type / terrain)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION</Tag>
++		<English>Excluded from display (as is inaccurate or/and incomplete for this plot type / terrain)</English>
++	</TEXT>
++	<!-- custom: keep a short text as some panels have low width in this case if i may say anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE</Tag>
++		<English>Excluded from display</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS</Tag>
+ 		<English>Bonuses in this terrain only if the bonus's features are compatible with "terrains only if with this feature" (see sevopedia bonus)</English>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 90344d4bb..9580ca96b 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -17318,7 +17318,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...) -->
++			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefully helpful if i may say but anyways etc...) -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -17332,7 +17332,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefulyl helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefully helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+
+diff --git a/README.md b/README.md
+index 39214cad0..b593e3df5 100644
+--- a/README.md
++++ b/README.md
+@@ -227,7 +227,7 @@ Among other maps or information i found online but anyways etc, i mostly also us
+ 
+ ![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
+ 
+-Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...)
++Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefully helpful if i may say but anyways etc...)
+ 
+ ## Project Goals and global view on gameplay changes
+ 
+@@ -476,6 +476,6 @@ Note 2: be careful though it is or can be super chatty or/and analytical/neuroti
+ 
+ I also have experimented briefly if i may say but anyways etc as i had the opportunity if i may say in this case i mean but anyways etc with deepseek ai, to rearrange the untradeable techs code so that, after i made it now behave as a precompute at cache time only once like/as the leaders_info_cached does very efficiently if i may say but anyways etc, and since it is also in this case the exact same code every time, it is computationally much cheaper and efficient and cleaner but anyways etc to precompute it as cache as well instead of at each new tech selection.
+ 
+-Here is a [google drive folder link](https://drive.google.com/drive/folders/12Eek72K1_vDJ7_2xViYpLdy_eEAgLOaS?usp=sharing) of for example how i implemented a part of this functionality with deepseek ai to experiment with it if i may say at least in this case but anyways etc, it seems to have understood surprisingly well my request and replied to it well as well in this case at least i mean but anyways etc... Hopefulyl helpful, but anyways etc anyways etc anyways etc...
++Here is a [google drive folder link](https://drive.google.com/drive/folders/12Eek72K1_vDJ7_2xViYpLdy_eEAgLOaS?usp=sharing) of for example how i implemented a part of this functionality with deepseek ai to experiment with it if i may say at least in this case but anyways etc, it seems to have understood surprisingly well my request and replied to it well as well in this case at least i mean but anyways etc... Hopefully helpful, but anyways etc anyways etc anyways etc...
+ 
+ Note: asking it more complex tasks like adding links as i didn't know how to, it seems to quickly get confused and lost and do unnecessary and inefficient things, in the end helped investigate and explore how to do the task but ended up not doing it in this case at least but anyways etc as too complicated and not worth it if i may say but anyways etc (would have for example to calculate/estimate total height or line count of each szSpecialText if i am not mistaken, then display at each line with its own iTech just to have the links clickable, when list is already accessible since we are in sevopedia tech, and would be computationally super or needlessly expensive but anyways etc, at least i think so in this case at least but anyways etc ; not shown in screenshots in the google drive either as well but anyways etc), but it is still helpful though and i only evaluated it on this task, it may do better or not in other tasks i don't know but anyways etc, if i may say still is to provide feedback at least to myself if not to others or not but anyways etc ; but in the end it helped me and is friendly at least friendly enough if not lot or not or yes or etc but anyways etc each as they are or want or do or be or not but anyways etc thanks anyways etc anyways etc anyways etc... And it is also surprisingly good at teaching at least japanese if i may say or so it seems it spontaneously helped and translated instead of overwhelm me with all data xd thanks i mena in this case at least but anyways etc... Thanks deepseek (but or not but or yes but but?) anyways etc anyways etc anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 6ce1bd256..d5a15f18a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -709,7 +709,7 @@ So although i don't know too much how to do this, but can manage a bit maybe but
+ 
+ ## 25 - Attempt to fix AIs settling too much and too often on bonuses, especially food bonuses (!!!) and metals and other high production bonuses to a lesser extent
+ 
+-As of now if not all related changes can be found mostly if not almost entirely but anyways etc in this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/95347a520d7fbe41465c324ad609bddba32a167d) and this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/c20688b2c267ecee883a41168442ffdb22d32fc5) anyways etc. See the .cpp or/and other code updates directly in the code if any updates since then have been made or not, hopefulyl helpful or not or yes or etc but anyways etc, thanks,
++As of now if not all related changes can be found mostly if not almost entirely but anyways etc in this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/95347a520d7fbe41465c324ad609bddba32a167d) and this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/c20688b2c267ecee883a41168442ffdb22d32fc5) anyways etc. See the .cpp or/and other code updates directly in the code if any updates since then have been made or not, hopefully helpful or not or yes or etc but anyways etc, thanks,
+ 
+ ### Origin and description of the problem anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+index 9fb1f5500..ae0ee8ac7 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 36fde6aeb..c8ed3e14f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 24a1ac431..4938cdc22 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=30485

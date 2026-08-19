@@ -1,0 +1,563 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5960
+# Commit: e4ef11ca1a6df4dd86476296c07ded8e79dd627c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 97e8ca8f0537e0abcc40448d448c63d0057766de
+# Title: Add GitHub Workflow check: line-ending CRLF/LF eol check and cleanup helper. Fix files with mixed line endings
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+187	0	.github/workflows/build/line_endings.py
+2	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+23	0	LLM_Helpers/README.md
+232	0	LLM_Helpers/fix_line_endings.py
+ create mode 100644 .github/workflows/build/line_endings.py
+ create mode 100644 LLM_Helpers/fix_line_endings.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 8707f4617..ebf2c589d 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -23,6 +23,7 @@ For example, this helped spot [map scripts that were previously unclassified in
+ ## Current build checks
+ 
+ - [`build/temp_files.py`](#buildtemp_filespy)
++- [`build/line_endings.py`](#buildline_endingspy)
+ - [`build/assets_dlls.py`](#buildassets_dllspy)
+ - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
+ - [`build/launch_guard.py`](#buildlaunch_guardpy)
+@@ -51,6 +52,14 @@ For example, this helped spot [map scripts that were previously unclassified in
+ 
+ Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder file and is otherwise empty, verifies `.gitignore` does not hide it, and allows only the matching `.gitattributes` `export-ignore` rules used to keep it out of GitHub Download ZIP / git archive release archives. This helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)).
+ 
++### `build/line_endings.py`
++
++Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py). Generated/reference helper folders such as `LLM_Helpers/outputs` are excluded to avoid noise from old reports/diffs.
++
++Before the first cleanup, this checker found 79 local worktree issues, while GitHub Actions reported only 19. Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., `BugInit.py`) while true CI failures stayed mixed in both (e.g., `Pangaea.py`).
++
++Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set.
++
+ ### `build/assets_dlls.py`
+ 
+ Recursively verifies `Assets` contains only the two expected DLL files (`Assets/CvGameCoreDLL.dll` for the main/48-civ DLL and `Assets/CvGameCoreDLL_18_civs_DLL.dll` for the 18-civ DLL), and verifies the 18-civ DLL is not larger than the main DLL by byte size.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 3d807ef95..aa8eed15d 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -18,6 +18,7 @@ jobs:
+         with:
+           python-version: "3.x"
+       - run: python .github/workflows/build/temp_files.py
++      - run: python .github/workflows/build/line_endings.py
+       - run: python .github/workflows/build/assets_dlls.py
+       - run: python .github/workflows/build/global_defines_nonempty.py
+       - run: python .github/workflows/build/launch_guard.py
+
+diff --git a/.github/workflows/build/line_endings.py b/.github/workflows/build/line_endings.py
+new file mode 100644
+index 000000000..9016c5e34
+--- /dev/null
++++ b/.github/workflows/build/line_endings.py
+@@ -0,0 +1,187 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: active text files should not have mixed CRLF/LF line endings and should end with a newline.
++# <!-- custom: Before the first cleanup, this checker found 79 local worktree issues, while GitHub Actions reported only 19. Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., BugInit.py) while true CI failures stayed mixed in both (e.g., Pangaea.py).
++# Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set. (GPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import subprocess
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++SCAN_RELATIVE_PATHS = (
++	Path(".github"),
++	Path(".gitattributes"),
++	Path(".gitignore"),
++	Path("AGENTS.md"),
++	Path("README.md"),
++	Path("ruff.toml"),
++	Path("Assets/XML"),
++	Path("Assets/Python"),
++	Path("CvGameCoreDLL"),
++	Path("LLM_Helpers"),
++	Path("PrivateMaps"),
++	Path("_1_AdvCiv-SAS/Docs"),
++)
++
++IGNORED_RELATIVE_DIRS = {
++	Path(".git"),
++	Path("LLM_Helpers/examples"),
++	Path("LLM_Helpers/outputs"),
++	Path("_0_Common_Docs"),
++	Path("Assets/Python/Contrib/Sevopedia/Debug"),
++	Path("CvGameCoreDLL/Project/temp_files"),
++}
++
++TEXT_FILE_SUFFIXES = {".bat", ".c", ".cfg", ".cmd", ".cpp", ".csv", ".def", ".diff", ".h", ".hpp", ".ini", ".inl", ".json", ".mak", ".md", ".mk", ".patch", ".ps1", ".py", ".pyw", ".rc", ".sh", ".sln", ".toml", ".txt", ".vcproj", ".xml", ".yaml", ".yml"}
++TEXT_FILE_NAMES = {".gitattributes", ".gitignore", "Makefile"}
++
++
++class EolIssue:
++	def __init__(self, relative_path: Path, message: str):
++		self.relative_path = relative_path
++		self.message = message
++
++	def format(self) -> str:
++		return f"{self.relative_path.as_posix()}: {self.message}"
++
++
++def is_under(relative_path: Path, relative_dir: Path) -> bool:
++	return relative_path == relative_dir or relative_dir in relative_path.parents
++
++
++def is_ignored(relative_path: Path) -> bool:
++	return any(is_under(relative_path, ignored_dir) for ignored_dir in IGNORED_RELATIVE_DIRS)
++
++
++def is_text_like_path(path: Path) -> bool:
++	# <!-- custom: Keep extensionless files explicit so the fixer does not rewrite future binary-like files that only pass the null-byte guard. (GPT-5.5) -->
++	return path.name in TEXT_FILE_NAMES or path.suffix.lower() in TEXT_FILE_SUFFIXES
++
++
++def is_probably_binary(data: bytes) -> bool:
++	return b"\0" in data
++
++
++def git_tracked_files(repo_root: Path) -> list[Path] | None:
++	try:
++		result = subprocess.run(
++			["git", "ls-files", "-z"],
++			cwd=repo_root,
++			check=True,
++			stdout=subprocess.PIPE,
++			stderr=subprocess.PIPE,
++		)
++	except (OSError, subprocess.CalledProcessError):
++		return None
++
++	paths: list[Path] = []
++	for raw_path in result.stdout.split(b"\0"):
++		if not raw_path:
++			continue
++		paths.append(repo_root / raw_path.decode("utf-8", errors="replace"))
++	return paths
++
++
++def iter_candidate_files(repo_root: Path) -> list[Path]:
++	tracked_paths = git_tracked_files(repo_root)
++	if tracked_paths is not None:
++		return sorted(
++			path
++			for path in tracked_paths
++			if path.is_file()
++			and is_text_like_path(path)
++			and not is_ignored(path.relative_to(repo_root))
++			and any(is_under(path.relative_to(repo_root), scan_path) or path.relative_to(repo_root) == scan_path for scan_path in SCAN_RELATIVE_PATHS)
++		)
++
++	paths: list[Path] = []
++	for scan_path in SCAN_RELATIVE_PATHS:
++		path = repo_root / scan_path
++		if not path.exists():
++			continue
++		if path.is_file():
++			relative_path = path.relative_to(repo_root)
++			if is_text_like_path(path) and not is_ignored(relative_path):
++				paths.append(path)
++			continue
++		for child in path.rglob("*"):
++			if not child.is_file():
++				continue
++			relative_path = child.relative_to(repo_root)
++			if is_ignored(relative_path):
++				continue
++			if is_text_like_path(child):
++				paths.append(child)
++	return sorted(set(paths))
++
++
++def line_ending_counts(data: bytes) -> tuple[int, int, int]:
++	crlf_count = data.count(b"\r\n")
++	without_crlf = data.replace(b"\r\n", b"")
++	lf_count = without_crlf.count(b"\n")
++	lone_cr_count = without_crlf.count(b"\r")
++	return crlf_count, lf_count, lone_cr_count
++
++
++def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
++	data = path.read_bytes()
++	relative_path = path.relative_to(repo_root)
++	failures: list[EolIssue] = []
++
++	if not data or is_probably_binary(data):
++		return failures
++
++	crlf_count, lf_count, lone_cr_count = line_ending_counts(data)
++	used_styles = sum(1 for count in (crlf_count, lf_count, lone_cr_count) if count > 0)
++
++	if lone_cr_count:
++		failures.append(EolIssue(relative_path, f"contains {lone_cr_count} lone CR line ending(s)"))
++	if used_styles > 1:
++		failures.append(EolIssue(relative_path, f"has mixed line endings: CRLF={crlf_count}, LF={lf_count}, lone_CR={lone_cr_count}"))
++	if not data.endswith(b"\n"):
++		failures.append(EolIssue(relative_path, "missing final newline"))
++
++	return failures
++
++
++def check_line_endings(repo_root: Path) -> list[EolIssue]:
++	failures: list[EolIssue] = []
++
++	for path in iter_candidate_files(repo_root):
++		failures.extend(check_file(repo_root, path))
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check active text files for mixed line endings and missing final newlines.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	parser.add_argument("--max-failures", type=int, default=80, help="maximum number of failures to print before summarizing")
++	args = parser.parse_args()
++
++	failures = check_line_endings(args.repo_root)
++
++	if failures:
++		print("FAIL text line-ending hygiene")
++		for failure in failures[: args.max_failures]:
++			print(f"  - {failure.format()}")
++		remaining = len(failures) - args.max_failures
++		if remaining > 0:
++			print(f"  - ... {remaining} more failure(s) not shown")
++		return 1
++
++	print("PASS text line-ending hygiene")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 52ac434b1..6a9f9d57f 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -153,7 +153,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
+ - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+ - Note: codex's shell/tool output likely sometimes displays mojibake for characters that look correct in VS Code or git diff (e.g., smart quotes shown as `â€œ` / `â€`) hence the user/LLM mismatch. Do not "fix" encoding based only on the terminal/tool rendering; rely on VS Code (user feedback) or git diff if they show the file cleanly.
+-- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. Empirically, it happened to [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) or [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and we could resolve it by adding a newline at end of file, saving, then deleting it (not undoing, so we preserve the change) or some other minor modifications (this is likely why VS Code shows no diff lines changed but the file is still not removed from changed files), then git staging this file only, committing it so the massive noisy diff normalizes (or we may commit the noisy diff with our actual change in one commit anyway if not critical for no tedium), and then reapplying our proper file (note that you need to reapply it in same expected format, usually CRLF not LF, else you'd have every line to be a diff (git would assume we changed it all from CRLF to LF)). This is likely caused by codex's apply patching tool (git bash shows `warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it` after codex's one line modification). On your end, don't mind it and let the user handle it, as it is cheaper in tokens and more reliable, but inform the user if you notice it. Use `git diff --ignore-space-at-eol --stat` and `git diff --ignore-space-at-eol -- <file>` to continue your work and review the semantic changes, then let the user handle EOL cleanup afterwards unless explicitly asked.
++- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. But it is not a major concern worth getting distracted over; it seems the game runs fine either way. As for the cause, this is likely caused by codex's apply patching tool (git bash shows `warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it` after codex's one line modification) (likely because Civ4 was mostly written for Windows/CRLF, and Codex patch tools may favour Linux LF-style patching causing mixed lines (files usually have almost entirely CRLF, with some minor LF lines matching the files we changed)).
++- Note (appendix): As for the cure, the GitHub workflow now checks this with [`build/line_endings.py`](/.github/workflows/README.md#buildline_endingspy) (e.g., `PrivateMaps/Pangaea.py: has mixed line endings: CRLF=614, LF=21, lone_CR=0`), and local reviewed cleanup can use [`fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py), which preserves each file's dominant line-ending style by default. On your end, if you notice warnings such as `LF will be replaced by CRLF`, use commands like `git diff --ignore-space-at-eol` and focus on your task first rather than getting distracted or going down a rabbit hole needlessly. If needed, you can use the abovementioned resources to diagnose and fix them (because this is always nice and cleaner, but not high-priority; better make code work first, and at worst we'll just amend the commit and fix the test later).
+ 
+ ### Python (Civ4)
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index c9d21cef9..e0410bd74 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -23,6 +23,7 @@ Always review diffs before committing generated source changes.
+   - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
+   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
+   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
++  - [`fix_line_endings.py`](#fix_line_endingspy)
+ - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
+   - [`singleline_pass.py`](#singleline_passpy)
+   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
+@@ -257,6 +258,28 @@ Example:
+ python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+ ```
+ 
++### `fix_line_endings.py`
++
++External cleanup helper for line-ending hygiene.
++
++- Reports or fixes mixed CRLF/LF line endings and missing final newlines.
++- Does not run automatically in GitHub Actions; the workflow check only reports/fails.
++- Defaults to active repo text-like files and excludes generated/reference helper folders such as `LLM_Helpers/outputs` and `LLM_Helpers/examples`.
++- Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
++- Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
++- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
++- Always review the diff before committing generated source changes.
++
++Examples:
++
++```powershell
++python LLM_Helpers\fix_line_endings.py
++python LLM_Helpers\fix_line_endings.py --diff
++python LLM_Helpers\fix_line_endings.py --in-place
++python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --diff
++python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --in-place
++```
++
+ ## CvMainInterface cleanup reference scripts
+ 
+ These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
+
+diff --git a/LLM_Helpers/fix_line_endings.py b/LLM_Helpers/fix_line_endings.py
+new file mode 100644
+index 000000000..3ad01c341
+--- /dev/null
++++ b/LLM_Helpers/fix_line_endings.py
+@@ -0,0 +1,232 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# External helper: report or fix mixed CRLF/LF line endings and missing final newlines.
++#
++# This is intentionally not run by GitHub Actions. The CI check should only report/fail; this helper is
++# for local, reviewed cleanup passes.
++
++from pathlib import Path
++import argparse
++import difflib
++import subprocess
++import sys
++
++
++SCAN_RELATIVE_PATHS = (
++	Path(".github"),
++	Path(".gitattributes"),
++	Path(".gitignore"),
++	Path("AGENTS.md"),
++	Path("README.md"),
++	Path("ruff.toml"),
++	Path("Assets/XML"),
++	Path("Assets/Python"),
++	Path("CvGameCoreDLL"),
++	Path("LLM_Helpers"),
++	Path("PrivateMaps"),
++	Path("_1_AdvCiv-SAS/Docs"),
++)
++
++IGNORED_RELATIVE_DIRS = {
++	Path(".git"),
++	Path("LLM_Helpers/examples"),
++	Path("LLM_Helpers/outputs"),
++	Path("_0_Common_Docs"),
++	Path("Assets/Python/Contrib/Sevopedia/Debug"),
++	Path("CvGameCoreDLL/Project/temp_files"),
++}
++
++TEXT_FILE_SUFFIXES = {".bat", ".c", ".cfg", ".cmd", ".cpp", ".csv", ".def", ".diff", ".h", ".hpp", ".ini", ".inl", ".json", ".mak", ".md", ".mk", ".patch", ".ps1", ".py", ".pyw", ".rc", ".sh", ".sln", ".toml", ".txt", ".vcproj", ".xml", ".yaml", ".yml"}
++TEXT_FILE_NAMES = {".gitattributes", ".gitignore", "Makefile"}
++
++
++def get_default_repo_root() -> Path:
++	return Path(__file__).resolve().parents[1]
++
++
++def is_under(relative_path: Path, relative_dir: Path) -> bool:
++	return relative_path == relative_dir or relative_dir in relative_path.parents
++
++
++def is_ignored(relative_path: Path) -> bool:
++	return any(is_under(relative_path, ignored_dir) for ignored_dir in IGNORED_RELATIVE_DIRS)
++
++
++def is_text_like_path(path: Path) -> bool:
++	# <!-- custom: Keep extensionless files explicit so the fixer does not rewrite future binary-like files that only pass the null-byte guard. (GPT-5.5) -->
++	return path.name in TEXT_FILE_NAMES or path.suffix.lower() in TEXT_FILE_SUFFIXES
++
++
++def is_probably_binary(data: bytes) -> bool:
++	return b"\0" in data
++
++
++def git_tracked_files(repo_root: Path) -> list[Path] | None:
++	try:
++		result = subprocess.run(
++			["git", "ls-files", "-z"],
++			cwd=repo_root,
++			check=True,
++			stdout=subprocess.PIPE,
++			stderr=subprocess.PIPE,
++		)
++	except (OSError, subprocess.CalledProcessError):
++		return None
++
++	paths: list[Path] = []
++	for raw_path in result.stdout.split(b"\0"):
++		if not raw_path:
++			continue
++		paths.append(repo_root / raw_path.decode("utf-8", errors="replace"))
++	return paths
++
++
++def iter_candidate_files(repo_root: Path, input_paths: list[Path]) -> list[Path]:
++	if input_paths:
++		paths: list[Path] = []
++		for input_path in input_paths:
++			path = input_path if input_path.is_absolute() else repo_root / input_path
++			if path.is_file():
++				paths.append(path)
++			elif path.is_dir():
++				paths.extend(child for child in path.rglob("*") if child.is_file())
++			else:
++				print(f"WARN missing path: {input_path}", file=sys.stderr)
++		return sorted(set(path for path in paths if is_text_like_path(path) and not is_ignored(path.relative_to(repo_root))))
++
++	tracked_paths = git_tracked_files(repo_root)
++	if tracked_paths is not None:
++		return sorted(
++			path
++			for path in tracked_paths
++			if path.is_file()
++			and is_text_like_path(path)
++			and not is_ignored(path.relative_to(repo_root))
++			and any(is_under(path.relative_to(repo_root), scan_path) or path.relative_to(repo_root) == scan_path for scan_path in SCAN_RELATIVE_PATHS)
++		)
++
++	paths: list[Path] = []
++	for scan_path in SCAN_RELATIVE_PATHS:
++		path = repo_root / scan_path
++		if not path.exists():
++			continue
++		if path.is_file():
++			relative_path = path.relative_to(repo_root)
++			if is_text_like_path(path) and not is_ignored(relative_path):
++				paths.append(path)
++			continue
++		for child in path.rglob("*"):
++			if not child.is_file():
++				continue
++			relative_path = child.relative_to(repo_root)
++			if is_ignored(relative_path):
++				continue
++			if is_text_like_path(child):
++				paths.append(child)
++	return sorted(set(paths))
++
++
++def line_ending_counts(data: bytes) -> tuple[int, int, int]:
++	crlf_count = data.count(b"\r\n")
++	without_crlf = data.replace(b"\r\n", b"")
++	lf_count = without_crlf.count(b"\n")
++	lone_cr_count = without_crlf.count(b"\r")
++	return crlf_count, lf_count, lone_cr_count
++
++
++def dominant_eol(data: bytes) -> bytes:
++	crlf_count, lf_count, lone_cr_count = line_ending_counts(data)
++	if crlf_count > 0 and crlf_count >= lf_count:
++		return b"\r\n"
++	if lf_count > 0:
++		return b"\n"
++	if lone_cr_count > 0:
++		return b"\n"
++	return b"\n"
++
++
++def normalize_data(data: bytes, eol_mode: str, ensure_final_newline: bool) -> tuple[bytes, str]:
++	if not data or is_probably_binary(data):
++		return data, "skipped"
++
++	target_eol = dominant_eol(data)
++	if eol_mode == "lf":
++		target_eol = b"\n"
++	elif eol_mode == "crlf":
++		target_eol = b"\r\n"
++
++	placeholder = b"\x00SAS_CRLF_PLACEHOLDER\x00"
++	normalized = data.replace(b"\r\n", placeholder)
++	normalized = normalized.replace(b"\r", b"\n")
++	normalized = normalized.replace(placeholder, b"\n")
++	normalized = normalized.replace(b"\n", target_eol)
++
++	if ensure_final_newline and normalized and not normalized.endswith(target_eol):
++		normalized += target_eol
++
++	return normalized, "changed" if normalized != data else "ok"
++
++
++def diff_bytes(relative_path: Path, before: bytes, after: bytes) -> str:
++	before_text = before.decode("utf-8", errors="replace").splitlines(keepends=True)
++	after_text = after.decode("utf-8", errors="replace").splitlines(keepends=True)
++	return "".join(
++		difflib.unified_diff(
++			before_text,
++			after_text,
++			fromfile=f"{relative_path.as_posix()} (before)",
++			tofile=f"{relative_path.as_posix()} (after)",
++		)
++	)
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Report or fix mixed line endings and missing final newlines.")
++	parser.add_argument("paths", nargs="*", type=Path, help="optional files/folders to scan; defaults to active repo text files")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to this helper's parent repo")
++	parser.add_argument("--in-place", action="store_true", help="write changes; otherwise only report")
++	parser.add_argument("--diff", action="store_true", help="print unified diffs for files that would change")
++	parser.add_argument("--eol", choices=("preserve", "lf", "crlf"), default="preserve", help="target line ending; preserve means use each file's dominant existing style")
++	parser.add_argument("--no-final-newline", action="store_true", help="do not add a final newline")
++	args = parser.parse_args()
++
++	repo_root = args.repo_root.resolve()
++	changed: list[Path] = []
++	scanned = 0
++
++	for path in iter_candidate_files(repo_root, args.paths):
++		scanned += 1
++		data = path.read_bytes()
++		new_data, status = normalize_data(data, args.eol, not args.no_final_newline)
++		if status != "changed":
++			continue
++
++		relative_path = path.relative_to(repo_root)
++		changed.append(relative_path)
++
++		if args.diff:
++			print(diff_bytes(relative_path, data, new_data))
++
++		if args.in_place:
++			path.write_bytes(new_data)
++
++	print(f"Scanned {scanned} text-like file(s).")
++	if not changed:
++		print("No line-ending/final-newline changes needed.")
++		return 0
++
++	action = "Updated" if args.in_place else "Would update"
++	print(f"{action} {len(changed)} file(s):")
++	for relative_path in changed:
++		print(f"  - {relative_path.as_posix()}")
++
++	if not args.in_place:
++		print("Run again with --in-place after reviewing the target list.")
++	return 1 if not args.in_place else 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=24627

@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 540
+# Commit: aea19f1f417f110ae0977eadf8355b09e6a0c8f0
+# History segment: K-Mod history
+# Parent used for diff: 90d5c5e834ccee93c2fa1da123ede92ddfef3ef6
+# Title: It is now possible to completely clear the production queue in automated cities. (The city governor will choose the production at the end of the turn.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ec610fa7a..e93366bf3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1150,7 +1150,8 @@ void CvCity::updateSelectedCity(bool bTestProduction)
+ 
+ 	if (bTestProduction)
+ 	{
+-		if ((getOwnerINLINE() == GC.getGameINLINE().getActivePlayer()) && !isProduction())
++		//if ((getOwnerINLINE() == GC.getGameINLINE().getActivePlayer()) && !isProduction())
++		if ((getOwnerINLINE() == GC.getGameINLINE().getActivePlayer()) && !isProduction() && !isProductionAutomated()) // K-Mod
+ 		{
+ 			chooseProduction(NO_UNIT, NO_BUILDING, NO_PROJECT, false, true);
+ 		}
+@@ -12178,8 +12179,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 		pOrderNode = nextOrderQueueNode(pOrderNode);
+ 	}
+ 
+-  if (pOrderNode == NULL)
+-  {
++	if (pOrderNode == NULL)
++	{
+ 		return;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index d16188421..f5fea8049 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1141,7 +1141,8 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3,
+ 					break;
+ 
+ 				case GAMEMESSAGE_POP_ORDER:
+-					if (pSelectedCity->getOrderQueueLength() > 1)
++					//if (pSelectedCity->getOrderQueueLength() > 1)
++					if (pSelectedCity->getOrderQueueLength() > 1 || pSelectedCity->isProductionAutomated()) // K-Mod. (automated cities will choose their production at the end of the turn)
+ 					{
+ 						CvMessageControl::getInstance().sendPopOrder(pSelectedCity->getID(), iData2);
+ 					}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1584

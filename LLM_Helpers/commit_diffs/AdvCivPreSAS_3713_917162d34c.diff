@@ -1,0 +1,182 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3713
+# Commit: 917162d34c0ae9fdc49b4d4de859a9dc43ada2cb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 756f4f2c2e4edb5224ddd2324e1cf11b7f5853b2
+# Title: Tweaks to Balanced Resources option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	3	Assets/Python/CvMapGeneratorUtil.py
+2	1	CvGameCoreDLL/CvGame.cpp
+9	1	CvGameCoreDLL/CvMap.cpp
+5	0	CvGameCoreDLL/CvMap.h
+2	0	CvGameCoreDLL/CvMapGenerator.cpp
+1	1	CvGameCoreDLL/TrueStarts.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 67b68a8b2..e167e3956 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -1494,7 +1494,8 @@ class BonusBalancer:
+ 		self.map = CyMap()
+ 		
+ 		self.resourcesToBalance = ('BONUS_ALUMINUM', 'BONUS_COAL', 'BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_OIL', 'BONUS_URANIUM')
+-		self.resourcesToEliminate = ('BONUS_MARBLE', )
++		# advc.108c: Don't eliminate Marble
++		self.resourcesToEliminate = ()#('BONUS_MARBLE', )
+ 		
+ 	def isSkipBonus(self, iBonusType):
+ 		type_string = self.gc.getBonusInfo(iBonusType).getType()
+@@ -1539,9 +1540,14 @@ class BonusBalancer:
+ 				plots = [] # build a list of the plots near the starting plot
+ 				for dx in range(-5,6):
+ 					for dy in range(-5,6):
++						# <advc.108c> Skip the inner ring at least
++						if abs(dx) <= 1 or abs(dy) <= 1:
++							continue # </advc.108c>
+ 						x,y = startx+dx, starty+dy
+ 						pLoopPlot = self.map.plot(x,y)
+-						if not pLoopPlot.isNone():
++						if (pLoopPlot
++								# advc.108c: Oil on water is hardly fair
++								and not pLoopPlot.isWater()):
+ 							plots.append(pLoopPlot)
+ 				
+ 				resources_placed = []
+@@ -1553,7 +1559,11 @@ class BonusBalancer:
+ 					for bonus in range(self.gc.getNumBonusInfos()):
+ 						type_string = self.gc.getBonusInfo(bonus).getType()
+ 						if (type_string not in resources_placed) and (type_string in self.resourcesToBalance):
+-							for (pLoopPlot) in plots:
++							#for (pLoopPlot) in plots:
++							# <advc.108c> Randomize placement
++							iOffset = self.gc.getGame().getMapRand().get(len(plots), "BonusBalancer")
++							for j in range(0, len(plots)):
++								pLoopPlot = plots[(j + iOffset) % len(plots)] # </advc.108c>
+ 								if (pLoopPlot.canHaveBonus(bonus, True)):
+ 									if self.isBonusValid(bonus, pLoopPlot, bIgnoreUniqueRange, bIgnoreOneArea, bIgnoreAdjacent):
+ 										pLoopPlot.setBonusType(bonus)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 430651fd5..9dab82b26 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2839,7 +2839,8 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
+ 			continue;
+ 		}
+ 		if (!isNormalizationBonus(eLoopBonus, eStartPlayer, kPlot, bCheckCanPlace, bIgnoreLatitude) ||
+-			skipDuplicateNormalizationBonus(kStartPlot, kPlot, eLoopBonus, !bCheckCanPlace)) // advc.108
++			skipDuplicateNormalizationBonus(kStartPlot, kPlot, eLoopBonus, !bCheckCanPlace) || // advc.108
++			GC.getMap().isBonusBalanced(eLoopBonus)) // advc.108c
+ 		{
+ 			continue;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 866648297..a143d620c 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -159,6 +159,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
+ 
+ 	m_aiNumBonus.reset();
+ 	m_aiNumBonusOnLand.reset();
++	m_aebBalancedBonuses.reset(); // advc.108c
+ 
+ 	m_areas.removeAll();
+ }
+@@ -1185,6 +1186,9 @@ void CvMap::read(FDataStreamBase* pStream)
+ 		m_aiNumBonus.readArray<int>(pStream);
+ 		m_aiNumBonusOnLand.readArray<int>(pStream);
+ 	}
++	// <advc.108c>
++	if (uiFlag >= 6)
++		m_aebBalancedBonuses.read(pStream); // </advc.108c>
+ 	// <advc.304>
+ 	if (uiFlag >= 5)
+ 		GC.getGame().getBarbarianWeightMap().getActivityMap().read(pStream);
+@@ -1241,7 +1245,8 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	//uiFlag = 2; // advc.opt: CvPlot::m_bAnyIsthmus
+ 	//uiFlag = 3; // advc.opt: m_ePlots
+ 	//uiFlag = 4; // advc.enum: new enum map save behavior
+-	uiFlag = 5; // advc.304: Barbarian weight map
++	//uiFlag = 5; // advc.304: Barbarian weight map
++	uiFlag = 6; // advc.108c
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iGridWidth);
+@@ -1259,6 +1264,9 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	FAssertMsg((0 < GC.getNumBonusInfos()), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated");
+ 	m_aiNumBonus.write(pStream);
+ 	m_aiNumBonusOnLand.write(pStream);
++	/*	advc.108c (Player might save on turn 0, then reload and regenerate the map.
++		Therefore this info needs to be saved.) */
++	m_aebBalancedBonuses.write(pStream);
+ 	/*	advc.304: Serialize this for CvGame b/c the map size isn't known
+ 		when CvGame gets deserialized. (kludge) */
+ 	GC.getGame().getBarbarianWeightMap().getActivityMap().write(pStream);
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 31db4890f..cc6d5bb45 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -522,6 +522,10 @@ public: // advc: made several functions const
+ 			bool bWrapX, bool bWrapY, WorldSizeTypes eWorldSize,
+ 			ClimateTypes eClimate, SeaLevelTypes eSeaLevel,
+ 			int iNumCustomMapOptions, CustomMapOptionTypes* eCustomMapOptions);
++	// <advc.108c>
++	void setBonusBalanced(BonusTypes eBonus) { m_aebBalancedBonuses.set(eBonus, true); }
++	bool isBonusBalanced(BonusTypes eBonus) const { return m_aebBalancedBonuses.get(eBonus); }
++	// </advc.108c>
+ 	void updateReplayTexture(); // advc.106n
+ 	byte const* getReplayTexture() const; // advc.106n
+ 	/*	<advc.002a> Set through BUG options, but I worry that accessing those
+@@ -570,6 +574,7 @@ protected:
+ 		before XML is loaded.) */
+ 	ArrayEnumMap<BonusTypes,int,PlotNumInt> m_aiNumBonus;
+ 	ArrayEnumMap<BonusTypes,int,PlotNumInt> m_aiNumBonusOnLand;
++	ListEnumMap<BonusTypes,bool> m_aebBalancedBonuses; // advc.108c
+ 	// </advc.enum>
+ 	CvPlot* m_pMapPlots;
+ 	std::map<Shelf::Id,Shelf*> m_shelves; // advc.300
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index d054ceccd..ea7d07947 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -562,6 +562,8 @@ void CvMapGenerator::addBonuses()
+ 					addUniqueBonusType(eLoopBonus);
+ 				else addNonUniqueBonusType(eLoopBonus);
+ 			}
++			// advc.108c: Remember that this bonus gets handled by the map script
++			else GC.getMap().setBonusBalanced(eLoopBonus);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/TrueStarts.cpp b/CvGameCoreDLL/TrueStarts.cpp
+index 267aa5b4b..a680a64e7 100644
+--- a/CvGameCoreDLL/TrueStarts.cpp
++++ b/CvGameCoreDLL/TrueStarts.cpp
+@@ -539,7 +539,7 @@ void TrueStarts::sanitize()
+ 		CvPlot const& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
+ 		if (kPlot.getBonusType() != NO_BONUS &&
+ 			(!m_bBalancedResources ||
+-			GC.getInfo(kPlot.getBonusType()).getPlacementOrder() > 2))
++			!GC.getMap().isBonusBalanced(kPlot.getBonusType())))
+ 		{
+ 			EagerEnumMap<PlayerTypes,scaled> aerPlayerWeights;
+ 			setPlayerWeightsPerPlot(eLoopPlotNum, aerPlayerWeights);
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=6522

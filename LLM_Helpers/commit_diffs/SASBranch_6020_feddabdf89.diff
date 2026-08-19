@@ -1,0 +1,192 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6020
+# Commit: feddabdf89f022dcf6412aab0cab414a54b4610c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 97b3d2c00fde87ccc5ed76f9bdd5181b2ce9db8e
+# Title: (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS AI Worker follow-up improvements: stale AI Worker build target could execute on the wrong p...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_18_civs_DLL.dll
+10	9	Assets/XML/GlobalDefines_advciv_sas.xml
+12	2	CvGameCoreDLL/CvSelectionGroup.cpp
+39	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_18_civs_DLL.dll b/Assets/CvGameCoreDLL_18_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 20c47b663..a4d624ae9 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -894,22 +894,23 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>-400</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food bonus value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-bonus starts, without changing later strategic/bonus city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield bonus-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
++	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food bonus value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-bonus starts, without changing later strategic/bonus city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield bonus-value component; normal tile yields are still evaluated separately. (GPT-5.5); even though food is important, do not overbuff it here (also because it is extra valuation only) or we would neglect valuable other plots like hill grass for hammer and small food cost in save file 446. -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT</DefineName>
+-		<iDefineIntVal>140</iDefineIntVal>
++		<iDefineIntVal>125</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT</DefineName>
+ 		<iDefineIntVal>95</iDefineIntVal>
+ 	</Define>
++	<!-- custom: this is extra-valuation so do not over-buff it -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE</DefineName>
+-		<iDefineIntVal>125</iDefineIntVal>
++		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Value per actual Food/Production/Commerce yield added by a bonus-specific BFC improvement. Formula: added Food * FOOD_VALUE + added Production * PRODUCTION_VALUE + added Commerce * COMMERCE_VALUE. For example, an improvement adding +2 Food and +1 Production contributes 2 * 100 + 1 * 75 = 275 with the defaults below. Replaces AdvCiv's hardcoded nonlinear special-yield aggregation so bonus-tile yields are counted once and can be tuned without recompiling; separate health, happiness, strategic, duplicate, and trade values remain unchanged. (GPT-5.5) -->
+ 	<Define>
+@@ -1005,20 +1006,20 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius -->
++	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius; even if it's not as strong late game, most cities are settled early/mid-game so this gives a significant advantage for minimal food cost so value it -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS</DefineName>
+-		<iDefineIntVal>75</iDefineIntVal>
++		<iDefineIntVal>80</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same -->
++	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same; it can also be irrigated and be a very nice food source especially late game. -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS</DefineName>
+-		<iDefineIntVal>60</iDefineIntVal>
++		<iDefineIntVal>65</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 50e72a332..124337a4e 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1549,8 +1549,17 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			break;
+ 
+ 		case MISSION_BUILD:
+-			if(!groupBuild((BuildTypes)missionData.iData1,
+-				!missionData.bModified)) // advc.011b
++		{
++			CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
++			// <!-- custom: Save file 446 exposed a stale AI worker mission queue where a target plot 58,24 Cottage build executed on the current plot 59,24 after route movement failed, overwriting an intended Mine. See KI#176.
++			// MISSION_BUILD has no stored plot coordinates, so for AI worker build missions we require the group to still be standing on the mission target before allowing groupBuild to act on the current plot.
++			// Validation: the save-file-446 t200 replay after this guard fired this cancel 7 times (T64 Japan 59,24->58,24; T71 Ottoman 50,34->51,33; T110 Greece 66,24->67,25; T127 Greece 66,25->67,26; T162 Native America 54,32->55,32; T178 Celts 27,45->31,48; T181 Native America 53,31->56,32), confirming this was a systemic stale-target safety issue rather than only the original Japan tile. (ChatGPT-5.5 + GPT-5.5) -->
++			if (AI().AI_getMissionAIType() == MISSIONAI_BUILD && pMissionPlot != NULL && !atPlot(pMissionPlot))
++			{
++				bDone = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-target-mismatch-cancel";
++			}
++			else if (!groupBuild((BuildTypes)missionData.iData1, !missionData.bModified)) // advc.011b
+ 			{
+ 				bDone = true;
+ 				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-finished-or-invalid";
+@@ -1560,6 +1569,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-step";
+ 			}
+ 			break;
++		}
+ 
+ 		default: FAssert(false);
+ 		}
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 878b01e4b..81d3c9d1d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -214,6 +214,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [173 - (Fixed/Improved) Base AdvCiv issue: Live first-settler scoring reused hidden map-generation surroundings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings)\
+ [174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)\
+ [175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---fixed-base-advciv-bug-barbarian-workers-in-cvunitaiai_workermove-repeatedly-retreated-to-the-safe-owned-city-they-already-occupied)\
++[176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6341,3 +6342,41 @@ Barbarian Workers no longer try to retreat from a safe owned city to itself. The
+ In the repeated save file 442 run, Barbarian parking-recovery events fell from 53 to 3. All remaining safe-city no-job fallbacks explicitly skipped the turn, with no false `action=scrap` records. A separate Huge naval-heavy Equal Islands test covered 20,308 Worker group turns: its 93 recoveries were spread across 70 Workers, no Worker remained in a persistent recovery loop, and every recovered Worker found another action rather than reaching the final no-productive-action fallback.
+ 
+ Fixed with the help of GPT-5.5 (on Codex) thanks.
++
++## 176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1C9Dh5nOjbA402OitO7IeNPm3-lUyWTt0?usp=sharing).
++
++Save file 446 exposed a stale AI Worker mission queue in `CvSelectionGroup::continueMission_bulk`: a Worker was standing on `(59,24)`, its `MISSIONAI_BUILD` target was `(58,24)`, and a queued Cottage build intended for `(58,24)` executed on the current plot `(59,24)` after route movement failed. This overwrote the intended Grass Hill Mine on `(59,24)` with a Cottage, which was then worked for much of the game and noticeably weakened the city.
++
++The underlying unsafe behavior is inherited from the base mission system: `MISSION_BUILD` stores the build type but no target coordinates, and `groupBuild` acts on the group's current plot. The intended target exists only in the AI mission metadata (`AI_getMissionAIPlot`). If current plot and mission target desync before the build mission reaches the head of the queue, base-derived code has no target guard.
++
++Recent AdvCiv-SAS Worker follow-up improvements made this easier to notice because useful queued follow-up builds now survive across turns instead of being deleted after feature removal consumes all movement. That likely exposed or amplified the bug, but the dangerous invariant itself is in the base/K-Mod/AdvCiv mission execution semantics.
++
++The fix is deliberately narrow: before executing an AI `MISSIONAI_BUILD`, `CvSelectionGroup::continueMission_bulk` now checks that the group is still standing on `AI_getMissionAIPlot`. If not, the stale build mission is cancelled so the Worker can replan instead of building on the wrong plot.
++
++The confirming save-file-446 t200 replay (`BBAI_20260707T090934Z_load1.log`) showed the guard firing 7 times across multiple players, not only the original Japan case. The original Japan sequence was:
++
++```log
++WORKER_GROUP_TURN phase=begin turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 worker=(59,24) activity=6 missionAI=23 missionTarget=(58,24) missionQueue=3 forceUpdate=0 canAnyMove=0 movesLeft=0
++WORKER_MISSION_EXECUTION phase=begin turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 mission=1 data=(58,24) flags=2 pushTurn=62 from=(59,24) missionTarget=(58,24) queue=3 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 outcome=route-failed mission=1 from=(59,24) to=(59,24) missionTarget=(58,24) done=1 action=0 ready=1 queue=3 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=begin turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 mission=33 data=(16,-1) flags=0 pushTurn=62 from=(59,24) missionTarget=(58,24) queue=1 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 outcome=build-target-mismatch-cancel mission=33 from=(59,24) to=(59,24) missionTarget=(58,24) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++WORKER_MOVE_ENTRY turn=64 player=0 Japanese Empire workerId=65541 worker=(59,24) groupId=73733 activity=0 missionAI=23 missionTarget=(58,24) missionQueue=0 movesSpent=0 movesLeft=120 currentDanger=0 threatened=0
++```
++
++The other exact `build-target-mismatch-cancel` records in that run:
++
++```log
++WORKER_MISSION_EXECUTION phase=result turn=71 player=3 Ottoman Empire workerId=24576 groupId=24576 outcome=build-target-mismatch-cancel mission=33 from=(50,34) to=(50,34) missionTarget=(51,33) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=110 player=1 Greek Empire workerId=114690 groupId=122880 outcome=build-target-mismatch-cancel mission=33 from=(66,24) to=(66,24) missionTarget=(67,25) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=127 player=1 Greek Empire workerId=163842 groupId=172032 outcome=build-target-mismatch-cancel mission=33 from=(66,25) to=(66,25) missionTarget=(67,26) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=162 player=7 Native American Empire workerId=409611 groupId=671771 outcome=build-target-mismatch-cancel mission=33 from=(54,32) to=(54,32) missionTarget=(55,32) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=178 player=8 Celtic Empire workerId=466987 groupId=794639 outcome=build-target-mismatch-cancel mission=33 from=(27,45) to=(27,45) missionTarget=(31,48) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++WORKER_MISSION_EXECUTION phase=result turn=181 player=7 Native American Empire workerId=991295 groupId=1761313 outcome=build-target-mismatch-cancel mission=33 from=(53,31) to=(53,31) missionTarget=(56,32) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
++```
++
++In the confirming run, the old Mine-to-Cottage corruption on `(59,24)` no longer appeared. The Worker cancelled the stale build, replanned normally, and moved to a valid new target.
++
++Fixed with the help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3cee95cb6..8161a80ba 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -333,7 +333,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Feature-removal health handling in `CvUnitAI::AI_bestCityBuild`:** forests provide city health, so non-bonus forest chops are **weighted by city population and health surplus**; **small cities** can still chop, but when health is tight the AI usually **prefers other useful improvements** because removing forest health can make the city unhealthy or more unhealthy. **Jungle is different** because it **adds unhealth** and is **generally targeted** for removal/improvement. (Requires AdvCiv-SAS 5941+) For **medium/large cities**, non-bonus forested BFC plots have a **softer health penalty**. This is because later in the game we usually have many health sources (trade, owned bonuses, buildings, techs, etc.), **higher population** can use or needs more improved BFC plots, and **improved yields are stronger**, so leaving useful forested tiles unimproved forever can be worse than accepting the forest-health loss.
+ - (Requires AdvCiv-SAS 6018+) **Compare the best useful work across all cities:** workers now compare each city's strongest reachable job by its complete Food/Production/Commerce/resource/terrain evaluation, with only a modest travel cost, instead of favoring cities mainly by population or staying near weaker local work. Cities that lack enough completed or already-assigned improvements for their population receive proportionally more help; counting assigned workers discourages crowding one city, while reserving one worker per plot prevents several workers from targeting the same tile. In BBAI testing in save file 442, this redirected workers from low-value unused Tundra Workshops toward valuable Grass/Plains Hill Mines in underdeveloped cities. See also [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-im-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but).
+ - **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn (e.g. **Mine ↔ Windmill**, **Cottage ↔ Farm**) while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain Farms. The small-city rotation shortcut does not make a worker leave when it is already standing on this same city's (Requires AdvCiv-SAS 6018+) useful BFC plot and that plot is the city's best current job.
+-- (Requires AdvCiv-SAS 6018+) **Finish valuable followup builds after feature removal:** a worker can complete standalone Forest/Jungle/Fallout removal (including receiving Forest chop production sooner, separated from e.g. a 2 in 1 mine that would deliver hammer on feature remove later plus would be less flexible), then continue directly into the worthwhile Mine, Farm, Cottage, resource improvement, etc. selected for that plot. This prevents workers from chopping or clearing a strong tile, walking away, and paying another trip later (which is especially inefficient if this costs movement/delay again); weak ordinary follow-ups are still reconsidered instead of being forced. Queued follow-ups now wait for the worker's next turn when removal consumes all movement rather than being silently discarded.
++- (Requires AdvCiv-SAS 6018+) **Finish valuable followup builds after feature removal:** a worker can complete standalone Forest/Jungle/Fallout removal (including receiving Forest chop production sooner, separated from e.g. a 2 in 1 mine that would deliver hammer on feature remove later plus would be less flexible), then continue directly into the worthwhile Mine, Farm, Cottage, resource improvement, etc. selected for that plot. This prevents workers from chopping or clearing a strong tile, walking away, and paying another trip later (which is especially inefficient if this costs movement/delay again); weak ordinary follow-ups are still reconsidered instead of being forced. Queued follow-ups now wait for the worker's next turn when removal consumes all movement rather than being silently discarded. See also [KI#176](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot).
+ - **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
+ - (Requires AdvCiv-SAS 5918+) **Worker irrigation-chain hunting:** updated SAS AI worker logic so it now **starts from actual dry-farm / low-food BFC targets** and **hunts short owned irrigation-chain steps**, including first links **outside the city BFC**. This fixed Chaco Canyon and Harappan-style cases where a nearby (2-3 plots away from BFC) water source existed but BFC-only worker logic missed the first link. (Requires AdvCiv-SAS 6018+) Workers now retain only the strongest available connector toward each target instead of treating several alternative routes to the same Farm as separate urgent jobs, leaving other workers free to pursue valuable improvements elsewhere.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=4 omittedFiles=2 embeddedPatchBytes=21389

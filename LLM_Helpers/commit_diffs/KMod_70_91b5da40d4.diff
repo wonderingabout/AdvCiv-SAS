@@ -1,0 +1,399 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 70
+# Commit: 91b5da40d4e21b7f69f04926176fe43da057fe53
+# History segment: K-Mod history
+# Parent used for diff: e59a297447c8b7449e19a63cb7b4477e5c525058
+# Title: The AI will now try to target a particular civ when using BigEspionage. Adjusted the AI's paranoia scaling for eras and map sizes. Adjusted the AI's use of u...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	CvGameCoreDLL/CvPlayer.cpp
+117	72	CvGameCoreDLL/CvPlayerAI.cpp
+13	1	CvGameCoreDLL/CvTeam.cpp
+3	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1d43ca0e8..abcf41822 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14752,7 +14752,9 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 
+ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
+ {
+-	CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
++	// K-Mod. I've altered this function to give a generic answer when NO_ESPIONAGEMISSION is passed.
++
++	//CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
+ 	int iModifier = 100;
+ 
+ 	CvCity* pCity = NULL;
+@@ -14766,7 +14768,8 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
+ 		eTargetPlayer = getID();
+ 	}
+ 
+-	if (pCity != NULL && kMission.isTargetsCity())
++	//if (pCity != NULL && kMission.isTargetsCity())
++	if (pCity != NULL && (eMission == NO_ESPIONAGEMISSION || GC.getEspionageMissionInfo(eMission).isTargetsCity()))
+ 	{
+ 		// City Population
+ 		iModifier *= 100 + (GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD") * (pCity->getPopulation() - 1));
+@@ -14819,7 +14822,8 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
+ 		CvCity* pOurCapital = getCapitalCity();
+ 		if (NULL != pOurCapital)
+ 		{
+-			if (kMission.isSelectPlot() || kMission.isTargetsCity())
++			//if (kMission.isSelectPlot() || kMission.isTargetsCity())
++			if (eMission == NO_ESPIONAGEMISSION || GC.getEspionageMissionInfo(eMission).isSelectPlot() || GC.getEspionageMissionInfo(eMission).isTargetsCity())
+ 			{
+ 				iDistance = plotDistance(pOurCapital->getX_INLINE(), pOurCapital->getY_INLINE(), pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 82f25af29..046782394 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -782,9 +782,7 @@ void CvPlayerAI::AI_doPeace()
+ 					{
+ 						if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 						{
+-							//if (!(GET_PLAYER((PlayerTypes)iI).isHuman()) || (GET_TEAM(getTeam()).getLeaderID() == getID()))
+-							// K-Mod, bug fix. (wtf was that? Make peace if the player is not human, or if we are their leader?)
+-							if (GET_PLAYER((PlayerTypes)iI).isHuman() || GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).getLeaderID() == iI)
++							if (!(GET_PLAYER((PlayerTypes)iI).isHuman()) || (GET_TEAM(getTeam()).getLeaderID() == getID()))
+ 							{
+ 								FAssertMsg(!(GET_PLAYER((PlayerTypes)iI).isBarbarian()), "(GET_PLAYER((PlayerTypes)iI).isBarbarian()) did not return false as expected");
+ 								FAssertMsg(iI != getID(), "iI is not expected to be equal with getID()");
+@@ -14388,11 +14386,6 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 	if (isCommerceFlexible(COMMERCE_ESPIONAGE) && !bFirstTech)
+ 	{
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						9/7/08				jdog5000	    */
+-/* 																			    */
+-/* 	Espionage AI		(with bug fixes by karadoc)							    */
+-/********************************************************************************/
+ 		// original BTS code
+ 		/*
+ 		int iEspionageTargetRate = 0;
+@@ -14415,33 +14408,72 @@ void CvPlayerAI::AI_doCommerce()
+ 		}
+ 		*/
+ 
++		// K-Mod, partially based on the changes made by BETTER_BTS_AI_MOD
+ 		int iEspionageTargetRate = 0;
+ 		int* aiTarget = new int[MAX_CIV_TEAMS];
+ 		int* aiWeight = new int[MAX_CIV_TEAMS];
++		int iMinModifier = INT_MAX;
++		TeamTypes eMinModTeam = NO_TEAM;
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+ 			aiTarget[iTeam] = 0;
+ 			aiWeight[iTeam] = 0;
++		}
+ 
++		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		{
+ 			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+-			if (kLoopTeam.isAlive() && iTeam != getTeam() && !kLoopTeam.isVassal(getTeam()) && !GET_TEAM(getTeam()).isVassal((TeamTypes)iTeam))
++			if (kLoopTeam.isAlive() && iTeam != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iTeam) &&
++				!kLoopTeam.isVassal(getTeam()) && !GET_TEAM(getTeam()).isVassal((TeamTypes)iTeam))
+ 			{
+-				if( GET_TEAM(getTeam()).isHasMet((TeamTypes)iTeam) )
++				int iTheirEspPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
++				int iOurEspPoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
++				int iDesiredMissionPoints = 0;
++				int iDesiredEspPoints = 0;
++					
++				aiWeight[iTeam] = 10;
++				int iRateDivisor = 12;
++
++				if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
+ 				{
+-					int iTheirEspPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
+-					int iOurEspPoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
+-					int iDesiredMissionPoints = 0;
+-					int iDesiredEspPoints = 0;
++					iTheirEspPoints *= 3;
++					iTheirEspPoints /= 2;
+ 
+-					aiWeight[iTeam] = 10;
+-					int iRateDivisor = 12;
++					for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++					{
++						CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+ 							
+-					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
++						if( kMissionInfo.isPassive() )
++						{
++							if( kMissionInfo.isSeeDemographics() || kMissionInfo.isSeeResearch() )
++							{
++								int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
++								if( iDesiredMissionPoints < iMissionCost )
++								{
++									iDesiredMissionPoints = iMissionCost;
++								}
++							}
++						}
++					}
++
++					iRateDivisor = 10;
++					aiWeight[iTeam] = 20;
++
++					if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
+ 					{
+-						iTheirEspPoints *= 3;
+-						iTheirEspPoints /= 2;
++						aiWeight[iTeam] = 30;
++						iRateDivisor = 8;
++					}
++				}
++				else
++				{
++					int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
+ 
++					iTheirEspPoints -= (iTheirEspPoints*iAttitude)/(2*12);
++
++					if( iAttitude <= -3 )
++					{
+ 						for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+ 						{
+ 							CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+@@ -14458,73 +14490,67 @@ void CvPlayerAI::AI_doCommerce()
+ 								}
+ 							}
+ 						}
+-
+-						iRateDivisor = 10;
+-						aiWeight[iTeam] = 20;
+-
+-						if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
+-						{
+-							aiWeight[iTeam] = 30;
+-							iRateDivisor = 8;
+-						}
+ 					}
+-					else
++					else if( iAttitude < 3 )
+ 					{
+-						int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
+-
+-						iTheirEspPoints -= (iTheirEspPoints*iAttitude)/(2*12);
+-
+-						if( iAttitude <= -3 )
++						for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+ 						{
+-							for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+-							{
+-								CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++							CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+ 								
+-								if( kMissionInfo.isPassive() )
++							if( kMissionInfo.isPassive() )
++							{
++								if( kMissionInfo.isSeeDemographics() )
+ 								{
+-									if( kMissionInfo.isSeeDemographics() || kMissionInfo.isSeeResearch() )
++									int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
++									if( iDesiredMissionPoints < iMissionCost )
+ 									{
+-										int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
+-										if( iDesiredMissionPoints < iMissionCost )
+-										{
+-											iDesiredMissionPoints = iMissionCost;
+-										}
++										iDesiredMissionPoints = iMissionCost;
+ 									}
+ 								}
+ 							}
+ 						}
+-						else if( iAttitude < 3 )
++					}
++
++					iRateDivisor += (iAttitude/5);
++					aiWeight[iTeam] -= (iAttitude/2);
++				}
++				// Individual player targeting
++				if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
++				{
++					for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
++					{
++						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++						if (kLoopPlayer.getTeam() == iTeam && kLoopPlayer.getNumCities() > 0)
+ 						{
+-							for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++							CvCity* pLoopCity;
++							int iLoop;
++							int iModifier = 0;
++							for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 							{
+-								CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++								iModifier += getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, GET_TEAM((TeamTypes)iTeam).getLeaderID(), pLoopCity->plot());
++							}
++							iModifier /= kLoopPlayer.getNumCities();
+ 
+-								if( kMissionInfo.isPassive() )
++							if (iModifier < iMinModifier ||
++								(iModifier == iMinModifier && GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam) < GET_TEAM(getTeam()).AI_getAttitudeVal(eMinModTeam)))
++							{
++								if (getTechScore() < kLoopPlayer.getTechScore())
+ 								{
+-									if( kMissionInfo.isSeeDemographics() )
+-									{
+-										int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
+-										if( iDesiredMissionPoints < iMissionCost )
+-										{
+-											iDesiredMissionPoints = iMissionCost;
+-										}
+-									}
++									iMinModifier = iModifier;
++									eMinModTeam = (TeamTypes)iTeam;
+ 								}
+ 							}
+ 						}
+-
+-						iRateDivisor += (iAttitude/5);
+-						aiWeight[iTeam] -= (iAttitude/2);
+ 					}
++				}
+ 
+-					iDesiredEspPoints = std::max(iTheirEspPoints,iDesiredMissionPoints);
++				iDesiredEspPoints = std::max(iTheirEspPoints,iDesiredMissionPoints);
+ 
+-					aiTarget[iTeam] = (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
++				aiTarget[iTeam] = (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
+ 
+-					if( aiTarget[iTeam] > 0 )
+-					{
+-						iEspionageTargetRate += aiTarget[iTeam];
+-					}
++				if( aiTarget[iTeam] > 0 )
++				{
++					iEspionageTargetRate += aiTarget[iTeam];
+ 				}
+ 			}
+ 		}
+@@ -14539,13 +14565,18 @@ void CvPlayerAI::AI_doCommerce()
+ 			{
+ 				aiWeight[iTeam] += 2*aiTarget[iTeam];
+ 			}
+-			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, std::max(0,aiWeight[iTeam]));
++			if (iTeam == eMinModTeam)
++			{
++				// This is pretty arbitrary. I'm sorry. :(
++				aiWeight[iTeam] = std::max(2*aiWeight[iTeam] + 1, 6);
++				// that "6" is 150 / (6 * 4). It's based on the numbers used earlier.
++			}
++			// note. bounds checks are done the set weight function
++			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, aiWeight[iTeam]);
+ 		}
+ 		SAFE_DELETE_ARRAY(aiTarget);
+ 		SAFE_DELETE_ARRAY(aiWeight);
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								    */
+-/********************************************************************************/
++		// K-Mod end
+ 
+ 		//if economy is weak, neglect espionage spending.
+ 		//instead invest hammers into espionage via spies/builds
+@@ -18650,7 +18681,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 
+ 	//if (iAttackUnitCount <= 1)
+ 	if (iAttackUnitCount <= 1 ||
+-		(iAverageEnemyUnit > 3*iTypicalAttack/2 && iAverageEnemyUnit > 5*iTypicalDefence/3))
++		(iAverageEnemyUnit > 3*iTypicalAttack/2 && iAverageEnemyUnit > 3*iTypicalDefence/2))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_GET_BETTER_UNITS;
+ 	}
+@@ -18932,7 +18963,15 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 	}
+ 
+ 	// Scale paranoia in later eras/larger games
+-	iParanoia -= (100*(iCurrentEra + 1)) / std::max(1, GC.getNumEraInfos());
++	//iParanoia -= (100*(iCurrentEra + 1)) / std::max(1, GC.getNumEraInfos());
++
++	// K-Mod. You call that scaling for "later eras/larger games"? It isn't scaling, and it doesn't use the map size.
++	// Lets try something else. Rough and ad hoc, but hopefully a bit better.
++	iParanoia *= (3*GC.getNumEraInfos() - 2*iCurrentEra);
++	iParanoia /= 3*(std::max(1, GC.getNumEraInfos()));
++	// That starts as a factor of 1, and drop to 1/3.  And now for game size...
++	iParanoia *= 14;
++	iParanoia /= (7+std::max(GET_TEAM(getTeam()).getHasMetCivCount(true), GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getDefaultPlayers()));
+ 
+ 	// Alert strategy
+ 	if( iParanoia >= 200 )
+@@ -18946,7 +18985,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 
+ 	// Economic focus (K-Mod) - Note: this strategy is a gambit. The goal is catch up in tech by avoiding building units.
+ 	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) == 0 &&
+-		(iAverageEnemyUnit >= 2*iTypicalAttack && iAverageEnemyUnit >= 5*iTypicalDefence/2))
++		(iAverageEnemyUnit >= 5*iTypicalAttack/3 && iAverageEnemyUnit >= 2*iTypicalDefence))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_ECONOMY_FOCUS;
+ 	}
+@@ -19163,6 +19202,12 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 						}
+ 					}
+ 
++					// K-Mod
++					if (iTypicalAttack >= 3 * GET_TEAM(getTeam()).getTypicalUnitValue(UNITAI_CITY_DEFENSE) / 2)
++					{
++						iCrushValue += 2;
++					}
++					
+ 					if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_PREPARING_TOTAL)
+ 					{
+ 						iCrushValue += 6;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e1b025d77..dbc451a7e 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2904,7 +2904,19 @@ int CvTeam::countEnemyDangerByArea(CvArea* pArea, TeamTypes eEnemyTeam ) const
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
++// K-Mod
++int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI) const
++{
++	int iMax = 0;
++	for (int iI = 0; iI < MAX_PLAYERS; ++iI)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++		{
++			iMax = std::max(iMax, GET_PLAYER((PlayerTypes)iI).getTypicalUnitValue(eUnitAI));
++		}
++	}
++	return iMax;
++}
+ 
+ int CvTeam::getResearchCost(TechTypes eTech) const
+ {
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index ed89db785..d92ae1027 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -123,6 +123,9 @@ public:
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
++	// K-Mod
++	int getTypicalUnitValue(UnitAITypes eUnitAI) const;
++
+ 	int getResearchCost(TechTypes eTech) const;																// Exposed to Python
+ 	int getResearchLeft(TechTypes eTech) const;																// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15281

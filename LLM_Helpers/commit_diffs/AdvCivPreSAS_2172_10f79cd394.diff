@@ -1,0 +1,232 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2172
+# Commit: 10f79cd3949131a3ca04d70d21a458d6b88b90cf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c2c96285a25f896bd089ddb6d8d4c451e6754eee
+# Title: Clear river ids at game start, store as short int.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvGame.cpp
+9	4	CvGameCoreDLL/CvMap.cpp
+2	2	CvGameCoreDLL/CvMap.h
+4	4	CvGameCoreDLL/CvMapGenerator.cpp
+10	5	CvGameCoreDLL/CvPlot.cpp
+6	6	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c5bdda102..fc7b78fd1 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -221,9 +221,13 @@ void CvGame::setInitialItems()
+ 	initFreeState();
+ 	assignStartingPlots();
+ 	normalizeStartingPlots();
++	CvMap& kMap = GC.getMap();
++	// <advc> River ids shouldn't be used after map generation
++	for (int i = 0; i < kMap.numPlots(); i++)
++		kMap.plotByIndex(i)->setRiverID(-1); // </advc>
+ 	// <advc.030> Now that ice has been placed and normalization is through
+ 	if(GC.getDefineBOOL("PASSABLE_AREAS"))
+-		GC.getMap().recalculateAreas();
++		kMap.recalculateAreas();
+ 	// </advc.030>
+ 	initFreeUnits();
+ 	int iStartTurn = getStartTurn(); // advc.250c, advc.251
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index dc392df1e..ba1f9c3e8 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -847,7 +847,7 @@ int CvMap::getBottomLatitude() const
+ }
+ 
+ 
+-int CvMap::getNextRiverID() const
++short CvMap::getNextRiverID() const
+ {
+ 	return m_iNextRiverID;
+ }
+@@ -1062,8 +1062,13 @@ void CvMap::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iOwnedPlots);
+ 	pStream->Read(&m_iTopLatitude);
+ 	pStream->Read(&m_iBottomLatitude);
+-	pStream->Read(&m_iNextRiverID);
+-
++	// <advc.opt>
++	int iRiver;
++	pStream->Read(&iRiver);
++	if (iRiver < MIN_SHORT || iRiver > MAX_SHORT)
++		m_iNextRiverID = -1;
++	m_iNextRiverID = static_cast<short>(iRiver);
++	// </advc.opt>
+ 	pStream->Read(&m_bWrapX);
+ 	pStream->Read(&m_bWrapY);
+ 
+@@ -1119,7 +1124,7 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iOwnedPlots);
+ 	pStream->Write(m_iTopLatitude);
+ 	pStream->Write(m_iBottomLatitude);
+-	pStream->Write(m_iNextRiverID);
++	pStream->Write((int)m_iNextRiverID); // advc.opt (cast)
+ 
+ 	pStream->Write(m_bWrapX);
+ 	pStream->Write(m_bWrapY);
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index fc7da5dea..7d6321a7a 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -351,7 +351,7 @@ public: // advc: made several functions const
+ 	int getTopLatitude() const;																									// Exposed to Python
+ 	int getBottomLatitude() const;																							// Exposed to Python
+ 
+-	int getNextRiverID() const;																									// Exposed to Python
++	short getNextRiverID() const;																									// Exposed to Python
+ 	void incrementNextRiverID();																					// Exposed to Python
+ 
+ 	bool isWrapXExternal(); // advc.inl: Exported through .def file							// Exposed to Python
+@@ -485,7 +485,7 @@ protected:
+ 	int m_iOwnedPlots;
+ 	int m_iTopLatitude;
+ 	int m_iBottomLatitude;
+-	int m_iNextRiverID;
++	short m_iNextRiverID; // advc.opt: was int (these get stored at CvPlot)
+ 
+ 	bool m_bWrapX;
+ 	bool m_bWrapY;
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 3b2b51876..cfc9ad63a 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -274,12 +274,12 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ 		iThisRiverID = GC.getMap().getNextRiverID();
+ 		GC.getMap().incrementNextRiverID();
+ 	}
+-
+-	int iOtherRiverID = pStartPlot->getRiverID();
++	/*	advc (note): Could probably just pass river ids through the call stack
++		instead of storing them for the entire game at CvPlot. However,
++		CyPlot::setRiverID/ getRiverID are also used by some map scripts. */
++	short iOtherRiverID = pStartPlot->getRiverID();
+ 	if (iOtherRiverID != -1 && iOtherRiverID != iThisRiverID)
+-	{
+ 		return; // Another river already exists here; can't branch off of an existing river!
+-	}
+ 
+ 	CvPlot *pRiverPlot = NULL;
+ 	CvPlot *pAdjacentPlot = NULL;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9fbbbfc41..ed176966a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5001,13 +5001,13 @@ void CvPlot::setWorkingCityOverride( const CvCity* pNewValue)
+ }
+ 
+ 
+-int CvPlot::getRiverID() const
++short CvPlot::getRiverID() const
+ {
+ 	return m_iRiverID;
+ }
+ 
+ 
+-void CvPlot::setRiverID(int iNewValue)
++void CvPlot::setRiverID(short iNewValue)
+ {
+ 	m_iRiverID = iNewValue;
+ }
+@@ -7093,8 +7093,13 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 		short sTmp; pStream->Read(&sTmp);
+ 		m_iCityRadiusCount = intToChar(sTmp);
+ 	}
+-	else pStream->Read(&m_iCityRadiusCount); // </advc.opt>
+-	pStream->Read(&m_iRiverID);
++	else pStream->Read(&m_iCityRadiusCount);
++	int iRiver;
++	pStream->Read(&iRiver);
++	if (iRiver < MIN_SHORT || iRiver > MAX_SHORT)
++		m_iRiverID = -1;
++	else m_iRiverID = static_cast<short>(iRiver);
++	// </advc.opt>
+ 	pStream->Read(&m_iMinOriginalStartDist);
+ 	pStream->Read(&m_iReconCount);
+ 	// <advc.opt>
+@@ -7296,7 +7301,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iUpgradeProgress);
+ 	pStream->Write(m_iForceUnownedTimer);
+ 	pStream->Write(m_iCityRadiusCount);
+-	pStream->Write(m_iRiverID);
++	pStream->Write((int)m_iRiverID); // advc.opt (cast)
+ 	pStream->Write(m_iMinOriginalStartDist);
+ 	pStream->Write(m_iReconCount);
+ 	pStream->Write(m_iRiverCrossingCount);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 92b0bf676..ee1430535 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -459,8 +459,8 @@ public:
+ 	CvCityAI* AI_getWorkingCity() const;
+ 	CvCityAI* AI_getWorkingCityOverrideAI() const; // </advc.003u>
+ 
+-	int getRiverID() const;																																							// Exposed to Python
+-	void setRiverID(int iNewValue);																																			// Exposed to Python
++	short getRiverID() const;																																							// Exposed to Python
++	void setRiverID(short iNewValue);																																			// Exposed to Python
+ 
+ 	int getMinOriginalStartDist() const;																																// Exposed to Python
+ 	void setMinOriginalStartDist(int iNewValue);
+@@ -721,10 +721,9 @@ public:
+ 	static void setMaxVisibilityRangeCache();
+ 
+ protected:
+-
++	// advc (note): Should keep the data members in an order that optimizes the memory layout
+ 	short m_iX;
+ 	short m_iY;
+-	int m_iRiverID;
+ 	int m_iTotalCulture; // advc.opt
+ 	short m_iFeatureVariety;
+ 	short m_iOwnershipDuration;
+@@ -739,6 +738,9 @@ protected:
+ 	// advc.opt: These two were short int
+ 	char m_iCityRadiusCount;
+ 	char m_iRiverCrossingCount;
++	char /*PlayerTypes*/ m_eOwner;
++	short /*BonusTypes*/ m_eBonusType;
++	short m_iRiverID; // advc.opt: Was int. Only used during map gen.
+ 
+ 	bool m_bStartingPlot:1;
+ 	bool m_bNOfRiver:1;
+@@ -750,7 +752,6 @@ protected:
+ 	bool m_bPlotLayoutDirty:1;
+ 	bool m_bLayoutStateWorked:1;
+ 
+-	char /*PlayerTypes*/ m_eOwner;
+ 	char /*TeamTypes*/ m_eTeam; // advc.opt: cache the owner's team
+ 	// advc.opt: These five were short int
+ 	char /*PlotTypes*/ m_ePlotType;
+@@ -758,7 +759,6 @@ protected:
+ 	char /*FeatureTypes*/ m_eFeatureType;
+ 	char /*RouteTypes*/ m_eRouteType;
+ 	char /*ImprovementTypes*/ m_eImprovementType;
+-	short /*BonusTypes*/ m_eBonusType;	
+ 	char /*CardinalDirectionTypes*/ m_eRiverNSDirection;
+ 	char /*CardinalDirectionTypes*/ m_eRiverWEDirection;
+ 	char /*PlayerTypes*/ m_eSecondOwner; // advc.035
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7104

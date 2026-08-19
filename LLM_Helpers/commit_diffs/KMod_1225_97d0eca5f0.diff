@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1225
+# Commit: 97d0eca5f04816f172efaa6d7a5d0000d7cc395c
+# History segment: K-Mod history
+# Parent used for diff: 4bea289320c45aaea5fc72a4db0798623e9b7be1
+# Title: "RiverSideYield" for improvements is now given for touching a river.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index debdccc0c..774f393ae 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6221,7 +6221,8 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
+ 
+ 	iYield = GC.getImprovementInfo(eImprovement).getYieldChange(eYield);
+ 
+-	if (isRiverSide())
++	//if (isRiverSide())
++	if (isRiver()) // K-Mod
+ 	{
+ 		iYield += GC.getImprovementInfo(eImprovement).getRiverSideYieldChange(eYield);
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=498

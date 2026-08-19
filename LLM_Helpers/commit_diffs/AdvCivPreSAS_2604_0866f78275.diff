@@ -1,0 +1,412 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2604
+# Commit: 0866f78275e7ebac67b6c3b3f74322348b758c78
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6cc41a08be5764f9c431c918e14057798ac3279e
+# Title: Use TeamPathFinder for UWAI distance computations
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	6	CvGameCoreDLL/TeamPathFinder.h
+7	8	CvGameCoreDLL/UWAIAgent.cpp
+1	1	CvGameCoreDLL/UWAIAgent.h
+102	52	CvGameCoreDLL/UWAICache.cpp
+8	4	CvGameCoreDLL/UWAICache.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.h b/CvGameCoreDLL/TeamPathFinder.h
+index 133215c06..aabee8271 100644
+--- a/CvGameCoreDLL/TeamPathFinder.h
++++ b/CvGameCoreDLL/TeamPathFinder.h
+@@ -106,15 +106,33 @@ protected:
+ 	int m_iHeuristicWeight;
+ };
+ 
+-// Derive a class for each mode; mainly so that they can be forward-declared.
+-// advc.tmp: Maybe won't be needed after all; remove these classes then.
+-class TeamPathFinderLand : public TeamPathFinder<TeamPath::LAND>
++class TeamPathFinders // For code that needs all three (and for forward declarations)
+ {
+ public:
+-	TeamPathFinderLand(CvTeam const& kTeam, CvTeam const* pWarTarget = NULL,
+-		int iMaxPath = -1)
+-	:	TeamPathFinder<TeamPath::LAND>(kTeam, pWarTarget, iMaxPath)
++	TeamPathFinders(
++		TeamPathFinder<TeamPath::LAND>& kLandFinder,
++		TeamPathFinder<TeamPath::ANY_WATER>& kAnyWaterFinder,
++		TeamPathFinder<TeamPath::SHALLOW_WATER>& kShallowWaterFinder)
++	:	m_kLandFinder(kLandFinder),
++		m_kAnyWaterFinder(kAnyWaterFinder),
++		m_kShallowWaterFinder(kShallowWaterFinder)
+ 	{}
++	inline TeamPathFinder<TeamPath::LAND>& landFinder() const
++	{
++		return m_kLandFinder;
++	}
++	inline TeamPathFinder<TeamPath::ANY_WATER>& anyWaterFinder() const
++	{
++		return m_kAnyWaterFinder;
++	}
++	inline TeamPathFinder<TeamPath::SHALLOW_WATER>& shallowWaterFinder() const
++	{
++		return m_kShallowWaterFinder;
++	}
++private:
++	TeamPathFinder<TeamPath::LAND>& m_kLandFinder;
++	TeamPathFinder<TeamPath::ANY_WATER>& m_kAnyWaterFinder;
++	TeamPathFinder<TeamPath::SHALLOW_WATER>& m_kShallowWaterFinder;
+ };
+ class TeamPathFinderAnyWater : public TeamPathFinder<TeamPath::ANY_WATER>
+ {
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index c2c78f364..e69c2820a 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -5,13 +5,14 @@
+ #include "WarEvaluator.h"
+ #include "UWAIReport.h"
+ #include "WarEvalParameters.h"
++#include "MilitaryBranch.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // Just for vote-related info
+ //#include "CvInfo_Unit.h" // for UWAI::Civ::militaryPower (now in PCH)
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "CvDiploParameters.h"
+-#include "CvMap.h"
++#include "TeamPathFinder.h"
+ #include "CvArea.h"
+ #include "RiseFall.h" // advc.705
+ 
+@@ -335,11 +336,9 @@ void UWAI::Team::alignAreaAI(bool isNaval) {
+ 				if(!isPushover(targetCity->getTeam()) ||
+ 						(wp != WARPLAN_TOTAL && wp != WARPLAN_PREPARING_TOTAL)) {
+ 					// Make sure there isn't an easily reachable target in the capital area
+-					int d=-1;
+-					UWAICache::City::measureDistance(member.getID(), DOMAIN_LAND,
+-							*capital->plot(), *targetCity->plot(), &d);
+-					if(::round(d / UWAICache::City::estimateMovementSpeed(
+-							member.getID(), DOMAIN_LAND, d)) <= 8)
++					TeamPathFinder<TeamPath::LAND> pf(GET_TEAM(agentId),
++							&GET_TEAM(targetCity->getTeam()), 8);
++					if(pf.generatePath(capital->getPlot(), targetCity->getPlot()))
+ 						bAlign = false;
+ 				}
+ 			}
+@@ -2413,7 +2412,7 @@ double UWAI::Civ::buildUnitProb() const {
+ 	return GC.getInfo(we.getPersonalityType()).getBuildUnitProb() / 100.0;
+ }
+ 
+-double UWAI::Civ::shipSpeed() const {
++int UWAI::Civ::shipSpeed() const {
+ 
+ 	MilitaryBranch const* logistics = getCache().getPowerValues()[LOGISTICS];
+ 	if(logistics != NULL) {
+@@ -2422,7 +2421,7 @@ double UWAI::Civ::shipSpeed() const {
+ 			return typicalTransport->getMoves();
+ 	}
+ 	// Fallback (needed?)
+-	return ::dRange(GET_PLAYER(weId).getCurrentEra() + 1.0, 3.0, 5.0);
++	return ::range(GET_PLAYER(weId).getCurrentEra() + 1, 3, 5);
+ }
+ 
+ double UWAI::Civ::humanBuildUnitProb() const {
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index e8432f7e1..d86f57489 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -194,7 +194,7 @@ public:
+ 	// Can this civ hurry production somehow? (Slavery, Univ. Suffrage)
+ 	bool canHurry() const;
+ 	double buildUnitProb() const;
+-	double shipSpeed() const;
++	int shipSpeed() const;
+ 	/*  period: Build-up over how many turns? Will be adjusted to game speed
+ 		by this function! */
+ 	double estimateBuildUpRate(PlayerTypes civId, int period = 10) const;
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 4b03d72fe..0b892beda 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -8,6 +8,7 @@
+ #include "WarEvalParameters.h"
+ #include "WarEvaluator.h"
+ #include "CoreAI.h"
++#include "TeamPathFinder.h"
+ #include "CvSelectionGroupAI.h"
+ #include "CityPlotIterator.h"
+ #include "CvArea.h"
+@@ -232,7 +233,7 @@ void UWAICache::update() {
+ 	focusOnPeacefulVictory = calculateFocusOnPeacefulVictory();
+ 	// Needs to be done before updating cities
+ 	updateTrainCargo();
+-	for(PlayerIter<MAJOR_CIV,KNOWN_TO> it(TEAMID(ownerId)); it.hasNext(); ++it)
++	for(TeamIter<MAJOR_CIV,KNOWN_TO> it(TEAMID(ownerId)); it.hasNext(); ++it)
+ 		updateCities(it->getID());
+ 	sortCitiesByAttackPriority();
+ 	updateTotalAssetScore();
+@@ -259,20 +260,56 @@ void UWAICache::update() {
+ 	}
+ }
+ 
+-void UWAICache::updateCities(PlayerTypes civId) {
++TeamPathFinders* UWAICache::createTeamPathFinders(TeamTypes warTarget) const
++{
++	/*	Would be nice to make one instance of each TeamPathFinder class a member of
++		CvTeam rather than creating temporary instances. However - see the comment in
++		KmodPathFinder::resetNodes. */
++	CvTeam const& cacheTeam = GET_TEAM(ownerId);
++	int seaLimit = getUWAI.maxSeaDist() * GET_PLAYER(ownerId).uwai().shipSpeed();
++	int landLimit = getUWAI.maxLandDist();
++	using namespace TeamPath;
++	return new TeamPathFinders(
++			*new TeamPathFinder<LAND>(cacheTeam, &GET_TEAM(warTarget), landLimit),
++			*new TeamPathFinder<ANY_WATER>(cacheTeam, &GET_TEAM(warTarget), seaLimit),
++			*new TeamPathFinder<SHALLOW_WATER>(cacheTeam, &GET_TEAM(warTarget), seaLimit));
++}
++
++void UWAICache::deleteTeamPathFinders(TeamPathFinders& pf) {
++
++	delete &pf.landFinder();
++	delete &pf.anyWaterFinder();
++	delete &pf.shallowWaterFinder();
++	delete &pf;
++}
++
++void UWAICache::updateCities(TeamTypes teamId) {
+ 
+ 	PROFILE_FUNC();
+-	CvPlayerAI& civ = GET_PLAYER(civId);
+-	FOR_EACH_CITY(c, civ) {
+-		// c.isRevealed() impedes the AI too much
+-		if(civId == ownerId || GET_TEAM(ownerId).AI_deduceCitySite(c)) {
+-			City* cacheCity = new City(ownerId, *c);
+-			v.push_back(cacheCity);
+-			cityMap.insert(std::make_pair(cacheCity->id(), cacheCity));
+-			if(civId != ownerId && cacheCity->canReach())
+-				nReachableCities.add(civId, 1);
++	CvTeamAI const& cacheTeam = GET_TEAM(ownerId);
++	TeamPathFinders* pf = NULL;
++	if(teamId != cacheTeam.getID())
++		pf = createTeamPathFinders(teamId);
++	for (MemberIter it(teamId); it.hasNext(); ++it)
++	{
++		CvPlayerAI& civ = *it;
++		FOR_EACH_CITY_VAR(c, civ) {
++			// c.isRevealed() impedes the AI too much
++			if(teamId == cacheTeam.getID() || cacheTeam.AI_deduceCitySite(c))
++				add(*new City(ownerId, *c, pf));
+ 		}
+ 	}
++	if(pf != NULL)
++		deleteTeamPathFinders(*pf);
++}
++
++void UWAICache::add(City& c)
++{
++	v.push_back(&c);
++	cityMap.insert(std::make_pair(c.id(), &c));
++	PlayerTypes cityOwnerId = c.city().getOwner();
++	if(TEAMID(cityOwnerId) != TEAMID(ownerId) && c.canReach())
++		nReachableCities.add(cityOwnerId, 1);
+ }
+ 
+ void UWAICache::updateTotalAssetScore() {
+@@ -1179,13 +1216,12 @@ void UWAICache::updateMilitaryPower(CvUnitInfo const& u, bool add) {
+ 		nNonNavyUnits += (add ? 1 : -1);
+ }
+ 
+-UWAICache::City::City(PlayerTypes cacheOwnerId, CvCity const& c)
+-		: cacheOwnerId(cacheOwnerId) {
++UWAICache::City::City(PlayerTypes cacheOwnerId, CvCity& c, TeamPathFinders* pf) {
+ 
+ 	//descr = c.getName();
+ 	// Use plot index as city id (the pointer 'c' isn't serializable)
+ 	plotIndex = c.plotNum();
+-	updateDistance(c);
++	updateDistance(c, pf, cacheOwnerId);
+ 	// AI_targetCityValue doesn't account for reachability (probably should)
+ 	if(!canReach() || cacheOwnerId == c.getOwner())
+ 		targetValue = -1;
+@@ -1402,20 +1438,8 @@ int UWAICache::City::byOwner(City* one, City* two) {
+ 	return 0;
+ }
+ 
+-PlayerTypes UWAICache::City::cityOwner() const {
+-
+-	if(city() == NULL)
+-		return NO_PLAYER;
+-	return city()->getOwner();
+-}
+-
+-bool UWAICache::City::isOwnCity() const {
+-
+-	// Check distance==0 first b/c that's faster
+-	return (distance == 0 && cityOwner() == cacheOwnerId);
+-}
+-
+-void UWAICache::City::updateDistance(CvCity const& targetCity) {
++void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders* pf,
++		PlayerTypes cacheOwnerId) {
+ 
+ 	PROFILE_FUNC();
+ 	/*  For each city of the agent (cacheOwner), compute a path to the target city
+@@ -1440,16 +1464,13 @@ void UWAICache::City::updateDistance(CvCity const& targetCity) {
+ 
+ 		Unreachable targets are indicated by a distance of -1. */
+ 
+-	CvPlayerAI& cacheOwner = GET_PLAYER(cacheOwnerId);
+-
+-	// Our own cities have 0 distance from themselves
+-	if(targetCity.getOwner() == cacheOwnerId) {
++	if(pf == NULL) { // City of our team
+ 		distance = 0;
+ 		reachByLand = true;
+ 		reachBySea = true;
+ 		return;
+ 	}
+-	int const maxDist = getUWAI.maxSeaDist();
++	CvPlayerAI& cacheOwner = GET_PLAYER(cacheOwnerId);
+ 	distance = -1;
+ 	reachByLand = false;
+ 	reachBySea = false;
+@@ -1477,31 +1498,60 @@ void UWAICache::City::updateDistance(CvCity const& targetCity) {
+ 			continue;
+ 		CvPlot* p = c->plot();
+ 		int pwd = -1; // pairwise (travel) duration
+-		int d = -1; // set by measureDistance
+-		if(measureDistance(cacheOwnerId, DOMAIN_LAND, *p, targetCity.getPlot(), &d)) {
+-			double speed = estimateMovementSpeed(cacheOwnerId, DOMAIN_LAND, d);
+-			// Will practically always have to move through some foreign tiles
+-			d = std::min(d, 2) + ::round((d - std::min(d, 2)) / speed);
+-			if(d == 0) // Make sure 0 is reserved for own cities
+-				d = 1;
+-			pwd = d;
++		/*	Search from target to source. TeamStepMetric is symmetrical in that regard.
++			Doing it backwards allows intermediate results to be reused. */
++		if(pf->landFinder().generatePath(targetCity.getPlot(), *p)) {
++			pwd = ROUND_DIVIDE(pf->landFinder().getPathCost(),
++					GC.getMOVE_DENOMINATOR());
++			if(pwd == 0) // Make sure 0 is reserved for own cities
++				pwd = 1;
+ 			/*  reachByLand refers to our (AI) capital. This is to ensure that the
+ 				AI can still detect the need for a naval assault when it has a
+ 				colony near the target civ. */
+ 			if(c->at(cacheOwner.getCapital()->plot()))
+ 				reachByLand = true;
+ 		}
+-		if(trainAnyCargo) {
+-			DomainTypes dom = DOMAIN_SEA;
+-			if(!trainDeepSeaCargo)
+-				dom = DOMAIN_IMMOBILE; // Encode non-ocean as IMMOBILE
+-			if(measureDistance(cacheOwnerId, dom, *p, targetCity.getPlot(), &d)) {
+-				FAssert(d >= 0);
+-				d = (int)std::ceil(d / estimateMovementSpeed(cacheOwnerId, DOMAIN_SEA, d)) +
+-						seaPenalty;
+-				if(pwd < 0 || d < pwd) {
+-					pwd = d;
+-					reachBySea = true;
++		if(trainAnyCargo &&
++				// This ignores cities that can access the ocean only through a canal
++				p->isCoastalLand(-1)) {
++			bool valid = true;
++			/*	We're unlikely to be able to pass through a canal near the target;
++				not losing much here. */
++			if(!targetCity.isCoastal(-1)) {
++				// Can reach cities that are one off the coast
++				CvPlot const* newDest = NULL;
++				int shortestStepDist = MAX_INT;
++				FOR_EACH_ENUM(Direction) {
++					CvPlot* adj = ::plotDirection(targetCity.getX(), targetCity.getY(),
++							eLoopDirection);
++					if(adj != NULL && adj->isCoastalLand(-1)) {
++						int d = ::stepDistance(p, adj);
++						if(d < shortestStepDist) {
++							newDest = adj;
++							shortestStepDist = d;
++						}
++					}
++				}
++				if(newDest == NULL)
++					valid = false;
++			}
++			if(valid) {
++				int d = -1;
++				if(trainDeepSeaCargo) {
++					if(pf->anyWaterFinder().generatePath(targetCity.getPlot(), *p))
++						d = pf->anyWaterFinder().getPathCost();
++				}
++				else {
++					if(pf->shallowWaterFinder().generatePath(targetCity.getPlot(), *p))
++						d = pf->shallowWaterFinder().getPathCost();
++				}
++				if(d > 0) {
++					d = seaPenalty + ROUND_DIVIDE(d,
++							GC.getMOVE_DENOMINATOR() * cacheOwner.uwai().shipSpeed());
++					if(pwd < 0 || d < pwd) {
++						pwd = d;
++						reachBySea = true;
++					}
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index 146c2bb6a..7675d609f 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -6,6 +6,7 @@
+ class UWAICache;
+ class MilitaryBranch;
+ class CvCity;
++class TeamPathFinders;
+ class FDataStreamBase;
+ 
+ /* advc.104: Cached data used by the war-and-peace AI. Each civ has its own
+@@ -133,8 +134,10 @@ public:
+ private:
+ 	// beforeUpdated: Only clear data that is recomputed in 'update'
+ 	void clear(bool beforeUpdate = false);
+-	void updateCities(PlayerTypes civId);
+-	void updateLatestTurnReachableBySea();
++	void updateCities(TeamTypes teamId);
++	void add(City& c);
++	TeamPathFinders* createTeamPathFinders(TeamTypes warTarget) const;
++	static void deleteTeamPathFinders(TeamPathFinders& pf);
+ 	void updateTraits();
+ 	void updateTargetMissionCounts();
+ 	void updateThreatRatings();
+@@ -205,7 +208,7 @@ public:
+ 	   for computing war utility. */
+ 	class City {
+ 	public:
+-		City(PlayerTypes cacheOwnerId, CvCity const& c);
++		City(PlayerTypes cacheOwnerId, CvCity& c, TeamPathFinders* pf);
+ 		City(PlayerTypes cacheOwnerId); // for reading from savegame
+ 		PlayerTypes cityOwner() const;
+ 		bool isOwnCity() const;
+@@ -251,7 +254,8 @@ public:
+ 		/* Auxiliary function for sorting. -1 means one < two, +1 two < one and 0
+ 		   neither. */
+ 		static int byOwner(City* one, City* two);
+-		void updateDistance(CvCity const& targetCity);
++		void updateDistance(CvCity const& targetCity, TeamPathFinders* pf,
++				PlayerTypes cacheOwnerId);
+ 		void updateAssetScore();
+ 
+ 		int distance, targetValue, assetScore;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=13695

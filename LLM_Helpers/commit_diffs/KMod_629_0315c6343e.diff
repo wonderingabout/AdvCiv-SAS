@@ -1,0 +1,487 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 629
+# Commit: 0315c6343ebb3bada6fec8e727241a0d8d09a8cc
+# History segment: K-Mod history
+# Parent used for diff: 3493f3a171558b82b728e542af40318d641eafc7
+# Title: Added a new argument, bAssumeVisible, to CvUnit::canMoveInto and its sister functions. - Previously, canMoveInto checked plot visibility for human players bu...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvDefines.h
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+0	140	CvGameCoreDLL/CvPlayerAI.cpp
+1	7	CvGameCoreDLL/CvPlayerAI.h
+14	5	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+16	12	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvUnit.h
+2	2	CvGameCoreDLL/CyUnit.cpp
+1	1	CvGameCoreDLL/CyUnit.h
+1	1	CvGameCoreDLL/CyUnitInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 519fca65b..f62729449 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -30,6 +30,7 @@
+ #define MOVE_SINGLE_ATTACK									(0x00000400) // K-Mod. only attack with one unit, not the whole stack
+ #define MOVE_NO_ATTACK										(0x00000800) // K-Mod. used to prevent humans from accidentally attacking unseen units
+ #define MOVE_HAS_STEPPED									(0x00001000) // K-Mod. used to signal that at least one step has been taken for this move command
++#define MOVE_ASSUME_VISIBLE									(0x00002000) // K-Mod. With this flag, the pathfinder will plan around enemy units even if they are not visible. (Note: AI units do this regardless of the flag.)
+ 
+ /*
+ ** K-Mod, 18/dec/10, karadoc
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 3d352a128..715b2f9ed 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1909,7 +1909,7 @@ int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int
+ 		else
+ 		{
+ 			//if (!(pSelectionGroup->canMoveThrough(pFromPlot)))
+-			if (!pSelectionGroup->canMoveThrough(pFromPlot, iFlags & MOVE_DECLARE_WAR && !pSelectionGroup->isHuman())) // K-Mod
++			if (!pSelectionGroup->canMoveThrough(pFromPlot, iFlags & MOVE_DECLARE_WAR && !pSelectionGroup->isHuman(), iFlags & MOVE_ASSUME_VISIBLE || !pSelectionGroup->isHuman())) // K-Mod
+ 			{
+ 				return FALSE;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 32a28d1ba..c1318f80e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19494,13 +19494,6 @@ bool CvPlayerAI::AI_isDoStrategy(int iStrategy) const
+     return (iStrategy & AI_getStrategyHash());
+ }
+ 
+-/* obsolete original bts code
+-void CvPlayerAI::AI_forceUpdateStrategies()
+-{
+-	//this forces a recache.
+-	m_iStrategyHashCacheTurn = -1;
+-} */
+-
+ // K-mod. The body of this function use to be inside "AI_getStrategyHash"
+ void CvPlayerAI::AI_updateStrategyHash()
+ {
+@@ -20704,139 +20697,6 @@ int CvPlayerAI::AI_countDeadlockedBonuses(CvPlot* pPlot) const
+     return iCount;
+ }
+ 
+-#if 0 // K-Mod disabled these functions.
+-int CvPlayerAI::AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves) const
+-{
+-	PROFILE_FUNC();
+-
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	CvPlot* pLoopPlot;
+-	int iValue;
+-	int iDistance;
+-	int iDX, iDY;
+-
+-	iValue = 0;
+-
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
+-	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
+-		{
+-			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (pLoopPlot->area() == pPlot->area())
+-				{
+-				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+-					pUnitNode = pLoopPlot->headUnitNode();
+-
+-					while (pUnitNode != NULL)
+-					{
+-						pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-
+-						if (pLoopUnit->getOwnerINLINE() == getID())
+-						{
+-							if ((bDefensiveBonuses && pLoopUnit->canDefend()) || pLoopUnit->canAttack())
+-							{
+-								if (!(pLoopUnit->isInvisible(getTeam(), false)))
+-								{
+-								    if (pLoopUnit->atPlot(pPlot) || pLoopUnit->canMoveInto(pPlot) || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true))
+-								    {
+-                                        if (!bTestMoves)
+-                                        {
+-                                        	iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
+-                                        }
+-                                        else
+-                                        {
+-											if (pLoopUnit->baseMoves() >= iDistance)
+-                                            {
+-                                                iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
+-                                            }
+-                                        }
+-								    }
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-
+-	return iValue;
+-}
+-
+-int CvPlayerAI::AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves) const
+-{
+-	PROFILE_FUNC();
+-
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	CvPlot* pLoopPlot;
+-	int iValue;
+-	int iDistance;
+-	int iDX, iDY;
+-
+-	iValue = 0;
+-
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
+-	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
+-		{
+-			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (pLoopPlot->area() == pPlot->area())
+-				{
+-				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+-					pUnitNode = pLoopPlot->headUnitNode();
+-
+-					while (pUnitNode != NULL)
+-					{
+-						pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-
+-						if (atWar(pLoopUnit->getTeam(), getTeam()))
+-						{
+-							if ((bDefensiveBonuses && pLoopUnit->canDefend()) || pLoopUnit->canAttack())
+-							{
+-								if (!(pLoopUnit->isInvisible(getTeam(), false)))
+-								{
+-								    if (pPlot->isValidDomainForAction(*pLoopUnit))
+-								    {
+-                                        if (!bTestMoves)
+-                                        {
+-                                            iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
+-                                        }
+-                                        else
+-                                        {
+-                                            int iDangerRange = pLoopUnit->baseMoves();
+-                                            iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
+-                                            if (iDangerRange >= iDistance)
+-                                            {
+-                                                iValue += pLoopUnit->currEffectiveStr((bDefensiveBonuses ? pPlot : NULL), NULL);
+-                                            }
+-                                        }
+-								    }
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-
+-	return iValue;
+-	
+-}
+-#endif // K-Mod disabled these functions
+-
+ // K-Mod. This function use to be the bulk of AI_goldToUpgradeAllUnits()
+ void CvPlayerAI::AI_updateGoldToUpgradeAllUnits()
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 55a231d80..0ec562c36 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -324,7 +324,7 @@ public:
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      03/17/10                                jdog5000      */
+ /*                                                                                              */
+-/* Victory Strategy AI                                                                          */
++/* Victory Strategy AI       (functions renamed and edited for K-Mod)                           */
+ /************************************************************************************************/
+ 	int AI_calculateSpaceVictoryStage() const;
+ 	int AI_calculateConquestVictoryStage() const;
+@@ -342,7 +342,6 @@ public:
+ /************************************************************************************************/		
+ 
+ 	bool AI_isDoStrategy(int iStrategy) const;
+-	//void AI_forceUpdateStrategies(); // obsolete function from Original BtS
+ 
+ 	void AI_updateGreatPersonWeights(); // K-Mod
+ 	int AI_getGreatPersonWeight(UnitClassTypes eGreatPerson) const; // K-Mod
+@@ -351,11 +350,6 @@ public:
+ 
+ 	int AI_countDeadlockedBonuses(CvPlot* pPlot) const;
+ 
+-	/* original bts code
+-	int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves) const;
+-	int AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves) const; */
+-	// The above two functions have been disabled by K-Mod. They are no longer used - to reduce code duplication.
+-
+ 	//int AI_goldToUpgradeAllUnits(int iExpThreshold = 0) const;
+ 	// K-Mod
+ 	inline int AI_getGoldToUpgradeAllUnits() const { return m_iUpgradeUnitsCachedGold; }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index efa18e1b5..de9d53f79 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2199,7 +2199,7 @@ bool CvSelectionGroup::canDoInterfaceModeAt(InterfaceModeTypes eInterfaceMode, C
+ 		case INTERFACEMODE_AIRSTRIKE:
+ 			if (pLoopUnit != NULL)
+ 			{
+-				if (pLoopUnit->canMoveInto(pPlot, true))
++				if (pLoopUnit->canMoveInto(pPlot, true, false, false, false))
+ 				{
+ 					return true;
+ 				}
+@@ -2705,7 +2705,7 @@ bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool
+ }
+ 
+ 
+-bool CvSelectionGroup::canMoveThrough(CvPlot* pPlot, bool bDeclareWar) const
++bool CvSelectionGroup::canMoveThrough(CvPlot* pPlot, bool bDeclareWar, bool bAssumeVisible) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -2719,7 +2719,8 @@ bool CvSelectionGroup::canMoveThrough(CvPlot* pPlot, bool bDeclareWar) const
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			pUnitNode = nextUnitNode(pUnitNode);
+ 
+-			if (!pLoopUnit->canMoveThrough(pPlot, bDeclareWar))
++			//if (!pLoopUnit->canMoveThrough(pPlot))
++			if (!pLoopUnit->canMoveInto(pPlot, false, bDeclareWar, true, bAssumeVisible)) // K-Mod
+ 			{
+ 				return false;
+ 			}
+@@ -3520,6 +3521,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ {
+ 	KmodPathFinder final_path; // K-Mod
++	CvPlot* pOriginPlot = plot(); // K-Mod
+ 
+ 	if (at(iX, iY))
+ 	{
+@@ -3594,10 +3596,11 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 
+ 	FAssert(getNumUnits() == 0 || atPlot(pPathPlot)); // K-Mod
+ 
+-	// K-Mod. If the step we just took will make us change our path to something longer, then cancel the move.
+-	// This prevents units from wasting all their moves by trying to walk around enemy units.
++	// K-Mod.
+ 	if (!AI_isControlled() && !bEndMove)
+ 	{
++		//If the step we just took will make us change our path to something longer, then cancel the move.
++		// This prevents units from wasting all their moves by trying to walk around enemy units.
+ 		FAssert(final_path.GetEndNode());
+ 		std::pair<int, int> old_moves = std::make_pair(final_path.GetEndNode()->m_iData2, -final_path.GetEndNode()->m_iData1);
+ 		if (!final_path.GeneratePath(pDestPlot)
+@@ -3605,6 +3608,12 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 		{
+ 			clearMissionQueue();
+ 		}
++		// Also, if the step we just took causes us to backtrack - its probably because we've lost vision of a unit that was blocking the path.
++		// Apply the MOVE_ASSUME_VISIBLE flag, so that we remember to go the long way around.
++		else if (final_path.GetPathFirstPlot() == pOriginPlot)
++		{
++			headMissionQueueNode()->m_data.iFlags |= MOVE_ASSUME_VISIBLE;
++		}
+ 	}
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 59fe5dbba..03772122a 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -79,7 +79,7 @@ public:
+ 	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false);																		// Exposed to Python
+ 	//DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false);												// Exposed to Python
+ 	bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false, bool bCheckMoves = false); // Exposed to Python, K-Mod added bCheckMoves. (who needs "DllExport"?)
+-	bool canMoveThrough(CvPlot* pPlot, bool bDeclareWar = false) const; // Exposed to Python, K-Mod added bDeclareWar
++	bool canMoveThrough(CvPlot* pPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // Exposed to Python, K-Mod added bDeclareWar and bAssumeVisible
+ 	bool canFight();																																										// Exposed to Python 
+ 	bool canDefend();																																										// Exposed to Python
+ 	bool canBombard(const CvPlot* pPlot);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 49d175f3b..d39064cb1 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2363,7 +2363,7 @@ TeamTypes CvUnit::getDeclareWarMove(const CvPlot* pPlot) const
+ 			{
+ 				//if (canMoveInto(pPlot, true, true, true))
+ 				// K-Mod. Don't give the "declare war" popup unless we need war to move into the plot.
+-				if (canMoveInto(pPlot, true, true, true) && !canMoveInto(pPlot))
++				if (canMoveInto(pPlot, true, true, true, false) && !canMoveInto(pPlot, false, false, false, false))
+ 				// K-Mod end
+ 				{
+ 					pUnit = pPlot->plotCheck(PUF_canDeclareWar, getOwnerINLINE(), isAlwaysHostile(pPlot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwnerINLINE());
+@@ -2401,8 +2401,8 @@ bool CvUnit::willRevealByMove(const CvPlot* pPlot) const
+ 	return false;
+ }
+ 
+-// K-Mod. I've rearranged a few things to make the function slightly faster.
+-bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad) const
++// K-Mod. I've rearranged a few things to make the function slightly faster, and added "bAssumeVisible" which signals that we should check for units on the plot regardless of whether we can actually see.
++bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -2624,7 +2624,8 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 		{
+ 			if (bAttack || !canCoexistWithEnemyUnit(NO_TEAM))
+ 			{
+-				if (!isHuman() || (pPlot->isVisible(getTeam(), false)))
++				//if (!isHuman() || (pPlot->isVisible(getTeam(), false)))
++				if (bAssumeVisible || pPlot->isVisible(getTeam(), false))
+ 				{
+ 					if (pPlot->isVisibleEnemyUnit(this) != bAttack)
+ 					{
+@@ -2667,7 +2668,8 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 
+ 			if (!canCoexistWithEnemyUnit(NO_TEAM))
+ 			{
+-				if (!isHuman() || pPlot->isVisible(getTeam(), false))
++				//if (!isHuman() || pPlot->isVisible(getTeam(), false))
++				if (bAssumeVisible || pPlot->isVisible(getTeam(), false)) // K-Mod
+ 				{
+ 					if (pPlot->isEnemyCity(*this))
+ 					{
+@@ -2682,7 +2684,7 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 			}
+ 		}
+ 
+-		if (isHuman())
++		if (isHuman()) // (should this be !bAssumeVisible? It's a bit different to the other isHuman() checks)
+ 		{
+ 			ePlotTeam = pPlot->getRevealedTeam(getTeam(), false);
+ 			bCanEnterArea = canEnterArea(ePlotTeam, pPlotArea);
+@@ -2763,10 +2765,10 @@ bool CvUnit::canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar) const
+ }
+ 
+ 
+-bool CvUnit::canMoveThrough(const CvPlot* pPlot, bool bDeclareWar) const
++/* bool CvUnit::canMoveThrough(const CvPlot* pPlot, bool bDeclareWar) const
+ {
+ 	return canMoveInto(pPlot, false, bDeclareWar, true);
+-}
++}*/
+ 
+ 
+ void CvUnit::attack(CvPlot* pPlot, bool bQuick)
+@@ -3938,10 +3940,7 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
+ 
+ 	pTargetPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 
+-	if (!canMoveInto(pTargetPlot))
+-	{
+-		return false;
+-	}
++	// canMoveInto use to be here
+ 
+ 	pTargetCity = pTargetPlot->getPlotCity();
+ 
+@@ -3960,6 +3959,11 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
+ 		return false;
+ 	}
+ 
++	if (!canMoveInto(pTargetPlot)) // moved by K-Mod
++	{
++		return false;
++	}
++
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 3c49e3d41..d3347a0bc 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -103,9 +103,9 @@ public:
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	TeamTypes getDeclareWarMove(const CvPlot* pPlot) const;															// Exposed to Python
+-	bool canMoveInto(const CvPlot* pPlot, bool bAttack = false, bool bDeclareWar = false, bool bIgnoreLoad = false) const;	// Exposed to Python
++	bool canMoveInto(const CvPlot* pPlot, bool bAttack = false, bool bDeclareWar = false, bool bIgnoreLoad = false, bool bAssumeVisible = true) const; // K-Mod added bAssumeVisible. Exposed to Python
+ 	bool canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar = false) const;								// Exposed to Python
+-	bool canMoveThrough(const CvPlot* pPlot, bool bDeclareWar = false) const; // Exposed to Python, K-Mod added bDeclareWar
++	// bool canMoveThrough(const CvPlot* pPlot, bool bDeclareWar = false) const; // disabled by K-Mod (was exposed to Python)
+ 	void attack(CvPlot* pPlot, bool bQuick);
+ 	void attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange);
+ 	void fightInterceptor(const CvPlot* pPlot, bool bQuick);
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 9cc30f688..e9b284789 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -104,10 +104,10 @@ bool CyUnit::canMoveOrAttackInto(CyPlot* pPlot, bool bDeclareWar)
+ 	return m_pUnit ? m_pUnit->canMoveOrAttackInto(pPlot->getPlot(), bDeclareWar) : false;
+ }
+ 
+-bool CyUnit::canMoveThrough(CyPlot* pPlot)
++/*bool CyUnit::canMoveThrough(CyPlot* pPlot)
+ {
+ 	return m_pUnit ? m_pUnit->canMoveThrough(pPlot->getPlot()) : false;
+-}
++}*/
+ 
+ bool CyUnit::jumpToNearestValidPlot()
+ {
+
+diff --git a/CvGameCoreDLL/CyUnit.h b/CvGameCoreDLL/CyUnit.h
+index 01c9d317d..459b8b21f 100644
+--- a/CvGameCoreDLL/CyUnit.h
++++ b/CvGameCoreDLL/CyUnit.h
+@@ -42,7 +42,7 @@ public:
+ 	int /*TeamTypes*/ getDeclareWarMove(CyPlot* pPlot);
+ 	bool canMoveInto(CyPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad);
+ 	bool canMoveOrAttackInto(CyPlot* pPlot, bool bDeclareWar);
+-	bool canMoveThrough(CyPlot* pPlot);		 
++	//bool canMoveThrough(CyPlot* pPlot);
+ 	bool jumpToNearestValidPlot();
+ 
+ 	bool canAutomate(AutomateTypes eAutomate);
+
+diff --git a/CvGameCoreDLL/CyUnitInterface1.cpp b/CvGameCoreDLL/CyUnitInterface1.cpp
+index 30cffbb5d..fdf858a45 100644
+--- a/CvGameCoreDLL/CyUnitInterface1.cpp
++++ b/CvGameCoreDLL/CyUnitInterface1.cpp
+@@ -38,7 +38,7 @@ void CyUnitPythonInterface1(python::class_<CyUnit>& x)
+ 		.def("getDeclareWarMove", &CyUnit::getDeclareWarMove, "TeamTypes (CyPlot* pPlot)")
+ 		.def("canMoveInto", &CyUnit::canMoveInto, "bool (CyPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad)")
+ 		.def("canMoveOrAttackInto", &CyUnit::canMoveOrAttackInto, "bool (CyPlot* pPlot, bool bDeclareWar)")
+-		.def("canMoveThrough", &CyUnit::canMoveThrough, "bool (CyPlot* pPlot)")
++		//.def("canMoveThrough", &CyUnit::canMoveThrough, "bool (CyPlot* pPlot)")
+ 		.def("jumpToNearestValidPlot", &CyUnit::jumpToNearestValidPlot, "bool ()")
+ 
+ 		.def("canAutomate", &CyUnit::canAutomate, "bool (int (AutomateTypes) eAutomate)")
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=19172

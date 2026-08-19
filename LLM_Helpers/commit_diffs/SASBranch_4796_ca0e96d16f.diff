@@ -1,0 +1,966 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4796
+# Commit: ca0e96d16f021853de6d3935c00c5aa518faf070
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 002bf7413cf3c864ab2e5159e97d655fcff526aa
+# Title: rework and buff the aqueduct buildings, add kingdom of benin's impluvium (building)'s art button and nif (see below for details), buff and rework the babylon...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_norm.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls_norm.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk_norm.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png
+11	0	Assets/XML/Art/CIV4ArtDefines_Building.xml
+85	69	Assets/XML/Buildings/CIV4BuildingInfos.xml
+32	102	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+16	22	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	6	Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+2	4	Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+2	5	Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+9	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_norm.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls_norm.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk_norm.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png
+ delete mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds
+new file mode 100644
+index 000000000..93ff97929
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif
+new file mode 100644
+index 000000000..35a68c4ae
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov.dds
+new file mode 100644
+index 000000000..bc21de6fe
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_norm.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_norm.dds
+new file mode 100644
+index 000000000..1ed4eda4a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_norm.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls.dds
+new file mode 100644
+index 000000000..85c9f3409
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls_norm.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls_norm.dds
+new file mode 100644
+index 000000000..20ef8e7d4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_gov_walls_norm.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk.dds
+new file mode 100644
+index 000000000..f3fc22069
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk_norm.dds b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk_norm.dds
+new file mode 100644
+index 000000000..6503acfeb
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_sdewlk_norm.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png
+deleted file mode 100644
+index 5eb3666cc..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png
+deleted file mode 100644
+index 79798c3d2..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png
+deleted file mode 100644
+index 3715cd2f0..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png
+deleted file mode 100644
+index 8ee38c07c..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png
+deleted file mode 100644
+index aef67709c..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png
+deleted file mode 100644
+index 5e41ea3d8..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png
+deleted file mode 100644
+index 91c8fb0e4..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png
+deleted file mode 100644
+index 0ba6dc3c6..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png
+deleted file mode 100644
+index c0bc1be42..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png
+deleted file mode 100644
+index d59987fdb..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png
+deleted file mode 100644
+index 434a51ac9..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png
+deleted file mode 100644
+index 376a92bb3..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png
+deleted file mode 100644
+index 062f7beea..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png
+deleted file mode 100644
+index d12b78869..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png
+deleted file mode 100644
+index 53d846802..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png
+deleted file mode 100644
+index 22fe01100..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png and /dev/null differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 062511907..15e221e7a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -189,6 +189,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,7</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: button imported and modified or/and adjusted for advciv-sas or not but in all cases anyways etc, from https://fr.pinterest.com/pin/412290540863776580/, base aqueduct button it was based on was: <Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,1</Button> anyways etc ; note: may take alternatively in the future or not the FFH2's asset ART_DEF_BUILDING_PUBLIC_BATHS 's button if need(ed) or and suits better or not or may not, but anyways etc... ; as for the art animation asset, imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
++			<LSystem>LSYSTEM_1x1</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.4</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
+ 			<LSystem>LSYSTEM_4x2</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 28a519bd0..cdff4baef 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3818,8 +3818,9 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: building is still quite weak and effect not so strong, and since its so early, buffing it a bit more (here by reducing cost in/at this line anyways etc), anyways etc, was 90 -->
+ 			<!-- advc.911c: was 100 -->
+-			<iCost>90</iCost>
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3909,13 +3910,14 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: aqueduct class buildings reworked/rebalanced, the health effect alone may not be enough and aqueduct feels quite useless, still just reducing its cost doesnt make it a more valuable as in unique as in worth building still, so adding food instead, which should correlate/(i.e. be quite accurate with the water brought to a city effect, anyways etc, directly or indirectly may increase not just health but also city food yields, and a bit stronger this way as well i think, more gradual game where food yield increases with time maybe, with the granary being a bit weaker now as part of our rework, maybe this early middle game gives food yield a quite needed boost depending on strategies, may be interesting this way and add diversity in strategy, but may be skipped if city has enough food though, (part of the reason why i reduced the flavor a bit more) but anyways etc), also reducing growth a bit more as i had same idea hehe independently if i may say indeed (like in the aqueduct wikipedia's page if i may say but anyways etc...), anyways etc, was growth 8 -->
+ 			<!-- advc.020: Was 10 Growth. I worry that this much flavor on
+ 			     every health building will make Growth leaders overrate health
+ 			     buildings. -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -3924,15 +3926,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+-			<Type>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
++			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_AQUEDUCT</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_AQUEDUCT_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_AQUEDUCT_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_OTTOMAN_HAMMAM</Description>
++			<Civilopedia>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_AQUEDUCT</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_OTTOMAN_HAMMAM</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -3948,12 +3950,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_MASONRY</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -3990,8 +3988,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- advc.911c: was 100 -->
+-			<iCost>90</iCost>
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4025,10 +4022,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+ 			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>2</iHealth>
++			<iHealth>1</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
++			<iHappiness>2</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+@@ -4047,14 +4044,17 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>4</iAsset>
++			<iAsset>5</iAsset>
+ 			<iPower>0</iPower>
+-			<fVisibilityPriority>10240000.0</fVisibilityPriority>
+-			<!-- this building wants to be super-important so that it gets placed first -->
++			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
++			<YieldChanges>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</YieldChanges>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+@@ -4081,13 +4081,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: Was 10 Growth. I worry that this much flavor on
+-			     every health building will make Growth leaders overrate health
+-			     buildings. -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -4096,15 +4093,16 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Baray -->
++		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+-			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
++			<Type>BUILDING_KHMER_BARAY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_OTTOMAN_HAMMAM</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_KHMER_BARAY</Description>
++			<Civilopedia>TXT_KEY_BUILDING_KHMER_BARAY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_KHMER_BARAY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_OTTOMAN_HAMMAM</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_KHMER_BARAY</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -4120,12 +4118,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_MASONRY</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -4162,7 +4156,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>80</iCost>
++			<!-- advc.911c: was 100 -->
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4199,7 +4194,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iHealth>2</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>2</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+@@ -4224,11 +4219,20 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
++			<YieldChanges>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</YieldChanges>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers/>
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>25</iCommerce>
++				<iCommerce>0</iCommerce>
++			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+@@ -4254,7 +4258,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>7</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -4263,16 +4271,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Baray -->
+-		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+-			<Type>BUILDING_KHMER_BARAY</Type>
++			<Type>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_KHMER_BARAY</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_KHMER_BARAY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_KHMER_BARAY_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Description>
++			<Civilopedia>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_KHMER_BARAY</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -4288,12 +4295,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_MASONRY</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -4330,7 +4333,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- advc.911c: was 100 -->
+ 			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -4387,26 +4389,28 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>5</iAsset>
++			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<fVisibilityPriority>10240000.0</fVisibilityPriority>
++			<!-- this building wants to be super-important so that it gets placed first -->
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges>
+-				<iYield>1</iYield>
++				<iYield>2</iYield>
+ 				<iYield>0</iYield>
+ 				<iYield>0</iYield>
+ 			</YieldChanges>
++			<!-- custom: also add production modifiers to make it a production type of building (rain water reuse or such maybe anyways etc or and other or and not anyways etc...), anyways etc -->
++			<YieldModifiers>
++				<iYield>0</iYield>
++				<iYield>10</iYield>
++				<iYield>0</iYield>
++			</YieldModifiers>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
+-				<iCommerce>0</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+@@ -4429,10 +4433,17 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- advc.020: Was 10 Growth. I worry that this much flavor on
++			     every health building will make Growth leaders overrate health
++			     buildings. -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++					<Flavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -12150,7 +12161,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+ 			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>2</iHealth>
++			<iHealth>1</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+ 			<iHappiness>1</iHappiness>
+@@ -12178,7 +12189,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
++			<!-- custom: now the babylonian civ-specific building (garden) (anyways etc) gives less health and more food, aligns better with the pedia entry description and buffs it as well as building may (have) be(en) a bit weak anyways etc, a growth strategy may be more worth (or worth more? now but anyways etc) pursuing with the babylonians now maybe or not or yes or and other or and not or yes or etc anyways etc -->
++			<YieldChanges>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</YieldChanges>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index b4067a50f..0e68b7eff 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -5,7 +5,7 @@
+ <!-- -->
+ <!-- Game Text Objects -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-	<!-- custom:we don't use startegy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
++	<!-- custom: we don't use startegy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
+ 		<English></English>
+@@ -13,17 +13,8 @@
+ 
+ 
+ 
+-	<!-- custom: "Unique Units" were not unique (could be built
+-	many times, just it was only by one civ in civ4, so i had
+-	renamed	it to "Civ-specific Units" initially.
+-	After futher consideration, there are no multi Civ-specific
+-	units (units that can be built only	be a few civs in common)
+-	in AdvCiv-SAS if i am not mistaken,	and the name civ-specific
+-	is quite tedious/complicated to remember/use, so renaming it
+-	rather to "Civilization Units", which may be shortened to
+-	"Civ Units" by players if they so desire or prefer maybe,
+-	hopefully clearer.
+-	-->
++	<!-- custom: "Unique Units" were not unique (could be built	many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
++	After futher consideration, there are no multi Civ-specific	units (units that can be built only	be a few civs in common) in AdvCiv-SAS if i am not mistaken, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FREE_UNITS</Tag>
+ 		<English>Civilization Units</English>
+@@ -35,35 +26,18 @@
+ 
+ 
+ 
+-	<!-- custom: gather all base civ4 (vanilla or BTS alike)
+-	content in the same category, was "Game Concepts".
+-	I prefer to keep the data as it can be useful/helpful to
+-	players maybe, and not delete it entirely, but clearly indicate
+-	(or more clearly indicate) that it is outdated.
++	<!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
++	I prefer to keep the data as it can be useful/helpful to players maybe, and not delete it entirely, but clearly indicate (or more clearly indicate) that it is outdated.
+ 	
+-	Added the tag/mention "(Outdated)" to signify that this info
+-	is not up to date anymore, but may help for general purposes
+-	maybe especially ingame. Add this mention may also remove
+-	the burden for modders to maintain this page, as i think it
+-	is more practical for players to go online (if possible)
+-	to find/gather the data they want, while also serving my
+-	purposes.
+-	Also "BtS" is one character shorter than "Game", with the
+-	other advantage (i think) of being more indicative of the
+-	fact that it relates to base civ4 (vanilla or BTS or
+-	similar), and not to other mods info (for example K-Mod,
+-	AdvCiv, AdvCiv-SAS, etc).
+-	-->
++	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove	the burden for modders to maintain this page, as i think it	is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
++	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+ 		<!-- custom: <English>Concepts (Outdated)</English>-->
+ 		<English>Outdated</English>
+ 	</TEXT>
+ 
+-	<!-- custom: was "BtS Concepts", see code comments in
+-	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+-	(or the equivalent of this path in your mod installation path).
+-	-->
++	<!-- custom: was "BtS Concepts", see code comments in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml (or the equivalent of this path in your mod installation path). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+ 		<!-- custom: <English>Mods Information</English>-->
+@@ -99,21 +73,11 @@
+ 		<English>Pr. List</English>
+ 	</TEXT>
+ 
+-	<!-- custom: rename "Ivory" to "Elephants".
+-	Here the main reasons for
+-	this change: 
+-	- 1) you need elephants to build war elephants, not ivory, even if you
+-	were to somehow find ivory somewhere, it would/could not magically turn
+-	into a war elephant, so using the animal instead.
+-	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is
+-	derived from elephants, independent of whether they are alive or dead.
+-	- 3) One could also maybe imagine that elephants the animal itself makes people
+-	happy, and not necessarily their ivory.
+-	note: Since they are part of the animals that are countable in english rather
+-	than uncountable (see code comment below about cattle) and seeing that civ4
+-	doesn't seem to bother with singulars too much about animals at least. I also
+-	prefer this version, anyways.
+-	-->
++	<!-- custom: rename "Ivory" to "Elephants".	Here the main reasons for this change: 
++	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
++	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.
++	- 3) One could also maybe imagine that elephants the animal itself makes people	happy, and not necessarily their ivory.
++	note: Since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version, anyways. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
+ 		<English>Elephants</English>
+@@ -123,21 +87,11 @@
+ 
+ 	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
+ 	fit to me than "Cow".
+-	Be careful, according to, for example:
+-	https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 ,
+-	some animals are countable (5 cats for example) in English while others
+-	are best fit at singular (5 sheep for example)
+-	There is less gains in changing what is already working. But specifically for cattle
+-	however rather than cows as it applies to all sexes of the cows, while still being
+-	specific and not generic if i'm not mistaken:
+-	https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
++	Be careful, according to, for example: https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 , some animals are countable (5 cats for example) in English while others are best fit at singular (5 sheep for example)
++	There are less gains in changing what is already working. But specifically for cattle however rather than cows as it applies to all sexes of the cows, while still being	specific and not generic if i'm not mistaken: https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
+ 	https://context.reverso.net/translation/english-french/cows
+-	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4):
+-	"Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep."
+-	– The Bible, Deuteronomy 28:4
+-	So i think it's very immersive and nice to use cattle here too on top of being
+-	more accurate it seems.
+-	-->
++	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4): "Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep." - The Bible, Deuteronomy 28:4
++	So i think it's very immersive and nice to use cattle here too on top of being more accurate it seems. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_CATTLE</Tag>
+ 		<English>Cattle</English>
+@@ -168,6 +122,7 @@
+ 	</TEXT>
+ 
+ 
++
+ 	<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, anyways etc, see the code comment (global search with VS Code if need anyways etc "K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SPECIALIST_GREAT_PRIEST</Tag>
+@@ -336,27 +291,19 @@
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
+ 		<English>Kingdom Of Benin</English>
+ 	</TEXT>
+-	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according
+-	to wiki if i understood it correctly) with modern Benin, trying to
+-	keep the full name to make the distinction clearer, even though
+-	some circumstances could call for shortening it if purely realistic
+-	-->
++	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki if i understood it correctly) with modern Benin, trying to
++	keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
+ 		<English>Kingdom Of Benin</English>
+ 	</TEXT>
+-	<!-- custom: i found no clear mention of an adjective, going with
+-	"people of Benin" mentionned here:
+-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding -->
++	<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentionned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
++	Also using People of Benin would be a weird adjective form so using Kingdom of Benin instead -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
+ 		<English>the people of Benin</English>
+ 	</TEXT>
+-	<!-- custom: this mentions clearly and several times the impluvium as
+-	a special building the Kingdom Of Benin had:
+-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture
+-	Also using People of Benin would be a weird adjective form so
+-	using Kingdom of Benin instead -->
++	<!-- custom: this mentions clearly and several times the impluvium as a special building the Kingdom Of Benin had: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
+ 		<English>Impluvium</English>
+@@ -374,29 +321,22 @@
+ 		<English>Ancient Maceman</English>
+ 	</TEXT>
+ 
+-	<!-- custom: clearer renaming to some promotions,
+-	accuracy is so misleading as a name for example,
+-	hopefully clearer now -->
++	<!-- custom: clearer renaming to some promotions, accuracy is so misleading as a name for example, hopefully clearer now -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
+ 		<English>City Bombard Damage</English>
+ 	</TEXT>
+-	<!-- custom: an ace can be about ground units too, hopefully
+-	clearer now -->
++	<!-- custom: an ace can be about ground units too, hopefully clearer now -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_AIR_EVASION</Tag>
+ 		<English>Air Evasion</English>
+ 	</TEXT>
+-	<!-- custom: name is more epic, not necessarily clearer (especially
+-	with new tech requirement that is sooner, in earlier eras, but it
+-	is also historically more correct according to my research) -->
++	<!-- custom: name is more epic, not necessarily clearer (especially with new tech requirement that is sooner, in earlier eras, but it is also historically more correct according to my research) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
+ 		<English>Blitzkrieg</English>
+ 	</TEXT>
+-	<!-- custom: spies don't conduct raids for example in base
+-	civ bts/advciv so "commando" does not fit, is also not
+-	intuitive, hopefully clearer now -->
++	<!-- custom: spies don't conduct raids for example in base civ bts/advciv so "commando" does not fit, is also not intuitive, hopefully clearer now -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
+ 		<English>Logistics</English>
+@@ -415,10 +355,7 @@
+ 		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
+ 		<English>Counter-Archer</English>
+ 	</TEXT>
+-	<!-- custom: rename or/and create subtypes for each melee type
+-	maybe or maybe not and put them all in same promotion easier?
+-	Or partly simply by having counter melee sword, or counter sword?
+-	Todo -->
++	<!-- custom: rename or/and create subtypes for each melee type maybe or maybe not and put them all in same promotion easier? Or partly simply by having counter melee sword, or counter sword? Todo -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
+ 		<English>Counter-Melee</English>
+@@ -432,11 +369,7 @@
+ 		<English>Counter-Mounted</English>
+ 	</TEXT>
+ 
+-	<!-- custom: use arabic numerals for/in promotions naming(/es),
+-	add missing "translations" for some promotions too (for example)
+-	combat 6, even though i just copy paste to english for ease of use
+-	(of translation) and convenience, i don't want it to be displayed
+-	as "VI" ingame but "6" so adding these extra ones. -->
++	<!-- custom: use arabic numerals for/in promotions naming(/es),	add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use	(of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
+ 		<English>Combat 1</English>
+@@ -457,14 +390,12 @@
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
+ 		<English>Combat 5</English>
+ 	</TEXT>
+-	<!-- custom added missing languages in base civ4/BTS to have "6"
+-	not "VI" everywhere -->
++	<!-- custom added missing languages in base civ4/BTS to have "6" not "VI" everywhere -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
+ 		<English>Combat 6</English>
+ 	</TEXT>
+-	<!-- custom: use arabic numerals instead of roman numerals,
+-	hopefully clearer -->
++	<!-- custom: use arabic numerals instead of roman numerals,	hopefully clearer -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Tag>
+ 		<English>Air Interception 1</English>
+@@ -482,8 +413,7 @@
+ 		<English>Air Interception 4</English>
+ 	</TEXT>
+ 	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
+-	Also switch to arabic numerals, clearer too, i think, and also prefer,
+-	anyways. -->
++	Also switch to arabic numerals, clearer too, i think, and also prefer, anyways. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
+ 		<English>Air Range 1</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 9a5756fed..f088be470 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -341,20 +341,11 @@
+ 
+ 	<!-- custom: add Ogiso Igodo, leader of the Kingdom Of Benin, copy pasted from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader
+-	Mention of Ogiso Igodo also here:
+-	https://en.wikipedia.org/wiki/Ogiso_monarchy#Origin_and_establishment
+-	Here too (found link on the page linked just above)
+-	https://en.wikipedia.org/wiki/Igodo
+-	some info here too:
+-	https://en.wikipedia.org/wiki/Igodomigodo
+-	note:putting everything in English in all languages is so much more convenient
+-	and faster, maybe not best and ideal but many paragraphs and such even with
+-	translator, i hope i can invest my efforts elsewhere.
+-	I don't mind translating it once in English though is quite cool and
+-	interesting, but many times is a chore, i also think (and hope) that lost
+-	players	would play in English, else maybe they would not mind too much about
+-	this, but is bit too long to do, as in tedious, not lengthy, not impossible
+-	to do but i hope i can code other things
++	Mention of Ogiso Igodo also here: https://en.wikipedia.org/wiki/Ogiso_monarchy#Origin_and_establishment
++	Here too (found link on the page linked just above)	https://en.wikipedia.org/wiki/Igodo
++	some info here too:	https://en.wikipedia.org/wiki/Igodomigodo
++	note:putting everything in English in all languages is so much more convenient and faster, maybe not best and ideal but many paragraphs and such even with translator, i hope i can invest my efforts elsewhere.
++	I don't mind translating it once in English though is quite cool and interesting, but many times is a chore, i also think (and hope) that lost players would play in English, else maybe they would not mind too much about this, but is bit too long to do, as in tedious, not lengthy, not impossible to do but i hope i can code other things
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_OGISO_IGODO_PEDIA</Tag>
+@@ -365,20 +356,23 @@
+ 
+ 	<!-- custom: clean import from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml
+-	And then editing it
+-	See:
+-	https://en.wikipedia.org/wiki/Kingdom_of_Benin
+-	As for the leader entry (Ogiso Igodo), and most likely similarly
+-	to next cases, i would not translate the full version/thing
+-	in other languages, i have Quillbot though or/and other bots.
+-	Hopefully the English version in all languages is good enough. -->
++	And then editing it, see: https://en.wikipedia.org/wiki/Kingdom_of_Benin and also https://en.wikipedia.org/wiki/Ogiso_monarchy for te ogiso monarchy part of it i added here as well but anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_PEDIA</Tag>
+-		<English>[TAB]The Kingdom of Benin, also known as Great Benin or Benin Kingdom was a kingdom within what is now considered southern Nigeria. It has no historical relation to the modern republic of Benin, which was known as Dahomey from the 17th century until 1975. The Kingdom of Benin's capital was Edo, now known as Benin City in Edo State, Nigeria.[PARAGRAPH:1]The Benin Kingdom was one of the oldest and most developed states in the coastal hinterland of West Africa. It grew out of the previous Edo Kingdom of Igodomigodo around the 11th century AD; it was annexed by the British Empire in 1897.[PARAGRAPH:1]In the 15th and 16th centuries, the kingdom reached the height of its prosperity, expanding its territory, trading with European powers, and creating a remarkable artistic legacy in cast bronze, iron, brass, carved ivory, and other materials.[PARAGRAPH:2]Rituals and laws[PARAGRAPH:1]Human sacrifices[PARAGRAPH:1]Humans were sacrificed in an annual ritual in honour of the god of iron, where warriors from Benin City would perform an acrobatic dance while suspended from the trees. The ritual recalled a mythical war against the sky. Sacrifices of a man, a woman, a goat, a cow and a ram were also made to a god called "the king of death". The god, named Ogiuwu, was worshipped at a special altar in the centre of Benin City. There were two separate annual series of rites that honored past Obas. Sacrifices were performed every fifth day. At the end of each series of rites, the current Oba's deceased father was honored with a public festival. During the festival, twelve criminals, chosen from a prison where the worst criminals were held, were sacrificed. By the end of the eighteenth century, three to four people were sacrificed at the mouth of the Benin River annually, to attract European trade, according to one source.[PARAGRAPH:1]Burials[PARAGRAPH:1]The monarchy of Benin was hereditary; the eldest son was to become the new Oba. In order to validate the succession of the kingship, the eldest son had to bury his father and perform elaborate rituals. If the eldest son failed to complete these tasks, he might be disqualified from becoming king.[PARAGRAPH:1]Separation of son and mother[PARAGRAPH:1]After the son was installed as king, his mother - after having been invested with the title of Iyoba - was transferred to a palace just outside Benin City, in a place called Uselu. The mother held a considerable amount of power; she was, however, never allowed to meet her son - who was now a divine ruler - again.[PARAGRAPH:1]Divinity of the Oba[PARAGRAPH:1]In Benin, the Oba was seen as divine. The Oba's divinity and sacredness was the focal point of the kingship. The Oba was shrouded in mystery; he only left his palace on ceremonial occasions. It was previously punishable by death to assert that the Oba performed human acts, such as eating, sleeping, dying or washing. The Oba was also credited with having magical powers. He also controlled a powerful bureaucratic apparatus whose decrees were obeyed to the letter.[PARAGRAPH:2]Architecture[PARAGRAPH:1]Impluvium[PARAGRAPH:1]The Impluvium was used in Benin architecture to store rainwater (see the building entry of the Impluvium in the pedia for details).[PARAGRAPH:1]City walls[PARAGRAPH:1]The Benin City walls have been known to Westerners since around 1500. Around 1500, the Portuguese explorer Duarte Pacheco Pereira, briefly described the walls during his travels. In Pereira's Esmeraldo de Situ Orbis, 1505, we read:[PARAGRAPH:1]"The houses are built of sun-dried bricks covered with palm leaves. Benin, which is 80 leagues long by 40 leagues broad, is always at war with its neighbours from whom it obtains captives, whom we buy at from 12 to 15 brass or copper manillas".[PARAGRAPH:1]Another description given around 1600, one hundred years after Pereira's description, is by the Dutch explorer Dierick Ruiters. Pereira's account of the walls is as follows:[PARAGRAPH:1]"This city is about a league long from gate to gate; it has no wall but is surrounded by a large moat, very wide and deep, which suffices for its defence". For more details, see the entry in the pedia: "The Ancient Walls of Benin" (Wonder).[PARAGRAPH:2]Military[PARAGRAPH:1]Operations[PARAGRAPH:1]Military operations relied on a well trained disciplined force. At the head of the host stood the Oba of Benin. The monarch of the realm served as supreme military commander. Beneath him were subordinate generalissimos, the Ezomo, the Iyase, and others who supervised a Metropolitan Regiment based in the capital, and a Royal Regiment made up of hand-picked warriors that also served as bodyguards. Benin's queen mother, the Iyoba, also retained her own regiment - the "Queen's Own". The Metropolitan and Royal regiments were relatively stable semi-permanent or permanent formations. The Village Regiments provided the bulk of the fighting force and were mobilized as needed, sending contingents of warriors upon the command of the king and his generals. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1]Tactics[PARAGRAPH:1]Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination. Tactics in the field seem to have evolved over time. While the head-on clash was well known, documentation from the 18th century shows greater emphasis on avoiding continuous battle lines, and more effort to encircle an enemy (ifianyako).Fortifications were important in the region and numerous military campaigns fought by Benin's soldiers revolved around sieges. Benin's military earthworks are the largest of such structures in the world, and Benin's rivals also built extensively. Barring a successful assault, most sieges were resolved by a strategy of attrition, slowly cutting off and starving out the enemy fortification until it capitulated. On occasion, however, European mercenaries were called on to aid with these sieges. In 1603-04 for example, European cannon helped batter and destroy the gates of a town near present-day Lagos, allowing 10,000 warriors of Benin to enter and conquer it. As payment, the Europeans received items, such as palm oil and bundles of pepper. The example of Benin shows the power of indigenous military systems, but also the role outside influences and new technologies brought to bear. This is a normal pattern among many nations.[PARAGRAPH:2]European contact[PARAGRAPH:1]Portugal[PARAGRAPH:1]The first European travelers to reach Benin were Portuguese explorers under Jo�o Afonso de Aveiro in about 1485. A strong mercantile relationship developed, with the Edo trading slaves and tropical products such as ivory, pepper and palm oil for European goods such as manillas and guns. In the early 16th century, the Oba sent an ambassador to Lisbon, and the king of Portugal sent Christian missionaries to Benin City. Some residents of Benin City could still speak a pidgin Portuguese in the late 19th century.[PARAGRAPH:1]England[PARAGRAPH:1]The first English expedition to Benin was in 1553, and significant trading developed between Europe and Benin based on the export of ivory, palm oil, pepper, and later slaves. Visitors in the 16th and 19th centuries brought back to Europe tales of "Great Benin", a fabulous city of noble buildings, ruled over by a powerful king. A fanciful engraving of the settlement was made by a Dutch illustrator (from descriptions alone) and was shown in Olfert Dapper's Naukeurige Beschrijvinge der Afrikaensche Gewesten, published in Amsterdam in 1668.[PARAGRAPH:1]The Netherlands[PARAGRAPH:1]Another Dutch traveler, David van Nyendael, visited Benin in 1699 and also wrote an account of the kingdom. Nyendael's description was published in 1704 as an appendix to Willem Bosman's Nauwkeurige Beschryving van de Guinese Goud-, tand- en Slave-kust. In his description, Nyendael states the following about the character of the Benin people:[PARAGRAPH:1]"The inhabitants of the Benin are in general a kind and polite people, of whom one with kindness might get everything he desires. Whatever might be offered to them out of politeness, will always be doubled in return. However, they want their politeness to be returned with likewise courtesy as well, without the appearance of any disappointment or rudeness, and rightly so. To be sure, trying to take anything from them with force or violence, would be as if one tries to reach out to the Moon and will never be left unreckoned. When it comes to trade, they are very strict and will not suffer the slightest infringement of their customs, not even a iota can be changed. Though, when one is willing to accept these customs, they are very easy-going and will cooperate in every way possible to reach an agreement".[PARAGRAPH:2]Art and cultural trade[PARAGRAPH:1]Scientific analysis of the brass (or "bronze") used to make the famous Benin plaques and other sculptures found that, beginning in the late 15th century, the metal (previously thought to have come from the Netherlands) began to derive from the Rhineland region of Germany. At that time, the brass was exported from Germany in the form of ring-shaped ingots which were used as currency in the trans-Atlantic slave trade (bought from the Portuguese and incorporated by the people in Benin as a metal source in sculpture), and subsequently melted down in Benin to produce Benin Bronzes.[PARAGRAPH:2]Notable figures (main points, details in the leader specific pages of the leaders from this implemented in this game/mod)[PARAGRAPH:1]Queen Idia[PARAGRAPH:1]Queen Idia was the wife of Oba Ozolua, the Oba who reigned in about 1481 AD. She was a famous warrior who received much of the credit for the victories of her son as his political counsel, together with her mystical powers and medicinal knowledge, were viewed as critical elements of Esigie's success on the battlefield. Queen Idia became more popular when an ivory carving of her face was adopted as the symbol of FESTAC in 1977.[PARAGRAPH:1]Emotan[PARAGRAPH:1]Emotan was a trader who sold her wares at the exact point where her statue now stands. She was historically credited with setting up the first primary school in the kingdom and saving the monarchy during one of its lowest moments. She helped the Oba Ewuare in reclaiming the throne from his usurper brother, Oba Uwaifiokun who reigned about 1432 AD.[PARAGRAPH:1]Queen Iden[PARAGRAPH:1]Queen Iden is yet another heroine whose sacrifice helped shape Benin Kingdom. She was the queen during the reign of Oba Ewuape in about 1700 AD. She is known to have volunteered herself as a sacrificial lamb for the welfare of her husband and that of the entire kingdom after she consulted the oracle and was informed that human sacrifice would be needed to appease the gods and restore peace and unity in the kingdom.[PARAGRAPH:1]General Asoro[PARAGRAPH:1]General Asoro the Warrior was the sword bearer to King Ovonramwen (the Oba of Benin) in 1897. He participated in the defence of Benin during the 1897 expedition, engaging the British expeditionary force sent to capture the Oba. A quote uttered by the general that "no other person [should] dare pass this road except the Oba" (So kpon Oba) was later translated to "SAKPONBA", which a well known road in Benin was named after.[PARAGRAPH:1]Chief Obasogie[PARAGRAPH:1]Chief Obasogie was not just an outstanding Benin warrior of old who defended the kingdom against external invasion but also a talented blacksmith and sculptor.</English>
++		<English>[TAB]The Kingdom of Benin, also known as Great Benin or Benin Kingdom was a kingdom within what is now considered southern Nigeria. It has no historical relation to the modern republic of Benin, which was known as Dahomey from the 17th century until 1975. The Kingdom of Benin's capital was Edo, now known as Benin City in Edo State, Nigeria.[PARAGRAPH:1]The Benin Kingdom was one of the oldest and most developed states in the coastal hinterland of West Africa. It grew out of the previous Edo Kingdom of Igodomigodo around the 11th century AD; it was annexed by the British Empire in 1897.[PARAGRAPH:2]The Ogiso were the earliest known ruling monarchy of the Edo kingdom of Igodomigodo, founded by Igodo, the first Ogiso. The monarchy began around 900 AD and lasted until the early 12th century when it was succeeded by the Oba monarchy. The Ogiso monarchy influenced the early sociopolitical structure of the region by introducing centralised governance and laying the foundations for the Benin Empire.[PARAGRAPH:1]Throughout its existence, the Ogiso monarchy had thirty-one rulers and notable among them were Ogiso Igodo, the first ruler, and Ogiso Ere, who implemented several administrative and cultural reforms. This era saw the establishment of settlements, the integration of various chiefdoms, and the growth of proto-urban centers, with Udo and Benin City being prominent examples.[PARAGRAPH:1]The decline of the Ogiso monarchy began with the rule of the last Ogiso, Owodo, whose reign was marked by internal conflict and public dissatisfaction. This led to his banishment and a period of interregnum, during which the nobleman Evian attempted to establish his own line of succession. However, the people eventually rejected this, inviting a prince from Ife to restore order, thus beginning the Oba monarchy. The legacy of the Ogiso monarchy remains in the cultural and historical consciousness of the Benin people, reflected in their traditions, folklore, and archaeological findings.[PARAGRAPH:2]In the 15th and 16th centuries, the kingdom reached the height of its prosperity, expanding its territory, trading with European powers, and creating a remarkable artistic legacy in cast bronze, iron, brass, carved ivory, and other materials.[PARAGRAPH:2]Rituals and laws[PARAGRAPH:1]Human sacrifices[PARAGRAPH:1]Humans were sacrificed in an annual ritual in honour of the god of iron, where warriors from Benin City would perform an acrobatic dance while suspended from the trees. The ritual recalled a mythical war against the sky. Sacrifices of a man, a woman, a goat, a cow and a ram were also made to a god called "the king of death". The god, named Ogiuwu, was worshipped at a special altar in the centre of Benin City. There were two separate annual series of rites that honored past Obas. Sacrifices were performed every fifth day. At the end of each series of rites, the current Oba's deceased father was honored with a public festival. During the festival, twelve criminals, chosen from a prison where the worst criminals were held, were sacrificed. By the end of the eighteenth century, three to four people were sacrificed at the mouth of the Benin River annually, to attract European trade, according to one source.[PARAGRAPH:1]Burials[PARAGRAPH:1]The monarchy of Benin was hereditary; the eldest son was to become the new Oba. In order to validate the succession of the kingship, the eldest son had to bury his father and perform elaborate rituals. If the eldest son failed to complete these tasks, he might be disqualified from becoming king.[PARAGRAPH:1]Separation of son and mother[PARAGRAPH:1]After the son was installed as king, his mother - after having been invested with the title of Iyoba - was transferred to a palace just outside Benin City, in a place called Uselu. The mother held a considerable amount of power; she was, however, never allowed to meet her son - who was now a divine ruler - again.[PARAGRAPH:1]Divinity of the Oba[PARAGRAPH:1]In Benin, the Oba was seen as divine. The Oba's divinity and sacredness was the focal point of the kingship. The Oba was shrouded in mystery; he only left his palace on ceremonial occasions. It was previously punishable by death to assert that the Oba performed human acts, such as eating, sleeping, dying or washing. The Oba was also credited with having magical powers. He also controlled a powerful bureaucratic apparatus whose decrees were obeyed to the letter.[PARAGRAPH:2]Architecture[PARAGRAPH:1]Impluvium[PARAGRAPH:1]The Impluvium was used in Benin architecture to store rainwater (see the building entry of the Impluvium in the pedia for details).[PARAGRAPH:1]City walls[PARAGRAPH:1]The Benin City walls have been known to Westerners since around 1500. Around 1500, the Portuguese explorer Duarte Pacheco Pereira, briefly described the walls during his travels. In Pereira's Esmeraldo de Situ Orbis, 1505, we read:[PARAGRAPH:1]"The houses are built of sun-dried bricks covered with palm leaves. Benin, which is 80 leagues long by 40 leagues broad, is always at war with its neighbours from whom it obtains captives, whom we buy at from 12 to 15 brass or copper manillas".[PARAGRAPH:1]Another description given around 1600, one hundred years after Pereira's description, is by the Dutch explorer Dierick Ruiters. Pereira's account of the walls is as follows:[PARAGRAPH:1]"This city is about a league long from gate to gate; it has no wall but is surrounded by a large moat, very wide and deep, which suffices for its defence". For more details, see the entry in the pedia: "The Ancient Walls of Benin" (Wonder).[PARAGRAPH:2]Military[PARAGRAPH:1]Operations[PARAGRAPH:1]Military operations relied on a well trained disciplined force. At the head of the host stood the Oba of Benin. The monarch of the realm served as supreme military commander. Beneath him were subordinate generalissimos, the Ezomo, the Iyase, and others who supervised a Metropolitan Regiment based in the capital, and a Royal Regiment made up of hand-picked warriors that also served as bodyguards. Benin's queen mother, the Iyoba, also retained her own regiment - the "Queen's Own". The Metropolitan and Royal regiments were relatively stable semi-permanent or permanent formations. The Village Regiments provided the bulk of the fighting force and were mobilized as needed, sending contingents of warriors upon the command of the king and his generals. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1]Tactics[PARAGRAPH:1]Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination. Tactics in the field seem to have evolved over time. While the head-on clash was well known, documentation from the 18th century shows greater emphasis on avoiding continuous battle lines, and more effort to encircle an enemy (ifianyako).Fortifications were important in the region and numerous military campaigns fought by Benin's soldiers revolved around sieges. Benin's military earthworks are the largest of such structures in the world, and Benin's rivals also built extensively. Barring a successful assault, most sieges were resolved by a strategy of attrition, slowly cutting off and starving out the enemy fortification until it capitulated. On occasion, however, European mercenaries were called on to aid with these sieges. In 1603-04 for example, European cannon helped batter and destroy the gates of a town near present-day Lagos, allowing 10,000 warriors of Benin to enter and conquer it. As payment, the Europeans received items, such as palm oil and bundles of pepper. The example of Benin shows the power of indigenous military systems, but also the role outside influences and new technologies brought to bear. This is a normal pattern among many nations.[PARAGRAPH:2]European contact[PARAGRAPH:1]Portugal[PARAGRAPH:1]The first European travelers to reach Benin were Portuguese explorers under Jo�o Afonso de Aveiro in about 1485. A strong mercantile relationship developed, with the Edo trading slaves and tropical products such as ivory, pepper and palm oil for European goods such as manillas and guns. In the early 16th century, the Oba sent an ambassador to Lisbon, and the king of Portugal sent Christian missionaries to Benin City. Some residents of Benin City could still speak a pidgin Portuguese in the late 19th century.[PARAGRAPH:1]England[PARAGRAPH:1]The first English expedition to Benin was in 1553, and significant trading developed between Europe and Benin based on the export of ivory, palm oil, pepper, and later slaves. Visitors in the 16th and 19th centuries brought back to Europe tales of "Great Benin", a fabulous city of noble buildings, ruled over by a powerful king. A fanciful engraving of the settlement was made by a Dutch illustrator (from descriptions alone) and was shown in Olfert Dapper's Naukeurige Beschrijvinge der Afrikaensche Gewesten, published in Amsterdam in 1668.[PARAGRAPH:1]The Netherlands[PARAGRAPH:1]Another Dutch traveler, David van Nyendael, visited Benin in 1699 and also wrote an account of the kingdom. Nyendael's description was published in 1704 as an appendix to Willem Bosman's Nauwkeurige Beschryving van de Guinese Goud-, tand- en Slave-kust. In his description, Nyendael states the following about the character of the Benin people:[PARAGRAPH:1]"The inhabitants of the Benin are in general a kind and polite people, of whom one with kindness might get everything he desires. Whatever might be offered to them out of politeness, will always be doubled in return. However, they want their politeness to be returned with likewise courtesy as well, without the appearance of any disappointment or rudeness, and rightly so. To be sure, trying to take anything from them with force or violence, would be as if one tries to reach out to the Moon and will never be left unreckoned. When it comes to trade, they are very strict and will not suffer the slightest infringement of their customs, not even a iota can be changed. Though, when one is willing to accept these customs, they are very easy-going and will cooperate in every way possible to reach an agreement".[PARAGRAPH:2]Art and cultural trade[PARAGRAPH:1]Scientific analysis of the brass (or "bronze") used to make the famous Benin plaques and other sculptures found that, beginning in the late 15th century, the metal (previously thought to have come from the Netherlands) began to derive from the Rhineland region of Germany. At that time, the brass was exported from Germany in the form of ring-shaped ingots which were used as currency in the trans-Atlantic slave trade (bought from the Portuguese and incorporated by the people in Benin as a metal source in sculpture), and subsequently melted down in Benin to produce Benin Bronzes.[PARAGRAPH:2]Notable figures (main points, details in the leader specific pages of the leaders from this implemented in this game/mod)[PARAGRAPH:1]Queen Idia[PARAGRAPH:1]Queen Idia was the wife of Oba Ozolua, the Oba who reigned in about 1481 AD. She was a famous warrior who received much of the credit for the victories of her son as his political counsel, together with her mystical powers and medicinal knowledge, were viewed as critical elements of Esigie's success on the battlefield. Queen Idia became more popular when an ivory carving of her face was adopted as the symbol of FESTAC in 1977.[PARAGRAPH:1]Emotan[PARAGRAPH:1]Emotan was a trader who sold her wares at the exact point where her statue now stands. She was historically credited with setting up the first primary school in the kingdom and saving the monarchy during one of its lowest moments. She helped the Oba Ewuare in reclaiming the throne from his usurper brother, Oba Uwaifiokun who reigned about 1432 AD.[PARAGRAPH:1]Queen Iden[PARAGRAPH:1]Queen Iden is yet another heroine whose sacrifice helped shape Benin Kingdom. She was the queen during the reign of Oba Ewuape in about 1700 AD. She is known to have volunteered herself as a sacrificial lamb for the welfare of her husband and that of the entire kingdom after she consulted the oracle and was informed that human sacrifice would be needed to appease the gods and restore peace and unity in the kingdom.[PARAGRAPH:1]General Asoro[PARAGRAPH:1]General Asoro the Warrior was the sword bearer to King Ovonramwen (the Oba of Benin) in 1897. He participated in the defence of Benin during the 1897 expedition, engaging the British expeditionary force sent to capture the Oba. A quote uttered by the general that "no other person [should] dare pass this road except the Oba" (So kpon Oba) was later translated to "SAKPONBA", which a well known road in Benin was named after.[PARAGRAPH:1]Chief Obasogie[PARAGRAPH:1]Chief Obasogie was not just an outstanding Benin warrior of old who defended the kingdom against external invasion but also a talented blacksmith and sculptor.</English>
+ 	</TEXT>
+ 
+ 
+ 
++	<!-- custom: impluvium (kingdom of benin's civ-specific at least as of now anyways etc) pedia entry similarly imported from https://en.wikipedia.org/wiki/Impluvium more specifically and mostly if i may say anyways etc https://en.wikipedia.org/wiki/Impluvium#West_and_Central_African_impluvium anyways etc anyways etc anyways etc... -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM_PEDIA</Tag>
++		<English>[TAB]The impluvium (pl.: impluvia) is a water-catchment pool system meant to capture rain-water flowing from the compluvium, an area of roof. Often placed in a courtyard, under an opening in the roof, and thus "inside", instead of "outside", a building, it is a notable feature in many architectural traditions.[PARAGRAPH:1][TAB]Denyer, African Traditional Architecture, defined an impluvial style of architecture in West Africa, wherein "four buildings usually faced one another across courtyard". Buildings of the "style" (really, a "clade-based" type), did not necessarily feature an impluvium to capture rain. Further complicating matters, some texts have conflated Denyer's impluvial style with impluvium itself, and thereby take impluvium to refer not to the use of mechanisms to capture water, but instead to court yard-centered house plans.[PARAGRAPH:1]Impluvia have been observed in many West/Central-African architectural traditions, including those of the Igbo, Yoruba, Edo, Jola and Bamum. These ranged in complexity: Yoruba impluvia, referred to as akodi,[9] sometimes only amounted to pots placed at the corners of vast rectilinear courtyards, while some in Ketu, Benin Republic, were drained into underground tanks. Commoners in the Benin kingdom usually had houses with multiple impluvia in their one or two court spaces, sometimes drained out of the house by pipes. As Nevadomsky et al. note, these impluvia were meant to remove rain water so that the open roof could be used as a light source and source of fresh air. While many previous examples have been rectilinear, the impluvia of Senegal could also be designed around round floor plans; this has become the basis for the 'Case � Impluvium" in Ziguinchor, Senegal, a centre of the arts run by the Alliance Franco-S�n�galaise.[PARAGRAPH:1]19th and 20th century European travelers were often surprised to find parallels to classical culture in those architectural traditions that had clear ones: "In the Bamum area there is an interesting type of hut. In referring to it Ankermann says: "The men's houses (Herrenh�user) in Bamum, in contrast to those of the women, show a most complicated structure. I was very much astonished when I entered for the first time to find myself in an actual Roman atrium with an impluvium in the middle, with the roof sloping towards the middle, and supported by columns." This resulted in a number of theories attempting to tie West and Central African impluvium to Greco-Roman, Egyptian, and Portuguese influences. While Kalaous rejects the possibility of Portuguese influence, he writes that "The Old Mediterranean influence seems to be more plausible but did not necessarily come via Egypt... Of course, this does not prove that there were contacts between the Etruscans and the peoples of what is now Southern Nigeria, but the existence of impluvium there (and elsewhere in West Africa) is certainly not easy to explain in terms of a quite independent origin." Denyer, on the other hand, notes that "No really large settlement could have taken place in this area [Southern Nigeria] before a means of collecting water had been found", to save for the dry season and to manage erosion. Most bluntly, Nevadomsky et al. write that "One need not postulate an external source for what was in all probability an independent evolution of space and form. The impluvium house could easily have arisen in a climate of hot sunshine and heavy seasonal rainfall."</English>
++	</TEXT>
++
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN_PEDIA</Tag>
+ 		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1][TAB]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</English>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+index e7e1169b2..301287411 100644
+--- a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+@@ -1,11 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- custom: Lengthy part of the assets imported from RFC Dawn of
+-Civilization mod, as we are using some of their code for our
+-sevopedia categories (with some modifications).
+-Assets imported from this file (possibly from other ones too):
++<!-- custom: Lengthy part of the assets imported from RFC Dawn of Civilization mod, as we are using some of their code for our sevopedia categories (with some modifications). Assets imported from this file (possibly from other ones too):
+ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\XML\Text\Interface.xml
+-and modified for our needs if needed.
+--->
++and modified for our needs if needed. -->
+ <!-- Civilopedia Texts -->
+ <Civ4GameText>
+     <!-- custom: Terrains -->
+
+diff --git a/Assets/XML/Text/RFC_DOC_Interface_Custom.xml b/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+index a9c875a07..a263f8ffb 100644
+--- a/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+@@ -1,10 +1,8 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!-- custom: Assets imported from RFC Dawn of Civilization mod, as we are using some of their code for our sevopedia categories (with
+-some modifications).
+-Assets imported from this file (possibly from other ones too):
++some modifications). Assets imported from this file (possibly from other ones too):
+ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\XML\Text\Interface.xml
+-and modified for our needs if needed.
+--->
++and modified for our needs if needed. -->
+ <!-- Interface -->
+ <Civ4GameText>
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml b/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+index 7b97771b0..ab20360f5 100644
+--- a/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
++++ b/Assets/XML/Text/ROM_291_Sevopedia_Custom.xml
+@@ -1,10 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- custom: Assets imported from Rise Of Mankind (291) mod (with
+-some modifications or not for AdvCiv-SAS anyways etc):
+-Assets imported from this file (possibly from other ones too):
++<!-- custom: Assets imported from Rise Of Mankind (291) mod (with some modifications or not for AdvCiv-SAS anyways etc):
+ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
+-which may be modified or not for AdvCiv-SAS
+--->
++which may be modified or not for AdvCiv-SAS anyways etc -->
+ <Civ4GameText>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index f708bad89..dff156568 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -393,9 +393,17 @@ See also [Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv
+ 
+ note 4: we later also used these/this approach for/to use icons as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt/becomingthrough's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or othe ror not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
+ 
++## Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building anyways etc)
++
++See steps in screenshots in [this google drive folder (impluvium imported as nif)](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing) anyways etc
++
++In this example the nif was in a .fpk, but i assume it would work similarly if files were scattered in a folder raw if i may say but anyways etc...
++
++Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example anyways etc), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful or not or yes or etc or and other or and not but anyways etc anyways etc anyways etc...
++
+ ## Files
+ 
+-Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)
++Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
+ 
+ In particular the XML icons tags may be helpful maybe, among other possible
+ files you'd find helpful or not.
+
+[PATCH COVERAGE]
+patchFiles=32 embeddedFiles=32 omittedFiles=0 embeddedPatchBytes=80562

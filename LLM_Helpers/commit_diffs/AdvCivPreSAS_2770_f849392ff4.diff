@@ -1,0 +1,176 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2770
+# Commit: f849392ff4bf6c12df0d8e609ca0946e5206618d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 074c73cd051b8e3c683b02447b1d983a66856b9f
+# Title: UWAI: Fix some issues with AI capitulation decisions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	4	CvGameCoreDLL/CvTeamAI.cpp
+4	0	CvGameCoreDLL/MilitaryAnalyst.cpp
+37	11	CvGameCoreDLL/UWAIAgent.cpp
+1	0	CvGameCoreDLL/WarEvalParameters.cpp
+2	1	CvGameCoreDLL/WarEvalParameters.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 9c260743a..c05c8c4bf 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2768,12 +2768,25 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		int iMasterSuccess = kMasterTeam.AI_getWarSuccess(getID());
+ 		int iTargetDelta = std::min(getNumCities(), 4) *
+ 				GC.getWAR_SUCCESS_CITY_CAPTURING(); // </advc>
+-		// <advc.104o> Factor in past wars
+-		if(getUWAI.isEnabled())
+-		{
++		// <advc.104>
++		if (getUWAI.isEnabled())
++		{	/*	Try not to be too inconsistent with UWAI::Team::considerCapitulation
++				(to avoid answering "not right now" when in fact not close).
++				The cached utility values don't account for the peace with 3rd parties
++				(implied by capitulation), and it's out of date on a human master's turn,
++				so this is all a bit fuzzy. */
++			if (uwai().leaderUWAI().getCache().
++				warUtilityIgnoringDistraction(eMasterTeam) > -40 ||
++				// Expect to tire master out
++				kMasterTeam.uwai().leaderUWAI().getCache().
++				warUtilityIgnoringDistraction(getID()) < -25)
++			{
++				return DENIAL_POWER_US;
++			}
++			// </advc.104>  <advc.104o> Take into account past wars
+ 			int iPastWarScore = GET_PLAYER(getLeaderID()).uwai().getCache().
+ 					pastWarScore(eMasterTeam);
+-			if(iPastWarScore < 0)
++			if (iPastWarScore < 0)
+ 				iTargetDelta = ::round(iTargetDelta * 2 / 3.0);
+ 		} // </advc.104o>
+ 		if (iVassalSuccess + iTargetDelta > iMasterSuccess)
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index d42cb406b..f42b7ff11 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -155,6 +155,10 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes weId, WarEvalParameters& warEvalPar
+ 					std::inserter(diff, diff.begin()));
+ 			ig->removeWar(declaringWar, diff);
+ 		}
++		/*	Capitulation: Not fully implemented; misses the wars that we need
++			to declare on the enemies of theyId. */
++		else if(warEvalParams.getCapitulationTeam() == theyId)
++			ig->removeWar(declaringWar, currentlyAtWar);
+ 		else ig->removeWar(declaringWar, theirSide);
+ 	}
+ 	int timeHorizon = 25;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index b3212f431..3897692f4 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -673,27 +673,53 @@ bool UWAI::Team::considerPeace(TeamTypes targetId, int u) {
+ bool UWAI::Team::considerCapitulation(TeamTypes masterId, int ourWarUtility,
+ 		int masterReluctancePeace) {
+ 
+-	int const uThresh = -75;
+-	if(ourWarUtility > -uThresh) {
+-		report->log("No capitulation b/c war utility not low enough (%d>%d)",
+-				ourWarUtility, uThresh);
+-		return true;
++	{	int const uThresh = -75;
++		if(ourWarUtility * 4 > uThresh) {
++			report->log("Don't compute capitulation utility b/c probably not low enough (%d>%d)",
++					ourWarUtility, uThresh / 4);
++			return true;
++		}
++		if(ourWarUtility > uThresh) {
++			int capUtility = ourWarUtility;
++			if(GET_TEAM(agentId).getNumWars(true, true) > 1) {
++				/*	Looks like war utility is low, but not low enough. Perhaps
++					this is b/c we haven't yet accounted for the protection that
++					the master grants us from third parties.
++					NB: Ideally, considerCapitulation should not rely on ourWarUtility
++					at all when there are multiple (free) war enemies, but that's
++					now difficult to change at the call site. */
++				report->log("Computing war utility of capitulation (%d>%d)",
++						ourWarUtility, uThresh);
++				WarEvalParameters params(agentId, masterId, *report, false, NO_PLAYER,
++							masterId);
++				WarEvaluator eval(params);
++				capUtility = eval.evaluate(GET_TEAM(agentId).AI_getWarPlan(masterId));
++			}
++			if(capUtility > uThresh) {
++				report->log("No capitulation b/c utility not low enough (%d>%d)",
++						capUtility, uThresh);
++				return true;
++			}
++		}
+ 	}
+ 	/*  Low reluctance to peace can just mean that there isn't much left for
+ 		them to conquer; doesn't have to mean that they'll soon offer peace.
+ 		Probability test to ensure that we eventually capitulate even if
+ 		master's reluctance remains low. */
+-	double prSkip = 1 - (masterReluctancePeace * 0.015 + 0.25);
++	double prSkip = 1 - (masterReluctancePeace * 0.015 + 0.3);
+ 	int ourCities = GET_TEAM(agentId).getNumCities();
++	prSkip = ::dRange(prSkip, 0.0,
++			// Reduce maximal waiting time in the late game
++			0.87 - 0.04 * GET_TEAM(masterId).AI_getCurrEraFactor().getDouble());
+ 	// If few cities remain, we can't afford to wait
+-	if(ourCities <= 2) prSkip -= 0.2;
+-	if(ourCities <= 1) prSkip -= 0.1;
+-	prSkip = ::dRange(prSkip, 0.0, 0.87);
++	if(ourCities <= 2)
++		prSkip -= 0.2;
++	if(ourCities <= 1)
++		prSkip -= 0.1;
+ 	report->log("%d percent probability to delay capitulation based on master's "
+ 			"reluctance to peace (%d)", ::round(100 * prSkip), masterReluctancePeace);
+ 	if(::bernoulliSuccess(prSkip, "advc.104 (cap)")) {
+-		if(prSkip < 1)
+-			report->log("No capitulation this turn");
++		report->log("No capitulation this turn");
+ 		return true;
+ 	}
+ 	if(prSkip > 0)
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.cpp b/CvGameCoreDLL/WarEvalParameters.cpp
+index add11f9f2..9945f4801 100644
+--- a/CvGameCoreDLL/WarEvalParameters.cpp
++++ b/CvGameCoreDLL/WarEvalParameters.cpp
+@@ -16,6 +16,7 @@ WarEvalParameters::WarEvalParameters(TeamTypes agentId,
+ 	report(report), ignoreDistraction(ignoreDistraction)
+ {
+ 	consideringPeace = GET_TEAM(_agentId).isAtWar(_targetId);
++	FAssert(capitulationTeam == NO_TEAM || consideringPeace);
+ 	if(sponsor != NO_PLAYER)
+ 		immediateDoW = true;
+ 	// To be set by WarEvaluator:
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.h b/CvGameCoreDLL/WarEvalParameters.h
+index 2b12bdc4c..0c909d165 100644
+--- a/CvGameCoreDLL/WarEvalParameters.h
++++ b/CvGameCoreDLL/WarEvalParameters.h
+@@ -48,7 +48,8 @@ public:
+ 	// Set to true automatically when a sponsor is set
+ 	void setImmediateDoW(bool b);
+ 	bool isImmediateDoW() const;
+-	// NO_TEAM unless we're considering to capitulate
++	/*	Team we're considering to capitulate to (would-be master);
++		NO_TEAM if we're not considering to capitulate. */
+ 	TeamTypes getCapitulationTeam() const;
+ 	// For WarEvaluator cache
+ 	int id() const;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6234

@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5279
+# Commit: a728524ed6448ce6f07932069afbe23bbc9e61ec
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 79f376ba1c99faaa2899d6613711472d7d7b4816
+# Title: performance optimizations 2 CvMainInterface.py claude opus 4.5 thanks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	11	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index e268dab6f..c972cdaa7 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -931,6 +931,20 @@ class CvMainInterface:
+ 		self.szProductionIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+ 		# Precomputed constants
+ 		self.iMoveDenominator = gc.getMOVE_DENOMINATOR()
++		# Precomputed localText strings (called with empty tuple - constant results)
++		# Unit pane labels
++		self.szTextStrength = localText.getText("INTERFACE_PANE_STRENGTH", ())
++		self.szTextAirStrength = localText.getText("INTERFACE_PANE_AIR_STRENGTH", ())
++		self.szTextMovement = localText.getText("INTERFACE_PANE_MOVEMENT", ())
++		self.szTextRange = localText.getText("INTERFACE_PANE_RANGE", ())
++		self.szTextLevel = localText.getText("INTERFACE_PANE_LEVEL", ())
++		self.szTextExperience = localText.getText("INTERFACE_PANE_EXPERIENCE", ())
++		# City screen labels
++		self.szTextStarving = localText.getText("INTERFACE_CITY_STARVING", ())
++		self.szTextStagnant = localText.getText("INTERFACE_CITY_STAGNANT", ())
++		self.szTextMaintenance = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
++		# Scoreboard
++		self.szTextDeadCiv = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
+ 
+ 	def setMiniMapRects(self):
+ 		# <advc.137>
+@@ -4826,12 +4840,12 @@ class CvMainInterface:
+ 						szBuffer = localText.getText("INTERFACE_CITY_SHRINKING",
+ 								(iTurnsToStarve,))
+ 					else:
+-						szBuffer = localText.getText("INTERFACE_CITY_STARVING", ())
++						szBuffer = self.szTextStarving
+ 				else:
+-					szBuffer = localText.getText("INTERFACE_CITY_STARVING", ())
++					szBuffer = self.szTextStarving
+ # BUG - Food Assist - end
+ 			else:
+-				szBuffer = localText.getText("INTERFACE_CITY_STAGNANT", ())
++				szBuffer = self.szTextStagnant
+ 
+ 			self.setLabel("PopulationText", "Background", szBuffer,
+ 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
+@@ -5591,7 +5605,7 @@ class CvMainInterface:
+ 		iMaintenance *= 100 + gc.getPlayer(
+ 				pHeadSelectedCity.getOwner()).calculateInflationRate()
+ 		iMaintenance /= 100 # </K-Mod>
+-		szBuffer = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
++		szBuffer = self.szTextMaintenance
+ 		self.setLabel("MaintenanceText", "Background", szBuffer,
+ 				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, 
+ 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
+@@ -6359,7 +6373,7 @@ class CvMainInterface:
+ 				szRightBuffer = u""
+ 				if (pHeadSelectedUnit.getDomainType() == DomainTypes.DOMAIN_AIR):
+ 					if (pHeadSelectedUnit.airBaseCombatStr() > 0):
+-						szLeftBuffer = localText.getText("INTERFACE_PANE_AIR_STRENGTH", ())
++						szLeftBuffer = self.szTextAirStrength
+ 						if (pHeadSelectedUnit.isFighting()):
+ 							szRightBuffer = u"?/%d%s" %(pHeadSelectedUnit.airBaseCombatStr(),
+ 									self.szStrengthIcon)
+@@ -6373,7 +6387,7 @@ class CvMainInterface:
+ 									self.szStrengthIcon)
+ 				else:
+ 					if (pHeadSelectedUnit.canFight()):
+-						szLeftBuffer = localText.getText("INTERFACE_PANE_STRENGTH", ())
++						szLeftBuffer = self.szTextStrength
+ 						if (pHeadSelectedUnit.isFighting()):
+ 							szRightBuffer = u"?/%d%s" %(pHeadSelectedUnit.baseCombatStr(),
+ 									self.szStrengthIcon)
+@@ -6400,12 +6414,12 @@ class CvMainInterface:
+ 				# <advc.004w> Don't show "Movement" row if it can't move
+ 				eDomain = pHeadSelectedUnit.getDomainType()
+ 				if eDomain == DomainTypes.DOMAIN_AIR: # Show range instead for air units
+-					szLeftBuffer = localText.getText("INTERFACE_PANE_RANGE", ())
++					szLeftBuffer = self.szTextRange
+ 					szRightBuffer = u"%d" %(pHeadSelectedUnit.airRange(),)
+ 				elif pHeadSelectedUnit.getDomainType() != DomainTypes.DOMAIN_IMMOBILE:
+ 				# </advc.004w>
+ # BUG - Unit Movement Fraction - start
+-					szLeftBuffer = localText.getText("INTERFACE_PANE_MOVEMENT", ())
++					szLeftBuffer = self.szTextMovement
+ 					if MainOpt.isShowUnitMovementPointsFraction():
+ 						szRightBuffer = u"%d%s" %(pHeadSelectedUnit.baseMoves(),
+ 								self.szMovesIcon)
+@@ -6445,7 +6459,7 @@ class CvMainInterface:
+ 				iRow += 1
+ 				if (pHeadSelectedUnit.getLevel() > 0 and
+ 						pHeadSelectedUnit.getExperience() > 0): # advc.004w
+-					szLeftBuffer = localText.getText("INTERFACE_PANE_LEVEL", ())
++					szLeftBuffer = self.szTextLevel
+ 					szRightBuffer = u"%d" %(pHeadSelectedUnit.getLevel())
+ 					szBuffer = szLeftBuffer + "  " + szRightBuffer
+ 					screen.appendTableRow("SelectedUnitText")
+@@ -6458,7 +6472,7 @@ class CvMainInterface:
+ 					iRow += 1
+ 				if ((pHeadSelectedUnit.getExperience() > 0) and
+ 						not pHeadSelectedUnit.isFighting()):
+-					szLeftBuffer = localText.getText("INTERFACE_PANE_EXPERIENCE", ())
++					szLeftBuffer = self.szTextExperience
+ 					szRightBuffer = u"(%d/%d)" %(pHeadSelectedUnit.getExperience(),
+ 							pHeadSelectedUnit.experienceNeeded())
+ 					szBuffer = szLeftBuffer + "  " + szRightBuffer
+@@ -6692,7 +6706,7 @@ class CvMainInterface:
+ 				szCivName = pPlayer.getCivilizationDescription(0)
+ 				szPlayerName = szCivName
+ 		if not pPlayer.isAlive() and ScoreOpt.isShowDeadTag():
+-			szPlayerScore = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
++			szPlayerScore = self.szTextDeadCiv
+ 			if bAlignIcons:
+ 				scores.setScore(szPlayerScore)
+ 		else:
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5315

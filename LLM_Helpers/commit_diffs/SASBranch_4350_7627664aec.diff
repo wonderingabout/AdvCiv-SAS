@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4350
+# Commit: 7627664aec3e4c9d066e7d02c34cd47f8e845c7a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3a67ab7a45685efdafa31c2d775e3dc5ec4ad83e
+# Title: minor refactor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	20	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 91b0badb2..dd71c47e2 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -885,14 +885,12 @@
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+ 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+-				             If AI wants to turtle later in the game, archers may be more relevant then.
+-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+-				-->
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
+ 				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				-->
++				</FreeTech>-->
+ 				<!-- custom: instead, give them a tech that helps them expand more early -->
+ 				<FreeTech>
+ 					<TechType>TECH_POTTERY</TechType>
+@@ -1068,14 +1066,12 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+-				             If AI wants to turtle later in the game, archers may be more relevant then.
+-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+-				-->
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
+ 				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				-->
++				</FreeTech>-->
+ 				<!-- custom: instead, give them a tech that helps them expand more early -->
+ 				<FreeTech>
+ 					<TechType>TECH_POTTERY</TechType>
+@@ -1262,14 +1258,12 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+-				             If AI wants to turtle later in the game, archers may be more relevant then.
+-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+-				-->
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
+ 				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				-->
++				</FreeTech>-->
+ 				<!-- custom: instead, give them a tech that helps them expand more early -->
+ 				<FreeTech>
+ 					<TechType>TECH_POTTERY</TechType>
+@@ -1475,14 +1469,12 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+-				             If AI wants to turtle later in the game, archers may be more relevant then.
+-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+-				-->
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
+ 				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				-->
++				</FreeTech>-->
+ 				<!-- custom: instead, give them a tech that helps them expand more early -->
+ 				<FreeTech>
+ 					<TechType>TECH_POTTERY</TechType>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3729

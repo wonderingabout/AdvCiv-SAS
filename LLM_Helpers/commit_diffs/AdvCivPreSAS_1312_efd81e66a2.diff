@@ -1,0 +1,597 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1312
+# Commit: efd81e66a2a45883179fe685686deda828de4b09
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 34fccb1c9e992ac5f0712f6ac21729dc39ac4707
+# Title: Changes to Privateer [advc.033] Rules change: Civs in a vassal-master relationship can't use Privateers to pillage each other's improvements, blockade each o...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDeal.cpp
+23	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+54	43	CvGameCoreDLL/CvUnit.cpp
+137	69	CvGameCoreDLL/CvUnitAI.cpp
+6	1	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 013e84d0d..f151fc152 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2397,7 +2397,8 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 	
+ 	//Arr.  Don't build pirates in financial trouble, as they'll be disbanded with high probability
+-	if ((pWaterArea != NULL) && !bLandWar && !bAssault && !bFinancialTrouble && !bUnitExempt)
++	if (pWaterArea != NULL && !bLandWar && !bAssault && !bFinancialTrouble && !bUnitExempt
++			&& !TEAMREF(getOwnerINLINE()).isCapitulated()) // advc.033
+ 	{
+ 		int iPirateCount = kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_PIRATE_SEA);
+ 		int iNeededPirates = (1 + (pWaterArea->getNumTiles() / std::max(1, 200 - iBuildUnitProb)));
+@@ -3035,8 +3036,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	{
+ 		aiUnitAIVal[iI] *= std::max(0, (GC.getLeaderHeadInfo(getPersonalityType()).getUnitAIWeightModifier(iI) + 100));
+ 		aiUnitAIVal[iI] /= 100;
+-	}
+-
++	} // <advc.033>
++	if(TEAMREF(getOwnerINLINE()).isCapitulated())
++		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0; // </advc.033>
+ 	iBestValue = 0;
+ 	eBestUnit = NO_UNIT;
+ 
+@@ -8624,7 +8626,13 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, int iOdds)
+ 	}
+ 
+ 	if (eBestUnit != NO_UNIT)
+-	{
++	{	// <advc.033> Don't build outdated pirates
++		if(!isBarbarian() && eUnitAI == UNITAI_PIRATE_SEA) {
++			TechTypes eTech = (TechTypes)GC.getUnitInfo(eBestUnit).getPrereqAndTech();
++			if(eTech != NO_TECH && GC.getTechInfo(eTech).getEra() <
++					GC.getGameINLINE().getCurrentEra())
++				return false;
++		} // </advc.033>
+ 		/* original BBAI code
+ 		if( iOdds < 0 ||
+ 			getUnitProduction(eBestUnit) > 0 ||
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 09df29daa..79d1fccaa 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -1032,7 +1032,7 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 			CvPlayer::handleDiploEvent.) */
+ 		if(!TEAMREF(eFromPlayer).isCapitulated() || !TEAMREF(eFromPlayer).isVassal(TEAMID(eToPlayer)))
+ 			GET_PLAYER(eToPlayer).stopTradingWithTeam((TeamTypes)trade.m_iData, false);
+-		// </advc,130f>
++		// </advc.130f>
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c47b21dd0..892a500da 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -28081,9 +28081,30 @@ bool CvPlayerAI::AI_haveResourcesToTrain(UnitTypes eUnit) const
+ 	}
+ 
+ 	return !bMissingBonus;
+-}
++} // </k146>
+ 
+-// </k146>
++// <advc.033> Are we willing to attack/pillage them with hidden-nationality units
++bool CvPlayerAI::isPiracyTarget(PlayerTypes targetId) const {
++
++	if(targetId == NO_PLAYER) {
++		FAssert(targetId != NO_PLAYER);
++		return false;
++	}
++	if(TEAMID(targetId) == getTeam())
++		return false;
++	if(getID() == BARBARIAN_PLAYER || targetId == BARBARIAN_PLAYER) {
++		/*  Can't plunder Barbs, but this function shouldn't be used for
++			deciding whether to plunder. */
++		return true;
++	}
++	if(TEAMREF(targetId).isAtWar(getTeam()))
++		return true;
++	if(GET_TEAM(getTeam()).isVassal(TEAMID(targetId)) ||
++			TEAMREF(targetId).isVassal(getTeam()))
++		return false;
++	return (AI_getAttitude(targetId) <= GC.getLeaderHeadInfo(getPersonalityType()).
++			getDeclareWarThemRefuseAttitudeThreshold());
++} // </advc.033>
+ 
+ // <advc.130r><advc.130h>
+ bool CvPlayerAI::atWarWithPartner(TeamTypes theyId, bool checkPartnerAttacked) const {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 95617f9c3..c6fc9140c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -574,6 +574,7 @@ public:
+ 	double exclusiveRadiusWeight(int dist = -1) const; // advc.099b
+ 	// k146: Used in conjuction with canTrain
+ 	bool AI_haveResourcesToTrain(UnitTypes eUnit) const;
++	bool isPiracyTarget(PlayerTypes targetId) const; // advc.033
+ 	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a2401f1b1..3fe89de60 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5280,7 +5280,10 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
+ 			{
+ 				return false;
+ 			}
+-		}
++		} // <advc.033>
++		if(GET_TEAM(pPlot->getTeam()).isVassal(getTeam()) ||
++				GET_TEAM(getTeam()).isVassal(pPlot->getTeam()))
++			return false; // </advc.033>
+ 	}
+ 
+ 	if (!(pPlot->isValidDomainForAction(*this)))
+@@ -5463,7 +5466,10 @@ bool CvUnit::canPlunder(const CvPlot* pPlot, bool bTestVisible) const
+ 		if (pPlot->getTeam() == getTeam())
+ 		{
+ 			return false;
+-		}
++		} // <advc.033>
++		if(pPlot->isOwned() && (GET_TEAM(pPlot->getTeam()).isVassal(getTeam()) ||
++				GET_TEAM(getTeam()).isVassal(pPlot->getTeam())))
++			return false; // </advc.033>
+ 	}
+ 
+ 	return true;
+@@ -5506,54 +5512,56 @@ void CvUnit::updatePlunder(int iChange, bool bUpdatePlotGroups)
+ 		for (int j = -iBlockadeRange; j <= iBlockadeRange; ++j)
+ 		{
+ 			CvPlot* pLoopPlot = ::plotXY(getX_INLINE(), getY_INLINE(), i, j);
+-
+-			if (NULL != pLoopPlot && pLoopPlot->isWater() && pLoopPlot->area() == area())
+-			{
+-
+-				int iPathDist = GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot);
+-				
+-				// BBAI NOTES:  There are rare issues where the path finder will return incorrect results
+-				// for unknown reasons.  Seems to find a suboptimal path sometimes in partially repeatable 
+-				// circumstances.  The fix below is a hack to address the permanent one or two tile blockades which 
+-				// would appear randomly, it should cause extra blockade clearing only very rarely.
+-				/*
+-				if( iPathDist > iBlockadeRange )
++			// <advc.003>
++			if(NULL == pLoopPlot || !pLoopPlot->isWater() ||
++					pLoopPlot->area() != area())
++				continue; // </advc.003>
++			int iPathDist = GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot);
++			// BBAI NOTES:  There are rare issues where the path finder will return incorrect results
++			// for unknown reasons.  Seems to find a suboptimal path sometimes in partially repeatable 
++			// circumstances.  The fix below is a hack to address the permanent one or two tile blockades which 
++			// would appear randomly, it should cause extra blockade clearing only very rarely.
++			/*
++			if( iPathDist > iBlockadeRange )
++			{
++			// No blockading on other side of an isthmus
++			continue;
++			}
++			*/
++			// <advc.003>
++			if(iPathDist < 0 || iPathDist > iBlockadeRange + 2)
++				continue; // </advc.003>
++			for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
++			{
++				//if (isEnemy((TeamTypes)iTeam))
++				// <advc.033> Replacing the above
++				CvTeam const& t = GET_TEAM((TeamTypes)iTeam);
++				if(t.isAlive() && isEnemy(t.getID()) && !t.isVassal(getTeam()) &&
++						!GET_TEAM(getTeam()).isVassal(t.getID())) // </advc.033>
+ 				{
+-					// No blockading on other side of an isthmus
+-					continue;
+-				}
+-				*/
++					bValid = (iPathDist <= iBlockadeRange);
++					if( !bValid && (iChange == -1 && pLoopPlot->getBlockadedCount((TeamTypes)iTeam) > 0) )
++					{
++						bValid = true;
++					}
+ 
+-				if( (iPathDist >= 0) && (iPathDist <= iBlockadeRange + 2) )
+-				{
+-					for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
++					if( bValid )
+ 					{
+-						if (isEnemy((TeamTypes)iTeam))
++						if (!bChanged)
+ 						{
+-							bValid = (iPathDist <= iBlockadeRange);
+-							if( !bValid && (iChange == -1 && pLoopPlot->getBlockadedCount((TeamTypes)iTeam) > 0) )
+-							{
+-								bValid = true;
+-							}
+-
+-							if( bValid )
+-							{
+-								if (!bChanged)
+-								{
+-									bOldTradeNet = pLoopPlot->isTradeNetwork((TeamTypes)iTeam);
+-								}
++							bOldTradeNet = pLoopPlot->isTradeNetwork((TeamTypes)iTeam);
++						}
+ 
+-								pLoopPlot->changeBlockadedCount((TeamTypes)iTeam, iChange);
++						pLoopPlot->changeBlockadedCount((TeamTypes)iTeam, iChange);
+ 
+-								if (!bChanged)
+-								{
+-									bChanged = (bOldTradeNet != pLoopPlot->isTradeNetwork((TeamTypes)iTeam));
+-								}
+-							}
++						if (!bChanged)
++						{
++							bChanged = (bOldTradeNet != pLoopPlot->isTradeNetwork((TeamTypes)iTeam));
+ 						}
+ 					}
+ 				}
+ 			}
++
+ 		}
+ 	}
+ 
+@@ -9080,8 +9088,10 @@ bool CvUnit::canSiege(TeamTypes eTeam) const
+ 	if (!isNeverInvisible())
+ 	{
+ 		return false;
+-	}
+-
++	} // <advc.033>
++	if(eTeam != NO_TEAM && (GET_TEAM(eTeam).isVassal(getTeam()) ||
++			GET_TEAM(getTeam()).isVassal(eTeam)))
++		return false; // </advc.033>
+ 	return true;
+ }
+ 
+@@ -11837,7 +11847,8 @@ PlayerTypes CvUnit::getVisualOwner(TeamTypes eForTeam) const
+ 
+ 	if (getTeam() != eForTeam && eForTeam != BARBARIAN_TEAM)
+ 	{
+-		if (m_pUnitInfo->isHiddenNationality())
++		if (m_pUnitInfo->isHiddenNationality()
++				&& !GC.getGameINLINE().isDebugMode()) // advc.007
+ 		{
+ 			if (!plot()->isCity(true, getTeam()))
+ 			{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 37f6fb2c6..69d8a1eaa 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -16071,7 +16071,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, int iFlags, bool bF
+ }
+ 
+ // Returns true if a mission was pushed...
+-// This function has been been writen for K-Mod. (it started getting messy, so I deleted most of the old code)
++// This function has been been written for K-Mod. (it started getting messy, so I deleted most of the old code)
+ // bFollow implies AI_follow conditions - ie. not everyone in the group can move, and this unit might not be the group leader.
+ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMinStack, bool bAllowCities, bool bFollow)
+ {
+@@ -16107,7 +16107,10 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 
+ 			if (!bAllowCities && pLoopPlot->isCity())
+ 				continue;
+-
++			// <advc.128>
++			if((std::abs(iDX) > searchRangeRand || std::abs(iDY) > searchRangeRand)
++					&& !pLoopPlot->isVisible(getTeam(), false))
++				continue; // </advc.128>
+ 			if (bDeclareWar
+ 				? !pLoopPlot->isVisiblePotentialEnemyUnit(getOwnerINLINE()) && !(pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getPlotCity()->getTeam(), pLoopPlot))
+ 				: !pLoopPlot->isVisibleEnemyUnit(this) && !pLoopPlot->isEnemyCity(*this))
+@@ -16115,18 +16118,23 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 				continue;
+ 			}
+ 
+-			// <advc.128>
+-			if((std::abs(iDX) > searchRangeRand || std::abs(iDY) > searchRangeRand)
+-					&& !pLoopPlot->isVisible(getTeam(), false))
+-				continue; // </advc.128>
+-
+ 			int iEnemyDefenders = bDeclareWar ? pLoopPlot->getNumVisiblePotentialEnemyDefenders(this) : pLoopPlot->getNumVisibleEnemyDefenders(this);
++			// <advc.033>
++			if(isAlwaysHostile(pLoopPlot)) {
++				std::pair<int,int> defendersAll = countPiracyTargets(*pLoopPlot);
++				if(defendersAll.second <= 0)
++					continue;
++				iEnemyDefenders = defendersAll.first;
++			} // </advc.033>
+ 			if (iEnemyDefenders < iMinStack)
+ 				continue;
+ 
+ 			if (!atPlot(pLoopPlot) && (bFollow ? getGroup()->canMoveOrAttackInto(pLoopPlot, bDeclareWar, true) : generatePath(pLoopPlot, iFlags, true, 0, iRange)))
+ 			{
+-				int iOdds = iEnemyDefenders == 0 ? (pLoopPlot->isCity() ? 101 : 100) : AI_getWeightedOdds(pLoopPlot, false); // 101 for cities, because that's a better thing to capture.
++				// 101 for cities, because that's a better thing to capture.
++				int iOdds = (iEnemyDefenders == 0 ?
++						(pLoopPlot->isCity() ? 101 : 100) :
++						AI_getWeightedOdds(pLoopPlot, false));
+ 				if (iOdds >= iOddsThreshold)
+ 				{
+ 					iOddsThreshold = iOdds;
+@@ -16467,7 +16475,12 @@ bool CvUnitAI::AI_defendTeritory(int iThreshold, int iFlags, int iMaxPathTurns,
+ 		if (pLoopPlot && pLoopPlot->getTeam() == getTeam() && AI_plotValid(pLoopPlot))
+ 		{
+ 			if (pLoopPlot->isVisibleEnemyUnit(this))
+-			{
++			{	// <advc.033>
++				if(isAlwaysHostile(pLoopPlot) && !isAnyPiracyTarget(*pLoopPlot))
++					continue;
++				/*  This doesn't guarantee that the best defender will be a
++					PiracyTarget, but at least we're going to attack a unit that
++					is hanging out with a target. */ // </advc.033>
+ 				int iPathTurns;
+ 				if (generatePath(pLoopPlot, iFlags, true, &iPathTurns, iMaxPathTurns))
+ 				{
+@@ -16725,7 +16738,6 @@ bool CvUnitAI::AI_pirateBlockade()
+ 	PROFILE_FUNC();
+ 	
+ 	int iPathTurns;
+-	int iValue;
+ 	int iI;
+ 	
+ 	/*  <k146> Removed the loop that computed the vector 'aiDeathZone'
+@@ -16833,22 +16845,56 @@ bool CvUnitAI::AI_pirateBlockade()
+ 					continue; // </advc.003>
+ 				CvCity* pPlotCity = pRangePlot->getPlotCity();
+ 				if (pPlotCity != NULL &&
+-						/*  advc.003: Note that isEnemy checks isAlwaysHostile;
+-							so the owner of pPlotCity does not have to be a
+-							war enemy of this unit. */
+-						isEnemy(pPlotCity->getTeam(), pLoopPlot))
++					/*  advc.003: Note that isEnemy checks isAlwaysHostile;
++						so the owner of pPlotCity does not have to be a war enemy
++						of this unit. In fact, plundering war enemies is
++						discouraged below; doesn't yield gold. */
++						isEnemy(pPlotCity->getTeam(), pLoopPlot)
++						&& !pPlotCity->isBarbarian()) // advc.123e
+ 				{
+ 					int iCityValue = 3 + pPlotCity->getPopulation();
++					// <advc.033>
++					if(GET_TEAM(pPlotCity->getTeam()).isVassal(getTeam()) ||
++							GET_TEAM(getTeam()).isVassal(pPlotCity->getTeam()))
++						iCityValue = 0;
++					if(!isBarbarian()) {
++						int attitudeFactor = std::max(1, 10 - ::round(
++								std::pow((double)GET_PLAYER(getOwnerINLINE()).
++								AI_getAttitude(pPlotCity->getOwnerINLINE()), 1.5)));
++						iCityValue *= attitudeFactor;
++						TechTypes techReq = (TechTypes)m_pUnitInfo->getPrereqAndTech();
++						int ourEra = (techReq == NO_TECH ?
++								GET_PLAYER(getOwnerINLINE()).getCurrentEra() :
++								GC.getTechInfo(techReq).getEra());
++						int theirEra = GET_PLAYER(pPlotCity->getOwnerINLINE()).
++								getCurrentEra();
++						double eraFactor = 1.5;
++						if(theirEra > ourEra)
++							eraFactor = 0.5;
++						if(ourEra > theirEra)
++							eraFactor = 2.5;
++						/*  Era alone is too coarse. A civ in early Renaissance
++							is a fine target for Privateers.
++							Tbd.: Should check sth. like isTechTrading first --
++							we might not know whether they have the tech. */
++						if(techReq != NO_TECH && GET_TEAM(pPlotCity->getTeam()).
++								isHasTech(techReq))
++							eraFactor /= 2;
++						iCityValue = ::round(iCityValue * eraFactor);
++					} // </advc.033>
+ 					iCityValue *= (atWar(getTeam(), pPlotCity->getTeam()) ? 1 : 3);
+ 					if (GET_PLAYER(pPlotCity->getOwnerINLINE()).isNoForeignTrade())
+ 					{
+ 						iCityValue /= 2;
+ 					}
+-					iPopulationValue += iCityValue;
++					iPopulationValue += ::round(iCityValue
++							/*  advc.033: Normalize to keep the scale as it was
++								and avoid overflows */
++							/ (isBarbarian() ? 1.0 : 7.0));
+ 				}
+ 			}
+-		}
+-		iValue = iPopulationValue;
++		} // advc.003: Declaration moved
++		int iValue = iPopulationValue;
+ 
+ 		iValue *= 1000;
+ 
+@@ -17329,64 +17375,57 @@ bool CvUnitAI::AI_pillageRange(int iRange, int iBonusValueThreshold, int iFlags)
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+ 			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (AI_plotValid(pLoopPlot) && !(pLoopPlot->isBarbarian()))
++			// <advc.003>
++			if (pLoopPlot == NULL || !AI_plotValid(pLoopPlot) ||
++					pLoopPlot->isBarbarian() || !potentialWarAction(pLoopPlot))
++				continue; // </advc.003>
++			// <advc.033>
++			if(isAlwaysHostile(pLoopPlot) && pLoopPlot->isOwned() &&
++					!GET_PLAYER(getOwnerINLINE()).isPiracyTarget(
++					pLoopPlot->getOwnerINLINE()))
++				continue; // </advc.033>
++			CvCity * pWorkingCity = pLoopPlot->getWorkingCity();
++			// <advc.003>
++			if(pWorkingCity == NULL)
++				continue; // </advc.003>
++			if ((pWorkingCity != area()->getTargetCity(getOwnerINLINE())
++				/*  advc.001: Barbarians perhaps shouldn't have a target city
++					at all. At any rate, they should not exclude that city from
++					pillaging. Barbarians are supposed to be destructive and
++					shortsighted. More importantly, it's inexplicable for most
++					human players when the barbarians repeatedly spare improvements. */
++					|| isBarbarian())
++					&& canPillage(pLoopPlot)) { // <advc.003>
++				if(pLoopPlot->isVisibleEnemyUnit(this) ||
++						!GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(
++						pLoopPlot, MISSIONAI_PILLAGE, getGroup()) == 0 ||
++						!generatePath(pLoopPlot, iFlags, true, &iPathTurns, iRange))
++					continue; // </advc.003>
++				if (getPathFinder().GetFinalMoves() == 0)
+ 				{
+-					if (potentialWarAction(pLoopPlot))
+-					{
+-                        CvCity * pWorkingCity = pLoopPlot->getWorkingCity();
+-
+-                        if (pWorkingCity != NULL)
+-                        {
+-                            if ((pWorkingCity != area()->getTargetCity(getOwnerINLINE())
+-								/* advc.001: Barbarians perhaps shouldn't have a target city
+-								   at all. At any rate, they should not exclude that city from
+-								   pillaging. Barbarians are supposed to be destructive and
+-								   shortsighted. More importantly, it's inexplicable for most
+-								   human players when the barbarians repeatedly spare improvements. */
+-								|| isBarbarian() 
+-								) && canPillage(pLoopPlot))
+-                            {
+-                                if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+-                                {
+-                                    if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_PILLAGE, getGroup()) == 0)
+-                                    {
+-                                        if (generatePath(pLoopPlot, iFlags, true, &iPathTurns, iRange))
+-                                        {
+-											if (getPathFinder().GetFinalMoves() == 0)
+-                                            {
+-                                                iPathTurns++;
+-                                            }
++					iPathTurns++;
++				}
+ 
+-                                            if (iPathTurns <= iRange)
+-                                            {
+-                                                iValue = AI_pillageValue(pLoopPlot, iBonusValueThreshold);
++				if (iPathTurns <= iRange)
++				{
++					iValue = AI_pillageValue(pLoopPlot, iBonusValueThreshold);
+ 
+-                                                iValue *= 1000;
++					iValue *= 1000;
+ 
+-                                                iValue /= (iPathTurns + 1);
++					iValue /= (iPathTurns + 1);
+ 
+-												// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
+-												// (because declaring war will pop us some unknown distance away)
+-												if (!isEnemy(pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
+-												{
+-													iValue /= 10;
+-												}
++					// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
++					// (because declaring war will pop us some unknown distance away)
++					if (!isEnemy(pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
++					{
++						iValue /= 10;
++					}
+ 
+-                                                if (iValue > iBestValue)
+-                                                {
+-                                                    iBestValue = iValue;
+-                                                    pBestPlot = getPathEndTurnPlot();
+-                                                    pBestPillagePlot = pLoopPlot;
+-                                                }
+-                                            }
+-                                        }
+-                                    }
+-                                }
+-                            }
+-                        }
++					if (iValue > iBestValue)
++					{
++						iBestValue = iValue;
++						pBestPlot = getPathEndTurnPlot();
++						pBestPillagePlot = pLoopPlot;
+ 					}
+ 				}
+ 			}
+@@ -24427,6 +24466,35 @@ bool CvUnitAI::AI_potentialEnemy(TeamTypes eTeam, const CvPlot* pPlot)
+ 	}
+ }
+ 
++// <advc.033> Returns a pair (defenders,all)
++std::pair<int,int> CvUnitAI::countPiracyTargets(CvPlot const& p,
++		bool stopIfAnyTarget) const {
++
++	std::pair<int,int> r = std::make_pair<int,int>(0, 0);
++	if(!isAlwaysHostile(&p))
++			// This is handled by searchRange
++			//|| !p.isVisible(getTeam(), false))
++		return r;
++	for(int i = 0; i < p.getNumUnits(); i++) {
++		CvUnit* up = p.getUnitByIndex(i);
++		if(up == NULL) continue; CvUnit const& u = *up;
++		if(u.isInvisible(getTeam(), false))
++			continue;
++		if(!GET_PLAYER(getOwnerINLINE()).isPiracyTarget(u.getOwnerINLINE()))
++			continue;
++		r.second++;
++		if(stopIfAnyTarget)
++			return r;
++		if(u.canDefend())
++			r.first++;
++	}
++	return r;
++}
++
++bool CvUnitAI::isAnyPiracyTarget(CvPlot const& p) const {
++
++	return countPiracyTargets(p, true).second > 0;
++}// </advc.033>
+ 
+ // Returns true if this plot needs some defense...
+ bool CvUnitAI::AI_defendPlot(CvPlot* pPlot)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 4e78a4129..54494d3d2 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -6,6 +6,7 @@
+ #define CIV4_UNIT_AI_H
+ 
+ #include "CvUnit.h"
++#include <utility> // advc.033
+ 
+ class CvCity;
+ 
+@@ -300,7 +301,11 @@ protected:
+ 	bool AI_followBombard();
+ 
+ 	bool AI_potentialEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL);
+-
++	// <advc.033>
++	std::pair<int,int> countPiracyTargets(CvPlot const& p,
++			bool stopIfAnyTarget = false) const;
++	bool isAnyPiracyTarget(CvPlot const& p) const;
++	// </advc.033>
+ 	bool AI_defendPlot(CvPlot* pPlot);
+ 	int AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold = 0);
+ 	//int AI_nukeValue(CvCity* pCity);
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=21873

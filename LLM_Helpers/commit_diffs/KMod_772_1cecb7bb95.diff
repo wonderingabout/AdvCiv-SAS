@@ -1,0 +1,109 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 772
+# Commit: 1cecb7bb95626dac8e3cf20ce28987263e6a55d5
+# History segment: K-Mod history
+# Parent used for diff: 5c204fac381887c7121b37c972e106958a578193
+# Title: Fixed a Pitboss problem in BugEventManager.__init__
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	23	Assets/Python/BUG/BugEventManager.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index e5197b9fe..e54b06dac 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -183,20 +183,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		for eventType, eventHandler in self.EventHandlerMap.iteritems():
+ 			self.setEventHandler(eventType, eventHandler)
+ 
+-		# K-Mod. Don't use register BUG events for PitBoss host.
+-		if CyGame().isPitbossHost():
+-			BugUtil.debug("BugEventManager - skipping event registration for PitBoss host")
+-			return
+-		# K-Mod end
+-
+-		# --------- Better BTS AI (2/2) -------------
+-		# K-Mod, only enable these feature if the cheat mode is enabled.
+-		if getChtLvl():
+-			AIAutoPlay.AIAutoPlay(self)
+-			ChangePlayer.ChangePlayer(self)
+-			Tester.Tester(self)
+-		# --
+-
+ 		# add new core events; see unused sample handlers below for argument lists
+ 		self.addEvent("PreGameStart")
+ 		self.addEvent("BeginActivePlayerTurn")
+@@ -206,10 +192,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		self.addEvent("PythonReloaded")
+ 
+ 		# add events used by this event manager
+-		self.addEventHandler("kbdEvent", self.onKbdEvent)
+-		self.addEventHandler("OnLoad", self.resetActiveTurn)
+-		self.addEventHandler("GameStart", self.resetActiveTurn)
+-		self.addEventHandler("gameUpdate", self.onGameUpdate)
++		# (K-Mod has moved these into the "configure" fucntion)
+ 
+ 		# BULL events
+ 		self.addEvent("unitUpgraded")
+@@ -575,12 +558,42 @@ EVENT_FUNCTION_MAP = {
+ ## Initialization
+ 
+ def configure(logging=None, noLogEvents=None):
+-	"""Sets the global event manager's logging options."""
+-	if g_eventManager:
+-		g_eventManager.setLogging(logging)
+-		g_eventManager.setNoLogEvents(noLogEvents)
+-	else:
++	# """Sets the global event manager's logging options."""
++	# if g_eventManager:
++		# g_eventManager.setLogging(logging)
++		# g_eventManager.setNoLogEvents(noLogEvents)
++	# else:
++		# BugUtil.error("BugEventManager - BugEventManager not setup before configure()")
++	# K-Mod. I've expanded the purpose of this function.
++	"""Sets the global event manager's logging options. And registers some BUG events handlers."""
++
++	if not g_eventManager:
+ 		BugUtil.error("BugEventManager - BugEventManager not setup before configure()")
++		return
++
++	g_eventManager.setLogging(logging)
++	g_eventManager.setNoLogEvents(noLogEvents)
++
++	# K-Mod. Don't use register BUG events for PitBoss host.
++	# (Note: actually, if this is a PitBoss host, this function won't even be called
++	#  because the BUG core will not initialize any mod components in PitBoss mode.)
++	if CyGame().isPitbossHost():
++		BugUtil.debug("BugEventManager - skipping event registration for PitBoss host")
++		return
++	# K-Mod end
++
++	# --------- Better BTS AI (2/2) (moved by K-Mod) -------------
++	# K-Mod, only enable these feature if the cheat mode is enabled.
++	if getChtLvl():
++		AIAutoPlay.AIAutoPlay(g_eventManager)
++		ChangePlayer.ChangePlayer(g_eventManager)
++		Tester.Tester(g_eventManager)
++
++	g_eventManager.addEventHandler("kbdEvent", g_eventManager.onKbdEvent)
++	g_eventManager.addEventHandler("OnLoad", g_eventManager.resetActiveTurn)
++	g_eventManager.addEventHandler("GameStart", g_eventManager.resetActiveTurn)
++	g_eventManager.addEventHandler("gameUpdate", g_eventManager.onGameUpdate)
++	# --
+ 
+ def hookupPreGameStartEvent():
+ 	BugUtil.extend(preGameStart, "CvAppInterface", "preGameStart")
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3439

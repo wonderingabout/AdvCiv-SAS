@@ -1,0 +1,565 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5257
+# Commit: 09e0c5100e38b2fb580a959b5519df915247d277
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1b9d2c8d9eee565d2f5d7b5daba48514cb823234
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	.gitattributes
+1	1	Assets/Python/BUG/BugEventManager.py
+1	1	Assets/Python/Contrib/MoreCiv4lerts.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+6	6	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+3	3	CvGameCoreDLL/CitySiteEvaluator.cpp
+5	5	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvUnit.h
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+3	3	CvGameCoreDLL/Project/Makefile.user
+3	3	CvGameCoreDLL/WarUtilityAspect.cpp
+5	5	README.md
+0	51064	_0_Common_Docs/git_log_anonymized_email.txt
+11668	0	_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt
+29929	0	_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+13	9	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md
+7	9	_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+7612	0	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-4986.txt
+2346	0	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_004_AdvCiv-SAS.txt
+2	2	generate_leaders_data.py
+1	1	scan_xml_duplicates-3.3.py
+ delete mode 100644 _0_Common_Docs/git_log_anonymized_email.txt
+ create mode 100644 _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt
+ create mode 100644 _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+ create mode 100644 _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-4986.txt
+ create mode 100644 _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_004_AdvCiv-SAS.txt
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 3053b1cef..76fac697d 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -33,8 +33,9 @@
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                              export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt         export-ignore
+-/_0_Common_Docs/git_log_anonymized_email.txt                            export-ignore
++/_0_Common_Docs/git_logs/                                               export-ignore
+ /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/                export-ignore
++/_1_AdvCiv-SAS/git_logs/                                                export-ignore
+ /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/                  export-ignore
+ /Assets/Res/Fonts/other_mods/                                           export-ignore
+ /Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt export-ignore
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 967418416..4ead28411 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -194,7 +194,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		self.addEvent("PythonReloaded")
+ 
+ 		# add events used by this event manager
+-		# (K-Mod has moved these into the "configure" fu<!-- custom: nc anyways etc anyways etc...-->tion)
++		# (K-Mod has moved these into the "configure" fu<!-- custom: nc-->tion)
+ 
+ 		# BULL events
+ 		self.addEvent("unitUpgraded")
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index f66a5792a..604b4a35b 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -317,7 +317,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 					popPercent = 0.0
+ 					NextpopPercent = 0.0
+ 
+-				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and asking chatgpt thanks to my prompt too to be sure i mean anwyays etc thanks to chatgpt and me and those who read this or not or and all or not or yes or anyways etc anyways etc anyways etc -->
++				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and asking chatgpt thanks. -->
+ 				if (totalPop > 1 and (currentTurn != self.lastDomLimitMsgTurn or (ourPop + popGrowthCount) != self.lastPopCount)):
+ 					self.lastPopCount = ourPop + popGrowthCount
+ 					if (popPercent >= VictoryPopPercent):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index e5c767dfd..adbdd163e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -141,7 +141,7 @@ def try_load_predumped_cache():
+ 		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
+ 	
+ 	except:
+-		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines." % PREDUMPED_MODULE_NAME)
++		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index ebd05375d..0c9f27977 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -220,9 +220,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_selectableListIdx = []
+ 		self.SAS_itemToSelectablePos = {}
+ 
+-		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
++		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation. -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+-		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes if i may say or not or yes or etc but anyways etc anyways etc anyways etc -->
++		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes. -->
+ 		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
+ 		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
+ 
+@@ -471,7 +471,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
+-		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
++		# <!-- custom: note: fixed a (seemingly base advciv) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken so reverted everything as base advciv code was minus this extra code comment, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now in known issues of advciv-sas readme for details as well. -->
+ 		bAddToHistory = False
+ 		if (not self.pediaHistory):
+ 			bAddToHistory = True
+@@ -754,7 +754,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getTechList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
+ 
+-		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
++		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code. -->
+ 		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
+ 			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
+ 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
+@@ -1344,13 +1344,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getFeatureList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, gc.getFeatureInfo)
+ 
+-		# <!-- custom: quite similarly if i may say but anyways etc to other precompute codes in sevopedia main, also do sevopedia bonus's pre-loading logic at time where it is more/most efficient if i may say but anyways etc anyways etc anyways etc -->
++		# <!-- custom: quite similarly to other precompute codes in sevopedia main, also do sevopedia bonus's pre-loading logic at time where it is more/most efficient. -->
+ 		if not self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE:
+ 			SevoPediaFeature.do_pre_load_xml_features_info_required_data_validation()
+ 			self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = True
+ 			print("Sevopedia Feature pre load XML data validation done from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE=%s)." % str(self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE))
+ 
+-	# <!-- custom: in sevopedia feature list, group features by Land (Removable), Land (Other), and Water. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	# <!-- custom: in sevopedia feature list, group features by Land (Removable), Land (Other), and Water. Added with the help of chatgpt 5.2 thanks. -->
+ 	# Implementation note:
+ 	# - We detect "Water" features by checking if the feature can appear on any true water terrain using FeatureInfo.isTerrain(iTerrain).
+ 	# - We detect "Removable" land features by scanning CvBuildInfo for a build that removes that feature.
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 06e90616d..70d34c724 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2129,7 +2129,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
+ 		if (eImprovement == NO_IMPROVEMENT)
+ 			continue;
+ 		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+-		// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
++		// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+ 		if (kImprovement.isActsAsCity()) // Usually means Fort
+ 		{
+ 			continue;
+@@ -3356,7 +3356,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
+ }
+ 
+ 
+-// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production anyways etc for example if i am not mistaken anyways etc, but point is don't reject city just because it may have low production, look at overall terrain and such yields which we already do anyways etc, so remove this specific if i may say in this case but anyways etc logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken but check to be sure anyways etc anyways etc) -->
++// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production, but point is don't reject city just because it may have low production, look at overall terrain and such yields which we already do, so remove this specific logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken) -->
+ // int AIFoundValue::adjustToProduction(int iValue, scaled rBaseProduction) const
+ // {
+ // 	// K-Mod. reduce value of cities which will struggle to get any productivity.
+@@ -3664,7 +3664,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
+ // 		iValue -= iDistPenalty;
+ // 		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
+ 
+-// 		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them i mean too if i may say in this case but anyways etc, so we can be more creative or/and combative about which spots we want maybe especially for local benefits if i may say in this case but anyways etc, code added with the help of gemini ai thanks to my prompt too and that i modified or not for advciv-sas too too if i may say but anyways etc anyways etc -->
++// 		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them, so we can be more creative or/and combative about which spots we want maybe especially for local benefits, code added with the help of gemini ai thanks. -->
+ // 		// --- Custom City Spacing Logic ---
+ // 		// We want to avoid cities being too close, and to control how far they spread.
+ // 		// We'll base this on the distance to the nearest city, not the capital.
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d251b0d49..6f67c8eb8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1005,23 +1005,23 @@ void CvCity::doTurn()
+ 										continue;
+ 									}
+ 								}
+-								// <!-- custom: simplified trebuchets like rule anyways etc -->
++								// <!-- custom: simplified trebuchets like rule -->
+ 								else
+ 								{
+ 									if (bNoExcessTrebuchetsLike)
+ 									{
+-										// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
++										// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant -->
+ 										if (bAtWar && bEnemyStrong)
+ 										{
+ 											continue; // don’t add more narrow-purpose siege when not stronger
+ 										}
+-										// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
++										// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken) but i didn't check, check if accurate. -->
+ 										if (bDanger)
+ 										{
+ 											continue; // don’t add more narrow-purpose siege when not stronger
+ 										}
+-										// <!-- custom: note: !bWarPlan cap change computed instead before the loop to avoid multi counting but anyways etc -->
+-										// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
++										// <!-- custom: note: !bWarPlan cap change computed instead before the loop to avoid multi counting. -->
++										// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units. -->
+ 										if (bEnemyStrong)
+ 										{
+ 											continue;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b39e5bdaf..7d32059f7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10360,7 +10360,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 						eImprovement, eLoopYield, kOwner.getID());
+ 			}
+ 			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
+-				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here increase the division to keep code as it is functionnally but with stricter behaviour if i am not mistaken towards forts but anyways etc -->
++				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+ 				//rValue /= 3;
+ 				rValue /= 10;
+ 			// </advc.121>
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index bbc75cc64..32ea5d9c9 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -549,7 +549,7 @@ public:
+ 	{
+ 		return m_pUnitInfo->isIgnoreBuildingDefense();
+ 	}
+-	// <!-- custom: add these so we can show TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW ingame in map view of a unit, if i am not mistaken, too anyways etc anyways etc -->
++	// <!-- custom: add these so we can show TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW ingame in map view of a unit, if i am not mistaken. -->
+ 	bool isAnyTerrainImpassable() const																	
+ 	{
+ 		return m_pUnitInfo->isAnyTerrainImpassable();
+@@ -558,7 +558,7 @@ public:
+ 	{
+ 		return m_pUnitInfo->isAnyFeatureImpassable();
+ 	}
+-	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt's explanation anyways etc -->
++	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt's explanation. -->
+ 	bool getTerrainImpassable(TerrainTypes eTerrain) const
+ 	{
+ 		return m_pUnitInfo->getTerrainImpassable(eTerrain);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e18ea825e..4b7ac3948 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3247,7 +3247,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	//if (GC.getGame().getSorenRandNum(5, "AI Worker build Fort with Priority"))
+ 	/*	advc.001: The above tests !=0. Why should a Fort be given priority
+ 		80% of the time? */
+-	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here reduce if i am not mistaken and from asking chatgpt if we could do so but anyways etc the chanc to consider forts from 20% to 10% if i am not mistaken and if i understand (tood? But anyways etc...) correctly chatgpt's explanation too, maybe this helps as well reduce fort occurence but anyways etc -->
++	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+ 	//if (SyncRandSuccess100(20))
+ 	if (SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
+ 	{
+@@ -23739,7 +23739,7 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
+ 
+ 	// Ad-hoc heuristic for Fort building:  (overlaps with AI_getPlotDefendersNeeded; fixme?)
+ 	ImprovementTypes const eImpr = GC.getInfo(eBuild).getImprovement();
+-	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
++	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see Custom Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+ 	// CvImprovementInfo const& kImpr = GC.getInfo(eImpr);
+ 	// int iDefenseValue = kImpr.getDefenseModifier();
+ 	// // The AI isn't going to station units on an island without cities
+
+diff --git a/CvGameCoreDLL/Project/Makefile.user b/CvGameCoreDLL/Project/Makefile.user
+index e28a31727..6de78b2f6 100644
+--- a/CvGameCoreDLL/Project/Makefile.user
++++ b/CvGameCoreDLL/Project/Makefile.user
+@@ -2,7 +2,7 @@ TOOLKIT=$(PROGRAMFILES)\Civ4SDK\Microsoft Visual C++ Toolkit 2003
+ PSDK=$(PROGRAMFILES)\Civ4SDK\WindowsSDK
+ CIV4_PATH=$(PROGRAMFILES)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword
+ #
+-# <!-- custom: note by chatgpt thanks to my prompt too anyways etc hopefully helpful anyways etc, also note below that Civ4Libs folder is just an example, it could be any folder name other than "Civ4Libs" and path other than program files if you prefer as long as it has the required Boost 1.32.0 and Python24 folders (and their files obviously not just empty folders i mean anyways etc anyways etc), just i wanted them to be outside of git so that it doesn't clutter and in case we do manual backups too as i do quite some times/many times anyways or not or yes anyways etc -->
++# <!-- custom: note by chatgpt thanks to my prompt too, also note below that Civ4Libs folder is just an example, it could be any folder name other than "Civ4Libs" and path other than program files if you prefer as long as it has the required Boost 1.32.0 and Python24 folders (and their files obviously not just empty folders), just i wanted them to be outside of git so that it doesn't clutter and in case we do manual backups too as i do quite some/many times. -->
+ # CIV4_LIB_INSTALL_PATH is not set here.
+ # Instead, it should be defined as a Windows environment variable.
+ # Example (permanent):
+@@ -11,6 +11,6 @@ CIV4_PATH=$(PROGRAMFILES)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ #     Value: C:\Program Files (x86)\Civ4Libs
+ # This is where Boost 1.32.0 and Python24 headers/libs must be placed.
+ #
+-# <!-- custom: note 1 also anyways etc: i have not renamed mod name to AdvCiv-SAS in compiler files and such as may cause unexpected errors and our mod is fundamentally based on advciv mod so name is close enough, but the DLL is generated based on our real source files not base advciv ones i mean, just i am careful in this case to rather not rename mod name in compiler files or and such settings at least as of now, may change this later or maybe not since runs fine and does not seem to cause issues if i am not mistaken but anyways etc -->
++# <!-- custom: note 1 also: i have not renamed mod name to AdvCiv-SAS in compiler files and such as may cause unexpected errors and our mod is fundamentally based on advciv mod so name is close enough, but the DLL is generated based on our real source files not base advciv ones i mean, just i am careful in this case to rather not rename mod name in compiler files or and such settings at least as of now, may change this later or maybe not since runs fine and does not seem to cause issues if i am not mistaken -->
+ #
+-# <!-- custom: note 2 anyways etc: unrelated but i would highly recommend after compile to delete the all the entire content in the (adjust to you mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\ folder, as if you don't, then the next compile will be a fastdep if i am not mistaken and this seems to cause weird issues ingame, see readme known issues in advciv-sas or your mod if it has this readme as well anyways etc, so by deleting the folder after compuile it will do a full compile next time not a fast one based on precompiled stuff stored from last compile if i am not mistaken and from little i know or noticed of it but anyways etc, hopefully helpful, but anyways etc. -->
++# <!-- custom: note 2: unrelated but i would highly recommend after compile to delete the all the entire content in the (adjust to you mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\ folder, as if you don't, then the next compile will be a fastdep if i am not mistaken and this seems to cause weird issues ingame, see readme known issues in advciv-sas or your mod if it has this readme as well, so by deleting the folder after compuile it will do a full compile next time not a fast one based on precompiled stuff stored from last compile if i am not mistaken. -->
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index a9dd97d3c..454f79c11 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2900,14 +2900,14 @@ void Effort::evaluate() {}
+ 
+ int Risk::preEvaluate()
+ {
+-	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly but anyways etc shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details anyways etc, also code is provided thanks to chatgpt 5, check if accurate anyways etc; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach but anyways etc, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such anyways etc -->
++	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
+ 	// if you want a fixed, super-simple “turns-to-contact” cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter” in turns; you don’t need extra code for roads.
+ 	// --- SIMPLE HARD REJECT / RPE FILTER ---
+ 
+ 	// fixed caps in *turns*; tweak to taste or move to XML
+-	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay but anyways etc) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe but anyways etc anyways etc -->
++	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
+ 	// static const int MAX_LAND_TURNS = 2;
+-	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls if i may say but anyways etc, while keeping variety enough in war outcomes with larger window but anyways etc -->
++	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
+ 	static const int MAX_LAND_TURNS = 3;
+ 	static const int MAX_SEA_TURNS  = 12;
+
+diff --git a/README.md b/README.md
+index fc6efa4ef..988b15f7f 100644
+--- a/README.md
++++ b/README.md
+@@ -4,7 +4,7 @@ This mod (AdvCiv-SAS (Simple Advanced Strategy)) ([Discussion thread here](https
+ 
+ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
+ 
+-The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers in particular, as well as AI more generally being opportunistic and efficiency driven more than anything else as much as possible. Heavy reworks were made, while otherwise staying for most in the base advciv frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia ((Requires AdvCiv-SAS 5247+) including a new search bar and keyboard arrows UP/DOWN navigation), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
++The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers in particular, as well as AI more generally being opportunistic and efficiency driven more than anything else as much as possible. Heavy reworks were made, while otherwise staying for most in the base advciv frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia ((Requires AdvCiv-SAS 5247+) including a new search bar and (Requires AdvCiv-SAS 5252+) keyboard arrows UP/DOWN navigation), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+ 
+ Content overall addition is minimal, as of now mostly in the future era, and here and there otherwise (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -478,7 +478,7 @@ it too though unless i'm mistaken)
+ - Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; for example you can use it (Q-Dir) [like this (Google Drive preview example here)](https://drive.google.com/drive/folders/1EO0AScGVXM9P0U_YGYbm7xfbVzPnxNvO?usp=sharing) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe or not or yes or other or/and not (but) anyways etc) anyways etc...)) Anyways etc...
+ - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) find all the "taois" entries(i.e. files)in the entire full civ4 folder (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1JW3IBenpJxP4ZIVrTb99huR0-Js9HPrt?usp=sharing)), very useful, thanks a lot!!! Anyways etc)
+ - CopyAsPath that i may also call for example "copy as path" or and other name or and not anyways etc, a small menu extension i made myself hehe but only from copying intructions and importing an existing .reg file from another place (from [www.winhelponline.com](www.winhelponline.com) to be exhaustive and/or accurate hehe but anyways etc), in short i only compiled existing files and instructions hehe, anyways etc, read there for details also, and is also in, anyways etc, in [copy_as_path_context_menu (github repo link)](https://github.com/wonderingabout/copy_as_path_context_menu)
+-- VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc, especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits, for example but not only but anyways etc anyways etc also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and (my) explanation of it but anyways etc ; see also another example here anyways etc [Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) which also shows how to use the civ4 BUG_Doc of which we included a copy in our mod, very useful for quick vs code results anyways etc (see link for details anyways etc ; see also [__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for other cases where we may want a manual inspect/debug if i may say and am not mistaken in suggesting this way of doing it in case there is a more efficient one but it seems to work quite well and/or is easy enough but check to be sure if there is better informaiton in other mods or forums but this should maybe help too hopefully but anyways etc)
++- VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc, especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits, for example but not only also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and (my) explanation of it but anyways etc ; see also another example here anyways etc [Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod-anyways-etc) which also shows how to use the civ4 BUG_Doc of which we included a copy in our mod, very useful for quick vs code results anyways etc (see link for details anyways etc ; see also [__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for other cases where we may want a manual inspect/debug if i may say and am not mistaken in suggesting this way of doing it in case there is a more efficient one but it seems to work quite well and/or is easy enough but check to be sure if there is better informaiton in other mods or forums but this should maybe help too hopefully but anyways etc)
+ - Visual C++ 2010 Express, to compile the DLL i want/require it after some mod changes i made in .cpp or such files but anyways etc, todo write a tutorial (may or not do so not guaranteed ideally yes but may or not but anyways etc) but anyways etc (is free, just requires after trial a free registration if i am not mistaken todo)
+ - Git Bash for Windows
+ - GitHub Website
+@@ -488,10 +488,10 @@ it too though unless i'm mistaken)
+ - removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
+ - [Game Font Editor (v0.6) fir Civ4](https://forums.civfanatics.com/resources/game-font-editor-v0-6-for-civ-4.17276/), which is an amazing software (as recommended by gemini 3 pro thanks a lot but anyways etc.), tremendously better than dxtbmp that was shit xd real bad, now it's so easy and effective and reliable with this thanks but anyways etc. Used to edit .tga files in [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/).
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+-- PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if needed, note 2: be careful if unpacking all fpks in same folder may create errors/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
++- PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if needed, note 2: be careful if unpacking all fpks in same folder may create errors/issues/missing files, see link above in this paragraph/bullet point i mean for details)
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or not or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism.
+ - TortoiseSVN (to download the SVN version of ri mod (to get the art assets much more easily without needing to go thorugh fpks painfully anyways etc))
+-- [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems but anyways etc anyways etc) for example('s url anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot, anyways etc, thanks, i like it very much, and still love vs code, as in continuously hehe at least as of now, as for future whatever happens or maybe not or yes but anyways etc anyways etc, in all cases anyways etc, for diffchecker website to go back to it more specifically anyways etc anyways etc, thanks,
++- [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems) for example's url](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot
+ - Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
+ - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: [translation of "the people of benin" with Quillbot](https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin) (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
+ - [pixabay website](https://pixabay.com/) for example for royalty-free music as recommended/suggested/mentionned anyways etc to me by chatgpt for example to find leader ewuare's music if not on youtube anyways etc
+@@ -517,7 +517,7 @@ Else or additionally, you may find more help asking your question(s) directly on
+ ## Credits
+ 
+ - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times. There are a lot of things i wanted to improve in base advciv, but i could only make so because the base, despite its flaws to me here and there, was mostly overall very good to start with thanks a lot.
+-- Middle-earth (that i may call M-E sometimes maybe or not anyways etc): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me (but) anyways etc anyways etc, thanks a lot, etc anyways anyways etc, thanks,
++- Middle-earth (that i may call M-E sometimes maybe or not anyways etc): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me, thanks a lot,
+ - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot! ; update: i must revise my judgment/opinion (rereading myself after writing next part of the sentence here anyways etc, their content is even more amazing for the parts i need or among the ones i looked at i mean anyways etc!!! Thanks a lot!!! As explained after brackets anyways etc... anyways etc!!! Anyways etc :) anyways etc...), their FPKs are incredibly tidy and nicely ordered and efficient and work at first try!!! For example i could get the camel_rider's art assets all very easily with one extract with dragon unpacker and it just worked :) works-functions anyways etc :) Also no hardcoded paths that i didn't bother sadly or not updating fixing so far, just put assets and it works, so nice, thanks a lot!!!
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+ too too, thanks,
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_log_anonymized_email.txt b/_0_Common_Docs/git_log_anonymized_email.txt reason=known-generated/noisy-history changedLines=51035 bytes=2653408
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt b/_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt reason=known-generated/noisy-history changedLines=11668 bytes=489196
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt b/_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt reason=known-generated/noisy-history changedLines=29929 bytes=1309766
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index bf4916b34..be907b070 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -31,7 +31,7 @@ Instead of:
+ &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)  
+ &emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)  
+ &emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)  
+-&emsp;[full git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#full-git-log-with-anonymized-email-in-a-txt)  
++&emsp;[git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#git-log-with-anonymized-email-in-a-txt)  
+ &emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)  
+ &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
+ &emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
+@@ -157,19 +157,23 @@ Personally i do so in Notepad++ where i also store notes of ideas of things to a
+ 
+ I started this habit somewhere in this advciv-sas mod development i mean but is very helpful anyways etc, so adding mention of it if helps but anyways etc anyways etc anyways etc.
+ 
+-### full git log with anonymized email in a .txt
++### git log with anonymized email in a .txt
+ 
+-Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
++It can be useful to keep a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
+ 
+-You can create such an exhaustive git log automatically in one command, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
++To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user):
+ 
+-```cmd
+-cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
+-```
++```shell
++# 1. Set your commit hashes here
++start=8d6bf6e0f61004e415aa3584e906fdb77275c1f8 # old (excluded): e.g. AdCiv-SAS 4986.
++end=1b9d2c8d9eee565d2f5d7b5daba48514cb823234   # last (included), e.g.: AdCiv-SAS 5256
+ 
+-For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder for example [/_0_Common_Docs/git_log_anonymized_email.txt](/_0_Common_Docs/git_log_anonymized_email.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
++# 2. Run the command (uses the variables above)
++cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
++git log "$start".."$end" --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
++```
+ 
+-note: it should be possible to create erase in one command the old git log but for now at least anyways etc i prefer to manually copy paste, even though risk is low thanks to git commit versioning and having a github backup or such other files or not anyways etc, still for now doing as such but this command may be optimized/enhanced perhaps rather by having it copy it there directly and overwrite old file, which should be quite safe considering it is a rarely used and not actively written on file only a log if i may say as chatgpt would recommend to me about other topics or files when evaluating safety of a change or/and discuss it suggest it with me in this case i mean but anyways etc if i may say or talking about it with it but anyways etc.
++For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
+ 
+ ### how to create/edit git tags at specific commits with a tag message
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index a9f52dca1..088c6eef3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -135,7 +135,7 @@ For example, we store almost all data as cached precomputed tuples (in [SevoPedi
+ 
+ The little extra bonus is for example at least is the one that comes to my mind only anyways etc we load the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly load the precomputed cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design more plasant.
+ 
+-Using a function call gives us also more control than hardcoded code in sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now as well anyways etc anyways etc. This is also very nice because now in VS Code in sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the sevopedia leader remaining code we want so i hadn't planend it as such but is very nice side effect if i may say but or not but or yes but or etc but anyways etc anyways etc anyways etc.
++Using a function call gives us also more control than hardcoded code in sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now. This is also very nice because now in VS Code in sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the sevopedia leader remaining code we want so i hadn't planend it as such but is very nice side effect.
+ 
+ Also, loading the precache rather than pre-caching and recomputing at each civ4 game launch, has the advantage for players that they don't need to always recompute these values that do not change on their end, and rarely so even for modders, every time they start civ4. Plus, as the AI Personality Panel is purely only a UI feature, no need to spend so much computation on it, only fetch the precomputed result directly rather. Also, this should scale better computationally so it is cheaper (calculate the max among more leaders or with more xml attributes would be more than linearily more expensive if i'm not mistaken, vs just fetching the precomputed value for say Leader number 150 in a heavy mod if not more). So the burden to update it is on the modder.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+index 82021829b..6151af89d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+@@ -2,7 +2,7 @@
+ 
+ As this will be expanded later if it is at all but anyways etc., moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hopefully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
+ 
+-I think some unit names are very lousy, for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. But, if want to do it (more maybe at least if i may say anyways etc) properly, i have some cool unit names in mind. Not sure it would be implemented, but ideally or/and maybe, here are some ideas i have (non-exhaustive or maybe is or not or yes or etc anyways etc but to keep them in mind in this case anyways etc anyways etc).
++I think some unit names are very lousy, for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. But, if want to do it (more maybe at least if i may say anyways etc) properly, i have some cool unit names in mind. Not sure it would be implemented, but ideally or/and maybe, here are some ideas i have.
+ 
+ ## Menu
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md
+index eb219e227..9536a147e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md
+@@ -20,11 +20,11 @@ If it helps to transition between these mods or for extra information/reference
+ 
+ Note that these are not exhaustive as would be too tedious, in particular and not only, they don't list balance changes, and most and/or still relevant ones as of now can be viewed in the Sevopedia entries automatically. But instead, they list things such as how in AdvCiv (and maybe in K-Mod too i didn't check or don't remember when this rule was added for example is just to illustrate if i may say i mean anyways etc), you need for example to have cities revealed with a scout or any unit, or have the map view of this city otherwise (world map trade (, etc ?)), else even if these cities are connected by land roads or naval road/path, they would still not have any trade routes until you have view of these cities.
+ 
+-I hope having a list of such changes may help players, and perhaps me while compliling, as in gathering such a list of elements, understand and perhaps enjoy the game better maybe, but as for all players maybe rather, hopefully it would help transition to new mods or give extra quick or not information for reference maybe too in particular for AdvCiv-SAS but anyways etc anyways etc anyways etc.
++I hope having a list of such changes may help players, and perhaps me while compliling, as in gathering such a list of elements, understand and perhaps enjoy the game better maybe, but as for all players maybe rather, hopefully it would help transition to new mods or give extra quick or not information for reference maybe too in particular for AdvCiv-SAS.
+ 
+ ## Changes from one mod to another sevopedia items/pages and mod history
+ 
+-Note that i also added a K-Mod to (base) AdvCiv changes doc, but these are not exhaustive as well, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual or/and more generally the [_0_Common_Docs/](/_0_Common_Docs/) folder that has some overlap with our mod in particular (for example at the git log thing that has a few advciv-sas specific entries as well as sharing the past mod entries like of base advciv, k-mod, etc if any more anyways etc), please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable for your need, or other related source(s) rather or maybe or not but anyways etc anyways etc...
++Note that i also added a K-Mod to (base) AdvCiv changes doc, but these are not exhaustive as well, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual or/and more generally the [_0_Common_Docs/](/_0_Common_Docs/) folder that has some overlap with our mod in particular, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable. Note 2: i also added AdvCiv-SAS-specific docs at [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+ 
+ <img src="../Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+index 111e3b462..8e8973777 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md
+@@ -1,6 +1,6 @@
+ # More exhaustive military tree
+ 
+-If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing) anyways etc.
++If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing).
+ 
+ ## Menu
+ 
+@@ -11,23 +11,21 @@ Here you go:
+ 
+ ## Military tree as of now
+ 
+-As said in main readme.md in relevant section there as well anyways etc, as of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then anyways etc)
++As said in main readme.md in relevant section there as well, as of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then)
+ 
+ <img src="../Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
+ <img src="../Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
+ 
+-Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now at least if not always or not anyways etc))), please view docs, in particular [README_Custom_Main_Changes_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details) or/and sevopedia ingame or/and other relevant places if any more are there or somewhere or maybe not but hopefully helpful i mean anyways etc anyways etc anyways etc.
++Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now))), please view docs, in particular [README_Custom_Main_Changes_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details) or/and sevopedia ingame or/and other relevant places if any more are there.
+ 
+ ## Info about a more advanced prototype military tree
+ 
+-Unlikely to be implemented as such because actually too tedious not only in terms of implementing it i mean but also mostly in terms of gameplay, it is most likely better as in in terms of gameplay and AI efficiency and reliability and balance (since AI upgrade units cheaper even though it can be changed anyways etc), to have a clean and simple straighforward military tree.
++Unlikely to be implemented as such because actually too tedious not only in terms of implementing it i mean but also mostly in terms of gameplay, it is most likely better as in in terms of gameplay and AI efficiency and reliability and balance (since AI upgrade units cheaper even though it can be changed), to have a clean and simple straighforward military tree.
+ 
+-Still i had made this one before, and have also found some info like which buttons (image of the unit ingame (not its animation but the sort of icon even though icons in civ4 are something different i mean (the smaller textual images anyways etc))), so here is the military tree that was originally planned in AdvCiv-SAS. While making it, i had tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay diversity.
++Still i had made this one before, and have also found some info like which buttons (image of the unit ingame (not its animation but the sort of icon even though icons in civ4 are something different i mean (the smaller textual images))), so here is the military tree that was originally planned in AdvCiv-SAS. While making it, i had tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay diversity.
+ 
+ ![0.43 military tree_modified.png](https://drive.google.com/thumbnail?id=1jewdORGIHYA6--M8_y_1DpAt-agf9n0l&sz=w2000)
+ 
+-Drawbacks of not implementing it is some inconsistencies like the new advciv-sas i mean immortal (imported from other mods but implemented in our own way in advciv-sas and unlike in base advciv and civ4 i mean anyways etc i mean too anyways etc anyways etc anyways etc) having a spear despite being a swordsman, because there are no classical/iron age spearmen, ideally something i would change but military upgrade costs would skyrocket xd if i may say even though still old era but for all eras too anyways etc, plus i am not sure such an exhaustive design is better as in more enjoyable and or relevant in terms of gameplay, especially considering how fast the tech tree moves, so units would change too often, most likely better or/and how i'd want it in base advciv/civ4, or something closer to it anyways etc.
++Drawbacks of not implementing it is some inconsistencies like the new advciv-sas i mean immortal (imported from other mods but implemented in our own way in advciv-sas and unlike in base advciv and civ4) having a spear despite being a swordsman, because there are no classical/iron age spearmen, ideally something i would change but military upgrade costs would skyrocket xd if i may say even though still old era but for all eras too, plus i am not sure such an exhaustive design is better as in more enjoyable and or relevant in terms of gameplay, especially considering how fast the tech tree moves, so units would change too often, most likely better or/and how i'd want it in base advciv/civ4, or something closer to it.
+ 
+-But we did some additions like camel units, bow combat types, maybe will add more or quite a lot more units or maybe not not guaranteed, may or may not anyways etc.
+-
+-The info is there if helpful anyways etc anyways etc anyways etc.
++But we did some additions like camel units, bow combat types, maybe will add more or quite a lot more units or maybe not.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 2b920c406..38a72487c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -45,7 +45,7 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
+ 
+ - 1st commit: It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: [commit/6c67df16f99479500a820d34dddd4f4fe569bc8e](https://github.com/wonderingabout/AdvCiv-SAS/commit/6c67df16f99479500a820d34dddd4f4fe569bc8e).
+ - 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: [commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17](https://github.com/wonderingabout/AdvCiv-SAS/commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17).
+-- 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks []().
++- 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks [commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234](https://github.com/wonderingabout/AdvCiv-SAS/commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234).
+ 
+ See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-4986.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-4986.txt reason=known-generated/noisy-history changedLines=7612 bytes=627570
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_004_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_004_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=2346 bytes=248177
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index d1c1d254d..d52f75216 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -118,7 +118,7 @@ LEADER_TO_INSPECT_IN_DEBUG_OUTPUT = "LEADER_CATHERINE"
+ # --- Mappings ---
+ 
+ # <!-- custom: match sevopedia leader gc getter naming for consistency with key names we use in sevopedia leader, for example rename "iMaxWarRand" to "getMaxWarRand".
+-# The generate leaders_data.py is not used (anymore) as an XML fetching tool ingame at all, but (now anyways etc) only as an external to civ4 leader info xml parsing tool, so doing this key name renaming in generate_leaders_data.py is not strictly needed, but it may be clearer to use same key names as in sevopedia leader code and also easier if we were to handle these in other ways in the future maybe. See also sevopedia leader py file's code for details and possible explanations it has of why we name keys with getters. In short as of now it is because we summon the field with gc getter name call, however later no need to rename getter so use getter as a key name for example LEADERS_INFO_CACHED["getMaxWarRand"] (unrelated to generate_leaders_data.py as we don't have at all a LEADERS_INFO_CACHED in generate_leaders_data.py but it is to explain why we rename them as such anyways etc) even though it is not a method any more and cannot be called like a function/method, just a key name like LEADERS_INFO_CACHED["iFlavorMilitary"] would be. We chose in AdvCiv-SAS at least anyways etc to rename the fields we parse ingame (not related to this script but for consistency using same key naming as in sevopedia leader, also in this script key names anyways etc) as "iFieldName" vs "getFieldName" for the generic ones that we display that use a gc getter name without additional parsing (for example Flavors are nested so even though they use a quite straightforward gc getter, we parse them as "i" key name prefix, similar principle/concept/idea for contact probs, refuse atittude thresholds and others if any anyways etc anyways etc, hopefully helpful info anyways etc) -->
++# The generate leaders_data.py is not used (anymore) as an XML fetching tool ingame at all, but (now anyways etc) only as an external to civ4 leader info xml parsing tool, so doing this key name renaming in generate_leaders_data.py is not strictly needed, but it may be clearer to use same key names as in sevopedia leader code and also easier if we were to handle these in other ways in the future maybe. See also sevopedia leader py file's code for details and possible explanations it has of why we name keys with getters. In short as of now it is because we summon the field with gc getter name call, however later no need to rename getter so use getter as a key name for example LEADERS_INFO_CACHED["getMaxWarRand"] (unrelated to generate_leaders_data.py as we don't have at all a LEADERS_INFO_CACHED in generate_leaders_data.py but it is to explain why we rename them as such anyways etc) even though it is not a method any more and cannot be called like a function/method, just a key name like LEADERS_INFO_CACHED["iFlavorMilitary"] would be. We chose in AdvCiv-SAS at least anyways etc to rename the fields we parse ingame (not related to this script but for consistency using same key naming as in sevopedia leader, also in this script key names anyways etc) as "iFieldName" vs "getFieldName" for the generic ones that we display that use a gc getter name without additional parsing (for example Flavors are nested so even though they use a quite straightforward gc getter, we parse them as "i" key name prefix, similar principle/concept/idea for contact probs, refuse atittude thresholds and others if any. -->
+ # <!-- custom: note: iLoveOfPeace not here since not used in AdvCiv hence not in AdvCiv-SAS too anyways etc ; similarly or/and also as well, fields we don't use or parse in a specific way or at all in sevopedia leader keep their generic XML parsed tag name in generate_leaders_data.py, even though we could rename them if we want since this script is not related/does not interact to the AI personality panel of/in sevopedia leader, but doing so for consistency of naming hopefully helpful or not or yes or etc or and other or and not anyways etc -->
+ GENERIC_RENAMED_FIELDS = (
+ 	"iWonderConstructRand",
+@@ -903,7 +903,7 @@ def flatten_all_memories(leaders_data, is_positive, is_affection):
+ 		aggregated_field_name_3 = f"iAggregated{positive_negative}Memory{short_name_3}{affection_resentment}"
+ 		aggregated_raw_field_name_3 = f"iAggregatedRaw{positive_negative}Memory{short_name_3}{affection_resentment}"
+ 
+-		# <!-- custom: note: is not a mistake, (re)access memory_min_max_2 (defined at pass _2) anyways etc in this case i mean at least anyways etc but anyways etc anyways etc -->
++		# <!-- custom: note: is not a mistake, reaccess memory_min_max_2 (defined at pass _2). -->
+ 		min_att_3, max_att_3, min_dec_3, max_dec_3 = memory_min_max_2[mem_type_3]
+ 
+ 		for leader_type_3, leader_data_3 in leaders_data.items():
+
+diff --git a/scan_xml_duplicates-3.3.py b/scan_xml_duplicates-3.3.py
+index fecf74781..fcc4bbd88 100644
+--- a/scan_xml_duplicates-3.3.py
++++ b/scan_xml_duplicates-3.3.py
+@@ -1,4 +1,4 @@
+-# --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ (in more detail or even broadly maybe but would like to know maybe anyways etc anyways etc)) so hopefully fine this way and my cool short description anyways etc (htat maybe also adds the header as intended anyways etc --> ---
++# --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ --> ---
+ # This script is part of the AdvCiv-SAS mod project.
+ # (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=21 omittedFiles=5 embeddedPatchBytes=87190

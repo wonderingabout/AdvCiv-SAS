@@ -1,0 +1,1140 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1490
+# Commit: 3d7b629516be3367d6b21038d4f8b4b117573a01
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ce9b54a2373b0ce63c4c0bbd4147669465d59de5
+# Title: Improved assertions in CvXMLLoadUtility
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+61	59	CvGameCoreDLL/CvInfos.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+6	11	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CvXMLLoadUtility.cpp
+15	3	CvGameCoreDLL/CvXMLLoadUtility.h
+194	214	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index bfacf0310..4ce9a2d2c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -46,7 +46,7 @@ bool bernoulliSuccess(double pr, char const* pszLog, bool bAsync, int iData1, in
+ 		return true;
+ 	if(chancePerMyriad <= 0)
+ 		return false;
+-	if(strlen(pszLog) <= 0)
++	if(pszLog != NULL && strlen(pszLog) <= 0)
+ 		pszLog = "bs";
+ 	if(bAsync)
+ 		return (GC.getASyncRand().get(10000, pszLog) < chancePerMyriad);
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index bdbd76bbe..4fc8b3b5d 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -195,25 +195,25 @@ bool CvInfoBase::read(CvXMLLoadUtility* pXML)
+ 	pXML->MapChildren();	// try to hash children for fast lookup by name
+ 
+ 	// GRAPHICAL ONLY
+-	pXML->GetChildXmlValByName(&m_bGraphicalOnly, "bGraphicalOnly");
++	pXML->GetChildXmlValByName(&m_bGraphicalOnly, "bGraphicalOnly", /* advc.006b: */ false);
+ 
+ 	// TYPE
+-	pXML->GetChildXmlValByName(m_szType, "Type");
++	pXML->GetChildXmlValByName(m_szType, "Type", /* advc.006b: */ "");
+ 
+ 	// DESCRIPTION
+-	pXML->GetChildXmlValByName(m_szTextKey, "Description");
++	pXML->GetChildXmlValByName(m_szTextKey, "Description", /* advc.006b: */ L"");
+ 
+ 	// CIVILOPEDIA
+-	pXML->GetChildXmlValByName(m_szCivilopediaKey, "Civilopedia");
++	pXML->GetChildXmlValByName(m_szCivilopediaKey, "Civilopedia", /* advc.006b: */ L"");
+ 
+ 	// HELP
+-	pXML->GetChildXmlValByName(m_szHelpKey, "Help");
++	pXML->GetChildXmlValByName(m_szHelpKey, "Help", /* advc.006b: */ L"");
+ 
+ 	// STRATEGY
+-	pXML->GetChildXmlValByName(m_szStrategyKey, "Strategy");
++	pXML->GetChildXmlValByName(m_szStrategyKey, "Strategy", /* advc.006b: */ L"");
+ 
+ 	// BUTTON
+-	pXML->GetChildXmlValByName(m_szButton, "Button");
++	pXML->GetChildXmlValByName(m_szButton, "Button", /* advc.006b: */ "");
+ 
+ 	return true;
+ }
+@@ -298,7 +298,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 	}
+ 
+-	if (pXML->GetChildXmlValByName(szTextVal, "HotKey"))
++	if (pXML->GetChildXmlValByName(szTextVal, "HotKey", /* advc.006b: */ ""))
+ 	{
+ 		setHotKey(szTextVal);
+ 	}
+@@ -308,8 +308,8 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	}
+ 	iVal = pXML->GetHotKeyInt(szTextVal);
+ 	setHotKeyVal(iVal);
+-	// advc.006b: Default param added
+-	if (pXML->GetChildXmlValByName(&iVal, "iHotKeyPriority", -1))
++
++	if (pXML->GetChildXmlValByName(&iVal, "iHotKeyPriority", /* advc.006b: */ -1))
+ 	{
+ 		setHotKeyPriority(iVal);
+ 	}
+@@ -318,7 +318,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 		setHotKeyPriority(-1);
+ 	}
+ 
+-	if (pXML->GetChildXmlValByName(szTextVal, "HotKeyAlt"))
++	if (pXML->GetChildXmlValByName(szTextVal, "HotKeyAlt", /* advc.006b: */ ""))
+ 	{
+ 		iVal = pXML->GetHotKeyInt(szTextVal);
+ 	}
+@@ -327,8 +327,8 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 		iVal = pXML->GetHotKeyInt("");
+ 	}
+ 	setHotKeyValAlt(iVal);
+-	// advc.006b: Default param added
+-	if (pXML->GetChildXmlValByName(&iVal, "iHotKeyPriorityAlt", -1))
++
++	if (pXML->GetChildXmlValByName(&iVal, "iHotKeyPriorityAlt", /* advc.006b: */ -1))
+ 	{
+ 		setHotKeyPriorityAlt(iVal);
+ 	}
+@@ -337,7 +337,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 		setHotKeyPriorityAlt(-1);
+ 	}
+ 
+-	if (pXML->GetChildXmlValByName(&bVal, "bAltDown"))
++	if (pXML->GetChildXmlValByName(&bVal, "bAltDown", /* advc.006b: */ false))
+ 	{
+ 		setAltDown(bVal);
+ 	}
+@@ -345,7 +345,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		setAltDown(false);
+ 	}
+-	if (pXML->GetChildXmlValByName(&bVal, "bShiftDown"))
++	if (pXML->GetChildXmlValByName(&bVal, "bShiftDown", /* advc.006b: */ false))
+ 	{
+ 		setShiftDown(bVal);
+ 	}
+@@ -353,7 +353,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		setShiftDown(false);
+ 	}
+-	if (pXML->GetChildXmlValByName(&bVal, "bCtrlDown"))
++	if (pXML->GetChildXmlValByName(&bVal, "bCtrlDown", /* advc.006b: */ false))
+ 	{
+ 		setCtrlDown(bVal);
+ 	}
+@@ -362,7 +362,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 		setCtrlDown(false);
+ 	}
+ 
+-	if (pXML->GetChildXmlValByName(&bVal, "bAltDownAlt"))
++	if (pXML->GetChildXmlValByName(&bVal, "bAltDownAlt", /* advc.006b: */ false))
+ 	{
+ 		setAltDownAlt(bVal);
+ 	}
+@@ -370,7 +370,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		setAltDownAlt(false);
+ 	}
+-	if (pXML->GetChildXmlValByName(&bVal, "bShiftDownAlt"))
++	if (pXML->GetChildXmlValByName(&bVal, "bShiftDownAlt", /* advc.006b: */ false))
+ 	{
+ 		setShiftDownAlt(bVal);
+ 	}
+@@ -378,7 +378,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		setShiftDownAlt(false);
+ 	}
+-	if (pXML->GetChildXmlValByName(&bVal, "bCtrlDownAlt"))
++	if (pXML->GetChildXmlValByName(&bVal, "bCtrlDownAlt", /* advc.006b: */ false))
+ 	{
+ 		setCtrlDownAlt(bVal);
+ 	}
+@@ -386,8 +386,8 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		setCtrlDownAlt(false);
+ 	}
+-	// advc.006b: Default param added
+-	if (pXML->GetChildXmlValByName(&iVal, "iOrderPriority", 0))
++
++	if (pXML->GetChildXmlValByName(&iVal, "iOrderPriority", /* advc.006b: */ 0))
+ 	{
+ 		setOrderPriority(iVal);
+ 	}
+@@ -2361,9 +2361,9 @@ bool CvMissionInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bSound, "bSound");
+ 	pXML->GetChildXmlValByName(&m_bTarget, "bTarget");
+ 	pXML->GetChildXmlValByName(&m_bBuild, "bBuild");
+-	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
++	pXML->GetChildXmlValByName(&m_bVisible, "bVisible", /* advc.006b: */ false);
+ 
+-	if ( pXML->GetChildXmlValByName(szTmp, "EntityEventType") )
++	if ( pXML->GetChildXmlValByName(szTmp, "EntityEventType", /* advc.006b: */ "") )
+ 	{
+ 		m_eEntityEvent = (EntityEventTypes)pXML->FindInInfoClass(szTmp);
+ 	}
+@@ -2474,14 +2474,14 @@ bool CvCommandInfo::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 	}
+ 
+-	if (pXML->GetChildXmlValByName(szTextVal, "Automate"))
++	if (pXML->GetChildXmlValByName(szTextVal, "Automate", /* advc.006b: */ ""))
+ 	{		
+ 		setAutomate(GC.getTypesEnum(szTextVal));
+ 	}
+ 
+-	pXML->GetChildXmlValByName(&m_bConfirmCommand, "bConfirmCommand");
+-	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
+-	pXML->GetChildXmlValByName(&m_bAll, "bAll");
++	pXML->GetChildXmlValByName(&m_bConfirmCommand, "bConfirmCommand", /* advc.006b: */ false);
++	pXML->GetChildXmlValByName(&m_bVisible, "bVisible", /* advc.006b: */ false);
++	pXML->GetChildXmlValByName(&m_bAll, "bAll", /* advc.006b: */ false);
+ 
+ 	return true;
+ }
+@@ -2560,7 +2560,7 @@ bool CvAutomateInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(szTextVal, "Automate");
+ 	setAutomate(GC.getTypesEnum(szTextVal));
+ 
+-	pXML->GetChildXmlValByName(&m_bConfirmCommand, "bConfirmCommand");
++	pXML->GetChildXmlValByName(&m_bConfirmCommand, "bConfirmCommand", /* advc.006b: */ false);
+ 	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
+ 
+ 	return true;
+@@ -5097,6 +5097,8 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		pXML->GetChildXmlValByName( &m_iGroupSize, "iGroupSize");
+ 		m_iGroupDefinitions = iIndexVal = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "UnitMeshGroup");
++		// advc.006b: GetChildXmlValByName can't handle comments. Assert added to warn about that.
++		FAssertMsg(m_iGroupDefinitions > 0, "XML comment inside UnitMeshGroups?");
+ 		m_piUnitGroupRequired = new int[ iIndexVal ];
+ 		pXML->GetChildXmlValByName( &m_iUnitMeleeWaveSize, "iMeleeWaveSize" );
+ 		pXML->GetChildXmlValByName( &m_iUnitRangedWaveSize, "iRangedWaveSize" );
+@@ -5113,9 +5115,9 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
+ 				pXML->GetChildXmlValByName( &m_piUnitGroupRequired[k], "iRequired");
+ 				pXML->GetChildXmlValByName(szTextVal, "EarlyArtDefineTag");
+ 				setEarlyArtDefineTag(k, szTextVal);
+-				pXML->GetChildXmlValByName(szTextVal, "LateArtDefineTag");
++				pXML->GetChildXmlValByName(szTextVal, "LateArtDefineTag", /* advc.006b: */ "");
+ 				setLateArtDefineTag(k, szTextVal);
+-				pXML->GetChildXmlValByName(szTextVal, "MiddleArtDefineTag");
++				pXML->GetChildXmlValByName(szTextVal, "MiddleArtDefineTag", /* advc.006b: */ "");
+ 				setMiddleArtDefineTag(k, szTextVal);
+ 				gDLL->getXMLIFace()->NextSibling(pXML->GetXML());
+ 			}
+@@ -6452,7 +6454,8 @@ bool CvDiplomacyInfo::read(CvXMLLoadUtility* pXML)
+ 	if ( gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"Responses") )
+ 	{
+ 		int iNewResponses = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "Response");
+-
++		// advc.006b: GetChildXmlValByName can't handle comments
++		FAssertMsg(iNewResponses > 0, "XML comment inside Responses?");
+ 		gDLL->getXMLIFace()->SetToChild(pXML->GetXML());
+ 
+ 		for (i = 0; i < iNewResponses; i++)
+@@ -9765,7 +9768,8 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(szTextVal, "ArtStyleType");
+ 	m_iArtStyleType = GC.getTypesEnum(szTextVal);
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "UnitArtStyleType");
++	pXML->GetChildXmlValByName(szTextVal, "UnitArtStyleType",
++			""); // advc.006b: Barbarians and Minor Civs don't have one
+ 	m_iUnitArtStyleType = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "CivilizationSelectionSound");
+@@ -12542,7 +12546,7 @@ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript");
++	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
+ 	if ( szTextVal.GetLength() > 0 )
+ 		m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex( szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE );
+ 	else
+@@ -13412,15 +13416,10 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	pXML->SetVariableListTagPairForAudioScripts(&m_pi3DAudioScriptFootstepIndex, "FootstepSounds", GC.getFootstepAudioTypes(), GC.getNumFootstepAudioTypes());
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript");
++	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
+ 	if ( szTextVal.GetLength() > 0 )
+-	{
+ 		m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex( szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE );
+-	}
+-	else
+-	{
+-		m_iWorldSoundscapeScriptId = -1;
+-	}
++	else m_iWorldSoundscapeScriptId = -1;
+ 
+ 	pXML->GetChildXmlValByName(m_szEffectType, "EffectType");
+ 	pXML->GetChildXmlValByName(&m_iEffectProbability, "iEffectProbability");
+@@ -13878,7 +13877,7 @@ bool CvTerrainInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	pXML->SetVariableListTagPairForAudioScripts(&m_pi3DAudioScriptFootstepIndex, "FootstepSounds", GC.getFootstepAudioTypes(), GC.getNumFootstepAudioTypes());
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript");
++	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
+ 	if ( szTextVal.GetLength() > 0 )
+ 		m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex( szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE );
+ 	else
+@@ -14058,7 +14057,8 @@ bool CvAdvisorInfo::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 	}
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "Texture");
++	pXML->GetChildXmlValByName(szTextVal, "Texture",
++			""); // advc.006b: Actually, none of them has a texture.
+ 	setTexture( szTextVal );
+ 
+ 	gDLL->getXMLIFace()->SetToChild( pXML->GetXML() );
+@@ -17539,7 +17539,7 @@ bool CvAnimationPathInfo::read(CvXMLLoadUtility* pXML)
+ 	gDLL->getXMLIFace()->NextSibling(pXML->GetXML());
+ 	do
+ 	{
+-		if ( pXML->GetChildXmlValByName( szTempString, _T("Category") ))
++		if ( pXML->GetChildXmlValByName( szTempString, _T("Category"), /* advc.006b: */ ""))
+ 		{
+ 			iCurrentCategory = pXML->FindInInfoClass( szTempString);
+ 			fParameter = 0.0f;
+@@ -17776,7 +17776,7 @@ bool CvAssetInfoBase::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 	}
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "Path");
++	pXML->GetChildXmlValByName(szTextVal, "Path", /* advc.006b: */ "");
+ 	setPath(szTextVal);
+ 
+ 	return true;	
+@@ -17814,10 +17814,10 @@ bool CvArtInfoAsset::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 	}
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "NIF");
++	pXML->GetChildXmlValByName(szTextVal, "NIF", /* advc.006b: */ "");
+ 	setNIF(szTextVal);
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "KFM");
++	pXML->GetChildXmlValByName(szTextVal, "KFM", /* advc.006b: */ "");
+ 	setKFM(szTextVal);
+ 
+ 
+@@ -17836,7 +17836,7 @@ bool CvArtInfoBonus::read(CvXMLLoadUtility* pXML)
+ 	}
+ 
+ 	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "SHADERNIF");
++	pXML->GetChildXmlValByName(szTextVal, "SHADERNIF", /* advc.006b: */ "");
+ 	setShaderNIF(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(&m_iFontButtonIndex, "FontButtonIndex");
+@@ -18023,14 +18023,14 @@ bool CvArtInfoUnit::read(CvXMLLoadUtility* pXML)
+ 
+ 	CvString szTextVal;
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "ActionSound");
++	pXML->GetChildXmlValByName(szTextVal, "ActionSound", /* advc.006b: */ "");
+ 	m_iActionSoundScriptId = (szTextVal.GetLength() > 0) ? gDLL->getAudioTagIndex( szTextVal.GetCString(), AUDIOTAG_3DSCRIPT ) : -1;
+-	pXML->GetChildXmlValByName(szTextVal, "SelectionSound");
++	pXML->GetChildXmlValByName(szTextVal, "SelectionSound", /* advc.006b: */ "");
+ 	m_iSelectionSoundScriptId = (szTextVal.GetLength() > 0) ? gDLL->getAudioTagIndex( szTextVal.GetCString(), AUDIOTAG_3DSCRIPT ) : -1;
+-	pXML->GetChildXmlValByName(szTextVal, "PatrolSound");
++	pXML->GetChildXmlValByName(szTextVal, "PatrolSound", /* advc.006b: */ "");
+ 	m_iPatrolSoundTag = (szTextVal.GetLength() > 0) ? gDLL->getAudioTagIndex( szTextVal.GetCString(), AUDIOTAG_3DSCRIPT ) : -1;
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "TrainSound");
++	pXML->GetChildXmlValByName(szTextVal, "TrainSound", /* advc.006b: */ "");
+ 	setTrainSound(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(&m_bActAsRanged, "bActAsRanged" );
+@@ -18042,7 +18042,7 @@ bool CvArtInfoUnit::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_fAngleInterRate, "fAngleInterpRate", FLT_MAX );
+ 	pXML->GetChildXmlValByName(&m_fBankRate, "fBankRate", 0 );
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "SHADERNIF");
++	pXML->GetChildXmlValByName(szTextVal, "SHADERNIF", /* advc.006b: */ "");
+ 	setShaderNIF(szTextVal);
+ 
+ 	if ( gDLL->getXMLIFace()->SetToChildByTagName( pXML->GetXML(), "ShadowDef" ))
+@@ -18266,7 +18266,7 @@ bool CvArtInfoImprovement::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bExtraAnimations, "bExtraAnimations");
+ 
+ 	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "SHADERNIF");
++	pXML->GetChildXmlValByName(szTextVal, "SHADERNIF", /* advc.006b: */ "");
+ 	setShaderNIF(szTextVal);
+ 
+ 	return true;
+@@ -19507,7 +19507,7 @@ bool CvGameText::read(CvXMLLoadUtility* pXML, const std::string& language_name)
+ 	if (bValid)
+ 	{
+ 		// TEXT
+-		if (pXML->GetChildXmlValByName(wszTextVal, "Text"))
++		if (pXML->GetChildXmlValByName(wszTextVal, "Text", /* advc.006b: */ L""))
+ 		{
+ 			setText(wszTextVal);
+ 		}
+@@ -19518,13 +19518,13 @@ bool CvGameText::read(CvXMLLoadUtility* pXML, const std::string& language_name)
+ 		}
+ 
+ 		// GENDER
+-		if (pXML->GetChildXmlValByName(wszTextVal, "Gender"))
++		if (pXML->GetChildXmlValByName(wszTextVal, "Gender", /* advc.006b: */ L""))
+ 		{
+ 			setGender(wszTextVal);
+ 		}
+ 
+ 		// PLURAL
+-		if (pXML->GetChildXmlValByName(wszTextVal, "Plural"))
++		if (pXML->GetChildXmlValByName(wszTextVal, "Plural", /* advc.006b: */ L""))
+ 		{
+ 			setPlural(wszTextVal);
+ 		}
+@@ -19703,6 +19703,8 @@ bool CvDiplomacyTextInfo::read(CvXMLLoadUtility* pXML)
+ 	if ( gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"Responses") )
+ 	{
+ 		int iIndexVal = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "Response");
++		// advc.006b: GetChildXmlValByName can't handle comments
++		FAssertMsg(iIndexVal > 0, "XML comment inside Responses?");
+ 		init(iIndexVal);
+ 
+ 		for (j = 0; j < iIndexVal; j++)
+@@ -19778,8 +19780,8 @@ bool CvEffectInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&iTemporary, "bIsProjectile" );
+ 	m_bProjectile = iTemporary != 0;
+ 
+-	pXML->GetChildXmlValByName(&m_fProjectileSpeed, "fSpeed" );
+-	pXML->GetChildXmlValByName(&m_fProjectileArc, "fArcValue" );
++	pXML->GetChildXmlValByName(&m_fProjectileSpeed, "fSpeed", /* advc.006b: */ 0);
++	pXML->GetChildXmlValByName(&m_fProjectileArc, "fArcValue", /* advc.006b: */ 0);
+ 	pXML->GetChildXmlValByName(&m_bSticky, "bSticky", false );
+ 	return true;
+ }
+@@ -20164,7 +20166,7 @@ bool CvTutorialInfo::read(CvXMLLoadUtility* pXML)
+ 	CvString szTextVal;
+ 
+ 	pXML->MapChildren();	// try to hash children for fast lookup by name
+-	if (pXML->GetChildXmlValByName(szTextVal, "NextTutorialInfoType"))
++	if (pXML->GetChildXmlValByName(szTextVal, "NextTutorialInfoType", /* advc.006b: */ ""))
+ 	{
+ 		setNextTutorialInfoType(szTextVal);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index b081031ff..734ae57fa 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -97,7 +97,7 @@ public:
+ /************************************************************************************************/
+ 	int getBombardTurns( CvCity* pCity ) /* advc.003: */ const;
+ 	bool isHasPathToAreaPlayerCity( PlayerTypes ePlayer, int iFlags = 0, int iMaxPathTurns = -1 ) /* Erik (CODE1): */ const;
+-	bool isHasPathToAreaEnemyCity( bool bIgnoreMinors = true, int iFlags = 0, int iMaxPathTurns = -1 ) /* Erik (CODE2): */ const;
++	bool isHasPathToAreaEnemyCity( bool bIgnoreMinors = true, int iFlags = 0, int iMaxPathTurns = -1 ) /* Erik (CODE1): */ const;
+ 	bool isStranded() const; // Note: K-Mod no longer uses the stranded cache. I have a new system.
+ 	//void invalidateIsStrandedCache(); // deleted by K-Mod
+ 	//bool calculateIsStranded();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e3debe714..edabd5577 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14584,22 +14584,17 @@ bool CvUnitAI::AI_patrol() // advc.003: refactored
+ 
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
++	int iFirst = 0; // advc.007
+ 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 	{
+ 		CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)iI);
+-
+ 		if (pAdjacentPlot == NULL || !AI_plotValid(pAdjacentPlot) ||
+ 				pAdjacentPlot->isVisibleEnemyUnit(this) ||
+ 				!generatePath(pAdjacentPlot, 0, true))
+ 			continue;
+-		/*  <advc.003> We shouldn't end the turn where we already are. Not sure if
+-			this can occur. I thought it had when I added this clause a couple of
+-			years ago ... */
+-		if(atPlot(getPathEndTurnPlot())) {
+-			FAssert(false);
+-			continue;
+-		} // </advc.003>
+-
++		/*  We shouldn't end the turn where we already are. Not sure if this can
++			occur. I thought it had a couple of years ago ... */
++		FAssert(!atPlot(getPathEndTurnPlot()));
+ 		/*  <advc.102> Non-Barbarian AI should only patrol tiles it doesn't own b/c
+ 			owned tiles have visibility anyway. In order to get to unowned tiles,
+ 			however, units may have to traverse owned tiles, so they need to be
+@@ -14607,10 +14602,10 @@ bool CvUnitAI::AI_patrol() // advc.003: refactored
+ 		if(!isBarbarian() && pAdjacentPlot->getOwner() == getOwner() &&
+ 				// Make sure not to hamper early exploration (perhaps not an issue)
+ 				g.getElapsedGameTurns() >= 25 &&
+-				(pAdjacentPlot->isUnit() || ::bernoulliSuccess(0.9, "advc.102")))
++				(pAdjacentPlot->isUnit() || ::bernoulliSuccess(0.9,
++				iFirst++ <= 0 ? "advc.102" : NULL))) // advc.007: Don't pollute MPLog
+ 			continue;
+ 		// </advc.102>
+-
+ 		int iValue = 1 + g.getSorenRandNum(10000, "AI Patrol");
+ 		// <advc.309>
+ 		if(isAnimal())
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index a95f1bdb0..c5571dfa7 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -61,7 +61,8 @@ void CvXMLLoadUtility::DestroyFXml()
+ CvXMLLoadUtility::CvXMLLoadUtility() :
+ m_iCurProgressStep(0),
+ m_pCBFxn(NULL),
+-m_pFXml(NULL)
++m_pFXml(NULL),
++m_bAssertMandatory(true) // advc.006b
+ {
+ 	m_pSchemaCache = gDLL->getXMLIFace()->CreateFXmlSchemaCache();
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index d6c4afdaf..f6af4b9e5 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -92,13 +92,22 @@ public:
+ 	bool GetChildXmlValByName(int* piVal, const TCHAR* szName,
+ 			/*  advc.006b: Was 0. Instead use a value that no one wants to use so that
+ 				the callee can check if the param was set. */
+-			int iDefault = INT_MIN);
++			int iDefault = MIN_INT);
+ 	// overloaded function that gets the child value of the tag with szName if there is only one child
+ 	// value of that name
+-	bool GetChildXmlValByName(float* pfVal, const TCHAR* szName, float fDefault = 0.0f);
++	bool GetChildXmlValByName(float* pfVal, const TCHAR* szName,
++			float fDefault = FLT_MIN); // advc.006b: was 0.0f
+ 	// overloaded function that gets the child value of the tag with szName if there is only one child
+ 	// value of that name
+-	bool GetChildXmlValByName(bool* pbVal, const TCHAR* szName, bool bDefault = false);
++	bool GetChildXmlValByName(bool* pbVal, const TCHAR* szName,
++			/*  advc.006b: Caller will have to set this to false to avoid an error
++				if szName isn't found */
++			bool bMandatory = true,
++			bool bDefault = false);
++	/*  advc.006b: Unused for now. Can use this to disable the assertions added to
++		GetChildXmlValByName temporarily, e.g. while loading a CvInfo element that
++		doesn't have tags which are normally mandatory. */
++	void setAssertMandatoryEnabled(bool b);
+ 
+ 	// loads an xml file into the FXml variable.  The szFilename parameter has
+ 	// the m_szXmlPath member variable pre-pended to it to form the full pathname
+@@ -301,6 +310,9 @@ private:
+ 
+ 	void orderHotkeyInfo(int** ppiSortedIndex, int* pHotkeyIndex, int iLength);
+ 	void logMsg(char* format, ... );
++	// <advc.006b>
++	bool m_bAssertMandatory;
++	static CvString szAssertMsg; // </advc.006b>
+ };
+ 
+ #ifdef _USRDLL
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index 4521d4ee2..c517ef5a3 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -814,6 +814,7 @@ bool CvXMLLoadUtility::GetChildXmlVal(bool* pbVal, bool bDefault)
+ 	}
+ }
+ 
++CvString CvXMLLoadUtility::szAssertMsg = "Unable to find node "; // advc.006b
+ //------------------------------------------------------------------------------------------------------
+ //
+ //  FUNCTION:   GetChildXmlValByName(wchar* pszVal, const TCHAR* szName, TCHAR* pszDefault = NULL)
+@@ -825,54 +826,55 @@ bool CvXMLLoadUtility::GetChildXmlVal(bool* pbVal, bool bDefault)
+ //------------------------------------------------------------------------------------------------------
+ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* pszVal, const TCHAR* szName, wchar* pszDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+ 	if (pszDefault)
+-	{
+ 		wcscpy(pszVal, pszDefault);
+-	}
+-	else
+-	{
+-		wcscpy(pszVal, L"");
+-	}
++	else wcscpy(pszVal, L"");
+ 
+-#if 0
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+-#endif
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	/*  advc.006b: The iNumChildrenByTagName check had already been disabled.
++		Keep it that way b/c NumOfChildrenByTagName can't handle comments in XML.
++		As comments don't seem to lead to overcounting, one could still do this: */
++	//FAssertMsg(gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName) < 2,"More children with tag name than expected, should only be 1.");
++	// ... However, I think FXML already detects duplicate tags when enforcing the XML schema.
++
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-//			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{
+-		// FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}
++	}
++	else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}*/ // <advc.006b> Replacing the asserts above (which were already commented out)
++	/*  If pszDefault was set by the caller, we assume that it's OK to fall back
++		on pszDefault. Otherwise warn. */
++	if(pszDefault == NULL && m_bAssertMandatory)
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	return false; // </advc.006b>
+ }
+ 
+ //------------------------------------------------------------------------------------------------------
+@@ -886,54 +888,47 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* pszVal, const TCHAR* szName,
+ //------------------------------------------------------------------------------------------------------
+ bool CvXMLLoadUtility::GetChildXmlValByName(char* pszVal, const TCHAR* szName, char* pszDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+ 	if (pszDefault)
+-	{
+ 		strcpy(pszVal, pszDefault);
+-	}
+-	else
+-	{
+-		strcpy(pszVal, "");
+-	}
+-
+-#if 0
++	else strcpy(pszVal, "");
++	// advc.006b: See GetChildXmlValByName(wchar*...)
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+-#endif
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-//			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{
+-		// FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}
++	}
++	else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}*/ // <advc.006b>
++	if(pszDefault == NULL && m_bAssertMandatory)
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	return false; // </advc.006>
+ }
+ 
+ 
+@@ -948,108 +943,94 @@ bool CvXMLLoadUtility::GetChildXmlValByName(char* pszVal, const TCHAR* szName, c
+ //------------------------------------------------------------------------------------------------------
+ bool CvXMLLoadUtility::GetChildXmlValByName(std::string& pszVal, const TCHAR* szName, char* pszDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+ 	if (pszDefault)
+-	{
+ 		pszVal=pszDefault;
+-	}
+-	else
+-	{
+-		pszVal.clear();
+-	}
+-
+-#if 0
++	else pszVal.clear();
++	// advc.006b: See GetChildXmlValByName(wchar*...)
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+-#endif
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-//			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}
++	}
++	else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}*/ // <advc.006b>
++	if(pszDefault == NULL && m_bAssertMandatory)
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	return false; // </advc.006>
+ }
+ 
+ //
+ //------------------------------------------------------------------------------------------------------
+ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& pszVal, const TCHAR* szName, wchar* pszDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+ 	if (pszDefault)
+-	{
+ 		pszVal=pszDefault;
+-	}
+-	else
+-	{
+-		pszVal.clear();
+-	}
+-
+-#if 0
++	else pszVal.clear();
++	// advc.006b: See GetChildXmlValByName(wchar*...)
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+-#endif
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pszVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-//			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}
++	}
++	else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}*/ // <advc.006b>
++	if(pszDefault == NULL && m_bAssertMandatory)
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	return false; // </advc.006>
+ }
+ 
+ //------------------------------------------------------------------------------------------------------
+@@ -1062,54 +1043,49 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& pszVal, const TCHAR* s
+ //------------------------------------------------------------------------------------------------------
+ bool CvXMLLoadUtility::GetChildXmlValByName(int* piVal, const TCHAR* szName, int iDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+-	// set the value to the default
+-	*piVal = iDefault;
+-
+-#if 0	// def _DEBUG
++	*piVal = iDefault; // set the value to the default
++	// advc.006b: See GetChildXmlValByName(wchar*...)
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+-#endif
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,piVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,piVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+-		{	/*  <advc.006b> If iDefault was set by the caller, we assume that it's
+-				OK to fall back on iDefault. Otherwise warn. */
+-			if(iDefault == INT_MIN) {
+-				CvString szMsg = "Unable to find node ";
+-				szMsg.append(szName);
+-				// This assert was disabled (and had a less useful message)
+-				FAssertMsg(false, szMsg.c_str());
+-			} // </advc.006>
++		{
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{	// advc.006b: Enabled this assert
+-		FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}
++	}
++	else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}*/ // <advc.006b>
++	if(iDefault == MIN_INT && m_bAssertMandatory) {
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++		/*  Try to allow the caller to ignore the error by setting a
++			more sensible default than MIN_INT: */
++		*piVal = 0; // (0 is also the "default default" that was set in this function's declaration in BtS)
++	}
++	return false; // </advc.006b>
+ }
+ 
+ //------------------------------------------------------------------------------------------------------
+@@ -1123,47 +1099,47 @@ bool CvXMLLoadUtility::GetChildXmlValByName(int* piVal, const TCHAR* szName, int
+ //------------------------------------------------------------------------------------------------------
+ bool CvXMLLoadUtility::GetChildXmlValByName(float* pfVal, const TCHAR* szName, float fDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+-	// set the value to the default
+-	*pfVal = fDefault;
+-#if 0
++	*pfVal = fDefault; // set the value to the default
++	// advc.006b: See GetChildXmlValByName(wchar*...)
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag5 name than expected, should only be 1.");
+-#endif
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pfVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pfVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-//			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}
++	}
++	else {
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
++	}*/ // <advc.006b>
++	if(fDefault == FLT_MIN && m_bAssertMandatory) {
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++		*pfVal = 0; // See See GetChildXmlValByName(int*...)
+ 	}
++	return false; // </advc.006b>
+ }
+ 
+ //------------------------------------------------------------------------------------------------------
+@@ -1175,52 +1151,56 @@ bool CvXMLLoadUtility::GetChildXmlValByName(float* pfVal, const TCHAR* szName, f
+ 
+ //
+ //------------------------------------------------------------------------------------------------------
+-bool CvXMLLoadUtility::GetChildXmlValByName(bool* pbVal, const TCHAR* szName, bool bDefault)
++bool CvXMLLoadUtility::GetChildXmlValByName(bool* pbVal, const TCHAR* szName,
++		/* <advc.006b> */ bool bMandatory /* </advc.006b> */, bool bDefault)
+ {
+-	int iNumChildrenByTagName=1;
+-
+-	// set the boolean value to it's default value
+-	*pbVal = bDefault;
+-
+-#if 0
++	*pbVal = bDefault; // set the boolean value to it's default value
++	// advc.006b: See GetChildXmlValByName(wchar*...)
++	/*int iNumChildrenByTagName=1;
+ 	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+-#endif
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
++	{*/
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
+ 	{
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++		// skip to the next non-comment node
++		if (SkipToNextVal())
+ 		{
+-			// skip to the next non-comment node
+-			if (SkipToNextVal())
+-			{
+-				// get the string value of the current xml node
+-				gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pbVal);
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return true;
+-			}
+-			// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+-			else
+-			{
+-				FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
+-				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+-				return false;
+-			}
++			// get the string value of the current xml node
++			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml,pbVal);
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
++			return true;
+ 		}
+-		// otherwise there are no child nodes but we were expecting them so FAssert and return false
++		// otherwise we can't find a non-comment node on this level so we will FAssert and return false
+ 		else
+ 		{
+-//			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++			FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find the next non-comment node");
++			gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 			return false;
+ 		}
+ 	}
+-	else
+-	{
++	// otherwise there are no child nodes but we were expecting them so FAssert and return false
++	/*else {
+ 		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
+ 		return false;
+ 	}
++	}
++	else {
++		//FAssertMsg(false, "Error in GetChildXmlValByName function, unable to find a specified node");
++		return false;
++	}*/ // <advc.006b>
++	if(bMandatory && m_bAssertMandatory)
++		FAssertMsg(false, (szAssertMsg + szName).c_str());
++	return false; // </advc.006b>
+ }
+ 
++// <advc.006b>
++void CvXMLLoadUtility::setAssertMandatoryEnabled(bool b) {
++
++	m_bAssertMandatory = b;
++} // </advc.006b>
++
+ //------------------------------------------------------------------------------------------------------
+ //
+ //  FUNCTION:   GetHotKeyInt(TCHAR* pszHotKeyVal)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=44400

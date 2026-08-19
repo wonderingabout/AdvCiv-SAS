@@ -1,0 +1,164 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4342
+# Commit: 0f161c7077c6593146ff0c48c95c242ae3ce68bf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 58d0dc879f956d04327d3a8708a27fb2d06790fb
+# Title: Increase the number of AI starting defenders, switch them to warriors, deprioritize archery early
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+53	8	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index ba0b26a4d..0e314bd7c 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -680,7 +680,8 @@
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 0 -->
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>2</iBarbarianDefenders>
+@@ -817,7 +818,8 @@
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 1 -->
++			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+@@ -878,10 +880,20 @@
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				             If AI wants to turtle later in the game, archers may be more relevant then.
++							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
++				-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
+ 				<FreeTech>
+ 					<TechType>TECH_MATHEMATICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+@@ -975,6 +987,7 @@
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 1 -->
+ 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+@@ -1043,10 +1056,20 @@
+ 					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				             If AI wants to turtle later in the game, archers may be more relevant then.
++							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
++				-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
+ 				<FreeTech>
+ 					<TechType>TECH_MATHEMATICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+@@ -1143,7 +1166,8 @@
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 3 -->
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 2 -->
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+@@ -1215,10 +1239,20 @@
+ 					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				             If AI wants to turtle later in the game, archers may be more relevant then.
++							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
++				-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
+ 				<FreeTech>
+ 					<TechType>TECH_MATHEMATICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+@@ -1318,7 +1352,8 @@
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 4 -->
+-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 3 -->
++			<iAIStartingDefenseUnits>6</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>4</iBarbarianDefenders>
+@@ -1397,10 +1432,20 @@
+ 					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				             If AI wants to turtle later in the game, archers may be more relevant then.
++							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
++				-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
+ 				<FreeTech>
+ 					<TechType>TECH_MATHEMATICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=6273

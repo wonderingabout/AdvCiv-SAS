@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4565
+# Commit: a42569af5f9ebefb0f81a7d68a1cec4c5200c83a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e22bb887ab518c273d3bfc984db6e2b58d942c0a
+# Title: add Joan Of Arc picture (docs only) and initial docs not related entirely if at all i mean to military overhaul, but better to do it than not, about this i m...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan Of Arc_leader_picture.jpg
+34	0	_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Building_Impluvium.jpg
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Map1.jpg
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Map2.png
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Map3.webp
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+-	-	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+0	0	_1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+10	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_some_assets_content
+ create mode 100644 _1_AdvCiv-SAS/Civs_and_Leaders/France/Joan Of Arc_leader_picture.jpg
+ create mode 100644 _1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Building_Impluvium.jpg (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Map1.jpg (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Map2.png (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Map3.webp (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png (100%)
+ rename _1_AdvCiv-SAS/{Civs => Civs_and_Leaders}/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary (100%)
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan Of Arc_leader_picture.jpg b/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan Of Arc_leader_picture.jpg
+new file mode 100644
+index 000000000..c347105f4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan Of Arc_leader_picture.jpg differ
+
+diff --git a/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes b/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+new file mode 100644
+index 000000000..41b3b8180
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+@@ -0,0 +1,34 @@
++physical appeaence deatailed account, copy pasted below in case it is delted someday for this source:
++
++
++As follows:
++Begining of quote:
++"Joan's fame, during her lifetime, was such that some of the contemporaries who met her did comment on her physical appearance, albeit not in nearly such detail as we might wish for. We also have some information about the clothing that was made for her. As a result we know that Joan stood about 5 feet 2 inches [157cm], a fairly typical height for her time, and had dark hair, which she wore cropped short like a man's "in a circle above her ears". A letter written by Perceval de Boulainvilliers, who was chamberlain to the French king Charles VII, and who would have seen Joan at his court, describes her as "of satisfying grace" – that is, reasonably good-looking, rather than beautiful – and "of a virile bearing," adding that "her voice has a womanly charm" and that while she "sheds tears freely, her expression is cheerful."
++
++Two of the men who accompanied Joan, saw her change her clothes and, in one case, helped to dress wounds incurred in battle, commented more favourably on her physical attractiveness, noting, for example, the pleasing size and shape of her breasts. And Eugelide, Princess of Hungary – who did not meet her – revealed in a contemporary letter that she had heard that the maid had a short neck and a red birthmark beneath one ear. But the above is really all the even vaguely reliable information that we have about Joan's physical appearance.
++
++What's perhaps more interesting (and what has certainly exercised historians of this period) is not so much what Joan looked like, but the ways in which she attempted to manage her appearance and her reputation in order to better carry out the mission she believed that God intended for her – to lead a military force to defeat the English and restore the powers and dignity of the King of France. She consistently referred to herself, for instance, as a "pucelle," a French term inferring both youth and virginity in a way that allowed her to differentiate herself from a woman occupying one of the other possible female roles of the day – those of daughter, wife, mother, widow or nun – while also claiming for herself a vitally important spiritual purity. Joan's self-identification as a pucelle is the origin of the familiar English description of Joan as "the Maid of Orléans".
++
++Most notable, in this respect, however, and most commented on by contemporaries, was not Joan's looks or even her virginity, but her decision to wear male clothing, which she insisted on doing even when well away from the field of battle. This was extremely surprising and remarkable to her contemporaries; it's very telling of the usual assumptions of the day, for instance, that the one image of her that was drawn during her lifetime (a crude sketch in the margin of the parliamentary register of Burgundian-controlled Paris, made by someone who had never seen her) unthinkingly depicted her as a girl with long hair, wearing a dress. But Joan's decision was a very important one, as things turned out, since cross-dressing is something explicitly condemned in the Bible (while, for example, women fighting was not), and as such became a charge that could be made to stick against Jean in the eventual religious trial that she was subjected to after her capture by the English. Indeed, her refusal to disavow the practice before the tribunal that examined her became one of the main reasons that she was executed.
++
++Historians have debated why Joan was so adamant from the very beginning of her mission that she should wear male clothing. There may well have been practical elements to the decision. The theology of the day was quite explicit that only a pucelle had the moral and religious right to defy male authority, and for this reason, it was absolutely critical to Joan's mission that she retained her virginity. In consequence, it's been suggested that her determination to dress like a man, and wear her hair in a male style, was an attempt to redirect male attention away from her sex and so reduce the likelihood of sexual assault in the all-male and highly violent militarised community that she became a part of. But there was very clearly a spiritual aspect to the decision as well; St Jerome, who was one of the main canonical authorities who stressed divine approval of female virginity, had written that
++
++while a woman serves for birth and children, she is different from a man as body is from soul. But when she wants to serve Christ more than the world, then she shall cease to be called a woman, and shall be a man.
++
++Nonetheless, Joan's determination to dress as a man did create difficulties for her that make it hard to understand why she so adamantly refused to appear as a woman, even when she was on trial for her life. Most obviously, it set her outside the expectations that contemporaries had of female religious figures, and it was her claim to be acting, as a mystic would do, on a "sign" (frustratingly undefined in our sources) that she had received from heaven that was the other critical aspect of her ability to achieve what she did. It was, for example, only because Joan was able to present herself as an important female mystic that she was able, despite her peasant birth, to secure what would otherwise have been out of the question: the audience with Charles VII that resulted in her being provided with military equipment and a commission to lead a force in relief of the besieged city of Orléans. Dressing as a man emphatically did not help Joan to present herself as a female religious figure who fitted neatly into one of permissible categories of mystic that existed in this period, and this has to suggest that her decision to do so was of critical importance to her.
++
++We can't be certain why, and historians have interpreted the decision in a number of ways; for instance, Susan Crane has suggested it may have been a reflection of Joan's sexuality, something that might possibly be true, but which certainly can't be proven. She herself, at her trial, insisted that it was "pleasing to God" that she dress in this way, and that it was in fact a crucial element of her divine mission. But without any clear idea of what the "sign" that Joan believed she had seen consisted of, it's really not possible to understand what precisely she meant by the comment.
++
++What's certain is that, as Taylor notes, Joan's disguise was "only partial" – that is, she did not attempt to pass herself off as a man, or fool the men who followed her into believing that she was not a woman. In consequence, her cross-dressing was "far more threatening" to the male hegemony and gender roles of the day, and hence far more interesting to historians, than her mere physical appearance.
++
++Sources
++
++Deborah A. Fraioli, Joan of Arc: the Early Debate (2000)
++
++Régine Pernoud, Joan of Arc by Herself and Her Witnesses (1994)
++
++Craig Taylor (ed.), Joan of Arc: La Pucelle (2006)
++"
++End of quote
++
++Todo check bio too maybe if need a more detailed source than what is already avaialble, quote it here too, else just mention source in bio rather maybe etc.
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Building_Impluvium.jpg
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Building_Impluvium.jpg
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map1.jpg b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Map1.jpg
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map1.jpg
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Map1.jpg
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map2.png b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Map2.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map2.png
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Map2.png
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map3.webp b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Map3.webp
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map3.webp
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Map3.webp
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+
+diff --git a/_1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/_1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+similarity index 100%
+rename from _1_AdvCiv-SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+rename to _1_AdvCiv-SAS/Civs_and_Leaders/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+new file mode 100644
+index 000000000..01c7ba2d8
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+@@ -0,0 +1,10 @@
++- ogiso igodo (benin kingdom): todo
++
++- joan of arc:
++-- appearance: very detailed account of her physical appearance, see specific doc of Joan of arc for details. As for the/its content, it seems reliable too even though would need to check
++
++-- picture and its source: https://www.meisterdrucke.fr/fine-art-prints/Harold-Hume-Piffard/892307/Jeanne-d%27Arc.html
++needs to find a source for bio or/and check in more detail this one now that is accurate and detailed enough,
++--- mention author and painting "type" in sevopedia: "oil on canvas" it seems
++--- author: Harold Hume Piffard (https://en.wikipedia.org/wiki/Harold_H._Piffard)
++--- date: 1867-1939
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_some_assets_content b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_some_assets_content
+index 97d89bffb..a4fef3f60 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_some_assets_content
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_some_assets_content
+@@ -5,6 +5,11 @@ assets are referred to.
+ List below is not exhaustive but hopes to cover some important asset
+ changes to quickly identify them maybe i mean.
+ 
++(not exhaustive and may be outdated as it is a bit too long to maintain
++or/and requiring extra mindfulness, plus may be redundant with sevopedia
++and i can do it directly therein sevopedia i mean. See sevopedia for the
++updated latest entries)
++
+ Added:
+ - AdvCiv\Assets\XML\GameInfo\CIV4ProcessInfo.xml
+ - new wonder: Venus of Laussel (France)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=12268

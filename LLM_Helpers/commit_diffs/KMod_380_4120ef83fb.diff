@@ -1,0 +1,95 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 380
+# Commit: 4120ef83fb47d37460d3804a1de9cdd6ea31f578
+# History segment: K-Mod history
+# Parent used for diff: dd9fd52ec02ce554b7adde49dd58e3aa81fe1705
+# Title: Removed a potential OOS problem caused by the new tactical AI memory.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	4	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 8e630f753..c9d860e14 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1581,8 +1581,6 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		if (pToPlot->isVisible(eTeam, false))
+ 		{
+ 			iEnemyDefence = GET_PLAYER(pSelectionGroup->getOwnerINLINE()).AI_localDefenceStrength(pToPlot, NO_TEAM);
+-			//GET_TEAM(eTeam).AI_setStrengthMemory(pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), iEnemyDefence);
+-			// memory is now set automatically inside AI_localDefenceStrength.
+ 		}
+ 		else
+ 		{
+@@ -1864,15 +1862,20 @@ int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int
+ 		PROFILE("pathValid move through");
+ 		CvTeamAI& kTeam = GET_TEAM(pSelectionGroup->getHeadTeam());
+ 
++		int iEnemyDefence;
+ 		if (pFromPlot->isVisible(pSelectionGroup->getHeadTeam(), false))
+ 		{
+-			kTeam.AI_setStrengthMemory(pFromPlot, GET_PLAYER(pSelectionGroup->getOwnerINLINE()).AI_localDefenceStrength(pToPlot, NO_TEAM, pSelectionGroup->getDomainType()));
++			iEnemyDefence = GET_PLAYER(pSelectionGroup->getOwnerINLINE()).AI_localDefenceStrength(pToPlot, NO_TEAM, pSelectionGroup->getDomainType());
++		}
++		else
++		{
++			iEnemyDefence = kTeam.AI_getStrengthMemory(pFromPlot);
+ 		}
+ 
+ 		if (kTeam.AI_getStrengthMemory(pFromPlot) > 0 && iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK))
+ 		{
+ 			if (!pSelectionGroup->canMoveOrAttackInto(pFromPlot) ||
+-				(iFlags & MOVE_ATTACK_STACK && pSelectionGroup->AI_sumStrength(pFromPlot) < kTeam.AI_getStrengthMemory(pFromPlot)))
++				(iFlags & MOVE_ATTACK_STACK && pSelectionGroup->AI_sumStrength(pFromPlot) < iEnemyDefence))
+ 			{
+ 				return FALSE;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9c0c0ea78..6103202bc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12297,9 +12297,10 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 					}
+ 				}
+ 			}
+-			if (eDefenceTeam == NO_TEAM && eDomainType == DOMAIN_LAND && !bCheckMoves)
++			if (!isHuman() && eDefenceTeam == NO_TEAM && eDomainType == DOMAIN_LAND && !bCheckMoves)
+ 			{
+ 				// while since we're here, we might as well update our memory.
++				// (not for human players, otherwise the pathfinder might put us out of sync)
+ 				GET_TEAM(getTeam()).AI_setStrengthMemory(pLoopPlot, iPlotTotal);
+ 			}
+ 			iTotal += iPlotTotal;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 678aa3c87..5f84acce2 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4033,7 +4033,9 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ 	// K-Mod end
+ }
+ 
+-// K-Mod
++// K-Mod - AI tactical memory.
++// The AI uses this to remember how strong the enemy defence is at particular plots.
++// NOTE: AI_setStrengthMemory should not be used by human players - because it may cause OOS errors.
+ int CvTeamAI::AI_getStrengthMemory(int x, int y) const
+ {
+ 	FAssert(m_aiStrengthMemory.size() == GC.getMapINLINE().numPlotsINLINE());
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3118

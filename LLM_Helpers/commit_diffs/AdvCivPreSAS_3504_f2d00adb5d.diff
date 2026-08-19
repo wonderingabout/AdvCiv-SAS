@@ -1,0 +1,163 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3504
+# Commit: f2d00adb5d8cba3d2d5bf6b38f25712deec3d392
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a1debc244fe5e3e1f1a8432f0ac9623ba79bb954
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	25	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3dcba2766..2b8f7b594 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10210,7 +10210,8 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 	int iProductionValue = 0;
+ 	if (eProcess == NO_PROCESS)
+ 	{
+-		iProductionTimes100 += bFoodIsProduction ? iFoodYieldTimes100 : 0;
++		if (bFoodIsProduction)
++			iProductionTimes100 += iFoodYieldTimes100;
+ 
+ 		iProductionValue += iProductionTimes100 * iBaseProductionValue / 100;
+ 		// If city has more than enough food, but very little production, add large value to production
+@@ -10218,10 +10219,12 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 		// (based on BBAI code)
+ 		if (!bWorkerOptimization && iProductionTimes100 > 0 && !bFoodIsProduction && isProduction())
+ 		{
+-			if (!isHuman() || AI_isEmphasizeYield(YIELD_PRODUCTION)
+-				|| (!bEmphasizeFood && !AI_isEmphasizeYield(YIELD_COMMERCE) && !AI_isEmphasizeGreatPeople()))
++			if (!isHuman() || AI_isEmphasizeYield(YIELD_PRODUCTION) ||
++				(!bEmphasizeFood && !AI_isEmphasizeYield(YIELD_COMMERCE) &&
++				!AI_isEmphasizeGreatPeople()))
+ 			{
+-				// don't worry about minimum production if there is any hurry type available for us. If we need the productivity, we can just buy it.
++				/*	don't worry about minimum production if there is any hurry type
++					available for us. If we need the productivity, we can just buy it. */
+ 				bool bAnyHurry = false;
+ 				for (HurryTypes i = (HurryTypes)0; !bAnyHurry && i < GC.getNumHurryInfos(); i=(HurryTypes)(i+1))
+ 					bAnyHurry = kOwner.canHurry(i);
+@@ -10229,27 +10232,24 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 				if (!bAnyHurry && foodDifference(false)-(bRemove ? iFoodYield : 0) >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 				{
+ 					/*if (getYieldRate(YIELD_PRODUCTION) - (bRemove ? iProductionTimes100/100 : 0)  < 1 + getPopulation()/3)
+-					{
+-						iValue += 60 + iBaseProductionValue * iProductionTimes100 / 100;
+-					}*/
+-					int iCurrentProduction = getCurrentProductionDifference(true, false) - (bRemove ? iProductionTimes100/100 : 0);
++						iValue += 60 + iBaseProductionValue * iProductionTimes100 / 100;*/
++					int iCurrentProduction = getCurrentProductionDifference(true, false)
++							- (bRemove ? iProductionTimes100/100 : 0);
+ 					if (iCurrentProduction < 1 + getPopulation()/3)
+ 					{
+-						iValue += 5 * iBaseProductionValue * std::min(iProductionTimes100, (1 + getPopulation()/3 - iCurrentProduction)*100) / 100;
++						iValue += 5 * iBaseProductionValue *
++								std::min(iProductionTimes100,
++								(1 + getPopulation()/3 - iCurrentProduction)*100) / 100;
+ 					}
+ 				}
+ 			}
+ 		}
+ 		if (!isProduction() && !isHuman())
+-		{
+ 			iProductionValue /= 2;
+-		}
+ 	}
+ 
+ 	int iSlaveryValue = 0;
+-
+ 	int iFoodGrowthValue = 0;
+-
+ 	if (!bIgnoreFood && iFoodYield != 0)
+ 	{
+ 		if (iGrowthValue < 0)
+@@ -10565,16 +10565,16 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 		iFoodValue = (iSlaveryValue + 2 * iFoodGrowthValue) / 3;
+ 	}
+ 
+-	//Lets have some fun with the multipliers, this basically bluntens the impact of
+-	//massive bonuses.....
++	/*	Lets have some fun with the multipliers, this basically bluntens the
++		impact of massive bonuses..... */
+ 
+-	//normalize the production... this allows the system to account for rounding
+-	//and such while preventing an "out to lunch smoking weed" scenario with
+-	//unusually high transient production modifiers.
+-	//Other yields don't have transient bonuses in quite the same way.
++	/*	normalize the production... this allows the system to account for rounding
++		and such while preventing an "out to lunch smoking weed" scenario with
++		unusually high transient production modifiers.
++		Other yields don't have transient bonuses in quite the same way. */
+ 
+-	// Rounding can be a problem, particularly for small commerce amounts.  Added safe guards to make
+-	// sure commerce is counted, even if just a tiny amount.
++	/*	Rounding can be a problem, particularly for small commerce amounts.
++		Added safeguards to make sure commerce is counted, even if just a tiny amount. */
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+ 		iProductionValue *= 140; // was 130
+@@ -10624,7 +10624,8 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 	{
+ 		if (isFoodProduction())
+ 		{
+-			iProductionValue *= 100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_PRODUCTION));
++			iProductionValue *= 100 + (bWorkerOptimization ? 0 :
++					AI_specialYieldMultiplier(YIELD_PRODUCTION));
+ 			iProductionValue /= 100;
+ 		}
+ 		else
+@@ -10633,8 +10634,8 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 			iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
+ 
+ 			// Note: iSlaveryValue use to be added here. Now it is counted as food value instead.
+-			iProductionValue *= (100 + (bWorkerOptimization ? 0 : AI_specialYieldMultiplier(YIELD_PRODUCTION)));
+-
++			iProductionValue *= 100 + (bWorkerOptimization ? 0 :
++					AI_specialYieldMultiplier(YIELD_PRODUCTION));
+ 			iProductionValue /= kOwner.AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 		}
+ 
+@@ -10659,7 +10660,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ }
+ 
+ // units of 400x commerce
+-int CvCityAI::AI_plotValue(CvPlot const& kPlot, bool bRemove, bool bIgnoreFood, // advc: 1st param was pointer
++int CvCityAI::AI_plotValue(CvPlot const& kPlot, bool bRemove, bool bIgnoreFood,
+ 	bool bIgnoreStarvation, int iGrowthValue) const
+ {
+ 	FAssert(getCityPlotIndex(kPlot) < NUM_CITY_PLOTS);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7622c2e7b..f58f538e7 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -8305,10 +8305,10 @@ void CvPlot::killRandomUnit(PlayerTypes eOwner, DomainTypes eDomain)
+ bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
+ 	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy) const
+ {
+-	/*  advc: BBAI had repeated parts of getBestDefender here. To avoid that, I've
+-		moved bTestAttack into getBestDefender and gave that function a "bAny" param. */
++	/*  advc: BBAI had repeated parts of getBestDefender here. To avoid that, I've moved
++		bTestAttack into getBestDefender and gave that function a "bTestAny" param. */
+ 	return (getBestDefender(eOwner, eAttackingPlayer, pAttacker, bTestEnemy,
+-			bTestPotentialEnemy, false, bTestCanAttack, /*bAny=*/true) != NULL);
++			bTestPotentialEnemy, false, bTestCanAttack, /*bTestAny=*/true) != NULL);
+ } // BETTER_BTS_AI_MOD: END
+ 
+ // <advc.500a>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6778

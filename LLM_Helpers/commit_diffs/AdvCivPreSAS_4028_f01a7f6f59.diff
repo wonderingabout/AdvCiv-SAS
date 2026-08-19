@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4028
+# Commit: f01a7f6f59cff8c894cce63801b2db7ce2f2079b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9f64cb85a58df96f9003710e196e762eb8077fe7
+# Title: Let included map scripts support super-Huge world size
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	PrivateMaps/Hemispheres.py
+2	0	PrivateMaps/Mixed_Continents.py
+9	2	PrivateMaps/Pangaea.py
+2	0	PrivateMaps/Tectonics.py
+7	1	PrivateMaps/Terra.py
+2	0	PrivateMaps/not_too_Big_or_Small.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index 9774f471c..21f12ce60 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -28,6 +28,8 @@ def getNumPlotsPercent(argsList):
+ 		WorldSizeTypes.WORLDSIZE_LARGE:		74,
+ 		WorldSizeTypes.WORLDSIZE_HUGE:		72
+ 	}
++	if iWorldSize >= len(sizeModifiers):
++		return 70
+ 	return sizeModifiers[iWorldSize]
+ 
+ def getDescription():
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index 81a7dd96a..62582c175 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -63,6 +63,8 @@ def getNumPlotsPercent(argsList):
+ 		WorldSizeTypes.WORLDSIZE_LARGE:		88,
+ 		WorldSizeTypes.WORLDSIZE_HUGE:		84
+ 	}
++	if iWorldSize >= len(sizeModifiers):
++		return 80
+ 	return sizeModifiers[iWorldSize]
+ 
+ def isAdvancedMap():
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 79f8d19e9..c6583ece7 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -49,7 +49,10 @@ def getNumPlotsPercent(argsList):
+ 		WorldSizeTypes.WORLDSIZE_LARGE:		67,
+ 		WorldSizeTypes.WORLDSIZE_HUGE:		60
+ 	}
+-	r = sizeModifiers[iWorldSize]
++	if iWorldSize >= len(sizeModifiers):
++		r = 52
++	else:
++		r = sizeModifiers[iWorldSize]
+ 	# Low sea level doesn't have as much impact on this map. Adjust the grid size in order to compensate.
+ 	if CyGlobalContext().getSeaLevelInfo(CyMap().getSeaLevel()).getSeaLevelChange() < 0:
+ 		r = (r * 6) // 5
+@@ -226,7 +229,11 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 			WorldSizeTypes.WORLDSIZE_LARGE:     4,
+ 			WorldSizeTypes.WORLDSIZE_HUGE:      5
+ 			}
+-		grain = sizevalues[sizekey]
++		# <advc.165> Tolerate bigger sizes
++		if sizekey >= len(sizevalues):
++			grain = 5
++		else: # </advc.165>
++			grain = sizevalues[sizekey]
+ 		
+ 		# Sea Level adjustment (from user input), limited to value of 5%.
+ 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index 81705c945..e2f538135 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -92,6 +92,8 @@ def getNumPlotsPercent(argsList):
+ 		WorldSizeTypes.WORLDSIZE_LARGE:		81,
+ 		WorldSizeTypes.WORLDSIZE_HUGE:		77
+ 	}
++	if iWorldSize >= len(sizeModifiers):
++		return 73
+ 	return sizeModifiers[iWorldSize]
+ 
+ def getDescription():
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+index e3b32f542..d8338e3fe 100644
+--- a/PrivateMaps/Terra.py
++++ b/PrivateMaps/Terra.py
+@@ -69,6 +69,8 @@ def getNumPlotsPercent(argsList):
+ 		WorldSizeTypes.WORLDSIZE_LARGE:		90,
+ 		WorldSizeTypes.WORLDSIZE_HUGE:		87
+ 	}
++	if iWorldSize >= len(sizeModifiers):
++		return 83
+ 	return sizeModifiers[iWorldSize]
+ 
+ def getDescription():
+@@ -190,7 +192,11 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 			WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
+ 			WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
+ 			}
+-		(archGrain, contGrain, gaeaGrain, eurasiaGrain) = sizevalues[sizekey]
++		# <advc.165> Tolerate bigger sizes
++		if sizekey >= len(sizevalues):
++			(archGrain, contGrain, gaeaGrain, eurasiaGrain) = (5, 2, 1, 2)
++		else: # </advc.165>
++			(archGrain, contGrain, gaeaGrain, eurasiaGrain) = sizevalues[sizekey]
+ 		
+ 		# Sea Level adjustment (from user input), limited to value of 5%.
+ 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 56b8084a9..921f4ac19 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -24,6 +24,8 @@ def getNumPlotsPercent(argsList):
+ 		WorldSizeTypes.WORLDSIZE_LARGE:		83,
+ 		WorldSizeTypes.WORLDSIZE_HUGE:		79
+ 	}
++	if iWorldSize >= len(sizeModifiers):
++		return 75
+ 	return sizeModifiers[iWorldSize]
+ 
+ def isAdvancedMap():
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=3879

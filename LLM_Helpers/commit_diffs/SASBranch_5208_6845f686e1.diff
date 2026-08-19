@@ -1,0 +1,375 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5208
+# Commit: 6845f686e115b24168d71223c2a74eab65dca428
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e13f6d6b2cdd5f874da0837b542e1a3576cb759a
+# Title: fix GameFont .tga file's icons with Game Font Editor (v0.6) fir Civ4 - [Game Font Editor (v0.6) fir Civ4](https://forums.civfanatics.com/resources/game-font-...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	.gitattributes
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font.bmp
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg.bmp
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg_small.bmp
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_small.bmp
+-	-	Assets/Res/Fonts/GameFont.tga
+-	-	Assets/Res/Fonts/GameFont_75.tga
+1	0	Assets/Res/Fonts/link_game_font_editor_v0.6_for_civ4.txt
+-	-	Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+-	-	Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+-	-	Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_hr_mod_tga.bmp
+-	-	Assets/Res/Fonts/norm_rfc_doc_mod.bmp
+-	-	Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp
+-	-	Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_ri_mod_tga.bmp
+-	-	Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont.tga
+-	-	Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont_75.tga
+-	-	Assets/Res/Fonts/other_mods/_c2c_mod_GameFont.tga
+-	-	Assets/Res/Fonts/other_mods/_c2c_mod_GameFont_75.tga
+-	-	Assets/Res/Fonts/other_mods/_hr_mod_GameFont.tga
+-	-	Assets/Res/Fonts/other_mods/_hr_mod_GameFont_75.tga
+-	-	Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont.tga
+-	-	Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont_75.tga
+-	-	Assets/Res/Fonts/other_mods/_ri_mod_GameFont.tga
+-	-	Assets/Res/Fonts/other_mods/_ri_mod_GameFont_75.tga
+1	1	README.md
+0	59	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font.bmp
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg.bmp
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg_small.bmp
+ delete mode 100644 Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_small.bmp
+ create mode 100644 Assets/Res/Fonts/link_game_font_editor_v0.6_for_civ4.txt
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_hr_mod_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_rfc_doc_mod.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+ delete mode 100644 Assets/Res/Fonts/norm_ri_mod_tga.bmp
+ create mode 100644 Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont_75.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_c2c_mod_GameFont.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_c2c_mod_GameFont_75.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_hr_mod_GameFont.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_hr_mod_GameFont_75.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont_75.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_ri_mod_GameFont.tga
+ create mode 100644 Assets/Res/Fonts/other_mods/_ri_mod_GameFont_75.tga
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 89e9aa957..8a2972522 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -39,3 +39,4 @@
+ /Assets/XML/BasicInfos/CIV4BasicInf_os.txt                      export-ignore
+ /Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt     export-ignore
+ /Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt           export-ignore
++/Assets/Res/Fonts/other_mods/                                   export-ignore
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+deleted file mode 100644
+index 4c1eb3bbe..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds
+deleted file mode 100644
+index 4c1eb3bbe..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn
+deleted file mode 100644
+index e7962431e..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp
+deleted file mode 100644
+index 01aa7f7c5..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn
+deleted file mode 100644
+index cfb0343f8..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font.bmp b/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font.bmp
+deleted file mode 100644
+index 3f34fb329..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font.bmp and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg.bmp b/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg.bmp
+deleted file mode 100644
+index cf67118dc..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg.bmp and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg_small.bmp b/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg_small.bmp
+deleted file mode 100644
+index dfe09f8af..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_paint_net_magic_brush_no_bg_small.bmp and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_small.bmp b/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_small.bmp
+deleted file mode 100644
+index 3f34fb329..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/GameFonts/star_icon_game_font_small.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/GameFont.tga b/Assets/Res/Fonts/GameFont.tga
+index ed039e03c..0d1b956fc 100644
+Binary files a/Assets/Res/Fonts/GameFont.tga and b/Assets/Res/Fonts/GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/GameFont_75.tga b/Assets/Res/Fonts/GameFont_75.tga
+index 914a19963..afe2ac28d 100644
+Binary files a/Assets/Res/Fonts/GameFont_75.tga and b/Assets/Res/Fonts/GameFont_75.tga differ
+
+diff --git a/Assets/Res/Fonts/link_game_font_editor_v0.6_for_civ4.txt b/Assets/Res/Fonts/link_game_font_editor_v0.6_for_civ4.txt
+new file mode 100644
+index 000000000..5f13beb08
+--- /dev/null
++++ b/Assets/Res/Fonts/link_game_font_editor_v0.6_for_civ4.txt
+@@ -0,0 +1 @@
++https://forums.civfanatics.com/resources/game-font-editor-v0-6-for-civ-4.17276/
+\ No newline at end of file
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+deleted file mode 100644
+index 971e7dc4f..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+deleted file mode 100644
+index ed0baee69..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+deleted file mode 100644
+index b51021f8a..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+deleted file mode 100644
+index 6a57bd296..000000000
+Binary files a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp b/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+deleted file mode 100644
+index 603865554..000000000
+Binary files a/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_c2c_mod_tga.bmp b/Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+deleted file mode 100644
+index 64d17fa63..000000000
+Binary files a/Assets/Res/Fonts/norm_c2c_mod_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp b/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+deleted file mode 100644
+index fb4330823..000000000
+Binary files a/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_hr_mod_tga.bmp b/Assets/Res/Fonts/norm_hr_mod_tga.bmp
+deleted file mode 100644
+index 8a9f1b989..000000000
+Binary files a/Assets/Res/Fonts/norm_hr_mod_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_rfc_doc_mod.bmp b/Assets/Res/Fonts/norm_rfc_doc_mod.bmp
+deleted file mode 100644
+index 227a2a658..000000000
+Binary files a/Assets/Res/Fonts/norm_rfc_doc_mod.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp b/Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp
+deleted file mode 100644
+index d5e706b1c..000000000
+Binary files a/Assets/Res/Fonts/norm_rfc_doc_mod_75.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp b/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+deleted file mode 100644
+index 785d40144..000000000
+Binary files a/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/norm_ri_mod_tga.bmp b/Assets/Res/Fonts/norm_ri_mod_tga.bmp
+deleted file mode 100644
+index 0bbe23bc4..000000000
+Binary files a/Assets/Res/Fonts/norm_ri_mod_tga.bmp and /dev/null differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont.tga b/Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont.tga
+new file mode 100644
+index 000000000..25b8fb8c6
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont_75.tga b/Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont_75.tga
+new file mode 100644
+index 000000000..83cd6f533
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_base_advciv_1_12.tga_GameFont_75.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_c2c_mod_GameFont.tga b/Assets/Res/Fonts/other_mods/_c2c_mod_GameFont.tga
+new file mode 100644
+index 000000000..5d8824eec
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_c2c_mod_GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_c2c_mod_GameFont_75.tga b/Assets/Res/Fonts/other_mods/_c2c_mod_GameFont_75.tga
+new file mode 100644
+index 000000000..da4ac3f9b
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_c2c_mod_GameFont_75.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_hr_mod_GameFont.tga b/Assets/Res/Fonts/other_mods/_hr_mod_GameFont.tga
+new file mode 100644
+index 000000000..64f0b5dde
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_hr_mod_GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_hr_mod_GameFont_75.tga b/Assets/Res/Fonts/other_mods/_hr_mod_GameFont_75.tga
+new file mode 100644
+index 000000000..f07d5efdf
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_hr_mod_GameFont_75.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont.tga b/Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont.tga
+new file mode 100644
+index 000000000..22cdc946a
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont_75.tga b/Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont_75.tga
+new file mode 100644
+index 000000000..befa24ad2
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_rfc_doc_mod_GameFont_75.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_ri_mod_GameFont.tga b/Assets/Res/Fonts/other_mods/_ri_mod_GameFont.tga
+new file mode 100644
+index 000000000..320b0691a
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_ri_mod_GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/other_mods/_ri_mod_GameFont_75.tga b/Assets/Res/Fonts/other_mods/_ri_mod_GameFont_75.tga
+new file mode 100644
+index 000000000..1eb4af2b2
+Binary files /dev/null and b/Assets/Res/Fonts/other_mods/_ri_mod_GameFont_75.tga differ
+
+diff --git a/README.md b/README.md
+index 73abd370e..f5a771008 100644
+--- a/README.md
++++ b/README.md
+@@ -458,7 +458,7 @@ it too though unless i'm mistaken)
+ - Microsoft Paint (i very much love this image editor)
+ - Paint.NET for .dds conversion for example (see modding ressources for details)
+ - removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
+-- DXTBmp, useful for example (in my case at least or not or yes or and other or and not anyways etc) to modify [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/), a good tutorial on CFC forum [is there](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/) for example (that) i followed as well or tried to if it helps or not or and other or and not hopefully or not hopefully or hopefully anyways etc, example of how i used it in [this google drive folder link](https://drive.google.com/drive/folders/1zgu0hgOtBIjWfUpqTSKnw95ryVnagnbx?usp=sharing) (a bit if not lot or maybe bit but anwyays happily in the end or not or yes anyways etc succeeded in) successfully doing, so maybe these steps or/and screenshots can help as well, may not have followed all recommended or best practices, but it works quite well and i am satisfied with it, so maybe is good enough if not simply good maybe or not but anyways etc hopefully helpful or not or yes or and other or and not at least to me maybe or and other or maybe not others or and other or and not etc or yes or not or other or etc or and not or ye sor etc anyways etc anyways anyways etc...
++- [Game Font Editor (v0.6) fir Civ4](https://forums.civfanatics.com/resources/game-font-editor-v0-6-for-civ-4.17276/), which is an amazing software (as recommended by gemini 3 pro thanks a lot but anyways etc.), tremendously better than dxtbmp that was shit xd real bad, now it's so easy and effective and reliable with this thanks but anyways etc. Used to edit .tga files in [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/).
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+ - PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc..., note 2: be careful if unpacking all fpks in same folder may create errors/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or not or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism anyways etc after consideration of all or most of these or and other ones or and not anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 494006389..3b3010754 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -45,7 +45,6 @@ Instead of:
+ [Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete anyways etc) using regexp (with chatgpt 5's help anyways etc) and vs code anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-anyways-etc-using-regexp-with-chatgpt-5s-help-anyways-etc-and-vs-code-anyways-etc)  
+ [Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
+ [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
+-[Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
+ [ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)  
+ [Insert an img in a text label in sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
+ [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building-anyways-etc)  
+@@ -732,64 +731,6 @@ In the following example of code, please note that there is a specific order of
+ </ProcessInfo>
+ ```
+ 
+-## Copy of the tutorial on how to modify GameFonts.tga for FREE
+-
+-Note: you may want to read all this at least the end before you start doing it, in case you see something that makes you change your mind/choose another approach instead, but do as you prefer anyways etc.
+-
+-Source: [CFC forum link](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/)
+-
+-In case it is deleted, i have made a copy here which is as follows adjusted or not or and other or and not anyways etc for AdvCiv-SAS (formatting the github readme or and other or and not anyways etc):
+-
+-```text
+-Tutorial: Editing GameFonts.tga for Free
+-
+-
+-- BEFORE YOU START: Get the image(s) you want to add to the file.
+-- Because I am really cheap, I usually hunt Google Images for what I want and then use IrfanView to resize and edit it. I then paste it into GIMP to save as a DDS file. (I am mystified by GIMP&#8217;s user interface and use it for as little as possible.)
+-- Get a copy of DTXBmp; install it.
+-- Go to the GameFonts.tga file you want to edit in File Manager. With the right mouse button, select "Open With" DTXBmp
+-- You should get a screen that looks like this&#8230; DTXBmpScreenShot2.jpg
+-- Click on the third icon from the left on the bottom; floating help identifies it as "send to editor".
+-- The Windows Paint application will pop up with the main icon screen, using filename &#8216;norm.bmp&#8217;. At this point, I like to maximize that window and View->Zoom->Custom->200%
+-- Pull up the image you want to add. Resize it to be 21 pixels wide by 20 pixels high. Hit Edit->Copy to put it on the clipboard. (Again, I like IrfanView for this purpose.)
+-- Go over the Paint application and hit Edit->Paste. Then drag it to the next available empty spot of the type you want to use. In my case, I put it after the religion icons. If you are adding a resource, put it after the resource icons. You should be able to enclose your new bitmap within the purple gridlines so that all the lines still show. Click somewhere else in Paint to leave your image there permanently.
+-- Put the crosshair cursor right at the point where you pasted your picture. The lower right corner of Paint will show the coordinates. Write these down somewhere.
+-- Notice that all the existing icons in the file have a single green pixel after each icon. I have no idea what this is for, but according to rumor it might be important. So, go to one of the purple gridlines that has it, grab a 3x20 section containing the line, Edit->Copy and then Edit->Paste as once for each icon. You should be able to do this by eye. (Zoom helps!)
+-- Hit File->Save. (I hope you are still with me because all this has been the EASY part!)
+-- Go back to DTXBmp and hit the fourth icon from the left on bottom. "Refresh From Edit". The colored image in the center should now reflect your changes. [DO NOT CLOSE THE PAINT APP YET&#8212;you might still want it.]
+-- Now, go over to the right side where there is a black square with white icons on it. This is the infamous alpha channel part of your tga file. Hit the second icon from the left under it. "Send to Editor".
+-- [*]Another Paint application will pop up with the filename &#8216;trans.bmp&#8217;. I maximize and zoom here.
+-- Now, take a look over the white icons and pick the one that is closest to your new image. This will usually be one of the big round ones or the square one for Confucianism. Select a 21x20 area around it. Hit Edit->Copy.
+-- Now hit Edit->Paste. Move the pasted section to the coordinates that you wrote down in step #8. Click somewhere else in Paint to leave your image there permanently.
+-- Hit File->Save.
+-- Go back to DTXBmp. Under the black rectangle, hit the third icon from the left, "Refresh after Edit". Now both the colored image and the alpha channel should reflect your changes.
+-- In DTXBmp, hit File->Save.
+-- You are done. Close all the windows.
+-- Exclaim "What a hassle that was!"
+-- Reach over and smack your friend who is a graphics expert and is laughing hysterically at you by now. Remind him that you did this for FREE!
+-
+-The same process will work for GameFonts_75.tga, except that the size of each icon is 16x16 and the size of the bar with the green pixel is 3x16. I have never succeeded in converting GameFonts.tga by resizing it; I have always had to do the whole thing twice.
+-
+-- I played around with trying to generate the alpha channel by taking the original image and converting it to black & white and then taking the negative. - All of these efforts resulted in abyssmal failure. Cutting and pasting from the real alpha channel is all I could get to work.
+-
+-
+-Free Windows Applications Mentioned in this Tutorial
+-- DTXBmp may be found at http://fly.to/mwgfx/
+-- Irfanview may be found at http://www.irfanview.com/
+-- GIMP may be found at http://gimp-win.sourceforge.net/stable.html. (You need both the runtime environment and the application.)
+-
+-Cheers,
+-Eusebius
+-```
+-
+-I am not responsible if it is not updated anymore or inaccurate, but i hope it can be helpful hopefully or maybe not (is not helpful anyways etc) but in all cases is what i wanted to do (to write it here) anyways etc anyways etc anyways etc.
+-
+-Note: it may be much easier, especially if you import art assets from a mod, to also import the icons from the .tga of a mod, see some screenshots in the google drive link above (about this .tga part) where i show for example the difference between our (current) .tga files (in particular the GameFont.tga and GameFont_75.tga files here in this example anyways etc) (before fixing/updating the icons) and HR mod's .tga files (same i.e. GameFont.tga and GameFont_75.tga files anyways etc anyways etc anyways etc) anyways etc, but i find it also interesting even if painful to know how to do, it may be/serve helpful/us especially if you/we want to add your/our own assets that don't exist in any mod for example, but (this) is just a suggestion do as you prefer anyways etc.
+-
+-Note 2: This seems to be useful when reordering or/and adding/removing xml assets that depend on/use icons in the .tga file if i am not mistaken anyways etc, i don't know how it all works, but it seems that generally for example for religion assets, after having [reordered the xml order (for example in this git commit anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/025c696fac3f43dd2b2489d99f36fae3f407ecb4), now the icons are all messed up (paganism religion shows with the judaism icon and or other changes anyways etc, see for example screenshots 5085 and 5086), so the .tga icons's order seems to also need to reflect the xml order or vice versa, and similarly for the _75.tga file if i am not mistaken too do all these steps again for more fun if i may say or not as is more tedious but more accurate hopefully this way unless i am mistaken and there is somehow or could be a better way i don't know of maybe, else hopefully more accurate this way or whichever or not whichever way it may/would be, anyways etc anyways etc anyways etc, again i don't know exactly how it all works but i think this is the general idea and that it works helps quite good maybe or not or yes or and other or and not anyways etc hopefully helpful or not or yes or etc or and other or and not anyways etc.
+-
+-Note 3: you may want to make backups to avoid overwriting accidentally the wrong file or such or not having a backup of the file needed anyways etc anyways etc anyways etc...
+-
+ ## ICONS code XML names (may or not be exhaustive anyways etc) (with some color changing code as bonus or to be extra exhaustive a bit more than needed but is here if needed maybe anyways etc)
+ 
+ from: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvDllTranslator.cpp`
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+index e06e3a2b2..341515d0f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG
+index d25a91895..a0d147ac8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=39 embeddedFiles=39 omittedFiles=0 embeddedPatchBytes=27713

@@ -1,0 +1,197 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 434
+# Commit: f540e946590a06b05386101cc600be1c8fc9e6a9
+# History segment: K-Mod history
+# Parent used for diff: 5a00f61b44a88e82c6514f96bc818642a501d740
+# Title: Made some adjustments to AI_techBuildingValue, primarily to stop the AI from falling over themselves to get access to wonders for cultural victories. Fixed a...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	7	CvGameCoreDLL/CvPlayerAI.cpp
+7	6	CvGameCoreDLL/CvUnit.cpp
+10	3	CvGameCoreDLL/CvUnitAI.cpp
+6	0	CvGameCoreDLL/KmodPathFinder.cpp
+2	1	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index de3da3ceb..473d349f1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6051,15 +6051,15 @@ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bE
+ 			CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+ 			if (isTechRequiredForBuilding((eTech), eLoopBuilding))
+ 			{
+-				int iBuildingValue = 0;
++				int iBuildingValue = AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) ? 200 : 100; // was 0 (moved the 100 from later)
+ 				
+ 				if (kLoopBuilding.getSpecialBuildingType() != NO_BUILDING)
+ 				{
+-					iBuildingValue += ((bCapitalAlone) ? 100 : 25);
++					iBuildingValue += ((bCapitalAlone) ? 50 : 25); // was 100 : 25
+ 				}
+ 				else
+ 				{
+-					iBuildingValue += ((bCapitalAlone) ? 200 : 50);
++					iBuildingValue += ((bCapitalAlone) ? 100 : 50); // was 200 : 50
+ 				}
+ 
+ 				//the granary effect is SO powerful it deserves special code
+@@ -6090,7 +6090,7 @@ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bE
+ 					iValue += iTempValue;
+ 				}
+ 
+-				iBuildingValue += 100;
++				// iBuildingValue += 100; // moved to the top
+ 
+                 if ((GC.getBuildingClassInfo((BuildingClassTypes)iJ).getDefaultBuildingIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)))
+                 {
+@@ -6108,9 +6108,15 @@ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bE
+                 
+                 if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
+                 {
+-                    int iMultiplier = (isLimitedWonderClass((BuildingClassTypes)iJ) ? 1 : 3);
++                    /* original bts code
++					int iMultiplier = (isLimitedWonderClass((BuildingClassTypes)iJ) ? 1 : 3);
+                     iBuildingValue += (150 * (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) + kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE))) * iMultiplier;
+-                    iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ;
++                    iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ; */
++					// K-Mod (just tweaking some of the numbers)
++					int iWeight = isLimitedWonderClass((BuildingClassTypes)iJ) ? 50 : 250;
++                    iBuildingValue += iWeight * (kLoopBuilding.getCommerceChange(COMMERCE_CULTURE) + kLoopBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE));
++                    iBuildingValue += (350 + 3 * iWeight) * kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) / 100;
++					// K-Mod end
+                 }
+ 
+ 				if (bFinancialTrouble)
+@@ -6144,7 +6150,7 @@ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bE
+ 				// don't adjust for negative modifiers to prevent ignoring assembly line, etc.
+ 				if ( AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION3) && kLoopBuilding.getHealth() > 0)
+ 				{
+-					iBuildingValue += kLoopBuilding.getHealth() * 150;
++					iBuildingValue += kLoopBuilding.getHealth() * 100; // was 150
+ 				}
+ 
+ 				if (kLoopBuilding.getPrereqAndTech() == eTech)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 283e89563..7900180bb 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -8935,11 +8935,9 @@ int CvUnit::experienceNeeded() const
+ 	if (GC.getUSE_GET_EXPERIENCE_NEEDED_CALLBACK()) // K-Mod. I've writen C to replace the python callback.
+ 	{
+ 		// Use python to determine pillage amounts...
+-		int iExperienceNeeded;
+ 		long lExperienceNeeded;
+ 
+ 		lExperienceNeeded = 0;
+-		iExperienceNeeded = 0;
+ 
+ 		CyArgsList argsList;
+ 		argsList.add(getLevel());	// pass in the units level
+@@ -8947,17 +8945,20 @@ int CvUnit::experienceNeeded() const
+ 
+ 		gDLL->getPythonIFace()->callFunction(PYGameModule, "getExperienceNeeded", argsList.makeFunctionArgs(),&lExperienceNeeded);
+ 
+-		iExperienceNeeded = (int)lExperienceNeeded;
++		//iExperienceNeeded = (int)lExperienceNeeded;
++		lExperienceNeeded = std::min((long)MAX_INT, lExperienceNeeded); // K-Mod
+ 
+ 		if (lExperienceNeeded >= 0) // K-Mod
+-			return iExperienceNeeded;
++			return (int)lExperienceNeeded;
+ 	}
+ 	// K-Mod. C version of the original python code.
+-	int iExperienceNeeded = iExperienceNeeded = getLevel() * getLevel() + 1;
++	// Note: python rounds towards negative infinity, but C++ rounds towards 0.
++	// So the code needs to be slightly different to achieve the same effect.
++	int iExperienceNeeded = getLevel() * getLevel() + 1;
+ 
+ 	int iModifier = GET_PLAYER(getOwnerINLINE()).getLevelExperienceModifier();
+ 	if (iModifier != 0)
+-		iExperienceNeeded += (iExperienceNeeded * iModifier + 99) / 100;
++		iExperienceNeeded = (iExperienceNeeded * (100+iModifier) + 99) / 100;
+ 
+ 	return iExperienceNeeded;
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a2932fb89..9753a0faa 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17815,7 +17815,8 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 		{
+ 			if (pLoopSelectionGroup != getGroup())
+ 			{				
+-				if (pLoopSelectionGroup->AI_getMissionAIType() == MISSIONAI_ASSAULT)
++				//if (pLoopSelectionGroup->AI_getMissionAIType() == MISSIONAI_ASSAULT)
++				if (pLoopSelectionGroup->AI_getMissionAIType() == MISSIONAI_ASSAULT && pLoopSelectionGroup->getHeadUnitAI() == UNITAI_ASSAULT_SEA) // K-Mod. (b/c assault is also used for ground units)
+ 				{
+ 					CvPlot* pLoopPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
+ 
+@@ -17840,11 +17841,17 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 												CvPlot* pEndTurnPlot = getPathEndTurnPlot();
+ 											
+ 												int iOtherPathTurns = MAX_INT;
+-												if (pLoopSelectionGroup->generatePath(pLoopSelectionGroup->plot(), pLoopPlot, iFlags, true, &iOtherPathTurns))
++												//if (pLoopSelectionGroup->generatePath(pLoopSelectionGroup->plot(), pLoopPlot, iFlags, true, &iOtherPathTurns))
++												// K-Mod. Use a different pathfinder, so that we don't clear our path data.
++												KmodPathFinder loop_path;
++												loop_path.SetSettings(pLoopSelectionGroup, iFlags, iPathTurns);
++												if (loop_path.GeneratePath(pLoopPlot))
++												// K-Mod end
+ 												{
+ 													// We need to get there the turn after they do, +1 required whether
+ 													// they move first or we do
+-													iOtherPathTurns += 1;
++													//iOtherPathTurns += 1;
++													iOtherPathTurns = loop_path.GetPathTurns() + 1;
+ 												}
+ 												else
+ 												{
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 5bdd2d758..2689ada20 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -127,6 +127,12 @@ bool KmodPathFinder::GeneratePath(const CvPlot* pToPlot)
+ 		pToPlot->getX_INLINE(), pToPlot->getY_INLINE());
+ }
+ 
++int KmodPathFinder::GetPathTurns() const
++{
++	FAssert(end_node);
++	return end_node->m_iData2;
++}
++
+ CvPlot* KmodPathFinder::GetPathFirstPlot() const
+ {
+ 	FAssert(end_node);
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index e2ec8f76e..f7dfd6706 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -23,7 +23,8 @@ public:
+ 
+ 	bool GeneratePath(int x1, int y1, int x2, int y2);
+ 	bool GeneratePath(const CvPlot* pToPlot); // just a wrapper for convenience
+-	FAStarNode* GetEndNode() { FAssert(end_node); return end_node.get(); }
++	FAStarNode* GetEndNode() const { FAssert(end_node); return end_node.get(); }
++	int GetPathTurns() const;
+ 	CvPlot* GetPathFirstPlot() const;
+ 	void SetSettings(const CvPathSettings& new_settings);
+ 	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1, int iHW=-1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath, iHW)); }
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7907

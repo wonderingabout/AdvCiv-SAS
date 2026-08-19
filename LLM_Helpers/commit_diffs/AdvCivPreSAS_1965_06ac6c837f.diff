@@ -1,0 +1,318 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1965
+# Commit: 06ac6c837f3cfd2160144d4075af284908abcb93
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ee4842fae0345bc6b7eb3f2a03f79b40f0b83cb7
+# Title: A few misc. style and comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	19	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CvGameCoreUtils.h
+2	2	CvGameCoreDLL/CvGlobals.cpp
+2	2	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvMap.cpp
+3	1	CvGameCoreDLL/CvMap.h
+3	2	CvGameCoreDLL/CvMapGenerator.cpp
+5	4	CvGameCoreDLL/CvPlayer.cpp
+6	15	CvGameCoreDLL/CvPlayerAI.cpp
+1	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index e8496c234..df6eeaa22 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1696,9 +1696,9 @@ int stepDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)  // a
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot const& kFromPlot = *GC.getMap().plotSoren(
++	CvPlot const& kFromPlot = GC.getMap().getPlot(
+ 			gDLL->getFAStarIFace()->GetStartX(finder), gDLL->getFAStarIFace()->GetStartY(finder));
+-	CvPlot const& kToPlot = *GC.getMap().plotSoren(iToX, iToY);
++	CvPlot const& kToPlot = GC.getMap().getPlot(iToX, iToY);
+ 	if (!kFromPlot.sameArea(kToPlot))
+ 		return FALSE;
+ 
+@@ -1804,11 +1804,11 @@ int stepValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 	if (parent == NULL)
+ 		return TRUE;
+ 
+-	CvPlot const& kNewPlot = *GC.getMap().plotSoren(node->m_iX, node->m_iY);
++	CvPlot const& kNewPlot = GC.getMap().getPlot(node->m_iX, node->m_iY);
+ 	if (kNewPlot.isImpassable())
+ 		return FALSE;
+ 
+-	CvPlot const& kFromPlot = *GC.getMap().plotSoren(parent->m_iX, parent->m_iY);
++	CvPlot const& kFromPlot = GC.getMap().getPlot(parent->m_iX, parent->m_iY);
+ 	if (!kFromPlot.sameArea(kNewPlot))
+ 		return FALSE;
+ 
+@@ -1840,7 +1840,7 @@ int teamStepValid(FAStarNode* parent, FAStarNode* node, int data, const void* po
+ 	if (kNewPlot.isImpassable())
+ 		return FALSE;
+ 
+-	CvPlot const& kFromPlot = *GC.getMap().plotSoren(parent->m_iX, parent->m_iY);
++	CvPlot const& kFromPlot = GC.getMap().getPlot(parent->m_iX, parent->m_iY);
+ 	if (!kFromPlot.sameArea(kNewPlot))
+ 		return FALSE;
+ 
+@@ -1900,26 +1900,16 @@ int stepAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer,
+ 
+ int routeValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+ {
+-	CvPlot* pNewPlot;
+-	PlayerTypes ePlayer;
+-
+ 	if (parent == NULL)
+-	{
+ 		return TRUE;
+-	}
+ 
+-	pNewPlot = GC.getMap().plotSoren(node->m_iX, node->m_iY);
+-
+-	ePlayer = ((PlayerTypes)(gDLL->getFAStarIFace()->GetInfo(finder)));
+-
+-	if (!(pNewPlot->isOwned()) || (pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam()))
++	CvPlot const& kNewPlot = GC.getMap().getPlot(node->m_iX, node->m_iY);
++	PlayerTypes ePlayer = (PlayerTypes)gDLL->getFAStarIFace()->GetInfo(finder);
++	if (!kNewPlot.isOwned() || kNewPlot.getTeam() == TEAMID(ePlayer))
+ 	{
+-		if (pNewPlot->getRouteType() == GET_PLAYER(ePlayer).getBestRoute(pNewPlot))
+-		{
++		if (kNewPlot.getRouteType() == GET_PLAYER(ePlayer).getBestRoute(&kNewPlot))
+ 			return TRUE;
+-		}
+ 	}
+-
+ 	return FALSE;
+ }
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index b64aa15ec..ef3871469 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -48,7 +48,8 @@ double percentileRank(std::vector<double>& distribution, double score,
+ // <advc>
+ /*  Hash based on the components of x. Plot index of capital factored in for
+ 	increased range if ePlayer given. (ePlayer is ignored if it has no capital.)
+-	Result between 0 and 1. Returns float b/c CvRandom uses float (not double). */
++	Result between 0 and 1. Returns float b/c CvRandom uses float (not double).
++	(Similar but more narrow: CvUnitAI::AI_unitBirthmarkHash, AI_unitPlotHash) */
+ float hash(std::vector<long> const& x, PlayerTypes ePlayer = NO_PLAYER);
+ // For hashing just a single input
+ float hash(long x, PlayerTypes ePlayer = NO_PLAYER);
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index cf79968be..047f12ba5 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -809,7 +809,7 @@ int CvGlobals::getMAX_CIV_PLAYERS()
+ {
+ 	return MAX_CIV_PLAYERS;
+ }
+-/*  <advc.opt> Optional parameters added. The return value is only an upper bound,
++/*  <advc.003t> Optional parameters added. The return value is only an upper bound,
+ 	even if an argument is given. */
+ int CvGlobals::getNUM_UNIT_PREREQ_OR_BONUSES(UnitTypes eUnit) const
+ {
+@@ -852,7 +852,7 @@ int CvGlobals::getNUM_ROUTE_PREREQ_OR_BONUSES(RouteTypes eRoute) const
+ 	return (eRoute == NO_ROUTE || getInfo(eRoute).isAnyPrereqOrBonus() ?
+ 			getDefineINT(NUM_ROUTE_PREREQ_OR_BONUSES) : 0);
+ }
+-// </advc.opt>
++// </advc.003t>
+ int CvGlobals::getNUM_CORPORATION_PREREQ_BONUSES() const
+ {
+ 	return getDefineINT(NUM_CORPORATION_PREREQ_BONUSES);
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 23a32f07b..974f08787 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -584,7 +584,7 @@ public:
+ 	}
+ 	void setWATER_TERRAIN(bool bShallow, int iValue);
+ 	// </advc.opt>
+-	// <advc> Parameters added  // The getNUM...PREREQ... functions are all exposed to Python
++	// <advc.003t> Parameters added  // The getNUM...PREREQ... functions are all exposed to Python
+ 	int getNUM_UNIT_PREREQ_OR_BONUSES(UnitTypes eUnit = NO_UNIT) const;
+ 	// <advc.905b>
+ 	inline int getNUM_UNIT_SPEED_BONUSES(UnitTypes eUnit = NO_UNIT) const
+@@ -597,7 +597,7 @@ public:
+ 	int getNUM_AND_TECH_PREREQS(TechTypes = NO_TECH) const;
+ 	int getNUM_OR_TECH_PREREQS(TechTypes = NO_TECH) const;
+ 	int getNUM_ROUTE_PREREQ_OR_BONUSES(RouteTypes eRoute = NO_ROUTE) const;
+-	// </advc>
++	// </advc.003t>
+ 	int getNUM_CORPORATION_PREREQ_BONUSES() const; // (advc: A param like above doesn't help b/c all corps require resources)
+ 	inline float getPOWER_CORRECTION() const { return m_fPOWER_CORRECTION; } // advc.104
+ 	// advc: All inlined and constified
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 8aef985c8..08ba2ff9b 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -499,7 +499,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, CvArea const* pArea,
+ 	// </advc.304>
+ 	for (int i = 0; i < iTimeout; i++)
+ 	{
+-		CvPlot& kTestPlot = *plotSoren(
++		CvPlot& kTestPlot = getPlot(
+ 				GC.getGame().getSorenRandNum(getGridWidth(), "Rand Plot Width"),
+ 				GC.getGame().getSorenRandNum(getGridHeight(), "Rand Plot Height"));
+ 		if (isValidRandPlot(kTestPlot, iFlags, pArea, iMinCivUnitDistance))
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 01be6d62e..9d0b4c2d4 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -385,6 +385,7 @@ public: // advc: made several functions const
+ 	} // <advc.inl> Faster (w/o branching)
+ 	__forceinline CvPlot& getPlotByIndex(int iIndex) const
+ 	{
++		FAssertBounds(0, numPlots(), iIndex);
+ 		return m_pMapPlots[iIndex];
+ 	} // </advc.inl>
+ 	CvPlot* plotExternal(int iX, int iY) const; // advc.inl: Exported through .def file							// Exposed to Python
+@@ -398,7 +399,8 @@ public: // advc: made several functions const
+ 		int iMapY = coordRange(iY, getGridHeight(), isWrapY());
+ 		return (isPlot(iMapX, iMapY) ? &m_pMapPlots[plotNum(iMapX, iMapY)] : NULL);
+ 	}
+-	__forceinline CvPlot* plotSoren(int iX, int iY) const // advc.inl: Renamed from plotSorenINLINE
++	// advc.inl: Renamed from plotSorenINLINE (was already force-inlined in BtS and that helps too)
++	__forceinline CvPlot* plotSoren(int iX, int iY) const
+ 	{
+ 		if (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD)
+ 			return NULL;
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index a1d53856c..3b2b51876 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -605,9 +605,10 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonusType)
+ 					int iNumTiles = pLoopArea->getNumTiles();
+ 					int iAddedTotal = kMap.getNumBonuses(eBonusType);
+ 					if (iAddedTotal * 3 < 2 * iTarget &&
+-							iNumTiles < 4 * NUM_CITY_PLOTS) // K-Mod
++						iNumTiles < 4 * NUM_CITY_PLOTS) // K-Mod
++					{
+ 						continue;
+-
++					}
+ 					// number of unique bonuses starting on the area, plus this one
+ 					int iNumUniqueBonusesOnArea = 1 + pLoopArea->countNumUniqueBonusTypes();
+ 					//int iValue = iNumTiles / iNumUniqueBonusesOnArea;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e4268e84b..0c5c451cf 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2782,7 +2782,7 @@ const wchar* CvPlayer::getNameKey() const
+ {
+ 	if ((GC.getInitCore().getLeaderNameKey(getID()).empty() ||
+ 		GC.getGame().isMPOption(MPOPTION_ANONYMOUS) && isAlive()) &&
+-		/*  advc.001: Had a crash here while loading a save from within a game with
++		/*  advc.001p: Had a crash here while loading a save from within a game with
+ 			a higher player count than in the save. CvInitCore had already been reset.
+ 			Can perhaps only occur with a debugger attached that slows the DLL down. */
+ 		getLeaderType() != NO_LEADER)
+@@ -5376,9 +5376,10 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+ 	}
+ 	// <dlph.19> (advc: simplified)
+ 	if (kBuilding.isCapital() && GC.getGame().getGameState() == GAMESTATE_ON &&
+-			GET_TEAM(getTeam()).isAnyVictoryCountdown()) // advc.opt
+-		return false; // </dlph.19>
+-
++		GET_TEAM(getTeam()).isAnyVictoryCountdown()) // advc.opt
++	{
++		return false;
++	} // </dlph.19>
+ 	if (kOurTeam.isBuildingClassMaxedOut(eBuildingClass))
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c9644c5ab..219481bf7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7458,9 +7458,10 @@ int CvPlayerAI::AI_getFirstImpressionAttitude(PlayerTypes ePlayer) const
+ 				getWarmongerRespect());
+ 		personalityModifier += iRespectModifier * 0.75;
+ 		personalityModifier += h.getAIAttitudeChangePercent() / 100.0; // advc.148
+-		/*  advc.104x: Low UWAI_PERSONALITY_PERCENT makes the peace weights and
++		/*  <advc.104x> Low UWAI_PERSONALITY_PERCENT makes the peace weights and
+ 			respect values more similar; don't want that to increase the relations bonus. */
+-		personalityModifier *= GC.getDefineINT("UWAI_PERSONALITY_PERCENT") / 100.0;
++		static int const iUWAI_PERSONALITY_PERCENT = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
++		personalityModifier *= iUWAI_PERSONALITY_PERCENT / 100.0;
+ 		iAttitude += ::round(personalityModifier);
+ 		// </advc.130b>
+ 	}
+@@ -23042,21 +23043,11 @@ int CvPlayerAI::AI_countNumAreaHostileUnits(CvArea const& kArea, bool bPlayer, b
+ 	}
+ 	else
+ 	{
+-		int iCenterX = pCenter->getX();
+-		int iCenterY = pCenter->getY();
+ 		// We set the range, not the caller - after all, this is an AI function.
+-		int iRange = 13 + 2 * getCurrentEra();
+-		for (int dx = -iRange; dx <= iRange; dx++)
++		for (SquareIter it(*pCenter, 13 + 2 * getCurrentEra()); it.hasNext(); ++it)
+ 		{
+-			for (int dy = -iRange; dy <= iRange; dy++)
+-			{
+-				CvPlot* pLoopPlot = m.plot(iCenterX + dx, iCenterY + dy);
+-				if (pLoopPlot != NULL && pLoopPlot->isArea(kArea))
+-				{
+-					iCount += pLoopPlot->countHostileUnits(getID(), bPlayer, bTeam,
+-							bNeutral, bHostile);
+-				}
+-			}
++			if (it->isArea(kArea))
++				iCount += it->countHostileUnits(getID(), bPlayer, bTeam, bNeutral, bHostile);
+ 		}
+ 	} // </advc.081>
+ 	return iCount;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index c3ab98211..e7f455670 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4083,8 +4083,7 @@ bool CvUnit::canAirBombAt(const CvPlot* pPlot, int iX, int iY) const
+ 		return false;
+ 
+ 	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
+-
+-	if (plotDistance(pPlot->getX(), pPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > airRange())
++	if (plotDistance(pPlot, pTargetPlot) > airRange())
+ 		return false;
+ 
+ 	if (pTargetPlot->isOwned())
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index f3635e3c7..a0f82c0e6 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -579,7 +579,7 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	if (!CreateFXml())
+ 		return false;
+ 
+-	/* advc: Replaced all GC.get...Info() calls with direct accesses; see the
++	/*	advc: Replaced all GC.get...Info() calls with direct accesses; see the
+ 		comment under the friend declaration in CvGlobals.h. */
+ 
+ 	LoadGlobalClassInfo(GC.m_paGameSpeedInfo, "CIV4GameSpeedInfo", "GameInfo", "Civ4GameSpeedInfo/GameSpeedInfos/GameSpeedInfo", false);
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=12069

@@ -1,0 +1,408 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4967
+# Commit: 455a85d30a81ca9e040ee2d4c68299b781ab5232
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3d9364ac907b93dcdad3492e030dd38830b816b2
+# Title: rename "SCIENTIFIC_METHOD" and "SCIMETHOD" to "WATER_WHEEL" and "WATER_WHEEL", and/or such. Replace "SCIMETHOD" and "_ScientificMethod" with "WATER_WHEEL" an...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+6	6	Assets/XML/Audio/AudioDefines.xml
+5	5	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+5	5	Assets/XML/Events/CIV4EventTriggerInfos.xml
+12	12	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Terrain/CIV4BonusInfos.xml
+5	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+6	2	Assets/XML/Text/CIV4GameText_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Units/CIV4BuildInfos.xml
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 07887ac84..210f0c0aa 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -950,7 +950,7 @@ class SevoPediaBuilding:
+ 		iObsoleteTech = buildingInfo.getObsoleteTech()
+ 	
+ 		# If no direct obsolete tech, check if it's a special building type
+-		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
++		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method (now removed anyways etc) though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
+ 		if iObsoleteTech == -1:
+ 			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+ 			if iSpecialBuildingType != -1:
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 629ebb57d..6837e431e 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12944,8 +12944,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_SCIMETHOD</ScriptID>
+-		<SoundID>SND_TECH_SCIMETHOD</SoundID>
++		<ScriptID>AS2D_TECH_WATER_WHEEL</ScriptID>
++		<SoundID>SND_TECH_WATER_WHEEL</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15060,8 +15060,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_SCIMETHOD</ScriptID>
+-		<SoundID>SND_TECH_MP_SCIMETHOD</SoundID>
++		<ScriptID>AS2D_TECH_MP_WATER_WHEEL</ScriptID>
++		<SoundID>SND_TECH_MP_WATER_WHEEL</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index c402e7ba6..077721906 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8614,7 +8614,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_NATURALISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_NATURALISM</Filename>
++			<Filename>Sounds/Tech/Tech_ScientificMethod</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8676,8 +8676,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_SCIMETHOD</SoundID>
+-			<Filename>Sounds/Tech/Tech_ScientificMethod</Filename>
++			<SoundID>SND_TECH_WATER_WHEEL</SoundID>
++			<Filename>Sounds/Tech/Tech_Alphabet</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9258,7 +9258,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_NATURALISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_NATURALISM</Filename>
++			<Filename>Sounds/Tech/Tech_MP_ScientificMethod</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9320,8 +9320,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_SCIMETHOD</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_ScientificMethod</Filename>
++			<SoundID>SND_TECH_MP_WATER_WHEEL</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_Alphabet</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index eaf068510..b1cf3465d 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -8725,7 +8725,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++			<ObsoleteTech>TECH_WATER_WHEEL</ObsoleteTech>
+ 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -9273,7 +9273,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++			<ObsoleteTech>TECH_WATER_WHEEL</ObsoleteTech>
+ 			<!-- custom: until we do and if we do ideally but anyways etc our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat anyways etc -->
+ 			<!-- custom: with our tech tree rework, now based on construction, see docs including but not only or only or not the notes .txt type of files and ctrl+f "ziggurat" for example for details or wikipedia online or such or and other sources or and not anyways etc -->
+ 			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+@@ -23164,7 +23164,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+-			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
++			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<PrereqTech>TECH_LITERATURE</PrereqTech>
+ 			<TechTypes/>
+@@ -24153,7 +24153,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+-			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting if i may say anyways etc building/effect anyways etc, was TECH_SCIENTIFIC_METHOD -->
++			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting if i may say anyways etc building/effect anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_AESTHETICS and techTypes TECH_POLYTHEISM -->
+ 			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+@@ -27782,7 +27782,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+-			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
++			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+ 			<!-- custom: was TECH_POLYTHEISM and tech types empty anyways etc-->
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index ab1133321..01877bfcc 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -53,7 +53,7 @@
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_MONASTERY</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
+-			<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD -->
++			<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_PRIESTHOOD -->
+ 			<TechPrereq>TECH_MONARCHY</TechPrereq>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index b582bdc8e..a67ea94f1 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -7540,7 +7540,7 @@
+ 				<Event>EVENT_ANCIENTOLYMPICS_2</Event>
+ 			</PrereqEvents>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+-			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD has been moved in tech tree anyways etc -->
++			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD (now removed anyways etc) has been moved in tech tree anyways etc -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+ 			</OrPreReqs>
+@@ -8576,7 +8576,7 @@
+ 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+@@ -9100,7 +9100,7 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
++			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+ 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+@@ -10772,7 +10772,7 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+-			<!-- custom: use a closer tech instead in our reworked tech tree anyways etc, was TECH_SCIENTIFIC_METHOD -->
++			<!-- custom: use a closer tech instead in our reworked tech tree anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_ECONOMICS</PrereqTech>
+ 			</OrPreReqs>
+@@ -15942,7 +15942,7 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 			</AndPreReqs>
+-			<!-- custom: replace TECH_SCIENTIFIC_METHOD now that it has a reworked position in tech tree anyways etc with TECH_THEORY_OF_EVOLUTION -->
++			<!-- custom: replace TECH_SCIENTIFIC_METHOD (now removed anyways etc) now that it has a reworked position in tech tree anyways etc with TECH_THEORY_OF_EVOLUTION -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_THEORY_OF_EVOLUTION</ObsoleteTech>
+ 			</ObsoleteTechs>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index b15182405..ac0da854e 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1761,7 +1761,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+@@ -2573,7 +2573,7 @@
+ 			<iGridX>11</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+-			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old now removed TECH_SCIENTIFIC_METHOD but anyways etc)) -->
++			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old TECH_SCIENTIFIC_METHOD (now removed anyways etc) but anyways etc)) -->
+ 			<SpecialistExtraCommerces>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1</iCommerce>
+@@ -3355,12 +3355,12 @@
+ 			<SoundMP>AS2D_TECH_MP_CHEMISTRY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Chemistry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,9</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_SCIENTIFIC_METHOD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_SCIENTIFIC_METHOD</Type>
+-			<Description>TXT_KEY_TECH_SCIENTIFIC_METHOD</Description>
+-			<Civilopedia>TXT_KEY_TECH_SCIENTIFIC_METHOD_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_WATER_WHEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_WATER_WHEEL</Type>
++			<Description>TXT_KEY_TECH_WATER_WHEEL</Description>
++			<Civilopedia>TXT_KEY_TECH_WATER_WHEEL_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_SCIENTIFIC_METHOD_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -3434,9 +3434,9 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_SCIENTIFIC_METHOD_QUOTE</Quote>
+-			<Sound>AS2D_TECH_SCIMETHOD</Sound>
+-			<SoundMP>AS2D_TECH_MP_SCIMETHOD</SoundMP>
++			<Quote>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Quote>
++			<Sound>AS2D_TECH_WATER_WHEEL</Sound>
++			<SoundMP>AS2D_TECH_MP_WATER_WHEEL</SoundMP>
+ 			<!-- custom: button import from c2c mod anyways etc, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks if i may say but anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds</Button>
+ 		</TechInfo>
+@@ -3503,7 +3503,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+@@ -3577,7 +3577,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 4391e7dfc..574939310 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -399,7 +399,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
+ 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
+ 			<ArtDefineTag>ART_DEF_BONUS_OIL</ArtDefineTag>
+-			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
++			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<TechReveal>TECH_COMBUSTION</TechReveal>
+ 			<TechCityTrade>TECH_COMBUSTION</TechCityTrade>
+ 			<TechObsolete>NONE</TechObsolete>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 763ad9e74..a14347bda 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -890,4 +890,9 @@
+ 		<Tag>TXT_KEY_TECH_DEPOPULATION</Tag>
+ 		<English>Depopulation</English>
+ 	</TEXT>
++	<!-- custom: replace "SCIENTIFIC_METHOD" with "WATER_WHEEL" anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_WATER_WHEEL</Tag>
++		<English>Water Wheel</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index d4dc58f9e..b47b63ebf 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -294,10 +294,10 @@
+ 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
+ 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
+ 	</TEXT>
+-	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc -->
++	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc (update: susing scientific_method (now removed quote anyways etc)) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
+-		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
++		<English>"I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei</English>
+ 	</TEXT>
+ 	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
+ 	<TEXT>
+@@ -359,6 +359,10 @@
+ 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
+ 		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
++		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 4db9b1f9d..9fbdc786c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -777,4 +777,12 @@
+ 		<Tag>TXT_KEY_TECH_DEPOPULATION_PEDIA</Tag>
+ 		<English>[TAB]Population decline, also known as depopulation, is a reduction in a human population size. Throughout history, Earth's total human population has continued to grow but projections suggest this long-term trend may be coming to an end.[PARAGRAPH:1]From antiquity until the beginning of the Industrial Revolution, the global population grew very slowly, at about 0.04% per year. After about 1800, the growth rate accelerated to a peak of 2.1% annually during the 1962-1968 period, but since then, due to the worldwide collapse of the total fertility rate, it has slowed to 0.9% as of 2023. The global growth rate in absolute numbers accelerated to a peak of 92.8 million in 1990, but has since slowed to 70.4 million in 2023.[PARAGRAPH:1]Long-term projections indicate that the growth rate of the human population of the planet will continue to slow and that before the end of the 21st century, it will reach zero. Examples of this emerging trend are Japan, whose population is currently (2023) declining at the rate of 0.5% per year, and China, whose population has peaked and is currently (2023) declining at the rate of about 0.2% per year. By 2050, Europe's population is projected to be declining at the rate of 0.3% per year.[PARAGRAPH:1]Population growth has declined mainly due to the abrupt decline in the global total fertility rate, from 5.3 in 1963 to 2.2 in 2023. The decline in the total fertility rate has occurred in every region of the world and is a result of a process known as demographic transition. To maintain its population, ignoring migration, a country on average requires a minimum fertility rate of 2.2 children per woman of childbearing age (the number is slightly greater than two because not all children live to adulthood). However, most societies experience a drop in fertility to well below two as they grow more wealthy.[PARAGRAPH:1]The tendency of women in wealthier countries to have fewer children is attributed to a variety of reasons, such as lower infant mortality and a reduced need for children as a source of family labor or retirement welfare, both of which reduce the incentive to have many children. Better access to education for young women, which broadens their job prospects, is also often cited.[PARAGRAPH:1]Possible consequences of long-term national population decline can be net negative or positive. If a country can increase its workforce productivity faster than its population is declining, the results, in terms of its economy, the quality of life of its citizens, and the environment, can be net positive. If it cannot increase workforce productivity faster than its population's decline, the results can be negative.[PARAGRAPH:1]National efforts to confront a declining population to date have been focused on the possible negative economic consequences and have been centered on increasing the size and productivity of the workforce.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: rename "SCIENTIFIC_METHOD" and "SCIMETHOD" to "WATER_WHEEL" and "WATER_WHEEL", and/or such, see techinfo xml button code comment for extra bit if i may say but anyways etc of info but anyways etc on tech name about the mod that gave me the idea since i was hesitating but didn't consider this one but anyways etc; also pedia entry from https://en.wikipedia.org/wiki/Water_wheel similarly but anyways etc, and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_WATER_WHEEL_PEDIA</Tag>
++		<English>[TAB]A water wheel is a machine for converting the kinetic energy of flowing or falling water into useful forms of power, often in a watermill. A water wheel consists of a large wheel (usually constructed from wood or metal), with numerous blades or buckets attached to the outer rim forming the drive mechanism. Water wheels were still in commercial use well into the 20th century, although they are no longer in common use today. Water wheels are used for milling flour in gristmills, grinding wood into pulp for papermaking, hammering wrought iron, machining, ore crushing and pounding fibre for use in the manufacture of cloth.[PARAGRAPH:1]Some water wheels are fed by water from a mill pond, which is formed when a flowing stream is dammed. A channel for the water flowing to or from a water wheel is called a mill race. The race bringing water from the mill pond to the water wheel is a headrace; the one carrying water after it has left the wheel is commonly referred to as a tailrace.[PARAGRAPH:1]Waterwheels were used for various purposes from things such as agriculture to metallurgy in ancient civilizations spanning the Near East, Hellenistic world, China, Roman Empire and India. Waterwheels saw continued use in the post-classical age, like in medieval Europe and the Islamic Golden Age, but also elsewhere. In the mid- to late 18th century John Smeaton's scientific investigation of the water wheel led to significant increases in efficiency, supplying much-needed power for the Industrial Revolution. Water wheels began being displaced by the smaller, less expensive and more efficient turbine, developed by Beno�t Fourneyron, beginning with his first model in 1827. Turbines are capable of handling high heads, or elevations, that exceed the capability of practical-sized waterwheels.[PARAGRAPH:1]The main difficulty of water wheels is their dependence on flowing water, which limits where they can be located. Modern hydroelectric dams can be viewed as the descendants of the water wheel, as they too take advantage of the movement of water downhill.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index 82b994c79..505a6ead9 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -284,7 +284,7 @@
+ 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
+ 			<Help/>
+ 			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY anyways etc -->
+-			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			<iTime>400</iTime>
+ 			<iCost>0</iCost>
+ 			<bKill>0</bKill>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index a50204a6a..149ea85e5 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -19925,7 +19925,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
++			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=26409

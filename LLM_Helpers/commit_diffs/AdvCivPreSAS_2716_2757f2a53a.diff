@@ -1,0 +1,210 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2716
+# Commit: 2757f2a53a2316a2f8e0b474c91ff935e8b62e1a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bca0ec2391e1332501dee5ee600521ecf0f2f696
+# Title: A little bit of cleanup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/XML/Terrain/CIV4TerrainSchema.xml
+51	51	CvGameCoreDLL/CvGame.cpp
+3	3	CvGameCoreDLL/CvPlayer.h
+8	9	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4TerrainSchema.xml b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+index be54700fa..9503d4d96 100644
+--- a/Assets/XML/Terrain/CIV4TerrainSchema.xml
++++ b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+@@ -250,6 +250,7 @@
+ 	<ElementType name="FeatureTerrainBooleans" content="eltOnly">
+ 		<element type="FeatureTerrainBoolean" minOccurs="0" maxOccurs="*"/>
+ 	</ElementType>
++	<!-- advc (note): Unused, the DLL doesn't even load it. -->
+ 	<ElementType name="bUseLSystem" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="BonusInfo" content="eltOnly">
+ 		<element type="Type"/>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b66258ce5..924702288 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1631,6 +1631,57 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
+ 	}
+ }
+ 
++/*	For each of n teams, let the closeness score for that team be the
++	average distance of an edge between two players on that team.
++	This function calculates the closeness score for each team and
++	returns the sum of those n scores. The lower the result, the better "clumped"
++	the players' starting locations are.
++	Note: for the purposes of this function, player i will be assumed to start
++	in the location of player kStartingLocs[i] */
++int CvGame::getTeamClosenessScore(  // advc: params used to be arrays
++	EnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
++	std::vector<PlayerTypes> const& kStartingLocs)
++{
++	int iScore = 0;
++	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++	{
++		int iTeamTotalDist = 0;
++		int iNumEdges = 0;
++		for (MemberIter itFirstMember(itTeam->getID()); itFirstMember.hasNext();
++			++itFirstMember)
++		{
++			for (MemberIter itSecondMember(itTeam->getID()); itSecondMember.hasNext();
++				++itSecondMember)
++			{
++				PlayerTypes const eFirst = itFirstMember->getID();
++				PlayerTypes const eSecond = itSecondMember->getID();
++				if (eFirst <= eSecond)
++					continue;
++				// Add the edge between these two players that are on the same team
++				iNumEdges++;
++				PlayerTypes eFirstStart = kStartingLocs.at(eFirst);
++				PlayerTypes eSecondStart = kStartingLocs.at(eSecond);
++				if (eFirstStart < eSecondStart) // Ensure eFirstStart > eSecondStart
++					std::swap(eFirstStart, eSecondStart);
++				else FAssertMsg(eFirstStart != eSecondStart,
++						"Two players are (hypothetically) assigned to the same starting location!");
++				FAssertMsg(kDistances.get(eFirstStart, eSecondStart) > 0, "Distance not computed?"); // advc
++				iTeamTotalDist += kDistances.get(eFirstStart, eSecondStart);
++			}
++		}
++		int iTeamScore;
++		if (iNumEdges == 0)
++			iTeamScore = 0;
++		else
++		{
++			// The avg distance between team edges is the team score
++			iTeamScore = ROUND_DIVIDE(iTeamTotalDist, iNumEdges);
++		}
++		iScore += iTeamScore;
++	}
++	return iScore;
++}
++
+ // <advc.108>
+ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eLevel)
+ {
+@@ -2823,57 +2874,6 @@ bool CvGame::isWeakStartingFoodBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
+ 			iBestImprovFood > 0);
+ } // </advc.108>
+ 
+-/*	For each of n teams, let the closeness score for that team be the
+-	average distance of an edge between two players on that team.
+-	This function calculates the closeness score for each team and
+-	returns the sum of those n scores. The lower the result, the better "clumped"
+-	the players' starting locations are.
+-	Note: for the purposes of this function, player i will be assumed to start
+-	in the location of player kStartingLocs[i] */
+-int CvGame::getTeamClosenessScore(  // advc: params used to be arrays
+-	EnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
+-	std::vector<PlayerTypes> const& kStartingLocs)
+-{
+-	int iScore = 0;
+-	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+-	{
+-		int iTeamTotalDist = 0;
+-		int iNumEdges = 0;
+-		for (MemberIter itFirstMember(itTeam->getID()); itFirstMember.hasNext();
+-			++itFirstMember)
+-		{
+-			for (MemberIter itSecondMember(itTeam->getID()); itSecondMember.hasNext();
+-				++itSecondMember)
+-			{
+-				PlayerTypes const eFirst = itFirstMember->getID();
+-				PlayerTypes const eSecond = itSecondMember->getID();
+-				if (eFirst <= eSecond)
+-					continue;
+-				// Add the edge between these two players that are on the same team
+-				iNumEdges++;
+-				PlayerTypes eFirstStart = kStartingLocs.at(eFirst);
+-				PlayerTypes eSecondStart = kStartingLocs.at(eSecond);
+-				if (eFirstStart < eSecondStart) // Ensure eFirstStart > eSecondStart
+-					std::swap(eFirstStart, eSecondStart);
+-				else FAssertMsg(eFirstStart != eSecondStart,
+-						"Two players are (hypothetically) assigned to the same starting location!");
+-				FAssertMsg(kDistances.get(eFirstStart, eSecondStart) > 0, "Distance not computed?"); // advc
+-				iTeamTotalDist += kDistances.get(eFirstStart, eSecondStart);
+-			}
+-		}
+-		int iTeamScore;
+-		if (iNumEdges == 0)
+-			iTeamScore = 0;
+-		else
+-		{
+-			// The avg distance between team edges is the team score
+-			iTeamScore = ROUND_DIVIDE(iTeamTotalDist, iNumEdges);
+-		}
+-		iScore += iTeamScore;
+-	}
+-	return iScore;
+-}
+-
+ 
+ void CvGame::update()
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index c733719ee..f85cf6495 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -765,12 +765,12 @@ public:
+ 	int getCapitalX(TeamTypes eObserver, bool bDebug = false) const;
+ 	int getCapitalY(TeamTypes eObserver, bool bDebug = false) const;
+ 	int getCapitalX(PlayerTypes eObserver, bool bDebug = false) const;
+-	int getCapitalY(PlayerTypes eObserver, bool bDebug = false) const;
+-	// </advc.127b>  <advc>
++	int getCapitalY(PlayerTypes eObserver, bool bDebug = false) const; // </advc.127b>
++	// advc:
+ 	inline bool hasCapital() const
+ 	{
+ 		return (m_iCapitalCityID != FFreeList::INVALID_INDEX);
+-	} // </advc>
++	}
+ 
+ 	int getCitiesLost() const { return m_iCitiesLost; }																// Exposed to Python
+ 	void changeCitiesLost(int iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index de72b75ca..30ac1feaf 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -21558,15 +21558,14 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	// <advc.opt>
+ 	if(uiFlag >= 8)
+ 	{
+-		int sz=0;
+-		pStream->Read(&sz);
+-		for(int i = 0; i < sz; i++)
+-		{
+-			int first = -1, second = 0;
+-			pStream->Read(&first);
+-			pStream->Read(&second);
+-			FAssert(first >= 0);
+-			m_neededExplorersByArea[first] = second;
++		int iSize;
++		pStream->Read(&iSize);
++		for(int i = 0; i < iSize; i++)
++		{
++			int iFirst, iSecond;
++			pStream->Read(&iFirst);
++			pStream->Read(&iSecond);
++			m_neededExplorersByArea[iFirst] = iSecond;
+ 		}
+ 	}
+ 	else if(isAlive())
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6771

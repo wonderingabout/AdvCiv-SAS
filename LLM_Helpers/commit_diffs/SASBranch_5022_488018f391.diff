@@ -1,0 +1,606 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5022
+# Commit: 488018f391f19ed3ca7fcb4ccedbb0454d53528b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1e0478201c81a295d55e3fe68ced58ace7cfc9e1
+# Title: Greatly Enhance AI Relative trading valuing of key strategic bonuses (e.g. don't need horses if we have elephants or camel at classical but not at medieval a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	2	Assets/Python/Contrib/CvModName.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+143	2	Assets/XML/GlobalDefines_advciv_sas.xml
+1	0	Assets/XML/Terrain/CIV4BonusInfos.xml
+2	2	Assets/XML/Text/BUG Main Interface Options.xml
+199	2	CvGameCoreDLL/CvPlayerAI.cpp
+5	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+4	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+7	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/CvModName.py b/Assets/Python/Contrib/CvModName.py
+index 2f64c900e..aa4e80c0f 100644
+--- a/Assets/Python/Contrib/CvModName.py
++++ b/Assets/Python/Contrib/CvModName.py
+@@ -1,7 +1,8 @@
+ #CvModName.py
+ 
+-modName = "AdvCiv" # advc.009
+-displayName = "AdvCiv" #advc.009
++# <!-- custom: change mod name displayed ingame from "AdvCiv" to as of now "AdvCiv-SAS" as our mod is named as of now but anyways etc, and so that it also appears in "Settings" menu ingame (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
++modName = "AdvCiv-SAS" # advc.009
++displayName = "AdvCiv-SAS" #advc.009
+ modVersion = ""
+ 
+ civName = "BtS"
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 9c5924e1f..56b024751 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -34,7 +34,8 @@ class SevoPediaTrait:
+ 		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
+ 		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+-		self.H_SPECIAL = 150
++		# <!-- custom: add bit more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
++		self.H_SPECIAL = 200
+ 
+ 		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5754e27b0..549fe5cb8 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -570,7 +570,7 @@
+ 	<!-- custom: e.g. 3 cities multiplier and 4 num cities and 5 extra: (3 * 4) + 5 = 12 + 5 = 17 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
+-		<iDefineIntVal>3</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
+@@ -579,10 +579,151 @@
+ 	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 5 cities multiplier * 6 cities + 7 extra = 5 * 6 + 7 = 30 + 7 = 37 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER</DefineName>
+ 		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
++
++
++
++	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values anyways etc), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such but anyways etc). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled anyways etc. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See quick guide for more details or code anyways etc. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc. anways etc) specifically anyways etc; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts and/or such, check if accurate anyways etc -->
++	<!--
++	// totally—treat AIObjective as the general “this bonus is strategically important” knob, and then layer your edge rules (iron/copper, horse/camel, elephants (low value)) on top. Because both are multiplicative, order doesn’t change the math, but putting the AIObjective block first reads nicest.
++	// - 1) Generic AIObjective bump (broad rule) -
++	// Each AIObjective point adds X%, capped at Y%
++	-->
++	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example if i'm not mistaken anyways etc). -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_PER_POINT_PERCENT</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_MAX_PERCENT</DefineName>
++		<iDefineIntVal>200</iDefineIntVal>
++	</Define>
++	<!--
++	// - 2) Simple substitute multipliers for key strategics (edge rules) -
++	-->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: here is the logic i drafted to chatgpt 5 after some back and forth and consideration in this case i mean but anyways etc:
++	Note: since it is technical and i didn't reread and/or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct anyways etc
++
++	if we have no horse nor camel nor elephants pre medieval, increase them to 1.5x
++	if we have no metal pre medieval, increase them to 1.5x
++
++	if we have no horse nor camel medieval, increase them 1.5x if we have metals else 0.75x
++	if we have no metal medieval, increase iron 2.0x copper 0.75x if we have mounts else iron 1.0x copper 0.50x
++	regardless of all, medieval+ elephants is 0.50x (useless except buildings, offset the small iaiobjective and correct value anyways etc)
++	regardless of all, medieval+ copper is 0.50x similarly
++
++	if we have no horse nor camel renaissance, increase them 1.5x if we have metals else 0.75x
++	if we have no metal renaissance keep same value (does not matter anymore), if we have mounts increase 1.50x
++
++	if we have no camel don't care in industrial+, onwards apply 0.50x (not used for units anymore anyways etc)
++
++	if we have no horse in industrial (cavalry is now metal independant) keep same (we have fallbacks and better units onwards)
++
++	if we have no horse in modern+ apply 0.50x (not used for units anymore anyways etc)
++	Below code comments by chatgpt 5, check if accurate anyways etc
++	-->
++	<!-- Pre-Medieval: boost mounts if you have NO Horse/Camel/Elephants. 100=off, 150=+50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- Pre-Medieval: boost metals if you have NO Iron/Copper. 100=off, 150=+50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++
++	<!-- Medieval: if you LACK mounts but HAVE metals, how much to boost mounts (Knights). 200=+100%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT</DefineName>
++		<iDefineIntVal>200</iDefineIntVal>
++	</Define>
++	<!-- Medieval: if you LACK mounts and LACK metals, mounts are weaker (Knights blocked). 75=−25%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- Medieval: if you LACK metals but HAVE mounts, how much to boost IRON. 200=+100%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
++		<iDefineIntVal>200</iDefineIntVal>
++	</Define>
++	<!-- Medieval: if you LACK metals but HAVE mounts, how much to value COPPER. 75=−25%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- Medieval: if you LACK metals AND LACK mounts, IRON baseline. 100=no change. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<!-- Medieval: if you LACK metals AND LACK mounts, COPPER is low. 50=−50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- Medieval+: Elephants are basically for buildings only. 50=−50% from Medieval onward. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- Medieval+: Copper loses military relevance. 50=−50% from Medieval onward. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++
++	<!-- Renaissance: if you LACK mounts and HAVE metals, modest mount boost. 150=+50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_METAL_PCT</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- Renaissance: if you LACK mounts and LACK metals, small mount discount. 75=−25%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_METAL_PCT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- Renaissance: if you LACK metals but HAVE mounts, small IRON bump only. 150=+50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- Industrial+: Camel fades (no relevant units). 50=−50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++
++	<!-- Industrial: Horse still matters (Cavalry). 100=no change. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<!-- Modern+: Horse fades (no relevant units). 50=−50%. -->
++	<Define>
++		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index b72f81321..fa8cb0a6f 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1590,6 +1590,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 				<iYieldChange>0</iYieldChange>
+ 			</YieldChanges>
+ 			<iAITradeModifier>0</iAITradeModifier>
++			<!-- custom: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes but anyways etc), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start if i'm not mistaken but anyways etc, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage, camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry anyways etc, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it (enough hopefully in this case i mean but anyways etc) aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it if i may say and if i am not mistaken in this case i mean but anyways etc. -->
+ 			<iAIObjective>0</iAIObjective>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>1</iHappiness>
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 4cf858eec..69c0d1691 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -49,10 +49,10 @@
+ 		<English>Mod Name in Replays</English>
+ 		<German>Mod-Name in Replays</German>
+ 	</TEXT>
++	<!-- custom: remove folder name in case it changes as it did since we transitionned from AdvCiv to AdvCiv-SAS folder name if i'm not mistaken anyways etc. Clearer to remove it entirely rather i'd say i mean i think if i may say but anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MODNAMEINREPLAYS_HOVER</Tag>
+-		<English>When checked, the name of the mod's folder (normally "AdvCiv") is written into your replay files, which excludes them from the Hall of Fame screen when BtS is run without mods. (As for showing replays created by BtS or other mods on the AdvCiv Hall of Fame screen, see the [COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT] variables in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</English>
+-		<German>Speichert den Ordner-Namen des Mods (standardm��ig "AdvCiv") in [COLOR_BUILDING_TEXT]Civ4BeyondSwordReplay[COLOR_REVERT]-Dateien (Wiederholungen). Dies verhindert, dass die BtS-Ruhmeshalle AdvCiv-Replays auff�hrt, wenn kein Mod geladen ist. (Was die Anzeige von BtS-Replays und Replays anderer Mods in der AdvCiv-Ruhmeshalle angeht, siehe die COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT]-Variablen in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</German>
++		<English>When checked, the name of the mod's folder is written into your replay files, which excludes them from the Hall of Fame screen when BtS is run without mods. (As for showing replays created by BtS or other mods on the AdvCiv Hall of Fame screen, see the [COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT] variables in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</English>
+ 	</TEXT>
+ 
+ 	<!-- advc.106b -->
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2741ff3be..88ab1d0fb 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12175,7 +12175,9 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 	// It’s simple, robust, and it lines resource prices up with actual empire impact without micromanaging current builds.
+ 	//
+ 	// --- Tech-gated building synergy for this bonus (simple & fast) ---
+-	if (rOurVal.isPositive())
++	static const bool bValueMoreMultiEffectBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES");
++
++	if (bValueMoreMultiEffectBonuses && rOurVal.isPositive())
+ 	{
+ 		scaled rBoost = 1; // multiply our per-city value by this at the end
+ 
+@@ -12278,7 +12280,202 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		// <!-- custom: 0.5 leads to a bit too low prices upon testing, increase it a bit but not too much so prices are not ridiculously high nor too low anyways etc -->
+ 		rOurVal *= fixp(0.75);
+ 	}
+-	// (existing code continues...)
++
++	// <!-- custom: also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc. anways etc), AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts and/or such, check if accurate anyways etc -->
++	// --- 1) Generic AIObjective bump (broad rule) ---
++	static const bool bValueMoreAIObjectiveBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES");
++
++	if (bValueMoreAIObjectiveBonuses)
++	{
++		const int obj = GC.getInfo(eBonus).getAIObjective();
++		if (obj > 0)
++		{
++			static const int iAIObjectivePerPointPercent = GC.getDefineINT("SAS_BONUS_TRADE_AI_OBJECTIVE_PER_POINT_PERCENT");
++			static const int iAIObjectiveMaxPercent = GC.getDefineINT("SAS_BONUS_TRADE_AI_OBJECTIVE_MAX_PERCENT");
++
++			// Each AIObjective point adds X%, capped at Y%
++			const int perPt = iAIObjectivePerPointPercent;
++			const int maxPct = iAIObjectiveMaxPercent;
++			int pct = 100 + (obj * perPt);
++			if (pct > maxPct) pct = maxPct;
++			rOurVal *= per100(pct);
++		}
++	}
++
++	// --- 2) Simple substitute multipliers for key strategics (edge rules) ---
++	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
++
++	if (bValueMoreIronCopperHorseCamelRelatively)
++	{
++		static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString("BONUS_IRON");
++		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER");
++		static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString("BONUS_HORSE");
++		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL");
++		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
++
++		const bool haveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
++		const bool haveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
++		const bool haveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
++		const bool haveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
++		const bool haveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
++
++		const bool haveAnyMetal  = (haveIron || haveCopper);
++		const bool haveAnyMount  = (haveHorse || haveCamel);
++
++		const int iCurrentEra = getCurrentEra();
++		// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
++		// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
++		// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
++		// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
++		// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
++		// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
++		// 401,5: 			<Type>ERA_MODERN</Type> (5)
++		// 477,5: 			<Type>ERA_FUTURE</Type> (6)
++		static const int ERA_MEDIEVAL     = 2;
++		static const int ERA_RENAISSANCE  = 3;
++		static const int ERA_INDUSTRIAL   = 4;
++		static const int ERA_MODERN       = 5;
++
++		const bool isPreMed        = (iCurrentEra != NO_ERA && iCurrentEra <  ERA_MEDIEVAL);
++		const bool isMedieval      = (iCurrentEra == ERA_MEDIEVAL);
++		const bool isRenaissance   = (iCurrentEra == ERA_RENAISSANCE);
++		const bool isModernPlus    = (iCurrentEra >= ERA_MODERN);
++
++		int pct = 100;
++
++		static const int MED_ELEPHANT_ANY_PCT                   = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT");
++		static const int MED_COPPER_ANY_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT");
++
++		// ===== PRE-MEDIEVAL =====
++		if (isPreMed)
++		{
++			// Tunables (percents)
++			static const int PREMED_NO_MOUNT_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT");
++			static const int PREMED_NO_METAL_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT");
++
++			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
++				!haveHorse && !haveCamel && !haveElephants)
++			{
++				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all” → mounts 1.5x
++			}
++			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !haveAnyMetal)
++			{
++				pct = PREMED_NO_METAL_PCT; // “no metals” → metals 1.5x
++			}
++		}
++
++		// ===== MEDIEVAL =====
++		else if (isMedieval)
++		{
++			static const int MED_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT");
++			static const int MED_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT");
++			static const int MED_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT");
++			static const int MED_NO_METAL_WITH_MOUNT_COPPER_PCT     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT");
++			static const int MED_NO_METAL_NO_MOUNT_IRON_PCT         = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT");
++			static const int MED_NO_METAL_NO_MOUNT_COPPER_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT");
++
++			// If we lack mounts
++			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
++			{
++				pct = haveAnyMetal ? MED_NO_MOUNT_WITH_METAL_PCT   // 2.0x (Knights attractive)
++								: MED_NO_MOUNT_NO_METAL_PCT;   // 0.75x (no metals ⇒ Knights blocked)
++			}
++			// If we lack metals
++			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
++			{
++				if (haveAnyMount) // mounts present ⇒ push Iron, discount Copper
++				{
++					pct = (eBonus == B_IRON ? MED_NO_METAL_WITH_MOUNT_IRON_PCT
++											: MED_NO_METAL_WITH_MOUNT_COPPER_PCT);
++				}
++				else // no mounts either
++				{
++					pct = (eBonus == B_IRON ? MED_NO_METAL_NO_MOUNT_IRON_PCT
++											: MED_NO_METAL_NO_MOUNT_COPPER_PCT);
++				}
++			}
++
++			// Regardless: Elephants are weak from Medieval on
++			if (eBonus == B_ELEPHANTS)
++			{
++				pct = MED_ELEPHANT_ANY_PCT;
++			}
++			// Regardless: Copper weak from Medieval on
++			else if (eBonus == B_COPPER)
++			{
++				pct = MED_COPPER_ANY_PCT;
++			}
++		}
++
++		// ===== RENAISSANCE =====
++		else if (isRenaissance)
++		{
++			static const int REN_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_METAL_PCT");
++			static const int REN_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_METAL_PCT");
++			static const int REN_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_METAL_WITH_MOUNT_IRON_PCT");
++			// (Copper at Renaissance stays handled by the MED+ copper clamp)
++
++			// If we lack mounts, modest push only when metals present
++			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
++			{
++				pct = haveAnyMetal ? REN_NO_MOUNT_WITH_METAL_PCT
++								: REN_NO_MOUNT_NO_METAL_PCT;
++			}
++			// If we lack metals, metals mostly indifferent now; small iron bump if mounts present
++			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
++			{
++				if (haveAnyMount && eBonus == B_IRON)
++				{
++					pct = REN_NO_METAL_WITH_MOUNT_IRON_PCT; // 1.5x iron only
++					// Copper still clamped by MED+ rule
++				}
++			}
++
++			// Carry over clamps
++			if (eBonus == B_ELEPHANTS)
++			{
++				pct = MED_ELEPHANT_ANY_PCT;
++			}
++			else if (eBonus == B_COPPER)
++			{
++				pct = MED_COPPER_ANY_PCT;
++			}
++		}
++
++		// ===== INDUSTRIAL+ / MODERN+ =====
++		else // iEra >= Industrial
++		{
++			static const int IND_PLUS_CAMEL_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT");
++			static const int IND_HORSE_BASE_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT");
++			static const int MOD_PLUS_HORSE_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT");
++
++			// Camel fades after Industrial
++			if (eBonus == B_CAMEL && !haveCamel)
++			{
++				pct = IND_PLUS_CAMEL_ANY_PCT;
++			}
++			// Horse: OK in Industrial (Cavalry), but fades by Modern+
++			else if (eBonus == B_HORSE && !haveHorse)
++			{
++				pct = (isModernPlus ? MOD_PLUS_HORSE_ANY_PCT : IND_HORSE_BASE_PCT);
++			}
++
++			// Carry over clamps
++			if (eBonus == B_ELEPHANTS)
++			{
++				pct = MED_ELEPHANT_ANY_PCT;
++			}
++			else if (eBonus == B_COPPER)
++			{
++				pct = MED_COPPER_ANY_PCT;
++			}
++		}
++
++		if (pct != 100)
++		{
++			rOurVal *= per100(pct);
++		}
++	}
+ 
+ 	rOurVal *= getNumCities(); // bonusVal is per city
+ 	/*  Don't pay fully b/c trade doesn't give us permanent access to the
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 865586608..2ac1c55f8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -14,7 +14,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#renaming-non-exhaustive)  
+ &emsp;[Sevopedia reworks and other related changes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#sevopedia-reworks-and-other-related-changes)  
+ &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ui--in-game)  
+-&emsp;[Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#performance-optimizations)  
++&emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#codeperformance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#48-civs-dll)  
+ &emsp;[AI general behaviour (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ai-general-behaviour-non-exhaustive-see-global-defines-and-ai-variables-and-such-xml-files-for-details)  
+ &emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#bonuses-ai)  
+@@ -112,7 +112,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ 
+-## Performance optimizations
++## Code/Performance optimizations
+ 
+ - various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
+ 
+@@ -130,6 +130,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Bonuses (AI)
+ 
+ - added in key very strategic bonuses especially values in `iAIObjective` (they were all 0 in base advciv anyways etc). As of now i set this only for copper, iron, horse, camel, aluminium, and uranium (due to robotic/future era changes/additions anyways etc). Info added on sevopedia bonus, see there or XML for details anyways etc. It seems it was not applied in too many places, but was taken into consideration, however all values were 0. Hopefully helps. In AdvCiv-SAS, we have added it to some functions as well so that we for example value more these iAIObjective (the higher the value the more we do) bonuses anyways etc for settling our next cities (candidates city sites that have it in their BFC are valued more and the higher the value the more these sites are valued if i'm not mistaken anyways etc), or which bonus to improve first (now we successfully improve copper before stone in an autoplay (for example in kagoshima city just after planting/settling it anyways etc, a worker goes there and successfully improves copper and no longer the stone first anyways etc) unlike before where we improved stone first, causing a critical delay of +/- 10 turns until we got copper to all our cities that we badly needed), as well also for example on which city to improve next (if it has said bonuses it is valued tremendously more as a next city to improve target, at least in theory as i didn't have a before after save file to compare the diff for this specific point, but hopefully helps (test/check to be sure if want to test it (hopefully harmless and safe too but untested in comparative way, just seems to run fine as is, check ti be sure anyways etc) but anyways etc)).
++- for iAIObjective of bonus_elephants in particular anyways etc: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes but anyways etc), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start if i'm not mistaken but anyways etc, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage (i.e. not critical enough to hide if i may say in this case i mean but anyways etc), camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry anyways etc, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it (enough hopefully in this case i mean but anyways etc) aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it if i may say and if i am not mistaken in this case i mean but anyways etc. For iAIObjective bonuses trading-related changes, see [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#diplomacy-ai) anyways etc.
+ 
+ #### Units in general (AI)
+ 
+@@ -195,6 +196,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in `UWAI::Team::considerPeace` in `UWAIAgent.cpp`, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio (vs ours as base anyways etc). This should make AI much stronger as it did in the sample testing where at turn 150 Hatshepsut AI who was strongest leader in the game at this stage could keep its lead until turn 200 thanks to our changes and make targeted campaigns in this sample i mean but anyways etc, instead of being badly dogpiled on and actually dying before turn 200 before our changes. Hopefully these are lax enough that plenty wars still happen, but the focus is on AI survivability and efficiency, not entertainment xd if i may say in this case i mean but anyways etc, see [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc) for details anyways etc.
+ - Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather than easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
++- Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
++- Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen and canons for example that don't require these bonuses). Similarly, elephants is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc. Tunables in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
+ 
+ #### Military (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index 33d8b9060..1d0b04116 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -14,7 +14,7 @@ It should work fine with the Steam one too, but given the choice again i may hav
+ 
+ ### Stable Version
+ 
+-You can download the latest stable version from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
++You can download the latest stable version from the [CFC Modpacks downloads page](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) of this AdvCiv-SAS mod.
+ 
+ Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (also with links there to changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
+ 
+@@ -58,17 +58,17 @@ See [/README.md#version-number](/README.md#version-number)
+ 
+ ## Upgrading/Downgrading version of the mod
+ 
+-If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not delete savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
++If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (deleting it does not delete savegames as they are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
+ 
+ ## If you have trouble downloading/installing/using/upgrading/downgrading the mod
+ 
+-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd but anyways etc, although it is a non-profit mod if i may say too but anyways etc...) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help if i may say i mean but anyways etc).
++Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd but anyways etc, although it is a non-financial profit mod if i may say too but anyways etc...) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help if i may say i mean but anyways etc).
+ 
+ ## Where to download more/other mods
+ 
+ If you want to try/play other mods than AdvCiv-SAS or browse them (but you may already know if you downloaded this, still, or if not, maybe this can help you too), consider visiting, among other possible sources/websites:
+ 
+-- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/)
++- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
+ - ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd but anyways etc) mod maybe as interesting maybe as AdvCiv, but i hope i can contribute there maybe)): [ModDB website](https://www.moddb.com/games/civilization-iv/mods)
+ 
+ But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 548808298..eeb982721 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -12,7 +12,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#renaming-non-exhaustive)  
+ &emsp;[Sevopedia reworks & related UI](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia-reworks--related-ui)  
+ &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ui--in-game)  
+-&emsp;[Performance Optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#performance-optimizations)  
++&emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#codeperformance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#48-civs-dll)  
+ &emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
+ &emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-ai)  
+@@ -103,7 +103,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ 
+-### Performance Optimizations
++### Code/Performance optimizations
+ 
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring; cached hot values via `static const`/hoisting; normalized inconsistent asset names) plus feature-level caching (AI Personality Panel). See (examples; not exhaustive): [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ 
+@@ -120,7 +120,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ #### Bonuses (AI)
+ 
+-- **Strategic bonus “AI Objective” weighting (rework):** Now assign non-zero `iAIObjective` to key bonuses (Copper, Iron, Horse, Camel, Aluminum, Uranium). In base AdvCiv these were `0`, so logic that referenced them did nothing; now they actually tip decisions. We also added code paths that consume these weights: (1) **city-site scoring** (`AIFoundValue::evaluate`) — extra-value candidate sites that have these bonuses in their BFC; (2) **worker build priority** (`CvUnitAI::AI_bestCityBuild`) — e.g., improve/connect Copper before Stone; (3) **which city to improve next** (`CvUnitAI::AI_nextCityToImprove`) — prefer cities with unconnected high-objective bonuses. Display added in Sevopedia Bonus pages; see there or XML for details.
++- **Strategic bonus “AI Objective” weighting (rework):** Now assign non-zero `iAIObjective` to key bonuses (Copper, Iron, Horse, Camel, Aluminum, Uranium). In base AdvCiv these were `0`, so logic that referenced them did nothing; now they actually tip decisions. We also added code paths that consume these weights: (1) **city-site scoring** (`AIFoundValue::evaluate`) — extra-value candidate sites that have these bonuses in their BFC; (2) **worker build priority** (`CvUnitAI::AI_bestCityBuild`) — e.g., improve/connect Copper before Stone; (3) **which city to improve next** (`CvUnitAI::AI_nextCityToImprove`) — prefer cities with unconnected high-objective bonuses; (4) **trading iAIObjective bonuses** (see [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#diplomacy-ai)). Display added in Sevopedia Bonus pages; see there or XML for details.
++- **Elephants bonus `iAIObjective`** in particular: Also set a **low** weight for **Bonus_Elephants** so the AI recognizes the **situational value of early War Elephants** without over-skewing previous mentionned choices for example. Elephants are visible from game start (not critical enough to hide) and don’t unlock new lines past midgame, so their weight stays **below Horse/Camel** (Camels remain higher since they gate multiple medieval/renaissance units and are only revealed at Animal Husbandry). Net effect: the AI can pursue Elephants as a **useful midgame pivot** (e.g., when stuck on Longbows→Muskets), but won’t chase them at the expense of broader strategy.
+ 
+ #### Units in general (AI)
+ 
+@@ -184,6 +185,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - **Multi-war threat management — “emergency peace” pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)**.
+ - **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)**.
++- **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
++- **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets/Cannons don’t need them). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. All multipliers are tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ #### Military (AI)
+ 
+@@ -208,7 +211,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, or civ-specific UUs like War Chariots. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc).
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+-- **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also trims **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
++- **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=64189

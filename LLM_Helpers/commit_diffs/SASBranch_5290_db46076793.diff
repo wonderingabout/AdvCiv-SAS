@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5290
+# Commit: db46076793d6fbb45acae1fc1b113f373e4b425e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cc0c5d1e2908aa9bc099bb3266990838dfcee8e0
+# Title: update docs (GPT-Codex-5.2)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	.gitattributes
+16	2	AGENTS.md
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 81669f63a..4f10cf894 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -35,7 +35,6 @@
+ /ruff.toml            export-ignore
+ /.claude/             export-ignore
+ /AGENTS.md            export-ignore
+-/analyze_comments.py  export-ignore
+ 
+ /Long_Comments/CIV4BuildingInf_os_Doto_mod.txt                          export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 5e6eb1486..9c34054a7 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,4 +1,4 @@
+-﻿# AGENTS
++# AGENTS
+ 
+ These rules apply to me GPT-Codex Guidelines or other agents now and later (future me too). Append the following instructions as we agree on them. You can expand this freely as you see fit.
+ 
+@@ -22,6 +22,7 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+ - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
+ - Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` depending on which model is doing the summarization.
+ - **Do NOT commit changes without explicit user approval** - wait for review at the end.
++- When committing, add a `Co-authored-by:` trailer with the model identifier unless the user requests otherwise.
+ - When user feedback adds a new rule, update this file proactively.
+ 
+ ## Current Scope (2026-01-02)
+@@ -83,7 +84,20 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+   - Pattern: Keep technical details and "why" verbose, remove conversational filler
+   - **Status**: Complete - all C++ files in CvGameCoreDLL now have concise, professional comments
+ 
+-## AI Enhancement Preferences
++## Coding Preferences
++
++### Python (Civ4)
++
++- Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
++- Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
++- Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
++- Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
++- In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
++- When adding guidance, include at least one simple code example so other agents can copy the pattern.
++
++### Docs
++
++- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user (AGENTS.md currently has markdownlint issues).
+ 
+ ## Comment Style Example
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2750

@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4425
+# Commit: bd4e118e6a3f9bf9101230062685cc82a8429f99
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 592eccd35eff4f9757e3685876d418adb089e5e6
+# Title: minor fixes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	0	_0_Base_AdvCiv_Docs/AdvCiv.ini => AdvCiv.ini
+2	4	_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+1	1	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/{African Voices [YtrouhSprzA].opus => _African Voices [YtrouhSprzA].opus}
+ rename _0_Base_AdvCiv_Docs/AdvCiv.ini => AdvCiv.ini (100%)
+ rename _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/{African Voices [YtrouhSprzA].opus => _African Voices [YtrouhSprzA].opus} (100%)
+
+[PATCHES]
+
+diff --git a/_0_Base_AdvCiv_Docs/AdvCiv.ini b/AdvCiv.ini
+similarity index 100%
+rename from _0_Base_AdvCiv_Docs/AdvCiv.ini
+rename to AdvCiv.ini
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+index 08bd8c5eb..d7a07a2dc 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
++++ b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+@@ -22,11 +22,9 @@ credit for the image: https://fr.pinterest.com/pin/412290540863776580/
+ - relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened, contact with Jao's portugal traders i mean, good contact with dutch travelevers too
+ - based on: Zara Yaqob seems to fit quite well from the little i know i mean anywyas, and i could
+ tweak it from there if i may say i mean anyways
+-- music diplomacy:
++- music diplomacy: _African Voices [YtrouhSprzA]
+ source:https://www.youtube.com/watch?v=YtrouhSprzA&list=RDQMsP4ztQIr7S4&start_radio=1
+-downloaded with yt-dlp (but currently not working so did from another website in this
+-case i mean anyways)
+-cut video with (todo cut a shorter verison of this? todo____)
++downloaded with yt-dlp
+ - picture: 
+ full: https://www.google.com/imgres?q=Ogiso%20Igodo&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3285326410148945280&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&docid=q7Q1Dp0uU2tR_M&tbnid=PY9QsZmqx6syPM&vet=12ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA..i&w=673&h=673&hcb=2&ved=2ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA#imgrc=PY9QsZmqx6syPM&imgdii=CJTvEIPbz2mqNM
+ - map of the (old kingdom) kingdom provided: https://thinkafrica.net/walls-of-benin/
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt
+index ed02bd3cb..becc86be9 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt	
++++ b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt	
+@@ -1,5 +1,5 @@
+ 1 - Kingdom Of Benin Diplomacy Theme:
+-African Voices：Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] cut at 2:30
++_African Voices [YtrouhSprzA] cut at 2:30
+ 
+ 2 - China
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/_African Voices [YtrouhSprzA].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/_African Voices [YtrouhSprzA].opus
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2989

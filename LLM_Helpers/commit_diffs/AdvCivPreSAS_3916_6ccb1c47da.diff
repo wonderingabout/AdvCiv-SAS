@@ -1,0 +1,361 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3916
+# Commit: 6ccb1c47dad0b7286f0d1859cce3600cb0108123
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 25414d0c35d17a60aa84ba227d558b6cf86f6a05
+# Title: Plot needs to be adj. to two rivers to connect their trade
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvGame.cpp
+0	13	CvGameCoreDLL/CvGameCoreUtils.cpp
+29	1	CvGameCoreDLL/CvGameCoreUtils.h
+6	25	CvGameCoreDLL/CvGlobals.cpp
+5	14	CvGameCoreDLL/CvGlobals.h
+59	38	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 8a9de1b67..b1fea0b96 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9116,7 +9116,8 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 19; // advc.500c: Update citizen assignments
+ 	//uiFlag = 20; // advc.130r: Update war attitude
+ 	//uiFlag = 21; // advc.enum
+-	uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
++	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
++	uiFlag = 23; // advc.124b: Need a plot group update for compatibility
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9293,6 +9294,9 @@ void CvGame::onAllGameDataRead()
+ 			initGameHandicap();
+ 		}
+ 	} // </advc.250a>
++	// <advc.124b> River connection rules have changed
++	if (m_uiSaveFlag <= 23)
++		updatePlotGroups(); // </advc.124b>
+ 	// <advc.003m>
+ 	for (TeamIter<> it; it.hasNext(); ++it)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 44131e23d..8f7b973b4 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -90,19 +90,6 @@ DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard)
+ 	return NO_DIRECTION;
+ }
+ 
+-bool isCardinalDirection(DirectionTypes eDirection)
+-{
+-	switch (eDirection)
+-	{
+-	case DIRECTION_EAST:
+-	case DIRECTION_NORTH:
+-	case DIRECTION_SOUTH:
+-	case DIRECTION_WEST:
+-		return true;
+-	}
+-	return false;
+-}
+-
+ DirectionTypes estimateDirection(int iDX, int iDY)
+ {
+ 	const int displacementSize = 8;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index d333d78e5..24c903480 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -73,12 +73,40 @@ void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
+ 
+ float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
+ 
++// <advc> Replacing (unused) tables in CvGlobals for single-step rotation
++inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
++	int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
++{
++	/*	Could also try
++		return static_cast<DirectionTypes>((eDir + i45DegRotations) & (NUM_DIRECTION_TYPES - 1));
++		... but I guess the optimizer will handle it. */
++	return static_cast<DirectionTypes>((eDir + i45DegRotations
++			+ NUM_DIRECTION_TYPES) // To avoid negative remainder
++			% NUM_DIRECTION_TYPES);
++}
++
++inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir,
++	int i45DegRotations = 1)
++{
++	return rotateDirClockw(eDir, -i45DegRotations);
++} // </advc>
+ inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir)		// Exposed to Python
+ {
+ 	return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES);
+ }
+ DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard);					// Exposed to Python
+-DllExport bool isCardinalDirection(DirectionTypes eDirection);								// Exposed to Python
++DllExport inline bool isCardinalDirection(DirectionTypes eDirection)						// Exposed to Python
++{
++	switch (eDirection)
++	{
++	case DIRECTION_EAST:
++	case DIRECTION_NORTH:
++	case DIRECTION_SOUTH:
++	case DIRECTION_WEST:
++		return true;
++	}
++	return false;
++}
+ DirectionTypes estimateDirection(int iDX, int iDY);											// Exposed to Python
+ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot);
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index cab2afcd0..b556f90b5 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -178,29 +178,9 @@ void CvGlobals::init() // allocate
+ 		{NO_CITYPLOT, 13, 12,  11, NO_CITYPLOT,}
+ 	};
+ 
+-	DirectionTypes aeTurnRightDirection[NUM_DIRECTION_TYPES] =
+-	{
+-		DIRECTION_NORTHEAST,	// DIRECTION_NORTH
+-		DIRECTION_EAST,			// DIRECTION_NORTHEAST
+-		DIRECTION_SOUTHEAST,	// DIRECTION_EAST
+-		DIRECTION_SOUTH,		// DIRECTION_SOUTHEAST
+-		DIRECTION_SOUTHWEST,	// DIRECTION_SOUTH
+-		DIRECTION_WEST,			// DIRECTION_SOUTHWEST
+-		DIRECTION_NORTHWEST,	// DIRECTION_WEST
+-		DIRECTION_NORTH,		// DIRECTION_NORTHWEST
+-	};
+-
+-	DirectionTypes aeTurnLeftDirection[NUM_DIRECTION_TYPES] =
+-	{
+-		DIRECTION_NORTHWEST,	// DIRECTION_NORTH
+-		DIRECTION_NORTH,		// DIRECTION_NORTHEAST
+-		DIRECTION_NORTHEAST,	// DIRECTION_EAST
+-		DIRECTION_EAST,			// DIRECTION_SOUTHEAST
+-		DIRECTION_SOUTHEAST,	// DIRECTION_SOUTH
+-		DIRECTION_SOUTH,		// DIRECTION_SOUTHWEST
+-		DIRECTION_SOUTHWEST,	// DIRECTION_WEST
+-		DIRECTION_WEST,			// DIRECTION_NORTHWEST
+-	};
++	// advc: unused
++	/*DirectionTypes aeTurnRightDirection[NUM_DIRECTION_TYPES] = ...
++	DirectionTypes aeTurnLeftDirection[NUM_DIRECTION_TYPES] = ...*/
+ 
+ 	DirectionTypes aaeXYDirection[DIRECTION_DIAMETER][DIRECTION_DIAMETER] =
+ 	{
+@@ -246,8 +226,9 @@ void CvGlobals::init() // allocate
+ 	memcpy(m_aiCityPlotX, aiCityPlotX, sizeof(m_aiCityPlotX));
+ 	memcpy(m_aiCityPlotY, aiCityPlotY, sizeof(m_aiCityPlotY));
+ 	memcpy(m_aiCityPlotPriority, aiCityPlotPriority, sizeof(m_aiCityPlotPriority));
+-	memcpy(m_aeTurnLeftDirection, aeTurnLeftDirection, sizeof(m_aeTurnLeftDirection));
+-	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
++	// advc: unused
++	/*memcpy(m_aeTurnLeftDirection, aeTurnLeftDirection, sizeof(m_aeTurnLeftDirection));
++	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));*/
+ 	memcpy(m_aaeXYCityPlot, aaiXYCityPlot, sizeof(m_aaeXYCityPlot));
+ 	memcpy(m_aaeXYDirection, aaeXYDirection,sizeof(m_aaeXYDirection));
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 42b3bf992..ffbb5ec05 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -175,18 +175,8 @@ public:
+ 	int const* getCityPlotY() const { return m_aiCityPlotY; }
+ 	int const* getCityPlotPriority() const { return m_aiCityPlotPriority; }
+ 	int maxCityPlotPriority() const { return m_iMaxCityPlotPriority; } // advc
+-	DirectionTypes const* getTurnLeftDirection() const { return m_aeTurnLeftDirection; }
+-	DirectionTypes getTurnLeftDirection(int i) const
+-	{
+-		FAssertBounds(0, NUM_DIRECTION_TYPES, i);
+-		return m_aeTurnLeftDirection[i];
+-	}
+-	DirectionTypes const* getTurnRightDirection() const { return m_aeTurnRightDirection; }
+-	DirectionTypes getTurnRightDirection(int i) const
+-	{
+-		FAssertBounds(0, NUM_DIRECTION_TYPES, i);
+-		return m_aeTurnRightDirection[i];
+-	}
++	/*	(advc: Unused getTurnLeftDirection, getTurnRightDirection deleted,
++		replacement rotateDir in CvGameCoreUtils.) */
+ 
+ 	//
+ 	// Global Infos
+@@ -874,8 +864,9 @@ protected:
+ 	int m_aiCityPlotPriority[NUM_CITY_PLOTS];
+ 	int m_iMaxCityPlotPriority; // advc
+ 	CityPlotTypes m_aaeXYCityPlot[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER];
+-	DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];
+-	DirectionTypes m_aeTurnRightDirection[NUM_DIRECTION_TYPES];
++	// advc: Can calculate these on the fly just fine (also: were unused)
++	/*DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];
++	DirectionTypes m_aeTurnRightDirection[NUM_DIRECTION_TYPES];*/
+ 	DirectionTypes m_aaeXYDirection[DIRECTION_DIAMETER][DIRECTION_DIAMETER];
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index ab76cb024..8305ece72 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1598,31 +1598,56 @@ bool CvPlot::isRiverSide() const
+ }
+ 
+ 
+-bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
+-{
+-	switch (eDirection)
++bool CvPlot::isRiverConnection(DirectionTypes eDir) const
++{
++	// advc: Rewritten; had been implemented through switch(eDir).
++	int const iRot = (isCardinalDirection(eDir) ? 2 : 1);
++	return (isRiverCrossing(rotateDirClockw(eDir, iRot)) ||
++			isRiverCrossing(rotateDirCounterClockw(eDir, iRot)));
++	/*	advc.124b (note): Now that this function is only used for checking
++		river-to-sea connections, a crossing in eDir would mean that a river
++		runs along the coast. I think isRiverToRiverConnection will handle
++		that case, so we don't need to check isRiverCrossing(eDir) here.
++		(And such rivers don't really have to be supported anyway.) */
++}
++
++/*	advc.124b: Allows connections between separate rivers only
++	when one of the plots is adjacent to both rivers.
++	(Could cache the result in an EnumMap<DirectionTypes,bool> member, i.e.
++	in a single byte, but I doubt that performance is that crucial here.) */
++bool CvPlot::isRiverToRiverConnection(CvPlot const& kOther) const
++{
++	FAssert(stepDistance(this, &kOther) == 1);
++	/*	Alias. Want the param name to communicate a symmetrical relation,
++		but, internally, we work with a (single) DirectionTypes value. */
++	CvPlot const& kTo = kOther;
++	DirectionTypes const eDir = directionXY(*this, kTo);
++	// Always allow trade straight across the river
++	if (isRiverCrossing(eDir))
++		return true;
++	if (isCardinalDirection(eDir))
+ 	{
+-	case NO_DIRECTION: return false; // advc.opt (instead of checking it upfront)
+-	case DIRECTION_NORTH:
+-		return (isRiverCrossing(DIRECTION_EAST) || isRiverCrossing(DIRECTION_WEST));
+-	case DIRECTION_NORTHEAST:
+-		return (isRiverCrossing(DIRECTION_NORTH) || isRiverCrossing(DIRECTION_EAST));
+-	case DIRECTION_EAST:
+-		return (isRiverCrossing(DIRECTION_NORTH) || isRiverCrossing(DIRECTION_SOUTH));
+-	case DIRECTION_SOUTHEAST:
+-		return (isRiverCrossing(DIRECTION_SOUTH) || isRiverCrossing(DIRECTION_EAST));
+-	case DIRECTION_SOUTH:
+-		return (isRiverCrossing(DIRECTION_EAST) || isRiverCrossing(DIRECTION_WEST));
+-	case DIRECTION_SOUTHWEST:
+-		return (isRiverCrossing(DIRECTION_SOUTH) || isRiverCrossing(DIRECTION_WEST));
+-	case DIRECTION_WEST:
+-		return (isRiverCrossing(DIRECTION_NORTH) || isRiverCrossing(DIRECTION_SOUTH));
+-	case DIRECTION_NORTHWEST:
+-		return (isRiverCrossing(DIRECTION_NORTH) || isRiverCrossing(DIRECTION_WEST));
+-	default:
+-		FAssert(false);
+-		return false;
++		DirectionTypes const ePerpClockw = rotateDirClockw(eDir, 2);
++		DirectionTypes const ePerpCounterClockw = rotateDirCounterClockw(eDir, 2);
++		if ((isRiverCrossing(ePerpClockw) && // as in BtS
++			(kTo.isRiverCrossing(ePerpClockw) ||
++			kTo.isRiverCrossing(rotateDirClockw(eDir, 3)))) ||
++			(isRiverCrossing(ePerpCounterClockw) && // as in BtS
++			(kTo.isRiverCrossing(ePerpCounterClockw) ||
++			kTo.isRiverCrossing(rotateDirCounterClockw(eDir, 3)))))
++		{
++			return true;
++		}
++		// Symmetrical to the additions above
++		return ((kTo.isRiverCrossing(ePerpClockw) &&
++				isRiverCrossing(rotateDirClockw(eDir))) ||
++				(kTo.isRiverCrossing(ePerpCounterClockw) &&
++				isRiverCrossing(rotateDirCounterClockw(eDir))));
+ 	}
++	return ((isRiverCrossing(rotateDirCounterClockw(eDir)) && // as in BtS
++			kTo.isRiverCrossing(rotateDirCounterClockw(eDir, 3))) ||
++			(isRiverCrossing(rotateDirClockw(eDir)) && // as in BtS
++			kTo.isRiverCrossing(rotateDirClockw(eDir, 3))));
+ }
+ 
+ 
+@@ -1922,9 +1947,8 @@ bool CvPlot::shouldProcessDisplacementPlot(int iDX, int iDY, //int iRange, // ad
+ 	if (fTheta >= -fSpread / 2 && fTheta <= fSpread / 2)
+ 		return true;
+ 	return false;
+-
+-	/*DirectionTypes eLeftDirection = GC.getTurnLeftDirection(eFacingDirection);
+-	DirectionTypes eRightDirection = GC.getTurnRightDirection(eFacingDirection);
++	/*DirectionTypes eLeftDirection = ::rotateDirCounterClockw(eFacingDirection);
++	DirectionTypes eRightDirection = ::rotateDirClockw(eFacingDirection);
+ 	//test which sides of the line equation (cross product)
+ 	int iLeftSide = aaiDdisplacements[eLeftDirection][0] * iDY - aaiDisplacements[eLeftDirection][1] * iDX;
+ 	int iRightSide = displacements[eRightDirection][0] * iDY - displacements[rightDirection][1] * iDX;
+@@ -3414,13 +3438,10 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 		if (GET_TEAM(eTeam).isRevealedCityTrade(kOther)) // advc.124
+ 			return true;
+ 
+-		if (kOther.isRiverNetwork(eTeam))
++		if (kOther.isRiverNetwork(eTeam) &&
++			kOther.isRiverConnection(directionXY(kOther, *this)))
+ 		{
+-			/*	advc (comment): Could argue that the river direction should matter here.
+-				If a river flows away from a water plot, then, at least graphically,
+-				they're not quite connected. (Same goes for the isRiverNetwork branch below.) */
+-			if (kOther.isRiverConnection(directionXY(kOther, *this)))
+-				return true;
++			return true;
+ 		}
+ 		/*	<advc.124> Case 1: kOther has a route and this plot has network terrain.
+ 			(Note: The isCityRadius check is just for performance.) */
+@@ -3439,14 +3460,14 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 
+ 	if (isRiverNetwork(eTeam))
+ 	{
+-		if (bOtherNetworkTerrain)
++		if (bOtherNetworkTerrain &&
++			isRiverConnection(directionXY(*this, kOther)))
+ 		{
+-			if (isRiverConnection(directionXY(*this, kOther)))
+-				return true;
++			return true;
+ 		}
+-
+-		if (isRiverConnection(directionXY(*this, kOther)) ||
+-			kOther.isRiverConnection(directionXY(kOther, *this)))
++		/*if (isRiverConnection(directionXY(*this, kOther)) ||
++			kOther.isRiverConnection(directionXY(kOther, *this)))*/
++		if (isRiverToRiverConnection(kOther)) // advc.124b
+ 		{
+ 			if (kOther.isRiverNetwork(eTeam))
+ 				return true;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 257fe1e1d..67740f9b0 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -92,7 +92,8 @@ public:
+ 	DllExport bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
+ 	bool isRiverSide() const;																		// Exposed to Python
+ 	bool isRiver() const { return (getRiverCrossingCount() > 0); }									// Exposed to Python
+-	bool isRiverConnection(DirectionTypes eDirection) const;										// Exposed to Python
++	bool isRiverConnection(DirectionTypes eDir) const;												// Exposed to Python
++	bool isRiverToRiverConnection(CvPlot const& kOther) const; // advc.124b
+ 	// advc.500:
+ 	bool isConnectRiverSegments() const;
+ 	// advc.121: A kind of canal detection
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=13863

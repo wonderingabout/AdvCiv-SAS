@@ -1,0 +1,286 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3933
+# Commit: bd90df31fdb095b6ceb450ca120caa07f6f7ace5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cfa7cff5e6b121da66976048e357a6a80f274f0c
+# Title: Minor refactor cleaning up after parent commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+11	2	CvGameCoreDLL/CvInfo_Base.h
+0	5	CvGameCoreDLL/CvInfo_Tech.cpp
+11	3	CvGameCoreDLL/CvInfo_Tech.h
+48	48	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 37b6217b6..ad57960d3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14989,7 +14989,7 @@ void CvGameTextMgr::buildFreeTechString(CvWStringBuffer &szBuffer,
+ void CvGameTextMgr::buildNoFearForSafetyString(CvWStringBuffer &szBuffer,
+ 	TechTypes eTech, bool bList, bool bPlayerContext)
+ {
+-	if (!GC.getInfo(eTech).isNoFearForSafety())
++	if (!GC.getInfo(eTech).get(CvTechInfo::NoFearForSafety))
+ 		return;
+ 	if (bList)
+ 		szBuffer.append(NEWLINE);
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 09b389931..cbc5c6ab3 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -249,10 +249,19 @@ private:
+ /*	advc.tag: (To expose a tag to Python, this macro needs to be called in the
+ 	public section of the concrete XML info class that defines the tag, and a
+ 	py_get... def needs to be added in the appropriate CyInfoPythonInterface*.cpp.) */
+-#define PY_GET_ELEMENT(ReturnType, TagName) \
++#define PY_GET_ELEMENT(TagName) \
+ 	private: \
+ 		FRIEND_CY_INFO_PYTHON_INTERFACE; \
+-		ReturnType py_get##TagName() const \
++		int py_get##TagName() const \
++		{ \
++			return get(TagName); \
++		} \
++	public:
++// advc.tag: (See above; this one is for BoolElements.)
++#define PY_IS_ELEMENT(TagName) \
++	private: \
++		FRIEND_CY_INFO_PYTHON_INTERFACE; \
++		bool py_is##TagName() const \
+ 		{ \
+ 			return get(TagName); \
+ 		} \
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index 53b169c82..4fcc0527b 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -43,7 +43,6 @@ m_bIrrigation(false),
+ m_bIgnoreIrrigation(false),
+ m_bWaterWork(false),
+ m_bRiverTrade(false),
+-m_bNoFearForSafety(false), // advc.500c
+ m_piDomainExtraMoves(NULL),
+ m_piFlavorValue(NULL),
+ m_piCommerceModifier(NULL), // K-Mod
+@@ -179,7 +178,6 @@ void CvTechInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_bIgnoreIrrigation);
+ 	stream->Read(&m_bWaterWork);
+ 	stream->Read(&m_bRiverTrade);
+-	stream->Read(&m_bNoFearForSafety); // advc.500c
+ 	stream->Read(&m_iGridX);
+ 	stream->Read(&m_iGridY);
+ 	SAFE_DELETE_ARRAY(m_piDomainExtraMoves);
+@@ -263,7 +261,6 @@ void CvTechInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_bIgnoreIrrigation);
+ 	stream->Write(m_bWaterWork);
+ 	stream->Write(m_bRiverTrade);
+-	stream->Write(m_bNoFearForSafety); // advc.500c
+ 	stream->Write(m_iGridX);
+ 	stream->Write(m_iGridY);
+ 	stream->Write(NUM_DOMAIN_TYPES, m_piDomainExtraMoves);
+@@ -333,8 +330,6 @@ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bIgnoreIrrigation, "bIgnoreIrrigation");
+ 	pXML->GetChildXmlValByName(&m_bWaterWork, "bWaterWork");
+ 	pXML->GetChildXmlValByName(&m_bRiverTrade, "bRiverTrade");
+-	// advc.500c:
+-	pXML->GetChildXmlValByName(&m_bNoFearForSafety, "bNoFearForSafety", false, false);
+ 	pXML->GetChildXmlValByName(&m_iGridX, "iGridX");
+ 	pXML->GetChildXmlValByName(&m_iGridY, "iGridY");
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index a30f343e5..44efa695c 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -11,6 +11,7 @@ protected:
+ 	void addElements(ElementList& kElements) const
+ 	{
+ 		base_t::addElements(kElements);
++		kElements.addBool(NoFearForSafety, "NoFearForSafety"); // advc.500c
+ 		kElements.addInt(BarbarianFreeTechModifier, "BarbarianFreeTechModifier"); // advc.301
+ 	}
+ public:
+@@ -23,6 +24,16 @@ public:
+ 	{
+ 		return base_t::get(static_cast<base_t::IntElementTypes>(e));
+ 	}
++	enum BoolElementTypes
++	{
++		NoFearForSafety = base_t::NUM_BOOL_ELEMENT_TYPES, // advc.500c
++		NUM_BOOL_ELEMENT_TYPES
++	};
++	PY_IS_ELEMENT(NoFearForSafety)
++	bool get(BoolElementTypes e) const
++	{
++		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
++	}
+ 	// </advc.tag>
+ 	friend class CvXMLLoadUtility;
+ public: // advc: All the const functions are exposed to Python except those added by mods
+@@ -68,8 +79,6 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	bool isIgnoreIrrigation() const { return m_bIgnoreIrrigation; }
+ 	bool isWaterWork() const { return m_bWaterWork; }
+ 	bool isRiverTrade() const { return m_bRiverTrade; }
+-	// advc.500c:
+-	bool isNoFearForSafety() const { return m_bNoFearForSafety; }
+ 
+ 	std::wstring getQuote() const;
+ 	const TCHAR* getSound() const;
+@@ -152,7 +161,6 @@ protected:
+ 	bool m_bIgnoreIrrigation;
+ 	bool m_bWaterWork;
+ 	bool m_bRiverTrade;
+-	bool m_bNoFearForSafety; // advc.500c
+ 
+ 	CvString m_szQuoteKey;
+ 	CvString m_szSound;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 58ef88cf2..ef97244fd 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5181,57 +5181,57 @@ void CvTeam::doBarbarianResearch()
+ 	CvPlayerAI const& kBarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+ 	FOR_EACH_ENUM(Tech)
+ 	{
+-		if (!isHasTech(eLoopTech) && /* advc.307: */ (bIgnorePrereqs ||
++		if (isHasTech(eLoopTech) || /* advc.307: */ (!bIgnorePrereqs &&
+ 			// K-Mod. Make no progress on techs until prereqs are researched.
+-			kBarbPlayer.canResearch(eLoopTech, false, true)))
++			!kBarbPlayer.canResearch(eLoopTech, false, true)))
+ 		{
+-			int iCount = 0;
+-			int iHasTech = 0; // advc.307
+-			TeamIter<CIV_ALIVE> it;
+-			for (; it.hasNext(); ++it)
+-			{
+-				CvTeam const& kLoopTeam = *it;
+-				if (kLoopTeam.isHasTech(eLoopTech) &&
+-					kLoopTeam.isInContactWithBarbarians()) // advc.302
+-				{
+-					iCount++;
+-				}
+-				// <advc.307>
+-				if (kLoopTeam.isHasTech(eLoopTech))
+-					iHasTech++; // </advc.307>
+-			} /* advc.302: Don't stop Barbarian research entirely even when there
+-				 is no contact with any civs */
+-			iCount = std::max(iCount, iHasTech / 3);
+-			if (iCount > 0)
++			continue;
++		}
++		int iCount = 0;
++		int iHasTech = 0; // advc.307
++		TeamIter<CIV_ALIVE> it;
++		for (; it.hasNext(); ++it)
++		{
++			CvTeam const& kLoopTeam = *it;
++			if (kLoopTeam.isHasTech(eLoopTech) &&
++				kLoopTeam.isInContactWithBarbarians()) // advc.302
+ 			{
+-				int const iPossible = it.nextIndex();
+-				/*  advc.307: In the late game, count all civs as having contact
+-					with Barbarians if at least one of them has contact. Otherwise,
+-					New World Barbarians catch up too slowly when colonized by only
+-					one or two civs. */
+-				if (bNoBarbCities)
+-					iCount = std::max(iCount, (2 * iHasTech) / 3);
+-				static scaled const rBARBARIAN_FREE_TECH_PERCENT = // advc.opt
+-						per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.301
+-				scaled rTechPercent = rBARBARIAN_FREE_TECH_PERCENT *
+-						// <advc.301>
+-						(1 + per100(GC.getInfo(eLoopTech).get(
+-						CvTechInfo::BarbarianFreeTechModifier)));
+-				if (rTechPercent <= 0)
+-					continue; // </advc.301>
+-				//changeResearchProgress(eLoopTech, (getResearchCost(eLoopTech) * ((iTechPercent * iCount) / iPossible)) / 100, getLeaderID());
+-				/*	<K-Mod> Adjust research rate for game-speed & start-era -
+-					but _not_ world-size. And fix the rounding error. */
+-				scaled rBaseCost = per100(getResearchCost(eLoopTech, false) *
+-						GC.getInfo(GC.getMap().getWorldSize()).getResearchPercent());
+-				changeResearchProgress(eLoopTech, scaled::clamp(
+-						(rBaseCost * rTechPercent * iCount) / iPossible, 1,
+-						// <advc.301> No overflow
+-						std::max(1, getResearchCost(eLoopTech)
+-						- getResearchProgress(eLoopTech))).uround(), // </advc.301>
+-						kBarbPlayer.getID()); // </K-Mod>
++				iCount++;
+ 			}
+-		}
++			// <advc.307>
++			if (kLoopTeam.isHasTech(eLoopTech))
++				iHasTech++; // </advc.307>
++		} /* advc.302: Don't stop Barbarian research entirely even when there
++			 is no contact with any civs */
++		iCount = std::max(iCount, iHasTech / 3);
++		if (iCount <= 0)
++			continue;
++		int const iPossible = it.nextIndex();
++		/*  advc.307: In the late game, count all civs as having contact
++			with Barbarians if at least one of them has contact. Otherwise,
++			New World Barbarians catch up too slowly when colonized by only
++			one or two civs. */
++		if (bNoBarbCities)
++			iCount = std::max(iCount, (2 * iHasTech) / 3);
++		static scaled const rBARBARIAN_FREE_TECH_PERCENT = // advc.opt
++				per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.301
++		scaled rTechPercent = rBARBARIAN_FREE_TECH_PERCENT *
++				// <advc.301>
++				(1 + per100(GC.getInfo(eLoopTech).get(
++				CvTechInfo::BarbarianFreeTechModifier)));
++		if (rTechPercent <= 0)
++			continue; // </advc.301>
++		//changeResearchProgress(eLoopTech, (getResearchCost(eLoopTech) * ((iTechPercent * iCount) / iPossible)) / 100, getLeaderID());
++		/*	<K-Mod> Adjust research rate for game-speed & start-era -
++			but _not_ world-size. And fix the rounding error. */
++		scaled rBaseCost = per100(getResearchCost(eLoopTech, false) *
++				GC.getInfo(GC.getMap().getWorldSize()).getResearchPercent());
++		changeResearchProgress(eLoopTech, scaled::clamp(
++				(rBaseCost * rTechPercent * iCount) / iPossible, 1,
++				// <advc.301> No overflow
++				std::max(1, getResearchCost(eLoopTech)
++				- getResearchProgress(eLoopTech))).uround(), // </advc.301>
++				kBarbPlayer.getID()); // </K-Mod>
+ 	}
+ }
+ 
+@@ -5508,7 +5508,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange,
+ 	if (kTech.isRiverTrade() /* advc.300: */ && !isBarbarian())
+ 		changeRiverTradeCount(iChange);
+ 	// <advc.500c>
+-	if (kTech.isNoFearForSafety())
++	if (kTech.get(CvTechInfo::NoFearForSafety))
+ 		changeNoFearForSafetyCount(iChange); // </advc.500c>
+ 
+ 	FOR_EACH_ENUM(Building)
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index eb40ed3be..e2007ce94 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -85,7 +85,7 @@ void CyInfoPythonInterface1()
+ 		.def("isIgnoreIrrigation", &CvTechInfo::isIgnoreIrrigation, "bool ()")
+ 		.def("isWaterWork", &CvTechInfo::isWaterWork, "bool ()")
+ 		.def("isRiverTrade", &CvTechInfo::isRiverTrade, "bool ()")
+-		.def("isNoFearForSafety", &CvTechInfo::isNoFearForSafety, "int ()") // advc.500c
++		.def("isNoFearForSafety", &CvTechInfo::py_isNoFearForSafety, "bool ()") // advc.500c
+ 
+ 		.def("getQuote", &CvTechInfo::getQuote, "wstring ()")
+ 		.def("getSound", &CvTechInfo::getSound, "string ()")
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10246

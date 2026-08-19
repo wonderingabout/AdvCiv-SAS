@@ -1,0 +1,1138 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6104
+# Commit: a84d4747204a99de6214942f94a80e7c2360745f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e990260efc0d4f22d0718a443d18e66b522e0e79
+# Title: Expand SASGameRecord with millisecond timing and privacy-tiered performance context
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.github/workflows/README.md
+2	0	.github/workflows/build/sas_game_record_log.py
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+204	8	CvGameCoreDLL/SASGameRecordLog.cpp
+64	64	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+3	3	_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (2).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (3).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (4).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (5).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (6).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_6_sol_sas_game_record (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_6_sol_sas_game_record (2).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_6_sol_sas_game_record (3).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_CuCuGS (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_CuCuGS (2).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_opus_4_6_5_3_calibration.PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_perf_opt (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_perf_opt (2).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_handicaps_chart (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_handicaps_chart (2).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_handicaps_chart (3).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_summarizing (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_summarizing (2).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_summarizing (3).PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_3_codex_youtube_demo.png
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_codex_5_3_speed_calibration.PNG
+-	-	_1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/sas_game_record_log_example.PNG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3200_new_maps_btg_cross (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3200_new_maps_btg_cross (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (10).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (3).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (4).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (5).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (6).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (7).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (8).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (9).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (3).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (4).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (3).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (4).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (3).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (4).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (3).JPG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (4).JPG
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => misc}/0.220_world_map_terrain_with_new_civs.png
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => misc}/0.221_main_world_map_for_civs_terrain_feature.jpg
+-	-	_1_AdvCiv-SAS/Images/{ui_other => samples}/0.960_gameplay_4986_monarch_1.JPG
+-	-	_1_AdvCiv-SAS/Images/{ui_other => samples}/0.961_autoplay_pre_5055_monarch_1 (2).JPG
+-	-	_1_AdvCiv-SAS/Images/{ui_other => samples}/0.962_autoplay_pre_5200_noble_1 (1).JPG
+-	-	_1_AdvCiv-SAS/Images/{ui_other => samples}/0.963_autoplay_pre_5385_monarch_1.JPG
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.250_download-zip-github.png
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.260_windows_shortcut_example.PNG
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.270_kill_civ4_process.png
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.280_py_2.4_pass_previously.PNG
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.281_break_test_ternary_example.PNG
+-	-	_1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.282_py_2.4_successfully_broken.PNG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => tools}/0.3210_technique_paint_net_fast_resize_map (1).PNG
+-	-	_1_AdvCiv-SAS/Images/{main_menu => tools}/0.3210_technique_paint_net_fast_resize_map (2).PNG
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (2).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (3).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (4).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (5).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_2_red_x_new_art (6).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_6_sol_sas_game_record (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_6_sol_sas_game_record (2).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/chatgpt_5_6_sol_sas_game_record (3).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_CuCuGS (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_CuCuGS (2).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_opus_4_6_5_3_calibration.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_perf_opt (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/claude_code_perf_opt (2).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_handicaps_chart (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_handicaps_chart (2).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_handicaps_chart (3).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_summarizing (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_summarizing (2).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_2_codex_summarizing (3).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_5_3_codex_youtube_demo.png (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/gpt_codex_5_3_speed_calibration.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{llm_agentic_tools => LLM}/sas_game_record_log_example.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3200_new_maps_btg_cross (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3200_new_maps_btg_cross (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (10).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (3).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (4).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (5).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (6).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (7).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (8).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3201_maps_simple_game (9).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (3).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3202_maps_sas_longworld (4).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (3).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3203_maps_sas_spiky_avenues (4).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (3).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3204_maps_sas_large_facing_islands (4).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (3).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => map_previews}/0.3205_maps_sas_parallel_lines (4).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => misc}/0.220_world_map_terrain_with_new_civs.png (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => misc}/0.221_main_world_map_for_civs_terrain_feature.jpg (100%)
+ rename _1_AdvCiv-SAS/Images/{ui_other => samples}/0.960_gameplay_4986_monarch_1.JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{ui_other => samples}/0.961_autoplay_pre_5055_monarch_1 (2).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{ui_other => samples}/0.962_autoplay_pre_5200_noble_1 (1).JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{ui_other => samples}/0.963_autoplay_pre_5385_monarch_1.JPG (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.250_download-zip-github.png (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.260_windows_shortcut_example.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.270_kill_civ4_process.png (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.280_py_2.4_pass_previously.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.281_break_test_ternary_example.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{misc_0.x => tools}/0.282_py_2.4_successfully_broken.PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => tools}/0.3210_technique_paint_net_fast_resize_map (1).PNG (100%)
+ rename _1_AdvCiv-SAS/Images/{main_menu => tools}/0.3210_technique_paint_net_fast_resize_map (2).PNG (100%)
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 3fed8b24d..12f261710 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -255,7 +255,7 @@ Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv
+ 
+ ### `build/sas_game_record_log.py`
+ 
+-Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10` and `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1` are allowed because they configure how enabled records behave but do not enable record logging themselves.
++Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; the snapshot interval, timestamped filenames, default-on anonymous performance metrics, and default level-2 display/runtime context are also checked because they configure how enabled records behave but do not enable record logging themselves.
+ 
+ ### `build/fonts.py`
+
+diff --git a/.github/workflows/build/sas_game_record_log.py b/.github/workflows/build/sas_game_record_log.py
+index 22065ddc5..e0745f1a3 100644
+--- a/.github/workflows/build/sas_game_record_log.py
++++ b/.github/workflows/build/sas_game_record_log.py
+@@ -19,6 +19,8 @@ EXPECTED_GAME_RECORD_DEFAULTS = {
+ 	# These configure enabled record logging but do not enable it themselves.
+ 	"SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED": 10,
+ 	"SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME": 1,
++	"SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE": 1,
++	"SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL": 2,
+ }
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index c077fac6d..017972d4c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1510,6 +1510,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Anonymous runtime metrics for SAS game-record performance review. 1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots. 0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1. This setting has no effect while SAS_GAME_RECORD_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Optional static system context that can materially affect autoplay performance, ordered as a privacy/detail ladder: 0 records none and leaves stable placeholders; 1 adds moderately identifying resolution, fullscreen/windowed state, and enabled Civ4 graphics options; 2 (default) also adds native Windows versus Wine/Proton and pointer width; 3 also adds more identifying logical processor count and total physical RAM. Clamped to 0..3 in SASGameRecordLog.cpp. This remains independent from anonymous dynamic performance metrics above and has no effect while SAS_GAME_RECORD_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 8557617e6..828511736 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -18,6 +18,7 @@
+ #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
+ #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
+ #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
++#include "CvInfo_Misc.h" // <!-- custom: Needed to log enabled graphics-option type names; CvGlobals only forward-declares CvGraphicOptionInfo. (GPT-5.6-Sol) -->
+ #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
+ #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
+ #include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
+@@ -27,6 +28,7 @@
+ #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
+ #include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-record benchmark rows. (GPT-5.5) -->
+ #include <time.h>
++#include <psapi.h> // <!-- custom: Reuse AdvCiv's existing Windows process-memory API for compact game-record performance context. (GPT-5.6-Sol) -->
+ #include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
+ #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
+ #include <vector> // <!-- custom: Used for compact dynamic buckets in game-record known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
+@@ -55,6 +57,18 @@ bool isSASGameRecordLogEnabled()
+ 	return bEnabled;
+ }
+ 
++static bool isSASGameRecordPerformanceMetricsEnabled()
++{
++	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE") > 0);
++	return bEnabled;
++}
++
++static int getSASGameRecordSystemContextLevel()
++{
++	static const int iLevel = std::min(3, std::max(0, GC.getDefineINT("SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL")));
++	return iLevel;
++}
++
+ int getSASGameRecordTurnInterval()
+ {
+ 	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
+@@ -62,12 +76,11 @@ int getSASGameRecordTurnInterval()
+ 	return iInterval;
+ }
+ 
+-static CvString createSASGameRecordLogTimestamp()
++// <!-- custom: Accept the sampled time so snapshot UTC and elapsed durations use exactly the same clock reading. (GPT-5.6-Sol) -->
++static CvString createSASGameRecordLogTimestamp(time_t kNow)
+ {
+ 	CvString szTimestamp;
+ 	char szBuffer[32];
+-	time_t kNow;
+-	time(&kNow);
+ 	struct tm* pUtcTime = gmtime(&kNow);
+ 	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+ 	{
+@@ -80,12 +93,122 @@ static CvString createSASGameRecordLogTimestamp()
+ 	return szTimestamp;
+ }
+ 
++static CvString createSASGameRecordLogTimestamp()
++{
++	time_t kNow;
++	time(&kNow);
++	return createSASGameRecordLogTimestamp(kNow);
++}
++
++// <!-- custom: Snapshot chronology benefits from the same real millisecond precision as the direct duration fields.
++// Keep the established log-filename timestamp format separate. (GPT-5.6-Sol) -->
++static CvString createSASGameRecordSnapshotUtcTimestamp()
++{
++	SYSTEMTIME kUtcTime;
++	GetSystemTime(&kUtcTime);
++	CvString szTimestamp;
++	szTimestamp.Format("%04d%02d%02dT%02d%02d%02d.%03dZ", (int)kUtcTime.wYear, (int)kUtcTime.wMonth, (int)kUtcTime.wDay, (int)kUtcTime.wHour, (int)kUtcTime.wMinute, (int)kUtcTime.wSecond, (int)kUtcTime.wMilliseconds);
++	return szTimestamp;
++}
++
+ static CvString g_szSASGameRecordLogTimestamp;
+ static int g_iSASGameRecordLogSequence = 0;
+ static CvString g_szSASGameRecordLogContext;
++// <!-- custom: Record snapshot UTC plus cumulative and per-interval wall time directly so benchmark duration is visible without external timestamp subtraction.
++// Use the monotonic millisecond timer for useful precision and immunity to system-clock adjustments; wall time intentionally includes pauses and user interaction. (GPT-5.6-Sol) -->
++static uint g_uiSASGameRecordSessionStartTime = 0;
++static uint g_uiSASGameRecordPreviousSnapshotTime = 0;
++static bool g_bSASGameRecordDisplayContextLogged = false;
+ static void flushSASGameRecordPendingCityBombard();
+ static bool g_bSASGameRecordFlushingCityBombard = false;
+ 
++// <!-- custom: Windows exposes focus separately from minimization. Find Civ4's visible, unowned top-level process window so background-visible and minimized snapshots remain distinguishable.
++// Return -1 if no suitable window exists. (GPT-5.6-Sol) -->
++struct SASGameRecordProcessWindowState
++{
++	SASGameRecordProcessWindowState() : bFound(false), bMinimized(false) {}
++	bool bFound;
++	bool bMinimized;
++};
++
++static BOOL CALLBACK findSASGameRecordProcessMainWindow(HWND hWindow, LPARAM lParam)
++{
++	DWORD uiProcessId = 0;
++	GetWindowThreadProcessId(hWindow, &uiProcessId);
++	if (uiProcessId != GetCurrentProcessId() || !IsWindowVisible(hWindow) || GetWindow(hWindow, GW_OWNER) != NULL)
++		return TRUE;
++	SASGameRecordProcessWindowState& kState = *(SASGameRecordProcessWindowState*)lParam;
++	kState.bFound = true;
++	kState.bMinimized = (IsIconic(hWindow) != FALSE);
++	return FALSE;
++}
++
++static int getSASGameRecordProcessWindowMinimized()
++{
++	SASGameRecordProcessWindowState kState;
++	EnumWindows(findSASGameRecordProcessMainWindow, (LPARAM)&kState);
++	return kState.bFound ? (kState.bMinimized ? 1 : 0) : -1;
++}
++
++// <!-- custom: Native Win32 and Wine/Proton expose the same DLL APIs, but the distinction helps qualify performance results.
++// Wine does not reliably expose whether its host is Linux or macOS, so do not guess beyond the compatibility layer. (GPT-5.6-Sol) -->
++static char const* getSASGameRecordWin32Runtime()
++{
++	HMODULE const hNtdll = GetModuleHandleA("ntdll.dll");
++	return (hNtdll != NULL && GetProcAddress(hNtdll, "wine_get_version") != NULL ? "WINE_OR_PROTON" : "NATIVE_WINDOWS");
++}
++
++// <!-- custom: Resolve PSAPI only when enabled performance metrics first sample memory, so disabling them also avoids a mandatory runtime dependency. (GPT-5.6-Sol) -->
++static bool getSASGameRecordProcessMemory(PROCESS_MEMORY_COUNTERS& kProcessMemory)
++{
++	typedef BOOL (WINAPI* GetProcessMemoryInfoFunction)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
++	static HMODULE const hPsapi = LoadLibraryA("psapi.dll");
++	static GetProcessMemoryInfoFunction const pGetProcessMemoryInfo = (hPsapi == NULL ? NULL : (GetProcessMemoryInfoFunction)GetProcAddress(hPsapi, "GetProcessMemoryInfo"));
++	return (pGetProcessMemoryInfo != NULL && pGetProcessMemoryInfo(GetCurrentProcess(), &kProcessMemory, sizeof(kProcessMemory)) != FALSE);
++}
++
++struct SASGameRecordSystemSnapshot
++{
++	SASGameRecordSystemSnapshot() : iProcessForeground(-1), iProcessWindowMinimized(-1), iProcessWorkingSetKB(-1), iProcessPeakWorkingSetKB(-1), iProcessPagefileUsageKB(-1), iSystemMemoryLoadPercent(-1), iProcessAvailableVirtualMB(-1) {}
++	int iProcessForeground;
++	int iProcessWindowMinimized;
++	int iProcessWorkingSetKB;
++	int iProcessPeakWorkingSetKB;
++	int iProcessPagefileUsageKB;
++	int iSystemMemoryLoadPercent;
++	int iProcessAvailableVirtualMB;
++};
++
++static SASGameRecordSystemSnapshot getSASGameRecordSystemSnapshot()
++{
++	SASGameRecordSystemSnapshot kSnapshot;
++	if (!isSASGameRecordPerformanceMetricsEnabled())
++		return kSnapshot;
++	DWORD uiForegroundProcessId = 0;
++	HWND const hForegroundWindow = GetForegroundWindow();
++	if (hForegroundWindow != NULL) GetWindowThreadProcessId(hForegroundWindow, &uiForegroundProcessId);
++	kSnapshot.iProcessForeground = (uiForegroundProcessId == GetCurrentProcessId() ? 1 : 0);
++	kSnapshot.iProcessWindowMinimized = getSASGameRecordProcessWindowMinimized();
++	PROCESS_MEMORY_COUNTERS kProcessMemory;
++	ZeroMemory(&kProcessMemory, sizeof(kProcessMemory));
++	kProcessMemory.cb = sizeof(kProcessMemory);
++	if (getSASGameRecordProcessMemory(kProcessMemory))
++	{
++		kSnapshot.iProcessWorkingSetKB = (int)(kProcessMemory.WorkingSetSize / 1024);
++		kSnapshot.iProcessPeakWorkingSetKB = (int)(kProcessMemory.PeakWorkingSetSize / 1024);
++		kSnapshot.iProcessPagefileUsageKB = (int)(kProcessMemory.PagefileUsage / 1024);
++	}
++	MEMORYSTATUSEX kSystemMemory;
++	ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
++	kSystemMemory.dwLength = sizeof(kSystemMemory);
++	if (GlobalMemoryStatusEx(&kSystemMemory) != FALSE)
++	{
++		kSnapshot.iSystemMemoryLoadPercent = (int)kSystemMemory.dwMemoryLoad;
++		kSnapshot.iProcessAvailableVirtualMB = (int)(kSystemMemory.ullAvailVirtual / (1024 * 1024));
++	}
++	return kSnapshot;
++}
++
+ static CvString getSASGameRecordLogTimestamp()
+ {
+ 	if (g_szSASGameRecordLogTimestamp.empty())
+@@ -128,9 +251,14 @@ static CvString getSASGameRecordLogName()
+ 
+ static void rollSASGameRecordLog(const char* szContext)
+ {
++	time_t kSessionStartTime;
++	time(&kSessionStartTime);
++	g_uiSASGameRecordSessionStartTime = timeGetTime();
++	g_uiSASGameRecordPreviousSnapshotTime = g_uiSASGameRecordSessionStartTime;
++	g_bSASGameRecordDisplayContextLogged = false;
++	g_szSASGameRecordLogTimestamp = createSASGameRecordLogTimestamp(kSessionStartTime);
+ 	if (isSASGameRecordTimestampedFilenameEnabled())
+ 	{
+-		g_szSASGameRecordLogTimestamp = createSASGameRecordLogTimestamp();
+ 		g_iSASGameRecordLogSequence++;
+ 		g_szSASGameRecordLogContext.Format("%s%d", szContext, g_iSASGameRecordLogSequence);
+ 	}
+@@ -214,6 +342,37 @@ static CvWString getSASGameRecordQuotedCityName(CvCity const* pCity)
+ 	return pCity == NULL ? L"-" : getSASGameRecordQuoted(pCity->getName().GetCString());
+ }
+ 
++// <!-- custom: Save-load context is recorded before Civ4 initializes graphics, which produced a misleading 0x0 resolution row.
++// Defer the optional display context until graphics are ready, but write the display-disabled placeholder immediately because it needs no graphics queries. (GPT-5.6-Sol) -->
++static void logSASGameRecordDisplayContext()
++{
++	if (g_bSASGameRecordDisplayContextLogged)
++		return;
++	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
++	if (iSystemContextLevel < 1)
++	{
++		logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=0 resolution=-1x-1 graphicsInitialized=-1 fullscreen=-1 graphicOptions=-");
++		g_bSASGameRecordDisplayContextLogged = true;
++		return;
++	}
++	if (!GC.IsGraphicsInitialized())
++		return;
++	CvString szGraphicOptions;
++	FOR_EACH_ENUM(GraphicOption)
++	{
++		if (!gDLL->getGraphicOption(eLoopGraphicOption))
++			continue;
++		if (!szGraphicOptions.empty())
++			szGraphicOptions += ",";
++		szGraphicOptions += GC.getInfo(eLoopGraphicOption).getType();
++	}
++	if (szGraphicOptions.empty())
++		szGraphicOptions = "-";
++	CvGame const& kGame = GC.getGame();
++	logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=%d resolution=%dx%d graphicsInitialized=1 fullscreen=%d graphicOptions=%s", iSystemContextLevel, kGame.getScreenWidth(), kGame.getScreenHeight(), gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN), szGraphicOptions.GetCString());
++	g_bSASGameRecordDisplayContextLogged = true;
++}
++
+ // <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+ static void logSASGameRecordGameState(const char* szRowType)
+ {
+@@ -273,13 +432,35 @@ static void logSASGameRecordGameState(const char* szRowType)
+ 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
+ 	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+ 			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
++	// <!-- custom: Display settings can affect measured autoplay wall time. Record the compact Civ4 context once, after graphics initialization, rather than copying unrelated CivilizationIV.ini settings. (GPT-5.6-Sol) -->
++	logSASGameRecordDisplayContext();
++	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine or Proton runs it on another host OS.
++	// Record that compatibility layer honestly instead of guessing the host system, plus only compact hardware context useful for performance comparisons. (GPT-5.6-Sol) -->
++	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
++	if (iSystemContextLevel >= 2)
++	{
++		int iLogicalProcessors = -1;
++		int iTotalPhysicalMemoryMB = -1;
++		if (iSystemContextLevel >= 3)
++		{
++			SYSTEM_INFO kSystemInfo;
++			GetSystemInfo(&kSystemInfo);
++			iLogicalProcessors = (int)kSystemInfo.dwNumberOfProcessors;
++			MEMORYSTATUSEX kSystemMemory;
++			ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
++			kSystemMemory.dwLength = sizeof(kSystemMemory);
++			if (GlobalMemoryStatusEx(&kSystemMemory)) iTotalPhysicalMemoryMB = (int)(kSystemMemory.ullTotalPhys / (1024 * 1024));
++		}
++		logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=%s pointerBits=%d logicalProcessors=%d totalPhysicalMemoryMB=%d", iSystemContextLevel, getSASGameRecordWin32Runtime(), (int)(8 * sizeof(void*)), iLogicalProcessors, iTotalPhysicalMemoryMB);
++	}
++	else logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=- pointerBits=-1 logicalProcessors=-1 totalPhysicalMemoryMB=-1", iSystemContextLevel);
+ 	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
+ }
+ 
+ static void logSASGameRecordLogSettings()
+ {
+-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
+-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
++	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
++			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
+ }
+ 
+ static void resetSASGameRecordState();
+@@ -4314,10 +4495,25 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
+ {
+ 	CvGame const& kGame = GC.getGame();
++	// <!-- custom: The initial save-load row is written before graphics initialization; the first full snapshot supplies the deferred display context. (GPT-5.6-Sol) -->
++	logSASGameRecordDisplayContext();
++	uint const uiSnapshotTime = timeGetTime();
++	uint const uiSessionWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordSessionStartTime;
++	uint const uiSnapshotIntervalWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordPreviousSnapshotTime;
++	CvString const szSnapshotUtc = createSASGameRecordSnapshotUtcTimestamp();
++	// <!-- custom: Focus at this instant cannot prove how long Civ4 was foreground during the interval.
++	// Repeated exact samples still help qualify wall-time comparisons without continuous monitoring. (GPT-5.6-Sol) -->
++	// <!-- custom: Working set is Civ4's resident RAM, while page-file usage and available 32-bit virtual space help expose memory growth or address-space pressure.
++	// Sample these only with the existing full snapshot, and skip all optional system calls when performance metrics are disabled. (GPT-5.6-Sol) -->
++	SASGameRecordSystemSnapshot const kSystemSnapshot = getSASGameRecordSystemSnapshot();
+ 	// <!-- custom: Team death and other state transitions can terminate a war without CvTeam::makePeace. Reconcile before snapshots so such wars still receive one final synthetic summary. (GPT-5.6-Sol) -->
+ 	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
+-	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
+-			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
++	// <!-- custom: This is primarily an autoplay/game-history row, so place its frequently scanned gameplay state first. Keep wall-time and optional operating-system measurements afterward as supporting performance context. (GPT-5.6-Sol) -->
++	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d utc=%s sessionWallMilliseconds=%u snapshotIntervalWallMilliseconds=%u performanceMetricsEnabled=%d processForegroundAtSnapshot=%d processWindowMinimizedAtSnapshot=%d processWorkingSetKB=%d processPeakWorkingSetKB=%d processPagefileUsageKB=%d systemMemoryLoadPercent=%d processAvailableVirtualMB=%d",
++			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation(),
++			szSnapshotUtc.GetCString(), uiSessionWallMilliseconds, uiSnapshotIntervalWallMilliseconds, isSASGameRecordPerformanceMetricsEnabled(), kSystemSnapshot.iProcessForeground, kSystemSnapshot.iProcessWindowMinimized,
++			kSystemSnapshot.iProcessWorkingSetKB, kSystemSnapshot.iProcessPeakWorkingSetKB, kSystemSnapshot.iProcessPagefileUsageKB, kSystemSnapshot.iSystemMemoryLoadPercent, kSystemSnapshot.iProcessAvailableVirtualMB);
++	g_uiSASGameRecordPreviousSnapshotTime = uiSnapshotTime;
+ 	logSASGameRecordRunStatus(szReason);
+ 	if (gGameRecordLogLevel >= 2)
+ 	{
+
+diff --git a/README.md b/README.md
+index 38158b361..7e2504f78 100644
+--- a/README.md
++++ b/README.md
+@@ -26,7 +26,7 @@ Also most importantly LLMs like GPT Thinking (i.e. ChatGPT), GPT Codex, Claude c
+ 
+ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ 
+-<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
++<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+ 
+ ## Menu
+ 
+@@ -117,10 +117,10 @@ See [README_Military_Tree.md](/_1_AdvCiv-SAS/Docs/README_Military_Tree.md).
+ 
+ These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch handicap. Later screenshots are from version 5055 and around version 5200 and 5085.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.960_gameplay_4986_monarch_1.JPG" alt="0.960_gameplay_4986_monarch_1.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.961_autoplay_pre_5055_monarch_1 (2).JPG" alt="0.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.962_autoplay_pre_5200_noble_1 (1).JPG" alt="0.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.963_autoplay_pre_5385_monarch_1.JPG" alt="0.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/samples/0.960_gameplay_4986_monarch_1.JPG" alt="0.960_gameplay_4986_monarch_1.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/samples/0.961_autoplay_pre_5055_monarch_1 (2).JPG" alt="0.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/samples/0.962_autoplay_pre_5200_noble_1 (1).JPG" alt="0.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/samples/0.963_autoplay_pre_5385_monarch_1.JPG" alt="0.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
+ 
+ See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below) for more gameplay samples although some of these may be old/dated now.
+ 
+@@ -762,10 +762,10 @@ We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with t
+ 
+ Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and player count.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG" alt="0.3202_maps_sas_longworld (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (4).JPG" alt="0.3202_maps_sas_longworld (4).JPG" width="250"></img>
+ 
+ #### SAS_Spiky_Avenues
+ 
+@@ -773,10 +773,10 @@ Similarly we also added our new original SAS_Spiky_Avenues mapscript with the he
+ 
+ >Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG" alt="0.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (4).JPG" alt="0.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
+ 
+ #### SAS_Large_Facing_Islands
+ 
+@@ -784,10 +784,10 @@ An addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking
+ 
+ >Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG" alt="0.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (4).JPG" alt="0.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
+ 
+ #### SAS_Parallel_Lines
+ 
+@@ -795,10 +795,10 @@ Our latest addition with the help of GPT-5.3-Codex thanks.
+ 
+ >Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG" alt="0.3205_maps_sas_parallel_lines (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG" alt="0.3205_maps_sas_parallel_lines (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG" alt="0.3205_maps_sas_parallel_lines (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (2).JPG" alt="0.3205_maps_sas_parallel_lines (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (3).JPG" alt="0.3205_maps_sas_parallel_lines (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (4).JPG" alt="0.3205_maps_sas_parallel_lines (4).JPG" width="250"></img>
+ 
+ ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+ 
+@@ -811,8 +811,8 @@ Note: we also removed some non-essential maps from the Simple Game menu; they re
+ Some of them are selectable in the Simple Game menu, while others only via Custom Game.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
+ 
+ ### New .dds for maps in Simple Game
+ 
+@@ -822,19 +822,19 @@ This definitely feels like masonry but works and fun xd i guess after having ted
+ 
+ Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG" alt="0.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG" alt="0.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (1).PNG" alt="0.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (2).PNG" alt="0.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG" alt="0.3201_maps_simple_game (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG" alt="0.3201_maps_simple_game (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG" alt="0.3201_maps_simple_game (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (3).JPG" alt="0.3201_maps_simple_game (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (4).JPG" alt="0.3201_maps_simple_game (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (5).JPG" alt="0.3201_maps_simple_game (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+ 
+@@ -900,9 +900,9 @@ The separate GitHub Actions [`python-ruff.yml`](/.github/workflows/python-ruff.y
+ 
+ The separate GitHub Actions [`python24-compile.yml`](/.github/workflows/python24-compile.yml) workflow runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using the small Docker image from [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker). This complements Ruff by checking the old parser Civ4 actually embeds, without trying to launch Civ4 or import engine-only modules. A [test run confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow). Added with the very nice help of GPT-5.5 (on Codex) and ChatGPT-5.5 thanks a lot.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.280_py_2.4_pass_previously.PNG" alt="0.280_py_2.4_pass_previously.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/tools/0.280_py_2.4_pass_previously.PNG" alt="0.280_py_2.4_pass_previously.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/tools/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/tools/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
+ 
+ ## DLL Logging
+ 
+@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SAS game record log
+ 
+-`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+ 
+@@ -945,10 +945,10 @@ GAME_RECORD_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSK
+ GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
+ ```
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_record_log_example.PNG" alt="sas_game_record_log_example.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG" alt="sas_game_record_log_example.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
+ 
+ ## CuCuGS
+ 
+@@ -961,8 +961,8 @@ See:
+ - [AdvCiv-SAS - CuCuGS: PR compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/19)
+ - [CFC forum CuCuGS topic](https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/post-16903059)
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+ 
+ ## Known issues that may be fixed or not fixed in base AdvCiv or Civ4
+ 
+@@ -1094,12 +1094,12 @@ After some more time using it, what i like the most is how really accurate and a
+ 
+ After some more time using ChatGPT 5.2, i have been very imrpessed by ChatGPT 5.2's autonomy and plannfication abilities: this sentiment only grew stronger! Just based on a Sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance, ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds! Very impressive, useful and now implemented in our new Sevopedia tech (see [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)) and thanks a lot!!
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG" alt="chatgpt_5_2_red_x_new_art (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG" alt="chatgpt_5_2_red_x_new_art (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG" alt="chatgpt_5_2_red_x_new_art (3).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG" alt="chatgpt_5_2_red_x_new_art (4).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (1).PNG" alt="chatgpt_5_2_red_x_new_art (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (2).PNG" alt="chatgpt_5_2_red_x_new_art (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (3).PNG" alt="chatgpt_5_2_red_x_new_art (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (4).PNG" alt="chatgpt_5_2_red_x_new_art (4).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
+ 
+ ### GPT-Codex (VS Code extension)
+ 
+@@ -1109,17 +1109,17 @@ Note: see also [AGENTS.md](/AGENTS.md).
+ 
+ Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories](/README.md#other-new-categories)).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG" alt="gpt_5_2_codex_handicaps_chart (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG" alt="gpt_5_2_codex_handicaps_chart (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG" alt="gpt_5_2_codex_handicaps_chart (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (1).PNG" alt="gpt_5_2_codex_handicaps_chart (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (2).PNG" alt="gpt_5_2_codex_handicaps_chart (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (3).PNG" alt="gpt_5_2_codex_handicaps_chart (3).PNG" width="250"></img>
+ 
+ #### Long_Comments extracting
+ 
+ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG" alt="gpt_5_2_codex_summarizing (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG" alt="gpt_5_2_codex_summarizing (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG" alt="gpt_5_2_codex_summarizing (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (1).PNG" alt="gpt_5_2_codex_summarizing (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (2).PNG" alt="gpt_5_2_codex_summarizing (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (3).PNG" alt="gpt_5_2_codex_summarizing (3).PNG" width="250"></img>
+ 
+ #### 5.3
+ 
+@@ -1131,13 +1131,13 @@ Notably, i used it to add the new Civilization ireland with new leaders, assets,
+ 
+ I made a YouTube demo to show how it works and how impressive and useful Codex can be. It is very autonomous, follows instructions very well, and code just worked (i only had to fix one bug of not adding comments in an art file, else it just worked). The recording with OBS is a bit laggy for some reason but it works smoothly in VS Code! Thanks a lot GPT-5.3-Codex :)
+ 
+-<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
++<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+ 
+ ##### add and use LLM_Helpers for speeds calibration and autotuning
+ 
+ See [/LLM_Helpers/](/LLM_Helpers/).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG" alt="gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_codex_5_3_speed_calibration.PNG" alt="gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
+ 
+ #### 5.4
+ 
+@@ -1165,21 +1165,21 @@ Note: see also [AGENTS.md](/AGENTS.md).
+ 
+ After having used other LLMs mostly via web chat (i.e. using the web browser), more recently i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach, with claude code Sonnet 4.5. See [CuCuGS](/README.md#cucugs).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+ 
+ ##### Speeds calibration (with autotuner and compare scripts)
+ 
+ Done with the help of Claude code Opus 4.6 whic was god-like precise. See [/LLM_Helpers/](/LLM_Helpers/).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG" alt="claude_code_opus_4_6_5_3_calibration.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_opus_4_6_5_3_calibration.PNG" alt="claude_code_opus_4_6_5_3_calibration.PNG" width="250"></img>
+ 
+ ##### Other tasks: e.g. performance optimizations
+ 
+ Just like [GPT-Codex (VS Code extension)](/README.md#gpt-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
+ 
+ ### Gemini AI
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e06f6e58e..606f2e108 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -166,6 +166,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won.
+ - (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
+ - (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options. (Requires AdvCiv-SAS 6103+) It also synthesizes one summary for every war between civilization teams, including declaration and peace context, elapsed turns, war-success changes, units destroyed and their total production cost, city-plot battle wins, and cities/population captured. Wars already active when a save is loaded are explicitly partial, while wars still active at victory or autoplay end remain marked ongoing rather than being misreported as peace. A full turn-474 test matched all 115 declarations to exactly 91 ordinary-peace summaries, 4 capitulations, 13 state-change/elimination summaries, and 7 wars still ongoing at victory.
++- (Requires AdvCiv-SAS 6104+) Full interval and victory snapshots also record UTC to milliseconds, total real milliseconds since the log session began, and milliseconds since the previous snapshot. This makes autoplay speed and late-game slowdown directly comparable without external timing or timestamp subtraction; real time includes pauses and user interaction. Anonymous process-memory, system memory-load percentage, available 32-bit address space, and exact foreground/minimized samples can be disabled separately without disabling timing or gameplay records. A separate privacy/detail level defaults to display context (resolution, fullscreen/windowed state, and graphics options), Windows versus Wine/Proton, and pointer width; it can be lowered to hide these or raised to add logical processor count and total RAM.
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+index 32f5e51be..901688450 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+@@ -48,7 +48,7 @@ To download the development version, go to the [mod's github main page](https://
+ 
+ (example of how to do it in the screenshot below, click to view it full screen)
+ 
+-<img src="../Images/misc_0.x/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
++<img src="../Images/tools/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
+ 
+ Note: the 18 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the as of now default 48 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
+ 
+@@ -78,7 +78,7 @@ For convenience i have also provided a steam shortcut of this same link just abo
+ 
+ Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
+ 
+-<img src="../Images/misc_0.x/0.260_windows_shortcut_example.PNG" alt="0.260_windows_shortcut_example.PNG" width="250"></img>
++<img src="../Images/tools/0.260_windows_shortcut_example.PNG" alt="0.260_windows_shortcut_example.PNG" width="250"></img>
+ 
+ If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
+ 
+@@ -92,7 +92,7 @@ Disclaimer: try at your own risk.
+ 
+ Sometimes, rarely, when launching the mod nothing happens (i.e. the mod does not start as usual). I don't know the cause, but empirically i have found that going to Windows Task Manager, right click on civ4 process, kill it, then launch the mod again fixes it.
+ 
+-<img src="../Images/misc_0.x/0.270_kill_civ4_process.png" alt="0.270_kill_civ4_process.png" width="250"></img>
++<img src="../Images/tools/0.270_kill_civ4_process.png" alt="0.270_kill_civ4_process.png" width="250"></img>
+ 
+ ## Configure the mod
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (4).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (4).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (5).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (5).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (6).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (6).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (1).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (1).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (2).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (2).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (3).PNG b/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (3).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG b/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG b/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG b/_1_AdvCiv-SAS/Images/LLM/claude_code_opus_4_6_5_3_calibration.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG
+rename to _1_AdvCiv-SAS/Images/LLM/claude_code_opus_4_6_5_3_calibration.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (1).PNG b/_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (1).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (2).PNG b/_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (2).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png b/_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG b/_1_AdvCiv-SAS/Images/LLM/gpt_codex_5_3_speed_calibration.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG
+rename to _1_AdvCiv-SAS/Images/LLM/gpt_codex_5_3_speed_calibration.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_record_log_example.PNG b/_1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_record_log_example.PNG
+rename to _1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (10).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (10).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (5).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (5).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (6).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (6).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (7).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (7).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (8).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (8).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (9).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (9).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG b/_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG
+rename to _1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.220_world_map_terrain_with_new_civs.png b/_1_AdvCiv-SAS/Images/misc/0.220_world_map_terrain_with_new_civs.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.220_world_map_terrain_with_new_civs.png
+rename to _1_AdvCiv-SAS/Images/misc/0.220_world_map_terrain_with_new_civs.png
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature.jpg b/_1_AdvCiv-SAS/Images/misc/0.221_main_world_map_for_civs_terrain_feature.jpg
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature.jpg
+rename to _1_AdvCiv-SAS/Images/misc/0.221_main_world_map_for_civs_terrain_feature.jpg
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.960_gameplay_4986_monarch_1.JPG b/_1_AdvCiv-SAS/Images/samples/0.960_gameplay_4986_monarch_1.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/ui_other/0.960_gameplay_4986_monarch_1.JPG
+rename to _1_AdvCiv-SAS/Images/samples/0.960_gameplay_4986_monarch_1.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.961_autoplay_pre_5055_monarch_1 (2).JPG b/_1_AdvCiv-SAS/Images/samples/0.961_autoplay_pre_5055_monarch_1 (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/ui_other/0.961_autoplay_pre_5055_monarch_1 (2).JPG
+rename to _1_AdvCiv-SAS/Images/samples/0.961_autoplay_pre_5055_monarch_1 (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.962_autoplay_pre_5200_noble_1 (1).JPG b/_1_AdvCiv-SAS/Images/samples/0.962_autoplay_pre_5200_noble_1 (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/ui_other/0.962_autoplay_pre_5200_noble_1 (1).JPG
+rename to _1_AdvCiv-SAS/Images/samples/0.962_autoplay_pre_5200_noble_1 (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.963_autoplay_pre_5385_monarch_1.JPG b/_1_AdvCiv-SAS/Images/samples/0.963_autoplay_pre_5385_monarch_1.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/ui_other/0.963_autoplay_pre_5385_monarch_1.JPG
+rename to _1_AdvCiv-SAS/Images/samples/0.963_autoplay_pre_5385_monarch_1.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.250_download-zip-github.png b/_1_AdvCiv-SAS/Images/tools/0.250_download-zip-github.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.250_download-zip-github.png
+rename to _1_AdvCiv-SAS/Images/tools/0.250_download-zip-github.png
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.260_windows_shortcut_example.PNG b/_1_AdvCiv-SAS/Images/tools/0.260_windows_shortcut_example.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.260_windows_shortcut_example.PNG
+rename to _1_AdvCiv-SAS/Images/tools/0.260_windows_shortcut_example.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png b/_1_AdvCiv-SAS/Images/tools/0.270_kill_civ4_process.png
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.270_kill_civ4_process.png
+rename to _1_AdvCiv-SAS/Images/tools/0.270_kill_civ4_process.png
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.280_py_2.4_pass_previously.PNG b/_1_AdvCiv-SAS/Images/tools/0.280_py_2.4_pass_previously.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.280_py_2.4_pass_previously.PNG
+rename to _1_AdvCiv-SAS/Images/tools/0.280_py_2.4_pass_previously.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.281_break_test_ternary_example.PNG b/_1_AdvCiv-SAS/Images/tools/0.281_break_test_ternary_example.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.281_break_test_ternary_example.PNG
+rename to _1_AdvCiv-SAS/Images/tools/0.281_break_test_ternary_example.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.282_py_2.4_successfully_broken.PNG b/_1_AdvCiv-SAS/Images/tools/0.282_py_2.4_successfully_broken.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.282_py_2.4_successfully_broken.PNG
+rename to _1_AdvCiv-SAS/Images/tools/0.282_py_2.4_successfully_broken.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG b/_1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG
+rename to _1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG b/_1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG
+rename to _1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (2).PNG
+
+[PATCH COVERAGE]
+patchFiles=73 embeddedFiles=72 omittedFiles=1 embeddedPatchBytes=81770

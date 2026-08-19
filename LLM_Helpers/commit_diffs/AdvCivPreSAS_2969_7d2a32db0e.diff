@@ -1,0 +1,602 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2969
+# Commit: 7d2a32db0e3f89664fda1813cb1f818bc417dd30
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 61d63f6d2edfac18a76e86af6afda8dad915ce8f
+# Title: Some misc. refactoring, inlining.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	20	CvGameCoreDLL/CvGame.cpp
+38	38	CvGameCoreDLL/CvMap.cpp
+4	3	CvGameCoreDLL/CvMap.h
+14	14	CvGameCoreDLL/CvPlayerAI.cpp
+9	28	CvGameCoreDLL/CvUnit.cpp
+16	4	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 40d2d35dc..c5e449ccd 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -931,16 +931,20 @@ void CvGame::initFreeState()
+ 	applyOptionEffects(); // advc.310
+ 	FOR_EACH_ENUM(Tech)
+ 	{
++		// <advc.126> Later-era free tech only for later-era starts.
++		if(GC.getInfo(eLoopTech).getEra() > getStartEra())
++			continue; // </advc.126>
++		bool const bFreeToAll = (GC.getInfo(eLoopTech).getEra() < getStartEra()
++				// disabled by K-Mod. (moved & changed. See below)
++				/*|| GC.getInfo(getHandicapType()).isFreeTechs(eLoopTech)*/);
+ 		for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 		{
+ 			CvTeam& kTeam = *itTeam;
+ 			bool bValid = false;
+-			// disabled by K-Mod. (moved & changed. See below)
+-			if (//(GC.getInfo(getHandicapType()).isFreeTechs(eLoopTech)) ||
++			if (bFreeToAll ||
+ 				(!kTeam.isHuman() && GC.getInfo(getHandicapType()).isAIFreeTechs(eLoopTech) &&
+ 				// advc.001: Barbarians receiving free AI tech might be a bug
+-				!kTeam.isBarbarian() /* advc.250c: */ && !isOption(GAMEOPTION_ADVANCED_START)) ||
+-				GC.getInfo(eLoopTech).getEra() < getStartEra())
++				!kTeam.isBarbarian() /* advc.250c: */ && !isOption(GAMEOPTION_ADVANCED_START)))
+ 			{
+ 				bValid = true;
+ 			}
+@@ -950,17 +954,16 @@ void CvGame::initFreeState()
+ 				{
+ 					CvPlayer& kMember = *itMember;
+ 					/*  <advc.250b> <advc.250c> Always grant civ-specific tech,
+-						but not tech from handicap if Advanced Start except to
++						but not tech from handicap if in Advanced Start except to
+ 						human civs that don't actually start Advanced (SPaH option). */
+ 					if (GC.getInfo(kMember.getCivilizationType()).isCivilizationFreeTechs(eLoopTech))
+ 					{
+ 						bValid = true;
+ 						break;
+ 					}
+-					if (!bValid &&
+-						// K-Mod (give techs based on player handicap, not game handicap.)
+-						GC.getInfo(kMember.getHandicapType()).isFreeTechs(eLoopTech)
+-						&& (!isOption(GAMEOPTION_ADVANCED_START) ||
++					// K-Mod: Give techs based on player handicap, not game handicap.
++					if (GC.getInfo(kMember.getHandicapType()).isFreeTechs(eLoopTech) &&
++						(!isOption(GAMEOPTION_ADVANCED_START) ||
+ 						(isOption(GAMEOPTION_SPAH) && kTeam.isHuman())))
+ 						// </advc.250b> </advc.250c>
+ 					{
+@@ -969,25 +972,23 @@ void CvGame::initFreeState()
+ 					}
+ 				}
+ 			}
+-			if (!bValid)
+-				continue;
+-			// <advc.126> Later-era free tech only for later-era starts.
+-			if(GC.getInfo(eLoopTech).getEra() > getStartEra())
+-				continue; // </advc.126>
+-			// (advc.051: Don't take away techs granted by the scenario)
+-			kTeam.setHasTech(eLoopTech, true, NO_PLAYER, false, false);
+-			if (GC.getInfo(eLoopTech).isMapVisible())
+-				GC.getMap().setRevealedPlots(kTeam.getID(), true, true);
++			if (bValid)
++			{
++				// (advc.051: Don't take away techs granted by the scenario)
++				kTeam.setHasTech(eLoopTech, true, NO_PLAYER, false, false);
++				if (GC.getInfo(eLoopTech).isMapVisible())
++					GC.getMap().setRevealedPlots(kTeam.getID(), true, true);
++			}
+ 		}
+ 	}  // <advc.051>
+-	if(isScenario() && getStartEra() <= 0) // Set start era based on player era
++	if (isScenario() && getStartEra() <= 0) // Set start era based on player era
+ 	{
+ 		int iEraSum = 0;
+ 		PlayerIter<MAJOR_CIV> it;
+ 		for (; it.hasNext(); ++it)
+ 			iEraSum += it->getCurrentEra();
+ 		int iStartEra = iEraSum / std::max(it.nextIndex(), 1);
+-		if(iStartEra > getStartEra())
++		if (iStartEra > getStartEra())
+ 			GC.getInitCore().setEra((EraTypes)iStartEra);
+ 	}
+ 	m_eInitialActivePlayer = getActivePlayer(); // advc.106h
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index e458db483..4ce805645 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -226,10 +226,10 @@ void CvMap::setupGraphical() // graphical only setup
+ 	CvPlot::setMaxVisibilityRangeCache(); // advc.003h
+ 	if (m_pMapPlots != NULL)
+ 	{
+-		for (int iI = 0; iI < numPlots(); iI++)
++		for (int i = 0; i < numPlots(); i++)
+ 		{
+ 			gDLL->callUpdater(); // allow windows msgs to update
+-			getPlotByIndex(iI).setupGraphical();
++			getPlotByIndex(i).setupGraphical();
+ 		}
+ 	}
+ 	// <advc.106n> For games starting in a later era
+@@ -244,8 +244,8 @@ void CvMap::setupGraphical() // graphical only setup
+ 
+ void CvMap::erasePlots()
+ {
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		plotByIndex(iI)->erase();
++	for (int i = 0; i < numPlots(); i++)
++		plotByIndex(i)->erase();
+ 	m_replayTexture.clear(); // advc.106n
+ }
+ 
+@@ -254,9 +254,9 @@ void CvMap::setRevealedPlots(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly)
+ {
+ 	PROFILE_FUNC();
+ 
+-	for (int iI = 0; iI < numPlots(); iI++)
++	for (int i = 0; i < numPlots(); i++)
+ 	{
+-		getPlotByIndex(iI).setRevealed(eTeam, bNewValue, bTerrainOnly, NO_TEAM, false);
++		getPlotByIndex(i).setRevealed(eTeam, bNewValue, bTerrainOnly, NO_TEAM, false);
+ 	}
+ 
+ 	GC.getGame().updatePlotGroups();
+@@ -289,8 +289,8 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
+ void CvMap::doTurn()
+ {
+ 	//PROFILE("CvMap::doTurn()"); // advc.003o
+-	for(int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).doTurn();
++	for(int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).doTurn();
+ }
+ 
+ 
+@@ -298,9 +298,9 @@ void CvMap::updateFlagSymbols()
+ {
+ 	PROFILE_FUNC();
+ 
+-	for (int iI = 0; iI < numPlots(); iI++)
++	for (int i = 0; i < numPlots(); i++)
+ 	{
+-		CvPlot& kPlot = getPlotByIndex(iI);
++		CvPlot& kPlot = getPlotByIndex(i);
+ 		if (kPlot.isFlagDirty())
+ 		{
+ 			kPlot.updateFlagSymbol();
+@@ -319,43 +319,43 @@ void CvMap::setFlagsDirty()
+ 
+ void CvMap::updateFog()
+ {
+-	for(int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateFog();
++	for(int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateFog();
+ }
+ 
+ 
+ void CvMap::updateVisibility()
+ {
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateVisibility();
++	for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateVisibility();
+ }
+ 
+ 
+ void CvMap::updateSymbolVisibility()
+ {
+-	for(int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateSymbolVisibility();
++	for(int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateSymbolVisibility();
+ }
+ 
+ 
+ void CvMap::updateSymbols()
+ {
+-	for(int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateSymbols();
++	for(int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateSymbols();
+ }
+ 
+ 
+ void CvMap::updateMinimapColor()
+ {
+-	for(int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateMinimapColor();
++	for(int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateMinimapColor();
+ }
+ 
+ 
+ void CvMap::updateSight(bool bIncrement)
+ {
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateSight(bIncrement, false);
++	for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateSight(bIncrement, false);
+ 
+ 	GC.getGame().updatePlotGroups();
+ }
+@@ -377,8 +377,8 @@ void CvMap::updateIrrigated()
+ 	with a very generous approximation for what might be in range. */
+ void CvMap::updateCenterUnit()
+ {
+-	/*for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateCenterUnit();*/ // BtS
++	/*for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateCenterUnit();*/ // BtS
+ 	PROFILE_FUNC();
+ 	int iRange = -1;
+ 
+@@ -424,8 +424,8 @@ void CvMap::updateCenterUnit()
+ 
+ void CvMap::updateWorkingCity()
+ {
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateWorkingCity();
++	for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateWorkingCity();
+ }
+ 
+ 
+@@ -433,9 +433,9 @@ void CvMap::updateMinOriginalStartDist(CvArea const& kArea)
+ {
+ 	PROFILE_FUNC();
+ 
+-	for (int iI = 0; iI < numPlots(); iI++)
++	for (int i = 0; i < numPlots(); i++)
+ 	{
+-		CvPlot& kPlot = getPlotByIndex(iI);
++		CvPlot& kPlot = getPlotByIndex(i);
+ 		if (kPlot.isArea(kArea))
+ 			kPlot.setMinOriginalStartDist(-1);
+ 	}
+@@ -470,15 +470,15 @@ void CvMap::updateMinOriginalStartDist(CvArea const& kArea)
+ 
+ void CvMap::updateYield()
+ {
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).updateYield();
++	for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).updateYield();
+ }
+ 
+ 
+ void CvMap::verifyUnitValidPlot()
+ {
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).verifyUnitValidPlot();
++	for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).verifyUnitValidPlot();
+ }
+ 
+ 
+@@ -1120,8 +1120,8 @@ void CvMap::invalidateActivePlayerSafeRangeCache()
+ {
+ 	PROFILE_FUNC();
+ 
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).setActivePlayerSafeRangeCache(-1);
++	for (int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).setActivePlayerSafeRangeCache(-1);
+ }
+ 
+ 
+@@ -1129,8 +1129,8 @@ void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
+ {
+ 	PROFILE_FUNC();
+ 
+-	for(int iI = 0; iI < numPlots(); iI++)
+-		getPlotByIndex(iI).setBorderDangerCache(eTeam, false);
++	for(int i = 0; i < numPlots(); i++)
++		getPlotByIndex(i).setBorderDangerCache(eTeam, false);
+ } // BETTER_BTS_AI_MOD: END
+ 
+ // read object from a stream. used during load
+@@ -1234,8 +1234,8 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	m_aiNumBonus.Write(pStream);
+ 	m_aiNumBonusOnLand.Write(pStream);
+ 	REPRO_TEST_END_WRITE();
+-	for (int iI = 0; iI < numPlots(); iI++)
+-		m_pMapPlots[iI].write(pStream);
++	for (int i = 0; i < numPlots(); i++)
++		m_pMapPlots[i].write(pStream);
+ 
+ 	WriteStreamableFFreeListTrashArray(m_areas, pStream);
+ 	// <advc.106n>
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 12efed7e5..a57d4bb1e 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -132,16 +132,17 @@ public:
+ 		// advc.opt: Don't check for INVALID_PLOT_COORD
+ 		return plotValidXY(iX + iDX, iY + iDY);
+ 	}
+-	// K-Mod start
++	// K-Mod:
+ 	inline CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) const
+ 	{
+ 		return plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
+-	} // K-Mod end
++	}
+ 
+ 	inline DirectionTypes directionXY(int iDX, int iDY) const
+ 	{
+ 		/*if (abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS)
+-			return NO_DIRECTION;*/ // advc.opt: Apparently can't happen, so:
++			return NO_DIRECTION;*/ /* advc.opt: Apparently can't happen
++		(so long as directionXY is used only on adjacent plots), so: */
+ 		FAssert(!(abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS));
+ 		return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 35e4a0355..96fd54938 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19311,62 +19311,62 @@ void CvPlayerAI::AI_doReligion()
+ 
+ /*  advc.133: Partly cut from AI_doDiplo. The caller ensures that the deal can
+ 	be canceled; in particular, that it's a deal between this player and ePlayer. */
+-CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer)
++CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTypes ePlayer)
+ {
+ 	PROFILE_FUNC(); // advc.opt
+ 
+ 	// K-Mod: getTradeDenial is not equipped to consider deal cancelation properly.
+-	if(!AI_considerOffer(ePlayer,
+-		d.getGivesList(ePlayer), d.getGivesList(getID()), -1, d.getAge()))
++	if (!AI_considerOffer(ePlayer,
++		kDeal.getGivesList(ePlayer), kDeal.getGivesList(getID()), -1, kDeal.getAge()))
+ 	{
+-		if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"trade value");
++		if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"trade value");
+ 		return RENEGOTIATE;
+ 	}
+-	if(d.getGivesList(getID()).getLength() <= 0)
++	if (kDeal.getGivesList(getID()).getLength() <= 0)
+ 		return NO_CANCEL;
+ 	/*  @"not equipped"-comment above: Resource trades do need special treatment.
+ 		For duals (Open Borders, Def. Pact, Perm. Alliance), getTradeDenial
+ 		is all right. AI_considerOffer will not cancel these b/c the trade values
+ 		of dual trades are always considered fair.
+ 		Worst enmity is treated separately elsewhere. */
+-	CLLNode<TradeData> const* pNode = d.getGivesList(getID()).head();
+-	if(pNode != NULL && CvDeal::isDual(pNode->m_data.m_eItemType, true))
++	CLLNode<TradeData> const* pNode = kDeal.getGivesList(getID()).head();
++	if (pNode != NULL && CvDeal::isDual(pNode->m_data.m_eItemType, true))
+ 	{
+ 		DenialTypes eDenial = getTradeDenial(ePlayer, pNode->m_data);
+-		if(eDenial != NO_DENIAL &&
++		if (eDenial != NO_DENIAL &&
+ 			// <kekm.3> Cancel DP immediately when war no longer shared
+ 			(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+ 			eDenial == DENIAL_JOKING)) || // </kekm.3>
+-			fixp(0.2).bernoulliSuccess(GC.getGame().getSRand(), "advc.133")))
++			fixp(0.2).bernoulliSuccess(GC.getGame().getSRand(), "deal cancellation")))
+ 		{
+-			if (gDealCancelLogLevel > 1) logBBAICancel(d, getID(), L"dual denial");
++			if (gDealCancelLogLevel > 1) logBBAICancel(kDeal, getID(), L"dual denial");
+ 			return DO_CANCEL;
+ 		}
+ 		else return NO_CANCEL;
+ 	}
+ 	/*  getTradeDenial will always return DENIAL_JOKING. Instead, call
+ 		AI_bonusTrade explicitly and tell it that this is about cancellation. */
+-	FOR_EACH_TRADE_ITEM(d.getGivesList(getID()))
++	FOR_EACH_TRADE_ITEM(kDeal.getGivesList(getID()))
+ 	{
+ 		if(pItem->m_eItemType != TRADE_RESOURCES)
+ 			continue;
+ 		if(AI_bonusTrade((BonusTypes)
+ 			pItem->m_iData, ePlayer, 0) != NO_DENIAL)
+ 		{
+-			if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"resource - denial");
++			if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"resource - denial");
+ 			return DO_CANCEL;
+ 		}
+ 	}
+ 	/*	Need to check their DENIAL_JOKING in case they're giving us a resource that
+ 		we no longer need */
+-	FOR_EACH_TRADE_ITEM(d.getGivesList(ePlayer))
++	FOR_EACH_TRADE_ITEM(kDeal.getGivesList(ePlayer))
+ 	{
+ 		if(pItem->m_eItemType != TRADE_RESOURCES)
+ 			continue;
+ 		if(GET_PLAYER(ePlayer).AI_bonusTrade((BonusTypes)
+ 			pItem->m_iData, getID(), 0) == DENIAL_JOKING)
+ 		{
+-			if (gDealCancelLogLevel > 0) logBBAICancel(d, getID(), L"resource - joking");
++			if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"resource - joking");
+ 			return DO_CANCEL;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ddda16f6c..3f347a4e5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6832,7 +6832,7 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
+ {
+ 	if (NO_TEAM == eTeam)
+ 		return alwaysInvisible();
+-	if(isInvisible(eTeam, false))
++	if (isInvisible(eTeam, false))
+ 		return true;
+ 	return false;
+ }
+@@ -9400,12 +9400,6 @@ bool CvUnit::isMadeAllAttacks() const
+ } // </advc.164>
+ 
+ 
+-bool CvUnit::isMadeInterception() const
+-{
+-	return m_bMadeInterception;
+-}
+-
+-
+ void CvUnit::setMadeInterception(bool bNewValue)
+ {
+ 	m_bMadeInterception = bNewValue;
+@@ -9483,10 +9477,6 @@ void CvUnit::setInfoBarDirty(bool bNewValue)
+ 	m_bInfoBarDirty = bNewValue;
+ }
+ 
+-bool CvUnit::isBlockading() const
+-{
+-	return m_bBlockading;
+-}
+ 
+ void CvUnit::setBlockading(bool bNewValue)
+ {
+@@ -9497,6 +9487,7 @@ void CvUnit::setBlockading(bool bNewValue)
+ 	}
+ }
+ 
++
+ void CvUnit::collectBlockadeGold()
+ {
+ 	//if(getPlot().getTeam() == getTeam()) return; // advc.033: Handled by caller
+@@ -9593,7 +9584,7 @@ PlayerTypes CvUnit::getCombatOwner_bulk(TeamTypes eForTeam, CvPlot const& kPlot)
+ 
+ TeamTypes CvUnit::getTeam() const
+ {
+-	return GET_PLAYER(getOwner()).getTeam();
++	return TEAMID(getOwner());
+ }
+ 
+ 
+@@ -9609,16 +9600,6 @@ void CvUnit::setCapturingPlayer(PlayerTypes eNewValue)
+ }
+ 
+ 
+-UnitClassTypes CvUnit::getUnitClassType() const
+-{
+-	return m_pUnitInfo->getUnitClassType();
+-}
+-
+-const UnitTypes CvUnit::getLeaderUnitType() const
+-{
+-	return m_eLeaderUnitType;
+-}
+-
+ void CvUnit::setLeaderUnitType(UnitTypes leaderUnitType)
+ {
+ 	if(m_eLeaderUnitType != leaderUnitType)
+@@ -9628,6 +9609,7 @@ void CvUnit::setLeaderUnitType(UnitTypes leaderUnitType)
+ 	}
+ }
+ 
++
+ CvUnit* CvUnit::getCombatUnit() const
+ {
+ 	return getUnit(m_combatUnit);
+@@ -9686,7 +9668,7 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
+ 		gDLL->UI().setCombatFocus(true);
+ }
+ 
+-// K-Mod. Return true if the combat animation should include a siege tower
++// K-Mod: Return true if the combat animation should include a siege tower
+ // (code copied from setCombatUnit, above)
+ bool CvUnit::showSiegeTower(CvUnit* pDefender) const
+ {
+@@ -9695,8 +9677,7 @@ bool CvUnit::showSiegeTower(CvUnit* pDefender) const
+ 		pDefender->getPlot().getPlotCity() &&
+ 		pDefender->getPlot().getPlotCity()->getBuildingDefense() > 0 &&
+ 		cityAttackModifier() >= GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER");
+-} // K-Mod end
+-
++}
+ 
+ CvUnit const* CvUnit::getTransportUnit() const
+ {
+@@ -9704,7 +9685,7 @@ CvUnit const* CvUnit::getTransportUnit() const
+ }
+ 
+ /*	advc: Const/ non-const versions of this function b/c changes to the transport unit
+-	are likely to affect this unit */
++	are likely to affect *this unit */
+ CvUnit* CvUnit::getTransportUnit()
+ {
+ 	return getUnit(m_transportUnit);
+@@ -9772,14 +9753,14 @@ const CvWString CvUnit::getName(uint uiForm) const
+ 	return szBuffer;
+ }
+ 
+-// <advc.106>
++// advc.106:
+ CvWString const CvUnit::getReplayName() const
+ {
+ 	if(m_szName.empty())
+ 		return m_pUnitInfo->getDescription();
+ 	return gDLL->getText("TXT_KEY_MISC_GP_NAME_REPLAY",
+ 			m_pUnitInfo->getDescription(), m_szName.GetCString());
+-} // </advc.106>
++}
+ 
+ 
+ const wchar* CvUnit::getNameKey() const
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index ff689439c..8828dcd9c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -816,7 +816,10 @@ public:
+ 	void setMadeAttack(bool bNewValue);																		// Exposed to Python
+ 	bool isMadeAllAttacks() const; // advc.164
+ 
+-	bool isMadeInterception() const;																		// Exposed to Python
++	bool isMadeInterception() const																			// Exposed to Python
++	{
++		return m_bMadeInterception;
++	}
+ 	void setMadeInterception(bool bNewValue);																// Exposed to Python
+ 
+ 	bool isPromotionReadyExternal() const; // advc.002e: exported through .def file
+@@ -833,7 +836,10 @@ public:
+ 	DllExport bool isInfoBarDirty() const;
+ 	DllExport void setInfoBarDirty(bool bNewValue);
+ 
+-	bool isBlockading() const;
++	bool isBlockading() const
++	{
++		return m_bBlockading;
++	}
+ 	void setBlockading(bool bNewValue);
+ 	void collectBlockadeGold();
+ 
+@@ -861,9 +867,15 @@ public:
+ 
+ 	DllExport inline const UnitTypes getUnitType() const { return m_eUnitType; }							// Exposed to Python
+ 	__forceinline CvUnitInfo& getUnitInfo() const { return *m_pUnitInfo; }
+-	UnitClassTypes getUnitClassType() const;	// Exposed to Python
++	UnitClassTypes getUnitClassType() const	// Exposed to Python
++	{
++		return m_pUnitInfo->getUnitClassType();
++	}
+ 
+-	DllExport const UnitTypes getLeaderUnitType() const;
++	DllExport const UnitTypes getLeaderUnitType() const
++	{
++		return m_eLeaderUnitType;
++	}
+ 	void setLeaderUnitType(UnitTypes leaderUnitType);
+ 
+ 	DllExport CvUnit* getCombatUnit() const;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=18804

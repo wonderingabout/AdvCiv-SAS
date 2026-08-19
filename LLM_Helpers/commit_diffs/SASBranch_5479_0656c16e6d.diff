@@ -1,0 +1,132 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5479
+# Commit: 0656c16e6dc5c308911268e5ab7a3a10003ea1af
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2078e7e8e9acc04ebf59a13dbfec0fa775a0723d
+# Title: Beautify the Diplomacy Screen's trading rows with icons - Beautified the **Diplomacy Screen**'s trading rows with **icons** (e.g., Gold, Gold Per Turn, World...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+14	0	CvGameCoreDLL/CvPlayer.cpp
+7	0	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bf5311281..9839b4bf7 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19036,6 +19036,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
+ 	} // </advc.072>
+ 	switch (zTradeData.m_eItemType)
+ 	{
++	// <!-- custom: diplomacy trade rows: prefix numeric gold entries with the gold char so amounts are scannable in list form. (GPT-5.3-Codex) -->
+ 	case TRADE_GOLD:
+ 		if (bOffer)
+ 		{
+@@ -19047,6 +19048,8 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
+ 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_NUM",
+ 					AI().AI_maxGoldTrade(eRecipient));
+ 		}
++		szString = CvWString::format(L"%c %s",
++				GC.getInfo(COMMERCE_GOLD).getChar(), szString.GetCString());
+ 		break;
+ 	case TRADE_GOLD_PER_TURN:
+ 		if (bOffer)
+@@ -19059,24 +19062,35 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
+ 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_PER_TURN_NUM",
+ 					AI().AI_maxGoldPerTurnTrade(eRecipient));
+ 		}
++		szString = CvWString::format(L"%c %s",
++				GC.getInfo(COMMERCE_GOLD).getChar(), szString.GetCString());
+ 		break;
+ 	case TRADE_MAPS:
++		// <!-- custom: for diplomacy rows, prefer the map symbol over the map-trading button so this reads as a concrete map exchange, not the abstract trade-enablement concept. (GPT-5.3-Codex) -->
+ 		szString = gDLL->getText("TXT_KEY_TRADE_WORLD_MAP_STRING");
++		szString = CvWString::format(L"%c %s",
++				gDLL->getSymbolID(MAP_CHAR), szString.GetCString());
+ 		break;
++	// <!-- custom: diplomacy trade rows: assign concrete treaty-state icons (vassal, open borders, defensive pact, permanent alliance) through szIcon so these entries render like other iconized trade rows. (GPT-5.3-Codex) -->
+ 	case TRADE_VASSAL:
+ 		szString = gDLL->getText("TXT_KEY_TRADE_VASSAL_STRING");
++		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_VASSAL");
+ 		break;
+ 	case TRADE_SURRENDER:
+ 		szString = gDLL->getText("TXT_KEY_TRADE_CAPITULATE_STRING");
++		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_VASSAL");
+ 		break;
+ 	case TRADE_OPEN_BORDERS:
+ 		szString = gDLL->getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING");
++		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_OPENBORDERS");
+ 		break;
+ 	case TRADE_DEFENSIVE_PACT:
+ 		szString = gDLL->getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING");
++		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_DEFENSIVEPACT");
+ 		break;
+ 	case TRADE_PERMANENT_ALLIANCE:
+ 		szString = gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE_STRING");
++		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_PERMALLIANCE");
+ 		break;
+ 	case TRADE_PEACE_TREATY:
+ 		if(GET_TEAM(eRecipient).isAtWar(getTeam())) // advc.072
+
+diff --git a/README.md b/README.md
+index 12eb33733..4e49be0e0 100644
+--- a/README.md
++++ b/README.md
+@@ -36,6 +36,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
++&emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+ &emsp;[Main interface rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
+@@ -223,6 +224,12 @@ This means the default is now ON, and ticking the option toggles it to OFF. Appl
+ 
+ Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
+ 
++### Diplomacy Screen
++
++Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc.).
++
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG" alt="0.970_diplomacy_screen.JPG" width="250"></img>
++
+ ### Main Interface rework
+ 
+ Some common changes to city screen and map view include the tech bar's detail being enhanced with a new icon centered in the bar, followed by info like `Fusion: 2245 / 5774 (35)`, and show chars in the GP bar even if 100% (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 2ccf4bc5d..de61f48cc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -319,6 +319,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- (Requires AdvCiv-SAS 5479+) Beautified the **Diplomacy Screen**'s trading rows with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit.
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG
+new file mode 100644
+index 000000000..cdc332667
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=9482

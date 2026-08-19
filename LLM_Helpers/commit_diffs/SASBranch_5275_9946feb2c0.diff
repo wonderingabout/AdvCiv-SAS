@@ -1,0 +1,156 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5275
+# Commit: 9946feb2c08c7c0192f6c55a8cde2bfe704d1d69
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a71a79bf4488463cc7b295254bbbe639167b35a0
+# Title: more victory screen performance optimizations + bugfixes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Python/Screens/CvExoticForeignAdvisor.py
+1	1	Assets/Python/Screens/CvInfoScreen.py
+19	14	Assets/Python/Screens/CvVictoryScreen.py
+1	1	README.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 67d375198..8d5acc800 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -707,6 +707,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		# loop through all other players and add their rows; show known first
+ 		lKnownPlayers = []
+ 		lUnknownPlayers = []
++		# <!-- custom: hoist for performance optimization. -->
++		bDebugMode = gc.getGame().isDebugMode()
+ 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+ 			if (iLoopPlayer != self.iActiveLeader):
+ 				objLoopPlayer = gc.getPlayer(iLoopPlayer)
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index f7921ef1f..ff711b587 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1558,7 +1558,7 @@ class CvInfoScreen:
+ 
+ #BUG: Change Graphs - start
+ 			if AdvisorOpt.isGraphs():
+-				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			else:
+ 				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ #BUG: Change Graphs - end
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 60ada2b97..5a49ec115 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -1480,6 +1480,9 @@ class CvVictoryScreen:
+ 		screen.setTableColumnHeader(szTable, 5, "", self.TABLE_WIDTH_5)
+ 		screen.appendTableRow(szTable)
+ 
++		# <!-- custom: cache active player name with icon once before loop (claude opus 4.5) -->
++		szActivePlayerNameWithColon = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
++		
+ 		for iLoopVC in range(gc.getNumVictoryInfos()):
+ 			victory = gc.getVictoryInfo(iLoopVC)
+ 			if gc.getGame().isVictoryValid(iLoopVC):
+@@ -1495,14 +1498,15 @@ class CvVictoryScreen:
+ 
+ 				bEntriesFound = False
+ 
+-				if (victory.isTargetScore() and gc.getGame().getTargetScore() != 0):
++				# <!-- custom: cache target score to avoid duplicate call (claude opus 4.5) -->
++				iTargetScore = gc.getGame().getTargetScore()
++				if (victory.isTargetScore() and iTargetScore != 0):
+ 
+ 					iRow = screen.appendTableRow(szTable)
+-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (gc.getGame().getTargetScore(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+ 					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+@@ -1528,8 +1532,7 @@ class CvVictoryScreen:
+ 					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
+ 					screen.setTableText(szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
+ 					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+@@ -1566,16 +1569,17 @@ class CvVictoryScreen:
+ 							screen.setTableText(szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions End
+ 
+-				if (gc.getGame().getAdjustedPopulationPercent(iLoopVC) > 0):
++				# <!-- custom: cache adjusted population percent to avoid duplicate call (claude opus 4.5) -->
++				iAdjustedPopPercent = gc.getGame().getAdjustedPopulationPercent(iLoopVC)
++				if (iAdjustedPopPercent > 0):
+ 					iRow = screen.appendTableRow(szTable)
+ 
+ 					# <!-- custom: add population icon (claude opus 4.5) -->
+-					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )))
++					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (iAdjustedPopPercent, )))
+ 					screen.setTableText(szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestPopTeam != -1):
+@@ -1590,15 +1594,16 @@ class CvVictoryScreen:
+ 					bEntriesFound = True
+ 
+ 
+-				if (gc.getGame().getAdjustedLandPercent(iLoopVC) > 0):
++				# <!-- custom: cache adjusted land percent to avoid duplicate call (claude opus 4.5) -->
++				iAdjustedLandPercent = gc.getGame().getAdjustedLandPercent(iLoopVC)
++				if (iAdjustedLandPercent > 0):
+ 					iRow = screen.appendTableRow(szTable)
+ 					# <!-- custom: add map icon (claude opus 4.5) -->
+-					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )))
++					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (iAdjustedLandPercent, )))
+ 					screen.setTableText(szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+-					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+-					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					screen.setTableText(szTable, 2, iRow, szActivePlayerNameWithColon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestLandTeam != -1):
+
+diff --git a/README.md b/README.md
+index 94cfd5d99..84e1d10f7 100644
+--- a/README.md
++++ b/README.md
+@@ -321,7 +321,7 @@ Note that this can be generalized to any button, not just our AdvCiv-SAS new but
+ 
+ #BUG: Change Graphs - start
+ 			if AdvisorOpt.isGraphs():
+-				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			else:
+ 				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ #BUG: Change Graphs - end
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=8525

@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2898
+# Commit: e5605112aeaf34a9657a0db85accf3909e01a671
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bb9b70e1c2743b777fb99472ef28a51778ece17e
+# Title: Let Granary store 50% food with "No Slavery" option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	0	Assets/XML/Buildings/CIV4BuildingsSchema.xml
+2	2	Assets/XML/Text/CIV4GameText_advc.xml
+8	4	CvGameCoreDLL/CvCity.cpp
+13	12	CvGameCoreDLL/CvCityAI.cpp
+8	6	CvGameCoreDLL/CvGameTextMgr.cpp
+20	2	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index ff76efad5..0a97fe3cc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2425,7 +2425,8 @@
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- advc.160: was 50 -->
++			<!-- advc.160: Was 50. Note that advc.912d multiplies this by 1.2
++				 in the DLL when playing with the "No Slavery" option. -->
+ 			<iFoodKept>40</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingsSchema.xml b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+index 8c8ac2e5a..8db90a2a0 100644
+--- a/Assets/XML/Buildings/CIV4BuildingsSchema.xml
++++ b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+@@ -473,6 +473,8 @@
+ 		<element type="iGlobalHurryModifier"/>
+ 		<element type="iExperience"/>
+ 		<element type="iGlobalExperience"/>
++		<!-- advc.912d (note): The DLL increases this by a factor of
++			 1.2 when playing with the "No Slavery" option -->
+ 		<element type="iFoodKept"/>
+ 		<element type="iAirlift"/>
+ 		<element type="iAirModifier"/>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 9faa52fdc..059bdcf29 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2120,9 +2120,9 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_NO_SLAVERY_HELP</Tag>
+-		<English>Human players cannot change their civics to Slavery. Only the Aztec Sacrificial Altar allows humans to sacrifice population.</English>
++		<English>Human players cannot change their civics to Slavery. Only the Aztec Sacrificial Altar allows humans to sacrifice population. Human Granaries store 50%% food. (They normally store only 40%% in AdvCiv.)</English>
+ 		<French>Les acteurs humains ne peuvent pas changer leur doctrine en esclavage. Seul l'autel sacrificiel azt�que permet aux humains de sacrifier la population.</French>
+-		<German>Menschliche Spieler k�nnen nicht die Sklaverei als Staatsform w�hlen. Nur der aztekischer Opferaltar erlaubt menschlichen Spielern das Opfern ihrer Bev�lkerung.</German>
++		<German>Menschliche Spieler k�nnen nicht die Sklaverei als Staatsform w�hlen. Nur der aztekischer Opferaltar erlaubt menschlichen Spielern das Opfern ihrer Bev�lkerung. Kornspeicher menschlicher Spieler speichern 50%% Nahrung (anstatt der 40%%, die sie in AdvCiv ansonsten speichern).</German>
+ 		<Italian>I giocatori umani non possono cambiare la loro forma di governo in schiavismo. Solo l'altare sacrificale azteco permette agli umani di sacrificare la popolazione.</Italian>
+ 		<Spanish>Los jugadores humanos no pueden cambiar sus principios a la esclavitud. S�lo el altar de sacrificios azteca permite a los humanos sacrificar a la poblaci�n.</Spanish>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 27374e8ae..db030b292 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2942,11 +2942,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 			kBuilding.getHurryAngerModifier() < 0)
+ 		{
+ 			changePopRushCount(iChange);
+-		} // </advc.912d>
++		}
++		changeMaxFoodKeptPercent(//kBuilding.getFoodKept() * iChange
++				kOwner.getFoodKept(eBuilding) * iChange); // </advc.912d>	
+ 		changeEspionageDefenseModifier(kBuilding.getEspionageDefenseModifier() * iChange);
+ 		changeGreatPeopleRateModifier(kBuilding.getGreatPeopleRateModifier() * iChange);
+ 		changeFreeExperience(kBuilding.getFreeExperience() * iChange);
+-		changeMaxFoodKeptPercent(kBuilding.getFoodKept() * iChange);
+ 		changeMaxAirlift(kBuilding.getAirlift() * iChange);
+ 		changeAirModifier(kBuilding.getAirModifier() * iChange);
+ 		changeAirUnitCapacity(kBuilding.getAirUnitCapacity() * iChange);
+@@ -11293,7 +11294,9 @@ void CvCity::read(FDataStreamBase* pStream)
+ 				(BuildingClassTypes)iBuildingClass, iChange));
+ 	} // <advc.912d>
+ 	if(uiFlag >= 4)
+-		pStream->Read(&m_iPopRushHurryCount); // </advc.912d>
++		pStream->Read(&m_iPopRushHurryCount);
++	if (uiFlag < 9 && isHuman() && GC.getGame().isOption(GAMEOPTION_NO_SLAVERY))
++		m_iFoodKept = (m_iFoodKept * 5) / 4; // </advc.912d>
+ 	// <advc.004x>
+ 	if(uiFlag >= 2)
+ 	{
+@@ -11348,7 +11351,8 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	//uiFlag = 5; // advc.106k
+ 	//uiFlag = 6; // advc.103
+ 	//uiFlag = 7; // advc.003u: m_bChooseProductionDirty
+-	uiFlag = 8; // advc.310
++	//uiFlag = 8; // advc.310
++	uiFlag = 9; // advc.912d (adjust food kept)
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 25f33a895..5bd8807c2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3695,6 +3695,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	bool const bCanPopRush = /*kOwner.*/canPopRush(); // advc.912d
+ 	bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
+ 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
++	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
+ 
+ 	bool bForeignTrade = false;
+ 	{
+@@ -4299,7 +4300,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			iValue += (kBuilding.getGlobalFreeExperience() * iNumCities * ((iHasMetCount > 0) ? 6 : 3));
+ 
+ 			/*if (bCanPopRush)
+-				iValue += kBuilding.getFoodKept() / 2;*/ // BtS
++				iValue += iFoodKept / 2;*/ // BtS
+ 			// (moved to where the rest of foodKept is valued)
+ 
+ 			/*iValue += kBuilding.getAirlift() * (getPopulation()*3 + 10);
+@@ -4839,12 +4840,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		if (iPass > 0)
+ 		{
+ 			// K-Mod, I've moved this from inside the yield types loop; and I've increased the value to compensate.
+-			if (iFoodDifference > 0 && kBuilding.getFoodKept() != 0)
++			if (iFoodDifference > 0 && iFoodKept != 0)
+ 			{
+-				//iValue += kBuilding.getFoodKept() / 2;
+-				iValue += std::max(0, 2*(std::max(4, AI_getTargetPopulation()) - getPopulation())+(bCanPopRush ?3 :1)) * kBuilding.getFoodKept() / 4;
+-			}
+-			// K-Mod end
++				//iValue += iFoodKept / 2;
++				iValue += (std::max(0,
++						2 * (std::max(4, AI_getTargetPopulation()) - getPopulation()) +
++						(bCanPopRush ? 3 : 1)) * iFoodKept) / 4;
++			} // K-Mod end
+ 
+ 			FOR_EACH_ENUM(Yield)
+ 			{
+@@ -4907,9 +4909,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				}
+ 
+ 				/*if (iFoodDifference > 0)
+-				{
+-					iValue += kBuilding.getFoodKept() / 2;
+-				}*/ // BtS
++					iValue += iFoodKept / 2;*/ // BtS
+ 				// (We're inside a yield types loop. This would be triple counted here!)
+ 
+ 				if (kBuilding.getSeaPlotYieldChange(eLoopYield) > 0)
+@@ -4969,8 +4969,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			if (iFocusFlags & BUILDINGFOCUS_FOOD)
+ 			{
+ 
+-				iValue += kBuilding.getFoodKept();
+-
++				iValue += iFoodKept;
+ 				if (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 				{
+ 					int iTempValue = kBuilding.getSeaPlotYieldChange(YIELD_FOOD) *
+@@ -12215,7 +12214,9 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ 			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 50;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 25;
+ 		}
+-		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += std::max(-25, GC.getInfo(eProductionBuilding).getFoodKept());
++		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += std::max(-25,
++				//GC.getInfo(eProductionBuilding).getFoodKept()
++				GET_PLAYER(getOwner()).getFoodKept(eProductionBuilding)); // advc.912d
+ 
+ 		/*if ((GC.getInfo(eProductionBuilding).getCommerceChange(COMMERCE_CULTURE) > 0)
+ 			|| (GC.getInfo(eProductionBuilding).getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0)) {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 9e76e5564..91b99429f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10095,14 +10095,16 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_FREE_XP_ALL_CITIES",
+ 				kBuilding.getGlobalFreeExperience()));
+ 	}
+-
+-	if (kBuilding.getFoodKept() > 0)
+ 	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_STORES_FOOD",
+-				kBuilding.getFoodKept()));
++		int iFoodKept = (pPlayer == NULL ?
++				kBuilding.getFoodKept() :
++				pPlayer->getFoodKept(eBuilding)); // advc.912d
++		if (iFoodKept != 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_STORES_FOOD", iFoodKept));
++		}
+ 	}
+-
+ 	if (kBuilding.getAirlift() > 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bd984912f..ac13b95bf 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10006,6 +10006,22 @@ void CvPlayer::changeHurryCount(HurryTypes eHurry, int iChange)
+ 	}
+ }
+ 
++// advc.912d:
++int CvPlayer::getFoodKept(BuildingTypes eBuilding) const
++{
++	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
++	int iFoodKept = kBuilding.getFoodKept();
++	if (GC.getGame().isOption(GAMEOPTION_NO_SLAVERY) &&
++		/*	Toggling this on and off during AI Auto Play
++			could lead to inconsistent data at CvCity */
++		(isHuman() || isHumanDisabled()))
++	{
++		iFoodKept *= 5;
++		iFoodKept /= 4;
++	}
++	return iFoodKept;
++}
++
+ 
+ void CvPlayer::changeSpecialBuildingNotRequiredCount(SpecialBuildingTypes eSpecial, int iChange)
+ {
+@@ -12674,7 +12690,8 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 			{
+ 				pCity->setNumRealBuilding(eBuilding, pCity->getNumRealBuilding(eBuilding)+1);
+ 				changeAdvancedStartPoints(-iCost);
+-				if (GC.getInfo(eBuilding).getFoodKept() != 0)
++				//if (GC.getInfo(eBuilding).getFoodKept() != 0)
++				if (getFoodKept(eBuilding) != 0) // advc.912d
+ 				{
+ 					pCity->setFoodKept((pCity->getFood() *
+ 							pCity->getMaxFoodKeptPercent()) / 100);
+@@ -12685,7 +12702,8 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 		{
+ 			pCity->setNumRealBuilding(eBuilding, pCity->getNumRealBuilding(eBuilding) - 1);
+ 			changeAdvancedStartPoints(iCost);
+-			if (GC.getInfo(eBuilding).getFoodKept() != 0)
++			//if (GC.getInfo(eBuilding).getFoodKept() != 0)
++			if (getFoodKept(eBuilding) != 0) // advc.912d
+ 			{
+ 				pCity->setFoodKept((pCity->getFood() *
+ 						pCity->getMaxFoodKeptPercent()) / 100);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index bef4fa17c..95e17eee8 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1035,6 +1035,7 @@ public:
+ 	bool canPopRush() const { return (m_iPopRushHurryCount > 0); }
+ 	bool canGoldRush() const { return (m_iGoldRushHurryCount > 0); } // advc.064b
+ 	void changeHurryCount(HurryTypes eHurry, int iChange);
++	int getFoodKept(BuildingTypes eBuilding) const; // advc.912d
+ 
+ 	int getSpecialBuildingNotRequiredCount(SpecialBuildingTypes eSpecial) const										// Exposed to Python
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=11123

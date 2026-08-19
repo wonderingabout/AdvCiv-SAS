@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1092
+# Commit: ced57c643385652b22765951a379f140091dc853
+# History segment: K-Mod history
+# Parent used for diff: bd3c060827f40f00e5f60507531899c747f7441e
+# Title: Fixed a bug which messed up some of the calculations in AI_baseBonusVal
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 44b3e6009..0e81c6cc9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10226,15 +10226,17 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus) const
+ 
+ 						for (int iJ = 0; iJ < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iJ++)
+ 						{
+-							if (kLoopUnit.getPrereqOrBonuses(iJ) != NO_BONUS)
++							BonusTypes ePrereqBonus = (BonusTypes)kLoopUnit.getPrereqOrBonuses(iJ);
++
++							if (ePrereqBonus != NO_BONUS)
+ 							{
+ 								iOrBonuses++;
+-								//iOrBonusesWeHave += (iJ != eBonus && getNumAvailableBonuses((BonusTypes)kLoopUnit.getPrereqOrBonuses(iJ))) ? 1 : 0;
++								//iOrBonusesWeHave += (ePrereqBonus != eBonus && getNumAvailableBonuses(ePrereqBonus)) ? 1 : 0;
+ 								// @*#!  It occurs to me that using state-dependant stuff such as NumAvailableBonuses here could result in OOS errors.
+ 								// This is because the code here can be trigged by local UI events, and then the value could be cached...
+ 								// It's very frustrating - because including the effect from iOrBonusesWeHave was going to be a big improvment.
+ 								// The only way I can think of working around this is to add a 'bConstCache' argument to this function...
+-								bIsOrBonus = bIsOrBonus || iJ == eBonus;
++								bIsOrBonus = bIsOrBonus || ePrereqBonus == eBonus;
+ 							}
+ 						}
+ 						if (bIsOrBonus)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1415

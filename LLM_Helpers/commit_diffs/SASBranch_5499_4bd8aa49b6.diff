@@ -1,0 +1,178 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5499
+# Commit: 4bd8aa49b66d5d50697bb79f7eb2f955e28b60ba
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a3cf39a3a4b3b0db102492004ceaefee0515c8d6
+# Title: update main menu music
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3
+2	48	Assets/XML/Audio/Audio2DScripts.xml
+1	15	Assets/XML/Audio/AudioDefines.xml
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+1	3	_1_AdvCiv-SAS/Docs/README_References.md
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3
+deleted file mode 100644
+index bbc839711..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487.mp3
+new file mode 100644
+index 000000000..3b65adf6e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3
+deleted file mode 100644
+index 546d525b9..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3
+deleted file mode 100644
+index 0beebcf9a..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396.mp3 and /dev/null differ
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 5993a26b6..336da2502 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -90,54 +90,8 @@
+ 		<ScriptID>AS2D_OPENING_MENU_02</ScriptID>
+ 		<SoundID>SONG_OPENING_MENU_02</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>60</iMinVolume>
+-		<iMaxVolume>60</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_OPENING_MENU_03</ScriptID>
+-		<SoundID>SONG_OPENING_MENU_03</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>65</iMinVolume>
+-		<iMaxVolume>65</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_OPENING_MENU_04</ScriptID>
+-		<SoundID>SONG_OPENING_MENU_04</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>60</iMinVolume>
+-		<iMaxVolume>60</iMaxVolume>
++		<iMinVolume>80</iMinVolume>
++		<iMaxVolume>80</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+ 		<iPitchChangeUp>0</iPitchChangeUp>
+ 		<iMinLeftPan>-1</iMinLeftPan>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 851676d1d..49dff6b25 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -39,21 +39,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_OPENING_MENU_02</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_OPENING_MENU_03</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_OPENING_MENU_04</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396</Filename>
++			<Filename>Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index fe76ecd5b..d0bbbf614 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -27,11 +27,11 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3</DefineName>
+-		<DefineTextVal>AS2D_OPENING_MENU_03</DefineTextVal>
++		<DefineTextVal>NONE</DefineTextVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4</DefineName>
+-		<DefineTextVal>AS2D_OPENING_MENU_04</DefineTextVal>
++		<DefineTextVal>NONE</DefineTextVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5</DefineName>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index a5362ee35..c5530cfc1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -45,9 +45,7 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ ### Main Menu
+ 
+ - `SONG_OPENING_MENU_01`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-song-330550/). Note: for an easy ctrl+f since not mentioned in asset name, the name from url is beats-lofi-song-330550, check to be sure.
+-- `SONG_OPENING_MENU_02`: Lofi Music HipHop Chill - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-music-hiphop-chill-300736/).
+-- `SONG_OPENING_MENU_03`: Midnight Drive: A Funky Synthwave Instrumental - Music by <a href="https://pixabay.com/users/nickpanekaiassets-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Nicholas Panek</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/synthwave-midnight-drive-a-funky-synthwave-instrumental-403041/).
+-- `SONG_OPENING_MENU_04`: Funk Funky - Music by <a href="https://pixabay.com/users/prettyjohn1-54616349/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">prettyjohn1</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/funk-funk-funky-483396/).
++- `SONG_OPENING_MENU_02`: Avalon - Mystically Fantasy Chill Out Music - Music by <a href="https://pixabay.com/users/juliush-3921568/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=7487">Julius H.</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=7487">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/main-title-avalon-mystically-fantasy-chill-out-music-7487/).
+ 
+ ### Eras
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=8645

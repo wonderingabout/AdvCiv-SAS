@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3409
+# Commit: ee190a86405edf4ccb1baf74a150fae2f6eec257
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 66e790e30a7ab38ed45e83247daf4d772b76742c
+# Title: Tweaks to foreign culture strength (revolt chance)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	9	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index baaef25be..510305b15 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4047,17 +4047,15 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 		}
+ 		rEraFactor++;
+ 	}
+-	// To put a cap on the initial revolt chance in large cities:
+-	rPopulation.decreaseTo(rEraFactor * fixp(1.6));
+ 	CvPlot const& kCityPlot = getPlot();
+ 	bool bCanFlip = (canCultureFlip(ePlayer, false) &&
+ 			ePlayer == kCityPlot.calculateCulturalOwner());
+-	scaled rStrength = 1 + 2 * rPopulation;
+-	scaled rStrengthFromInnerRadius = 0;
++	scaled rStrengthFromInnerRadius;
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+-	// </advc.101>  <advc.099c>
+-	if(ePlayer == BARBARIAN_PLAYER)
++	// <advc.099c>
++	if (ePlayer == BARBARIAN_PLAYER)
+ 		rEraFactor /= 2; // </advc.099c>
++	int iStolenInner = 0;
+ 	FOR_EACH_ADJ_PLOT(getPlot())
+ 	{
+ 		// <advc.035>
+@@ -4069,19 +4067,30 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 			if(eSecondOwner != eLoopOwner) // Checked only for easier debugging
+ 				eLoopOwner = eSecondOwner;
+ 		} // </advc.035>
+-		if (bCanFlip && // advc.101
++		if (bCanFlip &&
+ 			eLoopOwner == ePlayer) // advc.035
+ 		{
+-			// <advc.101>
+ 			rStrengthFromInnerRadius += rEraFactor * scaled::clamp(
+ 					rTimeRatio - fixp(2/3.), 0, fixp(3.5));
++			iStolenInner++;
+ 		}
+ 		scaled rCap = fixp(0.25) + fixp(0.75) * rTimeFactor;
+ 		rStrengthFromInnerRadius += rEraFactor * scaled::clamp(per100(
+ 				pAdj->calculateCulturePercent(ePlayer) -
+ 				pAdj->calculateCulturePercent(getOwner())), 0, rCap);
+ 	}
+-	rStrengthFromInnerRadius.decreaseTo(rStrength);
++	/*	Don't make cities that stay small for lack of workable tiles
++		too easy to hold onto */
++	rPopulation.increaseTo(scaled(iStolenInner, 2));
++	// To put a cap on the early-game revolt chance in large cities:
++	rPopulation.decreaseTo(rEraFactor * fixp(5/3.));
++	scaled rStrength = 1 + 2 * rPopulation;
++	/*	Era should also affect strength from population
++		(only affects strength from surrounding tiles in BtS). */
++	rStrength *= scaled::max(2, rEraFactor + 1).sqrt() / 2;
++	rStrengthFromInnerRadius /= fixp(1.5); // To even out the change above
++	if (!isBarbarian()) // Put engulfed Barbarian cities out of their misery
++		rStrengthFromInnerRadius.decreaseTo(fixp(5/3.) * rStrength);
+ 	rStrength += rStrengthFromInnerRadius;
+ 	int const iHurryAnger = (getHurryPercentAnger() * getPopulation()) / 1000;
+ 	FAssert((iHurryAnger == 0) == (getHurryAngerTimer() == 0));
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2502

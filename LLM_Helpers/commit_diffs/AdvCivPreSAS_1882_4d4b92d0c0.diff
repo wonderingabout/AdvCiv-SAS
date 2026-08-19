@@ -1,0 +1,339 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1882
+# Commit: 4d4b92d0c0c65fdbdf550d8b27f16112d07757b4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6a5b64619a66fbda417f4793f6edaa25787bf51e
+# Title: Fix some recently introduced problems with Perm. Alliances
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	3	Assets/Python/Screens/CvMainInterface.py
+1	1	CvGameCoreDLL/CvAgents.h
+2	1	CvGameCoreDLL/CvDeal.cpp
+5	6	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.cpp
+21	29	CvGameCoreDLL/CvTeam.cpp
+5	2	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+6	0	CvGameCoreDLL/UWAIAgent.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index a60624e10..fb71c7423 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5236,10 +5236,9 @@ class CvMainInterface:
+ 			iScore = g.getPlayerScore(ePlayer)
+ 			szPlayerScore = u"%d" % iScore
+ 			# <advc.155>
+-			eMaster = pTeam.getMasterTeam()
+ 			# (To allow this option without the Advanced/Tabular layout option, simply remove the bAlignIcons check.)
+-			if bAlignIcons and gc.getTeam(eMaster).getAliveCount() > 1 and ScoreOpt.isColorCodeTeamScore():
+-				pTeamLeader = gc.getPlayer(gc.getTeam(eMaster).getLeaderID())
++			if bAlignIcons and gc.getTeam(eTeam).getAliveCount() > 1 and ScoreOpt.isColorCodeTeamScore():
++				pTeamLeader = gc.getPlayer(gc.getTeam(eTeam).getLeaderID())
+ 				szPlayerScore = u"<color=%d,%d,%d,%d>%s</color>" %(pTeamLeader.getPlayerTextColorR(), pTeamLeader.getPlayerTextColorG(), pTeamLeader.getPlayerTextColorB(), pTeamLeader.getPlayerTextColorA(), szPlayerScore)
+ 			# </advc.155>
+ 			if bAlignIcons:
+
+diff --git a/CvGameCoreDLL/CvAgents.h b/CvGameCoreDLL/CvAgents.h
+index a81d49c8b..882605955 100644
+--- a/CvGameCoreDLL/CvAgents.h
++++ b/CvGameCoreDLL/CvAgents.h
+@@ -47,7 +47,7 @@ public:
+ 	{
+ 		updateVassal(eVassal, eMaster, false);
+ 	}
+-	void allianceFormed() // Tbd.: Not currently called
++	void allianceFormed()
+ 	{
+ 		updateAllCachedSequences();
+ 	}
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 9e4df31ac..0a99969f9 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -437,7 +437,8 @@ bool CvDeal::isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReaso
+ 	else if(GET_TEAM(getSecondPlayer()).isVassal(eMaster))
+ 		eVassal = TEAMID(getSecondPlayer());
+ 	else return false; // sibling vassals
+-
++	if (TEAMID(getFirstPlayer()) == TEAMID(getSecondPlayer()))
++		return false; // headGivesNode(TeamTypes) can't handle deals within a team
+ 	for (CLLNode<TradeData> const* pNode = headGivesNode(eVassal); pNode != NULL;
+ 		pNode = nextGivesNode(pNode, eVassal))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 37e7c672a..cd4d3bfc1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3829,9 +3829,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 		// advc.130j:
+ 		AI().AI_rememberEvent(ePlayer, MEMORY_REJECTED_DEMAND);
+ 		if (AI().AI_demandRebukedSneak(ePlayer))
+-		{
+ 			GET_TEAM(getTeam()).AI_setWarPlan(GET_PLAYER(ePlayer).getTeam(), WARPLAN_PREPARING_LIMITED);
+-		}
+ 		break;
+ 
+ 	case DIPLOEVENT_DEMAND_WAR:
+@@ -3970,12 +3968,11 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 			FAssert(iData2 == NO_WARPLAN);
+ 			for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
+ 			{
+-				if (!kOurTeam.isAtWar(i))
+-					kOurTeam.AI_setWarPlan(i, NO_WARPLAN, false);
++				//if (!kOurTeam.isAtWar(i)) // advc: Redundant b/c of bWar=false param
++				kOurTeam.AI_setWarPlan(i, NO_WARPLAN, false);
+ 			}
+ 		}
+-		else
+-			kOurTeam.AI_setWarPlan((TeamTypes)iData1, (WarPlanTypes)iData2, false);
++		else kOurTeam.AI_setWarPlan((TeamTypes)iData1, (WarPlanTypes)iData2, false);
+ 		break;
+ 	} // K-Mod end
+ 
+@@ -4282,7 +4279,9 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 		return (!kOurTeam.isAVassal() && !kToTeam.isAVassal() &&
+ 				getTeam() != kToTeam.getID() && //!kToTeam.isVassal(getTeam()) // advc: redundant
+ 				!kOurTeam.isAtWar(kToTeam.getID()) &&
++				#ifndef TEST_PERMANENT_ALLIANCES // advc.test
+ 				(kOurTeam.isPermanentAllianceTrading() || kToTeam.isPermanentAllianceTrading()) &&
++				#endif
+ 				kOurTeam.getNumMembers() == 1 && kToTeam.getNumMembers() == 1);
+ 	case TRADE_PEACE_TREATY:
+ 		return true;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1505fb7a4..d61b5cb88 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -18342,6 +18342,7 @@ void CvPlayerAI::AI_doDiplo()  // advc: style changes
+ 							else
+ 							{
+ 								g.implementDeal(getID(), ePlayer, ourList, theirList);
++								GC.getAgents().allianceFormed(); // advc.agent
+ 								break; // move on to next player since we are on the same team now
+ 							}
+ 						}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a360627ca..193894c3d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -238,8 +238,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			continue; // advc
+ 		if (kObs.getTeam() != getID() && kObs.getTeam() != eTeam)
+ 		{
+-			if ((isHasMet(kObs.getTeam()) && GET_TEAM(eTeam).isHasMet(kObs.getTeam()))
+-				|| kObs.isSpectator()) // advc.127
++			if ((isHasMet(kObs.getTeam()) && GET_TEAM(eTeam).isHasMet(kObs.getTeam())) ||
++				kObs.isSpectator()) // advc.127
+ 			{
+ 				CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_PLAYER_PERMANENT_ALLIANCE",
+ 						getName().GetCString(), GET_TEAM(eTeam).getName().GetCString()));
+@@ -272,13 +272,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+ 				if (GET_TEAM(eTeam).isHasMet((TeamTypes)iI))
+-				{
+ 					meet((TeamTypes)iI, false);
+-				}
+ 				else if (isHasMet((TeamTypes)iI))
+-				{
+ 					GET_TEAM(eTeam).meet((TeamTypes)iI, false);
+-				}
+ 			}
+ 		}
+ 	}
+@@ -315,9 +311,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+ 				if (GET_TEAM(eTeam).isAtWar((TeamTypes)iI))
+-				{
+ 					queueWar((TeamTypes)iI, getID(), false, WARPLAN_DOGPILE, false);
+-				}
+ 				else if (isAtWar((TeamTypes)iI))
+ 				{
+ 					GET_TEAM(eTeam).declareWar((TeamTypes)iI, false, AI().AI_getWarPlan((TeamTypes)iI));
+@@ -335,13 +329,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+ 				if (GET_TEAM(eTeam).isPermanentWarPeace((TeamTypes)iI))
+-				{
+ 					setPermanentWarPeace(((TeamTypes)iI), true);
+-				}
+ 				else if (isPermanentWarPeace((TeamTypes)iI))
+-				{
+ 					GET_TEAM(eTeam).setPermanentWarPeace(((TeamTypes)iI), true);
+-				}
+ 			}
+ 		}
+ 	}
+@@ -414,8 +404,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 		setVassal(GET_TEAM(eTeam).getMasterTeam(), true, bCapitulated);
+ 	}
+ 	// Don't turn eTeam into a vassal; it'll die anyway.
+-	/*else if (isAVassal())
+-	{
++	/*else if (isAVassal()) {
+ 		bool bCapitulated = isCapitulated();
+ 		GET_TEAM(eTeam).setVassal(GET_TEAM(eTeam).getMasterTeam(), false, bCapitulated);
+ 		GET_TEAM(eTeam).setVassal(getMasterTeam(), true, bCapitulated);
+@@ -433,8 +422,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			kVassal.setVassal(eTeam, false, bCapitulated);
+ 			kVassal.setVassal(getID(), true, bCapitulated);
+ 		}
+-		/*else if (kVassal.isVassal(getID()))
+-		{
++		/*else if (kVassal.isVassal(getID())) {
+ 			kVassal.setVassal(getID(), false, bCapitulated);
+ 			kVassal.setVassal(eTeam, true, bCapitulated);
+ 		}*/
+@@ -460,9 +448,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam)
+-		{
+ 			GET_PLAYER((PlayerTypes)iI).setTeam(getID());
+-		}
+ 	}
+ 	updateLeaderID(); // advc.opt
+ 	// <dlph.13>
+@@ -512,7 +498,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 		if (((GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == getID()) && (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == eTeam)) ||
+ 			  ((GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == eTeam) && (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == getID()))) */
+ 		// K-Mod: The player's teams have already been reassigned - so we don't check for eTeam anymore.
+-		if (!pLoopDeal->isBetween(getID(), eTeam)) // advc: Replacing the K-Mod replacement
++		if (!pLoopDeal->isBetween(getID(), getID())) // advc: Replacing the K-Mod replacement
+ 			continue;
+ 
+ 		for (CLLNode<TradeData> const* pNode = pLoopDeal->headTradesNode(); pNode != NULL;
+@@ -532,7 +518,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 		}
+ 	}
+ 	// <dlph.1>
+-	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++) {
++	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
++	{
+ 		DomainTypes eDomain = (DomainTypes)iI; // advc
+ 		changeExtraMoves(eDomain, std::max(0, GET_TEAM(eTeam).getExtraMoves(eDomain) -
+ 				getExtraMoves(eDomain)));
+@@ -576,9 +563,6 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			kLoopTeam.setEspionagePointsAgainstTeam(getID(), std::max(kLoopTeam.getEspionagePointsAgainstTeam(getID()), kLoopTeam.getEspionagePointsAgainstTeam(eTeam))); // unofficial patch*/
+ 			/*  <dlph.26> "These counters now scale properly with number of players in teams.
+ 				Also, espionage is now sum instead of max. */
+-			kLoopTeam.setWarWeariness(getID(), (iOriginalTeamSize *
+-					kLoopTeam.getWarWeariness(getID()) + iOtherTeamSize *
+-					kLoopTeam.getWarWeariness(eTeam)) / getNumMembers());
+ 			kLoopTeam.AI_setAtWarCounter(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getAtWarCounter(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getAtWarCounter(eTeam)) / getNumMembers());
+@@ -593,6 +577,12 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			kLoopTeam.AI_setHasMetCounter(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getHasMetCounter(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getHasMetCounter(eTeam)) / getNumMembers());
++			// <advc.003n>
++			if (kLoopTeam.isBarbarian())
++				continue; // </advc.003n>
++			kLoopTeam.setWarWeariness(getID(), (iOriginalTeamSize *
++					kLoopTeam.getWarWeariness(getID()) + iOtherTeamSize *
++					kLoopTeam.getWarWeariness(eTeam)) / getNumMembers());
+ 			kLoopTeam.AI_setDefensivePactCounter(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getDefensivePactCounter(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getDefensivePactCounter(eTeam)) / getNumMembers());
+@@ -607,24 +597,26 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 					kLoopTeam.AI_getSharedWarSuccess(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getSharedWarSuccess(eTeam)) / getNumMembers());
+ 			// </advc.130m>
++			kLoopTeam.setEspionagePointsAgainstTeam(getID(),
++					kLoopTeam.getEspionagePointsAgainstTeam(getID()) +
++					kLoopTeam.getEspionagePointsAgainstTeam(eTeam));
++			// <advc.003n>
++			if (kLoopTeam.isMinorCiv())
++				continue; // </advc.003n>
+ 			kLoopTeam.AI_setEnemyPeacetimeTradeValue(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getEnemyPeacetimeTradeValue(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getEnemyPeacetimeTradeValue(eTeam)) / getNumMembers());
+ 			kLoopTeam.AI_setEnemyPeacetimeGrantValue(getID(), (iOriginalTeamSize *
+ 					kLoopTeam.AI_getEnemyPeacetimeGrantValue(getID()) + iOtherTeamSize *
+ 					kLoopTeam.AI_getEnemyPeacetimeGrantValue(eTeam)) / getNumMembers());
+-			kLoopTeam.setEspionagePointsAgainstTeam(getID(),
+-					kLoopTeam.getEspionagePointsAgainstTeam(getID()) +
+-					kLoopTeam.getEspionagePointsAgainstTeam(eTeam));
+ 			// </dlph.26>
+ 
+ 			if (kLoopTeam.isAlive())
+ 			{
+ 				kLoopTeam.AI_setWarPlan(getID(), NO_WARPLAN, false);
+ 				kLoopTeam.AI_setWarPlan(eTeam, NO_WARPLAN, false);
+-				// <advc.001> Cancel our war plans too
+-				if(isHuman() && !isAtWar(kLoopTeam.getID()))
+-					AI().AI_setWarPlan(kLoopTeam.getID(), NO_WARPLAN); // </advc.001>
++				// advc.001: Cancel our war plans too (eTeam's is taken care of when it dies)
++				AI().AI_setWarPlan(kLoopTeam.getID(), NO_WARPLAN, false);
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 3dde33276..e9183e84a 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3760,8 +3760,11 @@ DenialTypes CvTeamAI::AI_permanentAllianceTrade(TeamTypes eWithTeam) const  // a
+ 		if (getPower(true) > GET_TEAM(eWithTeam).getPower(true))
+ 			return DENIAL_POWER_US;
+ 		return DENIAL_POWER_YOU;
+-	}
+-
++	} // <advc.test>
++	#ifdef TEST_PERMANENT_ALLIANCES
++	if (AI_getAttitude(eWithTeam) >= ATTITUDE_CAUTIOUS)
++		return NO_DENIAL;
++	#endif // </advc.test>
+ 	if (AI_getDefensivePactCounter(eWithTeam) + AI_getShareWarCounter(eWithTeam) < 40)
+ 		return DENIAL_NOT_ALLIED;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a9943c6eb..3adad35a3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -22131,7 +22131,7 @@ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
+ 												kTeam.AI_setWarPlan(pDestPlot->getTeam(), NO_WARPLAN);
+ 											}
+ 										}
+-										kTeam.AI_setWarPlan(kPlot.getTeam(), eWarPlan, true);
++										kTeam.AI_setWarPlan(kPlot.getTeam(), eWarPlan);
+ 										//return (AI_targetCity());
+ 										return AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_DECLARE_WAR); // K-Mod / BBAI
+ 									}
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index 6234f8300..e8432f7e1 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -246,4 +246,10 @@ private:
+ 	UWAICache cache;
+ };
+ 
++/*	advc.test: Disables the checks for DP, the PA prereq. tech and the game option;
++	refusal based on attitude only if worse than Cautious.
++	(Could define this in any header included by both CvTeamAI.cpp and CvPlayer.cpp.
++	This one isn't included very frequently elsewhere, i.e. not too slow to recompile.) */
++//#define TEST_PERMANENT_ALLIANCES
++
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=13152

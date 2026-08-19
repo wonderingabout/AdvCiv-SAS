@@ -1,0 +1,831 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3187
+# Commit: 91ab4a808321b27157595a9b1c7d3aa6e22e57fa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 22867fe3c4fc8cbe5eea38e3b15a587271db3bfd
+# Title: Use FOR_EACH_ENUM macro throughout five more classes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+135	82	CvGameCoreDLL/CvCityAI.cpp
+20	18	CvGameCoreDLL/CvDLLWidgetData.cpp
+21	26	CvGameCoreDLL/CvGameInterface.cpp
+8	15	CvGameCoreDLL/CvPlot.cpp
+34	35	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5c7da7f51..565ba70c2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -88,8 +88,8 @@ void CvCityAI::AI_doTurn()
+ 
+ 	if (!isHuman())
+ 	{
+-		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+-			setForceSpecialistCount(((SpecialistTypes)iI), 0);
++		FOR_EACH_ENUM(Specialist)
++			setForceSpecialistCount(eLoopSpecialist, 0);
+ 		AI_stealPlots();
+ 	}
+ 	/*AI_updateWorkersHaveAndNeeded();
+@@ -297,9 +297,9 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 
+ 	// AI_getYieldMultipliers takes a little bit of time, so lets only do it if we need to.
+ 	bool bHasYield = false;
+-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	FOR_EACH_ENUM(Yield)
+ 	{
+-		if (kPlayer.specialistYield(eSpecialist, (YieldTypes)iI) != 0)
++		if (kPlayer.specialistYield(eSpecialist, eLoopYield) != 0)
+ 		{
+ 			bHasYield = true;
+ 			break;
+@@ -311,18 +311,22 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 		int iFoodX, iProdX, iComX, iUnused;
+ 		AI_getYieldMultipliers(iFoodX, iProdX, iComX, iUnused);
+ 		// I'm going to dilute the yield value multipliers, because they are ultimately less stable than commerce multipliers.
+-		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
+-		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
+-		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
++		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) *
++				AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
++		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) *
++				AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
++		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) *
++				AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
+ 	}
+ 
+-	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	FOR_EACH_ENUM(Commerce)
+ 	{
+-		int iTemp = iCommerceValue * kPlayer.specialistCommerce(eSpecialist, (CommerceTypes)iI);
++		int iTemp = iCommerceValue * kPlayer.specialistCommerce(
++				eSpecialist, eLoopCommerce);
+ 		if (iTemp != 0)
+ 		{
+-			iTemp *= getTotalCommerceRateModifier((CommerceTypes)iI);
+-			iTemp *= kPlayer.AI_commerceWeight((CommerceTypes)iI, this);
++			iTemp *= getTotalCommerceRateModifier(eLoopCommerce);
++			iTemp *= kPlayer.AI_commerceWeight(eLoopCommerce, this);
+ 			iTemp /= 100;
+ 			iValue += iTemp;
+ 		}
+@@ -2716,7 +2720,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	if (peBestUnitAI != NULL)
+ 		*peBestUnitAI = NO_UNITAI;
+ 
+-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner()); // K-Mod
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+ 
+ 	// BETTER_BTS_AI_MOD, City AI, 11/30/08, jdog5000: bNoImpassable=true
+ 	CvArea* pWaterArea = waterArea(true);
+@@ -2776,8 +2780,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 		//aiUnitAIVal[UNITAI_DEFENSE_AIR] += (kOwner.getNumCities() + 1);
+ 		aiUnitAIVal[UNITAI_DEFENSE_AIR] += kOwner.AI_getTotalAirDefendersNeeded(); // K-Mod
+-		aiUnitAIVal[UNITAI_CARRIER_AIR] += kOwner.AI_countCargoSpace(UNITAI_CARRIER_SEA);
+-		aiUnitAIVal[UNITAI_MISSILE_AIR] += kOwner.AI_countCargoSpace(UNITAI_MISSILE_CARRIER_SEA);
++		aiUnitAIVal[UNITAI_CARRIER_AIR] += kOwner.AI_countCargoSpace(
++				UNITAI_CARRIER_SEA);
++		aiUnitAIVal[UNITAI_MISSILE_AIR] += kOwner.AI_countCargoSpace(
++				UNITAI_MISSILE_CARRIER_SEA);
+ 
+ 		if (bPrimaryArea)
+ 		{
+@@ -2805,11 +2811,13 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			{
+ 				if (bPrimaryArea)
+ 					aiUnitAIVal[UNITAI_EXPLORE_SEA] += kOwner.AI_neededExplorers(*pWaterArea);
+-
+-				if (bPrimaryArea && kOwner.findBestFoundValue() > 0 && pWaterArea->getNumTiles() > 300)
++				if (bPrimaryArea && kOwner.findBestFoundValue() > 0 &&
++					pWaterArea->getNumTiles() > 300)
++				{
+ 					aiUnitAIVal[UNITAI_SETTLER_SEA]++;
+-
+-				if (bPrimaryArea && kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_MISSIONARY) > 0 &&
++				}
++				if (bPrimaryArea &&
++					kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_MISSIONARY) > 0 &&
+ 					pWaterArea->getNumTiles() > 400)
+ 				{
+ 					aiUnitAIVal[UNITAI_MISSIONARY_SEA]++;
+@@ -2826,62 +2834,86 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				if (bWarPossible)
+ 				{
+ 					// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
+-					aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(pWaterArea->getNumTiles() / 150,
+-							(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) + (bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(pWaterArea->getNumTiles() / 200,
+-							(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 + (bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_ASSAULT_SEA) +
+-							(kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_CARRIER_SEA) * 2));
++					aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
++							pWaterArea->getNumTiles() / 150,
++							(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
++							(bPrimaryArea ? 1 : 0));
++					aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
++							pWaterArea->getNumTiles() / 200,
++							(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
++							(bPrimaryArea ? 1 : 0));
++					aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
++							*pWaterArea, UNITAI_ASSAULT_SEA) +
++							(kOwner.AI_totalWaterAreaUnitAIs(
++							*pWaterArea, UNITAI_CARRIER_SEA) * 2));
+ 					aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
+-							(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) + (bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(pWaterArea->getNumTiles() / 350,
+-							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 + (bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(pWaterArea->getNumTiles() / 350,
+-							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 + (bPrimaryArea ? 1 : 0));
++							(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
++							(bPrimaryArea ? 1 : 0));
++					aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
++							pWaterArea->getNumTiles() / 350,
++							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
++							(bPrimaryArea ? 1 : 0));
++					aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
++							pWaterArea->getNumTiles() / 350,
++							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
++							(bPrimaryArea ? 1 : 0));
+ 				}
+ 			}
+ 		}
+ 
+ 		if ((iHasMetCount > 0) && bWarPossible)
+ 		{
+-			if (bLandWar || bAssault || !bFinancialTrouble || (kOwner.calculateUnitCost() == 0))
++			if (bLandWar || bAssault || !bFinancialTrouble ||
++				kOwner.calculateUnitCost() == 0)
+ 			{
+-				aiUnitAIVal[UNITAI_ATTACK] += iMilitaryWeight / (bLandWar || bAssault ? 9 : 16) +
++				aiUnitAIVal[UNITAI_ATTACK] +=
++						iMilitaryWeight / (bLandWar || bAssault ? 9 : 16) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+-				aiUnitAIVal[UNITAI_ATTACK_CITY] += iMilitaryWeight / (bLandWar || bAssault ? 7 : 15) +
++				aiUnitAIVal[UNITAI_ATTACK_CITY] +=
++						iMilitaryWeight / (bLandWar || bAssault ? 7 : 15) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+-				aiUnitAIVal[UNITAI_COLLATERAL] += iMilitaryWeight / (bDefense ? 8 : 14) +
++				aiUnitAIVal[UNITAI_COLLATERAL] +=
++						iMilitaryWeight / (bDefense ? 8 : 14) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+-				aiUnitAIVal[UNITAI_PILLAGE] += iMilitaryWeight / (bLandWar ? 10 : 19) +
++				aiUnitAIVal[UNITAI_PILLAGE] +=
++						iMilitaryWeight / (bLandWar ? 10 : 19) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+-				aiUnitAIVal[UNITAI_RESERVE] += iMilitaryWeight / (bLandWar ? 12 : 17) +
++				aiUnitAIVal[UNITAI_RESERVE] +=
++						iMilitaryWeight / (bLandWar ? 12 : 17) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+-				aiUnitAIVal[UNITAI_COUNTER] += iMilitaryWeight / (bLandWar || bAssault ? 9 : 16) +
++				aiUnitAIVal[UNITAI_COUNTER] +=
++						iMilitaryWeight / (bLandWar || bAssault ? 9 : 16) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+-				aiUnitAIVal[UNITAI_PARADROP] += iMilitaryWeight / (bLandWar || bAssault ? 4 : 8) +
++				aiUnitAIVal[UNITAI_PARADROP] +=
++						iMilitaryWeight / (bLandWar || bAssault ? 4 : 8) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+ 
+ 				//aiUnitAIVal[UNITAI_ATTACK_AIR] += (kOwner.getNumCities() + 1);
+ 				// K-Mod (extra air attack and defence). Note: iMilitaryWeight is (pArea->getPopulationPerPlayer(getID()) + pArea->getCitiesPerPlayer(getID())
+-				aiUnitAIVal[UNITAI_ATTACK_AIR] += (bLandWar ? 2 : 1) * kOwner.getNumCities() + 1;
++				aiUnitAIVal[UNITAI_ATTACK_AIR] += (bLandWar ? 2 : 1) *
++						kOwner.getNumCities() + 1;
+ 				// it would be nice if this was based on enemy air power...
+-				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) * kOwner.getNumCities() + 1;
++				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
++						kOwner.getNumCities() + 1;
+ 
+ 				if (pWaterArea != NULL)
+ 				{
+ 					if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
+ 					{
+-						aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(pWaterArea->getNumTiles() / 100,
++						aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
++								pWaterArea->getNumTiles() / 100,
+ 								(iCoastalCities * 2 + iMilitaryWeight / 10) / (bAssault ? 5 : 7) +
+ 								(bPrimaryArea ? 1 : 0));
+-						aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(pWaterArea->getNumTiles() / 150,
++						aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
++								pWaterArea->getNumTiles() / 150,
+ 								(iCoastalCities * 2 + iMilitaryWeight / 11) / 8 +
+ 								(bPrimaryArea ? 1 : 0));
+ 					}
+ 				}
+ 			}
+ 			// K-Mod
+-			if (bLandWar && !bDefense && !isHuman() && GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) > 0)
++			if (bLandWar && !bDefense && !isHuman() &&
++				GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) > 0)
+ 			{
+ 				// if we're winning, then focus on capturing cities.
+ 				int iSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+@@ -2912,16 +2944,27 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	}
+ 	else // K-Mod end
+ 	{
+-		for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
++		FOR_EACH_ENUM(UnitAI)
+ 		{
+-			if (kOwner.AI_unitAIDomainType((UnitAITypes)iI) == DOMAIN_SEA)
++			if (kOwner.AI_unitAIDomainType(eLoopUnitAI) == DOMAIN_SEA)
+ 			{
+ 				if (pWaterArea != NULL)
+-					aiUnitAIVal[iI] -= kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, (UnitAITypes)iI);
++				{
++					aiUnitAIVal[eLoopUnitAI] -= kOwner.AI_totalWaterAreaUnitAIs(
++							*pWaterArea, eLoopUnitAI);
++				}
++			}
++			else if (kOwner.AI_unitAIDomainType(eLoopUnitAI) == DOMAIN_AIR ||
++				eLoopUnitAI == UNITAI_ICBM)
++			{
++				aiUnitAIVal[eLoopUnitAI] -= kOwner.AI_totalUnitAIs(
++						eLoopUnitAI);
++			}
++			else
++			{
++				aiUnitAIVal[eLoopUnitAI] -= kOwner.AI_totalAreaUnitAIs(
++						getArea(), eLoopUnitAI);
+ 			}
+-			else if (kOwner.AI_unitAIDomainType((UnitAITypes)iI) == DOMAIN_AIR || iI == UNITAI_ICBM)
+-				aiUnitAIVal[iI] -= kOwner.AI_totalUnitAIs((UnitAITypes)iI);
+-			else aiUnitAIVal[iI] -= kOwner.AI_totalAreaUnitAIs(getArea(), (UnitAITypes)iI);
+ 		}
+ 	}
+ 
+@@ -2970,21 +3013,23 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	if (GET_TEAM(getTeam()).AI_getRivalAirPower() <=
+ 		8 * GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_DEFENSE_AIR))
+ 	{
+-		// unfortunately, I don't have an easy way to get the approximate power of our air defence units.
+-		// So I'm just going to assume the power of each unit is around 12 - the power of a fighter plane.
++		/*	unfortunately, I don't have an easy way to get the approximate power
++			of our air defence units. So I'm just going to assume the power of
++			each unit is around 12 - the power of a fighter plane. */
+ 		aiUnitAIVal[UNITAI_DEFENSE_AIR] /= 4;
+ 	}
+ 	// K-Mod end
+-	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
++	FOR_EACH_ENUM(UnitAI)
+ 	{
+-		if(aiUnitAIVal[iI] > 0) // advc.131: AIWeight would have the opposite effect on negative AIVal
++		// advc.131: AIWeight would have the opposite effect on negative AIVal
++		if (aiUnitAIVal[eLoopUnitAI] > 0)
+ 		{
+-			aiUnitAIVal[iI] *= std::max(0, GC.getInfo(getPersonalityType()).
+-					getUnitAIWeightModifier(iI) + 100);
+-			aiUnitAIVal[iI] /= 100;
++			aiUnitAIVal[eLoopUnitAI] *= std::max(0, 100 +
++					GC.getInfo(getPersonalityType()).getUnitAIWeightModifier(eLoopUnitAI));
++			aiUnitAIVal[eLoopUnitAI] /= 100;
+ 		}
+ 	} // <advc.033>
+-	if(GET_TEAM(getOwner()).isCapitulated())
++	if (GET_TEAM(getOwner()).isCapitulated())
+ 	{
+ 		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
+ 		aiUnitAIVal[UNITAI_ICBM] = 0; // advc.143b
+@@ -2992,24 +3037,29 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	int iBestValue = 0;
+ 	UnitTypes eBestUnit = NO_UNIT;
+ 
+-	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
++	FOR_EACH_ENUM(UnitAI)
+ 	{
+-		if (aiUnitAIVal[iI] <= 0)
+-			continue; // advc
+-
++		if (aiUnitAIVal[eLoopUnitAI] <= 0)
++			continue;
+ 		if (bAsync)
+-			aiUnitAIVal[iI] += GC.getASyncRand().get(iMilitaryWeight, "AI Best UnitAI ASYNC");
+-		else aiUnitAIVal[iI] += GC.getGame().getSorenRandNum(iMilitaryWeight, "AI Best UnitAI");
+-
+-		if (aiUnitAIVal[iI] > iBestValue)
+ 		{
+-			UnitTypes eUnit = AI_bestUnitAI(((UnitAITypes)iI), bAsync, eIgnoreAdvisor);
++			aiUnitAIVal[eLoopUnitAI] += GC.getASyncRand().get(
++					iMilitaryWeight, "AI Best UnitAI ASYNC");
++		}
++		else
++		{
++			aiUnitAIVal[eLoopUnitAI] += GC.getGame().getSorenRandNum(
++					iMilitaryWeight, "AI Best UnitAI");
++		}
++		if (aiUnitAIVal[eLoopUnitAI] > iBestValue)
++		{
++			UnitTypes eUnit = AI_bestUnitAI(eLoopUnitAI, bAsync, eIgnoreAdvisor);
+ 			if (eUnit != NO_UNIT)
+ 			{
+-				iBestValue = aiUnitAIVal[iI];
++				iBestValue = aiUnitAIVal[eLoopUnitAI];
+ 				eBestUnit = eUnit;
+ 				if (peBestUnitAI != NULL)
+-					*peBestUnitAI = ((UnitAITypes)iI);
++					*peBestUnitAI = eLoopUnitAI;
+ 			}
+ 		}
+ 	}
+@@ -8607,9 +8657,8 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 	UnitAITypes eProductionUnitAI = getProductionUnitAI();
+ 	BuildingTypes eProductionBuilding = getProductionBuilding();
+ 
+-	for (int iI = 0; iI < GC.getNumHurryInfos(); iI++)
++	FOR_EACH_ENUM2(Hurry, eHurry)
+ 	{
+-		HurryTypes eHurry = (HurryTypes)iI;
+ 		if (!canHurry(eHurry))
+ 			continue;
+ 
+@@ -12108,10 +12157,8 @@ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
+ {
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+ 	int iCount = 0;
+-	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++	FOR_EACH_ENUM2(Specialist, eSpecialist)
+ 	{
+-		SpecialistTypes eSpecialist = (SpecialistTypes)iI;
+-
+ 		int iValue = 0;
+ 
+ 		iValue += 100 * kPlayer.specialistYield(eSpecialist, YIELD_FOOD);
+@@ -12128,19 +12175,23 @@ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
+ 		{
+ 			//iCount += getMaxSpecialistCount(eSpecialist);
+ 			// K-Mod
+-			if (kPlayer.isSpecialistValid(eSpecialist) || eSpecialist == GC.getDEFAULT_SPECIALIST())
++			if (kPlayer.isSpecialistValid(eSpecialist) ||
++				eSpecialist == GC.getDEFAULT_SPECIALIST())
++			{
+ 				return getPopulation(); // unlimited
+-			int delta = getMaxSpecialistCount(eSpecialist) - getSpecialistCount(eSpecialist);
++			}
++			int iDelta = getMaxSpecialistCount(eSpecialist)
++					- getSpecialistCount(eSpecialist);
+ 			/*  <advc.006> CvTeam::doResearch can obsolete a building
+ 				(Egyptian Obelisk; any others?) and then, apparently,
+ 				CvCityAI::AI_updateAssignWork isn't called soon enough.
+ 				Not really a problem I guess. */
+-			if(delta < 0)
++			if (iDelta < 0)
+ 			{
+ 				FAssert(AI_isAssignWorkDirty());
+-				delta = 0;
++				iDelta = 0;
+ 			} // </advc.006>
+-			iCount += delta;
++			iCount += iDelta;
+ 			// K-Mod end
+ 		}
+ 	}
+@@ -12282,9 +12333,10 @@ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield) const
+ 		// this breakdown seems wrong... lets try it a different way.
+ 		const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+ 		int iExtra = 0;
+-		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		FOR_EACH_ENUM(Commerce)
+ 		{
+-			iExtra += getTotalCommerceRateModifier((CommerceTypes)iI) * kPlayer.getCommercePercent((CommerceTypes)iI);
++			iExtra += getTotalCommerceRateModifier(eLoopCommerce) *
++					kPlayer.getCommercePercent(eLoopCommerce);
+ 		}
+ 		// base commerce modifier compounds with individual commerce modifiers.
+ 		iMultiplier *= iExtra;
+@@ -12304,8 +12356,8 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ 	PROFILE_FUNC();
+ 
+ 	int iOldProductionMult = m_aiSpecialYieldMultiplier[YIELD_PRODUCTION]; // advc.121
+-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+-		m_aiSpecialYieldMultiplier[iI] = 0;
++	FOR_EACH_ENUM(Yield)
++		m_aiSpecialYieldMultiplier[eLoopYield] = 0;
+ 
+ 	UnitTypes eProductionUnit = getProductionUnit();
+ 	if (eProductionUnit != NO_UNIT)
+@@ -12319,7 +12371,8 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;*/ // BtS
+ 		// K-Mod. note: when food is production, food is counted as production!
+ 		UnitAITypes eUnitAI = GC.getInfo(eProductionUnit).getDefaultUnitAIType();
+-		if (eUnitAI == UNITAI_WORKER_SEA || eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_SETTLE)
++		if (eUnitAI == UNITAI_WORKER_SEA ||
++			eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_SETTLE)
+ 		{
+ 			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 50;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 25;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 770327dc5..d97885a64 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3121,11 +3121,11 @@ void CvDLLWidgetData::parseCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvW
+ 		return;
+ 
+ 	int iCount = 0;
+-	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++	FOR_EACH_ENUM(Specialist)
+ 	{
+-		if (iI < widgetDataStruct.m_iData1)
+-			iCount += pHeadSelectedCity->getSpecialistCount((SpecialistTypes)iI);
+-		else if (iI == widgetDataStruct.m_iData1)
++		if (eLoopSpecialist < widgetDataStruct.m_iData1)
++			iCount += pHeadSelectedCity->getSpecialistCount(eLoopSpecialist);
++		else if (eLoopSpecialist == widgetDataStruct.m_iData1)
+ 			iCount += widgetDataStruct.m_iData2;
+ 	}
+ 	if (iCount < pHeadSelectedCity->totalFreeSpecialists())
+@@ -6023,23 +6023,24 @@ void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
+ } // </advc.085>
+ 
+ // <K-Mod> 5/jan/11: Environmental advisor mouse-over text
+-void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct,
++	CvWStringBuffer &szBuffer)
+ {
+ 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_OFFSETS_HELP"));
+-	for (int iI = 0; iI < GC.getNumFeatureInfos(); ++iI)
++	FOR_EACH_ENUM(Feature)
+ 	{
+-		int iWarmingDefence = GC.getInfo((FeatureTypes)iI).getWarmingDefense();
+-
++		int iWarmingDefence = GC.getInfo(eLoopFeature).getWarmingDefense();
+ 		if (iWarmingDefence != 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_OFFSET_PER_FEATURE",
+-					-iWarmingDefence, GC.getInfo((FeatureTypes)iI).getTextKeyWide()));
++					-iWarmingDefence, GC.getInfo(eLoopFeature).getTextKeyWide()));
+ 		}
+ 	}
+ }
+ 
+-void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
++	CvWStringBuffer &szBuffer)
+ {
+ 	CvPlayer::PollutionFlags eFlags = (CvPlayer::PollutionFlags)widgetDataStruct.m_iData1;
+ 
+@@ -6072,8 +6073,8 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, C
+ } // </K-Mod>
+ 
+ // advc.ctr:
+-bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
+-	PlayerTypes& eWhoTo) const
++bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
++	CvCity*& pCity, PlayerTypes& eWhoTo) const
+ {
+ 	bool bListMore = false;
+ 	// bListMore, eOwner and eWhoTo are all folded into data1
+@@ -6096,15 +6097,16 @@ bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCi
+ }
+ 
+ // advc.004a:
+-CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit, PlayerTypes ePlayer) const {
+-
++CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit,
++	PlayerTypes ePlayer) const
++{
+ 	CvWString szRetVal = NEWLINE;
+ 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+-	/*  Could have ported the code in BUG TechPrefs.py, but it's unnecessarily
++	/*	Could have ported the code in BUG TechPrefs.py, but it's unnecessarily
+ 		complicated for what I'm trying to do. Use getDiscoveryTech and,
+ 		in between calls, pretend that the previous tech has already been discovered. */
+ 	TechTypes eCurrentDiscover = kPlayer.getDiscoveryTech(eUnit);
+-	if(eCurrentDiscover == NO_TECH || eUnit == NO_UNIT)
++	if (eCurrentDiscover == NO_TECH || eUnit == NO_UNIT)
+ 		return szRetVal;
+ 	FlavorTypes eGPFlavor = NO_FLAVOR;
+ 	int iMaxFlavor = -1;
+@@ -6112,14 +6114,14 @@ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit, PlayerTypes ePla
+ 	FOR_EACH_ENUM(Flavor)
+ 	{
+ 		int iFlavor = kUnit.getFlavorValue(eLoopFlavor);
+-		if(iFlavor > iMaxFlavor)
++		if (iFlavor > iMaxFlavor)
+ 		{
+ 			eGPFlavor = eLoopFlavor;
+ 			iMaxFlavor = iFlavor;
+ 		}
+ 	}
+ 	CvString szFlavor;
+-	switch(eGPFlavor)
++	switch (eGPFlavor)
+ 	{
+ 		case FLAVOR_SCIENCE: szFlavor = "SCIENCE"; break;
+ 		case FLAVOR_MILITARY: szFlavor = "MILITARY"; break;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 858c56342..5d890a9e6 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1923,9 +1923,8 @@ void CvGame::startFlyoutMenu(const CvPlot* pPlot, std::vector<CvFlyoutMenuData>&
+ 			aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CONSTRUCT, eLoopBuilding,
+ 					pPlot->getX(), pPlot->getY(), szBuffer));
+ 		}
+-		for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
++		FOR_EACH_ENUM(Project)
+ 		{
+-			ProjectTypes eLoopProject = (ProjectTypes) iI;
+ 			if (!pCity->canCreate(eLoopProject))
+ 				continue;
+ 			szBuffer = GC.getInfo(eLoopProject).getDescription();
+@@ -1935,9 +1934,8 @@ void CvGame::startFlyoutMenu(const CvPlot* pPlot, std::vector<CvFlyoutMenuData>&
+ 			aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CREATE, eLoopProject,
+ 					pPlot->getX(), pPlot->getY(), szBuffer));
+ 		}
+-		for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
++		FOR_EACH_ENUM(Process)
+ 		{
+-			ProcessTypes eLoopProcess = (ProcessTypes)iI;
+ 			if (!pCity->canMaintain(eLoopProcess))
+ 				continue;
+ 			szBuffer = GC.getInfo(eLoopProcess).getDescription();
+@@ -1946,22 +1944,19 @@ void CvGame::startFlyoutMenu(const CvPlot* pPlot, std::vector<CvFlyoutMenuData>&
+ 		}
+ 
+ 		aFlyoutItems.push_back(CvFlyoutMenuData(NO_FLYOUT, -1, -1, -1, L""));
+-		for (int iI = 0; iI < GC.getNumHurryInfos(); iI++)
++		FOR_EACH_ENUM(Hurry)
+ 		{
+-			if (pCity->canHurry((HurryTypes)iI))
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_HURRY_PRODUCTION");
+-
+-				int iHurryGold = pCity->hurryGold((HurryTypes)iI);
+-				if (iHurryGold > 0)
+-					szBuffer += gDLL->getText("TXT_KEY_HURRY_PRODUCTION_GOLD", iHurryGold);
+-
+-				int iHurryPopulation = pCity->hurryPopulation((HurryTypes)iI);
+-				if (iHurryPopulation > 0)
+-					szBuffer += gDLL->getText("TXT_KEY_HURRY_PRODUCTION_POP", iHurryPopulation);
+-
+-				aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_HURRY, iI, pPlot->getX(), pPlot->getY(), szBuffer));
+-			}
++			if (!pCity->canHurry(eLoopHurry))
++				continue;
++			szBuffer = gDLL->getText("TXT_KEY_HURRY_PRODUCTION");
++			int iHurryGold = pCity->hurryGold(eLoopHurry);
++			if (iHurryGold > 0)
++				szBuffer += gDLL->getText("TXT_KEY_HURRY_PRODUCTION_GOLD", iHurryGold);
++			int iHurryPopulation = pCity->hurryPopulation(eLoopHurry);
++			if (iHurryPopulation > 0)
++				szBuffer += gDLL->getText("TXT_KEY_HURRY_PRODUCTION_POP", iHurryPopulation);
++				aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_HURRY, eLoopHurry,
++						pPlot->getX(), pPlot->getY(), szBuffer));
+ 		}
+ 
+ 		if (pCity->canConscript())
+@@ -2219,22 +2214,22 @@ void CvGame::loadBuildQueue(const CvString& strItem) const
+ 			return;
+ 		}
+ 	}
+-	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
++	FOR_EACH_ENUM(Project)
+ 	{
+-		if (strItem == GC.getInfo((ProjectTypes)iI).getType())
++		if (strItem == GC.getInfo(eLoopProject).getType())
+ 		{
+ 			selectedCitiesGameNetMessage(GAMEMESSAGE_PUSH_ORDER, ORDER_CREATE,
+-					(ProjectTypes)iI, -1, false, false, true);
++					eLoopProject, -1, false, false, true);
+ 			return;
+ 		}
+ 	}
+ 
+-	for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
++	FOR_EACH_ENUM(Process)
+ 	{
+-		if (strItem == GC.getInfo((ProcessTypes)iI).getType())
++		if (strItem == GC.getInfo(eLoopProcess).getType())
+ 		{
+ 			selectedCitiesGameNetMessage(GAMEMESSAGE_PUSH_ORDER, ORDER_MAINTAIN,
+-					(ProcessTypes)iI, -1, false, false, true);
++					eLoopProcess, -1, false, false, true);
+ 			return;
+ 		}
+ 	}
+@@ -2242,7 +2237,7 @@ void CvGame::loadBuildQueue(const CvString& strItem) const
+ 
+ void CvGame::cheatSpaceship() const
+ {	// <advc.007b> I don't know how this is triggered; it's safer to block it.
+-	if(!isDebugMode())
++	if (!isDebugMode())
+ 		return; // </advc.007b>
+ 	//add one space project that is still available
+ 	CvTeam& kTeam = GET_TEAM(getActiveTeam());
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index eb26a4097..876eef8e7 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1564,16 +1564,11 @@ bool CvPlot::isRiverCrossingFlowClockwise(DirectionTypes eDirection) const
+ 
+ bool CvPlot::isRiverSide() const
+ {
+-	for (int iI = 0; iI < NUM_CARDINALDIRECTION_TYPES; ++iI)
++	FOR_EACH_ORTH_ADJ_PLOT(*this)
+ 	{
+-		CvPlot* pLoopPlot = plotCardinalDirection(getX(), getY(), (CardinalDirectionTypes)iI);
+-		if (pLoopPlot != NULL)
+-		{
+-			if (isRiverCrossing(directionXY(*this, *pLoopPlot)))
+-				return true;
+-		}
++		if (isRiverCrossing(directionXY(*this, *pAdj)))
++			return true;
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -4830,9 +4825,8 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
+ 		CvPlotGroup* pPlotGroup = getPlotGroup(getOwner());
+ 		if (pPlotGroup != NULL)
+ 		{
+-			for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++			FOR_EACH_ENUM(Bonus)
+ 			{
+-				BonusTypes eLoopBonus = (BonusTypes)iI;
+ 				getPlotCity()->changeNumBonuses((eLoopBonus),
+ 						-pPlotGroup->getNumBonuses(eLoopBonus));
+ 			}
+@@ -4846,9 +4840,8 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
+ 		CvPlotGroup* pPlotGroup = getPlotGroup(getOwner());
+ 		if (pPlotGroup != NULL)
+ 		{
+-			for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++			FOR_EACH_ENUM(Bonus)
+ 			{
+-				BonusTypes eLoopBonus = (BonusTypes)iI;
+ 				getPlotCity()->changeNumBonuses(eLoopBonus,
+ 						pPlotGroup->getNumBonuses(eLoopBonus));
+ 			}
+@@ -6981,10 +6974,10 @@ void CvPlot::processArea(CvArea& kArea, int iChange)
+ 					plotCount(PUF_isUnitAIType, eUnitAI, -1, ePlayer) * iChange);
+ 		}
+ 	}
+-	for (int iI = 0; iI < MAX_TEAMS; ++iI)
++	FOR_EACH_ENUM(Team)
+ 	{
+-		if (isRevealed((TeamTypes)iI))
+-			kArea.changeNumRevealedTiles((TeamTypes)iI, iChange);
++		if (isRevealed(eLoopTeam))
++			kArea.changeNumRevealedTiles(eLoopTeam, iChange);
+ 	}
+ 
+ 	CvCity* pCity = getPlotCity();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9b00d6ce1..a49cf8753 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -365,10 +365,10 @@ void CvUnit::setupGraphical() // graphical-only setup
+ 
+ void CvUnit::convert(CvUnit* pUnit)
+ {
+-	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
++	FOR_EACH_ENUM(Promotion)
+ 	{
+-		setHasPromotion((PromotionTypes)iI, pUnit->isHasPromotion((PromotionTypes)iI) ||
+-				m_pUnitInfo->getFreePromotions(iI));
++		setHasPromotion(eLoopPromotion, pUnit->isHasPromotion(eLoopPromotion) ||
++				m_pUnitInfo->getFreePromotions(eLoopPromotion));
+ 	}
+ 
+ 	setGameTurnCreated(pUnit->getGameTurnCreated());
+@@ -5263,24 +5263,29 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 		{	/*szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD", getNameKey(), GC.getInfo(eReligion).getChar(), pCity->getNameKey());
+ 			gDLL->UI().addMessage(getOwner(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_NOSPREAD", MESSAGE_TYPE_INFO, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pCity->getX(), pCity->getY());
+ 			bSuccess = false;*/ // BtS
+-			// K-Mod. Instead of simply failing, give some chance of removing one of the existing religions.
++			/*	K-Mod. Instead of simply failing, give some chance of
++				removing one of the existing religions. */
+ 			std::vector<std::pair<int, ReligionTypes> > rankedReligions;
+ 			int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+-			for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++			FOR_EACH_ENUM(Religion)
+ 			{
+-				if (pCity->isHasReligion((ReligionTypes)iI) || iI == eReligion)
++				if (pCity->isHasReligion(eLoopReligion) || eLoopReligion == eReligion)
+ 				{
+-					if (pCity != GC.getGame().getHolyCity((ReligionTypes)iI)) // holy city can't lose its religion!
++					// holy city can't lose its religion!
++					if (pCity != GC.getGame().getHolyCity(eLoopReligion))
+ 					{
+-						int iInfluence = pCity->getReligionGrip((ReligionTypes)iI);
+-						iInfluence += GC.getGame().getSorenRandNum(iRandomWeight, "Religion influence");
+-						iInfluence += (iI == eReligion ? m_pUnitInfo->getReligionSpreads(eReligion)/2 : 0);
+-
+-						rankedReligions.push_back(std::make_pair(iInfluence, (ReligionTypes)iI));
++						int iInfluence = pCity->getReligionGrip(eLoopReligion);
++						iInfluence += GC.getGame().getSorenRandNum(iRandomWeight,
++								"Religion influence");
++						if (eLoopReligion == eReligion)
++							iInfluence += m_pUnitInfo->getReligionSpreads(eReligion) / 2;
++						rankedReligions.push_back(std::make_pair(
++								iInfluence, eLoopReligion));
+ 					}
+ 				}
+ 			}
+-			std::partial_sort(rankedReligions.begin(), rankedReligions.begin()+1, rankedReligions.end());
++			std::partial_sort(rankedReligions.begin(), rankedReligions.begin() + 1,
++					rankedReligions.end());
+ 			ReligionTypes eFailedReligion = rankedReligions[0].second;
+ 			if (eFailedReligion == eReligion)
+ 			{
+@@ -5314,7 +5319,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 
+ bool CvUnit::canSpreadCorporation(const CvPlot* pPlot, CorporationTypes eCorporation, bool bTestVisible) const
+ {
+-	if (NO_CORPORATION == eCorporation)
++	if (eCorporation == NO_CORPORATION)
+ 		return false;
+ 	if (!GET_PLAYER(getOwner()).isActiveCorporation(eCorporation))
+ 		return false;
+@@ -8548,23 +8553,16 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 
+ 		if (!alwaysInvisible() && !m_pUnitInfo->isHiddenNationality()) // K-Mod
+ 		{
+-			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++			for (TeamIter<CIV_ALIVE> itContact; itContact.hasNext(); ++itContact)
+ 			{
+-				if (GET_TEAM((TeamTypes)iI).isAlive())
++				if (!isInvisible(itContact->getID(), false) &&
++					pNewPlot->isVisible(itContact->getID()))
+ 				{
+-					if (!isInvisible((TeamTypes)iI, false))
+-					{
+-						if (pNewPlot->isVisible((TeamTypes)iI))
+-						{	// advc.071:
+-							FirstContactData fcData(pNewPlot, NULL, this);
+-							GET_TEAM((TeamTypes)iI).meet(getTeam(), true,
+-									&fcData); // advc.071
+-						}
+-					}
++					FirstContactData fcData(pNewPlot, NULL, this); // advc.071
++					itContact->meet(getTeam(), true, /* advc.071: */ &fcData);
+ 				}
+ 			}
+ 		}
+-
+ 		pNewCity = pNewPlot->getPlotCity();
+ 		if (pNewCity != NULL)
+ 		{
+@@ -8577,14 +8575,15 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 				pNewCity->verifyProduction();
+ 			} // </advc.001b>
+ 		}
+-
+-		CvCity* pWorkingCity = pNewPlot->getWorkingCity();
+-		if (pWorkingCity != NULL)
+ 		{
+-			if (canSiege(pWorkingCity->getTeam()))
++			CvCity* pWorkingCity = pNewPlot->getWorkingCity();
++			if (pWorkingCity != NULL)
+ 			{
+-				pWorkingCity->verifyWorkingPlot(
+-						pWorkingCity->getCityPlotIndex(*pNewPlot));
++				if (canSiege(pWorkingCity->getTeam()))
++				{
++					pWorkingCity->verifyWorkingPlot(
++							pWorkingCity->getCityPlotIndex(*pNewPlot));
++				}
+ 			}
+ 		}
+ 		/*if (pNewPlot->isWater()) {
+@@ -9997,9 +9996,9 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
+ 
+ bool CvUnit::canAcquirePromotionAny() const
+ {
+-	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
++	FOR_EACH_ENUM(Promotion)
+ 	{
+-		if (canAcquirePromotion((PromotionTypes)iI))
++		if (canAcquirePromotion(eLoopPromotion))
+ 			return true;
+ 	}
+ 	return false;
+@@ -10008,7 +10007,7 @@ bool CvUnit::canAcquirePromotionAny() const
+ 
+ void CvUnit::setHasPromotion(PromotionTypes ePromotion, bool bNewValue)
+ {
+-	if(isHasPromotion(ePromotion) == bNewValue)
++	if (isHasPromotion(ePromotion) == bNewValue)
+ 		return;
+ 
+ 	m_abHasPromotion.set(ePromotion, bNewValue);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=33109

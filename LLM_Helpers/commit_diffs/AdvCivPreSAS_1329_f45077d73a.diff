@@ -1,0 +1,562 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1329
+# Commit: f45077d73ad55b7d98819dd92200adc7bafdbc69
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6b49d868b4cf1e3627136d826b1bc83d5756856a
+# Title: Revised GP Research info and moved it into the footer of the Tech Advisor like in RFC: Dawn of Civilization. GP Research is still disabled by default. [advc....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Config/BUG Advisors.xml
+14	0	Assets/Python/BUG/TechPrefs.py
+102	40	Assets/Python/Screens/CvTechChooser.py
+22	0	Assets/XML/Text/Civ4GameText_Earth18Civs.xml
+47	0	Assets/xml/Text/CIV4GameText_advc.xml
+2	1	Assets/xml/Units/CIV4UnitInfos.xml
+51	14	CvGameCoreDLL/CvGameTextMgr.cpp
+2	1	CvGameCoreDLL/CvInitCore.cpp
+4	2	CvGameCoreDLL/CvUnit.cpp
+-	-	manual_0.92e.odt
+ create mode 100644 Assets/XML/Text/Civ4GameText_Earth18Civs.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 51f52d248..373fc1676 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -111,6 +111,8 @@
+ 	<widget name="WIDGET_TECH_PREFS_CURRENT" module="CvTechChooser" function="getCurrentTechPrefsHover"/>
+ 	<widget name="WIDGET_TECH_PREFS_FUTURE" module="CvTechChooser" function="getFutureTechPrefsHover"/>
+ 	<widget name="WIDGET_TECH_CHOOSER_ERA" module="CvTechChooser" function="getEraDescription"/>
++	<!-- advc.004a -->
++	<widget name="WIDGET_TECH_PREFS_HEADING" module="CvTechChooser" function="getTechPrefsHeadingHover"/>
+ 
+ 	<event type="ResolutionChanged" module="CvCustomizableDomesticAdvisor" function="forcePositionCalc"/>
+ 	<event type="LanguageChanged" module="CvCustomizableDomesticAdvisor" function="forcePositionCalc"/>
+
+diff --git a/Assets/Python/BUG/TechPrefs.py b/Assets/Python/BUG/TechPrefs.py
+index ebdf9fd8f..65a01b9b9 100644
+--- a/Assets/Python/BUG/TechPrefs.py
++++ b/Assets/Python/BUG/TechPrefs.py
+@@ -386,3 +386,17 @@ class Tech:
+ 					str += ", "
+ 				str += pTech.getName()
+ 		return str
++		
++	# <advc.004a> Is this tech a necessary requirement for pForTech, i.e. is there no path to pForTech that doesn't include this tech?
++	# Recursive function that will run OOM if the tech tree has a cycle.
++	def isInevitableReq(self, pForTech):
++		for pTech in pForTech.sAndPrereqs:
++			if pTech == self or self.isInevitableReq(pTech):
++				return True
++		if len(pForTech.sOrPrereqs) <= 0:
++			return False
++		for pTech in pForTech.sOrPrereqs:
++			if pTech != self and not self.isInevitableReq(pTech):
++				return False
++		return True
++	# </advc.004a>
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index ed6134134..57af88e68 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -30,9 +30,11 @@ ClockOpt = BugCore.game.NJAGC
+ import BugUtil
+ 
+ PREF_ICON_SIZE = 24
+-PREF_ICON_TOP = 168
+-PREF_ICON_LEFT = 10
+-
++#PREF_ICON_TOP = 168
++# <advc.004a>
++PREF_ICON_BOTTOM = 738
++PREF_ICON_LEFT = 40 # was a bit farther left (10)
++# </advc.004a>
+ FLAVORS = [ TechPrefs.FLAVOR_PRODUCTION, TechPrefs.FLAVOR_GOLD, TechPrefs.FLAVOR_SCIENCE,
+ 			TechPrefs.FLAVOR_CULTURE, TechPrefs.FLAVOR_RELIGION ]
+ UNIT_CLASSES = [ "UNITCLASS_ENGINEER", "UNITCLASS_MERCHANT", "UNITCLASS_SCIENTIST",
+@@ -58,10 +60,42 @@ def resetTechPrefs(args=[]):
+ 
+ def getAllTechPrefsHover(widgetType, iData1, iData2, bOption):
+ 	#return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_ALL", CvScreensInterface.techChooser.pPrefs.getAllFlavorTechs(iData1))
+-	return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_ALL", CvScreensInterface.techChooser.pPrefs.getRemainingFlavorTechs(iData1)) # K-Mod
++	# <advc.004a> Use slightly different text and name the GP
++	msg = BugUtil.getPlainText("TXT_KEY_ADVC_TECH_PREFS_ALL")
++	iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[iData1])
++	pUnitInfo = gc.getUnitInfo(gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex())
++	msg += " (" + pUnitInfo.getDescription() + ")" # </advc.004a>
++	return buildTechPrefsHover(msg, CvScreensInterface.techChooser.pPrefs.getRemainingFlavorTechs(FLAVORS[iData1])) # K-Mod
+ 
+ def getCurrentTechPrefsHover(widgetType, iData1, iData2, bOption):
+-	return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_CURRENT", CvScreensInterface.techChooser.pPrefs.getCurrentFlavorTechs(iData1))
++	#return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_CURRENT", CvScreensInterface.techChooser.pPrefs.getCurrentFlavorTechs(iData1))
++	# <advc.004a> CurrentFlavorTechs isn't useful info. Instead, show all techs that have higher priority than iData2 (the current discover tech) and don't require iData2.
++	sTechs = set()
++	if iData1 >= 0 and iData2 >= 0:
++		bCurrentTechFound = False
++		for pTech in CvScreensInterface.techChooser.pPrefs.getRemainingFlavorTechs(iData1):
++			if pTech.getID() == iData2:
++				bCurrentTechFound = True
++				break # RemainingFlavorTechs is sorted by flavor
++			if pTech.getInfo().getEra() <= gc.getPlayer(gc.getGame().getActivePlayer()).getCurrentEra() + 1 and not CvScreensInterface.techChooser.pPrefs.getTech(iData2).isInevitableReq(pTech):
++				bValid = True
++				for pAlreadyAdded in sTechs:
++					if pAlreadyAdded.isInevitableReq(pTech):
++						bValid = False
++						break
++				if bValid:
++					sTechs.add(pTech)
++					for pAlreadyAdded in sTechs.copy():
++						if pTech.isInevitableReq(pAlreadyAdded):
++							sTechs.remove(pAlreadyAdded)
++		assert bCurrentTechFound
++	msg = BugUtil.getPlainText("TXT_KEY_ADVC_TECH_PREFS_CURRENT")
++	if len(sTechs) <= 0:
++		return msg
++	sCurrentTech = set()
++	sCurrentTech.add(CvScreensInterface.techChooser.pPrefs.getTech(iData2))
++	return msg + ":" + buildTechPrefsHover("", sCurrentTech) + "\n" + buildTechPrefsHover(BugUtil.getPlainText("TXT_KEY_ADVC_TECH_PREFS_MISSING_REQ"), sTechs)
++	# </advc.004a>
+ 
+ def getFutureTechPrefsHover(widgetType, iData1, iData2, bOption):
+ 	pPlayer = gc.getPlayer(CvScreensInterface.techChooser.iCivSelected)
+@@ -69,10 +103,18 @@ def getFutureTechPrefsHover(widgetType, iData1, iData2, bOption):
+ 	for i in range(gc.getNumTechInfos()):
+ 		if (pPlayer.isResearchingTech(i)):
+ 			sTechs.add(CvScreensInterface.techChooser.pPrefs.getTech(i))
+-	return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_FUTURE", CvScreensInterface.techChooser.pPrefs.getCurrentWithFlavorTechs(iData1, sTechs))
+-
+-def buildTechPrefsHover(key, lTechs):
+-	szText = BugUtil.getPlainText(key) + "\n"
++	#return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_FUTURE", CvScreensInterface.techChooser.pPrefs.getCurrentWithFlavorTechs(iData1, sTechs))
++	# advc.004a: Show the currently queued techs instead
++	return buildTechPrefsHover(BugUtil.getPlainText("TXT_KEY_ADVC_TECH_PREFS_FUTURE"), sTechs)
++
++# <advc.004a>
++def getTechPrefsHeadingHover(widgetType, iData1, iData2, bOption):
++	return BugUtil.getPlainText("TXT_KEY_ADVC_TECH_PREFS_HEADING")
++# </advc.004a>
++
++def buildTechPrefsHover(msg, lTechs):
++	#szText = BugUtil.getPlainText(msg) + "\n" # advc.004a: Let the caller do this
++	szText = msg + "\n"
+ 	for pTech in lTechs:
+ 		szText += "<img=%s size=24></img>" % pTech.getInfo().getButton().replace(" ", "_")
+ 	return szText
+@@ -192,7 +234,8 @@ class CvTechChooser:
+ 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# Make the scrollable area for the city list...
+-		if BugOpt.isShowGPTechPrefs():
++		# advc.004a: What cities? Anyway, no scrollable area needed.
++		if false and BugOpt.isShowGPTechPrefs():
+ 			iX = 80
+ 			iW = xPanelWidth - 80
+ 		else:
+@@ -209,8 +252,9 @@ class CvTechChooser:
+ 		screen.setActivation(self.TabPanels[1], ActivationTypes.ACTIVATE_NORMAL )
+ 
+ # BUG - GP Tech Prefs - start
+-		if BugOpt.isShowGPTechPrefs():
+-			screen.addPanel("GPTechPref", u"", u"", True, False, 0, 51, 80, yPanelHeight - 95, PanelStyles.PANEL_STYLE_MAIN_WHITE )
++		# advc.004a: Commented out
++		#if BugOpt.isShowGPTechPrefs():
++		#	screen.addPanel("GPTechPref", u"", u"", True, False, 0, 51, 80, #yPanelHeight - 95, PanelStyles.PANEL_STYLE_MAIN_WHITE )
+ # BUG - GP Tech Prefs - end
+ 
+ 		# Add the Highlight
+@@ -1076,61 +1120,79 @@ class CvTechChooser:
+ 					screen.hide( "GreatPersonTechNext" + str(f) )
+ 				self.bPrefsShowing = False
+ 			return
++		# <advc.004a>
++		iX = PREF_ICON_LEFT 
++		iY = PREF_ICON_BOTTOM
++		# </advc.004a>
++
+ 		# Always redraw the GP icons because otherwise they are prone to disappearing
+-		# discover icon heading
+-		iIconSize = 48
+-		iX = PREF_ICON_LEFT + 5 * PREF_ICON_SIZE / 4 - iIconSize / 2
+-		iY = PREF_ICON_TOP - iIconSize - 40
+-		screen.addDDSGFC( "GreatPersonHeading", ArtFileMgr.getInterfaceArtInfo("DISCOVER_TECHNOLOGY_BUTTON").getPath(), iX, iY, iIconSize, iIconSize, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-		for i, f in enumerate(FLAVORS):
+-			# GP icon
+-			iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
+-			iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
+-			pUnitInfo = gc.getUnitInfo(iUnitType)
+-			iX = PREF_ICON_LEFT
+-			iY = PREF_ICON_TOP + 4 * i * PREF_ICON_SIZE
+-			screen.addDDSGFC( "GreatPerson" + str(f), pUnitInfo.getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_ALL, f, -1 )
++		# discover icon heading
++		# <advc.004a> Not sure if the big light bulb really helps
++		bShowIconHeading = True
++		if bShowIconHeading: 
++			iIconSize = 36 # was 48 </advc.004a>
++			# advc.004a: Position handled above
++			#iX = PREF_ICON_LEFT + 5 * PREF_ICON_SIZE / 4 - iIconSize / 2
++			#iY = PREF_ICON_TOP - iIconSize - 40
++			# advc.004a: WIDGET added
++			screen.addDDSGFC( "GreatPersonHeading", ArtFileMgr.getInterfaceArtInfo("DISCOVER_TECHNOLOGY_BUTTON").getPath(), iX, iY-iIconSize/5, iIconSize, iIconSize, WidgetTypes.WIDGET_TECH_PREFS_HEADING, -1, -1 )
++			iX += 3 * PREF_ICON_SIZE # advc.004a: Continue to the right
++		
++		# advc.004a: Merged into the code below
++		#for i, f in enumerate(FLAVORS):
++		#	# GP icon
++		#	iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
++		#	iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
++		#	pUnitInfo = gc.getUnitInfo(iUnitType)
++		#	iX = PREF_ICON_LEFT
++		#	iY = PREF_ICON_TOP + 4 * i * PREF_ICON_SIZE
++		#	screen.addDDSGFC( "GreatPerson" + str(f), pUnitInfo.getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_ALL, f, -1 )
+ 		self.bPrefsShowing = True
+ 
+ 		# Remove any techs researched since last call, creating tree if necessary
+ 		if (not self.pPrefs):
+ 			self.resetTechPrefs()
+ 		self.pPrefs.removeKnownTechs()
+-
++		bAnyResearch = False # advc.004a: Don't show the second button then
+ 		# Add all techs in research queue to set of soon-to-be-known techs
+ 		sTechs = set()
+ 		for i in range(gc.getNumTechInfos()):
+ 			if (pPlayer.isResearchingTech(i)):
+ 				sTechs.add(self.pPrefs.getTech(i))
++				bAnyResearch = True # advc.004a
+ 		
+-		# Update the buttons to reflect the new tech prefs
++		# advc.004a: This loop is based on the placeGreatPeople function of the RFC:DoC mod
+ 		for i, f in enumerate(FLAVORS):
+-			# GP button
++			iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
++			iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
++			pUnitInfo = gc.getUnitInfo(iUnitType)
++			screen.addDDSGFC( "GreatPerson" + str(f), pUnitInfo.getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_ALL, i, -1 ) # advc.004a: pass i instead of f
+ 			screen.show( "GreatPerson" + str(f) )
+-
++			iX += PREF_ICON_SIZE # advc.004a
+ 			# Current tech GP will pop
+ 			szButtonName = "GreatPersonTech" + str(f)
+ 			pTech = self.pPrefs.getNextResearchableFlavorTech(f)
+-			iX = PREF_ICON_LEFT + 3 * PREF_ICON_SIZE / 2
+-			iY = PREF_ICON_TOP + 4 * i * PREF_ICON_SIZE
+ 			if (pTech):
+-				screen.addDDSGFC( szButtonName, pTech.getInfo().getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_CURRENT, f, -1 )
++				screen.addDDSGFC( szButtonName, pTech.getInfo().getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_CURRENT, f, pTech.getID() ) # advc.004a: Pass pTech to widget
+ 			else:
+ 				screen.addDDSGFC( szButtonName, self.NO_TECH_ART, iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_CURRENT, f, -1 )
+ 			screen.show( szButtonName )
+-
++			iX += PREF_ICON_SIZE  # advc.004a
+ 			# Tech GP will pop once selected techs are researched
+ 			szButtonName = "GreatPersonTechNext" + str(f)
+-			pTech = self.pPrefs.getNextResearchableWithFlavorTech(f, sTechs)
+-			iX = PREF_ICON_LEFT + 3 * PREF_ICON_SIZE / 2
+-			iY = PREF_ICON_TOP + 4 * i * PREF_ICON_SIZE + 3 * PREF_ICON_SIZE / 2
+-			if (pTech):
+-				screen.addDDSGFC( szButtonName, pTech.getInfo().getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_FUTURE, f, -1 )
++			# <advc.004a> Not sure whether to show the button when the queued tech doesn't make a difference. The two identical icons look strange, but should make it easier to learn how the current/ queued research affects the GP info.
++			pTech2 = self.pPrefs.getNextResearchableWithFlavorTech(f, sTechs)
++			if bAnyResearch and pTech2: #and pTech2 != pTech: # </advc.004a>
++				screen.addDDSGFC( szButtonName, pTech2.getInfo().getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_FUTURE, f, -1 )
++				screen.show( szButtonName )
+ 			else:
+-				screen.addDDSGFC( szButtonName, self.NO_TECH_ART, iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_FUTURE, f, -1 )
+-			screen.show( szButtonName )
++			#	screen.addDDSGFC( szButtonName, self.NO_TECH_ART, iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_FUTURE, f, -1 )
++			# advc.004a: Rather show no button
++				screen.hide( szButtonName )
++				
+ # BUG - GP Tech Prefs - end
++			iX += 2 * PREF_ICON_SIZE # advc.004a
+ 
+ 	def TechRecord (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/XML/Text/Civ4GameText_Earth18Civs.xml b/Assets/XML/Text/Civ4GameText_Earth18Civs.xml
+new file mode 100644
+index 000000000..524e4663e
+--- /dev/null
++++ b/Assets/XML/Text/Civ4GameText_Earth18Civs.xml
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- advc.050: This file demonstrates a possible feature for scenarios -
++	 historical rationales for resource locations.
++	 The format of the tag name is:
++	 TXT_KEY_[scenario name]_[x-coordinate]_[y-coordinate]_BONUS_[resource name]
++	 Instead of "BONUS" e.g. "PEAK" could indicate info about a mountain range;
++	 however, the DLL only supports "BONUS" so far. The DLL shows the text when
++	 ALT is held while hovering over a tile with a (bonus) resource.
++
++	 (Romance translations: through deepl.com) -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++
++	<TEXT>
++		<Tag>TXT_KEY_EARTH18CIVS_68_36_BONUS_STONE</Tag>
++		<English>The Giza Plateau provided the bedrock and limestone blocks for the Great Pyramids. Other quarries were located across the Nile (Tora) and in Upper Egypt (Aswan).</English>
++		<French>Les pyramides de Giza ont �t� construites sur un plateau calcaire dont les blocs de pierre ont �galement �t� extraits. D'autres carri�res �taient situ�es sur l'autre rive du Nil (Tura) et en Haute-�gypte (Assouan).</French>
++		<German>Die Pyramiden von Gizeh wurden auf einem Kalksteinplateau errichtet, aus dem auch die Steinbl�cke gebrochen wurden. Weitere Steinbr�che befanden sich am anderen Nilufer (Tura) und in Ober�gypten (Assuan).</German>
++		<Italian>Le piramidi di Giza furono costruite su un altopiano calcareo da cui si estraevano anche i blocchi di pietra. Altre cave erano situate sull'altra sponda del Nilo (Tura) e nell'Alto Egitto (Assuan).</Italian>
++		<Spanish>Las pir�mides de Giza se construyeron sobre una meseta de piedra caliza de la que tambi�n se extra�an los bloques de piedra. Otras canteras estaban situadas en la otra orilla del Nilo (Tura) y en el Alto Egipto (Asu�n).</Spanish>
++	</TEXT>
++
++</Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 15120f85f..ea881ea5e 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -3447,4 +3447,51 @@
+ 		<Spanish>Ej&#233;rcitos no militares</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.004a: Replacing TXT_KEY_BUG_TECH_PREFS_ALL, 
++		 TXT_KEY_BUG_TECH_PREFS_CURRENT and TXT_KEY_BUG_TECH_PREFS_FUTURE in
++		 BUG_CIV4GameText.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_ADVC_TECH_PREFS_FUTURE</Tag>
++		<English>After finishing queued research, i.e.</English>
++		<French>Apr�s avoir termin� la recherche actuelle, c'est-�-dire:</French>
++		<German>Nach Abschluss laufender Forschung, d.h.</German>
++		<Italian>Dopo aver completato queste tecnologie:</Italian>
++		<Spanish>Despu�s de completar estas tecnolog�as:</Spanish>
++	</TEXT>
++	<!-- "Research" isn't the proper term for the
++		 Bulb ability. Also adding translations. -->
++	<TEXT>
++		<Tag>TXT_KEY_ADVC_TECH_PREFS_CURRENT</Tag>
++		<English>Current discovery</English>
++		<French>D�couverte actuelle</French>
++		<German>Derzeitige Entdeckung</German>
++		<Italian>Scoperta attuale</Italian>
++		<Spanish>Descubrimiento actual</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ADVC_TECH_PREFS_ALL</Tag>
++		<English>Preference order</English>
++		<French>Ordre de pr�f�rence</French>
++		<German>Entdeckungspriorit�ten</German>
++		<Italian>Ordine di preferenza</Italian>
++		<Spanish>Orden de investigaci�n preferido</Spanish>
++	</TEXT>
++	<!-- These two are new -->
++	<TEXT>
++		<Tag>TXT_KEY_ADVC_TECH_PREFS_HEADING</Tag>
++		<English>Technologies that Great People could currently discover</English>
++		<French>Technologies que les grandes personnalit�s pourraient d�couvrir</French>
++		<German>Derzeitige Entdeckungen Gro�er Pers�nlichkeiten</German>
++		<Italian>Tecnologie che i grandi persone potrebbero attualmente scoprire</Italian>
++		<Spanish>Tecnolog�as que las Grandes Personas podr�an descubrir actualmente</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ADVC_TECH_PREFS_MISSING_REQ</Tag>
++		<English>Requirements missing for:</English>
++		<French>Conditions non satisfaites pour:</French>
++		<German>Anforderungen nicht erf�llt f�r:</German>
++		<Italian>Requisiti non soddisfatti per:</Italian>
++		<Spanish>No se cumplen los requisitos para:</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index 9b16311b8..bbed90b86 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -20248,7 +20248,8 @@
+ 			<Domain>DOMAIN_SEA</Domain>
+ 			<DefaultUnitAI>UNITAI_RESERVE_SEA</DefaultUnitAI>
+ 			<Invisible>INVISIBLE_STEALTH</Invisible>
+-			<SeeInvisible>INVISIBLE_STEALTH</SeeInvisible>
++			<!-- advc.906: was just INVISIBLE_STEALTH -->
++			<SeeInvisible>INVISIBLE_SUBMARINE,INVISIBLE_STEALTH</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_STEALTH_DESTROYER</Description>
+ 			<Civilopedia>TXT_KEY_UNIT_STEALTH_DESTROYER_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_UNIT_STEALTH_DESTROYER_STRATEGY</Strategy>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 54ac962a7..94ff9b8f0 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -31,6 +31,9 @@
+ #include "CyArgsList.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvBugOptions.h"
++// <advc.050>
++#include "CvInitCore.h"
++#include <sstream> // </advc.050>
+ 
+ int shortenID(int iId)
+ {
+@@ -3736,20 +3739,17 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	ImprovementTypes eImprovement;
+ 	PlayerTypes eRevealOwner;
+ 	BonusTypes eBonus;
+-	bool bShift;
+-	bool bAlt;
+-	bool bCtrl;
+ 	bool bFound;
+ 	//int iDefenseModifier; // advc.012
+ 	int iYield;
+ 	int iTurns;
+ 
+-	bShift = GC.shiftKey();
+-	bAlt = GC.altKey();
+-	bCtrl = GC.ctrlKey();
+-	
++	bool bShift = GC.shiftKey();
++	bool bAlt = GC.altKey();
++	bool bCtrl = GC.ctrlKey();
++	bool bDebug = GC.getGameINLINE().isDebugMode(); // advc.003
+ 	if (bCtrl && //(gDLL->getChtLvl() > 0))
+-			GC.getGameINLINE().isDebugMode()) // advc.135c
++			bDebug) // advc.135c
+ 	{
+ 		if (bShift && pPlot->headUnitNode() != NULL)
+ 		{
+@@ -4105,7 +4105,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		//return; // advc.027: No need to return; only else branches left.
+ 	}
+ 	else if (bShift && !bAlt && //(gDLL->getChtLvl() > 0))
+-			GC.getGameINLINE().isDebugMode()) // advc.135c
++			bDebug) // advc.135c
+ 	{
+ 		szString.append(GC.getTerrainInfo(pPlot->getTerrainType()).getDescription());
+ 
+@@ -4313,7 +4313,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		}
+ 	}
+ 	else if (!bShift && bAlt && //(gDLL->getChtLvl() > 0))
+-			GC.getGameINLINE().isDebugMode()) // advc.135c
++			 bDebug) // advc.135c
+ 	{
+ 	    if (pPlot->isOwned())
+ 	    {
+@@ -4682,7 +4682,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+         }
+ 	}
+ 	else if (bShift && bAlt && //(gDLL->getChtLvl() > 0))
+-			GC.getGameINLINE().isDebugMode()) // advc.135c
++			bDebug) // advc.135c
+ 	{
+ 		CvCity*	pCity = pPlot->getWorkingCity();
+ 		if (pCity != NULL)
+@@ -4881,7 +4881,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		}
+ 	
+ 		// calc some bonus info
+-		if (GC.getGameINLINE().isDebugMode())
++		if (bDebug) // advc.003
+ 		{
+ 			eBonus = pPlot->getBonusType();
+ 		}
+@@ -5097,7 +5097,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			szString.append(szTempBuffer);
+ 		} // </advc.004b>
+ 
+-		if (GC.getGameINLINE().isDebugMode())
++		if (bDebug) // advc.003
+ 		{
+ 			eBonus = pPlot->getBonusType();
+ 		}
+@@ -5203,6 +5203,43 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					szString.append(GC.getBonusInfo(eBonus).getHelp());
+ 				}
+ 			} // end !isBonusObsolete
++			// <advc.050>
++			CvInitCore const& ic = GC.getInitCore();
++			if(bAlt && !bDebug) { /* ALT is also for combat odds. That takes
++					precedence. This function isn't even called when ALT is
++					pressed on a hostile unit. (Check bCtrl instead?) */
++				CvWString mapName = ic.getMapScriptName();
++				int pos = mapName.find(L"."); // Drop the file extension
++				if(pos != CvWString::npos && pos >= 2)
++					mapName = mapName.substr(0, pos);
++				std::transform(mapName.begin(), mapName.end(),
++						mapName.begin(), ::toupper); // to upper case
++				std::wostringstream ssTxtKey;
++				ssTxtKey << L"TXT_KEY_" << mapName << L"_" <<
++						pPlot->getX() << L"_" << pPlot->getY() << L"_BONUS_";
++				CvWString bonusName = GC.getBonusInfo(eBonus).getDescription();
++				std::transform(bonusName.begin(), bonusName.end(),
++						bonusName.begin(), ::toupper);
++				// Tolerate plural errors
++				if(bonusName.at(bonusName.length() - 1) == L'S')
++					bonusName = bonusName.substr(0, bonusName.length() - 1);
++				ssTxtKey << bonusName;
++				CvWString txtKey = ssTxtKey.str();
++				CvWString historyText = gDLL->getText(txtKey);
++				// getText returns txtKey if it can't find the text key
++				if(historyText.compare(txtKey) == 0) {
++					txtKey.append(L"s");
++					historyText = gDLL->getText(txtKey);
++				}
++				if(historyText.compare(txtKey) != 0) {
++					szString.append(NEWLINE);
++					szString.append(NEWLINE);
++					szString.append(CvWString::format(SETCOLR,
++							TEXT_COLOR("COLOR_HIGHLIGHT_TEXT")));
++					szString.append(historyText);
++					szString.append(CvWString::format( ENDCOLR));
++				}
++			} // </advc.050>
+ 		}
+ 
+ 		eImprovement = pPlot->getRevealedImprovementType(GC.getGameINLINE().getActiveTeam(), true);
+@@ -5275,7 +5312,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ /* original code
+ 		if (pPlot->getBlockadedCount(GC.getGameINLINE().getActiveTeam()) > 0)
+ */
+-		if( GC.getGameINLINE().isDebugMode() )
++		if(bDebug) // advc.003
+ 		{
+ 			bool bFirst = true;
+ 			for (int iK = 0; iK < MAX_TEAMS; ++iK)
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index c17c834c5..74fc201c2 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -767,7 +767,8 @@ bool CvInitCore::getWBMapScript() const
+ 	return (gDLL->isDescFileName( CvString(m_szMapScriptName).GetCString() ));
+ }
+ 
+-// <advc.030>
++/*  <advc.030> Caveat: This only works at the start of a game; a savegame has
++	type GAME_..._LOAD. */
+ bool CvInitCore::isScenario() const {
+ 
+ 	return m_eType == GAME_SP_SCENARIO || m_eType == GAME_MP_SCENARIO ||
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9aed42fb8..a8c52b3f0 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9058,8 +9058,10 @@ bool CvUnit::canAttack(const CvUnit& defender) const
+ 		{
+ 			return false;
+ 		}
+-	}
+-
++	} /* <advc.050> This prevents combat odds from being shown when pressing
++		 ALT while hovering over one's own units */
++	if(getTeam() == defender.getTeam())
++		return false; // </advc.050>
+ 	return true;
+ }
+
+[PATCH OMITTED] file=a/manual_0.92e.odt b/manual_0.92e.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=23982

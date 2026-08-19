@@ -1,0 +1,198 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2807
+# Commit: cd4e208520b4a4d71448e3e52539c5b978aed6a2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 935c272a62801b3c9777f15600c96aad4d96f73e
+# Title: Helper function for worker automation checks (refactoring)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	11	CvGameCoreDLL/CvCityAI.cpp
+12	0	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CvPlayer.h
+3	5	CvGameCoreDLL/CvSelectionGroup.cpp
+11	19	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c2c1099e2..70fd4b957 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6972,18 +6972,10 @@ void CvCityAI::AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue)
+ int CvCityAI::AI_totalBestBuildValue(CvArea const& kArea) /* advc:  */ const
+ {
+ 	int iTotalValue = 0;
+-	for (CityPlotIter it(*this, false); it.hasNext(); ++it)
++	for (CityPlotIter itPlot(*this, false); itPlot.hasNext(); ++itPlot)
+ 	{
+-		CvPlot const& kPlot = *it;
+-		if (!kPlot.isArea(kArea))
+-			continue;
+-
+-		if (!kPlot.isImproved() ||
+-			!GET_PLAYER(getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) ||
+-			kPlot.getImprovementType() == GC.getRUINS_IMPROVEMENT())
+-		{
+-			iTotalValue += AI_getBestBuildValue(it.currID());
+-		}
++		if (itPlot->isArea(kArea) && !GET_PLAYER(getOwner()).isAutomationSafe(*itPlot))
++			iTotalValue += AI_getBestBuildValue(itPlot.currID());
+ 	}
+ 	return iTotalValue;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c4a0f3a64..b7cfb4a31 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9761,6 +9761,18 @@ void CvPlayer::setOption(PlayerOptionTypes eOption, bool bNewValue)
+ 	} // </advc.004z>
+ }
+ 
++/*	advc: This was being checked in multiple places.
++	(I haven't tagged the call locations with comments.)
++	advc.121 (note): Forts are allowed outside of city radii despite safe automation.
++	But this only matters in one call location currently (CvSelectionGroup::groupBuild).
++	Most call locations don't check a particular build, and I don't want to slow
++	isAutomationSafe down with an optional parameter. */
++bool CvPlayer::isAutomationSafe(CvPlot const& kPlot) const
++{
++	return (isOption(PLAYEROPTION_SAFE_AUTOMATION) && kPlot.isImproved() &&
++			kPlot.getImprovementType() != GC.getRUINS_IMPROVEMENT());
++}
++
+ 
+ bool CvPlayer::isPlayable() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 4c56c9a72..d310b4be1 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -961,6 +961,8 @@ public:
+ 	DllExport bool isOption(PlayerOptionTypes eOption) const;														// Exposed to Python
+ 	DllExport void setOption(PlayerOptionTypes eOption, bool bNewValue);											// Exposed to Python
+ 
++	bool isAutomationSafe(CvPlot const& kPlot) const; // advc
++
+ 	bool isLoyalMember(VoteSourceTypes eVoteSource) const { return m_abLoyalMember.get(eVoteSource); }				// Exposed to Python
+ 	void setLoyalMember(VoteSourceTypes eVoteSource, bool bNewValue);												// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 8b1fd125b..8aa16e215 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2981,21 +2981,19 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
+ 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getInfo(eBuild).getImprovement();
+ 	if (eImprovement != NO_IMPROVEMENT) {
+ 		if (AI_isControlled()) {
+-			if (GET_PLAYER(getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION)) {
+-				if ((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != GC.getRUINS_IMPROVEMENT())) {
++			if (GET_PLAYER(getOwner()).isAutomationSafe(*pPlot)) {
+ 					BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(GET_PLAYER(getOwner()).getTeam());
+ 					if ((eBonus == NO_BONUS) || !GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)) {
+ 						if (GC.getInfo(eImprovement).getImprovementPillage() != NO_IMPROVEMENT)
+ 							return false;
+-	}}}}}*/ // BtS
++	}}}}*/ // BtS
+ 	/*  K-Mod. Leave old improvements should mean _all_ improvements,
+ 		not 'unless it will connect a resource'.
+ 		Note. The only time this bit of code might matter is if the automated unit has orders queued.
+ 		Ideally, the AI should never issue orders which violate the leave old improvements rule. */
+ 	CvPlot const& kPlot = getPlot();
+-	if (isAutomated() && GET_PLAYER(getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) &&
++	if (isAutomated() && GET_PLAYER(getOwner()).isAutomationSafe(kPlot) &&
+ 		GC.getInfo(eBuild).getImprovement() != NO_IMPROVEMENT &&
+-		kPlot.isImproved() && kPlot.getImprovementType() != GC.getRUINS_IMPROVEMENT() &&
+ 		// <advc.121> Forts on unworkable tiles are OK despite SAFE_AUTOMATION.
+ 		(!GC.getInfo(GC.getInfo(eBuild).getImprovement()).isActsAsCity() ||
+ 		kPlot.getWorkingCity() == NULL)) // </advc.121>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index eca7c104d..1b786290f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -828,13 +828,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 			CityPlotTypes ePlot = it.currID();
+ 			if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
+ 				continue;
+-
+-			if (!kPlot.isImproved() ||
+-				!GET_PLAYER(getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) ||
+-				kPlot.getImprovementType() == GC.getRUINS_IMPROVEMENT())
+-			{
+-				int iValue = kCity.AI_getBestBuildValue(ePlot);
+-				if (iValue <= iBestValue)
++			if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
++				continue;
++			int iValue = kCity.AI_getBestBuildValue(ePlot);
++			if (iValue <= iBestValue)
+ 					continue;
+ 
+ 				BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
+@@ -16963,11 +16960,8 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 			continue;
+ 		if (!canBuild(p, pCity->AI_getBestBuild(ePlot)))
+ 			continue;
+-		if (GET_PLAYER(getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) &&
+-			p.isImproved() && p.getImprovementType() != GC.getRUINS_IMPROVEMENT())
+-		{
++		if (GET_PLAYER(getOwner()).isAutomationSafe(p))
+ 			continue;
+-		}
+ 
+ 		int iPathTurns;
+ 		if (generatePath(p, NO_MOVEMENT_FLAGS, true, &iPathTurns))
+@@ -17204,18 +17198,15 @@ bool CvUnitAI::AI_irrigateTerritory()  // advc: refactored
+ 	} // </OPT1>
+ 
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+-	bool const bSafeAuto = kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION);
+-	bool const bLeaveForests = kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS);
+ 	int const iGwEventTally = GC.getGame().getGwEventTally();
+-	ImprovementTypes const eRuins = GC.getRUINS_IMPROVEMENT();
+-	CvMap const& m = GC.getMap();
+ 
+ 	CvPlot const* pBestPlot = NULL;
+ 	BuildTypes eBestBuild = NO_BUILD;
+ 	int iBestValue = 0;
+-	for (int iI = 0; iI < m.numPlots(); iI++)
++	CvMap const& kMap = GC.getMap();
++	for (int iI = 0; iI < kMap.numPlots(); iI++)
+ 	{
+-		CvPlot const& kLoopPlot = m.getPlotByIndex(iI);
++		CvPlot const& kLoopPlot = kMap.getPlotByIndex(iI);
+ 		if (!kLoopPlot.isArea(getArea()))
+ 			continue;
+ 
+@@ -17228,7 +17219,7 @@ bool CvUnitAI::AI_irrigateTerritory()  // advc: refactored
+ 		ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
+ 		if (eCurrentImprov != NO_IMPROVEMENT)
+ 		{
+-			if (bSafeAuto && eCurrentImprov != eRuins)
++			if (kOwner.isAutomationSafe(kLoopPlot))
+ 				continue;
+ 			if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
+ 				continue;
+@@ -17269,7 +17260,8 @@ bool CvUnitAI::AI_irrigateTerritory()  // advc: refactored
+ 			CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
+ 			// K-Mod:
+ 			if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
+-				(bLeaveForests && kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
++				(kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS) &&
++				kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
+ 			{
+ 				continue;
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7536

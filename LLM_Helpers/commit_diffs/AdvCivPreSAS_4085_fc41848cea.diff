@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4085
+# Commit: fc41848ceac8e16d81a9f06d127a84be94ccfa6b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1cfd5f209db2e47628614708b5fce120f084d7d5
+# Title: Fix possible memory leak in CvReplayInfo
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvReplayInfo.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 23103c4f7..9888017f9 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -52,7 +52,7 @@ CvReplayInfo::~CvReplayInfo()
+ 	{
+ 		SAFE_DELETE(m_listReplayMessages[i]);
+ 	}
+-	SAFE_DELETE(m_pcMinimapPixels);
++	SAFE_DELETE_ARRAY(m_pcMinimapPixels); // advc.001 (was SAFE_DELETE)
+ 	SAFE_DELETE(m); // advc.003k
+ }
+ 
+@@ -229,7 +229,7 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 	if (pTexture == NULL)
+ 		pTexture = gDLL->UI().getMinimapBaseTexture();
+ 	// </advc.106n>
+-	SAFE_DELETE(m_pcMinimapPixels);
++	SAFE_DELETE_ARRAY(m_pcMinimapPixels); // advc.001 (was SAFE_DELETE)
+ 	m_pcMinimapPixels = new byte[/* advc.106m: */ minimapPixels()];
+ 	if (pTexture != NULL)
+ 		memcpy((void*)m_pcMinimapPixels, pTexture, /* advc.106m: */ minimapPixels());
+@@ -829,7 +829,7 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 		if(!checkBounds(m_iMapWidth, 1, 1000)) return false; // advc.106i
+ 		stream.Read(&m_iMapHeight);
+ 		if(!checkBounds(m_iMapHeight, 1, 1000)) return false; // advc.106i
+-		SAFE_DELETE(m_pcMinimapPixels);
++		SAFE_DELETE_ARRAY(m_pcMinimapPixels); // advc.001 (was SAFE_DELETE)
+ 		m_pcMinimapPixels = new byte[/* advc.106m: */ minimapPixels()];
+ 		stream.Read(/* advc.106m: */ minimapPixels(),
+ 				const_cast<byte*>(m_pcMinimapPixels)); // advc.106n: cast
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1383

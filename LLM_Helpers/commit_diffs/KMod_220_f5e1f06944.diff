@@ -1,0 +1,232 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 220
+# Commit: f5e1f06944bfe96e1c989a3b8cd6e10036ad460c
+# History segment: K-Mod history
+# Parent used for diff: 543647fc1b317e62fafcdb18742f5fb85bc6e52b
+# Title: Fixed two recent espionage bugs where I'd used isVisible instead of isRevealed. Adjusted the AI clauses for building workers. Adjusted the population target...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	18	CvGameCoreDLL/CvCityAI.cpp
+6	2	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index fa32d9fbd..c1501c48c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1565,15 +1565,15 @@ void CvCityAI::AI_chooseProduction()
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 1", getName().GetCString());
+ 			return;
+ 		}
+-	} */ // (K-Mod disabled)
++	}
+ 	
+ 	if (!bDanger && ((kPlayer.getCurrentEra() > (GC.getGame().getStartEra() + iProductionRank / 2))) || (kPlayer.getCurrentEra() > (GC.getNumEraInfos() / 2)))
+ 	{
+-		/* if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1)))
++		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1)))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 1", getName().GetCString());
+ 			return;	
+-		} */ // K-Mod.
++		}
+ 
+ 		if( !(bDefenseWar && iWarSuccessRatio < -30) )
+ 		{
+@@ -1590,7 +1590,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 			}
+ 		}
+-	}
++	} */ // K-Mod disabled this stuff
+ 	
+ 	bool bCrushStrategy = kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH);
+ 	int iNeededFloatingDefenders = (isBarbarian() || bCrushStrategy) ?  0 : kPlayer.AI_getTotalFloatingDefendersNeeded(pArea);
+@@ -1664,9 +1664,9 @@ void CvCityAI::AI_chooseProduction()
+ ***/
+ 		//if (!(iExistingWorkers == 0))
+ 		{
+-			if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
++			if (!bDanger && iExistingWorkers < (iNeededWorkers + 1) / 2)
+ 			{
+-				if( getPopulation() >= 3 || (iProductionRank < (kPlayer.getNumCities() + 1) / 2) )
++				if (getPopulation() >= 3 || (iProductionRank <= (kPlayer.getNumCities() + 1) / 2))
+ 				{
+ 					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 					{
+@@ -1685,7 +1685,7 @@ void CvCityAI::AI_chooseProduction()
+ **** K-Mod, 10/sep/10, Karadoc
+ **** It was "if (bDanger", I have changed it to "if (!bDanger"
+ ***/
+-    if (!bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > iExistingSeaWorkers)))
++    if (!bDanger && iExistingWorkers == 0 && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > iExistingSeaWorkers)))
+     {
+ 		if( !(bDefenseWar && iWarSuccessRatio < -30) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{
+@@ -2094,6 +2094,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
++	/* BBAI code
+ 	if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger )
+ 	{
+ 		if (iExistingWorkers < iNeededWorkers )
+@@ -2112,9 +2113,8 @@ void CvCityAI::AI_chooseProduction()
+ 			}
+ 		}
+ 	}
+-    
+ 	//essential economic builds
+-	/* if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold, (bLandWar ? 40 : -1)))
++	if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold, (bLandWar ? 40 : -1)))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 1", getName().GetCString());
+ 		return;
+@@ -2129,6 +2129,24 @@ void CvCityAI::AI_chooseProduction()
+    			return;
+ 		}
+ 	}
++
++	// note: this is the only worker test that allows us to reach the full number of needed workers.
++	if (!(bLandWar && iWarSuccessRatio < -30) && !bDanger)
++	{
++		if (iExistingWorkers < iNeededWorkers)
++		{
++			if (AI_getWorkersHave() < AI_getWorkersNeeded()
++				|| GC.getGame().getSorenRandNum(100, "choose worker 6") > iBestBuildingValue + iBuildUnitProb)
++			{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker 6", getName().GetCString());
++					return;
++				}
++				bChooseWorker = true;
++			}
++		}
++	}
+ 	// K-Mod end
+ 
+ 	if( !bDanger )
+@@ -4914,7 +4932,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					iTempValue += ((kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI)) / ((bProvidesPower || isPower()) ? 12 : 15));*/
+ 					// K-Mod
+ 					iTempValue += kBuilding.getYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI) / 20;
+-					iTempValue += kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI) / (bProvidesPower || isPower() ? 21 : 40);
++					iTempValue += kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI) / (bProvidesPower || isPower() ? 21 : 30);
+ 
+ 					if (bProvidesPower && !isPower())
+ 					{
+@@ -4986,8 +5004,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						// K-Mod
+ 						if (iI == YIELD_PRODUCTION)
+ 						{
+-							// priority += 2% per 1% in production increase. roughly. More when at war.
+-							iPriorityFactor += std::min(100, (bWarPlan ? 300 : 200)*iTempValue/std::max(1, 5*getYieldRate(YIELD_PRODUCTION)));
++							// priority += 2.4% per 1% in production increase. roughly. More when at war.
++							iPriorityFactor += std::min(100, (bWarPlan ? 320 : 240)*iTempValue/std::max(1, 5*getYieldRate(YIELD_PRODUCTION)));
+ 						}
+ 						// K-Mod end
+ 
+@@ -6842,12 +6860,12 @@ int CvCityAI::AI_getTargetPopulation() const
+ 
+ 	iTargetSize = std::min(iTargetSize, 2 + getPopulation() + iHealth/2);
+ 
+-	if( iTargetSize < getPopulation() )
++	if (iTargetSize < getPopulation())
+ 	{
+-		iTargetSize = std::max(iTargetSize, getPopulation() - (AI_countWorkedPoorTiles()/2));
++		iTargetSize = std::max(iTargetSize, getPopulation() - AI_countWorkedPoorTiles() + std::min(0, iHealth/2));
+ 	}
+ 
+-	iTargetSize = std::min(iTargetSize, 2 + getPopulation()+(happyLevel()-unhappyLevel()+getEspionageHappinessCounter()));
++	iTargetSize = std::min(iTargetSize, 1 + getPopulation()+(happyLevel()-unhappyLevel()+getEspionageHappinessCounter()));
+ 
+ 	return iTargetSize;
+ }
+@@ -7062,12 +7080,12 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 
+ 	iTargetSize = std::min(iTargetSize, 2 + getPopulation() + iHealth/2);
+ 
+-	if( iTargetSize < getPopulation() )
++	if (iTargetSize < getPopulation())
+ 	{
+-		iTargetSize = std::max(iTargetSize, getPopulation() - (AI_countWorkedPoorTiles()/2));
++		iTargetSize = std::max(iTargetSize, getPopulation() - AI_countWorkedPoorTiles() + std::min(0, iHealth/2));
+ 	}
+ 
+-	iTargetSize = std::min(iTargetSize, 2 + getPopulation()+(happyLevel()-unhappyLevel()+getEspionageHappinessCounter()));
++	iTargetSize = std::min(iTargetSize, 1 + getPopulation()+(happyLevel()-unhappyLevel()+getEspionageHappinessCounter()));
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b0324369d..aaeced2d2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6047,7 +6047,11 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 	if( !bWarPlan )
+ 	{
+ 		// Aggressive players will stick with war civics
+-		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 400 )
++		/* BBAI code
++		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 400 ) */
++		// K-Mod .. unless they are able to switch civics freely anyway..
++		if (GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 400
++			&& getMaxAnarchyTurns() != 0 && getAnarchyModifier() + 100 > 0)
+ 		{
+ 			bWarPlan = true;
+ 		}
+@@ -14352,7 +14356,7 @@ void CvPlayerAI::AI_doCommerce()
+ 							int iTargetCities = 0;
+ 							for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 							{
+-								if (pLoopCity->plot()->isVisible(getTeam(), false) && pLoopCity->area() != NULL && AI_isPrimaryArea(pLoopCity->area()))
++								if (pLoopCity->plot()->isRevealed(getTeam(), false) && pLoopCity->area() != NULL && AI_isPrimaryArea(pLoopCity->area()))
+ 								{
+ 									cityModifiers.push_back(getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot()));
+ 								}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b84f28b2b..f16c67a64 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11096,7 +11096,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 		if ((iCityDefenderCount - 1) < pPlotCity->AI_minDefenders())
+ 		{
+ 			//if ((iCityDefenderCount <= 2) || (GC.getGame().getSorenRandNum(5, "AI shuffle defender") != 0))
+-			if (iCityDefenderCount <= 1 || GC.getGame().getSorenRandNum(5, "AI shuffle defender") != 0) // K-mod
++			if (iCityDefenderCount <= 1 || GC.getGame().getSorenRandNum(area()->getCitiesPerPlayer(getOwnerINLINE())/2 + 1, "AI shuffle defender") <= 1) // K-mod
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+@@ -11815,7 +11815,7 @@ bool CvUnitAI::AI_guardSpy(int iRandomPercent)
+ 	{
+ 		if (AI_plotValid(pLoopCity->plot()))
+ 		{
+-			if (!(pLoopCity->plot()->isVisibleEnemyUnit(this)))
++			// if (!(pLoopCity->plot()->isVisibleEnemyUnit(this))) // disabled by K-Mod. This isn't required for spies...
+ 			{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
+@@ -22626,7 +22626,7 @@ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath, CvCity* pSkipCity)
+ 			int iLoop;
+ 			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); NULL != pLoopCity; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 			{
+-				if (pLoopCity == pSkipCity || !pLoopCity->isVisible(getTeam(), false))
++				if (pLoopCity == pSkipCity || !pLoopCity->isRevealed(getTeam(), false))
+ 				{
+ 					continue;
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9440

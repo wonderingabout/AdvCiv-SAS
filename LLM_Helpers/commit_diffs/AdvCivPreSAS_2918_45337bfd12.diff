@@ -1,0 +1,493 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2918
+# Commit: 45337bfd1262879222021b36cce65f66ff63080c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1e5bd5218ab2a1059b6f80568116987c1256506d
+# Title: Remove some unnecessary enum-to-int casts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+59	59	CvGameCoreDLL/CvDllPythonEvents.cpp
+3	3	CvGameCoreDLL/CvGame.cpp
+6	6	CvGameCoreDLL/CvStatistics.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index cc177a2ad..b027e90ec 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -222,7 +222,7 @@ void CvDllPythonEvents::reportBeginPlayerTurn(int iGameTurn, PlayerTypes ePlayer
+ 		CyArgsList eventData;
+ 		eventData.add("BeginPlayerTurn");				// add key to lookup python handler fxn
+ 		eventData.add(iGameTurn);
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -234,7 +234,7 @@ void CvDllPythonEvents::reportEndPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
+ 		CyArgsList eventData;
+ 		eventData.add("EndPlayerTurn");				// add key to lookup python handler fxn
+ 		eventData.add(iGameTurn);
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -245,8 +245,8 @@ void CvDllPythonEvents::reportFirstContact(TeamTypes eTeamID1, TeamTypes eTeamID
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("firstContact");				// add key to lookup python handler fxn
+-		eventData.add((int)eTeamID1);
+-		eventData.add((int)eTeamID2);
++		eventData.add(eTeamID1);
++		eventData.add(eTeamID2);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -332,7 +332,7 @@ void CvDllPythonEvents::reportPlotRevealed(CvPlot *pPlot, TeamTypes eTeam)
+ 
+ 		CyPlot* pCyPlot = new CyPlot(pPlot);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+-		eventData.add((int)eTeam);
++		eventData.add(eTeam);
+ 
+ 		postEvent(eventData);
+ 		delete pCyPlot;
+@@ -350,7 +350,7 @@ void CvDllPythonEvents::reportPlotFeatureRemoved(CvPlot *pPlot, FeatureTypes eFe
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+ 		CyCity* pCyCity= new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+-		eventData.add((int)eFeature);
++		eventData.add(eFeature);
+ 
+ 		postEvent(eventData);
+ 		delete pCyPlot;
+@@ -400,7 +400,7 @@ void CvDllPythonEvents::reportGotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer)
+ 
+ 		CyPlot* pCyPlot = new CyPlot(pPlot);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyPlot;
+@@ -431,7 +431,7 @@ void CvDllPythonEvents::reportCityRazed(CvCity *pCity, PlayerTypes ePlayer)
+ 
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -444,8 +444,8 @@ void CvDllPythonEvents::reportCityAcquired(PlayerTypes eOldOwner, PlayerTypes eP
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("cityAcquired");					// add key to lookup python handler fxn
+-		eventData.add((int)eOldOwner);
+-		eventData.add((int)ePlayer);
++		eventData.add(eOldOwner);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pCyCity = new CyCity(pOldCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+@@ -463,7 +463,7 @@ void CvDllPythonEvents::reportCityAcquiredAndKept(PlayerTypes ePlayer, CvCity* p
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("cityAcquiredAndKept");					// add key to lookup python handler fxn
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pCyCity = new CyCity(pOldCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+@@ -497,7 +497,7 @@ void CvDllPythonEvents::reportCultureExpansion(CvCity *pCity, PlayerTypes ePlaye
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -514,7 +514,7 @@ void CvDllPythonEvents::reportCityGrowth(CvCity *pCity, PlayerTypes ePlayer)
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -531,7 +531,7 @@ void CvDllPythonEvents::reportCityProduction(CvCity *pCity, PlayerTypes ePlayer)
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -548,7 +548,7 @@ void CvDllPythonEvents::reportCityBuildingUnit(CvCity *pCity, UnitTypes eUnitTyp
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) eUnitType);
++		eventData.add(eUnitType);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -565,7 +565,7 @@ void CvDllPythonEvents::reportCityBuildingBuilding(CvCity *pCity, BuildingTypes
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) eBuildingType);
++		eventData.add(eBuildingType);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -597,7 +597,7 @@ void CvDllPythonEvents::reportCityHurry(CvCity *pCity, HurryTypes eHurry)
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) eHurry);
++		eventData.add(eHurry);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -730,7 +730,7 @@ void CvDllPythonEvents::reportUnitKilled(CvUnit* pUnit, PlayerTypes eAttacker)
+ 
+ 		CyUnit* pyu = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+-		eventData.add((int)eAttacker);
++		eventData.add(eAttacker);
+ 		postEvent(eventData);
+ 		delete pyu;
+ 	}
+@@ -761,7 +761,7 @@ void CvDllPythonEvents::reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromot
+ 
+ 		CyUnit* pyu = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+-		eventData.add((int)ePromotion);
++		eventData.add(ePromotion);
+ 		postEvent(eventData);
+ 		delete pyu;
+ 	}
+@@ -807,9 +807,9 @@ void CvDllPythonEvents::reportUnitPillage(CvUnit* pUnit, ImprovementTypes eImpro
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eImprovement);
+-		eventData.add((int) eRoute);
+-		eventData.add((int) ePlayer);
++		eventData.add(eImprovement);
++		eventData.add(eRoute);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyUnit;
+@@ -825,7 +825,7 @@ void CvDllPythonEvents::reportUnitSpreadReligionAttempt(CvUnit* pUnit, ReligionT
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eReligion);
++		eventData.add(eReligion);
+ 		eventData.add(bSuccess);
+ 
+ 		postEvent(eventData);
+@@ -842,7 +842,7 @@ void CvDllPythonEvents::reportUnitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlay
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eGiftingPlayer);
++		eventData.add(eGiftingPlayer);
+ 		CyPlot* pCyPlot = new CyPlot(pPlotLocation);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+ 
+@@ -863,7 +863,7 @@ void CvDllPythonEvents::reportUnitBuildImprovement(CvUnit* pUnit, BuildTypes eBu
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eBuild);
++		eventData.add(eBuild);
+ 		eventData.add(bFinished);
+ 
+ 		postEvent(eventData);
+@@ -878,7 +878,7 @@ void CvDllPythonEvents::reportGoodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyP
+ 		CyArgsList eventData;
+ 		eventData.add("goodyReceived");						// add key to lookup python handler fxn
+ 
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		CyPlot* py = new CyPlot(pGoodyPlot);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
+@@ -886,7 +886,7 @@ void CvDllPythonEvents::reportGoodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyP
+ 		CyUnit* pyu = new CyUnit(pGoodyUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+ 
+-		eventData.add((int) eGoodyType);
++		eventData.add(eGoodyType);
+ 
+ 		postEvent(eventData);
+ 
+@@ -905,7 +905,7 @@ void CvDllPythonEvents::reportGreatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer
+ 		CyUnit* py = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
+ 
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -959,9 +959,9 @@ void CvDllPythonEvents::reportTechAcquired(TechTypes eType, TeamTypes eTeam, Pla
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("techAcquired");					// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)eTeam);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(eTeam);
++		eventData.add(ePlayer);
+ 		eventData.add(bAnnounce);
+ 		postEvent(eventData);
+ 	}
+@@ -973,8 +973,8 @@ void CvDllPythonEvents::reportTechSelected(TechTypes eTech, PlayerTypes ePlayer)
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("techSelected");					// add key to lookup python handler fxn
+-		eventData.add((int)eTech);
+-		eventData.add((int)ePlayer);
++		eventData.add(eTech);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -985,8 +985,8 @@ void CvDllPythonEvents::reportReligionFounded(ReligionTypes eType, PlayerTypes e
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("religionFounded");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -997,8 +997,8 @@ void CvDllPythonEvents::reportReligionSpread(ReligionTypes eType, PlayerTypes eP
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("religionSpread");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1014,8 +1014,8 @@ void CvDllPythonEvents::reportReligionRemove(ReligionTypes eType, PlayerTypes eP
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("religionRemove");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1031,8 +1031,8 @@ void CvDllPythonEvents::reportCorporationFounded(CorporationTypes eType, PlayerT
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("corporationFounded");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1043,8 +1043,8 @@ void CvDllPythonEvents::reportCorporationSpread(CorporationTypes eType, PlayerTy
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("corporationSpread");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1060,8 +1060,8 @@ void CvDllPythonEvents::reportCorporationRemove(CorporationTypes eType, PlayerTy
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("corporationRemove");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1077,7 +1077,7 @@ void CvDllPythonEvents::reportGoldenAge(PlayerTypes ePlayer)
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("goldenAge");			// add key to lookup python handler fxn
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1088,7 +1088,7 @@ void CvDllPythonEvents::reportEndGoldenAge(PlayerTypes ePlayer)
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("endGoldenAge");			// add key to lookup python handler fxn
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1100,8 +1100,8 @@ void CvDllPythonEvents::reportChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eO
+ 		CyArgsList eventData;
+ 		eventData.add("changeWar");			// add key to lookup python handler fxn
+ 		eventData.add(bWar);
+-		eventData.add((int)eTeam);
+-		eventData.add((int)eOtherTeam);
++		eventData.add(eTeam);
++		eventData.add(eOtherTeam);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1112,8 +1112,8 @@ void CvDllPythonEvents::reportVictory(TeamTypes eNewWinner, VictoryTypes eNewVic
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("victory");					// add key to lookup python handler fxn
+-		eventData.add((int)eNewWinner);
+-		eventData.add((int)eNewVictory);
++		eventData.add(eNewWinner);
++		eventData.add(eNewVictory);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1124,8 +1124,8 @@ void CvDllPythonEvents::reportVassalState(TeamTypes eMaster, TeamTypes eVassal,
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("vassalState");					// add key to lookup python handler fxn
+-		eventData.add((int)eMaster);
+-		eventData.add((int)eVassal);
++		eventData.add(eMaster);
++		eventData.add(eVassal);
+ 		eventData.add(bVassal);
+ 
+ 		postEvent(eventData);
+@@ -1138,7 +1138,7 @@ void CvDllPythonEvents::reportSetPlayerAlive(PlayerTypes ePlayerID, bool bNewVal
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("setPlayerAlive");
+-		eventData.add((int)ePlayerID);
++		eventData.add(ePlayerID);
+ 		eventData.add(bNewValue);
+ 		postEvent(eventData);
+ 	}
+@@ -1151,9 +1151,9 @@ void CvDllPythonEvents::reportPlayerChangeStateReligion(PlayerTypes ePlayerID, R
+ 		CyArgsList eventData;
+ 		eventData.add("playerChangeStateReligion");			// add key to lookup python handler fxn
+ 
+-		eventData.add((int)ePlayerID);
+-		eventData.add((int)eNewReligion);
+-		eventData.add((int)eOldReligion);
++		eventData.add(ePlayerID);
++		eventData.add(eNewReligion);
++		eventData.add(eOldReligion);
+ 
+ 		postEvent(eventData);
+ 	}
+@@ -1167,8 +1167,8 @@ void CvDllPythonEvents::reportPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTyp
+ 		CyArgsList eventData;
+ 		eventData.add("playerGoldTrade");			// add key to lookup python handler fxn
+ 
+-		eventData.add((int)eFromPlayer);
+-		eventData.add((int)eToPlayer);
++		eventData.add(eFromPlayer);
++		eventData.add(eToPlayer);
+ 		eventData.add(iAmount);
+ 
+ 		postEvent(eventData);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4676cbb3c..4432279a8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4113,10 +4113,10 @@ EraTypes CvGame::getCurrentEra() const
+ // advc:
+ EraTypes CvGame::getHighestEra() const
+ {
+-	EraTypes r = NO_ERA;
++	EraTypes eMax = NO_ERA;
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+-		r = (EraTypes)std::max<int>(r, it->getCurrentEra());
+-	return r;
++		eMax = std::max(eMax, it->getCurrentEra());
++	return eMax;
+ }
+ 
+ // advc.groundbr: Normalize tech costs when groundbreaking penalties are enabled
+
+diff --git a/CvGameCoreDLL/CvStatistics.cpp b/CvGameCoreDLL/CvStatistics.cpp
+index 4a6c54692..a53b8ebd8 100644
+--- a/CvGameCoreDLL/CvStatistics.cpp
++++ b/CvGameCoreDLL/CvStatistics.cpp
+@@ -177,22 +177,22 @@ int CvPlayerRecord::getNumUnitsWasKilled(int iUnitType) const
+ 
+ void CvPlayerRecord::buildingBuilt(BuildingTypes eBuilding)
+ {
+-	++m_piNumBuildingsBuilt[(int)eBuilding];
++	++m_piNumBuildingsBuilt[eBuilding];
+ }
+ 
+ int CvPlayerRecord::getNumBuildingsBuilt(BuildingTypes eBuilding) const
+ {
+-	return m_piNumBuildingsBuilt[(int)eBuilding];
++	return m_piNumBuildingsBuilt[eBuilding];
+ }
+ 
+ void CvPlayerRecord::religionFounded(ReligionTypes eReligion)
+ {
+-	m_pbReligionFounded[(int)eReligion] = true;
++	m_pbReligionFounded[eReligion] = true;
+ }
+ 
+ bool CvPlayerRecord::getReligionFounded(ReligionTypes eReligion) const
+ {
+-	return m_pbReligionFounded[(int)eReligion];
++	return m_pbReligionFounded[eReligion];
+ }
+ 
+ void CvPlayerRecord::setPlayerID(int iID)
+@@ -380,11 +380,11 @@ void CvStatistics::setVictory(TeamTypes eWinner, VictoryTypes eVictory)
+ }
+ void CvStatistics::setTimePlayed(PlayerTypes ePlayer, int iTime)
+ {
+-	getPlayerRecord((int)ePlayer)->setTimePlayed(iTime);
++	getPlayerRecord(ePlayer)->setTimePlayed(iTime);
+ }
+ void CvStatistics::setLeader(PlayerTypes ePlayer, LeaderHeadTypes eLeader)
+ {
+-	getPlayerRecord((int)ePlayer)->setLeader(eLeader);
++	getPlayerRecord(ePlayer)->setLeader(eLeader);
+ }
+ 
+ //
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=16521

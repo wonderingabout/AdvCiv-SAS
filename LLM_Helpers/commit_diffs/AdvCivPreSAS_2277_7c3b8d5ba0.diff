@@ -1,0 +1,164 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2277
+# Commit: 7c3b8d5ba0cc7082d005be996d3709563494d802
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bf44436dbd5d8e9fbc52afccffb6623b0c6d5e09
+# Title: Helper function for checking diagonal water moves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	36	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	9	CvGameCoreDLL/CvMap.cpp
+11	0	CvGameCoreDLL/CvMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 85a3a06d0..858376bc7 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1676,12 +1676,8 @@ int teamStepValid_advc(FAStarNode* parent, FAStarNode* node, int data,
+ 	if(kToPlot.isImpassable())
+ 		return FALSE;
+ 	CvPlot const& kFromPlot = kMap.getPlot(parent->m_iX, parent->m_iY);
+-	if(kFromPlot.isWater() && kToPlot.isWater() &&
+-		!kMap.getPlot(parent->m_iX, node->m_iY).isWater() &&
+-		!kMap.getPlot(node->m_iX, parent->m_iY).isWater())
+-	{
++	if(kMap.waterStepInvalid(kFromPlot, kToPlot))
+ 		return FALSE;
+-	}
+ 	TeamTypes const ePlotTeam = kToPlot.getTeam();
+ 	int* const v = (int*)pointer;
+ 	int const iMaxPath = v[5];
+@@ -1776,14 +1772,8 @@ int stepValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 
+ 	/*  BETTER_BTS_AI_MOD, Bugfix, 12/12/08, jdog5000: START
+ 		Don't count diagonal hops across land isthmus */
+-	if (kFromPlot.isWater() && kNewPlot.isWater())
+-	{
+-		if (!GC.getMap().getPlot(parent->m_iX, node->m_iY).isWater() &&
+-			!GC.getMap().getPlot(node->m_iX, parent->m_iY).isWater())
+-		{
+-			return FALSE;
+-		}
+-	} // BETTER_BTS_AI_MOD: END
++	if (GC.getMap().waterStepInvalid(kFromPlot, kNewPlot)) // (advc: Moved into new function)
++		return FALSE; // BETTER_BTS_AI_MOD: END
+ 
+ 	return TRUE;
+ }
+@@ -1807,29 +1797,23 @@ int teamStepValid(FAStarNode* parent, FAStarNode* node, int data, const void* po
+ 		return FALSE;
+ 
+ 	// Don't count diagonal hops across land isthmus
+-	if (kFromPlot.isWater() && kNewPlot.isWater())
+-	{
+-		if (!kMap.getPlot(parent->m_iX, node->m_iY).isWater() &&
+-			!kMap.getPlot(node->m_iX, parent->m_iY).isWater())
+-		{
+-			return FALSE;
+-		}
+-	}
++	if (kMap.waterStepInvalid(kFromPlot, kNewPlot)) // advc: Moved into new function
++		return FALSE;
+ 
+ 	TeamTypes ePlotTeam = kNewPlot.getTeam();
++	if (ePlotTeam == NO_TEAM)
++		return TRUE;
+ 
+ 	vector<TeamTypes> teamVec = *((vector<TeamTypes>*)pointer);
+ 	TeamTypes eTeam = teamVec[0];
+ 	TeamTypes eTargetTeam = teamVec[1];
+ 	CvTeamAI& kTeam = GET_TEAM(eTeam);
+-
+-	if (ePlotTeam == NO_TEAM)
+-		return TRUE;
+-
+ 	// advc.001: Was just ePlotTeam == eTargetTeam; anticipate DoW on/ by vassals.
+-	if(eTargetTeam != NO_TEAM && GET_TEAM(ePlotTeam).getMasterTeam() == GET_TEAM(eTargetTeam).getMasterTeam())
++	if(eTargetTeam != NO_TEAM &&
++		GET_TEAM(ePlotTeam).getMasterTeam() == GET_TEAM(eTargetTeam).getMasterTeam())
++	{
+ 		return TRUE;
+-
++	}
+ 	if (kTeam.canPeacefullyEnter(ePlotTeam) ||
+ 		kTeam.isDisengage(ePlotTeam)) // advc.034
+ 	{
+@@ -1846,16 +1830,9 @@ int teamStepValid(FAStarNode* parent, FAStarNode* node, int data, const void* po
+ int stepAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+ {
+ 	if (data == ASNC_INITIALADD)
+-	{
+ 		node->m_iData1 = 0;
+-	}
+-	else
+-	{
+-		node->m_iData1 = (parent->m_iData1 + 1);
+-	}
+-
+-	FAssertMsg(node->m_iData1 >= 0, "node->m_iData1 is expected to be non-negative (invalid Index)");
+-
++	else node->m_iData1 = (parent->m_iData1 + 1);
++	FAssertMsg(node->m_iData1 >= 0, "invalid Index");
+ 	return 1;
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 0407fe807..e8c9bd8eb 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1329,16 +1329,9 @@ void CvMap::calculateAreas_DFS(CvPlot const& kStart)
+ 			if(pAdjacent == NULL)
+ 				continue;
+ 			CvPlot& q = *pAdjacent;
+-			/*  The two neighbors that p and q have in common if p and q are
+-				diagonally adjacent: */
+-			CvPlot* s = plot(p.getX(), q.getY());
+-			CvPlot* t = plot(q.getX(), p.getY());
+-			FAssertMsg(s != NULL && t != NULL, "Map appears to be non-convex");
++			
+ 			if(q.area() == NULL && p.isWater() == q.isWater() &&
+-				// For water tiles, orthogonal adjacency is unproblematic.
+-				(!p.isWater() || x == q.getX() || y == q.getY() ||
+-				// Diagonal adjacency only works if either s or t are water
+-				s == NULL || s->isWater() || t == NULL || t->isWater()) &&
++				!waterStepInvalid(p, q) &&
+ 				/*  Depth-first search that doesn't continue at impassables
+ 					except to other impassables so that mountain ranges and
+ 					ice packs end up in one CvArea. */
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 198f9debb..93aa6d75c 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -199,6 +199,17 @@ public:
+ 	{
+ 		return (stepDistance(&kFirstPlot, &kSecondPlot) <= 1);
+ 	}
++	/*	advc (for advc.030, advc.027): Cut from teamStepValid in CvGameCoreUtils.
++		Would rather leave it there with the other pathfinding helper functions,
++		but can't inline it there.
++		advc.test: Is it getting inlined here (probably not)? Should it be? */
++	bool waterStepInvalid(CvPlot const& kFrom, CvPlot const& kTo) const
++	{
++		return (kFrom.isWater() && kTo.isWater() &&
++			// Safe wrt. map edges b/c we know (assume) that kFrom and kTo are adjacent
++			!getPlot(kFrom.getX(), kTo.getY()).isWater() &&
++			!getPlot(kTo.getX(), kFrom.getY()).isWater());
++	}
+ 
+ private: // Auxiliary functions
+ 	/*	These look too large and branchy for inlining, but the keywords do seem
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5099

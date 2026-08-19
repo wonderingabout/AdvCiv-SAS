@@ -1,0 +1,1345 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5483
+# Commit: e92a36c49dca11cdb4f28526d85887a2c63012f0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8827c3e2d96e7a7fc6944cae2e746326a40ac350
+# Title: Add new Score Tab (Info Screen), Add legend text and sevopedia concept pages/items - Added in the **Info Screen** (F9 key) a new **Score Tab** showing a **so...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	6	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+9	0	Assets/Python/SASUtils.py
+418	11	Assets/Python/Screens/CvInfoScreen.py
+10	1	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+5	106	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+22	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+29	6	README.md
+5	3	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+6	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 7d99016f7..a6194bccc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -21,6 +21,7 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ from _sevopedia_helpers import *
++from SASUtils import getNewConceptID
+ # <!-- custom: import to display chars before Traits -->
+ import TraitUtil
+ 
+@@ -82,6 +83,8 @@ class SevoPediaLeader:
+ 		
+ 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.N_AI_TABLE_NUM = 3
++		self.AI_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_AI_PERSONALITY_LEGEND")
++		self.AI_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
+ 
+ 		# <!-- custom: 2) (most) relative dimensions or positions then -->
+ 
+@@ -101,16 +104,16 @@ class SevoPediaLeader:
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+-		# Music panel (helper-computed one-button width, right of Favorites)
++		# Music panel (helper-computed one-button width)
+ 		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+-		self.X_FAVORITES = self.X_LEADERHEAD_PANE
+-		# Reduce Favorites width to make room for Music panel (one-button width + margin)
+-		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.W_MUSIC - (2 * self.SMALL_MARGIN)
+-
+-		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
++		# <!-- custom: Favorites panel only needs two icons (favorite civic/religion), so size it with shared helper for a strict two-button layout. (GPT-5.3-Codex) -->
++		self.W_FAVORITES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++		# <!-- custom: readability tweak - Music on the left, Favorites on the right near the civ icon. (GPT-5.3-Codex) -->
++		self.X_MUSIC = self.X_LEADERHEAD_PANE
+ 		self.Y_MUSIC = self.Y_FAVORITES
+ 		self.H_MUSIC = self.H_FAVORITES
++		self.X_FAVORITES = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_FAVORITES
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
+@@ -155,6 +158,7 @@ class SevoPediaLeader:
+ 		self.placeHistory()
+ 		self.placeCiv()
+ 		self.placeTraits()
++		self.placeAILegendLink()
+ 
+ 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
+ 		#
+@@ -216,6 +220,26 @@ class SevoPediaLeader:
+ 
+ 
+ 
++	def placeAILegendLink(self):
++		if self.AI_LEGEND_NEW_CONCEPT_ID < 0:
++			return
++		screen = self.top.getScreen()
++		screen.setText(
++			self.top.getNextWidgetName(),
++			"Background",
++			self.AI_LEGEND_LINK_TEXT,
++			CvUtil.FONT_LEFT_JUSTIFY,
++			self.top.X_TOC,
++			self.top.Y_BOT_PANEL + 16,
++			0,
++			FontTypes.TITLE_FONT,
++			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
++			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
++			self.AI_LEGEND_NEW_CONCEPT_ID
++		)
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index d64dde704..b2dc786e0 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -15,3 +15,12 @@ def getInfoTypeOrFail(tag):
+ 	if iType == -1:
+ 		raise ValueError("Missing XML tag: '%s'" % tag)
+ 	return iType
++
++
++
++# <!-- custom: shared helper to resolve NewConcept IDs by XML type (e.g. "CONCEPT_SAS_SCORE_TAB_COLUMNS" for the Score-tab Legend clickable Sevopedia/NewConcept entry). Returns -1 when missing so callers can skip optional links safely. (GPT-5.3-Codex) -->
++def getNewConceptID(szConceptType):
++	for i in range(gc.getNumNewConceptInfos()):
++		if gc.getNewConceptInfo(i).getType() == szConceptType:
++			return i
++	return -1
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 3c40c6ab0..11b72b406 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -21,6 +21,15 @@ import copy # advc.091
+ import re
+ 
+ from PyHelpers import PyPlayer
++from SASUtils import *
++
++# <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
++import Scoreboard
++import DiplomacyUtil
++import AttitudeUtil
++import PlayerUtil
++import FontUtil
++# <!-- custom: End - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
+ 
+ # BUG - 3.17 No Espionage - start
+ import GameUtil
+@@ -116,8 +125,10 @@ class CvInfoScreen:
+ 		#self.Y_EXIT = 730
+ 		self.Y_EXIT = self.H_SCREEN - 42
+ 
++		# <!-- custom: Score tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
+ 		self.PAGE_NAME_LIST = [
+ 			"TXT_KEY_INFO_GRAPH",
++			"TXT_KEY_GAME_SCORE",
+ 			"TXT_KEY_INFO_HISTORY",
+ 			"TXT_KEY_DEMO_SCREEN_TITLE",
+ 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
+@@ -125,6 +136,7 @@ class CvInfoScreen:
+ 			]
+ 		self.PAGE_DRAW_LIST = [
+ 			self.drawGraphTab,
++			self.drawScoreTab,
+ 			self.drawHistoryTab,
+ 			self.drawDemographicsTab,
+ 			self.drawTopCitiesTab,
+@@ -144,11 +156,13 @@ class CvInfoScreen:
+ 		# This is used to allow the wonders screen to refresh without redrawing everything
+ 		self.iNumWondersPermanentWidgets = 0
+ 
++		# <!-- custom: Score tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
+ 		self.iGraphID			= 0
+-		self.iHistoryID			= 1
+-		self.iDemographicsID	= 2
+-		self.iTopCitiesID		= 3
+-		self.iStatsID			= 4
++		self.iScoreID			= 1
++		self.iHistoryID			= 2
++		self.iDemographicsID	= 3
++		self.iTopCitiesID		= 4
++		self.iStatsID			= 5
+ 
+ 		self.iActiveTab = -1
+ #		self.iActiveTab = self.iGraphID
+@@ -633,6 +647,22 @@ class CvInfoScreen:
+ 		self.TEXT_CULTURE = localText.getObjectText("TXT_KEY_COMMERCE_CULTURE", 0)
+ 		self.TEXT_ESPIONAGE = localText.getObjectText("TXT_KEY_ESPIONAGE_CULTURE", 0)
+ 
++		# <!-- custom: Score tab shared UI constants cached once per language load. (GPT-5.3-Codex) -->
++		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
++		self.SCORETAB_COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
++		self.SCORETAB_WAR_CHAR = FontUtil.getChar(FontSymbols.WAR_CHAR)
++		self.SCORETAB_PEACE_CHAR = FontUtil.getChar(FontSymbols.PEACE_CHAR)
++		self.SCORETAB_TRADE_CHAR = FontUtil.getChar(FontSymbols.TRADE_CHAR)
++		self.SCORETAB_BORDERS_CHAR = FontUtil.getChar(FontSymbols.OPEN_BORDERS_CHAR)
++		self.SCORETAB_PACT_CHAR = FontUtil.getChar(FontSymbols.DEFENSIVE_PACT_CHAR)
++		self.SCORETAB_WORST_ENEMY_CHAR = FontUtil.getChar(FontSymbols.ANGRY_POP_CHAR)
++		self.SCORETAB_GOLDEN_AGE_CHAR = FontUtil.getChar(FontSymbols.GOLDEN_AGE_CHAR)
++		self.SCORETAB_ANARCHY_CHAR = FontUtil.getChar(FontSymbols.BAD_GOLD_CHAR)
++		self.SCORETAB_ESPIONAGE_CHAR = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar()
++		self.SCORETAB_COLOR_MARKER = u"|||||"
++		self.SCORETAB_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
++		self.SCORETAB_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SCORE_TAB_COLUMNS")
++
+ 		self.TEXT_VALUE = localText.getText("TXT_KEY_DEMO_SCREEN_VALUE_TEXT", ())
+ 		self.TEXT_RANK = localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ())
+ 		self.TEXT_AVERAGE = localText.getText("TXT_KEY_DEMOGRAPHICS_SCREEN_RIVAL_AVERAGE", ())
+@@ -672,10 +702,10 @@ class CvInfoScreen:
+ 		self.szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%c+%c)" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())) + ": " + self.TEXT_ECONOMY_MEASURE
+ 		self.szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + ": " + self.TEXT_INDUSTRY_MEASURE
+ 		self.szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + ": " + self.TEXT_AGRICULTURE_MEASURE
+-		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % self.getIcon(FontSymbols.STRENGTH_CHAR))
+-		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % self.getIcon(FontSymbols.HAPPY_CHAR))
+-		self.szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % self.getIcon(FontSymbols.HEALTHY_CHAR)) + ": " + self.TEXT_HEALTH_MEASURE
+-		self.szExpTitle = self.TEXT_EXP + (u" (%c)" % self.getIcon(FontSymbols.TRADE_CHAR)) + ": " + self.TEXT_EXP_MEASURE
++		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
++		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
++		self.szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + ": " + self.TEXT_HEALTH_MEASURE
++		self.szExpTitle = self.TEXT_EXP + (u" (%c)" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)) + ": " + self.TEXT_EXP_MEASURE
+ 		# <!-- custom add char icons there with claude opus 4.5's help thanks. -->
+ 		self.szLandAreaTitle = u"%s (%c): %s" % (self.TEXT_LAND_AREA, CyGame().getSymbolID(FontSymbols.MAP_CHAR), self.TEXT_LAND_AREA_MEASURE)
+ 		self.szPopulationTitle = u"%s (%c)" % (self.TEXT_POPULATION, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
+@@ -1141,6 +1171,386 @@ class CvInfoScreen:
+ 		szWidget = self.szHistoryList
+ 		for szFormattedText in aEntries:
+ 			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++	# <!-- custom: Score tab renderer (scoreboard-style sortable matrix for all visible players). (GPT-5.3-Codex) -->
++	def drawScoreTab(self):
++		screen = self.getScreen()
++		game = gc.getGame()
++		# <!-- custom: in Debug mode, this tab must follow the selected perspective player (dropdown), not always the human active player. (GPT-5.3-Codex) -->
++		eActivePlayer = self.iActivePlayer
++		pActivePlayer = self.pActivePlayer
++		eActiveTeam = self.iActiveTeam
++		pActiveTeam = self.pActiveTeam
++
++		szTable = self.getNextWidgetName()
++		screen.addTableControlGFC(szTable, 25, self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSort(szTable)
++
++		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
++		iColLeader = 0
++		iColCiv = 1
++		iColColor = 2
++		iColPid = 3
++		iColName = 4
++		iColAttitude = 5
++		iColAttitudeNum = 6
++		iColScore = 7
++		iColDelta = 8
++		iColPower = 9
++		iColCities = 10
++		iColPowerPerCity = 11
++		iColLandPct = 12
++		iColVM = 13
++		iColTrade = 14
++		iColBorders = 15
++		iColPact = 16
++		iColReligion = 17
++		iColWarPeace = 18
++		iColWontTalk = 19
++		iColWorstEnemy = 20
++		iColGoldenAge = 21
++		iColEspionage = 22
++		iColResearch = 23
++		iColResearchPct = 24
++
++		iW = self.W_HISTORY_TABLE
++		iIconW = 28
++		iMinColW = 42
++		iFlagW = iMinColW
++		iDipW = iMinColW
++		iAttNumW = iMinColW
++		iColorW = iMinColW
++		iPidW = iMinColW - 6
++		iNameW = 132
++		iScoreW = 64
++		iDeltaW = 62
++		iPowerW = 62
++		iPowerPerCityW = 66
++		iResearchPctW = iMinColW
++		iCitiesW = iMinColW
++		iLandPctW = iMinColW + 16
++		iVMW = iMinColW + 12
++		iResearchW = iMinColW
++		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
++		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
++		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW +
++				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iAttNumW + iColorW + iResearchPctW + 9 * iFlagW + iPidW +
++				iNameW + iResearchW)
++		iExtraW = iW - iUsedW
++		iVMW += iExtraW
++		if iVMW < iMinColW:
++			iDeficit = iMinColW - iVMW
++			iVMW = iMinColW
++			iResearchShrink = min(iDeficit, iResearchW - iMinColW)
++			iResearchW -= iResearchShrink
++			iDeficit -= iResearchShrink
++			iNameShrink = min(iDeficit, iNameW - iMinColW)
++			iNameW -= iNameShrink
++			iDeficit -= iNameShrink
++			iVMW -= iDeficit
++
++		screen.setTableColumnHeader(szTable, iColLeader, u"", iIconW)
++		screen.setTableColumnHeader(szTable, iColCiv, u"", iIconW)
++		screen.setTableColumnHeader(szTable, iColColor, u"Col", iColorW)
++		screen.setTableColumnHeader(szTable, iColPid, u"PID", iPidW)
++		screen.setTableColumnHeader(szTable, iColName, u"Leader", iNameW)
++		screen.setTableColumnHeader(szTable, iColAttitude, u"Att", iFlagW)
++		screen.setTableColumnHeader(szTable, iColAttitudeNum, u"Att#", iAttNumW)
++		screen.setTableColumnHeader(szTable, iColScore, self.TEXT_SCORE, iScoreW)
++		screen.setTableColumnHeader(szTable, iColDelta, u"dScore", iDeltaW)
++		# <!-- custom: rank column removed because this table is already score-ordered by construction, so Rank duplicated the same ordering signal and added noise. (GPT-5.3-Codex) -->
++		screen.setTableColumnHeader(szTable, iColPower, u"Pow", iPowerW)
++		screen.setTableColumnHeader(szTable, iColCities, u"Cit", iCitiesW)
++		screen.setTableColumnHeader(szTable, iColPowerPerCity, u"Pow/C", iPowerPerCityW)
++		screen.setTableColumnHeader(szTable, iColLandPct, u"Land%", iLandPctW)
++		screen.setTableColumnHeader(szTable, iColVM, u"V/M", iVMW)
++		screen.setTableColumnHeader(szTable, iColTrade, u"Trd", iFlagW)
++		screen.setTableColumnHeader(szTable, iColBorders, u"OB", iFlagW)
++		screen.setTableColumnHeader(szTable, iColPact, u"DP", iFlagW)
++		screen.setTableColumnHeader(szTable, iColReligion, u"Rel", iFlagW)
++		screen.setTableColumnHeader(szTable, iColWarPeace, u"Dip", iDipW)
++		screen.setTableColumnHeader(szTable, iColWontTalk, u"WT", iFlagW)
++		screen.setTableColumnHeader(szTable, iColWorstEnemy, u"WE", iFlagW)
++		screen.setTableColumnHeader(szTable, iColGoldenAge, u"GA", iFlagW)
++		screen.setTableColumnHeader(szTable, iColEspionage, u"Esp", iFlagW)
++		screen.setTableColumnHeader(szTable, iColResearch, u"Res", iResearchW)
++		screen.setTableColumnHeader(szTable, iColResearchPct, u"%", iResearchPctW)
++
++		# <!-- custom: perf pass - hoist stable lookups/options used in the per-player loop. (GPT-5.3-Codex) -->
++		bDebugMode = game.isDebugMode()
++		bUseEspionage = GameUtil.isEspionage()
++		bIncludeCurrentTurnDelta = ScoreOpt.isScoreDeltaIncludeCurrentTurn()
++		bPowerThemVersusYou = ScoreOpt.isPowerThemVersusYou()
++		iPowerDecimals = max(3, ScoreOpt.getPowerDecimals())
++		iPowerColor = ScoreOpt.getPowerColor()
++		iHighPowerColor = ScoreOpt.getHighPowerColor()
++		iLowPowerColor = ScoreOpt.getLowPowerColor()
++		fHighPowerRatio = ScoreOpt.getHighPowerRatio()
++		fLowPowerRatio = ScoreOpt.getLowPowerRatio()
++		iActivePower = pActivePlayer.getPower()
++		iActiveGameTurn = game.getGameTurn()
++		bActiveTeamHasMultipleMembers = (pActiveTeam.getNumMembers() > 1)
++		iLandPlots = CyMap().getLandPlots()
++		iMaxTeams = gc.getMAX_TEAMS()
++		teamCache = []
++		for iTeam in range(iMaxTeams):
++			teamCache.append(gc.getTeam(iTeam))
++		teamHasVassals = [False] * iMaxTeams
++		teamMasterTeams = []
++		teamVassalTeams = []
++		for iTeam in range(iMaxTeams):
++			teamMasterTeams.append([])
++			teamVassalTeams.append([])
++		for iTeam in range(iMaxTeams):
++			kTeam = teamCache[iTeam]
++			if not kTeam.isAlive():
++				continue
++			if kTeam.isAVassal():
++				for iOwnerTeam in range(iMaxTeams):
++					if kTeam.isVassal(iOwnerTeam):
++						teamHasVassals[iOwnerTeam] = True
++						teamMasterTeams[iTeam].append(iOwnerTeam)
++						teamVassalTeams[iOwnerTeam].append(iTeam)
++						break
++
++		visiblePlayers = []
++		for j in range(gc.getMAX_CIV_PLAYERS()):
++			ePlayer = game.getRankPlayer(j)
++			if ePlayer < 0:
++				continue
++			pPlayer = gc.getPlayer(ePlayer)
++			if not pPlayer.isEverAlive():
++				continue
++			if not Scoreboard.Scoreboard.isShowTeamScore(pPlayer.getTeam()):
++				continue
++			if not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer):
++				continue
++			visiblePlayers.append(ePlayer)
++		visiblePlayersByTeam = {}
++		for eLoopPlayer in visiblePlayers:
++			eLoopTeam = gc.getPlayer(eLoopPlayer).getTeam()
++			if eLoopTeam not in visiblePlayersByTeam:
++				visiblePlayersByTeam[eLoopTeam] = []
++			visiblePlayersByTeam[eLoopTeam].append(eLoopPlayer)
++
++		for ePlayer in visiblePlayers:
++			pPlayer = gc.getPlayer(ePlayer)
++			eTeam = pPlayer.getTeam()
++			pTeam = teamCache[eTeam]
++			bMet = (pActiveTeam.isHasMet(eTeam) or bDebugMode or ePlayer == eActivePlayer)
++
++			screen.appendTableRow(szTable)
++			iRow = screen.getTableNumRows(szTable) - 1
++
++			# Leader/Civ icons: click opens diplomacy/contact context.
++			screen.setTableText(szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			szColor = self.SCORETAB_COLOR_MARKER
++			ePlayerColor = pPlayer.getPlayerColor()
++			if ePlayerColor > -1:
++				kPlayerColor = gc.getPlayerColorInfo(ePlayerColor)
++				if kPlayerColor is not None:
++					szColor = localText.changeTextColor(self.SCORETAB_COLOR_MARKER, kPlayerColor.getTextColorType())
++			screen.setTableText(szTable, iColColor, iRow, szColor, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			screen.setTableInt(szTable, iColPid, iRow, str(ePlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			szName = pPlayer.getName()
++			if not bMet:
++				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
++			screen.setTableText(szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++
++			iScore = game.getPlayerScore(ePlayer)
++			eScoreWidget = WidgetTypes.WIDGET_GENERAL
++			if ePlayer == eActivePlayer:
++				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
++			screen.setTableText(szTable, iColScore, iRow, self.separateThousands(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			iGameTurn = iActiveGameTurn
++			if ePlayer >= eActivePlayer:
++				iGameTurn -= 1
++			if bIncludeCurrentTurnDelta:
++				iScoreDelta = iScore
++			elif iGameTurn >= 0:
++				iScoreDelta = pPlayer.getScoreHistory(iGameTurn)
++			else:
++				iScoreDelta = 0
++			iPrevGameTurn = iGameTurn - 1
++			if iPrevGameTurn >= 0:
++				iScoreDelta -= pPlayer.getScoreHistory(iPrevGameTurn)
++			szDelta = self.separateThousands(iScoreDelta)
++			if iScoreDelta > 0:
++				szDelta = u"+" + szDelta
++			if iScoreDelta > 0:
++				szDelta = localText.changeTextColor(szDelta, self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT)
++			elif iScoreDelta < 0:
++				szDelta = localText.changeTextColor(szDelta, self.SCORETAB_COLOR_RED)
++			screen.setTableText(szTable, iColDelta, iRow, szDelta, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			szWarPeace = u""
++			if pTeam.isAtWar(eActiveTeam):
++				szWarPeace = self.SCORETAB_WAR_CHAR
++			elif pActiveTeam.isForcePeace(eTeam):
++				szWarPeace = self.SCORETAB_PEACE_CHAR
++			screen.setTableText(szTable, iColWarPeace, iRow, szWarPeace, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szPower = u""
++			szPowerPerCity = u""
++			fShownPowerRatio = None
++			iPowerColorForWidget = 0
++			if ePlayer != eActivePlayer and (bDebugMode or pActivePlayer.canSeeDemographics(ePlayer)):
++				iTheirPower = pPlayer.getPower()
++				if iTheirPower > 0:
++					fRatio = float(iActivePower) / float(iTheirPower)
++					if bPowerThemVersusYou:
++						if fRatio > 0:
++							fRatio = 1.0 / fRatio
++						else:
++							fRatio = 999.0
++					fShownPowerRatio = fRatio
++					szPower = BugUtil.formatFloat(fRatio, iPowerDecimals)
++					# <!-- custom: apply the same threshold-based power coloring as scoreboard (high/low ratio bands + optional default color). (GPT-5.3-Codex) -->
++					bAlly = (eTeam == eActiveTeam)
++					if (iHighPowerColor >= 0 and not bAlly and fRatio >= fHighPowerRatio):
++						iPowerColorForWidget = iHighPowerColor
++					elif (iLowPowerColor >= 0 and not bAlly and fRatio <= fLowPowerRatio):
++						iPowerColorForWidget = iLowPowerColor
++					elif iPowerColor >= 0:
++						iPowerColorForWidget = iPowerColor
++					if iPowerColorForWidget > 0:
++						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
++			screen.setTableText(szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			if bDebugMode:
++				iCities = pPlayer.getNumCities()
++			else:
++				iCities = PlayerUtil.getNumRevealedCities(ePlayer)
++			screen.setTableInt(szTable, iColCities, iRow, str(iCities), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			if fShownPowerRatio is not None and iCities > 0:
++				# <!-- custom: keep Pow/C in the same unit family as Pow by dividing the shown power ratio by city count. (GPT-5.3-Codex) -->
++				szPowerPerCity = BugUtil.formatFloat(fShownPowerRatio / float(iCities), iPowerDecimals)
++				# <!-- custom: keep Pow/C uncolored for now; Pow thresholds do not transfer cleanly to per-city normalization. (GPT-5.3-Codex) -->
++			screen.setTableText(szTable, iColPowerPerCity, iRow, szPowerPerCity, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			szLandPct = u""
++			if bMet:
++				if iLandPlots > 0:
++					iLandPctTimes100 = (10000 * pPlayer.getTotalLand()) / iLandPlots
++					szLandPct = u"%d.%02d" % (iLandPctTimes100 / 100, iLandPctTimes100 % 100)
++			screen.setTableText(szTable, iColLandPct, iRow, szLandPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			szVM = u""
++			if bMet:
++				asVM = []
++				if pTeam.isAVassal():
++					for eMasterTeam in teamMasterTeams[eTeam]:
++						for eMasterPlayer in visiblePlayersByTeam.get(eMasterTeam, []):
++							asVM.append(str(eMasterPlayer))
++					if len(asVM) > 0:
++						szVM = u"M" + u",".join(asVM)
++					else:
++						szVM = u"M"
++				elif teamHasVassals[eTeam]:
++					for eVassalTeam in teamVassalTeams[eTeam]:
++						for eVassalPlayer in visiblePlayersByTeam.get(eVassalTeam, []):
++							asVM.append(str(eVassalPlayer))
++					if len(asVM) > 0:
++						szVM = u",".join(asVM)
++					else:
++						szVM = u"V"
++			screen.setTableText(szTable, iColVM, iRow, szVM, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			eCurrentResearch = pPlayer.getCurrentResearch()
++			szResearchButton = ""
++			szResearchPct = u""
++			if bMet and (bDebugMode or (pActivePlayer.canSeeResearch(ePlayer) and (eTeam != eActiveTeam or bActiveTeamHasMultipleMembers))):
++				if eCurrentResearch != -1:
++					kTech = gc.getTechInfo(eCurrentResearch)
++					szResearchButton = kTech.getButton()
++					iResearchCost = pTeam.getResearchCost(eCurrentResearch)
++					if iResearchCost > 0:
++						iProgressPct = pTeam.getResearchProgress(eCurrentResearch) * 100 / iResearchCost
++						iProgressPct = max(0, min(99, iProgressPct))
++						szResearchPct = str(iProgressPct)
++			screen.setTableText(szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			screen.setTableText(szTable, iColResearchPct, iRow, szResearchPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			szEsp = u""
++			if bMet and bUseEspionage and pActivePlayer.getEspionageSpendingWeightAgainstTeam(eTeam) > 0:
++				szEsp = self.SCORETAB_ESPIONAGE_CHAR
++			screen.setTableText(szTable, iColEspionage, iRow, szEsp, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			szTrade = u""
++			if bMet and ePlayer != eActivePlayer and pPlayer.canTradeNetworkWith(eActivePlayer):
++				szTrade = self.SCORETAB_TRADE_CHAR
++			screen.setTableText(szTable, iColTrade, iRow, szTrade, "", WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, eActivePlayer, ePlayer, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szBorders = u""
++			if bMet and pTeam.isOpenBorders(eActiveTeam):
++				szBorders = self.SCORETAB_BORDERS_CHAR
++			screen.setTableText(szTable, iColBorders, iRow, szBorders, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szPact = u""
++			if bMet and pTeam.isDefensivePact(eActiveTeam):
++				szPact = self.SCORETAB_PACT_CHAR
++			screen.setTableText(szTable, iColPact, iRow, szPact, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szReligion = u""
++			eStateReligion = pPlayer.getStateReligion()
++			if bMet and eStateReligion != -1:
++				kReligion = gc.getReligionInfo(eStateReligion)
++				if pPlayer.hasHolyCity(eStateReligion):
++					szReligion = u"%c" % kReligion.getHolyCityChar()
++				else:
++					szReligion = u"%c" % kReligion.getChar()
++			screen.setTableText(szTable, iColReligion, iRow, szReligion, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szAttitude = u""
++			szAttitudeNum = u""
++			if bMet and not pPlayer.isHuman() and ePlayer != eActivePlayer:
++				szAttitude = AttitudeUtil.getAttitudeIcon(ePlayer, eActivePlayer)
++				iAttCount = AttitudeUtil.getAttitudeCount(ePlayer, eActivePlayer)
++				szAttitudeNum = u"%+d" % iAttCount
++				iAttColor = AttitudeUtil.getAttitudeColor(ePlayer, eActivePlayer)
++				if iAttColor >= 0:
++					szAttitudeNum = localText.changeTextColor(szAttitudeNum, iAttColor)
++			screen.setTableText(szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			screen.setTableText(szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++
++			szWontTalk = u""
++			if bMet and not DiplomacyUtil.isWillingToTalk(ePlayer, eActivePlayer):
++				szWontTalk = u"!"
++			screen.setTableText(szTable, iColWontTalk, iRow, szWontTalk, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szWorstEnemy = u""
++			if bMet and AttitudeUtil.isWorstEnemy(ePlayer, eActivePlayer):
++				szWorstEnemy = self.SCORETAB_WORST_ENEMY_CHAR
++			screen.setTableText(szTable, iColWorstEnemy, iRow, szWorstEnemy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++			szGoldenAge = u""
++			bGoldenAge = pPlayer.isGoldenAge()
++			bAnarchy = pPlayer.isAnarchy()
++			if ePlayer != eActivePlayer and (bGoldenAge or bAnarchy):
++				if bAnarchy:
++					szGoldenAge = self.SCORETAB_ANARCHY_CHAR
++				else:
++					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
++			screen.setTableText(szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++		if self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
++			szLegendLinkName = self.getNextWidgetName()
++			screen.setText(
++				szLegendLinkName,
++				"Background",
++				self.SCORETAB_LEGEND_LINK_TEXT,
++				CvUtil.FONT_RIGHT_JUSTIFY,
++				self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6,
++				self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6,
++				self.Z_CONTROLS,
++				FontTypes.TITLE_FONT,
++				WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
++				CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
++				self.SCORETAB_LEGEND_NEW_CONCEPT_ID
++			)
++
+ 	def dbgLogPrettySummary(self):
+ 		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+ 			aEntries = self.historyCacheEntries
+@@ -2013,9 +2423,6 @@ class CvInfoScreen:
+ 			groups.append(s[-3:])
+ 			s = s[:-3]
+ 		return s + szSep.join(reversed(groups))
+-	
+-	def getIcon(self, uFontSymbol):
+-		return CyGame().getSymbolID(uFontSymbol)
+ 	# </advc.077>
+ 
+ 	def drawTextChart(self):
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 73d428159..1899fa645 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -18,7 +18,16 @@
+ 			<Description>TXT_KEY_BASE_ADVCIV_SOME_CHANGES</Description>
+ 			<Civilopedia>TXT_KEY_BASE_ADVCIV_SOME_CHANGES_PEDIA_SR</Civilopedia>
+ 		</NewConceptInfo>
+-
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_SCORE_TAB_COLUMNS</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
++		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_AI_PERSONALITY_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+ 		<NewConceptInfo>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 28b05a796..836a7d3a0 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -9,15 +9,11 @@
+ <!-- custom: note to agents: if you want to modify this file, read the Long Comments referenced above first; they contain key design rationale used by the timelines below. Removed here for concision. -->
+ <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameSpeedInfos>
+-
+-
+-
+ 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_NITRO (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>GAMESPEED_NITRO</Type>
+ 			<Description>TXT_KEY_GAMESPEED_NITRO</Description>
+ 			<Help>TXT_KEY_GAMESPEED_NITRO_HELP</Help>
+-
+ 			<iGrowthPercent>33</iGrowthPercent>
+ 			<iTrainPercent>33</iTrainPercent>
+ 			<iConstructPercent>33</iConstructPercent>
+@@ -28,45 +24,34 @@
+ 			<iGreatPeoplePercent>33</iGreatPeoplePercent>
+ 			<!-- advc (note): Unused; handled by CvCultureLevelInfo instead. -->
+ 			<iCulturePercent>33</iCulturePercent>
+-
+ 			<!-- Keep anarchy a bit less compressed than core (like Quick does). -->
+ 			<iAnarchyPercent>45</iAnarchyPercent>
+-
+ 			<iBarbPercent>33</iBarbPercent>
+ 			<iFeatureProductionPercent>33</iFeatureProductionPercent>
+ 			<iUnitDiscoverPercent>33</iUnitDiscoverPercent>
+ 			<iUnitHurryPercent>33</iUnitHurryPercent>
+ 			<iUnitTradePercent>33</iUnitTradePercent>
+ 			<iUnitGreatWorkPercent>33</iUnitGreatWorkPercent>
+-
+ 			<!-- Keep golden ages a bit less compressed than core (like Quick does). -->
+ 			<iGoldenAgePercent>55</iGoldenAgePercent>
+-
+ 			<!-- HurryPercent inverse scaling. (33% core -> 300). -->
+ 			<iHurryPercent>300</iHurryPercent>
+ 			<iHurryConscriptAngerPercent>33</iHurryConscriptAngerPercent>
+-
+ 			<!-- Inflation: 30/0.33 ~= 90.9 -> 90. Offset: -90 * 0.33 ~= -30. -->
+ 			<iInflationPercent>90</iInflationPercent>
+ 			<iInflationOffset>-30</iInflationOffset>
+-
+-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<!-- custom: see code comment at game speed normal -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+-
+ 			<iVictoryDelayPercent>60</iVictoryDelayPercent>
+-
+ 			<iAIMemoryRandPercent>60</iAIMemoryRandPercent>
+ 			<iAIContactRandPercent>80</iAIContactRandPercent>
+ 			<iAIContactDelayPercent>60</iAIContactDelayPercent>
+-
+ 			<iFullTradeCreditPercent>60</iFullTradeCreditPercent>
+ 			<iRevoltDivPercent>60</iRevoltDivPercent>
+ 			<iReligionSpreadDivPercent>33</iReligionSpreadDivPercent>
+-
+ 			<iEventRollSidesPercent>60</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>33</iVoteIntervalPercent>
+-
+ 			<!-- custom: NITRO (165 turns). Exact 2:1 compression of QUICK: pair each 2 consecutive Quick turns into 1 Nitro turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Quick at all 5% checkpoints to within ±45y (idx 3-20), ±750y prehistoric. End year 2105. (Claude Opus 4.6) -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -7,250: prehistoric (9 turns) -->
+@@ -102,9 +87,6 @@
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>31</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+-
+-
+-
+ 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_TURBO -->
+ 			<Type>GAMESPEED_TURBO</Type>
+@@ -121,46 +103,35 @@
+ 			<iGreatPeoplePercent>50</iGreatPeoplePercent>
+ 			<!-- advc (note): Unused; handled by CvCultureLevelInfo instead. -->
+ 			<iCulturePercent>50</iCulturePercent>
+-
+ 			<!-- Keep anarchy a bit less compressed than core (like Quick does). -->
+ 			<iAnarchyPercent>60</iAnarchyPercent>
+-
+ 			<iBarbPercent>50</iBarbPercent>
+ 			<iFeatureProductionPercent>50</iFeatureProductionPercent>
+ 			<iUnitDiscoverPercent>50</iUnitDiscoverPercent>
+ 			<iUnitHurryPercent>50</iUnitHurryPercent>
+ 			<iUnitTradePercent>50</iUnitTradePercent>
+ 			<iUnitGreatWorkPercent>50</iUnitGreatWorkPercent>
+-
+ 			<!-- Keep golden ages a bit less compressed than core (like Quick does). -->
+ 			<iGoldenAgePercent>60</iGoldenAgePercent>
+-
+ 			<!-- HurryPercent follows the standard inverse scaling (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>200</iHurryPercent>
+ 			<iHurryConscriptAngerPercent>50</iHurryConscriptAngerPercent>
+-
+ 			<!-- Inflation: follow the 30/ratio pattern used by Quick/Epic (Turbo=0.5 -> 60). Offset scales with ratio (-90 * 0.5 = -45). -->
+ 			<iInflationPercent>60</iInflationPercent>
+ 			<iInflationOffset>-45</iInflationOffset>
+-
+-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<!-- custom: see code comment at game speed normal -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+-
+ 			<!-- These are absent on Normal (defaults=100), but present on other speeds. Keep them in the "not as compressed as core" spirit. -->
+ 			<iVictoryDelayPercent>70</iVictoryDelayPercent>
+-
+ 			<iAIMemoryRandPercent>70</iAIMemoryRandPercent>
+ 			<iAIContactRandPercent>85</iAIContactRandPercent>
+ 			<iAIContactDelayPercent>70</iAIContactDelayPercent>
+-
+ 			<iFullTradeCreditPercent>70</iFullTradeCreditPercent>
+ 			<iRevoltDivPercent>70</iRevoltDivPercent>
+ 			<iReligionSpreadDivPercent>50</iReligionSpreadDivPercent>
+-
+ 			<iEventRollSidesPercent>70</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>50</iVoteIntervalPercent>
+-
+ 			<!-- custom: TURBO (250 turns). Exact 2:1 compression of NORMAL: pair each 2 consecutive Normal turns into 1 Turbo turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Normal at all 5% checkpoints. End year 2105. (Claude Opus 4.6) -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -7,500: prehistoric (13 turns) -->
+@@ -194,10 +165,6 @@
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+-
+-
+-
+-
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_QUICK -->
+ 			<Type>GAMESPEED_QUICK</Type>
+ 			<Description>TXT_KEY_GAMESPEED_QUICK</Description>
+@@ -224,11 +191,9 @@
+ 			<iHurryConscriptAngerPercent>67</iHurryConscriptAngerPercent>
+ 			<iInflationPercent>45</iInflationPercent>
+ 			<iInflationOffset>-60</iInflationOffset>
+-
+-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<!-- custom: see code comment at game speed normal -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+-
+ 			<!-- advc.252: was 67 -->
+ 			<iVictoryDelayPercent>80</iVictoryDelayPercent>
+ 			<!-- advc.130r: start -->
+@@ -279,9 +244,6 @@
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>62</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+-
+-
+-
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL -->
+ 			<Type>GAMESPEED_NORMAL</Type>
+ 			<Description>TXT_KEY_GAMESPEED_NORMAL</Description>
+@@ -307,11 +269,9 @@
+ 			<iHurryConscriptAngerPercent>100</iHurryConscriptAngerPercent>
+ 			<iInflationPercent>30</iInflationPercent>
+ 			<iInflationOffset>-90</iInflationOffset>
+-
+-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fields that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+-
+ 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
+ 			<!-- advc.910: Changed all of the turn counts -->
+ 			<GameTurnInfos>
+@@ -329,44 +289,36 @@
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -4,500 to -3,000 (1,500y) -> 12 turns @ 125 y/turn (1,500 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- -3,000 to -2,200 (800y) -> 16 turns @ 50 y/turn (600 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -2,200 to -1,480 (720y) -> 18 turns @ 40 y/turn (480 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -1,480 to -1,000 (480y) -> 16 turns @ 30 y/turn (360 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- -1,000 to 500 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 500 to 1,300 (800y) -> 40 turns @ 20 y/turn (240 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,300 to 1,400 (100y) -> 10 turns @ 10 y/turn (120 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 1,400 to 1,600 (200y) -> 20 turns @ 10 y/turn (120 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,600 to 1,750 (150y) -> 30 turns @ 5 y/turn (60 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,750 to 1,790 (40y) -> 10 turns @ 4 y/turn (48 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 1,790 to 1,880 (90y) -> 30 turns @ 3 y/turn (36 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 1,880 to 1,900 (20y) -> 10 turns @ 2 y/turn (24 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,900 to 1,980 (80y) -> 40 turns @ 2 y/turn (24 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 1,980 to 1,990 (10y) -> 10 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,990 to 2,040 (50y) -> 50 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 2,040 to 2,070 (30y) -> 30 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 2,070 to 2,080 (10y) -> 20 turns @ 0.5 y/turn (6 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 2,080 to 2,105 (25y) -> 50 turns @ 0.5 y/turn (6 mo/turn) -->
+@@ -376,9 +328,6 @@
+ 				<!--<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>26</iTurnsPerIncrement></GameTurnInfo>-->
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+-
+-
+-
+ 		<!-- custom: note: old bts-claimed old base advciv marathon commented out timeline removedas we don't use it and we in fact reduced further the number of turns in marathon as of now so no longer relevant to us, but comment kept if informative or for reference -->
+ 		<!-- advc.252: Can uncomment this (and delete the one above)
+ 			 to restore, by and large, the BtS Marathon modifiers.
+@@ -409,11 +358,9 @@
+ 			<iHurryConscriptAngerPercent>150</iHurryConscriptAngerPercent>
+ 			<iInflationPercent>20</iInflationPercent>
+ 			<iInflationOffset>-135</iInflationOffset>
+-
+-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
++			<!-- custom: see code comment at game speed normal -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
+-
+ 			<!-- advc.252: was 150 -->
+ 			<iVictoryDelayPercent>125</iVictoryDelayPercent>
+ 			<!-- advc.130r: start -->
+@@ -440,35 +387,27 @@
+ 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- -8,500 to -2,900: ancient (38 turns) -->
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- -2,900 to -1,900: classical transition (30 turns) -->
+ 				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- -1,900 to +780: medieval (134 turns @ 20y/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>134</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- +780 to +1,410: late medieval to renaissance (63 turns @ 10y/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>67</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- +1,410 to +1,800: early modern -->
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- +1,800 to +1,850: modern transition -->
+ 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>34</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>46</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- +1,850 to +2,010: industrial to modern -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>130</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- +2,010 to +2,105: contemporary -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>140</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- custom: shift a small late chunk to m3 to offset the extra m12 pace and keep Epic ending at 2105 while improving idx16+ alignment. (GPT-5.3-Codex) -->
+@@ -479,9 +418,6 @@
+ 			<!-- advc.910: Changed all of the turn counts,
+ 				 some of the increments. -->
+ 		</GameSpeedInfo>
+-
+-
+-
+ 		<!-- custom: note: unlike in base advciv, reduce number of turns from 1250 to 1000, i believe it's enough to have a nice and long game, and this way the percent things can stay to 200 and hopefully be accurate enough. -->
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_MARATHON -->
+ 			<Type>GAMESPEED_MARATHON</Type>
+@@ -527,12 +463,10 @@
+ 			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case, was -225 -->
+ 			<!-- was -270 -->
+ 			<iInflationOffset>-180</iInflationOffset>
+-
+ 			<!-- custom: not sure if we should change it but aim for exact double just in case. See also known issue as of now 92 for related info; was 85 -->
+ 			<!-- Reduce unit expenses ... -->
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
+-
+ 			<!-- was 300 -->
+ 			<iVictoryDelayPercent>200</iVictoryDelayPercent>
+ 			<!-- advc.252: end -->
+@@ -596,15 +530,11 @@
+ 			</GameTurnInfos>
+ 			<!-- advc.252: end -->
+ 		</GameSpeedInfo>
+-
+-
+-
+ 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_SLOW -->
+ 			<Type>GAMESPEED_SLOW</Type>
+ 			<Description>TXT_KEY_GAMESPEED_SLOW</Description>
+ 			<Help>TXT_KEY_GAMESPEED_SLOW_HELP</Help>
+-
+ 			<iGrowthPercent>300</iGrowthPercent>
+ 			<iTrainPercent>300</iTrainPercent>
+ 			<iConstructPercent>300</iConstructPercent>
+@@ -622,33 +552,25 @@
+ 			<iUnitTradePercent>300</iUnitTradePercent>
+ 			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
+ 			<iGoldenAgePercent>300</iGoldenAgePercent>
+-
+ 			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>33</iHurryPercent>
+-
+ 			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
+-
+ 			<!-- Keep inflation progression consistent (Normal=30, Epic=20, Marathon=10). -->
+ 			<iInflationPercent>10</iInflationPercent>
+ 			<iInflationOffset>-270</iInflationOffset>
+-
+ 			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). See also known issue as of now 92 for related info -->
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
+-
+ 			<iVictoryDelayPercent>300</iVictoryDelayPercent>
+-
+ 			<iAIMemoryRandPercent>300</iAIMemoryRandPercent>
+ 			<!-- Linear extrapolation from Epic(115) -> Marathon(140): +50 per +100 speed => 190 at 300%. If you want safer: set 180 or 200. -->
+ 			<iAIContactRandPercent>190</iAIContactRandPercent>
+ 			<iAIContactDelayPercent>300</iAIContactDelayPercent>
+-
+ 			<iFullTradeCreditPercent>300</iFullTradeCreditPercent>
+ 			<iRevoltDivPercent>300</iRevoltDivPercent>
+ 			<iReligionSpreadDivPercent>300</iReligionSpreadDivPercent>
+ 			<iEventRollSidesPercent>300</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>300</iVoteIntervalPercent>
+-
+ 			<GameTurnInfos>
+ 				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+@@ -656,7 +578,6 @@
+ 				     Prefer round, human-readable year bands where possible (e.g. 250/200/150/75/40/30/15 years) and use finer odd bands only when strictly needed. (GPT-5.3-Codex) -->
+ 				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+@@ -668,25 +589,19 @@
+ 				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>195</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>91</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>55</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>69</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>71</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>17</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>84</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>82</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>43</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+@@ -699,15 +614,11 @@
+ 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>96</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+-
+-
+-
+ 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
+ 		<GameSpeedInfo> <!-- custom: GAMESPEED_VERY_SLOW -->
+ 			<Type>GAMESPEED_VERY_SLOW</Type>
+ 			<Description>TXT_KEY_GAMESPEED_VERY_SLOW</Description>
+ 			<Help>TXT_KEY_GAMESPEED_VERY_SLOW_HELP</Help>
+-
+ 			<iGrowthPercent>400</iGrowthPercent>
+ 			<iTrainPercent>400</iTrainPercent>
+ 			<iConstructPercent>400</iConstructPercent>
+@@ -726,34 +637,25 @@
+ 			<iUnitTradePercent>400</iUnitTradePercent>
+ 			<iUnitGreatWorkPercent>400</iUnitGreatWorkPercent>
+ 			<iGoldenAgePercent>400</iGoldenAgePercent>
+-
+ 			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>25</iHurryPercent>
+-
+ 			<iHurryConscriptAngerPercent>400</iHurryConscriptAngerPercent>
+-
+ 			<!-- Inflation progression: Normal (30 / -90), Marathon (10 / -180) -> Very Slow (5 / -360). -->
+ 			<iInflationPercent>5</iInflationPercent>
+ 			<iInflationOffset>-360</iInflationOffset>
+-
+ 			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). See also known issue as of now 92 for related info. -->
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
+-
+ 			<iVictoryDelayPercent>400</iVictoryDelayPercent>
+-
+ 			<iAIMemoryRandPercent>400</iAIMemoryRandPercent>
+ 			<!-- Extrapolation: Marathon=140 at 200%; Slow (300%) would be ~190; Very Slow (400%) ~240. -->
+ 			<iAIContactRandPercent>240</iAIContactRandPercent>
+ 			<iAIContactDelayPercent>400</iAIContactDelayPercent>
+-
+ 			<iFullTradeCreditPercent>400</iFullTradeCreditPercent>
+ 			<iRevoltDivPercent>400</iRevoltDivPercent>
+ 			<iReligionSpreadDivPercent>400</iReligionSpreadDivPercent>
+-
+ 			<iEventRollSidesPercent>400</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>400</iVoteIntervalPercent>
+-
+ 			<GameTurnInfos>
+ 				<GameTurnInfo><iMonthIncrement>13500</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+@@ -799,8 +701,5 @@
+ 				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+-
+-
+-
+ 	</GameSpeedInfos>
+ </Civ4GameSpeedInfo>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 9bab9d9e0..89506b8a5 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -118,4 +118,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_HINT_59</Tag>
+ 		<English>The "Concepts (Outdated)" page in the Sevopedia summarizes the changes introduced by the "Beyond the Sword" expansion.</English>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Tag>
++		<English>Score Tab Columns</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Tag>
++		<English>[H1]Score Tab Columns[\H1][PARAGRAPH:2]This page explains each column shown in the Score tab table.[NEWLINE][NEWLINE][ICON_BULLET]Leader (icon): leader portrait button.[NEWLINE][ICON_BULLET]Civ (icon): civilization icon button.[NEWLINE][ICON_BULLET]Col: player color marker.[NEWLINE][ICON_BULLET]PID: player ID (sortable unique identifier).[NEWLINE][ICON_BULLET]Leader (text): leader/player name (or unknown if unmet).[NEWLINE][ICON_BULLET]Att: attitude smiley toward selected perspective player.[NEWLINE][ICON_BULLET]Att#: numeric attitude total (+/-), attitude-colored.[NEWLINE][ICON_BULLET]Score: current score.[NEWLINE][ICON_BULLET]dScore: score change over the last turn interval (+/-, colored).[NEWLINE][ICON_BULLET]Pow: power ratio vs selected perspective player (scoreboard-style coloring).[NEWLINE][ICON_BULLET]Cit: city count (revealed count unless debug).[NEWLINE][ICON_BULLET]Pow/C: power ratio per city (Pow / Cit).[NEWLINE][ICON_BULLET]Land%: percentage of world land tiles (2 decimals).[NEWLINE][ICON_BULLET]V/M: vassal/master links by player ID. If this civ is a vassal: M5 means master is player 5. If this civ is a master: 3,6,7 means vassals are players 3, 6, 7.[NEWLINE][ICON_BULLET]Trd: trade network connection with selected perspective.[NEWLINE][ICON_BULLET]OB: open borders with selected perspective team.[NEWLINE][ICON_BULLET]DP: defensive pact with selected perspective team.[NEWLINE][ICON_BULLET]Rel: state religion icon (holy city variant when applicable).[NEWLINE][ICON_BULLET]Dip: war/forced-peace state with selected perspective.[NEWLINE][ICON_BULLET]WT: won't talk marker.[NEWLINE][ICON_BULLET]WE: worst enemy marker.[NEWLINE][ICON_BULLET]GA: golden age / anarchy marker.[NEWLINE][ICON_BULLET]Esp: active espionage spending weight against that team.[NEWLINE][ICON_BULLET]Res: current research icon only (no text).[NEWLINE][ICON_BULLET]%: current research progress percent (0-99).</English>
++	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND</Tag>
++		<English>AI Personality Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND_PEDIA</Tag>
++		<English>[H1]AI Personality Legend[\H1][PARAGRAPH:2]- 1st column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W on Fr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))[PARAGRAPH:2]- 2nd column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.[PARAGRAPH:2]- 3rd column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50)))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read.[PARAGRAPH:2]See docs for details about the AI Personality Panel, notably _1_AdvCiv-SAS\Docs\README_AI_Personality_Panel.md. </English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index d8519bbb3..a2f7d7f14 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
+ 
+@@ -33,7 +33,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Home page](/README.md#home-page)  
+ &emsp;[Simple Game rework](/README.md#simple-game-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+-&emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
++&emsp;[Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+@@ -160,11 +160,13 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
+ 
+ ## UI (Ingame)
+ 
+-### Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)
++### Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)
+ 
+ Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.).
+ 
+-#### New Advisors (e.g. History Tab in the Info Screen Advisor)
++#### New Advisors
++
++##### History Tab (in the Info Screen Advisor)
+ 
+ We added in AdvCiv-SAS a new History Tab in the Info Screen:
+ 
+@@ -176,9 +178,19 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
+ 
+ Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG" alt="0.516_info_screen (6).JPG" width="250"></img>
+ 
++##### Score Tab (in the Info Screen Advisor)
++
++A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M.
++
++Added a clickable "Legend" text that redirects to Sevopedia Concepts' "Score Tab Columns" page that shows the legend.
++
++Added with the very nice help of GPT-5.3-Codex thanks.
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
++
+ #### Advisor reworks
+ 
+ For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it. Notably, it also features the new "Remove Jungle" and "Chop Down a Forest" buttons (from the Middle-Earth mod thanks!).
+@@ -196,9 +208,9 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab,
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG" alt="0.516_info_screen (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG" alt="0.516_info_screen (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
+@@ -413,10 +425,21 @@ Added new concepts, as of now:
+ 
+ #### Mods Info
+ 
++(NewConceptInfos).
++
++##### Info about Other mods
++
+ The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, thanks to [@f1rpo](https://github.com/f1rpo)'s help too) category adds info about mods and such. See [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md). Exhaustive or not example screenshots below as well:
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.612_sevopedia_k-mod_to_advciv.JPG" alt="0.612_sevopedia_k-mod_to_advciv.JPG" width="250"></img>
+ 
++##### Legends
++
++We also use the Mods info category to show the legend of some tables, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
++
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG" alt="0.613_sevopedia_mods_info_legend (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG" alt="0.613_sevopedia_mods_info_legend (2).JPG" width="250"></img>
++
+ ## UI (Common)
+ 
+ ### Emojis
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index 22a8b83d7..e803ce8f0 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -121,9 +121,11 @@ If you want to know the code though, it is in Sevopedia Leader py file, [/Assets
+ 
+ Finally, the last main point to know regarding this AI personality panel is the display. We separate ai attributes by categories such as "War Strategy", "Core Personality", etc for easier read and clarity or other things etc. There are currently 3 panels, containing each:
+ 
+-- first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened and (tentative) explanation of what iMaxWarRand means ingame), as said earlier, please read the code in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py). This (column) almost always if not always contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc (if there is/are any), the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line (for gandhi) shows that G(g)andhi has a raw ai attribute memory attitude percent of -200 ((i.e.?) he (gandhi) resents quite strongly you declaring war on his friends) and a memory decay of 120. And for moctezuma, for the same "D.W on Fr" negative memory resentment, he (moctezuma) does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too but anyways), not ideal but maybe functional anyways))
+-- second column: the (normalized) score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal but anyways), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer for better or worse (war is bad maybe? And peace good? Stiil moctezuma performs good at war attributes, and gandhi good at peace attributes, for example)). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones or not, and how much), and you could also additionally or(/and?) alternatively (also?) tweak the existing leaders xml values as you please. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated (anyways (etc anyways)), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized (see the related python docs for details), they are not re-normalized during caching and Sevopedialeader.py computation. In short, they can be intepreted similarly as raw ai attributes.
+-- third column: scale, this is an indicative/intuitive (hopefully, at least attempt, or not (or etc)) display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible)). So for example maxwarrand 400 gandhi has a score of 0 (normalized) among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too anyways))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50 anyways))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is quite likely (very in fact), relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols etc anyways so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes (at least as of now me writing this doc README etc but anyways) and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute (aggregated or raw is same in this case functionally anyways, i.e. that read after bracket: ) they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders, hopefully for an easier read, as chatgpt (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :) but anyways (and thanks! but anyways)
++<img src="../Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG" alt="0.613_sevopedia_mods_info_legend (2).JPG" width="250"></img>
++
++- first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W on Fr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))
++- second column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.
++- third column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50))), so his scale is "" (0th percentile)). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read as chatgpt (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :)
+ 
+ ## Notes about performance optimization of the AI Personality panel caching
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 77088f9fa..8ba46cfc9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -302,22 +302,24 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry** : change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp).
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5483+) Also added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' corresponding legend. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+ - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. See [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog ("Enter caption") to add/remove text on the selected tile.
+-- Sevopedia — Concepts (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
++- Sevopedia — Concepts (`ConceptInfos`) (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
++- Sevopedia — Mods Infos (`NewConceptInfos`): Added **Mods Infos** (e.g. K-Mod, AdvCiv). (Requires AdvCiv-SAS 5483+) Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the AI Personality Panel). See also: [README.md (Legends)](/README.md#legends).
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context.
+ 
+ ### UI (In-game)
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor).
++- **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5478+) Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**.
+ - Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+ - Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons ((Requires AdvCiv-SAS 5480+) plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+-- Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
++- Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
++- (Requires AdvCiv-SAS 5483+) Added in the **Info Screen** (F9 key) a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - (Requires AdvCiv-SAS 5479+) Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index c2c312c3a..4e24356cd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -135,7 +135,7 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
+ 
+ Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
+ 
+-Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor) we added in AdvCiv-SAS.
++Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors) we added in AdvCiv-SAS.
+ 
+ #### example 0.5: Handicap Chart category
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG
+index 8fc27b129..fdb2c1827 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG
+index 780e22cef..8fc27b129 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG
+index aedd079c5..780e22cef 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG
+index 47ed91244..aedd079c5 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG
+index 5d8328e80..47ed91244 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG
+new file mode 100644
+index 000000000..d9ab2296c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG
+new file mode 100644
+index 000000000..1fc6cfa86
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG
+new file mode 100644
+index 000000000..edc460202
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index cd6417f11..4dc4ca545 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+index 1eed8eed6..4d774f573 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+index 8cb4d1761..1f4fad147 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=2 bytes=1693
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=21 omittedFiles=1 embeddedPatchBytes=97622

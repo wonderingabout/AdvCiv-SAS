@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3791
+# Commit: 91e1f2153a6e0adbbe6bfae88a9a0dae41f28b0b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a10547687b7b3b90cdc62adf8cbf74b5e572ac9f
+# Title: Some tweaks to camera behavior
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	Assets/Python/Screens/CvMainInterface.py
+29	0	Assets/XML/GlobalDefines_advc.xml
+4	0	CvGameCoreDLL/CvGlobals.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 1ab66889d..6beba41c0 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -757,13 +757,17 @@ class CvMainInterface:
+ 		# value computed for self.DEFAULT_FIELD_OF_VIEW in CvGlobals,
+ 		# overwriting the FIELD_OF_VIEW set through XML until the game is restarted.
+ 		# 42.0 originally (FIELD_OF_VIEW in GlobalDefines)
+-		self.DEFAULT_FIELD_OF_VIEW = 35.0
++		self.DEFAULT_FIELD_OF_VIEW = 37.0
+ 		#aspectFactor = pow((0.8 * self.xResolution) / self.yResolution, 0.72)
+ 		if ((not MainOpt.isRememberFieldOfView() and
+ 				not MainOpt.isShowFieldOfView()) or
+ 				int(MainOpt.getFieldOfView())) < 0:
+-		#	self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW, min(2 * self.DEFAULT_FIELD_OF_VIEW, (aspectFactor * self.xResolution) / max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
+-		# The above might be fine if resource bubbles scaled properly - but they don't.
++		#	self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW,
++		#			min(2 * self.DEFAULT_FIELD_OF_VIEW,
++		#			(aspectFactor * self.xResolution) /
++		#			max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
++			# Better to adjust only to the smaller aspect.
++			# Bigger screen also tends to mean that the player sits farther away.
+ 			if self.yResolution > 1024:
+ 				self.DEFAULT_FIELD_OF_VIEW = int(
+ 						(self.DEFAULT_FIELD_OF_VIEW * self.yResolution) / 1024)
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 03d40620d..2f03c9d02 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -411,6 +411,35 @@
+ 		<fDefineFloatVal>5400</fDefineFloatVal>
+ 	</Define>
+ 
++	<!-- advc.004m: -28.0 in BtS. For a slightly more top-down view at medium zoom
++		 (at the expense of a perhaps slightly less flat angle at close zoom
++		 than would be desirable). -->
++	<Define> <!-- redefine -->
++		<DefineName>CAMERA_LOWER_PITCH</DefineName>
++		<fDefineFloatVal>-30.0</fDefineFloatVal>
++	</Define>
++
++	<!-- advc.004m: (1800, 300) in BtS. Not sure what units those are,
++		 I guess they're on the same scale as PLOT_SIZE. -->
++	<Define> <!-- redefine -->
++		<DefineName>CAMERA_MAX_SCROLL_SPEED</DefineName>
++		<fDefineFloatVal>2800.0</fDefineFloatVal>
++	</Define>
++	<!-- Not increasing this much b/c I still want to be able to position
++		 the camera at a precise location, e.g. for taking a screenshot. -->
++	<Define> <!-- redefine -->
++		<DefineName>CAMERA_MIN_SCROLL_SPEED</DefineName>
++		<fDefineFloatVal>325.0</fDefineFloatVal>
++	</Define>
++
++	<!-- advc.004m: This replaces CAMERA_CITY_ZOOM_IN_DISTANCE, which now gets
++		 set to this base value and is then adjusted to the field of view value
++		 (which gets set fully dynamically, not based on FIELD_OF_VIEW). -->
++	<Define>
++		<DefineName>CAMERA_BASE_CITY_DISTANCE</DefineName>
++		<fDefineFloatVal>3500</fDefineFloatVal>
++	</Define>
++
+ 	<!-- advc.002j: Was 1.25 in BtS; just a tiny adjustment. -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>SINGLE_UNIT_GFX_EXTRA_SCALE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 0dd6ea124..28942da0d 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -738,6 +738,10 @@ void CvGlobals::cacheGlobalFloats(
+ 	if (fNewFoV != m_fFIELD_OF_VIEW)
+ 	{
+ 		m_fFIELD_OF_VIEW = fNewFoV;
++		// Adjust camera distance on city screen to FoV
++		float fCityCamDist = getDefineFLOAT("CAMERA_BASE_CITY_DISTANCE");
++		fCityCamDist *= std::sqrt(40 / fNewFoV);
++		setDefineFLOAT("CAMERA_CITY_ZOOM_IN_DISTANCE", fCityCamDist);
+ 		if (bAllowRecursion && IsGraphicsInitialized())
+ 		{
+ 			GC.getPythonCaller()->callScreenFunction("updateCameraStartDistance");
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3774

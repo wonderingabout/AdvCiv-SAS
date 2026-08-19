@@ -1,0 +1,606 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4556
+# Commit: 09f2b0dd17a8955486a3474e2953b9ac83cfe2c6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1ed73eaf640f07cb14ab3bc6268cda84a1ea2f0d
+# Title: update military tech tree or/and units or/and docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+11	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_building_imports_listing
+4	2	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+6	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+17	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+174	128	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_building_imports_listing
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 015798951..62bc5c82b 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_building_imports_listing b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_building_imports_listing
+new file mode 100644
+index 000000000..e6576eab5
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_building_imports_listing
+@@ -0,0 +1,11 @@
++(wonders are in wonder specific file)
++
++special buildings
++impluvium (kingdom of benin): adventurerer's guild ffh2
++
++
++religious buildings
++see realism invictus maybe, also ffh2 have unusual buildings i could use too maybe etc
++maybe only pagan buildingsor altars too?
++
++pagan temple: academy ffh2
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+index fbe7e98bd..7a8c5dfc6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+@@ -29,8 +29,10 @@ certain in this case i mean anyways)
+ 0.1) new civ see specific text file in new content folders:
+ 
+ 1) Kingdom of Benin (Nigeria)
+-2) Xiongnu Empire: https://en.wikipedia.org/wiki/List_of_ancient_great_powers#Xiongnu and https://en.wikipedia.org/wiki/Xiongnu , snow terrain, unused part of world, long history, rivalry with china, great wall of china built because of them, etc, very useful and connected to main things + desert not farm from them so maybe snow+desert civ etc , also https://www.nouvelobs.com/sciences/20230425.OBS72611/les-xiongnu-un-empire-multiethnique-en-mongolie-antique-ou-les-femmes-jouaient-un-role-crucial.html
+-3) Sarmatian Empire: many women give them valkyrie unit from FFH2 that i just discovered i mean anyways, plus geographical lcoation ideal spot still not used, for example https://www.reddit.com/r/history/comments/aordvx/comment/eg3u3l1/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button and https://en.wikipedia.org/wiki/Sarmatians
++2) Xiongnu Empire: https://en.wikipedia.org/wiki/List_of_ancient_great_powers#Xiongnu and https://en.wikipedia.org/wiki/Xiongnu , snow terrain, unused part of world, long history, rivalry with china, great wall of china built because of them, etc, very useful and connected to main things + desert not farm from them so maybe snow+desert civ etc , also https://www.nouvelobs.com/sciences/20230425.OBS72611/les-xiongnu-un-empire-multiethnique-en-mongolie-antique-ou-les-femmes-jouaient-un-role-crucial.html, give them them a horse lancer i think, see docs for details of units chosen etc
++3) Sarmatian Empire: many women give them flurry from FFH2, plus geographical location ideal spot still not used, for example https://www.reddit.com/r/history/comments/aordvx/comment/eg3u3l1/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button and https://en.wikipedia.org/wiki/Sarmatians
++3.5) iroquois
++3.6) inuits see my notes about this etc.
+ 4) Dahomey tribes (Benin but not Kingdom), interesting for rivalry or clear confusion or associated with kiongdom of benin by name even though unrelated unless i'm mistaken, give them the flurry from FFH2? But not right as in accurate skin color, indeed african people were black colored but flurry is white todo find better as in more suited unit or something else or other civ but maybe solution about this at least i mean anyways etc
+ 2) Canada:
+ 5) Nootka Civilization (west coast canada)? https://www.google.com/search?q=Nootka&rlz=1C1GCEA_enFR1111FR1111&sourceid=chrome&ie=UTF-8 as asdvised to me i mean guess intutition i mean anyways from nootka clubman of age of empires game etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+index a9879afae..d7a52177e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+@@ -222,3 +222,9 @@ time maybe. I am not sure but i think it is quite fine to put it here.
+ - Aesthetics originated from philosphy (ancient greece in particular it seems i mean anyways). Seems linked to theology (churches and their art), so could be linked there in particular.
+ 
+ - the world's oldest known calendar(s) should be around 10 000 BCE (scottish one)  and 8000 BCE approximately (Yoruba people, could use the Kingdom Of Benin for this tech and add an effect on it maybe).
++
++- stone age covers most of human history, range is 3.4 million BCE to 4000 BCE / 2000 BCE: https://en.wikipedia.org/wiki/Stone_Age
++- bronze age until 1200 BCE approximately https://en.wikipedia.org/wiki/Bronze_Age
++- iron age from 1200 BCE to 500 BCE: https://en.wikipedia.org/wiki/Iron_Age
++for the purposes of this game/mod extending it a bit to include a part of the classical era: https://en.wikipedia.org/wiki/Classical_antiquity , seems also to depend on parts of the world so probably fine, at least i want to do so i think etc: https://en.wikipedia.org/wiki/Iron_Age_Europe
++- medieval era, similarly starting it sooner
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 0179035d4..da846a1c8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -515,3 +515,20 @@ and considered it, but it is again about this i mean anyways, i mean anyways, th
+ - the worker is a very important and often used unit so i may go extra lengthy, about this i mean
+ anyways thanks, into making sure it gets as many graphical updates as possible, at least about this
+ i mean anyways, thanks,
++
++- grenadier throughout history, around 1500 AD according to wiki:
++https://en.wikipedia.org/wiki/Grenade#Gunpowder
++moved the grenadier to renaissance, added other units instead for more accuracy
++or realism or wanting other units there
++
++- i wanted to use the valkyrie from ffh2, but doesn't fit too well as a military unit, using it
++as the corporation (sword) todo executive, looks like saber, glad it/she could fit there
++
++- i like that the laser infantry fits the theme/reminds me of/replicates Empire Earth (1)'s foot infantry
++in the latest eras (which i liked a big lot)
++
++- could add medics like medevac helicopter (c2c) but may make gameplay too tedious, not sure, will
++see, or/and affect AI building units priorities
++
++- having religious units provides an extra incentive to build religious for players, especially
++humans players, may be good to put more emphasis on religion in this AdvCiv-SAS mod i think.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index af8f6e7b2..d4b804ab4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -10,13 +10,27 @@ eras:
+ 9 = robotic
+ 
+ _________________________________________________________________________
+-removed units:
++base units removed units:
+ pikeman (not useful about this i mean anyways, thanks)
+ chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+ swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
+ catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
+ 
+ 
++
++_________________________________________________________________________
++special units
++
++persia: immortal (foot) (hero) history rewritten
++samratihoran: flurry ffh2
++xiongnu: horseman (han) realism invictus rename to another unit name, maybe "Xiongnu horseman"?
++mongol: rename unit to keshig + give them the keshig (hero) of history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
++england: longbow welsh realism invictus?
++greece: hoplite? hero history rewritten
++france: chevalier (hero) history rewritten
++
++
++
+ _________________________________________________________________________
+ animals
+ lion -
+@@ -46,7 +60,8 @@ gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean an
+ 
+ 
+ 
+-workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it) : 
++workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it):
++find many workers in realism invictus for example (or c2c (but c2c's workers may have a different name or not etc) or/and other etc)
+ worker 1:
+ worker 2: -
+ worker 3: -
+@@ -72,9 +87,9 @@ work boat 5:
+ 
+ 
+ settlers (now that auto-upgrades i may want to add more unit designs, but not much functional benefit so todo maybe at few eras but much later in mod developement of AdvCiv-SAS about this i mean anyways, thanks)
++settler 1: -
+ -
+--
+--
++settler 3: immigrant c2c
+ -
+ -
+ -
+@@ -119,6 +134,8 @@ transport 7:
+ transport 8:
+ transport 9:
+ 
++
++
+ war boats
+ war boat 1: war canoe c2c
+ -
+@@ -131,53 +148,125 @@ war boat 8:
+ war boat 9:
+ 
+ 
++
+ ___________________________________________________________________________________________
+-camels:
++macemen
++maceman 1: -
++maceman 2: maceman c2c
++maceman 3: -
++maceman 4: battlemaster ffh2
+ 
+-camel archers
++
++
++
++axemen
++axeman 1: beastman ffh2
++axeman 2: heavy axeman c2c
++axeman 3: -
++axeman 4: lucian ffh2
+ -
+ -
+-camel archer 3: -
+-camel archer 4: late horse archer realism invictus
++
++
++
++lance units:
++
++lance light units
++lance light 1: stone spearman c2c
++lance light 2: javelineer c2c
++lance light 3: skirmisher c2c
++lance light 4: spearman frankish realism invictus 
++-
+ -
+ 
+-camel lancers
++
++
++lance medium units
++lance medium 1:
++lance medium 2: -
++lance medium 3: spearman c2c
++lance medium 4: spearman duguth realism invictus todo change icon/thumbnail/picture i mean anyways about this i mean anyways thanks (source: https://www.google.com/url?sa=i&url=https%3A%2F%2Fforums.civfanatics.com%2Fthreads%2Funit-between-spearman-and-pikeman.684531%2F&psig=AOvVaw1W6Yk7vCgpW9Kmr1Fna8Pk&ust=1743871585689000&source=images&cd=vfe&opi=89978449&ved=0CBcQjhxqFwoTCLDAipHqvowDFQAAAAAdAAAAABAE)
+ -
+ -
+-camel lancer 3: bactrian cataphract c2c
+-camel lancer 4: camel knight c2c
+ 
+ 
+-camel sword:
++lances heavy units
+ -
++lance heavy 2  phalanx -
++lance heavy 3: spearman wlocznik realism invictus
++lance heavy 4  phalanx from ffh2
+ -
+ -
+-camel sword 4: camel rider c2c
++
++
++
++short swords
+ -
++short sword 2: gladiator c2c
++short sword 3: swordsman alemannic realism invictus
++short sword 4: alazkan the assassin (ffh2)
+ 
+-camel crossbow:
+ 
+ 
++medium sword
++-
++medium sword 2: alfred the great (hero) c2c
++medium sword 3: eidolon ffh2
++medium sword 4: medieval swordsman hostes realism invictus
++-
++-
++
+ 
+-camel gun:
++longswords:
++-
+ -
+ -
++longsword 4: skuld ffh2
+ -
+ -
+-camel gun 5: (camel cuirassier) camel gunner from c2c
+-camel gun 6: camel cavalry: meharist from c2c
+ 
+ 
++_____________________________________________________________________________________________
++archers
+ 
+-elephants:
++short bows
++archer 1: stone thrower c2c
++archer 2: -
++archer 3: archer semitic realism invictus
++archer 4: marksman ffh2
+ -
++
++
++
++longbows
+ -
+-war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
+-war elephant 4: -
++longbow 2: -
++longbow 3: longbowman magyar realism invictus
++longbow 4: longbowman ghaznavid realism invictus
++-
++
++
++
++crossbows:
+ -
+ -
++crossbow 3: -
++crossbow 4: crossbow nordic realism invictus
++-
++
++
++____________________________________________________________________________________________
+ 
+ horse units:
++horse crossbows:
++-
++-
++horse crossbow 3: horse crossbowman c2c
++horse crossbow 4: strezelcy history rewritten
++-
++-
++
++
+ 
+ chariot archers
+ -
+@@ -198,13 +287,7 @@ horse archer 3: -
+ -
+ -
+ 
+-horse crossbows:
+--
+--
+-horse crossbow 3: horse crossbowman c2c
+-horse crossbow 4: strezelcy history rewritten
+--
+--
++
+ 
+ horse lancers:
+ -
+@@ -243,137 +326,85 @@ horse gun defenders:
+ -
+ -
+ horse gun defender 5: carabinier c2c
+-horse gun defender 6:
++horse gun defender 6: bandeirante (hero) _ Sheriff history rewritten
+ -
+ -
+ 
+ 
+ 
+ 
++camels:
++camel crossbows
+ 
+ 
+-____________________________________________________________________________________________
+-macemen
+-maceman 1: -
+-maceman 2: maceman c2c
+-maceman 3: -
+-maceman 4: battlemaster ffh2
+-
+ 
+ 
+-axemen
+-axeman 1: beastman ffh2
+-axeman 2: heavy axeman c2c
+-axeman 3: -
+-axeman 4: lucian ffh2
++camel archers
+ -
+ -
++camel archer 3: -
++camel archer 4: late horse archer realism invictus
++-
+ 
+ 
+ 
+-lance units:
+-
+-lance light units
+-lance light 1: stone spearman c2c
+-lance light 2: javelineer c2c
+-lance light 3: skirmisher c2c
+-lance light 4: spearman frankish realism invictus 
++camel lancers
+ -
+ -
++camel lancer 3: bactrian cataphract c2c
++camel lancer 4: camel knight c2c
+ 
+ 
+ 
+-lance medium units
+-lance medium 1:
+-lance medium 2: -
+-lance medium 3: spearman c2c
+-lance medium 4: spearman duguth realism invictus todo change icon/thumbnail/picture i mean anyways about this i mean anyways thanks (source: https://www.google.com/url?sa=i&url=https%3A%2F%2Fforums.civfanatics.com%2Fthreads%2Funit-between-spearman-and-pikeman.684531%2F&psig=AOvVaw1W6Yk7vCgpW9Kmr1Fna8Pk&ust=1743871585689000&source=images&cd=vfe&opi=89978449&ved=0CBcQjhxqFwoTCLDAipHqvowDFQAAAAAdAAAAABAE)
+--
+--
+ 
+-
+-lances heavy units
++camel swords:
+ -
+-lance heavy 2  phalanx -
+-lance heavy 3: spearman wlocznik realism invictus
+-lance heavy 4  phalanx from ffh2
+ -
+ -
++camel sword 4: camel rider c2c
++-
+ 
+ 
+-short swords
+--
+-short sword 2: gladiator c2c
+-short sword 3: swordsman alemannic realism invictus
+-short sword 4: alazkan the assassin (ffh2)
+ 
+ 
+-medium sword
+--
+-medium sword 2: alfred the great (hero) c2c
+-medium sword 3: eidolon ffh2
+-medium sword 4: medieval swordsman hostes realism invictus
+--
+--
+ 
+ 
+-longswords:
++
++
++camel gun offense:
+ -
+ -
+ -
+-longsword 4: skuld ffh2
+ -
++camel gun offense 5: camel cuirassier _ camel gunner from c2c
++camel gun offense 6: meharist _ camel cavalry c2c
+ -
+ 
+ 
+-_____________________________________________________________________________________________
+-archers
+-
+-short bows
+-archer 1: stone thrower c2c
+-archer 2: -
+-archer 3: archer semitic realism invictus
+-archer 4: marksman ffh2
++camel gun defense:
+ -
+-
+-
+-longbows
+ -
+-longbow 2: -
+-longbow 3: longbowman magyar realism invictus
+-longbow 4: longbowman ghaznavid realism invictus
+ -
+-
+-
+-crossbows:
+ -
++camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself but not guaranteed result etc
++camel gun defense 6:
+ -
+-crossbow 3: -
+-crossbow 4: crossbow nordic realism invictus
+ -
+ 
+ 
+-____________________________________________________________________________________________
+-assasin units:
+-spy of civ4 give it attack too? and early spy?
+-courtesan ffh2
+-assassin (arab i think unit or generic)
+-assassin ffh2
+-thief
+-burglar c2c
+-
+ 
+ 
+-spy units?
++elephants:
++-
++-
++war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
++war elephant 4: -
++-
+ -
+-lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
+-special agent c2c
+-
+-
+ 
+ 
++____________________________________________________________________________________________
+ 
+-___________________________________________________________________________________________
+ siege:
+ "soft" siege units i mean anyways, about this, and at least - at least, i mean anyways, thanks:
+ -
+@@ -413,7 +444,7 @@ gun offense 5: - (?)
+ gun offense 6:
+ gun offense 7:
+ gun offense 8:
+-gun offense 9: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
++gun offense 9: special infantry _ laser infantry c2c
+ 
+ 
+ gun defense units
+@@ -423,9 +454,9 @@ gun defense units
+ -
+ gun defense 5:
+ gun defense 6:
+-gun defense 7:
+-gun defense 8:
+-gun defense 9: super soldier c2c
++gun defense 7: blauwe garde (hero) _ gunner garde history rewritten
++gun defense 8: viet cong (hero) ? _ liberator (?) history rewritten
++gun defense 9: super soldier _ laser guard c2c
+ 
+ 
+ gun support units
+@@ -439,15 +470,17 @@ gun defense 7:
+ gun defense 8:
+ gun defense 9:
+ 
++
++
+ ___________________________________________________________________________________________
+ religious units :
+ 
+ early religion military
+-paganism:
+-hinduism:
+-judaism:
+-buddhism: monk
+-daoism:
++paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
++hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
++judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken
++buddhism: monk _ monk ffh2
++daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
+ christianism: crusader
+ islam: mujahid (ansar) realism invictus
+ 
+@@ -455,17 +488,18 @@ islam: mujahid (ansar) realism invictus
+ 
+ 
+ neo religion military
+-paganism:
+-hinduism:
+-judaism:
++paganism: gibbon goetia (hero) _ heretic ffh2
++hinduism: cassay (hero) - hindu cavalry history rewritten
++judaism: ? _ zionist colon/infantry
+ buddhism: 
+ daoism:
+ christianism:
+-islam:
++islam: ? _ terrorist / jihadist
+ 
+ 
+ 
+-religious missionairess
++
++religious missionairess (keep as is? but history rewritten or/and other have nice ones, etc)
+ paganism:
+ hinduism:
+ judaism:
+@@ -482,20 +516,32 @@ corporations todo
+ coropration mace: cartwright c2c
+ corporation axe: adventurer ffh2
+ corporation lance: rogue c2c
+-corporation sword: valkyrie ffh2 (looks like saber so nice i could use it here i mean anyways, thanks, todo ; also too unlikel to be used as military unit graphically, but glad i found another use for it todo, is about this i mean anywyas, at least but i focus and should i mean anyways, so and and is really about this at least.. i mean anyways but focus i mean anyways and maybe is just about this, but anyways i mean anywyas as is or not or yes or etc maybe yes or not anywyas as is etc i mean anyways, thanks, to not mislead or other i mean anyways, is this what this person meant idk or not but anyways, todo delete this comment too before merging pr, but still is as is i mean anywyas, thanks, among other possible meaning or not but anyways still is as is and i should focus or not or yes etc i mean anyways, thanks, )
++corporation sword: valkyrie ffh2
+ corporation archer: firebow ffh2
+ corporation assasin: adept ffh2
+ corporation gun:
+ 
+ todo
+ 
+-___________________________________________________________________________________________
+-special units
+ 
+-persia: immortal (foot) history rewritten
+-samratian or their western neighbour or other: bactrian c2c or some other unit if bactrian horse lance(r) is used i mean anyways, thanks,
+-xiongnu or their neighbour: flurry ffh2
+-englant: longbow welsh realism invictus?
+ 
++____________________________________________________________________________________________
++assasin units: (maybe not do? Gameplay too untidy with this maybe? Etc)
++spy of civ4 give it attack too? and early spy?
++assassin (arab i think unit or generic)
++assassin ffh2
++thief
++burglar c2c
++courtesan ffh2
++
++
++spy units?
++-
++lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
++special agent c2c
++
++
++
++____________________________________________________________________________________________
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=20150

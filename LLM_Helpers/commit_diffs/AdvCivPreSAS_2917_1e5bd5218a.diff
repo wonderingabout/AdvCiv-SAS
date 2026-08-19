@@ -1,0 +1,307 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2917
+# Commit: 1e5bd5218ab2a1059b6f80568116987c1256506d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 03a789c042a37aaba23913d425c929cb68d9840c
+# Title: Some line break changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.cpp
+31	18	CvGameCoreDLL/CvPlayerAI.cpp
+4	7	CvGameCoreDLL/CvSelectionGroup.cpp
+24	11	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ee786beeb..8ade5e906 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5923,7 +5923,7 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
+ 
+ 
+ int CvPlayer::calculateUnitCost(
+-		int iExtraPop, int iExtraUnits) const // advc.004b
++	int iExtraPop, int iExtraUnits) const // advc.004b
+ {
+ 	if(isAnarchy())
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f11941550..0b102e5c9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1214,8 +1214,7 @@ int CvPlayerAI::AI_movementPriority(
+ 		}
+ 		return iPriority;
+ 	}
+-	/* old code
+-	if (pHeadUnit->canFight()) {
++	/*if (pHeadUnit->canFight()) {
+ 		if (pHeadUnit->withdrawalProbability() > 20)
+ 			return 9;
+ 		if (pHeadUnit->withdrawalProbability() > 0)
+@@ -1239,7 +1238,7 @@ int CvPlayerAI::AI_movementPriority(
+ 		else if (iCurrCombat > (iBestCombat * 1) / 5)
+ 			return 15;
+ 		else return 16;
+-	}*/
++	}*/ // BtS
+ 	return 200;
+ }
+ 
+@@ -1260,8 +1259,9 @@ void CvPlayerAI::AI_unitUpdate()
+ 
+ 			if (pLoopSelectionGroup->AI_isForceSeparate())
+ 			{
+-				// do not split groups that are in the midst of attacking
+-				if (pLoopSelectionGroup->isForceUpdate() || !pLoopSelectionGroup->AI_isGroupAttack())
++				if (pLoopSelectionGroup->isForceUpdate() ||
++					// do not split groups that are in the midst of attacking
++					!pLoopSelectionGroup->AI_isGroupAttack())
+ 				{
+ 					pLoopSelectionGroup->AI_separate();	// pointers could become invalid...
+ 				}
+@@ -1322,7 +1322,8 @@ void CvPlayerAI::AI_unitUpdate()
+ 				pCurrUnitNode = headGroupCycleNode();
+ 				while (pCurrUnitNode != NULL)
+ 				{
+-					CvSelectionGroupAI* pLoopSelectionGroup = AI_getSelectionGroup(pCurrUnitNode->m_data);
++					CvSelectionGroupAI* pLoopSelectionGroup = AI_getSelectionGroup(
++							pCurrUnitNode->m_data);
+ 					int iPriority = AI_movementPriority(*pLoopSelectionGroup);
+ 					groupList.push_back(std::make_pair(iPriority, pCurrUnitNode->m_data));
+ 
+@@ -1333,12 +1334,19 @@ void CvPlayerAI::AI_unitUpdate()
+ 				std::sort(groupList.begin(), groupList.end());
+ 				for (size_t i = 0; i < groupList.size(); i++)
+ 				{
+-					CvSelectionGroupAI* pLoopSelectionGroup = AI_getSelectionGroup(groupList[i].second);
+-					// I think it's probably a good idea to activate automissions here, so that the move priority is respected even for commands issued on the previous turn.
+-					// (This will allow reserve units to guard workers that have already moved, rather than trying to guard workers who are about to move to a different plot.)
+-					if (pLoopSelectionGroup && !pLoopSelectionGroup->autoMission())
++					CvSelectionGroupAI* pLoopSelectionGroup = AI_getSelectionGroup(
++							groupList[i].second);
++					/*	I think it's probably a good idea to activate automissions here,
++						so that the move priority is respected even for commands
++						issued on the previous turn. (This will allow reserve units to
++						guard workers that have already moved, rather than trying to
++						guard workers who are about to move to a different plot.) */
++					if (pLoopSelectionGroup != NULL &&
++						!pLoopSelectionGroup->autoMission())
+ 					{
+-						if (pLoopSelectionGroup->isBusy() || pLoopSelectionGroup->isCargoBusy() || pLoopSelectionGroup->AI_update())
++						if (pLoopSelectionGroup->isBusy() ||
++							pLoopSelectionGroup->isCargoBusy() ||
++							pLoopSelectionGroup->AI_update())
+ 						{
+ 							bRepeat = false;
+ 							break;
+@@ -1346,14 +1354,19 @@ void CvPlayerAI::AI_unitUpdate()
+ 					}
+ 				}
+ 
+-				// one last trick that might save us a bit of time...
+-				// if the number of selection groups has increased, then lets try to take care of the new groups right away.
+-				// (there might be a faster way to look for the new groups, but I don't know it.)
++				/*	one last trick that might save us a bit of time...
++					if the number of selection groups has increased,
++					then lets try to take care of the new groups right away.
++					(there might be a faster way to look for the new groups,
++					but I don't know it.) */
+ 				bRepeat = bRepeat && m_groupCycle.getLength() > (int)groupList.size();
+-				// the repeat will do a stack of redundant checks,
+-				// but I still expect it to be much faster than waiting for the next turnslice.
+-				// Note: I use m_groupCycle rather than getNumSelectionGroups just in case there is a bug which causes the two to be out of sync.
+-				// (otherwise, if getNumSelectionGroups is bigger, it could cause an infinite loop.)
++				/*	the repeat will do a stack of redundant checks,
++					but I still expect it to be much faster
++					than waiting for the next turnslice.
++					Note: I use m_groupCycle rather than getNumSelectionGroups
++					just in case there is a bug which causes the two to be out of sync.
++					(otherwise, if getNumSelectionGroups is bigger,
++					it could cause an infinite loop.) */
+ 			} while (bRepeat);
+ 			// K-Mod end
+ 		}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 1d480caaa..cf47aa018 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3322,9 +3322,7 @@ bool CvSelectionGroup::readyToAuto() /* advc: */ const
+ 	executing a particular mission - including an optional movement points check.
+ 	CvSelectionGroup::readyForMission, which basically just calls canDoMission
+ 	for the current mission, as direct replacement for the canAllMove condition.
+-	(canStartMission now calls canDoMission.)
+-	(K-Mod note: I'd make this function const, but it would conflict with some dllexport functions)
+-	^advc: I guess canAllMove was the problem; fixed. */
++	(canStartMission now calls canDoMission.) */
+ bool CvSelectionGroup::readyForMission() const
+ {
+ 	if (headMissionQueueNode() == NULL)
+@@ -3350,7 +3348,7 @@ bool CvSelectionGroup::readyForMission() const
+ 
+ 
+ bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2,
+-	CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const // advc: const CvPlot*
++	CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
+ {
+ 	if (pPlot == NULL)
+ 		pPlot = plot();
+@@ -3921,14 +3919,13 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
+ 		pathFinder().Reset();*/
+ 	kPathFinder.setGroup(*this, eFlags, iMaxPath);
+ 	bool bSuccess = kPathFinder.generatePath(kFrom, kTo);
+-	/* test. (K-Mod)
+-	if (!bUseTempFinder && bSuccess != gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), false, eFlags, bReuse)) {
++	/*if (!bUseTempFinder && bSuccess != gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), false, eFlags, bReuse)) {
+ 		pNode = gDLL->getFAStarIFace()->GetLastNode(&GC.getPathFinder());
+ 		if (bSuccess || iMaxPath < 0 || !pNode || pNode->m_iData2 <= iMaxPath) {
+ 			//::MessageBoxA(NULL,"pathfind mismatch","CvGameCore",MB_OK);
+ 			FAssert(false);
+ 		}
+-	}*/
++	}*/ // test (K-Mod)
+ 
+ 	if (piPathTurns != NULL)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index b510374a5..1de61eff9 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -125,8 +125,10 @@ bool CvSelectionGroupAI::AI_update()
+ 
+ 	// K-Mod. (replacing the original "isForceUpdate" stuff.)
+ 	if (isForceUpdate())
+-		AI_cancelGroupAttack(); // note: we haven't toggled the update flag, nor woken the group from sleep.
+-	// K-Mod end
++	{
++		// note: we haven't toggled the update flag, nor woken the group from sleep.
++		AI_cancelGroupAttack();
++	} // K-Mod end
+ 
+ 	//FAssert(!(GET_PLAYER(getOwner()).isAutoMoves())); // (no longer true in K-Mod)
+ 
+@@ -141,7 +143,8 @@ bool CvSelectionGroupAI::AI_update()
+ 	//while ((m_bGroupAttack && !bFailedAlreadyFighting) || readyToMove())
+ 	while ((AI_isGroupAttack() && !isBusy()) || readyToMove()) // K-Mod
+ 	{
+-		setForceUpdate(false); // K-Mod. Force update just means we should get into this loop at least once.
++		// K-Mod. Force update just means we should get into this loop at least once.
++		setForceUpdate(false);
+ 		iAttempts++;
+ 		/*  <advc.001y> Moved out of the block below so I can see what the loop does
+ 			before it terminates. Debugger stops in CvSelectionGroup::pushMission and
+@@ -163,7 +166,8 @@ bool CvSelectionGroupAI::AI_update()
+ 		if (AI_isGroupAttack())
+ 		{
+ 			AI_cancelGroupAttack();
+-			groupAttack(m_iGroupAttackX, m_iGroupAttackY, MOVE_DIRECT_ATTACK, bFailedAlreadyFighting);
++			groupAttack(m_iGroupAttackX, m_iGroupAttackY,
++					MOVE_DIRECT_ATTACK, bFailedAlreadyFighting);
+ 		}
+ 		// else pick AI action
+ 		else
+@@ -187,7 +191,8 @@ bool CvSelectionGroupAI::AI_update()
+ 			break;
+ 		}
+ 
+-		// if no longer group attacking, and force separate is true, then bail, decide what to do after group is split up
++		/*	if no longer group attacking, and force separate is true,
++			then bail, decide what to do after group is split up */
+ 		// (UnitAI of head unit may have changed)
+ 		if (!AI_isGroupAttack() && AI_isForceSeparate())
+ 		{
+@@ -277,9 +282,11 @@ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy)
+ 	FAssert(getOwner() != NO_PLAYER);
+ 	//if (pPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, !bPotentialEnemy, bPotentialEnemy) == NULL)
+ 	// BETTER_BTS_AI_MOD, Efficiency, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+-	if (!pPlot->hasDefender(false, NO_PLAYER, getOwner(), NULL, !bPotentialEnemy, bPotentialEnemy))
++	if (!pPlot->hasDefender(false, NO_PLAYER, getOwner(),
++		NULL, !bPotentialEnemy, bPotentialEnemy))
++	{
+ 		return 100;
+-
++	}
+ 	int iOdds=-1; // (advc: Was 0. Shouldn't matter.)
+ 	CvUnit* pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
+ 	if (pAttacker == NULL)
+@@ -463,8 +470,11 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
+ 			else
+ 			{
+ 				bCanAttack = pLoopUnit->canAttack();
+-				if (bCanAttack && bNoBlitz && pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
++				if (bCanAttack && bNoBlitz && pLoopUnit->isBlitz() &&
++					pLoopUnit->isMadeAttack())
++				{
+ 					bCanAttack = false;
++				}
+ 			}
+ 			if (bCanAttack)
+ 			{
+@@ -477,7 +487,8 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
+ 						   production cost; changed to >= 0. */
+ 						FAssert(iValue >= 0);
+ 
+-						// we want to pick the last unit of highest value, so pick the last unit with a good value
++						/*	we want to pick the last unit of highest value,
++							so pick the last unit with a good value */
+ 						//if (iValue >= iBestValue)
+ 						// advc.048: As in AI_getBestGroupAttacker
+ 						if (iValue > iBestValue || (!bHuman && iValue == iBestValue))
+@@ -502,7 +513,8 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
+ 	FAssert(pPlot != NULL);
+ 
+ 	DomainTypes eDomainType = getDomainType();
+-	// if not aircraft, then choose based on the plot, not the head unit (mainly for transport carried units)
++	/*	if not aircraft, then choose based on the plot,
++		not the head unit (mainly for transport carried units) */
+ 	if (eDomainType != DOMAIN_AIR)
+ 	{
+ 		if (pPlot->isWater())
+@@ -797,7 +809,8 @@ void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
+ }
+ 
+ 
+-bool CvSelectionGroupAI::AI_isDeclareWar(CvPlot const& kPlot) const // advc: const; param no longer optional.
++bool CvSelectionGroupAI::AI_isDeclareWar(
++	CvPlot const& kPlot) const // advc: param no longer optional
+ {
+ 	FAssert(getHeadUnit() != NULL);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1a3bd62bc..81a106487 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -64,7 +64,7 @@ bool CvUnitAI::AI_update()
+ 	if (GC.getPythonCaller()->AI_update(*this))
+ 		return false;
+ 	// <advc.128>
+-	m_iSearchRangeRandPercent = GC.getGame().getSorenRandNum(101, "advc.128",
++	m_iSearchRangeRandPercent = GC.getGame().getSorenRandNum(101, "SearchRangeRand",
+ 			getX() * 1000 + getY(), getID()); // </advc.128>
+ 	if (getDomainType() == DOMAIN_LAND)
+ 	{
+@@ -430,7 +430,6 @@ bool CvUnitAI::AI_follow(bool bFirst)
+ 			return true;
+ 		}
+ 	}
+-	//
+ 
+ 	if (isEnemy(getPlot()))
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=12335

@@ -1,0 +1,523 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1889
+# Commit: a0501aff25ecbc75cc402b3523b932880eb536e2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 012ccebf1185a389c4ef6819c8fb1ac9f76990cd
+# Title: Hover text for tiles that cannot be entered
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	2	Assets/XML/GlobalDefines_advc.xml
+40	12	Assets/XML/Text/CIV4GameText_advc.xml
+138	80	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGameTextMgr.h
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index bea7e7796..663dd5e99 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -151,8 +151,8 @@
+ 		 Changing the factor will increase or decrease foreign culture strength
+ 		 over the entire game; the exponent affects especially the late game. -->
+ 	<Define>
+-        <DefineName>FOREIGN_CULTURE_STRENGTH_EXPONENT</DefineName>
+-        <iDefineIntVal>135</iDefineIntVal>
++		<DefineName>FOREIGN_CULTURE_STRENGTH_EXPONENT</DefineName>
++		<iDefineIntVal>135</iDefineIntVal>
+     </Define>
+ 	<Define>
+ 		<DefineName>FOREIGN_CULTURE_STRENGTH_FACTOR</DefineName>
+@@ -1141,4 +1141,14 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.057: When hovering for movement, help text shows a missing
++		 tech requirement for entering the terrain if the Tech's era minus
++		 the player's current era is at most SHOW_IMPASSABLE_TECH_ERA_
++		 DIFFERENCE. Recommended: 1, so that, when a Work Boat tries to enter
++		 Ocean the Astronomy requirement is shown by the Medieval era. -->
++	<Define>
++		<DefineName>SHOW_IMPASSABLE_TECH_ERA_DIFFERENCE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index c7d3a4c02..677e08bc2 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -126,18 +126,18 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_REVOLT_PR_BREAKDOWN</Tag>
+ 		<English>=[TAB]((%d2 culture pressure[NEWLINE][TAB]- %d1 garrison strength)[NEWLINE][TAB]/ %d3) * %d4%% base chance</English>
+-		<French>=[TAB]((%d2 pressure [ICON_CULTURE][NEWLINE][TAB]- %d1 garrison [ICON_STRENGTH])[NEWLINE][TAB]/ %d3) * %d4%% base chance</French>
++		<French>=[TAB]((%d2 pression culturelle[NEWLINE][TAB]- %d1 force de garnison)[NEWLINE][TAB]/ %d3) * %d4%% base chance</French>
+ 		<German>=[TAB]((%d2 Kulturdruck[NEWLINE][TAB]- %d1 Garnisonsst�rke)[NEWLINE][TAB]/ %d3) * %d4%% Basischance</German>
+-		<Italian>=[TAB]((%d2 pressure [ICON_CULTURE][NEWLINE][TAB]- %d1 garrison [ICON_STRENGTH]h)[NEWLINE][TAB]/ %d3) * %d4%% base chance</Italian>
+-		<Spanish>=[TAB]((%d2 pressure [ICON_CULTURE][NEWLINE][TAB]- %d1 garrison [ICON_STRENGTH])[NEWLINE][TAB]/ %d3) * %d4%% base chance</Spanish>
++		<Italian>=[TAB]((%d2 pressione culturale[NEWLINE][TAB]- %d1 forza della guarnigione)[NEWLINE][TAB]/ %d3) * %d4%% base chance</Italian>
++		<Spanish>=[TAB]((%d2 pr�sion cultural[NEWLINE][TAB]- %d1 fuerza de guarnici�n)[NEWLINE][TAB]/ %d3) * %d4%% base chance</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GARRISON_STRENGTH_NEEDED</Tag>
+ 		<English>Need %D1 garrison [ICON_STRENGTH] to suppress</English>
+-		<French>Need %D1 garrison [ICON_STRENGTH] to suppress</French>
++		<French>Besoin de %D1 [ICON_STRENGTH] de garnison pour r�pression</French>
+ 		<German>Unterdr�ckung erfordert %D1 Garnisons-[ICON_STRENGTH]</German>
+-		<Italian>Need %D1 garrison [ICON_STRENGTH] to suppress</Italian>
+-		<Spanish>Need %D1 garrison [ICON_STRENGTH] to suppress</Spanish>
++		<Italian>Serve %D1 [ICON_STRENGTH] guarnigione per soppressione</Italian>
++		<Spanish>Necesita %D1 [ICON_STRENGTH] de guarnici�n por supresi�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GARRISON_STRENGTH_NEEDED_SHORT</Tag>
+@@ -150,18 +150,18 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GARRISON_STRENGTH_EXCESS</Tag>
+ 		<English>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</English>
+-		<French>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</French>
++		<French>Peut se r�volter si &gt; %d1 [ICON_STRENGTH] de garnison sont d�plac�es</French>
+ 		<German>Revolte m�gl. bei Abzug von &gt; %d1 Garnisons-[ICON_STRENGTH]</German>
+-		<Italian>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</Italian>
+-		<Spanish>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</Spanish>
++		<Italian>Pu� rivoltarsi se &gt; %d1 [ICON_STRENGTH] guarnigione sono trasferite</Italian>
++		<Spanish>Puede rebelarse si &gt; %d1 [ICON_STRENGTH] de guarnici�n son retiradas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GARRISON_STRENGTH_EXCESS_SHORT</Tag>
+ 		<English>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</English>
+-		<French>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</French>
++		<French>Ville peut se r�volter si &gt; %d1[ICON_STRENGTH] sont d�plac�es</French>
+ 		<German>Revolte m�gl. bei Abzug von &gt; %d1[ICON_STRENGTH]</German>
+-		<Italian>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</Italian>
+-		<Spanish>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</Spanish>
++		<Italian>Citt� pu� rivoltarsi se &gt; %d1[ICON_STRENGTH] sono trasferite</Italian>
++		<Spanish>Ciudad puede rebelarse si &gt; %d1[ICON_STRENGTH] son retiradas</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.101: Originally in CIV4GameTextInfos.xml. Adding the
+@@ -5982,4 +5982,32 @@
+ 		<Spanish>Esta orden le dir&#225; a la unidad que ataque a los barcos enemigos que intenten saquear las casillas adyacentes.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.057 -->
++	<TEXT>
++		<Tag>TXT_KEY_REQUIRES_TECH_TO_ENTER</Tag>
++		<English>Requires [COLOR_WARNING_TEXT]%s1_Tech[COLOR_REVERT] or ownership to enter</English>
++		<French>Requiert [COLOR_WARNING_TEXT]%s1_Tech[COLOR_REVERT] ou propri�t� pour entrer</French>
++		<German>Erfordert [COLOR_WARNING_TEXT]%s1_Tech[COLOR_REVERT] zum Betreten (au�er Besitzer)</German>
++		<Italian>Richiede [COLOR_WARNING_TEXT]%s1_Tech[COLOR_REVERT] o propriet� per entrare</Italian>
++		<Spanish>Requiere [COLOR_WARNING_TEXT]%s1_Tech[COLOR_REVERT] o propiedad por entrar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REQUIRES_OWNERSHIP_TO_ENTER</Tag>
++		<English>Requires tile ownership to enter</English>
++		<French>Il faut poss�der le case pour entrer</French>
++		<German>Betreten nur bei Besitz des Gel�ndefeldes</German>
++		<Italian>Bisogna possedere la casella per entrarla</Italian>
++		<Spanish>Necesitas tener la casilla para entrar</Spanish>
++	</TEXT>
++
++	<!-- advc.089: Based on TXT_KEY_UNIT_COMBAT_LIMIT (CIV4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_DAMAGE_LIMIT_REACHED</Tag>
++		<English>[COLOR_WARNING_TEXT]Maximally Damaged (%d1%%)[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXTD&#233;g&#226;ts maximums (%d1%%) inflig&#233;s[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Maximalschaden(%d1%%) erreicht[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Danno massimo (%d1%%) inflitto[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]M�ximo da&#241;o (%d1%%) infligido[COLOR_REVERT]</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index be5341139..2e71e1acc 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2691,7 +2691,7 @@ static float getCombatOddsSpecific(CvUnit* pAttacker, CvUnit* pDefender, int n_A
+ // Returns true if help was given...
+ // K-Mod note: this function can change the center unit on the plot. (because of a change I made)
+ // Also, I've made some unmarked structural changes to this function, to make it easier to read and to fix a few minor bugs.
+-bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
++bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ {
+ 	PROFILE_FUNC();
+ 	// ADVANCED COMBAT ODDS v2.0, 3/11/09, PieceOfMind: START
+@@ -2730,7 +2730,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		break;
+ 
+ 	case DOMAIN_LAND:
+-		bValid = !(pPlot->isWater());
++		bValid = !pPlot->isWater();
+ 		break;
+ 
+ 	case DOMAIN_IMMOBILE:
+@@ -2756,7 +2756,17 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	if (pAttacker == NULL)
+ 		return false;
+ 
+-	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker, !GC.altKey());
++	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(),
++			pAttacker, !GC.altKey());
++	// <advc.089>
++	if (pDefender == NULL)
++	{
++		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker,
++				!GC.altKey(), false, false, false);
++		if (pDefender != NULL)
++			setCannotAttackHelp(szString, *pAttacker, *pDefender);
++		return false;
++	} // </advc.089>
+ 	if (pDefender == NULL || !pDefender->canDefend(pPlot) || !pAttacker->canAttack(*pDefender))
+ 		return false;
+ 
+@@ -4349,8 +4359,36 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 	return true;
+ }
+ 
+-// DO NOT REMOVE - needed for font testing - Moose
+-void createTestFontString(CvWStringBuffer& szString)
++
++/*	advc.089: Help text for the conditions checked by CvUnit::canAttack.
++	Only damage limit so far. */
++void CvGameTextMgr::setCannotAttackHelp(CvWStringBuffer& szHelp,
++	CvUnit const& kAttacker, CvUnit const& kDefender)
++{
++	// List the units upfront (can't attack any of these)
++	setPlotListHelp(szHelp, *kDefender.plot(), true, true);
++	int iLimit = std::max(kAttacker.combatLimit(), kAttacker.airCombatLimit());
++	if (kDefender.getDamage() < iLimit)
++	{
++		if (!kDefender.canFight() && kAttacker.combatLimit() < 100 &&
++			kDefender.plot()->plotCheck(PUF_isEnemy, kAttacker.getOwner(), false,
++			NO_PLAYER, NO_TEAM, PUF_canDefend))
++		{
++			iLimit = kAttacker.combatLimit();
++		}
++		else return;
++	}
++	if (kDefender.getDamage() >= iLimit)
++	{
++		if (!szHelp.isEmpty())
++			szHelp.append(NEWLINE);
++		szHelp.append(gDLL->getText("TXT_KEY_DAMAGE_LIMIT_REACHED", iLimit));
++	}
++}
++
++
++/*namespace { // advc: unused
++void createTestFontString(CvWStringBuffer& szString) // for font testing - Moose
+ {
+ 	int iI;
+ 	szString.assign(L"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[�]^_`abcdefghijklmnopqrstuvwxyz\n");
+@@ -4377,7 +4415,7 @@ void createTestFontString(CvWStringBuffer& szString)
+ 		szString.append(CvWString::format(L"%c", GC.getInfo((BonusTypes) iI).getChar()));
+ 	for (iI=0; iI<MAX_NUM_SYMBOLS; ++iI)
+ 		szString.append(CvWString::format(L"%c", gDLL->getSymbolID(iI)));
+-}
++} }*/
+ 
+ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ {
+@@ -20325,22 +20363,21 @@ void CvGameTextMgr::getGlobeLayerName(GlobeLayerTypes eType, int iOption, CvWStr
+ 	}
+ }
+ 
+-void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp)
++void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot,
++	bool bAlt, CvWStringBuffer& strHelp)  // advc: some style changes
+ {
+-	if (gDLL->getInterfaceIFace()->isCityScreenUp())
++	TeamTypes const eActiveTeam = GC.getGame().getActiveTeam();
++	CvDLLInterfaceIFaceBase& kInterface = *gDLL->getInterfaceIFace();
++	if (kInterface.isCityScreenUp())
+ 	{
+ 		if (pMouseOverPlot != NULL)
+ 		{
+-			CvCity* pHeadSelectedCity = gDLL->getInterfaceIFace()->getHeadSelectedCity();
+-			if (pHeadSelectedCity != NULL)
++			CvCity* pHeadSelectedCity = kInterface.getHeadSelectedCity();
++			if (pHeadSelectedCity != NULL &&
++				pMouseOverPlot->getWorkingCity() == pHeadSelectedCity &&
++				pMouseOverPlot->isRevealed(eActiveTeam, true))
+ 			{
+-				if (pMouseOverPlot->getWorkingCity() == pHeadSelectedCity)
+-				{
+-					if (pMouseOverPlot->isRevealed(GC.getGame().getActiveTeam(), true))
+-					{
+-						setPlotHelp(strHelp, pMouseOverPlot);
+-					}
+-				}
++				setPlotHelp(strHelp, pMouseOverPlot);
+ 			}
+ 		}
+ 	}
+@@ -20351,47 +20388,82 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* p
+ 		else if (pFlagPlot != NULL)
+ 			setPlotListHelp(strHelp, *pFlagPlot, false, true);
+ 
+-		if (strHelp.isEmpty())
++		if (strHelp.isEmpty() && pMouseOverPlot != NULL)
+ 		{
+-			if (pMouseOverPlot != NULL)
++			if (pMouseOverPlot == kInterface.getGotoPlot() ||
++				(bAlt && //gDLL->getChtLvl() == 0)) // K-Mod. (Alt does something else in cheat mode)
++				!GC.getGame().isDebugMode())) // advc.135c
+ 			{
+-				//if ((pMouseOverPlot == gDLL->getInterfaceIFace()->getGotoPlot()) || bAlt)
+-				if (pMouseOverPlot == gDLL->getInterfaceIFace()->getGotoPlot() ||
+-					(bAlt && //gDLL->getChtLvl() == 0)) // K-Mod. (alt does something else in cheat mode)
+-					!GC.getGame().isDebugMode())) // advc.135c
+-				{
+-					if (pMouseOverPlot->isActiveVisible(true))
+-					{
+-						setCombatPlotHelp(strHelp, pMouseOverPlot);
+-					}
+-				}
++				if (pMouseOverPlot->isActiveVisible(true))
++					setCombatPlotHelp(strHelp, pMouseOverPlot);
++			}
++		}
++		if (strHelp.isEmpty() && pMouseOverPlot != NULL &&
++			pMouseOverPlot->isRevealed(eActiveTeam, true))
++		{
++			if (pMouseOverPlot->isActiveVisible(true))
++			{
++				setPlotListHelp(strHelp, *pMouseOverPlot, true, false);
++				if (!strHelp.isEmpty())
++					strHelp.append(NEWLINE);
+ 			}
++			setPlotHelp(strHelp, pMouseOverPlot);
+ 		}
+ 
+-		if (strHelp.isEmpty())
++		InterfaceModeTypes eInterfaceMode = kInterface.getInterfaceMode();
++		// <advc.057>
++		if (eInterfaceMode == INTERFACEMODE_GO_TO || (pMouseOverPlot != NULL &&
++			pMouseOverPlot == kInterface.getGotoPlot()))
+ 		{
+-			if (pMouseOverPlot != NULL)
++			CvUnit const* pSelectedUnit = kInterface.getHeadSelectedUnit();
++			if (!bAlt && pSelectedUnit != NULL && pMouseOverPlot->isRevealed(eActiveTeam) &&
++				pMouseOverPlot->getTeam() != eActiveTeam)
+ 			{
+-				if (pMouseOverPlot->isRevealed(GC.getGame().getActiveTeam(), true))
++				TerrainTypes const eTerrain = pMouseOverPlot->getTerrainType();
++				// Check if any selected unit is unable to enter eTerrain
++				bool bCanAllEnter = true;
++				CvPlot const& kUnitPlot = *pSelectedUnit->plot();
++				for (CLLNode<IDInfo> const* pNode = kUnitPlot.headUnitNode(); pNode != NULL;
++					pNode = kUnitPlot.nextUnitNode(pNode))
+ 				{
+-					if (pMouseOverPlot->isActiveVisible(true))
++					CvUnit const& kUnit = *::getUnit(pNode->m_data);
++					if (!kUnit.IsSelected())
++						continue;
++					CvUnitInfo const& kUnitInfo = kUnit.getUnitInfo();
++					if (pMouseOverPlot->isImpassable() && !kUnitInfo.isCanMoveImpassable())
++						continue;
++					if (!kUnitInfo.getTerrainImpassable(eTerrain))
++						continue;
++					bCanAllEnter = false;
++					TechTypes eReqTech = (TechTypes)kUnitInfo.getTerrainPassableTech(eTerrain);
++					if (eReqTech != NO_TECH && !GET_TEAM(eActiveTeam).isHasTech(eReqTech) &&
++						GC.getInfo(eReqTech).getEra() -
++						GET_PLAYER(pSelectedUnit->getOwner()).getCurrentEra() <=
++						GC.getDefineINT("SHOW_IMPASSABLE_TECH_ERA_DIFFERENCE"))
+ 					{
+-						setPlotListHelp(strHelp, *pMouseOverPlot, true, false);
+ 						if (!strHelp.isEmpty())
+-							strHelp.append(L"\n");
++							strHelp.append(NEWLINE);
++						strHelp.append(gDLL->getText("TXT_KEY_REQUIRES_TECH_TO_ENTER",
++								GC.getInfo(eReqTech).getDescription()));
++						return;
+ 					}
+-
+-					setPlotHelp(strHelp, pMouseOverPlot);
+ 				}
++				if (!bCanAllEnter && // and no tech will allow it either
++					// If it's too far off the coast, then it can't be owned.
++					(!pMouseOverPlot->isWater() || pMouseOverPlot->isPotentialCityWork()))
++				{
++					if (!strHelp.isEmpty())
++						strHelp.append(NEWLINE);
++					strHelp.append(gDLL->getText("TXT_KEY_REQUIRES_OWNERSHIP_TO_ENTER"));
++				}
++				return;
+ 			}
+-		}
+-
+-		InterfaceModeTypes eInterfaceMode = gDLL->getInterfaceIFace()->getInterfaceMode();
++		} // </advc.057>
+ 		if (eInterfaceMode != INTERFACEMODE_SELECTION)
+ 		{
+ 			CvWString szTempBuffer;
+-			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR NEWLINE, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GC.getInfo(eInterfaceMode).getDescription());
+-
++			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR NEWLINE, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++					GC.getInfo(eInterfaceMode).getDescription());
+ 			switch (eInterfaceMode)
+ 			{
+ 			case INTERFACEMODE_REBASE:
+@@ -20401,49 +20473,35 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* p
+ 			case INTERFACEMODE_NUKE:
+ 				getNukePlotHelp(pMouseOverPlot, szTempBuffer);
+ 				break;
+-
+-			default:
+-				break;
+ 			}
+-
+ 			szTempBuffer += strHelp.getCString();
+ 			strHelp.assign(szTempBuffer);
+ 		}
+ 	}
+ }
+ 
+-void CvGameTextMgr::getRebasePlotHelp(CvPlot* pPlot, CvWString& strHelp)
++void CvGameTextMgr::getRebasePlotHelp(CvPlot* pPlot, CvWString& strHelp)  // advc: style changes
+ {
+-	if (NULL != pPlot)
+-	{
+-		CvUnit* pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+-		if (NULL != pHeadSelectedUnit)
+-		{
+-			if (pPlot->isFriendlyCity(*pHeadSelectedUnit, true))
+-			{
+-				CvCity* pCity = pPlot->getPlotCity();
+-				if (NULL != pCity)
+-				{
+-					int iNumUnits = pCity->plot()->countNumAirUnits(GC.getGame().getActiveTeam());
+-					bool bFull = (iNumUnits >= pCity->getAirUnitCapacity(GC.getGame().getActiveTeam()));
+-
+-					if (bFull)
+-					{
+-						strHelp += CvWString::format(SETCOLR, TEXT_COLOR("COLOR_WARNING_TEXT"));
+-					}
+-
+-					strHelp +=  NEWLINE + gDLL->getText("TXT_KEY_CITY_BAR_AIR_UNIT_CAPACITY", iNumUnits, pCity->getAirUnitCapacity(GC.getGame().getActiveTeam()));
+-
+-					if (bFull)
+-					{
+-						strHelp += ENDCOLR;
+-					}
++	if (pPlot == NULL)
++		return;
++	CvUnit* pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++	if (pHeadSelectedUnit == NULL)
++		return;
++	if (!pPlot->isFriendlyCity(*pHeadSelectedUnit, true))
++		return;
++	CvCity* pCity = pPlot->getPlotCity();
++	if (pCity == NULL)
++		return;
+ 
+-					strHelp += NEWLINE;
+-				}
+-			}
+-		}
+-	}
++	int iNumUnits = pCity->plot()->countNumAirUnits(GC.getGame().getActiveTeam());
++	bool bFull = (iNumUnits >= pCity->getAirUnitCapacity(GC.getGame().getActiveTeam()));
++	if (bFull)
++		strHelp += CvWString::format(SETCOLR, TEXT_COLOR("COLOR_WARNING_TEXT"));
++	strHelp +=  NEWLINE + gDLL->getText("TXT_KEY_CITY_BAR_AIR_UNIT_CAPACITY",
++			iNumUnits, pCity->getAirUnitCapacity(GC.getGame().getActiveTeam()));
++	if (bFull)
++		strHelp += ENDCOLR;
++	strHelp += NEWLINE;
+ }
+ 
+ void CvGameTextMgr::getNukePlotHelp(CvPlot* pPlot, CvWString& strHelp)
+@@ -20476,12 +20534,12 @@ void CvGameTextMgr::getInterfaceCenterText(CvWString& strText)
+ 	{
+ 		if (GC.getGame().getWinner() != NO_TEAM)
+ 		{
+-			strText = gDLL->getText("TXT_KEY_MISC_WINS_VICTORY", GET_TEAM(GC.getGame().getWinner()).getName().GetCString(), GC.getInfo(GC.getGame().getVictory()).getTextKeyWide());
++			strText = gDLL->getText("TXT_KEY_MISC_WINS_VICTORY",
++					GET_TEAM(GC.getGame().getWinner()).getName().GetCString(),
++					GC.getInfo(GC.getGame().getVictory()).getTextKeyWide());
+ 		}
+-		else if (!(GET_PLAYER(GC.getGame().getActivePlayer()).isAlive()))
+-		{
++		else if (!GET_PLAYER(GC.getGame().getActivePlayer()).isAlive())
+ 			strText = gDLL->getText("TXT_KEY_MISC_DEFEAT");
+-		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index b646b11c3..69af08027 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -59,6 +59,9 @@ public:
+ 	void setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPlot, bool bOneLine, bool bShort,
+ 			bool bIndicator = false); // advc.061
+ 	bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
++	// <advc.089>
++	void setCannotAttackHelp(CvWStringBuffer& szHelp, CvUnit const& kAttacker,
++			CvUnit const& kDefender); // </advc.089>
+ 	void setPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+ 	void setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity);
+ 	void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4accda6c1..ff143d14a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13117,7 +13117,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea* pArea, CvPlot* pFromPlot,
+ 					continue;
+ 				if(p->getOwner() == NO_PLAYER && p->area() == pArea)
+ 				{
+-					/*  Mustn't check path b/c Workboat may not be able to enter
++					/*  Mustn't check path b/c Work Boat may not be able to enter
+ 						the unowned tiles yet. If the area matches, it's a pretty
+ 						safe bet that the resource is reachable.
+ 						Also, the GeneratePath call considers only tiles owned
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index f087e604d..7f8417f23 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2142,7 +2142,7 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 			continue;
+ 		if (kLoopUnit.isCargo()) // advc: Was previously only checked with bTestCanMove - i.e. never.
+ 			continue;
+-		// <advc> Moved the other conditions into an auxiliary function
++		// <advc> Moved the other conditions into CvUnit::canBeAttackedBy (new function)
+ 		if(eAttackingPlayer == NO_PLAYER || kLoopUnit.canBeAttackedBy(eAttackingPlayer,
+ 			pAttacker, bTestEnemy, bTestPotentialEnemy, /* advc.028: */ bTestVisible,
+ 			bTestCanAttack))
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 67e6df936..546fd8326 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7465,7 +7465,8 @@ bool CvUnit::canAttack() const
+ 	return true;
+ }
+ 
+-
++/*	advc.089 (comment): Help text for these checks is handled by
++	CvGameTextMgr::setCannotAttackHelp (some code duplication) */
+ bool CvUnit::canAttack(const CvUnit& kDefender) const
+ {
+ 	//PROFILE_FUNC(); // advc: Called "only" a few hundred thousand times per turn; pretty fast.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=21270

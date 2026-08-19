@@ -1,0 +1,102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2299
+# Commit: 2d7f8162159a2f7c7ca8c556835c1bea0bfa139d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 893807eb97ffdee86e9202b5da42967253ffb519
+# Title: Goody huts can't yield religion tech before founding capital
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	5	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 83c2f163e..5d59f518f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -22223,14 +22223,38 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
+ }
+ 
+ // <advc.314>
+-bool CvPlayer::isGoodyTech(TechTypes techId, bool bProgress) const
++// iProgress <= 0 means guaranteed discovery
++bool CvPlayer::isGoodyTech(TechTypes eTech, int iProgress) const
+ {
+-	CvTechInfo& t = GC.getInfo(techId);
+-	if(!bProgress && !t.isGoodyTech())
++	CvTechInfo const& kTech = GC.getInfo(eTech);
++	if(iProgress <= 0 && !kTech.isGoodyTech())
+ 		return false;
+-	if(bProgress && t.getEra() >= 4)
++	if(iProgress > 0 && kTech.getEra() >= 4)
+ 		return false;
+-	return canResearch(techId, false, true);
++	if (!isFoundedFirstCity() && // Can't receive a holy city (or corp. HQ) then
++		// OK if the tech won't be discovered right away
++		(iProgress <= 0 || iProgress > fixp(2/3.) *
++		GET_TEAM(getTeam()).getResearchLeft(eTech)))
++	{
++		CvGame const& kGame = GC.getGame();
++		FOR_EACH_ENUM(Religion)
++		{
++			if (!kGame.isReligionFounded(eLoopReligion) &&
++				GC.getInfo(eLoopReligion).getTechPrereq() == eTech)
++			{
++				return false;
++			}
++		}
++		FOR_EACH_ENUM(Corporation)
++		{
++			if (!kGame.isCorporationFounded(eLoopCorporation) &&
++				GC.getInfo(eLoopCorporation).getTechPrereq() == eTech)
++			{
++				return false;
++			}
++		}
++	}
++	return canResearch(eTech, false, true);
+ }
+ 
+ void CvPlayer::addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 8e2d869f1..4abb2732a 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1503,7 +1503,7 @@ protected:  // <advc.210>
+ 			PlayerTypes eOldOwner, PlayerTypes eNewOwner,
+ 			bool bIgnorePriority = false) const; // </advc.ctr>
+ 	// <advc.314>
+-	bool isGoodyTech(TechTypes techId, bool bProgress) const;
++	bool isGoodyTech(TechTypes eTech, int iProgress) const;
+ 	void addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound);
+ 	void promoteFreeUnit(CvUnit& u, scaled pr);
+ 	// </advc.314>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e032ccb74..eb5b0f5c0 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4627,7 +4627,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,  /
+ 		for (TeamIter<ALIVE,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
+ 			it->updateTechShare(eTech); // Share through "Internet" project
+ 		// <advc.106>
+-		if (bFirst && bFirstToDiscover && kGame.getElapsedGameTurns() > 0 &&
++		if (bFirst && bFirstToDiscover && // (Note: CvGame::initFreeState uses bFirst=false)
+ 			GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0)
+ 		{
+ 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2851

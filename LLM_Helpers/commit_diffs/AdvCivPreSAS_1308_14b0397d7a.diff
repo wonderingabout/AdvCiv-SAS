@@ -1,0 +1,133 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1308
+# Commit: 14b0397d7ac27ba570cd0afa180e01a5403073ac
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 141f802ee7c92e7613d7f1f9fca8b7db8eaf080c
+# Title: Merged DarkLunaPhantom's changes from late April:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+8	7	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index be295cd98..491990a47 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -247,10 +247,13 @@ void CvGame::setInitialItems()
+ 				!GET_PLAYER(i).isMinorCiv()) nAI++; // </advc.250b>
+ 	}
+ 	if (isGameMultiPlayer()) {
+-		if (iHumanPlayers > 0)
++		if (iHumanPlayers > 0) {
+ 			/*  advc.250a: Relies on no strange new handicaps being placed
+ 				between Settler and Deity. Same in CvTeam::getHandicapType. */
+-			setHandicapType((HandicapTypes)(iTotal / (10 * iHumanPlayers)));
++				setHandicapType((HandicapTypes)
++				::round // dlph.22
++				(iTotal / (10.0 * iHumanPlayers)));
++		}
+ 		else // advc.003: Moved K-Mod comment into AssertMsg.
+ 			FAssertMsg(false, "All-AI game. Not necessarily wrong, but unexpected.");
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7000f40de..dea1d6bc5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -24590,7 +24590,8 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 		if (iTotalCulture == 0)
+ 			continue;
+ 		// K-Mod end
+-		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
++		// dlph.21: was MAX_CIV_PLAYERS
++		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+ 		{
+ 			// advc.099: Replaced "Alive" with "EverAlive"
+ 			if (GET_PLAYER((PlayerTypes)iPlayer).isEverAlive())
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 1b1f84597..f26f74e02 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3959,7 +3959,7 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
+ // <advc.122>
+ bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes ePlayer) const {
+ 	return (plotCheck(PUF_isEnemyCityAttacker, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL);
+-} // </Advc.122>
++} // </advc.122>
+ 
+ // K-Mod
+ bool CvPlot::isVisiblePotentialEnemyUnit(PlayerTypes ePlayer) const
+@@ -9358,14 +9358,14 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
+ ColorTypes CvPlot::plotMinimapColor()
+ {
+ 	CvUnit* pCenterUnit;
+-
++	TeamTypes activeTeam = GC.getGameINLINE().getActiveTeam(); // advc.003
+ 	if (GC.getGameINLINE().getActivePlayer() != NO_PLAYER)
+ 	{
+ 		CvCity* pCity;
+ 
+ 		pCity = getPlotCity();
+ 
+-		if ((pCity != NULL) && pCity->isRevealed(GC.getGameINLINE().getActiveTeam(), true))
++		if ((pCity != NULL) && pCity->isRevealed(activeTeam, true))
+ 		{
+ 			return (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
+ 		}
+@@ -9378,13 +9378,14 @@ ColorTypes CvPlot::plotMinimapColor()
+ 
+ 			if (pCenterUnit != NULL)
+ 			{
+-				return ((ColorTypes)(GC.getPlayerColorInfo(GET_PLAYER(pCenterUnit->getVisualOwner()).getPlayerColor()).getColorTypePrimary()));
++				return (ColorTypes)(GC.getPlayerColorInfo(GET_PLAYER(pCenterUnit->getVisualOwner()).getPlayerColor()).getColorTypePrimary());
+ 			}
+ 		}
+-
+-		if ((getRevealedOwner(GC.getGameINLINE().getActiveTeam(), true) != NO_PLAYER) && !isRevealedBarbarian())
++		// dlph.21: Removed !isRevealedBarbarian() clause
++		if (getRevealedOwner(activeTeam, true) != NO_PLAYER)
+ 		{
+-			return ((ColorTypes)(GC.getPlayerColorInfo(GET_PLAYER(getRevealedOwner(GC.getGameINLINE().getActiveTeam(), true)).getPlayerColor()).getColorTypePrimary()));
++			return ((ColorTypes)(GC.getPlayerColorInfo(GET_PLAYER(
++					getRevealedOwner(activeTeam, true)).getPlayerColor()).getColorTypePrimary()));
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e8dcf8844..37f6fb2c6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12327,6 +12327,7 @@ bool CvUnitAI::AI_guardCitySite()
+ 	CvPlot* pBestGuardPlot = NULL;
+ 	// advc.003: Moved all the other declarations
+ 	CvPlayerAI const& owner = GET_PLAYER(getOwnerINLINE());
++	//iBestValue = 0;
+ 	/*  advc.300: Don't guard any ole tile with a positive found value;
+ 		only actual city sites. */
+ 	int iBestValue = owner.AI_getMinFoundValue() - 1;
+@@ -16833,7 +16834,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 				CvCity* pPlotCity = pRangePlot->getPlotCity();
+ 				if (pPlotCity != NULL &&
+ 						/*  advc.003: Note that isEnemy checks isAlwaysHostile;
+-							so the owner pPlotCity does not have to be a
++							so the owner of pPlotCity does not have to be a
+ 							war enemy of this unit. */
+ 						isEnemy(pPlotCity->getTeam(), pLoopPlot))
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4366

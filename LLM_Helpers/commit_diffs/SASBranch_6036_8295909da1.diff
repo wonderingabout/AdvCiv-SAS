@@ -1,0 +1,321 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6036
+# Commit: 8295909da126b2721d8d9dd09095a73396716e7a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 373e5275eec8eb2aacd6bea07a5db209d884ba33
+# Title: Fix AdvCiv-SAS AI faraway-war Risk reject inflating UWAI utility (KI#183)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+43	36	Assets/XML/GlobalDefines_advciv_sas.xml
+53	1	CvGameCoreDLL/WarEvaluator.cpp
+2	1	CvGameCoreDLL/WarUtilityAspect.cpp
+47	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 70af6b212..996fe690f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1423,42 +1423,6 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 
+ 
+-	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Minimum adjusted UWAI drive percent for a nearby land target to block worse farther fallbacks, e.g. 25 means at least 25% drive after peace-treaty and avoid-war adjustments. This is only a sanity gate for the preferred local target, not a comparison with the farther target; set to 0 to ignore drive for this rule. (GPT-5.5); i set it to a low value instead of GPT-5.5's value of 25 because i don't know enough about this drive value or as of now trust it too much, so as low enough attitude weak enough opponent that is close when we were about to pick another is already a strong enough, simple and reliable incentive, then kept it as such in case it would/may make us choose very low utility or skip high utility ones or such. -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT</DefineName>
+-		<iDefineIntVal>15</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Maximum nearest-city distance for the preferred local war-target rule. This is intentionally local, so remote naval or overseas choices still use ordinary UWAI target selection. (GPT-5.5) -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE</DefineName>
+-		<iDefineIntVal>8</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Maximum target defensive power as percent of our team power for the preferred local war-target rule, e.g. 70 means the target has at most 70% of our team's power. (GPT-5.5) -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT</DefineName>
+-		<iDefineIntVal>75</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Maximum AI attitude value toward the preferred local war target. 0 allows neutral or worse targets; negative values require dislike. (GPT-5.5) -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Minimum AI_teamCloseness for the preferred local war-target rule. 1 keeps this to actual nearby land rivalry and avoids treating zero-contact geography as local. (GPT-5.5) -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Minimum nearest-city distance advantage required before skipping a farther fallback target. 2 means a fallback at distance 10 can be skipped for a preferred local target at distance 8 or closer. (GPT-5.5) -->
+-	<Define>
+-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE</DefineName>
+-		<iDefineIntVal>2</iDefineIntVal>
+-	</Define>
+-
+ 
+ 	<!-- custom: Dedicated structured SAS game-summary report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameSummary_*.log, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the summary has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
+ 	<Define>
+@@ -3100,6 +3064,49 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum adjusted UWAI drive percent for a nearby land target to block worse farther fallbacks, e.g. 25 means at least 25% drive after peace-treaty and avoid-war adjustments. This is only a sanity gate for the preferred local target, not a comparison with the farther target; set to 0 to ignore drive for this rule. (GPT-5.5); i set it to a low value instead of GPT-5.5's value of 25 because i don't know enough about this drive value or as of now trust it too much, so as low enough attitude weak enough opponent that is close when we were about to pick another is already a strong enough, simple and reliable incentive, then kept it as such in case it would/may make us choose very low utility or skip high utility ones or such. -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT</DefineName>
++		<iDefineIntVal>15</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum nearest-city distance for the preferred local war-target rule. This is intentionally local, so remote naval or overseas choices still use ordinary UWAI target selection. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE</DefineName>
++		<iDefineIntVal>8</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum target defensive power as percent of our team power for the preferred local war-target rule, e.g. 70 means the target has at most 70% of our team's power. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum AI attitude value toward the preferred local war target. 0 allows neutral or worse targets; negative values require dislike. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum AI_teamCloseness for the preferred local war-target rule. 1 keeps this to actual nearby land rivalry and avoids treating zero-contact geography as local. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum nearest-city distance advantage required before skipping a farther fallback target. 2 means a fallback at distance 10 can be skipped for a preferred local target at distance 8 or closer. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<!-- custom: With SAS_BBAI_WAR_LOG_LEVEL >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value. Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: Preserve both old (SAS define disabled) and and new (SAS define enabled) Base AdvCiv paths instead of merging only the new one and deleting the old as as of now in Base AdvCiv, so players can choose between them: 0 restores the older population rule that keeps New World Barbarians relatively peaceful within their area until civilization population exceeds Barbarian population; 1 uses the newer city/population presence score, which ends that grace period earlier, especially on large maps. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 8e003f238..f51fb2f10 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -7,6 +7,8 @@
+ #include "WarEvalParameters.h"
+ #include "CoreAI.h"
+ #include "CvInfo_GameOption.h"
++#include "BBAILog.h" // <!-- custom: Threshold-gated SAS war diagnostics log huge UWAI utility by aspect so high target-drive values can be traced without enabling the separate UWAI report. (GPT-5.5) -->
++#include "CvGameCoreUtils.h"
+ 
+ using std::vector;
+ using std::string;
+@@ -31,6 +33,42 @@ namespace
+ 	WarEvalParamID aiLastCallParams[iCACHE_SZ];
+ 	int aiLastCallResult[iCACHE_SZ];
+ 	int iLastIndex;
++
++	int getSASHighWarUtilityLogThreshold()
++	{
++		static const int iThreshold = GC.getDefineINT("SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD");
++		return iThreshold;
++	}
++
++	bool isSASHighWarUtility(int iUtility)
++	{
++		int const iThreshold = getSASHighWarUtilityLogThreshold();
++		return (iUtility >= iThreshold || iUtility <= -iThreshold);
++	}
++
++	void logSASBBAIHighWarUtilityScenario(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, char const* szScenario, int iScenarioUtility, std::vector<CvString> const& asAspectNames, std::vector<int> const& aiAspectUtilities)
++	{
++		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
++		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
++		logBBAI("WAR_UTILITY_SCENARIO_HIGH turn=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s scenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
++				GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++		for (size_t i = 0; i < aiAspectUtilities.size(); i++)
++		{
++			if (aiAspectUtilities[i] != 0)
++			{
++				logBBAI("WAR_UTILITY_SCENARIO_HIGH_COMPONENT turn=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s aspect=%s utility=%d",
++						GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, asAspectNames[i].GetCString(), aiAspectUtilities[i]);
++			}
++		}
++	}
++
++	void logSASBBAIHighWarUtilityFinal(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, int iWarScenarioUtility, int iPeaceScenarioUtility, int iFinalUtility)
++	{
++		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
++		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
++		logBBAI("WAR_UTILITY_HIGH turn=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
++				GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++	}
+ }
+ 
+ void WarEvaluator::enableCache()
+@@ -286,20 +324,34 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
+ 	fillWithAspects(apAspects);
+ 	for (MemberIter itMember(m_kAgent.getID()); itMember.hasNext(); ++itMember)
+ 		evaluate(itMember->getID(), apAspects);
++	bool const bSASHighUtilityLog = (gWarLogLevel >= 3 && getSASHighWarUtilityLogThreshold() > 0);
++	std::vector<CvString> asAspectNames;
++	std::vector<int> aiAspectUtilities;
+ 	int iU = 0;
+ 	for (size_t i = 0; i < apAspects.size(); i++)
+ 	{
+ 		int iDelta = apAspects[i]->utility();
+ 		iU += iDelta;
++		if (bSASHighUtilityLog)
++		{
++			asAspectNames.push_back(apAspects[i]->aspectName());
++			aiAspectUtilities.push_back(iDelta);
++		}
+ 		if (iDelta != 0)
+ 			m_kReport.log("%s total: %d", apAspects[i]->aspectName(), iDelta);
+ 		delete apAspects[i];
+ 	}
+ 	m_kReport.log("Bottom line: %d\n", iU);
++	if (bSASHighUtilityLog && isSASHighWarUtility(iU))
++		logSASBBAIHighWarUtilityScenario(m_kParams, eWarPlan, bNaval, iPreparationTime, m_bPeaceScenario ? "PEACE" : "WAR", iU, asAspectNames, aiAspectUtilities);
+ 	if (!m_bPeaceScenario)
+ 	{
+-		iU -= evaluate(NO_WARPLAN, false, iPreparationTime);
++		int const iWarScenarioUtility = iU;
++		int const iPeaceScenarioUtility = evaluate(NO_WARPLAN, false, iPreparationTime); // Required for final war-minus-peace utility; stored only so high-utility diagnostics can show both sides.
++		iU -= iPeaceScenarioUtility;
+ 		m_kReport.log("Utility war minus peace: %d\n", iU);
++		if (bSASHighUtilityLog && isSASHighWarUtility(iU))
++			logSASBBAIHighWarUtilityFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
+ 		// Restore params (changed by recursive call)
+ 		m_kParams.setNaval(bNaval);
+ 		m_kParams.setTotal(eWarPlan == WARPLAN_TOTAL ||
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index eb8907aaf..52f5e7ce8 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2917,7 +2917,8 @@ int Risk::preEvaluate()
+ 	const bool noLift = (bNaval && !ourCache().canTrainAnyCargo());
+ 	const int  maxTurns = bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS;
+ 
+-	if (minContact == INT_MAX || minContact > maxTurns || noLift)
++	// <!-- custom: This older AdvCiv-SAS hard reject is a war-scenario guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent because UWAI computes final utility as war minus peace; e.g. -78 - (-105438) became +105360 in BBAI testing. See KI#183. (GPT-5.5) -->
++	if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
+ 		return -100000; // kill this (agent,target) war plan
+ 
+ 	// --- END RPE FILTER ---
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 524e606f3..2108e71ee 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -220,6 +220,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
+ [180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed)\
+ [181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#181---fixedimproved-ai-could-train-earlymidgame-settlers-for-weak-remaining-sites-after-good-expansion-was-gone-eg-pariss-settler-for-snowfiller-sites-example)\
++[182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available)\
++[183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6715,3 +6717,48 @@ declares war: 154
+ All 17 skips had the skipped target at least 2 tiles farther than the preferred target. The preferred targets had adjusted drive at least 16%, and all had preferred target power <= 75%: 16 were in the 51-75% band and one was in the 26-50% band. Earlier experiments were intentionally rejected: setting the drive gate to 0 produced too many very-low-drive overrides, and a broader same-distance / near-distance skip affected ordinary local choices too much.
+ 
+ Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
++
++## 183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario
++
++This is a follow-up to the older AdvCiv-SAS KI#61 faraway-war guard in `Risk::preEvaluate` (`WarUtilityAspect.cpp`). That guard was intended to kill bad war plans when a rival was unreachable, too far away, or when a naval war had no lift capacity. BBAI high-utility logging later showed that the same hard reject also fired in the recursive peace scenario used by `WarEvaluator`.
++
++That was wrong because UWAI computes final war utility as:
++
++```text
++war scenario utility - peace scenario utility
++```
++
++When the peace scenario received the `-100000` hard reject, mediocre or slightly bad wars could look extremely good. In `BBAI_20260713T114245Z_load1.log`, one representative row was:
++
++```text
++WAR_UTILITY_HIGH turn=389 agentTeam=5 targetTeam=7 warPlan=WARPLAN_LIMITED finalUtility=105166 warScenarioUtility=-220 peaceScenarioUtility=-105386
++```
++
++So the war itself was not strong; the final score became huge because `-220 - (-105386) = +105166`.
++
++The diagnostic breakdown confirmed `RISK` as the culprit. Before the fix, high scenario component rows included many `PEACE RISK` values around `-105000`:
++
++```text
++PEACE RISK count=53839 avg=-104994.2 min=-105393 max=-104980
++WAR   RISK count=45897 avg=-104999.7 min=-105394 max=-178
++```
++
++The fix keeps the faraway-war hard reject for actual war scenarios but prevents it from firing during the recursive peace scenario:
++
++```cpp
++if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
++	return -100000;
++```
++
++Retesting in `BBAI_20260713T120154Z_load1.log` confirmed the sign-flip bug disappeared:
++
++```text
++positive final: 0
++negative final: 72704
++```
++
++The remaining high rows were `WAR RISK` rejects only, meaning the guard now works in the intended direction: bad faraway/unreachable war scenarios are unattractive instead of making wars look artificially excellent.
++
++The added `SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD` diagnostic is disabled by default because it can generate very large logs; it is mainly for future UWAI audits when a suspicious target drive or utility value needs an aspect-by-aspect breakdown.
++
++Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 52a857fd5..dce865fd4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -157,7 +157,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact mod context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+-- (Requires AdvCiv-SAS 6034+) **BBAI War diagnostics:** added `SAS_BBAI_WAR_LOG_LEVEL`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs. It notably records target utility, limited-vs-total war comparison, naval/preparation context, forced peace, attitude, closeness, city distance, power, selected target, target switches, direct-war adoption, and war-plan lifecycle changes, which should help investigate problematic faraway wars before changing behavior.
++- (Requires AdvCiv-SAS 6034+) **BBAI War diagnostics:** added `SAS_BBAI_WAR_LOG_LEVEL`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs. It notably records target utility, limited-vs-total war comparison, naval/preparation context, forced peace, attitude, closeness, city distance, power, selected target, target switches, direct-war adoption, war-plan lifecycle changes, and optional high-utility scenario/aspect breakdowns, which should help investigate problematic faraway wars before changing behavior.
+ - (Requires AdvCiv-SAS 6031+) **Great General BBAI diagnostics:** added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs. This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
+ - **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+ - **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
+@@ -374,6 +374,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Musketmen — AI role**: now also flagged with `UNITAI_ATTACK_CITY`, so the AI uses Musketmen more often in **offensive city-assault** roles. Civ-specific Musketman variants may also include additional changes.
+ - **Grenadiers & Bazookas — AI role**: now also flagged with `UNITAI_CITY_DEFENSE`, so the AI may use them more for **city defense**.
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
++- (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject now applies only to actual war scenarios; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive (i.e. current war-preparation interest); With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city** (i.e. a city that exceeds the existing `AI_EVACUATION_THRESH`-based (default as of now: 138%) attacker/defender strength threshold (note: the threshold is raised for important cities, as it is worth defending them and generally bad to evacuate them)). Fixed an inherited Base AdvCiv percentile inversion that instead gave this important-city protection to low-value cities; see [KI#172](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities). Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=30522

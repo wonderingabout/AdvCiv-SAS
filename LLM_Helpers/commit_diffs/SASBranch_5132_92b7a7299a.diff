@@ -1,0 +1,260 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5132
+# Commit: 92b7a7299a8c7599adc1577949a6825c5184081e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7e5e439e96671b6feaaf3f3c7df546f662a28239
+# Title: similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchan...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+32	1	Assets/XML/GlobalDefines_advciv_sas.xml
+74	14	CvGameCoreDLL/CvCityAI.cpp
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 14356653f..d4f40acdd 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1127,6 +1127,37 @@
+ 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- convenience: block auto-assigning specific specialists for human players only.
++		Manual assignment still allowed. Off by default. -->
++	<!-- // Key points:
++		// 	- It only runs when bHuman and new_job.first (i.e. we’re hiring or switching to a specialist).
++		// 	- It uses the same iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
++		// 	- It doesn’t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
++		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
++	<Define>
++		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_ENGINEER_SPECIALIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_MERCHANT_SPECIALIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_PRIEST_SPECIALIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SPY_SPECIALIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_ARTIST_SPECIALIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 
+ 
+ 
+@@ -1159,7 +1190,7 @@
+ 	<!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually anyways etc. The human player can reassign a non-forced artist if they want then. E.g. if BFC is 10 city culture at gamespeed_normal and 20 at marathon and 6 at quick, and if our value of sanity is 4, then it means if we have 10 + 4 = 14 so 15+ culture in city at game speed normal (or 20 + 4 = 24 so 25+ at marathon, or 6 + 4 = 10 so 11+ at quick anyways etc) and we still didn't unassign the artist, then do it for the human player ourselves anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 05c216edb..0be88cfe9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5129,14 +5129,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 			const int iFlatBeakersPerTurnFromBuilding = (kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH));
+ 
+-			static const SpecialistTypes eSpecialistScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST", true);
++			static const SpecialistTypes eScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST", true);
+ 
+ 			// --- Science-like (research %) ------------------------------------------------
+ 			const bool bScienceBuilding = (
+ 				(kBuilding.getCommerceModifier(COMMERCE_RESEARCH) >= 20) ||
+ 				(iFlatBeakersPerTurnFromBuilding > 0) ||
+-				(kBuilding.getSpecialistCount(eSpecialistScientist) > 0) ||
+-				(kBuilding.getFreeSpecialistCount(eSpecialistScientist) > 0)
++				(kBuilding.getSpecialistCount(eScientist) > 0) ||
++				(kBuilding.getFreeSpecialistCount(eScientist) > 0)
+ 			);
+ 
+ 			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or something similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
+@@ -14348,21 +14348,22 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 			{
+ 				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+ 			}
+-			// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
+-			// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
+-			// Manual specialist changes are untouched (still allowed to create Citizens).
+ 			else
+ 			{
+-				static const bool bSAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST");
++				static const bool bNoAutoHumanCitizen = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST");
+ 
+-				if (bSAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST)
++				if (bNoAutoHumanCitizen)
+ 				{
++					// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate anyways etc. -->
++					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
++					// Manual specialist changes are untouched (still allowed to create Citizens).
+ 					// <!-- custom: fires often (very often actually xd but anyways etc) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such anyways etc). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details anyways etc. -->
+ 					// 2. Why does it fire “a big lot”?
+ 					// That’s expected with where you put it.
+ 					// 	- AI_jobChangeValue is called a lot from AI_juggleCitizens and AI_addBestCitizen, for every candidate job (plot or specialist) during each juggling cycle.
+ 					// 	- Every time the governor considers “what about a citizen?” for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
+ 					// So at T300, with multiple cities, each time the city grows or auto-assignment is reconsidered, you can easily see dozens or hundreds of those asserts in a single turn. That doesn’t mean the logic is broken; it just means your debug hook is very low-level.
++					#ifdef _DEBUG
+ 					FAssertMsg(false, CvString::format(
+ 						"SAS citizen debug: T%d city=%S (%d,%d) owner=%S: no type=%s auto specialists for human players.",
+ 						GC.getGame().getGameTurn(),
+@@ -14371,12 +14372,75 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 						kOwner.getName(),
+ 						GC.getInfo((SpecialistTypes)new_job.second).getType() // gives e.g. SPECIALIST_CITIZEN
+ 					).c_str());
++					#endif
+ 
+ 					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+ 				}
+ 			}
+ 		}
+ 
++		static const bool bNoAutoHumanScientist = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST");
++		static const bool bNoAutoHumanEngineer  = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_ENGINEER_SPECIALIST");
++		static const bool bNoAutoHumanMerchant  = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_MERCHANT_SPECIALIST");
++		static const bool bNoAutoHumanPriest    = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_PRIEST_SPECIALIST");
++		static const bool bNoAutoHumanSpy       = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_SPY_SPECIALIST");
++		static const bool bNoAutoHumanArtist    = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_NO_AUTO_ARTIST_SPECIALIST");
++
++		static const SpecialistTypes eScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
++		static const SpecialistTypes eArtist    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
++		static const SpecialistTypes eEngineer  = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
++		static const SpecialistTypes eMerchant  = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT");
++		static const SpecialistTypes ePriest    = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_PRIEST");
++		static const SpecialistTypes eSpy       = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SPY");
++
++		// 0b) Human-only: block specific auto specialists based on convenience defines
++		if (bHuman && new_job.first && new_job.second >= 0)
++		{
++			const SpecialistTypes eSpec = (SpecialistTypes)new_job.second;
++			bool bForbidden = false;
++
++			if (bNoAutoHumanScientist && eSpec == eScientist)
++			{
++				bForbidden = true;
++			}
++			else if (bNoAutoHumanEngineer && eSpec == eEngineer)
++			{
++				bForbidden = true;
++			}
++			else if (bNoAutoHumanMerchant && eSpec == eMerchant)
++			{
++				bForbidden = true;
++			}
++			else if (bNoAutoHumanPriest && eSpec == ePriest)
++			{
++				bForbidden = true;
++			}
++			else if (bNoAutoHumanSpy && eSpec == eSpy)
++			{
++				bForbidden = true;
++			}
++			else if (bNoAutoHumanArtist && eSpec == eArtist)
++			{
++				bForbidden = true;
++			}
++
++			if (bForbidden)
++			{
++				#ifdef _DEBUG
++				FAssertMsg(false, CvString::format(
++					"SAS specialist debug: T%d city=%S (%d,%d) owner=%S: no type=%s auto specialists for human players.",
++					GC.getGame().getGameTurn(),
++					getName().GetCString(),
++					getX(), getY(),
++					kOwner.getName(),
++					GC.getInfo((SpecialistTypes)new_job.second).getType() // gives e.g. SPECIALIST_SPY
++				).c_str());
++				#endif
++
++				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
++			}
++		}
++
+ 		// <!-- custom: before the no specialist at low pop rule, and regardless of city population, handle the exception where we absolutely need an artist to get our BFC, if city has low or no culture. Code provided by chatgpt 5 and thanks to my prompts and/or such and that i adjusted and/or such, check if accurate anyways etc -->
+ 		// --- Simple BFC Artist precheck ---------------------------------------------
+ 		// If we don't have BFC yet (level < 1) and city culture is very low (<3),
+@@ -14386,11 +14450,9 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
+ 		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
+ 
+-		static const SpecialistTypes eSpecialistArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+-
+ 		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
+ 
+-		if (!bHuman && !bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
++		if (!bHuman && !bWantBFCArtist && (eArtist != NO_SPECIALIST))
+ 		{
+ 			const int iCityPopulation = getPopulation();
+ 
+@@ -14434,9 +14496,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+         // ---------------------------------------------------------------------
+ 		if (!bHuman && isBarbarian())
+ 		{
+-			static const SpecialistTypes eSpecialistScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
+-
+-			if ((eSpecialistScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eSpecialistScientist))
++			if ((eScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eScientist))
+ 			{
+ 				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+ 			}
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 08c8e01f6..421034727 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -275,7 +275,8 @@ Note: please see note here as well in this custom main changes guide about the .
+ ### Specialists (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - buff the citizen, as of now to give one gold (so total 1 hammer and 1 gold), this was at first mostly to help the AI as it used to allocate a lot of them inefficiently, but may now in all cases anyways etc also help buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+-- (Requires AdvCiv-SAS 5131+) add an option (default enabled) to disable auto-citizen specialist assignments for the human player as well for convenience, as they are annoying to check in every city every turn, and this is still often a very inefficient specialist to choose unless absolutely necessary (no other plot nor good enough specialist but anyways etc, etc.). Code added in `CvCityAI::AI_jobChangeValue`. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc). Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it (default and recommended: enabled)).
++- (Requires AdvCiv-SAS 5131+) add an option (default and recommended: enabled) to disable auto-citizen specialist auto assignments for the human player as well for convenience, as they are annoying to check in every city every turn, and this is still often a very inefficient specialist to choose unless absolutely necessary (no other plot nor good enough specialist but anyways etc, etc.). Code added in `CvCityAI::AI_jobChangeValue`. See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc). Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it anyways etc.).
++- (Requires AdvCiv-SAS 5132+) similarly add an option (default disabled) to disable any other type of specialist auto assignments (e.g. allow auto scientists, auto engineers, auto merchants, auto priests, but not auto spies nor auto artists (as long as this is not overriden by external pieces of logic such as the forced artist until we have BFC or/and such)) for the human player as well for convenience. Code added in `CvCityAI::AI_jobChangeValue`. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable them anyways etc.).
+ - also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+ - also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+ - (Requires AdvCiv-SAS 5124+) extend the force an artist if we can until we have our BFC to human players as well for convenience. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `CONVENIENCE_HUMAN` options to enable/disable it (default and recommended: enabled)).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 50c7dc315..01102df77 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -257,7 +257,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Specialists (non-exhaustive)
+ 
+ - **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
+-- (Requires AdvCiv-SAS 5131+) Add an option (default **enabled**) to disable **auto-Citizen specialist** assignments for the human player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled). See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
++- (Requires AdvCiv-SAS 5131+) Add an option (default/recommended: **enabled**) to disable **auto-Citizen specialist** assignments for the human player for convenience, since they’re annoying to check in every city every turn and are almost always an inefficient choice unless absolutely no workable tiles or decent specialists are available. Implemented in `CvCityAI::AI_jobChangeValue`; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#44.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#446---disable-auto-citizen-specialists-for-the-human-player-as-well-anyways-etc).
++- (Requires AdvCiv-SAS 5132+) Add a similar option (default **disabled**) to restrict other **auto-specialist** assignments for the human player (e.g. allow auto-Scientists/Engineers/Merchants/Priests, but block auto-Spies and auto-Artists), for players who prefer tighter manual control. Does not override explicit helper logic such as the “force one Artist until BFC” rule. Implemented in `CvCityAI::AI_jobChangeValue`. Tunable via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
+ - **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
+ - (Requires AdvCiv-SAS 5124+) Extend the “force one Artist until BFC” helper to **human** players for convenience; toggle via `CONVENIENCE_HUMAN` defines in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=20081

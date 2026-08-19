@@ -1,0 +1,188 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6017
+# Commit: 40c1c1f9d4b090399d6c4f21a19e561215300727
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c74eddbf0a4c771b2b4f6b59f76ebf621dd1b74f
+# Title: Add detailed BBAI worker assignment and mission diagnostics
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+44	1	CvGameCoreDLL/CvSelectionGroup.cpp
+28	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 3cb0140f0..61ff74c45 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1273,6 +1273,23 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 	CvPlot* pFromPlot = plot(); // advc.102
+ 	bool bDone = false;
+ 	bool bAction = false;
++	// <!-- custom: Worker city jobs were selected repeatedly without reaching their target. At Worker log level 3, trace the queued MISSIONAI_BUILD movement/build through execution so path failure can be separated from scoring or reassignment. No behavior change. (GPT-5.5) -->
++	CvUnit const* pSASWorker = NULL;
++	bool bLogSASWorkerMission = false;
++	if (gWorkerLogLevel >= 3 && AI().AI_getMissionAIType() == MISSIONAI_BUILD)
++	{
++		pSASWorker = getHeadUnit();
++		bLogSASWorkerMission = (pSASWorker != NULL && pSASWorker->AI_getUnitAIType() == UNITAI_WORKER);
++	}
++	char const* szSASWorkerMissionOutcome = NULL;
++	if (bLogSASWorkerMission)
++	{
++		szSASWorkerMissionOutcome = "pending";
++		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
++		logBBAI("    WORKER_MISSION_EXECUTION phase=begin turn=%d player=%d %S workerId=%d groupId=%d mission=%d data=(%d,%d) flags=%d pushTurn=%d from=(%d,%d) missionTarget=(%d,%d) queue=%d activity=%d movesLeft=%d",
++			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), missionData.eMissionType, missionData.iData1, missionData.iData2, missionData.eFlags, missionData.iPushTurn, getX(), getY(),
++			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
++	}
+ 
+ 	if (!(missionData.eFlags & MOVE_NO_ATTACK) && // K-Mod
+ 		(missionData.iPushTurn == kGame.getGameTurn() ||
+@@ -1339,6 +1356,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			else if (groupPathTo(missionData.iData1, missionData.iData2, missionData.eFlags))
+ 			{
+ 				bAction = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-step";
+ 				/*  advc: Not sure if groupPathTo can pop the head mission;
+ 					safer to update pHeadMission. */
+ 				pHeadMission = headMissionQueueNode();
+@@ -1356,6 +1374,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			else
+ 			{
+ 				bDone = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-no-path";
+ 				/*	<advc.pf> Failure to find a path here can be normal if the move
+ 					was scheduled on an earlier turn; it's probably also normal for
+ 					units ready to defend. If the unit doesn't get stuck in a loop
+@@ -1387,8 +1406,15 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 
+ 		case MISSION_ROUTE_TO:
+ 			if (groupRoadTo(missionData.iData1, missionData.iData2, missionData.eFlags))
++			{
+ 				bAction = true;
+-			else bDone = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-step";
++			}
++			else
++			{
++				bDone = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-failed";
++			}
+ 			break;
+ 
+ 		case MISSION_MOVE_TO_UNIT:
+@@ -1504,6 +1530,11 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 				!missionData.bModified)) // advc.011b
+ 			{
+ 				bDone = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-finished-or-invalid";
++			}
++			else
++			{
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-step";
+ 			}
+ 			break;
+ 
+@@ -1525,6 +1556,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			if (at(missionData.iData1, missionData.iData2))
+ 			{
+ 				bDone = true;
++				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-reached-target";
+ 				handleBoarded(); // advc.075
+ 			}
+ 			break;
+@@ -1533,7 +1565,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			if (at(missionData.iData1, missionData.iData2))
+ 			{
+ 				if (getBestBuildRoute(getPlot()) == NO_ROUTE)
++				{
+ 					bDone = true;
++					if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-reached-target";
++				}
+ 			}
+ 			break;
+ 
+@@ -1636,6 +1671,14 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 		}
+ 	}
+ 
++	if (bLogSASWorkerMission)
++	{
++		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
++		logBBAI("    WORKER_MISSION_EXECUTION phase=result turn=%d player=%d %S workerId=%d groupId=%d outcome=%s mission=%d from=(%d,%d) to=(%d,%d) missionTarget=(%d,%d) done=%d action=%d ready=%d queue=%d activity=%d movesLeft=%d",
++			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), szSASWorkerMissionOutcome, missionData.eMissionType, pFromPlot->getX(), pFromPlot->getY(), getX(), getY(),
++			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), bDone, bAction, readyForMission(), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
++	}
++
+ 	if (bDone)
+ 	{	/*if (!isBusy()) {
+ 			if (isActiveOwned()) {
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f6075781e..c2869612b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2539,6 +2539,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				continue;
+ 			ImprovementTypes const eCurrentImprovement = pCandidatePlot->getImprovementType();
+ 			ImprovementTypes const eCandidateImprovement = GC.getInfo(eCandidateBuild).getImprovement();
++			// <!-- custom: A worker chopped a worked Grass Hill near Cologne and then left without improving it. Log every unimproved BFC candidate in large cities so testing can show whether the follow-up Mine was generated and how its value compared with competing work. No behavior change. (GPT-5.5) -->
++			if (candidatePlots[i].ePlot != NO_CITYPLOT && eCurrentImprovement == NO_IMPROVEMENT)
++			{
++				TerrainTypes const eCandidateTerrain = pCandidatePlot->getTerrainType();
++				FeatureTypes const eCandidateFeature = pCandidatePlot->getFeatureType();
++				wchar const* szCandidateTerrain = (eCandidateTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eCandidateTerrain).getDescription());
++				wchar const* szCandidateFeature = (eCandidateFeature == NO_FEATURE ? L"-" : GC.getInfo(eCandidateFeature).getDescription());
++				wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
++				logBBAI("    WORKER_CITY_BUILD_CANDIDATE player=%d %S city=%S pop=%d plot=(%d,%d) cityPlot=%d worked=%d terrain=%S feature=%S hills=%d yields=(%d,%d,%d) build=%S improvement=%S value=%d",
++					getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), iCityPopulation, pCandidatePlot->getX(), pCandidatePlot->getY(), candidatePlots[i].ePlot, kCity.isWorkingPlot(*pCandidatePlot), szCandidateTerrain, szCandidateFeature, pCandidatePlot->isHills(),
++					pCandidatePlot->getYield(YIELD_FOOD), pCandidatePlot->getYield(YIELD_PRODUCTION), pCandidatePlot->getYield(YIELD_COMMERCE), GC.getInfo(eCandidateBuild).getDescription(), szCandidateImprovement, candidatePlots[i].iValue);
++			}
+ 			if (pCandidatePlot->getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+ 				iBonusCandidates++;
+ 			if (candidatePlots[i].ePlot != NO_CITYPLOT && eCurrentImprovement == NO_IMPROVEMENT && eCandidateImprovement != NO_IMPROVEMENT)
+@@ -4024,6 +4036,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 
++	// <!-- custom: Worker assignments appeared repeatedly in BBAI logging without the worker reaching the selected plot. Record the worker's existing mission and movement state when its AI is called so mission cancellation, danger, and reassignment can be correlated by unit ID. No behavior change. (GPT-5.5) -->
++	if (gWorkerLogLevel >= 3)
++	{
++		CvSelectionGroupAI const* pGroup = AI_getGroup();
++		CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
++		logBBAI("    WORKER_MOVE_ENTRY turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d movesSpent=%d movesLeft=%d currentDanger=%d threatened=%d",
++			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()),
++			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), getMoves(), movesLeft(), kOwner.AI_getPlotDanger(getPlot()), kOwner.AI_isPlotThreatened(plot(), 1));
++	}
++
+ 	// <!-- custom: cache this since we seem to check it many times, -->
+ 	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
+ 
+@@ -20960,6 +20982,12 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
+ 			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+ 			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
++	// <!-- custom: Pair the chosen city job with the exact worker, movement mode, and resulting queue so repeated selections can be distinguished from separate workers and traced through mission execution. No behavior change. (GPT-5.5) -->
++	if (gWorkerLogLevel >= 3)
++	{
++		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=%d build=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
++			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), eMission, GC.getInfo(eBestBuild).getDescription(), AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
++	}
+ 	return true;
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=10155

@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4555
+# Commit: 1ed73eaf640f07cb14ab3bc6268cda84a1ea2f0d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 478c6cdb89f48f603e3fb0afda8354a08e9d79df
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 8b1dde99a..b5262c6c2 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -64,6 +64,16 @@ workers every few eras, but there are military units for each new era, at max on
+ per class type (for example "sword light", "lance heavy", are each one type), and not
+ for all types, also lesser in later stages of the game to simplify/rush/reach sooner
+ the endgame)
++- about that too, there are new - specific - unit combat types, for example axemen
++are melee_axe type, light swordsmen melee_swords_light, heavy lance units are
++melee_lance_heavy. So no more weirdness of axeman being good against lancer,
++now the relationships between types will be more complicated or rather defined
++(may make more sense at same time too), for example an axeman may be good against
++swordsmen (for example todo), but not against heavy lances. Light lances may have
++strong bonuses against all/most melee types, except fast ones, and light swords strong
++bonuses against all/most melee types too except fast ones (their strength would be
++lower though). Strategy should be much more important while not being too tedious
++ideally.
+ - some units can only be built under specific conditions, for example each religion
+ has one unit (same for neo religions at later eras. See religion changes below for
+ details), for example Buddhism is required to build monks (melee fist fighters)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1513

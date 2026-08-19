@@ -1,0 +1,290 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 393
+# Commit: ae5bc292c9e2d4a0b47f635e1122fde098b5572c
+# History segment: K-Mod history
+# Parent used for diff: 48fa08b16bd8b05e5062e73ff871e8f88e5ea216
+# Title: Changed AI_finalOddsThreshold so that it depends on the cost of the units rather than on the number of surrounding units. Fixed a problem which caused all mo...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+74	46	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index f9cfdef23..3211da15e 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -741,7 +741,7 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers) con
+ 		gDLL->getInterfaceIFace()->selectUnit(pNextSelectionGroup->getHeadUnit(), bClear);
+ 	}
+ 	// K-Mod
+-	else
++	else if (pCycleUnit)
+ 	{
+ 		gDLL->getInterfaceIFace()->clearSelectionList();
+ 		const_cast<CvGame*>(this)->updateTestEndTurn();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 80bef8d43..9d229278c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1173,7 +1173,8 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		{
+ 			iValue += 25000;
+ 		}
+-		iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
++		//iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
++		iValue /= std::max(1, 1 + (m_pUnitInfo->getProductionCost() > 0 ? m_pUnitInfo->getProductionCost() : 500)); // K-Mod
+ 		iValue *= (maxHitPoints() - getDamage());
+ 		iValue /= 100;
+ 	} 
+@@ -1199,14 +1200,15 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		iValue *= (100 + withdrawalProbability());
+ 
+ 		// Experience and medics now better handled in LFB
+-		iValue /= (10 + getExperience());
+ 		if( !GC.getLFBEnable() )
+ 		{
++			iValue /= (10 + getExperience()); // K-Mod - moved from out of the if.
+ 			iValue *= 10;
+ 			iValue /= (10 + getSameTileHeal() + getAdjacentTileHeal());
+ 		}
+ 
+ 		// Value units which can't kill units later, also combat limits mean higher survival odds
++		/* original bbai code
+ 		if (combatLimit() < 100)
+ 		{
+ 			iValue *= 150;
+@@ -1214,33 +1216,38 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 
+ 			iValue *= 100;
+ 			iValue /= std::max(1, combatLimit());
+-		}
++		} */
++		// K-Mod. The above code is way too extreme.
++		// I'm going to replace it with something more meaningful, and less severe.
++		iValue *= 100 + 5 * (2 * firstStrikes() + chanceFirstStrikes()) / 2 + (immuneToFirstStrikes() ? 20 : 0) + (combatLimit() < 100 ? 20 : 0);
++		iValue /= 100;
++		// K-Mod end
+ 
+-		iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
++		//iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
++		iValue /= std::max(1, 1 + (m_pUnitInfo->getProductionCost() > 0 ? m_pUnitInfo->getProductionCost() : 500)); // K-Mod
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+-/*                                                                                              */
+-/* From Lead From Behind                                                                        */
+-/************************************************************************************************/
+ 	// From Lead From Behind by UncutDragon
+ 	if (GC.getLFBEnable())
+ 	{
+ 		// Reduce the value of sacrificing 'valuable' units - based on great general, limited, healer, experience
++		/* bbai code
+ 		iValue *= 100;
+ 		int iRating = LFBgetRelativeValueRating();
+ 		if (iRating > 0)
+ 		{
+ 			iValue /= (1 + 3*iRating);
+-		}
++		} */
++		// K-Mod. cf. LFBgetValueAdjustedOdds
++		iValue *= 1000;
++		iValue /= std::max(1, 1000 + 1000 * LFBgetRelativeValueRating() * GC.getLFBAdjustNumerator() / GC.getLFBAdjustDenominator());
++		// roughly speaking, the second part of the denominator is the odds adjustment from LFBgetValueAdjustedOdds.
++		// It might be more natural to subtract it from the numerator, but then we can't guarantee a positive value.
++		// K-Mod end
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+     return iValue;
+ }
+@@ -3196,7 +3203,7 @@ void CvUnitAI::AI_attackCityMove()
+ 		}
+ 	} */
+ 
+-	if (AI_anyAttack(1, 60, iMoveFlags, 0, false))
++	if (AI_anyAttack(1, 60, iMoveFlags | MOVE_SINGLE_ATTACK, 0, false))
+ 	{
+ 		return;
+ 	}
+@@ -3671,12 +3678,12 @@ void CvUnitAI::AI_collateralMove()
+ 		return;
+ 	}
+ 
++	/* original bts code
+ 	if (AI_anyAttack(1, 30, 0, 4))
+ 	{
+ 		return;
+ 	}
+ 
+-	/* original bts code
+ 	if (AI_anyAttack(1, 20, 5))
+ 	{
+ 		return;
+@@ -15804,24 +15811,11 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, int iFlags, bool bF
+ 	return false;
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/01/10                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI, Efficiency                                                                   */
+-/************************************************************************************************/
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMinStack, bool bAllowCities, bool bFollow)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-	CvPlot* pBestPlot;
+-	int iSearchRange;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iDX, iDY;
+-
+ 	FAssert(canMove());
+ 
+ 	if (AI_rangeAttack(iRange))
+@@ -15829,23 +15823,16 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 		return true;
+ 	}
+ 
+-	if (bFollow)
+-	{
+-		iSearchRange = 1;
+-	}
+-	else
+-	{
+-		iSearchRange = AI_searchRange(iRange);
+-	}
++	int iSearchRange = bFollow ? 1 : AI_searchRange(iRange);
+ 
+-	iBestValue = 0;
+-	pBestPlot = NULL;
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
+ 
+-	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
++	for (int iDX = -iSearchRange; iDX <= iSearchRange; iDX++)
+ 	{
+-		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++		for (int iDY = -iSearchRange; iDY <= iSearchRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+@@ -15859,10 +15846,17 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 							if (pLoopPlot->getNumVisibleEnemyDefenders(this) >= iMinStack)
+ 							{
+ 								//if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+-								if (!atPlot(pLoopPlot) && canMoveInto(pLoopPlot, true) && (bFollow ? true : generatePath(pLoopPlot, iFlags, true, &iPathTurns, iRange) && (iPathTurns <= iRange))) // K-Mod
++								if (!atPlot(pLoopPlot) && canMoveInto(pLoopPlot, true) && (bFollow ? true : generatePath(pLoopPlot, iFlags, true, 0, iRange))) // K-Mod
+ 								{
+-	 
+-									iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
++									//iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
++									// K-Mod
++									int iValue;
++									CvUnit* pAttacker = 0;
++									if (!pLoopPlot->hasDefender(false, NO_PLAYER, getOwnerINLINE(), NULL, true, false))
++										iValue = 100;
++									else
++										pAttacker = getGroup()->AI_getBestGroupAttacker(pLoopPlot, false, iValue);
++									// K-Mod end
+ 
+ 									if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
+ 									{
+@@ -24039,7 +24033,7 @@ bool CvUnitAI::AI_plotValid(CvPlot* pPlot)
+ }
+ 
+ 
+-int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold)
++int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold, CvUnit* pAttacker) // K-Mod added pAttacker
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -24105,12 +24099,46 @@ int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold)
+ 	}
+ 	else
+ 	{
++		/* bbai code
+ 		iFinalOddsThreshold *= 6 + (iDefenders/((pCity != NULL) ? 1 : 2));
+ 		int iDivisor = 3;
+ 		iDivisor += GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pPlot, true);
+ 		iDivisor += ((stepDistance(getX_INLINE(), getY_INLINE(), pPlot->getX_INLINE(), pPlot->getY_INLINE()) > 1) ? getGroup()->getNumUnits() : 0);
+ 		iDivisor += (AI_isCityAIType() ? 2 : 0);
+-		iFinalOddsThreshold /= iDivisor;
++		iFinalOddsThreshold /= iDivisor; */
++
++		// K-Mod
++		// holy smokes crapman. I wish I'd looked at this part of code sooner. It's complete trash!
++		// This is what makes the AI suicide huge stacks of units against a small group of powerful defenders.
++		// Imagine 2 units with defence and drill promotions, standing in a hills-forest fort...
++		// this code is a disaster.
++
++		// Since the original code is pretty stupid.. maybe I should let the barbarians use it.
++		if (isBarbarian())
++		{
++			iFinalOddsThreshold *= 6 + (iDefenders/((pCity != NULL) ? 1 : 2));
++			int iDivisor = 3;
++			iDivisor += GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pPlot, true);
++			iDivisor += ((stepDistance(getX_INLINE(), getY_INLINE(), pPlot->getX_INLINE(), pPlot->getY_INLINE()) > 1) ? getGroup()->getNumUnits() : 0);
++			iDivisor += (AI_isCityAIType() ? 2 : 0);
++			iFinalOddsThreshold /= iDivisor;
++		}
++		else
++		{
++			// I think the best thing to consider would be the relative production cost of the attacker vs that of the defender.
++			// but getting the best attacker / defender is somewhat expensive...  ...  too bad, I guess.
++			CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this);
++			if (pDefender)
++			{
++				pAttacker = pAttacker ? pAttacker : this;
++				if (pAttacker->getUnitInfo().getProductionCost() > 0 && pDefender->getUnitInfo().getProductionCost() > 0)
++				{
++					iFinalOddsThreshold *= 15 + pAttacker->getUnitInfo().getProductionCost();
++					iFinalOddsThreshold /= 15 + pDefender->getUnitInfo().getProductionCost();
++				}
++			}
++		}
++		// K-Mod end
+ 	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index e1b2f0cbb..7dd0b35ce 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -309,7 +309,7 @@ protected:
+ 	int AI_searchRange(int iRange);
+ 	bool AI_plotValid(CvPlot* pPlot);
+ 
+-	int AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold);
++	int AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold, CvUnit* pAttacker = 0); // K-Mod added pAttacker.
+ 
+ 	int AI_stackOfDoomExtra() const;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10888

@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 695
+# Commit: 3bc1d69bf84e6222c7f4b56d13fba808a49b63a0
+# History segment: K-Mod history
+# Parent used for diff: 27681ef4dba9290384b5ad243fc1511a58a331e5
+# Title: Fixed a couple of problems in the new trade-value part of AI_techValue. - The AI previously counted its own team as a potential trade partner. - The trade de...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+19	25	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 38d4ca2fb..f9aff5359 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6073,9 +6073,9 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i = (TeamTypes)(i+1))
+ 				{
+ 					const CvTeamAI& kLoopTeam = GET_TEAM(i);
+-					if (kLoopTeam.isAlive() && kTeam.isHasMet(i))
++					if (i != getTeam() && kLoopTeam.isAlive() && kTeam.isHasMet(i))
+ 					{
+-						if (kLoopTeam.isHasTech(eTech))
++						if (kLoopTeam.isHasTech(eTech) || (canSeeResearch(kLoopTeam.getLeaderID()) && GET_PLAYER(kLoopTeam.getLeaderID()).getCurrentResearch() == eTech))
+ 							iAlreadyKnown++;
+ 						else if (!kTeam.isAtWar(i) && kLoopTeam.AI_techTrade(NO_TECH, getTeam()) == NO_DENIAL && kTeam.AI_techTrade(NO_TECH, i) == NO_DENIAL)
+ 							iPotentialTrade++;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 8697cd129..a5500b99e 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1573,16 +1573,8 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	AttitudeTypes eAttitude;
+-	int iNoTechTradeThreshold;
+-	int iTechTradeKnownPercent;
+-	int iKnownCount;
+-	int iPossibleKnownCount;
+-	int iI, iJ;
+-
+ 	FAssertMsg(eTeam != getID(), "shouldn't call this function on ourselves");
+ 
+-	
+ 	if (GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_BROKERING))
+ 	{
+ 		CvTeam& kTeam = GET_TEAM(eTeam);
+@@ -1619,9 +1611,9 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 		return DENIAL_WORST_ENEMY;
+ 	}
+ 
+-	eAttitude = AI_getAttitude(eTeam);
++	AttitudeTypes eAttitude = AI_getAttitude(eTeam);
+ 
+-	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+@@ -1635,17 +1627,12 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 		}
+ 	}
+ 
+-	// K-Mod. Generic tech trade test
+-	if (eTech == NO_TECH)
+-		return NO_DENIAL;
+-	// K-Mod end
+-
+ 	if (eAttitude < ATTITUDE_FRIENDLY)
+ 	{
+ 		if ((GC.getGameINLINE().getTeamRank(getID()) < (GC.getGameINLINE().countCivTeamsEverAlive() / 2)) ||
+-			  (GC.getGameINLINE().getTeamRank(eTeam) < (GC.getGameINLINE().countCivTeamsEverAlive() / 2)))
++			(GC.getGameINLINE().getTeamRank(eTeam) < (GC.getGameINLINE().countCivTeamsEverAlive() / 2)))
+ 		{
+-			iNoTechTradeThreshold = AI_noTechTradeThreshold();
++			int iNoTechTradeThreshold = AI_noTechTradeThreshold();
+ 
+ 			iNoTechTradeThreshold *= std::max(0, (GC.getHandicapInfo(GET_TEAM(eTeam).getHandicapType()).getNoTechTradeModifier() + 100));
+ 			iNoTechTradeThreshold /= 100;
+@@ -1655,11 +1642,18 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 				return DENIAL_TECH_WHORE;
+ 			}
+ 		}
++	// K-Mod. Generic tech trade test
++	}
++	if (eTech == NO_TECH)
++		return NO_DENIAL;
+ 
+-		iKnownCount = 0;
+-		iPossibleKnownCount = 0;
++	if (eAttitude < ATTITUDE_FRIENDLY)
++	{
++	// K-Mod end
++		int iKnownCount = 0;
++		int iPossibleKnownCount = 0;
+ 
+-		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 		{
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+@@ -1678,7 +1672,7 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 			}
+ 		}
+ 
+-		iTechTradeKnownPercent = AI_techTradeKnownPercent();
++		int iTechTradeKnownPercent = AI_techTradeKnownPercent();
+ 
+ 		iTechTradeKnownPercent *= std::max(0, (GC.getHandicapInfo(GET_TEAM(eTeam).getHandicapType()).getTechTradeKnownModifier() + 100));
+ 		iTechTradeKnownPercent /= 100;
+@@ -1692,7 +1686,7 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+ 	{
+ 		if (isTechRequiredForUnit(eTech, ((UnitTypes)iI)))
+ 		{
+@@ -1706,7 +1700,7 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+ 	{
+ 		if (isTechRequiredForBuilding(eTech, ((BuildingTypes)iI)))
+ 		{
+@@ -1720,7 +1714,7 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumProjectInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+ 	{
+ 		if (GC.getProjectInfo((ProjectTypes)iI).getTechPrereq() == eTech)
+ 		{
+@@ -1732,7 +1726,7 @@ DenialTypes CvTeamAI::AI_techTrade(TechTypes eTech, TeamTypes eTeam) const
+ 				}
+ 			}
+ 
+-			for (iJ = 0; iJ < GC.getNumVictoryInfos(); iJ++)
++			for (int iJ = 0; iJ < GC.getNumVictoryInfos(); iJ++)
+ 			{
+ 				if (GC.getGameINLINE().isVictoryValid((VictoryTypes)iJ))
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4819

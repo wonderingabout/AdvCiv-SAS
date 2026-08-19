@@ -1,0 +1,326 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2453
+# Commit: debc930f3e2efd835d0701b6e0c35c08c8d5c092
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4dc23db1cab7ff999485b477ebf88624b11ee10e
+# Title: Bugfix: Sounds re-played upon upon updating popups
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+33	4	Assets/XML/Audio/Audio2DScripts.xml
+22	9	CvGameCoreDLL/CvDLLButtonPopup.cpp
+44	19	CvGameCoreDLL/CvPlayer.cpp
+6	1	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 42b663be4..4ba2f015e 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -4,7 +4,16 @@
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+-<!-- 2D Sound Scripts -->
++<!-- 2D Sound Scripts
++	 advc (note): In-line comments will crash the parser -->
++<!-- K-Mod has corrected the sound id of AS2D_THEIRALLIANCE,
++	 has increased the volume of AS2D_BLIGHT from 60 to 100
++	 and added AS2D_SQUISH. -->
++<!-- advc.004x: Set the volume of AS2D_IF_SCREEN_UP to 0 in order to prevent
++	 the EXE from playing the screen-up sound. (There seems to be no "NONE"
++	 sound id for disabling an audio script properly.) Added a copy of
++	 AS2D_IF_SCREEN_UP named "AS2D_IF_BUTTONPOPUP_UP" with normal volume
++	 so that the DLL can play the screen-up sound. -->
+ <Script2DSounds xmlns="x-schema:AudioScriptSchema.xml">
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_ERROR</ScriptID>
+@@ -9417,6 +9426,29 @@
+ 		<ScriptID>AS2D_IF_SCREEN_UP</ScriptID>
+ 		<SoundID>SND_IF_SCREENUP</SoundID>
+ 		<SoundType>GAME_INTERFACE</SoundType>
++		<iMinVolume>0</iMinVolume>
++		<iMaxVolume>0</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_IF_BUTTONPOPUP_UP</ScriptID>
++		<SoundID>SND_IF_SCREENUP</SoundID>
++		<SoundType>GAME_INTERFACE</SoundType>
+ 		<iMinVolume>80</iMinVolume>
+ 		<iMaxVolume>80</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+@@ -9942,7 +9974,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<!-- K-Mod: was THEIRMAKEPEACE -->
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_THEIRALLIANCE</ScriptID>
+ 		<SoundID>SND_THEIRALLIANCE</SoundID>
+@@ -11254,7 +11285,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<!-- K-Mod: Volume increased; was 60. -->
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_BLIGHT</ScriptID>
+ 		<SoundID>SND_BLIGHT</SoundID>
+@@ -21536,7 +21566,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<!-- K-Mod: -->
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_SQUISH</ScriptID>
+ 		<SoundID>SND_SQUISH</SoundID>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index f22d8abd5..b83959a15 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -951,9 +951,18 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		break;
+ 	default:
+ 		FAssert(false);
+-		break;
+ 	}
+-	return (bLaunched);
++	// <advc.004x>
++	CvPlayer& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
++	/*	Replacing the AS2D_IF_SCREEN_UP audio script that the EXE had played
++		(which I've disabled through XML). The sound is unchanged. */
++	if (bLaunched)
++		kPlayer.playButtonPopupSound("AS2D_IF_BUTTONPOPUP_UP");
++	/*	Allow CvPlayer to track relaunched popups (doesn't matter for
++		CvPlayer whether the launch was successful) */
++	kPlayer.reportButtonPopupLaunched();
++	// </advc.004x>
++	return bLaunched;
+ }
+ 
+ 
+@@ -1236,18 +1245,21 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED, 252);
+ 
+ 	switch (info.getData2())
+-	{
++	{	// advc.004x: Play the sounds via CvPlayer
+ 	case ORDER_TRAIN:
+-		m_kUI.playGeneralSound(GC.getInfo((UnitTypes)info.getData3()).
+-				getArtInfo(0, GET_PLAYER(pCity->getOwner()).getCurrentEra(), NO_UNIT_ARTSTYLE)->getTrainSound());
++		kOwner.playButtonPopupSound(GC.getInfo((UnitTypes)info.getData3()).
++				getArtInfo(0, kOwner.getCurrentEra(), NO_UNIT_ARTSTYLE)->
++				getTrainSound());
+ 		break;
+ 
+ 	case ORDER_CONSTRUCT:
+-		m_kUI.playGeneralSound(GC.getInfo((BuildingTypes)info.getData3()).getConstructSound());
++		kOwner.playButtonPopupSound(GC.getInfo((BuildingTypes)info.getData3()).
++				getConstructSound());
+ 		break;
+ 
+ 	case ORDER_CREATE:
+-		m_kUI.playGeneralSound(GC.getInfo((ProjectTypes)info.getData3()).getCreateSound());
++		kOwner.playButtonPopupSound(GC.getInfo((ProjectTypes)info.getData3()).
++				getCreateSound());
+ 		break;
+ 
+ 	default: break;
+@@ -1492,7 +1504,7 @@ bool CvDLLButtonPopup::launchDisbandCityPopup(CvPopup* pPopup, CvPopupInfo &info
+ 			NULL, 1, WIDGET_GENERAL);
+ 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);
+ 
+-	m_kUI.playGeneralSound("AS2D_CULTUREFLIP");
++	kPlayer.playButtonPopupSound("AS2D_CULTUREFLIP"); // advc.004x (was m_kUI.playGeneralSound)
+ 
+ 	return true;
+ }
+@@ -1688,7 +1700,8 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
+ 
+ bool CvDLLButtonPopup::launchAlarmPopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
+-	m_kUI.playGeneralSound("AS2D_ALARM");
++	//m_kUI.playGeneralSound("AS2D_ALARM");
++	GET_PLAYER(GC.getGame().getActivePlayer()).playButtonPopupSound("AS2D_ALARM"); // advc.004x
+ 
+ 	m_kUI.popupSetHeaderString(pPopup, gDLL->getText("TXT_KEY_POPUP_ALARM_TITLE").c_str());
+ 	m_kUI.popupSetBodyString(pPopup, info.getText());
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ab1d9c678..ad3082646 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -423,7 +423,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iPopRushHurryCount = 0;
+ 	m_iGoldRushHurryCount = 0; // advc.064b
+ 	m_iInflationModifier = 0;
++	m_iChoosingFreeTechCount = 0; // K-Mod
++	m_iNewMessages = 0; // advc.106b
++	m_iButtonPopupsRelaunching = 0; // advc.004x
+ 	m_uiStartTime = 0;
++	m_eReminderPending = NO_CIVIC; // advc.004x
+ 
+ 	m_bAlive = false;
+ 	m_bEverAlive = false;
+@@ -436,12 +440,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_bAnyGPPEver = false; // advc.078
+ 	m_bStrike = false;
+ 	m_bDisableHuman = false; // bbai
+-	m_iChoosingFreeTechCount = 0; // K-Mod
+-	m_iNewMessages = 0; // advc.106b
+ 	m_bAutoPlayJustEnded = false; // advc.127
+ 	m_bSavingReplay = false; // advc.106i
+ 	m_bScoreboardExpanded = false; // advc.085
+-	m_eReminderPending = NO_CIVIC; // advc.004x
+ 
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -19614,7 +19615,7 @@ double CvPlayer::estimateYieldRate(YieldTypes eYield, int iSamples) const
+ 	return ::dMedian(samples);
+ }
+ 
+-// advc.004x:
++// <advc.004x>
+ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
+ {
+ 	CvGame const& kGame = GC.getGame();
+@@ -19628,20 +19629,23 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
+ 	{
+ 		return;
+ 	}
+-	// Preserve the popups we don't want killed in newQueue
+-	std::list<CvPopupInfo*> newQueue;
++	FAssert(m_iButtonPopupsRelaunching == 0);
++	CvPopupQueue relaunchDisplayed;
++	CvPopupQueue relaunchQueued;
++	int iOnDisplay = 0;
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{
+-		if(iPass == 1)
++		if (iPass == 1)
+ 		{
+ 			// Recall popups already launched
+ 			gDLL->UI().getDisplayedButtonPopups(m_listPopups);
++			iOnDisplay = m_listPopups.size();
+ 		}
+ 		for (std::list<CvPopupInfo*>::iterator it = m_listPopups.begin();
+ 			it != m_listPopups.end(); it++)
+ 		{
+ 			CvPopupInfo* pPopup = *it;
+-			if((pPopup->getButtonPopupType() != ePopupType &&
++			if ((pPopup->getButtonPopupType() != ePopupType &&
+ 				/*	Don't relaunch a found-religion popup in response to a
+ 					change-religion popup. The player will already have chosen
+ 					and founded a religion, i.e. the found-religion popup is
+@@ -19653,26 +19657,47 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
+ 				||
+ 				(iData1 >= 0 && pPopup->getData1() != iData1))
+ 			{
+-				newQueue.push_back(pPopup);
++				(iPass == 0 ? relaunchQueued : relaunchDisplayed).push_back(pPopup);
+ 			}
+-			else
++			else if (iPass <= 0)
+ 			{
+-				if (iPass <= 0)
+-					SAFE_DELETE(pPopup);
+-				// else it's still in the list of popups on display
+-			}
++				SAFE_DELETE(pPopup);
++			} /* Otherwise, the EXE owns it. The clearQueuedPopups call below will
++				 delete it (I assume). */
+ 		}
+ 		m_listPopups.clear();
+ 	}
+-	// The EXE will relaunch these from m_listPopups
+-	gDLL->UI().clearQueuedPopups();
+-	for (std::list<CvPopupInfo*>::iterator it = newQueue.begin();
+-		it != newQueue.end(); it++)
++
++	// Relaunch popups already on display only when necessary
++	if (iOnDisplay != relaunchDisplayed.size())
+ 	{
+-		m_listPopups.push_back(*it);
++		gDLL->UI().clearQueuedPopups();
++		// To suppress the sound
++		m_iButtonPopupsRelaunching = relaunchDisplayed.size();
++		m_listPopups.insert(m_listPopups.begin(),
++				relaunchDisplayed.begin(), relaunchDisplayed.end());
+ 	}
++	m_listPopups.insert(m_listPopups.end(),
++			relaunchQueued.begin(), relaunchQueued.end());
++	/*	Note: The EXE will fetch the CvPopupInfo in m_listPopups,
++		create CvPopup objects (which the DLL can't do) and
++		launch them through CvDLLButtonPopup::launchButtonPopup. */
++}
++
++/*	Wrapper for CvDLLInterfaceIFaceBase::playGeneralSound that suppresses
++	sounds upon relaunching (i.e. merely updating) a popup */
++void CvPlayer::playButtonPopupSound(LPCTSTR pszSound) const
++{
++	if (m_iButtonPopupsRelaunching <= 0)
++		gDLL->UI().playGeneralSound(pszSound);
+ }
+ 
++
++void CvPlayer::reportButtonPopupLaunched()
++{
++	m_iButtonPopupsRelaunching = std::max(m_iButtonPopupsRelaunching - 1, 0);
++} // </advc.004x>
++
+ // <advc.314>
+ // iProgress <= 0 means guaranteed discovery
+ bool CvPlayer::isGoodyTech(TechTypes eTech, int iProgress) const
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index ad18211c1..0af871b25 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1243,7 +1243,11 @@ public:
+ 	void clearPopups();
+ 	DllExport CvPopupInfo* popFrontPopup();
+ 	DllExport const CvPopupQueue& getPopups() const;
+-	void killAll(ButtonPopupTypes ePopupType, int iData1 = -1); // advc.004x
++	// <advc.004x>
++	void killAll(ButtonPopupTypes ePopupType, int iData1 = -1);
++	void playButtonPopupSound(LPCTSTR pszSound) const;
++	void reportButtonPopupLaunched();
++	// </advc.004x>
+ 	DllExport void addDiplomacy(CvDiploParameters* pDiplo);
+ 	void clearDiplomacy();
+ 	DllExport const CvDiploQueue& getDiplomacy() const;
+@@ -1492,6 +1496,7 @@ protected:  // <advc.210>
+ 	int m_iGoldRushHurryCount; // advc.064b
+ 	int m_iInflationModifier;
+ 	int m_iChoosingFreeTechCount; // K-Mod (based on the 'Unofficial Patch'
++	int m_iButtonPopupsRelaunching; // advc.004x
+ 
+ 	uint m_uiStartTime;  // XXX save these?
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=10885

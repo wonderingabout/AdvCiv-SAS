@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4215
+# Commit: 8e0cc95868f9963312f41a7e780caf1a826f730a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d5e9dbfea792e227b8400ca0364d1dba60035f4f
+# Title: Deprioritize commerce for New World Barbarian cities
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	2	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7ca17489e..5e48e653f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7694,7 +7694,12 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	// K-Mod end
+ 	// <advc.300>
+ 	if (isBarbarian())
+-		return; // </advc.300>
++	{
++		int iCommerceToProductionShift = AI_commerceToProductionMultiplierShift();
++		iProductionMultiplier += iCommerceToProductionShift;
++		iCommerceMultiplier -= iCommerceToProductionShift;
++		return;
++	} // </advc.300>
+ 
+ 	int iNetCommerce = kPlayer.AI_getAvailableIncome(); // K-Mod
+ 	int iNetExpenses = kPlayer.calculateInflatedCosts() +
+@@ -12641,7 +12646,12 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ 		// K-Mod end
+ 	} // <advc.300>
+ 	if (isBarbarian())
+-		return; // </advc.300>
++	{
++		int iCommerceToProductionShift = AI_commerceToProductionMultiplierShift();
++		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += iCommerceToProductionShift;
++		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= iCommerceToProductionShift;
++		return;
++	} // </advc.300>
+ 
+ 	BuildingTypes eProductionBuilding = getProductionBuilding();
+ 	if (eProductionBuilding != NO_BUILDING)
+@@ -12768,6 +12778,17 @@ int CvCityAI::AI_specialYieldMultiplier(YieldTypes eYield) const
+ int CvCityAI::AI_commerceToProductionMultiplierShift() const
+ {
+ 	int iR = 0;
++	/*	<advc.300> Delay Cottaging of New World to make it a little less
++		attractive for conquerors */
++	if (isBarbarian())
++	{
++		if (getArea().getNumCivCities() <= 0)
++		{
++			iR += range(CvEraInfo::AI_getAgeOfExploration()
++					- GC.getGame().getCurrentEra(), 0, 2) * 10;
++		}
++		return iR;
++	} // </advc.300>
+ 	if (GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
+ 		iR = 20;
+ 	else if (3 * findBaseYieldRateRank(YIELD_PRODUCTION) <=
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1845

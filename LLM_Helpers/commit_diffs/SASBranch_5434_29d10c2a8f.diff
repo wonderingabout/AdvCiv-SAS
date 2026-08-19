@@ -1,0 +1,349 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5434
+# Commit: 29d10c2a8f4567ee2002e1e9e39f6417db581133
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 202d3dbbaf0af12aa8d437ecf5b78e7a5465f91e
+# Title: Fix Global_Highlands.py
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+289	0	PrivateMaps/Global_Highlands.py
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 PrivateMaps/Global_Highlands.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+new file mode 100644
+index 000000000..abd4640ae
+--- /dev/null
++++ b/PrivateMaps/Global_Highlands.py
+@@ -0,0 +1,289 @@
++#
++#	FILE:	 Global_Highlands.py
++#	AUTHOR:  Bob Thomas (Sirian)
++#	PURPOSE: Global map script - mountainous terrain
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005, 2007 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++import random
++import sys
++from math import sqrt
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++from SAS_WorldSizes import *
++
++balancer = BonusBalancer()
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_GLOBAL_HIGHLANDS_DESCR"
++
++def getNumCustomMapOptions():
++	return 5
++	
++def getNumHiddenCustomMapOptions():
++	return 2
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_SCRIPT_MOUNTAIN_PATTERN",
++		1:	"TXT_KEY_MAP_SCRIPT_MOUNTAIN_DENSITY",
++		2:	"TXT_KEY_MAP_SCRIPT_LANDMASS_SIZE",
++		3:  "TXT_KEY_MAP_WORLD_WRAP",
++		4:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++	
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	3,
++		1:	3,
++		2:	4,
++		3:  3,
++		4:  2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_SCRIPT_SCATTERED",
++			1: "TXT_KEY_MAP_SCRIPT_RIDGELINES",
++			2: "TXT_KEY_MAP_SCRIPT_CLUSTERED"
++			},
++		1:	{
++			0: "TXT_KEY_MAP_SCRIPT_DENSE_PEAKS",
++			1: "TXT_KEY_MAP_SCRIPT_NORMAL_PEAKS",
++			2: "TXT_KEY_MAP_SCRIPT_THIN_PEAKS"
++			},
++		2:	{
++			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
++			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
++			2: "TXT_KEY_MAP_SCRIPT_SNAKY_CONTINENTS",
++			3: "TXT_KEY_MAP_SCRIPT_RANDOM"
++			},
++		3:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		4:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	1,
++		1:	1,
++		2:	3,
++		3:  1,
++		4:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	true,
++		1:	true,
++		2:	false,
++		3:	false,
++		4:  false
++		}
++	return option_random[iOption]
++
++def isAdvancedMap():
++	"This map should not show up in simple mode"
++	return 1
++	
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(3) == 1 or map.getCustomMapOption(3) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(3) == 2)
++
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(4) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(4) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def getGridSize(argsList):
++	"Enlarge the grids! Need extra land to cover that 'wasted' by all the peaks!"
++	grid_sizes = {
++		WorldSizeTypes.WORLDSIZE_DUEL:		(13,8),
++		WorldSizeTypes.WORLDSIZE_TINY:		(16,10),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(21,13),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(26,16),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(32,20),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(38,24)
++	}
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	return sas_lookup_world_size(eWorldSize, grid_sizes)
++
++def minStartingDistanceModifier():
++	return -25
++
++# subclass FractalWorld to borrow default process for land/sea formation only.
++class GHFractalWorld(CvMapGeneratorUtil.FractalWorld):
++	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
++		# Check for changes to User Input variances.
++		self.checkForOverrideDefaultUserInputVariances()
++		
++		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
++		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
++
++		water_percent += self.seaLevelChange
++		water_percent = min(water_percent, self.seaLevelMax)
++		water_percent = max(water_percent, self.seaLevelMin)
++
++		iWaterThreshold = self.continentsFrac.getHeightFromPercent(water_percent)
++		iHillsBottom1 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupOneBase - self.hillGroupOneRange), 0))
++		iHillsTop1 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupOneBase + self.hillGroupOneRange), 100))
++		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - self.hillGroupTwoRange), 0))
++		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + self.hillGroupTwoRange), 100))
++		iPeakThreshold = self.peaksFrac.getHeightFromPercent(self.peakPercent)
++
++		for x in range(self.iNumPlotsX):
++			for y in range(self.iNumPlotsY):
++				i = y*self.iNumPlotsX + x
++				val = self.continentsFrac.getHeight(x,y)
++				if val <= iWaterThreshold:
++					self.plotTypes[i] = PlotTypes.PLOT_OCEAN
++				else:
++					self.plotTypes[i] = PlotTypes.PLOT_LAND
++
++		if shift_plot_types:
++			self.shiftPlotTypes()
++
++		return self.plotTypes
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Global Highlands) ...")
++	NiTextOut("Setting Plot Types (Python Global Highlands) ...")
++	gc = CyGlobalContext()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++	plotTypes = [PlotTypes.PLOT_OCEAN] * (iW*iH)
++	terrainFrac = CyFractal()
++	
++	# Get custom map user inputs.
++	userInputGrain = map.getCustomMapOption(0)
++	userInputPeaks = map.getCustomMapOption(1)
++	userInputLandmass = map.getCustomMapOption(2)
++
++	fractal_world = GHFractalWorld()
++	
++	if userInputLandmass == 3: #Random landmass sizes
++		grainRoll = 1 + dice.get(7, "Fractal Grain - Global Highlands PYTHON")
++		if grainRoll > 4: grainRoll -= 4
++		if grainRoll == 4:
++			fractal_world.initFractal(polar = True)
++			plotTypes = fractal_world.generatePlotTypes(water_percent=75)
++		else:
++			fractal_world.initFractal(continent_grain = grainRoll, rift_grain = -1, has_center_rift = False, polar = True)
++			plotTypes = fractal_world.generatePlotTypes()
++	else:
++		grainRoll = 1 + userInputLandmass
++		fractal_world.initFractal(continent_grain = grainRoll, rift_grain = -1, has_center_rift = False, polar = True)
++		plotTypes = fractal_world.generatePlotTypes()
++
++	# Varying grains for hills/peaks per map size and Mountain Ranges setting.
++	# [clustered_grain, ridgelines_grain, scattered_grain]
++	worldsizes = {
++		WorldSizeTypes.WORLDSIZE_DUEL:      [3,4,5],
++		WorldSizeTypes.WORLDSIZE_TINY:      [3,4,5],
++		WorldSizeTypes.WORLDSIZE_SMALL:     [4,5,6],
++		WorldSizeTypes.WORLDSIZE_STANDARD:  [4,5,6],
++		WorldSizeTypes.WORLDSIZE_LARGE:     [4,5,6],
++		WorldSizeTypes.WORLDSIZE_HUGE:      [4,5,6]
++		}
++	grain_list = list(sas_lookup_world_size(map.getWorldSize(), worldsizes))
++	grain_list.reverse()
++	grain = grain_list[userInputGrain]
++	
++	# Peak density
++	peak_list = [65, 70, 77]
++	hill_list = [35, 40, 45]
++	peaks = peak_list[userInputPeaks]
++	hills = hill_list[userInputPeaks]
++	
++	terrainFrac.fracInit(iW, iH, grain, dice, 0, -1, -1)
++
++	iHillsThreshold = terrainFrac.getHeightFromPercent(hills)
++	iPeaksThreshold = terrainFrac.getHeightFromPercent(peaks)
++
++	# Now the main loop, which will assign the plot types.
++	for x in range(iW):
++		for y in range(iH):
++			i = y*iW + x
++			val = terrainFrac.getHeight(x,y)
++			if plotTypes[i] == PlotTypes.PLOT_OCEAN:
++				continue # Water plots already set.
++			if val >= iPeaksThreshold:
++				plotTypes[i] = PlotTypes.PLOT_PEAK
++			elif val >= iHillsThreshold and val < iPeaksThreshold:
++				plotTypes[i] = PlotTypes.PLOT_HILLS
++			else:
++				pass
++
++	return plotTypes
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Global Highlands) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	# Remove all peaks along the coasts, before adding Features, Bonuses, Goodies, etc.
++	map = CyMap()
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++	for plotIndex in range(iW * iH):
++		pPlot = map.plotByIndex(plotIndex)
++		if pPlot.isPeak() and pPlot.isCoastalLand():
++			# If a peak is along the coast, change to hills and recalc.
++			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
++	
++	# Now add Features.
++	NiTextOut("Adding Features (Python Global Highlands) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index ed24db91c..a9d05e14d 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -435,7 +435,7 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                  | Land                                     | BTS, AdvCiv-SAS                      |
+ | `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->` | BTS, AdvCiv-SAS           |
+ | `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     | BTS                                  |
++| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     | BTS, AdvCiv-SAS                      |
+ | `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS                                  |
+ | `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS                                  |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b3627c273..f724ade29 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -344,7 +344,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### Maps
+ 
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+-- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below).
++- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py).
+ - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+ - (Requires AdvCiv-SAS 5433+) **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=15296

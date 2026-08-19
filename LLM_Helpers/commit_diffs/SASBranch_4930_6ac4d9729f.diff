@@ -1,0 +1,1337 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4930
+# Commit: 6ac4d9729fd6e200e4a1fc0b28d66db28623193e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 523b965b498cb3257c8fe2182036deb6be03f776
+# Title: various AI fixes and tweaks: better AI worker control by functionally disabling base advciv +/- civ4 AI worker logic further more, no or much less interferen...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+9	3	CvGameCoreDLL/CitySiteEvaluator.cpp
+424	411	CvGameCoreDLL/CvCityAI.cpp
+155	112	CvGameCoreDLL/CvUnitAI.cpp
+2	2	README.md
+8	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index d0bdf9e1f..62260a7ad 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -859,7 +859,9 @@ short AIFoundValue::evaluate()
+ 	{
+ 		if (iLowFoodLocationCount >= 7)
+ 		{
+-			iValue -= 50 * iLowFoodLocationCount;
++			// <!-- custom: sometimes this is still ignored, although it shows to have helped in some cities already and at first, increase penalty quite a bit more if i may say anyways etc, which solved on testing successfully the issue, see known issue for details  -->
++			// iValue -= 50 * iLowFoodLocationCount;
++			iValue -= 75 * iLowFoodLocationCount;
+ 		}
+ 	}
+ 
+@@ -2032,14 +2034,18 @@ int AIFoundValue::foundOnResourceValue(int const* aiBonusImprovementYield) const
+ 	if (aiBonusImprovementYield == NULL)
+ 		// <!-- custom: try to make the penalty quite a lot stricter in case it helps and/or so we don't modify all this code as well, in addition to other changes in this file but anyways etc -->
+ 		//r -= 42; // When we can't currently improve the resource
+-		r -= 150; // When we can't currently improve the resource
++		// <!-- custom: also increase penalty here anyways etc -->
++		// r -= 150; // When we can't currently improve the resource
++		r -= 400; // When we can't currently improve the resource
+ 	else
+ 	{
+ 		// <!-- custom: new logic added by chatgpt thanks to my prompt too which i adjusted tentatively too but anyways etc ; note: trying also to not make it needlessly or overly too computationally expensive as recomemnded in other pre-advciv-sas code comments in this file too which i don't know if they are rleated to this funciton or not but maybe apply to this one as well hopefully helpful if i may say or not or yes or etc but anyways etc -->
+ 		// Mild penalty for food resources (already handled better in evaluatePlot)
+ 		if (aiBonusImprovementYield[YIELD_FOOD] >= 1)
+ 		{
+-			int const iFoodPenalty = 150 * (aiBonusImprovementYield[YIELD_FOOD]);
++			// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be betetr for ai to avoid settling on food bonuses :) and now all bonuses as well with the removal of yield food in multiplier, but i didn't check if this is only on food bonuses at caller or not, in all cases seems to run fine as such now and better than how it was for choosing city locations if i am not mistaken but anyways etc so leaving as such if i may say but anyways etc -->
++			// int const iFoodPenalty = 150 * (aiBonusImprovementYield[YIELD_FOOD]);
++			int const iFoodPenalty = 400;
+ 			r -= iFoodPenalty;
+ 			IFLOG logBBAI("-%d penalty: founding on food resource (from yield only)", iFoodPenalty);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 62fdca3f7..5e10ab4d4 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7873,425 +7873,438 @@ namespace
+ 	}
+ }
+ 
++// <!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most but anyways etc, added by chatgpt o-3 anyways etc and adjusted or not or yes or etc by me too if i may say but anyways etc ; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details anyways etc) -->
+ // advc (note): K-Mod function based on AI_updateBestBuild
+ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
+ 	int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange,
+ 	int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
+ {
+-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+-	BonusTypes eBonus = kPlot.getBonusType(getTeam());
+-	BonusTypes eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(getTeam());
+-
+-	BuildTypes eBestTempBuild = NO_BUILD;
+-	// first check if the improvement is valid on this plot
+-	// this also allows us work out whether or not the improvement will remove the plot feature...
+-	bool bValid = false;
+-	bool bIgnoreFeature = false;
+-	if (eImprovement == kPlot.getImprovementType())
+-		bValid = true;
+-	else
+-	{
+-		int iBestTempBuildValue = 0;
+-		FOR_EACH_ENUM(Build)
+-		{
+-			if (GC.getInfo(eLoopBuild).getImprovement() != eImprovement)
+-				continue;
+-			if (kOwner.canBuild(kPlot, eLoopBuild, false))
+-			{
+-				int iValue = 10000;
+-				iValue /= (GC.getInfo(eLoopBuild).getTime() + 1);
+-				// XXX feature production???  // (advc: I think the chop decision in AI_updateBestBuild will handle that)
+-				if (iValue > iBestTempBuildValue)
+-				{
+-					iBestTempBuildValue = iValue;
+-					eBestTempBuild = eLoopBuild;
+-				}
+-			}
+-		}
+-		if (eBestTempBuild != NO_BUILD)
+-		{
+-			bValid = true;
+-			if (kPlot.isFeature() &&
+-				GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
+-			{
+-				bIgnoreFeature = true;
+-				if (GC.getInfo(kPlot.getFeatureType()).getYieldChange(YIELD_PRODUCTION) > 0 &&
+-					eNonObsoleteBonus == NO_BONUS)
+-				{
+-					if (kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
+-						bValid = false;
+-					else if (healthRate() < 0 &&
+-						GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
+-					{
+-						bValid = false;
+-					}
+-					else if (kOwner.getFeatureHappiness(kPlot.getFeatureType()) > 0)
+-						bValid = false;
+-				}
+-			}
+-		}
+-	}
+-	if (!bValid)
+-	{
+-		if (peBestBuild != NULL)
+-			*peBestBuild = NO_BUILD;
+-		return 0;
+-	}
+-
+-	// Now get the value of the improvement itself.
+-	ImprovementTypes eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
+-	if (eFinalImprovement == NO_IMPROVEMENT)
+-		eFinalImprovement = eImprovement;
+-
+-	scaled rValue;
+-	//int aiDiffYields[NUM_YIELD_TYPES]; // removed by K-Mod (replaced by time-weighted yields!)
+-	//int aiFinalYields[NUM_YIELD_TYPES];
+-
+-	if (eBonus != NO_BONUS && eNonObsoleteBonus != NO_BONUS)
+-	{
+-		//if (GC.getInfo(eFinalImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+-		if (kOwner.doesImprovementConnectBonus(eFinalImprovement, eNonObsoleteBonus))
+-		{
+-			// K-Mod
+-			rValue += kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50;
+-			rValue += 100;
+-			// K-Mod end
+-			/*	<advc.121> Kludge to force the AI to prefer improvements with yields
+-				over forts. Don't want to rule out forts altogether b/c of gems in a
+-				jungle -- w/o IW, a fort is the only way to connect the resource. */
+-			int iImprYieldChange = 0;
+-			FOR_EACH_ENUM(Yield)
+-			{
+-				iImprYieldChange += kPlot.calculateImprovementYieldChange(
+-						eImprovement, eLoopYield, kOwner.getID());
+-			}
+-			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
+-				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here increase the division to keep code as it is functionnally but with stricter behaviour if i am not mistaken towards forts but anyways etc -->
+-				//rValue /= 3;
+-				rValue /= 10;
+-			// </advc.121>
+-		}
+-		else
+-		{
+-			// K-Mod, bug fix. (original code deleted now.)
+-			/*  Presumably the original author wanted to subtract 1000 if eBestBuild would
+-				take away the bonus; not ... the nonsense they actually wrote. */
+-			if (kOwner.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
+-			{
+-				// By the way, AI_bonusVal is typically 10 for the first bonus, and 2 for subsequent.
+-				rValue -= kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50;
+-				rValue -= 100;
+-			}
+-		}
+-	}
+-	else if (eFinalImprovement != kPlot.getImprovementType()) // advc.121 (save time)
+-	{
+-		rValue += AI_bonusDiscoverRandVal(eFinalImprovement);
+-		// <advc.121> Prefer to use only differences in this upper part
+-		if (kPlot.isImproved())
+-			rValue -= AI_bonusDiscoverRandVal(kPlot.getImprovementType());
+-		// </advc.121>
+-	}
+-	//if (rValue >= 0) // disabled by K-Mod. (maybe the yield will be worth it!)
+-
+-	EagerEnumMap<YieldTypes,scaled> weightedFinalYields;
+-	EagerEnumMap<YieldTypes,scaled> weightedYieldDiffs;
+-	{
+-		// K-Mod. Get a weighted average of the yields for improvements which upgrade (eg. cottages).
+-		int iTimeScale = 60;
+-		if (10 * GC.getGame().getElapsedGameTurns() < 3 * GC.getGame().getEstimateEndTurn())
+-			iTimeScale += 10;
+-		if (kOwner.AI_atVictoryStage4())
+-			iTimeScale -= 30;
+-		else if (10 * GC.getGame().getElapsedGameTurns() >
+-			7 * GC.getGame().getEstimateEndTurn())
+-		{
+-			iTimeScale -= 10;
+-		}
+-		// advc.001: was AI_isDoVictoryStrategy
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
+-			iTimeScale += 50;
+-		if (GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) +
+-			// advc.001: Surely(?) preparations should count here as well
+-			GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
+-		{
+-			iTimeScale -= 20;
+-		}
+-		else if (kOwner.AI_getFlavorValue(FLAVOR_MILITARY) > 0)
+-			iTimeScale -= 10;
+-		if (eNonObsoleteBonus != NO_BONUS &&
+-			!kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+-		{
+-			iTimeScale = std::min(30, iTimeScale);
+-		}
+-		iTimeScale = std::max(iTimeScale, 20);
+-		// Other adjustments?
+-
+-		// Adjustments to match calculation in CvPlot::doImprovement
+-		iTimeScale *= GC.getInfo(GC.getGame().getGameSpeedType()).getImprovementPercent();
+-		iTimeScale /= 100;
+-		iTimeScale *= GC.getInfo(GC.getGame().getStartEra()).getImprovementPercent();
+-		iTimeScale /= 100;
+-		{
+-			int iUpgrRate = kOwner.getImprovementUpgradeRate();
+-			// <advc.912f>
+-			if (iUpgrRate == 0)
+-				iTimeScale = 0;
+-			else
+-			{	/*	<advc.001> This fraction was flipped. Pretty sure that this was wrong.
+-					The ImprovementPercentModifiers apply to the time needed for an upgrade,
+-					whereas the upgrade rate applies to the time spent working the tile.
+-					A higher upgrade rate means that we should be more interested in
+-					delayed rewards, which is what a high iTimeScale value does. Note that
+-					the upgrade rate factors into the evaluation at no other point. */
+-				iTimeScale *= iUpgrRate;
+-				iTimeScale /= 100; // </advc.001>
+-				// </advc.912f>
+-			}
+-		}
+-
+-		/*	Getting the time-weighted yields for the new and old improvements;
+-			then use them to calculate the final yield and yield difference. */
+-		AI_timeWeightedImprovementYields(kPlot, eImprovement,
+-				iTimeScale, weightedFinalYields);
+-		AI_timeWeightedImprovementYields(kPlot, kPlot.getImprovementType(),
+-				iTimeScale, weightedYieldDiffs);
+-	}
+-	FOR_EACH_ENUM(Yield)
+-	{
+-		weightedFinalYields.add(eLoopYield,
+-				kPlot.calculateNatureYield(eLoopYield, getTeam(), bIgnoreFeature));
+-		weightedYieldDiffs.set(eLoopYield, weightedFinalYields.get(eLoopYield) -
+-				(weightedYieldDiffs.get(eLoopYield) +
+-				kPlot.calculateNatureYield(eLoopYield, getTeam())));
+-	}
+-
+-	// K-Mod
+-	/*  If this improvement results in a change in food, then building it
+-		will result in a change in the food multiplier.
+-		We should try to preempt that change to prevent best-build from oscillating.
+-		In our situation, we have
+-		iDesiredFoodChange ~= -iFoodDifference and
+-		aiDiffYields[0] == 2 * food change from the improvement.
+-		Unfortunately, it's a bit of a lengthy calculation to work out
+-		all of the factors involved in iFoodPriority. So I'll just use a
+-		very rough approximation. Hopefully it will be better than nothing. */
+-	int iCorrectedFoodPriority = iFoodPriority;
+-	if (weightedYieldDiffs.get(YIELD_FOOD) != 0 && isWorkingPlot(kPlot))
+-	{
+-		/*	16 is arbitrary. It would be possible to get something better
+-			using targetPop and so on, but that would be slower... */
+-		/*	advc.121: Try 8 (twice the impact), also with changes in
+-			AI_getYieldMultipliers in mind. */
+-		int iTotalFood = 8 * GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-		iCorrectedFoodPriority = (iCorrectedFoodPriority *
+-				(iTotalFood - weightedYieldDiffs.get(YIELD_FOOD)) /
+-				std::max(1, iTotalFood)).round();
+-	}
+-	FAssert(iCorrectedFoodPriority == iFoodPriority ||
+-			((iCorrectedFoodPriority < iFoodPriority) ==
+-			(weightedYieldDiffs.get(YIELD_FOOD) > 0)));
+-	// This corrected priority isn't perfect, but I think it will be better than nothing.
+-	// K-Mod end
++	// Clean, non-crashing ways to “turn off” the vanilla evaluator
++	// 1. Early-exit
++	// Keep the signature and the out-params intact, but short-circuit:
++	// Top of AI_getImprovementValue, right after eNonObsoleteBonus line
++	// ---------------------------------------------------------------
++	if (peBestBuild)
+ 	{
+-		YieldPercentMap weights;
+-		weights.set(YIELD_FOOD, iCorrectedFoodPriority);
+-		// Was 60% in BtS, now 80%.
+-		weights.set(YIELD_PRODUCTION, (iProductionPriority * 102) / 128);
+-		weights.set(YIELD_COMMERCE, (iCommercePriority * 51) / 128);
+-		FOR_EACH_ENUM(Yield)
+-			rValue += weightedYieldDiffs.get(eLoopYield) * weights.get(eLoopYield);
+-		// <advc.131>, advc.005a: Personality moved up
+-		if (!isHuman())
+-		{
+-			int iPersonalityModifier = GC.getInfo(getPersonalityType()).
+-					getImprovementWeightModifier(eFinalImprovement);
+-			// This would not help the current improvement
+-			/*rValue *= std::max(0, 200 + iPersonalityModifier);
+-			rValue /= 200;*/ // BtS
+-			// Cleaner based on the difference in modifiers
+-			iPersonalityModifier -=
+-					(kPlot.isImproved() ? GC.getInfo(getPersonalityType()).
+-					getImprovementWeightModifier(kPlot.getImprovementType()) : 0);
+-			if (iPersonalityModifier != 0) // save time
+-			{
+-				/*	Let a 100% personality modifier be as weighty as one unit of
+-					the least important yield type (probably commerce). Typical
+-					modifiers in XML are 20 to 30%. */
+-				scaled rMinWeight = scaled::MAX;
+-				FOR_EACH_ENUM(Yield)
+-					rMinWeight.decreaseTo(weights.get(eLoopYield));
+-				rValue += scaled(iPersonalityModifier, 100) * rMinWeight;
+-			}
+-		} // </advc.131>
+-	}
+-	/*	K-Mod. If we're going to have too much food
+-		regardless of the improvement on this plot, then reduce the food value */
+-	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >=
+-		weightedFinalYields.get(YIELD_FOOD) - weightedYieldDiffs.get(YIELD_FOOD))
+-	{
+-		 // reduce the weight of food. (cf. values above.)
+-		rValue -= weightedYieldDiffs.get(YIELD_FOOD) * iCorrectedFoodPriority * fixp(0.4);
+-	} // K-Mod end
+-
+-	if (rValue > 0)
+-	{
+-		// this is mainly to make it improve better tiles first
+-		//flood plain > grassland > plain > tundra
+-		rValue += weightedFinalYields.get(YIELD_FOOD) * 8; // was 10
+-		rValue += weightedFinalYields.get(YIELD_PRODUCTION) * 7; // was 6
+-		rValue += weightedFinalYields.get(YIELD_COMMERCE) * 4;
+-
+-		if (weightedFinalYields.get(YIELD_FOOD) >=
+-			GC.getFOOD_CONSUMPTION_PER_POPULATION())
+-		{
+-			//this is a food yielding tile
+-			if (iCorrectedFoodPriority > 100)
+-				rValue.mulDiv(100 + iCorrectedFoodPriority, 200);
+-			if (iDesiredFoodChange > 0)
+-			{
+-				//iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iDesiredFoodChange * iCorrectedFoodPriority) / 100;
+-				// <K-Mod>
+-				rValue += (10 * (1 + weightedYieldDiffs.get(YIELD_FOOD)) *
+-						(1 + weightedFinalYields.get(YIELD_FOOD)
+-						- GC.getFOOD_CONSUMPTION_PER_POPULATION()) *
+-						std::min(1 + iDesiredFoodChange / 3, 4) *
+-						iCorrectedFoodPriority) / 100; // </K-Mod>
+-			}
+-			if (iCommercePriority > 100)
+-			{
+-				//iValue *= 100 + (((iCommercePriority - 100) * aiDiffYields[YIELD_COMMERCE]) / 2);
+-				//iValue /= 100;
+-				rValue += (rValue * ((iCommercePriority - 100) *
+-						weightedYieldDiffs.get(YIELD_COMMERCE))) / 200;
+-			}
+-		}
+-		/* else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION()) {
+-			if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3)) {
+-				if (iCorrectedFoodPriority < 100 || kOwner.getCurrentEra() < 2) {
+-					//value booster for mines on hills
+-					iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
+-					iValue /= 100;
+-				}
+-			}
+-		}*/
+-
+-		if (iCorrectedFoodPriority < 100 && iProductionPriority > 100)
+-		{
+-			rValue *= 200 + (iProductionPriority - 100) *
+-					weightedFinalYields.get(YIELD_PRODUCTION);
+-			rValue /= 200;
+-		}
+-		if (eNonObsoleteBonus == NO_BONUS)
+-		{
+-			if (iDesiredFoodChange > 0)
+-			{
+-				//We want more food.
+-				rValue *= 2 + scaled::max(0, weightedYieldDiffs.get(YIELD_FOOD));
+-				rValue /= 2 * (1 + scaled::max(0, -weightedYieldDiffs.get(YIELD_FOOD)));
+-			}
+-		}
+-	}
+-
+-	if (bEmphasizeIrrigation &&
+-		GC.getInfo(eFinalImprovement).isCarriesIrrigation())
+-	{
+-		rValue += 400; // advc.131: was 500
+-	}
+-	if (getImprovementFreeSpecialists(eFinalImprovement) > 0)
+-		// advc.131: Was 2000. That beats crucial strategic resources too easily.
+-		rValue += 1200;
+-	if (kOwner.getAdvancedStartPoints() < 0)
+-	{	// <advc.901> Code moved into (recursive) auxiliary function
+-		rValue += AI_healthHappyImprovementValue(kPlot, eImprovement,
+-				eFinalImprovement, bIgnoreFeature, false); // </advc.901>
+-	}
+-	// (advc.131: Leader personality moved up)
+-	if (!kPlot.isImproved())
+-	{
+-		if (kPlot.isBeingWorked() &&
+-			// K-Mod. (don't boost the value if it means removing a good feature.)
+-			(iClearFeatureValue >= 0 || eBestTempBuild == NO_BUILD ||
+-			!GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())))
+-		{
+-			rValue *= 5;
+-			rValue /= 4;
+-		}
+-		/*if (eBestTempBuild != NO_BUILD) {
+-			if (kPlot.isFeature()) {
+-				if (GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())) {
+-					CvCity* pCity;
+-					iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
+-					FAssert(pCity == this);
+-					iValue += iClearFeatureValue;
+-				}
+-			}
+-		}*/ // K-Mod. I've moved this out of the if statement, because it should apply regardless of whether there is already an improvement on the plot.
++		*peBestBuild = NO_BUILD;
+ 	}
+-	else
+-	{
+-		// cottage/villages (don't want to chop them up if turns have been invested)
+-		ImprovementTypes eImprovementDowngrade = GC.getInfo(kPlot.getImprovementType()).
+-				getImprovementPillage();
+-		/*while (eImprovementDowngrade != NO_IMPROVEMENT) {
+-			CvImprovementInfo& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
+-			iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+-			eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
+-		}*/ // BtS
+-		// K-Mod. Be careful not to get trapped in an infinite loop of improvement downgrades.
+-		if (eImprovementDowngrade != NO_IMPROVEMENT)
+-		{
+-			std::set<ImprovementTypes> cited_improvements;
+-			while (eImprovementDowngrade != NO_IMPROVEMENT &&
+-				cited_improvements.insert(eImprovementDowngrade).second)
+-			{
+-				CvImprovementInfo const& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
+-				rValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+-				eImprovementDowngrade = kImprovementDowngrade.getImprovementPillage();
+-			}
+-		} // K-Mod end
++	// “don’t bother”
++	return 0;
+ 
+-		if (GC.getInfo(kPlot.getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT)
+-		{
+-			rValue -= scaled(8 * kPlot.getUpgradeProgress() *
+-					GC.getInfo(kPlot.getImprovementType()).getUpgradeTime(),
+-					100 * std::max(1,
+-					GC.getGame().getImprovementUpgradeTime(kPlot.getImprovementType())));
+-		}
+-		if (eNonObsoleteBonus == NO_BONUS)
+-		{
+-			if (isWorkingPlot(kPlot))
+-			{
+-				if ((iCorrectedFoodPriority < 100 &&
+-					weightedFinalYields.get(YIELD_FOOD) >=
+-					GC.getFOOD_CONSUMPTION_PER_POPULATION()) ||
+-					GC.getInfo(kPlot.getImprovementType()).getImprovementPillage() != NO_IMPROVEMENT)
+-				{
+-					rValue -= 70;
+-					rValue.mulDiv(2, 3);
+-				}
+-			}
+-		}
+-		if (kOwner.isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
+-			rValue.isPositive()) // advc.001
+-		{
+-			rValue /= 4; // Greatly prefer builds which are legal.
+-		}
+-	}
+-	// K-Mod. Feature value. (moved from the 'no improvement' block above.)
+-	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD &&
+-		GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
+-	{
+-		/*CvCity* pCity; iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
+-		FAssert(pCity == this);*/ // handle chop value elsewhere
+-		rValue += iClearFeatureValue;
+-	} // K-Mod end
+-	if (peBestBuild != NULL)
+-	{	// advc: Caller relies on no build being returned for present improvement
+-		FAssert(eImprovement != kPlot.getImprovementType() || eBestTempBuild == NO_BUILD);
+-		*peBestBuild = eBestTempBuild;
+-	}
+-	return rValue.round();
++// 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
++// 	BonusTypes eBonus = kPlot.getBonusType(getTeam());
++// 	BonusTypes eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(getTeam());
++
++// 	BuildTypes eBestTempBuild = NO_BUILD;
++// 	// first check if the improvement is valid on this plot
++// 	// this also allows us work out whether or not the improvement will remove the plot feature...
++// 	bool bValid = false;
++// 	bool bIgnoreFeature = false;
++// 	if (eImprovement == kPlot.getImprovementType())
++// 		bValid = true;
++// 	else
++// 	{
++// 		int iBestTempBuildValue = 0;
++// 		FOR_EACH_ENUM(Build)
++// 		{
++// 			if (GC.getInfo(eLoopBuild).getImprovement() != eImprovement)
++// 				continue;
++// 			if (kOwner.canBuild(kPlot, eLoopBuild, false))
++// 			{
++// 				int iValue = 10000;
++// 				iValue /= (GC.getInfo(eLoopBuild).getTime() + 1);
++// 				// XXX feature production???  // (advc: I think the chop decision in AI_updateBestBuild will handle that)
++// 				if (iValue > iBestTempBuildValue)
++// 				{
++// 					iBestTempBuildValue = iValue;
++// 					eBestTempBuild = eLoopBuild;
++// 				}
++// 			}
++// 		}
++// 		if (eBestTempBuild != NO_BUILD)
++// 		{
++// 			bValid = true;
++// 			if (kPlot.isFeature() &&
++// 				GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
++// 			{
++// 				bIgnoreFeature = true;
++// 				if (GC.getInfo(kPlot.getFeatureType()).getYieldChange(YIELD_PRODUCTION) > 0 &&
++// 					eNonObsoleteBonus == NO_BONUS)
++// 				{
++// 					if (kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
++// 						bValid = false;
++// 					else if (healthRate() < 0 &&
++// 						GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
++// 					{
++// 						bValid = false;
++// 					}
++// 					else if (kOwner.getFeatureHappiness(kPlot.getFeatureType()) > 0)
++// 						bValid = false;
++// 				}
++// 			}
++// 		}
++// 	}
++// 	if (!bValid)
++// 	{
++// 		if (peBestBuild != NULL)
++// 			*peBestBuild = NO_BUILD;
++// 		return 0;
++// 	}
++
++// 	// Now get the value of the improvement itself.
++// 	ImprovementTypes eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
++// 	if (eFinalImprovement == NO_IMPROVEMENT)
++// 		eFinalImprovement = eImprovement;
++
++// 	scaled rValue;
++// 	//int aiDiffYields[NUM_YIELD_TYPES]; // removed by K-Mod (replaced by time-weighted yields!)
++// 	//int aiFinalYields[NUM_YIELD_TYPES];
++
++// 	if (eBonus != NO_BONUS && eNonObsoleteBonus != NO_BONUS)
++// 	{
++// 		//if (GC.getInfo(eFinalImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
++// 		if (kOwner.doesImprovementConnectBonus(eFinalImprovement, eNonObsoleteBonus))
++// 		{
++// 			// K-Mod
++// 			rValue += kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50;
++// 			rValue += 100;
++// 			// K-Mod end
++// 			/*	<advc.121> Kludge to force the AI to prefer improvements with yields
++// 				over forts. Don't want to rule out forts altogether b/c of gems in a
++// 				jungle -- w/o IW, a fort is the only way to connect the resource. */
++// 			int iImprYieldChange = 0;
++// 			FOR_EACH_ENUM(Yield)
++// 			{
++// 				iImprYieldChange += kPlot.calculateImprovementYieldChange(
++// 						eImprovement, eLoopYield, kOwner.getID());
++// 			}
++// 			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
++// 				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here increase the division to keep code as it is functionnally but with stricter behaviour if i am not mistaken towards forts but anyways etc -->
++// 				//rValue /= 3;
++// 				rValue /= 10;
++// 			// </advc.121>
++// 		}
++// 		else
++// 		{
++// 			// K-Mod, bug fix. (original code deleted now.)
++// 			/*  Presumably the original author wanted to subtract 1000 if eBestBuild would
++// 				take away the bonus; not ... the nonsense they actually wrote. */
++// 			if (kOwner.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
++// 			{
++// 				// By the way, AI_bonusVal is typically 10 for the first bonus, and 2 for subsequent.
++// 				rValue -= kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50;
++// 				rValue -= 100;
++// 			}
++// 		}
++// 	}
++// 	else if (eFinalImprovement != kPlot.getImprovementType()) // advc.121 (save time)
++// 	{
++// 		rValue += AI_bonusDiscoverRandVal(eFinalImprovement);
++// 		// <advc.121> Prefer to use only differences in this upper part
++// 		if (kPlot.isImproved())
++// 			rValue -= AI_bonusDiscoverRandVal(kPlot.getImprovementType());
++// 		// </advc.121>
++// 	}
++// 	//if (rValue >= 0) // disabled by K-Mod. (maybe the yield will be worth it!)
++
++// 	EagerEnumMap<YieldTypes,scaled> weightedFinalYields;
++// 	EagerEnumMap<YieldTypes,scaled> weightedYieldDiffs;
++// 	{
++// 		// K-Mod. Get a weighted average of the yields for improvements which upgrade (eg. cottages).
++// 		int iTimeScale = 60;
++// 		if (10 * GC.getGame().getElapsedGameTurns() < 3 * GC.getGame().getEstimateEndTurn())
++// 			iTimeScale += 10;
++// 		if (kOwner.AI_atVictoryStage4())
++// 			iTimeScale -= 30;
++// 		else if (10 * GC.getGame().getElapsedGameTurns() >
++// 			7 * GC.getGame().getEstimateEndTurn())
++// 		{
++// 			iTimeScale -= 10;
++// 		}
++// 		// advc.001: was AI_isDoVictoryStrategy
++// 		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
++// 			iTimeScale += 50;
++// 		if (GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) +
++// 			// advc.001: Surely(?) preparations should count here as well
++// 			GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
++// 		{
++// 			iTimeScale -= 20;
++// 		}
++// 		else if (kOwner.AI_getFlavorValue(FLAVOR_MILITARY) > 0)
++// 			iTimeScale -= 10;
++// 		if (eNonObsoleteBonus != NO_BONUS &&
++// 			!kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
++// 		{
++// 			iTimeScale = std::min(30, iTimeScale);
++// 		}
++// 		iTimeScale = std::max(iTimeScale, 20);
++// 		// Other adjustments?
++
++// 		// Adjustments to match calculation in CvPlot::doImprovement
++// 		iTimeScale *= GC.getInfo(GC.getGame().getGameSpeedType()).getImprovementPercent();
++// 		iTimeScale /= 100;
++// 		iTimeScale *= GC.getInfo(GC.getGame().getStartEra()).getImprovementPercent();
++// 		iTimeScale /= 100;
++// 		{
++// 			int iUpgrRate = kOwner.getImprovementUpgradeRate();
++// 			// <advc.912f>
++// 			if (iUpgrRate == 0)
++// 				iTimeScale = 0;
++// 			else
++// 			{	/*	<advc.001> This fraction was flipped. Pretty sure that this was wrong.
++// 					The ImprovementPercentModifiers apply to the time needed for an upgrade,
++// 					whereas the upgrade rate applies to the time spent working the tile.
++// 					A higher upgrade rate means that we should be more interested in
++// 					delayed rewards, which is what a high iTimeScale value does. Note that
++// 					the upgrade rate factors into the evaluation at no other point. */
++// 				iTimeScale *= iUpgrRate;
++// 				iTimeScale /= 100; // </advc.001>
++// 				// </advc.912f>
++// 			}
++// 		}
++
++// 		/*	Getting the time-weighted yields for the new and old improvements;
++// 			then use them to calculate the final yield and yield difference. */
++// 		AI_timeWeightedImprovementYields(kPlot, eImprovement,
++// 				iTimeScale, weightedFinalYields);
++// 		AI_timeWeightedImprovementYields(kPlot, kPlot.getImprovementType(),
++// 				iTimeScale, weightedYieldDiffs);
++// 	}
++// 	FOR_EACH_ENUM(Yield)
++// 	{
++// 		weightedFinalYields.add(eLoopYield,
++// 				kPlot.calculateNatureYield(eLoopYield, getTeam(), bIgnoreFeature));
++// 		weightedYieldDiffs.set(eLoopYield, weightedFinalYields.get(eLoopYield) -
++// 				(weightedYieldDiffs.get(eLoopYield) +
++// 				kPlot.calculateNatureYield(eLoopYield, getTeam())));
++// 	}
++
++// 	// K-Mod
++// 	/*  If this improvement results in a change in food, then building it
++// 		will result in a change in the food multiplier.
++// 		We should try to preempt that change to prevent best-build from oscillating.
++// 		In our situation, we have
++// 		iDesiredFoodChange ~= -iFoodDifference and
++// 		aiDiffYields[0] == 2 * food change from the improvement.
++// 		Unfortunately, it's a bit of a lengthy calculation to work out
++// 		all of the factors involved in iFoodPriority. So I'll just use a
++// 		very rough approximation. Hopefully it will be better than nothing. */
++// 	int iCorrectedFoodPriority = iFoodPriority;
++// 	if (weightedYieldDiffs.get(YIELD_FOOD) != 0 && isWorkingPlot(kPlot))
++// 	{
++// 		/*	16 is arbitrary. It would be possible to get something better
++// 			using targetPop and so on, but that would be slower... */
++// 		/*	advc.121: Try 8 (twice the impact), also with changes in
++// 			AI_getYieldMultipliers in mind. */
++// 		int iTotalFood = 8 * GC.getFOOD_CONSUMPTION_PER_POPULATION();
++// 		iCorrectedFoodPriority = (iCorrectedFoodPriority *
++// 				(iTotalFood - weightedYieldDiffs.get(YIELD_FOOD)) /
++// 				std::max(1, iTotalFood)).round();
++// 	}
++// 	FAssert(iCorrectedFoodPriority == iFoodPriority ||
++// 			((iCorrectedFoodPriority < iFoodPriority) ==
++// 			(weightedYieldDiffs.get(YIELD_FOOD) > 0)));
++// 	// This corrected priority isn't perfect, but I think it will be better than nothing.
++// 	// K-Mod end
++// 	{
++// 		YieldPercentMap weights;
++// 		weights.set(YIELD_FOOD, iCorrectedFoodPriority);
++// 		// Was 60% in BtS, now 80%.
++// 		weights.set(YIELD_PRODUCTION, (iProductionPriority * 102) / 128);
++// 		weights.set(YIELD_COMMERCE, (iCommercePriority * 51) / 128);
++// 		FOR_EACH_ENUM(Yield)
++// 			rValue += weightedYieldDiffs.get(eLoopYield) * weights.get(eLoopYield);
++// 		// <advc.131>, advc.005a: Personality moved up
++// 		if (!isHuman())
++// 		{
++// 			int iPersonalityModifier = GC.getInfo(getPersonalityType()).
++// 					getImprovementWeightModifier(eFinalImprovement);
++// 			// This would not help the current improvement
++// 			/*rValue *= std::max(0, 200 + iPersonalityModifier);
++// 			rValue /= 200;*/ // BtS
++// 			// Cleaner based on the difference in modifiers
++// 			iPersonalityModifier -=
++// 					(kPlot.isImproved() ? GC.getInfo(getPersonalityType()).
++// 					getImprovementWeightModifier(kPlot.getImprovementType()) : 0);
++// 			if (iPersonalityModifier != 0) // save time
++// 			{
++// 				/*	Let a 100% personality modifier be as weighty as one unit of
++// 					the least important yield type (probably commerce). Typical
++// 					modifiers in XML are 20 to 30%. */
++// 				scaled rMinWeight = scaled::MAX;
++// 				FOR_EACH_ENUM(Yield)
++// 					rMinWeight.decreaseTo(weights.get(eLoopYield));
++// 				rValue += scaled(iPersonalityModifier, 100) * rMinWeight;
++// 			}
++// 		} // </advc.131>
++// 	}
++// 	/*	K-Mod. If we're going to have too much food
++// 		regardless of the improvement on this plot, then reduce the food value */
++// 	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >=
++// 		weightedFinalYields.get(YIELD_FOOD) - weightedYieldDiffs.get(YIELD_FOOD))
++// 	{
++// 		 // reduce the weight of food. (cf. values above.)
++// 		rValue -= weightedYieldDiffs.get(YIELD_FOOD) * iCorrectedFoodPriority * fixp(0.4);
++// 	} // K-Mod end
++
++// 	if (rValue > 0)
++// 	{
++// 		// this is mainly to make it improve better tiles first
++// 		//flood plain > grassland > plain > tundra
++// 		rValue += weightedFinalYields.get(YIELD_FOOD) * 8; // was 10
++// 		rValue += weightedFinalYields.get(YIELD_PRODUCTION) * 7; // was 6
++// 		rValue += weightedFinalYields.get(YIELD_COMMERCE) * 4;
++
++// 		if (weightedFinalYields.get(YIELD_FOOD) >=
++// 			GC.getFOOD_CONSUMPTION_PER_POPULATION())
++// 		{
++// 			//this is a food yielding tile
++// 			if (iCorrectedFoodPriority > 100)
++// 				rValue.mulDiv(100 + iCorrectedFoodPriority, 200);
++// 			if (iDesiredFoodChange > 0)
++// 			{
++// 				//iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iDesiredFoodChange * iCorrectedFoodPriority) / 100;
++// 				// <K-Mod>
++// 				rValue += (10 * (1 + weightedYieldDiffs.get(YIELD_FOOD)) *
++// 						(1 + weightedFinalYields.get(YIELD_FOOD)
++// 						- GC.getFOOD_CONSUMPTION_PER_POPULATION()) *
++// 						std::min(1 + iDesiredFoodChange / 3, 4) *
++// 						iCorrectedFoodPriority) / 100; // </K-Mod>
++// 			}
++// 			if (iCommercePriority > 100)
++// 			{
++// 				//iValue *= 100 + (((iCommercePriority - 100) * aiDiffYields[YIELD_COMMERCE]) / 2);
++// 				//iValue /= 100;
++// 				rValue += (rValue * ((iCommercePriority - 100) *
++// 						weightedYieldDiffs.get(YIELD_COMMERCE))) / 200;
++// 			}
++// 		}
++// 		/* else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION()) {
++// 			if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3)) {
++// 				if (iCorrectedFoodPriority < 100 || kOwner.getCurrentEra() < 2) {
++// 					//value booster for mines on hills
++// 					iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
++// 					iValue /= 100;
++// 				}
++// 			}
++// 		}*/
++
++// 		if (iCorrectedFoodPriority < 100 && iProductionPriority > 100)
++// 		{
++// 			rValue *= 200 + (iProductionPriority - 100) *
++// 					weightedFinalYields.get(YIELD_PRODUCTION);
++// 			rValue /= 200;
++// 		}
++// 		if (eNonObsoleteBonus == NO_BONUS)
++// 		{
++// 			if (iDesiredFoodChange > 0)
++// 			{
++// 				//We want more food.
++// 				rValue *= 2 + scaled::max(0, weightedYieldDiffs.get(YIELD_FOOD));
++// 				rValue /= 2 * (1 + scaled::max(0, -weightedYieldDiffs.get(YIELD_FOOD)));
++// 			}
++// 		}
++// 	}
++
++// 	if (bEmphasizeIrrigation &&
++// 		GC.getInfo(eFinalImprovement).isCarriesIrrigation())
++// 	{
++// 		rValue += 400; // advc.131: was 500
++// 	}
++// 	if (getImprovementFreeSpecialists(eFinalImprovement) > 0)
++// 		// advc.131: Was 2000. That beats crucial strategic resources too easily.
++// 		rValue += 1200;
++// 	if (kOwner.getAdvancedStartPoints() < 0)
++// 	{	// <advc.901> Code moved into (recursive) auxiliary function
++// 		rValue += AI_healthHappyImprovementValue(kPlot, eImprovement,
++// 				eFinalImprovement, bIgnoreFeature, false); // </advc.901>
++// 	}
++// 	// (advc.131: Leader personality moved up)
++// 	if (!kPlot.isImproved())
++// 	{
++// 		if (kPlot.isBeingWorked() &&
++// 			// K-Mod. (don't boost the value if it means removing a good feature.)
++// 			(iClearFeatureValue >= 0 || eBestTempBuild == NO_BUILD ||
++// 			!GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())))
++// 		{
++// 			rValue *= 5;
++// 			rValue /= 4;
++// 		}
++// 		/*if (eBestTempBuild != NO_BUILD) {
++// 			if (kPlot.isFeature()) {
++// 				if (GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())) {
++// 					CvCity* pCity;
++// 					iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
++// 					FAssert(pCity == this);
++// 					iValue += iClearFeatureValue;
++// 				}
++// 			}
++// 		}*/ // K-Mod. I've moved this out of the if statement, because it should apply regardless of whether there is already an improvement on the plot.
++// 	}
++// 	else
++// 	{
++// 		// cottage/villages (don't want to chop them up if turns have been invested)
++// 		ImprovementTypes eImprovementDowngrade = GC.getInfo(kPlot.getImprovementType()).
++// 				getImprovementPillage();
++// 		/*while (eImprovementDowngrade != NO_IMPROVEMENT) {
++// 			CvImprovementInfo& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
++// 			iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
++// 			eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
++// 		}*/ // BtS
++// 		// K-Mod. Be careful not to get trapped in an infinite loop of improvement downgrades.
++// 		if (eImprovementDowngrade != NO_IMPROVEMENT)
++// 		{
++// 			std::set<ImprovementTypes> cited_improvements;
++// 			while (eImprovementDowngrade != NO_IMPROVEMENT &&
++// 				cited_improvements.insert(eImprovementDowngrade).second)
++// 			{
++// 				CvImprovementInfo const& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
++// 				rValue -= kImprovementDowngrade.getUpgradeTime() * 8;
++// 				eImprovementDowngrade = kImprovementDowngrade.getImprovementPillage();
++// 			}
++// 		} // K-Mod end
++
++// 		if (GC.getInfo(kPlot.getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT)
++// 		{
++// 			rValue -= scaled(8 * kPlot.getUpgradeProgress() *
++// 					GC.getInfo(kPlot.getImprovementType()).getUpgradeTime(),
++// 					100 * std::max(1,
++// 					GC.getGame().getImprovementUpgradeTime(kPlot.getImprovementType())));
++// 		}
++// 		if (eNonObsoleteBonus == NO_BONUS)
++// 		{
++// 			if (isWorkingPlot(kPlot))
++// 			{
++// 				if ((iCorrectedFoodPriority < 100 &&
++// 					weightedFinalYields.get(YIELD_FOOD) >=
++// 					GC.getFOOD_CONSUMPTION_PER_POPULATION()) ||
++// 					GC.getInfo(kPlot.getImprovementType()).getImprovementPillage() != NO_IMPROVEMENT)
++// 				{
++// 					rValue -= 70;
++// 					rValue.mulDiv(2, 3);
++// 				}
++// 			}
++// 		}
++// 		if (kOwner.isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
++// 			rValue.isPositive()) // advc.001
++// 		{
++// 			rValue /= 4; // Greatly prefer builds which are legal.
++// 		}
++// 	}
++// 	// K-Mod. Feature value. (moved from the 'no improvement' block above.)
++// 	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD &&
++// 		GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
++// 	{
++// 		/*CvCity* pCity; iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
++// 		FAssert(pCity == this);*/ // handle chop value elsewhere
++// 		rValue += iClearFeatureValue;
++// 	} // K-Mod end
++// 	if (peBestBuild != NULL)
++// 	{	// advc: Caller relies on no build being returned for present improvement
++// 		FAssert(eImprovement != kPlot.getImprovementType() || eBestTempBuild == NO_BUILD);
++// 		*peBestBuild = eBestTempBuild;
++// 	}
++// 	return rValue.round();
+ }
+ 
+ /*  advc.901: Cut from AI_getImprovementValue so that benefits for nearby team cities
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c59cce525..aa0075a2e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -811,6 +811,7 @@ struct CandidatePlot {
+ };
+ 
+ // Returns true if the unit found a build for this city...
++// <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details anyways etc), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further if i am not mistaken and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too if i may say but anyways etc) but anyways etc -->
+ // <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidate plots, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc) ; code provided by gemini ai and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc ; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
+ // This function determines the value of a specific improvement on a plot,
+ // which is the core logic that guides AI worker actions.
+@@ -966,6 +967,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						if (canBuild(kPlot, eBuildRemoveForest))
+ 						{
+ 							eBestSupposedBuild = eBuildRemoveForest;
++
++							iValue += 19000;
+ 						}
+ 						else
+ 						{
+@@ -974,6 +977,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						}
+ 					}
+ 				}
++				// <!-- custom: also handle silver and/or other bonuses on forest as well anyways etc -->
++				else
++				{
++					if (canBuild(kPlot, eBuildRemoveForest))
++					{
++						eBestSupposedBuild = eBuildRemoveForest;
++
++						iValue += 19000;
++					}
++					else
++					{
++						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
++						continue;
++					}
++				}
+ 			}
+ 			else if (eFeature == eFeatureJungle)
+ 			{
+@@ -983,12 +1001,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (canBuild(kPlot, eBuildCamp))
+ 					{
+ 						eBestSupposedBuild = eBuildCamp;
++
++						iValue += 19000;
+ 					}
+ 					else
+ 					{
+ 						if (canBuild(kPlot, eBuildRemoveJungle))
+ 						{
+ 							eBestSupposedBuild = eBuildRemoveJungle;
++
++							iValue += 19000;
+ 						}
+ 						else
+ 						{
+@@ -997,6 +1019,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						}
+ 					}
+ 				}
++				// <!-- custom: also handle gemstones and/or other bonuses on jungle as well anyways etc -->
++				else
++				{
++					if (canBuild(kPlot, eBuildRemoveJungle))
++					{
++						eBestSupposedBuild = eBuildRemoveJungle;
++
++						iValue += 19000;
++					}
++					else
++					{
++						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
++						continue;
++					}
++				}
+ 			}
+ 			// <!-- custom: if we know we can chop, no need to look for a costly specific build we won't do now since we want to chop explicitly/specifically if i may say in this case but anyways etc first. So else, only look for a bonus specific build if plot is already chopped, in other words if plot's feature is not forest nor jungle if i am not mistaken anyways etc -->
+ 			else
+@@ -2722,8 +2759,12 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		// <!-- custom: we need to move to city B sooner if city A is improved enough already, now our AI workers are much more efficient, but the core cities are overly improved, while edge cities are quite a bit underdevelopped (see known issue as of now 39 for details with screenshots anyways etc, a 10+ city in particular won't grow or hardly grow in the example mentionned, but workers keep improving it, although we'll never allocate all these 15+ tiles, and city B needs help fast anyways etc, earlier in the game may help too but anyways etc) maybe if i'm not mistaken and ideally but anyways etc ; see known issue as of now 39 for details -->
+ 		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
+ 		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBuffer 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
+-		const int iBuffer = 1;
+-		if (countImprovedTiles(pCity) >= pCity->getPopulation() + iBuffer ||
++		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens anyways etc -->
++		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius if i am not mistaken but anyways etc), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too but anyways etc) -->
++		const int iCityPopulation = pCity->getPopulation();
++		const int iBufferExtraForSmallCities = (iCityPopulation <= 3 ? 2 : 0);
++		const int iBuffer = 0;
++		if (countImprovedTiles(pCity) >= (iCityPopulation + iBuffer + iBufferExtraForSmallCities) ||
+ 			(pCity->unhappyLevel(0) > pCity->happyLevel() ||
+ 			pCity->foodDifference(false) <= 0))
+ 		{
+@@ -18477,125 +18518,127 @@ bool CvUnitAI::AI_nextCityToImproveAirlift()
+ }
+ 
+ 
++// <!-- custom: we handle these ourselves now in CvUnitAI::AI_bestCityBuild, please do not override and interfere with our preferred ideal tiles like often cottages on flood plains or grass, no farm on plains spices (exceptions managed there as well), we as of now don't strictly handle irrigation, but we want to remove unwanted interferences, this ruins good city radiuses with needless farms just because a tile, any unimproved tile, can be irrigated, according to what i understand of claude ai's explanation, and otherwise we have almost total control and improved it nicely. So testing commenting-out this function entirely to see what happens, as advised by claude ai, we already choose and improve cities based on terrain and such, even if as of now we don't handle irrigation, it is not a concern big enough to override nice and ultimate or at least very efficient yield and terrain optimization we added if i may say but anyways etc, so testing to disable functionally this to see anyways etc -->
+ bool CvUnitAI::AI_irrigateTerritory()
+ {
+-	PROFILE_FUNC();
+-	// <advc.300>
+-	if (isBarbarian())
+-		return false; // </advc.300>
+-	// Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
+-	std::vector<BuildTypes> irrigationCarryingBuilds;
+-	FOR_EACH_ENUM(Build)
+-	{
+-		if (GC.getInfo(eLoopBuild).getImprovement() != NO_IMPROVEMENT)
+-		{
+-			ImprovementTypes eImprovement = GC.getInfo(eLoopBuild).getImprovement();
+-			if (GC.getInfo(eImprovement).isCarriesIrrigation())
+-				irrigationCarryingBuilds.push_back(eLoopBuild);
+-		}
+-	} // </OPT1>
++	// PROFILE_FUNC();
++	// // <advc.300>
++	// if (isBarbarian())
++	// 	return false; // </advc.300>
++	// // Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
++	// std::vector<BuildTypes> irrigationCarryingBuilds;
++	// FOR_EACH_ENUM(Build)
++	// {
++	// 	if (GC.getInfo(eLoopBuild).getImprovement() != NO_IMPROVEMENT)
++	// 	{
++	// 		ImprovementTypes eImprovement = GC.getInfo(eLoopBuild).getImprovement();
++	// 		if (GC.getInfo(eImprovement).isCarriesIrrigation())
++	// 			irrigationCarryingBuilds.push_back(eLoopBuild);
++	// 	}
++	// } // </OPT1>
+ 
+-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+-	int const iGwEventTally = GC.getGame().getGwEventTally();
++	// CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	// int const iGwEventTally = GC.getGame().getGwEventTally();
+ 
+-	CvPlot const* pBestPlot = NULL;
+-	BuildTypes eBestBuild = NO_BUILD;
+-	int iBestValue = 0;
+-	// advc.pf: Mainly to avoid placing routes along the way through foreign borders
+-	MovementFlags const eFlags = MOVE_SAFE_TERRITORY;
+-	for (int i = 0; i < GC.getMap().numPlots(); i++)
+-	{
+-		CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(i);
+-		if (!kLoopPlot.isArea(getArea()))
+-			continue;
+-
+-		if (/*!AI_plotValid(&kLoopPlot) ||*/ // advc.opt: The area check is enough
+-			kLoopPlot.getOwner() != kOwner.getID() || // XXX team???
+-			kLoopPlot.getWorkingCity() != NULL)
+-		{
+-			continue;
+-		}
+-		ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
+-		if (eCurrentImprov != NO_IMPROVEMENT)
+-		{
+-			if (kOwner.isAutomationSafe(kLoopPlot))
+-				continue;
+-			if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
+-				continue;
+-			BonusTypes const eBonus = kLoopPlot.getNonObsoleteBonusType(getTeam());
+-			if (eBonus != NO_BONUS &&
+-				// !(GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)))
+-				kOwner.doesImprovementConnectBonus(eCurrentImprov, eBonus)) // K-Mod
+-			{
+-				continue;
+-			}
+-		}
+-		if (!kLoopPlot.isIrrigationAvailable(true))
+-			continue;
++	// CvPlot const* pBestPlot = NULL;
++	// BuildTypes eBestBuild = NO_BUILD;
++	// int iBestValue = 0;
++	// // advc.pf: Mainly to avoid placing routes along the way through foreign borders
++	// MovementFlags const eFlags = MOVE_SAFE_TERRITORY;
++	// for (int i = 0; i < GC.getMap().numPlots(); i++)
++	// {
++	// 	CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(i);
++	// 	if (!kLoopPlot.isArea(getArea()))
++	// 		continue;
+ 
+-		int iBestTempBuildValue = MAX_INT;
+-		BuildTypes eBestTempBuild = NO_BUILD;
+-		for (size_t iJ = 0; iJ < irrigationCarryingBuilds.size(); iJ++)
+-		{
+-			const BuildTypes eBuild = irrigationCarryingBuilds[iJ];
+-			if (!canBuild(kLoopPlot, eBuild))
+-				continue;
+-			/*  <advc.121> Was 10000/(...getTime()+1). Same problem as in
+-				AI_improveBonus (see there). */
+-			int iValue = GC.getInfo(eBuild).getTime();
+-			// XXX feature production???
+-			if (iValue < iBestTempBuildValue)
+-			{
+-				iBestTempBuildValue = iValue;
+-				eBestTempBuild = eBuild;
+-			}
+-		}
+-		if (eBestTempBuild == NO_BUILD)
+-			continue;
++	// 	if (/*!AI_plotValid(&kLoopPlot) ||*/ // advc.opt: The area check is enough
++	// 		kLoopPlot.getOwner() != kOwner.getID() || // XXX team???
++	// 		kLoopPlot.getWorkingCity() != NULL)
++	// 	{
++	// 		continue;
++	// 	}
++	// 	ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
++	// 	if (eCurrentImprov != NO_IMPROVEMENT)
++	// 	{
++	// 		if (kOwner.isAutomationSafe(kLoopPlot))
++	// 			continue;
++	// 		if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
++	// 			continue;
++	// 		BonusTypes const eBonus = kLoopPlot.getNonObsoleteBonusType(getTeam());
++	// 		if (eBonus != NO_BONUS &&
++	// 			// !(GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)))
++	// 			kOwner.doesImprovementConnectBonus(eCurrentImprov, eBonus)) // K-Mod
++	// 		{
++	// 			continue;
++	// 		}
++	// 	}
++	// 	if (!kLoopPlot.isIrrigationAvailable(true))
++	// 		continue;
+ 
+-		FeatureTypes const eFeature = kLoopPlot.getFeatureType();
+-		if (eFeature != NO_FEATURE && GC.getInfo(eBestTempBuild).isFeatureRemove(eFeature))
+-		{
+-			CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
+-			// K-Mod:
+-			if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
+-				(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+-				kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
+-			{
+-				continue;
+-			}
+-		}
++	// 	int iBestTempBuildValue = MAX_INT;
++	// 	BuildTypes eBestTempBuild = NO_BUILD;
++	// 	for (size_t iJ = 0; iJ < irrigationCarryingBuilds.size(); iJ++)
++	// 	{
++	// 		const BuildTypes eBuild = irrigationCarryingBuilds[iJ];
++	// 		if (!canBuild(kLoopPlot, eBuild))
++	// 			continue;
++	// 		/*  <advc.121> Was 10000/(...getTime()+1). Same problem as in
++	// 			AI_improveBonus (see there). */
++	// 		int iValue = GC.getInfo(eBuild).getTime();
++	// 		// XXX feature production???
++	// 		if (iValue < iBestTempBuildValue)
++	// 		{
++	// 			iBestTempBuildValue = iValue;
++	// 			eBestTempBuild = eBuild;
++	// 		}
++	// 	}
++	// 	if (eBestTempBuild == NO_BUILD)
++	// 		continue;
+ 
+-		if (kLoopPlot.isVisibleEnemyUnit(this) ||
+-			kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
+-		{
+-			continue;
+-		}
+-		int iPathTurns; // XXX should this actually be at the top of the loop? (with saved paths and all...)
+-		if (generatePath(kLoopPlot, eFlags, true, &iPathTurns))
+-		{
+-			const int iValue = 10000 - iPathTurns; // advc.opt: Instead of dividing by iPathTurns+1
+-			if (iValue > iBestValue)
+-			{
+-				iBestValue = iValue;
+-				eBestBuild = eBestTempBuild;
+-				pBestPlot = &kLoopPlot;
+-			}
+-		}
+-	}
++	// 	FeatureTypes const eFeature = kLoopPlot.getFeatureType();
++	// 	if (eFeature != NO_FEATURE && GC.getInfo(eBestTempBuild).isFeatureRemove(eFeature))
++	// 	{
++	// 		CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
++	// 		// K-Mod:
++	// 		if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
++	// 			(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
++	// 			kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
++	// 		{
++	// 			continue;
++	// 		}
++	// 	}
+ 
+-	if (pBestPlot == NULL)
+-		return false;
++	// 	if (kLoopPlot.isVisibleEnemyUnit(this) ||
++	// 		kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
++	// 	{
++	// 		continue;
++	// 	}
++	// 	int iPathTurns; // XXX should this actually be at the top of the loop? (with saved paths and all...)
++	// 	if (generatePath(kLoopPlot, eFlags, true, &iPathTurns))
++	// 	{
++	// 		const int iValue = 10000 - iPathTurns; // advc.opt: Instead of dividing by iPathTurns+1
++	// 		if (iValue > iBestValue)
++	// 		{
++	// 			iBestValue = iValue;
++	// 			eBestBuild = eBestTempBuild;
++	// 			pBestPlot = &kLoopPlot;
++	// 		}
++	// 	}
++	// }
+ 
+-	FAssertBounds(NO_BUILD, GC.getNumBuildInfos(), eBestBuild);
+-	getGroup()->pushMission(MISSION_ROUTE_TO,
+-			pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
+-			false, MISSIONAI_BUILD, pBestPlot);
+-	getGroup()->pushMission(MISSION_BUILD,
+-			eBestBuild, -1, eFlags,
+-			true, // K-Mod: was (getGroup()->getLengthMissionQueue() > 0)
+-			false, MISSIONAI_BUILD, pBestPlot);
+-	return true;
++	// if (pBestPlot == NULL)
++	// 	return false;
++
++	// FAssertBounds(NO_BUILD, GC.getNumBuildInfos(), eBestBuild);
++	// getGroup()->pushMission(MISSION_ROUTE_TO,
++	// 		pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
++	// 		false, MISSIONAI_BUILD, pBestPlot);
++	// getGroup()->pushMission(MISSION_BUILD,
++	// 		eBestBuild, -1, eFlags,
++	// 		true, // K-Mod: was (getGroup()->getLengthMissionQueue() > 0)
++	// 		false, MISSIONAI_BUILD, pBestPlot);
++	// return true;
++	return false;
+ }
+
+diff --git a/README.md b/README.md
+index 47dacfca8..fb3ecc335 100644
+--- a/README.md
++++ b/README.md
+@@ -285,7 +285,7 @@ The more general gameplay type of changes consist of:
+ - Maybe some (or lot) music, ideally (even more ideally), if copyright or something is not an issue when/if i upload
+ the finished version.
+ - Recent new goal but anyways: new AI-generated images (using ChatGPT for now at least if not always or not but anyways)
+-- Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) and [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) or/and main README.md for details anyways etc) 
++- Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) and [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) or/and main README.md for details anyways etc).
+ - many changes, unlisted and still undone, so far this project is in the early stages, and some of the stated above may change too, refer to ingame sevopedia or and get started guide linked above for hopefully more accurate versions especially ingame sevopedia which always uses latest xml data if i am not mistaken anyways etc
+ make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting CvUnitAI::AI_bestCityBuild, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+@@ -323,7 +323,7 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - more like a patch but added "no military support cost" (`bMilitarySupport` in unit info's XML if i am not mistaken anyways etc) info in sevopedia unit's placeSpecial as part of giving as of now 0 military support cost for the robotic_infantry we (i.e. i but anyways etc...) added in advciv-sas anyways etc, see [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and the [/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) for related info as well anyways etc
+ - make the AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and chatgpt's help too anyways etc and adjusted for advciv-sas too or not anyways etc), that as a side effect may also slightly increase performance due to early return in the function anyways etc. Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc.
+ - (now seemingly fixed): prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot"), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
+ - disable AIFoundValue::adjustToBadHealth, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc.
+ - make ai cities wider spread and simplify conditions with changes in AIFoundValue::isTooManyTakenTiles and AIFoundValue::adjustToCivSurroundings (remove long distance penalties of settling cities in this case i mean but anyways etc, and if i am not mistaken anyways etc), they were often times too or even very much way too crowded and close in a way that doesn't allow them to grow past size 4 or 6 and they'd compete for yields, hopefully much more efficient now with a wider spreading, although as a result they are a bit thinner and militarily weaker but should be very worth it or so i think but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 967656a64..b104b457d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -900,6 +900,8 @@ I would want to do other changes ideally to AI worker and such logic, not sure i
+ 
+ update note: i have noticed that commenting out the `CvUnitAI::AI_improveBonus` function entirely in the inner body i mean in this case but anyways etc and returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had ; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient anyways etc)
+ 
++update 2: update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots 1858 (no farm on spices plains and no farms on flood plains either since we're not starving) and 1863 (still no farm even at turn 150, now building plantation as intended and city looks very nice improved if i may say but anyways etc) for comparison ; also not shown but no farms on flatland grass anymore since we're not starving there as well if i'm not mistaken in my memories but anyways etc. We now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further if i am not mistaken and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too if i may say but anyways etc) but anyways etc
++
+ ## 31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first, except in some rare cases
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1BpwAkJ6V4cT8zeN99UOds7wu0efB5PUe?usp=sharing)
+@@ -928,6 +930,8 @@ After these new changes i implemented in this known issue as of now 32 but anywa
+ 
+ Hopefully AI is stronger with these changes anyways etc.
+ 
++update: increase the penalty a bit to solve some extra cases where some cities still didn't prefer coast, and which seems to indeed successfully solve it as well for these cities, see screenshots 1855 vs 1859 to 1862 for compare anyways etc
++
+ ## 33 - Tremendously improved and fixed and enhanced AI worker build/improvement logic in CvUnitAI::AI_bestCityBuild
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1WQUG049I2F1nPMhTVrnTstgNYjVslg9i?usp=sharing).
+@@ -958,6 +962,8 @@ As a result, AI cities and workers should be tremendously stronger than in base
+ 
+ Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
+ 
++update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc
++
+ ## 34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1yqmOZ1hSXPtgeVY69eFlj6R6OAM9mdze?usp=sharing).
+@@ -1061,6 +1067,8 @@ So i added a fix to that in `CvUnitAI::AI_workerMove`, with chatgpt o-3's help t
+ 
+ After recompiling and testing these changes, as can be seen from existing screenshots between 1734 and 1740, workers move sooner to city C, and around turn 100 to 125, it has an overall nicer edge in terms of improvement, workers are not over improving city A or B too it seems at quick glance if i am not mistaken although i didn't look in detail, so hopefully AI is stronger thanks to these changes as well but anyways etc.
+ 
++update: added an extra tweak so that workers stay longer in city B (small cities), as they are expected to grow fast, so don't leave at 2 improved plots if city size is size 2, improve say 4 or 5 plots (see code there for details anyways etc)
++
+ ## 40 - (Seemingly fixed / addressed) Tremendous/Major Plot allocation improvement 2: If we are high in happiness, favour food tiles much more, and hammer tiles much less if happiness is really high (favour growth dynamically and plot allocation of these the more we can afford it), even if porduction is slightly reduced short term as a result, it auto corrects at high happiness, with seemingly much stronger AI and developped cities as a result (excluded if food is production (e.g. worker, settler, etc if i am not mistaken but anyways etc))
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1OsMF8q8NbcfGFS8oMg-mDkL_F6iju9_w?usp=sharing).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 9741dada5..bd9eb5918 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -75,8 +75,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - remove some aifoundvalue conditions to simplify logic now that ours is tweaked no need to add distrubance or potential inaccuracy or ineffiency or/and undesired behaviour if i may say but anyways etc
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+ - Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
+-- (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it)
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
++- (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, and then also added an extra tweak so that workers stay longer in city B (small cities), as they are expected to grow fast, so don't leave at 2 improved plots if city size is size 2, improve say 4 or 5 plots (see code there for details anyways etc), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it)
+ - AIFoundValue::evaluateDefense: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - AIFoundValue::adjustToBarbarianSurroundings: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
+ - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) with screenshots and detailed (at least more detailed) analysis there, hopefully AI is a lot or quite a lot or quite a bit or such in this case i mean but anyways etc stronger or more versatile this way while not having the opposite downside of valuing food too much as well hopefully, see there for details, anyways etc.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=91995

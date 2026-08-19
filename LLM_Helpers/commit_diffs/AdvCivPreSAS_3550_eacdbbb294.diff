@@ -1,0 +1,217 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3550
+# Commit: eacdbbb294679d1cccbfb3f748d0bb39843bfadd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4f44c6506e5cd2251d9b94f59ba2d04c76d83b75
+# Title: Refactor setTradeRouteHelp
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+85	86	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ea21c90f5..f0d64ebfb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18988,103 +18988,102 @@ void CvGameTextMgr::eventGoldHelp(CvWStringBuffer& szBuffer, EventTypes eEvent,
+ 
+ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvCity* pCity)
+ {
+-	if (NULL != pCity)
++	if (pCity == NULL)
+ 	{
+-		CvCity* pOtherCity = pCity->getTradeCity(iRoute);
+-
+-		if (NULL != pOtherCity)
++		FAssertMsg(pCity != NULL, "Can this actually happen?"); // advc.test
++		return;
++	}
++	CvCity const* pOtherCity = pCity->getTradeCity(iRoute);
++	if (pOtherCity == NULL)
++	{
++		FAssertMsg(pCity != NULL, "Can this actually happen?"); // advc.test
++		return;
++	}
++	szBuffer.append(pOtherCity->getName());
++	int iProfit = pCity->getBaseTradeProfit(pOtherCity);
++	{
++		szBuffer.append(NEWLINE);
++		CvWString szBaseProfit;
++		szBaseProfit.Format(L"%d.%02d", iProfit/100, iProfit%100);
++		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_HELP_BASE", szBaseProfit.GetCString()));
++	}
++	int iTotalModifier = 100;
++	{
++		CvCivilization const& kCiv = pCity->getCivilization();
++		for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 		{
+-			szBuffer.append(pOtherCity->getName());
+-
+-			int iProfit = pCity->getBaseTradeProfit(pOtherCity);
+-
+-			szBuffer.append(NEWLINE);
+-			CvWString szBaseProfit;
+-			szBaseProfit.Format(L"%d.%02d", iProfit/100, iProfit%100);
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_HELP_BASE", szBaseProfit.GetCString()));
+-
+-			int iModifier = 100;
+-			int iNewMod;
+-
+-			for (int iBuilding = 0; iBuilding < GC.getNumBuildingInfos(); ++iBuilding)
+-			{
+-				if (pCity->getNumActiveBuilding((BuildingTypes)iBuilding) > 0)
+-				{
+-					iNewMod = pCity->getNumActiveBuilding((BuildingTypes)iBuilding) * GC.getInfo((BuildingTypes)iBuilding).getTradeRouteModifier();
+-					if (iNewMod != 0)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_BUILDING", GC.getInfo((BuildingTypes)iBuilding).getTextKeyWide(), iNewMod));
+-						iModifier += iNewMod;
+-					}
+-				}
+-			}
+-
+-			iNewMod = pCity->getPopulationTradeModifier();
+-			if (iNewMod != 0)
++			BuildingTypes const eBuilding = kCiv.buildingAt(i);
++			int iActive = pCity->getNumActiveBuilding(eBuilding);
++			if (iActive <= 0)
++				continue;
++			int iModifier = iActive * GC.getInfo(eBuilding).getTradeRouteModifier();
++			if (iModifier != 0)
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_POPULATION", iNewMod));
+-				iModifier += iNewMod;
++				szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_BUILDING",
++						GC.getInfo(eBuilding).getTextKeyWide(), iModifier));
++				iTotalModifier += iModifier;
+ 			}
+-
+-			if (pCity->isConnectedToCapital())
++		}
++	}
++	{
++		int iModifier = pCity->getPopulationTradeModifier();
++		if (iModifier != 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_POPULATION", iModifier));
++			iTotalModifier += iModifier;
++		}
++	}
++	if (pCity->isConnectedToCapital())
++	{
++		int iModifier = GC.getDefineINT("CAPITAL_TRADE_MODIFIER");
++		if (iModifier != 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_CAPITAL", iModifier));
++			iTotalModifier += iModifier;
++		}
++	}
++	if (!pCity->sameArea(*pOtherCity))
++	{
++		int iModifier = GC.getDefineINT("OVERSEAS_TRADE_MODIFIER");
++		if (iModifier != 0)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_OVERSEAS", iModifier));
++			iTotalModifier += iModifier;
++		}
++	}
++	if (pCity->getTeam() != pOtherCity->getTeam())
++	{
++		{
++			int iModifier = pCity->getForeignTradeRouteModifier();
++			if (iModifier != 0)
+ 			{
+-				iNewMod = GC.getDefineINT("CAPITAL_TRADE_MODIFIER");
+-				if (iNewMod != 0)
+-				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_CAPITAL", iNewMod));
+-					iModifier += iNewMod;
+-				}
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_FOREIGN",
++						iModifier));
++				iTotalModifier += iModifier;
+ 			}
+-
+-			if (pOtherCity != NULL)
++		}
++		{
++			int iModifier = pCity->getPeaceTradeModifier(pOtherCity->getTeam());
++			if (iModifier != 0)
+ 			{
+-				if (!pCity->sameArea(*pOtherCity))
+-				{
+-					iNewMod = GC.getDefineINT("OVERSEAS_TRADE_MODIFIER");
+-					if (iNewMod != 0)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_OVERSEAS", iNewMod));
+-						iModifier += iNewMod;
+-					}
+-				}
+-
+-				if (pCity->getTeam() != pOtherCity->getTeam())
+-				{
+-					iNewMod = pCity->getForeignTradeRouteModifier();
+-					if (iNewMod != 0)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_FOREIGN", iNewMod));
+-						iModifier += iNewMod;
+-					}
+-
+-					iNewMod = pCity->getPeaceTradeModifier(pOtherCity->getTeam());
+-					if (iNewMod != 0)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_PEACE", iNewMod));
+-						iModifier += iNewMod;
+-					}
+-				}
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_MOD_PEACE", iModifier));
++				iTotalModifier += iModifier;
+ 			}
+-
+-			FAssert(pCity->totalTradeModifier(pOtherCity) == iModifier);
+-
+-			iProfit *= iModifier;
+-			iProfit /= 10000;
+-
+-			FAssert(iProfit == pCity->calculateTradeProfit(pOtherCity));
+-
+-			szBuffer.append(SEPARATOR);
+-
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_TOTAL", iProfit));
+ 		}
+ 	}
++	FAssert(pCity->totalTradeModifier(pOtherCity) == iTotalModifier);
++	iProfit *= iTotalModifier;
++	iProfit /= 10000;
++	FAssert(iProfit == pCity->calculateTradeProfit(pOtherCity));
++	szBuffer.append(SEPARATOR);
++	szBuffer.append(NEWLINE);
++	szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_TOTAL", iProfit));
+ }
+ 
+ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=6097

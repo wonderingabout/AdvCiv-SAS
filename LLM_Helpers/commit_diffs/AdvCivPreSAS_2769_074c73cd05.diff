@@ -1,0 +1,51 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2769
+# Commit: 074c73cd051b8e3c683b02447b1d983a66856b9f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 68196b1cd152615955a0cbece59f8987acdfc5d6
+# Title: UWAI: Tweak "public opposition" aspect of war utility
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	0	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 79ceb831f..e08386866 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3123,7 +3123,22 @@ void PublicOpposition::evaluate() {
+ 		log("Expected increase in ww: %d percent (%d conquered cities, %s war)",
+ 				::round(incr * 100), conqueredFromThem, (isTotal ? "total" : "limited"));
+ 	double angerRate = (wwAnger * (1 + incr) + faithAnger) / pop;
++	if(angerRate <= 0)
++		return;
+ 	double uMinus = 125 * angerRate;
++	// Don't go too high
++	uMinus = std::pow(uMinus, 0.75) * 2; // (normalization factor)
++	/*	Shouldn't be much of a deterrent when playing for military victory.
++		(Letting the utility counted for the MilitaryVictory aspect cancel out
++		the PublicOpposition isn't quite working out, I think, b/c the
++		latter aspect is being overvalued so that it can serve as a safeguard
++		against interminable wars.) */
++	if(we->AI_atVictoryStage(AI_VICTORY_MILITARY3)) {
++		int const div = (we->isHuman() ? 3 : 2); // Humans are especially goal-driven
++		uMinus /= div;
++		if(we->AI_atVictoryStage(AI_VICTORY_MILITARY4))
++			uMinus /= div;
++	}
+ 	log("War anger rate: %d percent%s", ::round(angerRate * 100),
+ 			(uMinus < 0.5 ? " (negligible)" : ""));
+ 	u -= ::round(uMinus);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1310

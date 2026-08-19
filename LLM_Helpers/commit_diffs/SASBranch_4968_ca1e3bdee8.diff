@@ -1,0 +1,1462 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4968
+# Commit: ca1e3bdee85b90881d3458a9dbae891c67590575
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 455a85d30a81ca9e040ee2d4c68299b781ab5232
+# Title: replace "_GUILDS" with "_CHIVALRY", replace "_PRIESTHOOD" with "_BIOENGINEERING", replace "_ARCHERY" with "_SPACE_EXPLORATION" (minus quotes for techs in thi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/EntryPoints/CvRandomEventInterface.py
+12	12	Assets/XML/Audio/Audio2DScripts.xml
+6	6	Assets/XML/Audio/AudioDefines.xml
+5	5	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+11	6	Assets/XML/Events/CIV4EventTriggerInfos.xml
+18	18	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+4	5	Assets/XML/GameInfo/CIV4ProjectInfo.xml
+1	1	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+99	135	Assets/XML/Technologies/CIV4TechInfos.xml
+4	4	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+15	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+15	0	Assets/XML/Text/CIV4GameText_Custom.xml
+25	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Units/CIV4BuildInfos.xml
+15	15	Assets/XML/Units/CIV4UnitInfos.xml
+383	0	_0_Common_Docs/git_log_anonymized_email.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index b07a2c8cb..382c388b6 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -2087,8 +2087,9 @@ def applyThePhilistines1(argsList):
+ ######## THE_VEDIC_ARYANS ###########
+ 
+ def canTriggerTheVedicAryans(argsList):
++	# <-- custom: TECH_PRIESTHOOD removed, replaced this entry with TECH_POLYTHEISM anyways etc, also TECH_ARCHERY is now removed as well but anyways etc so replaced with TECH_MASONRY, hopefully walls help defend against that as well maybe if i may say but anyways etc -->
+ 	# advc.311: Moved into new function; replace Polytheism with Priesthood (from BUFFY 3.19.003).
+-	return canTriggerUprising(argsList[0].ePlayer, 'TECH_PRIESTHOOD', 'TECH_ARCHERY', 'UNITCLASS_ARCHER')
++	return canTriggerUprising(argsList[0].ePlayer, 'TECH_POLYTHEISM', 'TECH_MASONRY', 'UNITCLASS_ARCHER')
+ 
+ def getHelpTheVedicAryans1(argsList):
+ 	iEvent = argsList[0]
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 6837e431e..7307d5b53 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12070,8 +12070,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_PRIESTHOOD</ScriptID>
+-		<SoundID>SND_TECH_PRIESTHOOD</SoundID>
++		<ScriptID>AS2D_TECH_BIOENGINEERING</ScriptID>
++		<SoundID>SND_TECH_BIOENGINEERING</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -12277,8 +12277,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_GUILDS</ScriptID>
+-		<SoundID>SND_TECH_GUILDS</SoundID>
++		<ScriptID>AS2D_TECH_CHIVALRY</ScriptID>
++		<SoundID>SND_TECH_CHIVALRY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -13358,8 +13358,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_ARCHERY</ScriptID>
+-		<SoundID>SND_TECH_ARCHERY</SoundID>
++		<ScriptID>AS2D_TECH_SPACE_EXPLORATION</ScriptID>
++		<SoundID>SND_TECH_SPACE_EXPLORATION</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14186,8 +14186,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_PRIESTHOOD</ScriptID>
+-		<SoundID>SND_TECH_MP_PRIESTHOOD</SoundID>
++		<ScriptID>AS2D_TECH_MP_BIOENGINEERING</ScriptID>
++		<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14393,8 +14393,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_GUILDS</ScriptID>
+-		<SoundID>SND_TECH_MP_GUILDS</SoundID>
++		<ScriptID>AS2D_TECH_MP_CHIVALRY</ScriptID>
++		<SoundID>SND_TECH_MP_CHIVALRY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15474,8 +15474,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_ARCHERY</ScriptID>
+-		<SoundID>SND_TECH_MP_ARCHERY</SoundID>
++		<ScriptID>AS2D_TECH_MP_SPACE_EXPLORATION</ScriptID>
++		<SoundID>SND_TECH_MP_SPACE_EXPLORATION</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 077721906..3a18549d9 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8410,7 +8410,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_PRIESTHOOD</SoundID>
++			<SoundID>SND_TECH_BIOENGINEERING</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8473,7 +8473,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_GUILDS</SoundID>
++			<SoundID>SND_TECH_CHIVALRY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Guilds</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8802,7 +8802,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_ARCHERY</SoundID>
++			<SoundID>SND_TECH_SPACE_EXPLORATION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Archery</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9054,7 +9054,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_PRIESTHOOD</SoundID>
++			<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9117,7 +9117,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_GUILDS</SoundID>
++			<SoundID>SND_TECH_MP_CHIVALRY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Guilds</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9446,7 +9446,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_ARCHERY</SoundID>
++			<SoundID>SND_TECH_MP_SPACE_EXPLORATION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index b1cf3465d..04ef08d15 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -291,8 +291,8 @@
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc ; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans but anyways etc, was 0 -->
+-			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op, maybe manageable now, trying and see(ing in this case i mean but anyways etc) in this case i mean but anyways etc  -->
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op, not reducing it too much as they still seem quite a bit too strong if i may say but anyways etc otherwise and i still want the game being about civlizations fighting each other not barbarians vs all but hopefully more balanced as such anyways etc -->
++			<iMilitaryProductionModifier>-30</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -12845,7 +12845,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_GUILDS and tech types TECH_CURRENCY anyways etc -->
++			<!-- custom: was TECH_GUILDS (now removed) and tech types TECH_CURRENCY anyways etc -->
+ 			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CURRENCY</PrereqTech>
+@@ -13047,7 +13047,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CURRENCY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -23972,7 +23972,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_PRIESTHOOD -->
++			<!-- custom: was TECH_PRIESTHOOD (now removed) -->
+ 			<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index 01877bfcc..78fb53341 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -40,7 +40,7 @@
+ 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_PRIESTHOOD -->
++			<!-- custom: was TECH_PRIESTHOOD (now removed) -->
+ 			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+@@ -55,7 +55,7 @@
+ 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
+ 			<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_PRIESTHOOD -->
++			<!-- custom: was TECH_PRIESTHOOD (now removed) -->
+ 			<TechPrereq>TECH_MONARCHY</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index a67ea94f1..f54a0ddbf 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -284,8 +284,9 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: was TECH_ARCHERY (now removed) -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case anyways etc -->
+@@ -378,10 +379,11 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: replaced TECH_PRIESTHOOD (now removed), replaced with TECH_MONARCHY anyways etc -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
++				<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -1091,10 +1093,11 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY anyways etc -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
++				<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -2933,10 +2936,11 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY anyways etc -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
++				<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -5976,8 +5980,9 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
++			<!-- custom: was TECH_ARCHERY (now removed) -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_MASONRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+@@ -14858,7 +14863,7 @@
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs/>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_GUILDS</PrereqTech>
++				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 1303103bd..152c95ff7 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -109,9 +109,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 50 -->
+-			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>34</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 55 -->
+-			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -70 -->
+ 			<iAnimalBonus>-30</iAnimalBonus>
+@@ -237,9 +237,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>125</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 45 -->
+-			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 50 -->
+-			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -60 -->
+ 			<iAnimalBonus>-20</iAnimalBonus>
+@@ -363,9 +363,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
+-			<iBarbarianCreationTurnsElapsed>31</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 45 -->
+-			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -50 -->
+ 			<iAnimalBonus>-10</iAnimalBonus>
+@@ -491,9 +491,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>115</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 35 -->
+-			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>31</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 40 -->
+-			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -40 -->
+ 			<iAnimalBonus>0</iAnimalBonus>
+@@ -619,9 +619,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 30 -->
+-			<iBarbarianCreationTurnsElapsed>29</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 35 -->
+-			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
+ 			<!-- advc.313: was -30 -->
+ 			<iAnimalBonus>0</iAnimalBonus>
+@@ -755,9 +755,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>105</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 25 -->
+-			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>29</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 30 -->
+-			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
+ 			<!-- advc.313: start -->
+ 			<!-- was -20 -->
+@@ -890,9 +890,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 20 -->
+-			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 25 -->
+-			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<!-- advc.313: start -->
+@@ -1032,9 +1032,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>95</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 15 -->
+-			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 20 -->
+-			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<!-- advc.313: start -->
+@@ -1175,9 +1175,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 10 -->
+-			<iBarbarianCreationTurnsElapsed>25</iBarbarianCreationTurnsElapsed>
++			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
+ 			<!-- advc.300: was 15 -->
+-			<iBarbarianCityCreationTurnsElapsed>31</iBarbarianCityCreationTurnsElapsed>
++			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
+ 			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
+ 			<iAnimalBonus>0</iAnimalBonus>
+ 			<iBarbarianBonus>0</iBarbarianBonus>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProjectInfo.xml b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+index 7c5d529cd..8c3f6f604 100644
+--- a/Assets/XML/GameInfo/CIV4ProjectInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+@@ -236,7 +236,7 @@
+ 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+ 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
+ 			<!-- custom: was TECH_GENETICS -->
+-			<TechPrereq>TECH_TRANSHUMANISM</TechPrereq>
++			<TechPrereq>TECH_BIOENGINEERING</TechPrereq>
+ 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>1</iMaxTeamInstances>
+@@ -274,7 +274,7 @@
+ 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+ 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
+ 			<!-- custom: was TECH_SATELLITES -->
+-			<TechPrereq>TECH_ARCHERY</TechPrereq>
++			<TechPrereq>TECH_SPACE_EXPLORATION</TechPrereq>
+ 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>1</iMaxTeamInstances>
+@@ -316,8 +316,7 @@
+ 			<Civilopedia>TXT_KEY_PROJECT_SS_ENGINE_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+ 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
+-			<!-- custom: move spaceship sooner (here PROJECT_SS_ENGINE anyways etc) in tech tree so it can actually be built and sooner before game ends or player quits, also a bit more of a threat now to keep other players in check or attack them sooner if needed anyways etc, was TECH_FUSION -->
+-			<TechPrereq>TECH_SUPERCONDUCTORS</TechPrereq>
++			<TechPrereq>TECH_FUSION</TechPrereq>
+ 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>2</iMaxTeamInstances>
+@@ -406,7 +405,7 @@
+ 			<Civilopedia>TXT_KEY_PROJECT_SS_THRUSTERS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+ 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
+-			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too but or not but or yes but or and other or and not or yes or other or etc anyways etc, was TECH_SUPERCONDUCTORS -->
++			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too but or not but or yes but or and other or and not or yes or other or etc anyways etc, was TECH_SUPERCONDUCTORS; update: now that we added a future_era, make space race not end too soon before players have reasonably advanced enough in it, so keep some space parts if i may say in this case but anyways etc at later future_era techs as of now but anyways etc -->
+ 			<TechPrereq>TECH_ROCKETRY</TechPrereq>
+ 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index f98d2928c..c10bd3611 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -53,7 +53,7 @@
+ 			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
+ 			<Sound>AS2D_BUILD_PAGAN</Sound>
+ 		</ReligionInfo>
+-		<!-- custom: change tech prerequirement of hinduism to TECH_PRIESTHOOD, historically more accurate in terms of year founded/started (around 4 000 BCE if i am not mistaken from the little or lot or not or yes or and other or and not i did (or did not or did or (not or yes or etc anyways etc) and other or and not on it anyways etc)), also as TECH_POLYTHEISM is too soon in our tech tree now (around 10 000 BCE) for that, anyways etc, was TECH_POLYTHEISM -->
++		<!-- custom: change tech prerequirement of hinduism to TECH_PRIESTHOOD (now removed), historically more accurate in terms of year founded/started (around 4 000 BCE if i am not mistaken from the little or lot or not or yes or and other or and not i did (or did not or did or (not or yes or etc anyways etc) and other or and not on it anyways etc)), also as TECH_POLYTHEISM is too soon in our tech tree now (around 10 000 BCE) for that, anyways etc, was TECH_POLYTHEISM -->
+ 		<ReligionInfo>
+ 			<Type>RELIGION_HINDUISM</Type>
+ 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index ac0da854e..23e992fab 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -99,7 +99,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>8</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -213,21 +213,20 @@
+ 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_PRIESTHOOD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_PRIESTHOOD</Type>
+-			<Description>TXT_KEY_TECH_PRIESTHOOD</Description>
+-			<Civilopedia>TXT_KEY_TECH_PRIESTHOOD_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_BIOENGINEERING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_BIOENGINEERING</Type>
++			<Description>TXT_KEY_TECH_BIOENGINEERING</Description>
++			<Civilopedia>TXT_KEY_TECH_BIOENGINEERING_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_PRIESTHOOD_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_RELIGION</Advisor>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>60</iCost>
++			<!--custom: todo:<iCost>10000</iCost>-->
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: todo: temporarily reverted until the other bugs are fixed and/or such anyways etc -->
+-			<!--<Era>ERA_FUTURE</Era>-->
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -235,10 +234,10 @@
+ 			<iHealth>1</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>8</iAsset>
++			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+-			<bTrade>1</bTrade>
++			<bTrade>0</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>1</bGoodyTech>
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+@@ -263,20 +262,16 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -284,9 +279,9 @@
+ 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_PRIESTHOOD_QUOTE</Quote>
+-			<Sound>AS2D_TECH_PRIESTHOOD</Sound>
+-			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
++			<Quote>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Quote>
++			<Sound>AS2D_TECH_BIOENGINEERING</Sound>
++			<SoundMP>AS2D_TECH_MP_BIOENGINEERING</SoundMP>
+ 			<!-- custom: button import from c2c mod anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds</Button>
+ 		</TechInfo>
+@@ -312,7 +307,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>8</iAsset>
++			<iAsset>16</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -385,7 +380,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>8</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<!-- custom: was 1 -->
+@@ -441,7 +436,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
++				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -592,7 +587,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
++				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+ 				<PrereqTech>TECH_CURRENCY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+@@ -733,19 +728,16 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was flavors military 5 production 6 culture 2 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>6</iFlavor>
+ 				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MONARCHY</PrereqTech>
+@@ -853,7 +845,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>24</iAsset>
++			<iAsset>16</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -1003,12 +995,12 @@
+ 			<SoundMP>AS2D_TECH_MP_CIVIL_SERVICE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Civil Service.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,2</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_GUILDS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_GUILDS</Type>
+-			<Description>TXT_KEY_TECH_GUILDS</Description>
+-			<Civilopedia>TXT_KEY_TECH_GUILDS_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_CHIVALRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_CHIVALRY</Type>
++			<Description>TXT_KEY_TECH_CHIVALRY</Description>
++			<Civilopedia>TXT_KEY_TECH_CHIVALRY_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_GUILDS_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+@@ -1050,22 +1042,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was flavors military 2 production 5 gold 2 culture 1 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -1074,9 +1055,9 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_GUILDS_QUOTE</Quote>
+-			<Sound>AS2D_TECH_GUILDS</Sound>
+-			<SoundMP>AS2D_TECH_MP_GUILDS</SoundMP>
++			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
++			<Sound>AS2D_TECH_CHIVALRY</Sound>
++			<SoundMP>AS2D_TECH_MP_CHIVALRY</SoundMP>
+ 			<!-- custom: button import from m-e mod anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
+ 		</TechInfo>
+@@ -1338,7 +1319,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>32</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -1792,7 +1773,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<!-- custom: was 1 -->
+@@ -1868,7 +1849,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>40</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -2442,7 +2423,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
++				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+ 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 				<PrereqTech>TECH_POTTERY</PrereqTech>
+ 			</OrPreReqs>
+@@ -2548,7 +2529,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>32</iAsset>
+ 			<iPower>4</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<!-- custom: was 1 -->
+@@ -2635,7 +2616,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>8</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -2863,7 +2844,7 @@
+ 			<iHappiness>0</iHappiness>
+ 			<!-- custom: would make more sense for this when it is changed to TECH_THEORY_OF_EVOLUTION, currently TECH_LIBERALISM is bloated and toos trong already if i am not mistaken, giving theory of evolution some purpsoe while also making sense in terms of gameplay, searching it means fallign behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->
+ 			<iFirstFreeTechs>1</iFirstFreeTechs>
+-			<iAsset>24</iAsset>
++			<iAsset>32</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<!-- custom: was 1 -->
+@@ -2974,7 +2955,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_GUILDS</PrereqTech>
++				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CURRENCY</PrereqTech>
+@@ -3413,6 +3394,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was flavors production 2 gold 1 science 10; note: i didn't add military flavor here to not mislead AI leaders from main military path (as of now chivalry / civil service rather or/and other techs but anyways etc) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -3422,9 +3404,13 @@
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>1</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>8</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -3462,7 +3448,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>40</iAsset>
++			<iAsset>32</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -3608,7 +3594,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>40</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -3854,7 +3840,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>18</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4049,7 +4035,7 @@
+ 			<iHealth>-6</iHealth>
+ 			<iHappiness>-6</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+@@ -4194,7 +4180,7 @@
+ 			<iHealth>3</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>64</iAsset>
+ 			<iPower>5</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+@@ -4215,7 +4201,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4223,19 +4209,11 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+ 					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4345,7 +4323,7 @@
+ 			<iHealth>1</iHealth>
+ 			<iHappiness>2</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+@@ -4423,9 +4401,10 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>1</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<!-- custom: was 48 -->
++			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<!-- custom: was 1 -->
+@@ -4447,7 +4426,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>22</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4461,10 +4440,6 @@
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+ 					<iFlavor>8</iFlavor>
+@@ -4486,15 +4461,13 @@
+ 			<Description>TXT_KEY_TECH_HUNTING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_HUNTING_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_HUNTING_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>40</iCost>
++			<iCost></iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: todo: temporarily reverted until the other bugs are fixed and/or such anyways etc -->
+-			<!--<Era>ERA_FUTURE</Era>-->
+ 			<Era>ERA_ANCIENT</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+@@ -4625,33 +4598,32 @@
+ 			<SoundMP>AS2D_TECH_MP_MINING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Mining.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,5</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_ARCHERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_ARCHERY</Type>
+-			<Description>TXT_KEY_TECH_ARCHERY</Description>
+-			<Civilopedia>TXT_KEY_TECH_ARCHERY_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_SPACE_EXPLORATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_SPACE_EXPLORATION</Type>
++			<Description>TXT_KEY_TECH_SPACE_EXPLORATION</Description>
++			<Civilopedia>TXT_KEY_TECH_SPACE_EXPLORATION_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>60</iCost>
++			<!--custom: todo:<iCost>10000</iCost>-->
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: todo: temporarily reverted until the other bugs are fixed and/or such anyways etc -->
+-			<!--<Era>ERA_FUTURE</Era>-->
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHappiness>1</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>8</iAsset>
++			<iAsset>56</iAsset>
+ 			<iPower>6</iPower>
+ 			<bRepeat>0</bRepeat>
+-			<bTrade>1</bTrade>
++			<bTrade>0</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>1</bGoodyTech>
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+@@ -4670,31 +4642,32 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>21</iGridX>
+ 			<iGridY>1</iGridY>
+-			<DomainExtraMoves/>
++			<DomainExtraMoves>
++				<DomainExtraMove>
++					<DomainType>DOMAIN_AIR</DomainType>
++					<iExtraMoves>1</iExtraMoves>
++				</DomainExtraMove>
++			</DomainExtraMoves>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_ARCHERY_QUOTE</Quote>
+-			<Sound>AS2D_TECH_ARCHERY</Sound>
+-			<SoundMP>AS2D_TECH_MP_ARCHERY</SoundMP>
++			<Quote>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Quote>
++			<Sound>AS2D_TECH_SPACE_EXPLORATION</Sound>
++			<SoundMP>AS2D_TECH_MP_SPACE_EXPLORATION</SoundMP>
+ 			<!-- custom: button import from c2c mod anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds</Button>
+ 		</TechInfo>
+@@ -5125,7 +5098,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>8</iAsset>
+ 			<iPower>4</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -5523,7 +5496,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>24</iAsset>
++			<iAsset>8</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -5642,7 +5615,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_GUILDS</PrereqTech>
++				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 				<PrereqTech>TECH_EDUCATION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -5672,7 +5645,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>32</iAsset>
++			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -5969,7 +5942,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>40</iAsset>
++			<iAsset>48</iAsset>
+ 			<iPower>4</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -6118,7 +6091,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>40</iAsset>
++			<iAsset>64</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+@@ -6139,7 +6112,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves>
+ 				<DomainExtraMove>
+ 					<DomainType>DOMAIN_LAND</DomainType>
+@@ -6632,7 +6605,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>1</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>64</iAsset>
+ 			<iPower>10</iPower>
+ 			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
+ 			<bRepeat>0</bRepeat>
+@@ -6656,12 +6629,7 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+ 			<iGridY>1</iGridY>
+-			<DomainExtraMoves>
+-				<DomainExtraMove>
+-					<DomainType>DOMAIN_AIR</DomainType>
+-					<iExtraMoves>1</iExtraMoves>
+-				</DomainExtraMove>
+-			</DomainExtraMoves>
++			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+@@ -6674,10 +6642,6 @@
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -6737,7 +6701,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>18</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -6856,7 +6820,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>2</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+@@ -6930,7 +6894,7 @@
+ 			<iHealth>1</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>64</iAsset>
++			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 334fbf659..ac2f3eea3 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -615,7 +615,7 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<!-- custom: was as of now first PrereqTech TECH_GUILDS anyways etc -->
++			<!-- custom: was as of now first PrereqTech TECH_GUILDS (now removed) anyways etc -->
+ 			<!-- custom: also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+@@ -957,7 +957,7 @@
+ 			<!-- custom: food can quickly become op, give it at most food related improvements except the farm ; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least anyways etc, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this case but anyways etc in a way that is hopefully not op anyways etc and that maybe thematically makes sense if i may say but anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+-					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
++					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+ 					<TechYields>
+ 						<iYield>1</iYield>
+ 						<iYield>0</iYield>
+@@ -1132,7 +1132,7 @@
+ 			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+-					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
++					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+ 					<TechYields>
+ 						<iYield>1</iYield>
+ 						<iYield>0</iYield>
+@@ -1697,7 +1697,7 @@
+ 			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+-					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
++					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+ 					<TechYields>
+ 						<iYield>0</iYield>
+ 						<iYield>0</iYield>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index a14347bda..db45ab055 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -895,4 +895,19 @@
+ 		<Tag>TXT_KEY_TECH_WATER_WHEEL</Tag>
+ 		<English>Water Wheel</English>
+ 	</TEXT>
++	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_CHIVALRY</Tag>
++		<English>Chivalry</English>
++	</TEXT>
++	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BIOENGINEERING</Tag>
++		<English>Bioengineering</English>
++	</TEXT>
++	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION</Tag>
++		<English>Space Exploration</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index b47b63ebf..3f3997ad3 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -363,6 +363,21 @@
+ 		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
+ 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+ 	</TEXT>
++	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_CHIVALRY_QUOTE</Tag>
++		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
++	</TEXT>
++	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Tag>
++		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
++	</TEXT>
++	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
++		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 9fbdc786c..bcc37bffe 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -296,7 +296,7 @@
+ 	<!-- custom: rename "UNIT_MOBILE_ARTILLERY" and such to "UNIT_SELF_PROPELLED_ARTILLERY" and such anyways etc ; pedia entry based on https://en.wikipedia.org/wiki/Self-propelled_artillery and adjusted or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY_PEDIA</Tag>
+-		<English>[TAB]Self-propelled artillery (also called locomotive artillery) is artillery equipped with its own propulsion system to move toward its firing position. Within the terminology are the self-propelled gun, self-propelled howitzer, self-propelled mortar, and self-propelled rocket artillery. They are high-mobility vehicles, usually based on continuous tracks carrying either a large field gun, howitzer, mortar, or some form of rocket/missile launcher. They are usually used for long-range indirect bombardment support on the battlefield.[PARAGRAPH:1]In the past, self-propelled artillery has included direct-fire vehicles, such as assault guns and tank destroyers, which were typically well-armoured vehicles often based upon the chassis of a tank. In lieu of the standard tank's general-purpose main gun that fired both high-explosive and anti-tank ammunition, direct-fire vehicles had specialized roles, with assault guns providing close fire-support for infantry and tank destroyers mounting an anti-tank gun to take on enemy armour.[PARAGRAPH:1]Modern self-propelled artillery vehicles often mount their main gun in a turret on a tracked chassis so they superficially resemble tanks. However, they are generally lightly armoured, which is insufficient to withstand direct-fire combat; nonetheless this protects their crews against shrapnel and small arms and therefore they are usually included as armoured fighting vehicles. Many are equipped with machine guns for defense against enemy infantry.[PARAGRAPH:1]The key advantage of self-propelled over towed artillery is that it can be brought into action much faster. Before the towed artillery can be used, it has to stop, unlimber and set up the guns. To move position, the guns must be limbered up again and brought�usually towed�to the new location. By comparison, self-propelled artillery can stop at a chosen location and begin firing almost immediately, then quickly move on to a new position. This shoot-and-scoot ability is very useful in a mobile conflict and particularly on the advance in open battlefields.[PARAGRAPH:1]Conversely, towed artillery was and remains cheaper to build and maintain. It is also lighter and can be deployed in areas that self-propelled guns cannot reach. Since the Vietnam War, heavy transport helicopters have also been used for rapid artillery deployment albeit at considerable expense and risk, mitigating one of towed artillery's disadvantages. Both self-propelled and towed artillery remain in the arsenals of many modern armies.</English>
++		<English>[TAB]Self-propelled artillery (also called locomotive artillery) is artillery equipped with its own propulsion system to move toward its firing position. Within the terminology are the self-propelled gun, self-propelled howitzer, self-propelled mortar, and self-propelled rocket artillery. They are high-mobility vehicles, usually based on continuous tracks carrying either a large field gun, howitzer, mortar, or some form of rocket/missile launcher. They are usually used for long-range indirect bombardment support on the battlefield.[PARAGRAPH:1]In the past, self-propelled artillery has included direct-fire vehicles, such as assault guns and tank destroyers, which were typically well-armoured vehicles often based upon the chassis of a tank. In lieu of the standard tank's general-purpose main gun that fired both high-explosive and anti-tank ammunition, direct-fire vehicles had specialized roles, with assault guns providing close fire-support for infantry and tank destroyers mounting an anti-tank gun to take on enemy armour.[PARAGRAPH:1]Modern self-propelled artillery vehicles often mount their main gun in a turret on a tracked chassis so they superficially resemble tanks. However, they are generally lightly armoured, which is insufficient to withstand direct-fire combat; nonetheless this protects their crews against shrapnel and small arms and therefore they are usually included as armoured fighting vehicles. Many are equipped with machine guns for defense against enemy infantry.[PARAGRAPH:1]The key advantage of self-propelled over towed artillery is that it can be brought into action much faster. Before the towed artillery can be used, it has to stop, unlimber and set up the guns. To move position, the guns must be limbered up again and brought - usually towed - to the new location. By comparison, self-propelled artillery can stop at a chosen location and begin firing almost immediately, then quickly move on to a new position. This shoot-and-scoot ability is very useful in a mobile conflict and particularly on the advance in open battlefields.[PARAGRAPH:1]Conversely, towed artillery was and remains cheaper to build and maintain. It is also lighter and can be deployed in areas that self-propelled guns cannot reach. Since the Vietnam War, heavy transport helicopters have also been used for rapid artillery deployment albeit at considerable expense and risk, mitigating one of towed artillery's disadvantages. Both self-propelled and towed artillery remain in the arsenals of many modern armies.</English>
+ 	</TEXT>
+ 
+ 
+@@ -785,4 +785,28 @@
+ 		<Tag>TXT_KEY_TECH_WATER_WHEEL_PEDIA</Tag>
+ 		<English>[TAB]A water wheel is a machine for converting the kinetic energy of flowing or falling water into useful forms of power, often in a watermill. A water wheel consists of a large wheel (usually constructed from wood or metal), with numerous blades or buckets attached to the outer rim forming the drive mechanism. Water wheels were still in commercial use well into the 20th century, although they are no longer in common use today. Water wheels are used for milling flour in gristmills, grinding wood into pulp for papermaking, hammering wrought iron, machining, ore crushing and pounding fibre for use in the manufacture of cloth.[PARAGRAPH:1]Some water wheels are fed by water from a mill pond, which is formed when a flowing stream is dammed. A channel for the water flowing to or from a water wheel is called a mill race. The race bringing water from the mill pond to the water wheel is a headrace; the one carrying water after it has left the wheel is commonly referred to as a tailrace.[PARAGRAPH:1]Waterwheels were used for various purposes from things such as agriculture to metallurgy in ancient civilizations spanning the Near East, Hellenistic world, China, Roman Empire and India. Waterwheels saw continued use in the post-classical age, like in medieval Europe and the Islamic Golden Age, but also elsewhere. In the mid- to late 18th century John Smeaton's scientific investigation of the water wheel led to significant increases in efficiency, supplying much-needed power for the Industrial Revolution. Water wheels began being displaced by the smaller, less expensive and more efficient turbine, developed by Beno�t Fourneyron, beginning with his first model in 1827. Turbines are capable of handling high heads, or elevations, that exceed the capability of practical-sized waterwheels.[PARAGRAPH:1]The main difficulty of water wheels is their dependence on flowing water, which limits where they can be located. Modern hydroelectric dams can be viewed as the descendants of the water wheel, as they too take advantage of the movement of water downhill.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: replace "_GUILDS" with "_CHIVALRY"; also pedia entry from https://en.wikipedia.org/wiki/Chivalry similarly but anyways etc, and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_CHIVALRY_PEDIA</Tag>
++		<English>[TAB]Chivalry, or the chivalric language, is an informal and varying code of conduct that developed in Europe between 1170 and 1220. It is associated with the medieval Christian institution of knighthood, with knights being members of various chivalric orders, and with knights' and gentlemen's behaviours which were governed by chivalrous social codes. The ideals of chivalry were popularized in medieval literature, particularly the literary cycles known as the Matter of France, relating to the legendary companions of Charlemagne and his men-at-arms, the paladins, and the Matter of Britain, informed by Geoffrey of Monmouth's Historia Regum Britanniae, written in the 1130s, which popularized the legend of King Arthur and his knights of the Round Table.[PARAGRAPH:1]The code of chivalry that developed in medieval Europe had its roots in earlier centuries. It arose in the Carolingian Empire from the idealisation of the cavalryman - involving military bravery, individual training, and service to others - especially in Francia, among horse soldiers in Charlemagne's cavalry.[PARAGRAPH:1]Over time, the meaning of chivalry in Europe has been refined to emphasize more general social and moral virtues. The code of chivalry, as it stood by the Late Middle Ages, was a moral system which combined a warrior ethos, knightly piety, and courtly manners, all combining to establish a notion of honour and nobility.</English>
++	</TEXT>
++
++
++
++	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING"; also pedia entry from https://en.wikipedia.org/wiki/Biological_engineering similarly but anyways etc, and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BIOENGINEERING_PEDIA</Tag>
++		<English>[TAB]Biological engineering or bioengineering is the application of principles of biology and the tools of engineering to create usable, tangible, economically viable products. Biological engineering employs knowledge and expertise from a number of pure and applied sciences, such as mass and heat transfer, kinetics, biocatalysts, biomechanics, bioinformatics, separation and purification processes, bioreactor design, surface science, fluid mechanics, thermodynamics, and polymer science. It is used in the design of medical devices, diagnostic equipment, biocompatible materials, renewable energy, ecological engineering, agricultural engineering, process engineering and catalysis, and other areas that improve the living standards of societies.[PARAGRAPH:1]Examples of bioengineering research include bacteria engineered to produce chemicals, new medical imaging technology, portable and rapid disease diagnostic devices, prosthetics, biopharmaceuticals, and tissue-engineered organs. Bioengineering overlaps substantially with biotechnology and the biomedical sciences in a way analogous to how various other forms of engineering and technology relate to various other sciences (such as aerospace engineering and other space technology to kinetics and astrophysics).[PARAGRAPH:1]Generally, biological engineers attempt to mimic biological systems to create products or modify and control biological systems. Working with doctors, clinicians, and researchers, bioengineers use traditional engineering principles and techniques to address biological processes, including ways to replace, augment, sustain, or predict chemical and mechanical processes.</English>
++	</TEXT>
++
++
++
++	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION"; also pedia entry from https://en.wikipedia.org/wiki/Space_exploration and https://en.wikipedia.org/wiki/Future_of_space_exploration quite similarly but anyways etc, and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_PEDIA</Tag>
++		<English>[TAB]Space exploration is the physical investigation of outer space by uncrewed robotic space probes and through human spaceflight.[PARAGRAPH:1]While the observation of objects in space, known as astronomy, predates reliable recorded history, it was the development of large and relatively efficient rockets during the mid-twentieth century that allowed physical space exploration to become a reality. Common rationales for exploring space include advancing scientific research, national prestige, uniting different nations, ensuring the future survival of humanity, and developing military and strategic advantages against other countries.[PARAGRAPH:1]The early era of space exploration was driven by a "Space Race" in which the Soviet Union and the United States vied to demonstrate their technological superiority. Landmarks of this era include the launch of the first human-made object to orbit Earth, the Soviet Union's Sputnik 1, on 4 October 1957, and the first Moon landing by the American Apollo 11 mission on 20 July 1969. The Soviet space program achieved many of the first milestones, including the first living being in orbit in 1957, the first human spaceflight (Yuri Gagarin aboard Vostok 1) in 1961, the first spacewalk (by Alexei Leonov) on 18 March 1965, the first automatic landing on another celestial body in 1966, and the launch of the first space station (Salyut 1) in 1971.[PARAGRAPH:1]In the 1970s, focus shifted from one-off flights to renewable hardware, such as the Space Shuttle program, and from competition to cooperation, the foremost example being the International Space Station (ISS), built between 1998 and 2011.[PARAGRAPH:1]The 2000s brought advancements in the national space-exploration programs of China, the European Union, Japan, and India. The 2010s saw the rise of the private space industry in earnest with the development of private launch vehicles, space capsules, and satellite manufacturing. In the 2020s, the two primary global programs gaining traction are Moon-focused: the Chinese-led International Lunar Research Station and the U.S.-led Artemis Program, with its plan to build the Lunar Gateway and the Artemis Base Camp, each with a set of international partners.[PARAGRAPH:2]The future of space exploration involves both telescopic and physical explorations of space by robotic spacecraft and human spaceflight. Near-term physical exploration missions, focused on obtaining new information about the Solar System, are planned and announced by both national and private organisations.[PARAGRAPH:1]Tentative plans for crewed orbital and landing missions to the Moon and Mars to establish scientific outposts will later enable permanent and self-sufficient settlements. Further exploration will potentially involve expedition and the other planets and settlements on the Moon, as well as establishing mining and fueling outposts, particularly in the asteroid belt. Physical exploration outside the Solar System will be robotic for the foreseeable future.[PARAGRAPH:2]Investment in space exploration has dramatically shifted since the 20th century Space race. Space exploration of the late 20th century was driven by competition between the Soviet Union and the United States to achieve the first spaceflight. Now, the private sector and national governments are again investing in space exploration. However, this time they are motivated by protecting human life from catastrophic events and leveraging the resources of space.[PARAGRAPH:2]It has been argued that space colonization is a means of ensuring the survival of human civilization given a planetary disaster. Colonizing other planets allows for the dispersal of humans and thus increases the likelihood of survival given a planetary disaster. The availability of additional resources that can be mined from space could potentially expand the capabilities of humans and largely benefit society. Leveraging these resources and moving high polluting industries to space could reduce the emissions on Earth and ultimately lead to finding cleaner energy sources. The primary blockers to colonizing space include technological and economic challenges.[PARAGRAPH:1]Many private companies are working to make space travel more efficient in hopes to reduce the overall cost of space travel, and thus space colonization. SpaceX has been a dominant leader in this push for efficient exploration with the release of the Falcon 9, a reusable rocket.[PARAGRAPH:2]The unique attributes of space enable astronauts to conduct research that could not otherwise be done on Earth, and the perspective from space looking at Earth enables scientists to gain more insight on the Earth's natural environment. Research conducted at the International Space Station aims to benefit human civilizations on Earth and extend human knowledge of space and space exploration. Currently, NASA's research at the ISS includes biomedical research, material science, technology advancement, and methods to enable further space exploration.[PARAGRAPH:1]Anti and microgravity enable astronauts to execute medical research that is impossible to perform on Earth. For example, NASA's research on new treatment options for complex diseases, such as Duchenne Muscular Dystrophy, require the use of a microgravity environment to allow the microparticles in the treatment solution to stay robust. NASA has also reported research investment in microbial vaccine development and microencapsulation of drugs for targeted and more efficient treatment delivery.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index 505a6ead9..6356661b8 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -217,7 +217,7 @@
+ 			<Type>BUILD_LUMBERMILL</Type>
+ 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
+ 			<Help/>
+-			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS -->
++			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS (now removed) -->
+ 			<!-- K-Mod: was REPLACEABLE_PARTS -->
+ 			<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			<!-- advc.902: was 800 -->
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 149ea85e5..8bbf217eb 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2770,11 +2770,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_AI</PrereqTech>
++			<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
+ 			<TechTypes>
++				<PrereqTech>TECH_AI</PrereqTech>
+ 				<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<!-- custom: like other/most if not all anyways etc robotic units anyways etc -->
+ 			<BonusType>BONUS_ALUMINUM</BonusType>
+@@ -7662,7 +7662,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -7864,7 +7864,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -8091,7 +8091,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -9268,7 +9268,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -9503,7 +9503,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -9777,7 +9777,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ARCHERY -->
++			<!-- custom: was TECH_ARCHERY (now removed) -->
+ 			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+@@ -10712,7 +10712,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
++			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_HUNTING</PrereqTech>
+@@ -10909,7 +10909,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
++			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_HUNTING</PrereqTech>
+@@ -11127,7 +11127,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
++			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_HUNTING</PrereqTech>
+@@ -16664,7 +16664,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -16884,7 +16884,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -17130,7 +17130,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -17363,7 +17363,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_log_anonymized_email.txt b/_0_Common_Docs/git_log_anonymized_email.txt reason=known-generated/noisy-history changedLines=383 bytes=91922
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 0be03e753..e702dc2e4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 08990588f..4f137dd4d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 2bd931848..9b1bb898f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index c87c05c3c..08ff072a7 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=20 omittedFiles=1 embeddedPatchBytes=78817

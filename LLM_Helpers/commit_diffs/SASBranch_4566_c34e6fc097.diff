@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4566
+# Commit: c34e6fc09785ea241badd8e322357037f97e0787
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a42569af5f9ebefb0f81a7d68a1cec4c5200c83a
+# Title: quite minor joan of arc docs fixes/tweaks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	2	_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+1	8	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes b/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+index 41b3b8180..558280b3a 100644
+--- a/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
++++ b/_1_AdvCiv-SAS/Civs_and_Leaders/France/Joan_Of_Arc_notes
+@@ -1,8 +1,15 @@
+-physical appeaence deatailed account, copy pasted below in case it is delted someday for this source:
++- appearance: very detailed account of her physical appearance,. As for the/its content, it seems reliable too even though would need to check, copy pasted below in case it is deleted someday for this source:
++https://www.reddit.com/r/AskHistorians/comments/h907n1/comment/fuvqvom/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
++Content copy pasted at end of this doc after main bullet points
+ 
++-- picture and its source: https://www.meisterdrucke.fr/fine-art-prints/Harold-Hume-Piffard/892307/Jeanne-d%27Arc.html
++needs to find a source for bio or/and check in more detail this one now that is accurate and detailed enough,
++-- mention author and painting "type" in sevopedia: "oil on canvas" it seems
++-- author: Harold Hume Piffard (https://en.wikipedia.org/wiki/Harold_H._Piffard)
++-- date: 1867-1939
+ 
+ As follows:
+-Begining of quote:
++Beginning of quote:
+ "Joan's fame, during her lifetime, was such that some of the contemporaries who met her did comment on her physical appearance, albeit not in nearly such detail as we might wish for. We also have some information about the clothing that was made for her. As a result we know that Joan stood about 5 feet 2 inches [157cm], a fairly typical height for her time, and had dark hair, which she wore cropped short like a man's "in a circle above her ears". A letter written by Perceval de Boulainvilliers, who was chamberlain to the French king Charles VII, and who would have seen Joan at his court, describes her as "of satisfying grace" – that is, reasonably good-looking, rather than beautiful – and "of a virile bearing," adding that "her voice has a womanly charm" and that while she "sheds tears freely, her expression is cheerful."
+ 
+ Two of the men who accompanied Joan, saw her change her clothes and, in one case, helped to dress wounds incurred in battle, commented more favourably on her physical attractiveness, noting, for example, the pleasing size and shape of her breasts. And Eugelide, Princess of Hungary – who did not meet her – revealed in a contemporary letter that she had heard that the maid had a short neck and a red birthmark beneath one ear. But the above is really all the even vaguely reliable information that we have about Joan's physical appearance.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+index 01c7ba2d8..9179df31e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_design
+@@ -1,10 +1,3 @@
+ - ogiso igodo (benin kingdom): todo
+ 
+-- joan of arc:
+--- appearance: very detailed account of her physical appearance, see specific doc of Joan of arc for details. As for the/its content, it seems reliable too even though would need to check
+-
+--- picture and its source: https://www.meisterdrucke.fr/fine-art-prints/Harold-Hume-Piffard/892307/Jeanne-d%27Arc.html
+-needs to find a source for bio or/and check in more detail this one now that is accurate and detailed enough,
+---- mention author and painting "type" in sevopedia: "oil on canvas" it seems
+---- author: Harold Hume Piffard (https://en.wikipedia.org/wiki/Harold_H._Piffard)
+---- date: 1867-1939
+\ No newline at end of file
++- joan of arc (france): see specific doc of Joan of arc for details
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3774

@@ -1,0 +1,1713 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1304
+# Commit: ce3cf805f64807a437e192e40e62dc5064c4f41c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c5ce5bdd12e6363071d654031c3440774297dae0
+# Title: Further adjustments to the goody hut changes. In particular: - Increased peak turn from 200 to 225. - Huts can no longer grant progress toward Industrial and...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	Assets/XML/GameInfo/CIV4GoodyInfo.xml
+2	8	Assets/xml/GameInfo/CIV4Hints.xml
+2	2	Assets/xml/GlobalDefines_advc.xml
+5	5	Assets/xml/Text/CIV4GameText_advc.008d.xml
+17	4	Assets/xml/Text/CIV4GameText_advc.xml
+14	12	Assets/xml/Text/K-Mod hints.xml
+306	475	CvGameCoreDLL/CvGameTextMgr.cpp
+6	0	CvGameCoreDLL/CvGameTextMgr.h
+223	122	CvGameCoreDLL/CvPlayer.cpp
+5	1	CvGameCoreDLL/CvPlayer.h
+16	3	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+3	2	CvGameCoreDLL/CvUnitAI.cpp
+4	6	CvGameCoreDLL/MilitaryBranch.cpp
+-	-	manual_0.92c.odt
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GoodyInfo.xml b/Assets/XML/GameInfo/CIV4GoodyInfo.xml
+index ea95be606..a8a9e334b 100644
+--- a/Assets/XML/GameInfo/CIV4GoodyInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GoodyInfo.xml
+@@ -111,7 +111,11 @@
+ 				 currently train. Set to UNITCLASS_WARRIOR for BtS behavior. -->
+ 			<UnitClass>NONE</UnitClass>
+ 			<BarbarianClass>NONE</BarbarianClass>
+-			<iBarbarianUnitProb>0</iBarbarianUnitProb>
++			<!-- advc.314: Together with bBad=0 and BarbarianClass=NONE,
++				 this gives the free unit a chance of receiving a free
++				 promotion. The probability is multiplied by a factor based on
++				 the game turn. -->
++			<iBarbarianUnitProb>50</iBarbarianUnitProb>
+ 			<!-- advc.314: Together with bBad=false, this indicates the number of
+ 				 units to be created, and a value above 0 creates a unit even if
+ 				 UnitClass is set to NONE. -->
+@@ -212,9 +216,9 @@
+ 				 progress is granted toward a random tech. Set to all three
+ 				 iGolds to 0 to restore BtS behavior: an entire tech that has
+ 				 to be flagged bGoodyTech in Civ4TechInfos.xml. -->
+-			<iGold>33</iGold>
+-			<iGoldRand1>23</iGoldRand1>
+-			<iGoldRand2>23</iGoldRand2>
++			<iGold>30</iGold>
++			<iGoldRand1>21</iGoldRand1>
++			<iGoldRand2>21</iGoldRand2>
+ 			<iMapOffset>0</iMapOffset>
+ 			<iMapRange>0</iMapRange>
+ 			<iMapProb>0</iMapProb>
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 3961b0984..31a8d3199 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -593,10 +593,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_6</Description>
+ 		</HintInfo>
+-		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 no longer applies -->
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_8</Description>
+-		</HintInfo>
++		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 and 8 no longer apply -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_9</Description>
+ 		</HintInfo>
+@@ -661,10 +658,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_6</Description>
+ 		</HintInfo>
+-		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 no longer applies -->
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_8</Description>
+-		</HintInfo>
++		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 and 8 no longer apply -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_9</Description>
+ 		</HintInfo>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 0ac7c4070..7a03b0d7c 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -596,11 +596,11 @@
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+ 	<!-- Turn after which effects of goody huts do not increase further.
+-		 Recommended: 200. Has to be greater than or equal to
++		 Recommended: 225. Has to be greater than or equal to
+ 		 GOODY_BUFF_START_TURN. -->
+ 	<Define>
+ 		<DefineName>GOODY_BUFF_PEAK_TURN</DefineName>
+-		<iDefineIntVal>200</iDefineIntVal>
++		<iDefineIntVal>225</iDefineIntVal>
+ 	</Define>
+ 	<!-- Factor by which the effects of goody huts are increased on
+ 		 GOODY_BUFF_PEAK_TURN. Recommended: 10 -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 0a80b9ec9..e7644ac9b 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -93,11 +93,11 @@
+ <!-- advc.130o -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_64</Tag>
+-	<English>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands (and pleas) for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</English>
+-	<French>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands (and pleas) for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</French>
+-	<German>(AdvCiv) Wenn Sie eine Zivilisation angreifen, von der Sie Tribut erhalten haben, wird f�r lange Zeit niemand mehr auf Ihre Forderungen (und Bitten) eingehen. Dies gilt nur, wenn Sie angreifen, so lange sich die Zivilisation an Ihre Tributforderung erinnert.</German>
+-	<Italian>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands (and pleas) for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</Italian>
+-	<Spanish>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands (and pleas) for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</Spanish>
++	<English>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands and pleas for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</English>
++	<French>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands and pleas for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</French>
++	<German>(AdvCiv) Wenn Sie eine Zivilisation angreifen, von der Sie Tribut erhalten haben, wird f�r lange Zeit niemand mehr auf Ihre Forderungen und Bitten eingehen. Dies gilt nur, wenn Sie angreifen, so lange sich die Zivilisation an Ihre Tributforderung erinnert.</German>
++	<Italian>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands and pleas for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</Italian>
++	<Spanish>(AdvCiv) If you attack a civilization after receiving their tribute, everyone will be deaf to your demands and pleas for a long time. Once a civilization no longer remembers how "You made an arrogant demand", they're fair game to attack.</Spanish>
+ </TEXT>
+ 
+ <!-- "Don't neglect your navy! Especially in the late game. Controlling the
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 6cdb7b06c..4de7d5174 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -646,7 +646,11 @@
+ 	<!-- advc.004s: Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+ 		 in CIV4GameText_Misc1.xml.
+-		 German: Not enough room for "BSP (...)". -->
++		 German: Not enough room for "BSP (...)".
++		 Sadly, since the text appears as an option in a drop-down menu,
++		 it seems to be impossible to use yield icons (e.g. [ICON_GOLD] instead
++		 of the word "Gold"). It would've been really nice to use the
++		 combat strength icon on the "Power" graph. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DEMO_SCREEN_ECONOMY_TEXT</Tag>
+ 		<English>GNP (Gold+Science)</English>
+@@ -789,9 +793,9 @@
+ 		<Spanish>Los aldeanos os han dado una unidad (%s1_Unit).</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.315: The original text keys for unit abilities are in in
+-		 Civ4GameTextInfos.xml. I hate the capitalization and hard-coded
+-		 bullets, but at least it's consistent. -->
++	<!-- advc.315: The original text keys for unit abilities are in
++		 Civ4GameTextInfos.xml. I hate the capitalization, but at least it's
++		 consistent. -->
+ 	<!-- advc.315a -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ONLY_ATTACK_ANIMALS</Tag>
+@@ -821,6 +825,15 @@
+ 		<Italian>[ICON_BULLET]%D1_Change%% contro barbari (e animali)</Italian>
+ 		<Spanish>[ICON_BULLET]%D1_Change%% contra b�rbaros (e animales)</Spanish>
+ 	</TEXT>
++	<!-- Based on TXT_KEY_MISC_HEALTH_FROM_HANDICAP in Civ4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
++		<English>[ICON_BULLET]%D1_Change%% from Difficulty Level</English>
++		<French>[ICON_BULLET]%D1_Change%% (niveau de difficult�)</French>
++		<German>[ICON_BULLET]%D1_Change%% durch Schwierigkeitsgrad</German>
++		<Italian>[ICON_BULLET]%D1_Change%% per il livello di difficolt�</Italian>
++		<Spanish>[ICON_BULLET]%D1_Change%% por nivel de dificultad</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.137: Copy-pasted from Vanilla Civ4GameText_Misc1.xml;
+ 		 recommendation added (only in English and German). -->
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 4ed064da4..3dbd9c165 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -9,8 +9,10 @@
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+ <!-- advc.008c: Added "(K-Mod)" to hints that describe K-Mod changes
+-	(even those that are just included in K-Mod because, without further
+-	context, players may not know that e.g. "BUG" is the name of a mod). -->
++	(even those that are just included in K-Mod because players may not know
++	that e.g. "BUG" is the name of a mod).
++	I'm also putting any corrections of BtS hints into K-Mod hints.xml, so that
++	CIV4GameText_advc.008d.xml only contains hints about AdvCiv changes. -->
+ 
+ <!-- advc.008c: Now also hints at menu button -->
+ <TEXT>
+@@ -24,11 +26,11 @@
+ <!-- advc.008c: Just stylistic changes -->
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_1</Tag>
+-	<English>(K-Mod) Aqueduct and Hospital increase a city's health, whereas Public Transportation and Recycling Center reduce its pollution ...</English>
+-	<French>(K-Mod) Aqueduct and Hospital increase a city's health, whereas Public Transportation and Recycling Center reduce its pollution ...</French>
+-	<German>(K-Mod) Aqu�dukt und Krankenhaus erh�hen den Gesundheitswert einer Stadt, wohingegen �ffentliche Verkehrsmittel und Recyclinganlagen die Umweltverschmutzung lindern ...</German>
+-	<Italian>(K-Mod) Un acquedotto o un ospedale aumentano la salute della citt�, ma il trasporto pubblico o il centro riciclaggio ne riducono l'inquinamento...</Italian>
+-	<Spanish>(K-Mod) Un acueducto o un hospital aumentar� la salud de una ciudad, pero el transporte p�blico o un centro de reciclaje reduce su poluci�n...</Spanish>
++	<English>(K-Mod) Aqueduct and Hospital increase a city's health, whereas Public Transportation and Recycling Center reduce its pollution.</English>
++	<French>(K-Mod) Aqueduct and Hospital increase a city's health, whereas Public Transportation and Recycling Center reduce its pollution.</French>
++	<German>(K-Mod) Aqu�dukt und Krankenhaus erh�hen den Gesundheitswert einer Stadt, wohingegen �ffentliche Verkehrsmittel und Recyclinganlagen die Umweltverschmutzung lindern.</German>
++	<Italian>(K-Mod) Un acquedotto o un ospedale aumentano la salute della citt�, ma il trasporto pubblico o il centro riciclaggio ne riducono l'inquinamento.</Italian>
++	<Spanish>(K-Mod) Un acueducto o un hospital aumentar� la salud de una ciudad, pero el transporte p�blico o un centro de reciclaje reduce su poluci�n.</Spanish>
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_2</Tag>
+@@ -338,8 +340,8 @@
+ 	<English>Scouts and Explorers get better results from tribal villages than other units.</English>
+ 	<French>Envoyez des &#233;claireurs dans les villages indig&#232;nes pour obtenir de meilleurs r&#233;sultats.</French>
+ 	<German>Betreten Sie Stammesd&#246;rfer mit einem Sp&#228;her oder Kundschafter, um bessere Ergebnisse zu erzielen.</German>
+-	<Italian>Si ottengono migliori risultati entrando nei villaggi indigeni con gli scout...</Italian>
+-	<Spanish>Dar&#225; mejores resultados entrar en las aldeas de los nativos con batidores...</Spanish>
++	<Italian>Si ottengono migliori risultati entrando nei villaggi indigeni con gli scout.</Italian>
++	<Spanish>Dar&#225; mejores resultados entrar en las aldeas de los nativos con batidores.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.008c: "More great people will appear in cities that build ancient
+@@ -374,7 +376,7 @@
+ 	<English>Press [CTRL + I] to play with a minimized interface. Press [ALT + I] to play without interface.</English>
+ 	<French>Appuyez sur [CTRL + I] pour jouer avec une interface r&#233;duite. Appuyez sur [ALT + I] pour jouer sans interface.</French>
+ 	<German>Dr&#252;cken Sie [STRG + I], um die Bedienoberfl�che zu minimieren oder [ALT + I], um sie ganz auszublenden.</German>
+-	<Italian>Premi [CTRL + I] per giocare con l'interfaccia minimizzata. Premi [ALT + I] per giocare senza interfaccia...</Italian>
++	<Italian>Premi [CTRL + I] per giocare con l'interfaccia minimizzata. Premi [ALT + I] per giocare senza interfaccia.</Italian>
+ 	<Spanish>Pulsar [CTRL + I] para jugar con una interfaz minimizada. Pulsar [ALT + I] para jugar sin interfaz.</Spanish>
+ </TEXT>
+ 
+@@ -384,8 +386,8 @@
+ 	<English>To view combat odds, hold down the right mouse button on the target tile. By also holding down [ALT], you can view combat odds even when not at war.</English>
+ 	<French>Pour conna&#238;tre vos chances en cas de combat, maintenez le bouton droit de la souris enfonc&#233; sur la case vis&#233;e.</French>
+ 	<German>Um die Kampfchancen Ihrer Einheit zu sehen, halten Sie die rechte Maustaste �ber dem Zielfeld gedr�ckt. Wenn Sie au�erdem [ALT] gedr�ckt halten, werden die Kampfchancen auch dann angezeigt, wenn Sie nicht im Krieg sind.</German>
+-	<Italian>Per visualizzare le probabilit&#224; di vittoria di uno scontro, tieni premuto il pulsante destro del mouse su una casella bersaglio...</Italian>
+-	<Spanish>Mantener el cursor encima de la casilla objetivo para ver las probabilidades del combate...</Spanish>
++	<Italian>Per visualizzare le probabilit&#224; di vittoria di uno scontro, tieni premuto il pulsante destro del mouse su una casella bersaglio.</Italian>
++	<Spanish>Mantener el cursor encima de la casilla objetivo para ver las probabilidades del combate.</Spanish>
+ </TEXT>
+ 
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 1bc07b694..d38ea20d0 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1887,11 +1887,11 @@ static float getCombatOddsSpecific(CvUnit* pAttacker, CvUnit* pDefender, int n_A
+ 
+ 	iDefenderOdds = ((GC.getDefineINT("COMBAT_DIE_SIDES") * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
+ 	iAttackerOdds = GC.getDefineINT("COMBAT_DIE_SIDES") - iDefenderOdds;
+-
+-	if (GC.getDefineINT("ACO_IgnoreBarbFreeWins")==0
+-			// advc.250b
+-			&& !GC.getGameINLINE().isOption(GAMEOPTION_SPAH)
+-		)
++	/*  advc.001: Replacing the check below. The BUG authors must've missed this
++		one when they integrated ACO into BUG. */
++	if(!getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false, "ACO_IGNORE_BARB_FREE_WINS")
++	//GC.getDefineINT("ACO_IgnoreBarbFreeWins")==0
++			&& !GC.getGameINLINE().isOption(GAMEOPTION_SPAH)) // advc.250b
+ 	{
+ 		if (pDefender->isBarbarian())
+ 		{
+@@ -2300,11 +2300,12 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 
+ 			// Barbarian related code.
+-			if (getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false, "ACO_IGNORE_BARB_FREE_WINS")
++			/*  advc.001: The section below deals with FreeWins, so it should
++				only be executed if !IgnoreBarbFreeWins. The condition was
++				checking the opposite. */
++			if (!getBugOptionBOOL("ACO__IgnoreBarbFreeWins", false, "ACO_IGNORE_BARB_FREE_WINS")
+ 					&& !GC.getGameINLINE().isOption(GAMEOPTION_SPAH) // advc.250b
+ 				)//Are we not going to ignore barb free wins?  If not, skip this section...
+-				/*	advc.003: To be clear: This section is to be skipped
+-					if free wins are ignored. (The above comment says the opposite.) */
+ 			{
+ 				if (pDefender->isBarbarian())
+ 				{
+@@ -3515,136 +3516,9 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 					}
+ 				}
+ 			}
+-
+-			if (!(pAttacker->isRiver()))
+-			{
+-				if (pAttacker->plot()->isRiverCrossing(directionXY(pAttacker->plot(), pPlot)))
+-				{
+-					iModifier = GC.getRIVER_ATTACK_MODIFIER();
+-
+-					if (iModifier != 0)
+-					{
+-						szString.append(NEWLINE);
+-						szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_RIVER_MOD", -(iModifier)));
+-					}
+-				}
+-			}
+-
+-			if (!(pAttacker->isAmphib()))
+-			{
+-				if (!(pPlot->isWater()) && pAttacker->plot()->isWater())
+-				{
+-					iModifier = GC.getAMPHIB_ATTACK_MODIFIER();
+-
+-					if (iModifier != 0)
+-					{
+-						szString.append(NEWLINE);
+-						szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_AMPHIB_MOD", -(iModifier)));
+-					}
+-				}
+-			}
+-
+-			iModifier = pDefender->getExtraCombatPercent();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH", iModifier));
+-			}
+-
+-			iModifier = pDefender->unitClassDefenseModifier(pAttacker->getUnitClassType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitClassInfo(pAttacker->getUnitClassType()).getTextKeyWide()));
+-			}
+-
+-			if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
+-			{
+-				iModifier = pDefender->unitCombatModifier(pAttacker->getUnitCombatType());
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitCombatInfo(pAttacker->getUnitCombatType()).getTextKeyWide()));
+-				}
+-			}
+-
+-			iModifier = pDefender->domainModifier(pAttacker->getDomainType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getDomainInfo(pAttacker->getDomainType()).getTextKeyWide()));
+-			}
+-
+-			if (!(pDefender->noDefensiveBonus()))
+-			{
+-				// <advc.012> Show feature defense unless in a hostile tile
+-				if(pAttacker == NULL)
+-					iModifier = GET_TEAM(pDefender->getTeam()).
+-							AI_plotDefense(*pPlot, true);
+-				else iModifier = pPlot->defenseModifier(pDefender->getTeam(),
+-						pAttacker->ignoreBuildingDefense(), pAttacker->getTeam());
+-				// </advc.012>
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_TILE_MOD", iModifier));
+-				}
+-			}
+-
+-			iModifier = pDefender->fortifyModifier();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_FORTIFY_MOD", iModifier));
+-			}
+-
+-			if (pPlot->isCity(true, pDefender->getTeam()))
+-			{
+-				iModifier = pDefender->cityDefenseModifier();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_CITY_MOD", iModifier));
+-				}
+-			}
+-
+-			if (pPlot->isHills())
+-			{
+-				iModifier = pDefender->hillsDefenseModifier();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HILLS_MOD", iModifier));
+-				}
+-			}
+-
+-			if (pPlot->getFeatureType() != NO_FEATURE)
+-			{
+-				iModifier = pDefender->featureDefenseModifier(pPlot->getFeatureType());
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getFeatureInfo(pPlot->getFeatureType()).getTextKeyWide()));
+-				}
+-			}
+-			else
+-			{
+-				iModifier = pDefender->terrainDefenseModifier(pPlot->getTerrainType());
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).getTextKeyWide()));
+-				}
+-			}
++			/*  advc.003: Some 100 LoC moved into a subroutine b/c they were
++				repeated in the !ACO_enabled branch. */
++			appendNegativeModifiers(szString, pAttacker, pDefender, pPlot);
+ 
+ 			szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+ 
+@@ -3653,111 +3527,8 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+ 
+ 			szString.append(L' ');//XXX
+-
+-
+-			iModifier = pAttacker->unitClassAttackModifier(pDefender->getUnitClassType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", -iModifier, GC.getUnitClassInfo(pDefender->getUnitClassType()).getTextKeyWide()));
+-			}
+-
+-			if (pDefender->getUnitCombatType() != NO_UNITCOMBAT)
+-			{
+-				iModifier = pAttacker->unitCombatModifier(pDefender->getUnitCombatType());
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", -iModifier, GC.getUnitCombatInfo(pDefender->getUnitCombatType()).getTextKeyWide()));
+-				}
+-			}
+-
+-			iModifier = pAttacker->domainModifier(pDefender->getDomainType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", -iModifier, GC.getDomainInfo(pDefender->getDomainType()).getTextKeyWide()));
+-			}
+-
+-			if (pPlot->isCity(true, pDefender->getTeam()))
+-			{
+-				iModifier = pAttacker->cityAttackModifier();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_CITY_MOD", -iModifier));
+-				}
+-			}
+-
+-			if (pPlot->isHills())
+-			{
+-				iModifier = pAttacker->hillsAttackModifier();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HILLS_MOD", -iModifier));
+-				}
+-			}
+-
+-			if (pPlot->getFeatureType() != NO_FEATURE)
+-			{
+-				iModifier = pAttacker->featureAttackModifier(pPlot->getFeatureType());
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", -iModifier, GC.getFeatureInfo(pPlot->getFeatureType()).getTextKeyWide()));
+-				}
+-			}
+-			else
+-			{
+-				iModifier = pAttacker->terrainAttackModifier(pPlot->getTerrainType());
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", -iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).getTextKeyWide()));
+-				}
+-			}
+-
+-			iModifier = pAttacker->getKamikazePercent();
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_KAMIKAZE_MOD", -iModifier));
+-			}
+-
+-			if (pDefender->isAnimal())
+-			{
+-				//iModifier = -GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAnimalCombatModifier();
+-				iModifier = -GC.getHandicapInfo(GET_PLAYER(pAttacker->getOwnerINLINE()).getHandicapType()).getAnimalCombatModifier(); // K-Mod
+-
+-				iModifier += pAttacker->getUnitInfo().getAnimalCombatModifier();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_UNIT_ANIMAL_COMBAT_MOD", -iModifier));
+-				}
+-			}
+-
+-			if (pDefender->isBarbarian())
+-			{
+-				//iModifier = -GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getBarbarianCombatModifier();
+-				iModifier = -GC.getHandicapInfo(GET_PLAYER(pAttacker->getOwnerINLINE()).getHandicapType()).getBarbarianCombatModifier(); // K-Mod
+-				// advc.315c:
+-				iModifier += pAttacker->getUnitInfo().getBarbarianCombatModifier();
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_UNIT_BARBARIAN_COMBAT_MOD", -iModifier));
+-				}
+-			}
++			// advc.003: Another batch of repeated modifiers
++			appendPositiveModifiers(szString, pAttacker, pDefender, pPlot);
+ 		}//if
+ 
+ 		szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+@@ -3809,110 +3580,9 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			szString.append(NEWLINE);
+ 			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH", iModifier));
+ 		}
+-
+-		iModifier = pAttacker->unitClassAttackModifier(pDefender->getUnitClassType());
+-
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitClassInfo(pDefender->getUnitClassType()).getTextKeyWide()));
+-		}
+-
+-		if (pDefender->getUnitCombatType() != NO_UNITCOMBAT)
+-		{
+-			iModifier = pAttacker->unitCombatModifier(pDefender->getUnitCombatType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitCombatInfo(pDefender->getUnitCombatType()).getTextKeyWide()));
+-			}
+-		}
+-
+-		iModifier = pAttacker->domainModifier(pDefender->getDomainType());
+-
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getDomainInfo(pDefender->getDomainType()).getTextKeyWide()));
+-		}
+-
+-		if (pPlot->isCity(true, pDefender->getTeam()))
+-		{
+-			iModifier = pAttacker->cityAttackModifier();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_CITY_MOD", iModifier));
+-			}
+-		}
+-
+-		if (pPlot->isHills())
+-		{
+-			iModifier = pAttacker->hillsAttackModifier();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HILLS_MOD", iModifier));
+-			}
+-		}
+-
+-		if (pPlot->getFeatureType() != NO_FEATURE)
+-		{
+-			iModifier = pAttacker->featureAttackModifier(pPlot->getFeatureType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getFeatureInfo(pPlot->getFeatureType()).getTextKeyWide()));
+-			}
+-		}
+-		else
+-		{
+-			iModifier = pAttacker->terrainAttackModifier(pPlot->getTerrainType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).getTextKeyWide()));
+-			}
+-		}
+-
+-		iModifier = pAttacker->getKamikazePercent();
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_KAMIKAZE_MOD", iModifier));
+-		}
+-
+-		if (pDefender->isAnimal())
+-		{
+-			//iModifier = -GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAnimalCombatModifier();
+-			iModifier = -GC.getHandicapInfo(GET_PLAYER(pAttacker->getOwnerINLINE()).getHandicapType()).getAnimalCombatModifier(); // K-Mod
+-
+-			iModifier += pAttacker->getUnitInfo().getAnimalCombatModifier();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_UNIT_ANIMAL_COMBAT_MOD", iModifier));
+-			}
+-		}
+-
+-		if (pDefender->isBarbarian())
+-		{
+-			//iModifier = -GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getBarbarianCombatModifier();
+-			iModifier = -GC.getHandicapInfo(GET_PLAYER(pAttacker->getOwnerINLINE()).getHandicapType()).getBarbarianCombatModifier(); // K-Mod
+-			// advc.315c:
+-			iModifier += pAttacker->getUnitInfo().getBarbarianCombatModifier();
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_UNIT_BARBARIAN_COMBAT_MOD", iModifier));
+-			}
+-		}
++		/*  advc.003: Same code as in the ACO_enabled branch;
++			use subroutine instead. */
++		appendPositiveModifiers(szString, pAttacker, pDefender, pPlot);
+ 
+ 		if (!(pDefender->immuneToFirstStrikes()))
+ 		{
+@@ -3952,133 +3622,9 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 		szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+ 
+ 		szString.append(L' ');//XXX
+-
+-		if (!(pAttacker->isRiver()))
+-		{
+-			if (pAttacker->plot()->isRiverCrossing(directionXY(pAttacker->plot(), pPlot)))
+-			{
+-				iModifier = GC.getRIVER_ATTACK_MODIFIER();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_RIVER_MOD", -(iModifier)));
+-				}
+-			}
+-		}
+-
+-		if (!(pAttacker->isAmphib()))
+-		{
+-			if (!(pPlot->isWater()) && pAttacker->plot()->isWater())
+-			{
+-				iModifier = GC.getAMPHIB_ATTACK_MODIFIER();
+-
+-				if (iModifier != 0)
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_AMPHIB_MOD", -(iModifier)));
+-				}
+-			}
+-		}
+-
+-		iModifier = pDefender->getExtraCombatPercent();
+-
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH", iModifier));
+-		}
+-
+-		iModifier = pDefender->unitClassDefenseModifier(pAttacker->getUnitClassType());
+-
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitClassInfo(pAttacker->getUnitClassType()).getTextKeyWide()));
+-		}
+-
+-		if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
+-		{
+-			iModifier = pDefender->unitCombatModifier(pAttacker->getUnitCombatType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitCombatInfo(pAttacker->getUnitCombatType()).getTextKeyWide()));
+-			}
+-		}
+-
+-		iModifier = pDefender->domainModifier(pAttacker->getDomainType());
+-
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getDomainInfo(pAttacker->getDomainType()).getTextKeyWide()));
+-		}
+-
+-		if (!(pDefender->noDefensiveBonus()))
+-		{
+-			iModifier = pPlot->defenseModifier(pDefender->getTeam(), (pAttacker != NULL) ? pAttacker->ignoreBuildingDefense() : true
+-					// advc.012:
+-					, pAttacker == NULL ? NO_TEAM : pAttacker->getTeam());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_TILE_MOD", iModifier));
+-			}
+-		}
+-
+-		iModifier = pDefender->fortifyModifier();
+-
+-		if (iModifier != 0)
+-		{
+-			szString.append(NEWLINE);
+-			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_FORTIFY_MOD", iModifier));
+-		}
+-
+-		if (pPlot->isCity(true, pDefender->getTeam()))
+-		{
+-			iModifier = pDefender->cityDefenseModifier();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_CITY_MOD", iModifier));
+-			}
+-		}
+-
+-		if (pPlot->isHills())
+-		{
+-			iModifier = pDefender->hillsDefenseModifier();
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HILLS_MOD", iModifier));
+-			}
+-		}
+-
+-		if (pPlot->getFeatureType() != NO_FEATURE)
+-		{
+-			iModifier = pDefender->featureDefenseModifier(pPlot->getFeatureType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getFeatureInfo(pPlot->getFeatureType()).getTextKeyWide()));
+-			}
+-		}
+-		else
+-		{
+-			iModifier = pDefender->terrainDefenseModifier(pPlot->getTerrainType());
+-
+-			if (iModifier != 0)
+-			{
+-				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).getTextKeyWide()));
+-			}
+-		}
++		/*  advc.003: Same code as in the ACO_enabled branch;
++			use subroutine instead. */
++		appendNegativeModifiers(szString, pAttacker, pDefender, pPlot);
+ 
+ 		if (!(pAttacker->immuneToFirstStrikes()))
+ 		{
+@@ -4116,7 +3662,8 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 	/* original code
+ 	if ((gDLL->getChtLvl() > 0)) */
+-	if (GC.getGameINLINE().isDebugMode()) // BBAI: Only display this info in debug mode so game can be played with cheat code entered
++	if (GC.getGameINLINE().isDebugMode() // BBAI: Only display this info in debug mode so game can be played with cheat code entered
++			&& bShift) // advc.007
+ 	{
+ 		szTempBuffer.Format(L"\nStack Compare Value = %d",
+ 			gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot));
+@@ -19178,3 +18725,287 @@ void CvGameTextMgr::getCorporationDataForWB(bool bHeadquarters, std::vector<CvWB
+ 	}
+ }
+ 
++// <advc.003> Cut and pasted from setCombatPlotHelp
++void CvGameTextMgr::appendNegativeModifiers(CvWStringBuffer& szString,
++		CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot) {
++
++	int iModifier = 0;
++	if (!(pAttacker->isRiver()))
++	{
++		if (pAttacker->plot()->isRiverCrossing(directionXY(pAttacker->plot(),
++				pPlot)))
++		{
++			iModifier = GC.getRIVER_ATTACK_MODIFIER();
++
++			if (iModifier != 0)
++			{
++				szString.append(NEWLINE);
++				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_RIVER_MOD",
++						-(iModifier)));
++			}
++		}
++	}
++
++	if (!(pAttacker->isAmphib()))
++	{
++		if (!(pPlot->isWater()) && pAttacker->plot()->isWater())
++		{
++			iModifier = GC.getAMPHIB_ATTACK_MODIFIER();
++
++			if (iModifier != 0)
++			{
++				szString.append(NEWLINE);
++				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_AMPHIB_MOD",
++						-(iModifier)));
++			}
++		}
++	}
++
++	iModifier = pDefender->getExtraCombatPercent();
++
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH",
++				iModifier));
++	}
++
++	iModifier = pDefender->unitClassDefenseModifier(pAttacker->getUnitClassType());
++
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
++				iModifier, GC.getUnitClassInfo(pAttacker->getUnitClassType()).
++				getTextKeyWide()));
++	}
++
++	if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
++	{
++		iModifier = pDefender->unitCombatModifier(pAttacker->getUnitCombatType());
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
++					iModifier, GC.getUnitCombatInfo(pAttacker->getUnitCombatType()).
++					getTextKeyWide()));
++		}
++	}
++
++	iModifier = pDefender->domainModifier(pAttacker->getDomainType());
++
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
++				iModifier, GC.getDomainInfo(pAttacker->getDomainType()).
++				getTextKeyWide()));
++	}
++
++	if (!(pDefender->noDefensiveBonus()))
++	{
++		// <advc.012> Show feature defense unless in a hostile tile
++		if(pAttacker == NULL)
++			iModifier = GET_TEAM(pDefender->getTeam()).
++					AI_plotDefense(*pPlot, true);
++		else iModifier = pPlot->defenseModifier(pDefender->getTeam(),
++				pAttacker->ignoreBuildingDefense(), pAttacker->getTeam());
++		// </advc.012>
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_TILE_MOD",
++					iModifier));
++		}
++	}
++
++	iModifier = pDefender->fortifyModifier();
++
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_FORTIFY_MOD",
++				iModifier));
++	}
++
++	if (pPlot->isCity(true, pDefender->getTeam()))
++	{
++		iModifier = pDefender->cityDefenseModifier();
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_CITY_MOD",
++					iModifier));
++		}
++	}
++
++	if (pPlot->isHills())
++	{
++		iModifier = pDefender->hillsDefenseModifier();
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HILLS_MOD",
++					iModifier));
++		}
++	}
++
++	if (pPlot->getFeatureType() != NO_FEATURE)
++	{
++		iModifier = pDefender->featureDefenseModifier(pPlot->getFeatureType());
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD",
++					iModifier, GC.getFeatureInfo(pPlot->getFeatureType()).
++					getTextKeyWide()));
++		}
++	}
++	else
++	{
++		iModifier = pDefender->terrainDefenseModifier(pPlot->getTerrainType());
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD",
++					iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).
++					getTextKeyWide()));
++		}
++	}
++}
++
++void CvGameTextMgr::appendPositiveModifiers(CvWStringBuffer& szString,
++		CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot) {
++
++	int iModifier = pAttacker->unitClassAttackModifier(pDefender->getUnitClassType());
++
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
++				-iModifier, GC.getUnitClassInfo(pDefender->getUnitClassType()).
++				getTextKeyWide()));
++	}
++
++	if (pDefender->getUnitCombatType() != NO_UNITCOMBAT)
++	{
++		iModifier = pAttacker->unitCombatModifier(pDefender->getUnitCombatType());
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
++					-iModifier, GC.getUnitCombatInfo(
++					pDefender->getUnitCombatType()).getTextKeyWide()));
++		}
++	}
++
++	iModifier = pAttacker->domainModifier(pDefender->getDomainType());
++
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
++				-iModifier, GC.getDomainInfo(pDefender->getDomainType()).
++				getTextKeyWide()));
++	}
++
++	if (pPlot->isCity(true, pDefender->getTeam()))
++	{
++		iModifier = pAttacker->cityAttackModifier();
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_CITY_MOD", -iModifier));
++		}
++	}
++
++	if (pPlot->isHills())
++	{
++		iModifier = pAttacker->hillsAttackModifier();
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HILLS_MOD", -iModifier));
++		}
++	}
++
++	if (pPlot->getFeatureType() != NO_FEATURE)
++	{
++		iModifier = pAttacker->featureAttackModifier(pPlot->getFeatureType());
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD",
++					-iModifier, GC.getFeatureInfo(pPlot->getFeatureType()).
++					getTextKeyWide()));
++		}
++	}
++	else
++	{
++		iModifier = pAttacker->terrainAttackModifier(pPlot->getTerrainType());
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD",
++					-iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).
++					getTextKeyWide()));
++		}
++	}
++
++	iModifier = pAttacker->getKamikazePercent();
++	if (iModifier != 0)
++	{
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_COMBAT_KAMIKAZE_MOD",
++				-iModifier));
++	}
++
++	if (pDefender->isAnimal())
++	{	// advc.315c: Moved into the isBarbarian block below
++		//iModifier = -GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAnimalCombatModifier();
++		iModifier += pAttacker->getUnitInfo().getAnimalCombatModifier();
++
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_UNIT_ANIMAL_COMBAT_MOD", -iModifier));
++		}
++	}
++
++	if (pDefender->isBarbarian())
++	{	// advc.315c:
++		iModifier = -pAttacker->getUnitInfo().getBarbarianCombatModifier();
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_UNIT_BARBARIAN_COMBAT_MOD",
++					-iModifier));
++		}
++		// <advc.315c> Show modifier from difficulty separately from unit abilities
++		iModifier = GC.getHandicapInfo(
++				GET_PLAYER(pAttacker->getOwnerINLINE()). // K-Mod
++				getHandicapType()).getBarbarianCombatModifier();
++		// Moved from the isAnimal block above
++		if(pDefender->isAnimal()) {
++			iModifier += GC.getHandicapInfo(
++					GET_PLAYER(pAttacker->getOwnerINLINE()). // K-Mod
++					getHandicapType()).getAnimalCombatModifier();
++		}
++		if (iModifier != 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_MISC_FROM_HANDICAP",
++					-iModifier));
++		} // </advc.315c>
++	}
++} // </advc.003>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index cbf89feff..8c510ae25 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -254,6 +254,12 @@ private:
+ 	//void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCity* pCity, int iIndex, bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood = false);
+ 	void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCity* pCity, int iIndex, bool bIgnoreFood, int iGrowthValue);
+ 	void setYieldValueString(CvWStringBuffer &szString, int iValue, bool bActive = false, bool bMakeWhitespace = false);
++	// <advc.003>
++	void appendNegativeModifiers(CvWStringBuffer& szString,
++			CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot);
++	void appendPositiveModifiers(CvWStringBuffer& szString,
++			CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pPlot);
++	// </advc.003>
+ };
+ 
+ // Singleton Accessor
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1d3448dfb..d09173d9a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5978,9 +5978,17 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 	bool bTechFound;
+ 	int iI;
+ 	CvGoodyInfo const& goody = GC.getGoodyInfo(eGoody); // advc.003
++	// <advc.314>
++	CvGame& g = GC.getGameINLINE();
++	bool veryEarlyGame = (100 * g.getGameTurn() <
++			20 * GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent());
++	bool veryVeryEarlyGame = (100 * g.getGameTurn() <
++			10 * GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent());
+ 	if (goody.getExperience() > 0)
+ 	{
+-		if ((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGameINLINE().getElapsedGameTurns() < 10))
++		if ((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) ||
++				//(GC.getGameINLINE().getElapsedGameTurns() < 10)
++				veryVeryEarlyGame) // advc.314
+ 		{
+ 			return false;
+ 		}
+@@ -5988,7 +5996,8 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 
+ 	if (goody.getDamagePrereq() > 0)
+ 	{
+-		if ((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->maxHitPoints() * goody.getDamagePrereq()) / 100)))
++		if (pUnit == NULL || pUnit->getDamage() < (pUnit->maxHitPoints() *
++				goody.getDamagePrereq()) / 100)
+ 		{
+ 			return false;
+ 		}
+@@ -5999,19 +6008,16 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 		bTechFound = false;
+ 
+ 		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+-		{
+-			if (GC.getTechInfo((TechTypes) iI).isGoodyTech()
+-					/*  advc.314: Means that only progress is granted toward the
+-						tech, and then all techs are valid. */
+-					|| anyGold)
++		{	// advc.114: Replacing the conditions below
++			if(isGoodyTech((TechTypes)iI, anyGold)) {
++			/*if (GC.getTechInfo((TechTypes) iI).isGoodyTech())
+ 			{
+ 				//if (canResearch((TechTypes)iI), false, true) // K-Mod
+-				// advc.003: Replacing the above
+-				if (canResearchBulk((TechTypes)iI, false, true)) 
+-				{
++				if (canResearchBulk((TechTypes)iI, false, true)) // advc.003
++				{*/
+ 					bTechFound = true;
+ 					break;
+-				}
++				//}
+ 			}
+ 		}
+ 
+@@ -6029,15 +6035,18 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 		}
+ 	}
+ 	// <advc.314>
+-	CvGame& g = GC.getGameINLINE();
+-	bool veryEarlyGame = (100 * g.getGameTurn() <
+-			20 * GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent());
+ 	if(veryEarlyGame && goody.getMinBarbarians() > 1)
+ 		return false;
+ 	/*  Moved up and added the era clause; a single free unit in the Medieval
+ 		era isn't going to be a problem. */
+ 	bool earlyMP = (GC.getGameINLINE().isGameMultiPlayer() &&
+ 			GC.getGameINLINE().getCurrentEra() < 2);
++	// No free unit from Spy when hut guarded
++	if(!goody.isBad() && (goody.getUnitClassType() != NO_UNITCLASS ||
++			goody.getMinBarbarians() > 0) && pPlot->getCenterUnit() != NULL &&
++			pPlot->getCenterUnit()->isEnemy(getTeam()) && pUnit != NULL &&
++			pUnit->isSpy())
++		return false;
+ 	if (goody.getUnitClassType() != NO_UNITCLASS)
+ 	{
+ 		eUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(goody.getUnitClassType())));
+@@ -6135,7 +6144,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 	// <advc.314>
+ 	
+ 	double prUpgrade = (goody.isBad() ? 0 : goody.getBarbarianUnitProb()  / 100.0);
+-	prUpgrade *= (0.065 * (g.goodyHutEffectFactor(false) - 1));
++	/*  Coefficient chosen such that it's 100% on turn 150. Would be better to
++		program that computation and set the 100%-turn in XML ... */
++	prUpgrade *= (0.225 * (g.goodyHutEffectFactor(false) - 1));
+ 	/*  Meaning that an upgraded version of 'goody' should be used, or, if there
+ 		is none, that an additional outcome should be rolled. */
+ 	bool bUpgrade = ::bernoulliSuccess(prUpgrade, "advc.314");
+@@ -6227,14 +6238,13 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 		eBestTech = NO_TECH;
+ 
+ 		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+-		{
+-			if (GC.getTechInfo((TechTypes) iI).isGoodyTech()
+-					|| iGold > 0) // advc.314
++		{	// advc.314: Replacing the conditions below
++			if(isGoodyTech((TechTypes)iI, iGold > 0)) {
++			/*if (GC.getTechInfo((TechTypes) iI).isGoodyTech())
+ 			{
+ 				//if (canResearch((TechTypes)iI), false, true) // K-Mod
+-				// advc.003: Replacing the above
+-				if (canResearchBulk((TechTypes)iI, false, true)) 
+-				{
++				if (canResearchBulk((TechTypes)iI, false, true)) // advc.003
++				{*/
+ 					iValue = (1 + g.getSorenRandNum(10000, "Goody Tech"));
+ 
+ 					if (iValue > iBestValue)
+@@ -6242,151 +6252,145 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 						iBestValue = iValue;
+ 						eBestTech = ((TechTypes)iI);
+ 					}
+-				}
++				//}
+ 			}
+ 		}
+-
+ 		FAssertMsg(eBestTech != NO_TECH, "BestTech is not assigned a valid value");
+-		CvTeam& ourTeam = GET_TEAM(getTeam()); // advc.003
+-		// advc.314:
++		// <advc.314> Most of the code from here on was modified
++		CvTeam& ourTeam = GET_TEAM(getTeam());
+ 		if(iGold <= 0 || ourTeam.getResearchLeft(eBestTech) <= iGold) {
+ 			ourTeam.setHasTech(eBestTech, true, getID(), true, true);
+-			if(isSignificantDiscovery(eBestTech)) // advc.314
++			if(isSignificantDiscovery(eBestTech))
+ 				ourTeam.setNoTradeTech(eBestTech, true);
+-			// <advc.314>
+ 		}
+ 		else {
+ 			ourTeam.changeResearchProgress(eBestTech, iGold, getID());
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_PROGRESS_TOWARDS_TECH", iGold,
+ 					GC.getTechInfo(eBestTech).getDescription());
+-		} // </advc.314>
++		}
+ 	}
+-	// <advc.314>
+-	UnitTypes eBestUnit = NO_UNIT;
+-	// When units need to be placed, but no unit class is given.
+-	if(goody.getMinBarbarians() > 0 &&
+-			goody.getUnitClassType() == NO_UNITCLASS &&
++	std::vector<UnitTypes> bestUnits;
++	/*  When units need to be placed, but no unit class is given.
++		Times 3 b/c MinBarbarians is only a lower bound. */
++	for(int i = 0; i < 3 * goody.getMinBarbarians(); i++) {
++		UnitTypes eBestUnit = NO_UNIT;
++		if(goody.getUnitClassType() == NO_UNITCLASS &&
+ 			goody.getBarbarianUnitClass() == NO_UNITCLASS) {
+-		int iBestValue = 0;
+-		for(int i = 0; i < GC.getNumUnitClassInfos(); i++) {
+-			UnitTypes ut = (UnitTypes)GC.getCivilizationInfo(
+-					GET_PLAYER(BARBARIAN_PLAYER).getCivilizationType()).
+-					getCivilizationUnits(i);
+-			if(ut == NO_UNIT)
+-				continue;
+-			CvUnitInfo const& u = GC.getUnitInfo(ut);
+-			if(u.getPrereqOrBonuses(0) == NO_BONUS &&
+-					u.getPrereqAndBonus() == NO_BONUS &&
+-					u.getCombat() > 0 &&
+-					(u.getPrereqAndTech() == NO_TECH || // pre-Industrial:
+-					GC.getTechInfo((TechTypes)u.getPrereqAndTech()).getEra() <= 3) &&
+-					GET_PLAYER(BARBARIAN_PLAYER).canTrain(ut, false, true)) {
+-				int val = u.getCombat() + (goody.isBad() ?
+-						// Randomize hostile units a bit
+-						g.getSorenRandNum(10, "advc.314") : 0);
+-				if(val > iBestValue) {
+-					iBestValue = val;
+-					eBestUnit = ut;
++			int iBestValue = 0;
++			for(int i = 0; i < GC.getNumUnitClassInfos(); i++) {
++				UnitTypes ut = (UnitTypes)GC.getCivilizationInfo(
++						GET_PLAYER(BARBARIAN_PLAYER).getCivilizationType()).
++						getCivilizationUnits(i);
++				if(ut == NO_UNIT)
++					continue;
++				CvUnitInfo const& u = GC.getUnitInfo(ut);
++				if(u.getDomainType() != DOMAIN_LAND)
++					continue;
++				if(u.getPrereqOrBonuses(0) == NO_BONUS &&
++						u.getPrereqAndBonus() == NO_BONUS &&
++						u.getCombat() > 0 &&
++						(u.getPrereqAndTech() == NO_TECH || // pre-Industrial:
++						GC.getTechInfo((TechTypes)u.getPrereqAndTech()).getEra() <= 3) &&
++						GET_PLAYER(BARBARIAN_PLAYER).canTrain(ut, false, true)) {
++					int val = u.getCombat() + (goody.isBad() ?
++							// Randomize hostile units a bit
++							g.getSorenRandNum(10, "advc.314") : 0);
++					if(val > iBestValue) {
++						iBestValue = val;
++						eBestUnit = ut;
++					}
+ 				}
+ 			}
++			FAssert(eBestUnit != NO_UNIT);
++			bestUnits.push_back(eBestUnit);
+ 		}
+-		FAssert(eBestUnit != NO_UNIT);
+ 	}
+-	int iMessages = 1;
+-	// </advc.314>
+ 	if (goody.getUnitClassType() != NO_UNITCLASS
+-			// <advc.314> Pick a unit based on barb techs then
+-			|| (!goody.isBad() && goody.getMinBarbarians() > 0))
+-	{
++			// Pick a unit based on barb techs then
++			|| (!goody.isBad() && goody.getMinBarbarians() > 0)) {
+ 		UnitTypes eUnit = NO_UNIT; // Declaration moved down
+ 		UnitClassTypes uct = (UnitClassTypes)goody.getUnitClassType();
+-		if(uct == NO_UNITCLASS)
+-			eUnit = eBestUnit;
+-		else { /* Interpret BarbarianUnitClass as an upgrade to replace
+-				  UnitClassType */
++		if(uct != NO_UNITCLASS) {
++			/*  Interpret BarbarianUnitClass as an upgrade to replace
++				UnitClassType */
+ 			if(bUpgrade && goody.getBarbarianUnitClass() != NO_UNITCLASS) {
+ 				uct = (UnitClassTypes)goody.getBarbarianUnitClass();
+ 				// Upgrade applied, don't roll an additional outcome.
+ 				noRecursion = true;
+-			} // </advc.314>
++			}
+ 			eUnit = (UnitTypes)GC.getCivilizationInfo(getCivilizationType()).
+ 					getCivilizationUnits(uct);
+ 		}
+-		if (eUnit != NO_UNIT)
+-		{	/*  advc.314: Let MinBarbarians > 1 generate more than 1 unit
+-				(though I'm not using this so far) */
+-			iMessages = 0;
+-			for(int i = 0; i < std::max(1, goody.getMinBarbarians()); i++) {
+-				initUnit(eUnit, pPlot->getX_INLINE(), pPlot->getY_INLINE());
+-				iMessages++;
+-			}
+-			szBuffer = gDLL->getText("TXT_KEY_GOODY_FREE_UNIT",
+-					GC.getUnitInfo(eUnit).getDescription());
+-		}
+-	}
+-	if(!szBuffer.empty()) { /* Moved from higher up, and now allowing multiple
+-							   messages */
+-		for(int i = 0; i < iMessages; i++) {
+-			gDLL->getInterfaceIFace()->addHumanMessage(getID(), true,
+-					GC.getEVENT_MESSAGE_TIME(), szBuffer, goody.getSound(),
+-					MESSAGE_TYPE_MINOR_EVENT, ARTFILEMGR.getImprovementArtInfo(
+-					"ART_DEF_IMPROVEMENT_GOODY_HUT")->getButton(), (ColorTypes)
+-					GC.getInfoTypeForString("COLOR_WHITE"), pPlot->getX_INLINE(),
+-					pPlot->getY_INLINE());
+-		}
+-	}
++		/*  Let MinBarbarians > 1 generate more than 1 unit
++			(though I'm not using this so far; not tested either) */
++		for(int i = 0; i < std::max(1, goody.getMinBarbarians()); i++) {
++			UnitTypes eLoopUnit = eUnit;
++			if(eLoopUnit == NO_UNIT && !bestUnits.empty())
++				eLoopUnit = bestUnits[std::min((int)bestUnits.size() - 1, i)];
++			FAssert(eLoopUnit != NO_UNIT);
++			if(eLoopUnit != NO_UNIT) {
++				CvUnit* newUnit = initUnit(eLoopUnit, pPlot->getX_INLINE(),
++						pPlot->getY_INLINE());
++				if(newUnit == NULL)
++					continue;
++				else FAssert(newUnit != NULL);
++				szBuffer = gDLL->getText("TXT_KEY_GOODY_FREE_UNIT",
++						GC.getUnitInfo(eLoopUnit).getDescription());
++				addGoodyMsg(szBuffer, *pPlot, goody.getSound());
++				szBuffer.clear();
++				if(newUnit->canAcquirePromotionAny())
++					promoteFreeUnit(*newUnit, prUpgrade);
++			}
++		}
++	}
++	if(!szBuffer.empty()) // Moved from higher up
++		addGoodyMsg(szBuffer, *pPlot, goody.getSound());
+ 	/*  If not isBad, then BarbarianUnitClass has a different meaning, which is
+ 		handled above. */
+-	if(goody.isBad() && // </advc.314>
+-			(goody.getBarbarianUnitClass() != NO_UNITCLASS
+-			// <advc.314> Will use eBestUnit in this case
+-			|| (goody.getMinBarbarians() > 0 && goody.getBarbarianUnitProb() > 0)))
+-	{
+-		UnitTypes eUnit = eBestUnit;
+-		if(goody.getBarbarianUnitClass() != NO_UNITCLASS) { // </advc.314>
++	if(goody.isBad() && (goody.getBarbarianUnitClass() != NO_UNITCLASS
++			// Will use eBestUnit in this case
++			|| (goody.getMinBarbarians() > 0 && goody.getBarbarianUnitProb() > 0))) {
++		UnitTypes eUnit = NO_UNIT;
++		if(goody.getBarbarianUnitClass() != NO_UNITCLASS) {
+ 			eUnit = (UnitTypes)GC.getCivilizationInfo(GET_PLAYER(BARBARIAN_PLAYER).getCivilizationType()).
+ 					getCivilizationUnits(goody.getBarbarianUnitClass());
+ 		}
+-		// <advc.003>
+-		if(eUnit == NO_UNIT) {
+-			FAssert(eUnit != NO_UNIT);
+-			return;
+-		} // </advc.003>
+-		// <advc.314>
+ 		int iMinBarbs = std::max((int)(std::sqrt(goody.getMinBarbarians() *
+ 				g.goodyHutEffectFactor(false))), goody.getMinBarbarians());
+ 		// Increase the probability proportional to the change to MinBarbs
+ 		int prob = (goody.getBarbarianUnitProb() * iMinBarbs) / goody.getMinBarbarians();
+ 		int iMaxBarbs = iMinBarbs + 2; // upper bound for iPass=0
+-		// </advc.314>
+ 		iBarbCount = 0;
+-		for (iPass = 0; iPass < 2; iPass++)
+-		{	// <advc.314>
+-			if (iBarbCount >= iMinBarbs)
+-				continue; // </advc.314>
+-			for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-			{
+-				pLoopPlot = plotDirection(pPlot->getX_INLINE(), pPlot->getY_INLINE(), ((DirectionTypes)iI));
+-				// <advc.003>
++		for(iPass = 0; iPass < 2; iPass++) {
++			if(iBarbCount >= iMinBarbs)
++				continue;
++			for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++) {
++				pLoopPlot = plotDirection(pPlot->getX_INLINE(), pPlot->getY_INLINE(),
++						(DirectionTypes)iI);
+ 				if(pLoopPlot == NULL || pLoopPlot->getArea() != pPlot->getArea() ||
+ 						pLoopPlot->isImpassable() || pLoopPlot->getNumUnits() > 0)
+-					continue; // </advc.003>
+-				if ((iPass > 0) || (g.getSorenRandNum(100, "Goody Barbs") <
+-						prob)) // advc.314
+-				{
+-					GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit,
+-							pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(),
+-							((pLoopPlot->isWater()) ? UNITAI_ATTACK_SEA :
+-							UNITAI_ATTACK));
+-					iBarbCount++;
+-					if ((iPass > 0 &&
+-							// advc.314:
+-							iBarbCount >= iMinBarbs) || iBarbCount >= iMaxBarbs)
++					continue;
++				if(iPass > 0 || (g.getSorenRandNum(100, "Goody Barbs") < prob)) {
++					UnitTypes eLoopUnit = eUnit;
++					if(eLoopUnit == NO_UNIT && !bestUnits.empty()) {
++						eLoopUnit = bestUnits[std::min((int)bestUnits.size() - 1,
++								iBarbCount)];
++					}
++					FAssert(eLoopUnit != NO_UNIT);
++					if(eLoopUnit != NO_UNIT) {
++						GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit,
++								pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(),
++								((pLoopPlot->isWater()) ? UNITAI_ATTACK_SEA :
++								UNITAI_ATTACK));
++						iBarbCount++;
++					}
++					if ((iPass > 0 && iBarbCount >= iMinBarbs) ||
++							iBarbCount >= iMaxBarbs)
+ 						break;
+ 				}
+ 			}
+ 		}
+-	} // <advc.314>
++	}
+ 	if(bUpgrade && !noRecursion)
+ 		doGoody(pPlot, pUnit, eGoody); // </advc.314>
+ }
+@@ -24667,3 +24671,100 @@ void CvPlayer::killAll(ButtonPopupTypes bpt, int data1) {
+ 			it != newQueue.end(); it++)
+ 		m_listPopups.push_back(*it);
+ } // </advc.004x>
++
++// <advc.314>
++bool CvPlayer::isGoodyTech(TechTypes techId, bool bProgress) const {
++
++	CvTechInfo& t = GC.getTechInfo(techId);
++	if(!bProgress && !t.isGoodyTech())
++		return false;
++	if(bProgress && t.getEra() >= 4)
++		return false;
++	return canResearchBulk(techId, false, true);
++}
++
++void CvPlayer::addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound) {
++
++	gDLL->getInterfaceIFace()->addHumanMessage(getID(), true,
++			GC.getEVENT_MESSAGE_TIME(), s, sound, MESSAGE_TYPE_MINOR_EVENT,
++			ARTFILEMGR.getImprovementArtInfo("ART_DEF_IMPROVEMENT_GOODY_HUT")->
++			getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"),
++			p.getX_INLINE(), p.getY_INLINE());
++}
++
++void CvPlayer::promoteFreeUnit(CvUnit& u, double pr) {
++
++	FeatureTypes defFeat = NO_FEATURE;
++	for(int i = 0; i < GC.getNumFeatureInfos(); i++) {
++		if(GC.getFeatureInfo((FeatureTypes)i).getDefenseModifier() > 0) {
++			defFeat = (FeatureTypes)i;
++			break;
++		}
++	}
++	for(int i = 0; i < 2; i++) {
++		if(!::bernoulliSuccess(pr, "advc.314"))
++			break;
++		int iBestPromoVal = -1;
++		PromotionTypes eBestPromo = NO_PROMOTION;
++		PromotionTypes ePrevPromo = NO_PROMOTION;
++		for(int j = 0; j < GC.getNumPromotionInfos(); j++) {
++			PromotionTypes pt = (PromotionTypes)j;
++			CvPromotionInfo& promo = GC.getPromotionInfo(pt);
++			int unitCombatCount = 0;
++			for(int k = 0; k < GC.getNumUnitCombatInfos(); k++)
++				if(promo.getUnitCombat(k))
++					unitCombatCount++;
++			if((promo.getCombatPercent() <= 0 ||
++					// No Combat2
++					(promo.getCombatPercent() > 0 && j > 0)) &&
++					(defFeat == NO_FEATURE ||
++					promo.getFeatureDefensePercent(defFeat) <= 0) &&
++					promo.getHillsDefensePercent() <= 0 &&
++					/*  This is the Cover promotion. Only that one, Woodsman,
++						Guerilla and City Raider have exactly 3 eligible unit
++						combat classes. */
++					(unitCombatCount != 3 || promo.getCityAttackPercent() > 0))
++				continue;
++			// Second promo needs to build on the first
++			/*if(ePrevPromo != NO_PROMOTION &&
++					promo.getPrereqPromotion() != ePrevPromo &&
++					promo.getPrereqOrPromotion1() != ePrevPromo &&
++					promo.getPrereqOrPromotion2() != ePrevPromo &&
++					promo.getPrereqOrPromotion2() != ePrevPromo)
++				continue;*/
++			if(!u.canAcquirePromotion(pt))
++				continue;
++			int val = GC.getGameINLINE().getSorenRandNum(100, "advc.314");
++			std::vector<CvPlot const*> surroundings;
++			surroundings.push_back(u.plot());
++			for(int k = 0; k < NUM_DIRECTION_TYPES; k++) {
++				CvPlot const* p = plotDirection(u.getX_INLINE(),
++						u.getY_INLINE(), (DirectionTypes)k);
++				if(p != NULL && !p->isWater())
++					surroundings.push_back(p);
++			}
++			for(size_t k = 0; k < surroundings.size(); k++) {
++				int tmpVal = 0;
++				if(defFeat != NO_FEATURE && surroundings[k]->getFeatureType() ==
++						defFeat)
++					tmpVal += promo.getFeatureDefensePercent(defFeat);
++				// Encourage non-Woodsman then
++				else tmpVal -= promo.getFeatureDefensePercent(defFeat) / 3;
++				if(surroundings[k]->isHills())
++					tmpVal += promo.getHillsDefensePercent();
++				else tmpVal -= promo.getHillsDefensePercent() / 3;
++				if(k == 0) // Higher weight for pPlot
++					tmpVal *= 3;
++				val = std::max(0, val + tmpVal);
++			}
++			if(val > iBestPromoVal) {
++				iBestPromoVal = val;
++				eBestPromo = pt;
++			}
++		}
++		if(eBestPromo == NO_PROMOTION)
++			break;
++		u.setHasPromotion(eBestPromo, true);
++		ePrevPromo = eBestPromo;
++	}
++} // </advc.314>
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index b07b0babe..08da38671 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1444,7 +1444,11 @@ protected:
+ 	void doEvents();
+ 	void decayBuildProgress(); // advc.011
+ 	void showForeignPromoGlow(bool b); // advc.002e
+-
++	// <advc.314>
++	bool isGoodyTech(TechTypes techId, bool bProgress) const;
++	void addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound);
++	void promoteFreeUnit(CvUnit& u, double pr);
++	// </advc.314>
+ 	bool checkExpireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData) const;
+ 	void expireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData, bool bFail);
+ 	bool isValidTriggerReligion(const CvEventTriggerInfo& kTrigger, CvCity* pCity, ReligionTypes eReligion) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4fe2237d7..8961d1433 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7509,7 +7509,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
+ 
+ 	iValue += kTechInfo.getAIWeight();
+ 
+-	if (!isHuman())
++	/*if (!isHuman())
+ 	{
+ 		int iFlavorValue = 0;
+ 		for (int iJ = 0; iJ < GC.getNumFlavorTypes(); iJ++)
+@@ -7517,8 +7517,21 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
+ 			iFlavorValue += AI_getFlavorValue((FlavorTypes)iJ) * kTechInfo.getFlavorValue(iJ) * 5;
+ 		}
+ 		iValue += iFlavorValue * std::min(iCityCount, iCityTarget) / std::max(1, iCityTarget);
+-	}
+-
++	}*/
++	// <advc.020> Replacing the above
++	double flavorFactor = 1.0;
++	for(int i = 0; i < GC.getNumFlavorTypes(); i++) {
++		flavorFactor += 0.25 * AI_getFlavorValue((FlavorTypes)i) *
++				kTechInfo.getFlavorValue(i) * std::min(iCityCount, iCityTarget) /
++				(100.0 * std::max(1, iCityTarget));
++	}
++	if(iValue > 0) {
++		/*  Don't want a higher overall value on account of flavor. Therefore,
++			divide by a sort of median flavor multiplier (1.03).
++			(Although e.g. tech-for-gold trades aren't made based on
++			AI_techValue, so I don't think this is crucial.)*/
++		iValue = ::round(iValue * flavorFactor / 1.03);
++	} // </advc.020>
+ 	if (kTechInfo.isRepeat())
+ 	{
+ 		iValue /= 4;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8ec21f449..e4cd5fa73 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -8580,7 +8580,7 @@ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDet
+ 		}
+ 
+ 		if (isBarbarian())
+-		{	// advc.315c: And changed the iExtraModifier assignements below to +=
++		{	// advc.315c: And changed the iExtraModifier assignments below to +=
+ 			iExtraModifier = -pAttacker->barbarianCombatModifier();
+ 			if (pAttacker->isHuman())
+ 			{
+@@ -8604,7 +8604,7 @@ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDet
+ 		}
+ 
+ 		if (pAttacker->isBarbarian())
+-		{	// advc.315c: And changed the iExtraModifier assignements below to -=
++		{	// advc.315c: And changed the iExtraModifier assignments below to -=
+ 			iExtraModifier = barbarianCombatModifier();
+ 			if (isHuman())
+ 			{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index dabc466cc..87e49c991 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -4138,7 +4138,6 @@ void CvUnitAI::AI_reserveMove()
+ 		}
+ 	}
+ 
+-	//if (!bDanger)
+ 	if (!bDanger || !plot()->isOwned()) // K-Mod
+ 	{
+ 		if (AI_group(UNITAI_SETTLE, 2, -1, -1, false, false, false, 3, true))
+@@ -4146,7 +4145,9 @@ void CvUnitAI::AI_reserveMove()
+ 			return;
+ 		}
+ 	}
+-
++	// <advc.314> Can be important for huts near colonies
++	if(!bDanger && AI_goody(3))
++		return; // </advc.314>
+ 	if (AI_guardCity(true))
+ 	{
+ 		return;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 9996f9f86..608398440 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -62,11 +62,8 @@ void MilitaryBranch::updateTypicalUnit() {
+ 		int const nationalLimit = GC.getUnitClassInfo((UnitClassTypes)i).
+ 				getMaxPlayerInstances();
+ 		if(nationalLimit >= 0 && nationalLimit <
+-				(GC.getGameINLINE().getCurrentEra() + 1) * 4) {
+-			// ... but until then:
+-			FAssert(false); // advc.test
++				(GC.getGameINLINE().getCurrentEra() + 1) * 4)
+ 			continue;
+-		}
+ 		/* Could call this for land units as well, but relying on the capital for
+ 		   those is faster, and perhaps more accurate as well. */
+ 		if(u.getDomainType() == DOMAIN_SEA) {
+@@ -322,7 +319,7 @@ double MilitaryBranch::Army::unitPower(CvUnitInfo const& u, bool modify) const {
+ 		return -1;*/
+ 	double r = u.getPowerValue();
+ 	if(modify) {
+-		if(u.isOnlyDefensive())
++		if(::isMostlyDefensive(u)) // advc.315
+ 			return -1;
+ 		// Prefer potential city raiders
+ 		for(int i = 0; i < GC.getNumPromotionInfos(); i++) {
+@@ -341,7 +338,8 @@ double MilitaryBranch::Army::unitPower(CvUnitInfo const& u, bool modify) const {
+ 
+ double MilitaryBranch::Cavalry::unitPower(CvUnitInfo const& u, bool modify) const {
+ 
+-	if(u.getMoves() <= 1 || u.getProductionCost() >= 150 || u.isOnlyDefensive())
++	if(u.getMoves() <= 1 || u.getProductionCost() >= 150 ||
++			::isMostlyDefensive(u)) // advc.315
+ 		return -1;
+ 	return GET_PLAYER(ownerId).warAndPeaceAI().militaryPower(u);
+ }
+
+[PATCH OMITTED] file=a/manual_0.92c.odt b/manual_0.92c.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=14 omittedFiles=1 embeddedPatchBytes=63628

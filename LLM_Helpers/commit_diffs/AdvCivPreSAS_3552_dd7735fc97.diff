@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3552
+# Commit: dd7735fc97d36d4ba7b496c6f782300431076ad5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6763e19c94ed3fd2c73aaa36dc9b04dd59399e7b
+# Title: Couple of minor changes to loading screen hints
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Text/CIV4GameText_advc_hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 1fcce3239..8aad7855b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -927,7 +927,7 @@
+ <!-- Little known fact -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_47</Tag>
+-	<English>Consider producing settlers and workers in cities with angry or unhealthy citizens. So long as food gets converted into production, angry citizens don't consume food and unhealthiness from population isn't counted.</English>
++	<English>Consider producing settlers and workers in cities with angry or unhealthy citizens. So long as food gets converted into production, angry citizens don't consume food, and unhealthiness from population isn't counted.</English>
+ 	<German>Erw�gen Sie, Siedler und Bautrupps in St�dten mit w�tenden oder kranken B�rgern zu produzieren. Solange Nahrung in Produktion umgewandelt wird, z�hlen w�tende B�rger nicht zum Nahrungsverbrauch und �berbev�lkerung tr�gt nicht zum Krankheitswert bei.</German>
+ </TEXT>
+ 
+@@ -941,8 +941,8 @@
+ <!-- advc.002f -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_49</Tag>
+-	<English>(AdvCiv) When a city is set to [COLOR_HIGHLIGHT_TEXT]Avoid Growth[COLOR_REVERT], a warning icon is (optionally) shown above the city bar on the main map. On a related note, make sure that citizen automation is enabled if you want the governor maximize production and commerce while avoiding growth.</English>
+-	<German>(AdvCiv) Wenn in einer Stadt [COLOR_HIGHLIGHT_TEXT]Wachstum vermeiden[COLOR_REVERT] aktiviert ist, erscheint (optional) zur Erinnerung ein Symbol �ber dem Stadtnamen auf der Hauptkarte. �brigens: Wenn der KI-Gouverneur beim Vermeiden von Wachstum andere Ertr�ge maximieren soll, muss auch die B�rgerautomatisierung aktiv sein.</German>
++	<English>(AdvCiv) When a city is set to [COLOR_HIGHLIGHT_TEXT]Avoid Growth[COLOR_REVERT], a warning icon is (optionally) shown above the city bar on the main map. Citizen automation needs to be enabled if the governor is supposed to maximize production and commerce while avoiding growth.</English>
++	<German>(AdvCiv) Wenn in einer Stadt [COLOR_HIGHLIGHT_TEXT]Wachstum vermeiden[COLOR_REVERT] aktiviert ist, erscheint (optional) zur Erinnerung ein Symbol �ber dem Stadtnamen auf der Hauptkarte. �brigens: Wenn der KI-Gouverneur beim Vermeiden von Wachstum andere Ertr�ge maximieren soll, muss auch die B�rger-Automatisierung aktiv sein.</German>
+ </TEXT>
+ 
+ <!-- advc.186 -->
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2541

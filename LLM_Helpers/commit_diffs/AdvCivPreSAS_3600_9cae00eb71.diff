@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3600
+# Commit: 9cae00eb71c8e485b052481868100a4ab2bef590
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5cac5b3ad38b64d34d6f86fdc5f21e9101231dd0
+# Title: Some comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+7	2	CvGameCoreDLL/CvInitCore.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ec20ebcd7..262095b27 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8554,7 +8554,7 @@ void CvCity::setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
+ {
+ 	int const iOldValue = getSpecialistCount(eSpecialist);
+ 	if (iOldValue == iNewValue)
+-		return; // advc
++		return;
+ 
+ 	m_aiSpecialistCount.set(eSpecialist, iNewValue);
+ 	FAssert(getSpecialistCount(eSpecialist) >= 0);
+@@ -8708,7 +8708,7 @@ void CvCity::setFreeSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
+ {
+ 	int const iOldValue = getFreeSpecialistCount(eSpecialist);
+ 	if (iOldValue == iNewValue)
+-		return; // advc
++		return;
+ 
+ 	m_aiFreeSpecialistCount.set(eSpecialist, iNewValue);
+ 	FAssert(getFreeSpecialistCount(eSpecialist) >= 0);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f36ec660f..c77d966ae 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9595,7 +9595,7 @@ bool CvCityAI::AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist)
+ 		}
+ 	}
+ 
+-	// check all the plots we working
++	// check all the plots we are working
+ 	for (WorkingPlotIter it(*this, false); it.hasNext(); ++it)
+ 	{
+ 		int iValue = AI_plotValue(*it, true, false, false, iGrowthValue);
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 48ad98887..a0a985aaf 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -487,14 +487,19 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
+ 	m_szTemp.clear();
+ }
+ 
++/*	advc (note): This seems to get used for resetting CvGlobals::m_initCore and
++	m_loadedInitCore to pSource = &CvGlobals::m_iniInitCore, i.e. (presumably)
++	to the data stored in CivilizationIV.ini.
++	Also used for resetting m_initCore to pSource = &m_loadedInitCore when
++	loading a savegame. */
+ void CvInitCore::resetGame(CvInitCore* pSource, bool bClear, bool bSaveGameType)
+ {
+ 	FAssert(pSource != NULL);
+ 	FAssertMsg(!bClear || !bSaveGameType, "Should not clear while trying to preserve gametype info");
+ 	if (bClear || pSource == NULL)
+ 		resetGame();
+-	if(pSource == NULL)
+-		return; // advc
++	if (pSource == NULL)
++		return;
+ 
+ 	// Only copy over saved data
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2253

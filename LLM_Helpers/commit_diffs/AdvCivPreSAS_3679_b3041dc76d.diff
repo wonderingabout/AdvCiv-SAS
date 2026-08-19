@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3679
+# Commit: b3041dc76dadb9dd5a67f856b7498d82a6070718
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9e24733e60ba4f8bd57b432a5b0433f0e61aa80c
+# Title: Minor tweak to peace-vassal AI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	11	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 56d584adb..353f88d2f 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2743,7 +2743,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			the vassal feels. (Originally more based on what chances the vassal
+ 			still has to win the game). */
+ 		int iAttitudeModifier = -2;
+-		int iLosingWars = 0;
++		int iLosingWarModifier = 0;
+ 		for (TeamAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itThreat(getID());
+ 			itThreat.hasNext(); ++itThreat)
+ 		{
+@@ -2753,14 +2753,24 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			{
+ 				continue;
+ 			}
++			bool const bMasterAtWar = kMasterTeam.isAtWar(kThreat.getID());
+ 			// Immediate threat from ongoing wars
+-			WarPlanTypes eWarPlan = AI_getWarPlan(kThreat.getID());
+-			if (kThreat.getID() != eMasterTeam && (eWarPlan == WARPLAN_ATTACKED_RECENT ||
+-				eWarPlan == WARPLAN_ATTACKED || AI_getWarSuccessRating() <= -30))
++			if (isAtWar(kThreat.getID()))
+ 			{
+-				iLosingWars++;
++				WarPlanTypes eWarPlan = AI_getWarPlan(kThreat.getID());
++				if (kThreat.getID() != eMasterTeam &&
++					(eWarPlan == WARPLAN_ATTACKED_RECENT ||
++					eWarPlan == WARPLAN_ATTACKED ||
++					AI_getWarSuccessRating() <= -30))
++				{
++					/*	Ensuring that kMaster doesn't drop out of the war
++						ought to be worth something */
++					iLosingWarModifier += (bMasterAtWar ? 2 : 4);
++				}
+ 				continue;
+ 			}
++			if (bMasterAtWar)
++				continue;
+ 			// Threat from future wars. kMasterTeam can contribute to this.
+ 			AttitudeTypes eTowardUs = NO_ATTITUDE;
+ 			if (kThreat.isHuman()) // Assume that human likes or hates us back
+@@ -2781,13 +2791,12 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		/*  In large games, there tend to be alternative targets for dangerous civs
+ 			to attack. */
+ 		iAttitudeModifier = (7 * iAttitudeModifier) / kGame.countCivPlayersAlive();
+-		if(iLosingWars > 0)
+-			iAttitudeModifier += 4;
+-		// No matter how much we like kMasterTeam, when we can safely go it alone, we do.
+-		// Master might not like it (and need sth. to prevent oscillation)
+-		if(isAVassal()) // (should perhaps check master's NoWarProb at Pleased)
++		iAttitudeModifier += std::min(iLosingWarModifier, 5);
++		/*	No matter how much we like kMasterTeam, when we can safely go it alone,
++			we do. Master might not like it (and need sth. to prevent oscillation). */
++		if (isAVassal()) // (should perhaps check master's NoWarProb at Pleased)
+ 			iAttitudeModifier += 3;
+-		if(iAttitudeModifier <= 2 &&
++		if (iAttitudeModifier <= 2 &&
+ 			4 * rVassalPower > 3 * rAveragePower &&
+ 			4 * rVassalPower > 3 * rMedianPow &&
+ 			// Exception: stick to our colonial master
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2807

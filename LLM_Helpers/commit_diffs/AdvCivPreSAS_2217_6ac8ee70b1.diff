@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2217
+# Commit: 6ac8ee70b1c2394531862ba5496284ea2772c462
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 993154d18dfda739e23179dbb2d314d991d54bea
+# Title: Improve AI evaluation of Pyramid ability
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	6	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 30518a488..4d26ab7b8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4157,18 +4157,43 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				// K-Mod end
+ 			}
+ 
+-			if (kBuilding.getCivicOption() != NO_CIVICOPTION)
+-			{
++			CivicOptionTypes const eCivicOption = kBuilding.getCivicOption();
++			if (eCivicOption != NO_CIVICOPTION)
++			{	// k146 (Todo): compare to current civics!
++				// <advc.131> Will do:
++				scaled rCivicOptionValue;
++				/*	Should actually be 4(!), but I don't think it's good for game balance
++					to make the AI that interested in the Pyramids. */
++				scaled const rScaleAdjustment = fixp(1.7);
++				scaled rCurrentCivicValue = rScaleAdjustment *
++						kOwner.AI_civicValue(kOwner.getCivics(eCivicOption));
++				scaled rBestNewCivicValue = scaled::min(0, rCurrentCivicValue);
+ 				FOR_EACH_ENUM(Civic)
+ 				{
+-					if (GC.getInfo(eLoopCivic).getCivicOptionType() == kBuilding.getCivicOption())
++					if (GC.getInfo(eLoopCivic).getCivicOptionType() != eCivicOption ||
++						kOwner.canDoCivics(eLoopCivic))
++					{
++						continue; // advc
++					}
++					//iValue += (kOwner.AI_civicValue(eLoopCivic) / 10);
++					scaled rCivicValue = rScaleAdjustment * kOwner.AI_civicValue(eLoopCivic);
++					if (rCivicValue > 0)
+ 					{
+-						if (!(kOwner.canDoCivics(eLoopCivic)))
+-						{	// k146 (Todo): compare to current civics!
+-							iValue += (kOwner.AI_civicValue(eLoopCivic) / 10);
++						// Devalue civics that we'll soon unlock anyway
++						TechTypes eTech = GC.getInfo(eLoopCivic).getTechPrereq();
++						if (!kTeam.isHasTech(eTech) && 
++							GC.getInfo(eTech).getEra() <= kOwner.getCurrentEra())
++						{
++							rCivicValue /= 2;
+ 						}
++						// Having choices is good; even if they're not the best right now.
++						rCivicOptionValue += rCivicValue / 12;
+ 					}
++					rBestNewCivicValue.increaseTo(rCivicValue);
+ 				}
++				rCivicOptionValue += rBestNewCivicValue - rCurrentCivicValue;
++				iValue += rCivicOptionValue.round();
++				// </advc.131>
+ 			}
+ 
+ 			int iGreatPeopleRateModifier = kBuilding.getGreatPeopleRateModifier();
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2198

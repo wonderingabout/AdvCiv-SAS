@@ -1,0 +1,436 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5358
+# Commit: 91e02355dda0dc08cc4480d9e6721eae424b8c8f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fedd1d40b55056539b38df66592fa2c47c5ecf68
+# Title: reduce SAS world sizes' size
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	Assets/XML/GameInfo/CIV4WorldInfo.xml
+68	68	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+6	6	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.660_sevopedia_religions.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 2492aa7f2..ade3790fa 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -265,8 +265,8 @@
+ 			<iMaxConscriptModifier>60</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-35</iWarWearinessModifier>
+ 			<iUnitCostPercent>91</iUnitCostPercent>
+-			<iGridWidth>71</iGridWidth>
+-			<iGridHeight>50</iGridHeight>
++			<iGridWidth>70</iGridWidth>
++			<iGridHeight>49</iGridHeight>
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+ 			<iResearchPercent>115</iResearchPercent>
+@@ -290,8 +290,8 @@
+ 			<iMaxConscriptModifier>75</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-45</iWarWearinessModifier>
+ 			<iUnitCostPercent>88</iUnitCostPercent>
+-			<iGridWidth>82</iGridWidth>
+-			<iGridHeight>57</iGridHeight>
++			<iGridWidth>80</iGridWidth>
++			<iGridHeight>56</iGridHeight>
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+ 			<iResearchPercent>120</iResearchPercent>
+@@ -315,8 +315,8 @@
+ 			<iMaxConscriptModifier>90</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-55</iWarWearinessModifier>
+ 			<iUnitCostPercent>85</iUnitCostPercent>
+-			<iGridWidth>91</iGridWidth>
+-			<iGridHeight>64</iGridHeight>
++			<iGridWidth>90</iGridWidth>
++			<iGridHeight>63</iGridHeight>
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+ 			<iResearchPercent>125</iResearchPercent>
+@@ -340,7 +340,7 @@
+ 			<iMaxConscriptModifier>105</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-65</iWarWearinessModifier>
+ 			<iUnitCostPercent>82</iUnitCostPercent>
+-			<iGridWidth>101</iGridWidth>
++			<iGridWidth>99</iGridWidth>
+ 			<iGridHeight>70</iGridHeight>
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index b7285abc6..263b73315 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -25,10 +25,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -52,10 +52,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -90,10 +90,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -128,10 +128,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -166,10 +166,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -204,10 +204,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -242,10 +242,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -280,10 +280,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -318,10 +318,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -356,10 +356,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
+@@ -386,10 +386,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -413,10 +413,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -440,10 +440,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -467,10 +467,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -494,10 +494,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -521,10 +521,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -548,10 +548,10 @@
+ 				<Size>1.0</Size> <!-- Standard -->
+ 				<Size>1.463</Size> <!-- Large -->
+ 				<Size>2.308</Size> <!-- Huge -->
+-				<Size>3.251</Size> <!-- SAS24 -->
+-				<Size>4.280</Size> <!-- SAS32 -->
+-				<Size>5.333</Size> <!-- SAS40 -->
+-				<Size>6.474</Size> <!-- SAS48 -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+
+diff --git a/README.md b/README.md
+index a3af71d43..f47c6259c 100644
+--- a/README.md
++++ b/README.md
+@@ -302,7 +302,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.730_sevopedia_promotions (3).JPG" alt="0.730_sevopedia_promotions (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG" alt="0.750_sevopedia_projects.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+ 
+ #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
+@@ -523,13 +523,13 @@ The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For
+ 
+ | AdvCiv-SAS size | SAS Grid (W x H) | SAS Tiles | SAS Default players | SAS Ratio vs Std | XXL reference size | XXL Grid (W x H) | XXL Tiles | XXL Default players | XXL Ratio vs Std |
+ | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+-| SAS24 | 71 x 50 | 3550 | 24 | 3.251 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
+-| SAS32 | 82 x 57 | 4674 | 32 | 4.280 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
+-| SAS40 | 91 x 64 | 5824 | 40 | 5.333 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
+-| SAS48 | 101 x 70 | 7070 | 48 | 6.474 | ULTRA | 60 x 40 | 2400 | 34 | 8.791 |
++| SAS24 | 70 x 49 | 3430 | 24 | 3.141 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
++| SAS32 | 80 x 56 | 4480 | 32 | 4.103 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
++| SAS40 | 90 x 63 | 5670 | 40 | 5.192 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
++| SAS48 | 99 x 70 | 6930 | 48 | 6.346 | ULTRA | 60 x 40 | 2400 | 34 | 8.791 |
+ 
+ Note: XXL/GIGA/ULTRA values come from XXL World `CIV4WorldInfo.xml`. XXL ratio vs Std uses XXL World's Standard size (21 x 13 = 273 tiles). SAS ratio vs Std uses the AdvCiv-SAS standard size in our XML.
+-Note 2: XXL uses a much smaller baseline and far fewer tiles per default player. In XXL World, Standard is 21 x 13 = 273 tiles for 7 players (~39 tiles/player), and XXL is 40 x 25 = 1000 tiles for 24 players (~41.7 tiles/player). In AdvCiv-SAS, Standard is 39 x 28 = 1092 tiles for 8 players (~137 tiles/player), and SAS24 is 71 x 50 = 3550 tiles for 24 players (~148 tiles/player). That’s why SAS24 is much larger even though both list 24 default players.
++Note 2: XXL uses a much smaller baseline and far fewer tiles per default player. In XXL World, Standard is 21 x 13 = 273 tiles for 7 players (~39 tiles/player), and XXL is 40 x 25 = 1000 tiles for 24 players (~41.7 tiles/player). In AdvCiv-SAS, Standard is 39 x 28 = 1092 tiles for 8 players (~137 tiles/player). That’s why SAS24 is much larger even though both list 24 default players.
+ Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Pangaea uses 16 x 10 for Standard and 40 x 25 for XXL in `PrivateMaps/Pangaea.py`), so the XML sizes aren’t the only source of truth; this keeps XXL maps smaller while still advertising higher default player counts.
+ 
+ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 709a43849..f781c6693 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -443,7 +443,8 @@ Minor beautified and polished it a bit and now it's quite good xd at least not t
+ 
+ As for the grouping, since this is a nice functionnal change, i wanted to show it here as well.
+ 
+-<img src="../Images/sevopedia/0.750_sevopedia_projects.JPG" alt="0.750_sevopedia_projects.JPG" width="250"></img>
++<img src="../Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.750_sevopedia_projects (2).JPG" alt="0.750_sevopedia_projects (2).JPG" width="250"></img>
+ 
+ ### example 15: specialists category
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG
+index b7a0bfb52..0b82f2586 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG
+index e8fabdc5e..d72a58096 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG
+index a3db73abd..29212953f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.660_sevopedia_religions.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.660_sevopedia_religions.JPG
+index 91b224d9f..bb08f8074 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.660_sevopedia_religions.JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.660_sevopedia_religions.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (1).JPG
+index 58eca3570..6f81b04f6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (2).JPG
+index cccc94c89..8876efef6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (3).JPG
+index 590f6c7c3..198e62abc 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG
+new file mode 100644
+index 000000000..1201901d5
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (2).JPG
+new file mode 100644
+index 000000000..37d0e28fd
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG
+deleted file mode 100644
+index 682e470c5..000000000
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=19585

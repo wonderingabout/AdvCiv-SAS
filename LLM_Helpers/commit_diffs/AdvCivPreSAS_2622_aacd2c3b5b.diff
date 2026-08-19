@@ -1,0 +1,182 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2622
+# Commit: aacd2c3b5b6232cbab30b03fd62612c4c8f1f7c9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3a81eb614297f05c2874375343e1984bead5516b
+# Title: Tweak list traversal macros
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	21	CvGameCoreDLL/LinkedListTraversal.h
+6	2	CvGameCoreDLL/PlotAdjListTraversal.h
+4	1	CvGameCoreDLL/cpp.hint
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/LinkedListTraversal.h b/CvGameCoreDLL/LinkedListTraversal.h
+index 2eb9241e2..afb1491da 100644
+--- a/CvGameCoreDLL/LinkedListTraversal.h
++++ b/CvGameCoreDLL/LinkedListTraversal.h
+@@ -7,50 +7,54 @@
+ 	See FreeListTraversal.h for further comments (similar approach).
+ 	advc.003u: Variants that provide a pointer to an AI object */
+ 
+-#define pANON_ORIG_LIST_LENGTH CONCATVARNAME(pAnonOrigListLength_, __LINE__)
++#define pANON_ORIG_LINKLIST_LENGTH CONCATVARNAME(pAnonOrigLinkListLength_, __LINE__)
+ /*	Accidental changes to a list during traversal can happen pretty easily.
+ 	That said, I don't think such errors are usually difficult to debug;
+ 	so this assertion is perhaps overkill (even in debug builds). */
+-#if 0//#ifdef _DEBUG
++#if 0//ifdef _DEBUG
+ 	#define ASSERT_UNIT_LIST_LENGTH(kUnitListWrapper, iLength) \
+ 		assertUnitListLength((kUnitListWrapper).getNumUnits(), iLength)
+-	void assertUnitListLength(int iActualLength, int iDesiredLength)
++	inline void assertUnitListLength(int iActualLength, int iDesiredLength)
+ 	{	// FAssertMsg(...) is not an expression; hence this wrapper function.
+ 		FAssertMsg(iActualLength == iDesiredLength,
+ 				"List length has changed during FOR_EACH_UNIT_IN traversal");
+ 	}
+ 	#define SET_ORIGINAL_LIST_LEN(kUnitListWrapper) \
+-		int pANON_ORIG_LIST_LENGTH = (kUnitListWrapper).getNumUnits()
++		int pANON_ORIG_LINKLIST_LENGTH = (kUnitListWrapper).getNumUnits()
+ #else
+ 	#define ASSERT_UNIT_LIST_LENGTH(kUnitListWrapper, iLength) 0
+ 	#define SET_ORIGINAL_LIST_LEN(kUnitListWrapper)
+ #endif
+ 
+ 
+-#define pANON_LIST_NODE CONCATVARNAME(pAnonListNode_, __LINE__)
++#define pANON_LINKLIST_NODE CONCATVARNAME(pAnonLinkListNode_, __LINE__)
+ 
+ // const
+ #define FOR_EACH_UNIT_IN_HELPER(pUnit, kUnitListWrapper, CvUnitType, getUnitGlobalFunc) \
+ 	SET_ORIGINAL_LIST_LEN(kUnitListWrapper); \
+-	CLLNode<IDInfo> const* pANON_LIST_NODE = (kUnitListWrapper).headUnitNode(); \
++	CLLNode<IDInfo> const* pANON_LINKLIST_NODE = (kUnitListWrapper).headUnitNode(); \
+ 	for (CvUnitType const* pUnit; \
+-		pANON_LIST_NODE != NULL \
++		pANON_LINKLIST_NODE != NULL \
+ 		/* I think this is the only way to avoid making a 2nd NULL check */ \
+-		&& ((pUnit = ::getUnitGlobalFunc(pANON_LIST_NODE->m_data)) \
++		&& ((pUnit = ::getUnitGlobalFunc(pANON_LINKLIST_NODE->m_data)) \
+ 		/* Only care about the side-effect of pUnit=... Don't want to branch on it. */ \
+ 		, true); \
+-		ASSERT_UNIT_LIST_LENGTH(kUnitListWrapper, pANON_ORIG_LIST_LENGTH), \
+-		pANON_LIST_NODE = (kUnitListWrapper).nextUnitNode(pANON_LIST_NODE))
++		ASSERT_UNIT_LIST_LENGTH(kUnitListWrapper, pANON_ORIG_LINKLIST_LENGTH), \
++		/* static_next makes sure that we don't evaluate kUnitListWrapper - */ \
++		/* which could be a conditional expression - over and over. */ \
++		/* Not so nice, but, since we don't know the type of kUnitListWrapper, */ \
++		/* we can't cache it in a variable. */ \
++		pANON_LINKLIST_NODE = CLinkList<IDInfo>::static_next(pANON_LINKLIST_NODE))
+ 
+ // non-const (i.e. VARiable)
+ #define FOR_EACH_UNIT_VAR_IN_HELPER(pUnit, kUnitListWrapper, CvUnitType, getUnitGlobalFunc) \
+-	CLLNode<IDInfo>* pANON_LIST_NODE = (kUnitListWrapper).headUnitNode(); \
++	CLLNode<IDInfo>* pANON_LINKLIST_NODE = (kUnitListWrapper).headUnitNode(); \
+ 	for (CvUnitType* pUnit; \
+-		pANON_LIST_NODE != NULL && \
+-		((pUnit = ::getUnitGlobalFunc(pANON_LIST_NODE->m_data)), true) && \
++		pANON_LINKLIST_NODE != NULL && \
++		((pUnit = ::getUnitGlobalFunc(pANON_LINKLIST_NODE->m_data)), true) && \
+ 		/* Update the node right after the termination check */ \
+ 		/* so that it's safe to delete pUnit and its node in the loop body. */ \
+-		((pANON_LIST_NODE = (kUnitListWrapper).nextUnitNode(pANON_LIST_NODE)), true); \
++		((pANON_LINKLIST_NODE = CLinkList<IDInfo>::static_next(pANON_LINKLIST_NODE)), true); \
+ 		)
+ 
+ /*	kUnitListWrapper can be of type CvPlot or CvSelectionGroup
+@@ -67,13 +71,32 @@
+ #define FOR_EACH_UNITAI_VAR_IN(pUnit, kUnitListWrapper) \
+ 	FOR_EACH_UNIT_VAR_IN_HELPER(pUnit, kUnitListWrapper, CvUnitAI, AI_getUnit)
+ 
+-// kItemList is of type CLinkList<TradeData>
+-#define FOR_EACH_TRADE_ITEM(pItemVar, kItemList) \
+-	CLLNode<TradeData> const* pANON_LIST_NODE; \
++// (Not needed after all; can just use CLinkList::static_next instead.)
++//#define kANON_CACHED_LINKLIST CONCATVARNAME(kAnonCachedLinkList_, __LINE__)
++
++// kItemList is of type LinkList<TradeData>; taken by reference.
++#define FOR_EACH_TRADE_ITEM2(pItemVar, kItemList) \
++	CLLNode<TradeData> const* pANON_LINKLIST_NODE; \
+ 	for (TradeData const* pItemVar = \
+-		((pANON_LIST_NODE = (kItemList).head()), NULL); \
+-		pANON_LIST_NODE != NULL \
+-		&& ((pItemVar = &pANON_LIST_NODE->m_data), true); \
+-		pANON_LIST_NODE = (kItemList).next(pANON_LIST_NODE))
++		((pANON_LINKLIST_NODE = (kItemList).head()), NULL); \
++		pANON_LINKLIST_NODE != NULL \
++		&& ((pItemVar = &pANON_LINKLIST_NODE->m_data), true); \
++		pANON_LINKLIST_NODE = CLinkList<TradeData>::static_next(pANON_LINKLIST_NODE))
++
++#define FOR_EACH_TRADE_ITEM_VAR2(pItemVar, kItemList) \
++	CLLNode<TradeData>* pANON_LINKLIST_NODE; \
++	for (TradeData* pItemVar = \
++		((pANON_LINKLIST_NODE = (kItemList).head()), NULL); \
++		pANON_LINKLIST_NODE != NULL && \
++		((pItemVar = &pANON_LINKLIST_NODE->m_data), true) && \
++		(pANON_LINKLIST_NODE = CLinkList<TradeData>::static_next(pANON_LINKLIST_NODE), true); \
++		)
++
++// Macros that name the item "pItem"
++#define FOR_EACH_TRADE_ITEM(kItemList) \
++	FOR_EACH_TRADE_ITEM2(pItem, kItemList)
++
++#define FOR_EACH_TRADE_ITEM_VAR(kItemList) \
++	FOR_EACH_TRADE_ITEM_VAR2(pItem, kItemList)
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/PlotAdjListTraversal.h b/CvGameCoreDLL/PlotAdjListTraversal.h
+index 88be11012..23c36ea35 100644
+--- a/CvGameCoreDLL/PlotAdjListTraversal.h
++++ b/CvGameCoreDLL/PlotAdjListTraversal.h
+@@ -8,14 +8,18 @@
+ // Helpers ...
+ 
+ #define iANON_ADJ_LIST_POS CONCATVARNAME(iAnonAdjListPos_, __LINE__)
++/*	kCenterPlot in the macro below can be e.g. a conditional expression.
++	Don't want to evaluate that more than once. */
++#define kANON_CACHED_CENTER_PLOT CONCATVARNAME(kAnonCachedCenterPlot_, __LINE__)
+ 
+ #define FOR_EACH_ADJ_PLOT_HELPER(kCenterPlot, pLoopPlot, CvPlotType, iInitialPos, iStep) \
++	CvPlot const& kANON_CACHED_CENTER_PLOT = (kCenterPlot); \
+ 	int iANON_ADJ_LIST_POS = iInitialPos; \
+ 	for (CvPlotType* pLoopPlot; \
+ 		/* Need to do the loop step as part of the termination check */ \
+ 		/* to avoid stepping out of bounds */ \
+-		iANON_ADJ_LIST_POS < (kCenterPlot).numAdjacentPlots() && \
+-		(pLoopPlot = (kCenterPlot).getAdjacentPlotUnchecked(iANON_ADJ_LIST_POS), true) && \
++		iANON_ADJ_LIST_POS < kANON_CACHED_CENTER_PLOT.numAdjacentPlots() && \
++		(pLoopPlot = kANON_CACHED_CENTER_PLOT.getAdjacentPlotUnchecked(iANON_ADJ_LIST_POS), true) && \
+ 		(iANON_ADJ_LIST_POS += iStep, true); )
+ 
+ #define aiANON_ADJ_LIST_INDICES CONCATVARNAME(aiAnonAdjListIndices, __LINE__)
+
+diff --git a/CvGameCoreDLL/cpp.hint b/CvGameCoreDLL/cpp.hint
+index b5dd900df..5cc2b2e33 100644
+--- a/CvGameCoreDLL/cpp.hint
++++ b/CvGameCoreDLL/cpp.hint
+@@ -31,7 +31,10 @@
+ #define FOR_EACH_UNIT_VAR_IN(pUnit, kUnitListWrapper)
+ #define FOR_EACH_UNITAI_VAR_IN(pUnit, kUnitListWrapper)
+ 
+-FOR_EACH_TRADE_ITEM(pItemVar, itemList)
++#define FOR_EACH_TRADE_ITEM(pItemVar, itemList)
++#define FOR_EACH_TRADE_ITEM_VAR(pItemVar, kItemList)
++#define FOR_EACH_TRADE_ITEM2(pItemVar, itemList)
++#define FOR_EACH_TRADE_ITEM_VAR2(pItemVar, kItemList)
+ 
+ #define FOR_EACH_ADJ_PLOT(kCenterPlot)
+ #define FOR_EACH_ADJ_PLOT_VAR(kCenterPlot)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7487

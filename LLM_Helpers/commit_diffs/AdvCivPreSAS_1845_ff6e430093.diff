@@ -1,0 +1,36 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1845
+# Commit: ff6e4300937a8c876cd3e490f18b84d50e16f13d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d69859907a71e062be91500b529701e0d22d5c39
+# Title: Bugfix: UWAI "fidelity" aspect wasn't taken into account
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/WarEvaluator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index b0eb80f4a..30c83bb8c 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -295,6 +295,7 @@ void WarEvaluator::fillWithAspects(vector<WarUtilityAspect*>& v) {
+ 	v.push_back(new Assistance(params));
+ 	v.push_back(new Reconquista(params));
+ 	v.push_back(new Rebuke(params));
++	v.push_back(new Fidelity(params));
+ 	v.push_back(new HiredHand(params));
+ 	v.push_back(new BorderDisputes(params));
+ 	v.push_back(new SuckingUp(params));
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=541

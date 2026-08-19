@@ -1,0 +1,288 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4633
+# Commit: 3982fb2cde9fa631e828fc18e26815319a1e0ce0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2bbf4a1361d21ce5fade71fe2f9b36d6f9f0ca9d
+# Title: Import cleanly the Sevopedia Terrain from RFC Dawn of Civilization works with almost no modification required as is, very nice, thanks a lot!
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+146	56	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+4	6	README.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index b73ef02d6..ed71107b0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -1,90 +1,180 @@
+-# Sid Meier's Civilization 4
+-# Copyright Firaxis Games 2005
+-
+-#
+-# Sevopedia 2.3
+-#   sevotastic.blogspot.com
+-#   <hidden-email>
+-#
+-# additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-#
++# imported with almost no modification from RFC Dawn of Civilization mod:
++#C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaTerrain.py
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-import ScreenInput
+-import SevoScreenEnums
+-import string
+ 
+ gc = CyGlobalContext()
+-ArtFileMgr = CyArtFileMgr()
+-localText = CyTranslator()
+ 
+-class SevoPediaTerrain:
+ 
++class SevoPediaTerrain:
+ 	def __init__(self, main):
+ 		self.iTerrain = -1
+ 		self.top = main
+ 
+-		self.X_ICON_PANE = self.top.X_PEDIA_PAGE
+-		self.Y_ICON_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_ICON_PANE = self.top.W_PEDIA_PAGE
+-		self.H_ICON_PANE = 210
++		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
++		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
++		self.W_INFO_PANE = 290
++		self.H_INFO_PANE = 120
+ 
+-		self.W_ICON = 150
+-		self.H_ICON = 150
+-		self.X_ICON = self.X_ICON_PANE + (self.H_ICON_PANE - self.H_ICON) / 2
+-		self.Y_ICON = self.Y_ICON_PANE + (self.H_ICON_PANE - self.H_ICON) / 2
++		self.W_ICON = 100
++		self.H_ICON = 100
++		self.X_ICON = self.X_INFO_PANE + 10
++		self.Y_ICON = self.Y_INFO_PANE + 10
+ 		self.ICON_SIZE = 64
+ 
+-		self.X_STATS_PANE = self.X_ICON_PANE + 210
+-		self.W_STATS_PANE = self.top.R_PEDIA_PAGE - self.X_STATS_PANE
+-		self.Y_STATS_PANE = 130
+-		self.H_STATS_PANE = 110
++		self.X_INFO_TEXT = self.X_INFO_PANE + 110
++		self.Y_INFO_TEXT = self.Y_ICON + 15
++		self.W_INFO_TEXT = 220
++		self.H_INFO_TEXT = self.H_INFO_PANE - 20
++
++		self.X_DETAILS = self.X_INFO_PANE + self.W_INFO_PANE + 10
++		self.W_DETAILS = self.top.R_PEDIA_PAGE - self.X_DETAILS
++		self.H_DETAILS = self.H_INFO_PANE
++		self.Y_DETAILS = self.Y_INFO_PANE
++
++		self.X_FEATURES = self.X_INFO_PANE
++		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
++		self.W_FEATURES = self.W_INFO_PANE
++		self.H_FEATURES = 110
+ 
+-		self.X_SPECIAL_PANE = self.X_ICON_PANE
+-		self.W_SPECIAL_PANE = self.W_ICON_PANE
+-		self.Y_SPECIAL_PANE = self.Y_ICON_PANE + self.H_ICON_PANE + 10
+-		self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
++		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + 10
++		self.Y_IMPROVEMENTS = self.Y_FEATURES
++		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
++		self.H_IMPROVEMENTS = self.H_FEATURES
++
++		self.X_RESOURCES = self.X_FEATURES
++		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
++		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
++		self.H_RESOURCES = 110
++
++		self.X_HISTORY = self.X_RESOURCES
++		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
++		self.Y_HISTORY = self.Y_RESOURCES + self.H_RESOURCES + 10
++		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 
+ 
+ 	def interfaceScreen(self, iTerrain):
++		screen = self.top.getScreen()
+ 		self.iTerrain = iTerrain
++
++		self.placeInfo()
++		self.placeDetails()
++		self.placeFeatures()
++		self.placeImprovements()
++		self.placeResources()
++		self.placeHistory()
++
++
++
++	def placeInfo(self):
+ 		screen = self.top.getScreen()
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON_PANE, self.Y_ICON_PANE, self.W_ICON_PANE, self.H_ICON_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		panel = self.top.getNextWidgetName()
++		info = gc.getTerrainInfo(self.iTerrain)
++
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_INFO_PANE, self.Y_INFO_PANE, self.W_INFO_PANE, self.H_INFO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getTerrainInfo(self.iTerrain).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
++		screen.enableSelect(panel, False)
++		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, "Terrain", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++
++		if self.iTerrain == gc.getInfoTypeForString('TERRAIN_HILL'):
++			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
++			szStats += (u"+%d%c  " % (1, gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()))
++		else:
++			szStats = u""
++			for iYield in xrange(YieldTypes.NUM_YIELD_TYPES):
++				iYieldChange = info.getYield(iYield)
++				if iYieldChange != 0:
++					szStats += (u"%d%c  " % (iYieldChange, gc.getYieldInfo(iYield).getChar()))
+ 
+-		self.placeStats()
+-		self.placeSpecial()
++		screen.appendListBoxString(panel, szStats, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+-	def placeStats(self):
++	def placeDetails(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+-		screen.enableSelect(panelName, False)
+-		for k in range(YieldTypes.NUM_YIELD_TYPES):
+-			iYield = gc.getTerrainInfo(self.iTerrain).getYield(k)
+-			if (iYield != 0):
+-				szYield = (u"%s: %i" % (gc.getYieldInfo(k).getDescription().upper(), iYield))
+-				screen.appendListBoxString(panelName, u"<font=3>" + szYield + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		panel = self.top.getNextWidgetName()
++		text = self.top.getNextWidgetName()
++		info = gc.getTerrainInfo(self.iTerrain)
+ 
++		screen.addPanel(panel, "", "", True, True, self.X_DETAILS, self.Y_DETAILS, self.W_DETAILS, self.H_DETAILS, PanelStyles.PANEL_STYLE_BLUE50)
+ 
++		if self.iTerrain != gc.getInfoTypeForString('TERRAIN_HILL'):
++			szText = info.getHelp()
++			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
++			szText = szText.replace("\n\n", "\n").strip()
++			screen.addMultilineText(text, szText, self.X_DETAILS + 5, self.Y_DETAILS + 10, self.W_DETAILS - 10, self.H_DETAILS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-	def placeSpecial(self):
++
++
++	def placeFeatures(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		listName = self.top.getNextWidgetName()
+-		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
+-		screen.enableSelect(listName, False)
+-		szSpecialText = CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
+-		splitText = string.split(szSpecialText, "\n")
+-		for special in splitText:
+-			if len(special) != 0:
+-				screen.appendListBoxString(listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		panel = self.top.getNextWidgetName()
++
++		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panel, "", "  ")
++
++		for iFeature in xrange(gc.getNumFeatureInfos()):
++			FeatureInfo = gc.getFeatureInfo(iFeature)
++
++			if FeatureInfo.isGraphicalOnly():
++				continue
++			elif FeatureInfo.isTerrain(self.iTerrain):
++				screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
++
++
++
++	def placeImprovements(self):
++		screen = self.top.getScreen()
++		panel = self.top.getNextWidgetName()
++		info = gc.getTerrainInfo(self.iTerrain)
++
++		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panel, "", "  ")
++
++		for iImprovement in xrange(gc.getNumImprovementInfos()):
++			ImprovementInfo = gc.getImprovementInfo(iImprovement)
++			if ImprovementInfo.isGoody():
++				continue
++			elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
++				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
++			elif self.iTerrain == gc.getInfoTypeForString('TERRAIN_HILL') and ImprovementInfo.isHillsMakesValid():
++				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
++
++
++
++	def placeResources(self):
++		screen = self.top.getScreen()
++		panel = self.top.getNextWidgetName()
++
++		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panel, "", "  ")
++
++		for iResource in xrange(gc.getNumBonusInfos()):
++			ResourceInfo = gc.getBonusInfo(iResource)
++			if ResourceInfo.isGraphicalOnly():
++				continue
++			elif ResourceInfo.isTerrain(self.iTerrain):
++				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
++			elif self.iTerrain == gc.getInfoTypeForString('TERRAIN_HILL') and ResourceInfo.isHills():
++				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
++
++
++	def placeHistory(self):
++		screen = self.top.getScreen()
++		panel = self.top.getNextWidgetName()
++		text = self.top.getNextWidgetName()
++		info = gc.getTerrainInfo(self.iTerrain)
++
++		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
++
++		szHistory = info.getCivilopedia()
++		screen.addMultilineText(text, szHistory, self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/README.md b/README.md
+index 2cc68d1c0..04cf53a10 100644
+--- a/README.md
++++ b/README.md
+@@ -127,16 +127,14 @@ exchanges/experiences during these times
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+ too too, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
++- RFC Dawn Of Civilization, while this mod is not my favourite somehow, i must admit they have
++some very nice content, in particular the Sevopedia categories i could take entirely for/in
++AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page),
++thanks a lot!
+ - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
+ which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
+ such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also,
+ even without modding, the base game is quite nice, thanks too i mean, thanks,
+-- RFC, last but .. least, RFC mod which i forgot or can't or don't want to remember the full
+-name of, not my favourite mod, but they did teach me or rather give me the idea from looking
+-at a thing they did, so even though i maybe could have found it myself, or maybe i could not,
+-in all fairness and with that being said, it's a caveaty thanks from me whatever that means,
+-your stuff still helped me, so thanks too, would be unfair not to say, thanks too even though
+-i am not too keen on admitting it, but thanks
+ 
+ todo add quote
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=12779

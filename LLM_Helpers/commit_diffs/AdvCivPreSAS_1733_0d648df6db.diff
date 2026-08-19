@@ -1,0 +1,620 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1733
+# Commit: 0d648df6db1912df6e12206701b1aa5f027fcfef
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d595a1df9e0dcbaa974828696fa93b895c40d675
+# Title: Improve performance of defensive strength computation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	43	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+11	8	CvGameCoreDLL/CvPlot.cpp
+3	2	CvGameCoreDLL/CvPlot.h
+5	3	CvGameCoreDLL/CvTeamAI.cpp
+2	1	CvGameCoreDLL/CvTeamAI.h
+18	80	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3f0dec193..e40f5b116 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3824,8 +3824,8 @@ int CvCity::getNoMilitaryPercentAnger() const
+ 			iAnger += GC.getDefineINT(CvGlobals::NO_MILITARY_PERCENT_ANGER);
+ 		return iAnger;  // <advc.500b>
+ 	}
+-	double actualGarrStr = garrisonStrength();
+ 	double targetGarrStr = getPopulation() / 2.0;
++	double actualGarrStr = garrisonStrength(targetGarrStr);
+ 	if(actualGarrStr >= targetGarrStr)
+ 		return 0;
+ 	/* Currently (as per vanilla) 334, meaning 33.4% of the population get angry.
+@@ -5719,7 +5719,7 @@ int CvCity::getSurroundingBadHealth() const
+ // advc.901: Use one update function for both health and happiness
+ void CvCity::updateSurroundingHealthHappiness()
+ {
+-	PROFILE_FUNC(); // advc.901: Now called once per turn; a problem?
++	PROFILE_FUNC(); // advc.901: Now called once per turn; seems fine.
+ 	int iNewGoodHappiness = 0;
+ 	int iNewBadHappiness = 0;
+ 	CvTeam const& kTeam = GET_TEAM(getTeam()); // advc.901
+@@ -7406,11 +7406,10 @@ int CvCity::getTotalDefense(bool bIgnoreBuilding) const
+ int CvCity::getDefenseModifier(bool bIgnoreBuilding) const
+ {
+ 	if (isOccupation())
+-	{
+ 		return 0;
+-	}
+-
+-	return ((getTotalDefense(bIgnoreBuilding) * (GC.getMAX_CITY_DEFENSE_DAMAGE() - getDefenseDamage())) / GC.getMAX_CITY_DEFENSE_DAMAGE());
++	return ((getTotalDefense(bIgnoreBuilding) *
++			(GC.getMAX_CITY_DEFENSE_DAMAGE() - getDefenseDamage())) /
++			GC.getMAX_CITY_DEFENSE_DAMAGE());
+ }
+ 
+ 
+@@ -15294,55 +15293,30 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
+ 	return iMaintenance;
+ }
+ 
+-// <advc.500b>
+-double CvCity::garrisonStrength() const
++// <advc.500b> (The parameter is important for performance)
++double CvCity::garrisonStrength(double stopCountingAt) const
+ {
+-	PROFILE_FUNC(); // To be tested
++	/*  Time is now acceptable, but still not negligible (slightly above 1%).
++		Probably b/c of the allUpgradesAvailable check. Should probably simply
++		cache the result of getNoMilitaryPercentAnger. */
++	PROFILE_FUNC();
+ 	double r = 0;
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+-	for(int i = 0; i < plot()->getNumUnits(); i++)
++	CvPlot const& kPlot = *plot();
++	for(int i = 0; i < kPlot.getNumUnits(); i++)
+ 	{
+-		CvUnit* pUnit = plot()->getUnitByIndex(i);
+-		if(pUnit == NULL)
+-		{
+-			FAssert(pUnit != NULL); // Can this happen?
+-			continue;
+-		}
++		CvUnit* pUnit = kPlot.getUnitByIndex(i);
+ 		CvUnitInfo const& u = pUnit->getUnitInfo();
+ 		// Exclude naval units but not Explorer and Gunship
+ 		if(!u.isMilitaryHappiness() && u.getCultureGarrisonValue() <= 0)
+ 			continue;
+-		double defStr = u.getCombat(); // Or use pUnit->currCombatStr(NULL, NULL) ?
+-		bool bDefModifier = !u.isNoDefensiveBonus();
+-		int iModifier = 0;
+-		if (bDefModifier)
+-		{
+-			iModifier += getBuildingDefense(); // e.g. Walls
+-			iModifier += kOwner.getCityDefenseModifier(); // e.g. Chichen Itza
+-			// CvPlot::defenseModifier doesn't deliver exactly what's needed
+-			if(plot()->isHills())
+-			{
+-				iModifier += GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE) +
+-						u.getHillsDefenseModifier();
+-			}
+-			iModifier += u.getCityDefenseModifier();
+-		}
+-		// Combat and Garrison promotions
+-		for(int j = 0; j < GC.getNumPromotionInfos(); j++)
+-		{
+-			PromotionTypes ePromotion = (PromotionTypes)j;
+-			if(!pUnit->isHasPromotion(ePromotion))
+-				continue;
+-			CvPromotionInfo const& kPromotion = GC.getPromotionInfo(ePromotion);
+-			iModifier += kPromotion.getCombatPercent();
+-			if (bDefModifier)
+-				iModifier += kPromotion.getCityDefensePercent();
+-		}
+-		defStr *= 1 + iModifier / 100.0;
++		double defStr = pUnit->maxCombatStr(&kPlot, NULL, NULL, true); // Or use currCombatStr?
+ 		// Outdated units count half
+ 		if(allUpgradesAvailable(pUnit->getUnitType()) != NO_UNIT)
+ 			defStr /= 2;
+ 		r += defStr;
++		if (stopCountingAt > 0 && r > stopCountingAt)
++			return r;
+ 	}
+ 	return r;
+ } // </advc.500b>
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 49c604a1f..56562c974 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1222,7 +1222,7 @@ protected:
+ 	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
+ 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
+ 
+-	double garrisonStrength() const; // advc.500b
++	double garrisonStrength(double stopCountingAt = -1) const; // advc.500b
+ 	//int calculateMaintenanceDistance() const;
+ 	// advc.004b: Replacing the above (which was public, but is only used internally)
+ 	static int calculateMaintenanceDistance(CvPlot const* cityPlot, PlayerTypes owner);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index de40456c7..c9ef56f0e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9055,7 +9055,7 @@ void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kC
+ 		szAction = gDLL->getText("TXT_KEY_REFUSES_TO_CEDE");
+ 	else
+ 	{
+-		FAssert(eWhoTo != eActivePlayer && !bWilling)
++		FAssert(eWhoTo != eActivePlayer && !bWilling);
+ 		szAction = gDLL->getText("TXT_KEY_REFUSES_TO_ACCEPT");
+ 	}
+ 	szBuffer.append(szAction + L" ");
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8817d35f1..cee126d91 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -22676,7 +22676,7 @@ void CvPlayer::checkAlert(int iAlertID, bool bSilent)
+ {
+ 	if (m_paAlerts.empty())
+ 	{
+-		FAssertMsg(false, "Alerts not initialized for this player")
++		FAssertMsg(false, "Alerts not initialized for this player");
+ 		return;
+ 	}
+ 	if(iAlertID < 0 || iAlertID > (int)m_paAlerts.size())
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 1707bac70..a0b9612f1 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2261,7 +2261,7 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
+ 
+ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 	TeamTypes eAttacker, // advc.012
+-	bool bHelp) const
++	bool bHelp, /* advc.500b: */ bool bGarrisonStrength) const
+ {
+ 	FAssert(getTerrainType() != NO_TERRAIN);
+ 	int iModifier = GC.getTerrainInfo(getTerrainType()).getDefenseModifier();
+@@ -2291,7 +2291,12 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 	{
+ 		CvCity* pCity = getPlotCity();
+ 		if (pCity != NULL)
+-			iModifier += pCity->getDefenseModifier(bIgnoreBuilding);
++		{	// <advc.500b>
++			if (bGarrisonStrength)
++				iModifier += pCity->getBuildingDefense();
++			else // </advc.500b>
++				iModifier += pCity->getDefenseModifier(bIgnoreBuilding);
++		}
+ 	}
+ 
+ 	return iModifier;
+@@ -2299,7 +2304,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 
+ 
+ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+-		bool bAssumeRevealed) const // advc.001i
++	bool bAssumeRevealed) const // advc.001i
+ {
+ 	FAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+ 	// <advc.162>
+@@ -2309,11 +2314,10 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	if (pUnit->flatMovementCost() || (pUnit->getDomainType() == DOMAIN_AIR))
+ 		return GC.getMOVE_DENOMINATOR();
+ 
+-	/* original bts code
+-	if (pUnit->isHuman()) {
++	/*if (pUnit->isHuman()) {
+ 		if (!isRevealed(pUnit->getTeam(), false))
+ 			return pUnit->maxMoves();
+-	} */
++	}*/
+ 	// K-Mod. Why let the AI cheat this?
+ 	if ( /* advc.001i: The K-Mod condition is OK, but now that the pathfinder passes
+ 			bAssumeRevealed=false, it's cleaner to check that too. */
+@@ -2325,8 +2329,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 		else return GC.getMOVE_DENOMINATOR() + 1;
+ 		*/ // (further weight adjustments are now done in the pathfinder's moveCost function.)
+ 		return GC.getMOVE_DENOMINATOR();
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ 
+ 	if (!pFromPlot->isValidDomainForLocation(*pUnit))
+ 		return pUnit->maxMoves();
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 8b09da6bc..4ef80c3bb 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -150,10 +150,11 @@ public:
+ 	CvUnit* getSelectedUnit() const;																																// Exposed to Python
+ 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;																					// Exposed to Python
+ 
+-	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
++	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,												// Exposed to Python
+ 		/*  advc.012: NO_TEAM means rival defense applies; moved bHelp to the
+ 			end b/c that parameter is rarely set */
+-			TeamTypes eAttacker = NO_TEAM, bool bHelp = false) const;									// Exposed to Python
++			TeamTypes eAttacker = NO_TEAM, bool bHelp = false,
++			bool bGarrisonStrength = false) const; // advc.500b
+ 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,														// Exposed to Python
+ 			bool bAssumeRevealed = true) const; // advc.001i
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index bbab0d809..f6b2abd85 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1025,7 +1025,7 @@ void CvTeamAI::AI_updateAttitudeCache(TeamTypes eTeam, /* advc.130e: */ bool bUp
+ 
+ AttitudeTypes CvTeamAI::AI_getAttitude(TeamTypes eTeam, bool bForced) const
+ {
+-	PROFILE_FUNC(); // advc
++	PROFILE_FUNC(); // advc: Not _entirely_ negligible currently, but pretty much.
+ 	//FAssertMsg(eTeam != getID(), "shouldn't call this function on ourselves");
+ 	// K-Mod
+ 	if (eTeam == getID())
+@@ -5326,7 +5326,8 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ }
+ 
+ // <advc.012>
+-int CvTeamAI::AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding) const
++int CvTeamAI::AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding,
++	bool bGarrisonStrength) const // advc.500b
+ {
+ 	TeamTypes eAttacker = NO_TEAM;
+ 	/*  We could also be attacked in p by a second war enemy that doesn't own the
+@@ -5334,7 +5335,8 @@ int CvTeamAI::AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding) const
+ 		though. */
+ 	if(kPlot.getOwner() != NO_PLAYER && GET_TEAM(getID()).isAtWar(kPlot.getTeam()))
+ 		eAttacker = kPlot.getTeam();
+-	return kPlot.defenseModifier(getID(), bIgnoreBuilding, eAttacker);
++	return kPlot.defenseModifier(getID(), bIgnoreBuilding, eAttacker,
++			bGarrisonStrength); // advc.500b
+ } // </advc.012>
+ 
+ // <advc.130y> ('bFreed' is unused; not needed after all, I guess.)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 976c4bb1f..7f1f4e43a 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -261,7 +261,8 @@ public:
+ 	bool AI_isAvoidWar(TeamTypes eOther) const; // </advc.104y>
+ 	bool AI_performNoWarRolls(TeamTypes eTeam);
+ 	// advc.012:
+-	int AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding = false) const;
++	int AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding = false,
++			bool bGarrisonStrength = false) const; // advc.500b
+ 
+ 	int AI_getAttitudeWeight(TeamTypes eTeam) const;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 0c5f9d006..eda5be5ad 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7057,7 +7057,8 @@ int CvUnit::baseCombatStr() const
+ //		pPlot valid, pAttacker == this (new case), when the defender is unknown, but we want to calc approx str
+ //			note, in this last case, it is expected pCombatDetails == NULL, it does not have to be, but some
+ //			values may be unexpectedly reversed in this case (iModifierTotal will be the negative sum)
+-int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails) const
++int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails,
++	bool bGarrisonStrength) const // advc.500b
+ {
+ 	FAssert(pPlot == NULL || pPlot->getTerrainType() != NO_TERRAIN);
+ 
+@@ -7254,126 +7255,99 @@ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDet
+ 					pAttacker->ignoreBuildingDefense() :
+ 					ignoreBuildingDefense());
+ 			if(pAttacker == NULL)
+-				iExtraModifier = GET_TEAM(getTeam()).AI_plotDefense(*pPlot, bIgnoreBuildings);
++			{
++				iExtraModifier = GET_TEAM(getTeam()).AI_plotDefense(*pPlot, bIgnoreBuildings,
++						bGarrisonStrength); // advc.500b
++			}
+ 			else iExtraModifier = pPlot->defenseModifier(getTeam(),
+-					bIgnoreBuildings, pAttacker->getTeam());
+-			// </advc.012>
+-
++					bIgnoreBuildings, pAttacker->getTeam(), // </advc.012>
++					false, bGarrisonStrength); // advc.500b
+ 			iModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iPlotDefenseModifier = iExtraModifier;
+-			}
+ 		}
+-
+-		iExtraModifier = fortifyModifier();
++		if (!bGarrisonStrength) // advc.500b
++			iExtraModifier = fortifyModifier();
+ 		iModifier += iExtraModifier;
+ 		if (pCombatDetails != NULL)
+-		{
+ 			pCombatDetails->iFortifyModifier = iExtraModifier;
+-		}
+ 
+ 		if (pPlot->isCity(true, getTeam()))
+ 		{
+ 			iExtraModifier = cityDefenseModifier();
+ 			iModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iCityDefenseModifier = iExtraModifier;
+-			}
+ 		}
+-
+ 		if (pPlot->isHills())
+ 		{
+ 			iExtraModifier = hillsDefenseModifier();
+ 			iModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iHillsDefenseModifier = iExtraModifier;
+-			}
+ 		}
+-
+ 		if (pPlot->getFeatureType() != NO_FEATURE)
+ 		{
+ 			iExtraModifier = featureDefenseModifier(pPlot->getFeatureType());
+ 			iModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iFeatureDefenseModifier = iExtraModifier;
+-			}
+ 		}
+ 		else
+ 		{
+ 			iExtraModifier = terrainDefenseModifier(pPlot->getTerrainType());
+ 			iModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iTerrainDefenseModifier = iExtraModifier;
+-			}
+ 		}
+ 	}
+ 
+ 	// if we are attacking to an plot with an unknown defender, the calc the modifier in reverse
+ 	if (bAttackingUnknownDefender)
+-	{
+ 		pAttacker = this;
+-	}
+ 
+ 	// calc attacker bonueses
+ 	if (pAttacker != NULL && pAttackedPlot != NULL)
+ 	{
+ 		int iTempModifier = 0;
+-
+ 		if (pAttackedPlot->isCity(true, getTeam()))
+ 		{
+ 			iExtraModifier = -pAttacker->cityAttackModifier();
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iCityAttackModifier = iExtraModifier;
+-			}
+ 
+ 			if (pAttacker->isBarbarian())
+ 			{
+ 				iExtraModifier = GC.getDefineINT("CITY_BARBARIAN_DEFENSE_MODIFIER");
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iCityBarbarianDefenseModifier = iExtraModifier;
+-				}
+ 			}
+ 		}
+-
+ 		if (pAttackedPlot->isHills())
+ 		{
+ 			iExtraModifier = -pAttacker->hillsAttackModifier();
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iHillsAttackModifier = iExtraModifier;
+-			}
+ 		}
+-
+ 		if (pAttackedPlot->getFeatureType() != NO_FEATURE)
+ 		{
+ 			iExtraModifier = -pAttacker->featureAttackModifier(pAttackedPlot->getFeatureType());
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iFeatureAttackModifier = iExtraModifier;
+-			}
+ 		}
+ 		else
+ 		{
+ 			iExtraModifier = -pAttacker->terrainAttackModifier(pAttackedPlot->getTerrainType());
+ 			iModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iTerrainAttackModifier = iExtraModifier;
+-			}
+ 		}
+ 
+-		// only compute comparisions if we are the defender with a known attacker
++		// only compute comparisons if we are the defender with a known attacker
+ 		if (!bAttackingUnknownDefender)
+ 		{
+ 			FAssertMsg(pAttacker != this, "pAttacker is not expected to be equal with this");
+@@ -7381,116 +7355,84 @@ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDet
+ 			iExtraModifier = unitClassDefenseModifier(pAttacker->getUnitClassType());
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iClassDefenseModifier = iExtraModifier;
+-			}
+ 
+ 			iExtraModifier = -pAttacker->unitClassAttackModifier(getUnitClassType());
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iClassAttackModifier = iExtraModifier;
+-			}
+ 
+ 			if (pAttacker->getUnitCombatType() != NO_UNITCOMBAT)
+ 			{
+ 				iExtraModifier = unitCombatModifier(pAttacker->getUnitCombatType());
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iCombatModifierA = iExtraModifier;
+-				}
+ 			}
+ 			if (getUnitCombatType() != NO_UNITCOMBAT)
+ 			{
+ 				iExtraModifier = -pAttacker->unitCombatModifier(getUnitCombatType());
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iCombatModifierT = iExtraModifier;
+-				}
+ 			}
+-
+ 			iExtraModifier = domainModifier(pAttacker->getDomainType());
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iDomainModifierA = iExtraModifier;
+-			}
+ 
+ 			iExtraModifier = -pAttacker->domainModifier(getDomainType());
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iDomainModifierT = iExtraModifier;
+-			}
+ 
+ 			if (pAttacker->isAnimal())
+ 			{
+ 				iExtraModifier = animalCombatModifier();
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iAnimalCombatModifierA = iExtraModifier;
+-				}
+ 			}
+-
+ 			if (isAnimal())
+ 			{
+ 				iExtraModifier = -pAttacker->animalCombatModifier();
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iAnimalCombatModifierT = iExtraModifier;
+-				}
+ 			}
+ 		}
+-
+-		if (!(pAttacker->isRiver()))
++		if (!pAttacker->isRiver())
+ 		{
+ 			if (pAttacker->plot()->isRiverCrossing(directionXY(pAttacker->plot(), pAttackedPlot)))
+ 			{
+ 				iExtraModifier = -GC.getDefineINT(CvGlobals::RIVER_ATTACK_MODIFIER);
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iRiverAttackModifier = iExtraModifier;
+-				}
+ 			}
+ 		}
+-
+-		if (!(pAttacker->isAmphib()))
++		if (!pAttacker->isAmphib())
+ 		{
+-			if (!(pAttackedPlot->isWater()) && pAttacker->plot()->isWater())
++			if (!pAttackedPlot->isWater() && pAttacker->plot()->isWater())
+ 			{
+ 				iExtraModifier = -GC.getDefineINT(CvGlobals::AMPHIB_ATTACK_MODIFIER);
+ 				iTempModifier += iExtraModifier;
+ 				if (pCombatDetails != NULL)
+-				{
+ 					pCombatDetails->iAmphibAttackModifier = iExtraModifier;
+-				}
+ 			}
+ 		}
+-
+ 		if (pAttacker->getKamikazePercent() != 0)
+ 		{
+ 			iExtraModifier = pAttacker->getKamikazePercent();
+ 			iTempModifier += iExtraModifier;
+ 			if (pCombatDetails != NULL)
+-			{
+ 				pCombatDetails->iKamikazeModifier = iExtraModifier;
+-			}
+ 		}
+ 
+ 		// if we are attacking an unknown defender, then use the reverse of the modifier
+ 		if (bAttackingUnknownDefender)
+-		{
+ 			iModifier -= iTempModifier;
+-		}
+-		else
+-		{
+-			iModifier += iTempModifier;
+-		}
++		else iModifier += iTempModifier;
+ 	}
+ 
+ 	if (pCombatDetails != NULL)
+@@ -7500,13 +7442,8 @@ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDet
+ 	}
+ 	int iCombat;
+ 	if (iModifier > 0)
+-	{
+ 		iCombat = (baseCombatStr() * (iModifier + 100));
+-	}
+-	else
+-	{
+-		iCombat = ((baseCombatStr() * 10000) / (100 - iModifier));
+-	}
++	else iCombat = ((baseCombatStr() * 10000) / (100 - iModifier));
+ 
+ 	if (pCombatDetails != NULL)
+ 	{
+@@ -7514,7 +7451,8 @@ int CvUnit::maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDet
+ 		pCombatDetails->iMaxCombatStr = std::max(1, iCombat);
+ 		pCombatDetails->iCurrHitPoints = currHitPoints();
+ 		pCombatDetails->iMaxHitPoints = maxHitPoints();
+-		pCombatDetails->iCurrCombatStr = ((pCombatDetails->iMaxCombatStr * pCombatDetails->iCurrHitPoints) / pCombatDetails->iMaxHitPoints);
++		pCombatDetails->iCurrCombatStr = (pCombatDetails->iMaxCombatStr *
++				pCombatDetails->iCurrHitPoints) / pCombatDetails->iMaxHitPoints;
+ 	}
+ 
+ 	return std::max(1, iCombat);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 48e25cc2c..f327926d0 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -290,7 +290,8 @@ public:
+ 
+ 	void setBaseCombatStr(int iCombat);																																										// Exposed to Python
+ 	int baseCombatStr() const;																																										// Exposed to Python
+-	int maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;		// Exposed to Python
++	int maxCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL,				// Exposed to Python
++			bool bGarrisonStrength = false) const; // advc.500b
+ 	int currCombatStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL) const;	// Exposed to Python
+ 	int currFirepower(const CvPlot* pPlot, const CvUnit* pAttacker) const;																				// Exposed to Python
+ 	int currEffectiveStr(const CvPlot* pPlot, const CvUnit* pAttacker, CombatDetails* pCombatDetails = NULL,
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=21131

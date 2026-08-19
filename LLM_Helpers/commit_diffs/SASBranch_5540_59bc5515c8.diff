@@ -1,0 +1,191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5540
+# Commit: 59bc5515c871878c84c54c04322a0531fb7c9f47
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e089863a5370461b4bb225b0079542e301318cd3
+# Title: refactor `re.compile(u"<font=` to sas module (so it applies where needed)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	6	Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+1	6	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+2	9	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+30	0	Assets/Python/SASTextScale.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+index a0bd9106c..84bb7289a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+@@ -15,15 +15,12 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+-import re
+ from SASFontUtils import *
+ import SASTextScale
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+-SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
+-SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ 
+@@ -49,9 +46,8 @@ class SevoPediaHistory:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = self.getCivilopedia(iEntry)
+-		szText = SAS_FONT_OPEN_RE.sub(u"", szText)
+-		szText = SAS_FONT_CLOSE_RE.sub(u"", szText)
+-		szText = SASTextScale.bodyText(szText)
++		# <!-- custom: some engine-provided text can carry embedded <font=...>; use normalize* helper (strip + reapply) so SAS scaling is consistent. See SASTextScale normalize comments. (GPT-5.3-Codex) -->
++		szText = SASTextScale.normalizeBodyText(szText)
+ 		textName = self.top.getNextWidgetName()
+ 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index a91dbc3cc..00009c66d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -19,7 +19,6 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+-import re
+ import SASTextScale
+ 
+ from _sevopedia_helpers import *
+@@ -27,8 +26,6 @@ from _sevopedia_helpers import *
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+-SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
+-SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ 
+@@ -260,9 +257,7 @@ class SevoPediaPromotion:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
+-		szSpecialText = SAS_FONT_OPEN_RE.sub(u"", szSpecialText)
+-		szSpecialText = SAS_FONT_CLOSE_RE.sub(u"", szSpecialText)
+-		szSpecialText = SASTextScale.bodyText(szSpecialText)
++		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index 06af78495..e70ed1f16 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -21,14 +21,11 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+-import re
+ import SASTextScale
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+-SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
+-SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ 
+@@ -119,9 +116,7 @@ class SevoPediaSpecialist:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS_SPECIALISTS", ()), "", True, False, self.X_EFFECTS_PANEL, self.Y_EFFECTS_PANEL, self.W_EFFECTS_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getSpecialistHelp(self.iSpecialist, True)
+-		szSpecialText = SAS_FONT_OPEN_RE.sub(u"", szSpecialText)
+-		szSpecialText = SAS_FONT_CLOSE_RE.sub(u"", szSpecialText)
+-		szSpecialText = self._bodyText(szSpecialText)
++		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
+ 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was Y + headerExtraHeight (i.e. + 10) -->
+ 		headerExtraHeight = 10
+ 		screen.addMultilineText(textName, szSpecialText, self.X_EFFECTS_PANEL + 5, self.Y_EFFECTS_PANEL - headerExtraHeight, self.W_EFFECTS_PANEL - 10, self.H_TOP_PANEL - headerExtraHeight, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -272,9 +267,7 @@ class SevoPediaSpecialist:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
+-		szText = SAS_FONT_OPEN_RE.sub(u"", szText)
+-		szText = SAS_FONT_CLOSE_RE.sub(u"", szText)
+-		szText = self._bodyText(szText)
++		szText = SASTextScale.normalizeBodyText(szText)
+ 		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
+ 		panelTopPadding = 40
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/SASTextScale.py b/Assets/Python/SASTextScale.py
+index cfd624b83..f9a8d9d66 100644
+--- a/Assets/Python/SASTextScale.py
++++ b/Assets/Python/SASTextScale.py
+@@ -5,6 +5,10 @@ from SASFontUtils import (
+ 	SAS_FONT_TAG_TITLE,
+ 	SAS_FONT_TAG_TINY,
+ )
++import re
++
++SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
++SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ def applyFontTag(szText, szTag):
+@@ -16,11 +20,28 @@ def applyFontTag(szText, szTag):
+ 		szUnicode = unicode(szText)
+ 	except:
+ 		return szText
++	# <!-- custom: usage rule: start with bodyText/labelText (simple path). If text already contains <font=...>, keep it unchanged here to avoid double-wrapping.
++	# Only switch callers to normalize* when testing shows base upscaling fails due to embedded hardcoded font tags.
++	# Current known examples: ConceptInfo/NewConceptInfo empirically seem to need normalize; regular hints empirically seem not to. (GPT-5.3-Codex) -->
+ 	if szUnicode.find(u"<font=") != -1:
+ 		return szUnicode
+ 	return szTag + szUnicode + SAS_FONT_TAG_CLOSE
+ 
+ 
++def stripFontTags(szText):
++	if szText is None:
++		return szText
++	if szText == "":
++		return szText
++	try:
++		szUnicode = unicode(szText)
++	except:
++		return szText
++	szUnicode = SAS_FONT_OPEN_RE.sub(u"", szUnicode)
++	szUnicode = SAS_FONT_CLOSE_RE.sub(u"", szUnicode)
++	return szUnicode
++
++
+ def tinyText(szText):
+ 	return applyFontTag(szText, SAS_FONT_TAG_TINY)
+ 
+@@ -37,6 +58,15 @@ def titleText(szText):
+ 	return applyFontTag(szText, SAS_FONT_TAG_TITLE)
+ 
+ 
++def normalizeBodyText(szText):
++	# <!-- custom: fallback rule: normalize* is not default. Use it only after bodyText/labelText fails, i.e. when source text carries embedded <font=...> that prevents SAS upscaling. (GPT-5.3-Codex) -->
++	return applyFontTag(stripFontTags(szText), SAS_FONT_TAG_BODY)
++
++
++def normalizeLabelText(szText):
++	return applyFontTag(stripFontTags(szText), SAS_FONT_TAG_LABEL)
++
++
+ def setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
+ 	screen.setTableText(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7872

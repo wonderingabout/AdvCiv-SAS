@@ -1,0 +1,228 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3422
+# Commit: 9312f6c04a358da79643f960e51913f8c5a4d92d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a59bbc95ef010d737cd6089fe762af1be75f4781
+# Title: Misc. refactoring (mostly CvUnitAI::AI_cityOffenseSpy)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+70	66	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c75e3866b..c5e81e1f7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7064,7 +7064,7 @@ int CvCityAI::AI_culturePressureFactor() const
+ 	{
+ 		CvPlot const& kPlot = *itPlot;
+ 		if (!kPlot.isWithinCultureRange(getOwner()))
+-			continue; // advc
++			continue;
+ 		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(getTeam()); it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kPlayer = *it;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ea5a02908..35b6c6b69 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5571,12 +5571,18 @@ void CvUnitAI::AI_spyMove()
+ 				iLocalPoints += iPoints;
+ 			}
+ 		}
+-		iAttackChance /=
+-				!GET_PLAYER(getOwner()).AI_isFocusWar(area()) // advc.105
+-				//kTeam.getAnyWarPlanCount(true) == 0
+-				? 3 : 1;
+-		iAttackChance /= (getPlot().getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE ? 2 : 1);
+-		iAttackChance /= (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4) || kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3)) ? 2 : 1;
++		if (//kTeam.getAnyWarPlanCount(true) == 0
++			!GET_PLAYER(getOwner()).AI_isFocusWar(area())) // advc.105
++		{
++			iAttackChance /= 3;
++		}
++		if (getPlot().getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++			iAttackChance /= 2;
++		if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4) ||
++			kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3))
++		{
++			iAttackChance /= 2;
++		}
+ 		iAttackChance *= GC.getInfo(kOwner.getPersonalityType()).getEspionageWeight();
+ 		iAttackChance /= 100;
+ 		// scale for game speed
+@@ -20407,8 +20413,7 @@ bool CvUnitAI::AI_revoltCitySpy()
+ }
+ 
+ // K-Mod, I've moved the pathfinding check out of this function.
+-//int CvUnitAI::AI_getEspionageTargetValue(CvPlot* pPlot, int iMaxPath)
+-int CvUnitAI::AI_getEspionageTargetValue(CvPlot* pPlot)
++int CvUnitAI::AI_getEspionageTargetValue(CvPlot* pPlot/*, int iMaxPath*/)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -20470,7 +20475,7 @@ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath, CvCity* pSkipCity)
+ 	CvPlot* pEndTurnPlot = NULL;
+ 
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+-	CvTeamAI const& kTeam = GET_TEAM(getTeam());
++	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+ 
+ 	// cf the "big espionage" minimum value. (AI_bestPlotEspionage)
+ 	int iBaselinePoints = 50;
+@@ -20482,77 +20487,77 @@ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath, CvCity* pSkipCity)
+ 	{
+ 		int iTeamCount = 0;
+ 		int iTotalUnspentPoints = 0;
+-		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itTarget(getTeam());
++			itTarget.hasNext(); ++itTarget)
+ 		{
+-			const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
+-			if (iI != getTeam() && kLoopTeam.isAlive() && !kTeam.isVassal((TeamTypes)iI))
+-			{
+-				iTotalUnspentPoints += kTeam.getEspionagePointsAgainstTeam((TeamTypes)iI);
+-				iTeamCount++;
+-			}
++			if (kOurTeam.isVassal(itTarget->getID()))
++				continue;
++			iTotalUnspentPoints += kOurTeam.getEspionagePointsAgainstTeam(itTarget->getID());
++			iTeamCount++;
+ 		}
+ 		iAverageUnspentPoints = iTotalUnspentPoints /= std::max(1, iTeamCount);
+ 	}
+-
+-	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
++	for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itTarget(getTeam());
++		itTarget.hasNext(); ++itTarget)
+ 	{
+-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() != getTeam() && !GET_TEAM(getTeam()).isVassal(kLoopPlayer.getTeam()))
+-		{
+-			int iTeamWeight = 1000;
+-			iTeamWeight *= kTeam.getEspionagePointsAgainstTeam(kLoopPlayer.getTeam());
+-			iTeamWeight /= std::max(1, iAverageUnspentPoints+iBaselinePoints);
++		CvPlayer const& kLoopPlayer = *itTarget;
++		if (kOurTeam.isVassal(kLoopPlayer.getTeam()))
++			continue;
+ 
+-			iTeamWeight *= 400 - kTeam.AI_getAttitudeWeight(kLoopPlayer.getTeam());
+-			iTeamWeight /= 500;
+-			/*  <advc.120> The "else" is the only functional change; don't want to
+-				communicate too loudly that we're preparing war. */
+-			if(kTeam.AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+-				iTeamWeight *= 2;
+-			else if(kTeam.AI_isSneakAttackPreparing(kLoopPlayer.getTeam()))
+-				iTeamWeight *= 2; // </advc.120>
+-			iTeamWeight *= kOwner.AI_isMaliciousEspionageTarget((PlayerTypes)iPlayer) ? 3 : 2;
++		int iTeamWeight = 1000;
++		iTeamWeight *= kOurTeam.getEspionagePointsAgainstTeam(kLoopPlayer.getTeam());
++		iTeamWeight /= std::max(1, iAverageUnspentPoints+iBaselinePoints);
++
++		iTeamWeight *= 400 - kOurTeam.AI_getAttitudeWeight(kLoopPlayer.getTeam());
++		iTeamWeight /= 500;
++		/*  <advc.120> The "else" is the only functional change; don't want to
++			communicate too loudly that we're preparing war. */
++		if (kOurTeam.AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
++			iTeamWeight *= 2;
++		else if (kOurTeam.AI_isSneakAttackPreparing(kLoopPlayer.getTeam()))
++			iTeamWeight *= 2;
++		if (kOwner.AI_isMaliciousEspionageTarget(kLoopPlayer.getID()))
++		{
++			iTeamWeight *= 3;
+ 			iTeamWeight /= 2;
+-			// <advc.130v>
+-			if(GET_TEAM(kLoopPlayer.getTeam()).isCapitulated())
+-				iTeamWeight /= 2; // </advc.130v>
+-			if (iTeamWeight < 200 && SyncRandSuccess100(90))
+-			{	/*	low weight. Probably friendly attitude and below average points.
+-					don't target this team. */
++		}
++		// <advc.130v>
++		if (GET_TEAM(kLoopPlayer.getTeam()).isCapitulated())
++			iTeamWeight /= 2; // </advc.130v>
++		if (iTeamWeight < 200 && SyncRandSuccess100(90))
++		{	/*	low weight. Probably friendly attitude and below average points.
++				don't target this team. */
++			continue;
++		}
++		FOR_EACH_CITY(pLoopCity, kLoopPlayer)
++		{
++			if (pLoopCity == pSkipCity || !kOwner.AI_deduceCitySite(*pLoopCity) ||
++				// advc.030: Replacing same-area and canMoveAllTerrain check
++				!AI_canEnterByLand(pLoopCity->getArea()))
++			{
+ 				continue;
+ 			}
+-
+-			FOR_EACH_CITY(pLoopCity, kLoopPlayer)
++			CvPlot* pLoopPlot = pLoopCity->plot();
++			// advc.opt: Area check should suffice
++			//if (!AI_plotValid(pLoopPlot)) continue;
++			int iPathTurns;
++			if (generatePath(*pLoopPlot, NO_MOVEMENT_FLAGS, true,
++				&iPathTurns, iMaxPath) && iPathTurns <= iMaxPath)
+ 			{
+-				if (pLoopCity == pSkipCity || !kOwner.AI_deduceCitySite(*pLoopCity))
+-					continue;
+-				// advc.030: Replacing same-area and canMoveAllTerrain check
+-				if (AI_canEnterByLand(pLoopCity->getArea()))
++				int iValue = AI_getEspionageTargetValue(pLoopPlot);
++				iValue *= 5;
++				iValue /= 5 + GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++						*pLoopPlot, MISSIONAI_ATTACK_SPY, getGroup());
++				iValue *= iTeamWeight;
++				if (iValue > iBestValue)
+ 				{
+-					CvPlot* pLoopPlot = pLoopCity->plot();
+-					// advc.opt: Area check should suffice
+-					//if (!AI_plotValid(pLoopPlot)) continue;
+-					int iPathTurns;
+-					if (generatePath(*pLoopPlot, NO_MOVEMENT_FLAGS, true,
+-						&iPathTurns, iMaxPath) && iPathTurns <= iMaxPath)
+-					{
+-						int iValue = AI_getEspionageTargetValue(pLoopPlot);
+-						iValue *= 5;
+-						iValue /= 5 + GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-								*pLoopPlot, MISSIONAI_ATTACK_SPY, getGroup());
+-						iValue *= iTeamWeight;
+-						if (iValue > iBestValue)
+-						{
+-							iBestValue = iValue;
+-							pBestPlot = pLoopPlot;
+-							pEndTurnPlot = &getPathEndTurnPlot();
+-						}
+-					}
++					iBestValue = iValue;
++					pBestPlot = pLoopPlot;
++					pEndTurnPlot = &getPathEndTurnPlot();
+ 				}
+ 			}
+ 		}
+ 	}
+-
+ 	if (pBestPlot != NULL)
+ 	{
+ 		if (at(*pBestPlot))
+@@ -20567,7 +20572,6 @@ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath, CvCity* pSkipCity)
+ 		}
+ 		return true;
+ 	}
+-
+ 	return false;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7615

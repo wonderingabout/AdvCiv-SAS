@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 121
+# Commit: fab74bf4808bff3a268cd91d4b4e2bce7aba811c
+# History segment: K-Mod history
+# Parent used for diff: 7cfc27cd597b8510497c4246abf53c7abd5d9292
+# Title: Fixed two minor original BtS bugs: a misevaluation of maintenance reduction buildings, and a misapplication of the force-peace resolution when the peace-team...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	CvGameCoreDLL/CvCityAI.cpp
+6	1	CvGameCoreDLL/CvPlayer.cpp
+11	15	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 230d63154..e145efc3a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4138,9 +4138,18 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
+ 			{
+ 
++				/* original bts code
+ 				int iBaseMaintenance = getMaintenanceTimes100();
+ 				int iExistingUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier())) / 100;
+ 				int iNewUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier() + kBuilding.getMaintenanceModifier())) / 100;
++				*/
++				// K-Mod, bugfix. getMaintenanceTimes100 is the total, with modifiers already applied.
++				// (note. ideally we'd use "calculateBaseMaintenanceTimes100", and that would avoid problem caused by "we love the X day".
++				// but doing it this way is slightly faster.)
++				int iExistingUpkeep = getMaintenanceTimes100();
++				int iBaseMaintenance = 100 * iExistingUpkeep / std::max(1, 100 + getMaintenanceModifier());
++				int iNewUpkeep = (iBaseMaintenance * std::max(0, 100 + getMaintenanceModifier() + kBuilding.getMaintenanceModifier())) / 100;
++				// K-Mod end
+ 				
+ 				int iTempValue = (iExistingUpkeep - iNewUpkeep) / 16;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3109b9c7b..4ea15ac5c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -21929,10 +21929,15 @@ int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTyp
+ 
+ void CvPlayer::forcePeace(PlayerTypes ePlayer)
+ {
++	/* original bts code
+ 	if (!GET_TEAM(getTeam()).isAVassal())
+ 	{
+-		FAssert(GET_TEAM(getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()));
++		FAssert(GET_TEAM(getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam())); */
+ 
++	// K-Mod. "canChangeWarPeace" can return false here if the peace team vassalates after the vote is cast.
++	if (GET_TEAM(getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
++	{
++	// K-Mod end
+ 		CLinkList<TradeData> playerList;
+ 		CLinkList<TradeData> loopPlayerList;
+ 		TradeData kTradeData;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1160879be..ce4c23ac5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13473,25 +13473,21 @@ int CvPlayerAI::AI_calculateGoldenAgeValue() const
+ 			paeBestCivic[iI] = getCivics((CivicOptionTypes)iI);
+ 		}
+ 
+-		int iAnarchyLength = 0;
+ 		for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+ 		{
+ 			int iCurrentValue = AI_civicValue(paeBestCivic[iI]);
+ 			int iBestValue;
+-			paeBestCivic[iI] = AI_bestCivic((CivicOptionTypes)iI, &iBestValue);
++			CivicTypes eNewCivic = AI_bestCivic((CivicOptionTypes)iI, &iBestValue);
+ 			
+-			int iTestAnarchy = getCivicAnarchyLength(paeBestCivic);
+ 			// using a 7 percent thresold. (cf the higher threshold used in AI_doCivics)
+-			if ( paeBestCivic[iI] != NO_CIVIC && iBestValue > iCurrentValue + iCurrentValue * 7 / 100 )
+-			{
+-				iAnarchyLength = iTestAnarchy;
+-				if (gPlayerLogLevel > 0) logBBAI("      %S wants a golden age to switch to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getCivicInfo(paeBestCivic[iI]).getDescription(0), iBestValue, iCurrentValue);
+-			}
+-			else
++			if (paeBestCivic[iI] != NO_CIVIC && 100*iBestValue > 107*iCurrentValue)
+ 			{
+-				paeBestCivic[iI] = getCivics((CivicOptionTypes)iI); // revert to current civic
++				paeBestCivic[iI] = eNewCivic;
++				if (gPlayerLogLevel > 0) logBBAI("      %S wants a golden age to switch to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getCivicInfo(eNewCivic).getDescription(0), iBestValue, iCurrentValue);
+ 			}
+ 		}
++
++		int iAnarchyLength = getCivicAnarchyLength(paeBestCivic);
+ 		if (iAnarchyLength > 0)
+ 		{
+ 			// we would switch; so what's it worth?
+@@ -14248,24 +14244,24 @@ void CvPlayerAI::AI_doCivics()
+ 		for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+ 		{
+ 			int iBestValue;
+-			paeBestCivic[iI] = AI_bestCivic((CivicOptionTypes)iI, &iBestValue);
++			CivicTypes eNewCivic = AI_bestCivic((CivicOptionTypes)iI, &iBestValue);
+ 
+ 			int iTestAnarchy = getCivicAnarchyLength(paeBestCivic);
+ 			// using 20 percent as a rough estimate of revolution cost, and 2 percent just for a bit of inertia.
+ 			// reduced threshold if we are already going to have a revolution.
+ 			int iThreshold = (iTestAnarchy > iAnarchyLength ? (bFirstPass ? 20 : 12) : 2);
+ 
+-			if ( paeBestCivic[iI] != NO_CIVIC && iBestValue > paiCurrentValue[iI] + paiCurrentValue[iI] * iThreshold / 100 )
++			if (paeBestCivic[iI] != NO_CIVIC && 100*iBestValue > (100+iThreshold)*paiCurrentValue[iI])
+ 			{
+-				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%s)", getCivilizationDescription(0), GC.getCivicInfo(paeBestCivic[iI]).getDescription(0), iBestValue, paiCurrentValue[iI], bFirstPass?"" :", on recheck");
++				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%s)", getCivilizationDescription(0), GC.getCivicInfo(eNewCivic).getDescription(0), iBestValue, paiCurrentValue[iI], bFirstPass?"" :", on recheck");
+ 				iAnarchyLength = iTestAnarchy;
++				paeBestCivic[iI] = eNewCivic;
+ 				paiCurrentValue[iI] = iBestValue;
+ 				bWillSwitch = true;
+ 			}
+ 			else
+ 			{
+-				paeBestCivic[iI] = getCivics((CivicOptionTypes)iI); // revert to current civic
+-				if (iBestValue > paiCurrentValue[iI] + paiCurrentValue[iI]/50)
++				if (100*iBestValue > 102*paiCurrentValue[iI])
+ 					bWantSwitch = true;
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5612

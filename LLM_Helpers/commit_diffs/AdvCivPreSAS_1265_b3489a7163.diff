@@ -1,0 +1,2090 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1265
+# Commit: b3489a71632316af505b7a32204187bac03c2a5f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0884de493c5d4034cfa833d053e3234bf647ddc6
+# Title: v0.88rc (release candidate in need of a bit more testing): * Can train sea units and construct Dry Dock in any city next to salt water (but the AI still only...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/xml/GameInfo/CIV4EraInfos.xml
+4	0	Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+33	7	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+29	5	Assets/xml/GlobalDefines_advc.xml
+59	1	Assets/xml/Text/CIV4GameText_advc.008.xml
+18	18	Assets/xml/Text/CIV4GameText_advc.008d.xml
+13	2	Assets/xml/Text/CIV4GameText_advc.xml
+20	5	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+173	155	CvGameCoreDLL/CvCityAI.cpp
+32	4	CvGameCoreDLL/CvDLLButtonPopup.cpp
+27	11	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameAI.h
+13	1	CvGameCoreDLL/CvInfos.cpp
+2	0	CvGameCoreDLL/CvInfos.h
+5	0	CvGameCoreDLL/CvMap.cpp
+1	0	CvGameCoreDLL/CvMap.h
+24	21	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+90	65	CvGameCoreDLL/CvPlayerAI.cpp
+2	0	CvGameCoreDLL/CvPlayerAI.h
+14	3	CvGameCoreDLL/CvPlot.cpp
+75	63	CvGameCoreDLL/CvTeam.cpp
+5	3	CvGameCoreDLL/CvTeamAI.cpp
+2	3	CvGameCoreDLL/CvUnit.cpp
+5	6	CvGameCoreDLL/CvUnitAI.cpp
+4	2	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+4	0	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.87.pdf
+-	-	manual_0.88.pdf
+ delete mode 100644 manual_0.87.pdf
+ create mode 100644 manual_0.88.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index b5fc5d21c..9e6e40acc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -4655,7 +4655,8 @@
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>20</iMinAreaSize>
++			<!-- advc.041: was 20 -->
++			<iMinAreaSize>-1</iMinAreaSize>
+ 			<iConquestProb>66</iConquestProb>
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+
+diff --git a/Assets/xml/GameInfo/CIV4EraInfos.xml b/Assets/xml/GameInfo/CIV4EraInfos.xml
+index 7ba1b8231..6c0197eb8 100644
+--- a/Assets/xml/GameInfo/CIV4EraInfos.xml
++++ b/Assets/xml/GameInfo/CIV4EraInfos.xml
+@@ -240,7 +240,7 @@
+ 			<iResearchPercent>70</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 9 -->
+ 			<!-- advc.910: was 12 in K-Mod -->
+-			<iTechCostModifier>14</iTechCostModifier>
++			<iTechCostModifier>15</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>90</iBuildPercent>
+ 			<iImprovementPercent>90</iImprovementPercent>
+
+diff --git a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+index d6f8e0724..83279695c 100644
+--- a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+@@ -352,6 +352,8 @@
+ 	<ElementType name="iAIDeclareWarProb" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAIWorkRateModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAIGrowthPercent" content="textOnly" dt:type="int"/>
++	<!-- advc.251 -->
++	<ElementType name="iAIResearchPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAITrainPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAIWorldTrainPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAIConstructPercent" content="textOnly" dt:type="int"/>
+@@ -431,6 +433,8 @@
+ 		<element type="iAIDeclareWarProb"/>
+ 		<element type="iAIWorkRateModifier"/>
+ 		<element type="iAIGrowthPercent"/>
++		<!-- advc.251 -->
++		<element type="iAIResearchPercent"/>
+ 		<element type="iAITrainPercent"/>
+ 		<element type="iAIWorldTrainPercent"/>
+ 		<element type="iAIConstructPercent"/>
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index 5dda93bb1..b453d0c6b 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -20,7 +20,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>24</iFreeUnits>
+ 			<iUnitCostPercent>20</iUnitCostPercent>
+-			<iResearchPercent>60</iResearchPercent>
++			<!-- advc.251: was 60 -->
++			<iResearchPercent>50</iResearchPercent>
+ 			<iDistanceMaintenancePercent>45</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>4</iMaxNumCitiesMaintenance>
+@@ -56,6 +57,8 @@
+ 			<iAIDeclareWarProb>25</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>160</iAIGrowthPercent>
++			<!-- advc.251: I.e. lower tech costs for the AI -->
++			<iAIResearchPercent>75</iAIResearchPercent>
+ 			<iAITrainPercent>160</iAITrainPercent>
+ 			<iAIWorldTrainPercent>160</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>160</iAIConstructPercent>
+@@ -162,7 +165,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>18</iFreeUnits>
+ 			<iUnitCostPercent>30</iUnitCostPercent>
+-			<iResearchPercent>75</iResearchPercent>
++			<!-- advc.251: was 75 -->
++			<iResearchPercent>60</iResearchPercent>
+ 			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>50</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>4</iMaxNumCitiesMaintenance>
+@@ -198,6 +202,8 @@
+ 			<iAIDeclareWarProb>50</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>130</iAIGrowthPercent>
++			<!-- advc.251: I.e. lower tech costs for the AI -->
++			<iAIResearchPercent>75</iAIResearchPercent>
+ 			<iAITrainPercent>130</iAITrainPercent>
+ 			<iAIWorldTrainPercent>130</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>130</iAIConstructPercent>
+@@ -280,7 +286,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>12</iFreeUnits>
+ 			<iUnitCostPercent>40</iUnitCostPercent>
+-			<iResearchPercent>90</iResearchPercent>
++			<!-- advc.251: was 90 -->
++			<iResearchPercent>80</iResearchPercent>
+ 			<iDistanceMaintenancePercent>65</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>60</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
+@@ -316,6 +323,8 @@
+ 			<iAIDeclareWarProb>75</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
++			<!-- advc.251: I.e. lower tech costs for the AI -->
++			<iAIResearchPercent>85</iAIResearchPercent>
+ 			<iAITrainPercent>110</iAITrainPercent>
+ 			<iAIWorldTrainPercent>110</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>110</iAIConstructPercent>
+@@ -409,6 +418,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
++			<!-- advc.251 -->
++			<iAIResearchPercent>100</iAIResearchPercent>
+ 			<iAITrainPercent>100</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>100</iAIConstructPercent>
+@@ -498,6 +509,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
++			<!-- advc.251 -->
++			<iAIResearchPercent>100</iAIResearchPercent>
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>95</iAIConstructPercent>
+@@ -591,6 +604,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>20</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>95</iAIGrowthPercent>
++			<!-- advc.251 -->
++			<iAIResearchPercent>100</iAIResearchPercent>
+ 			<iAITrainPercent>90</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>90</iAIConstructPercent>
+@@ -670,7 +685,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>3</iFreeUnits>
+ 			<iUnitCostPercent>80</iUnitCostPercent>
+-			<iResearchPercent>120</iResearchPercent>
++			<!-- advc.251: was 120 -->
++			<iResearchPercent>125</iResearchPercent>
+ 			<iDistanceMaintenancePercent>95</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>90</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>7</iMaxNumCitiesMaintenance>
+@@ -707,6 +723,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>50</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
++			<!-- advc.251: I.e. higher tech costs for the AI -->
++			<iAIResearchPercent>103</iAIResearchPercent>
+ 			<iAITrainPercent>85</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>85</iAIConstructPercent>
+@@ -790,7 +808,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>2</iFreeUnits>
+ 			<iUnitCostPercent>90</iUnitCostPercent>
+-			<iResearchPercent>125</iResearchPercent>
++			<!-- advc.251: was 125 -->
++			<iResearchPercent>130</iResearchPercent>
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>95</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>7</iMaxNumCitiesMaintenance>
+@@ -827,6 +846,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>75</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>85</iAIGrowthPercent>
++			<!-- advc.251: I.e. higher tech costs for the AI -->
++			<iAIResearchPercent>105</iAIResearchPercent>
+ 			<iAITrainPercent>80</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>80</iAIConstructPercent>
+@@ -914,7 +935,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+-			<iResearchPercent>130</iResearchPercent>
++			<!-- advc.251: was 130 -->
++			<iResearchPercent>150</iResearchPercent>
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>100</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>8</iMaxNumCitiesMaintenance>
+@@ -950,6 +972,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>100</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>80</iAIGrowthPercent>
++			<!-- advc.251: I.e. higher tech costs for the AI -->
++			<iAIResearchPercent>125</iAIResearchPercent>
+ 			<iAITrainPercent>60</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>60</iAIConstructPercent>
+@@ -1061,7 +1085,7 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>5</iFreeUnits>
+ 			<iUnitCostPercent>70</iUnitCostPercent>
+-			<iResearchPercent>120</iResearchPercent>
++			<iResearchPercent>110</iResearchPercent>
+ 			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>90</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>6</iMaxNumCitiesMaintenance>
+@@ -1097,6 +1121,8 @@
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
++			<!-- advc.251: Lower tech costs for the AI -->
++			<iAIResearchPercent>95</iAIResearchPercent>
+ 			<iAITrainPercent>90</iAITrainPercent>
+ 			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>90</iAIConstructPercent>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 2834533ba..25bd724b6 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -18,6 +18,21 @@
+         <iDefineIntVal>0</iDefineIntVal>
+     </Define>
+ 	
++	<!-- [advc.104]
++		 If UWAI reports are enabled (see above), no details about a AI war plan
++		 are logged unless that war plan has greater utility than this
++		 threshold. There's a separate threshold for war plans against
++		 human players. Recommended: -10/-50; use sth. like -1000/-1000 to log
++		 details always. -->
++    <Define>
++        <DefineName>UWAI_REPORT_THRESH</DefineName>
++        <iDefineIntVal>-10</iDefineIntVal>
++    </Define>
++    <Define>
++        <DefineName>UWAI_REPORT_THRESH_HUMAN</DefineName>
++        <iDefineIntVal>-50</iDefineIntVal>
++    </Define>
++	
+ 	<!-- [advc.104]
+ 		If set to 1 or greater, and UWAI is enabled in Game Options
+ 		(i.e. "Aggressive AI" not checked), UWAI runs in the background and
+@@ -574,14 +589,16 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
+-	<!-- [advc.250c]
+-		 If set to 1 or greater, games with Advanced Start begin with a
+-		 turn number computed from the number of assigned start points.
++	<!-- [advc.250c][advc.251]
++		 If set to 1 or greater, games on Immortal, Deity or King difficulty,
++		 or any difficulty and Advanced Start, begin with a turn number
++		 computed from the number of free AI Settlers and Workers or the number
++		 of assigned start points.
+ 		 If set to 0 or less, the turn number is only determined by the
+ 		 start era (0 in Ancient era) as in BtS.
+-		 Recommended: 1. -->
++		 Recommended: 1 -->
+ 	<Define>
+-		<DefineName>ADVANCED_START_INCREASE_TURN_COUNTER</DefineName>
++		<DefineName>INCREASE_START_TURN</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+@@ -734,4 +751,11 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- [advc.004t] Set to 0 to enable change 004t (not recommended; see
++		 manual). -->
++	<Define>
++		<DefineName>ENABLE_POPUP_RECOMMENDATIONS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008.xml b/Assets/xml/Text/CIV4GameText_advc.008.xml
+index 9c3971b84..b1dd9395c 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008.xml
+@@ -224,7 +224,7 @@
+ 		 advc.905: Mentions the increased speed. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GALLEY_STRATEGY</Tag>
+-		<English>The earliest armed naval vessels, [COLOR_UNIT_TEXT]Galleys[COLOR_REVERT], can transport land units. They cannot enter ocean spaces. [BOLD]AdvCiv[\BOLD] gives this unit +1 speed, and K-Mod increases the cargo capacity of all transport ships by 1.</English>
++		<English>The earliest armed naval vessels, [COLOR_UNIT_TEXT]Galleys[COLOR_REVERT], can transport land units. They cannot enter ocean spaces. [BOLD]AdvCiv[\BOLD] gives this unit +1 speed and slightly reduces its cost. K-Mod increases the cargo capacity of this unit and all later transport ships.</English>
+ 		<French>Premier navire arm&#233; &#224; appara&#238;tre dans le jeu, la [COLOR_UNIT_TEXT]gal&#232;re[COLOR_REVERT] peut transporter 2 unit&#233;s terrestres mais ne peut pas naviguer en haute mer.</French>
+ 		<German>Diese fr&#252;hen Kriegsschiffe transportieren 2 Landeinheiten, k&#246;nnen aber nicht auf das offene Meer hinaus fahren.</German>
+ 		<Italian>Il primo vascello navale armato, la [COLOR_UNIT_TEXT]galea[COLOR_REVERT] pu&#242; trasportare 2 unit&#224; terrestri. Le galee non possono entrare nelle caselle oceaniche.</Italian>
+@@ -391,4 +391,62 @@
+ 		<Spanish>Esta nave, peque&#241;a y r&#225;pida, puede explorar oc&#233;anos y territorio enemigo. Las [COLOR_UNIT_TEXT]Carabelas[COLOR_REVERT] pueden transportar a una unidad especial: un [COLOR_UNIT_TEXT]Batidor[COLOR_REVERT], un [COLOR_UNIT_TEXT]Explorador[COLOR_REVERT], un [COLOR_UNIT_TEXT]Esp&#237;a[COLOR_REVERT], un [COLOR_UNIT_TEXT]Misionero[COLOR_REVERT] o un [COLOR_UNIT_TEXT]Gran personaje[COLOR_REVERT].</Spanish>
+ 	</TEXT>
+ 	
++	<!-- [advc.124][advc.310] Sailing is no longer required for river trade.
++		 Great Lighthouse formally at Sailing. Moais were missing in German. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_SAILING_STRATEGY</Tag>
++		<English>[COLOR_TECH_TEXT]Sailing[COLOR_REVERT] allows you to build the [COLOR_UNIT_TEXT]Galley[COLOR_REVERT] unit. It also enables trading along coasts, and the construction of [COLOR_BUILDING_TEXT]Lighthouses[COLOR_REVERT], of the [COLOR_BUILDING_TEXT]Great Lighthouse[COLOR_REVERT] and the [COLOR_BUILDING_TEXT]Moai Statues[COLOR_REVERT].</English>
++		<French>La [COLOR_TECH_TEXT]Navigation &#224; voile[COLOR_REVERT] vous permet de construire l'unit&#233; [COLOR_UNIT_TEXT]Gal&#232;re[COLOR_REVERT] et de faire du commerce le long des c&#244;tes et des cours d'eau. Elle permet aussi la construction du [COLOR_BUILDING_TEXT]Phare[COLOR_REVERT] et des [COLOR_BUILDING_TEXT]Statues Moa&#239;[COLOR_REVERT].</French>
++		<German>Das [COLOR_TECH_TEXT]Segeln[COLOR_REVERT] erm&#246;glicht Ihnen den Bau einer [COLOR_UNIT_TEXT]Galeere[COLOR_REVERT], den Handel an K&#252;sten, sowie die Errichtung eines [COLOR_BUILDING_TEXT]Leuchtturms[COLOR_REVERT] sowie der Wunder [COLOR_BUILDING_TEXT]Gro&#223;er Luchtturm[COLOR_REVERT] und [COLOR_BUILDING_TEXT]Moai Statuen[COLOR_REVERT].</German>
++		<Italian>La [COLOR_TECH_TEXT]Navigazione[COLOR_REVERT] permette la realizzazione di [COLOR_UNIT_TEXT]galee[COLOR_REVERT]. Inoltre, premette gli scambi marittimi e fluviali e la costruzione del miglioramento cittadino [COLOR_BUILDING_TEXT]Faro[COLOR_REVERT] e delle [COLOR_BUILDING_TEXT]Statue Moai[COLOR_REVERT].</Italian>
++		<Spanish>La [COLOR_TECH_TEXT]Navegaci&#243;n a vela[COLOR_REVERT] permite construir la unidad de la [COLOR_UNIT_TEXT]Galera[COLOR_REVERT]. Tambi&#233;n activa el comercio a lo largo de costas y r&#237;os, as&#237; como la construcci&#243;n de la mejora urbana del [COLOR_BUILDING_TEXT]Faro[COLOR_REVERT] y la maravilla de [COLOR_BUILDING_TEXT]Los Moai[COLOR_REVERT].</Spanish>
++	</TEXT>
++	
++	<!-- [advc.907a] Mention of March promo added. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ROME_PRAETORIAN_STRATEGY</Tag>
++		<English>This melee combat unit (the Roman replacement for the [COLOR_UNIT_TEXT]Swordsman[COLOR_REVERT]) is extra strong and starts with the March promotion, which allows it to heal while moving.</English>
++		<French>Cette puissante unit&#233; de combat rapproch&#233; (l'unit&#233; romaine qui vient remplacer le [COLOR_UNIT_TEXT]spadassin[COLOR_REVERT]) b&#233;n&#233;ficie d'un tr&#232;s net avantage et s'av&#232;re tr&#232;s puissante. </French>
++		<German>Diese effektive Nahkampfeinheit (die r&#246;mische Variante des [COLOR_UNIT_TEXT]Schwertk&#228;mpfers[COLOR_REVERT]) hat einen St&#228;rkebonus und von Anfang an die Marschieren-Bef&#246;rderung, wodurch sich die Einheit heilt auch wenn sie sich bewegt hat.</German>
++		<Italian>Questa potente unit&#224; da combattimento corpo a corpo (l'equivalente Romano dello [COLOR_UNIT_TEXT]spadaccino[COLOR_REVERT]) &#232; speciale, poich&#233; ottiene un notevole aumento di forza.</Italian>
++		<Spanish>Esta poderosa unidad de cuerpo a cuerpo (que reemplaza al [COLOR_UNIT_TEXT]Soldado con espada[COLOR_REVERT] en la civilizaci&#243;n romana) es especial por la importante mejora que recibe a la fuerza.</Spanish>
++	</TEXT>
++	
++	<!-- [advc.310] Obsoletes TGL now, not Colossus. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_ASTRONOMY_STRATEGY</Tag>
++		<English>[COLOR_TECH_TEXT]Astronomy[COLOR_REVERT] allows access to the [COLOR_UNIT_TEXT]Galleon[COLOR_REVERT], as well as the [COLOR_UNIT_TEXT]Frigate[COLOR_REVERT] and the [COLOR_UNIT_TEXT]Privateer[COLOR_REVERT] (with [COLOR_TECH_TEXT]Chemistry[COLOR_REVERT]) and the [COLOR_UNIT_TEXT]Ship of the Line[COLOR_REVERT] (with [COLOR_TECH_TEXT]Military Science[COLOR_REVERT]). It enables trading on the ocean and lets you build [COLOR_BUILDING_TEXT]Observatories[COLOR_REVERT]. It obsoletes [COLOR_BUILDING_TEXT]Monuments[COLOR_REVERT] and the [COLOR_BUILDING_TEXT]Great Lighthouse[COLOR_REVERT].</English>
++		<French>L'[COLOR_TECH_TEXT]Astronomie[COLOR_REVERT] permet de construire des [COLOR_UNIT_TEXT]Galions[COLOR_REVERT], des [COLOR_UNIT_TEXT]Fr&#233;gates[COLOR_REVERT], des [COLOR_UNIT_TEXT]Corsaires[COLOR_REVERT] (avec la [COLOR_TECH_TEXT]Chimie[COLOR_REVERT]) et le [COLOR_UNIT_TEXT]Galion de guerre[COLOR_REVERT] (avec la [COLOR_TECH_TEXT]Science militaire[COLOR_REVERT]). Elle d&#233;finit la carte du monde, permet de faire du commerce au-del&#224; des oc&#233;ans et de construire des [COLOR_BUILDING_TEXT]Observatoires[COLOR_REVERT]. Elle rend obsol&#232;tes les b&#226;timents suivants : les merveilles [COLOR_BUILDING_TEXT]Colosse[COLOR_REVERT] et [COLOR_BUILDING_TEXT]Stonehenge[COLOR_REVERT] ainsi que le [COLOR_BUILDING_TEXT]Monument[COLOR_REVERT].</French>
++		<German>Die [COLOR_TECH_TEXT]Astronomie[COLOR_REVERT] erm&#246;glicht den Bau der [COLOR_UNIT_TEXT]Galeone[COLOR_REVERT], der [COLOR_UNIT_TEXT]Fregatte[COLOR_REVERT] und des [COLOR_UNIT_TEXT]Freibeuters[COLOR_REVERT] (mit [COLOR_TECH_TEXT]Chemie[COLOR_REVERT]) sowie des [COLOR_UNIT_TEXT]Linienschiffs[COLOR_REVERT] (mit [COLOR_TECH_TEXT]Milit&#228;rwissenschaft[COLOR_REVERT]). Der Handel auf dem Ozean wird m&#246;glich und Sie k&#246;nnen [COLOR_BUILDING_TEXT]Observatorien[COLOR_REVERT] bauen. [COLOR_BUILDING_TEXT]Monumente[COLOR_REVERT] und der [COLOR_BUILDING_TEXT]Gro&#223;e Leuchtturm[COLOR_REVERT] werden veraltet.</German>
++		<Italian>L'[COLOR_TECH_TEXT]Astronomia[COLOR_REVERT] permette la produzione del [COLOR_UNIT_TEXT]galeone[COLOR_REVERT], oltre che della [COLOR_UNIT_TEXT]fregata[COLOR_REVERT] e della [COLOR_UNIT_TEXT]nave corsara[COLOR_REVERT] (insieme con la [COLOR_TECH_TEXT]Chimica[COLOR_REVERT]) e della [COLOR_UNIT_TEXT]nave da prima linea[COLOR_REVERT] (insieme con la [COLOR_TECH_TEXT]Scienza militare[COLOR_REVERT]). Essa inoltre permette gli scambi commerciali oltreoceano e la costruzione di [COLOR_BUILDING_TEXT]osservatori[COLOR_REVERT]. Rende obsolete le Meraviglie [COLOR_BUILDING_TEXT]Colosso[COLOR_REVERT] e [COLOR_BUILDING_TEXT]Stonehenge[COLOR_REVERT] e il [COLOR_BUILDING_TEXT]Monumento[COLOR_REVERT].</Italian>
++		<Spanish>La [COLOR_TECH_TEXT]Astronom&#237;a[COLOR_REVERT] permite el [COLOR_UNIT_TEXT]Gale&#243;n[COLOR_REVERT], as&#237; como la [COLOR_UNIT_TEXT]Fragata[COLOR_REVERT] y el [COLOR_UNIT_TEXT]Corsario[COLOR_REVERT] (junto con la [COLOR_TECH_TEXT]Qu&#237;mica[COLOR_REVERT]) y el [COLOR_UNIT_TEXT]Buque de guerra[COLOR_REVERT] (junto con la [COLOR_TECH_TEXT]Belicolog&#237;a[COLOR_REVERT]). Tambi&#233;n activa el intercambio transoce&#225;nico y permite construir [COLOR_BUILDING_TEXT]Observatorios[COLOR_REVERT]. Tambi&#233;n deja obsoletas las maravillas del [COLOR_BUILDING_TEXT]Coloso[COLOR_REVERT] y de [COLOR_BUILDING_TEXT]Stonehenge[COLOR_REVERT], as&#237; como el edificio del [COLOR_BUILDING_TEXT]Monumento[COLOR_REVERT].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TECH_CHEMISTRY_STRATEGY</Tag>
++		<English>[COLOR_TECH_TEXT]Chemistry[COLOR_REVERT] allows construction of [COLOR_UNIT_TEXT]Privateers[COLOR_REVERT] and [COLOR_UNIT_TEXT]Frigates[COLOR_REVERT] (with [COLOR_TECH_TEXT]Astronomy[COLOR_REVERT]). It obsoletes the [COLOR_BUILDING_TEXT]Colossus[COLOR_REVERT], and increases production from all workshops by 1.</English>
++		<French>La [COLOR_TECH_TEXT]Chimie[COLOR_REVERT] permet la construction de [COLOR_UNIT_TEXT]Corsaires[COLOR_REVERT] et de [COLOR_UNIT_TEXT]Fr&#233;gates[COLOR_REVERT] (avec l'[COLOR_TECH_TEXT]astronomie[COLOR_REVERT]). Elle augmente aussi de + 1 la production de tous les ateliers.</French>
++		<German>Die [COLOR_TECH_TEXT]Chemie[COLOR_REVERT] erm&#246;glicht den Bau von [COLOR_UNIT_TEXT]Freibeutern[COLOR_REVERT] und [COLOR_UNIT_TEXT]Fregatten[COLOR_REVERT] (mit [COLOR_TECH_TEXT]Astronomie[COLOR_REVERT]). Sie erh&#246;ht die Produktion aller Werkst&#228;tten um 1 und macht den [COLOR_BUILDING_TEXT]Koloss[COLOR_REVERT] &#252;berfl&#252;ssig.</German>
++		<Italian>La [COLOR_TECH_TEXT]Chimica[COLOR_REVERT] permette la realizzazione di [COLOR_UNIT_TEXT]navi corsare[COLOR_REVERT] e [COLOR_UNIT_TEXT]fregate[COLOR_REVERT] (insieme all'[COLOR_TECH_TEXT]Astronomia[COLOR_REVERT]). Inoltre aumenta la produzione di tutte le botteghe di 1.</Italian>
++		<Spanish>La [COLOR_TECH_TEXT]Qu&#237;mica[COLOR_REVERT] permite la creaci&#243;n de [COLOR_UNIT_TEXT]Corsarios[COLOR_REVERT] y [COLOR_UNIT_TEXT]Fragatas[COLOR_REVERT] (junto con la [COLOR_TECH_TEXT]Astronom&#237;a[COLOR_REVERT]). Tambi&#233;n aumenta en 1 la producci&#243;n de todos los talleres.</Spanish>
++	</TEXT>
++	
++	<!-- [advc.901] Forest Preserve moves to Biology. And mention the bonus to
++		 specialists. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_SCIENTIFIC_METHOD_STRATEGY</Tag>
++		<English>[COLOR_TECH_TEXT]Scientific Method[COLOR_REVERT] reveals the [COLOR_HIGHLIGHT_TEXT]Oil[COLOR_REVERT] resource and adds research to city [COLOR_HIGHLIGHT_TEXT]specialists[COLOR_REVERT]. It makes the [COLOR_BUILDING_TEXT]Great Library[COLOR_REVERT], [COLOR_BUILDING_TEXT]The Parthenon[COLOR_REVERT], [COLOR_BUILDING_TEXT]The Temple of Artemis[COLOR_REVERT] and [COLOR_BUILDING_TEXT]Monasteries[COLOR_REVERT] obsolete.</English>
++		<French>La [COLOR_TECH_TEXT]M&#233;thode scientifique[COLOR_REVERT] fait appara&#238;tre les gisements de [COLOR_HIGHLIGHT_TEXT]p&#233;trole[COLOR_REVERT] sur la carte et permet de construire une [COLOR_HIGHLIGHT_TEXT]R&#233;serve foresti&#232;re[COLOR_REVERT]. Elle entra&#238;ne l'obsolescence de la [COLOR_BUILDING_TEXT]Grande biblioth&#232;que[COLOR_REVERT], du [COLOR_BUILDING_TEXT]Parth&#233;non[COLOR_REVERT], du [COLOR_BUILDING_TEXT]Temple d'Art&#233;mis[COLOR_REVERT] et des [COLOR_BUILDING_TEXT]monast&#232;res[COLOR_REVERT].</French>
++		<German>Die [COLOR_TECH_TEXT]Wissenschaftliche Methode[COLOR_REVERT] deckt die Ressource [COLOR_HIGHLIGHT_TEXT]&#214;l[COLOR_REVERT] auf und [COLOR_HIGHLIGHT_TEXT]Spezialisten[COLOR_REVERT] liefern zus&#228;tzliche Forschungspunkte. Die [COLOR_BUILDING_TEXT]Gro&#223;e Bibliothek[COLOR_REVERT], der [COLOR_BUILDING_TEXT]Parthenon[COLOR_REVERT], der [COLOR_BUILDING_TEXT]Artemis-Tempel[COLOR_REVERT] und [COLOR_BUILDING_TEXT]Kloster[COLOR_REVERT] werden dadurch veraltet.</German>
++		<Italian>Il [COLOR_TECH_TEXT]Metodo scientifico[COLOR_REVERT] rivela le risorse di [COLOR_HIGHLIGHT_TEXT]Petrolio[COLOR_REVERT] e permette la costruzione del miglioramento [COLOR_HIGHLIGHT_TEXT]Riserve forestali[COLOR_REVERT]. Inoltre rende obsoleti [COLOR_BUILDING_TEXT]la Grande Biblioteca[COLOR_REVERT], [COLOR_BUILDING_TEXT]il Partenone[COLOR_REVERT], [COLOR_BUILDING_TEXT]il Tempio di Artemide[COLOR_REVERT] e i [COLOR_BUILDING_TEXT]Monasteri[COLOR_REVERT].</Italian>
++		<Spanish>El [COLOR_TECH_TEXT]M&#233;todo cient&#237;fico[COLOR_REVERT] revela el recurso del [COLOR_HIGHLIGHT_TEXT]Petr&#243;leo[COLOR_REVERT] y permite la construcci&#243;n de la mejora de la [COLOR_UNIT_TEXT]Reserva forestal[COLOR_REVERT]. Deja obsoletos la [COLOR_BUILDING_TEXT]Gran Biblioteca[COLOR_REVERT], el [COLOR_BUILDING_TEXT]Parten&#243;n[COLOR_REVERT], el [COLOR_BUILDING_TEXT]Templo de Artemisa[COLOR_REVERT] y los [COLOR_BUILDING_TEXT]Monasterios[COLOR_REVERT].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BIOLOGY_STRATEGY</Tag>
++		<English>[COLOR_TECH_TEXT]Biology[COLOR_REVERT] allows your workers to [COLOR_HIGHLIGHT_TEXT]preserve Forests[COLOR_REVERT], and to build [COLOR_HIGHLIGHT_TEXT]Farms[COLOR_REVERT] without [COLOR_HIGHLIGHT_TEXT]Irrigation[COLOR_REVERT]. It increases the food production of all [COLOR_HIGHLIGHT_TEXT]Farms[COLOR_REVERT] by 1. </English>
++		<French>La [COLOR_TECH_TEXT]biologie[COLOR_REVERT] permet &#224; vos ouvriers de construire des [COLOR_HIGHLIGHT_TEXT]fermes[COLOR_REVERT] sans [COLOR_HIGHLIGHT_TEXT]irrigation[COLOR_REVERT]. Elle augmente de + 1 la production de nourriture de toutes les [COLOR_HIGHLIGHT_TEXT]fermes[COLOR_REVERT].</French>
++		<German>Die [COLOR_TECH_TEXT]Biologie[COLOR_REVERT] erm&#246;glicht es Bautrupps, in W&#228;ldern [COLOR_HIGHLIGHT_TEXT]Aufforstungsgebiete[COLOR_REVERT] einzurichten, und ohne Bew&#228;sserung [COLOR_HIGHLIGHT_TEXT]Bauernh&#246;fe[COLOR_REVERT] zu bauen. Dar&#252;ber hinaus erh&#246;ht sie die Nahrungsmittelproduktion aller [COLOR_HIGHLIGHT_TEXT]Bauernh&#246;fe[COLOR_REVERT] um 1.</German>
++		<Italian>La [COLOR_TECH_TEXT]Biologia[COLOR_REVERT] permette ai lavoratori di costruire le [COLOR_HIGHLIGHT_TEXT]fattorie[COLOR_REVERT] senza [COLOR_HIGHLIGHT_TEXT]irrigazione[COLOR_REVERT]. Aumenta la produzione di cibo di tutte le [COLOR_HIGHLIGHT_TEXT]fattorie[COLOR_REVERT] di 1.</Italian>
++		<Spanish>La [COLOR_TECH_TEXT]Biolog&#237;a[COLOR_REVERT] permite a los trabajadores construir [COLOR_HIGHLIGHT_TEXT]Granjas[COLOR_REVERT] sin [COLOR_HIGHLIGHT_TEXT]Riego[COLOR_REVERT]. Adem&#225;s, aumenta en 1 la producci&#243;n de alimentos de todas las [COLOR_HIGHLIGHT_TEXT]Granjas[COLOR_REVERT]. </Spanish>
++	</TEXT>
++		 
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 63515fc51..b56357e11 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -44,11 +44,11 @@
+ 	 routes." Not news anymore. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_56</Tag>
+-	<English>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like easy pickings.</English>
+-	<French>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like easy pickings.</French>
++	<English>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</English>
++	<French>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</French>
+ 	<German>(UWAI) Von manchen Herrschern ist bekannt, dass sie keinen Krieg anfangen solange sie "erfreut" sind. Verlassen Sie sich darauf aber nicht, wenn die Beute gro� ist und der zu erwartende Widerstand gering.</German>
+-	<Italian>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like easy pickings.</Italian>
+-	<Spanish>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like easy pickings.</Spanish>
++	<Italian>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</Italian>
++	<Spanish>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</Spanish>
+ </TEXT>
+ 
+ <!-- "Oil-based navies are a huge step up from coal-powered ironclads. If you
+@@ -154,11 +154,11 @@
+ <!-- advc.130m -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_5</Tag>
+-	<English>(AdvCiv) If you wish to gain a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</English>
+-	<French>(AdvCiv) If you wish to gain a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the relations bonus fades over time.</French>
++	<English>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</English>
++	<French>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the relations bonus fades over time.</French>
+ 	<German>(AdvCiv) F�r einen andauernden Diplomatiebonus durch gemeinsame milit�rische Aktivit�ten reicht es nicht, formal gemeinsam im Krieg zu sein. Sie m�ssen auch wirklich Einheiten in den Kampf schicken, und selbst dann schwindet der Diplomatiebonus im Laufe der Zeit.</German>
+-	<Italian>(AdvCiv) If you wish to gain a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Italian>
+-	<Spanish>(AdvCiv) If you wish to gain a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Spanish>
++	<Italian>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Italian>
++	<Spanish>(AdvCiv) For a lasting boost to relations from a mutual military struggle, it's not enough to be formally at war with the same civilization. You'll have to actually send units to fight in the war. Even then, the bonus to relations fades over time.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.sha -->
+@@ -241,11 +241,11 @@
+ <!-- advc.099 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_14</Tag>
+-	<English>(AdvCiv) If your game options allow cities to flip after conquest, you may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</English>
+-	<French>(AdvCiv) If your game options allow cities to flip after conquest, you may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</French>
+-	<German>(AdvCiv) Wenn die Spieloptionen Stadtwechsel nach Eroberung zulassen, m�ssen Sie sich darauf einstellen, gro�e Truppenkontingente in eroberten St�dten zu stationieren, um Revolten zu verhindern bis Ihr Kulturwert sich erh�ht. �berlegen Sie sich vorher gut, ob die eroberten St�dte das wert sind.</German>
+-	<Italian>(AdvCiv) If your game options allow cities to flip after conquest, you may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</Italian>
+-	<Spanish>(AdvCiv) If your game options allow cities to flip after conquest, you may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</Spanish>
++	<English>(AdvCiv) You may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</English>
++	<French>(AdvCiv) You may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</French>
++	<German>(AdvCiv) In eroberten St�dten k�nnen gro�e Truppenkontingente notwendig sein, um Revolten zu verhindern bis Ihr Kulturwert sich erh�ht. �berlegen Sie sich vorher gut, ob die eroberten St�dte das wert sind.</German>
++	<Italian>(AdvCiv) You may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</Italian>
++	<Spanish>(AdvCiv) You may have to keep a large portion of your troops stationed in conquered cities to suppress revolts until your culture value increases. Make sure those cities are worth the effort.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.124 -->
+@@ -300,11 +300,11 @@
+ <!-- advc.102 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_20</Tag>
+-	<English>(AdvCiv) Give the options for showing foreign moves another chance. These options make it easier to spot an impending invasion, but they used to increase turn times a lot. The added delay is now much smaller.</English>
+-	<French>(AdvCiv) Give the options for showing foreign moves another chance. These options make it easier to spot an impending invasion, but they used to increase turn times a lot. The added delay is now much smaller.</French>
+-	<German>(AdvCiv) Geben Sie den Optionen zur Anzeige gegnerischer Z�ge noch eine Chance. Sie erleichtern es, bevorstehende �berf�lle zu bemerken, haben aber bisher den Spielfluss erheblich gest�rt. Die Anzeige gegnerischer Z�ge nimmt nun viel weniger Zeit in Anspruch.</German>
+-	<Italian>(AdvCiv) Give the options for showing foreign moves another chance. These options make it easier to spot an impending invasion, but they used to increase turn times a lot. The added delay is now much smaller.</Italian>
+-	<Spanish>(AdvCiv) Give the options for showing foreign moves another chance. These options make it easier to spot an impending invasion, but they used to increase turn times a lot. The added delay is now much smaller.</Spanish>
++	<English>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</English>
++	<French>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</French>
++	<German>(AdvCiv) Geben Sie der Option "Freundliche Bewegungen zeigen" noch eine Chance. Die Anzeige der Z�ge nimmt nicht mehr so viel Zeit in Anspruch.</German>
++	<Italian>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</Italian>
++	<Spanish>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.102 -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index b24d2c726..56fcaf683 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -107,9 +107,9 @@
+ 		 New help text for the Aggressive AI option. Original text in CIV4GameText_Misc1.xml. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_AGGRESSIVE_AI_HELP</Tag>
+-		<English>Use K-Mod's aggressive AI for decisions on war and peace</English>
++		<English>Use K-Mod's aggressive AI for decisions on war and peace (instead of the newer AdvCiv AI). </English>
+ 		<French>Emploie l'IA agressive de K-Mod pour les d&#233;cisions de guerre et paix.</French>
+-		<German>Verwende die aggressive K-Mod-KI f&#252;r Entscheidungen &#252;ber Krieg und Frieden</German>
++		<German>Verwende die aggressive K-Mod-KI f&#252;r Entscheidungen &#252;ber Krieg und Frieden (anstatt der neueren AdvCiv-KI).</German>
+ 		<Italian>Usa l'IA aggressiva di K-Mod per le decisioni di guerra e pace.</Italian>
+ 		<Spanish>Emplea IA de K-Mod por las decisiones de guerra e paz.</Spanish>
+     </TEXT>
+@@ -1636,4 +1636,15 @@
+ 		<Spanish>(WARNING: This option hasn't been tested with the AdvCiv mod.) Dos civilizaciones pueden formar una alianza permanente que dure hasta que acabe la partida.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- [advc.004t] Shortened version of TXT_KEY_POPUP_RECOMMENDED in
++		 CIV4GameTextInfos.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_NO_RECOMMENDATION</Tag>
++		<English>%s1_ProdName (%d2_NumTurns)</English>
++		<French>%s1_ProdName (%d2_NumTurns) </French>
++		<German>%s1_ProdName (%d2_NumTurns)</German>
++		<Italian>%s1_ProdName (%d2_NumTurns)</Italian>
++		<Spanish>%s1_ProdName (%d2_NumTurns [NUM2:turno:turnos])</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 452cda116..948717a9a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2039,7 +2039,12 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
+ 	{
+ 		return false;
+ 	}
+-
++	/*  <advc.041> Don't allow any ships to be trained at lakes, except
++		Workboat if there are resources in the lake. */
++	CvUnitInfo& u = GC.getUnitInfo(eUnit);
++	if(u.getDomainType() == DOMAIN_SEA && !isCoastal() &&
++			(!u.isPrereqBonuses() || (u.isPrereqBonuses() && !isPrereqBonusSea())))
++		return false; // </advc.041>
+ 	if(GC.getUSE_CANNOT_TRAIN_CALLBACK())
+ 	{
+ 		CyCity *pyCity = new CyCity((CvCity*)this);
+@@ -4302,11 +4307,22 @@ bool CvCity::isCapital() const
+ 	return (GET_PLAYER(getOwnerINLINE()).getCapitalCity() == this);
+ }
+ 
++// <advc.041>
++bool CvCity::isPrereqBonusSea() const {
++
++	for(int j = 0; j < NUM_DIRECTION_TYPES; j++) {
++		CvPlot* p = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)j);
++		if(p != NULL && p->isWater() && p->area()->getNumTotalBonuses() > 0)
++			return true;
++	}
++	return false;
++}// </advc.041>
+ 
+ bool CvCity::isCoastal(int iMinWaterSize) const
+ {
+-	// advc.003:
+-	if(iMinWaterSize < 0) iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
++	// <advc.003>
++	if(iMinWaterSize < 0)
++		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN(); // </advc.003>
+ 	return plot()->isCoastalLand(iMinWaterSize);
+ }
+ 
+@@ -16114,8 +16130,7 @@ int CvCity::calculateMaintenanceDistance(CvPlot* cityPlot, PlayerTypes owner)
+ 	}
+ 	// <advc.140> Upper bound added
+ 	int r = std::min(iLongest, iShortestGovernment);
+-	int cap = ::round(1 + GC.getMapINLINE().maxPlotDistance() *
+-			(10.0 / GC.getMAX_DISTANCE_CITY_MAINTENANCE()));
++	int cap = GC.getMapINLINE().maxMaintenanceDistance();
+ 	return std::min(r, cap);
+ 	// </advc.140>
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index cedbf4faa..69f36d08a 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -175,6 +175,7 @@ public:
+ 	DllExport bool isVisible(TeamTypes eTeam, bool bDebug) const;						// Exposed to Python
+ 
+ 	bool isCapital() const;																				// Exposed to Python
++	bool isPrereqBonusSea() const; // advc.041
+ 	/* advc.003: Global default used for -1. Also removed that default from all
+ 	   calls to this function (except those from Python). */
+ 	bool isCoastal(int iMinWaterSize = -1) const;																									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b14d9822b..edc19e169 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1648,7 +1648,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 		// K-Mod (the spies stuff used to be lower down)
+ 		int iNumSpies = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_SPY);
+-				// advc.001h: Commented out
++				// advc.001j: Commented out
+ 				//+ kPlayer.AI_getNumTrainAIUnits(UNITAI_SPY);
+ 		int iNeededSpies = iNumCitiesInArea / 3;
+ 		iNeededSpies += bPrimaryArea ? (kPlayer.getCommerceRate(COMMERCE_ESPIONAGE)+50)/100 : 0;
+@@ -3095,7 +3095,25 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 
+ 		if (!canTrain(eLoopUnit))
+ 			continue;
+-
++		// <advc.041> Mostly cut and pasted from CvPlot::canTrain
++		CvUnitInfo& u = GC.getUnitInfo(eLoopUnit);
++		if(u.isPrereqBonuses()) {
++			if(u.getDomainType() == DOMAIN_SEA) {
++				if(!isPrereqBonusSea())
++					continue;
++			}
++			/*  This was '> 0' in CvPlot::canTrain, which is apparently a bug,
++				but doesn't really matter b/c no land unit has this prereq. */
++			else if(area()->getNumTotalBonuses() <= 0)
++				continue;
++		}
++		int minAreaSz = u.getMinAreaSize();
++		if(minAreaSz > 0) {
++			CvPlot const& p = *plot();
++			if((u.getDomainType() == DOMAIN_SEA && !p.isCoastalLand(minAreaSz)) ||
++					(u.getDomainType() != DOMAIN_SEA && p.area()->getNumTiles() < minAreaSz))
++				continue;
++		} // </advc.041>
+ 		int iValue = GET_PLAYER(getOwnerINLINE()).AI_unitValue(eLoopUnit, eUnitAI, area());
+ 		if (iValue > 0)
+ 		{
+@@ -3312,16 +3330,6 @@ BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns, bool bAs
+ 
+ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor)
+ {
+-	/*BuildingTypes eLoopBuilding;
+-	BuildingTypes eBestBuilding;
+-	bool bAreaAlone;
+-	int iProductionRank;
+-	int iTurnsLeft;
+-	int iValue;
+-	int iTempValue;
+-	int iBestValue;
+-	int iI, iJ; */ // K-Mod. I've moved the declarations to where they are actually used - to reduce the likelihood of mistakes
+-
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod (and I've replaced all other GET_PLAYER calls in this function)
+ 
+ 	bool bAreaAlone = kOwner.AI_isAreaAlone(area());
+@@ -3840,8 +3848,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 		//if (((iFocusFlags & BUILDINGFOCUS_HEALTHY) || (iPass > 0)) && !isNoUnhealthyPopulation())
+ 		if ((iFocusFlags & BUILDINGFOCUS_HEALTHY) || iPass > 0) // K-Mod
+-		{	/*  advc.003: Initialization added for iGood. Not actually necessary,
+-				I think, but it looked scary. */
++		{	/*  advc.003: Initialization added. Not actually necessary, I think,
++				but it looked scary. */
+ 			int iGood = 0, iBad = 0;
+ 			int iBuildingActualHealth = getAdditionalHealthByBuilding(eBuilding,iGood,iBad,
+ 					// <advc.001h>
+@@ -3858,7 +3866,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			// </advc.001h>
+ 			// K-Mod. I've essentially rewritten this evaluation of health; but there may still be some bbai code / original bts code.
+ 			int iCitValue = 6 + kOwner.getCurrentEra(); // (estimating citizen value to be 6 + era commerce per turn)
+-			// advc.001h: Major bug: sign of iBuildingHealth flipped
+ 			int iWasteDelta = std::max(0, -futureHealthLevel-iBuildingActualHealth) -
+ 					std::max(0, -futureHealthLevel);
+ 			// High value for change in our food deficit.
+@@ -3932,8 +3939,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					iValue += kBuilding.getDomainFreeExperience(iI) * iWeight;
+ 					break;
+ 				case DOMAIN_SEA:
+-					// special case. Don't use 'iWeight', because for sea bIsHighProductionCity may be too strict.
+-					iValue += kBuilding.getDomainFreeExperience(iI) * 7;
++					// advc.041: No longer guaranteed by the building's MinAreaSize
++					if(isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN() * 2)) {
++						// special case. Don't use 'iWeight', because for sea bIsHighProductionCity may be too strict.
++						iValue += kBuilding.getDomainFreeExperience(iI) * 7;
++					}
+ 					break;
+ 				default:
+ 					// half value.
+@@ -3965,8 +3975,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			}
+ 
+ 			iValue += (kBuilding.getDomainFreeExperience(DOMAIN_SEA) * ((iHasMetCount > 0) ? 16 : 8));
+-
+-			iValue += (kBuilding.getDomainProductionModifier(DOMAIN_SEA) / 4);
++			// advc.041: No longer guaranteed by the building's MinAreaSize
++			if(isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN() * 2))
++				iValue += (kBuilding.getDomainProductionModifier(DOMAIN_SEA) / 4);
+ 		}
+ 
+ 		if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
+@@ -6313,7 +6324,9 @@ int CvCityAI::AI_minDefenders()
+ 	{
+ 		iDefenders++;
+ 	}
+-	if (((iEra - GC.getGame().getStartEra() / 2) >= GC.getNumEraInfos() / 2) && isCoastal())
++	if (((iEra - GC.getGame().getStartEra() / 2) >= GC.getNumEraInfos() / 2) && isCoastal(
++			// advc.107: A small water area doesn't justify an extra defender
++			2 * GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+ 	{
+ 		iDefenders++;
+ 	}
+@@ -11190,7 +11203,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		if (!kOwner.AI_isAreaAlone(area()))
+ 		{
+ 			int iNumSpies = kOwner.AI_totalAreaUnitAIs(area(), UNITAI_SPY);
+-					// advc.001h: Commented out
++					// advc.001j: Commented out
+ 					//+ kOwner.AI_getNumTrainAIUnits(UNITAI_SPY);
+ 			int iNeededSpies = 2 + area()->getCitiesPerPlayer(kOwner.getID()) / 5;
+ 			iNeededSpies += kOwner.getCommercePercent(COMMERCE_ESPIONAGE)/20;
+@@ -12194,15 +12207,18 @@ void CvCityAI::AI_cachePlayerCloseness(int iMaxDistance)
+ 				}
+ 
+ 				int iDistance = stepDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
+-				
+-				if (area() != pLoopCity->area() )
+-				{
++				/*  <advc.107> No functional change here. It's OK to use a
++					higher search range for cities on other continents;
++					but will have to decrease the distance later on when
++					computing the closeness value. */
++				bool sameArea = (area() == pLoopCity->area());
++				if(!sameArea) { // </advc.107>
+ 					iDistance += 1;
+ 					iDistance /= 2;
+ 				}
+ 				if (iDistance <= iMaxDistance)
+ 				{
+-					if ( getArea() == pLoopCity->getArea() )
++					if (sameArea) // advc.107: No functional change
+ 					{
+ 						int iPathDistance = GC.getMap().calculatePathDistance(plot(), pLoopCity->plot());
+ 						if (iPathDistance > 0)
+@@ -12231,8 +12247,10 @@ void CvCityAI::AI_cachePlayerCloseness(int iMaxDistance)
+ 						if (pLoopCity->isBarbarian())
+ 						{
+ 							iTempValue /= 4;
+-						}
+-						
++						} // <advc.107>
++						if(!sameArea)
++							iTempValue /= (pLoopCity->isCoastal() ? 2 : 3);
++						// </advc.107>
+ 						iValue += iTempValue;					
+ 						iBestValue = std::max(iBestValue, iTempValue);
+ 					}
+@@ -12277,161 +12295,161 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		const CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI); // K-Mod
+-		//if ((iI != getOwner()) && GET_PLAYER((PlayerTypes)iI).isAlive())
+-		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() != getTeam() && !GET_TEAM(kOwner.getTeam()).isVassal(kLoopPlayer.getTeam())) // K-Mod
+-		{
+-			int iAccessFactor = AI_playerCloseness((PlayerTypes)iI, DEFAULT_PLAYER_CLOSENESS); // (was "iTempValue")
+-			// (this is roughly 20 points for each neighbouring city.)
++		// <advc.003>
++		if(!kLoopPlayer.isAlive() || kLoopPlayer.getTeam() == getTeam() || // K-Mod
++				GET_TEAM(kOwner.getTeam()).isVassal(kLoopPlayer.getTeam()))
++			continue; // </advc.003>
++		int iAccessFactor = AI_playerCloseness((PlayerTypes)iI, DEFAULT_PLAYER_CLOSENESS); // (was "iTempValue")
++		// (this is roughly 20 points for each neighbouring city.)
+ 
+-			// K-Mod
+-			// Add some more points for each plot the loop player owns in our fat-cross.
+-			if (iAccessFactor > 0)
++		// K-Mod
++		// Add some more points for each plot the loop player owns in our fat-cross.
++		if (iAccessFactor > 0)
++		{
++			for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 			{
+-				for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				CvPlot* pLoopPlot = getCityIndexPlot(iJ);
++				if (pLoopPlot && pLoopPlot->getOwnerINLINE() == iI)
+ 				{
+-					CvPlot* pLoopPlot = getCityIndexPlot(iJ);
+-					if (pLoopPlot && pLoopPlot->getOwnerINLINE() == iI)
+-					{
+-						iAccessFactor += (stepDistance(getX_INLINE(), getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= 1) ? 2 : 1;
+-					}
++					iAccessFactor += (stepDistance(getX_INLINE(), getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= 1) ? 2 : 1;
+ 				}
+ 			}
++		}
+ 
+-			// Evaluate the posibility of a naval assault.
+-			if (isCoastal())
+-			{
+-				// This evaluation may be expensive (when I finish writing it), so only do it if there is reason to be concerned.
+-				if (kOwner.AI_isDoVictoryStrategyLevel4() ||
++		// Evaluate the posibility of a naval assault.
++		if (isCoastal( // advc.131: Area size threshold was 10, now 20
++				2 * GC.getMIN_WATER_SIZE_FOR_OCEAN()))
++		{
++			// This evaluation may be expensive (when I finish writing it), so only do it if there is reason to be concerned.
++			if (kOwner.AI_isDoVictoryStrategyLevel4() ||
+ 					GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN ||
+ 					(!kOwner.AI_isLandWar(area()) && kLoopPlayer.AI_getAttitude(getOwnerINLINE()) < ATTITUDE_PLEASED))
+-				{
+-					int iNavalAccess = 0;
++			{
++				int iNavalAccess = 0;
+ 
+-					//PROFILE("AI_cityThreat naval assault");
+-					// (temporary calculation based on the original bts code. I intend to make this significantly more detailed - eventually.)
+-					/* int iCurrentEra = kOwner.getCurrentEra();
+-					iValue += std::max(0, ((10 * iCurrentEra) / 3) - 6); */
++				//PROFILE("AI_cityThreat naval assault");
++				// (temporary calculation based on the original bts code. I intend to make this significantly more detailed - eventually.)
++				/* int iCurrentEra = kOwner.getCurrentEra();
++				iValue += std::max(0, ((10 * iCurrentEra) / 3) - 6); */
+ 
+-					int iEra = GC.getGameINLINE().getCurrentEra();
+-					iNavalAccess += std::max(0, 30*(iEra+1)/(GC.getNumEraInfos()+1) - 10);
++				int iEra = GC.getGameINLINE().getCurrentEra();
++				iNavalAccess += std::max(0, 30*(iEra+1)/(GC.getNumEraInfos()+1) - 10);
+ 
+-					iAccessFactor = std::max(iAccessFactor, iNavalAccess);
+-				}
++				iAccessFactor = std::max(iAccessFactor, iNavalAccess);
+ 			}
+-			// K-Mod end
++		}
++		// K-Mod end
+ 
+-			if (iAccessFactor > 0)
++		if (iAccessFactor > 0)
++		{
++			int iCivFactor; // K-Mod. (originally the following code had iTempValue *= foo; rather than iCivFactor = foo;)
++			/*  advc.018: Commented out. I don't get why crush should make us
++				more protective of our cities. The
++				if(bCrushStrategy) iCivFactor/=2 a bit farther down seems to be
++				the better approach. */
++			/*if (bCrushStrategy && GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+ 			{
+-				int iCivFactor; // K-Mod. (originally the following code had iTempValue *= foo; rather than iCivFactor = foo;)
+-				/*  advc.018: Commented out. I don't get why crush should make us
+-					more protective of our cities. The
+-					if(bCrushStrategy) iCivFactor/=2 a bit farther down seems to be
+-					the better approach. */
+-				/*if (bCrushStrategy && GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+-				{
+-					iCivFactor = 400;
+-				}
+-				else */if (atWar(getTeam(), kLoopPlayer.getTeam()))
+-				{
+-					iCivFactor = 300;
+-				}
+-				// Beef up border security before starting war, but not too much (bbai)
+-				else if ( GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN )
+-				{
++				iCivFactor = 400;
++			}
++			else */if (atWar(getTeam(), kLoopPlayer.getTeam()))
++			{
++				iCivFactor = 300;
++			}
++			// Beef up border security before starting war, but not too much (bbai)
++			else if ( GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN )
++			{
++				iCivFactor = 180;
++			}
++			else
++			{	// <advc.022>
++				AttitudeTypes towardThem = kOwner.AI_getAttitude(kLoopPlayer.getID());
++				AttitudeTypes towardUs = kLoopPlayer.AI_getAttitude(kOwner.getID());
++				// Humans like us at most as much as we like them
++				if(kLoopPlayer.isHuman()) {
++					if(towardThem < towardUs)
++						towardUs = towardThem;
++					// Normally humans are at best Cautious (see advc.130u)
++					if(towardThem >= ATTITUDE_FRIENDLY)
++						towardUs = ATTITUDE_PLEASED;
++				}
++				else {
++					// Round toward towardUs
++					int iTowardThem = towardThem;
++					if(towardUs > iTowardThem)
++						iTowardThem++;
++					towardUs = (AttitudeTypes)((towardUs + iTowardThem) / 2);
++				} // Replaced below:
++				//switch (kOwner.AI_getAttitude((PlayerTypes)iI))
++				// (K-Mod note: for good strategy, this should probably be _their_ attitude rather than ours.
++				//  But perhaps for role-play it is better the way it is.)
++				switch(towardUs) // </advc.022>
++				{
++				case ATTITUDE_FURIOUS:
+ 					iCivFactor = 180;
+-				}
+-				else
+-				{	// <advc.022>
+-					AttitudeTypes towardThem = kOwner.AI_getAttitude(kLoopPlayer.getID());
+-					AttitudeTypes towardUs = kLoopPlayer.AI_getAttitude(kOwner.getID());
+-					// Humans like us at most as much as we like them
+-					if(kLoopPlayer.isHuman()) {
+-						if(towardThem < towardUs)
+-							towardUs = towardThem;
+-						// Normally humans are at best Cautious (see advc.130u)
+-						if(towardThem >= ATTITUDE_FRIENDLY)
+-							towardUs = ATTITUDE_PLEASED;
+-					}
+-					else {
+-						// Round toward towardUs
+-						int iTowardThem = towardThem;
+-						if(towardUs > iTowardThem)
+-							iTowardThem++;
+-						towardUs = (AttitudeTypes)((towardUs + iTowardThem) / 2);
+-					} // Replaced below:
+-					//switch (kOwner.AI_getAttitude((PlayerTypes)iI))
+-					// (K-Mod note: for good strategy, this should probably be _their_ attitude rather than ours.
+-					//  But perhaps for role-play it is better the way it is.)
+-					switch(towardUs) // </advc.022>
+-					{
+-					case ATTITUDE_FURIOUS:
+-						iCivFactor = 180;
+-						break;
+-
+-					case ATTITUDE_ANNOYED:
+-						iCivFactor = 130;
+-						break;
+-
+-					case ATTITUDE_CAUTIOUS:
+-						iCivFactor = 100;
+-						break;
+-
+-					case ATTITUDE_PLEASED:
+-						iCivFactor = 50;
+-						break;
++					break;
+ 
+-					case ATTITUDE_FRIENDLY:
+-						iCivFactor = 20;
+-						break;
++				case ATTITUDE_ANNOYED:
++					iCivFactor = 130;
++					break;
+ 
+-					default:
+-						FAssert(false);
+-						break;
+-					}
++				case ATTITUDE_CAUTIOUS:
++					iCivFactor = 100;
++					break;
+ 
+-					// K-Mod
+-					// Reduce threat level of our vassals, particularly from capilutated vassals.
+-					if (GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()))
+-					{
+-						iCivFactor = std::min(iCivFactor, GET_TEAM(kLoopPlayer.getTeam()).isCapitulated() ? 30 : 50);
+-					}
+-					else
+-					{
+-						// Increase threat level for cities that we have captured from this player
+-						// I may add a turn limit later if this produces unwanted behaviour. (getGameTurn() - getGameTurnAcquired() < 40)
+-						if (getPreviousOwner() == iI)
+-							iCivFactor = iCivFactor * 3/2;
++				case ATTITUDE_PLEASED:
++					iCivFactor = 50;
++					break;
+ 
+-						// Don't get too comfortable if kLoopPlayer is using a conquest strategy.
+-						if (kLoopPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4))
+-							iCivFactor = std::max(100, iCivFactor);
+-					}
+-					// K-Mod end
++				case ATTITUDE_FRIENDLY:
++					iCivFactor = 20;
++					break;
+ 
+-					if (bCrushStrategy)
+-					{
+-						iCivFactor /= 2;
+-					}
++				default:
++					FAssert(false);
++					break;
+ 				}
+ 
+-				// K-Mod. Amplify the threat rating for rivals which have high power.
+-				if (kLoopPlayer.getPower() > kOwner.getPower())
++				// K-Mod
++				// Reduce threat level of our vassals, particularly from capilutated vassals.
++				if (GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()))
+ 				{
+-					/* bbai version
+-					iTempValue *= std::min( 400, (100 * GET_PLAYER((PlayerTypes)iI).getPower())/std::max(1, GET_PLAYER(getOwnerINLINE()).getPower()) );
+-					iTempValue /= 100; */
++					iCivFactor = std::min(iCivFactor, GET_TEAM(kLoopPlayer.getTeam()).isCapitulated() ? 30 : 50);
++				}
++				else
++				{
++					// Increase threat level for cities that we have captured from this player
++					// I may add a turn limit later if this produces unwanted behaviour. (getGameTurn() - getGameTurnAcquired() < 40)
++					if (getPreviousOwner() == iI)
++						iCivFactor = iCivFactor * 3/2;
++					// Don't get too comfortable if kLoopPlayer is using a conquest strategy.
++					if (kLoopPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4))
++						iCivFactor = std::max(100, iCivFactor);
++				}
++				// K-Mod end
+ 
+-					// exclude population power. (Should this use the same power comparison used to calculate areaAI and war values?)
+-					int iLoopPower = kLoopPlayer.getPower() - getPopulationPower(kLoopPlayer.getTotalPopulation());
+-					int iOurPower = kOwner.getPower() - getPopulationPower(kOwner.getTotalPopulation());
+-					iCivFactor *= range(100 * iLoopPower/std::max(1, iOurPower), 100, 400);
+-					iCivFactor /= 100;
++				if (bCrushStrategy)
++				{
++					iCivFactor /= 2;
+ 				}
++			}
+ 
+-				/* iTempValue /= 100;
+-				iTotalThreat += iTempValue; */
+-				iTotalThreat += iAccessFactor * iCivFactor / 100; // K-Mod
++			// K-Mod. Amplify the threat rating for rivals which have high power.
++			if (kLoopPlayer.getPower() > kOwner.getPower())
++			{
++				/* bbai version
++				iTempValue *= std::min( 400, (100 * GET_PLAYER((PlayerTypes)iI).getPower())/std::max(1, GET_PLAYER(getOwnerINLINE()).getPower()) );
++				iTempValue /= 100; */
++
++				// exclude population power. (Should this use the same power comparison used to calculate areaAI and war values?)
++				int iLoopPower = kLoopPlayer.getPower() - getPopulationPower(kLoopPlayer.getTotalPopulation());
++				int iOurPower = kOwner.getPower() - getPopulationPower(kOwner.getTotalPopulation());
++				iCivFactor *= range(100 * iLoopPower/std::max(1, iOurPower), 100, 400);
++				iCivFactor /= 100;
+ 			}
++
++			/* iTempValue /= 100;
++			iTotalThreat += iTempValue; */
++			iTotalThreat += iAccessFactor * iCivFactor / 100; // K-Mod
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 80c78c002..ab4f22de3 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1152,11 +1152,19 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	{
+ 		eProductionBuilding = pCity->AI_bestBuilding(0, 50, true, ((eProductionUnit != NO_UNIT) ? ((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())) : NO_ADVISOR));
+ 	}
+-
++	// <advc.004t>
++	bool recommend = GC.getDefineINT("ENABLE_POPUP_RECOMMENDATIONS") > 0 ||
++			GET_PLAYER(pCity->getOwnerINLINE()).isOption(PLAYEROPTION_ADVISOR_HELP);
++			// </advc.004t>
+ 	if (eProductionUnit != NO_UNIT)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionUnit, 0);
+-		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())).getTextKeyWide());
++		// <advc.004t>
++		if(!recommend) {
++			szBuffer = gDLL->getText("TXT_KEY_POPUP_NO_RECOMMENDATION",
++					GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns);
++		} else // </advc.004t>
++			szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())).getTextKeyWide());
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GET_PLAYER(pCity->getOwnerINLINE()).getUnitButton(eProductionUnit), GC.getUnitInfo(eProductionUnit).getUnitClassType(), WIDGET_TRAIN, GC.getUnitInfo(eProductionUnit).getUnitClassType(), pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+ 	}
+@@ -1164,6 +1172,12 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	if (eProductionBuilding != NO_BUILDING)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionBuilding, 0);
++		// <advc.004t>
++		if(!recommend) {
++			szBuffer = gDLL->getText("TXT_KEY_POPUP_NO_RECOMMENDATION",
++					GC.getBuildingInfo(eProductionBuilding).getTextKeyWide(),
++					iTurns);
++		} else // </advc.004t>
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getBuildingInfo(eProductionBuilding).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getBuildingInfo(eProductionBuilding).getAdvisorType())).getTextKeyWide());
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getBuildingInfo(eProductionBuilding).getButton(), GC.getBuildingInfo(eProductionBuilding).getBuildingClassType(), WIDGET_CONSTRUCT, GC.getBuildingInfo(eProductionBuilding).getBuildingClassType(), pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+@@ -1172,6 +1186,12 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	if (eProductionProject != NO_PROJECT)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionProject, 0);
++		// <advc.004t>
++		if(!recommend) {
++			szBuffer = gDLL->getText("TXT_KEY_POPUP_NO_RECOMMENDATION",
++					GC.getProjectInfo(eProductionProject).getTextKeyWide(),
++					iTurns);
++		} else // </advc.004t>
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV", GC.getProjectInfo(eProductionProject).getTextKeyWide(), iTurns);
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProjectInfo(eProductionProject).getButton(), eProductionProject, WIDGET_CREATE, eProductionProject, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+@@ -1179,6 +1199,11 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 
+ 	if (eProductionProcess != NO_PROCESS)
+ 	{
++		// <advc.004t>
++		if(!recommend) {
++			szBuffer = CvWString::format(GC.getProjectInfo(eProductionProject).
++					getTextKeyWide());
++		} else // </advc.004t>
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV_OR_TURNS", GC.getProcessInfo(eProductionProcess).getTextKeyWide());
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProcessInfo(eProductionProcess).getButton(), eProductionProcess, WIDGET_MAINTAIN, eProductionProcess, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+ 		iNumBuilds++;
+@@ -1568,8 +1593,11 @@ bool CvDLLButtonPopup::launchChooseTechPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 					szBuffer.Format(L"%s (%d)", GC.getTechInfo((TechTypes)iI).getDescription(), ((iDiscover > 0) ? 0 : player.getResearchTurnsLeft(((TechTypes)iI), true)));
+ 
+ 					if ((iI == eBestTech) || (iI == eNextBestTech))
+-					{
+-						szBuffer += gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_ONLY_ADV", GC.getAdvisorInfo((AdvisorTypes)(GC.getTechInfo((TechTypes)iI).getAdvisorType())).getTextKeyWide());
++					{	// <advc.004t>
++						if(GC.getDefineINT("ENABLE_POPUP_RECOMMENDATIONS") > 0 ||
++								player.isOption(PLAYEROPTION_ADVISOR_HELP))
++								// </advc.004t>
++							szBuffer += gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_ONLY_ADV", GC.getAdvisorInfo((AdvisorTypes)(GC.getTechInfo((TechTypes)iI).getAdvisorType())).getTextKeyWide());
+ 					}
+ 
+ 					CvString szButton = GC.getTechInfo((TechTypes) iI).getButton();
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c397ace41..4e9b79591 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -245,7 +245,7 @@ void CvGame::setInitialItems()
+ 		}
+ 		// <advc.250b>
+ 		else if(GET_PLAYER(i).isAlive() && i != BARBARIAN_PLAYER &&
+-				!GET_PLAYER(i).isMinorCiv()) nAI++; // </Advc.250b>
++				!GET_PLAYER(i).isMinorCiv()) nAI++; // </advc.250b>
+ 	}
+ 	if (isGameMultiPlayer()) {
+ 		if (iHumanPlayers > 0)
+@@ -281,18 +281,31 @@ void CvGame::setInitialItems()
+ 	if(isOption(GAMEOPTION_SPAH))
+ 		// Reassigns start plots and start points
+ 		spah.setInitialItems(); // </advc.250b>
++	int startTurn = getStartTurn(); // advc.250c, advc.251
+ 	// <advc.250c>
+ 	if(GC.getGameINLINE().getStartEra() == 0 &&
+-			GC.getDefineINT("ADVANCED_START_INCREASE_TURN_COUNTER") > 0) {
++			GC.getDefineINT("INCREASE_START_TURN") > 0) {
+ 		std::vector<double> distr;
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+ 			if(civ.isAlive())
+ 				distr.push_back(civ.getAdvancedStartPoints());
+ 		}
+-		double maxMean = (::max(distr) + ::mean(distr)) / 1.9;
+-		setStartTurnYear(getStartTurn() +  ::round(std::sqrt(std::max(0.0, maxMean -
+-				2 * GC.getHandicapInfo(aiHandicap).getAIAdvancedStartPercent()))));
++		startTurn = getStartTurn();
++		double maxMean = (::max(distr) + ::mean(distr)) / 2.0;
++		if(maxMean > 500)
++			startTurn += ::round(std::sqrt(std::max(0.0, maxMean - 200)));
++	} // </advc.250c>
++	// <advc.251> Also set a later start turn if handicap grants lots of AI freebies
++	if(!isOption(GAMEOPTION_ADVANCED_START) && getNumHumanPlayers() <
++			countCivPlayersAlive()) {
++		CvHandicapInfo& gameHandicap = GC.getHandicapInfo(getHandicapType());
++		startTurn += ((gameHandicap.getAIStartingUnitMultiplier() * 10 +
++				gameHandicap.getAIStartingWorkerUnits() * 10) *
++				GC.getGameSpeedInfo(getGameSpeedType()).getGrowthPercent()) / 100;
++	} // <advc.250c>
++	if(getStartTurn() != startTurn && GC.getDefineINT("INCREASE_START_TURN") > 0) {
++		setStartTurnYear(startTurn);
+ 		/*  initDiplomacy is called from outside the DLL between the first
+ 			setStartTurnYear call and setInitialItems. The second setStartTurnYear
+ 			causes any initial "universal" peace treaties to end after 1 turn.
+@@ -300,8 +313,7 @@ void CvGame::setInitialItems()
+         CvDeal* d; int dummy;
+         for(d = firstDeal(&dummy); d != NULL; d = nextDeal(&dummy))
+             d->setInitialGameTurn(getGameTurn());
+-	} // </advc.250c>
+-
++	} // </advc.250c></advc.251>
+ 	for (int i = 0; i < MAX_PLAYERS; ++i)
+ 	{
+ 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+@@ -1722,9 +1734,9 @@ void CvGame::normalizeAddFoodBonuses()
+ 					}
+ 				}
+ 				
+-				int iTargetFoodBonusCount = 
+-					normalizationLevel; // advc.108: instead of 3
+-				//iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 2 : 0;
++				int iTargetFoodBonusCount = 3;
++				// advc.108: (Don't do this after all:)
++				//int iTargetFoodBonusCount = normalizationLevel;
+ 				iTargetFoodBonusCount += std::max(0, 2-iGoodNatureTileCount); // K-Mod
+ 
+ 				// K-Mod. I've rearranged a couple of things to make it a bit more efficient and easier to read.
+@@ -2033,7 +2045,11 @@ void CvGame::normalizeAddExtras()
+ 					}
+ 					else
+ 					{
+-						if (pLoopPlot->getBonusType() != NO_BONUS)
++						if (pLoopPlot->getBonusType(
++								// <advc.108> Don't count unrevealed bonuses
++								GC.getGame().getNormalizationLevel() > 1 ?
++								NO_TEAM : kLoopPlayer.getTeam() // </advc.108>
++								) != NO_BONUS)
+ 						{
+ 							iOtherCount++;
+ 						}
+
+diff --git a/CvGameCoreDLL/CvGameAI.h b/CvGameCoreDLL/CvGameAI.h
+index b8e6fdd4f..26c405097 100644
+--- a/CvGameCoreDLL/CvGameAI.h
++++ b/CvGameCoreDLL/CvGameAI.h
+@@ -45,7 +45,7 @@ private:
+ 	   two separate options because my war-and-peace AI implies Aggressive AI. */
+ 	void sortOutWPAIOptions(bool fromSaveGame);
+ 	WarAndPeaceAI wpai;
+-// </avdri.104>
++// </advri.104>
+ 
+ 
+ };
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 09217b8af..725342ef8 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -10107,6 +10107,7 @@ m_iBarbarianInitialDefenders(0),
+ m_iAIDeclareWarProb(0),
+ m_iAIWorkRateModifier(0),
+ m_iAIGrowthPercent(0),
++m_iAIResearchPercent(0), // advc.251
+ m_iAITrainPercent(0),
+ m_iAIWorldTrainPercent(0),
+ m_iAIConstructPercent(0),
+@@ -10357,6 +10358,11 @@ int CvHandicapInfo::getAIGrowthPercent() const
+ {
+ 	return m_iAIGrowthPercent;
+ }
++// <advc.251>
++int CvHandicapInfo::getAIResearchPercent() const		
++{
++	return m_iAIResearchPercent;
++} // </advc.251>
+ 
+ int CvHandicapInfo::getAITrainPercent() const
+ {
+@@ -10510,6 +10516,10 @@ void CvHandicapInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iAIDeclareWarProb);
+ 	stream->Read(&m_iAIWorkRateModifier);
+ 	stream->Read(&m_iAIGrowthPercent);
++	// <advc.251>
++	if(uiFlag >= 1)
++		stream->Read(&m_iAIResearchPercent);
++	else m_iAIResearchPercent = 100; // </advc.251>
+ 	stream->Read(&m_iAITrainPercent);
+ 	stream->Read(&m_iAIWorldTrainPercent);
+ 	stream->Read(&m_iAIConstructPercent);
+@@ -10548,7 +10558,7 @@ void CvHandicapInfo::write(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::write(stream);
+ 
+-	uint uiFlag=0;
++	uint uiFlag=1; // advc.251
+ 	stream->Write(uiFlag);		// Flag for Expansion
+ 
+ 	stream->Write(m_iFreeWinsVsBarbs);
+@@ -10595,6 +10605,7 @@ void CvHandicapInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iAIDeclareWarProb);
+ 	stream->Write(m_iAIWorkRateModifier);
+ 	stream->Write(m_iAIGrowthPercent);
++	stream->Write(m_iAIResearchPercent); // advc.251
+ 	stream->Write(m_iAITrainPercent);
+ 	stream->Write(m_iAIWorldTrainPercent);
+ 	stream->Write(m_iAIConstructPercent);
+@@ -10673,6 +10684,7 @@ bool CvHandicapInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iAIDeclareWarProb, "iAIDeclareWarProb");
+ 	pXML->GetChildXmlValByName(&m_iAIWorkRateModifier, "iAIWorkRateModifier");
+ 	pXML->GetChildXmlValByName(&m_iAIGrowthPercent, "iAIGrowthPercent");
++	pXML->GetChildXmlValByName(&m_iAIResearchPercent, "iAIResearchPercent"); // advc.251
+ 	pXML->GetChildXmlValByName(&m_iAITrainPercent, "iAITrainPercent");
+ 	pXML->GetChildXmlValByName(&m_iAIWorldTrainPercent, "iAIWorldTrainPercent");
+ 	pXML->GetChildXmlValByName(&m_iAIConstructPercent, "iAIConstructPercent");
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 475ab057a..c91a452c3 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -2405,6 +2405,7 @@ public:
+ 	int getAIDeclareWarProb() const;								// Exposed to Python
+ 	int getAIWorkRateModifier() const;				// Exposed to Python
+ 	int getAIGrowthPercent() const;				// Exposed to Python
++	int getAIResearchPercent() const; // advc.251
+ 	int getAITrainPercent() const;				// Exposed to Python
+ 	int getAIWorldTrainPercent() const;				// Exposed to Python
+ 	int getAIConstructPercent() const;				// Exposed to Python
+@@ -2480,6 +2481,7 @@ protected:
+ 	int m_iAIDeclareWarProb;
+ 	int m_iAIWorkRateModifier;
+ 	int m_iAIGrowthPercent;
++	int m_iAIResearchPercent; // advc.251
+ 	int m_iAITrainPercent;
+ 	int m_iAIWorldTrainPercent;
+ 	int m_iAIConstructPercent;
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index b715b1204..da1bc0871 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1058,6 +1058,11 @@ int CvMap::maxStepDistance()
+ 	return std::max(1, stepDistance(0, 0, ((isWrapXINLINE()) ? (getGridWidthINLINE() / 2) : (getGridWidthINLINE() - 1)), ((isWrapYINLINE()) ? (getGridHeightINLINE() / 2) : (getGridHeightINLINE() - 1))));
+ }
+ 
++// <advc.140>
++int CvMap::maxMaintenanceDistance() {
++
++	return ::round(1 + maxPlotDistance() * (10.0 / GC.getMAX_DISTANCE_CITY_MAINTENANCE()));
++} // </advc.140>
+ 
+ int CvMap::getGridWidth() const
+ {
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 0c952df4d..2f7d8b342 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -163,6 +163,7 @@ public:
+ 
+ 	int maxPlotDistance();																								// Exposed to Python
+ 	int maxStepDistance();																								// Exposed to Python
++	int maxMaintenanceDistance(); // advc.140
+ 
+ 	DllExport int getGridWidth() const;																		// Exposed to Python
+ #ifdef _USRDLL
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 39c544d73..9da95b162 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1529,15 +1529,16 @@ void CvPlayer::initFreeUnits()
+ 	{
+ 		int iPoints = g.getNumAdvancedStartPoints();
+ 
+-		// advc.125b (comment): Disabled through Handicap XML
++		// advc.250b (comment): Disabled through Handicap XML
+ 		iPoints *= GC.getHandicapInfo(getHandicapType()).getAdvancedStartPointsMod();
+ 		iPoints /= 100;
+ 
+ 		if (!isHuman()
+ 			&& !g.isOption(GAMEOPTION_SPAH) // advc.250b
+ 			)
+-		{
+-			iPoints *= GC.getHandicapInfo(getHandicapType()).getAIAdvancedStartPercent();
++		{	/*  advc.250b, advc.001: Was this->getHandicapType(), i.e. Noble, which
++				means that this code block did nothing. */
++			iPoints *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIAdvancedStartPercent();
+ 			iPoints /= 100;
+ 		}
+ 		/*  <advc.250c> Civs in Advanced Start can place a city even if they don't
+@@ -6935,24 +6936,11 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
+ 
+ 	iProductionNeeded *= GC.getEraInfo(GC.getGameINLINE().getStartEra()).getTrainPercent();
+ 	iProductionNeeded /= 100;
+-
+-	if (!isHuman() && !isBarbarian())
+-	{
+-		if (isWorldUnitClass(eUnitClass))
+-		{
+-			iProductionNeeded *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIWorldTrainPercent();
+-			iProductionNeeded /= 100;
+-		}
+-		else
+-		{
+-			iProductionNeeded *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAITrainPercent();
+-			iProductionNeeded /= 100;
+-		}
+-
+-		iProductionNeeded *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+-		iProductionNeeded /= 100;
+-	}
+-
++	/*  <advc.107> Code moved into auxiliary function b/c I need this modifier
++		in AI_getTotalFloatingDefendersNeeded. */
++	iProductionNeeded = ::round(iProductionNeeded *
++			trainingModifierFromHandicap(isWorldUnitClass(eUnitClass)));
++	// </advc.107>
+ 	iProductionNeeded += getUnitExtraCost(eUnitClass);
+ 
+ 	// Python cost modifier
+@@ -7117,6 +7105,21 @@ int CvPlayer::getProductionModifier(ProjectTypes eProject) const
+ 	return iMultiplier;
+ }
+ 
++// <advc.107> Cut from getProductionNeeded; refactored
++double CvPlayer::trainingModifierFromHandicap(bool worldClass) const {
++
++	if(isHuman() || isBarbarian())
++		return 1;
++	double r = 1;
++	CvHandicapInfo& gameHandicap = GC.getHandicapInfo(GC.getGameINLINE().getHandicapType());
++	if(worldClass)
++		r *= (gameHandicap.getAIWorldTrainPercent() / 100.0);
++	else r *= (gameHandicap.getAITrainPercent() / 100.0);
++	r *= (std::max(0, gameHandicap.getAIPerEraModifier() * getCurrentEra() + 100)
++			/ 100.0);
++	return r;
++} // </advc.107>
++
+ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra) const
+ {
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 39c8f37e8..738e8df66 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -243,6 +243,7 @@ public:
+ 	int getProductionModifier(UnitTypes eUnit) const;
+ 	int getProductionModifier(BuildingTypes eBuilding) const;
+ 	int getProductionModifier(ProjectTypes eProject) const;
++	double trainingModifierFromHandicap(bool worldClass = false) const;
+ 
+ 	DllExport int getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra = 0) const;	// Exposed to Python
+ 	void removeBuildingClass(BuildingClassTypes eBuildingClass);																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 297569d2e..97524498c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1841,8 +1841,8 @@ void CvPlayerAI::AI_makeProductionDirty()
+ /************************************************************************************************/
+ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ {
+-	bool bRaze = false; // advc.116
+-	bool cultureVict = false; 
++	bool bRaze = false;
++	bool cultureVict = false; // advc.116
+ 	if (canRaze(pCity))
+ 	{
+ 	    int iRazeValue = 0;
+@@ -4087,8 +4087,12 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			pNearestCity = GC.getMapINLINE().findCity(iX, iY, getID(), getTeam(), false);
+ 			if (pNearestCity != NULL)
+ 			{
+-				int iDistance = plotDistance(iX, iY, pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE());
+-				iValue -= std::min(500 * iDistance, (8000 * iDistance) / GC.getMapINLINE().maxPlotDistance());
++				int iDistance = // advc.031:
++						std::min(GC.getMapINLINE().maxMaintenanceDistance(),
++						plotDistance(iX, iY, pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE()));
++				iValue -= std::min(500 * iDistance, (//8000
++						std::max(8000 - getCurrentEra() * 1000, 4000) // advc.031
++						* iDistance) / GC.getMapINLINE().maxPlotDistance());
+ 			}
+ 		}
+ 	}
+@@ -4097,13 +4101,17 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	{
+ 		return 1;
+ 	}
+-
+-	if (pArea->getNumCities() == 0)
++  if(!GET_TEAM(getTeam()).isCapitulated()) { // advc.130v
++	if (pArea->countCivCities() == 0) // advc.031: Had been counting barb cities
+ 	{
+ 		//iValue *= 2;
+ 		// K-Mod: presumably this is meant to be a bonus for being the first on a new continent.
+ 		// But I don't want it to be a bonus for settling on tiny islands, so I'm changing it.
+-		iValue *= range(100 * (pArea->getNumTiles() - 15) / 15, 100, 200);
++		iValue *= range(100 * (pArea->//getNumTiles()
++				getNumRevealedTiles(getTeam()) // advc.031: Don't cheat
++				- 15) / //15
++				20 // req. 40 revealed tiles for the full bonus
++				, 100, 200);
+ 		iValue /= 100;
+ 		// K-Mod end
+ 	}
+@@ -4127,7 +4135,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			iValue /= 4;
+ 		}
+ 	}
+-
++  } // </advc.130v>
+ 	if (!kSet.bStartingLoc)
+ 	{
+ 		int iFoodSurplus = std::max(0, iSpecialFoodPlus - iSpecialFoodMinus);
+@@ -4648,8 +4656,12 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 							{
+ 								if (!(pLoopUnit->isInvisible(eTeam, false)))
+ 								{
+-								    if (pLoopUnit->canMoveOrAttackInto(pPlot))
+-								    {
++								    //if (pLoopUnit->canMoveOrAttackInto(pPlot))
++									/*  <advc.001k> Replacing the above
++										(which calls isMadeAttack) */
++									if((pLoopUnit->getDomainType() == DOMAIN_SEA) ==
++											pPlot->isWater()) // </advc.001k>
++									{
+                                         if (!bTestMoves)
+                                         {
+                                             return true;
+@@ -4789,21 +4801,11 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves
+ 						if (pLoopUnit->isEnemy(eTeam) && pLoopUnit->canAttack() &&
+ 								!pLoopUnit->isInvisible(eTeam, false)) {
+ 							// </advc.003>
+-							/*  <advc.001> AI_getPlotDanger gets called during our
+-								turn, and we want to know if the hostile pLoopUnit
+-								will be able to attack on its owner's next turn.
+-								Therefore, shouldn't check isMadeAttack, but
+-								that's what canMoveOrAttackInto does. The only
+-								useful thing it does is check impassable terrain
+-								(though only for pPlot, not even the path), which
+-								could be helpful for sea units. Therefore keep
+-								the check for non-land units (despite the
+-								potential problem with isMadeAttack).
+-								Fwiw, Warlords didn't have this check at all;
+-								added in BtS. */
+-						if((pLoopUnit->getDomainType() == DOMAIN_LAND &&
+-								!pPlot->isWater()) || // </advc.001>
+-								pLoopUnit->canMoveOrAttackInto(pPlot))
++							//if (pLoopUnit->canMoveOrAttackInto(pPlot))
++							/*  <advc.001k> Replacing the above (which calls
++								isMadeAttack) */
++							if((pLoopUnit->getDomainType() == DOMAIN_SEA) ==
++									pPlot->isWater())// </advc.001k>
+ 							{	// <advc.104>
+ 								if(enemyId == NO_PLAYER || pLoopUnit->getOwnerINLINE() == enemyId)
+ 									plotUnits.push_back(pLoopUnit);
+@@ -8325,6 +8327,10 @@ int CvPlayerAI::AI_getExpansionistAttitude(PlayerTypes ePlayer) const {
+ 					0.0, 1.0) * plus;
+ 		}
+ 	}
++	/*  1 city could just be one placed a bit too close to a foreign capital
++		in the early game */
++	if(foreignCities <= 1)
++		return 0;
+ 	int everAlive = 0;
+ 	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 		CvTeam const& t = GET_TEAM((TeamTypes)i);
+@@ -8336,8 +8342,11 @@ int CvPlayerAI::AI_getExpansionistAttitude(PlayerTypes ePlayer) const {
+ 	double citiesPerCiv = std::max((double)
+ 			GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities(),
+ 			civCities / (double)everAlive);
++	EraTypes era = GC.getGameINLINE().getCurrentEra();
++	if(era <= 2)
++		citiesPerCiv = std::min(citiesPerCiv, 3.0 * (1 + era));
+ 	double h = expansionistHate(ePlayer);
+-	return -std::min(4, ::round(h * 2.25 * foreignCities / citiesPerCiv));
++	return -std::min(4, ::round(h * 2.4 * foreignCities / citiesPerCiv));
+ }
+ 
+ int CvPlayerAI::AI_getRivalVassalAttitude(PlayerTypes ePlayer) const {
+@@ -9958,11 +9967,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 		}
+ 		else
+ 		{
+-			// advc.130o: Moved up
+-			if (AI_getMemoryCount(ePlayer, MEMORY_MADE_DEMAND_RECENT) > 0)
+-			{
+-				return false;
+-			}
++			// <advc.130o> Moved up
++			int const mc = AI_getMemoryCount(ePlayer, MEMORY_MADE_DEMAND_RECENT);
++			if(mc > 0)
++				return false; // </advc.130o>
+ 			/*  <advc.130o> Was hard-coded, but the XML value is CAUTIOUS for all
+ 				leaders, so, no functional change. */
+ 			AttitudeTypes const noGiveHelpThresh = (AttitudeTypes)GC.getLeaderHeadInfo(
+@@ -9979,10 +9987,10 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 			// </advc.130o> <advc.144>
+ 			else if(::bernoulliSuccess(prDenyHelp()))
+ 				return false; // </advc.144>
+-			// <advc.140m>
++			// <advc.104m>
+ 			if(accept && demand && getWPAI.isEnabled())
+ 				accept = warAndPeaceAI().considerDemand(ePlayer, iOurValue);
+-			// </advc.140m>
++			// </advc.104m>
+ 		}
+ 		// advc.130o: Do this only if UWAI hasn't already handled the offer
+ 		if(!demand || (!getWPAI.isEnabled() && accept)) {
+@@ -13172,7 +13180,10 @@ int CvPlayerAI::AI_neededExplorersBulk(CvArea const* pArea) const {
+ 	}
+ 	else
+ 	{
+-		iNeeded = std::min(iNeeded + (pArea->getNumUnrevealedTiles(getTeam()) / 150), std::min(3, ((getNumCities() / 3) + 2)));
++		iNeeded = std::min(iNeeded + (pArea->getNumUnrevealedTiles(getTeam()) / //150
++				// 040: Exploration becomes ever cheaper as the game progresses
++				std::max(150 - 20 * getCurrentEra(), 50)
++				), std::min(3, ((getNumCities() / 3) + 2)));
+ 	}
+ 
+ 	if (0 == iNeeded)
+@@ -16828,21 +16839,9 @@ void CvPlayerAI::AI_doCounter()
+ 			if(mId == MEMORY_DECLARED_WAR &&
+ 					GET_TEAM(getTeam()).isAtWar(TEAMID(civId)))
+ 				continue;
+-			if(mId == MEMORY_DECLARED_WAR_ON_FRIEND) {
+-				bool atWarWithPartner = false;
+-				for(int k = 0; k < MAX_CIV_PLAYERS; k++) {
+-					CvPlayer const& partner = GET_PLAYER((PlayerTypes)k);
+-					if(partner.isAlive() && partner.getID() != getID() &&
+-							!partner.isMinorCiv() &&
+-							TEAMREF(civId).isAtWar(partner.getTeam()) &&
+-							AI_getAttitude(partner.getID()) >= ATTITUDE_PLEASED) {
+-						atWarWithPartner = true;
+-						break;
+-					}
+-				}
+-				if(atWarWithPartner)
+-					continue;
+-			} // </advc.130r>
++			if(mId == MEMORY_DECLARED_WAR_ON_FRIEND &&
++					atWarWithPartner(TEAMID(civId)))
++				continue; // </advc.130r>
+ 			// <advc.130j>
+ 			/*  Need to decay at least twice as fast b/c each
+ 				request now counts twice (on average). */
+@@ -20329,8 +20328,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage() const
+ 				iHighCultureCount++;
+ 			}
+ 
+-			// is over 1/2 of the way there?
+-			if( 2*pLoopCity->getCulture(getID()) > pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel()) )
++			// advc.115: Threshold was 50%, now 67%
++			if( pLoopCity->getCulture(getID()) > ::round(0.67 * pLoopCity->getCultureThreshold(GC.getGameINLINE().culturalVictoryCultureLevel())) )
+ 			{
+ 				iCloseToLegendaryCount++;
+ 			}
+@@ -21791,12 +21790,14 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		int iCloseness = AI_playerCloseness((PlayerTypes)iI, DEFAULT_PLAYER_CLOSENESS);
+ 		// <advc.022>
+ 		if(!AI_hasSharedPrimaryArea(kLoopPlayer.getID())) {
+-			int noSharePenalty = 150;
++			int noSharePenalty = 99;
+ 			EraTypes loopEra = kLoopPlayer.getCurrentEra();
++			if(loopEra >= 3)
++				noSharePenalty -= 33;
+ 			if(loopEra >= 4)
+-				noSharePenalty -= 50;
++				noSharePenalty -= 33;
+ 			if(loopEra >= 5)
+-				noSharePenalty -= 50;
++				noSharePenalty -= 33;
+ 			iCloseness = std::max(0, iCloseness - noSharePenalty);
+ 		} // </advc.022>
+ 		// if (iCloseness > 0)
+@@ -23242,13 +23243,18 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ 	{
+ 		iDefenders /= 2;
+ 	}
+-
++	// advc.107: Don't want even more rounding artifacts
++	double mod = 1;
+ 	if (!GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
+ 	{
+-		iDefenders *= 2;
+-		iDefenders /= 3;
+-	}
+-
++		mod *= 0.67; // advc.107: Replacing the two lines below
++		/*iDefenders *= 2;
++		iDefenders /= 3;*/
++	} /* <advc.107> Fewer defenders on low difficulty, more on high difficulty.
++		 Times 0.9 b/c I don't actually want more defenders on moderately high
++		 difficulty. */
++	mod /= ::dRange(trainingModifierFromHandicap() * 0.9, 0.7, 1.5);
++	iDefenders = ::round(mod * iDefenders); // </advc.107>
+ 	// BBAI: Removed AI_STRATEGY_GET_BETTER_UNITS reduction, it was reducing defenses twice
+ 	
+ 	if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3))
+@@ -23264,13 +23270,13 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ 	iDefenders *= 60;
+ 	iDefenders /= std::max(30, (GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAITrainPercent() - 20));
+ 	
+-    // <advc.107> Replacing code for extra defenses vs. Raging Barbarians.
++    // <advc.107> Replacing code below (extra defenses vs. Raging Barbarians)
+     if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS)
+             && !GC.getEraInfo(getCurrentEra()).isNoBarbUnits()) {
+         int startEra = GC.getGameINLINE().getStartEra();
+         if(iCurrentEra <= 1 + startEra)
+            iDefenders += 1 + startEra;
+-    } // unmodded code:
++    }
+     /*if ((iCurrentEra < 3) && (GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS)))
+     {
+         iDefenders += 2;
+@@ -25657,7 +25663,11 @@ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 						if (pLoopUnit->isEnemy(getTeam()) && pLoopUnit->canAttack() && !pLoopUnit->isInvisible(getTeam(), false))
+ 						{
+-							if (pLoopUnit->canMoveOrAttackInto(pPlot))
++							//if (pLoopUnit->canMoveOrAttackInto(pPlot))
++							/*  <advc.001k> Replacing the above
++								(which calls isMadeAttack) */
++							if((pLoopUnit->getDomainType() == DOMAIN_SEA) ==
++									pPlot->isWater()) // </advc.001k>
+ 							{
+ 								int iPathTurns = 0;
+ 								if (bTestMoves)
+@@ -25735,6 +25745,20 @@ void CvPlayerAI::AI_ClearConstructionValueCache()
+ }
+ // K-Mod end
+ 
++// <advc.130r><advc.130h>
++bool CvPlayerAI::atWarWithPartner(TeamTypes theyId) const {
++
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayer const& partner = GET_PLAYER((PlayerTypes)i);
++		if(partner.isAlive() && partner.getTeam() != getTeam() &&
++				!partner.isMinorCiv() && GET_TEAM(theyId).isAtWar(
++				partner.getTeam()) && AI_getAttitude(partner.getID()) >=
++				ATTITUDE_PLEASED)
++			return true;
++	}
++	return false;
++} // </advc.130h></advc.130r>
++
+ // <advc.651>
+ void CvPlayerAI::checkDangerFromSubmarines() {
+ 
+@@ -25772,15 +25796,16 @@ bool CvPlayerAI::canBeExpectedToTrain(UnitTypes ut) const {
+ 		FAssert(false);
+ 		return false;
+ 	}
+-	bool isSeaUnit = (GC.getUnitInfo(ut).getDomainType() == DOMAIN_SEA);
++	CvUnitInfo& u = GC.getUnitInfo(ut);
++	bool isSeaUnit = (u.getDomainType() == DOMAIN_SEA);
++	int minAreaSz = std::max(0, u.getMinAreaSize());
+ 	/* Should be able to build at least two units in ten turns (i.e. one in five);
+ 	   otherwise, the unit probably won't be trained, or just 1 or 2. */
+ 	int targetProduction = ::round(getProductionNeeded(ut) / 5.0);
+ 	int partialSum = 0;
+ 	CvCity* c; int i;
+ 	for(c = firstCity(&i); c != NULL; c = nextCity(&i)) {
+-		// isCoastal check is redundant; only for speed
+-		if((isSeaUnit && !c->isCoastal()) || !c->canTrain(ut))
++		if((isSeaUnit && !c->isCoastal(minAreaSz)) || !c->canTrain(ut))
+ 			continue;
+ 		partialSum += c->getProduction();
+ 		if(partialSum >= targetProduction)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index fd8d2d777..b7461cf5c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -531,6 +531,8 @@ public:
+ 	bool AI_isFirstTech(TechTypes eTech) const;
+ 
+ 	void AI_ClearConstructionValueCache(); // K-Mod
++	// advc.130r, advc.130h: Are they at war with a partner of ours?
++	bool atWarWithPartner(TeamTypes theyId) const;
+ 	// advc.001: needed for bNeighbouringReligion in AI_techValue
+ 	bool AI_hasSharedPrimaryArea(PlayerTypes pId) const;
+ 	// <advc.003><advc.104m>
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index cff24b7ec..004506096 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -10276,7 +10276,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 		}
+ 	}
+ 
+-	if (GC.getUnitInfo(eUnit).isPrereqBonuses())
++	/*if (GC.getUnitInfo(eUnit).isPrereqBonuses())
+ 	{
+ 		if (GC.getUnitInfo(eUnit).getDomainType() == DOMAIN_SEA)
+ 		{
+@@ -10336,7 +10336,18 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 		{
+ 			return false;
+ 		}
+-
++	/*  <advc.041> Replacing the above (moved to CvCityAI::AI_bestUnitAI). I.e.
++		treat MinAreaSize and PrereqBonuses as mere recommendations (for the AI)
++		rather than game rules.
++		NB: MinAreaSize is still enforced as a rule for buildings.
++		The last clause above should perhaps be checked by the AI before
++		upgrading units; but AI sea units can end up in small water areas only
++		via WorldBuilder, so I'm not bothering with this. */
++	if(isCity()) {
++		if(GC.getUnitInfo(eUnit).getDomainType() == DOMAIN_SEA && !isWater() &&
++				!isCoastalLand())
++			return false;
++	} else { // </advc.041>
+ 		if (GC.getUnitInfo(eUnit).getDomainType() == DOMAIN_SEA)
+ 		{
+ 			if (!isWater())
+@@ -10351,7 +10362,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 				return false;
+ 			}
+ 		}
+-		else
++		else // advc.003 (comment): Upgrade air units only in cities
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 6eaa8a041..73df0beac 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1397,6 +1397,74 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		GET_TEAM(getID()).AI_setWarPlanStateCounter(eTeam, 0);
+ 		GET_TEAM(eTeam).AI_setWarPlanStateCounter(getID(), 0);
+ 	} // </advc.104q>
++
++	/*  advc.130h: Moved this entire loop up b/c I'm adding code that depends on
++		the atWarWithPartner status before the DoW */
++	// advc.003: Deleted the BtS code that karadoc refers to
++	// K-Mod. Same functionality, but a bit cleaner and a bit faster.
++	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i = (PlayerTypes)(i+1))
++	{
++		CvPlayerAI& kPlayer_i = GET_PLAYER(i); // advc.130o: const removed
++
++		if (!kPlayer_i.isAlive() || kPlayer_i.getTeam() != getID())
++			continue;
++		// player i is a member of this team.
++
++		for (PlayerTypes j = (PlayerTypes)0; j < MAX_PLAYERS; j = (PlayerTypes)(j+1))
++		{
++			CvPlayerAI& kPlayer_j = GET_PLAYER(j);
++
++			if (!kPlayer_j.isAlive()
++					// advc.003b: Doesn't hurt to include them, I guess, but no need
++					|| j == BARBARIAN_PLAYER || kPlayer_j.isMinorCiv())
++				continue;
++
++			// <advc.130o>
++			if(bPrimaryDoW && kPlayer_i.isHuman() && !kPlayer_j.isHuman() &&
++					GET_TEAM(eTeam).AI_getMemoryCount(getID(), MEMORY_MADE_DEMAND) > 0 &&
++					TEAMREF(j).getMasterTeam() != getMasterTeam() &&
++					(kPlayer_j.getTeam() == eTeam ||
++					GET_TEAM(eTeam).isHasMet(kPlayer_j.getTeam()))) {
++				// Raise it to 8 (or what XML says)
++				int mem = kPlayer_j.AI_getMemoryCount(i, MEMORY_MADE_DEMAND_RECENT);
++				int delta = GC.getDefineINT("WAR_DESPITE_TRIBUTE_MEMORY");
++				delta = std::max(mem, delta) - mem;
++				kPlayer_j.AI_changeMemoryCount(i, MEMORY_MADE_DEMAND_RECENT, delta);
++			}
++			if(bPrimaryDoW && i != j) {
++				int mem = kPlayer_i.AI_getMemoryCount(j, MEMORY_MADE_DEMAND);
++				kPlayer_i.AI_changeMemoryCount(j, MEMORY_MADE_DEMAND, -mem);
++			} // </advc.130o>
++			if (kPlayer_j.getTeam() == eTeam)
++			{
++				if(bPrimaryDoW) // advc.130y
++					kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR); // advc.130j
++				// advc.130y:
++				else kPlayer_j.AI_changeMemoryCount(i, MEMORY_DECLARED_WAR, 2);
++			}
++			else if (kPlayer_j.getTeam() != getID())
++			{
++				const CvTeamAI& kTeam_j = GET_TEAM(kPlayer_j.getTeam());
++
++				if (kTeam_j.isHasMet(eTeam) && !kTeam_j.isAtWar(eTeam))
++				{
++					if (kTeam_j.AI_getAttitude(eTeam) >= ATTITUDE_PLEASED &&
++							// <advc.130h>
++							GET_TEAM(eTeam).getMasterTeam() != kTeam_j.getMasterTeam() &&
++							/*  Not if eTeam is also fighting a partner and
++								(appears to have) started it. */
++							(kTeam_j.AI_getMemoryCount(eTeam, MEMORY_DECLARED_WAR_ON_FRIEND) <= 0) ||
++							!kPlayer_j.atWarWithPartner(eTeam))
++							// </advc.130h>
++					{   // advc.130j:
++						kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR_ON_FRIEND);
++					}
++				}
++			}
++		}
++	}
++	// K-Mod end.
++
+ 	setAtWar(eTeam, true);
+ 	GET_TEAM(eTeam).setAtWar(getID(), true);
+ 
+@@ -1498,68 +1566,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		}
+ 	}
+ 
+-	// advc.003: Deleted the BtS code that karadoc refers to
+-	// K-Mod. Same functionality, but a bit cleaner and a bit faster.
+-	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i = (PlayerTypes)(i+1))
+-	{
+-		CvPlayerAI& kPlayer_i = GET_PLAYER(i); // advc.130o: const removed
+-
+-		if (!kPlayer_i.isAlive() || kPlayer_i.getTeam() != getID())
+-			continue;
+-		// player i is a member of this team.
+-
+-		for (PlayerTypes j = (PlayerTypes)0; j < MAX_PLAYERS; j = (PlayerTypes)(j+1))
+-		{
+-			CvPlayerAI& kPlayer_j = GET_PLAYER(j);
+-
+-			if (!kPlayer_j.isAlive()
+-					// advc.003b: Doesn't hurt to include them, I guess, but no need
+-					|| j == BARBARIAN_PLAYER || kPlayer_j.isMinorCiv())
+-				continue;
+-
+-			// <advc.130o>
+-			if(bPrimaryDoW && kPlayer_i.isHuman() && !kPlayer_j.isHuman() &&
+-					GET_TEAM(eTeam).AI_getMemoryCount(getID(), MEMORY_MADE_DEMAND) > 0 &&
+-					TEAMREF(j).getMasterTeam() != getMasterTeam() &&
+-					(kPlayer_j.getTeam() == eTeam ||
+-					GET_TEAM(eTeam).isHasMet(kPlayer_j.getTeam()))) {
+-				// Raise it to 8 (or what XML says)
+-				int mem = kPlayer_j.AI_getMemoryCount(i, MEMORY_MADE_DEMAND_RECENT);
+-				int delta = GC.getDefineINT("WAR_DESPITE_TRIBUTE_MEMORY");
+-				delta = std::max(mem, delta) - mem;
+-				kPlayer_j.AI_changeMemoryCount(i, MEMORY_MADE_DEMAND_RECENT, delta);
+-			}
+-			if(bPrimaryDoW && i != j) {
+-				int mem = kPlayer_i.AI_getMemoryCount(j, MEMORY_MADE_DEMAND);
+-				kPlayer_i.AI_changeMemoryCount(j, MEMORY_MADE_DEMAND, -mem);
+-			} // </advc.130o>
+-			if (kPlayer_j.getTeam() == eTeam)
+-			{
+-				if(bPrimaryDoW) // advc.130y
+-					kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR); // advc.130j
+-				// advc.130y:
+-				else kPlayer_j.AI_changeMemoryCount(i, MEMORY_DECLARED_WAR, 2);
+-			}
+-			else if (kPlayer_j.getTeam() != getID())
+-			{
+-				const CvTeamAI& kTeam_j = GET_TEAM(kPlayer_j.getTeam());
+-
+-				if (kTeam_j.isHasMet(eTeam) && !kTeam_j.isAtWar(eTeam))
+-				{
+-					if (kTeam_j.AI_getAttitude(eTeam) >= ATTITUDE_PLEASED &&
+-							// <advc.130h>
+-							GET_TEAM(eTeam).getMasterTeam() != kTeam_j.getMasterTeam() &&
+-							// Not if they (might have) started it
+-							kTeam_j.AI_getMemoryCount(eTeam, MEMORY_DECLARED_WAR_ON_FRIEND) <= 0)
+-							// </advc.130h>
+-					{   // advc.130j:
+-						kPlayer_j.AI_rememberEvent(i, MEMORY_DECLARED_WAR_ON_FRIEND);
+-					}
+-				}
+-			}
+-		}
+-	}
+-	// K-Mod end.
++	// advc.130h: (Code block dealing with diplo repercussions moved up)
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+@@ -3143,7 +3150,12 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 
+ 	iCost *= GC.getHandicapInfo(getHandicapType()).getResearchPercent();
+ 	iCost /= 100;
+-
++	// <advc.251>
++	if(!isHuman() && !isBarbarian()) {
++		// Important to use game handicap here (not team handicap)
++		iCost = (iCost * GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).
++				getAIResearchPercent()) / 100;
++	} // </advc.251>
+ 	if (bGlobalModifiers) // K-Mod
+ 	{
+ 		iCost *= GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent();
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 3771292c8..04551932e 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5240,9 +5240,11 @@ int CvTeamAI::AI_teamCloseness(TeamTypes eIndex, int iMaxDistance,
+ 				}
+ 			}
+ 		}
+-	} // <advc.104o> AI_playerCloseness is just about air distance
+-	if(considerLandTarget && AI_isLandTarget(eIndex))
+-		iValue += 150; // </advc.104o>
++	} /* <advc.104o> (Change disabled for now b/c advc.107 now factors
++		land connection into AI_playerCloseness. Could increase iValue here
++		in order to further increase the impact.) */
++	/*if(considerLandTarget && AI_isLandTarget(eIndex))
++		iValue += 50; */ // </advc.104o>
+ 	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5ee1fab48..501abe9e8 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1759,7 +1759,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 	//BonusTypes eBonus;
+ 	//int iIndex;
+ 	/*  advc.002e: Can't find another DLL function that is called by the EXE after
+-		loading a savegame and after calling CvUnit::isPromotionRead */
++		loading a savegame and after calling CvUnit::isPromotionReady */
+ 	gDLL->getEntityIFace()->showPromotionGlow(getUnitEntity(), isReadyForPromotion());
+ 	if (getOwnerINLINE() != GC.getGameINLINE().getActivePlayer())
+ 	{
+@@ -11546,8 +11546,7 @@ void CvUnit::setMadeInterception(bool bNewValue)
+ 	to show the glow on those only once the human turn starts (in
+ 	CvPlayer::doWarnings). */
+ bool CvUnit::isPromotionReady() const {
+-	//return m_bPromotionReady;
+-	return GC.getDefineINT("SHOW_PROMOTION_GLOW") > 0;
++	return m_bPromotionReady && GC.getDefineINT("SHOW_PROMOTION_GLOW") > 0;
+ }
+ 
+ bool CvUnit::isReadyForPromotion() const {
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8afed2291..3ddaed8bc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17303,7 +17303,7 @@ bool CvUnitAI::AI_pillageRange(int iRange, int iBonusValueThreshold, int iFlags)
+ 								   pillaging. Barbarians are supposed to be destructive and
+ 								   shortsighted. More importantly, it's inexplicable for most
+ 								   human players when the barbarians repeatedly spare improvements. */
+-								|| getOwner() == BARBARIAN_PLAYER 
++								|| isBarbarian() 
+ 								) && canPillage(pLoopPlot))
+                             {
+                                 if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+@@ -24961,14 +24961,13 @@ int CvUnitAI::AI_stackOfDoomExtra() const
+ 	// K-Mod end
+ 	// <advc.104p>
+ 	double mult = 1;
+-	/*  Bigger AI stacks on Emperor onwards (b/c units are cheaper to train then,
++	/*  Bigger AI stacks on higher difficulty (b/c units are cheaper to train then,
+ 		not b/c bigger stacks are generally smarter) */
+-	if(!kOwner.isHuman()) {
+-		// 85% on Emperor, 80% on Immortal, 60% on Deity (raise that to 75%)
++	if(!kOwner.isHuman() && !isBarbarian()) {
++		// e.g. 85% on Emperor, 80% on Immortal, 60% on Deity (raise that to 75%)
+ 		double trainMod = GC.getHandicapInfo(GC.getGameINLINE().
+ 				getHandicapType()).getAITrainPercent() / 100.0;
+-		if(trainMod <= 0.89)
+-			mult /= std::max(0.75, trainMod);
++		mult /= std::max(0.75, trainMod);
+ 	}
+ 	CvTeamAI const& ourTeam = GET_TEAM(kOwner.getTeam());
+ 	// A little extra for naval assault
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 24da97401..1b3964061 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1037,7 +1037,9 @@ void WarAndPeaceAI::Team::scheme() {
+ 		bool total = (uTotal > uLimited);
+ 		int u = std::max(uLimited, uTotal);
+ 		report->setMute(false);
+-		int const reportThresh = (GET_TEAM(targetId).isHuman() ? -50 : -10);
++		int reportThresh = (GET_TEAM(targetId).isHuman() ?
++				GC.getDefineINT("UWAI_REPORT_THRESH_HUMAN") :
++				GC.getDefineINT("UWAI_REPORT_THRESH"));
+ 		// Extra evaluation just for logging
+ 		if(!report->isMute() && u > reportThresh) {
+ 			if(total)
+@@ -1577,7 +1579,7 @@ bool WarAndPeaceAI::Team::isPushover(TeamTypes theyId) const {
+ 	CvTeam const& agent = GET_TEAM(agentId);
+ 	int theirCities = they.getNumCities();
+ 	int agentCities = agent.getNumCities();
+-	return (theirCities <= 1 && agentCities >= 3 ||
++	return ((theirCities <= 1 && agentCities >= 3) ||
+ 			4 * theirCities < agentCities) &&
+ 			10 * they.getPower(true) < 4 * agent.getPower(false);
+ }
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 52999df28..e5ae9c194 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -743,8 +743,8 @@ void WarAndPeaceCache::updateRelativeNavyPower() {
+ 		/*  Tbd.:
+ 			Exact result: (their navy power) /
+ 						  (their total power from navy, army, home guard)
+-			Intelligence ratio (100% assume we know all their positions;
+-			0 we know nothing, in particular if !TEAMREF(civId).isHasMet(TEAMID(ownerId))).
++			Intelligence ratio (100%: assume we know all their positions;
++			0: we know nothing, in particular if !TEAMREF(civId).isHasMet(TEAMID(ownerId))).
+ 			-100%
+ 			+100% * #(their cities visible to us) / #(their cities)
+ 			+100% * #(their cities revealed to us) / #(their cities)
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index df54d652a..b9a77f879 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3280,6 +3280,10 @@ void TacticalSituation::evalOperational() {
+ 	double targetAttackers = 4 + std::pow((double)they->getCurrentEra(), 1.3);
+ 	if(params.isNaval())
+ 		targetAttackers *= 1.3;
++	double trainMod = GC.getHandicapInfo(GC.getGameINLINE().
++			getHandicapType()).getAITrainPercent() / 100.0;
++	// Smaller target on lower difficulty
++	targetAttackers /= ::dRange(trainMod, 1.0, 1.5);
+ 	/*  Don't necessarily need a larger initial stack for total war.
+ 		A little maybe ... */
+ 	if(params.isTotal())
+
+[PATCH OMITTED] file=a/manual_0.87.pdf b/manual_0.87.pdf reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH OMITTED] file=a/manual_0.88.pdf b/manual_0.88.pdf reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=30 omittedFiles=3 embeddedPatchBytes=102949

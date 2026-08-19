@@ -1,0 +1,1191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1409
+# Commit: 66c00fd402cfadd3845f449300eb56850fdff077
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6f1cda2784aef610f1fee5474ec390aa2b07d74e
+# Title: Issues with AI plot danger functions fixed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvMainInterface.py
+5	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+5	48	CvGameCoreDLL/CvPlayer.cpp
+8	6	CvGameCoreDLL/CvPlayer.h
+270	276	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+1	3	CvGameCoreDLL/CvPlot.cpp
+1	2	CvGameCoreDLL/CvSelectionGroup.cpp
+0	41	CvGameCoreDLL/CvTeam.cpp
+6	6	CvGameCoreDLL/CvTeam.h
+18	17	CvGameCoreDLL/CvUnit.cpp
+5	2	CvGameCoreDLL/CvUnit.h
+3	3	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index d18d42cc8..3f595ac91 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3136,7 +3136,7 @@ class CvMainInterface:
+ 								iRateColor = MainOpt.getPositiveGoldRateColor()
+ 								#szText += BugUtil.getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", iGoldRate)
+ 							elif iGold + iGoldRate >= 0:
+-								MainOpt.getNegativeGoldRateColor()
++								iRateColor = MainOpt.getNegativeGoldRateColor()
+ 								#szText += BugUtil.getText("TXT_KEY_MISC_NEG_WARNING_GOLD_PER_TURN", iGoldRate)
+ 							#else:
+ 								#szText += BugUtil.getText("TXT_KEY_MISC_NEG_GOLD_PER_TURN", iGoldRate)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index e49b98ce7..bf8056854 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -138,6 +138,10 @@ float hash(vector<long> const& x, PlayerTypes civId) {
+ 		hashVal += capIndex;
+ 		hashVal *= prime;
+ 	}
++	/*  Use ASyncRand to avoid the overhead of creating a new object? I don't think
++		it matters. */
++	/*CvRandom& rng = GC.getASyncRand();
++	rng.reset(hashVal);*/
+ 	CvRandom rng;
+ 	rng.init(hashVal);
+ 	return rng.getFloat();
+@@ -2385,8 +2389,7 @@ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ 
+ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+ {
+-	PROFILE_FUNC();
+-
++	//PROFILE_FUNC(); // advc.003o
+ 	//CvSelectionGroup* pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+ 	CvSelectionGroup* pSelectionGroup = finder ? (CvSelectionGroup*)pointer : ((CvPathSettings*)pointer)->pGroup;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 02deb7d20..47265cb29 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3229,11 +3229,6 @@ bool CvPlayer::isAutoPlayJustEnded() const {
+ /* AI_AUTO_PLAY_MOD                            END                                              */
+ /************************************************************************************************/
+ 
+-bool CvPlayer::isHuman() const
+-{
+-	return m_bHuman;
+-}
+-
+ void CvPlayer::updateHuman()
+ {
+ 	if (getID() == NO_PLAYER)
+@@ -3264,11 +3259,6 @@ void CvPlayer::updateHuman()
+ 	}
+ }
+ 
+-bool CvPlayer::isBarbarian() const
+-{
+-	return (getID() == BARBARIAN_PLAYER);
+-}
+-
+ // K-Mod
+ static bool concealUnknownCivs() {
+ 
+@@ -6668,12 +6658,8 @@ void CvPlayer::found(int iX, int iY)
+ 
+ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+ {
+-	PROFILE_FUNC();
+-
+-	UnitClassTypes eUnitClass;
+-	int iI;
+-
+-	eUnitClass = ((UnitClassTypes)(GC.getUnitInfo(eUnit).getUnitClassType()));
++	//PROFILE_FUNC(); // advc.003o
++	UnitClassTypes eUnitClass = (UnitClassTypes)(GC.getUnitInfo(eUnit).getUnitClassType());
+ 
+ 	// K-Mod note. This assert can fail if team games when checking whether this city can upgrade a unit to one of our team member's UUs.
+ 	//FAssert(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eUnitClass) == eUnit);
+@@ -6711,7 +6697,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 		return false;
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNUM_UNIT_AND_TECH_PREREQS(); iI++)
++	for (int iI = 0; iI < GC.getNUM_UNIT_AND_TECH_PREREQS(); iI++)
+ 	{
+ 		if (GC.getUnitInfo(eUnit).getPrereqAndTechs(iI) != NO_TECH)
+ 		{
+@@ -6737,14 +6723,9 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 
+ 	/* original bts code
+ 	if (GET_TEAM(getTeam()).isUnitClassMaxedOut(eUnitClass))
+-	{
+ 		return false;
+-	}
+-
+ 	if (isUnitClassMaxedOut(eUnitClass))
+-	{
+-		return false;
+-	} */  // disabled by K-Mod.
++		return false;*/  // disabled by K-Mod.
+ 	// Note that unlike the global limit, these two limits apply to the number of units currently alive rather than the total ever trained.
+ 	// Therefore these limits should be ignored for the visibility test.
+ 
+@@ -7535,8 +7516,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, CvArea* pAr
+ 
+ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible) const
+ {
+-	PROFILE_FUNC();
+-
++	//PROFILE_FUNC(); // advc.003o
+ 	if (!pPlot->canBuild(eBuild, getID(), bTestVisible))
+ 		return false;
+ 
+@@ -11433,18 +11413,6 @@ bool CvPlayer::isMinorCiv() const
+ }
+ 
+ 
+-bool CvPlayer::isAlive() const
+-{
+-	return m_bAlive;
+-}
+-
+-
+-bool CvPlayer::isEverAlive() const
+-{
+-	return m_bEverAlive;
+-}
+-
+-
+ void CvPlayer::setAlive(bool bNewValue)
+ {
+ 	CvWString szBuffer;
+@@ -12096,12 +12064,6 @@ void CvPlayer::setStrike(bool bNewValue)
+ }
+ 
+ 
+-PlayerTypes CvPlayer::getID() const
+-{
+-	return m_eID;
+-}
+-
+-
+ HandicapTypes CvPlayer::getHandicapType() const																
+ {
+ 	// <advc.127>
+@@ -12328,11 +12290,6 @@ bool CvPlayer::isAVassal() const {
+ }
+ // </advc.003>
+ 
+-TeamTypes CvPlayer::getTeam() const
+-{
+-	return m_eTeamType;
+-}
+-
+ void CvPlayer::updateTeamType()
+ {
+ 	if(getID() == NO_PLAYER)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index fac5280a2..c519c5c5c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -116,9 +116,11 @@ public:
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
+ /************************************************************************************************/
+-	DllExport bool isHuman() const;																																							// Exposed to Python						
++	// <advc.003f>
++	DllExport inline bool isHuman() const { return m_bHuman; }																																							// Exposed to Python
++	DllExport inline bool isBarbarian() const { return (m_eID == BARBARIAN_PLAYER); }																																		// Exposed to Python
++	// </advc.003f>
+ 	DllExport void updateHuman();
+-	DllExport bool isBarbarian() const;																																					// Exposed to Python						
+ 
+ 	/*  K-Mod note: I've changed getName, getCivilizationDescription,
+ 		and getCivilizationShortDescription to only give accurate information
+@@ -718,8 +720,8 @@ public:
+ 																																																			
+ 	bool isMinorCiv() const;																																									// Exposed to Python			
+ 																																																			
+-	DllExport bool isAlive() const;																																						// Exposed to Python			
+-	DllExport bool isEverAlive() const;																																				// Exposed to Python			
++	DllExport bool isAlive() const { return m_bAlive; } // advc.003f																																	// Exposed to Python			
++	DllExport bool isEverAlive() const { return m_bEverAlive; }; // advc.003f																															// Exposed to Python			
+ 	void setAlive(bool bNewValue);
+ 	void verifyAlive();
+ 
+@@ -748,7 +750,7 @@ public:
+ 	DllExport bool isStrike() const;																																	// Exposed to Python					
+ 	void setStrike(bool bNewValue);		
+ 
+-	DllExport PlayerTypes getID() const;																												// Exposed to Python					
++	DllExport PlayerTypes getID() const { return m_eID; } // advc.003f																								// Exposed to Python
+ 																																															
+ 	DllExport HandicapTypes getHandicapType() const;																									// Exposed to Python					
+ 																																															
+@@ -770,7 +772,7 @@ public:
+ 	void setParent(PlayerTypes eParent);
+ 	TeamTypes getMasterTeam() const; // advc.003
+ 	bool isAVassal() const; // advc.003
+-	DllExport TeamTypes getTeam() const;																												// Exposed to Python
++	DllExport inline TeamTypes getTeam() const { return m_eTeamType; } // advc.003f																				// Exposed to Python
+ 	void setTeam(TeamTypes eTeam);
+ 	void updateTeamType();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index accb48b5e..ab7d83f4b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5148,16 +5148,14 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (iRange == -1)
+-	{
++	if(iRange == -1)
+ 		iRange = DANGER_RANGE;
+-	}
+ 
+ 	/* bbai if( bTestMoves && isTurnActive() )
+ 	{ if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+ 			return false; } */
+ 	// K-Mod
+-	if (bTestMoves && isSafeRangeCacheValid() && iRange <= pPlot->getActivePlayerSafeRangeCache())
++	if(bTestMoves && isSafeRangeCacheValid() && iRange <= pPlot->getActivePlayerSafeRangeCache())
+ 		return false;
+ 	// K-Mod end
+ 
+@@ -5168,122 +5166,118 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 	// K-Mod end
+ 
+ 	
+-	if( bCheckBorder )
+-	{
++	if(bCheckBorder) {
+ 		//if( (iRange >= DANGER_RANGE) && pPlot->isTeamBorderCache(eTeam) )
+-		if (iRange >= BORDER_DANGER_RANGE && pPlot->getBorderDangerCache(eTeam)) // K-Mod. border danger doesn't count anything further than range 2.
+-		{
++		if(iRange >= BORDER_DANGER_RANGE && pPlot->getBorderDangerCache(eTeam)) // K-Mod. border danger doesn't count anything further than range 2.
+ 			return true;
+-		}
+ 	}
+ 
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	CvPlot* pLoopPlot;
+-	int iDX, iDY;
+-	CvArea *pPlotArea = pPlot->area();
+-
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	CvArea* pPlotArea = pPlot->area();
++	for(int iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		for(int iDY = -(iRange); iDY <= iRange; iDY++)
+ 		{
+-			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{	// <advc.030>
+-				CvArea const& fromArea = *pLoopPlot->area();
+-				if(pPlotArea->canBeEntered(fromArea)) // Replacing:
+-				//if (pLoopPlot->area() == pPlotArea) // </advc.030>
+-				{
+-				    int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+-				    if( bCheckBorder
+-							// advc.030: For CheckBorder, it's a helpful precondition.
+-							&& pLoopPlot->area() == pPlotArea)
+-					{
+-						if (atWar(pLoopPlot->getTeam(), eTeam))
+-						{	/* original bbai code
+-							// Border cache is reversible, set for both team and enemy.
+-							if (iDistance == 1) {
+-								pPlot->setBorderDangerCache(eTeam, true);
+-								pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								pLoopPlot->setBorderDangerCache(eTeam, true);
+-								pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								return true; }
+-							else if ((iDistance == 2) && (pLoopPlot->isRoute())) {
+-								pPlot->setBorderDangerCache(eTeam, true);
+-								pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								pLoopPlot->setBorderDangerCache(eTeam, true);
+-								pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								return true; } */
+-							// K-Mod. reversible my arse.
+-							if (iDistance == 1)
+-							{
+-								pPlot->setBorderDangerCache(eTeam, true);
+-								// pLoopPlot is in enemy territory, so this is fine.
+-								pLoopPlot->setBorderDangerCache(eTeam, true);
+-								/*  only set the cache for the pLoopPlot team if pPlot is
+-									owned by us! (ie. owned by their enemy) */
+-								if (pPlot->getTeam() == eTeam)
+-								{
+-									pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-									pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								}
+-								return true;
+-							}
+-							else if (iDistance == 2 && pLoopPlot->//isRoute()
+-									// advc.001i
+-									getRevealedRouteType(eTeam, false) != NO_ROUTE)
+-							{
+-								pPlot->setBorderDangerCache(eTeam, true);
+-								pLoopPlot->setBorderDangerCache(eTeam, true); // owned by our enemy
+-								if (pPlot->//isRoute()
+-										// advc.001i:
+-										getRevealedRouteType(pLoopPlot->getTeam(), false) != NO_ROUTE
+-										&& pPlot->getTeam() == eTeam)
+-								{
+-									pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-									pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								}
+-								return true;
+-							}
+-							// K-Mod end
+-						}
+-					}
+-
+-					pUnitNode = pLoopPlot->headUnitNode();
+-
+-					while (pUnitNode != NULL)
+-					{
+-						pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-						// No need to loop over tiles full of our own units
+-						if( pLoopUnit->getTeam() == eTeam )
++			CvPlot* pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++			if(pLoopPlot == NULL)
++				continue; // advc.003
++			// <advc.030>
++			CvArea const& fromArea = *pLoopPlot->area();
++			if(!pPlotArea->canBeEntered(fromArea)) // Replacing:
++					//if(pLoopPlot->area() != pPlotArea)
++				continue;
++			 // </advc.030>
++			int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++			if(bCheckBorder
++					// advc.030: For CheckBorder, it's a helpful precondition.
++					&& pLoopPlot->area() == pPlotArea)
++			{
++				if (atWar(pLoopPlot->getTeam(), eTeam))
++				{	/* original bbai code
++					// Border cache is reversible, set for both team and enemy.
++					if (iDistance == 1) {
++						pPlot->setBorderDangerCache(eTeam, true);
++						pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++						pLoopPlot->setBorderDangerCache(eTeam, true);
++						pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++						return true; }
++					else if ((iDistance == 2) && (pLoopPlot->isRoute())) {
++						pPlot->setBorderDangerCache(eTeam, true);
++						pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++						pLoopPlot->setBorderDangerCache(eTeam, true);
++						pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++						return true; } */
++					// K-Mod. reversible my arse.
++					if (iDistance == 1)
++					{
++						pPlot->setBorderDangerCache(eTeam, true);
++						// pLoopPlot is in enemy territory, so this is fine.
++						pLoopPlot->setBorderDangerCache(eTeam, true);
++						/*  only set the cache for the pLoopPlot team if pPlot is
++							owned by us! (ie. owned by their enemy) */
++						if (pPlot->getTeam() == eTeam)
+ 						{
+-							if(!pLoopUnit->alwaysInvisible() &&
+-									pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+-								break;
+-						} // advc.003: Indentation reduced
+-						if (pLoopUnit->isEnemy(eTeam) &&
+-								// advc.315: was pLoopUnit->canAttack()
+-								AI_canBeAttackedBy(*pLoopUnit) &&
+-								!pLoopUnit->isInvisible(eTeam, false) &&
+-								/* advc.030, advc.001k: Replacing the condition below
+-								   (which calls isMadeAttack) */
+-								pPlotArea->canBeEntered(fromArea, pLoopUnit))
+-								//if (pLoopUnit->canMoveOrAttackInto(pPlot))
++							pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++							pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++						}
++						return true;
++					}
++					else if (iDistance == 2 && pLoopPlot->//isRoute()
++							// advc.001i
++							getRevealedRouteType(eTeam, false) != NO_ROUTE)
++					{
++						pPlot->setBorderDangerCache(eTeam, true);
++						pLoopPlot->setBorderDangerCache(eTeam, true); // owned by our enemy
++						if (pPlot->//isRoute()
++								// advc.001i:
++								getRevealedRouteType(pLoopPlot->getTeam(), false) != NO_ROUTE
++								&& pPlot->getTeam() == eTeam)
+ 						{
+-							if (!bTestMoves)
+-								return true;
+-							else
+-							{
+-								int iDangerRange = pLoopUnit->baseMoves();
+-								if(pLoopPlot->isValidRoute(pLoopUnit,
+-										false)) // advc.001i
+-									iDangerRange++;
+-								if(iDangerRange >= iDistance)
+-									return true;
+-							}
++							pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++							pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 						}
++						return true;
++					}
++					// K-Mod end
++				}
++			}
++			bool bFirst = true; // advc.128
++			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++				// No need to loop over tiles full of our own units
++				if( pLoopUnit->getTeam() == eTeam )
++				{
++					if(!pLoopUnit->alwaysInvisible() &&
++							pLoopUnit->getInvisibleType() == NO_INVISIBLE)
++						break;
++				}
++				// <advc.128>
++				if(bFirst) {
++					bFirst = false;
++					if(!pLoopPlot->isVisible(getTeam(), false)) {
++						if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
++							break;
++					}
++				} // </advc.128>
++				if (pLoopUnit->isEnemy(eTeam) &&
++						// advc.315: was pLoopUnit->canAttack()
++						AI_canBeAttackedBy(*pLoopUnit) &&
++						!pLoopUnit->isInvisible(eTeam, false) &&
++						pLoopUnit->canMoveOrAttackInto(pPlot,
++						false, true)) // advc.001k
++				{
++					if (!bTestMoves)
++						return true;
++					else
++					{
++						int iDangerRange = pLoopUnit->baseMoves();
++						if(pLoopPlot->isValidRoute(pLoopUnit,
++								false)) // advc.001i
++							iDangerRange++;
++						if(iDangerRange >= iDistance)
++							return true;
+ 					}
+ 				}
+ 			}
+@@ -5321,154 +5315,138 @@ bool byDamage(CvUnit* left, CvUnit* right) {
+ 	return left->getDamage() < right->getDamage();
+ } // </advc.104>
+ 
+-int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves
++int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 	// advc.104:
+-	, bool bCheckBorder, int* lowHealth, int hpLimit, int limitCount, PlayerTypes enemyId
+-	) const
++	bool bCheckBorder, int* lowHealth, int hpLimit, int limitCount, PlayerTypes enemyId) const
+ {
+ 	PROFILE_FUNC();
+ 	// <advc.104>
+ 	if(limitCount == 0 || hpLimit <= 0)
+ 		return 0;
+ 	if(lowHealth != NULL)
+-		*lowHealth = 0; // </advc.104>
+-	// <advc.003> Initialization added or definition moved
+-	CLLNode<IDInfo>* pUnitNode=NULL;
+-	CvUnit* pLoopUnit=NULL;
+-	CvPlot* pLoopPlot=NULL;
+-	int iCount=0;
+-	int iBorderDanger=0;
+-	int iDX=-1, iDY=-1; // </advc.003>
+-	CvArea *pPlotArea = pPlot->area();
+-	TeamTypes eTeam = getTeam();
+-
+-	if (iRange == -1)
+-	{
++		*lowHealth = 0;
++	// </advc.104>
++	if(iRange == -1)
+ 		iRange = DANGER_RANGE;
+-	}
+-
+ 	/* bbai
+-	if( bTestMoves && isTurnActive() )
+-	{
++	if(bTestMoves && isTurnActive()) {
+ 		if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+-		{
+ 			return 0;
+-		}
+ 	} */
+ 	// K-Mod
+ 	if (bTestMoves && isSafeRangeCacheValid() && iRange <= pPlot->getActivePlayerSafeRangeCache())
+ 		return 0;
+ 	// K-Mod end
+ 
+-	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	CvArea* pPlotArea = pPlot->area();
++	int iBorderDanger = 0;
++	int iCount = 0;
++	for(int iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		for(int iDY = -(iRange); iDY <= iRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{	// <advc.030>
+-				CvArea const& fromArea = *pLoopPlot->area();
+-				if(pPlotArea->canBeEntered(fromArea)) // Replacing:
+-				//if (pLoopPlot->area() == pPlotArea) // </advc.030>
+-				{	// <avc.030> Moved up
+-					int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(),
+-							pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+-					// </advc.030>
+-					if(bCheckBorder // advc.104
+-							&& pLoopPlot->area() == pPlotArea) { // advc.030
+-						if (atWar(pLoopPlot->getTeam(), eTeam))
+-						{
+-							if (iDistance == 1)
+-							{
+-								iBorderDanger++;
+-							}
+-							else if (iDistance == 2 && pLoopPlot->//isRoute()
+-									// advc.001i:
+-									getRevealedRouteType(eTeam, false) != NO_ROUTE)
+-								iBorderDanger++;
+-						}
+-					} // advc.104
+-
+-					pUnitNode = pLoopPlot->headUnitNode();
+-					std::vector<CvUnit*> plotUnits; // advc.104
+-					while (pUnitNode != NULL)
++			CvPlot* pLoopPlot	= plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++			if(pLoopPlot == NULL)
++				continue;
++			// <advc.030>
++			CvArea const& fromArea = *pLoopPlot->area();
++			if(!pPlotArea->canBeEntered(fromArea)) // Replacing:
++					//if (pLoopPlot->area() != pPlotArea) // </advc.030>
++				continue;
++			// <avc.030> Moved up
++			int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(),
++					pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++			// </advc.030>
++			if(bCheckBorder // advc.104
++					&& pLoopPlot->area() == pPlotArea) { // advc.030
++				if (atWar(pLoopPlot->getTeam(), getTeam()))
++				{
++					if (iDistance == 1)
+ 					{
+-						pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-						// No need to loop over tiles full of our own units
+-						if( pLoopUnit->getTeam() == eTeam )
+-						{
+-							if( !(pLoopUnit->alwaysInvisible()) && (pLoopUnit->getInvisibleType() == NO_INVISIBLE) )
+-							{
+-								break;
+-							}
+-						}
+-						// <advc.003> Some indentation removed
+-						if (pLoopUnit->isEnemy(eTeam) &&
+-								// advc.315: was pLoopUnit->canAttack()
+-								AI_canBeAttackedBy(*pLoopUnit) &&
+-								!pLoopUnit->isInvisible(eTeam, false)) {
+-							// </advc.003>
+-							/*  advc.030, advc.001k: Replacing the line below
+-								(which calls isMadeAttack) */
+-							if(pPlotArea->canBeEntered(fromArea, pLoopUnit))
+-							//if (pLoopUnit->canMoveOrAttackInto(pPlot))
+-							{	// <advc.104>
+-								if(enemyId == NO_PLAYER || pLoopUnit->getOwnerINLINE() == enemyId)
+-									plotUnits.push_back(pLoopUnit);
+-							}
+-						}
++						iBorderDanger++;
+ 					}
+-					// Don't waste time with this otherwise
+-					if(lowHealth != NULL && !plotUnits.empty())
+-						std::sort(plotUnits.begin(), plotUnits.end(), byDamage);
+-					for(size_t i = 0; i < plotUnits.size(); i++) {
+-						pLoopUnit = plotUnits[i];
+-						bool countIncreased = false; // </advc.104>
+-						if (!bTestMoves)
+-						{
+-							iCount++;
+-							countIncreased = true; // advc.104
+-						}
+-						else
+-						{
+-							int iDangerRange = pLoopUnit->baseMoves();
+-							if(pLoopPlot->isValidRoute(pLoopUnit,
+-									false)) // advc.001i
+-								iDangerRange++;
+-							if (iDangerRange >= iDistance)
+-							{
+-								iCount++;
+-								countIncreased = true; // advc.104
+-							}
+-						}
+-						// <advc.104>
+-						if(countIncreased) {
+-							if(lowHealth != NULL && pLoopUnit->maxHitPoints() -
+-									pLoopUnit->getDamage() <= hpLimit)
+-								(*lowHealth)++;
+-							if(limitCount > 0 && iCount >= limitCount)
+-								return iCount;
+-						} // </advc.104>
++					else if (iDistance == 2 && pLoopPlot->//isRoute()
++							// advc.001i:
++							getRevealedRouteType(getTeam(), false) != NO_ROUTE)
++						iBorderDanger++;
++				}
++			}
++			std::vector<CvUnit*> plotUnits; // advc.104
++			bool bFirst = true; // advc.128
++			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++				// No need to loop over tiles full of our own units
++				if(pLoopUnit->getTeam() == getTeam()) {
++					if(!pLoopUnit->alwaysInvisible() &&
++							pLoopUnit->getInvisibleType() == NO_INVISIBLE)
++						break;
++				}
++				// <advc.128>
++				if(bFirst) {
++					bFirst = false;
++					if(pUnitNode != NULL && !pLoopPlot->isVisible(getTeam(), false)) {
++						if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
++							break;
+ 					}
++				} // </advc.128>
++				if(pLoopUnit->isEnemy(getTeam()) &&
++						// advc.315: was pLoopUnit->canAttack()
++						AI_canBeAttackedBy(*pLoopUnit) &&
++						!pLoopUnit->isInvisible(getTeam(), false) &&
++						pLoopUnit->canMoveOrAttackInto(pPlot,
++						false, true)) // advc.001k
++					{ // <advc.104>
++						if(enemyId == NO_PLAYER || pLoopUnit->getOwnerINLINE() == enemyId)
++							plotUnits.push_back(pLoopUnit);
++					}
++			}
++			// Don't waste time with this otherwise
++			if(lowHealth != NULL && !plotUnits.empty())
++				std::sort(plotUnits.begin(), plotUnits.end(), byDamage);
++			for(size_t i = 0; i < plotUnits.size(); i++) {
++				CvUnit* pLoopUnit = plotUnits[i];
++				bool countIncreased = false; // </advc.104>
++				if (!bTestMoves)
++				{
++					iCount++;
++					countIncreased = true; // advc.104
+ 				}
++				else
++				{
++					int iDangerRange = pLoopUnit->baseMoves();
++					if(pLoopPlot->isValidRoute(pLoopUnit,
++							false)) // advc.001i
++						iDangerRange++;
++					if (iDangerRange >= iDistance)
++					{
++						iCount++;
++						countIncreased = true; // advc.104
++					}
++				}
++				// <advc.104>
++				if(countIncreased) {
++					if(lowHealth != NULL && pLoopUnit->maxHitPoints() -
++							pLoopUnit->getDamage() <= hpLimit)
++						(*lowHealth)++;
++					if(limitCount > 0 && iCount >= limitCount)
++						return iCount;
++				} // </advc.104>
+ 			}
+ 		}
+ 	}
+-	//}}}} // advc.104: These closing braces have moved up
++
+ 	// K-Mod
+ 	if (iCount == 0 && isSafeRangeCacheValid() && iRange > pPlot->getActivePlayerSafeRangeCache())
+ 		pPlot->setActivePlayerSafeRangeCache(iRange);
+ 	// K-Mod end
+ 
+ 	if (iBorderDanger > 0)
+-	{
+-	    /* original bts code
+-		if (!isHuman() && !pPlot->isCity())
+-	    {
+-            iCount += iBorderDanger;
+-	    } */
++	{	/* original bts code
++		if(!isHuman() && !pPlot->isCity())
++            iCount += iBorderDanger;*/
+ 		// K-Mod. I don't want auto-workers on the frontline. So count border danger for humans too, unless the plot is defended.
+ 		// but on the other hand, I don't think two border tiles are really more dangerous than one border tile.
+ 		// (cf. condition used in AI_anyPlotDanger. Note that here we still count border danger in cities - because I want it for AI_cityThreat)
+@@ -16613,8 +16591,7 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI
+ 
+ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup, int iRange) const
+ {
+-	PROFILE_FUNC();
+-
++	//PROFILE_FUNC(); // advc.003o
+ 	int iCount = 0;
+ 	iClosestTargetRange = MAX_INT;
+ 
+@@ -28782,60 +28759,54 @@ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvArea *pPlotArea = pPlot->area();
+-
+-	if (iRange == -1)
+-	{
++	if(iRange == -1)
+ 		iRange = DANGER_RANGE;
+-	}
+-
++	CvArea* pPlotArea = pPlot->area();
+ 	for (int iDX = -iRange; iDX <= iRange; iDX++)
+ 	{
+ 		for (int iDY = -iRange; iDY <= iRange; iDY++)
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{	// <advc.030>
+-				CvArea const& fromArea = *pLoopPlot->area();
+-				if(pPlotArea->canBeEntered(fromArea)) // Replacing:
+-				//if (pLoopPlot->area() == pPlotArea) // </advc.030>
+-				{
+-					for (CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+-					{
+-						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						if (pLoopUnit->isEnemy(getTeam()) &&
+-								// advc.315: was pLoopUnit->canAttack()
+-								AI_canBeAttackedBy(*pLoopUnit) &&
+-								!pLoopUnit->isInvisible(getTeam(), false))
+-						{ /* advc.030, advc.001k: Replacing the line below
+-							 (which calls isMadeAttack) */
+-							if(pPlotArea->canBeEntered(fromArea, pLoopUnit))
+-							//if (pLoopUnit->canMoveOrAttackInto(pPlot))
+-							{
+-								int iPathTurns = 0;
+-								if (bTestMoves)
+-								{
+-									/* original bts code
+-									if (!pLoopUnit->getGroup()->generatePath(pLoopPlot, pPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, false, &iPathTurns))
+-									{
+-										iPathTurns = MAX_INT;
+-									}*/
+-
+-									// K-Mod. Use a temp pathfinder, so as not to interfere with the normal one.
+-									KmodPathFinder temp_finder;
+-									temp_finder.SetSettings(pLoopUnit->getGroup(), MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, 1, GC.getMOVE_DENOMINATOR());
+-									if (temp_finder.GeneratePath(pPlot))
+-										iPathTurns = 1;
+-									// K-Mod end
+-								}
+-
+-								if (iPathTurns <= 1)
+-								{
+-									return true;
+-								}
+-							}
++			if(pLoopPlot == NULL)
++				continue;
++			// <advc.030>
++			CvArea const& fromArea = *pLoopPlot->area();
++			if(!pPlotArea->canBeEntered(fromArea)) // Replacing:
++					//if (pLoopPlot->area() != pPlotArea)
++				continue;
++			// </advc.030>
++			// <advc.128> Use a while loop for the units as in the plotDanger functions
++			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
++			if(pUnitNode != NULL && !pLoopPlot->isVisible(getTeam(), false)) {
++				if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
++					continue;
++			} // </advc.128>
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++				if (pLoopUnit->isEnemy(getTeam()) &&
++						// advc.315: was pLoopUnit->canAttack()
++						AI_canBeAttackedBy(*pLoopUnit) &&
++						!pLoopUnit->isInvisible(getTeam(), false))
++				{
++					if(pLoopUnit->canMoveOrAttackInto(pPlot,
++							false, true)) // advc.001k
++					{
++						int iPathTurns = 0;
++						if (bTestMoves)
++						{	/* original bts code
++							if (!pLoopUnit->getGroup()->generatePath(pLoopPlot, pPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, false, &iPathTurns))
++									iPathTurns = MAX_INT;*/
++							// K-Mod. Use a temp pathfinder, so as not to interfere with the normal one.
++							KmodPathFinder temp_finder;
++							temp_finder.SetSettings(pLoopUnit->getGroup(), MOVE_MAX_MOVES | MOVE_IGNORE_DANGER, 1, GC.getMOVE_DENOMINATOR());
++							if (temp_finder.GeneratePath(pPlot))
++								iPathTurns = 1;
++							// K-Mod end
+ 						}
++						if(iPathTurns <= 1)
++							return true;
+ 					}
+ 				}
+ 			}
+@@ -29039,6 +29010,29 @@ bool CvPlayerAI::AI_isDangerFromSubmarines() const {
+ 	return m_bDangerFromSubs;
+ } // </advc.651>
+ 
++// <advc.128>
++bool CvPlayerAI::AI_cheatDangerVisibility(CvPlot const& pAt) const {
++
++	double const pr = 0.5;
++	std::vector<long> hashInputs;
++	hashInputs.push_back(pAt.getX_INLINE());
++	hashInputs.push_back(pAt.getY_INLINE());
++	hashInputs.push_back(GC.getGameINLINE().getGameTurn());
++	hashInputs.push_back(getID());
++	return (::hash(hashInputs) < pr);
++
++	/*  This is a bit faster, but, in the end, I still had to reduce the number of
++		calls to this function, so I'm going to use the more readable (and possibly
++		more reliable) code above. */
++	/*	Should be possible to fit x, y, turn and id into a unique ulong, but, if not,
++		prime coefficients should reduce the probability of collisions (I guess). */
++	/*unsigned long x = pAt.getX_INLINE() + 251 * pAt.getY_INLINE() +
++			63029 * GC.getGameINLINE().gameTurn() + 94543517 * getID();
++	// Marsaglia Xorshift (may not work so well on 32-bit machines)
++	x ^= x << 13; x ^= x >> 7; x ^= x << 17;
++	return (x < ULONG_MAX / 2);*/
++} // </advc.128>
++
+ // <advc.104><advc.651>
+ bool CvPlayerAI::AI_canBeExpectedToTrain(UnitTypes ut) const {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index bebdd3408..cfef01361 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -758,6 +758,7 @@ protected:
+ 	// <advc.651>
+ 	void AI_updateDangerFromSubmarines();
+ 		bool m_bDangerFromSubs; // Not stored in savegames </advc.651>
++	bool AI_cheatDangerVisibility(CvPlot const& pAt) const; // advc.128
+ 	int AI_knownRankDifference(PlayerTypes otherId) const; // advc.130c
+ 	// advc.042: Relies on caller to reset GC.getBorderFinder()
+ 	bool AI_isUnimprovedBonus(CvPlot const& p, CvPlot* pFromPlot, bool bCheckPath) const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 842b6b2a5..42dfb9dd8 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -813,8 +813,7 @@ void CvPlot::updateCenterUnit()
+ 
+ void CvPlot::verifyUnitValidPlot()
+ {
+-	PROFILE_FUNC();
+-
++	//PROFILE_FUNC(); // advc.003o
+ 	std::vector<std::pair<PlayerTypes, int> > bumped_groups; // K-Mod
+ 	
+ 	std::vector<CvUnit*> aUnits;
+@@ -10409,7 +10408,6 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 		bool bCheckAirUnitCap, // advc.001b
+ 		BonusTypes eAssumeAvailable) const // advc.001u
+ {
+-	PROFILE_FUNC(); // advc.003b
+ 	CvCity* pCity = getPlotCity();
+ 
+ 	if (GC.getUnitInfo(eUnit).isPrereqReligion())
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 15f4e3e26..8cc0b309d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2816,8 +2816,7 @@ void CvSelectionGroup::unloadAll()
+ 
+ bool CvSelectionGroup::alwaysInvisible() const
+ {
+-	PROFILE_FUNC();
+-
++	//PROFILE_FUNC(); // advc.003o
+ 	if(getNumUnits() <= 0)
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5a1354b27..ae6315b56 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2873,29 +2873,6 @@ int CvTeam::getVassalCount(TeamTypes eTeam) const
+ 	return iCount;
+ }
+ 
+-bool CvTeam::isAVassal() const
+-{
+-	return (m_eMaster != NO_TEAM); // advc.003b
+-	/*PROFILE_FUNC();
+-	int iI;
+-
+-	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+-	{
+-		if (GET_TEAM((TeamTypes)iI).isAlive())
+-		{
+-			if (iI != getID())
+-			{
+-				if (isVassal((TeamTypes)iI))
+-				{
+-					FAssert(iI != getID());
+-					return true;
+-				}
+-			}
+-		}
+-	}
+-
+-	return false;*/
+-}
+ 
+ bool CvTeam::canVassalRevolt(TeamTypes eMaster) const
+ {
+@@ -3661,12 +3638,6 @@ bool CvTeam::isHuman() const
+ }
+ 
+ 
+-bool CvTeam::isBarbarian() const
+-{
+-	return (getID() == BARBARIAN_TEAM);
+-}
+-
+-
+ bool CvTeam::checkMinorCiv() const // advc.003m: Renamed
+ {
+ 	bool bValid = false;
+@@ -3847,12 +3818,6 @@ int CvTeam::getAliveCount() const
+ }
+ 
+ 
+-int CvTeam::isAlive() const
+-{
+-	return (getAliveCount() > 0);
+-}
+-
+-
+ void CvTeam::changeAliveCount(int iChange)
+ {
+ 	m_iAliveCount += iChange;
+@@ -4328,12 +4293,6 @@ void CvTeam::setMapCentering(bool bNewValue)
+ }
+ 
+ 
+-TeamTypes CvTeam::getID() const
+-{
+-	return m_eID;
+-}
+-
+-
+ int CvTeam::getStolenVisibilityTimer(TeamTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index d17ad803a..11b88556d 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -88,8 +88,6 @@ public:
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      01/10/09                                jdog5000      */
+-/*                                                                                              */
+-/*                                                                                              */
+ /************************************************************************************************/
+ 	bool isMasterPlanningLandWar(CvArea* pArea);
+ 	bool isMasterPlanningSeaWar(CvArea* pArea);
+@@ -112,7 +110,8 @@ public:
+ 	bool hasMetHuman() const;																														// Exposed to Python
+ 	int getDefensivePactCount(TeamTypes eTeam = NO_TEAM) const;																									// Exposed to Python
+ 	int getVassalCount(TeamTypes eTeam = NO_TEAM) const;
+-	bool isAVassal() const;																							// Exposed to Python
++	// advc.003b, advc.003f:
++	inline bool isAVassal() const { return (m_eMaster != NO_TEAM); }																						// Exposed to Python
+ 	bool canVassalRevolt(TeamTypes eMaster) const;
+ 	 // advc.112: Moved a bit of code from canVassalRevolt into this subroutine
+ 	bool isLossesAllowRevolt(TeamTypes eMaster) const;
+@@ -153,7 +152,8 @@ public:
+ 	// </advc.301>
+ 
+ 	bool isHuman() const;																																// Exposed to Python
+-	bool isBarbarian() const;																														// Exposed to Python
++	// advc.003f:
++	inline bool isBarbarian() const { return (m_eID == BARBARIAN_TEAM); }																				// Exposed to Python
+ 	// <advc.003m> Cached
+ 	inline bool isMinorCiv() const { return m_bMinorTeam; }																							// Exposed to Python
+ 	void updateMinorCiv() { m_bMinorTeam = checkMinorCiv(); }
+@@ -169,7 +169,7 @@ public:
+ 	void changeNumMembers(int iChange);
+ 
+ 	int getAliveCount() const; // advc.155: Exposed to Python
+-	DllExport int isAlive() const;																											// Exposed to Python
++	DllExport inline int isAlive() const { return (m_iAliveCount > 0); } // advc.003f																// Exposed to Python
+ 	void changeAliveCount(int iChange);
+ 
+ 	int getEverAliveCount() const;
+@@ -252,7 +252,7 @@ public:
+ 	bool isMapCentering() const;																							// Exposed to Python	
+ 	void setMapCentering(bool bNewValue);																					// Exposed to Python	
+ 																																								
+-	TeamTypes getID() const;																											// Exposed to Python	
++	TeamTypes getID() const { return m_eID; } // advc.003f																		// Exposed to Python	
+ 
+ 	int getStolenVisibilityTimer(TeamTypes eIndex) const;
+ 	bool isStolenVisibility(TeamTypes eIndex) const;																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 539fef5a6..92218290f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2716,8 +2716,11 @@ bool CvUnit::willRevealByMove(const CvPlot* pPlot) const
+ 	return false;
+ }
+ 
+-// K-Mod. I've rearranged a few things to make the function slightly faster, and added "bAssumeVisible" which signals that we should check for units on the plot regardless of whether we can actually see.
+-bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible) const
++/*  K-Mod. I've rearranged a few things to make the function slightly faster,
++	and added "bAssumeVisible" which signals that we should check for units on
++	the plot regardless of whether we can actually see. */
++bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible,
++		bool bDangerCheck) const // advc.001k
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -2896,32 +2899,28 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       07/23/09                                jdog5000      */
+-/*                                                                                              */
+ /* Consistency                                                                                  */
+ /************************************************************************************************/
+ /* original bts code
+-	if (bAttack)
+-	{
++	if (bAttack) {
+ 		if (isMadeAttack() && !isBlitz())
+-		{
+ 			return false;
+-		}
+-	}
+-*/
++	} */
+ 	// The following change makes capturing an undefended city like a attack action, it
+ 	// cannot be done after another attack or a paradrop
+ 	/*
+-	if (bAttack || (pPlot->isEnemyCity(*this) && !canCoexistWithEnemyUnit(NO_TEAM)) )
+-	{
++	if (bAttack || (pPlot->isEnemyCity(*this) && !canCoexistWithEnemyUnit(NO_TEAM)) ) {
+ 		if (//isMadeAttack() && !isBlitz()
+ 				isMadeAllAttacks()) // advc.164
+ 			return false;
+-	}
+-	*/
+-
++	}*/
+ 	// The following change makes it possible to capture defenseless units after having 
+ 	// made a previous attack or paradrop
+-	if (bAttack)
++	if (bAttack
++			/*  advc.001k: When checking for danger, we want to know whether the
++				unit will be able to attack on its next turn. Whether it has attacked
++				on its most recent turn doesn't matter. */
++			&& !bDangerCheck)
+ 	{
+ 		if (//isMadeAttack() && !isBlitz()
+ 				isMadeAllAttacks() && // advc.164
+@@ -3091,9 +3090,11 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ }
+ 
+ 
+-bool CvUnit::canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar) const
++bool CvUnit::canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar,
++		bool bDangerCheck) const // advc.001k
+ {
+-	return (canMoveInto(pPlot, false, bDeclareWar) || canMoveInto(pPlot, true, bDeclareWar));
++	return (canMoveInto(pPlot, false, bDeclareWar) || canMoveInto(pPlot, true, bDeclareWar,
++			false, true, bDangerCheck)); // advc.001k
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 255e65014..5dfe2ea56 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -107,8 +107,11 @@ public:
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	TeamTypes getDeclareWarMove(const CvPlot* pPlot) const;															// Exposed to Python
+-	bool canMoveInto(const CvPlot* pPlot, bool bAttack = false, bool bDeclareWar = false, bool bIgnoreLoad = false, bool bAssumeVisible = true) const; // K-Mod added bAssumeVisible. Exposed to Python
+-	bool canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar = false) const;								// Exposed to Python
++	bool canMoveInto(const CvPlot* pPlot, bool bAttack = false, bool bDeclareWar = false, bool bIgnoreLoad = false,										// Exposed to Python
++			bool bAssumeVisible = true, // K-Mod
++			bool bDangerCheck = false) const; // advc.001k
++	bool canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar = false,										// Exposed to Python
++			bool bDangerCheck = false) const; // advc.001k
+ 	// bool canMoveThrough(const CvPlot* pPlot, bool bDeclareWar = false) const; // disabled by K-Mod (was exposed to Python)
+ 	bool canEnterArea(CvArea const& a) const; // advc.030
+ 	bool isInvasionMove(CvPlot const& from, CvPlot const& to) const; // advc.162
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ea7480664..2c026c937 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -24890,9 +24890,9 @@ int CvUnitAI::AI_searchRange(int iRange)
+ 
+ // XXX at some point test the game with and without this function...
+ bool CvUnitAI::AI_plotValid(CvPlot* pPlot)
+-{
+-	PROFILE_FUNC();
+-
++{	/*  advc.003o: This function is called extremely often and the total time
++		spent is significant, but profiling it over and over won't help. */
++	//PROFILE_FUNC();
+ 	if (m_pUnitInfo->isNoRevealMap() && willRevealByMove(pPlot))
+ 	{
+ 		return false;
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index b7bbe59a6..9bb491101 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -65,7 +65,7 @@ KmodPathFinder::~KmodPathFinder()
+ 
+ bool KmodPathFinder::ValidateNodeMap()
+ {
+-	PROFILE_FUNC();
++	//PROFILE_FUNC(); // advc.003o
+ 	if (!GC.getGameINLINE().isFinalInitialized())
+ 		return false;
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=42623

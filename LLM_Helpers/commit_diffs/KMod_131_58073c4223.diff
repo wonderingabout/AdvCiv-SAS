@@ -1,0 +1,169 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 131
+# Commit: 58073c4223365cc6ab504e5ec082b12fc348e2da
+# History segment: K-Mod history
+# Parent used for diff: 8d7d1a108e474dad8daa54c7f8203cf0f2937d31
+# Title: Changed the way "financial trouble" is defined, so that civs using CULTURAL_VICTORY4 or ESPIONAGE_ECONOMY aren't automatically in "financial trouble". Disabl...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	13	CvGameCoreDLL/CvCityAI.cpp
+6	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7eade3a84..9db07910c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1249,7 +1249,6 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	if( kPlayer.isStrike() )
+ 	{
+-		// pick granary or lighthouse, any duration
+ 		int iStrikeFlags = 0;
+ 		iStrikeFlags |= BUILDINGFOCUS_GOLD;
+ 		iStrikeFlags |= BUILDINGFOCUS_MAINTENANCE;
+@@ -1259,11 +1258,12 @@ void CvCityAI::AI_chooseProduction()
+ 			return;
+ 		}
+ 
++		/*
+ 		// try picking forge, etc, any duration
+ 		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION))
+ 		{
+ 			return;
+-		}
++		} */ // K-Mod (a produciton building will get choosen if it is the right thing to choose)
+ 		
+ 		// just pick any building, any duration
+ 		if (AI_chooseBuilding())
+@@ -1534,11 +1534,11 @@ void CvCityAI::AI_chooseProduction()
+ 	
+ 	if (!bDanger && ((kPlayer.getCurrentEra() > (GC.getGame().getStartEra() + iProductionRank / 2))) || (kPlayer.getCurrentEra() > (GC.getNumEraInfos() / 2)))
+ 	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1)))
++		/* if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1)))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 1", getName().GetCString());
+ 			return;	
+-		}
++		} */ // K-Mod.
+ 
+ 		if( !(bDefenseWar && iWarSuccessRatio < -30) )
+ 		{
+@@ -1794,11 +1794,12 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 	
++	/* original bts code. We dont' need this. It just ends up putting aqueducts everywhere.
+ 	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, isCapital() ? 5 : 30, 30))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 2", getName().GetCString());
+ 		return;
+-	}
++	} */
+ 
+ 	int iSpreadUnitThreshold = 1000;
+ 
+@@ -2018,11 +2019,12 @@ void CvCityAI::AI_chooseProduction()
+         }
+     }
+ 
++	/* original bts code. We dont' need this. It just ends up putting aqueducts everywhere.
+ 	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10, (bLandWar ? 30 : -1)))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 3", getName().GetCString());
+ 		return;
+-	}
++	} */
+ 	
+ 	//oppurunistic wonder build
+ 	if (!bDanger && (!hasActiveWorldWonder() || (kPlayer.getNumCities() > 3)))
+@@ -2768,14 +2770,14 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	if (!bLandWar)
+ 	{
+-		if ((iCulturePressure > 90) || kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
++		/* if ((iCulturePressure > 90) || kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 20))
+ 			{
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses cultural pressure/cultural victory 3", getName().GetCString());
+ 				return;
+ 			}
+-		}
++		} */ // K-Mod (cultural buildings are valued more highly when doing cultural victory strats. This isn't needed.)
+ 
+ 		if (pWaterArea != NULL && bFinancialTrouble)
+ 		{
+@@ -2829,18 +2831,18 @@ void CvCityAI::AI_chooseProduction()
+ 	// I suspect they do very little other than use CPU time.
+ 	// If the building is good enough, it will get chosen by the general chooseBuilding function.
+ 
+-	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20, 4))
++	/*if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20, 4))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 2", getName().GetCString());
+ 		return;
+-	}
++	}*/ // K-Mod. (this ends up making cities kill themselves with unhealithiness they can't afford)
+ 	
+ 	//20 means 5g or ~2 happiness...
+ 	/*if (AI_chooseBuilding(iEconomyFlags, 15, 20))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 2", getName().GetCString());
+ 		return;
+-	}*/ // K-Mod
++	}*/ // K-Mod. (economic value is already well estimated without flags)
+ 
+ 
+ 	if (!bLandWar)
+@@ -2849,7 +2851,7 @@ void CvCityAI::AI_chooseProduction()
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 3", getName().GetCString());
+ 			return;
+-		}*/ // K-Mod
++		}
+ 
+ 		if (iCulturePressure > 50)
+ 		{
+@@ -2858,7 +2860,7 @@ void CvCityAI::AI_chooseProduction()
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose cultural pressure 2", getName().GetCString());
+ 				return;
+ 			}
+-		}
++		}*/ // K-Mod
+ 
+ 		if (pWaterArea != NULL)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9ce7f032b..dc5b96a6b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4389,7 +4389,12 @@ bool CvPlayerAI::AI_isFinancialTrouble() const
+ 
+ 	//if (getCommercePercent(COMMERCE_GOLD) > 50)
+ 	{
+-		int iNetCommerce = 1 + getCommerceRate(COMMERCE_GOLD) + getCommerceRate(COMMERCE_RESEARCH) + std::max(0, getGoldPerTurn());
++		// K-Mod: have you heard of "cultural victory"? How about "espionage economy"?
++		// Really we just want to know how much of our commerce slider is used for paying the bills.
++		/* original bts code
++		int iNetCommerce = 1 + getCommerceRate(COMMERCE_GOLD) + getCommerceRate(COMMERCE_RESEARCH) + std::max(0, getGoldPerTurn()); */
++		int iNetCommerce = 1 + 100 * (getCommerceRate(COMMERCE_GOLD) + std::max(0, getGoldPerTurn())) / std::max(1, getCommercePercent(COMMERCE_GOLD));
++		// K-Mod end
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       06/11/09                       jdog5000 & DanF5771    */
+ /*                                                                                              */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5614

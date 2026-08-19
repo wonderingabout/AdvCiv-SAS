@@ -1,0 +1,91 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3831
+# Commit: 3515aeecd8be8f9fd4cc5c1526221734666af382
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 92b659ed15422237f94cc21d4a51c0d53a3d3b41
+# Title: Fix glitches in terrain surfaces after map re-gen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	0	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGame.h
+4	0	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5fae06a9a..12572a110 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -318,6 +318,22 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ 	CvMapGenerator::GetInstance().addGameElements();
+ 
+ 	gDLL->getEngineIFace()->RebuildAllPlots();
++	/*	<advc.001> Even if we call CvMap::setupGraphical before RebuildAllPlots,
++		there are still artifacts in texture surfaces. I guess we need to give
++		the EXE a little bit of time. I'm leaving the original call in place too
++		(although it takes about a second) to avoid (overt) momentary glitches. */
++	setUpdateTimer(UPDATE_REBUILD_PLOTS, 1);
++	// Fix dark lines running through Flood Plains
++	{
++		FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString(
++				"FEATURE_FLOOD_PLAINS");
++		FOR_EACH_ENUM(PlotNum)
++		{
++			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
++			if (kPlot.isRiver() && kPlot.getFeatureType() == eFloodPlains)
++				kPlot.updateRiverSymbol(true, true);
++		}
++	} // </advc.001>
+ 	// <advc.251>
+ 	setGameTurn(0);
+ 	setStartTurn(0);
+@@ -8509,6 +8525,8 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 		} // </advc.004j>
+ 		// advc.106n:
+ 		case UPDATE_STORE_REPLAY_TEXTURE: GC.getMap().updateReplayTexture(); break;
++		// advc.001:
++		case UPDATE_REBUILD_PLOTS: gDLL->getEngineIFace()->RebuildAllPlots(); break;
+ 		default: FErrorMsg("Unknown update timer type");
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 1b275e9c6..75f577a0d 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -454,6 +454,7 @@ public:
+ 		UPDATE_MOUSE_FOCUS, // advc.001w
+ 		UPDATE_LOOK_AT_STARTING_PLOT, // advc.004j
+ 		UPDATE_STORE_REPLAY_TEXTURE, // advc.106n
++		UPDATE_REBUILD_PLOTS, // advc.001
+ 		NUM_UPDATE_TIMER_TYPES
+ 	};
+ 	void setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6240800b5..dede5aae9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4440,6 +4440,10 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
+ 	if (bRebuildGraphics && GC.IsGraphicsInitialized())
+ 	{
+ 		//Update terrain graphical
++		/*	advc (note): Calling RebuildAllPlots here would get rid of artifacts
++			in terrain surfaces - but it's too slow. Just rebuilding surrounding
++			plots doesn't do the trick; there's sth. else, apparently, that
++			RebuildAllPlots does. (Or perhaps a delayed RebuildPlot call would do?) */
+ 		gDLL->getEngineIFace()->RebuildPlot(getX(), getY(), true, true);
+ 		//gDLL->getEngineIFace()->SetDirty(MinimapTexture_DIRTY_BIT, true); //minimap does a partial update
+ 		//gDLL->getEngineIFace()->SetDirty(GlobeTexture_DIRTY_BIT, true);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2802

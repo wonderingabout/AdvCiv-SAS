@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4664
+# Commit: 95aa7ee6e6a46b43630cb49c5563c407a18dbe24
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: df397bfd3d61ec5b2d449c990e3e7300939f7a21
+# Title: rename promotion_ace to promotion_air_evasion
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+9	1	Assets/XML/Text/CIV4GameText_Custom.xml
+3	2	Assets/XML/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index b6d660c81..f279f868f 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -172,7 +172,7 @@
+ 	<!-- custom: an ace can be about ground units too, hopefully
+ 	clearer now -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
++		<Tag>TXT_KEY_PROMOTION_AIR_EVASION</Tag>
+ 		<English>Air Evasion</English>
+ 	</TEXT>
+ 	<!-- custom: name is more epic, not necessarily clearer (especially
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index b4a434be9..fb4cd5288 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -17,7 +17,15 @@
+ 		<English>3_AdvCiv-SAS Core Changes</English>
+ 	</TEXT>
+ 
+-
++	<!-- custom: do not rename the tag itself as we would have to recompile
++	and may break compatibility with other mods, we mostly (just or not)
++	wanted to rename the tag of promotioninfo itself that is much more used
++	and prone to confusing those who read it maybe, at least me, anyways,
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
++		<English>[ICON_BULLET]%D1_Change%% Air Evasion Chance</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_INTERCEPT_TEXT</Tag>
+ 		<English>[ICON_BULLET]%D1_Change%% Air Interception Chance</English>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 401173a06..69ce619e2 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -4999,9 +4999,10 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
+ 		</PromotionInfo>
++		<!-- custom: "ace" is now "air_evasion" -->
+ 		<PromotionInfo>
+-			<Type>PROMOTION_ACE</Type>
+-			<Description>TXT_KEY_PROMOTION_ACE</Description>
++			<Type>PROMOTION_AIR_EVASION</Type>
++			<Description>TXT_KEY_PROMOTION_AIR_EVASION</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2313

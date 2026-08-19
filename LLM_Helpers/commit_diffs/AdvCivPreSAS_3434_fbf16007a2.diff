@@ -1,0 +1,146 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3434
+# Commit: fbf16007a2d0292514e4a976ffaca1e03551e03f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 20ce6a94725f8a18b1f41efa281eb2fbd3c1600b
+# Title: Slightly increase tech costs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/GameInfo/CIV4EraInfos.xml
+12	12	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4EraInfos.xml b/Assets/XML/GameInfo/CIV4EraInfos.xml
+index 4282bb1d9..207219dad 100644
+--- a/Assets/XML/GameInfo/CIV4EraInfos.xml
++++ b/Assets/XML/GameInfo/CIV4EraInfos.xml
+@@ -177,7 +177,7 @@
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iResearchPercent>80</iResearchPercent>
+ 			<!-- advc.910: Was 6 in K-Mod, 4 in BBAI. -->
+-			<iTechCostModifier>0</iTechCostModifier>
++			<iTechCostModifier>2</iTechCostModifier>
+ 			<!-- advc.groundbr: start -->
+ 			<iAIMaxGroundbreakingPenalty>15</iAIMaxGroundbreakingPenalty>
+ 			<!-- 20 in DoC -->
+@@ -260,7 +260,7 @@
+ 			<iCreatePercent>90</iCreatePercent>
+ 			<iResearchPercent>70</iResearchPercent>
+ 			<!-- advc.910: Was 12 in K-Mod, 9 in BBAI. -->
+-			<iTechCostModifier>11</iTechCostModifier>
++			<iTechCostModifier>13</iTechCostModifier>
+ 			<!-- advc.groundbr: start -->
+ 			<iAIMaxGroundbreakingPenalty>25</iAIMaxGroundbreakingPenalty>
+ 			<!-- as in DoC -->
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index bbf320887..1bf45955d 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -492,9 +492,9 @@
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- advc.251: Was 100. Note that this doesn't mean that humans
+-				 have an advantage over the AI; ResearchPercent applies to
+-				 all civs. -->
+-			<iResearchPercent>94</iResearchPercent>
++				 have an advantage over the AI; ResearchPercent on Noble
++				 applies to all civs. -->
++			<iResearchPercent>95</iResearchPercent>
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+@@ -617,7 +617,7 @@
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 110 -->
+-			<iResearchPercent>105</iResearchPercent>
++			<iResearchPercent>108</iResearchPercent>
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+@@ -674,7 +674,7 @@
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>100</iAIResearchPercent>
++			<iAIResearchPercent>103</iAIResearchPercent>
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>95</iAIConstructPercent>
+@@ -743,7 +743,7 @@
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>106</iCultureLevelPercent>
+ 			<!-- advc.251 (end) -->
+-			<iResearchPercent>115</iResearchPercent>
++			<iResearchPercent>120</iResearchPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+@@ -802,7 +802,7 @@
+ 			<iAIGrowthPercent>95</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+-			<iAIResearchPercent>105</iAIResearchPercent>
++			<iAIResearchPercent>110</iAIResearchPercent>
+ 			<!-- was 90 -->
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -899,7 +899,7 @@
+ 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>110</iGPThresholdPercent>
+ 			<iCultureLevelPercent>112</iCultureLevelPercent>
+-			<iResearchPercent>125</iResearchPercent>
++			<iResearchPercent>130</iResearchPercent>
+ 			<iTrainPercent>110</iTrainPercent>
+ 			<iConstructPercent>105</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+@@ -956,7 +956,7 @@
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>110</iAIResearchPercent>
++			<iAIResearchPercent>115</iAIResearchPercent>
+ 			<!-- was 85 -->
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1058,7 +1058,7 @@
+ 			<iGPThresholdPercent>120</iGPThresholdPercent>
+ 			<iCultureLevelPercent>118</iCultureLevelPercent>
+ 			<!-- was 125 -->
+-			<iResearchPercent>135</iResearchPercent>
++			<iResearchPercent>140</iResearchPercent>
+ 			<iTrainPercent>120</iTrainPercent>
+ 			<iConstructPercent>110</iConstructPercent>
+ 			<iCreatePercent>110</iCreatePercent>
+@@ -1118,7 +1118,7 @@
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>115</iAIResearchPercent>
++			<iAIResearchPercent>120</iAIResearchPercent>
+ 			<!-- was 80 -->
+ 			<iAITrainPercent>90</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1281,7 +1281,7 @@
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>120</iAIResearchPercent>
++			<iAIResearchPercent>124</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>85</iAITrainPercent>
+ 			<!-- was 100-->
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4921

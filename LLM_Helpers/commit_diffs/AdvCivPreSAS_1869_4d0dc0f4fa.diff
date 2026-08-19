@@ -1,0 +1,450 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1869
+# Commit: 4d0dc0f4fa1e90103f76e6134d4d267659d10c67
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d7f28a6d8681d6c28b101925b847ff2290478b82
+# Title: Allow air unit production in cities with insufficient capacity
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	0	Assets/XML/GlobalDefines_advc.xml
+26	2	Assets/XML/Text/CIV4GameText_advc.xml
+35	13	CvGameCoreDLL/CvCity.cpp
+3	2	CvGameCoreDLL/CvGameTextMgr.cpp
+1	0	CvGameCoreDLL/CvGlobals.h
+1	2	CvGameCoreDLL/CvPlayer.cpp
+9	6	CvGameCoreDLL/CvPlot.cpp
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+47	46	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index d87761ddb..331b14034 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1120,4 +1120,16 @@
+ 		<iDefineIntVal>-2</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.001b: 1 means that the production of air units is interrupted
++		 when the unit would exceed the city's air unit capacity.
++		 0 means that cities can produce air units regardless of capacity;
++		 when a new unit exceeds the capacity, it is automatically moved
++		 (to the rally point if possible, otherwise to the nearest legal
++		 city or fort). 0 is BtS behavior except that, in AdvCiv, forced
++		 moves use up movement points. -->
++	<Define>
++		<DefineName>CAN_TRAIN_CHECKS_AIR_UNIT_CAP</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 5bf1f6f83..4ed2bea92 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1696,11 +1696,35 @@
+ 		 Couldn't do Spanish. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_NOT_ENOUGH_SPACE</Tag>
+-		<English>Not enough air unit space available in this city.</English>
++		<English>Not enough air capacity available in this city.</English>
+ 		<French>Il ne reste pas assez d'espace pour unit&#233;s a&#233;riennes dans cette cit&#233;.</French>
+ 		<German>Zu wenig Platz f&#252;r weitere Lufteinheiten in dieser Stadt.</German>
+ 		<Italian>Il spazio per unit&#224; aeree in questa citt&#224; &#232; esaurito.</Italian>
+-		<Spanish>Not enough air unit space available in this city.</Spanish>
++		<Spanish>Not enough air unit capacity available in this city.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIR_CAPACITY_EXCEEDED</Tag>
++		<English>Your %s1 at %s2 had to be %s3 due to insufficient air capacity.</English>
++		<French>Your %s1 at %s2 had to be %s3 due to insufficient air capacity.</French>
++		<German>Ihre Lufteinheit %s1 in %s2 musste wegen fehlender Kapazit�t %s3 werden.</German>
++		<Italian>Your %s1 at %s2 had to be %s3 due to insufficient air capacity.</Italian>
++		<Spanish>Your %s1 at %s2 had to be %s3 due to insufficient air capacity.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIR_UNIT_SCRAPPED</Tag>
++		<English>scrapped</English>
++		<French>scrapped</French>
++		<German>verschrottet</German>
++		<Italian>scrapped</Italian>
++		<Spanish>scrapped</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIR_UNIT_MOVED</Tag>
++		<English>moved</English>
++		<French>moved</French>
++		<German>verlegt</German>
++		<Italian>moved</Italian>
++		<Spanish>moved</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.300: (Earliest) barbarian start turn -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b65548b1b..0d3481978 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11776,31 +11776,53 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)  // advc: style chan
+ 		setUnitProductionTime(eTrainUnit, 0); // EmperorFool, Bugfix, 06/10/10
+ 		// </advc.064b>
+ 		CvUnit* pUnit = kOwner.initUnit(eTrainUnit, getX(), getY(), eTrainAIUnit);
+-		FAssertMsg(pUnit != NULL, "pUnit is expected to be assigned a valid unit object");
+ 		pUnit->finishMoves();
+ 		addProductionExperience(pUnit);
+-		CvPlot* pRallyPlot = getRallyPlot();
+-		if(pRallyPlot != NULL)
++		CvPlot* pRallyPlot = getRallyPlot(); // (advc.001b: moved up)
++		if (GC.getInfo(eTrainUnit).getDomainType() == DOMAIN_AIR)
++		{
++			if(plot()->countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
++			{	// <advc.001b>
++				if (pRallyPlot != NULL && pUnit->canMoveInto(*pRallyPlot))
++					pUnit->move(*pRallyPlot, false, true);
++				if (pUnit->at(*plot()))
++				{
++					pUnit->jumpToNearestValidPlot(); // (as in BtS)
++					bool const bDead = pUnit->isDead();
++					if (getOwner() == GC.getGame().getActivePlayer())
++					{
++						CvWString szMsg(gDLL->getText("TXT_KEY_AIR_CAPACITY_EXCEEDED",
++								pUnit->getNameKey(), getNameKey(), gDLL->getText(bDead ?
++								"TXT_KEY_AIR_UNIT_SCRAPPED" : "TXT_KEY_AIR_UNIT_MOVED").GetCString()));
++						gDLL->getInterfaceIFace()->addMessage(getOwner(), false,
++								GC.getEVENT_MESSAGE_TIME(), szMsg, NULL, MESSAGE_TYPE_INFO,
++								pUnit->getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"),
++								bDead ? getX() : pUnit->getX(), bDead ? getY() : pUnit->getY(), true, true);
++					}
++					if (bDead)
++						break;
++				}
++				/*	The jump has already spent all moves. Spending all moves twice makes
++					the unit unable to move on the next turn. Cf. CvUnit::doTurn. */
++				pUnit->changeMoves(pUnit->maxMoves());
++				// </advc.001b>
++			}
++		}
++		if (pRallyPlot != NULL/* advc.001b: */ && pUnit->at(*plot()))
+ 			pUnit->getGroup()->pushMission(MISSION_MOVE_TO, pRallyPlot->getX(), pRallyPlot->getY());
+-		if(isHuman())
++		if (isHuman())
+ 		{
+-			if(kOwner.isOption(PLAYEROPTION_START_AUTOMATED))
++			if (kOwner.isOption(PLAYEROPTION_START_AUTOMATED))
+ 				pUnit->automate(AUTOMATE_BUILD);
+-			if(kOwner.isOption(PLAYEROPTION_MISSIONARIES_AUTOMATED))
++			if (kOwner.isOption(PLAYEROPTION_MISSIONARIES_AUTOMATED))
+ 				pUnit->automate(AUTOMATE_RELIGION);
+ 		}
+ 		CvEventReporter::getInstance().unitBuilt(this, pUnit);
+-		if(gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
++		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 		{
+ 			CvWString szString; getUnitAIString(szString, pUnit->AI_getUnitAIType());
+ 			logBBAI("    City %S finishes production of unit %S with UNITAI %S", getName().GetCString(), pUnit->getName(0).GetCString(), szString.GetCString());
+ 		}
+-		CvUnitInfo const& kUnitInfo = GC.getInfo(eTrainUnit);
+-		if(kUnitInfo.getDomainType() == DOMAIN_AIR)
+-		{
+-			if(plot()->countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
+-				pUnit->jumpToNearestValidPlot();  // can destroy unit
+-		}
+ 		break;
+ 	}
+ 	case ORDER_CONSTRUCT:
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 5909eaad9..3487947a7 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10342,8 +10342,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 	// </advc.004w>
+ 	// <advc.001b>
+ 	if(pCity != NULL && pCity->plot() != NULL &&
+-			u.getAirUnitCap() > 0 && pCity->plot()->
+-			airUnitSpaceAvailable(TEAMID(pCity->getOwner())) < 1)
++		u.getAirUnitCap() > 0 &&
++		GC.getDefineBOOL(CvGlobals::CAN_TRAIN_CHECKS_AIR_UNIT_CAP) &&
++		pCity->plot()->airUnitSpaceAvailable(TEAMID(pCity->getOwner())) < 1)
+ 	{
+ 		szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText(
+ 				"TXT_KEY_NOT_ENOUGH_SPACE").c_str());
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index bbd12dcba..adf4b1005 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -437,6 +437,7 @@ public:
+ 		DO(RELATIONS_THRESH_ANNOYED) \
+ 		/* </advc.148> */ \
+ 		DO(MINIMAP_RENDER_SIZE) /* advc.106m */ \
++		DO(CAN_TRAIN_CHECKS_AIR_UNIT_CAP) /* advc.001b */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9f3299cd2..bdcab4b7c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2967,8 +2967,7 @@ void CvPlayer::doTurn()  // advc: style changes
+ 	FAssertMsg(isAlive(), "isAlive is expected to be true");
+ 	FAssertMsg(!hasBusyUnit() || GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)  || GC.getGame().isSimultaneousTeamTurns(), "End of turn with busy units in a sequential-turn game");
+ 	CvGame& g = GC.getGame();
+-	/* <advc.106b> Can't figure out from within CvGame whether it's an AI turn,
+-	   need assistance from CvPlayer. */
++	// <advc.106b>
+ 	if (!g.isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+ 		g.setInBetweenTurns(true);
+ 	if(isHuman() && //getStartOfTurnMessageLimit() >= 0 && // The message should be helpful even if the log doesn't auto-open
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 12bc65336..f087e604d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -8166,12 +8166,15 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 		}
+ 		if (bRequiresBonus && bNeedsBonus)
+ 			return false;
+-	}
+-
+-	// <advc.001b> Enforce air unit cap
+-	if(bCheckAirUnitCap && !bTestVisible && GC.getInfo(eUnit).getAirUnitCap() > 0 &&
++		// <advc.001b>
++		if (bCheckAirUnitCap &&
++			GC.getDefineBOOL(CvGlobals::CAN_TRAIN_CHECKS_AIR_UNIT_CAP) &&
++			GC.getInfo(eUnit).getAirUnitCap() > 0 &&
+ 			airUnitSpaceAvailable(getTeam()) < 1)
+-		return false; // </advc.001b>
++		{
++			return false;
++		} // </advc.001b>
++	}
+ 
+ 	return true;
+ }
+@@ -8218,7 +8221,7 @@ int CvPlot::airUnitSpaceAvailable(TeamTypes eTeam) const
+ {
+ 	int iMaxUnits = 0;
+ 	CvCity* pCity = getPlotCity();
+-	if (NULL != pCity)
++	if (pCity != NULL)
+ 		iMaxUnits = pCity->getAirUnitCapacity(getTeam());
+ 	else iMaxUnits = GC.getDefineINT(CvGlobals::CITY_AIR_UNIT_CAPACITY);
+ 	return (iMaxUnits - countNumAirUnits(eTeam));
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 985525c8b..a3311a1fc 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2783,7 +2783,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 
+ 	// Move the combat unit first, so that no-capture units don't get unneccarily left behind.
+ 	if (pCombatUnit)
+-		pCombatUnit->move(pPlot, true);
++		pCombatUnit->move(*pPlot, true);
+ 	// K-Mod end
+ 
+ 	/*  advc.001: Units that can't capture cities move in stage 1 (i.e. always last).
+@@ -2815,7 +2815,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 						b/c canMoveOrAttackInto doesn't cover it (perhaps it should). */
+ 					!(pLoopUnit->isNoCityCapture() && pPlot->isEnemyCity(*pLoopUnit)) &&
+ 					(bCombat ? pLoopUnit->canMoveOrAttackInto(*pPlot) : pLoopUnit->canMoveInto(*pPlot)))
+-				pLoopUnit->move(pPlot, true);
++				pLoopUnit->move(*pPlot, true);
+ 			else
+ 			{
+ 				/* original bts code
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5f84f677d..36b69e150 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -723,8 +723,10 @@ void CvUnit::doTurn()
+ 	setMadeInterception(false);
+ 
+ 	//setReconPlot(NULL); // advc.029: Handled at end of turn now
+-
+-	setMoves(0);
++	// <advc.001b> Allow double spent moves to carry over to the next turn
++	if (getMoves() >= 2 * maxMoves())
++		setMoves(maxMoves()); // </advc.001b>
++	else setMoves(0);
+ }
+ 
+ // <advc.029>
+@@ -2795,15 +2797,18 @@ void CvUnit::attackForDamage(CvUnit *pDefender, int attackerDamageChange, int de
+ }
+ 
+ 
+-void CvUnit::move(CvPlot* pPlot, bool bShow)
++void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bGroup)
+ {
+-	FAssert(canMoveOrAttackInto(*pPlot) || isMadeAttack());
+-
+-	CvPlot* pOldPlot = plot();
++	FAssert(/* advc.163: */ bJump ||
++			canMoveOrAttackInto(kPlot) || isMadeAttack());
+ 
+-	changeMoves(pPlot->movementCost(this, plot()));
++	CvPlot& kOldPlot = *plot();
++	// <advc.163>
++	if (bJump)
++		setMoves(maxMoves()); // </advc.163>
++	else changeMoves(kPlot.movementCost(this, &kOldPlot));
+ 	// <advc.162>
+-	if(isInvasionMove(*pOldPlot, *pPlot))
++	if(isInvasionMove(kOldPlot, kPlot))
+ 	{
+ 		std::vector<CvUnit*> aCargoUnits;
+ 		getCargoUnits(aCargoUnits);
+@@ -2813,56 +2818,48 @@ void CvUnit::move(CvPlot* pPlot, bool bShow)
+ 				aCargoUnits[i]->changeMoves(aCargoUnits[i]->movesLeft());
+ 		}
+ 	} // </advc.162>
+-	setXY(pPlot->getX(), pPlot->getY(), true, true, bShow && pPlot->isVisibleToWatchingHuman(), bShow);
+-	// <advc.001b> Arrival of air unit may interrupt production b/c of unit limit
+-	if(getDomainType() == DOMAIN_AIR && pPlot->isCity() && pPlot->getOwner() == getOwner())
+-		pPlot->getPlotCity()->verifyProduction(); // </advc.001b>
++	setXY(kPlot.getX(), kPlot.getY(), /* advc.163 (was 'true'): */ bGroup,
++			true, bShow && kPlot.isVisibleToWatchingHuman(), bShow);
+ 
+-	//change feature
+-	FeatureTypes featureType = pPlot->getFeatureType();
+-	if(featureType != NO_FEATURE)
++	FeatureTypes eFeature = kPlot.getFeatureType();
++	if (eFeature != NO_FEATURE) //change feature
+ 	{
+-		CvString featureString(GC.getInfo(featureType).getOnUnitChangeTo());
+-		if(!featureString.IsEmpty())
++		CvString szFeature(GC.getInfo(eFeature).getOnUnitChangeTo());
++		if (!szFeature.IsEmpty())
+ 		{
+-			FeatureTypes newFeatureType = (FeatureTypes) GC.getInfoTypeForString(featureString);
+-			pPlot->setFeatureType(newFeatureType);
++			FeatureTypes eNewFeature = (FeatureTypes)GC.getInfoTypeForString(szFeature);
++			kPlot.setFeatureType(eNewFeature);
+ 		}
+ 	}
+ 
+-	if (getOwner() == GC.getGame().getActivePlayer())
++	if (getOwner() == GC.getGame().getActivePlayer() && !kPlot.isOwned()
++		&& eFeature != NO_FEATURE) // spawn birds if trees present - JW
+ 	{
+-		if (!(pPlot->isOwned()))
++		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
++		if (getASyncRand().get(100) < kFeature.getEffectProbability())
+ 		{
+-			//spawn birds if trees present - JW
+-			if (featureType != NO_FEATURE)
+-			{
+-				if (getASyncRand().get(100) < GC.getInfo(featureType).getEffectProbability())
+-				{
+-					EffectTypes eEffect = (EffectTypes)GC.getInfoTypeForString(GC.getInfo(featureType).getEffectType());
+-					gDLL->getEngineIFace()->TriggerEffect(eEffect, pPlot->getPoint(), (float)getASyncRand().get(360));
+-					gDLL->getInterfaceIFace()->playGeneralSound("AS3D_UN_BIRDS_SCATTER", pPlot->getPoint());
+-				}
+-			}
++			EffectTypes eEffect = (EffectTypes)GC.getInfoTypeForString(kFeature.getEffectType());
++			NiPoint3 pt = kPlot.getPoint();
++			gDLL->getEngineIFace()->TriggerEffect(eEffect, pt, (float)getASyncRand().get(360));
++			gDLL->getInterfaceIFace()->playGeneralSound("AS3D_UN_BIRDS_SCATTER", pt);
+ 		}
+ 	}
+ 
+-	CvEventReporter::getInstance().unitMove(pPlot, this, pOldPlot);
++	CvEventReporter::getInstance().unitMove(&kPlot, this, &kOldPlot);
+ }
+ 
+-// false if unit is killed
+-// K-Mod, added bForceMove and bGroup
+-bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
++// returns false if unit is killed
++bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove)
+ {
+-	FAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
+-	FAssertMsg(!isFighting(), "isFighting did not return false as expected");
++	FAssert(!isAttacking());
++	FAssert(!isFighting());
+ 
+ 	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
+-	CvPlot const* pBestPlot = NULL;
++	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = MAX_INT;
+ 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+-		CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(iI);
++		CvPlot& kLoopPlot = GC.getMap().getPlotByIndex(iI);
+ 		if (kLoopPlot.isValidDomainForLocation(*this))
+ 		{
+ 			if (canMoveInto(kLoopPlot))
+@@ -2878,10 +2875,9 @@ bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
+ 						if (kLoopPlot.isRevealed(getTeam()))
+ 						{
+ 							int iValue = (::plotDistance(plot(), &kLoopPlot) * 2);
+-							// K-mod, 2/jan/11, karadoc - bForceMove functionality
++							// K-Mod, 2/jan/11 - bForceMove functionality
+ 							if (bForceMove && iValue == 0)
+-								continue;
+-							// K-Mod end
++								continue; // K-Mod end
+ 
+ 							if (pNearestCity != NULL)
+ 							{
+@@ -2942,11 +2938,10 @@ bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
+ 			if(!isHuman())
+ 				gr->AI().AI_cancelGroupAttack(); // Maybe not needed, but doesn't hurt.
+ 			gr->setAutomateType(NO_AUTOMATE);
+-			gr->setActivityType(ACTIVITY_AWAKE);
+-			setMoves(maxMoves());
+-			// </advc.163>
++			gr->setActivityType(ACTIVITY_AWAKE); // </advc.163>
+ 		}
+-		setXY(pBestPlot->getX(), pBestPlot->getY(), bGroup);
++		//setXY(pBestPlot->getX(), pBestPlot->getY(), bGroup);
++		move(*pBestPlot, true, true, bGroup); // advc.163
+ 	}
+ 	else
+ 	{
+@@ -8828,6 +8823,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 		{
+ 			if (isMilitaryHappiness())
+ 				pNewCity->changeMilitaryHappinessUnits(1);
++			  // <advc.001b>
++			if (GC.getDefineBOOL(CvGlobals::CAN_TRAIN_CHECKS_AIR_UNIT_CAP) &&
++				m_pUnitInfo->getAirUnitCap() > 0 && pNewCity->getOwner() == getOwner())
++			{
++				pNewCity->verifyProduction();
++			} // </advc.001b>
+ 		}
+ 
+ 		CvCity* pWorkingCity = pNewPlot->getWorkingCity();
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index b6e40ce11..6dee09edd 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -67,7 +67,8 @@ public:
+ 	void attack(CvPlot* pPlot, bool bQuick);
+ 	void attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange);
+ 	void fightInterceptor(const CvPlot* pPlot, bool bQuick);
+-	void move(CvPlot* pPlot, bool bShow);
++	void move(CvPlot& kPlot, bool bShow, // advc: 1st param was CvPlot* (not const b/c of possible feature change)
++			bool bJump = false, bool bGroup = true); // advc.163
+ 	// K-Mod added bForceMove and bGroup
+ 	bool jumpToNearestValidPlot(bool bGroup = false, bool bForceMove = false); // Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=17107

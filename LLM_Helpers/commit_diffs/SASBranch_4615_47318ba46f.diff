@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4615
+# Commit: 47318ba46f2ca281dc4c4b9af337b66ea53d5294
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d837c4331cf7098e6876bb3e1c4b3a1c5c09d1d0
+# Title: rename "We fear you are becoming too advanced" (WFYABTA) to "We fear you are trading more than us" (WFYATMTU)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	0	Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
+index dd0d69cca..6801e54d8 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
+@@ -53,4 +53,19 @@
+ 		<Italian>SEVOPEDIA</Italian>
+ 		<Spanish>SEVOPEDIA</Spanish>
+ 	</TEXT>
++
++	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
++	to "We fear you are trading more than us" (WFYATMTU), the former is
++	misleading as a player can receive it even if lagging behind in techs
++	and trying to trade, from what i understand/read/remember in the past
++	it is actually related to how much a player trades regardless of tech
++	progress, hopefully clearer now. -->
++	<TEXT>
++		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
++		<English>"We fear you are trading more than us."</English>
++		<French>"We fear you are trading more than us."</French>
++		<German>"We fear you are trading more than us."</German>
++		<Italian>"We fear you are trading more than us."</Italian>
++		<Spanish>"We fear you are trading more than us."</Spanish>
++	</TEXT>
+ </Civ4GameText>
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1163

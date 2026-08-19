@@ -1,0 +1,346 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 346
+# Commit: afc5dd1cb278ba31a0d15ad0233469ffbd2c6dd9
+# History segment: K-Mod history
+# Parent used for diff: 2f8ba9dc76726821ed74affc44471c9ebb031333
+# Title: AI_pickTargetCity now discourages the AI from attacking cities that it knows to be well defended. Fixed a problem which would often cause AI_getStrategyRand...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.h
+6	2	CvGameCoreDLL/CvSelectionGroup.h
+38	27	CvGameCoreDLL/CvSelectionGroupAI.cpp
+6	2	CvGameCoreDLL/CvSelectionGroupAI.h
+28	15	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 529a716b4..6cdb50941 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4115,7 +4115,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 			if( GC.getGameINLINE().isDebugMode() )
+ 			{
+ 				szTempBuffer.Format(L"\nStack Compare Value = %d",
+-					gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot, true));
++					gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot));
+ 				szString.append(szTempBuffer);
+ 
+ 				if( pPlot->getPlotCity() != NULL )
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5fd2014cd..140987301 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -18924,7 +18924,7 @@ void CvPlayerAI::AI_initStrategyRand()
+ 	m_iStrategyRand = GC.getGameINLINE().getSorenRandNum((1<<(iBits+1))-1, "AI Strategy Rand");
+ }
+ 
+-int CvPlayerAI::AI_getStrategyRand(int iShift) const
++unsigned CvPlayerAI::AI_getStrategyRand(int iShift) const
+ {
+ 	const unsigned iBits = 16; // cf bits in AI_initStrategyRand
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index d14aac099..eb55f50b0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -340,7 +340,7 @@ public:
+ 	inline int AI_getVictoryStrategyHash() const { return m_iVictoryStrategyHash; }
+ 	void AI_updateVictoryStrategyHash(); // K-Mod
+ 	void AI_initStrategyRand(); // K-Mod
+-	int AI_getStrategyRand(int iShift) const;
++	unsigned AI_getStrategyRand(int iShift) const;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/		
+@@ -479,7 +479,7 @@ protected:
+ 	// K-Mod. The original caching method was just begging for OOS bugs.
+ 	int m_iStrategyHash;
+ 	// BBAI variables (adjusted for K-Mod)
+-	int m_iStrategyRand;
++	unsigned m_iStrategyRand;
+ 	int m_iVictoryStrategyHash;
+ 	// end BBAI
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 6e2758c96..dc5a616c3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -207,8 +207,12 @@ public:
+ 	virtual int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
+ 	virtual CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const = 0;
+ 	virtual CvUnit* AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const = 0;
+-	virtual int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
+-	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
++	//virtual int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
++	//virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
++	// K-Mod. (hopefully the core game doesn't rely on these function signatures.)
++	virtual int AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack = false) const = 0;
++	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false) const = 0;
++	// K-Mod end
+ 	virtual void AI_queueGroupAttack(int iX, int iY) = 0;
+ 	virtual void AI_cancelGroupAttack() = 0;
+ 	virtual bool AI_isGroupAttack() = 0;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 8d1cda45a..832238b9f 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -565,7 +565,7 @@ CvUnit* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool b
+ 
+ // Returns ratio of strengths of stacks times 100
+ // (so 100 is even ratio, numbers over 100 mean this group is more powerful than the stack on a plot)
+-int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack, bool bCheckCanMove) const
++int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack) const
+ {
+ 	FAssert(pPlot != NULL);
+ 
+@@ -581,7 +581,7 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEne
+ 			eDomainType = DOMAIN_LAND;
+ 	}
+ 
+-	compareRatio = AI_sumStrength(pPlot, eDomainType, bCheckCanAttack, bCheckCanMove);
++	compareRatio = AI_sumStrength(pPlot, eDomainType, bCheckCanAttack);
+ 	compareRatio *= 100;
+ 
+ 	PlayerTypes eOwner = getOwnerINLINE();
+@@ -592,7 +592,7 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEne
+ 	FAssert(eOwner != NO_PLAYER);
+ 	
+ 	// K-Mod. Note. This function currently does not support bPotentialEnemy == false.
+-	FAssert(bPotentialEnemy);
++	//FAssert(bPotentialEnemy);
+ 	int defenderSum = pPlot->isVisible(getHeadTeam(), false)
+ 		? GET_PLAYER(eOwner).AI_localDefenceStrength(pPlot, NO_TEAM, eDomainType, 0)
+ 		: GET_TEAM(getHeadTeam()).AI_getStrengthMemory(pPlot);
+@@ -602,7 +602,8 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEne
+ 	return compareRatio;
+ }
+ 
+-int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack, bool bCheckCanMove) const
++// K-Mod. I've removed bCheckMove, and changed bCheckCanAttack to include checks for moves, and for hasAlreadyAttacked / blitz
++int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -619,32 +620,42 @@ int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes
+ 
+ 		if (!pLoopUnit->isDead())
+ 		{
+-			bool bCanAttack = false;
+-			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+-				bCanAttack = pLoopUnit->canAirAttack();
+-			else
+-				bCanAttack = pLoopUnit->canAttack();
++			// K-Mod. (original checks deleted.)
++			if (bCheckCanAttack)
++			{
++				if (pLoopUnit->getDomainType() == DOMAIN_AIR)
++				{
++					if (!pLoopUnit->canAirAttack() || !pLoopUnit->canMove() || (pAttackedPlot && !pLoopUnit->canMoveInto(pAttackedPlot, true, true)))
++						continue; // can't attack.
++				}
++				else
++				{
++					if (!pLoopUnit->canAttack() || !pLoopUnit->canMove()
++						|| (pAttackedPlot && !pLoopUnit->canMoveInto(pAttackedPlot, true, true))
++						|| (!pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack()))
++						continue; // can't attack.
++				}
++			}
++			// K-Mod end
+ 
+-			if (!bCheckCanAttack || bCanAttack)
++			if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
+ 			{
+-				if (!bCheckCanMove || pLoopUnit->canMove())
+-					if (!bCheckCanMove || pAttackedPlot == NULL || pLoopUnit->canMoveInto(pAttackedPlot, /*bAttack*/ true, /*bDeclareWar*/ true))
+-						if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
+-						{
+-							strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
+-							// K-Mod estimate the attack power of collateral units
+-							if (pLoopUnit->collateralDamage() > 0 && pAttackedPlot != plot())
+-							{
+-								int iPossibleTargets = std::min((pAttackedPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1), pLoopUnit->collateralDamageMaxUnits());
++				strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
++				// K-Mod estimate the attack power of collateral units
++				if (pLoopUnit->collateralDamage() > 0 && pAttackedPlot != plot())
++				{
++					int iPossibleTargets = pLoopUnit->collateralDamageMaxUnits();
++					// If !bCheckCanAttack, then lets not assume pAttackPlot won't get more units on it.
++					if (bCheckCanAttack && pAttackedPlot->isVisible(getTeam(), false))
++						iPossibleTargets = std::min(iPossibleTargets, pAttackedPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1);
+ 
+-								if (iPossibleTargets > 0)
+-								{
+-									// collateral damage is not trivial to calculate. This estimate is pretty rough.
+-									strSum += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 100;
+-								}
+-							}
+-							// K-Mod end
+-						}
++					if (iPossibleTargets > 0)
++					{
++						// collateral damage is not trivial to calculate. This estimate is pretty rough.
++						strSum += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 100;
++					}
++				}
++				// K-Mod end
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index 72877ed29..316767bf4 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -39,8 +39,12 @@ public:
+ 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+ 	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const;
+ 	CvUnit* AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const;
+-	int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
+-	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
++	//int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
++	//int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
++	// K-Mod
++	int AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack = false) const;
++	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false) const;
++	// K-Mod end
+ 	void AI_queueGroupAttack(int iX, int iY);
+ 	void AI_cancelGroupAttack();
+ 	bool AI_isGroupAttack();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2e29523e3..3b7fbf195 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2922,7 +2922,7 @@ void CvUnitAI::AI_attackCityMove()
+ 		if( iStepDistToTarget <= 2 || pTargetCity->isVisible(getTeam(),false) )
+ 		{
+ 			// K-Mod note: AI_compareStacks will try to use the AI memory if it can't see.
+-			iComparePostBombard = getGroup()->AI_compareStacks(pTargetCity->plot(), true, true, true);
++			iComparePostBombard = getGroup()->AI_compareStacks(pTargetCity->plot(), true);
+ 
+ 			// K-Mod
+ 			// The defense modifier is counted in AI_compareStacks. So if we add it again, we'd be double counting.
+@@ -15084,6 +15084,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 	int iBestValue;
+ 	int iLoop;
+ 	int iI;
++	int iOurOffence = -1; // K-Mod. Will calculate this for the first city only.
+ 
+ 	iBestValue = 0;
+ 	pBestCity = NULL;
+@@ -15113,9 +15114,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 				for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+ 				{
+ 					// BBAI efficiency: check area for land units before generating path
+-					if (AI_plotValid(pLoopCity->plot()) && (pLoopCity->area() == area()))
++					if (AI_plotValid(pLoopCity->plot()) && (pLoopCity->area() == area()) && pLoopCity->isRevealed(getTeam(), false)) // K-Mod added isRevealed check.
+ 					{
+-						if(AI_potentialEnemy(GET_PLAYER((PlayerTypes)iI).getTeam(), pLoopCity->plot()))
++						if (AI_potentialEnemy(GET_PLAYER((PlayerTypes)iI).getTeam(), pLoopCity->plot()))
+ 						{
+ 							if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), iFlags, true, &iPathTurns))
+ 							{
+@@ -15140,6 +15141,13 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 										}
+ 									}*/
+ 									// K-Mod
++									if (iOurOffence == -1)
++									{
++										// note: with bCheckCanAttack == false, AI_sumStrength should be roughly the same regardless of which city we are targetting.
++										// ... except if lots of our units have a hills-attack promotion or something like that.
++										iOurOffence = getGroup()->AI_sumStrength(pLoopCity->plot());
++									}
++									FAssert(iOurOffence > 0);
+ 									int iEnemyDefence = -1; // used later.
+ 									if (pLoopCity->isVisible(getTeam(), false))
+ 									{
+@@ -15202,7 +15210,6 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									if (pLoopCity->isVisible(getTeam(), false) && iPathTurns < 6)
+ 									{
+ 										FAssert(iEnemyDefence != -1);
+-										int iOurOffence = getGroup()->AI_sumStrength(pLoopCity->plot());
+ 										if (iOurOffence > iEnemyDefence)
+ 										{
+ 											// dont' boost it by too much, otherwise human players will exploit us. :(
+@@ -15211,15 +15218,21 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 											iValue /= 100;
+ 										}
+ 									}
+-									/* reduce the value if we can see, or remember, that the city is well defended.
++									// Reduce the value if we can see, or remember, that the city is well defended.
++									// Note. This adjustment can be more heavy handed because it is harder to feign strong defence than weak defence.
++									// However, I want to err on the side of _not_ being deterred by strong defences unless the defences.
+ 									iEnemyDefence = GET_TEAM(getTeam()).AI_getStrengthMemory(pLoopCity->plot());
+-									iEnemyDefence *= 200 - (bombardRate() > 0 ? pLoopCity->getDefenseModifier(false) : 0);
+-									iEnemyDefence /= 200;
+-									if (100 * iEnemyDefence > 110 * iOurOffence)
++									if (iEnemyDefence > iOurOffence)
+ 									{
+-										iValue *= std::max(75, 110 * iOurOffence / iEnemyDence);
+-										iValue /= 100;
+-									} */  // not enabled, because I'm not sure I want to calculate iOurOffence so many times.
++										// a more sensitive adjustment than usual (w/ modifier on the denominator), so as not to be too deterred before bombarding.
++										iEnemyDefence *= 100;
++										iEnemyDefence /= 100 + (bombardRate() > 0 ? pLoopCity->getDefenseModifier(false) : 0);
++										if (100 * iEnemyDefence > 125 * iOurOffence) // an uneven comparison, just in case we can get some air support or other help somehow.
++										{
++											iValue *= std::max(50, 125 * iOurOffence / iEnemyDefence);
++											iValue /= 100;
++										}
++									}
+ 									// K-Mod end
+ 
+ 									iValue *= 1000;
+@@ -15232,7 +15245,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									}
+ 									// K-Mod. A const-random component, so that the AI doesn't always go for the same city.
+ 									{
+-										int iHash = AI_getBirthmark() + GC.getMapINLINE().plotNumINLINE(pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
++										unsigned iHash = AI_getBirthmark() + GC.getMapINLINE().plotNumINLINE(pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
+ 										iHash *= 2654435761; // golden ratio of 2^32;
+ 										iValue *= 80 + iHash % 41;
+ 										iValue /= 100;
+@@ -15642,7 +15655,7 @@ bool CvUnitAI::AI_bombardCity()
+ 	int iBombardTurns = getGroup()->getBombardTurns(pBombardCity);
+ 	iBase = (iBase * (GC.getMAX_CITY_DEFENSE_DAMAGE()-pBombardCity->getDefenseDamage()) + iMin * pBombardCity->getDefenseDamage())/std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
+ 	int iThreshold = (iBase * (100 - iAttackOdds) + (1 + iBombardTurns/2) * iMin * iAttackOdds) / (100 + (iBombardTurns/2) * iAttackOdds);
+-	int iComparison = getGroup()->AI_compareStacks(pBombardCity->plot(), true, true, true);
++	int iComparison = getGroup()->AI_compareStacks(pBombardCity->plot(), true);
+ 
+ 	if (iComparison > iThreshold)
+ 	{
+@@ -24059,7 +24072,7 @@ bool CvUnitAI::AI_stackAttackCity(int iPowerThreshold)
+ 						//if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, /*bAttack*/ true, /*bDeclareWar*/ true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+ 						if (!atPlot(pLoopPlot) && canMoveInto(pLoopPlot, true, true))
+ 						{
+-							if (iPowerThreshold <= 0 || getGroup()->AI_compareStacks(pLoopPlot, true, true, true) >= iPowerThreshold)
++							if (iPowerThreshold <= 0 || getGroup()->AI_compareStacks(pLoopPlot, true) >= iPowerThreshold)
+ 							{
+ 								pCityPlot = pLoopPlot;
+ 							}
+@@ -24075,7 +24088,7 @@ bool CvUnitAI::AI_stackAttackCity(int iPowerThreshold)
+ 	{
+ 		if( gUnitLogLevel >= 1 && pCityPlot->getPlotCity() != NULL )
+ 		{
+-			logBBAI("    Stack for player %d (%S) decides to attack city %S with stack ratio %d", getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCityPlot->getPlotCity()->getName(0).GetCString(), getGroup()->AI_compareStacks(pCityPlot, true, true, true) );
++			logBBAI("    Stack for player %d (%S) decides to attack city %S with stack ratio %d", getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCityPlot->getPlotCity()->getName(0).GetCString(), getGroup()->AI_compareStacks(pCityPlot, true) );
+ 			logBBAI("    City %S has defense modifier %d, %d with ignore building", pCityPlot->getPlotCity()->getName(0).GetCString(), pCityPlot->getPlotCity()->getDefenseModifier(false), pCityPlot->getPlotCity()->getDefenseModifier(true) );
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=17736

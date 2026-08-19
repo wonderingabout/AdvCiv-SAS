@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 75
+# Commit: d80f5672673eea0deded70f3dccddc5058fe109d
+# History segment: K-Mod history
+# Parent used for diff: 354ecdc583b3ffa97262910b2be65f76644110af
+# Title: Changed the value of "iCounterespionageMod" to mean the percentage that gets added to espionage cost, rather than the cost multiplier. This makes it more con...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+3	1	CvGameCoreDLL/CvGameTextMgr.cpp
+7	4	CvGameCoreDLL/CvPlayer.cpp
+20	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml b/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+index 7ce169f09..dffb61433 100644
+--- a/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
++++ b/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+@@ -634,7 +634,7 @@
+ 			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
+ 			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
+ 			<iCounterespionageNumTurns>10</iCounterespionageNumTurns>
+-			<iCounterespionageMod>200</iCounterespionageMod>
++			<iCounterespionageMod>100</iCounterespionageMod>
+ 		</EspionageMissionInfo>
+ 	</EspionageMissionInfos>
+ </Civ4EspionageMissionInfo>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 9af1f9e19..d9ea7081f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14916,7 +14916,9 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 		CvTeam& kTargetTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam());
+ 		if (kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()) > 0)
+ 		{
+-			iTempModifier = kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()) - 100;
++			//iTempModifier = kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()) - 100;
++			// K-Mod
++			iTempModifier = std::max(-100, kTargetTeam.getCounterespionageModAgainstTeam(kPlayer.getTeam()));
+ 			if (0 != iTempModifier)
+ 			{
+ 				szBuffer.append(SEPARATOR);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 4154dc0d8..8df1fe323 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14863,11 +14863,14 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
+ 	
+ 	// Counterespionage Mission Mod
+ 	CvTeam& kTargetTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam());
+-	if (kTargetTeam.getCounterespionageModAgainstTeam(getTeam()) > 0)
++	/* if (kTargetTeam.getCounterespionageModAgainstTeam(getTeam()) > 0)
+ 	{
+ 		iModifier *= kTargetTeam.getCounterespionageModAgainstTeam(getTeam());
+ 		iModifier /= 100;
+-	}
++	} */
++	// K-Mod
++	iModifier *= (100 + std::max(-100, kTargetTeam.getCounterespionageModAgainstTeam(getTeam())));
++	iModifier /= 100;
+ 
+ 	return iModifier;
+ }
+@@ -21911,8 +21914,8 @@ int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTyp
+ 	CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
+ 	int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+ 
+-	iGoldStolen *= 2*pCity->getPopulation();
+-	iGoldStolen /= std::max(1, pCity->getPopulation() + GET_PLAYER(eTargetPlayer).getAveragePopulation());
++	iGoldStolen *= 3*pCity->getPopulation();
++	iGoldStolen /= std::max(1, pCity->getPopulation() + 2*GET_PLAYER(eTargetPlayer).getAveragePopulation());
+ 
+ 	return std::min(iGoldStolen, GET_PLAYER(eTargetPlayer).getGold());
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 111f3a03f..790a871d3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13096,8 +13096,7 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ 	iData = -1;
+ 
+ 	EspionageMissionTypes eBestMission = NO_ESPIONAGEMISSION;
+-	//int iBestValue = 0;
+-	int iBestValue = 20;
++	int iBestValue = 0;
+ 	
+ 	if (pSpyPlot->isOwned())
+ 	{
+@@ -13262,7 +13261,21 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ 					}
+ 				}
+ 			} */
+-			// K-Mod, one espionage mission loop to rule them all...
++
++			// K-Mod edition
++			// estimate risk cost of losing the spy while trying to escape
++			int iBaseIntercept = 0;
++			{
++				int iTargetPoints = GET_TEAM(pSpyPlot->getTeam()).getEspionagePointsEver();
++				int iOurPoints = GET_TEAM(getTeam()).getEspionagePointsEver();
++				iBaseIntercept += (GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX") * iTargetPoints) / std::max(1, iTargetPoints + iOurPoints);
++
++				if (GET_TEAM(pSpyPlot->getTeam()).getCounterespionageModAgainstTeam(getTeam()) > 0)
++					iBaseIntercept += GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
++			}
++			int iEscapeCost = 100 * iBaseIntercept * (100+GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD")) / 10000;
++
++			// One espionage mission loop to rule them all.
+ 			for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+ 			{
+ 				CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+@@ -13282,9 +13295,13 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ 						iTestData = GC.getNumBuildingInfos();
+ 					}
+ 
++					// estimate the risk cost of losing the spy.
++					int iOverhead = iEscapeCost + 200 * iBaseIntercept * (100 + kMissionInfo.getDifficultyMod()) / 10000;
++
+ 					for ( ; iTestData >= 0; iTestData--)
+ 					{							
+ 						int iValue = AI_espionageVal(pSpyPlot->getOwnerINLINE(), (EspionageMissionTypes)iMission, pSpyPlot, iTestData);
++						iValue -= iOverhead;
+ 							
+ 						if (iValue > iBestValue)
+ 						{
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5079

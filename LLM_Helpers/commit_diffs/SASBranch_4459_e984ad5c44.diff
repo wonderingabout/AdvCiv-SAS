@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4459
+# Commit: e984ad5c44370a8563edf918a3a96c39023c3b33
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 743858f79e2f89d48690f1cf3bb70e7909d00a9d
+# Title: delete Civ4 BTS links in new CIV4NewConceptInfos No need to support these, Civ4 BTS is the base game now, from my perspective at least about this at least to...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	30	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+1	48	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index f9d83f74b..a63a64a53 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -56,36 +56,10 @@
+ 			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_BUILDINGS</Type>
+-			<Description>TXT_KEY_BTS_BUILDINGS</Description>
+-			<Civilopedia>TXT_KEY_BTS_BUILDINGS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_CIVS</Type>
+-			<Description>TXT_KEY_BTS_CIVS</Description>
+-			<Civilopedia>TXT_KEY_BTS_CIVS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_UNITS</Type>
+-			<Description>TXT_KEY_BTS_UNITS</Description>
+-			<Civilopedia>TXT_KEY_BTS_UNITS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_LEADERS</Type>
+-			<Description>TXT_KEY_BTS_LEADERS</Description>
+-			<Civilopedia>TXT_KEY_BTS_LEADERS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_WONDERS</Type>
+-			<Description>TXT_KEY_BTS_WONDERS</Description>
+-			<Civilopedia>TXT_KEY_BTS_WONDERS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_BTS_TECHS</Type>
+-			<Description>TXT_KEY_BTS_TECHS</Description>
+-			<Civilopedia>TXT_KEY_BTS_TECHS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
++		<!-- custom: removed links to civ4 assets, no need to maintain them
++		BTS ca be considered the base game now, plus this information is
++		avaialble elsewhere, for example in the sevopedia pages specific
++		to each of these, about this i mean anyways -->
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
+ 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 432ac7cf7..694df16e7 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -321,54 +321,7 @@
+ 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
+ 		 names can be displayed despite the increased font size.
+ 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_CIVS</Tag>
+-		<English>BtS Civilizations</English>
+-		<French>Civilisations de BtS</French>
+-		<German>BtS-Zivilisationen</German>
+-		<Italian>Civilt&#224; di BtS</Italian>
+-		<Spanish>Civilizaciones de "BtS"</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_BUILDINGS</Tag>
+-		<English>BtS Buildings</English>
+-		<French>B&#226;timents de BtS</French>
+-		<German>BtS-Geb&#228;ude</German>
+-		<Italian>Edifici di BtS</Italian>
+-		<Spanish>Edificios de "BtS"</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_UNITS</Tag>
+-		<English>BtS Units</English>
+-		<French>Unit&#233;s de BtS</French>
+-		<German>BtS-Einheiten</German>
+-		<Italian>Unit&#224; di BtS</Italian>
+-		<Spanish>Unidades de "BtS"</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_LEADERS</Tag>
+-		<English>BtS Leaders</English>
+-		<French>Dirigeants de BtS</French>
+-		<German>BtS-Herrscher</German>
+-		<Italian>Leader di BtS</Italian>
+-		<Spanish>L&#237;deres de "BtS"</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_WONDERS</Tag>
+-		<English>BtS Wonders</English>
+-		<French>Merveilles de BtS</French>
+-		<German>BtS-Wunder</German>
+-		<Italian>Meraviglie di BtS</Italian>
+-		<Spanish>Maravillas de "BtS"</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_TECHS</Tag>
+-		<English>BtS Technologies</English>
+-		<French>Technologies de BtS</French>
+-		<German>BtS-Technologien</German>
+-		<Italian>Tecnologie di BtS</Italian>
+-		<Spanish>Tecnolog&#237;as de "BtS"</Spanish>
+-	</TEXT>
++	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
+ 		<English>BtS Rules Changes</English>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4012

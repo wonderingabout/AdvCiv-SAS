@@ -1,0 +1,164 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 658
+# Commit: e31370f0e2215729c40ca2ff26d9e92caed0a0a9
+# History segment: K-Mod history
+# Parent used for diff: f715c7a39eba3f14de7f28b36ec690e27eb4a5ba
+# Title: Fixed a problem which caused pathDestValid to return false if the group would need to attack a unit which is not visible. (This is an information leak.) Tide...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	23	CvGameCoreDLL/CvGameCoreUtils.cpp
+4	2	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 432bc1961..7941a3cef 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1391,21 +1391,13 @@ int changeIrrigated(FAStarNode* parent, FAStarNode* node, int data, const void*
+ 	return 1;
+ }
+ 
++// (edited by K-Mod)
+ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CLLNode<IDInfo>* pUnitNode1;
+-	CLLNode<IDInfo>* pUnitNode2;
+-	//CvSelectionGroup* pSelectionGroup;
+-	CvUnit* pLoopUnit1;
+-	CvUnit* pLoopUnit2;
+-	CvPlot* pToPlot;
+-	bool bAIControl;
+-	bool bValid;
+-
+-	pToPlot = GC.getMapINLINE().plotSorenINLINE(iToX, iToY);
+-	FAssert(pToPlot != NULL);
++	CvPlot* pToPlot = GC.getMapINLINE().plotSorenINLINE(iToX, iToY);
++	FAssert(pToPlot);
+ 
+ 	//pSelectionGroup = ((CvSelectionGroup *)pointer);
+ 	// K-Mod
+@@ -1414,16 +1406,12 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 	// K-Mod end
+ 
+ 	if (pSelectionGroup->atPlot(pToPlot))
+-	{
+ 		return TRUE;
+-	}
+ 
+ 	if (pSelectionGroup->getDomainType() == DOMAIN_IMMOBILE)
+-	{
+ 		return FALSE;
+-	}
+ 
+-	bAIControl = pSelectionGroup->AI_isControlled();
++	bool bAIControl = pSelectionGroup->AI_isControlled();
+ 
+ 	if (bAIControl)
+ 	{
+@@ -1468,22 +1456,22 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 	{
+ 		if (pSelectionGroup->isAmphibPlot(pToPlot))
+ 		{
+-			pUnitNode1 = pSelectionGroup->headUnitNode();
++			CLLNode<IDInfo>* pUnitNode1 = pSelectionGroup->headUnitNode();
+ 
+ 			while (pUnitNode1 != NULL)
+ 			{
+-				pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
++				CvUnit* pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
+ 				pUnitNode1 = pSelectionGroup->nextUnitNode(pUnitNode1);
+ 
+ 				if ((pLoopUnit1->getCargo() > 0) && (pLoopUnit1->domainCargo() == DOMAIN_LAND))
+ 				{
+-					bValid = false;
++					bool bValid = false;
+ 
+-					pUnitNode2 = pLoopUnit1->plot()->headUnitNode();
++					CLLNode<IDInfo>* pUnitNode2 = pLoopUnit1->plot()->headUnitNode();
+ 
+ 					while (pUnitNode2 != NULL)
+ 					{
+-						pLoopUnit2 = ::getUnit(pUnitNode2->m_data);
++						CvUnit* pLoopUnit2 = ::getUnit(pUnitNode2->m_data);
+ 						pUnitNode2 = pLoopUnit1->plot()->nextUnitNode(pUnitNode2);
+ 
+ 						if (pLoopUnit2->getTransportUnit() == pLoopUnit1)
+@@ -1491,7 +1479,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 							if (pLoopUnit2->isGroupHead())
+ 							{
+ 								//if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (iFlags & MOVE_DECLARE_WAR))))
+-								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, iFlags & MOVE_DECLARE_WAR)) // K-Mod. The new AI must be explicit about declaring war.
++								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, iFlags & MOVE_DECLARE_WAR, false, bAIControl)) // K-Mod. The new AI must be explicit about declaring war.
+ 								{
+ 									bValid = true;
+ 									break;
+@@ -1512,7 +1500,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 		else
+ 		{
+ 			//if (!(pSelectionGroup->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (iFlags & MOVE_DECLARE_WAR)))))
+-			if (!pSelectionGroup->canMoveOrAttackInto(pToPlot, iFlags & MOVE_DECLARE_WAR)) // K-Mod. The new AI must be explicit about declaring war.
++			if (!pSelectionGroup->canMoveOrAttackInto(pToPlot, iFlags & MOVE_DECLARE_WAR, false, bAIControl)) // K-Mod. The new AI must be explicit about declaring war.
+ 			{
+ 				return FALSE;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 38fddd838..734bab74e 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2679,13 +2679,14 @@ bool CvSelectionGroup::canMoveInto(CvPlot* pPlot, bool bAttack)
+ 
+ 
+ //bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar)
+-bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool bCheckMoves) // K-Mod
++bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool bCheckMoves, bool bAssumeVisible) // K-Mod
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 
+ 	if (getNumUnits() > 0)
+ 	{
++		bool bVisible = bAssumeVisible || pPlot->isVisible(getHeadTeam(), false); // K-Mod
+ 		pUnitNode = headUnitNode();
+ 
+ 		while (pUnitNode != NULL)
+@@ -2694,7 +2695,8 @@ bool CvSelectionGroup::canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar, bool
+ 			pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 			//if (pLoopUnit->canMoveOrAttackInto(pPlot, bDeclareWar))
+-			if ((!bCheckMoves || pLoopUnit->canMove()) && pLoopUnit->canMoveOrAttackInto(pPlot, bDeclareWar)) // K-Mod
++			if ((!bCheckMoves || pLoopUnit->canMove()) && // K-Mod
++				(bVisible ? pLoopUnit->canMoveOrAttackInto(pPlot, bDeclareWar) : pLoopUnit->canMoveInto(pPlot, false, bDeclareWar, false, false)))
+ 			{
+ 				return true;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 1edb797d1..907f06d16 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -78,7 +78,7 @@ public:
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false);																		// Exposed to Python
+ 	//DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false);												// Exposed to Python
+-	bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false, bool bCheckMoves = false); // Exposed to Python, K-Mod added bCheckMoves. (who needs "DllExport"?)
++	bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false, bool bCheckMoves = false, bool bAssumeVisible = true); // Exposed to Python, K-Mod added bCheckMoves and bAssumeVisible. (who needs "DllExport"?)
+ 	bool canMoveThrough(CvPlot* pPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // Exposed to Python, K-Mod added bDeclareWar and bAssumeVisible
+ 	bool canFight();																																										// Exposed to Python 
+ 	bool canDefend();																																										// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6205

@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 223
+# Commit: 47a2708eca1c40b225e5a5a09b4283157acd80bc
+# History segment: K-Mod history
+# Parent used for diff: c4fdb4158d3bb83de4d89a7afc2365f215879737
+# Title: Fixed a significant problem in the evaluation of clearing features for bestBuild. It was overvaluing healthiness and double counting yield changes. And so wh...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+63	15	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+18	3	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 051616552..3caf59f35 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6632,6 +6632,7 @@ int CvCityAI::AI_clearFeatureValue(int iIndex)
+ 	
+ 	CvFeatureInfo& kFeatureInfo = GC.getFeatureInfo(eFeature);
+ 	
++	/* original bts code
+ 	int iValue = 0;
+ 	iValue += kFeatureInfo.getYieldChange(YIELD_FOOD) * 100;
+ 	iValue += kFeatureInfo.getYieldChange(YIELD_PRODUCTION) * 60;
+@@ -6656,19 +6657,40 @@ int CvCityAI::AI_clearFeatureValue(int iIndex)
+ 				}
+ 			}
+ 		}
++	} */
++	// K-Mod. All that yield change stuff is taken into account by the improvement evaluation function anyway.
++	// ... except the bit about keeping good features on top of bonuses
++	int iValue = 0;
++	BonusTypes eBonus = pPlot->getNonObsoleteBonusType(getTeam());
++	if (eBonus != NO_BONUS)
++	{
++		iValue += kFeatureInfo.getYieldChange(YIELD_FOOD) * 100;
++		iValue += kFeatureInfo.getYieldChange(YIELD_PRODUCTION) * 60;
++		iValue += kFeatureInfo.getYieldChange(YIELD_COMMERCE) * 40;
++		iValue *= 2;
++		// that should be enough incentive to keep good features
+ 	}
++	// K-Mod end
+ 	
+ 	int iHealthValue = 0;
+ 	if (kFeatureInfo.getHealthPercent() != 0)
+ 	{
+ 		int iHealth = goodHealth() - badHealth();
+ 		
++		/* original bts code
+ 		iHealthValue += (6 * kFeatureInfo.getHealthPercent()) / std::max(3, 1 + iHealth);
+ 		if (iHealthValue > 0 && !pPlot->isBeingWorked())
+ 		{
+ 			iHealthValue *= 3;
+ 			iHealthValue /= 2;
+-		}
++		} */
++		// K-Mod
++		iHealthValue += (iHealth < 0 ? 300 : 300/(2+iHealth)) *  kFeatureInfo.getHealthPercent() / 100;
++		iHealthValue *= (pPlot->getPlayerCityRadiusCount(getOwnerINLINE()) + 1);
++		iHealthValue /= 2;
++		// note: health is not more valuable just because we aren't working it.
++		// That kind of thing should be handled by the chop code.
++		// K-Mod end
+ 	}
+ 	iValue += iHealthValue;
+ 
+@@ -9587,15 +9609,21 @@ void CvCityAI::AI_juggleCitizens()
+ 			if (iWorkedPlotValue < iWorkedSpecValue ? iWorkedPlot == iLatestPlot : eWorkedSpecialist == eLatestSpecialist)
+ 			{
+ 				// ... that suggests we should break now to avoid getting into an endless loop.
+-				// But lets try to stop on a configuration that won't make us strave.
+-				// Note: the following condition should be consistent with the starvation allowances in AI_yieldValue
+-				// ie. if AI_yieldValue thinks our current foodDifference is ok, then we should break here.
+-				if (foodDifference() >= 0 ||
+-					(2*getFood() >= growthThreshold() && (bAvoidGrowth || happyLevel() - unhappyLevel() < 1 || goodHealth() - badHealth() < 1)))
+-					break;
+-				// K-Mod note: what tends to happen is that when the city evaluates stopping work on a 2-food tile,
++
++				// Note: what tends to happen is that when the city evaluates stopping work on a food tile,
+ 				// it assumes that the citizen will go on to work some other 2-food plot.
+-				// That's usually a fair assumption; except when the citizen instead becomes a specialist... that screws it up.
++				// That's usually a fair assumption, but it can sometimes cause loops.
++				// The upshot is that we should try to break on the high-food tile.
++				bDone = true;
++				int iCurrentFood = iWorkedPlotValue < iWorkedSpecValue
++					? getCityIndexPlot(iWorkedPlot)->getYield(YIELD_FOOD)
++					: GET_PLAYER(getOwnerINLINE()).specialistYield(eWorkedSpecialist, YIELD_FOOD);
++				int iNextFood = iUnworkedPlotValue > iUnworkedSpecValue
++					? getCityIndexPlot(iUnworkedPlot)->getYield(YIELD_FOOD)
++					: GET_PLAYER(getOwnerINLINE()).specialistYield(eUnworkedSpecialist, YIELD_FOOD);
++				if (iCurrentFood >= iNextFood)
++					break; // ie. don't swap to the new job.
++				// otherwise, take the new job and then we're done. (bDone == true)
+ 			}
+ 
+ 			// remember which job we are assigning, to use in the above check on the next cycle.
+@@ -10470,10 +10498,19 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 	eBestBuild = NO_BUILD;
+ 
+ 	int iClearFeatureValue = 0;
++	// K-Mod. I've removed the yield change evaluation from AI_clearFeatureValue (to avoid double counting it elsewhere)
++	// but for the parts of this function, we want to count that value...
++	int iClearValue_wYield = 0; // So I've made this new number for that purpose.
+ 
+ 	if (pPlot->getFeatureType() != NO_FEATURE)
+ 	{
+ 		iClearFeatureValue = AI_clearFeatureValue(getCityPlotIndex(pPlot));
++
++		const CvFeatureInfo& kFeatureInfo = GC.getFeatureInfo(pPlot->getFeatureType());
++		iClearValue_wYield = iClearFeatureValue;
++		iClearValue_wYield -= kFeatureInfo.getYieldChange(YIELD_FOOD) * 100 * iFoodPriority / 100;
++		iClearValue_wYield -= kFeatureInfo.getYieldChange(YIELD_PRODUCTION) * 60 * iProductionPriority / 100;
++		iClearValue_wYield -= kFeatureInfo.getYieldChange(YIELD_COMMERCE) * 40 * iCommercePriority / 100;
+ 	}
+ 
+ 	if (!bHasBonusImprovement)
+@@ -10579,13 +10616,14 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 		}
+ 	}
+ 
+-	if (iClearFeatureValue > 0)
++	if (iClearValue_wYield > 0)
+ 	{
+ 		FAssert(pPlot->getFeatureType() != NO_FEATURE);
+ 
+ 		{
+-			if ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() < 0) ||
+-				((GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange(YIELD_FOOD) + GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange(YIELD_PRODUCTION) + GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange(YIELD_COMMERCE)) < 0))
++			/*if ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() < 0) ||
++				((GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange(YIELD_FOOD) + GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange(YIELD_PRODUCTION) + GC.getFeatureInfo(pPlot->getFeatureType()).getYieldChange(YIELD_COMMERCE)) < 0))*/
++			// Disabled by K-Mod. That stuff is already taken into account by iClearValue_wYield.
+ 			{
+ 				for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+ 				{
+@@ -10597,9 +10635,9 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 						{
+ 							if (GET_PLAYER(getOwnerINLINE()).canBuild(pPlot, eBuild))
+ 							{
+-								int iValue = iClearFeatureValue;
++								int iValue = iClearValue_wYield;
+ 								CvCity* pCity;
+-								iValue += (pPlot->getFeatureProduction(eBuild, getTeam(), &pCity) * 10);
++								iValue += (pPlot->getFeatureProduction(eBuild, getTeam(), &pCity) * 5); // was * 10
+ 
+ 								iValue *= 400;
+ 								iValue /= std::max(1, (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 100));
+@@ -10647,14 +10685,24 @@ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peB
+ 
+ 						if (iValue > 0)
+ 						{
+-							iValue += iClearFeatureValue;
++							iValue += iClearValue_wYield;
++							// K-Mod
++							if (!pPlot->isBeingWorked() && iClearFeatureValue < 0)
++							{
++								iValue += iClearFeatureValue/2; // extra points for passive feature bonuses such as health
++							}
++							// K-Mod end
+ 
+ 							if (iValue > 0)
+ 							{
+ 								if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+ 								{
++									/* original bts code
+ 									iValue += 20;
++									iValue *= 2; */
++									// K-Mod. no need to fall over ourselves to chop stuff...
+ 									iValue *= 2;
++									// K-Mod end
+ 								}
+ 								iValue *= 500;
+ 								iValue /= std::max(1, (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 100));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5aac6427c..6b2808eb6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2725,7 +2725,7 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+     iClaimThreshold = std::max(1, iClaimThreshold);
+ 	iClaimThreshold *= (bEasyCulture && kPlayer.getCurrentEra() < 2 ? 140 : 100);
+ 	iClaimThreshold *= (bAmbitious ? 140 : 100);
+-	iClaimThreshold /= 100;
++	iClaimThreshold /= 200;
+ 	// note, plot culture is 100x city culture. So I've left a factor of 100 on iClaimThreshold.
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d0d94e460..684c36871 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6640,7 +6640,7 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvCity* pCity;
++	//CvCity* pCity;
+ 
+ 	FAssertMsg(eIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "iIndex is expected to be within maximum bounds (invalid Index)");
+@@ -6656,6 +6656,9 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ 			}
+ 		}
+ 		
++		CvCity* pCity = getPlotCity(); //
++		int iOldAnger = (pCity ? pCity->getCulturePercentAnger() : 0); // K-Mod
++
+ 		m_aiCulture[eIndex] = iNewValue;
+ 		FAssert(getCulture(eIndex) >= 0);
+ 
+@@ -6664,11 +6667,23 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ 			updateCulture(true, bUpdatePlotGroups);
+ 		}
+ 
+-		pCity = getPlotCity();
++		// pCity = getPlotCity(); // moved up
+ 
+ 		if (pCity != NULL)
+ 		{
+-			pCity->AI_setAssignWorkDirty(true);
++			/* original bts code
++			pCity->AI_setAssignWorkDirty(true); */
++			// K-Mod. As far as I can tell, the reason AI_setAssignWorkDirty is called here is
++			// that changing the culture might change cultural anger in the city.
++			// So I've changed the code to only set assign dirty if the that anger really has changed.
++			if (iOldAnger != pCity->getCulturePercentAnger())
++			{
++				pCity->AI_setAssignWorkDirty(true);
++			}
++			// Really, this whole anger / assign working plots system is a mess.
++			// This function shouldn't have to worry about what will / won't affect the number of angry citizens.
++			// It's a design flaw.
++			// K-Mod end
+ 		}
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9784

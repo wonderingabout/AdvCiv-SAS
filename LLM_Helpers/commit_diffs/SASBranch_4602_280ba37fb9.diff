@@ -1,0 +1,787 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4602
+# Commit: 280ba37fb91d2c6ff68c128d80a2331b69e407a3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ae11e849eebddf1b4e6e1fdcab0904082861ac77
+# Title: successfully converted archer combat type to archer_bow_short
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+11	5	Assets/Python/CvAdvisorUtils.py
+19	3	Assets/Python/EntryPoints/CvScreensInterface.py
+72	0	Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+6	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+4	1	Assets/XML/Civilizations/CIV4TraitInfos.xml
+2	1	Assets/XML/Events/CIV4EventInfos.xml
+26	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+35	35	Assets/XML/Units/CIV4PromotionInfos.xml
+16	39	Assets/XML/Units/CIV4UnitInfos.xml
+2	1	CvGameCoreDLL/CvEnums.h
+2	1	CvGameCoreDLL/CyEnumsInterface.cpp
+1	0	README.md
+ create mode 100644 Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/CvAdvisorUtils.py b/Assets/Python/CvAdvisorUtils.py
+index 63a867c45..569a6ef96 100644
+--- a/Assets/Python/CvAdvisorUtils.py
++++ b/Assets/Python/CvAdvisorUtils.py
+@@ -56,18 +56,24 @@ def populationFeat(iPlayer, eFeat, szText):
+ 
+ def unitBuiltFeats(pCity, pUnit):
+ 	
+-	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER)):
++	# <!-- custom: implementing our new unit combat types, for example archery units:
++	# archers bow short, archers bow long, archers crossbow
++	# i am not sure exactly what this code does except play a sound and why it does
++	# to some unit combat types and not others, but for now for simplicity and such
++	# i am just going to change the combat type here too (and recompile the DLL)
++	# after that.
++	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER")):
++		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_SHORT")):
+ 		
+-			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER, True)
++			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT, True)
+ 			
+ 			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+-				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER)
++				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
+ 				popupInfo.setData2(pCity.getID())
+-				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_ARCHER", (pUnit.getNameKey(), pCity.getNameKey(), )))
++				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", (pUnit.getNameKey(), pCity.getNameKey(), )))
+ 				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
+ 				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
+ 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index f8d1e70b5..ed370c637 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -1116,7 +1116,8 @@ def featAccomplishedOnClickedCallback(argsList):
+ 	if (iButtonId == 1):
+ 		if (iData1 == FeatTypes.FEAT_TRADE_ROUTE):
+ 			showDomesticAdvisor(())
+-		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
++		# <!-- custom: new unit combat types -->
++		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+ 			showMilitaryAdvisor()
+ 		elif ((iData1 >= FeatTypes.FEAT_COPPER_CONNECTED) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+ 			showForeignAdvisorScreen([0])
+@@ -1139,9 +1140,24 @@ def featAccomplishedOnFocusCallback(argsList):
+ 	bOption2 = argsList[6]
+ 	
+ 	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
+-	if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
++	# <!-- custom: implementing our new unit combat types, for example archery units:
++	# archers bow short, archers bow long, archers crossbow
++	# i am not sure exactly what this code does except play a sound and why it does
++	# to some unit combat types and not others, but for now for simplicity and such
++	# i am just going to change the combat type here too.
++	# Adding the crossbows too, i don't know if this is safe considering they were not
++	# added before, but testing to see what happens, maybe it works. (?) -->
++	#if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
++	#	CyInterface().lookAtCityOffset(iData2)
++	# todo
++	#
++	#
++	#if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
++	#
++	#
++	#
++	if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+ 		CyInterface().lookAtCityOffset(iData2)
+-		
+ 	return 0
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+new file mode 100644
+index 000000000..1ba2a9b61
+--- /dev/null
++++ b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+@@ -0,0 +1,72 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Basic Infos -->
++<!-- custom: file imported from:
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4UnitCombatInfos.xml
++And modified for my needs, which is to create new unit combat types
++or/and modify existing ones, for example, archery units would become:
++- archers (Bow, Short)
++- archers (Bow, Long)
++- archers (Crossbow)
++-->
++<Civ4UnitCombatInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
++	<UnitCombatInfos>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_RECON</Type>
++			<Description>TXT_KEY_UNITCOMBAT_RECON</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Recon_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,7</Button>
++		</UnitCombatInfo>
++
++
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_ARCHER_BOW_SHORT</Type>
++			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
++		</UnitCombatInfo>
++		<!-- custom: todo create bow long, and crossbow -->
++
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_MOUNTED</Type>
++			<Description>TXT_KEY_UNITCOMBAT_MOUNTED</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_MELEE</Type>
++			<Description>TXT_KEY_UNITCOMBAT_MELEE</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_SIEGE</Type>
++			<Description>TXT_KEY_UNITCOMBAT_SIEGE</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_GUN</Type>
++			<Description>TXT_KEY_UNITCOMBAT_GUN</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Pinch.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,5</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_ARMOR</Type>
++			<Description>TXT_KEY_UNITCOMBAT_ARMOR</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Ambush.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,1</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_HELICOPTER</Type>
++			<Description>TXT_KEY_UNITCOMBAT_HELICOPTER</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Helicopter_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,7</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_NAVAL</Type>
++			<Description>TXT_KEY_UNITCOMBAT_NAVAL</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,7</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_AIR</Type>
++			<Description>TXT_KEY_UNITCOMBAT_AIR</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,15</Button>
++		</UnitCombatInfo>
++	</UnitCombatInfos>
++</Civ4UnitCombatInfos>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index bfa966b17..5bdb1af7d 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -7486,9 +7486,14 @@
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
++			<!-- custom: todo change this as i rework the obelisk building,
++			and even before that when the defenders become other types of
++			units, it would be mostly lancers heavy and sword heavy i think
++			but leaving as is for now but with todo mark to remember to do
++			it -->
+ 			<UnitCombatFreeExperiences>
+ 				<UnitCombatFreeExperience>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<iExperience>3</iExperience>
+ 				</UnitCombatFreeExperience>
+ 			</UnitCombatFreeExperiences>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 565cd1a94..36cd4d6dd 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -276,9 +276,12 @@
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
++			<!-- custom: todo rework protective trait to either include more defenders
++			or all unit types, as it is too weak, or specify all defense types, will
++			see about this i mean etc i mean anyways, thanks, todo -->
+ 			<FreePromotionUnitCombats>
+ 				<FreePromotionUnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+ 				</FreePromotionUnitCombat>
+ 				<FreePromotionUnitCombat>
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index 310411b16..742ba1d97 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -9736,9 +9736,10 @@
+ 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
+ 			<UnitPromotion/>
+ 			<UnitName/>
++			<!-- custom: todo add the other archer types here too maybe -->
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+-					<UnitCombat>UNITCOMBAT_ARCHER</UnitCombat>
++					<UnitCombat>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombat>
+ 					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index b4278a56c..a58bab3eb 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -1005,4 +1005,30 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- custom: new/modified unit combat types -->
++		<TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
++		<English>Archers (Bow, Short range)</English>
++		<French>
++			<Text>Archers (Bow, Short range)</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Archers (Bow, Short range)</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</German>
++		<Italian>
++			<Text>Archers (Bow, Short range)</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Archers (Bow, Short range)</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index f2b7a2bf6..a8b6fc395 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -11,7 +11,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -108,7 +108,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -208,7 +208,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -308,7 +308,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -408,7 +408,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -508,7 +508,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -599,7 +599,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDefenses/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -608,7 +608,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -688,7 +688,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -860,7 +860,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1119,7 +1119,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1204,7 +1204,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1382,7 +1382,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1469,7 +1469,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1560,7 +1560,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1652,7 +1652,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1728,7 +1728,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1803,7 +1803,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2420,7 +2420,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: spearmen reworked, trying it to make them a more versatile unit,
+@@ -2505,7 +2505,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: allowing this promotion too for melee units -->
+@@ -2586,7 +2586,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: allowing this promotion too for melee units -->
+@@ -2663,7 +2663,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2751,7 +2751,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2843,7 +2843,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2940,7 +2940,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3035,7 +3035,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3112,7 +3112,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3192,7 +3192,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3338,7 +3338,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3787,7 +3787,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3887,7 +3887,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3986,7 +3986,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4085,7 +4085,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4184,7 +4184,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4283,7 +4283,7 @@ full order to take from for quick editing or/and copy/paste:
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 3d7dd6169..de9c79715 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -4699,17 +4699,10 @@ for example for the archer
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders>
+ 			<!-- custom: now that the unit is reworked, quecha is not especially good
+-			against archer type of units currently, was 1 -->
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_ARCHER</UnitCombatDefenderType>
+-					<bUnitCombatDefender>0</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-			<!-- custom: since it is now based on the spearman, adding this just in case,
+-			to not first target mounted units we are not especially good against now -->
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
+-					<bUnitCombatDefender>0</bUnitCombatDefender>
+-				</UnitCombatDefender>
++			against archer type of units currently, line removed, was 1-->
++			<!-- custom: since it is now based on the spearman, also removing the line
++			to defend first against mounted units, as we are not especially good against
++			them now -->
+ 			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+@@ -4847,12 +4840,9 @@ for example for the archer
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- advc.907b: Combat bonus vs. Archer (100) removed -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+-					<iUnitCombatMod>0</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<!-- custom: removing the tag seems to work the same in
++			the sevopedia, so doing that rather -->
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -8828,20 +8818,7 @@ for example for the archer
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -11181,7 +11158,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -11408,7 +11385,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -11647,7 +11624,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -11889,7 +11866,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -12105,7 +12082,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -12304,7 +12281,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -12500,7 +12477,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -13216,7 +13193,7 @@ for example for the archer
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<!-- advc.907e: was 50 -->
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 96884f55d..a0441ab34 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1265,8 +1265,9 @@ ENUM_START(CitySafety, CITYSAFETY)
+ 	CITYSAFETY_PERFECT, // for advc.ctr
+ ENUM_END(CitySafety, CITYSAFETY) // </advc.139>
+ 
++/* <!-- custom: new unit combat types and modifying existing ones --> */
+ ENUM_START(Feat, FEAT)
+-	FEAT_UNITCOMBAT_ARCHER,
++	FEAT_UNITCOMBAT_ARCHER_BOW_SHORT,
+ 	FEAT_UNITCOMBAT_MOUNTED,
+ 	FEAT_UNITCOMBAT_MELEE,
+ 	FEAT_UNITCOMBAT_SIEGE,
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 2a84fee85..bf8d21011 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1489,8 +1489,9 @@ void CyEnumsPythonInterface()
+ 		.value("NUM_DIPLOMACYPOWER_TYPES", NUM_DIPLOMACYPOWER_TYPES)
+ 		;
+ 
++	/*<!-- custom: new unit combat types and modifying existing ones --> */
+ 	python::enum_<FeatTypes>("FeatTypes")
+-		.value("FEAT_UNITCOMBAT_ARCHER", FEAT_UNITCOMBAT_ARCHER)
++		.value("FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
+ 		.value("FEAT_UNITCOMBAT_MOUNTED", FEAT_UNITCOMBAT_MOUNTED)
+ 		.value("FEAT_UNITCOMBAT_MELEE", FEAT_UNITCOMBAT_MELEE)
+ 		.value("FEAT_UNITCOMBAT_SIEGE", FEAT_UNITCOMBAT_SIEGE)
+
+diff --git a/README.md b/README.md
+index 530e95123..53e3a6587 100644
+--- a/README.md
++++ b/README.md
+@@ -157,6 +157,7 @@ that i bombarded with updates and installs still works amazing so i recommend it
+ - Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
+ - Git Bash for Windows
+ - Q-Dir
++- WizTree (very useful (and reliable and effective) to find the files i want when i want)
+ - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+ it too though unless i'm mistaken i mean anyways)
+ - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=31024

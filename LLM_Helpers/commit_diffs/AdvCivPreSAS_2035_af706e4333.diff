@@ -1,0 +1,238 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2035
+# Commit: af706e4333004c9d095b488d3374ade419fb9b84
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 946b22c5c91a4fe4c525667c25d08293057c9e7a
+# Title: Fix two OOS errors in AdvCiv code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	24	CvGameCoreDLL/CvCityAI.cpp
+7	2	CvGameCoreDLL/CvGame.cpp
+17	9	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 88938f9a5..a57d7f7c3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7926,26 +7926,23 @@ void CvCityAI::AI_updateBestBuild()
+ 
+ 		if (m_aeBestBuild[ePlot] != NO_BUILD)
+ 		{
++			short aiYields[NUM_YIELD_TYPES]; // advc: Moved into the loop; don't reuse.
+ 			int iValue = 0;
++			FOR_EACH_ENUM(Yield)
+ 			{
+-				short aiYields[NUM_YIELD_TYPES]; // advc: Moved into the loop; don't reuse.
+-				FOR_EACH_ENUM(Yield)
+-				{
+-					aiYields[eLoopYield] = kPlot.getYieldWithBuild(
+-							m_aeBestBuild[ePlot], eLoopYield, true);
+-				}
+-				iValue += AI_yieldValue(aiYields, 0, false, false, true, true, iGrowthValue);
+-				aiValues[ePlot] = iValue;
++				aiYields[eLoopYield] = kPlot.getYieldWithBuild(
++						m_aeBestBuild[ePlot], eLoopYield, true);
+ 			}
++			iValue += AI_yieldValue(aiYields, 0, false, false, true, true, iGrowthValue);
++			aiValues[ePlot] = iValue;
+ 			// K-Mod
+-			// Also evaluate the _change_ in yield, so that we aren't always tinkering with our best plots
+-			{
+-				short aiYields[NUM_YIELD_TYPES]; // advc
+-				FOR_EACH_ENUM(Yield)
+-					aiYields[eLoopYield] -= kPlot.getYield(eLoopYield);
+-				iValue += AI_yieldValue(aiYields, 0, false, false, true, true, iGrowthValue);
+-				// Note: AI_yieldValue wasn't intended to be used with negative yields. But I think it will work; and it doesn't need to be perfectly accurate anyway.
+-			}
++			/*	Also evaluate the _change_ in yield,
++				so that we aren't always tinkering with our best plots
++				Note: AI_yieldValue wasn't intended to be used with negative yields.
++				But I think it will work; and it doesn't need to be perfectly accurate anyway. */
++			FOR_EACH_ENUM(Yield)
++				aiYields[eLoopYield] -= kPlot.getYield(eLoopYield);
++			iValue += AI_yieldValue(aiYields, 0, false, false, true, true, iGrowthValue);
+ 			// priority increase for chopping when we want to chop
+ 			//if (bChop)
+ 			/*  <advc.117> Also increase the value a little when
+@@ -12852,8 +12849,13 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iNeededFloatingDefenders);
+ 	pStream->Read(&m_iNeededFloatingDefendersCacheTurn);
+ 	// <advc.139>
+-	if(uiFlag >= 3)
+-		pStream->Read(&m_bEvacuate); // </advc.139>
++	if (uiFlag >= 3)
++		pStream->Read(&m_bEvacuate);
++	if (uiFlag >= 7)
++	{
++		pStream->Read(&m_bSafe);
++		pStream->Read(&m_iCityValPercent);
++	} // </advc.139>
+ 	pStream->Read(&m_iWorkersNeeded);
+ 	pStream->Read(&m_iWorkersHave);
+ 	// K-Mod
+@@ -12871,12 +12873,14 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ void CvCityAI::write(FDataStreamBase* pStream)
+ {
+ 	CvCity::write(pStream);
+-
+-	uint uiFlag=2;
+-	uiFlag = 3; // advc.139
++	uint uiFlag = 0;
++	uiFlag = 1; // K-Mod: m_aiConstructionValue
++	uiFlag = 2; // K-Mod: m_iCultureWeight
++	uiFlag = 3; // advc.139 (m_bEvacuate)
+ 	uiFlag = 4; // advc.opt (m_eBestBuild)
+ 	uiFlag = 5; // advc.003u: Move m_bChooseProductionDirty to CvCity
+ 	uiFlag = 6; // advc.opt: Per-player meta data for closeness cache
++	uiFlag = 7; // advc.139 (m_bSafe, m_iCityValPercent)
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE(CvString::format("CityAI(%d,%d)", getX(), getY()));
+ 	pStream->Write(m_iEmphasizeAvoidGrowthCount);
+@@ -12900,13 +12904,17 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(MAX_PLAYERS, m_aiPlayerCloseness);
+ 	pStream->Write(m_iNeededFloatingDefenders);
+ 	pStream->Write(m_iNeededFloatingDefendersCacheTurn);
+-	pStream->Write(m_bEvacuate); // advc.139 (No need to save m_bSafe, m_iCityValPercent)
++	// <advc.139>
++	pStream->Write(m_bEvacuate);
++	pStream->Write(m_bSafe);
++	pStream->Write(m_iCityValPercent);
++	// </advc.139>
+ 	//This needs to be serialized for human workers.
+ 	pStream->Write(m_iWorkersNeeded);
+ 	pStream->Write(m_iWorkersHave);
+ 	// K-Mod (note: cache needs to be saved, otherwise players who join mid-turn might go out of sync when the cache is used)
+-	pStream->Write(GC.getNumBuildingClassInfos(), &m_aiConstructionValue[0]); // uiFlag >= 1
+-	pStream->Write(m_iCultureWeight); // uiFlag >= 2
++	pStream->Write(GC.getNumBuildingClassInfos(), &m_aiConstructionValue[0]);
++	pStream->Write(m_iCultureWeight);
+ 	// K-Mod end
+ 	REPRO_TEST_END_WRITE();
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 7da45c79e..9174da2ba 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9181,8 +9181,13 @@ void CvGame::onAllGameDataRead()
+ 		CvPlayerAI& kActive = *it;
+ 		if (!kActive.isTurnActive())
+ 			continue;
+-		// So that the cache data doesn't necessarily have to be serialized
+-		kActive.AI_updateCacheData();
++		/*	Bad idea (by me). The cache data has to be serialized instead.
++			It gets updated at the start of a turn, yes, but if we rely on
++			that, then it won't safe to access data from another player's
++			cache (who may not have taken a turn since a savegame was loaded).
++			Could update all caches after loading, but that would result in
++			more recent data after loading than upon saving. */
++		//kActive.AI_updateCacheData();
+ 		kActive.validateDiplomacy(); // advc.134a
+ 	}
+ 	// <advc.127> Save created during AI Auto Play
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index dbf2c1024..0de28f3e3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -330,8 +330,6 @@ int CvPlayerAI::AI_getFlavorValue(FlavorTypes eFlavor) const
+ }
+ 
+ // K-Mod
+-/*	advc (note): Now called on all active players after loading a savegame;
+-	so that the data doesn't necessarily have to be serialized. */
+ void CvPlayerAI::AI_updateCacheData()
+ {
+ 	// AI_updateCloseBorderAttitude();
+@@ -19468,8 +19466,10 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	// K-Mod
+ 	if (uiFlag >= 6)
+ 		pStream->Read(&m_iCityTargetTimer);
+-	else AI_setCityTargetTimer(0);
+-	// K-Mod end
++	else AI_setCityTargetTimer(0); // K-Mod end
++	// <advc.651>
++	if (uiFlag >= 16)
++		pStream->Read(&m_bDangerFromSubmarines); // </advc.651>
+ 
+ 	pStream->Read((int*)&m_eStrategyHash);
+ 	//pStream->Read(&m_iStrategyHashCacheTurn); // disabled by K-Mod
+@@ -19621,12 +19621,19 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
+ 	CvPlayer::write(pStream);
+-
+-REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));	uiFlag = 10; // advc.036
++	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));
++	uint uiFlag = 3;
++	uiFlag = 4; // K-Mod: m_aiAttitude
++	uiFlag = 5; // K-Mod: m_GreatPersonWeights
++	uiFlag = 6; // K-Mod: m_iCityTargetTimer
++	uiFlag = 8; // advc.opt
++	uiFlag = 9; // advc.148
++	uiFlag = 10; // advc.036
+ 	uiFlag = 11; // advc.104i
+ 	uiFlag = 12; // advc.079
+ 	uiFlag = 14; // advc.130c
+ 	uiFlag = 15; // advc.104: Don't save UWAI cache of dead civ
++	uiFlag = 16; // advc.651
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -19635,7 +19642,8 @@ REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));	uiFlag = 10;
+ 	pStream->Write(m_iCivicTimer);
+ 	pStream->Write(m_iReligionTimer);
+ 	pStream->Write(m_iExtraGoldTarget);
+-	pStream->Write(m_iCityTargetTimer); // K-Mod. uiFlag >= 6
++	pStream->Write(m_iCityTargetTimer);
++	pStream->Write(m_bDangerFromSubmarines); // advc.651
+ 
+ 	pStream->Write(m_eStrategyHash);
+ 	//pStream->Write(m_iStrategyHashCacheTurn); // disabled by K-Mod
+@@ -19676,7 +19684,7 @@ REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));	uiFlag = 10;
+ 	pStream->Write(MAX_CIV_PLAYERS, m_abTheyFarAhead);
+ 	pStream->Write(MAX_CIV_PLAYERS, m_abTheyBarelyAhead); // </advc.130c>
+ 	// K-Mod. save the attitude cache. (to avoid OOS problems)
+-	pStream->Write(MAX_PLAYERS, &m_aiAttitude[0]); // uiFlag >= 4
++	pStream->Write(MAX_PLAYERS, &m_aiAttitude[0]);
+ 	// K-Mod end
+ 	pStream->Write(MAX_PLAYERS, m_abFirstContact);
+ 
+@@ -19706,7 +19714,7 @@ REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));	uiFlag = 10;
+ 	pStream->Write(GC.getNumBonusInfos(), m_aiBonusValueTrade); // advc.036
+ 	pStream->Write(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Write(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
+-	// K-Mod. save great person weights. (uiFlag >= 5)
++	// K-Mod. save great person weights.
+ 	{
+ 		int iItems = m_GreatPersonWeights.size();
+ 		pStream->Write(iItems);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index fe3eff87a..d7ecc450a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -614,7 +614,7 @@ protected:
+ 	int m_iReligionTimer;
+ 	int m_iExtraGoldTarget;
+ 	int m_iCityTargetTimer; // K-Mod
+-	bool m_bDangerFromSubmarines; // advc.651 (not serialized)
++	bool m_bDangerFromSubmarines; // advc.651
+ 	UWAI::Civ* m_pUWAI; // advc.104
+ 
+ 	/*mutable int m_iStrategyHash;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=8709

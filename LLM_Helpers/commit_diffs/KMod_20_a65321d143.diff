@@ -1,0 +1,194 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 20
+# Commit: a65321d14313be73366f056e54ae057887bd07a3
+# History segment: K-Mod history
+# Parent used for diff: ba05d11850ec1165d17ada52ca6e1d0099bcb074
+# Title: Fixed a bug that caused the game to crash when played with Time Victory disabled. Added missing code to enable the third promotion 'or' prereqs.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvGame.cpp
+20	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	3	CvGameCoreDLL/CvInfos.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+28	0	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9d74794ef..8f124f80b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3949,7 +3949,10 @@ int CvGame::getGlobalWarmingChances() const
+ 	// as you can see, I've scaled it by the number of turns in the game. The probability per chance is also scaled like this.
+ 	// I estimate that the global warming index will actually be roughly proportional to the number of turns in the game
+ 	// so by scaling the chances, and the probability per chance, I hope to get roughly the same number of actually events per game
+-	return getGlobalWarmingIndex()/(getMaxTurns());
++	int iIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
++	iIndexPerChance*=GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++	iIndexPerChance/=100;
++	return ROUND_DIVIDE(getGlobalWarmingIndex(), std::max(1, iIndexPerChance));
+ }
+ 
+ int CvGame::getGwEventTally() const
+@@ -4025,7 +4028,7 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 	if (kPlayer.isAlive())
+ 	{
+-		return iGlobalThreshold * kPlayer.getTotalLand() / GC.getMapINLINE().getLandPlots();
++		return iGlobalThreshold * kPlayer.getTotalLand() / std::max(1, GC.getMapINLINE().getLandPlots());
+ 	}
+ 	else
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 0eb7912a5..155810804 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -305,6 +305,12 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader)
+ 
+ 	PromotionTypes ePrereq1 = (PromotionTypes)kPromotion.getPrereqOrPromotion1();
+ 	PromotionTypes ePrereq2 = (PromotionTypes)kPromotion.getPrereqOrPromotion2();
++/*
++** K-Mod, 14/jan/11, karadoc
++** third optional preq.
++*/
++	PromotionTypes ePrereq3 = (PromotionTypes)kPromotion.getPrereqOrPromotion3();
++	/* original bts code
+ 	if (NO_PROMOTION != ePrereq1 || NO_PROMOTION != ePrereq2)
+ 	{
+ 		bool bValid = false;
+@@ -322,13 +328,26 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader)
+ 			{
+ 				bValid = true;
+ 			}
+-		}
++		}*/
++	if (ePrereq1 != NO_PROMOTION || ePrereq2 != NO_PROMOTION || ePrereq3 != NO_PROMOTION)
++	{
++		bool bValid = false;
++
++		if (ePrereq1 != NO_PROMOTION && isPromotionValid(ePrereq1, eUnit, bLeader))
++			bValid = true;
++		if (ePrereq2 != NO_PROMOTION && isPromotionValid(ePrereq2, eUnit, bLeader))
++			bValid = true;
++		if (ePrereq3 != NO_PROMOTION && isPromotionValid(ePrereq3, eUnit, bLeader))
++			bValid = true;
+ 
+ 		if (!bValid)
+ 		{
+ 			return false;
+ 		}
+ 	}
++/*
++** K-Mod end
++*/
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index e3f914bde..451222b01 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -449,10 +449,10 @@ public:
+ 	void setPrereqOrPromotion2(int i);				// Exposed to Python
+ /*
+ ** K-Mod, 7/jan/11, karadoc
+-** note: these functions are not 'exposed to python'
+-** and despite what the above comments say, the 'set' functions for prereqs 1 and 2 aren't either!
++** note: none of the prereq 'set' functions are 'exposed to python'
++** despite what the above comments say
+ */
+-	int getPrereqOrPromotion3() const;
++	int getPrereqOrPromotion3() const; // Exposed to Python
+ 	void setPrereqOrPromotion3(int i);
+ /*
+ ** K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index fc0913f43..d56ce06ac 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7266,7 +7266,7 @@ int CvPlayer::calculateGwPercentAnger() const
+ 	int iGlobalPollution = GC.getGameINLINE().calculateGlobalPollution();
+ 
+ 	// Note: watch out for integer overflow and rounding errors.
+-	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots())));
++	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (std::max(1,4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots()))));
+ 	// a = 1000/4
+ 
+ 	int iResponsibilityFactor =	100*calculatePollution();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 09ca6c5d9..7edc96393 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11573,6 +11573,11 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
+ 		}
+ 	}
+ 
++/*
++** K-Mod, 14/jan/11, karadoc
++** third optional prereq
++*/
++	/* original bts code
+ 	if (GC.getPromotionInfo(ePromotion).getPrereqOrPromotion1() != NO_PROMOTION)
+ 	{
+ 		if (!isHasPromotion((PromotionTypes)(GC.getPromotionInfo(ePromotion).getPrereqOrPromotion1())))
+@@ -11582,7 +11587,30 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
+ 				return false;
+ 			}
+ 		}
++	}*/
++
++	PromotionTypes ePrereq1 = (PromotionTypes)GC.getPromotionInfo(ePromotion).getPrereqOrPromotion1();
++	PromotionTypes ePrereq2 = (PromotionTypes)GC.getPromotionInfo(ePromotion).getPrereqOrPromotion2();
++	PromotionTypes ePrereq3 = (PromotionTypes)GC.getPromotionInfo(ePromotion).getPrereqOrPromotion3();
++	if (ePrereq1 != NO_PROMOTION || ePrereq2 != NO_PROMOTION || ePrereq3 != NO_PROMOTION)
++	{
++		bool bValid = false;
++
++		if (ePrereq1 != NO_PROMOTION && isHasPromotion(ePrereq1))
++			bValid = true;
++		if (ePrereq2 != NO_PROMOTION && isHasPromotion(ePrereq2))
++			bValid = true;
++		if (ePrereq3 != NO_PROMOTION && isHasPromotion(ePrereq3))
++			bValid = true;
++
++		if (!bValid)
++		{
++			return false;
++		}
+ 	}
++/*
++** K-Mod end
++*/
+ 
+ 	if (GC.getPromotionInfo(ePromotion).getTechPrereq() != NO_TECH)
+ 	{
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 7744f11ca..6b6375f2f 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -105,6 +105,7 @@ void CyInfoPythonInterface1()
+ 		.def("getPrereqPromotion", &CvPromotionInfo::getPrereqPromotion, "int ()")
+ 		.def("getPrereqOrPromotion1", &CvPromotionInfo::getPrereqOrPromotion1, "int ()")
+ 		.def("getPrereqOrPromotion2", &CvPromotionInfo::getPrereqOrPromotion2, "int ()")
++		.def("getPrereqOrPromotion3", &CvPromotionInfo::getPrereqOrPromotion3, "int ()") // K-Mod
+ 		.def("getActionInfoIndex", &CvPromotionInfo::getActionInfoIndex, "int ()")
+ 
+ 		.def("getTechPrereq", &CvPromotionInfo::getTechPrereq, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=6585

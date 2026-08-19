@@ -1,0 +1,310 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5620
+# Commit: bb7b7eb7d8890f250a3c7d8499676e7045cb5ec8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 862ba215e8557a8eb4812aa653dbe07b2ce66f7a
+# Title: split the foreign advisor into foreign diplomacy and foreign trade advisors
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	8	Assets/Python/EntryPoints/CvScreensInterface.py
+6	5	Assets/Python/Screens/CvForeignAdvisor.py
+26	0	Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+2	0	Assets/Python/Screens/CvScreenEnums.py
+2	2	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+14	2	Assets/XML/Text/AdvCiv-SAS_main.xml
+3	3	Assets/XML/Units/CIV4ControlInfos.xml
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index 8fd4acca4..79e9b3e96 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -8,6 +8,7 @@
+ import CvMainInterface
+ import CvTechChooser
+ import CvForeignAdvisor
++import CvForeignDiplomacyAdvisor
+ import CvPolicyAdvisorScreen
+ import CvVictoryScreen
+ 
+@@ -120,11 +121,24 @@ optionsScreen = CvOptionsScreen.CvOptionsScreen()
+ def showOptionsScreen():
+ 	optionsScreen.interfaceScreen()
+ 
+-# <!-- custom: single canonical Foreign Advisor wiring: use "CvForeignAdvisor.py" only. This replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. Contrast: true alternatives use independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), not interdependent split files. (GPT-5.3-Codex) -->
++# <!-- custom: split Foreign advisors: canonical Foreign (F4) is the trade cluster, while diplomacy/intel is the derivative F3 slot shell. (GPT-5.3-Codex) -->
+ foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
++foreignDiplomacyAdvisor = CvForeignDiplomacyAdvisor.CvForeignDiplomacyAdvisor()
++FOREIGN_DIPLOMACY_TABS = (foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"], foreignDiplomacyAdvisor.SCREEN_DICT["GLANCE"], foreignDiplomacyAdvisor.SCREEN_DICT["INFO"], foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
+ def showForeignAdvisorScreen(argsList):
+ 	if (-1 != CyGame().getActivePlayer()):
+-		foreignAdvisor.interfaceScreen(argsList[0])
++		iScreen = -1
++		if type(argsList) in [list, tuple]:
++			if len(argsList) > 0:
++				iScreen = argsList[0]
++		else:
++			iScreen = argsList
++		# <!-- custom: tab clicks from both Foreign shells are routed by the DLL through showForeignAdvisorScreen(iTab) using WIDGET_FOREIGN_ADVISOR.
++		# Keep canonical Foreign defaulting to trade (F4); only diplomacy/intel tab ids route to the F3 shell. (GPT-5.3-Codex) -->
++		if iScreen in FOREIGN_DIPLOMACY_TABS:
++			foreignDiplomacyAdvisor.interfaceScreen(iScreen)
++		else:
++			foreignAdvisor.interfaceScreen(iScreen)
+ 
+ # BUG - Finance Advisor - start
+ ##	
+@@ -143,8 +157,8 @@ def createFinanceAdvisor():
+ 			
+ def showFinanceAdvisor():
+ 	if (-1 != CyGame().getActivePlayer()):
+-		createDomesticAdvisor()
+-		domesticAdvisor.interfaceScreen([1])
++		# <!-- custom: F3 slot now opens the Foreign Diplomacy/Intel advisor shell. (GPT-5.3-Codex) -->
++		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"])
+ 
+ # BUG - CustDomAdv - start
+ domesticAdvisor = None
+@@ -193,7 +207,7 @@ def showMilitaryAdvisor():
+ def showEspionageAdvisor():
+ 	if (-1 != CyGame().getActivePlayer()):
+ 		# <!-- custom: Espionage screen is integrated into CvForeignAdvisor; open its Espionage tab instead of a separate advisor instance. (GPT-5.3-Codex) -->
+-		foreignAdvisor.interfaceScreen(foreignAdvisor.SCREEN_DICT["ESPIONAGE"])
++		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
+ 
+ dawnOfMan = CvDawnOfMan.CvDawnOfMan(DAWN_OF_MAN)
+ def showDawnOfMan(argsList):
+@@ -1140,7 +1154,8 @@ def featAccomplishedOnClickedCallback(argsList):
+ 		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+ 			showMilitaryAdvisor()
+ 		elif ((iData1 >= FeatTypes.FEAT_COPPER_CONNECTED) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+-			showForeignAdvisorScreen([0])
++			# <!-- custom: resource-connected feat now belongs to the Foreign Trade cluster; open Bonuses tab there. (GPT-5.3-Codex) -->
++			showForeignAdvisorScreen([foreignAdvisor.SCREEN_DICT["BONUS"]])
+ 		elif ((iData1 == FeatTypes.FEAT_NATIONAL_WONDER)):
+ 			# 2 is for the wonder tab...
+ 			showInfoScreen([2, 0])
+@@ -1190,6 +1205,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
+ 					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
+ 					TECH_CHOOSER : techChooser,
+ 					FOREIGN_ADVISOR : foreignAdvisor,
++					FOREIGN_DIPLOMACY_ADVISOR : foreignDiplomacyAdvisor,
+ #					FINANCE_ADVISOR : financeAdvisor,
+ #					MILITARY_ADVISOR : militaryAdvisor,
+ 					DAWN_OF_MAN : dawnOfMan,
+@@ -1204,8 +1220,8 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
+ 					TOP_CIVS : topCivs,
+ 					HALL_OF_FAME : hallOfFameScreen,
+ 					VICTORY_MOVIE_SCREEN : victoryMovie,
+-					# <!-- custom: route Espionage advisor input to CvForeignAdvisor because Espionage is now a native Foreign tab. (GPT-5.3-Codex) -->
+-					ESPIONAGE_ADVISOR : foreignAdvisor,
++					# <!-- custom: route Espionage advisor input to diplomacy shell because Espionage is now a native Foreign Diplomacy tab. (GPT-5.3-Codex) -->
++					ESPIONAGE_ADVISOR : foreignDiplomacyAdvisor,
+ 					DAN_QUAYLE_SCREEN : danQuayleScreen,
+ 					WORLDBUILDER_SCREEN : worldBuilderScreen,
+ 					WORLDBUILDER_DIPLOMACY_SCREEN : worldBuilderDiplomacyScreen,
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 768cf8d1b..14eeed491 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -10,7 +10,7 @@
+ 
+ # This file has been edited for K-Mod in various places. Some changes marked, others not.
+ 
+-# <!-- custom: canonical unified Foreign Advisor implementation with full tab set (Relations/Glance/Active/Bonus/Info/Espionage/Tech/Cities). This file "CvForeignAdvisor.py" replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
++# <!-- custom: canonical Foreign Trade advisor implementation (Treaties/Bonuses/Techs/Cities). Diplomacy/Intel tabs are split to CvForeignDiplomacyAdvisor shell. This file replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+@@ -88,7 +88,7 @@ class CvForeignAdvisor:
+ 		self.nLineCount = 0
+ 		self.WIDGET_ID = "ForeignAdvisorWidget"
+ 		self.LINE_ID = "ForeignAdvisorLine"
+-		self.SCREEN_NAME = "ForeignAdvisor"
++		self.SCREEN_NAME = "ForeignTradeAdvisor"
+ 		self.DEBUG_DROPDOWN_ID =  "ForeignAdvisorDropdownWidget"
+ 		self.EXIT_ID = "ForeignAdvisorExitWidget"
+ 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
+@@ -267,14 +267,15 @@ class CvForeignAdvisor:
+ 			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
+ 			}
+ 
+-		self.ORDER_LIST = ["RELATIONS", "GLANCE", "ACTIVE_TRADE", "BONUS", "INFO", "ESPIONAGE", "TECH", "CITIES"] # advc.ctr (add CITIES)
++		# <!-- custom: trade cluster tabs only; diplomacy/intel cluster moved to CvForeignDiplomacyAdvisor shell. (GPT-5.3-Codex) -->
++		self.ORDER_LIST = ["ACTIVE_TRADE", "BONUS", "TECH", "CITIES"]
+ 
+ 		# K-Mod
+ 		self.LABEL_WIDTH_LIST = []
+ 		self.iLanguageLoaded = -1
+ 		# K-Mod end
+ 
+-		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
++		self.iDefaultScreen = self.SCREEN_DICT["ACTIVE_TRADE"]
+ 
+ 		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
+ 		self.SAS_TREATY_ICON_SIZE = 24
+@@ -350,7 +351,7 @@ class CvForeignAdvisor:
+ 
+ 		# <!-- custom: precompute commonly used text strings to avoid repeated lookups (claude code sonnet 4.5) -->
+ 		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+-		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 
+ 		# <!-- custom: precompute tab/column header texts (claude code sonnet 4.5) -->
+ 		self.TEXT_LEADER = localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ())
+
+diff --git a/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py b/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+new file mode 100644
+index 000000000..d0f2be881
+--- /dev/null
++++ b/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py
+@@ -0,0 +1,26 @@
++## Sid Meier's Civilization 4
++## Copyright Firaxis Games 2005
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++from CvPythonExtensions import *
++import CvScreenEnums
++import CvForeignAdvisor
++
++
++class CvForeignDiplomacyAdvisor(CvForeignAdvisor.CvForeignAdvisor):
++	# <!-- custom: diplomacy/intel shell over canonical Foreign advisor codebase so F3 stays the "derived split" while F4 keeps the base trade cluster. (GPT-5.3-Codex) -->
++	def __init__(self):
++		CvForeignAdvisor.CvForeignAdvisor.__init__(self)
++		self.SCREEN_NAME = "ForeignAdvisor"
++		self.ORDER_LIST = ["RELATIONS", "GLANCE", "INFO", "ESPIONAGE"]
++		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
++
++	def initText(self):
++		CvForeignAdvisor.CvForeignAdvisor.initText(self)
++		self.SCREEN_TITLE = CvForeignAdvisor.SAS_FONT_TAG_TITLE_BOLD + CvForeignAdvisor.localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + CvForeignAdvisor.SAS_FONT_TAG_CLOSE
++
++	def getScreen(self):
++		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_DIPLOMACY_ADVISOR)
+
+diff --git a/Assets/Python/Screens/CvScreenEnums.py b/Assets/Python/Screens/CvScreenEnums.py
+index ec3ae93f8..9f3024a54 100644
+--- a/Assets/Python/Screens/CvScreenEnums.py
++++ b/Assets/Python/Screens/CvScreenEnums.py
+@@ -36,6 +36,8 @@ UN_SCREEN = 26
+ ESPIONAGE_ADVISOR = 27
+ SPACE_SHIP_SCREEN = 28
+ CORPORATION_SCREEN = 29
++# <!-- custom: split Foreign advisor shell id for diplomacy/intel cluster (F3 slot). (GPT-5.3-Codex) -->
++FOREIGN_DIPLOMACY_ADVISOR = 30
+ 
+ GAMEFONT_DISPLAY_SCREEN = 75 # advc.gfd
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 96e6e877c..a12fc88a5 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1438,9 +1438,9 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+ 		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
+-	<!-- custom: advisor shortcuts updated: Policy = F2, Finance = F3, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
++	<!-- custom: advisor shortcuts updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
+-		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Policy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Financial Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
++		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Policy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Diplomacy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Trade Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index e3c829c35..7c962f0c5 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3575,10 +3575,22 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
+ 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+ 	</TEXT>
+-	<!-- custom: advisor hotkey labels updated: Policy = F2, Finance = F3, Info Screen = F8, Victory Screen = F9 (renamed from Victory), Sevopedia = F12. (GPT-5.3-Codex) -->
++	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_TITLE</Tag>
++		<English>Foreign Diplomacy Advisor</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE</Tag>
++		<English>Foreign Trade Advisor</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
++		<English>Foreign Trade [F4]:</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_FINANCE_ADVISOR</Tag>
+-		<English>Finance [F3]:</English>
++		<English>Foreign Diplomacy [F3]:</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Tag>
+
+diff --git a/Assets/XML/Units/CIV4ControlInfos.xml b/Assets/XML/Units/CIV4ControlInfos.xml
+index 3d7616b98..280d5a191 100644
+--- a/Assets/XML/Units/CIV4ControlInfos.xml
++++ b/Assets/XML/Units/CIV4ControlInfos.xml
+@@ -624,7 +624,7 @@
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+ 		</ControlInfo>
+-		<!-- custom: Civics/Finance hotkeys swapped so Civics = F2 and Finance = F3. (GPT-5.3-Codex) -->
++		<!-- custom: advisor hotkeys updated for Foreign split: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4. (GPT-5.3-Codex) -->
+ 		<ControlInfo>
+ 			<Type>CONTROL_CIVICS_SCREEN</Type>
+ 			<Description>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Description>
+@@ -642,7 +642,7 @@
+ 		</ControlInfo>
+ 		<ControlInfo>
+ 			<Type>CONTROL_FOREIGN_SCREEN</Type>
+-			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
++			<Description>TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE</Description>
+ 			<Help/>
+ 			<HotKey>KB_F4</HotKey>
+ 			<bAltDown>0</bAltDown>
+@@ -657,7 +657,7 @@
+ 		</ControlInfo>
+ 		<ControlInfo>
+ 			<Type>CONTROL_FINANCIAL_SCREEN</Type>
+-			<Description>TXT_KEY_FINANCIAL_ADVISOR_TITLE</Description>
++			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
+ 			<Help/>
+ 			<HotKey>KB_F3</HotKey>
+ 			<bAltDown>0</bAltDown>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 53bc29e12..2bf73e008 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -325,7 +325,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### UI (In-game)
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor**, and **merged the Economic Advisor's Finance Tab into the Domestic Advisor**, the **Economic Advisor's Environment Tab into the Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now tabs of these instead (deleted the old now obsolete lone advisor .py files). (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text (e.g., move Victory screen to F9 and Info Screen to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors).
++- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the **Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
++- (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5522+) **Beautified** the **Policy Advisor**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=24407

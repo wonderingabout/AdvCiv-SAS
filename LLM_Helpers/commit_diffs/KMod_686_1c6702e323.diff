@@ -1,0 +1,218 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 686
+# Commit: 1c6702e3236a027354e4e2fd8dc664c88aa33b45
+# History segment: K-Mod history
+# Parent used for diff: 6c4b42a605e871f808dafb96bee3bafc789ce1d6
+# Title: Rewrote CvUnit::collateralCombat to improve performance and readability, and to remove a potential OOS bug. (The bug could be triggered if two or more of the...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	CvGameCoreDLL/CvStructs.h
+38	85	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 198363eea..f057386f6 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -36,6 +36,13 @@ struct DllExport IDInfo
+ 		return (eOwner == info.eOwner && iID == info.iID);
+ 	}
+ 
++	// K-Mod
++	bool operator< (const IDInfo& a) const
++	{
++		return eOwner < a.eOwner || (eOwner == a.eOwner && iID < a.iID);
++	}
++	// K-Mod end
++
+ 	void reset()
+ 	{
+ 		eOwner = NO_PLAYER;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 72cd52d8e..9e0fc2461 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12187,59 +12187,32 @@ bool CvUnit::canAdvance(const CvPlot* pPlot, int iThreshold) const
+ 	return true;
+ }
+ 
+-
++// K-Mod, I've rewritten this function just to make it a bit easier to understand, a bit more efficient, and a bit more robust.
++// For example, the original code used a std::map<CvUnit*, int>; if the random number in the map turned out to be the same, it could potentially have led to OOS.
++// The actual game mechanics are only very slightly changed. (I've removed the targets cap of "visible units - 1". That seemed like a silly limitation.)
+ void CvUnit::collateralCombat(const CvPlot* pPlot, CvUnit* pSkipUnit)
+ {
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	CvUnit* pBestUnit;
+-	CvWString szBuffer;
+-	int iTheirStrength;
+-	int iStrengthFactor;
+-	int iCollateralDamage;
+-	int iUnitDamage;
+-	int iDamageCount;
+-	int iPossibleTargets;
+-	int iCount;
+-	int iValue;
+-	int iBestValue;
+-	std::map<CvUnit*, int> mapUnitDamage;
+-	std::map<CvUnit*, int>::iterator it;
++	std::vector<std::pair<int, IDInfo> > targetUnits;
+ 
+ 	int iCollateralStrength = (getDomainType() == DOMAIN_AIR ? airBaseCombatStr() : baseCombatStr()) * collateralDamage() / 100;
+-	// UNOFFICIAL_PATCH Start
+-	// * Barrage promotions made working again on Tanks and other units with no base collateral ability
++
+ 	if (iCollateralStrength == 0 && getExtraCollateralDamage() == 0)
+-	// UNOFFICIAL_PATCH End
+-	{
+ 		return;
+-	}
+ 
+-	iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits());
+-
+-	pUnitNode = pPlot->headUnitNode();
++	CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
+ 
+ 	while (pUnitNode != NULL)
+ 	{
+-		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
+ 
+-		if (pLoopUnit != pSkipUnit)
++		if (pLoopUnit != pSkipUnit && isEnemy(pLoopUnit->getTeam(), pPlot) && pLoopUnit->canDefend() && !pLoopUnit->isInvisible(getTeam(), false))
+ 		{
+-			if (isEnemy(pLoopUnit->getTeam(), pPlot))
+-			{
+-				if (!(pLoopUnit->isInvisible(getTeam(), false)))
+-				{
+-					if (pLoopUnit->canDefend())
+-					{
+-						iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "Collateral Damage"));
++			// This value thing is a bit bork. It's directly from the original code...
++			int iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "Collateral Damage"));
++			iValue *= pLoopUnit->currHitPoints();
+ 
+-						iValue *= pLoopUnit->currHitPoints();
+-
+-						mapUnitDamage[pLoopUnit] = iValue;
+-					}
+-				}
+-			}
++			targetUnits.push_back(std::make_pair(iValue, pLoopUnit->getIDInfo()));
+ 		}
+ 	}
+ 
+@@ -12249,71 +12222,51 @@ void CvUnit::collateralCombat(const CvPlot* pPlot, CvUnit* pSkipUnit)
+ 		pCity = pPlot->getPlotCity();
+ 	}
+ 
+-	iDamageCount = 0;
+-	iCount = 0;
++	int iPossibleTargets = std::min((int)targetUnits.size(), collateralDamageMaxUnits());
++	std::partial_sort(targetUnits.begin(), targetUnits.begin() + iPossibleTargets, targetUnits.end(), std::greater<std::pair<int, IDInfo> >());
+ 
+-	while (iCount < iPossibleTargets)
+-	{
+-		iBestValue = 0;
+-		pBestUnit = NULL;
++	int iDamageCount = 0;
+ 
+-		for (it = mapUnitDamage.begin(); it != mapUnitDamage.end(); it++)
+-		{
+-			if (it->second > iBestValue)
+-			{
+-				iBestValue = it->second;
+-				pBestUnit = it->first;
+-			}
+-		}
++	for (int i = 0; i < iPossibleTargets; i++)
++	{
++		CvUnit* pTargetUnit = ::getUnit(targetUnits[i].second);
++		FAssert(pTargetUnit);
+ 
+-		if (pBestUnit != NULL)
++		if (NO_UNITCOMBAT == getUnitCombatType() || !pTargetUnit->getUnitInfo().getUnitCombatCollateralImmune(getUnitCombatType()))
+ 		{
+-			mapUnitDamage.erase(pBestUnit);
+-
+-			if (NO_UNITCOMBAT == getUnitCombatType() || !pBestUnit->getUnitInfo().getUnitCombatCollateralImmune(getUnitCombatType()))
+-			{
+-				iTheirStrength = pBestUnit->baseCombatStr();
+-
+-				iStrengthFactor = ((iCollateralStrength + iTheirStrength + 1) / 2);
++			int iTheirStrength = pTargetUnit->baseCombatStr();
+ 
+-				iCollateralDamage = (GC.getDefineINT("COLLATERAL_COMBAT_DAMAGE") * (iCollateralStrength + iStrengthFactor)) / (iTheirStrength + iStrengthFactor);
++			int iStrengthFactor = ((iCollateralStrength + iTheirStrength + 1) / 2);
+ 
+-				iCollateralDamage *= 100 + getExtraCollateralDamage();
++			int iCollateralDamage = (GC.getDefineINT("COLLATERAL_COMBAT_DAMAGE") * (iCollateralStrength + iStrengthFactor)) / (iTheirStrength + iStrengthFactor);
+ 
+-				iCollateralDamage *= std::max(0, 100 - pBestUnit->getCollateralDamageProtection());
+-				iCollateralDamage /= 100;
++			iCollateralDamage *= 100 + getExtraCollateralDamage();
+ 
+-				if (pCity != NULL)
+-				{
+-					iCollateralDamage *= 100 + pCity->getAirModifier();
+-					iCollateralDamage /= 100;
+-				}
++			iCollateralDamage *= std::max(0, 100 - pTargetUnit->getCollateralDamageProtection());
++			iCollateralDamage /= 100;
+ 
++			if (pCity != NULL)
++			{
++				iCollateralDamage *= 100 + pCity->getAirModifier();
+ 				iCollateralDamage /= 100;
++			}
+ 
+-				iCollateralDamage = std::max(0, iCollateralDamage);
++			iCollateralDamage = std::max(0, iCollateralDamage/100);
+ 
+-				int iMaxDamage = std::min(collateralDamageLimit(), (collateralDamageLimit() * (iCollateralStrength + iStrengthFactor)) / (iTheirStrength + iStrengthFactor));
+-				iUnitDamage = std::max(pBestUnit->getDamage(), std::min(pBestUnit->getDamage() + iCollateralDamage, iMaxDamage));
++			int iMaxDamage = std::min(collateralDamageLimit(), (collateralDamageLimit() * (iCollateralStrength + iStrengthFactor)) / (iTheirStrength + iStrengthFactor));
++			int iUnitDamage = std::max(pTargetUnit->getDamage(), std::min(pTargetUnit->getDamage() + iCollateralDamage, iMaxDamage));
+ 
+-				if (pBestUnit->getDamage() != iUnitDamage)
+-				{
+-					pBestUnit->setDamage(iUnitDamage, getOwnerINLINE());
+-					iDamageCount++;
+-				}
++			if (pTargetUnit->getDamage() != iUnitDamage)
++			{
++				pTargetUnit->setDamage(iUnitDamage, getOwnerINLINE());
++				iDamageCount++;
+ 			}
+-
+-			iCount++;
+-		}
+-		else
+-		{
+-			break;
+ 		}
+ 	}
+ 
+ 	if (iDamageCount > 0)
+ 	{
+-		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SUFFER_COL_DMG", iDamageCount);
++		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SUFFER_COL_DMG", iDamageCount);
+ 		gDLL->getInterfaceIFace()->addHumanMessage(pSkipUnit->getOwnerINLINE(), (pSkipUnit->getDomainType() != DOMAIN_AIR), GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_COLLATERAL", MESSAGE_TYPE_INFO, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pSkipUnit->getX_INLINE(), pSkipUnit->getY_INLINE(), true, true);
+ 
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_INFLICT_COL_DMG", getNameKey(), iDamageCount);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7213

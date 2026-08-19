@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2151
+# Commit: a1a1166a9722005e34bc9f20f6c7f8c18ad2de15
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f701f56cc47647ea34783b76ac3fd3b9edf153b3
+# Title: Loading screen hints about city trade changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	1	Assets/XML/GameInfo/CIV4Hints.xml
+42	0	Assets/XML/Text/CIV4GameText_advc.008d.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 4e1823e27..41ebc31d9 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -672,7 +672,14 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_39</Description>
+ 		</HintInfo>
+-		<!-- Skip 40, 41, 42 -->
++		<!-- Skip 40, 41, 42, 43 -->
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_44</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_45</Description>
++		</HintInfo>
++		<!-- Skip 46, 47 -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -794,5 +801,20 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_42</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_43</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_44</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_45</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_46</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_47</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008d.xml b/Assets/XML/Text/CIV4GameText_advc.008d.xml
+index 1a8cbebca..10fcef593 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008d.xml
+@@ -1052,4 +1052,46 @@
+ 	<Spanish>A quick way to skip a music track is to disable and then re-enable music by pressing [Ctrl + M] twice.</Spanish>
+ </TEXT>
+ 
++<!-- advc.ctr -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_43</Tag>
++	<English>(AdvCiv) If you found a city only for the purpose of trading it to an AI neighbor, be warned that the AI may reject the city if it is very badly situated: "We don't want to trade this."</English>
++	<French>(AdvCiv) If you found a city only for the purpose of trading it to an AI neighbor, be warned that the AI may reject the city if it is very badly situated: "We don't want to trade this."</French>
++	<German>(AdvCiv) Wenn Sie eine Stadt gr�nden, nur um sie an einen KI-Nachbarn zu vertauschen, beachten Sie, dass die KI sehr ung�nstig platzierte St�dte nicht annimmt: "Wir haben leider kein Interesse."</German>
++	<Italian>(AdvCiv) If you found a city only for the purpose of trading it to an AI neighbor, be warned that the AI may reject the city if it is very badly situated: "We don't want to trade this."</Italian>
++	<Spanish>(AdvCiv) If you found a city only for the purpose of trading it to an AI neighbor, be warned that the AI may reject the city if it is very badly situated: "We don't want to trade this."</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_44</Tag>
++	<English>(AdvCiv) Ceding a city can appease a powerful AI neighbor and results in a peace treaty. However, the AI may refuse to accept an insignificant city if it is unwilling to sign a peace treaty: "We have our reasons."</English>
++	<French>(AdvCiv) Ceding a city can appease a powerful AI neighbor and results in a peace treaty. However, the AI may refuse to accept an insignificant city if it is unwilling to sign a peace treaty: "We have our reasons."</French>
++	<German>(AdvCiv) Die Abtretung einer Stadt kann einen gef�hrlichen KI-Nachbarn bes�nftigen und geht mit einem Friedensvertrag einher. Eine unbedeutende Stadt k�nnte die KI allerdings ablehnen - um einen Friedensvertrag zu vermeiden: "Wir haben unsere Gr�nde."</German>
++	<Italian>(AdvCiv) Ceding a city can appease a powerful AI neighbor and results in a peace treaty. However, the AI may refuse to accept an insignificant city if it is unwilling to sign a peace treaty: "We have our reasons."</Italian>
++	<Spanish>(AdvCiv) Ceding a city can appease a powerful AI neighbor and results in a peace treaty. However, the AI may refuse to accept an insignificant city if it is unwilling to sign a peace treaty: "We have our reasons."</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_45</Tag>
++	<English>(AdvCiv) Spread enough culture to a city with a well-disposed owner, and you might be able to trade for the city; the owner might even liberate it without compensation.</English>
++	<French>(AdvCiv) Spread enough culture to a city with a well-disposed owner, and you might be able to trade for the city; the owner might even liberate it without compensation.</French>
++	<German>(AdvCiv) Eine Stadt durch kulturellen Einfluss zum �berlaufen zu bringen, ist schwierig. Ein Tauschhandel erfordert einen deutlich geringeren Kulturanteil, h�ngt allerdings vom Wohlwollen des Besitzers ab.</German>
++	<Italian>(AdvCiv) Spread enough culture to a city with a well-disposed owner, and you might be able to trade for the city; the owner might even liberate it without compensation.</Italian>
++	<Spanish>(AdvCiv) Spread enough culture to a city with a well-disposed owner, and you might be able to trade for the city; the owner might even liberate it without compensation.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_46</Tag>
++	<English>(AdvCiv) Conquered cities can only be liberated - not traded - to third parties until the current and previous owner have made peace.</English>
++	<French>(AdvCiv) Conquered cities can only be liberated - not traded - to third parties until the current and previous owner have made peace.</French>
++	<German>(AdvCiv) Solange ein Krieg andauert, k�nnen eroberte St�dte nur durch Befreiung an Drittparteien abgetreten werden; Handel mit eroberten St�dten ist erst nach Friedensschluss zul�ssig.</German>
++	<Italian>(AdvCiv) Conquered cities can only be liberated - not traded - to third parties until the current and previous owner have made peace.</Italian>
++	<Spanish>(AdvCiv) Conquered cities can only be liberated - not traded - to third parties until the current and previous owner have made peace.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_47</Tag>
++	<English>(AdvCiv) A city threatened by hostile units normally can't be ceded to a third party except through liberation.</English>
++	<French>(AdvCiv) A city threatened by hostile units normally can't be ceded to a third party except through liberation.</French>
++	<German>(AdvCiv) Solange sich feindliche Einheiten in der N�he einer Stadt befinden, kann sie in der Regel nicht an eine Drittpartei abgetreten werden - oder allenfalls durch Befreiung.</German>
++	<Italian>(AdvCiv) A city threatened by hostile units normally can't be ceded to a third party except through liberation.</Italian>
++	<Spanish>(AdvCiv) A city threatened by hostile units normally can't be ceded to a third party except through liberation.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6652

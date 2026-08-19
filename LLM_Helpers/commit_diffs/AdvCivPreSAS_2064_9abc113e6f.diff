@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2064
+# Commit: 9abc113e6ff5d73f6c1f271bcca26ff0d55a1fc6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 26ceed10139e59219f1c7bc8738ed1c1a945b8d0
+# Title: Wake up fortified/sleeping human units when their tile flips
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b554af96b..ba2e2fa90 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3973,6 +3973,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 
+ 	if(getOwner() == eNewValue)
+ 		return; // advc
++	PlayerTypes eOldOwner = getOwner(); // advc.ctr
+ 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, (char*)NULL, getX(), getY());
+ 
+ 	CvCity* pOldCity = getPlotCity();
+@@ -4175,7 +4176,20 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			gDLL->getEngineIFace()->SetDirty(CultureBorders_DIRTY_BIT, true);
+ 		}
+ 	}
+-
++	// <advc.ctr> Wake up sleeping/ fortified human units
++	if (isOwned() && eOldOwner != NO_PLAYER && GET_PLAYER(eOldOwner).isHuman())
++	{
++		for (CLLNode<IDInfo> const* pNode = headUnitNode(); pNode != NULL;
++			pNode = nextUnitNode(pNode))
++		{
++			CvSelectionGroup& kGroup = *::getUnit(pNode->m_data)->getGroup();
++			if (kGroup.getOwner() == eOldOwner && kGroup.getLengthMissionQueue() <= 0 &&
++				kGroup.getActivityType() == ACTIVITY_SLEEP)
++			{
++				kGroup.setActivityType(ACTIVITY_AWAKE);
++			}
++		}
++	} // </advc.ctr>
+ 	invalidateBorderDangerCache(); // K-Mod. (based on BBAI)
+ 	updateSymbols();
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1302

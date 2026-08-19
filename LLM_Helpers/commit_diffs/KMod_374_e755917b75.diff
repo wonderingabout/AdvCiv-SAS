@@ -1,0 +1,149 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 374
+# Commit: e755917b756f975a38b769cde368cf4637f3a1e6
+# History segment: K-Mod history
+# Parent used for diff: 8b6896b5be336176e2a1d3509fb0475e295a090f
+# Title: The AI will no longer automatically cancel deals with their worst enemy if their worst enemy happens to be their master. Updated the changelog. This is versi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	13	CvGameCoreDLL/CvPlayerAI.cpp
+8	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 96c561ab5..bd5026eeb 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8370,6 +8370,8 @@ bool CvPlayerAI::AI_goldDeal(const CLinkList<TradeData>* pList) const
+ /// considering proposals from the human player made in the diplomacy window as well as a couple other places.
+ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, int iChange) const
+ {
++	const CvTeamAI& kOurTeam = GET_TEAM(getTeam()); // K-Mod
++
+ 	CLLNode<TradeData>* pNode;
+ 	int iThreshold;
+ 
+@@ -8437,7 +8439,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 					{
+ 						if (iTeam != getTeam() && iTeam != GET_PLAYER(ePlayer).getTeam() && atWar(GET_PLAYER(ePlayer).getTeam(), (TeamTypes)iTeam) && !atWar(getTeam(), (TeamTypes)iTeam))
+ 						{
+-							if (GET_TEAM(getTeam()).AI_declareWarTrade((TeamTypes)iTeam, GET_PLAYER(ePlayer).getTeam(), false) != NO_DENIAL)
++							if (kOurTeam.AI_declareWarTrade((TeamTypes)iTeam, GET_PLAYER(ePlayer).getTeam(), false) != NO_DENIAL)
+ 							{
+ 								return false;
+ 							}
+@@ -8449,7 +8451,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 			{
+ 				bVassalTrade = true;
+ 
+-				if( !(GET_TEAM(getTeam()).AI_acceptSurrender(GET_PLAYER(ePlayer).getTeam())) )
++				if( !(kOurTeam.AI_acceptSurrender(GET_PLAYER(ePlayer).getTeam())) )
+ 				{
+ 					return false;
+ 				}
+@@ -8470,12 +8472,12 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 	// K-Mod
+ 	if (iChange < 0)
+ 	{
+-		if (GET_TEAM(getTeam()).AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
++		// There are only a few cases where the AI will allow ongoing trade with its worst enemy...
++		if (kOurTeam.AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam() && !kOurTeam.isVassal(GET_PLAYER(ePlayer).getTeam()))
+ 		{
+-			// There's one special case where the AI allow on going trade with it worst enemy...
+-			if (pOurList->getLength() != 1 || pOurList->head()->m_data.m_eItemType != TRADE_GOLD_PER_TURN)
++			if (pOurList->getLength() > 1 || pOurList->head()->m_data.m_eItemType != TRADE_GOLD_PER_TURN)
+ 			{
+-				// but this case isn't it.
++				// this trade isn't one of the special cases.
+ 				return false;
+ 			}
+ 		}
+@@ -8489,7 +8491,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 	{
+ 		// K-Mod
+ 		// Don't give any gifts to civs that you are about to go to war with.
+-		if (GET_TEAM(getTeam()).AI_getWarPlan(GET_PLAYER(ePlayer).getTeam()) != NO_WARPLAN)
++		if (kOurTeam.AI_getWarPlan(GET_PLAYER(ePlayer).getTeam()) != NO_WARPLAN)
+ 			return false;
+ 		//Don't cancel gift deals to vassals that you like, unless you need the gift back.
+ 		if (iChange < 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam()))
+@@ -8511,13 +8513,13 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 		}
+ 		// K-Mod end
+ 
+-		if (GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()) && CvDeal::isVassalTributeDeal(pOurList))
++		if (kOurTeam.isVassal(GET_PLAYER(ePlayer).getTeam()) && CvDeal::isVassalTributeDeal(pOurList))
+ 		{
+ 			if (AI_getAttitude(ePlayer, false) <= GC.getLeaderHeadInfo(getPersonalityType()).getVassalRefuseAttitudeThreshold()
+-				&& GET_TEAM(getTeam()).getAtWarCount(true) == 0
++				&& kOurTeam.getAtWarCount(true) == 0
+ 				&& GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getDefensivePactCount() == 0)
+ 			{
+-				iOurValue *= (GET_TEAM(getTeam()).getPower(false) + 10);
++				iOurValue *= (kOurTeam.getPower(false) + 10);
+ 				iOurValue /= (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPower(false) + 10);
+ 			}
+ 			else
+@@ -8529,7 +8531,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 		{
+ 			if (AI_getAttitude(ePlayer) < ATTITUDE_PLEASED)
+ 			{
+-				if (GET_TEAM(getTeam()).getPower(false) > ((GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPower(false) * 4) / 3))
++				if (kOurTeam.getPower(false) > ((GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPower(false) * 4) / 3))
+ 				{
+ 					return false;
+ 				}
+@@ -8541,7 +8543,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ 			}
+ 		}
+ 
+-		iThreshold = (GET_TEAM(getTeam()).AI_getHasMetCounter(GET_PLAYER(ePlayer).getTeam()) + 50);
++		iThreshold = (kOurTeam.AI_getHasMetCounter(GET_PLAYER(ePlayer).getTeam()) + 50);
+ 
+ 		iThreshold *= 2;
+ 
+@@ -8559,7 +8561,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ /************************************************************************************************/
+ 
+ 		iThreshold *= (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPower(false) + 100);
+-		iThreshold /= (GET_TEAM(getTeam()).getPower(false) + 100);
++		iThreshold /= (kOurTeam.getPower(false) + 100);
+ 
+ 		iThreshold -= GET_PLAYER(ePlayer).AI_getPeacetimeGrantValue(getID());
+
+diff --git a/changelog.txt b/changelog.txt
+index 679786e6d..a1a702187 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 1.10.
++This is K-Mod version 1.10b.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+@@ -18,6 +18,13 @@ v1.10 changelist
+ + Added the possibility of the AI converting their UNITAI_EXPLORE units to UNITAI_ATTACK, rather than just deleting them.
+ + If the AI has not seen any target cities, it will magically know the location of the closest city in the area. This is so that they city attack stacks don't stay idle when no cities have been seen. (Think of it like a human player inferring the position based on the shape of the border. - Note: in the original AI the AI cheated like this for all cities - not just the closest city, and not just in the local area.)
+ 
++v1.10b
+++ Fixed a problem from the original BtS code which caused the AI to delete units more often than it should. For example, it would delete all the defenders in a city, and it would delete units immediately after drafting them.
+++ Fixed a late-game bug which could potentially cause a crash.
+++ Added a special symmetry breaking compontent to the pathfinder. Hopefully this will prevent some problems which result from having two paths with equal cost. (eg. The interface showing one path, and then the units following a different path.)
+++ Fixed a pathfinding problem which might have been able to cause OOS errors. (It's hard to say for sure if it was actually a problem or not.)
+++ Fixed a problem which sometimes caused the AI to cancel deals with their master.
++
+ --
+ v1.09 changelist
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6700

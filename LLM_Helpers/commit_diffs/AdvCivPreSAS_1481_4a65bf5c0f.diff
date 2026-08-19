@@ -1,0 +1,3050 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1481
+# Commit: 4a65bf5c0fb187fd25d4908346abb462354a9172
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e785cc423836597bee7d0b5ee8633af22ac4aca6
+# Title: Option for expanding scoreboard; BULL hover text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	Assets/Config/Advanced Scoreboard.xml
+26	14	Assets/Python/BUG/Scoreboard.py
+2	1	Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+1	0	Assets/Python/BUG/Tabs/BugScoreOptionsTab.py
+12	24	Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+16	26	Assets/Python/Screens/CvExoticForeignAdvisor.py
+2	3	Assets/Python/Screens/CvMainInterface.py
+13	16	Assets/Python/Screens/EconomicsAdvisor.py
+3	0	Assets/xml/GameInfo/CIV4Hints.xml
+24	5	Assets/xml/Text/Advanced Scoreboard Options.xml
+149	70	Assets/xml/Text/BULL_CIV4GameText.xml
+14	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+42	0	Assets/xml/Text/CIV4GameText_advc.xml
+28	0	CvGameCoreDLL/CvCity.cpp
+4	0	CvGameCoreDLL/CvCity.h
+119	79	CvGameCoreDLL/CvDLLWidgetData.cpp
+17	6	CvGameCoreDLL/CvDLLWidgetData.h
+1	11	CvGameCoreDLL/CvDeal.cpp
+8	1	CvGameCoreDLL/CvEnums.h
+20	3	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvGame.h
+586	140	CvGameCoreDLL/CvGameTextMgr.cpp
+26	6	CvGameCoreDLL/CvGameTextMgr.h
+3	3	CvGameCoreDLL/CvMap.h
+49	13	CvGameCoreDLL/CvPlayer.cpp
+13	12	CvGameCoreDLL/CvPlayer.h
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+10	0	CvGameCoreDLL/CyEnumsInterface.cpp
+14	0	CvGameCoreDLL/CyPlayer.cpp
+3	0	CvGameCoreDLL/CyPlayer.h
+4	0	CvGameCoreDLL/CyPlayerInterface2.cpp
+-	-	manual_0.95b.odt => manual_0.95c.odt
+ rename manual_0.95b.odt => manual_0.95c.odt (56%)
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Scoreboard.xml b/Assets/Config/Advanced Scoreboard.xml
+index f74593e1a..412f9f431 100644
+--- a/Assets/Config/Advanced Scoreboard.xml	
++++ b/Assets/Config/Advanced Scoreboard.xml	
+@@ -65,12 +65,15 @@
+ 					get="isShowCountCities" set="setShowCountCities" dirtyBit="Score"/>
+ 			
+ 			<!-- Advanced Layout -->
+-			<!-- advc.106d: Default was !?2WSZVC6EPTUNBDRAHQ*LO -->
+ 			<option id="AlignIcons" key="Align Icons" 
+ 					type="boolean" default="True" 
+ 					get="isAlignIcons" set="setAlignIcons" dirtyBit="Score"/>
++			<!-- advc.085 -->
++			<option id="ExpandOnHover" key="Expand on Hover" 
++					type="boolean" default="False" dirtyBit="Score"/>
++			<!-- advc.106d: Default was !?2WSZVC6EPTUNBDRAHQ*LO -->
+ 			<option id="DisplayOrder" key="Display Order" 
+-					type="string" default="!?2WSZCPTURAHQ*LO"
++					type="string" default="!?2W_D_B_NSZCPTURAHQ*LO"
+ 					get="getDisplayOrder" set="setDisplayOrder" dirtyBit="Score"/>
+ 			<list   id="DefaultSpacing" key="Default Column Spacing" 
+ 					type="int" default="0" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index b75fecd2b..3db7d64a7 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -12,7 +12,7 @@
+ 
+ from CvPythonExtensions import *
+ import BugCore
+-import BugDll
++#import BugDll # advc.004: unused now
+ import BugUtil
+ import DealUtil
+ import FontUtil
+@@ -260,10 +260,8 @@ class Scoreboard:
+ 	def setEspionage(self):
+ 		self._set(ESPIONAGE)
+ 		
+-	def setTrade(self):
+-		self._set(TRADE, True, 
+-				  BugDll.widget("WIDGET_TRADE_ROUTES", self._activePlayer, self._currPlayerScore.getID(),
+-								*self._getContactWidget()))
++	def setTrade(self): # advc.004: BULL widget help enabled
++		self._set(TRADE, True, (WidgetTypes.WIDGET_TRADE_ROUTES, self._activePlayer, self._currPlayerScore.getID()))
+ 		
+ 	def setBorders(self):
+ 		self._set(BORDERS, True, self._getDealWidget(TradeableItems.TRADE_OPEN_BORDERS))
+@@ -300,17 +298,18 @@ class Scoreboard:
+ 		self._set(CIV_ICON, civ)
+ 	# </dlph.30>
+ 		
+-	def _getContactWidget(self):
+-		return (WidgetTypes.WIDGET_CONTACT_CIV, self._currPlayerScore.getID(), -1)
++	#def _getContactWidget(self): # advc.004: Now unused
++	#	return (WidgetTypes.WIDGET_CONTACT_CIV, self._currPlayerScore.getID(), -1)
+ 		
+ 	def _getDealWidget(self, type):
++		iData2 = 0 # advc.085: Was -1; tell the DLL to expand the scoreboard.
+ 		# lookup the Deal containing the given tradeable item type
+ 		deals = self._deals.get(self._currPlayerScore.getID(), None)
+ 		if deals:
+ 			deal = deals.get(type, None)
+ 			if deal:
+-				return (WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1)
+-		return (WidgetTypes.WIDGET_DEAL_KILL, -1, -1)
++				return (WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), iData2)
++		return (WidgetTypes.WIDGET_DEAL_KILL, -1, iData2)
+ 		
+ 	def _set(self, part, value=True, widget=None):
+ 		self._anyHas[part] = True
+@@ -377,7 +376,21 @@ class Scoreboard:
+ 		
+ 		defaultSpacing = ScoreOpt.getDefaultSpacing()
+ 		spacing = defaultSpacing
+-		format = re.findall('(-?[0-9]+|[^0-9])', ScoreOpt.getDisplayOrder().replace(' ', '').upper())
++		szDisplayOrder = ScoreOpt.getDisplayOrder()
++		# <advc.085>
++		if gc.getPlayer(self._activePlayer).isScoreboardExpanded():
++			gc.getPlayer(self._activePlayer).setScoreboardExpanded(False)
++		else: # Take out the keys preceded by an underscore
++			stringsToRemove = []
++			for i, c in enumerate(szDisplayOrder):
++				if i > 0 and szDisplayOrder[i - 1] == '_':
++					stringsToRemove.append('_' + c)
++			for s in stringsToRemove:
++				szDisplayOrder = szDisplayOrder.replace(s, '')
++			# Remove any stray underscores
++			szDisplayOrder = szDisplayOrder.replace('_', '')
++		# </advc.085>
++		format = re.findall('(-?[0-9]+|[^0-9])', szDisplayOrder.replace(' ', '').upper())
+ 		format.reverse()
+ 		for k in format:
+ 			if k == '-':
+@@ -416,9 +429,7 @@ class Scoreboard:
+ 								widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), -1)
+ 							else:
+ 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
+-						screen.setText( name, "Background", value, CvUtil.FONT_RIGHT_JUSTIFY, 
+-										x, y - p * height, Z_DEPTH, 
+-										FontTypes.SMALL_FONT, *widget )
++						screen.setText( name, "Background", value, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, *widget )
+ 						screen.show( name )
+ 				x -= width
+ 				totalWidth += width + spacing
+@@ -460,7 +471,8 @@ class Scoreboard:
+ 						widget = playerScore.widget(c)
+ 						if widget is None:
+ 							if (playerScore.value(ALIVE)):
+-								widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), -1)
++								# advc.085: iData2=0 to tell the DLL to expand the scoreboard
++								widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), 0)
+ 							else:
+ 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 						screen.setText( name, "Background", value, align,
+
+diff --git a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+index 32b919d30..0576b385f 100644
+--- a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+@@ -63,7 +63,8 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addLabel(screen, panel, "BuildingEffects", "Building Actual Effects in Hovers:")
+ 		left, right = self.addTwoColumnLayout(screen, panel, "BuildingEffects", False)
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingActualEffects")
+-		#self.addCheckbox(screen, left, "MiscHover__BuildingAdditionalFood")
++		# BULL - Food Rate Hover:
++		self.addCheckbox(screen, left, "MiscHover__BuildingAdditionalFood")
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingAdditionalProduction")
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingAdditionalCommerce")
+ 		self.addCheckbox(screen, left, "MiscHover__BuildingSavedMaintenance")
+
+diff --git a/Assets/Python/BUG/Tabs/BugScoreOptionsTab.py b/Assets/Python/BUG/Tabs/BugScoreOptionsTab.py
+index e634e0bf5..ee301745a 100644
+--- a/Assets/Python/BUG/Tabs/BugScoreOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugScoreOptionsTab.py
+@@ -70,6 +70,7 @@ class BugScoreOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, left, "Scores__AlignIcons")
+ 		self.addCheckbox(screen, left, "Scores__GroupVassals", True)
+ 		self.addCheckbox(screen, left, "Scores__ColorCodeTeamScore", True)
++		self.addCheckbox(screen, left, "Scores__ExpandOnHover", True)
+ 		self.addCheckbox(screen, left, "Scores__LeftAlignName", True)
+ 		self.addCheckboxIntDropdown(screen, left, left, "Scores__ResearchIcons", "Scores__ResearchIconSize", "right", True)
+ 		# </advc.004>
+
+diff --git a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+index 70a39009c..4839f397a 100644
+--- a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+@@ -351,34 +351,26 @@ class CvMilitaryAdvisor:
+ 				pActiveWars = PlayerUtil.getActiveWars(iLoopPlayer, self.iActivePlayer)
+ 				bCurrentWar = len(pActiveWars) > 0
+ 				for pLoopPlayer in pActiveWars:
+-					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars, 
+-											gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, 
+-											*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, pLoopPlayer.getID(),
+-																WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, pLoopPlayer.getID()))
++					# advc.004: BULL widget help enabled
++					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars, gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, pLoopPlayer.getID())
+ 
+ 				# show vassals
+ 				if bVassals:
+ 					for pLoopPlayer in pVassals[iLoopPlayer]:
+-						self.iconGrid.addIcon(iRow, self.Col_Vassals, 
+-												gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, 
+-												*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, pLoopPlayer.getID(),
+-																	WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, pLoopPlayer.getID()))
++						# advc.004: BULL widget help enabled
++						self.iconGrid.addIcon(iRow, self.Col_Vassals, gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, pLoopPlayer.getID())
+ 
+ 				# show defensive pacts
+ 				if bDefPacts:
+ 					for pLoopPlayer in pDefPacts[iLoopPlayer]:
+-						self.iconGrid.addIcon(iRow, self.Col_DefPacts, 
+-												gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, 
+-												*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, pLoopPlayer.getID(),
+-																	WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, pLoopPlayer.getID()))
++						# advc.004: BULL widget help enabled
++						self.iconGrid.addIcon(iRow, self.Col_DefPacts, gc.getLeaderHeadInfo(pLoopPlayer.getLeaderType()).getButton(), 32, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, pLoopPlayer.getID())
+ 
+ 				# show players that the current player will declare on
+ 				bWHEOOH, pPossibleWars = PlayerUtil.getPossibleWars(iLoopPlayer, self.iActivePlayer)
+ 				for pLoopPlayer in pPossibleWars:
+-					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn, 
+-											gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, 
+-											*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, pLoopPlayer.getID(),
+-																WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, pLoopPlayer.getID()))
++					# advc.004: BULL widget help enabled
++					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn, gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, pLoopPlayer.getID())
+ 				# show WHEOOH
+ 				# if bWHEOOH:
+ 					# sWHEOOH = u" %c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)
+@@ -399,10 +391,8 @@ class CvMilitaryAdvisor:
+ 				# show possible trade embargos
+ 				pPossibleEmbargos = PlayerUtil.getPossibleEmbargos(iLoopPlayer, self.iActivePlayer)
+ 				for pLoopPlayer in pPossibleEmbargos:
+-					self.iconGrid.addIcon(iRow, self.Col_WillEmbargo, 
+-											gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, 
+-											*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, pLoopPlayer.getID(),
+-																WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, pLoopPlayer.getID()))
++					# advc.004: BULL widget help enabled
++					self.iconGrid.addIcon(iRow, self.Col_WillEmbargo, gc.getLeaderHeadInfo (pLoopPlayer.getLeaderType()).getButton(), 32, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, pLoopPlayer.getID())
+ 
+ 				#self.iconGrid.setText(iRow, self.Col_WHEOOH, sWHEOOH, 3)
+ 
+@@ -608,10 +598,8 @@ class CvMilitaryAdvisor:
+ 	def Grid_WorstEnemy(self, iRow, iLeader):
+ 		pWorstEnemy = PlayerUtil.getWorstEnemy(iLeader, self.iActivePlayer)
+ 		if pWorstEnemy:
+-			self.iconGrid.addIcon(iRow, self.Col_WEnemy,
+-									gc.getLeaderHeadInfo(pWorstEnemy.getLeaderType()).getButton(), 45,  
+-									*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLeader, pWorstEnemy.getID(),
+-														WidgetTypes.WIDGET_LEADERHEAD, iLeader, pWorstEnemy.getID()))
++			# advc.004: BULL widget help enabled
++			self.iconGrid.addIcon(iRow, self.Col_WEnemy, gc.getLeaderHeadInfo(pWorstEnemy.getLeaderType()).getButton(), 45, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLeader, pWorstEnemy.getID())
+ 		else:
+ 			pass
+ 			#self.iconGrid.addIcon(iRow, self.Col_WEnemy,
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 02f44af98..47d56a1e1 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -532,9 +532,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						szPlayerReligion = u"%c" %(objReligion.getChar())
+ 
+ 				screen.attachTextGFC(infoPanelName, "", szPlayerReligion, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-
+-				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], )), FontTypes.GAME_FONT, 
+-									 *BugDll.widget("WIDGET_TRADE_ROUTES", self.iActiveLeader, iLoopPlayer))
++				# advc.004: BULL widget help enabled
++				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], )), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 
+ 				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+@@ -671,8 +670,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				szAttStr = "<font=2>" + objAttitude.getText(True, True, False, False) + "</font>"
+ 			else:
+ 				szAttStr = ""
+-			screen.attachTextGFC(infoPanelName, itemName, szAttStr, FontTypes.GAME_FONT, 
+-								*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, self.iActiveLeader, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader))
++			 # advc.004: BULL widget help enabled
++			screen.attachTextGFC(infoPanelName, itemName, szAttStr, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
+ 			# Disable the widget if this is active player since it's a blank string.
+ 			if bIsActivePlayer:
+ 				screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
+@@ -703,9 +702,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				szPlayerReligion = "<font=2>" + szPlayerReligion + "</font>"
+ 			else:
+ 				szPlayerReligion = ""
+-			
+-			screen.attachTextGFC(infoPanelName, itemName, szPlayerReligion, FontTypes.GAME_FONT, 
+-								*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, self.iActiveLeader, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader))
++			 # advc.004: BULL widget help enabled
++			screen.attachTextGFC(infoPanelName, itemName, szPlayerReligion, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
+ 			# Disable the widget if this is active player since we don't have diplo info.
+ 			if bIsActivePlayer:
+ 				screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
+@@ -722,17 +720,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				szTradeYield = u"-"
+ 				szTradeRoutes = u"-"
+ 			itemName = self.getNextWidgetName()
+-			screen.attachTextGFC(infoPanelName, itemName, szTradeRoutes, FontTypes.GAME_FONT, 
+-								 *BugDll.widget("WIDGET_TRADE_ROUTES", self.iActiveLeader, iLoopPlayer))
+-			if not BugDll.isPresent():
+-				# Trade has no useful widget so disable hit testing.
+-				screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
++			 # advc.004: BULL widget help enabled (2x)
++			screen.attachTextGFC(infoPanelName, itemName, szTradeRoutes, FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 			itemName = self.getNextWidgetName()
+-			screen.attachTextGFC(infoPanelName, itemName, szTradeYield, FontTypes.GAME_FONT, 
+-								 *BugDll.widget("WIDGET_TRADE_ROUTES", self.iActiveLeader, iLoopPlayer))
+-			if not BugDll.isPresent():
+-				# Trade has no useful widget so disable hit testing.
+-				screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
++			screen.attachTextGFC(infoPanelName, itemName, szTradeYield, FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 
+ 			# Civics
+ 			for nCivicOption in range (gc.getNumCivicOptionInfos()):
+@@ -779,8 +770,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						else:
+ 							szDiplo = ""
+ 						itemName = self.getNextWidgetName()
+-						screen.attachTextGFC(infoPanelName, itemName, szDiplo, FontTypes.GAME_FONT, 
+-								*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", iLoopPlayer, self.iActiveLeader, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader))
++						 # advc.004: BULL widget help enabled
++						screen.attachTextGFC(infoPanelName, itemName, szDiplo, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
+ 						#screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
+ 
+ 	def calculateTrade (self, nPlayer, nTradePartner):
+@@ -906,12 +897,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						else:
+ 							szText = ""
+ 						# <advc.152>
+-						widgType = WidgetTypes.WIDGET_LEADERHEAD
++						widgType = WidgetTypes.WIDGET_LEADERHEAD_RELATIONS
+ 						if AdvisorOpt.isShowGlanceWarTrades():
+ 							widgType = WidgetTypes.WIDGET_LH_GLANCE
+ 						# </advc.152>
+-						screen.setTextAt (szName, playerPanelName, szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, 
+-								*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", j, iLoopPlayer, widgType, j, iLoopPlayer))
++						screen.setTextAt (szName, playerPanelName, szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, widgType, j, iLoopPlayer)
+ 						nCount += 1
+ 
+ 			if nCount > 8:
+@@ -1365,8 +1355,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+ 					IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
+ 		self.techIconGridName = self.getNextWidgetName()
+-		self.techIconGrid = IconGrid_BUG.IconGrid_BUG( self.techIconGridName, screen, gridX, gridY, gridWidth, gridHeight
+-											 , columns, self.TECH_USE_SMALL_ICONS, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
++		self.techIconGrid = IconGrid_BUG.IconGrid_BUG( self.techIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, self.TECH_USE_SMALL_ICONS, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
+ 
+ 		self.techIconGrid.setGroupBorder(self.GROUP_BORDER)
+ 		self.techIconGrid.setGroupLabelOffset(self.GROUP_LABEL_OFFSET)
+@@ -1403,7 +1392,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 	# Handles the input for this screen...
+ 	def handleInput (self, inputClass):
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+-			if (inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD or BugDll.isWidgetVersion(2, inputClass.getButtonType(), "WIDGET_LEADERHEAD_RELATIONS")):
++			# advc.004: Removed BugDLL call from second condition
++			if inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD or inputClass.getButtonType() == WidgetTypes.WIDGET_LEADERHEAD_RELATIONS:
+ 				if (inputClass.getFlags() & MouseFlags.MOUSE_LBUTTONUP):
+ 					self.iSelectedLeader = inputClass.getData1()
+ 					self.drawContents(False)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index cbedeabce..2c722f3c8 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3660,9 +3660,8 @@ class CvMainInterface:
+ 
+ 					szBuffer = u"%d%c" %(iFoodDifference, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
+ 					# draw label below
+-
+-				screen.setLabel( "PopulationInputText", "Background", szBuffer, CvUtil.FONT_RIGHT_JUSTIFY, iCityCenterRow1X - 6, iCityCenterRow1Y, -0.3, FontTypes.GAME_FONT, 
+-						*BugDll.widget("WIDGET_FOOD_MOD_HELP", -1, -1) )
++				# advc.004: BULL widget help enabled
++				screen.setLabel( "PopulationInputText", "Background", szBuffer, CvUtil.FONT_RIGHT_JUSTIFY, iCityCenterRow1X - 6, iCityCenterRow1Y, -0.3, FontTypes.GAME_FONT, WidgetTypes.WIDGET_FOOD_MOD_HELP, -1, -1)
+ 				screen.show( "PopulationInputText" )
+ # BUG - Food Rate Hover - end
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index c17cb7442..e571a7651 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -5,7 +5,7 @@ import PyHelpers
+ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+-import BugDll
++#import BugDll # advc.004: now unused
+ import BugUtil
+ import PlayerUtil
+ import TradeUtil
+@@ -208,30 +208,28 @@ class EconomicsAdvisor:
+ 		# trade
+ 		iDomesticTrade, _, iForeignTrade, _ = TradeUtil.calculateTradeRoutes(player)
+ 
+-		if True:#iDomesticTrade > 0: # advc.004g: Always show this to avoid confusion
++		if True:#iDomesticTrade > 0: # advc.086: Always show this to avoid confusion
+ 			if TradeUtil.isFractionalTrade():
+ 				iDomesticTrade //= 100
+ 			yLocation += self.Y_SPACING
+-			# <advc.004g>
++			# <advc.086>
+ 			szDomesticTrade = localText.getText("TXT_KEY_CONCEPT_DOMESTIC_TRADE", ())
+ 			# Call it just "Trade" if there is no foreign trade to show
+ 			if iForeignTrade <= 0:
+ 				szDomesticTrade = localText.getText("TXT_KEY_CONCEPT_TRADE", ())
+-			# </advc.004g>
+-			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + szDomesticTrade + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, 
+-							*BugDll.widget("WIDGET_HELP_FINANCE_DOMESTIC_TRADE", self.iActiveLeader, 1) )
+-			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iDomesticTrade) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, 
+-							*BugDll.widget("WIDGET_HELP_FINANCE_DOMESTIC_TRADE", self.iActiveLeader, 1) )
++			# </advc.086>
++			# advc.004: BULL widget help enabled (x2)
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + szDomesticTrade + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iActiveLeader, 1)
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iDomesticTrade) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iActiveLeader, 1)
+ 			iCommerce += iDomesticTrade
+ 
+ 		if iForeignTrade > 0:
+ 			if TradeUtil.isFractionalTrade():
+ 				iForeignTrade //= 100
+ 			yLocation += self.Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + localText.getText("TXT_KEY_CONCEPT_FOREIGN_TRADE", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, 
+-							*BugDll.widget("WIDGET_HELP_FINANCE_FOREIGN_TRADE", self.iActiveLeader, 1) )
+-			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iForeignTrade) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT,  
+-							*BugDll.widget("WIDGET_HELP_FINANCE_FOREIGN_TRADE", self.iActiveLeader, 1) )
++			# advc.004: BULL widget help enabled (x2)
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + localText.getText("TXT_KEY_CONCEPT_FOREIGN_TRADE", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iActiveLeader, 1)
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iForeignTrade) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iActiveLeader, 1)
+ 			iCommerce += iForeignTrade
+ 
+ 		# corporations
+@@ -407,10 +405,9 @@ class EconomicsAdvisor:
+ 		
+ 		if fSpecialists > 0.0:
+ 			yLocation += self.Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, 
+-			 				*BugDll.widget("WIDGET_HELP_FINANCE_SPECIALISTS", self.iActiveLeader, 1))
+-			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(int(fSpecialists)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT,  
+-			 				*BugDll.widget("WIDGET_HELP_FINANCE_SPECIALISTS", self.iActiveLeader, 1))
++			# advc.004: BULL widget help enabled (x2)
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()) + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iActiveLeader, 1)
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(int(fSpecialists)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iActiveLeader, 1)
+ 		
+ 		for eBldg, iMultiplier, iCount, fGold in multipliers:
+ 			if iCount > 0 and fGold > 0.0:
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index b8f52bf63..e8951b8c5 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -426,6 +426,9 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_HINT_73</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_BUG_HINT_INTERFACE_4</Description>
++		</HintInfo>
+ <!-- K-Mod hints -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index 18a789e02..e278be7c3 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -281,6 +281,24 @@
+ 		<Spanish>Si se activa, se muestra la tabla de puntuaciones como una rejilla, y el resto de opciones en esta secci�n afectan a la tabla.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.085 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_SCORES__EXPANDONHOVER_TEXT</Tag>
++		<English>Expand on Hover</English>
++		<French>Expand on Hover</French>
++		<German>Ausklappbare Spalten</German>
++		<Italian>Expand on Hover</Italian>
++		<Spanish>Expand on Hover</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_SCORES__EXPANDONHOVER_HOVER</Tag>
++		<English>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</English>
++		<French>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</French>
++		<German>Erlaubt die Anzeige zus�tzlicher Spalten wenn der Mauszeiger auf die Punkteanzeige bewegt wird. Um eine Spalte per Maus anzeigen zu lassen, stellen Sie dem Spaltenk�rzel im Textfeld [COLOR_HIGHLIGHT_TEXT]Spaltenreihenfolge[COLOR_REVERT] (rechts) einen Unterstrich voran. Empfehlung: Ordnen Sie die ausklappbaren Spalten links vom [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (Punktestand) ein.</German>
++		<Italian>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</Italian>
++		<Spanish>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004: was "Maximum Civilizations" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__MAXPLAYERS_TEXT</Tag>
+@@ -359,14 +377,15 @@
+ 		<Spanish>[SPACE]</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: Revised (only English); explanation for N (trade
++	<!-- advc.004: Revised (English, German); explanation for N (trade
+ 		 network) matches advc.124.
+-		 dlph.30: Leader and civ icon -->
++		 dlph.30: Leader and civ icon
++		 advc.085: Mention the underscores -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYORDER_HOVER</Tag>
+-		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon for civilizations that have at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Internal player (slot) ID number[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet civilizations (for Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've accumulated more espionage points against them than vice versa[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if you have a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have Open borders with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religions) [NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - A star next to players waiting for you to finish your turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.</English>
++		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet rivals (for Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon if master of at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Player ID number (position in turn order)[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've accumulated more espionage points against them than vice versa[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if there is a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have an Open Borders agreement with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - A star next to players waiting for you to finish your turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.[NEWLINE][NEWLINE]Letters preceded by an underscore appear only on mouse-over and only if [COLOR_HIGHLIGHT_TEXT]Expand on Hover[COLOR_REVERT] is enabled.</English>
+ 		<French>Ceci d�termine l'ordre dans lequel les colonnes apparaissent.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Vous �tes en guerre contre cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score de la civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Ic&#244;ne de chef[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Ic&#244;ne de la civilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nom de la civilisation et/ou du dirigeant.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Vous n'avez pas encore rencontr� cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - The civ refuses to talk to you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Votre pro rata d'espionnage avec cette civilisation est bon.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Pro rata du pouvoir de cette civilisation compar� � vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - La technologie que la civilisation recherche (vassaux, �quipe et espionnage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Le nombre de tours qui restent � la recherche.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Cette civilisation est connect�e � votre r�seau de commerce.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Vous avez une accord de fronti�res ouvertes avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Vous avez un pacte d�fensif avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - La religion nationale de cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - L'attitude de cette civilisation envers vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Vous attendez que cette civilisation finisse son tour.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Statistique de R�seau (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Le joueur est out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</French>
+-		<German>Bestimmt die Reihenfolge, in der die Spalten der Punkteanzeige angeordnet werden:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Wertung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Ver�nderung der Wertung einer Zivilisation seit der letzten Runde[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rang einer Zivilisation basierend auf ihrer Wertung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte, �ber die eine Zivilisation verf�gt[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Eine Zivilisation hat mindestens einen Vasallen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Spieler-ID-Nummer einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Staatsoberhaupt-Symbol[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Zivilisationssymbol[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Name einer Zivilisation/eines Oberhaupts/eines Spielers[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Zivilisation noch nicht kontaktiert[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Gespr�chsverweigerung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Gutes Spionagepunktverh�ltnis gegen�ber einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis zwischen der eigenen und einer gegnerischen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeitiges Forschungsprojekt einer Zivilisation (bei Vasallen, Verb�ndeten und durch Spionage erlangt)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Anzahl verbleibender Runden bis zur Erforschung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Handelsverbindungen mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - "Offene Grenzen" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - "Verteidigungsb�ndis" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Staatsreligion einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Einstellung einer Zivilisation gegen�ber der eigenen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Erzfeind der eigenen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Warten auf den Zug einer Zivilisation (im Multiplayer)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik einer Zivilisation (Ping)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Verbundener Spieler ist "out-of-sync"[NEWLINE][NEWLINE]Zwischen den Codes f�r die Spalten k�nnen (positive oder negative) Zahlen gesetzt werden, die den eingestellten Standardabstand au�er Kraft setzen</German>
++		<German>Die Zeichenfolge bestimmt die Spalten der Punkteanzeige und ihre Reihenfolge:[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Ausrufezeichen bei Gespr�chsverweigerung[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Fragezeichen vor unbekannten Gegnern (f�r Debug-Modus)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Punktestand[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Punktetrend[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Punkterang[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vasallensymbol bei Hegemonie �ber wenigstens einen Vasallenstaat[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Interne Spieler-ID, die die Zugreihenfolge bestimmt[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Staatsoberhaupt-Symbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Zivilisationssymbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Anzeigename[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE]-Symbol, wenn ein Gegner weniger Spionagepunkte angesammelt hat als Sie[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeit erforschte Technologie[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Anzahl verbleibender Runden bis zur Erforschung[NEWLINE] [COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE]-Symbol bei Handelsverbindung mit der gegnerischen Hauptstadt[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS]-Symbol bei Abkommen �ber offene Grenzen[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT]-Symbol bei Verteidigungsb�ndnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religionssymbol (Staatsreligion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Emoticon, das die Einstellung der KI anzeigt [NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP]-Symbol, wenn Sie der Erzfeind Ihres Gegners sind[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (Mehrspielermodus) Sternchen bei Spielern, die bereits gezogen haben[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik (Ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "out-of-sync"-Warnung wenn aus dem Takt[NEWLINE][NEWLINE]Zwischen den Spaltenk�rzeln k�nnen (positive und negative) Zahlen platziert werden, um Abst�nde einzustellen; ansonsten wird der Standardabstand verwendet.[NEWLINE][NEWLINE]Steht vor einem Buchstaben ein Unterstrich, dann erscheint die entspr. Spalte nur, wenn der Mauszeiger auf die Punkteanzeige bewegt wird und die Option [COLOR_HIGHLIGHT_TEXT]ausklappbare Spalten[COLOR_REVERT] aktiviert ist.</German>
+ 		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle citt� della Civilt�.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icona del leader[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icona di civilt&#224;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Il Leader della Civilt� rifiuta di parlarti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - la Potenza della Civilt� rispetto alla tua (o viceversa);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
+ 		<Spanish>Determina el orden en el que las distintas columnas aparecen.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Est�s en guerra o tienes un tratado de paz con esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Puntuaci�n de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Cambios en puntuaci�n desde el �ltimo turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rango de la civ basado en su puntuaci�n.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - N�mero de ciudades de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - La civ tiene al menos un vasallo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - ID de jugador de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icono de l&#237;der[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icono de la civilizaci&#243;n[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nombre de civ / l�der / jugador.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - A�n no te has encontrado con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - La civ se niega a hablar.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Tienes una proporci�n positiva de puntos de espionaje contra esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Proporci�n de fuerza de la civ comparada contigo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Tecnolog�a que est� siendo investigada (vasallos, equipo y espionajes).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - N�mero de turnos de investigaci�n restantes.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - La civ est� conectada a tu red de comercio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Tienes apertura de fronteras con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Tienes un acuerdo de protecci�n con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religi�n oficial de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Actitud de la civ hacia ti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Eres el peor enemigo de esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Esta civ espera a que termines tu turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Estado de la conexi�n de esta civ (ping)..[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Este jugador est� fuera de l�nea.[NEWLINE][NEWLINE]Puedes colocar un n�mero (positivo o negativo) entre c�digos de columna para reemplazar el espaciado por defecto.</Spanish>
+ 	</TEXT>
+@@ -421,7 +440,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__LEFTALIGNNAME_HOVER</Tag>
+ 		<English>When checked, the display names are left-aligned instead of right-aligned.</English>
+-		<French>En activant, le nom du dirigeant et/ou de la cvilisation est align� � gauche au lieu d'� droite.</French>
++		<French>En activant, le nom du dirigeant et/ou de la civilisation est align� � gauche au lieu d'� droite.</French>
+ 		<German>Linksb�ndige Ausrichtung der Anzeigenamen anstatt rechtsb�ndige</German>
+ 		<Italian>Quando � selezionato, il nome della Civilt�/del Leader nel Pannello del Punteggio viene allineato a sinistra invece che a destra.</Italian>
+ 		<Spanish>Cuando est� activada, el nombre de civilizaci�n/l�der se alinea a la izquierda en vez de a la derecha.</Spanish>
+
+diff --git a/Assets/xml/Text/BULL_CIV4GameText.xml b/Assets/xml/Text/BULL_CIV4GameText.xml
+index 2cedbc3d6..a34ebd770 100644
+--- a/Assets/xml/Text/BULL_CIV4GameText.xml
++++ b/Assets/xml/Text/BULL_CIV4GameText.xml
+@@ -18,7 +18,6 @@
+ 	</TEXT>
+ 	
+ 	<!-- Food Assist -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_FOOD_GROW</Tag>
+ 		<English>[NEWLINE]%d1 [ICON_FOOD]/Turn[NEWLINE]Growing: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
+@@ -53,7 +52,6 @@
+ 	</TEXT>
+ 	
+ 	<!-- Base Production -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_HAMMER_PRODUCTION_WITH_BASE</Tag>
+ 		<English>[NEWLINE]%d1 [ICON_PRODUCTION]/Turn (%d6 [ICON_PRODUCTION]/Turn)[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION] (%d5 [NUM5:Turn:Turns])</English>
+@@ -88,7 +86,6 @@
+ 	</TEXT>
+ 	
+ 	<!-- Culture Turns -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_CULTURE_NO_LEVEL</Tag>
+ 		<English>[NEWLINE][ICON_CULTURE]: %d1/%d2</English>
+@@ -99,51 +96,51 @@
+ 	</TEXT>
+ 	
+ <!-- Finance Advisor -->
+-	
++	<!-- advc.086: These were headings; now directly state the numbers. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_DOMESTIC_TRADE</Tag>
+-		<English>The Total Commerce from Domestic Trade Routes</English>
+-		<French>The Total Commerce from Domestic Trade Routes</French>
+-		<German>Gesamteinkommen durch inl�ndische Handelsverbindungen</German>
+-		<Italian>Commercio totale dalle rotte commerciali interne</Italian>
+-		<Spanish>Comercio total por rutas dom�sticas</Spanish>
++		<English>%d1[ICON_COMMERCE] from %d2 Domestic Trade Routes</English>
++		<French>%d1[ICON_COMMERCE] from %d2 Domestic Trade Routes</French>
++		<German>%d1[ICON_COMMERCE] durch %d2 Handelswege im Inland</German>
++		<Italian>%d1[ICON_COMMERCE] da %d2 rotte commerciali interne</Italian>
++		<Spanish>%d1[ICON_COMMERCE] por %d2 rutas dom�sticas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_FOREIGN_TRADE</Tag>
+-		<English>The Total Commerce from Foreign Trade Routes</English>
+-		<French>The Total Commerce from Foreign Trade Routes</French>
+-		<German>Gesamteinkommen durch ausl�ndische Handelsverbindungen</German>
+-		<Italian>Commercio totale dalle rotte commerciali estere</Italian>
+-		<Spanish>Comercio total por rutas internacionales</Spanish>
+-	</TEXT>
+-	
+-	<TEXT>
++		<English>%d1[ICON_COMMERCE] from %d2 Foreign Trade Routes</English>
++		<French>%d1[ICON_COMMERCE] rom %d2 Foreign Trade Routes</French>
++		<German>%d1[ICON_COMMERCE] durch %d2 Handelswege ins Ausland</German>
++		<Italian>%d1[ICON_COMMERCE] da %d2 rotte commerciali estere</Italian>
++		<Spanish>%d1[ICON_COMMERCE] por %d2 rutas internacionales</Spanish>
++	</TEXT>
++	<!-- advc.086: Don't use this -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALISTS</Tag>
+ 		<English>The Total Gold from Specialists</English>
+ 		<French>The Total Gold from Specialists</French>
+ 		<German>Gesamteinkommen durch Spezialisten</German>
+ 		<Italian>Oro totale dagli Specialisti</Italian>
+ 		<Spanish>Oro total obtenido de especialistas</Spanish>
+-	</TEXT>
++	</TEXT-->
++	<!-- advc.086: Leading NEWLINEs removed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_GOLD</Tag>
+-		<English>[NEWLINE]%d1[ICON_GOLD]: %s3 (%d2)</English>
+-		<French>[NEWLINE]%d1[ICON_GOLD]: %s3 (%d2)</French>
+-		<German>[NEWLINE]%d1[ICON_GOLD]: %s3 (%d2)</German>
+-		<Italian>[NEWLINE]%d1[ICON_GOLD]: %s3 (%d2)</Italian>
+-		<Spanish>[NEWLINE]%d1[ICON_GOLD]: %s3 (%d2)</Spanish>
++		<English>%d1[ICON_GOLD]: %s3 (%d2)</English>
++		<French>%d1[ICON_GOLD]: %s3 (%d2)</French>
++		<German>%d1[ICON_GOLD]: %s3 (%d2)</German>
++		<Italian>%d1[ICON_GOLD]: %s3 (%d2)</Italian>
++		<Spanish>%d1[ICON_GOLD]: %s3 (%d2)</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_TOTAL_GOLD</Tag>
+-		<English>[NEWLINE]------------------------[NEWLINE]TOTAL SPECIALISTS: %d1[ICON_GOLD]</English>
+-		<French>[NEWLINE]------------------------[NEWLINE]SP&#xC9;CIALISTES TOTAL : %d1[ICON_GOLD]</French>
+-		<German>[NEWLINE]------------------------[NEWLINE]SPEZIALISTEN GESAMT: %d1[ICON_GOLD]</German>
+-		<Italian>[NEWLINE]------------------------[NEWLINE]TOTALE SPECIALISTI: %d1[ICON_GOLD]</Italian>
+-		<Spanish>[NEWLINE]------------------------[NEWLINE]ESPECIALISTAS TOTAL: %d1 [ICON_GOLD]</Spanish>
++		<English>------------------------[NEWLINE]TOTAL SPECIALISTS: %d1[ICON_GOLD]</English>
++		<French>------------------------[NEWLINE]SP&#xC9;CIALISTES TOTAL : %d1[ICON_GOLD]</French>
++		<German>------------------------[NEWLINE]SPEZIALISTEN GESAMT: %d1[ICON_GOLD]</German>
++		<Italian>------------------------[NEWLINE]TOTALE SPECIALISTI: %d1[ICON_GOLD]</Italian>
++		<Spanish>------------------------[NEWLINE]ESPECIALISTAS TOTAL: %d1 [ICON_GOLD]</Spanish>
+ 	</TEXT>
+ 
+ <!-- Building Double Commerce Year -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_YEAR_BUILT</Tag>
+ 		<English>Built in %s1_year</English>
+@@ -170,7 +167,6 @@
+ 	</TEXT>
+ 
+ <!-- Production Decay -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PRODUCTION_DECAY</Tag>
+ 		<English>[COLOR_NEGATIVE_TEXT]Will lose %d1[ICON_PRODUCTION] this turn[COLOR_REVERT]</English>
+@@ -204,8 +200,89 @@
+ 		<Spanish>[COLOR_WARNING_TEXT]Perder� %d1[ICON_PRODUCTION] si no se activa durante %d2 [NUM2:turn:turns][COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 
+-<!-- Tech Hover -->
++<!-- BULL - Leaderhead Relations - start -->
++<!-- Leaderhead Hover -->
++	<!-- advc: Color was yellow in these two -->
++	<TEXT>
++		<Tag>TXT_KEY_AT_WAR_WITH</Tag>
++		<English>[ICON_BULLET][COLOR_WARNING_TEXT]War with %s1_player[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_WARNING_TEXT]Guerre avec %s1_player[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_WARNING_TEXT]Krieg mit %s1_player[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_WARNING_TEXT]Guerra con %s1_player[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_WARNING_TEXT]Guerra con %s1_player[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AT_WAR_WITH_YOU</Tag>
++		<English>[ICON_BULLET][COLOR_WARNING_TEXT]You are at war![COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_WARNING_TEXT]Vous �tes en guerre![COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_WARNING_TEXT]Ihr seid im Krieg![COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_WARNING_TEXT]Si � in guerra![COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_WARNING_TEXT]Usted est� en guerra![COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- advc: Color was cyan for peace and DP. But they're listed as
++		 active deals anyway, so these texts are redundant. -->
++	<!--TEXT>
++		<Tag>TXT_KEY_PEACE_TREATY_WITH</Tag>
++		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Peace Treaty with %s1_player[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Trait&#233; de paix avec %s1_player[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Friedensvertrag mit %s1_player[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Trattato di pace con %s1_player[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Tratado de paz con %s1_player[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEACE_TREATY_WITH_YOU</Tag>
++		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Peace Treaty[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un trait&#233; de paix[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt einen Friedensvertrag[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un trattato di pace[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un tratado de paz[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH</Tag>
++		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Defensive Pact with %s1_player[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D�fensive pacte avec %s1_player[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Verteidigungsb�ndnis mit %s1_player[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Difensive patto con %s1_player[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Pacto defensivo con %s1_player[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH_YOU</Tag>
++		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Defensive Pact[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un pacte d�fensif[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt ein Verteidigungsb�ndnis[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un patto di difesa[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un pacto defensivo[COLOR_REVERT]</Spanish>
++	</TEXT-->
++	<!-- advc: Color was yellow in these three -->
++	<TEXT>
++		<Tag>TXT_KEY_WORST_ENEMY_OF</Tag>
++		<English>[ICON_BULLET][COLOR_YIELD_FOOD]Worst Enemy of %s1_player[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_YIELD_FOOD]Pire ennemi de %s1_player[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_YIELD_FOOD]Erzfeind von %s1_player[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]Peggiore ostile di %s1_player[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]Peor enemigo de %s1_player[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- advc: I'm not using this -->
++	<!--TEXT>
++		<Tag>TXT_KEY_WORST_ENEMY_IS</Tag>
++		<English>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player is Worst Enemy[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player est pire ennemi[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_YIELD_FOOD]Erzfeind: %s1_player[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player � peggiore ostile[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]%s1_player es peor enemigo[COLOR_REVERT]</Spanish>
++	</TEXT-->
++	<!-- advc: "the" added -->
++	<TEXT>
++		<Tag>TXT_KEY_WORST_ENEMY_IS_YOU</Tag>
++		<English>[ICON_BULLET][COLOR_YIELD_FOOD]You are the Worst Enemy[COLOR_REVERT]</English>
++		<French>[ICON_BULLET][COLOR_YIELD_FOOD]Vous �tes pire ennemi[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_YIELD_FOOD]Ihr seid der Erzfeind[COLOR_REVERT]</German>
++		<Italian>[ICON_BULLET][COLOR_YIELD_FOOD]Tu sei peggiore ostile[COLOR_REVERT]</Italian>
++		<Spanish>[ICON_BULLET][COLOR_YIELD_FOOD]Usted es peor enemigo[COLOR_REVERT]</Spanish>
++	</TEXT>
++<!-- BULL - Leaderhead Relations - end -->
+ 
++<!-- Tech Hover -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_SPEEDS_UP</Tag>
+ 		<English>[NEWLINE][ICON_BULLET]Speeds up[SPACE]</English>
+@@ -224,7 +301,6 @@
+ 	</TEXT>
+ 
+ <!-- Actual Effects -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ACTUAL_EFFECTS</Tag>
+ 		<English>Net Effect</English>
+@@ -235,7 +311,6 @@
+ 	</TEXT>
+ 
+ <!-- Min/Max Commerce Rate Buttons -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_SET_RATE</Tag>
+ 		<English>Set %s1_CmrcType Rate to %d2_Value%%</English>
+@@ -246,9 +321,7 @@
+ 	</TEXT>
+ 
+ <!-- City Screen -->
+-	
+ 	<!-- Yield Hovers -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_WORKED_TILES_YIELD</Tag>
+ 		<English>[ICON_BULLET]%D1%F2 from Worked Tiles</English>
+@@ -267,7 +340,6 @@
+ 	</TEXT>
+ 
+ 	<!-- Food Hover -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_EATEN_FOOD</Tag>
+ 		<English>[ICON_BULLET]%D1[ICON_EATENFOOD] for Population</English>
+@@ -284,7 +356,6 @@
+ 		<Italian>[ICON_BULLET]%D1[ICON_EATENFOOD] per la salute</Italian>
+ 		<Spanish>[ICON_BULLET]%D1[ICON_EATENFOOD] Por salud</Spanish>
+ 	</TEXT>
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_BASE_FOOD_PRODUCED</Tag>
+ 		<English>-----------------------[NEWLINE]Base Food Produced: %d1[ICON_FOOD]</English>
+@@ -309,7 +380,6 @@
+ 		<Italian>-----------------------[NEWLINE]Cibo totale consumato: %d1[ICON_EATENFOOD]</Italian>
+ 		<Spanish>-----------------------[NEWLINE]Alimento total consumido: %d1[ICON_EATENFOOD]</Spanish>
+ 	</TEXT>
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_NET_FOOD_GROW</Tag>
+ 		<English>Net Food: %D1[ICON_FOOD]</English>
+@@ -342,9 +412,18 @@
+ 		<Italian>Cibo netto: %D1[ICON_FOOD] per %s2_production_type</Italian>
+ 		<Spanish>Alimento neto: %D1[ICON_FOOD] por %s2_production_type</Spanish>
+ 	</TEXT>
++	<!-- advc.087: Compact version of TXT_KEY_MISC_HELP_WORKED_TILES_YIELD
++		 and TXT_KEY_MISC_HELP_EATEN_FOOD -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_WORKED_TILES_EATEN</Tag>
++		<English>%d1[ICON_FOOD] from Worked Tiles[NEWLINE]%d2[ICON_EATENFOOD] for Population</English>
++		<French>%d1[ICON_FOOD] : Cases Travaill�es[NEWLINE]%d2[ICON_EATENFOOD] pour la population</French>
++		<German>%d1[ICON_FOOD] durch bearbeitete Gel�ndefelder[NEWLINE]%d2[ICON_EATENFOOD] f�r Bev�lkerung</German>
++		<Italian>%d1[ICON_FOOD] dalle caselle lavorate[NEWLINE]%d2[ICON_EATENFOOD] per la popolazione</Italian>
++		<Spanish>%d1[ICON_FOOD] por casillas trabajadas[NEWLINE]%d2[ICON_EATENFOOD] por poblaci&#243;n</Spanish>
++	</TEXT>
+ 
+ 	<!-- Commerce Hovers -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_COMMERCE_SUBTOTAL_YIELD_FLOAT</Tag>
+ 		<English>-----------------------[NEWLINE]Base %s1_commerce_type: %s2%F3</English>
+@@ -371,7 +450,6 @@
+ 	</TEXT>
+ 	
+ 	<!-- Defense Hover -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_BUILDING_DEFENSE</Tag>
+ 		<English>[ICON_BULLET]%D1%%[ICON_DEFENSE] from Buildings</English>
+@@ -439,7 +517,6 @@
+ 	</TEXT>
+ 
+ <!-- Hurry Hover -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HURRY_OVERFLOW</Tag>
+ 		<English>[ICON_BULLET]%s1 Overflow</English>
+@@ -450,7 +527,6 @@
+ 	</TEXT>
+ 
+ <!-- Trade Hover -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_TRADE_HEADING</Tag>
+ 		<English>Trade</English>
+@@ -467,23 +543,24 @@
+ 		<Italian>Commercio Domestico</Italian>
+ 		<Spanish>Comercio Dom�stico</Spanish>
+ 	</TEXT>
++	<!-- advc: " of %s2_CivName" removed from these two -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_FOREIGN_TRADE_HEADING</Tag>
+-		<English>Trade with %s1_PlyrName of %s2_CivName</English>
+-		<French>Commerce avec %%s1_PlyrName of %s2_CivName</French>
+-		<German>Handel mit %%s1_PlyrName (%s2_CivName)</German>
+-		<Italian>Commercio con %%s1_PlyrName (%s2_CivName)</Italian>
+-		<Spanish>Comercio con %%s1_PlyrName of %s2_CivName</Spanish>
++		<English>Trade with %s1_PlyrName</English>
++		<French>Commerce avec %%s1_PlyrName</French>
++		<German>Handel mit %%s1_PlyrName</German>
++		<Italian>Commercio con %%s1_PlyrName</Italian>
++		<Spanish>Comercio con %%s1_PlyrName</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_CANNOT_TRADE_HEADING</Tag>
+-		<English>No Trade with %s1_PlyrName of %s2_CivName</English>
+-		<French>Pas de Commerce avec %%s1_PlyrName of %s2_CivName</French>
+-		<German>Kein Handel mit %%s1_PlyrName (%s2_CivName)</German>
+-		<Italian>Nessun commercio con %%s1_PlyrName (%s2_CivName)</Italian>
+-		<Spanish>No hay comercio con %s1_PlyrName de %s2_CivName</Spanish>
++		<English>No Trade with %s1_PlyrName</English>
++		<French>Pas de Commerce avec %%s1_PlyrName</French>
++		<German>Kein Handel mit %%s1_PlyrName</German>
++		<Italian>Nessun commercio con %%s1_PlyrName</Italian>
++		<Spanish>No hay comercio con %s1_PlyrName</Spanish>
+ 	</TEXT>
+-	<TEXT>
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_TOTAL_TRADE_YIELD</Tag>
+ 		<English>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</English>
+ 		<French>[NEWLINE]Total Yield: %s1[ICON_COMMERCE]</French>
+@@ -506,29 +583,40 @@
+ 		<German>[NEWLINE]Durchschnittliches Einkommen: %s1[ICON_COMMERCE]</German>
+ 		<Italian>[NEWLINE]Average Yield: %s1[ICON_COMMERCE]</Italian>
+ 		<Spanish>[NEWLINE]Beneficio medio: %s1[ICON_COMMERCE]</Spanish>
++	</TEXT-->
++	<!-- advc: Replacing the above. Akin to keys under "Finance Advisor". -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_COMMERCE_FROM_ROUTES</Tag>
++		<English>%d1[ICON_COMMERCE] from %d2 Trade Routes</English>
++		<French>%d1[ICON_COMMERCE] from %d2 Trade Routes</French>
++		<German>%d1[ICON_COMMERCE] durch %d2 Handelswege</German>
++		<Italian>%d1[ICON_COMMERCE] da %d2 rotte commerciali</Italian>
++		<Spanish>%d1[ICON_COMMERCE] por %d2 rutas</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.099: "defeated" is the proper term now -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_CANNOT_TRADE_DEAD</Tag>
+-		<English>[NEWLINE][ICON_BULLET]They are dead</English>
++		<English>[NEWLINE][ICON_BULLET]They have been defeated</English>
+ 		<French>[NEWLINE][ICON_BULLET]They are dead</French>
+-		<German>[NEWLINE][ICON_BULLET]Zivilisation ist ausgel�scht</German>
++		<German>[NEWLINE][ICON_BULLET]besiegt</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]Scomparsi</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]Han sido eliminados</Spanish>
+ 	</TEXT>
++	<!-- advc.087: Minor changes to English and German CANNOT_TRADE texts -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_CANNOT_TRADE_NETWORK_NOT_CONNECTED</Tag>
+-		<English>[NEWLINE][ICON_BULLET]Your Trade Networks are not connected</English>
++		<English>[NEWLINE][ICON_BULLET]No trade connection between the capitals</English>
+ 		<French>[NEWLINE][ICON_BULLET]Your Trade Networks are not connected</French>
+-		<German>[NEWLINE][ICON_BULLET]Keine Handelsverbindungen</German>
++		<German>[NEWLINE][ICON_BULLET]Keine Handelsverbindung zwischen den Hauptst�dten</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]Le vostre reti commerciali non sono collegate</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]No hay conexi�n de rutas comerciales</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_CANNOT_TRADE_CLOSED_BORDERS</Tag>
+-		<English>[NEWLINE][ICON_BULLET]You have not signed an Open Borders agreement</English>
++		<English>[NEWLINE][ICON_BULLET]No [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] agreement</English>
+ 		<French>[NEWLINE][ICON_BULLET]You have not signed an Open Borders agreement</French>
+-		<German>[NEWLINE][ICON_BULLET]Kein Abkommen �ber "Offene Grenzen"</German>
++		<German>[NEWLINE][ICON_BULLET]Kein Abkommen �ber [COLOR_HIGHLIGHT_TEXT]Offene Grenzen[COLOR_REVERT]</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]Non avete siglato un Accordo di Libero Scambio</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]No se ha firmado un acuerdo de apertura de fronteras</Spanish>
+ 	</TEXT>
+@@ -536,7 +624,7 @@
+ 		<Tag>TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_YOU</Tag>
+ 		<English>[NEWLINE][ICON_BULLET]Your Civics don't allow Foreign Trade</English>
+ 		<French>[NEWLINE][ICON_BULLET]Your Civics don't allow Foreign Trade</French>
+-		<German>[NEWLINE][ICON_BULLET]Eure Gesellschaftsform erlaubt keinen Au�enhandel</German>
++		<German>[NEWLINE][ICON_BULLET]Eure Staatsform erlaubt keinen Au�enhandel</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]La tua Forma di Governo non consente il Commercio Estero</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]Tus principios no permiten el comercio con el extranjero</Spanish>
+ 	</TEXT>
+@@ -544,13 +632,12 @@
+ 		<Tag>TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_THEM</Tag>
+ 		<English>[NEWLINE][ICON_BULLET]Their Civics don't allow Foreign Trade</English>
+ 		<French>[NEWLINE][ICON_BULLET]Their Civics don't allow Foreign Trade</French>
+-		<German>[NEWLINE][ICON_BULLET]Deren Gesellschaftsform erlaubt keinen Au�enhandel</German>
++		<German>[NEWLINE][ICON_BULLET]Gegnerische Staatsform erlaubt keinen Au�enhandel</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]La loro Forma di Governo non consente il Commercio Estero</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]Sus principios no permiten el comercio con el extranjero</Spanish>
+ 	</TEXT>
+ 
+ <!-- Unit Hover -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_EXPERIENCE</Tag>
+ 		<English>%d1 XP</English>
+@@ -567,7 +654,6 @@
+ 		<Italian>%d1[ICON_STAR]</Italian>
+ 		<Spanish>%d1[ICON_STAR]</Spanish>
+ 	</TEXT>
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_FREE_EXPERIENCE</Tag>
+ 		<English>[ICON_BULLET][COLOR_POSITIVE_TEXT]%D1 XP from City[COLOR_REVERT]</English>
+@@ -626,7 +712,6 @@
+ 	</TEXT>
+ 
+ <!-- Conscript Hover -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CITY_HAS_CONSCRIPTED</Tag>
+ 		<English>[COLOR_NEGATIVE_TEXT]City cannot draft another unit this turn[COLOR_REVERT]</English>
+@@ -653,7 +738,6 @@
+ 	</TEXT>
+ 
+ <!-- Pre-Chop -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_PRECLEARING_FEATURE_BONUS</Tag>
+ 		<English>Clearing a %s1_FeatName will create %d2_Num [ICON_PRODUCTION] for %s3_CityName.</English>
+@@ -664,7 +748,6 @@
+ 	</TEXT>
+ 
+ <!-- Feature Health -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ACTION_CHANGE_IN_CITY</Tag>
+ 		<English>[ICON_BULLET]%s1 in %s2_CityName</English>
+@@ -675,7 +758,6 @@
+ 	</TEXT>
+ 
+ <!-- Delete/Fortify/Sleep All Units Actions -->
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAME_UNITS_TYPE</Tag>
+ 		<English>[SPACE](&lt;ALT&gt; for All Units of the active unit's type)</English>
+@@ -687,7 +769,6 @@
+ 
+ 
+ <!-- Fractional Trade -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TRADE_ROUTE_TOTAL_FRACTIONAL</Tag>
+ 		<English>%s1 [ICON_COMMERCE]: Total</English>
+@@ -698,7 +779,6 @@
+ 	</TEXT>
+ 
+ <!-- Free Tech Popup Fix -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CHEATERS_NEVER_PROSPER</Tag>
+ 		<English>[COLOR_NEGATIVE_TEXT]You have already chosen your free tech(s)[COLOR_REVERT]</English>
+@@ -709,7 +789,6 @@
+ 	</TEXT>
+ 
+ <!-- Optional Compile-Time Components -->
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MOD_FRACTRADE</Tag>
+ 		<English>Fractional Trade Routes</English>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index b23f054ab..94f63b3c8 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -978,4 +978,18 @@
+ 	<Spanish>(AdvCiv) Ships can reach the [COLOR_HIGHLIGHT_TEXT]Blitz[COLOR_REVERT] promotion via [COLOR_HIGHLIGHT_TEXT]Drill I[COLOR_REVERT]. This gives them one extra attack per turn, which can make a great difference when a group of enemy transports has almost reached your shore.</Spanish>
+ </TEXT>
+ 
++<!-- Based on a BUG hint (but it describes BtS behavior); kept their FR and ES
++	 translations. K-Mod removed all but one of the BUG hints. Many of them are
++	 aimed at beginners, others are already covered by my own hints; so this is
++	 the only one that I want to include (in addition to the one in
++	 'K-Mod hints.xml'). -->
++<TEXT>
++	<Tag>TXT_KEY_BUG_HINT_INTERFACE_4</Tag>
++	<English>To cancel the missions of all your Workers, select one of them and click the [COLOR_HIGHLIGHT_TEXT]Cancel Mission[COLOR_REVERT] button while holding down the [ALT] key.</English>
++	<French>Pour annuler tous les ordres des Ouvriers, s�lectionnez 1 ouvrier avec des ordres, et en gardant [ALT] enfonc�, cliquez le bouton pour annuler les ordres.</French>
++	<German>Um alle Bautrupp-Missionen abzubrechen, w�hlen Sie einen einzelnen Bautrupp aus und klicken Sie bei gedr�ckter [ALT]-Taste auf die "Abbrechen"-Schaltfl�che.</German>
++	<Italian>Per cancellare velocemente tutti gli ordini dei lavoratori, selezionane uno che abbia ordini attivi, tieni premuto il tasto [ALT] e clicca il pulsante di cancellazione degli ordini.</Italian>
++	<Spanish>To cancel the missions of all your Workers, select one of them and click the [COLOR_HIGHLIGHT_TEXT]Cancel Mission[COLOR_REVERT] button while holding down the [ALT] key.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 4661fdf36..a605babb7 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -936,6 +936,15 @@
+ 		<Italian>Nuova estrazione casuale per ricarica</Italian>
+ 		<Spanish>Nueva "seed" aleatoria al volver a cargar</Spanish>
+ 	</TEXT>
++	<!-- Another bad German translation: "fremde Handelswege" -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_NO_FOREIGN_TRADE</Tag>
++		<English>[ICON_BULLET]No Foreign Trade Routes ([ICON_TRADE])</English>
++		<French>[ICON_BULLET]Aucune route commerciale &#233;trang&#232;re</French>
++		<German>[ICON_BULLET]Kein Au�enhandel ([ICON_TRADE])</German>
++		<Italian>[ICON_BULLET]Nessuna rotta commerciale estera ([ICON_TRADE])</Italian>
++		<Spanish>[ICON_BULLET]Sin rutas comerciales extranjeras ([ICON_TRADE])</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
+ 		 German. -->
+@@ -5404,4 +5413,37 @@
+ 		<Spanish>Turno inicial: %d1_Turn (%s2_Year)</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.086: All from CIV4GameTextInfos.xml -->
++	<!-- "Gold" added in English to make clearer how that column differs from
++		 "Commerce" -->
++	<TEXT>
++		<Tag>TXT_KEY_FINANCIAL_ADVISOR_INCOME_HEADER</Tag>
++		<English>Gold Income</English>
++		<French>Recettes</French>
++		<German>Einnahmen</German>
++		<Italian>Entrate</Italian>
++		<Spanish>Ingresos</Spanish>
++	</TEXT>
++	<!-- Disabled through the DLL:
++		 TXT_KEY_ECON_MONEY_SPENT_UPKEEP, TXT_KEY_ECON_AMOUNT_MONEY_CITY_MAINT,
++		 TXT_KEY_ECON_AMOUNT_MONEY_CIVIC_UPKEEP -->
++	<!-- Said "in Enemy Territory", which isn't quite correct. -->
++	<TEXT>
++		<Tag>TXT_KEY_ECON_AMOUNT_MONEY_UNITS_ENEMY_TERRITORY</Tag>
++		<English>For Units not in Friendly Territory</English>
++		<French>Somme d&#233;pens&#233;e pour les unit&#233;s en territoire ennemi</French>
++		<German>f&#252;r Einheiten au�erhalb freundlichen Gebiets</German>
++		<Italian>Il quantitativo di soldi spesi nel mantenimento delle unit&#224; in territorio nemico</Italian>
++		<Spanish>Dinero gastado en unidades en territorio enemigo</Spanish>
++	</TEXT>
++	<!-- was "Income collected from other civilizations" -->
++	<TEXT>
++		<Tag>TXT_KEY_ECON_AMOUNT_MONEY_FOREIGN</Tag>
++		<English>From Gold Trades</English>
++		<French>Recettes provenant des autres civilisations</French>
++		<German>Gold aus Handelsvereinbarungen</German>
++		<Italian>Entrate dalle altre civilt&#224;</Italian>
++		<Spanish>Ingresos obtenidos de otras civilizaciones</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4bb8ff36b..9a33fd42e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -9368,6 +9368,34 @@ int CvCity::calculateTradeYield(YieldTypes eIndex, int iTradeProfit) const
+ 	}
+ }
+ 
++// BULL - Trade Hover - start  (advc: simplified a bit, _MOD_FRACTRADE removed)
++/*  Adds the yield and count for each trade route with eWithPlayer to the
++	int references (out parameters). */
++void CvCity::calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& iDomesticRoutes,
++		int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer) const {
++
++	if(isDisorder())
++		return;
++
++	int iNumTradeRoutes = getTradeRoutes();
++	for(int iI = 0; iI < iNumTradeRoutes; iI++) {
++		CvCity* pTradeCity = getTradeCity(iI);
++		if(pTradeCity != NULL && (eWithPlayer == NO_PLAYER ||
++				pTradeCity->getOwnerINLINE() == eWithPlayer)) {
++			int iTradeYield = getBaseTradeProfit(pTradeCity);
++			iTradeYield = calculateTradeYield(YIELD_COMMERCE,
++					calculateTradeProfit(pTradeCity));
++			if(pTradeCity->getOwnerINLINE() == getOwnerINLINE()) {
++				iDomesticYield += iTradeYield;
++				iDomesticRoutes++;
++			}
++			else {
++				iForeignYield += iTradeYield;
++				iForeignRoutes++;
++			}
++		}
++	}
++} // BULL - Trade Hover - end
+ 
+ void CvCity::setTradeYield(YieldTypes eIndex, int iNewValue)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index fe6020fdb..d4feb77bc 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -771,6 +771,10 @@ public:
+ 	int getBaseTradeProfit(CvCity* pCity) const;
+ 	int calculateTradeProfit(CvCity* pCity) const;								// Exposed to Python
+ 	int calculateTradeYield(YieldTypes eIndex, int iTradeProfit) const;			// Exposed to Python
++	// BULL - Trade Hover - start
++	void calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield, int& iDomesticRoutes,
++			int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer = NO_PLAYER) const;
++	// BULL - Trade Hover - end
+ 	void setTradeYield(YieldTypes eIndex, int iNewValue);
+ 
+ 	int getExtraSpecialistYield(YieldTypes eIndex) const;						// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 67c1755b7..00faf3d8b 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -444,6 +444,18 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_HELP_FINANCE_GOLD_RESERVE:
+ 		parseFinanceGoldReserve(widgetDataStruct, szBuffer);
+ 		break;
++	// BULL - Finance Advisor - start
++	case WIDGET_HELP_FINANCE_DOMESTIC_TRADE:
++		parseFinanceDomesticTrade(widgetDataStruct, szBuffer);
++		break;
++
++	case WIDGET_HELP_FINANCE_FOREIGN_TRADE:
++		parseFinanceForeignTrade(widgetDataStruct, szBuffer);
++		break;
++
++	case WIDGET_HELP_FINANCE_SPECIALISTS:
++		parseFinanceSpecialistGold(widgetDataStruct, szBuffer);
++		break; // BULL - Finance Advisor - end
+ 
+ 	case WIDGET_PEDIA_JUMP_TO_TECH:
+ 		parseTechEntryHelp(widgetDataStruct, szBuffer);
+@@ -570,11 +582,16 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		break;
+ 	// <advc.152>
+ 	case WIDGET_LH_GLANCE:
+-		parseLeaderheadHelp(widgetDataStruct, szBuffer);
++		//parseLeaderheadHelp(widgetDataStruct, szBuffer);
++		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
+ 		// Might as well call GAMETEXT right here
+ 		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
+ 				(PlayerTypes)widgetDataStruct.m_iData2);
+ 		break; // </advc.152>
++	// BULL - Leaderhead Relations - start
++	case WIDGET_LEADERHEAD_RELATIONS:
++		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer);
++		break; // BULL - Leaderhead Relations - end
+ 
+ 	case WIDGET_LEADER_LINE:
+ 		parseLeaderLineHelp(widgetDataStruct, szBuffer);
+@@ -607,7 +624,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE:
+ 		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_PER_SPECIALIST").GetCString(), GC.getTechInfo((TechTypes)(widgetDataStruct.m_iData1)).getSpecialistExtraCommerceArray(), false, false);
+ 		break;
+-	//K-Mod end
++	// K-Mod end
+ 	// <advc.706>
+ 	case WIDGET_RF_CIV_CHOICE:
+ 		GC.getGameINLINE().getRiseFall().assignCivSelectionHelp(szBuffer,
+@@ -617,6 +634,14 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		szBuffer.append(gDLL->getText(widgetDataStruct.m_iData1 == 0 ?
+ 				"TXT_KEY_HOF_SHOW_REPLAY" : "TXT_KEY_HOF_WARN"));
+ 		break; // </advc.106i>
++	// BULL - Trade Hover - start
++	case WIDGET_TRADE_ROUTES:
++		parseTradeRoutes(widgetDataStruct, szBuffer);
++		break; // BULL - Trade Hover - end
++	// BULL - Food Rate Hover - start
++	case WIDGET_FOOD_MOD_HELP:
++		parseFoodModHelp(widgetDataStruct, szBuffer);
++		break; // BULL - Food Rate Hover - end
+ 	}
+ }
+ 
+@@ -3465,31 +3490,27 @@ void CvDLLWidgetData::parseChangePercentHelp(CvWidgetDataStruct &widgetDataStruc
+ }
+ 
+ 
+-void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)  // advc.003: Some style changes
+ {
+ 	// do not execute if player is out of range
+-	PlayerTypes ePlayer = (PlayerTypes) widgetDataStruct.m_iData1;
++	PlayerTypes ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
+ 	if (ePlayer >= MAX_PLAYERS)
+-	{
+ 		return;
+-	}
+-
+ 	// do not execute if player is not a real civ
+-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
++	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+ 	if (kPlayer.getCivilizationType() == NO_CIVILIZATION)
+-	{
+ 		return;
+-	}
+-
+ 	// make sure its empty to start
+ 	szBuffer.clear();
+ 
+-	TeamTypes eTeam = (TeamTypes) kPlayer.getTeam();
+-	//CvTeamAI& kTeam = GET_TEAM(eTeam); // advc.003: unused
+-
++	TeamTypes eTeam = kPlayer.getTeam();
+ 	PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
+-	TeamTypes eActiveTeam = (TeamTypes) GET_PLAYER(eActivePlayer).getTeam();
+-	CvTeamAI& kActiveTeam = GET_TEAM(eActiveTeam);
++	TeamTypes eActiveTeam = GET_PLAYER(eActivePlayer).getTeam();
++	CvTeamAI const& kActiveTeam = GET_TEAM(eActiveTeam);
++	// <advc.085>
++	if(widgetDataStruct.m_iData2 == 0)
++		GET_PLAYER(eActivePlayer).setScoreboardExpanded(true);
++	// </advc.085>
+ 
+ 	// if alt down and cheat on, show extra info
+ 	if (GC.altKey() && //gDLL->getChtLvl() > 0)
+@@ -3499,7 +3520,6 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		parseScoreboardCheatText(widgetDataStruct, szBuffer);
+ 		// K-Mod end
+ 	}
+-
+ 	//	Show score info instead if we are trying to contact ourselves...
+ 	if ( eActivePlayer == ePlayer || (GC.ctrlKey() && //gDLL->getChtLvl() > 0) )
+ 			GC.getGameINLINE().isDebugMode())) // advc.135c
+@@ -3512,7 +3532,6 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	szBuffer.append(gDLL->getText("TXT_KEY_MISC_CONTACT_LEADER", kPlayer.getNameKey(), kPlayer.getCivilizationShortDescription()));
+ 	szBuffer.append(NEWLINE);
+ 	GAMETEXT.parsePlayerTraits(szBuffer, ePlayer); */
+-
+ 	if (!kActiveTeam.isHasMet(eTeam))
+ 	{
+ 		// K-Mod. If we haven't met the player yet - don't say "contact". Because we can't actually contact them!
+@@ -3524,45 +3543,39 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	// K-Mod
+ 	else
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_CONTACT_LEADER", kPlayer.getNameKey(), kPlayer.getCivilizationShortDescription()));
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_CONTACT_LEADER", kPlayer.getNameKey(),
++				kPlayer.getCivilizationShortDescription()));
+ 		szBuffer.append(NEWLINE);
+ 		GAMETEXT.parsePlayerTraits(szBuffer, ePlayer);
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ 
+ 	if (kActiveTeam.isHasMet(eTeam) || GC.getGameINLINE().isDebugMode())
+-	{
+-		/* original bts code
+-		if (!kPlayer.isHuman())
+-		{
+-			if (!kPlayer.AI_isWillingToTalk(eActivePlayer))
+-			{
++	{	/* original bts code
++		if (!kPlayer.isHuman()) {
++			if (!kPlayer.AI_isWillingToTalk(eActivePlayer)) {
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_REFUSES_TO_TALK"));
+ 			}
+-
+-			if (!((GC.altKey() || GC.ctrlKey()) && gDLL->getChtLvl() > 0))
+-			{
++			if (!((GC.altKey() || GC.ctrlKey()) && gDLL->getChtLvl() > 0)) {
+ 				szBuffer.append(NEWLINE);
+ 				GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
+-
+ 				szBuffer.append(NEWLINE);
+ 				GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
+ 			}
+ 		}
+-		else
+-		{
++		else {
+ 			szBuffer.append(NEWLINE);
+ 			GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer);
+ 		} */
+-		// K-Mod
++
+ 		// <advc.104l>
+ 		WarEvaluator::enableCache();
+ 		// Don't check this twice; potentially costly.
+-		bool willTalk = kPlayer.AI_isWillingToTalk(eActivePlayer);
++		bool bWillTalk = kPlayer.AI_isWillingToTalk(eActivePlayer);
+ 		WarEvaluator::disableCache(); // </advc.104l>
+-		if (!willTalk)
++		// K-Mod
++		if (!bWillTalk)
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_REFUSES_TO_TALK"));
+@@ -3572,16 +3585,15 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		{
+ 			GAMETEXT.getAttitudeString(szBuffer, ePlayer, eActivePlayer);
+ 			GAMETEXT.getWarWearinessString(szBuffer, ePlayer, eActivePlayer); // K-Mod
+-			// <advc.104v> Now done later
+-			/*if (!kPlayer.isHuman() && willTalk)
+-			{
++			// <advc.104v> Handled later
++			/*if (!kPlayer.isHuman() && willTalk) {
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
+ 			}*/
+-		}
+-		// K-Mod end
++		} // K-Mod end
+ 		// <advc.034>
+-		if(GET_TEAM(eActiveTeam).isDisengage(eTeam)) {
++		if(GET_TEAM(eActiveTeam).isDisengage(eTeam))
++		{
+ 			CvWString szString;
+ 			GAMETEXT.buildDisengageString(szString, eActivePlayer, ePlayer);
+ 			szBuffer.append(NEWLINE);
+@@ -3609,7 +3621,6 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 							setListHelp(szWarWithString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst);
+ 							bFirst = false;
+ 						}
+-
+ 						//if (kTeam.AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
+ 						if (!kLoopTeam.isHuman() && kLoopTeam.AI_getWorstEnemy() == eTeam) // K-Mod
+ 						{
+@@ -3620,29 +3631,29 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				}
+ 			}
+ 
+-			if( !szWorstEnemyString.isEmpty() )
++			if (!szWorstEnemyString.isEmpty())
+ 			{
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString.getCString()));
+ 			}
+-			if( !szWarWithString.isEmpty() )
++			if (!szWarWithString.isEmpty())
+ 			{
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
+ 			}
+ 			// <advc.004v> Moved here from above
+-			bool showCtrlTrade = !((GC.altKey() || GC.ctrlKey()) && //gDLL->getChtLvl() > 0)
++			bool bShowCtrlTrade = !((GC.altKey() || GC.ctrlKey()) && //gDLL->getChtLvl() > 0)
+ 					GC.getGameINLINE().isDebugMode()) // advc.135c
+-					&& !kPlayer.isHuman() && willTalk;
+-			if (showCtrlTrade) {
++					&& !kPlayer.isHuman() && bWillTalk;
++			if (bShowCtrlTrade) {
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_TRADE"));
+ 			} // </advc.004>
+-			if( !(kActiveTeam.isAtWar(eTeam)))
++			if (!kActiveTeam.isAtWar(eTeam))
+ 			{
+ 				if (kActiveTeam.canDeclareWar(eTeam))
+ 				{	// <advc.104v>
+-					if(showCtrlTrade)
++					if(bShowCtrlTrade)
+ 						szBuffer.append(L", "); // Put them on one line
+ 					else // </advc.104v>
+ 						szBuffer.append(NEWLINE);
+@@ -3665,8 +3676,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	}
+ 
+ 	if (kPlayer.isHuman())
+-	{
+-//		szBuffer += "\n(<SHIFT> to Send Chat Message)";
++	{// szBuffer += "\n(<SHIFT> to Send Chat Message)";
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_SHIFT_SEND_CHAT"));
+ 	}
+@@ -5569,67 +5579,50 @@ void CvDLLWidgetData::parseFoundCorporationHelp(CvWidgetDataStruct &widgetDataSt
+ }
+ 
+ void CvDLLWidgetData::parseFinanceNumUnits(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+-{
+-//	szBuffer = "Number of units you are currently supporting";
+-	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_NUM_UNITS_SUPPORTING"));
++{	// advc.086: Disabled (noninformative)
++	//szBuffer.assign(gDLL->getText("TXT_KEY_ECON_NUM_UNITS_SUPPORTING"));
+ }
+ 
+ void CvDLLWidgetData::parseFinanceUnitCost(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+-{
+-//	szBuffer = "The amount of money spent on unit upkeep";
+-	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_MONEY_SPENT_UPKEEP"));
++{	// advc.086: Disabled
++	//szBuffer.assign(gDLL->getText("TXT_KEY_ECON_MONEY_SPENT_UPKEEP"));
+ 	if (widgetDataStruct.m_iData2 > 0)
+-	{
+ 		GAMETEXT.buildFinanceUnitCostString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	}
+ }
+ 
+ void CvDLLWidgetData::parseFinanceAwaySupply(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-//	szBuffer = "The amount of money spent on units in enemy territory";
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_UNITS_ENEMY_TERRITORY"));
+ 	if (widgetDataStruct.m_iData2 > 0)
+-	{
+ 		GAMETEXT.buildFinanceAwaySupplyString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	}
+ }
+ 
+ void CvDLLWidgetData::parseFinanceCityMaint(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+-{
+-//	szBuffer = "The amount of money spent doing city maintenance";
+-	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_CITY_MAINT"));
++{	// advc.086: Disabled
++	//szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_CITY_MAINT"));
+ 	if (widgetDataStruct.m_iData2 > 0)
+-	{
+ 		GAMETEXT.buildFinanceCityMaintString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	}
+ }
+ 
+ void CvDLLWidgetData::parseFinanceCivicUpkeep(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+-{
+-//	szBuffer = "The amount of money spent on Civics";
+-	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_CIVIC_UPKEEP"));
++{	// advc.086: Disabled
++	//szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_CIVIC_UPKEEP"));
+ 	if (widgetDataStruct.m_iData2 > 0)
+-	{
+ 		GAMETEXT.buildFinanceCivicUpkeepString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	}
+ }
+ 
+ void CvDLLWidgetData::parseFinanceForeignIncome(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_FOREIGN"));
+ 	if (widgetDataStruct.m_iData2 > 0)
+-	{
+ 		GAMETEXT.buildFinanceForeignIncomeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	}
+ }
+ 
+ void CvDLLWidgetData::parseFinanceInflatedCosts(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+-{
++{	// advc (comment): Unused b/c of K-Mod changes to EconomicsAdvisor.py
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_AFTER_INFLATION"));
+ 	if (widgetDataStruct.m_iData2 > 0)
+-	{
+ 		GAMETEXT.buildFinanceInflationString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	}
+ }
+ 
+ void CvDLLWidgetData::parseFinanceGrossIncome(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+@@ -5649,6 +5642,27 @@ void CvDLLWidgetData::parseFinanceGoldReserve(CvWidgetDataStruct &widgetDataStru
+ //	szBuffer = "Amount of money in your gold reserves";
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_GOLD_RESERVE"));
+ }
++// BULL - Finance Advisor - start
++void CvDLLWidgetData::parseFinanceDomesticTrade(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer) {
++
++	if(widgetDataStruct.m_iData2 > 0) // advc.086: Heading moved into CvGameTextMgr
++		GAMETEXT.buildDomesticTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
++}
++
++void CvDLLWidgetData::parseFinanceForeignTrade(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer) {
++
++	if(widgetDataStruct.m_iData2 > 0)  // advc.086: Heading moved into CvGameTextMgr
++		GAMETEXT.buildForeignTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
++}
++
++void CvDLLWidgetData::parseFinanceSpecialistGold(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer) {
++
++	// advc.086: No heading
++	//szBuffer.assign(gDLL->getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALISTS"));
++	//szBuffer.append(NEWLINE);
++	if(widgetDataStruct.m_iData2 > 0)
++		GAMETEXT.buildFinanceSpecialistGoldString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
++} // BULL - Finance Advisor - end
+ 
+ void CvDLLWidgetData::parseUnitHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+@@ -5777,7 +5791,11 @@ void CvDLLWidgetData::parseLeaderHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
+ 		GAMETEXT.parseLeaderTraits(szBuffer, (LeaderHeadTypes)widgetDataStruct.m_iData1, (CivilizationTypes)widgetDataStruct.m_iData2);
+ 	}
+ }
++// BULL - Leaderhead Relations - start
++void CvDLLWidgetData::parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer) {
+ 
++	GAMETEXT.parseLeaderHeadRelationsHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
++} // BULL - Leaderhead Relations - end
+ // advc.003j (comment): unused
+ void CvDLLWidgetData::parseCloseScreenHelp(CvWStringBuffer& szBuffer)
+ {
+@@ -5948,7 +5966,10 @@ void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	if (NULL != pDeal)
+ 	{
+ 		PlayerTypes eActivePlayer = g.getActivePlayer();
+-		// <advc.073>
++		// <advc.085>
++		if(widgetDataStruct.m_iData2 == 0)
++			GET_PLAYER(eActivePlayer).setScoreboardExpanded(true);
++		// </advc.085>  // <advc.073>
+ 		GAMETEXT.getDealString(szBuffer, *pDeal, eActivePlayer, false);
+ 		szBuffer.append(NEWLINE); // </advc.073>
+ 		if (pDeal->isCancelable(eActivePlayer, &szTemp))
+@@ -6029,6 +6050,25 @@ void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWSt
+ 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+ }
+ 
++// BULL - Trade Hover - start
++void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer) {
++
++	// advc.085:
++	GET_PLAYER(GC.getGameINLINE().getActivePlayer()).setScoreboardExpanded(true);
++	GAMETEXT.buildTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
++	GAMETEXT.getActiveDealsString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2,
++			true); // advc.087
++} // BULL - Trade Hover - end
++// BULL - Food Rate Hover - start
++void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer) {
++
++	CvCity const* pCity = gDLL->getInterfaceIFace()->getHeadSelectedCity();
++	if(pCity == NULL)
++		return;
++	GAMETEXT.setFoodHelp(szBuffer, *pCity);
++}
++// BUG - Food Rate Hover - end
++
+ /*
+ ** K-Mod, 5/jan/11, karadoc
+ ** Environmental advisor mouse-over text
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index cf53b479b..59fa555d9 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -82,7 +82,11 @@ public:
+ 	void doMenu( void );
+ 	void doLaunch(CvWidgetDataStruct &widgetDataStruct);
+ 
+-	//	Help parsing
++protected:
++
++	static CvDLLWidgetData* m_pInst;
++
++	//	Help parsing (advc.003: These were all public)
+ 	void parsePlotListHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseLiberateCityHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseCityNameHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+@@ -107,9 +111,13 @@ public:
+ 	void parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer); // K-Mod, the cheat mode text associated with ContactCivHelp
+ 	void parseScoreHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// BULL - Trade Hover:
++	void parseTradeRoutes(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// BULL - Food Rate Hover:
++	void parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseConvertHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseRevolutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+-//	void parsePopupQueue(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// void parsePopupQueue(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseAutomateCitizensHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseAutomateProductionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+@@ -184,6 +192,11 @@ public:
+ 	void parseFinanceGrossIncome(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseFinanceNetGold(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseFinanceGoldReserve(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// BULL - Finance Advisor - start
++	void parseFinanceDomesticTrade(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	void parseFinanceForeignTrade(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	void parseFinanceSpecialistGold(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// BULL - Finance Advisor - end
+ 	void parseUnitHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parsePediaBack(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parsePediaForward(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+@@ -202,6 +215,8 @@ public:
+ 	void parseCivicHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseCivilizationHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseLeaderHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// BULL - Leaderhead Relations:
++	void parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer, bool bMinimal);
+ 	void parseCloseScreenHelp(CvWStringBuffer &szBuffer);
+ 	void parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+@@ -224,10 +239,6 @@ public:
+ 	CvWString getNetFeatureHealthText(CvPlot const& kCityPlot, PlayerTypes ownerId) const;
+ 	// </advc.004b>
+ 
+-protected:
+-	
+-	static CvDLLWidgetData* m_pInst;
+-
+ };
+ 
+ #endif//_CVDLLWIDGETDATA_H_
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index ee159c153..0981c1cc5 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -8,18 +8,8 @@
+ #include "CvGameTextMgr.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvEventReporter.h"
++#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+-// Public Functions...
+ 
+ CvDeal::CvDeal()
+ {
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 85029681a..d6e704fe8 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -561,7 +561,14 @@ enum WidgetTypes					// Exposed to Python
+ 	WIDGET_PEDIA_JUMP_TO_BONUS_TRADE,
+ 	WIDGET_PEDIA_JUMP_TO_TECH_TRADE,
+ 	// BULL - Trade Denial - end
+-
++	WIDGET_TRADE_ROUTES, // BULL - Trade Hover - start
++	// BULL - Finance Advisor - start
++	WIDGET_HELP_FINANCE_DOMESTIC_TRADE,
++	WIDGET_HELP_FINANCE_FOREIGN_TRADE,
++	WIDGET_HELP_FINANCE_SPECIALISTS,
++	// BULL - Finance Advisor - end
++	WIDGET_LEADERHEAD_RELATIONS, // BULL - Leaderhead Relations
++	WIDGET_FOOD_MOD_HELP, // BULL - Food Rate Hover
+ #ifdef _USRDLL
+ 	NUM_WIDGET_TYPES
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 90043500c..ac5654bc5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -776,6 +776,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bLayerFromSavegame = false; // </advc.004m>
+ 	m_bFeignSP = false; // advc.135c
+ 	m_bDoMShown = false; // advc.004x
++	m_bScoreboardDirtyDelayed = false; // advc.085
+ }
+ 
+ 
+@@ -2521,9 +2522,19 @@ void CvGame::update()
+ 			game turn. I've tried doing that through BugEventManager.py, but
+ 			eventually gave up. Tagging advc.706 b/c it's especially important
+ 			to supress the update when R&F is enabled. */
+-		if(!isAITurn())
++		if(!isAITurn()) {
+ 			CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+-
++			// <advc.085> See CvPlayer::setScoreboardExpanded
++			if(m_bScoreboardDirtyDelayed) {
++				gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++				/*  For some strange reason, the HUD retains mouse focus after
++					expanding the scoreboard, and this is the only remedy I was
++					able to find (apart from CvInterface::makeInterfaceDirty,
++					which results in flickering). */
++				gDLL->getInterfaceIFace()->makeSelectionListDirty();
++				m_bScoreboardDirtyDelayed = false;
++			} // </advc.085>
++		}
+ 		if (getTurnSlice() == 0)
+ 		{	// <advc.700> Delay initial auto-save until RiseFall is initialized
+ 			bool bStartTurn = (getGameTurn() == getStartTurn()); // advc.004m
+@@ -2767,7 +2778,7 @@ void CvGame::updateGwPercentAnger()
+ } // K-Mod end
+ 
+ /*  <advc.106l> Wrapper that reports the event. Everyone should call this
+-	instead of calling the CvDLLEngineIFaceBase function directly. */
++	instead of calling the CvEngine function directly. */
+ void CvGame::autoSave(bool bInitial) {
+ 	/*  <advc.135c> Avoid overlapping auto-saves in test games played on a
+ 		single machine. Don't know how to check this properly. */
+@@ -4815,6 +4826,12 @@ void CvGame::setScoreDirty(bool bNewValue)
+ 	m_bScoreDirty = bNewValue;
+ }
+ 
++// <advc.085>
++void CvGame::setScoreboardDirtyOnUpdate() {
++
++	m_bScoreboardDirtyDelayed = true;
++} // </advc.085>
++
+ 
+ bool CvGame::isCircumnavigated() const
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index b5656058d..a63f9ae3d 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -281,6 +281,7 @@ public:
+ 
+ 	bool isScoreDirty() const;																							// Exposed to Python
+ 	void setScoreDirty(bool bNewValue);																			// Exposed to Python
++	void setScoreboardDirtyOnUpdate(); // advc.085
+ 
+ 	bool isCircumnavigated() const;																// Exposed to Python
+ 	void makeCircumnavigated();																		// Exposed to Python
+@@ -702,6 +703,7 @@ protected:
+ 	unsigned int m_uiInitialTime;
+ 
+ 	bool m_bScoreDirty;
++	bool m_bScoreboardDirtyDelayed; // advc.085
+ 	bool m_bCircumnavigated;
+ 	bool m_bDebugMode;
+ 	bool m_bDebugModeCache;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c4c088983..d4fbcfa20 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6278,6 +6278,112 @@ void CvGameTextMgr::setPlotHelpDebug_ShiftAltOnly(CvWStringBuffer& szString, CvP
+ 		}
+ 	}
+ }
++// BULL - Leaderhead Relations - start  // advc: minor style changes
++/*  Shows the peace/war/enemy/pact status between eThisTeam and all rivals known to the active player.
++	Relations for the active player are shown first. */
++void CvGameTextMgr::getAllRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam) {
++
++	getActiveTeamRelationsString(szString, eThisTeam);
++	getOtherRelationsString(szString, eThisTeam, NO_TEAM, GC.getGameINLINE().getActiveTeam());
++}
++// Shows the peace/war/enemy/pact status between eThisTeam and the active player.
++void CvGameTextMgr::getActiveTeamRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam) {
++
++	CvTeamAI const& kThisTeam = GET_TEAM(eThisTeam);
++	TeamTypes eActiveTeam = GC.getGameINLINE().getActiveTeam();
++	if(!kThisTeam.isHasMet(eActiveTeam))
++		return;
++	CvTeamAI const& kActiveTeam = GET_TEAM(eActiveTeam);
++
++	if(kThisTeam.isAtWar(eActiveTeam)) {
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH_YOU"));
++	}
++	// advc: Covered by active deals
++	/*else if (kThisTeam.isForcePeace(eActiveTeam)) {
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText(L"TXT_KEY_PEACE_TREATY_WITH_YOU"));
++	}*/
++	if(!kThisTeam.isHuman() && kThisTeam.AI_getWorstEnemy() == eActiveTeam) {
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_IS_YOU"));
++	}
++	// advc: Covered by active deals
++	/*if(kThisTeam.isDefensivePact(eActiveTeam)) {
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText(L"TXT_KEY_DEFENSIVE_PACT_WITH_YOU"));
++	}*/
++}
++
++void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
++		PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer) {
++
++	if(eThisPlayer == NO_PLAYER || eOtherPlayer == NO_PLAYER)
++		return;
++	getOtherRelationsString(szString, TEAMID(eThisPlayer), TEAMID(eOtherPlayer), NO_TEAM);
++}
++/*  Shows the peace/war/enemy/pact status between eThisPlayer and all rivals known to the active player.
++	If eOtherTeam is not NO_TEAM, only relations between it and eThisTeam are shown.
++	If eSkipTeam is not NO_TEAM, relations involving it are not shown. */
++/*  advc: This BULL function replaces CvGameTextMgr::getOtherRelationsString(
++	CvWStringBuffer&, PlayerTypes, PlayerTypes). I've merged just one K-Mod
++	change from the latter. */
++void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
++		TeamTypes eThisTeam, /* (advc: unused) */ TeamTypes eOtherTeam,
++		TeamTypes eSkipTeam) {
++
++	if(eThisTeam == NO_TEAM)
++		return;
++	CvTeamAI const& kThisTeam = GET_TEAM(eThisTeam);
++	CvWString szWar, szPeace, szEnemy, szPact;
++	bool bFirstWar = true, bFirstPeace = true, bFirstEnemy = true, bFirstPact = true;
++	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++		CvTeamAI const& kLoopTeam = GET_TEAM((TeamTypes)i);
++		if (!kLoopTeam.isAlive() || kLoopTeam.isMinorCiv() || i == eThisTeam ||
++				// K-Mod. (show "at war" even for the civ selected.)  (advc: And war-related info like DP also)
++				i == eSkipTeam /*|| (eOtherTeam != NO_TEAM && i != eOtherTeam)*/)
++			continue;
++		if(!kLoopTeam.isHasMet(eThisTeam) ||
++				!kLoopTeam.isHasMet(GC.getGameINLINE().getActiveTeam()))
++			continue;
++		if(::atWar(kLoopTeam.getID(), eThisTeam)) {
++			setListHelp(szWar, L"", kLoopTeam.getName().GetCString(), L", ", bFirstWar);
++			bFirstWar = false;
++		}
++		else if(kLoopTeam.isForcePeace(eThisTeam)) {
++			setListHelp(szPeace, L"", kLoopTeam.getName().GetCString(), L", ", bFirstPeace);
++			bFirstPeace = false;
++		}
++		if(!kLoopTeam.isHuman() && kLoopTeam.AI_getWorstEnemy() == eThisTeam) {
++			setListHelp(szEnemy, L"", kLoopTeam.getName().GetCString(), L", ", bFirstEnemy);
++			bFirstEnemy = false;
++		}
++		if(kLoopTeam.isDefensivePact(eThisTeam)) {
++			setListHelp(szPact, L"", kLoopTeam.getName().GetCString(), L", ", bFirstPact);
++			bFirstPact = false;
++		}
++	}
++	if(!szWar.empty()) {
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWar.GetCString()));
++	}
++	/*  Show only the teams whose enemy ThisTeam is - and not ThisTeam's enemy;
++		too confusing to show both. */
++	/*if(!kThisTeam.isHuman()) {
++		TeamTypes eWorstEnemy = kThisTeam.AI_getWorstEnemy();
++		if(eWorstEnemy != NO_TEAM && eWorstEnemy != eSkipTeam &&
++				(eOtherTeam == NO_TEAM || eWorstEnemy == eOtherTeam) &&
++				GET_TEAM(eWorstEnemy).isHasMet(GC.getGameINLINE().getActiveTeam())) {
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_IS",
++					GET_TEAM(eWorstEnemy).getName().GetCString()));
++		}
++	}*/
++	if(!szEnemy.empty()) {
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szEnemy.GetCString()));
++	}
++} // BULL - Leaderhead Relations - end
+ 
+ void CvGameTextMgr::setCityPlotYieldValueString(CvWStringBuffer &szString, CvCity* pCity, int iIndex, bool bIgnoreFood, int iGrowthValue)
+ {
+@@ -16346,26 +16452,29 @@ void CvGameTextMgr::setTerrainHelp(CvWStringBuffer &szBuffer, TerrainTypes eTerr
+ void CvGameTextMgr::buildFinanceInflationString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+ 	if (NO_PLAYER == ePlayer)
+-	{
+ 		return;
+-	}
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 
+ 	int iInflationRate = kPlayer.calculateInflationRate();
+ 	//if (iInflationRate != 0)
+ 	{
+ 		int iPreInflation = kPlayer.calculatePreInflatedCosts();
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_INFLATION", iPreInflation, iInflationRate, iInflationRate, iPreInflation, (iPreInflation * iInflationRate) / 100));
++		CvWString szTmp; // advc.086: Get rid of newline set in XML
++		szTmp.append(NEWLINE);
++		szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_INFLATION",
++				iPreInflation, iInflationRate, iInflationRate, iPreInflation,
++				iPreInflation * iInflationRate / 100));
++		// <advc.086>
++		if(szBuffer.isEmpty())
++			szBuffer.assign(szTmp.substr(2, szTmp.length()));
++		else szBuffer.append(szTmp); // </advc.086>
+ 	}
+ }
+ 
+ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+ 	if (NO_PLAYER == ePlayer)
+-	{
+ 		return;
+-	}
+ 	CvPlayer& player = GET_PLAYER(ePlayer);
+ 
+ 	int iFreeUnits = 0;
+@@ -16387,11 +16496,14 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 	iMilitaryCost = ROUND_DIVIDE(iMilitaryCost*inflFactor, 100);
+ 	iHandicap = ROUND_DIVIDE(iHandicap*inflFactor, 100);
+ 	// K-Mod end
+-
+-	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST",//iPaidUnits, iFreeUnits, iBaseUnitCost
++	CvWString szTmp; // advc.086
++	szTmp.append(NEWLINE);
++	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST",//iPaidUnits, iFreeUnits, iBaseUnitCost
+ 			iUnits, iFreeUnits, iUnitCost)); // K-Mod
+-
++	// <advc.086>
++	if(szBuffer.isEmpty())
++		szBuffer.assign(szTmp.substr(2, szTmp.length()));
++	else szBuffer.append(szTmp); // </advc.086>
+ 	//if (iPaidMilitaryUnits != 0)
+ 	if (iMilitaryCost != 0) // K-Mod
+ 	{
+@@ -16399,9 +16511,7 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 				iMilitaryUnits, iFreeMilitaryUnits, iMilitaryCost)); // K-Mod
+ 	}
+ 	if (iExtraCost != 0)
+-	{
+ 		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST_3", iExtraCost));
+-	}
+ 	if (iHandicap != 0)
+ 	{
+ 		FAssertMsg(false, "not all unit costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
+@@ -16414,9 +16524,7 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+ 	if (NO_PLAYER == ePlayer)
+-	{
+ 		return;
+-	}
+ 	CvPlayer& player = GET_PLAYER(ePlayer);
+ 
+ 	int iPaidUnits = 0;
+@@ -16437,18 +16545,23 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 		FAssertMsg(false, "not all supply costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
+ 		szHandicap = gDLL->getText("TXT_KEY_FINANCE_ADVISOR_HANDICAP_COST", iHandicap);
+ 	}
+-
+-	szBuffer.append(NEWLINE);
+-	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST", iPaidUnits, GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"), iBaseCost, szHandicap.GetCString(), iCost));
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST", player.getNumOutsideUnits(), player.getNumOutsideUnits() - iPaidUnits, iBaseCost, szHandicap.GetCString(), iCost)); // K-Mod
++	CvWString szTmp; // advc.086
++	szTmp.append(NEWLINE);
++	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_SUPPLY_COST",
++			//iPaidUnits, GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"),
++			// K-Mod:
++			player.getNumOutsideUnits(), player.getNumOutsideUnits() - iPaidUnits,
++			iBaseCost, szHandicap.GetCString(), iCost));
++	// <advc.086>
++	if(szBuffer.isEmpty())
++		szBuffer.assign(szTmp.substr(2, szTmp.length()));
++	else szBuffer.append(szTmp); // </advc.086>
+ }
+ 
+ void CvGameTextMgr::buildFinanceCityMaintString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+ 	if (NO_PLAYER == ePlayer)
+-	{
+ 		return;
+-	}
+ 	int iLoop;
+ 	int iDistanceMaint = 0;
+ 	int iColonyMaint = 0;
+@@ -16485,16 +16598,22 @@ void CvGameTextMgr::buildFinanceCityMaintString(CvWStringBuffer& szBuffer, Playe
+ 	iCorporationMaint = ROUND_DIVIDE(iCorporationMaint * iInflationFactor, 10000); // Note: currently, calculateCorporationMaintenanceTimes100 includes the inverse of this factor.
+ 
+ 	int iNumCityMaint = ROUND_DIVIDE(player.getTotalMaintenance() * iInflationFactor, 100) - iDistanceMaint - iColonyMaint - iCorporationMaint;
+-	szBuffer.append(NEWLINE);
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CITY_MAINT_COST", iDistanceMaint, iNumCityMaint, iColonyMaint, iCorporationMaint, player.getTotalMaintenance()*iInflationFactor/100));
++	CvWString szTmp; // advc.086
++	szTmp.append(NEWLINE);
++	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CITY_MAINT_COST",
++			iDistanceMaint, iNumCityMaint, iColonyMaint, iCorporationMaint,
++			player.getTotalMaintenance()*iInflationFactor/100));
++	// <advc.086>
++	if(szBuffer.isEmpty())
++		szBuffer.assign(szTmp.substr(2, szTmp.length()));
++	else szBuffer.append(szTmp); // </advc.086>
++
+ }
+ 
+ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+ 	if (NO_PLAYER == ePlayer)
+-	{
+ 		return;
+-	}
+ 	CvPlayer& player = GET_PLAYER(ePlayer);
+ 	CvWString szCivicOptionCosts;
+ 
+@@ -16511,18 +16630,22 @@ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, Pla
+ 			szCivicOptionCosts += NEWLINE + szTemp;
+ 		}
+ 	}
+-
+-	szBuffer.append(NEWLINE);
+-	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST", szCivicOptionCosts.GetCString(), player.getCivicUpkeep()));
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST", szCivicOptionCosts.GetCString(), ROUND_DIVIDE(player.getCivicUpkeep()*inflFactor,100))); // K-Mod
++	CvWString szTmp; // advc.086
++	szTmp.append(NEWLINE);
++	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST",
++			szCivicOptionCosts.GetCString(),
++			//player.getCivicUpkeep()));
++			ROUND_DIVIDE(player.getCivicUpkeep()*inflFactor,100))); // K-Mod
++	// <advc.086>
++	if(szBuffer.isEmpty())
++		szBuffer.assign(szTmp.substr(2, szTmp.length()));
++	else szBuffer.append(szTmp); // </advc.086>
+ }
+ 
+ void CvGameTextMgr::buildFinanceForeignIncomeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
+ {
+ 	if (NO_PLAYER == ePlayer)
+-	{
+ 		return;
+-	}
+ 	CvPlayer& player = GET_PLAYER(ePlayer);
+ 
+ 	CvWString szPlayerIncome;
+@@ -16538,8 +16661,13 @@ void CvGameTextMgr::buildFinanceForeignIncomeString(CvWStringBuffer& szBuffer, P
+ 	}
+ 	if (!szPlayerIncome.empty())
+ 	{
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_FOREIGN_INCOME", szPlayerIncome.GetCString(), player.getGoldPerTurn()));
++		CvWString szTmp; // advc.086
++		szTmp.append(NEWLINE);
++		szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_FOREIGN_INCOME", szPlayerIncome.GetCString(), player.getGoldPerTurn()));
++		// <advc.086>
++		if(szBuffer.isEmpty())
++			szBuffer.assign(szTmp.substr(2, szTmp.length()));
++		else szBuffer.append(szTmp); // </advc.086>
+ 	}
+ }
+ 
+@@ -16642,7 +16770,7 @@ bool CvGameTextMgr::setBuildingSavedMaintenanceHelp(CvWStringBuffer &szBuffer, c
+ }
+ // BUG - Building Saved Maintenance - end
+ 
+-void CvGameTextMgr::setProductionHelp(CvWStringBuffer &szBuffer, CvCity& city)
++void CvGameTextMgr::setProductionHelp(CvWStringBuffer &szBuffer, CvCity const& city)
+ {
+ 	FAssertMsg(NO_PLAYER != city.getOwnerINLINE(), "City must have an owner");
+ 
+@@ -17037,27 +17165,26 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ 
+ 	//szBuffer.append(L"\n");
+ 
+-	if (eOtherPlayer != NO_PLAYER)
++	if (eOtherPlayer == NO_PLAYER)
+ 	{
+-		CvTeam& kThisTeam = GET_TEAM(kPlayer.getTeam());
+-		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
+-
+-		if (kThisTeam.isHasMet(eOtherTeam)) // K-Mod. Allow the "other relations string" to display even if eOtherPlayer == eThisPlayer. It's useful info.
+-		{
+-			getVassalInfoString(szBuffer, eThisPlayer); // K-Mod
+-			//getEspionageString(szBuffer, eThisPlayer, eOtherPlayer); // disabled by K-Mod. (The player should not be told exactly how many espionage points everyone has.)
+-
+-			if (eOtherPlayer != eThisPlayer)
+-			{
+-				getAttitudeString(szBuffer, eThisPlayer, eOtherPlayer);
+-				getActiveDealsString(szBuffer, eThisPlayer, eOtherPlayer);
+-			}
+-			getWarWearinessString(szBuffer, eThisPlayer, eOtherPlayer);
+-
+-			getOtherRelationsString(szBuffer, eThisPlayer, eOtherPlayer);
+-		}
++		getWarWearinessString(szBuffer, eThisPlayer, NO_PLAYER); // total war weariness
++		return; // advc.003
++	}
++	CvTeam& kThisTeam = GET_TEAM(kPlayer.getTeam());
++	TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
++	if (!kThisTeam.isHasMet(eOtherTeam))
++		return;
++	getVassalInfoString(szBuffer, eThisPlayer); // K-Mod
++	// disabled by K-Mod. (The player should not be told exactly how many espionage points everyone has.)
++	//getEspionageString(szBuffer, eThisPlayer, eOtherPlayer);
++	if (eOtherPlayer != eThisPlayer)
++	{
++		getAttitudeString(szBuffer, eThisPlayer, eOtherPlayer);
++		getActiveDealsString(szBuffer, eThisPlayer, eOtherPlayer);
+ 	}
+-	else getWarWearinessString(szBuffer, eThisPlayer, NO_PLAYER); // total war weariness
++	getWarWearinessString(szBuffer, eThisPlayer, eOtherPlayer);
++	// K-Mod. Allow the "other relations string" to display even if eOtherPlayer == eThisPlayer. It's useful info.
++	getOtherRelationsString(szBuffer, eThisPlayer, eOtherPlayer);
+ }
+ 
+ // <advc.152>
+@@ -17136,7 +17263,9 @@ void CvGameTextMgr::parseLeaderLineHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ }
+ 
+ 
+-void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
++void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer,
++		PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer,
++		bool bExludeDual) // advc.087
+ {
+ 	int iIndex;
+ 	CvDeal* pDeal = GC.getGameINLINE().firstDeal(&iIndex);
+@@ -17144,7 +17273,21 @@ void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer, PlayerTypes
+ 	{
+ 		if ((pDeal->getFirstPlayer() == eThisPlayer && pDeal->getSecondPlayer() == eOtherPlayer)
+ 			|| (pDeal->getFirstPlayer() == eOtherPlayer && pDeal->getSecondPlayer() == eThisPlayer))
+-		{
++		{	// <advc.087>
++			if(bExludeDual) {
++				bool bDual = true;
++				for(CLLNode<TradeData>* pNode = pDeal->headFirstTradesNode();
++						pNode != NULL; pNode = pDeal->nextFirstTradesNode(pNode)) {
++					if(!CvDeal::isDual(pNode->m_data.m_eItemType)) {
++						bDual = false;
++						break;
++					}
++				}
++				if(bDual) {
++					pDeal = GC.getGameINLINE().nextDeal(&iIndex);
++					continue;
++				}
++			} // </advc.087>
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(BULLET_CHAR)));
+ 			getDealString(szBuffer, *pDeal, eThisPlayer);
+@@ -17153,115 +17296,65 @@ void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer, PlayerTypes
+ 	}
+ }
+ 
+-void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+-{
+-	if (eThisPlayer == NO_PLAYER || eOtherPlayer == NO_PLAYER)
+-	{
++/*  advc.004: Merged into BULL's CvGameTextMgr::getOtherRelationsString that operates
++	on teams. Tbd.: Delete this once the BULL function is sufficiently tested. */
++/*void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
++		PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer) {
++	if(eThisPlayer == NO_PLAYER || eOtherPlayer == NO_PLAYER)
+ 		return;
+-	}
+-	CvPlayer& kThisPlayer = GET_PLAYER(eThisPlayer);
+-	CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI                         11/08/08                                jdog5000       */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
+-/* original code
+-	for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-	{
+-		CvTeamAI& kTeam = GET_TEAM((TeamTypes) iTeam);
+-		if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != kThisPlayer.getTeam() && iTeam != kOtherPlayer.getTeam())
+-		{
+-			if (kTeam.isHasMet(kOtherPlayer.getTeam()))
+-			{
+-				if (::atWar((TeamTypes) iTeam, kThisPlayer.getTeam()))
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", kTeam.getName().GetCString()));
+-				}
+-
+-				if (!kTeam.isHuman() && kTeam.AI_getWorstEnemy() == kThisPlayer.getTeam())
+-				{
+-					szString.append(NEWLINE);
+-					szString.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", kTeam.getName().GetCString()));
+-				}
+-			}
+-		}
+-	}
+-*/
++	CvPlayer const& kThisPlayer = GET_PLAYER(eThisPlayer);
++	CvPlayer const& kOtherPlayer = GET_PLAYER(eOtherPlayer);
++	// BETTER_BTS_AI, 11/08/08, jdog5000, START:
++	// original code (advc: deleted)
+ 	// Put all war, worst enemy strings on one line
+ 	CvWStringBuffer szWarWithString;
+ 	CvWStringBuffer szWorstEnemyString;
+ 	bool bFirst = true;
+ 	bool bFirst2 = true;
+-	for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-	{
+-		CvTeamAI& kTeam = GET_TEAM((TeamTypes) iTeam);
+-		//if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != kThisPlayer.getTeam() && iTeam != kOtherPlayer.getTeam())
+-		if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != kThisPlayer.getTeam()) // K-Mod. (show "at war" even for the civ selected.)
+-		{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       09/28/09                  EmperorFool & jdog5000      */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
+-/* original bts code
+-			if (kTeam.isHasMet(kOtherPlayer.getTeam()))
+-*/
+-			if (kTeam.isHasMet(kOtherPlayer.getTeam()) && kTeam.isHasMet(kThisPlayer.getTeam()) && kTeam.isHasMet(GC.getGameINLINE().getActiveTeam()))
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+-			{
+-				if (::atWar((TeamTypes) iTeam, kThisPlayer.getTeam()))
+-				{
+-					setListHelp(szWarWithString, L"", kTeam.getName().GetCString(), L", ", bFirst);
+-					bFirst = false;
+-				}
+-
+-				if ( !kTeam.isHuman() && kTeam.AI_getWorstEnemy() == kThisPlayer.getTeam() )
+-				{
+-					setListHelp(szWorstEnemyString, L"", kTeam.getName().GetCString(), L", ", bFirst2);
+-					bFirst2 = false;
+-				}
+-			}
++	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++		CvTeamAI const& kLoopTeam = GET_TEAM((TeamTypes)i);
++		if(!kLoopTeam.isAlive() || kLoopTeam.isMinorCiv() || i == kThisPlayer.getTeam())
++				// K-Mod. (show "at war" even for the civ selected.)
++				//|| i != kOtherPlayer.getTeam())
++			continue;
++		if(!kLoopTeam.isHasMet(kOtherPlayer.getTeam()) ||
++				!kLoopTeam.isHasMet(GC.getGameINLINE().getActiveTeam()))
++			continue;
++		// UNOFFICIAL_PATCH, 09/28/09, EmperorFool & jdog5000
++		if(!kLoopTeam.isHasMet(kThisPlayer.getTeam()))
++			continue; // UNOFFICIAL_PATCH: END
++		if(::atWar(kLoopTeam.getID(), kThisPlayer.getTeam())) {
++			setListHelp(szWarWithString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst);
++			bFirst = false;
++		}
++		if(!kLoopTeam.isHuman() && kLoopTeam.AI_getWorstEnemy() == kThisPlayer.getTeam()) {
++			setListHelp(szWorstEnemyString, L"", kLoopTeam.getName().GetCString(), L", ", bFirst2);
++			bFirst2 = false;
+ 		}
+ 	}
+-
+-	if( !szWorstEnemyString.isEmpty() )
+-	{
++	if(!szWorstEnemyString.isEmpty()) {
+ 		CvWString szTempBuffer;
+-
+ 		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString.getCString()));
+-
+ 		szString.append(NEWLINE);
+ 		szString.append(szTempBuffer);
+ 	}
+-	if( !szWarWithString.isEmpty() )
+-	{
++	if(!szWarWithString.isEmpty()) {
+ 		CvWString szTempBuffer;
+-
+ 		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
+-
+ 		szString.append(NEWLINE);
+ 		szString.append(szTempBuffer);
+-	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI                          END                                                   */
+-/************************************************************************************************/
+-}
++	} // BETTER_BTS_AI: END
++}*/
+ 
+ void CvGameTextMgr::buildHintsList(CvWStringBuffer& szBuffer)
+ {
+ 	/*  <avdc.008d> Hints are no longer guaranteed to be unique, and this is
+ 		bad when listing them in Civilopedia. Cleaner solution would be to keep
+ 		them unique in XML, but add a frequency tag. However, I don't think the
+-		code that shows hints while loading is in the SDK, so, this doesn't work,
++		code that shows hints while loading is in the SDK, so this doesn't work,
+ 		and the only way I see to affect the frequency is to define some hints
+ 		multiple times in XML. */
+-	/*  Hopefully this uses a decent hash function, but since it's only called
++	/*  Hopefully this uses a decent hash function, but, since it's only called
+ 		when opening the Hints section of Civilopedia, it doesn't really matter. */
+ 	std::set<CvWString> uniqueHints;
+ 	for(int i = 0; i < GC.getNumHints(); i++)
+@@ -17276,7 +17369,7 @@ void CvGameTextMgr::buildHintsList(CvWStringBuffer& szBuffer)
+ 	}
+ }
+ 
+-void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity& city, CommerceTypes eCommerceType)
++void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity const& city, CommerceTypes eCommerceType)
+ {
+ // BUG - Building Additional Commerce - start
+ 	bool bBuildingAdditionalCommerce = (getBugOptionBOOL("MiscHover__BuildingAdditionalCommerce", false)
+@@ -17519,7 +17612,7 @@ void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity& city, Com
+ // BUG - Building Additional Commerce - end
+ }
+ 
+-void CvGameTextMgr::setYieldHelp(CvWStringBuffer &szBuffer, CvCity& city, YieldTypes eYieldType)
++void CvGameTextMgr::setYieldHelp(CvWStringBuffer &szBuffer, CvCity const& city, YieldTypes eYieldType)
+ {
+ 	FAssertMsg(NO_PLAYER != city.getOwnerINLINE(), "City must have an owner");
+ 
+@@ -19675,6 +19768,359 @@ void CvGameTextMgr::getTradeScreenHeader(CvWString& szHeader, PlayerTypes ePlaye
+ 		szHeader += CvWString::format(L" (%s)", GC.getAttitudeInfo(kPlayer.AI_getAttitude(eOtherPlayer)).getDescription());
+ 	}
+ }
++// BULL - Finance Advisor - start
++void CvGameTextMgr::buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer) {
++
++	if(ePlayer == NO_PLAYER)
++		return;
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	int* iCounts = new int[GC.getNumSpecialistInfos()](); int foo;
++	for(CvCity* pCity = kPlayer.firstCity(&foo); pCity != NULL; pCity = kPlayer.nextCity(&foo)) {
++		if(!pCity->isDisorder()) {
++			for(int i = 0; i < GC.getNumSpecialistInfos(); i++) {
++				SpecialistTypes eSpecialist = (SpecialistTypes)i;
++				iCounts[i] += pCity->getSpecialistCount(eSpecialist) +
++						pCity->getFreeSpecialistCount(eSpecialist);
++			}
++		}
++	}
++	//bool bFirst = true; // advc.086
++	int iTotal = 0;
++	for(int i = 0; i < GC.getNumSpecialistInfos(); i++) {
++		SpecialistTypes eSpecialist = (SpecialistTypes)i;
++		int iGold = iCounts[i] * kPlayer.specialistCommerce(eSpecialist, COMMERCE_GOLD);
++		if(iGold != 0) {
++			/*if(bFirst) {
++				szBuffer.append(NEWLINE);
++				bFirst = false;
++			}*/
++			szBuffer.append(gDLL->getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_GOLD",
++					iGold, iCounts[i], GC.getSpecialistInfo(eSpecialist).getDescription()));
++			szBuffer.append(NEWLINE); // advc.086
++			iTotal += iGold;
++		}
++	}
++	szBuffer.append(gDLL->getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_TOTAL_GOLD", iTotal));
++	SAFE_DELETE_ARRAY(iCounts);
++}
++
++void CvGameTextMgr::buildDomesticTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer) {
++
++	//buildTradeString(szBuffer, ePlayer, NO_PLAYER, true, false, false);
++	// <advc.086> Replacing the above
++	if(ePlayer == NO_PLAYER)
++		return;
++	int foo1 = 0, foo2 = 0;
++	int iDomesticRoutes = 0, iDomesticYield = 0;
++	GET_PLAYER(ePlayer).calculateTradeTotals(YIELD_COMMERCE, iDomesticYield, iDomesticRoutes,
++			foo1, foo2, NO_PLAYER);
++	if(iDomesticRoutes > 1) {
++		szBuffer.assign(gDLL->getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_DOMESTIC_TRADE",
++				iDomesticYield, iDomesticRoutes));
++	} // </advc.086>
++}
++
++void CvGameTextMgr::buildForeignTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer) {
++
++	//buildTradeString(szBuffer, ePlayer, NO_PLAYER, false, true, false);
++	// <advc.086> Replacing the above
++	if(ePlayer == NO_PLAYER)
++		return;
++	int foo1 = 0, foo2 = 0;
++	int iForeignRoutes = 0, iForeignYield = 0;
++	GET_PLAYER(ePlayer).calculateTradeTotals(YIELD_COMMERCE, foo1, foo2, iForeignYield,
++			iForeignRoutes, NO_PLAYER);
++	if(iForeignRoutes > 1) {
++		szBuffer.assign(gDLL->getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_FOREIGN_TRADE",
++				iForeignYield, iForeignRoutes));
++	} // </advc.086>
++} // BULL - Finance Advisor - end
++// BULL - Trade Hover - start  // advc: style changes, _MOD_FRACTRADE removed
++void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer,
++		PlayerTypes eWithPlayer, bool bDomestic, bool bForeign, bool bHeading) {
++
++	if(ePlayer == NO_PLAYER)
++		return;
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	if(bHeading) {
++		if(ePlayer == eWithPlayer)
++			szBuffer.append(gDLL->getText("TXT_KEY_BUG_DOMESTIC_TRADE_HEADING"));
++		else if(eWithPlayer != NO_PLAYER) {
++			CvPlayer const& kWithPlayer = GET_PLAYER(eWithPlayer);
++			if(kPlayer.canHaveTradeRoutesWith(eWithPlayer)) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_FOREIGN_TRADE_HEADING",
++						// advc: 2nd param takes up too much room
++						kWithPlayer.getNameKey()/*, kWithPlayer.getCivilizationShortDescription()*/));
++			}
++			else {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_HEADING",
++						kWithPlayer.getNameKey()/*, kWithPlayer.getCivilizationShortDescription()*/));
++			}
++		}
++		else szBuffer.append(gDLL->getText("TXT_KEY_BUG_TRADE_HEADING"));
++		//szBuffer.append(NEWLINE); // advc.087: removed
++	}
++
++	if(eWithPlayer != NO_PLAYER) {
++		bDomestic = (ePlayer == eWithPlayer);
++		bForeign = (ePlayer != eWithPlayer);
++		if(bForeign && !kPlayer.canHaveTradeRoutesWith(eWithPlayer)) {
++			CvPlayer const& kWithPlayer = GET_PLAYER(eWithPlayer);
++			bool bCanTrade = true;
++			if(!kWithPlayer.isAlive()) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_DEAD"));
++				return;
++			}
++			if(!kPlayer.canTradeNetworkWith(eWithPlayer)) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_NETWORK_NOT_CONNECTED"));
++				bCanTrade = false;
++			}
++			if(!GET_TEAM(kPlayer.getTeam()).isFreeTrade(kWithPlayer.getTeam())) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_CLOSED_BORDERS"));
++				bCanTrade = false;
++			}
++			if(kPlayer.isNoForeignTrade()) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_YOU"));
++				bCanTrade = false;
++			}
++			if(kWithPlayer.isNoForeignTrade()) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_THEM"));
++				bCanTrade = false;
++			}
++			if (!bCanTrade)
++				return;
++		}
++	}
++	int iDomesticYield = 0;
++	int iDomesticRoutes = 0;
++	int iForeignYield = 0;
++	int iForeignRoutes = 0;
++	kPlayer.calculateTradeTotals(YIELD_COMMERCE, iDomesticYield, iDomesticRoutes,
++			iForeignYield, iForeignRoutes, eWithPlayer);
++	int iTotalYield = 0;
++	int iTotalRoutes = 0;
++	if(bDomestic) {
++		iTotalYield += iDomesticYield;
++		iTotalRoutes += iDomesticRoutes;
++	}
++	if(bForeign) {
++		iTotalYield += iForeignYield;
++		iTotalRoutes += iForeignRoutes;
++	}
++	CvWString szYield;
++	szYield.Format(L"%d", iTotalYield);
++	/*szBuffer.append(gDLL->getText("TXT_KEY_BUG_TOTAL_TRADE_YIELD", szYield.GetCString()));
++	szBuffer.append(gDLL->getText("TXT_KEY_BUG_TOTAL_TRADE_ROUTES", iTotalRoutes));
++	if(iTotalRoutes > 0) {
++		int iAverage = 100 * iTotalYield / iTotalRoutes;
++		CvWString szAverage;
++		szAverage.Format(L"%d.%02d", iAverage / 100, iAverage % 100);
++		szBuffer.append(gDLL->getText("TXT_KEY_BUG_AVERAGE_TRADE_YIELD", szAverage.GetCString()));
++	}*/
++	// <advc.086> Shorter:
++	szBuffer.append(NEWLINE);
++	szBuffer.append(gDLL->getText("TXT_KEY_BUG_COMMERCE_FROM_ROUTES", iTotalYield, iTotalRoutes));
++	// </advc.086>
++} // BULL - Trade Hover - end
++// BULL - Leaderhead Relations - start  // advc: style changes
++// Displays the relations between two leaders only. This is used by the F4:GLANCE and F5:SIT-REP tabs.
++void CvGameTextMgr::parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer,
++		PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer) {
++
++	if(eThisPlayer == NO_PLAYER)
++		return;
++	if(eOtherPlayer == NO_PLAYER) {
++		parseLeaderHeadHelp(szBuffer, eThisPlayer, NO_PLAYER);
++		return;
++	}
++	szBuffer.append(CvWString::format(L"%s", GET_PLAYER(eThisPlayer).getName()));
++	parsePlayerTraits(szBuffer, eThisPlayer);
++	//szBuffer.append(NEWLINE); // advc: removed
++	PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
++	TeamTypes eThisTeam = GET_PLAYER(eThisPlayer).getTeam();
++	CvTeam const& kThisTeam = GET_TEAM(eThisTeam);
++	if(eThisPlayer != eOtherPlayer && kThisTeam.isHasMet(TEAMID(eOtherPlayer))) {
++		// advc: K-Mod keeps this secret
++		//getEspionageString(szBuffer, eThisPlayer, eOtherPlayer);
++		getAttitudeString(szBuffer, eThisPlayer, eOtherPlayer);
++		getActiveDealsString(szBuffer, eThisPlayer, eOtherPlayer);
++		if(eOtherPlayer == eActivePlayer)
++			getActiveTeamRelationsString(szBuffer, eThisTeam);
++		else getOtherRelationsString(szBuffer, eThisPlayer, eOtherPlayer);
++	}
++	else getAllRelationsString(szBuffer, eThisTeam);
++} // BULL - Leaderhead Relations - end
++// BUG - Food Rate Hover - start
++/*
++	+14 from Worked Tiles
++	+2 from Specialists
++	+5 from Corporations
++	+1 from Buildings
++	----------------------- |
++	Base Food Produced: 22  |-- only if there are modifiers
++	+25% from Buildings     |
++	-----------------------
++	Total Food Produced: 27
++	=======================
++	+16 for Population
++	+2 for Health
++	-----------------------
++	Total Food Consumed: 18
++	=======================
++	Net Food: +9            or
++	Net Food for Settler: 9
++	=======================
++	* Lighthouse: +3
++	* Supermarket: +1
++*/
++void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity) {
++
++	CvYieldInfo const& kFood = GC.getYieldInfo(YIELD_FOOD);
++	bool bNeedSubtotal = false;
++	int iBaseRate = 0;
++	bool bSimple = true; // advc.087
++
++	// Worked Tiles
++	int iTileFood = 0;
++	for(int i = 0; i < NUM_CITY_PLOTS; i++) {
++		CvPlot* pPlot = kCity.getCityIndexPlot(i);
++		if(pPlot != NULL && kCity.isWorkingPlot(i))
++			iTileFood += pPlot->getYield(YIELD_FOOD);
++	}
++	if(iTileFood != 0) {
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_WORKED_TILES_YIELD",
++				iTileFood, kFood.getChar()));
++		iBaseRate += iTileFood;
++	}
++	// Trade
++	int iTradeFood = kCity.getTradeYield(YIELD_FOOD);
++	if(iTradeFood != 0) {
++		bSimple = false; // advc.087
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_SPECIALIST_COMMERCE",
++				iTradeFood, kFood.getChar(), L"TXT_KEY_HEADING_TRADEROUTE_LIST"));
++		iBaseRate += iTradeFood;
++		bNeedSubtotal = true;
++	}
++	// Specialists
++	int iSpecialistFood = 0;
++	for(int i = 0; i < GC.getNumSpecialistInfos(); i++) {
++		iSpecialistFood += GET_PLAYER(kCity.getOwnerINLINE()).specialistYield(
++				(SpecialistTypes)i, YIELD_FOOD) *
++				(kCity.getSpecialistCount((SpecialistTypes)i) +
++				kCity.getFreeSpecialistCount((SpecialistTypes)i));
++	}
++	if(iSpecialistFood != 0) {
++		bSimple = false; // advc.087
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_SPECIALIST_COMMERCE",
++				iSpecialistFood, kFood.getChar(), L"TXT_KEY_CONCEPT_SPECIALISTS"));
++		iBaseRate += iSpecialistFood;
++		bNeedSubtotal = true;
++	}
++	// Corporations
++	int iCorporationFood = kCity.getCorporationYield(YIELD_FOOD);
++	if(iCorporationFood != 0) {
++		bSimple = false; // advc.087
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_CORPORATION_COMMERCE",
++				iCorporationFood, kFood.getChar()));
++		iBaseRate += iCorporationFood;
++		bNeedSubtotal = true;
++	}
++	// Buildings
++	int iBuildingFood = 0;
++	for(int i = 0; i < GC.getNumBuildingInfos(); i++) {
++		int iCount = kCity.getNumActiveBuilding((BuildingTypes)i);
++		if(iCount > 0) {
++			CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)i);
++			iBuildingFood += iCount * (kBuilding.getYieldChange(YIELD_FOOD) +
++					kCity.getBuildingYieldChange((BuildingClassTypes)kBuilding.
++					getBuildingClassType(), YIELD_FOOD));
++		}
++	}
++	if(iBuildingFood != 0) {
++		bSimple = false; // advc.087
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_BUILDING_COMMERCE",
++				iBuildingFood, kFood.getChar()));
++		iBaseRate += iBuildingFood;
++		bNeedSubtotal = true;
++	}
++	// Base and modifiers (only if there are modifiers since total is always shown)
++	if(kCity.getBaseYieldRateModifier(YIELD_FOOD) != 100) {
++		bSimple = false; // advc.087
++		szBuffer.append(SEPARATOR);
++		szBuffer.append(NEWLINE);
++		setYieldHelp(szBuffer, kCity, YIELD_FOOD); // shows Base Food and lists all modifiers
++	}
++	else szBuffer.append(NEWLINE);
++	// Total Produced
++	int iBaseModifier = kCity.getBaseYieldRateModifier(YIELD_FOOD);
++	int iRate = iBaseRate;
++	if(iBaseModifier != 100) {
++		bSimple = false; // advc.087
++		iRate *= iBaseModifier;
++		iRate /= 100;
++	}
++	szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_TOTAL_FOOD_PRODUCED", iRate));
++	// ==========================
++	szBuffer.append(DOUBLE_SEPARATOR);
++
++	int iFoodConsumed = 0; // Eaten
++	int iEatenFood = kCity.getPopulation() * GC.getFOOD_CONSUMPTION_PER_POPULATION();
++	if(iEatenFood != 0) {
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_EATEN_FOOD", iEatenFood));
++		iFoodConsumed += iEatenFood;
++	}
++	// Health
++	int iSpoiledFood = - kCity.healthRate();
++	if (iSpoiledFood != 0) {
++		bSimple = false; // advc.087
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_SPOILED_FOOD", iSpoiledFood));
++		iFoodConsumed += iSpoiledFood;
++	}
++	// Total Consumed
++	szBuffer.append(NEWLINE);
++	szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_TOTAL_FOOD_CONSUMED", iFoodConsumed));
++	// ==========================
++	szBuffer.append(DOUBLE_SEPARATOR NEWLINE);
++	iRate -= iFoodConsumed;
++	// Production
++	if(kCity.isFoodProduction() && iRate > 0) {
++		//bSimple = false; // advc.087
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_NET_FOOD_PRODUCTION",
++				iRate, kCity.getProductionNameKey()));
++	}
++	else {
++		// cannot starve a size 1 city with no food in
++		if(iRate < 0 && kCity.getPopulation() == 1 && kCity.getFood() == 0) {
++			bSimple = false; // advc.087
++			iRate = 0;
++		} // <advc.087>
++		if(bSimple) { // Overwrite all the text appended so far
++			szBuffer.assign(gDLL->getText("TXT_KEY_MISC_HELP_WORKED_TILES_EATEN",
++					iTileFood, iEatenFood));
++			szBuffer.append(SEPARATOR);
++			szBuffer.append(NEWLINE);
++		} // </advc.087>
++		// Net Food
++		if(iRate > 0)
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_NET_FOOD_GROW", iRate));
++		else if (iRate < 0)
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_NET_FOOD_SHRINK", iRate));
++		else szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_NET_FOOD_STAGNATE"));
++	}
++	// BULL - Building Additional Food - start
++	if(kCity.getOwnerINLINE() == GC.getGame().getActivePlayer() &&
++			(getBugOptionBOOL("MiscHover__BuildingAdditionalFood", false) ||
++			GC.altKey())) {
++		// ==========================
++		setBuildingAdditionalYieldHelp(szBuffer, kCity, YIELD_FOOD, DOUBLE_SEPARATOR);
++	} // BULL - Building Additional Food - end
++} // BULL - Food Rate Hover - end
+ 
+ void CvGameTextMgr::getGlobeLayerName(GlobeLayerTypes eType, int iOption, CvWString& strName)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 3a4a49936..df09952ad 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -144,9 +144,9 @@ public:
+ 	bool setBuildingAdditionalCommerceHelp(CvWStringBuffer &szBuffer, const CvCity& city, CommerceTypes eIndex, const CvWString& szStart, bool bStarted = false);
+ 	bool setBuildingSavedMaintenanceHelp(CvWStringBuffer &szBuffer, const CvCity& city, const CvWString& szStart, bool bStarted = false);
+ // BUG - Building Additional info - end
+-	void setProductionHelp(CvWStringBuffer &szBuffer, CvCity& city);
+-	void setCommerceHelp(CvWStringBuffer &szBuffer, CvCity& city, CommerceTypes eCommerceType);
+-	void setYieldHelp(CvWStringBuffer &szBuffer, CvCity& city, YieldTypes eYieldType);
++	void setProductionHelp(CvWStringBuffer &szBuffer, CvCity const& City);  // advc.003: const city in this function and the next 2
++	void setCommerceHelp(CvWStringBuffer &szBuffer, CvCity const& city, CommerceTypes eCommerceType);
++	void setYieldHelp(CvWStringBuffer &szBuffer, CvCity const& city, YieldTypes eYieldType);
+ 	void setConvertHelp(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, ReligionTypes eReligion);
+ 	void setRevolutionHelp(CvWStringBuffer& szBuffer, PlayerTypes ePlayer);
+ 	void setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMaster, TeamTypes eVassal);
+@@ -225,7 +225,8 @@ public:
+ 			bool bCancel = false); // advc.004w
+ 	void getDealString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer1, PlayerTypes ePlayer2, const CLinkList<TradeData>* pListPlayer1, const CLinkList<TradeData>* pListPlayer2, PlayerTypes ePlayerPerspective = NO_PLAYER,
+ 			int turnsToCancel = -1); // advc.004w
+-	void getActiveDealsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
++	void getActiveDealsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer,
++			bool bExcludeDual = false); // advc.087
+ 	void getOtherRelationsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
+ 
+ 	void buildFinanceInflationString(CvWStringBuffer& szDetails, PlayerTypes ePlayer);
+@@ -238,7 +239,21 @@ public:
+ 	DllExport void getTradeScreenTitleIcon(CvString& szButton, CvWidgetDataStruct& widgetData, PlayerTypes ePlayer);
+ 	DllExport void getTradeScreenIcons(std::vector< std::pair<CvString, CvWidgetDataStruct> >& aIconInfos, PlayerTypes ePlayer);
+ 	DllExport void getTradeScreenHeader(CvWString& szHeader, PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bAttitude);
+-
++	// BULL - Finance Advisor - start
++	void buildDomesticTradeString(CvWStringBuffer& szDetails, PlayerTypes ePlayer);
++	void buildForeignTradeString(CvWStringBuffer& szDetails, PlayerTypes ePlayer);
++	void buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer);
++	// BULL - Finance Advisor - end  // BULL - Trade Hover - start
++	void buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer,
++			PlayerTypes eWithPlayer = NO_PLAYER, bool bDomestic = true,
++			bool bForeign = true, bool bHeading = true);
++	// BULL - Trade Hover - end
++	// BULL - Leaderhead Relations - start
++	void parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer,
++			PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
++	// BULL - Leaderhead Relations - end
++	// BULL - Food Rate Hover:
++	void setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
+ 	DllExport void getGlobeLayerName(GlobeLayerTypes eType, int iOption, CvWString& strName);
+ 
+ 	DllExport void getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp);
+@@ -272,7 +287,12 @@ private:
+ 	void eventGoldHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
+ 
+ 	std::vector<int*> m_apbPromotion;
+-
++	// BULL - Leaderhead Relations - start  // advc: private
++	void getAllRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam);
++	void getActiveTeamRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam);
++	void getOtherRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam,
++			TeamTypes eOtherTeam, TeamTypes eSkipTeam);
++	// BULL - Leaderhead Relations - end
+ 	//void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCity* pCity, int iIndex, bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood = false);
+ 	void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCity* pCity, int iIndex, bool bIgnoreFood, int iGrowthValue);
+ 	void setYieldValueString(CvWStringBuffer &szString, int iValue, bool bActive = false, bool bMakeWhitespace = false);
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 9062b43ec..8b717f14a 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -252,9 +252,9 @@ public: // advc.003: const added to several functions
+ 		return findCity(iX, iY, eOwner, eTeam, bSameArea, bCoastalOnly,
+ 				eTeamAtWarWith, eDirection, pSkipCity, NO_TEAM);
+ 	}
+-	CvCity* findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam,
+-			bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith,
+-			DirectionTypes eDirection, CvCity* pSkipCity, TeamTypes observer) const;
++	CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM,
++			bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM,
++			DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL, TeamTypes observer = NO_TEAM) const;
+ 	// </advc.004r>
+ 	CvSelectionGroup* findSelectionGroup(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, bool bReadyToSelect = false, bool bWorkers = false) const;				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c757b2290..0714432ce 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -761,6 +761,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iNewMessages = 0; // advc.106b
+ 	m_bAutoPlayJustEnded = false; // advc.127
+ 	m_bSavingReplay = false; // advc.106i
++	m_bScoreboardExpanded = false; // advc.085
+ 	m_eReminderPending = NO_CIVIC; // advc.004x
+ 
+ 	m_eID = eID;
+@@ -1987,7 +1988,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 	if (getStartingPlot() != NULL)
+ 	{
+ 		//iBestArea = getStartingPlot()->getArea(); // dlph.35:
+-		areas_by_value.push_back(std::make_pair(getStartingPlot()->getArea(), 0));
++		areas_by_value.push_back(std::make_pair(getStartingPlot()->getArea(), 1));
+ 		setStartingPlot(NULL, true);
+ 		bNew = true;
+ 	}
+@@ -16381,12 +16382,12 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 
+ 	if (kMission.getBuyTechCostFactor() > 0)
+ 	{
+-		int iTech = iExtraData;
+-
+-		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_TECH_BOUGHT", GC.getTechInfo((TechTypes) iTech).getDescription()).GetCString();
+-		GET_TEAM(getTeam()).setHasTech((TechTypes) iTech, true, getID(), false, true);
+-		GET_TEAM(getTeam()).setNoTradeTech((TechTypes)iTech, true);
+-
++		TechTypes eTech = (TechTypes)iExtraData;
++		szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_TECH_BOUGHT",
++				GC.getTechInfo(eTech).getDescription()).GetCString();
++		GET_TEAM(getTeam()).setHasTech(eTech, true, getID(), false, true);
++		if(isSignificantDiscovery(eTech)) // advc.550e
++			GET_TEAM(getTeam()).setNoTradeTech(eTech, true);
+ 		bSomethingHappened = true;
+ 	}
+ 
+@@ -22241,13 +22242,14 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 		CvTeam& kNewTeam = GET_TEAM(GET_PLAYER(eNewPlayer).getTeam());
+ 		for (int i = 0; i < GC.getNumTechInfos(); ++i)
+ 		{
+-			if (GET_TEAM(getTeam()).isHasTech((TechTypes)i))
++			TechTypes eLoopTech = (TechTypes)i;
++			if (GET_TEAM(getTeam()).isHasTech(eLoopTech))
+ 			{
+-				kNewTeam.setHasTech((TechTypes)i, true, eNewPlayer, false, false);
+-				if (GET_TEAM(getTeam()).isNoTradeTech((TechTypes)i) || GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_BROKERING))
+-				{
+-					kNewTeam.setNoTradeTech((TechTypes)i, true);
+-				}
++				kNewTeam.setHasTech(eLoopTech, true, eNewPlayer, false, false);
++				if (GET_TEAM(getTeam()).isNoTradeTech(eLoopTech) ||
++						(GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_BROKERING)
++						&& isSignificantDiscovery(eLoopTech))) // advc.550e
++					kNewTeam.setNoTradeTech(eLoopTech, true);
+ 			}
+ 		}
+ 		// dlph.24: Commented out
+@@ -23542,6 +23544,40 @@ UnitTypes CvPlayer::getTechFreeUnit(TechTypes eTech) const
+ 	return eUnit;
+ }
+ 
++// BULL - Trade Hover - start  // advc: style changes, _MOD_FRACTRADE removed
++/*  Adds the yield and count for each trade route with eWithPlayer to the
++	int references (out parameters). */
++void CvPlayer::calculateTradeTotals(YieldTypes eIndex,
++		int& iDomesticYield, int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes,
++		PlayerTypes eWithPlayer) const {
++
++	int foo;
++	for(CvCity* pCity = firstCity(&foo); NULL != pCity; pCity = nextCity(&foo)) {
++		pCity->calculateTradeTotals(eIndex, iDomesticYield, iDomesticRoutes,
++				iForeignYield, iForeignRoutes, eWithPlayer);
++	}
++} // BULL - Trade Hover - end
++
++// <advc.085>
++void CvPlayer::setScoreboardExpanded(bool b) {
++
++	m_bScoreboardExpanded = b;
++	if(b) {
++		FAssert(getBugOptionBOOL("Scores__AlignIcons", true));
++		if(getBugOptionBOOL("Scores__ExpandOnHover", false))
++			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++	}
++	/*  If !b, then it doesn't help to dirty it b/c the update is still in progress
++		(when called from Python). */
++	else GC.getGameINLINE().setScoreboardDirtyOnUpdate();
++}
++
++
++bool CvPlayer::isScoreboardExpanded() const {
++
++	return m_bScoreboardExpanded;
++} // </advc.085>
++
+ 
+ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourList) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 7eb0f7242..cb546e2ab 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1127,7 +1127,11 @@ public:
+ 
+ 	void verifyUnitStacksValid();
+ 	UnitTypes getTechFreeUnit(TechTypes eTech) const;
+-	
++	// BULL - Trade Hover - start
++	void calculateTradeTotals(YieldTypes eIndex, int& iDomesticYield,
++			int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes,
++			PlayerTypes eWithPlayer = NO_PLAYER) const;
++	// BULL - Trade Hover - end
+ 	void checkAlert(int alertId, bool bSilent); // advc.210
+ 	// advc.104, advc.038, advc.132; exposed to Python.
+ 	double estimateYieldRate(YieldTypes yield, int iSamples = 5) const;
+@@ -1144,7 +1148,10 @@ public:
+ 		//return *static_cast<CvPlayerAI const*>(this);
+ 		return *reinterpret_cast<CvPlayerAI const*>(this);
+ 	} // </advc.003>
+-
++	// <advc.085> (both exposed to Python)
++	void setScoreboardExpanded(bool b);
++	bool isScoreboardExpanded() const;
++	// </advc.085>
+ 	DllExport void buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourList) const;
+ 	DllExport bool getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem, CvWString& szString, CvString& szIcon) const;
+ 	DllExport bool getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bShowingCurrent, const TradeData& zTradeData, CvWString& szString, CvString& szIcon) const;
+@@ -1343,6 +1350,7 @@ protected:
+ 	int m_iPopRushHurryCount;
+ 	int m_iGoldRushHurryCount; // advc.064b
+ 	int m_iInflationModifier;
++	int m_iChoosingFreeTechCount; // K-Mod (based on the 'Unofficial Patch'
+ 
+ 	uint m_uiStartTime;  // XXX save these?
+ 
+@@ -1357,19 +1365,12 @@ protected:
+ 	bool m_bAnyGPPEver; // advc.078
+ 	bool m_bStrike;
+ 	bool m_bHuman;
+-
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        09/01/07                            MRGENIE          */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
++	// AI_AUTO_PLAY_MOD, 09/01/07, MRGENIE: START
+ 	bool m_bDisableHuman;				// Set to true to disable isHuman() check
+ 	bool m_bAutoPlayJustEnded; // advc.127
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        END                                                  */
+-/************************************************************************************************/
++	// AI_AUTO_PLAY_MOD: END
+ 	bool m_bSavingReplay; // advc.106i
+-	int m_iChoosingFreeTechCount; // K-Mod (based on the 'Unofficial Patch'
++	bool m_bScoreboardExpanded; // advc.085
+ 
+ 	LeaderHeadTypes m_ePersonalityType;
+ 	EraTypes m_eCurrentEra;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 78d401316..6f715af4b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4945,7 +4945,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ 			}
+ 		}
+ 	}
+-	CvMap& m = GC.getMapINLINE();
++	CvMap const& m = GC.getMapINLINE();
+ 	CvCity* pNearestCity = m.findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), getID());
+ 	if (pNearestCity != NULL)
+ 	{
+@@ -18456,7 +18456,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				// K-Mod - both offensive & defensive use of spread culture mission. (The first "if" is really just for effeciency.)
+ 				if (pCity->calculateCulturePercent(getID()) >= 8)
+ 				{
+-					CvMap& m = GC.getMapINLINE(); // advc.003
++					CvMap const& m = GC.getMapINLINE(); // advc.003
+ 					const CvCity* pOurClosestCity = m.findCity(pPlot->getX(), pPlot->getY(), getID());
+ 					if (pOurClosestCity != NULL)
+ 					{
+@@ -26544,7 +26544,7 @@ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc.003: style change
+ 	if(pCurrentStart != NULL && getAdvancedStartCityCost(true, pCurrentStart) > 0)
+ 		return pCurrentStart;*/ // </dlph.35>
+ 	// advc: However, I don't want to make that change for now.
+-	CvMap& m = GC.getMapINLINE();
++	CvMap const& m = GC.getMapINLINE();
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = -1;
+ 	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 0a55e9c0e..9c1079a80 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -7399,7 +7399,8 @@ void CvTeam::updateTechShare(TechTypes eTech)
+ 		if (iCount >= iBestShare)
+ 		{
+ 			setHasTech(eTech, true, NO_PLAYER, true, true);
+-			setNoTradeTech(eTech, true); // dlph.31
++			if(GET_PLAYER(getLeaderID()).isSignificantDiscovery(eTech)) // advc.550e
++				setNoTradeTech(eTech, true); // dlph.31
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d586981df..26bd5531c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5542,7 +5542,7 @@ void CvUnit::blockadeRange(std::vector<CvPlot*>& r, int iExtra) const {
+ 			int iPathDist =
+ 					//GC.getMapINLINE().calculatePathDistance(plot(), pLoopPlot);
+ 					/*  <advc.033> Faster (iMaxPath), but probably doesn't fix the
+-						issue described below b/c still uses CvDLLFAStarIFaceBase. */
++						issue described below b/c still uses FAStar. */
+ 					plot()->calculatePathDistanceToPlot(BARBARIAN_TEAM, pLoopPlot,
+ 					BARBARIAN_TEAM, bImpassables ? DOMAIN_IMMOBILE : getDomainType(),
+ 					iRange + iExtra); // </advc.033>
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 19cf0ce74..b0d4a9c04 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -408,6 +408,16 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_PEDIA_JUMP_TO_BONUS_TRADE", WIDGET_PEDIA_JUMP_TO_BONUS_TRADE)
+ 		.value("WIDGET_PEDIA_JUMP_TO_TECH_TRADE", WIDGET_PEDIA_JUMP_TO_TECH_TRADE)
+ 		// BULL - Trade Denial - end
++		.value("WIDGET_TRADE_ROUTES", WIDGET_TRADE_ROUTES) // BULL - Trade Hover - start
++		// BULL - Finance Advisor - start
++		.value("WIDGET_HELP_FINANCE_DOMESTIC_TRADE", WIDGET_HELP_FINANCE_DOMESTIC_TRADE)
++		.value("WIDGET_HELP_FINANCE_FOREIGN_TRADE", WIDGET_HELP_FINANCE_FOREIGN_TRADE)
++		.value("WIDGET_HELP_FINANCE_SPECIALISTS", WIDGET_HELP_FINANCE_SPECIALISTS)
++		// BULL - Finance Advisor - end
++		// BULL - Leaderhead Relations:
++		.value("WIDGET_LEADERHEAD_RELATIONS", WIDGET_LEADERHEAD_RELATIONS)
++		// BULL - Food Rate Hover:
++		.value("WIDGET_FOOD_MOD_HELP", WIDGET_FOOD_MOD_HELP)
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+ /*
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index ff55a2110..957850ed9 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -2363,3 +2363,17 @@ int CyPlayer::AI_corporationBonusVal(int eBonus) const {
+ 		instead. */
+ 	return dynamic_cast<CvPlayerAI*>(m_pPlayer)->AI_corporationBonusVal((BonusTypes)eBonus);
+ } // </advc.210e>
++
++// <advc.085>
++void CyPlayer::setScoreboardExpanded(bool b) {
++
++	if(m_pPlayer != NULL)
++		m_pPlayer->setScoreboardExpanded(b);
++}
++
++bool CyPlayer::isScoreboardExpanded() const {
++
++	if(m_pPlayer == NULL)
++		return false;
++	return m_pPlayer->isScoreboardExpanded();
++} // </advc.085>
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 4ddf9b314..fdcea7425 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -528,6 +528,9 @@ public:
+ 	int estimateYieldRate(YieldTypes yield) const;
+ 	void checkAlert(int alertId, bool silent); // advc.210
+ 	int AI_corporationBonusVal(int eBonus) const; // advc.210e, advc.073
++	// <advc.085>
++	void setScoreboardExpanded(bool b);
++	bool isScoreboardExpanded() const; // </advc.085>
+ 
+ private:
+ 	CvPlayer* m_pPlayer;
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index c14c2dc73..dd008456d 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -67,5 +67,9 @@ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x)
+ 		.def("checkAlert", &CyPlayer::checkAlert, "void (int alertId, bool silent)")
+ 		// advc.210e:
+ 		.def("AI_corporationBonusVal", &CyPlayer::AI_corporationBonusVal, "int (int)")
++		// <advc.085>
++		.def("setScoreboardExpanded", &CyPlayer::setScoreboardExpanded, "void (bool)")
++		.def("isScoreboardExpanded", &CyPlayer::isScoreboardExpanded, "bool (void)")
++		// </advc.085>
+ 		;
+ }
+
+[PATCH OMITTED] file=a/manual_0.95b.odt b/manual_0.95c.odt reason=binary/generated-file changedLines=0 bytes=221
+
+[PATCH COVERAGE]
+patchFiles=34 embeddedFiles=33 omittedFiles=1 embeddedPatchBytes=158932

@@ -1,0 +1,157 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5536
+# Commit: 0c57c4b98799e458daf316fdc66bfff94dcc7bff
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9c2dfd6af33d5cb1e3fba85f4ff58e9c3a5eb55f
+# Title: refactor and add SASTextScale.py
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+35	0	Assets/Python/SASTextScale.py
+7	15	Assets/Python/Screens/CvInfoScreen.py
+4	11	Assets/Python/Screens/CvVictoryScreen.py
+ create mode 100644 Assets/Python/SASTextScale.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASTextScale.py b/Assets/Python/SASTextScale.py
+new file mode 100644
+index 000000000..55084d7d4
+--- /dev/null
++++ b/Assets/Python/SASTextScale.py
+@@ -0,0 +1,35 @@
++from SASFontUtils import SAS_FONT_TAG_CLOSE
++
++
++def applyFontTag(szText, szTag):
++	if szText is None:
++		return szText
++	if szText == "":
++		return szText
++	try:
++		szUnicode = unicode(szText)
++	except:
++		return szText
++	if szUnicode.find(u"<font=") != -1:
++		return szUnicode
++	return szTag + szUnicode + SAS_FONT_TAG_CLOSE
++
++
++def setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
++	screen.setTableText(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
++
++
++def setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
++	screen.setTableInt(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
++
++
++def setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, szTag):
++	screen.setTableColumnHeader(szTable, iCol, applyFontTag(szText, szTag), iWidth)
++
++
++def appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, szTag):
++	screen.appendListBoxString(szWidgetName, applyFontTag(szText, szTag), eWidgetType, iData1, iData2, eJustify)
++
++
++def appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, szTag):
++	screen.appendListBoxStringNoUpdate(szWidgetName, applyFontTag(szText, szTag), eWidgetType, iData1, iData2, eJustify)
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 443687ac8..2f002ff69 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -23,6 +23,7 @@ import re
+ from PyHelpers import PyPlayer
+ from SASUtils import *
+ from SASFontUtils import *
++import SASTextScale
+ 
+ # <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
+ import Scoreboard
+@@ -856,31 +857,22 @@ class CvInfoScreen:
+ 		screen.hideScreen()
+ 
+ 	def scaleBodyText(self, szText):
+-		if szText is None:
+-			return szText
+-		if szText == "":
+-			return szText
+-		try:
+-			if szText.find("<font=") != -1:
+-				return szText
+-		except:
+-			return szText
+-		return SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
++		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_BODY)
+ 
+ 	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+-		screen.setTableText(szTable, iCol, iRow, self.scaleBodyText(szText), szIcon, eWidgetType, iData1, iData2, eJustify)
++		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+ 
+ 	def setTableIntScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+-		screen.setTableInt(szTable, iCol, iRow, self.scaleBodyText(szText), szIcon, eWidgetType, iData1, iData2, eJustify)
++		SASTextScale.setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+ 
+ 	def setTableColumnHeaderScaled(self, screen, szTable, iCol, szText, iWidth):
+-		screen.setTableColumnHeader(szTable, iCol, self.scaleBodyText(szText), iWidth)
++		SASTextScale.setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_BODY)
+ 
+ 	def appendListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+-		screen.appendListBoxString(szWidgetName, self.scaleBodyText(szText), eWidgetType, iData1, iData2, eJustify)
++		SASTextScale.appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+ 
+ 	def appendListBoxStringNoUpdateScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+-		screen.appendListBoxStringNoUpdate(szWidgetName, self.scaleBodyText(szText), eWidgetType, iData1, iData2, eJustify)
++		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+ 
+ 	def getLastTurn(self):
+ 		return (gc.getGame().getReplayMessageTurn(gc.getGame().getNumReplayMessages()-1))
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index c5e825af1..335d0c409 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -21,6 +21,7 @@ import GameUtil
+ import PlayerUtil
+ import TechUtil
+ from SASFontUtils import *
++import SASTextScale
+ # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
+ import TraitUtil
+ 
+@@ -254,21 +255,13 @@ class CvVictoryScreen:
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+ 
+ 	def scaleLabelText(self, szText):
+-		if szText is None:
+-			return szText
+-		try:
+-			szUnicode = unicode(szText)
+-		except:
+-			return szText
+-		if szUnicode.find(u"<font=") != -1:
+-			return szUnicode
+-		return SAS_FONT_TAG_LABEL + szUnicode + SAS_FONT_TAG_CLOSE
++		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_LABEL)
+ 
+ 	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify):
+-		screen.setTableText(szTable, iCol, iRow, self.scaleLabelText(szText), szButton, eWidget, iData1, iData2, eJustify)
++		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+ 
+ 	def appendListBoxStringNoUpdateScaled(self, screen, szTable, szText, eWidget, iData1, iData2, eJustify):
+-		screen.appendListBoxStringNoUpdate(szTable, self.scaleLabelText(szText), eWidget, iData1, iData2, eJustify)
++		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szTable, szText, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+ 
+ 	def hideScreen(self):
+ 		screen = self.getScreen()
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6018

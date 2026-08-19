@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5056
+# Commit: b3f3c120273321231ea71afa329969521dbd7195
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b8c861af13f28c070022e1bcca3c48e6040bc174
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+6	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index e7cb6444c..d7ec799b8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -264,7 +264,7 @@ git push --force origin "$TAG"
+ # git push origin "$TAG"
+ ```
+ 
+-##### example 3 with more advanced version anyways etc (totally not shameless but anyways etc (or yes xd in this case i mean but anyways etc))
++##### example 3 with more advanced version anyways etc (totally not shameless but anyways etc (or yes xd in this case i mean but anyways etc)) (but it might also help as well hopefully or not hopefully or yes or etc but anyways etc)
+ 
+ ```cmd
+ git fetch origin
+@@ -272,7 +272,7 @@ git fetch origin
+ # choose names
+ # new tag
+ TAG=5055
+-SHA=   # <- the 5055 commit
++SHA=b8c861af13f28c070022e1bcca3c48e6040bc174  # <- the 5055 commit
+ OLDNAME="AdvCiv-SAS 5030"                      # quote because of spaces
+ BASE=e3ecaf41449b5a4415d3a98ff0c68c0d0ccd7738
+ WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+index 5885ef7a1..54d69ea40 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+@@ -304,7 +304,7 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
+ | Boudica | Charismatic, Aggressive | **Keep** | War leader rallying tribes; morale + offense. |
+ | Brennus | Spiritual, Charismatic | **Keep** | Druidic authority + chieftain charisma. |
+ | Catherine | Creative, Imperialist | **Philosophical, Imperialist** | Enlightened despot: corresponded with Voltaire/Diderot, issued the Nakaz, pushed legal/educational reform—more thinker-ruler than pure arts patron. Philosophical = ideas shaping policy. Catherine is the poster child for Enlightened absolutism: the Nakaz (Instruction), legal/education reforms, heavy engagement with Voltaire/Diderot, commissions on law and schooling. Her brand is “rules by ideas.”. Creative = culture output/patronage. She absolutely patronized the arts (Hermitage, theatre), but that was a means to an ideological/modernizing end, not her core identity. If you want to signal culture yields in gameplay, Creative is fine; historically, it’s secondary to her policymaking. |
+-| Charlemagne | Imperialist, Protective | **Aggressive, Organized** | Empire via conquest and capitularies/marches/missi dominici. Less settler/colonial growth; more “fight + administer.” Dropping Imperialist narrows the tag to true expansion engines. <!-- custom: note: this is more controversial/debatable according to chatgpt 5, but i hope it is accurate enough. As for ingame behaviour, he seems to perform nice in some games so i hope this helps mesh better with his more aggressive overall civ4 profile if i'm not mistaken but anyways etc. --> |
++| Charlemagne | Imperialist, Protective | **Aggressive, Organized** | Empire via conquest and capitularies/marches/missi dominici. Less settler/colonial growth; more “fight + administer.” Dropping Imperialist narrows the tag to true expansion engines. `<!-- custom: note: this is more controversial/debatable according to chatgpt 5, but i hope it is accurate enough. As for ingame behaviour, he seems to perform nice in some games so i hope this helps mesh better with his more aggressive overall civ4 profile if i'm not mistaken but anyways etc. -->` |
+ | Churchill | Charismatic, Protective | **Keep** | Wartime morale + defensive strategy. |
+ | Cyrus | Charismatic, Imperialist | **Keep** | Founder of vast empire; tolerant unifier. |
+ | Darius | Organized, Financial | **Keep** | Satrapies/roads/taxation; efficient and wealthy. |
+@@ -317,17 +317,17 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
+ | Gilgamesh | Protective, Creative | **Keep** | Walls/city defense + epic/civic culture. |
+ | Hammurabi | Organized, Aggressive | **Organized, Protective** | Lawgiver/city-builder; warfare largely pragmatic/defensive. |
+ | Hannibal | Financial, Charismatic | **Keep** | Hallmark = operational genius + multi-ethnic army cohesion and Italian defections after Cannae. More “inspire & outmaneuver” than brute-force brutality. Charismatic still supports a war playstyle (cheaper promos) without the raw smash of Aggressive; Financial keeps Carthaginian commerce. |
+-| Hatshepsut | Spiritual, Creative | **Spiritual, Financial** | Iconic Punt expedition + trade-focused reign; commerce funded temples/works. Her identity reads more “trade & temple economy” than “arts output.” <!-- custom: also will most likely buff her if i'm not mistaken, which is nice i think if i may say but anyways etc --> |
++| Hatshepsut | Spiritual, Creative | **Spiritual, Financial** | Iconic Punt expedition + trade-focused reign; commerce funded temples/works. Her identity reads more “trade & temple economy” than “arts output.” `<!-- custom: also will most likely buff her if i'm not mistaken, which is nice i think if i may say but anyways etc -->` |
+ | Huayna Capac | Industrious, Financial | **Industrious, Organized** | Inca economy was state-planned and labor-tax (mit’a), not money/market-driven. “Organized” fits roads, storehouses, and redistribution much better than “Financial.” |
+ | Isabella | Spiritual, Expansive | **Spiritual, Aggressive** | Militant piety + ruthless campaigns; reads truer than “Imperialist.” |
+ | Joao | Imperialist, Expansive | **Imperialist, Financial** | Maritime commerce + colonial charters; cleaner than Expansive overlap. |
+-| Julius Caesar | Organized, Imperialist | **Aggressive, Imperialist** | Primary identity = conqueror (Gaul, Civil War). Keep Imperialist for expansion; swap in Aggressive to reflect operational boldness. <!-- custom: plus matches with xml profile of aggression and thematic epicness if i may say and if i am not mistaken but anyways etc --> |
++| Julius Caesar | Organized, Imperialist | **Aggressive, Imperialist** | Primary identity = conqueror (Gaul, Civil War). Keep Imperialist for expansion; swap in Aggressive to reflect operational boldness. `<!-- custom: plus matches with xml profile of aggression and thematic epicness if i may say and if i am not mistaken but anyways etc -->` |
+ | Justinian | Spiritual, Imperialist | **Philosophical, Industrious** | Big reconquests (Africa, Italy, S. Hispania) + colossal building + Corpus Juris Civilis are uncontested. Critics say the reconquest wars/taxation left the state overextended and then the Justinianic Plague hit hard; newer work debates how devastating the plague really was. Net: “restorer & codifier,” but also “overstretched the empire.”. Less “Spiritual,” more “Legal/Scholar + Empire-builder.”. Reconquests ≠ colonization. His lasting mark is legal/intellectual codification + mega building (Hagia Sophia, fortifications), not founding/settler-driven growth. |
+ | Kublai Khan | Aggressive, Creative | **Imperialist, Creative** | Completed the Song conquest and pursued large overseas campaigns (Japan, Đại Việt/Champa, Burma, Java). Emphasize empire-building/expansion over personal ferocity; keep Creative for patronage/tolerance. |
+ | Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
+ | Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
+ | Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
+-| Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more “Aggressive” than “cheap administration.” Protective still captures internal security/defense posture. <!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him i mean in this case i mean if i may say but anyways etc --> |
++| Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more “Aggressive” than “cheap administration.” Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him i mean in this case i mean if i may say but anyways etc -->` |
+ | Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); “The Conqueror” leans warlike more than “efficient administration.” |
+ | Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
+ | Napoleon | Organized, Charismatic | **Imperialist, Charismatic** | Signature is conquest + continental empire (client states, annexations). He *did* codify/administer, but his core identity isn’t “low-upkeep governance”—it’s expansion + leadership aura. |
+@@ -342,9 +342,9 @@ This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/C
+ | Shaka | Aggressive, Expansive | **Aggressive, Organized** | Fits Ikhanda-style admin — “charismatic” in Civ terms can imply inspirational popularity; historically he ruled more by fear/discipline. Your pick Aggressive, Organized is perfect (impi/regimental system + logistics). I wouldn’t use Charismatic here. |
+ | Sitting Bull | Philosophical, Protective | **Keep** | Visionary/teacher + defensive resistance. |
+ | Stalin | Industrious, Aggressive | **Keep** | Forced industrialization + ruthless offensives. |
+-| Suleiman | Imperialist, Philosophical | **Keep** | “Lawgiver” persona + patronage of learning fits Philosophical better than Spiritual for gameplay and history; keeps imperial scope. <!-- custom: plus if i remember enough i read he was quite areligious or religious open no? If so phi might fit better indeed than spi no? Thanks anyways etc thanks --> |
++| Suleiman | Imperialist, Philosophical | **Keep** | “Lawgiver” persona + patronage of learning fits Philosophical better than Spiritual for gameplay and history; keeps imperial scope. `<!-- custom: plus if i remember enough i read he was quite areligious or religious open no? If so phi might fit better indeed than spi no? Thanks anyways etc thanks -->` |
+ | Suryavarman | Expansive, Creative | **Industrious, Creative** | Builder of Angkor; monumental works + culture. |
+-| Tokugawa | Protective, Aggressive | **Protective, Organized** | After unification, policy emphasized internal order, class discipline, and isolation over external aggression; governance beats battlefield ferocity. <!-- custom: from a very quick search and my intuition/memory of what i read aobut him, he was very cautious and cunning/scheming rather if i'm not mistaken so maybe aggressive doesn't fit as well but anyways etc --> |
++| Tokugawa | Protective, Aggressive | **Protective, Organized** | After unification, policy emphasized internal order, class discipline, and isolation over external aggression; governance beats battlefield ferocity. `<!-- custom: from a very quick search and my intuition/memory of what i read aobut him, he was very cautious and cunning/scheming rather if i'm not mistaken so maybe aggressive doesn't fit as well but anyways etc; also from a balance standpoint, if he is isolated, he would benefit much more from tax/costs reduction to run smoothly his empire than aggressive right? If i may say i mean but anyways etc. -->` |
+ | Victoria | Imperialist, Financial | **Keep** | Global empire + finance/trade. |
+ | Wang Kon | Financial, Protective | **Organized, Spiritual** | this is the softest OP fit. He’s the founder/administrator (Organized, yes), but the “Protective” piece is less uniquely his (many big defensive moments come under successors). Organized + Spiritual: his Ten Injunctions stress protecting Buddhism, geomancy/ritual legitimacy—reads as statecraft grounded in religion. Bottom line: If you want to trim OP without losing accuracy, flip Wang Kon → Organized, Spiritual (history-first, no change to rare Financial) |
+ | Washington | Expansive, Charismatic | **Protective, Charismatic** | Preservation-first Fabian strategy in the Revolution + 1777 army-wide smallpox inoculation (public-health safeguarding). Still inspirational. |
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 2b00cc327..abc2f0bbe 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -412,7 +412,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech, and the french_musketeer has 1 move not 2 anymore but instead has as of now now anti mounted and small collateral kit which is much stronger and relevant for renaissance plus anyways etc, which is nice as the unit was way too weak and underwhelming if i may say but anyways etc.
+-- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (better match with holy roman empire's aggressive profile, tight medieval window, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (cannon-based, better match with holy roman empire's aggressive profile, medieval window was too tight, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 59f73c1e9..7931ee006 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -397,7 +397,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+   - **Logistics** now at **The Wheel** (was Military Science).
+   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
+ - **Unit redesigns:**
+-  - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman **Landsknecht** → **Houfnice** — aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)).
++  - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses; Holy Roman **Landsknecht** → **Houfnice** — cannon-based aligns with HRE’s aggressive profile, hits the tight medieval window, and avoids Landsknecht’s obsolescence/balance issues (anti-melee niche fades; weak vs. Cuirassiers)).
+   - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
+   - **Air** unit costs generally increased.
+ - **Upgrade paths** simplified and made more sensible:
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index 9c4194daa..b040f8dc4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=23985

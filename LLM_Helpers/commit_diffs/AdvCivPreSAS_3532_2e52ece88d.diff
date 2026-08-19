@@ -1,0 +1,95 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3532
+# Commit: 2e52ece88d0096c5066c616b886d6c786168169c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 40f46f00e1752d9270cb0498c040d6ab1db9726d
+# Title: PerfectMongoose: Fix RNG initialization
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	5	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 6103af6ea..942f658fb 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -4,6 +4,7 @@
+ ## customized for the AdvCiv mod. The AdvCiv changes are marked with
+ ## "advc" comments, "advc.001" for bugfixes, "advc.027" for the integration of
+ ## AdvCiv's starting position algorithm.
++## Also corrected some debug output that used "FairWeather" as the map name.
+ ## Version history up to v3.3 moved to the end of the file.
+ ##
+ ##############################################################################
+@@ -269,6 +270,7 @@ class MapConstants:
+ 		#syncing issues for multi-player now or in the future, therefore it must
+ 		#be optional.
+ 		# advc (note): See AIAndy's comment in the seed function. This should be fine.
++		# But, for debugging with fixed seeds, it might be best to toggle this off.
+ 		self.UsePythonRandom = True
+ 
+ 		#Below here are static defines. If you change these, the map won't work.
+@@ -665,7 +667,7 @@ class PythonRandom:
+ 				#AIAndy - seed Python random with MapRand
+ 				gc = CyGlobalContext()
+ 				self.mapRand = gc.getGame().getMapRand()
+-				seedValue = self.mapRand.get(65535, "Seeding mapRand - FairWeather.py")
++				seedValue = self.mapRand.get(65535, "Seeding mapRand - PerfectMongoose.py")
+ 				seed(seedValue)
+ 				self.seedString = "Random seed (Using getMapRand) for this map is %(s)20d" % {"s" :seedValue}
+ 			else:
+@@ -678,7 +680,7 @@ class PythonRandom:
+ 		else:
+ 			gc = CyGlobalContext()
+ 			self.mapRand = gc.getGame().getMapRand()
+-			seedValue = self.mapRand.get(65535, "Seeding mapRand - FairWeather.py")
++			seedValue = self.mapRand.get(65535, "Seeding mapRand - PerfectMongoose.py")
+ 			self.mapRand.init(seedValue)
+ 			self.seedString = "Random seed (Using getMapRand) for this map is %(s)20d" % {"s" :seedValue}
+ 
+@@ -689,7 +691,7 @@ class PythonRandom:
+ 		else:
+ 			#This formula is identical to the getFloat function in CvRandom. It
+ 			#is not exposed to Python so I have to recreate it.
+-			fResult = float(self.mapRand.get(65535, "Getting float -FairWeather.py")) / float(65535)
++			fResult = float(self.mapRand.get(65535, "Getting float -PerfectMongoose.py")) / float(65535)
+ 			return fResult
+ 
+ 
+@@ -702,7 +704,7 @@ class PythonRandom:
+ 			return randint(rMin, rMax)
+ 		else:
+ 			#mapRand.get() is not inclusive, so we must make it so
+-			return rMin + self.mapRand.get(rMax + 1 - rMin, "Getting a randint - FairWeather.py")
++			return rMin + self.mapRand.get(rMax + 1 - rMin, "Getting a randint - PerfectMongoose.py")
+ 
+ 
+ PRand = PythonRandom()
+@@ -6269,7 +6271,7 @@ def generatePlotTypes():
+ 	map = gc.getMap()
+ 	mc.width  = map.getGridWidth()
+ 	mc.height = map.getGridHeight()
+-	PRand.seed()
++	#PRand.seed() # advc: Moved to beforeInit
+ 	if mc.LandmassGenerator == 2:
+ 		scaleMinMeteorSize() # advc: Moved into new function
+ 		em = e2
+@@ -6951,6 +6953,7 @@ def findStartingArea(argsList):
+ # </advc.027>
+ 
+ def beforeInit():
++	PRand.seed() # advc: Moved from generatePlotTypes
+ 	mc.initInGameOptions()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3077

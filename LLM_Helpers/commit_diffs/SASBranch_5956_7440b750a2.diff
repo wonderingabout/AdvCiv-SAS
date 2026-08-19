@@ -1,0 +1,161 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5956
+# Commit: 7440b750a280e932dd64cfd9a986618fb0ec8324
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c3cf88ef9126dc38ccde1879b77df508c89da99b
+# Title: Tentatively Addressed and Hardened: Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages` (See KI#162)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+16	9	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvPlayer.cpp
+23	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 23989f9d4..7a0454621 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1381,6 +1381,12 @@ bool CvCity::canBeSelected() const
+ {
+ 	CvGame const& kGame = GC.getGame();
+ 
++	// <!-- custom: Check for NO_PLAYER before any early selectable-city return. During autoplay/turn transitions, the EXE can still ask for city UI bars while no active player exists; allowing isActiveTeam/debug/investigate to bypass this guard can re-enter CvCity::getProductionBarPercentages in an unsafe UI state. See KI#162. (Claude code Opus 4.5 + ChatGPT-5.5) -->
++	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
++	if (eActivePlayer == NO_PLAYER)
++		return false;
++	// <!-- custom: End -->
++
+ 	if (m_bInvestigate || // advc.103
+ 		isActiveTeam() || kGame.isDebugMode())
+ 	{
+@@ -1390,11 +1396,6 @@ bool CvCity::canBeSelected() const
+ 	if (eActiveTeam != NO_TEAM && getPlot().isInvestigate(eActiveTeam))
+ 		return true;
+ 
+-	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
+-	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+-	if (eActivePlayer == NO_PLAYER)
+-		return false;
+-
+ 	FOR_EACH_ENUM(EspionageMission)
+ 	{
+ 		if (GC.getInfo(eLoopEspionageMission).isPassive() &&
+@@ -8857,7 +8858,7 @@ const CvWString CvCity::getName(uint uiForm) const
+ 
+ void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool bInitial)
+ {
+-	// <!-- custom: Avoid constructing CvWString from an invalid city-name pointer. See KI 161. (ChatGPT-5.5) -->
++	// <!-- custom: Avoid constructing CvWString from an invalid city-name pointer. See KI#161. (ChatGPT-5.5 + GPT-5.5 for quick review of the solution) -->
+ 	if (szNewValue == NULL || szNewValue[0] == L'\0')
+ 	{
+ 		FAssertMsg(false, "Invalid city name");
+@@ -12583,13 +12584,19 @@ bool CvCity::getProductionBarPercentages(std::vector<float>& afPercentages) cons
+ 
+ 	if (!isProductionProcess())
+ 	{
++		// <!-- custom: Reuse one validated production target and reject invalid denominators before doing production-bar math. See KI#162. (ChatGPT-5.5) -->
++		int const iProductionNeeded = getProductionNeeded();
++		if (iProductionNeeded <= 0 || iProductionNeeded == MAX_INT)
++			return false;
++		// <!-- custom: End -->
++
+ 		afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
+ 		int iProductionDiffNoFood = getCurrentProductionDifference(true, true);
+ 		int iProductionDiffJustFood = getCurrentProductionDifference(false, true)
+ 				- iProductionDiffNoFood;
+-		afPercentages[INFOBAR_STORED] = getProduction() / (float) getProductionNeeded();
+-		afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float) getProductionNeeded();
+-		afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float) getProductionNeeded();
++		afPercentages[INFOBAR_STORED] = getProduction() / (float)iProductionNeeded;
++		afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float)iProductionNeeded;
++		afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float)iProductionNeeded;
+ 	}
+ 
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8ad99d62d..213f0e8cd 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2129,7 +2129,7 @@ CvWString CvPlayer::getNewCityName() const
+ 	for (CLLNode<CvWString>* pNode = headCityNameNode();
+ 		pNode != NULL && szName.empty(); pNode = nextCityNameNode(pNode))
+ 	{
+-		// <!-- custom: Guard against invalid explicit city-name entries before text lookup. See KI 161. (ChatGPT-5.5) -->
++		// <!-- custom: Guard against invalid explicit city-name entries before text lookup. See KI#161. (ChatGPT-5.5 + GPT-5.5 for quick review of the solution) -->
+ 		if (pNode->m_data.empty())
+ 		{
+ 			FAssertMsg(false, "Empty explicit city-name key");
+@@ -2170,7 +2170,7 @@ CvWString CvPlayer::getNewCityName() const
+ 
+ void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const
+ {
+-	// <!-- custom: Defensive city-name text lookup hardening after rare heap/string crash signatures. See KI 161. (ChatGPT-5.5) -->
++	// <!-- custom: Defensive city-name text lookup hardening after rare heap/string crash signatures. See KI#161. (ChatGPT-5.5) -->
+ 	if (eCivilization == NO_CIVILIZATION || eCivilization < 0 ||
+ 		eCivilization >= GC.getNumCivilizationInfos())
+ 	{
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 29b7fd8b5..dde220150 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -197,6 +197,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
+ [160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)  
+ [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
++[162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5990,7 +5991,7 @@ Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+ 
+ ## 161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature
+ 
+-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CcRoDInd1w6DzgF9e0yDVnnEPvOpnX31).
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CcRoDInd1w6DzgF9e0yDVnnEPvOpnX31?usp=sharing).
+ 
+ After fixing the much more frequent `CvSelectionGroup::plot` crash and several other earlier crash sources, long autoplay runs are now usually much more stable. In recent testing, most turn 0 to around turn 400/500 autoplay runs finished in one go, but two rare non-reproducible crashes still appeared around turn 145 and turn 348.
+ 
+@@ -6013,4 +6014,24 @@ Conservative hardening was added around the city-name path:
+ 
+ These changes should not alter normal city-name behavior. They only prevent unsafe lookups or string construction when data is invalid, unexpectedly empty, or memory state is already abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If similar crashes continue, keep linker `.map` files or PDBs for the matching DLL build so future dump offsets can be mapped to real source lines instead of relying on misleading nearest-symbol names.
+ 
+-Addressed with the very nice help of ChatGPT-5.5 thanks.
++Addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
++
++## 162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sf0TZF1uSYlPds8bFjtoYwv7cA6hQ06u?usp=sharing).
++
++After KI#102 and KI#103 had already addressed two earlier `CvCity::getProductionBarPercentages` crash variants, another rare non-reproducible autoplay crash appeared around turn 243.
++
++The crash log again points to `CvCity::getProductionBarPercentages`, this time at `+0x502`, with an access violation while reading memory address `000001b8`. The stack is not fully reliable without matching line symbols / PDB information, but it still places the crash in the city production-bar path and near broader UI / selection / turn-transition context. This looks related to the old production-bar crash family, but different enough from KI#102 and KI#103 to document as a separate later variant rather than silently extending those older entries.
++
++The suspected weakness is that `CvCity::canBeSelected` could return true through early city-visibility paths such as `m_bInvestigate`, `isActiveTeam`, or debug mode before checking whether `GC.getGame().getActivePlayer()` was valid. During autoplay or turn transitions, the EXE can sometimes still ask for city UI bars while no active player exists. Letting those early paths bypass the `NO_PLAYER` guard could allow `CvCity::getProductionBarPercentages` to run in an unsafe UI state.
++
++Conservative hardening was added:
++
++- `CvCity::canBeSelected` now checks `NO_PLAYER` before any early selectable-city return.
++- `CvCity::getProductionBarPercentages` now reuses one validated `getProductionNeeded` value before doing production-bar math.
++- The production-bar path now rejects invalid production-needed values such as `<= 0` or `MAX_INT`.
++
++This should not alter normal production or city UI behavior. It only prevents city production-bar display math when the active-player/UI state or production denominator is abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If this still crashes, keep matching linker `.map` files or PDBs for the DLL build so the `CvGameCoreDLL` offset can be mapped to a real source line.
++
++Tentatively addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=10164

@@ -1,0 +1,147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1582
+# Commit: ad0fd03d9476e947b828098800d566c605ec896b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1e0a6e4ab4d61792c53f94ed87e93a3a85000834
+# Title: Walls and Castles are destroyed upon reconquest
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+31	30	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index c1234aaf3..c93576390 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -605,7 +605,8 @@
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
++			<!-- advc.180: was 0 -->
++			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+@@ -784,7 +785,8 @@
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
++			<!-- advc.180: was 0 -->
++			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+@@ -966,7 +968,8 @@
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
++			<!-- advc.180: was 0 -->
++			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+@@ -1165,7 +1168,8 @@
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
++			<!-- advc.180: was 0 -->
++			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3d8293693..7bb685d52 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2028,41 +2028,42 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 				oldOwnerCulture - convertedCulture, true, false);
+     } // </dlph.23>
+ 
+-	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)  // advc.003: body refactored (incl. added comments)
+ 	{
+-		if (paiNumRealBuilding[iI] > 0)
++		if (paiNumRealBuilding[iI] <= 0)
++			continue;
++
++		BuildingTypes eBuilding = (BuildingTypes)iI;
++		BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getBuildingInfo(
++				eBuilding).getBuildingClassType();
++		// Can't acquire another civ's unique building
++		if (!::isWorldWonderClass(eBuildingClass)) // So that Barbarians can capture wonders
+ 		{
+-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)GC.getBuildingInfo((BuildingTypes)iI).getBuildingClassType();
+-			BuildingTypes eBuilding = NO_BUILDING;
+-			if (::isWorldWonderClass(eBuildingClass))
+-			{
+-				eBuilding = (BuildingTypes)iI;
+-			}
+-			else
+-			{
+-				eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eBuildingClass);
+-			}
+-			if (eBuilding != NO_BUILDING)
+-			{
+-				int iNum = 0;
+-				if (bTrade || !(GC.getBuildingInfo((BuildingTypes)iI).isNeverCapture()))
+-				{
+-					if (!isProductionMaxedBuildingClass(((BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType())), true))
+-					{
+-						if (pNewCity->isValidBuildingLocation(eBuilding))
+-						{
+-							if (!bConquest || bRecapture || GC.getGame().getSorenRandNum(100, "Capture Probability") < GC.getBuildingInfo((BuildingTypes)iI).getConquestProbability())
+-							{
+-								iNum += paiNumRealBuilding[iI];
+-							}
+-						}
+-					}
+-				}
++			eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).
++					getCivilizationBuildings(eBuildingClass);
++		}
++		if (eBuilding == NO_BUILDING)
++			continue;
+ 
+-				pNewCity->setNumRealBuildingTimed(eBuilding, std::min(pNewCity->getNumRealBuilding(eBuilding) + iNum, GC.getCITY_MAX_NUM_BUILDINGS()), false, ((PlayerTypes)(paiBuildingOriginalOwner[iI])), paiBuildingOriginalTime[iI]);
++		CvBuildingInfo const& kBuilding = GC.getBuildingInfo(eBuilding);
++		// Can acquire never-capture buildings only through city trade
++		if (!bTrade && kBuilding.isNeverCapture())
++			continue;
+ 
+-			}
++		if (isProductionMaxedBuildingClass(eBuildingClass, true) ||
++				!pNewCity->isValidBuildingLocation(eBuilding))
++			continue;
++
++		// Capture roll unless recapture
++		int iOdds = kBuilding.getConquestProbability();
++		if (!bConquest || bRecapture || (iOdds > 0 &&
++				iOdds > GC.getGame().getSorenRandNum(100, "Capture Probability")))
++		{
++			pNewCity->setNumRealBuildingTimed(eBuilding, std::min(GC.getCITY_MAX_NUM_BUILDINGS(),
++					pNewCity->getNumRealBuilding(eBuilding) + paiNumRealBuilding[iI]),
++					false, (PlayerTypes)paiBuildingOriginalOwner[iI], paiBuildingOriginalTime[iI]);
+ 		}
++
+ 	}
+ 
+ 	for (std::vector<BuildingYieldChange>::iterator it = aBuildingYieldChange.begin(); it != aBuildingYieldChange.end(); ++it)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5037

@@ -1,0 +1,1415 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1489
+# Commit: ce9b54a2373b0ce63c4c0bbd4147669465d59de5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2a9db8f648b9808b635c3a944217a5ec34d78a44
+# Title: More scoreboard changes; expanding scoreboard enabled by default.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	7	Assets/Config/Advanced Scoreboard.xml
+93	41	Assets/Python/BUG/Scoreboard.py
+31	14	Assets/Python/Screens/CvMainInterface.py
+8	8	Assets/xml/Text/Advanced Scoreboard Options.xml
+9	0	Assets/xml/Text/BULL_CIV4GameText.xml
+60	0	Assets/xml/Text/CIV4GameText_advc.xml
+127	35	CvGameCoreDLL/CvDLLWidgetData.cpp
+4	0	CvGameCoreDLL/CvDLLWidgetData.h
+2	0	CvGameCoreDLL/CvDefines.h
+5	0	CvGameCoreDLL/CvEnums.h
+38	52	CvGameCoreDLL/CvGameTextMgr.cpp
+49	35	CvGameCoreDLL/CvPlayer.cpp
+8	3	CvGameCoreDLL/CvPlayer.h
+2	3	CvGameCoreDLL/CvUnitAI.cpp
+5	0	CvGameCoreDLL/CyEnumsInterface.cpp
+-	-	manual_0.95c.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Scoreboard.xml b/Assets/Config/Advanced Scoreboard.xml
+index b2e45b0e3..aea5903e6 100644
+--- a/Assets/Config/Advanced Scoreboard.xml	
++++ b/Assets/Config/Advanced Scoreboard.xml	
+@@ -70,10 +70,10 @@
+ 					get="isAlignIcons" set="setAlignIcons" dirtyBit="Score"/>
+ 			<!-- advc.085 -->
+ 			<option id="ExpandOnHover" key="Expand on Hover" 
+-					type="boolean" default="False" dirtyBit="Score"/>
++					type="boolean" default="True" dirtyBit="Score"/>
+ 			<!-- advc.106d: Default was !?2WSZVC6EPTUNBDRAHQ*LO -->
+ 			<option id="DisplayOrder" key="Display Order" 
+-					type="string" default="_D_B_N!?2WSZCPTURAHQ*LO"
++					type="string" default="_J_P_D_B_N!?2WSZCTURAHQ*LO"
+ 					get="getDisplayOrder" set="setDisplayOrder" dirtyBit="Score"/>
+ 			<list   id="DefaultSpacing" key="Default Column Spacing" 
+ 					type="int" default="0" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10" 
+@@ -106,12 +106,14 @@
+ 					get="getRankColor" set="setRankColor" dirtyBit="Score"/>
+ 			
+ 			<!-- Power Ratio -->
++			<!-- advc.085: default was False -->
+ 			<option id="Power" key="Power" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowPower" set="setShowPower" dirtyBit="Score"/>
+ 			<list   id="PowerFormula" key="Power Formula" 
+ 					type="int" default="0" listType="string" 
+ 					get="getPowerFormula" set="setPowerFormula" dirtyBit="Score">
++				<!-- advc.085: The DLL relies on this order of the choices -->
+ 				<choice id="ThemVersusYou" get="isPowerThemVersusYou"/>
+ 				<choice id="YouVersusThem" get="isPowerYouVersusThem"/>
+ 			</list>
+@@ -119,22 +121,26 @@
+ 			<list   id="PowerDecimals" key="Power Ratio Decimals" 
+ 					type="int" default="1" values="1, 2" 
+ 					get="getPowerDecimals" set="setPowerDecimals" dirtyBit="Score"/>
++			<!-- advc.004: default color was WHITE -->
+ 			<option id="PowerColor" key="Power Color" 
+-					type="color" default="COLOR_WHITE" 
++					type="color" default="COLOR_YIELD_FOOD" 
+ 					get="getPowerColor" set="setPowerColor" dirtyBit="Score"/>
++			<!-- advc.004: default was 1.2 -->
+ 			<list   id="PowerHighRatio" key="Power High" 
+-					type="float" default="1.2" listType="float" 
++					type="float" default="1.3" listType="float" 
+ 					values="1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0" format="%.1f" 
+ 					get="getHighPowerRatio" set="setHighPowerRatio" dirtyBit="Score"/>
+ 			<option id="PowerHighColor" key="Power High Color" 
+ 					type="color" default="COLOR_WARNING_TEXT" 
+ 					get="getHighPowerColor" set="setHighPowerColor" dirtyBit="Score"/>
++			<!-- advc.004: default was 0.8 -->
+ 			<list   id="PowerLowRatio" key="Power Low" 
+-					type="float" default="0.8" listType="float" 
++					type="float" default="1.0" listType="float" 
+ 					values="0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0" format="%.1f" 
+ 					get="getLowPowerRatio" set="setLowPowerRatio" dirtyBit="Score"/>
++			<!-- advc.004: default was COLOR_POSITIVE_TEXT -->
+ 			<option id="PowerLowColor" key="Power Low Color" 
+-					type="color" default="COLOR_POSITIVE_TEXT" 
++					type="color" default="COLOR_WHITE" 
+ 					get="getLowPowerColor" set="setLowPowerColor" dirtyBit="Score"/>
+ 		</section>
+ 	</options>
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 5536fa2c5..307ef69e9 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -29,7 +29,7 @@ gc = CyGlobalContext()
+ Z_DEPTH = -0.3
+ 
+ # Columns IDs
+-NUM_PARTS = 27
++NUM_PARTS = 28
+ (
+ 	ALIVE,
+ 	WAR,
+@@ -56,7 +56,8 @@ NUM_PARTS = 27
+ 	WAITING,
+ 	NET_STATS,
+ 	OOS,
+-	LEADER_ICON, CIV_ICON # dlph.30
++	LEADER_BUTTON, CIV_BUTTON, # dlph.30
++	GOLDEN_AGE # advc.085
+ ) = range(NUM_PARTS)
+ 
+ # Types
+@@ -93,7 +94,7 @@ def init():
+ 	
+ 	# Used keys:
+ 	# ABCDEFHIKLMNOPQRSTUVWZ*?
+-	# (unused: JXY)
++	# (unused: XY)
+ 	columns.append(Column('', ALIVE))
+ 	columns.append(Column('S', SCORE, DYNAMIC))
+ 	columns.append(Column('Z', SCORE_DELTA, DYNAMIC))
+@@ -120,9 +121,10 @@ def init():
+ 	columns.append(Column('L', NET_STATS, DYNAMIC))
+ 	columns.append(Column('O', OOS, DYNAMIC))
+ 	# <dlph.30>
+-	columns.append(Column('F', LEADER_ICON, SPECIAL))
+-	columns.append(Column('G', CIV_ICON, SPECIAL))
++	columns.append(Column('F', LEADER_BUTTON, SPECIAL))
++	columns.append(Column('G', CIV_BUTTON, SPECIAL))
+ 	# </dlph.30>
++	columns.append(Column('J', GOLDEN_AGE, DYNAMIC)) # advc.085
+ 	
+ 	global WAR_ICON, PEACE_ICON
+ 	WAR_ICON = smallSymbol(FontSymbols.WAR_CHAR)
+@@ -135,6 +137,10 @@ def init():
+ 	global VASSAL_PREFIX, VASSAL_POSTFIX
+ 	VASSAL_PREFIX = smallSymbol(FontSymbols.BULLET_CHAR)
+ 	VASSAL_POSTFIX = smallText(u" %s" % FontUtil.getChar(FontSymbols.BULLET_CHAR))
++	# <advc.085>
++	global GOLDEN_AGE_ICON, ANARCHY_ICON
++	GOLDEN_AGE_ICON = smallSymbol(FontSymbols.GOLDEN_AGE_CHAR)
++	ANARCHY_ICON = smallSymbol(FontSymbols.BAD_GOLD_CHAR) # </advc.085>
+ 
+ def smallText(text):
+ 	return u"<font=2>%s</font>" % text
+@@ -218,8 +224,12 @@ class Scoreboard:
+ 		self._set(MASTER, ACTIVE_MASTER_ICON)
+ 		
+ 	def setScore(self, value):
+-		# <advc.085> Score breakdown when hovering over the active player's score (no longer provided by WIDGET_CONTACT_CIV) -- or anyone's score in Debug mode w/ Ctrl pressed.
++		# <advc.085>
++		# Set the contact widget explicitly for Score and Name (no longer the default)
+ 		widgetData = None
++		if gc.getPlayer(self._currPlayerScore.getID()).isAlive():
++			widgetData = self._getContactWidget()
++		# Score breakdown when hovering over the active player's score (no longer provided by WIDGET_CONTACT_CIV) -- or anyone's score in Debug mode w/ Ctrl pressed.
+ 		if self._activePlayer == self._currPlayerScore.getID() or (gc.getGame().isDebugMode() and MonkeyTools.bCtrl()):
+ 			widgetData = (WidgetTypes.WIDGET_SCORE_BREAKDOWN, self._currPlayerScore.getID(), 0)
+ 		# </advc.085>
+@@ -235,7 +245,11 @@ class Scoreboard:
+ 		self._set(ID, smallText(value))
+ 		
+ 	def setName(self, value):
+-		self._set(NAME, smallText(value))
++		# advc.085: See setScore
++		widgetData = None
++		if gc.getPlayer(self._currPlayerScore.getID()).isAlive():
++			widgetData = self._getContactWidget()
++		self._set(NAME, smallText(value), widgetData)
+ 		
+ 	def setNotMet(self):
+ 		self._set(NOT_MET)
+@@ -251,19 +265,23 @@ class Scoreboard:
+ 		
+ 	def setPeace(self):
+ 		self._set(WAR, PEACE_ICON, self._getDealWidget(TradeableItems.TRADE_PEACE_TREATY))
+-		
+-	def setPower(self, value):
+-		self._set(POWER, smallText(value))
+-		
+-	def setResearch(self, tech, progress): # advc.085: Last param was turns
+-		if (ScoreOpt.isShowResearchIcons()):
+-			self._set(RESEARCH, tech)
+-		else:
+-			self._set(RESEARCH, smallText(gc.getTechInfo(tech).getDescription()))
++	# <advc.085> Widget help added; pass along color.
++	def setPower(self, value, color):
++		self._set(POWER, smallText(value), (WidgetTypes.WIDGET_POWER_RATIO, self._currPlayerScore.getID(), color)) # </advc.085>
++	# <advc.085>
++	def setResearch(self, tech, progress): # Third param was 'turns'
++		if tech != -1: # No longer guaranteed by caller </advc.085>
++			if (ScoreOpt.isShowResearchIcons()):
++				self._set(RESEARCH, tech)
++			else:
++				self._set(RESEARCH, smallText(gc.getTechInfo(tech).getDescription()))
+ 		#if turns >= 0: # advc.004x
+ 		#	self._set(RESEARCH_TURNS, smallText(u"(%d)" % turns))
+-		# advc.085: Replacing the two lines above
+-		self._set(RESEARCH_TURNS, smallText(u" %d%%" % progress))
++		# <advc.085> Replacing the two lines above
++		szProgress = u" %d%%" % progress
++		# Color it green? I guess better not.
++		#szProgress = CyTranslator().changeTextColor(szProgress, gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"))
++		self._set(RESEARCH_TURNS, smallText(szProgress)) # </advc.085>
+ 		
+ 	def setEspionage(self):
+ 		self._set(ESPIONAGE)
+@@ -300,14 +318,25 @@ class Scoreboard:
+ 		self._set(OOS, smallText(value))
+ 	# <dlph.30>
+ 	def setLeaderIcon(self, leader):
+-		self._set(LEADER_ICON, leader)
++		self._set(LEADER_BUTTON, leader)
+ 
+ 	def setCivIcon(self, civ):
+-		self._set(CIV_ICON, civ)
++		self._set(CIV_BUTTON, civ)
+ 	# </dlph.30>
+-		
+-	#def _getContactWidget(self): # advc.004: Now unused
+-	#	return (WidgetTypes.WIDGET_CONTACT_CIV, self._currPlayerScore.getID(), -1)
++	# <advc.085>
++	def setGoldenAge(self, bAnarchy):
++		eWidget = WidgetTypes.WIDGET_GOLDEN_AGE
++		cIcon = GOLDEN_AGE_ICON
++		if bAnarchy:
++			eWidget = WidgetTypes.WIDGET_ANARCHY
++			cIcon = ANARCHY_ICON
++		# Add one space b/c the icons are very tiny; difficult to hover over.
++		self._set(GOLDEN_AGE, " " + cIcon, (eWidget, self._currPlayerScore.getID(), 0))
++	# </advc.085>
++
++	def _getContactWidget(self):
++		iData2 = 0 # advc.085: Was -1; tell the DLL to expand the scoreboard.
++		return (WidgetTypes.WIDGET_CONTACT_CIV, self._currPlayerScore.getID(), iData2)
+ 		
+ 	def _getDealWidget(self, type):
+ 		iData2 = 0 # advc.085: Was -1; tell the DLL to expand the scoreboard.
+@@ -386,8 +415,10 @@ class Scoreboard:
+ 		spacing = defaultSpacing
+ 		szDisplayOrder = ScoreOpt.getDisplayOrder()
+ 		# <advc.085>
++		bExpanded = False
+ 		if gc.getPlayer(self._activePlayer).isScoreboardExpanded():
+ 			gc.getPlayer(self._activePlayer).setScoreboardExpanded(False)
++			bExpanded = True
+ 		else: # Take out the keys preceded by an underscore
+ 			stringsToRemove = []
+ 			for i, c in enumerate(szDisplayOrder):
+@@ -395,7 +426,7 @@ class Scoreboard:
+ 					stringsToRemove.append('_' + c)
+ 			for s in stringsToRemove:
+ 				szDisplayOrder = szDisplayOrder.replace(s, '')
+-			# Remove any stray underscores
++			# Remove any stray underscores as well
+ 			szDisplayOrder = szDisplayOrder.replace('_', '')
+ 		# </advc.085>
+ 		format = re.findall('(-?[0-9]+|[^0-9])', szDisplayOrder.replace(' ', '').upper())
+@@ -419,26 +450,35 @@ class Scoreboard:
+ 			if (c == RESEARCH and not ScoreOpt.isShowResearchIcons()):
+ 				# switch SPECIAL research icon to DYNAMIC name
+ 				type = DYNAMIC
+-			
++			# advc.085: For filling gaps so that the scoreboard doesn't collapse. 4 spaces seem to fit almost exactly for columns with a single icon.
++			szBlank = "    "
+ 			if (type == SKIP):
+ 				spacing = defaultSpacing
+ 				continue
+-			
+ 			elif (type == FIXED):
+ 				width = column.width
+ 				value = column.text
+ 				x -= spacing
+ 				for p, playerScore in enumerate(self._playerScores):
++					name = "ScoreText%d-%d" %( p, c ) # advc.085: Moved up
+ 					if (playerScore.has(c) and playerScore.value(c)):
+-						name = "ScoreText%d-%d" %( p, c )
+ 						widget = playerScore.widget(c)
+ 						if widget is None:
+-							if (playerScore.value(ALIVE)):
+-								widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), -1)
+-							else:
++							#if (playerScore.value(ALIVE)):
++							#	widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), 0)
++							#else:
++							#	widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
++							# <advc.085> Contact widget now set explicitly for Score and Name. Default widget: expand the scoreboard.
++							if bExpanded:
++								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
++							else: # </advc.085>
+ 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 						screen.setText( name, "Background", value, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, *widget )
+-						screen.show( name )
++						screen.show(name)
++					# <advc.085>
++					elif bExpanded:
++						screen.setText(name, "Background", szBlank, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
++						screen.show(name) # </advc.085>
+ 				x -= width
+ 				totalWidth += width + spacing
+ 				spacing = defaultSpacing
+@@ -461,8 +501,8 @@ class Scoreboard:
+ 					continue
+ 				x -= spacing
+ 				for p, playerScore in enumerate(self._playerScores):
++					name = "ScoreText%d-%d" %( p, c ) # advc.085: Moved up
+ 					if (playerScore.has(c)):
+-						name = "ScoreText%d-%d" %( p, c )
+ 						value = playerScore.value(c)
+ 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
+ 							if (ScoreOpt.isLeftAlignName()):
+@@ -478,15 +518,27 @@ class Scoreboard:
+ 								adjustX = width
+ 						widget = playerScore.widget(c)
+ 						if widget is None:
+-							if (playerScore.value(ALIVE)):
+-								# advc.085: iData2=0 to tell the DLL to expand the scoreboard
+-								widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), 0)
+-							else:
++							#if (playerScore.value(ALIVE)):
++							#	widget = (WidgetTypes.WIDGET_CONTACT_CIV, playerScore.getID(), 0)
++							#else:
++							#	widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
++							# <advc.085> See under FIXED above
++							if bExpanded:
++								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
++							else: # </advc.085>
+ 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 						screen.setText( name, "Background", value, align, 
+ 										x - adjustX, y - p * height, Z_DEPTH, 
+ 										FontTypes.SMALL_FONT, *widget )
+-						screen.show( name )
++						screen.show(name)
++					# <advc.085>
++					elif bExpanded and c != NAME:
++						szBlankLoop = szBlank
++						if c == POWER: # Power ratio takes up extra space
++							# Mustn't add too much space though: when the power ratio is in the leftmost column, too many spaces will prevent the scoreboard from collapsing when the mouse is moved away to the left.
++							szBlankLoop += szBlank + szBlank
++						screen.setText(name, "Background", szBlankLoop, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
++						screen.show(name) # </advc.085>
+ 				x -= width
+ 				totalWidth += width + spacing
+ 				spacing = defaultSpacing
+@@ -499,13 +551,13 @@ class Scoreboard:
+ 							tech = playerScore.value(c)
+ 							name = "ScoreTech%d" % p
+ 							info = gc.getTechInfo(tech)
+-							screen.addDDSGFC( name, info.getButton(), x - techIconSize, y - p * height - 1, techIconSize, techIconSize, 
+-											  WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, -1 )
++							iData2 = 0 # advc.085: was -1
++							screen.addDDSGFC( name, info.getButton(), x - techIconSize, y - p * height - 1, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, iData2 )
+ 					x -= techIconSize
+ 					totalWidth += techIconSize + spacing
+ 					spacing = defaultSpacing
+ 				# <dlph.30>
+-				elif (c == LEADER_ICON):
++				elif c == LEADER_BUTTON:
+ 					x -= spacing
+ 					for p, playerScore in enumerate(self._playerScores):
+ 						if (playerScore.has(c)):
+@@ -516,7 +568,7 @@ class Scoreboard:
+ 					x -= techIconSize
+ 					totalWidth += techIconSize + spacing
+ 					spacing = defaultSpacing
+-				elif (c == CIV_ICON):
++				elif c == CIV_BUTTON:
+ 					x -= spacing
+ 					for p, playerScore in enumerate(self._playerScores):
+ 						if (playerScore.has(c)):
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 897f096de..4bc8f4f9c 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1297,16 +1297,18 @@ class CvMainInterface:
+ 			self.updateCityScreen()
+ 			CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, True)
+ 			CyInterface().setDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT, False)
++		bScoreStringsUpdated = False # advc.004z
+ 		if ( CyInterface().isDirty(InterfaceDirtyBits.Score_DIRTY_BIT) == True or CyInterface().checkFlashUpdate() ):
+ 			# Scores!
+ 			self.updateScoreStrings()
+ 			CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, False)
++			bScoreStringsUpdated = True # advc.004z
+ 		if ( CyInterface().isDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT) == True ):
+ 			# Globeview and Globelayer buttons
+ 			CyInterface().setDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT, False)
+ 			self.updateGlobeviewButtons()
+ 			# <advc.004z>
+-			if MainOpt.isScoresInGlobeView():
++			if not bScoreStringsUpdated and MainOpt.isScoresInGlobeView():
+ 				# Show/hide scoreboard depending on whether the layer has options
+ 				self.updateScoreStrings() # </advc.004z>
+ 
+@@ -5215,7 +5217,8 @@ class CvMainInterface:
+ 					iScoreDelta -= pPlayer.getScoreHistory(iPrevGameTurn)
+ 				if iScoreDelta != 0:
+ 					if iScoreDelta > 0:
+-						iColorType = gc.getInfoTypeForString("COLOR_GREEN")
++						# advc.085: To match the color I (might) use for tech progress. Was just GREEN.
++						iColorType = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+ 					elif iScoreDelta < 0:
+ 						iColorType = gc.getInfoTypeForString("COLOR_RED")
+ 					szScoreDelta = "%+d" % iScoreDelta
+@@ -5305,10 +5308,17 @@ class CvMainInterface:
+ 					szBuffer = szBuffer + szTempBuffer
+ 					if bAlignIcons:
+ 						scores.setEspionage()
++				# <advc.085>
++				if ePlayer != eActivePlayer and (pPlayer.isGoldenAge() or pPlayer.isAnarchy()):
++					# szBuffer += # Perhaps tbd. (non-tabular layout)
++					if bAlignIcons:
++						scores.setGoldenAge(pPlayer.isAnarchy())
++				# </advc.085>
+ 			# K-Mod (original code deleted)
+ 			if g.isDebugMode() or (pActivePlayer.canSeeResearch(ePlayer) and (eTeam != eActiveTeam or pActiveTeam.getNumMembers() > 1)):
+ 			# K-Mod end
+ 				eCurrentResearch = pPlayer.getCurrentResearch() # advc.003
++				iProgressPercent = 0 # advc.085: Show that even when no current research
+ 				if eCurrentResearch != -1:
+ 					szTempBuffer = u"-%s" %gc.getTechInfo(eCurrentResearch).getDescription()
+ 					# <advc.004x>
+@@ -5322,12 +5332,13 @@ class CvMainInterface:
+ 						iProgressPercent = (pTeam.getResearchProgress(eCurrentResearch) * 100) / iCurrentCost
+ 						iProgressPercent = min(iProgressPercent, 99)
+ 						iProgressPercent = max(iProgressPercent, 0)
+-						szTempBuffer += u" %d%%" % iProgressPercent
+-						# </advc.085>
+-						szBuffer += szTempBuffer
+-						if (bAlignIcons):
+-							# advc.085: Pass along iProgressPercent instead of iTurnsLeft
+-							scores.setResearch(eCurrentResearch, iProgressPercent)
++				szTempBuffer += u" %d%%" % iProgressPercent
++				
++				szBuffer += szTempBuffer # Don't req. eCurrentResearch!=-1
++				if bAlignIcons:
++					# Pass along iProgressPercent instead of iTurnsLeft
++					scores.setResearch(eCurrentResearch, iProgressPercent)
++					# </advc.085>
+ 			# BUG (Dead Civs): ...end of indentation
+ # BUG - Dead Civs - end
+ # BUG - Power Rating - start
+@@ -5347,15 +5358,19 @@ class CvMainInterface:
+ 							fPowerRatio = 999.0
+ 					cPower = g.getSymbolID(FontSymbols.STRENGTH_CHAR)
+ 					szTempBuffer = BugUtil.formatFloat(fPowerRatio, ScoreOpt.getPowerDecimals()) + u"%c" % (cPower)
+-					if iHighPowerColor >= 0 and fPowerRatio >= ScoreOpt.getHighPowerRatio():
+-						szTempBuffer = localText.changeTextColor(szTempBuffer, iHighPowerColor)
+-					elif iLowPowerColor >= 0 and fPowerRatio <= ScoreOpt.getLowPowerRatio():
+-						szTempBuffer = localText.changeTextColor(szTempBuffer, iLowPowerColor)
++					# <advc.085> Don't color the power ratios of teammates
++					bAlly = (eTeam == eActiveTeam)
++					iColor = 0 # Want to pass that to widget help </advc.085>
++					if iHighPowerColor >= 0 and not bAlly and fPowerRatio >= ScoreOpt.getHighPowerRatio():
++						iColor = iHighPowerColor
++					elif iLowPowerColor >= 0 and not bAlly and fPowerRatio <= ScoreOpt.getLowPowerRatio():
++						iColor = iLowPowerColor
+ 					elif (iPowerColor >= 0):
+-						szTempBuffer = localText.changeTextColor(szTempBuffer, iPowerColor)
++						iColor = iPowerColor
++					szTempBuffer = localText.changeTextColor(szTempBuffer, iColor)
+ 					szBuffer = szBuffer + u" " + szTempBuffer
+ 					if bAlignIcons:
+-						scores.setPower(szTempBuffer)
++						scores.setPower(szTempBuffer, iColor)
+ # BUG - Power Rating - end
+ # BUG - Attitude Icons - start
+ 			if ScoreOpt.isShowAttitude():
+@@ -5401,6 +5416,8 @@ class CvMainInterface:
+ 				else:
+ 					szTempBuffer = u"%d" % PlayerUtil.getNumRevealedCities(ePlayer)
+ 				# K-Mod end
++				# advc.085: Make city counts gray
++				szTempBuffer = localText.changeTextColor(szTempBuffer, gc.getInfoTypeForString("COLOR_BUILDING_TEXT"))
+ 				szBuffer = szBuffer + " " + szTempBuffer
+ 				if bAlignIcons:
+ 					scores.setNumCities(szTempBuffer)
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index ddd2efa44..f382ed899 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -292,11 +292,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__EXPANDONHOVER_HOVER</Tag>
+-		<English>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</English>
+-		<French>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</French>
+-		<German>Erlaubt die Anzeige zus�tzlicher Spalten wenn der Mauszeiger auf die Punkteanzeige bewegt wird. Um eine Spalte per Maus anzeigen zu lassen, stellen Sie dem Spaltenk�rzel im Textfeld [COLOR_HIGHLIGHT_TEXT]Spaltenreihenfolge[COLOR_REVERT] (rechts) einen Unterstrich voran. Empfehlung: Ordnen Sie die ausklappbaren Spalten links vom [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (Punktestand) ein.</German>
+-		<Italian>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</Italian>
+-		<Spanish>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place the underscored letters to the left of the [COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] (player score column).</Spanish>
++		<English>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place all underscored letters on the left.</English>
++		<French>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place all underscored letters on the left.</French>
++		<German>Erlaubt die Anzeige zus�tzlicher Spalten wenn der Mauszeiger auf die Punkteanzeige bewegt wird. Um eine Spalte per Maus anzeigen zu lassen, stellen Sie dem Spaltenk�rzel im Textfeld [COLOR_HIGHLIGHT_TEXT]Spaltenreihenfolge[COLOR_REVERT] (rechts) einen Unterstrich voran. Empfehlung: Platzieren Sie die ausklappbaren Spalten am linken Ende der Tabelle.</German>
++		<Italian>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place all underscored letters on the left.</Italian>
++		<Spanish>Allows additional columns to appear when the cursor hovers over the scoreboard. In the [COLOR_HIGHLIGHT_TEXT]Column Order[COLOR_REVERT] box on the right, place an underscore before a column letter to make that column appear only on mouse-over. Recommendation: Place all underscored letters on the left.</Spanish>
+ 	</TEXT>
+ 	
+ 	<!-- advc.004: was "Maximum Civilizations" -->
+@@ -380,13 +380,13 @@
+ 	<!-- advc.004: Revised (English, German); explanation for N (trade
+ 		 network) matches advc.124.
+ 		 dlph.30: Leader and civ icon
+-		 advc.085: Mention the underscores
++		 advc.085: Underscores, tech progress, 'J' (Golden Age/ Anarchy)
+ 		 advc.120h: Meaning of 'E' changed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYORDER_HOVER</Tag>
+-		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet rivals (multiplayer/ Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon if master of at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Player ID number (position in turn order)[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've set a positive weight on the Espionage screen[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The research progress as a percentage[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if there is a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have an Open Borders agreement with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (multiplayer) A star next to players who have already taken their turns[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.[NEWLINE][NEWLINE]Letters preceded by an underscore appear only on mouse-over and only if [COLOR_HIGHLIGHT_TEXT]Expand on Hover[COLOR_REVERT] is enabled.</English>
++		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet rivals (multiplayer/ Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon if master of at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Player ID number (position in turn order)[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've set a positive weight on the Espionage screen[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The research progress as a percentage[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if there is a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have an Open Borders agreement with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]J[COLOR_REVERT] - [ICON_GOLDEN_AGE]/[ICON_BAD_GOLD] icon when in a Golden Age/ Anarchy[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (multiplayer) A star next to players who have already taken their turns[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.[NEWLINE][NEWLINE]Letters preceded by an underscore appear only on mouse-over and only if [COLOR_HIGHLIGHT_TEXT]Expand on Hover[COLOR_REVERT] is enabled.</English>
+ 		<French>Ceci d�termine l'ordre dans lequel les colonnes apparaissent.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Vous �tes en guerre contre cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score de la civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Ic&#244;ne de chef[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Ic&#244;ne de la civilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nom de la civilisation et/ou du dirigeant.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Vous n'avez pas encore rencontr� cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - The civ refuses to talk to you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Votre pro rata d'espionnage avec cette civilisation est bon.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Pro rata du pouvoir de cette civilisation compar� � vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - La technologie que la civilisation recherche (vassaux, �quipe et espionnage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Le nombre de tours qui restent � la recherche.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Cette civilisation est connect�e � votre r�seau de commerce.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Vous avez une accord de fronti�res ouvertes avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Vous avez un pacte d�fensif avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - La religion nationale de cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - L'attitude de cette civilisation envers vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Vous attendez que cette civilisation finisse son tour.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Statistique de R�seau (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Le joueur est out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</French>
+-		<German>Die Zeichenfolge bestimmt die Spalten der Punkteanzeige und ihre Reihenfolge:[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Ausrufezeichen bei Gespr�chsverweigerung[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Fragezeichen vor unbekannten Gegnern (f�r Debug-Modus)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Punktestand[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Punktetrend[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Punkterang[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vasallensymbol bei Hegemonie �ber wenigstens einen Vasallenstaat[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Interne Spieler-ID, die die Zugreihenfolge bestimmt[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Staatsoberhaupt-Symbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Zivilisationssymbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Anzeigename[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE]-Symbol, falls Sie zur Zeit Spionagepunkte gegen den Gegner ansammeln[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeit erforschte Technologie[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Forschungsfortschritt (Prozentangabe)[NEWLINE] [COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE]-Symbol bei Handelsverbindung mit der gegnerischen Hauptstadt[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS]-Symbol bei Abkommen �ber offene Grenzen[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT]-Symbol bei Verteidigungsb�ndnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religionssymbol (Staatsreligion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Emoticon, das die Einstellung der KI anzeigt [NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP]-Symbol, wenn Sie der Erzfeind Ihres Gegners sind[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (Mehrspielermodus) Sternchen bei Spielern, die bereits gezogen haben[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik (Ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "out-of-sync"-Warnung wenn aus dem Takt[NEWLINE][NEWLINE]Zwischen den Spaltenk�rzeln k�nnen (positive und negative) Zahlen platziert werden, um Abst�nde einzustellen; ansonsten wird der Standardabstand verwendet.[NEWLINE][NEWLINE]Steht vor einem Buchstaben ein Unterstrich, dann erscheint die entspr. Spalte nur, wenn der Mauszeiger auf die Punkteanzeige bewegt wird und die Option [COLOR_HIGHLIGHT_TEXT]ausklappbare Spalten[COLOR_REVERT] aktiviert ist.</German>
++		<German>Die Zeichenfolge bestimmt die Spalten der Punkteanzeige und ihre Reihenfolge:[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Ausrufezeichen bei Gespr�chsverweigerung[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Fragezeichen vor unbekannten Gegnern (f�r Debug-Modus)[NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Punktestand[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Punktetrend[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Punkterang[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vasallensymbol bei Hegemonie �ber wenigstens einen Vasallenstaat[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Interne Spieler-ID, die die Zugreihenfolge bestimmt[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Staatsoberhaupt-Symbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Zivilisationssymbol[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Anzeigename[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE]-Symbol, falls Sie zur Zeit Spionagepunkte gegen den Gegner ansammeln[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeit erforschte Technologie[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Forschungsfortschritt (Prozentangabe)[NEWLINE] [COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE]-Symbol bei Handelsverbindung mit der gegnerischen Hauptstadt[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS]-Symbol bei Abkommen �ber offene Grenzen[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT]-Symbol bei Verteidigungsb�ndnis[NEWLINE][COLOR_HIGHLIGHT_TEXT]J[COLOR_REVERT] - [ICON_GOLDEN_AGE]/[ICON_BAD_GOLD]-Symbol bei Goldenem Zeitalter/ Anarchie[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religionssymbol (Staatsreligion)[NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Emoticon, das die Einstellung der KI anzeigt [NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP]-Symbol, wenn Sie der Erzfeind Ihres Gegners sind[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - (Mehrspielermodus) Sternchen bei Spielern, die bereits gezogen haben[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik (Ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "out-of-sync"-Warnung wenn aus dem Takt[NEWLINE][NEWLINE]Zwischen den Spaltenk�rzeln k�nnen (positive und negative) Zahlen platziert werden, um Abst�nde einzustellen; ansonsten wird der Standardabstand verwendet.[NEWLINE][NEWLINE]Steht vor einem Buchstaben ein Unterstrich, dann erscheint die entspr. Spalte nur, wenn der Mauszeiger auf die Punkteanzeige bewegt wird und die Option [COLOR_HIGHLIGHT_TEXT]ausklappbare Spalten[COLOR_REVERT] aktiviert ist.</German>
+ 		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle citt� della Civilt�.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icona del leader[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icona di civilt&#224;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Il Leader della Civilt� rifiuta di parlarti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - la Potenza della Civilt� rispetto alla tua (o viceversa);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
+ 		<Spanish>Determina el orden en el que las distintas columnas aparecen.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Est�s en guerra o tienes un tratado de paz con esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Puntuaci�n de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Cambios en puntuaci�n desde el �ltimo turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rango de la civ basado en su puntuaci�n.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - N�mero de ciudades de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - La civ tiene al menos un vasallo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - ID de jugador de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icono de l&#237;der[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icono de la civilizaci&#243;n[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nombre de civ / l�der / jugador.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - A�n no te has encontrado con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - La civ se niega a hablar.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Tienes una proporci�n positiva de puntos de espionaje contra esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Proporci�n de fuerza de la civ comparada contigo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Tecnolog�a que est� siendo investigada (vasallos, equipo y espionajes).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - N�mero de turnos de investigaci�n restantes.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - La civ est� conectada a tu red de comercio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Tienes apertura de fronteras con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Tienes un acuerdo de protecci�n con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religi�n oficial de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Actitud de la civ hacia ti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Eres el peor enemigo de esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Esta civ espera a que termines tu turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Estado de la conexi�n de esta civ (ping)..[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Este jugador est� fuera de l�nea.[NEWLINE][NEWLINE]Puedes colocar un n�mero (positivo o negativo) entre c�digos de columna para reemplazar el espaciado por defecto.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/BULL_CIV4GameText.xml b/Assets/xml/Text/BULL_CIV4GameText.xml
+index a34ebd770..ad9c6512a 100644
+--- a/Assets/xml/Text/BULL_CIV4GameText.xml
++++ b/Assets/xml/Text/BULL_CIV4GameText.xml
+@@ -636,6 +636,15 @@
+ 		<Italian>[NEWLINE][ICON_BULLET]La loro Forma di Governo non consente il Commercio Estero</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]Sus principios no permiten el comercio con el extranjero</Spanish>
+ 	</TEXT>
++	<!-- advc.124 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_CANNOT_TRADE_NO_KNOWN_CITIES</Tag>
++		<English>[NEWLINE][ICON_BULLET]None of their cities are known to us</English>
++		<French>[NEWLINE][ICON_BULLET]Aucune de leurs villes ne nous est connue</French>
++		<German>[NEWLINE][ICON_BULLET]Uns sind keine ihrer St�dte bekannt</German>
++		<Italian>[NEWLINE][ICON_BULLET]Nessuna delle loro citt� ci � nota</Italian>
++		<Spanish>[NEWLINE][ICON_BULLET]Ninguna de sus ciudades nos es conocida</Spanish>
++	</TEXT>
+ 
+ <!-- Unit Hover -->
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index a605babb7..500061178 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -5446,4 +5446,64 @@
+ 		<Spanish>Ingresos obtenidos de otras civilizaciones</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.085: Based on TXT_KEY_MISC_TURNS_LEFT (CIV4GameTextInfos.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_TURNS_LEFT2</Tag>
++		<English>%d1 [NUM1:turn:turns] left</English>
++		<French>il reste %d1 [NUM1:tour:tours]</French>
++		<German>noch %d1 [NUM1:Runde:Runden]</German>
++		<Italian>%d1 [NUM1:turno rimasto:turni rimasti]</Italian>
++		<Spanish>[NUM1:queda:quedan] %d1 [NUM1:turno:turnos]</Spanish>
++	</TEXT>
++	<!-- French "de" isn't going to become "d'Alexandre". Oh well. -->
++	<TEXT>
++		<Tag>TXT_KEY_POWER_RATIO_HELP_THEM_VS_YOU</Tag>
++		<English>%s1_Leader's military is %s2_Compare yours:</English>
++		<French>L'arm�e de %s1_Leader est %s2_Compare la v�tre :</French>
++		<German>%s1_Leader hat ein %s2_Compare:</German>
++		<Italian>L'esercito di %s1_Leader � %s2_Compare Vostro:</Italian>
++		<Spanish>El ej�rcito de %s1_Leader es %s2_Compare el nuestro:</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POWER_RATIO_HELP_YOU_VS_THEM</Tag>
++		<English>Your military is %s2_Compare %s1_Leader's:</English>
++		<French>Votre arm�e est %s2_Compare celle de %s1_Leader :</French>
++		<German>Your military is %s2_Compare %s1_Leader's:</German>
++		<Italian>Il Vostro esercito � %s2_Compare quello di %s1_Leader's:</Italian>
++		<Spanish>Nuestro ej�rcito es %s2_Compare el de %s1_Leader:</Spanish>
++	</TEXT>
++	<!-- Translations based on TXT_KEY_TOPCIVS_POWER in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_POWER_RATIO_GREATER</Tag>
++		<English>more powerful than</English>
++		<French>plus puissante que</French>
++		<German>m�chtigeres Milit�r als wir</German>
++		<Italian>pi� potente di</Italian>
++		<Spanish>m�s poderoso que</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POWER_RATIO_SMALLER</Tag>
++		<English>less powerful than</English>
++		<French>moins puissante que</French>
++		<German>schw�cheres Milit�r als wir</German>
++		<Italian>meno potente di</Italian>
++		<Spanish>menos poderoso que</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POWER_RATIO_EQUAL</Tag>
++		<English>on par with</English>
++		<French>sur le m�me niveau que</French>
++		<German>uns ebenb�rtiges Milit�r</German>
++		<Italian>alla pari con</Italian>
++		<Spanish>a la par con</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SEE_INTEL_THRESHOLD</Tag>
++		<English>Threshold for seeing %s1 exceeded by %d2 [ICON_ESPIONAGE]</English>
++		<French>Seuil pour voir la %s1 d�pass� par %d2 [ICON_ESPIONAGE]</French>
++		<German>Schwelle f�r sichtbare %s1 �bertroffen um %d2 [ICON_ESPIONAGE]</German>
++		<Italian>Soglia per vedere la %s1 superata da %d2 [ICON_ESPIONAGE]</Italian>
++		<Spanish>Umbral para ver %s1 superado en %d2 [ICON_ESPIONAGE]</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 70259c3e5..ae97edb88 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -34,6 +34,25 @@ void CvDLLWidgetData::freeInstance()
+ 
+ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &widgetDataStruct)
+ {
++	// <advc.085> Replacing a few sporadic tests in the parse... functions
++	static WidgetTypes aePlayerAsData1[] = { 
++		WIDGET_HELP_FINANCE_AWAY_SUPPLY, WIDGET_HELP_FINANCE_CITY_MAINT,
++		WIDGET_HELP_FINANCE_CIVIC_UPKEEP, WIDGET_HELP_FINANCE_DOMESTIC_TRADE,
++		WIDGET_HELP_FINANCE_FOREIGN_INCOME, WIDGET_HELP_FINANCE_GOLD_RESERVE,
++		WIDGET_HELP_FINANCE_GROSS_INCOME, WIDGET_HELP_FINANCE_INFLATED_COSTS,
++		WIDGET_HELP_FINANCE_NET_GOLD, WIDGET_HELP_FINANCE_NUM_UNITS,
++		WIDGET_HELP_FINANCE_SPECIALISTS, WIDGET_HELP_FINANCE_UNIT_COST,
++		WIDGET_LEADERHEAD, WIDGET_LEADERHEAD_RELATIONS, WIDGET_LEADER_LINE,
++		WIDGET_CONTACT_CIV, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
++		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY };
++	for(int i = 0; i < sizeof(aePlayerAsData1) / sizeof(WidgetTypes); i++) {
++		if(widgetDataStruct.m_eWidgetType == aePlayerAsData1[i] &&
++				(widgetDataStruct.m_iData1 <= NO_PLAYER ||
++				widgetDataStruct.m_iData1 >= MAX_PLAYERS)) {
++			FAssertMsg(false, "Player id missing in widget data");
++			return;
++		}
++	} // </advc.085>
+ 	switch (widgetDataStruct.m_eWidgetType)
+ 	{
+ 	case WIDGET_PLOT_LIST:
+@@ -133,7 +152,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_CITY_TAB:
+ 		{
+ 			CvWString szTemp;
+-            szTemp.Format(L"%s", GC.getCityTabInfo((CityTabTypes)widgetDataStruct.m_iData1).getDescription());
++			szTemp.Format(L"%s", GC.getCityTabInfo((CityTabTypes)widgetDataStruct.m_iData1).getDescription());
+ 			szBuffer.assign(szTemp);
+ 		}
+ 		break;
+@@ -642,7 +661,34 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_FOOD_MOD_HELP:
+ 		parseFoodModHelp(widgetDataStruct, szBuffer);
+ 		break; // BULL - Food Rate Hover - end
+-	}
++	// <advc.085>
++	case WIDGET_EXPAND_SCORES:
++		break; // Handled below (not the only widget that expands the scoreboard)
++	case WIDGET_POWER_RATIO:
++		parsePowerRatioHelp(widgetDataStruct, szBuffer);
++		break;
++	case WIDGET_GOLDEN_AGE:
++		parseGoldenAgeAnarchyHelp((PlayerTypes)widgetDataStruct.m_iData1,
++				widgetDataStruct.m_iData2, false, szBuffer);
++		break;
++	case WIDGET_ANARCHY:
++		parseGoldenAgeAnarchyHelp((PlayerTypes)widgetDataStruct.m_iData1,
++				widgetDataStruct.m_iData2, true, szBuffer);
++		break;
++	}
++	static WidgetTypes aeExpandTypes[] = {
++		WIDGET_CONTACT_CIV, WIDGET_DEAL_KILL, WIDGET_PEDIA_JUMP_TO_TECH,
++		WIDGET_EXPAND_SCORES, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
++		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY
++	};
++	for(int i = 0; i < sizeof(aeExpandTypes) / sizeof(WidgetTypes); i++) {
++		if((widgetDataStruct.m_eWidgetType == aeExpandTypes[i] &&
++				widgetDataStruct.m_iData2 == 0) ||
++				// Need iData2 for sth. else; must only use these WidgetTypes on the scoreboard.
++				widgetDataStruct.m_eWidgetType == WIDGET_TRADE_ROUTES ||
++				widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO)
++			GET_PLAYER(GC.getGameINLINE().getActivePlayer()).setScoreboardExpanded(true);
++	} // </advc.085>
+ }
+ 
+ // Protected Functions...
+@@ -2168,10 +2214,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 					szBuffer.append(gDLL->getText("TXT_KEY_ACTION_GOES_TO_CIV"));
+ 
+ 					szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+-							GET_PLAYER(eGiftPlayer).getPlayerTextColorR(),
+-							GET_PLAYER(eGiftPlayer).getPlayerTextColorG(),
+-							GET_PLAYER(eGiftPlayer).getPlayerTextColorB(),
+-							GET_PLAYER(eGiftPlayer).getPlayerTextColorA(),
++							PLAYER_TEXT_COLOR(GET_PLAYER(eGiftPlayer)),
+ 							GET_PLAYER(eGiftPlayer).getCivilizationShortDescription());
+ 					szBuffer.append(szTempBuffer);
+ 
+@@ -3483,10 +3526,7 @@ void CvDLLWidgetData::parseChangePercentHelp(CvWidgetDataStruct &widgetDataStruc
+ // advc (comment): Could this function be merged into CvGameTextMgr::parseLeaderHeadHelp?
+ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)  // advc.003: Some style changes
+ {
+-	// do not execute if player is out of range
+ 	PlayerTypes ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
+-	if (ePlayer >= MAX_PLAYERS)
+-		return;
+ 	// do not execute if player is not a real civ
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+ 	if (kPlayer.getCivilizationType() == NO_CIVILIZATION)
+@@ -3498,10 +3538,6 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
+ 	TeamTypes eActiveTeam = GET_PLAYER(eActivePlayer).getTeam();
+ 	CvTeamAI const& kActiveTeam = GET_TEAM(eActiveTeam);
+-	// <advc.085>
+-	if(widgetDataStruct.m_iData2 == 0)
+-		GET_PLAYER(eActivePlayer).setScoreboardExpanded(true);
+-	// </advc.085>
+ 
+ 	// if alt down and cheat on, show extra info
+ 	if (GC.altKey() && //gDLL->getChtLvl() > 0)
+@@ -3683,7 +3719,6 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+ 	PlayerTypes ePlayer = (PlayerTypes) widgetDataStruct.m_iData1;
+-	FAssert(ePlayer != NO_PLAYER);
+ 
+ 	const CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+ 
+@@ -5100,9 +5135,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		CvPlayer const& civ = GET_PLAYER(sorted[i].second);
+ 		int iCulturePercent = sorted[i].first; // </advc.099>
+ 		swprintf(szTempBuffer, L"\n%d%% " SETCOLR L"%s" ENDCOLR,
+-				iCulturePercent, civ.getPlayerTextColorR(),
+-				civ.getPlayerTextColorG(), civ.getPlayerTextColorB(),
+-				civ.getPlayerTextColorA(), civ.getCivilizationAdjective());
++				iCulturePercent, PLAYER_TEXT_COLOR(civ), civ.getCivilizationAdjective());
+ 		szBuffer.append(szTempBuffer);
+ 	}
+ 	PlayerTypes eCulturalOwner = c.calculateCulturalOwner(); // advc.099c
+@@ -5355,11 +5388,10 @@ void CvDLLWidgetData::parseFeatureHelp(CvWidgetDataStruct &widgetDataStruct, CvW
+ 
+ 
+ void CvDLLWidgetData::parseTechEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+-{
+-	if (widgetDataStruct.m_iData2 != 0)
+-	{
+-		GAMETEXT.setTechHelp(szBuffer, ((TechTypes)(widgetDataStruct.m_iData1)));
+-	}
++{	/*  advc.085: 0 was unused, so this check wasn't needed for anything. Now 0
++		causes the scoreboard to expand (handled by caller). */
++	//if (widgetDataStruct.m_iData2 != 0)
++	GAMETEXT.setTechHelp(szBuffer, ((TechTypes)(widgetDataStruct.m_iData1)));
+ }
+ 
+ // BULL - Trade Denial - start
+@@ -5622,19 +5654,16 @@ void CvDLLWidgetData::parseFinanceInflatedCosts(CvWidgetDataStruct &widgetDataSt
+ 
+ void CvDLLWidgetData::parseFinanceGrossIncome(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-//	szBuffer = "Your gross income";
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_GROSS_INCOME"));
+ }
+ 
+ void CvDLLWidgetData::parseFinanceNetGold(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-//	szBuffer = "Net Gold per turn";
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_NET_GOLD"));
+ }
+ 
+ void CvDLLWidgetData::parseFinanceGoldReserve(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-//	szBuffer = "Amount of money in your gold reserves";
+ 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_GOLD_RESERVE"));
+ }
+ // BULL - Finance Advisor - start
+@@ -5961,10 +5990,7 @@ void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	if (NULL != pDeal)
+ 	{
+ 		PlayerTypes eActivePlayer = g.getActivePlayer();
+-		// <advc.085>
+-		if(widgetDataStruct.m_iData2 == 0)
+-			GET_PLAYER(eActivePlayer).setScoreboardExpanded(true);
+-		// </advc.085>  // <advc.073>
++		// <advc.073>
+ 		GAMETEXT.getDealString(szBuffer, *pDeal, eActivePlayer, false);
+ 		szBuffer.append(NEWLINE); // </advc.073>
+ 		if (pDeal->isCancelable(eActivePlayer, &szTemp))
+@@ -6043,17 +6069,11 @@ void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct,
+ void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
+ {
+ 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+-	// <advc.085>
+-	if(widgetDataStruct.m_iData2 == 0)
+-		GET_PLAYER(GC.getGameINLINE().getActivePlayer()).setScoreboardExpanded(true);
+-	// </advc.085>
+ }
+ 
+ // BULL - Trade Hover - start
+ void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer) {
+ 
+-	// advc.085:
+-	GET_PLAYER(GC.getGameINLINE().getActivePlayer()).setScoreboardExpanded(true);
+ 	GAMETEXT.buildTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+ 	GAMETEXT.getActiveDealsString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2,
+ 			true); // advc.087
+@@ -6067,6 +6087,78 @@ void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvW
+ 	GAMETEXT.setFoodHelp(szBuffer, *pCity);
+ }
+ // BUG - Food Rate Hover - end
++// <advc.085>
++void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer) {
++
++	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1);
++	CvPlayer const& kActivePlayer = GET_PLAYER(GC.getGameINLINE().getActivePlayer());
++	bool bThemVsYou = (getBugOptionINT("Scores__PowerFormula", 0, false) == 0);
++	int iPow = std::max(1, kPlayer.getPower());
++	int iActivePow = std::max(1, kActivePlayer.getPower());
++	int iPowerRatioPercent = ::round(bThemVsYou ?
++			(100.0 * iPow) / iActivePow : (100.0 * iActivePow) / iPow);
++	CvWString szCompareTag("TXT_KEY_POWER_RATIO_");
++	if(iPowerRatioPercent < 100)
++		szCompareTag += L"SMALLER";
++	else if(iPowerRatioPercent > 100)
++		szCompareTag += L"GREATER";
++	else szCompareTag += L"EQUAL";
++	CvWString szPowerRatioHelpTag("TXT_KEY_POWER_RATIO_HELP_");
++	if(bThemVsYou)
++		szPowerRatioHelpTag += L"THEM_VS_YOU";
++	else szPowerRatioHelpTag += L"YOU_VS_THEM";
++	szBuffer.append(gDLL->getText(szPowerRatioHelpTag, kPlayer.getName(),
++			gDLL->getText(szCompareTag).GetCString()));
++	ColorTypes eRatioColor = widgetDataStruct.m_iData2 <= 0 ? NO_COLOR :
++			(ColorTypes)widgetDataStruct.m_iData2;
++	if(eRatioColor != NO_COLOR) {
++		NiColorA const& kRatioColor = GC.getColorInfo(eRatioColor).getColor();
++		szBuffer.append(CvWString::format(L" " SETCOLR L"%d%%" ENDCOLR,
++				// Based on the TEXT_COLOR macro
++				(int)(kRatioColor.r * 255), (int)(kRatioColor.g * 255),
++				(int)(kRatioColor.b * 255), (int)(kRatioColor.a * 255),
++				iPowerRatioPercent));
++	}
++	else szBuffer.append(CvWString::format(L" %d%%", iPowerRatioPercent));
++	if(kActivePlayer.getMasterTeam() == kPlayer.getMasterTeam())
++		return; // Espionage vs. allies isn't so interesting
++	int iNeededDemographics = kActivePlayer.espionageNeededToSee(kPlayer.getID(), true);
++	// (Might make more sense to show this in the tech hover)
++	int iNeededResearch = kActivePlayer.espionageNeededToSee(kPlayer.getID(), false);
++	FAssert((iNeededDemographics <= 0 && iNeededDemographics != MAX_INT) ||
++			GC.getGameINLINE().isDebugMode());
++	if(iNeededDemographics == MAX_INT)
++		return;
++	szBuffer.append(NEWLINE);
++	CvWString szSeeWhat;
++	int iNeeded = iNeededDemographics;
++	if(iNeededResearch <= 0) {
++		iNeeded = iNeededResearch;
++		szSeeWhat = gDLL->getText("TXT_KEY_COMMERCE_RESEARCH");
++	}
++	else szSeeWhat = gDLL->getText("TXT_KEY_DEMO_SCREEN_TITLE");
++	szBuffer.append(gDLL->getText("TXT_KEY_SEE_INTEL_THRESHOLD",
++			szSeeWhat.GetCString(), -iNeeded));
++}
++
++
++void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
++		bool bAnarchy, CvWStringBuffer &szBuffer) {
++
++	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++	if(bAnarchy) {
++		int iTurns = kPlayer.getAnarchyTurns();
++		FAssert(iTurns > 0);
++		szBuffer.append(gDLL->getText("INTERFACE_ANARCHY", iTurns));
++	}
++	else {
++		szBuffer.append(gDLL->getText("TXT_KEY_CONCEPT_GOLDEN_AGE"));
++		int iTurns = kPlayer.getGoldenAgeTurns();
++		FAssert(iTurns > 0);
++		szBuffer.append(CvWString::format(L" (%s)",
++				gDLL->getText("TXT_KEY_MISC_TURNS_LEFT2", iTurns).GetCString()));
++	}
++} // </advc.085>
+ 
+ /*
+ ** K-Mod, 5/jan/11, karadoc
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index 59fa555d9..f9b77c9b3 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -115,6 +115,10 @@ protected:
+ 	void parseTradeRoutes(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	// BULL - Food Rate Hover:
+ 	void parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	// <advc.085>
++	void parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
++	void parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2, bool bAnarchy, CvWStringBuffer &szBuffer);
++	// </advc.085>
+ 	void parseConvertHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parseRevolutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	// void parsePopupQueue(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 8a97f9fd7..33cfa7bb5 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -113,6 +113,8 @@
+ #define DOUBLE_SEPARATOR													L"\n======================="
+ // BUG - end
+ #define TEXT_COLOR(szColor)										((int)(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().r * 255)), ((int)(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().g * 255)), ((int)(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().b * 255)), ((int)(GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().a * 255))
++// advc.003:  (uses of this macro aren't tagged with "advc")
++#define PLAYER_TEXT_COLOR(kPlayer)								kPlayer.getPlayerTextColorR(), kPlayer.getPlayerTextColorG(), kPlayer.getPlayerTextColorB(), kPlayer.getPlayerTextColorA()
+ 
+ // Version Verification files and folders
+ #ifdef _DEBUG
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index d6e704fe8..ccdb01c48 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -569,6 +569,11 @@ enum WidgetTypes					// Exposed to Python
+ 	// BULL - Finance Advisor - end
+ 	WIDGET_LEADERHEAD_RELATIONS, // BULL - Leaderhead Relations
+ 	WIDGET_FOOD_MOD_HELP, // BULL - Food Rate Hover
++	// <advc.085>
++	WIDGET_EXPAND_SCORES,
++	WIDGET_POWER_RATIO,
++	WIDGET_GOLDEN_AGE,
++	WIDGET_ANARCHY, // </advc.085>
+ #ifdef _USRDLL
+ 	NUM_WIDGET_TYPES
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index feff55863..e1e0aec77 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -633,8 +633,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 	//if (pUnit->getOwnerINLINE() != GC.getGameINLINE().getActivePlayer() && !pUnit->isAnimal() && !pUnit->getUnitInfo().isHiddenNationality())
+ 	if(!bOmitOwner && !pUnit->isUnowned()) // advc.061: Replacing the above
+ 	{
++		CvPlayer const& kOwner = GET_PLAYER(pUnit->getOwnerINLINE());
+ 		szString.append(L", ");
+-		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorA(), GET_PLAYER(pUnit->getOwnerINLINE()).getName());
++		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, PLAYER_TEXT_COLOR(kOwner), kOwner.getName());
+ 		szString.append(szTempBuffer);
+ 	}
+ 	bool bFirst = true; // advc.004
+@@ -1403,9 +1404,7 @@ void CvGameTextMgr::appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerType
+ 		szString.append(NEWLINE);
+ 	CvPlayer const& kOwner = GET_PLAYER(eOwner);
+ 	szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
+-			kOwner.getPlayerTextColorR(), kOwner.getPlayerTextColorG(),
+-			kOwner.getPlayerTextColorB(), kOwner.getPlayerTextColorA(),
+-			kOwner.getName()));
++			PLAYER_TEXT_COLOR(kOwner), kOwner.getName()));
+ 	CvWString szCounts; 
+ 	if(iArmy >= iTotal || iNavy >= iTotal || iOther >= iTotal) {
+ 		szCounts = CvWString::format(L" (%d %s)", iTotal,
+@@ -1997,9 +1996,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot,
+ 						szString.append(L", ");
+ 						CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
+ 						szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
+-								kLoopPlayer.getPlayerTextColorR(), kLoopPlayer.getPlayerTextColorG(),
+-								kLoopPlayer.getPlayerTextColorB(), kLoopPlayer.getPlayerTextColorA(),
+-								kLoopPlayer.getName()));
++								PLAYER_TEXT_COLOR(kLoopPlayer), kLoopPlayer.getName()));
+ 					}
+ 				}
+ 			}
+@@ -2031,9 +2028,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 		getUnitAIString(szTempString, pHeadUnit->AI_getUnitAIType());
+ 		CvPlayer const& kHeadOwner = GET_PLAYER(pHeadUnit->getOwnerINLINE());
+ 		szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
+-				kHeadOwner.getPlayerTextColorR(), kHeadOwner.getPlayerTextColorG(),
+-				kHeadOwner.getPlayerTextColorB(), kHeadOwner.getPlayerTextColorA(),
+-				szTempString.GetCString()));
++				PLAYER_TEXT_COLOR(kHeadOwner), szTempString.GetCString()));
+ 
+ 		// promotion icons
+ 		for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
+@@ -2112,16 +2107,12 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 				szString.append(L"\n to ");
+ 				CvPlayer const& kMissionPlayer = GET_PLAYER(pMissionUnit->getOwnerINLINE());
+ 				szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR,
+-						kMissionPlayer.getPlayerTextColorR(), kMissionPlayer.getPlayerTextColorG(),
+-						kMissionPlayer.getPlayerTextColorB(), kMissionPlayer.getPlayerTextColorA(),
+-						pMissionUnit->getName().GetCString()));
++						PLAYER_TEXT_COLOR(kMissionPlayer), pMissionUnit->getName().GetCString()));
+ 				szString.append(CvWString::format(L"(%d) G:%d", shortenID(pMissionUnit->getID()),
+ 						shortenID(pMissionUnit->getGroupID())));
+ 				getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
+ 				szString.append(CvWString::format(SETCOLR L" %s" ENDCOLR,
+-						kMissionPlayer.getPlayerTextColorR(), kMissionPlayer.getPlayerTextColorG(),
+-						kMissionPlayer.getPlayerTextColorB(), kMissionPlayer.getPlayerTextColorA(),
+-						szTempString.GetCString()));
++						PLAYER_TEXT_COLOR(kMissionPlayer), szTempString.GetCString()));
+ 			}
+ 
+ 			// mission plot
+@@ -2173,9 +2164,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 						}
+ 						CvPlayer const& kCityOwner = GET_PLAYER(pCity->getOwnerINLINE());
+ 						szString.append(CvWString::format(SETCOLR L"%s" ENDCOLR L")",
+-								kCityOwner.getPlayerTextColorR(), kCityOwner.getPlayerTextColorG(),
+-								kCityOwner.getPlayerTextColorB(), kCityOwner.getPlayerTextColorA(),
+-								pCity->getName().GetCString()));
++								PLAYER_TEXT_COLOR(kCityOwner), pCity->getName().GetCString()));
+ 					}
+ 					else
+ 					{
+@@ -2193,12 +2182,9 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 						PlayerTypes eMissionPlotOwner = pMissionPlot->getOwnerINLINE();
+ 						if (eMissionPlotOwner != NO_PLAYER)
+ 						{
++							CvPlayer const& kMissionPlotOwner = GET_PLAYER(eMissionPlotOwner);
+ 							szString.append(CvWString::format(L", " SETCOLR L"%s" ENDCOLR,
+-									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorR(),
+-									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorG(),
+-									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorB(),
+-									GET_PLAYER(eMissionPlotOwner).getPlayerTextColorA(),
+-									GET_PLAYER(eMissionPlotOwner).getName()));
++									PLAYER_TEXT_COLOR(kMissionPlotOwner), kMissionPlotOwner.getName()));
+ 						}
+ 					}
+ 				}
+@@ -2242,9 +2228,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 					getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
+ 					CvPlayer const& kCargoOwner = GET_PLAYER(pCargoUnit->getOwnerINLINE());
+ 					szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
+-							kCargoOwner.getPlayerTextColorR(), kCargoOwner.getPlayerTextColorG(),
+-							kCargoOwner.getPlayerTextColorB(), kCargoOwner.getPlayerTextColorA(),
+-							szTempString.GetCString()));
++							PLAYER_TEXT_COLOR(kCargoOwner), szTempString.GetCString()));
+ 
+ 					// promotion icons
+ 					for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
+@@ -2278,9 +2262,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 					getUnitAIString(szTempString, pUnit->AI_getUnitAIType());
+ 					CvPlayer const& kUnitOwner = GET_PLAYER(pUnit->getOwnerINLINE());
+ 					szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
+-							kUnitOwner.getPlayerTextColorR(), kUnitOwner.getPlayerTextColorG(),
+-							kUnitOwner.getPlayerTextColorB(), kUnitOwner.getPlayerTextColorA(),
+-							szTempString.GetCString()));
++							PLAYER_TEXT_COLOR(kUnitOwner), szTempString.GetCString()));
+ 
+ 					// promotion icons
+ 					for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
+@@ -2310,9 +2292,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 							getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
+ 							CvPlayer const& kCargoOwner = GET_PLAYER(pCargoUnit->getOwnerINLINE());
+ 							szString.append(CvWString::format(SETCOLR L" %s " ENDCOLR,
+-									kCargoOwner.getPlayerTextColorR(), kCargoOwner.getPlayerTextColorG(),
+-									kCargoOwner.getPlayerTextColorB(), kCargoOwner.getPlayerTextColorA(),
+-									szTempString.GetCString()));
++									PLAYER_TEXT_COLOR(kCargoOwner), szTempString.GetCString()));
+ 
+ 							// promotion icons
+ 							for (int iPromotionIndex = 0; iPromotionIndex < iPromotions; iPromotionIndex++)
+@@ -4490,13 +4470,10 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				} // </advc.023>
+ 			} // </advc.101>
+ 			if(eRevealOwner != NO_PLAYER) { // advc.099f
++				CvPlayer const& kRevealOwner = GET_PLAYER(eRevealOwner);
+ 				szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR,
+ 						pPlot->calculateCulturePercent(eRevealOwner),
+-						GET_PLAYER(eRevealOwner).getPlayerTextColorR(),
+-						GET_PLAYER(eRevealOwner).getPlayerTextColorG(),
+-						GET_PLAYER(eRevealOwner).getPlayerTextColorB(),
+-						GET_PLAYER(eRevealOwner).getPlayerTextColorA(),
+-						GET_PLAYER(eRevealOwner).getCivilizationAdjective());
++						PLAYER_TEXT_COLOR(kRevealOwner), kRevealOwner.getCivilizationAdjective());
+ 				szString.append(szTempBuffer);
+ 				szString.append(NEWLINE);
+ 			}
+@@ -4510,17 +4487,14 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					{/* K-Mod, 29/sep/10, Karadoc
+ 						Prevented display of 0% culture, to reduce the spam created by trade culture. */
+ 						/* original bts code
+-						szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, pPlot->calculateCulturePercent((PlayerTypes)iPlayer), kPlayer.getPlayerTextColorR(), kPlayer.getPlayerTextColorG(), kPlayer.getPlayerTextColorB(), kPlayer.getPlayerTextColorA(), kPlayer.getCivilizationAdjective());
++						szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR, pPlot->calculateCulturePercent((PlayerTypes)iPlayer), PLAYER_TEXT_COLOR(kPlayer), kPlayer.getCivilizationAdjective());
+ 						szString.append(szTempBuffer);
+ 						szString.append(NEWLINE);*/
+ 						int iCulturePercent = pPlot->calculateCulturePercent((PlayerTypes)iPlayer);
+ 						if (iCulturePercent >= 1)
+ 						{
+ 							szTempBuffer.Format(L"%d%% " SETCOLR L"%s" ENDCOLR,
+-									iCulturePercent, kPlayer.getPlayerTextColorR(),
+-									kPlayer.getPlayerTextColorG(),
+-									kPlayer.getPlayerTextColorB(),
+-									kPlayer.getPlayerTextColorA(),
++									iCulturePercent, PLAYER_TEXT_COLOR(kPlayer),
+ 									kPlayer.getCivilizationAdjective());
+ 							szString.append(szTempBuffer);
+ 							szString.append(NEWLINE);
+@@ -4531,7 +4505,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		}
+ 		else if(eRevealOwner != NO_PLAYER) // advc.099f
+ 		{
+-			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(eRevealOwner).getPlayerTextColorR(), GET_PLAYER(eRevealOwner).getPlayerTextColorG(), GET_PLAYER(eRevealOwner).getPlayerTextColorB(), GET_PLAYER(eRevealOwner).getPlayerTextColorA(), GET_PLAYER(eRevealOwner).getCivilizationDescription());
++			CvPlayer const& kRevealOwner = GET_PLAYER(eRevealOwner);
++			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
++					PLAYER_TEXT_COLOR(kRevealOwner), kRevealOwner.getCivilizationDescription());
+ 			szString.append(szTempBuffer);
+ 			szString.append(NEWLINE);
+ 		}
+@@ -10861,8 +10837,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_REDUCES_MAINTENANCE"));
+ 	}
+ 
+-	if (kBuilding.isGoldenAge()
+-			&& !inBuildingList) // advc.004w
++	if (kBuilding.isGoldenAge() /* advc.004w: */ && !inBuildingList)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_GOLDEN_AGE"));
+@@ -10874,8 +10849,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_ENABLES_NUKES"));
+ 	}
+ 
+-	if (kBuilding.isMapCentering()
+-			&& !inBuildingList) // advc.004w
++	if (kBuilding.isMapCentering() /* advc.004w: */ && !inBuildingList)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_CENTERS_MAP"));
+@@ -19911,6 +19885,19 @@ void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePla
+ 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_THEM"));
+ 				bCanTrade = false;
+ 			}
++			// <advc.124>
++			bool bAnyCityKnown = false; int foo;
++			for(CvCity* pLoopCity = kWithPlayer.firstCity(&foo); pLoopCity != NULL;
++					pLoopCity = kWithPlayer.nextCity(&foo)) {
++				if(pLoopCity->isRevealed(kPlayer.getTeam(), false)) {
++					bAnyCityKnown = true;
++					break;
++				}
++			}
++			if(!bAnyCityKnown) {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_NO_KNOWN_CITIES"));
++				bCanTrade = false;
++			} // </advc.124>
+ 			if (!bCanTrade)
+ 				return;
+ 		}
+@@ -20459,13 +20446,12 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ 				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT_TO_VICTORY", iMinVictoryTurns);
+ 			} /* <advc.003> Merged these two conditions so that more else-if
+ 				clauses can be added below */ 
+-			else if (g.getMaxTurns() > 0 &&
+-					((g.getElapsedGameTurns() >= (g.getMaxTurns() -
+-					30)) // advc.004: was 100
++			else if (g.getMaxTurns() > 0 && (g.getElapsedGameTurns() >= g.getMaxTurns() -
++					30 // advc.004: was 100
+ 					&& g.getElapsedGameTurns() < g.getMaxTurns())) { // </advc.003>
+ 				if(!strText.empty())
+ 					strText += L" -- ";
+-				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT", (g.getMaxTurns() - g.getElapsedGameTurns()));
++				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT", g.getMaxTurns() - g.getElapsedGameTurns());
+ 			} // <advc.700> The other countdowns take precedence
+ 			else if(g.isOption(GAMEOPTION_RISE_FALL)) {
+ 				std::pair<int,int> rfCountdown = g.getRiseFall().
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6b67fe8e5..2cd081435 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8360,9 +8360,10 @@ int CvPlayer::getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) cons
+ }
+ 
+ // K-Mod. Return true if this player can see what ePlayer is researching
+-bool CvPlayer::canSeeResearch(PlayerTypes ePlayer) const
++bool CvPlayer::canSeeResearch(PlayerTypes ePlayer,
++		bool bCheckPoints) const // advc.085
+ {
+-	FAssert(ePlayer >= 0 && ePlayer < MAX_PLAYERS);
++	FASSERT_BOUNDS(0, MAX_PLAYERS, ePlayer, "canSeeResearch");
+ 	const CvPlayer& kOther = GET_PLAYER(ePlayer);
+ 
+ 	if (kOther.getTeam() == getTeam() || GET_TEAM(kOther.getTeam()).isVassal(getTeam()))
+@@ -8377,7 +8378,9 @@ bool CvPlayer::canSeeResearch(PlayerTypes ePlayer) const
+ 		{
+ 			CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo(i);
+ 
+-			if (kMissionInfo.isSeeResearch() && kMissionInfo.isPassive() && canDoEspionageMission(i, ePlayer, 0, 0, 0))
++			if (kMissionInfo.isSeeResearch() && kMissionInfo.isPassive() &&
++					canDoEspionageMission(i, ePlayer, NULL, 0, NULL,
++					bCheckPoints)) // advc.085
+ 				return true;
+ 		}
+ 	}
+@@ -8385,9 +8388,10 @@ bool CvPlayer::canSeeResearch(PlayerTypes ePlayer) const
+ }
+ 
+ // return true if this player can see ePlayer's demographics (power graph, culture graph, etc.)
+-bool CvPlayer::canSeeDemographics(PlayerTypes ePlayer) const
++bool CvPlayer::canSeeDemographics(PlayerTypes ePlayer,
++		bool bCheckPoints) const // advc.085
+ {
+-	FAssert(ePlayer >= 0 && ePlayer < MAX_PLAYERS);
++	FASSERT_BOUNDS(0, MAX_PLAYERS, ePlayer, "canSeeDemographics");
+ 	const CvPlayer& kOther = GET_PLAYER(ePlayer);
+ 
+ 	if (kOther.getTeam() == getTeam() || GET_TEAM(kOther.getTeam()).isVassal(getTeam()))
+@@ -8403,12 +8407,35 @@ bool CvPlayer::canSeeDemographics(PlayerTypes ePlayer) const
+ 	{
+ 		CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo(i);
+ 
+-		if (kMissionInfo.isSeeDemographics() && kMissionInfo.isPassive() && canDoEspionageMission(i, ePlayer, 0, 0, 0))
++		if (kMissionInfo.isSeeDemographics() && kMissionInfo.isPassive() &&
++				canDoEspionageMission(i, ePlayer, NULL, 0, NULL,
++				bCheckPoints)) // advc.085
+ 			return true;
+ 	}
+ 	return false;
+ }
+ // K-Mod end
++/*  <advc.085> !bDemographics means: return espionage needed to see research.
++	Mix of code from canSeeDemographics, canSeeResearch and canDoEspionageMission. */
++int CvPlayer::espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) const {
++
++	int r = MAX_INT;
++	if(!(bDemographics ?
++			canSeeDemographics(ePlayer, false) : canSeeResearch(ePlayer, false)))
++		return r;
++	int iEspionagePoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(ePlayer));
++	for(int i = 0; i < GC.getNumEspionageMissionInfos(); i++) {
++		EspionageMissionTypes eLoopMission = (EspionageMissionTypes)i;
++		CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eLoopMission);
++		if(!kMission.isPassive())
++			continue;
++		if(bDemographics ? kMission.isSeeDemographics() : kMission.isSeeResearch()) {
++			r = std::min(r, getEspionageMissionCost(
++					eLoopMission, ePlayer, NULL, 0, NULL) - iEspionagePoints);
++		}
++	}
++	return r;
++} // </advc.085>
+ // <advc.550e>
+ bool CvPlayer::isSignificantDiscovery(TechTypes eTech) const {
+ 
+@@ -15317,17 +15344,14 @@ int CvPlayer::getEspionageSpending(TeamTypes eAgainstTeam) const
+ 	return iSpendingValue;
+ }
+ 
+-bool CvPlayer::canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pUnit) const
++bool CvPlayer::canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pUnit,
++		bool bCheckPoints) const // advc.085
+ {
+ 	if (getID() == eTargetPlayer || NO_PLAYER == eTargetPlayer)
+-	{
+ 		return false;
+-	}
+ 
+-	if (!GET_PLAYER(eTargetPlayer).isAlive() || !GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
+-	{
++	if (!GET_PLAYER(eTargetPlayer).isAlive() || !GET_TEAM(getTeam()).isHasMet(TEAMID(eTargetPlayer)))
+ 		return false;
+-	}
+ 
+ 	// K-Mod. Bugfix
+ 	if (pUnit && pPlot && !pUnit->canEspionage(pPlot, false))
+@@ -15335,37 +15359,26 @@ bool CvPlayer::canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes
+ 	// K-Mod end
+ 
+ 	CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
+-
+ 	// Need Tech Prereq, if applicable
+ 	if (kMission.getTechPrereq() != NO_TECH)
+ 	{
+ 		if (!GET_TEAM(getTeam()).isHasTech((TechTypes)kMission.getTechPrereq()))
+-		{
+ 			return false;
+-		}
+ 	}
+ 
+ 	int iCost = getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iExtraData, pUnit);
+ 	if (iCost < 0)
+-	{
+ 		return false;
+-	}
+-
+-	//if (NO_PLAYER != eTargetPlayer) // advc.003: it's guaranteed
+-	{
+-		int iEspionagePoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(GET_PLAYER(eTargetPlayer).getTeam());
+-
+-		if (iEspionagePoints < iCost)
+-		{
+-			return false;
+-		}
+-
+-		if (iEspionagePoints <= 0)
+-		{
+-			return false;
+-		}
+-	}
+ 
++	int iEspionagePoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer));
++	// <advc.085>
++	if (!bCheckPoints)
++		return true;
++	// </advc.085>
++	if (iEspionagePoints < iCost)
++		return false;
++	if (iEspionagePoints <= 0)
++		return false;
+ 	return true;
+ }
+ 
+@@ -23564,15 +23577,16 @@ void CvPlayer::setScoreboardExpanded(bool b) {
+ 	m_bScoreboardExpanded = b;
+ 	if(b) {
+ 		FAssert(getBugOptionBOOL("Scores__AlignIcons", true, false));
+-		if(getBugOptionBOOL("Scores__ExpandOnHover", false))
++		if(getBugOptionBOOL("Scores__ExpandOnHover", false, false))
+ 			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		else m_bScoreboardExpanded = false;
+ 	}
+ 	/*  If !b, then it doesn't help to dirty it b/c the update is still in progress
+ 		(when called from Python). */
+ 	else {
+ 		/*  0 would make the scoreboard collapse almost instantly when the mouse is
+-			moved away. Can't properly inspect icons then. 1 works pretty well;
+-			a higher delay shouldn't be necessary. */
++			moved away. Can't click buttons that way. A higher delay than 1
++			(1/4 second) shouldn't be necessary. */
+ 		int const iDelay = 1;
+ 		GC.getGameINLINE().setScoreboardDirtyTimer(iDelay);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index cb546e2ab..baa5086cf 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -324,8 +324,12 @@ public:
+ 	bool isCurrentResearchRepeat() const;																																	// Exposed to Python
+ 	bool isNoResearchAvailable() const;																																		// Exposed to Python
+ 	int getResearchTurnsLeft(TechTypes eTech, bool bOverflow) const;														// Exposed to Python
+-	bool canSeeResearch(PlayerTypes ePlayer) const; // K-Mod, Exposed to Python
+-	bool canSeeDemographics(PlayerTypes ePlayer) const; // K-Mod, Exposed to Python
++	bool canSeeResearch(PlayerTypes ePlayer, // K-Mod, Exposed to Python
++			bool bCheckPoints = true) const; // advc.085
++	bool canSeeDemographics(PlayerTypes ePlayer, // K-Mod, Exposed to Python
++			bool bCheckPoints = true) const; // advc.085
++	// advc.085:
++	int espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) const;
+ 	// advc.550e; also need it for advc.314
+ 	bool isSignificantDiscovery(TechTypes eTech) const;
+ 
+@@ -388,7 +392,8 @@ public:
+ 	void changeAdvancedStartPoints(int iChange);																													// Exposed to Python
+ 
+ 	int getEspionageSpending(TeamTypes eAgainstTeam) const;																								// Exposed to Python
+-	bool canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pUnit) const;		// Exposed to Python
++	bool canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pUnit,		// Exposed to Python
++			bool bCheckPoints = true) const; // advc.085
+ 	int getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const;
+ 	int getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;		// Exposed to Python
+ 	// dlph.33/advc:
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2766fca2e..e3debe714 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -211,8 +211,7 @@ bool CvUnitAI::AI_update()
+ 	else
+ 	{	// <advc.139>
+ 		UnitAITypes const uai = AI_getUnitAIType();
+-		int const iEvacAITypes = 9;
+-		UnitAITypes evacAITypes[iEvacAITypes] = {
++		static UnitAITypes evacAITypes[] = {
+ 			/*  The other AI types are obscure or already have routines for
+ 				escaping untenable cities. */
+ 			UNITAI_ATTACK, UNITAI_ATTACK_CITY, UNITAI_COLLATERAL, UNITAI_PILLAGE,
+@@ -220,7 +219,7 @@ bool CvUnitAI::AI_update()
+ 			UNITAI_CITY_SPECIAL,
+ 		};
+ 		bool bEvacAI = false;
+-		for(int i = 0; i < iEvacAITypes; i++) {
++		for(int i = 0; i < sizeof(evacAITypes) / sizeof(UnitAITypes); i++) {
+ 			if(uai == evacAITypes[i]) {
+ 				bEvacAI = true;
+ 				break;
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index b0d4a9c04..165509b4e 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -418,6 +418,11 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_LEADERHEAD_RELATIONS", WIDGET_LEADERHEAD_RELATIONS)
+ 		// BULL - Food Rate Hover:
+ 		.value("WIDGET_FOOD_MOD_HELP", WIDGET_FOOD_MOD_HELP)
++		// <advc.085>
++		.value("WIDGET_EXPAND_SCORES", WIDGET_EXPAND_SCORES)
++		.value("WIDGET_POWER_RATIO", WIDGET_POWER_RATIO)
++		.value("WIDGET_GOLDEN_AGE", WIDGET_GOLDEN_AGE)
++		.value("WIDGET_ANARCHY", WIDGET_ANARCHY) // </advc.085>
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+ /*
+
+[PATCH OMITTED] file=a/manual_0.95c.odt b/manual_0.95c.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=85601

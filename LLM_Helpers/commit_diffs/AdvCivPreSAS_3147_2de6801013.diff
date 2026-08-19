@@ -1,0 +1,752 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3147
+# Commit: 2de68010133b60f3e8ced98d35834ab8a52bfd23
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 894e710de39602c8531b816677bf9444c3f166ad
+# Title: Refactor loading of simple XML elements (CvXMLInfo class)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	109	CvGameCoreDLL/CvInfo_Base.cpp
+93	43	CvGameCoreDLL/CvInfo_Base.h
+3	10	CvGameCoreDLL/CvInfo_Building.cpp
+14	17	CvGameCoreDLL/CvInfo_Building.h
+2	20	CvGameCoreDLL/CvInfo_GameOption.cpp
+27	10	CvGameCoreDLL/CvInfo_GameOption.h
+4	11	CvGameCoreDLL/CvInfo_Terrain.cpp
+17	19	CvGameCoreDLL/CvInfo_Terrain.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 5ede42f0d..145971d62 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -200,7 +200,7 @@ m_bCtrlDownAlt(false)
+ 
+ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvXMLInfo::read(pXML)) // advc.tag
++	if (!base_t::read(pXML)) // advc.tag
+ 		return false;
+ 
+ 	// advc.006b: Default arguments added to GetChildXmlValByName calls
+@@ -231,7 +231,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ #if ENABLE_XML_FILE_CACHE
+ void CvHotkeyInfo::read(FDataStreamBase* pStream)
+ {
+-	CvXMLInfo::read(pStream); // advc.tag
++	base_t::read(pStream); // advc.tag
+ 	uint uiFlag=0;
+ 	pStream->Read(&uiFlag);
+ 
+@@ -254,7 +254,7 @@ void CvHotkeyInfo::read(FDataStreamBase* pStream)
+ 
+ void CvHotkeyInfo::write(FDataStreamBase* pStream)
+ {
+-	CvXMLInfo::write(pStream); // advc.tag
++	base_t::write(pStream); // advc.tag
+ 	uint uiFlag = 0;
+ 	pStream->Write(uiFlag);
+ 
+@@ -275,12 +275,6 @@ void CvHotkeyInfo::write(FDataStreamBase* pStream)
+ 	pStream->WriteString(m_szHotKeyString);
+ }
+ #endif
+-// advc.tag:
+-void CvHotkeyInfo::addElements(std::vector<XMLElement*>& r) const
+-{
+-	CvXMLInfo::addElements(r);
+-	// (Could add CvHotKeyInfo elements here)
+-}
+ 
+ int CvHotkeyInfo::getActionInfoIndex() const
+ {
+@@ -384,123 +378,52 @@ std::wstring CvHotkeyInfo::getHotKeyShortDesc() const
+ }
+ 
+ // <advc.tag>
+-CvXMLInfo::XMLElement::XMLElement(int iEnumValue, CvString szName) :
+-		m_iEnumValue(iEnumValue), m_szName(szName), m_bMandatory(true) {}
+-
+-CvXMLInfo::XMLElement::XMLElement(int iEnumValue, CvString szName, bool bMandatory) :
+-		m_iEnumValue(iEnumValue), m_szName(szName), m_bMandatory(bMandatory) {}
+-
+-int CvXMLInfo::XMLElement::getEnumValue() const { return m_iEnumValue; }
+-
+-CvString CvXMLInfo::XMLElement::getName() const { return m_szName; }
+-	
+-bool CvXMLInfo::XMLElement::isMandatory() const { return m_bMandatory; }
+-
+-CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName) :
+-		XMLElement(iEnumValue, szName), m_iDefaultValue(0) {}
+-
+-CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName, short iDefault) :
+-		XMLElement(iEnumValue, szName, false), m_iDefaultValue(iDefault) {}
+-
+-CvXMLInfo::ElementDataType CvXMLInfo::IntElement::getDataType() const
+-{
+-	return INT_ELEMENT;
+-}
+-
+-short CvXMLInfo::IntElement::getDefaultValue() const { return m_iDefaultValue; }
+-
+-CvXMLInfo::BoolElement::BoolElement(int iEnumValue, CvString szName) :
+-		XMLElement(iEnumValue, szName), m_bDefaultValue(false) {}
+-
+-CvXMLInfo::BoolElement::BoolElement(int iEnumValue, CvString szName, bool bDefault) :
+-		XMLElement(iEnumValue, szName, false), m_bDefaultValue(bDefault) {}
+-
+-CvXMLInfo::ElementDataType CvXMLInfo::BoolElement::getDataType() const
+-{
+-	return BOOL_ELEMENT;
+-}
+-
+-bool CvXMLInfo::BoolElement::getDefaultValue() const { return m_bDefaultValue; }
+-
+-void CvXMLInfo::addElements(std::vector<XMLElement*>& r) const
+-{
+-	// Could add elements common to all info classes here
+-}
+-
+-void CvXMLInfo::set(IntElementTypes e, int iNewValue)
+-{
+-	FAssertBounds(0, m_aiData.size(), e);
+-	m_aiData[e] = toShort(iNewValue);
+-}
+-
+-void CvXMLInfo::set(BoolElementTypes e, bool bNewValue)
+-{
+-	FAssertBounds(0, m_abData.size(), e);
+-	m_abData[e] = bNewValue;
+-}
+-
+ bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	CvInfoBase::read(pXML);
+ 
+-	std::vector<XMLElement*> apElements;
+-	addElements(apElements);
++	ElementList elements;
++	addElements(elements);
+ 	{	// Allocate space in data vectors
+-		int iIntElements = 0;
+-		int iBoolElements = 0;
+-		for (size_t i = 0; i < apElements.size(); i++)
++		m_aiData.resize(elements.numIntElements());
++		m_abData.resize(elements.numBoolElements());
++	}
++	for (int i = 0; i < elements.numIntElements(); i++)
++	{
++		IntElement const& kElement = elements.intElementAt(i);
++		CvString szName = kElement.getName();
++		szName.insert(0, "i");
++		int iTmp;
++		if (kElement.isMandatory())
++			pXML->GetChildXmlValByName(&iTmp, szName.GetCString());
++		else
+ 		{
+-			switch(apElements[i]->getDataType())
+-			{
+-			case INT_ELEMENT: iIntElements++; break;
+-			case BOOL_ELEMENT: iBoolElements++; break;
+-			default: FErrorMsg("Data type misses element counting code");
+-			}
++			pXML->GetChildXmlValByName(&iTmp, szName.GetCString(),
++					kElement.getDefaultValue());
+ 		}
+-		m_aiData.resize(iIntElements);
+-		m_abData.resize(iBoolElements);
++		set((IntElementTypes)kElement.getID(), iTmp);
+ 	}
+-	for (size_t i = 0; i < apElements.size(); i++)
++	for (int i = 0; i < elements.numBoolElements(); i++)
+ 	{
+-		XMLElement& kElement = *apElements[i];
+-		int const iEnumValue = kElement.getEnumValue();
++		BoolElement const& kElement = elements.boolElementAt(i);
+ 		CvString szName = kElement.getName();
+-		switch(kElement.getDataType())
++		szName.insert(0, "b");
++		bool bTmp;
++		if (kElement.isMandatory())
++			pXML->GetChildXmlValByName(&bTmp, szName.GetCString());
++		else
+ 		{
+-		case INT_ELEMENT:
+-			szName.insert(0, "i");
+-			int iTmp;
+-			if (kElement.isMandatory())
+-				pXML->GetChildXmlValByName(&iTmp, szName.GetCString());
+-			else
+-			{
+-				pXML->GetChildXmlValByName(&iTmp, szName.GetCString(),
+-						static_cast<IntElement&>(kElement).getDefaultValue());
+-			}
+-			FAssertBounds(0, m_aiData.size(), iEnumValue);
+-			m_aiData[iEnumValue] = toShort(iTmp);
+-			break;
+-		case BOOL_ELEMENT:
+-			szName.insert(0, "b");
+-			bool bTmp;
+-			if (kElement.isMandatory())
+-				pXML->GetChildXmlValByName(&bTmp, szName.GetCString());
+-			else
+-			{
+-				pXML->GetChildXmlValByName(&bTmp, szName.GetCString(),
+-						static_cast<BoolElement&>(kElement).getDefaultValue());
+-			}
+-			FAssertBounds(0, m_abData.size(), iEnumValue);
+-			m_abData[iEnumValue] = bTmp;
+-			break;
+-		default: FErrorMsg("Data type misses XML loading code");
++			pXML->GetChildXmlValByName(&bTmp, szName.GetCString(),
++					kElement.getDefaultValue());
+ 		}
+-		delete &kElement;
++		set((BoolElementTypes)kElement.getID(), bTmp);
+ 	}
+ 	return true;
+ }
+ 
+ #if ENABLE_XML_FILE_CACHE
++/*	Will probably never be needed. Cache version flag not implemented.
++	(Not sure how I'd go about that.) */
+ void CvXMLInfo::read(FDataStreamBase* pStream)
+ {
+ 	CvInfoBase::read(pStream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 5c87a7149..3a48de485 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -115,9 +115,9 @@ protected:
+ 	float m_fInterfaceScale; 
+ };
+ 
+-/*	advc.tag: Abstract class that allows XML elements to be added
+-	and accessed through enum values
+-	For elements that map an enum key to a value, see CvInfo_EnumMap.h. */
++/*	advc.tag: Abstract class that allows simple XML elements
++	(i.e. w/o child elements) to be added and accessed through enum values.
++	For elements that map an enum key to a value, see CvInfo_EnumMap.h instead. */
+ class CvXMLInfo : public CvInfoBase
+ {
+ public:
+@@ -152,48 +152,94 @@ protected:
+ 		INT_ELEMENT,
+ 		BOOL_ELEMENT,
+ 	};
++	template<typename ContentType>
+ 	class XMLElement
+ 	{
+ 	public:
+-		XMLElement(int iEnumValue, CvString szName);
+-		XMLElement(int iEnumValue, CvString szName, bool bMandatory);
++		XMLElement(int iID, char const* szName)
++		:	m_iID(iID), m_sName(szName), m_bMandatory(true),
++			m_defaultValue(0)
++		{}
++		XMLElement(int iID, CvString szName, ContentType defaultValue)
++		:	m_iID(iID), m_sName(szName), m_bMandatory(false),
++			m_defaultValue(defaultValue)
++		{}
+ 		virtual ~XMLElement() {};
+-		virtual ElementDataType getDataType() const = 0;
+-		int getEnumValue() const;
+-		CvString getName() const;
+-		bool isMandatory() const;
++		int getID() const { return m_iID; }
++		CvString getName() const { return m_sName; }
++		ContentType getDefaultValue() const
++		{
++			return m_defaultValue;
++		}
++		bool isMandatory() const { return m_bMandatory; }
+ 	private:
+-		CvString m_szName;
+-		int m_iEnumValue;
++		CvString m_sName;
++		int m_iID;
++		ContentType m_defaultValue;
+ 		bool m_bMandatory;
+ 	};
+-	class IntElement : public XMLElement
+-	{
+-	public:
+-		IntElement(int iEnumValue, CvString szName);
+-		IntElement(int iEnumValue, CvString szName, short iDefault);
+-		ElementDataType getDataType() const;
+-		short getDefaultValue() const;
+-	private:
+-		short m_iDefaultValue;
+-	};
+-	class BoolElement : public XMLElement
++	typedef XMLElement<int> IntElement;
++	typedef XMLElement<bool> BoolElement;
++
++	class ElementList
+ 	{
+ 	public:
+-		BoolElement(int iEnumValue, CvString szName);
+-		BoolElement(int iEnumValue, CvString szName, bool bDefault);
+-		ElementDataType getDataType() const;
+-		bool getDefaultValue() const;
++		~ElementList()
++		{
++			for (size_t i = 0; i < m_intElements.size(); i++)
++				delete m_intElements[i];
++			for (size_t i = 0; i < m_boolElements.size(); i++)
++				delete m_boolElements[i];
++		}
++		void addMandatoryInt(int iID, char const* szName)
++		{
++			m_intElements.push_back(new IntElement(iID, szName));
++		}
++		void addInt(int iID, char const* szName, int iDefault = 0)
++		{
++			m_intElements.push_back(new IntElement(iID, szName, iDefault));
++		}
++		void addMandatoryBool(int iID, char const* szName)
++		{
++			m_boolElements.push_back(new BoolElement(iID, szName));
++		}
++		void addBool(int iID, char const* szName, bool bDefault = false)
++		{
++			m_boolElements.push_back(new BoolElement(iID, szName, bDefault));
++		}
++		int numIntElements() const { return (int)m_intElements.size(); }
++		int numBoolElements() const { return (int)m_boolElements.size(); }
++		IntElement const& intElementAt(int iPos) const
++		{
++			return *m_intElements.at(iPos);
++		}
++		BoolElement const& boolElementAt(int iPos) const
++		{
++			return *m_boolElements.at(iPos);
++		}
+ 	private:
+-		int m_bDefaultValue;
++		std::vector<IntElement*> m_intElements;
++		std::vector<BoolElement*> m_boolElements;
+ 	};
++
+ 	/*	Derived classes that extend any of the element type enums need to override this.
+ 		The overridden function needs to call the base function and then append its
+-		own elements to r. */
+-	virtual void addElements(std::vector<XMLElement*>& r) const;
++		own elements to kElements. */
++	virtual void addElements(ElementList& kElements) const
++	{
++		// Could add elements common to all info classes here
++	}
+ 	// Allow derived classes to overwrite data (but don't expose the data structures)
+-	void set(IntElementTypes e, int iNewValue);
+-	void set(BoolElementTypes e, bool bNewValue);
++	void set(IntElementTypes e, int iNewValue)
++	{
++		FAssertBounds(0, m_aiData.size(), e);
++		m_aiData[e] = toShort(iNewValue);
++	}
++	void set(BoolElementTypes e, bool bNewValue)
++	{
++		FAssertBounds(0, m_abData.size(), e);
++		m_abData[e] = bNewValue;
++	}
+ 
+ private:
+ 	std::vector<short> m_aiData;
+@@ -216,29 +262,35 @@ private:
+ //  class : CvHotkeyInfo
+ //  holds the hotkey info for an info class
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvHotkeyInfo : public /* advc.tag: */ CvXMLInfo
++class CvHotkeyInfo : public /* <advc.tag> */ CvXMLInfo
+ {
++	typedef CvXMLInfo base_t;
++protected:
++	// All unused here, just to exemplify the pattern.
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++	}
+ public:
+-	CvHotkeyInfo();
+-	// <advc.tag>
+-	enum IntElementTypes // unused so far
++	enum IntElementTypes
+ 	{
+-		NUM_INT_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
++		NUM_INT_ELEMENT_TYPES = base_t::NUM_BOOL_ELEMENT_TYPES
+ 	};
+-	enum BoolElementTypes // unused so far
++	enum BoolElementTypes
+ 	{
+-		NUM_BOOL_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
++		NUM_BOOL_ELEMENT_TYPES = base_t::NUM_BOOL_ELEMENT_TYPES
+ 	};
+-	using CvXMLInfo::get; // unhide
+ 	int get(IntElementTypes e) const
+ 	{
+-		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
+ 	}
+ 	int get(BoolElementTypes e) const
+ 	{
+-		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
++		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
+ 	} // </advc.tag>
+ 
++	CvHotkeyInfo();
++
+ 	bool read(CvXMLLoadUtility* pXML);
+ 	#if ENABLE_XML_FILE_CACHE
+ 	virtual void read(FDataStreamBase* pStream);
+@@ -286,8 +338,6 @@ protected:
+ 	CvWString m_szHotKeyDescriptionKey;
+ 	CvWString m_szHotKeyAltDescriptionKey;
+ 	CvWString m_szHotKeyString;
+-
+-	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index a6cfd3efe..538f1a986 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -120,13 +120,6 @@ m_bStateReligion(false),
+ m_bAllowsNukes(false)
+ {}
+ 
+-// advc.tag:
+-void CvBuildingInfo::addElements(std::vector<XMLElement*>& r) const
+-{
+-	CvHotkeyInfo::addElements(r);
+-	r.push_back(new IntElement(RaiseDefense, "RaiseDefense", 0)); // advc.004c
+-}
+-
+ // advc.003w:
+ bool CvBuildingInfo::isTechRequired(TechTypes eTech) const
+ {
+@@ -248,7 +241,7 @@ bool CvBuildingInfo::nameNeedsArticle() const
+ #if ENABLE_XML_FILE_CACHE
+ void CvBuildingInfo::read(FDataStreamBase* stream)
+ {
+-	CvHotkeyInfo::read(stream);
++	base_t::read(stream);
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -427,7 +420,7 @@ void CvBuildingInfo::read(FDataStreamBase* stream)
+ 
+ void CvBuildingInfo::write(FDataStreamBase* stream)
+ {
+-	CvHotkeyInfo::write(stream);
++	base_t::write(stream);
+ 	uint uiFlag;
+ 	//uiFlag = 0;
+ 	uiFlag = 1; // advc.003t
+@@ -605,7 +598,7 @@ void CvBuildingInfo::write(FDataStreamBase* stream)
+ 
+ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvHotkeyInfo::read(pXML))
++	if (!base_t::read(pXML))
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal((int&)m_eBuildingClassType, "BuildingClass");
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index 821c08488..174950784 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -85,30 +85,29 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvBuildingInfo : public CvHotkeyInfo
+ {
+-public: /*	All the const functions are exposed to Python. advc.inl: Inlined most of those.
+-			Integers in signatures replaced with enum types (except for most of the array
+-			accessors - tbd.). */
+-	CvBuildingInfo();
+ 	// <advc.tag>
++	typedef CvHotkeyInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(RaiseDefense, "RaiseDefense"); // advc.004c
++	}
++public:
+ 	enum IntElementTypes
+ 	{
+-		RaiseDefense = CvHotkeyInfo::NUM_INT_ELEMENT_TYPES, // advc.004c
++		RaiseDefense = base_t::NUM_INT_ELEMENT_TYPES, // advc.004c
+ 		NUM_INT_ELEMENT_TYPES
+ 	};
+-	enum BoolElementTypes // unused so far
+-	{
+-		NUM_BOOL_ELEMENT_TYPES = CvHotkeyInfo::NUM_BOOL_ELEMENT_TYPES
+-	};
+-	using CvXMLInfo::get; // unhide
+ 	int get(IntElementTypes e) const
+ 	{
+-		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
+-	}
+-	int get(BoolElementTypes e) const
+-	{
+-		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
+ 	} // </advc.tag>
+ 
++	/*	All the const functions are exposed to Python. advc.inl: Inlined most of those.
++		Integers in signatures replaced with enum types. */
++	CvBuildingInfo();
++
+ 	BuildingClassTypes getBuildingClassType() const
+ 	{
+ 		return m_eBuildingClassType;
+@@ -465,8 +464,6 @@ protected:
+ 
+ 	std::vector<TechTypes> m_aePrereqAndTechs;
+ 	std::vector<BonusTypes> m_aePrereqOrBonuses;
+-
+-	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ 	// <advc.310>
+ 	static bool m_bEnabledAreaBorderObstacle;
+ 	static bool m_bEnabledAreaTradeRoutes;
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index 8cf5eabd2..3c6c053d2 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -211,28 +211,10 @@ int CvEraInfo::getCitySoundscapeScriptId(int i) const
+ 	FAssertBounds(0, NUM_CITYSIZE_TYPES, i); // advc: Check for upper bound added
+ 	return m_paiCitySoundscapeScriptIds ? m_paiCitySoundscapeScriptIds[i] : 0; // advc.003t
+ }
+-// advc.tag:
+-void CvEraInfo::addElements(std::vector<XMLElement*>& r) const
+-{
+-	CvXMLInfo::addElements(r);
+-	// <advc.groundbr>
+-	r.push_back(new IntElement(AIMaxGroundbreakingPenalty, "AIMaxGroundbreakingPenalty", 0));
+-	r.push_back(new IntElement(HumanMaxGroundbreakingPenalty, "HumanMaxGroundbreakingPenalty", 0));
+-	// </advc.groundbr>  <advc.erai>
+-	r.push_back(new IntElement(AIEraFactor, "AIEraFactor", -1));
+-	r.push_back(new BoolElement(AIAgeOfExploration, "AIAgeOfExploration", false));
+-	r.push_back(new BoolElement(AIAgeOfPestilence, "AIAgeOfPestilence", false));
+-	r.push_back(new BoolElement(AIAgeOfPollution, "AIAgeOfPollution", false));
+-	r.push_back(new BoolElement(AIAgeOfFertility, "AIAgeOfFertility", false));
+-	r.push_back(new BoolElement(AIAgeOfGuns, "AIAgeOfGuns", false));
+-	r.push_back(new BoolElement(AIAtomicAge, "AIAtomicAge", false));
+-	// </advc.erai>
+-	r.push_back(new BoolElement(AllGoodyTechs, "AllGoodyTechs", false)); // advc.314
+-}
+ 
+ bool CvEraInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvXMLInfo::read(pXML))
++	if (!base_t::read(pXML)) // advc.tag
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bNoGoodies, "bNoGoodies");
+@@ -304,7 +286,7 @@ void CvEraInfo::allInfosRead()
+ 		// Set default values for AI era factors
+ 		if (kLoopEra.get(CvEraInfo::AIEraFactor) == -1)
+ 		{
+-			kLoopEra.set((CvXMLInfo::IntElementTypes)
++			kLoopEra.set((base_t::IntElementTypes)
+ 					CvEraInfo::AIEraFactor, 100 * eLoopEra);
+ 			/*	The idea is to map the eras of a mod to the BtS eras that the
+ 				AI code has been written for. Therefore shouldn't exceed 100 times
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 3b031bf09..2e201d200 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -47,12 +47,28 @@ private:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvEraInfo - Used to manage different types of Art Styles
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvEraInfo :  /* advc.tag: */ public CvXMLInfo
++class CvEraInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-public: // All the const functions are exposed to Python except those added by mods
+-	CvEraInfo();
+-	~CvEraInfo();
+-	// <advc.tag>
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		// <advc.groundbr>
++		kElements.addInt(AIMaxGroundbreakingPenalty, "AIMaxGroundbreakingPenalty");
++		kElements.addInt(HumanMaxGroundbreakingPenalty, "HumanMaxGroundbreakingPenalty");
++		// </advc.groundbr>  <advc.erai>
++		kElements.addInt(AIEraFactor, "AIEraFactor", -1);
++		kElements.addBool(AIAgeOfExploration, "AIAgeOfExploration");
++		kElements.addBool(AIAgeOfPestilence, "AIAgeOfPestilence");
++		kElements.addBool(AIAgeOfPollution, "AIAgeOfPollution");
++		kElements.addBool(AIAgeOfFertility, "AIAgeOfFertility");
++		kElements.addBool(AIAgeOfGuns, "AIAgeOfGuns");
++		kElements.addBool(AIAtomicAge, "AIAtomicAge");
++		// </advc.erai>
++		kElements.addBool(AllGoodyTechs, "AllGoodyTechs"); // advc.314
++	}
++public:
+ 	enum IntElementTypes
+ 	{	// <advc.groundbr>
+ 		AIMaxGroundbreakingPenalty = CvXMLInfo::NUM_INT_ELEMENT_TYPES,
+@@ -71,16 +87,19 @@ public: // All the const functions are exposed to Python except those added by m
+ 		AllGoodyTechs, // advc.314
+ 		NUM_BOOL_ELEMENT_TYPES
+ 	};
+-	using CvXMLInfo::get; // unhide
+ 	int get(IntElementTypes e) const
+ 	{
+-		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
+ 	}
+ 	int get(BoolElementTypes e) const
+ 	{
+-		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
++		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
+ 	} // </advc.tag>
+ 
++	// All the const functions are exposed to Python except those added by mods
++	CvEraInfo();
++	~CvEraInfo();
++
+ 	int getStartingUnitMultiplier() const;
+ 	int getStartingDefenseUnits() const;
+ 	int getStartingWorkerUnits() const;
+@@ -206,8 +225,6 @@ protected:
+ 
+ 	int* m_paiSoundtracks;
+ 	int* m_paiCitySoundscapeScriptIds;
+-
+-	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 4a0fb5c2d..a0ecc6129 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -1199,7 +1199,7 @@ void CvArtInfoImprovement::setShaderNIF(const TCHAR* szDesc)
+ #if ENABLE_XML_FILE_CACHE
+ void CvImprovementInfo::read(FDataStreamBase* stream)
+ {
+-	CvXMLInfo::read(stream); // advc.tag
++	base_t::read(stream); // advc.tag
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -1286,8 +1286,8 @@ void CvImprovementInfo::read(FDataStreamBase* stream)
+ 
+ void CvImprovementInfo::write(FDataStreamBase* stream)
+ {
+-	CvXMLInfo::write(stream); // advc.tag
+-	uint uiFlag=0;
++	base_t::write(stream); // advc.tag
++	uint uiFlag = 0;
+ 	stream->Write(uiFlag);
+ 
+ 	stream->Write(m_iAdvancedStartCost);
+@@ -1333,17 +1333,10 @@ void CvImprovementInfo::write(FDataStreamBase* stream)
+ 		stream->Write(NUM_YIELD_TYPES, m_ppiRouteYieldChanges[i]);
+ }
+ #endif
+-// <advc.tag>
+-void CvImprovementInfo::addElements(std::vector<XMLElement*>& r) const
+-{
+-	CvXMLInfo::addElements(r);
+-	r.push_back(new IntElement(HealthPercent, "HealthPercent", 0)); // advc.901
+-	r.push_back(new IntElement(GWFeatureProtection, "GWFeatureProtection", 0)); // advc.055
+-} // </advc.tag>
+ 
+ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvXMLInfo::read(pXML)) // advc.tag
++	if (!base_t::read(pXML)) // advc.tag
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 47837560b..760e2cec6 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -358,32 +358,32 @@ class CvImprovementBonusInfo;
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvImprovementInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvImprovementInfo : /* advc.tag: */ public CvXMLInfo
++class CvImprovementInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-public: /*  All the const functions are exposed to Python except those dealing with sound,
+-			Advanced Start and those added by mods */ // advc.inl: Inlined many of the getters
+-	CvImprovementInfo();
+-	~CvImprovementInfo();
+-	// <advc.tag>
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(HealthPercent, "HealthPercent"); // advc.901
++		kElements.addInt(GWFeatureProtection, "GWFeatureProtection"); // advc.055
++	}
++public:
+ 	enum IntElementTypes
+ 	{
+-		HealthPercent = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.901
++		HealthPercent = base_t::NUM_INT_ELEMENT_TYPES, // advc.901
+ 		GWFeatureProtection, // advc.055
+ 		NUM_INT_ELEMENT_TYPES
+ 	};
+-	enum BoolElementTypes // unused so far
+-	{
+-		NUM_BOOL_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
+-	};
+-	using CvXMLInfo::get; // unhide
+ 	int get(IntElementTypes e) const
+ 	{
+-		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
++		return CvXMLInfo::get(static_cast<base_t::IntElementTypes>(e));
+ 	}
+-	int get(BoolElementTypes e) const
+-	{
+-		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
+-	} // </advc.tag>
++	// </advc.tag>
++	/*  All the const functions are exposed to Python except those dealing with sound,
++		Advanced Start and those added by mods */ // advc.inl: Inlined many of the getters
++	CvImprovementInfo();
++	~CvImprovementInfo();
+ 
+ 	int getAdvancedStartCost() const;
+ 	int getAdvancedStartCostIncrease() const;
+@@ -511,8 +511,6 @@ protected:
+ 	int** m_ppiRouteYieldChanges;
+ 
+ 	CvImprovementBonusInfo* m_paImprovementBonus;
+-
+-	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=24128

@@ -1,0 +1,329 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2554
+# Commit: c706e4ef2d25b8b495bf520e86e38f27d01b3a2d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3d5c32aa6dc02c7fd6921b103535346b403bf86c
+# Title: Rename RandPlotTypes to RandPlotFlags
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CvFractal.cpp
+6	6	CvGameCoreDLL/CvFractal.h
+3	3	CvGameCoreDLL/CvGame.cpp
+15	15	CvGameCoreDLL/CvMap.cpp
+2	2	CvGameCoreDLL/CvMap.h
+2	2	CvGameCoreDLL/CvPlot.h
+1	1	CvGameCoreDLL/CyMap.cpp
+1	1	CvGameCoreDLL/Shelf.cpp
+2	2	CvGameCoreDLL/Shelf.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index fbe8cb36a..43b6b5749 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -36,7 +36,7 @@ void CvFractal::reset()
+ 	m_iFracYExp = -1;
+ 	m_iXs = -1;
+ 	m_iYs = -1;
+-	m_eFlags = NO_PREDICATES;
++	m_eFlags = NO_FLAGS;
+ 	m_iFracX = -1;
+ 	m_iFracY = -1;
+ 	m_iXInc = m_iYInc = -1; // advc: better initialize
+@@ -46,7 +46,7 @@ void CvFractal::fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
+ 	int iFlags, CvFractal* pRifts, int iFracXExp/*=7*/, int iFracYExp/*=6*/)
+ {
+ 	fracInitInternal(iNewXs, iNewYs, iGrain, random, NULL, -1,
+-			(Predicates)iFlags, pRifts, iFracXExp, iFracYExp);
++			(Flags)iFlags, pRifts, iFracXExp, iFracYExp);
+ }
+ 
+ // pbyHints should be a 1d array of bytes representing a 2d array
+@@ -59,13 +59,13 @@ void CvFractal::fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& ran
+ 	byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts,
+ 	int iFracXExp/*=7*/, int iFracYExp/*=6*/)
+ {
+-	Predicates eFlagsNonPolar = ((Predicates)iFlags) & (~FRAC_POLAR);
++	Flags eFlagsNonPolar = ((Flags)iFlags) & (~FRAC_POLAR);
+ 	fracInitInternal(iNewXs, iNewYs, iGrain, random, pbyHints, iHintsLength,
+ 			eFlagsNonPolar, pRifts, iFracXExp, iFracYExp);
+ }
+ 
+ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
+-	byte* pbyHints, int iHintsLength, Predicates eFlags, CvFractal* pRifts,
++	byte* pbyHints, int iHintsLength, Flags eFlags, CvFractal* pRifts,
+ 	int iFracXExp, int iFracYExp)
+ {
+ 	PROFILE("CvFractal::fracInit()");
+
+diff --git a/CvGameCoreDLL/CvFractal.h b/CvGameCoreDLL/CvFractal.h
+index 06819c925..6e9762c21 100644
+--- a/CvGameCoreDLL/CvFractal.h
++++ b/CvGameCoreDLL/CvFractal.h
+@@ -15,16 +15,16 @@ public:
+ 	/*	advc: ... through the EXE, i.e. the values shouldn't be changed in the DLL
+ 		b/c that wouldn't affect the values in Python.
+ 		Renaming the enum doesn't hurt though. */
+-	enum /*FracVals*/ Predicates
++	enum /*FracVals*/ Flags
+ 	{
+-		NO_PREDICATES				= 0,
++		NO_FLAGS					= 0,
+ 		FRAC_WRAP_X					= (1 << 0),
+ 		FRAC_WRAP_Y					= (1 << 1),
+ 		FRAC_PERCENT				= (1 << 2),  //  Returns raw data as a percent.
+ 		FRAC_POLAR					= (1 << 3),  //  Sets polar regions to zero.
+ 		FRAC_CENTER_RIFT			= (1 << 4),  //  Draws rift in center of world, too.
+ 		FRAC_INVERT_HEIGHTS			= (1 << 5),  //  Draws inverts the heights
+-		// <avdc.enum> Move ..._EXP out and give the enum bitmask operators (see end of file)
++		// <avdc.enum> Move ..._EXP out and give the enum bitwise operators (see end of file)
+ 	};
+ 	static int const DEFAULT_FRAC_X_EXP = 7;
+ 	static int const DEFAULT_FRAC_Y_EXP = 6; // </advc.enum>
+@@ -51,7 +51,7 @@ protected:
+ 	// advc.003k (warning): It's not safe to add data members to this class!
+ 	int m_iXs;
+ 	int m_iYs;
+-	Predicates m_eFlags; // advc.enum (was int)
++	Flags m_eFlags; // advc.enum (was int)
+ 
+ 	int m_iFracX;
+ 	int m_iFracY;
+@@ -65,7 +65,7 @@ protected:
+ 
+ 	void fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
+ 			byte* pbyHints, int iHintsLength,
+-			Predicates eFlags, // advc.enum
++			Flags eFlags, // advc.enum
+ 			CvFractal* pRifts, int iFracXExp, int iFracYExp);
+ 	void tectonicAction(CvFractal* pRifts);
+ 	int yieldX(int iBadX);
+@@ -74,6 +74,6 @@ protected:
+ 
+ BOOST_STATIC_ASSERT(sizeof(CvFractal) == 44); // advc.003k
+ 
+-OVERLOAD_BITWISE_OPERATORS(CvFractal::Predicates) // advc.enum
++OVERLOAD_BITWISE_OPERATORS(CvFractal::Flags) // advc.enum
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 8276c8537..9b23b7729 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7794,7 +7794,7 @@ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAll
+ // <advc.300>
+ CvPlot* CvGame::randomBarbarianPlot(CvArea const& a, Shelf const* pShelf)
+ {
+-	RandPlotTypes const ePredicates = (RANDPLOT_NOT_VISIBLE_TO_CIV |
++	RandPlotFlags const eFlags = (RANDPLOT_NOT_VISIBLE_TO_CIV |
+ 			/*  Shelves already ensure this and one-tile islands
+ 				can't spawn Barbarians anyway. */
+ 			//RANDPLOT_ADJACENT_LAND |
+@@ -7810,10 +7810,10 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& a, Shelf const* pShelf)
+ 	int iLegal = 0;
+ 	CvPlot* pRandPlot = NULL;
+ 	if (pShelf == NULL)
+-		pRandPlot = GC.getMap().syncRandPlot(ePredicates, &a, iDist, -1, &iLegal);
++		pRandPlot = GC.getMap().syncRandPlot(eFlags, &a, iDist, -1, &iLegal);
+ 	else
+ 	{
+-		pRandPlot = pShelf->randomPlot(ePredicates, iDist, &iLegal);
++		pRandPlot = pShelf->randomPlot(eFlags, iDist, &iLegal);
+ 		if(pRandPlot != NULL && iLegal * 100 < pShelf->size())
+ 			pRandPlot = NULL;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 5a8bb07b8..9bd3bdee5 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -472,7 +472,7 @@ void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvP
+ }
+ 
+ 
+-CvPlot* CvMap::syncRandPlot(RandPlotTypes ePredicates, CvArea const* pArea,
++CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
+ 	int iMinCivUnitDistance, // advc.300: Renamed from iMinUnitDistance
+ 	int iTimeout,
+ 	int* piValidCount) // advc.304: Number of valid tiles
+@@ -490,7 +490,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotTypes ePredicates, CvArea const* pArea,
+ 		for(int i = 0; i < numPlots(); i++)
+ 		{
+ 			CvPlot& kPlot = getPlotByIndex(i);
+-			if (isValidRandPlot(kPlot, ePredicates, pArea, iMinCivUnitDistance))
++			if (isValidRandPlot(kPlot, eFlags, pArea, iMinCivUnitDistance))
+ 				apValidPlots.push_back(&kPlot);
+ 		}
+ 		int iValid = (int)apValidPlots.size();
+@@ -509,7 +509,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotTypes ePredicates, CvArea const* pArea,
+ 		CvPlot& kTestPlot = getPlot(
+ 				GC.getGame().getSorenRandNum(getGridWidth(), "Rand Plot Width"),
+ 				GC.getGame().getSorenRandNum(getGridHeight(), "Rand Plot Height"));
+-		if (isValidRandPlot(kTestPlot, ePredicates, pArea, iMinCivUnitDistance))
++		if (isValidRandPlot(kTestPlot, eFlags, pArea, iMinCivUnitDistance))
+ 		{	/*  <advc.304> Not useful, but want to make sure it doesn't stay
+ 				uninitialized. 1 since we found only 1 valid plot. */
+ 			if(piValidCount != NULL)
+@@ -523,7 +523,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotTypes ePredicates, CvArea const* pArea,
+ }
+ 
+ // advc: Body cut from syncRandPlot
+-bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotTypes ePredicates,
++bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
+ 	CvArea const* pArea, int iMinCivUnitDistance) const
+ {
+ 	if (pArea != NULL && !kPlot.isArea(*pArea))
+@@ -535,24 +535,24 @@ bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotTypes ePredicates,
+ 	{
+ 		return false;
+ 	}
+-	if ((ePredicates & RANDPLOT_LAND) && kPlot.isWater())
++	if ((eFlags & RANDPLOT_LAND) && kPlot.isWater())
+ 		return false;
+-	if ((ePredicates & RANDPLOT_UNOWNED) && kPlot.isOwned())
++	if ((eFlags & RANDPLOT_UNOWNED) && kPlot.isOwned())
+ 		return false;
+-	if ((ePredicates & RANDPLOT_ADJACENT_UNOWNED) && kPlot.isAdjacentOwned())
++	if ((eFlags & RANDPLOT_ADJACENT_UNOWNED) && kPlot.isAdjacentOwned())
+ 		return false;
+-	if ((ePredicates & RANDPLOT_ADJACENT_LAND) && !kPlot.isAdjacentToLand())
++	if ((eFlags & RANDPLOT_ADJACENT_LAND) && !kPlot.isAdjacentToLand())
+ 		return false;
+-	if ((ePredicates & RANDPLOT_PASSABLE) && kPlot.isImpassable())
++	if ((eFlags & RANDPLOT_PASSABLE) && kPlot.isImpassable())
+ 		return false;
+-	if ((ePredicates & RANDPLOT_NOT_VISIBLE_TO_CIV) && kPlot.isVisibleToCivTeam())
++	if ((eFlags & RANDPLOT_NOT_VISIBLE_TO_CIV) && kPlot.isVisibleToCivTeam())
+ 		return false;
+-	if ((ePredicates & RANDPLOT_NOT_CITY) && kPlot.isCity())
++	if ((eFlags & RANDPLOT_NOT_CITY) && kPlot.isCity())
+ 		return false;
+ 	// <advc.300>
+-	if((ePredicates & RANDPLOT_HABITABLE) && kPlot.getYield(YIELD_FOOD) <= 0)
++	if((eFlags & RANDPLOT_HABITABLE) && kPlot.getYield(YIELD_FOOD) <= 0)
+ 		return false;
+-	if((ePredicates & RANDPLOT_WATERSOURCE) && !kPlot.isFreshWater() &&
++	if((eFlags & RANDPLOT_WATERSOURCE) && !kPlot.isFreshWater() &&
+ 		kPlot.getYield(YIELD_FOOD) <= 0)
+ 	{
+ 		return false;
+@@ -668,11 +668,11 @@ CvArea* CvMap::findBiggestArea(bool bWater)
+ 
+ int CvMap::getMapFractalFlags() const
+ {
+-	CvFractal::Predicates eWrapX = CvFractal::NO_PREDICATES;
++	CvFractal::Flags eWrapX = CvFractal::NO_FLAGS;
+ 	if (isWrapX())
+ 		eWrapX = CvFractal::FRAC_WRAP_X;
+ 
+-	CvFractal::Predicates eWrapY = CvFractal::NO_PREDICATES;
++	CvFractal::Flags eWrapY = CvFractal::NO_FLAGS;
+ 	if (isWrapY())
+ 		eWrapY = CvFractal::FRAC_WRAP_Y;
+ 	/*	(advc.enum: Convert to int. It's only used in Python anyway, and
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 3085a1693..53ad44cdb 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -282,12 +282,12 @@ public: // advc: made several functions const
+ 	void combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2,
+ 			bool bVerifyProduction = true); // advc.064d
+ 
+-	CvPlot* syncRandPlot(RandPlotTypes ePredicates = RANDPLOT_ANY,									// Exposed to Python
++	CvPlot* syncRandPlot(RandPlotFlags eFlags = RANDPLOT_ANY,								// Exposed to Python
+ 			CvArea const* pArea = NULL, // advc: was iArea
+ 			int iMinCivUnitDistance = -1,
+ 			int iTimeout = -1, int* piValidCount = NULL); // advc.304 (default timeout was 100)
+ 	// <advc>
+-	bool isValidRandPlot(CvPlot const& kPlot, RandPlotTypes ePredicates,
++	bool isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
+ 			CvArea const* pArea, int iMinCivUnitDistance) const; // </advc>
+ 
+ 	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL)	// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 86774626d..69d8735a2 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -837,7 +837,7 @@ BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 212);
+ 
+ /*	advc.enum: For functions that choose random plots.
+ 	Moved from CvDefines, turned into an enum, exposed to Python. */
+-enum RandPlotTypes
++enum RandPlotFlags
+ {
+ 	RANDPLOT_ANY = 0,
+ 	RANDPLOT_LAND =						(1 << 0),
+@@ -852,6 +852,6 @@ enum RandPlotTypes
+ 	RANDPLOT_WATERSOURCE =				(1 << 8),
+ 	// </advc.300>
+ };
+-OVERLOAD_BITWISE_OPERATORS(RandPlotTypes)
++OVERLOAD_BITWISE_OPERATORS(RandPlotFlags)
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index 9298d50b8..4eff4c474 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -34,7 +34,7 @@ CyPlot* CyMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
+ {
+ 	// advc: No longer takes an area id
+ 	CvArea* pArea = m_kMap.getArea(iArea);
+-	return new CyPlot(m_kMap.syncRandPlot(/* advc.enum: */(RandPlotTypes)iFlags,
++	return new CyPlot(m_kMap.syncRandPlot(/* advc.enum: */(RandPlotFlags)iFlags,
+ 			pArea, iMinUnitDistance, iTimeout));
+ }
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index bcfe5a500..940f5b3c5 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -16,7 +16,7 @@ void Shelf::add(CvPlot* plot)
+ }
+ 
+ 
+-CvPlot* Shelf::randomPlot(RandPlotTypes restrictions, int unitDistance, int* legalCount) const
++CvPlot* Shelf::randomPlot(RandPlotFlags restrictions, int unitDistance, int* legalCount) const
+ {
+ 	/*  Based on CvMap::syncRandPlot, but shelves are (normally) so small
+ 		that random sampling isn't efficient. Instead, compute the legal
+
+diff --git a/CvGameCoreDLL/Shelf.h b/CvGameCoreDLL/Shelf.h
+index 3639866e1..88befbeb5 100644
+--- a/CvGameCoreDLL/Shelf.h
++++ b/CvGameCoreDLL/Shelf.h
+@@ -5,7 +5,7 @@
+ 
+ class CvPlot;
+ class CvUnit;
+-enum RandPlotTypes;
++enum RandPlotFlags;
+ 
+ /* <advc.300> New class representing a continental shelf, akin to a CvArea
+    (but I don't want to inherit from that class). Used for spawning
+@@ -15,7 +15,7 @@ class Shelf {
+ public:
+ 
+ 	void add(CvPlot* plot);
+-	CvPlot* randomPlot(RandPlotTypes restrictions, int unitDistance,
++	CvPlot* randomPlot(RandPlotFlags restrictions, int unitDistance,
+ 			int* legalCount = NULL) const;
+ 	int size() const;
+ 	int countUnownedPlots() const;
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=12223

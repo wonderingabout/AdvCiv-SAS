@@ -1,0 +1,234 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 653
+# Commit: 65b2598212290ca12fcccac8b66465906b81b41b
+# History segment: K-Mod history
+# Parent used for diff: a2761a925d784ae1870be60db6865a8ecd574ee3
+# Title: Fixed a bug which caused air units to automatically load themselves into a carrier if they are upgraded in a city which is at full air capacity. Fixed a prob...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvPlayerAI.cpp
+60	76	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 33ba22a24..6840e2b86 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1446,9 +1446,11 @@ void CvPlayerAI::AI_unitUpdate()
+ 				// one last trick that might save us a bit of time...
+ 				// if the number of selection groups has increased, then lets try to take care of the new groups right away.
+ 				// (there might be a faster way to look for the new groups, but I don't know it.)
+-				bRepeat = bRepeat && getNumSelectionGroups() > (int)groupList.size();
++				bRepeat = bRepeat && m_groupCycle.getLength() > (int)groupList.size();
+ 				// the repeat will do a stack of redundant checks,
+ 				// but I still expect it to be much faster than waiting for the next turnslice.
++				// Note: I use m_groupCycle rather than getNumSelectionGroups just in case there is a bug which causes the two to be out of sync.
++				// (otherwise, if getNumSelectionGroups is bigger, it could cause an infinite loop.)
+ 			} while (bRepeat);
+ 			// K-Mod end
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 09c4a517f..c43a82452 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9497,110 +9497,93 @@ bool CvUnit::canJoinGroup(const CvPlot* pPlot, CvSelectionGroup* pSelectionGroup
+ 	return true;
+ }
+ 
+-
++// K-Mod has edited this function to increase readability and robustness
+ void CvUnit::joinGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected, bool bRejoin)
+ {
+-	CvSelectionGroup* pOldSelectionGroup;
+-	CvSelectionGroup* pNewSelectionGroup;
+-	CvPlot* pPlot;
++	CvSelectionGroup* pOldSelectionGroup = GET_PLAYER(getOwnerINLINE()).getSelectionGroup(getGroupID());
+ 
+-	pOldSelectionGroup = GET_PLAYER(getOwnerINLINE()).getSelectionGroup(getGroupID());
++	if (pOldSelectionGroup && pSelectionGroup == pOldSelectionGroup)
++		return; // attempting to join the group we are already in
+ 
+-	if ((pSelectionGroup != pOldSelectionGroup) || (pOldSelectionGroup == NULL))
+-	{
+-		pPlot = plot();
++	CvPlot* pPlot = plot();
++	CvSelectionGroup* pNewSelectionGroup = pSelectionGroup;
+ 
+-		if (pSelectionGroup != NULL)
+-		{
+-			pNewSelectionGroup = pSelectionGroup;
+-		}
+-		else
+-		{
+-			if (bRejoin)
+-			{
+-				pNewSelectionGroup = GET_PLAYER(getOwnerINLINE()).addSelectionGroup();
+-				pNewSelectionGroup->init(pNewSelectionGroup->getID(), getOwnerINLINE());
+-			}
+-			else
+-			{
+-				pNewSelectionGroup = NULL;
+-			}
+-		}
++	if (pNewSelectionGroup == NULL && bRejoin)
++	{
++		pNewSelectionGroup = GET_PLAYER(getOwnerINLINE()).addSelectionGroup();
++		pNewSelectionGroup->init(pNewSelectionGroup->getID(), getOwnerINLINE());
++	}
+ 
+-		if ((pNewSelectionGroup == NULL) || canJoinGroup(pPlot, pNewSelectionGroup))
++	if (pNewSelectionGroup == NULL || canJoinGroup(pPlot, pNewSelectionGroup))
++	{
++		if (pOldSelectionGroup != NULL)
+ 		{
+-			if (pOldSelectionGroup != NULL)
++			bool bWasHead = false;
++			if (!isHuman())
+ 			{
+-				bool bWasHead = false;
+-				if (!isHuman())
+-				{
+-					if (pOldSelectionGroup->getNumUnits() > 1)
+-					{
+-						if (pOldSelectionGroup->getHeadUnit() == this)
+-						{
+-							bWasHead = true;
+-						}
+-					}
+-				}
+-
+-				pOldSelectionGroup->removeUnit(this);
+-
+-				// if we were the head, if the head unitAI changed, then force the group to separate (non-humans)
+-				if (bWasHead)
++				if (pOldSelectionGroup->getNumUnits() > 1)
+ 				{
+-					FAssert(pOldSelectionGroup->getHeadUnit() != NULL);
+-					if (pOldSelectionGroup->getHeadUnit()->AI_getUnitAIType() != AI_getUnitAIType())
++					if (pOldSelectionGroup->getHeadUnit() == this)
+ 					{
+-						pOldSelectionGroup->AI_setForceSeparate();
++						bWasHead = true;
+ 					}
+ 				}
+ 			}
+ 
+-			if ((pNewSelectionGroup != NULL) && pNewSelectionGroup->addUnit(this, false))
+-			{
+-				m_iGroupID = pNewSelectionGroup->getID();
+-			}
+-			else
+-			{
+-				m_iGroupID = FFreeList::INVALID_INDEX;
+-			}
++			pOldSelectionGroup->removeUnit(this);
+ 
+-			if (getGroup() != NULL)
++			// if we were the head, if the head unitAI changed, then force the group to separate (non-humans)
++			if (bWasHead)
+ 			{
+-				if (getGroup()->getNumUnits() > 1)
+-				{
+-					// K-Mod - to avoid AI deadlocks, where they just keep grouping and ungroup indefinitely...
+-					if (getGroup()->AI_getMissionAIType() == MISSIONAI_GROUP || getLastMoveTurn() == GC.getGameINLINE().getTurnSlice())
+-					// K-Mod end
+-						getGroup()->setActivityType(ACTIVITY_AWAKE);
+-				}
+-				else
++				FAssert(pOldSelectionGroup->getHeadUnit() != NULL);
++				if (pOldSelectionGroup->getHeadUnit()->AI_getUnitAIType() != AI_getUnitAIType())
+ 				{
+-					GET_PLAYER(getOwnerINLINE()).updateGroupCycle(this);
++					pOldSelectionGroup->AI_setForceSeparate();
+ 				}
+ 			}
++		}
+ 
+-			if (getTeam() == GC.getGameINLINE().getActiveTeam())
++		if ((pNewSelectionGroup != NULL) && pNewSelectionGroup->addUnit(this, false))
++		{
++			m_iGroupID = pNewSelectionGroup->getID();
++		}
++		else
++		{
++			m_iGroupID = FFreeList::INVALID_INDEX;
++		}
++
++		if (getGroup() != NULL)
++		{
++			if (getGroup()->getNumUnits() > 1)
+ 			{
+-				if (pPlot != NULL)
+-				{
+-					pPlot->setFlagDirty(true);
+-				}
++				// K-Mod - to avoid AI deadlocks, where they just keep grouping and ungroup indefinitely...
++				if (getGroup()->AI_getMissionAIType() == MISSIONAI_GROUP || getLastMoveTurn() == GC.getGameINLINE().getTurnSlice())
++				// K-Mod end
++					getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 			}
+-
+-			if (pPlot == gDLL->getInterfaceIFace()->getSelectionPlot())
++			else
+ 			{
+-				gDLL->getInterfaceIFace()->setDirty(PlotListButtons_DIRTY_BIT, true);
++				GET_PLAYER(getOwnerINLINE()).updateGroupCycle(this);
+ 			}
+ 		}
+ 
+-		if (bRemoveSelected)
++		if (getTeam() == GC.getGameINLINE().getActiveTeam())
+ 		{
+-			if (IsSelected())
++			if (pPlot != NULL)
+ 			{
+-				gDLL->getInterfaceIFace()->removeFromSelectionList(this);
++				pPlot->setFlagDirty(true);
+ 			}
+ 		}
++
++		if (pPlot == gDLL->getInterfaceIFace()->getSelectionPlot())
++		{
++			gDLL->getInterfaceIFace()->setDirty(PlotListButtons_DIRTY_BIT, true);
++		}
++	}
++
++	if (bRemoveSelected && IsSelected())
++	{
++		gDLL->getInterfaceIFace()->removeFromSelectionList(this);
+ 	}
+ }
+ 
+@@ -9704,7 +9687,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 	// K-Mod. I've adjusted the code to allow cargo units to stay in their groups when possible.
+ 	bShow = bShow && bGroup && !isCargo();
+ 	if (!bGroup)
+-		joinGroup(NULL, true);
++		joinGroup(0, true);
+ 	// K-Mod end
+ 
+ 	pNewPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+@@ -9952,7 +9935,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 			GET_PLAYER(getOwnerINLINE()).changeNumOutsideUnits(1);
+ 		}
+ 
+-		if (shouldLoadOnMove(pNewPlot))
++		//if (shouldLoadOnMove(pNewPlot))
++		if (pOldPlot && shouldLoadOnMove(pNewPlot)) // K-Mod. (don't load units during the unit initialization process.)
+ 		{
+ 			load();
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6926

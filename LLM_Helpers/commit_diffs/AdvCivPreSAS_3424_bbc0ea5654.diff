@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3424
+# Commit: bbc0ea5654b6adbf2a3206f3fd337716f0fa8c38
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7859f96c854ec60c8d58bcbfa4f4c39f74ab8a81
+# Title: Revise AI for Spread Culture mission
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	4	CvGameCoreDLL/CvCity.cpp
+2	0	CvGameCoreDLL/CvCity.h
+1	4	CvGameCoreDLL/CvGameTextMgr.cpp
+4	6	CvGameCoreDLL/CvPlayer.cpp
+26	11	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c6af30fe8..e403b34db 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8776,6 +8776,15 @@ void CvCity::changeEspionageDefenseModifier(int iChange)
+ 	m_iEspionageDefenseModifier += iChange;
+ }
+ 
++// advc:
++int CvCity::cultureTimes100InsertedByMission(EspionageMissionTypes eMission) const
++{
++	int iCultureAmount = GC.getInfo(eMission).getCityInsertCultureAmountFactor() *
++			countTotalCultureTimes100();
++	iCultureAmount /= 100;
++	return std::max(100, iCultureAmount);
++}
++
+ 
+ bool CvCity::isWorkingPlot(CvPlot const& kPlot) const
+ {
+@@ -10364,6 +10373,18 @@ void CvCity::doCulture()
+ 	changeCultureTimes100(getOwner(), getCommerceRateTimes100(COMMERCE_CULTURE), false, true);
+ }
+ 
++// advc: Replacing magic number in doPlotCultureTimes100
++namespace
++{
++	int iPLOT_CULTURE_EXTRA_RANGE = 3;
++}
++
++// advc: Was 10 as a magic number. Should still be 10.
++int CvCity::plotCultureScale()
++{	
++	return GC.getNumCultureLevelInfos() + iPLOT_CULTURE_EXTRA_RANGE;
++}
++
+ /*	This function has essentially been rewritten for K-Mod.
+ 	(and it used to not be 'times 100') */
+ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+@@ -10383,10 +10404,8 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+ 	//const double iB = log((double)iOuterRatio)/iCultureRange;
+ 	/*	(iScale-1)(iDistance - iRange)^2/(iRange^2) + 1
+ 		This approximates the exponential pretty well */
+-	int const iExtraRange = 3;
+-	// advc: Was 10 - should still be 10.
+-	int const iScale = GC.getNumCultureLevelInfos() + iExtraRange;
+-	int const iCultureRange = eCultureLevel + iExtraRange;
++	int const iScale = plotCultureScale();
++	int const iCultureRange = eCultureLevel + iPLOT_CULTURE_EXTRA_RANGE;
+ 
+ 	if (bCityCulture)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 033425eea..1fb828988 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -27,6 +27,7 @@ public:
+ 	/*	K-Mod. public for the "insert culture" espionage mission.
+ 		(I've also changed the functionality of it quite a bit.) */
+ 	void doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture);
++	static int plotCultureScale(); // advc.120j
+ 
+ 	bool isCitySelected();
+ 	DllExport bool canBeSelected() const;
+@@ -1114,6 +1115,7 @@ public:
+ 		return m_iEspionageDefenseModifier;
+ 	}
+ 	void changeEspionageDefenseModifier(int iChange);
++	int cultureTimes100InsertedByMission(EspionageMissionTypes eMission) const; // advc
+ 
+ 	bool isWorkingPlot(CityPlotTypes ePlot) const																// Exposed to Python
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 788b9ddf7..6f09bcebe 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -19135,10 +19135,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
+ 		CvCity const* pCity = pPlot->getPlotCity();
+ 		if (pCity != NULL && pPlot->getCulture(kPlayer.getID()) > 0)
+ 		{
+-			int iCultureAmount = kMission.getCityInsertCultureAmountFactor() *
+-					pCity->countTotalCultureTimes100();
+-			iCultureAmount /= 10000;
+-			iCultureAmount = std::max(1, iCultureAmount);
++			int iCultureAmount = pCity->cultureTimes100InsertedByMission(eMission) / 100;
+ 			szBuffer.append(gDLL->getText("TXT_KEY_ESPIONAGE_HELP_INSERT_CULTURE",
+ 					pCity->getNameKey(), iCultureAmount,
+ 					kMission.getCityInsertCultureAmountFactor()));
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ee102eb48..5e511e8ed 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11927,10 +11927,7 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 		// Insert Culture into City
+ 		if (pPlot != NULL && pPlot->getCulture(getID()) > 0)
+ 		{
+-			int iCultureAmount = kMission.getCityInsertCultureAmountFactor() *
+-					pCity->countTotalCultureTimes100();
+-			iCultureAmount /= 10000;
+-			iCultureAmount = std::max(1, iCultureAmount);
++			int iCultureAmount = pCity->cultureTimes100InsertedByMission(eMission) / 100;
+ 			iMissionCost = iBaseMissionCost +
+ 					(kMission.getCityInsertCultureCostFactor() * iCultureAmount) / 100;
+ 		}
+@@ -12274,8 +12271,9 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 			pCity->changeCulture(getID(), iCultureAmount % iNumTurnsApplied, false, true);
+ 		}*/ // BtS
+ 		// K-Mod. apply culture in one hit. We don't need fake 'free city culture' anymore.
+-		int iCultureTimes100 = std::max(1, kMission.getCityInsertCultureAmountFactor() *
+-				pCity->countTotalCultureTimes100() / 100);
++		/*	advc: Calculation moved into new function.
++			And now at least 100/100 culture instead of 1/100. */
++		int iCultureTimes100 = pCity->cultureTimes100InsertedByMission(eMission);
+ 		//pCity->changeCultureTimes100(getID(), iCultureTimes100, true, true);
+ 		// plot culture only
+ 		pCity->doPlotCultureTimes100(true, getID(), iCultureTimes100, false);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 94d1c2f58..1ef8cef8e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17696,15 +17696,22 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer,
+ 	if (GC.getInfo(eMission).getCityInsertCultureAmountFactor() > 0 &&
+ 		pCity != NULL && pCity->getOwner() != getID())
+ 	{
+-		int iCultureAmount = GC.getInfo(eMission).getCityInsertCultureAmountFactor() *
+-				kPlot.getCulture(getID());
++		int iCultureAmount =
++				//GC.getInfo(eMission).getCityInsertCultureAmountFactor() * kPlot.getCulture(getID());
++				pCity->cultureTimes100InsertedByMission(eMission); // advc.001
+ 		iCultureAmount /= 100;
++		// <advc.120j> Will increase our city plot culture by at most this much
++		int iPlotCultureAmount = iCultureAmount * CvCity::plotCultureScale();
++		int iPlotCulturePercentagePtsGain = (iPlotCultureAmount * 100) /
++				(kPlot.getTotalCulture() + iPlotCultureAmount); // </advc.120j>
+ 		/*if (pCity->calculateCulturePercent(getID()) > 40)
+-		iValue += iCultureAmount * 3;*/
+-		// K-Mod - both offensive & defensive use of spread culture mission. (The first "if" is really just for effeciency.)
+-		if (pCity->calculateCulturePercent(getID()) >= 8)
++			iValue += iCultureAmount * 3;*/
++		// K-Mod - both offensive & defensive use of spread culture mission
++		if (iPlotCulturePercentagePtsGain > 0 && // advc.120j: Don't drip in an ocean
++			// advc.120j: Was >=8. advc.001 (likely bug): Had checked city culture.
++			kPlot.calculateCulturePercent(getID()) >= 4) // really just for efficiency
+ 		{
+-			CvMap const& kMap = GC.getMap(); // advc
++			CvMap const& kMap = GC.getMap();
+ 			CvCity const* pOurClosestCity = kMap.findCity(kPlot.getX(), kPlot.getY(), getID());
+ 			if (pOurClosestCity != NULL)
+ 			{
+@@ -17712,11 +17719,19 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer,
+ 						kMap.xDistance(kPlot.getX(), pOurClosestCity->getX()),
+ 						kMap.yDistance(kPlot.getY(), pOurClosestCity->getY()));
+ 				if (iDistance < 6)
+-				{	// advc:
+-					int iPressure = std::max(pCity->AI_culturePressureFactor() -
+-							100, pOurClosestCity->AI().AI_culturePressureFactor());
+-					int iMultiplier = std::min(2, (6 - iDistance) * iPressure / 500);
+-					iValue += iCultureAmount * iMultiplier;
++				{
++					int iPressure = std::max(pCity->AI_culturePressureFactor() - 100,
++							pOurClosestCity->AI().AI_culturePressureFactor());
++					// advc.120j: Put multiplier at percent precision
++					int iMultiplier = std::min(200, ((6 - iDistance) * iPressure) / 5);
++					// <advc.120j>
++					iMultiplier *= 70 + 15 * std::min(5, iPlotCulturePercentagePtsGain);
++					iMultiplier /= 100;
++					if (iMultiplier >= 100) // </advc.120j>
++					{	/*	advc.120j: Divisor was 100. That would value 4 city culture
++							at the smallest multiplier (100) as highly as 1 stolen gold. */
++						iValue += (iCultureAmount * iMultiplier) / 225;
++					}
+ 				}
+ 			}
+ 		} // K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8005

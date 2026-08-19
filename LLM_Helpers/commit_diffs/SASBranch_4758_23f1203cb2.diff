@@ -1,0 +1,350 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4758
+# Commit: 23f1203cb288bf95202f88f1da984c8017e2475d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 251c0ca9b450880307b072b18393d2a2e0b4f012
+# Title: fix and update image links or/and other links or/and not anyways etc or/and other (more minor) changes or/and not anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	README.md
+15	15	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+5	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+17	17	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+36	36	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	___Docs_And_Appendixes - Steam Shortcut.lnk
+ create mode 100644 ___Docs_And_Appendixes - Steam Shortcut.lnk
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 18c02ac75..64c6371d9 100644
+--- a/README.md
++++ b/README.md
+@@ -68,7 +68,7 @@ As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for detail
+ 
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+-For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/README_Sevopedia_Reworks.md)
++For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+ 
+ So with that said here is a very small example sample below of how it looks ingame in the sevopedia leader category and of the other main sevopedia reworks:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 51fc2feda..5e1d8521b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -22,21 +22,21 @@ The ai attributes (simply) aim to and display:
+ 
+ Here is an example below of how it looks ingame in the sevopedia leader category:
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
+ 
+ ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 57c273987..9d70e374b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -142,13 +142,13 @@ A few screenshots of the issue (screenshot previews below as long as links are v
+ 
+ before XML fix:
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG" width="250"></img>
++<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG" width="250"></img>
++<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG" width="250"></img>
+ 
+ and successfully not spot/count it anymore after fix:
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG" width="250"></img>
++<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG" width="250"></img>
++<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG" width="250"></img>
+ 
+ ## 3 - (now fixed) Barbarians (cities) building wonders
+ 
+@@ -182,7 +182,7 @@ A few screenshots of the current issue (screenshot previews below as long as lin
+ 
+ ## 5 - (seemingly fixed now) player name same as windows (10's for example anyways etc) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
+ 
+-A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeExclusiveCivs new sevopedia feature (see the [/README_Sevopedia_Reworks.md#example-7-unit-list-category](/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
++A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeExclusiveCivs new sevopedia feature (see the [/README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
+ 
+ A few screenshots of the issue here in as well as the DLL with which i had the issue (not sure is the cause but happened while having it if i am not mistaken anyways etc)[this Google Drive folder](https://drive.google.com/drive/folders/19T9I75vGCk58pFSR60y2Tmj69-NoFFtk?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 73ad469db..a2913c2ed 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -56,8 +56,8 @@ Example of cmd processing for Steam users (adjust paths and/or such cimilar thin
+ 
+ Example of output for Steam users (adjust paths and/or such cimilar things anyways if not steam user) (click on the images below to view them full size):
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_1_generate_leaders_data.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_2_generate_leaders_data.PNG" width="250"></img>
++<img src="../Images_In_General/python_output_example_1_generate_leaders_data.PNG" width="250"></img>
++<img src="../Images_In_General/python_output_example_2_generate_leaders_data.PNG" width="250"></img>
+ 
+ 
+ Finally, move (cut then paste) your output file leaders_data+timestamp.py to, for example for Steam users (adapt to your AdvCiv-SAS install path) here (where SevoPediaLeader.py is) (note: a [shortcut](/generate_leaders_data%20\(path%20where%20to%20paste%20\(Sevopedia\)%20-%20Steam%20shortcut.lnk) is provided for convenience for Steam users, since i use the Steam verison of AdvCiv-SAS, anyways):
+@@ -66,15 +66,15 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ 
+ Example for Steam users (adjust paths and/or such cimilar things anyways if not steam user) (click on the images below to view them full size):
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_3_generate_leaders_data.PNG" width="250"></img>
++<img src="../Images_In_General/python_output_example_3_generate_leaders_data.PNG" width="250"></img>
+ 
+ Finally, delete the old existing file leaders_data.py and rename your new file from leaders_data+timestamp.py to leaders_data.py. Now your sevopedia entries for all and any leaders relating to the AI Personality feature in the sevopedia, including custom leaders you may have added or removed, is updated.
+ 
+ Example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_4_generate_leaders_data.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_5_generate_leaders_data.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_6_generate_leaders_data.PNG" width="250"></img>
++<img src="../Images_In_General/python_output_example_4_generate_leaders_data.PNG" width="250"></img>
++<img src="../Images_In_General/python_output_example_5_generate_leaders_data.PNG" width="250"></img>
++<img src="../Images_In_General/python_output_example_6_generate_leaders_data.PNG" width="250"></img>
+ 
+ ### Additional case(s) where leaders_data.py needs to be regenerated/updated or where it is highly recommended
+ 
+@@ -144,7 +144,7 @@ We also flatten these fileds as they are nested, and export all of that (decay r
+ 
+ example of output of unit test and part of the logic
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/test_fix_7_skip_etc.PNG" width="250"></img>
++<img src="../Images_In_General/test_fix_7_skip_etc.PNG" width="250"></img>
+ 
+ For more details, please view/read etc anyways [generate_leaders_data.py](/generate_leaders_data.py), and their implementation in [sevopedialeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) and [ai-attributes-displayed-config.py](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py) for details
+ 
+@@ -201,8 +201,8 @@ In all cases, here is an example of output for Steam users (adjust paths and/or
+ 
+ Example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
++<img src="../Images_In_General/xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
++<img src="../Images_In_General/xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
+ 
+ ### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
+ 
+@@ -216,7 +216,7 @@ Similarl(ly) to other scripts, usage is for example for Steam users (adjust path
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python test_normalize_to_100.py
+ ```
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/test_normalize_to_100_example.PNG" width="250"></img>
++<img src="../Images_In_General/test_normalize_to_100_example.PNG" width="250"></img>
+ 
+ # leaders_data_to_csv.py
+ 
+@@ -230,17 +230,17 @@ Similar(ly) to other scripts, usage is for example for Steam users (adjust paths
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
+ ```
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
++<img src="../Images_In_General/csv_output_example__leader_data_script_1.PNG" width="250"></img>
++<img src="../Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
++<img src="../Images_In_General/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
++<img src="../Images_In_General/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+ 
+ See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [main README.md's specific flatten leaders_data to .csv section](/README.md#csv-leaders_data-flat-to-csv-conversion-and-its-view-on-github-for-example) for details
+ 
+ For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
++<img src="../Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
++<img src="../Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
++<img src="../Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+ 
+ Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 668234232..776b4f496 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -24,7 +24,7 @@ A copy of the screenshots (may not be latest version of it) of how it looks inga
+ <img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+ <img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+-For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
++For more screenshot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+ 
+ ## Full exhaustive changes
+ 
+@@ -304,7 +304,7 @@ famililar with and that makes more sense to me, hopefulyl clearer for others or/
+ maybe not anyways etc
+ - shrines now require a religion to be built, for example the daoist shrine now
+ (also) requires to have the daoism religion, and not just own the holy city, this
+-way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/README_Sevopedia_Reworks.md#example-5-religion-category)),
++way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)),
+ but also seems to make more sense unless i am mistaken or/and it (may?) create other
+ issues possibly or maybe not, then (i'd) try it and see, this means for example
+ conquerring a city is now not enough to build a shrine, you need the specific
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 460589e04..f118331a6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -4,42 +4,42 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the [/README.md#ai-p
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG" width="250"></img>
+ 
+ ## example 2: unit chart category
+ 
+ (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
++<img src="../Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+ 
+ ## example 3: features category
+ 
+ based on rfc doc's and slightly tweaked or not, thanks a lot
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
++<img src="../Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+ 
+ ## example 4: ressources/bonus category
+ 
+ mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
++<img src="../Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+ 
+ ## example 5: religion category
+ 
+@@ -47,12 +47,12 @@ new Leaders (based on History Rewritten's code) and Buildings (based originally/
+ 
+ (Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... anyways etc anyways etc...)
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG" width="250"></img>
++<img src="../Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
++<img src="../Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
++<img src="../Images_In_General/0.660_sevopedia_religion_sample (6).JPG" width="250"></img>
+ 
+ looks quite very great hehe (at least i think so) anyways etc...
+ 
+@@ -60,9 +60,9 @@ looks quite very great hehe (at least i think so) anyways etc...
+ 
+ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
+ 
+ ## example 7: unit list category
+ 
+@@ -70,9 +70,9 @@ Reordered and beautified the original AdvCiv Sevopedia code while trying to keep
+ 
+ Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC as well as new Exclusive Civs (Civilizations) panel from Claude AI thanks to my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details):
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
+
+diff --git a/___Docs_And_Appendixes - Steam Shortcut.lnk b/___Docs_And_Appendixes - Steam Shortcut.lnk
+new file mode 100644
+index 000000000..60f506d98
+Binary files /dev/null and b/___Docs_And_Appendixes - Steam Shortcut.lnk differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=29350

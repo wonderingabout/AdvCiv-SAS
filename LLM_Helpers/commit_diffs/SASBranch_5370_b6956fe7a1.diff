@@ -1,0 +1,1908 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5370
+# Commit: b6956fe7a1930998833c81171d617becf28ea852
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f280d0781865781b391b474c5e8c1264c79d22fa
+# Title: fix base advciv bug of unallocated txt key; update docs - Fix Base AdvCiv bug: "<!-- custom: remove bug unwrapped in TEXT XML text <English>[ICON_BULLET]+1[I...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	12	Assets/XML/TechDiffusion_GlobalDefines.xml
+1	2	Assets/XML/Text/AdvCiv-SAS_Core.xml
+0	6	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	18	Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml
+1	11	Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
+4	54	Assets/XML/Text/BUG_Advisors_Options.xml
+16	38	Assets/XML/Text/BUG_Autolog_Options.xml
+2	23	Assets/XML/Text/BUG_City_Screen_Options.xml
+1	17	Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml
+2	29	Assets/XML/Text/BUG_Main_Interface_Options.xml
+1	17	Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml
+2	27	Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
+5	41	Assets/XML/Text/BUG_Options_Screen.xml
+1	10	Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml
+3	21	Assets/XML/Text/BUG_Reminder_Options.xml
+1	9	Assets/XML/Text/BUG_TechWindow_Options.xml
+1	21	Assets/XML/Text/BULL_Actions_Options.xml
+2	19	Assets/XML/Text/BULL_CIV4GameText.xml
+1	15	Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+3	13	Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml
+1	5	Assets/XML/Text/CIV4GameText_Shortcuts.xml
+5	53	Assets/XML/Text/CIV4GameText_advc.xml
+1	19	Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+3	42	Assets/XML/Text/Civ4GameText_K-Mod.xml
+2	15	Assets/XML/Text/K-Mod_hints.xml
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+663	0	Long_Comments/Long_Comments_XML.txt
+9	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/TechDiffusion_GlobalDefines.xml b/Assets/XML/TechDiffusion_GlobalDefines.xml
+index 8aebba62b..0f52d4a78 100644
+--- a/Assets/XML/TechDiffusion_GlobalDefines.xml
++++ b/Assets/XML/TechDiffusion_GlobalDefines.xml
+@@ -49,18 +49,7 @@
+ 	</Define>
+ 
+ 	<!-- advc.groundbr: start -->
+-	<!-- These two options are independent of TECH_DIFFUSION_ENABLE.
+-		 If set to 1, then a team's research rate is decreased if relatively
+-		 few players have already discovered the tech being researched.
+-		 Only non-capitulated major civs count. It doesn't matter whether
+-		 the researching team has met them. If no player has the tech, the
+-		 full era-specific penalty defined in Civ4EraInfos.xml gets applied.
+-		 If at least a quarter of the players have the tech, no penalty
+-		 applies. Otherwise, the penalty scales proportionally with he number
+-		 of players that have the tech.
+-		 0 (AdvCiv default) disables these ground-breaking penalties.
+-		 Note: When a ground-breaking penalty coincides with a bonus from tech
+-		 diffusion, only the sum of the two modifiers is shown by the UI. -->
++
+ 	<Define>
+ 		<!-- Setting this to 1 enables groundbreaking penalties for AI teams.
+ 			 The DLL will then also apply an era-specific normalization factor
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index e0fbf98a9..9bab9d9e0 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -110,8 +110,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: is now named "Concepts (Outdated)", find it quite pleasant that we (both) agree that it's no longer novel, hence the "Outdated" i added on it (and less strain to maintain it (will not all, but keep if data is valuable somehow, while also though again anyways clearly
+-	indicating it is outdated and to view it with caution or with that in mind, at least in the header category text of the sevopedia, anyways)) -->
++	<!-- custom: is now named "Concepts (Outdated)", find it quite pleasant that we both agree that it's no longer novel, hence the "Outdated" i added on it (and less strain to maintain it (will not all, but keep if data is valuable somehow) -->
+ 	<!-- advc.008c, advc.002g: It's good to point out the Concepts page, but
+ 		since it's no longer a novelty, the players don't need to "be sure to
+ 		check" it out. -->
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 6bdc8c7ca..0530bdb98 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1,10 +1,4 @@
+ <?xml version="1.0" encoding="ISO-8859-1" ?>
+-<!--
+-	BUG Advisors
+-	Options Game Text
+-
+-	Copyright (c) 2009 The BUG Mod.
+--->
+ <!-- 
+ AI, UI, or other modifications
+ Created as part of AdvCiv-SAS improvements
+
+diff --git a/Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml b/Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml
+index fb8ffa7a8..8c6ac3a6c 100644
+--- a/Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml
++++ b/Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml
+@@ -25,24 +25,7 @@
+ 		<Spanish>Cuando est� activada, PCA de PieceOfMind muestra informaci�n m�s detallada de probabilidades de combate cuando pasas el rat�n sobre una unidad a atacar.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.048: unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ACO__DEBUG_TEXT</Tag>
+-		<English>Debug</English>
+-		<French>Debug</French>
+-		<German>Debug</German>
+-		<Italian>Debug</Italian>
+-		<Spanish>Depuraci�n</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ACO__DEBUG_HOVER</Tag>
+-		<English>When checked, shows debugging information in the combat odds calculations.</English>
+-		<French>When checked, shows debugging information in the combat odds calculations.</French>
+-		<German>Zeigt Debug-Information bei der Berechnung der Siegchancen an</German>
+-		<Italian>Quando � selezionato, mostra le informazioni di debug nel calcolo delle Probabilit� di Combattimento.</Italian>
+-		<Spanish>Cuando est� activada muestra la informaci�n de depuraci�n en el c�lculo de Probabilidades de Combate.</Spanish>
+-	</TEXT-->
+-	
++	<!-- custom: Long_Comments_XML.txt #236 -->
+ 	<!-- advc.048: was "Force Original Odds" and in German
+ 		 "Originale Berechnung" -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml b/Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
+index 2eb7f10d6..906fbf493 100644
+--- a/Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
++++ b/Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
+@@ -27,17 +27,7 @@
+ 		<Spanish>Cuando est� activada, las civilizaciones menores son mostradas (algunos escenarios consideran a ciertas civilizaciones como menores).</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.099] -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
+-		<English>Show</English>
+-		<French>Montrer</French>
+-		<German>Anzeigen</German>
+-		<Italian>Mostra</Italian>
+-		<Spanish>Mostrar</Spanish>
+-	</TEXT-->
+-	<!-- Replacing the above (and TXT_KEY_BUG_OPTLABEL_SCORES_DEAD_CIVS in BUG
+-		 Options Screen.xml) -->
++	<!-- custom: Long_Comments_XML.txt #237 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
+ 		<English>Show Defeated</English>
+
+diff --git a/Assets/XML/Text/BUG_Advisors_Options.xml b/Assets/XML/Text/BUG_Advisors_Options.xml
+index b90068b61..11c7e6dae 100644
+--- a/Assets/XML/Text/BUG_Advisors_Options.xml
++++ b/Assets/XML/Text/BUG_Advisors_Options.xml
+@@ -47,15 +47,7 @@
+ 		<Italian>Quando � selezionato, visualizza la tabella "Occhiata" nella schermata del Consigliere Estero (utilizzando l'Exotic Foreign Advisor Mod).</Italian>
+ 		<Spanish>Activa la pesta�a 'Mirar' en el consejero de asuntos exteriores.</Spanish>
+ 	</TEXT>
+-	<!-- advc.072: Now unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
+-		<English>Smilies</English>
+-		<French>Smileys</French>
+-		<German>Smilies</German>
+-		<Italian>Icone</Italian>
+-		<Spanish>Iconos</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #238 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_LIST</Tag>
+ 		<English>Numbers|Smilies|Both</English>
+@@ -113,15 +105,7 @@
+ 		<Italian>Tab "Attivo"|Accordi attuali|Entrambi|Only Tooltip</Italian>
+ 		<Spanish>Tab "Activo"|Current Deals|Ambos|Only Tooltip</Spanish>
+ 	</TEXT>
+-	<!-- Rewritten (English, German), then replaced with the key below. -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFADEALTURNSLEFT_HOVER</Tag>
+-		<English>When checked, the "Active" tab shows the remaining number of turns until cancellation for deals that cannot currently be canceled. (Regardless of this setting, the turns to cancel are shown when hovering over a deal.)</English>
+-		<French>When checked, shows how many turns are left before you can cancel each deal on the 'Active' tab.</French>
+-		<German>Zeigt im Reiter "Aktiv" an, wann Vereinbarungen gek�ndigt werden k�nnen, die zur Zeit unk�ndbar sind. (Unabh�ngig von dieser Option wird die verbleibende Mindestlaufzeit auch im Hilfetext der Vereinbarung angezeigt.)</German>
+-		<Italian>Quando � selezionato, mostra quanti turni sono rimasti prima che si possa annullare un accordo.</Italian>
+-		<Spanish>Permite mostrar cu�ntos turnos quedan antes de que puedas cancelar cada intercambio en la pesta�a 'Activo'.</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #239 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__DEALTURNSLEFT_HOVER</Tag>
+ 		<English>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</English>
+@@ -363,42 +347,8 @@
+ 		<Italian>Quando selezionato, mostra le meraviglie nella versione BUG della tabella meraviglie usando il colore del giocatore che le possiede.</Italian>
+ 		<Spanish>Muestra las maravillas empleando el color del jugador que las ha constru�do.</Spanish>
+ 	</TEXT>
+-	
+-	<!-- advc.004: Now disused (German was "BUG Statistiken") -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_TEXT</Tag>
+-		<English>Improvement Stats</English>
+-		<German>Zus. Statistiken</German>
+-		<Italian>Scheda Statistiche</Italian>
+-		<Spanish>Estad�sticas de mejoras</Spanish>
+-	</TEXT-->
+-	<!-- advc.004: Now disused (English, German rewritten) -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_HOVER</Tag>
+-		<English>When checked, the "Statistics" tab shows how many improvements you currently own of each improvement type.</English>
+-		<German>Zeigt auf dem Reiter "Statistik" f�r jeden Typ von Gel�ndeverbesserung an, wie viele Verbesserungen dieses Typs Sie derzeit besitzen.</German>
+-		<Italian>Quando � selezionato, mostra la Scheda delle Statistiche nella versione migliorata del BUG Mod</Italian>
+-		<Spanish>Muestra mejoras de casillas en la pesta�a 'Estad�sticas'.</Spanish>
+-	</TEXT-->
+-	
+-	<!-- advc.004: No longer used -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_TEXT</Tag>
+-		<English>Non-Zero Stats Only</English>
+-		<German>Nur Nicht-Nullwerte</German>
+-		<Italian>Solo statistiche maggiori di zero</Italian>
+-		<Spanish>Solo estad�sticas que no sean cero</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_HOVER</Tag>
+-		<English>When checked, only non-zero entries are displayed in the Stats tab.</English>
+-		<German>Wenn aktiviert, werden im Statistiken-Reiter nur von Null verschiedene Werte angezeigt.</German>
+-		<Italian>Quando � selezionato, solo le statistiche maggiori di zero sono mostrate nella tabella Statistiche.</Italian>
+-		<Spanish>Activada, s�lo las entradas que no sean cero son mostradas en la pesta�a 'Estad�sticas'.</Spanish>
+-	</TEXT-->
+-	
+-	
+-<!-- Sevopedia -->
++	<!-- custom: Long_Comments_XML.txt #240 -->
++	<!-- Sevopedia -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIA_TEXT</Tag>
+ 		<English>Enabled</English>
+
+diff --git a/Assets/XML/Text/BUG_Autolog_Options.xml b/Assets/XML/Text/BUG_Autolog_Options.xml
+index eac259852..ecb2ea27b 100644
+--- a/Assets/XML/Text/BUG_Autolog_Options.xml
++++ b/Assets/XML/Text/BUG_Autolog_Options.xml
+@@ -21,7 +21,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__ENABLED_HOVER</Tag>
+ 		<English>Enables the Autolog mod, which logs various game events to a text file when active. Only events visible to your civilization are logged (the mod was created by Eotinb "with succession games in mind").</English>
+ 		<French>En activant, plusieurs �v�nements du jeu sont logg�s dans un fichier texte gr�ce au mod AutoLog de eotinb.</French>
+-		<German>Aktiviert den Autolog-Mod, welcher verschiedene Spielereignisse in einer Textdatei protokollieren kann. Nur Ereignisse, die f�r Ihre Zivilisation sichtbar sind, werden protokolliert. (Damit eignet sich Autolog f�r "Succession Games" in Webforen.)</German>
++		<German>Aktiviert den Autolog-Mod, welcher verschiedene Spielereignisse in einer Textdatei protokollieren kann. Nur Ereignisse, die f�r Ihre Zivilisation sichtbar sind, werden protokolliert. (Damit eignet sich Autolog f�r "Succession Games" in Webforen.)</German>
+ 		<Italian>Quando � selezionato, vari eventi di gioco vengono registrati in un file  (utilizzando l'AutoLog Mod di Eotinb).</Italian>
+ 		<Spanish>Si se activa, determinados eventos de juego son registrados en un fichero de texto empleando el mod de AutoLog de eotinb.</Spanish>
+ 	</TEXT>
+@@ -40,7 +40,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__SILENT_HOVER</Tag>
+ 		<English>When checked, logging is always active. Otherwise, logging can be started or stopped manually by pressing [Alt + L]. When manually enabled, logging also stops when exiting the game or loading a saved game.</English>
+ 		<French>En activant, Autolog est d�marr� automatiquement sans message � l'�cran.</French>
+-		<German>Aktiviert die Protokollierung dauerhaft. Ist diese Option nicht angekreuzt, kann die Protokollierung mit der Tastenkombination [ALT + L] gestartet werden und endet dann beim Laden eines Spielstandes, beim Verlassen des Spiels oder bei erneutem Dr�cken von [Alt + L].</German>
++		<German>Aktiviert die Protokollierung dauerhaft. Ist diese Option nicht angekreuzt, kann die Protokollierung mit der Tastenkombination [ALT + L] gestartet werden und endet dann beim Laden eines Spielstandes, beim Verlassen des Spiels oder bei erneutem Dr�cken von [Alt + L].</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico viene avviato automaticamente; quando non � selezionato, il Registro Automatico deve essere avviato (ed eventualmente arrestato) utilizzando il comando [Alt + L].</Italian>
+ 		<Spanish>Si se activa, el registrado comienza autom�ticamente sin esperar al comienzo o parada manual que puede emplearse usando [Alt + L].</Spanish>
+ 	</TEXT>
+@@ -89,7 +89,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FILEPATH_HOVER</Tag>
+ 		<English>Directory of the log file (fully qualified path, e.g. C:\folder\subfolder). If left blank, the default directory shown on the "System" tab is used.</English>
+ 		<French>Le R�pertoire ou le fichier de log sera sauvegard� (chemin complet, p.ex. C:\folder\subfolder ou vide).</French>
+-		<German>Verzeichnis f�r die Protokolldatei (vollst�ndige Pfadangabe, z.B. C:\Ordner\Unterordner). Bei leerem Feld wird das Standardverzeichnis verwendet, dessen Pfad auf dem Reiter "System" angezeigt wird.</German>
++		<German>Verzeichnis f�r die Protokolldatei (vollst�ndige Pfadangabe, z.B. C:\Ordner\Unterordner). Bei leerem Feld wird das Standardverzeichnis verwendet, dessen Pfad auf dem Reiter "System" angezeigt wird.</German>
+ 		<Italian>Cartella dove � localizzato il file di registro (percorso completo (ad esempio C:\cartella\sottocartella) o vuoto).</Italian>
+ 		<Spanish>Directorio en el que guardar los registros (ruta absoluta, por ejemplo C:\folder\subfolder) o en blanco.</Spanish>
+ 	</TEXT>
+@@ -116,7 +116,7 @@
+ 	
+ 	<!-- advc.004: Was:
+ 		 <English>Forum Tags, With " around color codes|Forum Tags, No " around color codes</English>
+-		 <German>Klartext|HTML-Code|Foren-Code, mit Anf�hrungszeichen (") um Farbcodes|Foren-Code, ohne Anf�hrungszeichen (") um Farbcodes</German>
++		 <German>Klartext|HTML-Code|Foren-Code, mit Anf�hrungszeichen (") um Farbcodes|Foren-Code, ohne Anf�hrungszeichen (") um Farbcodes</German>
+ 		 Will explain that in hover text. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FORMAT_LIST</Tag>
+@@ -130,7 +130,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FORMAT_HOVER</Tag>
+ 		<English>The format of the log output. The CivFanatics forums support BBCode with color codes in quotation marks.</English>
+ 		<French>Le style du log.</French>
+-		<German>Bestimmt die Formatierung, in der das Protokoll erstellt wird. Die englischsprachigen CivFanatics-Foren erfordern BBCode mit Farbangaben als Strings, also in Anf�hrungszeichen.</German>
++		<German>Bestimmt die Formatierung, in der das Protokoll erstellt wird. Die englischsprachigen CivFanatics-Foren erfordern BBCode mit Farbangaben als Strings, also in Anf�hrungszeichen.</German>
+ 		<Italian>Lo stile di visualizzazione del registro.</Italian>
+ 		<Spanish>Formato de salida del registro.</Spanish>
+ 	</TEXT>
+@@ -150,7 +150,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__COLORCODING_HOVER</Tag>
+ 		<English>When checked, log entries are color-coded using code tags (depending on the output format; no colors in plain text output).</English>
+ 		<French>En activant, les commentaires sont color�s pour les forums.</French>
+-		<German>Verwendet Farb-Tags (abh�ngig vom Ausgabeformat; keine Farben bei Klartext-Ausgabe), um das Protokoll �bersichtlicher zu gestalten. </German>
++		<German>Verwendet Farb-Tags (abh�ngig vom Ausgabeformat; keine Farben bei Klartext-Ausgabe), um das Protokoll �bersichtlicher zu gestalten. </German>
+ 		<Italian>Quando � selezionato, viene applicato il codice cromatico per i post nel Forum.</Italian>
+ 		<Spanish>Cuando se activa, se emplean c�digos de color para posts de foro en los comentarios.</Spanish>
+ 	</TEXT>
+@@ -296,13 +296,7 @@
+ 		<Spanish>Proyectos Completados</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: was
+-		 <English>When checked, will log completion of projects (certain wonders are technically projects - other wonders are treated like normal buildings).</English>
+-		 <German>Protokolliert fertiggestellte Wunder (bestimmte Wunder sind eigentlich Projekte, w�hrend andere Wunder wie normale Geb�ude behandelt werden)</German>
+-		 These should be handled like the other production items, but
+-		 perhaps there's a onCityBuilding event missing or sth. (fixme?).
+-		 Doesn't hurt to have a separate option for SS parts, but the
+-		 generic production alerts should cover these in any case. -->
++	<!-- custom: Long_Comments_XML.txt #241 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPROJECTS_HOVER</Tag>
+ 		<English>When checked, will log when one of your cities completes a project (e.g. a Spaceship Part).</English>
+@@ -334,7 +328,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYFOUNDED_TEXT</Tag>
+ 		<English>City Founded</English>
+ 		<French>Fondation</French>
+-		<German>Stadtgr�ndungen</German>
++		<German>Stadtgr�ndungen</German>
+ 		<Italian>Citt� fondate</Italian>
+ 		<Spanish>Fundaci�n de Ciudades</Spanish>
+ 	</TEXT>
+@@ -342,7 +336,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYFOUNDED_HOVER</Tag>
+ 		<English>When checked, will log when you found a city.</English>
+ 		<French>En activant, la fondation d'une ville sera not� dans le log.</French>
+-		<German>Protokolliert Ihre Stadtgr�ndungen.</German>
++		<German>Protokolliert Ihre Stadtgr�ndungen.</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico registra quando fondi una Citt�.</Italian>
+ 		<Spanish>Cuando est� activa, se registran las ciudades que fundes.</Spanish>
+ 	</TEXT>
+@@ -434,7 +428,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYWHIPSTATUS_HOVER</Tag>
+ 		<English>When checked, will log when you sacrifice population to hurry a production order or to draft a military unit, and when the anger resulting from sacrificed population decreases.</English>
+ 		<French>En activant, l'utilisation du fouet dans vos villes sera not� dans le log, ainsi que le d�croissement de la col�re.</French>
+-		<German>Protokolliert die Opferung von B�rgern zur Beschleunigung der Produktion oder zur Einberufung, und das Abklingen der Unzufriedenheit dar�ber.</German>
++		<German>Protokolliert die Opferung von B�rgern zur Beschleunigung der Produktion oder zur Einberufung, und das Abklingen der Unzufriedenheit dar�ber.</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico registra quando compi Sacrifici in una tua Citt� o quando la rabbia da Sacrifici diminuisce in una tua Citt�.</Italian>
+ 		<Spanish>Si est� activa, se registrar�n los sacrificios para apresurar la producci�n en una ciudad y los descensos de infelicidad debida a sacrificios.</Spanish>
+ 	</TEXT>
+@@ -498,7 +492,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGP_TEXT</Tag>
+ 		<English>Great Person Birth</English>
+ 		<French>Personnages Illustres</French>
+-		<German>Gro�e Pers�nlichkeit</German>
++		<German>Gro�e Pers�nlichkeit</German>
+ 		<Italian>Grandi Personaggi</Italian>
+ 		<Spanish>Grandes Personas</Spanish>
+ 	</TEXT>
+@@ -506,7 +500,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGP_HOVER</Tag>
+ 		<English>When checked, will log the birth of Great People in your cities.</English>
+ 		<French>En activant, la naissance des personnages illustres dans vos villes sera not� dans le log.</French>
+-		<German>Protokolliert das Erscheinen Gro�er Pers�nlichkeiten in Ihren St�dten.</German>
++		<German>Protokolliert das Erscheinen Gro�er Pers�nlichkeiten in Ihren St�dten.</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico registra la nascita di Grandi Personaggi nelle tue Citt�.</Italian>
+ 		<Spanish>Cuando esta opci�n est� activa, se registran los nacimientos de Grandes Personas en tus ciudades.</Spanish>
+ 	</TEXT>
+@@ -561,7 +555,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGATTITUDE_HOVER</Tag>
+ 		<English>When checked, will log any change in AI attitude (e.g. Cautious) toward you and between AI leaders known to you.</English>
+ 		<French>En activant, tout changement d'attitude entre les civilisations que vous connaissez sera not� dans le log.</French>
+-		<German>Protokolliert jede Ver�nderung der KI-Einstellungswerte (z.B. "vorsichtig") Ihnen gegen�ber und zwischen den Ihnen bekannten KI-Spielern.</German>
++		<German>Protokolliert jede Ver�nderung der KI-Einstellungswerte (z.B. "vorsichtig") Ihnen gegen�ber und zwischen den Ihnen bekannten KI-Spielern.</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico registra ogni cambio di atteggiamento fra le Civilt� che ti sono note.</Italian>
+ 		<Spanish>Si se activa, se registran los cambios de actitud de civilizaciones que conozcas.</Spanish>
+ 	</TEXT>
+@@ -662,7 +656,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPILLAGE_TEXT</Tag>
+ 		<English>Pillaging</English>
+ 		<French>Pillage</French>
+-		<German>Pl�nderung</German>
++		<German>Pl�nderung</German>
+ 		<Italian>Saccheggi</Italian>
+ 		<Spanish>Pillaje</Spanish>
+ 	</TEXT>
+@@ -673,28 +667,12 @@
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPILLAGE_HOVER</Tag>
+ 		<English>When checked, will log when you pillage a tile or if one one of your tiles is pillaged.</English>
+ 		<French>En activant, vos pillages et ceux de vos am�liorations seront not�s dans le log.</French>
+-		<German>Protokolliert Pl�nderungen durch Ihre Einheiten und Pl�nderungen Ihrer Gel�ndefelder durch feindliche Einheiten.</German>
++		<German>Protokolliert Pl�nderungen durch Ihre Einheiten und Pl�nderungen Ihrer Gel�ndefelder durch feindliche Einheiten.</German>
+ 		<Italian>Quando � selezionato, il Registro Automatico registra i saccheggi effettuate da te o quando i tuoi miglioramenti vengono saccheggiati.</Italian>
+ 		<Spanish>Permite registrar los pillajes que realices o el pillaje de tus mejoras.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEALL_TEXT</Tag>
+-		<English>Trade/Demands</English>
+-		<French>Trade/Demands</French>
+-		<German>Handel / Forderungen</German>
+-		<Italian>Commercio</Italian>
+-		<Spanish>Intercambios/Exigencias</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEALL_HOVER</Tag>
+-		<English>When checked, will log all AI-initiated trade offers and demands along with your responses.</English>
+-		<French>When checked, will log all AI-initiated trade offers and demands along with your responses.</French>
+-		<German>Protokolliert alle von anderen Zivilisationen angeregte Handelsangebote und Forderungen zusammen mit den Reaktionen der eigenen Zivilisation</German>
+-		<Italian>Quando � selezionato, il Registro Automatico registra tutte le offerte e le richieste commerciali delle altre Civilt� e le vostre risposte.</Italian>
+-		<Spanish>Permite registrar los intercambios y exigencias iniciados por IAs as� como tus respuestas.</Spanish>
+-	</TEXT-->
++
+ 	
+ 	<!-- advc.004: German was "Handelsangebote" -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/BUG_City_Screen_Options.xml b/Assets/XML/Text/BUG_City_Screen_Options.xml
+index cb12b883e..611c611e4 100644
+--- a/Assets/XML/Text/BUG_City_Screen_Options.xml
++++ b/Assets/XML/Text/BUG_City_Screen_Options.xml
+@@ -213,21 +213,7 @@
+ 		<Italian>Quando � selezionato, mostra solo le religioni presenti nella citt� e consente di visualizzare oltre sette religioni.</Italian>
+ 		<Spanish>Muestra solamente las religiones que est�n presentes en la ciudad, y permite m�s de siete religiones.</Spanish>
+ 	</TEXT>
+-	<!-- advc.004: Obsolete, see above. -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTCORPORATIONS_TEXT</Tag>
+-		<English>Only Present Corporations</English>
+-		<German>Nur vorhandene KGs</German>
+-		<Italian>Solo Corporazioni Presenti</Italian>
+-		<Spanish>S�lo Corporaciones Presentes</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTCORPORATIONS_HOVER</Tag>
+-		<English>When checked, the city screen displays only icons of corporations that are present in the city.</English>
+-		<German>L�sst den Stadtbildschirm (rechts oben) nur Symbole jener Kapitalgesellschaften anzeigen, die in der Stadt vertreten sind.</German>
+-		<Italian>Quando � selezionato, mostra solo le religioni presenti nella citt� e consente di visualizzare oltre sette corporazioni.</Italian>
+-		<Spanish>Si se activa, muestra s�lo las corporaciones que est�n presentes en la ciudad y permite m�s de siete corporaciones.</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #243 -->
+ 
+ 	<!-- advc.097: New option -->
+ 	<TEXT>
+@@ -295,14 +281,7 @@
+ 	</TEXT>
+ 
+ 	<!-- BUG Production Decay -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>
+-		<English>Queue</English>
+-		<French>Queue</French>
+-		<German>Produktionsliste</German>
+-		<Italian>Coda</Italian>
+-		<Spanish>Avisos</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #244 -->
+ 	<!-- advc.094: Now refers to both queue and hover text -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml b/Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml
+index ef56b572a..956b35c36 100644
+--- a/Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml
++++ b/Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml
+@@ -298,23 +298,7 @@
+ 		<Italian>Determina la quantit� d'oro per turno che costituisce il limite per la visualizzazione dell'avviso.</Italian>
+ 		<Spanish>Determina la cantidad de oro turno que har� mostrar una alerta.</Spanish>
+ 	</TEXT>
+-	<!-- unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__GOLDTRADETHRESH_TEXT</Tag>
+-		<English>Threshold</English>
+-		<French>Seuil</French>
+-		<German>Schwelle</German>
+-		<Italian>Quantit&#224;</Italian>
+-		<Spanish>Cantidad</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__GOLDPERTURNTRADETHRESH_TEXT</Tag>
+-		<English>Threshold</English>
+-		<French>Seuil</French>
+-		<German>Schwelle</German>
+-		<Italian>Quantit&#224;</Italian>
+-		<Spanish>Cantidad</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #245 -->
+ 	
+ 	<!-- advc.071 -->
+ 	<!-- Italian, Spanish based on TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_LIST
+
+diff --git a/Assets/XML/Text/BUG_Main_Interface_Options.xml b/Assets/XML/Text/BUG_Main_Interface_Options.xml
+index 40aaf8807..d75a74328 100644
+--- a/Assets/XML/Text/BUG_Main_Interface_Options.xml
++++ b/Assets/XML/Text/BUG_Main_Interface_Options.xml
+@@ -68,24 +68,7 @@
+ 		<English>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still pulses as it does in BtS, but no message is shown.</English>
+ 		<German>Blinkanzeige "Runde beenden mit EINGABETASTE" (wie in BtS), sobald alle Einheiten und St�dte Befehle erhalten haben. Die rote Rundenende-Schaltfl�che pulsiert auch wenn diese Option nicht angekreuzt ist.</German>
+ 	</TEXT>
+-	
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_TEXT</Tag>
+-		<English>Gold Rate Warning</English>
+-		<German>"Gold/Runde"-Warnung</German>
+-		<Italian>Calo dell'Oro</Italian>
+-		<Spanish>Advertencia Oro</Spanish>
+-	</TEXT-->
+-	<!-- advc.004: Rewritten (English, German); hopefully makes clearer how
+-		 this differs from BtS. -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_HOVER</Tag>
+-		<English>When checked, a negative gold rate is shown in red only if the deficit exceeds the gold reserves in your treasury. Otherwise (sufficient reserves), a negative gold rate is shown in yellow.</English>
+-		<German>F�rbt bei negativem Einkommen die [ICON_GOLD]/Runde-Anzeige nur dann rot ein, wenn das Defizit gr��er ist als der Goldvorrat. Andernfalls, d.h. wenn der Goldvorrat das Defizit auffangen kann, wird die [ICON_GOLD]/Runde-Anzeige gelb eingef�rbt.</German>
+-		<Italian>Quando � selezionato, mostra il tasso di crescita dell'oro in giallo se � negativo ma non abbastanza da mandarvi in rosso.</Italian>
+-		<Spanish>Muestra tu oro en amarillo si el cambio este turno es negativo pero no suficiente para llevar tu tesoro por debajo de cero.</Spanish>
+-	</TEXT-->
+-	
++	<!-- custom: Long_Comments_XML.txt #246 -->
+ 	<!-- advc.070 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__POSITIVEGOLDRATECOLOR_TEXT</Tag>
+@@ -147,17 +130,7 @@
+ 		<Italian>Quando � selezionato, mostra il progresso e la citt� del prossimo Grande Personaggio.</Italian>
+ 		<Spanish>When checked, displays the progress and city of the next Great Person.</Spanish>
+ 	</TEXT>
+-
+-	<!-- advc.004: Unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_TYPES_TEXT</Tag>
+-		<English>GP Bar Types</English>
+-		<French>Types de Barre PI</French>
+-		<German>Anzeigemethode</German>
+-		<Italian>Tipi di Grandi Personaggi</Italian>
+-		<Spanish>Barra de Tipo de GP</Spanish>
+-	</TEXT-->
+-
++	<!-- custom: Long_Comments_XML.txt #247 -->
+ 	<!-- advc.004: Minor changes. Would be nice to state explicitly that this
+ 		 setting also applies to the city screen, but the text is already
+ 		 rather long. -->
+
+diff --git a/Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml b/Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml
+index 44dc092d2..875a574dd 100644
+--- a/Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml
++++ b/Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml
+@@ -87,23 +87,7 @@
+ 		<Italian>Quando � selezionato, viene visualizzato un avviso quando una Civilt� � disponibile a diventare Vassallo del giocatore.</Italian>
+ 		<Spanish>Muestra un aviso cuando una civilizaci�n est� dispuesta a convertirse en tu vasallo.</Spanish>
+ 	</TEXT>
+-
+-	<!-- advc.004: Now unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PEACETRADE_TEXT</Tag>
+-		<English>Peace Treaty</English>
+-		<German>Friedensvertrag</German>
+-		<Italian>Trattato di Pace</Italian>
+-		<Spanish>Tratado de Paz</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PEACETRADE_HOVER</Tag>
+-		<English>Displays an alert when a civilization is willing to sign a Peace Treaty.</English>
+-		<German>Meldet, wenn eine Zivilisation einem "Friedensvertrag" zustimmen wird</German>
+-		<Italian>Quando � selezionato, viene visualizzato un avviso quando una Civilt� � disponibile a firmare un Trattato di Pace.</Italian>
+-		<Spanish>Muestra un aviso cuando una civilizaci�n est� dispuesta a firmar un Tratado de Paz.</Spanish>
+-	</TEXT-->
+-	
++	<!-- custom: Long_Comments_XML.txt #248 -->	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__SURRENDERTRADE_TEXT</Tag>
+ 		<English>Capitulation</English>
+
+diff --git a/Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml b/Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
+index 7bde488f6..0ae6cac21 100644
+--- a/Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
++++ b/Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
+@@ -368,17 +368,7 @@
+ 		<Italian>Quando � selezionato, viene visualizzata la data in gioco e il numero di turni di Et� dell'Oro rimasti.</Italian>
+ 		<Spanish>Muestra la fecha de juego y el n�mero de turnos restantes de la Edad de Oro.</Spanish>
+ 	</TEXT>
+-	
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
+-		<English>Alternate Game Clock</English>
+-		<French>Alterner l'Horloge</French>
+-		<German>Anzeige abwechseln</German>
+-		<Italian>Orologio alternativo</Italian>
+-		<Spanish>Reloj Alternativo</Spanish>
+-	</TEXT-->
+-	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
+-		 in 'BUG_Options_Screen.xml' -->
++	<!-- custom: Long_Comments_XML.txt #249 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
+ 		<English>Alternate View</English>
+@@ -398,22 +388,7 @@
+ 		<English>When checked, NJAGC alternates between the settings in the left column and those on the right. The two dropdown menus determine for how many seconds each view is shown.</English>
+ 		<German>L�sst die Zeitanzeige zwischen den Einstellungen in der linken Spalte und jenen in der rechten Spalte wechseln. Die beiden Aufklappmen�s steuern die jeweilige Anzeigedauer.</German>
+ 	</TEXT>
+-	
+-	<!-- advc.067: unused -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTTIMING_TEXT</Tag>
+-		<English>Period (in seconds)</English>
+-		<French>Rythme (en secondes)</French>
+-		<German>Intervall (in Sekunden)</German>
+-		<Italian>Periodo (in secondi)</Italian>
+-		<Spanish>Per�odo (en segundos)</Spanish>
+-	</TEXT-->
+-	
+-	<!-- advc.067: Rewritten; old translations:
+-		 <French>S�lectionnez la rythme � laquelle l'horloge alterne entre les deux vues.</French>
+-		 <Italian>Determina perr quanti secondi viene visualizzata ciascuna delle due versioni dell'orologio (se la visualizzazione alternativa � abilitata).</Italian>
+-		 <Spanish>Permite seleccionar el tiempo que cada una de las vistas de reloj se mostrar� cuando se emplea el modo alternante.</Spanish>
+-		 -->
++	<!-- custom: Long_Comments_XML.txt #250 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTTIMING_HOVER</Tag>
+ 		<English>The duration in seconds for which the settings on the right are used if [COLOR_HIGHLIGHT_TEXT]Alternate View[COLOR_REVERT] is enabled.</English>
+
+diff --git a/Assets/XML/Text/BUG_Options_Screen.xml b/Assets/XML/Text/BUG_Options_Screen.xml
+index c5f2121fb..5a6caec5b 100644
+--- a/Assets/XML/Text/BUG_Options_Screen.xml
++++ b/Assets/XML/Text/BUG_Options_Screen.xml
+@@ -120,27 +120,13 @@
+ 		<Italian>Unit Info Pane:</Italian>
+ 		<Spanish>Unit Info Pane:</Spanish>
+ 	</TEXT>
+-
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
+-		<English>Tech Splash Screen:</English>
+-		<German>Technologie-Popup:</German>
+-		<Italian>Scheda della scoperta tecnologica:</Italian>
+-		<Spanish>Tecnolog�as:</Spanish>
+-	</TEXT-->
+-	<!-- advc.060: Replacing the above b/c I want to list the SS screen as a
+-		 kind of splash screen (though it really isn't) -->
++	<!-- custom: Long_Comments_XML.txt #254 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
+ 		<English>Splash Screens:</English>
+ 		<German>Splash-Screens:</German>
+ 	</TEXT>
+-
+-	<!--TEXT> advc.009c
+-		<Tag>TXT_KEY_BUG_OPTLABEL_BUFFY</Tag>
+-		<English>BUFFY:</English>
+-	</TEXT-->
+-	
++	<!-- custom: Long_Comments_XML.txt #255 -->
+ 	<!-- advc.120c: Based on TXT_KEY_TECH_DRAMA_STRATEGY in
+ 		 CIV4GameText_Strategy.xml -->
+ 	<TEXT>
+@@ -236,11 +222,7 @@
+ 		<English>City Billboards:</English>
+ 		<German>St�dte-Balken:</German>
+ 	</TEXT>
+-	<!-- advc.009c: Commented out -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_MAPFINDER</Tag>
+-		<English>MapFinder:</English>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #251 -->
+ 	
+ 	<!-- Advisors Tab -->
+ 	
+@@ -414,15 +396,7 @@
+ 	
+ 	<!-- Clock Tab -->
+ 	
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPTTAB_NJAGC</Tag>
+-		<English>Clock</English>
+-		<French>Horloge</French>
+-		<German>Uhr</German>
+-		<Italian>Orologio</Italian>
+-		<Spanish>Reloj</Spanish>
+-	</TEXT-->
+-	<!-- advc.002k: Year notation doesn't fit under "Clock" -->
++	<!-- custom: Long_Comments_XML.txt #253 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTTAB_NJAGC</Tag>
+ 		<English>Time</English>
+@@ -483,17 +457,7 @@
+ 		<Spanish>Columnas Adicionales:</Spanish>
+ 	</TEXT>
+ 	
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_ICONS</Tag>
+-		<English>[SPACE]</English>
+-		<French>Icons:</French>
+-		<German>Symbole:</German>
+-		<Italian>Icone:</Italian>
+-		<Spanish>Iconos:</Spanish>
+-	</TEXT-->
+-	<!-- advc.004: Replacing the above (which is now entirely unused).
+-		 Same as TXT_KEY_FOREIGN_ADVISOR_RELATIONS in
+-		 CIV4GameTextInfos.xml (but that one misses the colon). -->
++	<!-- custom: Long_Comments_XML.txt #252 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_RELATIONS</Tag>
+ 		<English>Relations:</English>
+
+diff --git a/Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml b/Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml
+index 479907c1b..12fbe6145 100644
+--- a/Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml
++++ b/Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml
+@@ -93,13 +93,7 @@
+ 		<Spanish>Vista por defecto</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.069: Switched the order of the last two.
+-		 was "Single Row|Multiple Rows|Vertical Groups|Horizontal Groups"
+-		 - nice, but too long. Old translations:
+-		 <French>Une Ligne|Plusieurs Lignes|Groupes Verticaux|Groupes Horizontaux</French>
+-		 <Italian>Riga singola|Righe multiple|Gruppi verticali|Gruppi orizzontali</Italian>
+-		 <Spanish>Fila Simple|Filas M�ltiples|Grupos Verticales|Grupos Horizontales</Spanish>
+-		 -->
++	<!-- custom: Long_Comments_XML.txt #256 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__DEFAULT_VIEW_MODE_LIST</Tag>
+ 		<English>Single Row|Wrapped Row|Multi Rows|Multi Columns</English>
+@@ -406,12 +400,9 @@
+ 		<Italian>Visualizza le azioni delle Unit� sulle loro icone.</Italian>
+ 		<Spanish>Coloca un indicador debajo de las unidades mostrando su acci�n actual.</Spanish>
+ 	</TEXT>
+-	
+ 	<!-- advc.069: unused -->
+ 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #45 -->
+-
+ 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #46 -->
+-
+ 	<!-- advc.069: Had to shorten German -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__UNIT_NAME_COLOR_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/BUG_Reminder_Options.xml b/Assets/XML/Text/BUG_Reminder_Options.xml
+index c072d7d72..30d551fbf 100644
+--- a/Assets/XML/Text/BUG_Reminder_Options.xml
++++ b/Assets/XML/Text/BUG_Reminder_Options.xml
+@@ -22,20 +22,11 @@
+ 		<Tag>TXT_KEY_BUG_OPT_REMINDER__ENABLED_HOVER</Tag>
+ 		<English>When checked, the key combination [ALT + M] allows you to set a reminder for yourself.</English>
+ 		<French>En activant, vous pourrez cr�er des messages avec [ALT + M] qui r�appara�tront un nombre de tours sp�cifi�s plus tard, gr�ce au mod Reminders de eotinb.</French>
+-		<German>Aktiviert die Erinnern-Funktion: Sie k�nnen sich selbst mit der Tastenkombination [ALT + M] eine Nachricht schreiben, die das Spiel dann nach einer bestimmten Anzahl von Z�gen anzeigt.</German>
++		<German>Aktiviert die Erinnern-Funktion: Sie k�nnen sich selbst mit der Tastenkombination [ALT + M] eine Nachricht schreiben, die das Spiel dann nach einer bestimmten Anzahl von Z�gen anzeigt.</German>
+ 		<Italian>Quando � selezionato, usando [ALT + M] durante il gioco potrai creare messaggi che appariranno dopo un numero definito di turni (utilizzando il Reminders Mod di Eotinb).</Italian>
+ 		<Spanish>Permite crear recordatorios que aparecen tras un n�mero determinado de turnos usando [ALT + M] empleando el mod Reminders de eotinb.</Spanish>
+ 	</TEXT>
+-
+-	<!-- advc.004: Merged into the key below -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_TEXT</Tag>
+-		<English>Display Method</English>
+-		<French>M�thode d'affichage</French>
+-		<German>Anzeigemethode</German>
+-		<Italian>Modalit� di visualizzazione</Italian>
+-		<Spanish>Visualizaci�n</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #257 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_HOVER</Tag>
+ 		<English>Display method:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Message[COLOR_REVERT] - On-screen message with entry in the Event log[NEWLINE][COLOR_HIGHLIGHT_TEXT]Popup[COLOR_REVERT] - Popup with an option to resend the reminder on the next turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT] - Both the on-screen message and the popup are displayed</English>
+@@ -52,16 +43,7 @@
+ 		<Italian>Messaggio|Popup|Entrambe</Italian>
+ 		<Spanish>Mensaje|Popup|Ambos</Spanish>
+ 	</TEXT>
+-	
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_REMINDER__AUTOLOG_TEXT</Tag>
+-		<English>Log w. Autolog</English>
+-		<French>Log avec Autolog</French>
+-		<German>Mit Autolog protokollieren</German>
+-		<Italian>Registra con Autolog</Italian>
+-		<Spanish>Autoregistrado</Spanish>
+-	</TEXT-->
+-	<!-- advc.004: Replacing the above -->
++	<!-- custom: Long_Comments_XML.txt #258 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_REMINDER__AUTOLOG_TEXT</Tag>
+ 		<English>Autolog</English>
+
+diff --git a/Assets/XML/Text/BUG_TechWindow_Options.xml b/Assets/XML/Text/BUG_TechWindow_Options.xml
+index c35eaafe2..8c377207b 100644
+--- a/Assets/XML/Text/BUG_TechWindow_Options.xml
++++ b/Assets/XML/Text/BUG_TechWindow_Options.xml
+@@ -4,15 +4,7 @@
+ 	Copyright (c) 2009 The BUG Mod.
+ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
+-		<English>View</English>
+-		<French>View</French>
+-		<German>Ansicht</German>
+-		<Italian>Visualizzazione</Italian>
+-		<Spanish>Vista</Spanish>
+-	</TEXT-->
+-	<!-- advc.060: Replacing the above b/c the heading no longer says "Tech" -->
++	<!-- custom: Long_Comments_XML.txt #259 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
+ 		<English>Tech</English>
+
+diff --git a/Assets/XML/Text/BULL_Actions_Options.xml b/Assets/XML/Text/BULL_Actions_Options.xml
+index e2cb326b3..2e010efe9 100644
+--- a/Assets/XML/Text/BULL_Actions_Options.xml
++++ b/Assets/XML/Text/BULL_Actions_Options.xml
+@@ -6,25 +6,5 @@
+ 	Copyright (c) 2009 The BUG Mod.
+ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-
+-<!-- advc (note): None of these options are currently shown, and I don't
+-	 think AdvCiv is going to restore them, as they solve problems that the mod
+-	 addresses differently. -->
+-
+-<!-- Ask Declare War -->
+-	<!-- advc: Unlikely to become an option -->
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #47 -->
+-
+-<!-- Sentry Healing -->
+-	<!-- advc.004l: Unlikely to be merged -->
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #48 -->
+-
+-<!-- Ignore Harmless Barbarians -->
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #98 -->
+-
+-<!-- PreChop -->
+-	<!-- advc.011b: Unlikely to be merged (although having prechop always enabled
+-		 could be more convenient than the current solution). -->
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #49 -->
+-
++	<!-- custom: Long_Comments_XML.txt #260 -->
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index 9a0fad90b..064b8b397 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -81,15 +81,7 @@
+ 		<Italian>%d1[ICON_COMMERCE] da %d2 rotte commerciali estere</Italian>
+ 		<Spanish>%d1[ICON_COMMERCE] por %d2 rutas internacionales</Spanish>
+ 	</TEXT>
+-	<!-- advc.086: Don't use this -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALISTS</Tag>
+-		<English>The Total Gold from Specialists</English>
+-		<French>The Total Gold from Specialists</French>
+-		<German>Gesamteinkommen durch Spezialisten</German>
+-		<Italian>Oro totale dagli Specialisti</Italian>
+-		<Spanish>Oro total obtenido de especialistas</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #261 -->
+ 	<!-- advc.086: Leading NEWLINEs removed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_GOLD</Tag>
+@@ -625,16 +617,7 @@
+ 	</TEXT>
+ 
+ <!-- Feature Health -->
+-	<!-- advc.059 handles this -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_ACTION_CHANGE_IN_CITY</Tag>
+-		<English>[ICON_BULLET]%s1 in %s2_CityName</English>
+-		<French>[ICON_BULLET]%s1 &#224; %s2_CityName</French>
+-		<German>[ICON_BULLET]%s1 in %s2_CityName</German>
+-		<Italian>[ICON_BULLET]%s1 a %s2_CityName</Italian>
+-		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
+-	</TEXT-->
+-
++	<!-- custom: Long_Comments_XML.txt #262 -->
+ <!-- Delete/Fortify/Sleep All Units Actions -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAME_UNITS_TYPE</Tag>
+
+diff --git a/Assets/XML/Text/BULL_Misc_Hovers_Options.xml b/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+index f832d83c9..ca25b490d 100644
+--- a/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
++++ b/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+@@ -147,21 +147,7 @@
+ 		<Italian>Quando � selezionato, nel testo a comparsa di ogni tipo di Commercio viene mostrato (quando necessario) il relativo subtotale (il totale prima dei modificatori).</Italian>
+ 		<Spanish>Muestra el subtotal para cada tipo de comercio en su texto flotante.</Spanish>
+ 	</TEXT>
+-	<!-- advc.078: Not optional -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_TEXT</Tag>
+-		<English>Rate Breakdown</English>
+-		<German>Aufschl�sselung der Rate</German>
+-		<Italian>Natalit� dei Grandi Personaggi</Italian>
+-		<Spanish>Detalle de probabilidades</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_HOVER</Tag>
+-		<English>When checked, displays the individual [ICON_GREATPEOPLE] rate per turn for each type in the hover.</English>
+-		<German>Zeigt im Tooltip die [ICON_GREATPEOPLE]/Runde f�r jede einzelne Art Gro�e Pers�nlichkeit an</German>
+-		<Italian>Quando � selezionato, nel testo a comparsa di ogni tipo di Grande Personaggio viene mostrato il tasso individuale di [ICON_GREATPEOPLE] per turno.</Italian>
+-		<Spanish>Permite consultar informaci�n individual de cada tipo de [ICON_GREATPEOPLE] en el texto flotante.</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #263 -->
+ 	
+ 	<!-- advc.004: German shortened -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml b/Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml
+index d32b9847c..3ae1afb4d 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml
+@@ -36,9 +36,7 @@
+ 	</TEXT>
+ 	
+ 	<!-- View Modes -->
+-	<!-- Outdated translations:
+-		 <Italian>[COLOR_HIGHLIGHT_TEXT]Cambia modalit� di visualizzazione[COLOR_REVERT][NEWLINE]Scegli come vengono visualizzate le icone delle Unit�: riga singola, righe multiple o gruppi di colonne o righe</Italian>
+-		 <Spanish>[COLOR_HIGHLIGHT_TEXT]Modo Cambiar Vista[COLOR_REVERT][NEWLINE]Permite seleccionar c�mo mostrar los iconos de unidad: en una sola fila, en m�ltiples filas o apiladas en columnas o filas separadas.</Spanish>-->
++	<!-- custom: Long_Comments_XML.txt #274 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLE_VIEW_MODE</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Switch View[COLOR_REVERT][NEWLINE]Icon arrangement: single row, wrapped row, one row per group or one column per group.</English>
+@@ -439,12 +437,7 @@
+ 	</TEXT>
+ 	
+ 	<!-- Grouping Modes -->
+-	<!-- advc.069: Not sure if this button functions as intended. Disables
+-		 upgrade and promotion mode, and cycles between grouping options.
+-		 Was:
+-		 <English>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]View normal unit icons and issue orders</English>
+-		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht aktivieren[COLOR_REVERT][NEWLINE]Anzeige der normalen Einheitensymbole und Aktionsschaltfl�chen</German>
+-		 -->
++	<!-- custom: Long_Comments_XML.txt #275 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLE_GRP_STANDARD</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]Disable upgrade/ promotion mode</English>
+@@ -452,10 +445,7 @@
+ 		<Italian>[COLOR_HIGHLIGHT_TEXT]Passa alla Modalit� Standard[COLOR_REVERT][NEWLINE]Visualizza tutte le icone di Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar a Modo Est�ndar[COLOR_REVERT][NEWLINE]Mostrar iconos normales de unidades y dar �rdenes</Spanish>
+ 	</TEXT>
+-	<!-- was:
+-		 <English>[COLOR_HIGHLIGHT_TEXT]Standard Mode[COLOR_REVERT][NEWLINE]Toggle how units are grouped: by unit type or selection group</English>
+-		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht[COLOR_REVERT][NEWLINE]Auswahl der Art der Gruppierung: nach Einheitentyp oder nach Einheitenverband</German>
+-	-->
++	<!-- custom: Long_Comments_XML.txt #276 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLE_GRP_STANDARD_ON</Tag>
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Standard Mode[COLOR_REVERT][NEWLINE]Click to toggle grouping (by type or by selection)</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Shortcuts.xml b/Assets/XML/Text/CIV4GameText_Shortcuts.xml
+index 692a5bed9..1f16a7b31 100644
+--- a/Assets/XML/Text/CIV4GameText_Shortcuts.xml
++++ b/Assets/XML/Text/CIV4GameText_Shortcuts.xml
+@@ -130,11 +130,7 @@
+ 		<Italian>[H1]Scorciatoie per il mouse[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click su una Barra cittadina[COLOR_REVERT][\BOLD][TAB]Seleziona tutte le Citt� del giocatore[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click su una Barra cittadina[COLOR_REVERT][\BOLD][TAB]Seleziona tutte le Citt� del giocatore nel continente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click su pi� Barre cittadine[COLOR_REVERT][\BOLD][TAB]Seleziona le corrispondenti Citt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click-d su Barre cittadine[COLOR_REVERT][\BOLD][TAB]Imposta una destinazione per tali Citt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click su una Civilt�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Dichiara guerra alla Civilt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click su una Civilt�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre l'interfaccia diplomatica con la Civilt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click su una casella[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Centra la mappa sulla casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click su una casella[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre il men� contestuale della casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click-d su una casella[COLOR_REVERT][\BOLD][TAB][TAB]Muove insieme tutte le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+rotellina[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Scorre fra le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Rotellina[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Zoom[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Muovere il mouse con i tasti premuti[COLOR_REVERT][\BOLD][TAB]Sposta la mappa[NEWLINE]</Italian>
+ 		<Spanish>[H1]Atajos de rat�n[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click en barra de una ciudad[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Selecciona todas las ciudades del jugador[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click en una civilizaci�n en la tabla de puntuaciones[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Declarar guerra a esa civilizaci�n[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click derecho en una casilla[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Mover todas las unidades de la misma casilla a la casilla seleccionada[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click en la barra de una ciudad[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Seleccionar todas las unidades en el mismo continente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click en una civilizaci�n en la tabla de puntuaciones[COLOR_REVERT][\BOLD][TAB][TAB]Abrir ventana de comercio[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+rueda del rat�n[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Alternar entre las unidades de la casilla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click en cualquier barra de ciudad[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Seleccionar m�ltiples ciudades (escoger producci�n)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click derecho en cualquier barra de ciudad[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Seleccionar punto de salida para m�ltiples ciudades[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click en cualquier casilla[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Abre el men� contextual para esa casilla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Rueda del rat�n[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Cambiar zoom[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click+Click izquierdo y derecho[COLOR_REVERT][\BOLD][TAB]Arrastrar mapa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click+Click derecho sobre enemigo[COLOR_REVERT][\BOLD][TAB]Muestra las probabilidades de combate[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click en cualquier casilla[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Centra el mapa en una casilla[NEWLINE]</Spanish>
+ 	</TEXT>
+-	<!-- advc.009c: Removed under "Regenerate the map": [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Start/Stop MapFinder
+-	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Strg+G[COLOR_REVERT][\BOLD][TAB][TAB]MapFinder starten/stoppen
+-	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Start/Stop MapFinder
+-	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Comenzar/detener MapFinder
+-	-->
++	<!-- custom: Long_Comments_XML.txt #273 -->
+ 	<!-- advc.011b: Ctrl+build -->
+ 	<!-- advc.063: Alt for Actual Effects -->
+ 	<!-- advc.004y: AI Auto Play, Civ Changer, Unit Naming added, removed
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index ba275c89d..919a988b8 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1714,18 +1714,7 @@
+ 		<Spanish>([NUM1:Abolido:Abolida]: %s1_CvcName.)</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.099: Overwrites CIV4GameTextInfos.xml. Since its culture
+-		 remains in the game, it isn't accurate to say the civ was
+-		 "destroyed". (Or better "vanquished"?) --> 
+-	<!--TEXT>
+-		<Tag>TXT_KEY_MISC_CIV_DESTROYED</Tag>
+-		<English>The %s1_CivAdj civilization has been conquered!!</English>
+-		<French>Les %s1_CivAdj est &#233;t&#233; conquis!!</French>
+-		<German>Die %s1:3_CivAdj Zivilisation wurde erobert!!</German>
+-		<Italian>La civilt&#224; %s1:4_CivAdj &#232; stato conquistata!!</Italian>
+-		<Spanish>&#161;La civilizaci&#243;n %s1:2_CivAdj ha sido conquistada!</Spanish>
+-	</TEXT-->
+-	<!-- Next try; similar to TXT_KEY_MISC_DEFEAT in CIV4GameText_Misc1.xml: -->
++	<!-- custom: Long_Comments_XML.txt #265 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_ELIMINATED</Tag>
+ 		<English>%s1_Plyr has been defeated!!</English>
+@@ -2386,21 +2375,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.005b: From CIV4GameText_Warlords.xml.
+-		 I'm removing the roman numerals. It's clear enough e.g. which
+-		 Gustav Adolph is meant, and if not, I don't mind the ambuigity.
+-		 They're not in the game as rulers (those are the AI leaders),
+-		 but as generals. Also for that reason, Boudica and Charlemagne are
+-		 replaced. Wanted famous replacements in about the same period,
+-		 and of the same gender. The Vietnamese Hai Ba Trung is to
+-		 conceal the fact that they're two people - the two "Ladies
+-		 Trung". Players who know about the Trung rebellion won't mind,
+-		 and those who don't won't be confused by their GG supposedly
+-		 consisting of two persons. Attila is already included through
+-		 the Huns event - would've been an obvious replacement for
+-		 Charlemagne otherwise. Went with Jan Zizka - don't know if
+-		 he's famous enough. Other ideas from High/Late Medieval times:
+-		 Eulji Mundeok, Tancred, Richard Lionheart. -->
++	<!-- custom: Long_Comments_XML.txt #266 -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_GREAT_PERSON_NEBUCHADREZZAR</Tag>
+ 		<English>Nebuchadnezzar</English>
+@@ -2726,14 +2701,7 @@
+ 		<Spanish></Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.005c: Based on TXT_KEY_IMPROVEMENT_CITY_RUINS in
+-	Civ4GameTextInfos_Objects.xml. First attempt (weird for tribal
+-	city names like Saxons):
+-		Ruins of %s1City_Name
+-		Ruines de %s1City_Name
+-		Ruinen von %s1City_Name
+-		Rovine di %s1City_Name
+-		Ruinas de %s1City_Name -->
++	<!-- custom: Long_Comments_XML.txt #267 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_IMPROVEMENT_CITY_RUINS_NAMED</Tag>
+ 		<English>City Ruins (%s1City_Name)</English>
+@@ -3041,15 +3009,7 @@
+ 		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa disposto a iniziare una guerra su sua richiesta.</Italian>
+ 		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte dispuesto a iniciar una guerra a petici�n suya.</Spanish>
+ 	</TEXT>
+-	<!-- Prior to v0.93: -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_HOVER</Tag>
+-		<English>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</English>
+-		<French>Affiche une alerte lorsqu'un chef d'IA devient (ou cesse d'�tre) pr�t � d�clencher une guerre � votre demande.</French>
+-		<German>Mitteilung, wenn ein KI-Gegner bereit (oder nicht mehr bereit) ist, einem anderen Gegner auf Ihren Wunsch den Krieg zu erkl�ren.</German>
+-		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa (o smette di essere) disposto a iniziare una guerra su sua richiesta.</Italian>
+-		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte (o deja de estar) dispuesto a iniciar una guerra a petici�n suya.</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #268 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
+ 		<English>%s1_TeamName can be convinced to start a war against</English>
+@@ -3641,15 +3601,7 @@
+ 		<Italian>Gioca ora</Italian>
+ 		<Spanish>Jugar ya</Spanish>
+ 	</TEXT>
+-	<!-- Don't gray this out after all: -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_MAIN_MENU_SCENARIO</Tag>
+-		<English>[COLOR_PLAYER_GRAY]Play Scenario[COLOR_REVERT]</English>
+-		<French>[COLOR_PLAYER_GRAY]Jouer un sc&#233;nario[COLOR_REVERT]</French>
+-		<German>[COLOR_PLAYER_GRAY]Szenario spielen[COLOR_REVERT]</German>
+-		<Italian>[COLOR_PLAYER_GRAY]Gioca uno scenario[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_PLAYER_GRAY]Jugar un escenario[COLOR_REVERT]</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #269 -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_MAIN_MENU_UPDATES</Tag>
+ 		<English>[COLOR_PLAYER_GRAY]Check for updates[COLOR_REVERT]</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+index 0fcd43ec4..ce0e4d9e9 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+@@ -752,25 +752,7 @@
+ 		<Italian>Mostra i raggi d'azione delle citt&#224; selezionando un colono</Italian>
+ 		<Spanish>Para ver los radios urbanos al seleccionar a un colono</Spanish>
+ 	</TEXT>
+-	<!-- "Extra" instead of "Detailed" -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
+-		<English>Extra City Info</English>
+-		<French>Infos d&#233;taill&#233;es sur la ville</French>
+-		<German>Zus�tzliche Stadt-Info</German>
+-		<Italian>Informazioni dettagliate sulla citt&#224;</Italian>
+-		<Spanish>Informaci&#243;n detallada de la ciudad</Spanish>
+-	</TEXT-->
+-	<!-- List the extra info. (I've searched the code; this should be
+-		 everything.) -->
+-	<!--TEXT>
+-		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO_HELP</Tag>
+-		<English>Shows some additional information about cities on the main map, namely, on the production bar, the number of production turns left; on the food bar, the number of turns until growth; and shows icons that highlight the cities with the highest research, gold and production rate.</English>
+-		<French>Voir les informations d&#233;taill&#233;es de la barre des villes.</French>
+-		<German>Zeigt auf der Hauptkarte Zusatzinformationen �ber Ihre St�dte an, n�mlich: Auf dem Produktionsbalken die Anzahl der Z�ge bis zur Fertigstellung, auf dem Nahrungsbalken die Anzahl der Z�ge bis zum Bev�lkerungszuwachs, und hebt durch Symbole die St�dte mit der h�chsten Forschungsrate, Goldrate und Produktionsrate hervor.</German>
+-		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
+-		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
+-	</TEXT-->
++	<!-- custom: Long_Comments_XML.txt #264 -->
+ 	<!-- advc.002f: The annoying indicator icons are now handled by BUG. So, next version: -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
+
+diff --git a/Assets/XML/Text/Civ4GameText_K-Mod.xml b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+index 6d5144375..fc3e51a60 100644
+--- a/Assets/XML/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+@@ -183,18 +183,7 @@
+ 		<Italian>Contatta il giocatore [COLOR_HIGHLIGHT_TEXT]%s1_PlyrName della civilt&#224; %s2:2_CivName[COLOR_REVERT]</Italian>
+ 		<Spanish>Contactar con [COLOR_HIGHLIGHT_TEXT]%s1_PlyrName del %s2_CivName[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+-
+-	<!-- advc (note): I'd try "ignores fortification defense" instead -->
+-	<!-- "-X% strength to opposing city defenders"?
+-	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_CITY_ATTACK_TEXT</Tag>
+-		<English>[ICON_BULLET]%D1_Bonus%% City Attack</English> 
+-		<French>[ICON_BULLET]Attaque de ville %D1_Bonus%%</French>
+-		<German>[ICON_BULLET]%D1_Bonus%% Stadtangriff</German>
+-		<Italian>[ICON_BULLET]%D1_Bonus%% di attacco verso le citt&#224;</Italian>
+-		<Spanish>[ICON_BULLET]%D1_Bonus%% al atacar ciudades</Spanish>
+-	</TEXT> -->
+-
++	<!-- custom: Long_Comments_XML.txt #270 -->
+ 	<!-- advc (note): This renames the Financial Advisor to
+ 		 "Economics Advisor" -->
+ 	<TEXT> <!-- redefine -->
+@@ -462,15 +451,7 @@
+ 		<Italian>+%d1_Change[ICON_UNHAPPY]: "Salvare il pianeta!"</Italian>
+ 		<Spanish>+%d1_Change[ICON_UNHAPPY]: "�Salvad el planeta!"</Spanish>
+ 	</TEXT>
+-	<!--<TEXT>
+-		<Tag>TXT_KEY_ANGER_GLOBAL_WARMING</Tag>
+-		<English>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</English>
+-		<French>+%d1_Change[ICON_UNHAPPY]: "Sauver la plan&#232;te!"</French>
+-		<German>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</German>
+-		<Italian>+%d1_Change[ICON_UNHAPPY]: "Salvare il pianeta!"</Italian>
+-		<Spanish>+%d1_Change[ICON_UNHAPPY]: "Salvar el planeta!"</Spanish>
+-	</TEXT>-->
+-
++	<!-- custom: Long_Comments_XML.txt #271 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE</Tag>
+ 		<English>Worldwide pollution has reached the sustainability threshold.</English>
+@@ -523,27 +504,7 @@
+ 		<Italian>[ICON_BULLET]Perdita dei miglioramenti delle caselle vicino all'eruzione</Italian>
+ 		<Spanish>[ICON_BULLET]P&#233;rdida de mejoras de casillas cerca de la erupci&#243;n.[NEWLINE][ICON_BULLET]Probabilidad de +1[ICON_FOOD] en casillas cercanas a la erupci�n</Spanish>
+ 	</TEXT>
+-		<English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>
+-		<French>[ICON_BULLET]+1[ICON_COMMERCE] sur %d1 [NUM1:case suppl&#233;mentaire:cases suppl&#233;mentaires]</French>
+-		<German>[ICON_BULLET]+1[ICON_COMMERCE] auf %d1 [NUM1:zus&#228;tzlichem Gel&#228;ndefeld:zus&#228;tzlichen Gel&#228;ndefeldern]</German>
+-		<Italian>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 [NUM1:casella aggiuntiva:caselle aggiuntive]</Italian>
+-		<Spanish>[ICON_BULLET]+1[ICON_COMMERCE] en %d1 [NUM1:casilla:casillas] m&#225;s.</Spanish>
+-
+-	<!-- Example text
+-		<English>Clearing a %s1_FeatName has created %d2_Num [ICON_PRODUCTION] for %s3_CityName.</English>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIVIC_FEATURE_HAPPINESS</Tag>
+-		<English>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp from[SPACE]</English>
+-		<French>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp[SPACE]</French>
+-		<German>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp durch Gel&#228;ndeart[SPACE]</German>
+-		<Italian>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp per[SPACE]</Italian>
+-		<Spanish>[ICON_BULLET]%D1_Change %F2_HappOrUnhapp por[SPACE]</Spanish>
+-	</TEXT>	
+-	-->
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #75 -->
+-
+-	<!-- New diplomacy text -->
+-	<!-- advc.002c: German was unidiomatic -->
++	<!-- custom: remove bug unwrapped in TEXT XML text <English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>, moved to long comment instead; Long_Comments_XML.txt #272 -->
+ 	<TEXT>
+ 		<Tag>USER_DIPLO_WARPLAN_1</Tag>
+ 		<English>Join us in preparing for war...</English>
+
+diff --git a/Assets/XML/Text/K-Mod_hints.xml b/Assets/XML/Text/K-Mod_hints.xml
+index d06838d68..dc6b1f449 100644
+--- a/Assets/XML/Text/K-Mod_hints.xml
++++ b/Assets/XML/Text/K-Mod_hints.xml
+@@ -111,14 +111,7 @@
+ 	<German>(K-Mod) In der Bauauftragsliste einer Stadt k�nnen [Strg] und [Umschalt] benutzt werden, um Eintr�ge hoch und runter zu bewegen, und [Alt] um Eintr�ge endlos bauen zu lassen.</German>
+ 	<Spanish>(K-Mod) En la cola de construcci�n, usa [CTRL] y [MAY�S] para mover objetos arriba y abajo; y [ALT] para alternar si los objetos deben repetirse o no.</Spanish>
+ </TEXT>
+-<!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
+-<!-- advc.008c: Replacement text had been invalidated by advc.300. Now the
+-	 original hint ("Barbarians can appear anywhere a tile is obscured by fog
+-	 of war, so never assume a tile you can't see is safe, even if you checked
+-	 it the turn before!") is correct again. I'm overwriting hint 14 instead
+-	 because it's bad advice: "Be careful in signing Open Border agreements -
+-	 make sure your 'friend' isn't mapping out your land for sale to the 
+-	 highest bidder!" -->
++<!-- custom: Long_Comments_XML.txt #277 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_14</Tag>
+ 	<English>Barbarians do not appear in tiles that are visible to any civilization. Carefully positioned lookouts can significantly reduce the barbarian activity in an area.</English>
+@@ -127,13 +120,7 @@
+ 	<Italian>I Barbari possono apparire in un qualsiasi spazio oscurato dalla nebbia di guerra. Non essere mai certo che uno spazio non visibile sia sicuro, anche se hai controllato durante il turno precedente!</Italian>
+ 	<Spanish>Los b�rbaros no reaparecer�n en dos pasos de cualquiera de las unidades. Con el posicionamiento cuidadoso de batidores puedes bloquear completamente grupos de pillaje que se formen en tu �rea.</Spanish>
+ </TEXT>
+-<!-- replacement text for the double-click tip, because I've changed the functionality of double-click -->
+-<!-- advc.008c: The K-Mod text was "Double clicking a stack of units will wake
+-	 them all up." (And German: " Ein Doppelklick auf einen Einheitenstapel
+-	 weckt sie alle auf.") My text hopefully makes clearer that the 3D models or
+-	 the flag (in cities - to avoid entering the city screen) needs to be
+-	 clicked, not the unit icons. Will also wake up a single unit if there
+-	 isn't a stack. I've left the Spanish text alone. -->
++<!-- custom: Long_Comments_XML.txt #278 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_6</Tag>
+ 	<English>(K-Mod) Double-click a tile to wake all units up. For city tiles, this only works if you double-click the units' flag.</English>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d35861d1a..f91b30fdf 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1680,7 +1680,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						{
+ 							eBestSupposedBuild = eBuildCottage;
+ 
+-							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->						
++							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location)  -->
+ 							iValue += 150;
+ 						}
+ 						else
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 2478f68f0..64b4e145e 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -3598,3 +3598,666 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
+ ----- Comment #235 -----
+ 
+ <!-- custom: from the previous examples, the actual values would in fact be 990 + 500 = 1540 in top 1 hammer city if city has the heroic epic (or equivalent in your mod as per your xml building infos if you updated the define of the buildingclass name here in sas defines as well) effect building, or 980 + 500 = 1530 in top 2 hammer city if it has the heroic epic effect building, or 970 + 500 = 1520 in top 3 hammer city if it has the heroic epic effect building effect -->
++
++===== \Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml =====
++----- Comment #236 -----
++
++	<!-- advc.048: unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ACO__DEBUG_TEXT</Tag>
++		<English>Debug</English>
++		<French>Debug</French>
++		<German>Debug</German>
++		<Italian>Debug</Italian>
++		<Spanish>Depuraci�n</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ACO__DEBUG_HOVER</Tag>
++		<English>When checked, shows debugging information in the combat odds calculations.</English>
++		<French>When checked, shows debugging information in the combat odds calculations.</French>
++		<German>Zeigt Debug-Information bei der Berechnung der Siegchancen an</German>
++		<Italian>Quando � selezionato, mostra le informazioni di debug nel calcolo delle Probabilit� di Combattimento.</Italian>
++		<Spanish>Cuando est� activada muestra la informaci�n de depuraci�n en el c�lculo de Probabilidades de Combate.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml =====
++----- Comment #237 -----
++
++	<!-- [advc.099] -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_SCORES__SHOWDEAD_TEXT</Tag>
++		<English>Show</English>
++		<French>Montrer</French>
++		<German>Anzeigen</German>
++		<Italian>Mostra</Italian>
++		<Spanish>Mostrar</Spanish>
++	</TEXT-->
++	<!-- Replacing the above (and TXT_KEY_BUG_OPTLABEL_SCORES_DEAD_CIVS in BUG
++		 Options Screen.xml) -->
++
++===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
++----- Comment #238 -----
++
++	<!-- advc.072: Now unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
++		<English>Smilies</English>
++		<French>Smileys</French>
++		<German>Smilies</German>
++		<Italian>Icone</Italian>
++		<Spanish>Iconos</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
++----- Comment #239 -----
++
++	<!-- Rewritten (English, German), then replaced with the key below. -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFADEALTURNSLEFT_HOVER</Tag>
++		<English>When checked, the "Active" tab shows the remaining number of turns until cancellation for deals that cannot currently be canceled. (Regardless of this setting, the turns to cancel are shown when hovering over a deal.)</English>
++		<French>When checked, shows how many turns are left before you can cancel each deal on the 'Active' tab.</French>
++		<German>Zeigt im Reiter "Aktiv" an, wann Vereinbarungen gek�ndigt werden k�nnen, die zur Zeit unk�ndbar sind. (Unabh�ngig von dieser Option wird die verbleibende Mindestlaufzeit auch im Hilfetext der Vereinbarung angezeigt.)</German>
++		<Italian>Quando � selezionato, mostra quanti turni sono rimasti prima che si possa annullare un accordo.</Italian>
++		<Spanish>Permite mostrar cu�ntos turnos quedan antes de que puedas cancelar cada intercambio en la pesta�a 'Activo'.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Advisors_Options.xml =====
++----- Comment #240 -----
++
++	<!-- advc.004: Now disused (German was "BUG Statistiken") -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_TEXT</Tag>
++		<English>Improvement Stats</English>
++		<German>Zus. Statistiken</German>
++		<Italian>Scheda Statistiche</Italian>
++		<Spanish>Estad�sticas de mejoras</Spanish>
++	</TEXT-->
++	<!-- advc.004: Now disused (English, German rewritten) -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_HOVER</Tag>
++		<English>When checked, the "Statistics" tab shows how many improvements you currently own of each improvement type.</English>
++		<German>Zeigt auf dem Reiter "Statistik" f�r jeden Typ von Gel�ndeverbesserung an, wie viele Verbesserungen dieses Typs Sie derzeit besitzen.</German>
++		<Italian>Quando � selezionato, mostra la Scheda delle Statistiche nella versione migliorata del BUG Mod</Italian>
++		<Spanish>Muestra mejoras de casillas en la pesta�a 'Estad�sticas'.</Spanish>
++	</TEXT-->
++	
++	<!-- advc.004: No longer used -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_TEXT</Tag>
++		<English>Non-Zero Stats Only</English>
++		<German>Nur Nicht-Nullwerte</German>
++		<Italian>Solo statistiche maggiori di zero</Italian>
++		<Spanish>Solo estad�sticas que no sean cero</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_HOVER</Tag>
++		<English>When checked, only non-zero entries are displayed in the Stats tab.</English>
++		<German>Wenn aktiviert, werden im Statistiken-Reiter nur von Null verschiedene Werte angezeigt.</German>
++		<Italian>Quando � selezionato, solo le statistiche maggiori di zero sono mostrate nella tabella Statistiche.</Italian>
++		<Spanish>Activada, s�lo las entradas que no sean cero son mostradas en la pesta�a 'Estad�sticas'.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Autolog_Options.xml =====
++----- Comment #241 -----
++
++<!-- advc.004: was
++		 <English>When checked, will log completion of projects (certain wonders are technically projects - other wonders are treated like normal buildings).</English>
++		 <German>Protokolliert fertiggestellte Wunder (bestimmte Wunder sind eigentlich Projekte, w?hrend andere Wunder wie normale Geb?ude behandelt werden)</German>
++		 These should be handled like the other production items, but
++		 perhaps there's a onCityBuilding event missing or sth. (fixme?).
++		 Doesn't hurt to have a separate option for SS parts, but the
++		 generic production alerts should cover these in any case. -->
++
++===== \Assets/XML/Text/BUG_Autolog_Options.xml =====
++----- Comment #242 -----
++
++	<!-- advc.004: unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEALL_TEXT</Tag>
++		<English>Trade/Demands</English>
++		<French>Trade/Demands</French>
++		<German>Handel / Forderungen</German>
++		<Italian>Commercio</Italian>
++		<Spanish>Intercambios/Exigencias</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEALL_HOVER</Tag>
++		<English>When checked, will log all AI-initiated trade offers and demands along with your responses.</English>
++		<French>When checked, will log all AI-initiated trade offers and demands along with your responses.</French>
++		<German>Protokolliert alle von anderen Zivilisationen angeregte Handelsangebote und Forderungen zusammen mit den Reaktionen der eigenen Zivilisation</German>
++		<Italian>Quando ? selezionato, il Registro Automatico registra tutte le offerte e le richieste commerciali delle altre Civilt? e le vostre risposte.</Italian>
++		<Spanish>Permite registrar los intercambios y exigencias iniciados por IAs as? como tus respuestas.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_City_Screen_Options.xml =====
++----- Comment #243 -----
++
++	<!-- advc.004: Obsolete, see above. -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTCORPORATIONS_TEXT</Tag>
++		<English>Only Present Corporations</English>
++		<German>Nur vorhandene KGs</German>
++		<Italian>Solo Corporazioni Presenti</Italian>
++		<Spanish>S�lo Corporaciones Presentes</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTCORPORATIONS_HOVER</Tag>
++		<English>When checked, the city screen displays only icons of corporations that are present in the city.</English>
++		<German>L�sst den Stadtbildschirm (rechts oben) nur Symbole jener Kapitalgesellschaften anzeigen, die in der Stadt vertreten sind.</German>
++		<Italian>Quando � selezionato, mostra solo le religioni presenti nella citt� e consente di visualizzare oltre sette corporazioni.</Italian>
++		<Spanish>Si se activa, muestra s�lo las corporaciones que est�n presentes en la ciudad y permite m�s de siete corporaciones.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_City_Screen_Options.xml =====
++----- Comment #244 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYQUEUE_TEXT</Tag>
++		<English>Queue</English>
++		<French>Queue</French>
++		<German>Produktionsliste</German>
++		<Italian>Coda</Italian>
++		<Spanish>Avisos</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Civ4lerts_Options_advc.xml =====
++----- Comment #245 -----
++
++	<!-- unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__GOLDTRADETHRESH_TEXT</Tag>
++		<English>Threshold</English>
++		<French>Seuil</French>
++		<German>Schwelle</German>
++		<Italian>Quantit&#224;</Italian>
++		<Spanish>Cantidad</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__GOLDPERTURNTRADETHRESH_TEXT</Tag>
++		<English>Threshold</English>
++		<French>Seuil</French>
++		<German>Schwelle</German>
++		<Italian>Quantit&#224;</Italian>
++		<Spanish>Cantidad</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Main_Interface_Options.xml =====
++----- Comment #246 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_TEXT</Tag>
++		<English>Gold Rate Warning</English>
++		<German>"Gold/Runde"-Warnung</German>
++		<Italian>Calo dell'Oro</Italian>
++		<Spanish>Advertencia Oro</Spanish>
++	</TEXT-->
++	<!-- advc.004: Rewritten (English, German); hopefully makes clearer how
++		 this differs from BtS. -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_HOVER</Tag>
++		<English>When checked, a negative gold rate is shown in red only if the deficit exceeds the gold reserves in your treasury. Otherwise (sufficient reserves), a negative gold rate is shown in yellow.</English>
++		<German>F?rbt bei negativem Einkommen die [ICON_GOLD]/Runde-Anzeige nur dann rot ein, wenn das Defizit gr??er ist als der Goldvorrat. Andernfalls, d.h. wenn der Goldvorrat das Defizit auffangen kann, wird die [ICON_GOLD]/Runde-Anzeige gelb eingef?rbt.</German>
++		<Italian>Quando ? selezionato, mostra il tasso di crescita dell'oro in giallo se ? negativo ma non abbastanza da mandarvi in rosso.</Italian>
++		<Spanish>Muestra tu oro en amarillo si el cambio este turno es negativo pero no suficiente para llevar tu tesoro por debajo de cero.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Main_Interface_Options.xml =====
++----- Comment #247 -----
++
++	<!-- advc.004: Unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_TYPES_TEXT</Tag>
++		<English>GP Bar Types</English>
++		<French>Types de Barre PI</French>
++		<German>Anzeigemethode</German>
++		<Italian>Tipi di Grandi Personaggi</Italian>
++		<Spanish>Barra de Tipo de GP</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml =====
++----- Comment #248 -----
++
++	<!-- advc.004: Now unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PEACETRADE_TEXT</Tag>
++		<English>Peace Treaty</English>
++		<German>Friedensvertrag</German>
++		<Italian>Trattato di Pace</Italian>
++		<Spanish>Tratado de Paz</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PEACETRADE_HOVER</Tag>
++		<English>Displays an alert when a civilization is willing to sign a Peace Treaty.</English>
++		<German>Meldet, wenn eine Zivilisation einem "Friedensvertrag" zustimmen wird</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando una Civilt� � disponibile a firmare un Trattato di Pace.</Italian>
++		<Spanish>Muestra un aviso cuando una civilizaci�n est� dispuesta a firmar un Tratado de Paz.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml =====
++----- Comment #249 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
++		<English>Alternate Game Clock</English>
++		<French>Alterner l'Horloge</French>
++		<German>Anzeige abwechseln</German>
++		<Italian>Orologio alternativo</Italian>
++		<Spanish>Reloj Alternativo</Spanish>
++	</TEXT-->
++	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
++		 in 'BUG_Options_Screen.xml' -->
++
++===== \Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml =====
++----- Comment #250 -----
++
++	<!-- advc.067: unused -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTTIMING_TEXT</Tag>
++		<English>Period (in seconds)</English>
++		<French>Rythme (en secondes)</French>
++		<German>Intervall (in Sekunden)</German>
++		<Italian>Periodo (in secondi)</Italian>
++		<Spanish>Per�odo (en segundos)</Spanish>
++	</TEXT-->
++	
++	<!-- advc.067: Rewritten; old translations:
++		 <French>S�lectionnez la rythme � laquelle l'horloge alterne entre les deux vues.</French>
++		 <Italian>Determina perr quanti secondi viene visualizzata ciascuna delle due versioni dell'orologio (se la visualizzazione alternativa � abilitata).</Italian>
++		 <Spanish>Permite seleccionar el tiempo que cada una de las vistas de reloj se mostrar� cuando se emplea el modo alternante.</Spanish>
++		 -->
++
++===== \Assets/XML/Text/BUG_Options_Screen.xml =====
++----- Comment #251 -----
++
++	<!-- advc.009c: Commented out -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_MAPFINDER</Tag>
++		<English>MapFinder:</English>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Options_Screen.xml =====
++----- Comment #252 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_ICONS</Tag>
++		<English>[SPACE]</English>
++		<French>Icons:</French>
++		<German>Symbole:</German>
++		<Italian>Icone:</Italian>
++		<Spanish>Iconos:</Spanish>
++	</TEXT-->
++	<!-- advc.004: Replacing the above (which is now entirely unused).
++		 Same as TXT_KEY_FOREIGN_ADVISOR_RELATIONS in
++		 CIV4GameTextInfos.xml (but that one misses the colon). -->
++
++===== \Assets/XML/Text/BUG_Options_Screen.xml =====
++----- Comment #253 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPTTAB_NJAGC</Tag>
++		<English>Clock</English>
++		<French>Horloge</French>
++		<German>Uhr</German>
++		<Italian>Orologio</Italian>
++		<Spanish>Reloj</Spanish>
++	</TEXT-->
++	<!-- advc.002k: Year notation doesn't fit under "Clock" -->
++
++===== \Assets/XML/Text/BUG_Options_Screen.xml =====
++----- Comment #254 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_TECHWINDOW</Tag>
++		<English>Tech Splash Screen:</English>
++		<German>Technologie-Popup:</German>
++		<Italian>Scheda della scoperta tecnologica:</Italian>
++		<Spanish>Tecnolog�as:</Spanish>
++	</TEXT-->
++	<!-- advc.060: Replacing the above b/c I want to list the SS screen as a
++		 kind of splash screen (though it really isn't) -->
++
++===== \Assets/XML/Text/BUG_Options_Screen.xml =====
++----- Comment #255 -----
++
++	<!--TEXT> advc.009c
++		<Tag>TXT_KEY_BUG_OPTLABEL_BUFFY</Tag>
++		<English>BUFFY:</English>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
++----- Comment #256 -----
++
++	<!-- advc.069: Switched the order of the last two.
++		 was "Single Row|Multiple Rows|Vertical Groups|Horizontal Groups"
++		 - nice, but too long. Old translations:
++		 <French>Une Ligne|Plusieurs Lignes|Groupes Verticaux|Groupes Horizontaux</French>
++		 <Italian>Riga singola|Righe multiple|Gruppi verticali|Gruppi orizzontali</Italian>
++		 <Spanish>Fila Simple|Filas M�ltiples|Grupos Verticales|Grupos Horizontales</Spanish>
++		 -->
++
++===== \Assets/XML/Text/BUG_Reminder_Options.xml =====
++----- Comment #257 -----
++
++	<!-- advc.004: Merged into the key below -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_TEXT</Tag>
++		<English>Display Method</English>
++		<French>M?thode d'affichage</French>
++		<German>Anzeigemethode</German>
++		<Italian>Modalit? di visualizzazione</Italian>
++		<Spanish>Visualizaci?n</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BUG_Reminder_Options.xml =====
++----- Comment #258 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_REMINDER__AUTOLOG_TEXT</Tag>
++		<English>Log w. Autolog</English>
++		<French>Log avec Autolog</French>
++		<German>Mit Autolog protokollieren</German>
++		<Italian>Registra con Autolog</Italian>
++		<Spanish>Autoregistrado</Spanish>
++	</TEXT-->
++	<!-- advc.004: Replacing the above -->
++
++===== \Assets/XML/Text/BUG_TechWindow_Options.xml =====
++----- Comment #259 -----
++
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
++		<English>View</English>
++		<French>View</French>
++		<German>Ansicht</German>
++		<Italian>Visualizzazione</Italian>
++		<Spanish>Vista</Spanish>
++	</TEXT-->
++	<!-- advc.060: Replacing the above b/c the heading no longer says "Tech" -->
++
++===== \Assets/XML/Text/BULL_Actions_Options.xml =====
++----- Comment #260 -----
++
++<!-- advc (note): None of these options are currently shown, and I don't
++	 think AdvCiv is going to restore them, as they solve problems that the mod
++	 addresses differently. -->
++
++<!-- Ask Declare War -->
++	<!-- advc: Unlikely to become an option -->
++	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #47 -->
++
++<!-- Sentry Healing -->
++	<!-- advc.004l: Unlikely to be merged -->
++	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #48 -->
++
++<!-- Ignore Harmless Barbarians -->
++	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #98 -->
++
++<!-- PreChop -->
++	<!-- advc.011b: Unlikely to be merged (although having prechop always enabled
++		 could be more convenient than the current solution). -->
++	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #49 -->
++
++===== \Assets/XML/Text/BULL_CIV4GameText.xml =====
++----- Comment #261 -----
++
++	<!-- advc.086: Don't use this -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALISTS</Tag>
++		<English>The Total Gold from Specialists</English>
++		<French>The Total Gold from Specialists</French>
++		<German>Gesamteinkommen durch Spezialisten</German>
++		<Italian>Oro totale dagli Specialisti</Italian>
++		<Spanish>Oro total obtenido de especialistas</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BULL_CIV4GameText.xml =====
++----- Comment #262 -----
++
++	<!-- advc.059 handles this -->
++	<!--TEXT>
++		<Tag>TXT_KEY_ACTION_CHANGE_IN_CITY</Tag>
++		<English>[ICON_BULLET]%s1 in %s2_CityName</English>
++		<French>[ICON_BULLET]%s1 &#224; %s2_CityName</French>
++		<German>[ICON_BULLET]%s1 in %s2_CityName</German>
++		<Italian>[ICON_BULLET]%s1 a %s2_CityName</Italian>
++		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/BULL_Misc_Hovers_Options.xml =====
++----- Comment #263 -----
++
++	<!-- advc.078: Not optional -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_TEXT</Tag>
++		<English>Rate Breakdown</English>
++		<German>Aufschl�sselung der Rate</German>
++		<Italian>Natalit� dei Grandi Personaggi</Italian>
++		<Spanish>Detalle de probabilidades</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__GREATPEOPLERATEBREAKDOWN_HOVER</Tag>
++		<English>When checked, displays the individual [ICON_GREATPEOPLE] rate per turn for each type in the hover.</English>
++		<German>Zeigt im Tooltip die [ICON_GREATPEOPLE]/Runde f�r jede einzelne Art Gro�e Pers�nlichkeit an</German>
++		<Italian>Quando � selezionato, nel testo a comparsa di ogni tipo di Grande Personaggio viene mostrato il tasso individuale di [ICON_GREATPEOPLE] per turno.</Italian>
++		<Spanish>Permite consultar informaci�n individual de cada tipo de [ICON_GREATPEOPLE] en el texto flotante.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml =====
++----- Comment #264 -----
++
++	<!-- "Extra" instead of "Detailed" -->
++	<!--TEXT>
++		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
++		<English>Extra City Info</English>
++		<French>Infos d&#233;taill&#233;es sur la ville</French>
++		<German>Zus?tzliche Stadt-Info</German>
++		<Italian>Informazioni dettagliate sulla citt&#224;</Italian>
++		<Spanish>Informaci&#243;n detallada de la ciudad</Spanish>
++	</TEXT-->
++	<!-- List the extra info. (I've searched the code; this should be
++		 everything.) -->
++	<!--TEXT>
++		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO_HELP</Tag>
++		<English>Shows some additional information about cities on the main map, namely, on the production bar, the number of production turns left; on the food bar, the number of turns until growth; and shows icons that highlight the cities with the highest research, gold and production rate.</English>
++		<French>Voir les informations d&#233;taill&#233;es de la barre des villes.</French>
++		<German>Zeigt auf der Hauptkarte Zusatzinformationen ?ber Ihre St?dte an, n?mlich: Auf dem Produktionsbalken die Anzahl der Z?ge bis zur Fertigstellung, auf dem Nahrungsbalken die Anzahl der Z?ge bis zum Bev?lkerungszuwachs, und hebt durch Symbole die St?dte mit der h?chsten Forschungsrate, Goldrate und Produktionsrate hervor.</German>
++		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
++		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/CIV4GameText_advc.xml =====
++----- Comment #265 -----
++
++	<!-- advc.099: Overwrites CIV4GameTextInfos.xml. Since its culture
++		 remains in the game, it isn't accurate to say the civ was
++		 "destroyed". (Or better "vanquished"?) --> 
++	<!--TEXT>
++		<Tag>TXT_KEY_MISC_CIV_DESTROYED</Tag>
++		<English>The %s1_CivAdj civilization has been conquered!!</English>
++		<French>Les %s1_CivAdj est &#233;t&#233; conquis!!</French>
++		<German>Die %s1:3_CivAdj Zivilisation wurde erobert!!</German>
++		<Italian>La civilt&#224; %s1:4_CivAdj &#232; stato conquistata!!</Italian>
++		<Spanish>&#161;La civilizaci&#243;n %s1:2_CivAdj ha sido conquistada!</Spanish>
++	</TEXT-->
++	<!-- Next try; similar to TXT_KEY_MISC_DEFEAT in CIV4GameText_Misc1.xml: -->
++
++===== \Assets/XML/Text/CIV4GameText_advc.xml =====
++----- Comment #266 -----
++
++	<!-- advc.005b: From CIV4GameText_Warlords.xml.
++		 I'm removing the roman numerals. It's clear enough e.g. which
++		 Gustav Adolph is meant, and if not, I don't mind the ambuigity.
++		 They're not in the game as rulers (those are the AI leaders),
++		 but as generals. Also for that reason, Boudica and Charlemagne are
++		 replaced. Wanted famous replacements in about the same period,
++		 and of the same gender. The Vietnamese Hai Ba Trung is to
++		 conceal the fact that they're two people - the two "Ladies
++		 Trung". Players who know about the Trung rebellion won't mind,
++		 and those who don't won't be confused by their GG supposedly
++		 consisting of two persons. Attila is already included through
++		 the Huns event - would've been an obvious replacement for
++		 Charlemagne otherwise. Went with Jan Zizka - don't know if
++		 he's famous enough. Other ideas from High/Late Medieval times:
++		 Eulji Mundeok, Tancred, Richard Lionheart. -->
++
++===== \Assets/XML/Text/CIV4GameText_advc.xml =====
++----- Comment #267 -----
++
++	<!-- advc.005c: Based on TXT_KEY_IMPROVEMENT_CITY_RUINS in
++	Civ4GameTextInfos_Objects.xml. First attempt (weird for tribal
++	city names like Saxons):
++		Ruins of %s1City_Name
++		Ruines de %s1City_Name
++		Ruinen von %s1City_Name
++		Rovine di %s1City_Name
++		Ruinas de %s1City_Name -->
++
++===== \Assets/XML/Text/CIV4GameText_advc.xml =====
++----- Comment #268 -----
++
++	<!-- Prior to v0.93: -->
++	<!--TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_HOVER</Tag>
++		<English>Displays an alert whenever an AI leader becomes (or stops being) willing to start a war at your request.</English>
++		<French>Affiche une alerte lorsqu'un chef d'IA devient (ou cesse d'�tre) pr�t � d�clencher une guerre � votre demande.</French>
++		<German>Mitteilung, wenn ein KI-Gegner bereit (oder nicht mehr bereit) ist, einem anderen Gegner auf Ihren Wunsch den Krieg zu erkl�ren.</German>
++		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa (o smette di essere) disposto a iniziare una guerra su sua richiesta.</Italian>
++		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte (o deja de estar) dispuesto a iniciar una guerra a petici�n suya.</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/CIV4GameText_advc.xml =====
++----- Comment #269 -----
++
++	<!-- Don't gray this out after all: -->
++	<!--TEXT>
++		<Tag>TXT_KEY_MAIN_MENU_SCENARIO</Tag>
++		<English>[COLOR_PLAYER_GRAY]Play Scenario[COLOR_REVERT]</English>
++		<French>[COLOR_PLAYER_GRAY]Jouer un sc&#233;nario[COLOR_REVERT]</French>
++		<German>[COLOR_PLAYER_GRAY]Szenario spielen[COLOR_REVERT]</German>
++		<Italian>[COLOR_PLAYER_GRAY]Gioca uno scenario[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_PLAYER_GRAY]Jugar un escenario[COLOR_REVERT]</Spanish>
++	</TEXT-->
++
++===== \Assets/XML/Text/Civ4GameText_K-Mod.xml =====
++----- Comment #270 -----
++
++	<!-- advc (note): I'd try "ignores fortification defense" instead -->
++	<!-- "-X% strength to opposing city defenders"?
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_CITY_ATTACK_TEXT</Tag>
++		<English>[ICON_BULLET]%D1_Bonus%% City Attack</English> 
++		<French>[ICON_BULLET]Attaque de ville %D1_Bonus%%</French>
++		<German>[ICON_BULLET]%D1_Bonus%% Stadtangriff</German>
++		<Italian>[ICON_BULLET]%D1_Bonus%% di attacco verso le citt&#224;</Italian>
++		<Spanish>[ICON_BULLET]%D1_Bonus%% al atacar ciudades</Spanish>
++	</TEXT> -->
++
++===== \Assets/XML/Text/Civ4GameText_K-Mod.xml =====
++----- Comment #271 -----
++
++	<!--<TEXT>
++		<Tag>TXT_KEY_ANGER_GLOBAL_WARMING</Tag>
++		<English>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</English>
++		<French>+%d1_Change[ICON_UNHAPPY]: "Sauver la plan&#232;te!"</French>
++		<German>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</German>
++		<Italian>+%d1_Change[ICON_UNHAPPY]: "Salvare il pianeta!"</Italian>
++		<Spanish>+%d1_Change[ICON_UNHAPPY]: "Salvar el planeta!"</Spanish>
++	</TEXT>-->
++
++===== \Assets/XML/Text/Civ4GameText_K-Mod.xml =====
++----- Comment #272 -----
++
++		<English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>
++		<French>[ICON_BULLET]+1[ICON_COMMERCE] sur %d1 [NUM1:case suppl&#233;mentaire:cases suppl&#233;mentaires]</French>
++		<German>[ICON_BULLET]+1[ICON_COMMERCE] auf %d1 [NUM1:zus&#228;tzlichem Gel&#228;ndefeld:zus&#228;tzlichen Gel&#228;ndefeldern]</German>
++		<Italian>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 [NUM1:casella aggiuntiva:caselle aggiuntive]</Italian>
++		<Spanish>[ICON_BULLET]+1[ICON_COMMERCE] en %d1 [NUM1:casilla:casillas] m&#225;s.</Spanish>
++
++	<!-- Example text
++		<English>Clearing a %s1_FeatName has created %d2_Num [ICON_PRODUCTION] for %s3_CityName.</English>
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_FEATURE_HAPPINESS</Tag>
++		<English>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp from[SPACE]</English>
++		<French>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp[SPACE]</French>
++		<German>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp durch Gel&#228;ndeart[SPACE]</German>
++		<Italian>[ICON_BULLET]%D1_Change%F2_HappOrUnhapp per[SPACE]</Italian>
++		<Spanish>[ICON_BULLET]%D1_Change %F2_HappOrUnhapp por[SPACE]</Spanish>
++	</TEXT>	
++	-->
++	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #75 -->
++
++	<!-- New diplomacy text -->
++	<!-- advc.002c: German was unidiomatic -->
++
++===== \Assets/XML/Text/CIV4GameText_Shortcuts.xml =====
++----- Comment #273 -----
++
++	<!-- advc.009c: Removed under "Regenerate the map": [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Start/Stop MapFinder
++	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Strg+G[COLOR_REVERT][\BOLD][TAB][TAB]MapFinder starten/stoppen
++	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Start/Stop MapFinder
++	[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+G[COLOR_REVERT][\BOLD][TAB][TAB]Comenzar/detener MapFinder
++	-->
++
++===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
++----- Comment #274 -----
++
++	<!-- Outdated translations:
++		 <Italian>[COLOR_HIGHLIGHT_TEXT]Cambia modalit� di visualizzazione[COLOR_REVERT][NEWLINE]Scegli come vengono visualizzate le icone delle Unit�: riga singola, righe multiple o gruppi di colonne o righe</Italian>
++		 <Spanish>[COLOR_HIGHLIGHT_TEXT]Modo Cambiar Vista[COLOR_REVERT][NEWLINE]Permite seleccionar c�mo mostrar los iconos de unidad: en una sola fila, en m�ltiples filas o apiladas en columnas o filas separadas.</Spanish>-->
++
++===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
++----- Comment #275 -----
++
++	<!-- advc.069: Not sure if this button functions as intended. Disables
++		 upgrade and promotion mode, and cycles between grouping options.
++		 Was:
++		 <English>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]View normal unit icons and issue orders</English>
++		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht aktivieren[COLOR_REVERT][NEWLINE]Anzeige der normalen Einheitensymbole und Aktionsschaltfl�chen</German>
++		 -->
++
++===== \Assets/XML/Text/CIV4GameTextInfos_CIV4PlotListEnhancementsInfo.xml =====
++----- Comment #276 -----
++
++	<!-- was:
++		 <English>[COLOR_HIGHLIGHT_TEXT]Standard Mode[COLOR_REVERT][NEWLINE]Toggle how units are grouped: by unit type or selection group</English>
++		 <German>[COLOR_HIGHLIGHT_TEXT]Standardansicht[COLOR_REVERT][NEWLINE]Auswahl der Art der Gruppierung: nach Einheitentyp oder nach Einheitenverband</German>
++	-->
++
++===== \Assets/XML/Text/K-Mod_hints.xml =====
++----- Comment #277 -----
++
++<!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
++<!-- advc.008c: Replacement text had been invalidated by advc.300. Now the
++	 original hint ("Barbarians can appear anywhere a tile is obscured by fog
++	 of war, so never assume a tile you can't see is safe, even if you checked
++	 it the turn before!") is correct again. I'm overwriting hint 14 instead
++	 because it's bad advice: "Be careful in signing Open Border agreements -
++	 make sure your 'friend' isn't mapping out your land for sale to the 
++	 highest bidder!" -->
++
++===== \Assets/XML/Text/K-Mod_hints.xml =====
++----- Comment #278 -----
++
++<!-- replacement text for the double-click tip, because I've changed the functionality of double-click -->
++<!-- advc.008c: The K-Mod text was "Double clicking a stack of units will wake
++	 them all up." (And German: " Ein Doppelklick auf einen Einheitenstapel
++	 weckt sie alle auf.") My text hopefully makes clearer that the 3D models or
++	 the flag (in cities - to avoid entering the city screen) needs to be
++	 clicked, not the unit icons. Will also wake up a single unit if there
++	 isn't a stack. I've left the Spanish text alone. -->
++
++===== \Assets/XML/TechDiffusion_GlobalDefines.xml =====
++----- Comment #279 -----
++
++	<!-- These two options are independent of TECH_DIFFUSION_ENABLE.
++		 If set to 1, then a team's research rate is decreased if relatively
++		 few players have already discovered the tech being researched.
++		 Only non-capitulated major civs count. It doesn't matter whether
++		 the researching team has met them. If no player has the tech, the
++		 full era-specific penalty defined in Civ4EraInfos.xml gets applied.
++		 If at least a quarter of the players have the tech, no penalty
++		 applies. Otherwise, the penalty scales proportionally with he number
++		 of players that have the tech.
++		 0 (AdvCiv default) disables these ground-breaking penalties.
++		 Note: When a ground-breaking penalty coincides with a bonus from tech
++		 diffusion, only the sum of the two modifiers is shown by the UI. -->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index dbfc03530..63377e49d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -132,6 +132,7 @@ hopefully helpful, thanks thanks,
+ [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
+ [97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-chop-down-a-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page)  
+ [98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon)  
++[99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#99---fixed-base-advciv-bug-of-k-mod-unwrapped-in-text-xml-text)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4095,3 +4096,11 @@ So it looks like Base AdvCiv used a different asset for Napeolon than Civ4!
+ I relied on the youtube or similar type of lsiting rather, and so i created a new napoleon asset music as par tof AdvCiv-SAS music additions, but didn't change De Gaulle since i thought he would inherit the old music and had its own asset, my mistake to have overlooked this!
+ 
+ Fixed by adding De Gaulle specific assets with the help of Claude code Sonnet 4.5, that now use `Napoleon_early` as a distinct music than what Louis uses (`Louis_early`), and finally by keeping Napoleon with its own new AdvCiv-SAS specific music which is neither of these so each leader has its own music.
++
++## 99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text
++
++```XML
++<!-- custom: remove bug unwrapped in TEXT XML text <English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:tile:tiles]</English>, moved to long comment instead; Long_Comments_XML.txt #272 -->
++```
++
++Fixed this based advciv bug, as of now in [Civ4GameText_K-Mod.xml](/Assets/XML/Text/Civ4GameText_K-Mod.xml).
+
+[PATCH COVERAGE]
+patchFiles=28 embeddedFiles=28 omittedFiles=0 embeddedPatchBytes=101038

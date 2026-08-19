@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4087
+# Commit: c0ed55ab48ec30fc14f1959f3c69646565a529c7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 67a009d9f149fa2e2eab0ab6223bc831dc23b45d
+# Title: Better warnings about failure to load UI theme
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	0	CvGameCoreDLL/CvArtFileMgr.cpp
+1	0	CvGameCoreDLL/CvArtFileMgr.h
+32	0	CvGameCoreDLL/CvGlobals.cpp
+1	0	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/ModName.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index 1047b8528..b5eef4004 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -171,6 +171,42 @@ void CvArtFileMgr::buildArtFileInfoMaps()
+ {
+ 	for(size_t i = 0; i < m_artInfoItems.size(); i++)
+ 		m_artInfoItems[i]->buildMap();
++	testThemePath(); // advc.002b
++}
++
++// advc.002b: (The install location gets checked by CvGlobals::testInstallLocation)
++void CvArtFileMgr::testThemePath()
++{
++	std::string sThmPath = getMiscArtPath("DEFAULT_THEME_NAME");
++	size_t posMods = sThmPath.find("Mods/");
++	size_t posRes = sThmPath.find("/Resource");
++	std::string sModName = GC.getModName().getName();
++	if (posMods == std::string::npos || posRes == std::string::npos)
++	{
++		/*	Has apparently been edited by the user - possibly reverted to the
++			BtS theme, which is fine. */
++		return;
++	}
++	std::string sThmPathModName = sThmPath.substr(posMods + 5, posRes - 5);
++	// Temp. copy for lower case - the mod name isn't case-sensitive.
++	std::string sModNameLC = sModName;
++	if (cstring::tolower(sThmPathModName) == sModNameLC)
++		return;
++	CvString sMsg = "The DEFAULT_THEME_NAME path set in\n"
++			"Mods\\";
++	sMsg += sModName;
++	sMsg += "\\Assets\\XML\\CIV4ArtDefines_Misc.xml\n"
++			"does not appear to match the name of the mod folder.\n"
++			"If you've renamed the mod folder, the name also needs\n"
++			"to be changed in CIV4ArtDefines_Misc.xml and (twice) in\n"
++			"Mods\\";
++	sMsg += sModName;
++	sMsg += "\\Resource\\Civ4.thm - otherwise,\n"
++			"the UI theme will probably fail to load.\n";
++	char szMessage[1024];
++	sprintf(szMessage, sMsg);
++	CvString sHeading = "Invalid path to UI theme";
++	gDLL->MessageBox(szMessage, sHeading);
+ }
+ 
+ // advc.095: Hack for getting the EXE to switch between wide and narrow city bars
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.h b/CvGameCoreDLL/CvArtFileMgr.h
+index 7457c8808..f46bf1a7b 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.h
++++ b/CvGameCoreDLL/CvArtFileMgr.h
+@@ -85,6 +85,7 @@ public:
+ 
+ 	// Builds Maps
+ 	DllExport void buildArtFileInfoMaps();																	// Exposed to Python
++	void testThemePath(); // advc.002b
+ 
+ 	// Adds an Art File List
+ 	void addArtInfoItem(CvArtFileMgr::ArtInfoItem* item) { m_artInfoItems.push_back(item); }
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 52f9f15f3..5f80b3873 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -285,6 +285,37 @@ void CvGlobals::clearTypesMap()
+ 		m_VarSystem->UnInit();
+ }
+ 
++// <advc.002b> (from "We the People")
++namespace
++{
++	std::string GetCurrentDirectory(bool bDLLPath)
++	{
++		char buffer[MAX_PATH];
++		GetModuleFileNameA(bDLLPath ? GetModuleHandle(_T("CvGameCoreDLL.dll")) : NULL, buffer, MAX_PATH);
++		std::string::size_type pos = std::string(buffer).find_last_of("\\/");
++		return std::string(buffer).substr(0, pos);
++	}
++}
++
++void CvGlobals::testInstallLocation()
++{
++	/*	(Would be nice to disable this check through a global define in XML, but this
++		needs to happen long before XML gets loaded. Therefore, the theme path also
++		can't be checked here, CvArtFileMgr::testThemePath will handle it.) */
++	std::string sNameExe = GetCurrentDirectory(false);
++	std::string sNameDll = GetCurrentDirectory(true);
++	sNameDll.resize(sNameExe.size());
++	if (sNameExe == sNameDll)
++		return;
++	CvString sMsg = "The mod does not appear to be installed in\n"
++			"\"Beyond the Sword\\Mods\" under program files or steam apps.\n"
++			"May not be able to locate the UI theme this way.";
++	char szMessage[1024];
++	sprintf(szMessage, sMsg);
++	CvString sHeading = "Invalid mod install location";
++	gDLL->MessageBox(szMessage, sHeading);
++} // </advc.002b>
++
+ 
+ CvDiplomacyScreen* CvGlobals::getDiplomacyScreen()
+ {
+@@ -939,6 +970,7 @@ void CvGlobals::setDLLIFace(CvDLLUtilityIFaceBase* pDll)
+ 				pDll->getExternalModName(false));
+ 	} // </advc.106i>
+ 	m_pDLL = pDll;
++	testInstallLocation(); // advc.002b
+ }
+ 
+ void CvGlobals::setDLLProfiler(FProfiler* prof)
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index ba99f69bf..77edc0e9c 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -74,6 +74,7 @@ public:
+ 	DllExport void init();
+ 	DllExport void uninit();
+ 	void clearTypesMap();
++	void testInstallLocation(); // advc.002b
+ 
+ 	DllExport CvDiplomacyScreen* getDiplomacyScreen();
+ 	DllExport CMPDiplomacyScreen* getMPDiplomacyScreen();
+
+diff --git a/CvGameCoreDLL/ModName.cpp b/CvGameCoreDLL/ModName.cpp
+index a493013a3..6406cd1c6 100644
+--- a/CvGameCoreDLL/ModName.cpp
++++ b/CvGameCoreDLL/ModName.cpp
+@@ -1,7 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "ModName.h"
+ 
+-// advc.xxx: New implementation file; see comment in header.
++// advc.106i: New implementation file; see comment in header.
+ 
+ void ModName::update(char const* szFullPath, char const* szPathInRoot)
+ {
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4877

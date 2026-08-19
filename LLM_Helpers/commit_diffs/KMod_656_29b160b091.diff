@@ -1,0 +1,384 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 656
+# Commit: 29b160b091edc45f3eb7b9c21e5b72b82fd43938
+# History segment: K-Mod history
+# Parent used for diff: 0b43a148d554558fb76f8a64e4af35bd6b02d346
+# Title: Implemented support for global happiness modifiers in civics. ("iExtraHappiness") This includes a new line of xml in all the civics, a new item in the civics...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	0	Assets/xml/GameInfo/CIV4CivicInfos.xml
+2	0	Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+8	0	CvGameCoreDLL/CvGameTextMgr.cpp
+6	1	CvGameCoreDLL/CvInfos.cpp
+2	0	CvGameCoreDLL/CvInfos.h
+1	0	CvGameCoreDLL/CvPlayer.cpp
+3	0	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CivicInfos.xml b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+index 36c0676fc..584f6ba49 100644
+--- a/Assets/xml/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+@@ -25,6 +25,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -90,6 +91,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -155,6 +157,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -224,6 +227,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -289,6 +293,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -368,6 +373,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -433,6 +439,7 @@
+ 			<iNumCitiesMaintenanceModifier>-25</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>2</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -498,6 +505,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -567,6 +575,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -642,6 +651,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -720,6 +730,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -785,6 +796,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -855,6 +867,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -945,6 +958,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1032,6 +1046,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>100</iImprovementUpgradeRateModifier>
+@@ -1097,6 +1112,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1162,6 +1178,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1227,6 +1244,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>-25</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1292,6 +1310,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1378,6 +1397,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1465,6 +1485,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1530,6 +1551,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1600,6 +1622,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1665,6 +1688,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1730,6 +1754,7 @@
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
++			<iExtraHappiness>0</iExtraHappiness>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+
+diff --git a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+index 5d83da0b7..044249f27 100644
+--- a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+@@ -627,6 +627,7 @@
+ 	<ElementType name="iNumCitiesMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCorporationMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iExtraHealth" content="textOnly" dt:type="int"/>
++	<ElementType name="iExtraHappiness" content="textOnly" dt:type="int"/> <!-- K-Mod -->
+ 	<ElementType name="iFreeExperience" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iWorkerSpeedModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iImprovementUpgradeRateModifier" content="textOnly" dt:type="int"/>
+@@ -761,6 +762,7 @@
+ 		<element type="iNumCitiesMaintenanceModifier"/>
+ 		<element type="iCorporationMaintenanceModifier"/>
+ 		<element type="iExtraHealth"/>
++		<element type="iExtraHappiness"/> <!-- K-Mod -->
+ 		<element type="iFreeExperience"/>
+ 		<element type="iWorkerSpeedModifier"/>
+ 		<element type="iImprovementUpgradeRateModifier"/>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index feff38d4c..ee4a77874 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7101,6 +7101,14 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_EXTRA_HEALTH", abs(GC.getCivicInfo(eCivic).getExtraHealth()), ((GC.getCivicInfo(eCivic).getExtraHealth() > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR))));
+ 	}
+ 
++	//	Extra Happiness (new in K-Mod)
++	if (GC.getCivicInfo(eCivic).getExtraHappiness() != 0)
++	{
++		szHelpText.append(NEWLINE);
++		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_EXTRA_HEALTH", abs(GC.getCivicInfo(eCivic).getExtraHappiness()), GC.getCivicInfo(eCivic).getExtraHappiness() > 0 ? gDLL->getSymbolID(HAPPY_CHAR): gDLL->getSymbolID(UNHAPPY_CHAR)));
++		// note: TXT_KEY_CIVIC_EXTRA_HEALTH just says "[blah] in all cities", so it's ok for happiness as well as for health.
++	}
++
+ 	//	Free Experience
+ 	if (GC.getCivicInfo(eCivic).getFreeExperience() != 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 719cb9ef6..0d2d6685b 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -5290,6 +5290,7 @@ m_iDistanceMaintenanceModifier(0),
+ m_iNumCitiesMaintenanceModifier(0),
+ m_iCorporationMaintenanceModifier(0),
+ m_iExtraHealth(0),
++m_iExtraHappiness(0), // K-Mod
+ m_iFreeExperience(0),
+ m_iWorkerSpeedModifier(0),
+ m_iImprovementUpgradeRateModifier(0),
+@@ -5758,6 +5759,8 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iNumCitiesMaintenanceModifier);					
+ 	stream->Read(&m_iCorporationMaintenanceModifier);					
+ 	stream->Read(&m_iExtraHealth);
++	if (uiFlag >= 2)
++		stream->Read(&m_iExtraHappiness);
+ 	stream->Read(&m_iFreeExperience);
+ 	stream->Read(&m_iWorkerSpeedModifier);
+ 	stream->Read(&m_iImprovementUpgradeRateModifier);
+@@ -5873,7 +5876,7 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::write(stream);
+ 
+-	uint uiFlag=1;
++	uint uiFlag=2;
+ 	stream->Write(uiFlag);		// flag for expansion
+ 
+ 	stream->Write(m_iCivicOptionType);
+@@ -5888,6 +5891,7 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iNumCitiesMaintenanceModifier);					
+ 	stream->Write(m_iCorporationMaintenanceModifier);					
+ 	stream->Write(m_iExtraHealth);
++	stream->Write(m_iExtraHappiness); // K-Mod, uiFlag >= 2
+ 	stream->Write(m_iFreeExperience);
+ 	stream->Write(m_iWorkerSpeedModifier);
+ 	stream->Write(m_iImprovementUpgradeRateModifier);
+@@ -5979,6 +5983,7 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iNumCitiesMaintenanceModifier, "iNumCitiesMaintenanceModifier");
+ 	pXML->GetChildXmlValByName(&m_iCorporationMaintenanceModifier, "iCorporationMaintenanceModifier");
+ 	pXML->GetChildXmlValByName(&m_iExtraHealth, "iExtraHealth");
++	pXML->GetChildXmlValByName(&m_iExtraHappiness, "iExtraHappiness"); // K-Mod
+ 	pXML->GetChildXmlValByName(&m_iFreeExperience, "iFreeExperience");
+ 	pXML->GetChildXmlValByName(&m_iWorkerSpeedModifier, "iWorkerSpeedModifier");
+ 	pXML->GetChildXmlValByName(&m_iImprovementUpgradeRateModifier, "iImprovementUpgradeRateModifier");
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 90092f482..caecc0a3b 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -1321,6 +1321,7 @@ public:
+ 	int getNumCitiesMaintenanceModifier() const;				// Exposed to Python
+ 	int getCorporationMaintenanceModifier() const;				// Exposed to Python
+ 	int getExtraHealth() const;						// Exposed to Python
++	int getExtraHappiness() const { return m_iExtraHappiness; } // K-Mod, Exposed to Python
+ 	int getFreeExperience() const;				// Exposed to Python
+ 	int getWorkerSpeedModifier() const;				// Exposed to Python
+ 	int getImprovementUpgradeRateModifier() const;				// Exposed to Python
+@@ -1404,6 +1405,7 @@ protected:
+ 	int m_iNumCitiesMaintenanceModifier;					
+ 	int m_iCorporationMaintenanceModifier;					
+ 	int m_iExtraHealth;
++	int m_iExtraHappiness; // K-Mod
+ 	int m_iFreeExperience;
+ 	int m_iWorkerSpeedModifier;
+ 	int m_iImprovementUpgradeRateModifier;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9f71d6a71..d93e2c7fa 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -17006,6 +17006,7 @@ void CvPlayer::processCivics(CivicTypes eCivic, int iChange)
+ 	changeNumCitiesMaintenanceModifier(GC.getCivicInfo(eCivic).getNumCitiesMaintenanceModifier() * iChange);
+ 	changeCorporationMaintenanceModifier(GC.getCivicInfo(eCivic).getCorporationMaintenanceModifier() * iChange);
+ 	changeExtraHealth(GC.getCivicInfo(eCivic).getExtraHealth() * iChange);
++	changeExtraHappiness(GC.getCivicInfo(eCivic).getExtraHappiness() * iChange); // K-Mod
+ 	changeFreeExperience(GC.getCivicInfo(eCivic).getFreeExperience() * iChange);
+ 	changeWorkerSpeedModifier(GC.getCivicInfo(eCivic).getWorkerSpeedModifier() * iChange);
+ 	changeImprovementUpgradeRateModifier(GC.getCivicInfo(eCivic).getImprovementUpgradeRateModifier() * iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2014b13c5..5d524f44d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13774,6 +13774,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	if (kCivic.getExtraHealth() != 0)
+ 		iValue += (iCities * 6 * iS * AI_getHealthWeight(iS*kCivic.getExtraHealth(), 1)) / 100;
+ 
++	if (kCivic.getExtraHappiness() != 0) // New K-Mod effect
++		iValue += (iCities * 10 * iS * AI_getHappinessWeight(iS*kCivic.getExtraHappiness(), 1)) / 100;
++
+ 	if (kCivic.getHappyPerMilitaryUnit() != 0)
+ 		iValue += (iCities * 9 * iS * AI_getHappinessWeight(iS*kCivic.getHappyPerMilitaryUnit() * 3, 1)) / 100;
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index de1a2c809..5af9fb742 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -391,6 +391,7 @@ void CyInfoPythonInterface1()
+ 		.def("getNumCitiesMaintenanceModifier", &CvCivicInfo::getNumCitiesMaintenanceModifier, "int ()")
+ 		.def("getCorporationMaintenanceModifier", &CvCivicInfo::getCorporationMaintenanceModifier, "int ()")
+ 		.def("getExtraHealth", &CvCivicInfo::getExtraHealth, "int ()")
++		.def("getExtraHappiness", &CvCivicInfo::getExtraHappiness, "int ()") // K-Mod
+ 		.def("getFreeExperience", &CvCivicInfo::getFreeExperience, "int ()")
+ 		.def("getWorkerSpeedModifier", &CvCivicInfo::getWorkerSpeedModifier, "int ()")
+ 		.def("getImprovementUpgradeRateModifier", &CvCivicInfo::getImprovementUpgradeRateModifier, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=18114

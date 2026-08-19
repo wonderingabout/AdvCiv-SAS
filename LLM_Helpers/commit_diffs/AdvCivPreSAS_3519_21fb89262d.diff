@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3519
+# Commit: 21fb89262da62325571caa4a544a656fdb3dfd81
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 50ad5e58b52fc5c3663189e7f33aeadcac3574df
+# Title: Some cleanup for the AI victory weights change
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvGame.cpp
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 6056baf3e..b41d7f9cf 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3631,7 +3631,8 @@ VictoryTypes CvGame::getSpaceVictory() const
+ 		if (GC.getInfo(eLoopProject).isSpaceship())
+ 			return GC.getInfo(eLoopProject).getVictoryPrereq();
+ 	}
+-	FErrorMsg("Invalid space victory type");
++	// (Could be fine in mods)
++	//FErrorMsg("Invalid space victory type");
+ 	return NO_VICTORY;
+ 	/*	advc: Alternative check, cut from AI_calculateSpaceVictoryStage (BBAI),
+ 		disused. */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c25d3a264..e34c6f20a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -24375,7 +24375,7 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	}
+ 	if (GC.getInfo(eVictory).isConquest())
+ 	{
+-		iWeight = iWeight = (bHuman ? iHumanWeight : kPersonality.getConquestVictoryWeight());
++		iWeight = (bHuman ? iHumanWeight : kPersonality.getConquestVictoryWeight());
+ 		if (bCheckBBAIDefine &&
+ 			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CONQUEST"))
+ 		{
+@@ -24384,7 +24384,7 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	}
+ 	if (eVictory == kGame.getDominationVictory())
+ 	{
+-		iWeight = iWeight = (bHuman ? iHumanWeight : kPersonality.getDominationVictoryWeight());
++		iWeight = (bHuman ? iHumanWeight : kPersonality.getDominationVictoryWeight());
+ 		if (bCheckBBAIDefine &&
+ 			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DOMINATION"))
+ 		{
+@@ -24393,7 +24393,7 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	}
+ 	if (kVictory.isDiploVote())
+ 	{
+-		iWeight = iWeight = (bHuman ? iHumanWeight : kPersonality.getDiplomacyVictoryWeight());
++		iWeight = (bHuman ? iHumanWeight : kPersonality.getDiplomacyVictoryWeight());
+ 		if (bCheckBBAIDefine &&
+ 			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DIPLOMACY"))
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1975

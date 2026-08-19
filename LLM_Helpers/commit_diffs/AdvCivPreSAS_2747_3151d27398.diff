@@ -1,0 +1,135 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2747
+# Commit: 3151d27398d1b3b520c82442ea6e1cd832ee2688
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bb82ed4104c321d121942920d3fc116a2d5b8595
+# Title: BUG option for nuke mission time
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	Assets/Config/BUG Main Interface.xml
+2	0	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+26	0	Assets/XML/Text/BUG Main Interface Options.xml
+12	1	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index a41909583..7e8d3435b 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -199,6 +199,15 @@
+ 				<choice id="Large" get="isBuildIconSizeLarge"/>
+ 			</list>
+ 
++			<!-- advc.002m: (Note: the DLL relies on this order of the choices) -->
++			<list   id="NukeMissionTime" key="Nuke Mission Time" 
++					type="int" default="0" listType="string" 
++					values="Full Length|Shortened|None">
++				<choice id="Full"/>
++				<choice id="Short"/>
++				<choice id="None"/>
++			</list>
++
+ 			<!-- Rapid unit cycling, by karadoc -->
+ 			<option id="RapidUnitCycling" key="Rapid Unit Cycling"
+ 					type="boolean" default="False"/>
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index 16237b674..d56ec9b28 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -80,6 +80,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# </advc.004>
+ 		# advc.004k:
+ 		self.addCheckbox(screen, panel, "MainInterface__SeaPatrol")
++		# advc.002m:
++		self.addTextDropdown(screen, panel, panel, "MainInterface__NukeMissionTime", True)
+ 		
+ 	def createTechSplashPanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "TechWindow", "Tech Splash Screen:")
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 920227b43..9d7cc9075 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -694,6 +694,32 @@
+ 		<Spanish>Activada, la selecci�n de unidades autom�tica ocurre instant�neamente m�s que con un retardo.</Spanish>
+ 	</TEXT>
+ 
++	<!-- 002m: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NUKEMISSIONTIME_TEXT</Tag>
++		<English>Nuke Animations</English>
++		<French>Nuke Animations</French>
++		<German>Atomexplosionen</German>
++		<Italian>Nuke Animations</Italian>
++		<Spanish>Nuke Animations</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NUKEMISSIONTIME_LIST</Tag>
++		<English>Full|Rumble|None</English>
++		<French>Full|Rumble|None</French>
++		<German>Komplett|Abgek�rzt|Keine</German>
++		<Italian>Full|Rumble|None</Italian>
++		<Spanish>Full|Rumble|None</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NUKEMISSIONTIME_HOVER</Tag>
++		<English>The duration of the animations shown for nuclear attacks.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Full[COLOR_REVERT]: The whole animation is shown. Exceptions: Only a short camera rumble is shown when the [COLOR_HIGHLIGHT_TEXT]No Particle Effects[COLOR_REVERT] graphics option is enabled and for nuclear attacks launched against you.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Rumble[COLOR_REVERT]: All nuke animations are aborted after a couple of seconds, resulting just in a camera rumble and (depending on camera distance) the explosion sound. This setting is always used in games with simultaneous turns.[NEWLINE][COLOR_HIGHLIGHT_TEXT]None[COLOR_REVERT]: No animation is shown. This also disables the recon effect that nukes normally have.</English>
++		<French>The duration of the animations shown for nuclear attacks.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Full[COLOR_REVERT]: The whole animation is shown. Exceptions: Only a short camera rumble is shown when the [COLOR_HIGHLIGHT_TEXT]No Particle Effects[COLOR_REVERT] graphics option is enabled and for nuclear attacks launched against you.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Rumble[COLOR_REVERT]: All nuke animations are aborted after a couple of seconds, resulting just in a camera rumble and (depending on camera distance) the explosion sound. This setting is always used in games with simultaneous turns.[NEWLINE][COLOR_HIGHLIGHT_TEXT]None[COLOR_REVERT]: No animation is shown. This also disables the recon effect that nukes normally have.</French>
++		<German>Die Animationsdauer von Atomangriffen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Vollst�ndig[COLOR_REVERT]: Zeigt die gesamte Animation. Ausnahmen: Die Animation wird stark abgek�rzt (s.u.), wenn die Grafikoption [COLOR_HIGHLIGHT_TEXT]Keine Partikeleffekte[COLOR_REVERT] aktiviert ist, und bei Atomschl�gen Ihrer Gegner.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Abgek�rzt[COLOR_REVERT]: Die Animation wird i.W. auf ein R�tteln der Kamera und (je nach Kameraabstand) das Explosionsger�usch reduziert. Diese Einstellung wird in Spielen mit gleichzeitigen Z�gen zwangsweise verwendet.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Keine[COLOR_REVERT]: Atomangriffe werden nicht animiert. Damit entf�llt auch das Aufdecken der betroffenen Felder.</German>
++		<Italian>The duration of the animations shown for nuclear attacks.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Full[COLOR_REVERT]: The whole animation is shown. Exceptions: Only a short camera rumble is shown when the [COLOR_HIGHLIGHT_TEXT]No Particle Effects[COLOR_REVERT] graphics option is enabled and for nuclear attacks launched against you.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Rumble[COLOR_REVERT]: All nuke animations are aborted after a couple of seconds, resulting just in a camera rumble and (depending on camera distance) the explosion sound. This setting is always used in games with simultaneous turns.[NEWLINE][COLOR_HIGHLIGHT_TEXT]None[COLOR_REVERT]: No animation is shown. This also disables the recon effect that nukes normally have.</Italian>
++		<Spanish>The duration of the animations shown for nuclear attacks.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Full[COLOR_REVERT]: The whole animation is shown. Exceptions: Only a short camera rumble is shown when the [COLOR_HIGHLIGHT_TEXT]No Particle Effects[COLOR_REVERT] graphics option is enabled and for nuclear attacks launched against you.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Rumble[COLOR_REVERT]: All nuke animations are aborted after a couple of seconds, resulting just in a camera rumble and (depending on camera distance) the explosion sound. This setting is always used in games with simultaneous turns.[NEWLINE][COLOR_HIGHLIGHT_TEXT]None[COLOR_REVERT]: No animation is shown. This also disables the recon effect that nukes normally have.</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004: German was too long -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SIMPLESELECTION_TEXT</Tag>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 003bb40e4..899bb5dd1 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -8,6 +8,7 @@
+ #include "CvGamePlay.h"
+ #include "CvCity.h"
+ #include "BBAILog.h"
++#include "CvBugOptions.h" // advc.002m
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h" // for getBestBuildRoute
+ //#include "CvInfo_Unit.h" // for canAnyMoveAllTerrain (now in PCH)
+@@ -421,12 +422,22 @@ int CvSelectionGroup::nukeMissionTime() const
+ 	int const iShortened = iFull / 4;
+ 	if (isNeverShowMoves())
+ 		return iShortened / 2;
++	enum NukeMissionTimeChoices
++	{
++		FULL, SHORTENED, ZERO // These match the BUG config in XML
++	};
++	int const iBUGChoice = BUGOption::getValue("MainInterface__NukeMissionTime", 0);
++	if (iBUGChoice == ZERO)
++		return 0;
+ 	CvGame const& kGame = GC.getGame();
+ 	if (getOwner() != kGame.getActivePlayer())
+ 		return iShortened / 2;
+ 	// Nothing to see when particle effects aren't enabled
+-	if (gDLL->getGraphicOption(GRAPHICOPTION_EFFECTS_DISABLED))
++	if (gDLL->getGraphicOption(GRAPHICOPTION_EFFECTS_DISABLED) ||
++		iBUGChoice == SHORTENED)
++	{
+ 		return iShortened;
++	}
+ 	return iFull;
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7523

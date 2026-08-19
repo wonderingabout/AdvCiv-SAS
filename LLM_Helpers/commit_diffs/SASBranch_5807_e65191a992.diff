@@ -1,0 +1,2761 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5807
+# Commit: e65191a9926e17a51288683a0b670971667dbd1b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cb4670d2622018a82ef705f93a6eb13d35321e9c
+# Title: collapse multiline to singleline in many files done with the help of Claude code Opus 4.7 thanks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	AGENTS.md
+12	40	Assets/Python/BUG/AttitudeUtil.py
+8	3	Assets/Python/BUG/BugEventManager.py
+1	4	Assets/Python/BUG/BugPath.py
+8	6	Assets/Python/BUG/BugUtil.py
+1	13	Assets/Python/BUG/ColorUtil.py
+14	35	Assets/Python/BUG/DealUtil.py
+8	4	Assets/Python/BUG/FontUtil.py
+4	22	Assets/Python/BUG/GPUtil.py
+8	14	Assets/Python/BUG/InputUtil.py
+10	30	Assets/Python/BUG/RawYields.py
+4	38	Assets/Python/BUG/Scoreboard.py
+9	13	Assets/Python/BUG/TechPrefs.py
+10	17	Assets/Python/BUG/TradeUtil.py
+9	31	Assets/Python/BUG/UnitGrouper.py
+9	23	Assets/Python/BUG/UnitUtil.py
+9	4	Assets/Python/Contrib/AIAutoPlay.py
+4	12	Assets/Python/Contrib/Civ4lerts.py
+1	6	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+3	18	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+24	122	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+16	81	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+3	39	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	9	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+1	9	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+4	18	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+3	18	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+1	2	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+2	22	Assets/Python/CvMapGeneratorUtil.py
+2	11	Assets/Python/SASBillboardScale.py
+3	14	Assets/Python/SASDefineGuard.py
+1	7	Assets/Python/SASTextScale.py
+11	47	Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+2	4	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+9	36	Assets/Python/Screens/CvForeignAdvisor.py
+17	57	Assets/Python/Screens/CvInfoScreen.py
+2	45	Assets/Python/Screens/CvMilitaryAdvisor.py
+2	14	Assets/Python/Screens/CvTechChooser.py
+2	8	Assets/Python/Screens/CvVictoryScreen.py
+2	10	Assets/Python/Screens/CvWorldAdvisorScreen.py
+3	13	Assets/Python/Screens/PLE.py
+23	56	Assets/Python/Screens/RectLayout.py
+1	5	PrivateMaps/Arboria.py
+1	6	PrivateMaps/BTG_Cross.py
+1	5	PrivateMaps/BTG_Grid.py
+1	5	PrivateMaps/BTG_Lagoon.py
+1	5	PrivateMaps/Boreal.py
+1	5	PrivateMaps/Donut.py
+1	5	PrivateMaps/Ice_Age.py
+1	5	PrivateMaps/Inland_Sea.py
+9	32	PrivateMaps/Peirce.py
+9	6	PrivateMaps/PerfectMongoose.py
+2	11	PrivateMaps/SAS_WorldSizes.py
+4	20	PrivateMaps/Team_Battleground.py
+2	8	PrivateMaps/Tilted_Axis.py
+1	5	PrivateMaps/Water.py
+2	10	PrivateMaps/Wheel.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 9a3fb722a..050daf9c2 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -159,9 +159,13 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+-- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multi-line mostly needlessly stylized version of it. The user has line wrap on VS Code so it is preferrable for the user too. As such a refactor would be extensive, do it as we go rather than all in one-go. See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/singleline_pass3_comments_and_long.py).
+-- Note that an exception to the former is for very long or uniform listings such as as of now in `self.SAS_CATEGORY_DEFS` or `getMusicList` (in SevoPediaMain.py): a multiline statement seems preferable and more readable for these. Adjust as you see fit.
+-- When doing performance optimizations, checking quotes (i.e. `"`) only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`. Or appending `.` or `)` or ` ` or `,`, or ` `, etc., to what we want to simplify. E.g., `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
++- Note: for the collapse multiline to singleline bullets below, such a refactor would be extensive, so if we need to, do it as we go rather than all in one-go throughout our whole codebase. It's a low-priority nicety — don't go out of your way for it during unrelated tasks; only apply it to code you're already editing, or if it seems relevant/related to your current task, or when explicitly asked to do a collapse pass.
++- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multiline mostly needlessly stylized version of it. The user has line wrap on VS Code so it is preferrable for the user too. See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/singleline_pass3_comments_and_long.py).
++- Note: there are some exceptions to the above collapse multiline preference; for example, for very long or uniform listings, a multiline statement seems preferable and more readable. Examples: as of now in `self.SAS_CATEGORY_DEFS` (in SevoPediaMain.py), or multi-field tabular data (e.g. `aSupport`/`aArmy` in CvMilitaryAdvisor.py, `field_specs`/`row_specs` chart tables, polygon `[x, y]` vertex lists, 2D matrices, dispatch dicts, and per-row-documented config tables). Flat lists/tuples of plain values, single split calls, and boolean `or`/`and` chains, that should generally be collapsed as well, also have some exceptions, such as clearly very lengthy or iterative ones; e.g., the `or` chains near `eComment == self.getCommentID(` (CvDiplomacy.py). Adjust as you see fit.
++- Note: a fast way to find collapse candidates is a global regex search for `(\n\t` and `[\n\t` (an open paren or bracket immediately followed by a newline + tab, i.e. a wrapped call/list/tuple/`if`/`def`); also `,\n\t` catches mid-arg splits.
++- When manually collapsing, if a block has inline comments mid-args, hoist them into a single comment line just above the now-collapsed line (rephrase so it still reads correctly out of position) rather than skipping the collapse — one greppable line of code is the goal, comments above are fine.
++- After collapsing, verify nothing broke: compare `(`/`[`/`{` balance of the file vs `git show HEAD:<file>` (must be identical, since collapsing only removes newlines/indent, never tokens) and `ast.parse` it (a pre-existing Python 2 `print x` statement will fail Py3 `ast.parse` even on untouched files; the paren-balance-vs-HEAD check is the reliable one there).
++- When doing performance optimizations, checking quotes (i.e. `"`) only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")` (or the same with `getInfoTypeOrFail("`). Or appending `.` or `)` or ` ` or `,`, or ` `, etc., to what we want to simplify. E.g., `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) ` (with a space), or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
+ - When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+ - In some rare cases, it is better not to cache rather than cache, because we will not read the define again, so caching is costlier and needless. For example, `start_year = gc.getDefineINT("START_YEAR")` when `start_year` is only used once to build a (sevopedia game speed) chart that we cache and then the variable is discarded. Mark these with a comment like `not cached: read once only`.
+ - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+
+diff --git a/Assets/Python/BUG/AttitudeUtil.py b/Assets/Python/BUG/AttitudeUtil.py
+index 72d869754..6d66bb897 100644
+--- a/Assets/Python/BUG/AttitudeUtil.py
++++ b/Assets/Python/BUG/AttitudeUtil.py
+@@ -9,6 +9,13 @@
+ ##
+ ## Author: Ruff_hi, EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugUtil
+ import FontUtil
+@@ -17,50 +24,15 @@ import re
+ 
+ NUM_ATTITUDES = 5
+ 
+-DEFAULT_COLORS = (
+-	"COLOR_RED", 
+-	"COLOR_CYAN", 
+-	"COLOR_CLEAR", 
+-	"COLOR_GREEN", 
+-	"COLOR_YELLOW",
+-)
+-
+-ATTITUDE_KEYS = (
+-	"furious", 
+-	"annoyed", 
+-	"cautious", 
+-	"pleased", 
+-	"friendly", 
+-)
++DEFAULT_COLORS = ("COLOR_RED", "COLOR_CYAN", "COLOR_CLEAR", "COLOR_GREEN", "COLOR_YELLOW")
++
++ATTITUDE_KEYS = ("furious", "annoyed", "cautious", "pleased", "friendly")
+ ATTITUDE_COLORS = None
+ ATTITUDE_ICONS = None
+ 
+ # These are also defaults; XML will override
+-ATTITUDE_MODIFIERS = (
+-	"TXT_KEY_MISC_ATTITUDE_LAND_TARGET",
+-	"TXT_KEY_MISC_ATTITUDE_WAR",
+-	"TXT_KEY_MISC_ATTITUDE_PEACE",
+-	"TXT_KEY_MISC_ATTITUDE_SAME_RELIGION",
+-	"TXT_KEY_MISC_ATTITUDE_DIFFERENT_RELIGION",
+-	"TXT_KEY_MISC_ATTITUDE_BONUS_TRADE",
+-	"TXT_KEY_MISC_ATTITUDE_OPEN_BORDERS",
+-	"TXT_KEY_MISC_ATTITUDE_DEFENSIVE_PACT",
+-	"TXT_KEY_MISC_ATTITUDE_RIVAL_DEFENSIVE_PACT",
+-	"TXT_KEY_MISC_ATTITUDE_RIVAL_VASSAL",
+-	"TXT_KEY_MISC_ATTITUDE_SHARE_WAR",
+-	"TXT_KEY_MISC_ATTITUDE_FAVORITE_CIVIC",
+-	"TXT_KEY_MISC_ATTITUDE_TRADE",
+-	"TXT_KEY_MISC_ATTITUDE_RIVAL_TRADE",
+-	"TXT_KEY_MISC_ATTITUDE_FREEDOM",
+-	"TXT_KEY_MISC_ATTITUDE_EXTRA_GOOD",
+-# Show Hidden Attitudes in BULL
+-	"TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION",
+-	"TXT_KEY_MISC_ATTITUDE_TEAM_SIZE",
+-	"TXT_KEY_MISC_ATTITUDE_BETTER_RANK",
+-	"TXT_KEY_MISC_ATTITUDE_WORSE_RANK",
+-	#"TXT_KEY_MISC_ATTITUDE_LOW_RANK", # advc.sha: Not used
+-	"TXT_KEY_MISC_ATTITUDE_LOST_WAR",
+-)
++# "Show Hidden Attitudes in BULL" section starts at TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION; TXT_KEY_MISC_ATTITUDE_LOW_RANK omitted (advc.sha: not used)
++ATTITUDE_MODIFIERS = ("TXT_KEY_MISC_ATTITUDE_LAND_TARGET", "TXT_KEY_MISC_ATTITUDE_WAR", "TXT_KEY_MISC_ATTITUDE_PEACE", "TXT_KEY_MISC_ATTITUDE_SAME_RELIGION", "TXT_KEY_MISC_ATTITUDE_DIFFERENT_RELIGION", "TXT_KEY_MISC_ATTITUDE_BONUS_TRADE", "TXT_KEY_MISC_ATTITUDE_OPEN_BORDERS", "TXT_KEY_MISC_ATTITUDE_DEFENSIVE_PACT", "TXT_KEY_MISC_ATTITUDE_RIVAL_DEFENSIVE_PACT", "TXT_KEY_MISC_ATTITUDE_RIVAL_VASSAL", "TXT_KEY_MISC_ATTITUDE_SHARE_WAR", "TXT_KEY_MISC_ATTITUDE_FAVORITE_CIVIC", "TXT_KEY_MISC_ATTITUDE_TRADE", "TXT_KEY_MISC_ATTITUDE_RIVAL_TRADE", "TXT_KEY_MISC_ATTITUDE_FREEDOM", "TXT_KEY_MISC_ATTITUDE_EXTRA_GOOD", "TXT_KEY_MISC_ATTITUDE_FIRST_IMPRESSION", "TXT_KEY_MISC_ATTITUDE_TEAM_SIZE", "TXT_KEY_MISC_ATTITUDE_BETTER_RANK", "TXT_KEY_MISC_ATTITUDE_WORSE_RANK", "TXT_KEY_MISC_ATTITUDE_LOST_WAR")
+ MODIFIER_STRING_TO_KEY = None
+ 
+ gc = CyGlobalContext()
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index bd7601bcd..699dde280 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -98,6 +98,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import CvEventManager
+ import BugData
+@@ -123,9 +130,7 @@ BugUtil.fixSets(globals())
+ # BUG - Mac Support - end
+ 
+ DEFAULT_LOGGING = False
+-DEFAULT_NOLOG_EVENTS = set((
+-	"gameUpdate",
+-))
++DEFAULT_NOLOG_EVENTS = set(("gameUpdate",))
+ 
+ gc = CyGlobalContext()
+ g_eventManager = None
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index a2410ab48..db01814e5 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -636,10 +636,7 @@ def initSearchPaths():
+ 		return
+ 	BugUtil.debug("BugPath - initializing asset search paths")
+ 	
+-	assetDirs = [
+-		join(getModDir(), ASSETS_FOLDER),
+-		join(getAppDir(), ASSETS_FOLDER),
+-	]
++	assetDirs = [join(getModDir(), ASSETS_FOLDER), join(getAppDir(), ASSETS_FOLDER)]
+ 	# EF: Mod's no longer access CustomAssets folder; too many issues
+ 	if not isNoCustomAssets() and not isMod():
+ 		assetDirs.insert(0, join(getRootDir(), CUSTOM_ASSETS_FOLDER))
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 4532d85d6..53960efb1 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -133,6 +133,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import ColorUtil
+ import sys
+@@ -219,12 +226,7 @@ INFO = 1
+ WARN = 2
+ ERROR = 3
+ 
+-LEVEL_PREFIXES = (
+-	"DEBUG: ",
+-	"INFO : ",
+-	"WARN : ",
+-	"ERROR: ",
+-)
++LEVEL_PREFIXES = ("DEBUG: ", "INFO : ", "WARN : ", "ERROR: ")
+ 
+ #screenLogLevel = WARN
+ #fileLogLevel = DEBUG
+
+diff --git a/Assets/Python/BUG/ColorUtil.py b/Assets/Python/BUG/ColorUtil.py
+index 2f2fa9ce8..4aab40c90 100644
+--- a/Assets/Python/BUG/ColorUtil.py
++++ b/Assets/Python/BUG/ColorUtil.py
+@@ -22,19 +22,7 @@ import BugUtil
+ gc = CyGlobalContext()
+ 
+ # tuple of interesting color names to be selectable from dropdowns
+-COLOR_KEYS = (
+-	"COLOR_RED",
+-	"COLOR_YELLOW",
+-	"COLOR_CYAN",
+-	"COLOR_GREEN",
+-	"COLOR_BLUE",
+-	"COLOR_MAGENTA",
+-	"COLOR_WHITE",
+-	"COLOR_LIGHT_GREY",
+-	"COLOR_GREY",
+-	"COLOR_DARK_GREY",
+-	"COLOR_BLACK"
+-)
++COLOR_KEYS = ("COLOR_RED", "COLOR_YELLOW", "COLOR_CYAN", "COLOR_GREEN", "COLOR_BLUE", "COLOR_MAGENTA", "COLOR_WHITE", "COLOR_LIGHT_GREY", "COLOR_GREY", "COLOR_DARK_GREY", "COLOR_BLACK")
+ 
+ COLOR_INDEX_IDX = 0
+ COLOR_TYPE_IDX = 1
+
+diff --git a/Assets/Python/BUG/DealUtil.py b/Assets/Python/BUG/DealUtil.py
+index 7215215e6..55d5f2992 100644
+--- a/Assets/Python/BUG/DealUtil.py
++++ b/Assets/Python/BUG/DealUtil.py
+@@ -27,6 +27,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugDll
+ import PlayerUtil
+@@ -96,39 +103,18 @@ def findDealsByPlayerAndType(ePlayer, types):
+ ## TradeableItem Functions
+ 
+ def isAnnual(eItem):
+-	return eItem in (
+-		TradeableItems.TRADE_RESOURCES, 
+-		TradeableItems.TRADE_GOLD_PER_TURN, 
+-		TradeableItems.TRADE_VASSAL, 
+-		TradeableItems.TRADE_SURRENDER, 
+-		TradeableItems.TRADE_OPEN_BORDERS,
+-		TradeableItems.TRADE_DISENGAGE, # advc.034
+-		TradeableItems.TRADE_DEFENSIVE_PACT, 
+-		TradeableItems.TRADE_PERMANENT_ALLIANCE, 
+-	)
++	# advc.034: TRADE_DISENGAGE included in this set
++	return eItem in (TradeableItems.TRADE_RESOURCES, TradeableItems.TRADE_GOLD_PER_TURN, TradeableItems.TRADE_VASSAL, TradeableItems.TRADE_SURRENDER, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DISENGAGE, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE)
+ 
+ def isDual(eItem, bExcludePeace=False):
+ 	if bExcludePeace and eItem == TradeableItems.TRADE_PEACE_TREATY:
+ 		return False
+-	return eItem in (
+-		TradeableItems.TRADE_OPEN_BORDERS,
+-		TradeableItems.TRADE_DISENGAGE, # advc.034
+-		TradeableItems.TRADE_DEFENSIVE_PACT, 
+-		TradeableItems.TRADE_PERMANENT_ALLIANCE, 
+-		TradeableItems.TRADE_PEACE_TREATY, 
+-	)
++	# advc.034: TRADE_DISENGAGE included in this set
++	return eItem in (TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DISENGAGE, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE, TradeableItems.TRADE_PEACE_TREATY)
+ 
+ def hasData(eItem):
+-	return eItem not in (
+-		TradeableItems.TRADE_MAPS, 
+-		TradeableItems.TRADE_VASSAL, 
+-		TradeableItems.TRADE_SURRENDER, 
+-		TradeableItems.TRADE_OPEN_BORDERS,
+-		TradeableItems.TRADE_DISENGAGE, # advc.034
+-		TradeableItems.TRADE_DEFENSIVE_PACT, 
+-		TradeableItems.TRADE_PERMANENT_ALLIANCE, 
+-		TradeableItems.TRADE_PEACE_TREATY, 
+-	)
++	# advc.034: TRADE_DISENGAGE included in this set
++	return eItem not in (TradeableItems.TRADE_MAPS, TradeableItems.TRADE_VASSAL, TradeableItems.TRADE_SURRENDER, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DISENGAGE, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE, TradeableItems.TRADE_PEACE_TREATY)
+ 
+ def isGold(eItem):
+ 	return eItem in GOLD_TRADE_ITEMS
+@@ -289,14 +275,7 @@ class ReversedDeal(Deal):
+ ## Testing
+ 
+ def test():
+-	allDeals = findDealsByPlayerAndType(0, 
+-			(
+-				TradeableItems.TRADE_PEACE_TREATY,
+-				TradeableItems.TRADE_OPEN_BORDERS,
+-				TradeableItems.TRADE_DEFENSIVE_PACT,
+-				TradeableItems.TRADE_RESOURCES,
+-				TradeableItems.TRADE_GOLD_PER_TURN,
+-			))
++	allDeals = findDealsByPlayerAndType(0, (TradeableItems.TRADE_PEACE_TREATY, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_RESOURCES, TradeableItems.TRADE_GOLD_PER_TURN))
+ 	for player, deals in allDeals.iteritems():
+ 		print PlayerUtil.getPlayer(player).getName()
+ 		for type, deal in deals.iteritems():
+
+diff --git a/Assets/Python/BUG/FontUtil.py b/Assets/Python/BUG/FontUtil.py
+index c11d0fc18..323cf6416 100644
+--- a/Assets/Python/BUG/FontUtil.py
++++ b/Assets/Python/BUG/FontUtil.py
+@@ -31,6 +31,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugConfig
+ import BugDll
+@@ -78,10 +85,7 @@ def init():
+ #	for symbol, name in symbolNames:
+ #		addBuiltinSymbol()
+ 	
+-	for count, getInfo in (
+-		(YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo),
+-		(CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo),
+-	):
++	for count, getInfo in ((YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo), (CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo)):
+ 		for enum in range(count):
+ 			info = getInfo(enum)
+ 			addSymbol(info.getType().lower().replace("_", " "),
+
+diff --git a/Assets/Python/BUG/GPUtil.py b/Assets/Python/BUG/GPUtil.py
+index f34def373..36fb5be2c 100644
+--- a/Assets/Python/BUG/GPUtil.py
++++ b/Assets/Python/BUG/GPUtil.py
+@@ -38,32 +38,14 @@ gc = CyGlobalContext()
+ g_gpIcon = None
+ 
+ # Unit Type of each great person that can gain GP points
+-g_gpBarList = (
+-	"UNIT_GREAT_SPY",
+-	"UNIT_GREAT_ENGINEER",
+-	"UNIT_GREAT_MERCHANT",
+-	"UNIT_GREAT_SCIENTIST",
+-	"UNIT_GREAT_ARTIST",
+-	"UNIT_GREAT_PROPHET",
+-	"UNIT_GREAT_GENERAL",
+-# MOD: specify the unit type (XML key) for each new great person (1)
+-	#"UNIT_DOCTOR",
+-)
++# MOD: specify the unit type (XML key) for each new great person (1) - e.g. add "UNIT_DOCTOR" to this tuple, keeping order in sync with the GP_* constants below
++g_gpBarList = ("UNIT_GREAT_SPY", "UNIT_GREAT_ENGINEER", "UNIT_GREAT_MERCHANT", "UNIT_GREAT_SCIENTIST", "UNIT_GREAT_ARTIST", "UNIT_GREAT_PROPHET", "UNIT_GREAT_GENERAL")
+ 
+ # Named constants for each great person and total number of GP types
+ # These must be in the exact same order as the list above
+ NUM_GP = len(g_gpBarList)
+-(
+-	GP_GREAT_SPY,
+-	GP_GREAT_ENGINEER,
+-	GP_GREAT_MERCHANT,
+-	GP_GREAT_SCIENTIST,
+-	GP_GREAT_ARTIST,
+-	GP_GREAT_PROPHET,
+-	GP_GREAT_GENERAL,
+-# MOD: define a constant for each new great person in same order as above (2)
+-	#GP_DOCTOR,
+-) = range(NUM_GP)
++# MOD: define a constant for each new great person in same order as above (2) - e.g. add GP_DOCTOR to this unpack
++(GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL) = range(NUM_GP)
+ 
+ # Map each GP type to unit ID, color, and icon to show in GP Bar
+ g_gpUnitTypes = None
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index d9bd7f277..2f47c864f 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -6,6 +6,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugConfig
+ import BugDll
+@@ -47,20 +54,7 @@ MODIFIER_MAP = {
+ 	"SHIFT": SHIFT,
+ }
+ 
+-MODIFIER_KEYS = (
+-	InputTypes.KB_LALT, 
+-	InputTypes.KB_LCONTROL, 
+-	InputTypes.KB_LSHIFT, 
+-	InputTypes.KB_RALT, 
+-	InputTypes.KB_RCONTROL, 
+-	InputTypes.KB_RSHIFT,
+-	int(InputTypes.KB_LALT), 
+-	int(InputTypes.KB_LCONTROL), 
+-	int(InputTypes.KB_LSHIFT), 
+-	int(InputTypes.KB_RALT), 
+-	int(InputTypes.KB_RCONTROL), 
+-	int(InputTypes.KB_RSHIFT),
+-)
++MODIFIER_KEYS = (InputTypes.KB_LALT, InputTypes.KB_LCONTROL, InputTypes.KB_LSHIFT, InputTypes.KB_RALT, InputTypes.KB_RCONTROL, InputTypes.KB_RSHIFT, int(InputTypes.KB_LALT), int(InputTypes.KB_LCONTROL), int(InputTypes.KB_LSHIFT), int(InputTypes.KB_RALT), int(InputTypes.KB_RCONTROL), int(InputTypes.KB_RSHIFT))
+ 
+ KEYS_BY_CODE = {}
+ CODES_BY_KEY = {}
+
+diff --git a/Assets/Python/BUG/RawYields.py b/Assets/Python/BUG/RawYields.py
+index 304ba751e..982ce6b09 100644
+--- a/Assets/Python/BUG/RawYields.py
++++ b/Assets/Python/BUG/RawYields.py
+@@ -7,6 +7,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import CvUtil
+ import BugUtil
+@@ -16,23 +23,8 @@ gc = CyGlobalContext()
+ 
+ # Types
+ NUM_TYPES = 11
+-(
+-	WORKED_TILES,
+-	CITY_TILES,
+-	OWNED_TILES,
+-	ALL_TILES,
+-	
+-	DOMESTIC_TRADE,
+-	FOREIGN_TRADE, # excludes overseas trade
+-	
+-	BUILDINGS,
+-	CORPORATIONS,
+-	SPECIALISTS,
+-	
+-	# Hold the percents, not the actual yield values
+-	BASE_MODIFIER,
+-	PRODUCTION_MODIFIER,
+-) = range(NUM_TYPES)
++# FOREIGN_TRADE excludes overseas trade. BASE_MODIFIER and PRODUCTION_MODIFIER hold the percents, not the actual yield values.
++(WORKED_TILES, CITY_TILES, OWNED_TILES, ALL_TILES, DOMESTIC_TRADE, FOREIGN_TRADE, BUILDINGS, CORPORATIONS, SPECIALISTS, BASE_MODIFIER, PRODUCTION_MODIFIER) = range(NUM_TYPES)
+ 
+ # Leave these for later when we have icons for each
+ #DOMAIN_MODIFIER
+@@ -45,19 +37,7 @@ NUM_TYPES = 11
+ #...
+ 
+ # Labels
+-LABEL_KEYS = (
+-	"TXT_KEY_CONCEPT_WORKED_TILES",
+-	"TXT_KEY_CONCEPT_CITY_TILES",
+-	"TXT_KEY_CONCEPT_OWNED_TILES",
+-	"TXT_KEY_CONCEPT_ALL_TILES",
+-	"TXT_KEY_CONCEPT_DOMESTIC_TRADE",
+-	"TXT_KEY_CONCEPT_FOREIGN_TRADE",
+-	"TXT_KEY_CONCEPT_BUILDINGS",
+-	"TXT_KEY_CONCEPT_CORPORATIONS",
+-	"TXT_KEY_CONCEPT_SPECIALISTS",
+-	"TXT_KEY_CONCEPT_BASE_MODIFIER",
+-	"TXT_KEY_CONCEPT_PRODUCTION_MODIFIER"
+-)
++LABEL_KEYS = ("TXT_KEY_CONCEPT_WORKED_TILES", "TXT_KEY_CONCEPT_CITY_TILES", "TXT_KEY_CONCEPT_OWNED_TILES", "TXT_KEY_CONCEPT_ALL_TILES", "TXT_KEY_CONCEPT_DOMESTIC_TRADE", "TXT_KEY_CONCEPT_FOREIGN_TRADE", "TXT_KEY_CONCEPT_BUILDINGS", "TXT_KEY_CONCEPT_CORPORATIONS", "TXT_KEY_CONCEPT_SPECIALISTS", "TXT_KEY_CONCEPT_BASE_MODIFIER", "TXT_KEY_CONCEPT_PRODUCTION_MODIFIER")
+ 
+ # Yields
+ YIELDS = (YieldTypes.YIELD_FOOD, YieldTypes.YIELD_PRODUCTION, YieldTypes.YIELD_COMMERCE)
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index dbf8c0846..877924327 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -42,40 +42,11 @@ Z_DEPTH = -0.3
+ 
+ # Columns IDs
+ NUM_PARTS = 28
+-(
+-	ALIVE,
+-	WAR,
+-	SCORE,
+-	SCORE_DELTA,
+-	RANK,
+-	ID,
+-	MASTER,
+-	NAME,
+-	NOT_MET,
+-	POWER,
+-	RESEARCH,
+-	RESEARCH_TURNS,
+-	ESPIONAGE,
+-	TRADE,
+-	BORDERS,
+-	PACT,
+-	RELIGION,
+-	ATTITUDE,
+-	WONT_TALK,
+-	WORST_ENEMY,
+-	WHEOOH,
+-	CITIES,
+-	WAITING,
+-	NET_STATS,
+-	OOS,
+-	LEADER_BUTTON, CIV_BUTTON, # kekm.30
+-	GOLDEN_AGE # advc.085
+-) = range(NUM_PARTS)
++# kekm.30: LEADER_BUTTON, CIV_BUTTON added. advc.085: GOLDEN_AGE added (last).
++(ALIVE, WAR, SCORE, SCORE_DELTA, RANK, ID, MASTER, NAME, NOT_MET, POWER, RESEARCH, RESEARCH_TURNS, ESPIONAGE, TRADE, BORDERS, PACT, RELIGION, ATTITUDE, WONT_TALK, WORST_ENEMY, WHEOOH, CITIES, WAITING, NET_STATS, OOS, LEADER_BUTTON, CIV_BUTTON, GOLDEN_AGE) = range(NUM_PARTS)
+ 
+ # <advc.002b> These need to be placed a little lower than other text
+-gameTextColumns = (
+-	ESPIONAGE, TRADE, BORDERS, PACT, RELIGION, ATTITUDE, WORST_ENEMY, WHEOOH, GOLDEN_AGE
+-) # </advc.002b>
++gameTextColumns = (ESPIONAGE, TRADE, BORDERS, PACT, RELIGION, ATTITUDE, WORST_ENEMY, WHEOOH, GOLDEN_AGE) # </advc.002b>
+ 
+ # Types
+ SKIP = 0
+@@ -87,12 +58,7 @@ SPECIAL = 3
+ columns = []
+ columnsByKey = {}
+ 
+-TRADE_TYPES = (
+-	TradeableItems.TRADE_OPEN_BORDERS,
+-	TradeableItems.TRADE_DEFENSIVE_PACT,
+-	TradeableItems.TRADE_PERMANENT_ALLIANCE,
+-	TradeableItems.TRADE_PEACE_TREATY,
+-)
++TRADE_TYPES = (TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE, TradeableItems.TRADE_PEACE_TREATY)
+ 
+ WAR_ICON = None
+ PEACE_ICON = None
+
+diff --git a/Assets/Python/BUG/TechPrefs.py b/Assets/Python/BUG/TechPrefs.py
+index 32a2f691b..33d44d203 100644
+--- a/Assets/Python/BUG/TechPrefs.py
++++ b/Assets/Python/BUG/TechPrefs.py
+@@ -6,6 +6,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ 
+ # BUG - Mac Support - start
+@@ -18,19 +25,8 @@ gc = CyGlobalContext()
+ # see gc.getNumFlavorTypes() and gc.getFlavorTypes()
+ # not available via gc.getInfoTypeForString(), thus the hard-coding here :(
+ NUM_FLAVORS = 8
+-FLAVORS = [ "Military", "Religion", "Production",
+-			"Gold", "Science", "Culture",
+-			"Growth", "Espionage" ]
+-(
+-	FLAVOR_MILITARY,
+-	FLAVOR_RELIGION,
+-	FLAVOR_PRODUCTION,
+-	FLAVOR_GOLD,
+-	FLAVOR_SCIENCE,
+-	FLAVOR_CULTURE,
+-	FLAVOR_GROWTH,
+-	FLAVOR_ESPIONAGE,
+-) = range(NUM_FLAVORS)
++FLAVORS = [ "Military", "Religion", "Production", "Gold", "Science", "Culture", "Growth", "Espionage" ]
++(FLAVOR_MILITARY, FLAVOR_RELIGION, FLAVOR_PRODUCTION, FLAVOR_GOLD, FLAVOR_SCIENCE, FLAVOR_CULTURE, FLAVOR_GROWTH, FLAVOR_ESPIONAGE) = range(NUM_FLAVORS)
+ 
+ class TechPrefs:
+
+diff --git a/Assets/Python/BUG/TradeUtil.py b/Assets/Python/BUG/TradeUtil.py
+index 796862ceb..eca644227 100644
+--- a/Assets/Python/BUG/TradeUtil.py
++++ b/Assets/Python/BUG/TradeUtil.py
+@@ -98,6 +98,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugUtil
+ import DiplomacyUtil
+@@ -649,23 +656,9 @@ def testAll():
+ 		test(2, i, 1)
+ 
+ def testList():
+-	print format(2, [
+-		makeTrade(TradeableItems.TRADE_GOLD, 53),
+-		makeTrade(TradeableItems.TRADE_MAPS),
+-		makeTrade(TradeableItems.TRADE_PEACE, 1),
+-		makeTrade(TradeableItems.TRADE_CITY, 1),
+-		makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6),
+-	])
+-
+-STATUS_TRADE_ITEMS = (
+-	(TradeableItems.TRADE_MAPS, "Map"),
+-	(TradeableItems.TRADE_VASSAL, "Vassal"),
+-	(TradeableItems.TRADE_SURRENDER, "Surrender"),
+-	(TradeableItems.TRADE_OPEN_BORDERS, "Borders"),
+-	(TradeableItems.TRADE_DEFENSIVE_PACT, "Pact"),
+-	(TradeableItems.TRADE_PERMANENT_ALLIANCE, "Alliance"),
+-	(TradeableItems.TRADE_PEACE_TREATY, "Peace"),
+-)
++	print format(2, [makeTrade(TradeableItems.TRADE_GOLD, 53), makeTrade(TradeableItems.TRADE_MAPS), makeTrade(TradeableItems.TRADE_PEACE, 1), makeTrade(TradeableItems.TRADE_CITY, 1), makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6)])
++
++STATUS_TRADE_ITEMS = ((TradeableItems.TRADE_MAPS, "Map"), (TradeableItems.TRADE_VASSAL, "Vassal"), (TradeableItems.TRADE_SURRENDER, "Surrender"), (TradeableItems.TRADE_OPEN_BORDERS, "Borders"), (TradeableItems.TRADE_DEFENSIVE_PACT, "Pact"), (TradeableItems.TRADE_PERMANENT_ALLIANCE, "Alliance"), (TradeableItems.TRADE_PEACE_TREATY, "Peace"))
+ DENIALS = {
+ 	DenialTypes.NO_DENIAL : "None",
+ 	DenialTypes.DENIAL_UNKNOWN : "Unknown",
+
+diff --git a/Assets/Python/BUG/UnitGrouper.py b/Assets/Python/BUG/UnitGrouper.py
+index 4b8b8a83a..2016f4f8b 100644
+--- a/Assets/Python/BUG/UnitGrouper.py
++++ b/Assets/Python/BUG/UnitGrouper.py
+@@ -6,6 +6,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugUtil
+ import UnitUtil
+@@ -173,17 +180,7 @@ class LocationGrouping(Grouping):
+ 	#
+ 	def __init__(self):
+ 		Grouping.__init__(self, "loc", "TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING")
+-		(
+-			self.DOMESTIC_CITY,
+-			self.DOMESTIC_TERRITORY,
+-			self.TEAM_CITY,
+-			self.TEAM_TERRITORY,
+-			self.FRIENDLY_CITY,
+-			self.FRIENDLY_TERRITORY,
+-			self.NEUTRAL_TERRITORY,
+-			self.ENEMY_TERRITORY,
+-			self.BARBARIAN_TERRITORY
+-		) = range(9)
++		(self.DOMESTIC_CITY, self.DOMESTIC_TERRITORY, self.TEAM_CITY, self.TEAM_TERRITORY, self.FRIENDLY_CITY, self.FRIENDLY_TERRITORY, self.NEUTRAL_TERRITORY, self.ENEMY_TERRITORY, self.BARBARIAN_TERRITORY) = range(9)
+ 		
+ 		self._addGroup(Group(self, self.DOMESTIC_CITY, "TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_CITY"))
+ 		self._addGroup(Group(self, self.DOMESTIC_TERRITORY, "TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_TERRITORY"))
+@@ -232,26 +229,7 @@ class OrderGrouping(Grouping):
+ 	#
+ 	def __init__(self):
+ 		Grouping.__init__(self, "order", "TXT_KEY_UNIT_GROUPER_ORDER_GROUPING")
+-		(
+-			self.ORDER_NONE,
+-			self.ORDER_SKIP,
+-			self.ORDER_SLEEP,
+-			self.ORDER_FORTIFY,
+-			self.ORDER_HEAL,
+-			self.ORDER_SENTRY,
+-			self.ORDER_INTERCEPT,
+-			self.ORDER_PATROL,
+-			self.ORDER_PLUNDER,
+-			self.ORDER_BUILD,
+-			self.ORDER_CONSTRUCT,
+-			self.ORDER_GOTO,
+-			self.ORDER_EXPLORE,
+-			self.ORDER_AUTO_BUILD,
+-			self.ORDER_AUTO_NETWORK,
+-			self.ORDER_AUTO_CITY,
+-			self.ORDER_AUTO_RELIGION,
+-			self.ORDER_OTHER,
+-		) = range(18)
++		(self.ORDER_NONE, self.ORDER_SKIP, self.ORDER_SLEEP, self.ORDER_FORTIFY, self.ORDER_HEAL, self.ORDER_SENTRY, self.ORDER_INTERCEPT, self.ORDER_PATROL, self.ORDER_PLUNDER, self.ORDER_BUILD, self.ORDER_CONSTRUCT, self.ORDER_GOTO, self.ORDER_EXPLORE, self.ORDER_AUTO_BUILD, self.ORDER_AUTO_NETWORK, self.ORDER_AUTO_CITY, self.ORDER_AUTO_RELIGION, self.ORDER_OTHER) = range(18)
+ 		
+ 		self._addGroup(Group(self, self.ORDER_NONE, "TXT_KEY_UNIT_GROUPER_ORDER_GROUP_NONE"))
+ 		self._addGroup(Group(self, self.ORDER_SKIP, "TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SKIP"))
+
+diff --git a/Assets/Python/BUG/UnitUtil.py b/Assets/Python/BUG/UnitUtil.py
+index 906e72ec6..102679621 100644
+--- a/Assets/Python/BUG/UnitUtil.py
++++ b/Assets/Python/BUG/UnitUtil.py
+@@ -6,6 +6,13 @@
+ ##
+ ## Author: EmperorFool
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import BugUtil
+ import PlayerUtil
+@@ -545,29 +552,8 @@ def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
+ 	else:
+ 		return units
+ 
+-(
+-	ORDER_NONE,
+-	
+-	ORDER_SKIP,
+-	ORDER_SLEEP,
+-	ORDER_FORTIFY,
+-	ORDER_HEAL,
+-	
+-	ORDER_SENTRY,
+-	ORDER_INTERCEPT,
+-	ORDER_PATROL,
+-	ORDER_PLUNDER,
+-	
+-	ORDER_BUILD,  # improvement
+-	ORDER_CONSTRUCT,  # building
+-	ORDER_GOTO,
+-	ORDER_EXPLORE,
+-	
+-	ORDER_AUTO_BUILD,
+-	ORDER_AUTO_NETWORK,
+-	ORDER_AUTO_CITY,
+-	ORDER_AUTO_RELIGION,
+-) = range(17)
++# ORDER_BUILD = improvement, ORDER_CONSTRUCT = building
++(ORDER_NONE, ORDER_SKIP, ORDER_SLEEP, ORDER_FORTIFY, ORDER_HEAL, ORDER_SENTRY, ORDER_INTERCEPT, ORDER_PATROL, ORDER_PLUNDER, ORDER_BUILD, ORDER_CONSTRUCT, ORDER_GOTO, ORDER_EXPLORE, ORDER_AUTO_BUILD, ORDER_AUTO_NETWORK, ORDER_AUTO_CITY, ORDER_AUTO_RELIGION) = range(17)
+ 
+ ORDERS_BY_ACTIVITY = {
+ 	ActivityTypes.ACTIVITY_AWAKE: ORDER_NONE,
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 7b4f89b97..4d5cebb86 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -3,6 +3,13 @@
+ # by jdog5000
+ # version 2.0
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ import CvScreenEnums
+ import CvTopCivs
+@@ -247,10 +254,8 @@ class AIAutoPlay :
+ 		'keypress handler'
+ 		eventType,key,mx,my,px,py = argsList
+ 		# <advc.001>
+-		if not self.customEM.isCheatsEnabled() or (
+-				game.getActivePlayer() != PlayerTypes.NO_PLAYER and
+-				# Enabling AI Auto Play during Advanced Start isn't supported
+-				gc.getPlayer(game.getActivePlayer()).getAdvancedStartPoints() > 0):
++		# Enabling AI Auto Play during Advanced Start isn't supported (getAdvancedStartPoints() > 0)
++		if not self.customEM.isCheatsEnabled() or (game.getActivePlayer() != PlayerTypes.NO_PLAYER and gc.getPlayer(game.getActivePlayer()).getAdvancedStartPoints() > 0):
+ 			return # </advc.001>
+ 		# Get it?  Shift ... control ... to the AI
+ 		if eventType != 6 or not self.customEM.bShift or not self.customEM.bCtrl:
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index f3da974af..3e45b7d15 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -465,15 +465,11 @@ class CityPendingGrowth(AbstractCityAlert):
+ 		if (Civ4lertsOpt.isShowCityPendingGrowthAlert()):
+ 			if (CityUtil.willGrowThisTurn(city)):
+ 				if Civ4lertsOpt.isShowPendingPositive(): # advc.106d
+-					message = localText.getText(
+-							"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH",
+-							(city.getName(), city.getPopulation() + 1))
++					message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH", (city.getName(), city.getPopulation() + 1))
+ 					icon = "Art/Interface/Symbols/Food/food05.dds"
+ 					addMessageAtCity(iPlayer, message, icon, city)
+ 			elif (CityUtil.willShrinkThisTurn(city)):
+-				message = localText.getText(
+-						"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_SHRINKAGE",
+-						(city.getName(), city.getPopulation() - 1))
++				message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_SHRINKAGE", (city.getName(), city.getPopulation() - 1))
+ 				icon = "Art/Interface/Symbols/Food/food05.dds"
+ 				addMessageAtCity(iPlayer, message, icon, city)
+ 
+@@ -502,15 +498,11 @@ class CityGrowth(AbstractCityAlert):
+ 			
+ 			if (Civ4lertsOpt.isShowCityGrowthAlert()):
+ 				if (iPop > iOldPop):
+-					message = localText.getText(
+-							"TXT_KEY_CIV4LERTS_ON_CITY_GROWTH",
+-							(city.getName(), iPop))
++					message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_GROWTH", (city.getName(), iPop))
+ 					icon = "Art/Interface/Symbols/Food/food05.dds"
+ 					addMessageAtCity(iPlayer, message, icon, city)
+ 				elif iPop < iOldPop and not bWhipOrDraft:
+-					message = localText.getText(
+-							"TXT_KEY_CIV4LERTS_ON_CITY_SHRINKAGE",
+-							(city.getName(), iPop))
++					message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_SHRINKAGE", (city.getName(), iPop))
+ 					icon = "Art/Interface/Symbols/Food/food05.dds"
+ 					addMessageAtCity(iPlayer, message, icon, city)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index 6a62d76ad..2f8b7284e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -25,12 +25,7 @@ class SevoPediaEventTrigger:
+ 		# Cache translated labels once per page object so rendering requirements does not
+ 		# repeat translator lookups, while keeping the rare enum-order audit point obvious.
+ 		# (GPT-5.5) -->
+-		self.PLOT_TYPE_LABELS = (
+-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()),
+-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()),
+-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()),
+-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()),
+-		)
++		self.PLOT_TYPE_LABELS = (localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()))
+ 		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch
+ 		# in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this
+ 		# page the expandable panel is actually Texts, not a Civilopedia/History panel —
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index c0f41b1d1..d1cda7783 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -406,12 +406,7 @@ class SevoPediaFeature:
+ 
+ 				# <!-- custom: note: ingame it seems that bCanMoveImpassable is not enough to move on ice cap (feature ice) that is only allowed on water terrains it seems, so not displaying all units here-->
+ 				# inside: if self.iFeature == iIce:
+-				can_cross_ice = (
+-					unitInfo.isCanMoveAllTerrain() or
+-					(unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA and
+-					(unitInfo.isCanMoveImpassable() or
+-					unitInfo.getFeaturePassableTech(iIce) != -1))
+-				)
++				can_cross_ice = (unitInfo.isCanMoveAllTerrain() or (unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA and (unitInfo.isCanMoveImpassable() or unitInfo.getFeaturePassableTech(iIce) != -1)))
+ 				if can_cross_ice:
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+@@ -539,12 +534,7 @@ class SevoPediaFeature:
+ 				land_or_air_blocked = (unitInfoDomain != DomainTypes.DOMAIN_SEA) and (not unitInfo.isCanMoveAllTerrain())
+ 
+ 				# Sea: blocked if no bypass (or explicitly flagged impassable on ICE)
+-				sea_blocked = (unitInfoDomain == DomainTypes.DOMAIN_SEA) and (
+-					unitInfo.getFeatureImpassable(iIce) or
+-					not (unitInfo.isCanMoveImpassable() or
+-						unitInfo.getFeaturePassableTech(iIce) != -1 or
+-						unitInfo.isCanMoveAllTerrain())
+-				)
++				sea_blocked = (unitInfoDomain == DomainTypes.DOMAIN_SEA) and (unitInfo.getFeatureImpassable(iIce) or not (unitInfo.isCanMoveImpassable() or unitInfo.getFeaturePassableTech(iIce) != -1 or unitInfo.isCanMoveAllTerrain()))
+ 
+ 				if land_or_air_blocked or sea_blocked:
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+@@ -559,12 +549,7 @@ class SevoPediaFeature:
+ 					continue
+ 
+ 				# <!-- custom: below condition/code by chatgpt 5, check if accurate -->
+-				blocked = (
+-					(info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and
+-					not unitInfo.isCanMoveImpassable() and
+-					unitInfo.getFeaturePassableTech(self.iFeature) == -1 and
+-					not unitInfo.isCanMoveAllTerrain()
+-				)
++				blocked = ((info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and not unitInfo.isCanMoveImpassable() and unitInfo.getFeaturePassableTech(self.iFeature) == -1 and not unitInfo.isCanMoveAllTerrain())
+ 				if blocked:
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index a3209e1b4..9bb0252fd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -48,19 +48,8 @@ SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
+ SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
+ # <!-- custom: 6810 — Sevopedia leader era art preview buttons (default/"D" + per-era index buttons). Routed via SevoPediaMain.handleInput → applyLeaderEra. (Claude code Sonnet 4.6) -->
+ SAS_PEDIA_PYTHON_LEADER_ERA = 6810
+-SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
+-	AttitudeTypes.ATTITUDE_FURIOUS,
+-	AttitudeTypes.ATTITUDE_ANNOYED,
+-	AttitudeTypes.ATTITUDE_CAUTIOUS,
+-	AttitudeTypes.ATTITUDE_PLEASED,
+-	AttitudeTypes.ATTITUDE_FRIENDLY,
+-)
+-SAS_LEADER_ACTION_PREVIEW_ORDER = (
+-	(LeaderheadAction.NO_LEADERANIM, u"no"),
+-	(LeaderheadAction.LEADERANIM_GREETING, u"gr"),
+-	(LeaderheadAction.LEADERANIM_AGREE, u"ag"),
+-	(LeaderheadAction.LEADERANIM_DISAGREE, u"dg"),
+-)
++SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (AttitudeTypes.ATTITUDE_FURIOUS, AttitudeTypes.ATTITUDE_ANNOYED, AttitudeTypes.ATTITUDE_CAUTIOUS, AttitudeTypes.ATTITUDE_PLEASED, AttitudeTypes.ATTITUDE_FRIENDLY)
++SAS_LEADER_ACTION_PREVIEW_ORDER = ((LeaderheadAction.NO_LEADERANIM, u"no"), (LeaderheadAction.LEADERANIM_GREETING, u"gr"), (LeaderheadAction.LEADERANIM_AGREE, u"ag"), (LeaderheadAction.LEADERANIM_DISAGREE, u"dg"))
+ 
+ # <!-- custom: keep debug flag available in this module for existing debug print sites. -->
+ IS_DEBUG_LEADER = _SAS_LeaderAIPValues.IS_DEBUG_LEADER
+@@ -694,19 +683,8 @@ class SevoPediaLeader:
+ 		def build_memory_order(positive_negative, affection_resentment, suffixes):
+ 			return tuple("iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in suffixes)
+ 
+-		positive_memory_suffixes = (
+-			"GiveHelp", "AcceptDemand", "AcceptedReligion", "AcceptedCivic", "AcceptedJoinWar",
+-			"AcceptedStopTrading", "VotedForUs", "EventGoodToUs", "LiberatedCities",
+-			"Independence", "TradedTechToUs",
+-		)
+-		negative_memory_suffixes = [
+-			"DeclaredWar", "DeclaredWarOnFriend", "HiredWarAlly", "NukedUs", "NukedFriend",
+-			"RazedCity", "RazedHolyCity", "SpyCaught", "RefusedHelp", "RejectedDemand",
+-			"DeniedReligion", "DeniedCivic", "DeniedJoinWar", "DeniedStopTrading",
+-			"StoppedTrading", "HiredTradeEmbargo", "MadeDemand", "VotedAgainstUs",
+-			"EventBadToUs", "CancelledVassalAgreement", "DeclaredWarRecent",
+-			"ReceivedTechFromAny", "MadeDemandRecent", "CancelledOpenBorders",
+-		]
++		positive_memory_suffixes = ("GiveHelp", "AcceptDemand", "AcceptedReligion", "AcceptedCivic", "AcceptedJoinWar", "AcceptedStopTrading", "VotedForUs", "EventGoodToUs", "LiberatedCities", "Independence", "TradedTechToUs")
++		negative_memory_suffixes = ["DeclaredWar", "DeclaredWarOnFriend", "HiredWarAlly", "NukedUs", "NukedFriend", "RazedCity", "RazedHolyCity", "SpyCaught", "RefusedHelp", "RejectedDemand", "DeniedReligion", "DeniedCivic", "DeniedJoinWar", "DeniedStopTrading", "StoppedTrading", "HiredTradeEmbargo", "MadeDemand", "VotedAgainstUs", "EventBadToUs", "CancelledVassalAgreement", "DeclaredWarRecent", "ReceivedTechFromAny", "MadeDemandRecent", "CancelledOpenBorders"]
+ 		if iScreenHeight >= 1440:
+ 			negative_memory_suffixes.append("StoppedTradingRecent")
+ 		# <!-- custom: at 1080p/1440p, keep "StoppedTradingRecent" hidden (lower-priority tail field) to avoid overflow in tighter panel layouts. (GPT-5.3-Codex) -->
+@@ -715,108 +693,32 @@ class SevoPediaLeader:
+ 
+ 		positive_memory_affections_category = get_ai_category("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", build_memory_order("Positive", "Affection", positive_memory_suffixes))
+ 		negative_memory_resentments_category = get_ai_category("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", build_memory_order("Negative", "Resentment", negative_memory_suffixes))
+-		contact_offer_probabilities_category = get_ai_category("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", (
+-			"iAggregatedContactProbPeaceTreaty", "iAggregatedContactProbOpenBorders", "iAggregatedContactProbTradeMap",
+-			"iAggregatedContactProbTradeTech", "iAggregatedContactProbTradeBonus", "iAggregatedContactProbGiveHelp",
+-			"iAggregatedContactProbDefensivePact", "iAggregatedContactProbPermanentAlliance",
+-		))
+-		contact_demand_probabilities_category = get_ai_category("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", (
+-			"iAggregatedContactProbReligionPressure", "iAggregatedContactProbCivicPressure", "iAggregatedContactProbStopTrading",
+-			"iAggregatedContactProbDemandTribute", "iAggregatedContactProbAskForHelp", "iAggregatedContactProbJoinWar",
+-		))
+-		refusal_thresholds_offer_category = get_ai_category("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", (
+-			"getOpenBordersRefuseAttitudeThreshold", "getMapRefuseAttitudeThreshold", "getTechRefuseAttitudeThreshold",
+-			"getStrategicBonusRefuseAttitudeThreshold", "getHappinessBonusRefuseAttitudeThreshold", "getHealthBonusRefuseAttitudeThreshold",
+-			"getNoGiveHelpAttitudeThreshold", "getDefensivePactRefuseAttitudeThreshold",
+-		))
+-		refusal_thresholds_demand_category = get_ai_category("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", (
+-			# <!-- custom: higher threshold means harder to convince, so this sits in demand-refusal section with the other attitude gates. (GPT-5.3-Codex) -->
+-			"getConvertReligionRefuseAttitudeThreshold", "getAdoptCivicRefuseAttitudeThreshold", "getDeclareWarRefuseAttitudeThreshold",
+-			"getDeclareWarThemRefuseAttitudeThreshold", "getStopTradingRefuseAttitudeThreshold", "getStopTradingThemRefuseAttitudeThreshold",
+-			"getDemandTributeAttitudeThreshold", "getCityRefuseAttitudeThreshold", "getNativeCityRefuseAttitudeThreshold",
+-			"getVassalRefuseAttitudeThreshold",
+-		))
+-		no_war_at_category = get_ai_category("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", (
+-			"iNoWarAttitudeProbFurious", "iNoWarAttitudeProbAnnoyed", "iNoWarAttitudeProbCautious",
+-			"iNoWarAttitudeProbPleased", "iNoWarAttitudeProbFriendly",
+-		))
+-		attitude_changes_category = get_ai_category("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", (
+-			"getSameReligionAttitudeChange", "getSameReligionAttitudeDivisor", "getDifferentReligionAttitudeChange",
+-			"getDifferentReligionAttitudeDivisor", "getFavoriteCivicAttitudeChange", "getFavoriteCivicAttitudeDivisor",
+-			"getLostWarAttitudeChange", "getAtWarAttitudeDivisor", "getAtWarAttitudeChangeLimit",
+-			"getAtPeaceAttitudeDivisor", "getAtPeaceAttitudeChangeLimit", "getShareWarAttitudeChange",
+-			"getShareWarAttitudeDivisor", "getBonusTradeAttitudeDivisor", "getBonusTradeAttitudeChangeLimit",
+-			"getOpenBordersAttitudeDivisor", "getOpenBordersAttitudeChangeLimit", "getDefensivePactAttitudeDivisor",
+-			"getDefensivePactAttitudeChangeLimit",
+-		))
++		contact_offer_probabilities_category = get_ai_category("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", ("iAggregatedContactProbPeaceTreaty", "iAggregatedContactProbOpenBorders", "iAggregatedContactProbTradeMap", "iAggregatedContactProbTradeTech", "iAggregatedContactProbTradeBonus", "iAggregatedContactProbGiveHelp", "iAggregatedContactProbDefensivePact", "iAggregatedContactProbPermanentAlliance"))
++		contact_demand_probabilities_category = get_ai_category("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", ("iAggregatedContactProbReligionPressure", "iAggregatedContactProbCivicPressure", "iAggregatedContactProbStopTrading", "iAggregatedContactProbDemandTribute", "iAggregatedContactProbAskForHelp", "iAggregatedContactProbJoinWar"))
++		refusal_thresholds_offer_category = get_ai_category("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", ("getOpenBordersRefuseAttitudeThreshold", "getMapRefuseAttitudeThreshold", "getTechRefuseAttitudeThreshold", "getStrategicBonusRefuseAttitudeThreshold", "getHappinessBonusRefuseAttitudeThreshold", "getHealthBonusRefuseAttitudeThreshold", "getNoGiveHelpAttitudeThreshold", "getDefensivePactRefuseAttitudeThreshold"))
++		# <!-- custom: higher threshold means harder to convince, so refusal_thresholds_demand sits in demand-refusal section with the other attitude gates. (GPT-5.3-Codex) -->
++		refusal_thresholds_demand_category = get_ai_category("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", ("getConvertReligionRefuseAttitudeThreshold", "getAdoptCivicRefuseAttitudeThreshold", "getDeclareWarRefuseAttitudeThreshold", "getDeclareWarThemRefuseAttitudeThreshold", "getStopTradingRefuseAttitudeThreshold", "getStopTradingThemRefuseAttitudeThreshold", "getDemandTributeAttitudeThreshold", "getCityRefuseAttitudeThreshold", "getNativeCityRefuseAttitudeThreshold", "getVassalRefuseAttitudeThreshold"))
++		no_war_at_category = get_ai_category("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", ("iNoWarAttitudeProbFurious", "iNoWarAttitudeProbAnnoyed", "iNoWarAttitudeProbCautious", "iNoWarAttitudeProbPleased", "iNoWarAttitudeProbFriendly"))
++		attitude_changes_category = get_ai_category("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", ("getSameReligionAttitudeChange", "getSameReligionAttitudeDivisor", "getDifferentReligionAttitudeChange", "getDifferentReligionAttitudeDivisor", "getFavoriteCivicAttitudeChange", "getFavoriteCivicAttitudeDivisor", "getLostWarAttitudeChange", "getAtWarAttitudeDivisor", "getAtWarAttitudeChangeLimit", "getAtPeaceAttitudeDivisor", "getAtPeaceAttitudeChangeLimit", "getShareWarAttitudeChange", "getShareWarAttitudeDivisor", "getBonusTradeAttitudeDivisor", "getBonusTradeAttitudeChangeLimit", "getOpenBordersAttitudeDivisor", "getOpenBordersAttitudeChangeLimit", "getDefensivePactAttitudeDivisor", "getDefensivePactAttitudeChangeLimit"))
+ 		misc_modifiers_category = get_ai_category("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", ("getFreedomAppreciation",))
+-		core_personality_category = get_ai_category("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", (
+-			# <!-- custom: ACL limits stay here intentionally; thematic purity is secondary to keeping this column compact/readable on constrained widths. (GPT-5.3-Codex) -->
+-			"getBaseAttitude", "getBasePeaceWeight", "getPeaceWeightRand", "getWorseRankDifferenceAttitudeChange",
+-			"getBetterRankDifferenceAttitudeChange", "getWarmongerRespect", "getCloseBordersAttitudeChange",
+-			"getSameReligionAttitudeChangeLimit", "getDifferentReligionAttitudeChangeLimit", "getFavoriteCivicAttitudeChangeLimit",
+-		))
+-		victory_weights_category = get_ai_category("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", (
+-			"getConquestVictoryWeight", "getDominationVictoryWeight", "getCultureVictoryWeight",
+-			"getDiplomacyVictoryWeight", "getSpaceVictoryWeight",
+-		))
+-		flavors_category = get_ai_category("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", (
+-			"iFlavorMilitary", "iFlavorReligion", "iFlavorProduction", "iFlavorGold",
+-			"iFlavorScience", "iFlavorCulture", "iFlavorGrowth", "iFlavorEspionage",
+-		))
+-		war_strategy_category = get_ai_category("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", (
+-			"getMaxWarRand", "getMaxWarNearbyPowerRatio", "getMaxWarDistantPowerRatio", "getMaxWarMinAdjacentLandPercent",
+-			"getLimitedWarRand", "getLimitedWarPowerRatio", "getBaseAttackOddsChange", "getAttackOddsChangeRand",
+-			"getRazeCityProb", "getDemandRebukedSneakProb", "getDemandRebukedWarProb", "getDogpileWarRand",
+-			# <!-- custom: keep ShareWar ACL in this block so war heuristics remain visible together instead of introducing another micro-section. (GPT-5.3-Codex) -->
+-			"getDeclareWarTradeRand", "getShareWarAttitudeChangeLimit", "getVassalPowerModifier",
+-			"getRefuseToTalkWarThreshold", "getMakePeaceRand",
+-		))
+-		economic_preferences_category = get_ai_category("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", (
+-			"getMaxGoldTradePercent", "getMaxGoldPerTurnTradePercent", "getTechTradeKnownPercent",
+-			"getNoTechTradeThreshold", "getBuildUnitProb", "getWonderConstructRand", "getEspionageWeight",
+-		))
++		# <!-- custom: ACL limits stay in core_personality intentionally; thematic purity is secondary to keeping this column compact/readable on constrained widths. (GPT-5.3-Codex) -->
++		core_personality_category = get_ai_category("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", ("getBaseAttitude", "getBasePeaceWeight", "getPeaceWeightRand", "getWorseRankDifferenceAttitudeChange", "getBetterRankDifferenceAttitudeChange", "getWarmongerRespect", "getCloseBordersAttitudeChange", "getSameReligionAttitudeChangeLimit", "getDifferentReligionAttitudeChangeLimit", "getFavoriteCivicAttitudeChangeLimit"))
++		victory_weights_category = get_ai_category("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", ("getConquestVictoryWeight", "getDominationVictoryWeight", "getCultureVictoryWeight", "getDiplomacyVictoryWeight", "getSpaceVictoryWeight"))
++		flavors_category = get_ai_category("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", ("iFlavorMilitary", "iFlavorReligion", "iFlavorProduction", "iFlavorGold", "iFlavorScience", "iFlavorCulture", "iFlavorGrowth", "iFlavorEspionage"))
++		# <!-- custom: keep ShareWar ACL in war_strategy so war heuristics remain visible together instead of introducing another micro-section. (GPT-5.3-Codex) -->
++		war_strategy_category = get_ai_category("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", ("getMaxWarRand", "getMaxWarNearbyPowerRatio", "getMaxWarDistantPowerRatio", "getMaxWarMinAdjacentLandPercent", "getLimitedWarRand", "getLimitedWarPowerRatio", "getBaseAttackOddsChange", "getAttackOddsChangeRand", "getRazeCityProb", "getDemandRebukedSneakProb", "getDemandRebukedWarProb", "getDogpileWarRand", "getDeclareWarTradeRand", "getShareWarAttitudeChangeLimit", "getVassalPowerModifier", "getRefuseToTalkWarThreshold", "getMakePeaceRand"))
++		economic_preferences_category = get_ai_category("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", ("getMaxGoldTradePercent", "getMaxGoldPerTurnTradePercent", "getTechTradeKnownPercent", "getNoTechTradeThreshold", "getBuildUnitProb", "getWonderConstructRand", "getEspionageWeight"))
+ 
+ 		if iScreenHeight >= 1440:
+ 			# <!-- custom: at 1440p and above, move "No War At" to the left column so the middle column can fully show ACL-heavy rows. (GPT-5.3-Codex) -->
+-			middle_categories = (
+-				contact_offer_probabilities_category,
+-				contact_demand_probabilities_category,
+-				refusal_thresholds_offer_category,
+-				refusal_thresholds_demand_category,
+-				attitude_changes_category,
+-				misc_modifiers_category,
+-			)
+-			left_categories = (
+-				core_personality_category,
+-				victory_weights_category,
+-				flavors_category,
+-				war_strategy_category,
+-				no_war_at_category,
+-			)
++			middle_categories = (contact_offer_probabilities_category, contact_demand_probabilities_category, refusal_thresholds_offer_category, refusal_thresholds_demand_category, attitude_changes_category, misc_modifiers_category)
++			left_categories = (core_personality_category, victory_weights_category, flavors_category, war_strategy_category, no_war_at_category)
+ 		else:
+ 			# <!-- custom: below 1440p, keep "No War At" in middle to preserve the tighter legacy ordering. (GPT-5.3-Codex) -->
+-			middle_categories = (
+-				contact_offer_probabilities_category,
+-				contact_demand_probabilities_category,
+-				refusal_thresholds_offer_category,
+-				refusal_thresholds_demand_category,
+-				no_war_at_category,
+-				attitude_changes_category,
+-				misc_modifiers_category,
+-			)
+-			left_categories = (
+-				core_personality_category,
+-				victory_weights_category,
+-				flavors_category,
+-				war_strategy_category,
+-			)
+-
+-		right_categories = (
+-			economic_preferences_category,
+-			positive_memory_affections_category,
+-			negative_memory_resentments_category,
+-		)
++			middle_categories = (contact_offer_probabilities_category, contact_demand_probabilities_category, refusal_thresholds_offer_category, refusal_thresholds_demand_category, no_war_at_category, attitude_changes_category, misc_modifiers_category)
++			left_categories = (core_personality_category, victory_weights_category, flavors_category, war_strategy_category)
++
++		right_categories = (economic_preferences_category, positive_memory_affections_category, negative_memory_resentments_category)
+ 
+ 		return right_categories, middle_categories, left_categories
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+index b248a890c..24ef6ebe5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+@@ -233,12 +233,7 @@ def _compute_leader_cache_internal():
+ 				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
+ 				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
+ 
+-				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(
+-					value_1_rand_raw,
+-					value_1_delay_raw,
+-					IS_DEBUG_LEADER,
+-					contact_types[i]
+-				)
++				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG_LEADER, contact_types[i])
+ 
+ 				leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
+ 
+@@ -261,12 +256,7 @@ def _compute_leader_cache_internal():
+ 			temp_by_leader[iLeader] = leader_rows
+ 
+ 		if IS_DEBUG_LEADER:
+-			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (
+-				str(min_adj_rand),
+-				str(max_adj_rand),
+-				str(min_adj_delay),
+-				str(max_adj_delay)
+-			))
++			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (str(min_adj_rand), str(max_adj_rand), str(min_adj_delay), str(max_adj_delay)))
+ 
+ 		# Pass 2: normalize and compute final aggregated raw score per contact type.
+ 		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
+@@ -280,29 +270,11 @@ def _compute_leader_cache_internal():
+ 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
+ 				adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
+ 
+-				adjusted_rand_norm_score = normalize_to_100(
+-					adjusted_rand,
+-					min_adj_rand[i],
+-					max_adj_rand[i],
+-					B_WARN,
+-					b_invert_contact_rands,
+-					parsed_adjusted_rand_names[i]
+-				)
+-
+-				adjusted_delay_norm_score = normalize_to_100(
+-					adjusted_delay,
+-					min_adj_delay[i],
+-					max_adj_delay[i],
+-					B_WARN,
+-					b_invert_contact_delays,
+-					parsed_adjusted_delay_names[i]
+-				)
+-
+-				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(
+-					adjusted_rand_norm_score,
+-					adjusted_delay_norm_score,
+-					b_force_zero
+-				)
++				adjusted_rand_norm_score = normalize_to_100(adjusted_rand, min_adj_rand[i], max_adj_rand[i], B_WARN, b_invert_contact_rands, parsed_adjusted_rand_names[i])
++
++				adjusted_delay_norm_score = normalize_to_100(adjusted_delay, min_adj_delay[i], max_adj_delay[i], B_WARN, b_invert_contact_delays, parsed_adjusted_delay_names[i])
++
++				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_rand_norm_score, adjusted_delay_norm_score, b_force_zero)
+ 
+ 				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
+ 
+@@ -336,11 +308,7 @@ def _compute_leader_cache_internal():
+ 
+ 
+ 
+-	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(
+-		leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments,
+-		is_positive,
+-		is_affection
+-	):
++	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection):
+ 		# leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_memory_key] = aggregated_raw_score
+ 		# parsed_memory_key is e.g. "iAggregatedRawPositiveMemoryDeclaredWarAffection" (0-100)
+ 		#
+@@ -382,13 +350,7 @@ def _compute_leader_cache_internal():
+ 				attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(iMemoryIndex)
+ 				decay_rand_raw = loopLeaderHeadInfo.getMemoryDecayRand(iMemoryIndex)
+ 
+-				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(
+-					attitude_percent_raw,
+-					decay_rand_raw,
+-					is_affection,
+-					IS_DEBUG_LEADER,
+-					memory_type
+-				)
++				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(attitude_percent_raw, decay_rand_raw, is_affection, IS_DEBUG_LEADER, memory_type)
+ 
+ 				leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
+ 
+@@ -426,38 +388,16 @@ def _compute_leader_cache_internal():
+ 			for j in xrange(count):
+ 				adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
+ 
+-				adjusted_attitude_norm_score = normalize_to_100(
+-					adjusted_attitude_percent,
+-					min_adj_attitude[j],
+-					max_adj_attitude[j],
+-					B_WARN,
+-					b_invert_attitude_percent,
+-					parsed_adjusted_attitude_names[j]
+-				)
+-
+-				adjusted_decay_norm_score = normalize_to_100(
+-					adjusted_decay,
+-					min_adj_decay[j],
+-					max_adj_decay[j],
+-					B_WARN,
+-					b_invert_decay,
+-					parsed_adjusted_decay_names[j]
+-				)
+-
+-				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(
+-					adjusted_attitude_norm_score,
+-					adjusted_decay_norm_score,
+-					b_force_zero
+-				)
++				adjusted_attitude_norm_score = normalize_to_100(adjusted_attitude_percent, min_adj_attitude[j], max_adj_attitude[j], B_WARN, b_invert_attitude_percent, parsed_adjusted_attitude_names[j])
++
++				adjusted_decay_norm_score = normalize_to_100(adjusted_decay, min_adj_decay[j], max_adj_decay[j], B_WARN, b_invert_decay, parsed_adjusted_decay_names[j])
++
++				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_attitude_norm_score, adjusted_decay_norm_score, b_force_zero)
+ 
+ 				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
+ 
+ 		if IS_DEBUG_LEADER:
+-			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (
+-				positive_negative,
+-				affection_resentment,
+-				str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
+-			))
++			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (positive_negative, affection_resentment, str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
+ 
+ 		# Cleanup
+ 		del temp_by_leader
+@@ -1085,10 +1025,5 @@ def _compute_leader_cache_internal():
+ 
+ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+ 	# Wrapper that either loads pre-dumped cache or computes it
+-	return get_leader_cache_predumped_or_compute(
+-		compute_func = _compute_leader_cache_internal,
+-		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA,
+-		is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0),
+-		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
+-	)
++	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index ab271541a..7eeb1a40e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -567,13 +567,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# <!-- custom: convert InputTypes keyboard code to visible character, based on how other mod(s) use ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5) -->
+ 	def SAS_getSearchCharacterKeys(self):
+-		return (
+-			int(InputTypes.KB_MINUS), int(InputTypes.KB_EQUALS), int(InputTypes.KB_LBRACKET), int(InputTypes.KB_RBRACKET),
+-			int(InputTypes.KB_SEMICOLON), int(InputTypes.KB_APOSTROPHE), int(InputTypes.KB_GRAVE), int(InputTypes.KB_BACKSLASH),
+-			int(InputTypes.KB_COMMA), int(InputTypes.KB_PERIOD), int(InputTypes.KB_SLASH), int(InputTypes.KB_NUMPADSTAR),
+-			int(InputTypes.KB_NUMPADMINUS), int(InputTypes.KB_NUMPADPLUS), int(InputTypes.KB_NUMPADPERIOD), int(InputTypes.KB_NUMPADEQUALS),
+-			int(InputTypes.KB_AT), int(InputTypes.KB_UNDERLINE), int(InputTypes.KB_COLON), int(InputTypes.KB_NUMPADCOMMA), int(InputTypes.KB_NUMPADSLASH)
+-		)
++		return (int(InputTypes.KB_MINUS), int(InputTypes.KB_EQUALS), int(InputTypes.KB_LBRACKET), int(InputTypes.KB_RBRACKET), int(InputTypes.KB_SEMICOLON), int(InputTypes.KB_APOSTROPHE), int(InputTypes.KB_GRAVE), int(InputTypes.KB_BACKSLASH), int(InputTypes.KB_COMMA), int(InputTypes.KB_PERIOD), int(InputTypes.KB_SLASH), int(InputTypes.KB_NUMPADSTAR), int(InputTypes.KB_NUMPADMINUS), int(InputTypes.KB_NUMPADPLUS), int(InputTypes.KB_NUMPADPERIOD), int(InputTypes.KB_NUMPADEQUALS), int(InputTypes.KB_AT), int(InputTypes.KB_UNDERLINE), int(InputTypes.KB_COLON), int(InputTypes.KB_NUMPADCOMMA), int(InputTypes.KB_NUMPADSLASH))
+ 
+ 	# <!-- custom: identify keys that need debounce in the search (chatgpt 5.2 + claude opus 4.5) -->
+ 	# <!-- custom: debounce alnum and editing/navigation keys for search because BtS can fire duplicate NOTIFY_CHARACTER
+@@ -1966,16 +1960,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getMovieList(self):
+ 		# <!-- custom: build base list in groupings module, then add headers there. (ChatGPT-5.2 Thinking) -->
+ 		if self.SAS_cacheMoviesTuple is None:
+-			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(
+-				self.isSortLists(),
+-				self.SAS_packMovieKey, self.SAS_unpackMovieKey,
+-				self.SAS_PEDIA_MOVIE_TYPE_VICTORY,
+-				self.SAS_PEDIA_MOVIE_TYPE_WONDER,
+-				self.SAS_PEDIA_MOVIE_TYPE_PROJECT,
+-				self.SAS_PEDIA_MOVIE_TYPE_RELIGION,
+-				self.SAS_PEDIA_MOVIE_TYPE_ERA,
+-				self.SAS_PEDIA_MOVIE_TYPE_CORPORATION
+-			)
++			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(self.isSortLists(), self.SAS_packMovieKey, self.SAS_unpackMovieKey, self.SAS_PEDIA_MOVIE_TYPE_VICTORY, self.SAS_PEDIA_MOVIE_TYPE_WONDER, self.SAS_PEDIA_MOVIE_TYPE_PROJECT, self.SAS_PEDIA_MOVIE_TYPE_RELIGION, self.SAS_PEDIA_MOVIE_TYPE_ERA, self.SAS_PEDIA_MOVIE_TYPE_CORPORATION)
+ 			self.SAS_cacheMoviesTuple = tuple(listEntries)
+ 		return self.SAS_cacheMoviesTuple
+ 
+@@ -1983,28 +1968,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getMusicList(self):
+ 		# <!-- custom: build music base lists + section headers in groupings module to keep this file clean. (ChatGPT-5.2 Thinking) -->
+ 		if self.SAS_cacheMusicTuple is None:
+-			(
+-				listEntries,
+-				self.SAS_musicEraTracks,
+-				self.SAS_musicLeaderTracks,
+-				self.SAS_musicCivTracks,
+-				self.SAS_musicScriptTracks,
+-				self.SAS_musicScript3DTracks,
+-				self.SAS_firstCivScript3DMusicKey
+-			) = SAS_MainGroupings.SAS_getMusicListAndTables(
+-				self.isSortLists(),
+-				self.SAS_packMusicKey, self.SAS_unpackMusicKey,
+-				self.SAS_PEDIA_MUSIC_TYPE_TECH,
+-				self.SAS_PEDIA_MUSIC_TYPE_ERA,
+-				self.SAS_PEDIA_MUSIC_TYPE_LEADER,
+-				self.SAS_PEDIA_MUSIC_TYPE_CIV,
+-				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT,
+-				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D,
+-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY,
+-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY,
+-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY,
+-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY
+-			)
++			(listEntries, self.SAS_musicEraTracks, self.SAS_musicLeaderTracks, self.SAS_musicCivTracks, self.SAS_musicScriptTracks, self.SAS_musicScript3DTracks, self.SAS_firstCivScript3DMusicKey) = SAS_MainGroupings.SAS_getMusicListAndTables(self.isSortLists(), self.SAS_packMusicKey, self.SAS_unpackMusicKey, self.SAS_PEDIA_MUSIC_TYPE_TECH, self.SAS_PEDIA_MUSIC_TYPE_ERA, self.SAS_PEDIA_MUSIC_TYPE_LEADER, self.SAS_PEDIA_MUSIC_TYPE_CIV, self.SAS_PEDIA_MUSIC_TYPE_SCRIPT, self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY)
+ 			self.SAS_cacheMusicTuple = tuple(listEntries)
+ 		return self.SAS_cacheMusicTuple
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 5c18b87e9..0759d0ca3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -291,15 +291,7 @@ class SevoPediaMovie:
+ 
+ 
+ 	def SAS_setupPlayableMovies(self, iMovieType, iMovieId):
+-		(
+-			self.SAS_playableMovies,
+-			self.SAS_playableMovieLabels,
+-			self.SAS_playableMovieIcons,
+-			self.SAS_playableMovieGroupByIndex,
+-			self.SAS_playableMovieGroupLabels,
+-			self.SAS_movieGroupFirstIndex,
+-			self.SAS_movieGroupLastIndex
+-		) = self.SAS_buildPlayableMoviesAndLabels()
++		(self.SAS_playableMovies, self.SAS_playableMovieLabels, self.SAS_playableMovieIcons, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels, self.SAS_movieGroupFirstIndex, self.SAS_movieGroupLastIndex) = self.SAS_buildPlayableMoviesAndLabels()
+ 		iPacked = self.top.SAS_packMovieKey(iMovieType, iMovieId)
+ 		self.SAS_playableMovieIndex = -1
+ 		try:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 743c8f6e9..46f9fa02c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -378,15 +378,7 @@ class SevoPediaMusic:
+ 
+ 
+ 	def SAS_setupPlayableMusic(self, iMusic):
+-		(
+-			self.SAS_playableMusic,
+-			self.SAS_playableMusicLabels,
+-			self.SAS_playableMusicIcons,
+-			self.SAS_playableMusicGroupByIndex,
+-			self.SAS_playableMusicGroupLabels,
+-			self.SAS_musicGroupFirstIndex,
+-			self.SAS_musicGroupLastIndex
+-		) = self.SAS_buildPlayableMusicAndLabels()
++		(self.SAS_playableMusic, self.SAS_playableMusicLabels, self.SAS_playableMusicIcons, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_musicGroupFirstIndex, self.SAS_musicGroupLastIndex) = self.SAS_buildPlayableMusicAndLabels()
+ 		self.SAS_playableMusicIndex = -1
+ 		try:
+ 			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 54eaf6249..3e7b03d34 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -419,11 +419,7 @@ class SevoPediaTerrain:
+ 				# <!-- custom: also handle water units that can move through all terrains but only on water; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
+ 				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc-->
+ 				# Peak — Relevant Units (includes "boat with legs"; All-Terrain short-circuits)
+-				can_walk_on_peak = (
+-					unitInfo.isCanMoveAllTerrain() or
+-					(unitInfoDomain == DomainTypes.DOMAIN_LAND and
+-					(unitInfo.isCanMoveImpassable() or passTech))
+-				)
++				can_walk_on_peak = (unitInfo.isCanMoveAllTerrain() or (unitInfoDomain == DomainTypes.DOMAIN_LAND and (unitInfo.isCanMoveImpassable() or passTech)))
+ 
+ 				if can_walk_on_peak:
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+@@ -560,13 +556,8 @@ class SevoPediaTerrain:
+ 
+ 				# <!-- custom: "boat with legs" edge case handled in as of now relevant units as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly, check if accurate-->
+ 				# Peak — Units Impassable (show land w/out bypass; all sea unless All-Terrain)
+-				blocked = (
+-					(not unitInfo.isCanMoveAllTerrain()) and (
+-						(unitInfoDomain == DomainTypes.DOMAIN_LAND and
+-						not (unitInfo.isCanMoveImpassable() or passTech)) or
+-						(unitInfoDomain == DomainTypes.DOMAIN_SEA)  # regular ships blocked
+-					)
+-				)
++				# regular ships (DOMAIN_SEA) are blocked on peak
++				blocked = ((not unitInfo.isCanMoveAllTerrain()) and ((unitInfoDomain == DomainTypes.DOMAIN_LAND and not (unitInfo.isCanMoveImpassable() or passTech)) or (unitInfoDomain == DomainTypes.DOMAIN_SEA)))
+ 
+ 				if blocked:
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+@@ -594,12 +585,7 @@ class SevoPediaTerrain:
+ 					continue
+ 
+ 				# Right now you include units if they have a passable tech (inverted logic). To show units that are truly blocked (no bypass), use the same pattern you used for features:
+-				blocked = (
+-					(info.isImpassable() or unitInfo.getTerrainImpassable(self.iTerrain)) and
+-					not unitInfo.isCanMoveImpassable() and
+-					unitInfo.getTerrainPassableTech(self.iTerrain) == -1 and
+-					not unitInfo.isCanMoveAllTerrain()
+-				)
++				blocked = ((info.isImpassable() or unitInfo.getTerrainImpassable(self.iTerrain)) and not unitInfo.isCanMoveImpassable() and unitInfo.getTerrainPassableTech(self.iTerrain) == -1 and not unitInfo.isCanMoveAllTerrain())
+ 				if blocked:
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 9bb38d106..c437b0769 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -2164,21 +2164,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 						szGroup = _SCRIPT_2D_UNITS
+ 					elif szScript.startswith("AS2D_IF"):
+ 						szGroup = _SCRIPT_2D_INTERFACE
+-					elif (
+-						szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or
+-						szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or
+-						szSound.startswith("SND_TOWNMUSIC")
+-					):
++					elif (szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or szSound.startswith("SND_TOWNMUSIC")):
+ 						szGroup = _SCRIPT_2D_AMBIENT
+ 					elif szSound.startswith("SND_GOODY"):
+ 						szGroup = _SCRIPT_2D_GOODY
+-					elif (
+-						szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or
+-						szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or
+-						szSound.startswith("SND_CULTURE") or szSound.startswith("SND_NUKE") or
+-						szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or
+-						szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT")
+-					):
++					elif (szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or szSound.startswith("SND_CULTURE") or szSound.startswith("SND_NUKE") or szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT")):
+ 						szGroup = _SCRIPT_2D_EVENTS
+ 					elif szSound.startswith("SND_"):
+ 						szGroup = _SCRIPT_2D_SFX
+@@ -2211,12 +2201,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 			print("SAS_SEVO_MUSIC_2D_PARSE_FAILED path=%s") % (szAudio2DPath,)
+ 		scriptGroups = {}
+ 
+-	for szHeader in (
+-		_SCRIPT_2D_OPENING, _SCRIPT_2D_SONGS, _SCRIPT_2D_DIPLO, _SCRIPT_2D_TECH,
+-		_SCRIPT_2D_TUTORIAL, _SCRIPT_2D_BUILDS, _SCRIPT_2D_UNITS, _SCRIPT_2D_INTERFACE,
+-		_SCRIPT_2D_AMBIENT, _SCRIPT_2D_GOODY, _SCRIPT_2D_EVENTS, _SCRIPT_2D_SFX,
+-		_SCRIPT_2D_OTHER
+-	):
++	for szHeader in (_SCRIPT_2D_OPENING, _SCRIPT_2D_SONGS, _SCRIPT_2D_DIPLO, _SCRIPT_2D_TECH, _SCRIPT_2D_TUTORIAL, _SCRIPT_2D_BUILDS, _SCRIPT_2D_UNITS, _SCRIPT_2D_INTERFACE, _SCRIPT_2D_AMBIENT, _SCRIPT_2D_GOODY, _SCRIPT_2D_EVENTS, _SCRIPT_2D_SFX, _SCRIPT_2D_OTHER):
+ 		items = scriptGroups.get(szHeader, [])
+ 		if bSortLists and szHeader != _SCRIPT_2D_OTHER:
+ 			items.sort()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index 3a78d315e..d7e109770 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -319,8 +319,7 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
+ 		# Sanity check: weights must sum to exactly 1.0
+ 		weight_sum = MAIN_WEIGHT + SECONDARY_WEIGHT
+ 		if not abs(weight_sum - 1.0) < 1e-6:
+-			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"
+-				% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
++			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)" % (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
+ 
+ 		# Aggregate score: round for consistency, since we later normalize as int 0–100 anyway
+ 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 011ff5718..af2f719de 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -1059,17 +1059,7 @@ class MultilayeredFractal:
+ 		regiononeWater = 70
+ 
+ 		# With all of your parameters set, pass them in to the plot generator.
+-		self.generatePlotsInRegion(
+-			regiononeWater,
+-			regiononeWidth, regiononeHeight,
+-			regiononeWestX, regiononeSouthY,
+-			regiononeGrain, iGrainOne,
+-			self.iFlags, self.iTerrainFlags,
+-			-1, -1,
+-			True, 15,
+-			2, False,
+-			False
+-		)
++		self.generatePlotsInRegion(regiononeWater, regiononeWidth, regiononeHeight, regiononeWestX, regiononeSouthY, regiononeGrain, iGrainOne, self.iFlags, self.iTerrainFlags, -1, -1, True, 15, 2, False, False)
+ 
+ 		# Define additional regions.
+ 		# Regions can overlap or add on to other existing regions.
+@@ -1100,17 +1090,7 @@ class MultilayeredFractal:
+ 
+ 		# Each regional fractal needs its own uniquely defined parameters.
+ 		# With proper settings, there's almost no limit to what can be done.
+-		self.generatePlotsInRegion(
+-			scWater,
+-			scLargeWidth, scLargeHeight,
+-			scWestX, scSouthY,
+-			scGrain, iGrainOne,
+-			self.iRoundFlags, self.iTerrainFlags, 
+-			6, 6,
+-			False, 9,
+-			scRift, False,
+-			False
+-		)
++		self.generatePlotsInRegion(scWater, scLargeWidth, scLargeHeight, scWestX, scSouthY, scGrain, iGrainOne, self.iRoundFlags, self.iTerrainFlags, 6, 6, False, 9, scRift, False, False)
+ 
+ 		# Once all your of your fractal regions (and other regions! You do not have
+ 		# to make every region a fractal-based region) have been processed, and
+
+diff --git a/Assets/Python/SASBillboardScale.py b/Assets/Python/SASBillboardScale.py
+index 595cec46c..cf080072b 100644
+--- a/Assets/Python/SASBillboardScale.py
++++ b/Assets/Python/SASBillboardScale.py
+@@ -25,15 +25,7 @@ gc = CyGlobalContext()
+ 
+ # Base AdvCiv CITYBILLBOARD_SCALE values (font-body 2 / 100%).
+ # Each tuple is (camera_distance, scale_value).
+-_BASE_BILLBOARD_KEYS = [
+-	(500,   1.72),
+-	(2500,  1.18),
+-	(3800,  1.06),
+-	(6000,  0.81),
+-	(8500,  0.75),
+-	(11500, 0.70),
+-	(13500, 0.67),
+-]
++_BASE_BILLBOARD_KEYS = [(500, 1.72), (2500, 1.18), (3800, 1.06), (6000, 0.81), (8500, 0.75), (11500, 0.70), (13500, 0.67)]
+ 
+ _DETAIL_MANAGER_REL_PATH = os.path.join("Assets", "XML", "Misc", "CIV4DetailManager.xml")
+ 
+@@ -120,5 +112,4 @@ def apply():
+ 	scaledKeyLines = _buildScaledKeys(iPercent)
+ 
+ 	if _rewriteDetailManagerXML(szPath, scaledKeyLines):
+-		BugUtil.info("SASBillboardScale: applied %d%% scale (font body %d) to %s",
+-			iPercent, iFontBody, szPath)
++		BugUtil.info("SASBillboardScale: applied %d%% scale (font body %d) to %s", iPercent, iFontBody, szPath)
+
+diff --git a/Assets/Python/SASDefineGuard.py b/Assets/Python/SASDefineGuard.py
+index 812af2938..9c8744c1e 100644
+--- a/Assets/Python/SASDefineGuard.py
++++ b/Assets/Python/SASDefineGuard.py
+@@ -26,10 +26,7 @@ SAS_LAUNCH_GUARD_EXPECTED_STRING = "AdvCiv-SAS defines test string"
+ 
+ 
+ def _raise_guard_error(szContext, szDetail):
+-	raise RuntimeError("Missing or incorrect SAS defines. This could indicate a mod configuration error. Make sure you start this mod from a Windows shortcut. See the Quick Install Guide documentation. Context: %s. %s" % (
+-		szContext,
+-		szDetail,
+-	))
++	raise RuntimeError("Missing or incorrect SAS defines. This could indicate a mod configuration error. Make sure you start this mod from a Windows shortcut. See the Quick Install Guide documentation. Context: %s. %s" % (szContext, szDetail))
+ 
+ 
+ 
+@@ -39,15 +36,7 @@ def verify_or_raise(szContext):
+ 	szValue = gc.getDefineSTRING(SAS_LAUNCH_GUARD_TEST_STRING_DEFINE)
+ 
+ 	if iValue != SAS_LAUNCH_GUARD_EXPECTED_INT:
+-		_raise_guard_error(szContext, "%s actual=%d expected=%d" % (
+-			SAS_LAUNCH_GUARD_TEST_INT_DEFINE,
+-			iValue,
+-			SAS_LAUNCH_GUARD_EXPECTED_INT,
+-		))
++		_raise_guard_error(szContext, "%s actual=%d expected=%d" % (SAS_LAUNCH_GUARD_TEST_INT_DEFINE, iValue, SAS_LAUNCH_GUARD_EXPECTED_INT))
+ 
+ 	if szValue != SAS_LAUNCH_GUARD_EXPECTED_STRING:
+-		_raise_guard_error(szContext, "%s actual='%s' expected='%s'" % (
+-			SAS_LAUNCH_GUARD_TEST_STRING_DEFINE,
+-			szValue,
+-			SAS_LAUNCH_GUARD_EXPECTED_STRING,
+-		))
++		_raise_guard_error(szContext, "%s actual='%s' expected='%s'" % (SAS_LAUNCH_GUARD_TEST_STRING_DEFINE, szValue, SAS_LAUNCH_GUARD_EXPECTED_STRING))
+
+diff --git a/Assets/Python/SASTextScale.py b/Assets/Python/SASTextScale.py
+index 083da1783..799a90d85 100644
+--- a/Assets/Python/SASTextScale.py
++++ b/Assets/Python/SASTextScale.py
+@@ -3,13 +3,7 @@
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
+ 
+ 
+-from SASFontUtils import (
+-	sasFontTagBody,
+-	SAS_FONT_TAG_CLOSE,
+-	sasFontTagLabel,
+-	sasFontTagTitle,
+-	sasFontTagTiny,
+-)
++from SASFontUtils import sasFontTagBody, SAS_FONT_TAG_CLOSE, sasFontTagLabel, sasFontTagTitle, sasFontTagTiny
+ import re
+ 
+ SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
+
+diff --git a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+index 419c0cce9..5150439a9 100644
+--- a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+@@ -346,9 +346,7 @@ class CvMilitaryAdvisor:
+ 				self.iconGrid.appendRow(pPlayer.getName(), "", 3)
+ 
+ 				# add leaderhead icon
+-				self.iconGrid.addIcon(iRow, self.Col_Leader,
+-										gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), 64, 
+-										WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActivePlayer)
++				self.iconGrid.addIcon(iRow, self.Col_Leader, gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActivePlayer)
+ 
+ 				# add worst enemy
+ 				self.Grid_WorstEnemy(iRow, iLoopPlayer)
+@@ -384,14 +382,9 @@ class CvMilitaryAdvisor:
+ 					# sWHEOOH = ""
+ 				# K-Mod
+ 				if bWHEOOH and not bCurrentWar:
+-					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars,
+-											ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), # which symbol to use...
+-											#"Art/Interface/Buttons/Civilizations/Barbarian.dds",
+-											#ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath(),
+-											32, WidgetTypes.WIDGET_GENERAL, -1)
+-					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn,
+-											ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(),
+-											32, WidgetTypes.WIDGET_GENERAL, -1)
++					# which symbol for Col_Curr_Wars? using QUESTION_MARK; alternatives tried: "Art/Interface/Buttons/Civilizations/Barbarian.dds" or ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
++					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars, ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), 32, WidgetTypes.WIDGET_GENERAL, -1)
++					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn, ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), 32, WidgetTypes.WIDGET_GENERAL, -1)
+ 				# K-Mod end
+ 				
+ 				# show possible trade embargos
+@@ -413,17 +406,8 @@ class CvMilitaryAdvisor:
+ 
+ 	def initIconGrid(self, screen, bVassals, bDefPacts):
+ 		
+-		(
+-			self.Col_Leader,
+-			#self.Col_WHEOOH,
+-			self.Col_WEnemy,
+-			self.Col_Threat,
+-			self.Col_Curr_Wars,
+-			self.Col_WillDeclareOn,
+-			self.Col_WillEmbargo,
+-			self.Col_Vassals,
+-			self.Col_DefPacts,
+-		) = range(8) # was 9
++		# was range(9); Col_WHEOOH removed from this unpack
++		(self.Col_Leader, self.Col_WEnemy, self.Col_Threat, self.Col_Curr_Wars, self.Col_WillDeclareOn, self.Col_WillEmbargo, self.Col_Vassals, self.Col_DefPacts) = range(8)
+ 		if (not bVassals):
+ 			# shift over 1 to make room for vassals column
+ 			self.Col_DefPacts -= 1
+@@ -638,33 +622,15 @@ class CvMilitaryAdvisor:
+ 		self.timer.log("StratAdv")
+ 
+ 	def initStratAdvGrid(self, screen):
+-		(
+-			self.SA_Col_Leader,
+-			self.SA_Col_Bonus_Us,
+-			self.SA_Col_Bonus_Them,
+-			self.SA_Col_Unit_Us_Yes,
+-			self.SA_Col_Unit_Us_Maybe,
+-			self.SA_Col_Unit_Them_Yes,
+-			self.SA_Col_Unit_Them_Maybe,
+-		) = range(7)
+-		
+-		columns = (
+-			IconGrid_BUG.GRID_ICON_COLUMN,
+-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-		)
++		(self.SA_Col_Leader, self.SA_Col_Bonus_Us, self.SA_Col_Bonus_Them, self.SA_Col_Unit_Us_Yes, self.SA_Col_Unit_Us_Maybe, self.SA_Col_Unit_Them_Yes, self.SA_Col_Unit_Them_Maybe) = range(7)
++		
++		columns = (IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
+ 		
+ 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
+ 		gridY = self.MIN_TOP_BOTTOM_SPACE + self.SITREP_PANEL_SPACE + self.TABLE_CONTROL_HEIGHT + self.TITLE_HEIGHT + 8
+ 		gridWidth = self.W_SCREEN - 10 - self.MIN_LEFT_RIGHT_SPACE * 2# - 20
+ 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - self.SITREP_PANEL_SPACE - self.TITLE_HEIGHT - 16
+-		self.iconGrid = IconGrid_BUG.IconGrid_BUG(
+-				self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight,
+-				columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
++		self.iconGrid = IconGrid_BUG.IconGrid_BUG(self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
+ 		
+ 		# set constants
+ 		self.iconGrid.setGroupBorder(self.GROUP_BORDER)
+@@ -716,9 +682,7 @@ class CvMilitaryAdvisor:
+ 				self.iconGrid.appendRow(player.getName(), "", 3)
+ 				
+ 				# add leaderhead icon
+-				self.iconGrid.addIcon(iRow, self.SA_Col_Leader,
+-						gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), 64, 
+-						WidgetTypes.WIDGET_LEADERHEAD, player.getID(), self.iActivePlayer)
++				self.iconGrid.addIcon(iRow, self.SA_Col_Leader, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, player.getID(), self.iActivePlayer)
+ 				
+ 				# add bonus and unit icons
+ 				self.addStratAdvBonuses(activePlayer, player, iRow)
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index 95a1a64c5..51bff7de5 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -2770,11 +2770,9 @@ class CvCustomizableDomesticAdvisor:
+ 				"showSpecControls" : False,
+ 				"showCultureLegend" : False,
+ 				"showGPLegend" : False,
+-				"columns" : [
+-					("NAME", 95, "text")
+-				]
++				"columns" : [("NAME", 95, "text")]
+ 			}
+-			)
++		)
+ 		self.switchPage(name)
+ 		self.drawScreen(self.currentPage)
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index f82a07b1e..dbbecaf4a 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -438,21 +438,8 @@ class CvForeignAdvisor:
+ 		#fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
+ 
+ 		# <!-- custom: perf opt: looks like this can be moved to init entirely if i'm not mistaken. -->
+-		self.headerTexts = (
+-			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),
+-			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"),
+-			# <!-- custom: use cached icon values for performance (claude code sonnet 4.5) -->
+-			self.szReligionIconStr, 
+-			self.szTradeIconStr,
+-			self.szTradeCommerceIconStr,
+-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"),
+-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"),
+-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"),
+-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"),
+-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"),
+-			"",
+-			BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
+-		)
++		# <!-- custom: szReligionIconStr/szTradeIconStr/szTradeCommerceIconStr are cached icon values for performance (claude code sonnet 4.5) -->
++		self.headerTexts = (BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"), BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"), self.szReligionIconStr, self.szTradeIconStr, self.szTradeCommerceIconStr, BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"), "", BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES"))
+ 
+ 		# <!-- custom: cache treaty icon paths once. (GPT-5.3-Codex) -->
+ 		self.SAS_TRADE_ICON_OPEN_BORDERS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath()
+@@ -2192,15 +2179,7 @@ class CvForeignAdvisor:
+ 			willTradeColumnType = IconGrid_BUG.GRID_TEXT_COLUMN
+ 		# </advc.550i>
+ 
+-		columns = ( IconGrid_BUG.GRID_ICON_COLUMN,
+-					IconGrid_BUG.GRID_TEXT_COLUMN,
+-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-					IconGrid_BUG.GRID_TEXT_COLUMN,
+-					willTradeColumnType,
+-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
+-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
++		columns = (IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, willTradeColumnType, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
+ 
+ 		self.techIconGridName = self.getNextWidgetName()
+ 		self.techIconGrid = IconGrid_BUG.IconGrid_BUG( self.techIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, self.TECH_USE_SMALL_ICONS, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
+@@ -2502,16 +2481,13 @@ class CvForeignAdvisor:
+ 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+ 
+ 		self.ESP_szMainPaneWidget = "EspionageMainPane"
+-		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true,
+-			self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
++		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true, self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
+ 
+ 		self.ESP_szLeftPaneWidget = "LeftPane"
+-		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true,
+-			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
++		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true, self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+ 
+ 		self.ESP_szScrollPanel = "ScrollPanel"
+-		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true,
+-			self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
++		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true, self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
+ 
+ 		self.ESP_aiKnownPlayers = []
+ 		self.ESP_aiUnknownPlayers = []
+@@ -2557,8 +2533,7 @@ class CvForeignAdvisor:
+ 		############################
+ 
+ 		self.ESP_szRightPaneWidget = "RightPane"
+-		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true,
+-			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
++		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true, self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+ 
+ 		if (self.ESP_iTargetPlayer != -1):
+ 
+@@ -2611,14 +2586,12 @@ class CvForeignAdvisor:
+ 				self.ESP_iLeaderImagesID = 456
+ 				szName = "LeaderImage%d" %(iPlayerID)
+ 
+-				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE,
+-					iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
++				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				if (self.ESP_iTargetPlayer == iPlayerID):
+ 					screen.setState(szName, true)
+ 
+ 				szName = "LeaderNamePanel%d" %(iPlayerID)
+-				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN,
+-					iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN, iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "NameText%d" %(iPlayerID)
+ 				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 8fb176fb8..17d7e8aa3 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -99,22 +99,8 @@ class CvInfoScreen:
+ 		self.iLanguageLoaded = -1
+ 
+ 		# <!-- custom: Score tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
+-		self.PAGE_NAME_LIST = [
+-			"TXT_KEY_INFO_GRAPH",
+-			"TXT_KEY_GAME_SCORE",
+-			"TXT_KEY_SAS_INFO_TIMELINE",
+-			"TXT_KEY_DEMO_SCREEN_TITLE",
+-			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
+-			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
+-			]
+-		self.PAGE_DRAW_LIST = [
+-			self.drawGraphTab,
+-			self.drawScoreTab,
+-			self.drawTimelineTab,
+-			self.drawDemographicsTab,
+-			self.drawTopCitiesTab,
+-			self.drawStatsTab,
+-			]
++		self.PAGE_NAME_LIST = ["TXT_KEY_INFO_GRAPH", "TXT_KEY_GAME_SCORE", "TXT_KEY_SAS_INFO_TIMELINE", "TXT_KEY_DEMO_SCREEN_TITLE", "TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", "TXT_KEY_INFO_SCREEN_STATISTICS_TITLE"]
++		self.PAGE_DRAW_LIST = [self.drawGraphTab, self.drawScoreTab, self.drawTimelineTab, self.drawDemographicsTab, self.drawTopCitiesTab, self.drawStatsTab]
+ 
+ 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
+ 		# K-Mod end
+@@ -2166,9 +2152,7 @@ class CvInfoScreen:
+ #BUG: Change Graphs - start
+ 
+ #		self.LEGEND_PANEL_ID = self.getNextWidgetName()
+-		screen.addPanel(self.getNextWidgetName(), "", "", true, true, 
+-						self.X_LEGEND, self.Y_LEGEND, iW_LEGEND, self.H_LEGEND,
+-						PanelStyles.PANEL_STYLE_IN)
++		screen.addPanel(self.getNextWidgetName(), "", "", true, true, self.X_LEGEND, self.Y_LEGEND, iW_LEGEND, self.H_LEGEND, PanelStyles.PANEL_STYLE_IN)
+ 
+ #		self.LEGEND_CANVAS_ID = self.getNextWidgetName()
+ 		sLEGEND_CANVAS_ID = self.getNextWidgetName()
+@@ -2861,15 +2845,11 @@ class CvInfoScreen:
+ 
+ 		# Background Panes
+ 		self.szLeftPaneWidget = self.getNextWidgetName()
+-		screen.addPanel( self.szLeftPaneWidget, "", "", true, true,
+-			self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
++		screen.addPanel( self.szLeftPaneWidget, "", "", true, true, self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+ 
+ 		# <!-- custom: add "Top 5 Cities in the World" header (Civ3 vibe!), removed bold, added with claude opus 4.5's help thanks. -->
+ 		szHeaderText = sasFontTagTitle + localText.getText("TXT_KEY_TOP_5_CITIES_IN_THE_WORLD", ()) + SAS_FONT_TAG_CLOSE
+-		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY,
+-			self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, 
+-			self.Y_TOP_CITIES_LEFT_PANE + 12, 
+-			0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY, self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, self.Y_TOP_CITIES_LEFT_PANE + 12, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		self.drawTopCities()
+ 		self.drawWondersTab()
+@@ -2888,14 +2868,12 @@ class CvInfoScreen:
+ 		for iWidgetLoop in range(self.iNumCities):
+ 
+ 			szTextPanel = self.getNextWidgetName()
+-			screen.addPanel( szTextPanel, "", "", false, true,
+-				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
++			screen.addPanel( szTextPanel, "", "", false, true, self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
+ 			self.szCityNameWidgets.append(self.getNextWidgetName())
+ #			szProjectDesc = u"<font=3b>" + pProjectInfo.getDescription().upper() + u"</font>"
+ 			szCityDesc = sasFontTagTitle.bold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabel.bold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
+ 			szCityDesc += sasFontTagLabel + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
+-			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc,
+-				self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc, self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ #			screen.attachMultilineText( szTextPanel, self.szCityNameWidgets[iWidgetLoop], str(self.iCitySizes[iWidgetLoop]) + " - " + self.szCityNames[iWidgetLoop] + "\n" + self.szCityDescs[iWidgetLoop], WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			iCityX = self.aaCitiesXY[iWidgetLoop][0]
+@@ -2969,27 +2947,17 @@ class CvInfoScreen:
+ 			iMultiListH = self.H_CITIES_WONDER_PANEL
+ 			
+ 			# Create panel first
+-			screen.addPanel(szIconPanel, "", "", False, True,
+-				iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
++			screen.addPanel(szIconPanel, "", "", False, True, iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
+ 			
+ 			# <!-- custom: use no-header offsets since wonder panel has no title text, added with claude opus 4.5's help thanks. -->
+ 			# Create multilist control for multiple rows of wonder buttons
+ 			szMultiListName = self.getNextWidgetName()
+-			screen.addMultiListControlGFC(szMultiListName, "",
+-				iMultiListX + self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER,
+-				iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER,
+-				iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER),
+-				iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER),
+-				self.iTopCitiesWonderNumListsAutoCalculate,
+-				self.iTopCitiesWonderButtonSize,
+-				self.iTopCitiesWonderButtonSize,
+-				TableStyles.TABLE_STYLE_STANDARD)
++			screen.addMultiListControlGFC(szMultiListName, "", iMultiListX + self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER, iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER, iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER), iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER), self.iTopCitiesWonderNumListsAutoCalculate, self.iTopCitiesWonderButtonSize, self.iTopCitiesWonderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 			# Now place the wonder buttons
+ 			for iWonderLoop in range(aiTopCitiesNumWonders[iCityLoop]):
+ 				iBuildingID = aaiTopCitiesWonders[iCityLoop][iWonderLoop]
+-				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(),
+-					self.iTopCitiesWonderColumnIndexAuto, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
++				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(), self.iTopCitiesWonderColumnIndexAuto, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
+ 
+ 	def calculateTopCities(self):
+ 
+@@ -3085,8 +3053,7 @@ class CvInfoScreen:
+ 		screen = self.getScreen()
+ 
+ 		self.szRightPaneWidget = self.getNextWidgetName()
+-		screen.addPanel( self.szRightPaneWidget, "", "", true, true,
+-			self.X_WONDERS_RIGHT_PANE, self.Y_WONDERS_RIGHT_PANE, self.W_WONDERS_RIGHT_PANE, self.H_WONDERS_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
++		screen.addPanel( self.szRightPaneWidget, "", "", true, true, self.X_WONDERS_RIGHT_PANE, self.Y_WONDERS_RIGHT_PANE, self.W_WONDERS_RIGHT_PANE, self.H_WONDERS_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+ 
+ 		self.drawWondersDropdownBox()
+ 
+@@ -3129,8 +3096,7 @@ class CvInfoScreen:
+ 
+ 			screen.setLabel(self.getNextWidgetName(), "Background", sDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDERS_DROPDOWN + 100, self.Y_WONDERS_DROPDOWN + 3, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		else:
+-			screen.addDropDownBoxGFC(self.szWondersDropdownWidget,
+-				self.X_WONDERS_DROPDOWN, self.Y_WONDERS_DROPDOWN, self.W_WONDERS_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
++			screen.addDropDownBoxGFC(self.szWondersDropdownWidget, self.X_WONDERS_DROPDOWN, self.Y_WONDERS_DROPDOWN, self.W_WONDERS_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+ 
+ 			if (self.szWonderDisplayMode == self.szWDM_WorldWonder):
+ 				bDefault = true
+@@ -3242,8 +3208,7 @@ class CvInfoScreen:
+ 
+ 			# Wonders List ListBox
+ 			self.szWondersListBox = self.getNextWidgetName()
+-			screen.addListBoxGFC(self.szWondersListBox, "",
+-				self.X_WONDER_LIST, self.Y_WONDER_LIST, self.W_WONDER_LIST, self.H_WONDER_LIST, TableStyles.TABLE_STYLE_STANDARD )
++			screen.addListBoxGFC(self.szWondersListBox, "", self.X_WONDER_LIST, self.Y_WONDER_LIST, self.W_WONDER_LIST, self.H_WONDER_LIST, TableStyles.TABLE_STYLE_STANDARD )
+ 			screen.setStyle(self.szWondersListBox, "Table_StandardCiv_Style")
+ 
+ 			self.determineListBoxContents()
+@@ -3414,9 +3379,7 @@ class CvInfoScreen:
+ 				screen.addMultilineText(self.getNextWidgetName(), szStatsText, self.X_WONDERS_STATS_PANE + 5, self.Y_WONDERS_STATS_PANE + 15, self.W_WONDERS_STATS_PANE - 10, self.H_WONDERS_STATS_PANE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				# Add Graphic
+-				screen.addBuildingGraphicGFC(self.getNextWidgetName(), self.iWonderID,
+-					self.X_WONDER_GRAPHIC, self.Y_WONDER_GRAPHIC, self.W_WONDER_GRAPHIC, self.H_WONDER_GRAPHIC,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_WONDER_ANIMATION, self.Z_ROTATION_WONDER_ANIMATION, self.WONDERS_SCALE_ANIMATION, True)
++				screen.addBuildingGraphicGFC(self.getNextWidgetName(), self.iWonderID, self.X_WONDER_GRAPHIC, self.Y_WONDER_GRAPHIC, self.W_WONDER_GRAPHIC, self.H_WONDER_GRAPHIC, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_WONDER_ANIMATION, self.Z_ROTATION_WONDER_ANIMATION, self.WONDERS_SCALE_ANIMATION, True)
+ 
+ 				# Special Abilities ListBox
+ 
+@@ -3915,8 +3878,7 @@ class CvInfoScreen:
+ 		#player = gc.getPlayer(gc.getGame().getActivePlayer())
+ 		player = gc.getPlayer(self.iActivePlayer) # K-Mod
+ 		szLeaderWidget = self.getNextWidgetName()
+-		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED,
+-			self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# Leader Name
+ 		self.szLeaderNameWidget = self.getNextWidgetName()
+@@ -4062,8 +4024,7 @@ class CvInfoScreen:
+ 					and aiUnitsCurrent[iUnitLoop] == 0 and aiUnitsBuilt[iUnitLoop] == 0
+ 					and aiUnitsKilled[iUnitLoop] == 0 and aiUnitsLost[iUnitLoop] == 0):
+ 				continue # K-Mod end
+-			unitIDsByBuiltDesc.append((-aiUnitsBuilt[iUnitLoop],
+-					gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
++			unitIDsByBuiltDesc.append((-aiUnitsBuilt[iUnitLoop], gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
+ 		unitIDsByBuiltDesc.sort()
+ 		for i in range(len(unitIDsByBuiltDesc)):
+ 			(iNegBuilt, szUnitName, iUnitLoop) = unitIDsByBuiltDesc[i]
+@@ -4101,8 +4062,7 @@ class CvInfoScreen:
+ 			# K-Mod. Hide-rows option.
+ 			if aiBuildingsBuilt[iBuildingLoop] == 0: #and AdvisorOpt.isNonZeroStatsOnly(): # advc: No longer optional
+ 				continue # K-Mod end
+-			buildingIDsByBuiltDesc.append((-aiBuildingsBuilt[iBuildingLoop],
+-					gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
++			buildingIDsByBuiltDesc.append((-aiBuildingsBuilt[iBuildingLoop], gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
+ 		buildingIDsByBuiltDesc.sort()
+ 		for i in range(len(buildingIDsByBuiltDesc)):
+ 			(iNegBuilt, szBuildingName, iBuildingLoop) = buildingIDsByBuiltDesc[i]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 5ae6c1234..486ee63ec 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -433,22 +433,7 @@ class CvMilitaryAdvisor:
+ 			screen.deleteWidget(self.getNextWidgetName())
+ 		self.nWidgetCount = 0
+ 		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Map tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
+-		for szWidget in (
+-			self.UNIT_PANEL_ID,
+-			self.UNIT_BUTTON_ID,
+-			self.UNIT_BUTTON_LABEL_ID,
+-			self.LEADER_PANEL_ID,
+-			self.UNIT_LIST_ID,
+-			self.GREAT_GENERAL_BAR_ID,
+-			self.GREAT_GENERAL_LABEL_ID,
+-			self.DEBUG_DROPDOWN_ID,
+-			self.BATTLE_TABLE_ID,
+-			self.BATTLE_LOG_BUTTON_ID,
+-			self.COMPOSITION_UNITS_TABLE_ID,
+-			self.COMPOSITION_PROMOTIONS_TABLE_ID,
+-			self.COMPOSITION_COMBATS_TABLE_ID,
+-			self.SUMMARY_PANEL_ID,
+-		):
++		for szWidget in (self.UNIT_PANEL_ID, self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID, self.LEADER_PANEL_ID, self.UNIT_LIST_ID, self.GREAT_GENERAL_BAR_ID, self.GREAT_GENERAL_LABEL_ID, self.DEBUG_DROPDOWN_ID, self.BATTLE_TABLE_ID, self.BATTLE_LOG_BUTTON_ID, self.COMPOSITION_UNITS_TABLE_ID, self.COMPOSITION_PROMOTIONS_TABLE_ID, self.COMPOSITION_COMBATS_TABLE_ID, self.SUMMARY_PANEL_ID):
+ 			screen.deleteWidget(szWidget)
+ 		for iPlayer in range(gc.getMAX_PLAYERS()):
+ 			screen.deleteWidget(self.getLeaderButton(iPlayer))
+@@ -911,35 +896,7 @@ class CvMilitaryAdvisor:
+ 			if tColumns is None:
+ 				continue
+ 			iTurn, iResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iOurXP, bOurGG, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iTheirXP, bTheirGG, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain, iCityContext = tColumns
+-			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %d | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
+-				iTurn,
+-				self.getTurnDate(iTurn),
+-				self.getBattleResultLogText(iResult),
+-				self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr),
+-				self.getBattleRoleText(iOurRole),
+-				self.getBattleBaseStrengthText(iOurUnit),
+-				self.getBattleStoredStrengthText(iOurCurrStr),
+-				self.getBattleStoredStrengthText(iOurEndStr),
+-				self.getBattleStoredStrengthText(iOurMaxStr),
+-				self.getBattleXPText(iOurXP, False),
+-				bOurGG,
+-				gc.getUnitInfo(iOurUnit).getDescription(),
+-				gc.getUnitInfo(iTheirUnit).getDescription(),
+-				self.getBattleXPText(iTheirXP, False),
+-				bTheirGG,
+-				self.getBattleBaseStrengthText(iTheirUnit),
+-				self.getBattleStoredStrengthText(iTheirCurrStr),
+-				self.getBattleStoredStrengthText(iTheirEndStr),
+-				self.getBattleStoredStrengthText(iTheirMaxStr),
+-				iTheirPlayer,
+-				iCapturedCount,
+-				self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit),
+-				self.getBattleTerrainTypeText(iHillPeakTerrain),
+-				self.getBattleTerrainTypeText(iTerrain),
+-				self.getBattleFeatureTypeText(iFeature),
+-				iX,
+-				iY,
+-			))
++			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %d | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (iTurn, self.getTurnDate(iTurn), self.getBattleResultLogText(iResult), self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr), self.getBattleRoleText(iOurRole), self.getBattleBaseStrengthText(iOurUnit), self.getBattleStoredStrengthText(iOurCurrStr), self.getBattleStoredStrengthText(iOurEndStr), self.getBattleStoredStrengthText(iOurMaxStr), self.getBattleXPText(iOurXP, False), bOurGG, gc.getUnitInfo(iOurUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getDescription(), self.getBattleXPText(iTheirXP, False), bTheirGG, self.getBattleBaseStrengthText(iTheirUnit), self.getBattleStoredStrengthText(iTheirCurrStr), self.getBattleStoredStrengthText(iTheirEndStr), self.getBattleStoredStrengthText(iTheirMaxStr), iTheirPlayer, iCapturedCount, self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit), self.getBattleTerrainTypeText(iHillPeakTerrain), self.getBattleTerrainTypeText(iTerrain), self.getBattleFeatureTypeText(iFeature), iX, iY))
+ 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_END")
+ 
+ 	def dbgLogBattleHistoryPerspectivePlayer(self):
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 1a288f787..e96b35eb3 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -44,20 +44,8 @@ PREF_ICON_SIZE = 24
+ PREF_ICON_BOTTOM_FROM_EXIT_OFFSET = 10
+ PREF_ICON_LEFT_OFFSET = 10
+ # </advc.004a>
+-FLAVORS = [
+-	TechPrefs.FLAVOR_PRODUCTION,
+-	TechPrefs.FLAVOR_GOLD,
+-	TechPrefs.FLAVOR_SCIENCE,
+-	TechPrefs.FLAVOR_CULTURE,
+-	TechPrefs.FLAVOR_RELIGION
+-]
+-UNIT_CLASSES = [
+-	"UNITCLASS_GREAT_ENGINEER",
+-	"UNITCLASS_GREAT_MERCHANT",
+-	"UNITCLASS_GREAT_SCIENTIST",
+-	"UNITCLASS_GREAT_ARTIST",
+-	"UNITCLASS_GREAT_PROPHET"
+-]
++FLAVORS = [TechPrefs.FLAVOR_PRODUCTION, TechPrefs.FLAVOR_GOLD, TechPrefs.FLAVOR_SCIENCE, TechPrefs.FLAVOR_CULTURE, TechPrefs.FLAVOR_RELIGION]
++UNIT_CLASSES = ["UNITCLASS_GREAT_ENGINEER", "UNITCLASS_GREAT_MERCHANT", "UNITCLASS_GREAT_SCIENTIST", "UNITCLASS_GREAT_ARTIST", "UNITCLASS_GREAT_PROPHET"]
+ # BUG - GP Tech Prefs - end
+ 
+ # BUG - 3.19 No Espionage - start
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 5ee3d4e4a..f531f820d 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -1280,14 +1280,8 @@ class CvVictoryScreen:
+ 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.708>
+ 		else:
+-			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (
+-					localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()),
+-					gc.getHandicapInfo(activePlayer.getHandicapType()).getText(),
+-					localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()),
+-					gc.getHandicapInfo(g.getHandicapType()).getText(),
+-					# advc.076: Was TXT_KEY_OPTIONS_GAME - which no longer just says "Game".
+-					# But this BUG text key does.
+-					localText.getText("TXT_KEY_SHORTCUTS_GAME", ()))
++			# advc.076: last arg uses TXT_KEY_SHORTCUTS_GAME (not TXT_KEY_OPTIONS_GAME, which no longer just says "Game" - this BUG text key does)
++			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), gc.getHandicapInfo(activePlayer.getHandicapType()).getText(), localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()), gc.getHandicapInfo(g.getHandicapType()).getText(), localText.getText("TXT_KEY_SHORTCUTS_GAME", ()))
+ 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod end
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 892ee1889..c07dd94bd 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -50,12 +50,7 @@ class CvWorldAdvisorScreen:
+ 		self.ENV_TEXT_MARGIN = 15
+ 
+ 		# <!-- custom: Environment tab is last because its global-warming readouts are less important. (Claude code Opus 4.7) -->
+-		self.PAGE_NAME_LIST = [
+-			"TXT_KEY_WORLD_ADVISOR_BFC1_TAB",
+-			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
+-			"TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB",
+-			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
+-			]
++		self.PAGE_NAME_LIST = ["TXT_KEY_WORLD_ADVISOR_BFC1_TAB", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB"]
+ 		self.PAGE_LINK_WIDTH = []
+ 		self.iBFC1ID = 0
+ 		self.iBFC2ID = 1
+@@ -416,10 +411,7 @@ class CvWorldAdvisorScreen:
+ 				aiBonusColumns.append(iBonus)
+ 		aszRows, aaiBonusCounts, aaiImprovementCounts, aaiRouteCounts = self.collectBFC2Data()
+ 		self.drawBFC2IconTable(aszRows, [(aiBonusColumns, gc.getBonusInfo, aaiBonusCounts)], self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
+-		self.drawBFC2IconTable(aszRows, [
+-			(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts),
+-			(range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts),
+-			], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
++		self.drawBFC2IconTable(aszRows, [(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts), (range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts)], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
+ 
+ 	def collectBFC2Data(self):
+ 		player = gc.getPlayer(self.iActivePlayer)
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index e22a35a8a..fc30a658b 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -79,13 +79,8 @@ class PLE:
+ 		self.PLE_MODE_MULTILINE		= "PLE_MODE_MULTILINE1"
+ 		self.PLE_MODE_STACK_VERT	= "PLE_MODE_STACK_VERT1"
+ 		self.PLE_MODE_STACK_HORIZ	= "PLE_MODE_STACK_HORIZ1"
+-		self.PLE_VIEW_MODES = (
+-			self.PLE_MODE_STANDARD, 
+-			self.PLE_MODE_MULTILINE,
+-			# advc.069: Switched the order of the last two
+-			self.PLE_MODE_STACK_HORIZ,
+-			self.PLE_MODE_STACK_VERT
+-		)
++		# advc.069: order is STANDARD, MULTILINE, then STACK_HORIZ, STACK_VERT (last two switched)
++		self.PLE_VIEW_MODES = (self.PLE_MODE_STANDARD, self.PLE_MODE_MULTILINE, self.PLE_MODE_STACK_HORIZ, self.PLE_MODE_STACK_VERT)
+ 		# advc.069: Switched the order as above
+ 		self.PLE_VIEW_MODE_CYCLE = {
+ 			self.PLE_MODE_STANDARD :self.PLE_MODE_MULTILINE,
+@@ -120,12 +115,7 @@ class PLE:
+ 		self.PLE_GRP_GROUPS			= "PLE_GRP_GROUPS1"
+ 		self.PLE_GRP_PROMO			= "PLE_GRP_PROMO1"
+ 		self.PLE_GRP_UPGRADE		= "PLE_GRP_UPGRADE1"
+-		self.PLE_GROUP_MODES = (
+-			self.PLE_GRP_UNITTYPE, 
+-			self.PLE_GRP_GROUPS,
+-			self.PLE_GRP_PROMO,
+-			self.PLE_GRP_UPGRADE
+-		)
++		self.PLE_GROUP_MODES = (self.PLE_GRP_UNITTYPE, self.PLE_GRP_GROUPS, self.PLE_GRP_PROMO, self.PLE_GRP_UPGRADE)
+ 
+ 		self.UNIT_INFO_PANE			= "PLE_UNIT_INFO_PANE_ID"
+ 		self.UNIT_INFO_TEXT			= "PLE_UNIT_INFO_TEXT_ID"
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 78e0f9be6..855d19428 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -1,5 +1,11 @@
+ # advc.092: New module to help specify positions of rectangular widgets
+ # relative to each other.
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+ 
+ # (Not naming this "Point2D" to avoid potential clashes with other modules)
+ class PointLayout:
+@@ -36,35 +42,13 @@ class RectLayout(object):
+ 	RIGHT = _ALIGN_OPPOSITE
+ 	BOTTOM = _ALIGN_OPPOSITE
+ 	MAX = _MAX_LENGTH
+-	def __init__(self,
+-			# ('None' is allowed only for the RectLayout representing the screen itself.
+-			# In that case, fX and fY need to be absolute screen coordinates.)
+-			lParent,
+-			# Distance from lParent's left edge if positive,
+-			# from lParent's right edge if negative.
+-			# CENTER centers this widget horizontally.
+-			# RIGHT aligns this widget horizontally to the right edge of lParent.
+-			# LEFT is equivalent to fX=0.
+-			fX,
+-			# Distance from lParent's top edge if positive,
+-			# from lParent's bottom edge if negative.
+-			# CENTER centers this widget vertically.
+-			# BOTTOM aligns this widget vertically to the bottom edge of lParent.
+-			# TOP is equivalent to 0.
+-			fY,
+-			# Our width in pixels if positive.
+-			# If negative, then fWidth is the distance from lParent's right edge
+-			# and, when fX is set to CENTER, then negative fWidth is also the 
+-			# distance from lParent's left edge. Negative fWidth can't be combined
+-			# with RIGHT alignment.
+-			fWidth,
+-			# Our height in pixels if positive.
+-			# If negative, then fHeight is the distance from lParent's bottom edge
+-			# and, when fY is set to CENTER, then negative fHeight is also the 
+-			# distance from lParent's top edge. Negative fHeight can't be combined
+-			# with BOTTOM alignment.
+-			fHeight,
+-			bOffScreen = False):
++	# __init__ params:
++	# lParent: 'None' allowed only for the RectLayout representing the screen itself; then fX and fY need to be absolute screen coordinates.
++	# fX: distance from lParent's left edge if positive, from right edge if negative. CENTER centers horizontally; RIGHT aligns to lParent's right edge; LEFT is equivalent to fX=0.
++	# fY: distance from lParent's top edge if positive, from bottom edge if negative. CENTER centers vertically; BOTTOM aligns to lParent's bottom edge; TOP is equivalent to 0.
++	# fWidth: width in pixels if positive. If negative, fWidth is the distance from lParent's right edge; when fX is CENTER, negative fWidth is also the distance from the left edge. Negative fWidth can't be combined with RIGHT alignment.
++	# fHeight: height in pixels if positive. If negative, fHeight is the distance from lParent's bottom edge; when fY is CENTER, negative fHeight is also the distance from the top edge. Negative fHeight can't be combined with BOTTOM alignment.
++	def __init__(self, lParent, fX, fY, fWidth, fHeight, bOffScreen = False):
+ 		if not lParent:
+ 			self.fX = fX
+ 			self.fY = fY
+@@ -73,10 +57,8 @@ class RectLayout(object):
+ 		else:
+ 			fPrelimWidth = RectLayout._calcSideLenPrelim(lParent.width(), fWidth)
+ 			fPrelimHeight = RectLayout._calcSideLenPrelim(lParent.height(), fHeight)
+-			self.fX = RectLayout._calcCoord(lParent.x(), lParent.width(),
+-					fX, fPrelimWidth, bOffScreen)
+-			self.fY = RectLayout._calcCoord(lParent.y(), lParent.height(),
+-					fY, fPrelimHeight, bOffScreen)
++			self.fX = RectLayout._calcCoord(lParent.x(), lParent.width(), fX, fPrelimWidth, bOffScreen)
++			self.fY = RectLayout._calcCoord(lParent.y(), lParent.height(), fY, fPrelimHeight, bOffScreen)
+ 		self.fWidth = fPrelimWidth
+ 		if fWidth == RectLayout.MAX:
+ 			self.fWidth = min(self.fWidth, lParent.xRight() - self.fX)
+@@ -173,9 +155,7 @@ class RectLayout(object):
+ 		return (self.x() <= lOther.x() and self.xRight() >= lOther.xRight() and
+ 				self.y() <= lOther.y() and self.yBottom() >= lOther.yBottom())
+ 	def __str__(self):
+-		return ( "Rect(" +
+-				str(self.fX) + ", " + str(self.fY) + ", " +
+-				str(self.fWidth) + ", " + str(self.fHeight) + ")" )
++		return ( "Rect(" + str(self.fX) + ", " + str(self.fY) + ", " + str(self.fWidth) + ", " + str(self.fHeight) + ")" )
+ 	@staticmethod
+ 	def offsetPoint(lRect, fDeltaX, fDeltaY = 0):
+ 		if fDeltaX == RectLayout.CENTER:
+@@ -201,20 +181,8 @@ class SquareLayout(RectLayout):
+ class _SingleFileLayout(RectLayout):
+ 	HORIZONTAL = True
+ 	VERTICAL = False
+-	def __init__(self, lParent,
+-			# Whether the widgets are layed out horizontally (HORIZONTAL)
+-			# or vertically (VERTICAL)
+-			orientation,
+-			fX, fY, # See super class ctor
+-			# (Positive) number of widgets in the group.
+-			# RectLayout.MAX for the highest number that will (fully) fit
+-			# into lParent (but at least 1).
+-			iWidgets,
+-			# Space in between two adjacent widgets.
+-			# Negative space means that they overlap.
+-			iSpacing,
+-			# (Positive) widget size. By default, square dimensions are assumed.
+-			fWidth, fHeight = None):
++	# __init__ params: orientation = widgets layed out horizontally (HORIZONTAL) or vertically (VERTICAL); fX, fY = see super class ctor; iWidgets = (positive) number of widgets in the group, RectLayout.MAX for the highest number that will (fully) fit into lParent (but at least 1); iSpacing = space between two adjacent widgets (negative = overlap); fWidth, fHeight = (positive) widget size, square dimensions assumed by default
++	def __init__(self, lParent, orientation, fX, fY, iWidgets, iSpacing, fWidth, fHeight = None):
+ 		if fHeight is None:
+ 			fHeight = fWidth
+ 		bHorizontal = orientation
+@@ -232,8 +200,9 @@ class _SingleFileLayout(RectLayout):
+ 			# (Not going to check the non-expanding dimension.
+ 			# I think it would be rather puzzling for the caller to end up with
+ 			# just a single widget on account of the parent being too "narrow".)
+-			iWidgets = (1 + (iParentLen - iExpandingLen) // # no space before first widget
+-					(iExpandingLen + iSpacing))
++			#
++			# no space before first widget
++			iWidgets = (1 + (iParentLen - iExpandingLen) // (iExpandingLen + iSpacing))
+ 		assert iWidgets < RectLayout._RESERVED_CONST
+ 		iTotalExpandingLen = iWidgets * iExpandingLen + (iWidgets - 1) * iSpacing
+ 		if bHorizontal:
+@@ -272,9 +241,7 @@ class _SingleFileLayout(RectLayout):
+ 
+ class ColumnLayout(_SingleFileLayout):
+ 	def __init__(self, lParent, fX, fY, iWidgets, iSpacing, fWidth, fHeight = None):
+-		super(ColumnLayout, self).__init__(
+-				lParent, _SingleFileLayout.VERTICAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
++		super(ColumnLayout, self).__init__(lParent, _SingleFileLayout.VERTICAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
+ class RowLayout(_SingleFileLayout):
+ 	def __init__(self, lParent, fX, fY, iWidgets, iSpacing, fWidth, fHeight = None):
+-		super(RowLayout, self).__init__(
+-				lParent, _SingleFileLayout.HORIZONTAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
++		super(RowLayout, self).__init__(lParent, _SingleFileLayout.HORIZONTAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index 02df48edf..72087e480 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -137,11 +137,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 
+ def beforeGeneration():
+ 	gc = CyGlobalContext()
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 8e756a221..81d0aefdb 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -245,12 +245,7 @@ def getGridSize(argsList):
+ 
+ 	iDefaultPlayers = sas_world_default_players(iWorld, sas_huge_custom_max_players())
+ 	iTargetPlayers = int(math.ceil(float(iDefaultPlayers) * 1.5))
+-	return sas_calibrate_grid_from_anchor(
+-		iHugeW,
+-		iHugeH,
+-		sas_huge_custom_max_players(),
+-		iTargetPlayers
+-	)
++	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_huge_custom_max_players(), iTargetPlayers)
+ 
+ def beforeGeneration():
+ 	global iNumRegions
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index df480a406..00461aa28 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -305,11 +305,7 @@ def getGridSize(argsList):
+ 		
+ 		[eWorldSize] = argsList
+ 		# <!-- custom: Keep existing BTG line options untouched; only extend world-size support by calibrating SAS sizes from Huge instead of falling back to Huge dimensions. (GPT-5.3-Codex) -->
+-		grid_size = sas_lookup_world_size_with_calibrated_sas(
+-			eWorldSize,
+-			grid_sizes,
+-			sas_huge_custom_max_players()
+-		)
++		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 
+ 	return grid_size
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index bece8c901..fecc1c795 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -252,11 +252,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 	
+ 	#return (10, 10)
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 23030ecec..5973dd462 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -147,11 +147,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 
+ def minStartingDistanceModifier():
+ 	return -27
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index bcbecf88e..1d35befdb 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -154,11 +154,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 
+ def minStartingDistanceModifier():
+ 	return -12
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index 48d11374f..24cd2b7c4 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -89,11 +89,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		base_grid_sizes,
+-		SAS_HUGE_CUSTOM_MAX_PLAYERS
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
+ 
+ # Subclass FractalWorld to alter min/max Sea Level.
+ class IceAgeFractalWorld(CvMapGeneratorUtil.FractalWorld):
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index 230709ee8..bf36103d4 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -626,11 +626,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		SAS_HUGE_CUSTOM_MAX_PLAYERS
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
+ 
+ # Subclasses to fix the FRAC_POLAR zero row bugs.
+ class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
+
+diff --git a/PrivateMaps/Peirce.py b/PrivateMaps/Peirce.py
+index 7cd0ab5e9..43087a6f8 100644
+--- a/PrivateMaps/Peirce.py
++++ b/PrivateMaps/Peirce.py
+@@ -1756,10 +1756,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		global lStartingPlotAreas
+ 		lStartingPlotAreas.append(SquareContinentMapArea)
+ 
+-		self.generatePlotsInMapAreaPolygon(
+-			iBaseSeaLevel - 15, SquareContinentMapArea, iSquareContinentGrain, iSquareContinentHillsGrain, self.iRoundFlags,
+-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-		)
++		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, SquareContinentMapArea, iSquareContinentGrain, iSquareContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 		return
+ 
+@@ -1790,10 +1787,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		global lStartingPlotAreas
+ 		lStartingPlotAreas.append(RectContinentMapArea)
+ 
+-		self.generatePlotsInMapAreaPolygon(
+-			iBaseSeaLevel - 15, RectContinentMapArea, iRectContinentGrain, iRectContinentHillsGrain, self.iRoundFlags,
+-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-		)
++		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, RectContinentMapArea, iRectContinentGrain, iRectContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 		return
+ 
+@@ -1825,10 +1819,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		global lStartingPlotAreas
+ 		lStartingPlotAreas.append(ParallelContinentMapArea)
+ 
+-		self.generatePlotsInMapAreaPolygon(
+-			iBaseSeaLevel - 15, ParallelContinentMapArea, iParallelContinentGrain, iParallelContinentHillsGrain, self.iRoundFlags,
+-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-		)
++		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, ParallelContinentMapArea, iParallelContinentGrain, iParallelContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 		return
+ 
+@@ -1851,10 +1842,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		global lStartingPlotAreas
+ 		lStartingPlotAreas.append(Poly4ContinentMapArea)
+ 
+-		self.generatePlotsInMapAreaPolygon(
+-			iBaseSeaLevel - 15, Poly4ContinentMapArea, iPoly4ContinentGrain, iPoly4ContinentHillsGrain, self.iRoundFlags,
+-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-		)
++		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, Poly4ContinentMapArea, iPoly4ContinentGrain, iPoly4ContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 		return
+ 
+@@ -2017,16 +2005,10 @@ class MapAreaPolygon:
+ 
+ 		# Perfect polygons are boring. These fractals are used to distort the shape of the resulting landmass slightly.
+ 		self.__horizontalDisplacementFrac = CyFractal()
+-		self.__horizontalDisplacementFrac.fracInit(
+-			self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(),
+-			CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-		)
++		self.__horizontalDisplacementFrac.fracInit(self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(), CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 		self.__verticalDisplacementFrac = CyFractal()
+-		self.__verticalDisplacementFrac.fracInit(
+-			self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(),
+-			CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-		)
++		self.__verticalDisplacementFrac.fracInit(self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(), CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 		# Since all points need to be accessed at least once, they can be calculated on init.
+ 		self.__bInsideMatrix = [[False for iY in range(self.__iRegionHeight)] for iX in range(self.__iRegionWidth)]
+@@ -2078,9 +2060,7 @@ class MapAreaPolygon:
+ 	def __getRandomDisplacement(self):
+ 		# Allows to apply a random displacement to one of the coordinates of one of the points of the polygon.
+ 		# :return: Calculated displacement.
+-		return self.__iRandomDisplacement / 2 - game.getMapRand().get(
+-			self.__iRandomDisplacement,
+-			"[Peirce] - Randomization of the points of one of the areas.")
++		return self.__iRandomDisplacement / 2 - game.getMapRand().get(self.__iRandomDisplacement, "[Peirce] - Randomization of the points of one of the areas.")
+ 
+ 
+ 	@property
+@@ -2124,11 +2104,8 @@ def getVariationFractal(iGrain):
+ 	varFractal = CyFractal()
+ 	iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
+ 
+-	varFractal.fracInit(
+-		map.getGridWidth(), map.getGridHeight(), iGrain, game.getMapRand(), iFlags,
+-		# The Peirce map has the same width and height.
+-		CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+-	)
++	# The Peirce map has the same width and height, so both frac Y-exp args use DEFAULT_FRAC_Y_EXP
++	varFractal.fracInit(map.getGridWidth(), map.getGridHeight(), iGrain, game.getMapRand(), iFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
+ 
+ 	return varFractal
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 1becaa8e5..24ca5ccd9 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -39,6 +39,13 @@
+ ## Used with Permission
+ ##
+ 
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
+ from SAS_WorldSizes import *
+ import CvUtil
+@@ -1820,13 +1827,9 @@ class ElevationMap2(FloatMap):
+ 				seedY = PRand.randint(0, mc.hmHeight + 1)
+ 				# <advc>
+ 				if mc.plateSeedRerollExp > 0:
+-					if mc.WrapX and PRand.random() < pow(
+-							1.0 - min(mc.hmWidth + 1 - seedX, seedX) / (mc.hmWidth + 1.0),
+-							mc.plateSeedRerollExp):
++					if mc.WrapX and PRand.random() < pow(1.0 - min(mc.hmWidth + 1 - seedX, seedX) / (mc.hmWidth + 1.0), mc.plateSeedRerollExp):
+ 						continue
+-					elif mc.WrapY and PRand.random() < pow(
+-							1.0 - min(mc.hmHeight + 1 - seedY, seedY) / (mc.hmHeight + 1.0),
+-							mc.plateSeedRerollExp):
++					elif mc.WrapY and PRand.random() < pow(1.0 - min(mc.hmHeight + 1 - seedY, seedY) / (mc.hmHeight + 1.0), mc.plateSeedRerollExp):
+ 						continue # </advc>
+ 				n = GetHmIndex(seedX, seedY)
+ 				if not self.isSeedBlocked(plateList, seedX, seedY):
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/PrivateMaps/SAS_WorldSizes.py
+index d74f19810..f2c70721e 100644
+--- a/PrivateMaps/SAS_WorldSizes.py
++++ b/PrivateMaps/SAS_WorldSizes.py
+@@ -52,11 +52,7 @@ def sas_compact_almost_all_land_grid_sizes():
+ 
+ 
+ def sas_get_compact_almost_all_land_grid_size(eWorldSize):
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		sas_compact_almost_all_land_grid_sizes(),
+-		SAS_HUGE_CUSTOM_MAX_PLAYERS
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes(), SAS_HUGE_CUSTOM_MAX_PLAYERS)
+ 
+ 
+ 
+@@ -118,12 +114,7 @@ def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnch
+ 		(iAnchorWidth, iAnchorHeight) = base_grid_sizes[iAnchorWorldSize]
+ 		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize, iAnchorMaxPlayers)
+ 		iTargetPlayers = sas_world_default_players(iWorldSize, 0)
+-		return sas_calibrate_grid_from_anchor(
+-			iAnchorWidth,
+-			iAnchorHeight,
+-			iAnchorPlayers,
+-			iTargetPlayers
+-		)
++		return sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorPlayers, iTargetPlayers)
+ 	return base_grid_sizes[max(base_grid_sizes.keys())]
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index a396d1471..7aa15b584 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -197,11 +197,7 @@ def getGridSize(argsList):
+ 		5: (10,10),  # LARGE
+ 		6: (13,13),  # HUGE
+ 	}
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		square_compact_grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes, sas_huge_custom_max_players())
+ 
+ def generatePlotTypes():
+ #	BugUtil.debug("Team_Battleground: generatePlotTypes")
+@@ -277,11 +273,7 @@ def generatePlotTypes():
+ 			5:  8,  # LARGE
+ 			6: 10,  # HUGE
+ 		}
+-		shift = sas_lookup_world_size_with_calibrated_sas(
+-			map.getWorldSize(),
+-			sizevalues,
+-			sas_huge_custom_max_players()
+-		)
++		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+ 		linewidth = 3
+ 		offsetstart = 0 - int(linewidth/2)
+ 		offsetrange = range(offsetstart, offsetstart + linewidth)
+@@ -360,11 +352,7 @@ def generatePlotTypes():
+ 				5: 7,  # LARGE
+ 				6: 8,  # HUGE
+ 			}
+-			hole_radii = sas_lookup_world_size_with_calibrated_sas(
+-				map.getWorldSize(),
+-				sizevalues,
+-				sas_huge_custom_max_players()
+-			)
++			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+ 
+ 		# Set all blocks to ocean except the inner circle
+ 		for x in range(iNumPlotsX):
+@@ -494,11 +482,7 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 					5: 7,  # LARGE
+ 					6: 8,  # HUGE
+ 				}
+-				hole_radii = sas_lookup_world_size_with_calibrated_sas(
+-					map.getWorldSize(),
+-					sizevalues,
+-					sas_huge_custom_max_players()
+-				)
++				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+ 			else:
+ 				hole_radii = -1
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+index f76c9ad04..039c8c5a5 100644
+--- a/PrivateMaps/Tilted_Axis.py
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -121,10 +121,7 @@ def getGridSize(argsList):
+ 		return []
+ 	[eWorldSize] = argsList
+ 	# <!-- custom: Tilted Axis keeps its visual identity better when SAS sizes reuse the Huge square profile instead of further scaling. (GPT-5.3-Codex) -->
+-	return sas_lookup_world_size(
+-		eWorldSize,
+-		grid_sizes
+-	)
++	return sas_lookup_world_size(eWorldSize, grid_sizes)
+ 
+ def getWrapX():
+ 	return False
+@@ -145,10 +142,7 @@ class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 			5: (7,7), # LARGE
+ 			6: (7,7)  # HUGE
+ 			}
+-		(fracXExp, fracYExp) = sas_lookup_world_size(
+-			self.map.getWorldSize(),
+-			worldsizes
+-		)
++		(fracXExp, fracYExp) = sas_lookup_world_size(self.map.getWorldSize(), worldsizes)
+ 
+ 		if rift_grain >= 0:
+ 			self.riftsFrac = CyFractal()
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index b5653928b..b840c1206 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -40,11 +40,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 
+ def getWrapX(): return True
+ def getWrapY(): return False
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index fbe0002ca..62b324c16 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -178,11 +178,7 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size_with_calibrated_sas(
+-		eWorldSize,
+-		grid_sizes,
+-		sas_huge_custom_max_players()
+-	)
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+ 
+ def beforeGeneration():
+ 	# Set up land mass data for all players (Square Wheels) then access later.
+@@ -1310,11 +1306,7 @@ def assignStartingPlots():
+ 		5: (6, 12),   # LARGE
+ 		6: (6, 18)    # HUGE
+ 		}
+-	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(
+-		map_size,
+-		sizevalues,
+-		sas_huge_custom_max_players()
+-	)
++	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues, sas_huge_custom_max_players())
+ 	if iPlayers <= threeVar:
+ 		iPlotShift = 3
+ 	elif iPlayers <= twoVar:
+
+[PATCH COVERAGE]
+patchFiles=57 embeddedFiles=57 omittedFiles=0 embeddedPatchBytes=144772

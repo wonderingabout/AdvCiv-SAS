@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1796
+# Commit: d0b787fdc2fdf0e2dceb073ad71cfc7219e86652
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 00cdebad6d731576818cb7a5dd1a1bcffc840ba5
+# Title: Amend the TSC/ EnumMap commits (forgot to commit 2 files)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	1	CvGameCoreDLL/CvGlobals.cpp
+3	3	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 70351647b..4784e8f78 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -10,6 +10,10 @@
+ #include "CvXMLLoadUtility.h" // advc.003v
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvDLLXMLIFaceBase.h"
++// <advc.003o>
++#ifdef USE_TSC_PROFILER
++#include "TSCProfiler.h"
++#endif // </advc.003o>
+ 
+ CvGlobals gGlobals; // singleton instance
+ 
+@@ -250,7 +254,10 @@ void CvGlobals::init() // allocate
+ void CvGlobals::uninit() // free
+ {
+ 	// See also CvXMLLoadUtilityInit::CleanUpGlobalVariables()
+-
++	// <advc.003o>
++	#ifdef USE_TSC_PROFILER
++	TSCProfiler::getInstance().writeFile();
++	#endif // </advc.003o>
+ 	SAFE_DELETE_ARRAY(m_aiGlobalDefinesCache); // advc.003t
+ 
+ 	SAFE_DELETE(m_game);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a075015ca..a418f9bf4 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5561,13 +5561,13 @@ char CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
+ 
+ bool CvPlot::hasYield() const
+ {
+-	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
++	/*for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+ 	{
+ 		if (getYield((YieldTypes)iI) > 0)
+ 			return true;
+ 	}
+-
+-	return false;
++	return false;*/
++	return m_aiYield.hasContent(); // advc.enum
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1321

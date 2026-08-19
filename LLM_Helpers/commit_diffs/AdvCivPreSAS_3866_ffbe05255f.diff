@@ -1,0 +1,450 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3866
+# Commit: ffbe05255f2ef132628617fe4a7bccd662883cc1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 15585f3066549d33052dca35506253bbfeab56c0
+# Title: Usability improvements for Sea Patrol
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	Assets/XML/Interface/CIV4ColorVals.xml
+9	0	Assets/XML/Text/CIV4GameText_advc.xml
+1	0	CvGameCoreDLL/CvEnums.h
+1	0	CvGameCoreDLL/CvGame.h
+24	2	CvGameCoreDLL/CvGameInterface.cpp
+9	0	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+65	26	CvGameCoreDLL/CvUnit.cpp
+10	4	CvGameCoreDLL/CvUnit.h
+3	1	CvGameCoreDLL/CyUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Interface/CIV4ColorVals.xml b/Assets/XML/Interface/CIV4ColorVals.xml
+index ef7eaaeab..fb874ddb8 100644
+--- a/Assets/XML/Interface/CIV4ColorVals.xml
++++ b/Assets/XML/Interface/CIV4ColorVals.xml
+@@ -130,6 +130,15 @@
+ 			<fBlue>0.88</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
++		<!-- advc.004k: Use that color also for the Sea Patrol mission.
++			 But it's too dark for game text, so ... -->
++		<ColorVal>
++			<Type>COLOR_CITY_BLUE_TEXT</Type>
++			<fRed>0.2</fRed>
++			<fGreen>0.6</fGreen>
++			<fBlue>1.00</fBlue>
++			<fAlpha>1.00</fAlpha>
++		</ColorVal>
+ 		<ColorVal>
+ 			<Type>COLOR_CITY_GREY</Type>
+ 			<fRed>0.35</fRed>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index ea982d3f8..a0bebffa2 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5991,6 +5991,15 @@
+ 		<Italian>Questo ordine far&#224; in modo che l'unit&#224; attacchi le navi nemiche che cercano di saccheggiare le caselle circostanti</Italian>
+ 		<Spanish>Esta orden le dir&#225; a la unidad que ataque a los barcos enemigos que intenten saquear las casillas adyacentes.</Spanish>
+ 	</TEXT>
++	<!-- Based on TXT_KEY_MISSION_SEAPATROL (CIV4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_PLOT_SEA_PATROLLED</Tag>
++		<English>Guarded by Sea Patrol</English>
++		<French>Gard� par patrouille des mers</French>
++		<German>Bewacht durch Seepatrouille</German>
++		<Italian>Sorvegliato da pattuglia marina</Italian>
++		<Spanish>Vigilado por patrulla mar&#237;tima</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.057 -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 815b10518..e556e7060 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1646,6 +1646,7 @@ enum AreaBorderLayers
+ 	AREA_BORDER_LAYER_BLOCKADING,
+ 	AREA_BORDER_LAYER_BLOCKADED,
+ 	AREA_BORDER_LAYER_NUKE, // advc.653
++	AREA_BORDER_LAYER_PATROLLED, // advc.004k
+ 	NUM_AREA_BORDER_LAYERS
+ };
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 6165ff66e..ab14718a2 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -73,6 +73,7 @@ public:
+ 	DllExport void updateColoredPlots();
+ 	DllExport void updateBlockadedPlots();
+ 	bool updateNukeAreaOfEffect(CvPlot const* pPlot = NULL) const; // advc.653
++	void updateSeaPatrolColors(CvUnit const& kSelectedUnit); // advc.004k
+ 
+ 	void updatePlotGroups();
+ 	void updateBuildingCommerce();
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index ad2bec3ba..9c3a667b9 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -381,13 +381,17 @@ void CvGame::updateBlockadedPlots()
+ 
+ void CvGame::updateSelectionList()
+ {
++	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
++	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
++	// <advc.004k> (Needed for dealing with all units becoming unselected)
++	if (pHeadSelectedUnit == NULL)
++		gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
++	// </advc.004k>
+ 	if (GC.suppressCycling() || // K-Mod
+ 		GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_CYCLING))
+ 	{
+ 		return;
+ 	}
+-	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
+-	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
+ 	if (pHeadSelectedUnit == NULL || !pHeadSelectedUnit->getGroup()->readyToSelect(true))
+ 	{
+ 		if (kUI.getOriginalPlot() == NULL ||
+@@ -2213,6 +2217,24 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
+ 	return true;
+ }
+ 
++// advc.004k:
++void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
++{
++	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
++	if (!kSelectedUnit.isSeaPatrolling())
++		return;
++	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
++		itPlot.hasNext(); ++itPlot)
++	{
++		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
++		{
++			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
++					GC.getColorInfo(GC.getInfoTypeForString("COLOR_CITY_BLUE")).getColor(),
++					AREA_BORDER_LAYER_PATROLLED);
++		}
++	}
++}
++
+ void CvGame::loadBuildQueue(const CvString& strItem) const
+ {
+ 	// advc.003w: The first two loops were needlessly complicated
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e7d44c26f..0f61b90fb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3565,6 +3565,15 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 		szString.append(gDLL->getText("TXT_KEY_PLOT_BLOCKADED"));
+ 		szString.append(CvWString::format(ENDCOLR));
+ 	}
++	// <advc.004k>
++	if (pHeadSelectedUnit != NULL && pHeadSelectedUnit->isSeaPatrolling() &&
++		pHeadSelectedUnit->canReachBySeaPatrol(kPlot))
++	{
++		szString.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_CITY_BLUE_TEXT")));
++		szString.append(NEWLINE);
++		szString.append(gDLL->getText("TXT_KEY_PLOT_SEA_PATROLLED"));
++		szString.append(CvWString::format(ENDCOLR));
++	} // </advc.004k>
+ 
+ 	if (kPlot.isFeature())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index f9bbf7852..42b3bf992 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -607,6 +607,9 @@ public:
+ 	int getCOMBAT_DIE_SIDES() const { return getDefineINT(COMBAT_DIE_SIDES); }
+ 	int getCOMBAT_DAMAGE() const { return getDefineINT(COMBAT_DAMAGE); }
+ 	// BETTER_BTS_AI_MOD: END
++	/*	advc.004k: Future-proofing. This could be a global define, but, so far,
++		1 is the only supported value. */
++	int getMAX_SEA_PATROL_RANGE() const { return 1; }
+ 	/*  <advc.opt> (TextVals can't be loaded by cacheGlobals. Hence also won't be
+ 		updated when a setDefine... function is called.) */
+ 	ImprovementTypes getRUINS_IMPROVEMENT() const
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index f480abcf1..0b2297d14 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3358,7 +3358,7 @@ bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData
+ 			break;
+ 
+ 		case MISSION_SEAPATROL:
+-			if (!bValid && pUnit->canSeaPatrol(pPlot))
++			if (!bValid && pUnit->canSeaPatrol(pPlot, true))
+ 			{
+ 				if (!bCheckMoves)
+ 					return true;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 53f4a7f15..f6e0c9058 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -629,7 +629,9 @@ void CvUnit::doTurn()
+ 			getGroup()->setActivityType(ACTIVITY_AWAKE);
+ 		} // </advc.033>
+ 	}
+-
++	// <advc.004k>
++	if (isSeaPatrolling() && !canSeaPatrol())
++		getGroup()->setActivityType(ACTIVITY_AWAKE); // </advc.004k>
+ 	if (isSpy() && isIntruding() && !isCargo())
+ 	{
+ 		TeamTypes eTeam = getPlot().getTeam();
+@@ -1235,7 +1237,8 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ }
+ 
+ 
+-void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
++void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
++	bool bSeaPatrol) // advc.004k
+ {
+ 	if (pbIntercepted != NULL)
+ 		*pbIntercepted = false; // </advc.004c>
+@@ -1302,7 +1305,8 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
+ 	}
+ 
+ 	//check if quick combat
+-	bool const bVisible = (bQuick ? false : isCombatVisible(pDefender));
++	bool const bVisible = (bQuick ? false : isCombatVisible(pDefender,
++			bSeaPatrol)); // advc.004k
+ 
+ 	//FAssertMsg((pPlot == pDefender->plot()), "There is not expected to be a defender or the defender's plot is expected to be pPlot (the attack plot)");
+ 
+@@ -1881,6 +1885,7 @@ void CvUnit::onActiveSelection()
+ 	// <advc.004h>
+ 	if (isFound())
+ 		updateFoundingBorder(); // </advc.004h>
++	GC.getGame().updateSeaPatrolColors(*this); // advc.004k
+ }
+ 
+ // advc.004h:
+@@ -2681,13 +2686,15 @@ bool CvUnit::isInvasionMove(CvPlot const& kFrom, CvPlot const& kTo) const
+ }
+ 
+ 
+-void CvUnit::attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted)
++void CvUnit::attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted,
++	bool bSeaPatrol) // advc
+ {
+-	// Note: this assertion could fail in certain situations involving sea-patrol - Karadoc
+-	FAssert(canMoveInto(*pPlot, true));
++	FAssert(canMoveInto(*pPlot, true)
++			// K-Mod (note): could fail in certain situations involving sea-patrol
++			|| bSeaPatrol); // advc
+ 	FAssert(getCombatTimer() == 0);
+ 	setAttackPlot(pPlot, false);
+-	updateCombat(bQuick, pbIntercepted);
++	updateCombat(bQuick, pbIntercepted, /* advc: */ bSeaPatrol);
+ }
+ 
+ void CvUnit::fightInterceptor(CvPlot const& kPlot, bool bQuick) // advc: was CvPlot const*
+@@ -3451,23 +3458,48 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
+ }
+ 
+ 
+-bool CvUnit::canSeaPatrol(CvPlot const* pPlot) const
++bool CvUnit::canSeaPatrol(CvPlot const* pPlot, /* advc: */ bool bCheckActivity) const
+ {
+-	if (!pPlot->isWater())
++	CvPlot const& kPlot = (pPlot == NULL ? getPlot() : *pPlot); // advc
++	if (!kPlot.isWater())
+ 		return false;
+-
+ 	if (getDomainType() != DOMAIN_SEA)
+ 		return false;
+-
+ 	if (!canFight() || isOnlyDefensive())
+ 		return false;
+-
+-	//if (isWaiting())
+-	if (getGroup()->getActivityType() == ACTIVITY_PATROL) // K-Mod
++	// <advc.004k>
++	bool bValid = false;
++	for (SquareIter itOther(kPlot, GC.getMAX_SEA_PATROL_RANGE(), false);
++		!bValid && itOther.hasNext(); ++itOther)
++	{
++		if (canReachBySeaPatrol(*itOther, &kPlot))
++			bValid = true;
++	}
++	if (!bValid)
++		return false; // </advc.004k>
++	if (bCheckActivity && isSeaPatrolling()) // advc
+ 		return false;
+ 	return true;
+ }
+ 
++// advc: Cut from canSeaPatrol
++bool CvUnit::isSeaPatrolling() const
++{
++	return //isWaiting() // BtS
++			(getGroup()->getActivityType() == ACTIVITY_PATROL); // K-Mod
++}
++
++// advc.004k:
++bool CvUnit::canReachBySeaPatrol(CvPlot const& kDest, CvPlot const* pFrom) const
++{
++	CvPlot const& kFrom = (pFrom == NULL ? getPlot() : *pFrom);
++	int iDist = stepDistance(&kFrom, &kDest);
++	return (iDist <= GC.getMAX_SEA_PATROL_RANGE() && iDist > 0 &&
++			kDest.isWater() && kDest.getTeam() == getTeam() &&
++			kDest.getRevealedImprovementType(getTeam()) != NO_IMPROVEMENT &&
++			kDest.getArea().canBeEntered(getArea())); // advc.030
++}
++
+ 
+ void CvUnit::airCircle(bool bStart)
+ {
+@@ -4565,7 +4597,7 @@ bool CvUnit::pillage()
+ 			setMadeAttack(false);
+ 			int iWithdrawal = withdrawalProbability();
+ 			changeExtraWithdrawal(-iWithdrawal); // no withdrawal since we are really the defender
+-			attack(pInterceptor->plot(), false);
++			attack(pInterceptor->plot(), false, /* advc: */ NULL, true);
+ 			changeExtraWithdrawal(iWithdrawal);
+ 			return false;
+ 		}
+@@ -7796,7 +7828,8 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ {
+ 	CvUnit* pBestUnit = NULL;
+ 	int iBestUnitRank = -1; // BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000
+-	for (SquareIter it(*pPillager, 1); it.hasNext(); ++it)
++	for (SquareIter it(*pPillager, GC.getMAX_SEA_PATROL_RANGE(), false);
++		it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& kLoopPlot = *it;
+ 		FOR_EACH_UNIT_VAR_IN(pLoopUnit, kLoopPlot)
+@@ -7806,14 +7839,12 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ 				FAssertMsg(pLoopUnit != NULL, "Can this happen?"); // advc.test
+ 				continue;
+ 			}
+-			//if (pLoopUnit->sameArea(*pPillager))
+-			// advc.030: Replacing the above (and negated)
+-			if(!pPillager->getArea().canBeEntered(pLoopUnit->getArea()))
+-				continue;
+-			if (!pLoopUnit->isInvisible(getTeam(), false) &&
+-				isEnemy(pLoopUnit->getTeam()) &&
+-				pLoopUnit->getDomainType() == DOMAIN_SEA &&
+-				pLoopUnit->getGroup()->getActivityType() == ACTIVITY_PATROL)
++			// <advc>
++			if (pLoopUnit->isSeaPatrolling() &&
++				pLoopUnit->canSeaPatrol(pLoopUnit->plot()) && // <advc>
++				pLoopUnit->canReachBySeaPatrol(getPlot()) && // advc.004k
++				!pLoopUnit->isInvisible(getTeam(), false) &&
++				isEnemy(pLoopUnit->getTeam()))
+ 			{
+ 				if (pBestUnit == NULL || pLoopUnit->isBetterDefenderThan(pBestUnit, this,
+ 					// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+@@ -11452,7 +11483,8 @@ bool CvUnit::verifyStackValid()
+ }
+ 
+ //check if quick combat (in which case false is returned)
+-bool CvUnit::isCombatVisible(const CvUnit* pDefender) const
++bool CvUnit::isCombatVisible(CvUnit const* pDefender,
++	bool bSeaPatrol) const // advc.004k
+ {
+ 	bool bVisible = false;
+ 	if (!m_pUnitInfo->isQuickCombat())
+@@ -11461,8 +11493,15 @@ bool CvUnit::isCombatVisible(const CvUnit* pDefender) const
+ 		{
+ 			if (isHuman())
+ 			{
+-				if (!GET_PLAYER(getOwner()).isOption(PLAYEROPTION_QUICK_ATTACK))
++				if (!GET_PLAYER(getOwner()).isOption(PLAYEROPTION_QUICK_ATTACK) ||
++					/*	<advc.004k> Attacker/ defender role is a bit jumbled when
++						a sea patrol is triggered. Err on the side of slow combat. */
++					(bSeaPatrol &&
++					!GET_PLAYER(getOwner()).isOption(PLAYEROPTION_QUICK_DEFENSE)))
++					// </advc.004k>
++				{
+ 					bVisible = true;
++				}
+ 			}
+ 			else if (pDefender != NULL && pDefender->isHuman())
+ 			{
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 90fc25750..79ed096fa 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -29,7 +29,8 @@ public:
+ 
+ 	void doTurn();
+ 	void doTurnPost(); // advc.029
+-	void updateCombat(bool bQuick = false, /* advc.004c: */ bool* pbIntercepted = NULL);
++	void updateCombat(bool bQuick = false, /* advc.004c: */ bool* pbIntercepted = NULL,
++			bool bSeaPatrol = false); // advc.004k
+ 	void updateAirCombat(bool bQuick = false);
+ 	bool updateAirStrike(CvPlot& kPlot, bool bQuick, bool bFinish);
+ 
+@@ -89,7 +90,8 @@ public:
+ 	bool isPlotValid(CvPlot const& kPlot) const;											// Exposed to Python (via CyPlot::isFriendlyCity)
+ 	bool isRevealedPlotValid(CvPlot const& kPlot) const; // </advc>
+ 	bool isInvasionMove(CvPlot const& kFrom, CvPlot const& kTo) const; // advc.162
+-	void attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted = NULL);
++	void attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted = NULL,
++			bool bSeaPatrol = false); // advc
+ 	void attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange);
+ 	void fightInterceptor(CvPlot const& kPlot, bool bQuick);
+ 	void move(CvPlot& kPlot, bool bShow, // advc: 1st param was CvPlot* (not const b/c of possible feature change)
+@@ -127,7 +129,10 @@ public:
+ 	bool canAirPatrol(const CvPlot* pPlot) const;															// Exposed to Python
+ 	void airCircle(bool bStart);
+ 
+-	bool canSeaPatrol(const CvPlot* pPlot) const;															// Exposed to Python
++	bool canSeaPatrol(CvPlot const* pPlot																	// Exposed to Python
++			= NULL, bool bCheckActivity = false) const; // advc
++	bool isSeaPatrolling() const; // advc
++	bool canReachBySeaPatrol(CvPlot const& kDest, CvPlot const* pFrom = NULL) const; // advc.004k
+ 
+ 	bool canHeal(const CvPlot* pPlot) const;																// Exposed to Python
+ 	bool canSentryHeal(const CvPlot* pPlot) const; // advc.004l
+@@ -1204,7 +1209,8 @@ protected:
+ 	bool verifyRoundsValid(const CvBattleDefinition & battleDefinition) const;
+ 	void increaseBattleRounds(CvBattleDefinition & battleDefinition) const;
+ 	int computeWaveSize(bool bRangedRound, int iAttackerMax, int iDefenderMax) const;
+-	bool isCombatVisible(const CvUnit* pDefender) const;
++	bool isCombatVisible(const CvUnit* pDefender,
++			bool bSeaPatrol = false) const; // advc.004k
+ 	//void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, CvBattleDefinition& kBattle);
+ 	void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible); // K-Mod
+ 	void addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const; // advc.010
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 7a15f771a..5c06f4753 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -170,7 +170,9 @@ bool CyUnit::canAirPatrol(CyPlot* pPlot)
+ 
+ bool CyUnit::canSeaPatrol(CyPlot* pPlot)
+ {
+-	return m_pUnit ? m_pUnit->canSeaPatrol(pPlot->getPlot()) : false;
++	return m_pUnit ? m_pUnit->canSeaPatrol(pPlot->getPlot(),
++			true) // advc.004k: For the same behavior as in K-Mod
++			: false;
+ }
+ 
+ bool CyUnit::canHeal(CyPlot* pPlot)
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=16179

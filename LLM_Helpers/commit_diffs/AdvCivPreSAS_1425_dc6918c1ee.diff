@@ -1,0 +1,369 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1425
+# Commit: dc6918c1ee008a94292af400d9efc5b0ebd494c9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 45d8f885bc84ff60f169f178bb32115ddfaf589c
+# Title: Espionage slider requires Alphabet
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	21	Assets/Python/Screens/CvEspionageAdvisor.py
+18	17	Assets/Python/Screens/CvTechChooser.py
+5	1	Assets/xml/Art/CIV4ArtDefines_Interface.xml
+2	1	Assets/xml/GameInfo/CIV4CommerceInfo.xml
+9	1	Assets/xml/Technologies/CIV4TechInfos.xml
+31	0	Assets/xml/Text/BUG Main Interface Options.xml
+0	20	Assets/xml/Text/CIV4GameText_advc.xml
+7	1	CvGameCoreDLL/CvGameTextMgr.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+4	0	CvGameCoreDLL/CvTeam.cpp
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvEspionageAdvisor.py b/Assets/Python/Screens/CvEspionageAdvisor.py
+index 982963582..8ad92b3fc 100644
+--- a/Assets/Python/Screens/CvEspionageAdvisor.py
++++ b/Assets/Python/Screens/CvEspionageAdvisor.py
+@@ -371,27 +371,7 @@ class CvEspionageAdvisor:
+ 			pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 			pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+ 
+-			# <advc.120c>
+-			# Copied from EconomicsAdvisor.py
+-			x = self.X_TOTAL_PANE
+-			y = self.Y_TOTAL_PANE
+-			eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
+-			screen.setButtonGFC("plusButton", u"", "", x + self.TEXT_MARGIN, y + self.TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
+-			screen.setButtonGFC("minusButton", u"", "", x + self.TEXT_MARGIN + 24, y + self.TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
+-			szText = u"<font=3>" + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)</font>"
+-			screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.TEXT_MARGIN + 50, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-			szRate = u"<font=3>" + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + u"</font>"
+-			screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.PANE_WIDTH - self.TEXT_MARGIN, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			# Update labels
+-			screen.deleteWidget("espRateLabel")
+-			screen.deleteWidget("espRate")
+-			# Same code as above, except for the buttons
+-			eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
+-			szText = u"<font=3>" + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)</font>"
+-			screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.TEXT_MARGIN + 50, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-			szRate = u"<font=3><color=0,255,0,0>%s</color></font>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getCommerceRate(CommerceTypes(eCommerce)), )))
+-			screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.PANE_WIDTH + self.TEXT_MARGIN, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			# </advc.120c>
++			self.drawEspionageSlider() # advc.120c
+ 
+ 			iPlayerLoop = 0
+ 
+@@ -740,3 +720,32 @@ class CvEspionageAdvisor:
+ 			CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, False)
+ 			self.refreshScreen()
+ 		return
++
++	# <advc.120c>
++	def drawEspionageSlider(self):
++		screen = self.getScreen()
++		pActivePlayer = gc.getPlayer(self.iActivePlayer)
++
++		eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
++		if not pActivePlayer.isCommerceFlexible(eCommerce):
++			return
++
++		# Copied from EconomicsAdvisor.py
++		x = self.X_TOTAL_PANE
++		y = self.Y_TOTAL_PANE
++		screen.setButtonGFC("plusButton", u"", "", x + self.TEXT_MARGIN, y + self.TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
++		screen.setButtonGFC("minusButton", u"", "", x + self.TEXT_MARGIN + 24, y + self.TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
++		szText = u"<font=3>" + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)</font>"
++		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.TEXT_MARGIN + 50, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		szRate = u"<font=3>" + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + u"</font>"
++		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.PANE_WIDTH - self.TEXT_MARGIN, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		# Update labels
++		screen.deleteWidget("espRateLabel")
++		screen.deleteWidget("espRate")
++		# Same code as above, except for the buttons
++		eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
++		szText = u"<font=3>" + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)</font>"
++		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.TEXT_MARGIN + 50, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		szRate = u"<font=3><color=0,255,0,0>%s</color></font>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getCommerceRate(CommerceTypes(eCommerce)), )))
++		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.PANE_WIDTH + self.TEXT_MARGIN, y + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++	# </advc.120c>
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index d5e02cc58..c68e86576 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -584,6 +584,23 @@ class CvTechChooser:
+ 		j = 0
+ 		k = 0
+ 		
++		# Adjustments  (advc.120g: Moved up so that the icon appears before the tech trading icon)
++		for j in range( CommerceTypes.NUM_COMMERCE_TYPES ):
++			# advc.120g: The second condition said (I paraphrase) "not team.isCommerceFlexible". This hides the icon once the tech is dicovered, which I don't like. If there were multiple techs unlocking the same slider it would make more sense. Actually, buildings can - in theory - unlock a slider for a player. So I'm going to check if the player already has the slider, but the team doesn't (meaning that the player must have it through a building).
++			if (gc.getTechInfo(i).isCommerceFlexible(j) and (not gc.getPlayer(self.iCivSelected).isCommerceFlexible(j) or gc.getTeam(gc.getPlayer(self.iCivSelected).getTeam()).isCommerceFlexible(j))):
++				szAdjustButton = self.getNextWidgetName("AdjustButton")
++				if ( j == CommerceTypes.COMMERCE_CULTURE ):
++					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_CULTURE").getPath()
++				elif ( j == CommerceTypes.COMMERCE_ESPIONAGE ):
++					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_ESPIONAGE").getPath()
++				else:
++					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_QUESTIONMARK").getPath()
++				screen.addDDSGFCAt( szAdjustButton, szTechRecord, szFileName, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_ADJUST, i, j, False )
++				fX += X_INCREMENT
++
++		j = 0
++		k = 0
++
+ 		# Free Techs
+ 		if ( gc.getTechInfo(i).getFirstFreeTechs() > 0 ):
+ 			szFreeTechButton = self.getNextWidgetName("FreeTech")
+@@ -773,22 +790,6 @@ class CvTechChooser:
+ 		k = 0
+ 		# K-Mod end.
+ 
+-		# Adjustments
+-		for j in range( CommerceTypes.NUM_COMMERCE_TYPES ):
+-			if (gc.getTechInfo(i).isCommerceFlexible(j) and not (gc.getTeam(gc.getPlayer(self.iCivSelected).getTeam()).isCommerceFlexible(j))):
+-				szAdjustButton = self.getNextWidgetName("AdjustButton")
+-				if ( j == CommerceTypes.COMMERCE_CULTURE ):
+-					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_CULTURE").getPath()
+-				elif ( j == CommerceTypes.COMMERCE_ESPIONAGE ):
+-					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_ESPIONAGE").getPath()
+-				else:
+-					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_QUESTIONMARK").getPath()
+-				screen.addDDSGFCAt( szAdjustButton, szTechRecord, szFileName, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_ADJUST, i, j, False )
+-				fX += X_INCREMENT
+-
+-		j = 0
+-		k = 0
+-
+ 		# Terrain opens up as a trade route
+ 		for j in range( gc.getNumTerrainInfos() ):
+ 			if gc.getTechInfo(i).isTerrainTrade(j):
+@@ -810,7 +811,7 @@ class CvTechChooser:
+ 		j = 0
+ 		k = 0
+ 
+-		# Special buildings like monestaries...
++		# Special buildings like monasteries...
+ 		for j in range( gc.getNumSpecialBuildingInfos() ):
+ 			if (gc.getSpecialBuildingInfo(j).getTechPrereq() == i):
+ 				szSpecialBuilding = self.getNextWidgetName("SpecialBuildingButton")
+
+diff --git a/Assets/xml/Art/CIV4ArtDefines_Interface.xml b/Assets/xml/Art/CIV4ArtDefines_Interface.xml
+index 53cded902..b402d22b0 100644
+--- a/Assets/xml/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/xml/Art/CIV4ArtDefines_Interface.xml
+@@ -546,9 +546,13 @@
+ 			<Type>INTERFACE_TECH_CULTURE</Type>
+ 			<Path>Art/Interface/Screens/TechTree/Adjust_Culture.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- advc.120g: This was missing a comma and I've replaced 'Process/
++			 ProcessCulture.dds' (is that a fallback?) with 'Actions/
++			 Expose.dds'. What gets shown is the espionage icon from the atlas.
++			 -->
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_TECH_ESPIONAGE</Type>
+-			<Path>Art/Interface/Buttons/Process/ProcessCulture.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,16</Path>
++			<Path>,Art/Interface/Buttons/Actions/Expose.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,16</Path>
+ 		</InterfaceArtInfo>
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_TECH_DEFENSIVEPACT</Type>
+
+diff --git a/Assets/xml/GameInfo/CIV4CommerceInfo.xml b/Assets/xml/GameInfo/CIV4CommerceInfo.xml
+index ee030cbf5..d1a9811f2 100644
+--- a/Assets/xml/GameInfo/CIV4CommerceInfo.xml
++++ b/Assets/xml/GameInfo/CIV4CommerceInfo.xml
+@@ -33,13 +33,14 @@
+ 			<bFlexiblePercent>0</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessCulture.dds</Button>
+ 		</CommerceInfo>
++		<!-- advc.120g: bFlexiblePercent was 1 -->
+ 		<CommerceInfo>
+ 			<Type>COMMERCE_ESPIONAGE</Type>
+ 			<Description>TXT_KEY_ESPIONAGE_CULTURE</Description>
+ 			<iInitialPercent>0</iInitialPercent>
+ 			<iInitialHappiness>0</iInitialHappiness>
+ 			<iAIWeightPercent>25</iAIWeightPercent>
+-			<bFlexiblePercent>1</bFlexiblePercent>
++			<bFlexiblePercent>0</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessCulture.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,16</Button>
+ 		</CommerceInfo>
+ 	</CommerceInfos>
+
+diff --git a/Assets/xml/Technologies/CIV4TechInfos.xml b/Assets/xml/Technologies/CIV4TechInfos.xml
+index f8211dda0..529f3df43 100644
+--- a/Assets/xml/Technologies/CIV4TechInfos.xml
++++ b/Assets/xml/Technologies/CIV4TechInfos.xml
+@@ -629,10 +629,12 @@
+ 			<iGridX>7</iGridX>
+ 			<iGridY>2</iGridY>
+ 			<DomainExtraMoves/>
++			<!-- advc.120g: Added the espionage row (no functional change) -->
+ 			<CommerceFlexible>
+ 				<bFlexible>0</bFlexible>
+ 				<bFlexible>0</bFlexible>
+ 				<bFlexible>1</bFlexible>
++				<bFlexible>0</bFlexible>
+ 			</CommerceFlexible>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+@@ -2499,7 +2501,13 @@
+ 			<iGridX>5</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+-			<CommerceFlexible/>
++			<!-- advc.120g -->
++			<CommerceFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>1</bFlexible>
++			</CommerceFlexible>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index fbe46ec7d..a40adaf2e 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -259,6 +259,37 @@
+ 		<Spanish>Muestra un segundo par de botones +/- buttons que permiten fijar la producci�n a 100% y 0% respectivamente.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.120c: Translations based on TXT_KEY_TECH_DRAMA_STRATEGY in
++		 CIV4GameText_Strategy.xml ("slider"), TXT_KEY_CONCEPT_DIPLOMACY_PEDIA
++		 in CIV4GameText_Civilopedia_Concepts.xml ("screen"). -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__HIDE_ESPSLIDER_TEXT</Tag>
++		<English>Hide Espionage Slider when 0</English>
++		<French>Masquer la r�glette d'espionnage � 0</French>
++		<German>Spionageregler auf 0 ausblenden</German>
++		<Italian>Nascondi barra di spionaggio quando � 0</Italian>
++		<Spanish>Ocultar el control de espionaje cuando est� en 0</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__HIDE_ESPSLIDER_HOVER</Tag>
++		<English>Remove the espionage slider from the main interface if the slider position is 0. The slider can then still be accessed through the Espionage screen or the City screen.</English>
++		<French>Retirez la r�glette d'espionnage de l'�cran principal si la position de la r�glette est 0. Vous pouvez toujours y acc�der via l'�cran Espionnage ou l'�cran Ville.</French>
++		<German>Entfernt den Spionageregler vom Hauptbildschirm, wenn er auf 0 steht. Der Regler ist dann immer noch auf dem Spionagebildschirm und dem Stadtbildschirm verf�gbar.</German>
++		<Italian>Rimuovere la barra di spionaggio dalla schermata principale se la sua posizione � 0. La barra pu� essere raggiunta attraverso la schermata Espionaggio o la schermata Citt�.</Italian>
++		<Spanish>Retire el control deslizante de espionaje de la pantalla principal si la posici�n del control deslizante es 0. Se puede acceder al control deslizante a trav�s de la pantalla Espionaje o de la pantalla Ciudad.</Spanish>
++	</TEXT>
++	<!-- This is shown on the tech chooser, not the BUG menu, but it's related
++		 to the 120c option, so I'm putting it in this file.
++		 Based on TXT_KEY_ESPIONAGE_SCREEN (CIV4GameText_BTS.xml). -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_ADJUST_ON_ESPIONGAE_SCREEN</Tag>
++		<English>[SPACE](on the Espionage screen)</English>
++		<French>[SPACE](sur l'�cran d'espionnage)</French>
++		<German>[SPACE](auf dem Spionagebildschirm)</German>
++		<Italian>[SPACE](sulla schermata dello spionaggio)</Italian>
++		<Spanish>[SPACE](en la pantalla de espionaje)</Spanish>
++	</TEXT>
++	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__CITYARROWS_TEXT</Tag>
+ 		<English>City Cycle Arrows</English>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index b4a893878..cc5b14b72 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2779,26 +2779,6 @@
+ 		<Spanish>Parece que los esp&#237;as enemigos no perder&#225;n de vista a nuestros agentes de ahora en adelante.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.120c: Translations based on TXT_KEY_TECH_DRAMA_STRATEGY in
+-		 CIV4GameText_Strategy.xml ("slider"), TXT_KEY_CONCEPT_DIPLOMACY_PEDIA
+-		 in CIV4GameText_Civilopedia_Concepts.xml ("screen"). -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__HIDE_ESPSLIDER_TEXT</Tag>
+-		<English>Hide Espionage Slider when 0</English>
+-		<French>Masquer la r�glette d'espionnage � 0</French>
+-		<German>Spionageregler auf 0 ausblenden</German>
+-		<Italian>Nascondi barra di spionaggio quando � 0</Italian>
+-		<Spanish>Ocultar el control de espionaje cuando est� en 0</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__HIDE_ESPSLIDER_HOVER</Tag>
+-		<English>Remove the espionage slider from the main interface if the slider position is 0. The slider can then still be accessed through the Espionage screen or the City screen.</English>
+-		<French>Retirez la r�glette d'espionnage de l'�cran principal si la position de la r�glette est 0. Vous pouvez toujours y acc�der via l'�cran Espionnage ou l'�cran Ville.</French>
+-		<German>Entfernt den Spionageregler vom Hauptbildschirm, wenn er auf 0 steht. Der Regler ist dann immer noch auf dem Spionagebildschirm und dem Stadtbildschirm verf�gbar.</German>
+-		<Italian>Rimuovere la barra di spionaggio dalla schermata principale se la sua posizione � 0. La barra pu� essere raggiunta attraverso la schermata Espionaggio o la schermata Citt�.</Italian>
+-		<Spanish>Retire el control deslizante de espionaje de la pantalla principal si la posici�n del control deslizante es 0. Se puede acceder al control deslizante a trav�s de la pantalla Espionaje o de la pantalla Ciudad.</Spanish>
+-	</TEXT>
+-	
+ 	<!-- advc.023: Based on INTERFACE_CITY_GROWING in Civ4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_OCCUPATION_TIMER</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index dd69e6575..90b194096 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15075,7 +15075,13 @@ void CvGameTextMgr::buildAdjustString(CvWStringBuffer &szBuffer, TechTypes eTech
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 		}
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_ADJUST_COMMERCE_RATE", GC.getCommerceInfo((CommerceTypes) iCommerceType).getChar()));
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_ADJUST_COMMERCE_RATE",
++				GC.getCommerceInfo((CommerceTypes) iCommerceType).getChar()));
++		// <advc.120c>
++		if(!bList && iCommerceType == COMMERCE_ESPIONAGE &&
++				getBugOptionBOOL("MainInterface__Hide_EspSlider", true))
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_ADJUST_ON_ESPIONGAE_SCREEN"));
++		// </advc.120c>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 20e0b4f01..66ccbd7ed 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -24631,7 +24631,8 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 	// K-Mod
+ 	// Apparently BBAI wanted to use "big espionage" to save points when our espionage is weak.
+ 	// I've got other plans.
+-	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE)
++			&& isCommerceFlexible(COMMERCE_ESPIONAGE)) // advc.120g
+ 	{
+ 		// don't start espionage strategy if we have no spies
+ 		if (iLastStrategyHash & AI_STRATEGY_BIG_ESPIONAGE || AI_getNumAIUnits(UNITAI_SPY) > 0)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ffc86d4fc..ad37d1569 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -7900,6 +7900,9 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 	pStream->Read(MAX_TEAMS, m_aiCounterespionageTurnsLeftAgainstTeam);
+ 	pStream->Read(MAX_TEAMS, m_aiCounterespionageModAgainstTeam);
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiCommerceFlexibleCount);
++	// <advc.120g> Prior to uiFlag=6, espionage was flexible from the beginning.
++	if(uiFlag < 6)
++		m_aiCommerceFlexibleCount[COMMERCE_ESPIONAGE] = 1; // </advc.120g>
+ 	pStream->Read(NUM_DOMAIN_TYPES, m_aiExtraMoves);
+ 	pStream->Read(GC.getNumVoteSourceInfos(), m_aiForceTeamVoteEligibilityCount);
+ 
+@@ -8000,6 +8003,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	uiFlag = 3; // advc.034
+ 	uiFlag = 4; // advc.162
+ 	uiFlag = 5; // advc.003m
++	uiFlag = 6; // advc.120g
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iNumMembers);
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=19056

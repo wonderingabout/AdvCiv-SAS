@@ -1,0 +1,255 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4918
+# Commit: 44ffa78d4326c49b8049cefd99f8d80566cf42ff
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0efaba32cacac4b047eb047995b4c04f174883ec
+# Title: add conceptinfos new entries: concept_customization, concept_fresh_water, concept_global_warming, concept_scoring_system visible in sevopedia "outdated" cate...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+30	4	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+48	6	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+19	0	README.md
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 2c64e9a63..6097fa019 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -271,7 +271,7 @@ class SevoPediaImprovement:
+ 			if iYieldChange != 0:
+ 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 		if len(sText) > 0:
+-			# <!-- custom: unlike in m-e mod or so it seems if i may say but anyways etc, we don't use WidgetTypes.WIDGET_PYTHON and id 6783 neither if i may say but anyways etc, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this case but anyways etc for advciv-sas anyways etc -->
++			# <!-- custom: unlike in m-e mod or so it seems if i may say but anyways etc, we don't use WidgetTypes.WIDGET_PYTHON (for/in this placeMostYields method i mean but anyways etc) and id 6783 neither if i may say but anyways etc, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this case but anyways etc for advciv-sas anyways etc -->
+ 			#screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, 6783, -1)
+ 			#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			# This button now links to the Civilopedia concept for Rivers.
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+index 3803898e0..f3a46ef89 100644
+--- a/Assets/XML/BasicInfos/CIV4BasicInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -147,6 +147,12 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
+ 			<Description>TXT_KEY_CONCEPT_CULTURE</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_CULTURE_PEDIA</Civilopedia>
+ 		</ConceptInfo>
++		<!-- custom: new entry -->
++		<ConceptInfo>
++			<Type>CONCEPT_CUSTOMIZATION</Type>
++			<Description>TXT_KEY_CONCEPT_CUSTOMIZATION</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_CUSTOMIZATION_PEDIA</Civilopedia>
++		</ConceptInfo>
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_DIPLOMACY</Type>
+ 			<Description>TXT_KEY_CONCEPT_DIPLOMACY</Description>
+@@ -167,6 +173,18 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
+ 			<Description>TXT_KEY_CONCEPT_FOOD</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_FOOD_PEDIA</Civilopedia>
+ 		</ConceptInfo>
++		<!-- custom: new entry -->
++		<ConceptInfo>
++			<Type>CONCEPT_FRESH_WATER</Type>
++			<Description>TXT_KEY_CONCEPT_FRESH_WATER</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_FRESH_WATER_PEDIA</Civilopedia>
++		</ConceptInfo>
++		<!-- custom: new entry -->
++		<ConceptInfo>
++			<Type>CONCEPT_GLOBAL_WARMING</Type>
++			<Description>TXT_KEY_CONCEPT_GLOBAL_WARMING</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_GLOBAL_WARMING_PEDIA</Civilopedia>
++		</ConceptInfo>
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_GOLDEN_AGE</Type>
+ 			<Description>TXT_KEY_CONCEPT_GOLDEN_AGE</Description>
+@@ -258,22 +276,30 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
+ 			<Civilopedia>TXT_KEY_CONCEPT_REVOLUTION_PEDIA</Civilopedia>
+ 		</ConceptInfo>
+ 		<!-- custom: new additions to redirect to them in sevopedia improvement, see there for details anyways etc ; is also with the help of gemini ai, anyways etc -->
++		<!-- custom: new entry -->
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_RIVERS</Type>
+-			<Description>TXT_KEY_CONCEPT_RIVERS_TITLE</Description>
++			<Description>TXT_KEY_CONCEPT_RIVERS</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_RIVERS_PEDIA</Civilopedia>
+ 		</ConceptInfo>
++		<!-- custom: new entry -->
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_ROUTE_ROAD</Type>
+-			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD_TITLE</Description>
++			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Civilopedia>
+ 		</ConceptInfo>
++		<!-- custom: new entry -->
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_ROUTE_RAILROAD</Type>
+-			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD_TITLE</Description>
++			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Civilopedia>
+ 		</ConceptInfo>
+-		<!-- custom: end of new additions anyways etc -->
++		<!-- custom: new entry -->
++		<ConceptInfo>
++			<Type>CONCEPT_SCORING_SYSTEM</Type>
++			<Description>TXT_KEY_CONCEPT_SCORING_SYSTEM</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SCORING_SYSTEM_PEDIA</Civilopedia>
++		</ConceptInfo>
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_SPACESHIP</Type>
+ 			<Description>TXT_KEY_CONCEPT_SPACESHIP</Description>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index c6fd09d75..90f7e4200 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -141,27 +141,69 @@ Rename the tag									Original untouched; you're free to localize your version
+ 
+ 	<!-- custom: see code comment at (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details anyways etc, i adjusted gemini ai's code and help thanks a lot still anyways etc hehe if i may say but anyways etc anyways etc anyways etc ; note: it is also fine if i may say but anyways etc if the info below is unfortunately outdated if i may say but anyways etc or/and not relevant in our mod anymore, we don't support it, but use it mostly if not only for its redirect feature/behaviour similarly to how we handle the redirect in sevopedia unit as of now to concept_cities, if it can help all good, else we do not maintain these, but add them at least for this purpose of redirecting if i may say in our mod i.e. advciv-sas but anyways etc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_RIVERS_TITLE</Tag>
++		<Tag>TXT_KEY_CONCEPT_RIVERS</Tag>
+ 		<English>Rivers</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_RIVERS_PEDIA</Tag>
+-		<English>[H1]Rivers[\H1][PARAGRAPH:2]Rivers are exceptional terrain in that they are not "in" or "on" a tile, but they run between tiles. A river is considered adjacent to all tiles that it runs along, including all four tiles which touch a place where the river bends or empties into water. However, the two tiles which touch the source of a river and are behind it, with respect to the river's flow, are not riverside. Rivers supply fresh water to all adjacent tiles. A river adds +1 [ICON_COMMERCE] to all adjacent land tiles, unless they also contain an unimproved forest or jungle. Only riverside Cities may build [LINK=BUILDING_LEVEE]Levees[\LINK], which provide +1 [ICON_PRODUCTION] to every riverside tile within that City's radius.[PARAGRAPH:1]Source: https://civilization.fandom.com/wiki/Terrain_(Civ4)#Rivers</English>
++		<English>[H1]Rivers[\H1][PARAGRAPH:2]Rivers are exceptional terrain in that they are not "in" or "on" a tile, but they run between tiles. A river is considered adjacent to all tiles that it runs along, including all four tiles which touch a place where the river bends or empties into water. However, the two tiles which touch the source of a river and are behind it, with respect to the river's flow, are not riverside. Rivers supply fresh water to all adjacent tiles. A river adds +1 [ICON_COMMERCE] to all adjacent land tiles, unless they also contain an unimproved forest or jungle. Only riverside Cities may build [LINK=BUILDING_LEVEE]Levees[\LINK], which provide +1 [ICON_PRODUCTION] to every riverside tile within that City's radius.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Terrain_(Civ4)#Rivers</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD_TITLE</Tag>
++		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD</Tag>
+ 		<English>Route (Road)</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Tag>
+-		<English>[H1]Route (Road)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]Roads can be built after discovering The Wheel. With roads, all spaces cost 1/2 [ICON_MOVES] Movement points (MP) to enter from other road tiles. After discovering [LINK=TECH_ENGINEERING]Engineering[\LINK], the cost goes down to 1/3 [ICON_MOVES] MP. In practice, this means that a unit with just one movement point can move three tiles using roads. Similarly, units with two movement points can move six tiles.[PARAGRAPH:1]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
++		<English>[H1]Route (Road)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]Roads can be built after discovering The Wheel. With roads, all spaces cost 1/2 [ICON_MOVES] Movement points (MP) to enter from other road tiles. After discovering [LINK=TECH_ENGINEERING]Engineering[\LINK], the cost goes down to 1/3 [ICON_MOVES] MP. In practice, this means that a unit with just one movement point can move three tiles using roads. Similarly, units with two movement points can move six tiles.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD_TITLE</Tag>
++		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Tag>
+ 		<English>Route (Railroad)</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Tag>
+-		<English>[H1]Route (Railroad)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]To build railroads, the civilization first needs to discover the Railroad technology and have an access to Coal or Oil. Railroads are similar to roads, but they reduce the number of [ICON_MOVES] Movement points needed to enter a tile from another railroad tile to 1/10 [ICON_MOVES] MP.[PARAGRAPH:1]Railroads also give a bonus of 1 [ICON_PRODUCTION] to tiles with a [LINK=IMPROVEMENT_MINE]Mine[\LINK], a [LINK=IMPROVEMENT_LUMBERMILL]Lumbermill[\LINK], or a [LINK=IMPROVEMENT_QUARRY]Quarry[\LINK].[PARAGRAPH:1]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
++		<English>[H1]Route (Railroad)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]To build railroads, the civilization first needs to discover the Railroad technology and have an access to Coal or Oil. Railroads are similar to roads, but they reduce the number of [ICON_MOVES] Movement points needed to enter a tile from another railroad tile to 1/10 [ICON_MOVES] MP.[PARAGRAPH:1]Railroads also give a bonus of 1 [ICON_PRODUCTION] to tiles with a [LINK=IMPROVEMENT_MINE]Mine[\LINK], a [LINK=IMPROVEMENT_LUMBERMILL]Lumbermill[\LINK], or a [LINK=IMPROVEMENT_QUARRY]Quarry[\LINK].[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_GLOBAL_WARMING</Tag>
++		<English>Global Warming</English>
++	</TEXT>
++	<!-- custom: it seems [h3] (and [/h3] too anyways etc) is not supported in civ4 at least in our mod, so use simple text-only headers anyways etc, as a smaller version in this case but anyways etc of [h2] (and [/h2] anyways etc) anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_GLOBAL_WARMING_PEDIA</Tag>
++		<English>[H1]Global Warming[\H1][PARAGRAPH:2]Global warming is a game element in Civilization IV: Beyond the Sword.[NEWLINE][H2]Overview[\H2][PARAGRAPH:1]Global warming is caused by pollution (namely, "unhealthy" buildings) and nuclear explosions (which may sound counter-intuitive but is seemingly normal in the Civilization series). It is adverted by a large number of forests and jungles present on the world map. Its effects are to reduce the production of tiles, usually turning random tiles into desert. The tiles affected when global warming strikes are picked randomly, regardless of how much each nation contributed to its occurrence.[NEWLINE][H2]Mechanics[\H2][NEWLINE]Effect of Global Warming[PARAGRAPH:1]If Global Warming strikes, a random land PLOT which is not a city will be chosen.[PARAGRAPH:1]There is no regional, player, team or other bias in choosing the target plot for Global Warming. It does not matter who, where or why caused the nuclear explosions, built the polluting buildings, chopped or preserved the forests.[PARAGRAPH:1]If PLOT has a feature (Forest, Jungle, Floodplain, Oasis), this feature will be removed, but the terrain type does not change (unless the feature is Fallout, in which case nothing happens at all).[PARAGRAPH:1]If PLOT has no Feature and can give any yield (i.e. is not desert or frozen), then it will be turned into GLOBAL_WARMING_TERRAIN, which is - per standard XML - desert.[NEWLINE][NEWLINE]Note on probability[PARAGRAPH:1]This de facto reduces the Probability of Global Warming with increasing amount of useless land plots on the map. Since if a plot is chosen to be victim of Global Warming, that can not be worked anyway, nothing happens. So actually:[PARAGRAPH:1]PROBGW_strikes = 1 - (1 - PROB1 + PROB1*#BADLAND/#LAND)GW_VALUE[PARAGRAPH:1]Depending on how high PROB1 actually is and how much "bad land" we have it might result in 5-10 % (or even more in really extreme cases) less visible GW.[PARAGRAPH:1]Same thing with fallout. Should be negligible in most games, but could become interesting in a huge Nuclear War, where the Fallout will actually help preserve the terrain under it. Of course, as soon as you clear the Fallout after the war, the plots will become affected by Global Warming again.[NEWLINE][NEWLINE]Notes[PARAGRAPH:1]Nukes now count only half. This means that a single explosion (say a meltdown) will not cause GW by itself. However this is only true if there are no other sources of GW.[PARAGRAPH:1]The [ICON_UNHEALTHY] from buildings is weighted by map size (number of plots).[NEWLINE][NEWLINE]Source with more details: https://civilization.fandom.com/wiki/Global_warming_(Civ4)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_CUSTOMIZATION</Tag>
++		<English>Customization</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_CUSTOMIZATION_PEDIA</Tag>
++		<English>[H1]Customization[\H1][PARAGRAPH:2]Civilization IV is much more open to modification than its predecessors. Game data and rules are stored in XML files, and a Software Development Kit was released in April 2006 to allow AI customization. Major parts of the interface, map generation, and scripted events are written entirely in Python and can be customised.[NEWLINE][H2]World Builder[\H2][PARAGRAPH:1]The World Builder allows a player to create a map from scratch, to use an in-game situation as a starting point for a new scenario, or to simply cheat by giving himself more units, gold, buildings, better relations with leaders, improvements, cultural borders, technologies, even take over other cities by placing a border there. The terrain can be altered, and resources, military units and cities on the map can be added, removed or modified. Additionally, each civilization's technological progress as well as its diplomatic and military ties to other civilizations can be edited. The World Builder for Civ IV is in-game, in contrast to previous Civilization games where the Map Editor was an external application. (In Civ2 one could modify anything using the cheat menu.)[PARAGRAPH:1]World Builder can also be used to create an interesting experience. In custom game mode, the user must first turn all opposing civilizations off as well as all victory conditions. Barbarians must also be deactivated. In World Builder, the user can make it so that the player only starts with a settler with no starting technologies. This allows the user to progress through all technologies for a more expanded experience of the development of civilization.[NEWLINE][H2]XML[\H2][PARAGRAPH:1]More game attributes are stored in XML files, which must be edited with an external text editor or application. Barry Caudill, a senior producer at Firaxis Games, said [1] in September:[PARAGRAPH:1]"Editing these files will allow players to tweak simple game rules and change or add content. For instance, they can add new unit or building types, change the cost of wonders, or add new civilizations. Players can also change the sounds played at certain times or edit the play list for your soundtrack."[PARAGRAPH:1]At the current time the XML processing in Windows is more permissive of minor errors than in Mac OS X. As a result, some XML files which will work on the Windows version of the game need some slight tweaking before they function on the Macintosh version.[NEWLINE][H2]Python[\H2][PARAGRAPH:1]The game uses boost.python to allow the Python programming language access to many parts of the game (including the style and content of all interface screens). Python can also be used to modify random map generation and to add complex scripted events.[PARAGRAPH:1]The version of Python present in the Windows version of the game differs from the version in Mac OS X up to and including version 10.4.7, and as a result, while most Python files for the Windows version will work on the Macintosh version, not all will.[NEWLINE][H2]Software Development Kit[\H2][PARAGRAPH:1]The Civilization IV Software Development Kit was released on April 13 2006 to coincide with the release of the v1.61 patch. The kit allows players to view, modify, or completely re-write the game's DLL source code, enabling the modification of the game's AI and other integral parts of the game.[PARAGRAPH:1]As of the first official patch for the Macintosh version (v1.61 Revision A), there is no SDK for the Macintosh version of the game. In fact the Macintosh version lacks the separate library of game related code which the PC version uses, but instead includes the code compiled into the main executable. There is as of yet no indication of whether this will change in a future patch.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Civilization_IV#Customization</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_FRESH_WATER</Tag>
++		<English>Fresh Water</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_FRESH_WATER_PEDIA</Tag>
++		<English>[H1]Fresh Water[\H1][PARAGRAPH:2]Any tile adjacent to a river, lake, or oasis has fresh water. The following rules apply to tiles with fresh water:[PARAGRAPH:1][ICON_BULLET]Any city built on a fresh water tile gains a permanent bonus of +2 [ICON_HEALTHY].[PARAGRAPH:1][ICON_BULLET][LINK=IMPROVEMENT_FARM]Farms[\LINK] require fresh water for [LINK=CONCEPT_IRRIGATION]irrigation[\LINK].[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Fresh_water_(Civ4)</English>
++	</TEXT>
++	<!-- custom: add the new added concept_fresh_water link in concept_irrigation anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_IRRIGATION</Tag>
++		<English>Irrigation</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_IRRIGATION_PEDIA</Tag>
++		<English>[H1]Irrigation[\H1][PARAGRAPH:2][LINK=IMPROVEMENT_FARM]Farms[\LINK] require irrigation in order to provide their full [LINK=CONCEPT_FOOD]food[\LINK] benefits. Irrigation can be achieved by building the farm adjacent to a source of [LINK=CONCEPT_FRESH_WATER]fresh water[\LINK], like a river, lake, or oasis.[PARAGRAPH:2][LINK=TECH_CIVIL_SERVICE]Civil Service[\LINK] enables irrigated farms to become a source of irrigation themselves. That allows you to bring irrigation to distant locations by building a chain of farms from the source of fresh water.[PARAGRAPH:2]With the advent of [LINK=TECH_BIOLOGY]Biology[\LINK], Farms no longer require irrigation.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SCORING_SYSTEM</Tag>
++		<English>Scoring System</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SCORING_SYSTEM_PEDIA</Tag>
++		<English>[H1]Scoring System[\H1][PARAGRAPH:2]In Civilization IV the leadership skills of players are compared to a subjective list of twenty of the best or worst leaders in history, similar to the list in Civilization I. The score is based on a number of factors, including military growth and success, technological advancement, construction of wonders and economic growth. It is shown at the end of the game.[PARAGRAPH:2]The released version of the game abandoned Civilization III's graded scale. In Civ3, a spectacular victory on the easiest difficulty would provide the player with only a middling score, and the best titles were only awarded to players attempting the hardest difficulties. The original Civ4, on the other hand, allows the player to obtain any score on any difficulty level. As of the v1.61 patch, the grading system has returned to the curved-by-difficulty scale.[NEWLINE][NEWLINE]Source with more info: https://civilization.fandom.com/wiki/Civilization_IV#Scoring_system</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 84df02e20..661ce3dcb 100644
+--- a/README.md
++++ b/README.md
+@@ -97,6 +97,25 @@ See also for details:
+ - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+ - [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+ 
++### Concepts (as of now in the "Outdated" sevopedia category)
++
++These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there anyways etc), or that i found informative or/and wanted to add anyways etc. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
++
++Added new concepts, as of now:
++
++- concept_customization
++- concept_fresh_water (with a link to it added in concept_irrigation (even though lost translation xd now (i removed it (i.e. now only has english translation for all languages anyways etc) i mean but anyways etc) if i may say but anyways etc))
++- concept_global_warming
++- concept_rivers
++- concept_route_road
++- concept_route_railroad
++- concept_scoring_system
++
++Etc if any more anyways etc. See the entries in sevopedia "Outdated" category for details anyways etc.
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG" alt="0.800_conceptinfos_example (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG" alt="0.800_conceptinfos_example (2).JPG" width="250"></img>
++
+ ### Mods Info
+ 
+ The sevopedia "Mods Info" (reusing the old civ4 concepts category or similar if i am not mistaken anyways etc, thanks to [@f1rpo](https://github.com/f1rpo)'s help too anyways etc) category adds info about mods and such, including but not only AdvCiv-SAS.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d99a008ca..ca793445f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -57,6 +57,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+ 
++### Concepts (as of now in the "Outdated" sevopedia category)
++
++- added a few new entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
++
+ ### AI general behaviour (non-exhaustive, see global defines and ai variables and such xml files for details)
+ 
+ - global defines and AI variables and such similar or related files's values have been changed quite extensively to favour AI efficiency and opportunism, sort of mercilessness over role-playing or seemingly suboptimal settings. These changes include but not only religion importance, now being higher (in terms of culture strength (not exactly sure what this means but should be fine and as i intend i think maybe)) or also lower revolt chance, anger from war quite a bit reduced, etc. So overall the AI will be at least in theory / ideally as planned anyways etc be a lot more pragmatic or/and opportunistic AI, and will not be much more aggressive than in AdvCiv, but will hesitate less to declare war if there is profit, but also bother less to engage in wars or/and be cautious about them, especially multi wars, if not to its benefit (which often is not), and also have a higher reluctance to agree to a war trade. AI may also act more on tribute threats and transform them into immediate war declarations if refused (might is right as one or they people may say but is realistic as sad as it may be such is life i mean for better or worse but anyways etc). As well as many other changes, see files such as [GlobalDefines_advc.xml](/Assets/XML/AI_Variables_GlobalDefines.xml), [AI_Variables_GlobalDefines.xml](/Assets/XML/AI_Variables_GlobalDefines.xml), and [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml) for much more exhaustive details there anyways etc (note: as i don't know much C++ i didn't modify AI behaviour much more if at all than in xml files, but i hope this is still quite extensive and very significant in terms of changes in particular vs base advciv AI i mean anyways etc). Some changes handpicked from these xml files if i may say, but not exhaustive i mean anyways etc, are also available as scattered items throughout this quick get started guide main changes sections if i may say anyways etc, hopefully helpful, anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG
+new file mode 100644
+index 000000000..2e57873da
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG
+new file mode 100644
+index 000000000..c952d63f7
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.800_conceptinfos_example (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=30517

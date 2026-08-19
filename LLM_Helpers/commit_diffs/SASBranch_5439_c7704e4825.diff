@@ -1,0 +1,558 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5439
+# Commit: c7704e482554054f0c1689162c4454df4d11c673
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 551ef0b93a538febbf92d281141cf7f1fffc408a
+# Title: Rename Play Now to Simple Game, remove some maps from Simple Game, redo the .dds for BTG maps - "Play Now" → "Simple Game" Clearer, matches code name, better...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds
+14	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+0	14	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+2	2	CvGameCoreDLL/CvInfo_GameOption.cpp
+1	1	Long_Comments/Long_Comments_XML.txt
+1	1	PrivateMaps/BTG_Cross.py
+1	1	PrivateMaps/BTG_Lagoon.py
+139	0	PrivateMaps/Shuffle.py
+4	2	PrivateMaps/Tectonics.py
+28	16	README.md
+8	5	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (2).JPG => 0.310_main_menu_simple_game (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (3).JPG => 0.310_main_menu_simple_game (3).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (4).JPG => 0.310_main_menu_simple_game (4).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (5).JPG => 0.310_main_menu_simple_game (5).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (6).JPG => 0.310_main_menu_simple_game (6).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.320_new_maps_btg_cross_example (2).JPG => 0.3200_new_maps_btg_cross (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.320_new_maps_btg_cross_example (3).JPG => 0.3200_new_maps_btg_cross (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG
+11	11	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+ create mode 100644 PrivateMaps/Shuffle.py
+ delete mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (2).JPG => 0.310_main_menu_simple_game (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (3).JPG => 0.310_main_menu_simple_game (3).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (4).JPG => 0.310_main_menu_simple_game (4).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (5).JPG => 0.310_main_menu_simple_game (5).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.310_main_menu_play_now (6).JPG => 0.310_main_menu_simple_game (6).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.320_new_maps_btg_cross_example (2).JPG => 0.3200_new_maps_btg_cross (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.320_new_maps_btg_cross_example (3).JPG => 0.3200_new_maps_btg_cross (2).JPG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds b/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds
+index 7c9b5153b..3ac644d20 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds and b/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds b/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds
+index d18c64fd4..116b07abb 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds and b/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds differ
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 7a1065d81..36e2d2608 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -212,6 +212,20 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: rename "Play Now" to "Simple Game" (matches code name, and is as the C2C mod does for example too) -->
++	<!-- advc.002g -->
++	<!-- See CIV4ColorVals.xml for the available colors. PLAYER_GRAY is,
++		 apparently, also used for graying out Multiplayer when it's disabled
++		 through ModName.ini. -->
++	<!-- From Civ4GameTextInfos.xml: -->
++	<!-- Just removed the exclamation mark -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_MAIN_MENU_PLAY_NOW</Tag>
++		<English>Simple Game</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
+ 		<English>Buildings</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index ec6097353..23e59937f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3586,20 +3586,6 @@
+ 		<Spanish>%s1:3_civ_adjective</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.002g -->
+-	<!-- See CIV4ColorVals.xml for the available colors. PLAYER_GRAY is,
+-		 apparently, also used for graying out Multiplayer when it's disabled
+-		 through ModName.ini. -->
+-	<!-- From Civ4GameTextInfos.xml: -->
+-	<!-- Just removed the exclamation mark -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_MAIN_MENU_PLAY_NOW</Tag>
+-		<English>Play Now</English>
+-		<French>Jouer</French>
+-		<German>Jetzt spielen</German>
+-		<Italian>Gioca ora</Italian>
+-		<Spanish>Jugar ya</Spanish>
+-	</TEXT>
+ 	<!-- custom: Long_Comments_XML.txt #269 -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_MAIN_MENU_UPDATES</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d6207639f..62e0ed4af 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6142,7 +6142,7 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
+ 	{
+ 		CvGame const& kGame = GC.getGame();
+ 		bool const bInGame = (getActivePlayer() != NO_PLAYER &&
+-				// Important for Play Now screens
++				// Important for Simple Game screens
+ 				kGame.getHandicapType() != NO_HANDICAP);
+ 		int const iFreeCityCulture = (bInGame ?
+ 				kGame.freeCityCultureFromTrait(eTrait) :
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index fe5b19ce6..bbbce11a6 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -1604,8 +1604,8 @@ CvWString CvSeaLevelInfo::getDescriptionInternal() const
+ {
+ 	CvInitCore const& kInitCore = GC.getInitCore();
+ 	if (kInitCore.getActivePlayer() == NO_PLAYER &&
+-		/*	This distinguishes Custom Game from Play Now.
+-			(Play Now doesn't have enough room for a recommendation,
++		/*	This distinguishes Custom Game from Simple Game.
++			(Simple Game doesn't have enough room for a recommendation,
+ 			and doesn't allow player counts to be adjusted.) */
+ 		kInitCore.getSlotStatus((PlayerTypes)0) == SS_OPEN)
+ 	{
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 7efcc71ae..a720d9e52 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -2653,7 +2653,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ ===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+ ----- Comment #138 -----
+ 
+-<!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the "Play Now" Game Speed section. -->
++<!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the Simple Game Game Speed section. -->
+ <!-- custom: timeline readability rule
+ 	For early/midgame, prefer iMonthIncrement values that are whole years (divisible by 12),
+ 	ideally round 5/10-year steps (i.e., multiples of 60/120 months). This avoids awkward chart
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 2a5a32fd1..21e0d4a48 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -58,7 +58,7 @@ def getDescriptionBalance():#Balance : (at the bottom)"
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+-	# <!-- custom: keep this at 0 so BTG_Cross appears in Play Now/simple mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
++	# <!-- custom: keep this at 0 so BTG_Cross appears in Simple Game mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
+ 	return 0
+ 
+ def getNumCustomMapOptions():
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index b749b8b89..cda8eb451 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -234,7 +234,7 @@ def addBonusType(argsList):
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+-	# <!-- custom: keep this at 0 so BTG_Lagoon appears in Play Now/simple mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
++	# <!-- custom: keep this at 0 so BTG_Lagoon appears in Simple Game mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
+ 	return 0
+ 
+ def isClimateMap():
+
+diff --git a/PrivateMaps/Shuffle.py b/PrivateMaps/Shuffle.py
+new file mode 100644
+index 000000000..9cbbe5862
+--- /dev/null
++++ b/PrivateMaps/Shuffle.py
+@@ -0,0 +1,139 @@
++#
++#	FILE:	 Shuffle.py
++#	AUTHOR:  Bob Thomas (Sirian)
++#	PURPOSE: Global map script - Return of Civ3's "random" map option.
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005, 2006 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++
++balancer = BonusBalancer()
++
++'''
++This map script type added by popular demand.
++The function is very similar to what "random" map type would provide in Civ3.
++
++- Bob Thomas	October 30, 2005 // January 10, 2006
++'''
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_SHUFFLE_DESCR"
++# <!-- custom: Simple Game visibility is controlled here (not only by CIV4WorldPickerInfos.xml):
++# return 1 keeps this map out of Simple Game and in advanced/custom-only lists. (GPT-5.3-Codex) -->
++def isAdvancedMap():
++	"This map should not show up in simple mode"
++	return 1
++
++def getNumCustomMapOptions():
++	return 2
++
++def getNumHiddenCustomMapOptions():
++	return 2
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_WORLD_WRAP",
++		1:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	3,
++		1:	2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		1:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	1,
++		1:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	false,
++		1:  false
++		}
++	return option_random[iOption]
++
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 2)
++
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(1) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(1) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Shuffle) ...")
++	gc = CyGlobalContext()
++	dice = gc.getGame().getMapRand()
++	fractal_world = FractalWorld()
++	grainRoll = 1 + dice.get(8, "Fractal Grain - Shuffle PYTHON")
++	if grainRoll > 5: grainRoll -= 5
++	if grainRoll == 2:
++		fractal_world.initFractal(polar = True)
++		return fractal_world.generatePlotTypes(water_percent=75)
++	else:
++		if grainRoll == 5: grainRoll -= 3
++		fractal_world.initFractal(continent_grain = grainRoll, rift_grain = -1, has_center_rift = False, polar = True)
++		return fractal_world.generatePlotTypes()
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Shuffle) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Shuffle) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index 7f3cd76c5..ba6807965 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -100,9 +100,11 @@ def getNumPlotsPercent(argsList):
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_TECTONICS_DESCR"
+ 
++# <!-- custom: Simple Game visibility is controlled here (not only by CIV4WorldPickerInfos.xml):
++# return 1 keeps this map out of Simple Game and in advanced/custom-only lists. (GPT-5.3-Codex) -->
+ def isAdvancedMap():
+-	"This map should show up in simple mode"
+-	return 0
++	"This map should not show up in simple mode"
++	return 1
+ 
+ def isSeaLevelMap():
+ 	return 0
+
+diff --git a/README.md b/README.md
+index e516b9d6b..10fb6009b 100644
+--- a/README.md
++++ b/README.md
+@@ -29,7 +29,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [Main Changes Guide](/README.md#main-changes-guide)  
+ [UI (Main Menu)](/README.md#ui-main-menu)  
+ &emsp;[Home page](/README.md#home-page)  
+-&emsp;["Play Now" rework](/README.md#play-now-rework)  
++&emsp;[Simple Game rework](/README.md#simple-game-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+ &emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+@@ -57,7 +57,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [48 Civs DLL](/README.md#48-civs-dll)  
+ &emsp;[How to use](/README.md#how-to-use)  
+ &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+-[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
++[Maps](/README.md#maps)  
++&emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
++&emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
+ [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
+ [Long Comments Archive](/README.md#long-comments-archive)  
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+@@ -133,7 +135,7 @@ Edited the .thm files so the main menu's home page feels more modern and utlizes
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG" alt="0.300_main_menu_home (2).JPG" width="250"></img>
+ 
+-### "Play Now" rework
++### Simple Game rework
+ 
+ Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well.
+ 
+@@ -143,14 +145,14 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
+ 
+ Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
+ 
+-Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), see [Readme.md: New Maps (e.g., BTG_Cross)](/README.md#new-maps-eg-btg_cross-btg_lagoon)
++Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Maps](/README.md#maps).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG" alt="0.310_main_menu_play_now (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG" alt="0.310_main_menu_play_now (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG" alt="0.310_main_menu_play_now (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG" alt="0.310_main_menu_play_now (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG" alt="0.310_main_menu_play_now (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG" alt="0.310_main_menu_play_now (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (2).JPG" alt="0.310_main_menu_simple_game (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (3).JPG" alt="0.310_main_menu_simple_game (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (4).JPG" alt="0.310_main_menu_simple_game (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (5).JPG" alt="0.310_main_menu_simple_game (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (6).JPG" alt="0.310_main_menu_simple_game (6).JPG" width="250"></img>
+ 
+ ## UI (Ingame)
+ 
+@@ -528,15 +530,25 @@ Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Panga
+ 
+ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ 
+-## New Maps (e.g., BTG_Cross, BTG_Lagoon)
++## Maps
+ 
+-We have also added new maps, for example the  (based on the Beyond the Game 2.43 mod's version of it, and adjsuted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.).
++We have also added new maps, for example the (based on the Beyond the Game 2.43 mod's version of it, and adjusted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.).
+ 
+-Some of them are selectable in the Play Now menu, while others only via Custom Game.
++Note: we also removed some non-essential maps from the Simple Game menu; they remain playable via Custom Game.
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG" alt="0.320_new_maps_btg_cross_example (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (2).JPG" alt="0.320_new_maps_btg_cross_example (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (3).JPG" alt="0.320_new_maps_btg_cross_example (3).JPG" width="250"></img>
++### New Maps (e.g., BTG_Cross, BTG_Lagoon)
++
++Some of them are selectable in the Simple Game menu, while others only via Custom Game.
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
++
++### New .dds for maps in Simple Game
++
++As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds; some additional examples below:
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d4f3c7d7b..203beba49 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -77,6 +77,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ ### Renaming
+ 
++- (Requires AdvCiv-SAS 5439+) "Play Now" → "Simple Game" Clearer, matches code name, better contrasts with "Custom Game", and same as in C2C mod.
+ - "WFYABTA" → "We fear you are trading more than us." Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
+ - Fixed misleading event text such as "The forge has been destroyed" used even when building actually survives (e.g. "The forge has caught fire" instead).
+ - "All Units" → "No UnitCombat" in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
+@@ -262,8 +263,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ ### UI (Main Menu)
+ 
+ - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+-- Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
+-- Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in "Play Now" use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
++- Beautified the Main Menu's **Simple Game screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Simple Game rework)](/README.md#simple-game-rework).
++- Make the **Globe animation** (Globe.nif in [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml)) in Simple Game use **real scaling** instead of demonstrative one, e.g. the new World Size Arena has a ratio to World Size Standard of 0.128, so its model only has 12.8% of the size of the standard-sized globe, and vice versa for sizes bigger than standard. This aims to provide a **better representation** of **real world size differences**. See the new Sevopedia W. Sizes Chart category.
+ 
+ ### UI (Common)
+ 
+@@ -331,7 +332,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
+ - **New Game Speeds**: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
+ - **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
+-- **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
++- **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **Simple Game** Game Speed section.
+ - **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:** Faster-than-Marathon speeds ended up with **100 extra free outside units** due to two issues: the `iExtraFreeOutsideUnits` XML tag was missing for those speeds, and the DLL fallback default for that tag was incorrectly set to **100** (Marathon explicitly had **1**). Fixed by changing the DLL default from 100 to **0**, and by adding the missing `iExtraFreeOutsideUnits` game-speed XML field with a value of **0** so nothing relies on defaults. Also added `iUnitCostPercent` in XML for exhaustiveness (value **100**) without changing its DLL default (**100**) since it was correct. Spotted thanks to the new Sevopedia Game Speed Chart. See: [KI#92](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart).
+ - **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; on **Normal**, early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See full game speed details in the **new Sevopedia Speeds category**.
+ 
+@@ -343,8 +344,10 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Maps
+ 
+-- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Play Now** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
++- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
++- (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps).
+ - (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
++- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+ - (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py).
+ - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+@@ -458,7 +461,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Events
+ 
+-- The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
++- The standard new game mode (**Simple Game**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not offer a real gameplay value, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
+ 
+ ### Culture
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG
+index 16f5566d6..f4a9f718b 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG
+deleted file mode 100644
+index eb39ff55d..000000000
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+new file mode 100644
+index 000000000..5cc49e3e4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (5).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (5).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (6).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (6).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (2).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (3).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+new file mode 100644
+index 000000000..3b9d0045f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG
+deleted file mode 100644
+index 7b13aee5e..000000000
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.320_new_maps_btg_cross_example (1).JPG and /dev/null differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=22 bytes=25318
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=25 omittedFiles=1 embeddedPatchBytes=32086

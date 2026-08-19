@@ -1,0 +1,294 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1839
+# Commit: aedbd2b9803ebfa332b5da949fe279964b11ae10
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 84c03a812894798e2614b993a30ece8d3bfdd05d
+# Title: Bugfix: Don't verify city production after border expansion
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	11	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+7	57	CvGameCoreDLL/CvPlotGroup.cpp
+6	6	CvGameCoreDLL/CvPlotGroup.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4eab9af3c..734d4c60b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4876,7 +4876,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue)
+ 	if ((NO_IMPROVEMENT != getImprovementType() && GC.getInfo(getImprovementType()).isActsAsCity()) !=
+ 		(NO_IMPROVEMENT != eOldImprovement && GC.getInfo(eOldImprovement).isActsAsCity()))
+ 	{
+-		updatePlotGroup();
++		updatePlotGroup(/* advc.064d: */ true);
+ 	}
+ 
+ 	if (eOldImprovement != NO_IMPROVEMENT && GC.getInfo(eOldImprovement).isActsAsCity())
+@@ -4930,7 +4930,7 @@ void CvPlot::setRouteType(RouteTypes eNewValue, bool bUpdatePlotGroups)
+ 	if (bUpdatePlotGroups)
+ 	{
+ 		if (bOldRoute != isRoute())
+-			updatePlotGroup();
++			updatePlotGroup(/* advc.064d: */ bOldRoute);
+ 	}
+ 
+ 	if (GC.getGame().isDebugMode())
+@@ -5726,14 +5726,18 @@ void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue,
+ }
+ 
+ 
+-void CvPlot::updatePlotGroup()
++void CvPlot::updatePlotGroup(/* advc.064d: */ bool bVerifyProduction)
+ {
+ 	PROFILE_FUNC();
+-
+-	for (int iI = 0; iI < MAX_PLAYERS; ++iI)
++	for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-			updatePlotGroup((PlayerTypes)iI);
++		CvPlayer& kPlayer = *it;
++		updatePlotGroup(kPlayer.getID(), /* <advc.064d> */ false);
++		/*  When recalculation of plot groups starts with updatePlotGroup, then
++			bVerifyProduction sometimes interrupts city production prematurely;
++			not sure why exactly. Will have to verify all cities instead. */
++		if (bVerifyProduction && kPlayer.isHuman() && getOwner() == kPlayer.getID())
++			kPlayer.verifyCityProduction(); // </advc.064d>
+ 	}
+ }
+ 
+@@ -5757,9 +5761,9 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
+ 			if (isTradeNetwork(eTeam))
+ 			{
+ 				bConnected = true;
+-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
++				FOR_EACH_ENUM(Direction)
+ 				{
+-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
++					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eLoopDirection);
+ 					if (pAdjacentPlot == NULL)
+ 						continue; // advc
+ 					if (pAdjacentPlot->getPlotGroup(ePlayer) == pPlotGroup)
+@@ -5789,9 +5793,9 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
+ 		return;
+ 
+ 	CvMap& kMap = GC.getMap();
+-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
++	FOR_EACH_ENUM(Direction)
+ 	{
+-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
++		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eLoopDirection);
+ 		if (pAdjacentPlot == NULL)
+ 			continue;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 5e84f3106..3b8b97193 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -524,7 +524,7 @@ public:
+ 	CvPlotGroup* getOwnerPlotGroup() const;
+ 	void setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue,
+ 			bool bVerifyProduction = true); // advc.064d
+-	void updatePlotGroup();
++	void updatePlotGroup(/* advc.064d: */ bool bVerifyProduction = false);
+ 	void updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate = true,
+ 			bool bVerifyProduction = true); // advc.064d
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index 26ba1b23e..fc804bcd7 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -11,8 +11,6 @@ int CvPlotGroup::m_iRecalculating = 0; // advc.064d
+ 
+ CvPlotGroup::CvPlotGroup()
+ {
+-	m_paiNumBonuses = NULL;
+-
+ 	reset(0, NO_PLAYER, true);
+ }
+ 
+@@ -33,8 +31,6 @@ void CvPlotGroup::init(int iID, PlayerTypes eOwner, CvPlot* pPlot)
+ 
+ void CvPlotGroup::uninit()
+ {
+-	SAFE_DELETE_ARRAY(m_paiNumBonuses);
+-
+ 	m_plots.clear();
+ }
+ 
+@@ -48,14 +44,7 @@ void CvPlotGroup::reset(int iID, PlayerTypes eOwner, bool bConstructorCall)
+ 	m_eOwner = eOwner;
+ 
+ 	if (!bConstructorCall)
+-	{
+-		FAssertMsg(0 < GC.getNumBonusInfos(), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlotGroup::reset");
+-		m_paiNumBonuses = new int [GC.getNumBonusInfos()];
+-		for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+-		{
+-			m_paiNumBonuses[iI] = 0;
+-		}
+-	}
++		m_paiNumBonuses.reset();
+ }
+ 
+ 
+@@ -85,7 +74,7 @@ void CvPlotGroup::removePlot(CvPlot* pPlot, /* advc.064d: */ bool bVerifyProduct
+ }
+ 
+ 
+-void CvPlotGroup::recalculatePlots()
++void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
+ {
+ 	PROFILE_FUNC(); // advc: The bulk of the time is spent by FAStar, specifically plotGroupValid (CvGameCoreUtils).
+ 
+@@ -150,7 +139,7 @@ void CvPlotGroup::recalculatePlots()
+ 	// <advc.064d>
+ 	m_iRecalculating--;
+ 	FAssert(m_iRecalculating >= 0);
+-	if (m_iRecalculating == 0)
++	if (m_iRecalculating == 0 && bVerifyProduction)
+ 	{
+ 		for (size_t i = 0; i < apOldCities.size(); i++)
+ 			apOldCities[i]->verifyProduction();
+@@ -164,32 +153,15 @@ void CvPlotGroup::setID(int iID)
+ }
+ 
+ 
+-int CvPlotGroup::getNumBonuses(BonusTypes eBonus) const
+-{
+-	FAssertMsg(eBonus >= 0, "eBonus is expected to be non-negative (invalid Index)");
+-	FAssertMsg(eBonus < GC.getNumBonusInfos(), "eBonus is expected to be within maximum bounds (invalid Index)");
+-	return m_paiNumBonuses[eBonus];
+-}
+-
+-
+-bool CvPlotGroup::hasBonus(BonusTypes eBonus)
+-{
+-	return(getNumBonuses(eBonus) > 0);
+-}
+-
+-
+ void CvPlotGroup::changeNumBonuses(BonusTypes eBonus, int iChange)
+ {
+-	FAssertMsg(eBonus >= 0, "eBonus is expected to be non-negative (invalid Index)");
+-	FAssertMsg(eBonus < GC.getNumBonusInfos(), "eBonus is expected to be within maximum bounds (invalid Index)");
+-
+ 	if (iChange == 0)
+ 		return; // advc
+ 
+ 	//iOldNumBonuses = getNumBonuses(eBonus);
+-	m_paiNumBonuses[eBonus] = (m_paiNumBonuses[eBonus] + iChange);
++	m_paiNumBonuses.add(eBonus, iChange);
+ 
+-	//FAssertMsg(m_paiNumBonuses[eBonus] >= 0, "m_paiNumBonuses[eBonus] is expected to be non-negative (invalid Index)"); XXX
++	//FAssert(m_paiNumBonuses.get(eBonus) >= 0); // XXX
+ 	// K-Mod note, m_paiNumBonuses[eBonus] is often temporarily negative while plot groups are being updated.
+ 	// It's an unfortunate side effect of the way the update is implemented. ... and so this assert is invalid.
+ 	// (This isn't my fault. I haven't changed it. It has always been like this.)
+@@ -240,32 +212,15 @@ CLLNode<XYCoords>* CvPlotGroup::deletePlotsNode(CLLNode<XYCoords>* pNode)
+ }
+ 
+ 
+-int CvPlotGroup::getLengthPlots()
+-{
+-	return m_plots.getLength();
+-}
+-
+-
+-CLLNode<XYCoords>* CvPlotGroup::headPlotsNode()
+-{
+-	return m_plots.head();
+-}
+-
+-
+ void CvPlotGroup::read(FDataStreamBase* pStream)
+ {
+ 	reset();
+ 
+ 	uint uiFlag=0;
+ 	pStream->Read(&uiFlag);
+-
+ 	pStream->Read(&m_iID);
+-
+ 	pStream->Read((int*)&m_eOwner);
+-
+-	FAssertMsg((0 < GC.getNumBonusInfos()), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlotGroup::read");
+-	pStream->Read(GC.getNumBonusInfos(), m_paiNumBonuses);
+-
++	m_paiNumBonuses.Read(pStream);
+ 	m_plots.Read(pStream);
+ }
+ 
+@@ -274,13 +229,8 @@ void CvPlotGroup::write(FDataStreamBase* pStream)
+ {
+ 	uint uiFlag=0;
+ 	pStream->Write(uiFlag);
+-
+ 	pStream->Write(m_iID);
+-
+ 	pStream->Write(m_eOwner);
+-
+-	FAssertMsg((0 < GC.getNumBonusInfos()), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlotGroup::write");
+-	pStream->Write(GC.getNumBonusInfos(), m_paiNumBonuses);
+-
++	m_paiNumBonuses.Write(pStream);
+ 	m_plots.Write(pStream);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.h b/CvGameCoreDLL/CvPlotGroup.h
+index 5a8c0dc09..55bdded0d 100644
+--- a/CvGameCoreDLL/CvPlotGroup.h
++++ b/CvGameCoreDLL/CvPlotGroup.h
+@@ -23,7 +23,7 @@ public:
+ 
+ 	void addPlot(CvPlot* pPlot, /* advc.064d: */ bool bVerifyProduction = true);
+ 	void removePlot(CvPlot* pPlot, bool bVerifyProduction = true);
+-	void recalculatePlots();
++	void recalculatePlots(/* advc.064d: */ bool bVerifyProduction = true);
+ 
+ 	inline int getID() const { return m_iID; } // advc.inl
+ 	void setID(int iID);
+@@ -32,8 +32,8 @@ public:
+ 	// advc.inl: The EXE doesn't call this, so no need for an external version.
+ 	inline PlayerTypes getOwner() const { return m_eOwner; }
+ 
+-	int getNumBonuses(BonusTypes eBonus) const;
+-	bool hasBonus(BonusTypes eBonus);
++	int getNumBonuses(BonusTypes eBonus) const { return m_paiNumBonuses.get(eBonus); } // advc.inl
++	bool hasBonus(BonusTypes eBonus) { return(getNumBonuses(eBonus) > 0); } // advc.inl
+ 	void changeNumBonuses(BonusTypes eBonus, int iChange);
+ 	void verifyCityProduction(); // advc.064d
+ 
+@@ -48,8 +48,8 @@ public:
+ 	{
+ 		return m_plots.next(pNode);
+ 	} // </advc.003s>
+-	int getLengthPlots();
+-	CLLNode<XYCoords>* headPlotsNode();
++	int getLengthPlots() { return m_plots.getLength(); } // advc.inl
++	CLLNode<XYCoords>* headPlotsNode() { return m_plots.head(); } // advc.inl
+ 
+ 	// for serialization
+ 	void read(FDataStreamBase* pStream);
+@@ -59,7 +59,7 @@ protected:
+ 	static int m_iRecalculating; // advc.064d
+ 	int m_iID;
+ 	PlayerTypes m_eOwner;
+-	int* m_paiNumBonuses;
++	EnumMap<BonusTypes,int> m_paiNumBonuses; // advc.enum
+ 	CLinkList<XYCoords> m_plots;
+ };
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9023

@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3750
+# Commit: 5d5398fb6228ad88cde21a321ab9a7c287d3f165
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0fdfbab32c312d24f2b40dfcd15885fe1c08711e
+# Title: Refund Adv. Start points when replacing improvement (from MNAI)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2ba305b45..4d69a7276 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12935,7 +12935,10 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 
+ 		if (bAdd) // Add Improvement to the plot
+ 		{
+-			if (getAdvancedStartPoints() >= iCost)
++			// <advc.mnai.> lfgr 11/2021: Refund overwritten improvement
++			int const iOldCost = std::max(0, getAdvancedStartImprovementCost(
++					pPlot->getImprovementType(), false, pPlot));
++			if (iOldCost + /* </advc.mnai.> */ getAdvancedStartPoints() >= iCost)
+ 			{
+ 				if (pPlot->isFeature())
+ 				{
+@@ -12954,7 +12957,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 					}
+ 				}
+ 				pPlot->setImprovementType(eImprovement);
+-				changeAdvancedStartPoints(-iCost);
++				changeAdvancedStartPoints(-iCost /* advc.mnai.: */ + iOldCost);
+ 			}
+ 		}
+ 		else // Remove Improvement from the Plot
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1000

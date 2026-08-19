@@ -1,0 +1,124 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 149
+# Commit: 38d980bb5a3f03dd88fa204bb1db1febbac3ee51
+# History segment: K-Mod history
+# Parent used for diff: 49492c73ab86124e160e7ac0bd129d81aa702b76
+# Title: Adjusted the value of productivity buildings by using a new technique: iPriorityFactor. Fixed an original BtS bug which still counted anger reduction from bu...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	CvGameCoreDLL/CvCity.cpp
+22	9	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b07f355e4..826921bb7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6602,9 +6602,12 @@ int CvCity::getAdditionalHappinessByBuilding(BuildingTypes eBuilding, int& iGood
+ 		iBad += iNewUnhappiness - iCurrentUnhappiness;
+ 	}
+ 	
+-	// K-Mod TODO: think about how you might include change to global warming anger
+-	// also, this function doesn't take into account the possibility of the city already having 'NoUnhappiness'.
+-	// therefore the results will be inaccurate if the city has the globe theatre, for example.
++	// K-Mod. If the city is immune to unhappiness, then clear the "bad" from this building.
++	if (isNoUnhappiness())
++	{
++		iBad = iStartingBad;
++	}
++	// K-Mod end
+ 
+ 	// No Unhappiness
+ 	if (kBuilding.isNoUnhappiness())
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2045e9a34..bf142924b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3777,6 +3777,11 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 	BuildingClassTypes eBuildingClass = (BuildingClassTypes) kBuilding.getBuildingClassType();
+ 	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
+ 	bool bIsLimitedWonder = (iLimitedWonderLimit >= 0);
++	// K-Mod. This new value, iPriorityFactor, is used to boost the value of productivity buildings without overvaluing productivity.
++	// The point is to get the AI to build productiviy buildings quickly, but not if they come with large negative side effects.
++	// I may use it for other adjustments in the future.
++	int iPriorityFactor = 100;
++	// K-Mod end
+ 
+ 	// K-Mod, constructionValue cache
+ 	if (iFocusFlags == 0 && iThreshold == 0 && m_aiConstructionValue[eBuildingClass] != -1)
+@@ -4707,18 +4712,19 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 										int iChange = GC.getVoteSourceInfo((VoteSourceTypes)iI).getReligionYield(iYield);
+ 										int iTempValue = iChange * 4; // was 6
+ 										// K-Mod
++										iTempValue *= AI_yieldMultiplier((YieldTypes)iYield);
++										iTempValue /= 100;
+ 										if (iI == YIELD_PRODUCTION)
+ 										{
+-											iTempValue *= (getYieldRate(YIELD_PRODUCTION) < 1 + getPopulation()) ? 6 : 4;
++											// priority += 2% per 1% in production increase. roughly. More when at war.
++											iPriorityFactor += std::min(100, iTempValue/std::max(1, (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 ? 2 : 3)*getYieldRate(YIELD_PRODUCTION)));
++											iTempValue *= 3;
+ 											iTempValue /= 2;
+ 										}
+ 										if (iI == YIELD_FOOD)
+ 										{
+-											iTempValue *= (iHappinessLevel > 0 ? 6 : 4);
+-											iTempValue /= 2;
++											iTempValue *= (iHappinessLevel - iFoodDifference/3 > 0) ? 3 : 2;
+ 										}
+-										iTempValue *= AI_yieldMultiplier((YieldTypes)iYield);
+-										iTempValue /= 100;
+ 										// K-Mod end
+ 										iTempValue *= kOwner.AI_yieldWeight((YieldTypes)iYield);
+ 										iTempValue /= 100;
+@@ -4842,13 +4848,14 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 						// K-Mod
+ 						if (iI == YIELD_PRODUCTION)
+ 						{
+-							iTempValue *= (getYieldRate(YIELD_PRODUCTION) < 1 + getPopulation() || GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0)? 6 : 4;
++							// priority += 2% per 1% in production increase. roughly. More when at war.
++							iPriorityFactor += std::min(100, iTempValue/std::max(1, (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 ? 2 : 3)*getYieldRate(YIELD_PRODUCTION)));
++							iTempValue *= 3;
+ 							iTempValue /= 2;
+ 						}
+ 						if (iI == YIELD_FOOD)
+ 						{
+-							iTempValue *= (iHappinessLevel > 0 ? 6 : 4);
+-							iTempValue /= 2;
++							iTempValue *= (iHappinessLevel - iFoodDifference/3 > 0) ? 3 : 2;
+ 						}
+ 						// K-Mod end
+ 
+@@ -5587,11 +5594,17 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 
+ 	iValue = std::max(0, iValue);
+ 
+-	// K-Mod, constructionValue cache
++	// K-Mod
++	// priority factor
++	iValue *= iPriorityFactor;
++	iValue /= 100;
++
++	// constructionValue cache
+ 	if (iFocusFlags == 0 && iThreshold == 0)
+ 	{
+ 		m_aiConstructionValue[eBuildingClass] = iValue;
+ 	}
++	// K-Mod end
+ 
+ 	return iValue;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4313

@@ -1,0 +1,402 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6123
+# Commit: 574e50ba532286ada297fca3a49a9af375c1bcc5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 058039116ddc435b540329bf1a2b7609fec3aee3
+# Title: Fix several Great General AI/UI Base AdvCiv and AdvCiv-SAS bugs/issues (KI#204)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	1	Assets/XML/GlobalDefines_advciv_sas.xml
+12	0	CvGameCoreDLL/CvPlayer.cpp
+22	3	CvGameCoreDLL/CvUnit.cpp
+62	17	CvGameCoreDLL/CvUnitAI.cpp
+7	2	CvGameCoreDLL/SASGameRecordLog.cpp
+18	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 9f972937c..dd38e78c5 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1609,7 +1609,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
++	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, target-unit choice, safe-path rejection, and Great General deaths are one strategic decision chain rather than ordinary unit movement. Level 3 notably records numeric current/city/path-end danger so KI#204 safety decisions, including whether a trapped General has a strictly safer escape route, can be audited. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -3521,6 +3521,11 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: SAS balance policy: prefer settling AI Great Generals as Military Instructors before other uses through this era. -1 disables this extra preference; nonnegative values apply through the corresponding era index, while ERA_FUTURE or higher applies in every era. The all-era cutoff is resolved dynamically in the DLL rather than assuming that Future is always index 6; the default value 6 is ERA_FUTURE in the current era XML. If no suitable Instructor join is available, the normal Great General fallback chain remains available. This policy is separate from the inherited AdvCiv safety fixes documented in KI#204. (ChatGPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA</DefineName>
++		<iDefineIntVal>6</iDefineIntVal>
++	</Define>
+ 	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv (note: new value applies regardless of civs we met to simplify code a bit)) -->
+ 	<Define>
+ 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 274a4ad4b..1264e8b49 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8887,9 +8887,21 @@ void CvPlayer::setCombatExperience(int iExperience)
+ 		// create great person
+ 		CvCity const* pBestCity = NULL;
+ 		int iBestValue = MAX_INT;
++		bool bSafeCityExists = false;
++		FOR_EACH_CITY(pLoopCity, *this)
++		{
++			if (pLoopCity->AI().AI_isSafe())
++			{
++				bSafeCityExists = true;
++				break;
++			}
++		}
++		// <!-- custom: Base AdvCiv's automatic Great-General birth-city selection ignored city safety, so a newly earned defenseless General could spawn directly into a besieged city even when safe cities existed. Prefer the normal rank/random scoring among safe cities whenever possible; if every city is unsafe, retain the original fallback and still create the General. Keep the original SyncRandNum call for every city before filtering so this safety correction does not change RNG consumption. This directly matches 6 of 7 reviewed KI#204 losses. (ChatGPT-5.6-Sol) -->
+ 		FOR_EACH_CITY(pLoopCity, *this)
+ 		{
+ 			int iValue = 4 * SyncRandNum(getNumCities());
++			if (bSafeCityExists && !pLoopCity->AI().AI_isSafe())
++				continue;
+ 			FOR_EACH_ENUM(Yield)
+ 				iValue += pLoopCity->findYieldRateRank(eLoopYield);
+ 			iValue += pLoopCity->findPopulationRank();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 099bea388..f1a0e1e66 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -456,6 +456,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 	if (ePlayer != NO_PLAYER)
+ 	{
+ 		CvEventReporter::getInstance().unitKilled(this, ePlayer);
++		// <!-- custom: SASGameRecord's combatResult hook records normal Great-Person combat deaths, but a defenseless Great Person overrun/destroyed directly by another player can reach kill(ePlayer) without that hook.
++		// Record this separate player-kill path here; the helper ignores ordinary units and !isFighting() avoids duplicating ordinary combat rows. This is a SAS logging gap uncovered while investigating KI#204, not the cause of the AI loss itself. (ChatGPT-5.6-Sol) -->
++		if (gGameRecordLogLevel >= 2 && !isFighting()) logSASGameRecordGreatPersonDied(this, ePlayer, "NONCOMBAT_PLAYER_KILL");
++		bool const bSASGreatGeneralUnit = (m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL);
++		bool const bSASGreatGeneralAttached = (getLeaderUnitType() != NO_UNIT);
++		if (gGreatGeneralLogLevel >= 1 && (bSASGreatGeneralUnit || bSASGreatGeneralAttached))
++		{
++			logBBAI("    GREAT_GENERAL_DIED turn=%d player=%d %S unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), GC.getInfo(getUnitType()).getType(), getReplayName().GetCString(), bSASGreatGeneralUnit, bSASGreatGeneralAttached ? GC.getInfo(getLeaderUnitType()).getType() : "-", ePlayer, getX(), getY());
++		}
++		// <!-- custom: Base AdvCiv passed getNameKey() directly to the Great General death texts. Once a Great General or its combat unit has a personal name, getNameKey() returns only that name, hiding whether the dead unit was the free Great General itself or e.g. a named Longbowman carrying one.
++		// getReplayName() keeps the unit type and personal name together for Great-General cases; retain getNameKey() for the unrelated Golden-Age notification path. See KI#204. (ChatGPT-5.6-Sol) -->
++		CvWString const szSASGreatGeneralDisplayName = (bSASGreatGeneralUnit || bSASGreatGeneralAttached ? getReplayName() : CvWString(getNameKey()));
+ 		if (NO_UNIT != getLeaderUnitType() ||
+ 			// <advc.004u> Treat unattached GP here too
+ 			m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL ||
+@@ -473,14 +485,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 				FAssert(kOwner.getID() != ePlayer);
+ 				if(kObs.getID() == kOwner.getID())
+ 				{
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", getNameKey(),
++					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
+ 								GET_PLAYER(ePlayer).getCivilizationShortDescription());
+ 					eColor = eColorRed;
+ 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitDefeatScript();
+ 				}
+ 				else if(kObs.getID() == ePlayer)
+ 				{
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_BY_YOU", getNameKey(),
++					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_BY_YOU", szSASGreatGeneralDisplayName.GetCString(),
+ 							kOwner.getCivilizationShortDescription());
+ 					eColor = eColorGreen;
+ 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitVictoryScript();
+@@ -488,7 +500,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 				else if(GET_TEAM(kOwner.getTeam()).isHasMet(kObs.getTeam()) || // advc.004u
+ 					kObs.isSpectator()) // advc.127
+ 				{
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", getNameKey(),
++					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
+ 							kOwner.getCivilizationShortDescription(),
+ 							GET_PLAYER(ePlayer).getCivilizationShortDescription());
+ 					eColor = eColorUnitText;
+@@ -507,6 +519,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 						// </advc.004u>
+ 			}
+ 		}
++		// <!-- custom: Base AdvCiv sends Great General deaths only through transient UI messages; it does not add a replay message. The SAS Info Screen Timeline reads replay data, so the same death consequently vanished from history.
++		// Persist it without coordinates (the original UI notification already exposes it to met observers) so Timeline/replay history can retain the event. See KI#204. (ChatGPT-5.6-Sol) -->
++		if (bSASGreatGeneralUnit || bSASGreatGeneralAttached)
++		{
++			CvWString szReplayBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(), kOwner.getCivilizationShortDescription(), GET_PLAYER(ePlayer).getCivilizationShortDescription());
++			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, kOwner.getID(), szReplayBuffer, eColorUnitText);
++		}
+ 	}
+ 
+ 	finishMoves();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d58339c7a..068a176a5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -9137,8 +9137,20 @@ void CvUnitAI::AI_generalMove()
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), getArea().getAreaAIType(getTeam()));
+ 
++	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
++	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA");
++	static const EraTypes eERA_FUTURE = (EraTypes)GC.getInfoTypeForString("ERA_FUTURE");
++	FAssertMsg((eERA_FUTURE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
++	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA));
++	// <!-- custom: SAS previously still tried the first Military Academy before its preferred Military Instructor use. Make Instructor-first behavior era-tunable as a SAS balance policy; if joining is unavailable, retain the existing Academy/attachment/retreat fallback chain rather than wasting or indefinitely parking the General. The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
++	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
++	{
++		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, kOwner.getCurrentEra(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA);
++		return;
++	}
++
+ 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
+-	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy -->
++	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: legacy SAS order was after the first academy; the era preference above can now move this before it. (ChatGPT-5.6-Sol) -->
+ 	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
+ 	if (AI_construct(1))
+ 	{
+@@ -9146,10 +9158,9 @@ void CvUnitAI::AI_generalMove()
+ 		return;
+ 	}
+ 
+-	// NEW: Try joining FIRST <!-- custom: before and instead of any great general leader, but after we have our academy (if we can) --> (allow multiple instructors per city)
++	// NEW: Try joining FIRST <!-- custom: legacy fallback order when Instructor-first preference is disabled; before and instead of any great general leader, but after we have our academy (if we can). (ChatGPT-5.6-Sol) --> (allow multiple instructors per city)
+ 	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
+-	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
+-	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
++	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+ 	{
+ 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+ 		return;
+@@ -17037,14 +17048,19 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
+ /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
+ 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
+ // <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Great General unit attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
+-static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount)
++static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount, CvPlot const* pPathEnd = NULL)
+ {
+ 	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
+ 	const int iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel(0);
+ 	const int iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
+ 	const int iDefenders = kCity.getPlot().getNumDefenders(kGeneral.getOwner());
+-	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d",
+-			GC.getGame().getGameTurn(), kGeneral.getOwner(), GET_PLAYER(kGeneral.getOwner()).getCivilizationDescription(0), kGeneral.getID(), kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount, kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true), kCity.AI_isSafe(), GET_PLAYER(kGeneral.getOwner()).AI_isAnyPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft());
++	CvPlayerAI const& kOwner = GET_PLAYER(kGeneral.getOwner());
++	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d currentPlotDangerR2=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) pathEndDangerR2=%d",
++			GC.getGame().getGameTurn(), kGeneral.getOwner(), kOwner.getCivilizationDescription(0), kGeneral.getID(),
++			kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount,
++			kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true),
++			kOwner.AI_getPlotDanger(kGeneral.getPlot(), 2), kCity.AI_isSafe(), kOwner.AI_getPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft(),
++			pPathEnd == NULL ? -1 : pPathEnd->getX(), pPathEnd == NULL ? -1 : pPathEnd->getY(), pPathEnd == NULL ? -1 : kOwner.AI_getPlotDanger(*pPathEnd, 2));
+ }
+ 
+ bool CvUnitAI::AI_join(int iMaxCount)
+@@ -17055,7 +17071,12 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 	CvPlot* pBestPlot = NULL;
+ 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+ 	int iCount = 0;
+-	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	// <!-- custom: Base AdvCiv's Great-General AI_join relies on MOVE_SAFE_TERRITORY, but that path flag only restricts ownership/revelation and does not make the end-turn plot tactically safe.
++	// Add enemy-avoidance and compare the actual end-turn danger. If the General is already trapped in danger (commonly after spawning in a besieged city), allow a nonzero-danger move only when it is strictly safer than staying; otherwise a safety rule could pin the General inside the doomed city it is meant to escape. See KI#204. (ChatGPT-5.6-Sol) -->
++	MovementFlags const eSASGreatGeneralMoveFlags = (MovementFlags)(MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3);
++	int const iSASCurrentPlotDangerR2 = kOwner.AI_getPlotDanger(getPlot(), 2);
++	FOR_EACH_CITYAI(pLoopCity, kOwner)
+ 	{
+ 		// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/19/09, jdog5000: START
+ 		// BBAI efficiency: check same area
+@@ -17071,11 +17092,18 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-not-safe", iMaxCount, iCount);
+ 			continue;
+ 		}
+-		if (!generatePath(pLoopCity->getPlot(), MOVE_SAFE_TERRITORY, true))
++		if (!generatePath(pLoopCity->getPlot(), eSASGreatGeneralMoveFlags, true))
+ 		{
+ 			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "no-safe-path", iMaxCount, iCount);
+ 			continue;
+ 		}
++		CvPlot const& kPathEnd = getPathEndTurnPlot();
++		int const iSASPathEndDangerR2 = kOwner.AI_getPlotDanger(kPathEnd, 2);
++		if (!at(kPathEnd) && iSASPathEndDangerR2 > 0 && (iSASCurrentPlotDangerR2 <= 0 || iSASPathEndDangerR2 >= iSASCurrentPlotDangerR2))
++		{
++			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "dangerous-path-end-not-safer", iMaxCount, iCount, &kPathEnd);
++			continue;
++		}
+ 		// BETTER_BTS_AI_MOD: END
+ 		FOR_EACH_ENUM(Specialist)
+ 		{
+@@ -17107,7 +17135,12 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 						const int iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(0);
+ 						const int iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
+ 						const int iDefenders = pLoopCity->getPlot().getNumDefenders(getOwner());
+-						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue, pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true), pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(), getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
++						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) currentPlotDangerR2=%d pathEndDangerR2=%d",
++								GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
++								pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue,
++								pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true),
++								pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(),
++								getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY(), iSASCurrentPlotDangerR2, kOwner.AI_getPlotDanger(getPathEndTurnPlot(), 2));
+ 					}
+ 					if (iValue > iBestValue)
+ 					{
+@@ -17136,7 +17169,7 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 		{
+ 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
+ 			if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MOVE turn=%d player=%d %S generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
+-			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY);
++			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags);
+ 			return true;
+ 		}
+ 	}
+@@ -17155,16 +17188,20 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
+ 	if (!getUnitInfo().isAnyBuildings())
+ 		return false; // </advc.003t>
+ 	int iBestValue = 0;
+-	CvPlot* pBestPlot = NULL;
++	CvPlot const* pBestPlot = NULL;
+ 	CvPlot* pBestConstructPlot = NULL;
+ 	BuildingTypes eBestBuilding = NO_BUILDING;
+ 	int iCount = 0;
+-	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	// <!-- custom: Apply the same Great-General travel safety as AI_join. Base AdvCiv used MOVE_NO_ENEMY_TERRITORY here and did not inspect the actual end-turn danger, so a defenseless General could still route onto an exposed plot. See KI#204. (ChatGPT-5.6-Sol) -->
++	MovementFlags const eSASGreatGeneralMoveFlags = (MovementFlags)(MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3);
++	int const iSASCurrentPlotDangerR2 = kOwner.AI_getPlotDanger(getPlot(), 2);
++	FOR_EACH_CITYAI(pLoopCity, kOwner)
+ 	{
+ 		if (!AI_canEnterByLand(pLoopCity->getArea()) || // advc.030 (replacing same-area check)
+ 			//!AI_plotValid(pLoopCity->plot()) || // advc.opt: Mostly redundant
+ 			//pLoopCity->getPlot().isVisibleEnemyUnit(this))
+-			pLoopCity->AI_isSafe()) // advc.139: Replacing the above
++			!pLoopCity->AI_isSafe()) // advc.139: Replacing the above; <!-- custom: Base AdvCiv had this test inverted as pLoopCity->AI_isSafe(), which skipped safe cities and left unsafe cities eligible for Military Academy targeting. Correct it to match AI_join's intended safety test. See KI#204. (ChatGPT-5.6-Sol) -->
+ 		{
+ 			continue;
+ 		}
+@@ -17188,14 +17225,18 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
+ 				kCiv.buildingClassAt(i)) < iMaxSingleBuildingCount)
+ 			{
+ 				if (canConstruct(pLoopCity->plot(), eBuilding) &&
+-					generatePath(pLoopCity->getPlot(), MOVE_NO_ENEMY_TERRITORY, true)) // K-Mod
++					generatePath(pLoopCity->getPlot(), eSASGreatGeneralMoveFlags, true)) // K-Mod; <!-- custom: use the KI#204 Great-General safety flags instead of only avoiding enemy-owned territory. (ChatGPT-5.6-Sol) -->
+ 				{
++					CvPlot const& kPathEnd = getPathEndTurnPlot();
++					int const iSASPathEndDangerR2 = kOwner.AI_getPlotDanger(kPathEnd, 2);
++					if (!at(kPathEnd) && iSASPathEndDangerR2 > 0 && (iSASCurrentPlotDangerR2 <= 0 || iSASPathEndDangerR2 >= iSASCurrentPlotDangerR2))
++						continue;
+ 					int iValue = pLoopCity->AI_buildingValue(eBuilding);
+ 
+ 					if (iValue > iThreshold && iValue > iBestValue)
+ 					{
+ 						iBestValue = iValue;
+-						pBestPlot = &getPathEndTurnPlot();
++						pBestPlot = &kPathEnd;
+ 						pBestConstructPlot = pLoopCity->plot();
+ 						eBestBuilding = eBuilding;
+ 					}
+@@ -17214,7 +17255,7 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
+ 		else
+ 		{
+ 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
+-			pushGroupMoveTo(*pBestPlot, MOVE_NO_ENEMY_TERRITORY, false, false,
++			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags, false, false,
+ 					MISSIONAI_CONSTRUCT, pBestConstructPlot);
+ 			return true;
+ 		}
+@@ -24155,6 +24196,10 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 				continue;
+ 			if (bNeedsAirlift && pLoopCity->getMaxAirlift() == 0)
+ 				continue;
++			// <!-- custom: Base AdvCiv lets a threatened defenseless unit treat its current city as a retreat candidate. Its zero-turn path then always beats every real escape city and AI_retreatToCity returns MISSION_SKIP, even when another city is reachable.
++			// Exclude that non-retreat candidate while searching; if no alternative exists, the unchanged fallback below can still keep the unit in its current city. This notably explains free Great Generals remaining in besieged birth cities after SAS suppresses weak emergency attachments. See KI#204. (ChatGPT-5.6-Sol) -->
++			if (pLoopCity == pCity && iCurrentDanger > 0 && !getGroup()->canDefend())
++				continue;
+ 			// <advc.139>
+ 			/*  When evacuating, exclude other cities that also evacuate
+ 				(and exclude the current city). */
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index e458b9523..c89436254 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -5988,8 +5988,13 @@ void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind)
+ 
+ void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity)
+ {
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_BORN player=%d cityId=%d city=%S unit=%s combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d",
+-			GC.getGame().getGameTurn(), ePlayer, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit == NULL ? "-" : getSASGameRecordUnitType(pUnit->getUnitType()), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getCombatExperience(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatPeopleCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatGeneralsCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).greatPeopleThreshold(true));
++	// <!-- custom: Keep the newborn unit ID and exact spawn plot so one Great Person, especially a Great General, can be followed directly from birth through BBAI decisions to join/construct/attach/death rows instead of correlating only by player and turn. (ChatGPT-5.6-Sol) -->
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_BORN player=%d cityId=%d city=%S unitId=%d unit=%s x=%d y=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d",
++			GC.getGame().getGameTurn(), ePlayer, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
++			pUnit == NULL ? -1 : pUnit->getID(), pUnit == NULL ? "-" : getSASGameRecordUnitType(pUnit->getUnitType()),
++			pUnit == NULL ? -1 : pUnit->getX(), pUnit == NULL ? -1 : pUnit->getY(),
++			ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getCombatExperience(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatPeopleCreated(),
++			ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatGeneralsCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).greatPeopleThreshold(true));
+ }
+ 
+ void logSASGameRecordGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 0d1d448a2..32b43ba48 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -263,6 +263,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks)\
+ [201 - (Fixed/Improved) Base AdvCiv relative-strength tech-trade rubber-banding guaranteed weaker recipients discounts without bargaining risk](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#201---fixedimproved-base-advciv-relative-strength-tech-trade-rubber-banding-guaranteed-weaker-recipients-discounts-without-bargaining-risk)\
+ [203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#203---improved-ai-auto-play-could-pause-behind-harmless-informational-popups-and-its-logs-could-not-reliably-explain-why-a-run-ended)\
++[204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#204---fixedimproved-base-advciv-great-general-birth-safety-and-reporting-gaps-could-waste-free-great-generals-including-unsafe-birth-city-selection-and-an-inverted-military-academy-city-safety-test)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7812,3 +7813,20 @@ The player-handoff follow-up compiled and the confirming full run completed with
+ A separate short test then exercised three requests in one log session. Request 1 scheduled 21 turns and reported all 21 completed with `endCause=SCHEDULED`. Request 2 scheduled 31 turns, was manually stopped with 13 remaining, and correctly reported 18 completed with `endCause=USER_INTERRUPTED`. Request 3 scheduled 61 turns and reported all 61 completed with `endCause=SCHEDULED`. Their request IDs advanced from 1 to 3 and each row preserved its own starting turn/elapsed-turn context. For scheduled runs, `elapsedGameTurns` is one lower than `completedTurns` because a request starting on turn 0 processes turns 0 through 20 inclusively while the game-turn counter advances by 20; `completedTurns` retains the requested 21-turn workload. An ordinary `BUTTONPOPUP_TEXT` suppression has not yet occurred naturally in a confirming log, but its no-action handler and shared launcher gate make it the simpler of the two suppression paths.
+ 
+ Improved with the help of GPT-5.6-Sol thanks.
++
++## 204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test
++
++A Great General investigation initially looked like it might mainly concern AdvCiv-SAS's balance choice to strongly prefer Military Instructors and largely suppress low-value combat-unit attachments. Comparing the current code with the latest available Base AdvCiv source and reviewing 15 recent SASGameRecord autoplay logs instead exposed a mixture of inherited AdvCiv problems, inherited limitations that benefit from hardening, SAS-specific balance policy and SAS logging/reporting gaps. The 15 reviewed logs contained 1,137 Great General births, 1,101 Military Instructor joins, 18 Military Academy constructions and 7 explicit deaths of the free `UNIT_GREAT_GENERAL` itself; 6 of the 7 deaths occurred in or immediately around cities that were already collapsing, while the seventh General moved out of Poverty Point and was killed by a Gunship on a non-city plot the next turn.
++
++- **Fixed Base AdvCiv issue - unsafe automatic Great General birth city:** `CvPlayer::setCombatExperience` selected the automatic Great-General birth city from all cities using randomized yield/population ranks without checking city safety, so a defenseless General could be created directly in a besieged city despite safer cities existing. AdvCiv-SAS keeps the original scoring but restricts selection to safe cities whenever at least one safe city exists; if every city is unsafe, it falls back to the original all-city selection. The synchronized random roll is still consumed for every city before filtering so the safety correction does not unnecessarily alter the synchronized RNG stream.
++- **Fixed Base AdvCiv bug - inverted Military Academy city-safety test:** `CvUnitAI::AI_construct` used `pLoopCity->AI_isSafe()` as a reason to reject a city, which skipped safe cities while leaving unsafe cities eligible for Military Academy targeting. This is now corrected to reject cities that are not safe, matching the nearby `AI_join` logic.
++- **Hardened inherited AdvCiv/K-Mod limitation - movement flags were not tactical safety:** Great General joining relied on `MOVE_SAFE_TERRITORY`, whose pathfinder meaning is ownership/revelation safety rather than protection from attack on the actual end-turn plot; Academy movement had a similar exposure. Instructor/Academy travel now also avoids enemy pressure and checks the actual end-turn radius-2 danger. A General starting from safety will not deliberately end on a dangerous travel tile, while a General already trapped in danger may use a nonzero-danger path only when its end-turn plot is strictly safer than its current plot, avoiding a safety rule that would itself pin the unit in a collapsing city.
++- **Fixed Base AdvCiv issue - zero-turn unsafe-city retreat trap:** the K-Mod-derived `AI_retreatToCity` could let a threatened defenseless land unit choose its current unsafe city as the best retreat destination. Its path length is zero, so it could beat every genuine escape city and return `MISSION_SKIP`. AdvCiv-SAS now excludes a threatened non-defender's current city while searching for a retreat destination; if no real alternative exists, the existing fallback remains unchanged and can still leave the unit there rather than manufacturing an impossible escape.
++- **Improved SAS Great General policy - era-tunable Military Instructor-first behavior:** Base AdvCiv can attach a threatened Great General to a combat unit before the normal Academy/Instructor sequence. AdvCiv-SAS deliberately gates weak attachments very heavily because Military Instructors are currently preferred for balance. `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA` now makes the additional Instructor-first priority tunable: `-1` disables it, nonnegative values apply it through the corresponding era index, and the dynamically resolved `ERA_FUTURE` index or higher applies it in all eras. The ordinary Academy, attachment, retreat and safety fallbacks remain available when a suitable Instructor action cannot be made.
++- **Improved Great General death reporting and Timeline persistence:** Base AdvCiv passed `getNameKey()` to Great General death notifications, so a named casualty could show only its personal name and hide whether it was the free General or e.g. a named Longbowman carrying one. AdvCiv-SAS now uses `getReplayName()` for these messages so unit type and personal name stay together. Player-caused Great General deaths are also persisted as replay major events, allowing the Info Screen Timeline to display them instead of leaving the event only in the transient top-center message stream.
++- **Improved SASGameRecord/BBAI observability:** a defenseless Great Person destroyed directly through a player-caused `CvUnit::kill` path could bypass the existing combat-result record. That player-kill path now records the death without duplicating ordinary combat rows. Great-Person birth rows also record the newborn `unitId` and spawn coordinates, while dedicated BBAI Great General level-3 diagnostics record candidate rejection reasons and numeric current/city/path-end danger. This allows one General to be followed from birth through AI decisions to Instructor/Academy/attachment/death outcome.
++- **Post-fix autoplay validation:** a 457-turn test with only Great General BBAI diagnostics enabled produced 91 Great General births, 90 Military Instructor joins, no Academy/attachment outcomes and 1 free-General death. 75 of the 90 successful Generals joined on their birth turn, 12 one turn later and 3 two turns later; 41 settled in a city other than their birth city. All 6 Generals whose first AI decision began with radius-2 danger above zero successfully reached an Instructor outcome, including starts at danger 22 and 28. The sole death was qualitatively different and appears unavoidable by the AI movement fixes: Russia's General `1114142` was born in Rostov on turn 362 and killed there during Rostov's capture on the same turn, after Moscow had already fallen earlier that turn. Rostov was therefore Russia's only remaining city, the safe-birth-city selector had no alternative, and BBAI contains no Great General move for the unit because it died before Russia received an AI turn.
++
++This remains a mixed issue rather than one Civ4 bug or one SAS regression. The unsafe birth-city selector, inverted Academy safety test and zero-turn retreat trap are concrete behaviors present in Base AdvCiv; travel protection and death/replay reporting are inherited behavior hardened in SAS; Instructor-first use and near-disabled weak attachments are deliberate SAS balance policy; and the missing direct-kill row was a SASGameRecord instrumentation gap. No claim is made that the AdvCiv-specific defects are also present in unmodified Civilization IV: Beyond the Sword, which was not the comparison target of this investigation.
++
++Fixed/improved and documented with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c082890a9..1c21c691b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -474,7 +474,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Mounted "Counter" role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+ - **Stack attack order — spend expendables first:** stack attacks now prefer **bombard/collateral** and **low-effective-strength/low-XP** units first (once the stack commits to attack), preserving elite finishers. Rationale: economically efficient (older/weaker units cost upkeep but scale poorly) and strategically safer (keep high-value units for decisive blows or retreats). Change in `CvSelectionGroupAI::AI_getBestGroupAttacker`. Toggle via SAS defines for A/B testing. See [KI#89](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first).
+ - **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc).
+-- Update: (Requires AdvCiv-SAS 6032+) Rarely in games, for example in save file 450 with France AI, a Great General could be attached to a low-value Longbowman at ~T130. BBAI logging showed the cause was Military Instructor joining was blocked by safety/path gates. To fix it, Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Instructor or Military Academy unless these thresholds are deliberately lowered. In the retest after fix, those low-value Longbowman attachments were rejected (and another Great General attachment to USA in the same run that newly occurred as well at ~T180 was successfully blocked) and the Great Generals joined cities as Military Instructors instead. See [KI#69 (Update)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc).
++- Update: (Requires AdvCiv-SAS 6032+) Rarely in games, for example in save file 450 with France AI, a Great General could be attached to a low-value Longbowman at ~T130. BBAI logging showed the cause was Military Instructor joining was blocked by safety/path gates. To fix it, Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Instructor or Military Academy unless these thresholds are deliberately lowered. In the retest after fix, those low-value Longbowman attachments were rejected (and another Great General attachment to USA in the same run that newly occurred as well at ~T180 was successfully blocked) and the Great Generals joined cities as Military Instructors instead. See [KI#69 (Update)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). (Requires AdvCiv-SAS 6032+) Update 2: **Great General safety/reliability:** fixed several inherited Base AdvCiv pitfalls that could spawn, route or leave defenseless Great Generals in danger before the AI could use them, and made the additional Military Instructor-first priority era-tunable. See [KI#204](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#204---fixedimproved-base-advciv-great-general-birth-safety-and-reporting-gaps-could-waste-free-great-generals-including-unsafe-birth-city-selection-and-an-inverted-military-academy-city-safety-test).
+ 
+ #### Military - Naval (AI)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=44532

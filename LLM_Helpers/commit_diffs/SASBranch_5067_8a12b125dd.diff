@@ -1,0 +1,224 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5067
+# Commit: 8a12b125dd634ab11ab5535fccddb39c451ac9d2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a18c4ade7549259821ad558d8ba1ea6c99960fa5
+# Title: (Tremendously Improved) Force one artist if we don't have BFC and city culture per turn is low, until we do, in CvCity::doTurn 2 AI cities captured around tu...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+29	0	Assets/XML/GlobalDefines_advciv_sas.xml
+30	0	CvGameCoreDLL/CvCity.cpp
+43	24	CvGameCoreDLL/CvCityAI.cpp
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 979c0cf26..5ebe31240 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -817,4 +817,33 @@
+ 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++
++
++
++	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
++	<Define>
++		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: set to 1 to enable the advciv-sas optimization of forcing an artist if no bfc and city's culture per turn is low (0 to disable it) -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC.  -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
++	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledging") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture if i'm not mistaken but anyways etc), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check i mean but anyways etc), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC but anyways etc) -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++
++
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ca6321c7b..a2cdd9514 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1051,6 +1051,36 @@ void CvCity::doTurn()
+ 		would make production turns difficult to anticipate. */
+ 	AI().AI_assignWorkingPlots();
+ 
++	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
++	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
++	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
++	if (!isHuman() && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
++	{
++		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
++
++		// "No BFC yet" = still at the initial culture level (pre-10 culture)
++		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
++		const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
++
++		static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
++
++		// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
++		if (bNoCultureLevelReqYet && eArtist != NO_SPECIALIST)
++		{
++			const int iCpt = getCommerceRate(COMMERCE_CULTURE);
++
++			// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
++			if (iCpt <= iLowCpt)
++			{
++				if (getForceSpecialistCount(eArtist) < 1)
++				{
++					changeForceSpecialistCount(eArtist, 1);			
++				}
++			}
++		}
++	}
++	// --- END: SAS hard patch ---
++
+ 	updateEspionageVisibility(true);
+ 
+ 	if (!isDisorder())
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index af6334b0a..3373d991a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13937,40 +13937,59 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+ 
+ 	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
+-	if (!kOwner.isHuman())
++
++	static const bool bSAS_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_JOB_CHANGE_VALUE_OPTIMIZE");
++
++	if (bSAS_JOB_CHANGE_VALUE_OPTIMIZE && !kOwner.isHuman())
+ 	{
++		// <!-- custom: before the no specialist at low pop rule, and regardless of city population, handle the exception where we absolutely need an artist to get our BFC, if city has low or no culture. Code provided by chatgpt 5 and thanks to my prompts and/or such and that i adjusted and/or such, check if accurate anyways etc -->
++		// --- Simple BFC Artist precheck ---------------------------------------------
++		// If we don't have BFC yet (level < 1) and city culture is very low (<3),
++		// force-pick exactly one Artist; and don't drop it until BFC is reached.
++		static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
++
++		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
++		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
++
++		static const SpecialistTypes eSpecialistArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
++
++		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE && (eSpecialistArtist != NO_SPECIALIST));
++
+ 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+ 		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+ 
+-		const int iCityPopulation = getPopulation();
+-
+-		// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
+-		if (iCityPopulation <= 4)
++		if (!bWantBFCArtist)
+ 		{
+-			if (new_job.first && !old_job.first)
++			const int iCityPopulation = getPopulation();
++
++			// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
++			if (iCityPopulation <= 4)
+ 			{
+-				return AI_JOB_FORBIDDEN;
++				if (new_job.first /* hiring any specialist */)
++				{
++					return AI_JOB_FORBIDDEN;
++				}
+ 			}
+-		}
+-		// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
+-		// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore if i am not mistaken but anyways etc, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+-		// <!-- custom: also note if i may say but anyways etc: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)-->
+-		// strict growth-first rule for small-but-not-tiny cities with headroom
+-		// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
+-		// and we're NOT in food→production mode (Settlers/Workers).
+-		// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+-		// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
+-		else
+-		{
+-			const int iHappySurplus = (happyLevel() - unhappyLevel(0));
+-
+-			if (!isFoodProduction() && (iHappySurplus >= 1))
++			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
++			// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore if i am not mistaken but anyways etc, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
++			// <!-- custom: also note if i may say but anyways etc: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)-->
++			// strict growth-first rule for small-but-not-tiny cities with headroom
++			// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
++			// and we're NOT in food→production mode (Settlers/Workers).
++			// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
++			// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
++			else
+ 			{
+-				int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
++				const int iHappySurplus = (happyLevel() - unhappyLevel(0));
+ 
+-				if (iFoodSurplus >= 2 && new_job.first && !old_job.first)
++				if (!isFoodProduction() && (iHappySurplus >= 1))
+ 				{
+-					return AI_JOB_FORBIDDEN;
++					int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
++
++					if (iFoodSurplus >= 2 && new_job.first)
++					{
++						return AI_JOB_FORBIDDEN;
++					}
+ 				}
+ 			}
+ 		}
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 2f63dac3b..5337d6445 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -175,6 +175,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - make the AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and chatgpt's help too anyways etc and adjusted for advciv-sas too or not anyways etc), that as a side effect may also slightly increase performance due to early return in the function anyways etc. Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc; added with the help of gemini ai too thanks hehe if i may say but anyways etc.
+ - since then, added a few extra sanity rules as of now in `CvCityAI::AI_jobChangeValue` for assigning specialists for AI players, such as no specialist in low pop cities (favour growth, as there were quite a few size 2 cities stagnating with food available and all for growth due to too early specialist). After cities are bigger than this size if i may say in this case but anyways etc, all cities, with extra conditions such as having enough food to grow and extra happiness to accomodate it, will now not assign ever a specialist until they can grow no more. This is because even at size 11, some cities would still stagnate when they could have grown more before assigning a specialist and stagnating. And finally, for barbarians, on top of these rules, also never allow any specialist other than the scientist. Hopefully these sanity rules, added with the help of chatgpt 5 too but anyways etc, help AI be stronger and more reliable in its specialist or rather maybe non-specialist choices in most cases especially those that had these major issues, while also not killing versatility while doing so if i am not mistaken but anyways etc. See [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc) for details anyways etc.
++- (requires AdvCiv-SAS 5067+) exception to the above and additional AI enhancement: if we don't have our BFC, force assign one and only one artist until we do, in `CvCity::AI_doTurn`.
+ 
+ #### City Production (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index f7a6f3267..309580e82 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -164,6 +164,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`.
+ - Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc).
++- (Requires AdvCiv-SAS 5067+) exception to the previous rule, and AI enhancement: If a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+ 
+ #### City Production (AI)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=17719

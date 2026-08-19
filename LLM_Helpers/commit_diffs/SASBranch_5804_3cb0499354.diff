@@ -1,0 +1,766 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5804
+# Commit: 3cb04993543dfffb9452a86f2d2f02797fa95846
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 38e49c80d083d928c63fb85de0ef2709e2224bab
+# Title: change gc.getInfoTypeForString lookups to getInfoTypeOrFail in some py files - pass 2 - less safe files done, variable ones not done in this pass
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	2	Assets/Python/BUG/BugScreen.py
+8	1	Assets/Python/BUG/BugUnitPlot.py
+8	1	Assets/Python/BUG/GGUtil.py
+14	7	Assets/Python/BUG/GPUtil.py
+7	1	Assets/Python/BUG/Scoreboard.py
+8	1	Assets/Python/BUG/UnitPlotListUtil.py
+10	4	Assets/Python/Contrib/Civ4lerts.py
+8	1	Assets/Python/Contrib/MoreCiv4lerts.py
+9	2	Assets/Python/Contrib/autologEventManager.py
+12	1	Assets/Python/Contrib/savemap.py
+22	17	Assets/Python/CvAdvisorUtils.py
+10	9	Assets/Python/CvMapGeneratorUtil.py
+23	18	Assets/Python/EntryPoints/CvRandomEventInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugScreen.py b/Assets/Python/BUG/BugScreen.py
+index c95c7c8be..9fa7ac2dc 100644
+--- a/Assets/Python/BUG/BugScreen.py
++++ b/Assets/Python/BUG/BugScreen.py
+@@ -59,9 +59,16 @@
+ ## Copyright (c) 2009 The BUG Mod.
+ ##
+ ## Author: Ruff_Hi
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ #import BugUtil
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ #from PyHelpers import PyPlayer
+ import CvUtil
+ #import ScreenInput
+@@ -108,9 +115,9 @@ class BugTab:
+ 			szText += localText.getText(self.txt_key, ())
+ 		szText += u"</font>"
+ 		if not self.enabled:
+-			szText = localText.changeTextColor(szText, gc.getInfoTypeForString("COLOR_GREY"))
++			szText = localText.changeTextColor(szText, getInfoTypeOrFail("COLOR_GREY"))
+ 		elif self.active:
+-			szText = localText.changeTextColor(szText, gc.getInfoTypeForString("COLOR_YELLOW"))
++			szText = localText.changeTextColor(szText, getInfoTypeOrFail("COLOR_YELLOW"))
+ 		return szText
+
+diff --git a/Assets/Python/BUG/BugUnitPlot.py b/Assets/Python/BUG/BugUnitPlot.py
+index c6b758e90..d5a3e4e46 100644
+--- a/Assets/Python/BUG/BugUnitPlot.py
++++ b/Assets/Python/BUG/BugUnitPlot.py
+@@ -5,8 +5,15 @@
+ ## Copyright (c) 2007-2009 The BUG Mod.
+ ##
+ ## Author: Ruff_Hi
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import MonkeyTools as mt
+ import BugUtil
+ import UnitUtil
+@@ -553,7 +560,7 @@ class BupUnit:
+ 		self.isHurt = pUnit.isHurt()
+ 		self.isPromotionReady = pUnit.isPromotionReady()
+ 
+-		iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
++		iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
+ 		self.isLeadByGreatGeneral = iLeaderPromo != -1 and pUnit.isHasPromotion(iLeaderPromo)
+ 
+ 		self.DotStatus = self._getDotStatus()
+
+diff --git a/Assets/Python/BUG/GGUtil.py b/Assets/Python/BUG/GGUtil.py
+index ffb35a3ee..06826fd01 100644
+--- a/Assets/Python/BUG/GGUtil.py
++++ b/Assets/Python/BUG/GGUtil.py
+@@ -8,8 +8,15 @@
+ ## Copyright (c) 2008 The BUG Mod.
+ ##
+ ## Author: EmperorFool
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import BugUtil
+ import FontUtil
+ 
+@@ -21,7 +28,7 @@ g_cGreatGeneral = ""
+ 
+ def init():
+ 	global g_ePromo
+-	g_ePromo = gc.getInfoTypeForString("PROMOTION_LEADER")
++	g_ePromo = getInfoTypeOrFail("PROMOTION_LEADER")
+ 	global g_promoButton
+ 	g_promoButton = gc.getPromotionInfo(g_ePromo).getButton()
+ 	global g_cGreatGeneral
+
+diff --git a/Assets/Python/BUG/GPUtil.py b/Assets/Python/BUG/GPUtil.py
+index 53d8bf9e6..51dc9a061 100644
+--- a/Assets/Python/BUG/GPUtil.py
++++ b/Assets/Python/BUG/GPUtil.py
+@@ -19,8 +19,15 @@
+ ## Copyright (c) 2007-2009 The BUG Mod.
+ ##
+ ## Author: EmperorFool
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import BugUtil
+ import FontUtil
+ import PlayerUtil
+@@ -77,15 +84,15 @@ def init():
+ 	
+ 	global g_gpColors
+ 	g_gpColors = [None] * NUM_GP
+-	g_gpColors[GP_GREAT_SPY] = gc.getInfoTypeForString("COLOR_WHITE")
++	g_gpColors[GP_GREAT_SPY] = getInfoTypeOrFail("COLOR_WHITE")
+ 	g_gpColors[GP_GREAT_ENGINEER] = gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getColorType()
+-	g_gpColors[GP_GREAT_MERCHANT] = gc.getInfoTypeForString("COLOR_YELLOW")
+-	g_gpColors[GP_GREAT_SCIENTIST] = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
+-	g_gpColors[GP_GREAT_ARTIST] = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
+-	g_gpColors[GP_GREAT_PROPHET] = gc.getInfoTypeForString("COLOR_BLUE")
+-	g_gpColors[GP_GREAT_GENERAL] = gc.getInfoTypeForString("COLOR_RED")
++	g_gpColors[GP_GREAT_MERCHANT] = getInfoTypeOrFail("COLOR_YELLOW")
++	g_gpColors[GP_GREAT_SCIENTIST] = getInfoTypeOrFail("COLOR_RESEARCH_STORED")
++	g_gpColors[GP_GREAT_ARTIST] = getInfoTypeOrFail("COLOR_CULTURE_STORED")
++	g_gpColors[GP_GREAT_PROPHET] = getInfoTypeOrFail("COLOR_BLUE")
++	g_gpColors[GP_GREAT_GENERAL] = getInfoTypeOrFail("COLOR_RED")
+ 	# MOD: specify color for each new great person (3)
+-	#g_gpColors[GP_DOCTOR] = gc.getInfoTypeForString("COLOR_WHITE")
++	#g_gpColors[GP_DOCTOR] = getInfoTypeOrFail("COLOR_WHITE")
+ 	
+ 	global g_unitIcons
+ 	g_unitIcons = {}
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 8ab7db693..dbf8c0846 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -9,6 +9,12 @@
+ ## Copyright (c) 2007-2008 The BUG Mod.
+ ##
+ ## Author: EmperorFool
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugCore
+@@ -291,7 +297,7 @@ class Scoreboard:
+ 		# <advc.085> Replacing the two lines above
+ 		szProgress = u" %d%%" % progress
+ 		# Color it green? I guess better not.
+-		#szProgress = CyTranslator().changeTextColor(szProgress, gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"))
++		#szProgress = CyTranslator().changeTextColor(szProgress, getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT"))
+ 		self._set(RESEARCH_TURNS, smallText(szProgress)) # </advc.085>
+ 		
+ 	def setEspionage(self):
+
+diff --git a/Assets/Python/BUG/UnitPlotListUtil.py b/Assets/Python/BUG/UnitPlotListUtil.py
+index 21cae3fbb..3349fbad3 100644
+--- a/Assets/Python/BUG/UnitPlotListUtil.py
++++ b/Assets/Python/BUG/UnitPlotListUtil.py
+@@ -5,8 +5,15 @@
+ ## Copyright (c) 2007-2009 The BUG Mod.
+ ##
+ ## Author: Ruff_Hi
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import MonkeyTools as mt
+ import BugUtil
+ 
+@@ -15,7 +22,7 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+-iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
++iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
+ sFileNamePromo = ArtFileMgr.getInterfaceArtInfo("OVERLAY_PROMOTION_FRAME").getPath()
+ #screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 116cc3221..fd8fe0022 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -66,9 +66,15 @@ __version__ = "$Revision: 1.2 $"
+ ## 
+ ## Other:
+ ## City is under cultural pressure
+-
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG/Civ4lerts file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import AttitudeUtil
+ import BugCore
+ import BugUtil
+@@ -778,10 +784,10 @@ class CanHurryPopulation(AbstractCanHurry):
+ 		#	iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
+ 		#iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
+ 		#iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
+-		#iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(gc.getInfoTypeForString("YIELD_PRODUCTION"), city.getProductionModifier())
++		#iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(getInfoTypeOrFail("YIELD_PRODUCTION"), city.getProductionModifier())
+ 		# <advc.064> Replacing the above (same code as in CvMainInterface.py)
+-		HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
+-		HURRY_BUY = gc.getInfoTypeForString("HURRY_GOLD")
++		HURRY_WHIP = getInfoTypeOrFail("HURRY_POPULATION")
++		HURRY_BUY = getInfoTypeOrFail("HURRY_GOLD")
+ 		
+ 		bCountCurrentOverflow = BugCore.game.CityScreen.isWhipAssistOverflowCountCurrentProduction()
+ 		iOverflow = city.getHurryOverflow(HURRY_WHIP, True, bCountCurrentOverflow)
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 604b4a35b..65b88b931 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -1,8 +1,15 @@
+ ## MoreCiv4lerts
+ ## From HOF MOD V1.61.001
+ ## Based upon Gillmer J. Derge's Civ4lerts.py
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party MoreCiv4lerts file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import PyHelpers
+ import BugCore
+ import PlayerUtil
+@@ -220,7 +227,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 				if (bRevealed or PlayerUtil.canSeeCityList(iPlayer)):
+ 					player = gc.getPlayer(iPlayer)
+ 					#iColor = gc.getPlayerColorInfo(player.getPlayerColor()).getColorTypePrimary()
+-					iColor = gc.getInfoTypeForString("COLOR_MAGENTA")
++					iColor = getInfoTypeOrFail("COLOR_MAGENTA")
+ 					if (bRevealed):
+ 						message = localText.getText("TXT_KEY_MORECIV4LERTS_CITY_FOUNDED", (player.getName(), city.getName()))
+ 						self._addMessageAtCity(self.iOwner, message, "Art/Interface/Buttons/Actions/foundcity.dds", city, iColor)
+
+diff --git a/Assets/Python/Contrib/autologEventManager.py b/Assets/Python/Contrib/autologEventManager.py
+index 122ae5ef3..75961a709 100644
+--- a/Assets/Python/Contrib/autologEventManager.py
++++ b/Assets/Python/Contrib/autologEventManager.py
+@@ -7,8 +7,15 @@
+ ##
+ ## TODO:
+ ## - Use onPlayerChangeStateReligion event
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party autolog file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import CvUtil
+ import Popup as PyPopup
+ import PyHelpers
+@@ -899,7 +906,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
+ 		'Improvement Built'
+ 		iImprovement, iX, iY = argsList
+ 
+-		if iImprovement in (-1, gc.getInfoTypeForString("IMPROVEMENT_GOODY_HUT"), gc.getInfoTypeForString("IMPROVEMENT_CITY_RUINS")):  
++		if iImprovement in (-1, getInfoTypeOrFail("IMPROVEMENT_GOODY_HUT"), getInfoTypeOrFail("IMPROVEMENT_CITY_RUINS")):  
+ 			return
+ 
+ 		pPlot = CyMap().plot(iX,iY)
+@@ -922,7 +929,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
+ 		'Improvement Destroyed'
+ 		iImprovement, iOwner, iX, iY = argsList
+ 
+-		if iImprovement in (-1, gc.getInfoTypeForString("IMPROVEMENT_GOODY_HUT"), gc.getInfoTypeForString("IMPROVEMENT_CITY_RUINS")):  
++		if iImprovement in (-1, getInfoTypeOrFail("IMPROVEMENT_GOODY_HUT"), getInfoTypeOrFail("IMPROVEMENT_CITY_RUINS")):  
+ 			return
+ 
+ 		pPlot = CyMap().plot(iX,iY)
+
+diff --git a/Assets/Python/Contrib/savemap.py b/Assets/Python/Contrib/savemap.py
+index 0c63d9aa4..067c994a4 100644
+--- a/Assets/Python/Contrib/savemap.py
++++ b/Assets/Python/Contrib/savemap.py
+@@ -4,7 +4,16 @@
+ # creates a mapscript from the currently shown map.
+ # this is based on the savemap script by tywiggins
+ # https://apolyton.net/forum/civilization-iv/civilization-iv-creation/165900-python-save-map
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party savemap file. Edits here are limited
++# to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups, hoists). (Claude code Opus 4.7) -->
++
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import os
+ # <advc.savem>
+ import BugPath
+@@ -68,6 +77,8 @@ def savemap(argsList=None):
+ 	startingPlots = []
+ 	startingPlotsXY = []
+ 
++	# <!-- custom: hoist out of nested per-player per-unit loop. (Claude code Opus 4.7) -->
++	eUnitClassSettler = getInfoTypeOrFail("UNITCLASS_SETTLER")
+ 	for i in range(numPlayers):
+ 		player = gc.getPlayer(i)
+ 		pIndex = 0
+@@ -77,7 +88,7 @@ def savemap(argsList=None):
+ 			if(player.getNumUnits() > 0):
+ 				for j in range(player.getNumUnits()):
+ 					unit = player.getUnit(j)
+-					if(unit.getUnitClassType() == gc.getInfoTypeForString("UNITCLASS_SETTLER")):
++					if(unit.getUnitClassType() == eUnitClassSettler):
+ 						pPlot = unit.plot()
+ 						if(pPlot.isWater() == 0):
+ 							pIndex = map.plotNum(pPlot.getX(), pPlot.getY()) + (extraWidth * pPlot.getY())
+
+diff --git a/Assets/Python/CvAdvisorUtils.py b/Assets/Python/CvAdvisorUtils.py
+index 8baac64c5..b92782014 100644
+--- a/Assets/Python/CvAdvisorUtils.py
++++ b/Assets/Python/CvAdvisorUtils.py
+@@ -2,9 +2,14 @@
+ ## Copyright Firaxis Games 2005
+ ##
+ ## CvAdvisorUtils
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import PyHelpers
+ 
+ 
+@@ -87,7 +92,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 	# so. -->
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_SHORT")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARCHER_BOW_SHORT")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT, True)
+ 			
+@@ -105,7 +110,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_LONG")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARCHER_BOW_LONG")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG, True)
+ 			
+@@ -123,7 +128,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_CROSSBOW")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARCHER_CROSSBOW")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW, True)
+ 			
+@@ -141,7 +146,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 	
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MOUNTED_MELEE")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE, True)
+ 			
+@@ -159,7 +164,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MOUNTED_RANGED")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED, True)
+ 			
+@@ -177,7 +182,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_POLEARM")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MELEE_POLEARM")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM, True)
+ 			
+@@ -195,7 +200,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_SHOCK")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MELEE_SHOCK")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK, True)
+ 			
+@@ -213,7 +218,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_SIEGE)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_SIEGE")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_SIEGE")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_SIEGE, True)
+ 			
+@@ -231,7 +236,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 	
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_GUN)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_GUN")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_GUN")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_GUN, True)
+ 			
+@@ -249,7 +254,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 	
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARMOR)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARMOR")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARMOR")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARMOR, True)
+ 			
+@@ -267,7 +272,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 	
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_HELICOPTER")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_HELICOPTER")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER, True)
+ 			
+@@ -285,7 +290,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 	
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_NAVAL)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_NAVAL")):
++		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_NAVAL")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_NAVAL, True)
+ 			
+@@ -303,7 +308,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNIT_PRIVATEER)):
+ 
+-		if (pUnit.getUnitType() == gc.getInfoTypeForString("UNIT_PRIVATEER")):
++		if (pUnit.getUnitType() == getInfoTypeOrFail("UNIT_PRIVATEER")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_PRIVATEER, True)
+ 			
+@@ -321,7 +326,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 
+ 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNIT_SPY)):
+ 
+-		if (pUnit.getUnitType() == gc.getInfoTypeForString("UNIT_SPY")):
++		if (pUnit.getUnitType() == getInfoTypeOrFail("UNIT_SPY")):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_SPY, True)
+ 			
+@@ -414,7 +419,7 @@ def endTurnFeats(iPlayer):
+ 
+ 		if (not gc.getPlayer(iPlayer).isFeatAccomplished(FeatTypes.FEAT_COPPER_CONNECTED)):
+ 		
+-			iBonus = gc.getInfoTypeForString("BONUS_COPPER")
++			iBonus = getInfoTypeOrFail("BONUS_COPPER")
+ 			if (iBonus != BonusTypes.NO_BONUS):
+ 				if (pCapitalCity.hasBonus(iBonus)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_COPPER_CONNECTED, True)
+@@ -433,7 +438,7 @@ def endTurnFeats(iPlayer):
+ 
+ 		if (not gc.getPlayer(iPlayer).isFeatAccomplished(FeatTypes.FEAT_HORSE_CONNECTED)):
+ 		
+-			iBonus = gc.getInfoTypeForString("BONUS_HORSE")
++			iBonus = getInfoTypeOrFail("BONUS_HORSE")
+ 			if (iBonus != BonusTypes.NO_BONUS):
+ 				if (pCapitalCity.hasBonus(iBonus)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_HORSE_CONNECTED, True)
+@@ -452,7 +457,7 @@ def endTurnFeats(iPlayer):
+ 
+ 		if (not gc.getPlayer(iPlayer).isFeatAccomplished(FeatTypes.FEAT_IRON_CONNECTED)):
+ 		
+-			iBonus = gc.getInfoTypeForString("BONUS_IRON")
++			iBonus = getInfoTypeOrFail("BONUS_IRON")
+ 			if (iBonus != BonusTypes.NO_BONUS):
+ 				if (pCapitalCity.hasBonus(iBonus)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_IRON_CONNECTED, True)
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index e74be9570..011ff5718 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -6,6 +6,7 @@
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import CvUtil
+ import random
+ from math import sqrt
+@@ -1262,11 +1263,11 @@ class TerrainGenerator:
+ 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount,
+ 				self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		# given a point (iX,iY) such that (0,0) is in the NW,
+@@ -1408,10 +1409,10 @@ class FeatureGenerator:
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 		
+ 	def __initFeatureTypes(self):
+-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 
+ 	def addFeatures(self):
+ 		# adds features to all plots as appropriate
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 26c9cf54d..1a88f763b 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -9,8 +9,13 @@
+ #
+ # No other modules should import this
+ #
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
+ import CvUtil
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ from EventSigns import placeLandmark # K-Mod
+ from operator import itemgetter # K-Mod (used to avoid OOS when sorting)
+ 
+@@ -534,14 +539,14 @@ def applyLooters3(argsList):
+ 		if len(listBuildings) > 0:
+ 			iBuilding = listBuildings[gc.getGame().getSorenRandNum(len(listBuildings), "Looters event building destroyed")]
+ 			szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
+-			CyInterface().addMessage(kTriggeredData.eOtherPlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), gc.getInfoTypeForString("COLOR_RED"), city.getX(), city.getY(), true, true)
++			CyInterface().addMessage(kTriggeredData.eOtherPlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), getInfoTypeOrFail("COLOR_RED"), city.getX(), city.getY(), true, true)
+ 			city.setNumRealBuilding(iBuilding, 0)
+ 			iNumBuildingsDestroyed += 1
+ 			listBuildings.remove(iBuilding)
+ 				
+ 	if iNumBuildingsDestroyed > 0:
+ 		szBuffer = localText.getText("TXT_KEY_EVENT_NUM_BUILDINGS_DESTROYED", (iNumBuildingsDestroyed, gc.getPlayer(kTriggeredData.eOtherPlayer).getCivilizationAdjectiveKey(), city.getNameKey()))
+-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, gc.getInfoTypeForString("COLOR_WHITE"), -1, -1, true, true)
++		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, getInfoTypeOrFail("COLOR_WHITE"), -1, -1, true, true)
+ 
+ ######## BROTHERS IN NEED ###########
+ 
+@@ -644,13 +649,13 @@ def applyHurricane1(argsList):
+ 	if len(listCheapBuildings) > 0:
+ 		iBuilding = listCheapBuildings[gc.getGame().getSorenRandNum(len(listCheapBuildings), "Hurricane event cheap building destroyed")]
+ 		szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
+-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), gc.getInfoTypeForString("COLOR_RED"), city.getX(), city.getY(), true, true)
++		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), getInfoTypeOrFail("COLOR_RED"), city.getX(), city.getY(), true, true)
+ 		city.setNumRealBuilding(iBuilding, 0)
+ 
+ 	if len(listExpensiveBuildings) > 0:
+ 		iBuilding = listExpensiveBuildings[gc.getGame().getSorenRandNum(len(listExpensiveBuildings), "Hurricane event expensive building destroyed")]
+ 		szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
+-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), gc.getInfoTypeForString("COLOR_RED"), city.getX(), city.getY(), true, true)
++		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), getInfoTypeOrFail("COLOR_RED"), city.getX(), city.getY(), true, true)
+ 		city.setNumRealBuilding(iBuilding, 0)
+ 
+ 		
+@@ -731,7 +736,7 @@ def applyTsunami2(argsList):
+ 		if len(listBuildings) > 0:
+ 			iBuilding = listBuildings[gc.getGame().getSorenRandNum(len(listBuildings), "Tsunami event building destroyed")]
+ 			szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
+-			CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), gc.getInfoTypeForString("COLOR_RED"), city.getX(), city.getY(), true, true)
++			CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), getInfoTypeOrFail("COLOR_RED"), city.getX(), city.getY(), true, true)
+ 			city.setNumRealBuilding(iBuilding, 0)
+ 			listBuildings.remove(iBuilding)
+ 					
+@@ -825,14 +830,14 @@ def applyVolcano1(argsList):
+ 			plot = listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Volcano event improvement destroyed")]
+ 			iImprovement = plot.getImprovementType()
+ 			szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getImprovementInfo(iImprovement).getTextKey(), ))
+-			#CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getImprovementInfo(iImprovement).getButton(), gc.getInfoTypeForString("COLOR_RED"), plot.getX(), plot.getY(), true, true)
++			#CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getImprovementInfo(iImprovement).getButton(), getInfoTypeOrFail("COLOR_RED"), plot.getX(), plot.getY(), true, true)
+ 			# K-Mod
+ 			if plot.getOwner() != PlayerTypes.NO_PLAYER:
+ 				plot_owner = plot.getOwner()
+ 			else:
+ 				plot_owner = kTriggeredData.ePlayer
+ 			if (gc.getPlayer(plot_owner).isHuman()):
+-				CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getImprovementInfo(iImprovement).getButton(), gc.getInfoTypeForString("COLOR_RED"), plot.getX(), plot.getY(), true, true)
++				CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getImprovementInfo(iImprovement).getButton(), getInfoTypeOrFail("COLOR_RED"), plot.getX(), plot.getY(), true, true)
+ 			# K-Mod end
+ 			if iImprovement in listRuins:
+ 				plot.setImprovementType(iRuins)
+@@ -872,7 +877,7 @@ def applyVolcano1(argsList):
+ 		else:
+ 			plot_owner = kTriggeredData.ePlayer
+ 		if (gc.getPlayer(plot_owner).isHuman()):
+-			CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_VOLCANO_FERTILITY", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, gc.getInfoTypeForString("COLOR_WHITE"), plot.getX(), plot.getY(), true, true)
++			CyInterface().addMessage(plot_owner, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_VOLCANO_FERTILITY", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, getInfoTypeOrFail("COLOR_WHITE"), plot.getX(), plot.getY(), true, true)
+ 		listPlots.remove(plot)
+ # K-Mod end
+ 
+@@ -991,7 +996,7 @@ def applySaltpeter(argsList):
+ 	placeLandmark(plot, sEventType, iFood, iProd, iComm, True, -1)
+ 	# EventSigns end
+ 		
+-	iForest = gc.getInfoTypeForString("FEATURE_FOREST")
++	iForest = getInfoTypeOrFail("FEATURE_FOREST")
+ 	
+ 	listPlots = []
+ 	for i in range(map.numPlots()):
+@@ -1011,7 +1016,7 @@ def applySaltpeter(argsList):
+ 		iCount -= 1
+ 		# advc.enum: was getGame()...
+ 		gc.getMap().setPlotExtraYield(loopPlot[1].getX(), loopPlot[1].getY(), YieldTypes.YIELD_COMMERCE, 1)
+-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_SALTPETER_DISCOVERED", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, gc.getInfoTypeForString("COLOR_WHITE"), loopPlot[1].getX(), loopPlot[1].getY(), true, true)
++		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_SALTPETER_DISCOVERED", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, getInfoTypeOrFail("COLOR_WHITE"), loopPlot[1].getX(), loopPlot[1].getY(), true, true)
+ 		# EventSigns start -- Add landmark for other plots, if there is still a yield change
+ 		placeLandmark(loopPlot[1], sEventType, 0, 0, 1, True, -1) # K-Mod. (originally it used iFood, iProd, iComm -- and that's not correct.)
+ 		# EventSigns end
+@@ -1187,7 +1192,7 @@ def applyInfluenza2(argsList):
+ 		(iDist, loopCity) = listCities[i]
+ 		loopCity.changePopulation(-2)
+ 		szBuffer = localText.getText("TXT_KEY_EVENT_INFLUENZA_HIT_CITY", (loopCity.getNameKey(), ))
+-		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PILLAGE", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, gc.getInfoTypeForString("COLOR_RED"), loopCity.getX(), loopCity.getY(), true, true)
++		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PILLAGE", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, getInfoTypeOrFail("COLOR_RED"), loopCity.getX(), loopCity.getY(), true, true)
+ 				
+ 
+ def getHelpInfluenza2(argsList):
+@@ -2497,7 +2502,7 @@ def applyMasterBlacksmithDone1(argsList):
+ 	plot.setBonusType(iBonus)
+ 
+ 	szBuffer = localText.getText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", (gc.getBonusInfo(iBonus).getTextKey(), city.getNameKey()))
+-	CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DISCOVERBONUS", InterfaceMessageTypes.MESSAGE_TYPE_MINOR_EVENT, gc.getBonusInfo(iBonus).getButton(), gc.getInfoTypeForString("COLOR_WHITE"), plot.getX(), plot.getY(), true, true)
++	CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DISCOVERBONUS", InterfaceMessageTypes.MESSAGE_TYPE_MINOR_EVENT, gc.getBonusInfo(iBonus).getButton(), getInfoTypeOrFail("COLOR_WHITE"), plot.getX(), plot.getY(), true, true)
+ 
+ def canApplyMasterBlacksmithDone3(argsList):
+ 	iEvent = argsList[0]
+@@ -3819,7 +3824,7 @@ def canTriggerPreachingResearcherCity(argsList):
+ 	player = gc.getPlayer(argsList[1])
+ 	city = player.getCity(iCity)
+ 
+-	if city.isHasBuilding(gc.getInfoTypeForString("BUILDING_UNIVERSITY")):
++	if city.isHasBuilding(getInfoTypeOrFail("BUILDING_UNIVERSITY")):
+ 		return true
+ 	return false
+ 
+@@ -3829,7 +3834,7 @@ def canTriggerToxcatl(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if (player.getCivilizationType() == gc.getInfoTypeForString("CIVILIZATION_AZTEC")):
++	if (player.getCivilizationType() == getInfoTypeOrFail("CIVILIZATION_AZTEC")):
+ 		return true
+ 	return false
+ 
+@@ -3839,7 +3844,7 @@ def canTriggerDissidentPriest(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if (player.getCivilizationType() == gc.getInfoTypeForString("CIVILIZATION_EGYPT")):
++	if (player.getCivilizationType() == getInfoTypeOrFail("CIVILIZATION_EGYPT")):
+ 		return true
+ 	return false
+ 
+@@ -3864,7 +3869,7 @@ def canTriggerRogueStation(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if (player.getCivilizationType() == gc.getInfoTypeForString("CIVILIZATION_RUSSIA")):
++	if (player.getCivilizationType() == getInfoTypeOrFail("CIVILIZATION_RUSSIA")):
+ 		return true
+ 	return false
+ 
+@@ -3874,7 +3879,7 @@ def canTriggerAntiMonarchists(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if (player.getCivilizationType() == gc.getInfoTypeForString("CIVILIZATION_FRANCE")):
++	if (player.getCivilizationType() == getInfoTypeOrFail("CIVILIZATION_FRANCE")):
+ 		return true
+ 	return false
+ 
+@@ -3884,7 +3889,7 @@ def canTriggerImpeachment(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if (player.getCivilizationType() == gc.getInfoTypeForString("CIVILIZATION_AMERICA")):
++	if (player.getCivilizationType() == getInfoTypeOrFail("CIVILIZATION_AMERICA")):
+ 		return true
+ 	return false
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=36885

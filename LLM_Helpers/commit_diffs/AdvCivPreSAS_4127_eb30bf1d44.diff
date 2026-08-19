@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4127
+# Commit: eb30bf1d446a9380801c690b1f5c838aae4930e0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b9858b0878b8adb43454661b326c933b1cfc818b
+# Title: Recalc cached special commerce upon loading savegames
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c69927f9f..6cdf6d565 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14621,6 +14621,20 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	} // </advc.912c>
+ 	if (uiFlag < 18)
+ 		updateMaintenance();
++	// <advc>
++	if (uiFlag < 22 && isMajorCiv())
++	{
++		FOR_EACH_ENUM(Commerce)
++		{
++			m_aiCommerceRateTimes100.set(eLoopCommerce, 0);
++			FOR_EACH_CITY(pCity, *this)
++			{
++				m_aiCommerceRateTimes100.add(eLoopCommerce,
++						pCity->getCommerceRateTimes100(eLoopCommerce));
++			}
++		}
++		updateCommerceRates();
++	} // </advc>
+ 	// <advc.708>
+ 	if (uiFlag < 19 && GC.getGame().isOption(GAMEOPTION_RISE_FALL) && isAlive())
+ 	{
+@@ -14658,7 +14672,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	//uiFlag = 18; // advc.251 (city maintenance changed in handicap XML)
+ 	//uiFlag = 19; // advc.708
+ 	//uiFlag = 20; // advc.912g
+-	uiFlag = 21; // advc.enum: Bugfix in bool-valued ArrayEnumMap
++	//uiFlag = 21; // advc.enum: Bugfix in bool-valued ArrayEnumMap
++	uiFlag = 22; // advc: Bugs fixed with civ-wide special commerce rate cache
+ 	pStream->Write(uiFlag);
+ 
+ 	// <advc.027>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1183

@@ -1,0 +1,172 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3966
+# Commit: 8d47fc5a82a2d21b14a08fd737aa37ae2cf7102f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 554ef58300b5c724ae950a0ba4839609c6ea9267
+# Title: Decrease land threshold for Domination victory
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+7	2	Assets/XML/GameInfo/CIV4VictoryInfo.xml
+29	7	CvGameCoreDLL/CvGame.cpp
+20	3	CvGameCoreDLL/CvInfo_GameOption.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index 00d65971d..fecd9f721 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -536,6 +536,8 @@
+ 	<ElementType name="bDiploVote" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bPermanent" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="iPopulationPercentLead" content="textOnly" dt:type="int"/>
++	<!-- advc.254 -->
++	<ElementType name="iLandPercentLead" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iLandPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMinLandPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iReligionPercent" content="textOnly" dt:type="int"/>
+@@ -553,6 +555,8 @@
+ 		<element type="bDiploVote"/>
+ 		<element type="bPermanent"/>
+ 		<element type="iPopulationPercentLead"/>
++		<!-- advc.254 (set to 0 by default in the DLL) -->
++		<element type="iLandPercentLead" minOccurs="0"/>
+ 		<element type="iLandPercent"/>
+ 		<element type="iMinLandPercent"/>
+ 		<element type="iReligionPercent"/>
+
+diff --git a/Assets/XML/GameInfo/CIV4VictoryInfo.xml b/Assets/XML/GameInfo/CIV4VictoryInfo.xml
+index d17bd215b..21af6adeb 100644
+--- a/Assets/XML/GameInfo/CIV4VictoryInfo.xml
++++ b/Assets/XML/GameInfo/CIV4VictoryInfo.xml
+@@ -73,8 +73,13 @@
+ 			<bDiploVote>0</bDiploVote>
+ 			<bPermanent>0</bPermanent>
+ 			<iPopulationPercentLead>25</iPopulationPercentLead>
+-			<iLandPercent>78</iLandPercent>
+-			<iMinLandPercent>51</iMinLandPercent>
++			<!-- advc.254: start -->
++			<iLandPercentLead>25</iLandPercentLead>
++			<!-- was 78 -->
++			<iLandPercent>71</iLandPercent>
++			<!-- was 51 -->
++			<iMinLandPercent>10</iMinLandPercent>
++			<!-- advc.254: end -->
+ 			<iReligionPercent>0</iReligionPercent>
+ 			<CityCulture>NONE</CityCulture>
+ 			<iNumCultureCities>0</iNumCultureCities>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 876eaed30..bfc42ded5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3468,9 +3468,9 @@ void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam,
+ 
+ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
+ {
+-	if (GC.getInfo(eVictory).getPopulationPercentLead() == 0)
++	if (GC.getInfo(eVictory).getPopulationPercentLead() <= 0)
+ 		return 0;
+-	if (getTotalPopulation() == 0)
++	if (getTotalPopulation() <= 0)
+ 		return 100;
+ 
+ 	int iBestPopulation = 0;
+@@ -3511,12 +3511,34 @@ int CvGame::getHurryAngerLength() const
+ 
+ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
+ {
+-	if (GC.getInfo(eVictory).getLandPercent() == 0)
++	if (GC.getInfo(eVictory).getLandPercent() <= 0)
+ 		return 0;
+-
++	// <advc.254>
++	int const iTotalLand = GC.getMap().getLandPlots();
++	if (iTotalLand <= 0)
++		return 0; // </advc.254>
+ 	int iPercent = GC.getInfo(eVictory).getLandPercent();
+-	iPercent -= (getCivTeamsEverAlive() * 2);
+-	return std::max(iPercent, GC.getInfo(eVictory).getMinLandPercent());
++	iPercent -= getCivTeamsEverAlive() * 2;
++	iPercent = std::max(iPercent, GC.getInfo(eVictory).getMinLandPercent());
++	// <advc.254> (Based on getAdjustedPopulationPercent)
++	int iBestLand = 0;
++	int iNextBestLand = 0;
++	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++	{
++		int iLand = itTeam->getTotalLand();
++		if (iLand > iBestLand)
++		{
++			iNextBestLand = iBestLand;
++			iBestLand = iLand;
++		}
++		else if (iLand > iNextBestLand)
++			iNextBestLand = iLand;
++	}
++	iPercent = std::max(iPercent,
++			std::min(100, (iNextBestLand * 100) / iTotalLand +
++			GC.getInfo(eVictory).get(CvVictoryInfo::LandPercentLead)));
++	// </advc.254>
++	return iPercent;
+ }
+ 
+ // advc.178: Cut from CvPlayerAI::AI_calculateDiplomacyVictoryStage
+@@ -3536,7 +3558,7 @@ VictoryTypes CvGame::getDominationVictory() const
+ 	FOR_EACH_ENUM(Victory)
+ 	{
+ 		if (GC.getInfo(eLoopVictory).getLandPercent() > 0 &&
+-			GC.getInfo(eLoopVictory).getPopulationPercentLead())
++			GC.getInfo(eLoopVictory).getPopulationPercentLead() > 0)
+ 		{
+ 			return eLoopVictory;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index b608c99e1..f889c2e3a 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -366,11 +366,28 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvVictoryInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvVictoryInfo : public CvInfoBase
++class CvVictoryInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-	typedef CvInfoBase base_t;
+-public: // The const functions are exposed to Python
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(LandPercentLead, "LandPercentLead"); // advc.254
++	}
++public:
++	enum IntElementTypes
++	{
++		LandPercentLead = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.254
++		NUM_INT_ELEMENT_TYPES
++	};
++	int get(IntElementTypes e) const
++	{
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
++	} // </advc.tag>
++
+ 	CvVictoryInfo();
++	// The const functions are exposed to Python ...
+ 
+ 	int getPopulationPercentLead() const;
+ 	int getLandPercent() const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5274

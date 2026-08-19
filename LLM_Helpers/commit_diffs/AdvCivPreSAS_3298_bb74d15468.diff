@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3298
+# Commit: bb74d154685648b5d012f3927879fd4951dd098e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56e30ec8cd9157888aca45422b029e497a1b4a00
+# Title: Reduce tile culture decay rate a little
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/GlobalDefines_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index a14751e46..b9547e42c 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -579,17 +579,17 @@
+ 		 is decreased by this permillage. 0 to disable decay.
+ 		 (Will also have to set CITY_RADIUS_DECAY=0 to disable decay in
+ 		 foreign city radii.)
+-		 Recommended: 15 (1.5% decay). -->
++		 Recommended: 13 (1.3% decay). -->
+ 	<Define>
+ 		<DefineName>TILE_CULTURE_DECAY_PER_MILL</DefineName>
+-		<iDefineIntVal>15</iDefineIntVal>
++		<iDefineIntVal>13</iDefineIntVal>
+ 	</Define>
+ 	<!-- Per-mill decay rate of foreign culture on tiles within a city radius.
+ 		 The value gets doubled for tiles in the inner radius. Set to 0 to have
+ 		 foreign culture decay normally. Recommended: 25 -->
+ 	<Define>
+ 		<DefineName>CITY_RADIUS_DECAY</DefineName>
+-		<iDefineIntVal>25</iDefineIntVal>
++		<iDefineIntVal>23</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.098: Was 20 in BtS and was unused in K-Mod. The K-Mod formula
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1023
